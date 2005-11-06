@@ -1,0 +1,74 @@
+#!/usr/bin/make -f
+# Derived from dh_make example.
+
+#export DH_VERBOSE=1
+export DH_COMPAT=4
+export DH_OPTIONS
+
+version		:= $(shell cat VERSION)
+tmp		:= $(CURDIR)/debian/tmp
+
+CFLAGS := -g -Wall -D_REENTRANT
+ifneq "$(findstring noopt,$(DEB_BUILD_OPTIONS))" ""
+CFLAGS += -O0
+else
+CFLAGS += -O2
+endif
+
+build: build-stamp
+build-stamp: config.status
+	dh_testdir
+	$(MAKE) localstatedir=/var
+	touch $@
+
+config.status: configure
+	CFLAGS="$(CFLAGS)" ./configure --prefix=/usr --sysconfdir=/etc \
+	--localstatedir=/var  --mandir='$${prefix}/share/man' \
+	--enable-static --enable-gmp --enable-zlib \
+	--enable-cipher --with-ssl
+# --disable-nessuspcap
+# --enable-debug
+
+clean:
+	dh_testdir
+	dh_testroot
+	touch nessus.tmpl
+	[ ! -f Makefile ] || $(MAKE) distclean
+	dh_clean build-stamp
+
+install: DH_OPTIONS=
+install: build-stamp
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	$(MAKE) install prefix=$(tmp)/usr
+	rm -f $(tmp)/usr/sbin/uninstall-nessus
+	dh_installdirs -plibnessus-dev usr/share/doc/libnessus2
+	dh_install --sourcedir=debian/tmp 
+	find debian/libnessus2/usr -type d -empty | xargs -r rmdir -p --ignore-fail-on-non-empty
+	find debian/libnessus-dev/usr -type d -empty | xargs -r rmdir -p --ignore-fail-on-non-empty
+
+binary-indep:
+# Nothing.
+
+binary-arch: DH_OPTIONS=-a
+binary-arch: install
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	( cd debian/libnessus-dev/usr/share/doc/ ; rm -rf libnessus-dev; ln -s libnessus2 libnessus-dev; )
+	dh_installchangelogs
+ifeq "$(findstring nostrip,$(DEB_BUILD_OPTIONS))" ""
+	dh_strip
+endif
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs -V "libnessus2 (>= $(version))"
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install

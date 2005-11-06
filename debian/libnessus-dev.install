@@ -1,0 +1,6 @@
+/usr/lib/*.a	/usr/lib/
+/usr/lib/*.so	/usr/lib/
+/usr/lib/*.la	/usr/lib/
+/usr/include/*	/usr/include/
+/usr/bin/nessus-config	/usr/bin/
+/usr/share/man/man1/nessus-config.1 /usr/share/man/man1/

@@ -1,0 +1,158 @@
+#!/bin/sh
+#
+# uninstall-nessus
+#
+# Removes the previous configuration of Nessus
+#
+# Written by Renaud Deraison <deraison@cvs.nessus.org>
+#
+# This script is distributed under the Gnu General Public License (GPL)
+#
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+sbindir=@sbindir@
+libexecdir=@libexecdir@
+datadir=@datadir@
+sysconfdir=@sysconfdir@
+sharedstatedir=@sharedstatedir@
+localstatedir=@localstatedir@
+libdir=@libdir@
+includedir=@includedir@
+oldincludedir=@oldincludedir@
+infodir=@infodir@
+mandir=@mandir@
+
+test "$1" = "-q" && quiet=yes
+
+
+# check whether we have echo -n, depending
+# on the current shell, used
+case `echo -n` in
+\-n)    Xn=   ; Xc='\c' ;;
+*)      Xn=-n ; Xc=
+esac
+
+
+# make sure that we are root, if there is no id command,
+# you loose, anyway
+case `id 2>/dev/null` in 
+uid=0*) 
+    ;; 
+*)
+    echo "only root should use uninstall-nessus"
+    exit 1
+esac
+
+
+test -z "$quiet" && 
+{
+clear
+
+echo "--------------------------------------------------------------------------------"
+echo "                          UN-INSTALLATION OF NESSUS"
+echo "--------------------------------------------------------------------------------"
+
+echo
+echo
+echo "This script will de-install older versions Nessus from this system"
+echo
+echo
+
+
+
+echo $Xn "Do you want to also delete your configuration files and keys ? (y/n) [n] " $Xc
+read answer < /dev/tty
+}
+
+
+test -z "$answer" && answer=n
+
+test "$answer" = "y" && {
+ deleteall=y
+ echo "Do you want to delete the configurations of ALL nessus users on this "
+ echo $Xn "host ? (y/n) [y] " $Xc
+ read answer < /dev/tty
+ test "$answer" = "y" && 
+ {
+  deleteconfs=y
+ }
+}
+
+
+test -z "$quiet" && 
+{
+clear
+echo "--------------------------------------------------------------------------------"
+echo "                          UN-INSTALLATION OF NESSUS"
+echo "--------------------------------------------------------------------------------"
+
+echo
+echo
+echo "We are now ready to uninstall Nessus from this system"
+test -n "$deleteall" && echo "All configuration files will be destroyed"
+
+echo "Press a key to continue"
+read nothing < /dev/tty
+}
+
+#
+# Step 2 - delete files
+#
+set -x
+rm -f  $bindir/nasl
+rm -f  $bindir/nasl-config
+rm -f  $bindir/nessus
+rm -f  $bindir/nessus-config
+rm -f  $bindir/nessus-build
+rm -f  $bindir/nessus-mkrand
+rm -f  $bindir/nessus-mkcert-client
+
+rm -f  $sbindir/nessus-adduser
+rm -f  $sbindir/nessus-rmuser
+rm -f  $sbindir/nessusd
+rm -f  $sbindir/nessus-update-plugins
+rm -f  $sbindir/nessus-mkcert
+rm -f  $sbindir/nessus-check-signature
+
+rm -rf $includedir/nessus
+
+rm -f  $libdir/libhosts_gatherer.*
+rm -f  $libdir/libnasl.*
+rm -f  $libdir/libnessus.*
+rm -f  $libdir/libpcap-nessus.*
+
+rm -rf $libdir/nessus
+rm -f  $mandir/man1/nasl-config.1
+rm -f  $mandir/man1/nasl.1
+rm -f  $mandir/man1/nessus-build.1
+rm -f  $mandir/man1/nessus-config.1
+rm -f  $mandir/man1/nessus.1
+rm -f  $mandir/man1/nessus-mkrand.1
+rm -f  $mandir/man1/nessus-mkcert-client.1
+rm -f  $mandir/man8/nessus-mkcert.8
+
+
+rm -f  $mandir/man8/nessus-adduser.8
+rm -f  $mandir/man8/nessus-rmuser.8
+rm -f  $mandir/man8/nessus-update-plugins.8
+rm -f  $mandir/man8/nessusd.8
+
+test -n "$deleteall" && {
+ rm -rf $localstatedir/nessus
+ rm -rf $sysconfdir/nessus
+ test -n "$deleteconfs" &&
+ {
+  for i in `cat /etc/passwd | sed 's/.*:.*:.*:.*:.*:\(.*\):.*/\1/g'|sort|uniq`
+  do
+    test -f $i/.nessusrc && rm -f $i/.nessusrc
+  done
+ }
+}
+
+set +x
+
+
+echo "Finished"
+rm -f $sbindir/uninstall-nessus

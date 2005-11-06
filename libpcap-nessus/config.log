@@ -1,0 +1,45 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:581: checking host system type
+configure:602: checking target system type
+configure:620: checking build system type
+configure:715: checking for gcc
+configure:828: checking whether the C compiler (gcc  ) works
+configure:844: gcc -o conftest    conftest.c  1>&5
+configure:870: checking whether the C compiler (gcc  ) is a cross-compiler
+configure:875: checking whether we are using GNU C
+configure:884: gcc -E conftest.c
+configure:903: checking whether gcc accepts -g
+configure:940: checking gcc version
+configure:1084: checking how to run the C preprocessor
+configure:1105: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1167: checking for malloc.h
+configure:1177: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1167: checking for sys/ioccom.h
+configure:1177: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1173:24: error: sys/ioccom.h: No such file or directory
+configure: failed program was:
+#line 1172 "configure"
+#include "confdefs.h"
+#include <sys/ioccom.h>
+configure:1167: checking for sys/sockio.h
+configure:1177: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1173:24: error: sys/sockio.h: No such file or directory
+configure: failed program was:
+#line 1172 "configure"
+#include "confdefs.h"
+#include <sys/sockio.h>
+configure:1206: checking for ANSI ioctl definitions
+configure:1230: gcc -c -g -O2  conftest.c 1>&5
+configure:1253: checking for ether_hostton
+configure:1281: gcc -o conftest -g -O2   conftest.c  1>&5
+configure:1253: checking for strerror
+configure:1281: gcc -o conftest -g -O2   conftest.c  1>&5
+configure:1313: checking packet capture type
+configure:1416: checking for net/if_arp.h
+configure:1426: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1453: checking Linux kernel version
+configure:1494: checking for flex
+configure:1554: checking for bison
+configure:1602: checking for lex

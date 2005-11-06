@@ -1,0 +1,344 @@
+nessus-libraries (2.2.5-1) unstable; urgency=low
+
+  * New upstream release
+  * Use debhelper compatibility version 4
+  * Set myself as sole maintainer, Josip has not contributed to the
+    packages in a long time.
+
+ -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Tue,  9 Aug 2005 17:03:15 +0200
+
+nessus-libraries (2.2.4-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Tue, 26 Apr 2005 11:08:47 +0200
+
+nessus-libraries (2.2.3-1) unstable; urgency=low
+
+  * New upstream release
+  * Added libpcap0.8-dev to Build-Depends (as an alternative to
+    libpcap0.7-dev)
+  * Updated config.{sub,guess}
+  * Fixed FTBFS when compiling with gcc-4, thanks to Andreas Jochens for
+    the patch (Closes: #287751)
+
+ -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Sat, 12 Feb 2005 22:37:39 +0100
+
+nessus-libraries (2.2.0-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Sun, 14 Nov 2004 12:44:28 +0100
+
+nessus-libraries (2.0.12-2) unstable; urgency=low
+
+  * Update libtool (version 1.5.6-2) (Closes: 265040)
+
+ -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Thu, 26 Aug 2004 17:39:58 +0200
+
+nessus-libraries (2.0.12-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Wed,  4 Aug 2004 18:48:50 +0200
+
+nessus-libraries (2.0.10a-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Tue,  3 Feb 2004 13:17:40 +0100
+
+nessus-libraries (2.0.9-1) unstable; urgency=low
+
+  * New Upstream release. 
+  * Removed libgmp3-dev Build Depends (Closes: #210816)
+
+ -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Wed, 10 Dec 2003 12:24:17 +0100
+
+nessus-libraries (2.0.7-1) unstable; urgency=low
+
+  * New upstream release. 
+
+ -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Wed,  9 Jul 2003 10:00:09 +0200
+
+nessus-libraries (2.0.5-1) unstable; urgency=low
+
+  * New upstream version.
+  * Hacked the configure stuff a bit to try to get the right mips* libtool
+    stuff in.
+
+ -- Josip Rodin <joy-packages@debian.org>  Sun, 18 May 2003 13:26:56 +0200
+
+nessus-libraries (2.0.1-2) unstable; urgency=low
+
+  * Upload of Nessus 2.x to unstable.
+
+ -- Josip Rodin <joy-packages@debian.org>  Wed, 19 Mar 2003 18:23:19 +0100
+
+nessus-libraries (2.0.1-1) experimental; urgency=low
+
+  * New upstream
+  * Changed package's name to libnessus2, sonames should probably be
+    fixed too.
+
+ -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Mon,  3 Mar 2003 10:04:20 +0100
+
+nessus-libraries (2.0.0-1) unstable; urgency=low
+
+  * New upstream release. 
+
+ -- Javier Fernandez-Sanguino <jfs@computer.org>  Tue, 25 Feb 2003 10:43:53 +0100
+
+nessus-libraries (1.3.3-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Javier Fernandez-Sanguino <jfs@computer.org>  Thu, 30 Jan 2003 11:26:12 +0100
+
+nessus-libraries (1.3.2-1) unstable; urgency=low
+
+  *  New upstream version.
+
+ -- Javier Fernandez-Sanguino <jfs@computer.org>  Wed, 22 Jan 2003 12:25:05 +0100
+
+nessus-libraries (1.3.1-1) unstable; urgency=low
+
+  *  New upstream version
+
+ -- Javier Fernandez-Sanguino <jfs@computer.org>  Thu, 16 Jan 2003 10:50:53 +0100
+
+nessus-libraries (1.2.7-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Sat, 21 Dec 2002 14:32:10 +0100
+
+nessus-libraries (1.2.6-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Sat,  7 Dec 2002 00:24:35 +0100
+
+nessus-libraries (1.2.5-2) unstable; urgency=low
+
+  * libnessus-dev's includes.h includes openssl headers, so it has to
+    depend on libssl-dev, thanks to James Troup for noticing, closes: #159326.
+    Perhaps the OpenSSL dependency should be removed from the header file
+    instead, but the upstream likes it better this way.
+  * Reworked the remaining libpcap-nessus exclusion patches.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Mon,  2 Sep 2002 21:57:16 +0200
+
+nessus-libraries (1.2.5-1) unstable; urgency=low
+
+  * New upstream version.
+  * This version no longer uses MAXHOSTNAMELEN in the place the old patch
+    was fixing. It uses it in another location, but there it defines a
+    default if the constant is not available. If this fixed default is
+    still a problem for the Hurd (it shouldn't be, but what do I know),
+    please send in another patch, closes: #106386.
+  * ACKing NMU bug, closes: #156200.
+  * Removed the pretty much pointless libc6-dev dependency from the -dev
+    package.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Wed, 28 Aug 2002 12:07:37 +0200
+
+nessus-libraries (1.2.0-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Tue, 14 May 2002 17:13:38 +0200
+
+nessus-libraries (1.0.10-2.1) unstable; urgency=low
+
+  * Non maintainer upload
+  * Rebuilt with new libpcap to remove dependency on libpcap0, which I
+    got removed from unstable by accident. Sorry about this...
+
+ -- Torsten Landschoff <torsten@debian.org>  Sat, 10 Aug 2002 11:37:17 +0200
+
+nessus-libraries (1.0.10-2) unstable; urgency=low
+
+  * Moved to main. The only component of Nessus that needed non-US was
+    an encryption layer library within the libnessus package.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Sat, 23 Mar 2002 14:50:14 +0100
+
+nessus-libraries (1.0.10-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Thu, 31 Jan 2002 17:23:36 +0100
+
+nessus-libraries (1.0.9-1) unstable; urgency=low
+
+  * New upstream release.
+  * Added myself to "Uploaders:" in debian/control.
+
+ -- Adrian Bunk <bunk@fs.tum.de>  Sat, 29 Sep 2001 12:06:29 +0200
+
+nessus-libraries (1.0.8-1) unstable; urgency=low
+
+  * New upstream version.
+  * Includes updated config.* files, which I've also had to copy to
+    libpeks/, closes: #99851. There are two more outdated config.* file
+    pairs but in subdirs that we don't build so it shouldn't crap out.
+    Fingers crossed that the build system is still working.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Tue, 19 Jun 2001 20:44:48 +0200
+
+nessus-libraries (1.0.7a-1) unstable; urgency=low
+
+  * New upstream version.
+  * Added versioned dependency in the shlibs file, closes: #84374.
+  * Linked against libgmp3 now.
+  * Standards-Version: 3.5.0.
+  * Changed section to `non-US'.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Sun, 11 Feb 2001 23:29:48 +0100
+
+nessus-libraries (1.0.6-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Tue, 21 Nov 2000 22:22:02 +0100
+
+nessus-libraries (1.0.5-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Sun, 29 Oct 2000 14:56:48 +0100
+
+nessus-libraries (1.0.4-1) unstable; urgency=low
+
+  * New upstream version.
+  * Synced patches with upstream changes. Fixed up a thing or two.
+  * Standards-Version: 3.2.1:
+    + added DEB_BUILD_OPTIONS checks in debian/rules
+ 
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Fri, 25 Aug 2000 23:10:44 +0200
+
+nessus-libraries (1.0.0-1) unstable; urgency=low
+
+  * New upstream version.
+  * Package names changed, since lib{hosts_gatherer,nessus} has 1 in the
+    SONAME. Additionally, I renamed libnessus1-dev to just libnessus-dev,
+    since there's not going to be a need for several -dev packages, ever.
+  * Added Conflicts: libnessus0-dev to libnessus-dev, and Conflicts:
+    libnessus0 to libnessus1, because of duplicate headers and the same
+    libpeks library.
+  * Had to use manually written shlibs file, because dh_makeshlibs generated
+    the entry for libpeks.so.0.8 wrong. :/
+  * Used the new upstream scheme for specifying gmp and zlib in libpeks/*,
+    plus a few new fixes of my own.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Sun, 14 May 2000 13:44:28 +0200
+
+nessus-libraries (0.99.4-1) unstable; urgency=low
+
+  * New upstream bugfix version.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Fri, 14 Jan 2000 01:50:51 +0100
+
+nessus-libraries (0.99.2-1) unstable; urgency=low
+
+  * New upstream bugfix version.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Mon,  3 Jan 2000 00:43:20 +0100
+
+nessus-libraries (0.99.1-1) unstable; urgency=low
+
+  * New upstream version.
+  * Actually *link* libnessus0.so to system libpcap (doh!).
+  * Made "-O2 -Wall -D_REENTRANT" the compiler flags, and fixed some
+    stuff to make it propagate $CFLAGS to all subdirectories.
+  * Fixed libpeks{,/doc} build system to use the system 'install' program
+    instead of the slow shell script.
+  * Wrote nessus-config.1 and integrated it into upstream sources.
+  * Some changes in debian/*.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Mon, 22 Nov 1999 00:46:44 +0100
+
+nessus-libraries (0.98.4-3) unstable; urgency=low
+
+  * Not only link libpeks* with dynamic libgmp2, but also don't *build*
+    the included gmp2... thanks to gorgo again, for noticing. Closes: #49407.
+  * After upstream confirmed it, removed all references to libpcap-nessus,
+    and point to system libpcap instead.
+  * Do 'cd libpeks/doc && make install' in debian/rules, to install a
+    more complete set of libpeks documentation.
+  * Standards-Version: 3.1.0.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Mon,  8 Nov 1999 14:39:52 +0100
+
+nessus-libraries (0.98.4-2) unstable; urgency=low
+
+  * Fixed libpeks' {configure,Makefile}.in not to include zlib and gmp
+    libraries, but to link dynamically with those from libgmp2 and zlib1g
+    packages, partly using Gorgo's patch. Closes: #49407.
+  * Removed extra {pcap,zlib}.3 manual pages. Closes: #49466.
+  * Minor adjustments in debian/*.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Sun,  7 Nov 1999 04:52:59 +0100
+
+nessus-libraries (0.98.4-1) unstable; urgency=low
+
+  * New upstream version.
+  * Fixed Makefiles and debian/rules to do a 'clean' on a clean tree
+    correctly.
+  * Changed libpeks' SONAME to just "0", instead of "0.8".
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Tue,  2 Nov 1999 22:17:31 +0100
+
+nessus-libraries (0.98.3-1) unstable; urgency=low
+
+  * New upstream version.
+  * Nessus now split into four packages:
+    + nessus-libraries (libnessus0 and libnessus0-dev)
+    + libnasl (libnasl0 and libnasl0-dev)
+    + nessus-core (nessus and nessusd)
+    + nessus-plugins (ditto)
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Sat,  2 Oct 1999 09:49:05 +0200
+
+nessus (0.0.alpha2-fix4-1) unstable; urgency=low
+
+  * New maintainer (thanks, Javier!).
+  * New upstream version (this number allows future 1.0 etc).
+  * Separated the binaries in two packages: the client which depends
+    on GTK+, and the server with plugins and the support libraries.
+  * Doesn't build static libraries anymore. Removed the .so symlinks.
+  * Added libtool rpath workaround and some other fixes in configure.in.
+  * Using completely new debian/* files, fully extended with debhelper.
+  * Package goes to non-US, because of the encryption libraries used.
+  * Now Policy 3.x compliant, uses FHS et al.
+  * Now uses /etc/nessus/ for config files, and /var/log/nessus/ for
+    log files. Required changes in the upstream build system
+    (configure.in, Makefile, etc).
+  * TODO: investigate whether src/libpcap/tcp_* files make much difference
+    between default libpcap.so and this custom libpcap-nessus.so.
+
+ -- Josip Rodin <jrodin@jagor.srce.hr>  Thu, 27 May 1999 19:51:20 +0200
+
+nessus (990201-2) unstable; urgency=low
+
+  * Moved plugins from /usr/share to /usr/lib (machine dependant)
+  * Fixed most lintian errors.
+  * nessusd is no longer suid.
+  * added Nessus to menu in Apps/System
+
+ -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Wed, 10 Mar 1999 13:36:20 +0100
+
+nessus (990201-1) unstable; urgency=low
+
+  * Updated source code to next stable version
+
+ -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Thu, 18 Feb 1999 11:23:49 +0100
+
+nessus (981016-1) unstable; urgency=low
+
+  * First Release
+  * Changed Makefile so install does not chown to root.
+  * Moved from /usr/local/share to /usr/share.
+
+ -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Mon, 28 Dec 1998 05:24:45 +0100

@@ -1,0 +1,40 @@
+Source: nessus-libraries
+Section: libs
+Priority: optional
+Maintainer: Josip Rodin <joy-packages@debian.org>
+Uploaders: Javier Fernandez-Sanguino Pen~a <jfs@computer.org>
+Build-Depends: debhelper (>= 2), libz-dev, libpcap0.8-dev | libpcap-dev, flex, bison, libssl-dev
+Standards-Version: 3.5.10
+
+Package: libnessus2
+Architecture: any
+Depends: ${shlibs:Depends}
+Conflicts: libnessus0, libnessus1
+Description: Nessus shared libraries
+ The Nessus Security Scanner is a security auditing tool. It makes
+ possible to test security modules in an attempt to find vulnerable
+ spots that should be fixed.
+ .
+ It is made up of two parts: a server, and a client. The server/daemon,
+ nessusd, is in charge of the attacks, whereas the client, nessus,
+ provides the user a nice X11/GTK+ interface.
+ .
+ This package contains the required Nessus shared libraries.
+
+Package: libnessus-dev
+Section: libdevel
+Architecture: any
+Depends: libnessus2 (= ${Source-Version}), libssl-dev
+Conflicts: libnessus0-dev, libnessus1-dev
+Replaces: nessusd
+Description: Nessus static libraries and headers
+ The Nessus Security Scanner is a security auditing tool. It makes
+ possible to test security modules in an attempt to find vulnerable
+ spots that should be fixed.
+ .
+ It is made up of two parts: a server, and a client. The server/daemon,
+ nessusd, is in charge of the attacks, whereas the client, nessus,
+ provides the user a nice X11/GTK+ interface.
+ .
+ This package contains the Nessus static libraries, headers, and
+ nessus-config script.

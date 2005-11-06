@@ -1,0 +1,21 @@
+
+. To compile Nessus under HP/UX (tested with HP/UX 10.20), you need to install
+GCC, and GAS (GNU AS).
+
+GCC can be found in
+		ftp://ftp.gnu.org/pub/gnu/gcc/
+
+GAS can be found at 
+		ftp://ftp.gnu.org/pub/gnu/binutils/
+
+
+. You will also need to install bison and flex :
+
+Bison can be found at 
+
+		ftp://ftp.gnu.org/pub/gnu/bison
+
+Flex can be found at 
+		ftp://ftp.gnu.org/pub/gnu/non-gnu/flex/
+
+
