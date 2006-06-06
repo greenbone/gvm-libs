@@ -1,28 +1,33 @@
-/*
- *  Copyright (c) Nessus Consulting S.A.R.L., 2000 - 2001
- *  Email: office@nessus.com
- *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public
- *  License as published by the Free Software Foundation; either
- *  version 2 of the License, or (at your option) any later version.
- *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Library General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License 
- *  along with this library; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- *  $Id$
- *
- * Author: Jordan Hrycaj <jordan@mjh.teddy-net.com>
- *
- * Jordan re-wrote Renauds idea of an arglists management on top
- * of the hash list manager
- */
+/* OpenVAS
+* $Id$
+* Description: Arglists management on top of the hash list manager.
+*
+* Authors: - Renaud Deraison <mailto:deraison@nessus.org> (Original pre-fork development)
+*          - Jordan Hrycaj <mailto:jordan@mjh.teddy-net.com> (Original pre-fork development)
+*          - Tim Brown <mailto:timb@openvas.org> (Initial fork)
+*          - Tarik El-Yassem <mailto:tarik@openvas.org> (Headers section)
+*
+* Copyright:
+* Portions Copyright (C) 2006 Software in the Public Interest, Inc.
+* Based on work Copyright (C) 1998 - 2006 Tenable Network Security, Inc.
+* Based on work Copyright (C) 1987 - 1992 Free Software Foundation, Inc.
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License version 2,
+* as published by the Free Software Foundation
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+*
+*
+*/
+
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -285,9 +290,6 @@ message
   fputs (s, stderr);
   fprintf (stderr, f, u, v);
   fputs (t, stderr);
-# ifdef _WIN32
-  fputc ('\r', stderr);
-# endif 
   fputc ('\n', stderr);
 }
 
@@ -1162,9 +1164,6 @@ harg_tracker_dump
     if (*R != 0) {
       fprintf (stderr, "{0x%lx} = ", (long)*R);
       do_harg_dump (*R, 0);
-#     ifdef _WIN32
-      fputc ('\r', stderr);
-#     endif 
       fputc ('\n', stderr);
     }
 # endif
