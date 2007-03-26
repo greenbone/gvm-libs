@@ -16,7 +16,7 @@
  *  along with this library; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- *  $Id: harglists.c,v 1.39 2006/09/12 09:46:02 mikhail Exp $
+ *  $Id: harglists.c,v 1.37.2.1 2005/03/22 01:31:46 renaud Exp $
  *
  * Author: Jordan Hrycaj <jordan@mjh.teddy-net.com>
  *

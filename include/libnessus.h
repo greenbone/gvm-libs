@@ -409,7 +409,7 @@ ExtFunc int	stream_get_buffer_sz (int);
 ExtFunc int	stream_get_err(int);
 
 #ifdef HAVE_SSL
-ExtFunc        SSL*    stream_get_ssl(int);
+ExtFunc	       SSL*    stream_get_ssl(int);
 ExtFunc        X509*   stream_get_server_certificate(int);
 ExtFunc	       char*   stream_get_ascii_server_certificate(int);
 #endif

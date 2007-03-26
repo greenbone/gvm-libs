@@ -28,7 +28,7 @@
  */
 ExtFunc
 int 
-comm_send_status(globals, hostname, action, curr,max)
+comm_send_status(globals, hostname, action,curr,max)
   struct arglist * globals;
   char * hostname;
   char * action;
@@ -44,8 +44,7 @@ comm_send_status(globals, hostname, action, curr,max)
  fd_set rd, wr;
  struct timeval tv;
  
- if (globals == NULL) return -1;
-
+ 
  if (soc < 0 || soc > 1024) 
   return -1;
  

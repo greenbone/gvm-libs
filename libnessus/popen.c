@@ -29,7 +29,7 @@ nessus_popen4(const char* cmd, char *const args[], pid_t* ppid, int inice)
   pid_t		son;
   FILE		*fp;
 
-#ifdef DEBUG
+#if DEBUG
   int i;
   fprintf(stderr, "nessus_popen: running %s -", cmd);
   for (i = 0; args[i] != NULL; i ++)

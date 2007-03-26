@@ -37,36 +37,16 @@
 ExtFunc void
 nessus_init_random()
 {
-  int	fd;			/* Note: we cannot keep this FD open */
-  long	x;			/* Do not need to initialise this variable! */
-  struct timeval tv;
+  FILE	*fp;
+  long	x = 0;
 
-  if ((fd = open("/dev/urandom", O_RDONLY)) >= 0)
-    {
-      if (read(fd, &x, sizeof(x)) <= 0)
-	perror("/dev/urandom");
-      if (close(fd) < 0)
-	perror("close");
-    }
-  else
-    {
-      if (errno != ENOENT)
-	perror("/dev/urandom");
-#ifdef EGD_PATH
-      if ((fd = open(EGD_PATH, O_RDWR)) >= 0)
-	{
-	  char	s[sizeof(int) + 1];
-	  s[0] = 1; s[1] = sizeof(int);
-	  (void) write(fd, s, 2);
-	  if (read(fd, s, sizeof(int) + 1) > sizeof(int))
-	    x = *(int*) (s+1);
-	  close(s);
-	}
-#endif
-    }
 
-  gettimeofday(&tv, NULL);
-  x += tv.tv_sec * 3 + tv.tv_usec + getpid() * 7 + getppid();
+  if ((fp = fopen("/dev/urandom", "r")) != NULL)
+    {
+      (void) fread(&x, sizeof(x), 1, fp);
+      fclose(fp);
+    }
+  x += time(NULL) + getpid() + getppid();
   srand48(x);
 }
 

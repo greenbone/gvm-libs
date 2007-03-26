@@ -977,6 +977,7 @@ u_char* bpf_next_tv(int bpf, int * caplen, struct timeval * tv)
   struct pcap_pkthdr head;
   struct timeval timeout, now;
 
+  gettimeofday(&timeout, NULL);
   timeout.tv_sec += tv->tv_sec;
   timeout.tv_usec += tv->tv_usec;
   while ( timeout.tv_usec >= 1000000 ) {

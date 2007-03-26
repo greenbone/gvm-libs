@@ -318,7 +318,7 @@ noranges:
 	   if(c_end.s_addr == last.s_addr) dobreak++;
     	   hg_get_name_from_ip(c_start, hostname, sizeof(hostname));
 	
-           hg_add_host_with_options(globals, hostname, 
+           hg_add_host_with_options(globals, strdup(hostname), 
 				  c_start, 1, 32, 1,
 				  &c_end);	
    	   c_start.s_addr  = htonl(ntohl(c_end.s_addr) + 2);
@@ -409,16 +409,12 @@ hg_add_host_with_options(globals, hostname, ip, alive, netmask, use_max, ip_max)
  int use_max;
  struct in_addr * ip_max;
 {
-  char * c_hostname = NULL, *p;
+ char * c_hostname;
  struct hg_host * host;
  int i;
 
- if (hostname != NULL)
-   {
-     c_hostname = strdup(hostname);
-     for(p = hostname; *p != '\0'; p ++) *p = tolower(*p);
-   }
-
+  c_hostname = strdup(hostname);
+  for(i=0;i<strlen(hostname);i++)c_hostname[i]=tolower(c_hostname[i]);
   host = globals->host_list;
   while(host->next)host = host->next;
   host->next = malloc(sizeof(struct hg_host));
