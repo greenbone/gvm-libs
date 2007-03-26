@@ -1,0 +1,126 @@
+#!nmake /f
+#
+# Makefile for the Microsoft compiler/linker
+# creates the peks.dll and peks.lib target
+#
+
+!include <ntwin32.mak>
+
+INSTALL_TARGET = C:\Nessus
+
+PEKS    = libpeks
+GMP     = $(PEKS)\gmp3
+ZLIB    = $(PEKS)\zlib113
+LNES    = libnessus
+
+CC      = cl.exe
+DEFS    = -I$(PEKS) -I$(LNES) -Iinclude
+CFLAGS  = -nologo -Ox -I. $(DEFS)
+
+LD      = link.exe
+LDFLAGS = -map -out:nessus.dll -def:nessus.def
+
+OBJ     = arglists.obj ftp_funcs.obj      \
+          network.obj  plugutils.obj      \
+	  resolve.obj  scanners_utils.obj \
+          system.obj   ptycall.obj        \
+	  getopt.obj   getopt1.obj	  \
+	  harglists.obj hlst.obj 	  \
+	  www_funcs.obj diff.obj
+  
+# ------------------------------------------------------
+#      default rules
+# ------------------------------------------------------
+
+all: $(PEKS)\version.h $(PEKS)\peks.lib nessus.lib
+
+{$(LNES)\}.c.obj::
+	$(CC) $(cvarsdll) $(CFLAGS) -c $<
+
+$(PEKS)\version.h:
+	@echo .
+	@echo -------------------------------------------
+	@echo You probably forgot to prepare this package
+	@echo on a Unix machine unsing "make win32"
+	@echo -------------------------------------------
+	@echo .
+	aborting ...
+
+# ------------------------------------------------------
+#      install peks stuff
+# ------------------------------------------------------
+
+install: install-bin install-doc
+
+install-bin: nessus.lib
+	cd $(PEKS)
+	nmake.bat install
+	cd ..
+#
+	copy nessus.lib       $(INSTALL_TARGET)\lib
+	copy nessus.dll       $(INSTALL_TARGET)\bin
+#
+	-mkdir $(INSTALL_TARGET)\include\nessus
+	copy include\libnessus.h $(INSTALL_TARGET)\include\nessus
+	copy include\harglists.h $(INSTALL_TARGET)\include\nessus
+	copy include\libvers.h   $(INSTALL_TARGET)\include\nessus
+	copy include\getopt.h    $(INSTALL_TARGET)\include\nessus
+	copy include\*.w32       $(INSTALL_TARGET)\include\nessus
+
+install-doc:
+	-mkdir $(INSTALL_TARGET)\doc\nessus
+	-mkdir $(INSTALL_TARGET)\doc\nessus\lib
+	copy VERSION          $(INSTALL_TARGET)\doc\nessus\lib
+	copy README.WINDOWS   $(INSTALL_TARGET)\doc\nessus\lib
+	copy nessus.map       $(INSTALL_TARGET)\doc\nessus\lib
+	copy $(LNES)\Copying  $(INSTALL_TARGET)\doc\nessus\lib
+
+# ------------------------------------------------------
+#      built peks stuff
+# ------------------------------------------------------
+
+nessus.lib: include\peks\common-stuff.w32 nessus.dll
+
+nessus.dll: $(OBJ) nessus.def
+	$(LD) @<<
+	$(dlllflags)
+	$(LDFLAGS)
+	$(OBJ)
+	$(PEKS)\peks.lib
+	$(ZLIB)\zlib.lib
+	$(GMP)\mpz.lib
+        $(guilibsdll)
+<<
+
+# ------------------------------------------------------
+#      built libs in subdirectories
+# ------------------------------------------------------
+
+$(PEKS)\peks.lib: $(PEKS)\nmake.bat
+	cd $(PEKS)
+	nmake.bat
+	cd ..
+
+include\peks\common-stuff.w32:
+	-mkdir include\peks
+	copy $(PEKS)\common-stuff.w32 include\peks
+
+# ------------------------------------------------------
+#      clean up
+# ------------------------------------------------------
+
+distclean clean::
+	-del nessus.map
+	-del nessus.exp
+	-del *.obj
+	-del include\peks\*.w32
+
+distclean::
+	-del nessus.dll
+	-del nessus.lib
+	-rmdir include\peks
+
+distclean clean::
+	cd $(PEKS)
+	nmake.bat $@
+	cd ..

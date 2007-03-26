@@ -1,0 +1,47 @@
+          Copyright (c) mjh-EDV Beratung, 1996-1999
+     mjh-EDV Beratung - 63263 Neu-Isenburg - Rosenstrasse 12
+          Tel +49 6102 328279 - Fax +49 6102 328278
+                Email info@mjh.teddy-net.com
+
+    Author: Jordan Hrycaj <jordan@mjh.teddy-net.com>
+
+   $Id: README.WINDOWS,v 1.3 2000/11/26 15:28:46 jordan Exp $
+
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Library General Public
+   License as published by the Free Software Foundation; either
+   version 2 of the License, or (at your option) any later version.
+
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Library General Public License for more details.
+
+   -----------------------------------------------------------------
+
+  To compile on windows nt/95 you must prepare the package on a unix
+  machine like
+
+     cd nessus-libraries
+     ./configure
+     make win32
+
+  After that, you can copy the package to a windows box (perferrably
+  you have Samba available, so you can use a shared drive.)
+
+  On the windows box, as before goto the nessus-libraries directory
+  and type
+
+     nmake.bat distclean
+     nmake.bat all
+
+  and
+    
+     nmake.bat install
+     
+  or just "nmake" and see what happens. With a VC++5.0 or VC++6 M$
+  compiler you should have no problems, compiling ths stuff.
+
+--
+(jordan)
+  

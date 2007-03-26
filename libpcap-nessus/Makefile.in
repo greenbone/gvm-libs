@@ -1,0 +1,164 @@
+#  Copyright (c) 1993, 1994, 1995, 1996
+# 	The Regents of the University of California.  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that: (1) source code distributions
+#  retain the above copyright notice and this paragraph in its entirety, (2)
+#  distributions including binary code include the above copyright notice and
+#  this paragraph in its entirety in the documentation or other materials
+#  provided with the distribution, and (3) all advertising materials mentioning
+#  features or use of this software display the following acknowledgement:
+#  ``This product includes software developed by the University of California,
+#  Lawrence Berkeley Laboratory and its contributors.'' Neither the name of
+#  the University nor the names of its contributors may be used to endorse
+#  or promote products derived from this software without specific prior
+#  written permission.
+#  THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+#
+# @(#) $Header: /usr/local/cvs/nessus-libraries/libpcap-nessus/Makefile.in,v 1.11 2004/01/08 16:12:55 renaud Exp $ (LBL)
+#
+# Various configurable paths (remember to edit Makefile.in, not Makefile)
+#
+include ../nessus.tmpl
+
+# VPATH
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+#
+# You shouldn't need to edit anything below.
+#
+
+COMPILE = $(LIBTOOL) $(CC)
+CCOPT = @V_CCOPT@
+INCLS = -I. @V_INCLS@ -I../../include
+### Solaris make does not like += (jordan)
+### # DEFS+= @DEFS@
+XDEFS = ${DEFS} @DEFS@
+
+### Solaris make does not like += (jordan)
+### # Standard CFLAGS
+### CFLAGS+= $(CCOPT) $(INCLS) $(XDEFS) $(include)
+XCFLAGS = ${CFLAGS} $(CCOPT) $(INCLS) $(XDEFS) $(include)
+
+INSTALL = @INSTALL@
+RANLIB = @V_RANLIB@
+
+#
+# Flex and bison allow you to specify the prefixes of the global symbols
+# used by the generated parser.  This allows programs to use lex/yacc
+# and link against libpcap.  If you don't have flex or bison, get them.
+#
+LEX = @V_LEX@
+YACC = @V_YACC@
+
+# Explicitly define compilation rule since SunOS 4's make doesn't like gcc.
+# Also, gcc does not remove the .o before forking 'as', which can be a
+# problem if you don't own the file but can write to the directory.
+.c.o:
+	@rm -f $@
+	$(COMPILE) $(XCFLAGS) -c $(srcdir)/$*.c
+
+PSRC =	pcap-@V_PCAP@.c
+CSRC =	pcap.c inet.c gencode.c optimize.c nametoaddr.c \
+	etherent.c savefile.c bpf_filter.c bpf_image.c
+GENSRC = scanner.c grammar.c version.c
+
+SRC =	$(PSRC) $(CSRC) $(GENSRC)
+
+# We would like to say "OBJ = $(SRC:.c=.o)" but Ultrix's make cannot
+# hack the extra indirection
+OBJ =	$(PSRC:.c=.o) $(CSRC:.c=.o) $(GENSRC:.c=.o)
+LO_OBJ = $(PSRC:.c=.lo) $(CSRC:.c=.lo) $(GENSRC:.c=.lo)
+HDR =	pcap.h pcap-int.h pcap-namedb.h pcap-nit.h pcap-pf.h \
+	ethertype.h gencode.h gnuc.h
+GENHDR = \
+	tokdefs.h
+
+TAGHDR = \
+	bpf/net/bpf.h
+
+TAGFILES = \
+	$(SRC) $(HDR) $(TAGHDR)
+
+CLEANFILES = $(OBJ) $(LO_OBJ) libpcap-nessus.la $(GENSRC) $(GENHDR) lex.yy.c
+
+all: $(BUILD_PCAP)
+
+libpcap-nessus.la: $(OBJ)
+	@rm -f $@
+	$(LIBTOOL) $(CC) -o libpcap-nessus.la $(LO_OBJ) -rpath ${libdir} \
+	-version-info ${PACKAGE_VERSION}
+
+scanner.c: $(srcdir)/scanner.l
+	@rm -f $@
+	$(LEX) -t $< > $$$$.$@; mv $$$$.$@ $@
+
+scanner.o: scanner.c tokdefs.h
+tokdefs.h: grammar.c
+grammar.c: $(srcdir)/grammar.y
+	@rm -f grammar.c tokdefs.h
+	$(YACC) -d $<
+	mv y.tab.c grammar.c
+	mv y.tab.h tokdefs.h
+
+grammar.o: grammar.c
+	@rm -f $@
+	$(COMPILE) $(XCFLAGS) -Dyylval=pcap_lval -c grammar.c
+
+version.o: version.c
+version.c: $(srcdir)/VERSION
+	@rm -f $@
+	sed -e 's/.*/char pcap_version[] = "&";/' $(srcdir)/VERSION > $@
+
+install: install-$(BUILD_PCAP) install-incl
+	
+install-:
+
+install-libpcap-nessus.la :
+	$(LIBTOOL) --mode install $(INSTALL) libpcap-nessus.la $(DESTDIR)${libdir}
+	$(LIBTOOL) --finish $(DESTDIR)${libdir}
+
+install-incl: force
+	test -d $(DESTDIR)${includedir}/nessus || \
+		$(INSTALL) -m 755 -d $(DESTDIR)${includedir}/nessus
+	test -d $(DESTDIR)${includedir}/nessus/net || \
+		$(INSTALL) -m 755 -d $(DESTDIR)${includedir}/nessus/net
+	$(INSTALL) -m 444 $(srcdir)/pcap.h $(DESTDIR)${includedir}/nessus/pcap.h
+	$(INSTALL) -m 444 $(srcdir)/pcap-namedb.h \
+		$(DESTDIR)${includedir}/nessus/pcap-namedb.h
+	$(INSTALL) -m 444 $(srcdir)/net/bpf.h $(DESTDIR)${includedir}/nessus/net/bpf.h
+
+install-man: force
+	$(INSTALL) -m 444 -o bin -g bin $(srcdir)/pcap.3 $(DESTDIR)${mandir}/man3/pcap.3
+
+clean:
+	@rm -f $(CLEANFILES) net/net
+	@rm -rf .libs
+
+distclean: 
+	@rm -f $(CLEANFILES) Makefile config.cache config.log config.status \
+	    gnuc.h os-proto.h bpf_filter.c
+
+tags: $(TAGFILES)
+	ctags -wtd $(TAGFILES)
+
+tar:	force
+	@cwd=`pwd` ; dir=`basename $$cwd` ; name=libpcap-`cat VERSION` ; \
+	    list="" ; tar="tar chFFf" ; \
+	    for i in `cat FILES` ; do list="$$list $$name/$$i" ; done; \
+	    echo \
+	    "rm -f ../$$name; ln -s $$dir ../$$name" ; \
+	     rm -f ../$$name; ln -s $$dir ../$$name ; \
+	    echo \
+	    "(cd .. ; $$tar - [lots of files]) | compress > /tmp/$$name.tar.Z" ; \
+	     (cd .. ; $$tar - $$list) | compress > /tmp/$$name.tar.Z ; \
+	    echo \
+	    "rm -f ../$$name" ; \
+	     rm -f ../$$name
+
+force:	/tmp
+depend:	$(GENSRC) force
+	./mkdep -c $(COMPILE) $(XDEFS) $(INCLS) $(SRC)

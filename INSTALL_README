@@ -1,0 +1,108 @@
+$Id: INSTALL_README,v 1.18 2001/01/06 12:14:25 renaud Exp $
+
+
+
+Instruction for the compilation and installation of Nessus-1.0 and later
+
+
+0. Pre-installation requirements
+
+ 
+ If you have another version of Nessus, then use the script
+ 'uninstall-nessus' before you type make.
+					
+ Make sure that you have bison and flex installed. If you only
+ have yacc and lex, you *may* run into problems.
+
+
+ The basic way to install nessus-libraries is to do :
+
+ 	./configure
+	make
+	make install
+ 				
+  
+
+1. configure options
+
+  All the configure options have been centralized the the 
+  'configure' script of nessus-libraries. 
+  
+  For instance, if you want to disable the cipher layer,
+  then just type :
+
+    	./configure --disable-cipher
+	
+  This will affect the build of the other packages, as
+  the 'configure' options are then hardcoded in the 
+  nessus library.
+  
+  The current configure options are :
+  
+  	--enable-cipher[=NN]  enables the compilation of the cipher
+                              layer with a special option: NN is the
+           		      size of the keys (use this for US export.)
+
+        --disable-ptmx        use this directive if you have problems
+                              with the pseudo tty multiplexer; on 
+                              some linux (kernel > 2.2) systems, the
+                              /dev/ptmx is avaiable but the supporting
+                              functions sometimes do not work as
+                              expected
+
+        --enable-zlib=peks    explicitely configure and compile the
+			      data stream compression package against
+                              the source fragment that comes with peks,
+	                      even if the operating system provides
+			      it as a library
+
+        --enable-gmp=peks     explicitely configure and compile the
+			      maths package against the source fragment
+			      that comes with peks, even if the operating
+		              system provides it as a library
+
+        --enable-splitgmp     split off the gmp library that comes with the
+			      peks sources from the cipher lib, and provide
+			      a sepatate library instance: this flag is
+			      needed only if the assembler part of the gmp
+		  	      lib should not be used as a shared library,
+			      while the libpeks, is.
+
+  Some more elaborate options allow you to control whether to compile and
+  link against the packages that come with peks, or to use resources from
+  your operating system.
+
+        --enable-zlib[=/path]  do not use the package provided with
+                               peks, but the one already installed
+
+        --enable-gmp[=/path]   do not use the package provided with
+                               peks, but the one already installed
+
+        --enable-random[=/dev] use this device as an additional random
+                               source; you may need to set this explicitlely
+			       on systems other than Linux and BSD where
+                               there is a character device /dev/urandom
+                               available (other device names will not be 
+			       auto-detected.)
+
+2. Compilation and installation
+
+
+Compilation and installation is done by typing 'make'. If you are running
+under Solaris, then add /usr/ccs/bin to your path before you compile :
+
+	make
+
+Then, as root, type :
+
+	make install
+
+
+3. Files location
+
+  Nessus is installed in the following directories :
+  
+  	${prefix}/share/nessus       : users database, users keys
+	${prefix}/etc/nessusd.conf   : nessusd configuration file
+	${prefix}/lib/nessus/        : scripts and plugins
+   

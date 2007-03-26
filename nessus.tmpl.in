@@ -1,0 +1,75 @@
+CWARN0 = @CWALL@
+CWARN1 = $(CWARN0) -Wwrite-strings -Wshadow
+CWARN2 = $(CWARN1) -Wcast-align -Wcast-qual -Waggregate-return
+CWARN3 = $(CWARN2) -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations
+CWARN4 = $(CWARN3) -Wconversion -Winline -Wtraditional
+CWARN  = $(CWARN0)
+
+# nessus.tmpl
+#
+# This file contains all the defines you may want to modify
+#
+
+SHELL = /bin/sh
+CONFIGURE_ARGS = @ac_configure_args@
+
+@SET_MAKE@
+rootdir=@PWDD@
+
+# Autoconf installation directories
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+sbindir=@sbindir@
+libexecdir=@libexecdir@
+datadir=@datadir@
+sysconfdir=@sysconfdir@
+sharedstatedir=@sharedstatedir@
+localstatedir=@localstatedir@
+libdir=@libdir@
+includedir=@includedir@
+oldincludedir=@oldincludedir@
+infodir=@infodir@
+mandir=@mandir@
+
+libsdir=${rootdir}/libs
+top_builddir = @PWDD@
+include= -I. @sslcflags@ -I$(rootdir)/include -I$(rootdir)/libpcap-nessus
+lib_dir=@libdir@
+USE_CIPHER=@cipher_cflags@
+INSTALL=@INSTALL@
+INSTALL_DIR=@INSTALL_DIR@
+CIPHER_CFLAGS=@cipher_cflags@
+
+PCAP_MAKE=@pcap_make@
+PCAP_INSTALL=@pcap_install@
+PCAP_CLEAN=@pcap_clean@
+PCAP_DISTCLEAN=@pcap_distclean@
+
+WS2_32=@with_ws2_32@
+
+
+# Debugging ?
+DEBUG = @debug_cflags@
+
+# Produce verbose SSL output ?
+DEBUG_SSL = @debug_ssl@
+
+
+#
+# Build our own libpcap ?
+#
+BUILD_PCAP=@BUILD_PCAP@
+
+
+# Some defines you may want to modify
+DEFS=@DEFS@ $(DEBUG_SSL) $(USE_CIPHER) $(DEBUG)
+LDFLAGS=
+
+# Your C compiler
+CC=@CC@
+LIBS=@LIBS@
+LIBTOOL=@LIBTOOL@
+RANLIB=@RANLIB@
+
+PACKAGE_VERSION = @NESSUS_SUPER@:@NESSUS_PATCH@:@NESSUS_MINOR@
