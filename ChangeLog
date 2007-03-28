@@ -1,5 +1,9 @@
 2007-03-28  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* TODO: New. Keep a list of issues/ideas/plans for this module.
+
+2007-03-28  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* openvas-libraries.tmpl.in: Added header.
 
 	* Makefile, libhosts_gatherer/Makefile, libnessus/Makefile: Added header.
