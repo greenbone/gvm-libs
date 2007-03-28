@@ -1,3 +1,26 @@
+# OpenVAS
+# $Id$
+# Description: Some overall defines for this module.
+#
+# Authors:
+# Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
+#
+# Copyright:
+# Based on work Copyright (C) 1998 - 2006 Tenable Network Security, Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2,
+# as published by the Free Software Foundation
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+
 CWARN0 = @CWALL@
 CWARN1 = $(CWARN0) -Wwrite-strings -Wshadow
 CWARN2 = $(CWARN1) -Wcast-align -Wcast-qual -Waggregate-return
@@ -5,10 +28,6 @@ CWARN3 = $(CWARN2) -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declaratio
 CWARN4 = $(CWARN3) -Wconversion -Winline -Wtraditional
 CWARN  = $(CWARN0)
 
-# nessus.tmpl
-#
-# This file contains all the defines you may want to modify
-#
 
 SHELL = /bin/sh
 CONFIGURE_ARGS = @ac_configure_args@

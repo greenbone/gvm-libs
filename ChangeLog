@@ -1,5 +1,24 @@
 2007-03-28  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* openvas-libraries.tmpl.in: Added header.
+
+	* Makefile, libhosts_gatherer/Makefile, libnessus/Makefile: Added header.
+	Renamed nessus.tmpl to openvas-libraries.tmpl.
+
+	* libpcap-nessus/Makefile.in: Renamed nessus.tmpl to openvas-libraries.tmpl.
+
+	* configure: updated.
+
+2007-03-28  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* nessus.tmpl.in: Removed (replaced by openvas-libraries.tmpl.in)
+
+	* openvas-libraries.tmpl.in: Former nessus.tmpl
+
+	* configure.in: Name change for .tmpl file.
+
+2007-03-28  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* configure.in: Added header information.
 
 	* ChangeLog: New. Summary of changes.

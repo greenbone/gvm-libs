@@ -21,7 +21,7 @@
 #
 # Various configurable paths (remember to edit Makefile.in, not Makefile)
 #
-include ../nessus.tmpl
+include ../openvas-libraries.tmpl
 
 # VPATH
 srcdir = @srcdir@

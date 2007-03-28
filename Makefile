@@ -1,12 +1,35 @@
-include nessus.tmpl
+# OpenVAS
+# $Id$
+# Description: Overall Makefile for OpenVAS-libraries.
+#
+# Authors:
+# Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
+#
+# Copyright:
+# Based on work Copyright (C) 1998 - 2007 Tenable Network Security, Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2,
+# as published by the Free Software Foundation
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-ALLDEPS = nessus.tmpl nessus-config
+include openvas-libraries.tmpl
+
+ALLDEPS = openvas-libraries.tmpl nessus-config
 
 all: $(ALLDEPS) $(PCAP_MAKE)
 	cd libnessus && ${MAKE}
 	cd libhosts_gatherer && ${MAKE}
 
-nessus-config: nessus-config.pre Makefile nessus.tmpl
+nessus-config: nessus-config.pre Makefile openvas-libraries.tmpl
 	@echo Creating $@ ...
 	@eval LDFLAGS=\"$(CIPHER_LDFLAGS)\" ; \
 	 eval  CFLAGS=\"$(CIPHER_CFLAGS)\" ; \
@@ -14,7 +37,7 @@ nessus-config: nessus-config.pre Makefile nessus.tmpl
 	     -e  's?%CIPHER_CFLAGS%?'"$$CFLAGS"'?' \
 	     nessus-config.pre >$@
 
-nessus.tmpl: nessus.tmpl.in configure VERSION
+openvas-libraries.tmpl: openvas-libraries.tmpl.in configure VERSION
 	$(SHELL) configure $(CONFIGURE_ARGS)
 	touch $@
 
@@ -82,4 +105,4 @@ distclean : clean $(PCAP_DISTCLEAN)
 	config.status config.log ${rootdir}/include/libvers.h 
 	-cd libnessus && ${MAKE} distclean
 	-cd libhosts_gatherer && ${MAKE} distclean
-	rm -f nessus.tmpl nessus-config nessus-config.pre uninstall-nessus
+	rm -f openvas-libraries.tmpl nessus-config nessus-config.pre uninstall-nessus
