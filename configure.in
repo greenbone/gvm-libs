@@ -753,7 +753,7 @@ AC_SUBST(VERSION)
 AC_SUBST(ac_configure_args)
 
 dnl And we put everything in THREE files
-AC_OUTPUT(nessus.tmpl nessus-config.pre include/libvers.h uninstall-nessus)
+AC_OUTPUT(openvas-libraries.tmpl nessus-config.pre include/libvers.h uninstall-nessus)
 
 chmod +x uninstall-nessus
 
