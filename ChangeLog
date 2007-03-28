@@ -1,0 +1,10 @@
+2007-03-28  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* configure.in: Added header information.
+
+	* ChangeLog: New. Summary of changes.
+
+2007-03-28  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* VERSION: Changed version number to 0.9.0 to not confuse with nessus
+		versioning and to make clear that for OpenVAS this is not yet stable.
