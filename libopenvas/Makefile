@@ -1,6 +1,6 @@
 # OpenVAS
 # $Id$
-# Description: Makefile for libnessus of OpenVAS-libraries.
+# Description: Makefile for libopenvas of OpenVAS-libraries.
 #
 # Authors:
 # Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
@@ -8,14 +8,15 @@
 # Copyright:
 # Based on work Copyright (C) 1998 - 2007 Tenable Network Security, Inc.
 #
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 2,
-# as published by the Free Software Foundation
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Library General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
+# This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Library General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
@@ -41,7 +42,7 @@ CFLAGS+=-g
 INCLUDE = ${include} 
 CIPHER = -I../$(CIPHER_SUBDIR)
 
-all : libnessus.la
+all : libopenvas.la
 
 
 getopt.o : getopt.c
@@ -122,13 +123,13 @@ kb.o: kb.c
 
 snprintf.o : snprintf.c
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c snprintf.c	
-libnessus.la: $(OBJS)
-	$(LIBTOOL) $(CC) -o libnessus.la $(LO_OBJS) -rpath ${libdir} \
+libopenvas.la: $(OBJS)
+	$(LIBTOOL) $(CC) -o libopenvas.la $(LO_OBJS) -rpath ${libdir} \
 	-version-info ${PACKAGE_VERSION}
 
-install : libnessus.la
+install : libopenvas.la
 	test -d $(DESTDIR)${libdir} || $(INSTALL_DIR) -m 755 $(DESTDIR)${libdir}
-	$(LIBTOOL) --mode install $(INSTALL) libnessus.la $(DESTDIR)${libdir}/libnessus.la
+	$(LIBTOOL) --mode install $(INSTALL) libopenvas.la $(DESTDIR)${libdir}/libopenvas.la
 	$(LIBTOOL) --finish $(DESTDIR)${libdir}
 
 distclean : clean

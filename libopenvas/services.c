@@ -1,5 +1,12 @@
-/* 
- * Copyright (C) 2002 Michel Arboi
+/* OpenVAS
+ * $Id$
+ * Description: TCP/IP service functions (getservent enhancement).
+ *
+ * Authors:
+ * Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
+ *
+ * Copyright:
+ * Based on work Copyright (C) 2002 Michel Arboi
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -11,12 +18,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * TCP/IP service functions (getservent enhancement)
- */ 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #define EXPORTING
 #include <includes.h>
@@ -31,7 +36,7 @@
 #endif
 
 #include "services.h"
-#include "libnessus.h"
+#include "libopenvas.h"
 
 /* IMPORTANT ! Some options are defined in services.h */
 

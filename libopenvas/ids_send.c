@@ -1,7 +1,19 @@
-/* Nessuslib -- the Nessus Library
- * Copyright (C) 1998 - 2002 Renaud Deraison
+/* OpenVAS
+ * $Id$
+ * Description: IDS stressing functions.
  *
- * $Id: ids_send.c,v 1.27.2.1 2005/07/06 20:48:11 renaud Exp $
+ * ids_send() sends data spliced into several packets, with bad packets
+ * between them, thus making bad NIDSes reassemble the tcp stream awkwardly;
+ *
+ * ids_open_sock_tcp() opens a tcp socket and immediately sends a badly
+ * formed RST packet to the remote host, thus making bad NIDSes think
+ * the connection was immediately dropped on our end.
+ *
+ * Authors:
+ * Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
+ *
+ * Copyright:
+ * Based on work Copyright (C) 1998 - 2002 Renaud Deraison
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -13,30 +25,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- *
- *
- *
- *
- *
- * IDS stressing functions. 
- *
- * ids_send() sends data spliced into several packets, with bad packets
- * between them, thus making bad NIDSes reassemble the tcp stream awkwardly;
- * 
- * 
- * ids_open_sock_tcp() opens a tcp socket and immediately sends a badly
- * formed RST packet to the remote host, thus making bad NIDSes think
- * the connection was immediately dropped on our end.
- * 
- *
- */ 
- 
- 
-
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #define EXPORTING
 #include <includes.h>
@@ -364,7 +356,7 @@ inject(orig_packet, packet_len, method, flags, data, data_len)
  
  if(sendto(soc, packet, tot_len, 0, (struct sockaddr*)&sockaddr, sizeof(sockaddr)) < 0)
  {
-  perror("nessus-libraries : libnessus : ids_send.c : inject() : sendto() ");
+  perror("openvas-libraries : libopenvas : ids_send.c : inject() : sendto() ");
  }
  efree(&packet);
  close(soc);

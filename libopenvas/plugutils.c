@@ -1,5 +1,12 @@
-/* Nessuslib -- the Nessus Library
- * Copyright (C) 1998 - 2003 Renaud Deraison
+/* OpenVAS
+ * $Id$
+ * Description: Plugin-specific stuff.
+ *
+ * Authors:
+ * Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
+ *
+ * Copyright:
+ * Based on work Copyright (C) 1998 - 2003 Renaud Deraison
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -11,11 +18,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * Plugutils -- plugin-specific stuff
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #define EXPORTING
@@ -1740,7 +1745,7 @@ plug_get_key(args, name, type)
   }
   else if(pid < 0)
       {
-       fprintf(stderr, "nessus-libraries:libnessus:plugutils.c:plug_get_key(): fork() failed : %s", strerror(errno));	      
+       fprintf(stderr, "nessus-openvas:libopenvas:plugutils.c:plug_get_key(): fork() failed : %s", strerror(errno));
        return NULL;
       }
   else

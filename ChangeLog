@@ -1,5 +1,19 @@
 2007-03-29  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* Makefile, libopenvas/Makefile: Renaming libnessus to libopenvas.
+	Fixing header from GPL to LGPL.
+
+	* libopenvas/store.c, libopenvas/plugutils.c, libopenvas/ids_send.c,
+	libopenvas/arglists.c, libopenvas/data.c, libopenvas/network.c,
+	libopenvas/services.c, uninstall-nessus.in, include/includes.h:
+	Added header. Renaming libnessus to libopenvas.
+
+	* include/libnessus.h: Renamed to libopenvas.h.
+
+	* include/libopenvas.h: New. Former libnessus.h.
+
+2007-03-29  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libnessus: Renamed to libopenvas.
 
 	* libopenvas: New. Former libnessus.

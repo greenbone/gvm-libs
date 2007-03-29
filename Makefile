@@ -8,25 +8,29 @@
 # Copyright:
 # Based on work Copyright (C) 1998 - 2007 Tenable Network Security, Inc.
 #
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 2,
-# as published by the Free Software Foundation
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Library General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
+# This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Library General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2,
+# as published by the Free Software Foundation
 
 include openvas-libraries.tmpl
 
 ALLDEPS = openvas-libraries.tmpl nessus-config
 
 all: $(ALLDEPS) $(PCAP_MAKE)
-	cd libnessus && ${MAKE}
+	cd libopenvas && ${MAKE}
 	cd libhosts_gatherer && ${MAKE}
 
 nessus-config: nessus-config.pre Makefile openvas-libraries.tmpl
@@ -70,12 +74,12 @@ pcap-distclean:
 install : $(PCAP_INSTALL)
 	test -d $(DESTDIR)${prefix} || ${INSTALL_DIR} -m 755 $(DESTDIR)${prefix}
 	test -d $(DESTDIR)${includedir}/nessus || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/nessus
-	cd libnessus && ${MAKE} install
+	cd libopenvas && ${MAKE} install
 	cd libhosts_gatherer && ${MAKE} install
 
 
 	$(INSTALL) -m 0444 include/includes.h $(DESTDIR)${includedir}/nessus
-	$(INSTALL) -m 0444 include/libnessus.h $(DESTDIR)${includedir}/nessus
+	$(INSTALL) -m 0444 include/libopenvas.h $(DESTDIR)${includedir}/nessus
 	$(INSTALL) -m 0444 include/harglists.h $(DESTDIR)${includedir}/nessus
 	$(INSTALL) -m 0444 include/libvers.h   $(DESTDIR)${includedir}/nessus
 	$(INSTALL) -m 0444 include/getopt.h    $(DESTDIR)${includedir}/nessus
@@ -97,12 +101,12 @@ install : $(PCAP_INSTALL)
 	@echo
 
 clean : $(PCAP_CLEAN)
-	-cd libnessus && ${MAKE} clean
+	-cd libopenvas && ${MAKE} clean
 	-cd libhosts_gatherer && ${MAKE} clean
 
 distclean : clean $(PCAP_DISTCLEAN)
 	rm -f ${rootdir}/include/config.h libtool config.cache \
 	config.status config.log ${rootdir}/include/libvers.h 
-	-cd libnessus && ${MAKE} distclean
+	-cd libopenvas && ${MAKE} distclean
 	-cd libhosts_gatherer && ${MAKE} distclean
 	rm -f openvas-libraries.tmpl nessus-config nessus-config.pre uninstall-nessus

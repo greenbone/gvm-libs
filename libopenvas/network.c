@@ -1,6 +1,14 @@
-/* Nessuslib -- the Nessus Library
- * Copyright (C) 1998 - 2002 Renaud Deraison
- * SSL Support Copyright (C) 2001 Michel Arboi
+/* OpenVAS
+ * $Id$
+ * Description: Network Functions.
+ *
+ * Authors:
+ * Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
+ * Michel Arboi (Original pre-fork development)
+ *
+ * Copyright:
+ * Based on work Copyright (C) 1998 - 2002 Renaud Deraison
+ *               SSL Support Copyright (C) 2001 Michel Arboi
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -12,17 +20,15 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * Network Functions
- */ 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #define EXPORTING
 #include <includes.h>
 #include <stdarg.h>
-#include "libnessus.h"
+#include "libopenvas.h"
 #include "network.h"
 #include "resolve.h"
 #include "ids_send.h"
@@ -56,7 +62,7 @@ typedef struct {
 		 * Negative transport signals a free descriptor */
  int timeout;	  /* timeout, in seconds
 		   * special values: -2 for default */
- int options;			/* Misc options - see libnessus.h */
+ int options;			/* Misc options - see libopenvas.h */
   
  int port;			 
 #ifdef HAVE_SSL
