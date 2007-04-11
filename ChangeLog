@@ -1,3 +1,12 @@
+2007-04-12  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Removing various Windows related files.
+
+	* README.WINDOWS, nmake.w32, nmake.bat, nessus.def,
+	include/config.w32, include/ntcompat.h: Removed.
+
+	* include/includes.h: Removed some W32-specific elements.
+
 2007-03-29  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* Makefile, libopenvas/Makefile: Renaming libnessus to libopenvas.
