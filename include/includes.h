@@ -28,16 +28,7 @@
 /*
  * Nessus system includes 
  */
-#ifdef _CYGWIN_
-#undef _WIN32
-#endif
-
-
-#ifdef _WIN32
-#include "config.w32"
-#else
 #include "config.h"
-#endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -247,7 +238,6 @@
 
 #include <pcap.h>
 
-#include <ntcompat.h>
 #include <libopenvas.h>
 #include <nessus-devel.h>
 
