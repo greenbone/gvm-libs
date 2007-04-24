@@ -753,9 +753,7 @@ AC_SUBST(VERSION)
 AC_SUBST(ac_configure_args)
 
 dnl And we put everything in THREE files
-AC_OUTPUT(openvas-libraries.tmpl nessus-config.pre include/libvers.h uninstall-nessus)
-
-chmod +x uninstall-nessus
+AC_OUTPUT(openvas-libraries.tmpl nessus-config.pre include/libvers.h)
 
 test  "$use_cipher" = "yes" -a -z "$with_ssl"  &&
 {
@@ -765,10 +763,9 @@ test  "$use_cipher" = "yes" -a -z "$with_ssl"  &&
 
 
 AC_MSG_RESULT([
-If you installed an older version of Nessus in the past you should run
-./uninstall-nessus as root first.
-This script will remove the old libraries and binaries left by the older
-version but will keep your configuration untouched])
+Note: If you installed an older version of OpenVAS you may want
+to remove it first.
+])
 
 
 

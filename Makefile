@@ -86,7 +86,6 @@ install : $(PCAP_INSTALL)
 	test -d $(DESTDIR)${bindir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${bindir}
 	test -d $(DESTDIR)${sbindir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${sbindir}
 	$(INSTALL) -m 0755 nessus-config $(DESTDIR)${bindir}/nessus-config
-	$(INSTALL) -m 0755 uninstall-nessus $(DESTDIR)${sbindir}/uninstall-nessus
 	test -d $(DESTDIR)${mandir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${mandir}
 	test -d $(DESTDIR)${mandir}/man1 || ${INSTALL_DIR} -m 755 $(DESTDIR)${mandir}/man1
 	$(INSTALL) -m 0644 nessus-config.1 $(DESTDIR)${mandir}/man1
@@ -109,4 +108,4 @@ distclean : clean $(PCAP_DISTCLEAN)
 	config.status config.log ${rootdir}/include/libvers.h 
 	-cd libopenvas && ${MAKE} distclean
 	-cd libhosts_gatherer && ${MAKE} distclean
-	rm -f openvas-libraries.tmpl nessus-config nessus-config.pre uninstall-nessus
+	rm -f openvas-libraries.tmpl nessus-config nessus-config.pre
