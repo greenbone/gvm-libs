@@ -493,27 +493,6 @@ else
  pcap_distclean="pcap-distclean"
 fi
 
-case "$host" in
-
- *-cygwin*)
-    AC_DEFINE(_CYGWIN_)
-    AC_HAVE_LIBRARY(wpcap, , AC_MSG_ERROR("Your system lacks the libwpcap"))
-    AC_HAVE_LIBRARY(Packet, , AC_MSG_ERROR("Your system lacks the libPacket")) 
-    AC_HAVE_LIBRARY(ws2_32, with_ws2_32="-lws2_32")
-    syspcap="-DSYSTEM_PCAP"
-    pcap_flag="-lwpcap -lPacket"
-    pcap_dir=""
-    BUILD_PCAP=""
-    pcap_install=""
-    pcap_make=""
-    pcap_clean=""
-    pcap_distclean=""
-    ;;
- *)
-    ;;
-esac   
-
-
 
 
 dnl This test is from the configure.in of Unix Network Programming second
