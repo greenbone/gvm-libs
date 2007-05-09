@@ -27,19 +27,19 @@
 
 include openvas-libraries.tmpl
 
-ALLDEPS = openvas-libraries.tmpl nessus-config
+ALLDEPS = openvas-libraries.tmpl libopenvas-config
 
 all: $(ALLDEPS) $(PCAP_MAKE)
 	cd libopenvas && ${MAKE}
 	cd libhosts_gatherer && ${MAKE}
 
-nessus-config: nessus-config.pre Makefile openvas-libraries.tmpl
+libopenvas-config: libopenvas-config.pre Makefile openvas-libraries.tmpl
 	@echo Creating $@ ...
 	@eval LDFLAGS=\"$(CIPHER_LDFLAGS)\" ; \
 	 eval  CFLAGS=\"$(CIPHER_CFLAGS)\" ; \
 	 sed -e 's?%CIPHER_LDFLAGS%?'"$$LDFLAGS"'?' \
 	     -e  's?%CIPHER_CFLAGS%?'"$$CFLAGS"'?' \
-	     nessus-config.pre >$@
+	     libopenvas-config.pre >$@
 
 openvas-libraries.tmpl: openvas-libraries.tmpl.in configure VERSION
 	$(SHELL) configure $(CONFIGURE_ARGS)
@@ -85,10 +85,10 @@ install : $(PCAP_INSTALL)
 	$(INSTALL) -m 0444 include/getopt.h    ${includedir}/nessus
 	test -d ${bindir} || ${INSTALL_DIR} -m 755 ${bindir}
 	test -d ${sbindir} || ${INSTALL_DIR} -m 755 ${sbindir}
-	$(INSTALL) -m 0755 nessus-config ${bindir}/nessus-config
+	$(INSTALL) -m 0755 libopenvas-config ${bindir}/libopenvas-config
 	test -d ${mandir} || ${INSTALL_DIR} -m 755 ${mandir}
 	test -d ${mandir}/man1 || ${INSTALL_DIR} -m 755 ${mandir}/man1
-	$(INSTALL) -m 0644 nessus-config.1 ${mandir}/man1
+	$(INSTALL) -m 0644 openvas-config.1 ${mandir}/man1
 
 	@echo
 	@echo ' --------------------------------------------------------------'
@@ -108,4 +108,4 @@ distclean : clean $(PCAP_DISTCLEAN)
 	config.status config.log ${rootdir}/include/libvers.h 
 	-cd libopenvas && ${MAKE} distclean
 	-cd libhosts_gatherer && ${MAKE} distclean
-	rm -f openvas-libraries.tmpl nessus-config nessus-config.pre
+	rm -f openvas-libraries.tmpl libopenvas-config libopenvas-config.pre

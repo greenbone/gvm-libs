@@ -1,5 +1,17 @@
 2007-05-09  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* nessus-config.pre.in: Removed.
+
+	* libopenvas-config.pre.in: New. Replaces nessus-config.pre.in.
+
+	* nessus-config.1: Removed.
+
+	* libopenvas-config.1: New. Replaces nessus-config.1.
+
+	* configure.in, Makefile: Replace nessus-config by libopenvas-config.
+
+2007-05-09  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* nessus-config.pre.in, Makefile: Removed DESTDIR. It looks
 	pretty useless as it needs to be set in the shell.
 	It was introduced in Nessus 1.3.1.

@@ -611,7 +611,7 @@ AC_SUBST(VERSION)
 AC_SUBST(ac_configure_args)
 
 dnl And we put everything in THREE files
-AC_OUTPUT(openvas-libraries.tmpl nessus-config.pre include/libvers.h)
+AC_OUTPUT(openvas-libraries.tmpl libopenvas-config.pre include/libvers.h)
 
 AC_MSG_RESULT([
 Note: If you installed an older version of OpenVAS you may want
