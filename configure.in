@@ -94,6 +94,8 @@ dnl Check for extra libraries
 
 AC_HAVE_LIBRARY(resolv, LIBS="-lresolv $LIBS")
 
+AC_HAVE_LIBRARY(gnutls, LIBS="-lgnutls $LIBS")
+
 # These libraries break stuff under IRIX
 if  test "`uname`" != "IRIX" ;
 then
@@ -134,7 +136,7 @@ test -z "$bpfshare" -a -c /dev/bpf0 -a ! -c /dev/bpf42 && {
 
 debug_ssl=""
 
-AC_ARG_ENABLE(debug-ssl,[  --enable-debug-ssl	  makes OpenSSL produce verbose output],
+AC_ARG_ENABLE(debug-ssl,[  --enable-debug-ssl	  produce verbose output regarding SSL],
 	debug_ssl="-DDEBUG_SSL=1")
 
 
@@ -171,13 +173,6 @@ AC_ARG_ENABLE(cipher, [ --enable-cipher	  crypts the client - server communicati
 			use_cipher=yes
 		fi])
 	      
-###	use option --with-ssl to compile in the SSL support
-ssl=""
-sslcflags=""
-AC_ARG_WITH(ssl,
-	[  --with-ssl=[DIR]        enable SSL support using libraries in DIR],
-	[with_ssl=$withval])
-	
 
 AC_ARG_WITH(egd, 
 	[  --with-egd=/path	  specifies the path to the EGD socket],
@@ -189,115 +184,6 @@ AC_ARG_WITH(egd,
 
 AC_C_BIGENDIAN
 	
-
-test "$with_ssl" = "yes" && forcessl="yes"
-
-if test "$with_ssl" = "yes" -o -z "$with_ssl"
-then
-    #	He didn't specify an SSL location.  Let's look at some common
-    #	directories where SSL has been found in the past and try and auto
-    #	configure for SSL.  OpenSSL determination will be made later.
-    #	This will screw up if an OpenSSL install is located in a later
-    #	directory than an older SSLeay install, but the user should fix that
-    #	anyways and he can override on the configure line.
-    with_ssl=""
-    for ac_dir in \
-      /usr/local/ssl \
-      /usr/ssl \
-      /local/ssl \
-      /opt/ssl \
-      /usr/sfw \
-      /usr/freeware \
-      ; \
-    do
-        if test -d "$ac_dir" ; then
-            with_ssl=$ac_dir
-            break;
-        fi
-    done
-    
-   test -z "$with_ssl" && {
-   	for ac_dir in \
-	 /usr \
-	 /usr/local \
-	 /sw \
-	 ; \
-	 do 
-	   if test -r "$ac_dir/include/openssl/ssl.h" ; then
-	   	with_ssl=$ac_dir
-		break;
-	    fi
-	 done
-	}
-fi
-
-if test -n "$with_ssl" -a "$with_ssl" != "no"
-then
-  AC_CHECK_LIB(dl, dlopen, withdl="-ldl")
-  # With the autoconfigure above, the only time this is going to be
-  # true is going to be when we could not find the headers.  If they
-  # are not in system standard locations, we are going to be broken.
-  if test "$with_ssl" = "yes"
-  then
-    # Let's just define the standard location for the SSLeay root
-    with_ssl="/usr/local/ssl"
-  fi
-  if test -r $with_ssl/include/openssl/ssl.h
-  then
-    ###	ssl.h found under openssl.  Use openssl configuration preferentially
-    echo "Enabling OpenSSL support in $with_ssl"
-    if test "$with_ssl" = "/usr"; then
-    	CEFLAGS="$CEFLAGS -I$with_ssl/include/openssl"
-    	sslcflags="-I$with_ssl/include/openssl"
-    else
-    	CEFLAGS="$CEFLAGS -I$with_ssl/include -I$with_ssl/include/openssl"
-    	sslcflags="-I$with_ssl/include -I$with_ssl/include/openssl"
-    fi
-    ###	OpenBSD comes with ssl headers
-  elif test -r /usr/include/ssl/ssl.h
-  then
-    echo "Enabling SSLeay support in $with_ssl"
-    sslcflags="-I/usr/include/ssl"
-  else
-    echo "Enabling SSLeay support in $with_ssl"
-    sslcflags="-I$with_ssl/include"
-  fi
-  
-  if test `uname` = "IRIX" -a "$with_ssl" = "/usr/freeware" ;
-   then
-    ssl="-L$with_ssl/lib32 -lssl -lcrypto $withdl"
-   else
-    ssl="-L$with_ssl/lib -lssl -lcrypto $withdl"
-  fi
-else
-  with_ssl=""
-  AC_ERROR(Could not find OpenSSL and OpenSSL headers on your system)
-fi
-
-
-test -n "$with_ssl" && {
-XCFLAGS=$CFLAGS
-CFLAGS="$XCFLAGS -I$with_ssl/include -L$with_ssl/lib"
-XLDFLAGS=$LDFLAGS
-LDFLAGS="-lcrypto"
-AC_CHECK_LIB(ssl, RAND_status, AC_DEFINE(HAVE_RAND_STATUS))
-CFLAGS=$XCFLAGS
-LDFLAGS=$XLDFLAGS
-}
-
-test -n "$with_ssl" && {
-		sslcflags="-DHAVE_SSL $sslcflags"
-		AC_DEFINE(HAVE_SSL)
-		test "x$use_cipher" = "xyes" -o -z "$use_cipher" && {
-			cipher_cflags="-DNESSUS_ON_SSL"
-			}
-		}
-		
-		
-
-test -n "$forcessl" -a -z "$with_ssl" && AC_ERROR("OpenSSL not found")
-
-
 
 AC_ARG_ENABLE(getoptlong,[  --enable-getoptlong	  force using/disbling the internal GNU getopt package],
 	[case  $enable_getoptlong in
@@ -689,11 +575,6 @@ case "$host" in
     AC_DEFINE(BSD_BYTE_ORDERING)
 esac
 
-test -n "$ssl" -a -d /usr/kerberos && {
-  	sslcflags="-I/usr/kerberos/include $sslcflags"
-	ssl="-L/usr/kerberos/lib $ssl"
-	} 
-
 AC_CONFIG_SUBDIRS($pcap_dir)
 
 
@@ -715,8 +596,6 @@ AC_SUBST(pcap_clean)
 AC_SUBST(pcap_distclean)
 AC_SUBST(syspcap)
 AC_SUBST(with_ws2_32)
-AC_SUBST(ssl)
-AC_SUBST(sslcflags)
 AC_SUBST(llib)
 AC_SUBST(version)
 AC_SUBST(egdpath)
@@ -733,13 +612,6 @@ AC_SUBST(ac_configure_args)
 
 dnl And we put everything in THREE files
 AC_OUTPUT(openvas-libraries.tmpl nessus-config.pre include/libvers.h)
-
-test  "$use_cipher" = "yes" -a -z "$with_ssl"  &&
-{
- AC_MSG_WARN([*** As SSL support is disabled, the communication between   the server and the client will not be ciphered])
-} 
-
-
 
 AC_MSG_RESULT([
 Note: If you installed an older version of OpenVAS you may want
