@@ -1,5 +1,10 @@
 2007-05-09  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/plugutils.c: Removed any conditional alternatives
+	for HAVE_SSL (ssl is mandatory now)
+
+2007-05-09  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	First, intermediate step of migrating from OpenSSL to GNUTLS:
 	Remove the all old stuff at the configure-level.
 

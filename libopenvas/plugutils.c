@@ -1892,7 +1892,6 @@ const char* plug_get_port_transport_name(args, port)
   return get_encaps_name(plug_get_port_transport(args, port));
 }
 
-#ifdef HAVE_SSL
 static void
 plug_set_ssl_item(args, item, itemfname)
  struct arglist * args;
@@ -1934,24 +1933,6 @@ plug_set_ssl_CA_file(args, key)
 {
  plug_set_ssl_item(args, "CA", key);
 }
-#else
-ExtFunc  void
-plug_set_ssl_cert(args, cert)
- struct arglist * args;
- char * cert;
-{
- fprintf(stderr, "plug_set_ssl_cert(): not implemented\n");
-}
-
-ExtFunc void
-plug_set_ssl_key(args, key)
- struct arglist * args;
- char * key;
-{
- fprintf(stderr, "plug_set_ssl_key(): not implemented\n");
-}
-#endif /* HAVE_SSL */
-
 
 ExtFunc char *
 find_in_path(name, safe)
