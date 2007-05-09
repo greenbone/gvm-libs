@@ -1,5 +1,11 @@
 2007-05-09  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* nessus-config.pre.in, Makefile: Removed DESTDIR. It looks
+	pretty useless as it needs to be set in the shell.
+	It was introduced in Nessus 1.3.1.
+
+2007-05-09  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas/plugutils.c: Removed any conditional alternatives
 	for HAVE_SSL (ssl is mandatory now)
 

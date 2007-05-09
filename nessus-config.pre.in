@@ -47,10 +47,10 @@ while test $# -gt 0; do
 		;;
 	--libs)
 	
-		echo $Xn "-L$DESTDIR$LIBDIR -lnessus -lhosts_gatherer @pcap_flag@ $CIPHER $EXTRA $Xc"
+		echo $Xn "-L$LIBDIR -lnessus -lhosts_gatherer @pcap_flag@ $CIPHER $EXTRA $Xc"
 		;;
 	--cflags)
-		echo $Xn "$DEFS -I$DESTDIR$INCLUDEDIR/nessus $CIPHER_CFLAGS $Xc"
+		echo $Xn "$DEFS -I$INCLUDEDIR/nessus $CIPHER_CFLAGS $Xc"
 		;;
 	--egd)
 		echo $Xn "$EGDPATH" $Xc

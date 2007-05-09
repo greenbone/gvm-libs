@@ -61,8 +61,8 @@ pcap-make :
 	-cd libpcap-nessus && ${MAKE}
 
 pcap-install:
-	test -d $(DESTDIR)${prefix} || ${INSTALL_DIR} -m 755 $(DESTDIR)${prefix}
-	test -d $(DESTDIR)${libdir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${libdir}
+	test -d ${prefix} || ${INSTALL_DIR} -m 755 ${prefix}
+	test -d ${libdir} || ${INSTALL_DIR} -m 755 ${libdir}
 	-cd libpcap-nessus && ${MAKE} install
 
 pcap-clean :
@@ -72,23 +72,23 @@ pcap-distclean:
 	-cd libpcap-nessus && ${MAKE} distclean
 
 install : $(PCAP_INSTALL)
-	test -d $(DESTDIR)${prefix} || ${INSTALL_DIR} -m 755 $(DESTDIR)${prefix}
-	test -d $(DESTDIR)${includedir}/nessus || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/nessus
+	test -d ${prefix} || ${INSTALL_DIR} -m 755 ${prefix}
+	test -d ${includedir}/nessus || ${INSTALL_DIR} -m 755 ${includedir}/nessus
 	cd libopenvas && ${MAKE} install
 	cd libhosts_gatherer && ${MAKE} install
 
 
-	$(INSTALL) -m 0444 include/includes.h $(DESTDIR)${includedir}/nessus
-	$(INSTALL) -m 0444 include/libopenvas.h $(DESTDIR)${includedir}/nessus
-	$(INSTALL) -m 0444 include/harglists.h $(DESTDIR)${includedir}/nessus
-	$(INSTALL) -m 0444 include/libvers.h   $(DESTDIR)${includedir}/nessus
-	$(INSTALL) -m 0444 include/getopt.h    $(DESTDIR)${includedir}/nessus
-	test -d $(DESTDIR)${bindir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${bindir}
-	test -d $(DESTDIR)${sbindir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${sbindir}
-	$(INSTALL) -m 0755 nessus-config $(DESTDIR)${bindir}/nessus-config
-	test -d $(DESTDIR)${mandir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${mandir}
-	test -d $(DESTDIR)${mandir}/man1 || ${INSTALL_DIR} -m 755 $(DESTDIR)${mandir}/man1
-	$(INSTALL) -m 0644 nessus-config.1 $(DESTDIR)${mandir}/man1
+	$(INSTALL) -m 0444 include/includes.h ${includedir}/nessus
+	$(INSTALL) -m 0444 include/libopenvas.h ${includedir}/nessus
+	$(INSTALL) -m 0444 include/harglists.h ${includedir}/nessus
+	$(INSTALL) -m 0444 include/libvers.h   ${includedir}/nessus
+	$(INSTALL) -m 0444 include/getopt.h    ${includedir}/nessus
+	test -d ${bindir} || ${INSTALL_DIR} -m 755 ${bindir}
+	test -d ${sbindir} || ${INSTALL_DIR} -m 755 ${sbindir}
+	$(INSTALL) -m 0755 nessus-config ${bindir}/nessus-config
+	test -d ${mandir} || ${INSTALL_DIR} -m 755 ${mandir}
+	test -d ${mandir}/man1 || ${INSTALL_DIR} -m 755 ${mandir}/man1
+	$(INSTALL) -m 0644 nessus-config.1 ${mandir}/man1
 
 	@echo
 	@echo ' --------------------------------------------------------------'
