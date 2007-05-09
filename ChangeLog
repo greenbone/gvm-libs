@@ -1,3 +1,17 @@
+2007-05-09  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	First, intermediate step of migrating from OpenSSL to GNUTLS:
+	Remove the all old stuff at the configure-level.
+
+	* configure.in: Removed any  handling of OpenSSL and the
+	conditional handling of SSL support. Inserterted mandatory
+	requirement of GNUTLS.
+
+	* configure: Updated.
+
+	* openvas-libraries.tmpl.in, nessus-config.pre.in: Removed
+	any OpenSSL handling.
+
 2007-04-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* configure.in: Removed cygwin stuff.
