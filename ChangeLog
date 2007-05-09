@@ -1,5 +1,15 @@
 2007-05-09  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Introduce "make dist" to create a tar-ball.
+
+	* VERSION: Set to .CVS.
+
+	* MANIFEST: New. List of source files for dist.
+
+	* Makefile: New target "dist".
+
+2007-05-09  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* nessus-config.pre.in: Removed.
 
 	* libopenvas-config.pre.in: New. Replaces nessus-config.pre.in.

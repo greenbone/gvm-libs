@@ -109,3 +109,12 @@ distclean : clean $(PCAP_DISTCLEAN)
 	-cd libopenvas && ${MAKE} distclean
 	-cd libhosts_gatherer && ${MAKE} distclean
 	rm -f openvas-libraries.tmpl libopenvas-config libopenvas-config.pre
+
+dist:
+	version="`cat VERSION`"; \
+	rm -rf openvas-libraries-$${version}* ; \
+	mkdir openvas-libraries-$${version} ; \
+	tar cf openvas-libraries-$${version}/x.tar `cat MANIFEST`; \
+	( cd openvas-libraries-$${version} ; tar xf x.tar ; rm -f x.tar ) ; \
+	tar cf openvas-libraries-$${version}.tar openvas-libraries-$${version} ; \
+	gzip -9 openvas-libraries-$${version}.tar
