@@ -1,5 +1,9 @@
 2007-05-14  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* configure: updated.
+
+2007-05-14  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* Makefile: Fixed dependencies for target install. This
 	way now also libopenvas-config gets created during install
 	from libopenvas-config.tmpl which wasn't the case before.
