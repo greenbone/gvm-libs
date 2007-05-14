@@ -73,16 +73,16 @@ pcap-distclean:
 
 install : $(PCAP_INSTALL)
 	test -d ${prefix} || ${INSTALL_DIR} -m 755 ${prefix}
-	test -d ${includedir}/nessus || ${INSTALL_DIR} -m 755 ${includedir}/nessus
+	test -d ${includedir}/openvas || ${INSTALL_DIR} -m 755 ${includedir}/openvas
 	cd libopenvas && ${MAKE} install
 	cd libhosts_gatherer && ${MAKE} install
 
 
-	$(INSTALL) -m 0444 include/includes.h ${includedir}/nessus
-	$(INSTALL) -m 0444 include/libopenvas.h ${includedir}/nessus
-	$(INSTALL) -m 0444 include/harglists.h ${includedir}/nessus
-	$(INSTALL) -m 0444 include/libvers.h   ${includedir}/nessus
-	$(INSTALL) -m 0444 include/getopt.h    ${includedir}/nessus
+	$(INSTALL) -m 0444 include/includes.h ${includedir}/openvas
+	$(INSTALL) -m 0444 include/libopenvas.h ${includedir}/openvas
+	$(INSTALL) -m 0444 include/harglists.h ${includedir}/openvas
+	$(INSTALL) -m 0444 include/libvers.h   ${includedir}/openvas
+	$(INSTALL) -m 0444 include/getopt.h    ${includedir}/openvas
 	test -d ${bindir} || ${INSTALL_DIR} -m 755 ${bindir}
 	test -d ${sbindir} || ${INSTALL_DIR} -m 755 ${sbindir}
 	$(INSTALL) -m 0755 libopenvas-config ${bindir}/libopenvas-config
@@ -92,7 +92,7 @@ install : $(PCAP_INSTALL)
 
 	@echo
 	@echo ' --------------------------------------------------------------'
-	@echo ' nessus-libraries has been sucessfully installed. '
+	@echo ' openvas-libraries has been sucessfully installed. '
 	@echo " Make sure that $(bindir) is in your PATH before you"
 	@echo " continue "
 	@if [ -f /etc/ld.so.conf ]; then echo " Be sure to add $(libdir) in /etc/ld.so.conf and type 'ldconfig'"; else echo ""; fi
