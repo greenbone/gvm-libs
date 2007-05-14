@@ -71,7 +71,7 @@ pcap-clean :
 pcap-distclean:
 	-cd libpcap-nessus && ${MAKE} distclean
 
-install : $(PCAP_INSTALL)
+install : all $(PCAP_INSTALL)
 	test -d ${prefix} || ${INSTALL_DIR} -m 755 ${prefix}
 	test -d ${includedir}/openvas || ${INSTALL_DIR} -m 755 ${includedir}/openvas
 	cd libopenvas && ${MAKE} install
