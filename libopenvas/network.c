@@ -1568,7 +1568,7 @@ open_socket(struct sockaddr_in *paddr,
   if (timeout > 0)
     if (unblock_socket(soc) < 0)
       {
-	closesocket(soc);
+	close(soc);
 	return -1;
       }
 
@@ -1984,7 +1984,7 @@ int soc;
 	lock_fd = -1;
       }
 #endif  
-  return closesocket(soc);
+  return close(soc);
 }
 
 /*
