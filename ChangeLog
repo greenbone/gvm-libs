@@ -1,5 +1,9 @@
 2007-05-14  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* Makefile: Fixed name for libopenvas-config man page for installation.
+
+2007-05-14  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* Makefile: installation target for headerfiles renamed from
 	nessus to openvas.
 

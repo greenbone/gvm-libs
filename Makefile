@@ -88,7 +88,7 @@ install : $(PCAP_INSTALL)
 	$(INSTALL) -m 0755 libopenvas-config ${bindir}/libopenvas-config
 	test -d ${mandir} || ${INSTALL_DIR} -m 755 ${mandir}
 	test -d ${mandir}/man1 || ${INSTALL_DIR} -m 755 ${mandir}/man1
-	$(INSTALL) -m 0644 openvas-config.1 ${mandir}/man1
+	$(INSTALL) -m 0644 libopenvas-config.1 ${mandir}/man1
 
 	@echo
 	@echo ' --------------------------------------------------------------'
