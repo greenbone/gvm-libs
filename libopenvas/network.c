@@ -136,28 +136,6 @@ nessus_perror(error)
   return 0;
 }
 
-/*
- * Returns the amount of data waiting to be read in the socket
- * or -1 in case of an error (errno will be set)
- */
-#if 0
-static int data_left(soc)
- int soc;
-{
- int len = 0;
- int ret = ioctl(soc, FIONREAD, &len);
- if (ret >= 0) {
-  if(len <= 0)
-   return 0;
-  else 
-   return len;
- }
- else {
-  nessus_perror("ioctl(FIONREAD)");
-  return -1;
- }
-} /* data_left */
-#endif
 
 int
 stream_get_err(fd)
