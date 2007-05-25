@@ -1,3 +1,11 @@
+2007-05-25  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* VERSION: Renamed from CVS to SVN.
+
+	* TODO: Some more open questions.
+
+	* include/includes.h: Removed a nessus header file.
+
 2007-05-23  Bernhard Herzog  <bh@intevation.de>
 
 	* libopenvas/network.c (data_left): Removed.  The function was

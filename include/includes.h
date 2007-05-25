@@ -239,8 +239,5 @@
 #include <pcap.h>
 
 #include <libopenvas.h>
-#include <nessus-devel.h>
 
 #endif /* not defined(___INCLUDES_H) */
-
-
