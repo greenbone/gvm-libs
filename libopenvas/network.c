@@ -69,7 +69,6 @@ typedef struct {
   SSL_CTX* 	ssl_ctx;	/* SSL context 	*/
   SSL_METHOD* 	ssl_mt;		/* SSL method   */
   SSL* 		ssl;		/* SSL handler  */
-  int		last_ssl_err;	/* Last SSL error code */
 #endif
  pid_t		pid;		/* Owner - for debugging only */
 
@@ -585,7 +584,7 @@ open_SSL_connection(fp, timeout, cert, key, passwd, cert_names)
       if (ret > 0)
 	return ret;
 
-      fp->last_ssl_err = err = SSL_get_error(fp->ssl, ret);
+      err = SSL_get_error(fp->ssl, ret);
       FD_ZERO(&fdr); FD_ZERO(&fdw);
       switch (err)
     {
@@ -1279,7 +1278,7 @@ write_stream_connection4(fd, buf0, n, i_opt)
 	    count += ret;
 	  else
 	    {
-	      fp->last_ssl_err = err = SSL_get_error(fp->ssl, ret);
+	      err = SSL_get_error(fp->ssl, ret);
 	      FD_ZERO(&fdw); FD_ZERO(&fdr); 
 	      if (err == SSL_ERROR_WANT_WRITE)
 		{
