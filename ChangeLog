@@ -1,3 +1,22 @@
+2007-06-14  Bernhard Herzog  <bh@intevation.de>
+
+	First step in the code to move from OpenSSL to GnuTLS.  The code
+	in network.c now uses GnuTLS instead of OpenSSL for stream
+	connections.  There are still a few remnants of the OpenSSL code,
+	though and code using the library will still need to link -lssl.
+
+	* libopenvas/network.c (struct nessus_connection)
+	(release_connection_fd, nessus_register_connection, sslerror)
+	(nessus_SSL_init, open_SSL_connection, open_stream_connection)
+	(open_stream_connection_unknown_encaps5)
+	(read_stream_connection_unbuffered, write_stream_connection4)
+	(stream_pending): Use GnuTLS instead of OpenSSL.
+	(stream_get_ssl): Now always returns NULL since there's no SSL*
+	associated with a stream anymore.  See the comments in the code
+	for some of the implications of this.
+	(tlserror, set_gnutls_sslv23, set_gnutls_sslv3, set_gnutls_tlsv1):
+	New functions for the GnuTLS support.
+
 2007-06-04  Bernhard Herzog  <bh@intevation.de>
 
 	* libopenvas/network.c (struct nessus_connection)

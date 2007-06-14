@@ -28,6 +28,7 @@
 #define EXPORTING
 #include <includes.h>
 #include <stdarg.h>
+#include <gnutls/gnutls.h>
 #include "libopenvas.h"
 #include "network.h"
 #include "resolve.h"
@@ -35,11 +36,7 @@
 
 #include <setjmp.h>
 
-#ifdef HAVE_SSL
-#include <openssl/bio.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#endif
+#include <openssl/ssl.h>
 
 #define TIMEOUT 20
 
@@ -65,11 +62,9 @@ typedef struct {
  int options;			/* Misc options - see libopenvas.h */
   
  int port;			 
-#ifdef HAVE_SSL
-  SSL_CTX* 	ssl_ctx;	/* SSL context 	*/
-  SSL_METHOD* 	ssl_mt;		/* SSL method   */
-  SSL* 		ssl;		/* SSL handler  */
-#endif
+
+ gnutls_session_t tls_session;  /* GnuTLS session */
+
  pid_t		pid;		/* Owner - for debugging only */
 
   char*		buf;		/* NULL if unbuffered */
@@ -195,12 +190,10 @@ release_connection_fd(fd)
 
  efree(&p->buf);
 
-#ifdef HAVE_SSL
- if (p->ssl != NULL)
-  SSL_free(p->ssl);
- if (p->ssl_ctx != NULL)
-  SSL_CTX_free(p->ssl_ctx);
-#endif
+ /* TLS FIXME: we should call gnutls_bye somewhere.  OTOH, the OpenSSL
+  * equivalent SSL_shutdown wasn't called anywhere in the OpenVAS
+  * (libopenvas nor elsewhere) code either.
+  */
 
 /* 
  * So far, fd is always a socket. If this is changed in the future, this
@@ -222,6 +215,10 @@ if (p->fd >= 0)
   if (socket_close(p->fd)  < 0)
     nessus_perror("release_connection_fd: close()");
  }
+
+ if (p->tls_session != NULL)
+   gnutls_deinit(p->tls_session);
+
  bzero(p, sizeof(*p));
  p->transport = -1; 
  return 0;
@@ -229,26 +226,22 @@ if (p->fd >= 0)
 
 /* ******** Compatibility function ******** */
 
+/* TLS FIXME: migrate this to TLS */
 ExtFunc int
-nessus_register_connection(s, ssl)
-     int	s;
-#ifdef HAVE_SSL
-     SSL	*ssl;
-#else
-     void	*ssl;
-#endif
+nessus_register_connection(int	s, void	*ssl)
 {
   int			fd;
   nessus_connection	*p;
 
+  if (ssl != NULL)
+    {
+      nessus_perror("nessus_register_connection: ssl != NULL not supported");
+      return -1;
+    }
+
   if((fd = get_connection_fd()) < 0)
     return -1;
   p = connections + (fd - NESSUS_FD_OFF);
-#ifdef HAVE_SSL 
-  p->ssl_ctx = NULL;
-  p->ssl_mt = NULL;		/* shall be freed elsewhere */
-  p->ssl = ssl;			/* will be freed on close */
-#endif  
   p->timeout = TIMEOUT;		/* default value */
   p->port = 0;			/* just used for debug */
   p->fd = s;
@@ -318,7 +311,7 @@ static int block_socket(int soc)
  * default value: 1 according to SVID 3, BSD 4.3, ISO 9899 :-(
  */
 
-#ifdef HAVE_SSL
+/* FIXME: remove sslerror and sslerror2 once the TLS migration is complete */
 /* Adapted from stunnel source code */
 ExtFunc
 void sslerror2(txt, err)
@@ -337,75 +330,27 @@ sslerror(txt)
 {
   sslerror2(txt, ERR_get_error());
 }
-#endif
 
-ExtFunc int
-nessus_SSL_init(path)
-     char	*path;		/* entropy pool file name */
+ExtFunc
+void tlserror(char *txt, int err)
 {
-#ifdef HAVE_SSL
-  SSL_library_init();
-  SSL_load_error_strings();
-
-#ifdef HAVE_RAND_STATUS
-  if (RAND_status() == 1)
-    {
-    /* The random generator is happy with its current entropy pool */
-    return 0;
-   }
-#endif
-
-
-  /*
-   * Init the random generator
-   *
-   * OpenSSL provides nice functions for this job.
-   * OpenSSL also ensures that each thread uses a different seed.
-   * So this function should be called *before* forking.
-   * Cf. http://www.openssl.org/docs/crypto/RAND_add.html#
-   *
-   * On systems that have /dev/urandom, SSL uses it transparently to seed 
-   * its PRNG
-   */
-
- 
-#if 0
-  RAND_screen();	/* Only available under MSWin */
-#endif
-
-#ifdef EGD_PATH
-  /*
-   * We have the entropy gathering daemon.
-   * However, OpenSSL automatically query it if it is not in some odd place
-   */
-  if(RAND_egd(EGD_PATH) > 0)
-	  return 0;
-#endif
-
-   if (path != NULL)
-    {
-    (void) RAND_load_file(path, -1);
-    RAND_write_file(path);
-    }
-   else
-   {
-    /*
-     * Try with the default path
-     */
-    char path[1024];
-    if(RAND_file_name(path, sizeof(path) - 1) == 0)
-	    return -1;
-    path[sizeof(path) - 1] = '\0';
-    if(RAND_load_file(path, -1) < 0)
-	    return -1;
-    RAND_write_file(path);	
-    return 0;
-   } 
-#endif
-   return -1;
+  fprintf(stderr, "[%d] %s: %s\n", getpid(), txt, gnutls_strerror(err));
 }
 
-#ifdef HAVE_SSL
+
+
+/* initializes SSL support in libopenvas.  The parameter path used to be
+ * the filename of the entropy pool for OpenSSL in libnessus.  It's
+ * unused in libopenvas.  At the time of the move to GNUTLS, all calls
+ * passed NULL as the path anyway.
+ */
+
+ExtFunc int
+nessus_SSL_init(char *path)
+{
+  gnutls_global_init();
+}
+
 # if 0
 ExtFunc void
 nessus_print_SSL_certificate(cert)
@@ -439,7 +384,6 @@ nessus_print_peer_SSL_certificate(ssl)
   nessus_print_SSL_certificate(cert);
 }
 # endif
-#endif
 
 
 static int
@@ -488,7 +432,6 @@ nessus_get_socket_from_connection(fd)
 }
 
 
-#ifdef HAVE_SSL
 ExtFunc void
 nessus_install_passwd_cb(ssl_ctx, pass)
      SSL_CTX	*ssl_ctx;
@@ -499,121 +442,187 @@ nessus_install_passwd_cb(ssl_ctx, pass)
 }
 
 static int
-open_SSL_connection(fp, timeout, cert, key, passwd, cert_names)
-     nessus_connection	*fp;
-     int		timeout;
-     char		*cert, *key, *passwd; 
-     STACK_OF(X509_NAME)	*cert_names;
+set_gnutls_sslv23(gnutls_session_t session)
+{
+  static int protocol_priority[] = {GNUTLS_TLS1,
+				    GNUTLS_SSL3,
+				    0};
+  static int cipher_priority[] = {GNUTLS_CIPHER_AES_128_CBC,
+				  GNUTLS_CIPHER_3DES_CBC,
+				  GNUTLS_CIPHER_AES_256_CBC,
+				  GNUTLS_CIPHER_ARCFOUR_128,
+				  0};
+  static int comp_priority[] = {GNUTLS_COMP_ZLIB,
+				GNUTLS_COMP_NULL,
+				0};
+  static int kx_priority[] = {GNUTLS_KX_DHE_RSA,
+			      GNUTLS_KX_RSA,
+			      GNUTLS_KX_DHE_DSS,
+			      0};
+  static int mac_priority[] = {GNUTLS_MAC_SHA1,
+			       GNUTLS_MAC_MD5,
+			       0};
+
+  gnutls_protocol_set_priority(session, protocol_priority);
+  gnutls_cipher_set_priority(session, cipher_priority);
+  gnutls_compression_set_priority(session, comp_priority);
+  gnutls_kx_set_priority (session, kx_priority);
+  gnutls_mac_set_priority(session, mac_priority);
+}
+
+static int
+set_gnutls_sslv3(gnutls_session_t session)
+{
+  static int protocol_priority[] = {GNUTLS_SSL3,
+				    0};
+  static int cipher_priority[] = {GNUTLS_CIPHER_3DES_CBC,
+				  GNUTLS_CIPHER_ARCFOUR_128,
+				  0};
+  static int comp_priority[] = {GNUTLS_COMP_ZLIB,
+				GNUTLS_COMP_NULL,
+				0};
+
+  static int kx_priority[] = {GNUTLS_KX_DHE_RSA,
+			      GNUTLS_KX_RSA,
+			      GNUTLS_KX_DHE_DSS,
+			      0};
+
+  static int mac_priority[] = {GNUTLS_MAC_SHA1,
+			       GNUTLS_MAC_MD5,
+			       0};
+
+  gnutls_protocol_set_priority(session, protocol_priority);
+  gnutls_cipher_set_priority(session, cipher_priority);
+  gnutls_compression_set_priority(session, comp_priority);
+  gnutls_kx_set_priority (session, kx_priority);
+  gnutls_mac_set_priority(session, mac_priority);
+}
+
+static int
+set_gnutls_tlsv1(gnutls_session_t session)
+{
+  static int protocol_priority[] = {GNUTLS_TLS1,
+				    0};
+  static int cipher_priority[] = {GNUTLS_CIPHER_AES_128_CBC,
+				  GNUTLS_CIPHER_3DES_CBC,
+				  GNUTLS_CIPHER_AES_256_CBC,
+				  GNUTLS_CIPHER_ARCFOUR_128,
+				  0};
+  static int comp_priority[] = {GNUTLS_COMP_ZLIB,
+				GNUTLS_COMP_NULL,
+				0};
+  static int kx_priority[] = {GNUTLS_KX_DHE_RSA,
+			      GNUTLS_KX_RSA,
+			      GNUTLS_KX_DHE_DSS,
+			      0};
+  static int mac_priority[] = {GNUTLS_MAC_SHA1,
+			       GNUTLS_MAC_MD5,
+			       0};
+
+  gnutls_protocol_set_priority(session, protocol_priority);
+  gnutls_cipher_set_priority(session, cipher_priority);
+  gnutls_compression_set_priority(session, comp_priority);
+  gnutls_kx_set_priority (session, kx_priority);
+  gnutls_mac_set_priority(session, mac_priority);
+}
+
+static int
+open_SSL_connection(nessus_connection *fp, int timeout,
+		    const char *cert, const char *key, const char *passwd,
+		    const char *cert_names)
 {
   int		ret, err, d;
   time_t	tictac;
   fd_set	fdw, fdr;
   struct timeval	to;
+  gnutls_certificate_credentials_t xcred;
 
+  if (passwd && passwd[0] != '\0')
+    {
+      fprintf(stderr, "open_SSL_connection: Warning:"
+	      " passwords are not yet supported for GnuTLS\n");
+    }
 
   nessus_SSL_init(NULL);
 
+  gnutls_init (&(fp->tls_session), GNUTLS_CLIENT);
+
   switch (fp->transport)
     {
-    case NESSUS_ENCAPS_SSLv2:
-      fp->ssl_mt = SSLv2_client_method();
-      break;
     case NESSUS_ENCAPS_SSLv3:
-      fp->ssl_mt = SSLv3_client_method();
+      set_gnutls_sslv3(fp->tls_session);
       break;
     case NESSUS_ENCAPS_TLSv1:
-      fp->ssl_mt = TLSv1_client_method();
+      set_gnutls_tlsv1(fp->tls_session);
       break;
     case NESSUS_ENCAPS_SSLv23:	/* Compatibility mode */
-      fp->ssl_mt = SSLv23_client_method();
+      set_gnutls_sslv23(fp->tls_session);
       break;
-      
+
     default:
 #if DEBUG_SSL > 0
       fprintf(stderr, "*Bug* at %s:%d. Unknown transport %d\n",
 	      __FILE__, __LINE__, fp->transport);
 #endif
-      fp->ssl_mt = SSLv23_client_method();
+      /* The default case also handles NESSUS_ENCAPS_SSLv2.  However,
+       * this function is called only by open_stream_connection and
+       * open_stream_connection will exit with an error code if called
+       * with NESSUS_ENCAPS_SSLv2, so it should never end up calling
+       * open_SSL_connection with NESSUS_ENCAPS_SSLv2.
+       */
+      set_gnutls_sslv23(fp->tls_session);
       break;
     }
 
-  if((fp->ssl_ctx = SSL_CTX_new(fp->ssl_mt)) == NULL)
-    return -1;
-
-  if (SSL_CTX_set_options(fp->ssl_ctx, SSL_OP_ALL) < 0)
-    sslerror("SSL_CTX_set_options(SSL_OP_ALL)");
-
-  if ((fp->ssl = SSL_new(fp->ssl_ctx)) == NULL)
-    return -1;
-
-  /* Client certificates should not be used if we are in SSLv2 */
-  if (fp->transport != NESSUS_ENCAPS_SSLv2) {
-  SSL_CTX_set_default_passwd_cb(fp->ssl_ctx, nessus_SSL_password_cb);
-  SSL_CTX_set_default_passwd_cb_userdata(fp->ssl_ctx, passwd);
+  gnutls_certificate_allocate_credentials(&xcred);
+  gnutls_credentials_set(fp->tls_session, GNUTLS_CRD_CERTIFICATE, xcred);
 
   if (cert != NULL)
-    SSL_use_certificate_file(fp->ssl, cert, SSL_FILETYPE_PEM);
-  if (key != NULL)
-#if 1
-    SSL_use_PrivateKey_file(fp->ssl, key, SSL_FILETYPE_PEM);
-#else
-    SSL_use_RSAPrivateKey_file(fp->ssl, key, SSL_FILETYPE_PEM);
-#endif
+    gnutls_certificate_set_x509_trust_file(xcred, cert, GNUTLS_X509_FMT_PEM);
 
-    if (cert_names != NULL)
-      SSL_CTX_set_client_CA_list(fp->ssl_ctx, cert_names);
-    }
+  /* TLS FIXME: This doesn't support decrypting the key file */
+  if (key != NULL)
+    gnutls_certificate_set_x509_key_file(xcred, cert, key, GNUTLS_X509_FMT_PEM);
+
 
   unblock_socket(fp->fd);
+  /* for non-blocking sockets, gnutls requires a 0 lowat value */
+  gnutls_transport_set_lowat(fp->tls_session, 0);
 
-  if(! (ret = SSL_set_fd(fp->ssl, fp->fd)))
-    {
-#if DEBUG_SSL > 0
-      sslerror("SSL_set_fd");
-#endif    
-      return -1;
-    }
-    
+  gnutls_transport_set_ptr(fp->tls_session, (gnutls_transport_ptr_t) fp->fd);
+
   tictac = time(NULL);
+
   for (;;)
     {
-  ret = SSL_connect(fp->ssl);
-#if 0
-      block_socket(fp->fd);
-#endif
-      if (ret > 0)
-	return ret;
+      err = gnutls_handshake(fp->tls_session);
 
-      err = SSL_get_error(fp->ssl, ret);
-      FD_ZERO(&fdr); FD_ZERO(&fdw);
-      switch (err)
-    {
-	case SSL_ERROR_WANT_READ:
-#if DEBUG_SSL > 2
-	  fprintf(stderr, "SSL_Connect[%d]: SSL_ERROR_WANT_READ\n", getpid());
+      if (err == 0)
+	{
+	  /* success! */
+	  return 1;
+	}
+
+      if (err != GNUTLS_E_INTERRUPTED && err != GNUTLS_E_AGAIN)
+	{
+#ifdef DEBUG_SSL
+	  tlserror("gnutls_handshake", err);
 #endif
-	  FD_SET(fp->fd, &fdr);
-	  break;
-	case SSL_ERROR_WANT_WRITE:
-#if DEBUG_SSL > 2
-	  fprintf(stderr, "SSL_Connect[%d]: SSL_ERROR_WANT_WRITE\n", getpid());
-#endif	
-	  FD_SET(fp->fd, &fdw);
-	  break;
-	default:
-#ifdef DEBUG_SSL 
-	  sslerror2("SSL_connect", err);
-#endif
-      	  return -1;
-    }
-     
+	  return -1;
+	}
+
+      FD_ZERO(&fdr);
+      FD_SET(fp->fd, &fdr);
+      FD_ZERO(&fdw);
+      FD_SET(fp->fd, &fdw);
+
       do
 	{
 	  d = tictac + timeout - time(NULL);
 	  if (d <= 0)
 	    {
-	    fp->last_err = ETIMEDOUT;
-	    return -1;
+	      fp->last_err = ETIMEDOUT;
+	      return -1;
             }
 	  to.tv_sec = d;
 	  to.tv_usec = 0;
@@ -622,19 +631,19 @@ open_SSL_connection(fp, timeout, cert, key, passwd, cert_names)
 	    {
 #if DEBUG_SSL > 1
 	      nessus_perror("select");
-#endif	
+#endif
 	    }
 	}
       while (ret < 0 && errno == EINTR);
+
       if (ret <= 0)
 	{
-	fp->last_err = ETIMEDOUT;
-	return -1;
+	  fp->last_err = ETIMEDOUT;
+	  return -1;
         }
     }
   /*NOTREACHED*/
 }
-#endif
 
 
 static void
@@ -680,20 +689,16 @@ set_ids_evasion_mode(args, fp)
 }
 
 ExtFunc int
-open_stream_connection(args, port, transport, timeout)
- struct arglist * args;
- unsigned int port;
- int transport, timeout;
+open_stream_connection(struct arglist * args, unsigned int port, int transport,
+		       int timeout)
 {
  int			fd;
  nessus_connection * fp;
-#ifdef HAVE_SSL
  char * cert   = NULL;
  char * key    = NULL;
  char * passwd = NULL;
  char * cafile = NULL;
- STACK_OF(X509_NAME)	*cert_names = NULL;
-#endif
+
 
 #if DEBUG_SSL > 2
  fprintf(stderr, "[%d] open_stream_connection: TCP:%d transport:%d timeout:%d\n",
@@ -706,13 +711,13 @@ open_stream_connection(args, port, transport, timeout)
  switch(transport)
  {
   case NESSUS_ENCAPS_IP:
-#ifdef HAVE_SSL
-  case NESSUS_ENCAPS_SSLv2:
+
   case NESSUS_ENCAPS_SSLv23:
   case NESSUS_ENCAPS_SSLv3:
   case NESSUS_ENCAPS_TLSv1:
-#endif 
    break;
+
+  case NESSUS_ENCAPS_SSLv2:
   default:
    fprintf(stderr, "open_stream_connection(): unsupported transport layer %d\n",
    	transport);
@@ -744,7 +749,6 @@ open_stream_connection(args, port, transport, timeout)
  {
   case NESSUS_ENCAPS_IP:
     break;
-#ifdef HAVE_SSL
   case NESSUS_ENCAPS_SSLv23:
   case NESSUS_ENCAPS_SSLv3:
   case NESSUS_ENCAPS_TLSv1:
@@ -755,24 +759,13 @@ open_stream_connection(args, port, transport, timeout)
 
     cafile = kb_item_get_str(plug_get_kb(args), "SSL/CA");
 
-    if ((cafile != NULL) && cafile[0] != '\0')
-      {
-	cert_names = SSL_load_client_CA_file(cafile);
-	if (cert_names == NULL)
-	  {
-	    char	msg[512];
-	    snprintf(msg, sizeof(msg), "SSL_load_client_CA_file(%s)", cafile);
-	    sslerror(msg);
-	  }
-     }
-   
+    /* fall through */
+
   case NESSUS_ENCAPS_SSLv2:
     /* We do not need a client certificate in this case */
-
-    if (open_SSL_connection(fp, timeout, cert, key, passwd, cert_names) <= 0)
-    goto failed;
+    if (open_SSL_connection(fp, timeout, cert, key, passwd, cafile) <= 0)
+      goto failed;
   break;
-#endif
  }
  
  return fd;
@@ -794,11 +787,9 @@ open_stream_connection_unknown_encaps5(args, port, timeout, p, delta_t)
  int i;
   struct timeval	tv1, tv2;
  static int encaps[] = {
-#ifdef HAVE_SSL
    NESSUS_ENCAPS_SSLv2,
    NESSUS_ENCAPS_TLSv1,
    NESSUS_ENCAPS_SSLv3,
-#endif
     NESSUS_ENCAPS_IP
   };
  
@@ -869,25 +860,18 @@ open_stream_auto_encaps(args, port, timeout)
 }
 
 
-#ifdef HAVE_SSL
+/* TLS: This function is only used in one place,
+ * openvas-plugins/plugins/ssl_ciphers/ssl_ciphers.c:145 (function
+ * plugin_run).  The code there prints information about the
+ * certificates and the server's ciphers if sslv2 is used.  Some of the
+ * functionality should perhaps be moved to openvas-libraries.
+ */
 ExtFunc SSL*
-stream_get_ssl(fd)
-     int	fd;
+stream_get_ssl(int fd)
 {
- nessus_connection * fp;
- if(!NESSUS_STREAM(fd))
-    {
-     errno = EINVAL;
-     return NULL;
-    }
-  fp = &(connections[fd - NESSUS_FD_OFF]);
-  if (fp->transport <= 0)
-    return NULL;
-  else
-    return fp->ssl;
+  return NULL;
 }
 
-#endif
 
 ExtFunc int
 stream_set_timeout(fd, timeout)
@@ -1026,7 +1010,6 @@ read_stream_connection_unbuffered(fd, buf0, min_len, max_len)
   switch(trp)
     {
       /* NESSUS_ENCAPS_IP was treated before with the non-Nessus fd */
-#ifdef HAVE_SSL
     case NESSUS_ENCAPS_SSLv2:
     case NESSUS_ENCAPS_SSLv23:
     case NESSUS_ENCAPS_SSLv3:
@@ -1040,67 +1023,50 @@ read_stream_connection_unbuffered(fd, buf0, min_len, max_len)
 	}
 # endif
 
-      FD_ZERO(&fdr); FD_ZERO(&fdw);
-      FD_SET(realfd, &fdr); FD_SET(realfd, &fdw); 
       now = then = time(NULL);
       for (t = 0; timeout <= 0 || t < timeout; t = now - then )
 	{	
           now = time(NULL);
 	  tv.tv_sec = INCR_TIMEOUT; tv.tv_usec = 0;
+	  FD_ZERO(&fdr); FD_ZERO(&fdw);
+	  FD_SET(realfd, &fdr); FD_SET(realfd, &fdw);
+
 	  select_status = select ( realfd + 1, &fdr, &fdw, NULL, &tv );
-          if ( select_status == 0 )
-          {
-      	   FD_ZERO(&fdr); FD_ZERO(&fdw);
-      	   FD_SET(realfd, &fdr); FD_SET(realfd, &fdw); 
-          }
-	  else
-	  if ( select_status > 0 )
+
+	  if (select_status > 0)
 	    {
-	  ret = SSL_read(fp->ssl, buf + total, max_len - total);
-	  if (ret > 0)
+	      /* TLS FIXME: handle rehandshake */
+	      ret = gnutls_record_recv(fp->tls_session, buf + total,
+				       max_len - total);
+	      if (ret > 0)
 		{
-	          total += ret;
-		  FD_SET(realfd, &fdr);
-		  FD_SET(realfd, &fdw); 
+		  total += ret;
 		}
 
-	  if (total >= max_len)
-	    return total;
-	      if (ret <= 0)
+	      if (total >= max_len)
+		return total;
+
+	      if (ret != GNUTLS_E_INTERRUPTED && ret != GNUTLS_E_AGAIN)
 		{
-		  err = SSL_get_error(fp->ssl, ret);
-		  FD_ZERO(&fdr); 
-		  FD_ZERO(&fdw);
-		  switch (err)
-	   {
-		    case SSL_ERROR_WANT_READ:
-#if DEBUG_SSL > 2
-		      fprintf(stderr, "SSL_read[%d]: SSL_ERROR_WANT_READ\n", getpid());
-#endif
-		      FD_SET(realfd, &fdr);
-		      break;
-		    case SSL_ERROR_WANT_WRITE:
-#if DEBUG_SSL > 2
-		      fprintf(stderr, "SSL_Connect[%d]: SSL_ERROR_WANT_WRITE\n", getpid());
-#endif
-		      FD_SET(realfd, &fdr);
-		      FD_SET(realfd, &fdw);
-		      break;
-
-		    case SSL_ERROR_ZERO_RETURN:
-#if DEBUG_SSL > 2
-		      fprintf(stderr, "SSL_Connect[%d]: SSL_ERROR_ZERO_RETURN\n", getpid());
-#endif
-		      fp->last_err = EPIPE;
-		      return total;
-
-		    default:
-#if DEBUG_SSL > 0
-		      sslerror2("SSL_read", err);
-#endif
-		      fp->last_err = EPIPE;
-		      return total;
+		  /* This branch also handles the case where ret == 0,
+		   * i.e. that the connection has been closed.  This is
+		   * for compatibility with the old OpenSSL based nessus
+		   * code which treated SSL_ERROR_ZERO_RETURN as an
+		   * error too.
+		   */
+#ifdef DEBUG_SSL
+		  if (ret < 0)
+		    {
+		      tlserror("gnutls_record_recv", ret);
 		    }
+		  else
+		    {
+		      fprintf(stderr, "gnutls_record_recv[%d]: EOF\n",
+			      getpid());
+		    }
+#endif
+		  fp->last_err = EPIPE;
+		  return total;
 		}
 	    }
 
@@ -1117,7 +1083,7 @@ read_stream_connection_unbuffered(fd, buf0, min_len, max_len)
 	}
       if ( t >= timeout ) fp->last_err = ETIMEDOUT;
       return total;
-#endif
+
     default :
       if (fp->transport != -1 || fp->fd != 0)
 	fprintf(stderr, "Severe bug! Unhandled transport layer %d (fd=%d)\n",
@@ -1262,69 +1228,68 @@ write_stream_connection4(fd, buf0, n, i_opt)
     }
     break;
 
-#ifdef HAVE_SSL
   case NESSUS_ENCAPS_SSLv2:
   case NESSUS_ENCAPS_SSLv23:
   case NESSUS_ENCAPS_SSLv3:
   case NESSUS_ENCAPS_TLSv1:
-      FD_ZERO(&fdr); FD_ZERO(&fdw); 
-      FD_SET(fp->fd, & fdr); FD_SET(fp->fd, & fdw);
 
-      /* i_opt ignored for SSL */
-    for(count = 0; count < n;)
-    { 
-     ret = SSL_write(fp->ssl, buf + count, n - count);
-	  if (ret > 0)
+    /* i_opt ignored for SSL */
+    for (count = 0; count < n;)
+      {
+	ret = gnutls_record_send(fp->tls_session, buf + count, n - count);
+
+	if (ret > 0)
+	  {
 	    count += ret;
-	  else
-	    {
-	      err = SSL_get_error(fp->ssl, ret);
-	      FD_ZERO(&fdw); FD_ZERO(&fdr); 
-	      if (err == SSL_ERROR_WANT_WRITE)
-		{
-		  FD_SET(fp->fd, &fdw);
-#if DEBUG_SSL > 2
-		  fprintf(stderr, "SSL_write[%d]: SSL_ERROR_WANT_WRITE\n", getpid());
-#endif    
-     }
-	      else if (err == SSL_ERROR_WANT_READ)
-		{
-#if DEBUG_SSL > 2
-		  fprintf(stderr, "SSL_write[%d]: SSL_ERROR_WANT_READ\n", getpid());
+	  }
+	else if (ret != GNUTLS_E_INTERRUPTED && ret != GNUTLS_E_AGAIN)
+	  {
+	    /* This branch also handles the case where ret == 0,
+	     * i.e. that the connection has been closed.  This is
+	     * for compatibility with the old nessus code which
+	     * treated SSL_ERROR_ZERO_RETURN as an error too.
+	     */
+#ifdef DEBUG_SSL
+	    if (ret < 0)
+	      {
+		tlserror("gnutls_record_send", ret);
+	      }
+	    else
+	      {
+		fprintf(stderr, "gnutls_record_send[%d]: EOF\n",
+			getpid());
+	      }
 #endif
-		  FD_SET(fp->fd, &fdr);
-		}
-	      else
-     { 
-#if DEBUG_SSL > 0
-		  sslerror2("SSL_write", err);
-#endif      
-		  fp->last_err = EPIPE;
-  	break;
-     }
-	      if (fp->timeout >= 0)
-		tv.tv_sec = fp->timeout;
-     else 
-		tv.tv_sec = TIMEOUT;
+	    fp->last_err = EPIPE;
+	    break;
+	  }
 
-	      tv.tv_usec = 0;
- 	      do {
- 	      errno = 0;
-	      e = select(fp->fd+1, &fdr, &fdw, NULL, &tv);
- 	      } while ( e < 0 && errno == EINTR );
+	if (fp->timeout >= 0)
+	  tv.tv_sec = fp->timeout;
+	else
+	  tv.tv_sec = TIMEOUT;
+	tv.tv_usec = 0;
 
-	    if ( e <= 0 )
-		{
+	do
+	  {
+	    errno = 0;
+	    FD_ZERO(&fdr); FD_ZERO(&fdw);
+	    FD_SET(fp->fd, &fdr); FD_SET(fp->fd, &fdw);
+	    e = select(fp->fd+1, &fdr, &fdw, NULL, &tv);
+	  }
+	while (e < 0 && errno == EINTR);
+
+	if (e <= 0)
+	  {
 #if DEBUG_SSL > 0
-		  nessus_perror("select");
+	    nessus_perror("select");
 #endif
-		  fp->last_err = ETIMEDOUT;
-		  break;
-		}
-	    }
-     }
+	    fp->last_err = ETIMEDOUT;
+	    break;
+	  }
+      }
     break;
-#endif
+
    default:
      if (fp->transport != -1 || fp->fd != 0)
        fprintf(stderr, "Severe bug! Unhandled transport layer %d (fd=%d)\n",
@@ -1334,7 +1299,7 @@ write_stream_connection4(fd, buf0, n, i_opt)
      errno =EINVAL;
      return -1;
   }
-  
+ 
   
   if(count == 0 && n > 0)
    return -1;
@@ -2308,9 +2273,7 @@ ExtFunc int stream_pending(int fd)
 
  if ( fp->bufcnt )
         return fp->bufcnt;
-#ifdef HAVE_SSL
  else if ( fp->transport != NESSUS_ENCAPS_IP )
-        return SSL_pending(fp->ssl);
-#endif
+        return gnutls_record_check_pending(fp->tls_session);
  return 0;
 }
