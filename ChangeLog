@@ -1,3 +1,14 @@
+2007-06-20  Bernhard Herzog  <bh@intevation.de>
+
+	* libopenvas/network.c (load_file, unload_file): New. Helper
+	functions to load certificates and keys.
+	(load_cert_and_key): New.  Loads certificate and key files into
+	the gnuTLS credentials object.  This function supports decryption
+	of private keys.
+	(open_SSL_connection): use load_cert_and_key to load the
+	certificate and key.  Remove the warnign about unsupported key
+	decryption.  Load the CA files if given.
+
 2007-06-14  Bernhard Herzog  <bh@intevation.de>
 
 	First step in the code to move from OpenSSL to GnuTLS.  The code

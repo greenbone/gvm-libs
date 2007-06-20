@@ -526,22 +526,160 @@ set_gnutls_tlsv1(gnutls_session_t session)
   gnutls_mac_set_priority(session, mac_priority);
 }
 
+/* helper function copied from cli.c from GnuTLS
+ * Reads a file into a gnutls_datum
+ */
+static gnutls_datum
+load_file (const char *file)
+{
+  FILE *f;
+  gnutls_datum loaded_file = { NULL, 0 };
+  long filelen;
+  void *ptr;
+
+  if (!(f = fopen(file, "r"))
+      || fseek(f, 0, SEEK_END) != 0
+      || (filelen = ftell(f)) < 0
+      || fseek(f, 0, SEEK_SET) != 0
+      || !(ptr = malloc((size_t) filelen))
+      || fread(ptr, 1, (size_t) filelen, f) < (size_t) filelen)
+    {
+      return loaded_file;
+    }
+
+  loaded_file.data = ptr;
+  loaded_file.size = (unsigned int) filelen;
+  return loaded_file;
+}
+
+/* helper function copied from cli.c from GnuTLS.
+ *
+ * Frees the data read by load_file.  It's safe to call this function
+ * twice on the same data.
+ */
+static void
+unload_file (gnutls_datum * data)
+{
+  free(data->data);
+  data->data = NULL;
+}
+
+/* Loads a certificate and the corresponding private key from PEM files.
+ * The private key may be encrypted, in which case the password to
+ * decrypt the key should be given as the passwd parameter.
+ * Returns 0 on success and -1 on failure.
+ */
+static int
+load_cert_and_key(gnutls_certificate_credentials_t xcred,
+		  const char *cert, const char *key, const char *passwd)
+{
+  gnutls_x509_crt_t x509_crt = NULL;
+  gnutls_x509_privkey_t x509_key = NULL;
+  gnutls_datum data = { NULL, 0 };
+  int ret;
+  int result = 0;
+
+  data = load_file(cert);
+  if (data.data == NULL)
+    {
+      fprintf(stderr, "[%d] load_cert_and_key: Error loading cert file %s\n",
+	      getpid(), cert);
+      result = -1;
+      goto cleanup;
+    }
+
+  ret = gnutls_x509_crt_init(&x509_crt);
+  if (ret < 0)
+    {
+      tlserror("gnutls_x509_crt_init", ret);
+      /* x509_crt may be != NULL even if gnutls_x509_crt_init fails */
+      x509_crt = NULL;
+      result = -1;
+      goto cleanup;
+    }
+
+  ret = gnutls_x509_crt_import(x509_crt, &data, GNUTLS_X509_FMT_PEM);
+  if (ret < 0)
+    {
+      tlserror("gnutls_x509_crt_import", ret);
+      result = -1;
+      goto cleanup;
+    }
+
+  unload_file(&data);
+
+  data = load_file(key);
+  if (data.data == NULL)
+    {
+      fprintf(stderr, "[%d] load_cert_and_key: Error loading key file %s\n",
+	      getpid(), key);
+      result = -1;
+      goto cleanup;
+    }
+
+  ret = gnutls_x509_privkey_init (&x509_key);
+  if (ret < 0)
+    {
+      tlserror("gnutls_x509_privkey_init", ret);
+      /* x509_key may be != NULL even if gnutls_x509_privkey_init fails */
+      x509_key = NULL;
+      result = -1;
+      goto cleanup;
+    }
+
+  if (passwd)
+    {
+      ret = gnutls_x509_privkey_import_pkcs8(x509_key, &data,
+					     GNUTLS_X509_FMT_PEM, passwd, 0);
+      if (ret < 0)
+	{
+	  tlserror("gnutls_x509_privkey_import_pkcs8", ret);
+	  result = -1;
+	  goto cleanup;
+	}
+    }
+  else
+    {
+      ret = gnutls_x509_privkey_import(x509_key, &data, GNUTLS_X509_FMT_PEM);
+      if (ret < 0)
+	{
+	  tlserror("gnutls_x509_privkey_import", ret);
+	  result = -1;
+	  goto cleanup;
+	}
+    }
+
+  unload_file(&data);
+
+  ret = gnutls_certificate_set_x509_key(xcred, &x509_crt, 1, x509_key);
+  if (ret < 0)
+    {
+      tlserror("gnutls_certificate_set_x509_key", ret);
+      result = -1;
+      goto cleanup;
+    }
+
+  cleanup:
+
+  unload_file(&data);
+  if (x509_crt)
+    gnutls_x509_crt_deinit(x509_crt);
+  if (x509_key)
+    gnutls_x509_privkey_deinit(x509_key);
+
+  return result;
+}
+
 static int
 open_SSL_connection(nessus_connection *fp, int timeout,
 		    const char *cert, const char *key, const char *passwd,
-		    const char *cert_names)
+		    const char *cafile)
 {
   int		ret, err, d;
   time_t	tictac;
   fd_set	fdw, fdr;
   struct timeval	to;
   gnutls_certificate_credentials_t xcred;
-
-  if (passwd && passwd[0] != '\0')
-    {
-      fprintf(stderr, "open_SSL_connection: Warning:"
-	      " passwords are not yet supported for GnuTLS\n");
-    }
 
   nessus_SSL_init(NULL);
 
@@ -577,13 +715,22 @@ open_SSL_connection(nessus_connection *fp, int timeout,
   gnutls_certificate_allocate_credentials(&xcred);
   gnutls_credentials_set(fp->tls_session, GNUTLS_CRD_CERTIFICATE, xcred);
 
-  if (cert != NULL)
-    gnutls_certificate_set_x509_trust_file(xcred, cert, GNUTLS_X509_FMT_PEM);
+  if (cert != NULL && key != NULL)
+    {
+      if (load_cert_and_key(xcred, cert, key, passwd) < 0)
+	return -1;
+    }
 
-  /* TLS FIXME: This doesn't support decrypting the key file */
-  if (key != NULL)
-    gnutls_certificate_set_x509_key_file(xcred, cert, key, GNUTLS_X509_FMT_PEM);
-
+  if (cafile != NULL)
+    {
+      ret = gnutls_certificate_set_x509_trust_file(xcred, cafile,
+						   GNUTLS_X509_FMT_PEM);
+      if (ret < 0)
+	{
+	  tlserror("gnutls_certificate_set_x509_trust_file", ret);
+	  return -1;
+	}
+    }
 
   unblock_socket(fp->fd);
   /* for non-blocking sockets, gnutls requires a 0 lowat value */
