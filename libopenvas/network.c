@@ -64,6 +64,7 @@ typedef struct {
  int port;			 
 
  gnutls_session_t tls_session;  /* GnuTLS session */
+ gnutls_certificate_credentials_t tls_cred; /* GnuTLS credentials */
 
  pid_t		pid;		/* Owner - for debugging only */
 
@@ -218,6 +219,8 @@ if (p->fd >= 0)
 
  if (p->tls_session != NULL)
    gnutls_deinit(p->tls_session);
+ if (p->tls_cred != NULL)
+   gnutls_certificate_free_credentials(p->tls_cred);
 
  bzero(p, sizeof(*p));
  p->transport = -1; 
@@ -679,7 +682,6 @@ open_SSL_connection(nessus_connection *fp, int timeout,
   time_t	tictac;
   fd_set	fdw, fdr;
   struct timeval	to;
-  gnutls_certificate_credentials_t xcred;
 
   nessus_SSL_init(NULL);
 
@@ -712,18 +714,18 @@ open_SSL_connection(nessus_connection *fp, int timeout,
       break;
     }
 
-  gnutls_certificate_allocate_credentials(&xcred);
-  gnutls_credentials_set(fp->tls_session, GNUTLS_CRD_CERTIFICATE, xcred);
+  gnutls_certificate_allocate_credentials(&fp->tls_cred);
+  gnutls_credentials_set(fp->tls_session, GNUTLS_CRD_CERTIFICATE, fp->tls_cred);
 
   if (cert != NULL && key != NULL)
     {
-      if (load_cert_and_key(xcred, cert, key, passwd) < 0)
+      if (load_cert_and_key(fp->tls_cred, cert, key, passwd) < 0)
 	return -1;
     }
 
   if (cafile != NULL)
     {
-      ret = gnutls_certificate_set_x509_trust_file(xcred, cafile,
+      ret = gnutls_certificate_set_x509_trust_file(fp->tls_cred, cafile,
 						   GNUTLS_X509_FMT_PEM);
       if (ret < 0)
 	{

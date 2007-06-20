@@ -1,5 +1,14 @@
 2007-06-20  Bernhard Herzog  <bh@intevation.de>
 
+	* libopenvas/network.c: Keep a pointer to the gnutls credentials
+	struct so that it can be freed properly:
+	(struct nessus_connection): New member tls_cred
+	(release_connection_fd): Free tls_cred
+	(open_SSL_connection): Store the credentials in the tls_cred
+	member
+
+2007-06-20  Bernhard Herzog  <bh@intevation.de>
+
 	* libopenvas/network.c (load_file, unload_file): New. Helper
 	functions to load certificates and keys.
 	(load_cert_and_key): New.  Loads certificate and key files into
