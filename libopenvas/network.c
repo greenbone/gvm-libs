@@ -685,7 +685,12 @@ open_SSL_connection(nessus_connection *fp, int timeout,
 
   nessus_SSL_init(NULL);
 
-  gnutls_init (&(fp->tls_session), GNUTLS_CLIENT);
+  ret = gnutls_init (&(fp->tls_session), GNUTLS_CLIENT);
+  if (ret < 0)
+    {
+      tlserror("gnutls_init", ret);
+      return -1;
+    }
 
   switch (fp->transport)
     {
@@ -714,8 +719,19 @@ open_SSL_connection(nessus_connection *fp, int timeout,
       break;
     }
 
-  gnutls_certificate_allocate_credentials(&fp->tls_cred);
-  gnutls_credentials_set(fp->tls_session, GNUTLS_CRD_CERTIFICATE, fp->tls_cred);
+  ret = gnutls_certificate_allocate_credentials(&(fp->tls_cred));
+  if (ret < 0)
+    {
+      tlserror("gnutls_certificate_allocate_credentials", ret);
+      return -1;
+    }
+  ret = gnutls_credentials_set(fp->tls_session, GNUTLS_CRD_CERTIFICATE,
+			       fp->tls_cred);
+  if (ret < 0)
+    {
+      tlserror("gnutls_credentials_set", ret);
+      return -1;
+    }
 
   if (cert != NULL && key != NULL)
     {

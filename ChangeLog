@@ -1,5 +1,10 @@
 2007-06-20  Bernhard Herzog  <bh@intevation.de>
 
+	* libopenvas/network.c (open_SSL_connection): Better error
+	handling for the gnutls function calls.
+
+2007-06-20  Bernhard Herzog  <bh@intevation.de>
+
 	* libopenvas/network.c: Keep a pointer to the gnutls credentials
 	struct so that it can be freed properly:
 	(struct nessus_connection): New member tls_cred
