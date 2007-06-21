@@ -1,3 +1,10 @@
+2007-06-21  Bernhard Herzog  <bh@intevation.de>
+
+	* libopenvas/network.c (sslerror2, sslerror)
+	(nessus_install_passwd_cb): Get rid of the last actual OpenSSL
+	calls.  The implementations now simply print an error message and
+	do nothing.
+
 2007-06-20  Bernhard Herzog  <bh@intevation.de>
 
 	* libopenvas/network.c (open_SSL_connection): Better error

@@ -321,17 +321,14 @@ void sslerror2(txt, err)
      char	*txt;
      int	err;
 {
-  char string[120];
-
-  ERR_error_string(err, string);
-  fprintf(stderr, "[%d] %s: %s\n", getpid(), txt, string);
+  fprintf(stderr, "[%d] obsolete function sslerror2 was called\n", getpid());
 }
 
 void
 sslerror(txt)
      char	*txt;
 {
-  sslerror2(txt, ERR_get_error());
+  fprintf(stderr, "[%d] obsolete function sslerror was called\n", getpid());
 }
 
 ExtFunc
@@ -440,8 +437,7 @@ nessus_install_passwd_cb(ssl_ctx, pass)
      SSL_CTX	*ssl_ctx;
      char	*pass;
 {
-  SSL_CTX_set_default_passwd_cb(ssl_ctx, nessus_SSL_password_cb);
-  SSL_CTX_set_default_passwd_cb_userdata(ssl_ctx, pass);
+  fprintf(stderr, "[%d] obsolete function sslerror was called\n", getpid());
 }
 
 static int
