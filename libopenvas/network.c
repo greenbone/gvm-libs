@@ -437,7 +437,8 @@ nessus_install_passwd_cb(ssl_ctx, pass)
      SSL_CTX	*ssl_ctx;
      char	*pass;
 {
-  fprintf(stderr, "[%d] obsolete function sslerror was called\n", getpid());
+  fprintf(stderr, "[%d] obsolete function nessus_install_passwd_cb was called\n",
+	  getpid());
 }
 
 static int
