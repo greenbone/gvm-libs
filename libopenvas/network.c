@@ -393,29 +393,6 @@ nessus_print_peer_SSL_certificate(ssl)
 # endif
 
 
-static int
-nessus_SSL_password_cb(buf, size, rwflag, userdata)
-     char *buf;
-     int size;
-     int rwflag;
-     void *userdata;
-{
-  if (userdata != NULL)
-    {
-      buf[size - 1] = '\0';
-      strncpy(buf, userdata, size - 1);
-      return strlen(buf);
-    }
-  else
-    {
-#if DEBUG_SSL > 1
-      fprintf(stderr, "nessus_SSL_password_cb: returning empty password\n");
-#endif
-      *buf = '\0';
-      return 0;
-    }
-}
-
 ExtFunc int
 nessus_get_socket_from_connection(fd)
      int	fd;

@@ -1,5 +1,10 @@
 2007-06-22  Bernhard Herzog  <bh@intevation.de>
 
+	* libopenvas/network.c (nessus_SSL_password_cb): Removed because
+	it's not used anymore.
+
+2007-06-22  Bernhard Herzog  <bh@intevation.de>
+
 	* libopenvas/network.c (nessus_SSL_init): Handle errors.
 
 2007-06-22  Bernhard Herzog  <bh@intevation.de>
