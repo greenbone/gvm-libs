@@ -29,7 +29,7 @@ include openvas-libraries.tmpl
 
 ALLDEPS = openvas-libraries.tmpl libopenvas-config
 
-all: $(ALLDEPS) $(PCAP_MAKE)
+all: $(ALLDEPS)
 	cd libopenvas && ${MAKE}
 	cd libhosts_gatherer && ${MAKE}
 
@@ -46,7 +46,6 @@ openvas-libraries.tmpl: openvas-libraries.tmpl.in configure VERSION
 	touch $@
 
 win32:
-	-cd libpcap-nessus    && ${MAKE} distclean
 	-cd libhosts_gatherer && ${MAKE} distclean
 	@echo
 	@echo ' --------------------------------------------------------------'
@@ -57,21 +56,7 @@ win32:
 	@echo
 
 
-pcap-make :
-	-cd libpcap-nessus && ${MAKE}
-
-pcap-install:
-	test -d ${prefix} || ${INSTALL_DIR} -m 755 ${prefix}
-	test -d ${libdir} || ${INSTALL_DIR} -m 755 ${libdir}
-	-cd libpcap-nessus && ${MAKE} install
-
-pcap-clean :
-	-cd libpcap-nessus && ${MAKE} clean
-
-pcap-distclean:
-	-cd libpcap-nessus && ${MAKE} distclean
-
-install : all $(PCAP_INSTALL)
+install : all
 	test -d ${prefix} || ${INSTALL_DIR} -m 755 ${prefix}
 	test -d ${includedir}/openvas || ${INSTALL_DIR} -m 755 ${includedir}/openvas
 	cd libopenvas && ${MAKE} install
@@ -99,11 +84,11 @@ install : all $(PCAP_INSTALL)
 	@echo ' --------------------------------------------------------------'
 	@echo
 
-clean : $(PCAP_CLEAN)
+clean :
 	-cd libopenvas && ${MAKE} clean
 	-cd libhosts_gatherer && ${MAKE} clean
 
-distclean : clean $(PCAP_DISTCLEAN)
+distclean : clean
 	rm -f ${rootdir}/include/config.h libtool config.cache \
 	config.status config.log ${rootdir}/include/libvers.h 
 	-cd libopenvas && ${MAKE} distclean

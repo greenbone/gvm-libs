@@ -1,3 +1,14 @@
+2007-06-21  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Removed local copy of pcap library.
+
+	* configure.in, Makefile, libopenvas-config.pre.in:
+	Removed any handling of libpcap-nessus
+
+	* configure: updated with new autoconf version as of Debian etch
+
+	* libpcap-nessus/: Removed entire directory.
+
 2007-06-21  Bernhard Herzog  <bh@intevation.de>
 
 	* libopenvas/network.c (nessus_install_passwd_cb): Use correct
@@ -35,6 +46,7 @@
 	certificate and key.  Remove the warnign about unsupported key
 	decryption.  Load the CA files if given.
 
+>>>>>>> .r234
 2007-06-14  Bernhard Herzog  <bh@intevation.de>
 
 	First step in the code to move from OpenSSL to GnuTLS.  The code

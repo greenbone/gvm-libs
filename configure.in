@@ -96,6 +96,8 @@ AC_HAVE_LIBRARY(resolv, LIBS="-lresolv $LIBS")
 
 AC_HAVE_LIBRARY(gnutls, LIBS="-lgnutls $LIBS")
 
+AC_HAVE_LIBRARY(pcap, LIBS="-lpcap $LIBS")
+
 # These libraries break stuff under IRIX
 if  test "`uname`" != "IRIX" ;
 then
@@ -140,26 +142,6 @@ AC_ARG_ENABLE(debug-ssl,[  --enable-debug-ssl	  produce verbose output regarding
 	debug_ssl="-DDEBUG_SSL=1")
 
 
-nessuspcap=""
-
-
-
-AC_ARG_ENABLE(nessuspcap, [  --enable-nessuspcap	  use the libpcap that comes with this package],
-	    nessuspcap="yes", nessuspcap="")
-
-
-
-
-	    
-if test x$enable_nessuspcap = xno ; then
-	nessuspcap="no"
-fi
-
-if test x$enable_nessuspcap = x ; then
-	nessuspcap="yes"
-fi
-	    
-	    
 
 AC_ARG_ENABLE(debug,[  --enable-debug	  set the compiler flags to -g],
 	      debug_cflags="-DDEBUG -g")
@@ -342,44 +324,6 @@ test -z "$llib" &&
   AC_CHECK_LIB(fl, lex_init, llib=-lfl)
  }
 }
-
-
-pcap_flag="-lpcap-nessus"
-pcap_dir="libpcap-nessus"
-BUILD_PCAP=""
-if test "x$nessuspcap" = "x" ;
-then
- AC_HAVE_LIBRARY(pcap, BUILD_PCAP="", BUILD_PCAP=libpcap-nessus.la)
-else
- if  test "x$nessuspcap" = "xyes" ;
-  then
-   BUILD_PCAP=libpcap-nessus.la
-  else if test "x$nessuspcap" = "xno" ; 
-    then
-      AC_HAVE_LIBRARY(pcap, BUILD_PCAP="", AC_MSG_ERROR("Your system lacks libpcap. Use ./configure --enable-nessuspcap"))
-    fi
-  fi
-fi
-
-if test "x$BUILD_PCAP" = "x" ;
-then
- syspcap="-DSYSTEM_PCAP"
- pcap_flag="-lpcap"
- pcap_dir=""
- unset pcap_install
- unset pcap_make
- unset pcap_clean
- unset pcap_distclean
-else
- syspcap=""
- pcap_flag="-lpcap-nessus"
- pcap_install="pcap-install"
- pcap_make="pcap-make"
- pcap_clean="pcap-clean"
- pcap_distclean="pcap-distclean"
-fi
-
-
 
 dnl This test is from the configure.in of Unix Network Programming second
 dnl edition example code by W. Richard Stevens
@@ -575,8 +519,6 @@ case "$host" in
     AC_DEFINE(BSD_BYTE_ORDERING)
 esac
 
-AC_CONFIG_SUBDIRS($pcap_dir)
-
 
 dnl Final step : substitute what we want to
 AC_SUBST(CC_NOPIPE)
@@ -590,11 +532,6 @@ AC_SUBST(INSTALL)
 AC_SUBST(EXTRA)
 AC_SUBST(debug_cflags)
 AC_SUBST(cipher_cflags)
-AC_SUBST(pcap_install)
-AC_SUBST(pcap_make)
-AC_SUBST(pcap_clean)
-AC_SUBST(pcap_distclean)
-AC_SUBST(syspcap)
 AC_SUBST(with_ws2_32)
 AC_SUBST(llib)
 AC_SUBST(version)
@@ -605,8 +542,6 @@ AC_SUBST(NESSUS_MINOR)
 AC_SUBST(NESSUS_SUPER)
 AC_SUBST(NESSUS_PATCH)
 AC_SUBST(NESSUS_DATE)
-AC_SUBST(BUILD_PCAP)
-AC_SUBST(pcap_flag)
 AC_SUBST(VERSION)
 AC_SUBST(ac_configure_args)
 
