@@ -1,5 +1,9 @@
 2007-06-22  Bernhard Herzog  <bh@intevation.de>
 
+	* libopenvas/network.c (nessus_SSL_init): Handle errors.
+
+2007-06-22  Bernhard Herzog  <bh@intevation.de>
+
 	* libopenvas-config.pre.in: remove the @pcap_flag@ substitution
 	from the --libs output.  The pcap options are now in EXTRA anyway
 	and @pcap_flag@ is no longer substituted.
