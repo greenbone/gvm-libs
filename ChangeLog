@@ -1,3 +1,9 @@
+2007-06-22  Bernhard Herzog  <bh@intevation.de>
+
+	* libopenvas-config.pre.in: remove the @pcap_flag@ substitution
+	from the --libs output.  The pcap options are now in EXTRA anyway
+	and @pcap_flag@ is no longer substituted.
+
 2007-06-21  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	Removed local copy of pcap library.

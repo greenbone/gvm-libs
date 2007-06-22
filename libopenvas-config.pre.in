@@ -62,7 +62,7 @@ while test $# -gt 0; do
 		;;
 	--libs)
 	
-		echo $Xn "-L$LIBDIR -lopenvas -lhosts_gatherer @pcap_flag@ $CIPHER $EXTRA $Xc"
+		echo $Xn "-L$LIBDIR -lopenvas -lhosts_gatherer $CIPHER $EXTRA $Xc"
 		;;
 	--cflags)
 		echo $Xn "$DEFS -I$INCLUDEDIR/openvas $CIPHER_CFLAGS $Xc"
