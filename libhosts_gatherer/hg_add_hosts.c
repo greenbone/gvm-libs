@@ -315,7 +315,7 @@ noranges:
 	   int dobreak = 0;
 	   
 	  
-	   if(c_end.s_addr == last.s_addr) dobreak++;
+	   if(ntohl(c_end.s_addr) >= ntohl(last.s_addr)) dobreak++;
     	   hg_get_name_from_ip(c_start, hostname, sizeof(hostname));
 	
            hg_add_host_with_options(globals, strdup(hostname), 

@@ -1,3 +1,9 @@
+2007-06-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libhosts_gatherer/hg_add_hosts.c: Backported patch from original
+	nessus-libraries branch NESSUS_2_2 as committed by Renaud Deraison
+	June, 25 2007. Original commit message there: "bugfix".
+
 2007-06-22  Bernhard Herzog  <bh@intevation.de>
 
 	* libopenvas/network.c (nessus_SSL_password_cb): Removed because
