@@ -1,3 +1,25 @@
+2007-07-02  Bernhard Herzog  <bh@intevation.de>
+
+	* libopenvas/network.c (OVAS_CONNECTION_FROM_FD): New. Macro to
+	determine the nessus_connection* given a nessus file descriptor
+	(nessus_register_connection, ovas_allocate_connection): Most of
+	nessus_register_connection is now in the new function
+	ovas_allocate_connection.
+	(set_gnutls_priorities): New.  Frontend for the other set_gnutls_*
+	functions.
+	(verify_peer_certificate): New.  Function to verify the peer
+	certificate
+	(open_SSL_connection): Use set_gnutls_priorities.
+	(ovas_server_context_new): New.  Function to allocate an
+	ovas_server_context_t
+	(ovas_server_context_free): New.  Function to free an
+	ovas_server_context_t
+	(ovas_server_context_attach): New.  Functin to set up SSL/TLS on a
+	socket with parameters from a ovas_server_context_t 
+
+	* include/libopenvas.h: Add declarations for the new functions and
+	types.  Always declare nessus_SSL_init.
+
 2007-06-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libhosts_gatherer/hg_add_hosts.c: Backported patch from original

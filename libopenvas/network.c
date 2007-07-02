@@ -106,6 +106,9 @@ static int	lock_fd = -1;
  */
 #define NESSUS_STREAM(x) (((x - NESSUS_FD_OFF) < NESSUS_FD_MAX) && ((x - NESSUS_FD_OFF) >=0))
 
+/* determine the nessus_connection* from the nessus fd */
+#define OVAS_CONNECTION_FROM_FD(fd) (connections + ((fd) - NESSUS_FD_OFF))
+
 
 static void
 renice_myself()
@@ -231,26 +234,35 @@ if (p->fd >= 0)
 
 /* TLS FIXME: migrate this to TLS */
 ExtFunc int
-nessus_register_connection(int	s, void	*ssl)
+ovas_allocate_connection(int s, int transport)
 {
   int			fd;
   nessus_connection	*p;
 
-  if (ssl != NULL)
-    {
-      nessus_perror("nessus_register_connection: ssl != NULL not supported");
-      return -1;
-    }
-
   if((fd = get_connection_fd()) < 0)
     return -1;
-  p = connections + (fd - NESSUS_FD_OFF);
+  p = OVAS_CONNECTION_FROM_FD(fd);
   p->timeout = TIMEOUT;		/* default value */
   p->port = 0;			/* just used for debug */
   p->fd = s;
-  p->transport = (ssl != NULL) ? NESSUS_ENCAPS_SSLv23 : NESSUS_ENCAPS_IP;
+  p->transport = transport;
   p->last_err  = 0;
   return fd;
+}
+
+ExtFunc int
+nessus_register_connection(int	s, void	*ssl)
+{
+  if (ssl != NULL)
+    {
+      fprintf(stderr, "[%d] nessus_register_connection:"
+	      " ssl != NULL not supported", getpid());
+      return -1;
+    }
+
+  return ovas_allocate_connection(s,
+				  (ssl != NULL) ? NESSUS_ENCAPS_SSLv23
+				                : NESSUS_ENCAPS_IP);
 }
 
 ExtFunc int
@@ -510,6 +522,81 @@ set_gnutls_tlsv1(gnutls_session_t session)
   gnutls_mac_set_priority(session, mac_priority);
 }
 
+/*
+ * Sets the priorities for the GnuTLS session according to encaps, one
+ * of hte NESSUS_ENCAPS_* constants.
+ */
+static int
+set_gnutls_priorities(gnutls_session_t session, int encaps)
+{
+  switch (encaps)
+    {
+    case NESSUS_ENCAPS_SSLv3:
+      set_gnutls_sslv3(session);
+      break;
+    case NESSUS_ENCAPS_TLSv1:
+      set_gnutls_tlsv1(session);
+      break;
+    case NESSUS_ENCAPS_SSLv23:	/* Compatibility mode */
+      set_gnutls_sslv23(session);
+      break;
+
+    default:
+#if DEBUG_SSL > 0
+      fprintf(stderr, "*Bug* at %s:%d. Unknown transport %d\n",
+	      __FILE__, __LINE__, encaps);
+#endif
+      set_gnutls_sslv23(session);
+      break;
+    }
+
+  return 0;
+}
+
+/*
+ * Verifies the peer's certificate.  If the certificate is not valid or
+ * cannot be verified, the function prints diagnostics to stderr and
+ * returns -1.  If the certificate was verified successfully the
+ * function returns 0.
+ */
+static int
+verify_peer_certificate(gnutls_session_t session)
+{
+  static struct {int flag; const char * message;} messages[] = {
+    {GNUTLS_CERT_INVALID, "The peer certificate is invalid"},
+    {GNUTLS_CERT_REVOKED, "The peer certificate has been revoked"},
+    {GNUTLS_CERT_SIGNER_NOT_FOUND,
+     "The peer certificate doesn't have a known issuer"},
+    {GNUTLS_CERT_SIGNER_NOT_CA, "The peer certificate's issuer is not a CA"},
+    {GNUTLS_CERT_INSECURE_ALGORITHM,
+     "The peer certificate was signed using an insecure algorithm"},
+    {0, NULL},
+  };
+  int status;
+  int ret;
+  int i;
+
+  ret = gnutls_certificate_verify_peers2(session, &status);
+  if (ret < 0)
+    {
+      tlserror("gnutls_certificate_verify_peers2", ret);
+      return -1;
+    }
+
+  for (i = 0; messages[i].message != NULL; i++)
+    {
+      if (status & messages[i].flag)
+	fprintf(stderr, "[%d] failed to verify certificate: %s\n",
+		getpid(), messages[i].message);
+    }
+
+  if (status)
+    return -1;
+
+  return 0;
+}
+
+
 /* helper function copied from cli.c from GnuTLS
  * Reads a file into a gnutls_datum
  */
@@ -673,32 +760,15 @@ open_SSL_connection(nessus_connection *fp, int timeout,
       return -1;
     }
 
-  switch (fp->transport)
-    {
-    case NESSUS_ENCAPS_SSLv3:
-      set_gnutls_sslv3(fp->tls_session);
-      break;
-    case NESSUS_ENCAPS_TLSv1:
-      set_gnutls_tlsv1(fp->tls_session);
-      break;
-    case NESSUS_ENCAPS_SSLv23:	/* Compatibility mode */
-      set_gnutls_sslv23(fp->tls_session);
-      break;
-
-    default:
-#if DEBUG_SSL > 0
-      fprintf(stderr, "*Bug* at %s:%d. Unknown transport %d\n",
-	      __FILE__, __LINE__, fp->transport);
-#endif
-      /* The default case also handles NESSUS_ENCAPS_SSLv2.  However,
-       * this function is called only by open_stream_connection and
-       * open_stream_connection will exit with an error code if called
-       * with NESSUS_ENCAPS_SSLv2, so it should never end up calling
-       * open_SSL_connection with NESSUS_ENCAPS_SSLv2.
-       */
-      set_gnutls_sslv23(fp->tls_session);
-      break;
-    }
+  /* set_gnutls_priorities handles NESSUS_ENCAPS_SSLv2 by falling back
+   * to NESSUS_ENCAPS_SSLv23.  However, this function
+   * (open_SSL_connection) is called only by open_stream_connection and
+   * open_stream_connection will exit with an error code if called with
+   * NESSUS_ENCAPS_SSLv2, so it should never end up calling
+   * open_SSL_connection with NESSUS_ENCAPS_SSLv2.
+   */
+  if (set_gnutls_priorities(fp->tls_session, fp->transport) < 0)
+    return -1;
 
   ret = gnutls_certificate_allocate_credentials(&(fp->tls_cred));
   if (ret < 0)
@@ -1004,6 +1074,201 @@ open_stream_auto_encaps(args, port, timeout)
  }
  /*NOTREACHED*/
 }
+
+
+/*
+ * Server socket functions
+ */
+
+struct ovas_server_context_s
+{
+  /* transport encapsulation to use */
+  int encaps;
+
+  /* whether to force public key authentication */
+  int force_pubkey_auth;
+
+  /* GnuTLS credentials */
+  gnutls_certificate_credentials_t tls_cred;
+};
+
+/*
+ * Creates a new ovas_server_context_t.  The parameter encaps should be
+ * one of the NESSUS_ENCAPS_* constants.  If any of the SSL
+ * encapsulations are used, the parameters certfile, keyfile, and cafile
+ * should be the filenames of the server certificate and corresponding
+ * key and the CA certificate.  The optional passwd parameter is used as
+ * the password to decrypt the keyfile if it is encrypted.
+ *
+ * The force_pubkey_auth parameter is a boolean controlling public key
+ * authentication of the client.  If force_pubkey_auth is true, the
+ * client must authenticate itself with a certificate.  Otherwise the
+ * client will be asked for a certificate but doesn't have to present
+ * one.
+ */
+ovas_server_context_t
+ovas_server_context_new(int encaps,
+			const char* certfile,
+			const char* keyfile,
+			const char* passwd,
+			const char* cafile,
+			int force_pubkey_auth)
+{
+  ovas_server_context_t ctx = NULL;
+
+  if (nessus_SSL_init(NULL) < 0)
+    return NULL;
+
+  ctx = emalloc(sizeof(struct ovas_server_context_s));
+  if (ctx == NULL)
+    return NULL;
+
+  ctx->encaps = encaps;
+  ctx->force_pubkey_auth = force_pubkey_auth;
+
+  if (ctx->encaps != NESSUS_ENCAPS_IP)
+    {
+      int ret = gnutls_certificate_allocate_credentials(&(ctx->tls_cred));
+      if (ret < 0)
+	{
+	  tlserror("gnutls_certificate_allocate_credentials", ret);
+	  ctx->tls_cred = NULL;
+	  goto fail;
+	}
+
+      if (certfile && keyfile)
+	{
+	  if (load_cert_and_key(ctx->tls_cred, certfile, keyfile, passwd) < 0)
+	    goto fail;
+	}
+
+      if (cafile != NULL)
+	{
+	  ret = gnutls_certificate_set_x509_trust_file(ctx->tls_cred, cafile,
+						       GNUTLS_X509_FMT_PEM);
+	  if (ret < 0)
+	    {
+	      tlserror("gnutls_certificate_set_x509_trust_file", ret);
+	      goto fail;
+	    }
+	}
+    }
+
+  return ctx;
+
+
+ fail:
+  ovas_server_context_free(ctx);
+  return NULL;
+}
+
+
+/*
+ * Frees the ovas_server_context_t instance ctx.  If ctx is NULL, nothing
+ * is done.
+ */
+void
+ovas_server_context_free(ovas_server_context_t ctx)
+{
+  if (ctx == NULL)
+    return;
+
+  if (ctx->tls_cred != NULL)
+    gnutls_certificate_free_credentials(ctx->tls_cred);
+
+  efree(&ctx);
+}
+
+/*
+ * Sets up SSL/TLS on the socket soc and returns a nessus file
+ * descriptor.  The parameters for the SSL/TLS layer are taken from ctx.
+ * Afterwards, the credentials of ctx are also referenced by the SSL/TLS
+ * objects associated with the nessus file descriptor.  This means that
+ * the context ctx must not be freed until the nessus file descriptor is
+ * closed.
+ *
+ * If the context's force_pubkey_auth member is true (!= 0), the client
+ * must provide a certificate.  If force_pubkey_auth is false, the
+ * client certificate is optional.  In any case, if the client provides
+ * a certificate, the certificate is verified.  If the verification
+ * fails, ovas_server_context_attach returns -1.
+ *
+ * ovas_server_context_attach returns the nessus file descriptor on
+ * success and -1 on failure.
+ */
+int
+ovas_server_context_attach(ovas_server_context_t ctx, int soc)
+{
+  int fd = -1;
+  nessus_connection * fp = NULL;
+  int status;
+  int ret;
+
+  fd = ovas_allocate_connection(soc, ctx->encaps);
+  if (fd < 0)
+    return -1;
+
+  fp = OVAS_CONNECTION_FROM_FD(fd);
+
+  if (fp->transport != NESSUS_ENCAPS_IP)
+    {
+      ret = gnutls_init(&(fp->tls_session), GNUTLS_SERVER);
+      if (ret < 0)
+	{
+	  tlserror("gnutls_init", ret);
+	  goto fail;
+	}
+
+      ret = set_gnutls_priorities(fp->tls_session, fp->transport);
+      if (ret < 0)
+	{
+	  goto fail;
+	}
+
+      if (ctx->tls_cred)
+	{
+	  /* *fp contains a field for the gnutls credentials.  We do not
+	   * set it here because ctx->tls_cred is owned by ctx and
+	   * copying it to fp->tls_cred would lead to it being freed
+	   * when the connection is closed. */
+	  ret = gnutls_credentials_set(fp->tls_session, GNUTLS_CRD_CERTIFICATE,
+				       ctx->tls_cred);
+	  if (ret < 0)
+	    {
+	      tlserror("gnutls_credentials_set", ret);
+	      return -1;
+	    }
+	}
+
+
+      /* request client certificate if any. */
+      gnutls_certificate_server_set_request(fp->tls_session,
+					    ctx->force_pubkey_auth
+					    ? GNUTLS_CERT_REQUIRE
+					    : GNUTLS_CERT_REQUEST);
+
+      gnutls_transport_set_ptr(fp->tls_session,
+			       (gnutls_transport_ptr_t) fp->fd);
+      ret = gnutls_handshake(fp->tls_session);
+      if (ret < 0)
+	{
+	  tlserror("gnutls_handshake", ret);
+	  goto fail;
+	}
+
+      if (verify_peer_certificate(fp->tls_session) < 0)
+	{
+	  goto fail;
+	}
+    }
+
+  return fd;
+
+ fail:
+  release_connection_fd(fd);
+  return -1;
+}
+
 
 
 /* TLS: This function is only used in one place,

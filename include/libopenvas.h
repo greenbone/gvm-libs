@@ -166,12 +166,12 @@ ExtFunc struct arglist * plug_get_see_also(struct arglist *);
 ExtFunc void plug_set_ssl_cert(struct arglist*, char*);
 ExtFunc void plug_set_ssl_key(struct arglist*, char*);
 ExtFunc void plug_set_ssl_pem_password(struct arglist*, char*);
-ExtFunc int nessus_SSL_init(char*);
 ExtFunc void sslerror(char*);
 ExtFunc void nessus_install_passwd_cb(SSL_CTX*, char*);
 
 #endif
 
+ExtFunc int nessus_SSL_init(char*);
 
 
 ExtFunc void plug_add_dep(struct arglist *, char *, char *);
@@ -413,6 +413,19 @@ ExtFunc	       SSL*    stream_get_ssl(int);
 ExtFunc        X509*   stream_get_server_certificate(int);
 ExtFunc	       char*   stream_get_ascii_server_certificate(int);
 #endif
+
+struct ovas_server_context_s;
+typedef struct ovas_server_context_s * ovas_server_context_t;
+
+ovas_server_context_t ovas_server_context_new(int encaps,
+					      const char* certfile,
+					      const char* keyfile,
+					      const char* passwd,
+					      const char* cacertfile,
+					      int force_pubkey_auth);
+void ovas_server_context_free(ovas_server_context_t);
+int ovas_open_server_socket(ovas_server_context_t);
+int ovas_server_context_attach(ovas_server_context_t ctx, int soc);
 
 
 ExtFunc	int 	is_shell_command_present(char*);
