@@ -557,7 +557,8 @@ set_gnutls_priorities(gnutls_session_t session, int encaps)
  * Verifies the peer's certificate.  If the certificate is not valid or
  * cannot be verified, the function prints diagnostics to stderr and
  * returns -1.  If the certificate was verified successfully the
- * function returns 0.
+ * function returns 0.  If the peer did not send a certificate, the
+ * function also returns 0.
  */
 static int
 verify_peer_certificate(gnutls_session_t session)
@@ -577,6 +578,10 @@ verify_peer_certificate(gnutls_session_t session)
   int i;
 
   ret = gnutls_certificate_verify_peers2(session, &status);
+  if (ret == GNUTLS_E_NO_CERTIFICATE_FOUND)
+    /* The peer did not send a certificate.  We treat it as a valid
+     * certificate in this function */
+    return 0;
   if (ret < 0)
     {
       tlserror("gnutls_certificate_verify_peers2", ret);

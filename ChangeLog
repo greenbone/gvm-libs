@@ -1,5 +1,10 @@
 2007-07-02  Bernhard Herzog  <bh@intevation.de>
 
+	* libopenvas/network.c (verify_peer_certificate): If the peer
+	did not send a certificate, treat it as valid.
+
+2007-07-02  Bernhard Herzog  <bh@intevation.de>
+
 	* libopenvas/network.c (OVAS_CONNECTION_FROM_FD): New. Macro to
 	determine the nessus_connection* given a nessus file descriptor
 	(nessus_register_connection, ovas_allocate_connection): Most of
