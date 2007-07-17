@@ -1,5 +1,12 @@
 2007-07-17  Bernhard Herzog  <bh@intevation.de>
 
+	* libopenvas/network.h, include/libopenvas.h: Remove declarations
+	of unused and unimplemented functions:
+	   stream_get_server_certificate
+	   stream_get_ascii_server_certificate
+
+2007-07-17  Bernhard Herzog  <bh@intevation.de>
+
 	* libopenvas/network.c (nessus_install_passwd_cb, sslerror)
 	(sslerror2): Removed.  They are no longer used anywhere.
 	(stream_get_ssl): Change the return type to void* so that we no

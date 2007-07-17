@@ -43,8 +43,4 @@ int set_socket_source_addr(int, int);
 void socket_source_init(struct in_addr *);
 
 
-#ifdef HAVE_SSL
-       X509*   stream_get_server_certificate(int);
-ExtFunc	       char*   stream_get_ascii_server_certificate(int);
-#endif
 #endif
