@@ -36,8 +36,6 @@
 
 #include <setjmp.h>
 
-#include <openssl/ssl.h>
-
 #define TIMEOUT 20
 
 #ifndef INADDR_NONE
@@ -326,22 +324,6 @@ static int block_socket(int soc)
  * default value: 1 according to SVID 3, BSD 4.3, ISO 9899 :-(
  */
 
-/* FIXME: remove sslerror and sslerror2 once the TLS migration is complete */
-/* Adapted from stunnel source code */
-ExtFunc
-void sslerror2(txt, err)
-     char	*txt;
-     int	err;
-{
-  fprintf(stderr, "[%d] obsolete function sslerror2 was called\n", getpid());
-}
-
-void
-sslerror(txt)
-     char	*txt;
-{
-  fprintf(stderr, "[%d] obsolete function sslerror was called\n", getpid());
-}
 
 ExtFunc
 void tlserror(char *txt, int err)
@@ -427,15 +409,6 @@ nessus_get_socket_from_connection(fd)
   return fp->fd;
 }
 
-
-ExtFunc void
-nessus_install_passwd_cb(ssl_ctx, pass)
-     SSL_CTX	*ssl_ctx;
-     char	*pass;
-{
-  fprintf(stderr, "[%d] obsolete function nessus_install_passwd_cb was called\n",
-	  getpid());
-}
 
 static int
 set_gnutls_sslv23(gnutls_session_t session)
@@ -1282,7 +1255,7 @@ ovas_server_context_attach(ovas_server_context_t ctx, int soc)
  * certificates and the server's ciphers if sslv2 is used.  Some of the
  * functionality should perhaps be moved to openvas-libraries.
  */
-ExtFunc SSL*
+ExtFunc void*
 stream_get_ssl(int fd)
 {
   return NULL;

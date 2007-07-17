@@ -1,3 +1,14 @@
+2007-07-17  Bernhard Herzog  <bh@intevation.de>
+
+	* libopenvas/network.c (nessus_install_passwd_cb, sslerror)
+	(sslerror2): Removed.  They are no longer used anywhere.
+	(stream_get_ssl): Change the return type to void* so that we no
+	longer need openssl.h
+
+	* include/libopenvas.h: Remove declaration of
+	nessus_install_passwd_cb and sslerror.  Update declaration of
+	stream_get_ssl
+
 2007-07-02  Bernhard Herzog  <bh@intevation.de>
 
 	* libopenvas/network.c (verify_peer_certificate): If the peer

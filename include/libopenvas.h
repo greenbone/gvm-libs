@@ -166,8 +166,6 @@ ExtFunc struct arglist * plug_get_see_also(struct arglist *);
 ExtFunc void plug_set_ssl_cert(struct arglist*, char*);
 ExtFunc void plug_set_ssl_key(struct arglist*, char*);
 ExtFunc void plug_set_ssl_pem_password(struct arglist*, char*);
-ExtFunc void sslerror(char*);
-ExtFunc void nessus_install_passwd_cb(SSL_CTX*, char*);
 
 #endif
 
@@ -409,7 +407,7 @@ ExtFunc int	stream_get_buffer_sz (int);
 ExtFunc int	stream_get_err(int);
 
 #ifdef HAVE_SSL
-ExtFunc	       SSL*    stream_get_ssl(int);
+ExtFunc	       void*   stream_get_ssl(int);
 ExtFunc        X509*   stream_get_server_certificate(int);
 ExtFunc	       char*   stream_get_ascii_server_certificate(int);
 #endif
