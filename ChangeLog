@@ -1,3 +1,9 @@
+2007-07-18  Bernhard Herzog  <bh@intevation.de>
+
+	* include/libopenvas.h: Removed the declaration of
+	nessus_register_connection that uses a SSL* as the second
+	parameter.  The void* variant is still there.
+
 2007-07-17  Bernhard Herzog  <bh@intevation.de>
 
 	* libopenvas/network.h, include/libopenvas.h: Remove declarations

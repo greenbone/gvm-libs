@@ -430,11 +430,7 @@ ExtFunc char* 	find_in_path(char*, int);
 ExtFunc char*	build_encode_URL(struct arglist*, char*, char*, char*, char*);
 
 
-#ifdef HAVE_SSL
-ExtFunc int nessus_register_connection(int, SSL*);
-#else
 ExtFunc int nessus_register_connection(int, void*);
-#endif
 ExtFunc int nessus_deregister_connection(int);
 ExtFunc int nessus_get_socket_from_connection(int);
 
