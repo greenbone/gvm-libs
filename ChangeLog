@@ -1,5 +1,9 @@
 2007-07-18  Bernhard Herzog  <bh@intevation.de>
 
+	* include/includes.h: Remove openssl includes
+
+2007-07-18  Bernhard Herzog  <bh@intevation.de>
+
 	* include/libopenvas.h: Removed the declaration of
 	nessus_register_connection that uses a SSL* as the second
 	parameter.  The void* variant is still there.
