@@ -53,17 +53,12 @@ mandir=@mandir@
 
 libsdir=${rootdir}/libs
 top_builddir = @PWDD@
-include= -I. -I$(rootdir)/include -I$(rootdir)/libpcap-nessus
+include= -I. -I$(rootdir)/include
 lib_dir=@libdir@
 USE_CIPHER=@cipher_cflags@
 INSTALL=@INSTALL@
 INSTALL_DIR=@INSTALL_DIR@
 CIPHER_CFLAGS=@cipher_cflags@
-
-PCAP_MAKE=@pcap_make@
-PCAP_INSTALL=@pcap_install@
-PCAP_CLEAN=@pcap_clean@
-PCAP_DISTCLEAN=@pcap_distclean@
 
 WS2_32=@with_ws2_32@
 
@@ -73,13 +68,6 @@ DEBUG = @debug_cflags@
 
 # Produce verbose SSL output ?
 DEBUG_SSL = @debug_ssl@
-
-
-#
-# Build our own libpcap ?
-#
-BUILD_PCAP=@BUILD_PCAP@
-
 
 # Some defines you may want to modify
 DEFS=@DEFS@ $(DEBUG_SSL) $(USE_CIPHER) $(DEBUG)
