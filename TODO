@@ -28,8 +28,3 @@
 	* Should the versioning be separate from that of -libnasl
 	and -server? Would mean to change NESSUS_MAJOR etc. in configure.in.
 	Anywhere else?
-
-	* libnessus-pcap: Why is it necessary to keep as copy?
-	If needed, it might make sense to rename all of it to libopenvas-pcap
-	to prevent confusion. Is there a new pcap that needs to be synced?
-	Also note: actually, the license of pcap has advertisement clause.

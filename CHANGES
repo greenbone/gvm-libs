@@ -1,0 +1,16 @@
+openvas-libraries 0.9.0 (XX.XX.2007)
+
+The first initial release of openvas-libraries
+after the fork from Nessus 2.2.x.
+
+Main changes are:
+
+* Replace OpenSSL by GNU/TLS (therefore it is allowed now to distribute
+  binary packages with SSL-support)
+* SSL now mandatory.
+* Removed libpcap-nessus entirely. Now the system one is to be used.
+* Many cleanups of ancient remains (still many to come)
+* Removed various W32-specific elements, because W32 isn't
+  a taget system anyway.
+* Lots of renaming to avoid conflicts with parallel
+  Nessus installation

@@ -162,12 +162,9 @@ ExtFunc char * plug_get_xref(struct arglist *);
 ExtFunc void plug_set_see_also(struct arglist *, char *);
 ExtFunc struct arglist * plug_get_see_also(struct arglist *);
 
-#ifdef HAVE_SSL
 ExtFunc void plug_set_ssl_cert(struct arglist*, char*);
 ExtFunc void plug_set_ssl_key(struct arglist*, char*);
 ExtFunc void plug_set_ssl_pem_password(struct arglist*, char*);
-
-#endif
 
 ExtFunc int nessus_SSL_init(char*);
 
@@ -406,9 +403,7 @@ ExtFunc int	stream_set_buffer(int, int);
 ExtFunc int	stream_get_buffer_sz (int);
 ExtFunc int	stream_get_err(int);
 
-#ifdef HAVE_SSL
 ExtFunc	       void*   stream_get_ssl(int);
-#endif
 
 struct ovas_server_context_s;
 typedef struct ovas_server_context_s * ovas_server_context_t;

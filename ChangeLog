@@ -1,3 +1,21 @@
+2007-07-19  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	First preparations for release.
+
+	* include/libopenvas.h, include/config.h.in: Removed last occurances of HAVE_SSL.
+
+	* MANIFEST: updated.
+
+	* CHANGES: New. Describes Changes for users.
+
+	* Makefile: No sbin required for installation of this package.
+
+	* TODO: Removed item about libpcap which indeed has been removed
+	meanwhile.
+
+	* INSTALL_README: Added a warning that these instructions might
+	not be uptodate.
+
 2007-07-18  Bernhard Herzog  <bh@intevation.de>
 
 	* include/includes.h: Remove openssl includes
@@ -122,7 +140,6 @@
 	certificate and key.  Remove the warnign about unsupported key
 	decryption.  Load the CA files if given.
 
->>>>>>> .r234
 2007-06-14  Bernhard Herzog  <bh@intevation.de>
 
 	First step in the code to move from OpenSSL to GnuTLS.  The code

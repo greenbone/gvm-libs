@@ -69,7 +69,6 @@ install : all
 	$(INSTALL) -m 0444 include/libvers.h   ${includedir}/openvas
 	$(INSTALL) -m 0444 include/getopt.h    ${includedir}/openvas
 	test -d ${bindir} || ${INSTALL_DIR} -m 755 ${bindir}
-	test -d ${sbindir} || ${INSTALL_DIR} -m 755 ${sbindir}
 	$(INSTALL) -m 0755 libopenvas-config ${bindir}/libopenvas-config
 	test -d ${mandir} || ${INSTALL_DIR} -m 755 ${mandir}
 	test -d ${mandir}/man1 || ${INSTALL_DIR} -m 755 ${mandir}/man1
