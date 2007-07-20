@@ -21,9 +21,9 @@
 #define _NESSUSL_SERVICES_H
 
 /* **** Config **** */
-/* If you want Nessus to switch to the system services file when its own file 
+/* If you want OpenVAS to switch to the system services file when its own file 
  * fails, UNdefine the next symbol. Otherwise, /etc/services is read only 
- * once when nessus-services is rebuilt */
+ * once when openvas-services is rebuilt */
 #define NESSUS_SVC_READS_ETC_SERVICES
 
 /* If you want Nessus to sort the services file before reading them,
@@ -34,7 +34,7 @@
 
 /* **** FILES **** */
 
-#define NESSUS_SERVICES		NESSUS_STATE_DIR "/nessus/nessus-services"
+#define NESSUS_SERVICES		NESSUS_STATE_DIR "/lib/openvas/openvas-services"
 /* If you want Nessus to use a second input file, uncomment next line */
 /*#define NESSUS_IANA_PORTS	CONF_DIR "/iana-port-numbers"*/
 
