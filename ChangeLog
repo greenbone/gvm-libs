@@ -1,5 +1,11 @@
 2007-07-24  Bernhard Herzog  <bh@intevation.de>
 
+	* libopenvas/network.c (verify_peer_certificate): Make status an
+	unsigned int so that it matches the signature of
+	gnutls_certificate_verify_peers2
+
+2007-07-24  Bernhard Herzog  <bh@intevation.de>
+
 	* libopenvas/network.c (set_gnutls_priorities)
 	(set_gnutls_protocol): Renamed set_gnutls_priorities to
 	set_gnutls_protocol

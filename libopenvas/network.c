@@ -565,7 +565,7 @@ verify_peer_certificate(gnutls_session_t session)
      "The peer certificate was signed using an insecure algorithm"},
     {0, NULL},
   };
-  int status;
+  unsigned int status;
   int ret;
   int i;
 
