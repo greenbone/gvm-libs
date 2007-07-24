@@ -1,5 +1,12 @@
 2007-07-24  Bernhard Herzog  <bh@intevation.de>
 
+	* libopenvas/network.c (ovas_server_context_attach)
+	(read_stream_connection_unbuffered)
+	(write_stream_connection4, internal_send, internal_recv): Remove
+	unused variables
+
+2007-07-24  Bernhard Herzog  <bh@intevation.de>
+
 	* libopenvas/network.c: Add missing include of <gnutls/x509.h>
 
 2007-07-24  Bernhard Herzog  <bh@intevation.de>

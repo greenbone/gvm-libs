@@ -1198,7 +1198,6 @@ ovas_server_context_attach(ovas_server_context_t ctx, int soc)
 {
   int fd = -1;
   nessus_connection * fp = NULL;
-  int status;
   int ret;
 
   fd = ovas_allocate_connection(soc, ctx->encaps);
@@ -1322,7 +1321,7 @@ read_stream_connection_unbuffered(fd, buf0, min_len, max_len)
  void* buf0;
  int min_len, max_len;
 {
-  int			ret, realfd, trp, t, err;
+  int			ret, realfd, trp, t;
   int			total = 0, flag = 0, timeout = TIMEOUT, waitall = 0;
   unsigned char		* buf = (unsigned char*)buf0;
   nessus_connection	*fp = NULL;
@@ -1581,7 +1580,7 @@ write_stream_connection4(fd, buf0, n, i_opt)
  int n;
  int	i_opt;
 {
-  int			err, ret, count;
+  int			ret, count;
  unsigned char* buf = (unsigned char*)buf0;
  nessus_connection * fp;
   fd_set		fdr, fdw;
@@ -2580,8 +2579,6 @@ int internal_send(int soc, char * data, int msg_type )
  int len;
  int e;
  int ack;
- fd_set rd;
- struct timeval tv;
  
  if ( data == NULL )
 	data = "";
@@ -2615,8 +2612,6 @@ int internal_recv(int soc, char ** data, int * data_sz, int * msg_type )
  int e;
  char * buf = *data;
  int    sz  = *data_sz;
- fd_set rd;
- struct timeval tv;
  int type;
  int ack;
  
