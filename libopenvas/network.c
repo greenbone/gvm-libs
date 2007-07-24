@@ -590,7 +590,7 @@ load_file (const char *file)
       || fseek(f, 0, SEEK_END) != 0
       || (filelen = ftell(f)) < 0
       || fseek(f, 0, SEEK_SET) != 0
-      || !(ptr = malloc((size_t) filelen))
+      || !(ptr = emalloc((size_t) filelen))
       || fread(ptr, 1, (size_t) filelen, f) < (size_t) filelen)
     {
       return loaded_file;
@@ -609,8 +609,7 @@ load_file (const char *file)
 static void
 unload_file (gnutls_datum * data)
 {
-  free(data->data);
-  data->data = NULL;
+  efree(&(data->data));
 }
 
 /* Loads a certificate and the corresponding private key from PEM files.
