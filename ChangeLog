@@ -1,5 +1,18 @@
 2007-07-24  Bernhard Herzog  <bh@intevation.de>
 
+	* libopenvas/network.c (set_gnutls_priorities)
+	(set_gnutls_protocol): Renamed set_gnutls_priorities to
+	set_gnutls_protocol
+	(open_SSL_connection, ovas_server_context_attach): Updated because
+	of set_gnutls_priorities renaming
+	(set_gnutls_priorities): New function that sets the priorities of
+	a session from a bunch of int arrays and handles errors
+	(set_gnutls_sslv23, set_gnutls_sslv3, set_gnutls_tlsv1): Use
+	set_gnutls_priorities to set the priorities instead of calling the
+	gnutls functions directly.  Also return an error code properly.
+
+2007-07-24  Bernhard Herzog  <bh@intevation.de>
+
 	* libopenvas/network.c (nessus_SSL_init): Return a value (0) if
 	already initialized
 

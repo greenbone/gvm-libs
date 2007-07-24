@@ -416,6 +416,27 @@ nessus_get_socket_from_connection(fd)
   return fp->fd;
 }
 
+static int
+set_gnutls_priorities(gnutls_session_t session,
+		      int * protocol_priority,
+		      int * cipher_priority,
+		      int * comp_priority,
+		      int * kx_priority,
+		      int * mac_priority)
+{
+  int err;
+
+  if((err = gnutls_protocol_set_priority(session, protocol_priority))
+     || (err = gnutls_cipher_set_priority(session, cipher_priority))
+     || (err = gnutls_compression_set_priority(session, comp_priority))
+     || (err = gnutls_kx_set_priority(session, kx_priority))
+     || (err = gnutls_mac_set_priority(session, mac_priority)))
+    {
+      tlserror("setting session priorities", err);
+      return -1;
+    }
+  return 0;
+}
 
 static int
 set_gnutls_sslv23(gnutls_session_t session)
@@ -439,11 +460,8 @@ set_gnutls_sslv23(gnutls_session_t session)
 			       GNUTLS_MAC_MD5,
 			       0};
 
-  gnutls_protocol_set_priority(session, protocol_priority);
-  gnutls_cipher_set_priority(session, cipher_priority);
-  gnutls_compression_set_priority(session, comp_priority);
-  gnutls_kx_set_priority (session, kx_priority);
-  gnutls_mac_set_priority(session, mac_priority);
+  return set_gnutls_priorities(session, protocol_priority, cipher_priority,
+			       comp_priority, kx_priority, mac_priority);
 }
 
 static int
@@ -467,11 +485,8 @@ set_gnutls_sslv3(gnutls_session_t session)
 			       GNUTLS_MAC_MD5,
 			       0};
 
-  gnutls_protocol_set_priority(session, protocol_priority);
-  gnutls_cipher_set_priority(session, cipher_priority);
-  gnutls_compression_set_priority(session, comp_priority);
-  gnutls_kx_set_priority (session, kx_priority);
-  gnutls_mac_set_priority(session, mac_priority);
+  return set_gnutls_priorities(session, protocol_priority, cipher_priority,
+			       comp_priority, kx_priority, mac_priority);
 }
 
 static int
@@ -495,11 +510,8 @@ set_gnutls_tlsv1(gnutls_session_t session)
 			       GNUTLS_MAC_MD5,
 			       0};
 
-  gnutls_protocol_set_priority(session, protocol_priority);
-  gnutls_cipher_set_priority(session, cipher_priority);
-  gnutls_compression_set_priority(session, comp_priority);
-  gnutls_kx_set_priority (session, kx_priority);
-  gnutls_mac_set_priority(session, mac_priority);
+  return set_gnutls_priorities(session, protocol_priority, cipher_priority,
+			       comp_priority, kx_priority, mac_priority);
 }
 
 /*
@@ -507,7 +519,7 @@ set_gnutls_tlsv1(gnutls_session_t session)
  * of hte NESSUS_ENCAPS_* constants.
  */
 static int
-set_gnutls_priorities(gnutls_session_t session, int encaps)
+set_gnutls_protocol(gnutls_session_t session, int encaps)
 {
   switch (encaps)
     {
@@ -744,14 +756,14 @@ open_SSL_connection(nessus_connection *fp, int timeout,
       return -1;
     }
 
-  /* set_gnutls_priorities handles NESSUS_ENCAPS_SSLv2 by falling back
+  /* set_gnutls_protocol handles NESSUS_ENCAPS_SSLv2 by falling back
    * to NESSUS_ENCAPS_SSLv23.  However, this function
    * (open_SSL_connection) is called only by open_stream_connection and
    * open_stream_connection will exit with an error code if called with
    * NESSUS_ENCAPS_SSLv2, so it should never end up calling
    * open_SSL_connection with NESSUS_ENCAPS_SSLv2.
    */
-  if (set_gnutls_priorities(fp->tls_session, fp->transport) < 0)
+  if (set_gnutls_protocol(fp->tls_session, fp->transport) < 0)
     return -1;
 
   ret = gnutls_certificate_allocate_credentials(&(fp->tls_cred));
@@ -1203,7 +1215,7 @@ ovas_server_context_attach(ovas_server_context_t ctx, int soc)
 	  goto fail;
 	}
 
-      ret = set_gnutls_priorities(fp->tls_session, fp->transport);
+      ret = set_gnutls_protocol(fp->tls_session, fp->transport);
       if (ret < 0)
 	{
 	  goto fail;
