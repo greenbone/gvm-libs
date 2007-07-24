@@ -29,6 +29,7 @@
 #include <includes.h>
 #include <stdarg.h>
 #include <gnutls/gnutls.h>
+#include <gnutls/x509.h>
 #include "libopenvas.h"
 #include "network.h"
 #include "resolve.h"
