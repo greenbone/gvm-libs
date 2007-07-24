@@ -1,5 +1,11 @@
 2007-07-24  Bernhard Herzog  <bh@intevation.de>
 
+	* libopenvas/network.c (nessus_SSL_init): Make sure
+	gnutls_global_init is only called once even if nessus_SSL_init is
+	called multiple times.
+
+2007-07-24  Bernhard Herzog  <bh@intevation.de>
+
 	* libopenvas/network.c (load_file, unload_file): Use emalloc and
 	efree to be consistent with the rest of the libopenvas code
 

@@ -342,12 +342,19 @@ void tlserror(char *txt, int err)
 ExtFunc int
 nessus_SSL_init(char *path)
 {
+  static int initialized = 0;
+
+  if (initialized)
+    return;
+
   int ret = gnutls_global_init();
   if (ret < 0)
     {
       tlserror("gnutls_global_init", ret);
       return -1;
     }
+
+  initialized = 1;
 
   return 0;
 }
