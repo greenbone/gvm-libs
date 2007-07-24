@@ -1,5 +1,10 @@
 2007-07-24  Bernhard Herzog  <bh@intevation.de>
 
+	* libopenvas/network.c (nessus_SSL_init): Return a value (0) if
+	already initialized
+
+2007-07-24  Bernhard Herzog  <bh@intevation.de>
+
 	* libopenvas/network.c (nessus_SSL_init): Make sure
 	gnutls_global_init is only called once even if nessus_SSL_init is
 	called multiple times.

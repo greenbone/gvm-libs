@@ -345,7 +345,7 @@ nessus_SSL_init(char *path)
   static int initialized = 0;
 
   if (initialized)
-    return;
+    return 0;
 
   int ret = gnutls_global_init();
   if (ret < 0)
