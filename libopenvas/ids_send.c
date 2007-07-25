@@ -33,7 +33,6 @@
 #define EXPORTING
 #include <includes.h>
 #include <stdarg.h>
-#include "network.h"
 #include "resolve.h"
 #include "ids_send.h"
 

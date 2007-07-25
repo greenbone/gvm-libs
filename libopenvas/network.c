@@ -31,7 +31,6 @@
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 #include "libopenvas.h"
-#include "network.h"
 #include "resolve.h"
 #include "ids_send.h"
 

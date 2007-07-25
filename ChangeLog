@@ -1,3 +1,11 @@
+2007-07-25  Bernhard Herzog  <bh@intevation.de>
+
+	* libopenvas/network.h: Removed. Everything declared in network.h
+	is also declared in libopenvas.h
+
+	* libopenvas/pcap.c, libopenvas/network.c, libopenvas/ids_send.c:
+	Remove includes of network.h
+
 2007-07-24  Bernhard Herzog  <bh@intevation.de>
 
 	* libopenvas/network.c (ovas_server_context_attach)

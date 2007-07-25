@@ -21,7 +21,6 @@
 #ifdef HAVE_SYS_SOCKIO_H
 #include <sys/sockio.h>
 #endif
-#include "network.h"
 
 
 #define MAXROUTES 1024
