@@ -52,7 +52,6 @@ libopenvas/ids_send.h
 libopenvas/kb.c
 libopenvas/Makefile
 libopenvas/network.c
-libopenvas/network.h
 libopenvas/pcap.c
 libopenvas/plugutils.c
 libopenvas/plugutils.h
