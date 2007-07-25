@@ -66,7 +66,7 @@ system.o : system.c system.h
 arglists.o : arglists.c 
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c arglists.c
 
-network.o : network.c network.h
+network.o : network.c
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c network.c
 
 scanners_utils.o : scanners_utils.c scanners_utils.h

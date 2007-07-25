@@ -92,11 +92,14 @@ test -z "$GCC" || CWARN="-Wall"
 
 dnl Check for extra libraries
 
-AC_HAVE_LIBRARY(resolv, LIBS="-lresolv $LIBS")
+AC_CHECK_LIB(resolv, dn_expand, LIBS="-lresolv $LIBS",
+  AC_MSG_ERROR(you need to install resolve library with development files))
 
-AC_HAVE_LIBRARY(gnutls, LIBS="-lgnutls $LIBS")
+AC_CHECK_LIB(gnutls, gnutls_init, LIBS="-lgnutls $LIBS",
+  AC_MSG_ERROR(you need to install gnutls library with development files))
 
-AC_HAVE_LIBRARY(pcap, LIBS="-lpcap $LIBS")
+AC_CHECK_LIB(pcap, pcap_restart, LIBS="-lpcap $LIBS",
+  AC_MSG_ERROR(you need to install pcap library with development files))
 
 # These libraries break stuff under IRIX
 if  test "`uname`" != "IRIX" ;
@@ -549,8 +552,11 @@ dnl And we put everything in THREE files
 AC_OUTPUT(openvas-libraries.tmpl libopenvas-config.pre include/libvers.h)
 
 AC_MSG_RESULT([
-Note: If you installed an older version of OpenVAS you may want
-to remove it first.
+Configuration successful. Now type
+ make
+to build. Then
+ make install
+to install.
 ])
 
 

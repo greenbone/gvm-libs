@@ -8134,9 +8134,9 @@ INSTALL_DIR="$INSTALL -d"
 test -z "$GCC" || CWARN="-Wall"
 
 
-{ echo "$as_me:$LINENO: checking for main in -lresolv" >&5
-echo $ECHO_N "checking for main in -lresolv... $ECHO_C" >&6; }
-if test "${ac_cv_lib_resolv_main+set}" = set; then
+{ echo "$as_me:$LINENO: checking for dn_expand in -lresolv" >&5
+echo $ECHO_N "checking for dn_expand in -lresolv... $ECHO_C" >&6; }
+if test "${ac_cv_lib_resolv_dn_expand+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -8148,11 +8148,17 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char dn_expand ();
 int
 main ()
 {
-return main ();
+return dn_expand ();
   ;
   return 0;
 }
@@ -8175,29 +8181,32 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  ac_cv_lib_resolv_main=yes
+  ac_cv_lib_resolv_dn_expand=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	ac_cv_lib_resolv_main=no
+	ac_cv_lib_resolv_dn_expand=no
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ echo "$as_me:$LINENO: result: $ac_cv_lib_resolv_main" >&5
-echo "${ECHO_T}$ac_cv_lib_resolv_main" >&6; }
-if test $ac_cv_lib_resolv_main = yes; then
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_resolv_dn_expand" >&5
+echo "${ECHO_T}$ac_cv_lib_resolv_dn_expand" >&6; }
+if test $ac_cv_lib_resolv_dn_expand = yes; then
   LIBS="-lresolv $LIBS"
+else
+  { { echo "$as_me:$LINENO: error: you need to install resolve library with development files" >&5
+echo "$as_me: error: you need to install resolve library with development files" >&2;}
+   { (exit 1); exit 1; }; }
 fi
-ac_cv_lib_resolv=ac_cv_lib_resolv_main
 
 
-{ echo "$as_me:$LINENO: checking for main in -lgnutls" >&5
-echo $ECHO_N "checking for main in -lgnutls... $ECHO_C" >&6; }
-if test "${ac_cv_lib_gnutls_main+set}" = set; then
+{ echo "$as_me:$LINENO: checking for gnutls_init in -lgnutls" >&5
+echo $ECHO_N "checking for gnutls_init in -lgnutls... $ECHO_C" >&6; }
+if test "${ac_cv_lib_gnutls_gnutls_init+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -8209,11 +8218,17 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char gnutls_init ();
 int
 main ()
 {
-return main ();
+return gnutls_init ();
   ;
   return 0;
 }
@@ -8236,29 +8251,32 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  ac_cv_lib_gnutls_main=yes
+  ac_cv_lib_gnutls_gnutls_init=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	ac_cv_lib_gnutls_main=no
+	ac_cv_lib_gnutls_gnutls_init=no
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ echo "$as_me:$LINENO: result: $ac_cv_lib_gnutls_main" >&5
-echo "${ECHO_T}$ac_cv_lib_gnutls_main" >&6; }
-if test $ac_cv_lib_gnutls_main = yes; then
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_gnutls_gnutls_init" >&5
+echo "${ECHO_T}$ac_cv_lib_gnutls_gnutls_init" >&6; }
+if test $ac_cv_lib_gnutls_gnutls_init = yes; then
   LIBS="-lgnutls $LIBS"
+else
+  { { echo "$as_me:$LINENO: error: you need to install gnutls library with development files" >&5
+echo "$as_me: error: you need to install gnutls library with development files" >&2;}
+   { (exit 1); exit 1; }; }
 fi
-ac_cv_lib_gnutls=ac_cv_lib_gnutls_main
 
 
-{ echo "$as_me:$LINENO: checking for main in -lpcap" >&5
-echo $ECHO_N "checking for main in -lpcap... $ECHO_C" >&6; }
-if test "${ac_cv_lib_pcap_main+set}" = set; then
+{ echo "$as_me:$LINENO: checking for pcap_restart in -lpcap" >&5
+echo $ECHO_N "checking for pcap_restart in -lpcap... $ECHO_C" >&6; }
+if test "${ac_cv_lib_pcap_pcap_restart+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -8270,11 +8288,17 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char pcap_restart ();
 int
 main ()
 {
-return main ();
+return pcap_restart ();
   ;
   return 0;
 }
@@ -8297,24 +8321,27 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  ac_cv_lib_pcap_main=yes
+  ac_cv_lib_pcap_pcap_restart=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	ac_cv_lib_pcap_main=no
+	ac_cv_lib_pcap_pcap_restart=no
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ echo "$as_me:$LINENO: result: $ac_cv_lib_pcap_main" >&5
-echo "${ECHO_T}$ac_cv_lib_pcap_main" >&6; }
-if test $ac_cv_lib_pcap_main = yes; then
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_pcap_pcap_restart" >&5
+echo "${ECHO_T}$ac_cv_lib_pcap_pcap_restart" >&6; }
+if test $ac_cv_lib_pcap_pcap_restart = yes; then
   LIBS="-lpcap $LIBS"
+else
+  { { echo "$as_me:$LINENO: error: you need to install pcap library with development files" >&5
+echo "$as_me: error: you need to install pcap library with development files" >&2;}
+   { (exit 1); exit 1; }; }
 fi
-ac_cv_lib_pcap=ac_cv_lib_pcap_main
 
 
 # These libraries break stuff under IRIX
@@ -15343,12 +15370,18 @@ fi
 
 
 { echo "$as_me:$LINENO: result:
-Note: If you installed an older version of OpenVAS you may want
-to remove it first.
+Configuration successful. Now type
+ make
+to build. Then
+ make install
+to install.
 " >&5
 echo "${ECHO_T}
-Note: If you installed an older version of OpenVAS you may want
-to remove it first.
+Configuration successful. Now type
+ make
+to build. Then
+ make install
+to install.
 " >&6; }
 
 
