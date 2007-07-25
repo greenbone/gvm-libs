@@ -1,5 +1,15 @@
 2007-07-25  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/proctitle.c (setproctitle):
+	Change name of daemon from nessusd to openvasd.
+
+	* include/config.h.in: Removed NESSUSD_USERNAME which is not
+	used anywhere.
+
+	* libopenvas/services.h: Changed paths from nessus to openvas.
+
+2007-07-25  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* configure.in: replaced AC_HAVE_LIBRARY by AC_CHECK_LIB for
 	gnutls, resolve and pcap and emit error when not found.
 	Also replaced the not-so-helpful message after running

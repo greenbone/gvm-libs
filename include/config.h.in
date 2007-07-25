@@ -91,10 +91,9 @@
 #undef  NESSUSD_USRKEYS
 #define NESSUSD_KEYLENGTH 1024
 #define NESSUSD_MAXPWDFAIL   5
-#define NESSUSD_USERNAME  "nessusd"
 
 /*
- * The default port on which nessusd
+ * The default port on which openvasd
  * will be listenning
  */
 #define DEFAULT_PORT 3001

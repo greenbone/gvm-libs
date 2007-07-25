@@ -38,10 +38,10 @@
 /* If you want Nessus to use a second input file, uncomment next line */
 /*#define NESSUS_IANA_PORTS	CONF_DIR "/iana-port-numbers"*/
 
-#define NESSUS_SERVICES_TCP	NESSUS_STATE_DIR	"/nessus/services.tcp"
-#define NESSUS_SERVICES_UDP	NESSUS_STATE_DIR	"/nessus/services.udp"
+#define NESSUS_SERVICES_TCP	NESSUS_STATE_DIR	"/openvas/services.tcp"
+#define NESSUS_SERVICES_UDP	NESSUS_STATE_DIR	"/openvas/services.udp"
 /* Not really useful but for debug or information */
-#define NESSUS_SERVICES_TXT	NESSUS_STATE_DIR	"/nessus/services.txt"
+#define NESSUS_SERVICES_TXT	NESSUS_STATE_DIR	"/openvas/services.txt"
 
 #define SERVICES_MAGIC 0x42
 

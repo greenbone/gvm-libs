@@ -86,7 +86,7 @@
 #endif
     va_end(param);
 
-    snprintf(buf2, sizeof(buf2), "nessusd: %s", buf);
+    snprintf(buf2, sizeof(buf2), "openvasd: %s", buf);
     bzero(buf, sizeof(buf));
     strncpy(buf, buf2, sizeof(buf) - 1);
    
