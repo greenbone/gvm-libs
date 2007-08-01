@@ -38,7 +38,7 @@ LO_OBJS = plugutils.lo system.lo network.lo resolve.lo arglists.lo \
 
 # += does not work with non-GNU make ...
 # CFLAGS+=-I../$(CIPHER_SUBDIR)
-CFLAGS+=-g
+CFLAGS+=-g -Wall
 INCLUDE = ${include} 
 CIPHER = -I../$(CIPHER_SUBDIR)
 

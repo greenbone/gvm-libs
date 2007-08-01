@@ -21,14 +21,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-CWARN0 = @CWALL@
-CWARN1 = $(CWARN0) -Wwrite-strings -Wshadow
-CWARN2 = $(CWARN1) -Wcast-align -Wcast-qual -Waggregate-return
-CWARN3 = $(CWARN2) -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations
-CWARN4 = $(CWARN3) -Wconversion -Winline -Wtraditional
-CWARN  = $(CWARN0)
-
-
 SHELL = /bin/sh
 CONFIGURE_ARGS = @ac_configure_args@
 

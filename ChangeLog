@@ -1,3 +1,18 @@
+2007-08-01  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Removed strange handling of CWARN which tries to collect
+	a number of warning wishes for compilation. It didn't
+	really work anyway.
+	Replaced this by: allways give all warnings (-Wall).
+
+	* configure.in, openvas-libraries.tmpl.in: Removed handling
+	of CWARN[01234] and CWALL.
+
+	* configure: updated.
+
+	* libopenvas/Makefile, libhosts_gatherer/Makefile: Added
+	-Wall as compile flag.
+
 2007-07-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* CHANGES: Set release date to 27.7.2007

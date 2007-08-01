@@ -842,8 +842,6 @@ ALLOCA
 CC_NOPIPE
 PWD
 PWDD
-CWALL
-CWARN
 INSTALL_DIR
 INSTALL
 EXTRA
@@ -4726,7 +4724,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 4729 "configure"' > conftest.$ac_ext
+  echo '#line 4727 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -5278,7 +5276,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:5281: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:5279: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -7139,7 +7137,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 7142 "configure"
+#line 7140 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -7237,7 +7235,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 7240 "configure"
+#line 7238 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -8131,7 +8129,6 @@ echo "$INSTALL" | egrep "^\./" 2>&1 > /dev/null &&
  INSTALL="$PWDD/install-sh"
 }
 INSTALL_DIR="$INSTALL -d"
-test -z "$GCC" || CWARN="-Wall"
 
 
 { echo "$as_me:$LINENO: checking for dn_expand in -lresolv" >&5
@@ -14226,8 +14223,6 @@ esac
 
 
 
-
-
 ac_config_files="$ac_config_files openvas-libraries.tmpl libopenvas-config.pre include/libvers.h"
 
 cat >confcache <<\_ACEOF
@@ -14916,8 +14911,6 @@ ALLOCA!$ALLOCA$ac_delim
 CC_NOPIPE!$CC_NOPIPE$ac_delim
 PWD!$PWD$ac_delim
 PWDD!$PWDD$ac_delim
-CWALL!$CWALL$ac_delim
-CWARN!$CWARN$ac_delim
 INSTALL_DIR!$INSTALL_DIR$ac_delim
 INSTALL!$INSTALL$ac_delim
 EXTRA!$EXTRA$ac_delim
@@ -14939,7 +14932,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 89; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 87; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

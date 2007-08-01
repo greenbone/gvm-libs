@@ -88,7 +88,6 @@ echo "$INSTALL" | egrep "^\./" 2>&1 > /dev/null &&
  INSTALL="$PWDD/install-sh"
 }
 INSTALL_DIR="$INSTALL -d"
-test -z "$GCC" || CWARN="-Wall"
 
 dnl Check for extra libraries
 
@@ -528,8 +527,6 @@ AC_SUBST(CC_NOPIPE)
 AC_SUBST(PWD)
 AC_SUBST(PWDD)
 AC_SUBST(CFLAGS)
-AC_SUBST(CWALL)
-AC_SUBST(CWARN)
 AC_SUBST(INSTALL_DIR)
 AC_SUBST(INSTALL)
 AC_SUBST(EXTRA)
