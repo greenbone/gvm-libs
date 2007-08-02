@@ -346,7 +346,7 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
  struct pprefs pp[MAX_PREFS+1];
  char  * str;
  char * dir;
- struct arglist * arglist, * ret,  *prefs;
+ struct arglist * arglist, * prefs;
  int e;
  int fd;
  int num_plugin_prefs = 0;

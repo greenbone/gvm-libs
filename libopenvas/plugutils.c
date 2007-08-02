@@ -1028,12 +1028,8 @@ proto_post_wrapped(desc, port, proto, action, what)
  char * cve;
  char * bid;
  char * xref;
- int do_send = 1;
  int i;
- char ack;
- int n = 0, e, l;
-  
-    
+
  if( action == NULL )action = plug_get_description(desc);
  
  
@@ -1533,7 +1529,6 @@ scanner_add_port(args, port, proto)
  const char * hn = plug_get_hostname(args);
  int len;
  int soc;
- struct arglist * globs;
  int do_send = 1;
  static int confirm = -1;
  
@@ -1752,7 +1747,7 @@ plug_get_key(args, name, type)
       {
       int e;
       int status;
-      struct arglist * globals, * preferences = NULL;
+      struct arglist * globals;
   
       globals = arg_get_value(args, "globals");  
       upstream = (int)arg_get_value(globals, "global_socket");
@@ -1803,8 +1798,6 @@ ExtFunc unsigned int
 plug_get_host_open_port(struct arglist * desc)
 {
  struct kb_item ** kb = plug_get_kb(desc);
- char * t;
- int port = 0;
  struct kb_item * res, *k;
  int open21 = 0, open80 = 0;
 #define MAX_CANDIDATES 16

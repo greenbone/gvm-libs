@@ -1,5 +1,10 @@
 2007-08-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/plugutils.c, libopenvas/scanners_utils.c,
+	libopenvas/store.c: Removed unused variables.
+
+2007-08-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas_hg/Makefile: Fix dependencies for target test.
 
 	* libopenvas_hg/hosts_gatherer.h: Add missing proto

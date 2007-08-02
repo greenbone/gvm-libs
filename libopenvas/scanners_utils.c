@@ -40,11 +40,7 @@ comm_send_status(globals, hostname, action,curr,max)
  ntp_caps* caps = arg_get_value(globals, "ntp_caps");
  int soc = (int)arg_get_value(globals, "global_socket");
  char buffer[2048];
- int e, n = 0, l, ack;
- fd_set rd, wr;
- struct timeval tv;
- 
- 
+
  if (soc < 0 || soc > 1024) 
   return -1;
  
