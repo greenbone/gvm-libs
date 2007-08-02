@@ -52,9 +52,9 @@ ExtFunc
 void nessus_lib_version(major, minor, rev)
  int * major, *minor, *rev;
 {
- *major = NL_MAJOR;
- *minor = NL_MINOR;
- *rev   = NL_REV;
+ *major = OPENVASLIBS_MAJOR;
+ *minor = OPENVASLIBS_MINOR;
+ *rev   = OPENVASLIBS_REV;
 }
 
 #ifdef USE_PTHREADS

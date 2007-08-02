@@ -1,3 +1,12 @@
+2007-08-03  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* configure.in, openvas-libraries.tmpl.in, include/libvers.h.in,
+	libopenvas/plugutils.c: Replaced NESSUS_MAJOR etc. by
+	OPENVASLIBS_MAJOR etc. as well as NL_MAJOR etc. by
+	OPENVASLIBS_MAJOR etc.
+
+	* configure: updated.
+
 2007-08-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/plugutils.c, libopenvas/scanners_utils.c,

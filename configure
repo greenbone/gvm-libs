@@ -852,11 +852,11 @@ llib
 version
 egdpath
 debug_ssl
-NESSUS_MAJOR
-NESSUS_MINOR
-NESSUS_SUPER
-NESSUS_PATCH
-NESSUS_DATE
+OPENVASLIBS_MAJOR
+OPENVASLIBS_MINOR
+OPENVASLIBS_SUPER
+OPENVASLIBS_PATCH
+OPENVASLIBS_DATE
 VERSION
 ac_configure_args
 LIBOBJS
@@ -1903,17 +1903,17 @@ PWDD=`pwd`
 VERSION=`cat VERSION`
 save_IFS="${IFS}"
 IFS=.
-read NESSUS_MAJOR NESSUS_MINOR NESSUS_PATCH NESSUS_RC <VERSION
+read OPENVASLIBS_MAJOR OPENVASLIBS_MINOR OPENVASLIBS_PATCH OPENVASLIBS_RC <VERSION
 IFS="${save_IFS}"
 
-NESSUS_DATE=\"`date '+%b %d, %Y'`\"
-expr 0 + $NESSUS_MAJOR + $NESSUS_MINOR + $NESSUS_PATCH + 0 >/dev/null ||
+OPENVASLIBS_DATE=\"`date '+%b %d, %Y'`\"
+expr 0 + $OPENVASLIBS_MAJOR + $OPENVASLIBS_MINOR + $OPENVASLIBS_PATCH + 0 >/dev/null ||
 { { echo "$as_me:$LINENO: error:  *** Panic: Corrupt version file" >&5
 echo "$as_me: error:  *** Panic: Corrupt version file" >&2;}
    { (exit 1); exit 1; }; }
-version=$NESSUS_MAJOR.$NESSUS_MINOR.$NESSUS_PATCH
+version=$OPENVASLIBS_MAJOR.$OPENVASLIBS_MINOR.$OPENVASLIBS_PATCH
 
-NESSUS_SUPER=`expr $NESSUS_MAJOR + $NESSUS_MINOR`
+OPENVASLIBS_SUPER=`expr $OPENVASLIBS_MAJOR + $OPENVASLIBS_MINOR`
 
 ac_config_headers="$ac_config_headers include/config.h"
 
@@ -14921,11 +14921,11 @@ llib!$llib$ac_delim
 version!$version$ac_delim
 egdpath!$egdpath$ac_delim
 debug_ssl!$debug_ssl$ac_delim
-NESSUS_MAJOR!$NESSUS_MAJOR$ac_delim
-NESSUS_MINOR!$NESSUS_MINOR$ac_delim
-NESSUS_SUPER!$NESSUS_SUPER$ac_delim
-NESSUS_PATCH!$NESSUS_PATCH$ac_delim
-NESSUS_DATE!$NESSUS_DATE$ac_delim
+OPENVASLIBS_MAJOR!$OPENVASLIBS_MAJOR$ac_delim
+OPENVASLIBS_MINOR!$OPENVASLIBS_MINOR$ac_delim
+OPENVASLIBS_SUPER!$OPENVASLIBS_SUPER$ac_delim
+OPENVASLIBS_PATCH!$OPENVASLIBS_PATCH$ac_delim
+OPENVASLIBS_DATE!$OPENVASLIBS_DATE$ac_delim
 VERSION!$VERSION$ac_delim
 ac_configure_args!$ac_configure_args$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
