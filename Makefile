@@ -45,17 +45,6 @@ openvas-libraries.tmpl: openvas-libraries.tmpl.in configure VERSION
 	$(SHELL) configure $(CONFIGURE_ARGS)
 	touch $@
 
-win32:
-	-cd libopenvas_hg && ${MAKE} distclean
-	@echo
-	@echo ' --------------------------------------------------------------'
-	@echo ' The header files necessary and some docs have been generated,'
-	@echo ' now.  Go ahead and move the nessus lib to a windows box where'
-	@echo ' it can be compiled using nmake (all Micro$$oft stuff.)'
-	@echo ' --------------------------------------------------------------'
-	@echo
-
-
 install : all
 	test -d ${prefix} || ${INSTALL_DIR} -m 755 ${prefix}
 	test -d ${includedir}/openvas || ${INSTALL_DIR} -m 755 ${includedir}/openvas

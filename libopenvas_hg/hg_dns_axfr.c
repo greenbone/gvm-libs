@@ -19,7 +19,6 @@
  */
  
 #include <includes.h>
-#ifndef _CYGWIN_
 #include "hosts_gatherer.h"
 #include "hg_filter.h"
 #include "hg_utils.h"
@@ -381,15 +380,3 @@ void
  hg_dns_axfr_query(globals, domain, ns, &answer, &limit);
  hg_hosts_cleanup(ns);
 }
-
-#else  /* XXXXXXXXXXXXXXXXXXXXXXXXX TO IMPLEMENT */
-/*
- * Our "main" function regarding DNS AXFR
- */	    
-void
- hg_dns_axfr_add_hosts(globals, domain)
-  struct hg_globals * globals;
-  char * domain;
-{
-}
-#endif 

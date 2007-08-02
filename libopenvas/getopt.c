@@ -710,22 +710,7 @@ _getopt_internal (argc, argv, optstring, longopts, longind, long_only)
   }
 }
 
-/************************************/
-#ifdef _WIN32 /* not used by Nessus */
-/************************************/
-int
-getopt (argc, argv, optstring)
-     int argc;
-     char *const *argv;
-     const char *optstring;
-{
-  return _getopt_internal (argc, argv, optstring,
-			   (const struct option *) 0,
-			   (int *) 0,
-			   0);
-}
 /******************************************/
-#endif              /* not used by Nessus */
 #if 0                /* annihilate #endif */
 #endif	/* _LIBC or not __GNU_LIBRARY__.  */
 /******************************************/

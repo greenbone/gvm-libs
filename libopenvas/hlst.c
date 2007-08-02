@@ -243,17 +243,8 @@ create_hlst
   estimated_size_hint /= 100 ;
 
   /* find appropriate list size, will stop at the last entry */
-# ifdef _WIN32
-  for (;;) {
-    const hash_defs *hd1 = hd+1 ;
-    if (hd1->mod == 0 || hd1->mod > estimated_size_hint)
-      break ;
-    ++ hd ;
-  }
-# else
   while (hd [1].mod != 0 && hd [1].mod <= estimated_size_hint)
     ++ hd ;
-# endif
 
   h = XMALLOC (sizeof (hlst) + (hd->mod - 1) * sizeof (void*));
   h->z          =   *hd ;
@@ -293,17 +284,8 @@ copy_hlst
 
     if (estimated_size_hint != h->z.mod) {
       /* find appropriate list size, will stop at the last entry */
-#     ifdef _WIN32
-      for (;;) {
-	const hash_defs *hd1 = hd+1 ;
-	if (hd1->mod == 0 || hd1->mod > estimated_size_hint)
-	  break ;
-	++ hd ;
-      }
-#     else
       while (hd [1].mod != 0 && hd [1].mod <= estimated_size_hint)
 	++ hd ;
-#     endif
     }
   }
 

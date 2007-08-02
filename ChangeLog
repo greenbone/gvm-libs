@@ -1,5 +1,20 @@
 2007-08-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* VERSION: bumped to 0.9.1.SVN
+
+	* CHANGES: updated.
+
+	* libopenvas_hg/hg_dns_axfr.c: Removed CYGWIN
+	part which was nit implemented anyway (just a stub).
+
+	* libopenvas/getopt1.c, libopenvas/getopt.c,
+	libopenvas/harglists.c, libopenvas/hlst.c: Removed
+	handling of _WIN32.
+
+	* Makefile: Removed target win32.
+
+2007-08-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libhosts_gatherer, libopenvas_hg: renamed
 	libhosts_gatherer to libopenvas_hg.
 

@@ -1,4 +1,15 @@
-openvas-libraries 0.9.0 (27.07.2007)
+openvas-libraries 0.9.1 (2007-08-XX)
+
+Further cleanups release.
+
+Changes since 0.9.0:
+
+* Renamed libhosts_gatherer to libopenvas_hg to
+  resolved the last remaining filename conflict
+  with nessus-libraries.
+* Internal package improvements.
+
+openvas-libraries 0.9.0 (2007-07-27)
 
 The first initial release of openvas-libraries
 after the fork from Nessus 2.2.x.

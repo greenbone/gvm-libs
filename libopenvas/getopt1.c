@@ -25,10 +25,6 @@ Cambridge, MA 02139, USA.  */
 
 #include <includes.h>
 
-#ifdef _WIN32
-#include "config.w32"
-#endif
-
 /***********************/
 #ifndef HAVE_GETOPT_LONG
 /***********************/

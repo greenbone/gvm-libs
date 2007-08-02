@@ -285,9 +285,6 @@ message
   fputs (s, stderr);
   fprintf (stderr, f, u, v);
   fputs (t, stderr);
-# ifdef _WIN32
-  fputc ('\r', stderr);
-# endif 
   fputc ('\n', stderr);
 }
 
@@ -1161,9 +1158,6 @@ harg_tracker_dump
     if (*R != 0) {
       fprintf (stderr, "{0x%lx} = ", (long)*R);
       do_harg_dump (*R, 0);
-#     ifdef _WIN32
-      fputc ('\r', stderr);
-#     endif 
       fputc ('\n', stderr);
     }
 # endif
