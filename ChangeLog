@@ -1,5 +1,14 @@
 2007-08-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas_hg/Makefile: Fix dependencies for target test.
+
+	* libopenvas_hg/hosts_gatherer.h: Add missing proto
+	for hg_test_syntax().
+
+	* libopenvas_hg/test.c (main): Fix return type.
+
+2007-08-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* VERSION: bumped to 0.9.1.SVN
 
 	* CHANGES: updated.

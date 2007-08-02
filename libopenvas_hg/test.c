@@ -13,7 +13,7 @@
  *
  */
 extern int optind;
-void main(int argc, char * argv[])
+int main(int argc, char * argv[])
 {
  struct hg_globals * globals;
  char m[1024];
@@ -55,4 +55,6 @@ void main(int argc, char * argv[])
   e = hg_next_host(globals,&ip, m, sizeof(m));
  }
  hg_cleanup(globals);
+
+ return 0;
 }
