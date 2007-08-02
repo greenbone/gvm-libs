@@ -1,6 +1,6 @@
 # OpenVAS
 # $Id$
-# Description: Makefile for libhosts-gatherer of OpenVAS-libraries.
+# Description: Makefile for libopenvas_hg of OpenVAS-libraries.
 #
 # Authors:
 # Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
@@ -34,18 +34,18 @@ LO_OBJS = hg_utils.lo hg_add_hosts.lo hg_subnet.lo hg_filter.lo \
 	hosts_gatherer.lo hg_debug.lo hg_dns_axfr.lo
 
 
-all : libhosts_gatherer.la
+all : libopenvas_hg.la
 
-test : libhosts_gatherer.la 
-	$(COMPILE)  test.c -o test -L.libs -lhosts_gatherer $(LIBS)
+test : libopenvas_hg.la
+	$(COMPILE)  test.c -o test -L.libs -lopenvas_hg $(LIBS)
 
-install : libhosts_gatherer.la
+install : libopenvas_hg.la
 	test -d $(DESTDIR)${libdir} || $(INSTALL_DIR) -m 755 $(DESTDIR)${libdir}
-	$(LIBTOOL) --mode install $(INSTALL) libhosts_gatherer.la $(DESTDIR)${libdir} 
+	$(LIBTOOL) --mode install $(INSTALL) libopenvas_hg.la $(DESTDIR)${libdir} 
 	$(LIBTOOL) --finish $(DESTDIR)${libdir}
 	
-libhosts_gatherer.la : $(OBJS)
-	$(LIBTOOL) $(CC) -o libhosts_gatherer.la $(LO_OBJS) -rpath ${libdir} \
+libopenvas_hg.la : $(OBJS)
+	$(LIBTOOL) $(CC) -o libopenvas_hg.la $(LO_OBJS) -rpath ${libdir} \
 	-version-info ${PACKAGE_VERSION}
 	        
 hg_utils.o : hg_utils.h hosts_gatherer.h hg_utils.c

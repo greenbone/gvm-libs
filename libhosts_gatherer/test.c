@@ -5,9 +5,9 @@
  * This simple program compiles when you link it against
  * the following shared libraries :
  *
- *	-lhosts_gatherer
- *	-lpcap-nessus
- *	-lnessus
+ *	-lopenvas_hg
+ *	-lpcap
+ *	-lopenvas
  *
  * Its purpose is to demonstrate how to use the lib hosts_gatherer
  *
