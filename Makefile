@@ -31,7 +31,7 @@ ALLDEPS = openvas-libraries.tmpl libopenvas-config
 
 all: $(ALLDEPS)
 	cd libopenvas && ${MAKE}
-	cd libhosts_gatherer && ${MAKE}
+	cd libopenvas_hg && ${MAKE}
 
 libopenvas-config: libopenvas-config.pre Makefile openvas-libraries.tmpl
 	@echo Creating $@ ...
@@ -46,7 +46,7 @@ openvas-libraries.tmpl: openvas-libraries.tmpl.in configure VERSION
 	touch $@
 
 win32:
-	-cd libhosts_gatherer && ${MAKE} distclean
+	-cd libopenvas_hg && ${MAKE} distclean
 	@echo
 	@echo ' --------------------------------------------------------------'
 	@echo ' The header files necessary and some docs have been generated,'
@@ -60,7 +60,7 @@ install : all
 	test -d ${prefix} || ${INSTALL_DIR} -m 755 ${prefix}
 	test -d ${includedir}/openvas || ${INSTALL_DIR} -m 755 ${includedir}/openvas
 	cd libopenvas && ${MAKE} install
-	cd libhosts_gatherer && ${MAKE} install
+	cd libopenvas_hg && ${MAKE} install
 
 
 	$(INSTALL) -m 0444 include/includes.h ${includedir}/openvas
@@ -85,13 +85,13 @@ install : all
 
 clean :
 	-cd libopenvas && ${MAKE} clean
-	-cd libhosts_gatherer && ${MAKE} clean
+	-cd libopenvas_hg && ${MAKE} clean
 
 distclean : clean
 	rm -f ${rootdir}/include/config.h libtool config.cache \
 	config.status config.log ${rootdir}/include/libvers.h 
 	-cd libopenvas && ${MAKE} distclean
-	-cd libhosts_gatherer && ${MAKE} distclean
+	-cd libopenvas_hg && ${MAKE} distclean
 	rm -f openvas-libraries.tmpl libopenvas-config libopenvas-config.pre
 
 dist:
