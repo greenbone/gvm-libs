@@ -1,11 +1,19 @@
 2007-09-13  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Doing the release 0.9.1.
+
+	* VERSION: Set to 0.9.1.
+
+	* Changes: Updated.
+
+2007-09-13  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* TODO: Removed the entry about separate versioning (it is
 	done now). Also removed the entry about reviewing the Debian patches
 	to nessus-libraries (done).
 
 	* libopenvas/bpf_share.c, libopenvas/services.h: Fixed paths to
-	state dir to LSB standard. This make the current Debian patch
+	state dir to LFSH standard. This make the current Debian patch
 	to the according Makefile in nessus-libraries unnecessary.
 
 2007-08-03  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
@@ -38,7 +46,7 @@
 	* CHANGES: updated.
 
 	* libopenvas_hg/hg_dns_axfr.c: Removed CYGWIN
-	part which was nit implemented anyway (just a stub).
+	part which was not implemented anyway (just a stub).
 
 	* libopenvas/getopt1.c, libopenvas/getopt.c,
 	libopenvas/harglists.c, libopenvas/hlst.c: Removed
