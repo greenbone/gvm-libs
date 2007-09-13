@@ -19,12 +19,3 @@
 	* AIX: Is this a platform that is really important
 	to be supported? Special treatment for AIX occurs
 	at various places.
-
-	* Review Debian patches for nessus-libraries 2.2.8 and
-	see what should be applied for openvas-libraries.
-
-2007-03-28 <Jan-Oliver.Wagner@intevation.de>
-
-	* Should the versioning be separate from that of -libnasl
-	and -server? Would mean to change NESSUS_MAJOR etc. in configure.in.
-	Anywhere else?

@@ -26,8 +26,8 @@
 #define NUM_BPF_PER_CLIENT 5
 
 
-#define BPF_SOCKET_PATH NESSUS_STATE_DIR"/nessus/bpf"
-#define BPF_SERVER_PID_FILE NESSUS_STATE_DIR"/nessus/bpf_server.pid"
+#define BPF_SOCKET_PATH NESSUS_STATE_DIR"/lib/openvas/bpf"
+#define BPF_SERVER_PID_FILE NESSUS_STATE_DIR"/lib/openvas/bpf_server.pid"
 
 /*
  * The traditional pcap code is much more handy, so we'll try to use
