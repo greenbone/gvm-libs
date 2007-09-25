@@ -494,6 +494,8 @@ int    kb_item_set_str(struct kb_item **, char *, char *);
 int    kb_item_add_int(struct kb_item **, char *, int   );
 int    kb_item_set_int(struct kb_item **, char *, int   );
 
+void   kb_item_rm_all(struct kb_item **, char *);
+
 struct arglist * plug_get_oldstyle_kb(struct arglist * );
 
 

@@ -232,6 +232,7 @@
 #endif
 
 #include <pcap.h>
+#include <fnmatch.h>
 
 #include <libopenvas.h>
 
