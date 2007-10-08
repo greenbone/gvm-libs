@@ -1,3 +1,9 @@
+2007-10-08  Bernhard Herzog  <bh@intevation.de>
+
+	* libopenvas_hg/Makefile: Install hosts_gatherer.h and hg_utils.h
+	into ${includedir}/openvas.  They contain declarations needed by
+	openvas-server and openvas-libnasl
+
 2007-09-13  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* VERSION: bumped to 0.9.2.SVN
