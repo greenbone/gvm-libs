@@ -1415,7 +1415,8 @@ void * plug_get_fresh_key(args, name, type)
 
  e = internal_send(soc, name, INTERNAL_COMM_MSG_TYPE_KB|INTERNAL_COMM_KB_GET);
  if(e < 0){
-        fprintf(stderr, "[%d] plug_get_fresh_key:internal_send(%d): %s\n",getpid(), soc,name, strerror(errno));
+        fprintf(stderr, "[%d] plug_get_fresh_key:internal_send(%d, %s): %s\n",
+                getpid(), soc, name, strerror(errno));
 	goto err;
 	}
 

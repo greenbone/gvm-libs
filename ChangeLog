@@ -1,3 +1,17 @@
+2007-10-08  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Some code cleanups.
+
+	* libopenvas/plugutils(plug_get_fresh_key): Fixed wrong number of
+	arguments for fprintf call.
+
+	* libopenvas/harglists.c(harg_addt, harg_set_valuet, harg_renamet): Add
+	more ()s to make clear && is to be evaluated before ||. This was
+	suggested by gcc.
+
+	* libopenvas/www_funcs.c(http_get, http_head, httpver, http10_head, http10_get,
+	http10_get_head, http11_head, http11_get): Removed. These functions have never been used.
+
 2007-10-08  Bernhard Herzog  <bh@intevation.de>
 
 	* libopenvas_hg/Makefile: Install hosts_gatherer.h and hg_utils.h

@@ -671,8 +671,8 @@ harg_addt
 
   /* sanity check */
   if (a == 0 || key == 0 ||
-      size == 0 && ((value == 0) && is_blob_type (type) ||
-		    verify_simple_type (type, HARG_BLOB))) {
+      (size == 0 && (((value == 0) && is_blob_type(type)) ||
+       verify_simple_type (type, HARG_BLOB)))) {
     errno = EINVAL; 
     return 0;
   }
@@ -735,8 +735,8 @@ harg_set_valuet
 
   /* sanity check */
   if (a == 0 || key == 0 ||
-      size == 0 && (value == 0 && is_blob_type (type) ||
-		    verify_simple_type (type, HARG_BLOB))) {
+      (size == 0 && (((value == 0) && is_blob_type(type)) ||
+       verify_simple_type (type, HARG_BLOB)))) {
     errno = EINVAL; 
     return -1;
   }
@@ -825,8 +825,8 @@ harg_renamet
     return 0 ; /* nothing to do */
 
   /* check target type groups */
-  if (is_blob_type   (ntype) &&   is_blob_type (r->type) ||
-      is_scalar_type (ntype) && is_scalar_type (r->type) ||
+  if ((is_blob_type   (ntype) &&   is_blob_type (r->type)) ||
+      (is_scalar_type (ntype) && is_scalar_type (r->type)) ||
       is_specific_type (ntype) == 0) {
     if (same_keys == 0) {
       /* make new index */
