@@ -1,3 +1,10 @@
+2007-10-11  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* README.HPUX: Removed. This information seem to be a leftover
+	from stoneage time.
+
+	* TODO: More things noted.
+
 2007-10-08  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	Some code cleanups.
