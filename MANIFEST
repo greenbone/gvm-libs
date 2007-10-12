@@ -79,6 +79,5 @@ Makefile
 MANIFEST
 openvas-libraries.tmpl.in
 README.BPF
-README.HPUX
 TODO
 VERSION
