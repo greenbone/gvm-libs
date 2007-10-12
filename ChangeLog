@@ -1,3 +1,11 @@
+2007-10-12  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Doing the release 1.0.0.
+
+	* VERSION: Set to 1.0.0.
+
+	* CHANGES: Updated.
+
 2007-10-11  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* README.HPUX: Removed. This information seem to be a leftover
@@ -35,7 +43,7 @@
 
 	* VERSION: Set to 0.9.1.
 
-	* Changes: Updated.
+	* CHANGES: Updated.
 
 2007-09-13  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 

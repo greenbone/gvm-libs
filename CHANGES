@@ -1,3 +1,10 @@
+openvas-libraries 1.0.0 (2007-10-12)
+
+First stable release.
+
+* Now installs header files hosts_gatherer.h and hg_utils.h.
+* More code cleanups.
+
 openvas-libraries 0.9.1 (2007-09-13)
 
 Further cleanups release.
