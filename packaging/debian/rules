@@ -1,0 +1,70 @@
+#!/usr/bin/make -f
+# Derived from dh_make example.
+
+#export DH_VERBOSE=1
+export DH_COMPAT=4
+export DH_OPTIONS
+
+version		:= $(shell cat VERSION)
+tmp		:= $(CURDIR)/debian/tmp
+
+CFLAGS := -g -Wall -D_REENTRANT
+ifneq "$(findstring noopt,$(DEB_BUILD_OPTIONS))" ""
+CFLAGS += -O0
+else
+CFLAGS += -O2
+endif
+
+build: build-stamp
+build-stamp: config.status
+	dh_testdir
+	$(MAKE) localstatedir=/var
+	touch $@
+
+config.status: configure
+	CFLAGS="$(CFLAGS)" ./configure --prefix=/usr --sysconfdir=/etc \
+	--localstatedir=/var  --mandir='$${prefix}/share/man' \
+	--enable-static --enable-cipher
+
+clean:
+	dh_testdir
+	dh_testroot
+	touch openvas-libraries.tmpl
+	[ ! -f Makefile ] || $(MAKE) distclean
+	dh_clean build-stamp
+
+install: DH_OPTIONS=
+install: build-stamp
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	$(MAKE) install prefix=$(tmp)/usr
+	dh_installdirs -plibopenvas-dev usr/share/doc/libopenvas
+	dh_install --sourcedir=debian/tmp 
+	find debian/libopenvas/usr -type d -empty | xargs -r rmdir -p --ignore-fail-on-non-empty
+	find debian/libopenvas-dev/usr -type d -empty | xargs -r rmdir -p --ignore-fail-on-non-empty
+
+binary-indep:
+# Nothing.
+
+binary-arch: DH_OPTIONS=-a
+binary-arch: install
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	( cd debian/libopenvas-dev/usr/share/doc/ ; rm -rf libopenvas-dev; ln -s libopenvas libopenvas-dev; )
+	dh_installchangelogs
+ifeq "$(findstring nostrip,$(DEB_BUILD_OPTIONS))" ""
+	dh_strip
+endif
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs -V "libopenvas (>= $(version))"
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install
