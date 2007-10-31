@@ -6,6 +6,15 @@ config.guess
 config.sub
 configure
 configure.in
+packaging/debian/control
+packaging/debian/libopenvas.dirs
+packaging/debian/compat
+packaging/debian/libopenvas-dev.install
+packaging/debian/changelog
+packaging/debian/libopenvas.install
+packaging/debian/copyright
+packaging/debian/rules
+packaging/debian/libopenvas-dev.dirs
 include/config.h.in
 include/data.h
 include/getopt.h
