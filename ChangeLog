@@ -1,3 +1,13 @@
+2007-10-31  Tim Brown <timb@nth-dimension.org.uk>
+
+	* packaging, packaging/debian: New directories.
+
+	* packaging/debian/control, packaging/debian/libopenvas.dirs,
+	packaging/debian/compat, packaging/debian/libopenvas-dev.install,
+	packaging/debian/changelog, packaging/debian/libopenvas.install,
+	packaging/debian/copyright, packaging/debian/rules,
+	packaging/debian/libopenvas-dev.dirs: New. The debian packaging files.
+
 2007-10-12  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* VERSION: post-release version bump to 1.0.1.SVN
