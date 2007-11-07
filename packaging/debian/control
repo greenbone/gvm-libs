@@ -3,6 +3,7 @@ Priority: extra
 Maintainer: Tim Brown <timb@nth-dimension.org.uk>
 Build-Depends: debhelper (>= 5), autotools-dev
 Standards-Version: 3.7.2
+Homepage: http://www.openvas.org/
 Section: libs
 
 Package: libopenvas-dev
@@ -21,8 +22,6 @@ Description: OpenVAS static libraries and headers
  This package contains the required static libraries, headers, and
  openvas-config script.
 
-  Homepage: http://www.openvas.org/
-
 Package: libopenvas
 Section: libs
 Architecture: any
@@ -37,5 +36,3 @@ Description: OpenVAS shared libraries
  OpenVAS-Client, provides the user a nice X11/GTK+ interface.
  .
  This package contains the required shared libraries.
-
-  Homepage: http://www.openvas.org/
