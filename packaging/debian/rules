@@ -39,10 +39,10 @@ install: build-stamp
 	dh_testroot
 	dh_clean -k
 	$(MAKE) install prefix=$(tmp)/usr
-	dh_installdirs -plibopenvas-dev usr/share/doc/libopenvas
+	dh_installdirs -plibopenvas1-dev usr/share/doc/libopenvas1
 	dh_install --sourcedir=debian/tmp 
-	find debian/libopenvas/usr -type d -empty | xargs -r rmdir -p --ignore-fail-on-non-empty
-	find debian/libopenvas-dev/usr -type d -empty | xargs -r rmdir -p --ignore-fail-on-non-empty
+	find debian/libopenvas1/usr -type d -empty | xargs -r rmdir -p --ignore-fail-on-non-empty
+	find debian/libopenvas1-dev/usr -type d -empty | xargs -r rmdir -p --ignore-fail-on-non-empty
 
 binary-indep:
 # Nothing.
@@ -52,14 +52,14 @@ binary-arch: install
 	dh_testdir
 	dh_testroot
 	dh_installdocs
-	( cd debian/libopenvas-dev/usr/share/doc/ ; rm -rf libopenvas-dev; ln -s libopenvas libopenvas-dev; )
+	( cd debian/libopenvas1-dev/usr/share/doc/ ; rm -rf libopenvas1-dev; ln -s libopenvas1 libopenvas1-dev; )
 	dh_installchangelogs
 ifeq "$(findstring nostrip,$(DEB_BUILD_OPTIONS))" ""
 	dh_strip
 endif
 	dh_compress
 	dh_fixperms
-	dh_makeshlibs -V "libopenvas (>= $(version))"
+	dh_makeshlibs -V "libopenvas1 (>= $(version))"
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
