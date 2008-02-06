@@ -1,6 +1,8 @@
 2008-02-05  Tim Brown <timb@nth-dimension.org.uk>
 
 	* packaging/debian/*: Minor changes, now builds lintian clean.
+	* packaging/debian/copyright: More information in the copyright,
+	including a detailed account of holders.
 
 2007-11-07  Tim Brown <timb@nth-dimension.org.uk>
 

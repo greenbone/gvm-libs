@@ -5,9 +5,33 @@ It was downloaded from http://www.openvas.org/
 
 Upstream Author: OpenVAS <openvas-devel@wald.intevation.org>
 
-Copyright: Renaud Deraison <deraison@cvs.nessus.org>, DN-Systems GmbH
-and Intevation GmbH
+Copyright:
 
+ - Libnessus library:
+     * Copyright (C) 1998-2002 Renaud Deraison
+     * Copyright (C) 2001 Michael Arboi
+     * Copyright (c) Nessus Consulting S.A.R.L., 2000 - 2001
+     * Copyright (c) mjh-EDV Beratung, 1996-1999
+     * Copyright (C) Free Software Foundation, Inc., [getopt]
+     * Copyright (c) 1995-1999 Kungliga Tekniska Högskolan
+     * (Royal Institute of Technology, Stockholm, Sweden). [snprintf]
+     * Copyright 1988-2002, Patrick Powell, San Diego, CA [proctitle]
+     * Copyright 2001 Niels Provos <provos@citi.umich.edu> [share_fd]
+
+Other copyrights:
+
+ - Autoconf:
+    Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999,
+    2000, 2001, 2002, 2003, 2004, 2005, 2006 Free Software Foundation,
+    Inc.
+
+Authors:
+
+ - Libnessus library:
+
+     * Renaud Deraison
+     * Michael Arboi
+     
 License:
 
     This package is free software; you can redistribute it and/or modify
