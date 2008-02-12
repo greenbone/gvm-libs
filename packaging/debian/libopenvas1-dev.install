@@ -4,3 +4,5 @@ usr/lib/lib*.so
 usr/lib/pkgconfig/*
 usr/lib/*.la
 usr/share/pkgconfig/*
+usr/share/man/man1/libopenvas-config.1
+usr/bin/libopenvas-config

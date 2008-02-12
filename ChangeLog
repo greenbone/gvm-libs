@@ -1,3 +1,9 @@
+2008-02-12  Tim Brown <timb@nth-dimension.org.uk>
+
+	* packaging/debian/*: Minor fixes, now includes scripts to
+	allow dependents to build. Also fixed minor typo in
+	packaging/debian/copyright.
+
 2008-02-05  Tim Brown <timb@nth-dimension.org.uk>
 
 	* packaging/debian/*: Minor changes, now builds lintian clean.
