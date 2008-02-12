@@ -19,6 +19,10 @@ Instruction for the compilation and installation of Nessus-1.0 and later
  Make sure that you have bison and flex installed. If you only
  have yacc and lex, you *may* run into problems.
 
+ You should also make sure that you have the development packages for:
+  * libgnutls
+  * libpcap
+  * libgpgme
 
  The basic way to install nessus-libraries is to do :
 
