@@ -1,3 +1,8 @@
+2008-02-12  Laban Mwangi <labeneator@gmail.com>
+
+	* INSTALL_README: Added dependent libraries (bug
+	fix for aid #591)
+
 2008-02-12  Tim Brown <timb@nth-dimension.org.uk>
 
 	* packaging/debian/*: Minor fixes, now includes scripts to
