@@ -82,7 +82,7 @@ hg_dns_axfr_add_host(globals, cp, msg)
 	if ((cp = (u_char *)hg_dns_axfr_expand_name(cp, msg, name, sizeof(name))) == NULL)
 		return (NULL);			/* compression error */
 		
-	type = _getshort(cp);
+	type = ns_get16(cp);
 	cp += INT16SZ*3 + INT32SZ;
 	if(type == T_A)
 	{
@@ -150,9 +150,9 @@ static int
    int dlen;
    char domain[256];
    cp += dn_expand(answer.qb2, answer.qb2 + msglen, cp, domain,sizeof(domain));
-   type = _getshort(cp);
+   type = ns_get16(cp);
    cp += 2 * INT16SZ + INT32SZ;
-   dlen = _getshort(cp);
+   dlen = ns_get16(cp);
    cp += INT16SZ;
    if( type == T_NS) /* name server name */
    {
@@ -336,7 +336,7 @@ u_char ** limit;
     cp+= dn_skipname(cp, answer->qb2 + len) + QFIXEDSZ;
  nmp = cp;
  cp += dn_skipname(cp, (u_char *)answer + len);
- if((_getshort(cp) == T_SOA)){
+ if((ns_get16(cp) == T_SOA)){
   (void)dn_expand(answer->qb2, answer->qb2 + len, nmp,dname[soacnt], 256);
   if(soacnt){if(!strcmp(dname[0], dname[1]))finished = 1;}
   else soacnt++;
