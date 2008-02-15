@@ -1,3 +1,8 @@
+2008-02-15  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libopenvas/systems.c (emalloc, erealloc): Added type cast to get rid of
+	compiler warning.
+
 2008-02-12  Laban Mwangi <labeneator@gmail.com>
 
 	* INSTALL_README: Added dependent libraries (bug

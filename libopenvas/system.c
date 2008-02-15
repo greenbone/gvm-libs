@@ -43,7 +43,7 @@ void * emalloc(size)
      */
     if((int)size < 0)
     {
-	 fprintf(stderr, "[%d] Won't allocate a pointer of size %ld !\n", getpid(), size);
+     fprintf(stderr, "[%d] Won't allocate a pointer of size %ld !\n", getpid(), (long)size);
 	 exit(1);
     }
 
@@ -68,7 +68,7 @@ void * emalloc(size)
 	
 	if( ptr == NULL )
 	{
-	 fprintf(stderr, "[%d] Could not allocate a pointer of size %ld !\n", getpid(), size);
+     fprintf(stderr, "[%d] Could not allocate a pointer of size %ld !\n", getpid(), (long)size);
 	 exit(1);
 	}
       }
@@ -113,15 +113,14 @@ erealloc(ptr, size)
 
   if ( (int)size < 0 )
   {
-   fprintf(stderr, "Won't realloc() a pointer of size %ld !\n", size);
+   fprintf(stderr, "Won't realloc() a pointer of size %ld !\n", (long)size);
    exit (1); 
   }
 
   ret = realloc(ptr, size);
   if(!ret)
   {
-    fprintf(stderr, "Could not realloc() a pointer of size %ld !\n",
-		size);
+    fprintf(stderr, "Could not realloc() a pointer of size %ld !\n", (long)size);
     exit (1);
   }
  return ret;
