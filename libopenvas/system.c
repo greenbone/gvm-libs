@@ -1,5 +1,12 @@
-/* Nessuslib -- the Nessus Library
- * Copyright (C) 1998 Renaud Deraison
+/* OpenVAS
+ * $Id$
+ * Description: Memory management methods.
+ *
+ * Authors:
+ * Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
+ *
+ * Copyright:
+ * Based on work Copyright (C) 1998 Renaud Deraison
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -11,10 +18,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #define EXPORTING
@@ -23,12 +29,6 @@
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif
-
-
-
-
-
-
 
 
 ExtFunc
@@ -104,6 +104,10 @@ efree(ptr)
 	}
 }
 
+/* XXX: This method does not occur in the corresponding .h file.
+ * It thus needs analysis whether the function is not used
+ * at all, or a proto is missing.
+ */
 ExtFunc void *
 erealloc(ptr, size)
  void * ptr;
@@ -138,6 +142,12 @@ estrlen(s,n)
     return i;
 }
 
+/* XXX: the following method does not really belong here.
+ * It is even not occurring in the corresponding .h file,
+ * so it likely isn't used anywhere at all.
+ * Removal of this method and of the whole HAVE_INET_ATON handling
+ * should be considered.
+ */
 
 
 #ifndef HAVE_INET_ATON

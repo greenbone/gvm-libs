@@ -1,5 +1,12 @@
-/* Nessuslib -- the Nessus Library
- * Copyright (C) 1998 Renaud Deraison
+/* OpenVAS
+ * $Id$
+ * Description: Memory management methods.
+ *
+ * Authors:
+ * Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
+ *
+ * Copyright:
+ * Based on work Copyright (C) 1998 Renaud Deraison
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -11,13 +18,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */   
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-#ifndef _NESSUSL_SYSTEM_H
-#define _NESSUSL_SYSTEM_H
+#ifndef _LIBOPENVAS_SYSTEM_H
+#define _LIBOPENVAS_SYSTEM_H
 
 #ifndef HUNT_MEM_LEAKS
 #ifndef DMALLOC
@@ -27,6 +34,5 @@ void efree(void *);
 #endif
 #endif
 size_t estrlen(const char *, size_t);
-
 
 #endif
