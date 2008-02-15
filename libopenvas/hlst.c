@@ -331,10 +331,10 @@ copy_hlst
 
 	/* create new entry */
 	if ((Q = make_hlst ((hlst*)new, p->key, p->keylen)) == 0) {
-	  fprintf (stderr, __FILE__ 
-		   "(%d): [make_hlst() == 0] serious bug, "
+	  fprintf (stderr,
+		   "%s (%d): [make_hlst() == 0] serious bug, "
 		   "corrupt target list -- please report, aborting.\n",
-		   __LINE__);
+		   __FILE__, __LINE__);
 	  exit (2) ;
 	}
       }
