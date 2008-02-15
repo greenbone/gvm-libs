@@ -249,7 +249,8 @@ say_creating
   (void    *list,
    unsigned size)
 {
-  debug ("Creating harg -> 0x%lx{%u}", (long)list, size);
+  /* calling debug converts both numerical args to long */
+  debug ("Creating harg -> 0x%lx{%ld}", (long)list, size);
 }
 
 static void
@@ -259,11 +260,14 @@ say_closing
 {
   char f [200] = "Closing harg -> 0x%lx" ;
   int n = 0 ;
-  if (flag & H_sREMOTE) 
+  if (flag & H_sREMOTE)
+    /* Flawfinder: ignore. f is large enough */
     strcat (f, n ++ ? "|H_sREMOTE"  : ", flags=H_sREMOTE");
-  if (flag & H_sWRTHRU) 
+  if (flag & H_sWRTHRU)
+    /* Flawfinder: ignore. f is large enough */
     strcat (f, n ++ ? "|H_sWRTHRU"  : ", flags=H_sWRTHRU");
   if (flag & H_sRECURSE)
+    /* Flawfinder: ignore. f is large enough */
     strcat (f, n ++ ? "|H_sRECURSE" : ", flags=H_sRECURSE");
   debug (f, (long)list, 0);
 }
@@ -283,6 +287,7 @@ message
    const char *t)
 {
   fputs (s, stderr);
+  /* Flawfinder: ignore. we can trust f in this debug code */
   fprintf (stderr, f, u, v);
   fputs (t, stderr);
   fputc ('\n', stderr);
@@ -487,13 +492,13 @@ do_printf
   if (R != 0) {
     char *s = query_key_hlst ((void**)R) ;
     if (ptype)
-      fprintf (stderr, "<0x%04X/%d> = ", (void*)s,(int)(s));
+      fprintf (stderr, "<0x%08lX/%ld> = ", (long)s, (long)(s));
     else
       fprintf (stderr, "<%s> = ", s);
   } else {
     fprintf (stderr, "list");
   }
-  fprintf (stderr, f, a, arg);
+  fprintf (stderr, f, a, arg);     /* Flawfinder: ignore */
   fputs ("\n", stderr);
 }
 
