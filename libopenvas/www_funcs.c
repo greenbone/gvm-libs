@@ -482,39 +482,3 @@ build_encode_URL(data, method, path, name, httpver)
 #endif
   return ret;
 }
-
-static char *
-http11_get_head(port, data, path, name, method)
- struct arglist * data;
- int	port;
- char *  path;
- char *  name;
- char *  method;
-{
- char * hostname = (char*)plug_get_hostname(data);
- char * url = build_encode_URL(data, method, path, name, "HTTP/1.1"); 
- char * ret;
- char * auth_string, tmp[32];
- struct kb_item ** kb = plug_get_kb(data);
-
- snprintf(tmp, sizeof(tmp), "/tmp/http/auth/%d", port);
- auth_string = kb_item_get_str(kb, tmp);
- if (auth_string == NULL)
-   auth_string = kb_item_get_str(kb, "http/auth");
-
- ret = emalloc(strlen(hostname) + strlen(url) + (auth_string ? strlen(auth_string):0) + 1024);
- sprintf(ret, "%s\r\n\
-Connection: Close\r\n\
-Host: %s\r\n\
-Pragma: no-cache\r\n\
-User-Agent: Mozilla/4.75 [en] (X11, U; Nessus)\r\n\
-Accept: image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, image/png, */*\r\n\
-Accept-Language: en\r\n\
-Accept-Charset: iso-8859-1,*,utf-8\r\n%s%s\r\n",
-		url,
-		hostname,
-		auth_string ? auth_string:"",
-		auth_string ? "\r\n":"");
- efree(&url);
- return ret;		
-}
