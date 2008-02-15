@@ -30,13 +30,17 @@
 #include <malloc.h>
 #endif
 
-
+/* This method always returns the requested
+ * memory size. If anything failed during allocating
+ * it, the exit() routine is entered to stop the program.
+ */
 ExtFunc
 void * emalloc(size)
  size_t size;
 {
     void * ptr;
-   
+    const struct timespec delay = { 0, 5000000 } ; /* 5000 mikroseconds = 5000000 nanoseconds */
+
     /*
      * Just for our personal safety, we increase the 
      * size by one
@@ -62,7 +66,7 @@ void * emalloc(size)
 	for(i=0; (i<5) && ptr == NULL ;i++)
 	{
 	 waitpid(0, NULL, WNOHANG);
- 	 usleep(5000);
+     nanosleep(&delay, NULL);
 	 ptr = malloc(size);
 	}
 	
@@ -84,10 +88,13 @@ estrdup(str)
     int len;
     
     if (!str) return NULL;
-    len = strlen(str);
+    len = strlen(str); /* Flawfinder: ignore. XXX: there is not
+                          much to do about it(?) */
 
     buf = emalloc(len + 1);
-    memcpy(buf, str, len);
+      /* emalloc() is defined to always return sufficient
+       * memory, thus return value is not tested. */
+    memcpy(buf, str, len); /* Flawfinder: ignore */
     buf[len] = '\0';
     return buf;
 }

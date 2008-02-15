@@ -1,11 +1,20 @@
 2008-02-15  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
-	* libopenvas/systems.c, libopenvas/system.h: Applied standard header,
+	Removal of Flawfinder issues.
+
+	* libopenvas/system.c (emalloc): replace usleep() by nanosleep().
+	(estrdup): Set two Flawfinder: ignore, one reported path can not
+	happen (now documented) and whether to use strlen() is a more general
+	question.
+
+2008-02-15  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libopenvas/system.c, libopenvas/system.h: Applied standard header,
 	added comments on unclear things.
 
 2008-02-15  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
-	* libopenvas/systems.c (emalloc, erealloc): Added type cast to get rid of
+	* libopenvas/system.c (emalloc, erealloc): Added type cast to get rid of
 	compiler warning.
 
 2008-02-12  Laban Mwangi <labeneator@gmail.com>
