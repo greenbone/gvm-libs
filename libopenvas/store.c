@@ -113,7 +113,7 @@ static int safe_copy(char * str, char * dst, int sz, char * path, char * item)
   
  if(strlen(str) >= sz)
  {
-  fprintf(stderr, "openvas-libraries/libopenvas/store.c: %s has a too long %s (%ld)\n", path, item, strlen(str));
+  fprintf(stderr, "openvas-libraries/libopenvas/store.c: %s has a too long %s (%ld)\n", path, item, (long)strlen(str));
   return -1;
  }
  strcpy(dst, str);
