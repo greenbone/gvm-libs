@@ -1943,7 +1943,7 @@ find_in_path(name, safe)
 #if 0
   /* Proposed by Devin Kowatch 
      If it's already an absolute path take it as is */
-  if (name[0] == '/' && access(name, X_OK) == 0)
+  if (name[0] == '/' && access(name, X_OK) == 0)	/* Flawfinder: ignore */
     return name;	/* Invalid: we should remove everything after the last / */
 #endif
 
@@ -1969,7 +1969,7 @@ find_in_path(name, safe)
 	continue;
 
       sprintf(p2, "/%s", name);
-      if (access(cmd, X_OK) == 0)
+      if (access(cmd, X_OK) == 0)	/* Flawfinder: ignore */
 	{
 	  struct stat	st;
 	  if (stat(cmd, &st) < 0)

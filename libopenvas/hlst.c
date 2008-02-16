@@ -374,10 +374,12 @@ flush_hlst
     clup = h->clup ;
     desc = h->clup_state ;
   }
-  /* remove sorter */
-  if (h->access != 0) {
-    XFREE (h->access);
-    h->access = 0;
+  /* remove sorter - Flawfinder ignore - Access is a ptr not a func */
+  if (h->access != 0) { /* Flawfinder: ignore */
+    XFREE (h->access);	/* Flawfinder: ignore */
+
+    h->access = 0;	/* Flawfinder: ignore */
+
   }
   for (i = 0; i < h->z.mod; i ++) {
     /* do with this bucket */
@@ -483,6 +485,7 @@ make_hlst
   /* statistics */
   h->total_entries ++ ;
 
+  /* Flawfinder: ignore */
   if (h->access != 0)
     /* mark the sorter ready for rebuilt */
     h->access->dirty = 1 ;
@@ -524,7 +527,7 @@ delete_hlst
 	s->ntry = q->next ;	/* visit successor, instead */
 
   /* set that index link idle */
-  if (h->access != 0)
+  if (h->access != 0) /* Flawfinder: ignore */
     if (q->backlink != 0) {
       *q->backlink->inx = 0 ;
       h->access->dirty = 1;
@@ -780,11 +783,11 @@ sort_hlst
   if (h == 0) return ;
 
   /* create an access array with entry pointers */
-  if (h->access != 0) {
+  if (h->access != 0) {				/* Flawfinder: ignore */
     /* nothing has changed, yet */
-    if (h->access->dirty == 0)
+    if (h->access->dirty == 0) 			/* Flawfinder: ignore */
       return ;
-    XFREE (h->access) ;
+    XFREE (h->access) ;				/* Flawfinder: ignore */
   }
   h->access = XMALLOC 
     (sizeof (sorter) + (h->total_entries - 1) * sizeof (hashqueue*));
@@ -866,9 +869,9 @@ void
 unsort_hlst
   (hlst *h)
 {
-  if (h == 0 || h->access == 0) return ;
-  XFREE (h->access) ;
-  h->access = 0;
+  if (h == 0 || h->access == 0) return ; 	/* Flawfinder: ignore */
+  XFREE (h->access) ; 				/* Flawfinder: ignore */
+  h->access = 0;				/* Flawfinder: ignore */
 }
 
 /* ------------------------------------------------------------------------- *

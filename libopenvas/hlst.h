@@ -61,7 +61,7 @@ typedef struct _rhlst {void* unused;} rlst;
 
 typedef 
 struct _hlst {			/* hash list descriptor */
-  struct _sorter *access;	/* there might be an index on that list */
+  struct _sorter *access;	/* Flawfinder: ignore */ /* there might be an index on that list */
   struct _rhlst *raccess;	/* extensions */
   int (*sorter_fn)(void*,const char*,unsigned,const char*,unsigned);
   void *sorter_desc ;		/* custom sort of the entries */
