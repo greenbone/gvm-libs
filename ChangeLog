@@ -1,3 +1,34 @@
+2008-02-15  Bernhard Herzog  <bh@intevation.de>
+
+	* libopenvas/store.c (safe_copy): Cast return value strlen to
+	match format string.  Silences a compiler warning
+
+2008-02-15  Bernhard Herzog  <bh@intevation.de>
+
+	* libopenvas/www_funcs.c (http11_get_head): Removed this unused
+	function.  Silences a compiler warning.
+
+2008-02-15  Bernhard Herzog  <bh@intevation.de>
+
+	* libopenvas_hg/hg_dns_axfr.c (hg_dns_axfr_add_host)
+	(hg_dns_read_ns_from_answer, hg_dns_axfr_query): Use ns_get16
+	instead of _getshort.  _getshort is defined in glibc but not
+	declared in any headerfile.  ns_get16 is a newer API but should be
+	widely available, too.
+
+2008-02-15  Bernhard Herzog  <bh@intevation.de>
+
+	* libopenvas/hlst.c (copy_hlst): Fix Flawfinder issue.
+
+2008-02-15  Bernhard Herzog  <bh@intevation.de>
+
+	* libopenvas/harglists.c (say_creating): Fix format string to
+	match the types that will actually be used
+	(say_closing, message): Fix Flawfinder issues
+	(do_printf): Fix flawfinder issues.  Fix gcc warnings about
+	fprintf args, adapting a format string to better match the purpose
+	of printing the value of a pointer.
+
 2008-02-15  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	Removal of Flawfinder issues.
