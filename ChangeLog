@@ -1,3 +1,10 @@
+2008-02-16  Laban Mwangi <labeneator@gmail.com>
+
+	* libopenvas/hlst.c (flush_hlst, make_hlst, sort_hlst, unsort_hlst),
+	libopenvas/hlst.h (_hlst): Fixing flawfinder l4 warnings
+	related to flawfinder thinking that a ptr in a linkedlist called
+	access is = the call access(2)
+
 2008-02-15  Bernhard Herzog  <bh@intevation.de>
 
 	* libopenvas/store.c (safe_copy): Cast return value strlen to
@@ -29,6 +36,7 @@
 	fprintf args, adapting a format string to better match the purpose
 	of printing the value of a pointer.
 
+>>>>>>> .r659
 2008-02-15  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	Removal of Flawfinder issues.
