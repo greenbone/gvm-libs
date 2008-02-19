@@ -36,7 +36,6 @@
 	fprintf args, adapting a format string to better match the purpose
 	of printing the value of a pointer.
 
->>>>>>> .r659
 2008-02-15  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	Removal of Flawfinder issues.
