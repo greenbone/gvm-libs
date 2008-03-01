@@ -31,7 +31,7 @@
 	environ = (char **) emalloc((sizeof (char *) * (i + 1))+envpsize+1);
 	s = ((char *)environ)+((sizeof (char *) * (i + 1)));
 	for (i = 0; envp[i] != NULL; i++){
-		strcpy(s,envp[i]);
+		strncpy(s,envp[i],strlen(envp[i]));
 		environ[i] = s;
 		s += strlen(s)+1;
 	}
