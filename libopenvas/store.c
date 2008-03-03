@@ -59,7 +59,7 @@ static char * arglist2str(struct arglist * arg)
     ret = erealloc(ret, sz);
    }
    strcat(ret, ", ");
-   strncat(ret, arg->name, strlen(arg->name));
+   strcat(ret, arg->name); /* Flawfinder: ignore */ 
    arg = arg->next;
  }
  return ret;
@@ -116,14 +116,7 @@ static int safe_copy(char * str, char * dst, int sz, char * path, char * item)
   fprintf(stderr, "openvas-libraries/libopenvas/store.c: %s has a too long %s (%ld)\n", path, item, (long)strlen(str));
   return -1;
  }
- /* More aggressive checks */
- if(sizeof(dst) < sizeof(src))
- {
-  fprintf(stderr, "openvas-libraries/libopenvas/store.c: destination buffer (%ld)  is smaller than source buffer (%ld)\n", (long)sizeof(dst), (long)sizeof(str));
-  return -1;
- }
-
- strncpy(dst, str, strlen(str));
+ strcpy(dst, str); /* Flawfinder: ignore */
  return 0;
 }
 /*-----------------------------------------------------------------------------*/
@@ -373,7 +366,7 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
   str[0] = '\0';
  }
  strcat(path, "/");
- strcat(path, file);
+ strcat(path, file); /* Flawfinder: ignore */
 
  
  

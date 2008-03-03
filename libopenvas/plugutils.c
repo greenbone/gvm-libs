@@ -253,7 +253,7 @@ void plug_set_cve_id(desc, id)
   strcat(old, ", ");
   /* Rid ff warnings */
   /* Stmt's valid since len(id)+len(old)+len('\0'+", ") = size of realloc'd memory*/
-  strncat(old, id, strlen(id));
+  strcat(old, id); /* Flawfinder: ignore */ 
   arg_set_value(desc, "CVE_ID", strlen(old), old);
  }
  else
@@ -284,7 +284,7 @@ void plug_set_bugtraq_id(desc, id)
  { 
   old = erealloc(old, strlen(old) + strlen(id) + 3);
   strcat(old, ", ");
-  strncat(old, id, strlen(id));
+  strcat(old, id); /* Flawfinder: ignore */ 
   arg_set_value(desc, "BUGTRAQ_ID", strlen(old), old);
  }
  else
@@ -314,9 +314,9 @@ void plug_set_xref(desc,name, value)
  { 
   old = erealloc(old, strlen(old) + strlen(name) + strlen(value) + 4);
   strcat(old, ", ");
-  strncat(old, name, strlen(name));
+  strcat(old, name); /* Flawfinder: ignore */ 
   strcat(old, ":");
-  strncat(old, value, strlen(value));
+  strcat(old, value); /* Flawfinder: ignore */ 
   arg_set_value(desc, "XREFS", strlen(old), old);
  }
  else 
@@ -324,9 +324,9 @@ void plug_set_xref(desc,name, value)
   char * str;
   
   str = emalloc(strlen(name) + strlen(value) + 2);
-  strncat(str, name, strlen(name));
+  strcat(str, name); /* Flawfinder: ignore */ 
   strcat(str, ":");
-  strncat(str, value, strlen(value));
+  strcat(str, value); /* Flawfinder: ignore */ 
   arg_add_value(desc, "XREFS", ARG_STRING, strlen(str), str);
   }
 }
@@ -1063,20 +1063,20 @@ proto_post_wrapped(desc, port, proto, action, what)
  if( cve != NULL && cve[0] != '\0')
         {
 	 strcat(naction, "CVE : ");
-	 strncat(naction, cve, strlen(cve));
+	 strcat(naction, cve); /* Flawfinder: ignore */ 
 	 strcat(naction, "\n");
 	 }
  
  if( bid != NULL && bid[0] != '\0' )
  	{
 	 strcat(naction, "BID : ");
-	 strncat(naction, bid, strlen(bid));
+	 strcat(naction, bid); /* Flawfinder: ignore */ 
 	 strcat(naction, "\n");
 	 }	
  if( xref != NULL && xref[0] != '\0' )
  	{
 	strcat(naction, "Other references : ");
-	strncat(naction, xref, strlen(xref));
+	strcat(naction, xref); /* Flawfinder: ignore */ 
 	strcat(naction, "\n");
 	}
  

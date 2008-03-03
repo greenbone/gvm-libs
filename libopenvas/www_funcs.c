@@ -107,7 +107,7 @@ build_encode_URL(data, method, path, name, httpver)
 
   ret = emalloc(l+ 1);
   if (path == NULL)
-    strcpy(ret, name);
+    strcpy(ret, name); /* Flawfinder: ignore */
   else
     sprintf(ret, "%s/%s", path, name);
 
