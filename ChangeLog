@@ -1,3 +1,10 @@
+2008-03-03  Laban Mwangi <labeneator@gmail.com>
+
+	* libopenvas/plugutils.c, libopenvas/proctitle.c,
+	libopenvas/store.c, libopenvas/www_funcs.c:
+	Adding FlawFinder ignores to various string operations
+	as discussed on the Mailing List.
+
 2008-02-16  Laban Mwangi <labeneator@gmail.com>
 
 	* libopenvas/hlst.c (flush_hlst, make_hlst, sort_hlst, unsort_hlst),
