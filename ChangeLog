@@ -1,3 +1,15 @@
+2008-03-10  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Removing the apparently unused module "snprintf". There exists
+	no corresponding proto and thus it could never be used without
+	occuring warnings during compilation. snprintf is part of C99.
+
+	* libopenvas/Makefile: Remove handling of snprintf module.
+
+	* MANIFEST: Updated.
+
+	* libopenvas/snprintf.c: Removed.
+
 2008-03-03  Laban Mwangi <labeneator@gmail.com>
 
 	* libopenvas/plugutils.c, libopenvas/proctitle.c,

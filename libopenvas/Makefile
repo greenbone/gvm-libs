@@ -28,13 +28,13 @@ OBJS = plugutils.o system.o network.o resolve.o arglists.o ftp_funcs.o \
 	scanners_utils.o pcap.o hlst.o  harglists.o \
         getopt.o getopt1.o www_funcs.o diff.o ids_send.o rand.o popen.o \
 	bpf_share.o rand.o popen.o services.o services1.o \
-	proctitle.o store.o snprintf.o kb.o share_fd.o
+	proctitle.o store.o kb.o share_fd.o
 	
 LO_OBJS = plugutils.lo system.lo network.lo resolve.lo arglists.lo \
 	ftp_funcs.lo scanners_utils.lo pcap.lo hlst.lo  harglists.lo \
 	getopt.lo getopt1.lo www_funcs.lo diff.lo ids_send.lo \
 	rand.lo popen.lo bpf_share.lo services.lo services1.lo \
-	proctitle.lo store.lo snprintf.lo kb.lo share_fd.lo
+	proctitle.lo store.lo kb.lo share_fd.lo
 
 # += does not work with non-GNU make ...
 # CFLAGS+=-I../$(CIPHER_SUBDIR)
@@ -121,8 +121,6 @@ kb.o: kb.c
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c kb.c
 
 
-snprintf.o : snprintf.c
-	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c snprintf.c	
 libopenvas.la: $(OBJS)
 	$(LIBTOOL) $(CC) -o libopenvas.la $(LO_OBJS) -rpath ${libdir} \
 	-version-info ${PACKAGE_VERSION}

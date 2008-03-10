@@ -77,7 +77,6 @@ libopenvas/services1.c
 libopenvas/services.c
 libopenvas/services.h
 libopenvas/share_fd.c
-libopenvas/snprintf.c
 libopenvas/store.c
 libopenvas/store.h
 libopenvas/system.c
