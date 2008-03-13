@@ -1,3 +1,10 @@
+2008-03-14 <Jan-Oliver.Wagner@intevation.de>
+
+	* libopenvas/data.c: This appears to be a prototype
+	or some other new technologie that never went into
+	production. It needs to be discussed whether
+	the code is helpful or not.
+
 2007-10-11 <Jan-Oliver.Wagner@intevation.de>
 
 	* README.BPF: Still of relevance? BSD people to answer this.
