@@ -1,3 +1,12 @@
+2008-03-13  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* Makefile: Removed handling of module "diff".
+
+	* libopenvas/diff.c, libopenvas/diff.h: Removed as the
+	only method "banner_diff" isn't used anywhere in OpenVAS.
+
+	* MANIFEST: updated.
+
 2008-03-10  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	Removing the apparently unused module "snprintf". There exists

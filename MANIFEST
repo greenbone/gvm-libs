@@ -47,8 +47,6 @@ libopenvas-config.1
 libopenvas-config.pre.in
 libopenvas/COPYING
 libopenvas/data.c
-libopenvas/diff.c
-libopenvas/diff.h
 libopenvas/ftp_funcs.c
 libopenvas/ftp_funcs.h
 libopenvas/getopt1.c
