@@ -23,6 +23,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef OPENVAS_ARGLISTS_H
+#define OPENVAS_ARGLISTS_H
+
 struct arglist {
 	char * name;
 	int type;
@@ -49,3 +52,5 @@ void arg_dup(struct arglist *, struct arglist *);
 void arg_free(struct arglist *);
 void arg_free_all(struct arglist *);
 void arg_free_name(char*);
+
+#endif

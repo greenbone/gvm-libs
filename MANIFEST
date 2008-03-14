@@ -40,6 +40,7 @@ libopenvas_hg/hosts_gatherer.h
 libopenvas_hg/Makefile
 libopenvas_hg/test.c
 libopenvas/arglists.c
+libopenvas/arglists.h
 libopenvas/bpf_share.c
 libopenvas/comm.h
 libopenvas-config.1
@@ -57,6 +58,7 @@ libopenvas/ids_send.h
 libopenvas/kb.c
 libopenvas/Makefile
 libopenvas/network.c
+libopenvas/network.h
 libopenvas/pcap.c
 libopenvas/plugutils.c
 libopenvas/plugutils.h

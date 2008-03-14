@@ -32,6 +32,8 @@
 
 
 #include "arglists.h"
+#include "network.h"
+#include "ftp_funcs.h"
 
 
 /*
@@ -50,36 +52,11 @@ typedef int(*plugin_run_t)(struct arglist *);
  */
 
 /* Plugin specific network functions */
-/* network.c */
-ExtFunc int open_sock_tcp(struct arglist * , unsigned int, int );
-ExtFunc int open_sock_udp(struct arglist * , unsigned int );
-ExtFunc int open_sock_option(struct arglist * , unsigned int , int , int, int);
-ExtFunc int recv_line(int, char *, size_t);
-
-/* network.c */
-ExtFunc int nrecv(int, void*, int, int);
-ExtFunc int socket_close(int);
-
-/* Additional functions -- should not be used by the plugins */
-/* network.c */
-ExtFunc int open_sock_tcp_hn(const char * , unsigned int );
-ExtFunc int open_sock_opt_hn(const char * , unsigned int , int , int, int );
 
 ExtFunc struct in_addr nn_resolve (const char *); 
 
-/* network.c */
-#ifdef __GNUC__
-ExtFunc void auth_printf(struct arglist *, char * , ...) __attribute__ (( format (printf, 2, 3)));
-#else
-ExtFunc void auth_printf(struct arglist *, char * , ...);
-#endif
-
 /* plugutils.c */
 ExtFunc void scanner_add_port(struct arglist*, int, char *);
-
-/* network.c */
-ExtFunc void auth_send(struct arglist *, char *);
-ExtFunc char * auth_gets(struct arglist *, char * , size_t);
 
 ExtFunc int ping_host(struct in_addr);
 
@@ -158,9 +135,6 @@ ExtFunc struct arglist * plug_get_see_also(struct arglist *);
 ExtFunc void plug_set_ssl_cert(struct arglist*, char*);
 ExtFunc void plug_set_ssl_key(struct arglist*, char*);
 ExtFunc void plug_set_ssl_pem_password(struct arglist*, char*);
-
-/* network.c */
-ExtFunc int nessus_SSL_init(char*);
 
 
 ExtFunc void plug_add_dep(struct arglist *, char *, char *);
@@ -319,13 +293,6 @@ ExtFunc struct kb_item ** plug_get_kb(struct arglist *);
 ExtFunc void * plug_get_key(struct arglist *, char *, int *);
 ExtFunc void * plug_get_key(struct arglist *, char *, int *);
 
-/*
- * FTP Functions
- */
-/* ftp_funcs.c */
-ExtFunc int ftp_log_in(int , char * , char * );
-ExtFunc int ftp_get_pasv_address(int , struct sockaddr_in * );
-
 /* plugutils.c */
 ExtFunc char* nessuslib_version();
 ExtFunc void nessus_lib_version(int *, int *, int *);
@@ -394,48 +361,6 @@ ExtFunc int get_mac_addr(struct in_addr, char**);
 
 #define NESSUS_CNX_IDS_EVASION_SEND_MASK (NESSUS_CNX_IDS_EVASION_SPLIT|NESSUS_CNX_IDS_EVASION_INJECT|NESSUS_CNX_IDS_EVASION_SHORT_TTL)
 
-
-/* network.c */
-ExtFunc int    open_stream_connection(struct arglist *, unsigned int, int, int);
-ExtFunc int    open_stream_connection_unknown_encaps(struct arglist *, unsigned int, int, int *);
-ExtFunc int    open_stream_connection_unknown_encaps5(struct arglist *, unsigned int, int, int *, int *);
-ExtFunc int    open_stream_auto_encaps(struct arglist *, unsigned int, int);
-
-
-/* network.c */
-ExtFunc int    write_stream_connection (int, void * buf, int n);
-ExtFunc int    read_stream_connection (int, void *, int);
-ExtFunc int    read_stream_connection_min(int, void*, int, int);
-ExtFunc int    nsend(int, void*, int, int);
-ExtFunc int    close_stream_connection(int);
-ExtFunc const char* get_encaps_name(int);
-ExtFunc const char* get_encaps_through(int);
-
-/* network.c */
-ExtFunc int    stream_set_timeout(int, int);
-ExtFunc int    stream_set_options(int, int, int);
-
-/* network.c */
-ExtFunc int	stream_set_buffer(int, int);
-ExtFunc int	stream_get_buffer_sz (int);
-ExtFunc int	stream_get_err(int);
-
-/* network.c */
-ExtFunc	       void*   stream_get_ssl(int);
-
-struct ovas_server_context_s;
-typedef struct ovas_server_context_s * ovas_server_context_t;
-
-/* network.c */
-ovas_server_context_t ovas_server_context_new(int encaps,
-					      const char* certfile,
-					      const char* keyfile,
-					      const char* passwd,
-					      const char* cacertfile,
-					      int force_pubkey_auth);
-void ovas_server_context_free(ovas_server_context_t);
-int ovas_server_context_attach(ovas_server_context_t ctx, int soc);
-
 int ovas_open_server_socket(ovas_server_context_t);
 
 /* plugutils.c */
@@ -445,20 +370,7 @@ ExtFunc	int 	is_shell_command_present(char*);
 /* www_funcs: */
 ExtFunc char*	build_encode_URL(struct arglist*, char*, char*, char*, char*);
 
-
-/* network.c */
-ExtFunc int nessus_register_connection(int, void*);
-ExtFunc int nessus_deregister_connection(int);
-ExtFunc int nessus_get_socket_from_connection(int);
-
-
 ExtFunc void nessus_init_random();
-
-/* network.c */
-ExtFunc int stream_zero(fd_set*);
-ExtFunc int stream_set(int, fd_set*);
-ExtFunc int stream_isset(int, fd_set*);
-
 
 ExtFunc int bpf_server();
 ExtFunc int bpf_open_live(char*, char*);
@@ -472,12 +384,6 @@ void initsetproctitle(int argc, char *argv[], char *envp[]);
 #ifndef HAVE_SETPROCTITLE
 void setproctitle( const char *fmt, ... );
 #endif
-
-
-/* network.c */
-ExtFunc struct in_addr socket_get_next_source_addr();
-ExtFunc int set_socket_source_addr(int, int);
-ExtFunc void socket_source_init(struct in_addr *);
 
 /* store.c */
 struct arglist * store_plugin(struct arglist *,  char *);
@@ -549,11 +455,6 @@ struct http_msg * http_share_send_recv_msg(struct arglist *, struct http_msg *);
 pid_t http_share_init(struct arglist *);
 int http_share_close(struct arglist *, pid_t);
 
-/* network.c */
-int os_send(int, void*, int, int);
-int os_recv(int, void*, int, int);
-
-
 #define INTERNAL_COMM_MSG_TYPE_CTRL	(1 << 16)
 #define INTERNAL_COMM_MSG_TYPE_KB	(1 << 17)
 #define INTERNAL_COMM_MSG_TYPE_DATA	(1 << 18)
@@ -581,15 +482,7 @@ int os_recv(int, void*, int, int);
 #define INTERNAL_COMM_SHARED_SOCKET_ERROR	64
 
 
-/* network.c */
-int internal_send(int, char *, int);
-int internal_recv(int, char **, int *, int *);
-
 int internal_finished(int);
-
-/* network.c */
-int fd_is_stream(int);
-int stream_pending(int);
 
 /* share_fd.c */
 int send_fd(int, int);

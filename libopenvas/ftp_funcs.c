@@ -1,4 +1,11 @@
-/* Nessuslib -- the Nessus Library
+/* OpenVAS
+ * $Id$
+ * Description: Header file for module ftp_funcs.
+ *
+ * Authors:
+ * Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
+ *
+ * Copyright:
  * Copyright (C) 1998 Renaud Deraison
  *
  * This library is free software; you can redistribute it and/or
@@ -11,17 +18,22 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * handy FTP functions
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define EXPORTING
-#include <includes.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
-ExtFunc int ftp_log_in(int soc, char * username, char * passwd)
+/* this works for libc6 systems, unclear
+ * wether it will not work on other systems */
+#include <netinet/in.h>
+
+#include "network.h"
+
+int ftp_log_in(int soc, char * username, char * passwd)
 {
  char buf[1024];
  int n;
@@ -105,7 +117,7 @@ ExtFunc int ftp_log_in(int soc, char * username, char * passwd)
 }
 
 
-ExtFunc int ftp_get_pasv_address(int soc, struct sockaddr_in * addr)
+int ftp_get_pasv_address(int soc, struct sockaddr_in * addr)
 {
  char buf[512];
  char * t,*s;
