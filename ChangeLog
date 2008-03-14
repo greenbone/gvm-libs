@@ -1,5 +1,18 @@
 2008-03-14  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Removing unsused module "data". It was meant as a future
+	replacement of arglists. However, it does only try the same
+	philosophy with some improvments whereas it makes more
+	sense to leave optimized handling to specialists like glib.
+
+	* libopenvas/data.c, include/data.h: Removed.
+
+	* TODO: Removed enty about data.c.
+
+	* MANIFEST: updated.
+
+2008-03-14  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	A sample cleanup for header files.
 
 	* libopenvas/arglists.h: New. Contains external header information
