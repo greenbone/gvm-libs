@@ -27,7 +27,6 @@
 #include <includes.h>
 #include "comm.h"
 #include "harglists.h"
-#include "diff.h"
 #include "rand.h"
 #include "services.h"
 #include "store.h"

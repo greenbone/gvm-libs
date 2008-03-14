@@ -1,5 +1,9 @@
 2008-03-14  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/plugutils.c: Removed include for diff.h.
+
+2008-03-14  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* include/libopenvas.h: Annotated module names, some lines reordered,
 	removed W32 conditional.
 
