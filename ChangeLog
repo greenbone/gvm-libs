@@ -1,5 +1,21 @@
 2008-03-14  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	A sample cleanup for header files.
+
+	* libopenvas/arglists.h: New. Contains external header information
+	for module "arglists". (extracted from libopenvas.h)
+
+	* Makefile: Install libopenvas/arglists.h.
+
+	* include/libopenvas.h: Converted header block to standard one.
+	Removed any arglists definitions and instead includes arglists.h.
+
+	* libopenvas/arglists.c: Replace generic include of includes.h
+	by respective required single include statements.
+	Removed any use of "ExtFunc" declaration which is empty anyway.
+
+2008-03-14  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas/plugutils.c: Removed include for diff.h.
 
 2008-03-14  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>

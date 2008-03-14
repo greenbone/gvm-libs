@@ -1,5 +1,12 @@
-/* Nessuslib -- the Nessus Library
- * Copyright (C) 1998 Renaud Deraison
+/* OpenVAS
+ * $Id$
+ * Description: Aggregation of C-headers for libopenvas.
+ *
+ * Authors:
+ * Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
+ *
+ * Copyright:
+ * Based on work Copyright (C) 1998 - 2007 Tenable Network Security, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -14,35 +21,17 @@
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */   
+ */
 
-#ifndef _NESSUS_NESSUSLIB_H
-#define _NESSUS_NESSUSLIB_H
- 
+#ifndef _LIBOPENVAS_H
+#define _LIBOPENVAS_H
 
 #ifndef ExtFunc
 #define ExtFunc
 #endif
 
-/*
- * Arglist definition and defines
- */
- 
-struct arglist {
-	char * name;
-	int type;
-	void * value;
-	long length;
-	struct arglist * next;
-	int hash;
-	};
 
-	
-#define ARG_STRING 	1
-#define ARG_PTR 	2
-#define ARG_INT 	3
-#define ARG_ARGLIST 	4
-#define ARG_STRUCT	5
+#include "arglists.h"
 
 
 /*
@@ -93,26 +82,6 @@ ExtFunc void auth_send(struct arglist *, char *);
 ExtFunc char * auth_gets(struct arglist *, char * , size_t);
 
 ExtFunc int ping_host(struct in_addr);
-
-/* 
- * Management of the arglists --should not be used directly by
- * the plugins
- */
-
-/* arglist.c */
-ExtFunc void arg_add_value(struct arglist *, const char *, int, long, void *);	   
-ExtFunc int arg_set_value(struct arglist *, const char *, long, void *);	
-ExtFunc int arg_set_type(struct arglist *, const char *, int);
-ExtFunc void * arg_get_value(struct arglist *, const char *);
-ExtFunc int arg_get_length(struct arglist *, const char *);
-ExtFunc int arg_get_type(struct arglist *, const char *);
-ExtFunc void arg_dump(struct arglist *, int);
-ExtFunc void arg_dup(struct arglist *, struct arglist *);
-ExtFunc void arg_free(struct arglist *);
-ExtFunc void arg_free_all(struct arglist *);
-ExtFunc void arg_free_name(char*);
-
-
 
 /*
  * Arglist management at plugin-level

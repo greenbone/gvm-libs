@@ -23,8 +23,12 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define EXPORTING
-#include <includes.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#include "arglists.h"
+#include "system.h"
 
 /* 
  * We use a hash of the argument name to speed up the lookups
@@ -175,23 +179,13 @@ cache_dec(name)
 	}
 }
 
-
-
-
-ExtFunc void 
-arg_free_name(name)
+void arg_free_name(name)
  char * name;
 {
  cache_dec(name);
 }
 
-
-
-
- 
-
-ExtFunc void 
-arg_add_value(arglst, name, type, length, value)
+void arg_add_value(arglst, name, type, length, value)
   struct arglist * arglst;
   const char * name;
   int type;
@@ -235,8 +229,7 @@ static struct arglist * arg_get(struct arglist * arg, const char * name)
 
 
 
-ExtFunc int 
-arg_set_value(arglst, name, length, value)
+int arg_set_value(arglst, name, length, value)
  struct arglist * arglst;
  const char * name;
  long length;
@@ -263,8 +256,7 @@ arg_set_value(arglst, name, length, value)
   else return -1; 
 }
 
-ExtFunc int 
-arg_set_type(arglst, name, type)
+int arg_set_type(arglst, name, type)
  struct arglist * arglst;
  const char * name;
  int type;
@@ -279,10 +271,8 @@ arg_set_type(arglst, name, type)
   arglst->type = type;
   return 0;
 }
-  
-  
-ExtFunc void * 
-arg_get_value(args, name)
+
+void * arg_get_value(args, name)
  struct arglist * args;
  const char * name;
 {
@@ -298,8 +288,7 @@ arg_get_value(args, name)
 }
 
 
-ExtFunc int 
-arg_get_length(args,name)
+int arg_get_length(args,name)
  struct arglist * args;
  const char * name;
 {
@@ -311,8 +300,7 @@ arg_get_length(args,name)
 }
 
 
-ExtFunc int 
-arg_get_type(args,name)
+int arg_get_type(args,name)
  struct arglist * args;
  const char * name;
 {
@@ -324,7 +312,7 @@ arg_get_type(args,name)
 }
 
 
-ExtFunc void arg_dup(dst, src)
+void arg_dup(dst, src)
  struct arglist * dst;
  struct arglist * src;
 {
@@ -371,8 +359,7 @@ ExtFunc void arg_dup(dst, src)
 }
 
 
-ExtFunc void 
-arg_dump(args, level)
+void arg_dump(args, level)
  struct arglist * args;
  int level;
 {
@@ -416,8 +403,7 @@ arg_dump(args, level)
 }
 
 
-ExtFunc void
-arg_free(arg)
+void arg_free(arg)
  struct arglist* arg;
 {
  while(arg)
@@ -430,7 +416,7 @@ arg_free(arg)
 }
 
 
-ExtFunc void arg_free_all(arg)
+void arg_free_all(arg)
  struct arglist* arg;
 {
  while(arg)
