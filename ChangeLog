@@ -1,5 +1,25 @@
 2008-03-14  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/network.h: New. Contains external header information
+	for module "network". (extracted from libopenvas.h)
+
+	* libopenvas/ftp_funcs.h: Updated header for OpenVAS, removed
+	"ExtFunc".
+
+	* libopenvas/ftp_funcs.c: Updated header for OpenVASremoved "ExtFunc",
+	replaced includes.h by actually required includes.
+
+	* include/libopenvas.h: Moved any ftp_funcs declarations
+	to ftp_funcs.h. Moved most network declarations to network.h.
+
+	* Makefile: Install libopenvas/network.h and libopenvas/ftp_funcs.h.
+
+	* libopenvas/arglists.h: Added forgotten ifdef.
+
+	* MANIFEST: Updated.
+
+2008-03-14  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	Removing unsused module "data". It was meant as a future
 	replacement of arglists. However, it does only try the same
 	philosophy with some improvments whereas it makes more
