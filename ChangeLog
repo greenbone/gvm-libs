@@ -1,5 +1,26 @@
 2008-03-17  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Implementing OpenVAS Change Request #5: Remove BPF sharing feature
+
+	* configure.in: Remove option "--enable-bpf-sharing" and adapt
+	corresponding messages.
+
+	* configure: updated.
+
+	* README.BPF: Renamed Nessus to OpenVAS, added note that there
+	once was a feature for bpf-sharing.
+
+	* libopenvas/bpf_share.c: Removed the whole alternative
+	block for "HAVE_DEV_BPFN".
+	(main): Also removed the now useless=empty test frame.
+
+	* libopenvas/Makefile: bpf_sharing does not need to know
+	about the StateDir anymore.
+
+	* TODO: Removed entry about BPF sharing.
+
+2008-03-17  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* TODO: Added entry describing how the cleanup re header files
 	should be continued.
 

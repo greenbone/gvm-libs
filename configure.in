@@ -114,29 +114,10 @@ AC_ARG_ENABLE(release,[  --enable-release	  set the compiler flags to -O6],
 	CFLAGS="-O6")
 
 
-bpfshare=""
-
-
 AC_ARG_ENABLE(debug-store, [  --enable-debug-store	Warn the user if a plugin has too many CVE/BID/XRefs],
 		[if test x$enable_debug_store = xyes ; then
 			AC_DEFINE(DEBUG_STORE)
 		fi])
-
-AC_ARG_ENABLE(bpf-sharing, [  --enable-bpf-sharing	share one BPF among processes (see README.BPF)],
-		[if test x$enable_bpf_sharing = xno ; then
-			bpfshare=no
-		else	
-			bpfshare=yes
-			AC_DEFINE(HAVE_DEV_BPFN)
-		fi])
- 
- 
-
-test -z "$bpfshare" -a -c /dev/bpf0 -a ! -c /dev/bpf42 && {
-			AC_DEFINE(HAVE_DEV_BPFN)
-			bpfshare=yes
-}
- 
 
 debug_ssl=""
 
@@ -558,23 +539,21 @@ to install.
 
 
 
-test -z "$bpfshare" -a -c /dev/bpf0 -a ! -c /dev/bpf40 &&
+test -c /dev/bpf0 -a ! -c /dev/bpf40 &&
 AC_MSG_RESULT([
 
-
-*** You appear to be running a BPF-enabled operating system. 
+*** You appear to be running a BPF-enabled operating system.
 (BPF stands for 'Berkeley Packet Filter')
 
-BPFs are used to capture incoming packets without using the operating system. 
-Nessus uses those for some of its security checks and port scanners.
+BPFs are used to capture incoming packets without using the operating system.
+OpenVAS uses those for some of its security checks and port scanners.
 
-However, you seem to not have enough bpfs, (we recommand that you get about 
-100 of them) so Nessus might miss some hosts or produce inaccurate port scans.
+However, you seem to not have enough bpfs, (we recommand that you get about
+100 of them) so OpenVAS might miss some hosts or produce inaccurate port scans.
 
-If you can not create more bpfs, then you may want to enable the experimental
-bpf sharing daemon, by re-running this configure script with the option
---enable-bpf-sharing
-
+If you can not create more bpfs, there once was a feature 'enable-bpf-sharing'
+which has been removed (see OpenVAS Change Reuqest 5). Please report on the
+OpenVAS Mailing Lists if this causes a problem to you.
 Please read README.BPF before continuing])
 
 exit 0

@@ -1,10 +1,10 @@
 Note to the *BSD users. 
 
 
-Nessus uses the pcap library, which uses the
+OpenVAS uses the pcap library, which uses the
 berkeley packet filter (bpf) to do its job.
 
-Since Nessus used multiple processes, several pcap-aware plugins will
+Since OpenVAS used multiple processes, several pcap-aware plugins will
 need to access the the bpf at the same time. 
 
 This means that you need to recompile your kernel with the
@@ -20,7 +20,7 @@ the 'max hosts number' option you enter in nessusd x the
 	   
 If for instance you want to have 10 nessusd running at the same time,
 each running 5 plugins in parallel, you should create 50 (10 * 5) bpfs
-(as nessusd is extremely lightweight, you can expect to have this amount
+(as openvasd is extremely lightweight, you can expect to have this amount
  of processes running at the same time)
 
 If you plan to scan a whole network, we recommand you create at least
@@ -38,9 +38,6 @@ and do  :
 On FreeBSD, you can directly do :
       ./MAKEDEV bpf+100
 
-
-If you can not recompile your kernel, you can try to run the configure
-script with the option --enable-bpf-sharing. In this case, nessusd will
-try to share one /dev/bpf among multiple processes and do the filtering
-in userland. NOTE THAT THIS OPTION IS HIGHLY EXPERIMENTAL AND WE DO 
-NOT RECOMMAND ENABLING IT.
+If you can not recompile your kernel, there once was a feature
+'enable-bpf-sharing' which has been removed (see OpenVAS Change Reuqest 5).
+Please report on the OpenVAS Mailing Lists if this causes a problem to you.

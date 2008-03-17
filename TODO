@@ -14,8 +14,6 @@
 
 2007-10-11 <Jan-Oliver.Wagner@intevation.de>
 
-	* README.BPF: Still of relevance? BSD people to answer this.
-
 	* MANIFEST: The method to create a dist could be imoroved to
 	use svn export. This could make MANIFEST unneeded which in
 	turn means less management efford.
