@@ -41,6 +41,7 @@ libopenvas_hg/Makefile
 libopenvas_hg/test.c
 libopenvas/arglists.c
 libopenvas/arglists.h
+libopenvas/bpf_share.h
 libopenvas/bpf_share.c
 libopenvas/comm.h
 libopenvas-config.1

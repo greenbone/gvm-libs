@@ -32,8 +32,9 @@
 
 
 #include "arglists.h"
-#include "network.h"
+#include "bpf_share.h"
 #include "ftp_funcs.h"
+#include "network.h"
 
 
 /*
@@ -371,13 +372,6 @@ ExtFunc	int 	is_shell_command_present(char*);
 ExtFunc char*	build_encode_URL(struct arglist*, char*, char*, char*, char*);
 
 ExtFunc void nessus_init_random();
-
-ExtFunc int bpf_server();
-ExtFunc int bpf_open_live(char*, char*);
-ExtFunc u_char* bpf_next(int, int *);
-ExtFunc u_char* bpf_next_tv(int, int *, struct timeval *);
-ExtFunc void bpf_close(int);
-ExtFunc int  bpf_datalink(int);
 
 /* proctitle.c */
 void initsetproctitle(int argc, char *argv[], char *envp[]);

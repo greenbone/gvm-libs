@@ -1,5 +1,23 @@
 2008-03-17  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Cleanup for module bpf_share.
+
+	* libopenvas/bpf_share.h: New. Contains declarations
+	for module "bpf_share". (extracted from libopenvas.h and removed
+	ExtFunc while we are at it)
+
+	* libopenvas/bpf_share.c: replace inlusion of "includes.h" by
+	"pcap.h" which is already sufficient.
+
+	* include/libopenvas.h: Moved any bpf_share declarations
+	to bpf_share.h.
+
+	* Makefile: Install libopenvas/bpf_share.h.
+
+	* MANIFEST: Updated.
+
+2008-03-17  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	Implementing OpenVAS Change Request #5: Remove BPF sharing feature
 
 	* configure.in: Remove option "--enable-bpf-sharing" and adapt
