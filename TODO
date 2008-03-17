@@ -1,3 +1,17 @@
+2008-03-17 <Jan-Oliver.Wagner@intevation.de>
+
+	* Continue cleanup of header files as started for
+	modules arglists and ftp_funcs:
+	- Remove any "ExtFunc" declarations.
+	- Move any declarations from include/libopenvas.h to
+	  "libopenvas/modulename.h". If the latter exists already,
+	  it should be renamed to "libopenvas/modulename-internal.h"
+	  and the renaming be done in any of the files in "libopenvas/*"
+	- Add the new header file to installed header in global "Makefile".
+	- Add the new files to MANIFEST.
+	- resolve generic includes in libopenvas/modulename.c (includes.h)
+	  by specific includes of relevant files - if possible.
+
 2007-10-11 <Jan-Oliver.Wagner@intevation.de>
 
 	* README.BPF: Still of relevance? BSD people to answer this.

@@ -1,3 +1,8 @@
+2008-03-17  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* TODO: Added entry describing how the cleanup re header files
+	should be continued.
+
 2008-03-14  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/network.h: New. Contains external header information
