@@ -1,3 +1,8 @@
+2008-03-20  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libopenvas_hg/Makefile: Added path to libopenvas/ for
+	include files. This make the library to build again.
+
 2008-03-17  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	Cleanup for module bpf_share.
