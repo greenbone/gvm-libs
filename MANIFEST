@@ -57,6 +57,7 @@ libopenvas/hlst.h
 libopenvas/ids_send.c
 libopenvas/ids_send.h
 libopenvas/kb.c
+libopenvas/kb.h
 libopenvas/Makefile
 libopenvas/network.c
 libopenvas/network.h

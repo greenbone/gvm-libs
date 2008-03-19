@@ -34,6 +34,7 @@
 #include "arglists.h"
 #include "bpf_share.h"
 #include "ftp_funcs.h"
+#include "kb.h"
 #include "network.h"
 
 
@@ -388,45 +389,6 @@ int		 store_init_user(char *);
 
 /* services1.c */
 int		nessus_init_svc();
-
-/*-----------------------------------------------------------------*/
-
-#define KB_TYPE_INT ARG_INT
-#define KB_TYPE_STR ARG_STRING
-
-struct kb_item {
-	char * name;
- 	char type;
-	union {
-		char * v_str;
-		int v_int;
-	} v;
-	struct kb_item * next;
-};
-
-/* kb.c */
-struct kb_item ** kb_new();
-struct kb_item * kb_item_get_single(struct kb_item **, char *, int );
-char * kb_item_get_str(struct kb_item **, char *);
-int    kb_item_get_int(struct kb_item **, char *);
-struct kb_item * kb_item_get_all(struct kb_item **, char *);
-struct kb_item * kb_item_get_pattern(struct kb_item **, char *);
-void   kb_item_get_all_free(struct kb_item *);
-
-/* kb.c */
-int    kb_item_add_str(struct kb_item **, char *, char *);
-int    kb_item_set_str(struct kb_item **, char *, char *);
-int    kb_item_add_int(struct kb_item **, char *, int   );
-int    kb_item_set_int(struct kb_item **, char *, int   );
-void   kb_item_rm_all(struct kb_item **, char *);
-
-/* kb.c */
-struct arglist * plug_get_oldstyle_kb(struct arglist * );
-
-
-#define NEW_KB_MGMT
-
-
 
 /*-----------------------------------------------------------------*/
 

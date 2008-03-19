@@ -1,5 +1,22 @@
 2008-03-20  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Cleanup for module kb.
+
+	* libopenvas/kb.h: New. Contains declarations
+	for module "kb" (extracted from libopenvas.h)
+
+	* libopenvas/kb.c: replace inlusion of "includes.h" by
+	respective single includes.
+
+	* include/libopenvas.h: Moved any kb declarations
+	to kb.h.
+
+	* Makefile: Install libopenvas/kb.h.
+
+	* MANIFEST: Updated.
+
+2008-03-20  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* include/harglists.h: Removed. Moved to libopenvas/harglists.h.
 
 	* libopenvas/harglists.h: New. Former include/harglists.h.

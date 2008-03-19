@@ -19,7 +19,14 @@
  * Knowledge base management API
  */ 
 
-#include <includes.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "arglists.h"
+#include "fnmatch.h"
+#include "kb.h"
+#include "system.h"
+
 #define HASH_MAX 65537 
 
 
