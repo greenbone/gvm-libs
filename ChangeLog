@@ -1,5 +1,18 @@
 2008-03-20  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* include/harglists.h: Removed. Moved to libopenvas/harglists.h.
+
+	* libopenvas/harglists.h: New. Former include/harglists.h.
+
+	* Makefile: Reflect move of harglists.h.
+
+	* libopenvas/harglists.c: replace inlusion of "includes.h"
+	separate ones for the only needed declarations.
+
+	* MANIFEST: Updated.
+
+2008-03-20  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas_hg/Makefile: Added path to libopenvas/ for
 	include files. This make the library to build again.
 

@@ -24,15 +24,17 @@
  * of the hash list manager
  */
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <errno.h>
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include "hlst.h"
-
-#define EXPORTING
-#include <includes.h>
-#include <errno.h>
+#include "system.h"
 
 #define __HARG_INTERNAL__
 #include "harglists.h"
