@@ -1,5 +1,22 @@
 2008-03-20  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Cleanup for module pcap.
+
+	* libopenvas/pcap_openvas.h: New. Contains declarations
+	for module "pcap_openvas" (extracted from libopenvas.h)
+
+	* libopenvas/pcap.c: replace inlusion of "includes.h" by
+	respective single includes.
+
+	* include/libopenvas.h: Moved any pcap declarations
+	to pcap_openvas.h.
+
+	* Makefile: Install libopenvas/pcap_openvas.h.
+
+	* MANIFEST: Updated.
+
+2008-03-20  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	Cleanup for module kb.
 
 	* libopenvas/kb.h: New. Contains declarations

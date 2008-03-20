@@ -174,10 +174,6 @@ ExtFunc int plug_get_port_transport(struct arglist*, int);
 ExtFunc int comm_send_status(struct arglist*, char*, char*, int, int);
 ExtFunc unsigned short *getpts(char *, int *);
 
-ExtFunc int islocalhost(struct in_addr *);
-
-
-
 /*
  * Reporting functions
  */
@@ -306,13 +302,6 @@ ExtFunc char* rmslashes(char*);
  */
 #include <pcap.h>
  
-ExtFunc int get_datalink_size(int);
-ExtFunc char *routethrough(struct in_addr *, struct in_addr *);
-
-ExtFunc int is_local_ip(struct in_addr);
-
-ExtFunc int get_mac_addr(struct in_addr, char**);
-
 /* 
  * Misc. defines
  */

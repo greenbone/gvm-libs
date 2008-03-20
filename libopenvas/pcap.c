@@ -16,12 +16,23 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <includes.h>
+#include <resolv.h>
+#include <pcap.h>
 #include <net/if.h>
+#include <arpa/inet.h>
+#include <sys/ioctl.h>
+#include <netdb.h>
 #ifdef HAVE_SYS_SOCKIO_H
 #include <sys/sockio.h>
 #endif
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
+#include "bpf_share.h"
+#include "pcap_openvas.h"
+#include "system.h"
+#include "network.h"
 
 #define MAXROUTES 1024
 
