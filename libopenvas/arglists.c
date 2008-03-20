@@ -28,7 +28,7 @@
 #include <stdio.h>
 
 #include "arglists.h"
-#include "system.h"
+#include "system_internal.h"
 
 /* 
  * We use a hash of the argument name to speed up the lookups

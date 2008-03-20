@@ -34,7 +34,7 @@
 #endif
 
 #include "hlst.h"
-#include "system.h"
+#include "system_internal.h"
 
 #define __HARG_INTERNAL__
 #include "harglists.h"

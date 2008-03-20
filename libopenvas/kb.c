@@ -25,7 +25,7 @@
 #include "arglists.h"
 #include "fnmatch.h"
 #include "kb.h"
-#include "system.h"
+#include "system_internal.h"
 
 #define HASH_MAX 65537 
 

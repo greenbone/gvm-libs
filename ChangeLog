@@ -1,5 +1,17 @@
 2008-03-20  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/system.h: Renamed to system_internal.h
+
+	* libopenvas/system_internal.h: New. Previous system.h.
+
+	* libopenvas/harglists.c, libopenvas/pcap.c,
+	libopenvas/system.c, libopenvas/arglists.c,
+	libopenvas/Makefile, libopenvas/kb.c,
+	MANIFEST: Reflect name change from
+	system.h to system_internal.h.
+
+2008-03-20  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	Cleanup for module pcap.
 
 	* libopenvas/pcap_openvas.h: New. Contains declarations

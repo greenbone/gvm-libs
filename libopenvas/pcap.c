@@ -31,7 +31,7 @@
 
 #include "bpf_share.h"
 #include "pcap_openvas.h"
-#include "system.h"
+#include "system_internal.h"
 #include "network.h"
 
 #define MAXROUTES 1024

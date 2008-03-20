@@ -60,7 +60,7 @@ resolve.o : resolve.c resolve.h
 share_fd.o : share_fd.c 
 	$(LIBTOOL) $(CC)  $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c share_fd.c
 
-system.o : system.c system.h
+system.o : system.c system_internal.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c system.c 
 
 arglists.o : arglists.c 

@@ -25,7 +25,7 @@
 
 #define EXPORTING
 #include <includes.h>
-#include "system.h"
+#include "system_internal.h"
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif
