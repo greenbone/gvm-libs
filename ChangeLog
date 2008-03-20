@@ -1,5 +1,22 @@
 2008-03-20  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Cleanup for module system.
+
+	* libopenvas/system.h: New. Contains declarations
+	for module "system" (extracted from libopenvas.h)
+
+	* libopenvas/system.c: replace inlusion of "includes.h" by
+	respective single includes. Removed empty "ExtFunc".
+
+	* include/libopenvas.h: Moved any system declarations
+	to system.h.
+
+	* Makefile: Install libopenvas/system.h.
+
+	* MANIFEST: Updated.
+
+2008-03-20  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas/system.h: Renamed to system_internal.h
 
 	* libopenvas/system_internal.h: New. Previous system.h.

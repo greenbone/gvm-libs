@@ -36,6 +36,7 @@
 #include "ftp_funcs.h"
 #include "kb.h"
 #include "network.h"
+#include "system.h"
 
 
 /*
@@ -244,40 +245,6 @@ ExtFunc char * plug_get_host_name(struct arglist *);
 #define PREF_RADIO "radio"
 #define PREF_PASSWORD "password"
 #define PREF_FILE "file"
-
-/*
- * Replacement for system related functions
- */
- 
-
-
-ExtFunc void * emalloc(size_t);
-ExtFunc char * estrdup(const char *);
-ExtFunc void * erealloc(void*, size_t);
-ExtFunc void efree(void *);
-ExtFunc size_t estrlen(const char *, size_t);
-
-
-#ifdef HUNT_MEM_LEAKS
-ExtFunc void * __hml_malloc(char*, int, size_t);
-ExtFunc char * __hml_strdup(char*, int, char*);
-ExtFunc void   __hml_free(char*, int, void*);
-ExtFunc void * __hml_realloc(char*, int, void*, size_t);
-
-
-
-#define emalloc(x) __hml_malloc(__FILE__, __LINE__, x)
-#define estrdup(x) __hml_strdup(__FILE__, __LINE__, x)
-#define efree(x)   __hml_free(__FILE__, __LINE__, x)
-
-#undef strdup
-
-#define malloc(x) __hml_malloc(__FILE__, __LINE__, x)
-#define strdup(x) __hml_strdup(__FILE__, __LINE__, x)
-#define free(x)   __hml_free(__FILE__, __LINE__, &x)
-#define realloc(x, y) __hml_realloc(__FILE__, __LINE__, x, y)
-
-#endif
 
 /* 
  * Inter Plugins Communication functions

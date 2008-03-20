@@ -81,6 +81,7 @@ libopenvas/share_fd.c
 libopenvas/store.c
 libopenvas/store.h
 libopenvas/system.c
+libopenvas/system.h
 libopenvas/system_internal.h
 libopenvas/www_funcs.c
 ltmain.sh

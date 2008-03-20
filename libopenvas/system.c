@@ -23,8 +23,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define EXPORTING
-#include <includes.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <string.h>
+#include <strings.h>
+#include <ctype.h>
+#include <arpa/inet.h>
+
 #include "system_internal.h"
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
@@ -34,7 +42,6 @@
  * memory size. If anything failed during allocating
  * it, the exit() routine is entered to stop the program.
  */
-ExtFunc
 void * emalloc(size)
  size_t size;
 {
@@ -80,7 +87,7 @@ void * emalloc(size)
     return(ptr);
 }
 
-ExtFunc char * 
+char *
 estrdup(str)
  const char * str; 
 {
@@ -100,7 +107,7 @@ estrdup(str)
 }
 
 
-ExtFunc void 
+void
 efree(ptr)
  void * ptr;
 {
@@ -115,7 +122,7 @@ efree(ptr)
  * It thus needs analysis whether the function is not used
  * at all, or a proto is missing.
  */
-ExtFunc void *
+void *
 erealloc(ptr, size)
  void * ptr;
  size_t size;
@@ -139,7 +146,7 @@ erealloc(ptr, size)
 
 
 
-ExtFunc size_t 
+size_t
 estrlen(s,n)
  const char * s; 
  size_t n;

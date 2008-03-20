@@ -1,12 +1,12 @@
 /* OpenVAS
  * $Id$
- * Description: Memory management methods.
+ * Description: Header file for module system.
  *
  * Authors:
- * Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
+ * Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
  *
  * Copyright:
- * Based on work Copyright (C) 1998 Renaud Deraison
+ * Copyright (C) 2008 Intevation GmbH
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -23,18 +23,31 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _LIBOPENVAS_SYSTEM_H
-#define _LIBOPENVAS_SYSTEM_H
+#ifndef OPENVAS_SYSTEM_H
+#define OPENVAS_SYSTEM_H
 
-#include <stdlib.h>
-
-#ifndef HUNT_MEM_LEAKS
-#ifndef DMALLOC
 void * emalloc(size_t);
 char * estrdup(const char *);
+void * erealloc(void*, size_t);
 void efree(void *);
-#endif
-#endif
 size_t estrlen(const char *, size_t);
+
+#ifdef HUNT_MEM_LEAKS
+void * __hml_malloc(char*, int, size_t);
+char * __hml_strdup(char*, int, char*);
+void   __hml_free(char*, int, void*);
+void * __hml_realloc(char*, int, void*, size_t);
+
+#define emalloc(x) __hml_malloc(__FILE__, __LINE__, x)
+#define estrdup(x) __hml_strdup(__FILE__, __LINE__, x)
+#define efree(x)   __hml_free(__FILE__, __LINE__, x)
+
+#undef strdup
+
+#define malloc(x) __hml_malloc(__FILE__, __LINE__, x)
+#define strdup(x) __hml_strdup(__FILE__, __LINE__, x)
+#define free(x)   __hml_free(__FILE__, __LINE__, &x)
+#define realloc(x, y) __hml_realloc(__FILE__, __LINE__, x, y)
+#endif
 
 #endif

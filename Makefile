@@ -63,6 +63,7 @@ install : all
 	$(INSTALL) -m 0444 libopenvas/kb.h ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/network.h ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/pcap_openvas.h ${includedir}/openvas
+	$(INSTALL) -m 0444 libopenvas/system.h ${includedir}/openvas
 	test -d ${bindir} || ${INSTALL_DIR} -m 755 ${bindir}
 	$(INSTALL) -m 0755 libopenvas-config ${bindir}/libopenvas-config
 	test -d ${mandir} || ${INSTALL_DIR} -m 755 ${mandir}
