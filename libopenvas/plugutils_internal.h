@@ -1,5 +1,5 @@
-#ifndef PLUGUTILS_H
-#define PLUGUTILS_H
+#ifndef PLUGUTILS_INTERNAL_H
+#define PLUGUTILS_INTERNAL_H
 
 char * _plug_get_version(struct arglist *);
 int    _plug_get_id(struct arglist*);
@@ -20,7 +20,5 @@ char * _plug_get_copyright(struct arglist*);
 char * _plug_get_fname(struct arglist *);
 int  _plug_get_category(struct arglist*);
 void _add_plugin_preference(struct arglist*, const char*, const char*, const char*, const char*);
-
-
 
 #endif

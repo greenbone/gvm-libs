@@ -26,7 +26,7 @@
 #include <includes.h>
 
 #include "store.h"
-#include "plugutils.h"
+#include "plugutils_internal.h"
 
 /*-----------------------------------------------------------------------------*/
 static char * arglist2str(struct arglist * arg)
@@ -165,7 +165,7 @@ int store_init_user(char * dir)
 /*--------------------------------------------------------------------------------*/
 
 
-int store_get_plugin_f(struct plugin * plugin, struct pprefs * pprefs, char * dir, char * file)
+static int store_get_plugin_f(struct plugin * plugin, struct pprefs * pprefs, char * dir, char * file)
 {
  int fd;
  struct plugin * p;
