@@ -85,6 +85,7 @@ libopenvas/system.c
 libopenvas/system.h
 libopenvas/system_internal.h
 libopenvas/www_funcs.c
+libopenvas/www_funcs.h
 ltmain.sh
 Makefile
 MANIFEST

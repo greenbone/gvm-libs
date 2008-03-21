@@ -16,9 +16,15 @@
  *
  */
 
-#define EXPORTING
-#include <includes.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <arpa/inet.h>
 
+#include "kb.h"
+#include "plugutils.h"
+#include "system.h"
 
 /*
  * This function implements "whisker like" IDS evasion tactics plus a couple

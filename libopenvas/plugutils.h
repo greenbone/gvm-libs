@@ -26,6 +26,8 @@
 #ifndef OPENVAS_PLUGUTILS_H
 #define OPENVAS_PLUGUTILS_H
 
+#include "arglists.h"
+
 void scanner_add_port(struct arglist*, int, char *);
 
 /*

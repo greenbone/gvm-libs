@@ -158,9 +158,6 @@ ExtFunc char * plug_get_host_name(struct arglist *);
 
 int ovas_open_server_socket(ovas_server_context_t);
 
-/* www_funcs: */
-ExtFunc char*	build_encode_URL(struct arglist*, char*, char*, char*, char*);
-
 ExtFunc void nessus_init_random();
 
 /* proctitle.c */

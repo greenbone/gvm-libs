@@ -1,3 +1,22 @@
+2008-03-22  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Cleanup for module www_funcs.
+
+	* libopenvas/www_funcs.h: New. Contains declarations
+	for module "www_funcs" (extracted from libopenvas.h)
+
+	* libopenvas/www_funcs.c: replace inlusion of "includes.h" by
+	respective single includes.
+
+	* include/libopenvas.h: Moved any www_funcs declarations
+	to www_funcs.h.
+
+	* libopenvas/plugutils.h: Added missing include.
+
+	* Makefile: Install libopenvas/plugutils_internal.h.
+
+	* MANIFEST: Updated.
+
 2008-03-21  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	Cleanup for module plugutils.
