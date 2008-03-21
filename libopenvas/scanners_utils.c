@@ -22,7 +22,8 @@
 #include <includes.h>
 #include "comm.h"
 #include "services.h"
- 
+#include "plugutils.h"
+
 /*
  * Sends the status of an action
  */

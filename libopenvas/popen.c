@@ -17,7 +17,18 @@
  *
  */
 
-#include <includes.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
+
+#include "system.h"
+
 #ifndef RLIM_INFINITY
 #define RLIM_INFINITY (1024*1024*1024)
 #endif
@@ -170,7 +181,7 @@ nessus_pclose(FILE* fp, pid_t pid)
 }
 
 /* Code taken from ptycall by Jordan Hrycaj */
-ExtFunc	char**	append_argv(char **argv, char   *opt)
+char** append_argv(char **argv, char   *opt)
 {
   int argc, n ;
   
@@ -202,7 +213,7 @@ ExtFunc	char**	append_argv(char **argv, char   *opt)
   return argv ;
 }
 
-ExtFunc	void	destroy_argv(char **argv)
+void destroy_argv(char **argv)
 {
   int argc ;
   if (argv == 0)

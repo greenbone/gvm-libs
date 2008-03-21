@@ -67,6 +67,7 @@ libopenvas/plugutils.c
 libopenvas/plugutils.h
 libopenvas/plugutils_internal.h
 libopenvas/popen.c
+libopenvas/popen.h
 libopenvas/proctitle.c
 libopenvas/proctitle.h
 libopenvas/rand.c

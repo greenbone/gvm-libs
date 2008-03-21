@@ -1,5 +1,24 @@
 2008-03-22  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Cleanup for module popen.
+
+	* libopenvas/popen.h: New. Contains declarations
+	for module "popen" (extracted from libopenvas.h)
+
+	* libopenvas/popen.c: replace inlusion of "includes.h" by
+	respective single includes.
+
+	* include/libopenvas.h: Moved any popen declarations
+	to popen.h.
+
+	* libopenvas/scanner_utils.h: Added missing include.
+
+	* Makefile: Install libopenvas/popen.h.
+
+	* MANIFEST: Updated.
+
+2008-03-22  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	Cleanup for module www_funcs.
 
 	* libopenvas/www_funcs.h: New. Contains declarations

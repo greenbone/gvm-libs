@@ -36,7 +36,9 @@
 #include "ftp_funcs.h"
 #include "kb.h"
 #include "network.h"
+#include "popen.h"
 #include "system.h"
+#include "www_funcs.h"
 
 
 /*
@@ -78,13 +80,6 @@ ExtFunc unsigned short *getpts(char *, int *);
 ExtFunc FILE * ptyexecvp (const char *file, const char **argv, pid_t *child);
 
 ExtFunc void (*pty_logger(void(*)(const char *, ...)))(const char *, ...);
-
-/* popen.c */
-ExtFunc FILE*	nessus_popen(const char*, char *const[], pid_t*);
-ExtFunc FILE*	nessus_popen4(const char*, char *const[], pid_t*, int);
-ExtFunc int	nessus_pclose(FILE*, pid_t);
-ExtFunc char ** append_argv (char **argv, char *opt);
-ExtFunc void    destroy_argv (char **argv);
 
 /* 
  * Management of the portlists
