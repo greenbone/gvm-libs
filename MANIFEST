@@ -65,6 +65,7 @@ libopenvas/pcap.c
 libopenvas/pcap_openvas.h
 libopenvas/plugutils.c
 libopenvas/plugutils.h
+libopenvas/plugutils_internal.h
 libopenvas/popen.c
 libopenvas/proctitle.c
 libopenvas/proctitle.h

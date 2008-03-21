@@ -58,145 +58,21 @@ typedef int(*plugin_run_t)(struct arglist *);
 
 ExtFunc struct in_addr nn_resolve (const char *); 
 
-/* plugutils.c */
-ExtFunc void scanner_add_port(struct arglist*, int, char *);
-
 ExtFunc int ping_host(struct in_addr);
 
-/*
- * Arglist management at plugin-level
- */
- 
-/* plugutils.c */
-ExtFunc void plug_set_name(struct arglist *, const char *, const char *);
-ExtFunc char*plug_get_name(struct arglist*);
-
-/* plugutils.c */
-ExtFunc void plug_set_path(struct arglist *, const char *);
-ExtFunc char*plug_get_path(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_set_fname(struct arglist *, const char *);
-ExtFunc char*plug_get_fname(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_set_version(struct arglist *, const char *);
-ExtFunc char*plug_get_version(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_set_timeout(struct arglist *, int);
-ExtFunc int  plug_get_timeout(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_set_launch(struct arglist *, int);
-ExtFunc int plug_get_launch(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_set_summary(struct arglist *, const char *, const char*);
-ExtFunc char*plug_get_summary(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_set_description(struct arglist *, const char *,const char *);
-ExtFunc char*plug_get_description(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_set_category(struct arglist *, int);
-ExtFunc int  plug_get_category(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_set_copyright(struct arglist *, const char *, const char*);
-ExtFunc char*plug_get_copyright(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_set_family(struct arglist * , const char *, const char *);
-ExtFunc char*plug_get_family(struct arglist *);
-
-/* plugutils.c */
-ExtFunc	void plug_set_dep(struct arglist *, const char *);
-ExtFunc struct arglist * plug_get_deps(struct arglist*);
-
-/* plugutils.c */
-ExtFunc void plug_set_id(struct arglist *, int);
-ExtFunc int  plug_get_id(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_set_cve_id(struct arglist *, char *);
-ExtFunc char*plug_get_cve_id(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_set_bugtraq_id(struct arglist *, char *);
-ExtFunc char*plug_get_bugtraq_id(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_set_xref(struct arglist *, char *, char *);
-ExtFunc char * plug_get_xref(struct arglist *);
 
 ExtFunc void plug_set_see_also(struct arglist *, char *);
 ExtFunc struct arglist * plug_get_see_also(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_set_ssl_cert(struct arglist*, char*);
-ExtFunc void plug_set_ssl_key(struct arglist*, char*);
-ExtFunc void plug_set_ssl_pem_password(struct arglist*, char*);
 
 
 ExtFunc void plug_add_dep(struct arglist *, char *, char *);
 
 ExtFunc void plug_add_port(struct arglist *, int);
 
-/* plugutils.c */
-ExtFunc const char * plug_get_hostname(struct arglist *);
-ExtFunc const char * plug_get_host_fqdn(struct arglist *);
-ExtFunc void plug_add_host(struct arglist *, struct arglist *);
-ExtFunc unsigned int plug_get_host_open_port(struct arglist * desc);
-
-/* plugutils.c */
-ExtFunc char* plug_get_cve_id(struct arglist*);
-ExtFunc char* plug_get_bugtraq_id(struct arglist*);
-
-/* plugutils.c */
-ExtFunc void plug_require_key(struct arglist *, const char *);
-ExtFunc struct arglist * plug_get_required_keys(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_exclude_key(struct arglist *, const char *);
-ExtFunc struct arglist * plug_get_excluded_keys(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_require_port(struct arglist *, const char *);
-ExtFunc struct arglist * plug_get_required_ports(struct arglist *);
-
-/* plugutils.c */
-ExtFunc void plug_require_udp_port(struct arglist*, const char *);
-ExtFunc struct arglist * plug_get_required_udp_ports(struct arglist *);
-ExtFunc int plug_get_port_transport(struct arglist*, int);
-
 /* scanners_utils.c */
 ExtFunc int comm_send_status(struct arglist*, char*, char*, int, int);
 ExtFunc unsigned short *getpts(char *, int *);
 
-/*
- * Reporting functions
- */
- 
-/* Plugin-specific : */
-/* plugutils.c */
-ExtFunc void proto_post_hole(struct arglist *, int, const char *, const char *);
-ExtFunc void post_hole(struct arglist *, int, const char *);
-ExtFunc void post_hole_udp(struct arglist *, int, const char *);
-#define post_hole_tcp post_hole
-
-/* plugutils.c */
-ExtFunc void proto_post_info(struct arglist *, int, const char *, const char *);
-ExtFunc void post_info(struct arglist *, int, const char *);
-ExtFunc void post_info_udp(struct arglist *, int, const char *);
-#define post_info_tcp post_info
-
-/* plugutils.c */
-ExtFunc void proto_post_note(struct arglist *, int, const char *, const char *);
-ExtFunc void post_note(struct arglist *, int, const char *);
-ExtFunc void post_note_udp(struct arglist *, int, const char *);
-#define post_note_tcp post_note
 
 /* returns a full duplex data file stream */
 ExtFunc FILE * ptyexecvp (const char *file, const char **argv, pid_t *child);
@@ -232,37 +108,12 @@ char * host_get_port_banner(struct arglist *, int);
  * Miscellaneous functions
  */
  
-/* plugutils.c */
-ExtFunc struct in_addr * plug_get_host_ip(struct arglist *);
-ExtFunc char * get_preference(struct arglist *, const char *);
-ExtFunc void add_plugin_preference(struct arglist *, const char *, const char *, const char *);
-ExtFunc char *get_plugin_preference(struct arglist *, const char *);
-ExtFunc const char *get_plugin_preference_fname(struct arglist*, const char*);
-
 ExtFunc char * plug_get_host_name(struct arglist *);
 #define PREF_CHECKBOX "checkbox"
 #define PREF_ENTRY "entry"
 #define PREF_RADIO "radio"
 #define PREF_PASSWORD "password"
 #define PREF_FILE "file"
-
-/* 
- * Inter Plugins Communication functions
- */
-
-/* plugutils.c */
-ExtFunc void plug_set_key(struct arglist *, char *, int, void *);
-ExtFunc void plug_replace_key(struct arglist *, char *, int, void *);
-ExtFunc void * plug_get_fresh_key(struct arglist *, char *, int *);
-ExtFunc struct kb_item ** plug_get_kb(struct arglist *);
-ExtFunc void * plug_get_key(struct arglist *, char *, int *);
-ExtFunc void * plug_get_key(struct arglist *, char *, int *);
-
-/* plugutils.c */
-ExtFunc char* nessuslib_version();
-ExtFunc void nessus_lib_version(int *, int *, int *);
-ExtFunc char* addslashes(char*);
-ExtFunc char* rmslashes(char*);
 
 /*
  * Pcap utils
@@ -296,20 +147,6 @@ ExtFunc char* rmslashes(char*);
 
 
 /*
- * Type of "transport layer", for encapsulated connections
- * Only SSL is supported at this time.
- * (Bad) examples of other layers could be SOCKS, httptunnel, icmptunnel,
- * RMI over HTTP, DCOM over HTTP, TCP over TCP, etc.
- */
-#define NESSUS_ENCAPS_IP	1
-#define NESSUS_ENCAPS_SSLv23	2 /* Ask for compatibility options */
-#define NESSUS_ENCAPS_SSLv2	3
-#define NESSUS_ENCAPS_SSLv3	4
-#define NESSUS_ENCAPS_TLSv1	5
-
-#define IS_ENCAPS_SSL(x) ((x) >= NESSUS_ENCAPS_SSLv23 && (x) <= NESSUS_ENCAPS_TLSv1)
-
-/*
  * Transport layer options 
  */
 #define NESSUS_CNX_IDS_EVASION_SPLIT	1L  /* Try to evade NIDS by spliting sends */
@@ -320,10 +157,6 @@ ExtFunc char* rmslashes(char*);
 #define NESSUS_CNX_IDS_EVASION_SEND_MASK (NESSUS_CNX_IDS_EVASION_SPLIT|NESSUS_CNX_IDS_EVASION_INJECT|NESSUS_CNX_IDS_EVASION_SHORT_TTL)
 
 int ovas_open_server_socket(ovas_server_context_t);
-
-/* plugutils.c */
-ExtFunc char* 	find_in_path(char*, int);
-ExtFunc	int 	is_shell_command_present(char*);
 
 /* www_funcs: */
 ExtFunc char*	build_encode_URL(struct arglist*, char*, char*, char*, char*);
@@ -367,43 +200,11 @@ struct http_msg * http_share_send_recv_msg(struct arglist *, struct http_msg *);
 pid_t http_share_init(struct arglist *);
 int http_share_close(struct arglist *, pid_t);
 
-#define INTERNAL_COMM_MSG_TYPE_CTRL	(1 << 16)
-#define INTERNAL_COMM_MSG_TYPE_KB	(1 << 17)
-#define INTERNAL_COMM_MSG_TYPE_DATA	(1 << 18)
-#define INTERNAL_COMM_MSG_SHARED_SOCKET (1 << 19)
-
-
-#define INTERNAL_COMM_KB_REPLACE	1
-#define INTERNAL_COMM_KB_GET		2
-#define INTERNAL_COMM_KB_SENDING_INT	4
-#define INTERNAL_COMM_KB_SENDING_STR	8
-#define INTERNAL_COMM_KB_ERROR	 	16	
-
-
-#define INTERNAL_COMM_CTRL_FINISHED	1
-#define INTERNAL_COMM_CTRL_ACK          2
-
-
-#define INTERNAL_COMM_SHARED_SOCKET_REGISTER	1
-#define INTERNAL_COMM_SHARED_SOCKET_ACQUIRE	2
-#define INTERNAL_COMM_SHARED_SOCKET_RELEASE	4
-#define INTERNAL_COMM_SHARED_SOCKET_DESTROY	8
-
-#define INTERNAL_COMM_SHARED_SOCKET_DORECVMSG	16
-#define INTERNAL_COMM_SHARED_SOCKET_BUSY 	32
-#define INTERNAL_COMM_SHARED_SOCKET_ERROR	64
-
 
 int internal_finished(int);
 
 /* share_fd.c */
 int send_fd(int, int);
 int recv_fd(int);
-
-/* plugutils.c */
-int shared_socket_register ( struct arglist *, int, char *);
-int shared_socket_acquire  ( struct arglist *, char * );
-int shared_socket_release  ( struct arglist *, char * );
-int shared_socket_destroy  ( struct arglist *, char * );
 
 #endif

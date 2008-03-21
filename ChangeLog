@@ -1,3 +1,33 @@
+2008-03-21  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Cleanup for module plugutils.
+
+	* libopenvas/plugutils.h: New. Contains declarations
+	for module "plugutils" (extracted from libopenvas.h)
+
+	* libopenvas/plugutils.c: replace inlusion of "includes.h" by
+	respective single includes. Removed "ExtFunc".
+
+	* include/libopenvas.h: Moved any plugutils declarations
+	to plugutils.h.
+
+	* libopenvas/comm.h, libopenvas/services.h,
+	libopenvas/scanners_utils.h: Remove "ExtFunc" declaration.
+
+	* Makefile: Install libopenvas/plugutils_internal.h.
+
+	* MANIFEST: Updated.
+
+2008-03-20  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libopenvas/plugutils.h: Renamed to plugutils_internal.h.
+
+	* libopenvas/plugutils_internal.h: New. Former plugutils.h.
+
+	* libopenvas/store.c: Reflect renaming of plugutils.h to
+	plugutils_internal.h.
+	(store_get_plugin_f): Made static.
+
 2008-03-20  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	Cleanup for module system.

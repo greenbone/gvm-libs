@@ -23,13 +23,31 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define EXPORTING
-#include <includes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/param.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+#include <signal.h>
+#include <wait.h>
+#include <time.h>
+
+#include "arglists.h"
 #include "comm.h"
 #include "harglists.h"
+#include "kb.h"
+#include "network.h"
 #include "rand.h"
+#include "plugutils.h"
 #include "services.h"
 #include "store.h"
+#include "system.h"
 
 /* want version stuff */
 #include "libvers.h"
@@ -47,7 +65,6 @@ char *nessuslib_version()
   vers[sizeof(vers) - 1 ] = '\0';
   return vers;
 }
-ExtFunc
 void nessus_lib_version(major, minor, rev)
  int * major, *minor, *rev;
 {
@@ -57,7 +74,6 @@ void nessus_lib_version(major, minor, rev)
 }
 
 #ifdef USE_PTHREADS
-ExtFunc 
 int nessuslib_pthreads_enabled()
 {
  int enabled = 1;
@@ -73,7 +89,7 @@ int nessuslib_pthreads_enabled()
  * Escapes \n and \r properly. The resulting string
  * is copied in another buffer.
  */
-ExtFunc char * 
+char * 
 addslashes(in)
 	char * in;
 {
@@ -112,7 +128,7 @@ addslashes(in)
  * Replaces escape codes (\n, \r) by the real value
  * The resulting string is stored in another buffer
  */
-ExtFunc char * 
+char * 
 rmslashes(in)
  char * in;
 {
@@ -149,7 +165,6 @@ rmslashes(in)
 }
 
 
-ExtFunc
 void plug_set_version(desc, version)
  struct arglist * desc;
  const char* version;
@@ -158,7 +173,6 @@ void plug_set_version(desc, version)
 }
 
 
-ExtFunc 
 char * _plug_get_version(desc)
  struct arglist * desc;
 {
@@ -166,14 +180,12 @@ char * _plug_get_version(desc)
 }
 
 
-ExtFunc 
 char * plug_get_version(struct arglist * desc)
 {
  return store_fetch_version(desc);
 }
 
 
-ExtFunc
 void plug_set_path(desc, path)
  struct arglist * desc;
  const char * path;
@@ -181,13 +193,11 @@ void plug_set_path(desc, path)
  arg_add_value(desc, "PATH", ARG_STRING, strlen(path), estrdup((char*)path));
 }
 
-ExtFunc 
 char * _plug_get_path(struct arglist * desc)
 {
  return arg_get_value(desc, "PATH");
 }
 
-ExtFunc 
 char * plug_get_path(desc)
  struct arglist * desc;
 {
@@ -196,7 +206,6 @@ char * plug_get_path(desc)
 
 
 
-ExtFunc
 void plug_set_fname(desc, filename)
  struct arglist * desc;
  const char * filename;
@@ -204,13 +213,11 @@ void plug_set_fname(desc, filename)
  arg_add_value(desc, "FILENAME", ARG_STRING, strlen(filename), estrdup(filename));
 }
 
-ExtFunc 
 char * _plug_get_fname(struct arglist * desc)
 {
  return arg_get_value(desc, "FILENAME");
 }
 
-ExtFunc 
 char * plug_get_fname(desc)
  struct arglist * desc;
 {
@@ -218,7 +225,6 @@ char * plug_get_fname(desc)
 }
 
 
-ExtFunc
 void plug_set_id(desc, id)
  struct arglist * desc;
  int id;
@@ -226,21 +232,20 @@ void plug_set_id(desc, id)
  arg_add_value(desc, "ID", ARG_INT, sizeof(int), (void*)id);
 }
 
-ExtFunc int
+int
 _plug_get_id(desc)
  struct arglist * desc;
 {
  return (int)arg_get_value(desc, "ID");
 }
 
-ExtFunc int
+int
 plug_get_id(struct arglist * desc)
 {
  return _plug_get_id(desc);	/* Never cached */
 }
 
 
-ExtFunc
 void plug_set_cve_id(desc, id)
  struct arglist * desc;
  char * id;
@@ -260,20 +265,19 @@ void plug_set_cve_id(desc, id)
 }
 
 
-ExtFunc char *
+char *
 _plug_get_cve_id(desc)
  struct arglist * desc;
 {
  return arg_get_value(desc, "CVE_ID");
 }
 
-ExtFunc char * plug_get_cve_id(struct arglist * desc)
+char * plug_get_cve_id(struct arglist * desc)
 {
  return store_fetch_cve_id(desc);
 }
 
 
-ExtFunc
 void plug_set_bugtraq_id(desc, id)
  struct arglist * desc;
  char * id;
@@ -290,20 +294,19 @@ void plug_set_bugtraq_id(desc, id)
   arg_add_value(desc, "BUGTRAQ_ID", ARG_STRING, strlen(id), estrdup(id));
 }
 
-ExtFunc char * _plug_get_bugtraq_id(desc)
+char * _plug_get_bugtraq_id(desc)
  struct arglist * desc;
 {
  return arg_get_value(desc, "BUGTRAQ_ID");
 }
 
-ExtFunc char * plug_get_bugtraq_id(struct arglist * desc)
+char * plug_get_bugtraq_id(struct arglist * desc)
 {
  return store_fetch_bugtraq_id(desc);
 }
 
 
 
-ExtFunc
 void plug_set_xref(desc,name, value)
  struct arglist * desc;
  char * name, * value;
@@ -330,20 +333,19 @@ void plug_set_xref(desc,name, value)
   }
 }
 
-ExtFunc char * _plug_get_xref(desc)
+char * _plug_get_xref(desc)
  struct arglist * desc;
 {
  return arg_get_value(desc, "XREFS");
 }
 
-ExtFunc char * plug_get_xref(struct arglist * desc)
+char * plug_get_xref(struct arglist * desc)
 {
  return store_fetch_xref(desc);
 }
 
 
 
-ExtFunc
 void plug_set_family(desc, family, language)
  struct arglist * desc; 
  const char * family;
@@ -371,14 +373,12 @@ void plug_set_family(desc, family, language)
 }
 
 
-ExtFunc
 char * _plug_get_family(desc)
  struct arglist * desc;
 {
  return arg_get_value(desc, "FAMILY");
 }
 
-ExtFunc
 char * plug_get_family(desc)
  struct arglist * desc;
 {
@@ -386,7 +386,6 @@ char * plug_get_family(desc)
 }
 
 
-ExtFunc
 void plug_require_key(desc, keyname)
  struct arglist * desc;
  const char * keyname;
@@ -404,7 +403,6 @@ void plug_require_key(desc, keyname)
  }
 }
 
-ExtFunc 
 struct arglist * _plug_get_required_keys(desc)
  struct arglist * desc;
 {
@@ -412,7 +410,6 @@ struct arglist * _plug_get_required_keys(desc)
 }
 
 
-ExtFunc 
 struct arglist * plug_get_required_keys(desc)
  struct arglist * desc;
 {
@@ -420,7 +417,6 @@ struct arglist * plug_get_required_keys(desc)
 }
 
 
-ExtFunc
 void plug_exclude_key(desc, keyname)
  struct arglist * desc;
  const char * keyname;
@@ -438,7 +434,6 @@ void plug_exclude_key(desc, keyname)
  }
 }
 
-ExtFunc
 struct arglist * _plug_get_excluded_keys(desc)
  struct arglist * desc;
 {
@@ -446,14 +441,12 @@ struct arglist * _plug_get_excluded_keys(desc)
 }
 
 
-ExtFunc
 struct arglist * plug_get_excluded_keys(desc)
  struct arglist * desc;
 {
  return _plug_get_excluded_keys(desc);
 }
 
-ExtFunc 
 void plug_require_port(desc, portname)
  struct arglist * desc;
  const char * portname;
@@ -473,14 +466,12 @@ void plug_require_port(desc, portname)
  }
 }
 
-ExtFunc
 struct arglist * _plug_get_required_ports(desc)
  struct arglist * desc;
 {
  return arg_get_value(desc, "required_ports");
 }
 
-ExtFunc
 struct arglist * plug_get_required_ports(desc)
  struct arglist * desc;
 {
@@ -488,7 +479,6 @@ struct arglist * plug_get_required_ports(desc)
 }
 
 
-ExtFunc 
 void plug_require_udp_port(desc, portname)
  struct arglist * desc;
  const char * portname;
@@ -508,14 +498,12 @@ void plug_require_udp_port(desc, portname)
  }
 }
 
-ExtFunc 
 struct arglist * _plug_get_required_udp_ports(desc)
  struct arglist * desc;
 {
  return arg_get_value(desc, "required_udp_ports");
 }
 
-ExtFunc 
 struct arglist * plug_get_required_udp_ports(desc)
  struct arglist * desc;
 {
@@ -524,7 +512,6 @@ struct arglist * plug_get_required_udp_ports(desc)
  
 
 
-ExtFunc
 void plug_set_dep(desc, depname)
  struct arglist * desc;
  const char * depname;
@@ -543,7 +530,6 @@ void plug_set_dep(desc, depname)
 
 
 
-ExtFunc
 struct arglist * _plug_get_deps(desc)
  struct arglist * desc;
 {
@@ -551,7 +537,6 @@ struct arglist * _plug_get_deps(desc)
 }
 
 
-ExtFunc
 struct arglist * plug_get_deps(desc)
  struct arglist * desc;
 {
@@ -561,7 +546,6 @@ struct arglist * plug_get_deps(desc)
 #endif
 }
 
-ExtFunc
 void plug_set_timeout(desc, timeout)
  struct arglist * desc; 
  int timeout;
@@ -570,7 +554,6 @@ void plug_set_timeout(desc, timeout)
 }
 
 
-ExtFunc
 int _plug_get_timeout(desc)
  struct arglist * desc;
 {
@@ -578,7 +561,6 @@ int _plug_get_timeout(desc)
 }
 
 
-ExtFunc
 int plug_get_timeout(desc)
  struct arglist * desc;
 {
@@ -590,7 +572,6 @@ int plug_get_timeout(desc)
 
 		
 
-ExtFunc
 void plug_set_launch(desc, launch)
  struct arglist * desc;
  int launch;
@@ -602,7 +583,6 @@ void plug_set_launch(desc, launch)
 }
 
 
-ExtFunc
 int plug_get_launch(desc)
  struct arglist * desc;
 {
@@ -610,7 +590,6 @@ int plug_get_launch(desc)
 }	
 	
 	
-ExtFunc
 void plug_set_name(desc, name, language)
  struct arglist * desc; 
  const char * name; 
@@ -637,14 +616,12 @@ void plug_set_name(desc, name, language)
   }
 }
 
-ExtFunc
 char * _plug_get_name(desc)
  struct arglist * desc;
 {
  return arg_get_value(desc, "NAME");
 }
 
-ExtFunc
 char * plug_get_name(desc)
  struct arglist * desc;
 {
@@ -653,7 +630,6 @@ char * plug_get_name(desc)
 }
 
 
-ExtFunc
 void plug_set_summary(desc, summary,language)
  struct arglist * desc;
  const char * summary;
@@ -680,14 +656,12 @@ void plug_set_summary(desc, summary,language)
   }
 }
 
-ExtFunc
 char * _plug_get_summary(desc)
  struct arglist * desc;
 {
  return arg_get_value(desc, "SUMMARY");
 }
 
-ExtFunc
 char * plug_get_summary(desc)
  struct arglist * desc;
 {
@@ -695,7 +669,6 @@ char * plug_get_summary(desc)
 }
 
 
-ExtFunc
 void plug_set_description(desc, description,language)
  struct arglist * desc;
  const char * description;
@@ -723,14 +696,12 @@ void plug_set_description(desc, description,language)
 }
 
 
-ExtFunc
 char * _plug_get_description(desc)
  struct arglist * desc;
 {
  return arg_get_value(desc, "DESCRIPTION");
 }
 
-ExtFunc
 char * plug_get_description(desc)
  struct arglist * desc;
 {
@@ -738,7 +709,6 @@ char * plug_get_description(desc)
 }
 
 
-ExtFunc
 void plug_set_copyright(desc, copyright,language)
  struct arglist * desc;
  const char * copyright;
@@ -765,7 +735,6 @@ void plug_set_copyright(desc, copyright,language)
   }
 }
 
-ExtFunc
 char * _plug_get_copyright(desc)
  struct arglist * desc;
 {
@@ -773,7 +742,6 @@ char * _plug_get_copyright(desc)
 }
 
 
-ExtFunc
 char * plug_get_copyright(desc)
  struct arglist * desc;
 {
@@ -781,7 +749,6 @@ char * plug_get_copyright(desc)
 }
 
 
-ExtFunc
 void plug_set_category(desc, category)
  struct arglist * desc;
  int category;
@@ -789,14 +756,12 @@ void plug_set_category(desc, category)
        arg_add_value(desc, "CATEGORY", ARG_INT, sizeof(int), (void *)category);
 }
 
-ExtFunc
 int _plug_get_category(desc)
  struct arglist * desc;
 {
  return (int)arg_get_value(desc, "CATEGORY");	/* We don't cache this one */
 }
 
-ExtFunc
 int plug_get_category(desc)
  struct arglist * desc;
 {
@@ -805,7 +770,6 @@ int plug_get_category(desc)
 
 
 
-ExtFunc
 void plug_add_host(desc, hostname)
  struct arglist * desc;
  struct arglist * hostname;
@@ -818,7 +782,6 @@ void plug_add_host(desc, hostname)
 }
 
 
-ExtFunc
 void host_add_port_proto(args, portnum, state, proto)
  struct arglist * args;
  int portnum;
@@ -832,7 +795,6 @@ void host_add_port_proto(args, portnum, state, proto)
 }
 
 
-ExtFunc
 void host_add_port(hostdata, portnum, state)
  struct arglist * hostdata;
  int portnum;
@@ -841,7 +803,6 @@ void host_add_port(hostdata, portnum, state)
  host_add_port_proto(hostdata, portnum, state, "tcp");
 }
 
-ExtFunc
 void host_add_port_udp(hostdata, portnum, state)
  struct arglist * hostdata;
  int portnum;
@@ -875,7 +836,6 @@ unscanned_ports_as_closed(prefs)
   return 1;
 }
            
-ExtFunc
 int kb_get_port_state_proto(kb, prefs, portnum, proto)
  struct kb_item ** kb;
  struct arglist * prefs;
@@ -921,7 +881,6 @@ int kb_get_port_state_proto(kb, prefs, portnum, proto)
    return 0;
 }
 
-ExtFunc
 int host_get_port_state_proto(plugdata, portnum, proto)
  struct arglist * plugdata;
  int portnum;
@@ -933,7 +892,6 @@ int host_get_port_state_proto(plugdata, portnum, proto)
  return kb_get_port_state_proto(kb, prefs, portnum, proto);
 }
 
-ExtFunc
 int host_get_port_state(plugdata, portnum)
  struct arglist * plugdata;
  int portnum;
@@ -941,7 +899,6 @@ int host_get_port_state(plugdata, portnum)
  return(host_get_port_state_proto(plugdata, portnum, "tcp"));
 }
 
-ExtFunc
 int host_get_port_state_udp(plugdata, portnum)
  struct arglist * plugdata;
  int portnum;
@@ -950,7 +907,6 @@ int host_get_port_state_udp(plugdata, portnum)
 }
 
 
-ExtFunc
 const char * plug_get_hostname(desc)
  struct arglist * desc;
 {
@@ -959,7 +915,6 @@ const char * plug_get_hostname(desc)
  else return(NULL);
 }
 
-ExtFunc
 const char * plug_get_host_fqdn(desc)
  struct arglist * desc;
 {
@@ -969,7 +924,6 @@ const char * plug_get_host_fqdn(desc)
 }
 
 
-ExtFunc
 struct in_addr * plug_get_host_ip(desc)
  struct arglist * desc;
 {
@@ -1148,7 +1102,6 @@ internal_send(soc, buffer, INTERNAL_COMM_MSG_TYPE_DATA);
 
 /* Pluto end */
 
-ExtFunc
 void proto_post_hole(desc, port, proto, action)
  struct arglist * desc;
  int port;
@@ -1160,7 +1113,6 @@ void proto_post_hole(desc, port, proto, action)
 }
 
 
-ExtFunc
 void post_hole(desc, port, action)
  struct arglist * desc;
  int port;
@@ -1170,7 +1122,6 @@ void post_hole(desc, port, action)
 } 
 
 
-ExtFunc
 void post_hole_udp(desc, port, action)
  struct arglist * desc;
  int port;
@@ -1180,7 +1131,6 @@ void post_hole_udp(desc, port, action)
 }
 
 
-ExtFunc
 void post_info(desc, port, action)
  struct arglist * desc;
  int port;
@@ -1190,7 +1140,6 @@ void post_info(desc, port, action)
 } 
 
 
-ExtFunc
 void post_info_udp(desc, port, action)
  struct arglist * desc;
  int port;
@@ -1200,7 +1149,6 @@ void post_info_udp(desc, port, action)
 }
 
 
-ExtFunc
 void proto_post_info(desc, port, proto, action)
  struct arglist * desc;
  int port;
@@ -1211,7 +1159,6 @@ void proto_post_info(desc, port, proto, action)
   return;
 }
  
-ExtFunc
 void post_note(desc, port, action)
  struct arglist * desc;
  int port;
@@ -1224,7 +1171,6 @@ void post_note(desc, port, action)
 } 
 
      
-ExtFunc
 void post_note_udp(desc, port, action)
  struct arglist * desc;
  int port;
@@ -1234,7 +1180,6 @@ void post_note_udp(desc, port, action)
 }
 	   
 
-ExtFunc
 void proto_post_note(desc, port, proto, action)
  struct arglist * desc;
  int port;
@@ -1254,7 +1199,6 @@ void proto_post_note(desc, port, proto, action)
 } 
  
  
-ExtFunc
 char * get_preference(desc, name)
  struct arglist *desc;
  const char * name;
@@ -1266,7 +1210,6 @@ char * get_preference(desc, name)
 }
 
 
-ExtFunc
 void _add_plugin_preference(prefs, p_name, name, type, defaul)
  struct arglist *prefs;
  const char * p_name;
@@ -1326,7 +1269,7 @@ void add_plugin_preference(desc, name, type, defaul)
 
 
 
-ExtFunc char * 
+char * 
 get_plugin_preference(desc, name)
   struct arglist * desc;
   const char * name;
@@ -1381,7 +1324,7 @@ get_plugin_preference(desc, name)
  return(NULL);
 }
 
-ExtFunc const char * 
+const char * 
 get_plugin_preference_fname(desc, filename)
  struct arglist * desc;
  const char * filename;
@@ -1501,7 +1444,7 @@ static void plug_set_replace_key(args, name, type, value, replace)
 } 
 
 
-ExtFunc void plug_set_key(args, name, type, value)
+void plug_set_key(args, name, type, value)
  struct arglist * args;
  char * name;
  int type;
@@ -1511,7 +1454,7 @@ ExtFunc void plug_set_key(args, name, type, value)
 }
 
 
-ExtFunc void plug_replace_key(args, name, type, value)
+void plug_replace_key(args, name, type, value)
  struct arglist * args;
  char * name;
  int type;
@@ -1519,7 +1462,7 @@ ExtFunc void plug_replace_key(args, name, type, value)
 {
  plug_set_replace_key(args, name, type, value, 1);
 }
-ExtFunc void
+void
 scanner_add_port(args, port, proto)
  struct arglist * args;
  int port;
@@ -1796,7 +1739,7 @@ plug_get_key(args, name, type)
  * countermeasures. Also, avoid returning 80 and 21 as
  * open ports, as many transparent proxies are acting for these...
  */
-ExtFunc unsigned int
+unsigned int
 plug_get_host_open_port(struct arglist * desc)
 {
  struct kb_item ** kb = plug_get_kb(desc);
@@ -1851,7 +1794,6 @@ plug_get_host_open_port(struct arglist * desc)
  * They are use to remember who speaks SSL or not
  */
    
-ExtFunc
 void plug_set_port_transport(args, port, tr)
      struct arglist * args;
      int		port, tr;
@@ -1862,7 +1804,6 @@ void plug_set_port_transport(args, port, tr)
   plug_set_key(args, s, ARG_INT, (void*)tr);
 }
 
-ExtFunc
 int plug_get_port_transport(args, port)
      struct arglist * args;
      int		port;
@@ -1879,7 +1820,6 @@ int plug_get_port_transport(args, port)
                                 of possibly breaking stuff */
 }
 
-ExtFunc
 const char* plug_get_port_transport_name(args, port)
      struct arglist * args;
      int		port;
@@ -1898,7 +1838,7 @@ plug_set_ssl_item(args, item, itemfname)
  plug_set_key(args, s, ARG_STRING, itemfname);
 }
 
-ExtFunc void
+void
 plug_set_ssl_cert(args, cert)
  struct arglist * args;
  char * cert;
@@ -1906,14 +1846,14 @@ plug_set_ssl_cert(args, cert)
  plug_set_ssl_item(args, "cert", cert);
 }
 
-ExtFunc void 
+void 
 plug_set_ssl_key(args, key)
  struct arglist * args;
  char * key;
 {
  plug_set_ssl_item(args, "key", key);
 }
-ExtFunc void
+void
 plug_set_ssl_pem_password(args, key)
  struct arglist * args;
  char * key;
@@ -1921,7 +1861,7 @@ plug_set_ssl_pem_password(args, key)
  plug_set_ssl_item(args, "password", key);
 }
 
-ExtFunc void
+void
 plug_set_ssl_CA_file(args, key)
  struct arglist * args;
  char * key;
@@ -1929,7 +1869,7 @@ plug_set_ssl_CA_file(args, key)
  plug_set_ssl_item(args, "CA", key);
 }
 
-ExtFunc char *
+char *
 find_in_path(name, safe)
      char	*name;
      int	safe;
@@ -1991,7 +1931,7 @@ find_in_path(name, safe)
   return NULL;
 }
 
-ExtFunc int 
+int 
 is_shell_command_present(name)
  char * name;
 {
@@ -2000,7 +1940,7 @@ is_shell_command_present(name)
 
 
 
-ExtFunc int shared_socket_register ( struct arglist * args, int fd, char * name )
+int shared_socket_register ( struct arglist * args, int fd, char * name )
 {
  int soc; 
  int type;
@@ -2024,7 +1964,7 @@ ExtFunc int shared_socket_register ( struct arglist * args, int fd, char * name 
  return 0;
 }
 
-ExtFunc int shared_socket_acquire ( struct arglist * args, char * name )
+int shared_socket_acquire ( struct arglist * args, char * name )
 {
  int soc; 
  char * buf = NULL;
@@ -2059,7 +1999,7 @@ ExtFunc int shared_socket_acquire ( struct arglist * args, char * name )
 }
  
 
-ExtFunc int shared_socket_release ( struct arglist * args, char * name )
+int shared_socket_release ( struct arglist * args, char * name )
 {
  int soc; 
 
@@ -2067,7 +2007,7 @@ ExtFunc int shared_socket_release ( struct arglist * args, char * name )
  return internal_send(soc, name, INTERNAL_COMM_MSG_SHARED_SOCKET|INTERNAL_COMM_SHARED_SOCKET_RELEASE);
 }
 
-ExtFunc int shared_socket_destroy ( struct arglist * args, char * name )
+int shared_socket_destroy ( struct arglist * args, char * name )
 {
  int soc; 
 

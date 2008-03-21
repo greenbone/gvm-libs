@@ -51,8 +51,8 @@ struct nessus_service {
   char			ns_name[128];
 };
 
-ExtFunc const char*	nessus_get_svc_name(int, const char*);
-ExtFunc int		nessus_init_svc(void);
-ExtFunc unsigned short * get_tcp_svcs(int * );
+const char*	nessus_get_svc_name(int, const char*);
+int		nessus_init_svc(void);
+unsigned short * get_tcp_svcs(int * );
 
 #endif
