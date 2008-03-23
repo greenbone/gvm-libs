@@ -38,6 +38,7 @@
 #include "network.h"
 #include "popen.h"
 #include "proctitle.h"
+#include "rand.h"
 #include "system.h"
 #include "www_funcs.h"
 
@@ -153,8 +154,6 @@ ExtFunc char * plug_get_host_name(struct arglist *);
 #define NESSUS_CNX_IDS_EVASION_SEND_MASK (NESSUS_CNX_IDS_EVASION_SPLIT|NESSUS_CNX_IDS_EVASION_INJECT|NESSUS_CNX_IDS_EVASION_SHORT_TTL)
 
 int ovas_open_server_socket(ovas_server_context_t);
-
-ExtFunc void nessus_init_random();
 
 /* store.c */
 struct arglist * store_plugin(struct arglist *,  char *);

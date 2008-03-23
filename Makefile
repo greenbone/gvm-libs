@@ -66,6 +66,7 @@ install : all
 	$(INSTALL) -m 0444 libopenvas/plugutils.h ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/popen.h ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/proctitle.h ${includedir}/openvas
+	$(INSTALL) -m 0444 libopenvas/rand.h ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/system.h ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/www_funcs.h ${includedir}/openvas
 	test -d ${bindir} || ${INSTALL_DIR} -m 755 ${bindir}

@@ -18,11 +18,10 @@
  * Random generator helper functions
  */ 
 
-#define EXPORTING
-#include <includes.h>
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
 
 
 /*
@@ -34,7 +33,7 @@
  *
  */
 
-ExtFunc void
+void
 nessus_init_random()
 {
   FILE	*fp;
@@ -52,13 +51,11 @@ nessus_init_random()
 
 #ifndef HAVE_LRAND48
 
-ExtFunc
 long lrand48()
 {
  return rand();
 }
 
-ExtFunc
 void srand48(long seed)
 { 
  srand(seed);
