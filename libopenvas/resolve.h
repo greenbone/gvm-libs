@@ -19,11 +19,8 @@
 #ifndef _NESSUSL_RESOLVE_H
 #define _NESSUSL_RESOLVE_H
 
-#ifndef NESSUSNT
 #include <netinet/in.h>
-#endif
 
-ExtFunc struct in_addr nn_resolve (const char *);
-ExtFunc int _nn_resolve_add_cache (const char *, struct in_addr);
+struct in_addr nn_resolve (const char *);
 
 #endif

@@ -39,6 +39,7 @@
 #include "popen.h"
 #include "proctitle.h"
 #include "rand.h"
+#include "resolv.h"
 #include "system.h"
 #include "www_funcs.h"
 
@@ -59,8 +60,6 @@ typedef int(*plugin_run_t)(struct arglist *);
  */
 
 /* Plugin specific network functions */
-
-ExtFunc struct in_addr nn_resolve (const char *); 
 
 ExtFunc int ping_host(struct in_addr);
 

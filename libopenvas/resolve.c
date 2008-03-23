@@ -18,8 +18,9 @@
  * Hostname resolver.
  */
 
-#define EXPORTING
-#include <includes.h>
+#include <string.h>
+#include <netdb.h>
+
 #include "resolve.h"
 
 #ifndef __u32
@@ -32,7 +33,7 @@
 
 
 
-ExtFunc int
+int
 host2ip(name, ip)
 	char * name;
 	struct in_addr * ip;

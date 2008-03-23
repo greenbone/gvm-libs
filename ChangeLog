@@ -1,5 +1,17 @@
 2008-03-23  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Cleanup for module resolve.
+
+	* libopenvas/resolve.c: replace inlusion of "includes.h" by
+	respective single includes. Removed ExtFunc.
+
+	* include/libopenvas.h: Removed declarations for resolve
+	and replaced by include of resolve.
+
+	* Makefile: Install libopenvas/resolve.h.
+
+2008-03-23  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	Cleanup for module rand.
 
 	* libopenvas/rand.c: replace inlusion of "includes.h" by
