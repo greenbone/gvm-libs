@@ -25,7 +25,9 @@
 
 #include <includes.h>
 
-#include "store.h"
+#include "store_internal.h"
+#include "share_fd.h"
+#include "plugutils.h"
 #include "plugutils_internal.h"
 
 /*-----------------------------------------------------------------------------*/

@@ -1,5 +1,19 @@
 2008-03-24  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/store.h: Renamed to store_internal.h.
+
+	* libopenvas/store_internal.h: New. Former store.h.
+
+	* libopenvas/plugutils.c: Reflect renaming of store.h to
+	store_internal.h.
+
+	* libopenvas/store.c: Reflect renaming of store.h to
+	store_internal.h and added missing includes.
+
+	* MANIFEST: Updated.
+
+2008-03-24  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	Cleanup for module share_fd.
 
 	* libopenvas/share_fd.c: removed inlusion of "includes.h".
@@ -116,7 +130,7 @@
 
 	* libopenvas/plugutils.h: Added missing include.
 
-	* Makefile: Install libopenvas/plugutils_internal.h.
+	* Makefile: Install libopenvas/plugutils.h.
 
 	* MANIFEST: Updated.
 
@@ -136,7 +150,7 @@
 	* libopenvas/comm.h, libopenvas/services.h,
 	libopenvas/scanners_utils.h: Remove "ExtFunc" declaration.
 
-	* Makefile: Install libopenvas/plugutils_internal.h.
+	* Makefile: Install libopenvas/plugutils.h.
 
 	* MANIFEST: Updated.
 
