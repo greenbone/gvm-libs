@@ -23,10 +23,20 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <includes.h>
+#include <string.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <time.h>
+#include <sys/param.h>
 
 #include "store_internal.h"
 #include "share_fd.h"
+#include "system.h"
 #include "plugutils.h"
 #include "plugutils_internal.h"
 
@@ -126,8 +136,8 @@ static int safe_copy(char * str, char * dst, int sz, char * path, char * item)
 #define MODE_SYS 0
 #define MODE_USR 1
 
-static char sys_store_dir[PATH_MAX+1];
-static char usr_store_dir[PATH_MAX+1];
+static char sys_store_dir[MAXPATHLEN+1];
+static char usr_store_dir[MAXPATHLEN+1];
 
 static int current_mode = -1;
 
@@ -173,7 +183,7 @@ static int store_get_plugin_f(struct plugin * plugin, struct pprefs * pprefs, ch
  struct plugin * p;
  struct stat st;
  int len;
- char file_name[PATH_MAX+1];
+ char file_name[MAXPATHLEN+1];
  char * str;
  
  bzero(plugin, sizeof(*plugin));
@@ -247,10 +257,10 @@ int store_get_plugin(struct plugin * p, char * name)
 
 struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * prefs)
 {
- char desc_file[PATH_MAX+1];
- char plug_file[PATH_MAX+1];
+ char desc_file[MAXPATHLEN+1];
+ char plug_file[MAXPATHLEN+1];
  char * str;
- char store_dir[PATH_MAX+1];
+ char store_dir[MAXPATHLEN+1];
  struct plugin p;
  struct pprefs pp[MAX_PREFS];
  
@@ -342,8 +352,8 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
 
 struct arglist * store_plugin(struct arglist * plugin, char * file)
 {
- char desc_file[PATH_MAX+1];
- char path[PATH_MAX+1];
+ char desc_file[MAXPATHLEN+1];
+ char path[MAXPATHLEN+1];
  struct plugin plug;
  struct pprefs pp[MAX_PREFS+1];
  char  * str;

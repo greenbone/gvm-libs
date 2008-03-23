@@ -43,6 +43,7 @@
 #include "scanners_utils.h"
 #include "services1.h"
 #include "share_fd.h"
+#include "store.h"
 #include "system.h"
 #include "www_funcs.h"
 
@@ -151,12 +152,6 @@ ExtFunc char * plug_get_host_name(struct arglist *);
 #define NESSUS_CNX_IDS_EVASION_SEND_MASK (NESSUS_CNX_IDS_EVASION_SPLIT|NESSUS_CNX_IDS_EVASION_INJECT|NESSUS_CNX_IDS_EVASION_SHORT_TTL)
 
 int ovas_open_server_socket(ovas_server_context_t);
-
-/* store.c */
-struct arglist * store_plugin(struct arglist *,  char *);
-struct arglist * store_load_plugin(char *, char *,  struct arglist*);
-int		 store_init_sys(char *);
-int		 store_init_user(char *);
 
 /*-----------------------------------------------------------------*/
 

@@ -1,5 +1,22 @@
 2008-03-24  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Cleanup for module store.
+
+	* libopenvas/store.c: replace inlusion of "includes.h" by
+	respective single includes. Replaced PATH_MAX by MAXPATHLEN.
+
+	* libopenvas/store.h: New. Contains declarations
+	for module "store" (extracted from libopenvas.h)
+
+	* include/libopenvas.h: Removed declarations for store
+	and replaced by include of store.h.
+
+	* Makefile: Install libopenvas/store.h.
+
+	* MANIFEST: Updated.
+
+2008-03-24  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas/store.h: Renamed to store_internal.h.
 
 	* libopenvas/store_internal.h: New. Former store.h.

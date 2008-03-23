@@ -71,6 +71,7 @@ install : all
 	$(INSTALL) -m 0444 libopenvas/scanners_utils.h ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/services1.h ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/share_fd.h ${includedir}/openvas
+	$(INSTALL) -m 0444 libopenvas/store.h ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/system.h ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/www_funcs.h ${includedir}/openvas
 	test -d ${bindir} || ${INSTALL_DIR} -m 755 ${bindir}
