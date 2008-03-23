@@ -42,6 +42,7 @@
 #include "resolv.h"
 #include "scanners_utils.h"
 #include "services1.h"
+#include "share_fd.h"
 #include "system.h"
 #include "www_funcs.h"
 
@@ -180,9 +181,5 @@ int http_share_close(struct arglist *, pid_t);
 
 
 int internal_finished(int);
-
-/* share_fd.c */
-int send_fd(int, int);
-int recv_fd(int);
 
 #endif

@@ -1,3 +1,19 @@
+2008-03-24  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Cleanup for module share_fd.
+
+	* libopenvas/share_fd.c: removed inlusion of "includes.h".
+
+	* libopenvas/share_fd.h: New. Contains declarations
+	for module "share_fd" (extracted from libopenvas.h)
+
+	* include/libopenvas.h: Removed declarations for share_fd
+	and replaced by include of share_fd.
+
+	* Makefile: Install libopenvas/share_fd.h.
+
+	* MANIFEST: Updated.
+
 2008-03-23  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	Cleanup for modules services and services1.
@@ -21,7 +37,7 @@
 
 	* Makefile: Install libopenvas/services1.h.
 
-	* MANIFEST: Install libopenvas/services1.h.
+	* MANIFEST: Updated.
 
 2008-03-23  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 

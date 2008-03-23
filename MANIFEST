@@ -81,6 +81,7 @@ libopenvas/services1.h
 libopenvas/services.c
 libopenvas/services.h
 libopenvas/share_fd.c
+libopenvas/share_fd.h
 libopenvas/store.c
 libopenvas/store.h
 libopenvas/system.c
