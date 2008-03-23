@@ -41,6 +41,7 @@
 #include "rand.h"
 #include "resolv.h"
 #include "scanners_utils.h"
+#include "services1.h"
 #include "system.h"
 #include "www_funcs.h"
 
@@ -155,10 +156,6 @@ struct arglist * store_plugin(struct arglist *,  char *);
 struct arglist * store_load_plugin(char *, char *,  struct arglist*);
 int		 store_init_sys(char *);
 int		 store_init_user(char *);
-
-
-/* services1.c */
-int		nessus_init_svc();
 
 /*-----------------------------------------------------------------*/
 

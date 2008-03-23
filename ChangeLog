@@ -1,5 +1,30 @@
 2008-03-23  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Cleanup for modules services and services1.
+
+	* libopenvas/services.c: replace inlusion of "includes.h" by
+	respective single includes.
+
+	* libopenvas/services1.c: replace inlusion of "includes.h" by
+	respective single includes.
+
+	* libopenvas/services1.h: New. Contains declarations
+	for module "services1" (extracted from libopenvas.h)
+
+	* libopenvas/services.h: Moved declarations of services1 to
+	services1.h.
+
+	* include/libopenvas.h: Removed declarations for services1
+	and replaced by include of services1.
+
+	* include/popen.h: Added missing include for stdio.h.
+
+	* Makefile: Install libopenvas/services1.h.
+
+	* MANIFEST: Install libopenvas/services1.h.
+
+2008-03-23  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	Cleanup for module scanners_utils.
 
 	* libopenvas/scanners_utils.c: replace inlusion of "includes.h" by

@@ -20,6 +20,8 @@
 #ifndef _NESSUSL_SERVICES_H
 #define _NESSUSL_SERVICES_H
 
+#include "services1.h"
+
 /* **** Config **** */
 /* If you want OpenVAS to switch to the system services file when its own file 
  * fails, UNdefine the next symbol. Otherwise, /etc/services is read only 
@@ -52,7 +54,6 @@ struct nessus_service {
 };
 
 const char*	nessus_get_svc_name(int, const char*);
-int		nessus_init_svc(void);
 unsigned short * get_tcp_svcs(int * );
 
 #endif

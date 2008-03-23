@@ -23,13 +23,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define EXPORTING
-#include <includes.h>
 #include <stdarg.h>
+#include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
+#include <netdb.h>
+
 
 #ifndef MAP_FAILED
 #define MAP_FAILED ((void*)-1)

@@ -68,8 +68,9 @@ install : all
 	$(INSTALL) -m 0444 libopenvas/proctitle.h ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/rand.h ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/resolve.h ${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/system.h ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/scanners_utils.h ${includedir}/openvas
+	$(INSTALL) -m 0444 libopenvas/services1.h ${includedir}/openvas
+	$(INSTALL) -m 0444 libopenvas/system.h ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/www_funcs.h ${includedir}/openvas
 	test -d ${bindir} || ${INSTALL_DIR} -m 755 ${bindir}
 	$(INSTALL) -m 0755 libopenvas-config ${bindir}/libopenvas-config

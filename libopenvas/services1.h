@@ -1,6 +1,6 @@
 /* OpenVAS
  * $Id$
- * Description: Header file for module popen.
+ * Description: Header file for module services1.
  *
  * Authors:
  * Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
@@ -23,15 +23,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef OPENVAS_POPEN_H
-#define OPENVAS_POPEN_H
+#ifndef OPENVAS_SERVICES1_H
+#define OPENVAS_SERVICES1_H
 
-#include <stdio.h>
-
-FILE nessus_popen(const char*, char *const[], pid_t*);
-FILE nessus_popen4(const char*, char *const[], pid_t*, int);
-int nessus_pclose(FILE*, pid_t);
-char ** append_argv (char **argv, char *opt);
-void    destroy_argv (char **argv);
+int nessus_init_svc();
 
 #endif

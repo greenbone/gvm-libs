@@ -21,12 +21,16 @@
  */ 
 
 
-#define EXPORTING
-#include "includes.h"
 #include <stdarg.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <fcntl.h>
+#include <sys/mman.h>
 
 #include "services.h"
 
@@ -91,7 +95,7 @@ get_next_svc(struct my_svc *psvc)
  * at Nessus startup
  */
 
-ExtFunc int
+int
 nessus_init_svc()
 {
   static int flag = 0;
