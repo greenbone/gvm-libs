@@ -40,6 +40,7 @@
 #include "proctitle.h"
 #include "rand.h"
 #include "resolv.h"
+#include "scanners_utils.h"
 #include "system.h"
 #include "www_funcs.h"
 
@@ -71,11 +72,6 @@ ExtFunc struct arglist * plug_get_see_also(struct arglist *);
 ExtFunc void plug_add_dep(struct arglist *, char *, char *);
 
 ExtFunc void plug_add_port(struct arglist *, int);
-
-/* scanners_utils.c */
-ExtFunc int comm_send_status(struct arglist*, char*, char*, int, int);
-ExtFunc unsigned short *getpts(char *, int *);
-
 
 /* returns a full duplex data file stream */
 ExtFunc FILE * ptyexecvp (const char *file, const char **argv, pid_t *child);

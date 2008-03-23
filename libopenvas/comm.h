@@ -19,6 +19,8 @@
 #ifndef _NESSUSD_COMM_H
 #define _NESSUSD_COMM_H
 
+#include "arglists.h"
+
 #ifndef _WIN32
 /* kludge: windows debugging mode with all-in-one compilation */
 #undef __NESSUS_DEVEL_H__

@@ -18,16 +18,20 @@
  * scanners_utils -- scanner-plugins-specific stuff
  */
 
-#define EXPORTING
-#include <includes.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+
 #include "comm.h"
+#include "network.h"
 #include "services.h"
 #include "plugutils.h"
+#include "system.h"
 
 /*
  * Sends the status of an action
  */
-ExtFunc
 int 
 comm_send_status(globals, hostname, action,curr,max)
   struct arglist * globals;

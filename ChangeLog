@@ -1,14 +1,16 @@
 2008-03-23  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
-	Cleanup for module resolve.
+	Cleanup for module scanners_utils.
 
-	* libopenvas/resolve.c: replace inlusion of "includes.h" by
+	* libopenvas/scanners_utils.c: replace inlusion of "includes.h" by
 	respective single includes. Removed ExtFunc.
 
-	* include/libopenvas.h: Removed declarations for resolve
-	and replaced by include of resolve.
+	* include/libopenvas.h: Removed declarations for scanners_utils
+	and replaced by include of scanners_utils.
 
-	* Makefile: Install libopenvas/resolve.h.
+	* include/comm.h: Added missing include for arglists.h.
+
+	* Makefile: Install libopenvas/scanners_utils.h.
 
 2008-03-23  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
