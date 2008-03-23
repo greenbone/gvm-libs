@@ -1,5 +1,18 @@
 2008-03-23  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Cleanup for module proctitle.
+
+	* libopenvas/proctitle.c: replace inlusion of "includes.h" by
+	respective single includes.
+
+	* include/libopenvas.h: Removed declarations for proctitle
+	and replaced by include of proctitle. The declarations were
+	not identical but similar enough.
+
+	* Makefile: Install libopenvas/proctitle.h.
+
+2008-03-23  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas/scanners_utils.c (qsort_compar): Made static.
 
 2008-03-22  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>

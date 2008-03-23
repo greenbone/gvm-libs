@@ -37,6 +37,7 @@
 #include "kb.h"
 #include "network.h"
 #include "popen.h"
+#include "proctitle.h"
 #include "system.h"
 #include "www_funcs.h"
 
@@ -154,12 +155,6 @@ ExtFunc char * plug_get_host_name(struct arglist *);
 int ovas_open_server_socket(ovas_server_context_t);
 
 ExtFunc void nessus_init_random();
-
-/* proctitle.c */
-void initsetproctitle(int argc, char *argv[], char *envp[]);
-#ifndef HAVE_SETPROCTITLE
-void setproctitle( const char *fmt, ... );
-#endif
 
 /* store.c */
 struct arglist * store_plugin(struct arglist *,  char *);
