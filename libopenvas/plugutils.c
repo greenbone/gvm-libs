@@ -46,6 +46,7 @@
 #include "rand.h"
 #include "plugutils.h"
 #include "services.h"
+#include "share_fd.h"
 #include "store_internal.h"
 #include "system.h"
 

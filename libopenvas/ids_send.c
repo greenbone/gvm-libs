@@ -30,12 +30,22 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define EXPORTING
-#include <includes.h>
+#include <includes.h> /* XXX: remains only for FIX(). */
 #include <stdarg.h>
+#include <string.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+
+#include "arglists.h"
+#include "bpf_share.h"
 #include "resolve.h"
 #include "ids_send.h"
-
+#include "network.h"
+#include "pcap_openvas.h"
+#include "plugutils.h"
+#include "system.h"
 
 
 /*
@@ -362,7 +372,7 @@ inject(orig_packet, packet_len, method, flags, data, data_len)
  return 0;
 }
 	
-ExtFunc int
+int
 ids_send(fd, buf0, n, method)
  int fd;
  void * buf0;

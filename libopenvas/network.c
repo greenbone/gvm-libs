@@ -25,14 +25,22 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define EXPORTING
-#include <includes.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <stdarg.h>
+#include <string.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <signal.h>
+
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
+
 #include "libopenvas.h"
 #include "resolve.h"
 #include "ids_send.h"
+#include "plugutils.h"
 
 #include <setjmp.h>
 

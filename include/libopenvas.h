@@ -140,17 +140,6 @@ ExtFunc char * plug_get_host_name(struct arglist *);
 #define LAUNCH_RUN	1
 #define LAUNCH_SILENT	2
 
-
-/*
- * Transport layer options 
- */
-#define NESSUS_CNX_IDS_EVASION_SPLIT	1L  /* Try to evade NIDS by spliting sends */
-#define NESSUS_CNX_IDS_EVASION_INJECT	2L /* Split + insert garbage */
-#define NESSUS_CNX_IDS_EVASION_SHORT_TTL 4L /* Split + too short ttl for garbage */
-#define NESSUS_CNX_IDS_EVASION_FAKE_RST  8L /* Send a fake RST from our end after each established connection */
-
-#define NESSUS_CNX_IDS_EVASION_SEND_MASK (NESSUS_CNX_IDS_EVASION_SPLIT|NESSUS_CNX_IDS_EVASION_INJECT|NESSUS_CNX_IDS_EVASION_SHORT_TTL)
-
 int ovas_open_server_socket(ovas_server_context_t);
 
 /*-----------------------------------------------------------------*/

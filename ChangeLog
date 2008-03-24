@@ -1,5 +1,29 @@
 2008-03-24  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Made openvas-libraries compile after a "make clean".
+
+	* include/libopenvas.h: Moved various defines to
+	libopenvas/ids_send.h.
+
+	* libopenvas/ids_send.h: Added some defines moved
+	from libopenvas.h.
+
+	* libopenvas/plugutils.c: Added missing include.
+
+	* libopenvas/network.c: replace inlusion of "includes.h" by
+	respective single includes.
+
+	* libopenvas/ids_send.c: replace inlusion of "includes.h" by
+	respective single includes except that includes.h
+	remains were it is for a missing define ("FIX()").
+	Removed ExtFunc.
+
+	* libopenvas/ftp_funcs.h: Added missing include.
+
+	* TODO: Removed resolved entry.
+
+2008-03-24  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	Cleanup for module store.
 
 	* libopenvas/store.c: replace inlusion of "includes.h" by
