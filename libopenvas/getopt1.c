@@ -22,14 +22,11 @@ Cambridge, MA 02139, USA.  */
    $Id: getopt1.c,v 1.6 2001/10/24 15:42:52 renaud Exp $ */
 
 
-
-#include <includes.h>
-
 /***********************/
 #ifndef HAVE_GETOPT_LONG
 /***********************/
 
-#include "../include/getopt.h"
+#include "getopt.h"
 
 #undef optarg
 #undef opterr

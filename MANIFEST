@@ -16,7 +16,6 @@ packaging/debian/copyright
 packaging/debian/rules
 packaging/debian/libopenvas-dev.dirs
 include/config.h.in
-include/getopt.h
 include/includes.h
 include/libopenvas.h
 include/libvers.h.in
@@ -50,6 +49,7 @@ libopenvas/ftp_funcs.c
 libopenvas/ftp_funcs.h
 libopenvas/getopt1.c
 libopenvas/getopt.c
+libopenvas/getopt.h
 libopenvas/harglists.c
 libopenvas/harglists.h
 libopenvas/hlst.c

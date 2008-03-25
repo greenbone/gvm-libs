@@ -1,5 +1,18 @@
 2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* include/getopt.h: Moved to libopenvas/
+
+	* libopenvas/getopt.h: New. Previous include/getopt.h.
+
+	* libopenvas/getopt1.c: Removed includes.h and adapted
+	according to move of getopt.h
+
+	* MANIFEST: Updated.
+
+	* Makefile: Reflected location change of getopt.h.
+
+2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas/ids_send.c: Removed inclusion of includes.h
 	and added FIX() definition from there.
 
