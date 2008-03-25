@@ -25,14 +25,15 @@
  *   HLST - a simple hash list manager
  */
 
-#include <includes.h>
-
 #define __HLST_INTERNAL__
-#include "hlst.h"
 
-#ifdef HAVE_ERRNO_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <errno.h>
-#endif
+
+#include "hlst.h"
+#include "system.h"
 
 /* ------------------------------------------------------------------------- *
  *                      private definitions                                  *
