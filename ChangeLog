@@ -1,5 +1,10 @@
 2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/getopt.c: Replaced inclusion of includes.h
+	by config.h which appears sufficient.
+
+2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* include/getopt.h: Moved to libopenvas/
 
 	* libopenvas/getopt.h: New. Previous include/getopt.h.

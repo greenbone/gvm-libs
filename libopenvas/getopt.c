@@ -30,7 +30,8 @@
 #pragma alloca
 #endif
 
-#include <includes.h>
+#include <config.h>
+#include <stdlib.h>
 
 
 /***********************/
