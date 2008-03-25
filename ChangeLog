@@ -1,5 +1,10 @@
 2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/ids_send.c: Removed inclusion of includes.h
+	and added FIX() definition from there.
+
+2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas/hlst.c: replace inlusion of "includes.h" by
 	respective single includes.
 

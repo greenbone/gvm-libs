@@ -30,7 +30,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <includes.h> /* XXX: remains only for FIX(). */
 #include <stdarg.h>
 #include <string.h>
 #include <stdio.h>
@@ -47,6 +46,15 @@
 #include "plugutils.h"
 #include "system.h"
 
+/* TODO: It still needs to be taken care
+ * BSD_BYTE_ORDERING gets here if defined */
+#ifdef BSD_BYTE_ORDERING
+# define FIX(n) (n)
+# define UNFIX(n) (n)
+#else
+# define FIX(n) htons(n)
+# define UNFIX(n) ntohs(n)
+#endif
 
 /*
  * We define our own packet structs (they'll be defined in libnasl later
