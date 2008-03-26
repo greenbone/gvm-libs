@@ -52,7 +52,6 @@ install : all
 	cd libopenvas_hg && ${MAKE} install
 
 
-	$(INSTALL) -m 0444 include/includes.h ${includedir}/openvas
 	$(INSTALL) -m 0444 include/libopenvas.h ${includedir}/openvas
 	$(INSTALL) -m 0444 include/libvers.h   ${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/getopt.h    ${includedir}/openvas

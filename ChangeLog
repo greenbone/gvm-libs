@@ -1,5 +1,12 @@
 2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* include/libopenvas.h: Fix up some includes.
+
+	* Makefile: Don't install includes.h, no one external
+	should be in need of this.
+
+2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas/getopt.c: Replaced inclusion of includes.h
 	by config.h which appears sufficient.
 
