@@ -91,7 +91,7 @@ INSTALL_DIR="$INSTALL -d"
 
 dnl Check for extra libraries
 
-AC_CHECK_LIB(resolv, dn_expand, LIBS="-lresolv $LIBS",
+AC_CHECK_LIB(resolv, __dn_expand, LIBS="-lresolv $LIBS",
   AC_MSG_ERROR(you need to install resolve library with development files))
 
 AC_CHECK_LIB(gnutls, gnutls_init, LIBS="-lgnutls $LIBS",
