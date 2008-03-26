@@ -3,10 +3,10 @@
  * Description: Header file for module network.
  *
  * Authors:
- * Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+ * Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
  *
  * Copyright:
- * Copyright (C) 2008 Intevation GmbH
+ * Based on work Copyright (C) 1998 - 2007 Tenable Network Security, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public

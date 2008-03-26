@@ -1,3 +1,15 @@
+2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libopenvas/kb.h, libopenvas/store.h,
+	libopenvas/services1.h, libopenvas/system.h,
+	libopenvas/plugutils.h, libopenvas/arglists.h,
+	libopenvas/network.h, libopenvas/bpf_share.h,
+	libopenvas/share_fd.h, libopenvas/pcap_openvas.h,
+	libopenvas/popen.h, libopenvas/www_funcs.h:
+	Changed Author and Copyright to the contents of
+	include/libopenvas.h which is the origin of most
+	of the contents of the new header files.
+
 2008-03-26  Tim Brown <timb@nth-dimension.org.uk>
 
 	* configure.in: Fix up resolv checks as dn_expand is only
