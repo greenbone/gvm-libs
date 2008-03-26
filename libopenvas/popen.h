@@ -28,8 +28,8 @@
 
 #include <stdio.h>
 
-FILE nessus_popen(const char*, char *const[], pid_t*);
-FILE nessus_popen4(const char*, char *const[], pid_t*, int);
+FILE * nessus_popen(const char*, char *const[], pid_t*);
+FILE * nessus_popen4(const char*, char *const[], pid_t*, int);
 int nessus_pclose(FILE*, pid_t);
 char ** append_argv (char **argv, char *opt);
 void    destroy_argv (char **argv);

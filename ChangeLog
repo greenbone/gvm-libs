@@ -1,5 +1,9 @@
 2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/popen.h: Fixed proto.
+
+2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas/kb.h, libopenvas/store.h,
 	libopenvas/services1.h, libopenvas/system.h,
 	libopenvas/plugutils.h, libopenvas/arglists.h,
