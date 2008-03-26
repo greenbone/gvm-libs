@@ -128,6 +128,18 @@ void post_note_udp(struct arglist *, int, const char *);
 #define post_note_tcp post_note
 
 /*
+ * Management of the portlists
+ */
+
+void host_add_port(struct arglist *, int, int);
+void host_add_port_udp(struct arglist *, int, int);
+int host_get_port_state(struct arglist *, int);
+int host_get_port_state_udp(struct arglist *, int);
+/* Not implemented
+char * host_get_port_banner(struct arglist *, int);
+*/
+
+/*
  * Inter Plugins Communication functions
  */
 void plug_set_key(struct arglist *, char *, int, void *);

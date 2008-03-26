@@ -1,5 +1,13 @@
 2008-03-27  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* include/libopenvas.h: Moved some declarations for module plugutils
+	to libopenvas/plugutils.h.
+
+	* libopenvas/plugutils.h: Added some declarations from
+	include/libopenvas.h.
+
+2008-03-27  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas/services.c, libopenvas/network.c: Removed
 	"ExtFunc" declarations.
 

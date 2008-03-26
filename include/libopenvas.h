@@ -57,10 +57,6 @@
 typedef int(*plugin_init_t)(struct arglist *);
 typedef int(*plugin_run_t)(struct arglist *);      
 
-
-
-
-
 /*
  * Network-related functions
  */
@@ -82,20 +78,6 @@ void plug_add_port(struct arglist *, int);
 FILE * ptyexecvp (const char *file, const char **argv, pid_t *child);
 
 void (*pty_logger(void(*)(const char *, ...)))(const char *, ...);
-
-/* 
- * Management of the portlists
- */
-
-/* plugutils.c */
-void host_add_port(struct arglist *, int, int);
-void host_add_port_udp(struct arglist *, int, int);
-int host_get_port_state(struct arglist *, int);
-int host_get_port_state_udp(struct arglist *, int);
-/* Not implemented
-char * host_get_port_banner(struct arglist *, int);
-*/
-
 
 /*
  * Miscellaneous functions
