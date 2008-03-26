@@ -58,7 +58,7 @@ cmp_ns_svc(const void *v1,
   return p1->ns_port - p2->ns_port;
 }
 
-ExtFunc const char*
+const char*
 nessus_get_svc_name(int port, const char* proto)
 {
   static struct nessus_service		*svc_db_ptr[2] = { NULL, NULL };
@@ -120,7 +120,7 @@ nessus_get_svc_name(int port, const char* proto)
 }
 
 
-ExtFunc unsigned short * get_tcp_svcs(int * num)
+unsigned short * get_tcp_svcs(int * num)
 {
   struct nessus_service * ns = NULL;
   int len, num_svc;

@@ -239,7 +239,7 @@ if (p->fd >= 0)
 /* ******** Compatibility function ******** */
 
 /* TLS FIXME: migrate this to TLS */
-ExtFunc int
+int
 ovas_allocate_connection(int s, int transport)
 {
   int			fd;
@@ -256,7 +256,7 @@ ovas_allocate_connection(int s, int transport)
   return fd;
 }
 
-ExtFunc int
+int
 nessus_register_connection(int	s, void	*ssl)
 {
   if (ssl != NULL)
@@ -271,7 +271,7 @@ nessus_register_connection(int	s, void	*ssl)
 				                : NESSUS_ENCAPS_IP);
 }
 
-ExtFunc int
+int
 nessus_deregister_connection(fd)
  int fd;
 {
@@ -333,7 +333,6 @@ static int block_socket(int soc)
  */
 
 
-ExtFunc
 void tlserror(char *txt, int err)
 {
   fprintf(stderr, "[%d] %s: %s\n", getpid(), txt, gnutls_strerror(err));
@@ -347,7 +346,7 @@ void tlserror(char *txt, int err)
  * passed NULL as the path anyway.
  */
 
-ExtFunc int
+int
 nessus_SSL_init(char *path)
 {
   static int initialized = 0;
@@ -368,7 +367,7 @@ nessus_SSL_init(char *path)
 }
 
 # if 0
-ExtFunc void
+void
 nessus_print_SSL_certificate(cert)
      X509* cert;    
 {
@@ -392,7 +391,7 @@ nessus_print_SSL_certificate(cert)
  BIO_free(b);
 }
 
-ExtFunc void
+void
 nessus_print_peer_SSL_certificate(ssl)
      SSL* ssl;
 {
@@ -402,7 +401,7 @@ nessus_print_peer_SSL_certificate(ssl)
 # endif
 
 
-ExtFunc int
+int
 nessus_get_socket_from_connection(fd)
      int	fd;
 {
@@ -908,7 +907,7 @@ set_ids_evasion_mode(args, fp)
    }
 }
 
-ExtFunc int
+int
 open_stream_connection(struct arglist * args, unsigned int port, int transport,
 		       int timeout)
 {
@@ -996,7 +995,7 @@ failed:
 }
 
 
-ExtFunc int
+int
 open_stream_connection_unknown_encaps5(args, port, timeout, p, delta_t)
  struct arglist * args;
  unsigned int  port;
@@ -1045,7 +1044,7 @@ open_stream_connection_unknown_encaps5(args, port, timeout, p, delta_t)
   return -1;
  }
  
-ExtFunc int
+int
 open_stream_connection_unknown_encaps(args, port, timeout, p)
  struct arglist * args;
  unsigned int  port;
@@ -1055,7 +1054,7 @@ open_stream_connection_unknown_encaps(args, port, timeout, p)
 }
 
 
-ExtFunc int
+int
 open_stream_auto_encaps(args, port, timeout)
  struct arglist * args;
  unsigned int     port;
@@ -1280,14 +1279,14 @@ ovas_server_context_attach(ovas_server_context_t ctx, int soc)
  * certificates and the server's ciphers if sslv2 is used.  Some of the
  * functionality should perhaps be moved to openvas-libraries.
  */
-ExtFunc void*
+void*
 stream_get_ssl(int fd)
 {
   return NULL;
 }
 
 
-ExtFunc int
+int
 stream_set_timeout(fd, timeout)
  int fd;
  int timeout;
@@ -1305,7 +1304,7 @@ stream_set_timeout(fd, timeout)
   return old;
 }
 
-ExtFunc int
+int
 stream_set_options(fd, reset_opt, set_opt)
      int	fd, reset_opt, set_opt;
 {
@@ -1510,7 +1509,7 @@ read_stream_connection_unbuffered(fd, buf0, min_len, max_len)
   /*NOTREACHED*/
 }
 
-ExtFunc int 
+int
 read_stream_connection_min(fd, buf0, min_len, max_len)
  int fd;
  void* buf0;
@@ -1571,7 +1570,7 @@ read_stream_connection_min(fd, buf0, min_len, max_len)
   return read_stream_connection_unbuffered(fd, buf0, min_len, max_len);
 }
 
-ExtFunc int 
+int
 read_stream_connection(fd, buf0, len)
  int fd;
  void* buf0;
@@ -1721,7 +1720,7 @@ write_stream_connection4(fd, buf0, n, i_opt)
    return count;
 }
 
-ExtFunc int
+int
 write_stream_connection(fd, buf0, n) 
  int fd;
  void * buf0;
@@ -1730,7 +1729,7 @@ write_stream_connection(fd, buf0, n)
   return write_stream_connection4(fd, buf0, n, 0);
 }
 
-ExtFunc int
+int
 nsend (fd, data, length, i_opt)
  int fd;
  void * data;
@@ -1783,7 +1782,7 @@ nsend (fd, data, length, i_opt)
    return n;
  }
  
-ExtFunc int
+int
 nrecv (fd, data, length, i_opt)
  int fd;
  void * data;
@@ -1813,7 +1812,7 @@ nrecv (fd, data, length, i_opt)
 }
  
 
-ExtFunc int
+int
 close_stream_connection(fd)
  int fd;
 {
@@ -1843,7 +1842,7 @@ close_stream_connection(fd)
 }
 
 
-ExtFunc int
+int
 get_encaps(fd)
  int fd;
 {
@@ -1857,7 +1856,7 @@ get_encaps(fd)
 
 
  
-ExtFunc const char *
+const char *
 get_encaps_name(code)
  int code;
 {
@@ -1880,7 +1879,7 @@ get_encaps_name(code)
  }
 }
 
-ExtFunc  const char *
+const char *
 get_encaps_through(code)
  int code;
 {
@@ -2022,7 +2021,6 @@ again:
 }
 
 
-ExtFunc 
 int open_sock_opt_hn(hostname, port, type, protocol, timeout)
  const char * hostname; 
  unsigned int port; 
@@ -2046,7 +2044,6 @@ int open_sock_opt_hn(hostname, port, type, protocol, timeout)
 }
 
 
-ExtFunc
 int open_sock_tcp_hn(hostname, port)
  const char * hostname;
  unsigned int port;
@@ -2055,8 +2052,6 @@ int open_sock_tcp_hn(hostname, port)
 }
 
 
-
-ExtFunc
 int open_sock_tcp(args, port, timeout)
  struct arglist * args; 
  unsigned int port;
@@ -2085,7 +2080,6 @@ int open_sock_tcp(args, port, timeout)
 }
 
 
-ExtFunc
 int open_sock_udp(args, port)
  struct arglist * args;
  unsigned int port;
@@ -2094,7 +2088,6 @@ int open_sock_udp(args, port)
 }
 
 
-ExtFunc 
 struct in_addr _socket_get_next_source_addr(struct in_addr * addr)
 {
   static struct in_addr * src_addrs = NULL;
@@ -2138,13 +2131,11 @@ struct in_addr _socket_get_next_source_addr(struct in_addr * addr)
   return src_addrs[current_src_addr];
 }
 
-ExtFunc
 struct in_addr socket_get_next_source_addr()
 {
  return _socket_get_next_source_addr(NULL);
 }
 
-ExtFunc 
 int set_socket_source_addr(int soc, int port)
 { 
   struct sockaddr_in bnd;
@@ -2172,13 +2163,12 @@ int set_socket_source_addr(int soc, int port)
   return 0;
 }
 
-ExtFunc  void socket_source_init(struct in_addr * addr)
+void socket_source_init(struct in_addr * addr)
 {
  (void) _socket_get_next_source_addr(addr);
 }
 
 
-ExtFunc
 int open_sock_option(args, port, type, protocol, timeout)
  struct arglist * args;
  unsigned int port;
@@ -2222,7 +2212,6 @@ int open_sock_option(args, port, type, protocol, timeout)
  */
 
 
-ExtFunc
 int recv_line(soc, buf, bufsiz)
  int soc;
  char * buf;
@@ -2325,7 +2314,7 @@ int recv_line(soc, buf, bufsiz)
   return ret;
 } 
 
-ExtFunc int
+int
 socket_close(soc)
 int soc;
 {
@@ -2348,7 +2337,7 @@ int soc;
  *
  * Writes data to the global socket of the thread
  */
-ExtFunc void 
+void
 auth_printf(struct arglist * globals, char * data, ...)
 {
   va_list param;
@@ -2364,7 +2353,7 @@ auth_printf(struct arglist * globals, char * data, ...)
 }                    
 
 
-ExtFunc void
+void
 auth_send(struct arglist * globals, char * data)
 {
  int soc = (int)arg_get_value(globals, "global_socket");
@@ -2424,7 +2413,7 @@ out:
  *
  * Reads data from the global socket of the thread
  */
-ExtFunc char * 
+char *
 auth_gets(globals, buf, bufsiz)
      struct arglist * globals;
      char * buf;
@@ -2445,7 +2434,7 @@ auth_gets(globals, buf, bufsiz)
  * Select() routines
  */
  
-ExtFunc int
+int
 stream_zero(set)
  fd_set * set;
 { 
@@ -2453,7 +2442,7 @@ stream_zero(set)
  return 0;
 }
 
-ExtFunc int
+int
 stream_set(fd, set)
  int fd;
  fd_set * set;
@@ -2464,7 +2453,7 @@ stream_set(fd, set)
  return soc;
 }
 
-ExtFunc int
+int
 stream_isset(fd, set)
  int fd;
  fd_set * set;
@@ -2472,7 +2461,7 @@ stream_isset(fd, set)
  return FD_ISSET(nessus_get_socket_from_connection(fd), set);
 }
 
-ExtFunc int
+int
 fd_is_stream(fd)
      int	fd;
 {
@@ -2480,7 +2469,7 @@ fd_is_stream(fd)
 }
 
 
-ExtFunc int 
+int 
 stream_get_buffer_sz ( int fd )
 {
   nessus_connection	*p;
@@ -2491,7 +2480,7 @@ stream_get_buffer_sz ( int fd )
 }
 
 
-ExtFunc int
+int
 stream_set_buffer(fd, sz)
      int	fd, sz;
 {
@@ -2671,7 +2660,7 @@ error:
 }
 
 
-ExtFunc int stream_pending(int fd)
+int stream_pending(int fd)
 {
   nessus_connection * fp;
  if ( ! NESSUS_STREAM(fd) )
