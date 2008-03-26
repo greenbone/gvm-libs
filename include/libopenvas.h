@@ -67,45 +67,41 @@ typedef int(*plugin_run_t)(struct arglist *);
 
 /* Plugin specific network functions */
 
-ExtFunc int ping_host(struct in_addr);
+int ping_host(struct in_addr);
 
 
-ExtFunc void plug_set_see_also(struct arglist *, char *);
-ExtFunc struct arglist * plug_get_see_also(struct arglist *);
+void plug_set_see_also(struct arglist *, char *);
+struct arglist * plug_get_see_also(struct arglist *);
 
 
-ExtFunc void plug_add_dep(struct arglist *, char *, char *);
+void plug_add_dep(struct arglist *, char *, char *);
 
-ExtFunc void plug_add_port(struct arglist *, int);
+void plug_add_port(struct arglist *, int);
 
 /* returns a full duplex data file stream */
-ExtFunc FILE * ptyexecvp (const char *file, const char **argv, pid_t *child);
+FILE * ptyexecvp (const char *file, const char **argv, pid_t *child);
 
-ExtFunc void (*pty_logger(void(*)(const char *, ...)))(const char *, ...);
+void (*pty_logger(void(*)(const char *, ...)))(const char *, ...);
 
 /* 
  * Management of the portlists
  */
 
 /* plugutils.c */
-ExtFunc void host_add_port(struct arglist *, int, int);
-ExtFunc void host_add_port_udp(struct arglist *, int, int);
-ExtFunc int host_get_port_state(struct arglist *, int);
-ExtFunc int host_get_port_state_udp(struct arglist *, int);
+void host_add_port(struct arglist *, int, int);
+void host_add_port_udp(struct arglist *, int, int);
+int host_get_port_state(struct arglist *, int);
+int host_get_port_state_udp(struct arglist *, int);
 /* Not implemented
 char * host_get_port_banner(struct arglist *, int);
 */
-
-
-
-
 
 
 /*
  * Miscellaneous functions
  */
  
-ExtFunc char * plug_get_host_name(struct arglist *);
+char * plug_get_host_name(struct arglist *);
 #define PREF_CHECKBOX "checkbox"
 #define PREF_ENTRY "entry"
 #define PREF_RADIO "radio"

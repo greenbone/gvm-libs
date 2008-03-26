@@ -1,3 +1,11 @@
+2008-03-27  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* include/libopenvas.h: Removed Windows-Specific ifdef's.
+
+	* include/includes.h: Removed "ExtFunc".....
+
+	* TODO: Changed entry about include/includes.h
+
 2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/getopt1.c: Add inclusion of config.h

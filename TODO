@@ -1,14 +1,18 @@
+2008-03-26 <Jan-Oliver.Wagner@intevation.de>
+
+	* include/includes.h: This file is not being used
+	for libopenvas anymore nor installed. (It is still
+	used for libopenvas_hg).
+	However, this change might cause compile failures
+	or other defects on systems other than Debian Etch.
+	So, the remaining file might serve for reference
+	to resolve such problems.
+
 2007-10-11 <Jan-Oliver.Wagner@intevation.de>
 
 	* MANIFEST: The method to create a dist could be imoroved to
 	use svn export. This could make MANIFEST unneeded which in
 	turn means less management efford.
-
-2007-05-14 <Jan-Oliver.Wagner@intevation.de>
-
-	* include/includes.h: This file is installed through Makefile.
-	However, a similar file in in openvas-libnasl as well. It is
-	not clear why this is to some extent redundant.
 
 2007-04-26 <Jan-Oliver.Wagner@intevation.de>
 
