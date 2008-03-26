@@ -114,36 +114,8 @@ char * plug_get_host_name(struct arglist *);
 #define ACT_SCANNER 		1
 #define ACT_INIT		0
 
-
-
 #define	LAUNCH_DISABLED 0
 #define LAUNCH_RUN	1
 #define LAUNCH_SILENT	2
-
-int ovas_open_server_socket(ovas_server_context_t);
-
-/*-----------------------------------------------------------------*/
-
-struct http_msg {
-	int type;		/* Who should read this message  */
-	pid_t owner;		/* Process who sent that message */
-	unsigned short port;
-	int total_len;
-	int transport;
-	int data_len;
-	char data[1];
-	};
-	
-int http_share_exists(struct arglist *);	
-struct http_msg * http_share_mkmsg(int, int, int, char*);
-void http_share_freemsg(struct http_msg*);
-struct http_msg * http_share_send_recv_msg(struct arglist *, struct http_msg *);
-	
-	
-pid_t http_share_init(struct arglist *);
-int http_share_close(struct arglist *, pid_t);
-
-
-int internal_finished(int);
 
 #endif
