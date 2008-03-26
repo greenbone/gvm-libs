@@ -1,5 +1,10 @@
 2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/getopt1.c: Add inclusion of config.h
+	to have openvas-libnasl compile again.
+
+2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas/popen.h: Fixed proto.
 
 2008-03-26  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
