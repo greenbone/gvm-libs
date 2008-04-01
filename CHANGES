@@ -1,3 +1,26 @@
+openvas-libraries 1.0.1 (2008-04-01)
+
+Comprehensive code-reduction, include- and config-change release.
+
+The changes might cause compile failures
+or other defects for various operating systems.
+Reports on problems are appreciated.
+
+* Replaced inclusion of includes.h for many modules by respective
+  separate include files.
+* Configure checks for libresolv have been improved but still fail
+  on some systems.
+* File includes.h is not installed anymore.
+* Compile option "--enable-bpf-sharing" and corresponding
+  functionalityx has been removed.
+* Added several include files which will be installed under include/openvas/
+  These have been extracted from libopenvas.h which, for convenience,
+  still includes all of the single new include files.
+* Removed various unused modules and functions.
+* Various fixes to reduce flawfinder warnings.
+* Various fixes to reduce compiler warnings.
+* Updates of the Debian packaging files.
+
 openvas-libraries 1.0.0 (2007-10-12)
 
 First stable release.
