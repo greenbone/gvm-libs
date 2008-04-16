@@ -1962,7 +1962,7 @@ open_socket(struct sockaddr_in *paddr,
   
   if (connect(soc, (struct sockaddr*) paddr, sizeof(*paddr)) < 0)
     {
-#if debug_SSL > 2
+#if DEBUG_SSL > 2
       nessus_perror("connect");
 #endif
 again:
@@ -1977,7 +1977,7 @@ again:
 	  x = select(soc + 1, NULL, &fd_w, NULL, &to);
 	  if (x == 0)
 	    {
-#if debug_SSL > 2
+#if DEBUG_SSL > 2
 	      nessus_perror("connect->select: timeout");
 #endif
 	      socket_close(soc);

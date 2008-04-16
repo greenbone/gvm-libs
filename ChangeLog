@@ -1,5 +1,10 @@
 2008-04-16  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/network.c (open_socket): Fixed makro name for SSL debugging
+	and thus reactived code execute for debug-ssl mode.
+
+2008-04-16  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* Makefile, libopenvas_hg/Makefile: Add missing DESTDIR for install
 	targets.
 
