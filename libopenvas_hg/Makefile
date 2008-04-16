@@ -43,8 +43,8 @@ install : libopenvas_hg.la
 	test -d $(DESTDIR)${libdir} || $(INSTALL_DIR) -m 755 $(DESTDIR)${libdir}
 	$(LIBTOOL) --mode install $(INSTALL) libopenvas_hg.la $(DESTDIR)${libdir} 
 	$(LIBTOOL) --finish $(DESTDIR)${libdir}
-	$(INSTALL) -m 0644 hosts_gatherer.h ${includedir}/openvas
-	$(INSTALL) -m 0644 hg_utils.h ${includedir}/openvas
+	$(INSTALL) -m 0644 hosts_gatherer.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0644 hg_utils.h $(DESTDIR)${includedir}/openvas
 
 libopenvas_hg.la : $(OBJS)
 	$(LIBTOOL) $(CC) -o libopenvas_hg.la $(LO_OBJS) -rpath ${libdir} \
