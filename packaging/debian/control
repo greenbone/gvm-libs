@@ -1,7 +1,8 @@
 Source: openvas-libraries
 Priority: extra
 Maintainer: Tim Brown <timb@nth-dimension.org.uk>
-Build-Depends: debhelper (>= 5), autotools-dev
+Uploaders: Javier Fernandez-Sanguino Pen~a <jfs@debian.org>
+Build-Depends: debhelper (>= 5), autotools-dev, libgnutls-dev, libpcap-dev, libgpgme-dev
 Homepage: http://www.openvas.org/
 Standards-Version: 3.7.2
 Section: libs
@@ -9,7 +10,7 @@ Section: libs
 Package: libopenvas1-dev
 Section: libdevel
 Architecture: any
-Depends: libopenvas1 (= ${Source-Version})
+Depends: libopenvas1 (= ${binary:Version})
 Description: OpenVAS static libraries and headers
  The OpenVAS Security Scanner is a security auditing tool. It makes
  possible to test security modules in an attempt to find vulnerable
