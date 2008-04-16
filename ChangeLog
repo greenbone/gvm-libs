@@ -1,5 +1,13 @@
 2008-04-16  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* packaging/opensuse: New. Directory for OpenSUSE RPM files.
+
+	* packaging/opensuse/openvas-libraries-1.0.1-1.suse102.openvas.spec,
+	packaging/opensuse/openvas-libraries-1.0.1-Makefile.diff,
+	packaging/opensuse/openvas-libraries-1.0.1-hg-Makefile.diff: New.
+
+2008-04-16  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas/network.c (open_socket): Fixed makro name for SSL debugging
 	and thus reactived code execute for debug-ssl mode.
 

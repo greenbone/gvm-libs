@@ -1,0 +1,8 @@
+--- libopenvas_hg/Makefile
++++ libopenvas_hg/Makefile
+46,47c46,47
+< 	$(INSTALL) -m 0644 hosts_gatherer.h ${includedir}/openvas
+< 	$(INSTALL) -m 0644 hg_utils.h ${includedir}/openvas
+---
+> 	$(INSTALL) -m 0644 hosts_gatherer.h $(DESTDIR)${includedir}/openvas
+> 	$(INSTALL) -m 0644 hg_utils.h $(DESTDIR)${includedir}/openvas
