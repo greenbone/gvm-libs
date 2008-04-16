@@ -16,9 +16,6 @@ Instruction for the compilation and installation of Nessus-1.0 and later
  You first may want to remove older installations of OpenVAS
  to avoid conflicts.
 
- Make sure that you have bison and flex installed. If you only
- have yacc and lex, you *may* run into problems.
-
  You should also make sure that you have the development packages for:
   * libgnutls
   * libpcap

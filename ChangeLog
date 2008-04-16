@@ -1,3 +1,7 @@
+2008-04-16  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* INSTALL_README: Remove note about bison as it is not needed anymore.
+
 2008-04-16  Tim Brown <timb@nth-dimension.org.uk>
 
 	* packaging/debian/*: Minor fixes, now lintian clean.
