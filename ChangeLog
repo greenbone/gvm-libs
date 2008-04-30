@@ -3,6 +3,9 @@
 	* libopenvas/comm.h, libopenvas/plugutils.c, libopenvas/store_internal.h,
 	libopenvas/plugutils.h, libopenvas/plugutils_internal.h,
 	libopenvas/store.c: Preliminary support for script_oid function.
+	* packaging/debian/control, packaging/debian/copyright: Minor updates to
+	control and copyright file to fix issues highlighted by jfs in regard to
+	the priority and copyright of the packaging respectively.
 
 2008-04-18  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 

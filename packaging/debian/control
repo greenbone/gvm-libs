@@ -1,5 +1,5 @@
 Source: openvas-libraries
-Priority: extra
+Priority: optional
 Maintainer: Tim Brown <timb@nth-dimension.org.uk>
 Uploaders: Javier Fernandez-Sanguino Pen~a <jfs@debian.org>
 Build-Depends: debhelper (>= 5), autotools-dev, libgnutls-dev, libpcap-dev, libgpgme-dev

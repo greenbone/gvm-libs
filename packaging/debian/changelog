@@ -1,6 +1,12 @@
+openvas-libraries (1.0.1-4) unstable; urgency=low
+
+  * Minor updates to control and copyright file to fix issues highlighted
+    by jfs in regard to the priority and copyright of the packaging 
+    respectively
+
 openvas-libraries (1.0.1-3) unstable; urgency=low
 
-  * Minor update to control file, fixed dependancy on ${source:Version} substvar
+  * Minor update to control file, fixed dependency on ${source:Version} substvar
 
  -- Tim Brown <timb@nth-dimension.org.uk>  Wed, 16 Apr 2008 05:57:27 +0100
 

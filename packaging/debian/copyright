@@ -52,4 +52,7 @@ On Debian systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL'.
 
 The Debian packaging is (C) 2007, Tim Brown <timb@nth-dimension.org.uk> and
-is licensed under the GPL, see above.
+is licensed under the GPL, see above.  Portions of the Debian packing are
+heavily based on the packaging of nessus-libraries which is (C) 1998, Javier
+Fernandez-Sanguino Pe�a <jfs@debian.org> which is licensed under the GPL, see
+above.
