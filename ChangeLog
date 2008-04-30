@@ -6,6 +6,9 @@
 	* packaging/debian/control, packaging/debian/copyright: Minor updates to
 	control and copyright file to fix issues highlighted by jfs in regard to
 	the priority and copyright of the packaging respectively.
+	* packaging/debian/control: Minor update to control to fix differing
+	dependency between openvas-libraries and openvas-libnasl as
+	highlighted by jfs.
 
 2008-04-18  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
