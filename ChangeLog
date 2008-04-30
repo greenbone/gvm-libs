@@ -1,3 +1,9 @@
+2008-04-30  Tim Brown <timb@nth-dimension.org.uk>
+
+	* libopenvas/comm.h, libopenvas/plugutils.c, libopenvas/store_internal.h,
+	libopenvas/plugutils.h, libopenvas/plugutils_internal.h,
+	libopenvas/store.c: Preliminary support for script_oid function.
+
 2008-04-18  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* packaging/fedora: New. Directory for Fedora RPM files.

@@ -3,6 +3,7 @@
 
 char * _plug_get_version(struct arglist *);
 int    _plug_get_id(struct arglist*);
+char * _plug_get_oid(struct arglist*);
 char * _plug_get_cve_id(struct arglist*);
 char * _plug_get_bugtraq_id(struct arglist*);
 char * _plug_get_xref(struct arglist *);

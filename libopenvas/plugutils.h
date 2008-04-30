@@ -73,6 +73,9 @@ struct arglist * plug_get_deps(struct arglist*);
 void plug_set_id(struct arglist *, int);
 int  plug_get_id(struct arglist *);
 
+void plug_set_oid(struct arglist *, char *);
+char*plug_get_oid(struct arglist *);
+
 void plug_set_cve_id(struct arglist *, char *);
 char*plug_get_cve_id(struct arglist *);
 

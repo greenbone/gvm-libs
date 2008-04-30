@@ -16,6 +16,7 @@ struct pprefs {
 struct plugin {
 	char magic;
  	int id;
+	char oid		[1024];
  	char path	  	[256];
 	int timeout;
 	int category;
@@ -37,7 +38,7 @@ struct plugin {
 	char required_ports	[64];
 	char required_udp_ports	[64];
 	int has_prefs:1;
-	};
+};
 	
 
 

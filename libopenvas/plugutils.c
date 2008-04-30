@@ -246,6 +246,25 @@ plug_get_id(struct arglist * desc)
  return _plug_get_id(desc);	/* Never cached */
 }
 
+void plug_set_oid(desc, id)
+  struct arglist * desc;
+  char *id;
+{
+ // TODO: check if OID set
+ arg_add_value(desc, "OID", ARG_STRING, strlen(id), estrdup(id));
+}
+
+char *
+_plug_get_oid(desc)
+ struct arglist * desc;
+{
+ return arg_get_value(desc, "OID");
+}
+
+char * plug_get_oid(struct arglist * desc)
+{
+ return store_fetch_oid(desc);
+}
 
 void plug_set_cve_id(desc, id)
  struct arglist * desc;

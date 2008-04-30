@@ -400,6 +400,10 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
  plug.id = _plug_get_id(plugin);
  e = safe_copy(path, plug.path, sizeof(plug.path), path, "path"); 
  if(e < 0)return NULL;
+ 
+ str = _plug_get_oid(plugin);
+ e = safe_copy(str, plug.oid, sizeof(plug.oid), path, "oid");
+ if(e < 0)return NULL;
 
  
  plug.timeout = _plug_get_timeout(plugin);
@@ -634,6 +638,15 @@ char * store_fetch_family(struct arglist * desc)
  
  store_get_plugin(&p, fname);
  return p.family;
+}
+
+char * store_fetch_oid(struct arglist * desc)
+{
+ char * fname = _plug_get_fname(desc);
+ static struct plugin p;
+ 
+ store_get_plugin(&p, fname);
+ return p.oid;
 }
 
 char * store_fetch_cve_id(struct arglist * desc)

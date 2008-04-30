@@ -56,6 +56,7 @@ typedef struct {
 			   regarding the start and end of the whole scan
 			   and of each server (msg TIME)
 			 */
+  int plugins_oid:1;	/* the the OID of the plugins along with their version */
   int plugins_cve_id:1;	/* the the CVE ID of the plugins along with their version */
 
   int dns:1; /* send the host name and host ip */
