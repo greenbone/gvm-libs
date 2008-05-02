@@ -45,7 +45,7 @@ mandir=@mandir@
 
 libsdir=${rootdir}/libs
 top_builddir = @PWDD@
-include= -I. -I$(rootdir)/include
+include= -I. -I$(rootdir)/include -I$(includedir)
 lib_dir=@libdir@
 USE_CIPHER=@cipher_cflags@
 INSTALL=@INSTALL@
@@ -67,7 +67,7 @@ LDFLAGS=
 
 # Your C compiler
 CC=@CC@
-LIBS=@LIBS@
+LIBS=@LIBS@ -L$(libdir)
 LIBTOOL=@LIBTOOL@
 RANLIB=@RANLIB@
 

@@ -119,7 +119,7 @@ kb.o: kb.c arglists.h kb.h system_internal.h
 
 
 libopenvas.la: $(OBJS)
-	$(LIBTOOL) $(CC) -o libopenvas.la $(LO_OBJS) -rpath ${libdir} \
+	$(LIBTOOL) $(CC) $(LIBS) -o libopenvas.la $(LO_OBJS) -rpath ${libdir} \
 	-version-info ${PACKAGE_VERSION}
 
 install : libopenvas.la

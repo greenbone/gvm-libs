@@ -47,7 +47,7 @@ install : libopenvas_hg.la
 	$(INSTALL) -m 0644 hg_utils.h $(DESTDIR)${includedir}/openvas
 
 libopenvas_hg.la : $(OBJS)
-	$(LIBTOOL) $(CC) -o libopenvas_hg.la $(LO_OBJS) -rpath ${libdir} \
+	$(LIBTOOL) $(CC) $(LIBS) -o libopenvas_hg.la $(LO_OBJS) -rpath ${libdir} \
 	-version-info ${PACKAGE_VERSION}
 	        
 hg_utils.o : hg_utils.h hosts_gatherer.h hg_utils.c
