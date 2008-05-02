@@ -51,8 +51,10 @@ getopt.o : getopt.c
 getopt1.o : getopt1.c
 	 $(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c getopt1.c
 
-plugutils.o : plugutils.c
-	 $(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c plugutils.c
+plugutils.o: plugutils.c arglists.h comm.h harglists.h kb.h network.h \
+             rand.h plugutils.h services.h share_fd.h store_internal.h system.h \
+             scanners_utils.h
+	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c plugutils.c
 
 resolve.o : resolve.c resolve.h
 	$(LIBTOOL) $(CC)  $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c resolve.c
@@ -63,33 +65,32 @@ share_fd.o : share_fd.c
 system.o : system.c system_internal.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c system.c 
 
-arglists.o : arglists.c 
+arglists.o: arglists.c arglists.h system_internal.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c arglists.c
 
-network.o : network.c
+network.o: network.c resolve.h ids_send.h plugutils.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c network.c
 
-scanners_utils.o : scanners_utils.c scanners_utils.h
+scanners_utils.o: scanners_utils.c comm.h network.h services.h plugutils.h system.h scanners_utils.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c scanners_utils.c
 
-ftp_funcs.o : ftp_funcs.c ftp_funcs.h
+ftp_funcs.o: ftp_funcs.c network.h ftp_funcs.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c ftp_funcs.c
-www_funcs.o : www_funcs.c 
+
+www_funcs.o: www_funcs.c kb.h plugutils.h system.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c www_funcs.c
-	
-pcap.o : pcap.c
+
+pcap.o: pcap.c bpf_share.h pcap_openvas.h system_internal.h network.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c pcap.c
 
-hlst.o : hlst.c hlst.h
+hlst.o: hlst.c hlst.h system.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c hlst.c
 
-ptycall.o : ptycall.c 
-	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c ptycall.c
-
-harglists.o : harglists.c
+harglists.o: harglists.c hlst.h system_internal.h harglists.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c harglists.c
 
-ids_send.o : ids_send.c
+ids_send.o: ids_send.c arglists.h bpf_share.h resolve.h ids_send.h network.h \
+            pcap_openvas.h plugutils.h system.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c ids_send.c 
 
 bpf_share.o: bpf_share.c
@@ -98,23 +99,22 @@ bpf_share.o: bpf_share.c
 rand.o: rand.c
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c rand.c
 
-popen.o: popen.c
+popen.o: popen.c system.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c popen.c
 
-services.o: services.c
+services.o: services.c services.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -DNESSUS_STATE_DIR=\"$(localstatedir)\" -c services.c
 
-services1.o: services1.c
+services1.o: services1.c services.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -DNESSUS_STATE_DIR=\"$(localstatedir)\" -DCONF_DIR=\"$(sysconfdir)\" -c services1.c
 
-proctitle.o: proctitle.c
+proctitle.o: proctitle.c proctitle.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c proctitle.c
 
-store.o: store.c
+store.o: store.c store_internal.h share_fd.h system.h plugutils.h plugutils_internal.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -DNESSUS_STATE_DIR=\"$(localstatedir)\" -c store.c
-	
-	
-kb.o: kb.c
+
+kb.o: kb.c arglists.h kb.h system_internal.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c kb.c
 
 
@@ -132,5 +132,3 @@ distclean : clean
 clean :
 	rm -f *.o *.lo .libs/[!C][!V][!S]* *.la
 	rm -rf .libs
-
-

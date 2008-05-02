@@ -48,6 +48,7 @@ int store_get_plugin(struct plugin *, char * );
 struct arglist * store_save_plugin(struct arglist * plugin, char * path);
 char * store_fetch_path(struct arglist * desc);
 char * store_fetch_name(struct arglist * desc);
+char * store_fetch_oid(struct arglist *);
 char * store_fetch_version(struct arglist * desc);
 int store_fetch_timeout(struct arglist * desc);
 char * store_fetch_summary(struct arglist * desc);

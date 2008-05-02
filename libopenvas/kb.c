@@ -22,8 +22,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <fnmatch.h>
+
 #include "arglists.h"
-#include "fnmatch.h"
 #include "kb.h"
 #include "system_internal.h"
 

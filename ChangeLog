@@ -1,11 +1,22 @@
+2008-05-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libopenvas/Makefile: Fixed all dependencies on header files. Removed
+	non-existing module "ptycall".
+
+	* libopenvas/kb.c: Fixed include method.
+
+	* libopenvas/store_internal.h: Added missing proto for store_fetch_oid()
+
 2008-04-30  Tim Brown <timb@nth-dimension.org.uk>
 
 	* libopenvas/comm.h, libopenvas/plugutils.c, libopenvas/store_internal.h,
 	libopenvas/plugutils.h, libopenvas/plugutils_internal.h,
 	libopenvas/store.c: Preliminary support for script_oid function.
+
 	* packaging/debian/control, packaging/debian/copyright: Minor updates to
 	control and copyright file to fix issues highlighted by jfs in regard to
 	the priority and copyright of the packaging respectively.
+
 	* packaging/debian/control: Minor update to control to fix differing
 	dependency between openvas-libraries and openvas-libnasl as
 	highlighted by jfs.
