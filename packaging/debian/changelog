@@ -1,3 +1,12 @@
+openvas-libraries (1.0.1-5) unstable; urgency=low
+
+  * Fix the Makefile so that the library is linked with the appropriate
+    libraries. Also change openvas-libraries.tmpl
+  * Drop the libgpgme11-dev Build-Dep, we actually don't need it, none of the
+    sources build use the gpgme.h header.
+
+ -- Javier Fernandez-Sanguino Pen~a <jfs@debian.org>  Fri, 02 May 2008 21:20:05 +0200
+
 openvas-libraries (1.0.1-4) unstable; urgency=low
 
   * Minor updates to control and copyright file to fix issues highlighted
