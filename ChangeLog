@@ -1,3 +1,12 @@
+2008-05-02  Javier Fernández-Sanguino Peña <jfs@computer.org>
+
+	* libopenvas/Makefile, libopenvas_hg/Makefile, openvas-libraries.tmpl.in:
+	Fix the build process to get the libraries to include
+	their linked libraries.
+
+	* packaging/debian/control, packaging/debian/changelog: New package
+	version, fixing build-dep
+
 2008-05-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/Makefile: Fixed all dependencies on header files. Removed
