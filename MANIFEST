@@ -62,6 +62,7 @@ libopenvas/kb.h
 libopenvas/Makefile
 libopenvas/network.c
 libopenvas/network.h
+libopenvas/ntp.h
 libopenvas/pcap.c
 libopenvas/pcap_openvas.h
 libopenvas/plugutils.c

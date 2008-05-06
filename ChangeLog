@@ -1,5 +1,17 @@
 2008-05-06  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/ntp.h: New. Contains the definition for ntp_caps (taken
+	from comm.h) and the makros for NTP protocol IDs (taken
+	from ntp.h of package openvas-server)
+
+	* libopenvas/comm.h: Removed definition of ntp_caps and cleaned up.
+
+	* Makefile: Install ntp.h as well.
+
+	* MANIFEST: Updated.
+
+2008-05-06  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* include/nessus-devel.h: Removed. It wasn't included anywhere in OpenVAS.
 
 	* MANIFEST: Updated.
