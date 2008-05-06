@@ -21,7 +21,6 @@ include/config.h.in
 include/includes.h
 include/libopenvas.h
 include/libvers.h.in
-include/nessus-devel.h
 INSTALL_README
 install-sh
 libopenvas_hg/hg_add_hosts.c

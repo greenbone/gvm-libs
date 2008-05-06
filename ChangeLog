@@ -1,3 +1,9 @@
+2008-05-06  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* include/nessus-devel.h: Removed. It wasn't included anywhere in OpenVAS.
+
+	* MANIFEST: Updated.
+
 2008-05-02  Javier Fernández-Sanguino Peña <jfs@computer.org>
 
 	* libopenvas/Makefile, libopenvas_hg/Makefile, openvas-libraries.tmpl.in:
