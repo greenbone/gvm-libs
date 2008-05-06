@@ -1,5 +1,10 @@
 2008-05-06  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/store_internal.h: Increased MAGIC number, lowered size
+	of oid vom 1024 bytes to 100.
+
+2008-05-06  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas/ntp.h: New. Contains the definition for ntp_caps (taken
 	from comm.h) and the makros for NTP protocol IDs (taken
 	from ntp.h of package openvas-server)

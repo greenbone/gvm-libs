@@ -4,7 +4,9 @@
 
 #define MAX_PREFS 32
 
-#define MAGIC 0x45
+#define MAGIC 0x46 /* defines the revision of the plugin struct
+                      Basically it is just used to invalidate old
+                      desc-files if the number does not match. */
 
 struct pprefs {
 	char type[9];
@@ -16,7 +18,7 @@ struct pprefs {
 struct plugin {
 	char magic;
  	int id;
-	char oid		[1024];
+  char oid[100];
  	char path	  	[256];
 	int timeout;
 	int category;
