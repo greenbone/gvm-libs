@@ -10,7 +10,7 @@
 
 struct pprefs {
 	char type[9];
-	char name[64];
+	char name[200];
 	char dfl[320];
 };
 	

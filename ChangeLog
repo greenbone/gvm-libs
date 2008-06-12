@@ -1,3 +1,19 @@
+2008-06-12  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Increased the space available to plugins for preferences
+	storage. This resolves an issue with plugins with a large
+	number of radio button options, as they need to store the
+	text for all options in the name field.
+
+	IMPORTANT: You need to delete the server plugin cache in
+	/lib/openvas/plugins/.desc/* to force the server to create
+	a new cache after compiling with this change. Otherwise the
+	server will send wrong plugin information to the client,
+	resulting in missing options in the preferences.
+
+	* libopenvas/store_internal.h: Increased size of name field
+	in pprefs struct to allow for plugins with many preferences.
+
 2008-05-06  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/store_internal.h: Increased MAGIC number, lowered size
