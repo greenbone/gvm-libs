@@ -1,5 +1,11 @@
 2008-06-12  Michael Wiegand <michael.wiegand@intevation.de>
 
+	* libopenvas/store_internal.h: Increased MAGIC number to reflect
+	changes as suggested by Bernhard Herzog. Deleting
+	/lib/openvas/plugins/.desc/* is no longer neccessary.
+
+2008-06-12  Michael Wiegand <michael.wiegand@intevation.de>
+
 	Increased the space available to plugins for preferences
 	storage. This resolves an issue with plugins with a large
 	number of radio button options, as they need to store the
