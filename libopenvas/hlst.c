@@ -783,6 +783,10 @@ sort_hlst
 
   if (h == 0) return ;
 
+  /* don't try to run with total_entries == 0, since the -1 below will
+   * cause total_entries to wrap around under certain conditions. */
+  if (h->total_entries == 0) return;
+
   /* create an access array with entry pointers */
   if (h->access != 0) {				/* Flawfinder: ignore */
     /* nothing has changed, yet */

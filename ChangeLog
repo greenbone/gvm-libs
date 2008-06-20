@@ -1,3 +1,9 @@
+2008-06-20  Tim Brown <timb@nth-dimension.org.uk>
+
+	* libopenvas/hlst.c (sort_hlst): Avoid sorting an hlst if it has no
+	entries since that will lead to an emalloc issue under certain
+	conditions.
+
 2008-06-12  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/store_internal.h: Increased MAGIC number to reflect
