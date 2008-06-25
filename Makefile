@@ -27,19 +27,11 @@
 
 include openvas-libraries.tmpl
 
-ALLDEPS = openvas-libraries.tmpl libopenvas-config
+ALLDEPS = openvas-libraries.tmpl
 
 all: $(ALLDEPS)
 	cd libopenvas && ${MAKE}
 	cd libopenvas_hg && ${MAKE}
-
-libopenvas-config: libopenvas-config.pre Makefile openvas-libraries.tmpl
-	@echo Creating $@ ...
-	@eval LDFLAGS=\"$(CIPHER_LDFLAGS)\" ; \
-	 eval  CFLAGS=\"$(CIPHER_CFLAGS)\" ; \
-	 sed -e 's?%CIPHER_LDFLAGS%?'"$$LDFLAGS"'?' \
-	     -e  's?%CIPHER_CFLAGS%?'"$$CFLAGS"'?' \
-	     libopenvas-config.pre >$@
 
 openvas-libraries.tmpl: openvas-libraries.tmpl.in configure VERSION
 	$(SHELL) configure $(CONFIGURE_ARGS)

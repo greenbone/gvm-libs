@@ -1,5 +1,24 @@
 2008-06-25  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	Simplify handling of libopenvas-config: The two-step
+	method is not necessary.
+
+	* libopenvas-config.pre.in: Removed. Renamed to
+	libopenvas-config.in.
+
+	* libopenvas-config.in: New. Former libopenvas-config.pre.in.
+
+	* configure.in: Process libopenvas-config.in instead of
+	libopenvas-config.pre.in.
+
+	* Makefile: Removed any processing of libopenvas-config.
+
+	* configure: Updated.
+
+	* MANIFEST: Updated.
+
+2008-06-25  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	Removing handling of "CIPHER" information because
 	the client-server communication is always encrypted.
 

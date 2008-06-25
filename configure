@@ -14179,7 +14179,7 @@ esac
 
 
 
-ac_config_files="$ac_config_files openvas-libraries.tmpl libopenvas-config.pre include/libvers.h"
+ac_config_files="$ac_config_files openvas-libraries.tmpl libopenvas-config include/libvers.h"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -14736,7 +14736,7 @@ do
   case $ac_config_target in
     "include/config.h") CONFIG_HEADERS="$CONFIG_HEADERS include/config.h" ;;
     "openvas-libraries.tmpl") CONFIG_FILES="$CONFIG_FILES openvas-libraries.tmpl" ;;
-    "libopenvas-config.pre") CONFIG_FILES="$CONFIG_FILES libopenvas-config.pre" ;;
+    "libopenvas-config") CONFIG_FILES="$CONFIG_FILES libopenvas-config" ;;
     "include/libvers.h") CONFIG_FILES="$CONFIG_FILES include/libvers.h" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5

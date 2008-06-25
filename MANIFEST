@@ -44,7 +44,7 @@ libopenvas/bpf_share.h
 libopenvas/bpf_share.c
 libopenvas/comm.h
 libopenvas-config.1
-libopenvas-config.pre.in
+libopenvas-config.in
 libopenvas/COPYING
 libopenvas/ftp_funcs.c
 libopenvas/ftp_funcs.h
