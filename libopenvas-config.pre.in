@@ -31,8 +31,6 @@ PREFIX=@prefix@
 LIBDIR=$PREFIX/lib
 INCLUDEDIR=$PREFIX/include
 VERSION=@version@
-CIPHER="%CIPHER_LDFLAGS%"
-CIPHER_CFLAGS="%CIPHER_CFLAGS%"
 EXTRA="@EXTRA@ @llib@"
 EGDPATH="@egdpath@"
 
@@ -62,10 +60,10 @@ while test $# -gt 0; do
 		;;
 	--libs)
 	
-		echo $Xn "-L$LIBDIR -lopenvas -lopenvas_hg $CIPHER $EXTRA $Xc"
+		echo $Xn "-L$LIBDIR -lopenvas -lopenvas_hg $EXTRA $Xc"
 		;;
 	--cflags)
-		echo $Xn "$DEFS -I$INCLUDEDIR/openvas $CIPHER_CFLAGS $Xc"
+		echo $Xn "$DEFS -I$INCLUDEDIR/openvas $Xc"
 		;;
 	--egd)
 		echo $Xn "$EGDPATH" $Xc

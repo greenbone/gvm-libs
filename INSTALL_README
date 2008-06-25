@@ -1,8 +1,9 @@
 $Id$
 
 ATTENTION:
-These are old instructions from the Nessus age.
-Things might have changed.
+These are old instructions from the Nessus age, only
+slighlty updated for names and available features.
+More things might have changed.
 However, the usual "./configure && make && make install" procedure
 ist still valid.
 
@@ -32,22 +33,9 @@ Instruction for the compilation and installation of Nessus-1.0 and later
 1. configure options
 
   All the configure options have been centralized the the 
-  'configure' script of nessus-libraries. 
-  
-  For instance, if you want to disable the cipher layer,
-  then just type :
+  'configure' script of openvas-libraries.
 
-    	./configure --disable-cipher
-	
-  This will affect the build of the other packages, as
-  the 'configure' options are then hardcoded in the 
-  nessus library.
-  
   The current configure options are :
-  
-  	--enable-cipher[=NN]  enables the compilation of the cipher
-                              layer with a special option: NN is the
-           		      size of the keys (use this for US export.)
 
         --disable-ptmx        use this directive if you have problems
                               with the pseudo tty multiplexer; on 

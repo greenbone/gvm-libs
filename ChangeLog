@@ -1,3 +1,23 @@
+2008-06-25  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Removing handling of "CIPHER" information because
+	the client-server communication is always encrypted.
+
+	* configure.in: Removed handling of "cipher_cflags"
+	and "use_cipher". This means the option --enable-cipher
+	is not available anymore.
+
+	* libopenvas-config.pre.in: Removed handling of CIPHER and
+	CIPHER_CFLAGS.
+
+	* openvas-libraries.tmpl.in: Removed handling of
+	USE_CIPHER and CIPHER_CFLAGS.
+
+	* INSTALL_README: only slightly improved. Now does
+	not mention anymore --enable-cipher option.
+
+	* configure: Updated.
+
 2008-06-20  Tim Brown <timb@nth-dimension.org.uk>
 
 	* libopenvas/hlst.c (sort_hlst): Avoid sorting an hlst if it has no

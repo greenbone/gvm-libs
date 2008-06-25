@@ -47,10 +47,8 @@ libsdir=${rootdir}/libs
 top_builddir = @PWDD@
 include= -I. -I$(rootdir)/include -I$(includedir)
 lib_dir=@libdir@
-USE_CIPHER=@cipher_cflags@
 INSTALL=@INSTALL@
 INSTALL_DIR=@INSTALL_DIR@
-CIPHER_CFLAGS=@cipher_cflags@
 
 WS2_32=@with_ws2_32@
 
@@ -62,7 +60,7 @@ DEBUG = @debug_cflags@
 DEBUG_SSL = @debug_ssl@
 
 # Some defines you may want to modify
-DEFS=@DEFS@ $(DEBUG_SSL) $(USE_CIPHER) $(DEBUG)
+DEFS=@DEFS@ $(DEBUG_SSL) $(DEBUG)
 LDFLAGS=
 
 # Your C compiler

@@ -846,7 +846,6 @@ INSTALL_DIR
 INSTALL
 EXTRA
 debug_cflags
-cipher_cflags
 with_ws2_32
 llib
 version
@@ -1452,7 +1451,6 @@ Optional Features:
   --enable-debug-store	Warn the user if a plugin has too many CVE/BID/XRefs
   --enable-debug-ssl	  produce verbose output regarding SSL
   --enable-debug	  set the compiler flags to -g
- --enable-cipher	  crypts the client - server communication
   --enable-getoptlong	  force using/disbling the internal GNU getopt package
   --enable-ptmx		  force using/disabling the /dev/ptmx multiplexer
   --enable-openpty	  if present, use/disable openpty for creating ptys
@@ -1924,7 +1922,6 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-use_cipher=yes
 GCC_NO_PIPE=no
 
 # Check whether --enable-gccpipe was given.
@@ -4723,7 +4720,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 4726 "configure"' > conftest.$ac_ext
+  echo '#line 4723 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -5275,7 +5272,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:5278: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:5275: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -7136,7 +7133,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 7139 "configure"
+#line 7136 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -7234,7 +7231,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 7237 "configure"
+#line 7234 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -8500,17 +8497,6 @@ if test "${enable_debug+set}" = set; then
   enableval=$enable_debug; debug_cflags="-DDEBUG -g"
 fi
 
-
-
-
-# Check whether --enable-cipher was given.
-if test "${enable_cipher+set}" = set; then
-  enableval=$enable_cipher; if test x$enable_cipher = xno ; then
-			use_cipher=no
-		else
-			use_cipher=yes
-		fi
-fi
 
 
 
@@ -14193,7 +14179,6 @@ esac
 
 
 
-
 ac_config_files="$ac_config_files openvas-libraries.tmpl libopenvas-config.pre include/libvers.h"
 
 cat >confcache <<\_ACEOF
@@ -14886,7 +14871,6 @@ INSTALL_DIR!$INSTALL_DIR$ac_delim
 INSTALL!$INSTALL$ac_delim
 EXTRA!$EXTRA$ac_delim
 debug_cflags!$debug_cflags$ac_delim
-cipher_cflags!$cipher_cflags$ac_delim
 with_ws2_32!$with_ws2_32$ac_delim
 llib!$llib$ac_delim
 version!$version$ac_delim
@@ -14903,7 +14887,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 87; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 86; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
