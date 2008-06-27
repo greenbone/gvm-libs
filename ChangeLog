@@ -1,3 +1,9 @@
+2008-06-27  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libopenvas-config.in: fix variable replacement problems.
+	Original problem report and initial patch supplied by
+	Ales Nosek.
+
 2008-06-25  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	Simplify handling of libopenvas-config: The two-step
