@@ -1,3 +1,24 @@
+openvas-libraries 1.0.2 (2008-06-30)
+
+This release contains improvements to plugin handling and to the packaging files
+for various distributions as well as minor bug fixes and cleanups.
+Apart from this, this release prepares OID support for OpenVAS.
+
+It is recommended to update to this release, because future releases
+of openvas-libnasl and openvas-libnasl will require openvas-libraries 1.0.2
+as minimum version.
+
+* Updates of the OpenSUSE, Fedora and Debian packaging files.
+* Preparation for support for OpenVAS OIDs.
+* Increased internal storage space for plugin preferences to allow for plugins
+  with a large number of options.
+* Fixed a bug that resulted in incorrect memory allocation on certain 64bit
+  installations.
+* Removed support for unencrypted communication with the client.
+* Fixed a configuration issue that broke the build process on certain 64bit
+  installations.
+* Various code cleanups.
+
 openvas-libraries 1.0.1 (2008-04-01)
 
 Comprehensive code-reduction, include- and config-change release.
