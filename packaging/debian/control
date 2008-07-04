@@ -1,10 +1,12 @@
 Source: openvas-libraries
 Priority: optional
 Maintainer: Tim Brown <timb@nth-dimension.org.uk>
-Uploaders: Javier Fernandez-Sanguino Pen~a <jfs@debian.org>
+Uploaders: Javier Fernandez-Sanguino Pen~a <jfs@debian.org>, Jan Wagner <waja@cyconet.org>
 Build-Depends: debhelper (>= 5), autotools-dev, libgnutls-dev, libpcap-dev
 Homepage: http://www.openvas.org/
-Standards-Version: 3.7.2
+Vcs-Browser: http://wald.intevation.org/plugins/scmsvn/viewcvs.php/trunk/openvas-libraries/packaging/debian/?root=openvas
+Vcs-Svn: https://svn.wald.intevation.org/svn/openvas/trunk/openvas-libraries/packaging/debian/
+Standards-Version: 3.8.0
 Section: libs
 
 Package: libopenvas1-dev

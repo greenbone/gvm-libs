@@ -1,3 +1,12 @@
+openvas-libraries (1.0.2-1) unstable; urgency=low
+
+  * New upstream release
+  * Add myself to uploaders
+  * Add Vcs-Headers
+  * bump Standards Version to 3.8.0, no changes needed
+
+ -- Jan Wagner <waja@cyconet.org>  Fri, 04 Jul 2008 11:57:52 +0200
+
 openvas-libraries (1.0.1-5) unstable; urgency=low
 
   * Fix the Makefile so that the library is linked with the appropriate
