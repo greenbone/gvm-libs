@@ -48,11 +48,31 @@
 #define      HFIXEDSZ 12
 #endif
 
+/* The HG_GET16 macro and the hg_get16 function were copied from glibc 2.7
+ * (include/arpa/nameser.h (NS_GET16) and resolv/ns_netint.c (ns_get16)) to
+ *  avoid using private glibc functions.
+ */
+
+# define HG_GET16(s, cp)                \
+  do {                                  \
+    uint16_t *t_cp = (uint16_t *) (cp); \
+    (s) = ntohs (*t_cp);                \
+    (cp) += NS_INT16SZ;                 \
+} while (0)
+
 typedef union {
 	HEADER qb1;
 	u_char qb2[PACKETSZ];
 } querybuf;
 
+u_int
+hg_get16(const u_char *src)
+{
+	u_int dst;
+
+	HG_GET16(dst, src);
+	return (dst);
+}
 
 static u_char *
 hg_dns_axfr_expand_name(cp, msg, name, namelen)
@@ -82,7 +102,7 @@ hg_dns_axfr_add_host(globals, cp, msg)
 	if ((cp = (u_char *)hg_dns_axfr_expand_name(cp, msg, name, sizeof(name))) == NULL)
 		return (NULL);			/* compression error */
 		
-	type = ns_get16(cp);
+	type = hg_get16(cp);
 	cp += INT16SZ*3 + INT32SZ;
 	if(type == T_A)
 	{
@@ -150,9 +170,9 @@ static int
    int dlen;
    char domain[256];
    cp += dn_expand(answer.qb2, answer.qb2 + msglen, cp, domain,sizeof(domain));
-   type = ns_get16(cp);
+   type = hg_get16(cp);
    cp += 2 * INT16SZ + INT32SZ;
-   dlen = ns_get16(cp);
+   dlen = hg_get16(cp);
    cp += INT16SZ;
    if( type == T_NS) /* name server name */
    {
@@ -336,7 +356,7 @@ u_char ** limit;
     cp+= dn_skipname(cp, answer->qb2 + len) + QFIXEDSZ;
  nmp = cp;
  cp += dn_skipname(cp, (u_char *)answer + len);
- if((ns_get16(cp) == T_SOA)){
+ if((hg_get16(cp) == T_SOA)){
   (void)dn_expand(answer->qb2, answer->qb2 + len, nmp,dname[soacnt], 256);
   if(soacnt){if(!strcmp(dname[0], dname[1]))finished = 1;}
   else soacnt++;

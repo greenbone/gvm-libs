@@ -1,3 +1,10 @@
+2008-07-04  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* libopenvas_hg/hg_dns_axfr.c (hg_dns_axfr_add_host)
+	(hg_dns_read_ns_from_answer, hg_dns_axfr_query): Replaced ns_get16
+	with local copies taken from glibc as ns_get16 proved to be not very
+	portable either and led to problems in the build process for RPMs.
+
 2008-06-30  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post-release version bump.
