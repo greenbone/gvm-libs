@@ -1,7 +1,8 @@
 2008-07-04  Jan Wagner <waja@cyconet.org>
 
-	* new debian package version with some minor changes
-	* set openvas-distro-debian@wald.intevation.org as Debian Maintainer
+	* packaging/debian/changelog, packaging/debian/control:
+	new debian package version with some minor changes.
+	set openvas-distro-debian@wald.intevation.org as Debian Maintainer
 
 2008-07-04  Michael Wiegand <michael.wiegand@intevation.de>
 
