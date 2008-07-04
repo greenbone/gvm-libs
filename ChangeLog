@@ -1,3 +1,7 @@
+2008-07-04  Jan Wagner <waja@cyconet.org>
+
+	* new debian package version with some minor changes
+
 2008-07-04  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas_hg/hg_dns_axfr.c (hg_dns_axfr_add_host)
