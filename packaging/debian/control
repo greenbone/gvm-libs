@@ -1,6 +1,6 @@
 Source: openvas-libraries
 Priority: optional
-Maintainer: Debian OpenVAS Maintainers <openvas-distro-debian@wald.intevation.org>
+Maintainer: Debian OpenVAS Maintainers <openvas-distro@wald.intevation.org>
 Uploaders: Tim Brown <timb@nth-dimension.org.uk>, Javier Fernandez-Sanguino Pen~a <jfs@debian.org>, Jan Wagner <waja@cyconet.org>
 Build-Depends: debhelper (>= 5), autotools-dev, libgnutls-dev, libpcap-dev
 Homepage: http://www.openvas.org/

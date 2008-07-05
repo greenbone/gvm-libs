@@ -2,7 +2,7 @@ openvas-libraries (1.0.2-1) unstable; urgency=low
 
   * New upstream release
   * Add Tim and myself to Uploaders
-  * set Debian Maintainers Mailing List as Maintainer
+  * Set Debian Maintainers Mailing List as Maintainer
   * Add Vcs-Headers
   * bump Standards Version to 3.8.0, no changes needed
 
