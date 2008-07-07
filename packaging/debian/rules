@@ -39,7 +39,7 @@ install: build-stamp
 	dh_clean -k
 	$(MAKE) install prefix=$(tmp)/usr
 	dh_installdirs -plibopenvas1-dev usr/share/doc/libopenvas1
-	dh_install --sourcedir=debian/tmp 
+	dh_install --sourcedir=debian/tmp
 	find debian/libopenvas1/usr -type d -empty | xargs -r rmdir -p --ignore-fail-on-non-empty
 	find debian/libopenvas1-dev/usr -type d -empty | xargs -r rmdir -p --ignore-fail-on-non-empty
 

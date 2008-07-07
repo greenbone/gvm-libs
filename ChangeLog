@@ -2,6 +2,9 @@
 
 	* packaging/debian/changelog:
 	set openvas-distro-deb@wald.intevation.org as Debian Maintainer
+	* packaging/debian/changelog, packaging/debian/copyright,
+	packaging/debian/rules:
+	remove trailing witespaces at EOL and EOF
 
 2008-07-04  Jan Wagner <waja@cyconet.org>
 

@@ -5,6 +5,7 @@ openvas-libraries (1.0.2-1) unstable; urgency=low
   * Set Debian Maintainers Mailing List as Maintainer
   * Add Vcs-Headers
   * bump Standards Version to 3.8.0, no changes needed
+  * remove trailing whitespaces from EOL and EOF in debian/*
 
  -- Jan Wagner <waja@cyconet.org>  Fri, 04 Jul 2008 11:57:52 +0200
 
@@ -20,11 +21,11 @@ openvas-libraries (1.0.1-5) unstable; urgency=low
 openvas-libraries (1.0.1-4) unstable; urgency=low
 
   * Minor updates to control and copyright file to fix issues highlighted
-    by jfs in regard to the priority and copyright of the packaging 
+    by jfs in regard to the priority and copyright of the packaging
     respectively
   * Minor update to control to fix differing dependency between
     openvas-libraries and openvas-libnasl as highlighted by jfs
- 
+
  -- Tim Brown <timb@nth-dimension.org.uk>  Wed, 30 Apr 2008 23:23:27 +0100
 
 openvas-libraries (1.0.1-3) unstable; urgency=low
@@ -65,4 +66,3 @@ openvas-libraries (0.9.1-1) unstable; urgency=low
   * Initial release
 
  -- Tim Brown <timb@nth-dimension.org.uk>  Wed, 19 Sep 2007 01:41:35 +0100
-
