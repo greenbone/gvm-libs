@@ -7,11 +7,15 @@
 	packaging/debian/rules:
 	remove trailing witespaces at EOL and EOF
 
-	* packaging/debian/changelog, packaging/debian/control
+	* packaging/debian/changelog, packaging/debian/control:
 	move Section to right place for openvas-libraries in control
 
-	* packaging/debian/changelog, packaging/debian/control
+	* packaging/debian/changelog, packaging/debian/control:
 	also depend on libgnutls-dev, libpcap-dev for -dev
+
+	* packaging/debian/changelog, packaging/debian/libopenvas1.dirs,
+	packaging/debian/libopenvas1-dev.dirs:
+	remove debian/*.dirs since unneeded
 
 2008-07-04  Jan Wagner <waja@cyconet.org>
 
