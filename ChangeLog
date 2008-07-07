@@ -2,11 +2,16 @@
 
 	* packaging/debian/changelog:
 	set openvas-distro-deb@wald.intevation.org as Debian Maintainer
+
 	* packaging/debian/changelog, packaging/debian/copyright,
 	packaging/debian/rules:
 	remove trailing witespaces at EOL and EOF
+
 	* packaging/debian/changelog, packaging/debian/control
 	move Section to right place for openvas-libraries in control
+
+	* packaging/debian/changelog, packaging/debian/control
+	also depend on libgnutls-dev, libpcap-dev for -dev
 
 2008-07-04  Jan Wagner <waja@cyconet.org>
 

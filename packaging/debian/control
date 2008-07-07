@@ -12,7 +12,7 @@ Standards-Version: 3.8.0
 Package: libopenvas1-dev
 Section: libdevel
 Architecture: any
-Depends: libopenvas1 (= ${binary:Version})
+Depends: libopenvas1 (= ${binary:Version}), libgnutls-dev, libpcap-dev
 Description: OpenVAS static libraries and headers
  The OpenVAS Security Scanner is a security auditing tool. It makes
  possible to test security modules in an attempt to find vulnerable
