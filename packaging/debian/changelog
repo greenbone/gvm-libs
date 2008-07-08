@@ -1,3 +1,9 @@
+openvas-libraries (1.0.2-2) UNRELEASED; urgency=low
+
+  * not released yet
+
+ -- Jan Wagner <waja@cyconet.org>  Tue, 08 Jul 2008 10:10:47 +0200
+
 openvas-libraries (1.0.2-1) unstable; urgency=low
 
   * New upstream release
