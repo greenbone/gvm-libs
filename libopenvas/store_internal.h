@@ -18,7 +18,7 @@ struct pprefs {
 struct plugin {
 	char magic;
  	int id;
-  char oid[100];
+	char oid[100];
  	char path	  	[256];
 	int timeout;
 	int category;

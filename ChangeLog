@@ -1,27 +1,31 @@
+2008-07-08  Tim Brown <timb@nth-dimension.org.uk>
+
+	* ChangeLog, openvas-libraries/libopenvas/store_internal.h, 
+	packaging/debian/changelog: Fix typos.
+
 2008-07-07  Jan Wagner <waja@cyconet.org>
 
-	* packaging/debian/changelog:
-	set openvas-distro-deb@wald.intevation.org as Debian Maintainer
+	* packaging/debian/changelog: Set
+	openvas-distro-deb@wald.intevation.org as Debian Maintainer.
 
 	* packaging/debian/changelog, packaging/debian/copyright,
-	packaging/debian/rules:
-	remove trailing witespaces at EOL and EOF
+	packaging/debian/rules: Remove trailing witespaces at EOL and EOF.
 
 	* packaging/debian/changelog, packaging/debian/control:
-	move Section to right place for openvas-libraries in control
+	Move Section to right place for openvas-libraries in control.
 
 	* packaging/debian/changelog, packaging/debian/control:
-	also depend on libgnutls-dev, libpcap-dev for -dev
+	Also depend on libgnutls-dev, libpcap-dev for -dev.
 
 	* packaging/debian/changelog, packaging/debian/libopenvas1.dirs,
-	packaging/debian/libopenvas1-dev.dirs:
-	remove debian/*.dirs since unneeded
+	packaging/debian/libopenvas1-dev.dirs: Remove debian/*.dirs since
+	unneeded.
 
 2008-07-04  Jan Wagner <waja@cyconet.org>
 
 	* packaging/debian/changelog, packaging/debian/control:
-	new debian package version with some minor changes.
-	set openvas-distro-debian@wald.intevation.org as Debian Maintainer
+	New debian package version with some minor changes.
+	Set openvas-distro-debian@wald.intevation.org as Debian Maintainer.
 
 2008-07-04  Michael Wiegand <michael.wiegand@intevation.de>
 
