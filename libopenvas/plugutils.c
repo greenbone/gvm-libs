@@ -230,7 +230,21 @@ void plug_set_id(desc, id)
  struct arglist * desc;
  int id;
 {
+ char *oldid;
  arg_add_value(desc, "ID", ARG_INT, sizeof(int), (void*)id);
+ /* If a script_id has been set then set a matching script_oid */
+ char *oldid  = arg_get_value(desc, "OID");
+ if (oldid != NULL)
+ {
+  oldid = erealloc(oldid, strlen(LEGACY_OID) + (sizeof(id) * 3) + 1);
+ }
+ else
+ {
+  oldid = emalloc(strlen(LEGACY_OID) + (sizeof(id) * 3) + 1);
+ }
+ sprintf(oldid, LEGACY_OID "%i", id);
+ arg_add_value(desc, "OID", ARG_STRING, strlen(oldid), estrdup(oldid));
+ fprintf(stderr, "plug_set_id: Legacy plugin %i detected", id);
 }
 
 int
@@ -250,8 +264,16 @@ void plug_set_oid(desc, id)
   struct arglist * desc;
   char *id;
 {
- // TODO: check if OID set
- arg_add_value(desc, "OID", ARG_STRING, strlen(id), estrdup(id));
+ int oldid = (int)arg_get_value(desc, "ID");
+ /* Only allow a scipt_oid to be set if no script_id has already been set */
+ if (oldid <= 0)
+ {
+  arg_add_value(desc, "OID", ARG_STRING, strlen(id), estrdup(id));
+ }
+ else
+ {
+  fprintf(stderr, "plug_set_oid: Invalid script_oid call, legacy plugin %i detected", oldid);
+ } 
 }
 
 char *

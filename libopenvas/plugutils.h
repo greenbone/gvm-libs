@@ -70,6 +70,8 @@ char*plug_get_family(struct arglist *);
 void plug_set_dep(struct arglist *, const char *);
 struct arglist * plug_get_deps(struct arglist*);
 
+#define LEGACY_OID "1.3.6.1.4.1.25623.1.0."
+
 void plug_set_id(struct arglist *, int);
 int  plug_get_id(struct arglist *);
 

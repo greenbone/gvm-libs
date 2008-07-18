@@ -1,3 +1,10 @@
+2008-07-18  Tim Brown <timb@nth-dimension.org.uk>
+
+	* libopenvas/plugutils.c, libopenvas/plugutils.h: Added additional
+	checks to plug_set_id and plug_set_oid functions, so that setting
+	an OID can not override an a legacy ID. Moreover, setting a legacy
+	ID implictly sets a legacy OID.
+
 2008-07-08  Tim Brown <timb@nth-dimension.org.uk>
 
 	* ChangeLog, openvas-libraries/libopenvas/store_internal.h, 
@@ -50,7 +57,7 @@
 
 2008-06-27  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
-	* libopenvas-config.in: fix variable replacement problems.
+	* libopenvas-config.in: Fix variable replacement problems.
 	Original problem report and initial patch supplied by
 	Ales Nosek.
 
