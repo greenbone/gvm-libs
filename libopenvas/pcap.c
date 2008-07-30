@@ -339,6 +339,12 @@ struct interface_info *getinterfaces(int *howmany) {
 #endif
 #endif
     for(; ifr && *((char *)ifr) && ((char *)ifr) < buf + ifc.ifc_len; 
+    /* FIXME: for the next source code line the gentoo packaging process
+     * reports the following problem (disregard the line number):
+     * QA Notice: Package has poor programming practices which may compile
+     *            fine but exhibit random runtime failures.
+     * pcap.c:342: warning: dereferencing type-punned pointer will break strict-aliasing rules
+     */
 	((*(char **)&ifr) +=  sizeof(ifr->ifr_name) + len )) {
       sin = (struct sockaddr_in *) &ifr->ifr_addr;
       memcpy(&(mydevs[numinterfaces].addr), (char *) &(sin->sin_addr), sizeof(struct in_addr));
