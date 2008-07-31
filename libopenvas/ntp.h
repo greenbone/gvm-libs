@@ -29,6 +29,7 @@
 #define NTP_10 10   /* NTP/1.0 */
 #define NTP_11 11   /* NTP/1.1 */
 #define NTP_12 12   /* NTP/1.2 */
+#define ONTP_13 13   /* ONTP/1.3 */
 
 typedef struct {
   int ntp_version; /*  NTP_VERSION, as defined in ntp.h */
@@ -55,8 +56,8 @@ typedef struct {
   int timestamps:1; /* TRUE if the client wants us to send timestamps
                        regarding the start and end of the whole scan
                        and of each server (msg TIME) */
-  int plugins_oid:1; /* the the OID of the plugins along with their version */
-  int plugins_cve_id:1; /* the the CVE ID of the plugins along with their version */
+  int plugins_oid:1; /* the OID of the plugins along with their version */
+  int plugins_cve_id:1; /* the CVE ID of the plugins along with their version */
 
   int dns:1; /* send the host name and host ip */
   int dependencies:1; /* send the list of plugins dependencies */

@@ -230,7 +230,6 @@ void plug_set_id(desc, id)
  struct arglist * desc;
  int id;
 {
- char *oldid;
  arg_add_value(desc, "ID", ARG_INT, sizeof(int), (void*)id);
  /* If a script_id has been set then set a matching script_oid */
  char *oldid  = arg_get_value(desc, "OID");
