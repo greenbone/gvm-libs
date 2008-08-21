@@ -243,7 +243,9 @@ void plug_set_id(desc, id)
  }
  sprintf(oldid, LEGACY_OID "%i", id);
  arg_add_value(desc, "OID", ARG_STRING, strlen(oldid), estrdup(oldid));
+#ifdef DEBUG
  fprintf(stderr, "plug_set_id: Legacy plugin %i detected", id);
+#endif
 }
 
 int
