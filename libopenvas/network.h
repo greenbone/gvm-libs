@@ -26,6 +26,8 @@
 #ifndef OPENVAS_NETWORK_H
 #define OPENVAS_NETWORK_H
 
+#include <sys/select.h> /* at least for fd_set */
+
 #include "arglists.h"
 
 /* Plugin specific network functions */
