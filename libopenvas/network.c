@@ -1254,7 +1254,9 @@ ovas_server_context_attach(ovas_server_context_t ctx, int soc)
       ret = gnutls_handshake(fp->tls_session);
       if (ret < 0)
 	{
+#ifdef DEBUG_SSL
 	  tlserror("gnutls_handshake", ret);
+#endif
 	  goto fail;
 	}
 
