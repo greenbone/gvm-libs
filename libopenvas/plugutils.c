@@ -981,12 +981,12 @@ static void
 mark_successful_plugin(desc)
  struct arglist * desc;
 {
- int id = plug_get_id(desc);
+ char * oid = plug_get_oid(desc);
  char data[512];
  
 
  bzero(data, sizeof(data));
- snprintf(data, sizeof(data), "Success/%d", id);
+ snprintf(data, sizeof(data), "Success/%s", oid);
  plug_set_key(desc, data, ARG_INT,(void*)1);
 }
 
@@ -1001,7 +1001,7 @@ mark_post(desc, action, content)
  if(strlen(action) > (sizeof(entry_name) - 20))
   return;
   
- snprintf(entry_name, sizeof(entry_name), "SentData/%d/%s", plug_get_id(desc), action);
+ snprintf(entry_name, sizeof(entry_name), "SentData/%s/%s", plug_get_oid(desc), action);
  plug_set_key(desc, entry_name, ARG_STRING, content);
 }
 

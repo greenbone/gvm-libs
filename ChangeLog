@@ -1,5 +1,10 @@
 2008-09-09  Michael Wiegand <michael.wiegand@intevation.de>
 
+	* libopenvas/plugutils.c (mark_successful_plugin, mark_post): Use OIDs
+	instead of IDs for logging messages and plugin success in KB.
+
+2008-09-09  Michael Wiegand <michael.wiegand@intevation.de>
+
 	* libopenvas/plugutils.c (proto_post_wrapped): Use OIDs instead of IDs,
 	removed obsolete code.
 
