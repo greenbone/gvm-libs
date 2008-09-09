@@ -1,3 +1,8 @@
+2008-09-09  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* libopenvas/plugutils.c (proto_post_wrapped): Use OIDs instead of IDs,
+	removed obsolete code.
+
 2008-09-02  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/network.c (ovas_server_context_attach): Display gnutls

@@ -1095,19 +1095,14 @@ proto_post_wrapped(desc, port, proto, action, what)
 
 
  buffer = emalloc( 1024 + len );
- if(caps->ntp_11) {
-   char idbuffer[32];
+   char idbuffer[105];
    const char	*svc_name = nessus_get_svc_name(port, proto);
-   if (caps->scan_ids) { 
-     if (plug_get_id(desc) == 0) {
+     if (plug_get_oid(desc) == NULL) {
        *idbuffer = '\0';
      } else {
-       int id = plug_get_id(desc);
-       snprintf(idbuffer, sizeof(idbuffer), "<|> %d ", id);
+       char * oid = plug_get_oid(desc);
+       snprintf(idbuffer, sizeof(idbuffer), "<|> %s ", oid);
      }
-   } else {
-     *idbuffer = '\0';
- }
   if(port>0){
      snprintf(buffer, 1024 + len, 
 	     "SERVER <|> %s <|> %s <|> %s (%d/%s) <|> %s %s<|> SERVER\n",
@@ -1122,11 +1117,7 @@ proto_post_wrapped(desc, port, proto, action, what)
 	     what,
   	     plug_get_hostname(desc), 
 	     proto, naction, idbuffer);
- } else {
-   snprintf(buffer, 1024 + len, "SERVER <|> %s <|> %s <|> %d:%s <|> SERVER\n", 
-	   what,
-	   plug_get_hostname(desc), port, naction);
- }
+ 
  
  
 
