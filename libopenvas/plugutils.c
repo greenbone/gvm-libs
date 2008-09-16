@@ -286,7 +286,7 @@ _plug_get_oid(desc)
 
 char * plug_get_oid(struct arglist * desc)
 {
- return store_fetch_oid(desc);
+  return _plug_get_oid(desc);
 }
 
 void plug_set_cve_id(desc, id)

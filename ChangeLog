@@ -1,3 +1,10 @@
+2008-09-16  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* libopenvas/plugutils.c (plug_get_oid): Do not use cached OIDs, use
+	_plug_get_oid instead of store_fetch_oid; otherwise plug_get_oid will
+	return wrong OIDs under certain circumstances, which breaks qsort among
+	others.
+
 2008-09-09  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/plugutils.c (mark_successful_plugin, mark_post): Use OIDs
