@@ -132,6 +132,16 @@ void post_note(struct arglist *, int, const char *);
 void post_note_udp(struct arglist *, int, const char *);
 #define post_note_tcp post_note
 
+void proto_post_debug(struct arglist *, int, const char *, const char *);
+void post_debug(struct arglist *, int, const char *);
+void post_debug_udp(struct arglist *, int, const char *);
+#define post_debug_tcp post_debug
+
+void proto_post_log(struct arglist *, int, const char *, const char *);
+void post_log(struct arglist *, int, const char *);
+void post_log_udp(struct arglist *, int, const char *);
+#define post_log_tcp post_log
+
 /*
  * Management of the portlists
  */

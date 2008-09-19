@@ -1233,6 +1233,64 @@ void proto_post_note(desc, port, proto, action)
 } 
  
  
+void proto_post_log(desc, port, proto, action)
+    struct arglist * desc;
+ int port;
+ const char * proto;
+ const char * action;
+{
+  proto_post_wrapped(desc, port, proto, action, "LOG");
+  return;
+}
+
+
+void post_log(desc, port, action)
+    struct arglist * desc;
+ int port;
+ const char * action;
+{
+  proto_post_log(desc, port, "tcp", action);
+} 
+
+
+void post_log_udp(desc, port, action)
+    struct arglist * desc;
+ int port;
+ const char * action;
+{
+  proto_post_log(desc, port, "udp", action);
+}
+
+
+void proto_post_debug(desc, port, proto, action)
+    struct arglist * desc;
+ int port;
+ const char * proto;
+ const char * action;
+{
+  proto_post_wrapped(desc, port, proto, action, "DEBUG");
+  return;
+}
+
+
+void post_debug(desc, port, action)
+    struct arglist * desc;
+ int port;
+ const char * action;
+{
+  proto_post_debug(desc, port, "tcp", action);
+} 
+
+
+void post_debug_udp(desc, port, action)
+    struct arglist * desc;
+ int port;
+ const char * action;
+{
+  proto_post_debug(desc, port, "udp", action);
+}
+
+
 char * get_preference(desc, name)
  struct arglist *desc;
  const char * name;

@@ -1,3 +1,13 @@
+2008-09-19  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Added support for new LOG and DEBUG messages.
+
+	* libopenvas/plugutils.c (proto_post_log, post_log, post_log_udp,
+	proto_post_debug, post_debug, post_debug_udp): Added functions to
+	support new LOG and DEBUG messages.
+	
+	* libopenvas/plugutils.h: Added function declarations for new functions.
+
 2008-09-16  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/plugutils.c (plug_get_oid): Do not use cached OIDs, use
