@@ -1016,13 +1016,10 @@ proto_post_wrapped(desc, port, proto, action, what)
  const char * action;
  const char * what;
 {
-
- char *t;
  char * buffer;
  int soc;
  char * naction;
  int len;
- ntp_caps* caps = arg_get_value(desc, "NTP_CAPS");
  char * cve;
  char * bid;
  char * xref;
@@ -1048,11 +1045,7 @@ proto_post_wrapped(desc, port, proto, action, what)
 	
  if(xref != NULL )
  	len += strlen(xref) + 20;
-	
- if( caps == NULL )
- 	return;
 
- 
  naction = emalloc(len+1);
  strncpy(naction, action, strlen(action));
  strcat(naction, "\n");
@@ -1076,9 +1069,6 @@ proto_post_wrapped(desc, port, proto, action, what)
 	strcat(naction, "\n");
 	}
  
- if( caps->escape_crlf == 0 )
-   while((t=strchr(naction, '\n'))||(t=strchr(naction, '\r')))t[0]=';';
- else
   {
    char * old = naction;
    len -= strlen(naction);

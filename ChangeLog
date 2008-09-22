@@ -1,3 +1,15 @@
+2008-09-22  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libopenvas/plugutils.c (proto_post_wrapped): escape_crlf is
+	now standard with OTP 1.0.
+	Removed unused variables caps and t.
+
+	* libopenvas/ntp.h: Removed elements "plugins_xrefs",
+	"plugins_bugtraq_id", "md5_by_name", "fast_login",
+	"dependencies", "plugins_cve_id", "ciphered", "escape_crlf"
+	and "timestamps" from struct ntp_caps.
+	Removed defines for NTP_10, NTP_11 and NTP_12.
+
 2008-09-19  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Added support for new LOG and DEBUG messages.
