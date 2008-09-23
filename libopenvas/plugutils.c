@@ -241,7 +241,8 @@ void plug_set_id(desc, id)
  {
   oldid = emalloc(strlen(LEGACY_OID) + (sizeof(id) * 3) + 1);
  }
- sprintf(oldid, LEGACY_OID "%i", id);
+ // RATS: ignore
+ snprintf(oldid, 100, LEGACY_OID "%i", id);
  arg_add_value(desc, "OID", ARG_STRING, strlen(oldid), estrdup(oldid));
 #ifdef DEBUG
  fprintf(stderr, "plug_set_id: Legacy plugin %i detected", id);
@@ -300,7 +301,7 @@ void plug_set_cve_id(desc, id)
   strcat(old, ", ");
   /* Rid ff warnings */
   /* Stmt's valid since len(id)+len(old)+len('\0'+", ") = size of realloc'd memory*/
-  strcat(old, id); /* Flawfinder: ignore */ 
+  strcat(old, id); /* RATS: ignore */ 
   arg_set_value(desc, "CVE_ID", strlen(old), old);
  }
  else
@@ -330,7 +331,7 @@ void plug_set_bugtraq_id(desc, id)
  { 
   old = erealloc(old, strlen(old) + strlen(id) + 3);
   strcat(old, ", ");
-  strcat(old, id); /* Flawfinder: ignore */ 
+  strcat(old, id); /* RATS: ignore */ 
   arg_set_value(desc, "BUGTRAQ_ID", strlen(old), old);
  }
  else
@@ -359,9 +360,9 @@ void plug_set_xref(desc,name, value)
  { 
   old = erealloc(old, strlen(old) + strlen(name) + strlen(value) + 4);
   strcat(old, ", ");
-  strcat(old, name); /* Flawfinder: ignore */ 
+  strcat(old, name); /* RATS: ignore */ 
   strcat(old, ":");
-  strcat(old, value); /* Flawfinder: ignore */ 
+  strcat(old, value); /* RATS: ignore */ 
   arg_set_value(desc, "XREFS", strlen(old), old);
  }
  else 
@@ -369,9 +370,9 @@ void plug_set_xref(desc,name, value)
   char * str;
   
   str = emalloc(strlen(name) + strlen(value) + 2);
-  strcat(str, name); /* Flawfinder: ignore */ 
+  strcat(str, name); /* RATS: ignore */ 
   strcat(str, ":");
-  strcat(str, value); /* Flawfinder: ignore */ 
+  strcat(str, value); /* RATS: ignore */ 
   arg_add_value(desc, "XREFS", ARG_STRING, strlen(str), str);
   }
 }
@@ -1052,20 +1053,20 @@ proto_post_wrapped(desc, port, proto, action, what)
  if( cve != NULL && cve[0] != '\0')
         {
 	 strcat(naction, "CVE : ");
-	 strcat(naction, cve); /* Flawfinder: ignore */ 
+	 strcat(naction, cve); /* RATS: ignore */ 
 	 strcat(naction, "\n");
 	 }
  
  if( bid != NULL && bid[0] != '\0' )
  	{
 	 strcat(naction, "BID : ");
-	 strcat(naction, bid); /* Flawfinder: ignore */ 
+	 strcat(naction, bid); /* RATS: ignore */ 
 	 strcat(naction, "\n");
 	 }	
  if( xref != NULL && xref[0] != '\0' )
  	{
 	strcat(naction, "Other references : ");
-	strcat(naction, xref); /* Flawfinder: ignore */ 
+	strcat(naction, xref); /* RATS: ignore */ 
 	strcat(naction, "\n");
 	}
  
@@ -1320,7 +1321,9 @@ void _add_plugin_preference(prefs, p_name, name, type, defaul)
 
 
  pref = emalloc(strlen(p_name)+10+strlen(type)+strlen(cname));
- sprintf(pref, "%s[%s]:%s", p_name, type, cname);
+ // RATS: ignore
+ snprintf(pref, strlen(p_name)+10+strlen(type)+strlen(cname), "%s[%s]:%s",
+          p_name, type, cname);
  if ( arg_get_value(prefs, pref) == NULL )
   arg_add_value(prefs, pref, ARG_STRING, strlen(defaul), estrdup(defaul));
 
@@ -1500,13 +1503,16 @@ static void plug_set_replace_key(args, name, type, value, replace)
    kb_item_add_str(kb, name, value);
    value = addslashes(value);
    str = emalloc(strlen(name)+strlen(value)+10);
-   sprintf(str, "%d %s=%s;\n", ARG_STRING, name, (char *)value);
+   // RATS: ignore
+   snprintf(str, strlen(name)+strlen(value)+10, "%d %s=%s;\n", ARG_STRING, name,
+           (char *)value);
    efree(&value);
    break;
   case ARG_INT :
    kb_item_add_int(kb, name, (int)value);
    str = emalloc(strlen(name)+20);
-   sprintf(str, "%d %s=%d;\n", ARG_INT, name, (int)value);
+   // RATS: ignore
+   snprintf(str, strlen(name)+20, "%d %s=%d;\n", ARG_INT, name, (int)value);
    break;
  }
  if(str)

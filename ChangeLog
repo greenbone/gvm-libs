@@ -1,3 +1,15 @@
+2008-09-23  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Fixed uses of sprintf in libopenvas/plugutils.c that could lead to
+	buffer overflows under certain circumstances. Told RATS and flawfinder
+	to ignore the use of snprintf; we will assume that glibc provides us
+	with an up-to-date snprintf. Changed "flawfinder" ignore statements to
+	"RATS" since the "RATS" keyword is supported by both RATS and
+	flawfinder.
+
+	* libopenvas/plugutils.c (plug_set_id, _add_plugin_preference,
+	plug_set_replace_key): Replaced sprintf usage with snprintf.
+
 2008-09-22  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/plugutils.c (proto_post_wrapped): escape_crlf is
