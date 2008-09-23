@@ -1,5 +1,11 @@
 2008-09-23  Michael Wiegand <michael.wiegand@intevation.de>
 
+	Last minute fix to MANIFEST for 2.0-beta1.
+
+	* MANIFEST: Updated.
+
+2008-09-23  Michael Wiegand <michael.wiegand@intevation.de>
+
 	Doing the 2.0-beta1 release.
 
 	* VERSION: Set to 2.0.0.beta1.
