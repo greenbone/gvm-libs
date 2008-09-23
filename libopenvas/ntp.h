@@ -30,11 +30,6 @@
 
 typedef struct {
   int ntp_version; /*  NTP_VERSION, as defined in ntp.h */
-  int scan_ids:1;  /*  TRUE, if HOLE and INFO messages should
-                       contain scan ID's. */
-  int pubkey_auth:1; /* TRUE if the client wants to use public key
-                        authentification */
-  int dns:1; /* send the host name and host ip */
 } ntp_caps;
 
 #endif

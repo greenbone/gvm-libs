@@ -42,7 +42,6 @@ comm_send_status(globals, hostname, action,curr,max)
  struct arglist * prefs = arg_get_value(globals,"preferences");
  char * pref = arg_get_value(prefs, "ntp_short_status");
  int short_status;
- ntp_caps* caps = arg_get_value(globals, "ntp_caps");
  int soc = (int)arg_get_value(globals, "global_socket");
  char buffer[2048];
 
