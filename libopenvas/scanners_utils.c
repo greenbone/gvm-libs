@@ -57,9 +57,7 @@ comm_send_status(globals, hostname, action,curr,max)
   short_status = 1;
  else
   short_status = 0;
-   
-  if(caps->ntp_11)
-    {
+
     if(short_status)
       {
       snprintf(buffer, sizeof(buffer), "s:%c:%s:%d:%d\n", action[0], hostname, curr, max);
@@ -68,12 +66,7 @@ comm_send_status(globals, hostname, action,curr,max)
      snprintf(buffer, sizeof(buffer),
 		"SERVER <|> STATUS <|> %s <|> %s <|> %d/%d <|> SERVER\n",
 		hostname, action, curr, max);
-    }
-  else
-   snprintf(buffer, sizeof(buffer), "SERVER <|> STAT <|> %s <|> %d/%d <|> SERVER\n",
-	      hostname, curr, max);
-	      
-	      
+
  internal_send(soc, buffer, INTERNAL_COMM_MSG_TYPE_DATA);
  
  return 0;

@@ -1556,7 +1556,6 @@ scanner_add_port(args, port, proto)
  int port;
  char * proto;
 {
- ntp_caps* caps = arg_get_value(args, "NTP_CAPS");
  char * buf;
  const char *svc_name = nessus_get_svc_name(port, proto);
  const char * hn = plug_get_hostname(args);
@@ -1587,16 +1586,9 @@ scanner_add_port(args, port, proto)
  
  len = 255 + (hn ? strlen(hn):0) + strlen(svc_name);
  buf = emalloc(len);
- if(caps != NULL && caps->ntp_11)
-  snprintf(buf, len, "SERVER <|> PORT <|> %s <|> %s (%d/%s) <|> SERVER\n",
- 		hn,svc_name, port, proto);
- else
-  {
-   if(!strcmp(proto, "tcp"))
-     snprintf(buf, len, "SERVER <|> PORT <|> %s <|> %d <|> SERVER\n",
-  		hn, port);
-  }
-   
+ snprintf(buf, len, "SERVER <|> PORT <|> %s <|> %s (%d/%s) <|> SERVER\n",
+          hn,svc_name, port, proto);
+
  if(do_send)
  {
   soc = (int)arg_get_value(args, "SOCKET");
