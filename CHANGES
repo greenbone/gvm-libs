@@ -1,3 +1,35 @@
+openvas-libraries 2.0-beta1 (2008-09-23)
+
+This release is a first beta version of the upcoming 2.0 release of OpenVAS.
+This is the first release of openvas-libraries to fully implement OID support
+and marks the switch from the Nessus Transport Protocol (NTP) to the improved
+and cleaned up OpenVAS Transport Protocol (OTP). In addition, this release
+contains minor bug fixes and updates to distribution files.
+
+OpenVAS 2.0 will introduce a full set of new modules for OpenVAS Server
+(openvas-libraries, openvas-libnasl and openvas-server) and the a new
+OpenVAS-Client. The only  module OpenVAS 1.0 and OpenVAS 2.0 will  share is
+openvas-plugins. This means that the OpenVAS NVT Feed is compatible with both
+generations of OpenVAS.
+
+However, in case you plan to try out the new generation of OpenVAS, you should
+install it separately from OpenVAS 1.0 installation. Instructions on how to do
+this will be added to the OpenVAS homepage after all relevant modules are
+released as 2.0-beta1. A separate announcement will officially start the beta
+testing phase for OpenVAS 2.0.
+
+Main changes in this release:
+* Fix to incorrect library usage that prevented building RPM packages under
+  certain circumstances.
+* Updates of Debian packaging files.
+* Switch from Nessus plugin IDs to OIDs.
+* Switch from Nessus Transport Protocol 1.2 to OpenVAS Transport Protocol 1.0.
+* Fix to incorrect usage of string functions that could have lead to buffer
+  overflows under certain circumstances.
+
+Many thanks to everyone who has contributed to this release: Tim Brown, Vlatko
+Kosturjak, Jan Wagner, Jan-Oliver Wagner and Michael Wiegand
+
 openvas-libraries 1.0.2 (2008-06-30)
 
 This release contains improvements to plugin handling and to the packaging files

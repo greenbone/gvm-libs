@@ -1,5 +1,13 @@
 2008-09-23  Michael Wiegand <michael.wiegand@intevation.de>
 
+	Doing the 2.0-beta1 release.
+
+	* VERSION: Set to 2.0.0.beta1.
+
+	* CHANGES: Updated.
+
+2008-09-23  Michael Wiegand <michael.wiegand@intevation.de>
+
 	Fixed uses of sprintf in libopenvas/plugutils.c that could lead to
 	buffer overflows under certain circumstances. Told RATS and flawfinder
 	to ignore the use of snprintf; we will assume that glibc provides us
