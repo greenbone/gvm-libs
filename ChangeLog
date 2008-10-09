@@ -1,3 +1,10 @@
+2008-10-09  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* libopenvas/pcap.c: Added missing include for config.h; this fixes a
+	bug caused by a missing #define that led to a segfault on 64bit
+	machines and was discovered by Michael Meyer. This is a backport from
+	-trunk.
+
 2008-09-02  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/network.c (ovas_server_context_attach): Display gnutls
