@@ -33,6 +33,7 @@
 #include "pcap_openvas.h"
 #include "system_internal.h"
 #include "network.h"
+#include "config.h"
 
 #define MAXROUTES 1024
 
