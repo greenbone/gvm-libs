@@ -1,3 +1,11 @@
+openvas-libraries (2.0.0.beta1-1) UNRELEASED; urgency=low
+
+  * New upstream release
+  * Cleaned up the rules
+  * Updated copyright
+
+ -- Tim Brown <timb@nth-dimension.org.uk>  Sun, 12 Oct 2008 19:23:20 +0100
+
 openvas-libraries (1.0.2-2) UNRELEASED; urgency=low
 
   * Not released yet
@@ -48,7 +56,7 @@ openvas-libraries (1.0.1-2) unstable; urgency=low
   * Minor updates to control file, now lists jfs as uploader, fixed deprecated
     ${Source-Version} substvar, Build-Depends directive
   * Minor update to rules file, DH_COMPAT environment variable no longer required
-  * Minor update to libopenvas1-dev.install
+  * Minor update to libopenvas2-dev.install
 
  -- Tim Brown <timb@nth-dimension.org.uk>  Wed, 16 Apr 2008 05:21:09 +0100
 

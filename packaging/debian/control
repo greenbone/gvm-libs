@@ -9,10 +9,11 @@ Vcs-Browser: http://wald.intevation.org/plugins/scmsvn/viewcvs.php/trunk/openvas
 Vcs-Svn: https://svn.wald.intevation.org/svn/openvas/trunk/openvas-libraries/packaging/debian/
 Standards-Version: 3.8.0
 
-Package: libopenvas1-dev
+Package: libopenvas2-dev
 Section: libdevel
 Architecture: any
-Depends: libopenvas1 (= ${binary:Version}), libgnutls-dev, libpcap-dev
+Depends: libopenvas2 (= ${binary:Version}), libgnutls-dev, libpcap-dev
+Replaces: libopenvas1-dev
 Description: OpenVAS static libraries and headers
  The OpenVAS Security Scanner is a security auditing tool. It makes
  possible to test security modules in an attempt to find vulnerable
@@ -25,10 +26,11 @@ Description: OpenVAS static libraries and headers
  This package contains the required static libraries, headers, and
  openvas-config script.
 
-Package: libopenvas1
+Package: libopenvas2
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Replaces: libopenvas1
 Description: OpenVAS shared libraries
  The OpenVAS Security Scanner is a security auditing tool. It makes
  possible to test security modules in an attempt to find vulnerable

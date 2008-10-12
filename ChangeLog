@@ -1,3 +1,11 @@
+2008-10-12  Tim Brown <timb@nth-dimension.org.uk>
+
+	* openvas-client/packaging/debian/changelog: Updated.
+
+	* openvas-client/packaging/debian/copyright: Updated.
+
+	* openvas-client/packaging/debian/rules: Cleaned up.
+
 2008-10-09  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/pcap.c: Added missing include for config.h; this fixes a
