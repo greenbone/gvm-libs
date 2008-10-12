@@ -1,10 +1,15 @@
 2008-10-12  Tim Brown <timb@nth-dimension.org.uk>
 
-	* openvas-client/packaging/debian/changelog: Updated.
+	* packaging/debian/changelog: Updated.
 
-	* openvas-client/packaging/debian/copyright: Updated.
+	* packaging/debian/copyright: Updated.
 
-	* openvas-client/packaging/debian/rules: Cleaned up.
+	* packaging/debian/rules: Cleaned up.
+
+	* packaging/debian/libopenvas2-dev.dirs,
+	packaging/debian/libopenvas2-dev.install,
+	packaging/debian/libopenvas2.dirs,
+	packaging/debian/libopenvas2.install: Added.
 
 2008-10-09  Michael Wiegand <michael.wiegand@intevation.de>
 
