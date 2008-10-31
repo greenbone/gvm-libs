@@ -4,7 +4,7 @@
 
 #define MAX_PREFS 32
 
-#define MAGIC 0x47 /* defines the revision of the plugin struct
+#define MAGIC 0x48 /* defines the revision of the plugin struct
                       Basically it is just used to invalidate old
                       desc-files if the number does not match. */
 
@@ -39,6 +39,7 @@ struct plugin {
 	char excluded_keys	[128];
 	char required_ports	[64];
 	char required_udp_ports	[64];
+	char sign_key_ids	[128];
 	int has_prefs:1;
 };
 	

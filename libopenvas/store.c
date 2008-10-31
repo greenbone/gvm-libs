@@ -133,6 +133,7 @@ static int safe_copy(char * str, char * dst, int sz, char * path, char * item)
 }
 /*-----------------------------------------------------------------------------*/
 
+
 #define MODE_SYS 0
 #define MODE_USR 1
 
@@ -143,7 +144,15 @@ static int current_mode = -1;
 
 
 
-
+/**
+ * Inits the sys_store_dir string to the default value. sys_store_dir holds the 
+ * path of the .desc (~server-side plugin cache) directory which is a subfolder
+ * of the plugin- directory. If the .desc directory does not exist, it will be 
+ * created. Also sets the mode to MODE_SYS.
+ * @param dir Path to the (plugin)- directory
+ * @return 0 in case of success, -1 if the directory does not exist and could 
+ *         not be created.
+ */
 int store_init_sys(char * dir)
 {
  current_mode = MODE_SYS;
@@ -153,12 +162,20 @@ int store_init_sys(char * dir)
  {
   fprintf(stderr, "mkdir(%s) : %s\n", sys_store_dir, strerror(errno));
   return -1;
- } 
- 
+ }
  
  return 0;
 }
 
+/**
+ * Inits the sys_store_dir string to the default value. sys_store_dir holds the 
+ * path of the .desc (~server-side plugin cache) directory which is a subfolder
+ * of the plugin- directory. If the .desc directory does not exist, it will be 
+ * created. Also sets the mode to MODE_USR.
+ * @param dir Path to the (plugin)- directory
+ * @return 0 in case of success, -1 if the directory does not exist and could 
+ *         not be created.
+ */
 int store_init_user(char * dir)
 {
  current_mode = MODE_USR;
@@ -254,11 +271,23 @@ int store_get_plugin(struct plugin * p, char * name)
 }
 
 /*--------------------------------------------------------------------------------*/
-
+/* Returns a (plugin) arglist assembled from the description file .desc or NULL
+ * if
+ * 1) the .desc does not exist
+ * 2) Nvt definition file (e.g. xyz.nasl) or nvt signature (xyz.asc) file is
+ *       newer than the .desc file
+ * 3) the magic number test failed (other file format expected).
+ * 4) an error occured.
+ * @param dir Path to parent directory of the .desc directory.
+ * @param file File name of the plugin (e.g. detect_openvas.nasl ).
+ * @param prefs Plugin preference arglist.
+ * @return Pointer to plugin as arglist or NULL (see above).
+ */
 struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * prefs)
 {
  char desc_file[MAXPATHLEN+1];
  char plug_file[MAXPATHLEN+1];
+ char asc_file[MAXPATHLEN+1];
  char * str;
  char store_dir[MAXPATHLEN+1];
  struct plugin p;
@@ -266,11 +295,14 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
  
  struct arglist * ret;
  int i;
- struct stat st1, st2;
+ struct stat stat_plug,
+        stat_desc,
+        stat_asc;
  struct arglist * al;
  
  bzero(pp, sizeof(pp));
- 
+
+ /* Assemble file paths to stat them later */
  snprintf(desc_file, sizeof(desc_file), "%s/.desc/%s", dir, file);
  str = strrchr(desc_file, '.');
  if( str != NULL )
@@ -278,20 +310,45 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
   str[0] = '\0';
   if(	strlen(desc_file) + 6 < sizeof(desc_file) )
   	strcat(desc_file, ".desc");
-
  }
+
+ snprintf(asc_file, sizeof(asc_file), "%s/%s", dir, file);
+
+ if( strlen(asc_file) + 5 < sizeof(desc_file) )
+ {
+   strcat(asc_file, ".asc");
+ }
+ else
+ {
+   /* Certificate file name is longer than MAXPATHLEN, should not happen */
+   return NULL;
+ }
+
  snprintf(plug_file, sizeof(plug_file), "%s/%s", dir, file);
 
- if (  stat(plug_file, &st1) < 0 || 
-       stat(desc_file, &st2) < 0 ) 
-		return NULL;
+ /* Plugin file, cache file and a signature have to exist */
+ /* FIXME: felix. move the stat tests to plugin-class implementation 
+   (nasl_plugin, oval_plugin) + do not reparse if no .asc was found and
+   preference no_signature_check is set. */
+ if (  stat(plug_file, &stat_plug) < 0 || 
+       stat(desc_file, &stat_desc) < 0 ||
+       stat(asc_file , &stat_asc ) < 0 )
+   {
+   return NULL;
+   }
 
  /* 
-  * Look if the plugin is newer, and if that's the case also make sure that
-  * the plugin mtime is not in the future...
+  * Look if the plugin (.nasl/.oval etc) or the signature (.asc) is newer than,
+  * the description (.desc). If that's the case also make sure that
+  * the plugin and signatures mtime is not in the future...
   */
- if ( st1.st_mtime > st2.st_mtime && st1.st_mtime <= time(NULL) )
+ if(  stat_plug.st_mtime > stat_desc.st_mtime 
+   && stat_asc.st_mtime  > stat_desc.st_mtime
+   && stat_plug.st_mtime <= time(NULL)
+   && stat_asc.st_mtime  <= time(NULL)
+   ){
 	return NULL;
+   }
 	
  snprintf(store_dir, sizeof(store_dir), "%s/.desc", dir);
  if(store_get_plugin_f(&p, pp, store_dir, file) < 0)
@@ -299,7 +356,6 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
   
  if(p.magic != MAGIC)
  	return NULL;
-	
 	
  if(p.id <= 0) return NULL;
     
@@ -309,6 +365,7 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
  plug_set_fname(ret, file);
  plug_set_path(ret, p.path);
  plug_set_family(ret, p.family, NULL);
+ plug_set_sign_key_ids(ret, p.sign_key_ids);
 
   al = str2arglist(p.required_ports);
  if ( al != NULL ) arg_add_value(ret, "required_ports", ARG_ARGLIST, -1, al);
@@ -489,10 +546,14 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
  e = safe_copy(str, plug.required_udp_ports, sizeof(plug.required_udp_ports), path, "required udp ports");
  efree(&str);
  if(e < 0)return NULL;
+
+ str = "dummy_key_id_string"; // will be plug_get_sign_key_ids(plugin);
+ e = safe_copy(str, plug.sign_key_ids, sizeof(plug.sign_key_ids), path, "key ids of signatures");
+ efree(&str);
+ if(e < 0)return NULL;
  
  
  prefs = arg_get_value(plugin, "preferences");
- 
  
  arglist = arg_get_value(plugin, "PLUGIN_PREFS");
  if( arglist != NULL )

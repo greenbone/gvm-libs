@@ -1,3 +1,32 @@
+2008-10-31  Felix Wolfsteller <felix.wolfstelller@intevation.de>
+
+	Steps to an implementation of Change Request #17 
+	(http://www.openvas.org/openvas-cr-17.html - "Make NVT signatures 
+	available to OpenVAS-Client").
+	Adds the new field "sign_key_ids" to plugin-structures and the .desc 
+	store. Until soon, just a dummy- string will be saved and eventually
+	transmitted by the server.
+
+	IMPORTANT: Breaks compatibility and renders old server .desc- cache 
+	files useless.
+
+	* libopenvas/plugutils.c (plug_set_sign_key_ids, plug_get_sign_key_ids):
+	Added getter & setter to retrieve key-ids of certificates of a plugin.
+
+	* libopenvas/plugutils.h: Prototypes for plug_set_sign_key_ids and
+	plug_get_sign_key_ids added.
+
+	* libopenvas/store_internal.h: Added sign_key_ids field to plugin struct
+	 and increased magic number for server-side cache (.desc files)
+
+	* libopenvas/store.c (store_init_sys, store_init_user): Added comments.
+
+	* libopenvas/store.c (store_load_plugin): Check if signature file 
+	is new than cache (functionality will be moved), set sign_key_ids 
+	according to cache, added comments.
+
+	* libopenvas/store.c (store_plugin): Stores the (dummy) key_id- string.
+
 2008-10-12  Tim Brown <timb@nth-dimension.org.uk>
 
 	* packaging/debian/changelog: Updated.

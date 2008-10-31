@@ -388,6 +388,31 @@ char * plug_get_xref(struct arglist * desc)
  return store_fetch_xref(desc);
 }
 
+/* Set string that lists signature keys for a plugin or add it, when not empty.
+ * Key-ids are stored as comma- seperated list ('ABCDEFGH,ABCDEFG1').
+ */
+void plug_set_sign_key_ids(struct arglist* desc, char* key_ids)
+{
+  char* value = plug_get_sign_key_ids( desc );
+  if(value != NULL)
+  {
+    value = erealloc(value, strlen(value) + strlen(key_ids) + 2);
+    strcat(value, ",");
+    strcat(value, key_ids); /* RATS: ignore */ 
+    arg_add_value(desc, "SIGN_KEY_IDS", ARG_STRING, strlen(value), value);
+  }
+  else
+  {
+    arg_add_value(desc, "SIGN_KEY_IDS", ARG_STRING, strlen(key_ids), 
+                  estrdup(key_ids));
+  }
+}
+
+/* Return pointer to the string that lists signature keys for a plugin */
+char* plug_get_sign_key_ids(struct arglist* desc)
+{
+  return arg_get_value(desc, "SIGN_KEY_IDS");
+}
 
 
 void plug_set_family(desc, family, language)
