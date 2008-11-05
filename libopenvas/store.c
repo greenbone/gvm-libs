@@ -326,39 +326,46 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
 
  snprintf(plug_file, sizeof(plug_file), "%s/%s", dir, file);
 
- /* Plugin file, cache file and a signature have to exist */
- /* FIXME: felix. move the stat tests to plugin-class implementation 
-   (nasl_plugin, oval_plugin) + do not reparse if no .asc was found and
-   preference no_signature_check is set. */
- if (  stat(plug_file, &stat_plug) < 0 || 
-       stat(desc_file, &stat_desc) < 0 ||
-       stat(asc_file , &stat_asc ) < 0 )
+ /* Plugin and cache file have to exist */
+ if (  stat(plug_file, &stat_plug) < 0 || stat(desc_file, &stat_desc) < 0)
    {
    return NULL;
    }
 
  /* 
-  * Look if the plugin (.nasl/.oval etc) or the signature (.asc) is newer than,
+  * Look if the plugin (.nasl/.oval etc) or the signature (.asc) is newer than
   * the description (.desc). If that's the case also make sure that
   * the plugin and signatures mtime is not in the future...
   */
- if(  stat_plug.st_mtime > stat_desc.st_mtime 
-   && stat_asc.st_mtime  > stat_desc.st_mtime
-   && stat_plug.st_mtime <= time(NULL)
-   && stat_asc.st_mtime  <= time(NULL)
-   ){
+ if( stat_plug.st_mtime > stat_desc.st_mtime 
+    && stat_asc.st_mtime  > stat_desc.st_mtime )
+   {
 	return NULL;
    }
-	
+
+ /* 
+  * Look if a signature file (.asc) exists. If so and it is newer than
+  * the description (.desc) (and the mtime is not in the future), return NULL.
+  */ 
+ if(    stat(asc_file, &stat_asc) 
+     && stat_asc.st_mtime > stat_desc.st_mtime 
+     && stat_asc.st_mtime <= time(NULL) )
+   {
+     return NULL;
+   }
+
+
  snprintf(store_dir, sizeof(store_dir), "%s/.desc", dir);
  if(store_get_plugin_f(&p, pp, store_dir, file) < 0)
   return NULL;
-  
+
+
  if(p.magic != MAGIC)
  	return NULL;
 	
- if(p.id <= 0) return NULL;
-    
+ if(p.oid == NULL) return NULL;
+
+  
  ret = emalloc(sizeof(struct arglist));   
  plug_set_id(ret, p.id);
  plug_set_category(ret, p.category);
@@ -547,9 +554,9 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
  efree(&str);
  if(e < 0)return NULL;
 
- str = "dummy_key_id_string"; // will be plug_get_sign_key_ids(plugin);
+ str = plug_get_sign_key_ids(plugin);
  e = safe_copy(str, plug.sign_key_ids, sizeof(plug.sign_key_ids), path, "key ids of signatures");
- efree(&str);
+ //efree(&str);
  if(e < 0)return NULL;
  
  

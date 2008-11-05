@@ -1,3 +1,12 @@
+2008-11-5  Felix Wolfsteller <felix.wolfstelller@intevation.de>
+	
+	Work on Change Request #17 (http://www.openvas.org/openvas-cr-17.html - 
+	"OTP: Make NVT signatures available to OpenVAS-Client").
+	Replaced sending of dummy certificate key oids by "real" fingerprints.
+
+	* libopenvas/store.c (store_load_plugin): Fixed tests about signature 
+	file, replaced obsolete ID check by OID check, removed dummy string.
+
 2008-10-31  Felix Wolfsteller <felix.wolfstelller@intevation.de>
 
 	Steps to an implementation of Change Request #17 
