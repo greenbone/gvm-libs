@@ -18,7 +18,7 @@ Instruction for the compilation and installation of Nessus-1.0 and later
  to avoid conflicts.
 
  You should also make sure that you have the development packages for:
-  * libgnutls
+  * libgnutls 2.x
   * libpcap
   * libgpgme
 

@@ -1,4 +1,9 @@
-2008-11-5  Felix Wolfsteller <felix.wolfstelller@intevation.de>
+2008-11-06  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* INSTALL_README: Updated note regarding gnutls version requirements as
+	pointed out by Toan Nguyen.
+
+2008-11-05  Felix Wolfsteller <felix.wolfstelller@intevation.de>
 	
 	Work on Change Request #17 (http://www.openvas.org/openvas-cr-17.html - 
 	"OTP: Make NVT signatures available to OpenVAS-Client").
