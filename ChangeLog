@@ -1,3 +1,10 @@
+2008-11-06  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* INSTALL_README: Updated note regarding gnutls version requirements as
+	pointed out by Toan Nguyen (Backported from -trunk). Removed note
+	regarding libgpgme requirement since openvas-libraries doesn't actually
+	require it.
+
 2008-10-09  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/pcap.c: Added missing include for config.h; this fixes a
