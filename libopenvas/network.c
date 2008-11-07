@@ -423,6 +423,15 @@ nessus_get_socket_from_connection(fd)
   return fp->fd;
 }
 
+void*
+ovas_get_connection_data(fd)
+ int fd;
+{
+  if (NESSUS_STREAM(fd))
+    return (void*) &(connections[fd - NESSUS_FD_OFF]);
+  return NULL;
+}
+
 static int
 set_gnutls_priorities(gnutls_session_t session,
 		      int * protocol_priority,

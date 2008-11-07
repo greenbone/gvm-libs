@@ -87,6 +87,7 @@ int ovas_server_context_attach(ovas_server_context_t ctx, int soc);
 int nessus_register_connection(int, void*);
 int nessus_deregister_connection(int);
 int nessus_get_socket_from_connection(int);
+void* ovas_get_connection_data(int);
 
 int stream_zero(fd_set*);
 int stream_set(int, fd_set*);
