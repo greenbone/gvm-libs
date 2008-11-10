@@ -26,10 +26,6 @@
 
 2007-04-12 <Jan-Oliver.Wagner@intevation.de>
 
-	* libopenvas/getopt*: Is it really necessary
-	to maintain copies? What are the differences
-	to the original getopt modules?
-
 	* AIX: Is this a platform that is really important
 	to be supported? Special treatment for AIX occurs
 	at various places.

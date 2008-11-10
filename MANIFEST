@@ -46,9 +46,6 @@ libopenvas-config.in
 libopenvas/COPYING
 libopenvas/ftp_funcs.c
 libopenvas/ftp_funcs.h
-libopenvas/getopt1.c
-libopenvas/getopt.c
-libopenvas/getopt.h
 libopenvas/harglists.c
 libopenvas/harglists.h
 libopenvas/hlst.c

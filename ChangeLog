@@ -1,3 +1,26 @@
+2008-11-10  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Removed local copies of getopt; the functionality provided by getopt has
+	been replaced with glib as explained in Change Request #9
+	(http://www.openvas.org/openvas-cr-9.html).
+
+	* include/config.h.in: Removed obsolete defines for getopt.
+
+	* configure.in: Removed obsolete checks for getopt.
+
+	* configure: Regenerated.
+
+	* libopenvas/getopt.c, libopenvas/getopt.h, libopenvas/getopt1.c:
+	Removed obsolete local copies of getopt.
+
+	* libopenvas/Makefile: Removed handling of getopt files.
+
+	* TODO: Removed section regarding getopt copies.
+
+	* MANIFEST: Updated.
+
+	* Makefile: Removed handling of getopt files.
+
 2008-11-07  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/network.c, libopenvas/network.h: Added

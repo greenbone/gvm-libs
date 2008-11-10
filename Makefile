@@ -46,7 +46,6 @@ install : all
 
 	$(INSTALL) -m 0444 include/libopenvas.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 include/libvers.h   $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/getopt.h    $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/arglists.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/bpf_share.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/ftp_funcs.h $(DESTDIR)${includedir}/openvas
