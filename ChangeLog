@@ -1,3 +1,9 @@
+2008-11-11  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* libopenvas/store.c (store_load_plugin): Fixed usage of legacy ID
+	scheme that resulted in an incorrect OID being transmitted to the client
+	when processing NVTs without any legacy ID.
+
 2008-11-10  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Removed local copies of getopt; the functionality provided by getopt has

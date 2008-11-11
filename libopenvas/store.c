@@ -367,7 +367,7 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
 
   
  ret = emalloc(sizeof(struct arglist));   
- plug_set_id(ret, p.id);
+ plug_set_oid(ret, p.oid);
  plug_set_category(ret, p.category);
  plug_set_fname(ret, file);
  plug_set_path(ret, p.path);
