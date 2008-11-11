@@ -423,13 +423,16 @@ nessus_get_socket_from_connection(fd)
   return fp->fd;
 }
 
-void*
-ovas_get_connection_data(fd)
+gnutls_session_t *
+ovas_get_tlssession_from_connection(fd)
  int fd;
 {
-  if (NESSUS_STREAM(fd))
-    return (void*) &(connections[fd - NESSUS_FD_OFF]);
-  return NULL;
+  nessus_connection	*fp;
+
+  if (!NESSUS_STREAM(fd)) return NULL;
+
+  fp = connections + (fd - NESSUS_FD_OFF);
+  return fp->tls_session;
 }
 
 static int

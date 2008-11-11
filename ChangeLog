@@ -1,3 +1,14 @@
+2008-11-11  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libopenvas/network.c (ovas_get_connection_data): Renamed to
+	ovas_get_tlssession_from_connection and made it return the
+	tls session directly instead of connection data.
+	This way it is avoided to expose the internal data
+	structure "nessus_connection". It remains internal now.
+	
+	* libopenvas/network.h: Updated proto accordingly and added
+	include for now-necessary gnutls.h.
+
 2008-11-11  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/store.c (store_load_plugin): Fixed usage of legacy ID
