@@ -24,6 +24,8 @@
 
 #include <fnmatch.h>
 
+#include <glib.h>
+
 #include "arglists.h"
 #include "kb.h"
 #include "system_internal.h"
@@ -341,7 +343,7 @@ struct arglist * plug_get_oldstyle_kb(struct arglist * desc )
   while ( k != NULL )
   {
   if ( k->type == KB_TYPE_INT )
-	arg_add_value(ret, k->name, ARG_INT, -1, (void*)k->v.v_int);
+	arg_add_value(ret, k->name, ARG_INT, -1, GSIZE_TO_POINTER(k->v.v_int));
   else if ( k->type == KB_TYPE_STR )
 	arg_add_value(ret, k->name, ARG_STRING, strlen(k->v.v_str), estrdup(k->v.v_str));
    k = k->next;

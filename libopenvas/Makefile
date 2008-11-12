@@ -24,6 +24,8 @@
 
 include ../openvas-libraries.tmpl
 
+LIBS = $(GLIB_LIBS)
+
 OBJS = plugutils.o system.o network.o resolve.o arglists.o ftp_funcs.o \
 	scanners_utils.o pcap.o hlst.o  harglists.o \
         www_funcs.o ids_send.o rand.o popen.o \
@@ -39,7 +41,7 @@ LO_OBJS = plugutils.lo system.lo network.lo resolve.lo arglists.lo \
 # += does not work with non-GNU make ...
 # CFLAGS+=-I../$(CIPHER_SUBDIR)
 CFLAGS+=-g -Wall
-INCLUDE = ${include} 
+INCLUDE = $(include) $(GLIB_CFLAGS) $(DEFS)
 CIPHER = -I../$(CIPHER_SUBDIR)
 
 all : libopenvas.la

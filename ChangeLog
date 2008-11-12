@@ -1,5 +1,28 @@
 2008-11-12  Michael Wiegand <michael.wiegand@intevation.de>
 
+	Applying patch provided by Stjepan Gros to improve 64-bit cleanliness.
+
+	* configure.in: Added check for the glib2 library.
+	
+	* configure: Regenerated.
+	
+	* aclocal.m4: Regenerated.
+
+	* libopenvas/harglists.c, libopenvas/arglists.c,
+	libopenvas/plugutils.c, libopenvas/network.c,
+	libopenvas/Makefile, libopenvas/store.c,
+	libopenvas/scanners_utils.c, libopenvas/kb.c,
+	openvas-libraries.tmpl.in: Introduced glib library.
+
+	* libopenvas/harglists.c, libopenvas/harglists.h,
+	libopenvas/arglists.c, libopenvas/plugutils.c,
+	libopenvas/network.c, libopenvas/scanners_utils.c,
+	libopenvas/kb.c, libopenvas/store.c: 32/64-bit cleanup.
+
+	* libopenvas/plugutils.c: Minor reformatings.
+
+2008-11-12  Michael Wiegand <michael.wiegand@intevation.de>
+
 	* configure.in: Added AC_PREREQ directive to tell autoconf to generate
 	a 2.50-style configure script.
 

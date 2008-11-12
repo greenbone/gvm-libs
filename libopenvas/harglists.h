@@ -1189,7 +1189,7 @@ extern int         harg_rload      (harglst*, const char *fname, int flush_serve
 #define harg_set_ptr(             d,k,  q)        harg_set_valuet  ((d),             (k),HARG_PTR,        0,        (q))
 #define harg_set_harg(            d,k,  t)        harg_set_valuet  ((d),             (k),HARG_HARGLST,    0,        (t))
 #define harg_set_blob(            d,k,l,q)        harg_set_valuet  ((d),             (k),HARG_BLOB,      (l),       (q))
-#define harg_set_int(             d,k,  n)        harg_set_valuet  ((d),             (k),HARG_INT,        0, (void*)(n))
+#define harg_set_int(             d,k,  n)        harg_set_valuet  ((d),             (k),HARG_INT,        0, GSIZE_TO_POINTER(n))
 
 #define harg_set_pstring(         d,p,  s)        harg_set_valuet  ((d),(hargkey_t*)&(p),HARG_PSTRING,    0,        (s))
 #define harg_set_pnstring(        d,p,n,s)        harg_set_valuet  ((d),(hargkey_t*)&(p),HARG_PSTRING,   (n),       (s))
@@ -1230,7 +1230,8 @@ extern int         harg_rload      (harglst*, const char *fname, int flush_serve
 #define harg_get_ptr(             d,k)    ((void*)harg_get_valuet  ((d),             (k),HARG_PTR))
 #define harg_get_harg(            d,k) ((harglst*)harg_get_valuet  ((d),             (k),HARG_HARGLST))
 #define harg_get_blob(            d,k)    ((void*)harg_get_valuet  ((d),             (k),HARG_BLOB))
-#define harg_get_int(             d,k)      ((int)harg_get_valuet  ((d),             (k),HARG_INT))
+#define harg_get_int(             d,k) \
+                                 (GPOINTER_TO_INT(harg_get_valuet  ((d),             (k),HARG_INT)))
 #define harg_get_any(             d,k)            harg_get_valuet  ((d),             (k),HARG_ANY)
 #define harg_get(                 d,k)            harg_get_any (d,k)
 

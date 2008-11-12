@@ -27,6 +27,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <glib.h>
+
 #include "arglists.h"
 #include "system_internal.h"
 
@@ -390,12 +392,12 @@ void arg_dump(args, level)
 			case ARG_INT :
 			fprintf(stderr, "%sargs->%s : %d\n",spaces+(20-level),
 			args->name,
-			(int)args->value);
+			GPOINTER_TO_SIZE(args->value));
 			break;
 			default :
 			fprintf(stderr, "%sargs->%s : %d\n",spaces+(20-level),
 			args->name,
-			(int)args->value);
+			GPOINTER_TO_SIZE(args->value));
 			break;
 		}
 		args = args->next;

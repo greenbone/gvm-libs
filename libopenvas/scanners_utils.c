@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <sys/types.h>
 
+#include <glib.h>
+
 #include "comm.h"
 #include "network.h"
 #include "services.h"
@@ -42,7 +44,7 @@ comm_send_status(globals, hostname, action,curr,max)
  struct arglist * prefs = arg_get_value(globals,"preferences");
  char * pref = arg_get_value(prefs, "ntp_short_status");
  int short_status;
- int soc = (int)arg_get_value(globals, "global_socket");
+ int soc = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
  char buffer[2048];
 
  if (soc < 0 || soc > 1024) 

@@ -38,6 +38,8 @@
 #include <wait.h>
 #include <time.h>
 
+#include <glib.h>
+
 #include "arglists.h"
 #include "comm.h"
 #include "harglists.h"
@@ -230,7 +232,7 @@ void plug_set_id(desc, id)
  struct arglist * desc;
  int id;
 {
- arg_add_value(desc, "ID", ARG_INT, sizeof(int), (void*)id);
+ arg_add_value(desc, "ID", ARG_INT, sizeof(gpointer), GSIZE_TO_POINTER(id));
  /* If a script_id has been set then set a matching script_oid */
  char *oldid  = arg_get_value(desc, "OID");
  if (oldid != NULL)
@@ -253,7 +255,7 @@ int
 _plug_get_id(desc)
  struct arglist * desc;
 {
- return (int)arg_get_value(desc, "ID");
+ return GPOINTER_TO_SIZE(arg_get_value(desc, "ID"));
 }
 
 int
@@ -266,7 +268,7 @@ void plug_set_oid(desc, id)
   struct arglist * desc;
   char *id;
 {
- int oldid = (int)arg_get_value(desc, "ID");
+ int oldid = GPOINTER_TO_SIZE(arg_get_value(desc, "ID"));
  /* Only allow a scipt_oid to be set if no script_id has already been set */
  if (oldid <= 0)
  {
@@ -619,14 +621,14 @@ void plug_set_timeout(desc, timeout)
  struct arglist * desc; 
  int timeout;
 {
-    arg_add_value(desc, "TIMEOUT", ARG_INT, sizeof(int), (void *)timeout);
+    arg_add_value(desc, "TIMEOUT", ARG_INT, sizeof(gpointer), GSIZE_TO_POINTER(timeout));
 }
 
 
 int _plug_get_timeout(desc)
  struct arglist * desc;
 {
- return (int)arg_get_value(desc, "TIMEOUT");
+ return GPOINTER_TO_SIZE(arg_get_value(desc, "TIMEOUT"));
 }
 
 
@@ -645,9 +647,9 @@ void plug_set_launch(desc, launch)
  struct arglist * desc;
  int launch;
 {
-  if(arg_set_value(desc, "ENABLED", sizeof(int), (void *)launch))
+  if(arg_set_value(desc, "ENABLED", sizeof(gpointer), GSIZE_TO_POINTER(launch)))
   {
-   arg_add_value(desc, "ENABLED", ARG_INT, sizeof(int), (void *)launch);
+   arg_add_value(desc, "ENABLED", ARG_INT, sizeof(gpointer), GSIZE_TO_POINTER(launch));
   }
 }
 
@@ -655,7 +657,7 @@ void plug_set_launch(desc, launch)
 int plug_get_launch(desc)
  struct arglist * desc;
 {
- 	return((int)arg_get_value(desc, "ENABLED"));
+ 	return(GPOINTER_TO_SIZE(arg_get_value(desc, "ENABLED")));
 }	
 	
 	
@@ -822,13 +824,13 @@ void plug_set_category(desc, category)
  struct arglist * desc;
  int category;
 {
-       arg_add_value(desc, "CATEGORY", ARG_INT, sizeof(int), (void *)category);
+       arg_add_value(desc, "CATEGORY", ARG_INT, sizeof(gpointer), GSIZE_TO_POINTER(category));
 }
 
 int _plug_get_category(desc)
  struct arglist * desc;
 {
- return (int)arg_get_value(desc, "CATEGORY");	/* We don't cache this one */
+ return GPOINTER_TO_SIZE(arg_get_value(desc, "CATEGORY"));	/* We don't cache this one */
 }
 
 int plug_get_category(desc)
@@ -1134,20 +1136,18 @@ proto_post_wrapped(desc, port, proto, action, what)
   	     plug_get_hostname(desc), 
 	     proto, naction, idbuffer);
  
+  mark_post(desc, what, action); 
+  soc = GPOINTER_TO_SIZE(arg_get_value(desc, "SOCKET"));
+  internal_send(soc, buffer, INTERNAL_COMM_MSG_TYPE_DATA);
  
- 
+  /*
+   * Mark in the KB that the plugin was sucessful
+   */
+  mark_successful_plugin(desc);
+  efree(&buffer);
+  efree(&naction);
 
-mark_post(desc, what, action); 
-soc = (int)arg_get_value(desc, "SOCKET");
-internal_send(soc, buffer, INTERNAL_COMM_MSG_TYPE_DATA);
- 
- /*
-  * Mark in the KB that the plugin was sucessful
-  */
- mark_successful_plugin(desc);
- efree(&buffer);
- efree(&naction);
- return;
+  return;
 }
 
 /* Pluto end */
@@ -1458,7 +1458,7 @@ void * plug_get_fresh_key(args, name, type)
  int * type;
 {
  struct arglist * globals = arg_get_value(args, "globals");
- int soc = (int)arg_get_value(globals, "global_socket");
+ int soc = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
  int e;
  char * buf = NULL;
  int bufsz = 0;
@@ -1495,7 +1495,7 @@ void * plug_get_fresh_key(args, name, type)
   *type = ARG_INT;
   ret = atoi(buf);
   efree(&buf);
-  return (void*)ret;
+  return GSIZE_TO_POINTER(ret);
  }
 err:
  if ( buf != NULL )efree(&buf);
@@ -1511,7 +1511,7 @@ static void plug_set_replace_key(args, name, type, value, replace)
 {
  struct kb_item ** kb = plug_get_kb(args);
  struct arglist * globals = arg_get_value(args, "globals");
- int soc = (int)arg_get_value(globals, "global_socket");
+ int soc = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
  char * str = NULL;
  int msg;
  
@@ -1534,10 +1534,10 @@ static void plug_set_replace_key(args, name, type, value, replace)
    efree(&value);
    break;
   case ARG_INT :
-   kb_item_add_int(kb, name, (int)value);
+   kb_item_add_int(kb, name, GPOINTER_TO_SIZE(value));
    str = emalloc(strlen(name)+20);
    // RATS: ignore
-   snprintf(str, strlen(name)+20, "%d %s=%d;\n", ARG_INT, name, (int)value);
+   snprintf(str, strlen(name)+20, "%d %s=%d;\n", ARG_INT, name, (int)GPOINTER_TO_SIZE(value));
    break;
  }
  if(str)
@@ -1592,7 +1592,7 @@ scanner_add_port(args, port, proto)
  if(confirm < 0)
  {
   struct arglist * globals = arg_get_value(args, "globals");
-  if(globals)confirm = (int)arg_get_value(globals, "confirm");
+  if(globals)confirm = GPOINTER_TO_SIZE(arg_get_value(globals, "confirm"));
  }
 
  /*
@@ -1616,7 +1616,7 @@ scanner_add_port(args, port, proto)
 
  if(do_send)
  {
-  soc = (int)arg_get_value(args, "SOCKET");
+  soc = GPOINTER_TO_SIZE(arg_get_value(args, "SOCKET"));
   internal_send(soc, buf, INTERNAL_COMM_MSG_TYPE_DATA);
  }
  efree(&buf);
@@ -1723,12 +1723,12 @@ plug_get_key(args, name, type)
   if(res->type == KB_TYPE_INT)
     {
     if( type != NULL ) *type = ARG_INT;
-    ret   = (void*)res->v.v_int;
+    ret   = GSIZE_TO_POINTER(res->v.v_int);
     }
   else
     {
     if(type != NULL)*type = ARG_STRING;
-    ret   = (void*)res->v.v_str;
+    ret   = GSIZE_TO_POINTER(res->v.v_str);
     } 
   kb_item_get_all_free(res);
   return ret;
@@ -1749,12 +1749,12 @@ plug_get_key(args, name, type)
   
    close(sockpair[0]);  
    globals = arg_get_value(args, "globals");  
-   old = (int)arg_get_value(globals, "global_socket");
+   old = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
    close(old);
    soc = dup2(sockpair[1], 4);
    close(sockpair[1]);
-   arg_set_value(globals, "global_socket", sizeof(int), (void*)soc);
-   arg_set_value(args, "SOCKET", sizeof(int), (void*)soc);
+   arg_set_value(globals, "global_socket", sizeof(gpointer), GSIZE_TO_POINTER(soc));
+   arg_set_value(args, "SOCKET", sizeof(gpointer), GSIZE_TO_POINTER(soc));
 
    if ( globals != NULL ) preferences = arg_get_value(globals, "preferences");
    if ( preferences != NULL )
@@ -1776,7 +1776,7 @@ plug_get_key(args, name, type)
      kb_item_rm_all(kb, name); 
      kb_item_add_int(kb, name, old_value);
     if ( type != NULL )*type = ARG_INT;
-    return (void*)old_value;
+    return GSIZE_TO_POINTER(old_value);
    }
    else
    {
@@ -1800,7 +1800,7 @@ plug_get_key(args, name, type)
       struct arglist * globals;
   
       globals = arg_get_value(args, "globals");  
-      upstream = (int)arg_get_value(globals, "global_socket");
+      upstream = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
       close(sockpair[1]);
       _plug_get_key_son = pid;
       sig_term(plug_get_key_sighand_term);
@@ -1906,7 +1906,7 @@ void plug_set_port_transport(args, port, tr)
   char	s[256];
 
   snprintf(s, sizeof(s), "Transports/TCP/%d", port);
-  plug_set_key(args, s, ARG_INT, (void*)tr);
+  plug_set_key(args, s, ARG_INT, GSIZE_TO_POINTER(tr));
 }
 
 int plug_get_port_transport(args, port)
@@ -2051,7 +2051,7 @@ int shared_socket_register ( struct arglist * args, int fd, char * name )
  int type;
  unsigned int opt_len = sizeof(type);
  int e;  
- soc = (int)arg_get_value(args, "SOCKET");
+ soc = GPOINTER_TO_SIZE(arg_get_value(args, "SOCKET"));
  if ( fd_is_stream(fd) )
   fd = nessus_get_socket_from_connection(fd);
 
@@ -2076,7 +2076,7 @@ int shared_socket_acquire ( struct arglist * args, char * name )
  int bufsz = 0;
  int msg;
 
- soc = (int)arg_get_value(args, "SOCKET");
+ soc = GPOINTER_TO_SIZE(arg_get_value(args, "SOCKET"));
 
  /* Wait forever until SHARED_SOCKET_ACQUIRE is true */
  for ( ;; )
@@ -2108,7 +2108,7 @@ int shared_socket_release ( struct arglist * args, char * name )
 {
  int soc; 
 
- soc = (int)arg_get_value(args, "SOCKET");
+ soc = GPOINTER_TO_SIZE(arg_get_value(args, "SOCKET"));
  return internal_send(soc, name, INTERNAL_COMM_MSG_SHARED_SOCKET|INTERNAL_COMM_SHARED_SOCKET_RELEASE);
 }
 
@@ -2116,6 +2116,6 @@ int shared_socket_destroy ( struct arglist * args, char * name )
 {
  int soc; 
 
- soc = (int)arg_get_value(args, "SOCKET");
+ soc = GPOINTER_TO_SIZE(arg_get_value(args, "SOCKET"));
  return internal_send(soc, name, INTERNAL_COMM_MSG_SHARED_SOCKET|INTERNAL_COMM_SHARED_SOCKET_DESTROY);
 }

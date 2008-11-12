@@ -29,6 +29,8 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include <glib.h>
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -937,9 +939,9 @@ harg_inct
     if (inc_op_creates_record (incop)) {
       if (R == 0 && (R = (harg**)make_hlst (a->x, key, klen)) == 0)
 	return -1;
-      *R = create_harg (type, (void*)inc, sizeof (int));
+      *R = create_harg (type, GSIZE_TO_POINTER(inc), sizeof (gpointer));
       errno = 0;
-      return (int)(*R)->d.d.ptr [0];
+      return GPOINTER_TO_SIZE((*R)->d.d.ptr [0]);
     }
     errno = ENOENT;
     return -1;
@@ -957,26 +959,26 @@ harg_inct
       errno = EEXIST;
       return -1;
     }
-    r->d.d.ptr [0] = (void*)((int)(r->d.d.ptr [0]) + inc) ;
-    return (int)r->d.d.ptr [0];
+    r->d.d.ptr [0] = GSIZE_TO_POINTER(GPOINTER_TO_SIZE(r->d.d.ptr [0]) + inc) ;
+    return GPOINTER_TO_SIZE(r->d.d.ptr [0]);
   }
 
   /* decrement */
-  if (inc_op_notnegtv_record (incop) && (int)r->d.d.ptr [0] < inc) {
+  if (inc_op_notnegtv_record (incop) && GPOINTER_TO_SIZE(r->d.d.ptr [0]) < inc) {
     errno = ERANGE;
     return -1;
   }
-  if (inc_op_notpostv_record (incop) && (int)r->d.d.ptr [0] > inc) {
+  if (inc_op_notpostv_record (incop) && GPOINTER_TO_SIZE(r->d.d.ptr [0]) > inc) {
     errno = ERANGE;
     return -1;
   }
-  if (inc_op_destroy0_record (incop) && (int)r->d.d.ptr [0] <= inc) {
+  if (inc_op_destroy0_record (incop) && GPOINTER_TO_SIZE(r->d.d.ptr [0]) <= inc) {
     delete_hlst (a->x, key, klen);
     return errno = 0;
   }
-  r->d.d.ptr [0] = (void*)((int)(r->d.d.ptr [0]) - inc) ;
+  r->d.d.ptr [0] = GSIZE_TO_POINTER(GPOINTER_TO_SIZE(r->d.d.ptr [0]) - inc) ;
   errno = 0 ;
-  return (int)r->d.d.ptr [0];
+  return GPOINTER_TO_SIZE(r->d.d.ptr [0]);
 }
 
 void harg_sort(harglst *a) {

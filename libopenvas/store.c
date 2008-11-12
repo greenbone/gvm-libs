@@ -34,6 +34,8 @@
 #include <time.h>
 #include <sys/param.h>
 
+#include <glib.h>
+
 #include "store_internal.h"
 #include "share_fd.h"
 #include "system.h"
@@ -391,7 +393,7 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
  if ( al != NULL ) arg_add_value(ret, "DEPENDENCIES", ARG_ARGLIST, -1, al);
 
  
- if ( p.timeout != 0 ) arg_add_value(ret, "TIMEOUT", ARG_INT, -1, (void*)p.timeout);
+ if ( p.timeout != 0 ) arg_add_value(ret, "TIMEOUT", ARG_INT, -1, GSIZE_TO_POINTER(p.timeout));
 
  arg_add_value(ret, "NAME", ARG_STRING, strlen(p.name), estrdup(p.name));
 

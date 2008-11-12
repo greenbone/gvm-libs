@@ -34,6 +34,8 @@
 #include <stdlib.h>
 #include <signal.h>
 
+#include <glib.h>
+
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 
@@ -820,7 +822,7 @@ open_SSL_connection(nessus_connection *fp, int timeout,
   /* for non-blocking sockets, gnutls requires a 0 lowat value */
   gnutls_transport_set_lowat(fp->tls_session, 0);
 
-  gnutls_transport_set_ptr(fp->tls_session, (gnutls_transport_ptr_t) fp->fd);
+  gnutls_transport_set_ptr(fp->tls_session, (gnutls_transport_ptr_t) GSIZE_TO_POINTER(fp->fd));
 
   tictac = time(NULL);
 
@@ -1262,7 +1264,7 @@ ovas_server_context_attach(ovas_server_context_t ctx, int soc)
 					    : GNUTLS_CERT_REQUEST);
 
       gnutls_transport_set_ptr(fp->tls_session,
-			       (gnutls_transport_ptr_t) fp->fd);
+			       (gnutls_transport_ptr_t) GSIZE_TO_POINTER(fp->fd));
       ret = gnutls_handshake(fp->tls_session);
       if (ret < 0)
 	{
@@ -2370,8 +2372,8 @@ auth_printf(struct arglist * globals, char * data, ...)
 void
 auth_send(struct arglist * globals, char * data)
 {
- int soc = (int)arg_get_value(globals, "global_socket");
- int confirm = (int)arg_get_value(globals, "confirm");
+ int soc = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
+ int confirm = GPOINTER_TO_SIZE(arg_get_value(globals, "confirm"));
  int n = 0;
  int length;
  int sent = 0;
@@ -2433,7 +2435,7 @@ auth_gets(globals, buf, bufsiz)
      char * buf;
      size_t bufsiz;
 {
-  int soc = (int)arg_get_value(globals, "global_socket");
+  int soc = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
   int n;
   /* bzero(buf, bufsiz); */
   n = recv_line(soc, buf, bufsiz);
