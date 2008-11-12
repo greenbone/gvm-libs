@@ -28,7 +28,7 @@ dnl --enable-release
 
 AC_INIT(.root-dir)
 AC_REVISION($Revision$)dnl
-
+AC_PREREQ(2.50)
 
 PWDD=`pwd`	
 VERSION=`cat VERSION`
