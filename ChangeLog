@@ -1,3 +1,14 @@
+2008-11-13  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Narrowed down space for fingerprints in servers cache.
+
+	Attention: Server cache has to be rebuilt!
+	(remove  .desc in plugin directory)
+
+	* libopenvas/store_internal.h : Decreased fingerprint array size.
+
+	* ChangeLog : Email typo fixed.
+
 2008-11-12  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Applying patch provided by Stjepan Gros to improve 64-bit cleanliness.
@@ -77,7 +88,7 @@
 	* INSTALL_README: Updated note regarding gnutls version requirements as
 	pointed out by Toan Nguyen.
 
-2008-11-05  Felix Wolfsteller <felix.wolfstelller@intevation.de>
+2008-11-05  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 	
 	Work on Change Request #17 (http://www.openvas.org/openvas-cr-17.html - 
 	"OTP: Make NVT signatures available to OpenVAS-Client").
@@ -86,7 +97,7 @@
 	* libopenvas/store.c (store_load_plugin): Fixed tests about signature 
 	file, replaced obsolete ID check by OID check, removed dummy string.
 
-2008-10-31  Felix Wolfsteller <felix.wolfstelller@intevation.de>
+2008-10-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Steps to an implementation of Change Request #17 
 	(http://www.openvas.org/openvas-cr-17.html - "Make NVT signatures 

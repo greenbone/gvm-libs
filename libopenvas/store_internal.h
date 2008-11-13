@@ -39,7 +39,9 @@ struct plugin {
 	char excluded_keys	[128];
 	char required_ports	[64];
 	char required_udp_ports	[64];
-	char sign_key_ids	[128];
+	char sign_key_ids	[3*48+2]; // Store up to 3 fingerprints. Change
+                                          // nasl_signature.c if you effectively
+                                          // want to increase max nr. of fprs.
 	int has_prefs:1;
 };
 	
