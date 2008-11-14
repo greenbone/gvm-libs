@@ -1,5 +1,15 @@
 2008-11-14  Michael Wiegand <michael.wiegand@intevation.de>
 
+	Preparing the 2.0-beta2 release.
+
+	* VERSION: Set to 2.0.0.beta2.
+
+	* MANIFEST: Updated.
+
+	* CHANGES: Updated.
+
+2008-11-14  Michael Wiegand <michael.wiegand@intevation.de>
+
 	* openvas-libraries.tmpl.in: Added datarootdir to remove configure
 	warning and to be compatible with autoconf 2.60 (see
 	http://www.gnu.org/software/libtool/manual/autoconf/Changed-Directory-Variables.html).

@@ -6,13 +6,7 @@ config.guess
 config.sub
 configure
 configure.in
-packaging/debian/control
-packaging/debian/compat
-packaging/debian/libopenvas1-dev.install
-packaging/debian/changelog
-packaging/debian/libopenvas1.install
-packaging/debian/copyright
-packaging/debian/rules
+packaging/debian/
 packaging/opensuse/
 packaging/fedora/
 include/config.h.in
