@@ -380,24 +380,24 @@ void arg_dump(args, level)
 			case ARG_STRING :
 			
 			fprintf(stderr, "%sargs->%s : %s\n",spaces+(20-level),
-			args->name,
-			(char *)args->value);
+				args->name,
+				(char *)args->value);
 			break;
 			case ARG_ARGLIST :
 			
 			fprintf(stderr, "%sargs->%s :\n", spaces+(20-level),
-			args->name);
-			arg_dump(args->value, level+1);
+				args->name);
+				arg_dump(args->value, level+1);
 			break;
 			case ARG_INT :
 			fprintf(stderr, "%sargs->%s : %d\n",spaces+(20-level),
-			args->name,
-			GPOINTER_TO_SIZE(args->value));
+				args->name,
+				(int)GPOINTER_TO_SIZE(args->value));
 			break;
 			default :
 			fprintf(stderr, "%sargs->%s : %d\n",spaces+(20-level),
-			args->name,
-			GPOINTER_TO_SIZE(args->value));
+				args->name,
+				(int)GPOINTER_TO_SIZE(args->value));
 			break;
 		}
 		args = args->next;

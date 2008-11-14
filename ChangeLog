@@ -1,3 +1,10 @@
+2008-11-14  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Applying patch provided by Stjepan Gros.
+
+	* libopenvas/arglists.c (arg_dump): Minor reformattings, added cast to
+	avoid fprintf format string warning.
+
 2008-11-13  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Narrowed down space for fingerprints in servers cache.
