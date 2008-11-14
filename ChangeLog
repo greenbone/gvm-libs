@@ -1,5 +1,11 @@
 2008-11-14  Michael Wiegand <michael.wiegand@intevation.de>
 
+	* openvas-libraries.tmpl.in: Added datarootdir to remove configure
+	warning and to be compatible with autoconf 2.60 (see
+	http://www.gnu.org/software/libtool/manual/autoconf/Changed-Directory-Variables.html).
+
+2008-11-14  Michael Wiegand <michael.wiegand@intevation.de>
+
 	Applying patch provided by Stjepan Gros.
 
 	* libopenvas/arglists.c (arg_dump): Minor reformattings, added cast to
