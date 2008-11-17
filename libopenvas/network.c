@@ -434,7 +434,7 @@ ovas_get_tlssession_from_connection(fd)
   if (!NESSUS_STREAM(fd)) return NULL;
 
   fp = connections + (fd - NESSUS_FD_OFF);
-  return fp->tls_session;
+  return &fp->tls_session;
 }
 
 static int
@@ -836,7 +836,10 @@ open_SSL_connection(nessus_connection *fp, int timeout,
 	  return 1;
 	}
 
-      if (err != GNUTLS_E_INTERRUPTED && err != GNUTLS_E_AGAIN)
+      if (err != GNUTLS_E_INTERRUPTED
+          && err != GNUTLS_E_AGAIN
+          && errno != EINTR
+          && errno != EAGAIN)
 	{
 #ifdef DEBUG_SSL
 	  tlserror("gnutls_handshake", err);
@@ -1265,9 +1268,15 @@ ovas_server_context_attach(ovas_server_context_t ctx, int soc)
 
       gnutls_transport_set_ptr(fp->tls_session,
 			       (gnutls_transport_ptr_t) GSIZE_TO_POINTER(fp->fd));
+ retry:
       ret = gnutls_handshake(fp->tls_session);
       if (ret < 0)
 	{
+          if (ret == GNUTLS_E_AGAIN
+              || ret == GNUTLS_E_INTERRUPTED
+              || errno == EAGAIN
+              || errno == EINTR)
+             goto retry;
 #ifdef DEBUG_SSL
 	  tlserror("gnutls_handshake", ret);
 #endif

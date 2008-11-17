@@ -1,3 +1,11 @@
+2008-11-17  Matthew Mundell <matt@mundell.ukfsn.org>
+
+	* libopenvas/network.c (ovas_get_tlssession_from_connection): Return
+	address instead of value, to match return type.
+	(open_SSL_connection): Check errno for EINTR and EAGAIN after
+	gnutls_handshake.
+	(ovas_server_context_attach): Retry gnutls_handshake if necessary.
+
 2008-11-14  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post release version bump.
