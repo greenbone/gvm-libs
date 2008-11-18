@@ -1,5 +1,10 @@
 2008-11-18  Michael Wiegand <michael.wiegand@intevation.de>
 
+	* libopenvas/share_fd.c: Re-added missing include that resulted in
+	recv_fd failing due to missing defines.
+
+2008-11-18  Michael Wiegand <michael.wiegand@intevation.de>
+
 	Fixing version requirements for glib as pointed out by atomicturtle.
 
 	* configure.in: Updated glib requirements to >= 2.6.0
