@@ -1,3 +1,11 @@
+2008-11-18  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Fixing version requirements for glib as pointed out by atomicturtle.
+
+	* configure.in: Updated glib requirements to >= 2.6.0
+
+	* configure: Regenerated.
+
 2008-11-17  Matthew Mundell <matt@mundell.ukfsn.org>
 
 	* libopenvas/network.c (ovas_get_tlssession_from_connection): Return
