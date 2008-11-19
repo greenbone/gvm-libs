@@ -1,3 +1,7 @@
+2008-11-18  Tim Brown <timb@nth-dimension.org.uk>
+
+	* packaging/debian/changelog: Updated.
+
 2008-11-18  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/share_fd.c: Re-added missing include that resulted in
