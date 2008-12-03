@@ -390,6 +390,43 @@ char * plug_get_xref(struct arglist * desc)
  return store_fetch_xref(desc);
 }
 
+void plug_set_tag(desc, name, value)
+ struct arglist * desc;
+ char * name, * value;
+{
+ char * old = arg_get_value(desc, "TAGS");
+ if(old != NULL)
+ { 
+  old = erealloc(old, strlen(old) + strlen(name) + strlen(value) + 3);
+  strcat(old, "|");
+  strcat(old, name); /* RATS: ignore */ 
+  strcat(old, "=");
+  strcat(old, value); /* RATS: ignore */ 
+  arg_set_value(desc, "TAGS", strlen(old), old);
+ }
+ else 
+  {
+  char * str;
+  
+  str = emalloc(strlen(name) + strlen(value) + 2);
+  strcat(str, name); /* RATS: ignore */ 
+  strcat(str, "=");
+  strcat(str, value); /* RATS: ignore */ 
+  arg_add_value(desc, "TAGS", ARG_STRING, strlen(str), str);
+  }
+}
+
+char * _plug_get_tag(desc)
+ struct arglist * desc;
+{
+ return arg_get_value(desc, "TAGS");
+}
+
+char * plug_get_tag(struct arglist * desc)
+{
+ return store_fetch_tag(desc);
+}
+
 /* Set string that lists signature keys for a plugin or add it, when not empty.
  * Key-ids are stored as comma- seperated list ('ABCDEFGH,ABCDEFG1').
  */

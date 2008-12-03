@@ -525,6 +525,10 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
 #endif
  e = safe_copy(str, plug.xref, sizeof(plug.xref), path, "xref id");
  if(e < 0)return NULL;
+
+ str = _plug_get_tag(plugin);
+ e = safe_copy(str, plug.tag, sizeof(plug.tag), path, "tag");
+ if(e < 0)return NULL;
  
  arglist = _plug_get_deps(plugin);
  str = arglist2str(arglist);
@@ -747,6 +751,15 @@ char * store_fetch_xref(struct arglist * desc)
  return p.xref;
 }
 
+char * store_fetch_tag(struct arglist * desc)
+{
+ char * fname = _plug_get_fname(desc);
+ static struct plugin p;
+ 
+ store_get_plugin(&p, fname);
+ return p.tag;
+}
+
 struct arglist * store_fetch_dependencies(struct arglist * desc)
 {
  char * fname = _plug_get_fname(desc);
@@ -826,6 +839,7 @@ void store_dump_plugin(int id)
  printf("cve_id : %s\n",  plugin.cve_id);
  printf("bid : %s\n",  plugin.bid);
  printf("xrefs : %s\n",  plugin.xrefs);
+ printf("tags : %s\n",  plugin.tags);
  printf("dependencies: %s\n", plugin.dependencies);
  printf("required_keys : %s\n", plugin.required_keys);
  printf("excluded_key : %s\n", plugin.excluded_keys);

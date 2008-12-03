@@ -87,6 +87,9 @@ char*plug_get_bugtraq_id(struct arglist *);
 void plug_set_xref(struct arglist *, char *, char *);
 char * plug_get_xref(struct arglist *);
 
+void plug_set_tag(struct arglist *, char *, char *);
+char * plug_get_tag(struct arglist *);
+
 void plug_set_sign_key_ids(struct arglist*, char*);
 char* plug_get_sign_key_ids(struct arglist*);
 

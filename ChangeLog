@@ -1,3 +1,19 @@
+2008-12-03  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Implementing CR #22 (New script_tag Command,
+	http://www.openvas.org/openvas-cr-22.html).
+
+	* libopenvas/plugutils.c: Added plug_set_tag, plug_get_tag and
+	_plug_get_tag functions.
+
+	* libopenvas/store_internal.h: Added tag field to struct, incremented
+	magic number, updated function declarations.
+
+	* libopenvas/plugutils.h: Updated function declarations.
+
+	* libopenvas/store.c: Added store_fetch_tag function. (store_plugin)
+	Added support for script_tag.
+
 2008-11-18  Tim Brown <timb@nth-dimension.org.uk>
 
 	* packaging/debian/changelog: Updated.
