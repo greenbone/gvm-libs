@@ -1,3 +1,8 @@
+2008-12-04  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* libopenvas/plugutils.c : Changed comment style, added param 
+	documentation for plug_set_sign_key_ids.
+
 2008-12-04  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Checking for potential code quality issues ahead of the 2.0-rc1

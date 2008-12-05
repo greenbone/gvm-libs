@@ -88,7 +88,7 @@ int nessuslib_pthreads_enabled()
 
 
 
-/*
+/**
  * Escapes \n and \r properly. The resulting string
  * is copied in another buffer.
  */
@@ -127,7 +127,7 @@ addslashes(in)
  return realloc(ret, strlen(ret) + 1);
 }
 
-/*
+/**
  * Replaces escape codes (\n, \r) by the real value
  * The resulting string is stored in another buffer
  */
@@ -427,8 +427,11 @@ char * plug_get_tag(struct arglist * desc)
  return store_fetch_tag(desc);
 }
 
-/* Set string that lists signature keys for a plugin or add it, when not empty.
+/**
+ * Set string that lists signature keys for a plugin or add it, when not empty.
  * Key-ids are stored as comma- seperated list ('ABCDEFGH,ABCDEFG1').
+ * @param desc Plugin as arglist.
+ * @param key_ids Comma-separated fingerprints.
  */
 void plug_set_sign_key_ids(struct arglist* desc, char* key_ids)
 {
@@ -447,7 +450,9 @@ void plug_set_sign_key_ids(struct arglist* desc, char* key_ids)
   }
 }
 
-/* Return pointer to the string that lists signature keys for a plugin */
+/**
+ * Return pointer to the string that lists signature keys for a plugin
+ */
 char* plug_get_sign_key_ids(struct arglist* desc)
 {
   return arg_get_value(desc, "SIGN_KEY_IDS");
@@ -1072,7 +1077,9 @@ mark_post(desc, action, content)
 
  
  
-/* Pluto 24.6.00: reduced to one, and left the orig in place */
+/**
+ * Pluto 24.6.00: reduced to one, and left the orig in place
+ */
 void 
 proto_post_wrapped(desc, port, proto, action, what)
  struct arglist * desc;
