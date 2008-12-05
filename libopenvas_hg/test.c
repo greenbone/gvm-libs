@@ -22,7 +22,7 @@ int main(int argc, char * argv[])
  int flags = 0;
  
   struct in_addr ip;
- while((i=getopt(argc, argv, "dpsnD"))!=-1)
+ while((i=getopt(argc, argv, "dpsnD"))!=-1) /* RATS: ignore */
   switch(i)
   {
   case 'd' : flags |= HG_DNS_AXFR;break;

@@ -300,7 +300,7 @@ void plug_set_cve_id(desc, id)
  if(old != NULL)
  {
   old = erealloc(old, strlen(old) + strlen(id) + 3);
-  strcat(old, ", ");
+  strcat(old, ", "); /* RATS: ignore */
   /* Rid ff warnings */
   /* Stmt's valid since len(id)+len(old)+len('\0'+", ") = size of realloc'd memory*/
   strcat(old, id); /* RATS: ignore */ 
@@ -332,7 +332,7 @@ void plug_set_bugtraq_id(desc, id)
  if(old != NULL)
  { 
   old = erealloc(old, strlen(old) + strlen(id) + 3);
-  strcat(old, ", ");
+  strcat(old, ", "); /* RATS: ignore */
   strcat(old, id); /* RATS: ignore */ 
   arg_set_value(desc, "BUGTRAQ_ID", strlen(old), old);
  }
@@ -361,9 +361,9 @@ void plug_set_xref(desc,name, value)
  if(old != NULL)
  { 
   old = erealloc(old, strlen(old) + strlen(name) + strlen(value) + 4);
-  strcat(old, ", ");
+  strcat(old, ", "); /* RATS: ignore */
   strcat(old, name); /* RATS: ignore */ 
-  strcat(old, ":");
+  strcat(old, ":"); /* RATS: ignore */
   strcat(old, value); /* RATS: ignore */ 
   arg_set_value(desc, "XREFS", strlen(old), old);
  }
@@ -898,7 +898,7 @@ void host_add_port_proto(args, portnum, state, proto)
 {
  char port_s[255];
  
- snprintf(port_s, sizeof(port_s), "Ports/%s/%d", proto, portnum);
+ snprintf(port_s, sizeof(port_s), "Ports/%s/%d", proto, portnum); /* RATS: ignore */
  plug_set_key(args, port_s, ARG_INT, (void*)1);
 }
 
@@ -982,7 +982,7 @@ int kb_get_port_state_proto(kb, prefs, portnum, proto)
  
  /* Ok, we scanned it. What is its state ? */
  
- snprintf(port_s, sizeof(port_s), "Ports/%s/%d", proto, portnum);
+ snprintf(port_s, sizeof(port_s), "Ports/%s/%d", proto, portnum); /* RATS: ignore */
  if(kb_item_get_int(kb, port_s) > 0 )
     return 1;
   else
@@ -1051,7 +1051,7 @@ mark_successful_plugin(desc)
  
 
  bzero(data, sizeof(data));
- snprintf(data, sizeof(data), "Success/%s", oid);
+ snprintf(data, sizeof(data), "Success/%s", oid); /* RATS: ignore */
  plug_set_key(desc, data, ARG_INT,(void*)1);
 }
 
@@ -1066,7 +1066,7 @@ mark_post(desc, action, content)
  if(strlen(action) > (sizeof(entry_name) - 20))
   return;
   
- snprintf(entry_name, sizeof(entry_name), "SentData/%s/%s", plug_get_oid(desc), action);
+ snprintf(entry_name, sizeof(entry_name), "SentData/%s/%s", plug_get_oid(desc), action); /* RATS: ignore */
  plug_set_key(desc, entry_name, ARG_STRING, content);
 }
 
@@ -1116,20 +1116,20 @@ proto_post_wrapped(desc, port, proto, action, what)
  strcat(naction, "\n");
  if( cve != NULL && cve[0] != '\0')
         {
-	 strcat(naction, "CVE : ");
+	 strcat(naction, "CVE : "); /* RATS: ignore */ 
 	 strcat(naction, cve); /* RATS: ignore */ 
 	 strcat(naction, "\n");
 	 }
  
  if( bid != NULL && bid[0] != '\0' )
  	{
-	 strcat(naction, "BID : ");
+	 strcat(naction, "BID : "); /* RATS: ignore */ 
 	 strcat(naction, bid); /* RATS: ignore */ 
 	 strcat(naction, "\n");
 	 }	
  if( xref != NULL && xref[0] != '\0' )
  	{
-	strcat(naction, "Other references : ");
+	strcat(naction, "Other references : "); /* RATS: ignore */ 
 	strcat(naction, xref); /* RATS: ignore */ 
 	strcat(naction, "\n");
 	}
@@ -1156,7 +1156,7 @@ proto_post_wrapped(desc, port, proto, action, what)
        *idbuffer = '\0';
      } else {
        char * oid = plug_get_oid(desc);
-       snprintf(idbuffer, sizeof(idbuffer), "<|> %s ", oid);
+       snprintf(idbuffer, sizeof(idbuffer), "<|> %s ", oid); /* RATS: ignore */
      }
   if(port>0){
      snprintf(buffer, 1024 + len, 
@@ -1410,7 +1410,7 @@ void add_plugin_preference(desc, name, type, defaul)
   }
  
 
- snprintf(pref, sizeof(pref), "%s/%s", type, name);
+ snprintf(pref, sizeof(pref), "%s/%s", type, name); /* RATS: ignore */
  arg_add_value(prefs, pref, ARG_STRING, strlen(defaul), estrdup(defaul));
 }
 
@@ -1639,7 +1639,7 @@ scanner_add_port(args, port, proto)
  if(arg_get_value(args, "DIFF_SCAN"))
  {
    char port_s[255];
-   snprintf(port_s, sizeof(port_s), "Ports/%s/%d", proto, port);
+   snprintf(port_s, sizeof(port_s), "Ports/%s/%d", proto, port); /* RATS: ignore */
    if(kb_item_get_int(plug_get_kb(args), port_s) > 0) do_send = 0;
  }
 
@@ -1800,7 +1800,7 @@ plug_get_key(args, name, type)
     if ( to != NULL )  tictac = atoi(to);
    }
 
-   srand48(getpid() + getppid() + time(NULL));
+   srand48(getpid() + getppid() + time(NULL)); /* RATS: ignore */
  
    sig_term(_exit);
    sig_alarm(_exit);
@@ -1915,7 +1915,7 @@ plug_get_host_open_port(struct arglist * desc)
 
      kb_item_get_all_free(k);
      if ( num_candidates != 0 )
-       return candidates[lrand48() % num_candidates];
+       return candidates[lrand48() % num_candidates]; /* RATS: ignore */
      else  
           if (open21) return 21;
      else  
@@ -1942,7 +1942,7 @@ void plug_set_port_transport(args, port, tr)
 {
   char	s[256];
 
-  snprintf(s, sizeof(s), "Transports/TCP/%d", port);
+  snprintf(s, sizeof(s), "Transports/TCP/%d", port); /* RATS: ignore */
   plug_set_key(args, s, ARG_INT, GSIZE_TO_POINTER(tr));
 }
 
@@ -1953,7 +1953,7 @@ int plug_get_port_transport(args, port)
   char	s[256];
   int trp;
   
-  snprintf(s, sizeof(s), "Transports/TCP/%d", port);
+  snprintf(s, sizeof(s), "Transports/TCP/%d", port); /* RATS: ignore */
   trp = kb_item_get_int(plug_get_kb(args), s);
   if (trp >= 0)
     return trp;
@@ -1976,7 +1976,7 @@ plug_set_ssl_item(args, item, itemfname)
  char * itemfname;
 {
  char s[256];
- snprintf(s, sizeof(s), "SSL/%s", item);
+ snprintf(s, sizeof(s), "SSL/%s", item); /* RATS: ignore */
  plug_set_key(args, s, ARG_STRING, itemfname);
 }
 
@@ -2023,14 +2023,7 @@ find_in_path(name, safe)
   if (len >= MAXPATHLEN)
     return NULL;
 
-#if 0
-  /* Proposed by Devin Kowatch 
-     If it's already an absolute path take it as is */
-  if (name[0] == '/' && access(name, X_OK) == 0)	
-    return name;	/* Invalid: we should remove everything after the last / */
-#endif
-
-  if (buf == NULL)		/* Should we use a standard PATH here? */
+ if (buf == NULL)		/* Should we use a standard PATH here? */
     return NULL;
 
   pbuf = buf;
@@ -2051,7 +2044,7 @@ find_in_path(name, safe)
 	/* path too long: cannot be reached */
 	continue;
 
-      sprintf(p2, "/%s", name);
+      snprintf(p2, MAXPATHLEN, "/%s", name); /* RATS: ignore */
       if (access(cmd, X_OK) == 0)
 	{
 	  struct stat	st;

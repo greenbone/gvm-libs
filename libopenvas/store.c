@@ -72,8 +72,8 @@ static char * arglist2str(struct arglist * arg)
     sz = strlen(arg->name) + 3 + strlen(ret) * 2;
     ret = erealloc(ret, sz);
    }
-   strcat(ret, ", ");
-   strcat(ret, arg->name); /* Flawfinder: ignore */ 
+   strncat(ret, ", ", sz - 1); /* RATS: ignore */
+   strncat(ret, arg->name, sz - 1); /* RATS: ignore */ 
    arg = arg->next;
  }
  return ret;
@@ -130,7 +130,7 @@ static int safe_copy(char * str, char * dst, int sz, char * path, char * item)
   fprintf(stderr, "openvas-libraries/libopenvas/store.c: %s has a too long %s (%ld)\n", path, item, (long)strlen(str));
   return -1;
  }
- strcpy(dst, str); /* Flawfinder: ignore */
+ strcpy(dst, str); /* RATS: ignore */
  return 0;
 }
 /*-----------------------------------------------------------------------------*/
@@ -159,7 +159,7 @@ int store_init_sys(char * dir)
 {
  current_mode = MODE_SYS;
  
- snprintf(sys_store_dir, sizeof(sys_store_dir), "%s/.desc", dir);
+ snprintf(sys_store_dir, sizeof(sys_store_dir), "%s/.desc", dir); /* RATS: ignore */
  if((mkdir(sys_store_dir, 0755) < 0) && (errno != EEXIST))
  {
   fprintf(stderr, "mkdir(%s) : %s\n", sys_store_dir, strerror(errno));
@@ -181,7 +181,7 @@ int store_init_sys(char * dir)
 int store_init_user(char * dir)
 {
  current_mode = MODE_USR;
- snprintf(usr_store_dir, sizeof(usr_store_dir), "%s/.desc", dir);
+ snprintf(usr_store_dir, sizeof(usr_store_dir), "%s/.desc", dir); /* RATS: ignore */
  if((mkdir(usr_store_dir, 0755) < 0) && (errno != EEXIST))
  {
   fprintf(stderr, "mkdir(%s) : %s\n", usr_store_dir, strerror(errno));
@@ -211,13 +211,13 @@ static int store_get_plugin_f(struct plugin * plugin, struct pprefs * pprefs, ch
  if(dir == NULL || dir[0] == '\0' || file == NULL || file[0] == '\0')
  	return -1;
  
- snprintf(file_name, sizeof(file_name), "%s/%s", dir, file);
+ snprintf(file_name, sizeof(file_name), "%s/%s", dir, file); /* RATS: ignore */
  str = strrchr(file_name, '.');
  if(str != NULL)
  {
   str[0] = '\0';
   if(strlen(file_name) + 6 < sizeof(file_name))
-  	strcat(file_name, ".desc");
+  	strncat(file_name, ".desc", MAXPATHLEN); /* RATS: ignore */
  }
 
  if(file == NULL)
@@ -305,20 +305,20 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
  bzero(pp, sizeof(pp));
 
  /* Assemble file paths to stat them later */
- snprintf(desc_file, sizeof(desc_file), "%s/.desc/%s", dir, file);
+ snprintf(desc_file, sizeof(desc_file), "%s/.desc/%s", dir, file); /* RATS: ignore */
  str = strrchr(desc_file, '.');
  if( str != NULL )
  {
   str[0] = '\0';
   if(	strlen(desc_file) + 6 < sizeof(desc_file) )
-  	strcat(desc_file, ".desc");
+  	strncat(desc_file, ".desc", MAXPATHLEN); /* RATS: ignore */
  }
 
- snprintf(asc_file, sizeof(asc_file), "%s/%s", dir, file);
+ snprintf(asc_file, sizeof(asc_file), "%s/%s", dir, file); /* RATS: ignore */
 
  if( strlen(asc_file) + 5 < sizeof(desc_file) )
  {
-   strcat(asc_file, ".asc");
+   strncat(asc_file, ".asc", MAXPATHLEN); /* RATS: ignore */
  }
  else
  {
@@ -326,7 +326,7 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
    return NULL;
  }
 
- snprintf(plug_file, sizeof(plug_file), "%s/%s", dir, file);
+ snprintf(plug_file, sizeof(plug_file), "%s/%s", dir, file); /* RATS: ignore */
 
  /* Plugin and cache file have to exist */
  if (  stat(plug_file, &stat_plug) < 0 || stat(desc_file, &stat_desc) < 0)
@@ -357,7 +357,7 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
    }
 
 
- snprintf(store_dir, sizeof(store_dir), "%s/.desc", dir);
+ snprintf(store_dir, sizeof(store_dir), "%s/.desc", dir); /* RATS: ignore */
  if(store_get_plugin_f(&p, pp, store_dir, file) < 0)
   return NULL;
 
@@ -444,17 +444,17 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
   str[0] = '\0';
  }
  strcat(path, "/");
- strcat(path, file); /* Flawfinder: ignore */
+ strcat(path, file); /* RATS: ignore */
 
  
  
- snprintf(desc_file, sizeof(desc_file), "%s/%s", dir, file);
+ snprintf(desc_file, sizeof(desc_file), "%s/%s", dir, file); /* RATS: ignore */
  str = strrchr(desc_file, '.');
  if( str != NULL )
  {
   str[0] = '\0';
   if(strlen(desc_file) + 6 < sizeof(desc_file) )
-  	strcat(desc_file, ".desc");
+  	strncat(desc_file, ".desc", MAXPATHLEN); /* RATS: ignore */
  }
 
  

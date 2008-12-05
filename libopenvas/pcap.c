@@ -283,7 +283,7 @@ if (bytesleft == 0) {
     }
     /* Seed our random generator */
     gettimeofday(&tv, NULL);
-    srand((tv.tv_sec ^ tv.tv_usec) ^ getpid());
+    srand((tv.tv_sec ^ tv.tv_usec) ^ getpid()); /* RATS: ignore */
 
     for(i=0; i < sizeof(bytebuf) / sizeof(short); i++) {
       iptr = (short *) ((char *)bytebuf + i * sizeof(short));

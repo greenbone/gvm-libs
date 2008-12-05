@@ -46,18 +46,18 @@ nessus_init_random()
       fclose(fp);
     }
   x += time(NULL) + getpid() + getppid();
-  srand48(x);
+  srand48(x); /* RATS: ignore */
 }
 
 #ifndef HAVE_LRAND48
 
-long lrand48()
+long lrand48() /* RATS: ignore */
 {
  return rand();
 }
 
-void srand48(long seed)
+void srand48(long seed) /* RATS: ignore */
 { 
- srand(seed);
+ srand(seed); /* RATS: ignore */
 }
 #endif

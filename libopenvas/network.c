@@ -1899,7 +1899,7 @@ get_encaps_name(code)
   case NESSUS_ENCAPS_TLSv1:
     return "TLSv1";
   default:
-   snprintf(str, sizeof(str), "[unknown transport layer - code %d (0x%x)]", code, code);
+   snprintf(str, sizeof(str), "[unknown transport layer - code %d (0x%x)]", code, code); /* RATS: ignore */
    return str;
  }
 }
@@ -1919,7 +1919,7 @@ get_encaps_through(code)
   case NESSUS_ENCAPS_TLSv1:
     return " through SSL";
   default:
-    snprintf(str, sizeof(str), " through unknown transport layer - code %d (0x%x)", code, code);
+    snprintf(str, sizeof(str), " through unknown transport layer - code %d (0x%x)", code, code); /* RATS: ignore */
     return str;
  }
 }
@@ -2091,7 +2091,7 @@ int open_sock_tcp(args, port, timeout)
    * If we timed out against this port in the past, there's no need
    * to scan it again
    */
-  snprintf(name, sizeof(name), "/tmp/ConnectTimeout/TCP/%d", port);
+  snprintf(name, sizeof(name), "/tmp/ConnectTimeout/TCP/%d", port); /* RATS: ignore */
   if ( plug_get_key ( args, name, &type ) ) 
 	return -1;
 
@@ -2149,7 +2149,7 @@ struct in_addr _socket_get_next_source_addr(struct in_addr * addr)
   if ( current_src_addr_pid != mypid )
    {
     current_src_addr_pid = mypid;
-    current_src_addr = lrand48() % ( num_addrs ) ;
+    current_src_addr = lrand48() % ( num_addrs ) ; /* RATS: ignore */
     if ( src_addrs[current_src_addr].s_addr == 0 ) current_src_addr = 0;
    }
   
@@ -2371,6 +2371,7 @@ auth_printf(struct arglist * globals, char * data, ...)
   bzero(buffer, sizeof(buffer));
 
   va_start(param, data);
+  /* RATS: ignore */
   vsnprintf(buffer, sizeof(buffer) - 1, data, param);
   
   va_end(param);

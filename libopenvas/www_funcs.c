@@ -113,7 +113,7 @@ build_encode_URL(data, method, path, name, httpver)
 
   ret = emalloc(l+ 1);
   if (path == NULL)
-    strcpy(ret, name); /* Flawfinder: ignore */
+    strcpy(ret, name);
   else
     sprintf(ret, "%s/%s", path, name);
 
@@ -164,7 +164,7 @@ build_encode_URL(data, method, path, name, httpver)
 	  *s2++ = *s;
 	else
 	  {
-	    strcpy(s2, "/./");
+	    strncpy(s2, "/./", l);
 	    s2 += 3;
 	  }
       while (*s != '\0')
@@ -193,8 +193,8 @@ build_encode_URL(data, method, path, name, httpver)
 	  {
 	    *s2++ = '/';
 	    for (i = reverse_traversal; i > 0; i --) 
-	      *s2++ = lrand48() % 26 + 'a';
-	    strcpy(s2, "/../");
+	      *s2++ = lrand48() % 26 + 'a'; /* RATS: ignore */
+	    strncpy(s2, "/../", l);
 	    s2 += 4;
 	  }
       while (*s != '\0')
@@ -217,11 +217,11 @@ build_encode_URL(data, method, path, name, httpver)
       n_slash += 4;
       
       s = gizmo;
-      *s++ = lrand48() % 26 + 'A';
+      *s++ = lrand48() % 26 + 'A'; /* RATS: ignore */
       for (i = 1; i < 8; i ++)
-	*s++ = lrand48() % 26 + 'a';
+	*s++ = lrand48() % 26 + 'a'; /* RATS: ignore */
       *s++ = '\0';
-      sprintf(ret2, "/%%20HTTP/1.0%%0d%%0a%s:%%20/../..%s", gizmo, ret);
+      snprintf(ret2, l, "/%%20HTTP/1.0%%0d%%0a%s:%%20/../..%s", gizmo, ret); /* RATS: ignore */
       efree(&ret);
       ret = ret2;
 #ifdef URL_DEBUG
@@ -239,9 +239,9 @@ build_encode_URL(data, method, path, name, httpver)
       
       s = gizmo;
       for (i = 0; i < 8; i ++)
-	*s++ = lrand48() % 26 + 'a';
+	*s++ = lrand48() % 26 + 'a'; /* RATS: ignore */
       *s++ = '\0';
-      sprintf(ret2, "/index.htm%%3f%s=/..%s", gizmo, ret);
+      snprintf(ret2, l, "/index.htm%%3f%s=/..%s", gizmo, ret); /* RATS: ignore */
       efree(&ret);
       ret = ret2;
 #ifdef URL_DEBUG
@@ -417,7 +417,7 @@ build_encode_URL(data, method, path, name, httpver)
 	else if (strcmp(abs_URI_host, "random name") == 0)
 	  {
 	    for (s2 = h, i = 0; i < 16; i ++)
-	      *s2++ = lrand48() % 26 + 'a';
+	      *s2++ = lrand48() % 26 + 'a'; /* RATS: ignore */
 	    *s2++ = '\0';
 	  }
 	else if (strcmp(abs_URI_host, "random IP") == 0)
@@ -432,7 +432,7 @@ build_encode_URL(data, method, path, name, httpver)
       n_slash += 2;
       ret2 = emalloc(l + 1);
 
-      sprintf(ret2, "%s://%s%s", abs_URI_type, h, ret);
+      snprintf(ret2, l, "%s://%s%s", abs_URI_type, h, ret); /* RATS: ignore */
       efree(&ret);
       ret = ret2;
 #ifdef URL_DEBUG
@@ -447,8 +447,8 @@ build_encode_URL(data, method, path, name, httpver)
     {
       l += 3;
       ret2 = emalloc(l + 1);
-      strcpy(ret2, "%00");
-      strcpy(ret2+3, ret);
+      strncpy(ret2, "%00", l);
+      strncpy(ret2+3, ret, (l - 3));
       efree(&ret);
       ret = ret2;
     }
@@ -477,9 +477,9 @@ build_encode_URL(data, method, path, name, httpver)
 
   ret2 = emalloc(l + 1);
   if (http09)
-    sprintf(ret2, "%s%c%s", method, sep_c, ret);
+    snprintf(ret2, l, "%s%c%s", method, sep_c, ret); /* RATS: ignore */
   else
-    sprintf(ret2, "%s%c%s%c%s", method, sep_c, ret, sep_c, httpver);
+    snprintf(ret2, l, "%s%c%s%c%s", method, sep_c, ret, sep_c, httpver); /* RATS: ignore */
   efree(&ret);
   ret = ret2;
 

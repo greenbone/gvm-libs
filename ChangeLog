@@ -1,3 +1,58 @@
+2008-12-04  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Checking for potential code quality issues ahead of the 2.0-rc1
+	release, setting ignore flags for false positives and using more
+	secure functions for certain string manipulations.
+
+	* libopenvas_hg/test.c (main): Don't warn against getopt usage, it is
+	not critical here since this application is only intended for
+	demonstration purposes.
+
+	* libopenvas/pcap.c (get_random_bytes): Ignore warning, this random
+	seed is random enough for our purposes.
+
+	* libopenvas/plugutils.c: (plug_set_cve_id, plug_set_bugtraq_id,
+	plug_set_xref, plug_set_tag, proto_post_wrapped) Ignore warnings
+	regarding strcat since the memory is allocated correctly before
+	calling strcat. (host_add_port_proto, kb_get_port_state_proto,
+	mark_successful_plugin, mark_post, add_plugin_preference,
+	proto_post_wrapped, scanner_add_port, plug_set_port_transport,
+	plug_get_port_transport, plug_set_ssl_item, find_in_path) Ignore
+	warnings regarding snprintf since libc4 (where snprintf is a security
+	issue) is most certainly not present on system able to compile and run
+	openvas-libraries. (plug_get_key, plug_get_host_open_port) Ignore
+	warnings about lrand48 being not random enough; it is random enough
+	for the usage here. (find_in_path) Removed obsolete code, change
+	sprintf usage to snprintf.
+
+	* libopenvas/network.c: (get_encaps_name, get_encaps_through,
+	open_sock_tcp, auth_printf) Ignore (v)snprintf warnings; see above.
+	(_socket_get_next_source_addr) Ignore warning about lrand48; see
+	above.
+
+	* libopenvas/network.h: Ignore false positive in function declaration.
+
+	* libopenvas/proctitle.c: (initsetproctitle) Changed ignore flag to
+	RATS so both flawfinder and RATS honor it. (setproctitle) Ignore
+	snprintf warnings (see above), change strcpy usage to strncpy.
+
+	* libopenvas/www_funcs.c: (build_encode_URL) Change strcpy usage to
+	strncpy, change sprintf usage to snprintf, ignore snprintf warnings
+	(see above), ignore lrand48 warnings (see above).
+
+	* libopenvas/rand.c (nessus_init_random, lrand48, srand48): Ignore
+	warnings about insufficient randomness.
+
+	* libopenvas/ftp_funcs.c (ftp_log_in): Changed remaining sprintf usage
+	to snprintf, ignore snprintf warnings (see above).
+
+	* libopenvas/store.c: (arglist2str, store_load_plugin, store_plugin,
+	store_get_plugin_f) Change strcat usage to strncat; ignore RATS
+	warnings regarding strncat since sufficient memory is allocate before
+	strncat usage. (safe_copy, store_plugin) Change ignore flag to RATS.
+	(store_init_sys, store_init_user, store_get_plugin_f,
+	store_load_plugin, store_plugin) Ignore snprintf warnings (see above).
+	
 2008-12-03  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Implementing CR #22 (New script_tag Command,

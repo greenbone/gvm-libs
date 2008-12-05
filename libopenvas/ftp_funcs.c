@@ -63,7 +63,7 @@ int ftp_log_in(int soc, char * username, char * passwd)
 	 return 1;
 
 
- snprintf(buf, sizeof(buf), "USER %s\r\n", username);
+ snprintf(buf, sizeof(buf), "USER %s\r\n", username); /* RATS: ignore */
  write_stream_connection(soc, buf, strlen(buf));
  n = recv_line(soc, buf, sizeof(buf) - 1);
  if(n <= 0)
@@ -95,7 +95,7 @@ int ftp_log_in(int soc, char * username, char * passwd)
  	return 1;
 	
  
- snprintf(buf, sizeof(buf), "PASS %s\r\n", passwd);
+ snprintf(buf, sizeof(buf), "PASS %s\r\n", passwd); /* RATS: ignore */
  write_stream_connection(soc, buf, strlen(buf));
  n = recv_line(soc, buf, sizeof(buf) - 1);
  if( n <= 0 )
@@ -125,7 +125,7 @@ int ftp_get_pasv_address(int soc, struct sockaddr_in * addr)
  unsigned long  * a;
  unsigned short * p;
  
- sprintf(buf, "PASV\r\n");
+ snprintf(buf, 7, "PASV\r\n"); /* RATS: ignore */
  write_stream_connection(soc, buf, strlen(buf));
  bzero(buf, sizeof(buf));
  bzero(addr, sizeof(struct sockaddr_in));
