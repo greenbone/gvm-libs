@@ -100,7 +100,7 @@
 		i = LastArgv - Argv[0] - 2;
 		buf[i] = '\0';
 	}
-	(void) strncpy(Argv[0], buf, SPT_BUFSIZE - 1);
+	(void) strcpy(Argv[0], buf); /* RATS: ignore */
 	{ char *p;
 	p = &Argv[0][i];
 	while (p < LastArgv)
