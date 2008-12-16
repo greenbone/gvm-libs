@@ -7,6 +7,7 @@ char * _plug_get_oid(struct arglist*);
 char * _plug_get_cve_id(struct arglist*);
 char * _plug_get_bugtraq_id(struct arglist*);
 char * _plug_get_xref(struct arglist *);
+char * _plug_get_tag(struct arglist *);
 char * _plug_get_family(struct arglist*);
 struct arglist * _plug_get_required_keys(struct arglist*);
 struct arglist * _plug_get_excluded_keys(struct arglist*);
