@@ -1,3 +1,11 @@
+2008-12-17  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Preparing the openvas-libraries 2.0.0 release.
+
+	* CHANGES: Updated.
+
+	* VERSION: Set to 2.0.0.
+
 2008-12-16  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/plugutils_internal.h: Added declaration of _plug_get_tag.

@@ -1,3 +1,32 @@
+openvas-libraries 2.0.0 (2008-12-17)
+
+This is the 2.0.0 release of OpenVAS.
+
+If you have used the 2.0-beta1, -beta2 or -rc1 release, we recommend that you
+update all your OpenVAS modules (openvas-libraries, openvas-libnasl,
+openvas-server and openvas-client) to 2.0.0.
+
+If you are currently using the 1.0.x branch and want to evaluate OpenVAS 2.0.0,
+we recommend that you install 2.0.0 separately from your OpenVAS 1.0
+installation. Instructions on how to do this are available from the OpenVAS
+website.
+
+Main changes since 2.0-rc1:
+* A bug causing segmentation faults on server startup has been fixed.
+* The build environment has been updated.
+
+Main changes since 1.0.2:
+* Support for the new script_tag command in NASL scripts has been added.
+* 64-bit compatibility has been considerably improved.
+* Support for transferring NVT signature information to the client has been added.
+* Switch from Nessus plugin IDs to OIDs.
+* Switch from Nessus Transfer Protocol 1.2 to OpenVAS Transfer Protocol 1.0.
+
+Many thanks to everyone who has contributed to this release: Tim Brown, Stjepan
+Gros, Matthew Mundell, Vlatko Kosturjak, Jan Wagner, Jan-Oliver Wagner, Felix
+Wolfsteller and Michael Wiegand.
+
+
 openvas-libraries 2.0-rc1 (2008-12-05)
 
 This release is the first release candidate for the upcoming 2.0 release of OpenVAS.
