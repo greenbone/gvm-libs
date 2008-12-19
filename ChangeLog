@@ -1,3 +1,8 @@
+2008-12-19  Tim Brown <timb@nth-dimension.org.uk>
+
+	* configure.in: Improved #761, should now work on Mac OS X where
+	__dn_expand does not exist.
+
 2008-12-17  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post release version bump.
