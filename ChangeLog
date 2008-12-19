@@ -1,3 +1,7 @@
+2008-12-19  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* configure: Regenerated to include fix for Mac OS X.
+
 2008-12-19  Tim Brown <timb@nth-dimension.org.uk>
 
 	* configure.in: Improved #761, should now work on Mac OS X where
