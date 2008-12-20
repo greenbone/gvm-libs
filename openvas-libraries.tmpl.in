@@ -62,7 +62,7 @@ DEBUG_SSL = @debug_ssl@
 
 # Some defines you may want to modify
 DEFS=@DEFS@ $(DEBUG_SSL) $(DEBUG)
-LDFLAGS=
+LDFLAGS=@LDFLAGS@
 
 # Your C compiler
 CC=@CC@
