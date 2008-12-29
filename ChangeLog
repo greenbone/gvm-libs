@@ -1,3 +1,40 @@
+2008-12-30  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Reduced the middle layer of the plugin functions that do not
+	use the cache.
+
+	* libopenvas/store.c (store_plugin): Replace call of _plug_get_id()
+        by plug_get_id() and dito for several other functions (see below).
+
+	* libopenvas/plugutils_internal.h: Removed unneeded protos.
+
+	* libopenvas/plugutils.c (plug_get_id): Moved contents of
+	_plug_get_id here.
+	(_plug_get_id): Removed.
+	(plug_get_oid): Moved contents of _plug_get_oid here.
+	(_plug_get_oid): Removed.
+	(plug_get_required_keys): Moved contents of _plug_get_required_keys here.
+	(_plug_get_required_keys): Removed.
+	(plug_get_excluded_keys): Moved contents of _plug_get_excluded_keys here.
+	(_plug_get_excluded_keys): Removed.
+	(plug_get_required_ports): Moved contents of _plug_get_required_ports here.
+	(_plug_get_required_ports): Removed.
+	(plug_get_required_udp_ports): Moved contents of
+	_plug_get_required_udp_ports here.
+	(_plug_get_required_udp_ports): Removed.
+	(plug_get_deps): Moved contents of _plug_get_deps here.
+	(_plug_get_deps): Removed.
+	(plug_get_timeout): Moved contents of _plug_get_timeout here.
+	(_plug_get_timeout): Removed.
+	(plug_get_name): Moved contents of _plug_get_name here.
+	(_plug_get_name): Removed.
+	(plug_get_fname): Moved contents of _plug_get_fname here.
+	(_plug_get_fname): Removed.
+	(plug_get_category): Moved contents of _plug_get_category here.
+	(_plug_get_category): Removed.
+
+	* libopenvas/kb.h: Added a note on NEW_KB_MGMT.
+
 2008-12-29  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	Some patches by Stjepan Gros in preparation of

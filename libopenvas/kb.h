@@ -26,6 +26,8 @@
 #ifndef OPENVAS_KB_H
 #define OPENVAS_KB_H
 
+/* this define can be removed, once openvas-plugins 1.0.5 is mandatory
+   minimum version */
 #define NEW_KB_MGMT
 
 #define KB_TYPE_INT ARG_INT

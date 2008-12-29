@@ -463,19 +463,19 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
  bzero(pp, sizeof(pp));
  
  plug.magic = MAGIC;
- plug.id = _plug_get_id(plugin);
+ plug.id = plug_get_id(plugin);
  e = safe_copy(path, plug.path, sizeof(plug.path), path, "path"); 
  if(e < 0)return NULL;
  
- str = _plug_get_oid(plugin);
+ str = plug_get_oid(plugin);
  e = safe_copy(str, plug.oid, sizeof(plug.oid), path, "oid");
  if(e < 0)return NULL;
 
  
- plug.timeout = _plug_get_timeout(plugin);
- plug.category = _plug_get_category(plugin);
+ plug.timeout = plug_get_timeout(plugin);
+ plug.category = plug_get_category(plugin);
  
- str = _plug_get_name(plugin);
+ str = plug_get_name(plugin);
  e = safe_copy(str, plug.name, sizeof(plug.name), path, "name");
  if(e < 0)return NULL;
  
@@ -530,31 +530,31 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
  e = safe_copy(str, plug.tag, sizeof(plug.tag), path, "tag");
  if(e < 0)return NULL;
  
- arglist = _plug_get_deps(plugin);
+ arglist = plug_get_deps(plugin);
  str = arglist2str(arglist);
  e = safe_copy(str, plug.dependencies, sizeof(plug.dependencies), path, "dependencies");
  efree(&str);
  if(e < 0)return NULL;
  
- arglist = _plug_get_required_keys(plugin);
+ arglist = plug_get_required_keys(plugin);
  str = arglist2str(arglist);
  e = safe_copy(str, plug.required_keys, sizeof(plug.required_keys), path, "required keys");
  efree(&str);
  if(e < 0)return NULL;
  
- arglist = _plug_get_excluded_keys(plugin);
+ arglist = plug_get_excluded_keys(plugin);
  str = arglist2str(arglist);
  e = safe_copy(str, plug.excluded_keys, sizeof(plug.excluded_keys), path, "excluded_keys");
  efree(&str);
  if(e < 0)return NULL;
  
- arglist = _plug_get_required_ports(plugin);
+ arglist = plug_get_required_ports(plugin);
  str = arglist2str(arglist);
  e = safe_copy(str, plug.required_ports, sizeof(plug.required_ports), path, "required ports");
  efree(&str);
  if(e < 0)return NULL;
  
- arglist = _plug_get_required_udp_ports(plugin);
+ arglist = plug_get_required_udp_ports(plugin);
  str = arglist2str(arglist);
  e = safe_copy(str, plug.required_udp_ports, sizeof(plug.required_udp_ports), path, "required udp ports");
  efree(&str);
@@ -571,7 +571,7 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
  arglist = arg_get_value(plugin, "PLUGIN_PREFS");
  if( arglist != NULL )
  {
-  char * p_name = _plug_get_name(plugin);
+  char * p_name = plug_get_name(plugin);
   
   while(arglist->next != NULL)
   {
@@ -636,7 +636,7 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
 
 char * store_fetch_path(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -646,7 +646,7 @@ char * store_fetch_path(struct arglist * desc)
 
 char * store_fetch_name(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -656,7 +656,7 @@ char * store_fetch_name(struct arglist * desc)
 
 char * store_fetch_version(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -665,7 +665,7 @@ char * store_fetch_version(struct arglist * desc)
 
 int store_fetch_timeout(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -675,7 +675,7 @@ int store_fetch_timeout(struct arglist * desc)
 
 char * store_fetch_summary(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -684,7 +684,7 @@ char * store_fetch_summary(struct arglist * desc)
 
 char * store_fetch_description(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -698,7 +698,7 @@ int store_fetch_category(struct arglist * desc)
 
 char * store_fetch_copyright(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -707,7 +707,7 @@ char * store_fetch_copyright(struct arglist * desc)
 
 char * store_fetch_family(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -716,7 +716,7 @@ char * store_fetch_family(struct arglist * desc)
 
 char * store_fetch_oid(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -725,7 +725,7 @@ char * store_fetch_oid(struct arglist * desc)
 
 char * store_fetch_cve_id(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -734,7 +734,7 @@ char * store_fetch_cve_id(struct arglist * desc)
 
 char * store_fetch_bugtraq_id(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -744,7 +744,7 @@ char * store_fetch_bugtraq_id(struct arglist * desc)
 
 char * store_fetch_xref(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -753,7 +753,7 @@ char * store_fetch_xref(struct arglist * desc)
 
 char * store_fetch_tag(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -762,7 +762,7 @@ char * store_fetch_tag(struct arglist * desc)
 
 struct arglist * store_fetch_dependencies(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  struct arglist * ret;
  
@@ -773,7 +773,7 @@ struct arglist * store_fetch_dependencies(struct arglist * desc)
 
 struct arglist * store_fetch_required_keys(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  struct arglist * ret;
  
@@ -784,7 +784,7 @@ struct arglist * store_fetch_required_keys(struct arglist * desc)
 
 struct arglist * store_fetch_excluded_keys(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  struct arglist * ret;
  
@@ -795,7 +795,7 @@ struct arglist * store_fetch_excluded_keys(struct arglist * desc)
 
 struct arglist * store_fetch_required_ports(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  struct arglist * ret;
  
@@ -806,7 +806,7 @@ struct arglist * store_fetch_required_ports(struct arglist * desc)
 
 struct arglist * store_fetch_required_udp_ports(struct arglist * desc)
 {
- char * fname = _plug_get_fname(desc);
+ char * fname = plug_get_fname(desc);
  static struct plugin p;
  struct arglist * ret;
  

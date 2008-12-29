@@ -243,15 +243,10 @@ char * plug_get_cachefile(desc)
   return arg_get_value(desc, "CACHEFILE");
 }
 
-char * _plug_get_fname(struct arglist * desc)
-{
- return arg_get_value(desc, "FILENAME");
-}
-
 char * plug_get_fname(desc)
  struct arglist * desc;
 {
- return _plug_get_fname(desc);
+  return arg_get_value(desc, "FILENAME");
 }
 
 
@@ -278,17 +273,9 @@ void plug_set_id(desc, id)
 #endif
 }
 
-int
-_plug_get_id(desc)
- struct arglist * desc;
+int plug_get_id(struct arglist * desc)
 {
  return GPOINTER_TO_SIZE(arg_get_value(desc, "ID"));
-}
-
-int
-plug_get_id(struct arglist * desc)
-{
- return _plug_get_id(desc);	/* Never cached */
 }
 
 void plug_set_oid(desc, id)
@@ -307,16 +294,9 @@ void plug_set_oid(desc, id)
  } 
 }
 
-char *
-_plug_get_oid(desc)
- struct arglist * desc;
-{
- return arg_get_value(desc, "OID");
-}
-
 char * plug_get_oid(struct arglist * desc)
 {
-  return _plug_get_oid(desc);
+  return arg_get_value(desc, "OID");
 }
 
 void plug_set_cve_id(desc, id)
@@ -543,17 +523,11 @@ void plug_require_key(desc, keyname)
  }
 }
 
-struct arglist * _plug_get_required_keys(desc)
- struct arglist * desc;
-{
- return arg_get_value(desc, "required_keys");
-}
-
 
 struct arglist * plug_get_required_keys(desc)
  struct arglist * desc;
 {
- return _plug_get_required_keys(desc);
+  return arg_get_value(desc, "required_keys");
 }
 
 
@@ -574,17 +548,10 @@ void plug_exclude_key(desc, keyname)
  }
 }
 
-struct arglist * _plug_get_excluded_keys(desc)
- struct arglist * desc;
-{
- return arg_get_value(desc, "excluded_keys");
-}
-
-
 struct arglist * plug_get_excluded_keys(desc)
  struct arglist * desc;
 {
- return _plug_get_excluded_keys(desc);
+  return arg_get_value(desc, "excluded_keys");
 }
 
 void plug_require_port(desc, portname)
@@ -606,16 +573,10 @@ void plug_require_port(desc, portname)
  }
 }
 
-struct arglist * _plug_get_required_ports(desc)
- struct arglist * desc;
-{
- return arg_get_value(desc, "required_ports");
-}
-
 struct arglist * plug_get_required_ports(desc)
  struct arglist * desc;
 {
- return _plug_get_required_ports(desc);
+  return arg_get_value(desc, "required_ports");
 }
 
 
@@ -638,16 +599,10 @@ void plug_require_udp_port(desc, portname)
  }
 }
 
-struct arglist * _plug_get_required_udp_ports(desc)
- struct arglist * desc;
-{
- return arg_get_value(desc, "required_udp_ports");
-}
-
 struct arglist * plug_get_required_udp_ports(desc)
  struct arglist * desc;
 {
- return _plug_get_required_udp_ports(desc);
+  return arg_get_value(desc, "required_udp_ports");
 }
  
 
@@ -668,19 +623,10 @@ void plug_set_dep(desc, depname)
  }
 }
 
-
-
-struct arglist * _plug_get_deps(desc)
- struct arglist * desc;
-{
- return arg_get_value(desc, "DEPENDENCIES");
-}
-
-
 struct arglist * plug_get_deps(desc)
  struct arglist * desc;
 {
- return _plug_get_deps(desc);
+  return arg_get_value(desc, "DEPENDENCIES");
 #if 0
  return store_fetch_dependencies(desc);
 #endif
@@ -693,18 +639,10 @@ void plug_set_timeout(desc, timeout)
     arg_add_value(desc, "TIMEOUT", ARG_INT, sizeof(gpointer), GSIZE_TO_POINTER(timeout));
 }
 
-
-int _plug_get_timeout(desc)
- struct arglist * desc;
-{
- return GPOINTER_TO_SIZE(arg_get_value(desc, "TIMEOUT"));
-}
-
-
 int plug_get_timeout(desc)
  struct arglist * desc;
 {
- return _plug_get_timeout(desc);
+  return GPOINTER_TO_SIZE(arg_get_value(desc, "TIMEOUT"));
 #if 0
  return store_fetch_timeout(desc);
 #endif
@@ -756,16 +694,10 @@ void plug_set_name(desc, name, language)
   }
 }
 
-char * _plug_get_name(desc)
- struct arglist * desc;
-{
- return arg_get_value(desc, "NAME");
-}
-
 char * plug_get_name(desc)
  struct arglist * desc;
 {
- return _plug_get_name(desc);
+  return arg_get_value(desc, "NAME");
  /*return store_fetch_name(desc);*/
 }
 
@@ -896,16 +828,10 @@ void plug_set_category(desc, category)
        arg_add_value(desc, "CATEGORY", ARG_INT, sizeof(gpointer), GSIZE_TO_POINTER(category));
 }
 
-int _plug_get_category(desc)
- struct arglist * desc;
-{
- return GPOINTER_TO_SIZE(arg_get_value(desc, "CATEGORY"));	/* We don't cache this one */
-}
-
 int plug_get_category(desc)
  struct arglist * desc;
 {
- return _plug_get_category(desc);
+ return GPOINTER_TO_SIZE(arg_get_value(desc, "CATEGORY"));
 }
 
 
