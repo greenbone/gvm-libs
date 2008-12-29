@@ -43,6 +43,9 @@ char*plug_get_path(struct arglist *);
 void plug_set_fname(struct arglist *, const char *);
 char*plug_get_fname(struct arglist *);
 
+void plug_set_cachefile(struct arglist *, const char *);
+char*plug_get_cachefile(struct arglist *);
+
 void plug_set_version(struct arglist *, const char *);
 char*plug_get_version(struct arglist *);
 
