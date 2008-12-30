@@ -33,7 +33,12 @@
 #define HASH_MAX 65537 
 
 
-
+/**
+ * Creates a hash value for a string to be used as index in a knowledge base
+ * array.
+ * @param Name string to create hash value for.
+ * @return Hash value for string name or 0 if name == NULL.
+ */
 static unsigned int mkkey(char * name )
 {
  char * p;
@@ -50,15 +55,20 @@ static unsigned int mkkey(char * name )
 }
 
 
-
+/**
+ * Allocates memory for an array of kb_items with max length of HASH_MAX.
+ * @return Pointer to first item in knowledge base item array.
+ */
 struct kb_item ** kb_new()
 {
  return emalloc(HASH_MAX * sizeof(struct kb_item*));
 }
 
 
-/*
+/**
  * READ the knowledge base
+ * @return kb_item in knowledge base with name name and type type or NULL if 
+ *         none found.
  */
 struct kb_item * kb_item_get_single(struct kb_item ** kb, char * name, int type)
 {
@@ -156,7 +166,9 @@ struct kb_item * kb_item_get_pattern(struct kb_item ** kb, char * expr )
  
 
 
-/* Free the result of kb_item_get_all() */
+/**
+ * Free the result of kb_item_get_all()
+ */
 void kb_item_get_all_free(struct kb_item * items)
 {
  while ( items != NULL )
@@ -170,12 +182,9 @@ void kb_item_get_all_free(struct kb_item * items)
 }
 
 
-/*
+/**
  * WRITE to the knowledge base
  */
- 
- 
- 
 static int kb_item_addset_str(struct kb_item ** kb, char * name, char * value, int replace)
 {
  /* 
@@ -231,8 +240,9 @@ int kb_item_set_str(struct kb_item ** kb, char * name, char * value)
  return kb_item_addset_str(kb, name, value, 1); 
 }
 
-/* Replace an old value in the KB by a new one */
-
+/**
+ * Replace an old value in the KB by a new one 
+ */
 static int kb_item_addset_int(struct kb_item ** kb, char * name, int value, int replace)
 {
  /* 
@@ -323,10 +333,9 @@ void kb_item_rm_all(struct kb_item ** kb, char * name)
 }
 
 
-/*
+/**
  * Backward compatibilty 
  */
-
 struct arglist * plug_get_oldstyle_kb(struct arglist * desc )
 {
  struct kb_item ** kb = arg_get_value(desc, "key");

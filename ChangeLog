@@ -1,3 +1,10 @@
+2008-12-30  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* libopenvas/kb.h: Comments.
+	
+	* libopenvas/kb.c: Transformed comments to javadoc, slight doc 
+	improvements.
+
 2008-12-30  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	Reduced the middle layer of the plugin functions that do not

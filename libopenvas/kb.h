@@ -30,12 +30,24 @@
    minimum version */
 #define NEW_KB_MGMT
 
+/**
+ * Possible type of a kb_item.
+ * The kb_items v should then be interpreted as int.
+ */
 #define KB_TYPE_INT ARG_INT
+/**
+ * Possible type of a kb_item.
+ * The kb_items v should then be interpreted as char*.
+ */
 #define KB_TYPE_STR ARG_STRING
 
+/**
+ * Knowledge base item (defined by name, type (int/char*) and value).
+ * Implemented as a singly linked list
+ */
 struct kb_item {
 	char * name;
- 	char type;
+ 	char type; /**< one of KB_TYPE_INT or KB_TYPE_STR */
 	union {
 		char * v_str;
 		int v_int;
