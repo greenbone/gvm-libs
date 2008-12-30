@@ -1,3 +1,21 @@
+2008-12-30  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Removing unused code.
+
+	* libopenvas/store.c (store_fetch_dependencies, store_fetch_timeout,
+	store_fetch_name):
+	Removed. This function is never called since a long time.
+
+	* libopenvas/store_internal.h: Removed proto for
+	store_fetch_dependencies, store_fetch_name and store_fetch_timeout.
+
+	* libopenvas/plugutils.c (plug_get_deps, plug_get_timeout,
+	plug_get_name):
+	Removed code that is never executed.
+
+	TODO: Added note on the broken concept of plugutils/store
+	calling each other.
+
 2008-12-30  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* libopenvas/kb.h: Comments.

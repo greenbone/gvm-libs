@@ -643,17 +643,6 @@ char * store_fetch_path(struct arglist * desc)
  return p.path;
 }
 
-
-char * store_fetch_name(struct arglist * desc)
-{
- char * fname = plug_get_fname(desc);
- static struct plugin p;
- 
- store_get_plugin(&p, fname);
- return p.name;
-}
-
-
 char * store_fetch_version(struct arglist * desc)
 {
  char * fname = plug_get_fname(desc);
@@ -662,16 +651,6 @@ char * store_fetch_version(struct arglist * desc)
  store_get_plugin(&p, fname);
  return p.version;
 }
-
-int store_fetch_timeout(struct arglist * desc)
-{
- char * fname = plug_get_fname(desc);
- static struct plugin p;
- 
- store_get_plugin(&p, fname);
- return p.timeout;
-}
-
 
 char * store_fetch_summary(struct arglist * desc)
 {
@@ -758,17 +737,6 @@ char * store_fetch_tag(struct arglist * desc)
  
  store_get_plugin(&p, fname);
  return p.tag;
-}
-
-struct arglist * store_fetch_dependencies(struct arglist * desc)
-{
- char * fname = plug_get_fname(desc);
- static struct plugin p;
- struct arglist * ret;
- 
- store_get_plugin(&p, fname);
- ret = str2arglist(p.dependencies);
- return ret; 
 }
 
 struct arglist * store_fetch_required_keys(struct arglist * desc)

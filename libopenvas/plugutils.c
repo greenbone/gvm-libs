@@ -627,9 +627,6 @@ struct arglist * plug_get_deps(desc)
  struct arglist * desc;
 {
   return arg_get_value(desc, "DEPENDENCIES");
-#if 0
- return store_fetch_dependencies(desc);
-#endif
 }
 
 void plug_set_timeout(desc, timeout)
@@ -643,12 +640,8 @@ int plug_get_timeout(desc)
  struct arglist * desc;
 {
   return GPOINTER_TO_SIZE(arg_get_value(desc, "TIMEOUT"));
-#if 0
- return store_fetch_timeout(desc);
-#endif
 }
 
-		
 
 void plug_set_launch(desc, launch)
  struct arglist * desc;
@@ -698,7 +691,6 @@ char * plug_get_name(desc)
  struct arglist * desc;
 {
   return arg_get_value(desc, "NAME");
- /*return store_fetch_name(desc);*/
 }
 
 
