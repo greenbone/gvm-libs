@@ -1,5 +1,12 @@
 2008-12-30  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/store.c: Removed OLD_CVE_SZ, OLD_BID_SZ and
+	OLD_XREF_SZ and their use because this is only meant
+	to support rather old version of Nessus.
+	The removed code was conditionally for DEBUG_STORE anyway.
+
+2008-12-30  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	Removing unused code.
 
 	* libopenvas/store.c (store_fetch_dependencies, store_fetch_timeout,

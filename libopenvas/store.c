@@ -411,11 +411,6 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
  return ret;
 }
 
-
-#define OLD_CVE_SZ 128
-#define OLD_BID_SZ 64
-#define OLD_XREF_SZ 512
-
 struct arglist * store_plugin(struct arglist * plugin, char * file)
 {
  char desc_file[MAXPATHLEN+1];
@@ -502,27 +497,15 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
  if(e < 0)return NULL;
  
  str = _plug_get_cve_id(plugin);
-#ifdef DEBUG_STORE
- if ( str != NULL && strlen(str) > OLD_CVE_SZ )
-	fprintf(stderr, "WARNING! CVE size will be too long for older versions of Nessus!\n");
-#endif
-	
+
  e = safe_copy(str, plug.cve_id, sizeof(plug.cve_id), path, "cve_id");
  if(e < 0)return NULL;
  
  str = _plug_get_bugtraq_id(plugin);
-#ifdef DEBUG_STORE
- if ( str != NULL && strlen(str) > OLD_BID_SZ)
-	fprintf(stderr, "WARNING! BID size will be too long for older versions of Nessus!\n");
-#endif
  e = safe_copy(str, plug.bid, sizeof(plug.bid), path, "bugtraq id");
  if(e < 0)return NULL;
  
  str = _plug_get_xref(plugin);
-#ifdef DEBUG_STORE
- if ( str != NULL && strlen(str) > OLD_XREF_SZ)
-	fprintf(stderr, "WARNING! BID size will be too long for older versions of Nessus!\n");
-#endif
  e = safe_copy(str, plug.xref, sizeof(plug.xref), path, "xref id");
  if(e < 0)return NULL;
 
