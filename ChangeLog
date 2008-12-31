@@ -1,3 +1,15 @@
+2008-12-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	As Result of CR #20, added two doxygen configuration files and targets
+	to generated source documentation.
+	
+	* doc/Doxyfile: Added. Basic configuration file.
+
+	* doc/Doxyfile_full: Added. Enables graph generation.
+	
+	* Makefile: Targets 'doc' and 'doc_full' added, 'clean' altered, such
+	that it will remove generated documentation found in doc/generated.
+
 2008-12-31  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* configure.in, include/config.h.in: Removed any remains

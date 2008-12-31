@@ -83,6 +83,7 @@ install : all
 clean :
 	-cd libopenvas && ${MAKE} clean
 	-cd libopenvas_hg && ${MAKE} clean
+	rm -rf /doc/generated
 
 distclean : clean
 	rm -f ${rootdir}/include/config.h libtool config.cache \
@@ -99,3 +100,15 @@ dist:
 	( cd openvas-libraries-$${version} ; tar xf x.tar ; rm -f x.tar ) ; \
 	tar cf openvas-libraries-$${version}.tar openvas-libraries-$${version} ; \
 	gzip -9 openvas-libraries-$${version}.tar
+
+# Generates basic code documentation (placed in doc/generated)
+doc:
+	doxygen doc/Doxyfile
+
+# Generates more extensive code documentation with graphs 
+# (placed in doc/generated) and builts doc/generated/latex/refman.pdf
+doc-full:
+	doxygen doc/Doxyfile_full
+	cd doc/generated/latex && make
+
+.PHONY: doc doc-dev
