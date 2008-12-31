@@ -119,12 +119,6 @@ dnl User options
 AC_ARG_ENABLE(release,[  --enable-release	  set the compiler flags to -O6],
 	CFLAGS="-O6")
 
-
-AC_ARG_ENABLE(debug-store, [  --enable-debug-store	Warn the user if a plugin has too many CVE/BID/XRefs],
-		[if test x$enable_debug_store = xyes ; then
-			AC_DEFINE(DEBUG_STORE)
-		fi])
-
 debug_ssl=""
 
 AC_ARG_ENABLE(debug-ssl,[  --enable-debug-ssl	  produce verbose output regarding SSL],

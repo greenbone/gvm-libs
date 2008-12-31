@@ -1,3 +1,9 @@
+2008-12-31  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* configure.in, include/config.h.in: Removed any remains
+	of DEBUG_STORE as it is not used anywhere in the code.
+	This also removed the configure option "--enable-debug-store".
+
 2008-12-30  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/store.c: Removed OLD_CVE_SZ, OLD_BID_SZ and
