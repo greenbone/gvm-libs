@@ -207,15 +207,6 @@ char * plug_get_path(desc)
  return _plug_get_path(desc);
 }
 
-// XXX: This function remains for legacy until any use of it or FILENAME is resolved. This is part
-// of the patch for CR #24.
-void plug_set_fname(desc, filename)
- struct arglist * desc;
- const char * filename;
-{
- arg_add_value(desc, "FILENAME", ARG_STRING, strlen(filename), estrdup(filename));
-}
-
 /**
  * @brief Sets CACHEFILE in the given arglist.
  *
@@ -242,13 +233,6 @@ char * plug_get_cachefile(desc)
 {
   return arg_get_value(desc, "CACHEFILE");
 }
-
-char * plug_get_fname(desc)
- struct arglist * desc;
-{
-  return arg_get_value(desc, "FILENAME");
-}
-
 
 void plug_set_id(desc, id)
  struct arglist * desc;

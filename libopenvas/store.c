@@ -371,7 +371,7 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
  ret = emalloc(sizeof(struct arglist));   
  plug_set_oid(ret, p.oid);
  plug_set_category(ret, p.category);
- plug_set_fname(ret, file);
+ plug_set_cachefile(ret, file);
  plug_set_path(ret, p.path);
  plug_set_family(ret, p.family, NULL);
  plug_set_sign_key_ids(ret, p.sign_key_ids);
@@ -619,7 +619,7 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
 
 char * store_fetch_path(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -628,7 +628,7 @@ char * store_fetch_path(struct arglist * desc)
 
 char * store_fetch_version(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -637,7 +637,7 @@ char * store_fetch_version(struct arglist * desc)
 
 char * store_fetch_summary(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -646,7 +646,7 @@ char * store_fetch_summary(struct arglist * desc)
 
 char * store_fetch_description(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -660,7 +660,7 @@ int store_fetch_category(struct arglist * desc)
 
 char * store_fetch_copyright(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -669,7 +669,7 @@ char * store_fetch_copyright(struct arglist * desc)
 
 char * store_fetch_family(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -678,7 +678,7 @@ char * store_fetch_family(struct arglist * desc)
 
 char * store_fetch_oid(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -687,7 +687,7 @@ char * store_fetch_oid(struct arglist * desc)
 
 char * store_fetch_cve_id(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -696,7 +696,7 @@ char * store_fetch_cve_id(struct arglist * desc)
 
 char * store_fetch_bugtraq_id(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -706,7 +706,7 @@ char * store_fetch_bugtraq_id(struct arglist * desc)
 
 char * store_fetch_xref(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -715,7 +715,7 @@ char * store_fetch_xref(struct arglist * desc)
 
 char * store_fetch_tag(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  
  store_get_plugin(&p, fname);
@@ -724,7 +724,7 @@ char * store_fetch_tag(struct arglist * desc)
 
 struct arglist * store_fetch_required_keys(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  struct arglist * ret;
  
@@ -735,7 +735,7 @@ struct arglist * store_fetch_required_keys(struct arglist * desc)
 
 struct arglist * store_fetch_excluded_keys(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  struct arglist * ret;
  
@@ -746,7 +746,7 @@ struct arglist * store_fetch_excluded_keys(struct arglist * desc)
 
 struct arglist * store_fetch_required_ports(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  struct arglist * ret;
  
@@ -757,7 +757,7 @@ struct arglist * store_fetch_required_ports(struct arglist * desc)
 
 struct arglist * store_fetch_required_udp_ports(struct arglist * desc)
 {
- char * fname = plug_get_fname(desc);
+ char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  struct arglist * ret;
  

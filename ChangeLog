@@ -1,3 +1,16 @@
+2009-01-01  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	More patches by Stjepan Gros in preparation of
+	Change Request #24 (subdirs for NVTs,
+	http://www.openvas.org/openvas-cr-24.html).
+
+	* libopenvas/store.c: Replaced any call of plug_get_fname
+	by plug_get_cachefile.
+	(store_load_plugin): Replaced call of plug_set_fname by
+	plug_set_cachefile.
+
+	* libopenvas/plugutils.c (plug_get_fname, plug_set_fname): Removed.
+
 2008-12-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	As Result of CR #20, added two doxygen configuration files and targets
