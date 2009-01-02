@@ -409,7 +409,7 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
  return ret;
 }
 
-struct arglist * store_plugin(struct arglist * plugin, char * file)
+void store_plugin(struct arglist * plugin, char * file)
 {
  char desc_file[MAXPATHLEN+1];
  char path[MAXPATHLEN+1];
@@ -422,7 +422,7 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
  int num_plugin_prefs = 0;
 
   if(strlen(file) + 2 > sizeof(path))
-  	return NULL;
+    return;
  
  strncpy(path, store_dir, sizeof(path) - 2 - strlen(file));
  str = strrchr(path, '/');
@@ -452,11 +452,11 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
  plug.magic = MAGIC;
  plug.id = plug_get_id(plugin);
  e = safe_copy(path, plug.path, sizeof(plug.path), path, "path"); 
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  str = plug_get_oid(plugin);
  e = safe_copy(str, plug.oid, sizeof(plug.oid), path, "oid");
- if(e < 0)return NULL;
+ if(e < 0) return;
 
  
  plug.timeout = plug_get_timeout(plugin);
@@ -464,81 +464,81 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
  
  str = plug_get_name(plugin);
  e = safe_copy(str, plug.name, sizeof(plug.name), path, "name");
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  
  str = _plug_get_version(plugin);
  e = safe_copy(str, plug.version, sizeof(plug.version), path, "version");
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  
  str = _plug_get_summary(plugin);
  e = safe_copy(str, plug.summary, sizeof(plug.summary), path, "summary");
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  str = _plug_get_description(plugin);
  e = safe_copy(str, plug.description, sizeof(plug.description), path, "description");
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  str = _plug_get_copyright(plugin);
  e = safe_copy(str, plug.copyright, sizeof(plug.copyright), path, "copyright");
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  str = _plug_get_family(plugin);
  e = safe_copy(str, plug.family, sizeof(plug.family), path, "family");
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  str = _plug_get_cve_id(plugin);
 
  e = safe_copy(str, plug.cve_id, sizeof(plug.cve_id), path, "cve_id");
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  str = _plug_get_bugtraq_id(plugin);
  e = safe_copy(str, plug.bid, sizeof(plug.bid), path, "bugtraq id");
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  str = _plug_get_xref(plugin);
  e = safe_copy(str, plug.xref, sizeof(plug.xref), path, "xref id");
- if(e < 0)return NULL;
+ if(e < 0) return;
 
  str = _plug_get_tag(plugin);
  e = safe_copy(str, plug.tag, sizeof(plug.tag), path, "tag");
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  arglist = plug_get_deps(plugin);
  str = arglist2str(arglist);
  e = safe_copy(str, plug.dependencies, sizeof(plug.dependencies), path, "dependencies");
  efree(&str);
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  arglist = plug_get_required_keys(plugin);
  str = arglist2str(arglist);
  e = safe_copy(str, plug.required_keys, sizeof(plug.required_keys), path, "required keys");
  efree(&str);
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  arglist = plug_get_excluded_keys(plugin);
  str = arglist2str(arglist);
  e = safe_copy(str, plug.excluded_keys, sizeof(plug.excluded_keys), path, "excluded_keys");
  efree(&str);
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  arglist = plug_get_required_ports(plugin);
  str = arglist2str(arglist);
  e = safe_copy(str, plug.required_ports, sizeof(plug.required_ports), path, "required ports");
  efree(&str);
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  arglist = plug_get_required_udp_ports(plugin);
  str = arglist2str(arglist);
  e = safe_copy(str, plug.required_udp_ports, sizeof(plug.required_udp_ports), path, "required udp ports");
  efree(&str);
- if(e < 0)return NULL;
+ if(e < 0) return;
 
  str = plug_get_sign_key_ids(plugin);
  e = safe_copy(str, plug.sign_key_ids, sizeof(plug.sign_key_ids), path, "key ids of signatures");
  //efree(&str);
- if(e < 0)return NULL;
+ if(e < 0) return;
  
  
  prefs = arg_get_value(plugin, "preferences");
@@ -559,18 +559,18 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
    str[0] = '\0';
    name = str + 1;
    e = safe_copy(type, pp[num_plugin_prefs].type, sizeof(pp[num_plugin_prefs].type), path, "preference-type");
-   if(e < 0)return NULL;
+   if(e < 0) return;
    e = safe_copy(name, pp[num_plugin_prefs].name, sizeof(pp[num_plugin_prefs].name), path, "preference-name");
-   if(e < 0)return NULL;
+   if(e < 0) return;
    e = safe_copy(dfl, pp[num_plugin_prefs].dfl, sizeof(pp[num_plugin_prefs].dfl), path, "preference-default");
-   if(e < 0)return NULL;
+   if(e < 0) return;
    num_plugin_prefs ++;
   
    
    if(num_plugin_prefs >= MAX_PREFS)
    {
     fprintf(stderr, "%s: too many preferences\n", path);
-    return NULL;
+    return;
    }
    _add_plugin_preference(prefs, p_name, name, type, dfl);
    str[0] = '/';
@@ -582,27 +582,17 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
   plug.has_prefs = 1;
  
  fd = open(desc_file, O_RDWR|O_CREAT|O_TRUNC, 0644);
- if(fd < 0)
- { 
-  return NULL;
- }
+ if(fd < 0) return;
  
- if(write(fd, &plug, sizeof(plug)) < 0)
- {
-  perror("write ");
- }
+  if(write(fd, &plug, sizeof(plug)) < 0)
+    perror("write ");
  
- if(num_plugin_prefs > 0)
- {
-  write(fd, pp, sizeof(pp));
- }
- close(fd); 
+  if(num_plugin_prefs > 0)
+    write(fd, pp, sizeof(pp));
+  close(fd); 
  
- 
-
  arg_set_value(plugin, "preferences", -1, NULL);
  arg_free_all(plugin);
- return NULL;
 }
 
 

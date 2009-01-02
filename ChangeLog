@@ -1,3 +1,12 @@
+2009-01-03  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libopenvas/store.c (store_plugin): change return value to
+	void, because the function never returns something else than
+	NULL. Also any use of the method does not consider a return value
+	at all. Thus cleaning up this method.
+
+	* libopenvas/store.h: Updated proto of store_plugin accordingly.
+
 2009-01-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	Removing the handling of separate user-specific cache dir.
