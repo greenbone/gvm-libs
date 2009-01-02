@@ -144,21 +144,44 @@ static char usr_store_dir[MAXPATHLEN+1];
 
 static int current_mode = -1;
 
+/**
+ * @brief Inits the sys_store_dir string to the default value.
+ *
+ * @param dir    Path to the (cache)-directory
+ *
+ * @return 0 in case of success, -1 if the directory does not exist and could
+ *         not be created.
+ *
+ * sys_store_dir holds the cache directory name. If run with older
+ * installations of OpenVAS (<=2.0.0), then it is the NVT directory
+ * and ends with "/.desc/" for compatibility. Else it is the directory
+ * specified as server preference "cache_folder".
+ * The directory will be created if it doesn't exist.
+ */
+int store_init(char * dir)
+{
+  strncpy(sys_store_dir, dir, MAXPATHLEN);
 
+  if((mkdir(sys_store_dir, 0755) < 0) && (errno != EEXIST))
+  {
+    fprintf(stderr, "mkdir(%s) : %s\n", sys_store_dir, strerror(errno));
+    return -1;
+  }
+
+  return 0;
+}
 
 /**
- * Inits the sys_store_dir string to the default value. sys_store_dir holds the 
- * path of the .desc (~server-side plugin cache) directory which is a subfolder
- * of the plugin- directory. If the .desc directory does not exist, it will be 
- * created. Also sets the mode to MODE_SYS.
- * @param dir Path to the (plugin)- directory
- * @return 0 in case of success, -1 if the directory does not exist and could 
- *         not be created.
+ * @brief Deprecated funtion to set the directory where the plugin cache files are placed.
+ *
+ * Don't use this method anymore. It is here only for legacy to be compatible with
+ * openvas-server <= 2.0.0.
+ * The new method to use is @ref store_init .
  */
 int store_init_sys(char * dir)
 {
  current_mode = MODE_SYS;
- 
+
  snprintf(sys_store_dir, sizeof(sys_store_dir), "%s/.desc", dir); /* RATS: ignore */
  if((mkdir(sys_store_dir, 0755) < 0) && (errno != EEXIST))
  {
@@ -263,11 +286,11 @@ static int store_get_plugin_f(struct plugin * plugin, struct pprefs * pprefs, ch
 }
 
 
-int store_get_plugin(struct plugin * p, char * name)
+int store_get_plugin(struct plugin * p, char * desc_file)
 {
- int e = store_get_plugin_f(p, NULL, usr_store_dir, name);
+ int e = store_get_plugin_f(p, NULL, usr_store_dir, desc_file);
  if(p->id < 0)
-  return store_get_plugin_f(p, NULL, sys_store_dir, name);
+  return store_get_plugin_f(p, NULL, sys_store_dir, desc_file);
  else
   return e;
 }

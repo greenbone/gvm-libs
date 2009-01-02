@@ -1,3 +1,16 @@
+2009-01-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* Further patches by Stjepan Gros in preparation of
+	Change Request #24 (subdirs for NVTs,
+	http://www.openvas.org/openvas-cr-24.html).
+
+	* libopenvas/store.c (store_init_sys): Marked as deprecated.
+	(store_init): New. Simply sets the "sys_store_dir" without appending
+	".desc".
+	(store_get_plugin): Renamed param "name" to "desc_file".
+
+	* libopenvas/store.h: Added proto for store_init.
+
 2009-01-02  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Added missing includes to enable compilation on Darwin and NetBSD,
