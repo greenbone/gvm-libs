@@ -19,6 +19,20 @@
  * Knowledge base management API
  */ 
 
+/**
+ * @file
+ * Knowledge base management API.\n
+ * Knowledge bases collect information and can be used to share information
+ * between NVTs.\n
+ * A Knowledge base is an array of knowledge base items (kb_item).
+ * An item is defined by its name and has a value (either int or char*), a 
+ * type flag (indicating whether the value shall be interpreted as int or char*) 
+ * and a pointer to the "next" item.\n
+ * A knowledge base (kb_item**) stores single items at a position according to
+ * a hash of the items name (function mkkey). Because of that, a knwoledge
+ * base has a fixed size of 65537 items and kb_items are implemented as lists.\n
+ */
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -89,7 +103,10 @@ struct kb_item * kb_item_get_single(struct kb_item ** kb, char * name, int type)
 }
 
 
-
+/**
+ * Get the value of a kb_item with type KB_TYPE_STR and name name.
+ * @return (char*) value of the kb_item name with type KB_TYPE_STR.
+ */
 char * kb_item_get_str(struct kb_item ** kb, char * name)
 {
  struct kb_item * item = kb_item_get_single(kb, name, KB_TYPE_STR);
@@ -100,6 +117,10 @@ char * kb_item_get_str(struct kb_item ** kb, char * name)
 	return item->v.v_str;
 }
 
+/**
+ * Get the value of a kb_item with tyoe KB_TYPE_INT and name name.
+ * @return (int) value of the kb_item name with type KB_TYPE_INT.
+ */
 int kb_item_get_int(struct kb_item ** kb, char * name)
 {
  struct kb_item * item = kb_item_get_single(kb, name, KB_TYPE_INT);
@@ -109,7 +130,17 @@ int kb_item_get_int(struct kb_item ** kb, char * name)
 	return item->v.v_int;
 }
 
-
+/**
+ * @brief Returns a list of copies of kb_items with name name in a knowledge base.
+ * The result has to be freed (kb_item_get_all_free).
+ * Use kb_item_get_pattern if you want to get all items matching a pattern, 
+ * rather than a single name.
+ * 
+ * @param kb The knowledge base.
+ * @param name Name of the item(s) of interest.
+ * 
+ * @return A kb_item list (has to be freed) with kb_items of name name.
+ */
 struct kb_item * kb_item_get_all(struct kb_item ** kb, char * name)
 {
  unsigned h = mkkey(name);
@@ -136,6 +167,16 @@ struct kb_item * kb_item_get_all(struct kb_item ** kb, char * name)
  return ret;
 }
 
+/**
+ * @brief Returns a list of copies of kb_items that match a pattern.
+ * The items have to be freed, e.g. with kb_item_get_all_free.
+ * 
+ * @param kb The knowledge base.
+ * @param expr A pattern that can be used with fnmatch (e.g. "www/*").
+ * 
+ * @return A list of kb_items (has to be freed) whose name matches the pattern
+ *         exp.
+ */
 struct kb_item * kb_item_get_pattern(struct kb_item ** kb, char * expr )
 {
  int i;
@@ -167,7 +208,10 @@ struct kb_item * kb_item_get_pattern(struct kb_item ** kb, char * expr )
 
 
 /**
- * Free the result of kb_item_get_all()
+ * Frees a list of kb_items, e.g. the result of kb_item_get_all() or 
+ * kb_item_get_pattern().
+ * 
+ * @param items The list of kb_items to free.
  */
 void kb_item_get_all_free(struct kb_item * items)
 {
@@ -183,7 +227,17 @@ void kb_item_get_all_free(struct kb_item * items)
 
 
 /**
- * WRITE to the knowledge base
+ * Add a kb_item with type KB_TYPE_STR and value value to the knowledge base.
+ * 
+ * @param kb The knowledge base itself.
+ * @param name Name of the item to add.
+ * @param value Value of the item to add.
+ * @param replace 0 if an existing item should NOT be replaced (e.g. to create
+ *                lists), different than 0 if the value of an existing item with
+ *                that name shall be replaced.
+ * 
+ * @return -1 if kb equals NULL or if an item as wished exists already, 0 if 
+ *         success.
  */
 static int kb_item_addset_str(struct kb_item ** kb, char * name, char * value, int replace)
 {
