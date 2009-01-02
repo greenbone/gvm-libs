@@ -1,3 +1,7 @@
+2009-01-02  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* configure: Regenerated to completely remove --enable-debug-store.
+
 2009-01-01  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	More patches by Stjepan Gros in preparation of
