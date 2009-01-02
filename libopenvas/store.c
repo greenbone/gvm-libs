@@ -135,24 +135,17 @@ static int safe_copy(char * str, char * dst, int sz, char * path, char * item)
 }
 /*-----------------------------------------------------------------------------*/
 
-
-#define MODE_SYS 0
-#define MODE_USR 1
-
-static char sys_store_dir[MAXPATHLEN+1];
-static char usr_store_dir[MAXPATHLEN+1];
-
-static int current_mode = -1;
+static char store_dir[MAXPATHLEN+1];
 
 /**
- * @brief Inits the sys_store_dir string to the default value.
+ * @brief Inits the store_dir string to the default value.
  *
  * @param dir    Path to the (cache)-directory
  *
  * @return 0 in case of success, -1 if the directory does not exist and could
  *         not be created.
  *
- * sys_store_dir holds the cache directory name. If run with older
+ * store_dir holds the cache directory name. If run with older
  * installations of OpenVAS (<=2.0.0), then it is the NVT directory
  * and ends with "/.desc/" for compatibility. Else it is the directory
  * specified as server preference "cache_folder".
@@ -160,11 +153,11 @@ static int current_mode = -1;
  */
 int store_init(char * dir)
 {
-  strncpy(sys_store_dir, dir, MAXPATHLEN);
+  strncpy(store_dir, dir, MAXPATHLEN);
 
-  if((mkdir(sys_store_dir, 0755) < 0) && (errno != EEXIST))
+  if((mkdir(store_dir, 0755) < 0) && (errno != EEXIST))
   {
-    fprintf(stderr, "mkdir(%s) : %s\n", sys_store_dir, strerror(errno));
+    fprintf(stderr, "mkdir(%s) : %s\n", store_dir, strerror(errno));
     return -1;
   }
 
@@ -172,7 +165,7 @@ int store_init(char * dir)
 }
 
 /**
- * @brief Deprecated funtion to set the directory where the plugin cache files are placed.
+ * @brief Deprecated function to set the directory where the plugin cache files are placed.
  *
  * Don't use this method anymore. It is here only for legacy to be compatible with
  * openvas-server <= 2.0.0.
@@ -180,12 +173,10 @@ int store_init(char * dir)
  */
 int store_init_sys(char * dir)
 {
- current_mode = MODE_SYS;
-
- snprintf(sys_store_dir, sizeof(sys_store_dir), "%s/.desc", dir); /* RATS: ignore */
- if((mkdir(sys_store_dir, 0755) < 0) && (errno != EEXIST))
+ snprintf(store_dir, sizeof(store_dir), "%s/.desc", dir); /* RATS: ignore */
+ if((mkdir(store_dir, 0755) < 0) && (errno != EEXIST))
  {
-  fprintf(stderr, "mkdir(%s) : %s\n", sys_store_dir, strerror(errno));
+  fprintf(stderr, "mkdir(%s) : %s\n", store_dir, strerror(errno));
   return -1;
  }
  
@@ -193,28 +184,16 @@ int store_init_sys(char * dir)
 }
 
 /**
- * Inits the sys_store_dir string to the default value. sys_store_dir holds the 
- * path of the .desc (~server-side plugin cache) directory which is a subfolder
- * of the plugin- directory. If the .desc directory does not exist, it will be 
- * created. Also sets the mode to MODE_USR.
- * @param dir Path to the (plugin)- directory
- * @return 0 in case of success, -1 if the directory does not exist and could 
- *         not be created.
+ * @brief Deprecated function to set the directory where the plugin cache files are placed.
+ *
+ * Don't use this method anymore. It is here only for legacy to be compatible with
+ * openvas-server <= 2.0.0.
+ * The new method to use is @ref store_init .
  */
 int store_init_user(char * dir)
 {
- current_mode = MODE_USR;
- snprintf(usr_store_dir, sizeof(usr_store_dir), "%s/.desc", dir); /* RATS: ignore */
- if((mkdir(usr_store_dir, 0755) < 0) && (errno != EEXIST))
- {
-  fprintf(stderr, "mkdir(%s) : %s\n", usr_store_dir, strerror(errno));
-  return -1;
- } 
- 
- return 0;
+  return store_init_sys(dir);
 }
-
-
 
 /*--------------------------------------------------------------------------------*/
 
@@ -288,11 +267,7 @@ static int store_get_plugin_f(struct plugin * plugin, struct pprefs * pprefs, ch
 
 int store_get_plugin(struct plugin * p, char * desc_file)
 {
- int e = store_get_plugin_f(p, NULL, usr_store_dir, desc_file);
- if(p->id < 0)
-  return store_get_plugin_f(p, NULL, sys_store_dir, desc_file);
- else
-  return e;
+  return store_get_plugin_f(p, NULL, store_dir, desc_file);
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -441,21 +416,15 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
  struct plugin plug;
  struct pprefs pp[MAX_PREFS+1];
  char  * str;
- char * dir;
  struct arglist * arglist, * prefs;
  int e;
  int fd;
  int num_plugin_prefs = 0;
- 
- if( current_mode == MODE_SYS )
-   dir = sys_store_dir;
-  else
-   dir = usr_store_dir;
-   
+
   if(strlen(file) + 2 > sizeof(path))
   	return NULL;
  
- strncpy(path, dir, sizeof(path) - 2 - strlen(file));
+ strncpy(path, store_dir, sizeof(path) - 2 - strlen(file));
  str = strrchr(path, '/');
  if(str != NULL)
  {
@@ -466,7 +435,7 @@ struct arglist * store_plugin(struct arglist * plugin, char * file)
 
  
  
- snprintf(desc_file, sizeof(desc_file), "%s/%s", dir, file); /* RATS: ignore */
+ snprintf(desc_file, sizeof(desc_file), "%s/%s", store_dir, file); /* RATS: ignore */
  str = strrchr(desc_file, '.');
  if( str != NULL )
  {

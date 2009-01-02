@@ -1,6 +1,26 @@
 2009-01-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
-	* Further patches by Stjepan Gros in preparation of
+	Removing the handling of separate user-specific cache dir.
+	This code are remains of the unsecure feature of plugin
+	upload. Apart from this, the OpenVAS Server should eventually
+	not be responsible anymore for user-specific data storage.
+
+	* libopenvas/store.c (usr_store_dir, sys_store_dir, current_mode):
+	Removed these static variables as they are not needed anymore.
+	(store_dir): New. Static variable to hold the cache dir.
+	(MODE_SYS, MODE_USR): Removed these macros as they are not needed any
+	more.
+	(store_init, store_init_sys): Use store_dir instead of sys_store_dir.
+	(store_init_user): Removed functionality and marked as deprecated.
+	Now it simply calls store_init_sys().
+	(store_get_plugin): Reduced functionality to direct call of
+	store_get_plugin_f(), because distinction between user and sys
+	not necessary anymore.
+	(store_plugin): Removed distinction between sys and user.
+
+2009-01-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Further patches by Stjepan Gros in preparation of
 	Change Request #24 (subdirs for NVTs,
 	http://www.openvas.org/openvas-cr-24.html).
 
