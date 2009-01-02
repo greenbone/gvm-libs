@@ -19,6 +19,7 @@
 #include <resolv.h>
 #include <pcap.h>
 #include <net/if.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <netdb.h>

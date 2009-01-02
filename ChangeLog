@@ -1,3 +1,18 @@
+2009-01-02  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Added missing includes to enable compilation on Darwin and NetBSD,
+	based on suggestions by Adrian Portelli.  This solves parts of bug
+	#860 (http://bugs.openvas.org/860) and bug #862
+	(http://bugs.openvas.org/862).
+
+	* libopenvas/pcap.c: Added missing include for netinet/in.h.
+
+	* libopenvas/plugutils.c: Changed to use sys/wait.h instead of wait.h.
+
+	* libopenvas/bpf_share.h: Added missing include for sys/types.h.
+
+	* libopenvas/popen.c: Added missing include for sys/resource.h.
+
 2009-01-02  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* libopenvas/kb.c: Documentation.

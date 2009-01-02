@@ -26,6 +26,8 @@
 #ifndef OPENVAS_BPF_SHARE_H
 #define OPENVAS_BPF_SHARE_H
 
+#include <sys/types.h>
+
 int bpf_server();
 int bpf_open_live(char*, char*);
 u_char* bpf_next(int, int *);

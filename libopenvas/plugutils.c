@@ -35,7 +35,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
-#include <wait.h>
+#include <sys/wait.h>
 #include <time.h>
 
 #include <glib.h>
