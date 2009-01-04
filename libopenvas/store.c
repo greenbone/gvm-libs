@@ -195,37 +195,35 @@ int store_init_user(char * dir)
   return store_init_sys(dir);
 }
 
-/*--------------------------------------------------------------------------------*/
+/**
+ * @brief Internal function to load plugin description from cache file
+ *
+ * @param plugin    This structure is filled with the loaded plugin data
+ *
+ * @param pprefs    This structure is filled with the loaded
+ *                  plugin preferences.
+ *
+ * @param prefs     Plugin preference arglist.
+ *
+ * @param desc_file The full path to the cache file.
 
-
-static int store_get_plugin_f(struct plugin * plugin, struct pprefs * pprefs, char * dir, char * file)
+ * @return -1 upon failure, 0 for success.
+ */
+static int store_get_plugin_f(struct plugin * plugin, struct pprefs * pprefs,
+  gchar * desc_file)
 {
  int fd;
  struct plugin * p;
  struct stat st;
  int len;
- char file_name[MAXPATHLEN+1];
- char * str;
  
  bzero(plugin, sizeof(*plugin));
  plugin->id = -1;
  
- if(dir == NULL || dir[0] == '\0' || file == NULL || file[0] == '\0')
- 	return -1;
- 
- snprintf(file_name, sizeof(file_name), "%s/%s", dir, file); /* RATS: ignore */
- str = strrchr(file_name, '.');
- if(str != NULL)
- {
-  str[0] = '\0';
-  if(strlen(file_name) + 6 < sizeof(file_name))
-  	strncat(file_name, ".desc", MAXPATHLEN); /* RATS: ignore */
- }
+  if(desc_file == NULL || desc_file[0] == '\0')
+    return -1;
 
- if(file == NULL)
-  return -1;
-  
- fd = open(file_name, O_RDONLY);
+ fd = open(desc_file, O_RDONLY);
  if(fd < 0)
   return -1;
  
@@ -267,29 +265,36 @@ static int store_get_plugin_f(struct plugin * plugin, struct pprefs * pprefs, ch
 
 int store_get_plugin(struct plugin * p, char * desc_file)
 {
-  return store_get_plugin_f(p, NULL, store_dir, desc_file);
+  return store_get_plugin_f(p, NULL, desc_file);
 }
 
-/*--------------------------------------------------------------------------------*/
-/* Returns a (plugin) arglist assembled from the description file .desc or NULL
- * if
+/**
+ * @brief Returns a (plugin) arglist assembled from the cached description file
+ *
+ * @param dir Path to location of plugin file
+ *
+ * @param file Filename of the plugin (e.g. detect_openvas.nasl ).
+ *
+ * @param prefs Plugin preference arglist.
+ *
+ * NULL is returned in either of these cases:
  * 1) the .desc does not exist
  * 2) Nvt definition file (e.g. xyz.nasl) or nvt signature (xyz.asc) file is
  *       newer than the .desc file
  * 3) the magic number test failed (other file format expected).
- * 4) an error occured.
- * @param dir Path to parent directory of the .desc directory.
- * @param file File name of the plugin (e.g. detect_openvas.nasl ).
- * @param prefs Plugin preference arglist.
- * @return Pointer to plugin as arglist or NULL (see above).
+ * 4) an internal error occured.
+ *
+ * TODO: In case of errors (returning NULL), memory is not cleanly released.
+ *
+ * @return Pointer to plugin as arglist or NULL.
  */
-struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * prefs)
+struct arglist * store_load_plugin(char * dir, char * file,
+  struct arglist * prefs)
 {
- char desc_file[MAXPATHLEN+1];
- char plug_file[MAXPATHLEN+1];
- char asc_file[MAXPATHLEN+1];
- char * str;
- char store_dir[MAXPATHLEN+1];
+  gchar * dummy = g_build_filename(store_dir, file, NULL);
+  gchar * desc_file = g_strconcat(dummy, ".desc", NULL);
+  gchar * plug_file = g_build_filename(dir, file, NULL);
+  gchar * asc_file = g_strconcat(dummy, ".asc", NULL);
  struct plugin p;
  struct pprefs pp[MAX_PREFS];
  
@@ -300,37 +305,16 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
         stat_asc;
  struct arglist * al;
  
+  g_free(dummy);
+
+  if (desc_file == NULL || asc_file == NULL || plug_file == NULL)
+    return NULL; // g_build_filename failed
+
  bzero(pp, sizeof(pp));
-
- /* Assemble file paths to stat them later */
- snprintf(desc_file, sizeof(desc_file), "%s/.desc/%s", dir, file); /* RATS: ignore */
- str = strrchr(desc_file, '.');
- if( str != NULL )
- {
-  str[0] = '\0';
-  if(	strlen(desc_file) + 6 < sizeof(desc_file) )
-  	strncat(desc_file, ".desc", MAXPATHLEN); /* RATS: ignore */
- }
-
- snprintf(asc_file, sizeof(asc_file), "%s/%s", dir, file); /* RATS: ignore */
-
- if( strlen(asc_file) + 5 < sizeof(desc_file) )
- {
-   strncat(asc_file, ".asc", MAXPATHLEN); /* RATS: ignore */
- }
- else
- {
-   /* Certificate file name is longer than MAXPATHLEN, should not happen */
-   return NULL;
- }
-
- snprintf(plug_file, sizeof(plug_file), "%s/%s", dir, file); /* RATS: ignore */
 
  /* Plugin and cache file have to exist */
  if (  stat(plug_file, &stat_plug) < 0 || stat(desc_file, &stat_desc) < 0)
-   {
    return NULL;
-   }
 
  /* 
   * Look if the plugin (.nasl/.oval etc) or the signature (.asc) is newer than
@@ -339,9 +323,7 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
   */
  if( stat_plug.st_mtime > stat_desc.st_mtime 
     && stat_asc.st_mtime  > stat_desc.st_mtime )
-   {
-	return NULL;
-   }
+    return NULL;
 
  /* 
   * Look if a signature file (.asc) exists. If so and it is newer than
@@ -350,26 +332,19 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
  if(    stat(asc_file, &stat_asc) 
      && stat_asc.st_mtime > stat_desc.st_mtime 
      && stat_asc.st_mtime <= time(NULL) )
-   {
      return NULL;
-   }
 
-
- snprintf(store_dir, sizeof(store_dir), "%s/.desc", dir); /* RATS: ignore */
- if(store_get_plugin_f(&p, pp, store_dir, file) < 0)
+ if(store_get_plugin_f(&p, pp, desc_file) < 0)
   return NULL;
 
+ if(p.magic != MAGIC) return NULL;
 
- if(p.magic != MAGIC)
- 	return NULL;
-	
  if(p.oid == NULL) return NULL;
 
-  
  ret = emalloc(sizeof(struct arglist));   
  plug_set_oid(ret, p.oid);
  plug_set_category(ret, p.category);
- plug_set_cachefile(ret, file);
+ plug_set_cachefile(ret, desc_file);
  plug_set_path(ret, p.path);
  plug_set_family(ret, p.family, NULL);
  plug_set_sign_key_ids(ret, p.sign_key_ids);
@@ -406,13 +381,27 @@ struct arglist * store_load_plugin(char * dir, char * file,  struct arglist * pr
   }
  }
 
+  g_free(desc_file);
+  g_free(asc_file);
+  g_free(plug_file);
+
  return ret;
 }
 
+/**
+ * @brief Creates a entry in the store for data of "plugin" into cache file "file"
+ * which is placed in the cache directory.
+ *
+ * @param plugin    Data structure that contains a plugin description
+ * @param file      Name of corresponding plugin file (e.g. x.nasl, x.nes or x.oval)
+ */
 void store_plugin(struct arglist * plugin, char * file)
 {
- char desc_file[MAXPATHLEN+1];
- char path[MAXPATHLEN+1];
+  gchar * dummy = g_build_filename(store_dir, file, NULL);
+  gchar * desc_file = g_strconcat(dummy, ".desc", NULL);
+  // assume there is a ".desc" at the end in the store_dir path
+  // in order to guess the path of the actual plugin:
+  gchar * path = g_build_filename(store_dir, "..", file, NULL);
  struct plugin plug;
  struct pprefs pp[MAX_PREFS+1];
  char  * str;
@@ -421,31 +410,10 @@ void store_plugin(struct arglist * plugin, char * file)
  int fd;
  int num_plugin_prefs = 0;
 
-  if(strlen(file) + 2 > sizeof(path))
-    return;
- 
- strncpy(path, store_dir, sizeof(path) - 2 - strlen(file));
- str = strrchr(path, '/');
- if(str != NULL)
- {
-  str[0] = '\0';
- }
- strcat(path, "/");
- strcat(path, file); /* RATS: ignore */
+  g_free(dummy);
 
- 
- 
- snprintf(desc_file, sizeof(desc_file), "%s/%s", store_dir, file); /* RATS: ignore */
- str = strrchr(desc_file, '.');
- if( str != NULL )
- {
-  str[0] = '\0';
-  if(strlen(desc_file) + 6 < sizeof(desc_file) )
-  	strncat(desc_file, ".desc", MAXPATHLEN); /* RATS: ignore */
- }
+  if (desc_file == NULL || path == NULL) return; // g_build_filename failed
 
- 
- 
  bzero(&plug, sizeof(plug));
  bzero(pp, sizeof(pp));
  
@@ -593,8 +561,10 @@ void store_plugin(struct arglist * plugin, char * file)
  
  arg_set_value(plugin, "preferences", -1, NULL);
  arg_free_all(plugin);
-}
 
+  g_free(desc_file);
+  g_free(path);
+}
 
 /*---------------------------------------------------------------------*/
 

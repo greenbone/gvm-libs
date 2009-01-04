@@ -1,3 +1,31 @@
+2009-01-04  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Name change for cached ("description") files for NVTs.
+	They used to have the suffix ".desc" instead of ".nasl"
+	but they now have the very same name as the corresponding NVT
+	plus additional suffix ".desc", e.g. "x.nasl" will be "x.nasl.desc".
+	This also prevents that e.g. "x.nasl" and "x.nes" (or "x.oval")
+	will overwrite each others' cache.
+
+	It is recommendable to clean the .desc directory to
+	avoid unnecessary old cache files.
+
+	* libopenvas/store.c (store_plugin): Added doc string and
+	now uses g_build_filename to assemble filenames instead
+	of doing this on our own. Append ".desc" rather than replace
+	a present suffix.
+	(store_load_plugin): Updated doc string and now uses
+	g_build_filename to assemble filenames instead
+	of doing this on our own. Append ".desc" rather than replace
+	a present suffix.
+	Set the full path as cachefile.
+	(store_get_plugin_f): Aggregated params "dir" and "file"
+	into "desc_file". Thus removed code to assemble name on
+	our own.
+	(store_get_plugin): Adapted call of store_get_plugin_f
+	accordingly, assuming the given desc_file is the full path
+	to the cache file.
+
 2009-01-03  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/store.c (store_plugin): change return value to
