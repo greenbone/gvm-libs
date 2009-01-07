@@ -273,7 +273,8 @@ int store_get_plugin(struct plugin * p, char * desc_file)
  *
  * @param dir Path to location of plugin file
  *
- * @param file Filename of the plugin (e.g. detect_openvas.nasl ).
+ * @param file Filename of the plugin (e.g. "detect_openvas.nasl"
+ *             or "subdir1/subdir2/scriptname.nasl" ).
  *
  * @param prefs Plugin preference arglist.
  *
@@ -283,8 +284,6 @@ int store_get_plugin(struct plugin * p, char * desc_file)
  *       newer than the .desc file
  * 3) the magic number test failed (other file format expected).
  * 4) an internal error occured.
- *
- * TODO: In case of errors (returning NULL), memory is not cleanly released.
  *
  * @return Pointer to plugin as arglist or NULL.
  */
@@ -307,14 +306,22 @@ struct arglist * store_load_plugin(char * dir, char * file,
  
   g_free(dummy);
 
-  if (desc_file == NULL || asc_file == NULL || plug_file == NULL)
+  if (desc_file == NULL || asc_file == NULL || plug_file == NULL) {
+    g_free(desc_file);
+    g_free(asc_file);
+    g_free(plug_file);
     return NULL; // g_build_filename failed
+  }
 
  bzero(pp, sizeof(pp));
 
  /* Plugin and cache file have to exist */
- if (  stat(plug_file, &stat_plug) < 0 || stat(desc_file, &stat_desc) < 0)
+ if (  stat(plug_file, &stat_plug) < 0 || stat(desc_file, &stat_desc) < 0) {
+   g_free(desc_file);
+   g_free(asc_file);
+   g_free(plug_file);
    return NULL;
+ }
 
  /* 
   * Look if the plugin (.nasl/.oval etc) or the signature (.asc) is newer than
@@ -322,8 +329,12 @@ struct arglist * store_load_plugin(char * dir, char * file,
   * the plugin and signatures mtime is not in the future...
   */
  if( stat_plug.st_mtime > stat_desc.st_mtime 
-    && stat_asc.st_mtime  > stat_desc.st_mtime )
-    return NULL;
+    && stat_asc.st_mtime  > stat_desc.st_mtime ) {
+   g_free(desc_file);
+   g_free(asc_file);
+   g_free(plug_file);
+   return NULL;
+ }
 
  /* 
   * Look if a signature file (.asc) exists. If so and it is newer than
@@ -331,15 +342,21 @@ struct arglist * store_load_plugin(char * dir, char * file,
   */ 
  if(    stat(asc_file, &stat_asc) 
      && stat_asc.st_mtime > stat_desc.st_mtime 
-     && stat_asc.st_mtime <= time(NULL) )
-     return NULL;
+     && stat_asc.st_mtime <= time(NULL) ) {
+    g_free(desc_file);
+    g_free(asc_file);
+    g_free(plug_file);
+    return NULL;
+  }
 
- if(store_get_plugin_f(&p, pp, desc_file) < 0)
-  return NULL;
-
- if(p.magic != MAGIC) return NULL;
-
- if(p.oid == NULL) return NULL;
+  if((store_get_plugin_f(&p, pp, desc_file) < 0) ||
+     (p.magic != MAGIC) ||
+     (p.oid == NULL)) {
+    g_free(desc_file);
+    g_free(asc_file);
+    g_free(plug_file);
+    return NULL;
+  }
 
  ret = emalloc(sizeof(struct arglist));   
  plug_set_oid(ret, p.oid);
@@ -393,7 +410,9 @@ struct arglist * store_load_plugin(char * dir, char * file,
  * which is placed in the cache directory.
  *
  * @param plugin    Data structure that contains a plugin description
- * @param file      Name of corresponding plugin file (e.g. x.nasl, x.nes or x.oval)
+ * @param file      Name of corresponding plugin file (e.g. "x.nasl", "x.nes"
+ *                  or "x.oval". It can also be something like
+ *                  "subdir1/subdir2/scriptname.nasl").
  */
 void store_plugin(struct arglist * plugin, char * file)
 {
