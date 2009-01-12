@@ -1,5 +1,14 @@
 2009-01-12  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Added GPL headers.
+	
+	* libopenvas_hg/hg_debug.c, libopenvas_hg/hg_filter.h,
+	libopenvas_hg/test.c, libopenvas_hg/hg_utils.h,
+	libopenvas_hg/hg_subnet.h, libopenvas_hg/hg_dns_axfr.h,
+	libopenvas/hg_add_hosts.h : Added GPL header.
+
+2009-01-12  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* libopenvas_hg/hg_filter.c: Replaced K&R function headers, transformed
 	comments to javadoc style, removed some whitespaces.
 
