@@ -1,5 +1,10 @@
 2009-01-12  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* libopenvas_hg/hg_filter.c: Replaced K&R function headers, transformed
+	comments to javadoc style, removed some whitespaces.
+
+2009-01-12  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* libopenvas_hg/hg_add_hosts.c (hg_add_comma_delimited_hosts):
 	Reformatted.
 
