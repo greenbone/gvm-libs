@@ -340,63 +340,64 @@ noranges:
 }
  
  
-/*
+/**
  * Add hosts of the form :
  *
  * host1/nm,host2/nm,xxx.xxx.xxx.xxx/xxx, ....
  *
  */
 int
-hg_add_comma_delimited_hosts(globals, limit)
- struct hg_globals * globals;
- int limit;
+hg_add_comma_delimited_hosts (struct hg_globals* globals, int limit)
 {
- char * p, *v;
- int n = 0;
- 
- p = globals->marker;
- while(p)
- {
-   int len;
-   if(limit > 0 && n > limit) /* Don't resolve more than 256 host names in a row */
-   {
-   globals->marker = p;
-   return 0;
-   } 
+  char * p, *v;
+  int n = 0;
   
-  while((*p == ' ')&&(p!='\0'))
-  	p++;
-  
-  v = strchr(p+1, ',');
-  if( v == NULL )
-  	v = strchr(p+1, ';');
-  
-  if( v != NULL )
-  	v[0] = '\0';
-	
-	
-  len = strlen(p);
-  while(p[len-1]==' '){
-  	p[len-1]='\0';
-	len --;
-	}
-  if(hg_add_host(globals, p) <  0)
-  {
-   if ( v != NULL )
-	globals->marker = v + 1;
-   else
-	globals->marker = NULL; 
-   return -1;
-  }
-  n ++;
-  if(v != NULL)
-  	p = v+1;
-  else 
-  	p = NULL;
- }
- 
- globals->marker = NULL;
- return 0;
+  p = globals->marker;
+  while (p)
+    {
+      int len;
+      if (limit > 0 && n > limit) /* Don't resolve more than 256 host names in a row */
+        {
+          globals->marker = p;
+          return 0;
+        }
+      
+      while ((*p == ' ')&&(p!='\0'))
+        p++;
+      
+      v = strchr(p+1, ',');
+      if ( v == NULL )
+        v = strchr(p+1, ';');
+      
+      if( v != NULL )
+        v[0] = '\0';
+
+
+      len = strlen(p);
+      while (p[len-1]==' ')
+        {
+          p[len-1]='\0';
+          len --;
+        }
+
+      if(hg_add_host(globals, p) <  0)
+        {
+          if ( v != NULL )
+            globals->marker = v + 1;
+          else
+            globals->marker = NULL; 
+          return -1;
+        }
+
+      n ++;
+      if (v != NULL)
+        p = v+1;
+      else 
+        p = NULL;
+    }
+
+  globals->marker = NULL;
+  return 0;
 }
 
 void
