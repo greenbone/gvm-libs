@@ -19,14 +19,11 @@
 #include <includes.h>
 #include "hosts_gatherer.h"
 
-/*
- * 
+/**
  * Resolve an hostname
- *
  */
 struct in_addr
-hg_resolv(hostname)
- char * hostname;
+hg_resolv (char* hostname)
 {
  struct in_addr in;
  struct hostent *ent;
@@ -40,16 +37,12 @@ hg_resolv(hostname)
  return in;
 }
 
-/*
- * 
+/**
  * Get the FQDN from the IP
- *
+ * @return Always 0.
  */
 int
-hg_get_name_from_ip(ip, hostname, sz)
- struct in_addr ip;
- char * hostname; 
- int sz;
+hg_get_name_from_ip (struct in_addr ip, char * hostname, int sz)
 {
  struct hostent * he = NULL;
  int i;
@@ -72,17 +65,15 @@ hg_get_name_from_ip(ip, hostname, sz)
  return 0; /* We never fail */
 }
 
-/*
+/**
  * input : hostname (ie : www.if.arf.com)
  * returns: if.arf.com
  *
  * If the input is arf.com
  * returns : NULL
- *
  */
 char * 
-hg_name_to_domain(hostname)
- char * hostname;
+hg_name_to_domain (char * hostname)
 {
   unsigned int i = -1, j;
   char * ret;
@@ -110,9 +101,11 @@ hg_host_cleanup(hosts)
   free(hosts);
 }
 
+/**
+ * Frees all hosts that are linked in hosts, using hg_host_cleanup.
+ */
 void 
-hg_hosts_cleanup(hosts)
- struct hg_host * hosts;
+hg_hosts_cleanup(struct hg_host * hosts)
 {
   while ( hosts != NULL ) 
   {
@@ -122,4 +115,3 @@ hg_hosts_cleanup(hosts)
    hosts = next;
  }
 }
- 

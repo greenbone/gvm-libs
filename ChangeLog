@@ -1,6 +1,15 @@
+2009-01-13  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* ChangeLog: Clarified last ChangeLog entry (choice of GPL header).
+	
+	* libopenvas_hg/hg_utils.c: Replaced K&R function declarations,
+	documentation.
+	
 2009-01-12  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
-	Added GPL headers.
+	Added GPL header from host_gatherer.c to other constituent files of
+	the host_gatherer library (referenced as "HostLoop2 library" in
+	hg_add_host.c).
 	
 	* libopenvas_hg/hg_debug.c, libopenvas_hg/hg_filter.h,
 	libopenvas_hg/test.c, libopenvas_hg/hg_utils.h,
