@@ -2,6 +2,7 @@ openvas-libraries (2.0.0-2) unstable; urgency=low
 
   * Brown paper bug upload: Restore the changes introduced since 1.0.1-5
   * Make proper versioned binary packages for this library
+  * Add a Build-Depend on libglib2.0-dev (Closes: 511627)
 
  -- Javier Fernandez-Sanguino Pen~a <jfs@debian.org>  Thu, 15 Jan 2009 22:19:53 +0100
 
