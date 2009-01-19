@@ -14,6 +14,7 @@ Section: libdevel
 Architecture: any
 Depends: libopenvas2 (= ${binary:Version}), libgnutls-dev, libpcap-dev
 Replaces: libopenvas1-dev
+Conflicts: libopenvas1-dev
 Description: OpenVAS static libraries and headers
  The OpenVAS Security Scanner is a security auditing tool. It makes
  possible to test security modules in an attempt to find vulnerable
@@ -31,6 +32,7 @@ Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Replaces: libopenvas1
+Conflicts: libopenvas1
 Description: OpenVAS shared libraries
  The OpenVAS Security Scanner is a security auditing tool. It makes
  possible to test security modules in an attempt to find vulnerable
