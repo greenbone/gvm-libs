@@ -1,3 +1,11 @@
+2009-01-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Inclusion of hash_table_file module (copy from client).
+
+	* libopenvas/hash_table_file.c, libopenvas/hash_table.h: Added.
+	
+	* MANIFEST, Makefile, libopenvas/Makefile: Updated.
+
 2009-01-13  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* ChangeLog: Clarified last ChangeLog entry (choice of GPL header).

@@ -6,6 +6,9 @@ config.guess
 config.sub
 configure
 configure.in
+doc/
+doc/Doxyfile
+doc/Doxyfile_full
 packaging/debian/
 packaging/opensuse/
 packaging/fedora/
@@ -42,6 +45,8 @@ libopenvas/ftp_funcs.c
 libopenvas/ftp_funcs.h
 libopenvas/harglists.c
 libopenvas/harglists.h
+libopenvas/hash_table_file.c
+libopenvas/hash_table_file.h
 libopenvas/hlst.c
 libopenvas/hlst.h
 libopenvas/ids_send.c

@@ -49,6 +49,7 @@ install : all
 	$(INSTALL) -m 0444 libopenvas/arglists.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/bpf_share.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/ftp_funcs.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 libopenvas/hash_table_file.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/harglists.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/kb.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/network.h $(DESTDIR)${includedir}/openvas

@@ -30,13 +30,13 @@ OBJS = plugutils.o system.o network.o resolve.o arglists.o ftp_funcs.o \
 	scanners_utils.o pcap.o hlst.o  harglists.o \
         www_funcs.o ids_send.o rand.o popen.o \
 	bpf_share.o rand.o popen.o services.o services1.o \
-	proctitle.o store.o kb.o share_fd.o
+	proctitle.o store.o kb.o share_fd.o hash_table_file.o
 	
 LO_OBJS = plugutils.lo system.lo network.lo resolve.lo arglists.lo \
 	ftp_funcs.lo scanners_utils.lo pcap.lo hlst.lo  harglists.lo \
 	www_funcs.lo ids_send.lo \
 	rand.lo popen.lo bpf_share.lo services.lo services1.lo \
-	proctitle.lo store.lo kb.lo share_fd.lo
+	proctitle.lo store.lo kb.lo share_fd.lo hash_table_file.lo
 
 # += does not work with non-GNU make ...
 # CFLAGS+=-I../$(CIPHER_SUBDIR)
@@ -110,9 +110,11 @@ proctitle.o: proctitle.c proctitle.h
 store.o: store.c store_internal.h share_fd.h system.h plugutils.h plugutils_internal.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -DNESSUS_STATE_DIR=\"$(localstatedir)\" -c store.c
 
+hash_table_file.o: hash_table_file.c hash_table_file.h
+	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c hash_table_file.c
+
 kb.o: kb.c arglists.h kb.h system_internal.h
 	$(LIBTOOL) $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -c kb.c
-
 
 libopenvas.la: $(OBJS)
 	$(LIBTOOL) $(CC) $(LDFLAGS) -o libopenvas.la $(LO_OBJS) $(LIBS) -rpath ${libdir} \
