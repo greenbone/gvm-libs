@@ -38,7 +38,7 @@ LO_OBJS = plugutils.lo system.lo network.lo resolve.lo arglists.lo \
 	www_funcs.lo ids_send.lo \
 	rand.lo popen.lo bpf_share.lo services.lo services1.lo \
 	proctitle.lo store.lo kb.lo share_fd.lo hash_table_file.lo \
-	openvas_ssh_login.o
+	openvas_ssh_login.lo
 
 # += does not work with non-GNU make ...
 # CFLAGS+=-I../$(CIPHER_SUBDIR)
