@@ -1,5 +1,11 @@
 2009-01-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Added make targets for openvas_ssh_login module.
+	
+	* libopenvas/Makefile: Included openvas_ssh_login module.
+
+2009-01-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Inclusion of openvas_ssh_login module (copy from client).
 
 	* libopenvas/openvas_ssh_login.c, libopenvas/openvas_ssh_login.h: Added.
