@@ -1,5 +1,13 @@
 2009-01-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Inclusion of openvas_ssh_login module (copy from client).
+
+	* libopenvas/openvas_ssh_login.c, libopenvas/openvas_ssh_login.h: Added.
+	
+	* MANIFEST, Makefile, libopenvas/Makefile: Updated.
+
+2009-01-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Inclusion of hash_table_file module (copy from client).
 
 	* libopenvas/hash_table_file.c, libopenvas/hash_table.h: Added.
