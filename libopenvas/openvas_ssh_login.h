@@ -1,4 +1,4 @@
-/* OpenVAS-Client
+/* OpenVAS-libraries
  * $Id$
  * Description: SSH Key management.
  *
@@ -56,7 +56,7 @@ openvas_ssh_login* openvas_ssh_login_new(char* name, char* pubkey_file,
 
 void openvas_ssh_login_free(openvas_ssh_login* loginfo);
 
-GHashTable* openvas_ssh_login_file_read(char* filename);
+GHashTable* openvas_ssh_login_file_read(char* filename, gboolean);
 
 gboolean openvas_ssh_login_file_write(GHashTable* ssh_logins, char* filename);
 

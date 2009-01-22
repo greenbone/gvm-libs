@@ -1,4 +1,4 @@
-/* OpenVAS-Client
+/* OpenVAS-libraries
  * $Id$
  * Description: SSH Key management.
  *
@@ -220,21 +220,24 @@ gboolean openvas_ssh_login_file_write(GHashTable* ssh_logins, char* filename)
   return TRUE;
 }
 
-
 /**
  * @brief Reads a ssh_login file and returns info in a GHashTable.
  * 
  * The GHashTable contains the names as keys and pointers to openvas_ssh_logins
  * as values.
- * openvas_ssh_logins are checked before being added to the hashtable:
- * if the public and private key files do not exist, the openvas_ssh_login is
- * not added.
+ * If check_keyfiles TRUE, openvas_ssh_logins are checked before being 
+ * added to the hashtable:
+ * if the public and private key files do not exist, the openvas_ssh_login would
+ * not be added.
  * 
- * @param filename File to read from.
+ * @param filename       File to read from.
+ * @param check_keyfiles If TRUE, checks if referenced keyfiles do exist, before
+ *                       adding the openvas_ssh_login to the HashTable.
  * 
  * @return GHashTable, keys are names of openvas_ssh_logins, who are values.
  */
-GHashTable* openvas_ssh_login_file_read(char* filename)
+GHashTable*
+openvas_ssh_login_file_read (char* filename, gboolean check_keyfiles)
 {
   gchar** names;
   gsize length;
@@ -285,8 +288,13 @@ GHashTable* openvas_ssh_login_file_read(char* filename)
     openvas_ssh_login* loginfo = openvas_ssh_login_new(name, pubkey, privkey,
                                   passphrase, comment, username);
 
-    // Discard if error or files do not exist
-    if(err != NULL || file_check_exists(pubkey) == 0 || file_check_exists(privkey) == 0)
+    // Discard if error or files do not exist (depending on check_keyfiles param)
+    if (err != NULL)
+    {
+      openvas_ssh_login_free(loginfo);
+    }
+    else if (check_keyfiles == TRUE 
+             && (file_check_exists(pubkey) == 0 || file_check_exists(privkey) == 0) )
     {
       openvas_ssh_login_free(loginfo);
     }

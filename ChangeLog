@@ -1,3 +1,19 @@
+2009-01-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Changed API (new parameter in openvas_ssh_login_file_read). Fixes build
+	of latest openvas-server.
+
+	* libopenvas/openvas_ssh_login.c, libopenvas/openvas_ssh_login.h:
+	Changed file headers to indicate that they are part of
+	openvas-libraries.
+
+	* libopenvas/openvas_ssh_login.c (openvas_ssh_login_file_read): Added
+	parameter check_keyfiles to allow exclusion/inclusion of logins that
+	are lacking pub/private key files, included parameter in documentation.
+
+	* libopenvas/openvas_ssh_login.h: Adjusted proto for
+	openvas_ssh_login_file_read.
+
 2009-01-21  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/store.h: Applied gcc deprecation marker
