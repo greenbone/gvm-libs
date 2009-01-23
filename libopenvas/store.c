@@ -135,31 +135,44 @@ static int safe_copy(char * str, char * dst, int sz, char * path, char * item)
 }
 /*-----------------------------------------------------------------------------*/
 
-static char store_dir[MAXPATHLEN+1];
+/*
+ * store_dir holds the directory name for the cache. If run with older
+ * installations of OpenVAS (<=2.0.0), then it is initialized with
+ * the NVT directory (server preference "plugins_folder")
+ * and appends "/.desc/". For newer versions it is the directory
+ * specified as server preference "cache_folder".
+ */
+static char store_dir[MAXPATHLEN+1] = "";
 
 /**
- * @brief Inits the store_dir string to the default value.
+ * @brief Sets the @ref store_dir to the given path.
  *
- * @param dir    Path to the (cache)-directory
+ * @param dir Path to the cache-directory. It must exist.
  *
- * @return 0 in case of success, -1 if the directory does not exist and could
- *         not be created.
- *
- * store_dir holds the cache directory name. If run with older
- * installations of OpenVAS (<=2.0.0), then it is the NVT directory
- * and ends with "/.desc/" for compatibility. Else it is the directory
- * specified as server preference "cache_folder".
- * The directory will be created if it doesn't exist.
+ * @return    0  in case of success (@ref store_dir is set now)
+ *            -1 if the given path exeeds the buffer size
+ *            -2 if the directory does not exist
+ *            In any other case than 0 @ref store_dir is
+ *            not set and a error is printed to stderr
  */
 int store_init(char * dir)
 {
-  strncpy(store_dir, dir, MAXPATHLEN);
+  struct stat st;
+  int i = 0;
 
-  if((mkdir(store_dir, 0755) < 0) && (errno != EEXIST))
-  {
-    fprintf(stderr, "mkdir(%s) : %s\n", store_dir, strerror(errno));
+  for (;i < sizeof(store_dir) && dir[i];i ++) ;
+  if (i == sizeof(store_dir)) {
+    fprintf(stderr,
+            "store_init(): path too long with more than %d characters\n", i);
     return -1;
   }
+
+  if (stat(dir, &st) < 0) { // check for existance
+    fprintf(stderr, "stat(%s): %s\n", dir, strerror(errno));
+    return -2;
+  }
+
+  strncpy(store_dir, dir, sizeof(store_dir));
 
   return 0;
 }
