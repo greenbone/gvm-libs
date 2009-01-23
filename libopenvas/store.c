@@ -152,6 +152,7 @@ static char store_dir[MAXPATHLEN+1] = "";
  * @return    0  in case of success (@ref store_dir is set now)
  *            -1 if the given path exeeds the buffer size
  *            -2 if the directory does not exist
+ *            -3 if the given path was NULL
  *            In any other case than 0 @ref store_dir is
  *            not set and a error is printed to stderr
  */
@@ -159,6 +160,11 @@ int store_init(char * dir)
 {
   struct stat st;
   int i = 0;
+
+  if (dir == NULL) {
+    fprintf(stderr, "store_init(): called with NULL\n");
+    return -3;
+  }
 
   for (;i < sizeof(store_dir) && dir[i];i ++) ;
   if (i == sizeof(store_dir)) {

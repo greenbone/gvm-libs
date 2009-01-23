@@ -1,5 +1,10 @@
 2009-01-23  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* libopenvas/store.c (store_init): Also handle NULL
+	for its parameter.
+
+2009-01-23  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	* libopenvas/store.c (store_dir, store_init): Improved
 	comments and made implementation more robust.
 	store_init will not anymore try to create the directory.
