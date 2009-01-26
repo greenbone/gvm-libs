@@ -457,7 +457,8 @@ void store_plugin(struct arglist * plugin, char * file)
  
  plug.magic = MAGIC;
  plug.id = plug_get_id(plugin);
- e = safe_copy(path, plug.path, sizeof(plug.path), path, "path"); 
+ str = plug_get_path(plugin);
+ e = safe_copy(str, plug.path, sizeof(plug.path), path, "path"); 
  if(e < 0) return;
  
  str = plug_get_oid(plugin);

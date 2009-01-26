@@ -1,3 +1,9 @@
+2009-01-27  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libopenvas/store.c (store_plugin): Fixed a bug: In
+	case of using cache_folder, the wrong filenames for the
+	actual plugin file where written into the cache file.
+ 
 2009-01-23  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/store.c (store_init): Also handle NULL
