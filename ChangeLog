@@ -1,3 +1,10 @@
+2009-01-28  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libopenvas/store.c (store_plugin): When creating a
+	cache file for a plugin, now take care a subdirectory
+	is created in the cachefolder - in case the plugin
+	is located in a subfolder of the plugin folder accordingly. 
+
 2009-01-27  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/store.c (store_plugin): Fixed a bug: In

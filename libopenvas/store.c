@@ -589,7 +589,17 @@ void store_plugin(struct arglist * plugin, char * file)
   plug.has_prefs = 1;
  
  fd = open(desc_file, O_RDWR|O_CREAT|O_TRUNC, 0644);
- if(fd < 0) return;
+  if(fd < 0) { // second try: maybe the directory was missing.
+    gchar * desc_dir = g_path_get_dirname(desc_file);
+
+    if ((mkdir(desc_dir, 0755) < 0) && (errno != EEXIST)) {
+     fprintf(stderr, "mkdir(%s) : %s\n", desc_dir, strerror(errno));
+     return;
+    }
+    g_free(desc_dir);
+    fd = open(desc_file, O_RDWR|O_CREAT|O_TRUNC, 0644);
+    if(fd < 0) return;
+  }
  
   if(write(fd, &plug, sizeof(plug)) < 0)
     perror("write ");
