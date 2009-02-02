@@ -76,52 +76,6 @@
 #undef PLUGINS_DIR
 
 /*
- * Some definitions used for client/server ecryption
- * (actvated only if ENABLE_CRYPTO_LAYER is set)	
- */	
-
-/* The default server key file and key length */
-#undef  NESSUSD_KEYFILE
-#undef  NESSUSD_USRKEYS
-#define NESSUSD_KEYLENGTH 1024
-#define NESSUSD_MAXPWDFAIL   5
-
-/*
- * The default port on which openvasd
- * will be listenning
- */
-#define DEFAULT_PORT 3001
-
-/*
- * How much time before closing
- * the connection if nothing comes
- * from the client ? (in secs)
- */
-#define CLIENT_TIMEOUT 300
-
-/*
- * How much time before killing
- * a plugin ? (in secs)
- * (if you have a slow computer or a slow
- * network connection, set it to 120 or 180)
- */
- 
-#define PLUGIN_TIMEOUT 80
-
-
-/*
- * Shall the server log EVERYTHING ?
- */
- 
-#undef LOGMORE
-
-/*
- * Shall the server log the whole attack ?
- */
- 
-#undef LOG_WHOLE_ATTACK
-
-/*
  * Host specs.
  * 
  * Set this if you are running OpenBSD < 2.1 or all FreeBSD or
@@ -132,19 +86,6 @@
  *
  */
 #undef BSD_BYTE_ORDERING
-
-
-/*
- * NESSUS CLIENT SPECIFIC CONFIGURATION
- */
- 
-/*
- * How long before closing the 
- * connection to the server if
- * it stays mute ?
- */
-#define SERVER_TIMEOUT 800
- 
 
 /*
  * STOP ! Don't edit anything after this line !

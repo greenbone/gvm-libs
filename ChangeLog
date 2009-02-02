@@ -1,5 +1,20 @@
 2009-02-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
+	* include/config.h.in: Removed define of "DEFAULT_PORT"
+	which is not used anywhere (it defaulted to ancient 3001).
+	Removed define of "CLIENT_TIMEOUT". It is not used anywhere.
+	Removed define of "SERVER_TIMEOUT". It is not used anywhere.
+	Removed define of "LOGMORE". It is not used anywhere.
+	Removed define of "NESSUSD_KEYFILE", "NESSUSD_USRKEYS",
+	"NESSUSD_KEYLENGTH" and "NESSUSD_MAXPWDFAIL".  These are
+	not used anywhere.
+	Removed define of "PLUGIN_TIMEOUT". It is not used in
+	this module.
+	Removed define of "LOG_WHOLE_ATTACK". It is not used in
+	this module.
+
+2009-02-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
 	Removed any code path that is conditional to "ENABLE_RHLST".
 	It was never used, especially because it would require a file
 	"rhlst.h" which isn't present at all.
