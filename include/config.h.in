@@ -75,12 +75,6 @@
  */
 #undef PLUGINS_DIR
 
-/* 
- * Should we use the remote harg stuff ?
- */
-#undef ENABLE_RHLST
-
-
 /*
  * Some definitions used for client/server ecryption
  * (actvated only if ENABLE_CRYPTO_LAYER is set)	

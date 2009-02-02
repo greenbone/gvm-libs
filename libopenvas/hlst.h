@@ -29,11 +29,6 @@
 #ifndef __HLST_H__
 #define __HLST_H__
 
-#ifdef ENABLE_RHLST
-#define __RHLST_EXPORTS_H__
-#include "rhlst.h"
-#endif /* ENABLE_RHLST */
-
 #ifdef __HLST_INTERNAL__
 typedef 
 struct _hsrch {			/* walk through the list */
@@ -41,12 +36,6 @@ struct _hsrch {			/* walk through the list */
   unsigned      bucket_id ;	/* current bucket */
   struct _hashqueue *ntry ;	/* pointer to the next entry */
   struct _hsrch     *next ;	/* more such entries */
-
-# ifdef ENABLE_RHLST
-  void (*clup)(void*)     ;	/* for remote list processing */
-  void  *clup_state ;
-# endif /* ENABLE_RHLST */
-
 } hsrch ;
 
 typedef
@@ -54,10 +43,6 @@ struct _hash_defs {		/* hash list parameters */
   unsigned  mod ;		/* number of buckets */
   unsigned  fac ;		/* shift by multiplication */
 } hash_defs ;
-
-#ifndef ENABLE_RHLST
-typedef struct _rhlst {void* unused;} rlst;
-#endif /* ENABLE_RHLST */
 
 typedef 
 struct _hlst {			/* hash list descriptor */
@@ -79,12 +64,6 @@ struct _hlst {			/* hash list descriptor */
 typedef struct _hlst  {char opaq;} hlst;
 typedef struct _hsrch {char opaq;} hsrch;
 #endif
-
-#ifdef ENABLE_RHLST
-#undef __RHLST_H__
-#undef __RHLST_EXPORTS_H__
-#include "rhlst.h"
-#endif /* ENABLE_RHLST */
 
 /* open/close management */
 extern hlst *create_hlst 
@@ -149,12 +128,6 @@ extern int delete_hlst (hlst*, const char *key, unsigned len);
    retrieve the korresponding key and its length */
 extern char    *query_key_hlst    (void **);
 extern unsigned query_keylen_hlst (void **);
-
-#ifdef ENABLE_RHLST
-/* sets/returns a transaction number associated with the entry */
-extern int query_tranum_hlst (void **);
-extern int   set_tranum_hlst (void **, int);
-#endif /* ENABLE_RHLST */
 
 /* returns the number of elements in the argument list (might be NULL) */
 extern unsigned query_hlst_size (hlst *);

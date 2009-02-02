@@ -64,9 +64,6 @@ struct _hashqueue {		/* linked list of bucket entries */
   unsigned          keylen;	/* length of current key */
   int               locked;	/* currently visited my some hash walk */
   struct _sorter *backlink;	/* there might be an index on that list */
-# ifdef ENABLE_RHLST
-  int               tranum;	/* transaction id, used for caching */
-# endif /* ENABLE_RHLST */
   char             key [1];	/* varable size key */
   /* varable length, pointer aligned  */
 } hashqueue ;
@@ -397,12 +394,6 @@ flush_hlst
   /* cannot visit any node, anymore */
   for (s = h->walk; s != 0; s = s->next) {
     s->hlist = 0 ;      /* next_hlst_search() will stop, that way */
-#   ifdef ENABLE_RHLST
-    if (s->clup != 0) { /* clean up by call back as early as possible */
-      (*s->clup)(s->clup_state);
-      s->clup = 0 ;
-    }
-#   endif
   }
   /* statistics */
   h->total_entries = 0 ;
@@ -584,37 +575,6 @@ query_keylen_hlst
   return  REVERT_FIELD_PTR (t, hashqueue, contents)->keylen ;
 }
 
-
-#ifdef ENABLE_RHLST
-int
-query_tranum_hlst
-  (void **t)
-{
-  if (t == 0) {
-    errno = EINVAL;
-    return 0;
-  }
-  errno = 0 ;
-  return REVERT_FIELD_PTR (t, hashqueue, contents)->tranum ;
-}
-
-int
-set_tranum_hlst
-  (void **t,
-   int    n)
-{
-  int last ;
-  if (t == 0) {
-    errno = EINVAL;
-    return 0;
-  }
-  errno = 0 ;
-  last = REVERT_FIELD_PTR (t, hashqueue, contents)->tranum ;
-  REVERT_FIELD_PTR (t, hashqueue, contents)->tranum = n ;
-  return last;
-}
-#endif /* ENABLE_RHLST */
-
 unsigned
 query_hlst_size
   (hlst *h)
@@ -715,10 +675,6 @@ close_hlst_search
       if (u->ntry != 0)  /* release that particular node */
 	u->ntry->locked -- ;
       *U = u->next ;     /* unlink the walk descriptor */
-#     ifdef ENABLE_RHLST
-      if (u->clup != 0)  /* clean up peripheral my call back fn */
-	(*u->clup)(u->clup_state);
-#     endif
       XFREE (u);         /* done */
       return ;
     }
