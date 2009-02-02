@@ -2002,15 +2002,6 @@ find_in_path(name, safe)
   return NULL;
 }
 
-int 
-is_shell_command_present(name)
- char * name;
-{
-  return find_in_path(name, 0) != NULL;
-}
-
-
-
 int shared_socket_register ( struct arglist * args, int fd, char * name )
 {
  int soc; 

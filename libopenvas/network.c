@@ -368,40 +368,6 @@ nessus_SSL_init(char *path)
   return 0;
 }
 
-# if 0
-void
-nessus_print_SSL_certificate(cert)
-     X509* cert;    
-{
- BIO * b;
- BUF_MEM * bptr;
- char * ret = NULL;
- int	i;
-
- if(cert == NULL)
-   return;
-
- b = BIO_new(BIO_s_mem());
- if(X509_print(b, cert) > 0)
-   {
-     BIO_get_mem_ptr(b, &bptr);
-     printf("* Peer certificate *\n");
-     for(i = 0; i < bptr->length; i ++)
-       putchar(bptr->data[i]);
-     printf("\n********************\n");
-   }
- BIO_free(b);
-}
-
-void
-nessus_print_peer_SSL_certificate(ssl)
-     SSL* ssl;
-{
-  X509 * cert = SSL_get_peer_certificate(ssl);
-  nessus_print_SSL_certificate(cert);
-}
-# endif
-
 
 int
 nessus_get_socket_from_connection(fd)
@@ -1772,16 +1738,6 @@ nsend (fd, data, length, i_opt)
 #if DEBUG_SSL > 1
  else
    fprintf(stderr, "nsend[%d]: fd=%d\n", getpid(), fd);
-#endif
-#if 0
-   for (i = 0; i < NESSUS_FD_MAX; i ++)
-     if (connections[i].fd == fd && connections[i].transport > 0)
-       {
-	 /* Fixing a severe bug! */
-	 fprintf(stderr, "nsend: fd=%d used by Nessus FD %d\n",
-		 fd, i + NESSUS_FD_OFF);
-	 return write_stream_connection4(i + NESSUS_FD_OFF, data, length, i_opt);
-       }
 #endif
  /* Trying OS's send() */
    block_socket(fd);		/* ??? */

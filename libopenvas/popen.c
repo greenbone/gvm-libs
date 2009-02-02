@@ -48,31 +48,6 @@ nessus_popen4(const char* cmd, char *const args[], pid_t* ppid, int inice)
     fprintf(stderr, " %s", args[i]);
   fputc('\n', stderr);
 #endif
-#if 0
-  {
-    char	buffer[1024], *p;
-    int		n, sz = sizeof(buffer)-1;
-
-    n = snprintf(buffer, sz, "%s", cmd);
-    if (n > 0)
-      {
-	p = buffer + n; 
-	sz -= n;
-      }
-
-    for (i = 0; args[i] != NULL && sz > 0; i ++)
-      {
-	n = snprintf(p, sz, " %s", args[i]);
-	if (n > 0)
-	  {
-	    p = buffer + n; 
-	    sz -= n;
-	  }
-      }
-    *p ++ = '\0';
-    log_write("nessus_popen: %s", buffer);
-  }
-#endif
 
  /* pipe() does not always work well on some OS */
   if (socketpair(AF_UNIX, SOCK_STREAM, 0, pipes) < 0)  
@@ -181,6 +156,9 @@ nessus_pclose(FILE* fp, pid_t pid)
   return fclose(fp);
 }
 
+/* XXX: This method is only used in the nmap c-plugin. Once it
+   is finally removed from openvas-plugins, this method can be
+   removed as well. */
 /* Code taken from ptycall by Jordan Hrycaj */
 char** append_argv(char **argv, char   *opt)
 {
@@ -214,6 +192,9 @@ char** append_argv(char **argv, char   *opt)
   return argv ;
 }
 
+/* XXX: This method is only used in the nmap c-plugin. Once it
+   is finally removed from openvas-plugins, this method can be
+   removed as well. */
 void destroy_argv(char **argv)
 {
   int argc ;

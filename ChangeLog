@@ -1,3 +1,25 @@
+2009-02-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	Some cleanups. Basically removing never-used code.
+
+	* libopenvas/plugutils.c (is_shell_command_present): Removed.
+	It is not used anywhere except in
+	openvas-plugins/plugins/nmap_wrapper/nmap_wrapper.c for
+	very ancient NASL level.
+
+	* libopenvas/plugutils.h: Removed proto accordingly.
+
+	* libopenvas/popen.c (nessus_popen4): Removed unused
+	code that is deaactivcated with "#if 0".
+	(append_argv, destroy_argv): marked as to be deleted
+	eventually.
+
+	* libopenvas/network.c (nessus_print_SSL_certificate,
+	nessus_print_peer_SSL_certificate): Removed. It is unused
+	code that was deactivcated with "#if 0".
+	(nsend): Removed unused code that was deactivated with
+        "#if 0".
+
 2009-01-28  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/store.c (store_plugin): When creating a

@@ -184,7 +184,6 @@ char *get_plugin_preference(struct arglist *, const char *);
 const char *get_plugin_preference_fname(struct arglist*, const char*);
 
 char* find_in_path(char*, int);
-int is_shell_command_present(char*);
 
 int shared_socket_register ( struct arglist *, int, char *);
 int shared_socket_acquire  ( struct arglist *, char * );
