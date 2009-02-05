@@ -1,3 +1,9 @@
+2009-02-05  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* libopenvas/system.c (erealloc): Removed misleading comment; the
+	function is indeed defined in libopenvas/system.h and is used in a
+	number of places in openvas-libraries.
+
 2009-02-05  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Cosmetics and documentation in kb module.

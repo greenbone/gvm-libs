@@ -118,10 +118,6 @@ efree(ptr)
 	}
 }
 
-/* XXX: This method does not occur in the corresponding .h file.
- * It thus needs analysis whether the function is not used
- * at all, or a proto is missing.
- */
 void *
 erealloc(ptr, size)
  void * ptr;
