@@ -24,7 +24,7 @@
  * Knowledge base management API.\n
  * Knowledge bases collect information and can be used to share information
  * between NVTs.\n
- * A Knowledge base is an array of knowledge base items (kb_item).
+ * A knowledge base is an array of knowledge base items (kb_item).
  * An item is defined by its name and has a value (either int or char*), a 
  * type flag (indicating whether the value shall be interpreted as int or char*) 
  * and a pointer to the "next" item.\n
@@ -48,12 +48,14 @@
 
 
 /**
- * Creates a hash value for a string to be used as index in a knowledge base
- * array.
+ * @brief Creates a hash value for a string to be used as index in a knowledge 
+ * base array.
+ * 
  * @param Name string to create hash value for.
  * @return Hash value for string name or 0 if name == NULL.
  */
-static unsigned int mkkey(char * name )
+static unsigned int
+mkkey (char * name )
 {
  char * p;
  unsigned int h = 0;
@@ -70,21 +72,25 @@ static unsigned int mkkey(char * name )
 
 
 /**
- * Allocates memory for an array of kb_items with max length of HASH_MAX.
+ * @brief Allocates memory for an array of kb_items with max length of HASH_MAX.
+ * 
  * @return Pointer to first item in knowledge base item array.
  */
-struct kb_item ** kb_new()
+struct kb_item**
+kb_new ()
 {
  return emalloc(HASH_MAX * sizeof(struct kb_item*));
 }
 
 
 /**
- * READ the knowledge base
+ * @brief READ the knowledge base
+ * 
  * @return kb_item in knowledge base with name name and type type or NULL if 
  *         none found.
  */
-struct kb_item * kb_item_get_single(struct kb_item ** kb, char * name, int type)
+struct kb_item*
+kb_item_get_single (struct kb_item ** kb, char * name, int type)
 {
  unsigned int h = mkkey(name);
  struct kb_item * ret;
@@ -104,10 +110,12 @@ struct kb_item * kb_item_get_single(struct kb_item ** kb, char * name, int type)
 
 
 /**
- * Get the value of a kb_item with type KB_TYPE_STR and name name.
+ * @brief Get the value of a kb_item with type KB_TYPE_STR and name name.
+ * 
  * @return (char*) value of the kb_item name with type KB_TYPE_STR.
  */
-char * kb_item_get_str(struct kb_item ** kb, char * name)
+char*
+kb_item_get_str (struct kb_item ** kb, char * name)
 {
  struct kb_item * item = kb_item_get_single(kb, name, KB_TYPE_STR);
 
@@ -118,10 +126,12 @@ char * kb_item_get_str(struct kb_item ** kb, char * name)
 }
 
 /**
- * Get the value of a kb_item with tyoe KB_TYPE_INT and name name.
+ * @brief Get the value of a kb_item with tyoe KB_TYPE_INT and name name.
+ * 
  * @return (int) value of the kb_item name with type KB_TYPE_INT.
  */
-int kb_item_get_int(struct kb_item ** kb, char * name)
+int
+kb_item_get_int (struct kb_item ** kb, char * name)
 {
  struct kb_item * item = kb_item_get_single(kb, name, KB_TYPE_INT);
  if(item == NULL) 
@@ -132,6 +142,7 @@ int kb_item_get_int(struct kb_item ** kb, char * name)
 
 /**
  * @brief Returns a list of copies of kb_items with name name in a knowledge base.
+ * 
  * The result has to be freed (kb_item_get_all_free).
  * Use kb_item_get_pattern if you want to get all items matching a pattern, 
  * rather than a single name.
@@ -141,7 +152,8 @@ int kb_item_get_int(struct kb_item ** kb, char * name)
  * 
  * @return A kb_item list (has to be freed) with kb_items of name name.
  */
-struct kb_item * kb_item_get_all(struct kb_item ** kb, char * name)
+struct kb_item*
+kb_item_get_all (struct kb_item ** kb, char * name)
 {
  unsigned h = mkkey(name);
  struct kb_item * k;
@@ -169,15 +181,17 @@ struct kb_item * kb_item_get_all(struct kb_item ** kb, char * name)
 
 /**
  * @brief Returns a list of copies of kb_items that match a pattern.
+ * 
  * The items have to be freed, e.g. with kb_item_get_all_free.
  * 
  * @param kb The knowledge base.
- * @param expr A pattern that can be used with fnmatch (e.g. "www/*").
+ * @param expr A pattern that can be used with fnmatch (e.g. "www/serv*").
  * 
  * @return A list of kb_items (has to be freed) whose name matches the pattern
  *         exp.
  */
-struct kb_item * kb_item_get_pattern(struct kb_item ** kb, char * expr )
+struct kb_item*
+kb_item_get_pattern (struct kb_item ** kb, char * expr )
 {
  int i;
  struct kb_item * k;
@@ -208,12 +222,15 @@ struct kb_item * kb_item_get_pattern(struct kb_item ** kb, char * expr )
 
 
 /**
- * Frees a list of kb_items, e.g. the result of kb_item_get_all() or 
+ * @brief Frees a list of kb_items.
+ * 
+ * Can be used to free the results of querying the kb with kb_item_get_all() or 
  * kb_item_get_pattern().
  * 
  * @param items The list of kb_items to free.
  */
-void kb_item_get_all_free(struct kb_item * items)
+void
+kb_item_get_all_free (struct kb_item * items)
 {
  while ( items != NULL )
  {
@@ -227,7 +244,7 @@ void kb_item_get_all_free(struct kb_item * items)
 
 
 /**
- * Add a kb_item with type KB_TYPE_STR and value value to the knowledge base.
+ * @brief Add a kb_item with type KB_TYPE_STR and value value to the knowledge base.
  * 
  * @param kb The knowledge base itself.
  * @param name Name of the item to add.
@@ -239,7 +256,8 @@ void kb_item_get_all_free(struct kb_item * items)
  * @return -1 if kb equals NULL or if an item as wished exists already, 0 if 
  *         success.
  */
-static int kb_item_addset_str(struct kb_item ** kb, char * name, char * value, int replace)
+static int
+kb_item_addset_str (struct kb_item ** kb, char * name, char * value, int replace)
 {
  /* 
   * Before we write anything to the KB, we need to make sure that the same
@@ -284,20 +302,34 @@ static int kb_item_addset_str(struct kb_item ** kb, char * name, char * value, i
  return 0;
 }
 
-int kb_item_add_str(struct kb_item ** kb, char * name, char * value)
+/**
+ * Adds a string to the knowledge base.
+ * In contrast to kb_item_set_str the item will not be replaced (useful for 
+ * list creation).
+ * 
+ * @param kb    The knowledge base.
+ * @param name  Key of the entry.
+ * @param value Value of the entry.
+ */
+int
+kb_item_add_str (struct kb_item ** kb, char * name, char * value)
 {
  return kb_item_addset_str(kb, name, value, 0); 
 }
 
-int kb_item_set_str(struct kb_item ** kb, char * name, char * value)
+int
+kb_item_set_str (struct kb_item ** kb, char * name, char * value)
 {
  return kb_item_addset_str(kb, name, value, 1); 
 }
 
 /**
  * Replace an old value in the KB by a new one 
+ * 
+ * @return -1 if kn is NULL or 
  */
-static int kb_item_addset_int(struct kb_item ** kb, char * name, int value, int replace)
+static int
+kb_item_addset_int (struct kb_item ** kb, char * name, int value, int replace)
 {
  /* 
   * Before we write anything to the KB, we need to make sure that the same
@@ -344,18 +376,21 @@ static int kb_item_addset_int(struct kb_item ** kb, char * name, int value, int 
 }
 
 
-int kb_item_set_int(struct kb_item ** kb, char * name, int value)
+int
+kb_item_set_int (struct kb_item ** kb, char * name, int value)
 {
  return kb_item_addset_int(kb, name, value, 1);
 }
    
-int kb_item_add_int(struct kb_item ** kb, char * name, int value)
+int
+kb_item_add_int(struct kb_item ** kb, char * name, int value)
 {
  return kb_item_addset_int(kb, name, value, 0);
 }
 
 
-void kb_item_rm_all(struct kb_item ** kb, char * name)
+void
+kb_item_rm_all (struct kb_item ** kb, char * name)
 {
  int h = mkkey(name);
  struct kb_item * k, * prev = NULL;
@@ -390,7 +425,8 @@ void kb_item_rm_all(struct kb_item ** kb, char * name)
 /**
  * Backward compatibilty 
  */
-struct arglist * plug_get_oldstyle_kb(struct arglist * desc )
+struct arglist*
+plug_get_oldstyle_kb (struct arglist * desc )
 {
  struct kb_item ** kb = arg_get_value(desc, "key");
  struct arglist * ret;
@@ -414,5 +450,4 @@ struct arglist * plug_get_oldstyle_kb(struct arglist * desc )
  }
 
  return ret;
-
 }

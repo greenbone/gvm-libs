@@ -1,3 +1,12 @@
+2009-02-05  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Cosmetics and documentation in kb module.
+
+	* libopenvas/kb.c: Added empty lines in comment blocks to improve
+	readability (thanks matt), added briefs to comment blocks, removed
+	/* within a comment block to avoid compiler warning (thanks michael),
+	donated return types own line.
+
 2009-02-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* include/config.h.in: Removed define of "DEFAULT_PORT"
