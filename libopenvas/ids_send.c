@@ -173,7 +173,15 @@ int which_ttl(method, old_ttl)
  if(f >= 0)
  {
   char rd[20];
-  
+
+  /* RATS issues the following warning for this line:
+   * "Check buffer boundaries if calling this function in a loop and make sure
+   * you are not in danger of writing past the allocated space."
+   * This warning can IMHO be ignored as long as the buffer size of rd is
+   * hardcoded since we will read at most sizeof(rd)-1 bytes into rd.
+   *   -mwiegand, 20090205
+   */
+  /* RATS: ignore */
   read(f, rd, sizeof(rd) - 1);
   close(f);
   ttl = atoi(rd);

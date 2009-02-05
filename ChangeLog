@@ -1,5 +1,10 @@
 2009-02-05  Michael Wiegand <michael.wiegand@intevation.de>
 
+	* libopenvas/ids_send.c (which_ttl): Added RATS ignore and a comment
+	explaining the rationale.
+
+2009-02-05  Michael Wiegand <michael.wiegand@intevation.de>
+
 	* libopenvas/system.c (erealloc): Removed misleading comment; the
 	function is indeed defined in libopenvas/system.h and is used in a
 	number of places in openvas-libraries.
