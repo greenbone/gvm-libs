@@ -35,10 +35,11 @@
 
 /**
  * @file
- * Functions to create a GKeyFile from a GHashTable to vice versa.
+ * Functions to create a GKeyFile from a GHashTable and vice versa.
  * Both are assumed to contain strings only.
- * Groups are ignored for the time being.
- * 
+ * Key-value pairs are 'flat', the structuring group- elements of an GKeyFile
+ * are not used. Instead, all pairs are written added to the group
+ * "GHashTableGKeyFile" (defined in GROUP_NONE).
  */
 
 #include "includes.h"
@@ -46,16 +47,16 @@
 #include "hash_table_file.h"
 
 /**
- * Groupname placeholder. So far, no further order (like groups) has been
- * needed.
+ * @brief Groupname placeholder. So far, no further order (like groups) is
+ *        supported.
  */
 #define GROUP_NONE "GHashTableGKeyFile"
 
 /**
  * @brief Adds a key/value pair of strings to a keyfile.
  * 
- * The group for this entry will be GROUP_NONE (define).
- * Of main use within a g_hash_table_foreach.
+ * The group for this entry will be GROUP_NONE (defined as GHashTableGKeyFile).
+ * This function is of main use within a g_hash_table_foreach.
  * 
  * @param key The key to add.
  * @param value The value to add.
@@ -70,7 +71,7 @@ add_to_keyfile (char* key_str, char* value_str, GKeyFile* keyfile)
 /**
  * @brief  Writes key/value pairs from a g_hash_table into a key/value file.
  * 
- * This procedure will only work with string keys and string values.
+ * The procedure will only work with string keys and string values.
  * The file format follows freedesktop.org specifications, the group will be
  * GROUP_NONE (define).
  * 
@@ -110,18 +111,18 @@ hash_table_file_write (GHashTable* ghashtable, char* filename)
   // "Export" data and write it to file.
   keyfile_data = g_key_file_to_data (file, &data_length, NULL);
   int written = write (fd, keyfile_data, data_length);
-  
+
   // Clean up
   close (fd);
   g_free(keyfile_data);
   g_key_file_free(file);
-  
+
   if (written != data_length)
   {
     return FALSE;
   }
 
-  // Assume that went just fine
+  // Assume that everything went just fine
   return TRUE;
 }
 

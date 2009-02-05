@@ -1,3 +1,7 @@
+2009-02-05  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* libopenvas/hash_table_file.c: Documentation improved, newlines.
+
 2009-02-05  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/ids_send.c (which_ttl): Added RATS ignore and a comment
