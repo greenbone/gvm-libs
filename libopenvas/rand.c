@@ -24,7 +24,9 @@
 #include <unistd.h>
 
 
-/*
+/**
+ * @file
+ * Random generator helper functions.
  * If the libc does not provide [ls]rand48, we use [s]rand() instead.
  *
  * While rand() is weak in comparison of lrand48, this is not a big

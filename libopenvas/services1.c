@@ -38,7 +38,8 @@
 #define MAP_FAILED (void*)(-1)
 #endif
 
-/*
+/**
+ * @file
  * This file contains initialisation functions.
  * IMPORTANT ! Some options are defined in services.h
  */
@@ -283,5 +284,3 @@ nessus_init_svc()
     }
   return error_flag ? -1 : 0;
 }
-
-

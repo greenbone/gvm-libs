@@ -60,28 +60,28 @@ extern void plug_set_port_transport(struct arglist*, int, int);
  * Low-level connection management                                *
  *----------------------------------------------------------------*/
  
-/* Nessus "FILE" structure */
+/** Nessus "FILE" structure */
 typedef struct {
- int fd;		/* socket number, or whatever */
- int transport;	/* "transport" layer code when stream is encapsultated. 
+ int fd;		/**< socket number, or whatever */
+ int transport;	/**< "transport" layer code when stream is encapsultated. 
 		 * Negative transport signals a free descriptor */
- int timeout;	  /* timeout, in seconds
+ int timeout;	  /**< timeout, in seconds
 		   * special values: -2 for default */
- int options;			/* Misc options - see libopenvas.h */
+ int options;			/**< Misc options - see libopenvas.h */
   
  int port;			 
 
- gnutls_session_t tls_session;  /* GnuTLS session */
- gnutls_certificate_credentials_t tls_cred; /* GnuTLS credentials */
+ gnutls_session_t tls_session;  /**< GnuTLS session */
+ gnutls_certificate_credentials_t tls_cred; /**< GnuTLS credentials */
 
- pid_t		pid;		/* Owner - for debugging only */
+ pid_t		pid;		/**< Owner - for debugging only */
 
-  char*		buf;		/* NULL if unbuffered */
+  char*		buf;		/**< NULL if unbuffered */
   int		bufsz, bufcnt, bufptr;
   int 		last_err;
 } nessus_connection;
 
-/* 
+/**
  * The role of this offset is:
  * 1. To detect bugs when the program tries to write to a bad fd
  * 2. See if a fd is a real socket or a "nessus descriptor". This is a
@@ -92,7 +92,7 @@ typedef struct {
 
 static nessus_connection connections[NESSUS_FD_MAX];
 
-/*
+/**
  * Quick & dirty patch to run Nessus from behind a picky firewall (e.g.
  * FW/1 and his 'Rule 0'): Nessus will never open more than 1 connection at
  * a time.
@@ -109,12 +109,14 @@ static int	lock_cnt = 0;
 static int	lock_fd = -1;
 #endif
 
-/*
+/**
  * NESSUS_STREAM(x) is TRUE if <x> is a Nessus-ified fd
  */
 #define NESSUS_STREAM(x) (((x - NESSUS_FD_OFF) < NESSUS_FD_MAX) && ((x - NESSUS_FD_OFF) >=0))
 
-/* determine the nessus_connection* from the nessus fd */
+/**
+ * determine the nessus_connection* from the nessus fd
+ */
 #define OVAS_CONNECTION_FROM_FD(fd) (connections + ((fd) - NESSUS_FD_OFF))
 
 
@@ -131,8 +133,9 @@ renice_myself()
   nice(1);
  }
 }
-/*
- * Same as perror(), but prefixes the data by our pid
+
+/**
+ * Same as perror(), but prefixes the data by our pid.
  */
 static int 
 nessus_perror(error)
@@ -160,7 +163,7 @@ stream_get_err(fd)
  return p->last_err;
 }
 
-/*
+/**
  * Returns a free file descriptor
  */
 static int
@@ -342,12 +345,12 @@ void tlserror(char *txt, int err)
 
 
 
-/* initializes SSL support in libopenvas.  The parameter path used to be
+/**
+ * Initializes SSL support in libopenvas.  The parameter path used to be
  * the filename of the entropy pool for OpenSSL in libnessus.  It's
  * unused in libopenvas.  At the time of the move to GNUTLS, all calls
  * passed NULL as the path anyway.
  */
-
 int
 nessus_SSL_init(char *path)
 {
@@ -501,7 +504,7 @@ set_gnutls_tlsv1(gnutls_session_t session)
 			       comp_priority, kx_priority, mac_priority);
 }
 
-/*
+/**
  * Sets the priorities for the GnuTLS session according to encaps, one
  * of hte NESSUS_ENCAPS_* constants.
  */
@@ -532,7 +535,7 @@ set_gnutls_protocol(gnutls_session_t session, int encaps)
   return 0;
 }
 
-/*
+/**
  * Verifies the peer's certificate.  If the certificate is not valid or
  * cannot be verified, the function prints diagnostics to stderr and
  * returns -1.  If the certificate was verified successfully the
@@ -1078,7 +1081,7 @@ struct ovas_server_context_s
   gnutls_certificate_credentials_t tls_cred;
 };
 
-/*
+/**
  * Creates a new ovas_server_context_t.  The parameter encaps should be
  * one of the NESSUS_ENCAPS_* constants.  If any of the SSL
  * encapsulations are used, the parameters certfile, keyfile, and cafile
@@ -1149,7 +1152,7 @@ ovas_server_context_new(int encaps,
 }
 
 
-/*
+/**
  * Frees the ovas_server_context_t instance ctx.  If ctx is NULL, nothing
  * is done.
  */
@@ -1165,7 +1168,7 @@ ovas_server_context_free(ovas_server_context_t ctx)
   efree(&ctx);
 }
 
-/*
+/**
  * Sets up SSL/TLS on the socket soc and returns a nessus file
  * descriptor.  The parameters for the SSL/TLS layer are taken from ctx.
  * Afterwards, the credentials of ctx are also referenced by the SSL/TLS
@@ -1264,7 +1267,8 @@ ovas_server_context_attach(ovas_server_context_t ctx, int soc)
 
 
 
-/* TLS: This function is only used in one place,
+/**
+ * TLS: This function is only used in one place,
  * openvas-plugins/plugins/ssl_ciphers/ssl_ciphers.c:145 (function
  * plugin_run).  The code there prints information about the
  * certificates and the server's ciphers if sslv2 is used.  Some of the
@@ -2187,12 +2191,11 @@ int open_sock_option(args, port, type, protocol, timeout)
 }
 
 
-/* This function reads a text from the socket stream into the
-   argument buffer, always appending a '\0' byte.  The return
-   value is the number of bytes read, without the trailing '\0'.
+/**
+ * This function reads a text from the socket stream into the
+ *  argument buffer, always appending a '\0' byte.  The return
+ *  value is the number of bytes read, without the trailing '\0'.
  */
-
-
 int recv_line(soc, buf, bufsiz)
  int soc;
  char * buf;
@@ -2313,7 +2316,7 @@ int soc;
   return close(soc);
 }
 
-/*
+/**
  * auth_printf()
  *
  * Writes data to the global socket of the thread
@@ -2544,7 +2547,7 @@ int os_recv(int soc, void * buf, int len, int opt )
 }
 
 
-/* 
+/**
  * internal_send() / internal_recv() :
  *
  * When processes are passing messages to each other, the format is
@@ -2583,7 +2586,14 @@ int internal_send(int soc, char * data, int msg_type )
  return 0;
 }
 
-
+/**
+ * internal_send() / internal_recv() :
+ *
+ * When processes are passing messages to each other, the format is
+ * <length><msg>, with <length> being a long integer. The functions
+ * internal_send() and internal_recv() encapsulate and decapsulate
+ * the messages themselves. 
+ */
 int internal_recv(int soc, char ** data, int * data_sz, int * msg_type )
 {
  int len = 0;

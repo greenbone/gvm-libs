@@ -38,7 +38,8 @@
 #include <malloc.h>
 #endif
 
-/* This method always returns the requested
+/**
+ * This method always returns the requested
  * memory size. If anything failed during allocating
  * it, the exit() routine is entered to stop the program.
  */

@@ -114,9 +114,16 @@ struct arglist * str2arglist(char * str)
 }
 
 
-
-
-/*-----------------------------------------------------------------------------*/	
+/**
+ * Copies content of one string into the other.
+ * Does not check nul-termination.
+ * @param str Source string, might be NULL.
+ * @param dst Destination string.
+ * @param sz max number of bytes to copy into dst.
+ * @param path Filename path for error message (!?).
+ * @param item Description of what had to be copied for error message (!?).
+ * @return 0 on success, -1 otherwise.
+ */
 static int safe_copy(char * str, char * dst, int sz, char * path, char * item)
 {
  if(str == NULL)	/* empty strings are OK */
@@ -133,7 +140,6 @@ static int safe_copy(char * str, char * dst, int sz, char * path, char * item)
  strcpy(dst, str); /* RATS: ignore */
  return 0;
 }
-/*-----------------------------------------------------------------------------*/
 
 /*
  * store_dir holds the directory name for the cache. If run with older
@@ -286,6 +292,7 @@ int store_get_plugin(struct plugin * p, char * desc_file)
 {
   return store_get_plugin_f(p, NULL, desc_file);
 }
+
 
 /**
  * @brief Returns a (plugin) arglist assembled from the cached description file

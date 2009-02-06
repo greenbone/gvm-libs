@@ -46,13 +46,15 @@
  * Implemented as a singly linked list
  */
 struct kb_item {
-	char * name;
- 	char type; /**< one of KB_TYPE_INT or KB_TYPE_STR */
-	union {
-		char * v_str;
-		int v_int;
-	} v;
-	struct kb_item * next;
+  char * name; /**< Name of this knowledge base item.  */
+  char type;   /**< One of KB_TYPE_INT or KB_TYPE_STR. */
+  // @TODO Check if this is safe. (What happens if char* and int have not 
+  //       the same size?)
+  union {
+    char * v_str;
+    int v_int;
+  } v;        /**< Value of this knowledge base item.  */
+  struct kb_item * next; /**< Next item in list.       */
 };
 
 struct kb_item ** kb_new();
