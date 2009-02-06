@@ -18,6 +18,11 @@
  *
  */
 
+/**
+ * @file
+ * The host gatherer library.
+ */
+
 #include <includes.h>
 #include "hosts_gatherer.h"
 #include "hg_add_hosts.h" 
@@ -54,11 +59,13 @@ int hg_test_syntax(char * hostname, int flags)
 }
 
 
-
+/**
+ * Inits a hg_globals struct with hostname and flags.
+ * 
+ * @return Fresh hg_globals.
+ */
 struct hg_globals * 
-hg_init(hostname, flags)
- char * hostname;
- int flags;
+hg_init( char* hostname, int flags)
 {
  struct hg_globals * globals = malloc(sizeof(struct hg_globals));
 
@@ -83,11 +90,8 @@ hg_init(hostname, flags)
 }
 
 
-int hg_next_host(globals, ip, hostname, sz)
- struct hg_globals * globals;
- struct in_addr *ip;
- char * hostname;
- int sz;
+int hg_next_host(struct hg_globals * globals, struct in_addr * ip,
+                 char * hostname, int sz)
 {
  struct hg_host * host;
 
@@ -193,8 +197,10 @@ again:
 }
 
 
-void hg_cleanup(globals) 
-struct hg_globals * globals;
+/**
+ * Frees all the hosts and info associated to the hg_globals globals.
+ */
+void hg_cleanup(struct hg_globals * globals)
 {
  struct hg_host * hosts = globals->host_list;
  struct hg_host * tested = globals->tested;
@@ -204,4 +210,3 @@ struct hg_globals * globals;
  hg_hosts_cleanup(hosts);
  hg_hosts_cleanup(tested);
 }
-   				

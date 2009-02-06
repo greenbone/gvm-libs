@@ -1,3 +1,14 @@
+2009-02-06  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Copied GPL Header from host_gatherer.c over to host_gatherer.h,
+	cosmetics and doc.
+
+	* libopenvas_hg/host_gatherer.c: Documentation, K&R function decl.
+	replaced.
+	
+	* libopenvas_hg/host_gatherer.h: Copied GPL header from modules
+	implementation file, doc strings converted.
+
 2009-02-05  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* libopenvas/hash_table_file.c: Documentation improved, newlines.
