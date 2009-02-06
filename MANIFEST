@@ -6,6 +6,7 @@ config.guess
 config.sub
 configure
 configure.in
+COPYING
 doc/
 doc/Doxyfile
 doc/Doxyfile_full
@@ -40,7 +41,6 @@ libopenvas/bpf_share.c
 libopenvas/comm.h
 libopenvas-config.1
 libopenvas-config.in
-libopenvas/COPYING
 libopenvas/ftp_funcs.c
 libopenvas/ftp_funcs.h
 libopenvas/harglists.c
@@ -92,6 +92,7 @@ ltmain.sh
 Makefile
 MANIFEST
 openvas-libraries.tmpl.in
+README
 README.BPF
 TODO
 VERSION

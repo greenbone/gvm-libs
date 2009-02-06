@@ -85,7 +85,7 @@ install : all
 clean :
 	-cd libopenvas && ${MAKE} clean
 	-cd libopenvas_hg && ${MAKE} clean
-	rm -rf /doc/generated
+	rm -rf doc/generated
 
 distclean : clean
 	rm -f ${rootdir}/include/config.h libtool config.cache \
@@ -93,6 +93,7 @@ distclean : clean
 	-cd libopenvas && ${MAKE} distclean
 	-cd libopenvas_hg && ${MAKE} distclean
 	rm -f openvas-libraries.tmpl libopenvas-config libopenvas-config.pre
+	rm -rf doc/generated
 
 dist:
 	version="`cat VERSION`"; \

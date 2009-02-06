@@ -1,5 +1,14 @@
 2009-02-06  Michael Wiegand <michael.wiegand@intevation.de>
 
+	Last minute fixes for the openvas-libraries 2.0.1 release.
+
+	* MANIFEST: Updated.
+
+	* Makefile: Fixed targets "clean" and "distclean" to correctly remove
+	generated HTML documentation.
+
+2009-02-06  Michael Wiegand <michael.wiegand@intevation.de>
+
 	Preparing the openvas-libraries 2.0.1 release.
 
 	* VERSION: Set to 2.0.1.
