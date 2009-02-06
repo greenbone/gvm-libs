@@ -23,6 +23,16 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/**
+ * \mainpage
+ * 
+ * \section Introduction
+ * \verbinclude README
+ *
+ * \section copying License Information
+ * \verbinclude COPYING
+ */
+
 #ifndef _LIBOPENVAS_H
 #define _LIBOPENVAS_H
 

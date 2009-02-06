@@ -1,3 +1,22 @@
+2009-02-06  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Preparing the openvas-libraries 2.0.1 release.
+
+	* VERSION: Set to 2.0.1.
+
+	* CHANGES: Updated.
+
+	* include/libopenvas.h: Added Doxygen directives to include README and
+	COPYING files into HTML documentation.
+
+	* ChangeLog: Cleanup.
+
+	* libopenvas/COPYING: Moved to COPYING, a more obvious location.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Updated version, set EXAMPLE_PATH.
+
+	* README: Added.
+
 2009-02-06  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Minor cosmetics, improved documentation.
@@ -102,7 +121,7 @@
 	nessus_print_peer_SSL_certificate): Removed. It is unused
 	code that was deactivcated with "#if 0".
 	(nsend): Removed unused code that was deactivated with
-        "#if 0".
+	"#if 0".
 
 2009-01-28  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
@@ -116,7 +135,7 @@
 	* libopenvas/store.c (store_plugin): Fixed a bug: In
 	case of using cache_folder, the wrong filenames for the
 	actual plugin file where written into the cache file.
- 
+
 2009-01-23  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/store.c (store_init): Also handle NULL
@@ -370,7 +389,7 @@
 	use the cache.
 
 	* libopenvas/store.c (store_plugin): Replace call of _plug_get_id()
-        by plug_get_id() and dito for several other functions (see below).
+	by plug_get_id() and dito for several other functions (see below).
 
 	* libopenvas/plugutils_internal.h: Removed unneeded protos.
 

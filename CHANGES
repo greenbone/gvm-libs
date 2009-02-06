@@ -1,3 +1,44 @@
+openvas-libraries 2.0.1 (2009-02-06)
+
+This is the first maintenance release of the openvas-libraries module for the
+Open Vulnerability Assessment System (OpenVAS) 2.0 series.
+
+It fixes a number of issues discovered after the release of openvas-libraries
+2.0.0 and introduces support for upcoming features. Thanks to the continuing
+audit of the code, a number of obsolete, unused and/or unnecessary functions
+were identified and removed. The amount and the quality of the source code
+documentation has been improved as well.
+
+Effect when installing this version: The cache of NVT descriptions (located in
+plugin_folder/.desc/) will be rebuild at next start of openvasd.
+The cache files used to have the suffix ".desc" instead of ".nasl", e.g.
+"x.desc" corrsponds to "x.nasl".  Now, the suffix ".desc" is appended, e.g.
+"x.nasl.desc" corresponds to "x.nasl".  This also prevents that e.g. "x.nasl"
+and "x.nes" (or "x.oval") will overwrite each others' cache file.
+Recommendation: Clean the entire cache directory before restarting openvasd. If
+you don't do this, the .desc/ directory will contain all cache files twice.
+Other than unnecessary disk space consumption this has no bad effect.
+
+
+Main changes since 2.0.0:
+* Renamed caching files to conflict-free scheme
+* Prepared support for sub-directories in plugins_folder in accordance with
+  Change Request #24 (http://www.openvas.org/openvas-cr-24.html)
+* Support for improved management of SSH credentials has been added in
+  accordance with Change Request #20 (http://www.openvas.org/openvas-cr-20.html)
+* Established automated source code documentation. HTML-Version is available
+  under http://www.openvas.org/src-doc/openvas-libraries/2.0.1/index.html
+
+Bugfixes:
+* A configuration issue which caused the build process to fail on Mac OS X has
+  been fixed. (Solves: #761)
+* Missing includes which caused the build process to fail on Darwin and NetBSD
+  have been added. (Solves: #860, #862)
+
+Many thanks to everyone who has contributed to this release: Tim Brown,
+Stjepan Gros, Jan-Oliver Wagner, Felix Wolfsteller and Michael Wiegand.
+
+
 openvas-libraries 2.0.0 (2008-12-17)
 
 This is the 2.0.0 release of OpenVAS.
