@@ -112,6 +112,6 @@ doc:
 # (placed in doc/generated) and builts doc/generated/latex/refman.pdf
 doc-full:
 	doxygen doc/Doxyfile_full
-	cd doc/generated/latex && make
+	if [ -d doc/generated/latex ]; then make -C doc/generated/latex; fi
 
 .PHONY: doc doc-dev
