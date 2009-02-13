@@ -169,7 +169,7 @@ static void add_sshlogin_to_file(char* name, openvas_ssh_login* loginfo,
  * 
  * @return TRUE if file was written (success), FALSE if an error occured.
  */
-gboolean openvas_ssh_login_file_write(GHashTable* ssh_logins, char* filename)
+gboolean openvas_ssh_login_file_write (GHashTable* ssh_logins, char* filename)
 {
   GKeyFile* key_file = g_key_file_new();
   gchar* keyfile_data;
@@ -207,6 +207,7 @@ gboolean openvas_ssh_login_file_write(GHashTable* ssh_logins, char* filename)
   if(err != NULL)
   {
     //show_error(_("Error exporting ssh info file: %s"), err->message);
+    close(fd);
     g_error_free(err);
     g_key_file_free(key_file);
     return FALSE;

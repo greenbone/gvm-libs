@@ -1,3 +1,8 @@
+2009-02-14  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* libopenvas/openvas_ssh_login.c (openvas_ssh_login_file_write):
+	Close file descriptor in case of error.
+
 2009-02-10  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* doc/Doxyfile_full: Makes the resulting documentation even
