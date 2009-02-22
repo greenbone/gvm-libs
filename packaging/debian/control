@@ -3,7 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: Debian OpenVAS Maintainers <openvas-distro-deb@wald.intevation.org>
 Uploaders: Tim Brown <timb@nth-dimension.org.uk>, Javier Fernandez-Sanguino Pen~a <jfs@debian.org>, Jan Wagner <waja@cyconet.org>
-Build-Depends: debhelper (>= 5), autotools-dev, libgnutls-dev, libpcap-dev, libglib2.0-dev
+Build-Depends: debhelper (>= 5), autotools-dev, libgnutls-dev, libpcap-dev, libglib2.0-dev, dpatch
 Homepage: http://www.openvas.org/
 Vcs-Browser: http://wald.intevation.org/plugins/scmsvn/viewcvs.php/trunk/openvas-libraries/packaging/debian/?root=openvas
 Vcs-Svn: https://svn.wald.intevation.org/svn/openvas/trunk/openvas-libraries/packaging/debian/
@@ -15,14 +15,14 @@ Architecture: any
 Depends: libopenvas2 (= ${binary:Version}), libgnutls-dev, libpcap-dev
 Replaces: libopenvas1-dev
 Conflicts: libopenvas1-dev
-Description: OpenVAS static libraries and headers
- The OpenVAS Security Scanner is a security auditing tool. It makes
- possible to test security modules in an attempt to find vulnerable
- spots that should be fixed.
+Description: remote network security auditor - static libraries and headers
+ The Open Vulnerability Assessment System is a modular security auditing
+ tool, used for testing remote systems for vulnerabilities that should be
+ fixed.
  .
  It is made up of two parts: a server, and a client. The server/daemon,
  openvasd, is in charge of the attacks, whereas the client,
- OpenVAS-Client, provides the user a nice X11/GTK+ interface.
+ OpenVAS-Client, provides an X11/GTK+ user interface.
  .
  This package contains the required static libraries, headers, and
  openvas-config script.
@@ -33,13 +33,13 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Replaces: libopenvas1
 Conflicts: libopenvas1
-Description: OpenVAS shared libraries
- The OpenVAS Security Scanner is a security auditing tool. It makes
- possible to test security modules in an attempt to find vulnerable
- spots that should be fixed.
+Description: remote network security auditor - shared libraries
+ The Open Vulnerability Assessment System is a modular security auditing
+ tool, used for testing remote systems for vulnerabilities that should be
+ fixed.
  .
  It is made up of two parts: a server, and a client. The server/daemon,
  openvasd, is in charge of the attacks, whereas the client,
- OpenVAS-Client, provides the user a nice X11/GTK+ interface.
+ OpenVAS-Client, provides an X11/GTK+ user interface.
  .
  This package contains the required shared libraries.

@@ -1,3 +1,14 @@
+2009-02-22  Tim Brown <timb@nth-dimension.org.uk>
+
+	* packaging/debian/changelog: New upstream release.
+
+	* packaging/debian/control: Updated the control file to take account
+        of translation work as part of the Smith review project.
+	
+	* packaging/debian/patches/00list,
+	packaging/debian/patches/linker-libs.dpatch, packaging/debian/rules:
+	Fixed broken linking (linker-libs.dpatch).
+
 2009-02-14  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* libopenvas/openvas_ssh_login.c (openvas_ssh_login_file_write):

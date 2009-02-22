@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## linker-libs.dpatch by  <tmb@localhost>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad openvas-libraries-2.0.1~/libopenvas/Makefile openvas-libraries-2.0.1/libopenvas/Makefile
+--- openvas-libraries-2.0.1~/libopenvas/Makefile	2009-01-26 07:21:07.000000000 +0000
++++ openvas-libraries-2.0.1/libopenvas/Makefile	2009-02-22 03:13:43.000000000 +0000
+@@ -24,7 +24,7 @@
+ 
+ include ../openvas-libraries.tmpl
+ 
+-LIBS = $(GLIB_LIBS)
++LIBS += $(GLIB_LIBS)
+ 
+ OBJS = plugutils.o system.o network.o resolve.o arglists.o ftp_funcs.o \
+ 	scanners_utils.o pcap.o hlst.o  harglists.o \
