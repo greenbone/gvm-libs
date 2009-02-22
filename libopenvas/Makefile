@@ -24,7 +24,7 @@
 
 include ../openvas-libraries.tmpl
 
-LIBS = $(GLIB_LIBS)
+LIBS += $(GLIB_LIBS)
 
 OBJS = plugutils.o system.o network.o resolve.o arglists.o ftp_funcs.o \
 	scanners_utils.o pcap.o hlst.o  harglists.o \

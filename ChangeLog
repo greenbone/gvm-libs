@@ -1,5 +1,9 @@
 2009-02-22  Tim Brown <timb@nth-dimension.org.uk>
 
+	* libopenvas/Makefile: Forward ported fix for broken linking.
+
+2009-02-22  Tim Brown <timb@nth-dimension.org.uk>
+
 	* packaging/debian/changelog: New upstream release.
 
 	* packaging/debian/control: Updated the control file to take account
