@@ -25,7 +25,7 @@ Description: remote network security auditor - static libraries and headers
  OpenVAS-Client, provides an X11/GTK+ user interface.
  .
  This package contains the required static libraries, headers, and
- openvas-config script.
+ libopenvas-config script.
 
 Package: libopenvas2
 Section: libs
