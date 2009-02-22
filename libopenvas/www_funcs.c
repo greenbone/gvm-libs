@@ -467,7 +467,7 @@ build_encode_URL(data, method, path, name, httpver)
 	  fprintf(stderr, "NIDS/HTTP/protocol_string = %s\n", s);
 #endif
 	}
-      l += strlen(httpver) + 1;
+      l += strlen(httpver) + 2;
     }
 	
 

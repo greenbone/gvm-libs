@@ -1,3 +1,9 @@
+2009-02-22  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libopenvs/www_funcs.c (build_encode_URL): Fixed
+	string length calculation. Thanks to
+	Michael Meyer who spotted this and sent this patch!
+
 2009-02-22  Tim Brown <timb@nth-dimension.org.uk>
 
 	* packaging/debian/control: Fixed minor typo.
