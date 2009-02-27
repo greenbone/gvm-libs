@@ -1,4 +1,4 @@
-/* OpenVAS-libraries
+/* OpenVAS-Client
  * $Id$
  * Description: SSH Key management.
  *
@@ -44,15 +44,17 @@
 typedef struct {
   char* name;
   char* username;
+  char* userpassword;
   char* public_key_path;
   char* private_key_path;
   char* ssh_key_passphrase;
   char* comment;
+  gboolean valid; /**< TRUE if all information and files available, FALSE otherwise.*/
 } openvas_ssh_login;
 
 openvas_ssh_login* openvas_ssh_login_new(char* name, char* pubkey_file,
                                          char* privkey_file, char* passphrase,
-                                         char* comment, char* uname);
+                                         char* comment, char* uname, char* upass);
 
 void openvas_ssh_login_free(openvas_ssh_login* loginfo);
 

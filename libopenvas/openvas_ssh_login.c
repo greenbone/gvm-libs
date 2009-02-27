@@ -1,4 +1,4 @@
-/* OpenVAS-libraries
+/* OpenVAS-Client
  * $Id$
  * Description: SSH Key management.
  *
@@ -39,6 +39,7 @@
 #include "openvas_ssh_login.h"
 
 #define KEY_SSHLOGIN_USERNAME     "username"
+#define KEY_SSHLOGIN_USERPASSWORD "userpassword"
 #define KEY_SSHLOGIN_PUBKEY_FILE  "pubkey_file"
 #define KEY_SSHLOGIN_PRIVKEY_FILE "privkey_file"
 #define KEY_SSHLOGIN_COMMENT      "comment"
@@ -72,21 +73,29 @@ file_check_exists (const char* name)
  * @brief Initializes a openvas_ssh_login.
  * 
  * Key and Info files have to be created separately.
+ * However, it is tested if the keyfiles do exist and the 'valid' flag is set
+ * accordingly.
+ * Note that the parameter are not copied, so ensure they live as long as this
+ * login.
  * 
  * @return A fresh openvas_ssh_login.
  */
-openvas_ssh_login* openvas_ssh_login_new(char* name, char* pubkey_file, char* privkey_file,
-                                         char* passphrase, char* comment,
-                                         char* uname)
+openvas_ssh_login*
+openvas_ssh_login_new (char* name, char* pubkey_file, char* privkey_file,
+                       char* passphrase, char* comment, char* uname, char* upass)
 {
   openvas_ssh_login* loginfo = emalloc(sizeof(openvas_ssh_login));
   loginfo->name = name;
   loginfo->username = uname;
+  loginfo->userpassword = upass;
   loginfo->public_key_path = pubkey_file;
   loginfo->private_key_path = privkey_file;
   loginfo->ssh_key_passphrase = passphrase;
   loginfo->comment = comment;
-
+  
+  loginfo->valid =  (file_check_exists(pubkey_file) == 1
+                     && file_check_exists(privkey_file) == 1);
+  
   return loginfo;
 }
 
@@ -96,7 +105,8 @@ openvas_ssh_login* openvas_ssh_login_new(char* name, char* pubkey_file, char* pr
  * 
  * @param loginfo openvas_ssh_login to free.
  */
-void openvas_ssh_login_free(openvas_ssh_login* loginfo)
+void
+openvas_ssh_login_free (openvas_ssh_login* loginfo)
 {
   if(loginfo == NULL)
     return;
@@ -104,6 +114,8 @@ void openvas_ssh_login_free(openvas_ssh_login* loginfo)
     efree(&loginfo->name);
   if(loginfo->username)
     efree(&loginfo->username);
+  if(loginfo->userpassword)
+    efree(&loginfo->userpassword);
   if(loginfo->public_key_path)
     efree(&loginfo->public_key_path);
   if(loginfo->private_key_path)
@@ -127,7 +139,7 @@ void openvas_ssh_login_free(openvas_ssh_login* loginfo)
  * @return Freshly created string or NULL if loginfo == NULL.
  */
 char*
-openvas_ssh_login_prefstring(openvas_ssh_login* loginfo)
+openvas_ssh_login_prefstring (openvas_ssh_login* loginfo)
 {
   if(loginfo != NULL)
     return g_strjoin("|", loginfo->username, loginfo->public_key_path, 
@@ -141,27 +153,31 @@ openvas_ssh_login_prefstring(openvas_ssh_login* loginfo)
 /**
  * @brief Callback for a g_hashtable_for_each. Adds entries to a GKeyFile.
  */
-static void add_sshlogin_to_file(char* name, openvas_ssh_login* loginfo, 
-                                 GKeyFile* key_file)
+static void
+add_sshlogin_to_file (char* name, openvas_ssh_login* loginfo,
+                      GKeyFile* key_file)
 {
   if(name == NULL || key_file == NULL || loginfo == NULL)
     return;
 
   g_key_file_set_string(key_file, loginfo->name, KEY_SSHLOGIN_USERNAME, 
                         loginfo->username);
+  g_key_file_set_string(key_file, loginfo->name, KEY_SSHLOGIN_USERPASSWORD,
+                        loginfo->userpassword);
   g_key_file_set_string(key_file, loginfo->name, KEY_SSHLOGIN_PUBKEY_FILE, 
                         loginfo->public_key_path);
   g_key_file_set_string(key_file, loginfo->name, KEY_SSHLOGIN_PRIVKEY_FILE, 
                         loginfo->private_key_path);
-  g_key_file_set_string(key_file, loginfo->name, KEY_SSHLOGIN_COMMENT, 
+  g_key_file_set_string(key_file, loginfo->name, KEY_SSHLOGIN_COMMENT,
                         loginfo->comment);
-  g_key_file_set_string(key_file, loginfo->name, KEY_SSHLOGIN_PASSPHRASE, 
+  g_key_file_set_string(key_file, loginfo->name, KEY_SSHLOGIN_PASSPHRASE,
                         loginfo->ssh_key_passphrase);
 }
 
 
 /**
  * @brief Writes information of all ssh logins found in a hashtable into a file.
+ * 
  * To load the information again, openvas_ssh_login_file_read can be used.
  * 
  * @param ssh_logins Hashtable with pointers to openvas_ssh_login s as values.
@@ -169,7 +185,8 @@ static void add_sshlogin_to_file(char* name, openvas_ssh_login* loginfo,
  * 
  * @return TRUE if file was written (success), FALSE if an error occured.
  */
-gboolean openvas_ssh_login_file_write (GHashTable* ssh_logins, char* filename)
+gboolean
+openvas_ssh_login_file_write (GHashTable* ssh_logins, char* filename)
 {
   GKeyFile* key_file = g_key_file_new();
   gchar* keyfile_data;
@@ -183,7 +200,7 @@ gboolean openvas_ssh_login_file_write (GHashTable* ssh_logins, char* filename)
   if (err != NULL)
   {
     //show_error(_("Error adding comment to key file: %s"), err->message);
-    g_error_free(err);
+    g_error_free (err);
     g_key_file_free(key_file);
     return FALSE;
   }
@@ -191,7 +208,7 @@ gboolean openvas_ssh_login_file_write (GHashTable* ssh_logins, char* filename)
   // Add all ssh logins to GKeyFile.
   if(ssh_logins != NULL)
   {
-    g_hash_table_foreach(ssh_logins, (GHFunc) add_sshlogin_to_file, key_file);    
+    g_hash_table_foreach(ssh_logins, (GHFunc) add_sshlogin_to_file, key_file);
   } // (else file content is comment only)
   
   // Write GKeyFile to filesystem.
@@ -204,11 +221,11 @@ gboolean openvas_ssh_login_file_write (GHashTable* ssh_logins, char* filename)
   }
 
   keyfile_data = g_key_file_to_data(key_file, &data_length, &err);
-  if(err != NULL)
+  if (err != NULL)
   {
     //show_error(_("Error exporting ssh info file: %s"), err->message);
     close(fd);
-    g_error_free(err);
+    g_error_free (err);
     g_key_file_free(key_file);
     return FALSE;
   }
@@ -219,7 +236,8 @@ gboolean openvas_ssh_login_file_write (GHashTable* ssh_logins, char* filename)
   g_key_file_free(key_file);
 
   return TRUE;
-}
+} /* openvas_ssh_login_file_write */
+
 
 /**
  * @brief Reads a ssh_login file and returns info in a GHashTable.
@@ -244,8 +262,8 @@ openvas_ssh_login_file_read (char* filename, gboolean check_keyfiles)
   gsize length;
   GKeyFile* key_file = g_key_file_new();
   GError* err        = NULL;
-  GHashTable* loginfos   = g_hash_table_new_full(g_str_hash, g_str_equal, 
-      NULL, (GDestroyNotify) openvas_ssh_login_free);
+  GHashTable* loginfos   = g_hash_table_new_full(g_str_hash, g_str_equal,
+                                NULL, (GDestroyNotify) openvas_ssh_login_free);
 
   g_key_file_load_from_file(key_file, filename, G_KEY_FILE_NONE, &err);
 
@@ -255,17 +273,19 @@ openvas_ssh_login_file_read (char* filename, gboolean check_keyfiles)
     if(err->code == G_KEY_FILE_ERROR_NOT_FOUND || err->code == G_FILE_ERROR_NOENT)
     {
       g_key_file_free(key_file);
+      g_error_free (err);
       return loginfos;
     }
-      
+
     g_hash_table_destroy(loginfos);
     //show_error(_("Error loading sshlogin store %s: %s"), filename,
     //           err->message);
     g_key_file_free(key_file);
+    g_error_free (err);
     return NULL;
   }
 
-  names = g_key_file_get_groups(key_file, &length);
+  names = g_key_file_get_groups (key_file, &length);
 
   // Read ssh login information from file and add entry to hashtable.
   int i = 0;
@@ -275,38 +295,64 @@ openvas_ssh_login_file_read (char* filename, gboolean check_keyfiles)
       continue;
     // Init a openvas_ssh_login
     char* name = names[i];
-    char* username = g_key_file_get_string(key_file, names[i], 
-                                           KEY_SSHLOGIN_USERNAME, &err);
-    char* pubkey   = g_key_file_get_string(key_file, names[i], 
-                                           KEY_SSHLOGIN_PUBKEY_FILE, &err);
-    char* privkey  = g_key_file_get_string(key_file, names[i], 
-                                           KEY_SSHLOGIN_PRIVKEY_FILE, &err);
-    char* comment  = g_key_file_get_string(key_file, names[i], 
-                                           KEY_SSHLOGIN_COMMENT, &err);
-    char* passphrase = g_key_file_get_string(key_file, names[i], 
-                                             KEY_SSHLOGIN_PASSPHRASE, &err);
-    
-    openvas_ssh_login* loginfo = openvas_ssh_login_new(name, pubkey, privkey,
-                                  passphrase, comment, username);
+    char* username = g_key_file_get_string (key_file, names[i],
+                                            KEY_SSHLOGIN_USERNAME, &err);
+    char* userpass   = NULL;
+    char* pubkey     = NULL;
+    char* privkey    = NULL;
+    char* comment    = NULL;
+    char* passphrase = NULL;
+
+    if (err == NULL)
+      {
+        userpass = g_key_file_get_string (key_file, names[i],
+                                          KEY_SSHLOGIN_USERPASSWORD, &err);
+        // For Compatibility, ignore if key for password is not present
+        if (err != NULL)
+          {
+            userpass = "";
+            g_error_free (err);
+            err = NULL;
+          }
+      }
+
+    if (err == NULL)
+      pubkey   = g_key_file_get_string (key_file, names[i],
+                                        KEY_SSHLOGIN_PUBKEY_FILE, &err);
+    if (err == NULL)
+      privkey  = g_key_file_get_string (key_file, names[i],
+                                        KEY_SSHLOGIN_PRIVKEY_FILE, &err);
+    if (err == NULL)
+      comment  = g_key_file_get_string (key_file, names[i],
+                                        KEY_SSHLOGIN_COMMENT, &err);
+    if (err == NULL)
+      passphrase = g_key_file_get_string (key_file, names[i],
+                                          KEY_SSHLOGIN_PASSPHRASE, &err);
+
+    openvas_ssh_login* loginfo = openvas_ssh_login_new (name, pubkey, privkey,
+                                       passphrase, comment, username, userpass);
 
     // Discard if error or files do not exist (depending on check_keyfiles param)
     if (err != NULL)
-    {
-      openvas_ssh_login_free(loginfo);
-    }
-    else if (check_keyfiles == TRUE 
-             && (file_check_exists(pubkey) == 0 || file_check_exists(privkey) == 0) )
-    {
-      openvas_ssh_login_free(loginfo);
-    }
+      {
+        g_error_free (err);
+        openvas_ssh_login_free (loginfo);
+      }
     else
-    {
-      // Add to hash table otherwise
-      g_hash_table_insert(loginfos, loginfo->name, loginfo);
-    }
+      {
+        if (check_keyfiles == TRUE && loginfo->valid == FALSE )
+          {
+            openvas_ssh_login_free (loginfo);
+          }
+        else
+          {
+            // Add to hash table otherwise
+            g_hash_table_insert (loginfos, loginfo->name, loginfo);
+          }
+      }
   }
 
   g_key_file_free(key_file);
 
   return loginfos;
-}
+} /* openvas_ssh_login_file_read */

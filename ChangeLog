@@ -1,3 +1,10 @@
+2009-02-27  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* libopenvas/openvas_ssh_login.c, libopenvas/openvas_ssh_login.h:
+	Updated to version used in client:
+	Updated ssh_login struct to carry password as well, cosmetics and
+	memleak- fix (done in openvas-client rev 2597 & 2599).
+
 2009-02-22  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvs/www_funcs.c (build_encode_URL): Fixed
