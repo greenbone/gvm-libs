@@ -1,3 +1,8 @@
+2009-03-04  Vlatko Kosturjak <kost@linux.hr>
+
+	* libopenvas/bpf_share.c: by default, put pcap device in non
+	bocking mode - fixing plugins hang/freeze, fixes #901
+
 2008-11-06  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* INSTALL_README: Updated note regarding gnutls version requirements as

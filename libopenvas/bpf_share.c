@@ -73,6 +73,11 @@ int bpf_open_live(char * iface, char * filter)
   pcap_close(ret);
   return -1;
  }
+
+ if (pcap_setnonblock(ret,1,NULL)==-1) {
+	pcap_perror(ret,"pcap_setnonblock");
+	printf("call to pcap_setnonblock failed, some plugins/scripts will hang/freeze. Upgrade your version of libcap!\n");	
+ }
  
  if(pcap_setfilter(ret, &filter_prog) < 0) 
  {
