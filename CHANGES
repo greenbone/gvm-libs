@@ -1,3 +1,22 @@
+openvas-libraries 1.0.3 (2009-03-06)
+
+This is a maintenance release of the openvas-libraries module for the Open
+Vulnerability Assessment System (OpenVAS) 1.0 series.
+
+It fixes issues discovered after the release of openvas-libraries 1.0.2 and
+contains changes backported from the 2.0 series.
+
+Main changes since 1.0.2:
+* A incorrect library usage that prevented building RPM packages under
+  certain circumstances has been fixed.
+* A bug which led to segmentation faults on 64bit machines has been fixed.
+* A bug which caused plugins to hang or freeze under certain circumstances due
+  to a blocking pcap device has been fixed.
+
+Many thanks to everyone who has contributed to this release: Tim Brown, Vlatko
+Kosturjak, Jan Wagner, Jan-Oliver Wagner and Michael Wiegand
+
+
 openvas-libraries 1.0.2 (2008-06-30)
 
 This release contains improvements to plugin handling and to the packaging files
