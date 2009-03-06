@@ -1,5 +1,11 @@
 2009-03-06  Michael Wiegand <michael.wiegand@intevation.de>
 
+	Post release version bump.
+
+	* VERSION: Set to 1.0.4.SVN.
+
+2009-03-06  Michael Wiegand <michael.wiegand@intevation.de>
+
 	Preparing the openvas-libraries 1.0.3 release.
 
 	* VERSION: Set to 1.0.3.
