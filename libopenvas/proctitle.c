@@ -33,7 +33,7 @@
 	environ = (char **) emalloc((sizeof (char *) * (i + 1))+envpsize+1);
 	s = ((char *)environ)+((sizeof (char *) * (i + 1)));
 	for (i = 0; envp[i] != NULL; i++){
-		strcpy(s,envp[i]); /* Flawfinder: ignore */ 
+		strcpy(s,envp[i]); /* RATS: ignore, s and environ are allocated accordingly */ 
 		environ[i] = s;
 		s += strlen(s)+1;
 	}
@@ -90,7 +90,7 @@
 
     snprintf(buf2, sizeof(buf2), "openvasd: %s", buf);
     bzero(buf, sizeof(buf));
-    strncpy(buf, buf2, sizeof(buf) - 1);
+    strncpy(buf, buf2, sizeof(buf) - 1); /* RATS: ignore, bzero above ensures nul-termination of buf */
    
     i = strlen(buf);
 
@@ -100,7 +100,7 @@
 		i = LastArgv - Argv[0] - 2;
 		buf[i] = '\0';
 	}
-	(void) strcpy(Argv[0], buf);
+	(void) strcpy(Argv[0], buf); /* RATS: ignore, buf is already truncated accordingly. */
 	{ char *p;
 	p = &Argv[0][i];
 	while (p < LastArgv)
