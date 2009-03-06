@@ -1,3 +1,23 @@
+openvas-libraries 2.0.2 (2009-03-06)
+
+This is the second maintenance release of the openvas-libraries module for the
+Open Vulnerability Assessment System (OpenVAS) 2.0 series.
+
+It fixes a number of issues discovered after the release of openvas-libraries
+2.0.1.
+
+Main changes since 2.0.1:
+* A bug which caused plugins to hang or freeze under certain circumstances due
+  to a blocking pcap device has been fixed.
+* A bug which caused openvas-libraries to send a truncated HTTP version
+  identifier when constructing HTTP requests has been fixed.
+* A bug which broke the linking process under certain circumstances has been
+  fixed.
+
+Many thanks to everyone who has contributed to this release: Tim Brown, Vlatko
+Kosturjak, Michael Meyer, Jan-Oliver Wagner, Michael Wiegand and Felix Wolfsteller.
+
+
 openvas-libraries 2.0.1 (2009-02-06)
 
 This is the first maintenance release of the openvas-libraries module for the
