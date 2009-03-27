@@ -1,3 +1,8 @@
+2009-03-27  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* libopenvas/Makefile, libopenvas_hg/Makefile: Adjusted libtool calls to
+	remove warnings about deprecated libtool usage during compile.
+
 2009-03-06  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post release version bump.

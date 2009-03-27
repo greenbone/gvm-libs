@@ -22,9 +22,8 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include ../openvas-libraries.tmpl
-COMPILE = $(CC) $(DEFS) $(include) $(CFLAGS) -Wall -I../libopenvas
-LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(include) $(CFLAGS)
-LINK = $(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(WS2_32)
+COMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(include) $(CFLAGS) -Wall -I../libopenvas
+LINK = $(LIBTOOL) --mode=link $(CC) $(LDFLAGS)
 
 
 OBJS = hg_utils.o hg_add_hosts.o hg_subnet.o hg_filter.o hosts_gatherer.o \
@@ -37,7 +36,7 @@ LO_OBJS = hg_utils.lo hg_add_hosts.lo hg_subnet.lo hg_filter.lo \
 all : libopenvas_hg.la
 
 test : libopenvas_hg.la test.c
-	$(COMPILE)  test.c -o test -L.libs -lopenvas_hg $(LIBS)
+	$(CC) $(DEFS) $(include) $(CFLAGS) -Wall -I../libopenvas test.c -o test -L.libs -lopenvas_hg $(LIBS)
 
 install : libopenvas_hg.la
 	test -d $(DESTDIR)${libdir} || $(INSTALL_DIR) -m 755 $(DESTDIR)${libdir}
@@ -47,29 +46,29 @@ install : libopenvas_hg.la
 	$(INSTALL) -m 0644 hg_utils.h $(DESTDIR)${includedir}/openvas
 
 libopenvas_hg.la : $(OBJS)
-	$(LIBTOOL) $(CC) $(LDFLAGS) -o libopenvas_hg.la $(LO_OBJS) $(LIBS) -rpath ${libdir} \
+	$(LINK) -o libopenvas_hg.la $(LO_OBJS) $(LIBS) -rpath ${libdir} \
 	-version-info ${PACKAGE_VERSION}
 	        
 hg_utils.o : hg_utils.h hosts_gatherer.h hg_utils.c
-	$(LIBTOOL) --mode=compile  $(COMPILE) -c hg_utils.c
+	  $(COMPILE) -c hg_utils.c
 
 hg_add_hosts.o : hg_add_hosts.h hosts_gatherer.h hg_add_hosts.c
-	$(LIBTOOL) --mode=compile  $(COMPILE) -c hg_add_hosts.c
+	  $(COMPILE) -c hg_add_hosts.c
 
 hg_subnet.o : hg_subnet.h hosts_gatherer.h hg_subnet.c
-	$(LIBTOOL) --mode=compile  $(COMPILE) -c hg_subnet.c
+	  $(COMPILE) -c hg_subnet.c
 	
 hg_filter.o : hg_filter.h hosts_gatherer.h hg_filter.c
-	$(LIBTOOL) --mode=compile  $(COMPILE) -c hg_filter.c	
+	  $(COMPILE) -c hg_filter.c	
 
 hosts_gatherer.o : hosts_gatherer.h hosts_gatherer.c
-	$(LIBTOOL) --mode=compile  $(COMPILE) -c hosts_gatherer.c
+	  $(COMPILE) -c hosts_gatherer.c
 		
 hg_dns_axfr.o : hg_dns_axfr.c hosts_gatherer.h hg_dns_axfr.c
-	$(LIBTOOL) --mode=compile $(COMPILE) -c hg_dns_axfr.c
+	 $(COMPILE) -c hg_dns_axfr.c
 	
 hg_debug.o : hg_debug.c hosts_gatherer.h hg_debug.c
-	$(LIBTOOL) --mode=compile  $(COMPILE) -c hg_debug.c
+	  $(COMPILE) -c hg_debug.c
 	
 distclean : clean
 	
