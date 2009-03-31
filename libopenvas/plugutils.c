@@ -1050,13 +1050,6 @@ proto_post_wrapped (struct arglist * desc, int port, const char* proto,
    efree (&old);
   }
 
-
- for (i=0;naction[i];i++)
- {
-   if (!isprint (naction[i]))
-     naction[i] = ' ';
- }
-
  buffer = emalloc (1024 + len);
  char idbuffer[105];
  const char *svc_name = nessus_get_svc_name (port, proto);

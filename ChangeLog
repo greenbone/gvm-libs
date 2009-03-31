@@ -1,5 +1,16 @@
 2009-03-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Disabled checking for non-printable chars when posting security
+	messages. This allows localizations and support for e.g. german or
+	french characters in the messages text.
+	It is unclear why this behaviour was wished (in order to prevent NTP
+	corruption?).
+
+	* libopenvas/plugutils.c (proto_post_wrapped): Disabled replacement
+	of non-printable characters by spaces.
+	
+2009-03-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* libopenvas/plugutils.c: Reformatting, whitespace-removal, K&R style
 	replacements, doc.
 
