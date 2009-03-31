@@ -60,16 +60,17 @@
 #undef DEBUG_DIFF_SCAN
 
 
-
-char *nessuslib_version()
+char *
+nessuslib_version()
 {
   static char vers[255];
   strncpy(vers, VERSION, sizeof(vers) - 1);
   vers[sizeof(vers) - 1 ] = '\0';
   return vers;
 }
-void nessus_lib_version(major, minor, rev)
- int * major, *minor, *rev;
+
+void
+nessus_lib_version (int* major, int* minor, int* rev)
 {
  *major = OPENVASLIBS_MAJOR;
  *minor = OPENVASLIBS_MINOR;
@@ -77,7 +78,8 @@ void nessus_lib_version(major, minor, rev)
 }
 
 #ifdef USE_PTHREADS
-int nessuslib_pthreads_enabled()
+int
+nessuslib_pthreads_enabled()
 {
  int enabled = 1;
  return(enabled);
@@ -87,14 +89,18 @@ int nessuslib_pthreads_enabled()
 
 
 
-
 /**
- * Escapes \n and \r properly. The resulting string
- * is copied in another buffer.
+ * @brief Escapes \\n and \\r in \<in\> properly.
+ * 
+ * The resulting string is copied in another buffer.
+ * @param in String in which to escape \\n and \\r.
+ * 
+ * @return Copy of in with \\n and \\r escaped.
+ * 
+ * @see To undo, call rmslashes.
  */
-char * 
-addslashes(in)
-	char * in;
+char *
+addslashes (char* in)
 {
  char * ret;
  char * out = malloc(strlen(in) * 2 + 1);
@@ -128,12 +134,13 @@ addslashes(in)
 }
 
 /**
- * Replaces escape codes (\n, \r) by the real value
+ * @brief Replaces escape codes (\\n, \\r) by the real value.
+ * 
  * The resulting string is stored in another buffer
+ * @see (slashes could have been added with addslashes)
  */
-char * 
-rmslashes(in)
- char * in;
+char *
+rmslashes (char * in)
 {
  char * out = malloc(strlen(in) + 1);
  char * ret = out;
@@ -168,41 +175,41 @@ rmslashes(in)
 }
 
 
-void plug_set_version(desc, version)
- struct arglist * desc;
- const char* version;
+void
+plug_set_version (struct arglist * desc, const char* version)
 {
  arg_add_value(desc, "VERSION", ARG_STRING, strlen(version), estrdup((char*)version));
 }
 
 
-char * _plug_get_version(desc)
- struct arglist * desc;
+char *
+_plug_get_version (struct arglist * desc)
 {
  return arg_get_value(desc, "VERSION");
 }
 
 
-char * plug_get_version(struct arglist * desc)
+char *
+plug_get_version (struct arglist * desc)
 {
  return store_fetch_version(desc);
 }
 
 
-void plug_set_path(desc, path)
- struct arglist * desc;
- const char * path;
+void
+plug_set_path (struct arglist * desc, const char * path)
 {
  arg_add_value(desc, "PATH", ARG_STRING, strlen(path), estrdup((char*)path));
 }
 
-char * _plug_get_path(struct arglist * desc)
+char *
+_plug_get_path (struct arglist * desc)
 {
  return arg_get_value(desc, "PATH");
 }
 
-char * plug_get_path(desc)
- struct arglist * desc;
+char *
+plug_get_path (struct arglist * desc)
 {
  return _plug_get_path(desc);
 }
@@ -213,9 +220,7 @@ char * plug_get_path(desc)
  * @param desc The arglist where the entry is to be created.
  * @param cachefile The value for CACHEFILE (a filename).
  */
-void plug_set_cachefile(desc, cachefile)
-  struct arglist * desc;
-  const char * cachefile;
+void plug_set_cachefile (struct arglist * desc, const char * cachefile)
 {
   arg_add_value(desc, "CACHEFILE", ARG_STRING, strlen(cachefile),
                 estrdup(cachefile));
@@ -228,15 +233,14 @@ void plug_set_cachefile(desc, cachefile)
  *
  * @return The value for CACHEFILE (a filename).
  */
-char * plug_get_cachefile(desc)
-  struct arglist * desc;
+char *
+plug_get_cachefile (struct arglist * desc)
 {
   return arg_get_value(desc, "CACHEFILE");
 }
 
-void plug_set_id(desc, id)
- struct arglist * desc;
- int id;
+void
+plug_set_id (struct arglist * desc, int id)
 {
  arg_add_value(desc, "ID", ARG_INT, sizeof(gpointer), GSIZE_TO_POINTER(id));
  /* If a script_id has been set then set a matching script_oid */
@@ -257,14 +261,14 @@ void plug_set_id(desc, id)
 #endif
 }
 
-int plug_get_id(struct arglist * desc)
+int
+plug_get_id (struct arglist * desc)
 {
  return GPOINTER_TO_SIZE(arg_get_value(desc, "ID"));
 }
 
-void plug_set_oid(desc, id)
-  struct arglist * desc;
-  char *id;
+void
+plug_set_oid (struct arglist * desc, char *id)
 {
  int oldid = GPOINTER_TO_SIZE(arg_get_value(desc, "ID"));
  /* Only allow a scipt_oid to be set if no script_id has already been set */
@@ -275,17 +279,17 @@ void plug_set_oid(desc, id)
  else
  {
   fprintf(stderr, "plug_set_oid: Invalid script_oid call, legacy plugin %i detected", oldid);
- } 
+ }
 }
 
-char * plug_get_oid(struct arglist * desc)
+char *
+plug_get_oid (struct arglist * desc)
 {
   return arg_get_value(desc, "OID");
 }
 
-void plug_set_cve_id(desc, id)
- struct arglist * desc;
- char * id;
+void
+plug_set_cve_id (struct arglist * desc, char * id)
 {
  char * old = arg_get_value(desc, "CVE_ID");
  if(old != NULL)
@@ -303,65 +307,62 @@ void plug_set_cve_id(desc, id)
 
 
 char *
-_plug_get_cve_id(desc)
- struct arglist * desc;
+_plug_get_cve_id (struct arglist * desc)
 {
  return arg_get_value(desc, "CVE_ID");
 }
 
-char * plug_get_cve_id(struct arglist * desc)
+char *
+plug_get_cve_id (struct arglist * desc)
 {
  return store_fetch_cve_id(desc);
 }
 
 
-void plug_set_bugtraq_id(desc, id)
- struct arglist * desc;
- char * id;
+void
+plug_set_bugtraq_id (struct arglist * desc, char* id)
 {
  char * old = arg_get_value(desc, "BUGTRAQ_ID");
  if(old != NULL)
- { 
+ {
   old = erealloc(old, strlen(old) + strlen(id) + 3);
   strcat(old, ", "); /* RATS: ignore */
-  strcat(old, id); /* RATS: ignore */ 
+  strcat(old, id); /* RATS: ignore */
   arg_set_value(desc, "BUGTRAQ_ID", strlen(old), old);
  }
  else
   arg_add_value(desc, "BUGTRAQ_ID", ARG_STRING, strlen(id), estrdup(id));
 }
 
-char * _plug_get_bugtraq_id(desc)
- struct arglist * desc;
+char *
+_plug_get_bugtraq_id (struct arglist * desc)
 {
  return arg_get_value(desc, "BUGTRAQ_ID");
 }
 
-char * plug_get_bugtraq_id(struct arglist * desc)
+char *
+plug_get_bugtraq_id (struct arglist * desc)
 {
  return store_fetch_bugtraq_id(desc);
 }
 
-
-
-void plug_set_xref(desc,name, value)
- struct arglist * desc;
- char * name, * value;
+void
+plug_set_xref (struct arglist * desc, char* name, char* value)
 {
  char * old = arg_get_value(desc, "XREFS");
  if(old != NULL)
- { 
+ {
   old = erealloc(old, strlen(old) + strlen(name) + strlen(value) + 4);
   strcat(old, ", "); /* RATS: ignore */
-  strcat(old, name); /* RATS: ignore */ 
+  strcat(old, name); /* RATS: ignore */
   strcat(old, ":"); /* RATS: ignore */
-  strcat(old, value); /* RATS: ignore */ 
+  strcat(old, value); /* RATS: ignore */
   arg_set_value(desc, "XREFS", strlen(old), old);
  }
- else 
+ else
   {
   char * str;
-  
+  // g_strdup_printf
   str = emalloc(strlen(name) + strlen(value) + 2);
   strcat(str, name); /* RATS: ignore */ 
   strcat(str, ":");
@@ -370,24 +371,24 @@ void plug_set_xref(desc,name, value)
   }
 }
 
-char * _plug_get_xref(desc)
- struct arglist * desc;
+char *
+_plug_get_xref (struct arglist * desc)
 {
  return arg_get_value(desc, "XREFS");
 }
 
-char * plug_get_xref(struct arglist * desc)
+char *
+plug_get_xref (struct arglist * desc)
 {
  return store_fetch_xref(desc);
 }
 
-void plug_set_tag(desc, name, value)
- struct arglist * desc;
- char * name, * value;
+void
+plug_set_tag (struct arglist * desc, char* name, char* value)
 {
  char * old = arg_get_value(desc, "TAGS");
  if(old != NULL)
- { 
+ {
   old = erealloc(old, strlen(old) + strlen(name) + strlen(value) + 3);
   strcat(old, "|");
   strcat(old, name); /* RATS: ignore */ 
@@ -395,36 +396,41 @@ void plug_set_tag(desc, name, value)
   strcat(old, value); /* RATS: ignore */ 
   arg_set_value(desc, "TAGS", strlen(old), old);
  }
- else 
+ else
   {
   char * str;
-  
+
   str = emalloc(strlen(name) + strlen(value) + 2);
-  strcat(str, name); /* RATS: ignore */ 
+  strcat(str, name); /* RATS: ignore */
   strcat(str, "=");
-  strcat(str, value); /* RATS: ignore */ 
+  strcat(str, value); /* RATS: ignore */
   arg_add_value(desc, "TAGS", ARG_STRING, strlen(str), str);
   }
 }
 
-char * _plug_get_tag(desc)
- struct arglist * desc;
+char *
+_plug_get_tag (struct arglist * desc)
 {
  return arg_get_value(desc, "TAGS");
 }
 
-char * plug_get_tag(struct arglist * desc)
+char *
+plug_get_tag (struct arglist * desc)
 {
  return store_fetch_tag(desc);
 }
 
 /**
- * Set string that lists signature keys for a plugin or add it, when not empty.
+ * @brief Set string that lists signature keys for a plugin or add it, if not
+ * @brief empty.
+ *
  * Key-ids are stored as comma- seperated list ('ABCDEFGH,ABCDEFG1').
+ *
  * @param desc Plugin as arglist.
  * @param key_ids Comma-separated fingerprints.
  */
-void plug_set_sign_key_ids(struct arglist* desc, char* key_ids)
+void
+plug_set_sign_key_ids (struct arglist* desc, char* key_ids)
 {
   char* value = plug_get_sign_key_ids( desc );
   if(value != NULL)
@@ -442,18 +448,17 @@ void plug_set_sign_key_ids(struct arglist* desc, char* key_ids)
 }
 
 /**
- * Return pointer to the string that lists signature keys for a plugin
+ * @brief Return pointer to the string that lists signature keys for a plugin.
  */
-char* plug_get_sign_key_ids(struct arglist* desc)
+char*
+plug_get_sign_key_ids (struct arglist* desc)
 {
   return arg_get_value(desc, "SIGN_KEY_IDS");
 }
 
 
-void plug_set_family(desc, family, language)
- struct arglist * desc; 
- const char * family;
- const char * language;
+void
+plug_set_family (struct arglist * desc, const char* family, const char* language)
 {
   char * s_language;
   struct arglist * prefs = arg_get_value(desc, "preferences");
@@ -477,47 +482,45 @@ void plug_set_family(desc, family, language)
 }
 
 
-char * _plug_get_family(desc)
- struct arglist * desc;
+char *
+_plug_get_family (struct arglist * desc)
 {
  return arg_get_value(desc, "FAMILY");
 }
 
-char * plug_get_family(desc)
- struct arglist * desc;
+char *
+plug_get_family (struct arglist * desc)
 {
  return store_fetch_family(desc);
 }
 
 
-void plug_require_key(desc, keyname)
- struct arglist * desc;
- const char * keyname;
+void
+plug_require_key (struct arglist * desc, const char * keyname)
 {
  struct arglist * keys;
  if(keyname)
- {
-  keys = arg_get_value(desc, "required_keys");
-  if(!keys)
   {
-   keys = emalloc(sizeof(struct arglist));
-   arg_add_value(desc, "required_keys", ARG_ARGLIST, -1, keys);
+    keys = arg_get_value(desc, "required_keys");
+    if(!keys)
+      {
+        keys = emalloc(sizeof(struct arglist));
+        arg_add_value(desc, "required_keys", ARG_ARGLIST, -1, keys);
+      }
+    arg_add_value(keys, keyname,  ARG_INT, 0, (void*)1);
   }
-  arg_add_value(keys, keyname,  ARG_INT, 0, (void*)1);
- }
 }
 
 
-struct arglist * plug_get_required_keys(desc)
- struct arglist * desc;
+struct arglist *
+plug_get_required_keys (struct arglist * desc)
 {
   return arg_get_value(desc, "required_keys");
 }
 
 
-void plug_exclude_key(desc, keyname)
- struct arglist * desc;
- const char * keyname;
+void
+plug_exclude_key (struct arglist * desc, const char * keyname)
 {
  struct arglist * keys;
  if(keyname)
@@ -532,18 +535,17 @@ void plug_exclude_key(desc, keyname)
  }
 }
 
-struct arglist * plug_get_excluded_keys(desc)
- struct arglist * desc;
+struct arglist *
+plug_get_excluded_keys (struct arglist * desc)
 {
   return arg_get_value(desc, "excluded_keys");
 }
 
-void plug_require_port(desc, portname)
- struct arglist * desc;
- const char * portname;
+void
+plug_require_port (struct arglist * desc, const char * portname)
 {
  struct arglist * ports;
- 
+
  if(portname != NULL)
  {
   ports = arg_get_value(desc, "required_ports");
@@ -557,8 +559,7 @@ void plug_require_port(desc, portname)
  }
 }
 
-struct arglist * plug_get_required_ports(desc)
- struct arglist * desc;
+struct arglist * plug_get_required_ports (struct arglist * desc)
 {
   return arg_get_value(desc, "required_ports");
 }
@@ -578,22 +579,19 @@ void plug_require_udp_port(desc, portname)
    ports = emalloc(sizeof(struct arglist));
    arg_add_value(desc, "required_udp_ports", ARG_ARGLIST, -1, ports);
   }
-  
+
    arg_add_value(ports, portname, ARG_INT, 0, (void*)1);
  }
 }
 
-struct arglist * plug_get_required_udp_ports(desc)
- struct arglist * desc;
+struct arglist * plug_get_required_udp_ports (struct arglist * desc)
 {
   return arg_get_value(desc, "required_udp_ports");
 }
- 
 
 
-void plug_set_dep(desc, depname)
- struct arglist * desc;
- const char * depname;
+void
+plug_set_dep (struct arglist * desc, const char * depname)
 {
  struct arglist * deps;
  if(depname)
@@ -614,7 +612,7 @@ struct arglist * plug_get_deps(desc)
 }
 
 void plug_set_timeout(desc, timeout)
- struct arglist * desc; 
+ struct arglist * desc;
  int timeout;
 {
     arg_add_value(desc, "TIMEOUT", ARG_INT, sizeof(gpointer), GSIZE_TO_POINTER(timeout));
@@ -638,21 +636,19 @@ void plug_set_launch(desc, launch)
 }
 
 
-int plug_get_launch(desc)
- struct arglist * desc;
+int
+plug_get_launch (struct arglist * desc)
 {
- 	return(GPOINTER_TO_SIZE(arg_get_value(desc, "ENABLED")));
-}	
-	
-	
-void plug_set_name(desc, name, language)
- struct arglist * desc; 
- const char * name; 
- const char * language;
+  return(GPOINTER_TO_SIZE(arg_get_value(desc, "ENABLED")));
+}
+
+
+void
+plug_set_name (struct arglist * desc, const char * name, const char * language)
 {
  char * s_language;
  struct arglist * prefs = arg_get_value(desc, "preferences");
-  
+
   s_language = arg_get_value(prefs,"language");
   if(s_language && language)
    {
@@ -671,17 +667,16 @@ void plug_set_name(desc, name, language)
   }
 }
 
-char * plug_get_name(desc)
- struct arglist * desc;
+char *
+plug_get_name (struct arglist * desc)
 {
   return arg_get_value(desc, "NAME");
 }
 
 
-void plug_set_summary(desc, summary,language)
- struct arglist * desc;
- const char * summary;
- const char * language;
+void
+plug_set_summary (struct arglist * desc, const char* summary,
+                  const char* language)
 {
  char * s_language;
  struct arglist * prefs = arg_get_value(desc, "preferences");
@@ -744,27 +739,25 @@ void plug_set_description(desc, description,language)
 }
 
 
-char * _plug_get_description(desc)
- struct arglist * desc;
+char *
+_plug_get_description (struct arglist * desc)
 {
  return arg_get_value(desc, "DESCRIPTION");
 }
 
-char * plug_get_description(desc)
- struct arglist * desc;
+char *
+plug_get_description (struct arglist * desc)
 {
  return store_fetch_description(desc);
 }
 
-
-void plug_set_copyright(desc, copyright,language)
- struct arglist * desc;
- const char * copyright;
- const char * language;
+void
+plug_set_copyright (struct arglist * desc, const char* copyright,
+                    const char* language)
 {
  char * s_language;
  struct arglist * prefs = arg_get_value(desc, "preferences");
-  
+
   s_language = arg_get_value(prefs,"language");
   if(s_language && language)
    {
@@ -783,139 +776,123 @@ void plug_set_copyright(desc, copyright,language)
   }
 }
 
-char * _plug_get_copyright(desc)
- struct arglist * desc;
+char *
+_plug_get_copyright (struct arglist * desc)
 {
  return arg_get_value(desc, "COPYRIGHT");
 }
 
 
-char * plug_get_copyright(desc)
- struct arglist * desc;
+char *
+plug_get_copyright (struct arglist * desc)
 {
  return store_fetch_copyright(desc);
 }
 
 
-void plug_set_category(desc, category)
- struct arglist * desc;
- int category;
+void
+plug_set_category (struct arglist * desc, int category)
 {
-       arg_add_value(desc, "CATEGORY", ARG_INT, sizeof(gpointer), GSIZE_TO_POINTER(category));
+  arg_add_value(desc, "CATEGORY", ARG_INT, sizeof(gpointer), GSIZE_TO_POINTER(category));
 }
 
-int plug_get_category(desc)
- struct arglist * desc;
+int
+plug_get_category (struct arglist * desc)
 {
  return GPOINTER_TO_SIZE(arg_get_value(desc, "CATEGORY"));
 }
 
 
-
-void plug_add_host(desc, hostname)
- struct arglist * desc;
- struct arglist * hostname;
+void
+plug_add_host (struct arglist * desc, struct arglist * hostname)
 {
-	struct arglist * h;
-	
-	h = arg_get_value(desc, "HOSTNAME");
-	if(!h)arg_add_value(desc, "HOSTNAME", ARG_ARGLIST, sizeof(hostname), hostname);
-	else arg_set_value(desc, "HOSTNAME", sizeof(hostname), hostname);
+  struct arglist * h;
+
+  h = arg_get_value (desc, "HOSTNAME");
+  if(!h)
+    arg_add_value (desc, "HOSTNAME", ARG_ARGLIST, sizeof(hostname), hostname);
+  else
+    arg_set_value (desc, "HOSTNAME", sizeof(hostname), hostname);
 }
 
 
-void host_add_port_proto(args, portnum, state, proto)
- struct arglist * args;
- int portnum;
- int state;
- char * proto;
+void
+host_add_port_proto (struct arglist * args, int portnum, int state, char * proto)
 {
  char port_s[255];
- 
- snprintf(port_s, sizeof(port_s), "Ports/%s/%d", proto, portnum); /* RATS: ignore */
- plug_set_key(args, port_s, ARG_INT, (void*)1);
+ snprintf (port_s, sizeof(port_s), "Ports/%s/%d", proto, portnum); /* RATS: ignore */
+ plug_set_key (args, port_s, ARG_INT, (void*)1);
 }
 
 
-void host_add_port(hostdata, portnum, state)
- struct arglist * hostdata;
- int portnum;
- int state;
+void
+host_add_port (struct arglist * hostdata, int portnum, int state)
 {
  host_add_port_proto(hostdata, portnum, state, "tcp");
 }
 
-void host_add_port_udp(hostdata, portnum, state)
- struct arglist * hostdata;
- int portnum;
- int state;
+void
+host_add_port_udp (struct arglist * hostdata, int portnum, int state)
 {
  host_add_port_proto(hostdata, portnum, state, "udp");
 }
-  
 
-int port_in_ports(port, ports, s, e)
-	u_short port, * ports;
-	int s, e;
+int
+port_in_ports (u_short port, u_short * ports, int s, int e)
 {
  int mid = (s+e)/2;
  if(s==e)return(port == ports[e]);
  if(port > ports[mid])return(port_in_ports(port, ports, mid+1, e));
  else return(port_in_ports(port, ports, s, mid));
 }
- 	
 
-
+/**
+ * @brief Report state of preferences "unscanned_closed".
+ * 
+ * @return 0 if pref is "yes", 1 otherwise.
+ */
 static int
-unscanned_ports_as_closed(prefs)
- struct arglist * prefs;
+unscanned_ports_as_closed (struct arglist * prefs)
 {
  char * unscanned;
  unscanned = arg_get_value(prefs, "unscanned_closed");
- if(unscanned && !strcmp(unscanned, "yes"))
+ if (unscanned && !strcmp(unscanned, "yes"))
   return 0;
  else
   return 1;
 }
-           
-int kb_get_port_state_proto(kb, prefs, portnum, proto)
- struct kb_item ** kb;
- struct arglist * prefs;
- int portnum;
- char * proto;
-{ 
+
+
+/**
+ * @param proto Protocol (udp/tcp). If NULL, "tcp" will be used.
+ */
+int
+kb_get_port_state_proto (struct kb_item ** kb, struct arglist * prefs,
+                             int portnum, char * proto)
+{
  char port_s[255];
  unsigned short * range;
  char * prange = (char*)arg_get_value(prefs, "port_range");
  int num;
 
- if(!proto)
+ if (!proto)
   proto = "tcp";
-  
- /* Check that we actually scanned the port */
- 
- if(!strcmp(proto, "tcp") && kb_item_get_int(kb, "Host/scanned") <= 0){
-	return unscanned_ports_as_closed(prefs);
-	}
 
+ /* Check that we actually scanned the port */
+ if (!strcmp(proto, "tcp") && kb_item_get_int(kb, "Host/scanned") <= 0)
+    return unscanned_ports_as_closed(prefs);
  else if(!strcmp(proto, "udp") && kb_item_get_int(kb, "Host/udp_scanned") <= 0)
-       {
-        return 1;
-      }
-      
-      		
+    return 1;
+
  range = (u_short*)getpts(prange, &num);
 
- if( range == NULL ){
- 	return(1);
-	}
-	
- if(!port_in_ports(portnum, range, 0, num)){
-       return unscanned_ports_as_closed(prefs);
-       }
- 
+ if (range == NULL)
+    return(1);
+
+ if (!port_in_ports(portnum, range, 0, num))
+    return unscanned_ports_as_closed(prefs);
+
  /* Ok, we scanned it. What is its state ? */
- 
  snprintf(port_s, sizeof(port_s), "Ports/%s/%d", proto, portnum); /* RATS: ignore */
  if(kb_item_get_int(kb, port_s) > 0 )
     return 1;
@@ -923,42 +900,38 @@ int kb_get_port_state_proto(kb, prefs, portnum, proto)
    return 0;
 }
 
-int host_get_port_state_proto(plugdata, portnum, proto)
- struct arglist * plugdata;
- int portnum;
- char * proto;
-{ 
+int
+host_get_port_state_proto (struct arglist * plugdata, int portnum, char * proto)
+{
  struct kb_item ** kb = plug_get_kb(plugdata);
  struct arglist * prefs = arg_get_value(plugdata, "preferences");
- 
+
  return kb_get_port_state_proto(kb, prefs, portnum, proto);
 }
 
-int host_get_port_state(plugdata, portnum)
- struct arglist * plugdata;
- int portnum;
+int
+host_get_port_state (struct arglist * plugdata, int portnum)
 {
  return(host_get_port_state_proto(plugdata, portnum, "tcp"));
 }
 
-int host_get_port_state_udp(plugdata, portnum)
- struct arglist * plugdata;
- int portnum;
+int
+host_get_port_state_udp (struct arglist * plugdata, int portnum)
 {
  return(host_get_port_state_proto(plugdata, portnum, "udp"));
 }
 
 
-const char * plug_get_hostname(desc)
- struct arglist * desc;
+const char *
+plug_get_hostname (struct arglist * desc)
 {
  struct arglist * hinfos = arg_get_value(desc, "HOSTNAME");
  if(hinfos)return((char*)arg_get_value(hinfos, "NAME"));
  else return(NULL);
 }
 
-const char * plug_get_host_fqdn(desc)
- struct arglist * desc;
+const char *
+plug_get_host_fqdn (struct arglist * desc)
 {
  struct arglist * hinfos = arg_get_value(desc, "HOSTNAME");
  if(hinfos)return((char*)arg_get_value(hinfos, "FQDN"));
@@ -966,23 +939,27 @@ const char * plug_get_host_fqdn(desc)
 }
 
 
-struct in_addr * plug_get_host_ip(desc)
- struct arglist * desc;
+struct in_addr *
+plug_get_host_ip (struct arglist * desc)
 {
  struct arglist * hinfos = arg_get_value(desc, "HOSTNAME");
- if(hinfos)return((struct in_addr*)arg_get_value(hinfos, "IP"));
- else return(NULL);
+ if (hinfos)
+   return ((struct in_addr*) arg_get_value(hinfos, "IP"));
+ else
+   return NULL;
 }
 
 
-
-static void 
-mark_successful_plugin(desc)
- struct arglist * desc;
+/**
+ * @brief Sets a Success kb- entry for the plugin described with parameter desc.
+ * 
+ * @param desc Plugin-arglist.
+ */
+static void
+mark_successful_plugin (struct arglist * desc)
 {
  char * oid = plug_get_oid(desc);
  char data[512];
- 
 
  bzero(data, sizeof(data));
  snprintf(data, sizeof(data), "Success/%s", oid); /* RATS: ignore */
@@ -990,32 +967,27 @@ mark_successful_plugin(desc)
 }
 
 static void
-mark_post(desc, action, content)
- struct arglist * desc;
- char * action;
- char * content;
+mark_post (struct arglist * desc, const char* action, char* content)
 {
  char entry_name[255];
- 
+
  if(strlen(action) > (sizeof(entry_name) - 20))
   return;
-  
- snprintf(entry_name, sizeof(entry_name), "SentData/%s/%s", plug_get_oid(desc), action); /* RATS: ignore */
- plug_set_key(desc, entry_name, ARG_STRING, content);
+
+ snprintf (entry_name, sizeof(entry_name), "SentData/%s/%s", plug_get_oid(desc), action); /* RATS: ignore */
+ rar (desc, entry_name, ARG_STRING, content);
 }
 
- 
- 
+
 /**
- * Pluto 24.6.00: reduced to one, and left the orig in place
+ * @brief Post a security message (e.g. LOG, NOTE, WARNING ...).
+ * 
+ * @param port  Port number related to the issue.
+ * @param proto Protocol related to the issue.
  */
-void 
-proto_post_wrapped(desc, port, proto, action, what)
- struct arglist * desc;
- int port;
- const char * proto;
- const char * action;
- const char * what;
+void
+proto_post_wrapped (struct arglist * desc, int port, const char* proto,
+                    const char* action, const char* what)
 {
  char * buffer;
  int soc;
@@ -1026,263 +998,236 @@ proto_post_wrapped(desc, port, proto, action, what)
  char * xref;
  int i;
 
- if( action == NULL )action = plug_get_description(desc);
- 
- 
- cve = plug_get_cve_id(desc);
- bid = plug_get_bugtraq_id(desc);
- xref = plug_get_xref(desc);
- 
- if( action == NULL )
- 	return;
-	
-	
+ if (action == NULL)
+   action = plug_get_description (desc);
+
+ cve  = plug_get_cve_id (desc);
+ bid  = plug_get_bugtraq_id (desc);
+ xref = plug_get_xref (desc);
+
+ if (action == NULL)
+  return;
+
  len = strlen(action) + 1;
- if(cve != NULL)
- 	len += strlen(cve) + 20;
+ if (cve != NULL)
+  len += strlen(cve) + 20;
 
- if(bid != NULL)
-  	len += strlen(bid) + 20;
-	
- if(xref != NULL )
- 	len += strlen(xref) + 20;
+ if (bid != NULL)
+  len += strlen(bid) + 20;
 
- naction = emalloc(len+1);
- strncpy(naction, action, strlen(action));
- strcat(naction, "\n");
- if( cve != NULL && cve[0] != '\0')
-        {
-	 strcat(naction, "CVE : "); /* RATS: ignore */ 
-	 strcat(naction, cve); /* RATS: ignore */ 
-	 strcat(naction, "\n");
-	 }
- 
- if( bid != NULL && bid[0] != '\0' )
- 	{
-	 strcat(naction, "BID : "); /* RATS: ignore */ 
-	 strcat(naction, bid); /* RATS: ignore */ 
-	 strcat(naction, "\n");
-	 }	
- if( xref != NULL && xref[0] != '\0' )
- 	{
-	strcat(naction, "Other references : "); /* RATS: ignore */ 
-	strcat(naction, xref); /* RATS: ignore */ 
-	strcat(naction, "\n");
-	}
- 
+ if (xref != NULL)
+  len += strlen(xref) + 20;
+
+ naction = emalloc (len+1);
+ strncpy (naction, action, strlen(action));
+ strcat (naction, "\n");
+ if (cve != NULL && cve[0] != '\0')
+  {
+    strcat (naction, "CVE : "); /* RATS: ignore */
+    strcat (naction, cve); /* RATS: ignore */
+    strcat (naction, "\n");
+  }
+
+ if (bid != NULL && bid[0] != '\0')
+  {
+    strcat (naction, "BID : "); /* RATS: ignore */
+    strcat (naction, bid); /* RATS: ignore */
+    strcat (naction, "\n");
+  }
+
+ if (xref != NULL && xref[0] != '\0')
+  {
+    strcat(naction, "Other references : "); /* RATS: ignore */
+    strcat(naction, xref); /* RATS: ignore */
+    strcat(naction, "\n");
+  }
+
   {
    char * old = naction;
-   len -= strlen(naction);
-   naction = addslashes(naction);
-   len += strlen(naction);
-   efree(&old);
+   len -= strlen (naction);
+   naction = addslashes (naction);
+   len += strlen (naction);
+   efree (&old);
   }
-  
- for(i=0;naction[i];i++)
+
+
+ for (i=0;naction[i];i++)
  {
-   if(!isprint(naction[i]))
-     	naction[i] = ' ';
+   if (!isprint (naction[i]))
+     naction[i] = ' ';
  }
 
+ buffer = emalloc (1024 + len);
+ char idbuffer[105];
+ const char *svc_name = nessus_get_svc_name (port, proto);
+ if (plug_get_oid(desc) == NULL)
+  {
+   *idbuffer = '\0';
+  }
+ else
+   {
+     char * oid = plug_get_oid(desc);
+     snprintf(idbuffer, sizeof(idbuffer), "<|> %s ", oid); /* RATS: ignore */
+   }
+ if(port>0)
+    {
+      snprintf (buffer, 1024 + len,
+                "SERVER <|> %s <|> %s <|> %s (%d/%s) <|> %s %s<|> SERVER\n",
+                what,
+                plug_get_hostname(desc),
+                svc_name,
+                port, proto, naction, idbuffer);
+   }
+  else
+     snprintf (buffer, 1024 + len,
+               "SERVER <|> %s <|> %s <|> general/%s <|> %s %s<|> SERVER\n",
+               what,
+               plug_get_hostname(desc),
+               proto, naction, idbuffer);
 
- buffer = emalloc( 1024 + len );
-   char idbuffer[105];
-   const char	*svc_name = nessus_get_svc_name(port, proto);
-     if (plug_get_oid(desc) == NULL) {
-       *idbuffer = '\0';
-     } else {
-       char * oid = plug_get_oid(desc);
-       snprintf(idbuffer, sizeof(idbuffer), "<|> %s ", oid); /* RATS: ignore */
-     }
-  if(port>0){
-     snprintf(buffer, 1024 + len, 
-	     "SERVER <|> %s <|> %s <|> %s (%d/%s) <|> %s %s<|> SERVER\n",
-	     what,
-  	     plug_get_hostname(desc),
-	     svc_name,
-	     port, proto, naction, idbuffer);
-    
-   } else
-     snprintf(buffer, 1024 + len, 
-	     "SERVER <|> %s <|> %s <|> general/%s <|> %s %s<|> SERVER\n",
-	     what,
-  	     plug_get_hostname(desc), 
-	     proto, naction, idbuffer);
- 
-  mark_post(desc, what, action); 
-  soc = GPOINTER_TO_SIZE(arg_get_value(desc, "SOCKET"));
-  internal_send(soc, buffer, INTERNAL_COMM_MSG_TYPE_DATA);
- 
-  /*
-   * Mark in the KB that the plugin was sucessful
-   */
-  mark_successful_plugin(desc);
-  efree(&buffer);
-  efree(&naction);
+  mark_post (desc, what, action);
+  soc = GPOINTER_TO_SIZE (arg_get_value(desc, "SOCKET"));
+  internal_send (soc, buffer, INTERNAL_COMM_MSG_TYPE_DATA);
+
+  /* Mark in the KB that the plugin was sucessful */
+  mark_successful_plugin (desc);
+  efree (&buffer);
+  efree (&naction);
 
   return;
 }
 
-/* Pluto end */
-
-void proto_post_hole(desc, port, proto, action)
- struct arglist * desc;
- int port;
- const char * proto;
- const char * action;
+void
+proto_post_hole (struct arglist * desc, int port, const char * proto,
+                 const char * action)
 {
-  proto_post_wrapped(desc, port, proto, action, "HOLE");
+  proto_post_wrapped (desc, port, proto, action, "HOLE");
   return;
 }
 
 
-void post_hole(desc, port, action)
- struct arglist * desc;
- int port;
- const char * action;
+void
+post_hole (struct arglist * desc, int port, const char * action)
 {
   proto_post_hole(desc, port, "tcp", action);
-} 
+}
 
 
-void post_hole_udp(desc, port, action)
- struct arglist * desc;
- int port;
- const char * action;
+void
+post_hole_udp (struct arglist * desc, int port, const char * action)
 {
  proto_post_hole(desc, port, "udp", action);
 }
 
 
-void post_info(desc, port, action)
- struct arglist * desc;
- int port;
- const char * action;
+void
+post_info (struct arglist * desc, int port, const char* action)
 {
   proto_post_info(desc, port, "tcp", action);
-} 
+}
 
 
-void post_info_udp(desc, port, action)
- struct arglist * desc;
- int port;
- const char * action;
+void
+post_info_udp (struct arglist * desc, int port, const char * action)
 {
  proto_post_info(desc, port, "udp", action);
 }
 
 
-void proto_post_info(desc, port, proto, action)
- struct arglist * desc;
- int port;
- const char * proto;
- const char * action;
+void
+proto_post_info (struct arglist * desc, int port, const char * proto,
+                 const char * action)
 {
   proto_post_wrapped(desc, port, proto, action, "INFO");
   return;
 }
- 
-void post_note(desc, port, action)
- struct arglist * desc;
- int port;
- const char * action;
+
+void
+post_note (struct arglist * desc, int port, const char* action)
 {
-#if 0
+#if 1
   fprintf(stderr, "Post_note: port = %d action = %s\n", port, action);
 #endif
-  proto_post_note(desc, port, "tcp", action);
-} 
+  proto_post_note (desc, port, "tcp", action);
+}
 
-     
-void post_note_udp(desc, port, action)
- struct arglist * desc;
- int port;
- const char * action;
+
+void
+post_note_udp (struct arglist * desc, int port, const char * action)
 {
  proto_post_note(desc, port, "udp", action);
 }
-	   
 
-void proto_post_note(desc, port, proto, action)
- struct arglist * desc;
- int port;
- const char * proto;
- const char * action;
+
+void proto_post_note (struct arglist * desc, int port, const char* proto,
+                      const char* action)
 {
-  /*
-   * Backward compatibility. We only use the notes if the remote
-   * client accepts them
-   */
+  /* Backward compatibility. We only use the notes if the remote
+   * client accepts them */
   char * allow_notes = get_preference(desc, "ntp_client_accepts_notes");
-  if(allow_notes && !strcmp(allow_notes, "yes")) 
-   proto_post_wrapped(desc, port, proto, action, "NOTE");
+  if (allow_notes && !strcmp(allow_notes, "yes"))
+    proto_post_wrapped(desc, port, proto, action, "NOTE");
   else
-   proto_post_wrapped(desc, port, proto, action, "INFO");
+    proto_post_wrapped(desc, port, proto, action, "INFO");
  return;
-} 
- 
- 
-void proto_post_log(desc, port, proto, action)
-    struct arglist * desc;
- int port;
- const char * proto;
- const char * action;
+}
+
+/**
+ * @brief Post a log message
+ */
+void
+proto_post_log (struct arglist * desc, int port, const char* proto,
+                const char* action)
 {
   proto_post_wrapped(desc, port, proto, action, "LOG");
   return;
 }
 
-
-void post_log(desc, port, action)
-    struct arglist * desc;
- int port;
- const char * action;
+/**
+ * @brief Post a log message about a tcp port.
+ */
+void
+post_log (struct arglist * desc, int port, const char * action)
 {
   proto_post_log(desc, port, "tcp", action);
-} 
+}
 
-
-void post_log_udp(desc, port, action)
-    struct arglist * desc;
- int port;
- const char * action;
+/**
+ * @brief Post a log message about a udp port.
+ */
+void
+post_log_udp (struct arglist * desc, int port, const char * action)
 {
   proto_post_log(desc, port, "udp", action);
 }
 
-
-void proto_post_debug(desc, port, proto, action)
-    struct arglist * desc;
- int port;
- const char * proto;
- const char * action;
+void
+proto_post_debug (struct arglist * desc, int port, const char* proto,
+                  const char* action)
 {
   proto_post_wrapped(desc, port, proto, action, "DEBUG");
   return;
 }
 
 
-void post_debug(desc, port, action)
-    struct arglist * desc;
- int port;
- const char * action;
+void
+post_debug (struct arglist * desc, int port, const char* action)
 {
   proto_post_debug(desc, port, "tcp", action);
-} 
+}
 
-
-void post_debug_udp(desc, port, action)
-    struct arglist * desc;
- int port;
- const char * action;
+/**
+ * @brief Post a debug message about a udp port.
+ */
+void
+post_debug_udp (struct arglist * desc, int port, const char* action)
 {
   proto_post_debug(desc, port, "udp", action);
 }
 
 
-char * get_preference(desc, name)
- struct arglist *desc;
- const char * name;
+char *
+get_preference (struct arglist *desc, const char * name)
 {
  struct arglist * prefs;
  prefs = arg_get_value(desc, "preferences");
@@ -1291,19 +1236,14 @@ char * get_preference(desc, name)
 }
 
 
-void _add_plugin_preference(prefs, p_name, name, type, defaul)
- struct arglist *prefs;
- const char * p_name;
- const char * name;
- const char * type;
- const char * defaul;
+void
+_add_plugin_preference (struct arglist *prefs, const char* p_name,
+                        const char* name, const char* type, const char* defaul)
 {
  char * pref;
  char * cname;
  int len;
- 
- 
- 
+
  cname = estrdup(name);
  len = strlen(cname);
  while(cname[len-1]==' ')
@@ -1329,54 +1269,46 @@ void _add_plugin_preference(prefs, p_name, name, type, defaul)
  efree(&pref);
 }
 
-void add_plugin_preference(desc, name, type, defaul)
- struct arglist *desc;
- const char * name;
- const char * type;
- const char * defaul;
+void
+add_plugin_preference (struct arglist *desc, const char* name, const char* type,
+                       const char* defaul)
 {
  struct arglist * prefs = arg_get_value(desc, "PLUGIN_PREFS");
  char pref[1024];
- 
- 
+
  if(prefs == NULL)
   {
    prefs = emalloc(sizeof(struct arglist));
    arg_add_value(desc, "PLUGIN_PREFS", ARG_ARGLIST, -1, prefs);
   }
- 
 
  snprintf(pref, sizeof(pref), "%s/%s", type, name); /* RATS: ignore */
  arg_add_value(prefs, pref, ARG_STRING, strlen(defaul), estrdup(defaul));
 }
 
 
-
-char * 
-get_plugin_preference(desc, name)
-  struct arglist * desc;
-  const char * name;
+char *
+get_plugin_preference (struct arglist * desc, const char * name)
 {
  struct arglist * prefs = arg_get_value(desc, "preferences");
  char * plug_name = plug_get_name(desc);
  char * cname = estrdup(name);
  int len;
- 
+
  len = strlen(cname);
- 
+
  while(cname[len-1]==' ')
  {
   cname[len-1]='\0';
   len --;
  }
- 
- 
+
  if(!prefs)
    {
      efree(&cname);
      return NULL;
    }
-  
+
  while(prefs->next)
  {
   char * a= NULL, *b = NULL;
@@ -1407,28 +1339,24 @@ get_plugin_preference(desc, name)
  return(NULL);
 }
 
-const char * 
-get_plugin_preference_fname(desc, filename)
- struct arglist * desc;
- const char * filename;
+const char *
+get_plugin_preference_fname (struct arglist * desc, const char * filename)
 {
  struct arglist * globals = arg_get_value(desc, "globals");
  harglst * trans;
  if(!globals) 
   return NULL;
-  
+
  trans = arg_get_value(globals, "files_translation");
  if(!trans)
   return NULL;
- 
+
  return harg_get_string(trans, filename);
 }
 
 
-void * plug_get_fresh_key(args, name, type)
- struct arglist * args;
- char * name;
- int * type;
+void *
+plug_get_fresh_key (struct arglist* args, char* name, int* type)
 {
  struct arglist * globals = arg_get_value(args, "globals");
  int soc = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
@@ -1436,7 +1364,7 @@ void * plug_get_fresh_key(args, name, type)
  char * buf = NULL;
  int bufsz = 0;
  int msg;
- 
+
  if ( name == NULL || type == NULL ) return NULL;
  *type = -1;
 
@@ -1461,7 +1389,7 @@ void * plug_get_fresh_key(args, name, type)
   *type = ARG_STRING;
   efree(&buf);
   return ret;
- } 
+ }
  else if ( msg & INTERNAL_COMM_KB_SENDING_INT )
  {
   int ret;
@@ -1472,87 +1400,75 @@ void * plug_get_fresh_key(args, name, type)
  }
 err:
  if ( buf != NULL )efree(&buf);
- return NULL; 
-} 
+ return NULL;
+}
 
-static void plug_set_replace_key(args, name, type, value, replace)
- struct arglist * args;
- char * name;
- int type;
- void * value;
- int replace;
+static void
+plug_set_replace_key (struct arglist * args, char * name, int type,
+                      void * value, int replace)
 {
  struct kb_item ** kb = plug_get_kb(args);
  struct arglist * globals = arg_get_value(args, "globals");
  int soc = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
  char * str = NULL;
  int msg;
- 
- 
+
 #ifdef DEBUG
  printf("set key %s -> %d\n", name, value);
-#endif 
- 
+#endif
+
  if( name == NULL || value == NULL )return;
- 
- switch(type)
- {
-  case ARG_STRING :
-   kb_item_add_str(kb, name, value);
-   value = addslashes(value);
-   str = emalloc(strlen(name)+strlen(value)+10);
-   // RATS: ignore
-   snprintf(str, strlen(name)+strlen(value)+10, "%d %s=%s;\n", ARG_STRING, name,
-           (char *)value);
-   efree(&value);
-   break;
-  case ARG_INT :
-   kb_item_add_int(kb, name, GPOINTER_TO_SIZE(value));
-   str = emalloc(strlen(name)+20);
-   // RATS: ignore
-   snprintf(str, strlen(name)+20, "%d %s=%d;\n", ARG_INT, name, (int)GPOINTER_TO_SIZE(value));
-   break;
- }
- if(str)
- {
-   int e;
-   if ( replace != 0 )
-    msg = INTERNAL_COMM_MSG_TYPE_KB|INTERNAL_COMM_KB_REPLACE;
-   else
-    msg = INTERNAL_COMM_MSG_TYPE_KB;
 
-   e = internal_send(soc, str, msg);
-    if(e < 0){
-        fprintf(stderr, "[%d] plug_set_key:internal_send(%d)['%s']: %s\n",getpid(), soc,str, strerror(errno));
-	}
-   efree(&str);
+ switch (type)
+  {
+    case ARG_STRING :
+      kb_item_add_str (kb, name, value);
+      value = addslashes(value);
+      str = emalloc(strlen(name)+strlen(value)+10);
+      // RATS: ignore
+      snprintf(str, strlen(name)+strlen(value)+10, "%d %s=%s;\n", ARG_STRING, name,
+              (char *)value);
+      efree(&value);
+      break;
+    case ARG_INT :
+      kb_item_add_int(kb, name, GPOINTER_TO_SIZE(value));
+      str = emalloc(strlen(name)+20);
+      // RATS: ignore
+      snprintf(str, strlen(name)+20, "%d %s=%d;\n", ARG_INT, name, (int)GPOINTER_TO_SIZE(value));
+      break;
   }
-} 
 
+ if (str)
+    {
+      int e;
+      if (replace != 0)
+        msg = INTERNAL_COMM_MSG_TYPE_KB|INTERNAL_COMM_KB_REPLACE;
+      else
+        msg = INTERNAL_COMM_MSG_TYPE_KB;
 
-void plug_set_key(args, name, type, value)
- struct arglist * args;
- char * name;
- int type;
- void * value;
-{
- plug_set_replace_key(args, name, type, value, 0);
+      e = internal_send (soc, str, msg);
+      if (e < 0)
+        fprintf(stderr, "[%d] plug_set_key:internal_send(%d)['%s']: %s\n",getpid(), soc,str, strerror(errno));
+      efree(&str);
+    }
 }
 
 
-void plug_replace_key(args, name, type, value)
- struct arglist * args;
- char * name;
- int type;
- void * value;
+void
+plug_set_key (struct arglist* args, char * name, int type, void* value)
+{
+ plug_set_replace_key (args, name, type, value, 0);
+}
+
+
+void
+plug_replace_key (struct arglist * args, char* name, int type, void* value)
 {
  plug_set_replace_key(args, name, type, value, 1);
 }
+
 void
-scanner_add_port(args, port, proto)
- struct arglist * args;
- int port;
- char * proto;
+scanner_add_port (struct arglist * args, int port, char* proto)
 {
  char * buf;
  const char *svc_name = nessus_get_svc_name(port, proto);
@@ -1597,10 +1513,11 @@ scanner_add_port(args, port, proto)
 
 
 
-struct kb_item ** plug_get_kb(struct arglist * args)
+struct kb_item **
+plug_get_kb (struct arglist * args)
 {
- return (struct kb_item**)arg_get_value(args, "key");
-} 
+ return (struct kb_item**) arg_get_value(args, "key");
+}
 
 /*
  * plug_get_key() may fork(). We use this signal handler to kill
@@ -1624,14 +1541,14 @@ plug_get_key_sighand_term(int sig)
 }
 
 static void
-plug_get_key_sigchld(int sig)
+plug_get_key_sigchld (int sig)
 {
  int status;
  wait(&status);
 }
 
 static void
-sig_n(int signo, void (*fnc)(int) )
+sig_n (int signo, void (*fnc)(int) )
 {
  #ifdef HAVE_SIGACTION
   struct sigaction sa;
@@ -1656,19 +1573,16 @@ sig_alarm( void (*fcn)(int) )
  sig_n(SIGALRM, fcn);
 }
 
-static void 
-sig_chld( void(*fcn)(int) )
+static void
+sig_chld (void(*fcn)(int) )
 {
  sig_n(SIGCHLD, fcn);
 }
 #endif
 
 
-void * 
-plug_get_key(args, name, type)
- struct arglist * args;
- char * name;
- int * type;
+void *
+plug_get_key (struct arglist * args, char * name, int * type)
 {
  struct kb_item ** kb = plug_get_kb(args);
  struct kb_item * res = NULL;
@@ -1731,7 +1645,7 @@ plug_get_key(args, name, type)
 
    if ( globals != NULL ) preferences = arg_get_value(globals, "preferences");
    if ( preferences != NULL )
-   { 
+   {
     char * to = arg_get_value(preferences, "plugins_timeout");
     if ( to != NULL )  tictac = atoi(to);
    }
@@ -1789,7 +1703,7 @@ plug_get_key(args, name, type)
       FD_SET(sockpair[0], &rd);
       e = select ( sockpair[0] + 1, &rd, NULL, NULL, &tv);
       } while ( e < 0 && errno == EINTR );
-      
+
       if ( e > 0 )
       {
        e = internal_recv(sockpair[0], &buf, &bufsz, &type);
@@ -1811,14 +1725,14 @@ plug_get_key(args, name, type)
    exit(0);
 }
 
-/*
+/**
  * Don't always return the first open port, otherwise
  * we might get bitten by OSes doing active SYN flood
  * countermeasures. Also, avoid returning 80 and 21 as
  * open ports, as many transparent proxies are acting for these...
  */
 unsigned int
-plug_get_host_open_port(struct arglist * desc)
+plug_get_host_open_port (struct arglist * desc)
 {
  struct kb_item ** kb = plug_get_kb(desc);
  struct kb_item * res, *k;
@@ -1826,7 +1740,7 @@ plug_get_host_open_port(struct arglist * desc)
 #define MAX_CANDIDATES 16
  u_short candidates[MAX_CANDIDATES];
  int num_candidates = 0;
- 
+
  k = res = kb_item_get_pattern(kb, "Ports/tcp/*");
  if ( res == NULL ) 
     return 0;
@@ -1852,11 +1766,11 @@ plug_get_host_open_port(struct arglist * desc)
      kb_item_get_all_free(k);
      if ( num_candidates != 0 )
        return candidates[lrand48() % num_candidates]; /* RATS: ignore */
-     else  
+     else
           if (open21) return 21;
-     else  
+     else
           if (open80) return 80;
-     else  
+     else
           return 0;
     }
 
@@ -1865,30 +1779,27 @@ plug_get_host_open_port(struct arglist * desc)
 }
 
 
-       
- 
+
 /*
  * Those brain damaged functions should probably be in another file
  * They are use to remember who speaks SSL or not
  */
-   
-void plug_set_port_transport(args, port, tr)
-     struct arglist * args;
-     int		port, tr;
+
+void
+plug_set_port_transport (struct arglist * args, int port, int tr)
 {
-  char	s[256];
+  char s[256];
 
   snprintf(s, sizeof(s), "Transports/TCP/%d", port); /* RATS: ignore */
   plug_set_key(args, s, ARG_INT, GSIZE_TO_POINTER(tr));
 }
 
-int plug_get_port_transport(args, port)
-     struct arglist * args;
-     int		port;
+int
+plug_get_port_transport (struct arglist * args, int port)
 {
-  char	s[256];
+  char s[256];
   int trp;
-  
+
   snprintf(s, sizeof(s), "Transports/TCP/%d", port); /* RATS: ignore */
   trp = kb_item_get_int(plug_get_kb(args), s);
   if (trp >= 0)
@@ -1898,18 +1809,14 @@ int plug_get_port_transport(args, port)
                                 of possibly breaking stuff */
 }
 
-const char* plug_get_port_transport_name(args, port)
-     struct arglist * args;
-     int		port;
+const char*
+plug_get_port_transport_name (struct arglist * args, int port)
 {
   return get_encaps_name(plug_get_port_transport(args, port));
 }
 
 static void
-plug_set_ssl_item(args, item, itemfname)
- struct arglist * args;
- char * item;
- char * itemfname;
+plug_set_ssl_item (struct arglist * args, char * item, char * itemfname)
 {
  char s[256];
  snprintf(s, sizeof(s), "SSL/%s", item); /* RATS: ignore */
@@ -1917,45 +1824,36 @@ plug_set_ssl_item(args, item, itemfname)
 }
 
 void
-plug_set_ssl_cert(args, cert)
- struct arglist * args;
- char * cert;
+plug_set_ssl_cert (struct arglist * args, char * cert)
 {
  plug_set_ssl_item(args, "cert", cert);
 }
 
-void 
-plug_set_ssl_key(args, key)
- struct arglist * args;
- char * key;
+void
+plug_set_ssl_key (struct arglist * args, char * key)
 {
  plug_set_ssl_item(args, "key", key);
 }
+
 void
-plug_set_ssl_pem_password(args, key)
- struct arglist * args;
- char * key;
+plug_set_ssl_pem_password (struct arglist * args, char * key)
 {
  plug_set_ssl_item(args, "password", key);
 }
 
 void
-plug_set_ssl_CA_file(args, key)
- struct arglist * args;
- char * key;
+plug_set_ssl_CA_file (struct arglist * args, char * key)
 {
  plug_set_ssl_item(args, "CA", key);
 }
 
 char *
-find_in_path(name, safe)
-     char	*name;
-     int	safe;
+find_in_path (char* name, int safe)
 {
   char		*buf = getenv("PATH"), *pbuf, *p1, *p2;
   static char	cmd[MAXPATHLEN];
   int		len = strlen(name);
-  
+
   if (len >= MAXPATHLEN)
     return NULL;
 
@@ -2002,12 +1900,15 @@ find_in_path(name, safe)
   return NULL;
 }
 
+/**
+ * @return -1 in case of error, 0 in case of success.
+ */
 int shared_socket_register ( struct arglist * args, int fd, char * name )
 {
  int soc; 
  int type;
  unsigned int opt_len = sizeof(type);
- int e;  
+ int e;
  soc = GPOINTER_TO_SIZE(arg_get_value(args, "SOCKET"));
  if ( fd_is_stream(fd) )
   fd = nessus_get_socket_from_connection(fd);
@@ -2026,9 +1927,13 @@ int shared_socket_register ( struct arglist * args, int fd, char * name )
  return 0;
 }
 
-int shared_socket_acquire ( struct arglist * args, char * name )
+/**
+ * @return Socket as from recv_fd or -1 in case of error(s).
+ */
+int
+shared_socket_acquire ( struct arglist * args, char * name )
 {
- int soc; 
+ int soc;
  char * buf = NULL;
  int bufsz = 0;
  int msg;
@@ -2059,19 +1964,21 @@ int shared_socket_acquire ( struct arglist * args, char * name )
  /* Unreachable */
  return -1;
 }
- 
 
-int shared_socket_release ( struct arglist * args, char * name )
+
+int
+shared_socket_release (struct arglist * args, char * name)
 {
- int soc; 
+ int soc;
 
  soc = GPOINTER_TO_SIZE(arg_get_value(args, "SOCKET"));
  return internal_send(soc, name, INTERNAL_COMM_MSG_SHARED_SOCKET|INTERNAL_COMM_SHARED_SOCKET_RELEASE);
 }
 
-int shared_socket_destroy ( struct arglist * args, char * name )
+int
+shared_socket_destroy (struct arglist * args, char * name)
 {
- int soc; 
+ int soc;
 
  soc = GPOINTER_TO_SIZE(arg_get_value(args, "SOCKET"));
  return internal_send(soc, name, INTERNAL_COMM_MSG_SHARED_SOCKET|INTERNAL_COMM_SHARED_SOCKET_DESTROY);
