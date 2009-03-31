@@ -114,4 +114,4 @@ doc-full:
 	doxygen doc/Doxyfile_full
 	if [ -d doc/generated/latex ]; then make -C doc/generated/latex; fi
 
-.PHONY: doc doc-dev
+.PHONY: doc doc-full

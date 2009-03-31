@@ -1,3 +1,7 @@
+2009-03-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* Makefile: Phony target doc-dev is actually called doc-full.
+
 2009-03-27  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/Makefile, libopenvas_hg/Makefile: Adjusted libtool calls to
