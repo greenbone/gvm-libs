@@ -32,7 +32,7 @@
  * corresponding plugin struct.
  *
  * The cache is used as followed:
- * 
+ *
  * 1. Init the store with store_init.
  *
  * 2. Add nvts by calling store_plugin or
@@ -42,6 +42,12 @@
  * contained in the cache file can be used. Under not so nice conditions, the
  * store returns NULL (cache is either outdated, contains error or an error
  * occurred).
+ *
+ * The store is updated at each openvasd start up. There the plugin loader
+ * iterates over plugin files and tries to retrieve the cached version.
+ * If there is no cached version (or @ref store_load_plugin returns Null for
+ * another reason, e.g.because  the script file seems to have been modified in
+ * between) the plugin is added to the store (@ref store_plugin).
  */
 
 #include <string.h>
@@ -336,11 +342,17 @@ int store_get_plugin(struct plugin * p, char * desc_file)
  * @param prefs Plugin preference arglist.
  *
  * NULL is returned in either of these cases:
- * 1) the .desc does not exist
- * 2) Nvt definition file (e.g. xyz.nasl) or nvt signature (xyz.asc) file is
- *       newer than the .desc file
- * 3) the magic number test failed (other file format expected).
- * 4) an internal error occured.
+ * 1) The .NVT definition or .desc file does not exist.
+ * 2) NVT definition file (e.g. xyz.nasl) or nvt signature (xyz.asc) file is
+ *    newer than the .desc file.
+ * 3) The NVT definition files (e.g. xyz.nasl) or nvt signature (xyz.asc) files
+ *    timestamp is in the future.
+ * 4) The magic number test failed (other file format expected).
+ * 5) An internal error occured.
+ *
+ * Point 4) is necessary because the cache will not create .desc files with
+ * timestamps in the future. Thus, when creating a new cache file for the given
+ * NVT, it would not be able to become loaded from the cache (point 2)).
  *
  * @return Pointer to plugin as arglist or NULL.
  */
@@ -385,11 +397,11 @@ store_load_plugin (char * dir, char * file, struct arglist * prefs)
       return NULL;
     }
 
-   /* Look if the plugin (.nasl/.oval etc) or the signature (.asc) is newer than
-    * the description (.desc). If that's the case also make sure that
-    * the plugin and signatures mtime is not in the future...  */
+   /* Look if the plugin (.nasl/.oval etc) is newer than the description
+    * (.desc). If that's the case also make sure that the plugins mtime is not
+    * in the future...  */
    if (   stat_plug.st_mtime > stat_desc.st_mtime
-      || stat_asc.st_mtime  > stat_desc.st_mtime)
+       && stat_asc.st_mtime  <= time (NULL))
     {
       g_free (desc_file);
       g_free (asc_file);
@@ -399,7 +411,7 @@ store_load_plugin (char * dir, char * file, struct arglist * prefs)
 
   /* Look if a signature file (.asc) exists. If so and it is newer than
    * the description (.desc) (and the mtime is not in the future), return NULL.  */
-  if (   stat (asc_file, &stat_asc)
+  if (   stat (asc_file, &stat_asc) == 0
       && stat_asc.st_mtime > stat_desc.st_mtime
       && stat_asc.st_mtime <= time (NULL) )
     {
@@ -650,7 +662,6 @@ store_plugin (struct arglist * plugin, char * file)
 
   g_free(desc_file);
   g_free(path);
-  printf ("\nBUGME: Created cache file\n");
 }
 
 /*---------------------------------------------------------------------*/
