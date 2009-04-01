@@ -28,12 +28,20 @@
  * start-up.
  *
  * The cache consists of a .desc file for each script (e.g. cache file of
- * nvts/xyz.nasl is nvts/xyz.nas.desc).
+ * nvts/xyz.nasl is nvts/xyz.nas.desc), which contains a memory dump of the
+ * corresponding plugin struct.
  *
- * The cache is used as followed: give the store a file path (store_load_plugin)
+ * The cache is used as followed:
+ * 
+ * 1. Init the store with store_init.
+ *
+ * 2. Add nvts by calling store_plugin or
+ *
+ * 3. Give the store a file path (store_load_plugin)
  * and receive the plugin as arglist. Under nice conditions the information
  * contained in the cache file can be used. Under not so nice conditions, the
- * script will be parsed and a new cache file will be written.
+ * store returns NULL (cache is either outdated, contains error or an error
+ * occurred).
  */
 
 #include <string.h>
@@ -128,15 +136,19 @@ struct arglist * str2arglist(char * str)
  * @brief Copies content of one string into the other.
  *
  * Does not check nul-termination.
+ * If it failes, an error message will be printed, that is a bit specific to
+ * plugin information (thus the path and item parameter).
  *
  * @param str Source string, might be NULL.
  * @param dst Destination string.
  * @param sz max number of bytes to copy into dst.
  * @param path Filename path for error message (!?).
  * @param item Description of what had to be copied for error message (!?).
+ *
  * @return 0 on success, -1 otherwise.
  */
-static int safe_copy(char * str, char * dst, int sz, char * path, char * item)
+static int
+safe_copy (char * str, char * dst, int sz, char * path, char * item)
 {
  if (str == NULL) /* empty strings are OK */
   {
@@ -146,10 +158,11 @@ static int safe_copy(char * str, char * dst, int sz, char * path, char * item)
 
  if (strlen(str) >= sz)
   {
-    fprintf(stderr, "openvas-libraries/libopenvas/store.c: %s has a too long %s (%ld)\n", path, item, (long)strlen(str));
+    fprintf(stderr, "openvas-libraries/libopenvas/store.c: %s has a too long %s (%ld)\n", path, item, (long) strlen(str));
     return -1;
   }
- strcpy(dst, str); /* RATS: ignore */
+
+ strcpy (dst, str); /* RATS: ignore */
  return 0;
 }
 
@@ -275,13 +288,13 @@ store_get_plugin_f (struct plugin * plugin, struct pprefs * pprefs,
  if(fstat(fd, &st) < 0)
  {
   perror("fstat ");
-  close(fd);
+  close (fd);
   return -1;
  }
  
  if(st.st_size == 0)
  {
-  close(fd);
+  close (fd);
   return 0;
  }
  
@@ -290,7 +303,7 @@ store_get_plugin_f (struct plugin * plugin, struct pprefs * pprefs,
  if(p == MAP_FAILED || p == NULL)
  {
   perror("mmap ");
-  close(fd);
+  close (fd);
   return -1;
  }
 
@@ -301,7 +314,7 @@ store_get_plugin_f (struct plugin * plugin, struct pprefs * pprefs,
   bcopy((char*)p + sizeof(struct plugin), pprefs, sizeof(struct pprefs) * MAX_PREFS);
  }
  munmap((char*)p, len);
- close(fd);
+ close (fd);
  return 0;
 }
 
@@ -335,9 +348,10 @@ struct arglist *
 store_load_plugin (char * dir, char * file, struct arglist * prefs)
 {
   gchar * dummy     = g_build_filename (store_dir, file, NULL);
-  gchar * desc_file = g_strconcat (dummy, ".desc", NULL);
   gchar * plug_file = g_build_filename (dir, file, NULL);
+  gchar * desc_file = g_strconcat (dummy, ".desc", NULL);
   gchar * asc_file  = g_strconcat (dummy, ".asc", NULL);
+
   struct plugin p;
   struct pprefs pp[MAX_PREFS];
 
@@ -360,21 +374,21 @@ store_load_plugin (char * dir, char * file, struct arglist * prefs)
       return NULL; // g_build_filename failed
     }
 
-  bzero(pp, sizeof(pp));
+  bzero (pp, sizeof(pp));
 
   /* Plugin and cache file have to exist */
   if (stat(plug_file, &stat_plug) < 0 || stat(desc_file, &stat_desc) < 0)
     {
-      g_free(desc_file);
-      g_free(asc_file);
-      g_free(plug_file);
+      g_free (desc_file);
+      g_free (asc_file);
+      g_free (plug_file);
       return NULL;
     }
 
-  /* Look if the plugin (.nasl/.oval etc) or the signature (.asc) is newer than
-   * the description (.desc). If that's the case also make sure that
-   * the plugin and signatures mtime is not in the future...  */
-  if (   stat_plug.st_mtime > stat_desc.st_mtime
+   /* Look if the plugin (.nasl/.oval etc) or the signature (.asc) is newer than
+    * the description (.desc). If that's the case also make sure that
+    * the plugin and signatures mtime is not in the future...  */
+   if (   stat_plug.st_mtime > stat_desc.st_mtime
       || stat_asc.st_mtime  > stat_desc.st_mtime)
     {
       g_free (desc_file);
@@ -384,14 +398,14 @@ store_load_plugin (char * dir, char * file, struct arglist * prefs)
     }
 
   /* Look if a signature file (.asc) exists. If so and it is newer than
-    * the description (.desc) (and the mtime is not in the future), return NULL. */
-  if (stat(asc_file, &stat_asc)
+   * the description (.desc) (and the mtime is not in the future), return NULL.  */
+  if (   stat (asc_file, &stat_asc)
       && stat_asc.st_mtime > stat_desc.st_mtime
-      && stat_asc.st_mtime <= time(NULL) )
+      && stat_asc.st_mtime <= time (NULL) )
     {
-      g_free(desc_file);
-      g_free(asc_file);
-      g_free(plug_file);
+      g_free (desc_file);
+      g_free (asc_file);
+      g_free (plug_file);
       return NULL;
     }
 
@@ -399,9 +413,9 @@ store_load_plugin (char * dir, char * file, struct arglist * prefs)
       (p.magic != MAGIC) ||
       (p.oid == NULL))
     {
-      g_free(desc_file);
-      g_free(asc_file);
-      g_free(plug_file);
+      g_free (desc_file);
+      g_free (asc_file);
+      g_free (plug_file);
       return NULL;
     }
 
@@ -450,8 +464,8 @@ store_load_plugin (char * dir, char * file, struct arglist * prefs)
 }
 
 /**
- * @brief Creates a entry in the store for data of "plugin" into cache file "file"
- * which is placed in the cache directory.
+ * @brief Creates an entry in the store for data of "plugin" into cache file
+ * @brief "file" which is placed in the cache directory.
  *
  * @param plugin    Data structure that contains a plugin description
  * @param file      Name of corresponding plugin file (e.g. "x.nasl", "x.nes"
@@ -461,11 +475,11 @@ store_load_plugin (char * dir, char * file, struct arglist * prefs)
 void
 store_plugin (struct arglist * plugin, char * file)
 {
-  gchar * dummy = g_build_filename(store_dir, file, NULL);
-  gchar * desc_file = g_strconcat(dummy, ".desc", NULL);
+  gchar * dummy = g_build_filename (store_dir, file, NULL);
+  gchar * desc_file = g_strconcat (dummy, ".desc", NULL);
   // assume there is a ".desc" at the end in the store_dir path
   // in order to guess the path of the actual plugin:
-  gchar * path = g_build_filename(store_dir, "..", file, NULL);
+  gchar * path = g_build_filename (store_dir, "..", file, NULL);
  struct plugin plug;
  struct pprefs pp[MAX_PREFS+1];
  char  * str;
@@ -491,14 +505,12 @@ store_plugin (struct arglist * plugin, char * file)
  e = safe_copy(str, plug.oid, sizeof(plug.oid), path, "oid");
  if(e < 0) return;
 
- 
  plug.timeout = plug_get_timeout(plugin);
  plug.category = plug_get_category(plugin);
- 
+
  str = plug_get_name(plugin);
  e = safe_copy(str, plug.name, sizeof(plug.name), path, "name");
  if(e < 0) return;
- 
  
  str = _plug_get_version(plugin);
  e = safe_copy(str, plug.version, sizeof(plug.version), path, "version");
@@ -518,7 +530,7 @@ store_plugin (struct arglist * plugin, char * file)
  if(e < 0) return;
  
  str = _plug_get_family(plugin);
- e = safe_copy(str, plug.family, sizeof(plug.family), path, "family");
+ e = safe_copy (str, plug.family, sizeof(plug.family), path, "family");
  if(e < 0) return;
  
  str = _plug_get_cve_id(plugin);
@@ -631,13 +643,14 @@ store_plugin (struct arglist * plugin, char * file)
  
   if(num_plugin_prefs > 0)
     write(fd, pp, sizeof(pp));
-  close(fd); 
+  close (fd);
  
  arg_set_value(plugin, "preferences", -1, NULL);
  arg_free_all(plugin);
 
   g_free(desc_file);
   g_free(path);
+  printf ("\nBUGME: Created cache file\n");
 }
 
 /*---------------------------------------------------------------------*/
