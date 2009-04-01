@@ -1,6 +1,6 @@
 /* OpenVAS
  * $Id$
- * Description: Undocumented module.
+ * Description: Functions related to plugin cache and.
  *
  * Authors:
  * Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
@@ -23,6 +23,19 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/** @file
+ * OpenVAS-Server employs a plugin cache to avoid parsing all known nvts at
+ * start-up.
+ *
+ * The cache consists of a .desc file for each script (e.g. cache file of
+ * nvts/xyz.nasl is nvts/xyz.nas.desc).
+ *
+ * The cache is used as followed: give the store a file path (store_load_plugin)
+ * and receive the plugin as arglist. Under nice conditions the information
+ * contained in the cache file can be used. Under not so nice conditions, the
+ * script will be parsed and a new cache file will be written.
+ */
+
 #include <string.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -43,19 +56,18 @@
 #include "plugutils_internal.h"
 
 /*-----------------------------------------------------------------------------*/
-static char * arglist2str(struct arglist * arg)
+static char *
+arglist2str(struct arglist * arg)
 {
  char * ret;
  int sz;
- 
- 
- 
+
  if(arg == NULL)
   return estrdup("");
- 
+
  if(arg->name == NULL)
   return estrdup("");
-  
+
  sz = (strlen(arg->name) + 1) * 10;
  ret = emalloc(sz);
  strncpy(ret, arg->name, sz - 1);
@@ -64,14 +76,14 @@ static char * arglist2str(struct arglist * arg)
   return ret;
 
  while(arg->next != NULL)
- { 
+ {
    if(arg->name == NULL)
      return ret;
    if(strlen(arg->name) + 3 + strlen(ret) >= sz )
-   {
-    sz = strlen(arg->name) + 3 + strlen(ret) * 2;
-    ret = erealloc(ret, sz);
-   }
+    {
+      sz = strlen(arg->name) + 3 + strlen(ret) * 2;
+      ret = erealloc(ret, sz);
+    }
    strncat(ret, ", ", sz - 1); /* RATS: ignore */
    strncat(ret, arg->name, sz - 1); /* RATS: ignore */ 
    arg = arg->next;
@@ -92,8 +104,7 @@ struct arglist * str2arglist(char * str)
   }
 
  ret = emalloc ( sizeof(struct arglist) );
-  
-  
+
  while((t = strchr(str, ',')) != NULL)
  {
   t[0] = 0;
@@ -108,15 +119,16 @@ struct arglist * str2arglist(char * str)
  while(str[0]==' ')str++;
  if(str[0] != '\0')
    arg_add_value(ret, str, ARG_INT, 0, (void*)1);
-  
 
   return ret;
 }
 
 
 /**
- * Copies content of one string into the other.
+ * @brief Copies content of one string into the other.
+ *
  * Does not check nul-termination.
+ *
  * @param str Source string, might be NULL.
  * @param dst Destination string.
  * @param sz max number of bytes to copy into dst.
@@ -126,23 +138,25 @@ struct arglist * str2arglist(char * str)
  */
 static int safe_copy(char * str, char * dst, int sz, char * path, char * item)
 {
- if(str == NULL)	/* empty strings are OK */
+ if (str == NULL) /* empty strings are OK */
   {
-  dst[0] = '\0';
-  return 0;
+    dst[0] = '\0';
+    return 0;
   }
-  
- if(strlen(str) >= sz)
- {
-  fprintf(stderr, "openvas-libraries/libopenvas/store.c: %s has a too long %s (%ld)\n", path, item, (long)strlen(str));
-  return -1;
- }
+
+ if (strlen(str) >= sz)
+  {
+    fprintf(stderr, "openvas-libraries/libopenvas/store.c: %s has a too long %s (%ld)\n", path, item, (long)strlen(str));
+    return -1;
+  }
  strcpy(dst, str); /* RATS: ignore */
  return 0;
 }
 
-/*
- * store_dir holds the directory name for the cache. If run with older
+/**
+ * @brief Holds the directory name for the cache.
+ * 
+ * If run with older
  * installations of OpenVAS (<=2.0.0), then it is initialized with
  * the NVT directory (server preference "plugins_folder")
  * and appends "/.desc/". For newer versions it is the directory
@@ -162,7 +176,8 @@ static char store_dir[MAXPATHLEN+1] = "";
  *            In any other case than 0 @ref store_dir is
  *            not set and a error is printed to stderr
  */
-int store_init(char * dir)
+int
+store_init (const char * dir)
 {
   struct stat st;
   int i = 0;
@@ -172,7 +187,8 @@ int store_init(char * dir)
     return -3;
   }
 
-  for (;i < sizeof(store_dir) && dir[i];i ++) ;
+  for (;i < sizeof(store_dir) && dir[i];i ++)
+    ;
   if (i == sizeof(store_dir)) {
     fprintf(stderr,
             "store_init(): path too long with more than %d characters\n", i);
@@ -184,7 +200,7 @@ int store_init(char * dir)
     return -2;
   }
 
-  strncpy(store_dir, dir, sizeof(store_dir));
+  strncpy (store_dir, dir, sizeof(store_dir));
 
   return 0;
 }
@@ -195,8 +211,11 @@ int store_init(char * dir)
  * Don't use this method anymore. It is here only for legacy to be compatible with
  * openvas-server <= 2.0.0.
  * The new method to use is @ref store_init .
+ *
+ * @return Always 0.
  */
-int store_init_sys(char * dir)
+int
+store_init_sys (char * dir)
 {
  snprintf(store_dir, sizeof(store_dir), "%s/.desc", dir); /* RATS: ignore */
  if((mkdir(store_dir, 0755) < 0) && (errno != EEXIST))
@@ -204,7 +223,7 @@ int store_init_sys(char * dir)
   fprintf(stderr, "mkdir(%s) : %s\n", store_dir, strerror(errno));
   return -1;
  }
- 
+
  return 0;
 }
 
@@ -234,30 +253,31 @@ int store_init_user(char * dir)
 
  * @return -1 upon failure, 0 for success.
  */
-static int store_get_plugin_f(struct plugin * plugin, struct pprefs * pprefs,
-  gchar * desc_file)
+static int
+store_get_plugin_f (struct plugin * plugin, struct pprefs * pprefs,
+                    gchar * desc_file)
 {
  int fd;
  struct plugin * p;
  struct stat st;
  int len;
- 
+
  bzero(plugin, sizeof(*plugin));
  plugin->id = -1;
- 
+
   if(desc_file == NULL || desc_file[0] == '\0')
     return -1;
 
  fd = open(desc_file, O_RDONLY);
  if(fd < 0)
   return -1;
- 
+
  if(fstat(fd, &st) < 0)
- { 
+ {
   perror("fstat ");
   close(fd);
   return -1;
- } 
+ }
  
  if(st.st_size == 0)
  {
@@ -274,10 +294,8 @@ static int store_get_plugin_f(struct plugin * plugin, struct pprefs * pprefs,
   return -1;
  }
 
- 
  bcopy(p, plugin, sizeof(struct plugin));
 
- 
  if(p->has_prefs && pprefs != NULL)
  {
   bcopy((char*)p + sizeof(struct plugin), pprefs, sizeof(struct pprefs) * MAX_PREFS);
@@ -313,122 +331,122 @@ int store_get_plugin(struct plugin * p, char * desc_file)
  *
  * @return Pointer to plugin as arglist or NULL.
  */
-struct arglist * store_load_plugin(char * dir, char * file,
-  struct arglist * prefs)
+struct arglist *
+store_load_plugin (char * dir, char * file, struct arglist * prefs)
 {
-  gchar * dummy = g_build_filename(store_dir, file, NULL);
-  gchar * desc_file = g_strconcat(dummy, ".desc", NULL);
-  gchar * plug_file = g_build_filename(dir, file, NULL);
-  gchar * asc_file = g_strconcat(dummy, ".asc", NULL);
- struct plugin p;
- struct pprefs pp[MAX_PREFS];
- 
- struct arglist * ret;
- int i;
- struct stat stat_plug,
-        stat_desc,
-        stat_asc;
- struct arglist * al;
- 
-  g_free(dummy);
+  gchar * dummy     = g_build_filename (store_dir, file, NULL);
+  gchar * desc_file = g_strconcat (dummy, ".desc", NULL);
+  gchar * plug_file = g_build_filename (dir, file, NULL);
+  gchar * asc_file  = g_strconcat (dummy, ".asc", NULL);
+  struct plugin p;
+  struct pprefs pp[MAX_PREFS];
 
-  if (desc_file == NULL || asc_file == NULL || plug_file == NULL) {
-    g_free(desc_file);
-    g_free(asc_file);
-    g_free(plug_file);
-    return NULL; // g_build_filename failed
-  }
+  struct arglist * ret;
+  struct arglist * al;
 
- bzero(pp, sizeof(pp));
+  struct stat stat_plug;
+  struct stat stat_desc;
+  struct stat stat_asc;
 
- /* Plugin and cache file have to exist */
- if (  stat(plug_file, &stat_plug) < 0 || stat(desc_file, &stat_desc) < 0) {
-   g_free(desc_file);
-   g_free(asc_file);
-   g_free(plug_file);
-   return NULL;
- }
+  int i;
 
- /* 
-  * Look if the plugin (.nasl/.oval etc) or the signature (.asc) is newer than
-  * the description (.desc). If that's the case also make sure that
-  * the plugin and signatures mtime is not in the future...
-  */
- if( stat_plug.st_mtime > stat_desc.st_mtime 
-    && stat_asc.st_mtime  > stat_desc.st_mtime ) {
-   g_free(desc_file);
-   g_free(asc_file);
-   g_free(plug_file);
-   return NULL;
- }
+  g_free (dummy);
 
- /* 
-  * Look if a signature file (.asc) exists. If so and it is newer than
-  * the description (.desc) (and the mtime is not in the future), return NULL.
-  */ 
- if(    stat(asc_file, &stat_asc) 
-     && stat_asc.st_mtime > stat_desc.st_mtime 
-     && stat_asc.st_mtime <= time(NULL) ) {
-    g_free(desc_file);
-    g_free(asc_file);
-    g_free(plug_file);
-    return NULL;
-  }
+  if (desc_file == NULL || asc_file == NULL || plug_file == NULL)
+    {
+      g_free (desc_file);
+      g_free (asc_file);
+      g_free (plug_file);
+      return NULL; // g_build_filename failed
+    }
 
-  if((store_get_plugin_f(&p, pp, desc_file) < 0) ||
-     (p.magic != MAGIC) ||
-     (p.oid == NULL)) {
-    g_free(desc_file);
-    g_free(asc_file);
-    g_free(plug_file);
-    return NULL;
-  }
+  bzero(pp, sizeof(pp));
 
- ret = emalloc(sizeof(struct arglist));   
- plug_set_oid(ret, p.oid);
- plug_set_category(ret, p.category);
- plug_set_cachefile(ret, desc_file);
- plug_set_path(ret, p.path);
- plug_set_family(ret, p.family, NULL);
- plug_set_sign_key_ids(ret, p.sign_key_ids);
+  /* Plugin and cache file have to exist */
+  if (stat(plug_file, &stat_plug) < 0 || stat(desc_file, &stat_desc) < 0)
+    {
+      g_free(desc_file);
+      g_free(asc_file);
+      g_free(plug_file);
+      return NULL;
+    }
 
-  al = str2arglist(p.required_ports);
- if ( al != NULL ) arg_add_value(ret, "required_ports", ARG_ARGLIST, -1, al);
+  /* Look if the plugin (.nasl/.oval etc) or the signature (.asc) is newer than
+   * the description (.desc). If that's the case also make sure that
+   * the plugin and signatures mtime is not in the future...  */
+  if (   stat_plug.st_mtime > stat_desc.st_mtime
+      || stat_asc.st_mtime  > stat_desc.st_mtime)
+    {
+      g_free (desc_file);
+      g_free (asc_file);
+      g_free (plug_file);
+      return NULL;
+    }
 
- al = str2arglist(p.required_keys);
- if ( al != NULL ) arg_add_value(ret, "required_keys", ARG_ARGLIST, -1, al);
+  /* Look if a signature file (.asc) exists. If so and it is newer than
+    * the description (.desc) (and the mtime is not in the future), return NULL. */
+  if (stat(asc_file, &stat_asc)
+      && stat_asc.st_mtime > stat_desc.st_mtime
+      && stat_asc.st_mtime <= time(NULL) )
+    {
+      g_free(desc_file);
+      g_free(asc_file);
+      g_free(plug_file);
+      return NULL;
+    }
 
- al = str2arglist(p.required_udp_ports);
- if ( al != NULL ) arg_add_value(ret, "required_udp_ports", ARG_ARGLIST, -1, al)
-;
+  if ((store_get_plugin_f(&p, pp, desc_file) < 0) ||
+      (p.magic != MAGIC) ||
+      (p.oid == NULL))
+    {
+      g_free(desc_file);
+      g_free(asc_file);
+      g_free(plug_file);
+      return NULL;
+    }
 
- al = str2arglist(p.excluded_keys);
- if ( al != NULL ) arg_add_value(ret, "excluded_keys", ARG_ARGLIST, -1, al);
+  ret = emalloc (sizeof(struct arglist));
+  plug_set_oid (ret, p.oid);
+  plug_set_category (ret, p.category);
+  plug_set_cachefile (ret, desc_file);
+  plug_set_path (ret, p.path);
+  plug_set_family (ret, p.family, NULL);
+  plug_set_sign_key_ids (ret, p.sign_key_ids);
 
- al = str2arglist(p.dependencies);
- if ( al != NULL ) arg_add_value(ret, "DEPENDENCIES", ARG_ARGLIST, -1, al);
+  al = str2arglist (p.required_ports);
+  if (al != NULL) arg_add_value (ret, "required_ports", ARG_ARGLIST, -1, al);
 
- 
- if ( p.timeout != 0 ) arg_add_value(ret, "TIMEOUT", ARG_INT, -1, GSIZE_TO_POINTER(p.timeout));
+  al = str2arglist (p.required_keys);
+  if (al != NULL) arg_add_value (ret, "required_keys", ARG_ARGLIST, -1, al);
 
- arg_add_value(ret, "NAME", ARG_STRING, strlen(p.name), estrdup(p.name));
+  al = str2arglist (p.required_udp_ports);
+  if (al != NULL) arg_add_value (ret, "required_udp_ports", ARG_ARGLIST, -1, al);
 
+  al = str2arglist (p.excluded_keys);
+  if (al != NULL) arg_add_value (ret, "excluded_keys", ARG_ARGLIST, -1, al);
 
- arg_add_value(ret, "preferences", ARG_ARGLIST, -1, prefs);
- 
- if(p.has_prefs)
- {
- for(i=0;pp[i].type[0] != '\0';i++)
-  { 
-   _add_plugin_preference(prefs, p.name, pp[i].name, pp[i].type, pp[i].dfl);
-  }
- }
+  al = str2arglist (p.dependencies);
+  if (al != NULL) arg_add_value (ret, "DEPENDENCIES", ARG_ARGLIST, -1, al);
 
-  g_free(desc_file);
-  g_free(asc_file);
-  g_free(plug_file);
+  if (p.timeout != 0) arg_add_value (ret, "TIMEOUT", ARG_INT, -1, GSIZE_TO_POINTER(p.timeout));
 
- return ret;
+  arg_add_value (ret, "NAME", ARG_STRING, strlen(p.name), estrdup(p.name));
+
+  arg_add_value (ret, "preferences", ARG_ARGLIST, -1, prefs);
+
+  if (p.has_prefs)
+    {
+      for (i=0; pp[i].type[0] != '\0'; i++)
+        {
+         _add_plugin_preference (prefs, p.name, pp[i].name, pp[i].type, pp[i].dfl);
+        }
+    }
+
+  g_free (desc_file);
+  g_free (asc_file);
+  g_free (plug_file);
+
+  return ret;
 }
 
 /**
@@ -440,7 +458,8 @@ struct arglist * store_load_plugin(char * dir, char * file,
  *                  or "x.oval". It can also be something like
  *                  "subdir1/subdir2/scriptname.nasl").
  */
-void store_plugin(struct arglist * plugin, char * file)
+void
+store_plugin (struct arglist * plugin, char * file)
 {
   gchar * dummy = g_build_filename(store_dir, file, NULL);
   gchar * desc_file = g_strconcat(dummy, ".desc", NULL);
@@ -561,13 +580,13 @@ void store_plugin(struct arglist * plugin, char * file)
  if( arglist != NULL )
  {
   char * p_name = plug_get_name(plugin);
-  
+
   while(arglist->next != NULL)
   {
    char * name = arglist->name;
    char * dfl = arglist->value;
    char * type, * str;
-   
+
    type = arglist->name;
    str = strchr(type, '/');
    str[0] = '\0';
@@ -579,8 +598,7 @@ void store_plugin(struct arglist * plugin, char * file)
    e = safe_copy(dfl, pp[num_plugin_prefs].dfl, sizeof(pp[num_plugin_prefs].dfl), path, "preference-default");
    if(e < 0) return;
    num_plugin_prefs ++;
-  
-   
+
    if(num_plugin_prefs >= MAX_PREFS)
    {
     fprintf(stderr, "%s: too many preferences\n", path);
@@ -592,7 +610,7 @@ void store_plugin(struct arglist * plugin, char * file)
   }
  }
  
- if(num_plugin_prefs > 0)
+ if (num_plugin_prefs > 0)
   plug.has_prefs = 1;
  
  fd = open(desc_file, O_RDWR|O_CREAT|O_TRUNC, 0644);
@@ -625,13 +643,14 @@ void store_plugin(struct arglist * plugin, char * file)
 /*---------------------------------------------------------------------*/
 
 
-char * store_fetch_path(struct arglist * desc)
+char *
+store_fetch_path (struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
- static struct plugin p;
- 
- store_get_plugin(&p, fname);
- return p.path;
+  char * fname = plug_get_cachefile (desc);
+  static struct plugin p;
+
+  store_get_plugin (&p, fname);
+  return p.path;
 }
 
 char * store_fetch_version(struct arglist * desc)
@@ -735,10 +754,10 @@ struct arglist * store_fetch_required_keys(struct arglist * desc)
  char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  struct arglist * ret;
- 
+
  store_get_plugin(&p, fname);
  ret = str2arglist(p.required_keys);
- return ret; 
+ return ret;
 }
 
 struct arglist * store_fetch_excluded_keys(struct arglist * desc)
@@ -746,36 +765,36 @@ struct arglist * store_fetch_excluded_keys(struct arglist * desc)
  char * fname = plug_get_cachefile(desc);
  static struct plugin p;
  struct arglist * ret;
- 
+
  store_get_plugin(&p, fname);
  ret = str2arglist(p.excluded_keys);
- return ret; 
+ return ret;
 }
 
 struct arglist * store_fetch_required_ports(struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
+ char * fname = plug_get_cachefile (desc);
  static struct plugin p;
  struct arglist * ret;
- 
- store_get_plugin(&p, fname);
- ret = str2arglist(p.required_ports);
- return ret; 
+
+ store_get_plugin (&p, fname);
+ ret = str2arglist (p.required_ports);
+ return ret;
 }
 
-struct arglist * store_fetch_required_udp_ports(struct arglist * desc)
+struct arglist *
+store_fetch_required_udp_ports (struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
- static struct plugin p;
- struct arglist * ret;
- 
- store_get_plugin(&p, fname);
- ret = str2arglist(p.required_udp_ports);
- return ret; 
+  char * fname = plug_get_cachefile (desc);
+  static struct plugin p;
+  struct arglist * ret;
+  store_get_plugin (&p, fname);
+  ret = str2arglist (p.required_udp_ports);
+  return ret;
 }
 
 
- 
+
 /*---------------------------------------------------------------------*/
 
 #if 0
