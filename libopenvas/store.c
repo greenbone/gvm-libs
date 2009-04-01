@@ -357,12 +357,12 @@ int store_get_plugin(struct plugin * p, char * desc_file)
  * @return Pointer to plugin as arglist or NULL.
  */
 struct arglist *
-store_load_plugin (char * dir, char * file, struct arglist * prefs)
+store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
 {
-  gchar * dummy     = g_build_filename (store_dir, file, NULL);
   gchar * plug_file = g_build_filename (dir, file, NULL);
+  gchar * asc_file  = g_strconcat (plug_file, ".asc", NULL);
+  gchar * dummy     = g_build_filename (store_dir, file, NULL);
   gchar * desc_file = g_strconcat (dummy, ".desc", NULL);
-  gchar * asc_file  = g_strconcat (dummy, ".asc", NULL);
 
   struct plugin p;
   struct pprefs pp[MAX_PREFS];
