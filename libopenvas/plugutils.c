@@ -975,7 +975,7 @@ mark_post (struct arglist * desc, const char* action, char* content)
   return;
 
  snprintf (entry_name, sizeof(entry_name), "SentData/%s/%s", plug_get_oid(desc), action); /* RATS: ignore */
- rar (desc, entry_name, ARG_STRING, content);
+ plug_set_key (desc, entry_name, ARG_STRING, content);
 }
 
 
