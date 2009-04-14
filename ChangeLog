@@ -1,3 +1,20 @@
+2009-04-14  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Added a new library for GnuTLS based communication, based on work done
+	by Matthew Mundell for the openvas-manager module.
+
+	* libopenvas/openvas_server.c: New. Contains an initial set of function
+	for GnuTLS based communication.
+
+	* libopenvas/openvas_server.h: New. Header file for the new
+	functionality.
+
+	* libopenvas/Makefile: Updated.
+
+	* Makefile: Updated.
+
+	* MANIFEST: Updated.
+
 2009-04-02  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/plugutils.c (mark_post): Fixed a probably unintended

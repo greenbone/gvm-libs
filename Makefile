@@ -61,6 +61,7 @@ install : all
 	$(INSTALL) -m 0444 libopenvas/rand.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/resolve.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/openvas_ssh_login.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 libopenvas/openvas_server.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/scanners_utils.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/services1.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/share_fd.h $(DESTDIR)${includedir}/openvas

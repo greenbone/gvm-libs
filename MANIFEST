@@ -59,6 +59,8 @@ libopenvas/network.h
 libopenvas/ntp.h
 libopenvas/openvas_ssh_login.c
 libopenvas/openvas_ssh_login.h
+libopenvas/openvas_server.c
+libopenvas/openvas_server.h
 libopenvas/pcap.c
 libopenvas/pcap_openvas.h
 libopenvas/plugutils.c
