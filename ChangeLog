@@ -1,3 +1,12 @@
+2009-04-15  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* libopenvas/openvas_server.c: Made function names more intuitive,
+	removed superfluous newlines from log messages, added a little
+	documentation.
+
+	* libopenvas/openvas_server.h: Made function names more intuitive,
+	removed superfluous include.
+
 2009-04-14  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Added a new library for GnuTLS based communication, based on work done

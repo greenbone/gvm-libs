@@ -27,20 +27,20 @@
  * @brief GnuTLS based functions for communication with an OpenVAS server -
  * header file.
  *
- * \todo TODO: More documentation
+ * This library supplies low-level communication functions for communication
+ * with an OpenVAS server over GnuTLS.
  */
 
-#include <glib.h>
 #include <gnutls/gnutls.h>
 
 int
-openvas_connect_to_server (gnutls_session_t *, char*, int);
+openvas_server_connect_to_server (gnutls_session_t *, char*, int);
 
 int
-openvas_close_server_connection (int, gnutls_session_t);
+openvas_server_close_server_connection (int, gnutls_session_t);
 
 int
-openvas_send_to_server (gnutls_session_t*, const char*);
+openvas_server_send_to_server (gnutls_session_t*, const char*);
 
 int
-openvas_sendf_to_server (gnutls_session_t*, const char*, ...);
+openvas_server_sendf_to_server (gnutls_session_t*, const char*, ...);
