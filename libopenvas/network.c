@@ -93,23 +93,6 @@ typedef struct {
 static nessus_connection connections[NESSUS_FD_MAX];
 
 /**
- * Quick & dirty patch to run Nessus from behind a picky firewall (e.g.
- * FW/1 and his 'Rule 0'): Nessus will never open more than 1 connection at
- * a time.
- * Define NESSUS_CNX_LOCK, recompile and install nessus-library, and restart nessusd
- *
- * WARNING: waiting on the lock file may be long, so increase the default
- * script timeout or some scripts may be killed.
- */
-#undef NESSUS_CNX_LOCK
-/*#define NESSUS_CNX_LOCK	"/tmp/NessusCnx"*/
-
-#ifdef NESSUS_CNX_LOCK
-static int	lock_cnt = 0;
-static int	lock_fd = -1;
-#endif
-
-/**
  * NESSUS_STREAM(x) is TRUE if <x> is a Nessus-ified fd
  */
 #define NESSUS_STREAM(x) (((x - NESSUS_FD_OFF) < NESSUS_FD_MAX) && ((x - NESSUS_FD_OFF) >=0))
@@ -1914,37 +1897,6 @@ open_socket(struct sockaddr_in *paddr,
 
   set_socket_source_addr(soc, 0);
 
-#if defined NESSUS_CNX_LOCK
-  if (lock_cnt == 0)
-{
-      lock_fd = open(NESSUS_CNX_LOCK, O_RDWR|O_CREAT);
-      if (lock_fd < 0)
-	nessus_perror(NESSUS_CNX_LOCK);
-      else
-	{
-	  time_t	t1 = time(NULL), t2;
-	  if (flock(lock_fd, LOCK_EX) < 0)
-	    nessus_perror(NESSUS_CNX_LOCK);
-	  else
-	    {
-	      lock_cnt ++;
-	      t2 = time(NULL);
-#if 1
-	      if (t2 - t1 > 0)
-		fprintf(stderr, "[%d] open_socket: " NESSUS_CNX_LOCK " locked in %d s\n", getpid(), t2 - t1);
-#endif
-	    }
-	}
-    }
-  else
-    {
-#if 1
-      fprintf(stderr, "[%d] open_socket: sleeping 1 second\n", getpid());
-#endif
-      sleep(1);
-    }
-#endif  
-  
   if (connect(soc, (struct sockaddr*) paddr, sizeof(*paddr)) < 0)
     {
 #if DEBUG_SSL > 2
@@ -2302,17 +2254,6 @@ int
 socket_close(soc)
 int soc;
 {
-#if defined NESSUS_CNX_LOCK
-  if (lock_cnt > 0)
-    if (-- lock_cnt == 0)
-      {
-	if (flock(lock_fd, LOCK_UN) < 0)
-	  nessus_perror(NESSUS_CNX_LOCK);
-	if (close(lock_fd) < 0)
-	  nessus_perror(NESSUS_CNX_LOCK);
-	lock_fd = -1;
-      }
-#endif  
   return close(soc);
 }
 
