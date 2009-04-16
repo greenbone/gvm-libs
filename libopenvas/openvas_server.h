@@ -34,13 +34,13 @@
 #include <gnutls/gnutls.h>
 
 int
-openvas_server_connect_to_server (gnutls_session_t *, char*, int);
+openvas_server_open (gnutls_session_t *, char*, int);
 
 int
-openvas_server_close_server_connection (int, gnutls_session_t);
+openvas_server_close (int, gnutls_session_t);
 
 int
-openvas_server_send_to_server (gnutls_session_t*, const char*);
+openvas_server_send (gnutls_session_t*, const char*);
 
 int
-openvas_server_sendf_to_server (gnutls_session_t*, const char*, ...);
+openvas_server_sendf (gnutls_session_t*, const char*, ...);

@@ -53,8 +53,8 @@ struct sockaddr_in address;
  * @return 0 on success, -1 on error.
  */
 int
-openvas_server_connect_to_server (gnutls_session_t * session,
-                                  char *host, int port)
+openvas_server_open (gnutls_session_t * session,
+                     char *host, int port)
 {
   // TODO: Ensure that host and port have sane values.
   // TODO: Improve logging.
@@ -189,7 +189,7 @@ openvas_server_connect_to_server (gnutls_session_t * session,
  * @return 0 on success, -1 on error.
  */
 int
-openvas_server_close_server_connection (int socket, gnutls_session_t session)
+openvas_server_close (int socket, gnutls_session_t session)
 {
   /* Turn off blocking. */
   if (fcntl (socket, F_SETFL, O_NONBLOCK) == -1) return -1;
@@ -208,7 +208,7 @@ openvas_server_close_server_connection (int socket, gnutls_session_t session)
  * @return 0 on success, -1 on error.
  */
 int
-openvas_server_send_to_server (gnutls_session_t* session, const char* string)
+openvas_server_send (gnutls_session_t* session, const char* string)
 {
   size_t left = strlen (string);
   while (left)
@@ -249,7 +249,7 @@ openvas_server_send_to_server (gnutls_session_t* session, const char* string)
  * @return 0 on success, -1 on error.
  */
 int
-openvas_server_sendf_to_server (gnutls_session_t* session, const char* format, ...)
+openvas_server_sendf (gnutls_session_t* session, const char* format, ...)
 {
   va_list args;
   va_start (args, format);
@@ -259,5 +259,3 @@ openvas_server_sendf_to_server (gnutls_session_t* session, const char* format, .
   va_end (args);
   return ret;
 }
-
-

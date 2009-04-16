@@ -1,3 +1,11 @@
+2009-04-16  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* libopenvas/openvas_server.h, libopenvas/openvas_server.c
+	(openvas_server_connect_to_server): Renamed to openvas_server_open.
+	(openvas_server_close_server_connection): Renamed to openvas_server_close.
+	(openvas_server_send_to_server): Renamed to openvas_server_send.
+	(openvas_server_sendf_to_server): Renamed to openvas_server_sendf.
+
 2009-04-15  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/openvas_server.c: Made function names more intuitive,
