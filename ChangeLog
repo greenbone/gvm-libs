@@ -1,3 +1,8 @@
+2009-04-17  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* packaging/debian/patches/: Removed. It contained a single patch which
+	has already been incorporated into the trunk.
+
 2009-04-16  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* libopenvas/network.c: Removed any code path for conditional
