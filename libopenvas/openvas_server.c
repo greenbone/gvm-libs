@@ -254,7 +254,7 @@ openvas_server_sendf (gnutls_session_t* session, const char* format, ...)
   va_list args;
   va_start (args, format);
   gchar* msg = g_strdup_vprintf (format, args);
-  int ret = openvas_server_send_to_server (session, msg);
+  int ret = openvas_server_send (session, msg);
   g_free (msg);
   va_end (args);
   return ret;
