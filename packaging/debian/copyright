@@ -17,6 +17,7 @@ Copyright:
        (Royal Institute of Technology, Stockholm, Sweden). [snprintf]
      * Copyright 1988-2002, Patrick Powell, San Diego, CA [proctitle]
      * Copyright 2001 Niels Provos <provos@citi.umich.edu> [share_fd]
+     * Copyright (C) 2008 Intevation GmbH
 
 Other copyrights:
 
@@ -36,6 +37,7 @@ Authors:
      * Michael Wiegand <michael.wiegand@intevation.de>
      * Tim Brown <timb@nth-dimension.org.uk>
      * Vlatko Kosturjak <kost@linux.hr>
+     * Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 License:
 

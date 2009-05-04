@@ -1,9 +1,13 @@
-openvas-libraries (2.0.1-1) unstable; urgency=low
+openvas-libraries (2.0.2-1) unstable; urgency=low
 
+  [ Tim Brown ]
   * New upstream release
   * Updated the control file to take account of translation work as part
     of the Smith review project
-  * Fixed broken linking (linker-libs.dpatch)
+  * Include dpatch infrastructure
+
+  [ Jan Wagner ]
+  * Add some copyright and author
 
  -- Tim Brown <timb@nth-dimension.org.uk>  Sun, 22 Feb 2009 02:17:44 +0000
 
