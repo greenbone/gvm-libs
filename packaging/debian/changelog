@@ -1,3 +1,9 @@
+openvas-libraries (2.0.2-2) UNRELEASED; urgency=low
+
+  * 
+
+ -- Jan Wagner <waja@cyconet.org>  Sat, 09 May 2009 16:35:21 +0200
+
 openvas-libraries (2.0.2-1) unstable; urgency=low
 
   [ Tim Brown ]
