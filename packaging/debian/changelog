@@ -9,7 +9,7 @@ openvas-libraries (2.0.2-1) unstable; urgency=low
   [ Jan Wagner ]
   * Add some copyright and author
 
- -- Tim Brown <timb@nth-dimension.org.uk>  Sun, 22 Feb 2009 02:17:44 +0000
+ -- Jan Wagner <waja@cyconet.org>  Sat, 09 May 2009 12:54:24 +0200
 
 openvas-libraries (2.0.0-2) unstable; urgency=low
 
@@ -21,11 +21,11 @@ openvas-libraries (2.0.0-2) unstable; urgency=low
  -- Javier Fernandez-Sanguino Pen~a <jfs@debian.org>  Thu, 15 Jan 2009 22:19:53 +0100
 
 openvas-libraries (2.0.0-1) unstable; urgency=low
- 
+
   * New upstream release
-    
+
  -- Javier Fernandez-Sanguino Pen~a <jfs@debian.org>  Fri, 02 Jan 2009 01:21:09 +0100
-     
+
 openvas-libraries (2.0.0.beta2-1) UNRELEASED; urgency=low
 
   * New upstream release
