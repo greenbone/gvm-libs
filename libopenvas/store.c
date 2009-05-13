@@ -142,19 +142,20 @@ struct arglist * str2arglist(char * str)
  * @brief Copies content of one string into the other.
  *
  * Does not check nul-termination.
- * If it failes, an error message will be printed, that is a bit specific to
- * plugin information (thus the path and item parameter).
+ * If it fails, an error message containing the name of the NVT and the
+ * description of the failed property will be printed to stderr.
  *
  * @param str Source string, might be NULL.
  * @param dst Destination string.
  * @param sz max number of bytes to copy into dst.
- * @param path Filename path for error message (!?).
- * @param item Description of what had to be copied for error message (!?).
+ * @param filename Filename of the NVT, used in the error message.
+ * @param item Description of the property to be copied, used in the error
+ * message.
  *
  * @return 0 on success, -1 otherwise.
  */
 static int
-safe_copy (char * str, char * dst, int sz, char * path, char * item)
+safe_copy (char * str, char * dst, int sz, char * filename, char * item)
 {
  if (str == NULL) /* empty strings are OK */
   {
@@ -164,7 +165,7 @@ safe_copy (char * str, char * dst, int sz, char * path, char * item)
 
  if (strlen(str) >= sz)
   {
-    fprintf(stderr, "openvas-libraries/libopenvas/store.c: %s has a too long %s (%ld)\n", path, item, (long) strlen(str));
+    fprintf(stderr, "\r%s: The length of the value for the property \"%s\" exceeds the allowed maximum length (is %ld characters, maximum length is %d).\n", filename, item, (long) strlen (str), sz);
     return -1;
   }
 
@@ -490,8 +491,7 @@ store_plugin (struct arglist * plugin, char * file)
   gchar * dummy = g_build_filename (store_dir, file, NULL);
   gchar * desc_file = g_strconcat (dummy, ".desc", NULL);
   // assume there is a ".desc" at the end in the store_dir path
-  // in order to guess the path of the actual plugin:
-  gchar * path = g_build_filename (store_dir, "..", file, NULL);
+  gchar * path = g_strdup (file);
  struct plugin plug;
  struct pprefs pp[MAX_PREFS+1];
  char  * str;

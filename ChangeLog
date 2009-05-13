@@ -1,3 +1,10 @@
+2009-05-13  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* libopenvas/store.c: (store_plugin) Don't try to guess the path of the
+	NVT, this resulted in wrong paths. The filename is enough for the error
+	message built by safe_copy. (safe_copy) Display a more descriptive error
+	message. Clarified documentation, made variable name more fitting.
+
 2009-05-05  Jan Wagner <waja@cyconet.org>
 
 	* packaging/debian/copyright, packaging/debian/changelog: Added some
