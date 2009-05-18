@@ -1,3 +1,8 @@
+2009-05-18  Matthew Mundell <mmundell@intevation.de>
+
+	* doc/Doxyfile (EXTRACT_ALL): Turn off, to enable warnings about
+	missing function docs.
+
 2009-05-13  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/store.c: (store_plugin) Don't try to guess the path of the
