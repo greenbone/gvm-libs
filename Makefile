@@ -62,6 +62,7 @@ install : all
 	$(INSTALL) -m 0444 libopenvas/resolve.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/openvas_ssh_login.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/openvas_server.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 libopenvas/openvas_auth.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/scanners_utils.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/services1.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/share_fd.h $(DESTDIR)${includedir}/openvas
@@ -110,7 +111,7 @@ doc:
 	doxygen doc/Doxyfile
 
 # Generates more extensive code documentation with graphs 
-# (placed in doc/generated) and builts doc/generated/latex/refman.pdf
+# (placed in doc/generated) and builds doc/generated/latex/refman.pdf
 doc-full:
 	doxygen doc/Doxyfile_full
 	if [ -d doc/generated/latex ]; then make -C doc/generated/latex; fi

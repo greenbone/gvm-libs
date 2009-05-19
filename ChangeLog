@@ -1,3 +1,16 @@
+2009-05-19  Matthew Mundell <mmundell@intevation.de>
+
+	Add authentication facilities.
+
+	* libopenvas/openvas_auth.c: New file.  Contains functions digest_hex and
+	get_password_hashes from ../config-manager/src/openvascd.c.
+	* libopenvas/openvas_auth.h: New file.
+
+	* libopenvas/Makefile (openvas_auth.o): New rule.
+
+	* Makefile (install): Add openvas_auth.h.
+	(doc-full): Fix comment typo.
+
 2009-05-18  Matthew Mundell <mmundell@intevation.de>
 
 	* doc/Doxyfile (EXTRACT_ALL): Turn off, to enable warnings about
