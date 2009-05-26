@@ -31,24 +31,28 @@ OBJS = plugutils.o system.o network.o resolve.o arglists.o ftp_funcs.o \
 	www_funcs.o ids_send.o rand.o popen.o \
 	bpf_share.o rand.o popen.o services.o services1.o \
 	proctitle.o store.o kb.o share_fd.o hash_table_file.o \
-	openvas_ssh_login.o openvas_server.o openvas_auth.o
+	openvas_ssh_login.o openvas_server.o openvas_auth.o \
+	../libopenvascommon/nvti.o
 	
 LO_OBJS = plugutils.lo system.lo network.lo resolve.lo arglists.lo \
 	ftp_funcs.lo scanners_utils.lo pcap.lo hlst.lo  harglists.lo \
 	www_funcs.lo ids_send.lo \
 	rand.lo popen.lo bpf_share.lo services.lo services1.lo \
 	proctitle.lo store.lo kb.lo share_fd.lo hash_table_file.lo \
-	openvas_ssh_login.lo openvas_server.lo openvas_auth.lo
+	openvas_ssh_login.lo openvas_server.lo openvas_auth.lo \
+	nvti.lo
 
 # += does not work with non-GNU make ...
 # CFLAGS+=-I../$(CIPHER_SUBDIR)
 CFLAGS+=-g -Wall
-INCLUDE = $(include) $(GLIB_CFLAGS) $(DEFS)
+INCLUDE = $(include) $(GLIB_CFLAGS) $(DEFS) -I../libopenvascommon
 CIPHER = -I../$(CIPHER_SUBDIR)
 COMPILE = $(LIBTOOL) --mode=compile $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS)
 LINK = $(LIBTOOL) --mode=link $(CC) $(LDFLAGS)
 all : libopenvas.la
 
+../libopenvascommon/nvti.o: ../libopenvascommon/nvti.c ../libopenvascommon/nvti.h
+	$(COMPILE) -c ../libopenvascommon/nvti.c
 
 plugutils.o: plugutils.c arglists.h comm.h harglists.h kb.h network.h \
              rand.h plugutils.h services.h share_fd.h store_internal.h system.h \

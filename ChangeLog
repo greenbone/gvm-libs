@@ -1,3 +1,16 @@
+2009-05-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Adding a initial version for NVT Info objects.
+
+	* libopenvascommon/, libopenvascommon/nvti.h,
+	libopenvascommon/nvti.c, libopenvascommon/README.txt: New.
+	A module for handling NVT Info objects.
+
+	* libopenvas/Makefile: Added handling of module
+	"libopenvascommon/nvti".
+
+	* MANIFEST: Updated.
+
 2009-05-19  Matthew Mundell <mmundell@intevation.de>
 
 	Add authentication facilities.

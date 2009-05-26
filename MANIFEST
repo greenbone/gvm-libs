@@ -90,6 +90,9 @@ libopenvas/system.h
 libopenvas/system_internal.h
 libopenvas/www_funcs.c
 libopenvas/www_funcs.h
+libopenvascommon/README.txt
+libopenvascommon/nvti.h
+libopenvascommon/nvti.c
 ltmain.sh
 Makefile
 MANIFEST
