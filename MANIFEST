@@ -57,6 +57,8 @@ libopenvas/Makefile
 libopenvas/network.c
 libopenvas/network.h
 libopenvas/ntp.h
+libopenvas/openvas_logging.c
+libopenvas/openvas_logging.h
 libopenvas/openvas_ssh_login.c
 libopenvas/openvas_ssh_login.h
 libopenvas/openvas_server.c

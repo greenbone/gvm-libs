@@ -1,3 +1,15 @@
+2009-05-27  Laban Mwangi <lmwangi@penguinlabs.co.ke>
+
+	Adding initial support for logging.
+
+	* libopenvas/openvas_logging.c, libopenvas/openvas_logging.h: New.
+	Shared logging functions.
+
+	* libopenvas/Makefile openvas-libraries.tmpl.in Makefile: Updated.
+
+	* MANIFEST: Updated.
+
+
 2009-05-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Adding a initial version for NVT Info objects.
