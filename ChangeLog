@@ -1,3 +1,7 @@
+2009-05-27  Matthew Mundell <mmundell@intevation.de>
+
+	* ChangeLog: Flush trailing whitespace.
+
 2009-05-27  Laban Mwangi <lmwangi@penguinlabs.co.ke>
 
 	Adding initial support for logging.
@@ -8,7 +12,6 @@
 	* libopenvas/Makefile openvas-libraries.tmpl.in Makefile: Updated.
 
 	* MANIFEST: Updated.
-
 
 2009-05-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
@@ -150,7 +153,7 @@
 
 	* libopenvas/plugutils.c (proto_post_wrapped): Disabled replacement
 	of non-printable characters by spaces.
-	
+
 2009-03-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* libopenvas/plugutils.c: Reformatting, whitespace-removal, K&R style
@@ -183,7 +186,7 @@
 
 2009-03-04  Vlatko Kosturjak <kost@linux.hr>
 
-	* libopenvas/bpf_share.c: by default, put pcap device in non 
+	* libopenvas/bpf_share.c: by default, put pcap device in non
 	blocking mode - fixing plugins hang/freeze, fixes #901
 
 2009-02-27  Felix Wolfsteller <felix.wolfsteller@intevation.de>
@@ -213,7 +216,7 @@
 
 	* packaging/debian/control: Updated the control file to take account
         of translation work as part of the Smith review project.
-	
+
 	* packaging/debian/patches/00list,
 	packaging/debian/patches/linker-libs.dpatch, packaging/debian/rules:
 	Fixed broken linking (linker-libs.dpatch).
@@ -272,18 +275,18 @@
 	Minor cosmetics, improved documentation.
 
 	* libopenvas/kb.h: Documentation & formatting of kb_item struct.
-	
+
 	* libopenvas/services1.c: Added file flag for doc block, removed
 	whitespaces.
-	
+
 	* libopenvas/resolve.c (host2ip) : Documented return code.
-	
+
 	* libopenvas/system.c (emalloc): Converted doc block.
-	
+
 	* libopenvas/network.c: Converted documentation blocks.
-	
+
 	* libopenvas/rand.c: Added file flag for doc block.
-	
+
 	* libopenvas/store.c: Removed structuring comments, function safe_copy
 	documented.
 
@@ -294,7 +297,7 @@
 
 	* libopenvas_hg/host_gatherer.c: Documentation, K&R function decl.
 	replaced.
-	
+
 	* libopenvas_hg/host_gatherer.h: Copied GPL header from modules
 	implementation file, doc strings converted.
 
@@ -378,7 +381,7 @@
 	* libopenvas/store.c (store_plugin): When creating a
 	cache file for a plugin, now take care a subdirectory
 	is created in the cachefolder - in case the plugin
-	is located in a subfolder of the plugin folder accordingly. 
+	is located in a subfolder of the plugin folder accordingly.
 
 2009-01-27  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
@@ -426,7 +429,7 @@
 2009-01-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Added make targets for openvas_ssh_login module.
-	
+
 	* libopenvas/Makefile: Included openvas_ssh_login module.
 
 2009-01-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
@@ -434,7 +437,7 @@
 	Inclusion of openvas_ssh_login module (copy from client).
 
 	* libopenvas/openvas_ssh_login.c, libopenvas/openvas_ssh_login.h: Added.
-	
+
 	* MANIFEST, Makefile, libopenvas/Makefile: Updated.
 
 2009-01-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
@@ -442,22 +445,22 @@
 	Inclusion of hash_table_file module (copy from client).
 
 	* libopenvas/hash_table_file.c, libopenvas/hash_table.h: Added.
-	
+
 	* MANIFEST, Makefile, libopenvas/Makefile: Updated.
 
 2009-01-13  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* ChangeLog: Clarified last ChangeLog entry (choice of GPL header).
-	
+
 	* libopenvas_hg/hg_utils.c: Replaced K&R function declarations,
 	documentation.
-	
+
 2009-01-12  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Added GPL header from host_gatherer.c to other constituent files of
 	the host_gatherer library (referenced as "HostLoop2 library" in
 	hg_add_host.c).
-	
+
 	* libopenvas_hg/hg_debug.c, libopenvas_hg/hg_filter.h,
 	libopenvas_hg/test.c, libopenvas_hg/hg_utils.h,
 	libopenvas_hg/hg_subnet.h, libopenvas_hg/hg_dns_axfr.h,
@@ -475,7 +478,7 @@
 
 2009-01-08  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
-	* libopenvas/store.c (store_load_plugin): Fixed memory leaks. 
+	* libopenvas/store.c (store_load_plugin): Fixed memory leaks.
 
 2009-01-04  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
@@ -587,11 +590,11 @@
 
 	As Result of CR #20, added two doxygen configuration files and targets
 	to generated source documentation.
-	
+
 	* doc/Doxyfile: Added. Basic configuration file.
 
 	* doc/Doxyfile_full: Added. Enables graph generation.
-	
+
 	* Makefile: Targets 'doc' and 'doc_full' added, 'clean' altered, such
 	that it will remove generated documentation found in doc/generated.
 
@@ -629,8 +632,8 @@
 2008-12-30  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* libopenvas/kb.h: Comments.
-	
-	* libopenvas/kb.c: Transformed comments to javadoc, slight doc 
+
+	* libopenvas/kb.c: Transformed comments to javadoc, slight doc
 	improvements.
 
 2008-12-30  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
@@ -742,7 +745,7 @@
 
 2008-12-05  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
-	* libopenvas/plugutils.c : Changed comment style, added param 
+	* libopenvas/plugutils.c : Changed comment style, added param
 	documentation for plug_set_sign_key_ids.
 
 2008-12-05  Michael Wiegand <michael.wiegand@intevation.de>
@@ -799,7 +802,7 @@
 	strncat usage. (safe_copy, store_plugin) Change ignore flag to RATS.
 	(store_init_sys, store_init_user, store_get_plugin_f,
 	store_load_plugin, store_plugin) Ignore snprintf warnings (see above).
-	
+
 2008-12-03  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Implementing CR #22 (New script_tag Command,
@@ -886,9 +889,9 @@
 	Applying patch provided by Stjepan Gros to improve 64-bit cleanliness.
 
 	* configure.in: Added check for the glib2 library.
-	
+
 	* configure: Regenerated.
-	
+
 	* aclocal.m4: Regenerated.
 
 	* libopenvas/harglists.c, libopenvas/arglists.c,
@@ -916,7 +919,7 @@
 	tls session directly instead of connection data.
 	This way it is avoided to expose the internal data
 	structure "nessus_connection". It remains internal now.
-	
+
 	* libopenvas/network.h: Updated proto accordingly and added
 	include for now-necessary gnutls.h.
 
@@ -961,24 +964,24 @@
 	pointed out by Toan Nguyen.
 
 2008-11-05  Felix Wolfsteller <felix.wolfsteller@intevation.de>
-	
-	Work on Change Request #17 (http://www.openvas.org/openvas-cr-17.html - 
+
+	Work on Change Request #17 (http://www.openvas.org/openvas-cr-17.html -
 	"OTP: Make NVT signatures available to OpenVAS-Client").
 	Replaced sending of dummy certificate key oids by "real" fingerprints.
 
-	* libopenvas/store.c (store_load_plugin): Fixed tests about signature 
+	* libopenvas/store.c (store_load_plugin): Fixed tests about signature
 	file, replaced obsolete ID check by OID check, removed dummy string.
 
 2008-10-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
-	Steps to an implementation of Change Request #17 
-	(http://www.openvas.org/openvas-cr-17.html - "Make NVT signatures 
+	Steps to an implementation of Change Request #17
+	(http://www.openvas.org/openvas-cr-17.html - "Make NVT signatures
 	available to OpenVAS-Client").
-	Adds the new field "sign_key_ids" to plugin-structures and the .desc 
+	Adds the new field "sign_key_ids" to plugin-structures and the .desc
 	store. Until soon, just a dummy- string will be saved and eventually
 	transmitted by the server.
 
-	IMPORTANT: Breaks compatibility and renders old server .desc- cache 
+	IMPORTANT: Breaks compatibility and renders old server .desc- cache
 	files useless.
 
 	* libopenvas/plugutils.c (plug_set_sign_key_ids, plug_get_sign_key_ids):
@@ -992,8 +995,8 @@
 
 	* libopenvas/store.c (store_init_sys, store_init_user): Added comments.
 
-	* libopenvas/store.c (store_load_plugin): Check if signature file 
-	is new than cache (functionality will be moved), set sign_key_ids 
+	* libopenvas/store.c (store_load_plugin): Check if signature file
+	is new than cache (functionality will be moved), set sign_key_ids
 	according to cache, added comments.
 
 	* libopenvas/store.c (store_plugin): Stores the (dummy) key_id- string.
@@ -1090,7 +1093,7 @@
 	* libopenvas/plugutils.c (proto_post_log, post_log, post_log_udp,
 	proto_post_debug, post_debug, post_debug_udp): Added functions to
 	support new LOG and DEBUG messages.
-	
+
 	* libopenvas/plugutils.h: Added function declarations for new functions.
 
 2008-09-16  Michael Wiegand <michael.wiegand@intevation.de>
@@ -1145,7 +1148,7 @@
 
 2008-07-08  Tim Brown <timb@nth-dimension.org.uk>
 
-	* ChangeLog, openvas-libraries/libopenvas/store_internal.h, 
+	* ChangeLog, openvas-libraries/libopenvas/store_internal.h,
 	packaging/debian/changelog: Fix typos.
 
 2008-07-07  Jan Wagner <waja@cyconet.org>
@@ -2292,7 +2295,7 @@
 	(ovas_server_context_free): New.  Function to free an
 	ovas_server_context_t
 	(ovas_server_context_attach): New.  Functin to set up SSL/TLS on a
-	socket with parameters from a ovas_server_context_t 
+	socket with parameters from a ovas_server_context_t
 
 	* include/libopenvas.h: Add declarations for the new functions and
 	types.  Always declare nessus_SSL_init.
