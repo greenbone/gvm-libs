@@ -54,6 +54,7 @@ install : all
 	$(INSTALL) -m 0444 libopenvas/kb.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/network.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/ntp.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 libopenvascommon/nvti.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/pcap_openvas.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/plugutils.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 libopenvas/popen.h $(DESTDIR)${includedir}/openvas
