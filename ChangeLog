@@ -1,5 +1,9 @@
 2009-05-27  Matthew Mundell <mmundell@intevation.de>
 
+	* libopenvascommon/nvti.c: Correct function name.
+
+2009-05-27  Matthew Mundell <mmundell@intevation.de>
+
 	* libopenvascommon/nvti.h, libopenvascommon/nvti.c: Reformat to match
 	standard.
 

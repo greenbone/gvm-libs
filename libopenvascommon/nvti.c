@@ -853,7 +853,7 @@ nvti_from_keyfile (const gchar * fn)
  * @return 0 on success. Anything else indicates an error.
  */
 int
-nvti_to_file (const nvti_t * n, const gchar * fn)
+nvti_to_keyfile (const nvti_t * n, const gchar * fn)
 {
   GKeyFile *keyfile = g_key_file_new ();
   gchar *text;
