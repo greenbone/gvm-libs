@@ -1,5 +1,10 @@
 2009-05-27  Matthew Mundell <mmundell@intevation.de>
 
+	* libopenvascommon/nvti.h, libopenvascommon/nvti.c: Reformat to match
+	standard.
+
+2009-05-27  Matthew Mundell <mmundell@intevation.de>
+
 	* ChangeLog: Flush trailing whitespace.
 
 2009-05-27  Laban Mwangi <lmwangi@penguinlabs.co.ke>
