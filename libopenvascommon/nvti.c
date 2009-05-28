@@ -850,7 +850,7 @@ nvti_from_keyfile (const gchar * fn)
  *
  * @param fn The filename to write to.
  *
- * @return 0 on success. Anything else indicates an error.
+ * @return 0 on success. @TODO Anything else indicates an error.
  */
 int
 nvti_to_keyfile (const nvti_t * n, const gchar * fn)
@@ -913,5 +913,7 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
     }
 
   g_key_file_free (keyfile);
+  g_free (text);
+
   return (0);
 }
