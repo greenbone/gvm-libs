@@ -857,7 +857,7 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
 {
   GKeyFile *keyfile = g_key_file_new ();
   gchar *text;
-  GError *gerror = NULL;
+  GError *error = NULL;
 
   if (n->oid)
     g_key_file_set_string (keyfile, "NVT Info", "OID", n->oid);
@@ -900,10 +900,12 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
   if (n->category > 0)
     g_key_file_set_integer (keyfile, "NVT Info", "Category", n->category);
 
-  text = g_key_file_to_data (keyfile, NULL, &gerror);
-  if (gerror != NULL)
+  text = g_key_file_to_data (keyfile, NULL, &error);
+  if (error != NULL)
     {
-      fprintf (stderr, "Error occured while preparing %s\n", fn);
+      fprintf (stderr, "Error occured while preparing %s: %s\n",
+               fn, error->message);
+      g_error_free (error);
     }
   else
     {
