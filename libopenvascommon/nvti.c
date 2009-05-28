@@ -917,3 +917,77 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
 
   return (0);
 }
+
+
+/* Collections of nvtis. */
+
+/**
+ * @brief Free an NVT Info, for g_hash_table_destroy.
+ *
+ * @param nvti The NVT Info.
+ */
+static void
+free_nvti_for_hash_table (gpointer nvti)
+{
+  nvti_free ((nvti_t*) nvti);
+}
+
+/**
+ * @brief Make a collection of NVT Infos.
+ */
+nvtis_t*
+make_nvtis ()
+{
+  return g_hash_table_new_full (g_str_hash,
+                                g_str_equal,
+                                NULL,
+                                free_nvti_for_hash_table);
+}
+
+/**
+ * @brief Free a collection of NVT Infos.
+ *
+ * @param nvtis The collection of NVT Infos.
+ */
+void
+free_nvtis (nvtis_t* nvtis)
+{
+  if (nvtis) g_hash_table_destroy (nvtis);
+}
+
+/**
+ * @brief Get the size of a collection of NVT Infos.
+ *
+ * @return The number of entries in the collection.
+ */
+guint
+nvtis_size (nvtis_t* nvtis)
+{
+  return g_hash_table_size (nvtis);
+}
+
+/**
+ * @brief Add an NVT Info to a collection of NVT Infos.
+ *
+ * @param nvtis The collection of NVT Infos.
+ */
+void
+add_nvti (nvtis_t* nvtis, nvti_t* nvti)
+{
+  if (nvti)
+    g_hash_table_insert (nvtis, (gpointer) nvti_oid (nvti), (gpointer) nvti);
+}
+
+/**
+ * @brief Add an NVT Info to a collection of NVT Infos.
+ *
+ * @param nvtis The collection of NVT Infos.
+ * @param nvtis The OID of the NVT.
+ *
+ * @return The NVT Info, if found, else NULL.
+ */
+nvti_t*
+find_nvti (nvtis_t* nvtis, const char* oid)
+{
+  return g_hash_table_lookup (nvtis, oid);
+}

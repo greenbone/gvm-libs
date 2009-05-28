@@ -1,7 +1,22 @@
+2009-05-28  Matthew Mundell <mmundell@intevation.de>
+
+	Add type nvtis for collections of NVT Infos.
+
+	* libopenvascommon/nvti.c (free_nvti_for_hash_table, make_nvtis)
+	(free_nvtis, nvtis_size, add_nvti, find_nvti): New functions.
+
+	* libopenvascommon/nvti.h: Update headers.  Add single include guard.
+
+	* ChangeLog: Add log missed yesterday.
+
 2009-05-28  Felix Wolfsteller  <felix.wolfsteller@intevation.de>
 
 	* libopenvascommon/nvti.c (nvti_to_keyfile): Fixed mem leak by freeing
 	text, added TODO as function returns 0 also in case of errors.
+
+2009-05-27  Matthew Mundell <mmundell@intevation.de>
+
+	* Makefile (install): Install libopenvascommon/nvti.h.
 
 2009-05-27  Matthew Mundell <mmundell@intevation.de>
 

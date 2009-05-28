@@ -31,6 +31,9 @@
  * This file contains the protos for \ref nvti.c
  */
 
+#ifndef _NVTI_H
+#define _NVTI_H
+
 #include <glib.h>
 
 /**
@@ -119,3 +122,25 @@ gchar *nvti_as_openvas_nvt_cache_entry (const nvti_t *);
 
 nvti_t *nvti_from_keyfile (const gchar *);
 int nvti_to_keyfile (const nvti_t *, const gchar *);
+
+
+/* Collections of NVT Infos. */
+
+/**
+ * @brief A collection of information records corresponding to NVTs.
+ */
+typedef GHashTable nvtis_t;
+
+nvtis_t *make_nvtis ();
+
+void free_nvtis (nvtis_t *);
+
+guint nvtis_size (nvtis_t *);
+
+void add_nvti (nvtis_t *, nvti_t *);
+
+nvti_t *find_nvti (nvtis_t *, const char *);
+
+#define nvtis_find g_hash_table_find
+
+#endif /* not _NVTI_H */
