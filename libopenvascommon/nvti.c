@@ -40,6 +40,89 @@
 #include "nvti.h"
 
 /**
+ * @brief Create a new nvtpref structure filled with the given values.
+ *
+ * @param name The name to be set. A copy will created of this.
+ *
+ * @param type The type to be set. A copy will created of this.
+ *
+ * @param dflt The default to be set. A copy will created of this.
+ *
+ * @return NULL in case the memory could not be allocated.
+ *         Else a nvtpref structure which needs to be
+ *         released using @ref nvtpref_free .
+ */
+nvtpref_t *
+nvtpref_new (gchar * name, gchar * type, gchar * dflt)
+{
+  nvtpref_t * np = g_malloc0 (sizeof (nvtpref_t));
+
+  if (! np) return NULL;
+
+  if (name) np->name = g_strdup (name);
+  if (type) np->type = g_strdup (type);
+  if (dflt) np->dflt = g_strdup (dflt);
+
+  return (np);
+}
+
+/**
+ * @brief Free memory of a nvtpref structure.
+ *
+ * @param n The structure to be freed.
+ */
+void
+nvtpref_free (nvtpref_t * np)
+{
+  if (np->name) g_free (np->name);
+  if (np->type) g_free (np->type);
+  if (np->dflt) g_free (np->dflt);
+  g_free (np);
+}
+
+/**
+ * @brief Get the Name of a NVT Preference.
+ *
+ * @param np The NVT Pref structure of which the Name should
+ *           be returned.
+ *
+ * @return The name string. Don't free this.
+ */
+gchar *
+nvtpref_name (const nvtpref_t * np)
+{
+  return (np->name);
+}
+
+/**
+ * @brief Get the Type of a NVT Preference.
+ *
+ * @param np The NVT Pref structure of which the Type should
+ *           be returned.
+ *
+ * @return The type string. Don't free this.
+ */
+gchar *
+nvtpref_type (const nvtpref_t * np)
+{
+  return (np->type);
+}
+
+/**
+ * @brief Get the Default of a NVT Preference.
+ *
+ * @param np The NVT Pref structure of which the Default should
+ *           be returned.
+ *
+ * @return The default string. Don't free this.
+ */
+gchar *
+nvtpref_default (const nvtpref_t * np)
+{
+  return (np->dflt);
+}
+
+/**
  * @brief Create a new (empty) nvti structure.
  *
  * @return NULL in case the memory could not be allocated.
@@ -79,6 +162,13 @@ nvti_free (nvti_t * n)
   if (n->sign_key_ids) g_free (n->sign_key_ids);
   if (n->family) g_free (n->family);
   if (n->src) g_free (n->src);
+  if (n->prefs) {
+    guint len = g_slist_length(n->prefs);
+    int i;
+    for (i = 0;i < len;i ++)
+      nvtpref_free(g_slist_nth_data(n->prefs, i));
+    g_slist_free(n->prefs);
+  }
   g_free (n);
 }
 
@@ -318,6 +408,34 @@ gchar *
 nvti_family (const nvti_t * n)
 {
   return (n->family);
+}
+
+/**
+ * @brief Get the number of preferences of the NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @return The number of preferences.
+ */
+guint
+nvti_pref_len (const nvti_t * n)
+{
+  return(g_slist_length(n->prefs));
+}
+
+/**
+ * @brief Get the n'th preferences of the NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param p The position of the preference to return.
+ *
+ * @return The number of preferences. NULL if 
+ */
+nvtpref_t *
+nvti_pref (const nvti_t * n, guint p)
+{
+  return(g_slist_nth_data(n->prefs, p));
 }
 
 /**
@@ -745,6 +863,22 @@ nvti_set_category (nvti_t * n, const gint category)
 }
 
 /**
+ * @brief Add a preference to the NVT Info.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param np The NVT preference to add.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_add_pref (nvti_t * n, nvtpref_t * np)
+{
+  n->prefs = g_slist_append(n->prefs, np);
+  return (0);
+}
+
+/**
  * @brief Create a human readable text representation of a NVT Info.
  *        This is mainly for debug purposes.
  *
@@ -809,6 +943,8 @@ nvti_from_keyfile (const gchar * fn)
   GKeyFile *keyfile = g_key_file_new ();
   nvti_t *n;
   GError *error = NULL;
+  gchar **keys;
+  int i;
 
   if (!g_key_file_load_from_file (keyfile, fn, G_KEY_FILE_NONE, &error))
     {
@@ -838,9 +974,42 @@ nvti_from_keyfile (const gchar * fn)
   nvti_set_timeout (n, g_key_file_get_integer (keyfile, "NVT Info", "Timeout", NULL));
   nvti_set_category (n, g_key_file_get_integer (keyfile, "NVT Info", "Category", NULL));
 
+  if (g_key_file_has_group(keyfile, "NVT Prefs")) {
+    keys = g_key_file_get_keys(keyfile, "NVT Prefs", NULL, NULL);
+    for (i = 0;keys[i];i ++) {
+      gsize len;
+      gchar ** items = g_key_file_get_string_list(keyfile, "NVT Prefs", keys[i], &len, NULL);
+      if (len != 3) continue; // format error for this pref.
+      nvtpref_t *np = nvtpref_new(items[0], items[1], items[2]);
+      nvti_add_pref(n, np);
+      g_strfreev(items);
+    }
+    g_strfreev(keys);
+  }
+
   g_key_file_free (keyfile);
 
   return (n);
+}
+
+/**
+ * @brief Callback function for adding a nvtpref to a keyfile.
+ *
+ * @param key The key of the pref.
+ *
+ * @param np The nvtipref object.
+ *
+ * @param keyfile The keyfile where the pref data are added.
+ */
+static void
+nvtpref_add_to_keyfile(gpointer key, gpointer np, gpointer keyfile )
+{
+  gchar * lst[3];
+  lst[0] = ((nvtpref_t *)np)->name;
+  lst[1] = ((nvtpref_t *)np)->type;
+  lst[2] = ((nvtpref_t *)np)->dflt;
+
+  g_key_file_set_string_list((GKeyFile *)keyfile, "NVT Prefs", (gchar *)key, (const gchar **)lst, 3);
 }
 
 /**
@@ -900,6 +1069,17 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
   if (n->category > 0)
     g_key_file_set_integer (keyfile, "NVT Info", "Category", n->category);
 
+  int i;
+  for (i=0;i < nvti_pref_len(n);i ++) {
+    nvtpref_t * np = nvti_pref(n, i);
+    gchar * lst[3];
+    lst[0] = ((nvtpref_t *)np)->name;
+    lst[1] = ((nvtpref_t *)np)->type;
+    lst[2] = ((nvtpref_t *)np)->dflt;
+
+    g_key_file_set_string_list((GKeyFile *)keyfile, "NVT Prefs", (gchar *)lst[0], (const gchar **)lst, 3);
+  }
+
   text = g_key_file_to_data (keyfile, NULL, &error);
   if (error != NULL)
     {
@@ -912,10 +1092,10 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
       FILE *fp = fopen (fn, "w");
       fprintf (fp, text);
       fclose (fp);
+      g_free(text);
     }
 
   g_key_file_free (keyfile);
-  g_free (text);
 
   return (0);
 }

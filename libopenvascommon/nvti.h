@@ -37,6 +37,25 @@
 #include <glib.h>
 
 /**
+ * @brief The structure for a preference of a NVT.
+ *
+ * The elements of this structure should never be accessed directly.
+ * Only the functions corresponding to this module should be used.
+ */
+typedef struct nvtpref
+{
+  gchar * type;  // preference type
+  gchar * name;  // name of the preference
+  gchar * dflt; // default value of the preference
+} nvtpref_t;
+
+nvtpref_t *nvtpref_new (gchar *, gchar *, gchar *);
+void nvtpref_free (nvtpref_t *);
+gchar * nvtpref_name(const nvtpref_t *);
+gchar * nvtpref_type(const nvtpref_t *);
+gchar * nvtpref_default(const nvtpref_t *);
+
+/**
  * @brief The structure of a information record that corresponds to a NVT.
  *
  * The elements of this structure should never be accessed directly.
@@ -65,6 +84,8 @@ typedef struct nvti
   gchar *sign_key_ids;          // List of fingerprints that signed this NVT
 
   gchar *src;                   // the source of the corresponding script, can be filename or other URI
+
+  GSList * prefs;           // Collection of NVT preferences
 
   // The following are not settled yet.
   gint timeout;                 // default timeout time for this NVT
@@ -95,6 +116,8 @@ gchar *nvti_src (const nvti_t *);
 gint nvti_timeout (const nvti_t *);
 gint nvti_category (const nvti_t *);
 gchar *nvti_family (const nvti_t *);
+guint nvti_pref_len (const nvti_t *);
+nvtpref_t * nvti_pref (const nvti_t *, guint);
 
 int nvti_set_oid (nvti_t *, const gchar *);
 int nvti_set_version (nvti_t *, const gchar *);
@@ -116,6 +139,7 @@ int nvti_set_src (nvti_t *, const gchar *);
 int nvti_set_timeout (nvti_t *, const gint);
 int nvti_set_category (nvti_t *, const gint);
 int nvti_set_family (nvti_t *, const gchar *);
+int nvti_add_pref (nvti_t *, nvtpref_t *);
 
 gchar *nvti_as_text (const nvti_t *);
 gchar *nvti_as_openvas_nvt_cache_entry (const nvti_t *);
