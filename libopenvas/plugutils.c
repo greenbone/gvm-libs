@@ -433,6 +433,7 @@ void
 plug_set_sign_key_ids (struct arglist* desc, char* key_ids)
 {
   char* value = plug_get_sign_key_ids( desc );
+  if (key_ids == NULL) return;
   if(value != NULL)
   {
     value = erealloc(value, strlen(value) + strlen(key_ids) + 2);

@@ -1,5 +1,11 @@
 2009-06-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* libopenvas/plugutils.c (plug_set_sign_key_ids): If
+	the key_ids are NULL, then don't add "SIGN_KEY_IDS" to the
+	plugin description at all.
+
+2009-06-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* libopenvascommon/nvti.c (nvtpref_add_to_keyfile): Removed
 	this callback function as it is not needed anymore.
 	(nvti_to_keyfile): Create generic keys "P1" .. "Pn" instead
