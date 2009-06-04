@@ -993,26 +993,6 @@ nvti_from_keyfile (const gchar * fn)
 }
 
 /**
- * @brief Callback function for adding a nvtpref to a keyfile.
- *
- * @param key The key of the pref.
- *
- * @param np The nvtipref object.
- *
- * @param keyfile The keyfile where the pref data are added.
- */
-static void
-nvtpref_add_to_keyfile(gpointer key, gpointer np, gpointer keyfile )
-{
-  gchar * lst[3];
-  lst[0] = ((nvtpref_t *)np)->name;
-  lst[1] = ((nvtpref_t *)np)->type;
-  lst[2] = ((nvtpref_t *)np)->dflt;
-
-  g_key_file_set_string_list((GKeyFile *)keyfile, "NVT Prefs", (gchar *)key, (const gchar **)lst, 3);
-}
-
-/**
  * @brief Store NVT Info into a keyfile.
  *
  * @param n The NVT Info object to store.
@@ -1073,11 +1053,14 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
   for (i=0;i < nvti_pref_len(n);i ++) {
     nvtpref_t * np = nvti_pref(n, i);
     gchar * lst[3];
+    gchar buf[10];
     lst[0] = ((nvtpref_t *)np)->name;
     lst[1] = ((nvtpref_t *)np)->type;
     lst[2] = ((nvtpref_t *)np)->dflt;
 
-    g_key_file_set_string_list((GKeyFile *)keyfile, "NVT Prefs", (gchar *)lst[0], (const gchar **)lst, 3);
+    sprintf(buf, "P%d", i);
+    g_key_file_set_string_list((GKeyFile *)keyfile, "NVT Prefs", buf, (const gchar **)lst, 3);
+//    g_key_file_set_string_list((GKeyFile *)keyfile, "NVT Prefs", (gchar *)lst[0], (const gchar **)lst, 3);
   }
 
   text = g_key_file_to_data (keyfile, NULL, &error);
@@ -1089,8 +1072,9 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
     }
   else
     {
+      // TODO: Create subdirs if necessary!
       FILE *fp = fopen (fn, "w");
-      fprintf (fp, text);
+      fputs (text, fp);
       fclose (fp);
       g_free(text);
     }

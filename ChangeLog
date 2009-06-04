@@ -1,3 +1,12 @@
+2009-06-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* libopenvascommon/nvti.c (nvtpref_add_to_keyfile): Removed
+	this callback function as it is not needed anymore.
+	(nvti_to_keyfile): Create generic keys "P1" .. "Pn" instead
+	of using the preferences names, because those can sometimes
+	contain chracters that are invalid for keys.
+	Also, replace fprintf by fputs to avoid interpretation of %.
+
 2009-05-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* libopenvascommon/nvti.h: Added data structure nvtpref_t and
