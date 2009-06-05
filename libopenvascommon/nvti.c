@@ -1102,7 +1102,7 @@ free_nvti_for_hash_table (gpointer nvti)
  * @brief Make a collection of NVT Infos.
  */
 nvtis_t*
-make_nvtis ()
+nvtis_new ()
 {
   return g_hash_table_new_full (g_str_hash,
                                 g_str_equal,
@@ -1116,7 +1116,7 @@ make_nvtis ()
  * @param nvtis The collection of NVT Infos.
  */
 void
-free_nvtis (nvtis_t* nvtis)
+nvtis_free (nvtis_t* nvtis)
 {
   if (nvtis) g_hash_table_destroy (nvtis);
 }
@@ -1138,7 +1138,7 @@ nvtis_size (nvtis_t* nvtis)
  * @param nvtis The collection of NVT Infos.
  */
 void
-add_nvti (nvtis_t* nvtis, nvti_t* nvti)
+nvtis_add (nvtis_t* nvtis, nvti_t* nvti)
 {
   if (nvti)
     g_hash_table_insert (nvtis, (gpointer) nvti_oid (nvti), (gpointer) nvti);
@@ -1153,7 +1153,7 @@ add_nvti (nvtis_t* nvtis, nvti_t* nvti)
  * @return The NVT Info, if found, else NULL.
  */
 nvti_t*
-find_nvti (nvtis_t* nvtis, const char* oid)
+nvtis_lookup (nvtis_t* nvtis, const char* oid)
 {
   return g_hash_table_lookup (nvtis, oid);
 }

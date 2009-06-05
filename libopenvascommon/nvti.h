@@ -155,15 +155,15 @@ int nvti_to_keyfile (const nvti_t *, const gchar *);
  */
 typedef GHashTable nvtis_t;
 
-nvtis_t *make_nvtis ();
+nvtis_t *nvtis_new ();
 
-void free_nvtis (nvtis_t *);
+void nvtis_free (nvtis_t *);
 
 guint nvtis_size (nvtis_t *);
 
-void add_nvti (nvtis_t *, nvti_t *);
+void nvtis_add (nvtis_t *, nvti_t *);
 
-nvti_t *find_nvti (nvtis_t *, const char *);
+nvti_t *nvtis_lookup (nvtis_t *, const char *);
 
 #define nvtis_find g_hash_table_find
 

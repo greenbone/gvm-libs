@@ -1,3 +1,13 @@
+2009-06-05  Matthew Mundell <mmundell@intevation.de>
+
+	Improve naming of nvtis functions.
+
+	* libopenvascommon/nvti.c (nvtis_new, nvtis_free, nvtis_add)
+	(nvtis_lookup): New functions, renamed from make_nvtis, free_nvtis,
+	add_nvti and find_nvti.
+	(make_nvtis, free_nvtis, add_nvti, find_nvti): Remove.
+	* libopenvascommon/nvti.h: Update headers.
+
 2009-06-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* libopenvas/plugutils.c (plug_set_sign_key_ids): If
