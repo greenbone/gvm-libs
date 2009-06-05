@@ -1,5 +1,12 @@
 2009-06-05  Matthew Mundell <mmundell@intevation.de>
 
+	* src/libopenvas/network.c (open_SSL_connection)
+	(ovas_server_context_attach): Remove EAGAIN and EINTR checks added on
+	2008-11-17 (revision 1769), as GNU TLS always returns its own error
+	codes.
+
+2009-06-05  Matthew Mundell <mmundell@intevation.de>
+
 	Improve naming of nvtis functions.
 
 	* libopenvascommon/nvti.c (nvtis_new, nvtis_free, nvtis_add)

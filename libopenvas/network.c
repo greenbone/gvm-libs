@@ -789,9 +789,7 @@ open_SSL_connection(nessus_connection *fp, int timeout,
 	}
 
       if (err != GNUTLS_E_INTERRUPTED
-          && err != GNUTLS_E_AGAIN
-          && errno != EINTR
-          && errno != EAGAIN)
+          && err != GNUTLS_E_AGAIN)
 	{
 #ifdef DEBUG_SSL
 	  tlserror("gnutls_handshake", err);
@@ -1225,9 +1223,7 @@ ovas_server_context_attach(ovas_server_context_t ctx, int soc)
       if (ret < 0)
 	{
           if (ret == GNUTLS_E_AGAIN
-              || ret == GNUTLS_E_INTERRUPTED
-              || errno == EAGAIN
-              || errno == EINTR)
+              || ret == GNUTLS_E_INTERRUPTED)
              goto retry;
 #ifdef DEBUG_SSL
 	  tlserror("gnutls_handshake", ret);
