@@ -816,36 +816,3 @@ store_fetch_required_udp_ports (struct arglist * desc)
   ret = str2arglist (p.required_udp_ports);
   return ret;
 }
-
-
-
-/*---------------------------------------------------------------------*/
-
-#if 0
-void store_dump_plugin(int id)
-{
- struct plugin plugin;
- store_get_plugin(&plugin, id);
- 
- printf("PLUGIN ID# %d\n", plugin.id);
- printf("in %s\n", plugin.path);
- printf("\n\n");
- printf("Name: %s\n", plugin.name);
- printf("timeout : %d\n", plugin.timeout);
- printf("category: %d\n",  plugin.category);
- printf("version : %s\n",  plugin.version);
- printf("summary : %s\n",  plugin.summary);
- printf("description: %s\n",  plugin.description);
- printf("copyright: %s\n",  plugin.copyright);
- printf("family %s\n",  plugin.family);
- printf("cve_id : %s\n",  plugin.cve_id);
- printf("bid : %s\n",  plugin.bid);
- printf("xrefs : %s\n",  plugin.xrefs);
- printf("tags : %s\n",  plugin.tags);
- printf("dependencies: %s\n", plugin.dependencies);
- printf("required_keys : %s\n", plugin.required_keys);
- printf("excluded_key : %s\n", plugin.excluded_keys);
- printf("required_ports: %s\n", plugin.required_ports);
- printf("required_udp_ports: %s\n", plugin.required_udp_ports);
-}
-#endif

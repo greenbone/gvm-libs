@@ -1,3 +1,8 @@
+2009-06-07  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* libopenvas/store.c (store_dump_plugin): Removed. This
+	function was deactivated anyway.
+
 2009-06-05  Matthew Mundell <mmundell@intevation.de>
 
 	* src/libopenvas/network.c (open_SSL_connection)
