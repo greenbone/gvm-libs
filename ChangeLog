@@ -1,3 +1,8 @@
+2009-06-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* libopenvascommon/nvti.c (nvti_to_keyfile): Added
+	support of subdirectories).
+
 2009-06-08  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* MANIFEST: Added missing entries.

@@ -35,7 +35,10 @@
  * management etc.
  */
 
+#include <string.h>
 #include <stdio.h>
+#include <errno.h>
+#include <sys/stat.h>
 
 #include "nvti.h"
 
@@ -1072,8 +1075,25 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
     }
   else
     {
-      // TODO: Create subdirs if necessary!
       FILE *fp = fopen (fn, "w");
+      if (! fp) { // second try: maybe the directory was missing.
+        gchar * cache_dir = g_path_get_dirname(fn);
+        if ((mkdir(cache_dir, 0755) < 0) && (errno != EEXIST)) {
+          fprintf(stderr, "mkdir(%s) : %s\n", cache_dir, strerror(errno));
+          g_free(text);
+          g_key_file_free (keyfile);
+	  return (1);
+        }
+        fp = fopen (fn, "w");
+      }
+
+      if (! fp) { // again failed
+          fprintf(stderr, "fopen(%s) : %s\n", fn, strerror(errno));
+          g_free(text);
+          g_key_file_free (keyfile);
+	  return (2);
+      }
+
       fputs (text, fp);
       fclose (fp);
       g_free(text);
