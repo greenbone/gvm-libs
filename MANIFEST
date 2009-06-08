@@ -57,6 +57,8 @@ libopenvas/Makefile
 libopenvas/network.c
 libopenvas/network.h
 libopenvas/ntp.h
+libopenvas/openvas_auth.c
+libopenvas/openvas_auth.h
 libopenvas/openvas_logging.c
 libopenvas/openvas_logging.h
 libopenvas/openvas_ssh_login.c
@@ -95,6 +97,8 @@ libopenvas/www_funcs.h
 libopenvascommon/README.txt
 libopenvascommon/nvti.h
 libopenvascommon/nvti.c
+libopenvascommon/certificate.h
+libopenvascommon/certificate.c
 ltmain.sh
 Makefile
 MANIFEST

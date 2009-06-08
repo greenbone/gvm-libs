@@ -1,3 +1,7 @@
+2009-06-08  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* MANIFEST: Added missing entries.
+
 2009-06-07  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* libopenvas/store.c (store_dump_plugin): Removed. This
