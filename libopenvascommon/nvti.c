@@ -1061,7 +1061,7 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
     lst[1] = ((nvtpref_t *)np)->type;
     lst[2] = ((nvtpref_t *)np)->dflt;
 
-    sprintf(buf, "P%d", i);
+    g_snprintf(buf, 10, "P%d", i);
     g_key_file_set_string_list((GKeyFile *)keyfile, "NVT Prefs", buf, (const gchar **)lst, 3);
 //    g_key_file_set_string_list((GKeyFile *)keyfile, "NVT Prefs", (gchar *)lst[0], (const gchar **)lst, 3);
   }

@@ -1,3 +1,8 @@
+2009-06-09  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* libopenvascommon/nvti.c (nvti_to_keyfile): Make sure the string
+	written does not exceed the maximum buffer size.
+
 2009-06-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* libopenvascommon/nvti.c (nvti_to_keyfile): Added
