@@ -1,5 +1,10 @@
 2009-06-10  Michael Wiegand <michael.wiegand@intevation.de>
 
+	* libopenvas/openvas_logging.c (openvas_log_func): Use g_strdup instead
+	of g_strdup_printf to generate empty sting.
+
+2009-06-10  Michael Wiegand <michael.wiegand@intevation.de>
+
 	Preparing the openvas-libraries 2.0.3 release.
 
 	* CHANGES: Updated.

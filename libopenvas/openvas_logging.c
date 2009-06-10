@@ -290,7 +290,7 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
 
 
  /* Prepend buf is  a newly allocated empty string. Makes life easier. */
- prepend_buf = g_strdup_printf("");
+ prepend_buf = g_strdup ("");
 
 
  /*Make the tmp pointer (for iteration) point to the format string*/
