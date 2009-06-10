@@ -1,3 +1,23 @@
+openvas-libraries 2.0.3 (2009-06-10)
+
+This is the third maintenance release of the openvas-libraries module for the
+Open Vulnerability Assessment System (OpenVAS) 2.0 series.
+
+It fixes a small number of issues discovered after the release of
+openvas-libraries 2.0.2 and introduces new functionality designed to enable
+improvements in other OpenVAS modules.
+
+Main changes since 2.0.2:
+
+* Support for localized security messages (e.g. umlauts) has been re-enabled.
+* New functions for GnuTLS-based communication were added.
+* New functions for authentication were added.
+* An improved caching framework has been added ("NVT Info objects").
+
+Many thanks to everyone who has contributed to this release: Matthew Mundell,
+Jan Wagner, Jan-Oliver Wagner, Michael Wiegand and Felix Wolfsteller.
+
+
 openvas-libraries 2.0.2 (2009-03-06)
 
 This is the second maintenance release of the openvas-libraries module for the
