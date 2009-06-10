@@ -1,3 +1,8 @@
+2009-06-10  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* libopenvas/plugutils.c (post_note): Changed "#if 1" back to "#if 0" to
+	remove stray debug output that was accidentally enabled in rev 2958.
+
 2009-06-10  Laban Mwangi <lmwangi@penguinlabs.co.ke>
 
 	* libopenvas/openvas_logging.c, libopenvas/openvas_logging.h: 
@@ -6,7 +11,6 @@
 
 	* openvas-libraries.tmpl.in: Fix for an unintended gthread
 	dependency
-
 
 2009-06-09  Michael Wiegand <michael.wiegand@intevation.de>
 
