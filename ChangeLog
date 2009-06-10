@@ -1,5 +1,11 @@
 2009-06-10  Michael Wiegand <michael.wiegand@intevation.de>
 
+	* libopenvas/plugutils.c (post_note): Changed "#if 0" to "#if DEBUG" as
+	recommended by Felix Wolfsteller to make the debug output available when
+	debugging.
+
+2009-06-10  Michael Wiegand <michael.wiegand@intevation.de>
+
 	* libopenvas/plugutils.c (post_note): Changed "#if 1" back to "#if 0" to
 	remove stray debug output that was accidentally enabled in rev 2958.
 

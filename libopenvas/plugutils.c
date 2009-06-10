@@ -1139,7 +1139,7 @@ proto_post_info (struct arglist * desc, int port, const char * proto,
 void
 post_note (struct arglist * desc, int port, const char* action)
 {
-#if 0
+#if DEBUG
   fprintf(stderr, "Post_note: port = %d action = %s\n", port, action);
 #endif
   proto_post_note (desc, port, "tcp", action);
