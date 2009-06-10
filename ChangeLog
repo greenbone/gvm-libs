@@ -1,3 +1,13 @@
+2009-06-10  Laban Mwangi <lmwangi@penguinlabs.co.ke>
+
+	* libopenvas/openvas_logging.c, libopenvas/openvas_logging.h: 
+	Commenting in doxygen format
+	Compile warning fixes
+
+	* openvas-libraries.tmpl.in: Fix for an unintended gthread
+	dependency
+
+
 2009-06-09  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvascommon/nvti.c (nvti_to_keyfile): Make sure the string
