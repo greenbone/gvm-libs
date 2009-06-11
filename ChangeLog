@@ -1,3 +1,10 @@
+2009-06-11  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Included patch provided by Ryan Schmidt to remove a build failure on
+	Mac OS X 10.4.11. This solves Bug #1033 (http://bugs.openvas.org/1033).
+
+	* libopenvas/pcap.c: Changed order of includes.
+
 2009-06-10  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post branch version bump.

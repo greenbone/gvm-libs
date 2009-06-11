@@ -16,10 +16,10 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <netinet/in.h>
 #include <resolv.h>
 #include <pcap.h>
 #include <net/if.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <netdb.h>
