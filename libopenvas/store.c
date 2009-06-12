@@ -69,6 +69,8 @@
 #include "plugutils.h"
 #include "plugutils_internal.h"
 
+#include "nvti.h"
+
 /*-----------------------------------------------------------------------------*/
 static char *
 arglist2str(struct arglist * arg)
@@ -109,13 +111,14 @@ arglist2str(struct arglist * arg)
 struct arglist * str2arglist(char * str)
 {
  struct arglist * ret;
- char * t = strchr(str, ',');
-
+ char * t;
 
  if(!str || str[0] == '\0')
   {
    return NULL;
   }
+
+ t = strchr(str, ',');
 
  ret = emalloc ( sizeof(struct arglist) );
 
@@ -363,9 +366,8 @@ store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
   gchar * plug_file = g_build_filename (dir, file, NULL);
   gchar * asc_file  = g_strconcat (plug_file, ".asc", NULL);
   gchar * dummy     = g_build_filename (store_dir, file, NULL);
-  gchar * desc_file = g_strconcat (dummy, ".desc", NULL);
+  gchar * desc_file = g_strconcat (dummy, ".nvti", NULL);
 
-  struct plugin p;
   struct pprefs pp[MAX_PREFS];
 
   struct arglist * ret;
@@ -422,56 +424,44 @@ store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
       return NULL;
     }
 
-  if ((store_get_plugin_f(&p, pp, desc_file) < 0) ||
-      (p.magic != MAGIC) ||
-      (p.oid == NULL))
-    {
-      g_free (desc_file);
-      g_free (asc_file);
-      g_free (plug_file);
-      return NULL;
-    }
+  nvti_t * n = nvti_from_keyfile(desc_file);
 
   ret = emalloc (sizeof(struct arglist));
-  plug_set_oid (ret, p.oid);
-  plug_set_category (ret, p.category);
+  plug_set_oid (ret, nvti_oid(n));
+  plug_set_category (ret, nvti_category(n));
   plug_set_cachefile (ret, desc_file);
-  plug_set_path (ret, p.path);
-  plug_set_family (ret, p.family, NULL);
-  plug_set_sign_key_ids (ret, p.sign_key_ids);
+  plug_set_path (ret, nvti_src(n));
+  plug_set_family (ret, nvti_family(n), NULL);
+  plug_set_sign_key_ids (ret, nvti_sign_key_ids(n));
 
-  al = str2arglist (p.required_ports);
+  al = str2arglist (nvti_required_ports(n));
   if (al != NULL) arg_add_value (ret, "required_ports", ARG_ARGLIST, -1, al);
 
-  al = str2arglist (p.required_keys);
+  al = str2arglist (nvti_required_keys(n));
   if (al != NULL) arg_add_value (ret, "required_keys", ARG_ARGLIST, -1, al);
 
-  al = str2arglist (p.required_udp_ports);
+  al = str2arglist (nvti_required_udp_ports(n));
   if (al != NULL) arg_add_value (ret, "required_udp_ports", ARG_ARGLIST, -1, al);
 
-  al = str2arglist (p.excluded_keys);
+  al = str2arglist (nvti_excluded_keys(n));
   if (al != NULL) arg_add_value (ret, "excluded_keys", ARG_ARGLIST, -1, al);
 
-  al = str2arglist (p.dependencies);
+  al = str2arglist (nvti_dependencies(n));
   if (al != NULL) arg_add_value (ret, "DEPENDENCIES", ARG_ARGLIST, -1, al);
 
-  if (p.timeout != 0) arg_add_value (ret, "TIMEOUT", ARG_INT, -1, GSIZE_TO_POINTER(p.timeout));
+  if (nvti_timeout(n) != 0) arg_add_value (ret, "TIMEOUT", ARG_INT, -1, GSIZE_TO_POINTER(nvti_timeout(n)));
 
-  arg_add_value (ret, "NAME", ARG_STRING, strlen(p.name), estrdup(p.name));
+  arg_add_value (ret, "NAME", ARG_STRING, strlen(nvti_name(n)), estrdup(nvti_name(n)));
 
   arg_add_value (ret, "preferences", ARG_ARGLIST, -1, prefs);
 
-  if (p.has_prefs)
-    {
-      for (i=0; pp[i].type[0] != '\0'; i++)
-        {
-         _add_plugin_preference (prefs, p.name, pp[i].name, pp[i].type, pp[i].dfl);
-        }
-    }
+  for (i=0;i < nvti_pref_len(n);i ++) {
+    nvtpref_t * np = nvti_pref(n, i);
+    _add_plugin_preference (prefs, nvti_name(n), nvtpref_name(np), nvtpref_type(np), nvtpref_default(np));
+  }
 
-  g_free (desc_file);
-  g_free (asc_file);
-  g_free (plug_file);
+  nvti_free(n);
+  g_free(desc_file);
 
   return ret;
 }
@@ -489,174 +479,75 @@ void
 store_plugin (struct arglist * plugin, char * file)
 {
   gchar * dummy = g_build_filename (store_dir, file, NULL);
-  gchar * desc_file = g_strconcat (dummy, ".desc", NULL);
-  // assume there is a ".desc" at the end in the store_dir path
+  gchar * desc_file = g_strconcat (dummy, ".nvti", NULL);
+  // assume there is a ".nvti" at the end in the store_dir path
   gchar * path = g_strdup (file);
- struct plugin plug;
- struct pprefs pp[MAX_PREFS+1];
- char  * str;
- struct arglist * arglist, * prefs;
- int e;
- int fd;
- int num_plugin_prefs = 0;
+  char  * str;
+  struct arglist * arglist;
 
   g_free(dummy);
 
   if (desc_file == NULL || path == NULL) return; // g_build_filename failed
 
- bzero(&plug, sizeof(plug));
- bzero(pp, sizeof(pp));
- 
- plug.magic = MAGIC;
- plug.id = plug_get_id(plugin);
- str = plug_get_path(plugin);
- e = safe_copy(str, plug.path, sizeof(plug.path), path, "path"); 
- if(e < 0) return;
- 
- str = plug_get_oid(plugin);
- e = safe_copy(str, plug.oid, sizeof(plug.oid), path, "oid");
- if(e < 0) return;
+  nvti_t * n = nvti_new();
 
- plug.timeout = plug_get_timeout(plugin);
- plug.category = plug_get_category(plugin);
+  nvti_set_oid(n, plug_get_oid(plugin));
+  nvti_set_version(n, _plug_get_version(plugin));
+  nvti_set_name(n, plug_get_name(plugin));
+  nvti_set_summary(n, _plug_get_summary(plugin));
+  nvti_set_description(n, _plug_get_description(plugin));
+  nvti_set_copyright(n, _plug_get_copyright(plugin));
+  nvti_set_cve(n, _plug_get_cve_id(plugin));
+  nvti_set_bid(n, _plug_get_bugtraq_id(plugin));
+  nvti_set_xref(n, _plug_get_xref(plugin));
+  nvti_set_tag(n, _plug_get_tag(plugin));
+  str = arglist2str(plug_get_deps(plugin));
+  nvti_set_dependencies(n, str);
+  efree(&str);
+  str = arglist2str(plug_get_required_keys(plugin));
+  nvti_set_required_keys(n, str);
+  efree(&str);
+  str = arglist2str(plug_get_excluded_keys(plugin));
+  nvti_set_excluded_keys(n, str);
+  efree(&str);
+  str = arglist2str(plug_get_required_ports(plugin));
+  nvti_set_required_ports(n, str);
+  efree(&str);
+  str = arglist2str(plug_get_required_udp_ports(plugin));
+  nvti_set_required_udp_ports(n, str);
+  efree(&str);
+  nvti_set_sign_key_ids(n, plug_get_sign_key_ids(plugin));
+  nvti_set_family(n, _plug_get_family(plugin));
+  nvti_set_src(n, plug_get_path(plugin));
+  nvti_set_timeout(n, plug_get_timeout(plugin));
+  nvti_set_category(n, plug_get_category(plugin));
 
- str = plug_get_name(plugin);
- e = safe_copy(str, plug.name, sizeof(plug.name), path, "name");
- if(e < 0) return;
- 
- str = _plug_get_version(plugin);
- e = safe_copy(str, plug.version, sizeof(plug.version), path, "version");
- if(e < 0) return;
- 
- 
- str = _plug_get_summary(plugin);
- e = safe_copy(str, plug.summary, sizeof(plug.summary), path, "summary");
- if(e < 0) return;
- 
- str = _plug_get_description(plugin);
- e = safe_copy(str, plug.description, sizeof(plug.description), path, "description");
- if(e < 0) return;
- 
- str = _plug_get_copyright(plugin);
- e = safe_copy(str, plug.copyright, sizeof(plug.copyright), path, "copyright");
- if(e < 0) return;
- 
- str = _plug_get_family(plugin);
- e = safe_copy (str, plug.family, sizeof(plug.family), path, "family");
- if(e < 0) return;
- 
- str = _plug_get_cve_id(plugin);
-
- e = safe_copy(str, plug.cve_id, sizeof(plug.cve_id), path, "cve_id");
- if(e < 0) return;
- 
- str = _plug_get_bugtraq_id(plugin);
- e = safe_copy(str, plug.bid, sizeof(plug.bid), path, "bugtraq id");
- if(e < 0) return;
- 
- str = _plug_get_xref(plugin);
- e = safe_copy(str, plug.xref, sizeof(plug.xref), path, "xref id");
- if(e < 0) return;
-
- str = _plug_get_tag(plugin);
- e = safe_copy(str, plug.tag, sizeof(plug.tag), path, "tag");
- if(e < 0) return;
- 
- arglist = plug_get_deps(plugin);
- str = arglist2str(arglist);
- e = safe_copy(str, plug.dependencies, sizeof(plug.dependencies), path, "dependencies");
- efree(&str);
- if(e < 0) return;
- 
- arglist = plug_get_required_keys(plugin);
- str = arglist2str(arglist);
- e = safe_copy(str, plug.required_keys, sizeof(plug.required_keys), path, "required keys");
- efree(&str);
- if(e < 0) return;
- 
- arglist = plug_get_excluded_keys(plugin);
- str = arglist2str(arglist);
- e = safe_copy(str, plug.excluded_keys, sizeof(plug.excluded_keys), path, "excluded_keys");
- efree(&str);
- if(e < 0) return;
- 
- arglist = plug_get_required_ports(plugin);
- str = arglist2str(arglist);
- e = safe_copy(str, plug.required_ports, sizeof(plug.required_ports), path, "required ports");
- efree(&str);
- if(e < 0) return;
- 
- arglist = plug_get_required_udp_ports(plugin);
- str = arglist2str(arglist);
- e = safe_copy(str, plug.required_udp_ports, sizeof(plug.required_udp_ports), path, "required udp ports");
- efree(&str);
- if(e < 0) return;
-
- str = plug_get_sign_key_ids(plugin);
- e = safe_copy(str, plug.sign_key_ids, sizeof(plug.sign_key_ids), path, "key ids of signatures");
- //efree(&str);
- if(e < 0) return;
- 
- 
- prefs = arg_get_value(plugin, "preferences");
- 
- arglist = arg_get_value(plugin, "PLUGIN_PREFS");
- if( arglist != NULL )
- {
-  char * p_name = plug_get_name(plugin);
-
-  while(arglist->next != NULL)
+  arglist = arg_get_value(plugin, "PLUGIN_PREFS");
+  if( arglist != NULL )
   {
-   char * name = arglist->name;
-   char * dfl = arglist->value;
-   char * type, * str;
+    while(arglist->next != NULL)
+    {
+      nvtpref_t * np;
+      char * name = arglist->name;
+      char * dfl = arglist->value;
+      char * type, * str;
 
-   type = arglist->name;
-   str = strchr(type, '/');
-   str[0] = '\0';
-   name = str + 1;
-   e = safe_copy(type, pp[num_plugin_prefs].type, sizeof(pp[num_plugin_prefs].type), path, "preference-type");
-   if(e < 0) return;
-   e = safe_copy(name, pp[num_plugin_prefs].name, sizeof(pp[num_plugin_prefs].name), path, "preference-name");
-   if(e < 0) return;
-   e = safe_copy(dfl, pp[num_plugin_prefs].dfl, sizeof(pp[num_plugin_prefs].dfl), path, "preference-default");
-   if(e < 0) return;
-   num_plugin_prefs ++;
+      type = arglist->name;
+      str = strchr(type, '/');
+      str[0] = '\0';
+      name = str + 1;
 
-   if(num_plugin_prefs >= MAX_PREFS)
-   {
-    fprintf(stderr, "%s: too many preferences\n", path);
-    return;
-   }
-   _add_plugin_preference(prefs, p_name, name, type, dfl);
-   str[0] = '/';
-   arglist = arglist->next;
-  }
- }
- 
- if (num_plugin_prefs > 0)
-  plug.has_prefs = 1;
- 
- fd = open(desc_file, O_RDWR|O_CREAT|O_TRUNC, 0644);
-  if(fd < 0) { // second try: maybe the directory was missing.
-    gchar * desc_dir = g_path_get_dirname(desc_file);
+      np = nvtpref_new(name, type, dfl); 
+      nvti_add_pref(n, np);
 
-    if ((mkdir(desc_dir, 0755) < 0) && (errno != EEXIST)) {
-     fprintf(stderr, "mkdir(%s) : %s\n", desc_dir, strerror(errno));
-     return;
+      str[0] = '/';
+      arglist = arglist->next;
     }
-    g_free(desc_dir);
-    fd = open(desc_file, O_RDWR|O_CREAT|O_TRUNC, 0644);
-    if(fd < 0) return;
   }
- 
-  if(write(fd, &plug, sizeof(plug)) < 0)
-    perror("write ");
- 
-  if(num_plugin_prefs > 0)
-    write(fd, pp, sizeof(pp));
-  close (fd);
- 
+
+  nvti_to_keyfile(n, desc_file);
+  nvti_free(n);
+
  arg_set_value(plugin, "preferences", -1, NULL);
  arg_free_all(plugin);
 
@@ -671,37 +562,37 @@ char *
 store_fetch_path (struct arglist * desc)
 {
   char * fname = plug_get_cachefile (desc);
-  static struct plugin p;
 
-  store_get_plugin (&p, fname);
-  return p.path;
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(nvti_src(n));
 }
 
 char * store_fetch_version(struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
- static struct plugin p;
+  char * fname = plug_get_cachefile(desc);
  
- store_get_plugin(&p, fname);
- return p.version;
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(nvti_version(n));
 }
 
 char * store_fetch_summary(struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
- static struct plugin p;
+  char * fname = plug_get_cachefile(desc);
  
- store_get_plugin(&p, fname);
- return p.summary;
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(nvti_summary(n));
 }
 
 char * store_fetch_description(struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
- static struct plugin p;
+  char * fname = plug_get_cachefile(desc);
  
- store_get_plugin(&p, fname);
- return p.description;
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(nvti_description(n));
 }
 
 int store_fetch_category(struct arglist * desc)
@@ -711,108 +602,101 @@ int store_fetch_category(struct arglist * desc)
 
 char * store_fetch_copyright(struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
- static struct plugin p;
+  char * fname = plug_get_cachefile(desc);
  
- store_get_plugin(&p, fname);
- return p.copyright;
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(nvti_copyright(n));
 }
 
 char * store_fetch_family(struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
- static struct plugin p;
+  char * fname = plug_get_cachefile(desc);
  
- store_get_plugin(&p, fname);
- return p.family;
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(nvti_family(n));
 }
 
 char * store_fetch_oid(struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
- static struct plugin p;
+  char * fname = plug_get_cachefile(desc);
  
- store_get_plugin(&p, fname);
- return p.oid;
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(nvti_oid(n));
 }
 
 char * store_fetch_cve_id(struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
- static struct plugin p;
+  char * fname = plug_get_cachefile(desc);
  
- store_get_plugin(&p, fname);
- return p.cve_id;
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(nvti_cve(n));
 }
 
 char * store_fetch_bugtraq_id(struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
- static struct plugin p;
+  char * fname = plug_get_cachefile(desc);
  
- store_get_plugin(&p, fname);
- return p.bid;
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(nvti_bid(n));
 }
 
 
 char * store_fetch_xref(struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
- static struct plugin p;
+  char * fname = plug_get_cachefile(desc);
  
- store_get_plugin(&p, fname);
- return p.xref;
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(nvti_xref(n));
 }
 
 char * store_fetch_tag(struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
- static struct plugin p;
+  char * fname = plug_get_cachefile(desc);
  
- store_get_plugin(&p, fname);
- return p.tag;
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(nvti_tag(n));
 }
 
 struct arglist * store_fetch_required_keys(struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
- static struct plugin p;
- struct arglist * ret;
+  char * fname = plug_get_cachefile(desc);
 
- store_get_plugin(&p, fname);
- ret = str2arglist(p.required_keys);
- return ret;
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(str2arglist(nvti_required_keys(n)));
 }
 
 struct arglist * store_fetch_excluded_keys(struct arglist * desc)
 {
- char * fname = plug_get_cachefile(desc);
- static struct plugin p;
- struct arglist * ret;
+  char * fname = plug_get_cachefile(desc);
 
- store_get_plugin(&p, fname);
- ret = str2arglist(p.excluded_keys);
- return ret;
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(str2arglist(nvti_excluded_keys(n)));
 }
 
 struct arglist * store_fetch_required_ports(struct arglist * desc)
 {
- char * fname = plug_get_cachefile (desc);
- static struct plugin p;
- struct arglist * ret;
+  char * fname = plug_get_cachefile (desc);
 
- store_get_plugin (&p, fname);
- ret = str2arglist (p.required_ports);
- return ret;
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(str2arglist(nvti_required_ports(n)));
 }
 
 struct arglist *
 store_fetch_required_udp_ports (struct arglist * desc)
 {
   char * fname = plug_get_cachefile (desc);
-  static struct plugin p;
-  struct arglist * ret;
-  store_get_plugin (&p, fname);
-  ret = str2arglist (p.required_udp_ports);
-  return ret;
+
+  nvti_t * n = nvti_from_keyfile(fname);
+
+  return(str2arglist(nvti_required_udp_ports(n)));
 }

@@ -1,3 +1,23 @@
+2009-06-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Main part of the implementation for Change Request #33
+	(Change server-side NVT cache from binary dumps to keyfiles),
+	see http://www.openvas.org/openvas-cr-33.html.
+
+	One important effect of this change is that in the cache
+	directory news files with the suffix ".nvti" will be created.
+	The old ".desc" files will remain there. These can be deleted.
+
+	* libopenvas/store.c (str2arglist): Apply strchr
+	only if the string is non-empty.
+	(store_load_plugin, store_plugin, store_fetch_path,
+	store_fetch_version, store_fetch_summary, store_fetch_description,
+	store_fetch_copyright, store_fetch_family, store_fetch_oid,
+	store_fetch_cve_id, store_fetch_bugtraq_id, store_fetch_xref,
+	store_fetch_tag, store_fetch_required_keys, store_fetch_excluded_keys,
+	store_fetch_required_ports, store_fetch_required_udp_ports):
+	Replace handling from "desc" files to "nvti" files.
+
 2009-06-11  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Included patch provided by Ryan Schmidt to remove a build failure on
