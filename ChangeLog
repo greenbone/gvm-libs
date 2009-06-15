@@ -1,9 +1,13 @@
 2009-06-15  Michael Wiegand <michael.wiegand@intevation.de>
 
+	* ChangeLog: Corrected module name in last entry.
+
+2009-06-15  Michael Wiegand <michael.wiegand@intevation.de>
+
 	* configure.in: Added check for gcrypt.h which properly sets $LIBS so
 	gcrypt can be correctly linked. This fixes the linker warnings described
 	in Bug #1035 (http://bugs.openvas.org/1035) that occured if
-	openvas-libnasl was configured with LDFLAGS="-Wl,-z,defs"
+	openvas-libraries was configured with LDFLAGS="-Wl,-z,defs"
 	(--no-undefined).
 
 	* configure: Regenerated.
