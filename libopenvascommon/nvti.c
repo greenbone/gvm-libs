@@ -948,6 +948,7 @@ nvti_from_keyfile (const gchar * fn)
   GError *error = NULL;
   gchar **keys;
   int i;
+  gsize size_dummy;
 
   if (!g_key_file_load_from_file (keyfile, fn, G_KEY_FILE_NONE, &error))
     {
@@ -958,10 +959,18 @@ nvti_from_keyfile (const gchar * fn)
   n = nvti_new ();
   nvti_set_oid (n, g_key_file_get_string (keyfile, "NVT Info", "OID", NULL));
   nvti_set_version (n, g_key_file_get_string (keyfile, "NVT Info", "Version", NULL));
-  nvti_set_name (n, g_key_file_get_string (keyfile, "NVT Info", "Name", NULL));
-  nvti_set_summary (n, g_key_file_get_string (keyfile, "NVT Info", "Summary", NULL));
-  nvti_set_description (n, g_key_file_get_string (keyfile, "NVT Info", "Description", NULL));
-  nvti_set_copyright (n, g_key_file_get_string (keyfile, "NVT Info", "Copyright", NULL));
+  nvti_set_name (n, g_convert (
+      g_key_file_get_string (keyfile, "NVT Info", "Name", NULL),
+      -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy, NULL));
+  nvti_set_summary (n, g_convert (
+      g_key_file_get_string (keyfile, "NVT Info", "Summary", NULL),
+      -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy, NULL));
+  nvti_set_description (n, g_convert (
+      g_key_file_get_string (keyfile, "NVT Info", "Description", NULL),
+      -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy, NULL));
+  nvti_set_copyright (n, g_convert (
+      g_key_file_get_string (keyfile, "NVT Info", "Copyright", NULL),
+      -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy, NULL));
   nvti_set_cve (n, g_key_file_get_string (keyfile, "NVT Info", "CVEs", NULL));
   nvti_set_bid (n, g_key_file_get_string (keyfile, "NVT Info", "BIDs", NULL));
   nvti_set_xref (n, g_key_file_get_string (keyfile, "NVT Info", "XREFs", NULL));
@@ -1015,14 +1024,34 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
     g_key_file_set_string (keyfile, "NVT Info", "OID", n->oid);
   if (n->version)
     g_key_file_set_string (keyfile, "NVT Info", "Version", n->version);
-  if (n->name)
-    g_key_file_set_string (keyfile, "NVT Info", "Name", n->name);
-  if (n->summary)
-    g_key_file_set_string (keyfile, "NVT Info", "Summary", n->summary);
-  if (n->description)
-    g_key_file_set_string (keyfile, "NVT Info", "Description", n->description);
-  if (n->copyright)
-    g_key_file_set_string (keyfile, "NVT Info", "Copyright", n->copyright);
+  if (n->name) {
+    gsize size_dummy;
+    gchar * utf8str = g_convert (n->name, -1, "UTF-8", "ISO_8859-1",
+                                 NULL, &size_dummy, NULL);
+    g_key_file_set_string (keyfile, "NVT Info", "Name", utf8str);
+    g_free(utf8str);
+  }
+  if (n->summary) {
+    gsize size_dummy;
+    gchar * utf8str = g_convert (n->summary, -1, "UTF-8", "ISO_8859-1",
+                                 NULL, &size_dummy, NULL);
+    g_key_file_set_string (keyfile, "NVT Info", "Summary", utf8str);
+    g_free(utf8str);
+  }
+  if (n->description) {
+    gsize size_dummy;
+    gchar * utf8str = g_convert (n->description, -1, "UTF-8", "ISO_8859-1",
+                                 NULL, &size_dummy, NULL);
+    g_key_file_set_string (keyfile, "NVT Info", "Description", utf8str);
+    g_free(utf8str);
+  }
+  if (n->copyright) {
+    gsize size_dummy;
+    gchar * utf8str = g_convert (n->copyright, -1, "UTF-8", "ISO_8859-1",
+                                 NULL, &size_dummy, NULL);
+    g_key_file_set_string (keyfile, "NVT Info", "Copyright", utf8str);
+    g_free(utf8str);
+  }
   if (n->cve)
     g_key_file_set_string (keyfile, "NVT Info", "CVEs", n->cve);
   if (n->bid)

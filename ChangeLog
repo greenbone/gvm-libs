@@ -1,3 +1,9 @@
+2009-06-23  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* libopenvascommon/nvti.c (nvti_from_keyfile, nvti_to_keyfile): Before
+	writing a copyright, description, name or summary, convert string to
+	UTF8 and convert to latin-1 when reading it.
+
 2009-06-15  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* ChangeLog: Corrected module name in last entry.
