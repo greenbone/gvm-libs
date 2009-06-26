@@ -1,5 +1,13 @@
 2009-06-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* libopenvas/store_internal.h (MAX_PREFS, MAGIC, pprefs, plugin):
+	Removed all the uneeded makros and structs.
+	(store_get_plugin): Removed proto for this nonexistant funciton.
+
+	* libopenvas/store.c (store_load_plugin): Removed unused variable pp.
+
+2009-06-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* libopenvas/store.c(store_init_user, -store_init_sys): Remove these
 	deprecated functions now that this code is heading for the next major
 	release.

@@ -261,8 +261,6 @@ store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
   gchar * dummy     = g_build_filename (store_dir, file, NULL);
   gchar * desc_file = g_strconcat (dummy, ".nvti", NULL);
 
-  struct pprefs pp[MAX_PREFS];
-
   struct arglist * ret;
   struct arglist * al;
 
@@ -281,8 +279,6 @@ store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
       g_free (plug_file);
       return NULL; // g_build_filename failed
     }
-
-  bzero (pp, sizeof(pp));
 
   /* Plugin and cache file have to exist */
   if (stat(plug_file, &stat_plug) < 0 || stat(desc_file, &stat_desc) < 0)
