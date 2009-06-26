@@ -229,40 +229,6 @@ store_init (const char * dir)
 }
 
 /**
- * @brief Deprecated function to set the directory where the plugin cache files are placed.
- *
- * Don't use this method anymore. It is here only for legacy to be compatible with
- * openvas-server <= 2.0.0.
- * The new method to use is @ref store_init .
- *
- * @return Always 0.
- */
-int
-store_init_sys (char * dir)
-{
- snprintf(store_dir, sizeof(store_dir), "%s/.desc", dir); /* RATS: ignore */
- if((mkdir(store_dir, 0755) < 0) && (errno != EEXIST))
- {
-  fprintf(stderr, "mkdir(%s) : %s\n", store_dir, strerror(errno));
-  return -1;
- }
-
- return 0;
-}
-
-/**
- * @brief Deprecated function to set the directory where the plugin cache files are placed.
- *
- * Don't use this method anymore. It is here only for legacy to be compatible with
- * openvas-server <= 2.0.0.
- * The new method to use is @ref store_init .
- */
-int store_init_user(char * dir)
-{
-  return store_init_sys(dir);
-}
-
-/**
  * @brief Returns a (plugin) arglist assembled from the cached description file
  *
  * @param dir Path to location of plugin file

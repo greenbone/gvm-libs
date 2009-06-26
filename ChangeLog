@@ -1,5 +1,13 @@
 2009-06-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* libopenvas/store.c(store_init_user, -store_init_sys): Remove these
+	deprecated functions now that this code is heading for the next major
+	release.
+
+	* libopenvas/store.h: Remove respective protos.
+
+2009-06-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* libopenvas/store.c (store_get_plugin, store_get_plugin_f): Removed.
 	These functions are not needed anymore.
 
