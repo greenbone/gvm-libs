@@ -461,25 +461,10 @@ plug_get_sign_key_ids (struct arglist* desc)
 void
 plug_set_family (struct arglist * desc, const char* family, const char* language)
 {
-  char * s_language;
-  struct arglist * prefs = arg_get_value(desc, "preferences");
-  
-  s_language = arg_get_value(prefs,"language");
-  if(s_language && language)
-   {
-    if(!strcmp(s_language, language))
-    {
-    if(family)
-    arg_add_value(desc, "FAMILY", ARG_STRING,
-    			strlen(family), estrdup(family));
-    }
-   }
-  else if(family)
-    {
-     if(!arg_get_value(desc, "FAMILY"))
-      arg_add_value(desc, "FAMILY", ARG_STRING,
-    			strlen(family), estrdup(family));
-    }
+  if(! family) return;
+
+  arg_add_value(desc, "FAMILY", ARG_STRING,
+                strlen(family), estrdup(family));
 }
 
 
@@ -647,25 +632,10 @@ plug_get_launch (struct arglist * desc)
 void
 plug_set_name (struct arglist * desc, const char * name, const char * language)
 {
- char * s_language;
- struct arglist * prefs = arg_get_value(desc, "preferences");
+ if (! name) return;
 
-  s_language = arg_get_value(prefs,"language");
-  if(s_language && language)
-   {
-    if(!strcmp(s_language, language))
-    {
-    if(name)
-    arg_add_value(desc, "NAME", ARG_STRING,
-    			strlen(name), estrdup(name));
-    }
-   }
-  else if(name)
-  {
-    if(!arg_get_value(desc, "NAME"))
-    	arg_add_value(desc, "NAME", ARG_STRING,
-    			strlen(name), estrdup(name));	
-  }
+ arg_add_value(desc, "NAME", ARG_STRING,
+               strlen(name), estrdup(name));
 }
 
 char *
@@ -679,25 +649,10 @@ void
 plug_set_summary (struct arglist * desc, const char* summary,
                   const char* language)
 {
- char * s_language;
- struct arglist * prefs = arg_get_value(desc, "preferences");
-  
-  s_language = arg_get_value(prefs,"language");
-  if(s_language && language)
-   {
-    if(!strcmp(s_language, language))
-    {
-    if(summary)
-    arg_add_value(desc, "SUMMARY", ARG_STRING,
-    			strlen(summary), estrdup(summary));
-    }
-   }
-  else if(summary)
-  {
-    if(!arg_get_value(desc, "SUMMARY"))
-    	arg_add_value(desc, "SUMMARY", ARG_STRING,
-    			strlen(summary), estrdup(summary));	
-  }
+ if (! summary) return;
+
+ arg_add_value(desc, "SUMMARY", ARG_STRING,
+               strlen(summary), estrdup(summary));
 }
 
 char * _plug_get_summary(desc)
@@ -718,25 +673,10 @@ void plug_set_description(desc, description,language)
  const char * description;
  const char * language;
 {
-  char * s_language;
- struct arglist * prefs = arg_get_value(desc, "preferences");
-  
-  s_language = arg_get_value(prefs,"language");
-  if(s_language && language)
-   {
-    if(!strcmp(s_language, language))
-    {
-    if(description)
-    arg_add_value(desc, "DESCRIPTION", ARG_STRING,
-    			strlen(description), estrdup(description));
-    }
-   }
-  else if(description)
-  {
-    if(!arg_get_value(desc, "DESCRIPTION"))
-    	arg_add_value(desc, "DESCRIPTION", ARG_STRING,
-    			strlen(description), estrdup(description));	
-  }
+ if (! description) return;
+
+ arg_add_value(desc, "DESCRIPTION", ARG_STRING,
+               strlen(description), estrdup(description));
 }
 
 
@@ -756,25 +696,10 @@ void
 plug_set_copyright (struct arglist * desc, const char* copyright,
                     const char* language)
 {
- char * s_language;
- struct arglist * prefs = arg_get_value(desc, "preferences");
+ if (! copyright) return;
 
-  s_language = arg_get_value(prefs,"language");
-  if(s_language && language)
-   {
-    if(!strcmp(s_language, language))
-    {
-    if(copyright)
-    arg_add_value(desc, "COPYRIGHT", ARG_STRING,
-    			strlen(copyright), estrdup(copyright));
-    }
-   }
-  else if(copyright)
-  {
-    if(!arg_get_value(desc, "COPYRIGHT"))
-    	arg_add_value(desc, "COPYRIGHT", ARG_STRING,
-    			strlen(copyright), estrdup(copyright));	
-  }
+ arg_add_value(desc, "COPYRIGHT", ARG_STRING,
+               strlen(copyright), estrdup(copyright));
 }
 
 char *

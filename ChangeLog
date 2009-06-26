@@ -1,5 +1,11 @@
 2009-06-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* libopenvas/plugutils.c (plug_set_family, plug_set_name,
+	plug_set_summary, plug_set_description, plug_set_copyright):
+	According to CR#36, the language handling is removed.
+
+2009-06-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* libopenvas/store.c (store_fetch_required_udp_ports,
 	store_fetch_required_udp_ports, store_fetch_excluded_keys,
 	store_fetch_required_keys):
