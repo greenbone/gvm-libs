@@ -16,10 +16,5 @@ char * store_fetch_cve_id(struct arglist * desc);
 char * store_fetch_bugtraq_id(struct arglist * desc);
 char * store_fetch_xref(struct arglist * desc);
 char * store_fetch_tag(struct arglist * desc);
-struct arglist * store_fetch_required_keys(struct arglist * desc);
-struct arglist * store_fetch_excluded_keys(struct arglist * desc);
-struct arglist * store_fetch_required_ports(struct arglist * desc);
-struct arglist * store_fetch_required_udp_ports(struct arglist * desc);
-
 
 #endif

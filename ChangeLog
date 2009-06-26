@@ -1,5 +1,15 @@
 2009-06-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* libopenvas/store.c (store_fetch_required_udp_ports,
+	store_fetch_required_udp_ports, store_fetch_excluded_keys,
+	store_fetch_required_keys):
+	Removed because never used anywhere.
+
+	* libopenvas/store_internal.h: Removed corresponding
+	protos.
+
+2009-06-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* libopenvas/store_internal.h (MAX_PREFS, MAGIC, pprefs, plugin):
 	Removed all the uneeded makros and structs.
 	(store_get_plugin): Removed proto for this nonexistant funciton.
