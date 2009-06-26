@@ -1,3 +1,8 @@
+2009-06-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* libopenvas/store.c (store_get_plugin, store_get_plugin_f): Removed.
+	These functions are not needed anymore.
+
 2009-06-23  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* libopenvascommon/nvti.c (nvti_from_keyfile): Guard NULL pointer
