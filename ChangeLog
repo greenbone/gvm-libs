@@ -1,3 +1,14 @@
+2009-06-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* libopenvas/plugutils.c (plug_set_family, plug_set_name,
+	plug_set_summary, plug_set_description, plug_set_copyright):
+	Removed superfluous parameter "language".
+
+	* libopenvas/plugutils.h: Adapted protos accordingly.
+
+	* libopenvas/store.c (store_load_plugin): Adapted call of
+	plug_set_family accordingly.
+
 2009-06-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* libopenvas/plugutils.c (plug_set_family, plug_set_name,

@@ -320,7 +320,7 @@ store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
   plug_set_category (ret, nvti_category(n));
   plug_set_cachefile (ret, desc_file);
   plug_set_path (ret, nvti_src(n));
-  plug_set_family (ret, nvti_family(n), NULL);
+  plug_set_family (ret, nvti_family(n));
   plug_set_sign_key_ids (ret, nvti_sign_key_ids(n));
 
   al = str2arglist (nvti_required_ports(n));

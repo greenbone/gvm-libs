@@ -459,7 +459,7 @@ plug_get_sign_key_ids (struct arglist* desc)
 
 
 void
-plug_set_family (struct arglist * desc, const char* family, const char* language)
+plug_set_family (struct arglist * desc, const char* family)
 {
   if(! family) return;
 
@@ -630,7 +630,7 @@ plug_get_launch (struct arglist * desc)
 
 
 void
-plug_set_name (struct arglist * desc, const char * name, const char * language)
+plug_set_name (struct arglist * desc, const char * name)
 {
  if (! name) return;
 
@@ -646,8 +646,7 @@ plug_get_name (struct arglist * desc)
 
 
 void
-plug_set_summary (struct arglist * desc, const char* summary,
-                  const char* language)
+plug_set_summary (struct arglist * desc, const char* summary)
 {
  if (! summary) return;
 
@@ -668,10 +667,9 @@ char * plug_get_summary(desc)
 }
 
 
-void plug_set_description(desc, description,language)
+void plug_set_description(desc, description)
  struct arglist * desc;
  const char * description;
- const char * language;
 {
  if (! description) return;
 
@@ -693,8 +691,7 @@ plug_get_description (struct arglist * desc)
 }
 
 void
-plug_set_copyright (struct arglist * desc, const char* copyright,
-                    const char* language)
+plug_set_copyright (struct arglist * desc, const char* copyright)
 {
  if (! copyright) return;
 

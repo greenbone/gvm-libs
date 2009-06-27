@@ -34,7 +34,7 @@ void scanner_add_port(struct arglist*, int, char *);
  * Arglist management at plugin-level
  */
 
-void plug_set_name(struct arglist *, const char *, const char *);
+void plug_set_name(struct arglist *, const char *);
 char*plug_get_name(struct arglist*);
 
 void plug_set_path(struct arglist *, const char *);
@@ -55,19 +55,19 @@ int  plug_get_timeout(struct arglist *);
 void plug_set_launch(struct arglist *, int);
 int plug_get_launch(struct arglist *);
 
-void plug_set_summary(struct arglist *, const char *, const char*);
+void plug_set_summary(struct arglist *, const char *);
 char*plug_get_summary(struct arglist *);
 
-void plug_set_description(struct arglist *, const char *,const char *);
+void plug_set_description(struct arglist *, const char *);
 char*plug_get_description(struct arglist *);
 
 void plug_set_category(struct arglist *, int);
 int  plug_get_category(struct arglist *);
 
-void plug_set_copyright(struct arglist *, const char *, const char*);
+void plug_set_copyright(struct arglist *, const char *);
 char*plug_get_copyright(struct arglist *);
 
-void plug_set_family(struct arglist * , const char *, const char *);
+void plug_set_family(struct arglist * , const char *);
 char*plug_get_family(struct arglist *);
 
 void plug_set_dep(struct arglist *, const char *);
