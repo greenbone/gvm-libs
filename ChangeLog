@@ -1,3 +1,7 @@
+2009-06-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* libopenvas/plugutils.h: Added proto for plug_set_port_transport.
+
 2009-06-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* libopenvas/plugutils.c (plug_set_family, plug_set_name,

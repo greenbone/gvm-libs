@@ -106,6 +106,8 @@ const char * plug_get_host_fqdn(struct arglist *);
 void plug_add_host(struct arglist *, struct arglist *);
 unsigned int plug_get_host_open_port(struct arglist * desc);
 
+void plug_set_port_transport (struct arglist *, int, int);
+
 char* plug_get_cve_id(struct arglist*);
 char* plug_get_bugtraq_id(struct arglist*);
 
