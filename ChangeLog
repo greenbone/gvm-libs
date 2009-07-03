@@ -1,3 +1,11 @@
+2009-07-03  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* libopenvas/plugutils.c (post_note, post_note_udp): Call
+	proto_post_wrapped() directly instead of proto_post_note.
+	(proto_post_note): Removed. This is a compatibility
+	layer for the (ancient nessus-)times when "notes" where
+	not supported (preference "ntp_client_accepts_notes").
+
 2009-06-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* libopenvas/plugutils.h: Added proto for plug_set_port_transport.

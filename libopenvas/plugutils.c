@@ -1061,31 +1061,14 @@ proto_post_info (struct arglist * desc, int port, const char * proto,
 void
 post_note (struct arglist * desc, int port, const char* action)
 {
-#if DEBUG
-  fprintf(stderr, "Post_note: port = %d action = %s\n", port, action);
-#endif
-  proto_post_note (desc, port, "tcp", action);
+  proto_post_wrapped(desc, port, "tcp", action, "NOTE");
 }
 
 
 void
 post_note_udp (struct arglist * desc, int port, const char * action)
 {
- proto_post_note(desc, port, "udp", action);
-}
-
-
-void proto_post_note (struct arglist * desc, int port, const char* proto,
-                      const char* action)
-{
-  /* Backward compatibility. We only use the notes if the remote
-   * client accepts them */
-  char * allow_notes = get_preference(desc, "ntp_client_accepts_notes");
-  if (allow_notes && !strcmp(allow_notes, "yes"))
-    proto_post_wrapped(desc, port, proto, action, "NOTE");
-  else
-    proto_post_wrapped(desc, port, proto, action, "INFO");
- return;
+  proto_post_wrapped(desc, port, "udp", action, "NOTE");
 }
 
 /**
