@@ -1,5 +1,10 @@
 2009-07-03  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* libopenvas/plugutils.c (proto_post_wrapped, proto_post_hole,
+	proto_post_info, proto_post_debug): Removed unneeded returns.
+
+2009-07-03  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* libopenvas/plugutils.c (post_note, post_note_udp): Call
 	proto_post_wrapped() directly instead of proto_post_note.
 	(proto_post_note): Removed. This is a compatibility

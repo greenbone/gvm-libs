@@ -1009,8 +1009,6 @@ proto_post_wrapped (struct arglist * desc, int port, const char* proto,
   mark_successful_plugin (desc);
   efree (&buffer);
   efree (&naction);
-
-  return;
 }
 
 void
@@ -1018,7 +1016,6 @@ proto_post_hole (struct arglist * desc, int port, const char * proto,
                  const char * action)
 {
   proto_post_wrapped (desc, port, proto, action, "HOLE");
-  return;
 }
 
 
@@ -1055,7 +1052,6 @@ proto_post_info (struct arglist * desc, int port, const char * proto,
                  const char * action)
 {
   proto_post_wrapped(desc, port, proto, action, "INFO");
-  return;
 }
 
 void
@@ -1079,7 +1075,6 @@ proto_post_log (struct arglist * desc, int port, const char* proto,
                 const char* action)
 {
   proto_post_wrapped(desc, port, proto, action, "LOG");
-  return;
 }
 
 /**
@@ -1105,7 +1100,6 @@ proto_post_debug (struct arglist * desc, int port, const char* proto,
                   const char* action)
 {
   proto_post_wrapped(desc, port, proto, action, "DEBUG");
-  return;
 }
 
 
