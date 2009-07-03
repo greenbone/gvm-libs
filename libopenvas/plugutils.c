@@ -1067,6 +1067,12 @@ post_note_udp (struct arglist * desc, int port, const char * action)
   proto_post_wrapped(desc, port, "udp", action, "NOTE");
 }
 
+void proto_post_note (struct arglist * desc, int port, const char* proto,
+                      const char* action)
+{
+  proto_post_wrapped(desc, port, proto, action, "NOTE");
+}
+
 /**
  * @brief Post a log message
  */
