@@ -1,8 +1,6 @@
 #ifndef STORE_H
 #define STORE_H
 
-int store_save_init();
-int store_save_end();
 struct arglist * store_save_plugin(struct arglist * plugin, char * path);
 char * store_fetch_path(struct arglist * desc);
 char * store_fetch_oid(struct arglist *);
