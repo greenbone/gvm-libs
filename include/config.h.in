@@ -35,46 +35,6 @@
  */
 #undef  DEBUGMORE
 
-
-/*
- * NESSUSD SPECIFIC CONFIGURATION
- */
-
-
-/*
- * Default prefix
- */
-#undef NESSUSD_DIR
-
-/*
- * The path to the Nessus directory
- */
-#undef NESSUSD_REPORTS_DIR
-
-
-/*
- * The file that contains the nessus
- * rules
- */
-#undef NESSUSD_RULES
-
-/*
- * The file that contains the users database
- */
-#undef NESSUSD_USERS 
- 
-/*
- * The Nessus logfile, if syslog is not used
- */
-
-#undef NESSUSD_MESSAGES
-
-
-/* 
- * The Nessus plugins directory
- */
-#undef PLUGINS_DIR
-
 /*
  * Host specs.
  * 
