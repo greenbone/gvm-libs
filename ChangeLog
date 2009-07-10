@@ -1,3 +1,11 @@
+2009-07-10  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* configure.in: Removed check for rand() since the result is not used anywhere.
+
+	* configure: Regenerated.
+
+	* include/config.h.in: Removed handling of HAVE_RAND.
+
 2009-07-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* include/config.h.in: Removed NESSUSD_DIR, NESSUSD_REPORTS_DIR,

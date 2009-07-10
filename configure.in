@@ -216,7 +216,7 @@ esac
 dnl Check for several functions
 AC_FUNC_ALLOCA
 AC_CHECK_FUNCS(sigaction sysctl setproctitle setitimer)
-AC_CHECK_FUNCS(lstat memmove gettimeofday gethrtime getrusage rand)
+AC_CHECK_FUNCS(lstat memmove gettimeofday gethrtime getrusage)
 AC_CHECK_FUNCS(strchr memcpy select poll unlockpt)
 AC_CHECK_FUNCS(vsnprintf snprintf vasnprintf vasprintf asprintf asnprintf)
 

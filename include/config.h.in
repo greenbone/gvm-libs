@@ -77,7 +77,6 @@
 #undef HAVE_GRANTPT
 #undef HAVE_PTSNAME
 #undef HAVE_OPENPTY
-#undef HAVE_RAND
 #undef HAVE_POLL
 #undef HAVE_SELECT
 #undef HAVE_SETSID
