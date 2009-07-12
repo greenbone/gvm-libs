@@ -27,12 +27,6 @@
 /**
  * @file
  * Random generator helper functions.
- * If the libc does not provide [ls]rand48, we use [s]rand() instead.
- *
- * While rand() is weak in comparison of lrand48, this is not a big
- * issue, as we want moderately random values in our code (meaning
- * that we don't use any of these functions for crypto-related operations)
- *
  */
 
 void
@@ -48,18 +42,5 @@ nessus_init_random()
       fclose(fp);
     }
   x += time(NULL) + getpid() + getppid();
-  srand48(x); /* RATS: ignore */
+  srand48(x);
 }
-
-#ifndef HAVE_LRAND48
-
-long lrand48() /* RATS: ignore */
-{
- return rand();
-}
-
-void srand48(long seed) /* RATS: ignore */
-{ 
- srand(seed); /* RATS: ignore */
-}
-#endif
