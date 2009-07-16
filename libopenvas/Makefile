@@ -111,16 +111,16 @@ popen.o: popen.c system.h
 	$(COMPILE) -c popen.c
 
 services.o: services.c services.h
-	$(COMPILE) -DNESSUS_STATE_DIR=\"$(localstatedir)\" -c services.c
+	$(COMPILE) -DOPENVAS_STATE_DIR=\"$(localstatedir)\" -c services.c
 
 services1.o: services1.c services.h
-	$(COMPILE) -DNESSUS_STATE_DIR=\"$(localstatedir)\" -DCONF_DIR=\"$(sysconfdir)\" -c services1.c
+	$(COMPILE) -DOPENVAS_STATE_DIR=\"$(localstatedir)\" -DCONF_DIR=\"$(sysconfdir)\" -c services1.c
 
 proctitle.o: proctitle.c proctitle.h
 	$(COMPILE) -c proctitle.c
 
 store.o: store.c store_internal.h share_fd.h system.h plugutils.h plugutils_internal.h
-	$(COMPILE) -DNESSUS_STATE_DIR=\"$(localstatedir)\" -c store.c
+	$(COMPILE) -DOPENVAS_STATE_DIR=\"$(localstatedir)\" -c store.c
 
 hash_table_file.o: hash_table_file.c hash_table_file.h
 	$(COMPILE) -c hash_table_file.c

@@ -1,3 +1,9 @@
+2009-07-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* libopenvas/Makefile, libopenvas/services.h,
+	libopenvas/services1.c: Renamed NESSUS_STATE_DIR to
+	OPENVAS_STATE_DIR.
+
 2009-07-12  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* libopenvas/rand.c: Removed emulation functions for lrand48 and

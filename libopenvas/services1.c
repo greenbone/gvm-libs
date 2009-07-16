@@ -163,7 +163,7 @@ nessus_init_svc()
   for (i = 0; i < N_SVC_F; i ++)
     svc[i].line = 1;
   nf = 0;
-  (void) mkdir(NESSUS_STATE_DIR, 0755);
+  (void) mkdir(OPENVAS_STATE_DIR, 0755);
 
   /*
    * Although our code is all right to parse /etc/services, we also

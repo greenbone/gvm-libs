@@ -36,14 +36,14 @@
 
 /* **** FILES **** */
 
-#define NESSUS_SERVICES		NESSUS_STATE_DIR "/lib/openvas/openvas-services"
+#define NESSUS_SERVICES	 OPENVAS_STATE_DIR "/lib/openvas/openvas-services"
 /* If you want Nessus to use a second input file, uncomment next line */
 /*#define NESSUS_IANA_PORTS	CONF_DIR "/iana-port-numbers"*/
 
-#define NESSUS_SERVICES_TCP	NESSUS_STATE_DIR	"/lib/openvas/services.tcp"
-#define NESSUS_SERVICES_UDP	NESSUS_STATE_DIR	"/lib/openvas/services.udp"
+#define NESSUS_SERVICES_TCP	OPENVAS_STATE_DIR "/lib/openvas/services.tcp"
+#define NESSUS_SERVICES_UDP	OPENVAS_STATE_DIR "/lib/openvas/services.udp"
 /* Not really useful but for debug or information */
-#define NESSUS_SERVICES_TXT	NESSUS_STATE_DIR	"/lib/openvas/services.txt"
+#define NESSUS_SERVICES_TXT	OPENVAS_STATE_DIR "/lib/openvas/services.txt"
 
 #define SERVICES_MAGIC 0x42
 
