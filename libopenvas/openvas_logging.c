@@ -254,7 +254,7 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
    * Let's load the configuration file directives if a linked list to it
    * exists... Otherwise the defaults above will be left untouched
    */
-  if(openvaslogconfiglist != NULL)
+  if(openvaslogconfiglist != NULL && log_domain != NULL)
   {
 
     /* Go the the head of the list*/
@@ -332,7 +332,7 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
     }
   }
 
-  /* Step through all possible messages prefexing them with an appropriate tag. */
+  /* Step through all possible messages prefixing them with an appropriate tag. */
   switch (log_level) {
     case G_LOG_FLAG_RECURSION:
       prepend = g_strdup_printf("RECURSION%s%s", log_separator, prepend_buf);
@@ -423,6 +423,7 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
 void setup_log_handlers(  GSList *openvaslogconfiglist )
 {
   g_log_set_handler("libnasl",(GLogLevelFlags) (G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE |G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION ), (GLogFunc) openvas_log_func, openvaslogconfiglist);
-  g_log_set_handler("opemvasd",(GLogLevelFlags) (G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE |G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION ), (GLogFunc) openvas_log_func, openvaslogconfiglist);
+  g_log_set_handler("openvasd",(GLogLevelFlags) (G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE |G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION ), (GLogFunc) openvas_log_func, openvaslogconfiglist);
+  g_log_set_handler("openvasmd",(GLogLevelFlags) (G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE |G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION ), (GLogFunc) openvas_log_func, openvaslogconfiglist);
   g_log_set_handler("",(GLogLevelFlags) (G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE |G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION ), (GLogFunc) openvas_log_func, openvaslogconfiglist);
 }

@@ -1,5 +1,12 @@
 2009-07-17  Matthew Mundell <mmundell@intevation.de>
 
+	* libopenvas/openvas_logging.c (openvas_log_func): Add log_domain NULL
+	guard.  Correct typo.
+	(setup_log_handlers): Add "openvasmd" entry.  Correct type in "openvas"
+	entry.
+
+2009-07-17  Matthew Mundell <mmundell@intevation.de>
+
 	* libopenvas/openvas_logging.c: Flush trailing whitespace.
 
 2009-07-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
