@@ -28,7 +28,7 @@
  * @brief Implementation of logging methods for OpenVAS.
  *
  * This file contains all methods needed for openvas logging. To enable logging,
- * methods in this file are called. Have a look at 
+ * methods in this file are called. Have a look at
  * openvas-server/openvasd/openvasd.c for an example.
  *
  * The module reuses glib datatypes and api for memory management and logging.
@@ -43,12 +43,12 @@
 /**
  * @brief Returns time as specified in time_fmt strftime format.
  *
- * @param time_fmt ptr to the string format to use. The strftime 
- * 	  man page documents the conversion specification. An 
+ * @param time_fmt ptr to the string format to use. The strftime
+ * 	  man page documents the conversion specification. An
  * 	  example time_fmt string is "%Y-%m-%d %H:%M:%S".
  *
- * @return NULL in case the format string is NULL. A ptr to a 
- *  	   string that contains the formatted date time value. 
+ * @return NULL in case the format string is NULL. A ptr to a
+ *  	   string that contains the formatted date time value.
  *  	   This value must be freed using glib's g_free.
  */
 gchar *gettime(gchar *time_fmt)
@@ -71,7 +71,7 @@ gchar *gettime(gchar *time_fmt)
 /**
  * @brief Loads parameters from a config file into a linked list.
  *
- * @param configfile A string containing the path to the configuration file 
+ * @param configfile A string containing the path to the configuration file
  * 	             to load.
  *
  * @return NULL in case the config file could not be loaded or an error
@@ -80,7 +80,7 @@ gchar *gettime(gchar *time_fmt)
  */
 GSList *load_log_configuration (gchar * configfile)
 {
- 
+
   GKeyFile *keyfile;
   GKeyFileFlags flags;
   GError *error = NULL;
@@ -90,7 +90,7 @@ GSList *load_log_configuration (gchar * configfile)
   gchar **groups;
   /* Temp variable to iterate over groups */
   gchar **group;
-  
+
   /* Structure to hold per group settings */
   openvasd_logging *logdomainentry;
   /* The link list for the structure above and it's tmp helper */
@@ -99,7 +99,7 @@ GSList *load_log_configuration (gchar * configfile)
   /* Create a new GKeyFile object and a bitwise list of flags. */
   keyfile = g_key_file_new ();
   flags = G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS;
-  
+
 
   /* Load the GKeyFile from conf or return. */
   if (!g_key_file_load_from_file (keyfile, configfile, flags, &error))
@@ -109,7 +109,7 @@ GSList *load_log_configuration (gchar * configfile)
 
   /* Get all the groups available */
   groups = g_key_file_get_groups (keyfile,NULL);
-  
+
   /* Point to the group head */
   group = groups;
   /* Iterate till we get to the end of the array. == NULL */
@@ -173,7 +173,7 @@ void free_log_configuration(GSList *logdomainlist)
   GSList *logdomainlisttmp;
   openvasd_logging *logdomainentry;
 
-  /* 
+  /*
    *  Free the struct fields then the struct and then go the next
    *  item in the LL
    */
@@ -235,9 +235,9 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
   GError *error=NULL;
   GIOChannel *channel;
 
-  /* 
+  /*
    * The default parameters if this logdomain is not defined
-   * A pid then a strftime timestamp. 
+   * A pid then a strftime timestamp.
    * TODO: These should be overriden by the group [*]
    */
   gchar *prependformat = "%p %t - ";
@@ -252,19 +252,19 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
 
   /*
    * Let's load the configuration file directives if a linked list to it
-   * exists... Otherwise the defaults above will be left untouched 
+   * exists... Otherwise the defaults above will be left untouched
    */
   if(openvaslogconfiglist != NULL)
   {
 
     /* Go the the head of the list*/
     logdomainlisttmp = ( GSList  *) openvaslogconfiglist;
-  
+
     while ( logdomainlisttmp != NULL && foundlogdomainentry == FALSE )
     {
       /* Get the list data = Struct */
       logdomainentry = logdomainlisttmp->data;
- 
+
       /* search for the log domain in the link list */
       if (g_ascii_strcasecmp (logdomainentry->logdomain, log_domain ) == 0)
       {
@@ -281,7 +281,7 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
       logdomainlisttmp = g_slist_next(logdomainlisttmp);
     }
   }
-  
+
   /* If the current log entry is less severe than the specified log level,
    * let's exit
    */
@@ -296,7 +296,7 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
  /*Make the tmp pointer (for iteration) point to the format string*/
  tmp = prependformat;
 
- while( *tmp != '\0' ) 
+ while( *tmp != '\0' )
  {
     /* If the current char is a % and the next one is a p, get the pid */
     if ((*tmp=='%') && (*(tmp+1) == 'p'))
@@ -330,7 +330,7 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
       /* Jump to the next character */
       tmp++;
     }
-  }    
+  }
 
   /* Step through all possible messages prefexing them with an appropriate tag. */
   switch (log_level) {
@@ -371,7 +371,7 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
   }
 
   /* If the current log entry is more severe than the specified log level,
-   * print out the message.   
+   * print out the message.
    */
   GString *logstr = g_string_new("");
   g_string_append_printf(logstr,
@@ -392,7 +392,7 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
      * retrieve and use an already existing channel.
      */
     if (channel == NULL){
-      channel = g_io_channel_new_file( logfile, "a", &error); 
+      channel = g_io_channel_new_file( logfile, "a", &error);
       if(!channel){
         g_error("Can not open '%s' logfile. %s", logfile, error->message);
       }
@@ -426,6 +426,3 @@ void setup_log_handlers(  GSList *openvaslogconfiglist )
   g_log_set_handler("opemvasd",(GLogLevelFlags) (G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE |G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION ), (GLogFunc) openvas_log_func, openvaslogconfiglist);
   g_log_set_handler("",(GLogLevelFlags) (G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE |G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION ), (GLogFunc) openvas_log_func, openvaslogconfiglist);
 }
-
-
-
