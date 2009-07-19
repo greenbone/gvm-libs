@@ -329,6 +329,9 @@ store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
   al = str2arglist (nvti_required_keys(n));
   if (al != NULL) arg_add_value (ret, "required_keys", ARG_ARGLIST, -1, al);
 
+  al = str2arglist (nvti_mandatory_keys(n));
+  if (al != NULL) arg_add_value (ret, "mandatory_keys", ARG_ARGLIST, -1, al);
+
   al = str2arglist (nvti_required_udp_ports(n));
   if (al != NULL) arg_add_value (ret, "required_udp_ports", ARG_ARGLIST, -1, al);
 
@@ -395,6 +398,9 @@ store_plugin (struct arglist * plugin, char * file)
   efree(&str);
   str = arglist2str(plug_get_required_keys(plugin));
   nvti_set_required_keys(n, str);
+  efree(&str);
+  str = arglist2str(plug_get_mandatory_keys(plugin));
+  nvti_set_mandatory_keys(n, str);
   efree(&str);
   str = arglist2str(plug_get_excluded_keys(plugin));
   nvti_set_excluded_keys(n, str);
