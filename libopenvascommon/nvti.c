@@ -159,6 +159,7 @@ nvti_free (nvti_t * n)
   if (n->tag) g_free (n->tag);
   if (n->dependencies) g_free (n->dependencies);
   if (n->required_keys) g_free (n->required_keys);
+  if (n->mandatory_keys) g_free (n->mandatory_keys);
   if (n->excluded_keys) g_free (n->excluded_keys);
   if (n->required_ports) g_free (n->required_ports);
   if (n->required_udp_ports) g_free (n->required_udp_ports);
@@ -341,6 +342,20 @@ gchar *
 nvti_required_keys (const nvti_t * n)
 {
   return (n->required_keys);
+}
+
+/**
+ * @brief Get the mandatory keys list.
+ *
+ * @param n The NVT Info structure of which the name should
+ *          be returned.
+ *
+ * @return The mandatory keys string. Don't free this.
+ */
+gchar *
+nvti_mandatory_keys (const nvti_t * n)
+{
+  return (n->mandatory_keys);
 }
 
 /**
@@ -714,6 +729,27 @@ nvti_set_required_keys (nvti_t * n, const gchar * required_keys)
 }
 
 /**
+ * @brief Set the mandatory keys of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param mandatory_keys The mandatory keys to set. A copy will be created from this.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_mandatory_keys (nvti_t * n, const gchar * mandatory_keys)
+{
+  if (n->mandatory_keys)
+    g_free (n->mandatory_keys);
+  if (mandatory_keys && mandatory_keys[0])
+    n->mandatory_keys = g_strdup (mandatory_keys);
+  else
+    n->mandatory_keys = NULL;
+  return (0);
+}
+
+/**
  * @brief Set the excluded keys of a NVT.
  *
  * @param n The NVT Info structure.
@@ -906,6 +942,7 @@ nvti_as_text (const nvti_t * n)
            "\nTag: ", (n->tag ? n->tag : "(unset, probably in-memory)"),
            "\nDependencies: ", (n->dependencies ? n->dependencies : "(unset, probably in-memory)"),
            "\nRequired Keys: ", (n->required_keys ? n->required_keys : "(unset, probably in-memory)"),
+           "\nMandatory Keys: ", (n->mandatory_keys ? n->mandatory_keys : "(unset, probably in-memory)"),
            "\nExcluded Keys: ", (n->excluded_keys ? n->excluded_keys : "(unset, probably in-memory)"),
            "\nRequired Ports: ", (n->required_ports ? n->required_ports : "(unset, probably in-memory)"),
            "\nRequired UDP ports: ", (n->required_udp_ports ? n->required_udp_ports : "(unset, probably in-memory)"),
@@ -978,6 +1015,7 @@ nvti_from_keyfile (const gchar * fn)
   nvti_set_tag (n, g_key_file_get_string (keyfile, "NVT Info", "Tags", NULL));
   nvti_set_dependencies (n, g_key_file_get_string (keyfile, "NVT Info", "Dependencies", NULL));
   nvti_set_required_keys (n, g_key_file_get_string (keyfile, "NVT Info", "RequiredKeys", NULL));
+  nvti_set_mandatory_keys (n, g_key_file_get_string (keyfile, "NVT Info", "MandatoryKeys", NULL));
   nvti_set_excluded_keys (n, g_key_file_get_string (keyfile, "NVT Info", "ExcludedKeys", NULL));
   nvti_set_required_ports (n, g_key_file_get_string (keyfile, "NVT Info", "RequiredPorts", NULL));
   nvti_set_required_udp_ports (n, g_key_file_get_string (keyfile, "NVT Info", "RequiredUDPPorts", NULL));
@@ -1065,6 +1103,8 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
     g_key_file_set_string (keyfile, "NVT Info", "Dependencies", n->dependencies);
   if (n->required_keys)
     g_key_file_set_string (keyfile, "NVT Info", "RequiredKeys", n->required_keys);
+  if (n->mandatory_keys)
+    g_key_file_set_string (keyfile, "NVT Info", "MandatoryKeys", n->mandatory_keys);
   if (n->excluded_keys)
     g_key_file_set_string (keyfile, "NVT Info", "ExcludedKeys", n->excluded_keys);
   if (n->required_ports)

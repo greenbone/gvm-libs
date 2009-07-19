@@ -77,6 +77,7 @@ typedef struct nvti
 
   gchar *dependencies;          // List of dependencies of this NVT
   gchar *required_keys;         // List of required KB keys of this NVT
+  gchar *mandatory_keys;        // List of mandatory KB keys of this NVT
   gchar *excluded_keys;         // List of excluded KB keys of this NVT
   gchar *required_ports;        // List of required ports of this NVT
   gchar *required_udp_ports;    // List of required UDP ports of this NVT
@@ -108,6 +109,7 @@ gchar *nvti_xref (const nvti_t *);
 gchar *nvti_tag (const nvti_t *);
 gchar *nvti_dependencies (const nvti_t *);
 gchar *nvti_required_keys (const nvti_t *);
+gchar *nvti_mandatory_keys (const nvti_t *);
 gchar *nvti_excluded_keys (const nvti_t *);
 gchar *nvti_required_ports (const nvti_t *);
 gchar *nvti_required_udp_ports (const nvti_t *);
@@ -131,6 +133,7 @@ int nvti_set_xref (nvti_t *, const gchar *);
 int nvti_set_tag (nvti_t *, const gchar *);
 int nvti_set_dependencies (nvti_t *, const gchar *);
 int nvti_set_required_keys (nvti_t *, const gchar *);
+int nvti_set_mandatory_keys (nvti_t *, const gchar *);
 int nvti_set_excluded_keys (nvti_t *, const gchar *);
 int nvti_set_required_ports (nvti_t *, const gchar *);
 int nvti_set_required_udp_ports (nvti_t *, const gchar *);

@@ -1,3 +1,17 @@
+2009-07-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Add mandatory_keys to NVTI. This is part of
+	implementing Change Request #39,
+	http://www.openvas.org/openvas-cr-39.html.
+
+	* libopenvascommon/nvti.h: Added manadatory_keys
+	to struct nvti and added respective protos.
+
+	* libopenvascommon/nvti.c (nvti_free, nvti_add_pref,
+	nvti_from_keyfile): Handle mandatory_keys.
+	(nvti_mandatory_keys): New. Returns mandatory_keys.
+	(nvti_set_mandatory_keys): New. Sets mandatory_keys.
+
 2009-07-17  Matthew Mundell <mmundell@intevation.de>
 
 	* libopenvas/openvas_logging.c (openvas_log_func): Add log_domain NULL
