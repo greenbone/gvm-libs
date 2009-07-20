@@ -241,7 +241,7 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
    * TODO: These should be overriden by the group [*]
    */
   gchar *prependformat = "%p %t - ";
-  gchar *timeformat = "%a %Y-%m-%d %H:%M:%S %Z";
+  gchar *timeformat = "%a %Y-%m-%d %Hh%M.%S %Z";
 
   /* TODO Move log_separator to the conf file too */
   gchar *log_separator = ":";
@@ -335,38 +335,38 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
   /* Step through all possible messages prefixing them with an appropriate tag. */
   switch (log_level) {
     case G_LOG_FLAG_RECURSION:
-      prepend = g_strdup_printf("RECURSION%s%s", log_separator, prepend_buf);
+      prepend = g_strdup_printf("RECURSION%s", prepend_buf);
       break;
 
     case G_LOG_FLAG_FATAL:
-      prepend = g_strdup_printf("FATAL%s%s", log_separator, prepend_buf);
+      prepend = g_strdup_printf("FATAL%s", prepend_buf);
       break;
 
     case G_LOG_LEVEL_ERROR:
-      prepend = g_strdup_printf("ERROR%s%s", log_separator, prepend_buf);
+      prepend = g_strdup_printf("ERROR%s", prepend_buf);
       break;
 
     case G_LOG_LEVEL_CRITICAL:
-      prepend = g_strdup_printf("CRITICAL%s%s", log_separator, prepend_buf);
+      prepend = g_strdup_printf("CRITICAL%s", prepend_buf);
         break;
     case G_LOG_LEVEL_WARNING:
-      prepend = g_strdup_printf("WARNING%s%s", log_separator, prepend_buf);
+      prepend = g_strdup_printf("WARNING%s", prepend_buf);
       break;
 
     case G_LOG_LEVEL_MESSAGE:
-      prepend = g_strdup_printf("MSG%s%s", log_separator, prepend_buf);
+      prepend = g_strdup_printf("MSG%s", prepend_buf);
       break;
 
     case G_LOG_LEVEL_INFO:
-      prepend = g_strdup_printf("INFO%s%s", log_separator, prepend_buf);
+      prepend = g_strdup_printf("INFO%s", prepend_buf);
       break;
 
     case G_LOG_LEVEL_DEBUG:
-      prepend = g_strdup_printf("DEBUG%s%s", log_separator, prepend_buf);
+      prepend = g_strdup_printf("DEBUG%s", prepend_buf);
       break;
 
     default:
-      prepend = g_strdup_printf("UNKWOWN%s%s", log_separator, prepend_buf);
+      prepend = g_strdup_printf("UNKWOWN%s", prepend_buf);
       break;
   }
 
@@ -375,8 +375,8 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
    */
   GString *logstr = g_string_new("");
   g_string_append_printf(logstr,
-  "%s%s%s%s%s",
-  log_domain,log_separator,
+  "%s%s%s%s %s",
+  log_domain ? log_domain : "", log_separator,
   prepend,log_separator,
   message);
 
@@ -384,7 +384,7 @@ void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const ch
   /* Output everything to stderr if logfile = "-" */
   if (g_ascii_strcasecmp(logfile,"-") == 0)
   {
-    fprintf(stderr, "%s\n", tmpstr);
+    fprintf(stderr, "%s", tmpstr);
     fflush(stderr);
   }else{
     /*
@@ -424,6 +424,5 @@ void setup_log_handlers(  GSList *openvaslogconfiglist )
 {
   g_log_set_handler("libnasl",(GLogLevelFlags) (G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE |G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION ), (GLogFunc) openvas_log_func, openvaslogconfiglist);
   g_log_set_handler("openvasd",(GLogLevelFlags) (G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE |G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION ), (GLogFunc) openvas_log_func, openvaslogconfiglist);
-  g_log_set_handler("openvasmd",(GLogLevelFlags) (G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE |G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION ), (GLogFunc) openvas_log_func, openvaslogconfiglist);
   g_log_set_handler("",(GLogLevelFlags) (G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE |G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION ), (GLogFunc) openvas_log_func, openvaslogconfiglist);
 }

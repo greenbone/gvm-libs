@@ -1,3 +1,14 @@
+2009-07-20  Matthew Mundell <mmundell@intevation.de>
+
+	* libopenvas/openvas_logging.c (openvas_log_func): Change the timeformat
+	hour-minute-second separators, so that log_separator is unique.  Remove
+	log_separator from the initialisation of "prepend", as prepend_buf always
+	starts with the log separator.  Add a NULL guard to the creation of
+	logstr.  Remove the newline from the stderr output case, so that it works
+	the same as the channel case.
+	(setup_log_handlers): Remove the openvasmd entry, which belongs in the
+	manager.
+
 2009-07-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Add mandatory_keys to plugin arglist structure. This is part of
