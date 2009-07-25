@@ -1,6 +1,7 @@
-openvas-libraries (2.0.2-2) UNRELEASED; urgency=low
+openvas-libraries (2.0.3-1) UNRELEASED; urgency=low
 
-  * 
+  [ Jan Wagner ]
+  * New upstream release
 
  -- Jan Wagner <waja@cyconet.org>  Sat, 09 May 2009 16:35:21 +0200
 
