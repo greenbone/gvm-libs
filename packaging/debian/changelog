@@ -2,6 +2,7 @@ openvas-libraries (2.0.3-1) UNRELEASED; urgency=low
 
   [ Jan Wagner ]
   * New upstream release
+  * add 10_fix_configure.dpatch to get configure working well
 
  -- Jan Wagner <waja@cyconet.org>  Sat, 09 May 2009 16:35:21 +0200
 
