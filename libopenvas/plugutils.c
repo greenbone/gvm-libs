@@ -257,7 +257,7 @@ plug_set_id (struct arglist * desc, int id)
  snprintf(oldid, 100, LEGACY_OID "%i", id);
  arg_add_value(desc, "OID", ARG_STRING, strlen(oldid), estrdup(oldid));
 #ifdef DEBUG
- fprintf(stderr, "plug_set_id: Legacy plugin %i detected", id);
+ fprintf(stderr, "plug_set_id: Legacy plugin %i detected\n", id);
 #endif
 }
 
@@ -278,7 +278,7 @@ plug_set_oid (struct arglist * desc, char *id)
  }
  else
  {
-  fprintf(stderr, "plug_set_oid: Invalid script_oid call, legacy plugin %i detected", oldid);
+  fprintf(stderr, "plug_set_oid: Invalid script_oid call, legacy plugin %i detected\n", oldid);
  }
 }
 
