@@ -1,3 +1,10 @@
+2009-07-27  Laban Mwangi <lmwangi@penguinlabs.co.ke>
+
+	* libopenvas/openvas_logging.c:
+	Indentation fixes
+	* libopenvas/openvas_logging.h:
+	Indentation fixes
+
 2009-07-24  Michael Meyer <mime@gmx.de>
 	* libopenvas/plugutils.c:
 	Added line break to debug message because without it was not

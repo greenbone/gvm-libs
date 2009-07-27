@@ -38,33 +38,35 @@
  * @return Nothing - void function.
  */
 
-typedef struct {
-	/* This struct instance affects this logdomain e.g libnasl */
-	gchar *logdomain;
-	/* Prepend this string before every message */
-	gchar *prependstring;
-	/* If the prependstring above has a %t, use this strftime format */
-	gchar *prependtimeformat;
-	/* Where to log to */
-	gchar *logfile;
-	/* What severity level to use */
-	gint defaultlevel;
-	/* Gio Channel - FD holder for logfile */
-	GIOChannel *logchannel;
+typedef struct
+{
+  /* This struct instance affects this logdomain e.g libnasl */
+  gchar *logdomain;
+  /* Prepend this string before every message */
+  gchar *prependstring;
+  /* If the prependstring above has a %t, use this strftime format */
+  gchar *prependtimeformat;
+  /* Where to log to */
+  gchar *logfile;
+  /* What severity level to use */
+  gint defaultlevel;
+  /* Gio Channel - FD holder for logfile */
+  GIOChannel *logchannel;
 } openvasd_logging;
 
 /* Loads the log configuration file */
 GSList *load_log_configuration (gchar * configfile);
 
 /* Frees resources associated with logging directives */
-void free_log_configuration(GSList *logdomainlist);
+void free_log_configuration (GSList * logdomainlist);
 
 /* Utility function that formats a timestamp */
-gchar *gettime(gchar *time_fmt);
+gchar *gettime (gchar * time_fmt);
 
 /* Actual log handler */
-void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const char *message, gpointer openvaslogconfiglist);
+void openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
+		       const char *message, gpointer openvaslogconfiglist);
 
 /* Log router. Sets up relationships between log domains and log handlers */
-void setup_log_handlers(  GSList *openvaslogconfiglist );
+void setup_log_handlers (GSList * openvaslogconfiglist);
 #endif
