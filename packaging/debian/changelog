@@ -4,6 +4,8 @@ openvas-libraries (2.0.3-1) unstable; urgency=low
   * New upstream release
   * add configure-grypt.dpatch to get grypt working well
   * fixing DESTDIR in rules
+  * Add debian/watch to detect when a new version is available at
+    wald.intevation.org
 
   [ Jan Wagner ]
   * Bump Standards-Version to 3.8.2, no changes needed
