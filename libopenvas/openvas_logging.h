@@ -37,22 +37,22 @@
 
 typedef struct
 {
-  gchar *logdomain;         ///< Affected logdomain e.g libnasl.
-  gchar *prependstring;     ///< Prepend this string before every message.
-  gchar *prependtimeformat; ///< If prependstring has %t, format for strftime.
-  gchar *logfile;           ///< Where to log to.
-  gint defaultlevel;        ///< What severity level to use.
-  GIOChannel *logchannel;   ///< Gio Channel - FD holder for logfile.
+  gchar *log_domain;         ///< Affected logdomain e.g libnasl.
+  gchar *prepend_string;     ///< Prepend this string before every message.
+  gchar *prepend_time_format; ///< If prependstring has %t, format for strftime.
+  gchar *log_file;           ///< Where to log to.
+  gint default_level;        ///< What severity level to use.
+  GIOChannel *log_channel;   ///< Gio Channel - FD holder for logfile.
 } openvasd_logging;
 
-GSList *load_log_configuration (gchar * configfile);
+GSList *load_log_configuration (gchar * config_file);
 
-void free_log_configuration (GSList * logdomainlist);
+void free_log_configuration (GSList * logdomain_list);
 
-gchar *gettime (gchar * time_fmt);
+gchar *get_time (gchar * time_fmt);
 
 void openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
-                       const char *message, gpointer openvaslogconfiglist);
+                       const char *message, gpointer openvas_log_config_list);
 
-void setup_log_handlers (GSList * openvaslogconfiglist);
+void setup_log_handlers (GSList * openvas_log_config_list);
 #endif
