@@ -1,5 +1,15 @@
 2009-07-27  Matthew Mundell <mmundell@intevation.de>
 
+	* libopenvas/openvas_logging.c: Improve spacing.  Remove @returns from
+	void functions.  Make comment formats more consistent.  Shorten some
+	comment lines.  Space @params as in other modules.
+
+	* libopenvas/openvas_logging.h: Improve spacing.  Remove function
+	descriptions.
+	(openvasd_logging): Doxyfy docs.
+
+2009-07-27  Matthew Mundell <mmundell@intevation.de>
+
 	* libopenvas/openvas_logging.c, libopenvas/openvas_logging.h: Convert
 	tabs to spaces.
 
