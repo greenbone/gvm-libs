@@ -3,6 +3,7 @@ openvas-libraries (2.0.3-1) unstable; urgency=low
   [ Javier Fernandez-Sanguino ]
   * New upstream release
   * add configure-grypt.dpatch to get grypt working well
+  * fixing DESTDIR in rules
 
   [ Jan Wagner ]
   * Bump Standards-Version to 3.8.2, no changes needed
