@@ -1,11 +1,13 @@
-openvas-libraries (2.0.3-1) UNRELEASED; urgency=low
+openvas-libraries (2.0.3-1) unstable; urgency=low
+
+  [ Javier Fernandez-Sanguino ]
+  * New upstream release
+  * add configure-grypt.dpatch to get grypt working well
 
   [ Jan Wagner ]
-  * New upstream release
-  * add 10_fix_configure.dpatch to get configure working well
   * Bump Standards-Version to 3.8.2, no changes needed
 
- -- Jan Wagner <waja@cyconet.org>  Sat, 09 May 2009 16:35:21 +0200
+ -- Jan Wagner <jfs@debian.org>  Tue, 28 Jul 2009 01:05:17 +0200
 
 openvas-libraries (2.0.2-1) unstable; urgency=low
 

@@ -1,11 +1,13 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## 10_fix_configure.dpatch by Javier Fernandez-Sanguino <jfs@computer.org>
+## configure-grypt.dpatch by  <root@>
 ##
-## DP: fix configure
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
 
 @DPATCH@
---- openvas-libraries-2.0.3.orig/configure
-+++ openvas-libraries-2.0.3/configure
+diff -urNad openvas-libraries-2.0.3~/configure openvas-libraries-2.0.3/configure
+--- openvas-libraries-2.0.3~/configure	2009-07-26 22:45:15.000000000 +0000
++++ openvas-libraries-2.0.3/configure	2009-07-26 22:45:46.000000000 +0000
 @@ -1,10 +1,10 @@
  #! /bin/sh
  # From configure.in Revision.
@@ -32,6 +34,13 @@
  as_cr_digits='0123456789'
  as_cr_alnum=$as_cr_Letters$as_cr_digits
  
+-# The user is always right.
+-if test "${PATH_SEPARATOR+set}" != set; then
+-  echo "#! /bin/sh" >conf$$.sh
+-  echo  "exit 0"   >>conf$$.sh
+-  chmod +x conf$$.sh
+-  if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
+-    PATH_SEPARATOR=';'
 +as_nl='
 +'
 +export as_nl
@@ -46,7 +55,8 @@
 +  if test "X`(/usr/ucb/echo -n -n $as_echo) 2>/dev/null`" = "X-n $as_echo"; then
 +    as_echo_body='eval /usr/ucb/echo -n "$1$as_nl"'
 +    as_echo_n='/usr/ucb/echo -n'
-+  else
+   else
+-    PATH_SEPARATOR=:
 +    as_echo_body='eval expr "X$1" : "X\\(.*\\)"'
 +    as_echo_n_body='eval
 +      arg=$1;
@@ -59,22 +69,14 @@
 +    '
 +    export as_echo_n_body
 +    as_echo_n='sh -c $as_echo_n_body as_echo'
-+  fi
+   fi
+-  rm -f conf$$.sh
 +  export as_echo_body
 +  as_echo='sh -c $as_echo_body as_echo'
 +fi
 +
- # The user is always right.
- if test "${PATH_SEPARATOR+set}" != set; then
--  echo "#! /bin/sh" >conf$$.sh
--  echo  "exit 0"   >>conf$$.sh
--  chmod +x conf$$.sh
--  if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
--    PATH_SEPARATOR=';'
--  else
--    PATH_SEPARATOR=:
--  fi
--  rm -f conf$$.sh
++# The user is always right.
++if test "${PATH_SEPARATOR+set}" != set; then
 +  PATH_SEPARATOR=:
 +  (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
 +    (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
@@ -12032,28 +12034,28 @@
         } && test -s conftest.$ac_objext; then
 -  ac_cv_type_time_t=yes
 +  :
-+else
-+  $as_echo "$as_me: failed program was:" >&5
-+sed 's/^/| /' conftest.$ac_ext >&5
-+
-+	ac_cv_type_time_t=yes
-+fi
-+
-+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
  else
 -  echo "$as_me: failed program was:" >&5
 +  $as_echo "$as_me: failed program was:" >&5
  sed 's/^/| /' conftest.$ac_ext >&5
  
 -	ac_cv_type_time_t=no
-+
++	ac_cv_type_time_t=yes
  fi
  
  rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++else
++  $as_echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++
  fi
 -{ echo "$as_me:$LINENO: result: $ac_cv_type_time_t" >&5
 -echo "${ECHO_T}$ac_cv_type_time_t" >&6; }
 -if test $ac_cv_type_time_t = yes; then
++
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++fi
 +{ $as_echo "$as_me:$LINENO: result: $ac_cv_type_time_t" >&5
 +$as_echo "$ac_cv_type_time_t" >&6; }
 +if test "x$ac_cv_type_time_t" = x""yes; then
@@ -12147,20 +12149,20 @@
         } && test -s conftest.$ac_objext; then
 -  ac_cv_type_pid_t=yes
 +  :
-+else
-+  $as_echo "$as_me: failed program was:" >&5
-+sed 's/^/| /' conftest.$ac_ext >&5
-+
-+	ac_cv_type_pid_t=yes
-+fi
-+
-+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
  else
 -  echo "$as_me: failed program was:" >&5
 +  $as_echo "$as_me: failed program was:" >&5
  sed 's/^/| /' conftest.$ac_ext >&5
  
 -	ac_cv_type_pid_t=no
++	ac_cv_type_pid_t=yes
++fi
++
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++else
++  $as_echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
 +
  fi
  
@@ -12262,28 +12264,28 @@
         } && test -s conftest.$ac_objext; then
 -  ac_cv_type_size_t=yes
 +  :
-+else
-+  $as_echo "$as_me: failed program was:" >&5
-+sed 's/^/| /' conftest.$ac_ext >&5
-+
-+	ac_cv_type_size_t=yes
-+fi
-+
-+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
  else
 -  echo "$as_me: failed program was:" >&5
 +  $as_echo "$as_me: failed program was:" >&5
  sed 's/^/| /' conftest.$ac_ext >&5
  
 -	ac_cv_type_size_t=no
-+
++	ac_cv_type_size_t=yes
  fi
  
  rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++else
++  $as_echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++
  fi
 -{ echo "$as_me:$LINENO: result: $ac_cv_type_size_t" >&5
 -echo "${ECHO_T}$ac_cv_type_size_t" >&6; }
 -if test $ac_cv_type_size_t = yes; then
++
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++fi
 +{ $as_echo "$as_me:$LINENO: result: $ac_cv_type_size_t" >&5
 +$as_echo "$ac_cv_type_size_t" >&6; }
 +if test "x$ac_cv_type_size_t" = x""yes; then
@@ -12719,6 +12721,13 @@
  as_cr_digits='0123456789'
  as_cr_alnum=$as_cr_Letters$as_cr_digits
  
+-# The user is always right.
+-if test "${PATH_SEPARATOR+set}" != set; then
+-  echo "#! /bin/sh" >conf$$.sh
+-  echo  "exit 0"   >>conf$$.sh
+-  chmod +x conf$$.sh
+-  if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
+-    PATH_SEPARATOR=';'
 +as_nl='
 +'
 +export as_nl
@@ -12733,7 +12742,8 @@
 +  if test "X`(/usr/ucb/echo -n -n $as_echo) 2>/dev/null`" = "X-n $as_echo"; then
 +    as_echo_body='eval /usr/ucb/echo -n "$1$as_nl"'
 +    as_echo_n='/usr/ucb/echo -n'
-+  else
+   else
+-    PATH_SEPARATOR=:
 +    as_echo_body='eval expr "X$1" : "X\\(.*\\)"'
 +    as_echo_n_body='eval
 +      arg=$1;
@@ -12746,22 +12756,14 @@
 +    '
 +    export as_echo_n_body
 +    as_echo_n='sh -c $as_echo_n_body as_echo'
-+  fi
+   fi
+-  rm -f conf$$.sh
 +  export as_echo_body
 +  as_echo='sh -c $as_echo_body as_echo'
 +fi
 +
- # The user is always right.
- if test "${PATH_SEPARATOR+set}" != set; then
--  echo "#! /bin/sh" >conf$$.sh
--  echo  "exit 0"   >>conf$$.sh
--  chmod +x conf$$.sh
--  if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
--    PATH_SEPARATOR=';'
--  else
--    PATH_SEPARATOR=:
--  fi
--  rm -f conf$$.sh
++# The user is always right.
++if test "${PATH_SEPARATOR+set}" != set; then
 +  PATH_SEPARATOR=:
 +  (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
 +    (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
@@ -13067,7 +13069,7 @@
     { (exit 1); exit 1; }; };;
    esac
  done
-@@ -25658,205 +26506,143 @@
+@@ -25658,206 +26506,144 @@
    (umask 077 && mkdir "$tmp")
  } ||
  {
@@ -13088,7 +13090,7 @@
  if test -n "$CONFIG_FILES"; then
  
 -_ACEOF
--
+ 
 -
 -
 -ac_delim='%!_!# '
@@ -13203,7 +13205,7 @@
 -    ac_delim="$ac_delim!$ac_delim _$ac_delim!! "
 -  fi
 -done
- 
+-
 -ac_eof=`sed -n '/^CEOF[0-9]*$/s/CEOF/0/p' conf$$subs.sed`
 -if test -n "$ac_eof"; then
 -  ac_eof=`echo "$ac_eof" | sort -nru | sed 1q`
@@ -13278,28 +13280,9 @@
 -  ac_eof=`echo "$ac_eof" | sort -nru | sed 1q`
 -  ac_eof=`expr $ac_eof + 1`
 -fi
--
--cat >>$CONFIG_STATUS <<_ACEOF
--cat >"\$tmp/subs-2.sed" <<\CEOF$ac_eof
--/@[a-zA-Z_][a-zA-Z_0-9]*@/!b end
--_ACEOF
--sed '
--s/[,\\&]/\\&/g; s/@/@|#_!!_#|/g
--s/^/s,@/; s/!/@,|#_!!_#|/
--:n
--t n
--s/'"$ac_delim"'$/,g/; t
--s/$/\\/; p
--N; s/^.*\n//; s/[,\\&]/\\&/g; s/@/@|#_!!_#|/g; b n
--' >>$CONFIG_STATUS <conf$$subs.sed
--rm -f conf$$subs.sed
--cat >>$CONFIG_STATUS <<_ACEOF
--:end
--s/|#_!!_#|//g
--CEOF$ac_eof
 +cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
 +cat >>"\$tmp/subs1.awk" <<\\_ACAWK &&
- _ACEOF
++_ACEOF
 +sed -n '
 +h
 +s/^/S["/; s/!.*/"]=/
@@ -13350,6 +13333,9 @@
 +  for (key in S) S_is_set[key] = 1
 +  FS = ""
  
+-cat >>$CONFIG_STATUS <<_ACEOF
+-cat >"\$tmp/subs-2.sed" <<\CEOF$ac_eof
+-/@[a-zA-Z_][a-zA-Z_0-9]*@/!b end
 +}
 +{
 +  line = $ 0
@@ -13372,7 +13358,21 @@
 +}
 +
 +_ACAWK
-+_ACEOF
+ _ACEOF
+-sed '
+-s/[,\\&]/\\&/g; s/@/@|#_!!_#|/g
+-s/^/s,@/; s/!/@,|#_!!_#|/
+-:n
+-t n
+-s/'"$ac_delim"'$/,g/; t
+-s/$/\\/; p
+-N; s/^.*\n//; s/[,\\&]/\\&/g; s/@/@|#_!!_#|/g; b n
+-' >>$CONFIG_STATUS <conf$$subs.sed
+-rm -f conf$$subs.sed
+-cat >>$CONFIG_STATUS <<_ACEOF
+-:end
+-s/|#_!!_#|//g
+-CEOF$ac_eof
 +cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 +if sed "s/$ac_cr//" < /dev/null > /dev/null 2>&1; then
 +  sed "s/$ac_cr\$//; s/$ac_cr/$ac_cs_awk_cr/g"
@@ -13382,10 +13382,12 @@
 +  || { { $as_echo "$as_me:$LINENO: error: could not setup config files machinery" >&5
 +$as_echo "$as_me: error: could not setup config files machinery" >&2;}
 +   { (exit 1); exit 1; }; }
-+_ACEOF
+ _ACEOF
  
+-
  # VPATH may cause trouble with some makes, so we remove $(srcdir),
  # ${srcdir} and @srcdir@ from VPATH if srcdir is ".", strip leading and
+ # trailing colons and then remove the whole line if VPATH becomes empty
 @@ -25873,19 +26659,133 @@
  }'
  fi
@@ -13405,7 +13407,8 @@
 +# Transform confdefs.h into an awk script `defines.awk', embedded as
 +# here-document in config.status, that substitutes the proper values into
 +# config.h.in to produce config.h.
-+
+ 
+-for ac_tag in  :F $CONFIG_FILES  :H $CONFIG_HEADERS
 +# Create a delimiter string that does not exist in confdefs.h, to ease
 +# handling of long lines.
 +ac_delim='%!_!# '
@@ -13506,8 +13509,7 @@
 +   { (exit 1); exit 1; }; }
 +fi # test -n "$CONFIG_HEADERS"
 +
- 
--for ac_tag in  :F $CONFIG_FILES  :H $CONFIG_HEADERS
++
 +eval set X "  :F $CONFIG_FILES  :H $CONFIG_HEADERS    "
 +shift
 +for ac_tag
@@ -13882,8 +13884,9 @@
  
  *** You appear to be running a BPF-enabled operating system.
  (BPF stands for 'Berkeley Packet Filter')
---- openvas-libraries-2.0.3.orig/configure.in
-+++ openvas-libraries-2.0.3/configure.in
+diff -urNad openvas-libraries-2.0.3~/configure.in openvas-libraries-2.0.3/configure.in
+--- openvas-libraries-2.0.3~/configure.in	2009-07-26 22:45:14.000000000 +0000
++++ openvas-libraries-2.0.3/configure.in	2009-07-26 22:45:46.000000000 +0000
 @@ -106,6 +106,9 @@
  AC_CHECK_LIB(pcap, pcap_restart, LIBS="-lpcap $LIBS",
    AC_MSG_ERROR(you need to install pcap library with development files))

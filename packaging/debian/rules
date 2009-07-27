@@ -69,9 +69,7 @@ install: build
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
-
-	# Add here commands to install the package into debian/tmp
-	$(MAKE) prefix=$(CURDIR)/debian/tmp/usr install
+	$(MAKE) DESTDIR=$(CURDIR)/debian/tmp/ install
 
 # Build architecture-independent files here.
 binary-indep: build install
