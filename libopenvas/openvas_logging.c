@@ -67,6 +67,36 @@ gettime (gchar * time_fmt)
 }
 
 /**
+ * @brief Return the integer corresponding to a log level string.
+ *
+ * @param  level  Level name or integer.
+ *
+ * @return Log level integer if level matches a level name, else 0.
+ */
+static gint
+level_int_from_string (const gchar * level)
+{
+  if (level && strlen (level) > 0)
+    {
+      if (level[0] >= '0' && level[0] <= '9')
+        return atoi (level);
+      if (strcasecmp (level, "critical") == 0)
+        return G_LOG_LEVEL_CRITICAL;
+      if (strcasecmp (level, "debug") == 0)
+        return G_LOG_LEVEL_DEBUG;
+      if (strcasecmp (level, "error") == 0)
+        return G_LOG_LEVEL_ERROR;
+      if (strcasecmp (level, "info") == 0)
+        return G_LOG_LEVEL_INFO;
+      if (strcasecmp (level, "message") == 0)
+        return G_LOG_LEVEL_MESSAGE;
+      if (strcasecmp (level, "warning") == 0)
+        return G_LOG_LEVEL_WARNING;
+    }
+  return 0;
+}
+
+/**
  * @brief Loads parameters from a config file into a linked list.
  *
  * @param configfile A string containing the path to the configuration file
@@ -83,6 +113,8 @@ load_log_configuration (gchar * configfile)
   GKeyFileFlags flags;
   GError *error = NULL;
   /* keyfile *_has_* functions requires this */
+
+  // FIXME: If a g_* function that takes error fails, then free error.
 
   /* Groups found in the conf file */
   gchar **groups;
@@ -149,8 +181,12 @@ load_log_configuration (gchar * configfile)
       /* Look for the prepend log level string */
       if (g_key_file_has_key (keyfile, *group, "level", &error))
         {
-          logdomainentry->defaultlevel =
-            g_key_file_get_integer (keyfile, *group, "level", &error);
+          gchar* level;
+
+          level = g_key_file_get_value (keyfile, *group, "level", &error);
+          level = g_strchug (level);
+          logdomainentry->defaultlevel = level_int_from_string (level);
+          g_free (level);
         }
 
       /* Attach the struct to the list */

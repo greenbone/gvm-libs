@@ -1,5 +1,11 @@
 2009-07-27  Matthew Mundell <mmundell@intevation.de>
 
+	* libopenvas/openvas_logging.c (level_int_from_string): New function.
+	(load_log_configuration): Look for level names and integers when parsing
+	the "level" key.
+
+2009-07-27  Matthew Mundell <mmundell@intevation.de>
+
 	* libopenvas/openvas_logging.c: Improve spacing.  Remove @returns from
 	void functions.  Make comment formats more consistent.  Shorten some
 	comment lines.  Space @params as in other modules.
