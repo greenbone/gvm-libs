@@ -32,7 +32,7 @@
 #include <time.h>
 
 /**
- * @brief OpenVASD Logging stores the parameters loaded from a log configuration 
+ * @brief OpenVASD Logging stores the parameters loaded from a log configuration
  * file.
  *
  * @return Nothing - void function.
@@ -65,7 +65,7 @@ gchar *gettime (gchar * time_fmt);
 
 /* Actual log handler */
 void openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
-		       const char *message, gpointer openvaslogconfiglist);
+                       const char *message, gpointer openvaslogconfiglist);
 
 /* Log router. Sets up relationships between log domains and log handlers */
 void setup_log_handlers (GSList * openvaslogconfiglist);
