@@ -1,3 +1,9 @@
+openvas-libraries (2.0.3-2) UNRELEASED; urgency=low
+
+  * relicense packaging to GPL-3
+
+ -- Jan Wagner <waja@cyconet.org>  Tue, 28 Jul 2009 02:55:53 +0200
+
 openvas-libraries (2.0.3-1) unstable; urgency=low
 
   [ Javier Fernandez-Sanguino ]
