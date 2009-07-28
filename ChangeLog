@@ -1,3 +1,19 @@
+2009-07-27 Jan Wagner <Waja@cyconet.org>
+
+	* packaging/debian/changelog, packaging/debian/control,
+	packaging/debian/watch, packaging/debian/patches
+	packaging/debian/patches/configure-grypt.dpatch
+	packaging/debian/patches/00list, packaging/debian/copyright
+	packaging/debian/rules:
+
+	- relicense packaging to GPL-3
+	- New upstream release
+	- add configure-grypt.dpatch to get grypt working well
+	- fixing DESTDIR in rules
+	- Add debian/watch to detect when a new version is available at
+	  wald.intevation.org
+	- Bump Standards-Version to 3.8.2, no changes needed
+
 2009-07-27  Laban Mwangi <lmwangi@penguinlabs.co.ke>
 
 	* libopenvas/openvas_logging.c, libopenvas/openvas_logging.h:
