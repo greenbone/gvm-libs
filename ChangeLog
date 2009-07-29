@@ -1,3 +1,23 @@
+2009-07-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Add mandatory_keys to plugin arglist structure and store.
+	This is part of implementing Change Request #39,
+	http://www.openvas.org/openvas-cr-39.html.
+
+	* libopenvas/store_internal.h: Added element mandatory_keys
+	to struct plugin, increased MAGIC and added proto.
+
+	* libopenvas/plugutils.c (plug_mandatory_key,
+	plug_get_mandatory_keys): New. Handle mandatory keys for
+	plugin arglist structure.
+
+	* libopenvas/store.c (store_load_plugin, store_plugin): Added
+	handling for mandatory keys.
+	(store_fetch_mandatory_keys): New. Get mandatory keys from store.
+
+	* libopenvas/plugutils.h: Added protos for plug_mandatory_key()
+	and plug_get_mandatory_keys().
+
 2009-06-10  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post release version bump.

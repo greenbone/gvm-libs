@@ -112,6 +112,9 @@ char* plug_get_bugtraq_id(struct arglist*);
 void plug_require_key(struct arglist *, const char *);
 struct arglist * plug_get_required_keys(struct arglist *);
 
+void plug_mandatory_key(struct arglist *, const char *);
+struct arglist * plug_get_mandatory_keys(struct arglist *);
+
 void plug_exclude_key(struct arglist *, const char *);
 struct arglist * plug_get_excluded_keys(struct arglist *);
 

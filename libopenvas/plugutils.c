@@ -512,6 +512,21 @@ plug_require_key (struct arglist * desc, const char * keyname)
   }
 }
 
+void
+plug_mandatory_key (struct arglist * desc, const char * keyname)
+{
+ struct arglist * keys;
+ if(keyname)
+  {
+    keys = arg_get_value(desc, "mandatory_keys");
+    if(!keys)
+      {
+        keys = emalloc(sizeof(struct arglist));
+        arg_add_value(desc, "mandatory_keys", ARG_ARGLIST, -1, keys);
+      }
+    arg_add_value(keys, keyname,  ARG_INT, 0, (void*)1);
+  }
+}
 
 struct arglist *
 plug_get_required_keys (struct arglist * desc)
@@ -519,6 +534,11 @@ plug_get_required_keys (struct arglist * desc)
   return arg_get_value(desc, "required_keys");
 }
 
+struct arglist *
+plug_get_mandatory_keys (struct arglist * desc)
+{
+  return arg_get_value(desc, "mandatory_keys");
+}
 
 void
 plug_exclude_key (struct arglist * desc, const char * keyname)

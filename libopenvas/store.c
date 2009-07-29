@@ -446,6 +446,9 @@ store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
   al = str2arglist (p.required_keys);
   if (al != NULL) arg_add_value (ret, "required_keys", ARG_ARGLIST, -1, al);
 
+  al = str2arglist (p.mandatory_keys);
+  if (al != NULL) arg_add_value (ret, "mandatory_keys", ARG_ARGLIST, -1, al);
+
   al = str2arglist (p.required_udp_ports);
   if (al != NULL) arg_add_value (ret, "required_udp_ports", ARG_ARGLIST, -1, al);
 
@@ -571,6 +574,12 @@ store_plugin (struct arglist * plugin, char * file)
  arglist = plug_get_required_keys(plugin);
  str = arglist2str(arglist);
  e = safe_copy(str, plug.required_keys, sizeof(plug.required_keys), path, "required keys");
+ efree(&str);
+ if(e < 0) return;
+ 
+ arglist = plug_get_mandatory_keys(plugin);
+ str = arglist2str(arglist);
+ e = safe_copy(str, plug.mandatory_keys, sizeof(plug.mandatory_keys), path, "mandatory keys");
  efree(&str);
  if(e < 0) return;
  
@@ -781,6 +790,17 @@ struct arglist * store_fetch_required_keys(struct arglist * desc)
 
  store_get_plugin(&p, fname);
  ret = str2arglist(p.required_keys);
+ return ret;
+}
+
+struct arglist * store_fetch_mandatory_keys(struct arglist * desc)
+{
+ char * fname = plug_get_cachefile(desc);
+ static struct plugin p;
+ struct arglist * ret;
+
+ store_get_plugin(&p, fname);
+ ret = str2arglist(p.mandatory_keys);
  return ret;
 }
 

@@ -4,7 +4,7 @@
 
 #define MAX_PREFS 32
 
-#define MAGIC 0x49 /* defines the revision of the plugin struct
+#define MAGIC 0x50 /* defines the revision of the plugin struct
                       Basically it is just used to invalidate old
                       desc-files if the number does not match. */
 
@@ -38,6 +38,7 @@ struct plugin {
 	
 	char dependencies	[512];
 	char required_keys	[128];
+	char mandatory_keys	[128];
 	char excluded_keys	[128];
 	char required_ports	[64];
 	char required_udp_ports	[64];
@@ -66,6 +67,7 @@ char * store_fetch_bugtraq_id(struct arglist * desc);
 char * store_fetch_xref(struct arglist * desc);
 char * store_fetch_tag(struct arglist * desc);
 struct arglist * store_fetch_required_keys(struct arglist * desc);
+struct arglist * store_fetch_mandatory_keys(struct arglist * desc);
 struct arglist * store_fetch_excluded_keys(struct arglist * desc);
 struct arglist * store_fetch_required_ports(struct arglist * desc);
 struct arglist * store_fetch_required_udp_ports(struct arglist * desc);
