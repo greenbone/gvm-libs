@@ -140,7 +140,7 @@ openvas_server.o: openvas_server.c openvas_server.h
 OPENVAS_USERS_DIR = $(localstatedir)/lib/openvas/users/
 
 openvas_auth.o: openvas_auth.c openvas_auth.h
-	$(COMPILE) -DOPENVAS_USERS_DIR=\"$(OPENVAS_USERS_DIR)\" -c openvas_auth.c $(DESTDIR)
+	$(COMPILE) -DOPENVAS_USERS_DIR=\"$(OPENVAS_USERS_DIR)\" -c openvas_auth.c
 
 libopenvas.la: $(OBJS)
 	$(LINK) -o libopenvas.la $(LO_OBJS) $(LIBS) -rpath ${libdir} \
