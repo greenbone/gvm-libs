@@ -1,5 +1,14 @@
 2009-08-05  Michael Wiegand <michael.wiegand@intevation.de>
 
+	Backport from trunk (r3724).
+
+	Included patch provided by Ryan Schmidt to remove a build failure on
+	Mac OS X 10.4.11. This solves Bug #1033 (http://bugs.openvas.org/1033).
+
+	* libopenvas/pcap.c: Changed order of includes.
+
+2009-08-05  Michael Wiegand <michael.wiegand@intevation.de>
+
 	Backport from trunk (r3763).
 
 	* configure.in: Added check for gcrypt.h which properly sets $LIBS so
