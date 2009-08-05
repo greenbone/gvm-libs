@@ -95,6 +95,8 @@ PKG_CHECK_MODULES([GLIB], glib-2.0 >= 2.6.0, HAVE_GLIB="yes", AC_MSG_ERROR("glib
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
+AC_CHECK_HEADER(gcrypt.h, LIBS="-lgcrypt $LIBS", AC_MSG_ERROR("gcrypt.h not found"))
+
 dnl Check for extra libraries
 AC_CHECK_LIB(resolv, dn_expand, LIBS="-lresolv $LIBS",
   [AC_CHECK_LIB(resolv, __dn_expand, LIBS="-lresolv $LIBS",

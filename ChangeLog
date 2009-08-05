@@ -1,3 +1,15 @@
+2009-08-05  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Backport from trunk (r3763).
+
+	* configure.in: Added check for gcrypt.h which properly sets $LIBS so
+	gcrypt can be correctly linked. This fixes the linker warnings
+	described in Bug #1035 (http://bugs.openvas.org/1035) that occured if
+	openvas-libnasl was configured with LDFLAGS="-Wl,-z,defs"
+	(--no-undefined).
+
+	* configure: Regenerated.
+
 2009-07-30  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Backport from trunk (r4138 by Felix Wolfsteller).
