@@ -1,3 +1,20 @@
+2009-07-27  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* packaging/debian/control,
+	packaging/debian/libopenvas2-dev.dirs,
+	packaging/debian/compat,
+	packaging/debian/libopenvas2.dirs,
+	packaging/debian/libopenvas2-dev.install,
+	packaging/debian/watch,
+	packaging/debian/changelog,
+	packaging/debian/patches/configure-grypt.dpatch,
+	packaging/debian/patches/00list,
+	packaging/debian/copyright,
+	packaging/debian/libopenvas2.install,
+	packaging/debian/rules:
+	Removed.
+	Was moved to /openvas-packaging/openvas-libraries/debian/trunk.
+
 2009-07-27 Jan Wagner <Waja@cyconet.org>
 
 	* packaging/debian/changelog, packaging/debian/control,
