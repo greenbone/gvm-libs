@@ -94,11 +94,11 @@ libopenvas/system.h
 libopenvas/system_internal.h
 libopenvas/www_funcs.c
 libopenvas/www_funcs.h
-libopenvascommon/README.txt
-libopenvascommon/nvti.h
-libopenvascommon/nvti.c
-libopenvascommon/certificate.h
-libopenvascommon/certificate.c
+base/README.txt
+base/nvti.h
+base/nvti.c
+base/certificate.h
+base/certificate.c
 ltmain.sh
 Makefile
 MANIFEST

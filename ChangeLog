@@ -1,5 +1,19 @@
 2009-08-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	According to CR #38 (http://www.openvas.org/openvas-cr-38.html) to
+	reorganize openvas-libraries, this step prepares the "base" lib.
+
+	* libopenvascommon: rename to "base".
+
+	* base: The former directory "libopenvascommon".
+
+	* Makefile, libopenvas/Makefile: replace all occurances of
+	path "libopenvascommon" by "base".
+
+	* MANIFEST: Updated.
+
+2009-08-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* libopenvas/resolve.c: Removed definition of __u32 because
 	it is not used anyway.
 	Removed code that is deactivated since ever anyway.

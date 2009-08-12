@@ -32,8 +32,8 @@ OBJS = plugutils.o system.o network.o resolve.o arglists.o ftp_funcs.o \
 	bpf_share.o rand.o popen.o services.o services1.o \
 	proctitle.o store.o kb.o share_fd.o hash_table_file.o \
 	openvas_ssh_login.o openvas_server.o openvas_auth.o \
-	../libopenvascommon/nvti.o openvas_logging.o \
-	../libopenvascommon/certificate.o
+	../base/nvti.o openvas_logging.o \
+	../base/certificate.o
 	
 LO_OBJS = plugutils.lo system.lo network.lo resolve.lo arglists.lo \
 	ftp_funcs.lo scanners_utils.lo pcap.lo hlst.lo  harglists.lo \
@@ -46,18 +46,17 @@ LO_OBJS = plugutils.lo system.lo network.lo resolve.lo arglists.lo \
 # += does not work with non-GNU make ...
 # CFLAGS+=-I../$(CIPHER_SUBDIR)
 CFLAGS+=-g -Wall
-INCLUDE = $(include) $(GLIB_CFLAGS) $(DEFS) -I../libopenvascommon
+INCLUDE = $(include) $(GLIB_CFLAGS) $(DEFS) -I../base
 CIPHER = -I../$(CIPHER_SUBDIR)
 COMPILE = $(LIBTOOL) --mode=compile $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS)
 LINK = $(LIBTOOL) --mode=link $(CC) $(LDFLAGS)
 all : libopenvas.la
 
-../libopenvascommon/nvti.o: ../libopenvascommon/nvti.c ../libopenvascommon/nvti.h
-	$(COMPILE) -c ../libopenvascommon/nvti.c
+../base/nvti.o: ../base/nvti.c ../base/nvti.h
+	$(COMPILE) -c ../base/nvti.c
 
-../libopenvascommon/certificate.o: ../libopenvascommon/certificate.c \
-                                   ../libopenvascommon/certificate.h
-	$(COMPILE) -c ../libopenvascommon/certificate.c
+../base/certificate.o: ../base/certificate.c ../base/certificate.h
+	$(COMPILE) -c ../base/certificate.c
 
 plugutils.o: plugutils.c arglists.h comm.h harglists.h kb.h network.h \
              rand.h plugutils.h services.h share_fd.h store_internal.h system.h \
