@@ -1,15 +1,14 @@
-This is an initial version of the upcoming
-library "libopenvascommon".
+This is the library "libopenvasbase".
 
-The aim of this library is to provide all
-basics for various OpenVAS modules to use.
-Eventually this library should be packaged
-separately in order to allow e.g. to
-link OpenVAS-Client the library without
-dependencies to e.g. network protocol
-libraries.
+It provides basics for various OpenVAS modules
+and related libraries.
 
-NOTE: The structures and formats are currently
-not settled and subject to change.
-The API will, for the time being, be available
-via libopenvas.
+Any source code of this libraries fulfills the
+following requirements:
+
+* involves no other dependencies than glib >= 2.12
+* licensed under GNU GPLv2 or any later version
+* fully documented according to the coding guidelines
+  in order to allow a complete automatically generated
+  API documentation.
+

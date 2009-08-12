@@ -1,5 +1,9 @@
 2009-08-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* base/README.txt: Updated.
+
+2009-08-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	According to CR #38 (http://www.openvas.org/openvas-cr-38.html) to
 	reorganize openvas-libraries, this step prepares the "base" lib.
 
