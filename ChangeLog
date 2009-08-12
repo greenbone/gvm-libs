@@ -1,3 +1,9 @@
+2009-08-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* libopenvas/resolve.c: Removed definition of __u32 because
+	it is not used anyway.
+	Removed code that is deactivated since ever anyway.
+
 2009-07-27  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* packaging/debian/control,

@@ -23,10 +23,6 @@
 
 #include "resolve.h"
 
-#ifndef __u32
-#define __u32 unsigned long
-#endif
-
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff
 #endif
@@ -40,33 +36,6 @@ host2ip(name, ip)
 	char * name;
 	struct in_addr * ip;
 {
-#undef HAVE_GETHOSTBYNAME_R
-#ifdef HAVE_GETHOSTBYNAME_R
-        int Errno = 0;
-        char * buf = emalloc(4096);
-        struct hostent * res = NULL;
-        struct hostent * t = NULL;	
-	struct hostent * myhostent;
-	
-	myhostent = emalloc(sizeof(struct hostent));
-#undef HAVE_SOLARIS_GETHOSTBYNAME_R
-#ifdef HAVE_SOLARIS_GETHOSTBYNAME_R
-        gethostbyname_r(name, myhostent, buf, 4096, &Errno);
-	 if(Errno){
-	  	efree(&myhostent);
-		efree(&buf);
-		return -1;
-		}
-#else
-         gethostbyname_r(name, myhostent, buf, 4096, &res, &Errno);
-         t = myhostent;
-         myhostent = res;
-#endif /* HAVE_SOLARIS_... */
-	memcpy(ip, myhostent->h_addr, myhostent->h_length);
-	efree(&myhostent);
-	efree(&buf);
-	return 0;
-#else
 	struct hostent * ent;
 
 	ent = gethostbyname(name);
@@ -74,7 +43,6 @@ host2ip(name, ip)
 		return -1;
 	else if(ip) memcpy(ip, ent->h_addr, ent->h_length);
 	return 0; /* success */
-#endif /* defined(GETHOSTBYNAME_R) */
 }
 
 
