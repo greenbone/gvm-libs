@@ -40,10 +40,10 @@
  * function interface (get_fingerprint, set_owner, etc.).
  */
 typedef struct {
-  char* fingerprint;  // Fingerprint.
-  char* owner;        // Name of the owner of the certificate.
-  char* public_key;   // Full public key.
-  gboolean trusted;   // True if the certificate is trusted.
+  char* fingerprint;  ///< Fingerprint.
+  char* owner;        ///< Name of the owner of the certificate.
+  char* public_key;   ///< Full public key.
+  gboolean trusted;   ///< True if the certificate is trusted.
 } certificate_t;
 
 certificate_t *certificate_create (void);
@@ -71,7 +71,7 @@ void certificate_set_trusted (certificate_t *, gboolean);
  * function interface (certificates_add, etc.).
  */
 typedef struct {
-  GSList *list;  // A list of pointers to certificate_t's.
+  GSList *list;  ///< A list of pointers to certificate_t's.
 } certificates_t;
 
 certificates_t *certificates_create ();

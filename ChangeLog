@@ -1,8 +1,17 @@
 2009-08-13  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* base/certificate.h (certificate_t, certificates_t):
+	Converted documentation contained in comments of struct members, to
+	be useable by doxygen.
+
+	* ChangeLog:
+	Improved wording.
+
+2009-08-13  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* base/nvti.h:
-	Converted documentation contained in comments of struct members
-	available to doxygen.
+	Converted documentation contained in comments of struct members, to
+	be useable by doxygen.
 
 2009-08-12  Laban Mwangi <lmwangi@penguinlabs.co.ke>
 
