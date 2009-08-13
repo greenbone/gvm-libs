@@ -1,5 +1,11 @@
 2009-08-13  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* doc/Doxyfile,
+	doc/Doxyfile_full:
+	Added 'base' to input paths.
+
+2009-08-13  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* base/certificate.h (certificate_t, certificates_t):
 	Converted documentation contained in comments of struct members, to
 	be useable by doxygen.
