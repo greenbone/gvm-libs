@@ -1,3 +1,9 @@
+2009-08-13  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* base/nvti.h:
+	Converted documentation contained in comments of struct members
+	available to doxygen.
+
 2009-08-12  Laban Mwangi <lmwangi@penguinlabs.co.ke>
 
 	* libopenvas/openvas_logging.c, libopenvas/openvas_logging.h:

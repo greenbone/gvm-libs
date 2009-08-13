@@ -63,35 +63,39 @@ gchar * nvtpref_default(const nvtpref_t *);
  */
 typedef struct nvti
 {
-  gchar *oid;                   // Object ID
-  gchar *version;               // version of the NVT
-  gchar *name;                  // the name
-  gchar *summary;               // summary about the NVT
-  gchar *description;           // summary about the NVT
-  gchar *copyright;             // copyright for the NVT
+  gchar *oid;                /**< @brief Object ID */
+  gchar *version;            /**< @brief Version of the NVT */
+  gchar *name;               /**< @brief The name */
+  gchar *summary;            /**< @brief Summary about the NVT */
+  gchar *description;        /**< @brief Summary about the NVT */
+  gchar *copyright;          /**< @brief Copyright for the NVT */
 
-  gchar *cve;                   // List of CVEs, this NVT corresponds to
-  gchar *bid;                   // List of Bugtraq IDs, this NVT corresponds to
-  gchar *xref;                  // List of Cross-references, this NVT corresponds to
-  gchar *tag;                   // List of tags attached to this NVT
+  gchar *cve;               /**< @brief List of CVEs, this NVT corresponds to */
+  gchar *bid;               /**< @brief List of Bugtraq IDs, this NVT 
+                                        corresponds to */
+  gchar *xref;              /**< @brief List of Cross-references, this NVT
+                                        corresponds to */
+  gchar *tag;               /**< @brief List of tags attached to this NVT */
 
-  gchar *dependencies;          // List of dependencies of this NVT
-  gchar *required_keys;         // List of required KB keys of this NVT
-  gchar *mandatory_keys;        // List of mandatory KB keys of this NVT
-  gchar *excluded_keys;         // List of excluded KB keys of this NVT
-  gchar *required_ports;        // List of required ports of this NVT
-  gchar *required_udp_ports;    // List of required UDP ports of this NVT
+  gchar *dependencies;      /**< @brief List of dependencies of this NVT */
+  gchar *required_keys;     /**< @brief List of required KB keys of this NVT */
+  gchar *mandatory_keys;    /**< @brief List of mandatory KB keys of this NVT */
+  gchar *excluded_keys;     /**< @brief List of excluded KB keys of this NVT */
+  gchar *required_ports;    /**< @brief List of required ports of this NVT */
+  gchar *required_udp_ports;/**< @brief List of required UDP ports of this NVT*/
 
-  gchar *sign_key_ids;          // List of fingerprints that signed this NVT
+  gchar *sign_key_ids;      /**< @brief List of fingerprints that signed this
+                                        NVT */
 
-  gchar *src;                   // the source of the corresponding script, can be filename or other URI
+  gchar *src;               /**< @brief the source of the corresponding script,
+                                        can be filename or other URI */
 
-  GSList * prefs;           // Collection of NVT preferences
+  GSList * prefs;           /**< @brief Collection of NVT preferences */
 
   // The following are not settled yet.
-  gint timeout;                 // default timeout time for this NVT
-  gint category;                // The category, this NVT belongs to.
-  gchar *family;                // family the NVT belongs to
+  gint timeout;             /**< @brief Default timeout time for this NVT */
+  gint category;            /**< @brief The category, this NVT belongs to */
+  gchar *family;            /**< @brief Family the NVT belongs to */
 } nvti_t;
 
 nvti_t *nvti_new (void);
@@ -150,7 +154,7 @@ gchar *nvti_as_openvas_nvt_cache_entry (const nvti_t *);
 nvti_t *nvti_from_keyfile (const gchar *);
 int nvti_to_keyfile (const nvti_t *, const gchar *);
 
-
+
 /* Collections of NVT Infos. */
 
 /**
