@@ -515,20 +515,20 @@ setup_log_handlers (GSList * openvas_log_config_list)
           log_domain_entry = log_domain_list_tmp->data;
 
           /* Skip the default domain. */
-          if (g_ascii_strcasecmp (log_domain_entry->log_domain, "*") == 0)
-            continue;
-
-          g_log_set_handler (log_domain_entry->log_domain,
-                             (GLogLevelFlags) (G_LOG_LEVEL_DEBUG |
-                                               G_LOG_LEVEL_INFO |
-                                               G_LOG_LEVEL_MESSAGE |
-                                               G_LOG_LEVEL_WARNING |
-                                               G_LOG_LEVEL_CRITICAL |
-                                               G_LOG_LEVEL_ERROR |
-                                               G_LOG_FLAG_FATAL |
-                                               G_LOG_FLAG_RECURSION),
-                             (GLogFunc) openvas_log_func,
-                             openvas_log_config_list);
+          if (g_ascii_strcasecmp (log_domain_entry->log_domain, "*"))
+            {
+              g_log_set_handler (log_domain_entry->log_domain,
+                                 (GLogLevelFlags) (G_LOG_LEVEL_DEBUG |
+                                                   G_LOG_LEVEL_INFO |
+                                                   G_LOG_LEVEL_MESSAGE |
+                                                   G_LOG_LEVEL_WARNING |
+                                                   G_LOG_LEVEL_CRITICAL |
+                                                   G_LOG_LEVEL_ERROR |
+                                                   G_LOG_FLAG_FATAL |
+                                                   G_LOG_FLAG_RECURSION),
+                                 (GLogFunc) openvas_log_func,
+                                 openvas_log_config_list);
+            }
 
           /* Go to the next item. */
           log_domain_list_tmp = g_slist_next (log_domain_list_tmp);
