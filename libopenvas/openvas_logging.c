@@ -320,7 +320,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
   /* Let's load the configuration file directives if a linked list item for
    * the log domain group exists.
    */
-  if (openvas_log_config_list != NULL)
+  if (openvas_log_config_list != NULL && log_domain != NULL)
     {
 
       /* Go the the head of the list. */
