@@ -125,7 +125,7 @@ get_password_hashes (int gcrypt_algorithm, const gchar * password)
  * @param username Username.
  * @param password Password.
  *
- * @return 0 if authentic, -1 on error, else 1.
+ * @return 0 authentication success, 1 authentication failure, -1 error.
  */
 int
 openvas_authenticate (const gchar * username, const gchar * password)
@@ -150,9 +150,8 @@ openvas_authenticate (const gchar * username, const gchar * password)
   g_free (file_name);
   if (error)
     {
-      g_warning ("Failed to read auth contents: %s.", error->message);
       g_error_free (error);
-      return -1;
+      return 1;
     }
 
   split = g_strsplit_set (g_strchomp (actual), " ", 2);

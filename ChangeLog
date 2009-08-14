@@ -1,5 +1,10 @@
 2009-08-14  Matthew Mundell <mmundell@intevation.de>
 
+	* libopenvas/openvas_auth.c (openvas_authenticate): Improve doc.  Return 1
+	on g_file_get_contents fail, as this is most probably an auth failure.
+
+2009-08-14  Matthew Mundell <mmundell@intevation.de>
+
 	* libopenvas/openvas_logging.c (openvas_log_func): Add log_domain NULL
 	guard.
 
