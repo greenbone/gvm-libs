@@ -93,6 +93,7 @@ get_password_hashes (int gcrypt_algorithm, const gchar * password)
 
   g_assert (password);
 
+  /* RATS:ignore, is sanely used with gcry_create_nonce and gcry_md_hash_buffer */
   unsigned char *nonce_buffer[256];
   guchar *seed = g_malloc0 (gcry_md_get_algo_dlen (gcrypt_algorithm));
   gchar *seed_hex = NULL;
