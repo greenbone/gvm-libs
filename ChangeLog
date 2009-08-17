@@ -1,3 +1,11 @@
+2009-08-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Backported from trunk (revision 4526).
+
+	* libopenvas/plugutils.c (nessuslib_version):
+	Added RATS:ignore flag where statically sized char buffer is used
+	in a sane manner.
+
 2009-08-17  Felix Wolfsteller  <felix.wolfsteller@intevation.de>
 
 	Backported from trunk (revision 4524).

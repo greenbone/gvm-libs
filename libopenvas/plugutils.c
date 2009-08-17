@@ -63,8 +63,8 @@
 char *
 nessuslib_version()
 {
-  static char vers[255];
-  strncpy(vers, VERSION, sizeof(vers) - 1);
+  static char vers[255]; /* RATS: ignore, vers is used wisely. */
+  strncpy (vers, VERSION, sizeof(vers) - 1);
   vers[sizeof(vers) - 1 ] = '\0';
   return vers;
 }
