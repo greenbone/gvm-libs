@@ -941,7 +941,6 @@ proto_post_wrapped (struct arglist * desc, int port, const char* proto,
  char * cve;
  char * bid;
  char * xref;
- int i;
 
  if (action == NULL)
    action = plug_get_description (desc);

@@ -1,5 +1,10 @@
 2009-08-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* libopenvas/plugutils.c (proto_post_wrapped):
+	Removed unused variable i.
+
+2009-08-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* base/nvti.c (nvti_as_openvas_nvt_cache_entry):
 	Corrected doc.
 	
