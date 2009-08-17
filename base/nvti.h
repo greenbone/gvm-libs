@@ -44,9 +44,9 @@
  */
 typedef struct nvtpref
 {
-  gchar * type;  // preference type
-  gchar * name;  // name of the preference
-  gchar * dflt; // default value of the preference
+  gchar * type;  ///< Preference type
+  gchar * name;  ///< Name of the preference
+  gchar * dflt;  ///< Default value of the preference
 } nvtpref_t;
 
 nvtpref_t *nvtpref_new (gchar *, gchar *, gchar *);

@@ -960,8 +960,10 @@ nvti_as_text (const nvti_t * n)
  *
  * @param n The NVT Info structure.
  *
- * @return A newly allocated string.
- *         The string needs to be freed with g_free().
+ * @return NULL (not implemented yet).
+ *
+ * @TODO return A newly allocated string
+ *       The string needs to be freed with g_free().
  */
 gchar *
 nvti_as_openvas_nvt_cache_entry (const nvti_t * n)
@@ -1174,7 +1176,7 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
   return (0);
 }
 
-
+
 /* Collections of nvtis. */
 
 /**
