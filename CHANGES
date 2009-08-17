@@ -1,3 +1,37 @@
+openvas-libraries 2.0.4 (2009-08-17)
+
+This is the fourth maintenance release of the openvas-libraries module for the
+Open Vulnerability Assessment System (OpenVAS) 2.0 series.
+
+It fixes a small number of issues discovered after the release of
+openvas-libraries 2.0.3 and introduces new functionality designed to enable
+improvements in other OpenVAS modules.
+
+Effect when installing this version:
+The cache of NVT descriptions (by default located in plugin_folder/.desc/) will
+be rebuilt at the next start of openvasd. Which essentially means that the first
+startup after installation of this version will take longer (a few minutes in
+worst case).
+
+Main changes since 2.0.3:
+* Support for mandatory keys in NVTs has been added in accordance with Change
+  Request #39 (http://openvas.org/openvas-cr-39.html).
+* Improved logging capabilites.
+
+Bugfixes:
+* Closed Bug #1033 (http://bugs.openvas.org/1033).
+  This solved build failure on Mac OS X 10.4.11.
+* Close bug #1035 (http://bugs.openvas.org/1035).
+  This solves linker problem related to gcrypt.
+* Closed bug #1037 (http://bugs.openvas.org/1037).
+  This addresses DESTDIR and makes life easier creating
+  openvas-libraries installation packages.
+
+Many thanks to everyone who has contributed to this release: Stephan Kleine,
+Matthew Mundell, Laban Mwangi, Ryan Schmidt, Jan-Oliver Wagner, Michael Wiegand
+and Felix Wolfsteller.
+
+
 openvas-libraries 2.0.3 (2009-06-10)
 
 This is the third maintenance release of the openvas-libraries module for the
