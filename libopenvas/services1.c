@@ -233,7 +233,7 @@ nessus_init_svc()
 	  if (l > sizeof(ness_svc.ns_name) - 1)
 	    l = sizeof(ness_svc.ns_name) - 1;
           ness_svc.magic = SERVICES_MAGIC;
-	  memcpy(ness_svc.ns_name, svc[j].name, l);
+	  memcpy (ness_svc.ns_name, svc[j].name, l); /* RATS: ignore, l got sanitized */
 	  memset(ness_svc.ns_name + l, 0, sizeof(ness_svc.ns_name) - l);
 #ifdef ULTRA_VERBOSE_DEBUG
 	  fprintf(stderr, "From %d: name=%s port=%d => %d\n",
