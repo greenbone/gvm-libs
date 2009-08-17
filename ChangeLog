@@ -1,3 +1,10 @@
+2009-08-17  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Backport from trunk.
+
+	* libopenvas/openvas_logging.c, libopenvas/openvas_logging.h:
+	Backported changes and bugfixes from trunk.
+
 2009-08-05  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Backport from trunk (r3724).

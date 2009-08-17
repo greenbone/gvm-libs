@@ -23,8 +23,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
-
 #ifndef _OPENVAS_LOGGING_H
 #define _OPENVAS_LOGGING_H
 
@@ -32,39 +30,29 @@
 #include <time.h>
 
 /**
- * @brief OpenVASD Logging stores the parameters loaded from a log configuration 
+ * @struct openvasd_logging
+ * @brief OpenVASD Logging stores the parameters loaded from a log configuration
  * file.
- *
- * @return Nothing - void function.
  */
 
-typedef struct {
-	/* This struct instance affects this logdomain e.g libnasl */
-	gchar *logdomain;
-	/* Prepend this string before every message */
-	gchar *prependstring;
-	/* If the prependstring above has a %t, use this strftime format */
-	gchar *prependtimeformat;
-	/* Where to log to */
-	gchar *logfile;
-	/* What severity level to use */
-	gint defaultlevel;
-	/* Gio Channel - FD holder for logfile */
-	GIOChannel *logchannel;
+typedef struct
+{
+  gchar *log_domain;         ///< Affected logdomain e.g libnasl.
+  gchar *prepend_string;     ///< Prepend this string before every message.
+  gchar *prepend_time_format; ///< If prependstring has %t, format for strftime.
+  gchar *log_file;           ///< Where to log to.
+  gint default_level;        ///< What severity level to use.
+  GIOChannel *log_channel;   ///< Gio Channel - FD holder for logfile.
 } openvasd_logging;
 
-/* Loads the log configuration file */
-GSList *load_log_configuration (gchar * configfile);
+GSList *load_log_configuration (gchar * config_file);
 
-/* Frees resources associated with logging directives */
-void free_log_configuration(GSList *logdomainlist);
+void free_log_configuration (GSList * logdomain_list);
 
-/* Utility function that formats a timestamp */
-gchar *gettime(gchar *time_fmt);
+gchar *get_time (gchar * time_fmt);
 
-/* Actual log handler */
-void openvas_log_func(const char *log_domain, GLogLevelFlags log_level, const char *message, gpointer openvaslogconfiglist);
+void openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
+                       const char *message, gpointer openvas_log_config_list);
 
-/* Log router. Sets up relationships between log domains and log handlers */
-void setup_log_handlers(  GSList *openvaslogconfiglist );
+void setup_log_handlers (GSList * openvas_log_config_list);
 #endif
