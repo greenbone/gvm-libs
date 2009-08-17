@@ -159,6 +159,7 @@ nvti_free (nvti_t * n)
   if (n->tag) g_free (n->tag);
   if (n->dependencies) g_free (n->dependencies);
   if (n->required_keys) g_free (n->required_keys);
+  if (n->mandatory_keys) g_free (n->mandatory_keys);
   if (n->excluded_keys) g_free (n->excluded_keys);
   if (n->required_ports) g_free (n->required_ports);
   if (n->required_udp_ports) g_free (n->required_udp_ports);
@@ -341,6 +342,20 @@ gchar *
 nvti_required_keys (const nvti_t * n)
 {
   return (n->required_keys);
+}
+
+/**
+ * @brief Get the mandatory keys list.
+ *
+ * @param n The NVT Info structure of which the name should
+ *          be returned.
+ *
+ * @return The mandatory keys string. Don't free this.
+ */
+gchar *
+nvti_mandatory_keys (const nvti_t * n)
+{
+  return (n->mandatory_keys);
 }
 
 /**
@@ -714,6 +729,27 @@ nvti_set_required_keys (nvti_t * n, const gchar * required_keys)
 }
 
 /**
+ * @brief Set the mandatory keys of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param mandatory_keys The mandatory keys to set. A copy will be created from this.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_mandatory_keys (nvti_t * n, const gchar * mandatory_keys)
+{
+  if (n->mandatory_keys)
+    g_free (n->mandatory_keys);
+  if (mandatory_keys && mandatory_keys[0])
+    n->mandatory_keys = g_strdup (mandatory_keys);
+  else
+    n->mandatory_keys = NULL;
+  return (0);
+}
+
+/**
  * @brief Set the excluded keys of a NVT.
  *
  * @param n The NVT Info structure.
@@ -906,6 +942,7 @@ nvti_as_text (const nvti_t * n)
            "\nTag: ", (n->tag ? n->tag : "(unset, probably in-memory)"),
            "\nDependencies: ", (n->dependencies ? n->dependencies : "(unset, probably in-memory)"),
            "\nRequired Keys: ", (n->required_keys ? n->required_keys : "(unset, probably in-memory)"),
+           "\nMandatory Keys: ", (n->mandatory_keys ? n->mandatory_keys : "(unset, probably in-memory)"),
            "\nExcluded Keys: ", (n->excluded_keys ? n->excluded_keys : "(unset, probably in-memory)"),
            "\nRequired Ports: ", (n->required_ports ? n->required_ports : "(unset, probably in-memory)"),
            "\nRequired UDP ports: ", (n->required_udp_ports ? n->required_udp_ports : "(unset, probably in-memory)"),
@@ -923,8 +960,10 @@ nvti_as_text (const nvti_t * n)
  *
  * @param n The NVT Info structure.
  *
- * @return A newly allocated string.
- *         The string needs to be freed with g_free().
+ * @return NULL (not implemented yet).
+ *
+ * @TODO return A newly allocated string
+ *       The string needs to be freed with g_free().
  */
 gchar *
 nvti_as_openvas_nvt_cache_entry (const nvti_t * n)
@@ -948,6 +987,8 @@ nvti_from_keyfile (const gchar * fn)
   GError *error = NULL;
   gchar **keys;
   int i;
+  gsize size_dummy;
+  gchar * utf8str = NULL;
 
   if (!g_key_file_load_from_file (keyfile, fn, G_KEY_FILE_NONE, &error))
     {
@@ -958,16 +999,25 @@ nvti_from_keyfile (const gchar * fn)
   n = nvti_new ();
   nvti_set_oid (n, g_key_file_get_string (keyfile, "NVT Info", "OID", NULL));
   nvti_set_version (n, g_key_file_get_string (keyfile, "NVT Info", "Version", NULL));
-  nvti_set_name (n, g_key_file_get_string (keyfile, "NVT Info", "Name", NULL));
-  nvti_set_summary (n, g_key_file_get_string (keyfile, "NVT Info", "Summary", NULL));
-  nvti_set_description (n, g_key_file_get_string (keyfile, "NVT Info", "Description", NULL));
-  nvti_set_copyright (n, g_key_file_get_string (keyfile, "NVT Info", "Copyright", NULL));
+  utf8str = g_key_file_get_string (keyfile, "NVT Info", "Name", NULL);
+  if (utf8str)
+    nvti_set_name (n, g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy, NULL));
+  utf8str = g_key_file_get_string (keyfile, "NVT Info", "Summary", NULL);
+  if (utf8str)
+    nvti_set_summary (n, g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy, NULL));
+  utf8str = g_key_file_get_string (keyfile, "NVT Info", "Description", NULL);
+  if (utf8str)
+    nvti_set_description (n, g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy, NULL));
+  utf8str = g_key_file_get_string (keyfile, "NVT Info", "Copyright", NULL);
+  if (utf8str)
+    nvti_set_copyright (n, g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy, NULL));
   nvti_set_cve (n, g_key_file_get_string (keyfile, "NVT Info", "CVEs", NULL));
   nvti_set_bid (n, g_key_file_get_string (keyfile, "NVT Info", "BIDs", NULL));
   nvti_set_xref (n, g_key_file_get_string (keyfile, "NVT Info", "XREFs", NULL));
   nvti_set_tag (n, g_key_file_get_string (keyfile, "NVT Info", "Tags", NULL));
   nvti_set_dependencies (n, g_key_file_get_string (keyfile, "NVT Info", "Dependencies", NULL));
   nvti_set_required_keys (n, g_key_file_get_string (keyfile, "NVT Info", "RequiredKeys", NULL));
+  nvti_set_mandatory_keys (n, g_key_file_get_string (keyfile, "NVT Info", "MandatoryKeys", NULL));
   nvti_set_excluded_keys (n, g_key_file_get_string (keyfile, "NVT Info", "ExcludedKeys", NULL));
   nvti_set_required_ports (n, g_key_file_get_string (keyfile, "NVT Info", "RequiredPorts", NULL));
   nvti_set_required_udp_ports (n, g_key_file_get_string (keyfile, "NVT Info", "RequiredUDPPorts", NULL));
@@ -1015,14 +1065,34 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
     g_key_file_set_string (keyfile, "NVT Info", "OID", n->oid);
   if (n->version)
     g_key_file_set_string (keyfile, "NVT Info", "Version", n->version);
-  if (n->name)
-    g_key_file_set_string (keyfile, "NVT Info", "Name", n->name);
-  if (n->summary)
-    g_key_file_set_string (keyfile, "NVT Info", "Summary", n->summary);
-  if (n->description)
-    g_key_file_set_string (keyfile, "NVT Info", "Description", n->description);
-  if (n->copyright)
-    g_key_file_set_string (keyfile, "NVT Info", "Copyright", n->copyright);
+  if (n->name) {
+    gsize size_dummy;
+    gchar * utf8str = g_convert (n->name, -1, "UTF-8", "ISO_8859-1",
+                                 NULL, &size_dummy, NULL);
+    g_key_file_set_string (keyfile, "NVT Info", "Name", utf8str);
+    g_free(utf8str);
+  }
+  if (n->summary) {
+    gsize size_dummy;
+    gchar * utf8str = g_convert (n->summary, -1, "UTF-8", "ISO_8859-1",
+                                 NULL, &size_dummy, NULL);
+    g_key_file_set_string (keyfile, "NVT Info", "Summary", utf8str);
+    g_free(utf8str);
+  }
+  if (n->description) {
+    gsize size_dummy;
+    gchar * utf8str = g_convert (n->description, -1, "UTF-8", "ISO_8859-1",
+                                 NULL, &size_dummy, NULL);
+    g_key_file_set_string (keyfile, "NVT Info", "Description", utf8str);
+    g_free(utf8str);
+  }
+  if (n->copyright) {
+    gsize size_dummy;
+    gchar * utf8str = g_convert (n->copyright, -1, "UTF-8", "ISO_8859-1",
+                                 NULL, &size_dummy, NULL);
+    g_key_file_set_string (keyfile, "NVT Info", "Copyright", utf8str);
+    g_free(utf8str);
+  }
   if (n->cve)
     g_key_file_set_string (keyfile, "NVT Info", "CVEs", n->cve);
   if (n->bid)
@@ -1035,6 +1105,8 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
     g_key_file_set_string (keyfile, "NVT Info", "Dependencies", n->dependencies);
   if (n->required_keys)
     g_key_file_set_string (keyfile, "NVT Info", "RequiredKeys", n->required_keys);
+  if (n->mandatory_keys)
+    g_key_file_set_string (keyfile, "NVT Info", "MandatoryKeys", n->mandatory_keys);
   if (n->excluded_keys)
     g_key_file_set_string (keyfile, "NVT Info", "ExcludedKeys", n->excluded_keys);
   if (n->required_ports)
@@ -1104,7 +1176,7 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
   return (0);
 }
 
-
+
 /* Collections of nvtis. */
 
 /**

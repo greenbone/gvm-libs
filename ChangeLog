@@ -1,3 +1,11 @@
+2009-08-17  Felix Wolfsteller  <felix.wolfsteller@intevation.de>
+
+	Backports from trunk (revision 4522).
+
+	* libopenvascommon/nvti.c,
+	libopenvascommon/nvti.h:
+	Mandatory keys implementation, improved documentation.
+
 2009-08-17  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Backport from trunk.
