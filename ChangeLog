@@ -1,5 +1,9 @@
 2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* MANIFEST: Sorted.
+
+2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	As part of CR #38 (http://www.openvas.org/openvas-cr-38.html), renamed
 	openvas-libraries/libopenvas folder to openvas-libraries/misc.
 
