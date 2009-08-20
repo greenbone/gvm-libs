@@ -1,6 +1,19 @@
+2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* libopenvas_hg/hg_add_hosts.c (hg_add_comma_delimited_hosts):
+	Minimal cosmetics/doc.
+
 2009-08-17  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* ChangeLog: Switch to full email address.
+
+2009-08-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* libopenvas/services1.c (nessus_init_svc):
+	Added RATS:ignore flag where memcopy limit is sane.
+	
+	* libopenvas/openvas_auth.c (get_password_hashes):
+	Added RATS:ignore flag where statically sized buffer is sanely used.
 
 2009-08-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 

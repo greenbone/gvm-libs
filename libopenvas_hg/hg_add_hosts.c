@@ -22,6 +22,7 @@
 #include "hg_filter.h"
 #include "hg_add_hosts.h"
 #include "hg_subnet.h"
+
 /*
  * Add a host of the form
  *
@@ -356,13 +357,15 @@ hg_add_comma_delimited_hosts (struct hg_globals* globals, int limit)
   while (p)
     {
       int len;
-      if (limit > 0 && n > limit) /* Don't resolve more than 256 host names in a row */
+      /* Don't resolve more than limit (256) host names in a row */
+      if (limit > 0 && n > limit)
         {
           globals->marker = p;
           return 0;
         }
-      
-      while ((*p == ' ')&&(p!='\0'))
+
+      // Skip (leading) spaces
+      while ((*p == ' ') && (p != '\0'))
         p++;
       
       v = strchr(p+1, ',');
