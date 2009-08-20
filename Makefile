@@ -30,7 +30,7 @@ include openvas-libraries.tmpl
 ALLDEPS = openvas-libraries.tmpl
 
 all: $(ALLDEPS)
-	cd libopenvas && ${MAKE}
+	cd misc && ${MAKE}
 	cd hg && ${MAKE}
 
 openvas-libraries.tmpl: openvas-libraries.tmpl.in configure VERSION
@@ -40,36 +40,36 @@ openvas-libraries.tmpl: openvas-libraries.tmpl.in configure VERSION
 install : all
 	test -d $(DESTDIR)${prefix} || ${INSTALL_DIR} -m 755 $(DESTDIR)${prefix}
 	test -d $(DESTDIR)${includedir}/openvas || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas
-	cd libopenvas && ${MAKE} install
+	cd misc && ${MAKE} install
 	cd hg && ${MAKE} install
 
 
 	$(INSTALL) -m 0444 include/libopenvas.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 include/libvers.h   $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/arglists.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/bpf_share.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/ftp_funcs.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/hash_table_file.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/harglists.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/kb.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/network.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/ntp.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/pcap_openvas.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/plugutils.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/popen.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/proctitle.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/rand.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/resolve.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/openvas_ssh_login.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/openvas_logging.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/openvas_server.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/openvas_auth.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/scanners_utils.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/services1.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/share_fd.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/store.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/system.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 libopenvas/www_funcs.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/arglists.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/bpf_share.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/ftp_funcs.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/hash_table_file.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/harglists.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/kb.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/network.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/ntp.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/pcap_openvas.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/plugutils.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/popen.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/proctitle.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/rand.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/resolve.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/openvas_ssh_login.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/openvas_logging.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/openvas_server.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/openvas_auth.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/scanners_utils.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/services1.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/share_fd.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/store.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/system.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/www_funcs.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 base/nvti.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 base/certificate.h $(DESTDIR)${includedir}/openvas
 	test -d $(DESTDIR)${bindir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${bindir}
@@ -88,14 +88,14 @@ install : all
 	@echo
 
 clean :
-	-cd libopenvas && ${MAKE} clean
+	-cd misc && ${MAKE} clean
 	-cd hg && ${MAKE} clean
 	rm -rf doc/generated
 
 distclean : clean
 	rm -f ${rootdir}/include/config.h libtool config.cache \
 	config.status config.log ${rootdir}/include/libvers.h 
-	-cd libopenvas && ${MAKE} distclean
+	-cd misc && ${MAKE} distclean
 	-cd hg && ${MAKE} distclean
 	rm -f openvas-libraries.tmpl libopenvas-config libopenvas-config.pre
 	rm -rf doc/generated
