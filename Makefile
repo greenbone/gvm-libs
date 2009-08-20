@@ -31,7 +31,7 @@ ALLDEPS = openvas-libraries.tmpl
 
 all: $(ALLDEPS)
 	cd libopenvas && ${MAKE}
-	cd libopenvas_hg && ${MAKE}
+	cd hg && ${MAKE}
 
 openvas-libraries.tmpl: openvas-libraries.tmpl.in configure VERSION
 	$(SHELL) configure $(CONFIGURE_ARGS)
@@ -41,7 +41,7 @@ install : all
 	test -d $(DESTDIR)${prefix} || ${INSTALL_DIR} -m 755 $(DESTDIR)${prefix}
 	test -d $(DESTDIR)${includedir}/openvas || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas
 	cd libopenvas && ${MAKE} install
-	cd libopenvas_hg && ${MAKE} install
+	cd hg && ${MAKE} install
 
 
 	$(INSTALL) -m 0444 include/libopenvas.h $(DESTDIR)${includedir}/openvas
@@ -89,14 +89,14 @@ install : all
 
 clean :
 	-cd libopenvas && ${MAKE} clean
-	-cd libopenvas_hg && ${MAKE} clean
+	-cd hg && ${MAKE} clean
 	rm -rf doc/generated
 
 distclean : clean
 	rm -f ${rootdir}/include/config.h libtool config.cache \
 	config.status config.log ${rootdir}/include/libvers.h 
 	-cd libopenvas && ${MAKE} distclean
-	-cd libopenvas_hg && ${MAKE} distclean
+	-cd hg && ${MAKE} distclean
 	rm -f openvas-libraries.tmpl libopenvas-config libopenvas-config.pre
 	rm -rf doc/generated
 

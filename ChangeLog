@@ -1,5 +1,16 @@
 2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	As part of CR #38 (http://www.openvas.org/openvas-cr-38.html), renamed
+	openvas-libraries/libopenvas_hg folder to openvas-libraries/hg.
+
+	* libopenvas_hg/, hg/: Moved.
+	
+	* Makefile: Adjusted path.
+	
+	* MANIFEST: Adjusted paths.
+
+2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* libopenvas_hg/hg_add_hosts.c (hg_add_comma_delimited_hosts):
 	Minimal cosmetics/doc.
 
