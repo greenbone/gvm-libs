@@ -1,5 +1,12 @@
 2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* base/README.txt: Removed second blank newline at eof.
+
+	* hg/README.txt, misc/README.txt: New, describe 'state' of the
+	directories.
+
+2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* TODO, base/certificate.c, base/certificate.h, base/nvti.c,
 	base/nvti.c, misc/openvas_logging.h: Updated paths in comments.
 

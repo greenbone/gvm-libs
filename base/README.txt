@@ -11,4 +11,3 @@ following requirements:
 * fully documented according to the coding guidelines
   in order to allow a complete automatically generated
   API documentation.
-
