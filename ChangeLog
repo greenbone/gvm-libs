@@ -1,5 +1,9 @@
 2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* libopenvas/hlst.c (_hashqueue): Cosmetics, doc.
+
+2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	As part of CR #38 (http://www.openvas.org/openvas-cr-38.html), renamed
 	libopenvas_hg to libopenvashg.
 

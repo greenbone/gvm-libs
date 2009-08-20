@@ -57,15 +57,16 @@ struct _sorter {
   /* varable length, pointer aligned  */
 } sorter ;
 
-typedef 
-struct _hashqueue {		/* linked list of bucket entries */
+/** Linked list of bucket entries */
+typedef
+struct _hashqueue {
   void           *contents;
   struct _hashqueue  *next;
-  unsigned          keylen;	/* length of current key */
-  int               locked;	/* currently visited my some hash walk */
-  struct _sorter *backlink;	/* there might be an index on that list */
-  char             key [1];	/* varable size key */
-  /* varable length, pointer aligned  */
+  unsigned          keylen;	/// Length of current key
+  int               locked;	/// Currently visited by some hash walk
+  struct _sorter *backlink;	/// There might be an index on that list
+  char             key [1];	/// variable size key
+  /* variable length, pointer aligned  */
 } hashqueue ;
 
 /* get the byte offset of a field */
