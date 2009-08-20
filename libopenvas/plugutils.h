@@ -175,7 +175,6 @@ void plug_replace_key(struct arglist *, char *, int, void *);
 void * plug_get_fresh_key(struct arglist *, char *, int *);
 struct kb_item ** plug_get_kb(struct arglist *);
 void * plug_get_key(struct arglist *, char *, int *);
-void * plug_get_key(struct arglist *, char *, int *);
 
 char* nessuslib_version();
 void nessus_lib_version(int *, int *, int *);
@@ -197,7 +196,7 @@ int shared_socket_destroy  ( struct arglist *, char * );
 
 /* in fact, these defines might better be in
  * a separate files. They are inserted here
- * simply bebause plugutils uses them a lot.
+ * simply because plugutils uses them a lot.
  */
 #define INTERNAL_COMM_MSG_TYPE_CTRL (1 << 16)
 #define INTERNAL_COMM_MSG_TYPE_KB (1 << 17)

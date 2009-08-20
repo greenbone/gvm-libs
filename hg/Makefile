@@ -48,7 +48,7 @@ install : libopenvashg.la
 libopenvashg.la : $(OBJS)
 	$(LINK) -o libopenvashg.la $(LO_OBJS) $(LIBS) -rpath ${libdir} \
 	-version-info ${PACKAGE_VERSION}
-	        
+
 hg_utils.o : hg_utils.h hosts_gatherer.h hg_utils.c
 	  $(COMPILE) -c hg_utils.c
 
@@ -57,21 +57,21 @@ hg_add_hosts.o : hg_add_hosts.h hosts_gatherer.h hg_add_hosts.c
 
 hg_subnet.o : hg_subnet.h hosts_gatherer.h hg_subnet.c
 	  $(COMPILE) -c hg_subnet.c
-	
+
 hg_filter.o : hg_filter.h hosts_gatherer.h hg_filter.c
 	  $(COMPILE) -c hg_filter.c	
 
 hosts_gatherer.o : hosts_gatherer.h hosts_gatherer.c
 	  $(COMPILE) -c hosts_gatherer.c
-		
+
 hg_dns_axfr.o : hg_dns_axfr.c hosts_gatherer.h hg_dns_axfr.c
 	 $(COMPILE) -c hg_dns_axfr.c
-	
+
 hg_debug.o : hg_debug.c hosts_gatherer.h hg_debug.c
 	  $(COMPILE) -c hg_debug.c
-	
+
 distclean : clean
-	
+
 clean :
 	@rm -f OBJ/* lib*.a *~ *core *.lo *.o lib*.la
 	@rm -rf .libs

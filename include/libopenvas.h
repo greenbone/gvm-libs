@@ -25,7 +25,7 @@
 
 /**
  * \mainpage
- * 
+ *
  * \section Introduction
  * \verbinclude README
  *
@@ -60,12 +60,14 @@
 #include "www_funcs.h"
 
 
-/*
- * Plugin standard function templates
+/**
+ * Plugin standard function template to init a plugin (nasl/nes/oval).
  */
-
 typedef int(*plugin_init_t)(struct arglist *);
-typedef int(*plugin_run_t)(struct arglist *);      
+/**
+ * Plugin standard function template to run a plugin (nasl/nes/oval).
+ */
+typedef int(*plugin_run_t)(struct arglist *);
 
 /*
  * Network-related functions
@@ -92,40 +94,48 @@ void (*pty_logger(void(*)(const char *, ...)))(const char *, ...);
 /*
  * Miscellaneous functions
  */
- 
+
 char * plug_get_host_name(struct arglist *);
+
+/* Plugin preference types (influence gui in client) */
 #define PREF_CHECKBOX "checkbox"
 #define PREF_ENTRY "entry"
 #define PREF_RADIO "radio"
 #define PREF_PASSWORD "password"
 #define PREF_FILE "file"
+/*#define PREF_SSH_CREDENTIALS "sshcredentials"*/
 
 /*
  * Pcap utils
  */
 #include <pcap.h>
- 
-/* 
- * Misc. defines
+
+/**
+ * 'Categories', influence execution order of NVTs.
  */
-/* Actions types of the plugins */
-#define ACT_LAST		ACT_END
-#define ACT_FIRST		ACT_INIT
 
-#define ACT_END			10
-#define ACT_FLOOD		9
-#define ACT_KILL_HOST		8
-#define ACT_DENIAL 		7
-#define ACT_DESTRUCTIVE_ATTACK 	6
-#define ACT_MIXED_ATTACK 	5
-#define ACT_ATTACK 		4
-#define ACT_GATHER_INFO 	3
-#define ACT_SETTINGS		2
-#define ACT_SCANNER 		1
-#define ACT_INIT		0
+/** Last plugins actions type. */
+#define ACT_LAST                ACT_END
+/** First plugins actions type. */
+#define ACT_FIRST               ACT_INIT
 
-#define	LAUNCH_DISABLED 0
-#define LAUNCH_RUN	1
-#define LAUNCH_SILENT	2
+#define ACT_END                 10
+#define ACT_FLOOD               9
+#define ACT_KILL_HOST           8
+#define ACT_DENIAL              7
+#define ACT_DESTRUCTIVE_ATTACK  6
+#define ACT_MIXED_ATTACK        5
+#define ACT_ATTACK              4
+#define ACT_GATHER_INFO         3
+#define ACT_SETTINGS            2
+#define ACT_SCANNER             1
+#define ACT_INIT                0
 
-#endif
+/**
+ * States of scheduler_plugin.
+ */
+#define LAUNCH_DISABLED 0
+#define LAUNCH_RUN      1
+#define LAUNCH_SILENT   2
+
+#endif /* _LIBOPENVAS_H */

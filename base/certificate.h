@@ -43,7 +43,7 @@ typedef struct {
   char* fingerprint;  ///< Fingerprint.
   char* owner;        ///< Name of the owner of the certificate.
   char* public_key;   ///< Full public key.
-  gboolean trusted;   ///< True if the certificate is trusted.
+  gboolean trusted;   ///< TRUE if the certificate is trusted.
 } certificate_t;
 
 certificate_t *certificate_create (void);
@@ -61,7 +61,7 @@ int certificate_set_owner (certificate_t *, const gchar *);
 int certificate_set_public_key (certificate_t *, const gchar *);
 void certificate_set_trusted (certificate_t *, gboolean);
 
-
+
 /* Collections of certificates. */
 
 /**

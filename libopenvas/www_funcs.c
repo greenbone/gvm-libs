@@ -102,20 +102,21 @@ build_encode_URL(data, method, path, name, httpver)
   char		gizmo[32];
   struct kb_item ** kb = plug_get_kb(data);
 
-  /* 
-   * basically, we need to store the path, a slash, and the name 
+  /**
+   * basically, we need to store the path, a slash, and the name.
    * Encoding will expand this
    * We'll add the method in front of all this and the HTTP version 
-   * at the end when all is done. That's not optimized, but that's simpler
+   * at the end when all is done. That's not optimized, but that's simpler.
    */
   l = path !=  NULL ? strlen(path) : 0;
   l += strlen(name) + (path != NULL);
 
+  /** @TODO Evaluate if GLib functions for building paths are applicable here */
   ret = emalloc(l+ 1);
   if (path == NULL)
-    strcpy(ret, name);
+    strcpy (ret, name);
   else
-    sprintf(ret, "%s/%s", path, name);
+    sprintf (ret, "%s/%s", path, name);
 
 #ifdef URL_DEBUG
   fprintf(stderr, "Request => %s\n", ret);
@@ -215,7 +216,7 @@ build_encode_URL(data, method, path, name, httpver)
       l += 36;
       ret2 = emalloc(l + 1);
       n_slash += 4;
-      
+
       s = gizmo;
       *s++ = lrand48() % 26 + 'A'; /* RATS: ignore */
       for (i = 1; i < 8; i ++)
@@ -228,7 +229,7 @@ build_encode_URL(data, method, path, name, httpver)
       fprintf(stderr, "Request =  %s\n", ret);
 #endif
     }
-  
+
   s = kb_item_get_str(kb, "NIDS/HTTP/param_hiding");
   param_hiding = (s != NULL && strcmp(s, "yes") == 0);
   if (param_hiding)
@@ -236,7 +237,7 @@ build_encode_URL(data, method, path, name, httpver)
       l += 25;
       ret2 = emalloc(l + 1);
       n_slash += 2;
-      
+
       s = gizmo;
       for (i = 0; i < 8; i ++)
 	*s++ = lrand48() % 26 + 'a'; /* RATS: ignore */
@@ -254,7 +255,7 @@ build_encode_URL(data, method, path, name, httpver)
   if (double_slash)
     {
       l += n_slash;
-      
+
       ret2 = emalloc(l + 1);
       for (s = ret, s2 = ret2; *s != '\0' && *s != '?'; s ++)
 	if (*s != '/')
@@ -303,8 +304,8 @@ build_encode_URL(data, method, path, name, httpver)
     else if (strcmp(s, "Incorrect UTF-8") == 0)
       url_encoding = URL_CODE_UTF8BAD;
   }
-  
-  
+
+
   switch (url_encoding)
     {
     case URL_CODE_UTF16:
@@ -321,7 +322,7 @@ build_encode_URL(data, method, path, name, httpver)
     }
 
   if (url_encoding != URL_CODE_NONE)
-    {  
+    {
       ret2 = emalloc(l + 1);
 
       for (s = ret, s2 = ret2; *s != '\0'; s ++)
@@ -427,7 +428,7 @@ build_encode_URL(data, method, path, name, httpver)
 	  fprintf(stderr, "Unhandled value %s\n", abs_URI_host);
 #endif
      }
- 
+
       l += strlen(h) + strlen(abs_URI_type) + 3;
       n_slash += 2;
       ret2 = emalloc(l + 1);
@@ -469,7 +470,7 @@ build_encode_URL(data, method, path, name, httpver)
 	}
       l += strlen(httpver) + 2;
     }
-	
+
 
   s = kb_item_get_str(kb, "NIDS/HTTP/tab_separator");
   tab_sep = (s != NULL && strcmp(s, "yes") == 0);
