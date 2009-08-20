@@ -14,7 +14,7 @@
 
 	* include/includes.h: This file is not being used
 	for libopenvas anymore nor installed. (It is still
-	used for libopenvas_hg).
+	used for hg).
 	However, this change might cause compile failures
 	or other defects on systems other than Debian Etch.
 	So, the remaining file might serve for reference
