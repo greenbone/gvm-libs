@@ -1,5 +1,12 @@
 2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	As part of CR #38 (http://www.openvas.org/openvas-cr-38.html), renamed
+	libopenvas_hg to libopenvashg.
+
+	* libopenvas-config.in: Adjusted output of 'libopenvas-config --libs'.
+
+2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* hg/Makefile, include/libopenvas.h, libopenvas/plugutils.h,
 	libopenvas/www_funcs.c, base/certificate.h: Cosmetics and docs.
 
@@ -8,7 +15,7 @@
 	As part of CR #38 (http://www.openvas.org/openvas-cr-38.html), renamed
 	libopenvas_hg to libopenvashg.
 
-	* configure.in, hg/Makefile, TODO: Renamed library and references to it.
+	* hg/Makefile, TODO: Renamed library and references to it.
 
 	* hg/test.c: Renamed library in comment.
 
