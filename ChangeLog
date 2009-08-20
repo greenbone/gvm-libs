@@ -1,5 +1,19 @@
 2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	As part of CR #38 (http://www.openvas.org/openvas-cr-38.html), renamed
+	library libopenvas to libopenvasmisc.
+
+	* misc/Makefile, libopenvas-config.in: Changed library name and
+	output of libopenvas-config.
+	
+	* misc/openvas-logging.c: Changed path in comment.
+	
+	* doc/Doxyfile, doc/Doxyfile_full: Adjusted input path.
+	
+	* hg/Makefile: Changed include path.
+
+2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* MANIFEST: Sorted.
 
 2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>

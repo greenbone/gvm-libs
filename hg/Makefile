@@ -22,7 +22,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include ../openvas-libraries.tmpl
-COMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(include) $(CFLAGS) -Wall -I../libopenvas
+COMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(include) $(CFLAGS) -Wall -I../misc
 LINK = $(LIBTOOL) --mode=link $(CC) $(LDFLAGS)
 
 
