@@ -1,4 +1,4 @@
-/* openvas-libraries/libopenvas
+/* openvas-libraries/misc
  * $Id$
  * Description: Implementation of logging methods for openvas
  *

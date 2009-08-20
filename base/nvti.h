@@ -1,4 +1,4 @@
-/* openvas-libraries/libopenvascommon
+/* openvas-libraries/base
  * $Id$
  * Description: API (structs and protos) for NVT Info datasets
  *

@@ -1,4 +1,4 @@
-/* openvas-libraries/libopenvascommon
+/* openvas-libraries/base
  * $Id$
  * Description: Facilities for certificates and certificate collections.
  *

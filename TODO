@@ -1,6 +1,6 @@
 2008-12-30 <Jan-Oliver.Wagner@intevation.de>
 
-	* libopenvas/plugutils.c and libopenvas/store.c:
+	* misc/plugutils.c and misc/store.c:
 	These modules have functions that call functions
 	of the other module and vice versa. This is a good
 	hint on a broken design. The store (actually: cache)
@@ -13,7 +13,7 @@
 2008-03-26 <Jan-Oliver.Wagner@intevation.de>
 
 	* include/includes.h: This file is not being used
-	for libopenvas anymore nor installed. (It is still
+	for misc anymore nor installed. (It is still
 	used for hg).
 	However, this change might cause compile failures
 	or other defects on systems other than Debian Etch.

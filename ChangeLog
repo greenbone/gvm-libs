@@ -1,5 +1,12 @@
 2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* TODO, base/certificate.c, base/certificate.h, base/nvti.c,
+	base/nvti.c, misc/openvas_logging.h: Updated paths in comments.
+
+	* hg/Makefile: Updated include path for the test target.
+
+2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	As part of CR #38 (http://www.openvas.org/openvas-cr-38.html), renamed
 	library libopenvas to libopenvasmisc.
 

@@ -36,7 +36,7 @@ LO_OBJS = hg_utils.lo hg_add_hosts.lo hg_subnet.lo hg_filter.lo \
 all : libopenvashg.la
 
 test : libopenvashg.la test.c
-	$(CC) $(DEFS) $(include) $(CFLAGS) -Wall -I../libopenvas test.c -o test -L.libs -lopenvashg $(LIBS)
+	$(CC) $(DEFS) $(include) $(CFLAGS) -Wall -I../misc test.c -o test -L.libs -lopenvashg $(LIBS)
 
 install : libopenvashg.la
 	test -d $(DESTDIR)${libdir} || $(INSTALL_DIR) -m 755 $(DESTDIR)${libdir}

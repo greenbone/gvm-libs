@@ -1,4 +1,4 @@
-/* openvas-libraries/libopenvascommon
+/* openvas-libraries/base
  * $Id$
  * Description: Implementation of API to handle NVT Info datasets
  *
