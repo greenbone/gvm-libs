@@ -172,6 +172,7 @@ accessrule_set_comment (accessrule_t * r, const gchar * comment)
 gchar *
 accessrule_as_xml (const accessrule_t * r)
 {
+  /** @TODO Use g_markup_escape here */
   return (g_strconcat
           ("<accessrule>",
              "<rule>",
@@ -238,13 +239,90 @@ accessrules_size (accessrules_t* rules)
 /**
  * @brief Add an Access Rule to a collection of Access Rules.
  *
- * @param rules The collection of Access Rules.
+ * @param rules The collection of Access Rules (must have ip set).
  */
 void
 accessrules_add (accessrules_t* rules, accessrule_t* r)
 {
-  if (r)
+  if (r && accessrule_ip(r))
     g_hash_table_insert (rules, (gpointer) accessrule_ip (r), (gpointer) r);
+}
+
+/**
+ * @brief Handle the start of an xml element in an accessrule xml file.
+ *
+ * @param[in]  context           Parser context.
+ * @param[in]  element_name      XML element name.
+ * @param[in]  attribute_names   XML attribute name.
+ * @param[in]  attribute_values  XML attribute values.
+ * @param[in]  user_data         Not used.
+ * @param[in]  error             Error parameter.
+ */
+static void
+handle_start_element (GMarkupParseContext* context,
+                      const gchar *element_name,
+                      const gchar **attribute_names,
+                      const gchar **attribute_values,
+                      gpointer user_data,
+                      GError **error)
+{
+  // Can be:
+  // <accessrules>
+  // <accessrule>
+  // <rule>
+  // <ip>
+  // <comment>
+}
+
+/**
+ * @brief Handle the end of an xml element in an accessrule xml file.
+ *
+ * @param[in]  context           Parser context.
+ * @param[in]  element_name      XML element name.
+ * @param[in]  user_data         Not used.
+ * @param[in]  error             Error parameter.
+ */
+static void
+handle_end_element (GMarkupParseContext* context,
+                    const gchar *element_name,
+                    gpointer user_data,
+                    GError **error)
+{
+  
+}
+
+/**
+ * @brief Handle additional text of an XML element.
+ *
+ * @param[in]  context           Parser context.
+ * @param[in]  text              The text.
+ * @param[in]  text_len          Length of the text.
+ * @param[in]  user_data         Not used.
+ * @param[in]  error             Error parameter.
+ */
+static void
+handle_text (GMarkupParseContext* context,
+             const gchar *text,
+             gsize text_len,
+             gpointer user_data,
+             GError **error)
+{
+  
+}
+
+/**
+ * @brief Handle an XML parsing error.
+ *
+ * @param[in]  context           Parser context.
+ * @param[in]  error             The error.
+ * @param[in]  user_data         Dummy parameter.
+ */
+static void
+handle_error (GMarkupParseContext* context,
+              GError *error,
+              gpointer user_data)
+{
+  
 }
 
 /**
@@ -258,8 +336,53 @@ accessrules_add (accessrules_t* rules, accessrule_t* r)
 accessrules_t *
 accessrules_from_file (gchar * fn)
 {
-// TODO: implement XML load with glib functions and create data stucture
+  GMarkupParser xml_parser;
+  GError* error = NULL;
+  GMarkupParseContext *context;
+  gchar* file_contents;
+
+  /* Set up the XML parser. */
+  xml_parser.start_element = handle_start_element;
+  xml_parser.end_element   = handle_end_element;
+  xml_parser.text          = handle_text;
+  xml_parser.passthrough   = NULL;
+  xml_parser.error         = handle_error;
+
+  /** @TODO Create a access_rules_t* and pass as user data */
+  context = g_markup_parse_context_new (&xml_parser, 0, NULL, NULL);
+
+  /** @TODO error checks, handling */
+  if (g_file_get_contents (fn, &file_contents, NULL, &error) == FALSE)
+    ;
+  if (g_markup_parse_context_parse (context, file_contents,
+                                   strlen(file_contents), error) == FALSE)
+    ;
+
   return NULL;
+}
+
+/**
+ * @brief g_hash_table callback function to print the results of @ref
+ * @brief accessrule_as_xml to file @ref file in a g_hash_table_foreach.
+ * 
+ * @param ip   (Ignored) The ip for the rule (key in the g_hashtable).
+ * @param rule The rule itself (value in the g_hashtable).
+ * @param file File handle to write to.
+ */
+static void
+accessrule_to_file (gchar* ip, accessrule_t * rule, FILE * file)
+{
+  if (!file || !rule)
+    return;
+
+  gchar* rule_as_xml = accessrule_as_xml (rule);
+  if (rule_as_xml)
+    {
+      fprintf (file, "%s", rule_as_xml);
+      g_free (rule_as_xml);
+    }
+
+  return;
 }
 
 /**
@@ -281,7 +404,7 @@ accessrules_to_file (accessrules_t* rules, gchar * fn)
   if (! fp) return NULL;
 
   fprintf(fp, "<acessrules>\n");
-  //accessrule_to_file(); (TODO, print each item)
+  g_hash_table_foreach (rules, accessrule_to_file, fp);
   fprintf(fp, "</acessrules>\n");
 
   fclose (fp);

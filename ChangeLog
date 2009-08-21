@@ -1,5 +1,16 @@
 2009-08-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* base/accessrules.c (accessrule_to_file): New, write a single rule to
+	file
+	(accessrules_to_file): Call accessrule_to_file for each rule
+	(handle_start_element, handle_end_element, handle_text, handle_error):
+	New, stubs for xmlparser
+	(accessrules_from_file): Initialize xml parser.
+	(accessrules_add): Added Null guard.
+	Still incomplete, added TODOs.
+
+2009-08-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* base/accessrules.c (accessrules_to_file, accessrules_from_file):
 	Corrected doc.
 
