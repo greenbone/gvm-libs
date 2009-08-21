@@ -1,5 +1,14 @@
 2009-08-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* base/accessrules.c: New. New implementation for access rules.
+	Not finished yet.
+
+	* base/accessrules.h: New. Respective Protos.
+
+	* misc/Makefile: Added handling for module "accessrules".
+
+2009-08-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* base/nvti.c: Fixed a few indentions and incomplete doc strings.
 
 2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
