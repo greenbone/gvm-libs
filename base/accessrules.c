@@ -90,7 +90,7 @@ accessrule_rule (const accessrule_t * r)
  * @return The IP string. Don't free this.
  */
 gchar *
-accessrule_version (const accessrule_t * r)
+accessrule_ip (const accessrule_t * r)
 {
   return (r->ip);
 }
@@ -248,10 +248,9 @@ accessrules_add (accessrules_t* rules, accessrule_t* r)
 }
 
 /**
- * @brief Write the contents of a Access Rules collection to a file.
+ * @brief Read a collection of Access Rules from a file.
  *
- * @param rules The collection of Access Rules.
- * @param fn    The filename where to store the Access Rules.
+ * @param fn The filename from which to read.
  *
  * @return NULL in case an error occured. Else a collection of access rules
  *         which might be empty e.g. if the format was incorrect.
@@ -264,9 +263,10 @@ accessrules_from_file (gchar * fn)
 }
 
 /**
- * @brief Read a collection of Access Rules from a file.
+ * @brief Write the contents of a Access Rules collection to a file.
  *
- * @param fn The filename from which to read.
+ * @param rules The collection of Access Rules.
+ * @param fn    The filename where to store the Access Rules.
  *
  * @return 0 in case of success, other values mean a failure.
  */
@@ -281,7 +281,7 @@ accessrules_to_file (accessrules_t* rules, gchar * fn)
   if (! fp) return NULL;
 
   fprintf(fp, "<acessrules>\n");
-// TODO: here print all the single entries
+  //accessrule_to_file(); (TODO, print each item)
   fprintf(fp, "</acessrules>\n");
 
   fclose (fp);

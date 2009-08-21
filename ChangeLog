@@ -1,3 +1,11 @@
+2009-08-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* base/accessrules.c (accessrules_to_file, accessrules_from_file):
+	Corrected doc.
+
+	* base/accessrules.c (accessrule_version, accessrule_ip): Renamed
+	function.
+
 2009-08-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/accessrules.c: New. New implementation for access rules.
