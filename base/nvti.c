@@ -448,7 +448,7 @@ nvti_pref_len (const nvti_t * n)
  *
  * @param p The position of the preference to return.
  *
- * @return The number of preferences. NULL if 
+ * @return The number of preferences. NULL if
  */
 nvtpref_t *
 nvti_pref (const nvti_t * n, guint p)
@@ -1154,7 +1154,7 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
           fprintf(stderr, "mkdir(%s) : %s\n", cache_dir, strerror(errno));
           g_free(text);
           g_key_file_free (keyfile);
-	  return (1);
+          return (1);
         }
         fp = fopen (fn, "w");
       }
@@ -1163,7 +1163,7 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
           fprintf(stderr, "fopen(%s) : %s\n", fn, strerror(errno));
           g_free(text);
           g_key_file_free (keyfile);
-	  return (2);
+          return (2);
       }
 
       fputs (text, fp);
@@ -1228,6 +1228,7 @@ nvtis_size (nvtis_t* nvtis)
  * @brief Add an NVT Info to a collection of NVT Infos.
  *
  * @param nvtis The collection of NVT Infos.
+ * @param nvti  The NVT Info to add.
  */
 void
 nvtis_add (nvtis_t* nvtis, nvti_t* nvti)
@@ -1240,7 +1241,7 @@ nvtis_add (nvtis_t* nvtis, nvti_t* nvti)
  * @brief Add an NVT Info to a collection of NVT Infos.
  *
  * @param nvtis The collection of NVT Infos.
- * @param nvtis The OID of the NVT.
+ * @param oid   The OID of the NVT.
  *
  * @return The NVT Info, if found, else NULL.
  */

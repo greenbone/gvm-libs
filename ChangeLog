@@ -1,3 +1,7 @@
+2009-08-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/nvti.c: Fixed a few indentions and incomplete doc strings.
+
 2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* base/README.txt: Removed second blank newline at eof.
