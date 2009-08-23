@@ -1,3 +1,7 @@
+2009-08-24  Tim Brown <timb@openvas.org>
+
+	* base/nvti.c: Further format string fixes from Stephan Kleine.
+
 2009-08-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* base/accessrules.c (accessrule_to_file): New, write a single rule to
@@ -119,6 +123,7 @@
 	* libopenvas_hg/hg_add_hosts.c (hg_add_comma_delimited_hosts):
 	Minimal cosmetics/doc.
 
+>>>>>>> .r4676
 2009-08-17  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* ChangeLog: Switch to full email address.
