@@ -90,12 +90,12 @@ nessuslib_pthreads_enabled()
 
 
 /**
- * @brief Escapes \\n and \\r in \<in\> properly.
- * 
- * The resulting string is copied in another buffer.
- * @param in String in which to escape \\n and \\r.
- * 
- * @return Copy of in with \\n and \\r escaped.
+ * @brief Escapes \\n and \\r and \\ in \<in\> properly. The
+ * @brief resulting string is copied and returned.
+ *
+ * @param in String in which to escape \\n, \\r and \\.
+ *
+ * @return Copy of in with \\n, \\r and \\ escaped, NULL if @ref in is NULL.
  * 
  * @see To undo, call rmslashes.
  */
@@ -103,7 +103,11 @@ char *
 addslashes (char* in)
 {
  char * ret;
- char * out = malloc(strlen(in) * 2 + 1);
+ char * out;
+
+ if (in == NULL) return NULL;
+
+ out = malloc (strlen(in) * 2 + 1);
  bzero(out, strlen(in) * 2 + 1);
  ret = out;
  while(in[0])
@@ -136,7 +140,8 @@ addslashes (char* in)
 /**
  * @brief Replaces escape codes (\\n, \\r) by the real value.
  * 
- * The resulting string is stored in another buffer
+ * The resulting string is stored in another buffer.
+ *
  * @see (slashes could have been added with addslashes)
  */
 char *
