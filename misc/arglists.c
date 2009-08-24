@@ -32,11 +32,14 @@
 #include "arglists.h"
 #include "system_internal.h"
 
-/* 
- * We use a hash of the argument name to speed up the lookups
- * when calling arg_get_value()
- */
 #define HASH_MAX 2713
+
+/**
+ * @brief Make a hash value from string.
+ * 
+ * Hash vlaues of argument names are used to speed up the lookups when calling
+ * arg_get_value().
+ */
 static int mkhash(const char * name)
 {
  int h = 0;
@@ -49,8 +52,8 @@ static int mkhash(const char * name)
  return h;
 }
 
-/*
- * name_cache :
+/**
+ * @brief Struct to cache names (keys) of arglist entries.
  * 
  * A lot of entries in our arglists have the same name.
  * We use a caching system to avoid to allocate twice the same name
@@ -80,8 +83,7 @@ static void cache_init()
 }
 
 static struct name_cache * 
-cache_get_name(name)
- char * name;
+cache_get_name(char * name)
 {
  struct name_cache * nc;
  int h;
@@ -108,8 +110,7 @@ cache_get_name(name)
 }
 
 static struct name_cache *
-cache_add_name(name)
- char * name;
+cache_add_name(char * name)
 {
  struct name_cache * nc;
 
@@ -136,8 +137,7 @@ cache_add_name(name)
 }
 
 static char *
-cache_inc(name)
- char * name;
+cache_inc(const char * name)
 {
  struct name_cache * nc = cache_get_name(name);
  if(nc != NULL)
@@ -148,8 +148,7 @@ cache_inc(name)
 }
 
 static void 
-cache_dec(name)
- char * name;
+cache_dec(char * name)
 {
  struct name_cache* nc;
 
@@ -181,8 +180,7 @@ cache_dec(name)
 	}
 }
 
-void arg_free_name(name)
- char * name;
+void arg_free_name(char * name)
 {
  cache_dec(name);
 }

@@ -964,15 +964,15 @@ harg_inct
   }
 
   /* decrement */
-  if (inc_op_notnegtv_record (incop) && GPOINTER_TO_SIZE(r->d.d.ptr [0]) < inc) {
+  if (inc_op_notnegtv_record (incop) && (GPOINTER_TO_SIZE(r->d.d.ptr [0]) < inc)) {
     errno = ERANGE;
     return -1;
   }
-  if (inc_op_notpostv_record (incop) && GPOINTER_TO_SIZE(r->d.d.ptr [0]) > inc) {
+  if (inc_op_notpostv_record (incop) && (GPOINTER_TO_SIZE(r->d.d.ptr [0]) > inc)) {
     errno = ERANGE;
     return -1;
   }
-  if (inc_op_destroy0_record (incop) && GPOINTER_TO_SIZE(r->d.d.ptr [0]) <= inc) {
+  if (inc_op_destroy0_record (incop) && (GPOINTER_TO_SIZE(r->d.d.ptr [0]) <= inc)) {
     delete_hlst (a->x, key, klen);
     return errno = 0;
   }

@@ -1,5 +1,20 @@
 2009-08-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* misc/arglists.c, misc/system.c: Cosmetics & doc, to increase
+	similarity to arglist implementation in openvas-client.
+	
+	* misc/harglists.c (harg_inct): Added brackets around condition, like
+	in openvas-clients version of this file.
+	
+	* misc/system.h: Removed if(n)defs for HUNT_MEM_LEAKS, as the otherwise
+	defined functions like __hml_free could not be found to be implemented
+	anywhere.
+	
+	* misc/hlst.c (create_hlst, copy_hlst): Added ifdef _WIN32
+	conditioned code from openvas-client/libness/hlst.c.
+
+2009-08-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* misc/plugutils.c: Added NULL-guard that is done in addslashes.c in
 	openvas-client, equal comments.
 

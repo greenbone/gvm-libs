@@ -49,10 +49,8 @@ void * emalloc(size)
     void * ptr;
     const struct timespec delay = { 0, 5000000 } ; /* 5000 mikroseconds = 5000000 nanoseconds */
 
-    /*
-     * Just for our personal safety, we increase the 
-     * size by one
-     */
+    /* Just for our personal safety, we increase the 
+     * size by one */
     if((int)size < 0)
     {
      fprintf(stderr, "[%d] Won't allocate a pointer of size %ld !\n", getpid(), (long)size);
@@ -62,12 +60,10 @@ void * emalloc(size)
     size++;
    
    
-    /*
-     * If no memory can be allocated, then wait a little.
+    /* If no memory can be allocated, then wait a little.
      * It's very likely that another nessusd child will free
      * the size of memory we need. So we make 10 attempts,
-     * and if nothing happens, then we exit
-     */
+     * and if nothing happens, then we exit. */
     ptr = malloc(size);
     if(!ptr){
     	int i;
@@ -89,8 +85,7 @@ void * emalloc(size)
 }
 
 char *
-estrdup(str)
- const char * str; 
+estrdup (const char* str)
 {
     char * buf;
     int len;
@@ -109,20 +104,18 @@ estrdup(str)
 
 
 void
-efree(ptr)
- void * ptr;
+efree (void * ptr)
 {
     char ** p = ptr;
-    if(p && *p){
-    	free(*p);
-    	*p=NULL;
-	}
+    if (p && *p)
+      {
+        free (*p);
+        *p = NULL;
+      }
 }
 
 void *
-erealloc(ptr, size)
- void * ptr;
- size_t size;
+erealloc (void * ptr, size_t size)
 {
   void * ret;
 
@@ -144,12 +137,11 @@ erealloc(ptr, size)
 
 
 size_t
-estrlen(s,n)
- const char * s; 
- size_t n;
+estrlen (const char * s, size_t n)
 {
     size_t i;
-    for(i = 0; (*(s+i) != '\0' && i < n); i++);
+    for (i = 0; (* (s + i) != '\0' && i < n); i++);
+
     return i;
 }
 

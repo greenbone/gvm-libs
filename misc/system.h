@@ -32,22 +32,4 @@ void * erealloc(void*, size_t);
 void efree(void *);
 size_t estrlen(const char *, size_t);
 
-#ifdef HUNT_MEM_LEAKS
-void * __hml_malloc(char*, int, size_t);
-char * __hml_strdup(char*, int, char*);
-void   __hml_free(char*, int, void*);
-void * __hml_realloc(char*, int, void*, size_t);
-
-#define emalloc(x) __hml_malloc(__FILE__, __LINE__, x)
-#define estrdup(x) __hml_strdup(__FILE__, __LINE__, x)
-#define efree(x)   __hml_free(__FILE__, __LINE__, x)
-
-#undef strdup
-
-#define malloc(x) __hml_malloc(__FILE__, __LINE__, x)
-#define strdup(x) __hml_strdup(__FILE__, __LINE__, x)
-#define free(x)   __hml_free(__FILE__, __LINE__, &x)
-#define realloc(x, y) __hml_realloc(__FILE__, __LINE__, x, y)
-#endif
-
 #endif
