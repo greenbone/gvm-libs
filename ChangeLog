@@ -123,7 +123,6 @@
 	* libopenvas_hg/hg_add_hosts.c (hg_add_comma_delimited_hosts):
 	Minimal cosmetics/doc.
 
->>>>>>> .r4676
 2009-08-17  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* ChangeLog: Switch to full email address.
