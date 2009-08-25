@@ -66,6 +66,7 @@ void * emalloc(size)
      * and if nothing happens, then we exit. */
     ptr = malloc(size);
     if(!ptr){
+#ifndef _WIN32
     	int i;
 	for(i=0; (i<5) && ptr == NULL ;i++)
 	{
@@ -73,6 +74,7 @@ void * emalloc(size)
      nanosleep(&delay, NULL);
 	 ptr = malloc(size);
 	}
+#endif
 	
 	if( ptr == NULL )
 	{

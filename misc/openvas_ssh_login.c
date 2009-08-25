@@ -1,6 +1,6 @@
 /* OpenVAS-Client
  * $Id$
- * Description: SSH Key management.
+ * Description: LSC Credentials management.
  *
  * Authors:
  * Felix Wolfsteller <felix.wolfsteller@intevation.de>

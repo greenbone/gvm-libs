@@ -1,6 +1,6 @@
 /* OpenVAS-Client
  * $Id$
- * Description: SSH Key management.
+ * Description: LSC Credentials management.
  *
  * Authors:
  * Felix Wolfsteller <felix.wolfsteller@intevation.de>
@@ -39,17 +39,18 @@
 #include <glib.h>
 
 /**
- * SSH Login information struct.
+ * SSH Login information struct. (credentials)
  */
 typedef struct {
-  char* name;
-  char* username;
-  char* userpassword;
-  char* public_key_path;
-  char* private_key_path;
-  char* ssh_key_passphrase;
-  char* comment;
-  gboolean valid; /**< TRUE if all information and files available, FALSE otherwise.*/
+  char* name;               /// Name to identify this credentials
+  char* username;           /// Name of the user
+  char* userpassword;       /// Password of the user
+  char* public_key_path;    /// Path to the public key
+  char* private_key_path;   /// Path to the private key
+  char* ssh_key_passphrase; /// Passphrase for the key
+  char* comment;            /// Optional comment
+  gboolean valid;           /**< @brief TRUE if all information and key files
+                             *         available, FALSE otherwise.*/
 } openvas_ssh_login;
 
 openvas_ssh_login* openvas_ssh_login_new(char* name, char* pubkey_file,
