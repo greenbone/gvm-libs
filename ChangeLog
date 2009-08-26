@@ -1,5 +1,11 @@
 2009-08-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/hg_add_hosts.h: Removed proto for convipv4toipv4mappedaddr.
+
+	* misc/network.h: Added proto for convipv4toipv4mappedaddr.
+
+2009-08-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	First set of changes to openvas-libraries towards IPv6 support.
 	This corresponds to Change Request #27,
 	http://www.openvas.org/openvas-cr-27.html
