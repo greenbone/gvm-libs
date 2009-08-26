@@ -1,6 +1,11 @@
 2009-08-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
-	* misc/hg_add_hosts.h: Removed proto for convipv4toipv4mappedaddr.
+	* hg/hg_add_hosts.h: Removed proto for cmpipv6addrs as there
+	is nowhere a implementation for this function.
+
+2009-08-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* hg/hg_add_hosts.h: Removed proto for convipv4toipv4mappedaddr.
 
 	* misc/network.h: Added proto for convipv4toipv4mappedaddr.
 
