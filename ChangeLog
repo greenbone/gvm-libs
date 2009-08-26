@@ -1,8 +1,12 @@
+2009-08-26  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* base/CMakeLists.txt: New file.  Initial cmake building setup.
+
 2009-08-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* misc/openvas_ssh_login.c, misc/openvas_ssh_login.h: Cosmetics. Files
 	now equal versions from openvas-client/src/openvas-lib again.
-	
+
 	* misc/system.c (emalloc): Added ifndef WIN_32 blocks from version
 	in openvas-client. Files are otherwise nearly identical.
 
@@ -10,14 +14,14 @@
 
 	* misc/arglists.c, misc/system.c: Cosmetics & doc, to increase
 	similarity to arglist implementation in openvas-client.
-	
+
 	* misc/harglists.c (harg_inct): Added brackets around condition, like
 	in openvas-clients version of this file.
-	
+
 	* misc/system.h: Removed if(n)defs for HUNT_MEM_LEAKS, as the otherwise
 	defined functions like __hml_free could not be found to be implemented
 	anywhere.
-	
+
 	* misc/hlst.c (create_hlst, copy_hlst): Added ifdef _WIN32
 	conditioned code from openvas-client/libness/hlst.c.
 
@@ -83,11 +87,11 @@
 
 	* misc/Makefile, libopenvas-config.in: Changed library name and
 	output of libopenvas-config.
-	
+
 	* misc/openvas-logging.c: Changed path in comment.
-	
+
 	* doc/Doxyfile, doc/Doxyfile_full: Adjusted input path.
-	
+
 	* hg/Makefile: Changed include path.
 
 2009-08-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
@@ -159,7 +163,7 @@
 
 	* libopenvas/services1.c (nessus_init_svc):
 	Added RATS:ignore flag where memcopy limit is sane.
-	
+
 	* libopenvas/openvas_auth.c (get_password_hashes):
 	Added RATS:ignore flag where statically sized buffer is sanely used.
 
