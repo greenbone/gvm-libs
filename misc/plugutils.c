@@ -889,12 +889,12 @@ plug_get_host_fqdn (struct arglist * desc)
 }
 
 
-struct in_addr *
+struct in6_addr *
 plug_get_host_ip (struct arglist * desc)
 {
  struct arglist * hinfos = arg_get_value(desc, "HOSTNAME");
  if (hinfos)
-   return ((struct in_addr*) arg_get_value(hinfos, "IP"));
+   return ((struct in6_addr*) arg_get_value(hinfos, "IP"));
  else
    return NULL;
 }

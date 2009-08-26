@@ -95,7 +95,7 @@ int stream_set(int, fd_set*);
 int stream_isset(int, fd_set*);
 
 struct in_addr socket_get_next_source_addr();
-int set_socket_source_addr(int, int);
+int set_socket_source_addr(int, int, int);
 void socket_source_init(struct in_addr *);
 
 int os_send(int, void*, int, int);

@@ -232,10 +232,12 @@ static void
   struct hg_host * ns;
 {
  struct hg_host * t = ns;
+ struct in6_addr in6addr;
  
  while(t && t->next)
  {
-  if(!t->addr.s_addr)t->addr = hg_resolv(t->hostname);
+  hg_resolv(t->hostname, &in6addr, AF_INET);
+  if(!t->addr.s_addr)t->addr.s_addr = in6addr.s6_addr32[3];
   t = t->next;
  }
 }

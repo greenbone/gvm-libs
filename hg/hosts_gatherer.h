@@ -39,20 +39,23 @@
 #define HG_DISTRIBUTE	     64
 
 struct hg_host {
-	char * hostname;	/**< Host name                    */
-        char * domain;		/**< Same pointer as hostname! Don't free it! */
-        struct in_addr addr;	/**< Host IP   	        	  */
-        int    cidr_netmask;	/**< CIDR-format netmask          */
-				/* When given a /N notation, we 
-				   put this as the upper limit
-				   of the network */
-	struct in_addr min;
-	struct in_addr max;
-	int	use_max:1;	/* use the field above ?	*/
- 	unsigned int    tested:1;
-	unsigned int    alive:1;
-	struct hg_host * next;
-	};
+  char * hostname;	/**< Host name                    */
+  char * domain;		/**< Same pointer as hostname! Don't free it! */
+  struct in_addr addr;	/**< Host IP   	        	  */
+  struct in6_addr in6addr; /* Host IP */
+  int    cidr_netmask;	/**< CIDR-format netmask          */
+  /* When given a /N notation, we 
+     put this as the upper limit
+     of the network */
+  struct in_addr min;
+  struct in_addr max;
+  struct in6_addr min6;
+  struct in6_addr max6;
+  int use_max:1;	/* use the field above ?	*/
+  unsigned int    tested:1;
+  unsigned int    alive:1;
+  struct hg_host * next;
+};
 
 struct hg_globals {
 	struct hg_host * host_list;    /**< List of tested hosts.       */
@@ -65,7 +68,7 @@ struct hg_globals {
 	};
 		 
 struct hg_globals * hg_init(char *, int);
-int hg_next_host(struct hg_globals *, struct in_addr *, char *, int);
+int hg_next_host(struct hg_globals *, struct in6_addr *, char *, int);
 void   hg_cleanup  (struct hg_globals *);
 
 int hg_test_syntax(char * hostname, int flags);

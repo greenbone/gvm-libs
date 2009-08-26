@@ -37,11 +37,13 @@ hg_gather_subnet_hosts(globals, host)
  struct in_addr start;
  struct in_addr end;
  char hostname[1024];
+ struct in6_addr in6addr;
 
  hg_add_subnet(globals, host->addr, host->cidr_netmask);
  start = cidr_get_first_ip(host->addr, host->cidr_netmask);
  end   = cidr_get_last_ip (start, host->cidr_netmask);
- hg_get_name_from_ip(start, hostname, sizeof(hostname));
+ hg_get_name_from_ip(&in6addr, hostname, sizeof(hostname));
+ start.s_addr = in6addr.s6_addr32[3];    /* This works only for ipv4 as of now */
  hg_add_host_with_options(globals, strdup(hostname), 
 				  start, 1, 32, 1,
 				  &end);	

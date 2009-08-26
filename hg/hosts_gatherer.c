@@ -89,113 +89,138 @@ hg_init( char* hostname, int flags)
  return(globals);
 }
 
-
-int hg_next_host(struct hg_globals * globals, struct in_addr * ip,
+int hg_next_host(struct hg_globals * globals, struct in6_addr * ip,
                  char * hostname, int sz)
 {
- struct hg_host * host;
+  struct hg_host * host;
 
- 
- if(!globals) return -1;
+
+  if(!globals) return -1;
 
 #ifdef DEBUG_HIGH
- printf("Hosts list : \n");
- hg_dump_hosts(globals->host_list);
+  printf("Hosts list : \n");
+  hg_dump_hosts(globals->host_list);
 #endif
 
- host = globals->host_list;
- 
- while(host->tested && host->next){
-        struct hg_host * next = host->next;
-        globals->host_list = next;
-        hg_host_cleanup(host);
-        host = next;
-        }
-     
- if( globals->flags & HG_DISTRIBUTE )
- {
-  struct hg_host * first = host;
-  unsigned int i;
-  
-  
-  i = 0;
-again:
-  host = first;
+  host = globals->host_list;
 
-  while (host != NULL && host->next != NULL )
-  {
-   if (  host->tested == 0 ){
-	 if( globals->distribute == i ) break;
-	 }
-   i ++;
-   host = host->next;
+  while(host->tested && host->next){
+    struct hg_host * next = host->next;
+    globals->host_list = next;
+    hg_host_cleanup(host);
+    host = next;
   }
-  globals->distribute ++;
-    
-  if( host == NULL || host->next == NULL ) { 
-  			if ( i == 0 ) return -1 ;
-  			globals->distribute = 0 ; 
-			i = 0; 
-			goto again; 
-			}
- }
- 
- 
- if( host != NULL && host->next == NULL )
- {
-  if(globals->marker != NULL)
-  	{
-  	hg_add_comma_delimited_hosts(globals, 0);
-	return hg_next_host(globals, ip, hostname, sz);
-	}
-  else return -1;
- }
-				   
-  if((globals->flags & HG_DNS_AXFR) && hg_filter_domain(globals, host->domain) == 0 )
-        {
-     	hg_dns_axfr_add_hosts(globals, host->domain);
-	}
-	
-  
-  if(!host->use_max || (host->addr.s_addr == host->max.s_addr))host->tested = 1;
-  host->alive = 1;
-  
-  if(ip)ip->s_addr = host->addr.s_addr;
-   
-   if(!host->use_max)
-   {
-   if((globals->flags & HG_REVLOOKUP))
-     {
-      if(!host->hostname ||
-        (inet_addr(host->hostname) != INADDR_NONE)) 
-	  return hg_get_name_from_ip(host->addr, hostname, sz);
-         else
-	  {
-          strncpy(hostname, host->hostname, sz - 1);
-  	  return 0;
-	  }
-     }
-   else
-    {
-     if(host->hostname && (inet_addr(host->hostname) == INADDR_NONE))
-       strncpy(hostname, host->hostname, sz - 1);
-     else 
-       strncpy(hostname, inet_ntoa(host->addr), sz - 1);
-      return 0;
-     }
-   }
-   else
-   {
-    if(globals->flags & HG_REVLOOKUP)
-      hg_get_name_from_ip(host->addr, hostname, sz);
-    else
-      strncpy(hostname, inet_ntoa(host->addr), sz - 1);
-    
-    host->addr.s_addr = htonl(ntohl(host->addr.s_addr) + 1);
-    return 0;
-   }
-}
 
+  if( globals->flags & HG_DISTRIBUTE )
+  {
+    struct hg_host * first = host;
+    unsigned int i;
+
+
+    i = 0;
+again:
+    host = first;
+
+    while (host != NULL && host->next != NULL )
+    {
+      if (  host->tested == 0 ){
+        if( globals->distribute == i ) break;
+      }
+      i ++;
+      host = host->next;
+    }
+    globals->distribute ++;
+
+    if( host == NULL || host->next == NULL ) {
+      if ( i == 0 ) return -1 ;
+      globals->distribute = 0 ;
+      i = 0;
+      goto again;
+    }
+  }
+
+
+  if( host != NULL && host->next == NULL )
+  {
+    if(globals->marker != NULL)
+    {
+      hg_add_comma_delimited_hosts(globals, 0);
+      return hg_next_host(globals, ip, hostname, sz);
+    }
+    else return -1;
+  }
+
+  /* DNS zone transfer supported only for ipv4 targets */
+  if((globals->flags & HG_DNS_AXFR) && hg_filter_domain(globals, host->domain) == 0 )
+  {
+    hg_dns_axfr_add_hosts(globals, host->domain);
+  }
+
+
+  if(!host->use_max || IN6_ARE_ADDR_EQUAL(&host->in6addr, &host->max6))
+    host->tested = 1;
+  host->alive = 1;
+
+  if(ip)
+  {
+    memcpy(ip, &host->in6addr, sizeof(struct in6_addr));
+  }
+
+
+  /*if(IN6_IS_ADDR_V4MAPPED(&host->in6addr))*/
+  {
+    if(!host->use_max)
+    {
+      if((globals->flags & HG_REVLOOKUP))
+      {
+        if(!host->hostname || !hg_valid_ip_addr(host->hostname))
+        {
+          return hg_get_name_from_ip(&host->in6addr, hostname, sz);
+        }
+        else
+        {
+          strncpy(hostname, host->hostname, sz - 1);
+          return 0;
+        }
+      }
+      else
+      {
+        if(host->hostname && (!hg_valid_ip_addr(host->hostname)))
+        {
+          strncpy(hostname, host->hostname, sz - 1);
+        }
+        else
+        {
+          host->addr.s_addr = host->in6addr.s6_addr32[3];
+          if(IN6_IS_ADDR_V4MAPPED(ip))
+            inet_ntop(AF_INET, (struct in_addr *)&host->in6addr.s6_addr32[3], hostname, sz - 1);
+          else
+            inet_ntop(AF_INET6, &host->in6addr, hostname, sz - 1);
+        }
+        return 0;
+      }
+    }
+    else
+    {
+      if(globals->flags & HG_REVLOOKUP)
+        hg_get_name_from_ip(&host->in6addr, hostname, sz);
+      else
+      {
+        if(IN6_IS_ADDR_V4MAPPED(ip))
+          inet_ntop(AF_INET, (struct in_addr *)&host->in6addr.s6_addr32[3], hostname, sz - 1);
+        else
+          inet_ntop(AF_INET6, &host->in6addr, hostname, sz - 1);
+      }
+
+      if(IN6_IS_ADDR_V4MAPPED(&host->in6addr))
+      {
+        host->addr.s_addr = htonl(ntohl(host->addr.s_addr) + 1);
+        host->in6addr.s6_addr32[3] = htonl(ntohl(host->in6addr.s6_addr32[3]) + 1);
+      }
+      return 0;
+    }
+  }
+}
 
 /**
  * Frees all the hosts and info associated to the hg_globals globals.

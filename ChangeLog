@@ -1,3 +1,60 @@
+2009-08-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	First set of changes to openvas-libraries towards IPv6 support.
+	This corresponds to Change Request #27,
+	http://www.openvas.org/openvas-cr-27.html
+	Most work done by Srinivasa NL <nl.srinivas@gmail.com>.
+
+	* misc/resolve.c (nn_resolve): Use getaddrinfo instead of gethostbyname to
+	resolve hostname.
+	Return ip address in in6_addr structure.
+	host2ip function is not used anymore.
+
+	* misc/resolve.h: Adapted proto accordingly.
+
+	* misc/plugutils.c (plug_get_host_ip): Change return type to in6_addr instead of in_addr type.
+
+	* misc/plugutils.h: Adapted proto accordingly.
+
+	* misc/network.c (convip4toipv4mappedaddr): New. Converts ipv4 address
+	to ipv4 mapped ipv6 address.
+	(open_socket): Added support for ipv6.
+	(open_sock_opt_hn): Added support for ipv6.
+	(set_socket_src_addr): Added additionaly paramter "family" and added
+	support for ipv6.
+	(open_sock_option): Added support for ipv6.
+
+	* misc/network.h: Prototype of set_socket_src_addr adapted accordingly.
+
+	* hg/hg_utils.c (hg_resolv): Added parameters in6addr and family.
+	Use getaddrinfo instead of gethostbyname to resolve hostname.
+	(hg_get_name_from_ip): Parameter ip now a pointer to in6_addr. Added support
+	to handle ipv6 address.
+	(hg_valid_ip_addr): New. Checks whether address is a valid ipv4 or ipv6 address.
+
+	* hg/hg_utils.h: Modified and added prototype declararions correspondigly.
+
+	* hg/hg_subnet.c (hg_gather_subnet_hosts): Use new interface of hg_get_name_from_ip.
+	Works only for ipv4 targets.
+
+	* hg/hosts_gatherer.c (hg_next_host): Changed paramter ip to in6_addr.
+	Added support for ipv6.
+
+	hg/hosts_gatherer.h: Adapted proto for hg_next_host.
+	(struct hg_host): Added support for ipv6.
+
+	* hg/hg_dns_axfr.c (hg_dns_fill_ns_addrs): Use newer hg_resolve which returns
+	address of hostname in in6_addr type. Works only for ipv4 hosts.
+
+	* hg/hg_add_hosts.c (getaddrfamily): New. Gets the family to which the given
+	address belongs.
+	(hg_add_host): Added support for ipv6.
+	(hg_add_comma_delimited_hosts): Added support for ipv6.
+	(hg_add_ipv6host_with_options): New. Adds ipv6 hosts to host list.
+	(hg_add_host_with_options): Store ipv4 address as ipv4 mapped ipv6 address.
+
+	* hg/hg_add_hosts.h: Extended and apdapted protos accordingly.
+
 2009-08-26  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* base/CMakeLists.txt: New file.  Initial cmake building setup.

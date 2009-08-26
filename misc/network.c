@@ -102,6 +102,13 @@ static nessus_connection connections[NESSUS_FD_MAX];
  */
 #define OVAS_CONNECTION_FROM_FD(fd) (connections + ((fd) - NESSUS_FD_OFF))
 
+void convipv4toipv4mappedaddr(struct in_addr inaddr, struct in6_addr *in6addr)
+{
+  in6addr->s6_addr32[0] = 0;
+  in6addr->s6_addr32[1] = 0;
+  in6addr->s6_addr32[2] = htonl(0xffff);
+  in6addr->s6_addr32[3] = inaddr.s_addr;
+}
 
 static void
 renice_myself()
@@ -1864,22 +1871,36 @@ get_encaps_through(code)
 }
 
 static int
-open_socket(struct sockaddr_in *paddr, 
-	    int port, int type, int protocol, int timeout)
+open_socket(struct sockaddr *paddr, 
+	    int port, int type, int protocol, int timeout, int len)
 {
   fd_set		fd_w;
   struct timeval	to;
   int			soc, x;
   int			opt;
   unsigned int opt_sz;
+  int family;
 
   __port_closed = 0;
 
+  if(paddr->sa_family == AF_INET)
+  {
+    family = AF_INET;
   if ((soc = socket(AF_INET, type, protocol)) < 0)
     {
       nessus_perror("socket");
       return -1;
     }
+  }
+  else
+  {
+    family = AF_INET6;
+  if ((soc = socket(AF_INET6, type, protocol)) < 0)
+    {
+      nessus_perror("socket");
+      return -1;
+    }
+  }
 
   if (timeout == -2)
     timeout = TIMEOUT;
@@ -1891,9 +1912,9 @@ open_socket(struct sockaddr_in *paddr,
 	return -1;
       }
 
-  set_socket_source_addr(soc, 0);
+  set_socket_source_addr(soc, 0,family);
 
-  if (connect(soc, (struct sockaddr*) paddr, sizeof(*paddr)) < 0)
+  if (connect(soc, paddr, len) < 0)
     {
 #if DEBUG_SSL > 2
       nessus_perror("connect");
@@ -1954,6 +1975,7 @@ again:
 }
 
 
+
 int open_sock_opt_hn(hostname, port, type, protocol, timeout)
  const char * hostname; 
  unsigned int port; 
@@ -1962,18 +1984,32 @@ int open_sock_opt_hn(hostname, port, type, protocol, timeout)
  int timeout;
 {
  struct sockaddr_in addr;
+ struct sockaddr_in6 addr6;
+ struct in6_addr in6addr;
   
-  bzero((void*)&addr, sizeof(addr));
-  addr.sin_family=AF_INET;
-  addr.sin_port=htons((unsigned short)port);
-  addr.sin_addr = nn_resolve(hostname);
-  if (addr.sin_addr.s_addr == INADDR_NONE || addr.sin_addr.s_addr == 0)
+  nn_resolve(hostname, &in6addr);
+  if (IN6_ARE_ADDR_EQUAL(&addr6, &in6addr_any))
     {
       fprintf(stderr, "open_sock_opt_hn: invalid socket address\n");
       return  -1;
     }
+  if(IN6_IS_ADDR_V4MAPPED(&in6addr))
+  {
+    bzero((void*)&addr, sizeof(addr));
+    addr.sin_family=AF_INET;
+    addr.sin_port=htons((unsigned short)port);
+    addr.sin_addr.s_addr = in6addr.s6_addr32[3];
+    return open_socket((struct sockaddr *)&addr, port, type, protocol, timeout, sizeof(struct sockaddr_in));
+  }
+  else
+  {
+    bzero((void*)&addr6, sizeof(addr6));
+    addr6.sin6_family=AF_INET6;
+    addr6.sin6_port=htons((unsigned short)port);
+    memcpy(&addr6.sin6_addr, &in6addr, sizeof(struct in6_addr));
+    return open_socket((struct sockaddr *)&addr6, port, type, protocol, timeout, sizeof(struct sockaddr_in6));
+  }
    
-  return open_socket(&addr, port, type, protocol, timeout);
 }
 
 
@@ -2069,30 +2105,46 @@ struct in_addr socket_get_next_source_addr()
  return _socket_get_next_source_addr(NULL);
 }
 
-int set_socket_source_addr(int soc, int port)
-{ 
+int set_socket_source_addr(int soc, int port, int family)
+{
   struct sockaddr_in bnd;
-  int opt = 1;  
-  
+  struct sockaddr_in6 bnd6;
+  int opt = 1;
+
   struct in_addr src = _socket_get_next_source_addr(NULL);
-  
+
   if( src.s_addr == INADDR_ANY && port == 0 ) /* No need to bind() */
-  	return 0;
-   
+    return 0;
+
   setsockopt(soc, SOL_SOCKET, SO_REUSEADDR, (void*)&opt, sizeof(int));
-  bzero(&bnd, sizeof(bnd));
-  
-   
-   
-   bnd.sin_port = htons(port);
-   bnd.sin_addr = src;
-   bnd.sin_family = AF_INET;
-  
-  if( bind(soc, (struct sockaddr*)&bnd, sizeof(bnd)) < 0 )
-  { 
-   return -1;
+
+  if(family == AF_INET)
+  {
+    bzero(&bnd, sizeof(bnd));
+
+    bnd.sin_port = htons(port);
+    bnd.sin_addr = src;
+    bnd.sin_family = AF_INET;
+
+    if( bind(soc, (struct sockaddr*)&bnd, sizeof(bnd)) < 0 )
+    {
+      return -1;
+    }
   }
-  
+  else
+  {
+    bzero(&bnd6, sizeof(bnd6));
+
+    bnd6.sin6_port = htons(port);
+    bnd6.sin6_family = AF_INET6;
+    bnd6.sin6_addr = in6addr_any;
+
+    if( bind(soc, (struct sockaddr*)&bnd6, sizeof(bnd6)) < 0 )
+    {
+      return -1;
+    }
+  }
+
   return 0;
 }
 
@@ -2110,7 +2162,8 @@ int open_sock_option(args, port, type, protocol, timeout)
  int timeout;
 {
   struct sockaddr_in addr;
-  struct in_addr * t;
+  struct sockaddr_in6 addr6;
+  struct in6_addr * t;
 
 #if 0
   /* 
@@ -2121,9 +2174,6 @@ int open_sock_option(args, port, type, protocol, timeout)
    */
   if(host_get_port_state(args, port)<=0)return(-1);
 #endif
-  bzero((void*)&addr, sizeof(addr));
-  addr.sin_family=AF_INET;
-  addr.sin_port=htons((unsigned short)port);
   t = plug_get_host_ip(args);
   if(!t)
   {
@@ -2131,11 +2181,25 @@ int open_sock_option(args, port, type, protocol, timeout)
    arg_dump(args, 0);
    return(-1);
   }
-  addr.sin_addr = *t;
-  if (addr.sin_addr.s_addr == INADDR_NONE)
+  if (IN6_ARE_ADDR_EQUAL(t, &in6addr_any))
     return(-1);
-    
-  return open_socket(&addr, port, type, protocol, timeout);
+  if(IN6_IS_ADDR_V4MAPPED(t))
+  {
+    bzero((void*)&addr, sizeof(addr));
+    addr.sin_family=AF_INET;
+    addr.sin_port=htons((unsigned short)port);
+    addr.sin_addr.s_addr = t->s6_addr32[3];
+    return open_socket((struct sockaddr *)&addr, port, type, protocol, timeout, sizeof(struct sockaddr_in));
+  }
+  else
+  {
+    bzero((void*)&addr6, sizeof(addr6));
+    addr6.sin6_family=AF_INET6;
+    addr6.sin6_port=htons((unsigned short)port);
+    memcpy(&addr6.sin6_addr, t, sizeof(struct in6_addr));
+    return open_socket((struct sockaddr *)&addr6, port, type, protocol, timeout, sizeof(struct sockaddr_in6));
+  }
+
 }
 
 

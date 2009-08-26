@@ -46,14 +46,35 @@ host2ip(name, ip)
 }
 
 
-struct in_addr 
-nn_resolve(name)
-	const char * name;
+int nn_resolve(const char *hostname, struct in6_addr *in6addr)
 {
-	struct in_addr ret;
-	if(host2ip(name, &ret)  < 0)
-	{
-		ret.s_addr = INADDR_NONE;
-	}
-	return ret;
+  struct addrinfo hints;
+  struct addrinfo *ai;
+  int    retval;
+
+  *in6addr = in6addr_any;
+  /* first check whether it is a numeric host*/
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = AF_INET6;
+  hints.ai_flags = AI_V4MAPPED | AI_ALL;
+
+  retval = getaddrinfo(hostname, NULL, &hints, &ai);
+  if(!retval)
+  {
+    if(ai->ai_family == AF_INET)
+    {
+      in6addr->s6_addr32[0] = 0;
+      in6addr->s6_addr32[1] = 0;
+      in6addr->s6_addr32[2] = htonl(0xffff);
+      memcpy(&in6addr->s6_addr32[3], &((struct sockaddr_in *)ai->ai_addr)->sin_addr, sizeof(struct in6_addr));
+    }
+    else
+    {
+      memcpy(in6addr, &((struct sockaddr_in6 *)ai->ai_addr)->sin6_addr, sizeof(struct in6_addr));
+    }
+
+    freeaddrinfo(ai);
+    return 0;
+  }
+  return -1;
 }

@@ -181,7 +181,7 @@ void nessus_lib_version(int *, int *, int *);
 char* addslashes(char*);
 char* rmslashes(char*);
 
-struct in_addr * plug_get_host_ip(struct arglist *);
+struct in6_addr * plug_get_host_ip(struct arglist *);
 char * get_preference(struct arglist *, const char *);
 void add_plugin_preference(struct arglist *, const char *, const char *, const char *);
 char *get_plugin_preference(struct arglist *, const char *);
