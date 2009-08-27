@@ -2204,63 +2204,63 @@ int open_sock_option(args, port, type, protocol, timeout)
 
 
 /**
- * This function reads a text from the socket stream into the
- *  argument buffer, always appending a '\0' byte.  The return
- *  value is the number of bytes read, without the trailing '\0'.
+ * @brief Reads a text from the socket stream into the argument buffer, always
+ * @brief appending a '\\0' byte.
+ * 
+ * @param buf  Buffer to read into.
+ * 
+ * @return Number of bytes read, without the trailing '\\0'.
  */
-int recv_line(soc, buf, bufsiz)
- int soc;
- char * buf;
- size_t bufsiz;
+ExtFunc
+int recv_line (int soc, char* buf, size_t bufsiz)
 {
   int n, ret = 0;
-  
-  /*
-   * Dirty SSL hack
-   */
+
+  /* Dirty SSL hack */
   if(NESSUS_STREAM(soc))
   {
    buf[0] = '\0';
-   
+
    do
-   {
-    n = read_stream_connection_min (soc, buf + ret, 1, 1);
-    switch (n)
     {
-     case -1 :
-       if(ret == 0)
-        return -1;
-       else 
-        return ret;
-       break;
-     
-     case 0:
-       return ret;
-       break;
-      
-      default :
-      	ret ++;
+      n = read_stream_connection_min (soc, buf + ret, 1, 1);
+      switch (n)
+        {
+          case -1:
+            if(ret == 0)
+              return -1;
+            else
+              return ret;
+            break;
+
+          case 0:
+            return ret;
+            break;
+
+          default :
+            ret ++;
+        }
     }
-   }
-   while (buf [ret-1] != '\0' && buf [ret-1] != '\n' && ret < bufsiz) ;
-   
-   if(ret > 0 )
-   {
-   if (buf[ret - 1] != '\0')
-	{
-	if ( ret < bufsiz ) 
-		buf[ ret ] = '\0';
-	else 
-		buf [ bufsiz - 1 ] = '\0';
-	}
-   }
-   return ret;  
+   while (buf[ret-1] != '\0' && buf[ret-1] != '\n' && ret < bufsiz) ;
+
+   if (ret > 0 )
+    {
+      if (buf[ret - 1] != '\0')
+        {
+          if (ret < bufsiz)
+            buf[ret] = '\0';
+          else
+            buf[bufsiz - 1] = '\0';
+        }
+    }
+
+   return ret;
   }
   else
   {
    fd_set rd;
    struct timeval tv;
-   
+
    do
    {
       int e;
@@ -2276,26 +2276,26 @@ int recv_line(soc, buf, bufsiz)
       {
        n = recv(soc, buf + ret, 1, 0);
        switch(n)
-       {
-        case -1 :
-	 if ( errno == EINTR ) continue;
-	 if(ret == 0)
-	  return -1;
-	 else
-	  return ret;
-	 break;  
-       case 0 :
-         return ret;
-       	 break;
-       default:
-         ret ++;	
+        {
+          case -1 :
+            if (errno == EINTR) continue;
+            if (ret == 0)
+              return -1;
+            else
+              return ret;
+            break;
+          case 0 :
+            return ret;
+            break;
+          default:
+            ret ++;
        }
-      } 
+      }
       else break;
       tv.tv_sec = 1;
       tv.tv_usec = 0;
     } while(buf[ret -1 ] != '\0' && buf[ret -1 ] != '\n' && ret < bufsiz);
-    
+
     if(ret > 0)
     {
     if(buf[ret - 1] != '\0')
@@ -2307,8 +2307,9 @@ int recv_line(soc, buf, bufsiz)
       }
     }
   }
+
   return ret;
-} 
+}
 
 int
 socket_close(soc)
