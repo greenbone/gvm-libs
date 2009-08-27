@@ -1,4 +1,8 @@
-2009-08-26  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+2009-08-27  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* misc/arglists.c (mkhash): Switched to hash algorithm provided by glib.
+
+2009-08-27  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* misc/harglists.c: Added ifdef _WIN32 blocks from clients code.
 	

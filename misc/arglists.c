@@ -36,20 +36,13 @@
 
 /**
  * @brief Make a hash value from string.
- * 
+ *
  * Hash vlaues of argument names are used to speed up the lookups when calling
  * arg_get_value().
  */
 static int mkhash(const char * name)
 {
- int h = 0;
- int i;
- 
- for(i=0;name[i] != '\0';i++)
- {
-  h = ((h * 128) + name[i]) % HASH_MAX;
- }
- return h;
+  return g_strhash (name) % HASH_MAX;
 }
 
 /**
