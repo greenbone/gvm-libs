@@ -42,7 +42,7 @@
  */
 static int mkhash(const char * name)
 {
-  return g_strhash (name) % HASH_MAX;
+  return g_str_hash (name) % HASH_MAX;
 }
 
 /**
