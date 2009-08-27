@@ -28,6 +28,7 @@
 
 #include <sys/select.h> /* at least for fd_set */
 #include <gnutls/gnutls.h>
+#include <netinet/in.h> /* struct in_addr, struct in6_addr */
 
 #include "arglists.h"
 
