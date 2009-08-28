@@ -30,6 +30,7 @@ include openvas-libraries.tmpl
 ALLDEPS = openvas-libraries.tmpl
 
 all: $(ALLDEPS)
+	cd base && cmake -DCMAKE_INSTALL_PREFIX=$(DESTDIR)${prefix} && ${MAKE}
 	cd misc && ${MAKE}
 	cd hg && ${MAKE}
 
@@ -40,9 +41,10 @@ openvas-libraries.tmpl: openvas-libraries.tmpl.in configure VERSION
 install : all
 	test -d $(DESTDIR)${prefix} || ${INSTALL_DIR} -m 755 $(DESTDIR)${prefix}
 	test -d $(DESTDIR)${includedir}/openvas || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas
-	cd misc && ${MAKE} install
-	cd hg && ${MAKE} install
 
+	cd hg && ${MAKE} install
+	cd base && ${MAKE} install
+	cd misc && ${MAKE} install
 
 	$(INSTALL) -m 0444 include/libopenvas.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 include/libvers.h   $(DESTDIR)${includedir}/openvas
@@ -88,6 +90,7 @@ install : all
 	@echo
 
 clean :
+	-cd base && ${MAKE} clean
 	-cd misc && ${MAKE} clean
 	-cd hg && ${MAKE} clean
 	rm -rf doc/generated

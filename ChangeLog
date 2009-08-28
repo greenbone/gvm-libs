@@ -1,8 +1,23 @@
+2009-08-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Create own library for 'base'.
+
+	* libopenvas-config.in: Added libopenvas_base to linker flags
+	(libopenvas-config --libs).
+	
+	* Makefile: Added base to all, install and clean targets.
+	
+	* misc/Makefile: Removed targets that are now built 'in' base.
+
 2009-08-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/README: Fixed glib version.
 
 	* MANIFEST: Updated.
+
+2009-08-27  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* misc/network.h: Added missing include, resolves compiler warnings.
 
 2009-08-27  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
