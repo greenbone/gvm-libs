@@ -127,9 +127,20 @@ exec_program (pkg-config
 set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Wall")
 set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall")
 
-set (FILES capture_packet.c exec.c hmacmd5.c lint.c lsearch.c md5.c nasl.c nasl_cmd_exec.c nasl_crypto2.c nasl_crypto.c nasl_debug.c nasl_func.c nasl_grammar.y nasl_host.c nasl_http.c nasl_init.c nasl_lex_ctxt.c nasl_misc_funcs.c nasl_nessusd_glue.c nasl_packet_forgery.c nasl_signature.c nasl_smb.c nasl_socket.c nasl_text_utils.c nasl_tree.c nasl_var.c nasl_wmi.c preparse.c regex.c smb_interface_stub.c strutils.c wmi_interface_stub.c)
 
-# Pass through
+## Compile the parser - note that there are (better) CMake macros to achieve
+## that and that the user is not warned if bison is not installed
+ADD_CUSTOM_COMMAND(
+   COMMAND bison
+   ARGS -d -v -t -p nasl nasl_grammar.y
+   DEPENDS nasl_grammar.y
+   OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.tab.c)
+
+set (FILES capture_packet.c exec.c hmacmd5.c lint.c lsearch.c md5.c nasl.c nasl_cmd_exec.c nasl_crypto2.c nasl_crypto.c nasl_debug.c nasl_func.c nasl_grammar.y nasl_grammar.tab.c nasl_host.c nasl_http.c nasl_init.c nasl_lex_ctxt.c nasl_misc_funcs.c nasl_nessusd_glue.c nasl_packet_forgery.c nasl_signature.c nasl_smb.c nasl_socket.c nasl_text_utils.c nasl_tree.c nasl_var.c nasl_wmi.c preparse.c regex.c smb_interface_stub.c strutils.c wmi_interface_stub.c)
+
+SET_SOURCE_FILES_PROPERTIES(nasl_grammar.tab.c GENERATED)
+
+## Pass-throughs
 add_definitions (-DOPENVAS_STATE_DIR=\\\"${OPENVAS_STATE_DIR}\\\")
 add_definitions (-DVERSION=\\\"${_OPENVASLIBNASL_VERSION}\\\")
 add_definitions (-DOPENVAS_SYSCONFDIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")

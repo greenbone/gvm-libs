@@ -1,5 +1,19 @@
 2009-08-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	According to CR #38 (http://www.openvas.org/openvas-cr-38.html),
+	libopenvas_nasl is now "part of" openvas-libraries.
+	Expecting compilation issues due to skip of the old configure step.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Added nasl to include dirs.
+
+	* nasl/CMakeLists.txt: Added not so clean way of compiling the parser.
+
+	* MANIFEST: Added contents of nasl folder.
+
+	* Makefile: Added nasl to all, install clean targets. Minor cosmetics.
+
+2009-08-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Enabled build for the environment where the config was generated,
 	preparing CR #38 (http://www.openvas.org/openvas-cr-38.html).
 
