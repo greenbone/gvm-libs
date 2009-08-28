@@ -1,5 +1,34 @@
 2009-08-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Copied contents of openvas-libnasl to openvas-libraries, preparing
+	CR #38 (http://www.openvas.org/openvas-cr-38.html).
+
+	* nasl/capture_packet.c, nasl/nasl_cmd_exec.c, nasl/nasl_host.c,
+	nasl/nasl_misc_funcs.h, nasl/nasl_socket.h, nasl/preparse.c,
+	nasl/capture_packet.h, nasl/nasl_cmd_exec.h, nasl/nasl_host.h,
+	nasl/nasl_nessusd_glue.c, nasl/nasl_text_utils.c, nasl/preparse.h,
+	nasl/exec.c, nasl/nasl_crypto2.c, nasl/nasl_http.c,
+	nasl/nasl_nessusd_glue.h, nasl/nasl_text_utils.h, nasl/regex.c,
+	nasl/exec.h, nasl/nasl_crypto2.h, nasl/nasl_http.h,
+	nasl/nasl_packet_forgery.c, nasl/nasl_tree.c, nasl/smb_interface_stub.c,
+	nasl/hmacmd5.c, nasl/nasl_crypto.c, nasl/nasl_init.c,
+	nasl/nasl_packet_forgery.h,  nasl/nasl_tree.h, nasl/strutils.c,
+	nasl/hmacmd5.h, nasl/nasl_crypto.h, nasl/nasl_init.h, nasl/nasl_regex.h,
+	nasl/nasl_var.c, nasl/strutils.h, nasl/lint.c, nasl/nasl_debug.c,
+	nasl/nasl_lex_ctxt_better.h, nasl/nasl_signature.c, nasl/nasl_var.h,
+	nasl/wmi_interface_stub.c, nasl/lsearch.c, nasl/nasl_debug.h,
+	nasl/nasl_lex_ctxt.c, nasl/nasl_signature.h, nasl/nasl_wmi.c,
+	nasl/md5.c, nasl/nasl_func.c, nasl/nasl_lex_ctxt.h, nasl/nasl_smb.c,
+	nasl/nasl_wmi.h, nasl/md5.h, nasl/nasl_func.h,
+	nasl/nasl_misc_funcs_better.c, nasl/nasl_smb.h,
+	nasl/openvas_smb_interface.h, nasl/nasl.c, nasl/nasl_global_ctxt.h,
+	nasl/nasl_misc_funcs.c, nasl/nasl_socket.c,
+	nasl/openvas_wmi_interface.h: Copied from openvas-libnasl/nasl.
+	
+	* nasl/includes.h, nasl/nasl.h: Copied from openvas-libnasl/include.
+
+2009-08-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Preparing move of contents of  openvas-libnasl to openvas-libraries,
 	according to CR #38 (http://www.openvas.org/openvas-cr-38.html).
 
