@@ -1,5 +1,6 @@
 .root-dir
 aclocal.m4
+base/CMakeLists.txt
 base/certificate.c
 base/certificate.h
 base/nvti.h

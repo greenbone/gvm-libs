@@ -1,3 +1,9 @@
+2009-08-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/README: Fixed glib version.
+
+	* MANIFEST: Updated.
+
 2009-08-27  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* misc/arglists.c (mkhash): Switched to hash algorithm provided by glib.
