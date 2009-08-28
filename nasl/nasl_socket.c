@@ -31,6 +31,7 @@
 /*--------------------------------------------------------------------------*/
 #include <includes.h>
 #include "nasl.h"
+#include "harglists.h"
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"

@@ -97,10 +97,6 @@ if (NOT INCLUDEDIR)
   set (INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include")
 endif (NOT INCLUDEDIR)
 
-#if (NOT SYSCONFDIR)
-#  set (SYSCONFDIR "${CMAKE_INSTALL_PREFIX}/etc")
-#endif (NOT SYSCONFDIR)
-
 set (OPENVAS_STATE_DIR   "${LOCALSTATEDIR}/lib/openvas")
 set (OPENVAS_LOG_DIR     "${LOCALSTATEDIR}/log/openvas")
 set (OPENVAS_PID_DIR     "${LOCALSTATEDIR}/run")
@@ -136,6 +132,7 @@ set (FILES capture_packet.c exec.c hmacmd5.c lint.c lsearch.c md5.c nasl.c nasl_
 # Pass through
 add_definitions (-DOPENVAS_STATE_DIR=\\\"${OPENVAS_STATE_DIR}\\\")
 add_definitions (-DVERSION=\\\"${_OPENVASLIBNASL_VERSION}\\\")
+add_definitions (-DOPENVAS_SYSCONFDIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
 
 include_directories (../hg)
 include_directories (../misc)

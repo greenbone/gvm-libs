@@ -1,5 +1,17 @@
 2009-08-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Enabled build for the environment where the config was generated,
+	preparing CR #38 (http://www.openvas.org/openvas-cr-38.html).
+
+	* base/CMakeLists.txt: Removed duplicate (and commented) code.
+
+	* nasl/CMakeLists.txt: Removed duplicate (and commented) code,
+	added definition for OPENVAS_SYSCONF_DIR.
+
+	* nasl/nasl_socket.c: Added include.
+
+2009-08-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Attempts to enable build, preparing CR #38
 	(http://www.openvas.org/openvas-cr-38.html).
 
