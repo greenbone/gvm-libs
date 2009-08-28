@@ -18,7 +18,7 @@
  */
 #include "includes.h"
 
-#include "nasl_raw.h"
+#include "nasl_tcp.h"
 #include "nasl.h"
 
 #include "nasl_tree.h"

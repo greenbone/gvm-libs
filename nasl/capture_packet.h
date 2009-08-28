@@ -30,6 +30,8 @@
 #ifndef CAPTURE_PACKET_H
 #define CAPTURE_PACKET_H
 
+#include <netinet/in.h>
+
 int init_capture_device(struct in_addr, struct in_addr, char *);
 struct ip * capture_next_packet(int, int, int *);
 

@@ -22,7 +22,8 @@
   */
 
 #include <includes.h>
-#include <hosts_gatherer.h>
+#include "hosts_gatherer.h"
+#include "harglists.h"
 
 #include "nasl.h"
 #include "nasl_tree.h"

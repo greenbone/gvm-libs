@@ -17,7 +17,7 @@
  *
  */
 #include <includes.h>
-#include <nasl_raw.h>
+#include "nasl_raw.h"
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"

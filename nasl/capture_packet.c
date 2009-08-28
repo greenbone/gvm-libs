@@ -16,13 +16,12 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-#include <includes.h>
+
+#include "includes.h"
 #include <pcap.h>
 
 #include "capture_packet.h"
-#include "nasl_raw.h"
-
-
+#include <netinet/ip.h>
 
 extern int islocalhost(struct in_addr *);
 

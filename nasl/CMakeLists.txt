@@ -116,9 +116,9 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 ## Version
 
-file (READ ../VERSION _OPENVASMD_VERSION)
+file (READ ../VERSION _OPENVASLIBNASL_VERSION)
 STRING (REPLACE "
-" "" OPENVASMD_VERSION ${_OPENVASMD_VERSION})
+" "" _OPENVASLIBNASL_VERSION ${_OPENVASLIBNASL_VERSION})
 
 ## Config
 
@@ -133,6 +133,12 @@ set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall")
 
 set (FILES capture_packet.c exec.c hmacmd5.c lint.c lsearch.c md5.c nasl.c nasl_cmd_exec.c nasl_crypto2.c nasl_crypto.c nasl_debug.c nasl_func.c nasl_grammar.y nasl_host.c nasl_http.c nasl_init.c nasl_lex_ctxt.c nasl_misc_funcs.c nasl_nessusd_glue.c nasl_packet_forgery.c nasl_signature.c nasl_smb.c nasl_socket.c nasl_text_utils.c nasl_tree.c nasl_var.c nasl_wmi.c preparse.c regex.c smb_interface_stub.c strutils.c wmi_interface_stub.c)
 
+# Pass through
+add_definitions (-DOPENVAS_STATE_DIR=\\\"${OPENVAS_STATE_DIR}\\\")
+add_definitions (-DVERSION=\\\"${_OPENVASLIBNASL_VERSION}\\\")
+
+include_directories (../hg)
+include_directories (../misc)
 include_directories (../include)
 
 add_library (openvas_nasl_static STATIC ${FILES})
