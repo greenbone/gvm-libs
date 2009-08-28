@@ -1,5 +1,12 @@
 2009-08-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Preparing move of contents of  openvas-libnasl to openvas-libraries,
+	according to CR #38 (http://www.openvas.org/openvas-cr-38.html).
+
+	* nasl/, nasl/CMakeLists.txt: New.
+
+2009-08-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Create own library for 'base'.
 
 	* libopenvas-config.in: Added libopenvas_base to linker flags
