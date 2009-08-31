@@ -1,5 +1,11 @@
 2009-08-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* nasl/CMakeLists.txt: Modify output of custom bison target to remove
+	generated files within the "clean" target, split long list over multiple
+	lines.
+
+2009-08-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	According to CR #38 (http://www.openvas.org/openvas-cr-38.html),
 	libopenvas_nasl is now "part of" openvas-libraries.
 	Expecting compilation issues due to skip of the old configure step.
