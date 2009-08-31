@@ -1,4 +1,4 @@
-This is the library "libopenvasbase".
+This is the library "libopenvas_base".
 
 It provides basics for various OpenVAS modules
 and related libraries.

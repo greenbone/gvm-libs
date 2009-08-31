@@ -1,4 +1,10 @@
-2009-08-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* libopenvas-config.in: Added lopenvas_nasl to linker flags.
+	
+	* base/README.txt: Corrected.
+
+2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* nasl/CMakeLists.txt: Modify output of custom bison target to remove
 	generated files within the "clean" target, split long list over multiple
