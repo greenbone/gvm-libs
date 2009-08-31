@@ -1,5 +1,17 @@
 2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* nasl/tests/, nasl/tests/Makefile, nasl/tests/README.txt,
+	nasl/tests/signed.nasl, nasl/tests/signed_nasl.asc,
+	nasl/tests/test_blowfish.nasl, nasl/tests/test_bn.nasl,
+	nasl/tests/test_db.nasl, nasl/tests/test_dsa.nasl,
+	nasl/tests/test_hexstr.nasl, nasl/tests/md.nasl,
+	nasl/tests/test_privkey.nasl, nasl/tests/test_rsa.nasl,
+	nasl/tests/test_script_signing.sh, nasl/tests/testseuiteinit.nasl,
+	nasl/tests/testsuitesummary.nasl: Added, copied from
+	openvas-libnasl/test.
+
+2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* libopenvas-config.in, configure.in: Added lopenvas_nasl and its
 	dependencies (from openvas-libnasl-config) to the linker flags.
 
