@@ -1,5 +1,13 @@
 2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* libopenvas-config.1, doc/libopenvas-config.1: Moved libopenvas-config
+	manpage to doc.
+
+	* Makefile: Install openvas-nasl manpage, adjusted path of
+	libopenvas-config manpage.
+
+2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* doc/openvas-nasl.1, doc/signatures-howto.txt: Added, copied from
 	openvas-libnasl/doc.
 

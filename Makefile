@@ -80,7 +80,8 @@ install : all
 	$(INSTALL) -m 0755 libopenvas-config $(DESTDIR)${bindir}/libopenvas-config
 	test -d $(DESTDIR)${mandir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${mandir}
 	test -d $(DESTDIR)${mandir}/man1 || ${INSTALL_DIR} -m 755 $(DESTDIR)${mandir}/man1
-	$(INSTALL) -m 0644 libopenvas-config.1 $(DESTDIR)${mandir}/man1
+	$(INSTALL) -m 0644 doc/libopenvas-config.1 $(DESTDIR)${mandir}/man1
+	$(INSTALL) -m 0644 doc/openvas-nasl.1 ${DESTDIR}${mandir}/man1
 
 	@echo
 	@echo ' --------------------------------------------------------------'
