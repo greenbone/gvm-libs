@@ -1,5 +1,10 @@
 2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* doc/openvas-nasl.1, doc/signatures-howto.txt: Added, copied from
+	openvas-libnasl/doc.
+
+2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* nasl/tests/, nasl/tests/Makefile, nasl/tests/README.txt,
 	nasl/tests/signed.nasl, nasl/tests/signed_nasl.asc,
 	nasl/tests/test_blowfish.nasl, nasl/tests/test_bn.nasl,
