@@ -42,7 +42,7 @@ expr 0 + $OPENVASLIBS_MAJOR + $OPENVASLIBS_MINOR + $OPENVASLIBS_PATCH + 0 >/dev/
 AC_MSG_ERROR([ *** Panic: Corrupt version file])
 version=$OPENVASLIBS_MAJOR.$OPENVASLIBS_MINOR.$OPENVASLIBS_PATCH
 
-dnl A tribute to libtool: more fiddling around wirh versions
+dnl A tribute to libtool: more fiddling around with versions
 OPENVASLIBS_SUPER=`expr $OPENVASLIBS_MAJOR + $OPENVASLIBS_MINOR`
 
 dnl Set up the main lines of the config script
@@ -97,6 +97,75 @@ AC_SUBST(GLIB_LIBS)
 
 AC_CHECK_HEADER(gcrypt.h, LIBS="-lgcrypt $LIBS", AC_MSG_ERROR("gcrypt.h not found"))
 
+
+dnl Check for libraries needed by nasl
+NEED_GPGME_VERSION=1.1.2
+dnl Testing for presence and correct version of gpgme:
+dnl --------------------------------------------------
+
+AC_PATH_PROG(GPGME_CONFIG, gpgme-config)
+
+test "x$GPGME_CONFIG" = x && AC_ERROR(""
+""
+"*** gpgme is not installed ! You need to install it before you"
+"compile openvas-libnasl."
+"See http://www.gnupg.org/gpgme.html")
+
+GPGME_VERSION=`$GPGME_CONFIG --version | sed 's/-.*$//'`
+
+GPGME_MAJOR=`echo $GPGME_VERSION | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\1/'`
+GPGME_MINOR=`echo $GPGME_VERSION | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\2/'`
+GPGME_PATCH=`echo $GPGME_VERSION | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\3/'`
+REQ_GPGME_MAJOR=`echo $NEED_GPGME_VERSION | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\1/'`
+REQ_GPGME_MINOR=`echo $NEED_GPGME_VERSION | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\2/'`
+REQ_GPGME_PATCH=`echo $NEED_GPGME_VERSION | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\3/'`
+
+
+ok=no
+if test "$GPGME_MAJOR" -gt "$REQ_GPGME_MAJOR"; then
+  ok=yes
+else
+  if test "$GPGME_MAJOR" -eq "$REQ_GPGME_MAJOR"; then
+    if test "$GPGME_MINOR" -gt "$REQ_GPGME_MINOR"; then
+      ok=yes
+    else
+      if test "$GPGME_MINOR" -eq "$REQ_GPGME_MINOR"; then
+        if test "$GPGME_PATCH" -ge "$REQ_GPGME_PATCH"; then
+          ok=yes
+        fi
+      fi
+    fi
+  fi
+fi
+if test $ok = no; then
+AC_ERROR(
+gpgme $GPGME_VERSION too old.
+Minimum required is $NEED_GPGME_VERSION .
+)
+fi
+GPGME_LIBS=`$GPGME_CONFIG --libs`
+NASLLIBS="$GPGME_LIBS $NASLLIBS"
+
+dnl Check for gcrypt and bison
+
+AC_CHECK_HEADER(gcrypt.h, NASLLIBS="-lgcrypt $NASLLIBS", AC_MSG_ERROR("gcrypt.h not found"))
+
+AC_PATH_PROG(BISON, bison)
+test "x$BISON" = "x" && AC_ERROR(""
+""
+"*** bison is not installed on this host ! You need to install it before you"
+"compile libnasl"
+"Get it at ftp://ftp.gnu.org/pub/gnu/bison/ or check your operating system"
+"packages")
+
+
+
 dnl Check for extra libraries
 AC_CHECK_LIB(resolv, dn_expand, LIBS="-lresolv $LIBS",
   [AC_CHECK_LIB(resolv, __dn_expand, LIBS="-lresolv $LIBS",
@@ -131,9 +200,7 @@ AC_ARG_ENABLE(debug-ssl,[  --enable-debug-ssl	  produce verbose output regarding
 AC_ARG_ENABLE(debug,[  --enable-debug	  set the compiler flags to -g],
 	      debug_cflags="-DDEBUG -g")
 
-		
-
-AC_ARG_WITH(egd, 
+AC_ARG_WITH(egd,
 	[  --with-egd=/path	  specifies the path to the EGD socket],
 	[
 	 egdpath="$withval"
@@ -492,6 +559,7 @@ AC_SUBST(llib)
 AC_SUBST(version)
 AC_SUBST(egdpath)
 AC_SUBST(debug_ssl)
+AC_SUBST(NASLLIBS)
 AC_SUBST(OPENVASLIBS_MAJOR)
 AC_SUBST(OPENVASLIBS_MINOR)
 AC_SUBST(OPENVASLIBS_SUPER)

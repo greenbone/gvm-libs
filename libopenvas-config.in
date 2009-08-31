@@ -37,6 +37,7 @@ INCLUDEDIR=@includedir@
 VERSION=@version@
 EXTRA="@EXTRA@ @llib@"
 EGDPATH="@egdpath@"
+NASLLIBS="@NASLLIBS@"
 
 
 usage()
@@ -63,7 +64,7 @@ while test $# -gt 0; do
 		exit 0
 		;;
 	--libs)
-		echo $Xn "-L$LIBDIR -lopenvasmisc -lopenvashg -lopenvas_base $EXTRA $Xc"
+		echo $Xn "-L$LIBDIR -lopenvasmisc -lopenvashg -lopenvas_base $EXTRA -lopenvas_nasl $NASLLIBS $Xc"
 		;;
 	--cflags)
 		echo $Xn "$DEFS -I$INCLUDEDIR/openvas $Xc"

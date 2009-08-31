@@ -1,5 +1,10 @@
 2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* libopenvas-config.in, configure.in: Added lopenvas_nasl and its
+	dependencies (from openvas-libnasl-config) to the linker flags.
+
+2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* libopenvas-config.in: Removed lopenvas_nasl from linker flags for now,
 	as it breaks linking.
 
