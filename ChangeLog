@@ -1,5 +1,10 @@
 2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* misc/network.c: Cosmetics, reformatted nsend, auth_send,
+	nessus_perror and removed K&R styled function decls.
+
+2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* libopenvas-config.in: Added lopenvas_nasl to linker flags.
 	
 	* base/README.txt: Corrected.

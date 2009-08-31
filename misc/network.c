@@ -59,7 +59,7 @@ extern void plug_set_port_transport(struct arglist*, int, int);
 /*----------------------------------------------------------------*
  * Low-level connection management                                *
  *----------------------------------------------------------------*/
- 
+
 /** Nessus "FILE" structure */
 typedef struct {
  int fd;		/**< socket number, or whatever */
@@ -127,11 +127,10 @@ renice_myself()
 /**
  * Same as perror(), but prefixes the data by our pid.
  */
-static int 
-nessus_perror(error)
- const char* error;
+static int
+nessus_perror (const char* error)
 {
-  fprintf(stderr, "[%d] %s : %s\n", getpid(), error, strerror(errno));
+  fprintf(stderr, "[%d] %s : %s\n", getpid (), error, strerror (errno));
   return 0;
 }
 
@@ -1552,20 +1551,13 @@ read_stream_connection_min(fd, buf0, min_len, max_len)
 }
 
 int
-read_stream_connection(fd, buf0, len)
- int fd;
- void* buf0;
- int len;
+read_stream_connection (int fd, void * buf0, int len)
 {
  return read_stream_connection_min(fd, buf0, -1, len);
 }
 
 static int
-write_stream_connection4(fd, buf0, n, i_opt) 
- int fd;
- void * buf0;
- int n;
- int	i_opt;
+write_stream_connection4 (int fd, void * buf0, int n, int i_opt)
 {
   int			ret, count;
  unsigned char* buf = (unsigned char*)buf0;
@@ -1588,7 +1580,7 @@ write_stream_connection4(fd, buf0, n, i_opt)
 
  fp = &(connections[fd - NESSUS_FD_OFF]);
  fp->last_err = 0;
- 
+
 #if DEBUG_SSL > 8
  fprintf(stderr, "> write_stream_connection(%d, 0x%x, %d, 0x%x) \tE=%d 0=0x%x\n",
 	 fd, buf, n, i_opt, fp->transport, fp->options);
@@ -1604,7 +1596,7 @@ write_stream_connection4(fd, buf0, n, i_opt)
       if(fp->options & NESSUS_CNX_IDS_EVASION_SPLIT)
        /* IDS evasion */
        ret = send(fp->fd, buf + count, 1, i_opt);
-     else 
+     else
        /* i_opt ignored for ids_send */
      	ret = ids_send(fp->fd, buf + count, n - count, fp->options);
      }
@@ -1617,7 +1609,7 @@ write_stream_connection4(fd, buf0, n, i_opt)
        else fp->last_err = EPIPE;
        break;
       }
-     
+
      count += ret;
     }
     break;
@@ -1693,8 +1685,7 @@ write_stream_connection4(fd, buf0, n, i_opt)
      errno =EINVAL;
      return -1;
   }
- 
-  
+
   if(count == 0 && n > 0)
    return -1;
   else 
@@ -1711,53 +1702,52 @@ write_stream_connection(fd, buf0, n)
 }
 
 int
-nsend (fd, data, length, i_opt)
- int fd;
- void * data;
- int length, i_opt;
+nsend (int fd, void * data, int length, int i_opt)
 {
-  int		n = 0;
+  int n = 0;
 
- if(NESSUS_STREAM(fd))
- {
-  if(connections[fd - NESSUS_FD_OFF].fd < 0)
-   fprintf(stderr, "Nessus file descriptor %d closed ?!\n", fd);
-  else 
-    return write_stream_connection4(fd, data, length, i_opt);
- }
-#if DEBUG_SSL > 1
- else
-   fprintf(stderr, "nsend[%d]: fd=%d\n", getpid(), fd);
-#endif
- /* Trying OS's send() */
-   block_socket(fd);		/* ??? */
-   do
- {
-       struct timeval tv = {0,5};
-       fd_set wr;
-       int e;
-       
-       FD_ZERO(&wr);
-       FD_SET(fd, &wr);
-       
-       errno = 0;
-       e  = select(fd + 1, NULL, &wr, NULL, &tv);
-       if ( e > 0 )
-        n = os_send(fd, data, length, i_opt);
-       else if ( e < 0 && errno == EINTR ) continue;
-       else break;
-     }
-   while (n <= 0 && errno == EINTR);
-   if (n < 0)
-     fprintf(stderr, "[%d] nsend():send %s\n", getpid(), strerror(errno));
-   return n;
- }
- 
+  if (NESSUS_STREAM (fd))
+    {
+      if (connections[fd - NESSUS_FD_OFF].fd < 0)
+        fprintf (stderr, "Nessus file descriptor %d closed ?!\n", fd);
+      else
+        return write_stream_connection4 (fd, data, length, i_opt);
+    }
+  #if DEBUG_SSL > 1
+  else
+    fprintf (stderr, "nsend[%d]: fd=%d\n", getpid(), fd);
+  #endif
+  /* Trying OS's send() */
+  block_socket (fd); /* ??? */
+  do
+    {
+      struct timeval tv =
+        {
+          0, 5
+        };
+      fd_set wr;
+      int e;
+
+      FD_ZERO (&wr);
+      FD_SET (fd, &wr);
+
+      errno = 0;
+      e  = select (fd + 1, NULL, &wr, NULL, &tv);
+      if (e > 0)
+        n = os_send (fd, data, length, i_opt);
+      else if (e < 0 && errno == EINTR)
+        continue;
+      else
+        break;
+    }
+  while (n <= 0 && errno == EINTR);
+  if (n < 0)
+    fprintf (stderr, "[%d] nsend():send %s\n", getpid(), strerror (errno));
+  return n;
+}
+
 int
-nrecv (fd, data, length, i_opt)
- int fd;
- void * data;
- int length, i_opt;
+nrecv (int fd, void * data, int length, int i_opt)
 {
   int e;
 #if DEBUG_SSL > 8
@@ -1781,11 +1771,9 @@ nrecv (fd, data, length, i_opt)
  } while ( e < 0 && errno == EINTR );
  return e;
 }
- 
 
 int
-close_stream_connection(fd)
- int fd;
+close_stream_connection (int fd)
 {
 #if DEBUG_SSL > 2
  nessus_connection * fp;
@@ -1814,8 +1802,7 @@ close_stream_connection(fd)
 
 
 int
-get_encaps(fd)
- int fd;
+get_encaps (int fd)
 {
  if(!NESSUS_STREAM(fd))
  {
@@ -1826,10 +1813,8 @@ get_encaps(fd)
 }
 
 
- 
 const char *
-get_encaps_name(code)
- int code;
+get_encaps_name (int code)
 {
  static char str[100];
  switch(code)
@@ -1976,12 +1961,9 @@ again:
 
 
 
-int open_sock_opt_hn(hostname, port, type, protocol, timeout)
- const char * hostname; 
- unsigned int port; 
- int type;
- int protocol;
- int timeout;
+int
+open_sock_opt_hn (const char * hostname, unsigned int port, int type,
+                  int protocol, int timeout)
 {
  struct sockaddr_in addr;
  struct sockaddr_in6 addr6;
@@ -2021,20 +2003,15 @@ int open_sock_tcp_hn(hostname, port)
 }
 
 
-int open_sock_tcp(args, port, timeout)
- struct arglist * args; 
- unsigned int port;
- int timeout;
+int
+open_sock_tcp (struct arglist * args, unsigned int port, int timeout)
 {
   char name[32];
   int ret;
   int type;
-  
 
-  /*
-   * If we timed out against this port in the past, there's no need
-   * to scan it again
-   */
+  /* If we timed out against this port in the past, there's no need
+   * to scan it again */
   snprintf(name, sizeof(name), "/tmp/ConnectTimeout/TCP/%d", port); /* RATS: ignore */
   if ( plug_get_key ( args, name, &type ) ) 
 	return -1;
@@ -2071,9 +2048,7 @@ struct in_addr _socket_get_next_source_addr(struct in_addr * addr)
    ret.s_addr = INADDR_ANY;
    return ret;
   }
-  
-  
-  
+
   if ( src_addrs == NULL && current_src_addr == 0 )
   {
     src_addrs = addr;
@@ -2082,13 +2057,13 @@ struct in_addr _socket_get_next_source_addr(struct in_addr * addr)
      ret.s_addr = INADDR_ANY;
      current_src_addr = -1;
      return ret;
-    }    	
-   
+    }
+
    num_addrs = -1;
    while(src_addrs[++num_addrs].s_addr != 0 ) ;
   }
-  
-  
+
+
   mypid = getpid();
   if ( current_src_addr_pid != mypid )
    {
@@ -2154,12 +2129,9 @@ void socket_source_init(struct in_addr * addr)
 }
 
 
-int open_sock_option(args, port, type, protocol, timeout)
- struct arglist * args;
- unsigned int port;
- int type;
- int protocol;
- int timeout;
+int
+open_sock_option (struct arglist * args, unsigned int port, int type,
+                  int protocol, int timeout)
 {
   struct sockaddr_in addr;
   struct sockaddr_in6 addr6;
@@ -2328,70 +2300,68 @@ auth_printf(struct arglist * globals, char * data, ...)
 {
   va_list param;
   char buffer[65535];
-  
+
   bzero(buffer, sizeof(buffer));
 
   va_start(param, data);
   /* RATS: ignore */
   vsnprintf(buffer, sizeof(buffer) - 1, data, param);
-  
+
   va_end(param);
   auth_send(globals, buffer);
-}                    
+}
 
 
 void
-auth_send(struct arglist * globals, char * data)
+auth_send (struct arglist * globals, char * data)
 {
- int soc = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
- int confirm = GPOINTER_TO_SIZE(arg_get_value(globals, "confirm"));
- int n = 0;
- int length;
- int sent = 0;
+  int soc = GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
+  int confirm = GPOINTER_TO_SIZE (arg_get_value (globals, "confirm"));
+  int n = 0;
+  int length;
+  int sent = 0;
 
- if(soc < 0)
-  return;
+  if (soc < 0)
+    return;
 
 #ifndef NESSUSNT
- signal(SIGPIPE, _exit);
+  signal (SIGPIPE, _exit);
 #endif
- length = strlen(data);
- while(sent < length)
- {
- n = nsend(soc, data+sent, length-sent, 0);
- if(n < 0)
- {
-  if((errno == ENOMEM)
-#ifdef ENOBUFS  
-   ||(errno==ENOBUFS)
-#endif   
-   )
-   n = 0;
-  else
-   {
-   nessus_perror("nsend");
-   goto out;
-   }
- }
- else sent+=n;
- }
- 
- if(confirm)
- {
-  /*
-   * If confirm is set, then we are a son
-   * trying to report some message to our busy
-   * father. So we wait until he told us he
-   * took care of it
-   */
-  char n;
-  read_stream_connection_min(soc, &n, 1, 1);
- }
+  length = strlen (data);
+  while (sent < length)
+    {
+      n = nsend (soc, data + sent, length - sent, 0);
+      if (n < 0)
+        {
+          if ( (errno == ENOMEM)
+#ifdef ENOBUFS
+               || (errno == ENOBUFS)
+#endif
+             )
+            n = 0;
+          else
+            {
+              nessus_perror ("nsend");
+              goto out;
+            }
+        }
+      else sent += n;
+    }
+
+  if (confirm)
+    {
+      /* If confirm is set, then we are a son
+       * trying to report some message to our busy
+       * father. So we wait until he told us he
+       * took care of it. */
+      char n;
+      read_stream_connection_min (soc, &n, 1, 1);
+    }
 out:
 #ifndef NESSUSNT
-  signal(SIGPIPE, SIG_IGN);
+  signal (SIGPIPE, SIG_IGN);
 #else
- ;
+  ;
 #endif
 }
 
