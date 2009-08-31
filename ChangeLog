@@ -1,5 +1,10 @@
 2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* libopenvas-config.in: Removed lopenvas_nasl from linker flags for now,
+	as it breaks linking.
+
+2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* misc/network.c: Cosmetics, reformatted nsend, auth_send,
 	nessus_perror and removed K&R styled function decls.
 

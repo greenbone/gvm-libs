@@ -63,7 +63,7 @@ while test $# -gt 0; do
 		exit 0
 		;;
 	--libs)
-		echo $Xn "-L$LIBDIR -lopenvasmisc -lopenvashg -lopenvas_base -lopenvas_nasl $EXTRA $Xc"
+		echo $Xn "-L$LIBDIR -lopenvasmisc -lopenvashg -lopenvas_base $EXTRA $Xc"
 		;;
 	--cflags)
 		echo $Xn "$DEFS -I$INCLUDEDIR/openvas $Xc"
