@@ -1,6 +1,13 @@
+2009-09-01  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* nasl/CMakeLists.txt: Added target to build the openvas-nasl
+	standalone interpreter (works at least on debian machines).
+
+	* MANIFEST: Updated
+
 2009-08-31 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
-	* openvasd/network.c (auth_send): Removed call of nessus_perror
+	* misc/network.c (auth_send): Removed call of nessus_perror
 	because the respective errno has changed at this moment already
 	anyway.
 

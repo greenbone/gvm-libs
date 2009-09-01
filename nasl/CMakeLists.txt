@@ -120,7 +120,7 @@ STRING (REPLACE "
 
 exec_program (pkg-config
               ARGS --cflags glib-2.0
-			  OUTPUT_VARIABLE GLIB_CFLAGS)
+              OUTPUT_VARIABLE GLIB_CFLAGS)
 
 ## Library
 
@@ -143,8 +143,8 @@ set (FILES capture_packet.c exec.c hmacmd5.c lint.c lsearch.c md5.c nasl.c
      nasl_grammar.tab.c nasl_host.c nasl_http.c nasl_init.c nasl_lex_ctxt.c
      nasl_misc_funcs.c nasl_nessusd_glue.c nasl_packet_forgery.c
      nasl_signature.c nasl_smb.c nasl_socket.c nasl_text_utils.c nasl_tree.c
-     nasl_var.c nasl_wmi.c preparse.c regex.c smb_interface_stub.c
-     strutils.c wmi_interface_stub.c)
+     nasl_var.c nasl_wmi.c preparse.c regex.c smb_interface_stub.c strutils.c
+     wmi_interface_stub.c)
 
 SET_SOURCE_FILES_PROPERTIES(nasl_grammar.tab.c GENERATED)
 
@@ -167,9 +167,37 @@ set_target_properties (openvas_nasl_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLA
 set_target_properties (openvas_nasl_shared PROPERTIES OUTPUT_NAME "openvas_nasl")
 set_target_properties (openvas_nasl_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 
+# Find GLib
+exec_program (pkg-config
+              ARGS --cflags glib-2.0
+              OUTPUT_VARIABLE GLIB_CFLAGS)
+              # Find GLib and compile and link the openvas-nasl executable
+exec_program (pkg-config
+              ARGS --libs glib-2.0
+              OUTPUT_VARIABLE GLIB_LDFLAGS)
+
+# Add ("import") static libs from Make based subprojects of openvas-libraries
+add_library (libopenvas_base STATIC IMPORTED)
+add_library (libopenvashg STATIC IMPORTED)
+add_library (libopenvasmisc STATIC IMPORTED)
+set_property (TARGET libopenvasmisc PROPERTY
+              IMPORTED_LOCATION ../base/libopenvas_base.a)
+set_property (TARGET libopenvas_base PROPERTY
+              IMPORTED_LOCATION ../misc/.libs/libopenvasmisc.a)
+set_property (TARGET libopenvashg PROPERTY
+              IMPORTED_LOCATION ../hg/.libs/libopenvashg.a)
+
+# Link the openvas-nasl executable
+add_executable (openvas-nasl  ${static_libs} ${FILES})
+target_link_libraries (openvas-nasl libopenvas_base libopenvasmisc libopenvashg)
+set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
+                       ${GLIB_CFLAGS})
+set_target_properties (openvas-nasl PROPERTIES LINK_FLAGS
+                       "${GLIB_LDFLAGS} -lgcrypt -lgpgme -lgpg-error -lgnutls -lpcap -lresolv")
+
 ## Install
 
-install (TARGETS openvas_nasl_static openvas_nasl_shared
+install (TARGETS openvas_nasl_static openvas_nasl_shared openvas-nasl
          RUNTIME DESTINATION ${BINDIR}
          LIBRARY DESTINATION ${LIBDIR}
          ARCHIVE DESTINATION ${LIBDIR})
