@@ -1,0 +1,30 @@
+2007-09-13  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
+
+	* Consistently change OPENVAS_STATE_DIR to be plus "/lib/openvas".
+	This is also to be done in the other modules. Maybe it is necessary
+	to have the definiton at the lowest level (openvas-libraries) and
+	the get the variable from there in the other modules instead of
+	defining again.
+
+2007-08-01  Dirk Jagdmann <doj@cubic.org>
+
+	Taken from plugins-writers mailing list of
+	Nessus, dated 20070729.
+
+	* array/hash comparison
+
+	local_var a,b; a[0]=0; b[1]=1;
+	if(a == b) { ... }
+
+	* direct initialization of a variable
+
+	local_var a=3;
+	global_var g="nil";
+
+	* use function which returns array/hash directly in expression
+
+	function f()
+	{
+	  local_var a; a["drei"]=3; return a;
+	}
+	if(f()["drei"] == 3) { ... }

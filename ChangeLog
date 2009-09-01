@@ -1,5 +1,13 @@
 2009-09-01  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* nasl/TODO: copied from openvas-nasl/TODO.
+
+	* nasl/ChangeLog-pre-09-2009: Copied (soon old ChangeLog entries).
+
+	* nasl/README.txt: New.
+
+2009-09-01  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* nasl/CMakeLists.txt: Added target to build the openvas-nasl
 	standalone interpreter (works at least on debian machines).
 
