@@ -2304,7 +2304,6 @@ auth_send(struct arglist * globals, char * data)
    n = 0;
   else
    {
-   nessus_perror("nsend");
    goto out;
    }
  }
