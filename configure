@@ -847,6 +847,8 @@ INSTALL_DATA
 PKG_CONFIG
 GLIB_CFLAGS
 GLIB_LIBS
+GPGME_CONFIG
+BISON
 ALLOCA
 CC_NOPIPE
 PWD
@@ -860,6 +862,7 @@ llib
 version
 egdpath
 debug_ssl
+NASLLIBS
 OPENVASLIBS_MAJOR
 OPENVASLIBS_MINOR
 OPENVASLIBS_SUPER
@@ -3710,7 +3713,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 3713 "configure"' > conftest.$ac_ext
+  echo '#line 3716 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -6618,11 +6621,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6621: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6624: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6625: \$? = $ac_status" >&5
+   echo "$as_me:6628: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -6886,11 +6889,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6889: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6892: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6893: \$? = $ac_status" >&5
+   echo "$as_me:6896: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -6990,11 +6993,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6993: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6996: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:6997: \$? = $ac_status" >&5
+   echo "$as_me:7000: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -9287,7 +9290,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9290 "configure"
+#line 9293 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -9387,7 +9390,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9390 "configure"
+#line 9393 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11723,11 +11726,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11726: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11729: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:11730: \$? = $ac_status" >&5
+   echo "$as_me:11733: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -11827,11 +11830,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11830: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11833: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:11834: \$? = $ac_status" >&5
+   echo "$as_me:11837: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -13388,11 +13391,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13391: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13394: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13395: \$? = $ac_status" >&5
+   echo "$as_me:13398: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13492,11 +13495,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13495: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13498: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13499: \$? = $ac_status" >&5
+   echo "$as_me:13502: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15679,11 +15682,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15682: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15685: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15686: \$? = $ac_status" >&5
+   echo "$as_me:15689: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -15947,11 +15950,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15950: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15953: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15954: \$? = $ac_status" >&5
+   echo "$as_me:15957: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16051,11 +16054,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16054: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16057: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:16058: \$? = $ac_status" >&5
+   echo "$as_me:16061: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -19207,6 +19210,298 @@ fi
 
 
 
+
+NEED_GPGME_VERSION=1.1.2
+
+# Extract the first word of "gpgme-config", so it can be a program name with args.
+set dummy gpgme-config; ac_word=$2
+{ echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
+if test "${ac_cv_path_GPGME_CONFIG+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $GPGME_CONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_GPGME_CONFIG="$GPGME_CONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+    ac_cv_path_GPGME_CONFIG="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+GPGME_CONFIG=$ac_cv_path_GPGME_CONFIG
+if test -n "$GPGME_CONFIG"; then
+  { echo "$as_me:$LINENO: result: $GPGME_CONFIG" >&5
+echo "${ECHO_T}$GPGME_CONFIG" >&6; }
+else
+  { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+fi
+
+
+
+test "x$GPGME_CONFIG" = x && { { echo "$as_me:$LINENO: error: \"\"
+\"\"
+\"*** gpgme is not installed ! You need to install it before you\"
+\"compile openvas-libnasl.\"
+\"See http://www.gnupg.org/gpgme.html\"" >&5
+echo "$as_me: error: \"\"
+\"\"
+\"*** gpgme is not installed ! You need to install it before you\"
+\"compile openvas-libnasl.\"
+\"See http://www.gnupg.org/gpgme.html\"" >&2;}
+   { (exit 1); exit 1; }; }
+
+GPGME_VERSION=`$GPGME_CONFIG --version | sed 's/-.*$//'`
+
+GPGME_MAJOR=`echo $GPGME_VERSION | \
+               sed 's/\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)/\1/'`
+GPGME_MINOR=`echo $GPGME_VERSION | \
+               sed 's/\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)/\2/'`
+GPGME_PATCH=`echo $GPGME_VERSION | \
+               sed 's/\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)/\3/'`
+REQ_GPGME_MAJOR=`echo $NEED_GPGME_VERSION | \
+               sed 's/\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)/\1/'`
+REQ_GPGME_MINOR=`echo $NEED_GPGME_VERSION | \
+               sed 's/\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)/\2/'`
+REQ_GPGME_PATCH=`echo $NEED_GPGME_VERSION | \
+               sed 's/\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)/\3/'`
+
+
+ok=no
+if test "$GPGME_MAJOR" -gt "$REQ_GPGME_MAJOR"; then
+  ok=yes
+else
+  if test "$GPGME_MAJOR" -eq "$REQ_GPGME_MAJOR"; then
+    if test "$GPGME_MINOR" -gt "$REQ_GPGME_MINOR"; then
+      ok=yes
+    else
+      if test "$GPGME_MINOR" -eq "$REQ_GPGME_MINOR"; then
+        if test "$GPGME_PATCH" -ge "$REQ_GPGME_PATCH"; then
+          ok=yes
+        fi
+      fi
+    fi
+  fi
+fi
+if test $ok = no; then
+{ { echo "$as_me:$LINENO: error: gpgme $GPGME_VERSION too old.
+Minimum required is $NEED_GPGME_VERSION .
+" >&5
+echo "$as_me: error: gpgme $GPGME_VERSION too old.
+Minimum required is $NEED_GPGME_VERSION .
+" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+GPGME_LIBS=`$GPGME_CONFIG --libs`
+NASLLIBS="$GPGME_LIBS $NASLLIBS"
+
+
+if test "${ac_cv_header_gcrypt_h+set}" = set; then
+  { echo "$as_me:$LINENO: checking for gcrypt.h" >&5
+echo $ECHO_N "checking for gcrypt.h... $ECHO_C" >&6; }
+if test "${ac_cv_header_gcrypt_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_header_gcrypt_h" >&5
+echo "${ECHO_T}$ac_cv_header_gcrypt_h" >&6; }
+else
+  # Is the header compilable?
+{ echo "$as_me:$LINENO: checking gcrypt.h usability" >&5
+echo $ECHO_N "checking gcrypt.h usability... $ECHO_C" >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+#include <gcrypt.h>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_header_compiler=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_header_compiler=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
+echo "${ECHO_T}$ac_header_compiler" >&6; }
+
+# Is the header present?
+{ echo "$as_me:$LINENO: checking gcrypt.h presence" >&5
+echo $ECHO_N "checking gcrypt.h presence... $ECHO_C" >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <gcrypt.h>
+_ACEOF
+if { (ac_try="$ac_cpp conftest.$ac_ext"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null && {
+	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       }; then
+  ac_header_preproc=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  ac_header_preproc=no
+fi
+
+rm -f conftest.err conftest.$ac_ext
+{ echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
+echo "${ECHO_T}$ac_header_preproc" >&6; }
+
+# So?  What about this header?
+case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
+  yes:no: )
+    { echo "$as_me:$LINENO: WARNING: gcrypt.h: accepted by the compiler, rejected by the preprocessor!" >&5
+echo "$as_me: WARNING: gcrypt.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
+    { echo "$as_me:$LINENO: WARNING: gcrypt.h: proceeding with the compiler's result" >&5
+echo "$as_me: WARNING: gcrypt.h: proceeding with the compiler's result" >&2;}
+    ac_header_preproc=yes
+    ;;
+  no:yes:* )
+    { echo "$as_me:$LINENO: WARNING: gcrypt.h: present but cannot be compiled" >&5
+echo "$as_me: WARNING: gcrypt.h: present but cannot be compiled" >&2;}
+    { echo "$as_me:$LINENO: WARNING: gcrypt.h:     check for missing prerequisite headers?" >&5
+echo "$as_me: WARNING: gcrypt.h:     check for missing prerequisite headers?" >&2;}
+    { echo "$as_me:$LINENO: WARNING: gcrypt.h: see the Autoconf documentation" >&5
+echo "$as_me: WARNING: gcrypt.h: see the Autoconf documentation" >&2;}
+    { echo "$as_me:$LINENO: WARNING: gcrypt.h:     section \"Present But Cannot Be Compiled\"" >&5
+echo "$as_me: WARNING: gcrypt.h:     section \"Present But Cannot Be Compiled\"" >&2;}
+    { echo "$as_me:$LINENO: WARNING: gcrypt.h: proceeding with the preprocessor's result" >&5
+echo "$as_me: WARNING: gcrypt.h: proceeding with the preprocessor's result" >&2;}
+    { echo "$as_me:$LINENO: WARNING: gcrypt.h: in the future, the compiler will take precedence" >&5
+echo "$as_me: WARNING: gcrypt.h: in the future, the compiler will take precedence" >&2;}
+
+    ;;
+esac
+{ echo "$as_me:$LINENO: checking for gcrypt.h" >&5
+echo $ECHO_N "checking for gcrypt.h... $ECHO_C" >&6; }
+if test "${ac_cv_header_gcrypt_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_cv_header_gcrypt_h=$ac_header_preproc
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_header_gcrypt_h" >&5
+echo "${ECHO_T}$ac_cv_header_gcrypt_h" >&6; }
+
+fi
+if test $ac_cv_header_gcrypt_h = yes; then
+  NASLLIBS="-lgcrypt $NASLLIBS"
+else
+  { { echo "$as_me:$LINENO: error: \"gcrypt.h not found\"" >&5
+echo "$as_me: error: \"gcrypt.h not found\"" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+
+
+# Extract the first word of "bison", so it can be a program name with args.
+set dummy bison; ac_word=$2
+{ echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
+if test "${ac_cv_path_BISON+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $BISON in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_BISON="$BISON" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+    ac_cv_path_BISON="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+BISON=$ac_cv_path_BISON
+if test -n "$BISON"; then
+  { echo "$as_me:$LINENO: result: $BISON" >&5
+echo "${ECHO_T}$BISON" >&6; }
+else
+  { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+fi
+
+
+test "x$BISON" = "x" && { { echo "$as_me:$LINENO: error: \"\"
+\"\"
+\"*** bison is not installed on this host ! You need to install it before you\"
+\"compile libnasl\"
+\"Get it at ftp://ftp.gnu.org/pub/gnu/bison/ or check your operating system\"
+\"packages\"" >&5
+echo "$as_me: error: \"\"
+\"\"
+\"*** bison is not installed on this host ! You need to install it before you\"
+\"compile libnasl\"
+\"Get it at ftp://ftp.gnu.org/pub/gnu/bison/ or check your operating system\"
+\"packages\"" >&2;}
+   { (exit 1); exit 1; }; }
+
+
+
 { echo "$as_me:$LINENO: checking for dn_expand in -lresolv" >&5
 echo $ECHO_N "checking for dn_expand in -lresolv... $ECHO_C" >&6; }
 if test "${ac_cv_lib_resolv_dn_expand+set}" = set; then
@@ -19630,8 +19925,6 @@ fi
 if test "${enable_debug+set}" = set; then
   enableval=$enable_debug; debug_cflags="-DDEBUG -g"
 fi
-
-
 
 
 
@@ -25191,6 +25484,7 @@ esac
 
 
 
+
 ac_config_files="$ac_config_files openvas-libraries.tmpl libopenvas-config include/libvers.h"
 
 cat >confcache <<\_ACEOF
@@ -25889,6 +26183,8 @@ INSTALL_DATA!$INSTALL_DATA$ac_delim
 PKG_CONFIG!$PKG_CONFIG$ac_delim
 GLIB_CFLAGS!$GLIB_CFLAGS$ac_delim
 GLIB_LIBS!$GLIB_LIBS$ac_delim
+GPGME_CONFIG!$GPGME_CONFIG$ac_delim
+BISON!$BISON$ac_delim
 ALLOCA!$ALLOCA$ac_delim
 CC_NOPIPE!$CC_NOPIPE$ac_delim
 PWD!$PWD$ac_delim
@@ -25902,12 +26198,10 @@ llib!$llib$ac_delim
 version!$version$ac_delim
 egdpath!$egdpath$ac_delim
 debug_ssl!$debug_ssl$ac_delim
+NASLLIBS!$NASLLIBS$ac_delim
 OPENVASLIBS_MAJOR!$OPENVASLIBS_MAJOR$ac_delim
 OPENVASLIBS_MINOR!$OPENVASLIBS_MINOR$ac_delim
 OPENVASLIBS_SUPER!$OPENVASLIBS_SUPER$ac_delim
-OPENVASLIBS_PATCH!$OPENVASLIBS_PATCH$ac_delim
-OPENVASLIBS_DATE!$OPENVASLIBS_DATE$ac_delim
-VERSION!$VERSION$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -25949,12 +26243,15 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+OPENVASLIBS_PATCH!$OPENVASLIBS_PATCH$ac_delim
+OPENVASLIBS_DATE!$OPENVASLIBS_DATE$ac_delim
+VERSION!$VERSION$ac_delim
 ac_configure_args!$ac_configure_args$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 3; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 6; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

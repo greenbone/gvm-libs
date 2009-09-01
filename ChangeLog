@@ -1,5 +1,9 @@
 2009-09-01  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* configure: Regenerated.
+
+2009-09-01  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* nasl/TODO: copied from openvas-nasl/TODO.
 
 	* nasl/ChangeLog-pre-09-2009: Copied (soon old ChangeLog entries).
