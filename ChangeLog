@@ -1,3 +1,11 @@
+2009-09-03  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* nasl/nasl_smb.c, nasl/nasl_wmi.c: Return NULL if no version info is
+	available, as stated in the documentation. This avoid segfaults by
+	unguarded calls strdup and strlen. Minor reformatting.
+
+	* nasl/nasl_smb.c, nasl/nasl_wmi.c: Added TODOs about possible memleaks.
+
 2009-09-01  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* configure: Regenerated.

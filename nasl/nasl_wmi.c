@@ -36,6 +36,13 @@
  * 3. WMI_REGISTRY_FUNCTIONS
  */
 
+/**
+ * @TODO Check for memleak and document reference counting in tree cells.
+ *       In some cases, after a tree_cell (typically retc) has been allocated
+ *       with alloc_tree_cell, it is not later freed or deref_tree_cell'ed. It
+ *       has to evaluated if that is okay or leads to memory leaks.
+ */
+
 #include <stdio.h>
 #include <string.h>
 
@@ -53,13 +60,19 @@
 tree_cell *
 nasl_wmi_versioninfo (lex_ctxt * lexic)
 {
-  char * version = wmi_versioninfo();
-  tree_cell *retc = alloc_tree_cell (0, NULL);
+  char * version = wmi_versioninfo ();
+  tree_cell * retc = alloc_tree_cell (0, NULL);
 
-  if (!retc) return NULL;
+  if (!retc)
+    return NULL;
+
+  if (!version)
+    {
+      return NULL;
+    }
 
   retc->type = CONST_DATA;
-  retc->x.str_val = strdup(version);
+  retc->x.str_val = strdup (version);
   retc->size = strlen (version);
 
   return retc;
