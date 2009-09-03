@@ -30,7 +30,7 @@ include openvas-libraries.tmpl
 ALLDEPS = openvas-libraries.tmpl
 
 all: $(ALLDEPS)
-	cd base && cmake -DCMAKE_INSTALL_PREFIX=$(DESTDIR)${prefix} && ${MAKE}
+	cd base && cmake -DCMAKE_INSTALL_PREFIX=$(DESTDIR)${prefix} -DHAVE_WMI=$(HAVE_WMI) && ${MAKE}
 	cd hg   && ${MAKE}
 	cd misc && ${MAKE}
 	cd nasl && cmake -DCMAKE_INSTALL_PREFIX=$(DESTDIR)${prefix} && ${MAKE}

@@ -1,3 +1,14 @@
+2009-09-03  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* Makefile: Pass HAVE_WMI client to cmake if libwmiclient was found
+	during configure step.
+
+	* libopenvas-config.in: Add -lwmiclient to linker flags if libwmiclient
+	found during configure step.
+
+	* nasl/CMakeLists.txt: Link against wmiclient if libwmiclient was found
+	during configure step.
+
 2009-09-03  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* configure.in, openvas-libraries.tmpl.in: Added support for

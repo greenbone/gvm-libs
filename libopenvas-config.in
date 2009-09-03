@@ -38,7 +38,7 @@ VERSION=@version@
 EXTRA="@EXTRA@ @llib@"
 EGDPATH="@egdpath@"
 NASLLIBS="@NASLLIBS@"
-
+HAVE_WMI="@HAVE_WMI@"
 
 usage()
 {
@@ -64,7 +64,11 @@ while test $# -gt 0; do
 		exit 0
 		;;
 	--libs)
-		echo $Xn "-L$LIBDIR -lopenvasmisc -lopenvashg -lopenvas_base $EXTRA -lopenvas_nasl $NASLLIBS $Xc"
+		if [ HAVE_WMI = "NO" ]; then
+			echo $Xn "-L$LIBDIR -lopenvasmisc -lopenvashg -lopenvas_base -lwmiclient $EXTRA -lopenvas_nasl $NASLLIBS $Xc"
+		else
+			echo $Xn "-L$LIBDIR -lopenvasmisc -lopenvashg -lopenvas_base $EXTRA -lopenvas_nasl $NASLLIBS $Xc"
+		fi
 		;;
 	--cflags)
 		echo $Xn "$DEFS -I$INCLUDEDIR/openvas $Xc"
