@@ -1,5 +1,10 @@
 2009-09-03  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* libopenvas-config.in: Corrected inverted logic: Add -lwmiclient to
+	linker flags if libwmiclient found during configure step.
+
+2009-09-03  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* Makefile: Pass HAVE_WMI client to cmake if libwmiclient was found
 	during configure step.
 
