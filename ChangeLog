@@ -1,3 +1,10 @@
+2009-09-03  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* configure.in, openvas-libraries.tmpl.in: Added support for
+	libwmiclient detection.
+
+	* configure: Regenerated.
+
 2009-09-03  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* nasl/nasl_smb.c, nasl/nasl_wmi.c: Return NULL if no version info is

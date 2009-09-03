@@ -334,6 +334,8 @@ AC_CHECK_FUNC(inet_aton, AC_DEFINE(HAVE_INET_ATON))
 AC_CHECK_LIB(resolv, inet_aton, AC_DEFINE(HAVE_INET_ATON))
 AC_CHECK_LIB(nsl, inet_aton, AC_DEFINE(HAVE_INET_ATON))
 
+AC_CHECK_LIB(wmiclient, wmi_connect, HAVE_WMI="YES", HAVE_WMI="NO")
+
 llib="";
 AC_CHECK_LIB(l, yylex, llib=-ll)
 test -z "$llib" &&
@@ -566,6 +568,7 @@ AC_SUBST(OPENVASLIBS_SUPER)
 AC_SUBST(OPENVASLIBS_PATCH)
 AC_SUBST(OPENVASLIBS_DATE)
 AC_SUBST(VERSION)
+AC_SUBST(HAVE_WMI)
 AC_SUBST(ac_configure_args)
 
 dnl And we put everything in THREE files
