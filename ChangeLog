@@ -1,3 +1,10 @@
+2009-09-03 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/hash_table_file.c: Transferred copyright to Greenbone.
+	Replaced includes.h by those needed really.
+
+	* misc/hash_table_file.h: Transferred copyright to Greenbone.
+
 2009-09-03  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* Makefile: Install nasl.h header.

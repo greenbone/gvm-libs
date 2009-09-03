@@ -1,4 +1,4 @@
-/* OpenVAS-Client
+/* OpenVAS Libraries
  * $Id$
  * Description: Functions to write and read a g_hash_table to / from a file.
  *
@@ -6,7 +6,7 @@
  * Felix Wolfsteller <felix.wolfsteller@intevation.de>
  *
  * Copyright:
- * Copyright (C) 2008 Intevation GmbH
+ * Copyright (C) 2009 Greenbone Networks GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -32,6 +32,12 @@
  * of the file, but you are not obligated to do so. If you do not
  * wish to do so, delete this exception statement from your version.
  */
+
+/**
+ * @file
+ * Protos for module hash_table_file.c.
+ */
+
 #ifndef _OPENVAS_CLIENT_HASH_TABLE_FILE_H
 #define _OPENVAS_CLIENT_HASH_TABLE_FILE_H
 

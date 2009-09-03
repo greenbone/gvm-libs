@@ -1,4 +1,4 @@
-/* OpenVAS-Client
+/* OpenVAS Libraries
  * $Id$
  * Description: Functions to write and read a GHashTable to / from a file.
  *
@@ -6,7 +6,7 @@
  * Felix Wolfsteller <felix.wolfsteller@intevation.de>
  *
  * Copyright:
- * Copyright (C) 2008 Intevation GmbH
+ * Copyright (C) 2009 Greenbone Networks GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -42,7 +42,14 @@
  * "GHashTableGKeyFile" (defined in GROUP_NONE).
  */
 
-#include "includes.h"
+/* for open() */
+#include <fcntl.h>
+
+/* for close() */
+#include <unistd.h>
+
+/* for estrdup() */
+#include "system.h"
 
 #include "hash_table_file.h"
 
