@@ -74,6 +74,7 @@ install : all
 	$(INSTALL) -m 0444 misc/store.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 misc/system.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 misc/www_funcs.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 nasl/nasl.h   $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 base/nvti.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 base/certificate.h $(DESTDIR)${includedir}/openvas
 	test -d $(DESTDIR)${bindir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${bindir}

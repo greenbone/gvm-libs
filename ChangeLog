@@ -1,5 +1,9 @@
 2009-09-03  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* Makefile: Install nasl.h header.
+
+2009-09-03  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* libopenvas-config.in: Corrected inverted logic: Add -lwmiclient to
 	linker flags if libwmiclient found during configure step.
 
