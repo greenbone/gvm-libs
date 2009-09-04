@@ -180,3 +180,29 @@ openvas_authenticate (const gchar * username, const gchar * password)
   g_free (actual);
   return ret;
 }
+
+/**
+ * @brief Check if a user has administrative privileges.
+ *
+ * The check for administrative privileges is currently done by looking for an
+ * "isadmin" file in the user directory.
+ *
+ * @param username Username.
+ *
+ * @return 1 user has administrative privileges, 0 user does not have
+ * administrative privileges
+ */
+int
+openvas_is_user_admin (const gchar * username)
+{
+  gchar *file_name = g_build_filename (OPENVAS_USERS_DIR,
+                                       username,
+                                       "isadmin",
+                                       NULL);
+  gboolean file_exists = g_file_test (file_name, G_FILE_TEST_EXISTS);
+
+  g_free (file_name);
+  return file_exists;
+}
+
+

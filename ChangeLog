@@ -1,3 +1,10 @@
+2009-09-04  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* misc/openvas_auth.c (openvas_is_user_admin): Added new function to
+	determine whether a user has administrative privileges.
+
+	* misc/openvas_auth.h: Exposed openvas_is_user_admin.
+
 2009-09-04 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/network.c (nessus_SSL_init): Renamed to openvas_SSL_init.

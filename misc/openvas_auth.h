@@ -39,4 +39,7 @@ digest_hex (int, const guchar *);
 int
 openvas_authenticate (const gchar *, const gchar *);
 
+int
+openvas_is_user_admin (const gchar *);
+
 #endif
