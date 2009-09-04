@@ -67,7 +67,12 @@ tree_cell * get_host_ip(lex_ctxt * lexic)
  inaddr.s_addr = ip->s6_addr32[3];
  retc = alloc_tree_cell(0, NULL);
  retc->type = CONST_STR;
- txt_ip = estrdup(inet_ntop(AF_INET6, ip,name, sizeof(name) ));
+ if(IN6_IS_ADDR_V4MAPPED(ip)) {
+   txt_ip = estrdup(inet_ntoa(inaddr));
+ }
+ else {
+   txt_ip = estrdup(inet_ntop(AF_INET6, ip, name, sizeof(name) ));
+ }
  retc->x.str_val = estrdup(txt_ip);
  retc->size = strlen(retc->x.str_val);
 

@@ -1,3 +1,9 @@
+2009-09-04  Chandrashekhar B <bchandra@secpod.com>
+
+	* nasl/nasl_host.c: (get_host_ip): Addressed an issue. The
+	function was returning IPv6 mapped IPv4 address, now returns
+	pure IPv4 address. Many applications won't accept v6 mapped v4.
+
 2009-09-04  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* libopenvas-config.in: Corrected string comparison.
