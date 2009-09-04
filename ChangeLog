@@ -1,3 +1,9 @@
+2009-09-04  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* nasl/nasl_signature (init_openvas_gpgme_ctx): Added call to
+	gpgme_version_check which apparently initializes parts of gpgme.
+	This might fix bug #972 or #1079 (http://bugs.openvas.org/1079).
+
 2009-09-03 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/hash_table_file.c: Transferred copyright to Greenbone.

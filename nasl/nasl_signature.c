@@ -177,7 +177,12 @@ init_openvas_gpgme_ctx ()
   gpgme_ctx_t ctx = NULL;
   char * gpghome = determine_gpghome();
 
+  /* Calls seem to be necessary for certain versions of gpgme (for
+    initialization). Note that we could check the version number here, but do so
+    in configure. */
+  gpgme_check_version (NULL);
   err = gpgme_engine_check_version(GPGME_PROTOCOL_OpenPGP);
+
   if (err)
     {
       print_gpgme_error ("gpgme_engine_check_version", err);
