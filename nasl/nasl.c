@@ -196,7 +196,7 @@ main (int argc, char ** argv)
  if (with_safe_checks)
    safe_checks_only ++;
 
- nessus_SSL_init(NULL);
+ openvas_SSL_init();
  if(!nasl_filenames)
   {
     fprintf(stderr, "Error. No input file specified !\n");

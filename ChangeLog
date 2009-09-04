@@ -1,3 +1,13 @@
+2009-09-04 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/network.c (nessus_SSL_init): Renamed to openvas_SSL_init.
+	Also removed the unused parameter.
+	(open_SSL_connection, ovas_server_context_new): Adjusted call accordingly.
+
+	* misc/network.h: Adjusted proto accordingly.
+
+	* nasl/nasl.c (main): Adjusted to call of openvas_SSL_init.
+
 2009-09-04  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* configure.in: Removed checks for libl and libfl which caused

@@ -66,7 +66,7 @@ void auth_printf(struct arglist *, char * , ...);
 void auth_send(struct arglist *, char *);
 char * auth_gets(struct arglist *, char * , size_t);
 
-int nessus_SSL_init(char*);
+int openvas_SSL_init();
 
 int stream_set_buffer(int, int);
 int stream_get_buffer_sz (int);

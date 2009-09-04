@@ -335,13 +335,10 @@ void tlserror(char *txt, int err)
 
 
 /**
- * Initializes SSL support in libopenvas.  The parameter path used to be
- * the filename of the entropy pool for OpenSSL in libnessus.  It's
- * unused in libopenvas.  At the time of the move to GNUTLS, all calls
- * passed NULL as the path anyway.
+ * Initializes SSL support.
  */
 int
-nessus_SSL_init(char *path)
+openvas_SSL_init()
 {
   static int initialized = 0;
 
@@ -726,7 +723,7 @@ open_SSL_connection(nessus_connection *fp, int timeout,
   fd_set	fdw, fdr;
   struct timeval	to;
 
-  nessus_SSL_init(NULL);
+  openvas_SSL_init();
 
   ret = gnutls_init (&(fp->tls_session), GNUTLS_CLIENT);
   if (ret < 0)
@@ -1092,7 +1089,7 @@ ovas_server_context_new(int encaps,
 {
   ovas_server_context_t ctx = NULL;
 
-  if (nessus_SSL_init(NULL) < 0)
+  if (openvas_SSL_init() < 0)
     return NULL;
 
   ctx = emalloc(sizeof(struct ovas_server_context_s));
