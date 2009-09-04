@@ -161,7 +161,7 @@ nasl_pread (lex_ctxt * lexic)
   old_sig_i = signal (SIGINT,  sig_h);
   old_sig_c = signal (SIGCHLD, sig_c);
 
-  fp = nessus_popen4 ((const char*)cmd, args, &pid, nice);
+  fp = openvas_popen4 ((const char*)cmd, args, &pid, nice);
 
   for (i = 0; i < n; i ++)
     efree (&args[i]);
@@ -193,7 +193,7 @@ nasl_pread (lex_ctxt * lexic)
       if (ferror(fp) && errno != EINTR )
 	nasl_perror(lexic, "nasl_pread: fread(): %s\n", strerror(errno));
 
-      (void) nessus_pclose(fp, pid);
+      (void) openvas_pclose(fp, pid);
       pid = 0;
 
       if (*cwd != '\0')

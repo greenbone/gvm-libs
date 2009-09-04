@@ -35,7 +35,7 @@
 #endif
 
 FILE*
-nessus_popen4(const char* cmd, char *const args[], pid_t* ppid, int inice)
+openvas_popen4(const char* cmd, char *const args[], pid_t* ppid, int inice)
 {
   int		fd, pipes[2];
   pid_t		son;
@@ -43,7 +43,7 @@ nessus_popen4(const char* cmd, char *const args[], pid_t* ppid, int inice)
 
 #if DEBUG
   int i;
-  fprintf(stderr, "nessus_popen: running %s -", cmd);
+  fprintf(stderr, "openvas_popen4: running %s -", cmd);
   for (i = 0; args[i] != NULL; i ++)
     fprintf(stderr, " %s", args[i]);
   fputc('\n', stderr);
@@ -135,14 +135,8 @@ nessus_popen4(const char* cmd, char *const args[], pid_t* ppid, int inice)
   return fp;      
 }
 
-FILE*
-nessus_popen(const char* cmd, char *const args[], pid_t* ppid)
-{
-  return nessus_popen4(cmd, args, ppid, 0);
-}
-
 int
-nessus_pclose(FILE* fp, pid_t pid)
+openvas_pclose(FILE* fp, pid_t pid)
 {
   if (pid > 0)
     if (waitpid(pid, NULL, WNOHANG) == 0)

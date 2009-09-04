@@ -1,3 +1,13 @@
+2009-09-04 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/popen.c (nessus_popen4): Renamed to openvas_popen4.
+	(nessus_popen): Removed. It is not used anywhere.
+	(nessus_pclose): Renamed to openvas_pclose.
+
+	* misc/popen.h: Adjust protos accordingly.
+
+	* nasl/nasl_cmd_exec.c (nasl_pread): Adjust to new API accordingly.
+
 2009-09-04  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* misc/openvas_auth.c (openvas_is_user_admin): Added new function to
