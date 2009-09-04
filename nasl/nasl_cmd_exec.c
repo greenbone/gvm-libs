@@ -16,9 +16,12 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
- /*
-  * This file contains all the "unsafe" functions found in NASL
-  */
+
+/**
+ * @brief
+ * This file contains all the "unsafe" functions found in NASL.
+ */
+
 #include <includes.h>
 
 #include "nasl_tree.h"
@@ -36,20 +39,22 @@ static  pid_t pid = 0;
 static  void (*old_sig_t)() = NULL, (*old_sig_i)() = NULL, (*old_sig_c) = NULL;
 
 static void
-sig_h()
+sig_h ()
 {
   if (pid > 0)
     (void) kill(pid, SIGKILL);
 }
 
-static void	sig_c()
+static void
+sig_c ()
 {
   if (pid > 0)
     (void) waitpid(pid, NULL, WNOHANG);
 }
 
+/** @TODO Supspects to glib replacements, all path related stuff. */
 tree_cell*
-nasl_pread(lex_ctxt * lexic)
+nasl_pread (lex_ctxt * lexic)
 {
   tree_cell	*retc = NULL, *a;
   anon_nasl_var	*v;
@@ -59,24 +64,25 @@ nasl_pread(lex_ctxt * lexic)
   FILE		*fp;
   char		cwd[MAXPATHLEN], newdir[MAXPATHLEN];
 
- if ( check_authenticated(lexic) < 0 ) return NULL;
-  
+ if (check_authenticated(lexic) < 0)
+   return NULL;
+
   if (pid != 0)
     {
       nasl_perror(lexic, "nasl_pread is not reentrant!\n");
       return NULL;
     }
 
-  a = get_variable_by_name(lexic, "argv");
-  cmd = get_str_local_var_by_name(lexic, "cmd");
+  a = get_variable_by_name (lexic, "argv");
+  cmd = get_str_local_var_by_name (lexic, "cmd");
   if (cmd == NULL || a == NULL || (v = a->x.ref_val) == NULL)
     {
       nasl_perror(lexic, "pread() usage: cmd:..., argv:...\n");
       return NULL;
     }
 
-  nice = get_int_local_var_by_name(lexic, "nice", 0);
-  
+  nice = get_int_local_var_by_name (lexic, "nice", 0);
+
   if (v->var_type == VAR2_ARRAY)
     av = &v->v.v_arr;
   else
@@ -86,79 +92,81 @@ nasl_pread(lex_ctxt * lexic)
       return NULL;
     }
 
-  cd = get_int_local_var_by_name(lexic, "cd", 0);
+  cd = get_int_local_var_by_name (lexic, "cd", 0);
 
   cwd[0] = '\0';
   if (cd)
     {
-      char	*p;
+      char *p;
 
       if (cmd[0] == '/')
-	{
-	  strncpy(newdir, cmd, sizeof(newdir)-1); /* Flawfinder: ignore
+        {
+          strncpy (newdir, cmd, sizeof(newdir)-1); /* Flawfinder: ignore
                                                      (\0-termination taken
                                                      care of) */
-	  p = strrchr(newdir, '/');
-	  if (p != newdir) *p = '\0';
-	}
+          p = strrchr (newdir, '/');
+          if (p != newdir)
+            *p = '\0';
+        }
       else
-	{
-	  p = find_in_path(cmd, 0);
-	  if (p != NULL)
-	    strncpy(newdir, p, sizeof(newdir)-1); /* Flawfinder: ignore
+        {
+          p = find_in_path (cmd, 0);
+          if (p != NULL)
+            strncpy (newdir, p, sizeof(newdir)-1); /* Flawfinder: ignore
                                                      (\0-termination taken
                                                      care of) */
-	  else
-	    {
-	      nasl_perror(lexic, "pread: '%s' not found in $PATH\n", cmd);
-	      return NULL;
-	    }
-	  
-	}
+          else
+            {
+              nasl_perror (lexic, "pread: '%s' not found in $PATH\n", cmd);
+              return NULL;
+            }
+
+        }
       newdir[sizeof(newdir)-1] = '\0';
 
       if (getcwd(cwd, sizeof(cwd)) == NULL)
-	{
-	  nasl_perror(lexic, "pread(): getcwd: %s\n", strerror(errno));
-	  *cwd = '\0';
-	}
+        {
+          nasl_perror(lexic, "pread(): getcwd: %s\n", strerror(errno));
+          *cwd = '\0';
+        }
 
       if (chdir(newdir) < 0)
-	{
-	  nasl_perror(lexic, "pread: could not chdir to %s\n", newdir);
-	  return NULL;
-	}
+        {
+          nasl_perror(lexic, "pread: could not chdir to %s\n", newdir);
+          return NULL;
+        }
       if (cmd[0] != '/' && strlen(newdir) + strlen(cmd) + 1 < sizeof(newdir))
-	{
-	  strcat(newdir, "/"); /* Flawfinder: ignore (if-command above checks
+        {
+          strcat(newdir, "/"); /* Flawfinder: ignore (if-command above checks
                                   for size) */
-	  strcat(newdir, cmd); /* Flawfinder: ignore (if-command above checks
+          strcat(newdir, cmd); /* Flawfinder: ignore (if-command above checks
                                   for size) */
-	  cmd = newdir;
-	}
+          cmd = newdir;
+        }
     }
 
   if (av->hash_elt != NULL)
-    nasl_perror(lexic, "pread: named elements in 'cmd' are ignored!\n");
+    nasl_perror (lexic, "pread: named elements in 'cmd' are ignored!\n");
   n = av->max_idx;
   args = emalloc(sizeof(char**) * (n+2)); /* Last arg is NULL */
-  for (j= 0, i = 0; i < n; i ++)
+  for (j = 0, i = 0; i < n; i ++)
     {
-      str = (char*)var2str(av->num_elt[i]);
+      str = (char*) var2str(av->num_elt[i]);
       if (str != NULL)
-	args[j++] = estrdup(str);
+        args[j++] = estrdup(str);
     }
   args[j++] = NULL;
 
-  old_sig_t = signal(SIGTERM, sig_h);
-  old_sig_i = signal(SIGINT, sig_h);
-  old_sig_c = signal(SIGCHLD, sig_c);
+  old_sig_t = signal (SIGTERM, sig_h);
+  old_sig_i = signal (SIGINT,  sig_h);
+  old_sig_c = signal (SIGCHLD, sig_c);
 
-  fp = nessus_popen4((const char*)cmd, args, &pid, nice);
+  fp = nessus_popen4 ((const char*)cmd, args, &pid, nice);
 
   for (i = 0; i < n; i ++)
-    efree(&args[i]);
-  efree(&args);
+    efree (&args[i]);
+  efree (&args);
+
   if (fp != NULL)
     {
       sz = 0; str = emalloc(1);
@@ -197,9 +205,9 @@ nasl_pread(lex_ctxt * lexic)
       retc->size = sz;
     }
 
-  signal(SIGINT, old_sig_i);
-  signal(SIGTERM, old_sig_t);
-  signal(SIGCHLD, old_sig_c);
+  signal (SIGINT,  old_sig_i);
+  signal (SIGTERM, old_sig_t);
+  signal (SIGCHLD, old_sig_c);
 
   return retc;
 }
@@ -229,7 +237,10 @@ nasl_find_in_path(lex_ctxt * lexic)
 /*
  * Not a command, but dangerous anyway
  */
-
+/**
+ * @brief Read file if check_authenticated.
+ * @ingroup nasl_implement 
+ */
 tree_cell*
 nasl_fread(lex_ctxt * lexic)
 {
@@ -241,8 +252,8 @@ nasl_fread(lex_ctxt * lexic)
   int		alen, len, n;
   FILE		*fp;
 
- if ( check_authenticated(lexic) < 0 ) return NULL;
-    
+ if (check_authenticated(lexic) < 0) return NULL;
+
   fname = get_str_var_by_num(lexic, 0);
   if (fname == NULL)
     {
@@ -322,7 +333,7 @@ nasl_fread(lex_ctxt * lexic)
   retc->x.str_val = buf;
   fclose(fp);
   return retc;
-  
+
  error:
   efree(&buf);
   fclose(fp);
@@ -332,14 +343,17 @@ nasl_fread(lex_ctxt * lexic)
 /*
  * Not a command, but dangerous anyway
  */
-
+/**
+ * @brief Unlink file if check_authenticated.
+ * @ingroup nasl_implement
+ */
 tree_cell*
 nasl_unlink(lex_ctxt * lexic)
 {
   char		*fname;
 
  if (check_authenticated(lexic) < 0) return NULL;
-    
+
   fname = get_str_var_by_num(lexic, 0);
   if (fname == NULL)
     {
@@ -357,7 +371,9 @@ nasl_unlink(lex_ctxt * lexic)
 }
 
 /* Definitely dangerous too */
-
+/**
+ * @brief Write file if check_authenticated.
+ */
 tree_cell*
 nasl_fwrite(lex_ctxt * lexic)
 {
@@ -373,7 +389,7 @@ nasl_fwrite(lex_ctxt * lexic)
       nasl_perror(lexic, "fwrite may only be called by an authenticated script\n");
       return NULL;
     }
-    
+
   content = get_str_local_var_by_name(lexic, "data");
   fname = get_str_local_var_by_name(lexic, "file");
   if (content == NULL || fname == NULL)
@@ -382,7 +398,7 @@ nasl_fwrite(lex_ctxt * lexic)
       return NULL;
     }
   len = get_var_size_by_name(lexic, "data");
-  
+
   if (lstat(fname, &lstat_info) == -1) {
     if (errno != ENOENT) {
       nasl_perror(lexic, "fwrite: %s: %s\n", fname, strerror(errno));
@@ -471,7 +487,10 @@ nasl_get_tmp_dir(lex_ctxt * lexic)
  *  File access functions : Dangerous
  */
 
-
+/**
+ * @brief Stat file if check_authenticated.
+ * @ingroup nasl_implement
+ */
 tree_cell*
 nasl_file_stat(lex_ctxt * lexic)
 {
@@ -496,7 +515,9 @@ nasl_file_stat(lex_ctxt * lexic)
   return retc;
 }
 
-
+/**
+ * @brief Open file if check_authenticated.
+ */
 tree_cell*
 nasl_file_open(lex_ctxt * lexic)
 {
@@ -567,7 +588,9 @@ nasl_file_open(lex_ctxt * lexic)
   return retc;
 }
 
-
+/**
+ * @brief Close file if check_authenticated.
+ */
 tree_cell*
 nasl_file_close(lex_ctxt * lexic)
 {
@@ -595,7 +618,9 @@ nasl_file_close(lex_ctxt * lexic)
 }
 
 
-
+/**
+ * @brief Read file if check_authenticated.
+ */
 tree_cell*
 nasl_file_read(lex_ctxt * lexic)
 {
@@ -605,8 +630,7 @@ nasl_file_read(lex_ctxt * lexic)
   int           flength;
   int           n;
 
-  if ( check_authenticated(lexic) < 0 ) return NULL;
-
+  if (check_authenticated(lexic) < 0) return NULL;
 
  
   fd = get_int_local_var_by_name(lexic, "fp", -1);
@@ -645,7 +669,9 @@ nasl_file_read(lex_ctxt * lexic)
 }
 
 
-
+/**
+ * @brief Write file if check_authenticated.
+ */
 tree_cell*
 nasl_file_write(lex_ctxt * lexic)
 {
@@ -655,7 +681,7 @@ nasl_file_write(lex_ctxt * lexic)
   int		fd;
   int 		n;
 
-  if ( check_authenticated(lexic) < 0 ) return NULL;
+  if (check_authenticated(lexic) < 0) return NULL;
 
   content = get_str_local_var_by_name(lexic, "data");
   fd = get_int_local_var_by_name(lexic, "fp", -1);
@@ -688,17 +714,18 @@ nasl_file_write(lex_ctxt * lexic)
   return retc;
 }
 
-
+/**
+ * @brief Seek in file if check_authenticated.
+ */
 tree_cell*
-nasl_file_seek(lex_ctxt * lexic)
+nasl_file_seek (lex_ctxt * lexic)
 {
   tree_cell	*retc;
   int		fd;
   int           foffset;
 
-  if ( check_authenticated(lexic) < 0 ) return NULL;
-
-
+  if (check_authenticated(lexic) < 0)
+    return NULL;
 
 
   foffset = get_int_local_var_by_name(lexic, "offset", 0);

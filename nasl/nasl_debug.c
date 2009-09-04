@@ -57,39 +57,50 @@ void nasl_perror(lex_ctxt * lexic, char * msg, ...)
  va_end(param);
 }
 
-
-int nasl_trace_enabled()
+/**
+ * @brief Checks if the nasl_trace_fp is set.
+ *
+ * @return 0 if nasl_trace_fp == NULL, 1 otherwise.
+ */
+int
+nasl_trace_enabled ()
 {
- if( nasl_trace_fp == NULL )
+ if (nasl_trace_fp == NULL)
    return 0;
- else 
-  return 1;  
+ else
+   return 1;
 }
 
-
-void nasl_trace(lex_ctxt * lexic, char * msg, ...)
+/**
+ * @brief Prints debug message in printf fashion to nasl_trace_fp if it exists.
+ *
+ * Like @ref nasl_perror, but to the nasl_trace_fp.
+ */
+void
+nasl_trace (lex_ctxt * lexic, char * msg, ...)
 {
  va_list param;
  char debug_message[4096];
  char *script_name = "", *p;
-  
- if(nasl_trace_fp == NULL)
-	 return;
- va_start(param, msg);
- 
- if( lexic != NULL )
- {
-  script_name = arg_get_value(lexic->script_infos, "script_name");
-  if(script_name == NULL)
-   script_name = "";
- }
- 
- vsnprintf(debug_message, sizeof(debug_message), msg, param);
+
+ if (nasl_trace_fp == NULL)
+  return;
+ va_start (param, msg);
+
+ if (lexic != NULL)
+  {
+    script_name = arg_get_value (lexic->script_infos, "script_name");
+    if (script_name == NULL)
+    script_name = "";
+  }
+
+ vsnprintf (debug_message, sizeof(debug_message), msg, param);
  for (p = debug_message; *p != '\0'; p ++)
    ;
  if (p == debug_message || p[-1] != '\n')
-   fprintf(nasl_trace_fp, "[%d](%s) %s\n",getpid(), script_name, debug_message); 
+   fprintf (nasl_trace_fp, "[%d](%s) %s\n", getpid(), script_name, debug_message);
  else
-   fprintf(nasl_trace_fp, "[%d](%s) %s",getpid(), script_name, debug_message); 
- va_end(param);
+   fprintf (nasl_trace_fp, "[%d](%s) %s", getpid(), script_name, debug_message);
+
+ va_end (param);
 }
