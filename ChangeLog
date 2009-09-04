@@ -1,3 +1,8 @@
+2009-09-04  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* misc/plugutils.c: Removed K&R style function declarations,
+	whitespaces, unused define, added doc and made a TODO indexable.
+
 2009-09-04  Chandrashekhar B <bchandra@secpod.com>
 
 	* nasl/nasl_host.c: (get_host_ip): Addressed an issue. The

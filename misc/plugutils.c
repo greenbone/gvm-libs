@@ -56,10 +56,10 @@
 #include "libvers.h"
 #include "scanners_utils.h"
 
-
-#undef DEBUG_DIFF_SCAN
-
-
+/**
+ * @brief Returns a static version string.
+ * @return Version of openvas-libraries, do not modify nor free.
+ */
 char *
 nessuslib_version()
 {
@@ -69,6 +69,10 @@ nessuslib_version()
   return vers;
 }
 
+/**
+ * @brief Sets \ref major \ref minor and \rev to the respective values of the
+ *        openvas-libraries version.
+ */
 void
 nessus_lib_version (int* major, int* minor, int* rev)
 {
@@ -128,9 +132,10 @@ addslashes (char* in)
     out[0] = '\\'; out++;
     out[0] = 'r';  out++;
   }
-  else {
-	  out[0] = in[0];
-	  out++;
+  else
+  {
+    out[0] = in[0];
+    out++;
   }
   in++;
  }
@@ -567,7 +572,7 @@ plug_require_port (struct arglist * desc, const char * portname)
    ports = emalloc(sizeof(struct arglist));
    arg_add_value(desc, "required_ports", ARG_ARGLIST, -1, ports);
   }
-  
+
   arg_add_value(ports, portname, ARG_INT, 0, (void*)1);
  }
 }
@@ -578,12 +583,11 @@ struct arglist * plug_get_required_ports (struct arglist * desc)
 }
 
 
-void plug_require_udp_port(desc, portname)
- struct arglist * desc;
- const char * portname;
+void
+plug_require_udp_port (struct arglist * desc, const char * portname)
 {
  struct arglist * ports;
- 
+
  if(portname != NULL)
  {
   ports = arg_get_value(desc, "required_udp_ports");
@@ -618,29 +622,27 @@ plug_set_dep (struct arglist * desc, const char * depname)
  }
 }
 
-struct arglist * plug_get_deps(desc)
- struct arglist * desc;
+struct arglist *
+plug_get_deps (struct arglist * desc)
 {
   return arg_get_value(desc, "DEPENDENCIES");
 }
 
-void plug_set_timeout(desc, timeout)
- struct arglist * desc;
- int timeout;
+void
+plug_set_timeout (struct arglist * desc, int timeout)
 {
     arg_add_value(desc, "TIMEOUT", ARG_INT, sizeof(gpointer), GSIZE_TO_POINTER(timeout));
 }
 
-int plug_get_timeout(desc)
- struct arglist * desc;
+int
+plug_get_timeout (struct arglist * desc)
 {
   return GPOINTER_TO_SIZE(arg_get_value(desc, "TIMEOUT"));
 }
 
 
-void plug_set_launch(desc, launch)
- struct arglist * desc;
- int launch;
+void
+plug_set_launch (struct arglist * desc, int launch)
 {
   if(arg_set_value(desc, "ENABLED", sizeof(gpointer), GSIZE_TO_POINTER(launch)))
   {
@@ -681,22 +683,21 @@ plug_set_summary (struct arglist * desc, const char* summary)
                strlen(summary), estrdup(summary));
 }
 
-char * _plug_get_summary(desc)
- struct arglist * desc;
+char *
+_plug_get_summary (struct arglist * desc)
 {
  return arg_get_value(desc, "SUMMARY");
 }
 
-char * plug_get_summary(desc)
- struct arglist * desc;
+char *
+plug_get_summary (struct arglist * desc)
 {
  return store_fetch_summary(desc);
 }
 
 
-void plug_set_description(desc, description)
- struct arglist * desc;
- const char * description;
+void
+plug_set_description (struct arglist * desc, const char * description)
 {
  if (! description) return;
 
@@ -1239,11 +1240,11 @@ get_plugin_preference (struct arglist * desc, const char * name)
   char * a= NULL, *b = NULL;
   int c = 0;
   char * t = prefs->name;
-  
+
   a = strchr(t, '[');
   if(a)b=strchr(t, ']');
   if(b)c=(b[1]==':');
-  
+
   if(c)
   {
    b+=2*sizeof(char);
@@ -1402,7 +1403,7 @@ scanner_add_port (struct arglist * args, int port, char* proto)
  int soc;
  int do_send = 1;
  static int confirm = -1;
- 
+
  if(confirm < 0)
  {
   struct arglist * globals = arg_get_value(args, "globals");
@@ -1422,7 +1423,7 @@ scanner_add_port (struct arglist * args, int port, char* proto)
 
 
  host_add_port_proto(args, port, 1, proto);
- 
+
  len = 255 + (hn ? strlen(hn):0) + strlen(svc_name);
  buf = emalloc(len);
  snprintf(buf, len, "SERVER <|> PORT <|> %s <|> %s (%d/%s) <|> SERVER\n",
@@ -1456,7 +1457,7 @@ static void
 plug_get_key_sighand_term(int sig)
 {
  int son = _plug_get_key_son;
- 
+
  if(son != 0)
  {
   kill(son, SIGTERM);
@@ -1515,17 +1516,17 @@ plug_get_key (struct arglist * args, char * name, int * type)
  int upstream = 0;
  char * buf = NULL;
  int bufsz = 0;
- 
- 
+
+
  if ( type != NULL )
 	*type = -1;
- 
- 
+
+
  if( kb == NULL )
     return NULL;
 
  res = kb_item_get_all(kb, name);
- 
+
  if ( res == NULL ) 
     return NULL;
 
@@ -1541,12 +1542,12 @@ plug_get_key (struct arglist * args, char * name, int * type)
     {
     if(type != NULL)*type = ARG_STRING;
     ret   = GSIZE_TO_POINTER(res->v.v_str);
-    } 
+    }
   kb_item_get_all_free(res);
   return ret;
  }
- 
- 
+
+
  /* More than  one value - we will fork() then */
  sig_chld(plug_get_key_sigchld);
  while( res != NULL )
@@ -1558,7 +1559,7 @@ plug_get_key (struct arglist * args, char * name, int * type)
    int tictac = 0;
    int old, soc;
    struct arglist * globals, * preferences = NULL;
-  
+
    close(sockpair[0]);  
    globals = arg_get_value(args, "globals");  
    old = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
@@ -1576,7 +1577,7 @@ plug_get_key (struct arglist * args, char * name, int * type)
    }
 
    srand48(getpid() + getppid() + time(NULL)); /* RATS: ignore */
- 
+
    sig_term(_exit);
    sig_alarm(_exit);
    alarm(120);
@@ -1610,7 +1611,7 @@ plug_get_key (struct arglist * args, char * name, int * type)
       int e;
       int status;
       struct arglist * globals;
-  
+
       globals = arg_get_value(args, "globals");  
       upstream = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
       close(sockpair[1]);
@@ -1667,13 +1668,13 @@ plug_get_host_open_port (struct arglist * desc)
  int num_candidates = 0;
 
  k = res = kb_item_get_pattern(kb, "Ports/tcp/*");
- if ( res == NULL ) 
+ if ( res == NULL )
     return 0;
- else 
+ else
     {
      int ret;
      char * s;
- 
+
      for(;;)
      {
       s = res->name + sizeof("Ports/tcp/") - 1;
@@ -1705,7 +1706,7 @@ plug_get_host_open_port (struct arglist * desc)
 
 
 
-/*
+/** @TODO
  * Those brain damaged functions should probably be in another file
  * They are use to remember who speaks SSL or not
  */
@@ -1729,7 +1730,7 @@ plug_get_port_transport (struct arglist * args, int port)
   trp = kb_item_get_int(plug_get_kb(args), s);
   if (trp >= 0)
     return trp;
-  else 
+  else
     return NESSUS_ENCAPS_IP; /* Change this to 0 for ultra smart SSL negotiation, at the expense
                                 of possibly breaking stuff */
 }
@@ -1782,7 +1783,7 @@ find_in_path (char* name, int safe)
   if (len >= MAXPATHLEN)
     return NULL;
 
- if (buf == NULL)		/* Should we use a standard PATH here? */
+ if (buf == NULL) /* Should we use a standard PATH here? */
     return NULL;
 
   pbuf = buf;
