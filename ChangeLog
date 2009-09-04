@@ -1,5 +1,10 @@
 2009-09-04 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/popen.c (append_argv, destroy_argv): Removed since the only
+	module that used it is removed meanwhile.
+
+2009-09-04 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/popen.c (nessus_popen4): Renamed to openvas_popen4.
 	(nessus_popen): Removed. It is not used anywhere.
 	(nessus_pclose): Renamed to openvas_pclose.
