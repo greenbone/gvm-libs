@@ -24,6 +24,10 @@
  */
 
 /**
+ * @TODO This module fulfils the reqirements to be placed in the base library.
+ */
+
+/**
  * @file openvas_logging.c
  * @brief Implementation of logging methods for OpenVAS.
  *

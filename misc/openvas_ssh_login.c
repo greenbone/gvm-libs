@@ -46,6 +46,10 @@
 #define KEY_SSHLOGIN_PASSPHRASE   "passphrase"
 
 /**
+ * @TODO This module fulfils the reqirements to be placed in the base library.
+ */
+
+/**
  * Replacement for g_file_test which is unreliable on windows
  * if nessus and gtk are compiled with a different libc.
  * TODO: The windows issue needs verification and proper documentation. Maybe a

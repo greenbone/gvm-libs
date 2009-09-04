@@ -39,6 +39,11 @@
 #include "openvas_server.h"
 
 /**
+ * @TODO This module nearly fulfils the reqirements to be placed in the base
+ * library (the gnutls dependency makes it a candidate for the net library).
+ */
+
+/**
  * @brief Server address.
  */
 struct sockaddr_in address;
