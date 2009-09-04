@@ -1,3 +1,12 @@
+2009-09-04  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* configure.in: Removed checks for libl and libfl which caused
+	unnecessary linking against libl.
+
+	* libopenvas-config.in: Removed handling of llib.
+
+	* configure: Regenerated.
+
 2009-09-04  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* nasl/strutils.c, nasl/strutils.h, nasl/nasl_cmd_exec.c, nasl_debug.c:

@@ -336,22 +336,6 @@ AC_CHECK_LIB(nsl, inet_aton, AC_DEFINE(HAVE_INET_ATON))
 
 AC_CHECK_LIB(wmiclient, wmi_connect, HAVE_WMI="YES", HAVE_WMI="NO")
 
-llib="";
-AC_CHECK_LIB(l, yylex, llib=-ll)
-test -z "$llib" &&
-{
- AC_CHECK_LIB(fl, yylex, llib=-lfl)
-}
-
-test -z "$llib" &&
-{
- AC_CHECK_LIB(l, lex_init, llib=-ll)
- test -z "$llib" &&
- {
-  AC_CHECK_LIB(fl, lex_init, llib=-lfl)
- }
-}
-
 dnl This test is from the configure.in of Unix Network Programming second
 dnl edition example code by W. Richard Stevens
 dnl ##################################################################
@@ -557,7 +541,6 @@ AC_SUBST(INSTALL)
 AC_SUBST(EXTRA)
 AC_SUBST(debug_cflags)
 AC_SUBST(with_ws2_32)
-AC_SUBST(llib)
 AC_SUBST(version)
 AC_SUBST(egdpath)
 AC_SUBST(debug_ssl)
