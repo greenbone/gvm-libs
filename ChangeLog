@@ -1,5 +1,12 @@
 2009-09-06 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/store.c (store_fetch_path, store_fetch_oid,
+	store_fetch_category): Removed. These are not used anywhere.
+
+	* misc/store_internal.h: Adjusted protos accordingly.
+
+2009-09-06 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/store.c (safe_copy): Removed. It is not used here
 	anymore.
 

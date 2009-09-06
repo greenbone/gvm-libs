@@ -416,17 +416,6 @@ store_plugin (struct arglist * plugin, char * file)
 
 /*---------------------------------------------------------------------*/
 
-
-char *
-store_fetch_path (struct arglist * desc)
-{
-  char * fname = plug_get_cachefile (desc);
-
-  nvti_t * n = nvti_from_keyfile(fname);
-
-  return(nvti_src(n));
-}
-
 char * store_fetch_version(struct arglist * desc)
 {
   char * fname = plug_get_cachefile(desc);
@@ -454,11 +443,6 @@ char * store_fetch_description(struct arglist * desc)
   return(nvti_description(n));
 }
 
-int store_fetch_category(struct arglist * desc)
-{
- return plug_get_category(desc);
-}
-
 char * store_fetch_copyright(struct arglist * desc)
 {
   char * fname = plug_get_cachefile(desc);
@@ -475,15 +459,6 @@ char * store_fetch_family(struct arglist * desc)
   nvti_t * n = nvti_from_keyfile(fname);
 
   return(nvti_family(n));
-}
-
-char * store_fetch_oid(struct arglist * desc)
-{
-  char * fname = plug_get_cachefile(desc);
- 
-  nvti_t * n = nvti_from_keyfile(fname);
-
-  return(nvti_oid(n));
 }
 
 char * store_fetch_cve_id(struct arglist * desc)
