@@ -1,5 +1,10 @@
 2009-09-06 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/store.c (safe_copy): Removed. It is not used here
+	anymore.
+
+2009-09-06 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/network.c (nessus_perror): Renamed to pid_perror.
 
 	* misc/services.h (NESSUS_SVC_SORT_FILES): Removed inactive define

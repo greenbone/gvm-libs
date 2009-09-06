@@ -140,42 +140,6 @@ struct arglist * str2arglist(char * str)
   return ret;
 }
 
-
-/**
- * @brief Copies content of one string into the other.
- *
- * Does not check nul-termination.
- * If it fails, an error message containing the name of the NVT and the
- * description of the failed property will be printed to stderr.
- *
- * @param str Source string, might be NULL.
- * @param dst Destination string.
- * @param sz max number of bytes to copy into dst.
- * @param filename Filename of the NVT, used in the error message.
- * @param item Description of the property to be copied, used in the error
- * message.
- *
- * @return 0 on success, -1 otherwise.
- */
-static int
-safe_copy (char * str, char * dst, int sz, char * filename, char * item)
-{
- if (str == NULL) /* empty strings are OK */
-  {
-    dst[0] = '\0';
-    return 0;
-  }
-
- if (strlen(str) >= sz)
-  {
-    fprintf(stderr, "\r%s: The length of the value for the property \"%s\" exceeds the allowed maximum length (is %ld characters, maximum length is %d).\n", filename, item, (long) strlen (str), sz);
-    return -1;
-  }
-
- strcpy (dst, str); /* RATS: ignore */
- return 0;
-}
-
 /**
  * @brief Holds the directory name for the cache.
  * 
