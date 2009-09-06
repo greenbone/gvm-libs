@@ -128,7 +128,7 @@ renice_myself()
  * Same as perror(), but prefixes the data by our pid.
  */
 static int
-nessus_perror (const char* error)
+pid_perror (const char* error)
 {
   fprintf(stderr, "[%d] %s : %s\n", getpid (), error, strerror (errno));
   return 0;
@@ -213,11 +213,11 @@ if (p->fd >= 0)
      * services close the connection before we ask them to
      * (ie: http), so we don't show this error by default
      */
-    nessus_perror("release_connection_fd: shutdown()");
+    pid_perror("release_connection_fd: shutdown()");
 #endif    
     }
   if (socket_close(p->fd)  < 0)
-    nessus_perror("release_connection_fd: close()");
+    pid_perror("release_connection_fd: close()");
  }
 
  if (p->tls_session != NULL)
@@ -293,12 +293,12 @@ static int unblock_socket(int soc)
   int	flags =  fcntl(soc, F_GETFL, 0);
   if (flags < 0)
 {
-      nessus_perror("fcntl(F_GETFL)");
+      pid_perror("fcntl(F_GETFL)");
       return -1;
     }
   if (fcntl(soc, F_SETFL, O_NONBLOCK | flags) < 0)
     {
-      nessus_perror("fcntl(F_SETFL,O_NONBLOCK)");
+      pid_perror("fcntl(F_SETFL,O_NONBLOCK)");
       return -1;
     }
   return 0;
@@ -309,12 +309,12 @@ static int block_socket(int soc)
   int	flags =  fcntl(soc, F_GETFL, 0);
   if (flags < 0)
     {
-      nessus_perror("fcntl(F_GETFL)");
+      pid_perror("fcntl(F_GETFL)");
       return -1;
     }
   if (fcntl(soc, F_SETFL, (~O_NONBLOCK) & flags) < 0)
     {
-      nessus_perror("fcntl(F_SETFL,~O_NONBLOCK)");
+      pid_perror("fcntl(F_SETFL,~O_NONBLOCK)");
       return -1;
     }
   return 0;
@@ -819,7 +819,7 @@ open_SSL_connection(nessus_connection *fp, int timeout,
 	  if ((ret = select(fp->fd + 1, &fdr, &fdw, NULL, &to)) <= 0)
 	    {
 #if DEBUG_SSL > 1
-	      nessus_perror("select");
+	      pid_perror("select");
 #endif
 	    }
 	}
@@ -1665,7 +1665,7 @@ write_stream_connection4 (int fd, void * buf0, int n, int i_opt)
 	if (e <= 0)
 	  {
 #if DEBUG_SSL > 0
-	    nessus_perror("select");
+	    pid_perror("select");
 #endif
 	    fp->last_err = ETIMEDOUT;
 	    break;
@@ -1870,7 +1870,7 @@ open_socket(struct sockaddr *paddr,
     family = AF_INET;
   if ((soc = socket(AF_INET, type, protocol)) < 0)
     {
-      nessus_perror("socket");
+      pid_perror("socket");
       return -1;
     }
   }
@@ -1879,7 +1879,7 @@ open_socket(struct sockaddr *paddr,
     family = AF_INET6;
   if ((soc = socket(AF_INET6, type, protocol)) < 0)
     {
-      nessus_perror("socket");
+      pid_perror("socket");
       return -1;
     }
   }
@@ -1899,7 +1899,7 @@ open_socket(struct sockaddr *paddr,
   if (connect(soc, paddr, len) < 0)
     {
 #if DEBUG_SSL > 2
-      nessus_perror("connect");
+      pid_perror("connect");
 #endif
 again:
       switch (errno)
@@ -1914,7 +1914,7 @@ again:
 	  if (x == 0)
 	    {
 #if DEBUG_SSL > 2
-	      nessus_perror("connect->select: timeout");
+	      pid_perror("connect->select: timeout");
 #endif
 	      socket_close(soc);
 	      errno = ETIMEDOUT;
@@ -1927,7 +1927,7 @@ again:
  		 errno = EAGAIN;
 		 goto again;
 	       }
-	      nessus_perror("select");
+	      pid_perror("select");
 	      socket_close(soc);
 	      return -1;
             }
@@ -1935,7 +1935,7 @@ again:
 	  opt = 0; opt_sz = sizeof(opt);
 	  if (getsockopt(soc, SOL_SOCKET, SO_ERROR, &opt, &opt_sz) < 0)
 	    {
-	      nessus_perror("getsockopt");
+	      pid_perror("getsockopt");
 	      socket_close(soc);
 	      return -1;
 	    }
@@ -1943,7 +1943,7 @@ again:
 	    break;
 #if DEBUG_SSL > 2
 	  errno = opt;
-	  nessus_perror("SO_ERROR");
+	  pid_perror("SO_ERROR");
 #endif
 	  /* no break; go on */	  
 	default:

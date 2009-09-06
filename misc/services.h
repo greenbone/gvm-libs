@@ -22,18 +22,6 @@
 
 #include "services1.h"
 
-/* **** Config **** */
-/* If you want OpenVAS to switch to the system services file when its own file 
- * fails, UNdefine the next symbol. Otherwise, /etc/services is read only 
- * once when openvas-services is rebuilt */
-#define NESSUS_SVC_READS_ETC_SERVICES
-
-/* If you want Nessus to sort the services file before reading them,
- * define the next symbol.
- * Note : using popen() might be dangerous! Check that $PATH does not
- * contain any special character */
-/*#define NESSUS_SVC_SORT_FILES*/
-
 /* **** FILES **** */
 
 #define NESSUS_SERVICES	 OPENVAS_STATE_DIR "/lib/openvas/openvas-services"

@@ -1,3 +1,14 @@
+2009-09-06 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/network.c (nessus_perror): Renamed to pid_perror.
+
+	* misc/services.h (NESSUS_SVC_SORT_FILES): Removed inactive define
+	which is nowhere used anyway.
+	(NESSUS_SVC_READS_ETC_SERVICES): Removed. This should always be used.
+
+	* misc/services.c (nessus_get_svc_name): NESSUS_SVC_READS_ETC_SERVICES
+	is always true.
+
 2009-09-04 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/popen.c (append_argv, destroy_argv): Removed since the only

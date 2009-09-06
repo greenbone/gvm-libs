@@ -105,10 +105,8 @@ nessus_get_svc_name(int port, const char* proto)
       pns = bsearch(&kns, svc_db_ptr[idx], nb_svc[idx], sizeof(kns), cmp_ns_svc);
       if (pns != NULL)
 	return pns->ns_name;
-#ifdef NESSUS_SVC_READS_ETC_SERVICES
       else
-	return "unknown";
-#endif
+       return "unknown";
     }
 
   setservent(1); /* Rewinds /etc/services and keep the file open */
