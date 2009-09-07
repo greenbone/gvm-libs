@@ -1103,40 +1103,6 @@ get_preference (struct arglist *desc, const char * name)
  return((char *)arg_get_value(prefs, name));
 }
 
-
-void
-_add_plugin_preference (struct arglist *prefs, const char* p_name,
-                        const char* name, const char* type, const char* defaul)
-{
- char * pref;
- char * cname;
- int len;
-
- cname = estrdup(name);
- len = strlen(cname);
- while(cname[len-1]==' ')
- {
-  cname[len-1]='\0';
-  len --;
- }
- if(!prefs || !p_name)
-   {
-     efree(&cname);
-     return;
-   }
-
-
- pref = emalloc(strlen(p_name)+10+strlen(type)+strlen(cname));
- // RATS: ignore
- snprintf(pref, strlen(p_name)+10+strlen(type)+strlen(cname), "%s[%s]:%s",
-          p_name, type, cname);
- if ( arg_get_value(prefs, pref) == NULL )
-  arg_add_value(prefs, pref, ARG_STRING, strlen(defaul), estrdup(defaul));
-
- efree(&cname);
- efree(&pref);
-}
-
 void
 add_plugin_preference (struct arglist *desc, const char* name, const char* type,
                        const char* defaul)

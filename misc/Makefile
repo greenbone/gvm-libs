@@ -120,7 +120,7 @@ services1.o: services1.c services.h
 proctitle.o: proctitle.c proctitle.h
 	$(COMPILE) -c proctitle.c
 
-store.o: store.c share_fd.h system.h plugutils.h plugutils_internal.h
+store.o: store.c share_fd.h system.h plugutils.h
 	$(COMPILE) -DOPENVAS_STATE_DIR=\"$(localstatedir)\" -c store.c
 
 hash_table_file.o: hash_table_file.c hash_table_file.h

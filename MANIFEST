@@ -77,7 +77,6 @@ misc/pcap.c
 misc/pcap_openvas.h
 misc/plugutils.c
 misc/plugutils.h
-misc/plugutils_internal.h
 misc/popen.c
 misc/popen.h
 misc/proctitle.c

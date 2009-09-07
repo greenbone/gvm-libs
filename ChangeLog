@@ -1,10 +1,29 @@
 2009-09-07 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Removing file "plugutils_internal.h". The only
+	function defined there is moved to the only
+	place where it is used.
+
+	* misc/plugutils_internal.h: Removed.
+
+	* misc/store.c (_add_plugin_preference): New. Moved
+	here from plugutils.c.
+
+	* misc/plugutils.c (_add_plugin_preference): Removed. Has
+	gone to store.c.
+
+	* misc/Makefile: Remove any occurance of
+	plugutil_internal.h.
+
+	* MANIFEST: Updated.
+
+2009-09-07 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Removing file "store_internal.h". The only proto
 	was about a function that does not exist anymore
 	anyway.
 
-	* misc/plug_utils.c, misc/store.c: Don't include
+	* misc/plugutils.c, misc/store.c: Don't include
 	store_internal.h anymore.
 
 	* misc/Makefile: Remove any occurance of store_internal.h.
