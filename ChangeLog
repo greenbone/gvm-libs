@@ -1,3 +1,21 @@
+2009-09-07 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Removing file "store_internal.h". The only proto
+	was about a function that does not exist anymore
+	anyway.
+
+	* misc/plug_utils.c, misc/store.c: Don't include
+	store_internal.h anymore.
+
+	* misc/Makefile: Remove any occurance of store_internal.h.
+
+	* misc/store_internal.h: Removed.
+
+	* nasl/nasl_signature.c (nasl_extract_signature_fprs): Removed
+	comments that is not true anymore.
+
+	* MANIFEST: Updated.
+
 2009-09-06 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Now by default add all information about NVT in the

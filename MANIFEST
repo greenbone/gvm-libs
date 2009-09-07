@@ -96,7 +96,6 @@ misc/share_fd.c
 misc/share_fd.h
 misc/store.c
 misc/store.h
-misc/store_internal.h
 misc/system.c
 misc/system.h
 misc/system_internal.h

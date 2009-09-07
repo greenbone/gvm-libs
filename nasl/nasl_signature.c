@@ -325,8 +325,10 @@ nasl_extract_signature_fprs (const char* filename)
   gpgme_data_t sig  = NULL;
   gpgme_data_t text = NULL;
   gpgme_signature_t signature;
-  // Only 3*48+2 chars will be stored anyway (store_internal.h). If changed, do 
-  // not forget to change the 3*48 further down and increase cache Magic number.
+  // TODO: Once there was a size limitation for the cache.
+  // It was removed since OpenVAS > 2.0 and this
+  // fixed size here should eventually be replaced by dynamic
+  // solution.
   char* key_fprs = emalloc( (3*48 + 3) *sizeof(char)); 
   key_fprs[0] = '\0';
   gboolean failed = FALSE;

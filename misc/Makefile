@@ -61,7 +61,7 @@ all : libopenvasmisc.la
 #	$(COMPILE) -c ../base/accessrules.c
 
 plugutils.o: plugutils.c arglists.h comm.h harglists.h kb.h network.h \
-             rand.h plugutils.h services.h share_fd.h store_internal.h system.h \
+             rand.h plugutils.h services.h share_fd.h system.h \
              scanners_utils.h
 	$(COMPILE) -c plugutils.c
 
@@ -120,7 +120,7 @@ services1.o: services1.c services.h
 proctitle.o: proctitle.c proctitle.h
 	$(COMPILE) -c proctitle.c
 
-store.o: store.c store_internal.h share_fd.h system.h plugutils.h plugutils_internal.h
+store.o: store.c share_fd.h system.h plugutils.h plugutils_internal.h
 	$(COMPILE) -DOPENVAS_STATE_DIR=\"$(localstatedir)\" -c store.c
 
 hash_table_file.o: hash_table_file.c hash_table_file.h

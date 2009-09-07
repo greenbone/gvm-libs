@@ -63,7 +63,6 @@
 
 #include <glib.h>
 
-#include "store_internal.h"
 #include "share_fd.h"
 #include "system.h"
 #include "plugutils.h"
