@@ -41,6 +41,10 @@ struct arglist {
 #define ARG_ARGLIST 4
 #define ARG_STRUCT  5
 
+char * cache_inc (const char * name);
+
+void arg_add_value_at_head (struct arglist * arglst, const char * name,
+                            int type, long length, void * value);
 void arg_add_value(struct arglist *, const char *, int, long, void *);
 int arg_set_value(struct arglist *, const char *, long, void *);
 int arg_set_type(struct arglist *, const char *, int);
@@ -53,4 +57,4 @@ void arg_free(struct arglist *);
 void arg_free_all(struct arglist *);
 void arg_free_name(char*);
 
-#endif
+#endif /* OPENVAS_ARGLISTS_H */

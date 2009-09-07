@@ -40,7 +40,8 @@
  * Hash vlaues of argument names are used to speed up the lookups when calling
  * arg_get_value().
  */
-static int mkhash(const char * name)
+static int
+mkhash (const char * name)
 {
   return g_str_hash (name) % HASH_MAX;
 }
@@ -76,46 +77,37 @@ static void cache_init()
 }
 
 static struct name_cache * 
-cache_get_name(char * name)
+cache_get_name(const char* name, int h)
 {
  struct name_cache * nc;
- int h;
- 
+
  if(cache_inited == 0)
  	cache_init();
 	
- if(!name)
+ if (!name)
   return NULL;
-  
- h = mkhash(name);
 
  nc = cache[h].next;
-  
+
  while(nc != NULL)
  {
   if(nc->name != NULL && 
     !strcmp(nc->name, name))
     	return nc;
-  else 
+  else
   	nc = nc->next;
  }
  return NULL;
 }
 
 static struct name_cache *
-cache_add_name(char * name)
+cache_add_name(const char* name, int h)
 {
  struct name_cache * nc;
 
- int h;
- 
  if(name == NULL)
   return NULL;
- 
- 
- h = mkhash(name);
- 
- 
+
  nc = emalloc(sizeof(struct name_cache));
  nc->next = cache[h].next;
  nc->prev = NULL;
@@ -129,30 +121,35 @@ cache_add_name(char * name)
  return nc;
 }
 
-static char *
-cache_inc(const char * name)
+char *
+cache_inc (const char * name)
 {
- struct name_cache * nc = cache_get_name(name);
+  struct name_cache * nc;
+  int h = mkhash (name);
+  nc = cache_get_name(name, h);
  if(nc != NULL)
   nc->occurences ++;
  else
-   nc = cache_add_name(name);  
+   nc = cache_add_name(name, h);
  return nc->name;
 }
 
-static void 
-cache_dec(char * name)
+
+void 
+cache_dec(const char * name)
 {
  struct name_cache* nc;
+ int h;
 
  if(!name)
   return;
 
- nc  = cache_get_name(name);
+ h = mkhash (name);
+ nc  = cache_get_name(name, h);
  if( nc == NULL)
  {
   /*
-  fprintf(stderr, "libopenvas: cache_dec(): non-existant name\n");
+  fprintf(stderr, "libnessus: cache_dec(): non-existant name\n");
   */
   return;
  }
@@ -431,4 +428,96 @@ void arg_free_all(arg)
   efree(&arg);
   arg = next;
  }
+}
+
+
+
+static void
+init_element(struct arglist * arglst, const char * name, int type,
+    long length, void * value)
+{
+  int	h;
+  if (type == ARG_STRUCT) {
+    void* new_val = emalloc(length);
+    memcpy(new_val, value, length);
+    value = new_val;
+  }
+
+  h = mkhash (name);
+  arglst->name = cache_inc(name);
+  arglst->value = value;
+  arglst->length = length;
+  arglst->type = type;
+  arglst->hash = h;
+}
+
+
+/**
+ * Like arg_add_value but inserts the new element near the beginning
+ * instead of the end.  This is much faster for long lists but leads to
+ * a different order of the elements.
+ * @see arg_add_value
+ */
+void
+arg_add_value_at_head (struct arglist * arglst, const char * name, int type,
+                       long length, void * value)
+{
+  if(!arglst)
+    return;
+
+  if (arglst->next)
+  {
+    struct arglist * element = emalloc(sizeof(struct arglist));
+    init_element(element, name, type, length, value);
+    element->next = arglst->next;
+    arglst->next = element;
+  }
+  else
+  {
+    arglst->next = emalloc(sizeof(struct arglist));
+    init_element(arglst, name, type, length, value);
+  }
+}
+
+
+void
+arg_del_value(args, name)
+ struct arglist * args;
+ const char * name;
+{
+  int h = mkhash (name);
+  struct arglist * pivot;
+  struct arglist * element = NULL;
+  struct arglist store;
+
+  if (args == NULL)
+    return;
+ 
+  pivot = args;
+
+  while (pivot->next != NULL) {
+    if (pivot->hash == h && strcmp(pivot->name, name) == 0) {
+      element = pivot;
+      break;
+    }
+    pivot = pivot->next;
+ }
+
+  if (!element || element->hash != h || strcmp(element->name, name))
+    return;
+
+  if (args == element) {
+    element = args->next;
+    memcpy(&store, element, sizeof(struct arglist));
+    memcpy(element, args, sizeof(struct arglist));
+    memcpy(args, &store, sizeof(struct arglist));
+  } else {
+    pivot = args;
+    while (pivot->next != NULL && pivot->next != element)
+      pivot = pivot->next;
+    pivot->next = element->next;
+  }
+  element->next = NULL;
+
+  arg_free(element);
 }

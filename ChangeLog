@@ -1,3 +1,22 @@
+2009-09-07  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Preparing removal of rest of slightly differing arglists implementation
+	from client by integrating changes into openvas-libraries.
+
+	* misc/arglists.c (mkhash): Reformatted.
+	
+	* misc/arglists.c (cache_get_name, cache_add_name): Do not calculate
+	hash value inside function, but expect it as parameter.
+	
+	* misc/arglists.c (cache_inc, cache_dec): Updated calls that require
+	new parameter.
+	
+	* misc/arglists.c (arg_init_element, arg_add_value_at_head,
+	arg_del_value): Added functions from clients implementation. Likely to
+	be obsolete soon.
+	
+	* arglist.h: Added new protos.
+
 2009-09-07 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Removing file "plugutils_internal.h". The only
