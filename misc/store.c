@@ -281,6 +281,11 @@ store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
 
   ret = emalloc (sizeof(struct arglist));
   plug_set_oid (ret, nvti_oid(n));
+  plug_set_version (ret, nvti_version(n));
+  plug_set_summary (ret, nvti_summary(n));
+  plug_set_description (ret, nvti_description(n));
+  plug_set_copyright (ret, nvti_copyright(n));
+  plug_set_family (ret, nvti_family(n));
   plug_set_category (ret, nvti_category(n));
   plug_set_cachefile (ret, desc_file);
   plug_set_path (ret, nvti_src(n));
@@ -304,6 +309,18 @@ store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
 
   al = str2arglist (nvti_dependencies(n));
   if (al != NULL) arg_add_value (ret, "DEPENDENCIES", ARG_ARGLIST, -1, al);
+
+  al = str2arglist (nvti_cve(n));
+  if (al != NULL) arg_add_value (ret, "CVE_ID", ARG_ARGLIST, -1, al);
+
+  al = str2arglist (nvti_bid(n));
+  if (al != NULL) arg_add_value (ret, "BUGTRAQ_ID", ARG_ARGLIST, -1, al);
+
+  al = str2arglist (nvti_xref(n));
+  if (al != NULL) arg_add_value (ret, "XREFS", ARG_ARGLIST, -1, al);
+
+  al = str2arglist (nvti_tag(n));
+  if (al != NULL) arg_add_value (ret, "TAGS", ARG_ARGLIST, -1, al);
 
   if (nvti_timeout(n) != 0) arg_add_value (ret, "TIMEOUT", ARG_INT, -1, GSIZE_TO_POINTER(nvti_timeout(n)));
 
@@ -348,15 +365,15 @@ store_plugin (struct arglist * plugin, char * file)
   nvti_t * n = nvti_new();
 
   nvti_set_oid(n, plug_get_oid(plugin));
-  nvti_set_version(n, _plug_get_version(plugin));
+  nvti_set_version(n, plug_get_version(plugin));
   nvti_set_name(n, plug_get_name(plugin));
-  nvti_set_summary(n, _plug_get_summary(plugin));
-  nvti_set_description(n, _plug_get_description(plugin));
-  nvti_set_copyright(n, _plug_get_copyright(plugin));
-  nvti_set_cve(n, _plug_get_cve_id(plugin));
-  nvti_set_bid(n, _plug_get_bugtraq_id(plugin));
-  nvti_set_xref(n, _plug_get_xref(plugin));
-  nvti_set_tag(n, _plug_get_tag(plugin));
+  nvti_set_summary(n, plug_get_summary(plugin));
+  nvti_set_description(n, plug_get_description(plugin));
+  nvti_set_copyright(n, plug_get_copyright(plugin));
+  nvti_set_cve(n, plug_get_cve_id(plugin));
+  nvti_set_bid(n, plug_get_bugtraq_id(plugin));
+  nvti_set_xref(n, plug_get_xref(plugin));
+  nvti_set_tag(n, plug_get_tag(plugin));
   str = arglist2str(plug_get_deps(plugin));
   nvti_set_dependencies(n, str);
   efree(&str);
@@ -376,7 +393,7 @@ store_plugin (struct arglist * plugin, char * file)
   nvti_set_required_udp_ports(n, str);
   efree(&str);
   nvti_set_sign_key_ids(n, plug_get_sign_key_ids(plugin));
-  nvti_set_family(n, _plug_get_family(plugin));
+  nvti_set_family(n, plug_get_family(plugin));
   nvti_set_src(n, plug_get_path(plugin));
   nvti_set_timeout(n, plug_get_timeout(plugin));
   nvti_set_category(n, plug_get_category(plugin));
@@ -412,88 +429,4 @@ store_plugin (struct arglist * plugin, char * file)
 
   g_free(desc_file);
   g_free(path);
-}
-
-/*---------------------------------------------------------------------*/
-
-char * store_fetch_version(struct arglist * desc)
-{
-  char * fname = plug_get_cachefile(desc);
- 
-  nvti_t * n = nvti_from_keyfile(fname);
-
-  return(nvti_version(n));
-}
-
-char * store_fetch_summary(struct arglist * desc)
-{
-  char * fname = plug_get_cachefile(desc);
- 
-  nvti_t * n = nvti_from_keyfile(fname);
-
-  return(nvti_summary(n));
-}
-
-char * store_fetch_description(struct arglist * desc)
-{
-  char * fname = plug_get_cachefile(desc);
- 
-  nvti_t * n = nvti_from_keyfile(fname);
-
-  return(nvti_description(n));
-}
-
-char * store_fetch_copyright(struct arglist * desc)
-{
-  char * fname = plug_get_cachefile(desc);
- 
-  nvti_t * n = nvti_from_keyfile(fname);
-
-  return(nvti_copyright(n));
-}
-
-char * store_fetch_family(struct arglist * desc)
-{
-  char * fname = plug_get_cachefile(desc);
- 
-  nvti_t * n = nvti_from_keyfile(fname);
-
-  return(nvti_family(n));
-}
-
-char * store_fetch_cve_id(struct arglist * desc)
-{
-  char * fname = plug_get_cachefile(desc);
- 
-  nvti_t * n = nvti_from_keyfile(fname);
-
-  return(nvti_cve(n));
-}
-
-char * store_fetch_bugtraq_id(struct arglist * desc)
-{
-  char * fname = plug_get_cachefile(desc);
- 
-  nvti_t * n = nvti_from_keyfile(fname);
-
-  return(nvti_bid(n));
-}
-
-
-char * store_fetch_xref(struct arglist * desc)
-{
-  char * fname = plug_get_cachefile(desc);
- 
-  nvti_t * n = nvti_from_keyfile(fname);
-
-  return(nvti_xref(n));
-}
-
-char * store_fetch_tag(struct arglist * desc)
-{
-  char * fname = plug_get_cachefile(desc);
- 
-  nvti_t * n = nvti_from_keyfile(fname);
-
-  return(nvti_tag(n));
 }

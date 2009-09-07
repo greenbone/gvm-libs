@@ -1,5 +1,34 @@
 2009-09-06 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Now by default add all information about NVT in the
+	server arglist structures. This is the first step
+	to further simplify the NVT information handling.
+
+	* misc/store.c (store_fetch_version, store_fetch_summary,
+	store_fetch_description, store_fetch_copyright, store_fetch_family,
+	store_fetch_cve_id, store_fetch_bugtraq_id, store_fetch_xref,
+	store_fetch_tag): Removed.
+	(store_load_plugin): Always set version, description, copyright,
+	family, cve_id, bugtraq_id, xref, tag and summary for plugin
+	description.
+	(store_plugin): Now uses the direct function for getting plugin
+	attributes instead of the "_"-prefixed ones.
+
+	* misc/store_internal.h: Adjusted protos accordingly.
+
+	* misc/plugutils.c (plug_get_version, plug_get_summary,
+	plug_get_description, plug_get_copyright, plug_get_family,
+	plug_get_cve_id, plug_get_bugtraq_id, plug_get_xref, plug_get_tag):
+	Directly deliver from present data.
+	(_plug_get_version, _plug_get_summary, _plug_get_description,
+	_plug_get_copyright, _plug_get_family, _plug_get_cve_id,
+	_plug_get_bugtraq_id, _plug_get_xref, _plug_get_tag): Removed.
+	(plug_set_version, plug_set_path, plug_set_cachefile): Guard NULL.
+
+	* misc/plugutils_internal.h: Adjusted protos accordingly.
+
+2009-09-06 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/store.c (store_fetch_path, store_fetch_oid,
 	store_fetch_category): Removed. These are not used anywhere.
 

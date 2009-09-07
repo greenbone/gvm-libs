@@ -188,28 +188,22 @@ rmslashes (char * in)
 void
 plug_set_version (struct arglist * desc, const char* version)
 {
- arg_add_value(desc, "VERSION", ARG_STRING, strlen(version), estrdup((char*)version));
+  if (version) 
+    arg_add_value(desc, "VERSION", ARG_STRING, strlen(version), estrdup((char*)version));
 }
-
-
-char *
-_plug_get_version (struct arglist * desc)
-{
- return arg_get_value(desc, "VERSION");
-}
-
 
 char *
 plug_get_version (struct arglist * desc)
 {
- return store_fetch_version(desc);
+ return arg_get_value(desc, "VERSION");
 }
 
 
 void
 plug_set_path (struct arglist * desc, const char * path)
 {
- arg_add_value(desc, "PATH", ARG_STRING, strlen(path), estrdup((char*)path));
+  if (path)
+    arg_add_value(desc, "PATH", ARG_STRING, strlen(path), estrdup((char*)path));
 }
 
 char *
@@ -232,8 +226,9 @@ plug_get_path (struct arglist * desc)
  */
 void plug_set_cachefile (struct arglist * desc, const char * cachefile)
 {
-  arg_add_value(desc, "CACHEFILE", ARG_STRING, strlen(cachefile),
-                estrdup(cachefile));
+  if (cachefile)
+    arg_add_value(desc, "CACHEFILE", ARG_STRING, strlen(cachefile),
+                  estrdup(cachefile));
 }
 
 /**
@@ -315,17 +310,10 @@ plug_set_cve_id (struct arglist * desc, char * id)
   arg_add_value(desc, "CVE_ID", ARG_STRING, strlen(id), estrdup(id));
 }
 
-
-char *
-_plug_get_cve_id (struct arglist * desc)
-{
- return arg_get_value(desc, "CVE_ID");
-}
-
 char *
 plug_get_cve_id (struct arglist * desc)
 {
- return store_fetch_cve_id(desc);
+ return arg_get_value(desc, "CVE_ID");
 }
 
 
@@ -345,15 +333,9 @@ plug_set_bugtraq_id (struct arglist * desc, char* id)
 }
 
 char *
-_plug_get_bugtraq_id (struct arglist * desc)
-{
- return arg_get_value(desc, "BUGTRAQ_ID");
-}
-
-char *
 plug_get_bugtraq_id (struct arglist * desc)
 {
- return store_fetch_bugtraq_id(desc);
+ return arg_get_value(desc, "BUGTRAQ_ID");
 }
 
 void
@@ -382,15 +364,9 @@ plug_set_xref (struct arglist * desc, char* name, char* value)
 }
 
 char *
-_plug_get_xref (struct arglist * desc)
-{
- return arg_get_value(desc, "XREFS");
-}
-
-char *
 plug_get_xref (struct arglist * desc)
 {
- return store_fetch_xref(desc);
+ return arg_get_value(desc, "XREFS");
 }
 
 void
@@ -419,15 +395,9 @@ plug_set_tag (struct arglist * desc, char* name, char* value)
 }
 
 char *
-_plug_get_tag (struct arglist * desc)
-{
- return arg_get_value(desc, "TAGS");
-}
-
-char *
 plug_get_tag (struct arglist * desc)
 {
- return store_fetch_tag(desc);
+ return arg_get_value(desc, "TAGS");
 }
 
 /**
@@ -477,17 +447,10 @@ plug_set_family (struct arglist * desc, const char* family)
                 strlen(family), estrdup(family));
 }
 
-
-char *
-_plug_get_family (struct arglist * desc)
-{
- return arg_get_value(desc, "FAMILY");
-}
-
 char *
 plug_get_family (struct arglist * desc)
 {
- return store_fetch_family(desc);
+ return arg_get_value(desc, "FAMILY");
 }
 
 
@@ -684,15 +647,9 @@ plug_set_summary (struct arglist * desc, const char* summary)
 }
 
 char *
-_plug_get_summary (struct arglist * desc)
-{
- return arg_get_value(desc, "SUMMARY");
-}
-
-char *
 plug_get_summary (struct arglist * desc)
 {
- return store_fetch_summary(desc);
+ return arg_get_value(desc, "SUMMARY");
 }
 
 
@@ -705,17 +662,10 @@ plug_set_description (struct arglist * desc, const char * description)
                strlen(description), estrdup(description));
 }
 
-
-char *
-_plug_get_description (struct arglist * desc)
-{
- return arg_get_value(desc, "DESCRIPTION");
-}
-
 char *
 plug_get_description (struct arglist * desc)
 {
- return store_fetch_description(desc);
+ return arg_get_value(desc, "DESCRIPTION");
 }
 
 void
@@ -728,16 +678,9 @@ plug_set_copyright (struct arglist * desc, const char* copyright)
 }
 
 char *
-_plug_get_copyright (struct arglist * desc)
-{
- return arg_get_value(desc, "COPYRIGHT");
-}
-
-
-char *
 plug_get_copyright (struct arglist * desc)
 {
- return store_fetch_copyright(desc);
+ return arg_get_value(desc, "COPYRIGHT");
 }
 
 
