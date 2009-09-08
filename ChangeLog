@@ -1,3 +1,8 @@
+2009-09-08  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* misc/arglists.h, misc/arglists.c: Moved declaration of struct
+	name_cache to header, expose the cache_dec function.
+
 2009-09-08  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* configure.in: Make check for libpcap more robust since it relied on a

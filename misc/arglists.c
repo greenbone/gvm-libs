@@ -46,22 +46,6 @@ mkhash (const char * name)
   return g_str_hash (name) % HASH_MAX;
 }
 
-/**
- * @brief Struct to cache names (keys) of arglist entries.
- * 
- * A lot of entries in our arglists have the same name.
- * We use a caching system to avoid to allocate twice the same name
- * 
- * This saves about 300Kb of memory, with minimal performance impact
- */
-struct name_cache {
-	char * name;
-	int occurences;
-	struct name_cache * next;
-	struct name_cache * prev;
-	};
-
-
 static int cache_inited = 0;
 static struct name_cache cache[HASH_MAX+1];
 
