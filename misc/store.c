@@ -313,6 +313,14 @@ store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
   ret = emalloc (sizeof(struct arglist));
   plug_set_oid (ret, nvti_oid(n));
   plug_set_version (ret, nvti_version(n));
+  plug_set_cve_id (ret, nvti_cve(n));
+  plug_set_bugtraq_id (ret, nvti_bid(n));
+// TODO: these two need exra parameter parsed out
+// of the actual string. However, xref and tag
+// seem not to appear in the nvti files at all,
+// so this needs to be fixed first. 
+//  plug_set_xref (ret, nvti_xref(n));
+//  plug_set_tag (ret, nvti_tag(n));
   plug_set_summary (ret, nvti_summary(n));
   plug_set_description (ret, nvti_description(n));
   plug_set_copyright (ret, nvti_copyright(n));
@@ -340,18 +348,6 @@ store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
 
   al = str2arglist (nvti_dependencies(n));
   if (al != NULL) arg_add_value (ret, "DEPENDENCIES", ARG_ARGLIST, -1, al);
-
-  al = str2arglist (nvti_cve(n));
-  if (al != NULL) arg_add_value (ret, "CVE_ID", ARG_ARGLIST, -1, al);
-
-  al = str2arglist (nvti_bid(n));
-  if (al != NULL) arg_add_value (ret, "BUGTRAQ_ID", ARG_ARGLIST, -1, al);
-
-  al = str2arglist (nvti_xref(n));
-  if (al != NULL) arg_add_value (ret, "XREFS", ARG_ARGLIST, -1, al);
-
-  al = str2arglist (nvti_tag(n));
-  if (al != NULL) arg_add_value (ret, "TAGS", ARG_ARGLIST, -1, al);
 
   if (nvti_timeout(n) != 0) arg_add_value (ret, "TIMEOUT", ARG_INT, -1, GSIZE_TO_POINTER(nvti_timeout(n)));
 

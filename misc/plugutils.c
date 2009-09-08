@@ -296,6 +296,9 @@ void
 plug_set_cve_id (struct arglist * desc, char * id)
 {
  char * old = arg_get_value(desc, "CVE_ID");
+
+ if (! id) return;
+
  if(old != NULL)
  {
   old = erealloc(old, strlen(old) + strlen(id) + 3);
@@ -320,6 +323,9 @@ void
 plug_set_bugtraq_id (struct arglist * desc, char* id)
 {
  char * old = arg_get_value(desc, "BUGTRAQ_ID");
+
+ if (! id) return;
+
  if(old != NULL)
  {
   old = erealloc(old, strlen(old) + strlen(id) + 3);
