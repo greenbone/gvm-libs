@@ -19708,9 +19708,9 @@ echo "$as_me: error: you need to install gnutls library with development files" 
 fi
 
 
-{ echo "$as_me:$LINENO: checking for pcap_restart in -lpcap" >&5
-echo $ECHO_N "checking for pcap_restart in -lpcap... $ECHO_C" >&6; }
-if test "${ac_cv_lib_pcap_pcap_restart+set}" = set; then
+{ echo "$as_me:$LINENO: checking for pcap_version in -lpcap" >&5
+echo $ECHO_N "checking for pcap_version in -lpcap... $ECHO_C" >&6; }
+if test "${ac_cv_lib_pcap_pcap_version+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -19728,11 +19728,11 @@ cat >>conftest.$ac_ext <<_ACEOF
 #ifdef __cplusplus
 extern "C"
 #endif
-char pcap_restart ();
+char pcap_version ();
 int
 main ()
 {
-return pcap_restart ();
+return pcap_version ();
   ;
   return 0;
 }
@@ -19755,21 +19755,21 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  ac_cv_lib_pcap_pcap_restart=yes
+  ac_cv_lib_pcap_pcap_version=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	ac_cv_lib_pcap_pcap_restart=no
+	ac_cv_lib_pcap_pcap_version=no
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ echo "$as_me:$LINENO: result: $ac_cv_lib_pcap_pcap_restart" >&5
-echo "${ECHO_T}$ac_cv_lib_pcap_pcap_restart" >&6; }
-if test $ac_cv_lib_pcap_pcap_restart = yes; then
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_pcap_pcap_version" >&5
+echo "${ECHO_T}$ac_cv_lib_pcap_pcap_version" >&6; }
+if test $ac_cv_lib_pcap_pcap_version = yes; then
   LIBS="-lpcap $LIBS"
 else
   { { echo "$as_me:$LINENO: error: you need to install pcap library with development files" >&5

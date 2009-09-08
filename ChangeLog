@@ -1,3 +1,11 @@
+2009-09-08  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* configure.in: Make check for libpcap more robust since it relied on a
+	symbol that might be private in some environments. Fix suggested by
+	Jan Wagner.
+
+	* configure: Regenerated.
+
 2009-09-08 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/plugutils.c (plug_set_cve_id, plug_set_bugtraq_id): NULL

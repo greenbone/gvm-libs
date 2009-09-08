@@ -174,7 +174,7 @@ AC_CHECK_LIB(resolv, dn_expand, LIBS="-lresolv $LIBS",
 AC_CHECK_LIB(gnutls, gnutls_init, LIBS="-lgnutls $LIBS",
   AC_MSG_ERROR(you need to install gnutls library with development files))
 
-AC_CHECK_LIB(pcap, pcap_restart, LIBS="-lpcap $LIBS",
+AC_CHECK_LIB(pcap, pcap_version, LIBS="-lpcap $LIBS",
   AC_MSG_ERROR(you need to install pcap library with development files))
 
 # These libraries break stuff under IRIX
