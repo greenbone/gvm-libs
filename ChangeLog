@@ -1,5 +1,10 @@
 2009-09-09  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* Makefile: Install base/hash_table_util header, sort installation
+	order of headers from base alphabetically.
+
+2009-09-09  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* base/hash_table_util.c, base/hash_table_util.h: New. Implements
 	generation of a list of the keys of a GHashTable.
 
