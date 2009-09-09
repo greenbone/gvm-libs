@@ -1,3 +1,10 @@
+2009-09-09  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* base/hash_table_util.c, base/hash_table_util.h: New. Implements
+	generation of a list of the keys of a GHashTable.
+
+	* base/CMakeLists.txt: Added new file to the FILEs list.
+
 2009-09-08  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* misc/arglists.h, misc/arglists.c: Moved declaration of struct
