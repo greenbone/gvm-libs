@@ -1,5 +1,10 @@
 2009-09-10  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* nasl/nasl_signature.c (init_openvas_gpgme_ctx): Removed test-surviving
+	"static" keyword
+
+2009-09-10  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* nasl/nasl_signature.c: Changed uppercase @TODOs to lowercase @todos.
 
 2009-09-10  Felix Wolfsteller <felix.wolfsteller@intevation.de>

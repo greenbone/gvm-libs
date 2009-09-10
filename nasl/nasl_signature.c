@@ -174,7 +174,7 @@ gpgme_ctx_t
 init_openvas_gpgme_ctx ()
 {
   gpgme_error_t err;
-  static gpgme_ctx_t ctx = NULL;
+  gpgme_ctx_t ctx = NULL;
   char * gpghome = determine_gpghome();
 
   /* Calls seem to be necessary for certain versions of gpgme (for
