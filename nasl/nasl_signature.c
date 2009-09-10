@@ -136,7 +136,7 @@ examine_signatures (gpgme_verify_result_t result)
       else
 	{
       	  nasl_trace(NULL, "examine_signatures: signature is invalid\n");
-          /** @TODO Early stop might be possible. Can return here. */
+          /** @todo Early stop might be possible. Can return here. */
 	}
       sig = sig->next;
     }
@@ -157,7 +157,7 @@ examine_signatures (gpgme_verify_result_t result)
 static char *
 determine_gpghome ()
 {
-  /** @TODO Use glibs g_build_filename */
+  /** @todo Use glibs g_build_filename */
   char * default_dir = OPENVAS_SYSCONFDIR "/openvas/gnupg";
   char * envdir = getenv("OPENVAS_GPGHOME");
 
@@ -174,7 +174,7 @@ gpgme_ctx_t
 init_openvas_gpgme_ctx ()
 {
   gpgme_error_t err;
-  gpgme_ctx_t ctx = NULL;
+  static gpgme_ctx_t ctx = NULL;
   char * gpghome = determine_gpghome();
 
   /* Calls seem to be necessary for certain versions of gpgme (for
@@ -325,10 +325,9 @@ nasl_extract_signature_fprs (const char* filename)
   gpgme_data_t sig  = NULL;
   gpgme_data_t text = NULL;
   gpgme_signature_t signature;
-  // TODO: Once there was a size limitation for the cache.
-  // It was removed since OpenVAS > 2.0 and this
-  // fixed size here should eventually be replaced by dynamic
-  // solution.
+  /** @todo Once there was a size limitation for the cache.
+    * It was removed since OpenVAS > 2.0 and this
+    * fixed size here should eventually be replaced by dynamic solution. */
   char* key_fprs = emalloc( (3*48 + 3) *sizeof(char)); 
   key_fprs[0] = '\0';
   gboolean failed = FALSE;

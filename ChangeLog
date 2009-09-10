@@ -1,5 +1,9 @@
 2009-09-10  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* nasl/nasl_signature.c: Changed uppercase @TODOs to lowercase @todos.
+
+2009-09-10  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* doc/Doxyfile, doc/Doxyfile_full: Added alias to generate todo list
 	from both lower and uppercase @TODOs.
 
