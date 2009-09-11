@@ -69,6 +69,9 @@
 
 #include "nvti.h"
 
+/* for nvticache_t */
+#include "nvticache.h"
+
 /*-----------------------------------------------------------------------------*/
 static char *
 arglist2str(struct arglist * arg)
@@ -172,45 +175,31 @@ _add_plugin_preference (struct arglist *prefs, const char* p_name,
 }
 
 /**
- * @brief Holds the directory name for the cache.
- * 
- * If run with older
- * installations of OpenVAS (<=2.0.0), then it is initialized with
- * the NVT directory (server preference "plugins_folder")
- * and appends "/.desc/". For newer versions it is the directory
- * specified as server preference "cache_folder".
+ * @brief Global Handle for NVTI Cache
  */
-static char store_dir[MAXPATHLEN+1] = "";
+static nvticache_t * nvti_cache;
 
 /**
- * @brief Sets the @ref store_dir to the given path.
+ * @brief Initializes the global NVTI Cache.
  *
  * @param dir Path to the cache-directory. It must exist.
+ * @param src Path to the plugin-directory. It must exist.
  *
- * @return    0  in case of success (@ref store_dir is set now)
+ * @return    0  in case of success (@ref nvti_cache is set now)
  *            -1 if the given path exeeds the buffer size
  *            -2 if the directory does not exist
  *            -3 if the given path was NULL
- *            In any other case than 0 @ref store_dir is
+ *            In any other case than 0 @ref nvti_cache is
  *            not set and a error is printed to stderr
  */
 int
-store_init (const char * dir)
+store_init (const char * dir, const char * src)
 {
   struct stat st;
-  int i = 0;
 
   if (dir == NULL) {
     fprintf(stderr, "store_init(): called with NULL\n");
     return -3;
-  }
-
-  for (;i < sizeof(store_dir) && dir[i];i ++)
-    ;
-  if (i == sizeof(store_dir)) {
-    fprintf(stderr,
-            "store_init(): path too long with more than %d characters\n", i);
-    return -1;
   }
 
   if (stat(dir, &st) < 0) { // check for existance
@@ -218,18 +207,17 @@ store_init (const char * dir)
     return -2;
   }
 
-  strncpy (store_dir, dir, sizeof(store_dir));
+  nvti_cache = nvticache_new(dir, src);
 
-  return 0;
+  if (nvti_cache) return 0;
+  return -1;
 }
 
 /**
  * @brief Returns a (plugin) arglist assembled from the cached description file
  *
- * @param dir Path to location of plugin file
- *
- * @param file Filename of the plugin (e.g. "detect_openvas.nasl"
- *             or "subdir1/subdir2/scriptname.nasl" ).
+ * @param file Filename of the plugin (e.g. "scriptname1.nasl"
+ *             or "subdir1/subdir2/scriptname2.nasl" ).
  *
  * @param prefs Plugin preference arglist.
  *
@@ -249,66 +237,14 @@ store_init (const char * dir)
  * @return Pointer to plugin as arglist or NULL.
  */
 struct arglist *
-store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
+store_load_plugin (const char * file, struct arglist * prefs)
 {
-  gchar * plug_file = g_build_filename (dir, file, NULL);
-  gchar * asc_file  = g_strconcat (plug_file, ".asc", NULL);
-  gchar * dummy     = g_build_filename (store_dir, file, NULL);
-  gchar * desc_file = g_strconcat (dummy, ".nvti", NULL);
-
   struct arglist * ret;
   struct arglist * al;
-
-  struct stat stat_plug;
-  struct stat stat_desc;
-  struct stat stat_asc;
-
   int i;
 
-  g_free (dummy);
-
-  if (desc_file == NULL || asc_file == NULL || plug_file == NULL)
-    {
-      g_free (desc_file);
-      g_free (asc_file);
-      g_free (plug_file);
-      return NULL; // g_build_filename failed
-    }
-
-  /* Plugin and cache file have to exist */
-  if (stat(plug_file, &stat_plug) < 0 || stat(desc_file, &stat_desc) < 0)
-    {
-      g_free (desc_file);
-      g_free (asc_file);
-      g_free (plug_file);
-      return NULL;
-    }
-
-   /* Look if the plugin (.nasl/.oval etc) is newer than the description
-    * (.desc). If that's the case also make sure that the plugins mtime is not
-    * in the future...  */
-   if (   stat_plug.st_mtime > stat_desc.st_mtime
-       && stat_asc.st_mtime  <= time (NULL))
-    {
-      g_free (desc_file);
-      g_free (asc_file);
-      g_free (plug_file);
-      return NULL;
-    }
-
-  /* Look if a signature file (.asc) exists. If so and it is newer than
-   * the description (.desc) (and the mtime is not in the future), return NULL.  */
-  if (   stat (asc_file, &stat_asc) == 0
-      && stat_asc.st_mtime > stat_desc.st_mtime
-      && stat_asc.st_mtime <= time (NULL) )
-    {
-      g_free (desc_file);
-      g_free (asc_file);
-      g_free (plug_file);
-      return NULL;
-    }
-
-  nvti_t * n = nvti_from_keyfile(desc_file);
+  nvti_t * n = nvticache_get(nvti_cache, file);
+  if (! n) return NULL;
 
   ret = emalloc (sizeof(struct arglist));
   plug_set_oid (ret, nvti_oid(n));
@@ -326,7 +262,6 @@ store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
   plug_set_copyright (ret, nvti_copyright(n));
   plug_set_family (ret, nvti_family(n));
   plug_set_category (ret, nvti_category(n));
-  plug_set_cachefile (ret, desc_file);
   plug_set_path (ret, nvti_src(n));
   plug_set_family (ret, nvti_family(n));
   plug_set_sign_key_ids (ret, nvti_sign_key_ids(n));
@@ -361,7 +296,6 @@ store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
   }
 
   nvti_free(n);
-  g_free(desc_file);
 
   return ret;
 }
@@ -378,9 +312,9 @@ store_load_plugin (const char * dir, const char * file, struct arglist * prefs)
 void
 store_plugin (struct arglist * plugin, char * file)
 {
-  gchar * dummy = g_build_filename (store_dir, file, NULL);
+  gchar * dummy = g_build_filename (nvti_cache->cache_path, file, NULL);
   gchar * desc_file = g_strconcat (dummy, ".nvti", NULL);
-  // assume there is a ".nvti" at the end in the store_dir path
+  // assume there is a ".nvti" at the end in the cache path
   gchar * path = g_strdup (file);
   char  * str;
   struct arglist * arglist;

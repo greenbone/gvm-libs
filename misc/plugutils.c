@@ -197,7 +197,6 @@ plug_get_version (struct arglist * desc)
  return arg_get_value(desc, "VERSION");
 }
 
-
 void
 plug_set_path (struct arglist * desc, const char * path)
 {
@@ -206,41 +205,9 @@ plug_set_path (struct arglist * desc, const char * path)
 }
 
 char *
-_plug_get_path (struct arglist * desc)
-{
- return arg_get_value(desc, "PATH");
-}
-
-char *
 plug_get_path (struct arglist * desc)
 {
- return _plug_get_path(desc);
-}
-
-/**
- * @brief Sets CACHEFILE in the given arglist.
- *
- * @param desc The arglist where the entry is to be created.
- * @param cachefile The value for CACHEFILE (a filename).
- */
-void plug_set_cachefile (struct arglist * desc, const char * cachefile)
-{
-  if (cachefile)
-    arg_add_value(desc, "CACHEFILE", ARG_STRING, strlen(cachefile),
-                  estrdup(cachefile));
-}
-
-/**
- * @brief Retrieves CACHEFILE from the given arglist.
- *
- * @param desc The arglist where CACHEFILE is to be searched.
- *
- * @return The value for CACHEFILE (a filename).
- */
-char *
-plug_get_cachefile (struct arglist * desc)
-{
-  return arg_get_value(desc, "CACHEFILE");
+ return arg_get_value(desc, "PATH");
 }
 
 void

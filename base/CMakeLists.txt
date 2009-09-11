@@ -128,7 +128,7 @@ exec_program (pkg-config
 set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Wall")
 set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall")
 
-set (FILES certificate.c hash_table_util.c nvti.c)
+set (FILES certificate.c hash_table_util.c nvti.c nvticache.c)
 
 add_library (openvas_base_static STATIC ${FILES})
 set_target_properties (openvas_base_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")

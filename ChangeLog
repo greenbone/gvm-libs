@@ -1,3 +1,32 @@
+2009-09-11 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/nvticache.c: New. Implements a Cache for NVTIs.
+
+	* base/nvticache.h: New. Accordingy protos.
+
+	* base/CMakeLists.txt: Add handling of module nvticache.
+
+	* misc/store.c (store_dir): Replaced by nvti_cache.
+	(store_init): Added parameter "src". Changed Code
+	to create a NVTI Cache object.
+	(store_load_plugin): Don't do any file-based stuff
+	anymore. Just ask the Cache for the NVTI for the
+	given file. 
+	(store_plugin): Adaptapted to use the new location
+	of the cache directory.
+
+	* misc/store.h: Adjusted protos accordingly.
+
+	* misc/plugutils.c (plug_set_cachefile, plug_get_cachefile):
+	Removed. These are not required anymore since the NVTI Cache
+	knows how to find it.
+	(_plug_get_path): Removed.
+	(plug_get_path): Now adds directly.
+
+	* misc/plugutils.h: Adjusted protos accordingly.
+	Remove old protos plug_get_fname and plug_set_fname
+	for which no implementation is present.
+
 2009-09-10  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* nasl/nasl_signature.c (init_openvas_gpgme_ctx): Removed test-surviving

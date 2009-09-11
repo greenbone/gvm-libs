@@ -27,7 +27,7 @@
 #define OPENVAS_STORE_H
 
 void store_plugin(struct arglist *,  char *);
-struct arglist * store_load_plugin(char *, char *,  struct arglist*);
-int store_init(char *);
+struct arglist * store_load_plugin(char *,  struct arglist*);
+int store_init(char *, char *);
 
 #endif
