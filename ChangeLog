@@ -1,3 +1,7 @@
+2009-09-11  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* MANIFEST: Added missing (new) files.
+
 2009-09-11 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/nvticache.c: New. Implements a Cache for NVTIs.
@@ -30,7 +34,7 @@
 2009-09-10  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* nasl/nasl_signature.c (init_openvas_gpgme_ctx): Removed test-surviving
-	"static" keyword
+	"static" keyword.
 
 2009-09-10  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
