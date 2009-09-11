@@ -158,7 +158,7 @@ static char *
 determine_gpghome ()
 {
   /** @todo Use glibs g_build_filename */
-  char * default_dir = OPENVAS_SYSCONFDIR "/openvas/gnupg";
+  char * default_dir = OPENVAS_SYSCONFDIR "/gnupg";
   char * envdir = getenv("OPENVAS_GPGHOME");
 
   return estrdup (envdir ? envdir : default_dir);
