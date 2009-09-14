@@ -66,7 +66,7 @@ int nn_resolve(const char *hostname, struct in6_addr *in6addr)
       in6addr->s6_addr32[0] = 0;
       in6addr->s6_addr32[1] = 0;
       in6addr->s6_addr32[2] = htonl(0xffff);
-      memcpy(&in6addr->s6_addr32[3], &((struct sockaddr_in *)ai->ai_addr)->sin_addr, sizeof(struct in6_addr));
+      memcpy(&in6addr->s6_addr32[3], &((struct sockaddr_in *)ai->ai_addr)->sin_addr, sizeof(struct in_addr));
     }
     else
     {

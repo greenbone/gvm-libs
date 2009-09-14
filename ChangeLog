@@ -1,3 +1,8 @@
+2009-09-14 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/resolve.c (nn_resolve): memcpy now copies the right size.
+	This was spotted and fixed by Marcus Brinkmann.
+
 2009-09-11  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* nasl/nasl_signature.c (determine_gpghome): Fixed, as
