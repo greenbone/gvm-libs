@@ -26,6 +26,8 @@
 #ifndef OPENVAS_SYSTEM_H
 #define OPENVAS_SYSTEM_H
 
+#include <stddef.h>
+
 void * emalloc(size_t);
 char * estrdup(const char *);
 void * erealloc(void*, size_t);
