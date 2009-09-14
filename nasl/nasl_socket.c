@@ -315,7 +315,7 @@ tryagain :
  }
  
  if(proto == IPPROTO_TCP)
-   sock = nessus_register_connection(sock, NULL);
+   sock = nessus_register_connection(sock, NULL, NULL);
 
   retc = alloc_tree_cell(0, NULL);
   retc->type = CONST_INT;

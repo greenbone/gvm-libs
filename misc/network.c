@@ -234,7 +234,8 @@ if (p->fd >= 0)
 
 /* TLS FIXME: migrate this to TLS */
 int
-ovas_allocate_connection(int s, int transport)
+ovas_allocate_connection(int s, void *ssl,
+			 gnutls_certificate_credentials_t certcred)
 {
   int			fd;
   nessus_connection	*p;
@@ -242,27 +243,24 @@ ovas_allocate_connection(int s, int transport)
   if((fd = get_connection_fd()) < 0)
     return -1;
   p = OVAS_CONNECTION_FROM_FD(fd);
+
+  p->tls_session = ssl;
+  p->tls_cred = certcred;
+
   p->timeout = TIMEOUT;		/* default value */
   p->port = 0;			/* just used for debug */
   p->fd = s;
-  p->transport = transport;
+  p->transport = (ssl != NULL) ? NESSUS_ENCAPS_TLSv1 : NESSUS_ENCAPS_IP,
+
   p->last_err  = 0;
   return fd;
 }
 
 int
-nessus_register_connection(int	s, void	*ssl)
+nessus_register_connection(int	s, void	*ssl,
+			   gnutls_certificate_credentials_t certcred)
 {
-  if (ssl != NULL)
-    {
-      fprintf(stderr, "[%d] nessus_register_connection:"
-	      " ssl != NULL not supported", getpid());
-      return -1;
-    }
-
-  return ovas_allocate_connection(s,
-				  (ssl != NULL) ? NESSUS_ENCAPS_SSLv23
-				                : NESSUS_ENCAPS_IP);
+  return ovas_allocate_connection(s, ssl, certcred);
 }
 
 int
@@ -1176,7 +1174,7 @@ ovas_server_context_attach(ovas_server_context_t ctx, int soc)
   nessus_connection * fp = NULL;
   int ret;
 
-  fd = ovas_allocate_connection(soc, ctx->encaps);
+  fd = ovas_allocate_connection(soc, ctx->encaps, NULL);
   if (fd < 0)
     return -1;
 

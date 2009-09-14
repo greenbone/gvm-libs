@@ -1,5 +1,21 @@
 2009-09-14 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Add support for certificates for GNUTLS connections.
+	Developed by Marcus Brinkmann.
+
+	* misc/network.c (ovas_allocate_connection): Add parameter
+	certcred and handle credentials accordingly.
+	(nessus_register_connection): Added parameter certcred and
+	now handle credential based connections properly.
+	(ovas_server_context_attach): Adapted to API change.
+
+	* misc/network.h: Adjusted protos accordingly.
+
+	* nasl/nasl_socket.c (nasl_open_privileged_socket): Adapted
+	to API change.
+
+2009-09-14 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/resolve.c (nn_resolve): memcpy now copies the right size.
 	This was spotted and fixed by Marcus Brinkmann.
 
