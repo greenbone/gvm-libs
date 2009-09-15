@@ -1,5 +1,11 @@
 2009-09-15  Matthew Mundell <matthew.mundell@intevation.de>
 
+	* omp/install_manifest.txt, omp/Makefile, omp/cmake_install.cmake,
+	omp/CPackSourceConfig.cmake, omp/CMakeCache.txt, omp/CPackConfig.cmake,
+	omp/CMakeFiles: Remove accidentally committed files.
+
+2009-09-15  Matthew Mundell <matthew.mundell@intevation.de>
+
 	Copy OMP client interface here from openvas-manager.
 
 	* omp: New dir.

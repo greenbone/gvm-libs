@@ -1,1 +1,0 @@
-/usr/bin/gcc  -fPIC  -Wall -g -Wall  -shared -Wl,-soname,libopenvas_omp.so -o libopenvas_omp.so CMakeFiles/openvas_omp_shared.dir/xml.o CMakeFiles/openvas_omp_shared.dir/omp.o 

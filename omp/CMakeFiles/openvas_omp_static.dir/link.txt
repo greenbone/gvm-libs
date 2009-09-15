@@ -1,2 +1,0 @@
-/usr/bin/ar cr libopenvas_omp.a  CMakeFiles/openvas_omp_static.dir/xml.o CMakeFiles/openvas_omp_static.dir/omp.o 
-/usr/bin/ranlib libopenvas_omp.a 
