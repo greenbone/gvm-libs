@@ -1,0 +1,2 @@
+/home/mattm/lib/libopenvas_omp.a
+/home/mattm/lib/libopenvas_omp.so

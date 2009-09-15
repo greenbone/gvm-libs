@@ -33,8 +33,11 @@
 
 #include <gnutls/gnutls.h>
 
+#ifndef _OPENVAS_LIBRARIES_SERVER_H
+#define _OPENVAS_LIBRARIES_SERVER_H
+
 int
-openvas_server_open (gnutls_session_t *, char*, int);
+openvas_server_open (gnutls_session_t*, const char*, int);
 
 int
 openvas_server_close (int, gnutls_session_t);
@@ -44,3 +47,5 @@ openvas_server_send (gnutls_session_t*, const char*);
 
 int
 openvas_server_sendf (gnutls_session_t*, const char*, ...);
+
+#endif /* not _OPENVAS_LIBRARIES_SERVER_H */

@@ -225,6 +225,12 @@ nasl/tests/test_script_signing.sh
 nasl/tests/testsuiteinit.nasl
 nasl/tests/testsuitesummary.nasl
 nasl/wmi_interface_stub.c
+omp/CMakeLists.txt
+omp/README.txt
+omp/omp.c
+omp/omp.h
+omp/xml.c
+omp/xml.h
 openvas-libraries.tmpl.in
 packaging/debian/
 packaging/opensuse/

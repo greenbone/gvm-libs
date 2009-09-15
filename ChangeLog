@@ -1,5 +1,27 @@
 2009-09-15  Matthew Mundell <matthew.mundell@intevation.de>
 
+	Copy OMP client interface here from openvas-manager.
+
+	* omp: New dir.
+
+	* omp/CMakeLists.txt, omp/README.txt, omp/omp.c, omp/omp.h,
+	omp/xml.c, omp/xml.h: New files.
+
+	* MANIFEST: Add OMP lib files.
+
+	* Makefile: Add OMP lib building.  Correct typo.  Flush trailing
+	whitespace.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Add omp to include dirs.
+
+	* misc/openvas_server.c	(openvas_server_open): Add const to arg.
+	(openvas_server_send): Check if server closed connection, as in manager.
+
+	* misc/openvas_server.h: Add include guard.
+	(openvas_server_open): Add const to arg.
+
+2009-09-15  Matthew Mundell <matthew.mundell@intevation.de>
+
 	* ChangeLog: Flush whitespace.  Add spaces to headings.
 
 2009-09-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>

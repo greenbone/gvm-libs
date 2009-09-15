@@ -59,7 +59,7 @@ struct sockaddr_in address;
  */
 int
 openvas_server_open (gnutls_session_t * session,
-                     char *host, int port)
+                     const char *host, int port)
 {
   // TODO: Ensure that host and port have sane values.
   // TODO: Improve logging.
@@ -210,7 +210,7 @@ openvas_server_close (int socket, gnutls_session_t session)
  * @param[in]  session  Pointer to GNUTLS session.
  * @param[in]  string   String to send.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, 1 if server closed connection, -1 on error.
  */
 int
 openvas_server_send (gnutls_session_t* session, const char* string)
@@ -235,6 +235,12 @@ openvas_server_send (gnutls_session_t* session, const char* string)
           g_message ("Failed to write to server.");
           gnutls_perror (count);
           return -1;
+        }
+      if (count == 0)
+        {
+          /* Server closed connection. */
+          g_message ("=  server closed\n");
+          return 1;
         }
       g_message ("=> %.*s", count, string);
       string += count;

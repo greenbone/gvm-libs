@@ -34,6 +34,7 @@ all: $(ALLDEPS)
 	cd hg   && ${MAKE}
 	cd misc && ${MAKE}
 	cd nasl && cmake -DCMAKE_INSTALL_PREFIX=$(DESTDIR)${prefix} && ${MAKE}
+	cd omp  && cmake -DCMAKE_INSTALL_PREFIX=$(DESTDIR)${prefix} && ${MAKE}
 
 openvas-libraries.tmpl: openvas-libraries.tmpl.in configure VERSION
 	$(SHELL) configure $(CONFIGURE_ARGS)
@@ -47,6 +48,7 @@ install : all
 	cd hg   && ${MAKE} install
 	cd misc && ${MAKE} install
 	cd nasl && ${MAKE} install
+	cd omp  && ${MAKE} install
 
 	$(INSTALL) -m 0444 include/libopenvas.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 include/libvers.h   $(DESTDIR)${includedir}/openvas
@@ -78,6 +80,8 @@ install : all
 	$(INSTALL) -m 0444 base/hash_table_util.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 nasl/nasl.h   $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 base/nvti.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 omp/omp.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 omp/xml.h $(DESTDIR)${includedir}/openvas
 	test -d $(DESTDIR)${bindir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${bindir}
 	$(INSTALL) -m 0755 libopenvas-config $(DESTDIR)${bindir}/libopenvas-config
 	test -d $(DESTDIR)${mandir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${mandir}
@@ -87,7 +91,7 @@ install : all
 
 	@echo
 	@echo ' --------------------------------------------------------------'
-	@echo ' openvas-libraries has been sucessfully installed. '
+	@echo ' openvas-libraries has been successfully installed. '
 	@echo " Make sure that $(DESTDIR)$(bindir) is in your PATH before you"
 	@echo " continue "
 	@if [ -f /etc/ld.so.conf ]; then echo " Be sure to add $(DESTDIR)$(libdir) in /etc/ld.so.conf and type 'ldconfig'"; else echo ""; fi
@@ -99,11 +103,12 @@ clean :
 	-cd hg   && ${MAKE} clean
 	-cd misc && ${MAKE} clean
 	-cd nasl && ${MAKE} clean
+	-cd omp  && ${MAKE} clean
 	rm -rf doc/generated
 
 distclean : clean
 	rm -f ${rootdir}/include/config.h libtool config.cache \
-	config.status config.log ${rootdir}/include/libvers.h 
+	config.status config.log ${rootdir}/include/libvers.h
 	-cd misc && ${MAKE} distclean
 	-cd hg && ${MAKE} distclean
 	rm -f openvas-libraries.tmpl libopenvas-config libopenvas-config.pre
@@ -122,7 +127,7 @@ dist:
 doc:
 	doxygen doc/Doxyfile
 
-# Generates more extensive code documentation with graphs 
+# Generates more extensive code documentation with graphs
 # (placed in doc/generated) and builds doc/generated/latex/refman.pdf
 doc-full:
 	doxygen doc/Doxyfile_full
