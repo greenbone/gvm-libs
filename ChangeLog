@@ -1,5 +1,9 @@
 2009-09-15 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/network.c: Renaming of nessus to openvas.
+
+2009-09-15 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_nessusd_glue.c: Renamed to nasl/nasl_scanner_glue.c.
 
 	* nasl/nasl_nessusd_glue.h: Renamed to nasl/nasl_scanner_glue.h.

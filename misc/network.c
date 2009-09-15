@@ -60,7 +60,7 @@ extern void plug_set_port_transport(struct arglist*, int, int);
  * Low-level connection management                                *
  *----------------------------------------------------------------*/
 
-/** Nessus "FILE" structure */
+/** OpenVAS "FILE" structure */
 typedef struct {
  int fd;		/**< socket number, or whatever */
  int transport;	/**< "transport" layer code when stream is encapsultated. 
@@ -79,28 +79,28 @@ typedef struct {
   char*		buf;		/**< NULL if unbuffered */
   int		bufsz, bufcnt, bufptr;
   int 		last_err;
-} nessus_connection;
+} openvas_connection;
 
 /**
  * The role of this offset is:
  * 1. To detect bugs when the program tries to write to a bad fd
- * 2. See if a fd is a real socket or a "nessus descriptor". This is a
+ * 2. See if a fd is a real socket or a "openvas descriptor". This is a
  * quick & dirty hack and should be changed!!!
  */
-#define NESSUS_FD_MAX 1024
-#define NESSUS_FD_OFF 1000000
+#define OPENVAS_FD_MAX 1024
+#define OPENVAS_FD_OFF 1000000
 
-static nessus_connection connections[NESSUS_FD_MAX];
-
-/**
- * NESSUS_STREAM(x) is TRUE if <x> is a Nessus-ified fd
- */
-#define NESSUS_STREAM(x) (((x - NESSUS_FD_OFF) < NESSUS_FD_MAX) && ((x - NESSUS_FD_OFF) >=0))
+static openvas_connection connections[OPENVAS_FD_MAX];
 
 /**
- * determine the nessus_connection* from the nessus fd
+ * OPENVAS_STREAM(x) is TRUE if <x> is a Nessus-ified fd
  */
-#define OVAS_CONNECTION_FROM_FD(fd) (connections + ((fd) - NESSUS_FD_OFF))
+#define OPENVAS_STREAM(x) (((x - OPENVAS_FD_OFF) < OPENVAS_FD_MAX) && ((x - OPENVAS_FD_OFF) >=0))
+
+/**
+ * determine the openvas_connection* from the openvas fd
+ */
+#define OVAS_CONNECTION_FROM_FD(fd) (connections + ((fd) - OPENVAS_FD_OFF))
 
 void convipv4toipv4mappedaddr(struct in_addr inaddr, struct in6_addr *in6addr)
 {
@@ -139,16 +139,16 @@ int
 stream_get_err(fd)
  int fd;
 {
- nessus_connection *p;
+ openvas_connection *p;
  
- if(!NESSUS_STREAM(fd))
+ if(!OPENVAS_STREAM(fd))
     {
      errno = EINVAL;
      return -1;
     }
     
     
- p = &(connections[fd - NESSUS_FD_OFF]);
+ p = &(connections[fd - OPENVAS_FD_OFF]);
  return p->last_err;
 }
 
@@ -160,13 +160,13 @@ get_connection_fd()
 {
  int i;
  
- for ( i = 0; i < NESSUS_FD_MAX ; i++)
+ for ( i = 0; i < OPENVAS_FD_MAX ; i++)
  {
   if(connections[i].transport <= 0) /* Not used */
   {
    bzero(&(connections[i]),  sizeof(connections[i]));
    connections[i].pid = getpid();
-   return i + NESSUS_FD_OFF;
+   return i + OPENVAS_FD_OFF;
   }
  }
  fprintf(stderr, "[%d] %s:%d : Out of Nessus file descriptors\n", 
@@ -181,16 +181,16 @@ static int
 release_connection_fd(fd)
  int fd;
 {
- nessus_connection *p;
+ openvas_connection *p;
  
- if(!NESSUS_STREAM(fd))
+ if(!OPENVAS_STREAM(fd))
     {
      errno = EINVAL;
      return -1;
     }
     
     
- p = &(connections[fd - NESSUS_FD_OFF]);
+ p = &(connections[fd - OPENVAS_FD_OFF]);
 
  efree(&p->buf);
 
@@ -238,7 +238,7 @@ ovas_allocate_connection(int s, void *ssl,
 			 gnutls_certificate_credentials_t certcred)
 {
   int			fd;
-  nessus_connection	*p;
+  openvas_connection	*p;
 
   if((fd = get_connection_fd()) < 0)
     return -1;
@@ -267,14 +267,14 @@ int
 nessus_deregister_connection(fd)
  int fd;
 {
- nessus_connection * p;
- if(!NESSUS_STREAM(fd))
+ openvas_connection * p;
+ if(!OPENVAS_STREAM(fd))
  {
   errno = EINVAL;
   return -1;
  }
  
- p = connections +  (fd - NESSUS_FD_OFF);
+ p = connections +  (fd - OPENVAS_FD_OFF);
  bzero(p, sizeof(*p));
  p->transport = -1; 
  return 0;
@@ -360,16 +360,16 @@ int
 nessus_get_socket_from_connection(fd)
      int	fd;
 {
-  nessus_connection	*fp;
+  openvas_connection	*fp;
 
-  if (!NESSUS_STREAM(fd))
+  if (!OPENVAS_STREAM(fd))
     {
       fprintf(stderr,
 	      "[%d] nessus_get_socket_from_connection: bad fd <%d>\n", getpid(), fd);
       fflush(stderr);
       return fd;
     }
-  fp = connections + (fd - NESSUS_FD_OFF);
+  fp = connections + (fd - OPENVAS_FD_OFF);
   if(fp->transport <= 0)
     {
       fprintf(stderr, "nessus_get_socket_from_connection: fd <%d> is closed\n", fd);
@@ -382,11 +382,11 @@ gnutls_session_t *
 ovas_get_tlssession_from_connection(fd)
  int fd;
 {
-  nessus_connection	*fp;
+  openvas_connection	*fp;
 
-  if (!NESSUS_STREAM(fd)) return NULL;
+  if (!OPENVAS_STREAM(fd)) return NULL;
 
-  fp = connections + (fd - NESSUS_FD_OFF);
+  fp = connections + (fd - OPENVAS_FD_OFF);
   return &fp->tls_session;
 }
 
@@ -712,7 +712,7 @@ load_cert_and_key(gnutls_certificate_credentials_t xcred,
 }
 
 static int
-open_SSL_connection(nessus_connection *fp, int timeout,
+open_SSL_connection(openvas_connection *fp, int timeout,
 		    const char *cert, const char *key, const char *passwd,
 		    const char *cafile)
 {
@@ -836,7 +836,7 @@ open_SSL_connection(nessus_connection *fp, int timeout,
 static void
 set_ids_evasion_mode(args, fp)
      struct arglist	*args;
-     nessus_connection	*fp;
+     openvas_connection	*fp;
 {
  struct kb_item ** kb = plug_get_kb(args);
  char		*ids_evasion_split = kb_item_get_str(kb, "NIDS/TCP/split");
@@ -880,7 +880,7 @@ open_stream_connection(struct arglist * args, unsigned int port, int transport,
 		       int timeout)
 {
  int			fd;
- nessus_connection * fp;
+ openvas_connection * fp;
  char * cert   = NULL;
  char * key    = NULL;
  char * passwd = NULL;
@@ -915,7 +915,7 @@ open_stream_connection(struct arglist * args, unsigned int port, int transport,
  if((fd = get_connection_fd()) < 0)
   return -1;
  
- fp = &(connections[fd - NESSUS_FD_OFF]);
+ fp = &(connections[fd - OPENVAS_FD_OFF]);
  
  
  fp->transport = transport;
@@ -1151,11 +1151,11 @@ ovas_server_context_free(ovas_server_context_t ctx)
 }
 
 /**
- * Sets up SSL/TLS on the socket soc and returns a nessus file
+ * Sets up SSL/TLS on the socket soc and returns a openvas file
  * descriptor.  The parameters for the SSL/TLS layer are taken from ctx.
  * Afterwards, the credentials of ctx are also referenced by the SSL/TLS
- * objects associated with the nessus file descriptor.  This means that
- * the context ctx must not be freed until the nessus file descriptor is
+ * objects associated with the openvas file descriptor.  This means that
+ * the context ctx must not be freed until the openvas file descriptor is
  * closed.
  *
  * If the context's force_pubkey_auth member is true (!= 0), the client
@@ -1164,14 +1164,14 @@ ovas_server_context_free(ovas_server_context_t ctx)
  * a certificate, the certificate is verified.  If the verification
  * fails, ovas_server_context_attach returns -1.
  *
- * ovas_server_context_attach returns the nessus file descriptor on
+ * ovas_server_context_attach returns the openvas file descriptor on
  * success and -1 on failure.
  */
 int
 ovas_server_context_attach(ovas_server_context_t ctx, int soc)
 {
   int fd = -1;
-  nessus_connection * fp = NULL;
+  openvas_connection * fp = NULL;
   int ret;
 
   fd = ovas_allocate_connection(soc, ctx->encaps, NULL);
@@ -1267,13 +1267,13 @@ stream_set_timeout(fd, timeout)
  int timeout;
 {
  int old;
- nessus_connection * fp;
- if(!NESSUS_STREAM(fd))
+ openvas_connection * fp;
+ if(!OPENVAS_STREAM(fd))
     {
      errno = EINVAL;
      return 0;
     }
-  fp = &(connections[fd - NESSUS_FD_OFF]);
+  fp = &(connections[fd - OPENVAS_FD_OFF]);
   old = fp->timeout;
   fp->timeout = timeout;
   return old;
@@ -1283,13 +1283,13 @@ int
 stream_set_options(fd, reset_opt, set_opt)
      int	fd, reset_opt, set_opt;
 {
- nessus_connection * fp;
- if(!NESSUS_STREAM(fd))
+ openvas_connection * fp;
+ if(!OPENVAS_STREAM(fd))
     {
      errno = EINVAL;
      return -1;
     }
-  fp = &(connections[fd - NESSUS_FD_OFF]);
+  fp = &(connections[fd - OPENVAS_FD_OFF]);
   fp->options &= ~reset_opt;
   fp->options |= set_opt;
   return 0;
@@ -1305,7 +1305,7 @@ read_stream_connection_unbuffered(fd, buf0, min_len, max_len)
   int			ret, realfd, trp, t;
   int			total = 0, flag = 0, timeout = TIMEOUT, waitall = 0;
   unsigned char		* buf = (unsigned char*)buf0;
-  nessus_connection	*fp = NULL;
+  openvas_connection	*fp = NULL;
   fd_set		fdr, fdw;
   struct timeval	tv;
   time_t		now, then;
@@ -1317,9 +1317,9 @@ read_stream_connection_unbuffered(fd, buf0, min_len, max_len)
 	  fd, buf, min_len, max_len);
 #endif
 
-  if (NESSUS_STREAM(fd))
+  if (OPENVAS_STREAM(fd))
     {
-      fp = &(connections[fd - NESSUS_FD_OFF]);
+      fp = &(connections[fd - OPENVAS_FD_OFF]);
       trp = fp->transport;
       realfd = fp->fd;
       fp->last_err = 0;
@@ -1438,7 +1438,7 @@ read_stream_connection_unbuffered(fd, buf0, min_len, max_len)
 		{
 		  /* This branch also handles the case where ret == 0,
 		   * i.e. that the connection has been closed.  This is
-		   * for compatibility with the old OpenSSL based nessus
+		   * for compatibility with the old OpenSSL based openvas
 		   * code which treated SSL_ERROR_ZERO_RETURN as an
 		   * error too.
 		   */
@@ -1490,11 +1490,11 @@ read_stream_connection_min(fd, buf0, min_len, max_len)
  void* buf0;
  int min_len, max_len;
 {
-  nessus_connection	*fp;
+  openvas_connection	*fp;
 
-  if (NESSUS_STREAM(fd))
+  if (OPENVAS_STREAM(fd))
     {
-      fp = &(connections[fd - NESSUS_FD_OFF]);
+      fp = &(connections[fd - OPENVAS_FD_OFF]);
       if (fp->buf != NULL)
 	{
 	  int		l1, l2;
@@ -1556,12 +1556,12 @@ write_stream_connection4 (int fd, void * buf0, int n, int i_opt)
 {
   int			ret, count;
  unsigned char* buf = (unsigned char*)buf0;
- nessus_connection * fp;
+ openvas_connection * fp;
   fd_set		fdr, fdw;
   struct timeval	tv;
   int e;
 
- if(!NESSUS_STREAM(fd))
+ if(!OPENVAS_STREAM(fd))
    {
 #if DEBUG_SSL > 0
      fprintf(stderr, "write_stream_connection: fd <%d> invalid\n", fd);
@@ -1573,7 +1573,7 @@ write_stream_connection4 (int fd, void * buf0, int n, int i_opt)
      return -1;
     }
 
- fp = &(connections[fd - NESSUS_FD_OFF]);
+ fp = &(connections[fd - OPENVAS_FD_OFF]);
  fp->last_err = 0;
 
 #if DEBUG_SSL > 8
@@ -1627,7 +1627,7 @@ write_stream_connection4 (int fd, void * buf0, int n, int i_opt)
 	  {
 	    /* This branch also handles the case where ret == 0,
 	     * i.e. that the connection has been closed.  This is
-	     * for compatibility with the old nessus code which
+	     * for compatibility with the old openvas code which
 	     * treated SSL_ERROR_ZERO_RETURN as an error too.
 	     */
 #ifdef DEBUG_SSL
@@ -1701,9 +1701,9 @@ nsend (int fd, void * data, int length, int i_opt)
 {
   int n = 0;
 
-  if (NESSUS_STREAM (fd))
+  if (OPENVAS_STREAM (fd))
     {
-      if (connections[fd - NESSUS_FD_OFF].fd < 0)
+      if (connections[fd - OPENVAS_FD_OFF].fd < 0)
         fprintf (stderr, "Nessus file descriptor %d closed ?!\n", fd);
       else
         return write_stream_connection4 (fd, data, length, i_opt);
@@ -1748,9 +1748,9 @@ nrecv (int fd, void * data, int length, int i_opt)
 #if DEBUG_SSL > 8
    fprintf(stderr, "nrecv: fd=%d len=%d\n", fd, length);
 #endif
- if(NESSUS_STREAM(fd))
+ if(OPENVAS_STREAM(fd))
  {
-  if(connections[fd - NESSUS_FD_OFF].fd < 0)
+  if(connections[fd - OPENVAS_FD_OFF].fd < 0)
    fprintf(stderr, "Nessus file descriptor %d closed ?!\n", fd);
   else 
     return read_stream_connection(fd, data, length);
@@ -1771,17 +1771,17 @@ int
 close_stream_connection (int fd)
 {
 #if DEBUG_SSL > 2
- nessus_connection * fp;
- if(!NESSUS_STREAM(fd))
+ openvas_connection * fp;
+ if(!OPENVAS_STREAM(fd))
     {
      errno = EINVAL;
      return -1;
     }
-  fp = &(connections[fd - NESSUS_FD_OFF]);
+  fp = &(connections[fd - OPENVAS_FD_OFF]);
   fprintf(stderr, "close_stream_connection TCP:%d\n", fp->port);
 #endif
 
-  if(!NESSUS_STREAM(fd))	/* Will never happen if debug is on! */
+  if(!OPENVAS_STREAM(fd))	/* Will never happen if debug is on! */
    {
     if ( fd < 0 || fd > 1024 )
     {
@@ -1799,12 +1799,12 @@ close_stream_connection (int fd)
 int
 get_encaps (int fd)
 {
- if(!NESSUS_STREAM(fd))
+ if(!OPENVAS_STREAM(fd))
  {
    fprintf(stderr, "get_encaps() : bad argument\n");
    return -1;
  }
- return connections[fd - NESSUS_FD_OFF].transport;
+ return connections[fd - OPENVAS_FD_OFF].transport;
 }
 
 
@@ -2184,7 +2184,7 @@ int recv_line (int soc, char* buf, size_t bufsiz)
   int n, ret = 0;
 
   /* Dirty SSL hack */
-  if(NESSUS_STREAM(soc))
+  if(OPENVAS_STREAM(soc))
   {
    buf[0] = '\0';
 
@@ -2416,17 +2416,17 @@ int
 fd_is_stream(fd)
      int	fd;
 {
-  return NESSUS_STREAM(fd);	/* Should probably be smarter... */
+  return OPENVAS_STREAM(fd);	/* Should probably be smarter... */
 }
 
 
 int 
 stream_get_buffer_sz ( int fd )
 {
-  nessus_connection	*p;
-  if (! NESSUS_STREAM(fd))
+  openvas_connection	*p;
+  if (! OPENVAS_STREAM(fd))
     return -1;
-  p = &(connections[fd - NESSUS_FD_OFF]);
+  p = &(connections[fd - OPENVAS_FD_OFF]);
   return p->bufsz;
 }
 
@@ -2435,13 +2435,13 @@ int
 stream_set_buffer(fd, sz)
      int	fd, sz;
 {
-  nessus_connection	*p;
+  openvas_connection	*p;
   char			*b;
 
-  if (! NESSUS_STREAM(fd))
+  if (! OPENVAS_STREAM(fd))
     return -1;
 
-  p = &(connections[fd - NESSUS_FD_OFF]);
+  p = &(connections[fd - OPENVAS_FD_OFF]);
   if (sz < p->bufcnt)
       return -1;		/* Do not want to lose data */
 
@@ -2620,13 +2620,13 @@ error:
 
 int stream_pending(int fd)
 {
-  nessus_connection * fp;
- if ( ! NESSUS_STREAM(fd) )
+  openvas_connection * fp;
+ if ( ! OPENVAS_STREAM(fd) )
  {
   errno = EINVAL;
   return -1;
  }
- fp = &(connections[fd - NESSUS_FD_OFF]);
+ fp = &(connections[fd - OPENVAS_FD_OFF]);
 
  if ( fp->bufcnt )
         return fp->bufcnt;
