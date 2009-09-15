@@ -51,7 +51,7 @@
 
 /**
  * Replacement for g_file_test which is unreliable on windows
- * if nessus and gtk are compiled with a different libc.
+ * if OpenVAS and GTK are compiled with a different libc.
  * TODO: The windows issue needs verification and proper documentation. Maybe a
  * proper build could prohibit any problems.
  * 

@@ -1,5 +1,10 @@
 2009-09-15 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* doc/openvas-nasl.1, misc/arglists.c, misc/openvas_ssh_login.c,
+	misc/system.c, nasl/nasl_scanner_glue.c: Renamed nessus to openvas.
+
+2009-09-15 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/network.c: Renaming of nessus to openvas.
 
 2009-09-15 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>

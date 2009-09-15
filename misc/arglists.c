@@ -133,7 +133,7 @@ cache_dec(const char * name)
  if( nc == NULL)
  {
   /*
-  fprintf(stderr, "libnessus: cache_dec(): non-existant name\n");
+  fprintf(stderr, "libopenvas_misc: cache_dec(): non-existant name\n");
   */
   return;
  }

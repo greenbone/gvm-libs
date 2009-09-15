@@ -65,7 +65,8 @@ static int isalldigit(char * str, int len)
 /*-------------------[ script_*() functions ]----------------------------*/
  
  /*
-  * These functions are used when the script registers itself to nessusd
+  * These functions are used when the script registers itself to openvas
+  * scanner.
   */
 
 tree_cell *script_timeout(lex_ctxt * lexic)
@@ -988,7 +989,7 @@ tree_cell * nasl_get_preference(lex_ctxt * lexic)
 
 /**
  * If the plugin is a port scanner, it needs to report the list of open
- * ports back to nessusd, and it also needs to know which ports are
+ * ports back to openvas scanner, and it also needs to know which ports are
  * to scan
  */
 tree_cell * nasl_scanner_get_port(lex_ctxt * lexic)

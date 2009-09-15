@@ -61,7 +61,7 @@ void * emalloc(size)
    
    
     /* If no memory can be allocated, then wait a little.
-     * It's very likely that another nessusd child will free
+     * It's very likely that another openvas scanner child will free
      * the size of memory we need. So we make 10 attempts,
      * and if nothing happens, then we exit. */
     ptr = malloc(size);
