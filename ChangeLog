@@ -1,9 +1,13 @@
-2009-09-15 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+2009-09-15  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* ChangeLog: Flush whitespace.  Add spaces to headings.
+
+2009-09-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/system.h: Added missing include. Again
 	thanks to Marcus Brinkmann for finding this.
 
-2009-09-14 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+2009-09-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Add support for certificates for GNUTLS connections.
 	Developed by Marcus Brinkmann.
@@ -19,7 +23,7 @@
 	* nasl/nasl_socket.c (nasl_open_privileged_socket): Adapted
 	to API change.
 
-2009-09-14 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+2009-09-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/resolve.c (nn_resolve): memcpy now copies the right size.
 	This was spotted and fixed by Marcus Brinkmann.
@@ -46,7 +50,7 @@
 	to create a NVTI Cache object.
 	(store_load_plugin): Don't do any file-based stuff
 	anymore. Just ask the Cache for the NVTI for the
-	given file. 
+	given file.
 	(store_plugin): Adaptapted to use the new location
 	of the cache directory.
 
@@ -114,17 +118,17 @@
 	from client by integrating changes into openvas-libraries.
 
 	* misc/arglists.c (mkhash): Reformatted.
-	
+
 	* misc/arglists.c (cache_get_name, cache_add_name): Do not calculate
 	hash value inside function, but expect it as parameter.
-	
+
 	* misc/arglists.c (cache_inc, cache_dec): Updated calls that require
 	new parameter.
-	
+
 	* misc/arglists.c (arg_init_element, arg_add_value_at_head,
 	arg_del_value): Added functions from clients implementation. Likely to
 	be obsolete soon.
-	
+
 	* arglist.h: Added new protos.
 
 2009-09-07 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
@@ -263,7 +267,7 @@
 	Cosmetics, major reformatting.
 	Added todos about possible replacement by glib and move to other part of
 	openvas-libraries, doc.
-	
+
 	* nasl/nasl_var.c: Removed unnecessary include
 
 2009-09-04  Felix Wolfsteller <felix.wolfsteller@intevation.de>
@@ -403,7 +407,7 @@
 2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* libopenvas-config.in: Added lopenvas_nasl to linker flags.
-	
+
 	* base/README.txt: Corrected.
 
 2009-08-31  Felix Wolfsteller <felix.wolfsteller@intevation.de>
@@ -457,7 +461,7 @@
 
 	* nasl/config.h: Added a generated config.h (from
 	openvas-libnasl/includes) to enable compilation.
-	
+
 	* nasl/nasl_tcp.h, nasl/nasl_raw.h, nasl/nasl_icmp.h, nasl/nasl_ip.h,
 	nasl/nasl_udp.h: Copied from openvas-libnasl/includes.
 
@@ -487,7 +491,7 @@
 	nasl/openvas_smb_interface.h, nasl/nasl.c, nasl/nasl_global_ctxt.h,
 	nasl/nasl_misc_funcs.c, nasl/nasl_socket.c,
 	nasl/openvas_wmi_interface.h: Copied from openvas-libnasl/nasl.
-	
+
 	* nasl/includes.h, nasl/nasl.h: Copied from openvas-libnasl/include.
 
 2009-08-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
@@ -503,9 +507,9 @@
 
 	* libopenvas-config.in: Added libopenvas_base to linker flags
 	(libopenvas-config --libs).
-	
+
 	* Makefile: Added base to all, install and clean targets.
-	
+
 	* misc/Makefile: Removed targets that are now built 'in' base.
 
 2009-08-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
@@ -525,7 +529,7 @@
 2009-08-27  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* misc/harglists.c: Added ifdef _WIN32 blocks from clients code.
-	
+
 	* misc/network.c (recv_line): Reformat and documentation like in clients
 	version of the file.
 
