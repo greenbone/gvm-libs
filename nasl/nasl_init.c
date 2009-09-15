@@ -35,7 +35,7 @@
 #include "nasl_http.h"
 #include "nasl_host.h"
 #include "nasl_text_utils.h"
-#include "nasl_nessusd_glue.h"
+#include "nasl_scanner_glue.h"
 #include "nasl_misc_funcs.h"
 #include "nasl_cmd_exec.h"
 #include "nasl_crypto.h"

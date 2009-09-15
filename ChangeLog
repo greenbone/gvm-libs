@@ -1,3 +1,14 @@
+2009-09-15 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_nessusd_glue.c: Renamed to nasl/nasl_scanner_glue.c.
+
+	* nasl/nasl_nessusd_glue.h: Renamed to nasl/nasl_scanner_glue.h.
+
+	* nasl/nasl_init.c, nasl/nasl_scanner_glue.c, nasl/CMakeLists.txt:
+	Adjusted to name change accordingly.
+
+	* MANIFEST: Updated.
+
 2009-09-15  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* base/CMakeLists.txt, nasl/CMakeLists.txt: Set project language to C,

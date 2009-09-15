@@ -38,7 +38,7 @@
 #include "exec.h"  
 
 #include "nasl_debug.h"
-#include "nasl_nessusd_glue.h"
+#include "nasl_scanner_glue.h"
 
 #ifndef NASL_DEBUG
 #define NASL_DEBUG 0
