@@ -1,5 +1,13 @@
 2009-09-15  Matthew Mundell <matthew.mundell@intevation.de>
 
+	* base/CMakeLists.txt, nasl/CMakeLists.txt: Set project language to C,
+	otherwise building requires a C++ compiler.  Improve some formatting.  Set
+	policy CMP0005 to OLD.
+
+	* omp/CMakeLists.txt: Set policy CMP0005 to OLD.
+
+2009-09-15  Matthew Mundell <matthew.mundell@intevation.de>
+
 	* omp/xml.c.BAK, omp/CMakeLists.txt.BAK, omp/README.txt.BAK,
 	omp/omp.h.BAK, omp/omp.c.BAK, omp/xml.h.BAK: Remove accidentally committed
 	backup files.
