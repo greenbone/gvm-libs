@@ -97,7 +97,7 @@ get_next_svc(struct my_svc *psvc)
  */
 
 int
-nessus_init_svc()
+openvas_init_svc()
 {
   static int flag = 0;
   int		l, error_flag = 0, rebuild = 0;
@@ -105,7 +105,7 @@ nessus_init_svc()
   struct my_svc	svc[N_SVC_F];
   int		nf = 0, i, j, prev_p, prev_p_udp;
   FILE		*fpT = NULL, *fpU = NULL, *fpTXT = NULL;
-  struct nessus_service	ness_svc;
+  struct openvas_service	ness_svc;
   struct stat	st;
   time_t	t;
 
@@ -132,8 +132,8 @@ nessus_init_svc()
         buf = mmap(NULL, len, PROT_READ, MAP_SHARED, fd, 0);
         if ( buf == MAP_FAILED || buf == NULL ){ perror("mmap "); rebuild ++; }
         else {
-            struct nessus_service * s;
-            s = (struct nessus_service*)(buf);
+            struct openvas_service * s;
+            s = (struct openvas_service*)(buf);
             if ( s->magic != SERVICES_MAGIC ) rebuild ++;
             munmap(buf, len);
            }
@@ -170,7 +170,7 @@ nessus_init_svc()
    * call getservent because the system may implement yellow pages or 
    * some other kind of database. getservent() is supposed to walk through it.
    */
-  /* nessus-services file is supposed to be sorted */
+  /* openvas-services file is supposed to be sorted */
   if ((svc[nf].fp = fopen(NESSUS_SERVICES, "r")) != NULL)
   {
     if (get_next_svc(&svc[nf]))
@@ -214,7 +214,7 @@ nessus_init_svc()
 	{
 #if PANIC_THE_USER		
 	  if (*svc[j].filename == '/') /* No warning on system base */
-	  fprintf(stderr, "nessus_init_svc: %s is not sorted! Found %d/%s at the wrong place (line %d)\n",
+	  fprintf(stderr, "openvas_init_svc: %s is not sorted! Found %d/%s at the wrong place (line %d)\n",
 		  svc[j].filename,
 		  svc[j].port / 2, svc[j].port % 2 ? "udp" : "tcp",
 		  svc[j].line);

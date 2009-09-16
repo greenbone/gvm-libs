@@ -170,8 +170,8 @@ void * plug_get_fresh_key(struct arglist *, char *, int *);
 struct kb_item ** plug_get_kb(struct arglist *);
 void * plug_get_key(struct arglist *, char *, int *);
 
-char* nessuslib_version();
-void nessus_lib_version(int *, int *, int *);
+char* openvaslib_version();
+void openvas_lib_version(int *, int *, int *);
 char* addslashes(char*);
 char* rmslashes(char*);
 

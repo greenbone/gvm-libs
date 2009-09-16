@@ -315,7 +315,7 @@ tryagain :
  }
  
  if(proto == IPPROTO_TCP)
-   sock = nessus_register_connection(sock, NULL, NULL);
+   sock = openvas_register_connection(sock, NULL, NULL);
 
   retc = alloc_tree_cell(0, NULL);
   retc->type = CONST_INT;
@@ -837,7 +837,7 @@ nasl_get_source_port(lex_ctxt* lexic)
   if(!fd_is_stream(s) && getsockopt(s, SOL_SOCKET, SO_TYPE, &type, &type_len) == 0 && type == SOCK_DGRAM)
        fd = s;
    else
-       fd = nessus_get_socket_from_connection(s);
+       fd = openvas_get_socket_from_connection(s);
  
 
   if (fd < 0)

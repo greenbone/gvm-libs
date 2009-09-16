@@ -35,13 +35,13 @@
 
 #define SERVICES_MAGIC 0x42
 
-struct nessus_service {
+struct openvas_service {
   char		 	magic;
   unsigned short	ns_port;
   char			ns_name[128];
 };
 
-const char*	nessus_get_svc_name(int, const char*);
+const char*	openvas_get_svc_name(int, const char*);
 unsigned short * get_tcp_svcs(int * );
 
 #endif

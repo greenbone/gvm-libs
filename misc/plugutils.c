@@ -60,7 +60,7 @@
  * @return Version of openvas-libraries, do not modify nor free.
  */
 char *
-nessuslib_version()
+openvaslib_version()
 {
   static char vers[255]; /* RATS: ignore, vers is used wisely. */
   strncpy (vers, VERSION, sizeof(vers) - 1);
@@ -73,7 +73,7 @@ nessuslib_version()
  *        openvas-libraries version.
  */
 void
-nessus_lib_version (int* major, int* minor, int* rev)
+openvas_lib_version (int* major, int* minor, int* rev)
 {
  *major = OPENVASLIBS_MAJOR;
  *minor = OPENVASLIBS_MINOR;
@@ -82,7 +82,7 @@ nessus_lib_version (int* major, int* minor, int* rev)
 
 #ifdef USE_PTHREADS
 int
-nessuslib_pthreads_enabled()
+openvaslib_pthreads_enabled()
 {
  int enabled = 1;
  return(enabled);
@@ -917,7 +917,7 @@ proto_post_wrapped (struct arglist * desc, int port, const char* proto,
 
  buffer = emalloc (1024 + len);
  char idbuffer[105];
- const char *svc_name = nessus_get_svc_name (port, proto);
+ const char *svc_name = openvas_get_svc_name (port, proto);
  if (plug_get_oid(desc) == NULL)
   {
    *idbuffer = '\0';
@@ -1278,7 +1278,7 @@ void
 scanner_add_port (struct arglist * args, int port, char* proto)
 {
  char * buf;
- const char *svc_name = nessus_get_svc_name(port, proto);
+ const char *svc_name = openvas_get_svc_name(port, proto);
  const char * hn = plug_get_hostname(args);
  int len;
  int soc;
@@ -1484,7 +1484,7 @@ plug_get_key (struct arglist * args, char * name, int * type)
   }
   else if(pid < 0)
       {
-       fprintf(stderr, "nessus-openvas:libopenvas:plugutils.c:plug_get_key(): fork() failed : %s", strerror(errno));
+       fprintf(stderr, "libopenvas:plugutils.c:plug_get_key(): fork() failed : %s", strerror(errno));
        return NULL;
       }
   else
@@ -1718,7 +1718,7 @@ int shared_socket_register ( struct arglist * args, int fd, char * name )
  int e;
  soc = GPOINTER_TO_SIZE(arg_get_value(args, "SOCKET"));
  if ( fd_is_stream(fd) )
-  fd = nessus_get_socket_from_connection(fd);
+  fd = openvas_get_socket_from_connection(fd);
 
 
  e = getsockopt(fd, SOL_SOCKET, SO_TYPE, &type, &opt_len);

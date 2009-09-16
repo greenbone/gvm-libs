@@ -47,8 +47,8 @@ static int
 cmp_ns_svc(const void *v1,
 	   const void *v2)
 {
-  const struct nessus_service * p1 = v1;
-  const struct nessus_service * p2 = v2;
+  const struct openvas_service * p1 = v1;
+  const struct openvas_service * p2 = v2;
   
   if(v1 == NULL)
   	return 1;
@@ -59,14 +59,14 @@ cmp_ns_svc(const void *v1,
 }
 
 const char*
-nessus_get_svc_name(int port, const char* proto)
+openvas_get_svc_name(int port, const char* proto)
 {
-  static struct nessus_service		*svc_db_ptr[2] = { NULL, NULL };
+  static struct openvas_service		*svc_db_ptr[2] = { NULL, NULL };
   static int				nb_svc[2];
 
   int			fd = -1, len, idx;
   struct stat		st;
-  struct nessus_service	*pns, kns;
+  struct openvas_service	*pns, kns;
   struct servent	*svc;
 
 
@@ -84,7 +84,7 @@ nessus_get_svc_name(int port, const char* proto)
 	  else
 	    {
 	      len = st.st_size;
-	      nb_svc[idx] = len / sizeof(struct nessus_service);
+	      nb_svc[idx] = len / sizeof(struct openvas_service);
 	      if ((svc_db_ptr[idx] = mmap(NULL, len, PROT_READ, MAP_SHARED, fd, 0))== MAP_FAILED )
 		{
 		perror("mmap");
@@ -120,7 +120,7 @@ nessus_get_svc_name(int port, const char* proto)
 
 unsigned short * get_tcp_svcs(int * num)
 {
-  struct nessus_service * ns = NULL;
+  struct openvas_service * ns = NULL;
   int len, num_svc;
   unsigned short * ret;
   int fd, i;
@@ -133,7 +133,7 @@ unsigned short * get_tcp_svcs(int * num)
 	  else
 	    {
 	      len = st.st_size;
-	      num_svc = len / sizeof(struct nessus_service);
+	      num_svc = len / sizeof(struct openvas_service);
 	      if ((ns = mmap(NULL, len, PROT_READ, MAP_SHARED, fd, 0))== MAP_FAILED ) {
 		perror("mmap");
 		ns = NULL;

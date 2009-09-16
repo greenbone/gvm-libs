@@ -257,14 +257,14 @@ ovas_allocate_connection(int s, void *ssl,
 }
 
 int
-nessus_register_connection(int	s, void	*ssl,
+openvas_register_connection(int	s, void	*ssl,
 			   gnutls_certificate_credentials_t certcred)
 {
   return ovas_allocate_connection(s, ssl, certcred);
 }
 
 int
-nessus_deregister_connection(fd)
+openvas_deregister_connection(fd)
  int fd;
 {
  openvas_connection * p;
@@ -357,7 +357,7 @@ openvas_SSL_init()
 
 
 int
-nessus_get_socket_from_connection(fd)
+openvas_get_socket_from_connection(fd)
      int	fd;
 {
   openvas_connection	*fp;
@@ -365,14 +365,14 @@ nessus_get_socket_from_connection(fd)
   if (!OPENVAS_STREAM(fd))
     {
       fprintf(stderr,
-	      "[%d] nessus_get_socket_from_connection: bad fd <%d>\n", getpid(), fd);
+	      "[%d] openvas_get_socket_from_connection: bad fd <%d>\n", getpid(), fd);
       fflush(stderr);
       return fd;
     }
   fp = connections + (fd - OPENVAS_FD_OFF);
   if(fp->transport <= 0)
     {
-      fprintf(stderr, "nessus_get_socket_from_connection: fd <%d> is closed\n", fd);
+      fprintf(stderr, "openvas_get_socket_from_connection: fd <%d> is closed\n", fd);
       return -1;
     }
   return fp->fd;
@@ -2398,7 +2398,7 @@ stream_set(fd, set)
  int fd;
  fd_set * set;
 {
- int soc = nessus_get_socket_from_connection(fd);
+ int soc = openvas_get_socket_from_connection(fd);
  if(soc >= 0)
   FD_SET(soc, set);
  return soc;
@@ -2409,7 +2409,7 @@ stream_isset(fd, set)
  int fd;
  fd_set * set;
 {
- return FD_ISSET(nessus_get_socket_from_connection(fd), set);
+ return FD_ISSET(openvas_get_socket_from_connection(fd), set);
 }
 
 int

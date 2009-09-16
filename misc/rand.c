@@ -30,7 +30,7 @@
  */
 
 void
-nessus_init_random()
+openvas_init_random()
 {
   FILE	*fp;
   long	x = 0;
