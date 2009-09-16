@@ -80,6 +80,7 @@ install : all
 	$(INSTALL) -m 0444 base/hash_table_util.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 nasl/nasl.h   $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 base/nvti.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 base/openvas_string.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 omp/omp.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 omp/xml.h $(DESTDIR)${includedir}/openvas
 	test -d $(DESTDIR)${bindir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${bindir}

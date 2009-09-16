@@ -9,6 +9,8 @@ base/nvti.c
 base/nvti.h
 base/nvticache.c
 base/nvticache.h
+base/openvas_string.h
+base/openvas_string.c
 base/README.txt
 ChangeLog
 CHANGES

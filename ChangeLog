@@ -1,4 +1,16 @@
-2009-09-16 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+2009-09-16  Matthew Mundell <matthew.mundell@intevation.de>
+
+	Copy string utilities from manager to libs.
+
+	* Makefile (install): Add openvas_string.h.
+
+	* base/openvas_string.h, base/openvas_string.c: New files.
+
+	* base/CMakeLists.txt (FILES): Add openvas_string.c.
+
+	* MANIFEST: Add new files.
+
+2009-09-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/rand.c, misc/network.c, misc/plugutils.c, misc/services1.c,
 	misc/services.c, nasl/nasl_socket.c: Replaced "nessus" by
@@ -7,16 +19,16 @@
 	* misc/rand.h, misc/network.h, misc/plugutils.h, misc/services1.h,
 	misc/services.h: Adjusted protos accordingly.
 
-2009-09-15 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+2009-09-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* doc/openvas-nasl.1, misc/arglists.c, misc/openvas_ssh_login.c,
 	misc/system.c, nasl/nasl_scanner_glue.c: Renamed nessus to openvas.
 
-2009-09-15 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+2009-09-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/network.c: Renaming of nessus to openvas.
 
-2009-09-15 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+2009-09-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_nessusd_glue.c: Renamed to nasl/nasl_scanner_glue.c.
 
