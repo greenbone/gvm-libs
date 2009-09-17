@@ -1,5 +1,12 @@
 2009-09-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Removed last OpenSSL-exception statement. openvas does not link openssl
+	anymore.
+
+	* nasl/nasl_scanner_glue.h: Removed OpenSSL-exception statement.
+
+2009-09-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Removed the "OpenSSL-exception" from source files in the 'misc' module
 	(the exception itself allows to do so). openvas does not link against
 	openssl anymore.
