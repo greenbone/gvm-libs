@@ -1,3 +1,7 @@
+2009-09-17  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* libopenvas-config.in (--libs): Add -lopenvas_omp.
+
 2009-09-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Removed last OpenSSL-exception statement. openvas does not link openssl

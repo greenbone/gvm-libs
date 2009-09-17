@@ -65,9 +65,9 @@ while test $# -gt 0; do
 		;;
 	--libs)
 		if [ $HAVE_WMI = "NO" ]; then
-			echo $Xn "-L$LIBDIR -lopenvasmisc -lopenvashg -lopenvas_base $EXTRA -lopenvas_nasl $NASLLIBS $Xc"
+			echo $Xn "-L$LIBDIR -lopenvasmisc -lopenvashg -lopenvas_base $EXTRA -lopenvas_nasl -lopenvas_omp $NASLLIBS $Xc"
 		else
-			echo $Xn "-L$LIBDIR -lopenvasmisc -lopenvashg -lopenvas_base -lwmiclient $EXTRA -lopenvas_nasl $NASLLIBS $Xc"
+			echo $Xn "-L$LIBDIR -lopenvasmisc -lopenvashg -lopenvas_base -lwmiclient $EXTRA -lopenvas_nasl -lopenvas_omp $NASLLIBS $Xc"
 		fi
 		;;
 	--cflags)
