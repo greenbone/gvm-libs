@@ -962,7 +962,7 @@ nvti_as_text (const nvti_t * n)
  *
  * @return NULL (not implemented yet).
  *
- * @TODO return A newly allocated string
+ * @todo return A newly allocated string
  *       The string needs to be freed with g_free().
  */
 gchar *
@@ -1052,7 +1052,7 @@ nvti_from_keyfile (const gchar * fn)
  *
  * @param fn The filename to write to.
  *
- * @return 0 on success. @TODO Anything else indicates an error.
+ * @return 0 on success. @todo Anything else indicates an error.
  */
 int
 nvti_to_keyfile (const nvti_t * n, const gchar * fn)

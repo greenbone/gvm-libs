@@ -1,3 +1,14 @@
+2009-09-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* base/nvti.c, nasl/nasl_cmd_exec.c, nasl/nasl_smb.c, nasl/nasl_wmi.c,
+	nasl/strutils.c: Replaced uppercase TODOs by lowercase todos, to be
+	included in the doxygen-generated todo-list.
+
+	* nasl/lsearch.c (lfind): Added todo, as this source module seems to be
+	obsolete.
+
+	* nasl/nasl_socket.c: Cosmetics.
+
 2009-09-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* libopenvas-config.in: Added the top include dir

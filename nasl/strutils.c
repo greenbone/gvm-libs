@@ -21,7 +21,7 @@
 #include "strutils.h"
 
 /**
- * @TODO These functions are not necessarily nasl-specific and thus subject to
+ * @todo These functions are not necessarily nasl-specific and thus subject to
  *       be moved (e.g. to misc).
  */
 
@@ -33,7 +33,7 @@ nasl_strndup (char * str, int length)
   return ret;
 }
 
-/** @TODO partly replacable by g_pattern_match function (when not icase) */
+/** @todo In parts replacable by g_pattern_match function (when not icase) */
 int
 str_match (const char* string, const char* pattern, int icase)
 {

@@ -16,18 +16,18 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
- 
- 
- 
- /* -------------------------------------------------------------------- *
-  * This file contains all the functions related to the handling of the  *
-  * sockets within a NASL script - namely, this is the implementation    *
-  * of open_(priv_)?sock_(udp|tcp)(), send(), recv(), recv_line() and    *
-  * close().								 *
-  *----------------------------------------------------------------------*/
-  
-  
-  
+
+
+
+/** @file
+  * This file contains all the functions related to the handling of the sockets
+  * within a NASL script - namely, this is the implementation
+  * of open_(priv_)?sock_(udp|tcp)(), send(), recv(), recv_line() and
+  * close().
+  */
+
+
+
 /*--------------------------------------------------------------------------*/
 #include <includes.h>
 #include "nasl.h"
@@ -92,7 +92,7 @@ static int block_socket(int soc)
  * recv() is called and fails
  *
  */
- 
+
 /* add udp data in our cache */
 static int add_udp_data(struct arglist * script_infos, int soc, char * data, int len)
 {
@@ -104,7 +104,7 @@ static int add_udp_data(struct arglist * script_infos, int soc, char * data, int
   arg_add_value(script_infos, "udp_data", ARG_PTR, -1, udp_data);
  }
  snprintf(name, sizeof(name), "%d", soc); /* RATS: ignore */
- 
+
  if(harg_get_blob(udp_data, name) != NULL)
   harg_set_blob(udp_data, name, len, data);
  else
@@ -118,15 +118,15 @@ static char * get_udp_data(struct arglist * script_infos, int soc, int * len)
  harglst * udp_data = arg_get_value(script_infos, "udp_data");
  char name[12];
  char * ret;
- 
+
  if(udp_data == NULL)
   return NULL;
- 
+
  snprintf(name, sizeof(name), "%d", soc); /* RATS: ignore */
  ret = harg_get_blob(udp_data, name);
  if(ret == NULL)
   return NULL;
- 
+
  *len = harg_get_size(udp_data, name);
  return ret;
 }
@@ -136,10 +136,10 @@ static void rm_udp_data(struct arglist * script_infos, int soc)
 {
  harglst * udp_data = arg_get_value(script_infos, "udp_data");
  char name[12];
- 
+
  if(udp_data == NULL)
   return;
- 
+
  snprintf(name, sizeof(name), "%d", soc); /* RATS: ignore */
  harg_remove(udp_data, name);
 }
@@ -167,9 +167,9 @@ static tree_cell * nasl_open_privileged_socket(lex_ctxt * lexic, int proto)
  int opt;
  unsigned int opt_sz;
  int family;
- 
- 
- 
+
+
+
  sport = get_int_local_var_by_name(lexic, "sport", -1);
  dport = get_int_local_var_by_name(lexic, "dport", -1);
  if(dport <= 0)
@@ -177,11 +177,11 @@ static tree_cell * nasl_open_privileged_socket(lex_ctxt * lexic, int proto)
      nasl_perror(lexic, "open_private_socket: missing or undefined parameter dport!\n");
      return NULL;
    }
- 
+
  if(sport < 0) current_sport = 1023;
 
 
-restart: 
+restart:
  p = plug_get_host_ip(script_infos);
  if(IN6_IS_ADDR_V4MAPPED(p))
  {
@@ -201,13 +201,13 @@ restart:
    else
      sock = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
  }
-  
-  
+
+
  /*
   * We will bind to a privileged port. Let's declare
   * our socket ready for reuse
   */
- 
+
  if(sock < 0)
 	 return NULL;
 
@@ -226,9 +226,8 @@ tryagain :
    else 
      goto tryagain;
  }
- 
 
- 
+
  /*
   * Connect to the other end
   */
@@ -294,7 +293,7 @@ tryagain :
   close(sock);
   return NULL;
  }
- 
+
 
  switch ( opt )
  {
@@ -303,7 +302,7 @@ tryagain :
      close ( sock );
      if ( sport < 0 )
  	 goto restart;
-      else 
+      else
          return FAKE_CELL;
 
    case 0:
@@ -313,7 +312,7 @@ tryagain :
        return FAKE_CELL;
        break;
  }
- 
+
  if(proto == IPPROTO_TCP)
    sock = openvas_register_connection(sock, NULL, NULL);
 
@@ -333,7 +332,7 @@ tree_cell * nasl_open_priv_sock_udp(lex_ctxt * lexic)
 {
  return nasl_open_privileged_socket(lexic, IPPROTO_UDP);
 }
- 
+
 
 /*--------------------------------------------------------------------------*/
 
@@ -347,15 +346,15 @@ tree_cell * nasl_open_sock_tcp_bufsz(lex_ctxt * lexic, int bufsz)
  to = get_int_local_var_by_name(lexic, "timeout", lexic->recv_timeout*2);
  if(to < 0)
  	to = 10;
-	
+
  transport = get_int_local_var_by_name(lexic, "transport", -1);
  if (bufsz < 0)
    bufsz = get_int_local_var_by_name(lexic, "bufsz", 0);
-  
+
  port = get_int_var_by_num(lexic, 0, -1);
  if(port < 0)
 	 return NULL;
- 
+
  if(transport < 0)
    soc =  open_stream_auto_encaps(script_infos, port, to);
  else
@@ -397,7 +396,7 @@ tree_cell * nasl_open_sock_udp(lex_ctxt * lexic)
  port = get_int_var_by_num(lexic, 0, -1);
  if(port < 0)
 	 return NULL;
-   
+
  ia = plug_get_host_ip(script_infos);
  if ( ia == NULL ) return NULL;
  if(IN6_IS_ADDR_V4MAPPED(ia))
@@ -422,8 +421,8 @@ tree_cell * nasl_open_sock_udp(lex_ctxt * lexic)
    set_socket_source_addr(soc, 0, AF_INET6);
    connect(soc, (struct sockaddr*)&soca6, sizeof(soca6));
  }
- 
- 
+
+
 
  retc = alloc_tree_cell(0, NULL);
  retc->type = CONST_INT;
@@ -447,7 +446,7 @@ tree_cell * nasl_recv(lex_ctxt * lexic)
  int type = -1;
  unsigned int opt_len = sizeof(type);
  int e;
- 
+
 
  if(len <= 0 || soc <= 0)
 	 return NULL;
@@ -462,7 +461,7 @@ tree_cell * nasl_recv(lex_ctxt * lexic)
  	e = getsockopt(soc, SOL_SOCKET, SO_TYPE, &type, &opt_len);
   else
 	e = -1;
- 
+
  if(e == 0 && type == SOCK_DGRAM)
  {
  /*
@@ -470,21 +469,21 @@ tree_cell * nasl_recv(lex_ctxt * lexic)
   */
  int retries = 5;
  int i;
- 
+
  tv.tv_sec = to / retries;
  tv.tv_usec = (to % retries) *  100000;
- 
+
  for(i=0;i<retries;i++)
  {
   FD_ZERO(&rd);
   FD_SET(soc, &rd);
 
-  
+
   if(select(soc+1, &rd, NULL, NULL, &tv)>0)
   {
    int e;
    e = recv(soc, data+new_len, len-new_len, 0);
-  
+
    if(e <= 0)
    {
     if(!new_len)
@@ -498,14 +497,14 @@ tree_cell * nasl_recv(lex_ctxt * lexic)
    if(new_len >= len)break;
    break; /* UDP data is never fragmented */
   }
-  else 
+  else
   {
    /* 
     * The packet may have been lost en route - we resend it
     */
    char * data;
    int len;
-   
+
    data = get_udp_data(lexic->script_infos, soc, &len);
    if(data != NULL)send(soc, data, len, 0);
    tv.tv_sec = to / retries;
@@ -513,7 +512,7 @@ tree_cell * nasl_recv(lex_ctxt * lexic)
    }
   }
  }
- else {	
+ else {
  	int old = stream_set_timeout(soc, tv.tv_sec);
  	new_len = read_stream_connection_min(soc, data, min_len, len);
 	stream_set_timeout(soc, old);
@@ -572,26 +571,25 @@ tree_cell * nasl_recv_line(lex_ctxt * lexic)
   {
    if( timeout >= 0 && time(NULL) - t1 < timeout)
   	continue;
-    else 
+    else
   	break;
-  }	
-  n++;  
+  }
+  n++;
   if((data[n-1] == '\n') ||
      (n >= len))break;
  }
- 
- 
- 
+
+
+
  if(n <= 0)
    {
      efree(&data);
      return NULL;
    }
- 
+
  new_len = n;
- 
- 
-  
+
+
 
  retc = alloc_tree_cell(0, NULL);
  retc->type = CONST_DATA;
@@ -617,7 +615,7 @@ tree_cell * nasl_send(lex_ctxt * lexic)
  int type;
  unsigned int type_len = sizeof(type);
 
- 
+
  if(soc <= 0 || data == NULL)
  {
  	nasl_perror(lexic, "Syntax error with the send() function\n");
@@ -627,8 +625,8 @@ tree_cell * nasl_send(lex_ctxt * lexic)
 
  if( length <= 0 || length > data_length )
 	length = data_length;
- 
- 
+
+
  if(!fd_is_stream(soc) && 
     getsockopt(soc, SOL_SOCKET, SO_TYPE, &type, &type_len) == 0 &&
     type == SOCK_DGRAM)
@@ -638,7 +636,6 @@ tree_cell * nasl_send(lex_ctxt * lexic)
  }
  else
   n = nsend(soc, data, length,option);
-			
 
   retc = alloc_tree_cell(0, NULL);
   retc->type = CONST_INT;
@@ -656,7 +653,7 @@ tree_cell * nasl_close_socket(lex_ctxt * lexic)
  int type;
  unsigned int opt_len = sizeof(type);
  int e;
- 
+
  soc = get_int_var_by_num(lexic, 0, -1);
  /* XXX: These are thoughts expressed on the openvas-devel mailing list 2008-08-06:
   *
@@ -689,7 +686,7 @@ tree_cell * nasl_close_socket(lex_ctxt * lexic)
 
  if ( fd_is_stream(soc) )
   return close_stream_connection(soc) < 0 ? NULL:FAKE_CELL;
- 
+
  e = getsockopt(soc, SOL_SOCKET, SO_TYPE, &type, &opt_len);
  if(e == 0 )
  {
@@ -746,7 +743,7 @@ nasl_join_multicast_group(lex_ctxt *lexic)
       }
     else if (jmg_desc[i].count <= 0)
       j = i;
-      
+
 
   if (i >= jmg_max)
     {
@@ -756,7 +753,7 @@ nasl_join_multicast_group(lex_ctxt *lexic)
 	  nasl_perror(lexic, "join_multicast_group: socket: %s\n", strerror(errno));
 	  return NULL;
 	}
-  
+
       if (setsockopt(s, IPPROTO_IP, IP_ADD_MEMBERSHIP, &m, sizeof(m)) < 0)
 	{
 	  nasl_perror(lexic, "join_multicast_group: setsockopt(IP_ADD_MEMBERSHIP): %s\n", strerror(errno));
@@ -838,7 +835,7 @@ nasl_get_source_port(lex_ctxt* lexic)
        fd = s;
    else
        fd = openvas_get_socket_from_connection(s);
- 
+
 
   if (fd < 0)
     {
@@ -870,7 +867,7 @@ nasl_socket_get_error(lex_ctxt* lexic)
 
   err = stream_get_err(soc);
   retc = alloc_typed_cell(CONST_INT);
-  
+
   switch ( err )
   {
     case 0 :

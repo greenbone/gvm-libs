@@ -52,7 +52,7 @@ sig_c ()
     (void) waitpid(pid, NULL, WNOHANG);
 }
 
-/** @TODO Supspects to glib replacements, all path related stuff. */
+/** @todo Supspects to glib replacements, all path related stuff. */
 tree_cell*
 nasl_pread (lex_ctxt * lexic)
 {

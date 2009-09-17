@@ -54,6 +54,10 @@ lsearch(key, base, nelp, width, compar)
 	return(linear_base(key, base, nelp, width, compar, 1));
 }
 
+/** @todo This function is called from a single place only and also defined in
+ *  \<search.h\>. Maybe more tailored implementations could be found.
+ *  In fact, removing this module from build did not seem to break anything.
+ */
 void *
 lfind(key, base, nelp, width, compar)
 	const void *key, *base;
