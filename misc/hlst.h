@@ -44,7 +44,7 @@ struct _hash_defs {		/* hash list parameters */
   unsigned  fac ;		/* shift by multiplication */
 } hash_defs ;
 
-typedef 
+typedef
 struct _hlst {			/* hash list descriptor */
   struct _sorter *access;	/* Flawfinder: ignore */ /* there might be an index on that list */
   struct _rhlst *raccess;	/* extensions */
@@ -67,7 +67,7 @@ typedef struct _hsrch {char opaq;} hsrch;
 
 /* open/close management */
 extern hlst *create_hlst 
-  (unsigned estimated_size_hint, 
+  (unsigned estimated_size_hint,
 
    /* this function is called when non-empty slots are removed, if the
       list is destroyed, the last call will be destroy(state,0,0,0). Apart

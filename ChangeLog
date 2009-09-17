@@ -1,5 +1,18 @@
 2009-09-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* misc/bpf_share.c, misc/ftp_funcs.c, misc/harglists.c, misc/hlst.c,
+	misc/hlst.h, misc/network.c, misc/resolve.c: Minor cosmetics
+
+	* misc/ids_send.c, misc/kb.h, misc/openvas_logging.c,
+	misc/openvas_server.c, misc/plugutils.c, misc/www_funcs.c: Replaced
+	uppercase TODOs by lowercase todos, to be included in the
+	doxygen-generated todo-list.
+
+	* misc/plugutils.c (get_plugin_preference_fname): Documented,
+	reformatted.
+
+2009-09-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Removed the "OpenSSL-exception" from source files in the 'nasl' module
 	(the exception itself allows to do so). openvas does not link against
 	openssl anymore.

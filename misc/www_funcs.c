@@ -111,7 +111,7 @@ build_encode_URL(data, method, path, name, httpver)
   l = path !=  NULL ? strlen(path) : 0;
   l += strlen(name) + (path != NULL);
 
-  /** @TODO Evaluate if GLib functions for building paths are applicable here */
+  /** @todo Evaluate if GLib functions for building paths are applicable here */
   ret = emalloc(l+ 1);
   if (path == NULL)
     strcpy (ret, name);

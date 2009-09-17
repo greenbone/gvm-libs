@@ -24,7 +24,7 @@
  */
 
 /**
- * @TODO This module fulfils the reqirements to be placed in the base library.
+ * @todo This module fulfils the reqirements to be placed in the base library.
  */
 
 /**
@@ -278,7 +278,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
   gchar *prepend_format = "%p %t - ";
   gchar *time_format = "%a %Y-%m-%d %Hh%M.%S %Z";
 
-  /* TODO Move log_separator to the conf file too. */
+  /** @todo Move log_separator to the conf file too. */
   gchar *log_separator = ":";
   gchar *log_file = "-";
   guint default_level = G_LOG_LEVEL_INFO;

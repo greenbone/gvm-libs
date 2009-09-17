@@ -31,16 +31,17 @@
 
 static pcap_t * pcaps[NUM_CLIENTS];
 
-	
 
-int bpf_open_live(char * iface, char * filter)
+
+int
+bpf_open_live (char * iface, char * filter)
 {
  char errbuf[PCAP_ERRBUF_SIZE];
  pcap_t * ret;
  bpf_u_int32 netmask, network;
  struct bpf_program filter_prog;
  int i;
- 
+
  for(i=0;i< NUM_CLIENTS && pcaps[i];i++);
 
  if(pcaps[i])
@@ -48,25 +49,25 @@ int bpf_open_live(char * iface, char * filter)
   printf("no free pcap\n");
   return -1;
  }
-  
- 
+
+
  if(iface == NULL)
   iface = pcap_lookupdev(errbuf);
- 
+
  ret = pcap_open_live(iface, 1500, 0, 1, errbuf);
  if(ret == NULL)
  {
-    printf("%s\n", errbuf);	 
+    printf("%s\n", errbuf);
   return -1;
  }
 
  if(pcap_lookupnet(iface, &network, &netmask, 0) < 0)
- { 
+ {
    printf("pcap_lookupnet failed\n");
    pcap_close(ret);
    return -1;
  }
- 
+
  if(pcap_compile(ret, &filter_prog, filter, 1, netmask) < 0)
  {
   pcap_perror(ret, "pcap_compile");
@@ -78,8 +79,8 @@ int bpf_open_live(char * iface, char * filter)
 	pcap_perror(ret,"pcap_setnonblock");
 	printf("call to pcap_setnonblock failed, some plugins/scripts will hang/freeze. Upgrade your version of libcap!\n");	
  }
- 
- if(pcap_setfilter(ret, &filter_prog) < 0) 
+
+ if (pcap_setfilter(ret, &filter_prog) < 0)
  {
   pcap_perror(ret, "pcap_setfilter\n");
   pcap_close(ret);
@@ -104,7 +105,7 @@ u_char* bpf_next_tv(int bpf, int * caplen, struct timeval * tv)
         timeout.tv_sec ++;
         timeout.tv_usec -= 1000000;
   }
-  
+
  do {
   p = (u_char*)pcap_next(pcaps[bpf], &head);
   *caplen  = head.caplen;
@@ -121,7 +122,7 @@ u_char* bpf_next_tv(int bpf, int * caplen, struct timeval * tv)
 u_char* bpf_next(int bpf, int * caplen)
 {
  struct timeval tv = {0, 100000};
- 
+
  return bpf_next_tv(bpf, caplen, &tv);
 }
 

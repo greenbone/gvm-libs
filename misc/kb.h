@@ -48,8 +48,8 @@
 struct kb_item {
   char * name; /**< Name of this knowledge base item.  */
   char type;   /**< One of KB_TYPE_INT or KB_TYPE_STR. */
-  // @TODO Check if this is safe. (What happens if char* and int have not 
-  //       the same size?)
+  /** @todo Check if this is safe. (What happens if char* and int have not 
+            the same size?) */
   union {
     char * v_str;
     int v_int;

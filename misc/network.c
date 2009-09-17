@@ -130,7 +130,7 @@ renice_myself()
 static int
 pid_perror (const char* error)
 {
-  fprintf(stderr, "[%d] %s : %s\n", getpid (), error, strerror (errno));
+  fprintf (stderr, "[%d] %s : %s\n", getpid (), error, strerror (errno));
   return 0;
 }
 
@@ -1727,7 +1727,7 @@ nsend (int fd, void * data, int length, int i_opt)
       FD_SET (fd, &wr);
 
       errno = 0;
-      e  = select (fd + 1, NULL, &wr, NULL, &tv);
+      e = select (fd + 1, NULL, &wr, NULL, &tv);
       if (e > 0)
         n = os_send (fd, data, length, i_opt);
       else if (e < 0 && errno == EINTR)

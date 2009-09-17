@@ -778,7 +778,6 @@ sort_hlst
 
   /* looping over the buckets */
   for (i = 0; i < h->z.mod; i ++) {
-    
     /* looping over the hash queue */
     hashqueue *p = h->bucket [i] ;
     while (p != 0) {

@@ -46,7 +46,7 @@
 #include "plugutils.h"
 #include "system.h"
 
-/* TODO: It still needs to be taken care
+/** @todo: It still needs to be taken care
  * BSD_BYTE_ORDERING gets here if defined */
 #ifdef BSD_BYTE_ORDERING
 # define FIX(n) (n)

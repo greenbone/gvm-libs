@@ -32,9 +32,7 @@
  * @return 0 on success, -1 on failure.
  */
 int
-host2ip(name, ip)
-	char * name;
-	struct in_addr * ip;
+host2ip (char * name, struct in_addr * ip)
 {
 	struct hostent * ent;
 

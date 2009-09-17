@@ -1001,8 +1001,8 @@ harg_csort
   csts_desc *s;
 
   if (a == 0) {
-    errno = EINVAL; 
-    return 0; 
+    errno = EINVAL;
+    return 0;
   }
   if (fn == 0) {
     if (a->sorter == 0) {

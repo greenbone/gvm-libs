@@ -39,7 +39,7 @@
 #include "openvas_server.h"
 
 /**
- * @TODO This module nearly fulfils the reqirements to be placed in the base
+ * @todo This module nearly fulfils the reqirements to be placed in the base
  * library (the gnutls dependency makes it a candidate for the net library).
  */
 
@@ -61,8 +61,8 @@ int
 openvas_server_open (gnutls_session_t * session,
                      const char *host, int port)
 {
-  // TODO: Ensure that host and port have sane values.
-  // TODO: Improve logging.
+  /** @todo Ensure that host and port have sane values. */
+  /** @todo Improve logging.*/
 
   /* Initialize security library. */
 

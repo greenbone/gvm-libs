@@ -1146,19 +1146,30 @@ get_plugin_preference (struct arglist * desc, const char * name)
  return(NULL);
 }
 
+/**
+ * @brief Get the file name of a plugins preference that is of type "file".
+ *
+ * As files sent to the server (e.g. as plugin preference) are stored at
+ * pseudo-random locations with different names, the "real" file name has to be
+ * looked up in a hashtable/harglist.
+ *
+ * @return Filename on disc for \ref filename, NULL if not found or setup
+ *         broken.
+ */
 const char *
 get_plugin_preference_fname (struct arglist * desc, const char * filename)
 {
- struct arglist * globals = arg_get_value(desc, "globals");
+ struct arglist * globals = arg_get_value (desc, "globals");
  harglst * trans;
- if(!globals) 
+
+ if (!globals) 
   return NULL;
 
- trans = arg_get_value(globals, "files_translation");
- if(!trans)
+ trans = arg_get_value (globals, "files_translation");
+ if (!trans)
   return NULL;
 
- return harg_get_string(trans, filename);
+ return harg_get_string (trans, filename);
 }
 
 
@@ -1587,7 +1598,7 @@ plug_get_host_open_port (struct arglist * desc)
 
 
 
-/** @TODO
+/** @todo
  * Those brain damaged functions should probably be in another file
  * They are use to remember who speaks SSL or not
  */

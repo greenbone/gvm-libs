@@ -33,32 +33,33 @@
 
 #include "network.h"
 
-int ftp_log_in(int soc, char * username, char * passwd)
+int
+ftp_log_in (int soc, char * username, char * passwd)
 {
  char buf[1024];
  int n;
  int counter;
- 
+
  buf[sizeof(buf) - 1] = '\0';
  n = recv_line(soc, buf, sizeof(buf) - 1);
  if(n <= 0)
 	 return(1);
- 
+
  if( strncmp(buf, "220", 3) != 0 )
- { 
+ {
   return 1;
  }
- 
+
  counter = 0;
  while(buf[3]=='-' && n > 0 && counter < 1024)
  {
   n = recv_line(soc, buf, sizeof(buf) - 1);
   counter ++;
  }
- 
+
  if(counter >= 1024)
  	return 1; /* Rogue FTP server */
-	
+
  if(n <= 0)
 	 return 1;
 
@@ -78,62 +79,63 @@ int ftp_log_in(int soc, char * username, char * passwd)
 	}
   return 0;
  }
- 
+
  if(strncmp(buf, "331", 3) != 0)
  {
   return 1;
  }
- 
+
  counter = 0; n = 1;
  while(buf[3]=='-' && n > 0 && counter < 1024 )
  {
   n = recv_line(soc,buf, sizeof(buf) - 1);
   counter ++;
  }
- 
+
  if(counter >= 1024)
  	return 1;
-	
- 
+
+
  snprintf(buf, sizeof(buf), "PASS %s\r\n", passwd); /* RATS: ignore */
  write_stream_connection(soc, buf, strlen(buf));
  n = recv_line(soc, buf, sizeof(buf) - 1);
  if( n <= 0 )
  	return 1;
-	
+
  if(strncmp(buf, "230", 3) != 0 )
  {
   return 1;
  }
- 
+
  counter = 0; n = 1;
  while(buf[3]=='-' && n > 0 &&  counter < 1024  )
  {
   n = recv_line(soc, buf, sizeof(buf) - 1 );
   counter ++;
  }
- 
+
  return 0;
 }
 
 
-int ftp_get_pasv_address(int soc, struct sockaddr_in * addr)
+int
+ftp_get_pasv_address (int soc, struct sockaddr_in * addr)
 {
  char buf[512];
  char * t,*s;
  unsigned char l[6];
  unsigned long  * a;
  unsigned short * p;
- 
+
  snprintf(buf, 7, "PASV\r\n"); /* RATS: ignore */
  write_stream_connection(soc, buf, strlen(buf));
  bzero(buf, sizeof(buf));
  bzero(addr, sizeof(struct sockaddr_in));
  recv_line(soc, buf, sizeof(buf) - 1);
- 
+
  if(strncmp(buf, "227", 3) != 0 ) 
  	return 1;
-   
+
  t = strchr(buf, '(');
  if( t == NULL )
  	return 1;
@@ -141,9 +143,9 @@ int ftp_get_pasv_address(int soc, struct sockaddr_in * addr)
  s = strchr(t, ',');
  if( s == NULL )
  	return 1;
-	
+
  s[0] = '\0';
- 
+
  l[0] = (unsigned char)atoi(t);
  s++;
  t = strchr(s, ',');if( t == NULL )return 1;
@@ -167,9 +169,9 @@ int ftp_get_pasv_address(int soc, struct sockaddr_in * addr)
  l[5] = (unsigned char)atoi(s);
  a = (unsigned long*)l;
  p = (unsigned short*)(l+4);
- 
+
  addr->sin_addr.s_addr = *a;
  addr->sin_port=*p;
  addr->sin_family = AF_INET;
  return 0;
-} 
+}
