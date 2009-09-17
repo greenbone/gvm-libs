@@ -71,7 +71,7 @@ while test $# -gt 0; do
 		fi
 		;;
 	--cflags)
-		echo $Xn "$DEFS -I$INCLUDEDIR/openvas $Xc"
+		echo $Xn "$DEFS -I$INCLUDEDIR -I$INCLUDEDIR/openvas $Xc"
 		;;
 	--egd)
 		echo $Xn "$EGDPATH" $Xc
