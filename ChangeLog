@@ -1,5 +1,14 @@
 2009-09-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Removed the "OpenSSL-exception" from source files in the 'base' module
+	(the exception itself allows to do so). openvas does not link against
+	openssl anymore.
+
+	* base/hash_table_util.c, base/hash_table_util.h: Removed the OpenSSL-
+	exception statement.
+
+2009-09-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* base/nvti.c, nasl/nasl_cmd_exec.c, nasl/nasl_smb.c, nasl/nasl_wmi.c,
 	nasl/strutils.c: Replaced uppercase TODOs by lowercase todos, to be
 	included in the doxygen-generated todo-list.
