@@ -1,5 +1,19 @@
 2009-09-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Removed the "OpenSSL-exception" from source files in the 'nasl' module
+	(the exception itself allows to do so). openvas does not link against
+	openssl anymore.
+
+	* nasl/capture_packet.h, nasl/exec.h, nasl/nasl_cmd_exec.h,
+	nasl/nasl_crypto2.h, nasl/nasl_debug.h, nasl/nasl_func.h,
+	nasl/nasl_global_ctxt.h, nasl/nasl_host.h, nasl/nasl_http.h,
+	nasl/nasl_init.h, nasl/nasl_lex_ctxt.h, nasl/nasl_misc_funcs.h,
+	nasl/nasl_packet_forgery.h, nasl/nasl_socket.h, nasl/nasl_text_utils.h,
+	nasl/nasl_tree.h, nasl/nasl_var.h, nasl/strutils.h: Removed the
+	OpenSSL-exception statement.
+
+2009-09-17  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Removed the "OpenSSL-exception" from source files in the 'base' module
 	(the exception itself allows to do so). openvas does not link against
 	openssl anymore.
