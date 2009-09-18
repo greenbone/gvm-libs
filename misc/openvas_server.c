@@ -4,6 +4,7 @@
  *
  * Authors:
  * Matthew Mundell <matt@mundell.ukfsn.org>
+ * Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
  * Michael Wiegand <michael.wiegand@greenbone.net>
  *
  * This program is free software; you can redistribute it and/or
@@ -33,6 +34,7 @@
 #include <glib.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <string.h>
 
@@ -79,7 +81,7 @@ openvas_server_open (gnutls_session_t * session,
 
   address.sin_port = htons (port);
 
-  if (!inet_aton(host, &address.sin_addr))
+  if (!inet_aton (host, &address.sin_addr))
     {
       g_message ("Failed to create server address %s.",
                  host);
@@ -186,7 +188,7 @@ openvas_server_open (gnutls_session_t * session,
 }
 
 /**
- * @brief Connect to the server.
+ * @brief Close a server connection.
  *
  * @param[in]  socket   Socket connected to server (from \ref connect_to_server).
  * @param[in]  session  GNUTLS session with server.
@@ -201,6 +203,90 @@ openvas_server_close (int socket, gnutls_session_t session)
 
   gnutls_bye (session, GNUTLS_SHUT_RDWR);
   close (socket);
+  return 0;
+}
+
+/** @todo Use in openvas_server_open. */
+/**
+ * @brief Connect to a server.
+ *
+ * @param[in]  server_socket   Socket to connect to server.
+ * @param[in]  server_address  Server address.
+ * @param[in]  server_session  Session to connect to server.
+ * @param[in]  interrupted     0 if first connect attempt, else retrying after
+ *                             an interrupted connect.
+ *
+ * @return 0 on success, -1 on error, -2 on connect interrupt.
+ */
+int
+openvas_server_connect (int server_socket,
+                        struct sockaddr_in* server_address,
+                        gnutls_session_t* server_session,
+                        gboolean interrupted)
+{
+  int ret;
+  socklen_t ret_len = sizeof (ret);
+  if (interrupted)
+    {
+      if (getsockopt (server_socket, SOL_SOCKET, SO_ERROR, &ret, &ret_len)
+          == -1)
+        {
+          g_warning ("%s: failed to get socket option: %s\n",
+                     __FUNCTION__,
+                     strerror (errno));
+          return -1;
+        }
+      if (ret_len != (socklen_t) sizeof (ret))
+        {
+          g_warning ("%s: weird option length from getsockopt: %i\n",
+                     __FUNCTION__,
+                     /* socklen_t is an int, according to getsockopt(2). */
+                     (int) ret_len);
+          return -1;
+        }
+      if (ret)
+        {
+          if (ret == EINPROGRESS) return -2;
+          g_warning ("%s: failed to connect to server (interrupted): %s\n",
+                     __FUNCTION__,
+                     strerror (ret));
+          return -1;
+        }
+    }
+  else if (connect (server_socket,
+                    (struct sockaddr *) server_address,
+                    sizeof (struct sockaddr_in))
+           == -1)
+    {
+      if (errno == EINPROGRESS) return -2;
+      g_warning ("%s: failed to connect to server: %s\n",
+                 __FUNCTION__,
+                 strerror (errno));
+      return -1;
+    }
+  g_debug ("   Connected to server on socket %i.\n", server_socket);
+
+  /* Complete setup of server session. */
+
+  gnutls_transport_set_ptr (*server_session,
+                            (gnutls_transport_ptr_t) server_socket);
+
+  while (1)
+    {
+      ret = gnutls_handshake (*server_session);
+      if (ret >= 0)
+        break;
+      if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
+        continue;
+      g_warning ("%s: failed to shake hands with server: %s\n",
+                 __FUNCTION__,
+                 gnutls_strerror (ret));
+      if (shutdown (server_socket, SHUT_RDWR) == -1)
+        g_message ("   Failed to shutdown server socket: %s\n",
+                   strerror (errno));
+      return -1;
+    }
+
   return 0;
 }
 
@@ -269,4 +355,214 @@ openvas_server_sendf (gnutls_session_t* session, const char* format, ...)
   g_free (msg);
   va_end (args);
   return ret;
+}
+
+/**
+ * @brief Make a session for connecting to a server.
+ *
+ * @param[out]  server_socket       The socket connected to the server.
+ * @param[out]  server_session      The session with the server.
+ * @param[out]  server_credentials  Credentials.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+openvas_server_session_new (int server_socket,
+                            gnutls_session_t* server_session,
+                            gnutls_certificate_credentials_t*
+                            server_credentials)
+{
+  /* Setup server session. */
+
+  // FIX static vars?
+  const int protocol_priority[] = { GNUTLS_TLS1,
+                                    0 };
+  const int cipher_priority[] = { GNUTLS_CIPHER_AES_128_CBC,
+                                  GNUTLS_CIPHER_3DES_CBC,
+                                  GNUTLS_CIPHER_AES_256_CBC,
+                                  GNUTLS_CIPHER_ARCFOUR_128,
+                                  0 };
+  const int comp_priority[] = { GNUTLS_COMP_ZLIB,
+                                GNUTLS_COMP_NULL,
+                                0 };
+  const int kx_priority[] = { GNUTLS_KX_DHE_RSA,
+                              GNUTLS_KX_RSA,
+                              GNUTLS_KX_DHE_DSS,
+                              0 };
+  const int mac_priority[] = { GNUTLS_MAC_SHA1,
+                               GNUTLS_MAC_MD5,
+                               0 };
+
+  if (gnutls_certificate_allocate_credentials (server_credentials))
+    {
+      g_warning ("%s: failed to allocate server credentials\n", __FUNCTION__);
+      goto close_fail;
+    }
+
+  if (gnutls_init (server_session, GNUTLS_CLIENT))
+    {
+      g_warning ("%s: failed to initialise server session\n", __FUNCTION__);
+      goto server_free_fail;
+    }
+
+  if (gnutls_protocol_set_priority (*server_session, protocol_priority))
+    {
+      g_warning ("%s: failed to set protocol priority\n", __FUNCTION__);
+      goto server_fail;
+    }
+
+  if (gnutls_cipher_set_priority (*server_session, cipher_priority))
+    {
+      g_warning ("%s: failed to set cipher priority\n", __FUNCTION__);
+      goto server_fail;
+    }
+
+  if (gnutls_compression_set_priority (*server_session, comp_priority))
+    {
+      g_warning ("%s: failed to set compression priority\n", __FUNCTION__);
+      goto server_fail;
+    }
+
+  if (gnutls_kx_set_priority (*server_session, kx_priority))
+    {
+      g_warning ("%s: failed to set server key exchange priority\n",
+                 __FUNCTION__);
+      goto server_fail;
+    }
+
+  if (gnutls_mac_set_priority (*server_session, mac_priority))
+    {
+      g_warning ("%s: failed to set mac priority\n", __FUNCTION__);
+      goto server_fail;
+    }
+
+  if (gnutls_credentials_set (*server_session,
+                              GNUTLS_CRD_CERTIFICATE,
+                              *server_credentials))
+    {
+      g_warning ("%s: failed to set server credentials\n", __FUNCTION__);
+      goto server_fail;
+    }
+
+#if 0
+  // FIX admin also had this
+
+  /* request client certificate if any.
+   */
+  gnutls_certificate_server_set_request (session, GNUTLS_CERT_REQUEST);
+
+  gnutls_dh_set_prime_bits (session, DH_BITS);
+#endif
+
+  // FIX get flags first
+  // FIX after read_protocol
+  /* The socket must have O_NONBLOCK set, in case an "asynchronous network
+   * error" removes the data between `select' and `read'. */
+  if (fcntl (server_socket, F_SETFL, O_NONBLOCK) == -1)
+    {
+      g_warning ("%s: failed to set server socket flag: %s\n",
+                 __FUNCTION__,
+                 strerror (errno));
+      goto fail;
+    }
+
+  return 0;
+
+ fail:
+  (void) gnutls_bye (*server_session, GNUTLS_SHUT_RDWR);
+ server_fail:
+  (void) gnutls_deinit (*server_session);
+
+ server_free_fail:
+  gnutls_certificate_free_credentials (*server_credentials);
+
+ close_fail:
+  (void) close (server_socket);
+
+  return -1;
+}
+
+/**
+ * @brief Cleanup a server session.
+ *
+ * @param[in]  server_socket       The socket connected to the server.
+ * @param[in]  server_session      The session with the server.
+ * @param[in]  server_credentials  Credentials.
+ *
+ * @return 0 success, -1 error.
+ */
+int
+openvas_server_session_free (int server_socket,
+                             gnutls_session_t server_session,
+                             gnutls_certificate_credentials_t
+                             server_credentials)
+{
+  int count;
+
+#if 0
+  /* Turn on blocking. */
+  // FIX get flags first
+  if (fcntl (server_socket, F_SETFL, 0L) == -1)
+    {
+      g_warning ("%s: failed to set server socket flag: %s\n",
+                 __FUNCTION__,
+                 strerror (errno));
+      return -1;
+    }
+#endif
+#if 1
+  /* Turn off blocking. */
+  // FIX get flags first
+  if (fcntl (server_socket, F_SETFL, O_NONBLOCK) == -1)
+    {
+      g_warning ("%s: failed to set server socket flag: %s\n",
+                 __FUNCTION__,
+                 strerror (errno));
+      return -1;
+    }
+#endif
+
+  count = 100;
+  while (count)
+    {
+      int ret = gnutls_bye (server_session, GNUTLS_SHUT_RDWR);
+      if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
+        {
+          count--;
+          continue;
+        }
+      if (ret)
+        {
+          g_message ("   Failed to gnutls_bye: %s\n",
+                     gnutls_strerror ((int) ret));
+          /* Carry on successfully anyway, as this often fails, perhaps
+           * because the server is closing the connection first. */
+          break;
+        }
+      break;
+    }
+  if (count == 0) g_message ("   Gave up trying to gnutls_bye\n");
+
+  if (shutdown (server_socket, SHUT_RDWR) == -1)
+    {
+      if (errno == ENOTCONN) return 0;
+      g_warning ("%s: failed to shutdown server socket: %s\n",
+                 __FUNCTION__,
+                 strerror (errno));
+      return -1;
+    }
+
+  if (close (server_socket) == -1)
+    {
+      g_warning ("%s: failed to close server socket: %s\n",
+                 __FUNCTION__,
+                 strerror (errno));
+      return -1;
+    }
+
+  gnutls_deinit (server_session);
+
+  gnutls_certificate_free_credentials (server_credentials);
+
+  return 0;
 }

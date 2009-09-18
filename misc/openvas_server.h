@@ -31,10 +31,11 @@
  * with an OpenVAS server over GnuTLS.
  */
 
-#include <gnutls/gnutls.h>
-
 #ifndef _OPENVAS_LIBRARIES_SERVER_H
 #define _OPENVAS_LIBRARIES_SERVER_H
+
+#include <gnutls/gnutls.h>
+#include <netinet/ip.h>
 
 int
 openvas_server_open (gnutls_session_t*, const char*, int);
@@ -43,9 +44,22 @@ int
 openvas_server_close (int, gnutls_session_t);
 
 int
+openvas_server_connect (int, struct sockaddr_in*, gnutls_session_t*, gboolean);
+
+int
 openvas_server_send (gnutls_session_t*, const char*);
 
 int
 openvas_server_sendf (gnutls_session_t*, const char*, ...);
+
+int
+openvas_server_session_new (int,
+                            gnutls_session_t*,
+                            gnutls_certificate_credentials_t*);
+
+int
+openvas_server_session_free (int,
+                             gnutls_session_t,
+                             gnutls_certificate_credentials_t);
 
 #endif /* not _OPENVAS_LIBRARIES_SERVER_H */
