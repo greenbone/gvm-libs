@@ -37,7 +37,7 @@ void openvas_free_string_var (string*);
 
 char* openvas_strip_space (char*,  char*);
 
-int isalnumstr (const char*);
+int openvas_isalnumstr (const char*);
 
-int isbase64 (const char*);
+int openvas_isbase64 (const char*);
 #endif /* not _OPENVAS_LIBRARIES_STRING_H */

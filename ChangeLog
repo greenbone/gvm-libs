@@ -1,5 +1,9 @@
 2009-09-18  Matthew Mundell <matthew.mundell@intevation.de>
 
+	* misc/openvas_string.h: Match declaration names to definition names.
+
+2009-09-18  Matthew Mundell <matthew.mundell@intevation.de>
+
 	* misc/openvas_server.c (openvas_server_connect)
 	(openvas_server_session_new, openvas_server_session_free): New functions.
 	* misc/openvas_server.h: Add headers.
