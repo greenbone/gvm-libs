@@ -1,3 +1,15 @@
+2009-09-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/openvas_ssh_login.h, misc/openvas_ssh_login.c,
+	nasl/nasl.c, nasl/nasl_signature.c, nasl/nasl_signature.h,
+	nasl/nasl_text_utils.c, nasl/tests/test_blowfish.nasl,
+	nasl/tests/test_bn.nasl, nasl/tests/test_dh.nasl,
+	nasl/tests/test_dsa.nasl, nasl/tests/test_hexstr.nasl,
+	nasl/tests/test_md.nasl, nasl/tests/test_privkey.nasl,
+	nasl/tests/test_rsa.nasl, nasl/tests/testsuiteinit.nasl,
+	nasl/tests/testsuitesummary.nasl: Copyright transfer
+	from Intevation to Greenbone.
+
 2009-09-18  Matthew Mundell <matthew.mundell@intevation.de>
 
 	Make OMP interface names consistent.
