@@ -29,45 +29,42 @@
 #include "xml.h"
 
 const char*
-task_status (entity_t status_response);
+omp_task_status (entity_t status_response);
 
 int
-authenticate (gnutls_session_t* session,
+omp_authenticate (gnutls_session_t* session,
               const char* username,
               const char* password);
 
 int
-env_authenticate (gnutls_session_t* session);
+omp_authenticate_env (gnutls_session_t* session);
 
 int
-create_task (gnutls_session_t*, const char*, unsigned int,
-             const char*, const char*, char**);
+omp_create_task_rc (gnutls_session_t*, const char*, unsigned int,
+                    const char*, const char*, char**);
 
 int
 omp_create_task (gnutls_session_t*, const char*, const char*,
                  const char*, const char*, char**);
 
 int
-create_task_from_rc_file (gnutls_session_t*, const char*, const char*,
-                          const char*, char**);
+omp_create_task_rc_file (gnutls_session_t*, const char*, const char*,
+                         const char*, char**);
 
 int
-delete_task (gnutls_session_t*, const char*);
+omp_start_task (gnutls_session_t* , const char*);
 
 int
-start_task (gnutls_session_t* , const char*);
+omp_wait_for_task_end (gnutls_session_t*, const char*);
 
 int
-wait_for_task_end (gnutls_session_t*, const char*);
+omp_wait_for_task_start (gnutls_session_t*, const char*);
 
 int
-wait_for_task_start (gnutls_session_t*, const char*);
+omp_wait_for_task_stop (gnutls_session_t*, const char*);
 
 int
-wait_for_task_stop (gnutls_session_t*, const char*);
-
-int
-wait_for_task_delete (gnutls_session_t*, const char*);
+omp_wait_for_task_delete (gnutls_session_t*, const char*);
 
 int
 omp_get_status (gnutls_session_t*, const char*, int, entity_t*);

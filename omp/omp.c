@@ -30,16 +30,7 @@
  * @brief OMP client interface.
  *
  * This provides higher level, OMP-aware, facilities for working with with
- * the OpenVAS manager.  The functions are
- *
- * \ref authenticate,
- * \ref env_authenticate,
- * \ref create_task,
- * \ref create_task_from_rc_file,
- * \ref delete_task,
- * \ref start_task,
- * \ref wait_for_task_end and
- * \ref wait_for_task_start.
+ * the OpenVAS manager.
  *
  * There are examples of using this interface in the openvas-manager tests.
  */
@@ -105,7 +96,7 @@
  *         NULL.
  */
 const char*
-task_status (entity_t response)
+omp_task_status (entity_t response)
 {
   entity_t task = entity_child (response, "task");
   if (task)
@@ -127,9 +118,9 @@ task_status (entity_t response)
  *         -1 on error.
  */
 int
-authenticate (gnutls_session_t* session,
-              const char* username,
-              const char* password)
+omp_authenticate (gnutls_session_t* session,
+                  const char* username,
+                  const char* password)
 {
   entity_t entity;
   const char* status;
@@ -183,7 +174,7 @@ authenticate (gnutls_session_t* session,
  * @return 0 on success, 1 if manager closed connection, -1 on error.
  */
 int
-env_authenticate (gnutls_session_t* session)
+omp_authenticate_env (gnutls_session_t* session)
 {
   char* user = getenv ("OPENVAS_TEST_USER");
   if (user == NULL)
@@ -195,7 +186,7 @@ env_authenticate (gnutls_session_t* session)
   char* password = getenv ("OPENVAS_TEST_PASSWORD");
   if (password == NULL) return -1;
 
-  return authenticate (session, user, password);
+  return omp_authenticate (session, user, password);
 }
 
 /**
@@ -270,12 +261,12 @@ omp_create_task (gnutls_session_t* session,
  * @return 0 on success, -1 on error.
  */
 int
-create_task (gnutls_session_t* session,
-             const char* config,
-             unsigned int config_len,
-             const char* name,
-             const char* comment,
-             char** id)
+omp_create_task_rc (gnutls_session_t* session,
+                    const char* config,
+                    unsigned int config_len,
+                    const char* name,
+                    const char* comment,
+                    char** id)
 {
   /* Convert the file contents to base64. */
 
@@ -331,11 +322,11 @@ create_task (gnutls_session_t* session,
  * @return 0 on success, -1 on error.
  */
 int
-create_task_from_rc_file (gnutls_session_t* session,
-                          const char* file_name,
-                          const char* name,
-                          const char* comment,
-                          char** id)
+omp_create_task_rc_file (gnutls_session_t* session,
+                         const char* file_name,
+                         const char* name,
+                         const char* comment,
+                         char** id)
 {
   gchar* new_task_rc = NULL;
   gsize new_task_rc_len;
@@ -353,12 +344,12 @@ create_task_from_rc_file (gnutls_session_t* session,
       return -1;
     }
 
-  int ret = create_task (session,
-                         new_task_rc,
-                         new_task_rc_len,
-                         name,
-                         comment,
-                         id);
+  int ret = omp_create_task_rc (session,
+                                new_task_rc,
+                                new_task_rc_len,
+                                name,
+                                comment,
+                                id);
   g_free (new_task_rc);
   return ret;
 }
@@ -372,7 +363,7 @@ create_task_from_rc_file (gnutls_session_t* session,
  * @return 0 on success, -1 on error.
  */
 int
-start_task (gnutls_session_t* session, const char* id)
+omp_start_task (gnutls_session_t* session, const char* id)
 {
   if (openvas_server_sendf (session,
                             "<start_task task_id=\"%s\"/>",
@@ -413,7 +404,7 @@ start_task (gnutls_session_t* session, const char* id)
  * @return 0 on success, 1 on internal error in task, -1 on error.
  */
 int
-wait_for_task_start (gnutls_session_t* session,
+omp_wait_for_task_start (gnutls_session_t* session,
                      const char* id)
 {
   while (1)
@@ -518,7 +509,7 @@ wait_for_task_start (gnutls_session_t* session,
  * @return 0 on success, 1 on internal error in task, -1 on error.
  */
 int
-wait_for_task_end (gnutls_session_t* session, const char* id)
+omp_wait_for_task_end (gnutls_session_t* session, const char* id)
 {
   while (1)
     {
@@ -626,7 +617,7 @@ wait_for_task_end (gnutls_session_t* session, const char* id)
  *         -2 on failure to find the task.
  */
 int
-wait_for_task_stop (gnutls_session_t* session, const char* id)
+omp_wait_for_task_stop (gnutls_session_t* session, const char* id)
 {
   while (1)
     {
@@ -733,8 +724,8 @@ wait_for_task_stop (gnutls_session_t* session, const char* id)
  * @return 0 on success, -1 on error.
  */
 int
-wait_for_task_delete (gnutls_session_t* session,
-                      const char* id)
+omp_wait_for_task_delete (gnutls_session_t* session,
+                          const char* id)
 {
   while (1)
     {
@@ -750,7 +741,7 @@ wait_for_task_delete (gnutls_session_t* session,
       entity = NULL;
       if (read_entity (session, &entity)) return -1;
 
-      status = task_status (entity);
+      status = omp_task_status (entity);
       free_entity (entity);
       if (status == NULL) break;
 
@@ -768,7 +759,7 @@ wait_for_task_delete (gnutls_session_t* session,
  * @return 0 on success, -1 on error.
  */
 int
-delete_task (gnutls_session_t* session, const char* id)
+omp_delete_task (gnutls_session_t* session, const char* id)
 {
   if (openvas_server_sendf (session,
                             "<delete_task task_id=\"%s\"/>",
@@ -900,31 +891,6 @@ omp_delete_report (gnutls_session_t* session, const char* id)
   entity_t response;
 
   if (openvas_server_sendf (session, "<delete_report report_id=\"%s\"/>", id))
-    return -1;
-
-  response = NULL;
-  if (read_entity (session, &response)) return -1;
-
-  // FIX check status
-
-  free_entity (response);
-  return 0;
-}
-
-/**
- * @brief Remove a task.
- *
- * @param[in]  session   Pointer to GNUTLS session.
- * @param[in]  id        ID of task.
- *
- * @return 0 on success, -1 or OMP response code on error.
- */
-int
-omp_delete_task (gnutls_session_t* session, const char* id)
-{
-  entity_t response;
-
-  if (openvas_server_sendf (session, "<delete_task task_id=\"%s\"/>", id))
     return -1;
 
   response = NULL;

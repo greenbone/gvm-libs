@@ -1,5 +1,20 @@
 2009-09-18  Matthew Mundell <matthew.mundell@intevation.de>
 
+	Make OMP interface names consistent.
+
+	* omp/omp.c (omp_delete_task): Remove.
+	(task_status, authenticate, env_authenticate, create_task)
+	(create_task_from_rc_file, start_task, wait_for_task_start)
+	(wait_for_task_end, wait_for_task_stop, wait_for_task_delete): Remove.
+	Rename with omp_ prefix.
+	(omp_task_status, omp_authenticate, omp_authenticate_env)
+	(omp_create_task_rc, omp_create_task_rc_file, omp_start_task)
+	(omp_wait_for_task_start, omp_wait_for_task_end, omp_wait_for_task_stop)
+	(omp_wait_for_task_delete, omp_delete_task): New.  Renamed with prefix.
+	* omp/omp.h: Update headers.
+
+2009-09-18  Matthew Mundell <matthew.mundell@intevation.de>
+
 	* misc/openvas_string.h: Match declaration names to definition names.
 
 2009-09-18  Matthew Mundell <matthew.mundell@intevation.de>
