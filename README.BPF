@@ -15,10 +15,10 @@ pseudo-device   bpfilter NUM
 (or pseudo-device bpf NUM)
 
 Where 'NUM' is the number of bpf you want -- it should be equal to
-the 'max hosts number' option you enter in nessusd x the
+the 'max hosts number' option you enter in scanner x the
 'max plugins' option.
 	   
-If for instance you want to have 10 nessusd running at the same time,
+If for instance you want to have 10 scanner instances running at the same time,
 each running 5 plugins in parallel, you should create 50 (10 * 5) bpfs
 (as openvasd is extremely lightweight, you can expect to have this amount
  of processes running at the same time)
