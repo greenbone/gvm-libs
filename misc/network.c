@@ -93,7 +93,7 @@ typedef struct {
 static openvas_connection connections[OPENVAS_FD_MAX];
 
 /**
- * OPENVAS_STREAM(x) is TRUE if <x> is a Nessus-ified fd
+ * OPENVAS_STREAM(x) is TRUE if <x> is a OpenVAS-ified fd
  */
 #define OPENVAS_STREAM(x) (((x - OPENVAS_FD_OFF) < OPENVAS_FD_MAX) && ((x - OPENVAS_FD_OFF) >=0))
 
@@ -169,7 +169,7 @@ get_connection_fd()
    return i + OPENVAS_FD_OFF;
   }
  }
- fprintf(stderr, "[%d] %s:%d : Out of Nessus file descriptors\n", 
+ fprintf(stderr, "[%d] %s:%d : Out of OpenVAS file descriptors\n", 
 	 getpid(), __FILE__, __LINE__);
  errno = EMFILE;
  return -1;
@@ -1397,7 +1397,7 @@ read_stream_connection_unbuffered(fd, buf0, min_len, max_len)
 
   switch(trp)
     {
-      /* NESSUS_ENCAPS_IP was treated before with the non-Nessus fd */
+      /* NESSUS_ENCAPS_IP was treated before with the non-OpenVAS fd */
     case NESSUS_ENCAPS_SSLv2:
     case NESSUS_ENCAPS_SSLv23:
     case NESSUS_ENCAPS_SSLv3:
@@ -1704,7 +1704,7 @@ nsend (int fd, void * data, int length, int i_opt)
   if (OPENVAS_STREAM (fd))
     {
       if (connections[fd - OPENVAS_FD_OFF].fd < 0)
-        fprintf (stderr, "Nessus file descriptor %d closed ?!\n", fd);
+        fprintf (stderr, "OpenVAS file descriptor %d closed ?!\n", fd);
       else
         return write_stream_connection4 (fd, data, length, i_opt);
     }
@@ -1751,7 +1751,7 @@ nrecv (int fd, void * data, int length, int i_opt)
  if(OPENVAS_STREAM(fd))
  {
   if(connections[fd - OPENVAS_FD_OFF].fd < 0)
-   fprintf(stderr, "Nessus file descriptor %d closed ?!\n", fd);
+   fprintf(stderr, "OpenVAS file descriptor %d closed ?!\n", fd);
   else 
     return read_stream_connection(fd, data, length);
  }

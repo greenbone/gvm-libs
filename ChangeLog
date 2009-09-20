@@ -1,5 +1,11 @@
 2009-09-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* omp/README.txt, base/README.txt: Fixed dependency info.
+
+	* misc/services1.c, misc/network.c: Renamed Nessus to OpenVAS.
+
+2009-09-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* doc/README.BPF: Moved here from README.BPF.
 
 	* packaging/fedora/openvas-libraries-1.0.1-1.fc8.openvas.spec,

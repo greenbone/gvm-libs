@@ -93,7 +93,7 @@ get_next_svc(struct my_svc *psvc)
 
 /*
  * Note: we do not take any lock, so this function should only be called
- * at Nessus startup
+ * at OpenVAS startup
  */
 
 int
@@ -158,7 +158,7 @@ openvas_init_svc()
   if (! rebuild)
     return 0;
 
-  /* fputs("Rebuilding Nessus services list\n", stderr); */
+  /* fputs("Rebuilding OpenVAS services list\n", stderr); */
 
   for (i = 0; i < N_SVC_F; i ++)
     svc[i].line = 1;
