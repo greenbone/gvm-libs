@@ -1,4 +1,4 @@
-#ifndef NESSUS_IP_H__
+#ifndef OPENVAS_IP_H__
 
 #include "config.h"
 

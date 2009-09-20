@@ -16,8 +16,8 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
  
-#ifndef _NESSUSD_COMM_H
-#define _NESSUSD_COMM_H
+#ifndef _OPENVAS_COMM_H
+#define _OPENVAS_COMM_H
 
 #include "arglists.h"
 #include "ntp.h"

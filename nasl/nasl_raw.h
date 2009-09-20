@@ -1,5 +1,5 @@
-#ifndef NESSUS_RAW_H
-#define NESSUS_RAW_H
+#ifndef OPENVAS_RAW_H
+#define OPENVAS_RAW_H
 #ifdef __linux__
 #ifndef __BSD_SOURCE
 #define __BSD_SOURCE

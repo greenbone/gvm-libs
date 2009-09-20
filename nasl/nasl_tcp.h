@@ -1,5 +1,5 @@
-#ifndef NESSUS_TCP_H__
-#define NESSUS_TCP_H__
+#ifndef OPENVAS_TCP_H__
+#define OPENVAS_TCP_H__
 
 #include "nasl_ip.h"
 

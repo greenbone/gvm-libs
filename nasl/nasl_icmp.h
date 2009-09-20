@@ -1,5 +1,5 @@
-#ifndef NESSUS_ICMP_H
-#define NESSUS_ICMP_H
+#ifndef OPENVAS_ICMP_H
+#define OPENVAS_ICMP_H
 
 #ifdef HAVE_NETINET_IP_ICMP_H
 #include <netinet/ip_icmp.h>

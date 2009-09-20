@@ -16,8 +16,8 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef NASL_NESSUSD_GLUE_H
-#define NASL_NESSUSD_GLUE_H
+#ifndef NASL_SCANNER_GLUE_H
+#define NASL_SCANNER_GLUE_H
 tree_cell *script_timeout(lex_ctxt * );
 tree_cell* script_id(lex_ctxt * );
 tree_cell* script_oid(lex_ctxt* );

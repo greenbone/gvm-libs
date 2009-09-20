@@ -1,5 +1,5 @@
-#ifndef NESSUS_UDP_H__
-#define NESSUS_UDP_H__
+#ifndef OPENVAS_UDP_H__
+#define OPENVAS_UDP_H__
 
 #ifdef HAVE_STRUCT_UDPHDR
 #include <netinet/udp.h>
