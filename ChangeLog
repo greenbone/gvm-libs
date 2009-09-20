@@ -1,5 +1,19 @@
 2009-09-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* doc/README.BPF: Moved here from README.BPF.
+
+	* packaging/fedora/openvas-libraries-1.0.1-1.fc8.openvas.spec,
+	packaging/fedora/openvas-libraries-1.0.1-Makefile.diff,
+	packaging/fedora/openvas-libraries-1.0.1-hg-Makefile.diff,
+	packaging/opensuse/openvas-libraries-1.0.1-1.suse102.openvas.spec,
+	packaging/opensuse/openvas-libraries-1.0.1-Makefile.diff,
+	packaging/opensuse/openvas-libraries-1.0.1-hg-Makefile.diff:
+	Removing hopelessly outdated packaging files.
+
+	* MANIFEST: Updated.
+
+2009-09-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* README.BPF: Replaced "nessusd" by "scanner".
 
 	* INSTALL_README: Reworked.

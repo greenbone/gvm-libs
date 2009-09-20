@@ -24,6 +24,7 @@ doc/Doxyfile
 doc/Doxyfile_full
 doc/libopenvas-config.1
 doc/openvas-nasl.1
+doc/README.BPF
 doc/signatures-howto.txt
 hg/hg_add_hosts.c
 hg/hg_add_hosts.h
@@ -203,9 +204,6 @@ omp/xml.c
 omp/xml.h
 openvas-libraries.tmpl.in
 packaging/debian/
-packaging/opensuse/
-packaging/fedora/
 README
-README.BPF
 TODO
 VERSION
