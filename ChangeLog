@@ -1,5 +1,10 @@
 2009-09-21  Vlatko Kosturjak <kost@linux.hr>
 
+	* configure.in: initial support for pkg-config for generating
+	libopenvas.pc
+
+2009-09-21  Vlatko Kosturjak <kost@linux.hr>
+
 	* libopenvas.pc.in: new file, support for pkg-config
 
 2009-09-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
