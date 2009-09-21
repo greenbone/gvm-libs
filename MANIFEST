@@ -53,6 +53,7 @@ include/libopenvas.h
 include/libvers.h.in
 INSTALL_README
 install-sh
+libopenvas.pc.in
 libopenvas-config.in
 ltmain.sh
 Makefile
