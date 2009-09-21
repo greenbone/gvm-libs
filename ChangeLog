@@ -1,3 +1,10 @@
+2009-09-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Moved the severity_filter module from openvas-client/src/util.
+
+	* src/util/severity_filter.c, src/util/severity_filter.h: Moved from
+	openvas-client/src/util.
+
 2009-09-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_misc_funcs.c, nasl/nasl_init.c,
