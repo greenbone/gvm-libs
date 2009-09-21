@@ -34,6 +34,8 @@
 /** @todo Resolve workaround, real i18n */
 #define _(abc) abc
 
+/** @todo Re-enable error reporting (currently commented, show_error) */
+
 /**
  * \file
  * Functions to "(de)serialize" one or more openvas_certificates to or from a 
@@ -112,7 +114,7 @@ gboolean openvas_certificate_file_write (GHashTable* certs, char* filename)
     } // (else file content is comment only)
 
   // Write GKeyFile to filesystem.
-  fd = open(filename, O_RDWR|O_CREAT|O_TRUNC, 0600);
+  fd = open (filename, O_RDWR|O_CREAT|O_TRUNC, 0600);
   if(!fd)
     {
     //show_error(_("Error accessing certificate file for report."));
@@ -166,8 +168,8 @@ GHashTable* openvas_certificate_file_read(char* filename)
   if(err != NULL)
     {
     g_hash_table_destroy(certificates);
-    show_error(_("Error loading certificate store %s: %s"), filename,
-                                                            err->message);
+    //show_error(_("Error loading certificate store %s: %s"), filename,
+    //                                                        err->message);
     g_key_file_free(key_file);
     return NULL;
     }

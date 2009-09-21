@@ -1,5 +1,10 @@
 2009-09-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* base/openvas_certificate_file.c: Commented another show_error,
+	added todo regarding re-enabling of error-reporting.
+
+2009-09-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* base/openvas_certificates.c, base/openvas_certificates.h: Renamed
 	to openvas_certificate (stripped trailing s).
 
