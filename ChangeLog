@@ -1,5 +1,25 @@
 2009-09-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* base/openvas_certificates.c, base/openvas_certificates.h: Renamed
+	to openvas_certificate (stripped trailing s).
+
+	* base/openvas_certificates.c, base/openvas_certificates.h
+	(openvas_certificate_file_write): Changed signature and implementation,
+	get GHashTable directly instead of a context containing it.
+
+	* base/openvas_certificates.c, base/openvas_certificates.h,
+	base/openvas_certificate_file.c, base/openvas_certificate_file.h,
+	base/severity_filter.c: Updated includes,
+	added workaround and todos regarding i18n.
+
+	* MANIFEST: Updated content.
+
+	* base/CMakeLists.txt: Updated.
+
+	* Makefile: Install new headers.
+
+2009-09-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Moved the openvas_certificate_file module from
 	openvas-client/src/openvas-lib/.
 
