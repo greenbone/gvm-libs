@@ -1,5 +1,13 @@
 2009-09-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Moved the openvas_certificates module from
+	openvas-client/src/openvas-lib/.
+
+	* base/openvas_certificates.c, base/openvas_certificates.h: Moved from
+	openvas-client/src/openvas-lib/.
+
+2009-09-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Moved the severity_filter module from openvas-client/src/util.
 
 	* src/util/severity_filter.c, src/util/severity_filter.h: Moved from
