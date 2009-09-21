@@ -1,5 +1,13 @@
 2009-09-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Moved the openvas_certificate_file module from
+	openvas-client/src/openvas-lib/.
+
+	* base/openvas_certificate_file.c, base/openvas_certificate_file.h:
+	Moved from openvas-client/src/openvas-lib/.
+
+2009-09-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Moved the openvas_certificates module from
 	openvas-client/src/openvas-lib/.
 
