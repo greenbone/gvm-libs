@@ -27,17 +27,12 @@
 #ifndef _OPENVAS_CERTIFICATE_FILE_H
 #define _OPENVAS_CERTIFICATE_FILE_H
 
-#include <includes.h>
 #include <glib.h>
-#include "openvas_i18n.h"
 
-#include "context.h"
-#include "error_dlg.h"
-#include "openvas_certificates.h"
+#include "openvas_certificate.h"
 
-gboolean openvas_certificate_file_write(struct context* context, 
-                                        char* filename);
+gboolean openvas_certificate_file_write (GHashTable* certs, char* filename);
 
-GHashTable* openvas_certificate_file_read(char* filename);
+GHashTable* openvas_certificate_file_read (char* filename);
 
 #endif

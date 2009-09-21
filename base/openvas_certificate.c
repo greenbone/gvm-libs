@@ -39,7 +39,10 @@
  * name and functions (...certificate vs ...certificateS).
  */
 
-#include "openvas_certificates.h"
+#include "openvas_certificate.h"
+
+/** @todo Resolve workaround, real i18n */
+#define _(abc) abc
 
 /**
  * Returns pointer to freshly allocated and initialized openvas_certificate.

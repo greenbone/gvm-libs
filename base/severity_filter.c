@@ -65,7 +65,6 @@
  */
 
 #include "severity_filter.h"
-#include "openvas_i18n.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -83,6 +82,9 @@
 #define XML_ATTR_SEVERITY_TO "severity_to"
 #define XML_ATTR_ACTIVE "active"
 #define XML_ATTR_ACTIVE_TRUE "true"
+
+/** @todo Resolve workaround, real i18n */
+#define _(abc) abc
 
 /* temporary, should be part of the global context */
 /* initialized in two cases: severity filtering dialog and severity filtering activation (both in extra menu) */

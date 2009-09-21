@@ -37,8 +37,6 @@
 #ifndef _OPENVAS_CERTIFICATES_H
 #define _OPENVAS_CERTIFICATES_H
 
-#include <includes.h>
-
 #include <glib.h>
 
 typedef struct {

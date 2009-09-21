@@ -26,8 +26,13 @@
 
 #include "openvas_certificate_file.h"
 
+#include <fcntl.h> /* for open */
+
 #define KEY_CERT_OWNERNAME "ownername" /**< Key used to store ownernames.*/
 #define KEY_CERT_TRUSTED "trusted" /**< Key used to store trust level.*/
+
+/** @todo Resolve workaround, real i18n */
+#define _(abc) abc
 
 /**
  * \file
@@ -65,7 +70,7 @@ static void add_cert_to_file(char* fpr, openvas_certificate* cert,
 }
 
 /**
- * @brief Writes all certificates found in context->signer_fp_certificates
+ * @brief Writes all certificates found in \ref certs
  * @brief (might be NULL) to the file \ref filename.
  *
  * Certificates can be retrieved from that file calling 
@@ -78,9 +83,9 @@ static void add_cert_to_file(char* fpr, openvas_certificate* cert,
  *
  * @see openvas_certificate_file_read
  */
-gboolean openvas_certificate_file_write (struct context* context, char* filename)
+gboolean openvas_certificate_file_write (GHashTable* certs, char* filename)
 {
-  if(context == NULL || filename == NULL)
+  if (filename == NULL)
     return FALSE;
 
   int fd;
@@ -94,24 +99,23 @@ gboolean openvas_certificate_file_write (struct context* context, char* filename
                          &err);
   if (err != NULL)
     {
-    show_error(_("Error adding comment to key file: %s"), err->message);
+    //show_error(_("Error adding comment to key file: %s"), err->message);
     g_error_free(err);
     g_key_file_free(key_file);
     return FALSE;
     }
 
   // Add all certificates to GKeyFile.
-  if(context->signer_fp_certificates != NULL)
+  if(certs != NULL)
     {
-    g_hash_table_foreach(context->signer_fp_certificates, 
-                       (GHFunc) add_cert_to_file, key_file);
+      g_hash_table_foreach (certs, (GHFunc) add_cert_to_file, key_file);
     } // (else file content is comment only)
 
   // Write GKeyFile to filesystem.
   fd = open(filename, O_RDWR|O_CREAT|O_TRUNC, 0600);
   if(!fd)
     {
-    show_error(_("Error accessing certificate file for report."));
+    //show_error(_("Error accessing certificate file for report."));
     g_key_file_free(key_file);
     return FALSE;
     }
@@ -119,7 +123,7 @@ gboolean openvas_certificate_file_write (struct context* context, char* filename
   keyfile_data = g_key_file_to_data(key_file, &data_length, &err);
   if(err != NULL)
     {
-    show_error(_("Error exporting key file: %s"), err->message);
+    //show_error(_("Error exporting key file: %s"), err->message);
     g_error_free(err);
     g_key_file_free(key_file);
     return FALSE;
