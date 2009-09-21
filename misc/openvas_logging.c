@@ -276,7 +276,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
    * these defaults if it's found.
    */
   gchar *prepend_format = "%p %t - ";
-  gchar *time_format = "%a %Y-%m-%d %Hh%M.%S %Z";
+  gchar *time_format = "%Y-%m-%d %Hh%M.%S %Z";
 
   /** @todo Move log_separator to the conf file too. */
   gchar *log_separator = ":";
@@ -285,7 +285,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
   channel = NULL;
 
   /* Let's load the default configuration file directives from the
-   * linked list. Scanning the link list twice is inefficient but 
+   * linked list. Scanning the link list twice is inefficient but
    * leaves the source cleaner.
    */
   if (openvas_log_config_list != NULL && log_domain != NULL)
@@ -386,7 +386,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
         }
       else if ((*tmp == '%') && (*(tmp + 1) == 't'))
         {
-          /* Get time returns a newly allocated string. 
+          /* Get time returns a newly allocated string.
            * Store it in a tmp var.
            */
           prepend_tmp1 = get_time (time_format);
@@ -437,15 +437,15 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
       break;
 
     case G_LOG_LEVEL_MESSAGE:
-      prepend = g_strdup_printf ("MSG%s", prepend_buf);
+      prepend = g_strdup_printf ("MESSAGE%s", prepend_buf);
       break;
 
     case G_LOG_LEVEL_INFO:
-      prepend = g_strdup_printf ("INFO%s", prepend_buf);
+      prepend = g_strdup_printf ("   INFO%s", prepend_buf);
       break;
 
     case G_LOG_LEVEL_DEBUG:
-      prepend = g_strdup_printf ("DEBUG%s", prepend_buf);
+      prepend = g_strdup_printf ("  DEBUG%s", prepend_buf);
       break;
 
     default:
@@ -458,7 +458,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
    */
   GString *log_str = g_string_new ("");
   g_string_append_printf (log_str,
-                          "%s%s%s%s %s",
+                          "%s%s%s%s %s\n",
                           log_domain ? log_domain : "", log_separator,
                           prepend, log_separator, message);
 
@@ -510,15 +510,14 @@ setup_log_handlers (GSList * openvas_log_config_list)
   openvasd_logging *log_domain_entry;
   if (openvas_log_config_list != NULL)
     {
-      /* Go the the head of the list. */
+      /* Go to the head of the list. */
       log_domain_list_tmp = (GSList *) openvas_log_config_list;
 
       while (log_domain_list_tmp != NULL)
         {
-          /* Get the list data which is a openvasd_logging struct. */
+          /* Get the list data which is an openvasd_logging struct. */
           log_domain_entry = log_domain_list_tmp->data;
 
-          /* Skip the default domain. */
           if (g_ascii_strcasecmp (log_domain_entry->log_domain, "*"))
             {
               g_log_set_handler (log_domain_entry->log_domain,
@@ -533,6 +532,11 @@ setup_log_handlers (GSList * openvas_log_config_list)
                                  (GLogFunc) openvas_log_func,
                                  openvas_log_config_list);
             }
+          else
+            {
+              g_log_set_default_handler ((GLogFunc) openvas_log_func,
+                                         openvas_log_config_list);
+            }
 
           /* Go to the next item. */
           log_domain_list_tmp = g_slist_next (log_domain_list_tmp);
@@ -544,5 +548,6 @@ setup_log_handlers (GSList * openvas_log_config_list)
                                        | G_LOG_LEVEL_CRITICAL |
                                        G_LOG_LEVEL_ERROR | G_LOG_FLAG_FATAL |
                                        G_LOG_FLAG_RECURSION),
-                     (GLogFunc) openvas_log_func, openvas_log_config_list);
+                     (GLogFunc) openvas_log_func,
+                     openvas_log_config_list);
 }

@@ -43,6 +43,12 @@
 
 #include "xml.h"
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "lib   xml"
+
 /**
  * @brief Size of the buffer for reading from the manager.
  */
@@ -464,8 +470,6 @@ read_entity_and_text (gnutls_session_t* session, entity_t* entity, char** text)
               if (count == GNUTLS_E_REHANDSHAKE)
                 /* Try again. TODO Rehandshake. */
                 continue;
-              fprintf (stderr, "Failed to read from manager (read_entity).\n");
-              gnutls_perror (count);
               if (context_data.first && context_data.first->data)
                 free_entity (context_data.first->data);
               if (string) g_string_free (string, TRUE);
@@ -498,7 +502,6 @@ read_entity_and_text (gnutls_session_t* session, entity_t* entity, char** text)
 				    &error);
       if (error)
 	{
-	  fprintf (stderr, "Failed to parse client XML: %s\n", error->message);
 	  g_error_free (error);
           if (context_data.first && context_data.first->data)
             free_entity (context_data.first->data);

@@ -41,9 +41,15 @@
 #include "openvas_server.h"
 
 /**
- * @todo This module nearly fulfils the reqirements to be placed in the base
+ * @todo This module nearly fulfils the requirements to be placed in the base
  * library (the gnutls dependency makes it a candidate for the net library).
  */
+
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "lib  serv"
 
 /**
  * @brief Server address.
@@ -88,7 +94,7 @@ openvas_server_open (gnutls_session_t * session,
       return -1;
     }
 
-  g_message ("Set to connect to address %s port %i",
+  g_message ("   Set to connect to address %s port %i",
              host,
              ntohs (address.sin_port));
 
@@ -151,7 +157,7 @@ openvas_server_open (gnutls_session_t * session,
       return -1;
     }
 
-  g_message ("connected to server");
+  g_message ("   Connected to server.");
 
   /* Complete setup of server session. */
 
@@ -171,7 +177,7 @@ openvas_server_open (gnutls_session_t * session,
         g_message ("Failed to shutdown server socket");
       goto server_fail;
     }
-  g_message ("Shook hands with server.");
+  g_message ("   Shook hands with server.");
 
   return server_socket;
 
@@ -305,7 +311,7 @@ openvas_server_send (gnutls_session_t* session, const char* string)
   while (left)
     {
       ssize_t count;
-      g_message ("send %i from %.*s[...]", left, left < 30 ? left : 30, string);
+      g_message ("   send %i from %.*s[...]", left, left < 30 ? left : 30, string);
       count = gnutls_record_send (*session, string, left);
       if (count < 0)
         {
@@ -315,7 +321,7 @@ openvas_server_send (gnutls_session_t* session, const char* string)
           if (count == GNUTLS_E_REHANDSHAKE)
             {
               /* \todo Rehandshake. */
-              g_message ("send_to_server rehandshake");
+              g_message ("   openvas_server_send rehandshake");
               continue;
             }
           g_message ("Failed to write to server.");

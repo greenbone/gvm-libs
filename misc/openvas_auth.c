@@ -204,5 +204,3 @@ openvas_is_user_admin (const gchar * username)
   g_free (file_name);
   return file_exists;
 }
-
-

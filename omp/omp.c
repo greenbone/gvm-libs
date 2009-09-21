@@ -44,6 +44,12 @@
 #include "xml.h"
 #include "openvas_server.h"
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "lib   omp"
+
 
 /* Local XML interface extension. */
 
