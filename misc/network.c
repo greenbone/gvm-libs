@@ -250,7 +250,7 @@ ovas_allocate_connection(int s, void *ssl,
   p->timeout = TIMEOUT;		/* default value */
   p->port = 0;			/* just used for debug */
   p->fd = s;
-  p->transport = (ssl != NULL) ? NESSUS_ENCAPS_TLSv1 : NESSUS_ENCAPS_IP,
+  p->transport = (ssl != NULL) ? OPENVAS_ENCAPS_TLSv1 : OPENVAS_ENCAPS_IP,
 
   p->last_err  = 0;
   return fd;
@@ -490,20 +490,20 @@ set_gnutls_tlsv1(gnutls_session_t session)
 
 /**
  * Sets the priorities for the GnuTLS session according to encaps, one
- * of hte NESSUS_ENCAPS_* constants.
+ * of hte OPENVAS_ENCAPS_* constants.
  */
 static int
 set_gnutls_protocol(gnutls_session_t session, int encaps)
 {
   switch (encaps)
     {
-    case NESSUS_ENCAPS_SSLv3:
+    case OPENVAS_ENCAPS_SSLv3:
       set_gnutls_sslv3(session);
       break;
-    case NESSUS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLSv1:
       set_gnutls_tlsv1(session);
       break;
-    case NESSUS_ENCAPS_SSLv23:	/* Compatibility mode */
+    case OPENVAS_ENCAPS_SSLv23:	/* Compatibility mode */
       set_gnutls_sslv23(session);
       break;
 
@@ -730,12 +730,12 @@ open_SSL_connection(openvas_connection *fp, int timeout,
       return -1;
     }
 
-  /* set_gnutls_protocol handles NESSUS_ENCAPS_SSLv2 by falling back
-   * to NESSUS_ENCAPS_SSLv23.  However, this function
+  /* set_gnutls_protocol handles OPENVAS_ENCAPS_SSLv2 by falling back
+   * to OPENVAS_ENCAPS_SSLv23.  However, this function
    * (open_SSL_connection) is called only by open_stream_connection and
    * open_stream_connection will exit with an error code if called with
-   * NESSUS_ENCAPS_SSLv2, so it should never end up calling
-   * open_SSL_connection with NESSUS_ENCAPS_SSLv2.
+   * OPENVAS_ENCAPS_SSLv2, so it should never end up calling
+   * open_SSL_connection with OPENVAS_ENCAPS_SSLv2.
    */
   if (set_gnutls_protocol(fp->tls_session, fp->transport) < 0)
     return -1;
@@ -850,20 +850,20 @@ set_ids_evasion_mode(args, fp)
   * These first three options are mutually exclusive
   */
  if(ids_evasion_split != NULL && strcmp(ids_evasion_split, "yes") == 0)
- 	option = NESSUS_CNX_IDS_EVASION_SPLIT;
+ 	option = OPENVAS_CNX_IDS_EVASION_SPLIT;
 
  if(ids_evasion_inject != NULL && strcmp(ids_evasion_inject, "yes") == 0)
- 	option = NESSUS_CNX_IDS_EVASION_INJECT;
+ 	option = OPENVAS_CNX_IDS_EVASION_INJECT;
  
  if(ids_evasion_short_ttl != NULL && strcmp(ids_evasion_short_ttl, "yes") == 0)
- 	option = NESSUS_CNX_IDS_EVASION_SHORT_TTL;
+ 	option = OPENVAS_CNX_IDS_EVASION_SHORT_TTL;
 
 
  /*
   * This is not exclusive with the above
   */
  if(ids_evasion_fake_rst != NULL && strcmp(ids_evasion_fake_rst, "yes") == 0)
- 	option |= NESSUS_CNX_IDS_EVASION_FAKE_RST;
+ 	option |= OPENVAS_CNX_IDS_EVASION_FAKE_RST;
 
  if(option)
    {
@@ -897,14 +897,14 @@ open_stream_connection(struct arglist * args, unsigned int port, int transport,
   
  switch(transport)
  {
-  case NESSUS_ENCAPS_IP:
+  case OPENVAS_ENCAPS_IP:
 
-  case NESSUS_ENCAPS_SSLv23:
-  case NESSUS_ENCAPS_SSLv3:
-  case NESSUS_ENCAPS_TLSv1:
+  case OPENVAS_ENCAPS_SSLv23:
+  case OPENVAS_ENCAPS_SSLv3:
+  case OPENVAS_ENCAPS_TLSv1:
    break;
 
-  case NESSUS_ENCAPS_SSLv2:
+  case OPENVAS_ENCAPS_SSLv2:
   default:
    fprintf(stderr, "open_stream_connection(): unsupported transport layer %d\n",
    	transport);
@@ -924,7 +924,7 @@ open_stream_connection(struct arglist * args, unsigned int port, int transport,
  fp->last_err  = 0;
  set_ids_evasion_mode(args, fp);
 
- if(fp->options & NESSUS_CNX_IDS_EVASION_FAKE_RST)
+ if(fp->options & OPENVAS_CNX_IDS_EVASION_FAKE_RST)
    fp->fd = ids_open_sock_tcp(args, port, fp->options, timeout);
  else
    fp->fd = open_sock_tcp(args, port, timeout);
@@ -934,11 +934,11 @@ open_stream_connection(struct arglist * args, unsigned int port, int transport,
 
  switch(transport)
  {
-  case NESSUS_ENCAPS_IP:
+  case OPENVAS_ENCAPS_IP:
     break;
-  case NESSUS_ENCAPS_SSLv23:
-  case NESSUS_ENCAPS_SSLv3:
-  case NESSUS_ENCAPS_TLSv1:
+  case OPENVAS_ENCAPS_SSLv23:
+  case OPENVAS_ENCAPS_SSLv3:
+  case OPENVAS_ENCAPS_TLSv1:
     renice_myself();
     cert   = kb_item_get_str(plug_get_kb(args), "SSL/cert");
     key    = kb_item_get_str(plug_get_kb(args), "SSL/key");
@@ -948,7 +948,7 @@ open_stream_connection(struct arglist * args, unsigned int port, int transport,
 
     /* fall through */
 
-  case NESSUS_ENCAPS_SSLv2:
+  case OPENVAS_ENCAPS_SSLv2:
     /* We do not need a client certificate in this case */
     if (open_SSL_connection(fp, timeout, cert, key, passwd, cafile) <= 0)
       goto failed;
@@ -974,10 +974,10 @@ open_stream_connection_unknown_encaps5(args, port, timeout, p, delta_t)
  int i;
   struct timeval	tv1, tv2;
  static int encaps[] = {
-   NESSUS_ENCAPS_SSLv2,
-   NESSUS_ENCAPS_TLSv1,
-   NESSUS_ENCAPS_SSLv3,
-    NESSUS_ENCAPS_IP
+   OPENVAS_ENCAPS_SSLv2,
+   OPENVAS_ENCAPS_TLSv1,
+   OPENVAS_ENCAPS_SSLv3,
+    OPENVAS_ENCAPS_IP
   };
  
 #if DEBUG_SSL > 2
@@ -1065,7 +1065,7 @@ struct ovas_server_context_s
 
 /**
  * Creates a new ovas_server_context_t.  The parameter encaps should be
- * one of the NESSUS_ENCAPS_* constants.  If any of the SSL
+ * one of the OPENVAS_ENCAPS_* constants.  If any of the SSL
  * encapsulations are used, the parameters certfile, keyfile, and cafile
  * should be the filenames of the server certificate and corresponding
  * key and the CA certificate.  The optional passwd parameter is used as
@@ -1097,7 +1097,7 @@ ovas_server_context_new(int encaps,
   ctx->encaps = encaps;
   ctx->force_pubkey_auth = force_pubkey_auth;
 
-  if (ctx->encaps != NESSUS_ENCAPS_IP)
+  if (ctx->encaps != OPENVAS_ENCAPS_IP)
     {
       int ret = gnutls_certificate_allocate_credentials(&(ctx->tls_cred));
       if (ret < 0)
@@ -1180,7 +1180,7 @@ ovas_server_context_attach(ovas_server_context_t ctx, int soc)
 
   fp = OVAS_CONNECTION_FROM_FD(fd);
 
-  if (fp->transport != NESSUS_ENCAPS_IP)
+  if (fp->transport != OPENVAS_ENCAPS_IP)
     {
       ret = gnutls_init(&(fp->tls_session), GNUTLS_SERVER);
       if (ret < 0)
@@ -1332,7 +1332,7 @@ read_stream_connection_unbuffered(fd, buf0, min_len, max_len)
       fprintf(stderr, "read_stream_connection[%d] : supposedly bad fd %d\n",
 	      getpid(), fd);
 #endif
-      trp = NESSUS_ENCAPS_IP;
+      trp = OPENVAS_ENCAPS_IP;
       if(fd < 0 || fd > 1024)
 	      	{
 			errno = EBADF;
@@ -1350,7 +1350,7 @@ read_stream_connection_unbuffered(fd, buf0, min_len, max_len)
     waitall = MSG_WAITALL;
 #endif
 
-  if(trp == NESSUS_ENCAPS_IP)
+  if(trp == OPENVAS_ENCAPS_IP)
     {
       for (t = 0; total < max_len && (timeout <= 0 || t < timeout); )
 	{
@@ -1397,11 +1397,11 @@ read_stream_connection_unbuffered(fd, buf0, min_len, max_len)
 
   switch(trp)
     {
-      /* NESSUS_ENCAPS_IP was treated before with the non-OpenVAS fd */
-    case NESSUS_ENCAPS_SSLv2:
-    case NESSUS_ENCAPS_SSLv23:
-    case NESSUS_ENCAPS_SSLv3:
-    case NESSUS_ENCAPS_TLSv1:
+      /* OPENVAS_ENCAPS_IP was treated before with the non-OpenVAS fd */
+    case OPENVAS_ENCAPS_SSLv2:
+    case OPENVAS_ENCAPS_SSLv23:
+    case OPENVAS_ENCAPS_SSLv3:
+    case OPENVAS_ENCAPS_TLSv1:
 # if DEBUG_SSL > 0
       if (getpid() != fp->pid)
 	{
@@ -1583,12 +1583,12 @@ write_stream_connection4 (int fd, void * buf0, int n, int i_opt)
 
  switch(fp->transport)
  {
-  case NESSUS_ENCAPS_IP:
+  case OPENVAS_ENCAPS_IP:
    for(count = 0; count < n;)
    {
-     if ((fp->options & NESSUS_CNX_IDS_EVASION_SEND_MASK) != 0)
+     if ((fp->options & OPENVAS_CNX_IDS_EVASION_SEND_MASK) != 0)
      {
-      if(fp->options & NESSUS_CNX_IDS_EVASION_SPLIT)
+      if(fp->options & OPENVAS_CNX_IDS_EVASION_SPLIT)
        /* IDS evasion */
        ret = send(fp->fd, buf + count, 1, i_opt);
      else
@@ -1609,10 +1609,10 @@ write_stream_connection4 (int fd, void * buf0, int n, int i_opt)
     }
     break;
 
-  case NESSUS_ENCAPS_SSLv2:
-  case NESSUS_ENCAPS_SSLv23:
-  case NESSUS_ENCAPS_SSLv3:
-  case NESSUS_ENCAPS_TLSv1:
+  case OPENVAS_ENCAPS_SSLv2:
+  case OPENVAS_ENCAPS_SSLv23:
+  case OPENVAS_ENCAPS_SSLv3:
+  case OPENVAS_ENCAPS_TLSv1:
 
     /* i_opt ignored for SSL */
     for (count = 0; count < n;)
@@ -1814,15 +1814,15 @@ get_encaps_name (int code)
  static char str[100];
  switch(code)
  {
-  case NESSUS_ENCAPS_IP:
+  case OPENVAS_ENCAPS_IP:
    return "IP";
-  case NESSUS_ENCAPS_SSLv2:
+  case OPENVAS_ENCAPS_SSLv2:
     return "SSLv2";
-  case NESSUS_ENCAPS_SSLv23:
+  case OPENVAS_ENCAPS_SSLv23:
     return "SSLv23";
-  case NESSUS_ENCAPS_SSLv3:
+  case OPENVAS_ENCAPS_SSLv3:
     return "SSLv3";
-  case NESSUS_ENCAPS_TLSv1:
+  case OPENVAS_ENCAPS_TLSv1:
     return "TLSv1";
   default:
    snprintf(str, sizeof(str), "[unknown transport layer - code %d (0x%x)]", code, code); /* RATS: ignore */
@@ -1837,12 +1837,12 @@ get_encaps_through(code)
  static char str[100];
  switch(code)
  {
-  case NESSUS_ENCAPS_IP:
+  case OPENVAS_ENCAPS_IP:
    return "";
-  case NESSUS_ENCAPS_SSLv2:
-  case NESSUS_ENCAPS_SSLv23:
-  case NESSUS_ENCAPS_SSLv3:
-  case NESSUS_ENCAPS_TLSv1:
+  case OPENVAS_ENCAPS_SSLv2:
+  case OPENVAS_ENCAPS_SSLv23:
+  case OPENVAS_ENCAPS_SSLv3:
+  case OPENVAS_ENCAPS_TLSv1:
     return " through SSL";
   default:
     snprintf(str, sizeof(str), " through unknown transport layer - code %d (0x%x)", code, code); /* RATS: ignore */
@@ -2319,7 +2319,7 @@ auth_send (struct arglist * globals, char * data)
   if (soc < 0)
     return;
 
-#ifndef NESSUSNT
+#ifndef OPENVASNT
   signal (SIGPIPE, _exit);
 #endif
   length = strlen (data);
@@ -2352,7 +2352,7 @@ auth_send (struct arglist * globals, char * data)
       read_stream_connection_min (soc, &n, 1, 1);
     }
 out:
-#ifndef NESSUSNT
+#ifndef OPENVASNT
   signal (SIGPIPE, SIG_IGN);
 #else
   ;
@@ -2630,7 +2630,7 @@ int stream_pending(int fd)
 
  if ( fp->bufcnt )
         return fp->bufcnt;
- else if ( fp->transport != NESSUS_ENCAPS_IP )
+ else if ( fp->transport != OPENVAS_ENCAPS_IP )
         return gnutls_record_check_pending(fp->tls_session);
  return 0;
 }

@@ -192,7 +192,7 @@ tree_cell * nasl_start_denial(lex_ctxt * lexic)
   
  if(port)
  {
-  soc = open_stream_connection(script_infos, port, NESSUS_ENCAPS_IP, to);
+  soc = open_stream_connection(script_infos, port, OPENVAS_ENCAPS_IP, to);
   if(soc>=0)
   {
    if(arg_get_value(script_infos, "denial_port") != 0)
@@ -250,7 +250,7 @@ tree_cell * nasl_end_denial(lex_ctxt * lexic)
    retc = alloc_tree_cell(0, NULL);
    retc->type = CONST_INT;
 
- soc = open_stream_connection(script_infos, port, NESSUS_ENCAPS_IP, to);
+ soc = open_stream_connection(script_infos, port, OPENVAS_ENCAPS_IP, to);
  if(soc > 0)
  {
   /* Send some data */

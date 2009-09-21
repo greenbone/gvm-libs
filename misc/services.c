@@ -77,7 +77,7 @@ openvas_get_svc_name(int port, const char* proto)
 
   if (svc_db_ptr[idx] == NULL)
     {
-      if ((fd = open(idx ? NESSUS_SERVICES_UDP : NESSUS_SERVICES_TCP, O_RDONLY)) >= 0)
+      if ((fd = open(idx ? OPENVAS_SERVICES_UDP : OPENVAS_SERVICES_TCP, O_RDONLY)) >= 0)
 	{
 	  if (fstat(fd, &st) < 0)
 	    perror("fstat");
@@ -126,7 +126,7 @@ unsigned short * get_tcp_svcs(int * num)
   int fd, i;
   struct stat st;
 
-  if ((fd = open(NESSUS_SERVICES_TCP, O_RDONLY)) >= 0)
+  if ((fd = open(OPENVAS_SERVICES_TCP, O_RDONLY)) >= 0)
 	{
 	  if (fstat(fd, &st) < 0)
 	    perror("fstat");

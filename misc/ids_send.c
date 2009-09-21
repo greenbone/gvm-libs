@@ -121,7 +121,7 @@ struct pseudohdr
 
 /*
  * This function returns the TTL we should use when forging our own
- * IP packets. If <method & NESSUS_CNX_IDS_EVASION_SHORT_TTL>, then
+ * IP packets. If <method & OPENVAS_CNX_IDS_EVASION_SHORT_TTL>, then
  * it returns an estimation of the number of hops between us and the
  * remote host (see comment), minus 1. 
  * 
@@ -134,7 +134,7 @@ int which_ttl(method, old_ttl)
 {
  int ttl;
  
- if(method & NESSUS_CNX_IDS_EVASION_SHORT_TTL)
+ if(method & OPENVAS_CNX_IDS_EVASION_SHORT_TTL)
  {
   /*
    * XXXX
@@ -165,7 +165,7 @@ int which_ttl(method, old_ttl)
  /*
   * We try to set up a 'normal' TTL
   */
- else /* if(method & NESSUS_CNX_IDS_EVASION_INJECT) */
+ else /* if(method & OPENVAS_CNX_IDS_EVASION_INJECT) */
  {
 #ifdef LINUX
  int f;
@@ -257,11 +257,11 @@ int tcp_cksum(packet, len)
 
 /*
  * This function injects a tcp packet in a stream. If
- * method & NESSUS_CNX_IDS_EVASION_SHORT_TTL != 0, then 
+ * method & OPENVAS_CNX_IDS_EVASION_SHORT_TTL != 0, then 
  * the injected tcp packet will be completely valid but will
  * have a short TTL (so that it does not reach the remote host).
  *
- * If method & NESSUS_CNX_IDS_EVASION_INJECT != 0, then 
+ * If method & OPENVAS_CNX_IDS_EVASION_INJECT != 0, then 
  * the injected tcp packet will have a normal TTL but will
  * have a bad checksum.
  *
@@ -355,7 +355,7 @@ inject(orig_packet, packet_len, method, flags, data, data_len)
  
  memcpy(tcp, old_tcp, sizeof(struct tcp_packet));
  tcp->th_flags = flags;
- if((flags & TCP_FLAG_RST) && (method & NESSUS_CNX_IDS_EVASION_FAKE_RST))
+ if((flags & TCP_FLAG_RST) && (method & OPENVAS_CNX_IDS_EVASION_FAKE_RST))
  	tcp->th_ack = htonl(ntohl(old_tcp->th_seq) + 1);
  else	
  	tcp->th_ack = old_tcp->th_seq;
@@ -365,7 +365,7 @@ inject(orig_packet, packet_len, method, flags, data, data_len)
  tcp->th_dport = old_tcp->th_sport;
  tcp->th_off = 5;
  tcp->th_sum = 0;
- if(method & NESSUS_CNX_IDS_EVASION_SHORT_TTL)
+ if(method & OPENVAS_CNX_IDS_EVASION_SHORT_TTL)
   tcp_cksum(packet, data_len);
  else 
   tcp->th_sum = rand(); /* bad checksum - packet will be dropped */

@@ -324,7 +324,7 @@ static struct {
   const char	*name;
   const char	*val;
 } libsvars[] = {
-  { "NESSUS_VERSION", VERSION },
+  { "OPENVAS_VERSION", VERSION },
   { NULL, NULL }, 
 };
 
@@ -343,11 +343,11 @@ static struct {
   { "IPROTO_IP", IPPROTO_IP },
   { "IPPROTO_IGMP", IPPROTO_IGMP },
 
-  { "ENCAPS_IP",     NESSUS_ENCAPS_IP },
-  { "ENCAPS_SSLv23", NESSUS_ENCAPS_SSLv23 },
-  { "ENCAPS_SSLv2",  NESSUS_ENCAPS_SSLv2 },
-  { "ENCAPS_SSLv3",  NESSUS_ENCAPS_SSLv3 },
-  { "ENCAPS_TLSv1",  NESSUS_ENCAPS_TLSv1 },
+  { "ENCAPS_IP",     OPENVAS_ENCAPS_IP },
+  { "ENCAPS_SSLv23", OPENVAS_ENCAPS_SSLv23 },
+  { "ENCAPS_SSLv2",  OPENVAS_ENCAPS_SSLv2 },
+  { "ENCAPS_SSLv3",  OPENVAS_ENCAPS_SSLv3 },
+  { "ENCAPS_TLSv1",  OPENVAS_ENCAPS_TLSv1 },
 
   { "NASL_LEVEL",	NASL_LEVEL }, /* deprecated: can be removed once openvas-plugins < 1.0.6 is deprecated */
   { "OPENVAS_NASL_LEVEL",	OPENVAS_NASL_LEVEL },

@@ -1,5 +1,13 @@
 2009-09-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_misc_funcs.c, nasl/nasl_init.c,
+	misc/services.h, misc/services.c, misc/services1.c,
+	misc/scanners_utils.h, misc/resolve.h, misc/plugutils.h,
+	misc/plugutils.c, misc/network.c, misc/ids_send.h,
+	misc/ids_send.c: Renamed NESSUS to OPENVAS.
+
+2009-09-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_udp.h, nasl/nasl_tcp.h, nasl/nasl_scanner_glue.h,
 	nasl/nasl_raw.h, nasl/nasl_ip.h, nasl/nasl_icmp.h, misc/rand.h,
 	misc/comm.h: Replace NESSUS by OPENVAS.

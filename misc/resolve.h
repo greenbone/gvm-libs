@@ -16,8 +16,8 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
  
-#ifndef _NESSUSL_RESOLVE_H
-#define _NESSUSL_RESOLVE_H
+#ifndef _OPENVAS_RESOLVE_H
+#define _OPENVAS_RESOLVE_H
 
 #include <netinet/in.h>
 

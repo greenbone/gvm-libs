@@ -1342,7 +1342,7 @@ plug_get_kb (struct arglist * args)
  * its son in case the process which calls this function is killed
  * itself
  */
-#ifndef NESSUSNT
+#ifndef OPENVASNT
 static int _plug_get_key_son = 0;
 
 static void 
@@ -1623,7 +1623,7 @@ plug_get_port_transport (struct arglist * args, int port)
   if (trp >= 0)
     return trp;
   else
-    return NESSUS_ENCAPS_IP; /* Change this to 0 for ultra smart SSL negotiation, at the expense
+    return OPENVAS_ENCAPS_IP; /* Change this to 0 for ultra smart SSL negotiation, at the expense
                                 of possibly breaking stuff */
 }
 

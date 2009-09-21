@@ -116,14 +116,14 @@ openvas_init_svc()
 
   /* Verify files date */
   
-  if (stat(NESSUS_SERVICES_TCP, &st) < 0)
+  if (stat(OPENVAS_SERVICES_TCP, &st) < 0)
     t = 0;
   else
     {
       int fd;
       char * buf;
      
-      fd = open(NESSUS_SERVICES_TCP, O_RDONLY);
+      fd = open(OPENVAS_SERVICES_TCP, O_RDONLY);
       if ( fd < 0 ) { perror("open "); rebuild ++; }
       else
        {
@@ -141,18 +141,18 @@ openvas_init_svc()
 	 fd = -1;
        }
       t = st.st_mtime;
-      if (stat(NESSUS_SERVICES_UDP, & st) < 0)
+      if (stat(OPENVAS_SERVICES_UDP, & st) < 0)
 	t = 0;
       else if ((unsigned)st.st_mtime < (unsigned)t)
 	t = st.st_mtime;
     }
       
- if ( stat(NESSUS_SERVICES, &st) < 0 )
+ if ( stat(OPENVAS_SERVICES, &st) < 0 )
 	{
-	 fprintf(stderr, "**** %s could not be found. Install it and try again\n", NESSUS_SERVICES);
+	 fprintf(stderr, "**** %s could not be found. Install it and try again\n", OPENVAS_SERVICES);
 	 exit(1);
 	}
-  if (stat(NESSUS_SERVICES, &st) >= 0 && (unsigned)st.st_mtime > (unsigned)t)
+  if (stat(OPENVAS_SERVICES, &st) >= 0 && (unsigned)st.st_mtime > (unsigned)t)
     rebuild ++;
   
   if (! rebuild)
@@ -171,11 +171,11 @@ openvas_init_svc()
    * some other kind of database. getservent() is supposed to walk through it.
    */
   /* openvas-services file is supposed to be sorted */
-  if ((svc[nf].fp = fopen(NESSUS_SERVICES, "r")) != NULL)
+  if ((svc[nf].fp = fopen(OPENVAS_SERVICES, "r")) != NULL)
   {
     if (get_next_svc(&svc[nf]))
     {
-      svc[nf].filename = NESSUS_SERVICES;
+      svc[nf].filename = OPENVAS_SERVICES;
       nf ++;
     }
   }
@@ -184,19 +184,19 @@ openvas_init_svc()
 
   if (nf > 0)
     {
-      if ((fpT = fopen(NESSUS_SERVICES_TCP, "w")) == NULL)
+      if ((fpT = fopen(OPENVAS_SERVICES_TCP, "w")) == NULL)
 	{
-	  perror(NESSUS_SERVICES_TCP);
+	  perror(OPENVAS_SERVICES_TCP);
 	  error_flag ++;
 	}
-      else if ((fpU = fopen(NESSUS_SERVICES_UDP, "w")) == NULL)
+      else if ((fpU = fopen(OPENVAS_SERVICES_UDP, "w")) == NULL)
 	{
-	  perror(NESSUS_SERVICES_UDP);
+	  perror(OPENVAS_SERVICES_UDP);
 	  error_flag ++;
 	}
-      else if ((fpTXT = fopen(NESSUS_SERVICES_TXT, "w")) == NULL)
+      else if ((fpTXT = fopen(OPENVAS_SERVICES_TXT, "w")) == NULL)
 	{
-	  perror(NESSUS_SERVICES_TXT);
+	  perror(OPENVAS_SERVICES_TXT);
 	  error_flag ++;
 	}
     }
@@ -278,9 +278,9 @@ openvas_init_svc()
       for (i = 0; i < nf; i ++)
 	if (svc[i].fp != NULL && svc[i].fp != (void*) 1)
 	    fclose(svc[i].fp);
-      unlink(NESSUS_SERVICES_TCP);
-      unlink(NESSUS_SERVICES_UDP);
-      unlink(NESSUS_SERVICES_TXT);
+      unlink(OPENVAS_SERVICES_TCP);
+      unlink(OPENVAS_SERVICES_UDP);
+      unlink(OPENVAS_SERVICES_TXT);
     }
   return error_flag ? -1 : 0;
 }

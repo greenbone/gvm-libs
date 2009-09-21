@@ -17,21 +17,21 @@
  */   
  
 
-#ifndef _NESSUSL_SERVICES_H
-#define _NESSUSL_SERVICES_H
+#ifndef _OPENVAS_SERVICES_H
+#define _OPENVAS_SERVICES_H
 
 #include "services1.h"
 
 /* **** FILES **** */
 
-#define NESSUS_SERVICES	 OPENVAS_STATE_DIR "/lib/openvas/openvas-services"
+#define OPENVAS_SERVICES	 OPENVAS_STATE_DIR "/lib/openvas/openvas-services"
 /* If you want Nessus to use a second input file, uncomment next line */
-/*#define NESSUS_IANA_PORTS	CONF_DIR "/iana-port-numbers"*/
+/*#define OPENVAS_IANA_PORTS	CONF_DIR "/iana-port-numbers"*/
 
-#define NESSUS_SERVICES_TCP	OPENVAS_STATE_DIR "/lib/openvas/services.tcp"
-#define NESSUS_SERVICES_UDP	OPENVAS_STATE_DIR "/lib/openvas/services.udp"
+#define OPENVAS_SERVICES_TCP	OPENVAS_STATE_DIR "/lib/openvas/services.tcp"
+#define OPENVAS_SERVICES_UDP	OPENVAS_STATE_DIR "/lib/openvas/services.udp"
 /* Not really useful but for debug or information */
-#define NESSUS_SERVICES_TXT	OPENVAS_STATE_DIR "/lib/openvas/services.txt"
+#define OPENVAS_SERVICES_TXT	OPENVAS_STATE_DIR "/lib/openvas/services.txt"
 
 #define SERVICES_MAGIC 0x42
 

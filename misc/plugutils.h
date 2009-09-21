@@ -222,12 +222,12 @@ int shared_socket_destroy  ( struct arglist *, char * );
  * (Bad) examples of other layers could be SOCKS, httptunnel, icmptunnel,
  * RMI over HTTP, DCOM over HTTP, TCP over TCP, etc.
  */
-#define NESSUS_ENCAPS_IP 1
-#define NESSUS_ENCAPS_SSLv23 2 /* Ask for compatibility options */
-#define NESSUS_ENCAPS_SSLv2 3
-#define NESSUS_ENCAPS_SSLv3 4
-#define NESSUS_ENCAPS_TLSv1 5
+#define OPENVAS_ENCAPS_IP 1
+#define OPENVAS_ENCAPS_SSLv23 2 /* Ask for compatibility options */
+#define OPENVAS_ENCAPS_SSLv2 3
+#define OPENVAS_ENCAPS_SSLv3 4
+#define OPENVAS_ENCAPS_TLSv1 5
 
-#define IS_ENCAPS_SSL(x) ((x) >= NESSUS_ENCAPS_SSLv23 && (x) <= NESSUS_ENCAPS_TLSv1)
+#define IS_ENCAPS_SSL(x) ((x) >= OPENVAS_ENCAPS_SSLv23 && (x) <= OPENVAS_ENCAPS_TLSv1)
 
 #endif
