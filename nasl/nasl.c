@@ -41,7 +41,6 @@
 
 
 extern char * nasl_version();
-harglst * Globals;
 extern int execute_instruction(struct arglist *, char *);
 void exit_nasl(struct arglist *, int);
 
@@ -49,9 +48,7 @@ void exit_nasl(struct arglist *, int);
 int safe_checks_only = 0;
 
 static struct arglist *
-init_hostinfos( hostname, ip)
-     char * hostname;
-     struct in6_addr * ip;
+init_hostinfos (char * hostname, struct in6_addr * ip)
 {
   struct arglist * hostinfos;
   struct arglist * ports;
@@ -66,8 +63,7 @@ init_hostinfos( hostname, ip)
 }
 
 void
-sighandler(s)
- int s;
+sighandler (int s)
 {
  exit(0);
 }
@@ -221,7 +217,7 @@ main (int argc, char ** argv)
  hg_globals = hg_init (target,  4);
  efree (&target);
 
- /** @TODO relative paths starting with '../' do not work. Probably a switch to
+ /** @todo relative paths starting with '../' do not work. Probably a switch to
   * glib functions in exec.c would do the trick. (http://bugs.openvas.org/1101) */
  // for absolute and relative paths
  add_nasl_inc_dir ("");

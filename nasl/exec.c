@@ -68,7 +68,7 @@ cell2bool (lex_ctxt* lexic, tree_cell* c)
 
   if (c == NULL || c == FAKE_CELL)
     return 0;
-  
+
   switch (c->type)
     {
     case CONST_INT:
@@ -76,7 +76,7 @@ cell2bool (lex_ctxt* lexic, tree_cell* c)
     case CONST_STR:
     case CONST_DATA:
       if (c->size == 0)
-	return 0;
+        return 0;
       if(c->x.str_val[0] == '0' && c->size == 1)
 	{
 	  /* 
@@ -507,7 +507,7 @@ nasl_dump_expr(FILE* fp, const tree_cell* c)
 	  }
 	break;
 
-      /** @TODO Refactor, remove upcoming code duplicates. */
+      /** @todo Refactor, remove upcoming code duplicates. */
       case EXPR_EXPO:
 	fprintf(fp, "(");
 	nasl_dump_expr(fp, c->link[0]);
@@ -814,7 +814,7 @@ nasl_short_dump (FILE* fp, const tree_cell* c)
 }
 
 
-/** @TODO This is an algorithm for calculating x^y, replace it if possible. */
+/** @todo This is an algorithm for calculating x^y, replace it if possible. */
 static int
 expo (int x, int y)
 {
@@ -837,6 +837,9 @@ expo (int x, int y)
     return x * z * z;
 }
 
+/**
+ * @brief Execute a parse tree
+ */
 tree_cell*
 nasl_exec (lex_ctxt* lexic, tree_cell* st)
 {
@@ -857,7 +860,7 @@ nasl_exec (lex_ctxt* lexic, tree_cell* st)
   /* return */
   if (lexic->ret_val != NULL)
     {
-      ref_cell(lexic->ret_val);
+      ref_cell (lexic->ret_val);
       return lexic->ret_val;
     }
 
@@ -956,7 +959,7 @@ nasl_exec (lex_ctxt* lexic, tree_cell* st)
 	  if (ret == NULL)
 	    return NULL;
 #endif
-	  deref_cell(ret); 
+	  deref_cell(ret);
 	}
       return FAKE_CELL;
 
@@ -974,15 +977,15 @@ nasl_exec (lex_ctxt* lexic, tree_cell* st)
 	  if ((ret = nasl_exec(lexic, st->link[0])) == NULL)
 	    return NULL;	/* NULL is false */
 	  flag = cvt_bool(lexic, ret);
-	  deref_cell(ret);
-	  if (! flag)
+	  deref_cell (ret);
+	  if (!flag)
 	    break;
 	  /* Block */
-	  ret = nasl_exec(lexic, st->link[1]);
+	  ret = nasl_exec (lexic, st->link[1]);
 #ifdef STOP_AT_FIRST_ERROR
 	  if (ret == NULL)
 	    return NULL;
-#endif	  
+#endif
 	  deref_cell(ret);
 
 	  /* break */
@@ -1043,7 +1046,7 @@ nasl_exec (lex_ctxt* lexic, tree_cell* st)
 	v = get_variable_by_name(lexic, st->x.str_val);
 	if (v == NULL)
 	  return NULL;		/* We cannot go on if we have no variable to iterate */
-	a = nasl_exec(lexic, st->link[0]); 
+	a = nasl_exec (lexic, st->link[0]);
 	ai = nasl_array_iterator(a);
 	while ((val = nasl_iterate_array(&ai)) != NULL)
 	  {
@@ -1052,7 +1055,7 @@ nasl_exec (lex_ctxt* lexic, tree_cell* st)
 	    deref_cell(val);
 	    deref_cell(tc1);
 #ifdef STOP_AT_FIRST_ERROR
-	    if (ret == NULL) 
+	    if (ret == NULL)
 	      break;
 #endif
 	    deref_cell(ret);
@@ -1098,8 +1101,8 @@ nasl_exec (lex_ctxt* lexic, tree_cell* st)
       n = cell2intW(lexic, st->link[1]);
       if (n <= 0)
 	return NULL;
-	
-#ifdef STOP_AT_FIRST_ERROR	
+
+#ifdef STOP_AT_FIRST_ERROR
       for (tc1 = NULL, i = 1; i <= n; i ++)
 	{
 	  deref_cell(tc1);
@@ -1149,7 +1152,7 @@ nasl_exec (lex_ctxt* lexic, tree_cell* st)
       deref_cell(idx);
       return ret;
 
-/** @TODO There is a lot of duplicated code in following cases, could be refactored. */
+/** @todo There is a lot of duplicated code in following cases, could be refactored. */
     case NODE_AFF:
       /* [0] = lvalue, [1] = rvalue */
       tc1 = nasl_exec(lexic, st->link[0]);
@@ -1642,11 +1645,11 @@ nasl_exec (lex_ctxt* lexic, tree_cell* st)
 	  len2 = strlen(s2);
 	}
 
-      if(len1 <= len2)		
+      if (len1 <= len2)
       	flag = ((void*)nasl_memmem(p2, len2, p1, len1) != NULL);
       else
       	flag = 0;
-	
+
       efree(&s1); efree(&s2);
       deref_cell(tc1);
       deref_cell(tc2);
@@ -1764,39 +1767,39 @@ exec_nasl_script (struct arglist * script_infos, const char* name, int mode)
 
   srand48(getpid() + getppid() + (long)time(NULL));
 
-  /** @TODO Use glib functions */
+  /** @todo Use glib functions */
   old_dir[sizeof(old_dir) - 1] = '\0';
   getcwd(old_dir, sizeof(old_dir) - 1);
 
 #if NASL_DEBUG > 2
   nasl_trace_fp = stderr;
 #endif
- if((old = arg_get_value(script_infos, "script_name")) == NULL)
-   arg_add_value(script_infos, "script_name", ARG_STRING, strlen(name), estrdup(name));
- else
-   {
-   efree(&old);
-   arg_set_value(script_infos, "script_name", strlen(name), estrdup(name));
-   }
+  if ((old = arg_get_value (script_infos, "script_name")) == NULL)
+    arg_add_value (script_infos, "script_name", ARG_STRING, strlen (name), estrdup (name));
+  else
+    {
+      efree (&old);
+      arg_set_value (script_infos, "script_name", strlen(name), estrdup(name));
+    }
 
- /** @TODO use glib (~g_path_basename) */
- newdir = strrchr(name, '/');
- if(newdir != NULL)
- {
-	 char dir[MAXPATHLEN+1];
-	 char *s;
-	 dir[sizeof(dir) - 1] = '\0';
-	 strncpy(dir, name, sizeof(dir) - 1);
-	 s = strrchr(dir, '/');
-	 s[0] = '\0';
-	 chdir(dir);
- }
+ /** @todo use glib (~g_path_basename) */
+ newdir = strrchr (name, '/');
+ if (newdir != NULL)
+  {
+    char dir[MAXPATHLEN+1];
+    char *s;
+    dir[sizeof(dir) - 1] = '\0';
+    strncpy(dir, name, sizeof(dir) - 1);
+    s = strrchr(dir, '/');
+    s[0] = '\0';
+    chdir(dir);
+  }
 
- bzero(&ctx, sizeof(ctx));
- if ( mode & NASL_ALWAYS_SIGNED )
-	ctx.always_authenticated = 1;
+  bzero (&ctx, sizeof(ctx));
+  if (mode & NASL_ALWAYS_SIGNED)
+    ctx.always_authenticated = 1;
 
- if (nasl_reload_or_parse(&ctx, name) < 0 )
+ if (nasl_reload_or_parse(&ctx, name) < 0)
   {
     chdir(old_dir);
     return -1;
@@ -1815,15 +1818,20 @@ exec_nasl_script (struct arglist * script_infos, const char* name, int mode)
 
  str = arg_get_value (prefs, "checks_read_timeout");
  if (str != NULL)
- 	to = atoi(str);
+ 	to = atoi (str);
  else
  	to = 5;
 
- if(to <= 0)to = 5;
+ if (to <= 0)
+   to = 5;
 
  lexic->recv_timeout = to;
 
- init_nasl_library(lexic);
+ /** @todo Initialization of the library seems intuitively be necessary only
+  *        once (involves "linking" the nasl functions to c code).
+  *        Consider a "prototype" context that has to be created only once and
+  *        of which copies are made when needed. */
+ init_nasl_library (lexic);
 
  if (mode & NASL_LINT)
    {
@@ -1843,14 +1851,14 @@ exec_nasl_script (struct arglist * script_infos, const char* name, int mode)
      bzero(&tc, sizeof(tc));
      tc.type = CONST_INT;
      tc.x.i_val = (mode & NASL_EXEC_DESCR) != 0;
-     add_named_var_to_ctxt(lexic, "description", &tc);
+     add_named_var_to_ctxt (lexic, "description", &tc);
 
      tc.type = CONST_DATA;
      p = strrchr(name, '/');
      if (p == NULL) p = (char*)name; else p ++;
      tc.x.str_val = p;
      tc.size = strlen(p);
-     add_named_var_to_ctxt(lexic, "SCRIPT_NAME", &tc);
+     add_named_var_to_ctxt (lexic, "SCRIPT_NAME", &tc);
 
      truc = (lex_ctxt*)ctx.tree;
      if ((ret = nasl_exec(lexic, ctx.tree)) == NULL)
@@ -1859,7 +1867,7 @@ exec_nasl_script (struct arglist * script_infos, const char* name, int mode)
        deref_cell(ret);
 
      if ((pf = get_func_ref_by_name(lexic, "on_exit")) != NULL)
-       nasl_func_call(lexic, pf, NULL);
+       nasl_func_call (lexic, pf, NULL);
    }
 
 #if NASL_DEBUG > 2
@@ -1880,7 +1888,7 @@ exec_nasl_script (struct arglist * script_infos, const char* name, int mode)
 #endif
 
 #if NASL_DEBUG > 3
- nasl_dump_tree(ctx.tree);
+ nasl_dump_tree (ctx.tree);
 #endif
 
  chdir (old_dir);

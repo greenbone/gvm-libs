@@ -34,7 +34,7 @@
 typedef struct 
 {
         struct MD5Context ctx;
-        uchar k_ipad[65];    
+        uchar k_ipad[65];
         uchar k_opad[65];
 
 } HMACMD5Context;
@@ -80,7 +80,5 @@ void hmac_md5_init_limK_to_64(const uchar* key, int key_len, HMACMD5Context *ctx
 
 void hmac_md5_update(const uchar* text, int text_len, HMACMD5Context *ctx);
 void hmac_md5_final(uchar *digest, HMACMD5Context *ctx);
-
-
 
 #endif /* _HMAC_MD5_H */

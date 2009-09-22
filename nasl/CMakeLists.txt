@@ -168,7 +168,6 @@ include_directories (../misc)
 include_directories (../include)
 
 add_library (openvas_nasl_static STATIC ${FILES})
-target_link_libraries (openvas_nasl_static LINK_INTERFACE_LIBRARIES GLIB-2.0)
 
 set_target_properties (openvas_nasl_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS}")
 set_target_properties (openvas_nasl_static PROPERTIES OUTPUT_NAME "openvas_nasl")
@@ -200,7 +199,7 @@ set_property (TARGET libopenvashg PROPERTY
               IMPORTED_LOCATION ../hg/.libs/libopenvashg.a)
 
 # Link the openvas-nasl executable
-add_executable (openvas-nasl  ${static_libs} ${FILES})
+add_executable (openvas-nasl ${FILES})
 target_link_libraries (openvas-nasl libopenvas_base libopenvasmisc libopenvashg)
 set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
                        ${GLIB_CFLAGS})

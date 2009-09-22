@@ -1,3 +1,18 @@
+2009-09-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* nasl/nasl.c (init_hostinfos, sighandlers): Removed K&R function decls.
+	Lowercased todo to be included in doxygen generated todo-list. Removed
+	unneeded global variable.
+
+	* nasl/hmacmd5.h: Removed whitespaces.
+
+	* nasl/exec.c: Removed some whitespaces, lowercased todo kexwords to be
+	included in doxygen generated todo-list. (exec_nasl_script) Partly
+	reformatted. (init_nasl_library) Added todo. (nasl_exec) Added brief
+	doc.
+
+	* nasl/CMakeLists.txt: Removed unnecessary lines.
+
 2009-09-21  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* src/omp/omp.c (G_LOG_DOMAIN): New define.
