@@ -68,7 +68,7 @@ typedef struct {
  int timeout;	  /**< timeout, in seconds
 		   * special values: -2 for default */
  int options;			/**< Misc options - see libopenvas.h */
-  
+
  int port;			 
 
  gnutls_session_t tls_session;  /**< GnuTLS session */
@@ -115,7 +115,7 @@ renice_myself()
 {
  static pid_t pid = 0;
  pid_t cpid = getpid();
- 
+
  if( pid != cpid )
  {
   if(nice(0) >= 10)return;
@@ -136,8 +136,7 @@ pid_perror (const char* error)
 
 
 int
-stream_get_err(fd)
- int fd;
+stream_get_err (int fd)
 {
  openvas_connection *p;
  
@@ -146,8 +145,7 @@ stream_get_err(fd)
      errno = EINVAL;
      return -1;
     }
-    
-    
+
  p = &(connections[fd - OPENVAS_FD_OFF]);
  return p->last_err;
 }
@@ -159,7 +157,7 @@ static int
 get_connection_fd()
 {
  int i;
- 
+
  for ( i = 0; i < OPENVAS_FD_MAX ; i++)
  {
   if(connections[i].transport <= 0) /* Not used */
@@ -178,18 +176,16 @@ get_connection_fd()
 
 
 static int
-release_connection_fd(fd)
- int fd;
+release_connection_fd (int fd)
 {
  openvas_connection *p;
- 
+
  if(!OPENVAS_STREAM(fd))
     {
      errno = EINVAL;
      return -1;
     }
-    
-    
+
  p = &(connections[fd - OPENVAS_FD_OFF]);
 
  efree(&p->buf);
@@ -214,7 +210,7 @@ if (p->fd >= 0)
      * (ie: http), so we don't show this error by default
      */
     pid_perror("release_connection_fd: shutdown()");
-#endif    
+#endif
     }
   if (socket_close(p->fd)  < 0)
     pid_perror("release_connection_fd: close()");
@@ -257,15 +253,14 @@ ovas_allocate_connection(int s, void *ssl,
 }
 
 int
-openvas_register_connection(int	s, void	*ssl,
-			   gnutls_certificate_credentials_t certcred)
+openvas_register_connection (int s, void *ssl,
+                             gnutls_certificate_credentials_t certcred)
 {
   return ovas_allocate_connection(s, ssl, certcred);
 }
 
 int
-openvas_deregister_connection(fd)
- int fd;
+openvas_deregister_connection (int fd)
 {
  openvas_connection * p;
  if(!OPENVAS_STREAM(fd))
@@ -273,7 +268,7 @@ openvas_deregister_connection(fd)
   errno = EINVAL;
   return -1;
  }
- 
+
  p = connections +  (fd - OPENVAS_FD_OFF);
  bzero(p, sizeof(*p));
  p->transport = -1; 
@@ -357,8 +352,7 @@ openvas_SSL_init()
 
 
 int
-openvas_get_socket_from_connection(fd)
-     int	fd;
+openvas_get_socket_from_connection (int fd)
 {
   openvas_connection	*fp;
 
@@ -834,9 +828,7 @@ open_SSL_connection(openvas_connection *fp, int timeout,
 
 
 static void
-set_ids_evasion_mode(args, fp)
-     struct arglist	*args;
-     openvas_connection	*fp;
+set_ids_evasion_mode (struct arglist* args, openvas_connection* fp)
 {
  struct kb_item ** kb = plug_get_kb(args);
  char		*ids_evasion_split = kb_item_get_str(kb, "NIDS/TCP/split");
@@ -844,8 +836,8 @@ set_ids_evasion_mode(args, fp)
  char 		*ids_evasion_short_ttl = kb_item_get_str(kb,"NIDS/TCP/short_ttl");
  char		*ids_evasion_fake_rst = kb_item_get_str(kb, "NIDS/TCP/fake_rst");
  int option = 0;
- 
- 
+
+
  /*
   * These first three options are mutually exclusive
   */
@@ -894,7 +886,7 @@ open_stream_connection(struct arglist * args, unsigned int port, int transport,
 
  if(timeout == -2)
   timeout = TIMEOUT;
-  
+
  switch(transport)
  {
   case OPENVAS_ENCAPS_IP:
@@ -911,13 +903,13 @@ open_stream_connection(struct arglist * args, unsigned int port, int transport,
    errno = EINVAL;
    return -1;
  }
- 
+
  if((fd = get_connection_fd()) < 0)
   return -1;
- 
+
  fp = &(connections[fd - OPENVAS_FD_OFF]);
- 
- 
+
+
  fp->transport = transport;
  fp->timeout   = timeout;
  fp->port      = port;
@@ -928,7 +920,7 @@ open_stream_connection(struct arglist * args, unsigned int port, int transport,
    fp->fd = ids_open_sock_tcp(args, port, fp->options, timeout);
  else
    fp->fd = open_sock_tcp(args, port, timeout);
-	
+
   if(fp->fd < 0)
 	  goto failed;
 
@@ -954,7 +946,7 @@ open_stream_connection(struct arglist * args, unsigned int port, int transport,
       goto failed;
   break;
  }
- 
+
  return fd;
 
 failed:
@@ -963,12 +955,12 @@ failed:
 }
 
 
+/**
+ * @param delta_t time in micro-seconds
+ */
 int
-open_stream_connection_unknown_encaps5(args, port, timeout, p, delta_t)
- struct arglist * args;
- unsigned int  port;
- int timeout, * p;
- int	*delta_t;		/* time, in micro-seconds */
+open_stream_connection_unknown_encaps5 (struct arglist* args, unsigned int port,
+                                        int timeout, int* p, int* delta_t)
 {
  int fd;
  int i;
@@ -979,7 +971,7 @@ open_stream_connection_unknown_encaps5(args, port, timeout, p, delta_t)
    OPENVAS_ENCAPS_SSLv3,
     OPENVAS_ENCAPS_IP
   };
- 
+
 #if DEBUG_SSL > 2
  fprintf(stderr, "[%d] open_stream_connection_unknown_encaps: TCP:%d; %d\n",
 	 getpid(), port,timeout);
@@ -1023,14 +1015,11 @@ open_stream_connection_unknown_encaps(args, port, timeout, p)
 
 
 int
-open_stream_auto_encaps(args, port, timeout)
- struct arglist * args;
- unsigned int     port;
- int              timeout;
+open_stream_auto_encaps (struct arglist* args, unsigned int port, int timeout)
 {
  int trp = plug_get_port_transport(args, port);
  int fd;
- 
+
  if(trp == 0)
  {
   if ((fd = open_stream_connection_unknown_encaps(args, port, timeout, &trp)) < 0)
@@ -1053,13 +1042,13 @@ open_stream_auto_encaps(args, port, timeout)
 
 struct ovas_scanner_context_s
 {
-  /* transport encapsulation to use */
+  /** Transport encapsulation to use */
   int encaps;
 
-  /* whether to force public key authentication */
+  /** Whether to force public key authentication */
   int force_pubkey_auth;
 
-  /* GnuTLS credentials */
+  /** GnuTLS credentials */
   gnutls_certificate_credentials_t tls_cred;
 };
 
@@ -1129,7 +1118,7 @@ ovas_scanner_context_new (int encaps,
 
 
  fail:
-  ovas_scanner_context_free(ctx);
+  ovas_scanner_context_free (ctx);
   return NULL;
 }
 
@@ -1262,9 +1251,7 @@ stream_get_ssl(int fd)
 
 
 int
-stream_set_timeout(fd, timeout)
- int fd;
- int timeout;
+stream_set_timeout (int fd, int timeout)
 {
  int old;
  openvas_connection * fp;
@@ -1297,10 +1284,7 @@ stream_set_options(fd, reset_opt, set_opt)
 
 
 static int 
-read_stream_connection_unbuffered(fd, buf0, min_len, max_len)
- int fd;
- void* buf0;
- int min_len, max_len;
+read_stream_connection_unbuffered (int fd, void* buf0, int min_len, int max_len)
 {
   int			ret, realfd, trp, t;
   int			total = 0, flag = 0, timeout = TIMEOUT, waitall = 0;
@@ -1485,10 +1469,7 @@ read_stream_connection_unbuffered(fd, buf0, min_len, max_len)
 }
 
 int
-read_stream_connection_min(fd, buf0, min_len, max_len)
- int fd;
- void* buf0;
- int min_len, max_len;
+read_stream_connection_min (int fd, void* buf0, int min_len, int max_len)
 {
   openvas_connection	*fp;
 
@@ -1688,10 +1669,7 @@ write_stream_connection4 (int fd, void * buf0, int n, int i_opt)
 }
 
 int
-write_stream_connection(fd, buf0, n) 
- int fd;
- void * buf0;
- int n;
+write_stream_connection (int fd, void* buf0, int n)
 {
   return write_stream_connection4(fd, buf0, n, 0);
 }
@@ -1963,7 +1941,7 @@ open_sock_opt_hn (const char * hostname, unsigned int port, int type,
  struct sockaddr_in addr;
  struct sockaddr_in6 addr6;
  struct in6_addr in6addr;
-  
+
   nn_resolve(hostname, &in6addr);
   if (IN6_ARE_ADDR_EQUAL(&addr6, &in6addr_any))
     {
@@ -1986,13 +1964,11 @@ open_sock_opt_hn (const char * hostname, unsigned int port, int type,
     memcpy(&addr6.sin6_addr, &in6addr, sizeof(struct in6_addr));
     return open_socket((struct sockaddr *)&addr6, port, type, protocol, timeout, sizeof(struct sockaddr_in6));
   }
-   
+
 }
 
 
-int open_sock_tcp_hn(hostname, port)
- const char * hostname;
- unsigned int port;
+int open_sock_tcp_hn (const char * hostname, unsigned int port)
 {
   return open_sock_opt_hn(hostname, port, SOCK_STREAM, IPPROTO_TCP, TIMEOUT);
 }
@@ -2007,9 +1983,9 @@ open_sock_tcp (struct arglist * args, unsigned int port, int timeout)
 
   /* If we timed out against this port in the past, there's no need
    * to scan it again */
-  snprintf(name, sizeof(name), "/tmp/ConnectTimeout/TCP/%d", port); /* RATS: ignore */
-  if ( plug_get_key ( args, name, &type ) ) 
-	return -1;
+  snprintf (name, sizeof(name), "/tmp/ConnectTimeout/TCP/%d", port); /* RATS: ignore */
+  if (plug_get_key (args, name, &type))
+    return -1;
 
 
   errno = 0;
@@ -2037,7 +2013,7 @@ struct in_addr _socket_get_next_source_addr(struct in_addr * addr)
   static int num_addrs = 0;
   struct in_addr ret;
   pid_t mypid;
-  
+
   if( current_src_addr < 0 )
   {
    ret.s_addr = INADDR_ANY;
@@ -2066,7 +2042,7 @@ struct in_addr _socket_get_next_source_addr(struct in_addr * addr)
     current_src_addr = lrand48() % ( num_addrs ) ; /* RATS: ignore */
     if ( src_addrs[current_src_addr].s_addr == 0 ) current_src_addr = 0;
    }
-  
+
   return src_addrs[current_src_addr];
 }
 
@@ -2279,8 +2255,7 @@ int recv_line (int soc, char* buf, size_t bufsiz)
 }
 
 int
-socket_close(soc)
-int soc;
+socket_close (int soc)
 {
   return close(soc);
 }
@@ -2376,7 +2351,7 @@ auth_gets(globals, buf, bufsiz)
   n = recv_line(soc, buf, bufsiz);
   if(n <= 0)
 	  return NULL;
-  
+
   return(buf);
 }
 

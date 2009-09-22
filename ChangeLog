@@ -1,5 +1,9 @@
 2009-09-22  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* misc/network.c: Cosmetics, doc.
+
+2009-09-22  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* misc/network.h, misc/network.c: Renamed ovas_server_context to
 	ovas_scanner_context.
 
