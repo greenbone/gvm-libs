@@ -3,7 +3,7 @@ openvas-libraries 3.0.0-beta1 (2009-09-22)
 This release is the first beta version of openvas-libraries
 leading up to the upcoming 3.0 release of OpenVAS.
 It introduces a significantly improved and changed source
-code architecture and therfeore introduces a new API for the
+code architecture and therefore introduces a new API for the
 other OpenVAS components.
 
 OpenVAS 3.0 will introduce a new architecture where openvas-libraries
@@ -20,12 +20,12 @@ as optional extension. This combination leverages the vulnerability
 scanner to a comprehensive vulnerability management solution.
 
 The "beta" releases are intented to allow testing of the upcoming
-3.0 series. It should be kept separate from OpenVAS 2.0 installation
-and not used in a production environment.
+3.0 series. It should be kept separate from OpenVAS 2.0 installations
+and not be used in a production environment.
 
 Many thanks to everyone who has contributed to this release:
-Chandrashekhar B, Tim Brown, Vlatko Kosturjak, Michael Meyer,
-Matthew Mundell, Laban Mwangi, Jan Wagner, Jan-Oliver Wagner,
+Chandrashekhar B, Marcus Brinkmann, Tim Brown, Vlatko Kosturjak, Michael Meyer,
+Matthew Mundell, Laban Mwangi, Srinivasa NL, Jan Wagner, Jan-Oliver Wagner,
 Michael Wiegand and Felix Wolfsteller.
 
 Main changes compared 2.0.x:

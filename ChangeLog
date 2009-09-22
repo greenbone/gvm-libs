@@ -1,4 +1,10 @@
-2009-09-21  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+2009-09-22  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* CHANGES: Minor typo and grammar fix, added missing contributors.
+
+	* ChangeLog: Fixed date.
+
+2009-09-22  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* nasl/nasl.c (init_hostinfos, sighandlers): Removed K&R function decls.
 	Lowercased todo to be included in doxygen generated todo-list. Removed
