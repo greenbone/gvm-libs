@@ -1,5 +1,11 @@
 2009-09-22  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* packaging/debian/patches/, packaging/debian/, packaging/: Removed.
+	These directories are now empty anyway. The packaging is kept
+	is separate modules.
+
+2009-09-22  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Post-release version bump.
 
 	* VERSION: Set to 3.0.0.beta2.SVN.
