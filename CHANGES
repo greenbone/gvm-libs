@@ -28,7 +28,7 @@ Chandrashekhar B, Marcus Brinkmann, Tim Brown, Vlatko Kosturjak, Michael Meyer,
 Matthew Mundell, Laban Mwangi, Srinivasa NL, Jan Wagner, Jan-Oliver Wagner,
 Michael Wiegand and Felix Wolfsteller.
 
-Main changes compared 2.0.x:
+Main changes compared to 2.0.x:
 
 * IPv6 support
 * WMI-Client support
