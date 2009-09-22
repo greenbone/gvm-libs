@@ -1,5 +1,9 @@
 2009-09-22  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* MANIFEST: Updated.
+
+2009-09-22  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* packaging/debian/patches/, packaging/debian/, packaging/: Removed.
 	These directories are now empty anyway. The packaging is kept
 	is separate modules.

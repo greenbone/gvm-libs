@@ -210,7 +210,6 @@ omp/omp.h
 omp/xml.c
 omp/xml.h
 openvas-libraries.tmpl.in
-packaging/debian/
 README
 TODO
 VERSION
