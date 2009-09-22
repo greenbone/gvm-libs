@@ -1048,10 +1048,10 @@ open_stream_auto_encaps(args, port, timeout)
 
 
 /*
- * Server socket functions
+ * Scanner socket functions
  */
 
-struct ovas_server_context_s
+struct ovas_scanner_context_s
 {
   /* transport encapsulation to use */
   int encaps;
@@ -1064,10 +1064,10 @@ struct ovas_server_context_s
 };
 
 /**
- * Creates a new ovas_server_context_t.  The parameter encaps should be
+ * Creates a new ovas_scanner_context_t.  The parameter encaps should be
  * one of the OPENVAS_ENCAPS_* constants.  If any of the SSL
  * encapsulations are used, the parameters certfile, keyfile, and cafile
- * should be the filenames of the server certificate and corresponding
+ * should be the filenames of the scanner certificate and corresponding
  * key and the CA certificate.  The optional passwd parameter is used as
  * the password to decrypt the keyfile if it is encrypted.
  *
@@ -1077,20 +1077,20 @@ struct ovas_server_context_s
  * client will be asked for a certificate but doesn't have to present
  * one.
  */
-ovas_server_context_t
-ovas_server_context_new(int encaps,
+ovas_scanner_context_t
+ovas_scanner_context_new (int encaps,
 			const char* certfile,
 			const char* keyfile,
 			const char* passwd,
 			const char* cafile,
 			int force_pubkey_auth)
 {
-  ovas_server_context_t ctx = NULL;
+  ovas_scanner_context_t ctx = NULL;
 
   if (openvas_SSL_init() < 0)
     return NULL;
 
-  ctx = emalloc(sizeof(struct ovas_server_context_s));
+  ctx = emalloc(sizeof(struct ovas_scanner_context_s));
   if (ctx == NULL)
     return NULL;
 
@@ -1129,17 +1129,17 @@ ovas_server_context_new(int encaps,
 
 
  fail:
-  ovas_server_context_free(ctx);
+  ovas_scanner_context_free(ctx);
   return NULL;
 }
 
 
 /**
- * Frees the ovas_server_context_t instance ctx.  If ctx is NULL, nothing
+ * Frees the ovas_scanner_context_t instance ctx.  If ctx is NULL, nothing
  * is done.
  */
 void
-ovas_server_context_free(ovas_server_context_t ctx)
+ovas_scanner_context_free(ovas_scanner_context_t ctx)
 {
   if (ctx == NULL)
     return;
@@ -1162,13 +1162,13 @@ ovas_server_context_free(ovas_server_context_t ctx)
  * must provide a certificate.  If force_pubkey_auth is false, the
  * client certificate is optional.  In any case, if the client provides
  * a certificate, the certificate is verified.  If the verification
- * fails, ovas_server_context_attach returns -1.
+ * fails, ovas_scanner_context_attach returns -1.
  *
- * ovas_server_context_attach returns the openvas file descriptor on
+ * ovas_scanner_context_attach returns the openvas file descriptor on
  * success and -1 on failure.
  */
 int
-ovas_server_context_attach(ovas_server_context_t ctx, int soc)
+ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc)
 {
   int fd = -1;
   openvas_connection * fp = NULL;

@@ -1,5 +1,10 @@
 2009-09-22  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* misc/network.h, misc/network.c: Renamed ovas_server_context to
+	ovas_scanner_context.
+
+2009-09-22  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* CHANGES: Minor typo and grammar fix, added missing contributors.
 
 	* ChangeLog: Fixed date.
