@@ -1,3 +1,8 @@
+2009-09-23  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* misc/openvas_auth.c (openvas_set_user_role): New function.
+	* misc/openvas_auth.h (openvas_set_user_role): New header.
+
 2009-09-22  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* MANIFEST: Updated.
@@ -58,14 +63,14 @@
 
 2009-09-21  Matthew Mundell <matthew.mundell@intevation.de>
 
-	* src/omp/omp.c (G_LOG_DOMAIN): New define.
+	* omp/omp.c (G_LOG_DOMAIN): New define.
 
-	* src/omp/xml.c (G_LOG_DOMAIN): New define.
+	* omp/xml.c (G_LOG_DOMAIN): New define.
 	(read_entity_and_text): Remove stderr printing left over from manager.
 
 	* misc/openvas_logging.c (openvas_log_func): Remove the day name from
 	time_format to make the log prefix shorter.  Adjust the message tags
-	slightly so	the common messages line up nicely in the log.  Add a
+	slightly so the common messages line up nicely in the log.  Add a
 	trailing newline to the message, to be consistent with the predefined
 	glib loggers.  Flush two trailing whitespaces.
 	(setup_log_handlers): Setup the default handler to openvas_log_func when

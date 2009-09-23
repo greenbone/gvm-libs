@@ -42,4 +42,7 @@ openvas_authenticate (const gchar *, const gchar *);
 int
 openvas_is_user_admin (const gchar *);
 
-#endif
+int
+openvas_set_user_role (const gchar *, const gchar *);
+
+#endif /* not _OPENVAS_AUTH_H */

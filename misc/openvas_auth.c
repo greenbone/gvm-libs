@@ -26,7 +26,9 @@
  */
 
 #include "openvas_auth.h"
+#include <errno.h>
 #include <gcrypt.h>
+#include <glib/gstdio.h>
 
 /**
  * @brief Generate a hexadecimal representation of a message digest.
@@ -203,4 +205,43 @@ openvas_is_user_admin (const gchar * username)
 
   g_free (file_name);
   return file_exists;
+}
+
+/**
+ * @brief Set the role of a user.
+ *
+ * @param username Username.
+ * @param role Role.
+ *
+ * @return 0 success, -1 failure.
+ */
+int
+openvas_set_user_role (const gchar * username, const gchar * role)
+{
+  int ret = -1;
+  gchar *file_name;
+
+  file_name = g_build_filename (OPENVAS_USERS_DIR,
+                                username,
+                                "isadmin",
+                                NULL);
+
+  if (strcmp (role, "User") == 0)
+    {
+      if (g_remove (file_name))
+        {
+          if (errno == ENOENT) ret = 0;
+        }
+      else
+        ret = 0;
+    }
+  else if (strcmp (role, "Admin") == 0
+           && g_file_set_contents (file_name, "", 0, NULL))
+    {
+      g_chmod (file_name, 0600);
+      ret = 0;
+    }
+
+  g_free (file_name);
+  return ret;
 }
