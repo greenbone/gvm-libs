@@ -233,7 +233,10 @@ free_log_configuration (GSList * log_domain_list)
       g_free (log_domain_entry->prepend_string);
       g_free (log_domain_entry->prepend_time_format);
       g_free (log_domain_entry->log_file);
-      //g_free(log_domain_entry->default_level);
+
+      /* Drop the reference to the GIOChannel. */
+      if (log_domain_entry->log_channel)
+        g_io_channel_unref (log_domain_entry->log_channel);
 
       /* Free the struct. */
       g_free (log_domain_entry);
@@ -281,7 +284,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
   /** @todo Move log_separator to the conf file too. */
   gchar *log_separator = ":";
   gchar *log_file = "-";
-  guint default_level = G_LOG_LEVEL_INFO;
+  guint default_level = G_LOG_LEVEL_DEBUG;
   channel = NULL;
 
   /* Let's load the default configuration file directives from the
@@ -296,12 +299,16 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
 
       while (log_domain_list_tmp != NULL)
         {
-          /* Get the list data which is an openvasd_logging struct. */
-          log_domain_entry = log_domain_list_tmp->data;
+          openvasd_logging *entry;
+
+          entry = log_domain_list_tmp->data;
 
           /* Override defaults if the current linklist group name is '*'. */
-          if (g_ascii_strcasecmp (log_domain_entry->log_domain, "*") == 0)
+          if (g_ascii_strcasecmp (entry->log_domain, "*") == 0)
             {
+              /* Get the list data for later use. */
+              log_domain_entry = entry;
+
               /* Override defaults if the group items are not null. */
               if (log_domain_entry->prepend_string)
                 prepend_format = log_domain_entry->prepend_string;
@@ -332,13 +339,16 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
 
       while (log_domain_list_tmp != NULL)
         {
-          /* Get the list data which is an openvasd_logging struct. */
-          log_domain_entry = log_domain_list_tmp->data;
+          openvasd_logging *entry;
+
+          entry = log_domain_list_tmp->data;
 
           /* Search for the log domain in the link list. */
-          if (g_ascii_strcasecmp (log_domain_entry->log_domain,
-                                  log_domain) == 0)
+          if (g_ascii_strcasecmp (entry->log_domain, log_domain) == 0)
             {
+              /* Get the list data which is an openvasd_logging struct. */
+              log_domain_entry = entry;
+
               /* Get the struct contents. */
               prepend_format = log_domain_entry->prepend_string;
               time_format = log_domain_entry->prepend_time_format;

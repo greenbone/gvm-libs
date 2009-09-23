@@ -35,6 +35,7 @@
  * file.
  */
 
+/** @todo Rename openvas_logging_t. */
 typedef struct
 {
   gchar *log_domain;         ///< Affected logdomain e.g libnasl.

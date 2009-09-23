@@ -1,5 +1,17 @@
 2009-09-23  Matthew Mundell <matthew.mundell@intevation.de>
 
+	* misc/openvas_logging.c (free_log_configuration): Explicitly let go of
+	the IO channel.
+	(openvas_log_func): Change default_level to G_LOG_LEVEL_DEBUG, otherwise
+	g_debug messages are always lost when this function is used for
+	g_log_default_handler.  Use a temporary openvasd_logging pointer when
+	searching through the domain list, else the second search could overwrite
+	the log_domain_entry found in the first search.
+
+	* misc/openvas_logging.h: Add rename @todo.
+
+2009-09-23  Matthew Mundell <matthew.mundell@intevation.de>
+
 	* misc/openvas_auth.c (openvas_set_user_role): New function.
 	* misc/openvas_auth.h (openvas_set_user_role): New header.
 
