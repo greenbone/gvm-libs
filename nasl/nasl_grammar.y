@@ -23,7 +23,14 @@
 #define YYLEX_PARAM parm
 
 #define LNB	(((naslctxt*)parm)->line_nb)
-#include "includes.h"
+
+#include <ctype.h> /* for isalpha */
+#include <pcap.h> /* for islocalhost */
+#include <string.h> /* for strlen */
+#include <sys/stat.h> /* for stat */
+
+#include "system.h" /* for efree */
+
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
 #include "nasl_func.h"

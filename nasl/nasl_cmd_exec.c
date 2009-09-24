@@ -22,14 +22,13 @@
  * This file contains all the "unsafe" functions found in NASL.
  */
 
-#include "includes.h" /* for MAXPATHLEN ?! */
-
 #include <errno.h> /* for errno */
 #include <fcntl.h> /* for open */
 #include <signal.h> /* for kill */
 #include <string.h> /* for strncpy */
 #include <sys/wait.h> /* for waitpid */
 #include <sys/stat.h> /* for stat */
+#include <sys/param.h> /* for MAXPATHLEN */
 #include <unistd.h> /* for getcwd */
 
 #include "plugutils.h" /* for find_in_path */

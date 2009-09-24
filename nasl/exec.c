@@ -17,10 +17,9 @@
  *
  */
 
-#include "includes.h" /* for MAXPATHLEN ? */
-
 #include <stdlib.h> /* for srand48 */
 #include <string.h> /* for strlen */
+#include <sys/param.h> /* for MAXPATHLEN */
 #include <unistd.h> /* for getpid */
 
 #include "system.h" /* for efree */

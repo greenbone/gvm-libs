@@ -1,11 +1,20 @@
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* misc/ids_send.c: Added note about BSD_BYTE_ORDERING coming from
+	config.h.
+
+	* nasl/exec.c, nasl/nasl.c, nasl/nasl_cmd_exec.c, nasl/nasl_grammar.y,
+	nasl/nasl_packet_forgery.c: Removed inclusion of includes.h, added
+	missing includes.
+
+2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* misc/scanners_utils.c (getpts): Merged doc, replaced K&R header decl.
 
 	* misc/network.c: Minor doc.
 
 	* misc/network.h: Added separating newline.
-	
+
 	* misc/share_fd.c: Removed unneeded include.
 
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>

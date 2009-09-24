@@ -47,7 +47,7 @@
 #include "system.h"
 
 /** @todo: It still needs to be taken care
- * BSD_BYTE_ORDERING gets here if defined */
+ * BSD_BYTE_ORDERING gets here if defined (e.g. by config.h) */
 #ifdef BSD_BYTE_ORDERING
 # define FIX(n) (n)
 # define UNFIX(n) (n)

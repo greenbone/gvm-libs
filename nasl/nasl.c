@@ -21,13 +21,16 @@
   * Source of the standalone NASL interpreter of OpenVAS.
   */
 
-#include <includes.h>
-#include "hosts_gatherer.h"
-#include "harglists.h"
-#include "system.h" /* for efree */
+#include <signal.h> /* for SIGINT */
 #include <string.h> /* for strlen */
 #include <stdlib.h> /* for exit */
+#include <unistd.h> /* for geteuid */
+
+#include "harglists.h"
+#include "hosts_gatherer.h"
 #include "kb.h" /* for kb_new */
+#include "network.h"
+#include "system.h" /* for efree */
 
 #include "nasl.h"
 #include "nasl_tree.h"
