@@ -15,8 +15,14 @@
  * License along with this library; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
-#include <includes.h>
+
+#include <arpa/inet.h> /* for inet_addr */
+#include <ctype.h> /* isalnum */
+#include <netdb.h> /* for addrinfo */
+#include <stdio.h> /* for stderr */
+#include <stdlib.h> /* for free */
+#include <string.h> /* for strncpy */
+
 #include "hosts_gatherer.h"
 
 /**

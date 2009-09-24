@@ -17,8 +17,11 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
- 
-#include <includes.h>
+
+#include <stdlib.h> /* for malloc */
+#include <string.h> /* for bcopy */
+#include <unistd.h> /* for close */
+
 #include "hosts_gatherer.h"
 #include "hg_filter.h"
 #include "hg_utils.h"

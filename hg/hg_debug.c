@@ -16,7 +16,9 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <includes.h>
+#include <arpa/inet.h> /* for inet_ntoa */
+#include <stdio.h> /* for printf */
+
 #include "hosts_gatherer.h"
 
 void

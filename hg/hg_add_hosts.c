@@ -16,7 +16,14 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <includes.h>
+#include <arpa/inet.h> /* for inet_aton */
+#include <ctype.h> /* for isdigit */
+#include <stdio.h> /* for scanf */
+#include <stdlib.h> /* for free */
+#include <string.h> /* for strlen */
+
+#include "network.h" /* for convipv4toipv4mappedaddr */
+
 #include "hosts_gatherer.h"
 #include "hg_utils.h"
 #include "hg_filter.h"

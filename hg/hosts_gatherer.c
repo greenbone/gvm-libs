@@ -23,7 +23,10 @@
  * The host gatherer library.
  */
 
-#include <includes.h>
+#include <arpa/inet.h> /* for inet_ntop */
+#include <stdlib.h> /* for malloc */
+#include <string.h> /* for strdup */
+
 #include "hosts_gatherer.h"
 #include "hg_add_hosts.h" 
 #include "hg_subnet.h"

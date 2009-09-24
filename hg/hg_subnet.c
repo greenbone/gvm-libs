@@ -17,7 +17,9 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-#include <includes.h>
+
+#include <string.h> /* for strdup */
+
 #include "hosts_gatherer.h"
 #include "hg_utils.h"
 #include "hg_add_hosts.h" 

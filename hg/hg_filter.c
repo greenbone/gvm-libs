@@ -18,7 +18,8 @@
  *
  */
 
-#include <includes.h>
+#include <string.h> /* for strcmp */
+
 #include "hosts_gatherer.h"
 #include  "hg_subnet.h"
 

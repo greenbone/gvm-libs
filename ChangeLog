@@ -1,5 +1,12 @@
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* hg/hg_filter.c, hg/hg_debug.c, hg/hg_utils.c, hg/hg_subnet.c,
+	hg/test.c, hg/hosts_gatherer.c, hg/hg_dns_axfr.c, hg/hosts_gatherer.h,
+	hg/hg_add_hosts.c: Removed inclusion of includes.h, added missing
+	includes.
+
+2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* misc/pcap.c: Cosmetics, doc.
 
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
