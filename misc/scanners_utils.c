@@ -88,19 +88,18 @@ static int qsort_compar(const void* a, const void* b)
  else return(*aa-*bb);
 }
 
-
-/*
- * getpts()
- * 
+/**
+ * @brief Converts a string like "-100,200-1024,3000-4000,60000-" into an array
+ * @brief of port numbers
+ *
  * This function is (c) Fyodor <fyodor@dhp.com> and was taken from
  * his excellent and outstanding scanner Nmap
  * See http://www.insecure.org/nmap/ for details about 
  * Nmap
  */
- 
-/* Convert a string like "-100,200-1024,3000-4000,60000-" into an array 
-   of port numbers*/
-unsigned short *getpts(char *origexpr, int * len) {
+unsigned short*
+getpts (char *origexpr, int * len)
+{
 int exlen;
 char *p,*q;
 unsigned short *tmp, *ports;

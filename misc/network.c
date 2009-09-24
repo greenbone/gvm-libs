@@ -1053,7 +1053,9 @@ struct ovas_scanner_context_s
 };
 
 /**
- * Creates a new ovas_scanner_context_t.  The parameter encaps should be
+ * @brief Creates a new ovas_scanner_context_t.
+ *
+ * The parameter encaps should be
  * one of the OPENVAS_ENCAPS_* constants.  If any of the SSL
  * encapsulations are used, the parameters certfile, keyfile, and cafile
  * should be the filenames of the scanner certificate and corresponding
