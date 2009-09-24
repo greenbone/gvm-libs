@@ -47,15 +47,13 @@ struct interface_info {
 struct interface_info *getinterfaces(int *howmany);
 
 
-
-
-int is_local_ip(addr)
- struct in_addr addr;
+int
+is_local_ip (struct in_addr addr)
 {
  int ifaces;
  struct interface_info * ifs;
  int i;
- 
+
  if ((ifs = getinterfaces(&ifaces)) == NULL) 
  	return -1;
  for(i=0;i<ifaces;i++)
@@ -71,20 +69,17 @@ int is_local_ip(addr)
 
 
 
-/* 
- * We send an empty UDP packet to the remote host, and read back
- * its mac address. 
+/**
+ * @brief We send an empty UDP packet to the remote host, and read back its mac
+ * @brief address.
  *
  * (we should first interrogate the kernel's arp cache - we may
  * rely on libdnet in the future to do that)
  *
- * As a bonus, this function works well as a local ping
- *
+ * As a bonus, this function works well as a local ping.
  */
-int 
-get_mac_addr(addr, mac)
- struct in_addr addr;
- char ** mac;
+int
+get_mac_addr (struct in_addr addr, char ** mac)
 {
  int soc = socket(AF_INET, SOCK_DGRAM, 0);
  struct sockaddr_in soca;
@@ -95,26 +90,26 @@ get_mac_addr(addr, mac)
  char * src_host, * dst_host;
  unsigned char * packet;
  int len;
- 
+
  *mac = NULL;
  if(soc < 0)
   return -1;
-  
+
  src_host = estrdup(inet_ntoa(me));
  dst_host = estrdup(inet_ntoa(addr));
  snprintf(filter, sizeof(filter), "ip and (src host %s and dst host %s)",
  	src_host, dst_host);
  efree(&src_host);
  efree(&dst_host);
- 
-  
+
+
  bpf = bpf_open_live(iface, filter);
  if(bpf < 0)
   {
   close(soc);
   return -1;
   }
-  
+
  /*
   * We only deal with ethernet
   */
@@ -124,9 +119,8 @@ get_mac_addr(addr, mac)
   close(soc);
   return -1;
  }
- 
- 
- 
+
+
  soca.sin_addr.s_addr = addr.s_addr;
  soca.sin_port = htons(9); /* or whatever */
  soca.sin_family = AF_INET;
@@ -134,31 +128,31 @@ get_mac_addr(addr, mac)
  {
   packet = (unsigned char*)bpf_next(bpf, &len);
   if(packet)
-  { 
+  {
    if(len >= get_datalink_size(bpf_datalink(bpf)))
    {
     int i;
     for(i=0;i<6;i++)
     	if(packet[i]!=0xFF)break;
-    
+
     if(i == 6)
     {
      bpf_close(bpf);
      close(soc);
      return 1;
     }
-    
+
     *mac = emalloc(22);
     snprintf(*mac, 22, "%.2x.%.2x.%.2x.%.2x.%.2x.%.2x",
     		(unsigned char)packet[0],
-		(unsigned char)packet[1], 
+		(unsigned char)packet[1],
 		(unsigned char)packet[2],
 		(unsigned char)packet[3],
 		(unsigned char)packet[4],
 		(unsigned char)packet[5]);
    bpf_close(bpf);
    close(soc);
-   return 0;		
+   return 0;
    }
   }
   else
@@ -177,8 +171,9 @@ get_mac_addr(addr, mac)
 /*
  * Taken straight out of Fyodor's Nmap
  */
-
-int ipaddr2devname( char *dev, int sz, struct in_addr *addr ) {
+int
+ipaddr2devname (char *dev, int sz, struct in_addr *addr )
+{
 struct interface_info *mydevs;
 int numdevs;
 int i;
@@ -196,14 +191,18 @@ for(i=0; i < numdevs; i++) {
 return -1;
 }
 
-/* Tests whether a packet sent to  IP is LIKELY to route 
- through the kernel localhost interface */
-int islocalhost(struct in_addr *addr) {
-char dev[128];
+/**
+ * @brief Tests whether a packet sent to IP is LIKELY to route through the
+ * kernel localhost interface
+ */
+int
+islocalhost (struct in_addr *addr)
+{
+  char dev[128];
 
   if(addr == NULL)
   	return -1;
-	
+
   /* If it is 0.0.0.0 or starts with 127.0.0.1 then it is 
      probably localhost */
   if ((addr->s_addr & htonl(0xFF000000)) == htonl(0x7F000000))
@@ -222,9 +221,9 @@ char dev[128];
      localhost */
   return 0;
 }
+
 int
-get_datalink_size(datalink)
- int datalink;
+get_datalink_size (int datalink)
 {
  int offset = -1;
  switch(datalink) {
@@ -254,7 +253,9 @@ get_datalink_size(datalink)
   return(offset);
 }
 
-int get_random_bytes(void *buf, int numbytes) {
+int
+get_random_bytes (void *buf, int numbytes)
+{
 static char bytebuf[2048];
 static char badrandomwarning = 0;
 static int bytesleft = 0;
@@ -272,13 +273,13 @@ if (bytesleft == 0) {
   if (!fp) fp = fopen("/dev/random", "r");
   if (fp) {
     res = fread(bytebuf, 1, sizeof(bytebuf), fp);
-    if (res != sizeof(bytebuf)) {    
+    if (res != sizeof(bytebuf)) {
       fclose(fp);
       fp = NULL;
-    }      
+    }
     bytesleft = sizeof(bytebuf);
   }
-  if (!fp) {  
+  if (!fp) {
     if (badrandomwarning == 0) {
       badrandomwarning++;
     }
@@ -307,7 +308,9 @@ bytesleft = 0;
 return get_random_bytes((char *)buf + tmp, numbytes - tmp);
 }
 
-struct interface_info *getinterfaces(int *howmany) {
+struct interface_info*
+getinterfaces (int *howmany)
+{
   static struct interface_info mydevs[1024];
   int numinterfaces = 0;
   int sd;
@@ -329,7 +332,7 @@ struct interface_info *getinterfaces(int *howmany) {
     }
     close(sd);
     ifr = (struct ifreq *) buf;
-    if (ifc.ifc_len == 0) 
+    if (ifc.ifc_len == 0)
       printf("getinterfaces: SIOCGIFCONF claims you have no network interfaces!\n");
 #ifdef HAVE_SOCKADDR_SA_LEN
     len = ifr->ifr_addr.sa_len;
@@ -363,7 +366,7 @@ struct interface_info *getinterfaces(int *howmany) {
 #if HAVE_SOCKADDR_SA_LEN
       /* len = MAX(sizeof(struct sockaddr), ifr->ifr_addr.sa_len);*/
       len = ifr->ifr_addr.sa_len;
-#endif 
+#endif
       mydevs[numinterfaces].name[0] = '\0';
   }
   if (howmany) *howmany = numinterfaces;
@@ -371,21 +374,20 @@ struct interface_info *getinterfaces(int *howmany) {
 }
 
 
-int getsourceip(struct in_addr *src, struct in_addr *dst) {
+int
+getsourceip (struct in_addr *src, struct in_addr *dst)
+{
   int sd;
   struct sockaddr_in sock;
   unsigned int socklen = sizeof(struct sockaddr_in);
   unsigned short p1;
-  
-  
- 
-  
+
+
   *src = socket_get_next_source_addr(NULL);
   if ( src->s_addr != INADDR_ANY )
   {
    return 1;
   }
-  
 
   get_random_bytes(&p1, 2);
   if (p1 < 5000) p1 += 5000;
@@ -412,21 +414,18 @@ int getsourceip(struct in_addr *src, struct in_addr *dst) {
   return 1; /* Calling function responsible for checking validity */
 }
 
-/* An awesome function to determine what interface a packet to a given
-   destination should be routed through.  It returns NULL if no appropriate
-   interface is found, oterwise it returns the device name and fills in the
-   source parameter.   Some of the stuff is
-   from Stevens' Unix Network Programming V2.  He had an easier suggestion
-   for doing this (in the book), but it isn't portable :( */
-   
-   
-/* An awesome function to determine what interface a packet to a given
-   destination should be routed through.  It returns NULL if no appropriate
-   interface is found, oterwise it returns the device name and fills in the
-   source parameter.   Some of the stuff is
-   from Stevens' Unix Network Programming V2.  He had an easier suggestion
-   for doing this (in the book), but it isn't portable :( */
-char *routethrough(struct in_addr *dest, struct in_addr *source) {
+/** @brief An awesome function to determine what interface a packet to a given
+ *  destination should be routed through.
+ *
+ * It returns NULL if no appropriate
+ *  interface is found, oterwise it returns the device name and fills in the
+ *   source parameter.   Some of the stuff is
+ *  from Stevens' Unix Network Programming V2.  He had an easier suggestion
+ *  for doing this (in the book), but it isn't portable :(
+ */
+char*
+routethrough (struct in_addr *dest, struct in_addr *source)
+{
   static int initialized = 0;
   int i;
   struct in_addr addy;
@@ -443,9 +442,8 @@ char *routethrough(struct in_addr *dest, struct in_addr *source) {
   char iface[64];
   static int numroutes = 0;
   FILE *routez;
-  
+
   struct in_addr src = socket_get_next_source_addr(NULL);
-  
 
   if (!dest) printf("ipaddr2devname passed a NULL dest address");
 
@@ -460,7 +458,6 @@ char *routethrough(struct in_addr *dest, struct in_addr *source) {
     if (routez) {
       /* OK, linux style /proc/net/route ... we can handle this ... */
       /* Now that we've got the interfaces, we g0 after the r0ut3Z */
-      
       fgets(buf, sizeof(buf), routez); /* Kill the first line */
       while(fgets(buf,sizeof(buf), routez)) {
 	p = strtok(buf, " \t\n");
@@ -516,7 +513,7 @@ char *routethrough(struct in_addr *dest, struct in_addr *source) {
     } else {
       technique = connectsockettechnique;
     }
-  } else {  
+  } else {
     mydevs = getinterfaces(&numinterfaces);
   }
   /* WHEW, that takes care of initializing, now we have the easy job of 
@@ -526,7 +523,7 @@ char *routethrough(struct in_addr *dest, struct in_addr *source) {
       source->s_addr = htonl(0x7F000001);
     /* Now we find the localhost interface name, assuming 127.0.0.1 is
        localhost (it damn well better be!)... */
-    for(i=0; i < numinterfaces; i++) {    
+    for(i=0; i < numinterfaces; i++) {
       if (mydevs[i].addr.s_addr == htonl(0x7F000001)) {
 	return mydevs[i].name;
       }
@@ -534,17 +531,16 @@ char *routethrough(struct in_addr *dest, struct in_addr *source) {
     return NULL;
   }
 
-  if (technique == procroutetechnique) {    
-    for(i=0; i < numroutes; i++) {  
+  if (technique == procroutetechnique) {
+    for(i=0; i < numroutes; i++) {
       if ((dest->s_addr & myroutes[i].mask) == myroutes[i].dest) {
 	if (source) {
-	  
 	  if ( src.s_addr != INADDR_ANY )
 	  	source->s_addr = src.s_addr;
 	  else
-	       source->s_addr = myroutes[i].dev->addr.s_addr; 
+	       source->s_addr = myroutes[i].dev->addr.s_addr;
 	}
-	return myroutes[i].dev->name;      
+	return myroutes[i].dev->name;
       }
     }
   } else if (technique == connectsockettechnique) {
@@ -589,12 +585,12 @@ char *routethrough(struct in_addr *dest, struct in_addr *source) {
       for(i=0; i < numinterfaces; i++)
 	if (mydevs[i].addr.s_addr == addy.s_addr) {
 	  if (source) {
-	    source->s_addr = addy.s_addr;	  
+	    source->s_addr = addy.s_addr;
 	  }
 	  return mydevs[i].name;
-	}  
+	}
       return NULL;
-    } else 
+    } else
       printf("I know sendmail technique ... I know rdist technique ... but I don't know what the hell kindof technique you are attempting!!!");
     return NULL;
 }

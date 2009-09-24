@@ -1,5 +1,9 @@
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* misc/pcap.c: Cosmetics, doc.
+
+2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* nasl/strutils.h, nasl/nasl_tree.c, nasl/nasl_signature.c,
 	nasl/nasl_crypto2.c, nasl/preparse.c, nasl/md5.c, nasl/nasl_host.c,
 	nasl/nasl_crypto.c, nasl/nasl_debug.c, nasl/nasl_socket.c,
