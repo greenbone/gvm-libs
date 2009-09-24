@@ -1,5 +1,9 @@
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* Makefile: Install header of libopenvas_base to openvas/base/.
+
+2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Apply convention for libraries, use underscore-separator.
 
 	* misc/Makefile: Build and install libopenvas_misc* rather than
