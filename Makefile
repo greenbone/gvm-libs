@@ -117,6 +117,7 @@ distclean : clean
 	-cd misc && ${MAKE} distclean
 	-cd hg && ${MAKE} distclean
 	rm -f openvas-libraries.tmpl libopenvas-config libopenvas-config.pre
+	rm -f libopenvas.pc
 	rm -rf doc/generated
 
 dist:
