@@ -129,7 +129,7 @@ load_log_configuration (gchar * config_file)
   gchar **group;
 
   /* Structure to hold per group settings. */
-  openvasd_logging *log_domain_entry;
+  openvas_logging_t * log_domain_entry;
   /* The link list for the structure above and it's tmp helper */
   GSList *log_domain_list = NULL;
 
@@ -152,7 +152,7 @@ load_log_configuration (gchar * config_file)
   while (*group != NULL)
     {
       /* Create the struct. */
-      log_domain_entry = g_malloc (sizeof (openvasd_logging));
+      log_domain_entry = g_malloc (sizeof (openvas_logging_t));
       /* Set the logdomain. */
       log_domain_entry->log_domain = g_strdup (*group);
       /* Initialize everything else to NULL. */
@@ -218,7 +218,7 @@ void
 free_log_configuration (GSList * log_domain_list)
 {
   GSList *log_domain_list_tmp;
-  openvasd_logging *log_domain_entry;
+  openvas_logging_t * log_domain_entry;
 
   /* Free the struct fields then the struct and then go the next
    * item in the link list.
@@ -228,7 +228,7 @@ free_log_configuration (GSList * log_domain_list)
   log_domain_list_tmp = log_domain_list;
   while (log_domain_list_tmp != NULL)
     {
-      /* Get the list data which is an openvasd_logging struct. */
+      /* Get the list data which is an openvas_logging_t struct. */
       log_domain_entry = log_domain_list_tmp->data;
 
       /* Free the struct contents. */
@@ -272,7 +272,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
 
   /* For link list operations. */
   GSList *log_domain_list_tmp;
-  openvasd_logging *log_domain_entry;
+  openvas_logging_t *log_domain_entry;
 
   /* Channel to log through. */
   GIOChannel *channel;
@@ -302,7 +302,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
 
       while (log_domain_list_tmp != NULL)
         {
-          openvasd_logging *entry;
+          openvas_logging_t *entry;
 
           entry = log_domain_list_tmp->data;
 
@@ -342,14 +342,14 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
 
       while (log_domain_list_tmp != NULL)
         {
-          openvasd_logging *entry;
+          openvas_logging_t *entry;
 
           entry = log_domain_list_tmp->data;
 
           /* Search for the log domain in the link list. */
           if (g_ascii_strcasecmp (entry->log_domain, log_domain) == 0)
             {
-              /* Get the list data which is an openvasd_logging struct. */
+              /* Get the list data which is an openvas_logging_t struct. */
               log_domain_entry = entry;
 
               /* Get the struct contents. */
@@ -520,7 +520,7 @@ void
 setup_log_handlers (GSList * openvas_log_config_list)
 {
   GSList *log_domain_list_tmp;
-  openvasd_logging *log_domain_entry;
+  openvas_logging_t *log_domain_entry;
   if (openvas_log_config_list != NULL)
     {
       /* Go to the head of the list. */
@@ -528,7 +528,7 @@ setup_log_handlers (GSList * openvas_log_config_list)
 
       while (log_domain_list_tmp != NULL)
         {
-          /* Get the list data which is an openvasd_logging struct. */
+          /* Get the list data which is an openvas_logging_t struct. */
           log_domain_entry = log_domain_list_tmp->data;
 
           if (g_ascii_strcasecmp (log_domain_entry->log_domain, "*"))

@@ -1,5 +1,10 @@
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* misc/openvas_logging.c, misc/openvas_logging.h: Renamed
+	openvasd_logging struct to openvas_logging_t.
+
+2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* nasl/nasl_packet_forgery.c: Added missing include.
 
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>

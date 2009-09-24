@@ -30,12 +30,10 @@
 #include <time.h>
 
 /**
- * @struct openvasd_logging
- * @brief OpenVASD Logging stores the parameters loaded from a log configuration
- * file.
+ * @struct openvas_logging
+ * @brief OpenVAS Logging stores the parameters loaded from a log configuration
+ *        file.
  */
-
-/** @todo Rename openvas_logging_t. */
 typedef struct
 {
   gchar *log_domain;         ///< Affected logdomain e.g libnasl.
@@ -44,7 +42,7 @@ typedef struct
   gchar *log_file;           ///< Where to log to.
   GLogLevelFlags default_level; ///< What severity level to use as default.
   GIOChannel *log_channel;   ///< Gio Channel - FD holder for logfile.
-} openvasd_logging;
+} openvas_logging_t;
 
 GSList *load_log_configuration (gchar * config_file);
 
