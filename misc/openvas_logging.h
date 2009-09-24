@@ -42,7 +42,7 @@ typedef struct
   gchar *prepend_string;     ///< Prepend this string before every message.
   gchar *prepend_time_format; ///< If prependstring has %t, format for strftime.
   gchar *log_file;           ///< Where to log to.
-  gint default_level;        ///< What severity level to use.
+  GLogLevelFlags default_level; ///< What severity level to use as default.
   GIOChannel *log_channel;   ///< Gio Channel - FD holder for logfile.
 } openvasd_logging;
 

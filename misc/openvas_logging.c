@@ -41,6 +41,7 @@
 #include <stdio.h> /* for fprintf */
 #include <string.h> /* for strlen */
 #include <stdlib.h> /* for atoi */
+#include <unistd.h> /* for getpid */
 
 #include "openvas_logging.h"
 
@@ -255,7 +256,7 @@ free_log_configuration (GSList * log_domain_list)
  * @brief Creates the formatted string and outputs it to the log destination.
  *
  * @param log_domain A string containing the message's log domain.
- * @param log_level  A string containing the message's log level.
+ * @param log_level  Flags defining the message's log level.
  * @param message    A string containing the log message.
  * @param openvas_log_config_list A pointer to the configuration linked list.
  */
@@ -286,7 +287,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
   /** @todo Move log_separator to the conf file too. */
   gchar *log_separator = ":";
   gchar *log_file = "-";
-  guint default_level = G_LOG_LEVEL_DEBUG;
+  GLogLevelFlags default_level = G_LOG_LEVEL_DEBUG;
   channel = NULL;
 
   /* Let's load the default configuration file directives from the
