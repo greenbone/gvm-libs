@@ -1,4 +1,4 @@
-This is the library "libopenvasmisc", formerly known as "libopenvas".
+This is the library "libopenvas_misc", formerly known as "libopenvas".
 
 As decided in Change Request #38 (http://openvas.org/openvas-cr-38.html), all
 this old stuff which is not being re-implemented or obsoleted over time stays

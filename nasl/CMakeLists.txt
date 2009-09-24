@@ -189,18 +189,18 @@ exec_program (pkg-config
 
 # Add ("import") static libs from Make based subprojects of openvas-libraries
 add_library (libopenvas_base STATIC IMPORTED)
-add_library (libopenvashg STATIC IMPORTED)
-add_library (libopenvasmisc STATIC IMPORTED)
-set_property (TARGET libopenvasmisc PROPERTY
+add_library (libopenvas_hg STATIC IMPORTED)
+add_library (libopenvas_misc STATIC IMPORTED)
+set_property (TARGET libopenvas_misc PROPERTY
               IMPORTED_LOCATION ../base/libopenvas_base.a)
 set_property (TARGET libopenvas_base PROPERTY
-              IMPORTED_LOCATION ../misc/.libs/libopenvasmisc.a)
-set_property (TARGET libopenvashg PROPERTY
-              IMPORTED_LOCATION ../hg/.libs/libopenvashg.a)
+              IMPORTED_LOCATION ../misc/.libs/libopenvas_misc.a)
+set_property (TARGET libopenvas_hg PROPERTY
+              IMPORTED_LOCATION ../hg/.libs/libopenvas_hg.a)
 
 # Link the openvas-nasl executable
 add_executable (openvas-nasl ${FILES})
-target_link_libraries (openvas-nasl libopenvas_base libopenvasmisc libopenvashg)
+target_link_libraries (openvas-nasl libopenvas_base libopenvas_misc libopenvas_hg)
 set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
                        ${GLIB_CFLAGS})
 set_target_properties (openvas-nasl PROPERTIES LINK_FLAGS

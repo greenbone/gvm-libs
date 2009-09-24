@@ -23,7 +23,7 @@
  * This simple program compiles when you link it against
  * the following shared libraries :
  *
- *	-lopenvashg
+ *	-lopenvas_hg
  *	-lpcap
  *	-lopenvas
  *

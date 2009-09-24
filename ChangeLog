@@ -1,5 +1,18 @@
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Apply convention for libraries, use underscore-separator.
+
+	* misc/Makefile: Build and install libopenvas_misc* rather than
+	libopenvasmisc*.
+
+	* hg/Makefile: Build and install libopenvas_hg* rather than
+	libopenvashg*.
+
+	* libopenvas-config.in, nasl/CMakeLists.txt, misc/README.txt, hg/test.c:
+	Adjusted to changes.
+
+2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* misc/ids_send.c: Added note about BSD_BYTE_ORDERING coming from
 	config.h.
 

@@ -1,6 +1,6 @@
 # OpenVAS
 # $Id$
-# Description: Makefile for libopenvasmisc of OpenVAS-libraries.
+# Description: Makefile for libopenvas_misc of OpenVAS-libraries.
 #
 # Authors:
 # Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
@@ -49,7 +49,7 @@ INCLUDE = $(include) $(GLIB_CFLAGS) $(DEFS) -I../base
 CIPHER = -I../$(CIPHER_SUBDIR)
 COMPILE = $(LIBTOOL) --mode=compile $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS)
 LINK = $(LIBTOOL) --mode=link $(CC) $(LDFLAGS)
-all : libopenvasmisc.la
+all : libopenvas_misc.la
 
 #../base/nvti.o: ../base/nvti.c ../base/nvti.h
 #	$(COMPILE) -c ../base/nvti.c
@@ -143,13 +143,13 @@ OPENVAS_USERS_DIR = $(localstatedir)/lib/openvas/users/
 openvas_auth.o: openvas_auth.c openvas_auth.h
 	$(COMPILE) -DOPENVAS_USERS_DIR=\"$(OPENVAS_USERS_DIR)\" -c openvas_auth.c
 
-libopenvasmisc.la: $(OBJS)
-	$(LINK) -o libopenvasmisc.la $(LO_OBJS) $(LIBS) -rpath ${libdir} \
+libopenvas_misc.la: $(OBJS)
+	$(LINK) -o libopenvas_misc.la $(LO_OBJS) $(LIBS) -rpath ${libdir} \
 	-version-info ${PACKAGE_VERSION}
 
-install : libopenvasmisc.la
+install : libopenvas_misc.la
 	test -d $(DESTDIR)${libdir} || $(INSTALL_DIR) -m 755 $(DESTDIR)${libdir}
-	$(LIBTOOL) --mode install $(INSTALL) libopenvasmisc.la $(DESTDIR)${libdir}/libopenvasmisc.la
+	$(LIBTOOL) --mode install $(INSTALL) libopenvas_misc.la $(DESTDIR)${libdir}/libopenvas_misc.la
 	$(LIBTOOL) --finish $(DESTDIR)${libdir}
 
 distclean : clean

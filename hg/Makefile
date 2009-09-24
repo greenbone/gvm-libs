@@ -33,20 +33,20 @@ LO_OBJS = hg_utils.lo hg_add_hosts.lo hg_subnet.lo hg_filter.lo \
 	hosts_gatherer.lo hg_debug.lo hg_dns_axfr.lo
 
 
-all : libopenvashg.la
+all : libopenvas_hg.la
 
-test : libopenvashg.la test.c
-	$(CC) $(DEFS) $(include) $(CFLAGS) -Wall -I../misc test.c -o test -L.libs -lopenvashg $(LIBS)
+test : libopenvas_hg.la test.c
+	$(CC) $(DEFS) $(include) $(CFLAGS) -Wall -I../misc test.c -o test -L.libs -lopenvas_hg $(LIBS)
 
-install : libopenvashg.la
+install : libopenvas_hg.la
 	test -d $(DESTDIR)${libdir} || $(INSTALL_DIR) -m 755 $(DESTDIR)${libdir}
-	$(LIBTOOL) --mode install $(INSTALL) libopenvashg.la $(DESTDIR)${libdir} 
+	$(LIBTOOL) --mode install $(INSTALL) libopenvas_hg.la $(DESTDIR)${libdir} 
 	$(LIBTOOL) --finish $(DESTDIR)${libdir}
 	$(INSTALL) -m 0644 hosts_gatherer.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0644 hg_utils.h $(DESTDIR)${includedir}/openvas
 
-libopenvashg.la : $(OBJS)
-	$(LINK) -o libopenvashg.la $(LO_OBJS) $(LIBS) -rpath ${libdir} \
+libopenvas_hg.la : $(OBJS)
+	$(LINK) -o libopenvas_hg.la $(LO_OBJS) $(LIBS) -rpath ${libdir} \
 	-version-info ${PACKAGE_VERSION}
 
 hg_utils.o : hg_utils.h hosts_gatherer.h hg_utils.c
