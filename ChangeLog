@@ -1,5 +1,9 @@
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* nasl/nasl_packet_forgery.c: Added missing include.
+
+2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* Makefile: Install header of libopenvas_base to openvas/base/.
 
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>

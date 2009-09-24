@@ -21,6 +21,7 @@
 #include <arpa/inet.h> /* for inet_aton */
 #include <ctype.h> /* for isprint */
 #include <pcap.h> /* for PCAP_ERRBUF_SIZE */
+#include <stdlib.h> /* for rand */
 #include <string.h> /* for bcopy */
 #include <sys/time.h> /* for gettimeofday */
 #include <unistd.h> /* for close */
