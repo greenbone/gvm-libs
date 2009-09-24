@@ -29,7 +29,17 @@
 
 
 /*--------------------------------------------------------------------------*/
-#include <includes.h>
+#include <arpa/inet.h> /* for inet_aton */
+#include <errno.h> /* for errno */
+#include <fcntl.h> /* for fnctl */
+#include <netinet/in.h> /* for sockaddr_in */
+#include <string.h> /* for bzero */
+#include <unistd.h> /* for close */
+
+#include "network.h" /* for set_socket_source_addr */
+#include "plugutils.h" /* for plug_get_host_ip */
+#include "system.h" /* for efree */
+
 #include "nasl.h"
 #include "harglists.h"
 

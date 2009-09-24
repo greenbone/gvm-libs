@@ -23,7 +23,8 @@
  * for ntlmv2.
  */
 
-#include <includes.h>
+#include <string.h> /* for memset */
+
 #include "hmacmd5.h"
 
 /**

@@ -21,10 +21,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <includes.h>
-
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h> /* for strlen */
+#include "system.h" /* for emalloc */
 
 #include "nasl_signature.h"
 

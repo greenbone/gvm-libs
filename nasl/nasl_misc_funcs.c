@@ -22,7 +22,17 @@
 
 #include <glib.h>
 
-#include "includes.h"
+#include <errno.h> /* for errno */
+#include <stdlib.h> /* for lrand48 */
+#include <string.h> /* for bzero */
+#include <sys/time.h> /* for gettimeofday */
+#include <unistd.h> /* for usleep */
+
+#include "ftp_funcs.h" /* for ftp_log_in */
+#include "kb.h" /* for KB_TYPE_STR */
+#include "network.h" /* read_stream_connection_min */
+#include "plugutils.h" /* plug_get_host_open_port */
+#include "system.h" /* for emalloc */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"

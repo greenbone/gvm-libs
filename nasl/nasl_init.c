@@ -16,7 +16,12 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-#include "includes.h"
+
+
+#include <string.h> /* for memset */
+
+#include "libopenvas.h" /* for ACT_INIT */
+#include "plugutils.h" /* for OPENVAS_ENCAPS_IP */
 
 #include "nasl_tcp.h"
 #include "nasl.h"

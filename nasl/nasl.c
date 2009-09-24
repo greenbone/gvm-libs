@@ -24,6 +24,10 @@
 #include <includes.h>
 #include "hosts_gatherer.h"
 #include "harglists.h"
+#include "system.h" /* for efree */
+#include <string.h> /* for strlen */
+#include <stdlib.h> /* for exit */
+#include "kb.h" /* for kb_new */
 
 #include "nasl.h"
 #include "nasl_tree.h"

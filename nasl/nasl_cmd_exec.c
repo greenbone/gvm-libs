@@ -22,7 +22,19 @@
  * This file contains all the "unsafe" functions found in NASL.
  */
 
-#include <includes.h>
+#include "includes.h" /* for MAXPATHLEN ?! */
+
+#include <errno.h> /* for errno */
+#include <fcntl.h> /* for open */
+#include <signal.h> /* for kill */
+#include <string.h> /* for strncpy */
+#include <sys/wait.h> /* for waitpid */
+#include <sys/stat.h> /* for stat */
+#include <unistd.h> /* for getcwd */
+
+#include "plugutils.h" /* for find_in_path */
+#include "popen.h" /* for openvas_popen4 */
+#include "system.h" /* for erealloc */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"

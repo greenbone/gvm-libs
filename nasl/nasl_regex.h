@@ -25,6 +25,7 @@
 /* POSIX says that <sys/types.h> must be included (by the caller) before
    <regex.h>.  */
 
+#include <sys/types.h> /* for size_t */
 #ifdef VMS
 /* VMS doesn't have `size_t' in <sys/types.h>, even though POSIX says it
    should be there.  */

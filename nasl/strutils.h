@@ -19,6 +19,8 @@
 #ifndef NASL2_STRUTILS_H__
 #define NASL2_STRUTILS_H__
 
+#include <sys/types.h> /* for size_t */
+
 char * nasl_strndup (char*, int);
 int str_match (const char *, const char *, int);
 void * nasl_memmem (const void *, size_t, const void *, size_t);

@@ -17,7 +17,6 @@
  *
  */
 
-#include <includes.h>
 #include "nasl_regex.h"
 
 #include "nasl.h"

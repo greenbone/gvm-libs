@@ -18,8 +18,7 @@
 /* This code slightly modified to fit into Samba by 
    abartlet@samba.org Jun 2001 */
 
-
-#include <includes.h>
+#include <string.h> /* for memmove */
 #include "md5.h"
 
 static void MD5Transform(uint32 buf[4], uint32 const in[16]);

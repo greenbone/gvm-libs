@@ -17,8 +17,10 @@
  *
  */
 
-#include <includes.h>
 #include <stdarg.h>
+#include <unistd.h>
+
+#include "arglists.h"
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"

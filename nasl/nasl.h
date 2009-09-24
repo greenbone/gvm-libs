@@ -96,6 +96,9 @@
 /* Signature information extraction and verification (not nasl- specific 
   anymore, thus likely to be moved to openvas-libraries): */
 #include <glib.h>
+
+#include "arglists.h" /* for struct arglist */
+
 typedef struct {
   char* fpr;
   char* ownername;

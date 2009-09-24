@@ -28,7 +28,6 @@
 /* We need this for `regex.h', and perhaps for the Emacs include files.  */
 
 #include <config.h>
-#include <includes.h>
 
 #include <glib.h>
 

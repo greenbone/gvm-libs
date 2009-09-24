@@ -16,7 +16,11 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-#include <includes.h>
+
+#include <stdlib.h> /* for malloc */
+#include <string.h> /* for memcpy */
+#include "system.h" /* for emalloc */
+
 #include "nasl_regex.h"
 
 #include "nasl_tree.h"

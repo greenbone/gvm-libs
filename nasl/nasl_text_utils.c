@@ -23,8 +23,12 @@
   * This file implements all the functions that are related to
   * text-related utilities in the NASL functions.
   */
-  
-#include <includes.h>
+
+#include <ctype.h> /* for isspace */
+#include <string.h> /* for strlen */
+#include <unistd.h> /* for getpid */
+
+#include "system.h" /* for erealloc */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"

@@ -1,5 +1,15 @@
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* nasl/strutils.h, nasl/nasl_tree.c, nasl/nasl_signature.c,
+	nasl/nasl_crypto2.c, nasl/preparse.c, nasl/md5.c, nasl/nasl_host.c,
+	nasl/nasl_crypto.c, nasl/nasl_debug.c, nasl/nasl_socket.c,
+	nasl/nasl_func.c, nasl/hmacmd5.c, nasl/nasl_text_utils.c, nasl/lint.c,
+	nasl/nasl_misc_funcs.c, nasl/nasl_lex_ctxt.c, nasl/nasl_cmd_exec.c,
+	nasl/nasl.c, nasl/nasl.h, nasl/regex.c, nasl/nasl_init.c,
+	nasl/strutils.c, nasl/nasl_regex.h: Resolved "includes.h"-includes.
+
+2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* nasl/nasl_socket.c: Major reformatting.
 
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>

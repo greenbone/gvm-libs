@@ -23,10 +23,16 @@
   * This file contains all the crypto functionality needed by the SSH protocol
   */
 
-#include <includes.h>
 #include <gcrypt.h>
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
+
+#include <fcntl.h> /* for open */
+#include <sys/stat.h> /* for stat */
+#include <sys/mman.h> /* for mmap */
+#include <unistd.h> /* for close */
+#include "system.h" /* for emalloc */
+
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"

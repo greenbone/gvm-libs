@@ -21,8 +21,17 @@
   * which ports are open, what is its IP, what is our IP, what transport
   * is on the remote port, and so on...
   */
-  
-#include <includes.h>
+
+#include <arpa/inet.h> /* for inet_aton */
+#include <netdb.h> /* for gethostbyaddr */
+#include <netinet/in.h> /* for in_addr */
+#include <string.h> /* for strlen */
+#include <unistd.h> /* for gethostname */
+
+#include "network.h" /* for socket_get_next_source_addr */
+#include "plugutils.h" /* for plug_get_host_fqdn */
+#include "resolve.h" /* for nn_resolve */
+#include "system.h" /* for estrdup */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -33,6 +42,11 @@
 #include "exec.h"  
 
 #include "nasl_host.h"
+
+extern int is_local_ip (struct in_addr addr);  /* pcap.c */
+extern int islocalhost (struct in_addr *addr); /* pcap.c */
+extern char* routethrough (struct in_addr *dest,
+                           struct in_addr *source); /* pcap.c */
 
 tree_cell * get_hostname(lex_ctxt * lexic)
 {

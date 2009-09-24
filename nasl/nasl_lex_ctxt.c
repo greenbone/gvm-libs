@@ -16,7 +16,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-#include "includes.h"
+
+#include "system.h" /* for emalloc */
+
 #include "nasl_func.h"
 #include "nasl_tree.h"
 #include "nasl_var.h"

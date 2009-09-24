@@ -16,7 +16,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-#include <includes.h>
+
+#include <search.h> /* for qsort, lfind */
+#include <stdlib.h> /* for free */
+#include <string.h> /* for strcmp */
+
+
+#include "system.h" /* for emalloc */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
