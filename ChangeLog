@@ -1,3 +1,12 @@
+2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* misc/comm.c, misc/openvas_logging.h: Whitespace removed.
+
+	* misc/openvas_logging.c: Adjusted comments, resolved
+	"includes.h"-include.
+
+	* base/certificate.c: Cosmetics.
+
 2009-09-23  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* misc/openvas_logging.c (free_log_configuration): Explicitly let go of

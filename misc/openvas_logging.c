@@ -33,12 +33,14 @@
  *
  * This file contains all methods needed for openvas logging. To enable logging,
  * methods in this file are called. Have a look at
- * openvas-server/openvasd/openvasd.c for an example.
+ * openvas-server/openvassd/openvassd.c for an example.
  *
  * The module reuses glib datatypes and api for memory management and logging.
  */
 
-#include "includes.h"
+#include <stdio.h> /* for fprintf */
+#include <string.h> /* for strlen */
+#include <stdlib.h> /* for atoi */
 
 #include "openvas_logging.h"
 
@@ -253,8 +255,8 @@ free_log_configuration (GSList * log_domain_list)
  * @brief Creates the formatted string and outputs it to the log destination.
  *
  * @param log_domain A string containing the message's log domain.
- * @param log_level A string containing the message's log level.
- * @param message A string containing the log message.
+ * @param log_level  A string containing the message's log level.
+ * @param message    A string containing the log message.
  * @param openvas_log_config_list A pointer to the configuration linked list.
  */
 void

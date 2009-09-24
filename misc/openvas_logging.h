@@ -56,4 +56,5 @@ void openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
                        const char *message, gpointer openvas_log_config_list);
 
 void setup_log_handlers (GSList * openvas_log_config_list);
+
 #endif

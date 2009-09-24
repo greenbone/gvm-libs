@@ -179,7 +179,7 @@ certificate_set_trusted (certificate_t * certificate, gboolean trusted)
   certificate->trusted = trusted;
 }
 
-
+
 /* Collections of certificates. */
 
 /**
@@ -240,9 +240,10 @@ certificates_add (certificates_t* certificates, certificate_t* certificate)
  *
  * @param  certificates  Certificates to search.
  * @param  data          First argument to function.
- * @param  function      Compare function.
+ * @param  function      Comparison function.
  *
- * @return The first element for which the function returns 0.
+ * @return The first element for which the comparison function \ref function
+ *         returns 0.
  */
 certificate_t*
 certificates_find (certificates_t* certificates,
