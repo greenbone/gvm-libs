@@ -1,6 +1,10 @@
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
-	* misc/comm.c, misc/openvas_logging.h: Whitespace removed.
+	* nasl/nasl_socket.c: Major reformatting.
+
+2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* misc/comm.h, misc/openvas_logging.h: Whitespace removed.
 
 	* misc/openvas_logging.c: Adjusted comments, resolved
 	"includes.h"-include.

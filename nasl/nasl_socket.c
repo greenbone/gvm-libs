@@ -148,8 +148,6 @@ static void rm_udp_data(struct arglist * script_infos, int soc)
 /*-------------------------------------------------------------------*/
 
 
-
-
 static tree_cell * nasl_open_privileged_socket(lex_ctxt * lexic, int proto)
 {
  struct arglist * script_infos = lexic->script_infos;
@@ -323,20 +321,23 @@ tryagain :
 }
 
 
-tree_cell * nasl_open_priv_sock_tcp(lex_ctxt * lexic)
+tree_cell*
+nasl_open_priv_sock_tcp (lex_ctxt * lexic)
 {
- return nasl_open_privileged_socket(lexic, IPPROTO_TCP);
+  return nasl_open_privileged_socket (lexic, IPPROTO_TCP);
 }
 
-tree_cell * nasl_open_priv_sock_udp(lex_ctxt * lexic)
+tree_cell*
+nasl_open_priv_sock_udp (lex_ctxt * lexic)
 {
- return nasl_open_privileged_socket(lexic, IPPROTO_UDP);
+  return nasl_open_privileged_socket (lexic, IPPROTO_UDP);
 }
 
 
 /*--------------------------------------------------------------------------*/
 
-tree_cell * nasl_open_sock_tcp_bufsz(lex_ctxt * lexic, int bufsz)
+tree_cell*
+nasl_open_sock_tcp_bufsz (lex_ctxt * lexic, int bufsz)
 {
  int soc = -1;
  struct arglist *  script_infos = lexic->script_infos;
@@ -372,7 +373,8 @@ tree_cell * nasl_open_sock_tcp_bufsz(lex_ctxt * lexic, int bufsz)
   return retc;
 }
 
-tree_cell * nasl_open_sock_tcp(lex_ctxt * lexic)
+tree_cell*
+nasl_open_sock_tcp (lex_ctxt * lexic)
 {
   return nasl_open_sock_tcp_bufsz(lexic, -1);
 }
@@ -383,7 +385,8 @@ tree_cell * nasl_open_sock_tcp(lex_ctxt * lexic)
  * 
  * Our goal is to hide this difference for the end-user
  */
-tree_cell * nasl_open_sock_udp(lex_ctxt * lexic)
+tree_cell*
+nasl_open_sock_udp (lex_ctxt * lexic)
 {
  int soc;
  tree_cell * retc;
@@ -423,7 +426,6 @@ tree_cell * nasl_open_sock_udp(lex_ctxt * lexic)
  }
 
 
-
  retc = alloc_tree_cell(0, NULL);
  retc->type = CONST_INT;
  retc->x.i_val = soc < 0 ? 0 : soc;
@@ -432,109 +434,112 @@ tree_cell * nasl_open_sock_udp(lex_ctxt * lexic)
 
 /*---------------------------------------------------------------------*/
 
-tree_cell * nasl_recv(lex_ctxt * lexic)
+tree_cell*
+nasl_recv (lex_ctxt * lexic)
 {
- char * data;
- int len = get_int_local_var_by_name(lexic, "length", -1);
- int min_len = get_int_local_var_by_name(lexic, "min", -1);
- int soc = get_int_local_var_by_name(lexic, "socket", 0);
- int to  = get_int_local_var_by_name(lexic, "timeout", lexic->recv_timeout);
- fd_set rd;
- struct timeval tv;
- int new_len = 0;
- tree_cell * retc;
- int type = -1;
- unsigned int opt_len = sizeof(type);
- int e;
+  char * data;
+  int len     = get_int_local_var_by_name (lexic, "length", -1);
+  int min_len = get_int_local_var_by_name (lexic, "min", -1);
+  int soc     = get_int_local_var_by_name (lexic, "socket", 0);
+  int to      = get_int_local_var_by_name (lexic, "timeout", lexic->recv_timeout);
+  fd_set rd;
+  struct timeval tv;
+  int new_len = 0;
+  tree_cell * retc;
+  int type = -1;
+  unsigned int opt_len = sizeof (type);
+  int e;
+
+  if (len <= 0 || soc <= 0)
+    return NULL;
+
+  tv.tv_sec = to;
+  tv.tv_usec = 0; 
 
 
- if(len <= 0 || soc <= 0)
-	 return NULL;
-
-
- tv.tv_sec = to;
- tv.tv_usec = 0; 
-
-
- data = emalloc(len);
- if ( !fd_is_stream(soc) )
- 	e = getsockopt(soc, SOL_SOCKET, SO_TYPE, &type, &opt_len);
+  data = emalloc (len);
+  if (!fd_is_stream (soc))
+    e = getsockopt (soc, SOL_SOCKET, SO_TYPE, &type, &opt_len);
   else
-	e = -1;
+    e = -1;
 
- if(e == 0 && type == SOCK_DGRAM)
- {
- /*
-  * As UDP packets may be lost, we retry up to 5 times
-  */
- int retries = 5;
- int i;
-
- tv.tv_sec = to / retries;
- tv.tv_usec = (to % retries) *  100000;
-
- for(i=0;i<retries;i++)
- {
-  FD_ZERO(&rd);
-  FD_SET(soc, &rd);
-
-
-  if(select(soc+1, &rd, NULL, NULL, &tv)>0)
-  {
-   int e;
-   e = recv(soc, data+new_len, len-new_len, 0);
-
-   if(e <= 0)
-   {
-    if(!new_len)
+  if (e == 0 && type == SOCK_DGRAM)
     {
-     efree(&data); 
-     return NULL;
-    }
-    else break;
-   }
-   else new_len+=e;
-   if(new_len >= len)break;
-   break; /* UDP data is never fragmented */
-  }
-  else
-  {
-   /* 
-    * The packet may have been lost en route - we resend it
-    */
-   char * data;
-   int len;
+      /* As UDP packets may be lost, we retry up to 5 times */
+      int retries = 5;
+      int i;
 
-   data = get_udp_data(lexic->script_infos, soc, &len);
-   if(data != NULL)send(soc, data, len, 0);
-   tv.tv_sec = to / retries;
-   tv.tv_usec = ( to % retries) * 100000;
-   }
-  }
- }
- else {
- 	int old = stream_set_timeout(soc, tv.tv_sec);
- 	new_len = read_stream_connection_min(soc, data, min_len, len);
-	stream_set_timeout(soc, old);
-      }
- if(new_len > 0)
- {
-  retc = alloc_tree_cell(0, NULL);
-  retc->type = CONST_DATA;
-  retc->x.str_val = nasl_strndup(data, new_len);
-  retc->size = new_len;
-  efree(&data);
-  return retc;
- }
- else {
-	 efree(&data);
-	 return NULL;
-  }
+      tv.tv_sec = to / retries;
+      tv.tv_usec = (to % retries) *  100000;
+
+      for (i = 0; i < retries; i++)
+        {
+          FD_ZERO (&rd);
+          FD_SET (soc, &rd);
+
+          if (select (soc+1, &rd, NULL, NULL, &tv) > 0)
+            {
+              int e;
+              e = recv (soc, data+new_len, len-new_len, 0);
+
+              if (e <= 0)
+                {
+                  if (!new_len)
+                    {
+                      efree (&data);
+                      return NULL;
+                    }
+                  else
+                    break;
+                }
+              else
+                new_len+=e;
+
+              if (new_len >= len)
+                 break;
+
+              break; /* UDP data is never fragmented */
+            }
+          else
+            {
+              /* The packet may have been lost en route - we resend it */
+              char * data;
+              int len;
+
+              data = get_udp_data (lexic->script_infos, soc, &len);
+              if (data != NULL)
+                send (soc, data, len, 0);
+              tv.tv_sec = to / retries;
+              tv.tv_usec = (to % retries) * 100000;
+            }
+        }
+    }
+  else
+    {
+      int old = stream_set_timeout(soc, tv.tv_sec);
+      new_len = read_stream_connection_min(soc, data, min_len, len);
+      stream_set_timeout(soc, old);
+    }
+  if (new_len > 0)
+    {
+      retc = alloc_tree_cell (0, NULL);
+      retc->type = CONST_DATA;
+      retc->x.str_val = nasl_strndup (data, new_len);
+      retc->size = new_len;
+      efree (&data);
+      return retc;
+    }
+  else
+    {
+      efree (&data);
+      return NULL;
+    }
 }
 
 
 
-tree_cell * nasl_recv_line(lex_ctxt * lexic)
+tree_cell*
+nasl_recv_line (lex_ctxt * lexic)
 {
  int len = get_int_local_var_by_name(lexic, "length", -1);
  int soc = get_int_local_var_by_name(lexic, "socket", 0);
@@ -543,7 +548,7 @@ tree_cell * nasl_recv_line(lex_ctxt * lexic)
  int new_len = 0;
  int n = 0;
  tree_cell * retc;
- time_t		t1 = 0;
+ time_t t1 = 0;
 
  if(len == -1 || soc <= 0)
    {
@@ -603,39 +608,40 @@ tree_cell * nasl_recv_line(lex_ctxt * lexic)
 
 /*---------------------------------------------------------------------*/
 
-tree_cell * nasl_send(lex_ctxt * lexic)
+tree_cell*
+nasl_send (lex_ctxt * lexic)
 {
- int soc = get_int_local_var_by_name(lexic, "socket", 0);
- char * data = get_str_local_var_by_name(lexic, "data");
- int option = get_int_local_var_by_name(lexic, "option", 0);
- int length = get_int_local_var_by_name(lexic, "length", 0);
- int data_length = get_var_size_by_name(lexic, "data");
- int n;
- tree_cell * retc;
- int type;
- unsigned int type_len = sizeof(type);
+  int soc     = get_int_local_var_by_name (lexic, "socket", 0);
+  char * data = get_str_local_var_by_name (lexic, "data");
+  int option  = get_int_local_var_by_name (lexic, "option", 0);
+  int length  = get_int_local_var_by_name (lexic, "length", 0);
+  int data_length = get_var_size_by_name (lexic, "data");
+  int n;
+  tree_cell * retc;
+  int type;
+  unsigned int type_len = sizeof (type);
 
 
- if(soc <= 0 || data == NULL)
- {
- 	nasl_perror(lexic, "Syntax error with the send() function\n");
-	nasl_perror(lexic, "Correct syntax is : send(socket:<soc>, data:<data>\n");
-	return NULL;
- }
+  if (soc <= 0 || data == NULL)
+    {
+      nasl_perror (lexic, "Syntax error with the send() function\n");
+      nasl_perror (lexic, "Correct syntax is : send(socket:<soc>, data:<data>\n");
+      return NULL;
+    }
 
- if( length <= 0 || length > data_length )
-	length = data_length;
+  if (length <= 0 || length > data_length)
+    length = data_length;
 
 
- if(!fd_is_stream(soc) && 
-    getsockopt(soc, SOL_SOCKET, SO_TYPE, &type, &type_len) == 0 &&
-    type == SOCK_DGRAM)
- {
-		n = send(soc, data, length, option);
-		add_udp_data(lexic->script_infos, soc, data, length);
- }
- else
-  n = nsend(soc, data, length,option);
+  if (!fd_is_stream (soc) &&
+      getsockopt (soc, SOL_SOCKET, SO_TYPE, &type, &type_len) == 0 &&
+      type == SOCK_DGRAM)
+    {
+      n = send (soc, data, length, option);
+      add_udp_data (lexic->script_infos, soc, data, length);
+    }
+  else
+    n = nsend (soc, data, length,option);
 
   retc = alloc_tree_cell(0, NULL);
   retc->type = CONST_INT;
@@ -647,14 +653,15 @@ tree_cell * nasl_send(lex_ctxt * lexic)
 
 
 /*---------------------------------------------------------------------*/
-tree_cell * nasl_close_socket(lex_ctxt * lexic)
+tree_cell*
+nasl_close_socket (lex_ctxt * lexic)
 {
- int soc;
- int type;
- unsigned int opt_len = sizeof(type);
- int e;
+  int soc;
+  int type;
+  unsigned int opt_len = sizeof (type);
+  int e;
 
- soc = get_int_var_by_num(lexic, 0, -1);
+  soc = get_int_var_by_num (lexic, 0, -1);
  /* XXX: These are thoughts expressed on the openvas-devel mailing list 2008-08-06:
   *
   * nasl_close_socket seems to be the only place in nasl/nasl_socket.c where the
@@ -678,29 +685,31 @@ tree_cell * nasl_close_socket(lex_ctxt * lexic)
   * tests with the stand-alone nasl interpreter the smallest number it returned
   * was 5.
  */
- if(soc < 4)
-	{
- 	 nasl_perror(lexic, "close(): invalid argument\n");
-	 return NULL;
- 	}
+  if(soc < 4)
+    {
+      nasl_perror (lexic, "close(): invalid argument\n");
+      return NULL;
+    }
 
- if ( fd_is_stream(soc) )
-  return close_stream_connection(soc) < 0 ? NULL:FAKE_CELL;
+  if (fd_is_stream(soc))
+    return close_stream_connection (soc) < 0 ? NULL
+                                             : FAKE_CELL;
 
- e = getsockopt(soc, SOL_SOCKET, SO_TYPE, &type, &opt_len);
- if(e == 0 )
- {
-  if (type == SOCK_DGRAM)
-  {
-   rm_udp_data(lexic->script_infos, soc);
-   return FAKE_CELL;
-  }
-  close(soc);
-  return FAKE_CELL;
- }
- else nasl_perror(lexic, "close(): invalid argument\n");
+  e = getsockopt (soc, SOL_SOCKET, SO_TYPE, &type, &opt_len);
+  if (e == 0)
+    {
+      if (type == SOCK_DGRAM)
+        {
+          rm_udp_data (lexic->script_infos, soc);
+          return FAKE_CELL;
+        }
+      close (soc);
+      return FAKE_CELL;
+    }
+  else
+    nasl_perror (lexic, "close(): invalid argument\n");
 
- return NULL;
+  return NULL;
 }
 
 
@@ -785,7 +794,7 @@ nasl_join_multicast_group(lex_ctxt *lexic)
 
 
 tree_cell*
-nasl_leave_multicast_group(lex_ctxt *lexic)
+nasl_leave_multicast_group (lex_ctxt *lexic)
 {
   char		*a;
   struct in_addr	ia;
@@ -816,7 +825,7 @@ nasl_leave_multicast_group(lex_ctxt *lexic)
 }
 
 tree_cell*
-nasl_get_source_port(lex_ctxt* lexic)
+nasl_get_source_port (lex_ctxt* lexic)
 {
   struct sockaddr_in	ia;
   int		s, fd;
@@ -850,20 +859,20 @@ nasl_get_source_port(lex_ctxt* lexic)
     }
   retc = alloc_typed_cell(CONST_INT);
   retc->x.i_val = ntohs(ia.sin_port);
-  return retc;  
+  return retc;
 }
 
 
 
 tree_cell*
-nasl_socket_get_error(lex_ctxt* lexic)
+nasl_socket_get_error (lex_ctxt* lexic)
 {
   int soc = get_int_var_by_num(lexic, 0, -1);
   tree_cell * retc;
   int err;
 
-  if ( soc < 0 || ! fd_is_stream(soc) )
-	return NULL;
+  if (soc < 0 || !fd_is_stream(soc))
+    return NULL;
 
   err = stream_get_err(soc);
   retc = alloc_typed_cell(CONST_INT);
@@ -895,7 +904,6 @@ nasl_socket_get_error(lex_ctxt* lexic)
 default:
 	fprintf(stderr, "Unknown error %d %s\n", err, strerror(err));
   }
-
 
  return retc;
 }
