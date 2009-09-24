@@ -15,8 +15,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-#include <includes.h>
+
 #include <glib.h>
+
+#include <ctype.h> /* for isspace */
+#include <string.h> /* for strlen */
+
+#include "kb.h" /* for kb_item_get_str */
+#include "plugutils.h" /* plug_get_host_fqdn */
+#include "system.h" /* for emalloc */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -31,6 +38,7 @@
 #include "nasl_http.h"
 
 #include "strutils.h"
+#include "www_funcs.h" /* for build_encode_URL */
 
 /*-----------------[ http_* functions ]-------------------------------*/
  

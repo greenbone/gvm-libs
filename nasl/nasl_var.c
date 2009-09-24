@@ -16,8 +16,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-#include <includes.h>
 
+#include <stdlib.h> /* for abort */
+#include <string.h> /*for strlen */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"

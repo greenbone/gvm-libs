@@ -16,7 +16,19 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-#include <includes.h>
+
+#include "includes.h" /* for definition of FIX/UNFIX (bsd compat) */
+
+#include <arpa/inet.h> /* for inet_aton */
+#include <ctype.h> /* for isprint */
+#include <string.h> /* for bcopy */
+#include <sys/time.h> /* for gettimeofday */
+#include <unistd.h> /* for close */
+
+#include "bpf_share.h" /* for bpf_open_live */
+#include "plugutils.h" /* plug_get_host_ip */
+#include "system.h" /* for emalloc */
+
 #include "nasl_raw.h"
 
 #include "nasl_tree.h"

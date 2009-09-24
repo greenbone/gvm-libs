@@ -24,7 +24,10 @@
  */
 
 #include <glib/gstdio.h>
-#include "includes.h"
+
+#include <fcntl.h> /* for open */
+#include <system.h> /* for efree */
+#include <unistd.h> /* for write */
 
 #include "openvas_ssh_login.h"
 

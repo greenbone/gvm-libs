@@ -1,5 +1,12 @@
 2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* misc/openvas_ssh_login.c, nasl/capture_packet.c, nasl/exec.c,
+	nasl/nasl_http.c, nasl/nasl_packet_forgery.c, nasl/nasl_scanner_glue.c,
+	nasl/nasl_var.c: Replaced "includes.h" by respective includes where
+	possible.
+
+2009-09-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* misc/openvas_logging.c: Added missing include, corrected doc and type
 	of local variable.
 

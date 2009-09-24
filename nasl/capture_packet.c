@@ -17,7 +17,13 @@
  *
  */
 
-#include "includes.h"
+#include <arpa/inet.h> /* for inet_ntoa */
+#include <string.h> /* for bcopy */
+
+#include "bpf_share.h" /* for bpf_datalink */
+#include "pcap_openvas.h" /* for get_datalink_size */
+#include "system.h" /* for estrdup */
+
 #include <pcap.h>
 
 #include "capture_packet.h"

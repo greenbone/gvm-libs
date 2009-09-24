@@ -17,7 +17,14 @@
  *
  */
 
-#include <includes.h>
+#include "includes.h" /* for MAXPATHLEN ? */
+
+#include <stdlib.h> /* for srand48 */
+#include <string.h> /* for strlen */
+#include <unistd.h> /* for getpid */
+
+#include "system.h" /* for efree */
+
 #include "nasl_regex.h"
 
 #include "nasl.h"

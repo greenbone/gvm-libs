@@ -24,9 +24,21 @@
  * (script_*(), *kb*(), scanner_*())
  */
 
-#include <includes.h>
+#include <ctype.h> /* for isdigit */
+#include <errno.h> /* for errno */
+#include <fcntl.h> /* for open */
+#include <stdlib.h> /* for atoi */
+#include <string.h> /* for strcmp */
+#include <sys/stat.h> /* for stat */
+#include <unistd.h> /* for close */
 
 #include <glib.h>
+
+#include "comm.h" /* for comm_send_status */
+#include "kb.h" /* for KB_TYPE_INT */
+#include "plugutils.h" /* for plug_set_timeout */
+#include "scanners_utils.h" /* for getpts */
+#include "system.h" /* for estrdup */
 
 #include "strutils.h"
 
