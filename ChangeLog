@@ -1,5 +1,9 @@
 2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* Makefile: Install header of omp library to openvas/omp.
+
+2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* misc/openvas_logging.h, misc/openvas_logging.c: Moved struct
 	openvas_logging_t from header to implementation file.
 

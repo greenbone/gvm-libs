@@ -44,6 +44,7 @@ install : all
 	test -d $(DESTDIR)${prefix} || ${INSTALL_DIR} -m 755 $(DESTDIR)${prefix}
 	test -d $(DESTDIR)${includedir}/openvas || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas
 	test -d $(DESTDIR)${includedir}/openvas/base || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas/base
+	test -d $(DESTDIR)${includedir}/openvas/omp || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas/omp
 
 	cd base && ${MAKE} install
 	cd hg   && ${MAKE} install
@@ -84,8 +85,8 @@ install : all
 	$(INSTALL) -m 0444 base/openvas_certificate_file.h $(DESTDIR)${includedir}/openvas/base
 	$(INSTALL) -m 0444 base/openvas_string.h $(DESTDIR)${includedir}/openvas/base
 	$(INSTALL) -m 0444 base/severity_filter.h $(DESTDIR)${includedir}/openvas/base
-	$(INSTALL) -m 0444 omp/omp.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 omp/xml.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 omp/omp.h $(DESTDIR)${includedir}/openvas/omp
+	$(INSTALL) -m 0444 omp/xml.h $(DESTDIR)${includedir}/openvas/omp
 	test -d $(DESTDIR)${bindir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${bindir}
 	$(INSTALL) -m 0755 libopenvas-config $(DESTDIR)${bindir}/libopenvas-config
 	test -d $(DESTDIR)${mandir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${mandir}
