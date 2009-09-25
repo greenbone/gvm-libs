@@ -1343,3 +1343,121 @@ omp_delete_config (gnutls_session_t* session,
   if (first == '2') return 0;
   return -1;
 }
+
+/**
+ * @brief Create an LSC Credential.
+ *
+ * @param[in]   session     Pointer to GNUTLS session.
+ * @param[in]   name        Name of LSC Credential.
+ * @param[in]   comment     LSC Credential comment.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+omp_create_lsc_credential (gnutls_session_t* session,
+                           const char* name,
+                           const char* comment)
+{
+  int ret;
+  entity_t entity;
+  const char* status;
+
+  /* Create the OMP request. */
+
+  gchar* new_task_request;
+  if (comment)
+    new_task_request = g_strdup_printf ("<create_lsc_credential>"
+                                        "<name>%s</name>"
+                                        "<comment>%s</comment>"
+                                        "</create_lsc_credential>",
+                                        name,
+                                        comment);
+  else
+    new_task_request = g_strdup_printf ("<create_lsc_credential>"
+                                        "<name>%s</name>"
+                                        "</create_lsc_credential>",
+                                        name);
+
+  /* Send the request. */
+
+  ret = openvas_server_send (session, new_task_request);
+  g_free (new_task_request);
+  if (ret) return -1;
+
+  /* Read the response. */
+
+  entity = NULL;
+  if (read_entity (session, &entity)) return -1;
+
+  /* Check the response. */
+
+  status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  char first = status[0];
+  free_entity (entity);
+  if (first == '2') return 0;
+  return -1;
+}
+
+/**
+ * @brief Delete a LSC credential.
+ *
+ * @param[in]   session     Pointer to GNUTLS session.
+ * @param[in]   name        Name of LSC credential.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+omp_delete_lsc_credential (gnutls_session_t* session,
+                           const char* name)
+{
+  int ret;
+  entity_t entity;
+  const char* status;
+
+  /* Create the OMP request. */
+
+  gchar* new_task_request;
+  new_task_request = g_strdup_printf ("<delete_lsc_credential>"
+                                      "<name>%s</name>"
+                                      "</delete_lsc_credential>",
+                                      name);
+
+  /* Send the request. */
+
+  ret = openvas_server_send (session, new_task_request);
+  g_free (new_task_request);
+  if (ret) return -1;
+
+  /* Read the response. */
+
+  entity = NULL;
+  if (read_entity (session, &entity)) return -1;
+
+  /* Check the response. */
+
+  status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  char first = status[0];
+  free_entity (entity);
+  if (first == '2') return 0;
+  return -1;
+}

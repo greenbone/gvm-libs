@@ -1,3 +1,9 @@
+2009-09-26  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* omp/omp.c (omp_create_lsc_credential, omp_delete_lsc_credential): New
+	functions.
+	* omp/omp.h: Add headers.
+
 2009-09-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/CMakeLists.txt, nasl/CMakeLists.txt, omp/CMakeLists.txt:

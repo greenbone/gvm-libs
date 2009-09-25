@@ -110,4 +110,10 @@ omp_create_config_from_rc_file (gnutls_session_t*, const char*, const char*,
 int
 omp_delete_config (gnutls_session_t*, const char*);
 
+int
+omp_create_lsc_credential (gnutls_session_t*, const char*, const char*);
+
+int
+omp_delete_lsc_credential (gnutls_session_t*, const char*);
+
 #endif /* not _OPENVAS_LIBRARIES_OMP_H */
