@@ -1,5 +1,10 @@
 2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* misc/openvas_logging.h, misc/openvas_logging.c: Moved struct
+	openvas_logging_t from header to implementation file.
+
+2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Removed base/openvas_certificate module, replaced by base/certificate.
 
 	* base/openvas_certificate.c, base/openvas_certificate.h: Removed.

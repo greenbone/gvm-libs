@@ -45,6 +45,23 @@
 
 #include "openvas_logging.h"
 
+
+/**
+ * @struct openvas_logging
+ * @brief OpenVAS Logging stores the parameters loaded from a log configuration
+ * @brief file, to be used internally by the openvas_logging module only.
+ */
+typedef struct
+{
+  gchar *log_domain;         ///< Affected logdomain e.g libnasl.
+  gchar *prepend_string;     ///< Prepend this string before every message.
+  gchar *prepend_time_format; ///< If prependstring has %t, format for strftime.
+  gchar *log_file;           ///< Where to log to.
+  GLogLevelFlags default_level; ///< What severity level to use as default.
+  GIOChannel *log_channel;   ///< Gio Channel - FD holder for logfile.
+} openvas_logging_t;
+
+
 /**
  * @brief Returns time as specified in time_fmt strftime format.
  *
