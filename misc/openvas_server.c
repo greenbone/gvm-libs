@@ -410,6 +410,8 @@ openvas_server_sendf (gnutls_session_t* session, const char* format, ...)
 /**
  * @brief Make a session for connecting to a server.
  *
+ * @param[in]   end_type            Connecton end type (GNUTLS_SERVER or
+ *                                  GNUTLS_CLIENT).
  * @param[in]   ca_file             Certificate authority file.
  * @param[in]   cert_file           Certificate file.
  * @param[in]   key_file            Key file.
@@ -419,7 +421,8 @@ openvas_server_sendf (gnutls_session_t* session, const char* format, ...)
  * @return 0 on success, -1 on error.
  */
 int
-openvas_server_new (gchar* ca_cert_file,
+openvas_server_new (gnutls_connection_end_t end_type,
+                    gchar* ca_cert_file,
                     gchar* cert_file,
                     gchar* key_file,
                     gnutls_session_t* server_session,
@@ -466,12 +469,15 @@ openvas_server_new (gchar* ca_cert_file,
 
   if (cert_file
       && key_file
-      && gnutls_certificate_set_x509_key_file (*server_credentials,
-                                               cert_file,
-                                               key_file,
-                                               GNUTLS_X509_FMT_PEM))
+      && (gnutls_certificate_set_x509_key_file (*server_credentials,
+                                                cert_file,
+                                                key_file,
+                                                GNUTLS_X509_FMT_PEM)
+          < 0))
     {
       g_warning ("%s: failed to set credentials key file\n", __FUNCTION__);
+      g_warning ("%s:   cert file: %s\n", __FUNCTION__, cert_file);
+      g_warning ("%s:   key file : %s\n", __FUNCTION__, key_file);
       goto server_free_fail;
     }
 
@@ -487,8 +493,7 @@ openvas_server_new (gchar* ca_cert_file,
       goto server_free_fail;
     }
 
-  // FIX always a server?
-  if (gnutls_init (server_session, GNUTLS_SERVER))
+  if (gnutls_init (server_session, end_type))
     {
       g_warning ("%s: failed to initialise server session\n", __FUNCTION__);
       goto server_free_fail;

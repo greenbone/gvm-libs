@@ -1,5 +1,14 @@
 2009-09-25  Matthew Mundell <matthew.mundell@intevation.de>
 
+	* misc/openvas_server.c (openvas_server_new): Add arg "end_type" for
+	setting server connection type.  Adjust
+	gnutls_certificate_set_x509_key_file return check.  Expand warning
+	message a little.
+
+	* misc/openvas_server.h: Add arg to header.
+
+2009-09-25  Matthew Mundell <matthew.mundell@intevation.de>
+
 	Add credential setup to openvas server interface.
 
 	* misc/openvas_server.c (openvas_server_open): Turn off use of
