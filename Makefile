@@ -44,6 +44,7 @@ install : all
 	test -d $(DESTDIR)${prefix} || ${INSTALL_DIR} -m 755 $(DESTDIR)${prefix}
 	test -d $(DESTDIR)${includedir}/openvas || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas
 	test -d $(DESTDIR)${includedir}/openvas/base || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas/base
+	test -d $(DESTDIR)${includedir}/openvas/nasl || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas/nasl
 	test -d $(DESTDIR)${includedir}/openvas/omp || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas/omp
 
 	cd base && ${MAKE} install
@@ -80,7 +81,7 @@ install : all
 	$(INSTALL) -m 0444 misc/www_funcs.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 base/certificate.h $(DESTDIR)${includedir}/openvas/base
 	$(INSTALL) -m 0444 base/hash_table_util.h $(DESTDIR)${includedir}/openvas/base
-	$(INSTALL) -m 0444 nasl/nasl.h   $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 nasl/nasl.h   $(DESTDIR)${includedir}/openvas/nasl
 	$(INSTALL) -m 0444 base/nvti.h $(DESTDIR)${includedir}/openvas/base
 	$(INSTALL) -m 0444 base/openvas_certificate_file.h $(DESTDIR)${includedir}/openvas/base
 	$(INSTALL) -m 0444 base/openvas_string.h $(DESTDIR)${includedir}/openvas/base

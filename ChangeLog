@@ -1,5 +1,9 @@
 2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* Makefile: Install headers from nasl to openvas/nasl.
+
+2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* hg/Makefile: Install headers from hg to openvas/hg.
 
 2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
