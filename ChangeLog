@@ -1,3 +1,12 @@
+2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* base/certificate.c: Added todo regarding the set_* methods.
+	(certificate_create_full): New, creates a certificate_t with values.
+
+	* base/certificate.h (struct certificate_t): Changed types from char to
+	gchar (are freed with g_free).
+	(certificate_create_full): Added proto.
+
 2009-09-24  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* Makefile (distclean): Also remove the libopenvas.pc file.

@@ -33,6 +33,11 @@
  * these types.
  */
 
+/**
+ * @todo Correct doc or implementation for the set_* methods, they always
+ *       return 0.
+ */
+
 #include "certificate.h"
 
 /**
@@ -46,6 +51,39 @@ certificate_t *
 certificate_create ()
 {
   return (certificate_t *) g_malloc0 (sizeof (certificate_t));
+}
+
+/**
+ * @brief Create a new certificate structure wih all values set.
+ *
+ * @param fingerprint Fingerprint of the certificate.
+ * @param owner       Name of the owner of the certificate.
+ * @param public_key  Full public key of the certificate.
+ * @param trusted     Whether or not this certificate is trustworthy.
+ *
+ * @return NULL in case the memory could not be allocated. Else a filled
+ *         certificate structure which owns its values and needs to be released
+ *         using @ref certificate_free .
+ */
+certificate_t*
+certificate_create_full (const char* fingerprint, const char* owner,
+                         const char* public_key, gboolean trusted)
+{
+  certificate_t* cert = certificate_create ();
+
+  if (!cert)
+    return NULL;
+
+  if (fingerprint)
+    cert->fingerprint = g_strdup (fingerprint);
+  if (owner)
+    cert->owner       = g_strdup (owner);
+  if (public_key)
+    cert->public_key  = g_strdup (public_key);
+
+  cert->trusted     = trusted;
+
+  return cert;
 }
 
 /**
