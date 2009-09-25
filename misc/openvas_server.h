@@ -47,19 +47,25 @@ int
 openvas_server_connect (int, struct sockaddr_in*, gnutls_session_t*, gboolean);
 
 int
+openvas_server_attach (int, gnutls_session_t*);
+
+int
 openvas_server_send (gnutls_session_t*, const char*);
 
 int
 openvas_server_sendf (gnutls_session_t*, const char*, ...);
 
 int
-openvas_server_session_new (int,
-                            gnutls_session_t*,
-                            gnutls_certificate_credentials_t*);
+openvas_server_new (gchar*, gchar*, gchar*, gnutls_session_t*,
+                    gnutls_certificate_credentials_t*);
 
 int
-openvas_server_session_free (int,
-                             gnutls_session_t,
+openvas_server_free (int,
+                     gnutls_session_t,
+                     gnutls_certificate_credentials_t);
+
+int
+openvas_server_session_free (gnutls_session_t,
                              gnutls_certificate_credentials_t);
 
 #endif /* not _OPENVAS_LIBRARIES_SERVER_H */

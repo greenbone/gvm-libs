@@ -1,3 +1,21 @@
+2009-09-25  Matthew Mundell <matthew.mundell@intevation.de>
+
+	Add credential setup to openvas server interface.
+
+	* misc/openvas_server.c (openvas_server_open): Turn off use of
+	/dev/random.
+	(openvas_server_close): Call gnutls_global_deinit.
+	(openvas_server_session_new): Remove.  Renamed to openvas_server_new.  Add
+	credential file args.  Turn off use of /dev/random.  Add global init.
+	Setup credential from files.  Set request mode.
+	(openvas_server_session_free): Remove.  Renamed to openvas_server_free.
+	Call gnutls_global_deinit.
+	(openvas_server_free, openvas_server_new): New functions, renamed from
+	"session" versions.
+	(openvas_server_attach): New function.
+
+	* misc/openvas_server.h: Update and add headers.
+
 2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Removed usage of harglist for file path translations, do not export

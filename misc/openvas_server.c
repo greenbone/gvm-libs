@@ -31,12 +31,15 @@
  * with an OpenVAS server over GnuTLS.
  */
 
-#include <glib.h>
+/** @todo Ensure that every global init gets a free. */
+
 #include <arpa/inet.h>
-#include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <gcrypt.h>
+#include <glib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "openvas_server.h"
 
@@ -71,6 +74,10 @@ openvas_server_open (gnutls_session_t * session,
 {
   /** @todo Ensure that host and port have sane values. */
   /** @todo Improve logging.*/
+
+  /* Turn off use of /dev/random, as this can block. */
+
+  gcry_control (GCRYCTL_ENABLE_QUICK_RANDOM, 0);
 
   /* Initialize security library. */
 
@@ -109,6 +116,8 @@ openvas_server_open (gnutls_session_t * session,
 
   /* Setup server session. */
 
+  /** @todo Use openvas_server_session_new. */
+
   gnutls_certificate_credentials_t credentials;
   if (gnutls_certificate_allocate_credentials (&credentials))
     {
@@ -116,6 +125,7 @@ openvas_server_open (gnutls_session_t * session,
       goto close_fail;
     }
 
+  // FIX always a client?
   if (gnutls_init (session, GNUTLS_CLIENT))
     {
       g_message ("Failed to initialise server session.");
@@ -145,6 +155,8 @@ openvas_server_open (gnutls_session_t * session,
       g_message ("Failed to set server credentials.");
       goto server_fail;
     }
+
+  /** @todo Use openvas_server_connect. */
 
   /* Connect to server. */
 
@@ -209,10 +221,10 @@ openvas_server_close (int socket, gnutls_session_t session)
 
   gnutls_bye (session, GNUTLS_SHUT_RDWR);
   close (socket);
+  gnutls_global_deinit ();
   return 0;
 }
 
-/** @todo Use in openvas_server_open. */
 /**
  * @brief Connect to a server.
  *
@@ -297,6 +309,38 @@ openvas_server_connect (int server_socket,
 }
 
 /**
+ * @brief Attach a socket to a session, and shake hands with the peer.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  socket   Socket.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+openvas_server_attach (int socket, gnutls_session_t* session)
+{
+  gnutls_transport_set_ptr (*session,
+                            (gnutls_transport_ptr_t) socket);
+
+  while (1)
+    {
+      int ret = gnutls_handshake (*session);
+      if (ret >= 0)
+        break;
+      if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
+        continue;
+      g_message ("Failed to shake hands with peer.");
+      gnutls_perror (ret);
+      if (shutdown (socket, SHUT_RDWR) == -1)
+        g_message ("Failed to shutdown server socket");
+      return -1;
+    }
+  g_message ("   Shook hands with peer.");
+
+  return 0;
+}
+
+/**
  * @brief Send a string to the server.
  *
  * @param[in]  session  Pointer to GNUTLS session.
@@ -366,20 +410,21 @@ openvas_server_sendf (gnutls_session_t* session, const char* format, ...)
 /**
  * @brief Make a session for connecting to a server.
  *
- * @param[out]  server_socket       The socket connected to the server.
+ * @param[in]   ca_file             Certificate authority file.
+ * @param[in]   cert_file           Certificate file.
+ * @param[in]   key_file            Key file.
  * @param[out]  server_session      The session with the server.
- * @param[out]  server_credentials  Credentials.
+ * @param[out]  server_credentials  Server credentials.
  *
  * @return 0 on success, -1 on error.
  */
 int
-openvas_server_session_new (int server_socket,
-                            gnutls_session_t* server_session,
-                            gnutls_certificate_credentials_t*
-                            server_credentials)
+openvas_server_new (gchar* ca_cert_file,
+                    gchar* cert_file,
+                    gchar* key_file,
+                    gnutls_session_t* server_session,
+                    gnutls_certificate_credentials_t* server_credentials)
 {
-  /* Setup server session. */
-
   // FIX static vars?
   const int protocol_priority[] = { GNUTLS_TLS1,
                                     0 };
@@ -399,13 +444,51 @@ openvas_server_session_new (int server_socket,
                                GNUTLS_MAC_MD5,
                                0 };
 
+  /* Turn off use of /dev/random, as this can block. */
+
+  gcry_control (GCRYCTL_ENABLE_QUICK_RANDOM, 0);
+
+  /* Initialize security library. */
+
+  if (gnutls_global_init ())
+    {
+      g_message ("Failed to initialize GNUTLS.");
+      return -1;
+    }
+
+  /* Setup server session. */
+
   if (gnutls_certificate_allocate_credentials (server_credentials))
     {
       g_warning ("%s: failed to allocate server credentials\n", __FUNCTION__);
-      goto close_fail;
+      return -1;
     }
 
-  if (gnutls_init (server_session, GNUTLS_CLIENT))
+  if (cert_file
+      && key_file
+      && gnutls_certificate_set_x509_key_file (*server_credentials,
+                                               cert_file,
+                                               key_file,
+                                               GNUTLS_X509_FMT_PEM))
+    {
+      g_warning ("%s: failed to set credentials key file\n", __FUNCTION__);
+      goto server_free_fail;
+    }
+
+  if (ca_cert_file
+      && (gnutls_certificate_set_x509_trust_file (*server_credentials,
+                                                  ca_cert_file,
+                                                  GNUTLS_X509_FMT_PEM)
+          < 0))
+    {
+      g_warning ("%s: failed to set credentials trust file: %s\n",
+                 __FUNCTION__,
+                 ca_cert_file);
+      goto server_free_fail;
+    }
+
+  // FIX always a server?
+  if (gnutls_init (server_session, GNUTLS_SERVER))
     {
       g_warning ("%s: failed to initialise server session\n", __FUNCTION__);
       goto server_free_fail;
@@ -450,44 +533,30 @@ openvas_server_session_new (int server_socket,
       goto server_fail;
     }
 
+  gnutls_certificate_server_set_request (*server_session,
+                                         GNUTLS_CERT_REQUEST);
+
+  /* FIX */
+  gnutls_session_enable_compatibility_mode (*server_session);
+
 #if 0
   // FIX admin also had this
-
-  /* request client certificate if any.
-   */
-  gnutls_certificate_server_set_request (session, GNUTLS_CERT_REQUEST);
 
   gnutls_dh_set_prime_bits (session, DH_BITS);
 #endif
 
-  // FIX get flags first
-  // FIX after read_protocol
-  /* The socket must have O_NONBLOCK set, in case an "asynchronous network
-   * error" removes the data between `select' and `read'. */
-  if (fcntl (server_socket, F_SETFL, O_NONBLOCK) == -1)
-    {
-      g_warning ("%s: failed to set server socket flag: %s\n",
-                 __FUNCTION__,
-                 strerror (errno));
-      goto fail;
-    }
-
   return 0;
 
- fail:
-  (void) gnutls_bye (*server_session, GNUTLS_SHUT_RDWR);
  server_fail:
   (void) gnutls_deinit (*server_session);
 
  server_free_fail:
   gnutls_certificate_free_credentials (*server_credentials);
 
- close_fail:
-  (void) close (server_socket);
-
   return -1;
 }
 
+/** @todo vs openvas_server_close */
 /**
  * @brief Cleanup a server session.
  *
@@ -498,10 +567,10 @@ openvas_server_session_new (int server_socket,
  * @return 0 success, -1 error.
  */
 int
-openvas_server_session_free (int server_socket,
-                             gnutls_session_t server_session,
-                             gnutls_certificate_credentials_t
-                             server_credentials)
+openvas_server_free (int server_socket,
+                     gnutls_session_t server_session,
+                     gnutls_certificate_credentials_t
+                     server_credentials)
 {
   int count;
 
@@ -569,6 +638,8 @@ openvas_server_session_free (int server_socket,
   gnutls_deinit (server_session);
 
   gnutls_certificate_free_credentials (server_credentials);
+
+  gnutls_global_deinit ();
 
   return 0;
 }
