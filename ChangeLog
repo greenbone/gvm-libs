@@ -1,5 +1,15 @@
 2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Removed usage of harglist for file path translations, do not export
+	harglist headers anymore.
+
+	* Makefile: Do not export harglist headers anymore.
+
+	* misc/plugutils.c (get_plugin_preference_fname): Use GHashTable instead
+	of harglist.
+
+2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* Makefile: Install headers from nasl to openvas/nasl.
 
 2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
