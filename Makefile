@@ -59,7 +59,6 @@ install : all
 	$(INSTALL) -m 0444 misc/bpf_share.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 misc/ftp_funcs.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 misc/hash_table_file.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/harglists.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 misc/kb.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 misc/network.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 misc/ntp.h $(DESTDIR)${includedir}/openvas
