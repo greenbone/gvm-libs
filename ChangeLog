@@ -1,5 +1,28 @@
 2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Removed base/openvas_certificate module, replaced by base/certificate.
+
+	* base/openvas_certificate.c, base/openvas_certificate.h: Removed.
+
+	* Makefile: Do not install openvas_certificate header anymore.
+
+	* base/CMakeLists.txt: Removed openvas_certificate from files list.
+
+	* nasl/CMakeLists.txt: Added base as include dir; libopenvas_nasl
+	depends on libopenvas_base.
+
+	* nasl/nasl.h, nasl/nasl_signature.h: Removed definition of struct
+	openvas_certificate and related functions.
+
+	* nasl/nasl_signature.c: Adjusted include
+	(openvas_certificate_free, openvas_certificate_new): removed (former
+	duplicates)
+	(nasl_get_pubkey): Switch from emalloc to g_malloc.
+	(nasl_get_all_certificates): Switch from openvas_certificate to
+	certificate_t.
+
+2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* base/openvas_certificate_file.c (add_cert_to_file,
 	openvas_certificate_file_read): Cleaned up includes, switch from
 	openvas_certificate to certificate_t implementation.

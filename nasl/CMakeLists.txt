@@ -163,6 +163,7 @@ add_definitions (-DOPENVAS_STATE_DIR=\\\"${OPENVAS_STATE_DIR}\\\")
 add_definitions (-DVERSION=\\\"${_OPENVASLIBNASL_VERSION}\\\")
 add_definitions (-DOPENVAS_SYSCONFDIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
 
+include_directories (../base)
 include_directories (../hg)
 include_directories (../misc)
 include_directories (../include)

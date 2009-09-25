@@ -26,6 +26,8 @@
 #include <string.h> /* for strlen */
 #include "system.h" /* for emalloc */
 
+#include "certificate.h" /* for certificate_t */
+
 #include "nasl_signature.h"
 
 #include "nasl_tree.h"
@@ -33,47 +35,6 @@
 #include "nasl_func.h"
 #include "nasl_lex_ctxt.h"
 #include "nasl_debug.h"
-
-/**
- * @brief Returns pointer to freshly allocated and initialized openvas_certificate.
- * 
- * @param fingerpr ingerprint of certificate.
- * @param owner Certificate owners name.
- * @param istrusted Whether this certificate is trustworthy or not.
- * @param pubkey Full public key.
- * 
- * @return Pointer to fresh openvas_certificate.
- */
-openvas_certificate*
-openvas_certificate_new (char* fingerpr, char* owner, gboolean istrusted,
-                         char* pubkey)
-{
-  openvas_certificate* cert = emalloc(sizeof(openvas_certificate));
-  cert->fpr = fingerpr;
-  cert->ownername = owner;
-  cert->trusted = istrusted;
-  cert->full_public_key = pubkey;
-  return cert;
-}
-
-/**
- * Frees the openvas_certificate and all associated data.
- * 
- * @param cert Certificate which holds pointers to the data.
- */
-void
-openvas_certificate_free (openvas_certificate* cert)
-{
-  if(cert == NULL)
-    return;
-  if(cert->fpr != NULL)
-    efree(& (cert->fpr) );
-  if( cert->ownername != NULL)
-    efree(& (cert->ownername) );
-  if(cert->full_public_key != NULL)
-    efree(& (cert->full_public_key) );
-  efree(&cert);
-}
 
 /**
  * Prints an error message for errors returned by gpgme.
@@ -441,7 +402,7 @@ nasl_extract_signature_fprs (const char* filename)
  * @param ctx The gpgme context to work in.
  * @param fingerprint Fingerprint of the key to return.
  * 
- * @return The public key belonging to fingerprint in an emalloc'ed string 
+ * @return The public key belonging to fingerprint in an g_malloc'ed string 
  *         or NULL if an error occurred.
  */
 char*
@@ -479,7 +440,7 @@ nasl_get_pubkey (gpgme_ctx_t ctx, char* fingerprint)
       return NULL;
     }
 
-  key_string = emalloc ((key_length + 1) * sizeof(char));
+  key_string = g_malloc ((key_length + 1) * sizeof(char));
 
   // Rewind data
   if (gpgme_data_seek (pkey, 0, SEEK_SET) != 0)
@@ -511,7 +472,7 @@ nasl_get_pubkey (gpgme_ctx_t ctx, char* fingerprint)
 }
 
 /**
- * @brief Creates openvas_certificates for all certificates found in the
+ * @brief Creates certificate_ts for all certificates found in the
  * @brief (custom) gpg home directory
  * and returns a pointer to a GSList containing (pointers to) them.
  * 
@@ -519,7 +480,8 @@ nasl_get_pubkey (gpgme_ctx_t ctx, char* fingerprint)
  * trust level and then read in the full public key. The two steps have to
  * be done seperately because the two gpgme listing operations are exclusive.
  * 
- * @return Pointer to a GSList containing pointers to openvas_certificate structs.
+ * @return Pointer to a GSList containing pointers to certificate structs.
+ * @todo consider using the certificates_t type from base/certificates.c
  */
 GSList*
 nasl_get_all_certificates ()
@@ -558,14 +520,15 @@ nasl_get_all_certificates ()
             break;
           }
 
-       openvas_certificate* cert = emalloc (sizeof (openvas_certificate));
-       cert->fpr = estrdup (key->subkeys->fpr);
-       cert->ownername = estrdup (key->uids->name);
+       certificate_t* cert = certificate_create ();
+       cert->fingerprint = g_strdup (key->subkeys->fpr);
+       cert->owner = g_strdup (key->uids->name);
        if (key->owner_trust == GPGME_VALIDITY_FULL || key->owner_trust == GPGME_VALIDITY_ULTIMATE)
           cert->trusted = TRUE;
        else
           cert->trusted = FALSE;
 
+       /** @todo base/certificate.c offers certificates (list) functionality */
        certificates = g_slist_prepend (certificates, cert);
        gpgme_key_release (key);
     }
@@ -574,8 +537,8 @@ nasl_get_all_certificates ()
   GSList* list = certificates;
   while (list != NULL && list->data != NULL)
     {
-      openvas_certificate* cert = list->data;
-      cert->full_public_key = nasl_get_pubkey (ctx, cert->fpr);
+      certificate_t* cert = list->data;
+      cert->public_key = nasl_get_pubkey (ctx, cert->fingerprint);
       list = g_slist_next (list);
     }
 

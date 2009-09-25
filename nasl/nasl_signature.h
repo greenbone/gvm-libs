@@ -27,17 +27,6 @@
 #include <gpgme.h>
 #include <glib.h>
 
-typedef struct {
-  char* fpr;
-  char* ownername;
-  gboolean trusted;
-  char* full_public_key;
-} openvas_certificate;
-
-openvas_certificate* openvas_certificate_new(char*, char*, gboolean, 
-                                                    char*);
-void openvas_certificate_free(openvas_certificate*);
-
 int nasl_verify_signature(const char* filename);
 char* nasl_extract_signature_fprs(const char* filename);
 gpgme_ctx_t init_openvas_gpgme_ctx(void);

@@ -93,23 +93,15 @@
 
 #define OPENVAS_NASL_LEVEL 2320
 
-/* Signature information extraction and verification (not nasl- specific 
-  anymore, thus likely to be moved to openvas-libraries): */
 #include <glib.h>
 
 #include "arglists.h" /* for struct arglist */
 
-typedef struct {
-  char* fpr;
-  char* ownername;
-  int trusted;
-  char* full_public_key;
-} openvas_certificate;
-
+/* Signature information extraction and verification (not nasl- specific 
+  anymore, thus likely to be moved to openvas-libraries): */
 int nasl_verify_signature(const char* filename);
 char* nasl_extract_signature_fprs(const char* filename);
 GSList* nasl_get_all_certificates();
-void openvas_certificate_free(openvas_certificate*);
 /* End of Signature information extraction */
 
 int add_nasl_inc_dir (const char *);
