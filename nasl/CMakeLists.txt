@@ -1,6 +1,6 @@
-# OpenVAS-libraries/base
+# OpenVAS-libraries/nasl
 # $Id$
-# Description: Top-level cmake control for the base library.
+# Description: Top-level cmake control for the nasl library.
 #
 # Authors:
 # Matthew Mundell <matthew.mundell@intevation.de>
@@ -46,9 +46,9 @@ SET (CPACK_SOURCE_GENERATOR "TGZ")
 SET (CPACK_SOURCE_TOPLEVEL_TAG "")
 SET (CPACK_SYSTEM_NAME "")
 SET (CPACK_TOPLEVEL_TAG "")
-SET (CPACK_PACKAGE_VERSION_MAJOR "0")
+SET (CPACK_PACKAGE_VERSION_MAJOR "3")
 SET (CPACK_PACKAGE_VERSION_MINOR "0")
-SET (CPACK_PACKAGE_VERSION_PATCH "0.SVN")
+SET (CPACK_PACKAGE_VERSION_PATCH "0")
 SET (CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 SET (CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}")
 SET (CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}")
@@ -178,6 +178,8 @@ add_library (openvas_nasl_shared SHARED ${FILES})
 set_target_properties (openvas_nasl_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS}")
 set_target_properties (openvas_nasl_shared PROPERTIES OUTPUT_NAME "openvas_nasl")
 set_target_properties (openvas_nasl_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+set_target_properties (openvas_nasl_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
+set_target_properties (openvas_nasl_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
 
 # Find GLib
 exec_program (pkg-config

@@ -1,3 +1,8 @@
+2009-09-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/CMakeLists.txt, nasl/CMakeLists.txt, omp/CMakeLists.txt:
+	Setting version for .so library properly.
+
 2009-09-25  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* misc/openvas_server.c (openvas_server_new): Add arg "end_type" for
