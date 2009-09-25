@@ -1,6 +1,6 @@
 /* OpenVAS-Client
  * $Id$
- * Description: Writing and reading one or more openvas_certificates to / from 
+ * Description: Writing and reading one or more certificate_t to / from 
  * a file that roughly uses freedesktop.org specifications (Glibs GKeyFile).
  *
  * Authors:
@@ -28,8 +28,6 @@
 #define _OPENVAS_CERTIFICATE_FILE_H
 
 #include <glib.h>
-
-#include "openvas_certificate.h"
 
 gboolean openvas_certificate_file_write (GHashTable* certs, char* filename);
 

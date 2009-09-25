@@ -1,5 +1,14 @@
 2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* base/openvas_certificate_file.c (add_cert_to_file,
+	openvas_certificate_file_read): Cleaned up includes, switch from
+	openvas_certificate to certificate_t implementation.
+
+	* base/openvas_certificate_file.h: Removed unneeded include, adjusted
+	doc.
+
+2009-09-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* base/certificate.c: Added todo regarding the set_* methods.
 	(certificate_create_full): New, creates a certificate_t with values.
 

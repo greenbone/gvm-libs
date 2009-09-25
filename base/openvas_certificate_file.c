@@ -1,6 +1,6 @@
 /* OpenVAS-Client
  * $Id$
- * Description: Writing and reading one or more openvas_certificates to / from 
+ * Description: Writing and reading one or more certificates to / from 
  * a file that roughly uses freedesktop.org specifications (Glibs GKeyFile).
  *
  * Authors:
@@ -24,9 +24,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "openvas_certificate_file.h"
-
 #include <fcntl.h> /* for open */
+#include <unistd.h> /* for close */
+
+#include "certificate.h" /* for certificate_t */
+#include "openvas_certificate_file.h"
 
 #define KEY_CERT_OWNERNAME "ownername" /**< Key used to store ownernames.*/
 #define KEY_CERT_TRUSTED "trusted" /**< Key used to store trust level.*/
@@ -38,7 +40,7 @@
 
 /**
  * \file
- * Functions to "(de)serialize" one or more openvas_certificates to or from a 
+ * Functions to "(de)serialize" one or more certificates to or from a
  * file.
  * The public key will neither be stored nor loaded.
  * Makes use of GLibs GKeyFile mechanism. The files will and have to look like:
@@ -58,17 +60,17 @@
  * Use as a callback function (e.g. for foreachs of a hashtable).
  *
  * @param fpr Fingerprint of certificate, used as group name.
- * @param value Pointer to a openvas_certificate struct.
+ * @param value Pointer to a certificate_t struct.
  * @param file Pointer to GKeyFile.
  */
-static void add_cert_to_file(char* fpr, openvas_certificate* cert, 
-                             GKeyFile* file)
+static void
+add_cert_to_file (char* fpr, certificate_t* cert, GKeyFile* file)
 {
   if(fpr == NULL || file == NULL || cert == NULL)
     return;
 
-  g_key_file_set_string(file, fpr, KEY_CERT_OWNERNAME, cert->ownername);
-  g_key_file_set_boolean(file, fpr, KEY_CERT_TRUSTED, cert->trusted);
+  g_key_file_set_string (file, fpr, KEY_CERT_OWNERNAME, cert->owner);
+  g_key_file_set_boolean (file, fpr, KEY_CERT_TRUSTED, cert->trusted);
 }
 
 /**
@@ -141,7 +143,7 @@ gboolean openvas_certificate_file_write (GHashTable* certs, char* filename)
 
 /**
  * @brief Reads all certificates found in file \ref filename, creates
- * @brief openvas_certificate structs, stores these in a GHashTable (with
+ * @brief certificate_t structs, stores these in a GHashTable (with
  * @brief fingerprints as keys) and returns the hashtable.
  *
  * Certificates can be written to that file calling 
@@ -149,7 +151,7 @@ gboolean openvas_certificate_file_write (GHashTable* certs, char* filename)
  *
  * @param filename Path to file to read certificates from.
  *
- * @return GHashTable with fingerprints/openvas_certificates* as key/values or
+ * @return GHashTable with fingerprint/certificate_t* as key/values or
  *         NULL in case of an error.
  *
  * @see openvas_certificate_file_write
@@ -160,8 +162,8 @@ GHashTable* openvas_certificate_file_read(char* filename)
   gsize length;
   GKeyFile* key_file = g_key_file_new();
   GError* err        = NULL;
-  GHashTable* certificates = g_hash_table_new_full(g_str_hash, g_str_equal, 
-                             NULL, (GDestroyNotify) openvas_certificate_free);
+  GHashTable* certificates = g_hash_table_new_full(g_str_hash, g_str_equal,
+                             NULL, (GDestroyNotify) certificate_free);
 
   g_key_file_load_from_file(key_file, filename, G_KEY_FILE_NONE, &err);
 
@@ -182,22 +184,21 @@ GHashTable* openvas_certificate_file_read(char* filename)
     {
     if(fprs[i] == NULL || fprs[i] == '\0')
       continue;
-    // Init a openvas_certificate
-    char* ownername = g_key_file_get_string(key_file, fprs[i], 
+    // Init a certificate
+    gchar* ownername = g_key_file_get_string(key_file, fprs[i], 
                                             KEY_CERT_OWNERNAME, &err);
     gboolean trusted = g_key_file_get_boolean(key_file, fprs[i], 
                                               KEY_CERT_TRUSTED, &err);
-    openvas_certificate* cert = openvas_certificate_new(fprs[i],
-                                                        ownername,
-                                                        trusted, NULL);
-    if(ownername == NULL || err != NULL)
+    certificate_t* cert = certificate_create_full (fprs[i], ownername, NULL, trusted);
+    if (ownername == NULL || err != NULL)
       {
-      efree(&ownername);
-      openvas_certificate_free(cert);
+      if (ownername != NULL)
+        g_free (ownername);
+      certificate_free (cert);
       continue;
       }
 
-    g_hash_table_insert(certificates, cert->fpr, cert);
+    g_hash_table_insert (certificates, cert->fingerprint, cert);
     }
 
   g_key_file_free(key_file);
