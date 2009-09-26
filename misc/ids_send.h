@@ -1,6 +1,9 @@
 #ifndef __OPENVAS_IDS_SEND_H__
 #define __OPENVAS_IDS_SEND_H__
 
+/* for struct arglist */
+#include "arglists.h"
+
 /*
  * Transport layer options
  * XXX: These defines were moved here from libopenvas.h sind they

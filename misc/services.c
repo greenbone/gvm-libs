@@ -33,13 +33,15 @@
 #include <fcntl.h>
 #include <netdb.h>
 
+#include <stdio.h> /* for perror() */
 
 #ifndef MAP_FAILED
 #define MAP_FAILED ((void*)-1)
 #endif
 
 #include "services.h"
-#include "libopenvas.h"
+
+#include "system.h" /* for erealloc() */
 
 /* IMPORTANT ! Some options are defined in services.h */
 

@@ -34,12 +34,18 @@
 #include <stdlib.h>
 #include <signal.h>
 
+#include <stdio.h> /* for fprintf() */
+#include <sys/time.h> /* for gettimeofday */
+
 #include <glib.h>
 
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 
-#include "libopenvas.h"
+#include "system.h" /* for efree(), erealloc() */
+#include "network.h" /* for socket_close() */
+#include "kb.h" /* for kb_item_get_str() */
+
 #include "resolve.h"
 #include "ids_send.h"
 #include "plugutils.h"
@@ -50,6 +56,10 @@
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff
+#endif
+
+#ifndef ExtFunc
+#define ExtFunc
 #endif
 
 extern int plug_get_port_transport(struct arglist*, int);
