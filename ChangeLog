@@ -1,5 +1,9 @@
 2009-09-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* Makefile: Removed wrongly placed DESTDIRs.
+
+2009-09-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/network.c, misc/services.c: Resolved libopenvas.h by
 	respective single includes.
 
