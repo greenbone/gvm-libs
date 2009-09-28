@@ -1,3 +1,57 @@
+openvas-libraries 3.0.0-beta2 (2009-09-28)
+
+This release is the second beta version of openvas-libraries
+leading up to the upcoming 3.0 release of OpenVAS.
+It introduces a significantly improved and changed source
+code architecture and therefore introduces a new API for the
+other OpenVAS components.
+
+OpenVAS 3.0 will introduce a new architecture where openvas-libraries
+now includes openvas-libnasl as well as redundant code from openvas-client
+and where openvas-server is renamed to openvas-scanner and includes any
+platform-dependent elements of openvas-plugins. As a result of this,
+the source code will shrink, though new features will be added. Also,
+for running the scanner now only 2 modules are required (instead of 4
+as for OpenVAS 2.0).
+
+New features of OpenVAS include support for IPv6 and WMI-Clients.
+Version 3.0 prepares the new OpenVAS Manager and OpenVAS Administrator
+as optional extension. This combination leverages the vulnerability
+scanner to a comprehensive vulnerability management solution.
+
+The "beta" releases are intented to allow testing of the upcoming
+3.0 series. It should be kept separate from OpenVAS 2.0 installations
+and not be used in a production environment.
+
+Many thanks to everyone who has contributed to the 3.0.0 release:
+Chandrashekhar B, Marcus Brinkmann, Tim Brown, Vlatko Kosturjak, Michael Meyer,
+Matthew Mundell, Laban Mwangi, Srinivasa NL, Jan Wagner, Jan-Oliver Wagner,
+Michael Wiegand and Felix Wolfsteller.
+
+Main changes compared to 2.0.x:
+
+* IPv6 support
+* WMI-Client support
+* Integration of openvas-libnasl
+* New library "base"
+* New library "omp"
+* Former libopenvas renamed to libopenvas_misc
+* New NVT cache implementation to overcome limitations
+* Several files from openvas-client integrated
+* Use of "cmake" to build base, omp and nasl
+* glib dependency raised from 2.6 to 2.12
+
+Main changes compared to 3.0.0-beta1:
+
+* Removed any packaging files as they are kept separately.
+* Extended and cleaned up API (especially "include"'s)
+* Consistent name scheme for libraries (libopenvas_XXX) where
+  XXX is base, omp, misc, hg and nasl.
+* New structure of installed header files (subdirectory for
+  each library, except for misc)
+* Fixed and improved build system (e.g. correct use of DESTDIR)
+
+
 openvas-libraries 3.0.0-beta1 (2009-09-22)
 
 This release is the first beta version of openvas-libraries
