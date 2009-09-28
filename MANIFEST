@@ -9,8 +9,6 @@ base/nvti.c
 base/nvti.h
 base/nvticache.c
 base/nvticache.h
-base/openvas_certificate.c
-base/openvas_certificate.h
 base/openvas_certificate_file.c
 base/openvas_certificate_file.h
 base/openvas_string.c
