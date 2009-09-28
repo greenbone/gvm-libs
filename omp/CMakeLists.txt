@@ -26,7 +26,7 @@ message ("-- Configuring openvas-libraries/omp...")
 
 project (openvas-libraries/base C)
 
-cmake_minimum_required (VERSION 2.4)
+cmake_minimum_required (VERSION 2.6)
 
 if (POLICY CMP0005)
    cmake_policy (SET CMP0005 OLD)

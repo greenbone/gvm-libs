@@ -1,4 +1,9 @@
-2009-09-22  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+2009-09-28  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* base/CMakeLists.txt, omp/CMakeLists.txt, nasl/CMakeLists.txt: Set cmake
+	minimum required version to 2.6.
+
+2009-09-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Post-release version bump.
 
