@@ -1,5 +1,10 @@
 2009-09-28  Matthew Mundell <matthew.mundell@intevation.de>
 
+	* nasl/openvas_logging.c (openvas_log_func): On failure to create the log
+	file, ensure that the directory exists and try open the file again.
+
+2009-09-28  Matthew Mundell <matthew.mundell@intevation.de>
+
 	* base/CMakeLists.txt, omp/CMakeLists.txt, nasl/CMakeLists.txt: Set cmake
 	minimum required version to 2.6.
 

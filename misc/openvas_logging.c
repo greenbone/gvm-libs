@@ -42,6 +42,8 @@
 #include <string.h> /* for strlen */
 #include <stdlib.h> /* for atoi */
 #include <unistd.h> /* for getpid */
+#include <libgen.h>
+#include <errno.h>
 
 #include "openvas_logging.h"
 
@@ -509,8 +511,34 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
           channel = g_io_channel_new_file (log_file, "a", &error);
           if (!channel)
             {
-              g_error ("Can not open '%s' logfile. %s", log_file,
-                       error->message);
+              gchar *log = g_strdup (log_file);
+              gchar *dir = dirname (log_file);
+
+              /** @todo Check what error this is. */
+              g_error_free (error);
+
+              /* Ensure directory exists. */
+              if (g_mkdir_with_parents (dir, 0755)) /* "rwxr-xr-x" */
+                {
+                  g_warning ("Failed to create log file directory %s: %s",
+                             dir,
+                             strerror (errno));
+                  g_free (log);
+                  g_free (tmpstr);
+                  g_free (prepend_buf);
+                  return;
+                }
+              g_free (log);
+
+              /* Try again. */
+              error = NULL;
+              channel = g_io_channel_new_file (log_file, "a", &error);
+              if (!channel)
+                {
+                  g_error ("Can not open '%s' logfile: %s",
+                           log_file,
+                           error->message);
+                }
             }
 
           /* Store it in the struct for later use. */
