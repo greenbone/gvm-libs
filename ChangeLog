@@ -1,5 +1,10 @@
 2009-09-30  Matthew Mundell <matthew.mundell@intevation.de>
 
+	* nasl/openvas_logging.c (openvas_log_func): Pass the correct variable to
+	dirname.
+
+2009-09-30  Matthew Mundell <matthew.mundell@intevation.de>
+
 	* nasl/openvas_logging.c (openvas_logging_t, load_log_configuration)
 	(free_log_configuration): Change the default_level field to a gint
 	pointer, so that it's possible to reliably tell if the field was present

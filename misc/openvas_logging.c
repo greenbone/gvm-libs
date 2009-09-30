@@ -515,7 +515,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
           if (!channel)
             {
               gchar *log = g_strdup (log_file);
-              gchar *dir = dirname (log_file);
+              gchar *dir = dirname (log);
 
               /** @todo Check what error this is. */
               g_error_free (error);
