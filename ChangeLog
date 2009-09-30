@@ -1,4 +1,13 @@
-2009-09-28  Matthew Mundell <matthew.mundell@intevation.de>
+2009-09-30  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* nasl/openvas_logging.c (openvas_logging_t, load_log_configuration)
+	(free_log_configuration): Change the default_level field to a gint
+	pointer, so that it's possible to reliably tell if the field was present
+	in the log config file.
+	(openvas_log_func): Always set the default level from the config if the
+	level was present in the log config file (including if the level is 0).
+
+2009-09-29  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* nasl/openvas_logging.c (openvas_log_func): On failure to create the log
 	file, ensure that the directory exists and try open the file again.

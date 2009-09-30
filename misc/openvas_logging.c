@@ -59,7 +59,7 @@ typedef struct
   gchar *prepend_string;     ///< Prepend this string before every message.
   gchar *prepend_time_format; ///< If prependstring has %t, format for strftime.
   gchar *log_file;           ///< Where to log to.
-  GLogLevelFlags default_level; ///< What severity level to use as default.
+  GLogLevelFlags *default_level; ///< What severity level to use as default.
   GIOChannel *log_channel;   ///< Gio Channel - FD holder for logfile.
 } openvas_logging_t;
 
@@ -178,7 +178,7 @@ load_log_configuration (gchar * config_file)
       log_domain_entry->prepend_string = NULL;
       log_domain_entry->prepend_time_format = NULL;
       log_domain_entry->log_file = NULL;
-      log_domain_entry->default_level = 0;
+      log_domain_entry->default_level = NULL;
       log_domain_entry->log_channel = NULL;
 
 
@@ -211,7 +211,8 @@ load_log_configuration (gchar * config_file)
 
           level = g_key_file_get_value (key_file, *group, "level", &error);
           level = g_strchug (level);
-          log_domain_entry->default_level = level_int_from_string (level);
+          log_domain_entry->default_level = g_malloc (sizeof (gint));
+          *log_domain_entry->default_level = level_int_from_string (level);
           g_free (level);
         }
 
@@ -255,6 +256,7 @@ free_log_configuration (GSList * log_domain_list)
       g_free (log_domain_entry->prepend_string);
       g_free (log_domain_entry->prepend_time_format);
       g_free (log_domain_entry->log_file);
+      g_free (log_domain_entry->default_level);
 
       /* Drop the reference to the GIOChannel. */
       if (log_domain_entry->log_channel)
@@ -339,7 +341,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
               if (log_domain_entry->log_file)
                 log_file = log_domain_entry->log_file;
               if (log_domain_entry->default_level)
-                default_level = log_domain_entry->default_level;
+                default_level = *log_domain_entry->default_level;
               if (log_domain_entry->log_channel)
                 channel = log_domain_entry->log_channel;
               break;
@@ -375,7 +377,8 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
               prepend_format = log_domain_entry->prepend_string;
               time_format = log_domain_entry->prepend_time_format;
               log_file = log_domain_entry->log_file;
-              default_level = log_domain_entry->default_level;
+              if (log_domain_entry->default_level)
+                default_level = *log_domain_entry->default_level;
               channel = log_domain_entry->log_channel;
               break;
             }
