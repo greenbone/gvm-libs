@@ -86,6 +86,9 @@ int
 omp_get_preferences (gnutls_session_t*, entity_t*);
 
 int
+omp_get_preferences_503 (gnutls_session_t*, entity_t*);
+
+int
 omp_get_certificates (gnutls_session_t*, entity_t*);
 
 int

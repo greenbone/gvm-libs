@@ -989,6 +989,50 @@ omp_get_preferences (gnutls_session_t* session, entity_t* response)
 }
 
 /**
+ * @brief Get the manager preferences, waiting for them to appear.
+ *
+ * @param[in]  session   Pointer to GNUTLS session.
+ * @param[out] response  On success contains GET_PREFERENCES response.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_get_preferences_503 (gnutls_session_t* session, entity_t* response)
+{
+  while (1)
+    {
+      const char* status;
+
+      if (openvas_server_send (session, "<get_preferences/>"))
+        return -1;
+
+      *response = NULL;
+      if (read_entity (session, response)) return -1;
+
+      status = entity_attribute (*response, "status");
+      if (status == NULL)
+        {
+          free_entity (*response);
+          return -1;
+        }
+      if (strlen (status) == 0)
+        {
+          free_entity (*response);
+          return -1;
+        }
+      char first = status[0];
+      if (first == '2') return 0;
+      if (strlen (status) == 3 && strcmp (status, "503") == 0)
+        {
+          sleep (0.5);
+          continue;
+        }
+      free_entity (*response);
+      return -1;
+    }
+}
+
+/**
  * @brief Get the manager certificates.
  *
  * @param[in]  session   Pointer to GNUTLS session.

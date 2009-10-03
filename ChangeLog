@@ -1,3 +1,8 @@
+2009-10-03  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* omp.c (omp_get_preferences_503): New function.
+	* omp.h (omp_get_preferences_503): New header.
+
 2009-09-30  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* nasl/openvas_logging.c (openvas_log_func): Pass the correct variable to
