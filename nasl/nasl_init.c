@@ -20,7 +20,7 @@
 
 #include <string.h> /* for memset */
 
-#include "libopenvas.h" /* for ACT_INIT */
+#include "nvt_categories.h" /* for ACT_INIT */
 #include "plugutils.h" /* for OPENVAS_ENCAPS_IP */
 
 #include "nasl_tcp.h"

@@ -110,32 +110,4 @@ char * plug_get_host_name(struct arglist *);
  */
 #include <pcap.h>
 
-/**
- * 'Categories', influence execution order of NVTs.
- */
-
-/** Last plugins actions type. */
-#define ACT_LAST                ACT_END
-/** First plugins actions type. */
-#define ACT_FIRST               ACT_INIT
-
-#define ACT_END                 10
-#define ACT_FLOOD               9
-#define ACT_KILL_HOST           8
-#define ACT_DENIAL              7
-#define ACT_DESTRUCTIVE_ATTACK  6
-#define ACT_MIXED_ATTACK        5
-#define ACT_ATTACK              4
-#define ACT_GATHER_INFO         3
-#define ACT_SETTINGS            2
-#define ACT_SCANNER             1
-#define ACT_INIT                0
-
-/**
- * States of scheduler_plugin.
- */
-#define LAUNCH_DISABLED 0
-#define LAUNCH_RUN      1
-#define LAUNCH_SILENT   2
-
 #endif /* _LIBOPENVAS_H */

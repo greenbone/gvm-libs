@@ -1,3 +1,16 @@
+2009-10-05  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* includes/nvt_categories.h: New file, contains categories previously
+	declared in libopenvas.h and a todo.
+
+	* Makefile: Install nvt_categories.h
+
+	* include/libopenvas.h: Removed definitions now contained in
+	nvti_categories (ACT_*) and in openvas-scanner/pluginscheduler.h
+	(LAUNCH_*).
+
+	* nasl/nasl_init.c: Include nvt_categories instead of libopenvas.
+
 2009-10-03  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* omp.c (omp_get_preferences_503): New function.
