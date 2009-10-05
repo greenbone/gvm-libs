@@ -53,7 +53,6 @@ install : all
 	cd nasl && ${MAKE} install
 	cd omp  && ${MAKE} install
 
-	$(INSTALL) -m 0444 include/libopenvas.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 include/nvt_categories.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 include/libvers.h   $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 misc/arglists.h $(DESTDIR)${includedir}/openvas
