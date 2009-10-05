@@ -69,33 +69,6 @@ typedef int(*plugin_init_t)(struct arglist *);
  */
 typedef int(*plugin_run_t)(struct arglist *);
 
-/*
- * Network-related functions
- */
-
-/* Plugin specific network functions */
-
-int ping_host(struct in_addr);
-
-
-void plug_set_see_also(struct arglist *, char *);
-struct arglist * plug_get_see_also(struct arglist *);
-
-
-void plug_add_dep(struct arglist *, char *, char *);
-
-void plug_add_port(struct arglist *, int);
-
-/* returns a full duplex data file stream */
-FILE * ptyexecvp (const char *file, const char **argv, pid_t *child);
-
-void (*pty_logger(void(*)(const char *, ...)))(const char *, ...);
-
-/*
- * Miscellaneous functions
- */
-
-char * plug_get_host_name(struct arglist *);
 
 /* Plugin preference types (influence gui in client) */
 #define PREF_CHECKBOX "checkbox"
@@ -104,10 +77,5 @@ char * plug_get_host_name(struct arglist *);
 #define PREF_PASSWORD "password"
 #define PREF_FILE "file"
 /*#define PREF_SSH_CREDENTIALS "sshcredentials"*/
-
-/*
- * Pcap utils
- */
-#include <pcap.h>
 
 #endif /* _LIBOPENVAS_H */
