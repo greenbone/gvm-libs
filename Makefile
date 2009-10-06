@@ -30,11 +30,11 @@ include openvas-libraries.tmpl
 ALLDEPS = openvas-libraries.tmpl
 
 all: $(ALLDEPS)
-	cd base && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -DHAVE_WMI=$(HAVE_WMI) && ${MAKE}
+	cd base && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -DSYSCONFDIR=${sysconfdir} -DLOCALSTATEDIR=${localstatedir} -DHAVE_WMI=$(HAVE_WMI) && ${MAKE}
 	cd hg   && ${MAKE}
 	cd misc && ${MAKE}
-	cd nasl && cmake -DCMAKE_INSTALL_PREFIX=${prefix} && ${MAKE}
-	cd omp  && cmake -DCMAKE_INSTALL_PREFIX=${prefix} && ${MAKE}
+	cd nasl && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -DSYSCONFDIR=${sysconfdir} -DLOCALSTATEDIR=${localstatedir} && ${MAKE}
+	cd omp  && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -DSYSCONFDIR=${sysconfdir} -DLOCALSTATEDIR=${localstatedir} && ${MAKE}
 
 openvas-libraries.tmpl: openvas-libraries.tmpl.in configure VERSION
 	$(SHELL) configure $(CONFIGURE_ARGS)
