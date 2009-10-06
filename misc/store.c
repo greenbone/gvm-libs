@@ -43,7 +43,7 @@
  * store returns NULL (cache is either outdated, contains error or an error
  * occurred).
  *
- * The store is updated at each openvasd start up. There the plugin loader
+ * The store is updated at each openvassd start up. There the plugin loader
  * iterates over plugin files and tries to retrieve the cached version.
  * If there is no cached version (or @ref store_load_plugin returns Null for
  * another reason, e.g.because  the script file seems to have been modified in
@@ -133,7 +133,7 @@ struct arglist * str2arglist(char * str)
   }
   str = t+1;
  }
- 
+
  while(str[0]==' ')str++;
  if(str[0] != '\0')
    arg_add_value(ret, str, ARG_INT, 0, (void*)1);

@@ -1,3 +1,8 @@
+2009-10-06  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* misc/store.c, nasl/nasl_scanner_glue.c: Replaced openvasd by
+	openvassd in documentation, minor cosmetics.
+
 2009-10-06  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* Makefile: Expose $localstatedir and $sysconfdir set during configure

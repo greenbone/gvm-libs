@@ -20,7 +20,7 @@
 /**
  * @file
  * This file contains all the functions that make the "glue" between
- * as NASL script and openvasd.
+ * as NASL script and openvassd.
  * (script_*(), *kb*(), scanner_*())
  */
 
@@ -830,18 +830,19 @@ tree_cell * replace_kb_item(lex_ctxt * lexic)
  return FAKE_CELL;
 }
 
-tree_cell * set_kb_item(lex_ctxt * lexic)
+tree_cell *
+set_kb_item (lex_ctxt * lexic)
 {
  struct arglist * script_infos = lexic->script_infos;
  char * name  = get_str_local_var_by_name(lexic, "name");
  int type = get_local_var_type_by_name(lexic, "value");
- 
+
  if( name == NULL )
  {
   nasl_perror(lexic, "Syntax error with set_kb_item() [null name]\n", name);
   return FAKE_CELL;
  }
- 
+
  if (! lexic->authenticated && 
      strncmp(name, SECRET_KB_PREFIX, sizeof(SECRET_KB_PREFIX) - 1) == 0)
  {
@@ -879,11 +880,11 @@ tree_cell * set_kb_item(lex_ctxt * lexic)
 
 
 /**
- * Function is used when the script wants to report a problem back to openvasd.
+ * Function is used when the script wants to report a problem back to openvassd.
  */
 typedef void(*proto_post_something_t)(struct arglist*, int, const char*, const char *);
 /**
- * Function is used when the script wants to report a problem back to openvasd.
+ * Function is used when the script wants to report a problem back to openvassd.
  */
 typedef void(*post_something_t)(struct arglist*, int, const char*);
 
