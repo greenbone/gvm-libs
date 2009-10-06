@@ -1,3 +1,8 @@
+2009-10-06  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* misc/proctitle.c (setproctitle): Changed start of proctitle to match
+	the new openvas-scanner binary name.
+
 2009-10-05  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* include/libopenvas.h: Emptied, except for documentation.

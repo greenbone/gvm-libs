@@ -88,7 +88,7 @@
 #endif
     va_end(param);
 
-    snprintf(buf2, sizeof(buf2), "openvasd: %s", buf); /* RATS: ignore */
+    snprintf(buf2, sizeof(buf2), "openvassd: %s", buf); /* RATS: ignore */
     bzero(buf, sizeof(buf));
     strncpy(buf, buf2, sizeof(buf) - 1);
    
