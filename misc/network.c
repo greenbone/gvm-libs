@@ -572,9 +572,10 @@ verify_peer_certificate(gnutls_session_t session)
 }
 
 
-/* helper function copied from cli.c from GnuTLS
- * Reads a file into a gnutls_datum
- */
+/** helper function copied from cli.c from GnuTLS
+ Reads a file into a gnutls_datum
+ @todo Fix the resource leak of FILE *f
+ **/
 static gnutls_datum
 load_file (const char *file)
 {

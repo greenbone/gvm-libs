@@ -153,6 +153,7 @@ openvas_authenticate (const gchar * username, const gchar * password)
   g_free (file_name);
   if (error)
     {
+      g_free (hash);
       g_error_free (error);
       return 1;
     }
@@ -162,6 +163,7 @@ openvas_authenticate (const gchar * username, const gchar * password)
   if (*split == NULL || *seed_hex == NULL)
     {
       g_warning ("Failed to split auth contents.");
+      g_free (hash);
       g_strfreev (split);
       return -1;
     }

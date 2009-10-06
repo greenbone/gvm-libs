@@ -130,6 +130,7 @@ gboolean openvas_certificate_file_write (GHashTable* certs, char* filename)
     //show_error(_("Error exporting key file: %s"), err->message);
     g_error_free(err);
     g_key_file_free(key_file);
+    close(fd);
     return FALSE;
     }
 

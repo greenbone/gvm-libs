@@ -506,6 +506,7 @@ tree_cell * script_get_preference_file_content(lex_ctxt * lexic)
    {
      nasl_perror(lexic, "script_get_preference_file_content: fstat(%s): %s\n",
 		 value, strerror(errno));
+     close(fd);
      return NULL;
    }
 

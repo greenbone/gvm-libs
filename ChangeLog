@@ -1,3 +1,9 @@
+2009-10-06  Tim Brown <timb@openvas.org>
+
+	* misc/network.c, misc/openvas_auth.c, nasl/nasl_scanner_glue.c
+	base/openvas_certificate_file.c: Fixed a bunch of resource and memory
+	leaks.
+
 2009-10-06  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post-release version bump.
