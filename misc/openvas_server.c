@@ -38,7 +38,10 @@
 #include <fcntl.h>
 #include <gcrypt.h>
 #include <glib.h>
+#include <netdb.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 #include "openvas_server.h"
@@ -72,8 +75,13 @@ int
 openvas_server_open (gnutls_session_t * session,
                      const char *host, int port)
 {
+  int server_socket;
+  struct addrinfo address_hints;
+  struct addrinfo *addresses, *address;
+  gchar *port_string;
+
   /** @todo Ensure that host and port have sane values. */
-  /** @todo Improve logging.*/
+  /** @todo Improve logging. */
 
   /* Turn off use of /dev/random, as this can block. */
 
@@ -88,54 +96,31 @@ openvas_server_open (gnutls_session_t * session,
       return -1;
     }
 
-  /* Setup address. */
-
-  address.sin_family = AF_INET;
-
-  address.sin_port = htons (port);
-
-  if (!inet_aton (host, &address.sin_addr))
-    {
-      g_message ("Failed to create server address %s.",
-                 host);
-      return -1;
-    }
-
-  g_message ("   Set to connect to address %s port %i",
-             host,
-             ntohs (address.sin_port));
-
-  /* Make server socket. */
-
-  int server_socket = socket (PF_INET, SOCK_STREAM, 0);
-  if (server_socket == -1)
-    {
-      g_message ("Failed to create server socket");
-      return -1;
-    }
-
   /* Setup server session. */
 
-  /** @todo Use openvas_server_session_new. */
+  /** @todo Use openvas_server_new. */
 
   gnutls_certificate_credentials_t credentials;
   if (gnutls_certificate_allocate_credentials (&credentials))
     {
       g_message ("Failed to allocate server credentials.");
-      goto close_fail;
+      return -1;
     }
 
   // FIX always a client?
   if (gnutls_init (session, GNUTLS_CLIENT))
     {
       g_message ("Failed to initialise server session.");
-      goto server_free_fail;
+      gnutls_certificate_free_credentials (credentials);
+      return -1;
     }
 
   if (gnutls_set_default_priority (*session))
     {
       g_message ("Failed to set server session priority.");
-      goto server_fail;
+      gnutls_deinit (*session);
+      gnutls_certificate_free_credentials (credentials);
+      return -1;
     }
 
   const int kx_priority[] = { GNUTLS_KX_DHE_RSA,
@@ -145,7 +130,9 @@ openvas_server_open (gnutls_session_t * session,
   if (gnutls_kx_set_priority (*session, kx_priority))
     {
       g_message ("Failed to set server key exchange priority.");
-      goto server_fail;
+      gnutls_deinit (*session);
+      gnutls_certificate_free_credentials (credentials);
+      return -1;
     }
 
   if (gnutls_credentials_set (*session,
@@ -153,19 +140,71 @@ openvas_server_open (gnutls_session_t * session,
                               credentials))
     {
       g_message ("Failed to set server credentials.");
-      goto server_fail;
+      gnutls_deinit (*session);
+      gnutls_certificate_free_credentials (credentials);
+      return -1;
     }
 
-  /** @todo Use openvas_server_connect. */
+  /* Create the port string. */
 
-  /* Connect to server. */
+  port_string = g_strdup_printf ("%i", port);
 
-  if (connect (server_socket,
-               (struct sockaddr *) &address,
-               sizeof (struct sockaddr_in))
-      == -1)
+  /* Get all possible addresses. */
+
+  memset (&address_hints, 0, sizeof (address_hints));
+  address_hints.ai_family = AF_UNSPEC;     /* IPv4 or IPv6. */
+  address_hints.ai_socktype = SOCK_STREAM;
+  address_hints.ai_flags = AI_NUMERICSERV;
+  address_hints.ai_protocol = 0;
+
+  if (getaddrinfo (host, port_string, &address_hints, &addresses))
+    {
+      g_free (port_string);
+      g_message ("Failed to get server addresses for %s: %s",
+                 host,
+                 gai_strerror (errno));
+      gnutls_deinit (*session);
+      gnutls_certificate_free_credentials (credentials);
+      return -1;
+    }
+  g_free (port_string);
+
+  /* Try to connect to each address in turn. */
+
+  for (address = addresses; address; address = address->ai_next)
+    {
+      /* Make server socket. */
+
+      server_socket = socket (PF_INET, SOCK_STREAM, 0);
+      if (server_socket == -1)
+        {
+          g_message ("Failed to create server socket");
+          freeaddrinfo (addresses);
+          gnutls_deinit (*session);
+          gnutls_certificate_free_credentials (credentials);
+          return -1;
+        }
+
+      /** @todo Use openvas_server_connect. */
+
+      /* Connect to server. */
+
+      if (connect (server_socket, address->ai_addr, address->ai_addrlen)
+          == -1)
+        {
+          close (server_socket);
+          continue;
+        }
+      break;
+    }
+
+  freeaddrinfo (addresses);
+
+  if (address == NULL)
     {
       g_message ("Failed to connect to server");
+      gnutls_deinit (*session);
+      gnutls_certificate_free_credentials (credentials);
       return -1;
     }
 
@@ -187,22 +226,14 @@ openvas_server_open (gnutls_session_t * session,
       gnutls_perror (ret);
       if (shutdown (server_socket, SHUT_RDWR) == -1)
         g_message ("Failed to shutdown server socket");
-      goto server_fail;
+      close (server_socket);
+      gnutls_deinit (*session);
+      gnutls_certificate_free_credentials (credentials);
+      return -1;
     }
   g_message ("   Shook hands with server.");
 
   return server_socket;
-
- server_fail:
-  gnutls_deinit (*session);
-
- server_free_fail:
-  gnutls_certificate_free_credentials (credentials);
-
- close_fail:
-  close (server_socket);
-
-  return -1;
 }
 
 /**

@@ -1,3 +1,8 @@
+2009-10-07  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* misc/openvas_server.c (openvas_server_open): Create address with
+	getaddrinfo.
+
 2009-10-06  Tim Brown <timb@openvas.org>
 
 	* misc/network.c, misc/openvas_auth.c, nasl/nasl_scanner_glue.c
