@@ -1,3 +1,8 @@
+2009-10-08  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* nasl/CMakeList.txt: Added defines for _FILE_OFFSET_BITS and
+	LARGEFILE_SOURCE since they are needed by GPGME for key access.
+
 2009-10-07  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* misc/openvas_server.c (openvas_server_open): Create address with

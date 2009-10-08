@@ -129,7 +129,8 @@ exec_program (pkg-config
 ## Library
 
 set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Wall")
-set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall")
+# The "-D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1" is necessary for GPGME!
+set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1")
 
 
 ## Compile the parser - note that there are (better) CMake macros to achieve
