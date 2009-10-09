@@ -1,3 +1,9 @@
+2009-10-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* omp/omp.c (omp_get_nvt_details_503): New.
+
+	* omp/omp.h: Extended with proto accordingly.
+
 2009-10-08  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* nasl/CMakeList.txt: Added defines for _FILE_OFFSET_BITS and

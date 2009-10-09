@@ -1505,3 +1505,58 @@ omp_delete_lsc_credential (gnutls_session_t* session,
   if (first == '2') return 0;
   return -1;
 }
+
+/**
+ * @brief Get NVT Information.
+ *
+ * @param[in]  session         Pointer to GNUTLS session.
+ * @param[in]  oid             OID of NVT or NULL for all NVTs.
+ * @param[out] status          Status return.  On success contains GET_STATUS
+ *                             response.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_get_nvt_details_503 (gnutls_session_t* session, const char * oid,
+                         entity_t* response)
+{
+  while (1)
+    {
+      const char* status;
+      gchar* request;
+
+      if (oid)
+        request = g_strdup_printf ("<get_nvt_details oid=\"%s\"/>", oid);
+      else
+        request = g_strdup("<get_nvt_details/>");
+
+      int ret = openvas_server_send (session, request);
+      g_free(request);
+      if (ret)
+        return -1;
+
+      *response = NULL;
+      if (read_entity (session, response)) return -1;
+
+      status = entity_attribute (*response, "status");
+      if (status == NULL)
+        {
+          free_entity (*response);
+          return -1;
+        }
+      if (strlen (status) == 0)
+        {
+          free_entity (*response);
+          return -1;
+        }
+      char first = status[0];
+      if (first == '2') return 0;
+      if (strlen (status) == 3 && strcmp (status, "503") == 0)
+        {
+          sleep (1);
+          continue;
+        }
+      free_entity (*response);
+      return -1;
+    }
+}
