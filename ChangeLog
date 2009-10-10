@@ -1,3 +1,8 @@
+2009-10-10  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* omp/omp.c (omp_modify_task_file): New function.
+	* omp/omp.h: Add header.
+
 2009-10-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* omp/omp.c (omp_get_nvt_details_503): New.

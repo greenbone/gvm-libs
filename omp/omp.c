@@ -967,6 +967,68 @@ omp_modify_task (gnutls_session_t* session, const char* id,
 }
 
 /**
+ * @brief Modify a file on a task.
+ *
+ * @param[in]  session   Pointer to GNUTLS session.
+ * @param[in]  id        ID of task.
+ * @param[in]  name      Name of file.
+ * @param[in]  content   New content.  NULL to remove file.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_modify_task_file (gnutls_session_t* session, const char* id,
+                      const char* name, const char* content)
+{
+  entity_t response;
+
+  if (name == NULL) return -1;
+
+  if (openvas_server_sendf (session, "<modify_task task_id=\"%s\">", id))
+    return -1;
+
+  if (content)
+    {
+      if (openvas_server_sendf (session,
+                                "<file name=\"%s\" action=\"update\">",
+                                name))
+        return -1;
+
+      if (strlen (content))
+        {
+          gchar *base64_rc = g_base64_encode ((guchar*) content,
+                                              strlen (content));
+          int ret = openvas_server_sendf (session,
+                                          "%s",
+                                          base64_rc);
+          g_free (base64_rc);
+          if (ret) return -1;
+        }
+
+      if (openvas_server_sendf (session, "</file>"))
+        return -1;
+    }
+  else
+    {
+      if (openvas_server_sendf (session,
+                                "<file name=\"%s\" action=\"remove\" />",
+                                name))
+        return -1;
+    }
+
+  if (openvas_server_send (session, "</modify_task>"))
+    return -1;
+
+  response = NULL;
+  if (read_entity (session, &response)) return -1;
+
+  // FIX check status
+
+  free_entity (response);
+  return 0;
+}
+
+/**
  * @brief Get the manager preferences.
  *
  * @param[in]  session   Pointer to GNUTLS session.
