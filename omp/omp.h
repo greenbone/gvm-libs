@@ -55,6 +55,9 @@ int
 omp_start_task (gnutls_session_t* , const char*);
 
 int
+omp_abort_task (gnutls_session_t*, const char*);
+
+int
 omp_wait_for_task_end (gnutls_session_t*, const char*);
 
 int

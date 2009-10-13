@@ -401,6 +401,65 @@ omp_start_task (gnutls_session_t* session, const char* id)
   return -1;
 }
 
+/** @todo Use this in the other functions. */
+/**
+ * @brief Read response and convert status of response to a return value.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int
+check_response (gnutls_session_t* session)
+{
+  char first;
+  const char* status;
+  entity_t entity;
+
+  /* Read the response. */
+
+  entity = NULL;
+  if (read_entity (session, &entity)) return -1;
+
+  /* Check the response. */
+
+  status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  first = status[0];
+  free_entity (entity);
+  if (first == '2') return 0;
+  return -1;
+}
+
+/**
+ * @brief Stop a task and read the manager response.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  id       ID of task.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+omp_abort_task (gnutls_session_t* session, const char* id)
+{
+  if (openvas_server_sendf (session,
+                            "<abort_task task_id=\"%s\"/>",
+                            id)
+      == -1)
+    return -1;
+
+  return check_response (session);
+}
+
 /**
  * @brief Wait for a task to start running on the server.
  *
@@ -411,7 +470,7 @@ omp_start_task (gnutls_session_t* session, const char* id)
  */
 int
 omp_wait_for_task_start (gnutls_session_t* session,
-                     const char* id)
+                         const char* id)
 {
   while (1)
     {

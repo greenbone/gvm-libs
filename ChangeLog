@@ -1,5 +1,10 @@
 2009-10-13  Matthew Mundell <matthew.mundell@intevation.de>
 
+	* omp/omp.c (check_response, omp_abort_task): New functions.
+	* omp/omp.h (omp_abort_task): New header.
+
+2009-10-13  Matthew Mundell <matthew.mundell@intevation.de>
+
 	* include/nvt_categories.h (ACT_UNKNOWN, ACT_STRING_INIT)
 	(ACT_STRING_SCANNER, ACT_STRING_SETTINGS, ACT_STRING_GATHER_INFO)
 	(ACT_STRING_ATTACK, ACT_STRING_MIXED_ATTACK)
