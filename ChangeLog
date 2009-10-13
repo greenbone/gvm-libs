@@ -1,3 +1,12 @@
+2009-10-13  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* include/nvt_categories.h (ACT_UNKNOWN, ACT_STRING_INIT)
+	(ACT_STRING_SCANNER, ACT_STRING_SETTINGS, ACT_STRING_GATHER_INFO)
+	(ACT_STRING_ATTACK, ACT_STRING_MIXED_ATTACK)
+	(ACT_STRING_DESTRUCTIVE_ATTACK, ACT_STRING_DENIAL, ACT_STRING_KILL_HOST)
+	(ACT_STRING_FLOOD, ACT_STRING_END, ACT_STRING_UNKNOWN)
+	(ACT_STRING_LIST_ALL): New defines.
+
 2009-10-10  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* omp/omp.c (omp_modify_task_file): New function.
