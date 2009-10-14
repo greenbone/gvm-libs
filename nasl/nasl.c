@@ -129,7 +129,7 @@ main (int argc, char ** argv)
  GOptionContext *option_context;
  static GOptionEntry entries[] =
  {
-  { "version",     'v', 0, G_OPTION_ARG_NONE,   &display_version,
+  { "version",     'V', 0, G_OPTION_ARG_NONE,   &display_version,
                    "Display version information", NULL },
   { "description", 'D', 0, G_OPTION_ARG_NONE,   &description_only,
                    "Only run the 'description' part of the script", NULL },

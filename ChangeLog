@@ -1,3 +1,9 @@
+2009-10-14  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* nasl/nasl.c (main): Made command line options more
+	consistent with other modules and coding standards. Short option for
+	--version is now -V (was -v).
+
 2009-10-13  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* omp/omp.c (check_response, omp_abort_task): New functions.
