@@ -927,10 +927,14 @@ omp_get_status (gnutls_session_t* session, const char* id, int include_rcfile,
  * @return 0 on success, -1 or OMP response code on error.
  */
 int
-omp_get_report (gnutls_session_t* session, const char* id, entity_t* response)
+omp_get_report (gnutls_session_t* session,
+                const char* id,
+                const char* format,
+                entity_t* response)
 {
   if (openvas_server_sendf (session,
-                            "<get_report format=\"nbe\" report_id=\"%s\"/>",
+                            "<get_report format=\"%s\" report_id=\"%s\"/>",
+                            format ? format : "nbe",
                             id))
     return -1;
 
@@ -940,6 +944,83 @@ omp_get_report (gnutls_session_t* session, const char* id, entity_t* response)
   // FIX check status
 
   return 0;
+}
+
+/**
+ * @brief Get a report in a given format.
+ *
+ * @param[in]  session      Pointer to GNUTLS session.
+ * @param[in]  id           ID of report.
+ * @param[in]  format       Required format.
+ * @param[out] report       Report.  On success contains the report.
+ * @param[out] report_size  Size of report in bytes.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+omp_get_report_format (gnutls_session_t* session,
+                       const char* id,
+                       const char* format,
+                       void** report,
+                       gsize* report_size)
+{
+  char first;
+  const char* status;
+  entity_t entity;
+
+  if (openvas_server_sendf (session,
+                            "<get_report format=\"%s\" report_id=\"%s\"/>",
+                            format,
+                            id))
+    return -1;
+
+  /* Read the response. */
+
+  entity = NULL;
+  if (read_entity (session, &entity)) return -1;
+
+  /* Check the response. */
+
+  status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  first = status[0];
+  if (first == '2')
+    {
+      const char* report_64;
+      entity_t report_xml;
+
+      report_xml = entity_child (entity, "report");
+      if (report_xml == NULL)
+        {
+          free_entity (entity);
+          return -1;
+        }
+
+      report_64 = entity_text (report_xml);
+      if (strlen (report_64) == 0)
+        {
+          *report = g_strdup ("");
+          *report_size = 0;
+        }
+      else
+        {
+          *report = (void*) g_base64_decode (report_64, report_size);
+        }
+
+      free_entity (entity);
+      return 0;
+    }
+  free_entity (entity);
+  return -1;
 }
 
 /**

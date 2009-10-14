@@ -73,7 +73,11 @@ int
 omp_get_status (gnutls_session_t*, const char*, int, entity_t*);
 
 int
-omp_get_report (gnutls_session_t*, const char*, entity_t*);
+omp_get_report (gnutls_session_t*, const char*, const char*, entity_t*);
+
+int
+omp_get_report_format (gnutls_session_t*, const char*, const char*,
+                       void**, gsize*);
 
 int
 omp_delete_report (gnutls_session_t*, const char*);
