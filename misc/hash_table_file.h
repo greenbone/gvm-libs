@@ -33,7 +33,8 @@
 
 #include <glib.h>
 
-gboolean hash_table_file_write(GHashTable* ghashtable, char* filename);
-GHashTable* hash_table_file_read(char* filename);
+gboolean hash_table_file_write (GHashTable* ghashtable, const char* filename);
+GHashTable* hash_table_file_read (const char* filename);
+GHashTable* hash_table_file_read_text (const char* text, gsize length);
 
 #endif

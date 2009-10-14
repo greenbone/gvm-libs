@@ -81,7 +81,7 @@ add_to_keyfile (char* key_str, char* value_str, GKeyFile* keyfile)
  * @see GKeyFile
  */
 gboolean
-hash_table_file_write (GHashTable* ghashtable, char* filename)
+hash_table_file_write (GHashTable* ghashtable, const char* filename)
 {
   int fd;
   gchar* keyfile_data;
@@ -124,6 +124,75 @@ hash_table_file_write (GHashTable* ghashtable, char* filename)
 }
 
 /**
+ * @brief Reads key/value pairs (strings) from a GKeyFile into a GHashtable.
+ *
+ * Will free the GKeyFile.
+ *
+ * @param gkeyfile GKeyFile to use, will be freed.
+ *
+ * @return A GHashTable, mirroring the file or NULL in case of an error.
+ */
+static GHashTable*
+hash_table_from_gkeyfile (GKeyFile* gkeyfile)
+{
+  gchar** keys;
+  gchar** keys_it;
+  gsize length;
+  GHashTable* returntable = NULL;
+
+  if (!gkeyfile)
+    return NULL;
+
+  returntable = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+  keys = g_key_file_get_keys (gkeyfile, GROUP_NONE, &length, NULL);
+  keys_it = keys;
+
+  // Add each key / value pair from file
+  while ( keys_it != NULL && (*keys_it) != NULL)
+    {
+      char* value = g_key_file_get_value (gkeyfile, GROUP_NONE, (*keys_it), NULL);
+      g_hash_table_insert (returntable, estrdup(*keys_it), value);
+      ++keys_it;
+    }
+
+  if (keys != NULL)
+    g_strfreev (keys);
+
+  g_key_file_free (gkeyfile);
+
+  return returntable;
+}
+
+/**
+ * @brief Reads key/value pairs (strings) from a text into a GHashtable.
+ *
+ * The text has to follow freedesktop.org specifications (e.g. be the text
+ * of a ini- file).
+ *
+ * @param text   The text to use.
+ * @param length Lenght of \ref text.
+ *
+ * @return A GHashTable, mirroring the text or NULL in case of an error.
+ *
+ * @see hash_table_file_read
+ * @see hash_table_file_write
+ * @see GKeyFile
+ */
+GHashTable*
+hash_table_file_read_text (const char* text, gsize length)
+{
+  GKeyFile* file = NULL;
+
+  // Load key file from mem
+  file = g_key_file_new ();
+  g_key_file_load_from_data (file, text, length, G_KEY_FILE_NONE, NULL);
+
+  return hash_table_from_gkeyfile (file);
+}
+
+
+/**
  * @brief Reads key/value pairs (strings) from a file back into a GHashtable.
  * 
  * The file has to follow freedesktop.org specifications.
@@ -135,38 +204,13 @@ hash_table_file_write (GHashTable* ghashtable, char* filename)
  * @see GKeyFile
  */
 GHashTable*
-hash_table_file_read (char* filename)
+hash_table_file_read (const char* filename)
 {
   GKeyFile* file = NULL;
-  gchar** keys;
-  gchar** keys_it;
-  gsize length;
-  GHashTable* returntable = NULL;
-  
+
   // Load key file into mem
   file = g_key_file_new ();
   g_key_file_load_from_file (file, filename, G_KEY_FILE_NONE, NULL);
-  if (file == NULL)
-    {
-      return NULL;
-    }
-  
-  returntable = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
-  keys = g_key_file_get_keys (file, GROUP_NONE, &length, NULL);
-  keys_it = keys;
-  
-  // Add each key / value pair from file
-  while ( keys_it != NULL && (*keys_it) != NULL)
-    {
-      char* value = g_key_file_get_value (file, GROUP_NONE, (*keys_it), NULL);
-      g_hash_table_insert (returntable, estrdup(*keys_it), value);
-      ++keys_it;
-    }
-  
-  if (keys != NULL)
-    g_strfreev (keys);
-
-  g_key_file_free(file);
-  return returntable;
+  return hash_table_from_gkeyfile (file);
 }

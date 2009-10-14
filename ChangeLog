@@ -1,3 +1,14 @@
+2009-10-14  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Refactored hash_table_file to be able to parse text directly (in
+	contrast to reading it from a file).
+
+	* misc/hash_table_file.c (hash_table_from_gkeyfile): New. Extracted
+	from hash_table_read.
+	(hash_table_read_text): New. Parse some textbuffer as GKeyFile.
+	(hash_table_read): Call extracted method.
+	misc/hash_table_file.h: Adjusted protos.
+
 2009-10-14  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* nasl/nasl.c (main): Made command line options more
