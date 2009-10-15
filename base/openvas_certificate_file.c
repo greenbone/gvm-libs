@@ -66,7 +66,7 @@
 static void
 add_cert_to_file (char* fpr, certificate_t* cert, GKeyFile* file)
 {
-  if(fpr == NULL || file == NULL || cert == NULL)
+  if (fpr == NULL || file == NULL || cert == NULL)
     return;
 
   g_key_file_set_string (file, fpr, KEY_CERT_OWNERNAME, cert->owner);
@@ -87,7 +87,8 @@ add_cert_to_file (char* fpr, certificate_t* cert, GKeyFile* file)
  *
  * @see openvas_certificate_file_read
  */
-gboolean openvas_certificate_file_write (GHashTable* certs, char* filename)
+gboolean
+openvas_certificate_file_write (GHashTable* certs, const char* filename)
 {
   if (filename == NULL)
     return FALSE;
@@ -142,6 +143,106 @@ gboolean openvas_certificate_file_write (GHashTable* certs, char* filename)
   return TRUE;
 }
 
+
+/**
+ * @brief Reads all certificates found in the gkeyfile \ref key_file, creates
+ * @brief certificate_t structs, stores these in a GHashTable (with
+ * @brief fingerprints as keys) and returns the hashtable.
+ *
+ * The given key_file will be freed.
+ *
+ * @param key_file GKeyfile containing certificate information, will be freed.
+ *
+ * @return GHashTable with fingerprint/certificate_t* as key/values or
+ *         NULL in case of an error.
+ *
+ * @see openvas_certificate_file_write
+ */
+static GHashTable*
+openvas_certificate_file_from_keyfile (GKeyFile* key_file)
+{
+  gchar** fprs;
+  gsize length;
+  GError* err              = NULL;
+  GHashTable* certificates = NULL;
+
+  if (key_file == NULL)
+    return NULL;
+
+  certificates = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                                    NULL,
+                                                    (GDestroyNotify) certificate_free);
+
+
+  fprs = g_key_file_get_groups (key_file, &length);
+
+  // Read Certificate information from file and add entry to hashtable.
+  int i = 0;
+  for(i = 0; i < length; i++)
+    {
+    if (fprs[i] == NULL || fprs[i] == '\0')
+      continue;
+    // Init a certificate
+    gchar* ownername = g_key_file_get_string(key_file, fprs[i],
+                                            KEY_CERT_OWNERNAME, &err);
+    gboolean trusted = g_key_file_get_boolean(key_file, fprs[i],
+                                              KEY_CERT_TRUSTED, &err);
+    certificate_t* cert = certificate_create_full (fprs[i], ownername, NULL, trusted);
+    if (ownername == NULL || err != NULL)
+      {
+      if (ownername != NULL)
+        g_free (ownername);
+      certificate_free (cert);
+      continue;
+      }
+
+    /** @todo evaluate what happens if fingerprint is NULL */
+    g_hash_table_insert (certificates, cert->fingerprint, cert);
+    }
+
+  g_key_file_free (key_file);
+
+  return certificates;
+}
+
+
+/**
+ * @brief Treats given text buffer as gkeyfile, creates certificate_t structs
+ * @brief of the information found in it and returns a hashtable containing
+ * @brief these.
+ *
+ * Certificates can be written to that file calling 
+ * openvas_certificate_file_write.
+ *
+ * @param buffer Text buffer describing the gkeyfile.
+ * @param length Length of the text buffer.
+ *
+ * @return GHashTable with fingerprint/certificate_t* as key/values or
+ *         NULL in case of an error.
+ *
+ * @see openvas_certificate_file_write
+ * @see openvas_certificate_file_read
+ */
+GHashTable*
+openvas_certificate_file_read_buffer (const gchar* buffer, gsize length)
+{
+  GKeyFile* key_file = g_key_file_new ();
+  GError* err = NULL;
+
+  g_key_file_load_from_data (key_file, buffer, length, G_KEY_FILE_NONE, &err);
+
+  if (err != NULL)
+    {
+      //show_error(_("Error loading certificate store %s: %s"), filename,
+      //                                                        err->message);
+      g_key_file_free (key_file);
+      return NULL;
+    }
+
+  return openvas_certificate_file_from_keyfile (key_file);
+}
+
+
 /**
  * @brief Reads all certificates found in file \ref filename, creates
  * @brief certificate_t structs, stores these in a GHashTable (with
@@ -157,52 +258,21 @@ gboolean openvas_certificate_file_write (GHashTable* certs, char* filename)
  *
  * @see openvas_certificate_file_write
  */
-GHashTable* openvas_certificate_file_read(char* filename)
+GHashTable*
+openvas_certificate_file_read (const char* filename)
 {
-  gchar** fprs;
-  gsize length;
-  GKeyFile* key_file = g_key_file_new();
-  GError* err        = NULL;
-  GHashTable* certificates = g_hash_table_new_full(g_str_hash, g_str_equal,
-                             NULL, (GDestroyNotify) certificate_free);
+  GKeyFile* key_file = g_key_file_new ();
+  GError* err = NULL;
 
-  g_key_file_load_from_file(key_file, filename, G_KEY_FILE_NONE, &err);
+  g_key_file_load_from_file (key_file, filename, G_KEY_FILE_NONE, &err);
 
-  if(err != NULL)
+  if (err != NULL)
     {
-    g_hash_table_destroy(certificates);
-    //show_error(_("Error loading certificate store %s: %s"), filename,
-    //                                                        err->message);
-    g_key_file_free(key_file);
-    return NULL;
+      //show_error(_("Error loading certificate store %s: %s"), filename,
+      //                                                        err->message);
+      g_key_file_free (key_file);
+      return NULL;
     }
 
-  fprs = g_key_file_get_groups(key_file, &length);
-
-  // Read Certificate information from file and add entry to hashtable.
-  int i = 0;
-  for(i = 0; i < length; i++)
-    {
-    if(fprs[i] == NULL || fprs[i] == '\0')
-      continue;
-    // Init a certificate
-    gchar* ownername = g_key_file_get_string(key_file, fprs[i], 
-                                            KEY_CERT_OWNERNAME, &err);
-    gboolean trusted = g_key_file_get_boolean(key_file, fprs[i], 
-                                              KEY_CERT_TRUSTED, &err);
-    certificate_t* cert = certificate_create_full (fprs[i], ownername, NULL, trusted);
-    if (ownername == NULL || err != NULL)
-      {
-      if (ownername != NULL)
-        g_free (ownername);
-      certificate_free (cert);
-      continue;
-      }
-
-    g_hash_table_insert (certificates, cert->fingerprint, cert);
-    }
-
-  g_key_file_free(key_file);
-
-  return certificates;
+  return openvas_certificate_file_from_keyfile (key_file);
 }

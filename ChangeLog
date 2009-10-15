@@ -1,3 +1,16 @@
+2009-10-15  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Refactored openvas_certificate_file to be able to parse text directly
+	(in contrast to reading it from a file).
+
+	* base/openvas_certificate_file.c: Declared string parameters const.
+	(openvas_certificate_file_from_keyfile): New, extracted from
+	openvas_certificate_file_read.
+	(openvas_certificate_file_read): Call extracted method.
+	(openvas_certificate_file_read_buffer): New. Reads from buffer, instead
+	of from file.
+	base/openvas_certificate_file.h: Adjusted protos.
+
 2009-10-14  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* omp/omp.c (omp_get_report): Add a format arg.
