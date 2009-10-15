@@ -1,3 +1,10 @@
+2009-10-15  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* nasl/openvas_logging.c (openvas_log_silent): New function.
+
+	* nasl/openvas_logging.h: Remove param names.  Add #endif comment.
+	(openvas_log_silent): New header.
+
 2009-10-15  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Refactored openvas_certificate_file to be able to parse text directly

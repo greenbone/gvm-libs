@@ -29,15 +29,16 @@
 #include <glib.h>
 #include <time.h>
 
-GSList *load_log_configuration (gchar * config_file);
+GSList *load_log_configuration (gchar *);
 
-void free_log_configuration (GSList * logdomain_list);
+void free_log_configuration (GSList *);
 
-gchar *get_time (gchar * time_fmt);
+gchar *get_time (gchar *);
 
-void openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
-                       const char *message, gpointer openvas_log_config_list);
+void openvas_log_silent (const char *, GLogLevelFlags, const char *, gpointer);
 
-void setup_log_handlers (GSList * openvas_log_config_list);
+void openvas_log_func (const char *, GLogLevelFlags, const char *, gpointer);
 
-#endif
+void setup_log_handlers (GSList *);
+
+#endif /* not _OPENVAS_LOGGING_H */
