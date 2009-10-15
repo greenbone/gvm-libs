@@ -29,12 +29,8 @@
 
 #include <glib.h>
 
-gboolean openvas_certificate_file_write (GHashTable* certs,
-                                         const char* filename);
+gboolean openvas_certificate_file_write (GHashTable* certs, char* filename);
 
-GHashTable* openvas_certificate_file_read (const char* filename);
-
-GHashTable* openvas_certificate_file_read_buffer (const char* buffer,
-                                                  gsize length);
+GHashTable* openvas_certificate_file_read (char* filename);
 
 #endif
