@@ -39,6 +39,7 @@
 #include <gcrypt.h>
 #include <glib.h>
 #include <netdb.h>
+#include <signal.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -79,6 +80,7 @@ openvas_server_open (gnutls_session_t * session,
   struct addrinfo address_hints;
   struct addrinfo *addresses, *address;
   gchar *port_string;
+  struct sigaction new_action, original_action;
 
   /** @todo Ensure that host and port have sane values. */
   /** @todo Improve logging. */
@@ -215,6 +217,13 @@ openvas_server_open (gnutls_session_t * session,
   gnutls_transport_set_ptr (*session,
                             (gnutls_transport_ptr_t) server_socket);
 
+  new_action.sa_flags = 0;
+  if (sigemptyset (&new_action.sa_mask))
+    return -1;
+  new_action.sa_handler = SIG_IGN;
+  if (sigaction (SIGPIPE, &new_action, &original_action))
+    return -1;
+
   while (1)
     {
       int ret = gnutls_handshake (*session);
@@ -229,9 +238,12 @@ openvas_server_open (gnutls_session_t * session,
       close (server_socket);
       gnutls_deinit (*session);
       gnutls_certificate_free_credentials (credentials);
+      sigaction (SIGPIPE, &original_action, NULL);
       return -1;
     }
   g_message ("   Shook hands with server.");
+
+  if (sigaction (SIGPIPE, &original_action, NULL)) return -1;
 
   return server_socket;
 }
@@ -247,10 +259,22 @@ openvas_server_open (gnutls_session_t * session,
 int
 openvas_server_close (int socket, gnutls_session_t session)
 {
+  struct sigaction new_action, original_action;
+
   /* Turn off blocking. */
   if (fcntl (socket, F_SETFL, O_NONBLOCK) == -1) return -1;
 
+  new_action.sa_flags = 0;
+  if (sigemptyset (&new_action.sa_mask))
+    return -1;
+  new_action.sa_handler = SIG_IGN;
+  if (sigaction (SIGPIPE, &new_action, &original_action))
+    return -1;
+
   gnutls_bye (session, GNUTLS_SHUT_RDWR);
+
+  if (sigaction (SIGPIPE, &original_action, NULL)) return -1;
+
   close (socket);
   gnutls_global_deinit ();
   return 0;
@@ -275,6 +299,8 @@ openvas_server_connect (int server_socket,
 {
   int ret;
   socklen_t ret_len = sizeof (ret);
+  struct sigaction new_action, original_action;
+
   if (interrupted)
     {
       if (getsockopt (server_socket, SOL_SOCKET, SO_ERROR, &ret, &ret_len)
@@ -320,6 +346,13 @@ openvas_server_connect (int server_socket,
   gnutls_transport_set_ptr (*server_session,
                             (gnutls_transport_ptr_t) server_socket);
 
+  new_action.sa_flags = 0;
+  if (sigemptyset (&new_action.sa_mask))
+    return -1;
+  new_action.sa_handler = SIG_IGN;
+  if (sigaction (SIGPIPE, &new_action, &original_action))
+    return -1;
+
   while (1)
     {
       ret = gnutls_handshake (*server_session);
@@ -333,8 +366,11 @@ openvas_server_connect (int server_socket,
       if (shutdown (server_socket, SHUT_RDWR) == -1)
         g_message ("   Failed to shutdown server socket: %s\n",
                    strerror (errno));
+      sigaction (SIGPIPE, &original_action, NULL);
       return -1;
     }
+
+  if (sigaction (SIGPIPE, &original_action, NULL)) return -1;
 
   return 0;
 }
@@ -350,8 +386,17 @@ openvas_server_connect (int server_socket,
 int
 openvas_server_attach (int socket, gnutls_session_t* session)
 {
+  struct sigaction new_action, original_action;
+
   gnutls_transport_set_ptr (*session,
                             (gnutls_transport_ptr_t) socket);
+
+  new_action.sa_flags = 0;
+  if (sigemptyset (&new_action.sa_mask))
+    return -1;
+  new_action.sa_handler = SIG_IGN;
+  if (sigaction (SIGPIPE, &new_action, &original_action))
+    return -1;
 
   while (1)
     {
@@ -364,9 +409,12 @@ openvas_server_attach (int socket, gnutls_session_t* session)
       gnutls_perror (ret);
       if (shutdown (socket, SHUT_RDWR) == -1)
         g_message ("Failed to shutdown server socket");
+      sigaction (SIGPIPE, &original_action, NULL);
       return -1;
     }
   g_message ("   Shook hands with peer.");
+
+  if (sigaction (SIGPIPE, &original_action, NULL)) return -1;
 
   return 0;
 }
@@ -382,7 +430,16 @@ openvas_server_attach (int socket, gnutls_session_t* session)
 int
 openvas_server_send (gnutls_session_t* session, const char* string)
 {
+  struct sigaction new_action, original_action;
   size_t left = strlen (string);
+
+  new_action.sa_flags = 0;
+  if (sigemptyset (&new_action.sa_mask))
+    return -1;
+  new_action.sa_handler = SIG_IGN;
+  if (sigaction (SIGPIPE, &new_action, &original_action))
+    return -1;
+
   while (left)
     {
       ssize_t count;
@@ -401,12 +458,14 @@ openvas_server_send (gnutls_session_t* session, const char* string)
             }
           g_message ("Failed to write to server.");
           gnutls_perror (count);
+          sigaction (SIGPIPE, &original_action, NULL);
           return -1;
         }
       if (count == 0)
         {
           /* Server closed connection. */
           g_message ("=  server closed\n");
+          sigaction (SIGPIPE, &original_action, NULL);
           return 1;
         }
       g_message ("=> %.*s", count, string);
@@ -415,6 +474,7 @@ openvas_server_send (gnutls_session_t* session, const char* string)
     }
   g_message ("=> done");
 
+  sigaction (SIGPIPE, &original_action, NULL);
   return 0;
 }
 
@@ -608,6 +668,8 @@ openvas_server_free (int server_socket,
                      gnutls_certificate_credentials_t
                      server_credentials)
 {
+  struct sigaction new_action, original_action;
+
   int count;
 
 #if 0
@@ -633,6 +695,13 @@ openvas_server_free (int server_socket,
     }
 #endif
 
+  new_action.sa_flags = 0;
+  if (sigemptyset (&new_action.sa_mask))
+    return -1;
+  new_action.sa_handler = SIG_IGN;
+  if (sigaction (SIGPIPE, &new_action, &original_action))
+    return -1;
+
   count = 100;
   while (count)
     {
@@ -653,6 +722,8 @@ openvas_server_free (int server_socket,
       break;
     }
   if (count == 0) g_message ("   Gave up trying to gnutls_bye\n");
+
+  if (sigaction (SIGPIPE, &original_action, NULL)) return -1;
 
   if (shutdown (server_socket, SHUT_RDWR) == -1)
     {

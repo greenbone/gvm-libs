@@ -1,5 +1,11 @@
 2009-10-15  Matthew Mundell <matthew.mundell@intevation.de>
 
+	* misc/openvas_server.c (openvas_server_open, openvas_server_close)
+	(openvas_server_connect, openvas_server_attach, openvas_server_send)
+	(openvas_server_free): Drop SIGPIPE during writes.
+
+2009-10-15  Matthew Mundell <matthew.mundell@intevation.de>
+
 	* omp/omp.c (omp_modify_task_file): Change content arg element type to
 	void.  Add a content_length arg.
 
