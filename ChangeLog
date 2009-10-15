@@ -1,8 +1,15 @@
 2009-10-15  Matthew Mundell <matthew.mundell@intevation.de>
 
-	* nasl/openvas_logging.c (openvas_log_silent): New function.
+	* omp/omp.c (omp_modify_task_file): Change content arg element type to
+	void.  Add a content_length arg.
 
-	* nasl/openvas_logging.h: Remove param names.  Add #endif comment.
+	* omp/omp.h: Update header.
+
+2009-10-15  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* misc/openvas_logging.c (openvas_log_silent): New function.
+
+	* misc/openvas_logging.h: Remove param names.  Add #endif comment.
 	(openvas_log_silent): New header.
 
 2009-10-15  Felix Wolfsteller <felix.wolfsteller@intevation.de>

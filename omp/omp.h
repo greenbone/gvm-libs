@@ -91,7 +91,7 @@ omp_modify_task (gnutls_session_t*, const char*,
 
 int
 omp_modify_task_file (gnutls_session_t*, const char*,
-                      const char*, const char*);
+                      const char*, const void*, gsize);
 
 int
 omp_get_preferences (gnutls_session_t*, entity_t*);

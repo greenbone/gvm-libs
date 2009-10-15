@@ -1109,16 +1109,18 @@ omp_modify_task (gnutls_session_t* session, const char* id,
 /**
  * @brief Modify a file on a task.
  *
- * @param[in]  session   Pointer to GNUTLS session.
- * @param[in]  id        ID of task.
- * @param[in]  name      Name of file.
- * @param[in]  content   New content.  NULL to remove file.
+ * @param[in]  session      Pointer to GNUTLS session.
+ * @param[in]  id           ID of task.
+ * @param[in]  name         Name of file.
+ * @param[in]  content      New content.  NULL to remove file.
+ * @param[in]  content_len  Length of content.
  *
  * @return 0 on success, -1 or OMP response code on error.
  */
 int
 omp_modify_task_file (gnutls_session_t* session, const char* id,
-                      const char* name, const char* content)
+                      const char* name, const void* content,
+                      gsize content_len)
 {
   entity_t response;
 
@@ -1134,10 +1136,10 @@ omp_modify_task_file (gnutls_session_t* session, const char* id,
                                 name))
         return -1;
 
-      if (strlen (content))
+      if (content_len)
         {
           gchar *base64_rc = g_base64_encode ((guchar*) content,
-                                              strlen (content));
+                                              content_len);
           int ret = openvas_server_sendf (session,
                                           "%s",
                                           base64_rc);
