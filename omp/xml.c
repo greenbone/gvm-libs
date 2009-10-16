@@ -546,7 +546,7 @@ read_entity (gnutls_session_t* session, entity_t* entity)
  * @param[in]  entity  The entity, as a gpointer.
  * @param[in]  stream  The stream to which to print, as a gpointer.
  */
-void
+static void
 foreach_print_entity (gpointer entity, gpointer stream)
 {
   print_entity ((FILE*) stream, (entity_t) entity);
@@ -559,7 +559,7 @@ foreach_print_entity (gpointer entity, gpointer stream)
  * @param[in]  value   The attribute value.
  * @param[in]  stream  The stream to which to print.
  */
-void
+static void
 foreach_print_attribute (gpointer name, gpointer value, gpointer stream)
 {
   fprintf ((FILE*) stream, " %s=\"%s\"", (char*) name, (char*) value);
@@ -596,6 +596,75 @@ void
 print_entities (FILE* stream, entities_t entities)
 {
   g_slist_foreach (entities, foreach_print_entity, stream);
+}
+
+/* "Formatted" (indented) output of entity_t */
+
+/**
+ * @brief Print an XML attribute for g_hash_table_foreach to stdout.
+ *
+ * @param[in]  name    The attribute name.
+ * @param[in]  value   The attribute value.
+ * @param[in]  none    (ignored).
+ */
+static void
+foreach_print_attribute_format (gpointer name, gpointer value, gpointer none)
+{
+  printf (" %s=\"%s\"", (char*) name, (char*) value);
+}
+
+/**
+ * @brief Print an XML entity to stdout, recusively printing its children.
+ * @brief Does very basic indentation for pretty printing.
+ *
+ * This function is used as the (callback) GFunc in g_slist_foreach.
+ *
+ * @param[in]  entity  The entity.
+ * @param[in]  indent  Indentation level, indentation width is 2 spaces.
+ *                     use GINT_TO_POINTER to convert a integer value when
+ *                     passing this parameter.
+ */
+void
+print_entity_format (entity_t entity, gpointer indent)
+{
+  int i = 0;
+  int indentation = GPOINTER_TO_INT (indent);
+
+  for (i = 0; i < indentation; i++)
+    printf ("  ");
+
+  printf ("<%s", entity->name);
+  if (entity->attributes && g_hash_table_size (entity->attributes))
+    g_hash_table_foreach (entity->attributes,
+                          foreach_print_attribute_format,
+                          indent);
+  printf (">");
+
+  printf ("%s", entity->text);
+
+  if (entity->entities)
+    {
+      printf ("\n");
+      g_slist_foreach (entity->entities, (GFunc) print_entity_format, GINT_TO_POINTER (indentation+1));
+      for (i = 0; i < indentation; i++)
+        printf ("  ");
+    }
+
+  printf ("</%s>\n", entity->name);
+}
+
+/**
+ * @brief Print XML entities to stdout, recusively printing its children.
+ * @brief Does very basic indentation for pretty printing.
+ *
+ * @param[in]  entity  The entity.
+ * @param[in]  indent  Indentation level, indentation width is 2 spaces.
+ */
+void
+print_entities_format (entities_t entities, int indent)
+{
+  g_slist_foreach (entities, (GFunc) print_entity_format,
+                   GINT_TO_POINTER (indent));
 }
 
 /**

@@ -1,3 +1,10 @@
+2009-10-16  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* omp/xml.c, omp/xml.h (print_entity_format),
+	(foreach_print_attribute_format, print_entity_format),
+	(print_entities_format): New. Very basic pretty printing of xml trees.
+	(foreach_print_attribute, foreach_print_entity): Declared static.
+
 2009-10-15  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* misc/openvas_server.c (openvas_server_open, openvas_server_close)
@@ -17,6 +24,11 @@
 
 	* misc/openvas_logging.h: Remove param names.  Add #endif comment.
 	(openvas_log_silent): New header.
+
+2009-10-15  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* base/openvas_certificate_file.c, base/openvas_certificate_file.h:
+	Reverted last commit.
 
 2009-10-15  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 

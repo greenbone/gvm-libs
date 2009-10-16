@@ -79,6 +79,12 @@ print_entity (FILE*, entity_t);
 void
 print_entities (FILE*, entities_t);
 
+void
+print_entity_format (entity_t, gpointer indentation);
+
+void
+print_entities_format (entities_t, int indentation);
+
 int
 read_entity_and_text (gnutls_session_t*, entity_t*, char**);
 
