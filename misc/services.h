@@ -1,4 +1,4 @@
-/* 
+/* OpenVAS Libraries
  * Copyright (C) 2002 Michel Arboi
  *
  * This library is free software; you can redistribute it and/or
@@ -25,7 +25,7 @@
 /* **** FILES **** */
 
 #define OPENVAS_SERVICES	 OPENVAS_STATE_DIR "/lib/openvas/openvas-services"
-/* If you want Nessus to use a second input file, uncomment next line */
+/* If you want OpenVAS to use a second input file, uncomment next line */
 /*#define OPENVAS_IANA_PORTS	CONF_DIR "/iana-port-numbers"*/
 
 #define OPENVAS_SERVICES_TCP	OPENVAS_STATE_DIR "/lib/openvas/services.tcp"

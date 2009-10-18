@@ -1,3 +1,10 @@
+2009-10-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* include/config.h.in, include/libvers.h.in, include/includes.h,
+	misc/comm.h, misc/resolve.c, misc/pcap.c, misc/resolve.h,
+	misc/services.h, misc/scanners_utils.c, misc/kb.c, nasl/includes.h:
+	Replaced Nessus by OpenVAS.
+
 2009-10-16  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* omp/omp.c (omp_start_task_report): New function.  Body of

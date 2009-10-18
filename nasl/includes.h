@@ -27,7 +27,7 @@
 #define ___INCLUDES_H__
 #undef WINDOWSNT
 /*
- * Nessus system includes 
+ * OpenVAS system includes 
  */
 #if defined(LINUX)
 /* Bug 1388: to get memmem() prototype */

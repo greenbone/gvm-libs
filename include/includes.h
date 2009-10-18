@@ -26,7 +26,7 @@
 #ifndef ___INCLUDES_H__
 #define ___INCLUDES_H__
 /*
- * Nessus system includes 
+ * OpenVAS system includes 
  */
 #include "config.h"
 
@@ -168,7 +168,7 @@
 /*
  * Threads management
  *
- * Nessus is currently able to deal with 
+ * OpenVAS is currently able to deal with 
  * 3 kinds of threads API :
  *
  * - the POSIX Threads

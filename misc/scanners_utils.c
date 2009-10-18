@@ -1,4 +1,4 @@
-/* Nessuslib -- the Nessus Library
+/* OpenVAS Libraries
  * Copyright (C) 1998 Renaud Deraison
  *
  * This library is free software; you can redistribute it and/or

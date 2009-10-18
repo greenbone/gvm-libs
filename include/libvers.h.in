@@ -1,4 +1,4 @@
-/* Nessus
+/* OpenVAS Libraries
  * Copyright (C) 1998 Renaud Deraison
  *
  * This program is free software; you can redistribute it and/or modify
