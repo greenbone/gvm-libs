@@ -1,3 +1,8 @@
+2009-10-19  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* omp/xml.c (compare_entities): Continue to the rest of the comparisons
+	when the attributes are both NULL, instead of claiming equality.
+
 2009-10-19  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post-release version bump.

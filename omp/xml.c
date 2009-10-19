@@ -698,8 +698,6 @@ compare_entities (entity_t entity1, entity_t entity2)
 {
   if (entity1 == NULL) return entity2 == NULL ? 0 : 1;
   if (entity2 == NULL) return 1;
-  if (entity1->attributes == NULL) return entity2->attributes == NULL ? 0 : 1;
-  if (entity2->attributes == NULL) return 1;
 
   if (strcmp (entity1->name, entity2->name))
     {
@@ -713,12 +711,20 @@ compare_entities (entity_t entity1, entity_t entity2)
       return 1;
     }
 
-  if (g_hash_table_find (entity1->attributes,
-                         compare_find_attribute,
-                         (gpointer) entity2->attributes))
+  if (entity1->attributes == NULL)
     {
-      g_message ("  compare failed attributes\n");
-      return 1;
+      if (entity2->attributes) return 1;
+    }
+  else
+    {
+      if (entity2->attributes == NULL) return 1;
+      if (g_hash_table_find (entity1->attributes,
+                             compare_find_attribute,
+                             (gpointer) entity2->attributes))
+        {
+          g_message ("  compare failed attributes\n");
+          return 1;
+        }
     }
 
   // FIX entities can be in any order
