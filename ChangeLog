@@ -1,5 +1,15 @@
 2009-10-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Refactored "503" calls.
+
+	* omp/omp.c (get_omp_response_503): New. Extracted from other
+	functions, added todo about possible memleak.
+	(omp_get_nvt_all, omp_get_nvt_feed_checksum, omp_get_rules_503)
+	(omp_get_dependencies_503, omp_get_preferences_503)
+	(omp_get_nvt_details): Call new function, completed doc work.
+
+2009-10-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Moved omp related functions from openvas-client/openvas/comm.c module.
 
 	* omp/omp.c (omp_get_nvt_all, omp_get_nvt_feed_checksum,

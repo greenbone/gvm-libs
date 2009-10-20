@@ -471,6 +471,7 @@ check_response (gnutls_session_t* session)
   return -1;
 }
 
+
 /**
  * @brief Stop a task and read the manager response.
  *
@@ -493,21 +494,24 @@ omp_abort_task (gnutls_session_t* session, const char* id)
 
 
 /**
- * @brief Issue an OMP \<get_nvt_all\/\> command and wait for the response.
+ * @brief Issue \ref command against the server in \ref session, waits for
+ * @brief the response and fills the response entity into \ref response.
  *
- * @param[in]  session   Session to the server.
- * @param[out] response  Entity containing the response, must be freed.
+ * @param[in]  session   Pointer to GnuTLS session to an omp server.
+ * @param[in]  command   Command to issue against the server.
+ * @param[out] response  Entity holding the response, if any.
  *
  * @return 0 in case of success. -1 otherwise (e.g. invalid session).
  */
-int
-omp_get_nvt_all (gnutls_session_t* session, entity_t* response)
+static int
+get_omp_response_503 (gnutls_session_t* session, const gchar* command,
+                      entity_t* response)
 {
   while (1)
     {
       const char* status;
 
-      if (openvas_server_send (session, "<get_nvt_all/>"))
+      if (openvas_server_send (session, command))
         return -1;
 
       *response = NULL;
@@ -528,12 +532,26 @@ omp_get_nvt_all (gnutls_session_t* session, entity_t* response)
       if (first == '2') return 0;
       if (strlen (status) == 3 && strcmp (status, "503") == 0)
         {
-          sleep (1);
+          /** @todo evaluate if response has to be freed here */
+          sleep (0.5);
           continue;
         }
       free_entity (*response);
       return -1;
     }
+}
+/**
+ * @brief Issue an OMP \<get_nvt_all\/\> command and wait for the response.
+ *
+ * @param[in]  session   Session to the server.
+ * @param[out] response  Entity containing the response, must be freed.
+ *
+ * @return 0 in case of success. -1 otherwise (e.g. invalid session).
+ */
+int
+omp_get_nvt_all (gnutls_session_t* session, entity_t* response)
+{
+  return get_omp_response_503 (session, "<get_nvt_all/>", response);
 }
 
 /**
@@ -548,112 +566,39 @@ omp_get_nvt_all (gnutls_session_t* session, entity_t* response)
 int
 omp_get_nvt_feed_checksum (gnutls_session_t* session, entity_t* response)
 {
-  while (1)
-    {
-      const char* status;
-
-      if (openvas_server_send (session,
-                               "<get_nvt_feed_checksum algorithm=\"md5\"/>"))
-        return -1;
-
-      *response = NULL;
-      if (read_entity (session, response)) return -1;
-
-      status = entity_attribute (*response, "status");
-      if (status == NULL)
-        {
-          free_entity (*response);
-          return -1;
-        }
-      if (strlen (status) == 0)
-        {
-          free_entity (*response);
-          return -1;
-        }
-      char first = status[0];
-      if (first == '2') return 0;
-      if (strlen (status) == 3 && strcmp (status, "503") == 0)
-        {
-          sleep (0.5);
-          continue;
-        }
-      free_entity (*response);
-      return -1;
-    }
+  return get_omp_response_503 (session,
+                               "<get_nvt_feed_checksum algorithm=\"md5\"/>",
+                               response);
 }
 
-/* caller must free return */
+
+/**
+ * @brief Issue an OMP \<get_rules\/\> command and wait for the response.
+ *
+ * @param[in]  session   Session to the server.
+ * @param[out] response  Entity containing the response, must be freed.
+ *
+ * @return 0 in case of success. -1 otherwise (e.g. invalid session).
+ */
 int
 omp_get_rules_503 (gnutls_session_t* session, entity_t* response)
 {
-  while (1)
-    {
-      const char* status;
-
-      if (openvas_server_send (session, "<get_rules/>"))
-        return -1;
-
-      *response = NULL;
-      if (read_entity (session, response)) return -1;
-
-      status = entity_attribute (*response, "status");
-      if (status == NULL)
-        {
-          free_entity (*response);
-          return -1;
-        }
-      if (strlen (status) == 0)
-        {
-          free_entity (*response);
-          return -1;
-        }
-      char first = status[0];
-      if (first == '2') return 0;
-      if (strlen (status) == 3 && strcmp (status, "503") == 0)
-        {
-          sleep (0.5);
-          continue;
-        }
-      free_entity (*response);
-      return -1;
-    }
+  return get_omp_response_503 (session, "<get_rules/>", response);
 }
 
-/* caller must free return */
+
+/**
+ * @brief Issue an OMP \<get_dependencies/\> command and wait for the response.
+ *
+ * @param[in]  session   Session to the server.
+ * @param[out] response  Entity containing the response, must be freed.
+ *
+ * @return 0 in case of success. -1 otherwise (e.g. invalid session).
+ */
 int
 omp_get_dependencies_503 (gnutls_session_t* session, entity_t* response)
 {
-  while (1)
-    {
-      const char* status;
-
-      if (openvas_server_send (session, "<get_dependencies/>"))
-        return -1;
-
-      *response = NULL;
-      if (read_entity (session, response)) return -1;
-
-      status = entity_attribute (*response, "status");
-      if (status == NULL)
-        {
-          free_entity (*response);
-          return -1;
-        }
-      if (strlen (status) == 0)
-        {
-          free_entity (*response);
-          return -1;
-        }
-      char first = status[0];
-      if (first == '2') return 0;
-      if (strlen (status) == 3 && strcmp (status, "503") == 0)
-        {
-          sleep (0.5);
-          continue;
-        }
-      free_entity (*response);
-      return -1;
-    }
+  return get_omp_response_503 (session, "<get_dependencies/>", response);
 }
 
 
@@ -1400,37 +1345,7 @@ omp_get_preferences (gnutls_session_t* session, entity_t* response)
 int
 omp_get_preferences_503 (gnutls_session_t* session, entity_t* response)
 {
-  while (1)
-    {
-      const char* status;
-
-      if (openvas_server_send (session, "<get_preferences/>"))
-        return -1;
-
-      *response = NULL;
-      if (read_entity (session, response)) return -1;
-
-      status = entity_attribute (*response, "status");
-      if (status == NULL)
-        {
-          free_entity (*response);
-          return -1;
-        }
-      if (strlen (status) == 0)
-        {
-          free_entity (*response);
-          return -1;
-        }
-      char first = status[0];
-      if (first == '2') return 0;
-      if (strlen (status) == 3 && strcmp (status, "503") == 0)
-        {
-          sleep (0.5);
-          continue;
-        }
-      free_entity (*response);
-      return -1;
-    }
+  return get_omp_response_503 (session, "<get_preferences/>", response);
 }
 
 /**
@@ -1912,52 +1827,26 @@ omp_delete_lsc_credential (gnutls_session_t* session,
  *
  * @param[in]  session         Pointer to GNUTLS session.
  * @param[in]  oid             OID of NVT or NULL for all NVTs.
- * @param[out] status          Status return.  On success contains GET_STATUS
+ * @param[out] response        Status return. On success contains GET_STATUS
  *                             response.
  *
- * @return 0 on success, -1 or OMP response code on error.
+ * @return 0 on success, -1 on error.
  */
 int
 omp_get_nvt_details_503 (gnutls_session_t* session, const char * oid,
                          entity_t* response)
 {
-  while (1)
-    {
-      const char* status;
-      gchar* request;
+  gchar* request;
+  int ret;
 
-      if (oid)
-        request = g_strdup_printf ("<get_nvt_details oid=\"%s\"/>", oid);
-      else
-        request = g_strdup("<get_nvt_details/>");
+  if (oid)
+    request = g_strdup_printf ("<get_nvt_details oid=\"%s\"/>", oid);
+  else
+    request = g_strdup("<get_nvt_details/>");
 
-      int ret = openvas_server_send (session, request);
-      g_free(request);
-      if (ret)
-        return -1;
+  ret = get_omp_response_503 (session, request, response);
 
-      *response = NULL;
-      if (read_entity (session, response)) return -1;
+  g_free (request);
 
-      status = entity_attribute (*response, "status");
-      if (status == NULL)
-        {
-          free_entity (*response);
-          return -1;
-        }
-      if (strlen (status) == 0)
-        {
-          free_entity (*response);
-          return -1;
-        }
-      char first = status[0];
-      if (first == '2') return 0;
-      if (strlen (status) == 3 && strcmp (status, "503") == 0)
-        {
-          sleep (1);
-          continue;
-        }
-      free_entity (*response);
-      return -1;
-    }
+  return ret;
 }
