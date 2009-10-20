@@ -77,7 +77,7 @@ misc/kb.h
 misc/Makefile
 misc/network.c
 misc/network.h
-misc/ntp.h
+misc/otp.h
 misc/openvas_auth.c
 misc/openvas_auth.h
 misc/openvas_logging.c

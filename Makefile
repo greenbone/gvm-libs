@@ -61,7 +61,7 @@ install : all
 	$(INSTALL) -m 0444 misc/hash_table_file.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 misc/kb.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 misc/network.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/ntp.h $(DESTDIR)${includedir}/openvas
+	$(INSTALL) -m 0444 misc/otp.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 misc/pcap_openvas.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 misc/plugutils.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 misc/popen.h $(DESTDIR)${includedir}/openvas
