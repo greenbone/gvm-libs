@@ -1155,18 +1155,10 @@ omp_get_report_format (gnutls_session_t* session,
 int
 omp_delete_report (gnutls_session_t* session, const char* id)
 {
-  entity_t response;
-
   if (openvas_server_sendf (session, "<delete_report report_id=\"%s\"/>", id))
     return -1;
 
-  response = NULL;
-  if (read_entity (session, &response)) return -1;
-
-  // FIX check status
-
-  free_entity (response);
-  return 0;
+  return check_response (session);
 }
 
 /**
@@ -1184,8 +1176,6 @@ int
 omp_modify_task (gnutls_session_t* session, const char* id,
                  const char* rcfile, const char* name, const char* comment)
 {
-  entity_t response;
-
   if (openvas_server_sendf (session, "<modify_task task_id=\"%s\">", id))
     return -1;
 
@@ -1218,13 +1208,7 @@ omp_modify_task (gnutls_session_t* session, const char* id,
   if (openvas_server_send (session, "</modify_task>"))
     return -1;
 
-  response = NULL;
-  if (read_entity (session, &response)) return -1;
-
-  // FIX check status
-
-  free_entity (response);
-  return 0;
+  return check_response (session);
 }
 
 /**
@@ -1243,8 +1227,6 @@ omp_modify_task_file (gnutls_session_t* session, const char* id,
                       const char* name, const void* content,
                       gsize content_len)
 {
-  entity_t response;
-
   if (name == NULL) return -1;
 
   if (openvas_server_sendf (session, "<modify_task task_id=\"%s\">", id))
@@ -1282,13 +1264,7 @@ omp_modify_task_file (gnutls_session_t* session, const char* id,
   if (openvas_server_send (session, "</modify_task>"))
     return -1;
 
-  response = NULL;
-  if (read_entity (session, &response)) return -1;
-
-  // FIX check status
-
-  free_entity (response);
-  return 0;
+  return check_response (session);
 }
 
 /**

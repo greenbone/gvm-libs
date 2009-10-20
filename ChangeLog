@@ -1,7 +1,14 @@
 2009-10-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
-	Use check_response where response entities have no (interesting) content,
-	avoid duplicate code.
+	Fixed some FIXMEs about response checking.
+
+	* omp/omp.c (omp_delete_report, omp_modify_task, omp_modify_task_file):
+	Added response checking.
+
+2009-10-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Use check_response where response entities have no (interesting)
+	content, avoid duplicate code.
 
 	* omp/omp.c (omp_delete_task, omp_create_target, omp_delete_target)
 	(omp_create_config, omp_delete_config, omp_create_lsc_credential)
