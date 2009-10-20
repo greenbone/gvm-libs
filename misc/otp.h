@@ -1,12 +1,12 @@
-/* OpenVAS
+/* openvas-libraries/base
  * $Id$
- * Description: Base definitions for NTP.
+ * Description: Base definitions for OTP.
  *
  * Authors:
- * Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
+ * Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
  *
  * Copyright:
- * Based on work Copyright (C) 1998 Renaud Deraison
+ * Copyright (C) 2009 Greenbone Networks GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

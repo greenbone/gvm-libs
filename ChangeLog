@@ -1,5 +1,10 @@
 2009-10-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/otp.h: Changed author and copyright because
+	absolutely nothing is left of the previous author.
+
+2009-10-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* ntp.h: Renamed to otp.h.
 
 	* Makefile, MANIFEST: Adapted accordingly.
