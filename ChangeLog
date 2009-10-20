@@ -1,3 +1,13 @@
+2009-10-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Moved omp related functions from openvas-client/openvas/comm.c module.
+
+	* omp/omp.c (omp_get_nvt_all, omp_get_nvt_feed_checksum,
+	omp_get_rules_503, omp_get_dependencies_503):
+	New. Moved from openvas-client/openvas/comm.c.
+
+	* omp/omp.h: Added protos for new methods.
+
 2009-10-19  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* omp/xml.c (compare_entities): Continue to the rest of the comparisons

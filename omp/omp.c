@@ -491,6 +491,172 @@ omp_abort_task (gnutls_session_t* session, const char* id)
   return check_response (session);
 }
 
+
+/**
+ * @brief Issue an OMP \<get_nvt_all\/\> command and wait for the response.
+ *
+ * @param[in]  session   Session to the server.
+ * @param[out] response  Entity containing the response, must be freed.
+ *
+ * @return 0 in case of success. -1 otherwise (e.g. invalid session).
+ */
+int
+omp_get_nvt_all (gnutls_session_t* session, entity_t* response)
+{
+  while (1)
+    {
+      const char* status;
+
+      if (openvas_server_send (session, "<get_nvt_all/>"))
+        return -1;
+
+      *response = NULL;
+      if (read_entity (session, response)) return -1;
+
+      status = entity_attribute (*response, "status");
+      if (status == NULL)
+        {
+          free_entity (*response);
+          return -1;
+        }
+      if (strlen (status) == 0)
+        {
+          free_entity (*response);
+          return -1;
+        }
+      char first = status[0];
+      if (first == '2') return 0;
+      if (strlen (status) == 3 && strcmp (status, "503") == 0)
+        {
+          sleep (1);
+          continue;
+        }
+      free_entity (*response);
+      return -1;
+    }
+}
+
+/**
+ * @brief Issue an OMP \<get_nvt_feed_checksum algoithm=md5/\> command and
+ * @brief wait for the response.
+ *
+ * @param[in]  session   Session to the server.
+ * @param[out] response  Entity containing the response, must be freed.
+ *
+ * @return 0 in case of success. -1 otherwise (e.g. invalid session).
+ */
+int
+omp_get_nvt_feed_checksum (gnutls_session_t* session, entity_t* response)
+{
+  while (1)
+    {
+      const char* status;
+
+      if (openvas_server_send (session,
+                               "<get_nvt_feed_checksum algorithm=\"md5\"/>"))
+        return -1;
+
+      *response = NULL;
+      if (read_entity (session, response)) return -1;
+
+      status = entity_attribute (*response, "status");
+      if (status == NULL)
+        {
+          free_entity (*response);
+          return -1;
+        }
+      if (strlen (status) == 0)
+        {
+          free_entity (*response);
+          return -1;
+        }
+      char first = status[0];
+      if (first == '2') return 0;
+      if (strlen (status) == 3 && strcmp (status, "503") == 0)
+        {
+          sleep (0.5);
+          continue;
+        }
+      free_entity (*response);
+      return -1;
+    }
+}
+
+/* caller must free return */
+int
+omp_get_rules_503 (gnutls_session_t* session, entity_t* response)
+{
+  while (1)
+    {
+      const char* status;
+
+      if (openvas_server_send (session, "<get_rules/>"))
+        return -1;
+
+      *response = NULL;
+      if (read_entity (session, response)) return -1;
+
+      status = entity_attribute (*response, "status");
+      if (status == NULL)
+        {
+          free_entity (*response);
+          return -1;
+        }
+      if (strlen (status) == 0)
+        {
+          free_entity (*response);
+          return -1;
+        }
+      char first = status[0];
+      if (first == '2') return 0;
+      if (strlen (status) == 3 && strcmp (status, "503") == 0)
+        {
+          sleep (0.5);
+          continue;
+        }
+      free_entity (*response);
+      return -1;
+    }
+}
+
+/* caller must free return */
+int
+omp_get_dependencies_503 (gnutls_session_t* session, entity_t* response)
+{
+  while (1)
+    {
+      const char* status;
+
+      if (openvas_server_send (session, "<get_dependencies/>"))
+        return -1;
+
+      *response = NULL;
+      if (read_entity (session, response)) return -1;
+
+      status = entity_attribute (*response, "status");
+      if (status == NULL)
+        {
+          free_entity (*response);
+          return -1;
+        }
+      if (strlen (status) == 0)
+        {
+          free_entity (*response);
+          return -1;
+        }
+      char first = status[0];
+      if (first == '2') return 0;
+      if (strlen (status) == 3 && strcmp (status, "503") == 0)
+        {
+          sleep (0.5);
+          continue;
+        }
+      free_entity (*response);
+      return -1;
+    }
+}
+
+
 /**
  * @brief Wait for a task to start running on the server.
  *
