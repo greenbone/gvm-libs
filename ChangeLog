@@ -1,3 +1,9 @@
+2009-10-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/comm.h: Adjusted proto for comm_init.
+
+	* misc/ntp.h: Removed struct ntp_caps. 
+
 2009-10-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Fixed some FIXMEs about response checking.

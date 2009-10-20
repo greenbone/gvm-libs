@@ -23,13 +23,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _OPENVAS_NTP_H
-#define _OPENVAS_NTP_H
+#ifndef _OPENVAS_OTP_H
+#define _OPENVAS_OTP_H
 
 #define OTP_10 100  /* OTP/1.0 */
-
-typedef struct {
-  int ntp_version; /*  NTP_VERSION, as defined in ntp.h */
-} ntp_caps;
 
 #endif
