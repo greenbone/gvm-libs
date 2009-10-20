@@ -974,28 +974,7 @@ omp_delete_task (gnutls_session_t* session, const char* id)
       == -1)
     return -1;
 
-  /* Read the response. */
-
-  entity_t entity = NULL;
-  if (read_entity (session, &entity)) return -1;
-
-  /* Check the response. */
-
-  const char* status = entity_attribute (entity, "status");
-  if (status == NULL)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  if (strlen (status) == 0)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  char first = status[0];
-  free_entity (entity);
-  if (first == '2') return 0;
-  return -1;
+  return check_response (session);
 }
 
 /**
@@ -1426,8 +1405,6 @@ omp_create_target (gnutls_session_t* session,
                    const char* comment)
 {
   int ret;
-  entity_t entity;
-  const char* status;
 
   /* Create the OMP request. */
 
@@ -1455,28 +1432,7 @@ omp_create_target (gnutls_session_t* session,
   g_free (new_task_request);
   if (ret) return -1;
 
-  /* Read the response. */
-
-  entity = NULL;
-  if (read_entity (session, &entity)) return -1;
-
-  /* Check the response. */
-
-  status = entity_attribute (entity, "status");
-  if (status == NULL)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  if (strlen (status) == 0)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  char first = status[0];
-  free_entity (entity);
-  if (first == '2') return 0;
-  return -1;
+  return check_response (session);
 }
 
 /**
@@ -1492,8 +1448,6 @@ omp_delete_target (gnutls_session_t* session,
                    const char* name)
 {
   int ret;
-  entity_t entity;
-  const char* status;
 
   /* Create the OMP request. */
 
@@ -1509,28 +1463,7 @@ omp_delete_target (gnutls_session_t* session,
   g_free (new_task_request);
   if (ret) return -1;
 
-  /* Read the response. */
-
-  entity = NULL;
-  if (read_entity (session, &entity)) return -1;
-
-  /* Check the response. */
-
-  status = entity_attribute (entity, "status");
-  if (status == NULL)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  if (strlen (status) == 0)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  char first = status[0];
-  free_entity (entity);
-  if (first == '2') return 0;
-  return -1;
+  return check_response (session);
 }
 
 /**
@@ -1584,28 +1517,7 @@ omp_create_config (gnutls_session_t* session,
   g_free (new_config_request);
   if (ret) return -1;
 
-  /* Read the response. */
-
-  entity_t entity = NULL;
-  if (read_entity (session, &entity)) return -1;
-
-  /* Check the response. */
-
-  const char* status = entity_attribute (entity, "status");
-  if (status == NULL)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  if (strlen (status) == 0)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  char first = status[0];
-  free_entity (entity);
-  if (first == '2') return 0;
-  return -1;
+  return check_response (session);
 }
 
 /**
@@ -1663,8 +1575,6 @@ omp_delete_config (gnutls_session_t* session,
                    const char* name)
 {
   int ret;
-  entity_t entity;
-  const char* status;
 
   /* Create the OMP request. */
 
@@ -1680,28 +1590,7 @@ omp_delete_config (gnutls_session_t* session,
   g_free (new_task_request);
   if (ret) return -1;
 
-  /* Read the response. */
-
-  entity = NULL;
-  if (read_entity (session, &entity)) return -1;
-
-  /* Check the response. */
-
-  status = entity_attribute (entity, "status");
-  if (status == NULL)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  if (strlen (status) == 0)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  char first = status[0];
-  free_entity (entity);
-  if (first == '2') return 0;
-  return -1;
+  return check_response (session);
 }
 
 /**
@@ -1719,8 +1608,6 @@ omp_create_lsc_credential (gnutls_session_t* session,
                            const char* comment)
 {
   int ret;
-  entity_t entity;
-  const char* status;
 
   /* Create the OMP request. */
 
@@ -1744,28 +1631,7 @@ omp_create_lsc_credential (gnutls_session_t* session,
   g_free (new_task_request);
   if (ret) return -1;
 
-  /* Read the response. */
-
-  entity = NULL;
-  if (read_entity (session, &entity)) return -1;
-
-  /* Check the response. */
-
-  status = entity_attribute (entity, "status");
-  if (status == NULL)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  if (strlen (status) == 0)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  char first = status[0];
-  free_entity (entity);
-  if (first == '2') return 0;
-  return -1;
+  return check_response (session);
 }
 
 /**
@@ -1781,8 +1647,6 @@ omp_delete_lsc_credential (gnutls_session_t* session,
                            const char* name)
 {
   int ret;
-  entity_t entity;
-  const char* status;
 
   /* Create the OMP request. */
 
@@ -1798,28 +1662,7 @@ omp_delete_lsc_credential (gnutls_session_t* session,
   g_free (new_task_request);
   if (ret) return -1;
 
-  /* Read the response. */
-
-  entity = NULL;
-  if (read_entity (session, &entity)) return -1;
-
-  /* Check the response. */
-
-  status = entity_attribute (entity, "status");
-  if (status == NULL)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  if (strlen (status) == 0)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  char first = status[0];
-  free_entity (entity);
-  if (first == '2') return 0;
-  return -1;
+  return check_response (session);
 }
 
 /**
@@ -1842,7 +1685,7 @@ omp_get_nvt_details_503 (gnutls_session_t* session, const char * oid,
   if (oid)
     request = g_strdup_printf ("<get_nvt_details oid=\"%s\"/>", oid);
   else
-    request = g_strdup("<get_nvt_details/>");
+    request = g_strdup ("<get_nvt_details/>");
 
   ret = get_omp_response_503 (session, request, response);
 

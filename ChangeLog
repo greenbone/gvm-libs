@@ -1,5 +1,16 @@
 2009-10-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Use check_response where response entities have no (interesting) content,
+	avoid duplicate code.
+
+	* omp/omp.c (omp_delete_task, omp_create_target, omp_delete_target)
+	(omp_create_config, omp_delete_config, omp_create_lsc_credential)
+	(omp_delete_lsc_credential): Call check_response instead of checking
+	response in place.
+	(omp_get_nvt_details_503): Minor cosmetic.
+
+2009-10-20  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Refactored "503" calls.
 
 	* omp/omp.c (get_omp_response_503): New. Extracted from other
