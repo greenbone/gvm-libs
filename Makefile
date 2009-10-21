@@ -84,6 +84,7 @@ install : all
 	$(INSTALL) -m 0444 base/nvti.h $(DESTDIR)${includedir}/openvas/base
 	$(INSTALL) -m 0444 base/openvas_certificate_file.h $(DESTDIR)${includedir}/openvas/base
 	$(INSTALL) -m 0444 base/openvas_string.h $(DESTDIR)${includedir}/openvas/base
+	$(INSTALL) -m 0444 base/pidfile.h $(DESTDIR)${includedir}/openvas/base
 	$(INSTALL) -m 0444 base/severity_filter.h $(DESTDIR)${includedir}/openvas/base
 	$(INSTALL) -m 0444 omp/omp.h $(DESTDIR)${includedir}/openvas/omp
 	$(INSTALL) -m 0444 omp/xml.h $(DESTDIR)${includedir}/openvas/omp

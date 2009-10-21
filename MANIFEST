@@ -13,6 +13,8 @@ base/openvas_certificate_file.c
 base/openvas_certificate_file.h
 base/openvas_string.c
 base/openvas_string.h
+base/pidfile.c
+base/pidfile.h
 base/README.txt
 base/severity_filter.c
 base/severity_filter.h
