@@ -56,10 +56,10 @@ int
 pidfile_create (gchar * daemon_name)
 {
   gchar *name_pid = g_strconcat (daemon_name, ".pid", NULL);
-  gchar *pidfile_name = g_build_filename (OPENVAS_PID_DIR, name_pid);
+  gchar *pidfile_name = g_build_filename (OPENVAS_PID_DIR, name_pid, NULL);
   FILE *pidfile = g_fopen (pidfile_name, "w");
 
-  g_free(name_pid);
+  g_free (name_pid);
 
   if (pidfile == NULL)
     {
@@ -86,7 +86,7 @@ void
 pidfile_remove (gchar * daemon_name)
 {
   gchar *name_pid = g_strconcat (daemon_name, ".pid", NULL);
-  gchar *pidfile_name = g_build_filename (OPENVAS_PID_DIR, name_pid);
+  gchar *pidfile_name = g_build_filename (OPENVAS_PID_DIR, name_pid, NULL);
 
   g_free(name_pid);
 
