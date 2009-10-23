@@ -1,5 +1,9 @@
 2009-10-23  Matthew Mundell <matthew.mundell@intevation.de>
 
+	* base/nvti.c (nvti_category): Correct doc typo.
+
+2009-10-23  Matthew Mundell <matthew.mundell@intevation.de>
+
 	* tools: New directory.
 
 	* tools/openvas-lsc-rpm-creator.sh: New file.

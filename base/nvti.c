@@ -489,8 +489,7 @@ nvti_timeout (const nvti_t * n)
 /**
  * @brief Get the category for this NVT.
  *
- * @param n The NVT Info structure of which the timeout should
- *          be returned.
+ * @param n The NVT Info structure of which the category should be returned.
  *
  * @return The category integer code. A value <= 0 indicates it is not set.
  */
