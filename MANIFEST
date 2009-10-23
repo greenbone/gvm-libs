@@ -213,4 +213,6 @@ omp/xml.h
 openvas-libraries.tmpl.in
 README
 TODO
+tools/
+tools/openvas-lsc-rpm-creator.sh
 VERSION

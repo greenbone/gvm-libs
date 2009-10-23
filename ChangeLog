@@ -1,3 +1,15 @@
+2009-10-23  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* tools: New directory.
+
+	* tools/openvas-lsc-rpm-creator.sh: New file.
+
+	* Makefile (install-tools): New rule.
+	(install): Depend on install-tools.
+	(clean, distclean): Format like others.
+
+	* MANIFEST: Add new dir and file.
+
 2009-10-22  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* base/pidfile.c (pidfile_create, pidfile_remove): Add NULL end args.

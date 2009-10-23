@@ -40,7 +40,11 @@ openvas-libraries.tmpl: openvas-libraries.tmpl.in configure VERSION
 	$(SHELL) configure $(CONFIGURE_ARGS)
 	touch $@
 
-install : all
+install-tools:
+	test -d $(DESTDIR)${datarootdir}/openvas || $(INSTALL_DIR) -m 755 $(DESTDIR)${datarootdir}/openvas
+	$(INSTALL) -m 755 tools/openvas-lsc-rpm-creator.sh $(DESTDIR)${datarootdir}/openvas
+
+install: all install-tools
 	test -d $(DESTDIR)${prefix} || ${INSTALL_DIR} -m 755 $(DESTDIR)${prefix}
 	test -d $(DESTDIR)${includedir}/openvas || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas
 	test -d $(DESTDIR)${includedir}/openvas/base || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas/base
@@ -104,7 +108,7 @@ install : all
 	@echo ' --------------------------------------------------------------'
 	@echo
 
-clean :
+clean:
 	-cd base && ${MAKE} clean
 	-cd hg   && ${MAKE} clean
 	-cd misc && ${MAKE} clean
@@ -112,7 +116,7 @@ clean :
 	-cd omp  && ${MAKE} clean
 	rm -rf doc/generated
 
-distclean : clean
+distclean: clean
 	rm -f ${rootdir}/include/config.h libtool config.cache \
 	config.status config.log ${rootdir}/include/libvers.h
 	-cd misc && ${MAKE} distclean
