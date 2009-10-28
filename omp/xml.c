@@ -574,13 +574,16 @@ foreach_print_attribute (gpointer name, gpointer value, gpointer stream)
 void
 print_entity (FILE* stream, entity_t entity)
 {
+  gchar* text_escaped = NULL;
   fprintf (stream, "<%s", entity->name);
   if (entity->attributes && g_hash_table_size (entity->attributes))
     g_hash_table_foreach (entity->attributes,
                           foreach_print_attribute,
                           stream);
   fprintf (stream, ">");
-  fprintf (stream, "%s", entity->text);
+  text_escaped = g_markup_escape_text (entity->text, -1);
+  fprintf (stream, "%s", text_escaped);
+  g_free (text_escaped);
   g_slist_foreach (entity->entities, foreach_print_entity, stream);
   fprintf (stream, "</%s>", entity->name);
   fflush (stream);
@@ -629,6 +632,7 @@ print_entity_format (entity_t entity, gpointer indent)
 {
   int i = 0;
   int indentation = GPOINTER_TO_INT (indent);
+  gchar* text_escaped = NULL;
 
   for (i = 0; i < indentation; i++)
     printf ("  ");
@@ -640,7 +644,9 @@ print_entity_format (entity_t entity, gpointer indent)
                           indent);
   printf (">");
 
-  printf ("%s", entity->text);
+  text_escaped = g_markup_escape_text (entity->text, -1);
+  printf ("%s", text_escaped);
+  g_free (text_escaped);
 
   if (entity->entities)
     {

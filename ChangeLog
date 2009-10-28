@@ -1,3 +1,8 @@
+2009-10-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* omp/xml.x (print_entity, print_entity_format): Escape text of
+	entities, as otherwise invalid XML might result.
+
 2009-10-26  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post-release version bump.
