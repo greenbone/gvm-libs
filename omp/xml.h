@@ -86,6 +86,9 @@ void
 print_entities_format (entities_t, int indentation);
 
 int
+read_entity_and_string (gnutls_session_t*, entity_t*, GString**);
+
+int
 read_entity_and_text (gnutls_session_t*, entity_t*, char**);
 
 int

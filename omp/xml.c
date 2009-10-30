@@ -411,25 +411,30 @@ handle_error (GMarkupParseContext* context,
  *
  * @param[in]   session   Pointer to GNUTLS session.
  * @param[out]  entity    Pointer to an entity tree.
- * @param[out]  text      A pointer to a pointer, at which to store the
- *                        address of a newly allocated string holding the
- *                        text read from the session, if the text is required,
- *                        else NULL.
+ * @param[out]  string    An optional return location for the text read
+ *                        from the session.  If NULL then it simply
+ *                        remains NULL.  If a pointer to NULL then it points
+ *                        to a freshly allocated GString on successful return.
+ *                        Otherwise it points to an existing GString onto
+ *                        which the text is appended.
  *
  * @return 0 success, -1 read error, -2 parse error, -3 end of file.
  */
 int
-read_entity_and_text (gnutls_session_t* session, entity_t* entity, char** text)
+read_entity_and_string (gnutls_session_t* session, entity_t* entity,
+                        GString** string_return)
 {
   GMarkupParser xml_parser;
   GError* error = NULL;
   GMarkupParseContext *xml_context;
   GString* string;
 
-  if (text == NULL)
+  if (string_return == NULL)
     string = NULL;
-  else
+  else if (*string_return == NULL)
     string = g_string_new ("");
+  else
+    string = *string_return;
 
   /* Create the XML parser. */
 
@@ -472,7 +477,8 @@ read_entity_and_text (gnutls_session_t* session, entity_t* entity, char** text)
                 continue;
               if (context_data.first && context_data.first->data)
                 free_entity (context_data.first->data);
-              if (string) g_string_free (string, TRUE);
+              if (string && *string_return == NULL)
+                g_string_free (string, TRUE);
               return -1;
             }
           if (count == 0)
@@ -486,7 +492,8 @@ read_entity_and_text (gnutls_session_t* session, entity_t* entity, char** text)
                 }
               if (context_data.first && context_data.first->data)
                 free_entity (context_data.first->data);
-              if (string) g_string_free (string, TRUE);
+              if (string && *string_return == NULL)
+                g_string_free (string, TRUE);
               return -3;
             }
           break;
@@ -505,7 +512,8 @@ read_entity_and_text (gnutls_session_t* session, entity_t* entity, char** text)
 	  g_error_free (error);
           if (context_data.first && context_data.first->data)
             free_entity (context_data.first->data);
-          if (string) g_string_free (string, TRUE);
+          if (string && *string_return == NULL)
+            g_string_free (string, TRUE);
 	  return -2;
 	}
       if (context_data.done)
@@ -520,10 +528,36 @@ read_entity_and_text (gnutls_session_t* session, entity_t* entity, char** text)
               return -2;
             }
           *entity = (entity_t) context_data.first->data;
-          if (string) *text = (char*) g_string_free (string, FALSE);
+          if (string) *string_return = string;
           return 0;
         }
     }
+}
+
+/**
+ * @brief Read an XML entity tree from the manager.
+ *
+ * @param[in]   session   Pointer to GNUTLS session.
+ * @param[out]  entity    Pointer to an entity tree.
+ * @param[out]  text      A pointer to a pointer, at which to store the
+ *                        address of a newly allocated string holding the
+ *                        text read from the session, if the text is required,
+ *                        else NULL.
+ *
+ * @return 0 success, -1 read error, -2 parse error, -3 end of file.
+ */
+int
+read_entity_and_text (gnutls_session_t* session, entity_t* entity, char** text)
+{
+  if (text)
+    {
+      GString *string = NULL;
+      int ret = read_entity_and_string (session, entity, &string);
+      if (ret) return ret;
+      *text = g_string_free (string, FALSE);
+      return 0;
+    }
+  return read_entity_and_string (session, entity, NULL);
 }
 
 /**
@@ -537,7 +571,7 @@ read_entity_and_text (gnutls_session_t* session, entity_t* entity, char** text)
 int
 read_entity (gnutls_session_t* session, entity_t* entity)
 {
-  return read_entity_and_text (session, entity, NULL);
+  return read_entity_and_string (session, entity, NULL);
 }
 
 /**
@@ -660,8 +694,9 @@ print_entity_format (entity_t entity, gpointer indent)
 }
 
 /**
- * @brief Print XML entities to stdout, recusively printing its children.
- * @brief Does very basic indentation for pretty printing.
+ * @brief Pretty print XML entities to stdout, recursively printing children.
+ *
+ * Does very basic indentation for pretty printing.
  *
  * @param[in]  entity  The entity.
  * @param[in]  indent  Indentation level, indentation width is 2 spaces.

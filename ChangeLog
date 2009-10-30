@@ -1,3 +1,12 @@
+2009-10-30  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* omp/omp.c (read_entity_and_string): New function.  Body from
+	read_entity_and_text, with GString as return param.
+	(read_entity_and_text, read_entity): Call read_entity_and_text to do the
+	work.
+
+	* omp/omp.h: Add new header.
+
 2009-10-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* omp/xml.x (print_entity, print_entity_format): Escape text of
