@@ -1,3 +1,13 @@
+2009-11-09  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Preparing the openvas-libraries 3.0.0-beta6 release.
+
+	* CHANGES: Updated.
+
+	* VERSION: Set to 3.0.0.beta6.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Updated PROJECT_NUMBER.
+
 2009-10-30  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* omp/omp.c (read_entity_and_string): New function.  Body from
