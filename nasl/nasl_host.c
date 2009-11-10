@@ -47,6 +47,8 @@ extern int is_local_ip (struct in_addr addr);  /* pcap.c */
 extern int islocalhost (struct in_addr *addr); /* pcap.c */
 extern char* routethrough (struct in_addr *dest,
                            struct in_addr *source); /* pcap.c */
+extern char *v6_routethrough (struct in6_addr *dest, struct in6_addr *source);
+extern int v6_islocalhost(struct in6_addr *);
 
 tree_cell * get_hostname(lex_ctxt * lexic)
 {
@@ -154,7 +156,7 @@ tree_cell * nasl_islocalhost(lex_ctxt * lexic)
   retc = alloc_tree_cell(0, NULL);
   retc->type = CONST_INT;
   inaddr.s_addr = dst->s6_addr32[3];
-  retc->x.i_val = islocalhost(&inaddr);
+  retc->x.i_val = v6_islocalhost(dst);
   return retc;
 }
 
@@ -165,11 +167,11 @@ tree_cell * nasl_islocalnet(lex_ctxt * lexic)
  struct in6_addr * ip = plug_get_host_ip(script_infos);
  tree_cell * retc;
   struct in_addr inaddr;
- 
+
  retc = alloc_tree_cell(0, NULL);
  retc->type = CONST_INT;
   inaddr.s_addr = ip->s6_addr32[3];
- retc->x.i_val = is_local_ip(inaddr);
+ retc->x.i_val = v6_is_local_ip(ip);
  return retc;
 }
 
@@ -185,6 +187,7 @@ tree_cell * nasl_this_host(lex_ctxt * lexic)
   struct in_addr src;
   struct in6_addr in6addr;
   struct in_addr inaddr;
+  struct in6_addr src6;
 
   retc = alloc_tree_cell(0, NULL);
   retc->type = CONST_DATA;
@@ -200,46 +203,47 @@ tree_cell * nasl_this_host(lex_ctxt * lexic)
 
   if(ia)
   {
-    if(IN6_IS_ADDR_V4MAPPED(ia))
+    if(v6_islocalhost(ia))
     {
-      inaddr.s_addr = ia->s6_addr32[3];
-      src.s_addr = 0;
-      if(islocalhost(&inaddr))
-        src.s_addr = ia->s6_addr32[3];
-      else
-        (void)routethrough(&inaddr, &src);
-
-      if(src.s_addr)
-      {
-        char * ret;
-
-        ret = estrdup(inet_ntoa(src));
-        retc->x.str_val = ret;
-        retc->size = strlen(ret);
-
-        return retc;
-      }
-
-      hostname[sizeof(hostname) - 1] = '\0';
-      gethostname(hostname, sizeof(hostname) - 1);
-      nn_resolve(hostname, &in6addr);
-
-      addr.s_addr = in6addr.s6_addr32[3];
-
-      ret = estrdup(inet_ntoa(addr));
-      retc->x.str_val = ret;
-      retc->size = strlen(ret);
+      memcpy(&src6, ia, sizeof(struct in6_addr));
     }
     else
     {
+      (void)v6_routethrough(ia, &src6);
+    }
+
+    if(!IN6_ARE_ADDR_EQUAL(&src, &in6addr_any))
+    {
       char * ret;
 
-      ret = estrdup(inet_ntop(AF_INET6, ia, hostname, sizeof(hostname)));
+      if(IN6_IS_ADDR_V4MAPPED(&src6))
+      {
+        inaddr.s_addr = src6.s6_addr32[3];
+        ret = estrdup(inet_ntop(AF_INET, &inaddr,hostname, sizeof(hostname)));
+      }
+      else
+        ret = estrdup(inet_ntop(AF_INET6, &src6,hostname, sizeof(hostname)));
+
       retc->x.str_val = ret;
       retc->size = strlen(ret);
 
       return retc;
     }
+
+    hostname[sizeof(hostname) - 1] = '\0';
+    gethostname(hostname, sizeof(hostname) - 1);
+    nn_resolve(hostname, &in6addr);
+
+    if(IN6_IS_ADDR_V4MAPPED(&in6addr))
+    {
+      inaddr.s_addr = in6addr.s6_addr32[3];
+      ret = estrdup(inet_ntop(AF_INET, &inaddr,hostname, sizeof(hostname)));
+    }
+    else
+      ret = estrdup(inet_ntop(AF_INET6, &in6addr,hostname, sizeof(hostname)));
+
+    retc->x.str_val = ret;
+    retc->size = strlen(ret);
   }
   return retc;
 }

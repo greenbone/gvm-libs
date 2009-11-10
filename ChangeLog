@@ -1,3 +1,21 @@
+2009-11-10  Chandrashekhar B <bchandra@secpod.com>
+
+	* misc/pcap.c: Migrating to ipv6, first phase.
+	Implemented new functions, v6_getinterfaces,
+	v6_is_local_ip, v6_get_mac_addr, v6_ipaddr2devname,
+	v6_islocalhost, v6_getinterfaces, v6_getsourceip,
+	getipv4routes, getipv6routes, v6_routethrough,
+	ipv6addrmask.
+
+	* misc/pcap.c (routethrough): Minor formatting.
+
+	* misc/pcap_openvas.h: Prototypes declaration of new functions.
+
+	* nasl/nasl_host.h (nasl_islocalhost, nasl_islocalnet,
+	nasl_this_host): Use new ipv6 enabled functions from misc/pcap.c
+
+	Coding by Srinivasa NL <nl.srinivas@gmail.com>.
+
 2009-11-09  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post-release version bump.
