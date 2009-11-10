@@ -23,7 +23,7 @@ each running 5 plugins in parallel, you should create 50 (10 * 5) bpfs
 (as openvasd is extremely lightweight, you can expect to have this amount
  of processes running at the same time)
 
-If you plan to scan a whole network, we recommand you create at least
+If you plan to scan a whole network, we recommend you create at least
 100 of them.
 
 Once your kernel has been rebuilt, get root, cd to /dev
@@ -39,5 +39,5 @@ On FreeBSD, you can directly do :
       ./MAKEDEV bpf+100
 
 If you can not recompile your kernel, there once was a feature
-'enable-bpf-sharing' which has been removed (see OpenVAS Change Reuqest 5).
+'enable-bpf-sharing' which has been removed (see OpenVAS Change Request 5).
 Please report on the OpenVAS Mailing Lists if this causes a problem to you.

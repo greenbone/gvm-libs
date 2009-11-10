@@ -1,3 +1,12 @@
+2009-11-10  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Fixed typos found by Ryan Schmidt. This change closes bug #1167.
+	(bugs.openvas.org/1167)
+
+	* configure.in, doc/README.BPF: Fixed typos.
+
+	* configure: Regenerated
+
 2009-11-10  Chandrashekhar B <bchandra@secpod.com>
 
 	* misc/pcap.c: Migrating to ipv6, first phase.

@@ -26504,11 +26504,11 @@ test -c /dev/bpf0 -a ! -c /dev/bpf40 &&
 BPFs are used to capture incoming packets without using the operating system.
 OpenVAS uses those for some of its security checks and port scanners.
 
-However, you seem to not have enough bpfs, (we recommand that you get about
+However, you seem to not have enough bpfs, (we recommend that you get about
 100 of them) so OpenVAS might miss some hosts or produce inaccurate port scans.
 
 If you can not create more bpfs, there once was a feature 'enable-bpf-sharing'
-which has been removed (see OpenVAS Change Reuqest 5). Please report on the
+which has been removed (see OpenVAS Change Request 5). Please report on the
 OpenVAS Mailing Lists if this causes a problem to you.
 Please read README.BPF before continuing" >&5
 echo "${ECHO_T}
@@ -26519,11 +26519,11 @@ echo "${ECHO_T}
 BPFs are used to capture incoming packets without using the operating system.
 OpenVAS uses those for some of its security checks and port scanners.
 
-However, you seem to not have enough bpfs, (we recommand that you get about
+However, you seem to not have enough bpfs, (we recommend that you get about
 100 of them) so OpenVAS might miss some hosts or produce inaccurate port scans.
 
 If you can not create more bpfs, there once was a feature 'enable-bpf-sharing'
-which has been removed (see OpenVAS Change Reuqest 5). Please report on the
+which has been removed (see OpenVAS Change Request 5). Please report on the
 OpenVAS Mailing Lists if this causes a problem to you.
 Please read README.BPF before continuing" >&6; }
 
