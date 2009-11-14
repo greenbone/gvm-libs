@@ -788,17 +788,14 @@ v6_getsourceip (struct in6_addr *src, struct in6_addr *dst)
   unsigned int socklen;
   unsigned short p1;
 
-  /* We will use socket_get_next_source_addr function
-     when it is ported to handle ipv6 address
-     Right now we will always send a UDP packet
-    and get the source ip*/
-#if 0
-  *src = socket_get_next_source_addr(NULL);
-  if ( src->s_addr != INADDR_ANY )
+  if(IN6_IS_ADDR_V4MAPPED(dst))
+    *src = socket_get_next_source_v4_addr(NULL);
+  else
+    *src = socket_get_next_source_v6_addr(NULL);
+  if(!IN6_ARE_ADDR_EQUAL(src,&in6addr_any ))
   {
    return 1;
   }
-#endif
 
   get_random_bytes(&p1, 2);
   if (p1 < 5000) p1 += 5000;
@@ -1138,9 +1135,16 @@ v6_routethrough (struct in6_addr *dest, struct in6_addr *source)
   char addr1[INET6_ADDRSTRLEN];
   char addr2[INET6_ADDRSTRLEN];
 #endif
+  struct in6_addr src;
 
+  *source = in6addr_any;
 
   if (!dest) printf("ipaddr2devname passed a NULL dest address");
+
+  if(IN6_IS_ADDR_V4MAPPED(dest))
+    src = socket_get_next_source_v4_addr(NULL);
+  else
+    src = socket_get_next_source_v6_addr(NULL);
 
   if (!initialized) {
     /* Dummy socket for ioctl */
@@ -1207,15 +1211,16 @@ v6_routethrough (struct in6_addr *dest, struct in6_addr *source)
       {
         if (source)
         {
-          /* We will add this check when -S option is implemented */
-          /*if ( src.s_addr != INADDR_ANY )
-            source->s_addr = src.s_addr;
-          else*/
+          if (!IN6_ARE_ADDR_EQUAL(&src, &in6addr_any))
+            memcpy(source, &src, sizeof(struct in6_addr));
+          else
+          {
 #if TCPIP_DEBUGGING
 	    printf("copying address %s\n",inet_ntop(AF_INET6,&myroutes[i].dev->addr6,addr1,sizeof(addr1)));
 	    printf("dev name is %s\n",myroutes[i].dev->name);
 #endif
             memcpy(source,&myroutes[i].dev->addr6, sizeof(struct in6_addr));
+          }
         }
         return myroutes[i].dev->name;
       }

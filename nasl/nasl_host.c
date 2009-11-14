@@ -180,7 +180,7 @@ tree_cell * nasl_this_host(lex_ctxt * lexic)
 {
   struct arglist * script_infos = lexic->script_infos;
   tree_cell * retc;
-  struct in_addr addr;
+  struct in6_addr addr;
   char hostname[255];
   char * ret;
   struct in6_addr *  ia = plug_get_host_ip(script_infos);
@@ -192,10 +192,20 @@ tree_cell * nasl_this_host(lex_ctxt * lexic)
   retc = alloc_tree_cell(0, NULL);
   retc->type = CONST_DATA;
 
-  addr = socket_get_next_source_addr(arg_get_value(script_infos, "globals"));
-  if ( addr.s_addr != INADDR_ANY )
+  if(IN6_IS_ADDR_V4MAPPED(ia))
+    addr = socket_get_next_source_v4_addr(arg_get_value(script_infos, "globals"));
+  else
+    addr = socket_get_next_source_v6_addr(arg_get_value(script_infos, "globals"));
+  if ( !IN6_ARE_ADDR_EQUAL(&addr, &in6addr_any) )
   {
-    retc->x.str_val = estrdup(inet_ntoa(addr));
+    if(IN6_IS_ADDR_V4MAPPED(&addr))
+    {
+      inaddr.s_addr = addr.s6_addr32[3];
+      retc->x.str_val = estrdup(inet_ntop(AF_INET, &inaddr,hostname, sizeof(hostname)));
+    }
+    else
+      retc->x.str_val = estrdup(inet_ntop(AF_INET6, &addr,hostname, sizeof(hostname)));
+
     retc->size = strlen(retc->x.str_val);
     return retc;
   }

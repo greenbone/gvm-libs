@@ -100,8 +100,10 @@ int stream_set(int, fd_set*);
 int stream_isset(int, fd_set*);
 
 struct in_addr socket_get_next_source_addr();
+struct in6_addr socket_get_next_source_v4_addr();
+struct in6_addr socket_get_next_source_v6_addr();
 int set_socket_source_addr(int, int, int);
-void socket_source_init(struct in_addr *);
+void socket_source_init(struct in6_addr *, int family);
 
 int os_send(int, void*, int, int);
 int os_recv(int, void*, int, int);

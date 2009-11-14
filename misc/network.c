@@ -2059,9 +2059,114 @@ struct in_addr _socket_get_next_source_addr(struct in_addr * addr)
   return src_addrs[current_src_addr];
 }
 
+struct in6_addr _socket_get_next_source_v4_addr(struct in6_addr * addr)
+{
+  static struct in6_addr * src_addrs = NULL;
+  static int current_src_addr = 0;
+  static pid_t current_src_addr_pid = 0;
+  static int num_addrs = 0;
+  struct in6_addr ret;
+  pid_t mypid;
+
+  if( current_src_addr < 0 )
+  {
+   ret = in6addr_any;
+   return ret;
+  }
+
+  if ( src_addrs == NULL && current_src_addr == 0 )
+  {
+    src_addrs = addr;
+    if( src_addrs == NULL ) 
+    {
+      ret = in6addr_any;
+      current_src_addr = -1;
+      return ret;
+    }
+
+    num_addrs = -1;
+    while(src_addrs[++num_addrs].s6_addr32[3] != 0 ) ;
+    if( num_addrs == 0 )
+    {
+      ret = in6addr_any;
+      current_src_addr = -1;
+      return ret;
+    }
+  }
+
+
+  mypid = getpid();
+  if ( current_src_addr_pid != mypid )
+   {
+    current_src_addr_pid = mypid;
+    current_src_addr = lrand48() % ( num_addrs ) ; /* RATS: ignore */
+    if ( src_addrs[current_src_addr].s6_addr32[3] == 0 ) current_src_addr = 0;
+   }
+
+  return src_addrs[current_src_addr];
+}
+
+struct in6_addr _socket_get_next_source_v6_addr(struct in6_addr * addr)
+{
+  static struct in6_addr * src_addrs = NULL;
+  static int current_src_addr = 0;
+  static pid_t current_src_addr_pid = 0;
+  static int num_addrs = 0;
+  struct in6_addr ret;
+  pid_t mypid;
+
+  if( current_src_addr < 0 )
+  {
+    ret = in6addr_any;
+    return ret;
+  }
+
+  if ( src_addrs == NULL && current_src_addr == 0 )
+  {
+    src_addrs = addr;
+    if( src_addrs == NULL ) 
+    {
+      ret = in6addr_any;
+      current_src_addr = -1;
+      return ret;
+    }
+
+    num_addrs = 0;
+    while(!IN6_ARE_ADDR_EQUAL(&src_addrs[num_addrs], &in6addr_any))
+      num_addrs++;
+    if( num_addrs == 0 )
+    {
+      ret = in6addr_any;
+      current_src_addr = -1;
+      return ret;
+    }
+  }
+
+
+  mypid = getpid();
+  if ( current_src_addr_pid != mypid )
+  {
+    current_src_addr_pid = mypid;
+    current_src_addr = lrand48() % ( num_addrs ) ; /* RATS: ignore */
+    if (IN6_ARE_ADDR_EQUAL(&src_addrs[current_src_addr], &in6addr_any)) current_src_addr = 0;
+  }
+
+  return src_addrs[current_src_addr];
+}
+
 struct in_addr socket_get_next_source_addr()
 {
  return _socket_get_next_source_addr(NULL);
+}
+
+struct in6_addr socket_get_next_source_v4_addr()
+{
+ return _socket_get_next_source_v4_addr(NULL);
+}
+
+struct in6_addr socket_get_next_source_v6_addr()
+{
+ return _socket_get_next_source_v6_addr(NULL);
 }
 
 int set_socket_source_addr(int soc, int port, int family)
@@ -2070,9 +2175,13 @@ int set_socket_source_addr(int soc, int port, int family)
   struct sockaddr_in6 bnd6;
   int opt = 1;
 
-  struct in_addr src = _socket_get_next_source_addr(NULL);
+  struct in6_addr src;
 
-  if( src.s_addr == INADDR_ANY && port == 0 ) /* No need to bind() */
+  if(family == AF_INET)
+    src = _socket_get_next_source_v4_addr(NULL);
+  else
+    src = _socket_get_next_source_v6_addr(NULL);
+  if( IN6_ARE_ADDR_EQUAL(&src,&in6addr_any) && port == 0 ) /* No need to bind() */
     return 0;
 
   setsockopt(soc, SOL_SOCKET, SO_REUSEADDR, (void*)&opt, sizeof(int));
@@ -2082,7 +2191,7 @@ int set_socket_source_addr(int soc, int port, int family)
     bzero(&bnd, sizeof(bnd));
 
     bnd.sin_port = htons(port);
-    bnd.sin_addr = src;
+    bnd.sin_addr.s_addr = src.s6_addr32[3];
     bnd.sin_family = AF_INET;
 
     if( bind(soc, (struct sockaddr*)&bnd, sizeof(bnd)) < 0 )
@@ -2096,7 +2205,7 @@ int set_socket_source_addr(int soc, int port, int family)
 
     bnd6.sin6_port = htons(port);
     bnd6.sin6_family = AF_INET6;
-    bnd6.sin6_addr = in6addr_any;
+    memcpy(&bnd6.sin6_addr, &src, sizeof(struct in6_addr));
 
     if( bind(soc, (struct sockaddr*)&bnd6, sizeof(bnd6)) < 0 )
     {
@@ -2107,9 +2216,12 @@ int set_socket_source_addr(int soc, int port, int family)
   return 0;
 }
 
-void socket_source_init(struct in_addr * addr)
+void socket_source_init(struct in6_addr * addr, int family)
 {
- (void) _socket_get_next_source_addr(addr);
+  if(family == AF_INET)
+    (void) _socket_get_next_source_v4_addr(addr);
+  else
+    (void) _socket_get_next_source_v6_addr(addr);
 }
 
 

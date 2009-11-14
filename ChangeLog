@@ -1,3 +1,28 @@
+2009-11-14  Srinivas NL <nl.srinivas@gmail.com>
+
+	* misc/network.c : Added the following functions to handle
+	ipv4 and ipv6 address lists parsed from -S option
+		socket_get_next_source_v4_addr,
+	  socket_get_next_source_v6_addr,
+		_socket_get_next_source_v4_addr,
+	  _socket_get_next_source_v6_addr
+
+	* misc/network.c (socket_source_init): Calls
+	_socket_get_next_source_v4_addr or _socket_get_next_source_v6_addr
+	depending on address family.
+
+	* misc/network.h : Added prototype declarations for new functions.
+
+	* misc/pcap.c (v6_getsourceip): Gets either ipv4 or ipv6 source
+	address depending on destination address type.
+
+	* misc/pcap.c (v6_routethough): Gets either ipv4 or ipv6 source
+	address depending on destination address type. Initialize source
+	address to wild card address in the beginning of the function. 
+
+	* nasl/nasl_host.c (nasl_this_host): Gets either ipv4 or ipv6
+	source address depending on target address type.
+
 2009-11-10  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Fixed typos found by Ryan Schmidt. This change closes bug #1167.
