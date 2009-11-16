@@ -1,3 +1,10 @@
+2009-11-16  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* omp/omp.c (check_response): Make external.  Return 1 on OMP fail instead
+	of -1.
+
+	* omp/omp.h: Add new header.
+
 2009-11-14  Srinivas NL <nl.srinivas@gmail.com>
 
 	* misc/network.c : Added the following functions to handle
@@ -18,7 +25,7 @@
 
 	* misc/pcap.c (v6_routethough): Gets either ipv4 or ipv6 source
 	address depending on destination address type. Initialize source
-	address to wild card address in the beginning of the function. 
+	address to wild card address in the beginning of the function.
 
 	* nasl/nasl_host.c (nasl_this_host): Gets either ipv4 or ipv6
 	source address depending on target address type.

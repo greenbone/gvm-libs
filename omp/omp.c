@@ -438,9 +438,9 @@ omp_start_task (gnutls_session_t* session, const char* task_id)
  *
  * @param[in]  session  Pointer to GNUTLS session.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, 1 on failure, -1 on error.
  */
-static int
+int
 check_response (gnutls_session_t* session)
 {
   char first;
@@ -468,7 +468,7 @@ check_response (gnutls_session_t* session)
   first = status[0];
   free_entity (entity);
   if (first == '2') return 0;
-  return -1;
+  return 1;
 }
 
 

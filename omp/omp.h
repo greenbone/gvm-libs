@@ -28,6 +28,9 @@
 
 #include "xml.h"
 
+int
+check_response (gnutls_session_t*);
+
 const char*
 omp_task_status (entity_t status_response);
 
