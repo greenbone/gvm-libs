@@ -92,4 +92,5 @@ pidfile_remove (gchar * daemon_name)
 
   g_unlink (pidfile_name);
   g_free (pidfile_name);
+  g_debug ("   Deleted pidfile for %s.\n", daemon_name);
 }
