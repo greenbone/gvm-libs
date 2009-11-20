@@ -644,6 +644,10 @@ struct interface_info *v6_getinterfaces(int *howmany)
   static struct interface_info mydevs[1024];
   int numinterfaces = 0;
 
+  #ifdef TCPIP_DEBUGGING
+    char ipaddr[INET6_ADDRSTRLEN];
+  #endif
+
   memset(errbuf, 0, sizeof(errbuf));
 
   retval = pcap_findalldevs(&alldevap, errbuf);
@@ -787,6 +791,10 @@ v6_getsourceip (struct in6_addr *src, struct in6_addr *dst)
   struct sockaddr_in6 sock6;
   unsigned int socklen;
   unsigned short p1;
+
+  #ifdef TCPIP_DEBUGGING
+    char name[INET6_ADDRSTRLEN];
+  #endif
 
   if(IN6_IS_ADDR_V4MAPPED(dst))
     *src = socket_get_next_source_v4_addr(NULL);

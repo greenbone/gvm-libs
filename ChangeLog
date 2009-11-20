@@ -1,3 +1,7 @@
+2009-11-20  Chandrashekhar B <bchandra@secpod.com>
+
+	* misc/pcap.c: Fixed compile errors when TCPIP_DEBUGGING is enabled.
+
 2009-11-20  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* base/pidfile.c (pidfile_remove): Write a debug message to the log on
