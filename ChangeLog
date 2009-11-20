@@ -1,5 +1,10 @@
 2009-11-20  Chandrashekhar B <bchandra@secpod.com>
 
+	* misc/pcap.c (v6_routethrough): Bug fix, segfault when scanner
+	is run as non-root.
+
+2009-11-20  Chandrashekhar B <bchandra@secpod.com>
+
 	* misc/pcap.c: Fixed compile errors when TCPIP_DEBUGGING is enabled.
 
 2009-11-20  Michael Wiegand <michael.wiegand@intevation.de>

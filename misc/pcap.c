@@ -1223,11 +1223,14 @@ v6_routethrough (struct in6_addr *dest, struct in6_addr *source)
             memcpy(source, &src, sizeof(struct in6_addr));
           else
           {
+            if (myroutes[i].dev != NULL)
+            {
 #if TCPIP_DEBUGGING
-	    printf("copying address %s\n",inet_ntop(AF_INET6,&myroutes[i].dev->addr6,addr1,sizeof(addr1)));
-	    printf("dev name is %s\n",myroutes[i].dev->name);
+	      printf("copying address %s\n",inet_ntop(AF_INET6,&myroutes[i].dev->addr6,addr1,sizeof(addr1)));
+	      printf("dev name is %s\n",myroutes[i].dev->name);
 #endif
-            memcpy(source,&myroutes[i].dev->addr6, sizeof(struct in6_addr));
+              memcpy(source,&myroutes[i].dev->addr6, sizeof(struct in6_addr));
+            }
           }
         }
         return myroutes[i].dev->name;
