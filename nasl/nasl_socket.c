@@ -253,7 +253,7 @@ tryagain :
  else
  {
    bzero(&daddr6, sizeof(daddr6));
-   memcpy(&daddr6.sin6_addr,p, sizeof(daddr6));
+   memcpy(&daddr6.sin6_addr,p, sizeof(struct in6_addr));
    daddr6.sin6_family = AF_INET6;
    daddr6.sin6_port = htons(dport);
    unblock_socket(sock);

@@ -1,3 +1,8 @@
+2009-11-23  Chandrashekhar B <bchandra@secpod.com>
+
+	* nasl/nasl_socket.c (nasl_open_privileged_socket): Fixed a
+	possible buffer overflow.
+
 2009-11-23  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Applied rest of patch provided by Stephan Kleine
