@@ -125,7 +125,10 @@ STRING (REPLACE "
 
 exec_program (pkg-config
               ARGS --cflags glib-2.0
-			  OUTPUT_VARIABLE GLIB_CFLAGS)
+              OUTPUT_VARIABLE GLIB_CFLAGS)
+exec_program (pkg-config
+              ARGS --libs glib-2.0
+              OUTPUT_VARIABLE GLIB_LDFLAGS)
 
 ## Library
 
@@ -150,6 +153,9 @@ set_target_properties (openvas_base_shared PROPERTIES VERSION "${CPACK_PACKAGE_V
 if (OPENVAS_PID_DIR)
   add_definitions (-DOPENVAS_PID_DIR=\\\"${OPENVAS_PID_DIR}\\\")
 endif (OPENVAS_PID_DIR)
+
+target_link_libraries (openvas_base_static ${GLIB_LDFLAGS})
+target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS})
 
 ## Install
 
