@@ -1,8 +1,17 @@
 2009-11-23  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Applied rest of patch provided by Stephan Kleine
+	(http://lists.wald.intevation.org/pipermail/openvas-devel/2009-November/001907.html)
+	to fix compilation on openSUSE 11.2.
+
+	* nasl/CMakeList.txt: Moved linker flags to target_link_library command
+	of cmake.
+
+2009-11-23  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Applied part of patch provided by Stephan Kleine
 	(http://lists.wald.intevation.org/pipermail/openvas-devel/2009-November/001907.html)
-	to fix compilation on openSUSE 11.2
+	to fix compilation on openSUSE 11.2.
 
 	* base/CMakeList.txt: Added glib linker flags, patch provided by
 	Stephan Kleine.

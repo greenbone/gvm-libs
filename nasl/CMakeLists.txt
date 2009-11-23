@@ -204,11 +204,13 @@ set_property (TARGET libopenvas_hg PROPERTY
 
 # Link the openvas-nasl executable
 add_executable (openvas-nasl ${FILES})
-target_link_libraries (openvas-nasl libopenvas_base libopenvas_misc libopenvas_hg)
+target_link_libraries (openvas-nasl libopenvas_base libopenvas_misc
+                       libopenvas_hg ${GLIB_LDFLAGS} -lgcrypt -lgpgme
+                       -lgpg-error -lgnutls -lpcap -lresolv)
 set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
                        ${GLIB_CFLAGS})
 set_target_properties (openvas-nasl PROPERTIES LINK_FLAGS
-                       "${GLIB_LDFLAGS} -lgcrypt -lgpgme -lgpg-error -lgnutls -lpcap -lresolv")
+                       ${GLIB_LDFLAGS})
 
 ## Install
 
