@@ -91,21 +91,36 @@ hg_resolv (char* hostname, struct in6_addr *in6addr, int family)
   return -1;  /* return in6addr_any*/
 }
 
+
 int
 hg_get_name_from_ip (struct in6_addr *ip, char * hostname, int sz)
 {
   int i;
+  struct sockaddr_in saddr;
   struct sockaddr_in6 s6addr;
   struct sockaddr *sa;
   int    len;
-
-  s6addr.sin6_family = AF_INET6;
-  len = sizeof(struct sockaddr_in6);
-  memcpy(&s6addr.sin6_addr, ip, len);
-  sa = (struct sockaddr *)&s6addr;
-  if(getnameinfo(sa,len, hostname,sz,NULL, 0,0))
+ 
+  if(IN6_IS_ADDR_V4MAPPED(ip))
   {
-      fprintf(stderr, "just copying address %s",inet_ntop(AF_INET6, ip, hostname, sz));
+    saddr.sin_family = AF_INET;
+    len = sizeof(struct sockaddr_in);
+    saddr.sin_addr.s_addr =  ip->s6_addr32[3];
+    sa = (struct sockaddr *)&saddr;
+  }
+  else
+  {
+    s6addr.sin6_family = AF_INET6;
+    len = sizeof(struct sockaddr_in6);
+    memcpy(&s6addr.sin6_addr, ip, sizeof(struct in6_addr));
+    sa = (struct sockaddr *)&s6addr;
+  }
+  if(getnameinfo(sa, len, hostname,sz,NULL, 0,0))
+  {
+      if(IN6_IS_ADDR_V4MAPPED(ip))
+        fprintf(stderr, "just copying address %s",inet_ntop(AF_INET, &saddr.sin_addr, hostname, sz));
+      else
+        fprintf(stderr, "just copying address %s",inet_ntop(AF_INET6, ip, hostname, sz));
   }
   else
   {
@@ -115,10 +130,14 @@ hg_get_name_from_ip (struct in6_addr *ip, char * hostname, int sz)
   hostname[sz - 1] = '\0';
   for ( i = 0 ; hostname[i] != '\0' ; i ++ )
   {
-    if ( ! isalnum(hostname[i]) && 
-        hostname[i] != '.' && 
-        hostname[i] != '_' && 
-        hostname[i] != '-' ) hostname[i] = '?';
+    if ( ! isalnum(hostname[i]) &&
+        hostname[i] != '.' &&
+        hostname[i] != '_' &&
+        hostname[i] != '-' &&
+        hostname[i] != ':' &&
+        hostname[i] != '%' ) hostname[i] = '?';
+    if(hostname[i] == '%')
+      hostname[i] = '\0';    /* To handle % in the hostname returned from getnameinfo*/
   }
   return 0; /* We never fail */
 }

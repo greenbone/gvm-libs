@@ -1,3 +1,15 @@
+2009-11-23  Chandrashekhar B <bchandra@secpod.com>
+
+	* misc/pcap.c (getipv6routes): Changed the message not to report
+	as error.
+
+	* hg/hg_utils.c (hg_get_name_from_ip): Bug fixes:
+	- Possible buffer overflow in memcpy()
+	- Seperate v4 and v6 logic so that it resolves to pure IPv4 address
+	and not a v6 mapped v4 address.
+	- Included ':' in the hostname structuring code, ':' is a valid char
+	in v6 address and also trim the resuling hostname.
+
 2009-11-20  Chandrashekhar B <bchandra@secpod.com>
 
 	* misc/pcap.c (v6_routethrough): Bug fix, segfault when scanner

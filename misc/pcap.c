@@ -1113,7 +1113,7 @@ int getipv6routes(struct myroute *myroutes, int *numroutes)
   }
   else
   {
-    printf("returning error getipv6route\n");
+    printf("Didn't find IPv6 routes\n");
     return -1;
   }
 }
