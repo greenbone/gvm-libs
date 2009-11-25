@@ -58,8 +58,7 @@ void * emalloc(size)
     }
 
     size++;
-   
-   
+
     /* If no memory can be allocated, then wait a little.
      * It's very likely that another openvas scanner child will free
      * the size of memory we need. So we make 10 attempts,
@@ -91,7 +90,7 @@ estrdup (const char* str)
 {
     char * buf;
     int len;
-    
+
     if (!str) return NULL;
     len = strlen(str); /* Flawfinder: ignore. XXX: there is not
                           much to do about it(?) */
@@ -124,7 +123,7 @@ erealloc (void * ptr, size_t size)
   if ( (int)size < 0 )
   {
    fprintf(stderr, "Won't realloc() a pointer of size %ld !\n", (long)size);
-   exit (1); 
+   exit (1);
   }
 
   ret = realloc(ptr, size);
@@ -160,9 +159,7 @@ estrlen (const char * s, size_t n)
  * Coming straight from Fyodor's Nmap
  */
 int
-inet_aton(cp, addr)
-	register const char *cp;
-	struct in_addr *addr;
+inet_aton (register const char *cp, struct in_addr *addr)
 {
 	register unsigned int val;	/* changed from u_long --david */
 	register int base, n;

@@ -74,7 +74,7 @@
 
 /*-----------------------------------------------------------------------------*/
 static char *
-arglist2str(struct arglist * arg)
+arglist2str (struct arglist * arg)
 {
  char * ret;
  int sz;
@@ -109,7 +109,8 @@ arglist2str(struct arglist * arg)
 }
 
 
-struct arglist * str2arglist(char * str)
+struct arglist *
+str2arglist (char * str)
 {
  struct arglist * ret;
  char * t;
@@ -151,6 +152,7 @@ _add_plugin_preference (struct arglist *prefs, const char* p_name,
 
  cname = estrdup(name);
  len = strlen(cname);
+ // Terminate string before last trailing space
  while(cname[len-1]==' ')
  {
   cname[len-1]='\0';
@@ -254,7 +256,7 @@ store_load_plugin (const char * file, struct arglist * prefs)
 // TODO: these two need exra parameter parsed out
 // of the actual string. However, xref and tag
 // seem not to appear in the nvti files at all,
-// so this needs to be fixed first. 
+// so this needs to be fixed first.
 //  plug_set_xref (ret, nvti_xref(n));
 //  plug_set_tag (ret, nvti_tag(n));
   plug_set_summary (ret, nvti_summary(n));
@@ -385,8 +387,8 @@ store_plugin (struct arglist * plugin, char * file)
   nvti_to_keyfile(n, desc_file);
   nvti_free(n);
 
- arg_set_value(plugin, "preferences", -1, NULL);
- arg_free_all(plugin);
+  arg_set_value (plugin, "preferences", -1, NULL);
+  arg_free_all (plugin);
 
   g_free(desc_file);
   g_free(path);

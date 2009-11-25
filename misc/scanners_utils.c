@@ -31,15 +31,12 @@
 #include "plugutils.h"
 #include "system.h"
 
-/*
- * Sends the status of an action
+/**
+ * @brief Sends the status of an action.
  */
-int 
-comm_send_status(globals, hostname, action,curr,max)
-  struct arglist * globals;
-  char * hostname;
-  char * action;
-  int curr, max;
+int
+comm_send_status (struct arglist * globals, char * hostname, char * action,
+                  int curr, int max)
 {
  struct arglist * prefs = arg_get_value(globals,"preferences");
  char * pref = arg_get_value(prefs, "ntp_short_status");
@@ -47,29 +44,29 @@ comm_send_status(globals, hostname, action,curr,max)
  int soc = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
  char buffer[2048];
 
- if (soc < 0 || soc > 1024) 
+ if (soc < 0 || soc > 1024)
   return -1;
- 
- 
+
  if(strlen(hostname) > (sizeof(buffer) - 50))
   return -1;
-  
+
  if(pref && !strcmp(pref, "yes"))
   short_status = 1;
  else
   short_status = 0;
 
-    if(short_status)
-      {
-      snprintf(buffer, sizeof(buffer), "s:%c:%s:%d:%d\n", action[0], hostname, curr, max);
-      }
-    else
-     snprintf(buffer, sizeof(buffer),
+  if (short_status)
+    {
+      snprintf (buffer, sizeof(buffer), "s:%c:%s:%d:%d\n", action[0], hostname,
+                curr, max);
+    }
+  else
+    snprintf (buffer, sizeof(buffer),
 		"SERVER <|> STATUS <|> %s <|> %s <|> %d/%d <|> SERVER\n",
 		hostname, action, curr, max);
 
  internal_send(soc, buffer, INTERNAL_COMM_MSG_TYPE_DATA);
- 
+
  return 0;
 }
 
@@ -200,15 +197,13 @@ if (start > end) {
 for(j=start; j <= end; j++) 
   ports[i++] = j;
 ports[i++] = 0;
-  
-  
 
 
   qsort(ports, i, sizeof(u_short), qsort_compar);
   tmp = realloc(ports, i * sizeof(short));
   if(len != NULL)*len = i - 1;
   efree(&mem);
-  
+
   last_ret = tmp;
   last_expr = estrdup(origexpr);
   last_num =  i - 1;

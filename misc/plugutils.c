@@ -271,7 +271,7 @@ plug_set_cve_id (struct arglist * desc, char * id)
   strcat(old, ", "); /* RATS: ignore */
   /* Rid ff warnings */
   /* Stmt's valid since len(id)+len(old)+len('\0'+", ") = size of realloc'd memory*/
-  strcat(old, id); /* RATS: ignore */ 
+  strcat(old, id); /* RATS: ignore */
   arg_set_value(desc, "CVE_ID", strlen(old), old);
  }
  else
@@ -846,7 +846,7 @@ mark_post (struct arglist * desc, const char* action, char* content)
 
 /**
  * @brief Post a security message (e.g. LOG, NOTE, WARNING ...).
- * 
+ *
  * @param port  Port number related to the issue.
  * @param proto Protocol related to the issue.
  */

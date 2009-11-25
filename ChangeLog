@@ -1,3 +1,12 @@
+2009-11-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* hg/hg_add_hosts.c, misc/kb.c, misc/plugutils.c, misc/plugutils.h,
+	misc/popen.c, misc/proctitle.h, misc/scanners_utils.c, misc/share_fd.c,
+	misc/store.c, misc/system.c, nasl/nasl_cmd_exec.c,
+	nasl/nasl_misc_funcs.c, nasl/nasl_scanner_glue.c,
+	nasl/nasl_signature.c, nasl/nasl_text_utils.c, nasl/nasl_var.c:
+	Cosmetics.
+
 2009-11-25  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* base/pidfile.c (pidfile_remove): Make pidfile removal more robust.
@@ -11,7 +20,7 @@
 	64-bit systems. This should fix bug #1196
 	(http://bugs.openvas.org/1196).
 
-	* misc/network.c (ovas_scanner_context_attach): Cast int to  pointer
+	* misc/network.c (ovas_scanner_context_attach): Cast int to pointer
 	using GLib functionality.
 
 	* ChangeLog: Fixed dates.

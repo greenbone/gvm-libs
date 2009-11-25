@@ -7,13 +7,10 @@
  * $Id: proctitle.h,v 1.1 2002/12/14 12:34:42 renaud Exp $
  ***************************************************************************/
 
-
-
 #ifndef _PROCTITLE_H_
 #define _PROCTITLE_H_ 1
 
-
-#ifndef LINEBUFFER 
+#ifndef LINEBUFFER
 #define LINEBUFFER 4096
 #endif
 

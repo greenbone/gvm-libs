@@ -474,23 +474,26 @@ nasl_fwrite(lex_ctxt * lexic)
 
 
 tree_cell*
-nasl_get_tmp_dir(lex_ctxt * lexic)
+nasl_get_tmp_dir (lex_ctxt * lexic)
 {
-  tree_cell	*retc;
-  char		path[MAXPATHLEN];
+  tree_cell *retc;
+  char path[MAXPATHLEN];
 
- if (check_authenticated(lexic) < 0) return NULL;
- snprintf(path, sizeof(path), "%s/lib/openvas/tmp/", OPENVAS_STATE_DIR); /* RATS: ignore */
- if (access(path, R_OK|W_OK|X_OK) < 0)
-     {
-     nasl_perror(lexic, "get_tmp_dir(): %s not available - check your OpenVAS installation\n", path);
-     return NULL;
-     }
-     
- retc = alloc_typed_cell(CONST_DATA);
- retc->x.str_val = strdup(path);
- retc->size = strlen(retc->x.str_val);
- return retc;
+  if (check_authenticated(lexic) < 0)
+    return NULL;
+
+  snprintf (path, sizeof(path), "%s/lib/openvas/tmp/", OPENVAS_STATE_DIR); /* RATS: ignore */
+  if (access (path, R_OK|W_OK|X_OK) < 0)
+    {
+      nasl_perror(lexic, "get_tmp_dir(): %s not available - check your OpenVAS installation\n", path);
+      return NULL;
+    }
+
+  retc = alloc_typed_cell (CONST_DATA);
+  retc->x.str_val = strdup (path);
+  retc->size = strlen (retc->x.str_val);
+
+  return retc;
 }
 
 

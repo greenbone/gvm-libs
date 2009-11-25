@@ -1356,11 +1356,13 @@ get_var_size_by_num(lex_ctxt* lexic, int num)
   return get_var_size(v);
 }
 
-
+/**
+ * @brief Returns NASL variable/cell type, VAR2_UNDEF if value is NULL.
+ */
 int
-get_var_type_by_num(lex_ctxt* lexic, int num)
+get_var_type_by_num (lex_ctxt* lexic, int num)
 {
-  anon_nasl_var	*v = get_var_ref_by_num(lexic, num);
+  anon_nasl_var *v = get_var_ref_by_num (lexic, num);
   return v == NULL ? VAR2_UNDEF : v->var_type;
 }
 

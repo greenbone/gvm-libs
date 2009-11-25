@@ -764,11 +764,13 @@ tree_cell * nasl_egrep(lex_ctxt * lexic)
 
 /*---------------------------------------------------------------------*/
 
-/*
- * This function returns an array
+/**
+ * @brief Does extended regular expression pattern matching.
+ *
+ * In NASL, this function returns an array.
  */
 tree_cell*
-nasl_eregmatch(lex_ctxt* lexic)
+nasl_eregmatch (lex_ctxt* lexic)
 {
   char		*pattern = get_str_local_var_by_name(lexic, "pattern");
   char		*string  = get_str_local_var_by_name(lexic, "string");
@@ -783,7 +785,7 @@ nasl_eregmatch(lex_ctxt* lexic)
 
   if(icase != 0)
     copt = REG_ICASE;
- 
+
   if(pattern == NULL || string == NULL)
     return NULL;
 
@@ -793,13 +795,13 @@ nasl_eregmatch(lex_ctxt* lexic)
       nasl_perror(lexic, "regmatch() : regcomp() failed\n");
       return NULL;
     }
-  
+
   if(nasl_regexec(&re, string, (size_t)NS, subs, 0) != 0)
    {
     nasl_regfree(&re);
     return NULL;
    }
-      
+
   retc = alloc_tree_cell(0, NULL);
   retc->type = DYN_ARRAY;
   retc->x.ref_val = a = emalloc(sizeof(nasl_array));
@@ -1068,6 +1070,7 @@ nasl_chomp(lex_ctxt* lexic)
   retc->type = CONST_DATA;
 
   for (i = 0; i < len; i ++)
+    /** @todo evaluate early break */
     if (isspace(str[i]))
       {
 	if (p == NULL)

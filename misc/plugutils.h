@@ -28,12 +28,14 @@
 
 #include "arglists.h"
 
+#define LEGACY_OID "1.3.6.1.4.1.25623.1.0."
+
 void scanner_add_port(struct arglist*, int, char *);
+
 
 /*
  * Arglist management at plugin-level
  */
-
 void plug_set_name(struct arglist *, const char *);
 char*plug_get_name(struct arglist*);
 
@@ -67,7 +69,6 @@ char*plug_get_family(struct arglist *);
 void plug_set_dep(struct arglist *, const char *);
 struct arglist * plug_get_deps(struct arglist*);
 
-#define LEGACY_OID "1.3.6.1.4.1.25623.1.0."
 
 void plug_set_id(struct arglist *, int);
 int  plug_get_id(struct arglist *);
@@ -121,6 +122,7 @@ void plug_require_udp_port(struct arglist*, const char *);
 struct arglist * plug_get_required_udp_ports(struct arglist *);
 int plug_get_port_transport(struct arglist*, int);
 
+
 /*
  * Reporting functions
  */
@@ -149,17 +151,19 @@ void post_log(struct arglist *, int, const char *);
 void post_log_udp(struct arglist *, int, const char *);
 #define post_log_tcp post_log
 
+
 /*
  * Management of the portlists
  */
-
 void host_add_port(struct arglist *, int, int);
 void host_add_port_udp(struct arglist *, int, int);
 int host_get_port_state(struct arglist *, int);
 int host_get_port_state_udp(struct arglist *, int);
+
 /* Not implemented
 char * host_get_port_banner(struct arglist *, int);
 */
+
 
 /*
  * Inter Plugins Communication functions
@@ -188,10 +192,10 @@ int shared_socket_acquire  ( struct arglist *, char * );
 int shared_socket_release  ( struct arglist *, char * );
 int shared_socket_destroy  ( struct arglist *, char * );
 
-/* in fact, these defines might better be in
- * a separate files. They are inserted here
- * simply because plugutils uses them a lot.
- */
+/** @todo Donate modules to these defines, eg. internal_comm.h, openvas_encaps.h
+ * Old comment: In fact, these defines might better be in a separate files.
+ * They are inserted here simply because plugutils uses them a lot. */
+
 #define INTERNAL_COMM_MSG_TYPE_CTRL (1 << 16)
 #define INTERNAL_COMM_MSG_TYPE_KB (1 << 17)
 #define INTERNAL_COMM_MSG_TYPE_DATA (1 << 18)

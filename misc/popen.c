@@ -66,7 +66,7 @@ openvas_popen4(const char* cmd, char *const args[], pid_t* ppid, int inice)
     {
       struct rlimit	rl;
       int i;
-      
+
       /* Child process */
 
       if (inice)
@@ -110,13 +110,14 @@ openvas_popen4(const char* cmd, char *const args[], pid_t* ppid, int inice)
 	  /* Cannot print error as 2 is closed! */
 	  exit(1);
 	}
-      /* 
+
+      /*
        * Close all the fd's
        */
       for(i=3;i<256;i++)
       {
        close(i);
-      }	
+      }
       signal(SIGTERM, _exit);
       signal(SIGPIPE, _exit);
       execvp(cmd, args);
@@ -132,7 +133,7 @@ openvas_popen4(const char* cmd, char *const args[], pid_t* ppid, int inice)
     }
 
   if (ppid != NULL) *ppid = son;
-  return fp;      
+  return fp;
 }
 
 int

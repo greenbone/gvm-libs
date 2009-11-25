@@ -125,14 +125,12 @@ tree_cell* script_cve_id(lex_ctxt* lexic)
  struct arglist * script_infos = lexic->script_infos;
  char * cve = get_str_var_by_num(lexic, 0);
  int i;
- 
- 
+
  for (i = 0; cve != NULL ; i ++)
- { 
+ {
   plug_set_cve_id(script_infos, cve);
   cve = get_str_var_by_num(lexic, i + 1);
  }
-	 
 
  return FAKE_CELL;
 }
@@ -179,16 +177,15 @@ tree_cell* script_tag(lex_ctxt* lexic)
  struct arglist * script_infos = lexic->script_infos;
  char * name = get_str_var_by_name(lexic, "name");
  char * value = get_str_var_by_name(lexic, "value");
- 
- 
+
  if( value == NULL || name == NULL )
  {
   fprintf(stderr, "script_tag() syntax error - should be script_tag(name:<name>, value:<value>)\n");
   return FAKE_CELL;
  }
- 
+
  plug_set_tag(script_infos, name, value);
- 
+
  return FAKE_CELL;
 }
 
@@ -206,7 +203,7 @@ typedef void(*script_register_func_t)(struct arglist*, const char *);
 // TODO: This function can be elminiated (functionality back to script_name, etc)
 // once all NASL scripts are being cleared of old I18N concept
 static tree_cell * script_elem(lex_ctxt* lexic, script_register_func_t script_register_func)
-{ 
+{
  struct arglist * script_infos = lexic->script_infos;
  char * str;
 
@@ -217,17 +214,16 @@ static tree_cell * script_elem(lex_ctxt* lexic, script_register_func_t script_re
    return FAKE_CELL;
  }
 
- script_register_func(script_infos, str);	    
+ script_register_func(script_infos, str);
  return FAKE_CELL;
 }
 
 
-tree_cell * script_name(lex_ctxt * lexic)
+tree_cell *
+script_name (lex_ctxt * lexic)
 {
- 
- return(script_elem(lexic, plug_set_name));
+  return (script_elem (lexic, plug_set_name));
 }
-
 
 
 tree_cell * script_version(lex_ctxt * lexic)
@@ -240,12 +236,11 @@ tree_cell * script_version(lex_ctxt * lexic)
 	nasl_perror(lexic, "Function usage is : script_version(<name>)\n");
 	nasl_perror(lexic, "Where <name> is the name of another script\n");
 	}
-  
+
  else
  	plug_set_version(script_infos, version);
  
  return FAKE_CELL;
- 
 }
 
 tree_cell * script_description(lex_ctxt * lexic)
@@ -268,8 +263,7 @@ tree_cell * script_category(lex_ctxt * lexic)
  struct arglist * script_infos  = lexic->script_infos;
 
  int category = get_int_var_by_num(lexic, 0, -1);
- 
- 
+
  if(category < 0){
  	nasl_perror(lexic, "Argument error in function script_category()\n");
 	nasl_perror(lexic, "Function usage is : script_category(<category>)\n");
@@ -289,7 +283,7 @@ tree_cell * script_dependencie(lex_ctxt * lexic)
  struct arglist * script_infos  = lexic->script_infos;
  char * dep = get_str_var_by_num(lexic, 0);
  int i;
- 
+
  if(dep == NULL){
  	nasl_perror(lexic, "Argument error in function script_dependencie()\n");
 	nasl_perror(lexic, "Function usage is : script_dependencie(<name>)\n");
@@ -312,17 +306,17 @@ tree_cell * script_dependencie(lex_ctxt * lexic)
 tree_cell * script_require_keys(lex_ctxt * lexic)
 {
  struct arglist * script_infos  = lexic->script_infos;
- 
+
  char * keys = get_str_var_by_num(lexic, 0);
  int i;
- 
+
  if(keys == NULL){
  	nasl_perror(lexic, "Argument error in function script_require_keys()\n");
 	nasl_perror(lexic, "Function usage is : script_require_keys(<name>)\n");
 	nasl_perror(lexic, "Where <name> is the name of a key\n");
 	return FAKE_CELL;
 	}
-  
+
  for(i=0; keys != NULL;i++)
  {
   keys = get_str_var_by_num(lexic, i);
@@ -333,28 +327,30 @@ tree_cell * script_require_keys(lex_ctxt * lexic)
  return FAKE_CELL;
 }
 
-tree_cell * script_mandatory_keys(lex_ctxt * lexic)
+tree_cell *
+script_mandatory_keys (lex_ctxt * lexic)
 {
- struct arglist * script_infos  = lexic->script_infos;
- 
- char * keys = get_str_var_by_num(lexic, 0);
- int i;
- 
- if(keys == NULL){
- 	nasl_perror(lexic, "Argument error in function script_mandatory_keys()\n");
-	nasl_perror(lexic, "Function usage is : script_mandatory_keys(<name>)\n");
-	nasl_perror(lexic, "Where <name> is the name of a key\n");
-	return FAKE_CELL;
-	}
-  
- for(i=0; keys != NULL;i++)
- {
-  keys = get_str_var_by_num(lexic, i);
-  if(keys != NULL)
-  	plug_mandatory_key(script_infos, keys);
- }
- 
- return FAKE_CELL;
+  struct arglist * script_infos = lexic->script_infos;
+
+  char * keys = get_str_var_by_num (lexic, 0);
+  int i;
+
+  if (keys == NULL)
+    {
+      nasl_perror (lexic, "Argument error in function script_mandatory_keys()\n");
+      nasl_perror (lexic, "Function usage is : script_mandatory_keys(<name>)\n");
+      nasl_perror (lexic, "Where <name> is the name of a key\n");
+      return FAKE_CELL;
+    }
+
+  for (i = 0; keys != NULL; i++)
+    {
+      keys = get_str_var_by_num (lexic, i);
+      if (keys != NULL)
+        plug_mandatory_key(script_infos, keys);
+    }
+
+  return FAKE_CELL;
 }
 
 tree_cell * script_exclude_keys(lex_ctxt * lexic)
@@ -372,7 +368,7 @@ tree_cell * script_exclude_keys(lex_ctxt * lexic)
    plug_exclude_key(script_infos, keys);
   }
  }
- 
+
  return FAKE_CELL;
 }
 
@@ -391,7 +387,7 @@ tree_cell * script_require_ports(lex_ctxt * lexic)
   else
 	  break;
  }
- 
+
  return FAKE_CELL;
 }
 
@@ -420,7 +416,7 @@ tree_cell * script_add_preference(lex_ctxt * lexic)
  char* type = get_str_local_var_by_name(lexic, "type");
  char* value = get_str_local_var_by_name(lexic, "value");
  struct arglist *  script_infos = lexic->script_infos;
- 
+
  if(name == NULL || type == NULL || value == NULL)
   nasl_perror(lexic, "Argument error in the call to script_add_preference()\n");
  else
@@ -429,13 +425,14 @@ tree_cell * script_add_preference(lex_ctxt * lexic)
  return FAKE_CELL;
 }
 
-tree_cell * script_get_preference(lex_ctxt * lexic)
+tree_cell *
+script_get_preference (lex_ctxt * lexic)
 {
- struct arglist *  script_infos = lexic->script_infos;
+ struct arglist * script_infos = lexic->script_infos;
  tree_cell * retc;
  char * pref = get_str_var_by_num(lexic, 0);
  char * value;
- 
+
  if(pref == NULL){
  	nasl_perror(lexic, "Argument error in the function script_get_preference()\n");
 	nasl_perror(lexic, "Function usage is : pref = script_get_preference(<name>)\n");
@@ -458,7 +455,7 @@ tree_cell * script_get_preference(lex_ctxt * lexic)
 	  retc->x.str_val = estrdup(value);
 	 }
 	 return retc;
- } 
+ }
  else
 	 return FAKE_CELL;
 }
@@ -472,9 +469,9 @@ tree_cell * script_get_preference_file_content(lex_ctxt * lexic)
  int fd, n;
  struct stat st;
  char * buffer;
- 
- /* 
-  * Only signed scripts can access files uploaded by the user 
+
+ /*
+  * Only signed scripts can access files uploaded by the user
   */
  if (check_authenticated(lexic) < 0)
    {
@@ -535,7 +532,6 @@ tree_cell * script_get_preference_file_content(lex_ctxt * lexic)
  }
 
  close(fd);
- 
 
  retc = alloc_tree_cell(0, NULL);
  retc->type = CONST_DATA; 
@@ -554,11 +550,9 @@ script_get_preference_file_location(lex_ctxt* lexic)
   char			*pref = get_str_var_by_num(lexic, 0);
   const char		*value, *local;
   int			len;
- 
- /* 
-  * Getting the local file name is not dangerous, but
-  * only signed scripts can access files uploaded by the user 
-  */
+
+ /* Getting the local file name is not dangerous, but
+  * only signed scripts can access files uploaded by the user */
  if (check_authenticated(lexic) < 0)
    {
      nasl_perror(lexic, "script_get_preference_file_location: script is not authenticated!\n");
@@ -577,7 +571,7 @@ script_get_preference_file_location(lex_ctxt* lexic)
       nasl_perror(lexic, "script_get_preference_file_location: could not get preference %s\n", pref);
       return NULL;
     }
-  local = get_plugin_preference_fname(script_infos, value);
+  local = get_plugin_preference_fname (script_infos, value);
   if(local == NULL)
     {
       nasl_perror(lexic, "script_get_preference_file_location: could not get local file name from preference %s\n", pref);
@@ -600,7 +594,7 @@ tree_cell * safe_checks(lex_ctxt * lexic)
  struct arglist * prefs = arg_get_value(script_infos, "preferences");
  char * value;
  tree_cell * retc = alloc_tree_cell(0, NULL);
- 
+
  retc->type = CONST_INT;
  value = arg_get_value(prefs, "safe_checks");
  if((value && !strcmp(value, "yes")))
@@ -611,13 +605,14 @@ tree_cell * safe_checks(lex_ctxt * lexic)
 	 retc->x.i_val = 0;
 
  return retc;
-}  
+}
 
 /*--------------------[ KB ]---------------------------------------*/
 
 #define SECRET_KB_PREFIX	"Secret/"
 
-tree_cell * get_kb_list(lex_ctxt * lexic)
+tree_cell *
+get_kb_list (lex_ctxt * lexic)
 {
  struct arglist * script_infos = lexic->script_infos;
  struct kb_item ** kb = plug_get_kb(script_infos);
@@ -626,31 +621,30 @@ tree_cell * get_kb_list(lex_ctxt * lexic)
  int num_elems = 0;
  nasl_array * a;
  struct kb_item * res, * top;
- 
- 
+
  if(kb_mask == NULL)
  {
   nasl_perror(lexic, "get_kb_list() usage : get_kb_list(<NameOfItem>)\n");
   return NULL;
  }
- 
+
  if(kb == NULL)
  {
    return NULL;
  }
- 
+
  retc = alloc_tree_cell(0,NULL);
  retc->type = DYN_ARRAY;
  retc->x.ref_val = a = emalloc(sizeof(nasl_array));
- 
+
  top = res = kb_item_get_pattern(kb, kb_mask);
- 
+
  while(res != NULL)
  {
   anon_nasl_var v;
   bzero(&v, sizeof(v));
-  
-  if (lexic->authenticated || 
+
+  if (lexic->authenticated ||
       strncmp(res->name, SECRET_KB_PREFIX, sizeof(SECRET_KB_PREFIX) - 1) != 0)
     {
   if(res->type == KB_TYPE_INT)
@@ -675,9 +669,9 @@ tree_cell * get_kb_list(lex_ctxt * lexic)
 #endif
   res = res->next;
  }
- 
+
  kb_item_get_all_free(top);
- 
+
  if(num_elems == 0)
  {
   deref_cell(retc);
@@ -705,13 +699,13 @@ tree_cell * get_kb_item(lex_ctxt * lexic)
 		 kb_entry);
      return NULL;
    }
-   
+
  val = plug_get_key(script_infos,kb_entry, &type);
 
 
  if ( val == NULL && type == -1 )
   return NULL;
- 
+
 
  retc = alloc_tree_cell(0, NULL);
  if( type == KB_TYPE_INT )
@@ -740,7 +734,7 @@ tree_cell * get_kb_item(lex_ctxt * lexic)
 /**
  * Instead of reading the local copy of the KB, we ask the upstream
  * father the "newest" value of a given KB item. This is especially useful
- * when dealing with shared sockets and SSH
+ * when dealing with shared sockets and SSH.
  */
 tree_cell * get_kb_fresh_item(lex_ctxt * lexic)
 {
@@ -754,20 +748,19 @@ tree_cell * get_kb_fresh_item(lex_ctxt * lexic)
  if(kb_entry == NULL)
 	 return NULL;
 
- if (! lexic->authenticated && 
+ if (! lexic->authenticated &&
      strncmp(kb_entry, SECRET_KB_PREFIX, sizeof(SECRET_KB_PREFIX) - 1) == 0)
    {
      nasl_perror(lexic, "Untrusted script cannot read protected KB entry %s\n",
 		 kb_entry);
      return NULL;
    }
-   
+
  val = plug_get_fresh_key(script_infos,kb_entry, &type);
 
 
  if ( val == NULL && type == -1 )
   return NULL;
- 
 
  retc = alloc_tree_cell(0, NULL);
  if( type == KB_TYPE_INT )
@@ -793,12 +786,13 @@ tree_cell * get_kb_fresh_item(lex_ctxt * lexic)
  return retc;
 }
 
-tree_cell * replace_kb_item(lex_ctxt * lexic)
+tree_cell *
+replace_kb_item (lex_ctxt * lexic)
 {
  struct arglist * script_infos = lexic->script_infos;
  char * name  = get_str_local_var_by_name(lexic, "name");
  int type = get_local_var_type_by_name(lexic, "value");
- 
+
  if( name == NULL )
  {
   nasl_perror(lexic, "Syntax error with replace_kb_item() [null name]\n", name);
@@ -811,7 +805,7 @@ tree_cell * replace_kb_item(lex_ctxt * lexic)
   nasl_perror(lexic, "Only signed scripts can set a Secret/ KB entry\n");
   return FAKE_CELL;
  }
- 
+
  if(type == VAR2_INT)
  {
   int value = get_int_local_var_by_name(lexic, "value", -1);
@@ -890,7 +884,9 @@ typedef void(*proto_post_something_t)(struct arglist*, int, const char*, const c
 typedef void(*post_something_t)(struct arglist*, int, const char*);
 
 
-static tree_cell * security_something(lex_ctxt * lexic, proto_post_something_t proto_post_func, post_something_t post_func)
+static tree_cell *
+security_something (lex_ctxt * lexic, proto_post_something_t proto_post_func,
+                    post_something_t post_func)
 {
  struct arglist * script_infos = lexic->script_infos;
 
@@ -898,17 +894,17 @@ static tree_cell * security_something(lex_ctxt * lexic, proto_post_something_t p
  char* data = get_str_local_var_by_name(lexic, "data");
  int port = get_int_local_var_by_name(lexic, "port", -1); 
  char * dup = NULL;
- 
+
  if(data != NULL)
  {
   int len = get_local_var_size_by_name(lexic, "data");
   int i;
-  
+
   dup = nasl_strndup(data, len);
   for(i=0;i<len;i++)
    if(dup[i] == 0)dup[i]=' ';
  }
- 
+
  if((arg_get_value(script_infos, "standalone")) != NULL)
  {
   if( data != NULL )
@@ -916,14 +912,13 @@ static tree_cell * security_something(lex_ctxt * lexic, proto_post_something_t p
   else
    fprintf(stdout, "Success\n");
  }
-   
+
  if(proto == NULL)
 	 proto = get_str_local_var_by_name(lexic, "proto");
 
  if(port < 0)
 	 port = get_int_var_by_num(lexic, 0, -1);
 
- 
  if(dup != NULL)
  {
   if(proto == NULL)
@@ -934,32 +929,35 @@ static tree_cell * security_something(lex_ctxt * lexic, proto_post_something_t p
   efree(&dup);
   return FAKE_CELL;
  }
- 
+
  if(proto == NULL)
   post_func(script_infos, port, NULL);
  else
   proto_post_func(script_infos, port, proto, NULL);
-  
 
  return FAKE_CELL;
 }
- 
-tree_cell * security_hole(lex_ctxt * lexic)
+
+tree_cell *
+security_hole (lex_ctxt * lexic)
 {
- return security_something(lexic, proto_post_hole, post_hole);
+  return security_something (lexic, proto_post_hole, post_hole);
 }
 
-tree_cell * security_warning(lex_ctxt * lexic)
+tree_cell *
+security_warning (lex_ctxt * lexic)
 {
- return security_something(lexic, proto_post_info, post_info);
+  return security_something (lexic, proto_post_info, post_info);
 }
 
-tree_cell * security_note(lex_ctxt * lexic)
+tree_cell *
+security_note (lex_ctxt * lexic)
 {
- return security_something(lexic, proto_post_note, post_note);
+  return security_something (lexic, proto_post_note, post_note);
 }
 
-tree_cell * log_message(lex_ctxt * lexic)
+tree_cell *
+log_message (lex_ctxt * lexic)
 {
   return security_something(lexic, proto_post_log, post_log);
 }
@@ -1004,9 +1002,10 @@ tree_cell * nasl_get_preference(lex_ctxt * lexic)
 /**
  * If the plugin is a port scanner, it needs to report the list of open
  * ports back to openvas scanner, and it also needs to know which ports are
- * to scan
+ * to be scanned.
  */
-tree_cell * nasl_scanner_get_port(lex_ctxt * lexic)
+tree_cell *
+nasl_scanner_get_port (lex_ctxt * lexic)
 {
  tree_cell * retc;
  int idx = get_int_var_by_num(lexic, 0, -1);
@@ -1017,7 +1016,7 @@ tree_cell * nasl_scanner_get_port(lex_ctxt * lexic)
  static u_short * ports = NULL;
 
  if (prange == NULL)
-   return NULL; 
+   return NULL;
 
  if(idx < 0)
  {
@@ -1035,21 +1034,22 @@ tree_cell * nasl_scanner_get_port(lex_ctxt * lexic)
 	 return NULL;
        }
    }
-  
+
  if(idx >= num)
    {
     return NULL;
    }
- 
+
  retc = alloc_tree_cell(0, NULL);
  retc->type = CONST_INT;
  retc->x.i_val = ports[idx];
  return retc;
 }
 
- 
-tree_cell * nasl_scanner_add_port(lex_ctxt * lexic)
-{ 
+
+tree_cell *
+nasl_scanner_add_port (lex_ctxt * lexic)
+{
  struct arglist * script_infos = lexic->script_infos;
 
  int port = get_int_local_var_by_name(lexic, "port", -1);
@@ -1062,11 +1062,12 @@ tree_cell * nasl_scanner_add_port(lex_ctxt * lexic)
 
  return FAKE_CELL;
 }
- 
-tree_cell * nasl_scanner_status(lex_ctxt * lexic)
+
+tree_cell *
+nasl_scanner_status (lex_ctxt * lexic)
 {
   int current = get_int_local_var_by_name(lexic, "current", -1);
-  int total   = get_int_local_var_by_name(lexic, "total", -1); 
+  int total   = get_int_local_var_by_name(lexic, "total", -1);
   struct arglist * script_infos = lexic->script_infos;
   struct arglist * hostdata = arg_get_value(script_infos, "HOSTNAME");
 
@@ -1113,7 +1114,7 @@ tree_cell * nasl_shared_socket_acquire( lex_ctxt * lexic )
   struct arglist * script_infos = lexic->script_infos;
 
  if ( name == NULL )
- { 
+ {
  fprintf(stderr, "Usage: shared_socket_acquire(<name>)\n");
  return NULL;
  }
@@ -1129,13 +1130,14 @@ tree_cell * nasl_shared_socket_acquire( lex_ctxt * lexic )
  return retc;
 }
 
-tree_cell * nasl_shared_socket_release( lex_ctxt * lexic )
+tree_cell *
+nasl_shared_socket_release (lex_ctxt * lexic)
 {
   char * name = get_str_var_by_num(lexic, 0);
   struct arglist * script_infos = lexic->script_infos;
 
  if ( name == NULL )
- { 
+ {
  fprintf(stderr, "Usage: shared_socket_release(<name>)\n");
  return NULL;
  }
@@ -1147,13 +1149,14 @@ tree_cell * nasl_shared_socket_release( lex_ctxt * lexic )
  return NULL;
 }
 
-tree_cell * nasl_shared_socket_destroy( lex_ctxt * lexic )
+tree_cell *
+nasl_shared_socket_destroy (lex_ctxt * lexic)
 {
   char * name = get_str_var_by_num(lexic, 0);
   struct arglist * script_infos = lexic->script_infos;
 
  if ( name == NULL )
- { 
+ {
  fprintf(stderr, "Usage: shared_socket_release(<name>)\n");
  return NULL;
  }

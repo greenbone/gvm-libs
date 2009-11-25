@@ -37,7 +37,7 @@
 #include "nasl_debug.h"
 
 /**
- * Prints an error message for errors returned by gpgme.
+ * @brief Prints an error message for errors returned by gpgme.
  * 
  * @param function Calling function name (debug info).
  * @param err The gpgme error that caused the problem.

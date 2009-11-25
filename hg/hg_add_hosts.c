@@ -44,14 +44,14 @@
 #define COMP "%7[0-9-]"  
 #define REMINDER "%s"
 
-/*
-   return 0 if (numeric) ip is a valid
-   ipv4 or ipv6 address and set family to
-   appropriate value
-   else return -1
+/**
+ * @param[out] family
+ *
+ * @return 0 if (numeric) ip is a valid ipv4 or ipv6 address and set family to
+ *         appropriate value, else return -1.
  */
 static int
-getaddrfamily(char *ip, int *family)
+getaddrfamily (char *ip, int *family)
 {
   struct in_addr inaddr;
   struct in6_addr in6addr;
@@ -87,14 +87,11 @@ real_ip(char * s)
 }
 
 static int
-range(data, s, e)
- char * data;
- int * s;
- int * e;
+range (char* data, int* s, int* e)
 {
  int convs;
  int first, last;
- 
+
  convs=sscanf(data, OCTETRANGE, &first, &last);
  if (convs != 2)
  {
@@ -112,13 +109,11 @@ range(data, s, e)
    last = first;
   }
  }
- 
+
  if((first < 0) || (first > 255) ||
     (last < 0 ) || (last  > 255))
     	return (-1);
-	
 
- 
  if(first > last)
  {
   /* swap the two vars */
@@ -126,16 +121,16 @@ range(data, s, e)
   last  ^= first;
   first ^= last;
  }
- 
+
  if(s)*s = first;
  if(e)*e = last;
  return 0;
 }
- 
+
 static int netmask_to_cidr_netmask(struct in_addr nm)
 {
  int ret = 32;
- 
+
  nm.s_addr = ntohl(nm.s_addr);
  while(!(nm.s_addr & 1))
  {
@@ -146,9 +141,7 @@ static int netmask_to_cidr_netmask(struct in_addr nm)
 }
 
 int
-hg_add_host(globals, hostname)
- struct hg_globals * globals;
- char * hostname;
+hg_add_host (struct hg_globals * globals, char* hostname)
 {
   int cidr_netmask = 32;
   char * t;
@@ -389,8 +382,7 @@ noranges:
   return 0;
 }
 
- 
- 
+
 /**
  * Add hosts of the form :
  *
@@ -404,7 +396,7 @@ hg_add_comma_delimited_hosts (struct hg_globals* globals, int limit)
   int n = 0;
   int family;
   struct in6_addr ip6;
-  
+
   p = globals->marker;
   while (p)
     {
@@ -419,11 +411,11 @@ hg_add_comma_delimited_hosts (struct hg_globals* globals, int limit)
       // Skip (leading) spaces
       while ((*p == ' ')&&(p!='\0'))
         p++;
-      
+
       v = strchr(p+1, ',');
       if ( v == NULL )
         v = strchr(p+1, ';');
-      
+
       if( v != NULL )
         v[0] = '\0';
 
@@ -481,23 +473,21 @@ hg_add_comma_delimited_hosts (struct hg_globals* globals, int limit)
 }
 
 void
-hg_add_ipv6host_with_options(globals, hostname, ip, alive, netmask, use_max, ip_max)
- struct hg_globals * globals;
- char *  hostname;
- struct in6_addr *ip;
- int alive;
- int netmask;
- int use_max;
- struct in6_addr * ip_max;
+hg_add_ipv6host_with_options (struct hg_globals * globals, char *  hostname,
+                              struct in6_addr* ip, int alive, int netmask,
+                              int use_max, struct in6_addr* ip_max)
 {
- char * c_hostname;
- struct hg_host * host;
- int i;
- char local_hostname[1024];
+  char * c_hostname;
+  struct hg_host * host;
+  int i;
+  char local_hostname[1024];
 
- if(inet_ntop(AF_INET6, ip, local_hostname , sizeof(local_hostname)))
-  c_hostname = strdup(hostname);
-  for(i=0;i<strlen(hostname);i++)c_hostname[i]=tolower(c_hostname[i]);
+  if (inet_ntop(AF_INET6, ip, local_hostname , sizeof(local_hostname)))
+    c_hostname = strdup(hostname);
+
+  for (i = 0; i < strlen (hostname); i++)
+    c_hostname[i] = tolower (c_hostname[i]);
+
   host = globals->host_list;
   while(host->next)host = host->next;
   host->next = malloc(sizeof(struct hg_host));
@@ -515,18 +505,13 @@ hg_add_ipv6host_with_options(globals, hostname, ip, alive, netmask, use_max, ip_
 }
 
 void
-hg_add_host_with_options(globals, hostname, ip, alive, netmask, use_max, ip_max)
- struct hg_globals * globals;
- char *  hostname;
- struct in_addr ip;
- int alive;
- int netmask;
- int use_max;
- struct in_addr * ip_max;
+hg_add_host_with_options (struct hg_globals * globals, char* hostname,
+                          struct in_addr ip, int alive, int netmask,
+                          int use_max, struct in_addr* ip_max)
 {
- char * c_hostname;
- struct hg_host * host;
- int i;
+  char * c_hostname;
+  struct hg_host * host;
+  int i;
 
   c_hostname = strdup(hostname);
   for(i=0;i<strlen(hostname);i++)c_hostname[i]=tolower(c_hostname[i]);
@@ -542,9 +527,10 @@ hg_add_host_with_options(globals, hostname, ip, alive, netmask, use_max, ip_max)
   host->tested = 0;
   host->alive = alive;
   host->addr = ip;
-  convipv4toipv4mappedaddr(host->addr, &host->in6addr);
+  convipv4toipv4mappedaddr (host->addr, &host->in6addr);
   host->use_max = use_max?1:0;
-  if(ip_max){
+  if(ip_max)
+  {
     host->max.s_addr = ip_max->s_addr;
     host->min = cidr_get_first_ip(ip, netmask);
     if(ntohl(host->max.s_addr) < ntohl(host->min.s_addr))
@@ -552,18 +538,17 @@ hg_add_host_with_options(globals, hostname, ip, alive, netmask, use_max, ip_max)
       fprintf(stderr, "hg_add_host: error - ip_max < ip_min !\n");
       host->max.s_addr = host->min.s_addr;
     }
-    convipv4toipv4mappedaddr(host->max, &host->max6);
-    convipv4toipv4mappedaddr(host->min, &host->min6);
+    convipv4toipv4mappedaddr (host->max, &host->max6);
+    convipv4toipv4mappedaddr (host->min, &host->min6);
   }
 }
- 
-void hg_add_domain(globals, domain)
- struct hg_globals * globals;
- char * domain;
+
+void
+hg_add_domain (struct hg_globals * globals, char* domain)
 {
  struct hg_host * list = globals->tested;
  int len;
- 
+
  while(list && list->next)list = list->next;
  list->next = malloc(sizeof(struct hg_host));
  bzero(list->next, sizeof(struct hg_host));
@@ -572,10 +557,8 @@ void hg_add_domain(globals, domain)
  strncpy(list->domain, domain, len + 1);
 }
 
-void hg_add_subnet(globals, ip, netmask)
- struct hg_globals * globals;
- struct in_addr ip;
- int netmask;
+void
+hg_add_subnet (struct hg_globals * globals, struct in_addr ip, int netmask)
 {
  struct hg_host * list = globals->tested; 
  while(list && list->next)list = list->next;
@@ -584,4 +567,3 @@ void hg_add_subnet(globals, ip, netmask)
  list->addr = ip;
  list->cidr_netmask = netmask;
 }
- 

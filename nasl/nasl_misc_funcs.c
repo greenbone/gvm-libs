@@ -311,7 +311,8 @@ tree_cell*	nasl_do_exit(lex_ctxt* lexic)
 
 /*---------------------------------------------------------------------*/
 
-tree_cell* nasl_isnull(lex_ctxt* lexic)
+tree_cell*
+nasl_isnull (lex_ctxt* lexic)
 {
   int		t;
   tree_cell	*retc;
@@ -323,12 +324,11 @@ tree_cell* nasl_isnull(lex_ctxt* lexic)
   return retc;
 }
 
-/*
+/**
  * This function takes any kind & any number of arguments and makes
  * an array from them.
  * If an argument is an array, its index are lost
  */
-
 tree_cell*
 nasl_make_list(lex_ctxt* lexic)
 {
