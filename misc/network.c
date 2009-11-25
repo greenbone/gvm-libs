@@ -111,7 +111,8 @@ static openvas_connection connections[OPENVAS_FD_MAX];
  */
 #define OVAS_CONNECTION_FROM_FD(fd) (connections + ((fd) - OPENVAS_FD_OFF))
 
-void convipv4toipv4mappedaddr(struct in_addr inaddr, struct in6_addr *in6addr)
+void
+convipv4toipv4mappedaddr (struct in_addr inaddr, struct in6_addr *in6addr)
 {
   in6addr->s6_addr32[0] = 0;
   in6addr->s6_addr32[1] = 0;
@@ -238,8 +239,11 @@ if (p->fd >= 0)
 /** @todo TLS FIXME: migrate this to TLS */
 /** @todo Fix the voidness of the ssl parameter (problematic in 64bit env.)
   *       here or on caller-side */
+/**
+ * @param soc Socket to use.
+ */
 int
-ovas_allocate_connection (int s, void *ssl,
+ovas_allocate_connection (int soc, void *ssl,
                           gnutls_certificate_credentials_t certcred)
 {
   int   fd;
@@ -254,18 +258,21 @@ ovas_allocate_connection (int s, void *ssl,
 
   p->timeout = TIMEOUT; /* default value */
   p->port = 0;          /* just used for debug */
-  p->fd = s;
+  p->fd = soc;
   p->transport = (ssl != NULL) ? OPENVAS_ENCAPS_TLSv1 : OPENVAS_ENCAPS_IP,
 
   p->last_err  = 0;
   return fd;
 }
 
+/**
+ * @param soc Socket to use.
+ */
 int
-openvas_register_connection (int s, void *ssl,
+openvas_register_connection (int soc, void *ssl,
                              gnutls_certificate_credentials_t certcred)
 {
-  return ovas_allocate_connection(s, ssl, certcred);
+  return ovas_allocate_connection (soc, ssl, certcred);
 }
 
 int
