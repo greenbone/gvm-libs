@@ -24,6 +24,7 @@
 
 #include <errno.h> /* for errno */
 #include <fcntl.h> /* for open */
+#include <glib.h> /* for g_get_tmp_dir */
 #include <signal.h> /* for kill */
 #include <string.h> /* for strncpy */
 #include <sys/wait.h> /* for waitpid */
@@ -482,7 +483,7 @@ nasl_get_tmp_dir (lex_ctxt * lexic)
   if (check_authenticated(lexic) < 0)
     return NULL;
 
-  snprintf (path, sizeof(path), "%s/lib/openvas/tmp/", OPENVAS_STATE_DIR); /* RATS: ignore */
+  snprintf (path, sizeof(path), "%s/", g_get_tmp_dir ());
   if (access (path, R_OK|W_OK|X_OK) < 0)
     {
       nasl_perror(lexic, "get_tmp_dir(): %s not available - check your OpenVAS installation\n", path);

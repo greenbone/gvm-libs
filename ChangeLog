@@ -1,3 +1,9 @@
+2009-11-25  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* nasl/nasl_cmd_exec.c (nasl_get_tmp_dir): Use the glib g_get_tmp_dir
+	function to identify the system directory for temporary files. This
+	fixes bug #1170 (http://bugs.openvas.org/1170).
+
 2009-11-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* hg/hg_add_hosts.c, misc/kb.c, misc/plugutils.c, misc/plugutils.h,
