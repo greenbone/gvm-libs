@@ -87,10 +87,20 @@ pidfile_remove (gchar * daemon_name)
 {
   gchar *name_pid = g_strconcat (daemon_name, ".pid", NULL);
   gchar *pidfile_name = g_build_filename (OPENVAS_PID_DIR, name_pid, NULL);
+  gchar *pidfile_contents;
 
   g_free(name_pid);
 
-  g_unlink (pidfile_name);
+  if (g_file_get_contents (pidfile_name, &pidfile_contents, NULL, NULL))
+    {
+      int pid = atoi (pidfile_contents);
+
+      if (pid == getpid ())
+        {
+          g_unlink (pidfile_name);
+        }
+      g_free (pidfile_contents);
+    }
+
   g_free (pidfile_name);
-  g_debug ("   Deleted pidfile for %s.\n", daemon_name);
 }

@@ -1,3 +1,10 @@
+2009-11-25  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* base/pidfile.c (pidfile_remove): Make pidfile removal more robust.
+	The contents of the pidfile are now checked before removal to prevent
+	accidental deletion of the file by other processes. Removed now
+	obsolete debug message.
+
 2009-11-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Cast an int that is passed as an void* explicitely, to avoid issues on
