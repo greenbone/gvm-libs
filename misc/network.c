@@ -1191,7 +1191,7 @@ ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc)
   openvas_connection * fp = NULL;
   int ret;
 
-  fd = ovas_allocate_connection (soc, ctx->encaps, NULL);
+  fd = ovas_allocate_connection (soc, GINT_TO_POINTER (ctx->encaps), NULL);
   if (fd < 0)
     return -1;
 

@@ -1,12 +1,23 @@
-2009-11-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+2009-11-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Cast an int that is passed as an void* explicitely, to avoid issues on
+	64-bit systems. This should fix bug #1196
+	(http://bugs.openvas.org/1196).
+
+	* misc/network.c (ovas_scanner_context_attach): Cast int to  pointer
+	using GLib functionality.
+
+	* ChangeLog: Fixed dates.
+
+2009-11-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* misc/network.c: Minor cosmetics.
 
-2009-11-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+2009-11-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* misc/network.c: Major reformatting, docs and comments.
 
-2009-11-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+2009-11-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Pass libdir to CMake based subprojects, fixes bug #1194, installation
 	on 64-bit systems (https://bugs.openvas.org/1194).
