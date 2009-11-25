@@ -1,3 +1,10 @@
+2009-11-24  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Pass libdir to CMake based subprojects, fixes bug #1194, installation
+	on 64-bit systems (https://bugs.openvas.org/1194).
+
+	* Makefile: Pass given libdir to cmake.
+
 2009-11-23  Chandrashekhar B <bchandra@secpod.com>
 
 	* nasl/nasl_socket.c (nasl_open_privileged_socket): Fixed a
