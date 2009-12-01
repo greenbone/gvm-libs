@@ -99,6 +99,21 @@ struct tcp_packet {
 };
 
 
+struct ipv6_header{
+	union  {
+		struct ip6_hdrctl {
+			uint32_t ip6_un1_flow;   /* 24 bits of flow-ID */
+			uint16_t ip6_un1_plen;   /* payload length */
+			uint8_t  ip6_un1_nxt;    /* next header */
+			uint8_t  ip6_un1_hlim;   /* hop limit */
+		} ip6_un1;
+		uint8_t ip6_un2_vfc;       /* 4 bits version, 4 bits priority */
+	} ip6_ctlun;
+	struct in6_addr ip6_src;      /* source address */
+	struct in6_addr ip6_dst;      /* destination address */
+} ;
+
+
 /*
  * our own definition of the tcp flags
  */
@@ -116,7 +131,6 @@ struct pseudohdr
         u_short length;
         struct tcp_packet tcpheader;
 };
-
 
 
 /*
@@ -387,7 +401,95 @@ inject(orig_packet, packet_len, method, flags, data, data_len)
  close(soc);
  return 0;
 }
-	
+
+
+static int injectv6(orig_packet, packet_len, method, flags, data, data_len)
+ char * orig_packet;
+ int packet_len;
+ int method;
+ int flags;
+ char * data;
+ int data_len;
+{
+  int soc;
+  char * packet;
+  struct ipv6_header * ip6, * old_ip6;
+  struct tcp_packet * tcp, * old_tcp;
+  int tot_len = sizeof(struct ipv6_header) + sizeof(struct tcp_packet) + data_len;
+  int i;
+  struct sockaddr_in6 sockaddr6;
+
+  if(packet_len < sizeof(struct ipv6_header) + sizeof(struct tcp_packet))
+    return -1;
+
+  old_ip6 = (struct ipv6_header*)orig_packet;
+  old_tcp = (struct tcp_packet*)(orig_packet + 40);
+
+  soc = socket(AF_INET6, SOCK_RAW, IPPROTO_RAW);
+  if(soc < 0)
+    return -1;
+
+  packet =  emalloc(tot_len);
+
+  /*
+   * Copy data, if any
+   */
+  for(i = 0; i < data_len; i++){
+    packet[i+sizeof(struct ipv6_header)] = data[i];
+  }
+
+  ip6 = (struct ipv6_header*)packet;
+  tcp = (struct tcp_packet*)(packet + sizeof(struct ipv6_header));
+
+ /*
+  * for the sake of code shortness, we copy the header of the
+  * received packet into the packet we forge, and we'll change
+  * some stuff in it.
+  */
+  memcpy(ip6, old_ip6, sizeof(struct ipv6_header));
+
+  ip6->ip6_ctlun.ip6_un1.ip6_un1_flow = old_ip6->ip6_ctlun.ip6_un1.ip6_un1_flow;
+  ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = data_len;
+  ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt = old_ip6->ip6_ctlun.ip6_un1.ip6_un1_nxt;
+  ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim = which_ttl(method, old_ip6->ip6_ctlun.ip6_un1.ip6_un1_hlim);
+  memcpy(&ip6->ip6_src, &old_ip6->ip6_dst, sizeof(struct in6_addr));
+  memcpy(&ip6->ip6_dst, &old_ip6->ip6_src, sizeof(struct in6_addr));
+
+  memcpy(tcp, old_tcp, sizeof(struct tcp_packet));
+  tcp->th_flags = flags;
+  if((flags & TCP_FLAG_RST) && (method & OPENVAS_CNX_IDS_EVASION_FAKE_RST))
+    tcp->th_ack = htonl(ntohl(old_tcp->th_seq) + 1);
+  else
+    tcp->th_ack = old_tcp->th_seq;
+
+  tcp->th_seq = old_tcp->th_ack;
+  tcp->th_sport = old_tcp->th_dport;
+  tcp->th_dport = old_tcp->th_sport;
+  tcp->th_off = 5;
+  tcp->th_sum = 0;
+  if(method & OPENVAS_CNX_IDS_EVASION_SHORT_TTL)
+    tcp_cksum(packet, data_len);
+  else
+    tcp->th_sum = rand(); /* bad checksum - packet will be dropped */
+
+
+ /*
+  * Sending the packet now
+  */
+  bzero(&sockaddr6, sizeof(sockaddr6));
+  sockaddr6.sin6_family = AF_INET6;
+  sockaddr6.sin6_addr = ip6->ip6_dst;
+
+  if(sendto(soc, packet, tot_len, 0, (struct sockaddr*)&sockaddr6, sizeof(sockaddr6)) < 0)
+  {
+    perror("openvas-libraries : libopenvas : ids_send.c : inject() : sendto() ");
+  }
+  efree(&packet);
+  close(soc);
+  return 0;
+}
+
+
 int
 ids_send(fd, buf0, n, method)
  int fd;
@@ -395,109 +497,141 @@ ids_send(fd, buf0, n, method)
  int n;
  int method;
 {
- struct in_addr dst, src;
- struct sockaddr_in sockaddr;
- char * iface;
- char filter[255];
- char * src_host, * dst_host;
- int port;
- int ret = 0;
- int len;
- char * buf = (char*)buf0;
- unsigned int sz  = sizeof(sockaddr);
- int e;
- unsigned char * packet;
- int bpf;
- 
- bzero(&sockaddr, sizeof(sockaddr));
- if(getpeername(fd, (struct sockaddr*)&sockaddr, &sz) < 0)
- {
-  perror("getpeername() ");
- }
- port = ntohs(sockaddr.sin_port);
- dst.s_addr = sockaddr.sin_addr.s_addr;
- bzero(&src, sizeof(src));
- iface = routethrough(&dst, &src);
- 
- 
- src_host = estrdup(inet_ntoa(src));
- dst_host = estrdup(inet_ntoa(dst));
- 
- snprintf(filter, sizeof(filter), "tcp and (src host %s and dst host %s and src port %d)",
-		dst_host,
-		src_host,
-		port);
-  efree(&src_host);
-  efree(&dst_host);	
-  
-  bpf = bpf_open_live(iface, filter);	
+  struct in_addr  dst, src;
+  struct in6_addr dst6, src6;
+  struct sockaddr_in6 sockaddr6;
+  struct sockaddr_in  *saddr;
+  struct sockaddr *sa;
+  char * iface;
+  char filter[255];
+  char * src_host, * dst_host;
+  int port;
+  int ret = 0;
+  int len;
+  char * buf = (char*)buf0;
+  unsigned int sz  = sizeof(sockaddr6);
+  int e;
+  unsigned char * packet;
+  int bpf;
+  char hostname[INET6_ADDRSTRLEN];
+  int family;
+
+  bzero(&sockaddr6, sizeof(sockaddr6));
+  if(getpeername(fd, (struct sockaddr*)&sockaddr6, &sz) < 0)
+  {
+    perror("getpeername() ");
+  }
+  sa = (struct sockaddr *)&sockaddr6;
+  if(sa->sa_family == AF_INET)
+  {
+    family = AF_INET;
+    saddr = (struct sockaddr_in *)&sockaddr6;
+    port = ntohs(saddr->sin_port);
+    dst.s_addr = saddr->sin_addr.s_addr;
+    src.s_addr = 0;
+    iface = routethrough(&dst, &src);
+
+    src_host = estrdup(inet_ntoa(src));
+    dst_host = estrdup(inet_ntoa(dst));
+
+    snprintf(filter, sizeof(filter), "tcp and (src host %s and dst host %s and src port %d)",
+        dst_host,
+        src_host,
+        port);
+    efree(&src_host);
+    efree(&dst_host);
+  }
+  else
+  {
+    family = AF_INET6;
+    port = ntohs(sockaddr6.sin6_port);
+    memcpy(&dst6,&sockaddr6.sin6_addr,sizeof(struct in6_addr));
+    bzero(&src6, sizeof(src6));
+    iface = v6_routethrough(&dst6, &src6);
+
+    src_host = estrdup(inet_ntop(AF_INET6,&src6, hostname, sizeof(hostname)));
+    dst_host = estrdup(inet_ntop(AF_INET6,&dst6, hostname,sizeof(hostname)));
+    snprintf(filter, sizeof(filter), "tcp and (src host %s and dst host %s and src port %d)",
+        dst_host,
+        src_host,
+        port);
+    efree(&src_host);
+    efree(&dst_host);
+  }
+
+  bpf = bpf_open_live(iface, filter);
   if(bpf >= 0)
   {
-  e = send(fd, buf+ret, 1, 0);
-  packet = bpf_next(bpf, &len);
-  if(e < 0)
-   return -1;
-  else
-   ret+=e;
-  /*
-   * We can start to send stuff now
-   */
-  while(ret < n)
- {
-   if(packet)
-   {
-   char *pkt_ip;
-   int num_before = (rand() / 1000) % 3;
-   int num_after = (rand() / 1000) % 3;
-   int i;
-   
-   if(!num_before && !num_after)
-   {
-     if(rand() % 2)num_before = 1;
-     else num_after = 1;
-   }
-   pkt_ip = (char*)(packet + get_datalink_size(bpf_datalink(bpf)));
-   
-   /*
-    * send bogus data before
-    */
-   for(i=0;i<num_before;i++)
-   	{
-   	int j;
-	char data[10];
-	for(j=0;j<10;j++)data[j]=rand();
-   	inject(pkt_ip, len - get_datalink_size(bpf_datalink(bpf)), method, TCP_FLAG_ACK|TCP_FLAG_PUSH, data, (rand()%9)+1);
-	}
-   e = send(fd, buf+ret, 1, 0);
-   packet = bpf_next(bpf, &len);	
-   /*
-    * send bogus data after
-    */
-   for(i=0;i<num_after;i++)
-   	{
-	int j;
-	char data[10];
-	for(j=0;j<10;j++)data[j]=rand();
-   	inject(pkt_ip, len - get_datalink_size(bpf_datalink(bpf)), method, TCP_FLAG_ACK|TCP_FLAG_PUSH, data, (rand()%9)+1);
-	}
-   }
-   else
-   {
-   	e = send(fd, buf+ret, 1, 0);
-	packet = bpf_next(bpf, &len);	
-   }
-   if(e < 0)
-    return -1;
-   else
-    ret+=e;
- } 
-  bpf_close(bpf);
-  return ret;
- }
+    e = send(fd, buf+ret, 1, 0);
+    packet = bpf_next(bpf, &len);
+    if(e < 0)
+      return -1;
+    else
+      ret+=e;
+    /*
+     * We can start to send stuff now
+     */
+    while(ret < n)
+    {
+      if(packet)
+      {
+        char *pkt_ip;
+        int num_before = (rand() / 1000) % 3;
+        int num_after = (rand() / 1000) % 3;
+        int i;
+
+        if(!num_before && !num_after)
+        {
+          if(rand() % 2)num_before = 1;
+          else num_after = 1;
+        }
+        pkt_ip = (char*)(packet + get_datalink_size(bpf_datalink(bpf)));
+
+        /*
+         * send bogus data before
+         */
+        for(i=0;i<num_before;i++)
+        {
+          int j;
+          char data[10];
+          for(j=0;j<10;j++)data[j]=rand();
+          if(family == AF_INET)
+            inject(pkt_ip, len - get_datalink_size(bpf_datalink(bpf)), method, TCP_FLAG_ACK|TCP_FLAG_PUSH, data, (rand()%9)+1);
+          else
+            injectv6(pkt_ip, len - get_datalink_size(bpf_datalink(bpf)), method, TCP_FLAG_ACK|TCP_FLAG_PUSH, data, (rand()%9)+1);
+
+        }
+        e = send(fd, buf+ret, 1, 0);
+        packet = bpf_next(bpf, &len);
+        /*
+         * send bogus data after
+         */
+        for(i=0;i<num_after;i++)
+        {
+          int j;
+          char data[10];
+          for(j=0;j<10;j++)data[j]=rand();
+          if(family == AF_INET)
+            inject(pkt_ip, len - get_datalink_size(bpf_datalink(bpf)), method, TCP_FLAG_ACK|TCP_FLAG_PUSH, data, (rand()%9)+1);
+          else
+            injectv6(pkt_ip, len - get_datalink_size(bpf_datalink(bpf)), method, TCP_FLAG_ACK|TCP_FLAG_PUSH, data, (rand()%9)+1);
+        }
+      }
+      else
+      {
+        e = send(fd, buf+ret, 1, 0);
+        packet = bpf_next(bpf, &len);
+      }
+      if(e < 0)
+        return -1;
+      else
+        ret+=e;
+    }
+    bpf_close(bpf);
+    return ret;
+  }
   else return send(fd, buf, n, 0);
 }
-
-
 
 
 int ids_open_sock_tcp(args, port, method, timeout)
@@ -507,32 +641,49 @@ int ids_open_sock_tcp(args, port, method, timeout)
  int timeout;
 {
  int bpf;
- struct in_addr *dst, src;
+ struct in_addr dst, src;
+ struct in6_addr *dst6, *src6;
  char * iface;
  char filter[255];
  char * src_host, * dst_host;
  int ret = 0;
  int len;
+ char hostname[INET6_ADDRSTRLEN];
+ int family;
 
- dst = plug_get_host_ip(args);
- if(!dst)
+ dst6 = plug_get_host_ip(args);
+ if(!dst6)
  {
   fprintf(stderr, "Error - no address associated with name\n");
   return -1;
  }
- iface = routethrough(dst, &src);
+ if(IN6_IS_ADDR_V4MAPPED(dst6))
+ {
+   family = AF_INET;
+   dst.s_addr = dst6->s6_addr32[3];
+   src.s_addr = 0;
+   iface = routethrough(&dst, &src);
+   src_host = estrdup(inet_ntoa(src));
+   dst_host = estrdup(inet_ntoa(dst));
+ }
+ else
+ {
+   family = AF_INET6;
+   iface = v6_routethrough(dst6, src6);
+   src_host = estrdup(inet_ntop(AF_INET6,src6, hostname, sizeof(hostname)));
+   dst_host = estrdup(inet_ntop(AF_INET6,dst6, hostname,sizeof(hostname)));
+ }
 
- src_host = estrdup(inet_ntoa(src));
- dst_host = estrdup(inet_ntoa(*dst));
  snprintf(filter, sizeof(filter), "tcp and (src host %s and dst host %s and src port %d)",
-  		dst_host, src_host, port);
-  
+       dst_host, src_host, port);
+
  efree(&src_host);
- efree(&dst_host);	
- 
+ efree(&dst_host);
+
+
  bpf = bpf_open_live(iface, filter);
  if(bpf >= 0)
- { 
+ {
   ret = open_sock_tcp(args, port, timeout);
   if(ret >= 0)
   {
@@ -541,8 +692,11 @@ int ids_open_sock_tcp(args, port, method, timeout)
    {
    char *pkt_ip;
    pkt_ip = (char*)(packet + get_datalink_size(bpf_datalink(bpf)));
-  
-   inject(pkt_ip, len - get_datalink_size(bpf_datalink(bpf)), method, TCP_FLAG_RST, NULL, 0);
+
+   if(family == AF_INET)
+    inject(pkt_ip, len - get_datalink_size(bpf_datalink(bpf)), method, TCP_FLAG_RST, NULL, 0);
+   else
+    injectv6(pkt_ip, len - get_datalink_size(bpf_datalink(bpf)), method, TCP_FLAG_RST, NULL, 0);
    }
   }
   bpf_close(bpf);

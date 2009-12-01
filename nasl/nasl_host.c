@@ -184,7 +184,6 @@ tree_cell * nasl_this_host(lex_ctxt * lexic)
   char hostname[255];
   char * ret;
   struct in6_addr *  ia = plug_get_host_ip(script_infos);
-  struct in_addr src;
   struct in6_addr in6addr;
   struct in_addr inaddr;
   struct in6_addr src6;
@@ -222,7 +221,7 @@ tree_cell * nasl_this_host(lex_ctxt * lexic)
       (void)v6_routethrough(ia, &src6);
     }
 
-    if(!IN6_ARE_ADDR_EQUAL(&src, &in6addr_any))
+    if(!IN6_ARE_ADDR_EQUAL(&src6, &in6addr_any))
     {
       char * ret;
 

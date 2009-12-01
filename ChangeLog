@@ -1,3 +1,11 @@
+2009-12-01  Chandrashekhar B <bchandra@secpod.com>
+
+	* misc/ids_send.c (ids_open_sock_tcp): IPv6 enable.
+	(ids_send): IPv6 enable.
+	(injectv6): Added new.
+
+	* nasl/nasl_host.c (nasl_this_host): Used proper variable name.
+
 2009-11-25  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* nasl/nasl_cmd_exec.c (nasl_get_tmp_dir): Use the glib g_get_tmp_dir
