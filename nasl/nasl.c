@@ -224,8 +224,6 @@ main (int argc, char ** argv)
  hg_globals = hg_init (target,  4);
  efree (&target);
 
- /** @todo relative paths starting with '../' do not work. Probably a switch to
-  * glib functions in exec.c would do the trick. (http://bugs.openvas.org/1101) */
  // for absolute and relative paths
  add_nasl_inc_dir ("");
 

@@ -22,6 +22,8 @@
 #include <sys/param.h> /* for MAXPATHLEN */
 #include <unistd.h> /* for getpid */
 
+#include <glib.h>
+
 #include "system.h" /* for efree */
 
 #include "nasl_regex.h"
@@ -1773,9 +1775,7 @@ exec_nasl_script (struct arglist * script_infos, const char* name, int mode)
 
   srand48(getpid() + getppid() + (long)time(NULL));
 
-  /** @todo Use glib functions */
-  old_dir[sizeof(old_dir) - 1] = '\0';
-  getcwd(old_dir, sizeof(old_dir) - 1);
+  g_snprintf (old_dir, MAXPATHLEN, "%s", g_get_current_dir ());
 
 #if NASL_DEBUG > 2
   nasl_trace_fp = stderr;
@@ -1788,18 +1788,10 @@ exec_nasl_script (struct arglist * script_infos, const char* name, int mode)
       arg_set_value (script_infos, "script_name", strlen(name), estrdup(name));
     }
 
- /** @todo use glib (~g_path_basename) */
- newdir = strrchr (name, '/');
- if (newdir != NULL)
-  {
-    char dir[MAXPATHLEN+1];
-    char *s;
-    dir[sizeof(dir) - 1] = '\0';
-    strncpy(dir, name, sizeof(dir) - 1);
-    s = strrchr(dir, '/');
-    s[0] = '\0';
-    chdir(dir);
-  }
+ newdir = g_path_get_basename (name);
+
+ chdir (newdir);
+ g_free (newdir);
 
   bzero (&ctx, sizeof(ctx));
   if (mode & NASL_ALWAYS_SIGNED)

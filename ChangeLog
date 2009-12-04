@@ -1,3 +1,13 @@
+2009-12-04  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Solved bug #1101 (http://bugs.openvas.org/1170); openvas-nasl now
+	supports relative paths.
+
+	* nasl/exec.c (exec_nasl_script): Use glib functions to simplify and
+	extend directory access. Removed todos.
+
+	* nasl/nasl.c (main): Removed todo.
+
 2009-12-01  Chandrashekhar B <bchandra@secpod.com>
 
 	* misc/ids_send.c (ids_open_sock_tcp): IPv6 enable.
