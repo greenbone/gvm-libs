@@ -19,10 +19,10 @@
 
 #include <stdlib.h> /* for srand48 */
 #include <string.h> /* for strlen */
-#include <sys/param.h> /* for MAXPATHLEN */
 #include <unistd.h> /* for getpid */
 
-#include <glib.h>
+#include <glib.h> /* for g_get_current_dir and others */
+#include <glib/gstdio.h> /* for g_chdir */
 
 #include "system.h" /* for efree */
 
@@ -1755,7 +1755,8 @@ execute_nasl_script(struct arglist * script_infos, const char* name, const char 
  * @param mode         Bit field describing launch mode (description, parse
  *                     always signed).
  *
- * @return Values < 0
+ * @return 0 if the script was executed successfully, negative values if an
+ * error occurred.
  */
 int
 exec_nasl_script (struct arglist * script_infos, const char* name, int mode)
@@ -1765,8 +1766,8 @@ exec_nasl_script (struct arglist * script_infos, const char* name, int mode)
   int         err = 0;
   tree_cell   *ret;
   lex_ctxt    *lexic;
-  char        old_dir[MAXPATHLEN+1];
-  char        *newdir;
+  gchar      *old_dir;
+  gchar      *newdir;
   char        *old;
   tree_cell   tc;
   struct arglist* prefs = arg_get_value (script_infos, "preferences");
@@ -1775,7 +1776,7 @@ exec_nasl_script (struct arglist * script_infos, const char* name, int mode)
 
   srand48(getpid() + getppid() + (long)time(NULL));
 
-  g_snprintf (old_dir, MAXPATHLEN, "%s", g_get_current_dir ());
+  old_dir = g_get_current_dir ();
 
 #if NASL_DEBUG > 2
   nasl_trace_fp = stderr;
@@ -1790,7 +1791,12 @@ exec_nasl_script (struct arglist * script_infos, const char* name, int mode)
 
  newdir = g_path_get_basename (name);
 
- chdir (newdir);
+ if (g_chdir (newdir) != 0)
+   {
+     g_free (old_dir);
+     g_free (newdir);
+     return -1;
+   }
  g_free (newdir);
 
   bzero (&ctx, sizeof(ctx));
@@ -1799,7 +1805,8 @@ exec_nasl_script (struct arglist * script_infos, const char* name, int mode)
 
  if (nasl_reload_or_parse(&ctx, name) < 0)
   {
-    chdir(old_dir);
+    g_chdir(old_dir);
+    g_free (old_dir);
     return -1;
   }
 
@@ -1890,6 +1897,12 @@ exec_nasl_script (struct arglist * script_infos, const char* name, int mode)
 #endif
 
  chdir (old_dir);
+ if (g_chdir (old_dir) != 0)
+   {
+     g_free (old_dir);
+     return -1;
+   }
+ g_free (old_dir);
  if (mode & NASL_EXEC_DONT_CLEANUP)
    return err;
 

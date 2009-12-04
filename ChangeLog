@@ -1,5 +1,11 @@
 2009-12-04  Michael Wiegand <michael.wiegand@intevation.de>
 
+	* nasl/exec.c (exec_nasl_script): Fixed a potential memory leak,
+	improved error handling, made glib usage more consistent, clarified
+	return value in documentation.
+
+2009-12-04  Michael Wiegand <michael.wiegand@intevation.de>
+
 	Add support for defining one additional directory on the command line
 	which will be used to look for includes to openvas-nasl.
 
