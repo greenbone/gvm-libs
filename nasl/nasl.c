@@ -124,6 +124,7 @@ main (int argc, char ** argv)
  static gchar * trace_file = NULL;
  static gboolean with_safe_checks = FALSE;
  static gboolean authenticated_mode = FALSE;
+ static gchar * include_dir = NULL;
  static gchar ** nasl_filenames = NULL;
  GError *error = NULL;
  GOptionContext *option_context;
@@ -145,6 +146,8 @@ main (int argc, char ** argv)
                    "Specifies that the script should be run with 'safe checks' enabled", NULL },
   { "authenticated", 'X', 0, G_OPTION_ARG_NONE, &authenticated_mode,
                     "Run the script in 'authenticated' mode", NULL },
+  { "include-dir", 'i', 0, G_OPTION_ARG_FILENAME, &include_dir,
+                    "Search for includes in <directory>", NULL },
   { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &nasl_filenames, NULL, NULL },
   { NULL }
  };
@@ -226,6 +229,10 @@ main (int argc, char ** argv)
 
  // for absolute and relative paths
  add_nasl_inc_dir ("");
+ if (include_dir != NULL)
+   {
+     add_nasl_inc_dir (include_dir);
+   }
 
  while (hg_next_host(hg_globals, &ip6, hostname, sizeof(hostname)) >= 0)
   {

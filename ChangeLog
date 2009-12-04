@@ -1,5 +1,13 @@
 2009-12-04  Michael Wiegand <michael.wiegand@intevation.de>
 
+	Add support for defining one additional directory on the command line
+	which will be used to look for includes to openvas-nasl.
+
+	* nasl/nasl.c (main): Introduced the --include-dir / -i command line
+	parameter.
+
+2009-12-04  Michael Wiegand <michael.wiegand@intevation.de>
+
 	* ChangeLog: Fixed bug # in the last entry.
 
 2009-12-04  Michael Wiegand <michael.wiegand@intevation.de>
