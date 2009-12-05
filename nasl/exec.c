@@ -1789,7 +1789,7 @@ exec_nasl_script (struct arglist * script_infos, const char* name, int mode)
       arg_set_value (script_infos, "script_name", strlen(name), estrdup(name));
     }
 
- newdir = g_path_get_basename (name);
+ newdir = g_path_get_dirname (name);
 
  if (g_chdir (newdir) != 0)
    {
