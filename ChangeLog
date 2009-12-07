@@ -1,3 +1,7 @@
+2009-12-07  Tim Brown <timb@openvas.org>
+
+	* misc/store.c: Fixed a potential memory leak.
+
 2009-12-07  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post-release version bump.

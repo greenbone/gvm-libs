@@ -323,7 +323,18 @@ store_plugin (struct arglist * plugin, char * file)
 
   g_free(dummy);
 
-  if (desc_file == NULL || path == NULL) return; // g_build_filename failed
+  if (desc_file == NULL || path == NULL)
+  {
+    if (desc_file != NULL)
+    {
+      g_free(desc_file);
+    }
+    if (path != NULL)
+    {
+      g_free(path);
+    }
+    return; // g_build_filename failed
+  }
 
   nvti_t * n = nvti_new();
 
