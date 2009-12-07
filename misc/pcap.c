@@ -57,7 +57,8 @@ struct interface_info *getinterfaces(int *howmany);
 struct interface_info *v6_getinterfaces(int *howmany);
 int getipv6routes(struct myroute *myroutes, int *numroutes);
 
-static void ipv6addrmask(struct in6_addr *in6addr, int mask)
+static void
+ipv6addrmask (struct in6_addr *in6addr, int mask)
 {
   int wordmask;
   int word;
@@ -256,15 +257,13 @@ v6_get_mac_addr (struct in6_addr *addr, char ** mac)
 
 
     bpf = bpf_open_live(iface, filter);
-    if(bpf < 0)
-    {
-      close(soc);
-      return -1;
-	  }
+    if (bpf < 0)
+      {
+        close (soc);
+        return -1;
+      }
 
-    /*
-     * We only deal with ethernet
-     */
+    /* We only deal with ethernet. */
     if(bpf_datalink(bpf) != DLT_EN10MB)
     {
       bpf_close(bpf);
@@ -523,8 +522,8 @@ islocalhost (struct in_addr *addr)
 {
   char dev[128];
 
-  if(addr == NULL)
-  	return -1;
+  if (addr == NULL)
+    return -1;
 
   /* If it is 0.0.0.0 or starts with 127.0.0.1 then it is 
      probably localhost */
@@ -718,6 +717,10 @@ struct interface_info *v6_getinterfaces(int *howmany)
   return mydevs;
 }
 
+/**
+ * @param[out] howmany Return location for the number of interfaces found
+ *                     (might be NULL).
+ */
 struct interface_info*
 getinterfaces (int *howmany)
 {
@@ -731,55 +734,65 @@ getinterfaces (int *howmany)
   struct ifreq *ifr;
   struct sockaddr_in *sin;
 
-    /* Dummy socket for ioctl */
-    sd = socket(AF_INET, SOCK_DGRAM, 0);
-    bzero(buf, sizeof(buf));
-    if (sd < 0) printf("socket in getinterfaces");
-    ifc.ifc_len = sizeof(buf);
-    ifc.ifc_buf = buf;
-    if (ioctl(sd, SIOCGIFCONF, &ifc) < 0) {
-      printf("Failed to determine your configured interfaces!\n");
-    }
-    close(sd);
-    ifr = (struct ifreq *) buf;
-    if (ifc.ifc_len == 0)
-      printf("getinterfaces: SIOCGIFCONF claims you have no network interfaces!\n");
+  /* Dummy socket for ioctl. */
+  sd = socket (AF_INET, SOCK_DGRAM, 0);
+  bzero (buf, sizeof(buf));
+  if (sd < 0)
+    printf ("socket in getinterfaces");
+
+  ifc.ifc_len = sizeof (buf);
+  ifc.ifc_buf = buf;
+  if (ioctl (sd, SIOCGIFCONF, &ifc) < 0)
+    printf ("Failed to determine your configured interfaces!\n");
+
+  close (sd);
+  ifr = (struct ifreq *) buf;
+  if (ifc.ifc_len == 0)
+    printf ("getinterfaces: SIOCGIFCONF claims you have no network interfaces!\n");
+
 #ifdef HAVE_SOCKADDR_SA_LEN
     len = ifr->ifr_addr.sa_len;
 #else
 #ifdef HAVE_STRUCT_IFMAP
-    len = sizeof(struct ifmap);
+    len = sizeof (struct ifmap);
 #else
-    len = sizeof(struct sockaddr);
+    len = sizeof (struct sockaddr);
 #endif
 #endif
-    for(; ifr && *((char *)ifr) && ((char *)ifr) < buf + ifc.ifc_len; 
+
+  for ( ; ifr && *((char*) ifr) && ((char*) ifr) < buf + ifc.ifc_len;
     /* FIXME: for the next source code line the gentoo packaging process
      * reports the following problem (disregard the line number):
      * QA Notice: Package has poor programming practices which may compile
      *            fine but exhibit random runtime failures.
      * pcap.c:342: warning: dereferencing type-punned pointer will break strict-aliasing rules
      */
-	((*(char **)&ifr) +=  sizeof(ifr->ifr_name) + len )) {
+      ((*(char **)&ifr) +=  sizeof (ifr->ifr_name) + len ))
+    {
       sin = (struct sockaddr_in *) &ifr->ifr_addr;
-      memcpy(&(mydevs[numinterfaces].addr), (char *) &(sin->sin_addr), sizeof(struct in_addr));
+      memcpy (&(mydevs[numinterfaces].addr), (char *) &(sin->sin_addr), sizeof (struct in_addr));
       /* In case it is a stinkin' alias */
-      if ((p = strchr(ifr->ifr_name, ':')))
-	*p = '\0';
-      strncpy(mydevs[numinterfaces].name, ifr->ifr_name, 63);
+      if ((p = strchr (ifr->ifr_name, ':')))
+        *p = '\0';
+      strncpy (mydevs[numinterfaces].name, ifr->ifr_name, 63);
       mydevs[numinterfaces].name[63] = '\0';
       numinterfaces++;
-      if (numinterfaces == 1023)  {      
-	printf("My god!  You seem to have WAY too many interfaces!  Things may not work right\n");
-	break;
-      }
+      if (numinterfaces == 1023)
+        {
+          printf("You seem to have more than 1023 network interfaces. Things may not work right.\n");
+          break;
+        }
 #if HAVE_SOCKADDR_SA_LEN
       /* len = MAX(sizeof(struct sockaddr), ifr->ifr_addr.sa_len);*/
       len = ifr->ifr_addr.sa_len;
 #endif
       mydevs[numinterfaces].name[0] = '\0';
-  }
-  if (howmany) *howmany = numinterfaces;
+    }
+
+  // If output parameter given, set value
+  if (howmany)
+    *howmany = numinterfaces;
+
   return mydevs;
 }
 

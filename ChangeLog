@@ -1,3 +1,7 @@
+2009-12-07  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* misc/pcap.c: Cosmetics and docs.
+
 2009-12-07  Tim Brown <timb@openvas.org>
 
 	* misc/store.c: Fixed a potential memory leak.
