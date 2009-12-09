@@ -669,6 +669,7 @@ int ids_open_sock_tcp(args, port, method, timeout)
  else
  {
    family = AF_INET6;
+   bzero(src6, sizeof(*src6));
    iface = v6_routethrough(dst6, src6);
    src_host = estrdup(inet_ntop(AF_INET6,src6, hostname, sizeof(hostname)));
    dst_host = estrdup(inet_ntop(AF_INET6,dst6, hostname,sizeof(hostname)));

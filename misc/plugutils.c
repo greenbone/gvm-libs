@@ -832,15 +832,16 @@ mark_successful_plugin (struct arglist * desc)
 }
 
 static void
-mark_post (struct arglist * desc, const char* action, char* content)
+mark_post (struct arglist * desc, const char* action, const char* content)
 {
  char entry_name[255];
+ char *ccontent = estrdup(content);
 
  if(strlen(action) > (sizeof(entry_name) - 20))
   return;
 
  snprintf (entry_name, sizeof(entry_name), "SentData/%s/%s", plug_get_oid(desc), action); /* RATS: ignore */
- plug_set_key (desc, entry_name, ARG_STRING, content);
+ plug_set_key (desc, entry_name, ARG_STRING, ccontent);
 }
 
 

@@ -215,7 +215,7 @@ openvas_server_open (gnutls_session_t * session,
   /* Complete setup of server session. */
 
   gnutls_transport_set_ptr (*session,
-                            (gnutls_transport_ptr_t) server_socket);
+                            (gnutls_transport_ptr_t) GSIZE_TO_POINTER(server_socket));
 
   new_action.sa_flags = 0;
   if (sigemptyset (&new_action.sa_mask))
@@ -344,7 +344,7 @@ openvas_server_connect (int server_socket,
   /* Complete setup of server session. */
 
   gnutls_transport_set_ptr (*server_session,
-                            (gnutls_transport_ptr_t) server_socket);
+                            (gnutls_transport_ptr_t) GSIZE_TO_POINTER(server_socket));
 
   new_action.sa_flags = 0;
   if (sigemptyset (&new_action.sa_mask))
@@ -389,7 +389,7 @@ openvas_server_attach (int socket, gnutls_session_t* session)
   struct sigaction new_action, original_action;
 
   gnutls_transport_set_ptr (*session,
-                            (gnutls_transport_ptr_t) socket);
+                            (gnutls_transport_ptr_t) GSIZE_TO_POINTER(socket));
 
   new_action.sa_flags = 0;
   if (sigemptyset (&new_action.sa_mask))

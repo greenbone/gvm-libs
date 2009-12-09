@@ -1,3 +1,14 @@
+2009-12-09  Chandrashekhar B <bchandra@secpod.com>
+
+	* misc/plugutils.c (mark_post): resolved compiler wanring
+
+	* misc/openvas_server.c (openvas_server_open, openvas_server_connect,
+	openvas_server_attach): resolved compiler warnings.
+
+	* misc/www_funcs.c (build_encode_URL): Enable IPv6.
+
+	* misc/ids_send.c (ids_open_sock_tcp): resolved compiler warning.
+
 2009-12-09  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* misc/plugutils.c: Added TODOs, lead to by compiler warnings of

@@ -407,10 +407,19 @@ build_encode_URL(data, method, path, name, httpver)
 	  }
 	else if (strcmp(abs_URI_host, "host IP") == 0)
 	  {
-	    struct in_addr * ptr;
+	    struct in6_addr * ptr;
+            char *asc;
+            char hostname[255];
+
 	    if ((ptr = plug_get_host_ip(data)) != NULL)
 	    {
-	      char * asc = inet_ntoa(*ptr);
+              if(IN6_IS_ADDR_V4MAPPED(ptr))
+              {
+                asc = estrdup(inet_ntop(AF_INET, (struct in_addr *)ptr->s6_addr32[3], hostname, sizeof(hostname)));
+              }
+              else
+                asc = estrdup(inet_ntop(AF_INET6, &ptr, hostname, sizeof(hostname)));
+
 	      strncpy(h, asc, sizeof(h));
 	    }
 	    h[sizeof(h)-1] = '\0';
