@@ -44,13 +44,6 @@
 
 #include "nasl_host.h"
 
-extern int is_local_ip (struct in_addr addr);  /* pcap.c */
-extern int islocalhost (struct in_addr *addr); /* pcap.c */
-extern char* routethrough (struct in_addr *dest,
-                           struct in_addr *source); /* pcap.c */
-extern char *v6_routethrough (struct in6_addr *dest, struct in6_addr *source);
-extern int v6_islocalhost(struct in6_addr *);
-
 tree_cell *
 get_hostname (lex_ctxt * lexic)
 {
