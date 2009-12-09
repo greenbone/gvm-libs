@@ -582,7 +582,6 @@ verify_peer_certificate (gnutls_session_t session)
 
 /** helper function copied from cli.c from GnuTLS
  Reads a file into a gnutls_datum
- @todo Fix the resource leak of FILE *f
  **/
 static gnutls_datum
 load_file (const char *file)
@@ -592,18 +591,20 @@ load_file (const char *file)
   long filelen;
   void *ptr;
 
-  if (!(f = fopen(file, "r"))
-      || fseek(f, 0, SEEK_END) != 0
+  if (!(f = fopen(file, "r"))) return loaded_file;
+  if (fseek(f, 0, SEEK_END) != 0
       || (filelen = ftell(f)) < 0
       || fseek(f, 0, SEEK_SET) != 0
       || !(ptr = emalloc((size_t) filelen))
       || fread(ptr, 1, (size_t) filelen, f) < (size_t) filelen)
     {
+      fclose(f);
       return loaded_file;
     }
 
   loaded_file.data = ptr;
   loaded_file.size = (unsigned int) filelen;
+  fclose(f);
   return loaded_file;
 }
 

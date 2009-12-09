@@ -1,3 +1,7 @@
+2009-12-09  Tim Brown <timb@openvas.org>
+
+	* misc/network.c: Fixed a potential resource leak.
+
 2009-12-07  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* misc/pcap.c: Cosmetics and docs.
