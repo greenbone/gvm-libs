@@ -1658,10 +1658,19 @@ plug_set_ssl_pem_password (struct arglist * args, char * key)
  plug_set_ssl_item(args, "password", key);
 }
 
+/** @TODO This function is only used in
+ *        openvas-scanner/cnvts/find_service/find_service.c (and implicitely
+ *        declared within there! -> compiler warning). Consider putting this
+ *        function in header and include it from find_services or move
+ *        functionality there if possible). */
+/** @TODO Also, all plug_set_ssl*-functions set values that are only accessed
+ *        in network.c:open_stream_connection under specific conditions.
+ *        Check whether these conditions can actually occur. Document the
+ *        functions on the way. */
 void
 plug_set_ssl_CA_file (struct arglist * args, char * key)
 {
- plug_set_ssl_item(args, "CA", key);
+ plug_set_ssl_item (args, "CA", key);
 }
 
 char *

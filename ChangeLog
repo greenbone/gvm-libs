@@ -1,5 +1,10 @@
 2009-12-09  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* misc/plugutils.c: Added TODOs, lead to by compiler warnings of
+	openvas-scanner/cnvts/find_service.
+
+2009-12-09  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* nasl/nasl_host.c: Removed extern function declarations.
 
 2009-12-09  Felix Wolfsteller <felix.wolfsteller@intevation.de>
