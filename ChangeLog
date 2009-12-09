@@ -1,6 +1,15 @@
+2009-12-09  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* nasl/nasl_host.c, nasl/nasl_host.h: Cosmetics, added missing
+	includes.
+
 2009-12-09  Tim Brown <timb@openvas.org>
 
 	* misc/network.c: Fixed a potential resource leak.
+
+2009-12-07  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* base/pidfile.c: Added missing include.
 
 2009-12-07  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
