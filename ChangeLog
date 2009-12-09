@@ -1,3 +1,7 @@
+2009-12-09  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* misc/openvas_ssh_login.c: Cosmetics (maily spaces).
+
 2009-12-09  Chandrashekhar B <bchandra@secpod.com>
 
 	* misc/plugutils.c (mark_post): resolved compiler wanring
