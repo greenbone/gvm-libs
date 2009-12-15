@@ -32,6 +32,7 @@
 #include <glib/gstdio.h> /* for g_fopen */
 
 #include <stdio.h> /* for FILE */
+#include <stdlib.h>
 #include <string.h> /* for strerror */
 #include <errno.h> /* for errno */
 #include <unistd.h> /* for getpid */
