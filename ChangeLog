@@ -1,3 +1,16 @@
+2009-12-17  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Added initial support for accessing configuration files in the
+	keyfile format.
+
+	* base/settings.c: New.
+
+	* base/settings.h: New.
+
+	* base/CMakeLists.txt: Updated to include settings.c.
+
+	* Makefile: Update to ensure installation of settings.h.
+
 2009-12-15  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* base/pidfile.c: Add missing include.

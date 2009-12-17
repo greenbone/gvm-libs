@@ -86,6 +86,7 @@ install: all install-tools
 	$(INSTALL) -m 0444 base/hash_table_util.h $(DESTDIR)${includedir}/openvas/base
 	$(INSTALL) -m 0444 nasl/nasl.h   $(DESTDIR)${includedir}/openvas/nasl
 	$(INSTALL) -m 0444 base/nvti.h $(DESTDIR)${includedir}/openvas/base
+	$(INSTALL) -m 0444 base/settings.h $(DESTDIR)${includedir}/openvas/base
 	$(INSTALL) -m 0444 base/openvas_certificate_file.h $(DESTDIR)${includedir}/openvas/base
 	$(INSTALL) -m 0444 base/openvas_string.h $(DESTDIR)${includedir}/openvas/base
 	$(INSTALL) -m 0444 base/pidfile.h $(DESTDIR)${includedir}/openvas/base
