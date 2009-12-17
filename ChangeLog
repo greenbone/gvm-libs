@@ -1,5 +1,9 @@
 2009-12-17  Michael Wiegand <michael.wiegand@intevation.de>
 
+	* MANIFEST: Added new files to manifest.
+
+2009-12-17  Michael Wiegand <michael.wiegand@intevation.de>
+
 	Added initial support for accessing configuration files in the
 	keyfile format.
 

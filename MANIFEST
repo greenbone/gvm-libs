@@ -16,6 +16,8 @@ base/openvas_string.h
 base/pidfile.c
 base/pidfile.h
 base/README.txt
+base/settings.c
+base/settings.h
 base/severity_filter.c
 base/severity_filter.h
 ChangeLog
