@@ -1,3 +1,13 @@
+2009-12-18  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Preparing the openvas-libraries 3.0.0 release.
+
+	* CHANGES: Updated.
+
+	* VERSION: Set to 3.0.0.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Updated PROJECT_NUMBER.
+
 2009-12-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* omp/omp.c (omp_create_agent, omp_delete_agent): New functions.
