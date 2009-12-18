@@ -1,3 +1,9 @@
+2009-12-18  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* base/settings.c (get_all_settings): Make sure hash table contents are
+	correctly freed on hash table destruction as suggested by Felix
+	Wolfsteller.
+
 2009-12-17  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* MANIFEST: Added new files to manifest.

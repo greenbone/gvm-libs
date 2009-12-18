@@ -84,7 +84,8 @@ get_all_settings (const gchar * filename, const gchar * group)
       return NULL;
     }
 
-  settings = g_hash_table_new (g_str_hash, g_str_equal);
+  settings = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                    g_free, g_free);
 
   for (i = 0; i < g_strv_length (keys); i++)
     {
