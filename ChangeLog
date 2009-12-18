@@ -1,3 +1,9 @@
+2009-12-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* omp/omp.c (omp_create_agent, omp_delete_agent): New functions.
+
+	* omp/omp.h: Added protos accordingly.
+
 2009-12-18  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* base/settings.c (get_all_settings): Make sure hash table contents are

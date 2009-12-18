@@ -149,6 +149,12 @@ int
 omp_delete_lsc_credential (gnutls_session_t*, const char*);
 
 int
+omp_create_agent (gnutls_session_t*, const char*, const char*);
+
+int
+omp_delete_agent (gnutls_session_t*, const char*);
+
+int
 omp_get_nvt_details_503 (gnutls_session_t*, const char *, entity_t*);
 
 #endif /* not _OPENVAS_LIBRARIES_OMP_H */

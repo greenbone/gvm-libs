@@ -1642,6 +1642,78 @@ omp_delete_lsc_credential (gnutls_session_t* session,
 }
 
 /**
+ * @brief Create an agent.
+ *
+ * @param[in]   session     Pointer to GNUTLS session.
+ * @param[in]   name        Name of agent.
+ * @param[in]   comment     Agent comment.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+omp_create_agent (gnutls_session_t* session,
+                  const char* name,
+                  const char* comment)
+{
+  int ret;
+
+  /* Create the OMP request. */
+
+  gchar* new_task_request;
+  if (comment)
+    new_task_request = g_strdup_printf ("<create_agent>"
+                                        "<name>%s</name>"
+                                        "<comment>%s</comment>"
+                                        "</create_agent>",
+                                        name,
+                                        comment);
+  else
+    new_task_request = g_strdup_printf ("<create_agent>"
+                                        "<name>%s</name>"
+                                        "</create_agent>",
+                                        name);
+
+  /* Send the request. */
+
+  ret = openvas_server_send (session, new_task_request);
+  g_free (new_task_request);
+  if (ret) return -1;
+
+  return check_response (session);
+}
+
+/**
+ * @brief Delete an agent.
+ *
+ * @param[in]   session     Pointer to GNUTLS session.
+ * @param[in]   name        Name of agent.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+omp_delete_agent (gnutls_session_t* session,
+                  const char* name)
+{
+  int ret;
+
+  /* Create the OMP request. */
+
+  gchar* new_task_request;
+  new_task_request = g_strdup_printf ("<delete_agent>"
+                                      "<name>%s</name>"
+                                      "</delete_agent>",
+                                      name);
+
+  /* Send the request. */
+
+  ret = openvas_server_send (session, new_task_request);
+  g_free (new_task_request);
+  if (ret) return -1;
+
+  return check_response (session);
+}
+
+/**
  * @brief Get NVT Information.
  *
  * @param[in]  session         Pointer to GNUTLS session.
