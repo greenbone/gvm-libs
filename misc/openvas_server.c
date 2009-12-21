@@ -632,9 +632,6 @@ openvas_server_new (gnutls_connection_end_t end_type,
   gnutls_certificate_server_set_request (*server_session,
                                          GNUTLS_CERT_REQUEST);
 
-  /* FIX */
-  gnutls_session_enable_compatibility_mode (*server_session);
-
 #if 0
   // FIX admin also had this
 

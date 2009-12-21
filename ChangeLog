@@ -1,3 +1,8 @@
+2009-12-21  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* misc/openvas_server.c (openvas_server_new): Remove call to
+	gnutls_session_enable_compatibility_mode.
+
 2009-12-18  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post-release version bump.
