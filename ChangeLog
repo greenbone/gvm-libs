@@ -1,5 +1,10 @@
 2009-12-23  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* misc/scanners_utils.h: Copied header of implementation file to
+	header file.
+
+2009-12-23  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* hg/hg_utils.c, misc/bpf_share.c, misc/comm.h, misc/network.h,
 	misc/resolve.c, misc/resolve.h, misc/scanners_utils.c, misc/services.c
 	misc/system.c, misc/www_funcs.c, nasl/nasl_crypto.c, nasl/nasl_func.c,
