@@ -61,6 +61,7 @@ get_hostname (lex_ctxt * lexic)
  return retc;
 }
 
+
 tree_cell *
 get_host_ip (lex_ctxt * lexic)
 {
@@ -91,6 +92,7 @@ get_host_ip (lex_ctxt * lexic)
  return retc;
 }
 
+
 tree_cell *
 get_host_open_port (lex_ctxt * lexic)
 {
@@ -104,6 +106,7 @@ get_host_open_port (lex_ctxt * lexic)
 
  return retc;
 }
+
 
 tree_cell *
 get_port_state (lex_ctxt * lexic)
@@ -123,7 +126,6 @@ get_port_state (lex_ctxt * lexic)
  retc->x.i_val = open;
  return retc;
 }
-
 
 tree_cell * get_udp_port_state(lex_ctxt * lexic)
 {
@@ -293,6 +295,7 @@ tree_cell * get_port_transport(lex_ctxt * lexic)
  }
  return NULL;
 }
+
 
 tree_cell*
 nasl_same_host(lex_ctxt* lexic)

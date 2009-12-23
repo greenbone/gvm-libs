@@ -76,7 +76,8 @@ comm_send_status (struct arglist * globals, char * hostname, char * action,
  * 0 is considered as the biggest number, since it
  * ends our string
  */
-static int qsort_compar(const void* a, const void* b)
+static int
+qsort_compar (const void* a, const void* b)
 {
  u_short *aa = (u_short*)a;
  u_short *bb = (u_short*)b;

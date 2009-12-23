@@ -15,23 +15,19 @@
  *
  */
 
-/* XXX: There once was a BPF sharing feature with the same API
+/** @todo There once was a BPF sharing feature with the same API
  * as the methods below, but trying to share BPF among the daemon
  * processes. What remains is a thin abstraction of the pcap API.
  * Eventually it needs to be analysed whether this makes sense
- * or can further be simplified.
- */
+ * or can further be simplified. */
 
 #include <pcap.h>
 
-#undef DEBUG_FORWARD
 #undef DEBUG
 #undef DEBUG_HIGH
 #define NUM_CLIENTS 128
 
 static pcap_t * pcaps[NUM_CLIENTS];
-
-
 
 int
 bpf_open_live (char * iface, char * filter)
@@ -42,13 +38,14 @@ bpf_open_live (char * iface, char * filter)
  struct bpf_program filter_prog;
  int i;
 
- for(i=0;i< NUM_CLIENTS && pcaps[i];i++);
+ for (i = 0 ; i < NUM_CLIENTS && pcaps[i] ; i++)
+   ;
 
- if(pcaps[i])
- {
-  printf("no free pcap\n");
-  return -1;
- }
+ if (pcaps[i])
+  {
+    printf ("no free pcap\n");
+    return -1;
+  }
 
 
  if(iface == NULL)
@@ -92,7 +89,8 @@ bpf_open_live (char * iface, char * filter)
 
 
 
-u_char* bpf_next_tv(int bpf, int * caplen, struct timeval * tv)
+u_char*
+bpf_next_tv (int bpf, int * caplen, struct timeval * tv)
 {
   u_char * p = NULL;
   struct pcap_pkthdr head;
@@ -119,7 +117,8 @@ u_char* bpf_next_tv(int bpf, int * caplen, struct timeval * tv)
 }
 
 
-u_char* bpf_next(int bpf, int * caplen)
+u_char*
+bpf_next (int bpf, int * caplen)
 {
  struct timeval tv = {0, 100000};
 
@@ -127,20 +126,23 @@ u_char* bpf_next(int bpf, int * caplen)
 }
 
 
-int bpf_datalink(int bpf)
+int
+bpf_datalink (int bpf)
 {
  return pcap_datalink(pcaps[bpf]);
 }
 
 
-void bpf_close(int bpf)
+void
+bpf_close (int bpf)
 {
  pcap_close(pcaps[bpf]);
  pcaps[bpf] = NULL;
 }
 
 
-int bpf_server()
+int
+bpf_server ()
 {
   return 0;
 }

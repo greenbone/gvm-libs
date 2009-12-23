@@ -43,14 +43,14 @@
  * memory size. If anything failed during allocating
  * it, the exit() routine is entered to stop the program.
  */
-void * emalloc(size)
+void *
+emalloc (size)
  size_t size;
 {
     void * ptr;
     const struct timespec delay = { 0, 5000000 } ; /* 5000 mikroseconds = 5000000 nanoseconds */
 
-    /* Just for our personal safety, we increase the 
-     * size by one */
+    /* Just for our personal safety, we increase the size by one */
     if((int)size < 0)
     {
      fprintf(stderr, "[%d] Won't allocate a pointer of size %ld !\n", getpid(), (long)size);
@@ -136,7 +136,6 @@ erealloc (void * ptr, size_t size)
 }
 
 
-
 size_t
 estrlen (const char * s, size_t n)
 {
@@ -146,7 +145,7 @@ estrlen (const char * s, size_t n)
     return i;
 }
 
-/* XXX: the following method does not really belong here.
+/** @TODO XXX: the following method does not really belong here.
  * It is even not occurring in the corresponding .h file,
  * so it likely isn't used anywhere at all.
  * Removal of this method and of the whole HAVE_INET_ATON handling
@@ -249,4 +248,4 @@ inet_aton (register const char *cp, struct in_addr *addr)
 		addr->s_addr = htonl(val);
 	return (1);
 }
-#endif
+#endif /* HAVE_INET_ATON */

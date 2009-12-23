@@ -19,22 +19,24 @@
 #ifndef NASL_FUNC_H_INCLUDED
 #define NASL_FUNC_H_INCLUDED
 
+#define FUNC_NAME_HASH 17
 
-#define FUNC_NAME_HASH	17
+#define FUNC_FLAG_COMPAT (1 << 0) /* Old interface */
+#define FUNC_FLAG_INTERNAL (1 << 1) /* Internal C function */
 
-#define FUNC_FLAG_COMPAT	(1 << 0) /* Old interface */
-#define FUNC_FLAG_INTERNAL	(1 << 1) /* Internal C function */
+/**
+ * Type for a built-in nasl function.
+ */
 typedef struct st_nasl_func {
-  char		*func_name;
-  int		flags;
-  int		nb_unnamed_args, nb_named_args;
-  char		**args_names;
-  void		*block;		/* Or C function! */
+  char *func_name;
+  int  flags;
+  int  nb_unnamed_args, nb_named_args;
+  char **args_names;
+  void *block; /* Can be pointer to a C function! */
 
-  struct st_nasl_func	*next_func; /* next function with same name hash */
+  struct st_nasl_func *next_func; /* next function with same name hash */
 } nasl_func;
 
-void free_func_chain(nasl_func*);
-
+void free_func_chain (nasl_func*);
 
 #endif

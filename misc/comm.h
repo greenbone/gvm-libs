@@ -30,4 +30,5 @@ void comm_wait_order(struct arglist *);
 void comm_setup_plugins(struct arglist *, char *);
 void client_handler();
 int comm_send_status(struct arglist *, char *, char *, int, int);
+
 #endif

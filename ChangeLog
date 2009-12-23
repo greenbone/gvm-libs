@@ -1,3 +1,16 @@
+2009-12-23  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* hg/hg_utils.c, misc/bpf_share.c, misc/comm.h, misc/network.h,
+	misc/resolve.c, misc/resolve.h, misc/scanners_utils.c, misc/services.c
+	misc/system.c, misc/www_funcs.c, nasl/nasl_crypto.c, nasl/nasl_func.c,
+	nasl/nasl_func.h, nasl/nasl_host.c, nasl/nasl_init.c,
+	nasl/nasl_text_utils.c, nasl/nasl_var.c: Whitespace cleanups, doc
+
+	* misc/ids_send.h: Fixed typo in doc.
+
+	* misc/bpf_share.c: Removed undef of DEBUG_FORWARD. Neither defined
+	nor used anywhere.
+
 2009-12-21  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* misc/openvas_server.c (openvas_server_new): Remove call to

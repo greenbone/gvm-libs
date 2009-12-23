@@ -18,7 +18,7 @@
  */
 
 #include <stdlib.h> /* for abort */
-#include <string.h> /*for strlen */
+#include <string.h> /* for strlen */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -34,7 +34,7 @@
 #endif
 
 /* Local prototypes */
-static void	copy_array(nasl_array*, const nasl_array*, int);
+static void copy_array (nasl_array*, const nasl_array*, int);
 
 
 #if 0
@@ -45,8 +45,9 @@ hash_int(int x)
 }
 #endif
 
+/** @TODO Consider using GLibs string hash function. */
 int
-hash_str2(const char* s, int n)
+hash_str2 (const char* s, int n)
 {
   unsigned long		h = 0;
   const char		*p;
@@ -60,13 +61,13 @@ hash_str2(const char* s, int n)
 }
 
 static int
-hash_str(const char* s)
+hash_str (const char* s)
 {
-  return hash_str2(s, VAR_NAME_HASH);
+  return hash_str2 (s, VAR_NAME_HASH);
 }
 
 anon_nasl_var*
-nasl_get_var_by_num(nasl_array* a, int num, int create)
+nasl_get_var_by_num (nasl_array* a, int num, int create)
 {
   anon_nasl_var	*v = NULL;
 
@@ -97,11 +98,11 @@ nasl_get_var_by_num(nasl_array* a, int num, int create)
 }
 
 static named_nasl_var*
-get_var_by_name(nasl_array* a, const char* s)
+get_var_by_name (nasl_array* a, const char* s)
 {
   int			h = hash_str(s);
   named_nasl_var	*v;
-  
+
   if (a->hash_elt == NULL)
     a->hash_elt = emalloc(VAR_NAME_HASH * sizeof(named_nasl_var*));
 
@@ -119,7 +120,9 @@ get_var_by_name(nasl_array* a, const char* s)
 }
 
 
-/* This function climbs up in the context list */
+/**
+ * @brief This function climbs up in the context list.
+ */
 static named_nasl_var*
 get_var_ref_by_name(lex_ctxt* ctxt, const char* name, int climb)
 {
@@ -180,12 +183,12 @@ get_var_ref_by_name(lex_ctxt* ctxt, const char* name, int climb)
   v->next_var = ctxt->ctx_vars.hash_elt[h];
   ctxt->ctx_vars.hash_elt[h] = v;
 
-  return v;  
+  return v;
 }
 
 
 static anon_nasl_var*
-get_var_ref_by_num(lex_ctxt* ctxt, int num)
+get_var_ref_by_num (lex_ctxt* ctxt, int num)
 {
   anon_nasl_var	*v;
 
@@ -214,7 +217,7 @@ get_var_ref_by_num(lex_ctxt* ctxt, int num)
 }
 
 tree_cell*
-var2cell(anon_nasl_var* v)
+var2cell (anon_nasl_var* v)
 {
   tree_cell	*tc = alloc_tree_cell(0, NULL);
 
@@ -224,7 +227,7 @@ var2cell(anon_nasl_var* v)
 }
 
 tree_cell*
-get_variable_by_name(lex_ctxt* ctxt, const char* name)
+get_variable_by_name (lex_ctxt* ctxt, const char* name)
 {
   if (name == NULL)
     return NULL;
@@ -245,7 +248,7 @@ get_variable_by_name(lex_ctxt* ctxt, const char* name)
 }
 
 static const char*
-get_var_name(anon_nasl_var *v)
+get_var_name (anon_nasl_var *v)
 {
   static char	str[16];
 #ifdef ALL_VARIABLES_NAMED
@@ -257,7 +260,7 @@ get_var_name(anon_nasl_var *v)
 }
 
 tree_cell*
-get_array_elem(lex_ctxt* ctxt, const char* name, tree_cell* idx)
+get_array_elem (lex_ctxt* ctxt, const char* name, tree_cell* idx)
 {
   named_nasl_var	*nv;
   anon_nasl_var		*u, *av, fake_var;
@@ -373,15 +376,15 @@ get_array_elem(lex_ctxt* ctxt, const char* name, tree_cell* idx)
   return NULL;
 }
 
-static void	free_var_chain(named_nasl_var*);
-static void	free_anon_var(anon_nasl_var*);
+static void free_var_chain (named_nasl_var*);
+static void free_anon_var (anon_nasl_var*);
 
-/*
+/**
  * Note: the function does not free the nasl_array structure.
  * Do it if necessary
  */
 void
-free_array(nasl_array* a)
+free_array (nasl_array* a)
 {
   int	i;
 
@@ -403,7 +406,7 @@ free_array(nasl_array* a)
 }
 
 static void
-free_var_chain(named_nasl_var* v)
+free_var_chain (named_nasl_var* v)
 {
 
   if (v == NULL)
@@ -424,7 +427,7 @@ free_var_chain(named_nasl_var* v)
 }
 
 static void
-free_anon_var(anon_nasl_var* v)
+free_anon_var (anon_nasl_var* v)
 {
   if (v == NULL)
     return;
@@ -443,7 +446,7 @@ free_anon_var(anon_nasl_var* v)
 }
 
 static void
-clear_array(nasl_array *a)
+clear_array (nasl_array *a)
 {
   int		i;
 
@@ -463,7 +466,7 @@ clear_array(nasl_array *a)
 }
 
 void
-clear_anon_var(anon_nasl_var* v)
+clear_anon_var (anon_nasl_var* v)
 {
 
   if (v == NULL)
@@ -488,7 +491,7 @@ clear_anon_var(anon_nasl_var* v)
 }
 
 static void
-copy_anon_var(anon_nasl_var* v1, const anon_nasl_var *v2)
+copy_anon_var (anon_nasl_var* v1, const anon_nasl_var *v2)
 {
   /* TBD: free variable if necessary? */
   v1->var_type = v2->var_type;
@@ -527,7 +530,7 @@ copy_anon_var(anon_nasl_var* v1, const anon_nasl_var *v2)
 }
 
 static anon_nasl_var*
-dup_anon_var(const anon_nasl_var* v)
+dup_anon_var (const anon_nasl_var* v)
 {
   anon_nasl_var	*v1;
 
@@ -540,7 +543,7 @@ dup_anon_var(const anon_nasl_var* v)
 }
 
 static named_nasl_var*
-dup_named_var(const named_nasl_var* v)
+dup_named_var (const named_nasl_var* v)
 {
   named_nasl_var	*v1;
 
@@ -554,11 +557,10 @@ dup_named_var(const named_nasl_var* v)
 }
 
 static void
-copy_array(nasl_array *a1, const nasl_array *a2, int copy_named)
+copy_array (nasl_array *a1, const nasl_array *a2, int copy_named)
 {
   int		i;
   named_nasl_var	*v1, *v2, *v;
-
 
   if (a1 == a2)
     {
@@ -569,11 +571,11 @@ copy_array(nasl_array *a1, const nasl_array *a2, int copy_named)
     }
 
  if ( a1 == NULL || a2 == NULL )
- { 
+ {
     nasl_perror(NULL, "Internal inconsistency - null array\n");
     abort();
  }
- 
+
   clear_array(a1);
 
   if ( a2->num_elt != NULL )
@@ -601,7 +603,7 @@ copy_array(nasl_array *a1, const nasl_array *a2, int copy_named)
 }
 
 tree_cell*
-copy_ref_array(const tree_cell* c1)
+copy_ref_array (const tree_cell* c1)
 {
   tree_cell	*c2;
   nasl_array	*a2;
@@ -615,10 +617,10 @@ copy_ref_array(const tree_cell* c1)
   return c2;
 }
 
-extern FILE*	nasl_trace_fp;
+extern FILE* nasl_trace_fp;
 
 static tree_cell*
-affect_to_anon_var(anon_nasl_var* v1, tree_cell* rval)
+affect_to_anon_var (anon_nasl_var* v1, tree_cell* rval)
 {
   anon_nasl_var	*v2 = NULL, v0;
   nasl_array	*a = NULL;
@@ -805,10 +807,10 @@ affect_to_anon_var(anon_nasl_var* v1, tree_cell* rval)
 }
 
 tree_cell*
-nasl_affect(tree_cell* lval, tree_cell* rval)
+nasl_affect (tree_cell* lval, tree_cell* rval)
 {
   anon_nasl_var	*v1 = NULL;
-  
+
   if(lval == NULL)
   {
    nasl_perror(NULL, "nasl_effect: invalid lvalue\n");
@@ -827,7 +829,7 @@ nasl_affect(tree_cell* lval, tree_cell* rval)
 }
 
 static named_nasl_var*
-create_named_var(const char* name, tree_cell* val)
+create_named_var (const char* name, tree_cell* val)
 {
   named_nasl_var	*v = emalloc(sizeof(named_nasl_var));
   tree_cell		*tc;
@@ -851,7 +853,7 @@ create_named_var(const char* name, tree_cell* val)
 }
 
 static anon_nasl_var*
-create_anon_var(tree_cell* val)
+create_anon_var (tree_cell* val)
 {
   anon_nasl_var	*v = emalloc(sizeof(anon_nasl_var));
   tree_cell		*tc;
@@ -871,8 +873,8 @@ create_anon_var(tree_cell* val)
   return v;
 }
 
-tree_cell* 
-decl_local_variables(lex_ctxt* lexic, tree_cell* vars)
+tree_cell*
+decl_local_variables (lex_ctxt* lexic, tree_cell* vars)
 {
   tree_cell	*t;
 
@@ -885,7 +887,7 @@ decl_local_variables(lex_ctxt* lexic, tree_cell* vars)
 }
 
 tree_cell*
-decl_global_variables(lex_ctxt* lexic, tree_cell* vars)
+decl_global_variables (lex_ctxt* lexic, tree_cell* vars)
 {
   lex_ctxt	*c = lexic;
 
@@ -895,7 +897,7 @@ decl_global_variables(lex_ctxt* lexic, tree_cell* vars)
 }
 
 anon_nasl_var*
-add_numbered_var_to_ctxt(lex_ctxt* lexic, int num, tree_cell* val)
+add_numbered_var_to_ctxt (lex_ctxt* lexic, int num, tree_cell* val)
 {
   anon_nasl_var	*v;
   nasl_array		*a = &lexic->ctx_vars;
@@ -926,11 +928,11 @@ add_numbered_var_to_ctxt(lex_ctxt* lexic, int num, tree_cell* val)
 }
 
 named_nasl_var*
-add_named_var_to_ctxt(lex_ctxt* lexic, const char* name, tree_cell* val)
+add_named_var_to_ctxt (lex_ctxt* lexic, const char* name, tree_cell* val)
 {
   int			h = hash_str(name);
   named_nasl_var	*v;
-  
+
   /* Duplicated code ? */
   for (v = lexic->ctx_vars.hash_elt[h]; v != NULL; v = v->next_var)
     if (v->var_name != NULL && strcmp(name, v->var_name) == 0)
@@ -953,7 +955,7 @@ add_named_var_to_ctxt(lex_ctxt* lexic, const char* name, tree_cell* val)
 
 
 tree_cell*
-nasl_read_var_ref(lex_ctxt* lexic, tree_cell* tc)
+nasl_read_var_ref (lex_ctxt* lexic, tree_cell* tc)
 {
   tree_cell	*ret;
   anon_nasl_var	*v;
@@ -1043,7 +1045,7 @@ nasl_read_var_ref(lex_ctxt* lexic, tree_cell* tc)
 
 
 tree_cell*
-nasl_incr_variable(lex_ctxt* lexic, tree_cell* tc, int pre, int val)
+nasl_incr_variable (lex_ctxt* lexic, tree_cell* tc, int pre, int val)
 {
   anon_nasl_var	*v;
   int		old_val = 0, new_val;
@@ -1093,13 +1095,13 @@ nasl_incr_variable(lex_ctxt* lexic, tree_cell* tc, int pre, int val)
   retc = alloc_tree_cell(0, NULL);
   retc->type = CONST_INT;
   retc->x.i_val = pre ? new_val : old_val;
-  
-  return retc;  
+
+  return retc;
 }
 
 
 static int
-var2int(anon_nasl_var* v, int defval)
+var2int (anon_nasl_var* v, int defval)
 {
   if (v == NULL)
     return defval;
@@ -1125,7 +1127,7 @@ var2int(anon_nasl_var* v, int defval)
 }
 
 const char*
-array2str(const nasl_array* a)
+array2str (const nasl_array* a)
 {
   static char	*s = NULL;
   static int	len = 0;
@@ -1235,7 +1237,8 @@ array2str(const nasl_array* a)
   return s;
 }
 
-const char*	var2str(const anon_nasl_var* v)
+const char*
+var2str (const anon_nasl_var* v)
 {
   static char	s1[16];
 
@@ -1271,21 +1274,21 @@ const char*	var2str(const anon_nasl_var* v)
 }
 
 int
-get_int_var_by_num(lex_ctxt* lexic, int num, int defval)
+get_int_var_by_num (lex_ctxt* lexic, int num, int defval)
 {
   anon_nasl_var	*v = get_var_ref_by_num(lexic, num);
   return  var2int(v, defval);
 }
 
 int
-get_int_var_by_name(lex_ctxt* lexic, const char* name, int defval)
+get_int_var_by_name (lex_ctxt* lexic, const char* name, int defval)
 {
   named_nasl_var	*v = get_var_ref_by_name(lexic, name, 1);
   return  var2int(&v->u, defval);
 }
 
-int 
-get_int_local_var_by_name(lex_ctxt * lexic, const char * name, int defval)
+int
+get_int_local_var_by_name (lex_ctxt * lexic, const char * name, int defval)
 {
   named_nasl_var 	*v = get_var_ref_by_name(lexic, name, 0);
   return var2int(&v->u, defval);
@@ -1293,28 +1296,28 @@ get_int_local_var_by_name(lex_ctxt * lexic, const char * name, int defval)
 
 
 char*
-get_str_var_by_num(lex_ctxt* lexic, int num)
+get_str_var_by_num (lex_ctxt* lexic, int num)
 {
   anon_nasl_var	*v = get_var_ref_by_num(lexic, num);
   return  (char*)var2str(v);
 }
 
 char*
-get_str_var_by_name(lex_ctxt* lexic, const char* name)
+get_str_var_by_name (lex_ctxt* lexic, const char* name)
 {
   named_nasl_var	*v = get_var_ref_by_name(lexic, name, 1);
   return  (char*)var2str(&v->u);
 }
 
-char *
-get_str_local_var_by_name(lex_ctxt * lexic, const char * name)
+char*
+get_str_local_var_by_name (lex_ctxt * lexic, const char * name)
 {
   named_nasl_var	*v = get_var_ref_by_name(lexic, name, 0);
   return  (char*)var2str(&v->u);
 }
 
 static int
-get_var_size(const anon_nasl_var* v)
+get_var_size (const anon_nasl_var* v)
 {
   if (v == NULL)
     return 0;
@@ -1336,21 +1339,21 @@ get_var_size(const anon_nasl_var* v)
 }
 
 int
-get_var_size_by_name(lex_ctxt* lexic, const char* name)
+get_var_size_by_name (lex_ctxt* lexic, const char* name)
 {
   named_nasl_var	*v = get_var_ref_by_name(lexic, name, 1);
   return get_var_size(&v->u);
 }
 
 int
-get_local_var_size_by_name(lex_ctxt * lexic, const char * name)
+get_local_var_size_by_name (lex_ctxt * lexic, const char * name)
 {
   named_nasl_var 	*v = get_var_ref_by_name(lexic, name, 0);
   return get_var_size(&v->u);
 }
 
 int
-get_var_size_by_num(lex_ctxt* lexic, int num)
+get_var_size_by_num (lex_ctxt* lexic, int num)
 {
   anon_nasl_var	*v = get_var_ref_by_num(lexic, num);
   return get_var_size(v);
@@ -1367,29 +1370,30 @@ get_var_type_by_num (lex_ctxt* lexic, int num)
 }
 
 int
-get_var_type_by_name(lex_ctxt* lexic, const char * name)
+get_var_type_by_name (lex_ctxt* lexic, const char * name)
 {
   named_nasl_var	*v = get_var_ref_by_name(lexic, name, 1);
   return v == NULL ? VAR2_UNDEF : v->u.var_type;
 }
 
-int get_local_var_type_by_name(lex_ctxt * lexic, const char * name)
+int
+get_local_var_type_by_name (lex_ctxt * lexic, const char * name)
 {
   named_nasl_var	*v = get_var_ref_by_name(lexic, name, 0);
   return v == NULL ? VAR2_UNDEF : v->u.var_type;
 }
 
 nasl_iterator
-nasl_array_iterator(tree_cell* c)
+nasl_array_iterator (tree_cell* c)
 {
-  nasl_iterator		it;
-  anon_nasl_var	*v;
+  nasl_iterator it;
+  anon_nasl_var *v;
 
   it.a = NULL;
   it.v = NULL;
   it.i1 = 0;
   it.iH = 0;
-  
+
   if (c == NULL || c == FAKE_CELL)
     return it;
 
@@ -1414,10 +1418,9 @@ nasl_array_iterator(tree_cell* c)
 }
 
 tree_cell*
-nasl_iterate_array(nasl_iterator* it)
+nasl_iterate_array (nasl_iterator* it)
 {
   anon_nasl_var	 *av;
-
 
   if (it == NULL || it->a == NULL)
     return NULL;
@@ -1451,12 +1454,11 @@ nasl_iterate_array(nasl_iterator* it)
     }
   while (it->v == NULL);
 
-
   return var2cell(&it->v->u);
 }
 
 int
-add_var_to_list(nasl_array* a, int i, const anon_nasl_var* v)
+add_var_to_list (nasl_array* a, int i, const anon_nasl_var* v)
 {
   anon_nasl_var	*v2;
 
@@ -1482,33 +1484,33 @@ add_var_to_list(nasl_array* a, int i, const anon_nasl_var* v)
     return 1;
 }
 
-int add_var_to_array(nasl_array *a, char * name, const anon_nasl_var* v)
+int
+add_var_to_array (nasl_array *a, char * name, const anon_nasl_var* v)
 {
  named_nasl_var * v2;
  int h = hash_str(name);
- 
+
  if( a->hash_elt == NULL )
  {
   a->hash_elt = emalloc(VAR_NAME_HASH * sizeof(named_nasl_var*));
  }
- 
+
  v2 = emalloc(sizeof(named_nasl_var));
  v2->var_name = estrdup(name);
  v2->u.var_type = VAR2_UNDEF;
  v2->next_var = a->hash_elt[h];
  a->hash_elt[h] = v2;
- 
-  
+
  copy_anon_var(&(v2->u), v);
  return 0;
 }
 
-/*
+/**
  * The name is not great: this function does not returns the index of the
  * last element, but the index of the next free slot
  */
 int
-array_max_index(nasl_array* a)
+array_max_index (nasl_array* a)
 {
   int	i;
 
@@ -1524,13 +1526,12 @@ array_max_index(nasl_array* a)
   return 0;
 }
 
-/*
+/**
  * make_array_from_list is used by the parser only
  * The list of elements is freed after use
  */
-
 tree_cell*
-make_array_from_elems(tree_cell* el)
+make_array_from_elems (tree_cell* el)
 {
   int		n;
   tree_cell	*c, *c2;
@@ -1552,7 +1553,7 @@ make_array_from_elems(tree_cell* el)
       a->num_elt = NULL;
       a->hash_elt = emalloc(VAR_NAME_HASH * sizeof(named_nasl_var*));
     }
-  
+
   for (n = 0, c = el; c != NULL; c= c->link[1])
     {
       c2 = c->link[0];
@@ -1597,4 +1598,3 @@ make_array_from_elems(tree_cell* el)
   deref_cell(el);
   return c;
 }
-

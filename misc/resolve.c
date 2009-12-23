@@ -29,22 +29,28 @@
 
 
 /**
+ * @param [in]  name Name of host.
+ * @param [out] ip
+ *
  * @return 0 on success, -1 on failure.
  */
 int
 host2ip (char * name, struct in_addr * ip)
 {
-	struct hostent * ent;
+  struct hostent * ent;
 
-	ent = gethostbyname(name);
-	if(!ent)
-		return -1;
-	else if(ip) memcpy(ip, ent->h_addr, ent->h_length);
-	return 0; /* success */
+  ent = gethostbyname (name);
+  if (!ent)
+    return -1;
+  else if (ip)
+    memcpy (ip, ent->h_addr, ent->h_length);
+
+  return 0; /* success */
 }
 
 
-int nn_resolve(const char *hostname, struct in6_addr *in6addr)
+int
+nn_resolve (const char *hostname, struct in6_addr *in6addr)
 {
   struct addrinfo hints;
   struct addrinfo *ai;

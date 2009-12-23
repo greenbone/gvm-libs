@@ -142,7 +142,8 @@ hg_get_name_from_ip (struct in6_addr *ip, char * hostname, int sz)
   return 0; /* We never fail */
 }
 
-int hg_valid_ip_addr(char *hostname)
+int
+hg_valid_ip_addr (char *hostname)
 {
   struct addrinfo hints;
   struct addrinfo *ai;
@@ -170,13 +171,13 @@ int hg_valid_ip_addr(char *hostname)
  * If the input is arf.com
  * returns : NULL
  */
-char * 
+char *
 hg_name_to_domain (char * hostname)
 {
   unsigned int i = -1, j;
   char * ret;
   int len;
-  
+
   if(inet_addr(hostname)!=INADDR_NONE)return(NULL);
   while(hostname[++i]!='.' && i<strlen(hostname));
   if(hostname[i]!='.')return(NULL);
@@ -188,22 +189,25 @@ hg_name_to_domain (char * hostname)
   strncpy(ret, hostname+i+1, len+1);
   return(ret);
 }
-  
-  
+
+
 void
-hg_host_cleanup(hosts)
- struct hg_host * hosts;
+hg_host_cleanup (struct hg_host * hosts)
 {
-  if(hosts->hostname != NULL )free(hosts->hostname);
-  if(hosts->domain != NULL )free(hosts->domain);
-  free(hosts);
+  if (hosts->hostname != NULL)
+    free (hosts->hostname);
+  if (hosts->domain != NULL)
+    free (hosts->domain);
+  free (hosts);
 }
 
 /**
- * Frees all hosts that are linked in hosts, using hg_host_cleanup.
+ * @brief Frees all hosts that are linked in hosts, using hg_host_cleanup.
+ *
+ * @param hosts host list to free.
  */
-void 
-hg_hosts_cleanup(struct hg_host * hosts)
+void
+hg_hosts_cleanup (struct hg_host * hosts)
 {
   while ( hosts != NULL ) 
   {

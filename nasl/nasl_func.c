@@ -33,17 +33,19 @@
 
 #include "nasl_debug.h"
 
-
-
+/** @TODO consider glibs string hashing function g_strhash */
 static int
-hash_str(const char* s)
+hash_str (const char* s)
 {
-  return hash_str2(s, FUNC_NAME_HASH);
+  return hash_str2 (s, FUNC_NAME_HASH);
 }
 
-/* This function climbs up in the context list */
+/**
+ * @brief This function climbs up in the context list and searches for a given
+ * @brief function.
+ */
 static nasl_func*
-get_func(lex_ctxt* ctxt, const char* name, int h)
+get_func (lex_ctxt* ctxt, const char* name, int h)
 {
   nasl_func	*v, *prev;
   lex_ctxt	*c;
@@ -73,7 +75,7 @@ get_func(lex_ctxt* ctxt, const char* name, int h)
 }
 
 nasl_func*
-insert_nasl_func(lex_ctxt* lexic, const char* fname, tree_cell* decl_node)
+insert_nasl_func (lex_ctxt* lexic, const char* fname, tree_cell* decl_node)
 {
   int		h = hash_str(fname);
   int		i;
@@ -101,9 +103,9 @@ insert_nasl_func(lex_ctxt* lexic, const char* fname, tree_cell* decl_node)
       for (i = 0, pc = decl_node->link[0]; pc != NULL; pc = pc->link[0])
 	if (pc->x.str_val != NULL)
 	  pf->args_names[i ++] = estrdup(pc->x.str_val);
-      /* sort arg names */
-      qsort(pf->args_names, pf->nb_named_args, 
-	    sizeof(pf->args_names[0]), strcmp);
+      /* Sort argument names */
+      qsort (pf->args_names, pf->nb_named_args, sizeof (pf->args_names[0]),
+             strcmp);
 
       pf->block = decl_node->link[1];
       ref_cell(pf->block);
@@ -118,14 +120,14 @@ insert_nasl_func(lex_ctxt* lexic, const char* fname, tree_cell* decl_node)
 }
 
 tree_cell*
-decl_nasl_func(lex_ctxt* lexic, tree_cell* decl_node)
+decl_nasl_func (lex_ctxt* lexic, tree_cell* decl_node)
 {
   if (decl_node == NULL || decl_node == FAKE_CELL)
     {
       nasl_perror(lexic, "Cannot insert NULL or FAKE cell as function\n");
       return NULL;
     }
-    
+
   if (insert_nasl_func(lexic, decl_node->x.str_val, decl_node) == NULL)
     return NULL;
   else
@@ -133,11 +135,10 @@ decl_nasl_func(lex_ctxt* lexic, tree_cell* decl_node)
 }
 
 nasl_func*
-get_func_ref_by_name(lex_ctxt* ctxt, const char* name)
+get_func_ref_by_name (lex_ctxt* ctxt, const char* name)
 {
   int		h = hash_str(name);
   nasl_func	*f;
-
 
   if ((f = get_func(ctxt, name, h)) != NULL)
     return f;
@@ -146,16 +147,16 @@ get_func_ref_by_name(lex_ctxt* ctxt, const char* name)
 }
 
 static int
-stringcompare(const void * a,  const void * b)
+stringcompare (const void * a,  const void * b)
 {
   char ** s1 = (char**)a, ** s2 = (char**)b;
   return strcmp(*s1, *s2);
 }
 
-extern FILE*	nasl_trace_fp;
+extern FILE* nasl_trace_fp;
 
 tree_cell*
-nasl_func_call(lex_ctxt* lexic, const nasl_func* f, tree_cell* arg_list)
+nasl_func_call (lex_ctxt* lexic, const nasl_func* f, tree_cell* arg_list)
 {
 #if 0
   return FAKE_CELL;
@@ -317,15 +318,14 @@ nasl_func_call(lex_ctxt* lexic, const nasl_func* f, tree_cell* arg_list)
 #endif
 }
 
-tree_cell* nasl_return(lex_ctxt* ctxt, tree_cell* retv)
+tree_cell*
+nasl_return (lex_ctxt* ctxt, tree_cell* retv)
 {
   tree_cell	*c;
 
   retv = cell2atom(ctxt, retv);
   if (retv == NULL)
     retv = FAKE_CELL;
-    
-    
 
   if (retv != FAKE_CELL && retv->type == REF_ARRAY)
     /* We have to "copy" it as the referenced array will be freed */
@@ -349,7 +349,7 @@ tree_cell* nasl_return(lex_ctxt* ctxt, tree_cell* retv)
 }
 
 static void
-free_func(nasl_func* f)
+free_func (nasl_func* f)
 {
   int	i;
 
@@ -367,14 +367,10 @@ free_func(nasl_func* f)
 
 
 void
-free_func_chain(nasl_func* f)
+free_func_chain (nasl_func* f)
 {
   if (f == NULL)
     return;
   free_func_chain(f->next_func);
   free_func(f);
 }
-
-
-
-

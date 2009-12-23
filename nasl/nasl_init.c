@@ -17,7 +17,6 @@
  *
  */
 
-
 #include <string.h> /* for memset */
 
 #include "nvt_categories.h" /* for ACT_INIT */
@@ -52,10 +51,10 @@
 /* **************************************************************** */
 
 typedef struct {
-  const char	*name;
-  tree_cell*	(*c_code)(lex_ctxt*);
-  int		unnamed;	/**< Number of unnamed arguments. */
-  const char	*args[16];	/**< Must be sorted and terminated with NULL. */
+  const char *name;
+  tree_cell* (*c_code)(lex_ctxt*);
+  int unnamed;          /**< Number of unnamed arguments. */
+  const char *args[16]; /**< Must be sorted and terminated with NULL. */
 } init_func;
 
 /**
@@ -64,14 +63,14 @@ typedef struct {
  * argument Meta-information (names).
  */
 static init_func libfuncs[] = {
-  { "script_name",	script_name, 1, { NULL } },
-  { "script_version",     script_version, 1, { NULL } }, 
+  { "script_name",        script_name, 1, { NULL } },
+  { "script_version",     script_version, 1, { NULL } },
   { "script_timeout",     script_timeout, 1, { NULL } },
   { "script_description", script_description, 999, { NULL } },
   { "script_copyright",   script_copyright, 999, { NULL } },
   { "script_summary",     script_summary, 999, { NULL } },
   { "script_category",    script_category, 1, { NULL } },
-  { "script_family",	script_family, 999, { NULL } },
+  { "script_family",      script_family, 999, { NULL } },
   { "script_dependencie", script_dependencie, 999, { NULL } },
   { "script_dependencies",script_dependencie, 999, { NULL } },
   { "script_require_keys",script_require_keys, 999, { NULL } },
@@ -81,16 +80,16 @@ static init_func libfuncs[] = {
   { "script_exclude_keys", script_exclude_keys, 999, { NULL } },
   { "script_add_preference", script_add_preference, 0,  { "name", "type", "value", NULL } },
   { "script_get_preference", script_get_preference, 1, { NULL } }, 
-  { "script_get_preference_file_content", script_get_preference_file_content, 1, { NULL } }, 
-  { "script_get_preference_file_location", script_get_preference_file_location, 1, { NULL } }, 
+  { "script_get_preference_file_content", script_get_preference_file_content, 1, { NULL } },
+  { "script_get_preference_file_location", script_get_preference_file_location, 1, { NULL } },
 
   { "script_id", 	 script_id, 1, { NULL } },
   { "script_oid",        script_oid, 1, { NULL } },
   { "script_cve_id",     script_cve_id, 999, { NULL } },
   { "script_bugtraq_id", script_bugtraq_id, 999, { NULL } },
-  { "script_xref",	 script_xref, 0, {"name", "value", NULL} }, 
-  { "script_tag",	 script_tag, 0, {"name", "value", NULL} }, 
-  { "get_preference",	 nasl_get_preference, 1, { NULL } }, 
+  { "script_xref",	 script_xref, 0, {"name", "value", NULL} },
+  { "script_tag",	 script_tag, 0, {"name", "value", NULL} },
+  { "get_preference",	 nasl_get_preference, 1, { NULL } },
   { "safe_checks", 	 safe_checks, 	  0, { NULL } },
   { "replace_kb_item",   replace_kb_item,    0, {"name", "value", NULL } },
   { "set_kb_item",       set_kb_item, 	    0, {"name", "value", NULL } },
@@ -102,13 +101,13 @@ static init_func libfuncs[] = {
   { "security_hole", 	 security_hole,	    1, { "data", "port", "proto", "protocol", NULL } },
   { "log_message", 	 log_message,	    1, { "data", "port", "proto", "protocol", NULL } },
   { "debug_message", 	 debug_message,	    1, { "data", "port", "proto", "protocol", NULL } },
- 
+
   { "open_sock_tcp",      nasl_open_sock_tcp,  1, { "bufsz", "timeout", "transport", NULL } },
   { "open_sock_udp",      nasl_open_sock_udp,  1, { NULL } },
   { "open_priv_sock_tcp", nasl_open_priv_sock_tcp, 0, { "dport", "sport", "timeout", NULL } },
   { "open_priv_sock_udp", nasl_open_priv_sock_udp, 0, { "dport", "sport", NULL } },
   { "socket_get_error",   nasl_socket_get_error, 1, { NULL } },
-  
+
   { "recv",		nasl_recv, 0, { "length", "min", "socket", "timeout", NULL } },
   { "recv_line",	nasl_recv_line, 0, { "length", "socket", "timeout", NULL } },
   { "send",		nasl_send, 0, { "data", "length", "option", "socket", NULL } },
@@ -116,7 +115,7 @@ static init_func libfuncs[] = {
   { "join_multicast_group", nasl_join_multicast_group, 1, { NULL } },
   { "leave_multicast_group", nasl_leave_multicast_group, 1, { NULL } },
   { "get_source_port",	nasl_get_source_port, 1, { NULL } }, /* DOC! */
-  
+
   { "cgibin",		cgibin,		  0, { NULL } },
   { "http_open_socket",	http_open_socket, 1, { NULL } },
   { "http_head",	http_head,	  0, {"data", "item", "port", NULL } },
@@ -125,7 +124,7 @@ static init_func libfuncs[] = {
   { "http_delete", 	http_delete,	  0, {"data", "item", "port", NULL } },
   { "http_put", 	http_put,	  0, {"data", "item", "port", NULL } },
   { "http_close_socket", http_close_socket, 0, { "socket", NULL } },
-  
+
   { "get_host_name",	get_hostname, 0, { NULL } }, 
   { "get_host_ip",      get_host_ip,  0, { NULL } },
   { "same_host",	nasl_same_host, 2, { "cmp_hostname" } },
@@ -142,7 +141,7 @@ static init_func libfuncs[] = {
   { "get_port_transport", get_port_transport, 1, { NULL } },
   { "this_host",	  nasl_this_host, 0, { NULL } }, 
   { "this_host_name",	  nasl_this_host_name, 0, { NULL } },
-  
+
   { "string",		nasl_string, 9999, { NULL } }, 
   { "raw_string",	nasl_rawstring, 9999, { NULL } }, 
   { "strcat",		nasl_strcat, 9999, { NULL } },
@@ -205,7 +204,7 @@ static init_func libfuncs[] = {
   { "forge_ip_packet",	forge_ip_packet, 0, 
     { "data", "ip_dst", "ip_hl", "ip_id", "ip_len", "ip_off", "ip_p", 
       "ip_src", "ip_sum", "ip_tos", "ip_ttl", "ip_v", NULL } },
-    
+
   { "get_ip_element",	get_ip_element, 0, { "element", "ip", NULL } },
   { "set_ip_elements",	set_ip_elements, 0, 
     { "ip", "ip_dst", "ip_hl", "ip_id", 
@@ -214,36 +213,36 @@ static init_func libfuncs[] = {
 
   { "insert_ip_options", insert_ip_options, 0, { "code", "ip", "length", "value", NULL} },
   { "dump_ip_packet", dump_ip_packet, 9999, { NULL } },
-    
+
   { "forge_tcp_packet", forge_tcp_packet, 0,
     { "data", "ip", "th_ack", "th_dport", "th_flags", "th_off", "th_seq",
       "th_sport", "th_sum", "th_urp", "th_win", "th_x2", "update_ip_len", NULL } },
-    
+
   { "get_tcp_element", get_tcp_element, 0,
     { "element", "tcp", NULL } },
 
   { "set_tcp_elements", set_tcp_elements, 0, 
     { "data", "tcp", "th_ack", "th_dport", "th_flags", "th_off", "th_seq",
       "th_sport", "th_sum", "th_urp", "th_win", "th_x2", NULL } },
-    
+
   { "dump_tcp_packet", dump_tcp_packet, 999, { NULL } },
   { "tcp_ping", nasl_tcp_ping, 0, { "port", NULL } },
 
   { "forge_udp_packet", forge_udp_packet, 0,
     { "data", "ip", "uh_dport", "uh_sport", "uh_sum", "uh_ulen", "update_ip_len", NULL } },
-  
+
   { "get_udp_element", get_udp_element, 0, 
     { "element", "udp", NULL } },
-  
+
   { "set_udp_elements", set_udp_elements, 0,
     { "data", "udp", "uh_dport", "uh_sport", "uh_sum", "uh_ulen", NULL } },
-  
+
   { "dump_udp_packet", dump_udp_packet, 999, { NULL } },
-  
+
   { "forge_icmp_packet",forge_icmp_packet, 0,
     { "data", "icmp_cksum", "icmp_code", "icmp_id", "icmp_seq", "icmp_type", 
       "ip", "update_ip_len", NULL } },
-    
+
   { "get_icmp_element", get_icmp_element, 0, 
     { "element", "icmp", NULL } },
 
@@ -251,18 +250,18 @@ static init_func libfuncs[] = {
     { "code", "data", "group", "ip", "type", "update_ip_len", NULL } },
   { "send_packet", nasl_send_packet, 99, 
     { "length", "pcap_active", "pcap_filter", "pcap_timeout", NULL } },
-  
+
   { "pcap_next", nasl_pcap_next, 1, { "interface", "pcap_filter", "timeout", NULL} },
   { "send_capture", nasl_send_capture, 1,
     { "data", "interface", "length", "option", "pcap_filter", "socket", "timeout", NULL} },
-  
+
   { "MD4", nasl_md4, 1, { NULL } },
   { "MD5", nasl_md5, 1, { NULL } }, 
   { "SHA1", nasl_sha1, 1, { NULL } },
   { "RIPEMD160", nasl_ripemd160, 1, { NULL } },
   { "HMAC_MD5", nasl_hmac_md5, 0, { "data", "key", NULL } },
   { "HMAC_SHA1", nasl_hmac_sha1, 0, { "data", "key", NULL } },
- 
+
   { "HMAC_RIPEMD160", nasl_hmac_ripemd160, 0, { "data", "key", NULL } },
   { "dh_generate_key", nasl_dh_generate_key, 0, { "g" , "p", "priv", NULL } },
   { "bn_random", nasl_bn_random, 0, { "need", NULL } },
@@ -326,22 +325,22 @@ static init_func libfuncs[] = {
 
 /* String variables */
 static struct {
-  const char	*name;
-  const char	*val;
+  const char *name;
+  const char *val;
 } libsvars[] = {
   { "OPENVAS_VERSION", VERSION },
-  { NULL, NULL }, 
+  { NULL, NULL },
 };
 
 /* Integer variables */
 static struct {
-  const char	*name;
-  int		val;
+  const char *name;
+  int        val;
 } libivars[] = {
   { "TRUE",	1 },
   { "FALSE",	0 },
   { "pcap_timeout",	5 },
-  
+
   { "IPPROTO_TCP", IPPROTO_TCP },
   { "IPPROTO_UDP", IPPROTO_UDP },
   { "IPPROTO_ICMP", IPPROTO_ICMP },
@@ -369,7 +368,7 @@ static struct {
   { "IP_MF", IP_MF },
   { "IP_OFFMASK", IP_OFFMASK },
 
-  { "ACT_INIT", ACT_INIT }, 
+  { "ACT_INIT", ACT_INIT },
   { "ACT_GATHER_INFO", ACT_GATHER_INFO },
   { "ACT_ATTACK", ACT_ATTACK },
   { "ACT_MIXED_ATTACK", ACT_MIXED_ATTACK },
@@ -389,25 +388,30 @@ static struct {
   { "EUNREACH",   NASL_ERR_EUNREACH },
   { "EUNKNOWN",   NASL_ERR_EUNKNOWN },
 
-  { NULL, 0 }, 
+  { NULL, 0 },
 };
 /* See also in exec.c:
  * COMMAND_LINE
  * description
  */
 
-int init_nasl_library(lex_ctxt* lexic)
+/**
+ * @brief Adds "built-in" variable and function definitions to a context.
+ *
+ * @return Number of definitions done -1.
+ */
+int
+init_nasl_library (lex_ctxt* lexic)
 {
-  int		i, j, c;
-  nasl_func	*pf;
-  named_nasl_var	*v;
-  tree_cell	tc;
-  const char	**p, *q;
+  int            i, j, c;
+  nasl_func      *pf;
+  named_nasl_var *v;
+  tree_cell      tc;
+  const char     **p, *q;
 
-  memset(&tc, 0, sizeof(tc));
-  for (i = 0, c= 0; i < sizeof(libfuncs) / sizeof(libfuncs[0])-1; i ++)
+  memset (&tc, 0, sizeof(tc));
+  for (i = 0, c= 0; i < sizeof(libfuncs) / sizeof(libfuncs[0])-1; i++)
     {
-
       if ((pf = insert_nasl_func(lexic, libfuncs[i].name, NULL)) == NULL)
 	{
 	  nasl_perror(lexic, "init_nasl2_library: could not define fct '%s'\n",
@@ -431,42 +435,45 @@ int init_nasl_library(lex_ctxt* lexic)
       c++;
     }
 
+  // Initialize constant integer terms
   tc.type = CONST_INT;
   for (i = 0; i < sizeof(libivars) / sizeof(libivars[0])-1; i ++)
     {
       tc.x.i_val = libivars[i].val;
       if ((v = add_named_var_to_ctxt(lexic, libivars[i].name, &tc)) == NULL)
-	{
-	  nasl_perror(lexic, "init_nasl2_library: could not define var '%s'\n",
-		  libivars[i].name);
-	  continue;
-	}
-      c ++;
+        {
+          nasl_perror (lexic, "init_nasl2_library: could not define var '%s'\n",
+                      libivars[i].name);
+          continue;
+        }
+      c++;
     }
 
+  // Initialize constant string terms
   tc.type = CONST_DATA;
   for (i = 0; i < sizeof(libsvars) / sizeof(libsvars[0])-1; i ++)
     {
-      tc.x.str_val = (char *)libsvars[i].val;
-      tc.size = strlen(libsvars[i].val);
-      if ((v = add_named_var_to_ctxt(lexic, libsvars[i].name, &tc)) == NULL)
-	{
-	  nasl_perror(lexic, "init_nasl2_library: could not define var '%s'\n",
-		  libsvars[i].name);
-	  continue;
-	}
-      c ++;
+      tc.x.str_val = (char *) libsvars[i].val;
+      tc.size = strlen (libsvars[i].val);
+      if ((v = add_named_var_to_ctxt (lexic, libsvars[i].name, &tc)) == NULL)
+        {
+          nasl_perror (lexic, "init_nasl2_library: could not define var '%s'\n",
+                       libsvars[i].name);
+          continue;
+        }
+      c++;
     }
 
-  if (add_named_var_to_ctxt(lexic, "NULL", NULL) == NULL)
+  // Add the "NULL" variable
+  if (add_named_var_to_ctxt (lexic, "NULL", NULL) == NULL)
     nasl_perror(lexic, "init_nasl2_library: could not define var 'NULL'\n");
 
   return c;
 }
 
 
-
-char * nasl_version()
+char *
+nasl_version ()
 {
   static char vers[sizeof(VERSION) + 1];
   strncpy(vers, VERSION, sizeof(vers) - 1); /* Flawfinder: ignore

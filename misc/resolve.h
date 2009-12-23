@@ -15,7 +15,7 @@
  * License along with this library; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
+
 #ifndef _OPENVAS_RESOLVE_H
 #define _OPENVAS_RESOLVE_H
 

@@ -46,22 +46,21 @@
 /* IMPORTANT ! Some options are defined in services.h */
 
 static int
-cmp_ns_svc(const void *v1,
-	   const void *v2)
+cmp_ns_svc (const void *v1, const void *v2)
 {
   const struct openvas_service * p1 = v1;
   const struct openvas_service * p2 = v2;
-  
-  if(v1 == NULL)
-  	return 1;
-  else if(v2 == NULL)
-  	return -1;
-  
+
+  if (v1 == NULL)
+    return 1;
+  else if (v2 == NULL)
+    return -1;
+
   return p1->ns_port - p2->ns_port;
 }
 
 const char*
-openvas_get_svc_name(int port, const char* proto)
+openvas_get_svc_name (int port, const char* proto)
 {
   static struct openvas_service		*svc_db_ptr[2] = { NULL, NULL };
   static int				nb_svc[2];
@@ -120,7 +119,8 @@ openvas_get_svc_name(int port, const char* proto)
 }
 
 
-unsigned short * get_tcp_svcs(int * num)
+unsigned short *
+get_tcp_svcs (int * num)
 {
   struct openvas_service * ns = NULL;
   int len, num_svc;

@@ -80,9 +80,8 @@ This is a perfect log entry and nobody can suspect on it :-)
 */
 
 char *
-build_encode_URL(data, method, path, name, httpver)
- struct arglist * data;
- char	*method, *path, *name, *httpver;
+build_encode_URL (struct arglist* data, char* method, char* path, char* name,
+                  char* httpver)
 {
   int		i, l = 0, n_slash = 0, n_backslash = 0, start_with_slash = 0;
   char		*ret, *ret2;
@@ -102,10 +101,9 @@ build_encode_URL(data, method, path, name, httpver)
   char		gizmo[32];
   struct kb_item ** kb = plug_get_kb(data);
 
-  /**
-   * basically, we need to store the path, a slash, and the name.
+  /* Basically, we need to store the path, a slash, and the name.
    * Encoding will expand this
-   * We'll add the method in front of all this and the HTTP version 
+   * We'll add the method in front of all this and the HTTP version
    * at the end when all is done. That's not optimized, but that's simpler.
    */
   l = path !=  NULL ? strlen(path) : 0;
@@ -411,7 +409,7 @@ build_encode_URL(data, method, path, name, httpver)
             char *asc;
             char hostname[255];
 
-	    if ((ptr = plug_get_host_ip(data)) != NULL)
+	    if ((ptr = plug_get_host_ip (data)) != NULL)
 	    {
               if(IN6_IS_ADDR_V4MAPPED(ptr))
               {
