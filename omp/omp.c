@@ -1572,15 +1572,17 @@ omp_delete_config (gnutls_session_t* session,
 /**
  * @brief Create an LSC Credential.
  *
- * @param[in]   session     Pointer to GNUTLS session.
- * @param[in]   name        Name of LSC Credential.
- * @param[in]   comment     LSC Credential comment.
+ * @param[in]   session  Pointer to GNUTLS session.
+ * @param[in]   name     Name of LSC Credential.
+ * @param[in]   login    Login associated with name.
+ * @param[in]   comment  LSC Credential comment.
  *
  * @return 0 on success, -1 on error.
  */
 int
 omp_create_lsc_credential (gnutls_session_t* session,
                            const char* name,
+                           const char* login,
                            const char* comment)
 {
   int ret;
@@ -1591,15 +1593,19 @@ omp_create_lsc_credential (gnutls_session_t* session,
   if (comment)
     new_task_request = g_strdup_printf ("<create_lsc_credential>"
                                         "<name>%s</name>"
+                                        "<login>%s</login>"
                                         "<comment>%s</comment>"
                                         "</create_lsc_credential>",
                                         name,
+                                        login,
                                         comment);
   else
     new_task_request = g_strdup_printf ("<create_lsc_credential>"
                                         "<name>%s</name>"
+                                        "<login>%s</login>"
                                         "</create_lsc_credential>",
-                                        name);
+                                        name,
+                                        login);
 
   /* Send the request. */
 

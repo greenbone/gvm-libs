@@ -143,7 +143,8 @@ int
 omp_delete_config (gnutls_session_t*, const char*);
 
 int
-omp_create_lsc_credential (gnutls_session_t*, const char*, const char*);
+omp_create_lsc_credential (gnutls_session_t*, const char*, const char*,
+                           const char*);
 
 int
 omp_delete_lsc_credential (gnutls_session_t*, const char*);

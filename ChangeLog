@@ -1,3 +1,9 @@
+2009-12-30  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* omp/omp.c (omp_create_lsc_credential): Add login arg for updated OMP.
+
+	* omp/omp.h: Update header accordingly.
+
 2009-12-23  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* misc/scanners_utils.h: Copied header of implementation file to
