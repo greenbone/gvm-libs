@@ -1,5 +1,10 @@
 2010-01-07  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* hg/hg_utils.c (hg_resolv): Added TODO about incomplete resolution in
+	case of multiple A Records.
+
+2010-01-07  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* hg/hg_utils.c, hg/hg_utils.h: Formatting and documentation.
 
 2010-01-07  Felix Wolfsteller <felix.wolfsteller@intevation.de>

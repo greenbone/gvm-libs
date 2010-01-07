@@ -44,6 +44,11 @@ hg_resolv (char* hostname, struct in6_addr *in6addr, int family)
   retval = getaddrinfo (hostname, NULL, &hints, &ai);
   if (!retval)
     {
+      /** @TODO getaddrinfo: host might resolve to more than one ip.
+       *        In this case (ai->ai_next != NULL).
+       *        This should somehow be respected, probably needs changes to
+       *        interface.
+       */
       if (ai->ai_family == AF_INET)
         {
           in6addr->s6_addr32[0] = 0;
