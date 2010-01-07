@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
  */
 
 /**
@@ -35,26 +34,26 @@
 #include "hg_dns_axfr.h"
 
 
-int hg_test_syntax(char * hostname, int flags)
+int
+hg_test_syntax (char * hostname, int flags)
 {
  struct hg_globals * globals = malloc(sizeof(struct hg_globals));
  int err;
- 
+
  hostname = strdup(hostname);
  bzero(globals, sizeof(struct hg_globals));
  globals->flags = flags;
  globals->host_list = malloc(sizeof(struct hg_host));
  bzero(globals->host_list, sizeof(struct hg_host));
- 
+
  globals->tested = malloc(sizeof(struct hg_host));
  bzero(globals->tested, sizeof(struct hg_host));
- 
+
  globals->input = strdup(hostname);
  globals->marker = globals->input;
- 
+
  globals->distribute = 0;
 
- 
  err = hg_add_comma_delimited_hosts(globals, 0);
  free(hostname);
  hg_cleanup(globals);
@@ -64,11 +63,11 @@ int hg_test_syntax(char * hostname, int flags)
 
 /**
  * Inits a hg_globals struct with hostname and flags.
- * 
+ *
  * @return Fresh hg_globals.
  */
-struct hg_globals * 
-hg_init( char* hostname, int flags)
+struct hg_globals *
+hg_init (char* hostname, int flags)
 {
  struct hg_globals * globals = malloc(sizeof(struct hg_globals));
 
@@ -77,26 +76,25 @@ hg_init( char* hostname, int flags)
  globals->flags = flags;
  globals->host_list = malloc(sizeof(struct hg_host));
  bzero(globals->host_list, sizeof(struct hg_host));
- 
+
  globals->tested = malloc(sizeof(struct hg_host));
  bzero(globals->tested, sizeof(struct hg_host));
- 
+
  globals->input = strdup(hostname);
  globals->marker = globals->input;
- 
+
  globals->distribute = 0;
 
- 
  hg_add_comma_delimited_hosts(globals, 256);
  free(hostname);
  return(globals);
 }
 
-int hg_next_host(struct hg_globals * globals, struct in6_addr * ip,
-                 char * hostname, int sz)
+int
+hg_next_host (struct hg_globals * globals, struct in6_addr * ip,
+              char * hostname, int sz)
 {
   struct hg_host * host;
-
 
   if(!globals) return -1;
 
@@ -118,7 +116,6 @@ int hg_next_host(struct hg_globals * globals, struct in6_addr * ip,
   {
     struct hg_host * first = host;
     unsigned int i;
-
 
     i = 0;
 again:
@@ -158,7 +155,6 @@ again:
   {
     hg_dns_axfr_add_hosts(globals, host->domain);
   }
-
 
   if(!host->use_max || IN6_ARE_ADDR_EQUAL(&host->in6addr, &host->max6))
     host->tested = 1;
@@ -226,15 +222,16 @@ again:
 }
 
 /**
- * Frees all the hosts and info associated to the hg_globals globals.
+ * @brief Frees all the hosts and info associated to the hg_globals globals.
  */
-void hg_cleanup(struct hg_globals * globals)
+void
+hg_cleanup (struct hg_globals * globals)
 {
  struct hg_host * hosts = globals->host_list;
  struct hg_host * tested = globals->tested;
  free(globals->input);
  free(globals);
- 
+
  hg_hosts_cleanup(hosts);
  hg_hosts_cleanup(tested);
 }

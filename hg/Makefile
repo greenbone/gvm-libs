@@ -36,7 +36,7 @@ LO_OBJS = hg_utils.lo hg_add_hosts.lo hg_subnet.lo hg_filter.lo \
 all : libopenvas_hg.la
 
 test : libopenvas_hg.la test.c
-	$(CC) $(DEFS) $(include) $(CFLAGS) -Wall -I../misc test.c -o test -L.libs -lopenvas_hg $(LIBS)
+	$(CC) $(DEFS) $(include) $(CFLAGS) -Wall -I../misc test.c -o test -L.libs -lopenvas_base -lopenvas_misc -lopenvas_hg $(LIBS)
 
 install : libopenvas_hg.la
 	test -d $(DESTDIR)${libdir} || $(INSTALL_DIR) -m 755 $(DESTDIR)${libdir}
