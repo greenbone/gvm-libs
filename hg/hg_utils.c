@@ -26,7 +26,7 @@
 #include "hosts_gatherer.h"
 
 /**
- * Resolve an hostname
+ * @brief Resolve an hostname.
  */
 int
 hg_resolv (char* hostname, struct in6_addr *in6addr, int family)
@@ -36,58 +36,59 @@ hg_resolv (char* hostname, struct in6_addr *in6addr, int family)
   int    retval;
 
   *in6addr = in6addr_any;
-  /* first check whether it is a numeric host*/
-  memset(&hints, 0, sizeof(hints));
+  /* First check whether it is a numeric host. */
+  memset (&hints, 0, sizeof (hints));
   hints.ai_family = AF_INET6;
   hints.ai_flags = AI_V4MAPPED | AI_ALL | AI_NUMERICHOST;
 
-  retval = getaddrinfo(hostname, NULL, &hints, &ai);
-  if(!retval)
-  {
-    if(ai->ai_family == AF_INET)
+  retval = getaddrinfo (hostname, NULL, &hints, &ai);
+  if (!retval)
+    {
+      if (ai->ai_family == AF_INET)
+        {
+          in6addr->s6_addr32[0] = 0;
+          in6addr->s6_addr32[1] = 0;
+          in6addr->s6_addr32[2] = htonl(0xffff);
+          memcpy (&in6addr->s6_addr32[3], &((struct sockaddr_in *)ai->ai_addr)->sin_addr, sizeof (struct in6_addr));
+        }
+      else
+        {
+          memcpy (in6addr, &((struct sockaddr_in6 *)ai->ai_addr)->sin6_addr, sizeof (struct in6_addr));
+        }
+
+      freeaddrinfo (ai);
+      return 0;
+    }
+
+  /* First check whether it is an ipv4 host. */
+  memset (&hints, 0, sizeof (hints));
+  hints.ai_family = AF_INET;
+
+  retval = getaddrinfo (hostname, NULL, &hints, &ai);
+  if (!retval)
     {
       in6addr->s6_addr32[0] = 0;
       in6addr->s6_addr32[1] = 0;
       in6addr->s6_addr32[2] = htonl(0xffff);
-      memcpy(&in6addr->s6_addr32[3], &((struct sockaddr_in *)ai->ai_addr)->sin_addr, sizeof(struct in6_addr));
-    }
-    else
-    {
-      memcpy(in6addr, &((struct sockaddr_in6 *)ai->ai_addr)->sin6_addr, sizeof(struct in6_addr));
+      memcpy(&in6addr->s6_addr32[3], &((struct sockaddr_in *)ai->ai_addr)->sin_addr, sizeof(struct in_addr));
+      freeaddrinfo (ai);
+      return 0;
     }
 
-    freeaddrinfo(ai);
-    return 0;
-  }
-
-  /* first check whether it is a ipv4 host*/
-  memset(&hints, 0, sizeof(hints));
-  hints.ai_family = AF_INET;
-
-  retval = getaddrinfo(hostname, NULL, &hints, &ai);
-  if(!retval)
-  {
-    in6addr->s6_addr32[0] = 0;
-    in6addr->s6_addr32[1] = 0;
-    in6addr->s6_addr32[2] = htonl(0xffff);
-    memcpy(&in6addr->s6_addr32[3], &((struct sockaddr_in *)ai->ai_addr)->sin_addr, sizeof(struct in_addr));
-    freeaddrinfo(ai);
-    return 0;
-  }
-
-  /* first check whether it is a ipv6 host*/
-  if(family != AF_INET6)
+  /* Check whether it is an ipv6 host. */
+  if (family != AF_INET6)
     return -1;   /* returning in6addr_any */
-  memset(&hints, 0, sizeof(hints));
+
+  memset (&hints, 0, sizeof(hints));
   hints.ai_family = AF_INET6;
 
-  retval = getaddrinfo(hostname, NULL, &hints, &ai);
-  if(!retval)
-  {
-    memcpy(in6addr, &((struct sockaddr_in6 *)ai->ai_addr)->sin6_addr, sizeof(struct in6_addr));
-    freeaddrinfo(ai);
-    return 0;
-  }
+  retval = getaddrinfo (hostname, NULL, &hints, &ai);
+  if (!retval)
+    {
+      memcpy (in6addr, &((struct sockaddr_in6 *)ai->ai_addr)->sin6_addr, sizeof (struct in6_addr));
+      freeaddrinfo (ai);
+      return 0;
+    }
   return -1;  /* return in6addr_any*/
 }
 
@@ -100,7 +101,7 @@ hg_get_name_from_ip (struct in6_addr *ip, char * hostname, int sz)
   struct sockaddr_in6 s6addr;
   struct sockaddr *sa;
   int    len;
- 
+
   if(IN6_IS_ADDR_V4MAPPED(ip))
   {
     saddr.sin_family = AF_INET;
@@ -142,6 +143,9 @@ hg_get_name_from_ip (struct in6_addr *ip, char * hostname, int sz)
   return 0; /* We never fail */
 }
 
+/**
+ * @return 0 if adress info for \ref hostname could be found, 1 otherwise.
+ */
 int
 hg_valid_ip_addr (char *hostname)
 {
@@ -149,19 +153,18 @@ hg_valid_ip_addr (char *hostname)
   struct addrinfo *ai;
   int    retval;
 
-  memset(&hints, 0, sizeof(hints));
+  memset (&hints, 0, sizeof(hints));
   hints.ai_family = AF_INET6;
   hints.ai_flags = AI_V4MAPPED | AI_NUMERICHOST;
 
-  retval = getaddrinfo(hostname, NULL, &hints, &ai);
-  if(retval)
+  retval = getaddrinfo (hostname, NULL, &hints, &ai);
+  if (retval)
     return 1;
   else
-  {
-    freeaddrinfo(ai);
-    return 0;
-  }
-
+    {
+      freeaddrinfo (ai);
+      return 0;
+    }
 }
 
 /**

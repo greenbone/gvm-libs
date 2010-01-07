@@ -1,5 +1,17 @@
 2010-01-07  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* hg/hg_utils.c, hg/hg_utils.h: Formatting and documentation.
+
+2010-01-07  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* hg/host_gatherer.h: Formatting.
+
+	* hg/Makefile: For clean target, remove test executable.
+
+	* hg/test.c: Formatted, updated doc.
+
+2010-01-07  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* configure.in: Added comments.
 
 	* hg/host_gatherer.c, hg/host_gatherer.h: Formatting.
