@@ -74,5 +74,5 @@ hg_debug.o : hg_debug.c hosts_gatherer.h hg_debug.c
 distclean : clean
 
 clean :
-	@rm -f OBJ/* lib*.a *~ *core *.lo *.o lib*.la
+	@rm -f OBJ/* lib*.a *~ *core *.lo *.o lib*.la test
 	@rm -rf .libs

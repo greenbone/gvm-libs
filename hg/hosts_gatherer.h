@@ -69,9 +69,9 @@ struct hg_globals {
 	unsigned int	distribute;
 	};
 
-struct hg_globals * hg_init(char *, int);
-int hg_next_host(struct hg_globals *, struct in6_addr *, char *, int);
-void   hg_cleanup  (struct hg_globals *);
+struct hg_globals * hg_init (char *, int);
+int hg_next_host (struct hg_globals *, struct in6_addr *, char *, int);
+void hg_cleanup (struct hg_globals *);
 
 int hg_test_syntax(char * hostname, int flags);
 
