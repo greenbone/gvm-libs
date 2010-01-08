@@ -1,3 +1,16 @@
+2010-01-08  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* hg/hg_add_hosts.c (getaddrfamily, real_ip, range, hg_add_host)
+	(hg_add_comma_delimited_hosts, hg_add_ipv6hos_with_options):
+	Reformatting, doc and comments.
+	(real_ip) Added TODO. This function should at least be renamed into
+	contains_three_dots or the like.
+	Added todo about missing documentation of valid input strings to the
+	whole host resolution mechanisms.
+
+	* hg/hg_add_hosts.h, hg_debug.c, hg_filter.c, hg_filter.h, hg_subnet.h:
+	Reformatting, doc and comments.
+
 2010-01-07  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* hg/hg_utils.c (hg_resolv): Added TODO about incomplete resolution in

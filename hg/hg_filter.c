@@ -27,15 +27,15 @@
  * Returns 1 if the host must be filtered, that is, it must NOT be included in
  * the list.
  * Returns 0 if it must be included in the list.
- * 
+ *
  * @return 0 if host must be included, 1 host must not be included
  */
-int 
+int
 hg_filter_host (struct hg_globals* globals, char* hostname, struct in_addr addr)
 {
 #if DISABLED
  struct hg_host * list = globals->host_list;
- 
+
 /* 
  
  int i;
@@ -48,7 +48,7 @@ int len = strlen(hostname);
   for(i=0;i<len;i++)copy[i]=tolower(copy[i]);
 
  */
- 
+
  while(list->next)
  {
   if(list->use_max)
@@ -75,7 +75,7 @@ int len = strlen(hostname);
 
 /**
  * @brief Returns 1 if the subnet must NOT be tested
- * 
+ *
  * @return 1 if the subnet must not be tested.
  */
 int
@@ -83,7 +83,7 @@ hg_filter_subnet (struct hg_globals * globals, struct in_addr addr, int netmask)
 {
  struct hg_host * list = globals->tested;
  struct in_addr subnet;
- 
+
  while(list && list->next)
  {
   struct in_addr subnet_2;
@@ -104,7 +104,7 @@ hg_filter_subnet (struct hg_globals * globals, struct in_addr addr, int netmask)
 
 /**
  * @brief Returns 1 if the domain must NOT be tested
- * 
+ *
  * @return 1 if the domain must NOT be tested.
  */
 int

@@ -29,13 +29,21 @@
 #include "hg_filter.h"
 #include "hg_add_hosts.h"
 #include "hg_subnet.h"
-/*
- * Add a host of the form
+
+/**
+ * @file
+ * Functions to add hosts to a hg_globals host list.
  *
- * 'hostname' or 'xx.xx.xx.xx' or 'hostname/netmask' 
+ * Possible input values for host/hostname:
+ *
+ * 'hostname' or 'xx.xx.xx.xx' or 'hostname/netmask'
  * or 'xx.xx.xx.xx/netmask'
  * or '[xx|xx-xx].[xx|xx-xx].[xx|xx-xx].[xx|xx-xx]' (by Alex Butcher, Articon-Integralis AG)
- *
+ */
+/** @TODO Document what kind of input for ipv6 adresses is acceppted, move
+ *       description of valid "hostnames" to a better place (this is really
+ *       interesting for a user), document how to list multiple hosts (space,
+ *       comma, semicolon- separated?).
  */
 
 #define OCTETRANGE "%3d%*1[-]%3d"
@@ -45,10 +53,10 @@
 #define REMINDER "%s"
 
 /**
- * @param[out] family
+ * @param[out] family (AF_INET6 for ipv6, AF_INET for ipv4, -1 for invalid)
  *
  * @return 0 if (numeric) ip is a valid ipv4 or ipv6 address and set family to
- *         appropriate value, else return -1.
+ *         appropriate value, else return -1 and set family to -1.
  */
 static int
 getaddrfamily (char *ip, int *family)
@@ -56,34 +64,45 @@ getaddrfamily (char *ip, int *family)
   struct in_addr inaddr;
   struct in6_addr in6addr;
 
-  if(inet_pton(AF_INET6, ip, &in6addr) == 1)
-  {
-    *family = AF_INET6;
-    return 0;
-  }
-  else if(inet_aton(ip,&inaddr))
-  {
-    *family = AF_INET;
-    return 0;
-  }
+  if (inet_pton (AF_INET6, ip, &in6addr) == 1)
+    {
+      *family = AF_INET6;
+      return 0;
+    }
+  else if (inet_aton (ip,&inaddr))
+    {
+      *family = AF_INET;
+      return 0;
+    }
   *family = -1;
   return -1;
 }
 
+/** @TODO real_ip should not be used as a check whether a string describes an
+ *        ip or being improved. In current code, bogus.bugs.openvas.org is
+ *        considered as "real" ip. */
+/**
+ * @brief Counts numbers of dots ('.') in string s, returns 1 if 3 dots were
+ * @brief found, 0 otherwise.
+ *
+ * @param s Input string.
+ *
+ * @return 1 if 3 dots ('.') in \ref s present, 0 otherwise.
+ */
 static int
-real_ip(char * s)
+real_ip (char * s)
 {
- int i;
- int n = 0;
- for(i=0;s[i];i++)
- {
-  if(s[i] == '.') n ++;
- }
- 
- if(n == 3) 
-  return 1;
- else 
-  return 0;
+  int i;
+  int n = 0;
+  for (i = 0; s[i]; i++)
+    {
+      if (s[i] == '.') n++;
+    }
+
+  if (n == 3)
+    return 1;
+  else
+    return 0;
 }
 
 static int
@@ -127,7 +146,8 @@ range (char* data, int* s, int* e)
  return 0;
 }
 
-static int netmask_to_cidr_netmask(struct in_addr nm)
+static int
+netmask_to_cidr_netmask(struct in_addr nm)
 {
  int ret = 32;
 
@@ -140,6 +160,12 @@ static int netmask_to_cidr_netmask(struct in_addr nm)
  return ret;
 }
 
+/**
+ * @brief Adds host(s) to the hg_globals hostslist.
+ *
+ * @param[in,out] globals   Pointer to hg_globals struct to add hosts to.
+ * @param[in]     hostname  String describing host(s) to add.
+ */
 int
 hg_add_host (struct hg_globals * globals, char* hostname)
 {
@@ -165,29 +191,30 @@ hg_add_host (struct hg_globals * globals, char* hostname)
 
   *comp1 = *comp2 = *comp3 = *comp4 = '\0';
 
-  t = strchr(hostname, '-');
-  if(t != NULL)
+  t = strchr (hostname, '-');
+  if (t != NULL)
   {
     struct in_addr ip;
     t[0] = '\0';
-    if((inet_aton(hostname, &ip) == 0) || !real_ip(hostname))
-    {
-      t[0] = '-';
-      goto next;
-    }
+    // If string describing a host could not be transformed to an in_addr
+    // or does not contain three dots.
+    if ((inet_aton (hostname, &ip) == 0) || !real_ip (hostname))
+      {
+        t[0] = '-';
+        goto next;
+      }
 
-    if(real_ip(hostname) &&
-        real_ip(&(t[1])))
+    if (real_ip (hostname) && real_ip (&(t[1])))
     {
       struct in_addr start, end;
       struct in6_addr start6, end6;
 
-      hg_resolv(hostname, &start6, AF_INET);
-      hg_resolv(&(t[1]), &end6, AF_INET);
+      hg_resolv (hostname, &start6, AF_INET);
+      hg_resolv (&(t[1]), &end6, AF_INET);
       start.s_addr = start6.s6_addr32[3];
       end.s_addr = end6.s6_addr32[3];
 
-      if ( globals->flags & HG_DISTRIBUTE )
+      if (globals->flags & HG_DISTRIBUTE)
       {
         int jump;
         unsigned long diff;
@@ -198,22 +225,21 @@ hg_add_host (struct hg_globals * globals, char* hostname)
         else if ( diff > 128 ) jump = 10;
         else jump = 1;
 
-
-
-        for ( j = 0 ; j < jump ; j ++ )
+        for (j = 0 ; j < jump ; j ++)
         {
-          for ( i = j ; i <= diff ; i += jump )
+          for (i = j ; i <= diff ; i += jump)
           {
             struct in_addr ia;
-            ia.s_addr = htonl(ntohl(start.s_addr) + i);
-            if ( ntohl(ia.s_addr) > ntohl(end.s_addr) )break;
+            ia.s_addr = htonl (ntohl (start.s_addr) + i);
+            if (ntohl(ia.s_addr) > ntohl(end.s_addr))
+              break;
 
-            hg_add_host_with_options(globals, inet_ntoa(ia), ia, 1, 32, 1, &ia);
+            hg_add_host_with_options (globals, inet_ntoa (ia), ia, 1, 32, 1, &ia);
           }
         }
       }
       else
-        hg_add_host_with_options(globals, inet_ntoa(start), start, 1, 32, 1, &end);
+        hg_add_host_with_options (globals, inet_ntoa (start), start, 1, 32, 1, &end);
       return 0;
     }
     t[0] = '-';
@@ -221,53 +247,54 @@ hg_add_host (struct hg_globals * globals, char* hostname)
 
 next:
 
-  reminder = malloc(strlen(hostname));
+  reminder = malloc (strlen(hostname));
 
-  if((hostname[0] == '\'') &&
+  // Hostname wrapped by singe quotes ('')?
+  if ((hostname[0] == '\'') &&
       (hostname[strlen(hostname) - 1] == '\''))
-  {
-    unquote++;
-    goto noranges;
-  }
+    {
+      unquote++;
+      goto noranges;
+    }
 
   for (t = hostname; *t != '\0'; t ++)
-    if (! isdigit(*t) && *t != '-' && *t != '.')
+    if (! isdigit (*t) && *t != '-' && *t != '.')
       break;
 
   if (*t == '\0')
-    convs=sscanf(hostname, COMP DOT COMP DOT COMP DOT COMP REMINDER,
-        comp1, comp2, comp3, comp4, reminder);
+    convs = sscanf (hostname, COMP DOT COMP DOT COMP DOT COMP REMINDER,
+                    comp1, comp2, comp3, comp4, reminder);
   else
     convs = 0;
 
-  free(reminder);
-  if (convs != 4) goto noranges; /* there are definitely no ranges here, so
+  free (reminder);
+  if (convs != 4) goto noranges; /* There are definitely no ranges here, so
                                     skip all this */
 
-  /* try to convert components as OCTETRANGE (xxx-xxx) */
-  if(range(comp1, &o1first, &o1last) ||
+  /* Try to convert components as OCTETRANGE (xxx-xxx). */
+  if (range(comp1, &o1first, &o1last) ||
       range(comp2, &o2first, &o2last) ||
       range(comp3, &o3first, &o3last) ||
       range(comp4, &o4first, &o4last))
     goto noranges;
 
 
-  /* generate and add the range */
-  for(o1=o1first; o1<=o1last; o1++)
+  /* Generate and add the range. */
+  for (o1 = o1first; o1 <= o1last; o1++)
   {
-    for(o2=o2first; o2<=o2last; o2++)
+    for (o2 = o2first; o2 <= o2last; o2++)
     {
-      for(o3=o3first; o3<=o3last; o3++)
+      for (o3 = o3first; o3 <= o3last; o3++)
       {
-        for(o4=o4first; o4<=o4last; o4++)
+        for (o4 = o4first; o4 <= o4last; o4++)
         {
-          snprintf(rangehost,17,"%d.%d.%d.%d",o1,o2,o3,o4);
-          hg_resolv(rangehost, &ip6, AF_INET);
+          snprintf (rangehost, 17, "%d.%d.%d.%d", o1, o2, o3, o4);
+          hg_resolv (rangehost, &ip6, AF_INET);
           ip.s_addr = ip6.s6_addr32[3];
-          if(ip.s_addr != INADDR_NONE)
-          {
-            hg_add_host_with_options(globals, rangehost, ip, 0, 32,0,NULL);
-          }
+          if (ip.s_addr != INADDR_NONE)
+            {
+              hg_add_host_with_options (globals, rangehost, ip, 0, 32, 0, NULL);
+            }
         }
       }
     }
@@ -275,65 +302,65 @@ next:
   return 0;
 
 noranges:
-  if(unquote)
-  {
-    copy = malloc(strlen(hostname) - 1);
-    strncpy(copy, &(hostname[1]), strlen(&(hostname[1])) - 1);
-  }
+  if (unquote)
+    {
+      copy = malloc (strlen (hostname) - 1);
+      strncpy (copy, &(hostname[1]), strlen(&(hostname[1])) - 1);
+    }
   else
-  {
-    copy = malloc(strlen(hostname)+1);
-    strncpy(copy, hostname, strlen(hostname)+1);
-  }
+    {
+      copy = malloc (strlen (hostname) + 1);
+      strncpy (copy, hostname, strlen (hostname) + 1);
+    }
 
   hostname = copy;
 
-  t = strchr(hostname, '/');
-  if(t)
-  {
-    t[0] = '\0';
-    if((atoi(t+1) > 32) &&
-        inet_aton(t+1, &nm))
+  // Checks for slash, which might indicate cidr notation
+  t = strchr (hostname, '/');
+  if (t)
     {
-      cidr_netmask = netmask_to_cidr_netmask(nm);
+      t[0] = '\0';
+      if ((atoi(t+1) > 32) && inet_aton (t+1, &nm))
+      {
+        cidr_netmask = netmask_to_cidr_netmask (nm);
+      }
+      else
+        cidr_netmask = atoi (t+1);
+      if ((cidr_netmask < 1) || (cidr_netmask > 32))
+        cidr_netmask = 32;
     }
-    else
-      cidr_netmask = atoi(t+1);
-    if((cidr_netmask < 1) || (cidr_netmask > 32))
-      cidr_netmask = 32;
-  }
   ip.s_addr = INADDR_NONE;
   q = strchr (hostname, '[');
 
   if (q != NULL)
-  {
-    t = strchr (q, ']');
+    {
+      t = strchr (q, ']');
 
-    if (t != NULL)
-    {
-      t[0] = '\0';
-      hg_resolv (&q [1], &ip6, AF_INET6);
-      ip.s_addr = ip6.s6_addr32[3];
-      q[0] = '\0';
+      if (t != NULL)
+        {
+          t[0] = '\0';
+          hg_resolv (&q [1], &ip6, AF_INET6);
+          ip.s_addr = ip6.s6_addr32[3];
+          q[0] = '\0';
+        }
     }
-  }
   if (ip.s_addr == INADDR_NONE)
-  {
-    hg_resolv (hostname, &ip6, AF_INET6);
-    ip.s_addr = ip6.s6_addr32[3];
-  }
-  if( !IN6_ARE_ADDR_EQUAL(&ip6, &in6addr_any) && IN6_IS_ADDR_V4MAPPED(&ip6))
-  {
-    if(cidr_netmask == 32)
     {
-      hg_add_host_with_options(globals, hostname, ip, 0, cidr_netmask,0,NULL);
+      hg_resolv (hostname, &ip6, AF_INET6);
+      ip.s_addr = ip6.s6_addr32[3];
+    }
+  if (!IN6_ARE_ADDR_EQUAL (&ip6, &in6addr_any) && IN6_IS_ADDR_V4MAPPED (&ip6))
+  {
+    if (cidr_netmask == 32)
+    {
+      hg_add_host_with_options (globals, hostname, ip, 0, cidr_netmask, 0, NULL);
     }
     else
     {
-      struct in_addr first = cidr_get_first_ip(ip, cidr_netmask);
-      struct in_addr last = cidr_get_last_ip(ip, cidr_netmask);
+      struct in_addr first = cidr_get_first_ip (ip, cidr_netmask);
+      struct in_addr last = cidr_get_last_ip (ip, cidr_netmask);
 
-      if( (globals->flags & HG_DISTRIBUTE) != 0 && cidr_netmask <= 29 )
+      if ((globals->flags & HG_DISTRIBUTE) != 0 && cidr_netmask <= 29)
       {
         struct in_addr c_end;
         struct in_addr c_start;
@@ -347,38 +374,39 @@ noranges:
         c_start = first;
         c_end   = cidr_get_last_ip(c_start, cidr_netmask + addition);
 
-        for(;;)
+        for (;;)
         {
           int dobreak = 0;
 
-
-          if(ntohl(c_end.s_addr) >= ntohl(last.s_addr)) dobreak++;
-          hg_get_name_from_ip(&c_start6, hostname, sizeof(hostname));
+          if (ntohl (c_end.s_addr) >= ntohl (last.s_addr))
+            dobreak++;
+          hg_get_name_from_ip (&c_start6, hostname, sizeof (hostname));
 
           c_start.s_addr = c_start6.s6_addr32[3];
-          hg_add_host_with_options(globals, strdup(hostname),
+          hg_add_host_with_options (globals, strdup(hostname),
               c_start, 1, 32, 1,
               &c_end);
-          c_start.s_addr  = htonl(ntohl(c_end.s_addr) + 2);
-          c_end = cidr_get_last_ip(c_start, cidr_netmask + addition);
-          c_start.s_addr  = htonl(ntohl(c_start.s_addr) - 1);
+          c_start.s_addr  = htonl (ntohl(c_end.s_addr) + 2);
+          c_end = cidr_get_last_ip (c_start, cidr_netmask + addition);
+          c_start.s_addr  = htonl (ntohl (c_start.s_addr) - 1);
 
-          if(dobreak) break;
+          if (dobreak) break;
         }
       }
-      else hg_add_host_with_options(globals, hostname, first, 1,32,1,&last);
+      else hg_add_host_with_options (globals, hostname, first, 1, 32, 1, &last);
     }
   }
-  else if(!IN6_ARE_ADDR_EQUAL(&ip6, &in6addr_any))
-  {
-    hg_add_ipv6host_with_options(globals, hostname, &ip6, 0, 128, 0, &ip6);
-  }
+  else if (!IN6_ARE_ADDR_EQUAL (&ip6, &in6addr_any))
+    {
+      hg_add_ipv6host_with_options (globals, hostname, &ip6, 0, 128, 0, &ip6);
+    }
   else
-  {
-    free(copy);
-    return -1;
-  }
-  free(copy);
+    {
+      free (copy);
+      return -1;
+    }
+
+  free (copy);
   return 0;
 }
 
@@ -409,16 +437,15 @@ hg_add_comma_delimited_hosts (struct hg_globals* globals, int limit)
         }
 
       // Skip (leading) spaces
-      while ((*p == ' ')&&(p!='\0'))
+      while ((*p == ' ') && (p!='\0'))
         p++;
 
-      v = strchr(p+1, ',');
-      if ( v == NULL )
+      v = strchr (p+1, ',');
+      if (v == NULL)
         v = strchr(p+1, ';');
 
-      if( v != NULL )
+      if (v != NULL)
         v[0] = '\0';
-
 
       len = strlen(p);
       while (p[len-1]==' ')
@@ -427,29 +454,30 @@ hg_add_comma_delimited_hosts (struct hg_globals* globals, int limit)
           len --;
         }
 
-      /* Check whether ip is of type ipv6. Right now we support only ipv6 addresses without any range or netmask */
-      if(!getaddrfamily(p, &family))
+      /* Check whether ip is of type ipv6. Right now we support only ipv6
+       * addresses without any range or netmask. */
+      if (!getaddrfamily(p, &family))
       {
         if(family == AF_INET6)
-        {
-          inet_pton(AF_INET6, p, &ip6);
-          hg_add_ipv6host_with_options(globals, p, &ip6, 0, 128, 0, &ip6);
-        }
-        else
-        {
-          if(hg_add_host(globals, p) <  0)
           {
-            if ( v != NULL )
-              globals->marker = v + 1;
-            else
-              globals->marker = NULL; 
-            return -1;
+            inet_pton(AF_INET6, p, &ip6);
+            hg_add_ipv6host_with_options (globals, p, &ip6, 0, 128, 0, &ip6);
           }
-        }
+        else
+          {
+            if (hg_add_host (globals, p) < 0)
+            {
+              if ( v != NULL )
+                globals->marker = v + 1;
+              else
+                globals->marker = NULL; 
+              return -1;
+            }
+          }
       }
       else
       {
-        if(hg_add_host(globals, p) <  0)
+        if (hg_add_host (globals, p) <  0)
         {
           if ( v != NULL )
             globals->marker = v + 1;
@@ -459,12 +487,10 @@ hg_add_comma_delimited_hosts (struct hg_globals* globals, int limit)
         }
       }
 
-
-
       n ++;
       if (v != NULL)
         p = v+1;
-      else 
+      else
         p = NULL;
     }
 
@@ -482,26 +508,27 @@ hg_add_ipv6host_with_options (struct hg_globals * globals, char *  hostname,
   int i;
   char local_hostname[1024];
 
-  if (inet_ntop(AF_INET6, ip, local_hostname , sizeof(local_hostname)))
-    c_hostname = strdup(hostname);
+  if (inet_ntop (AF_INET6, ip, local_hostname, sizeof (local_hostname)))
+    c_hostname = strdup (hostname);
 
   for (i = 0; i < strlen (hostname); i++)
     c_hostname[i] = tolower (c_hostname[i]);
 
   host = globals->host_list;
-  while(host->next)host = host->next;
-  host->next = malloc(sizeof(struct hg_host));
-  bzero(host->next, sizeof(struct hg_host));
+  while (host->next)
+    host = host->next;
+  host->next = malloc (sizeof (struct hg_host));
+  bzero (host->next, sizeof (struct hg_host));
 
   host->hostname = c_hostname;
-  host->domain = hostname ? hg_name_to_domain(c_hostname):"";
+  host->domain = hostname ? hg_name_to_domain (c_hostname) : "";
   host->cidr_netmask = netmask;
   host->tested = 0;
   host->alive = alive;
   /*host->addr = ip;
   convipv4toipv4mappedaddr(host->addr, &host->in6addr);*/
-  memcpy(&host->in6addr, ip, sizeof(struct in6_addr));
-  host->use_max = use_max?1:0;
+  memcpy (&host->in6addr, ip, sizeof (struct in6_addr));
+  host->use_max = use_max ? 1 : 0;
 }
 
 void
