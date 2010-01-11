@@ -1,5 +1,11 @@
 2010-01-11  Michael Wiegand <michael.wiegand@intevation.de>
 
+	Committed VERSION file missing from the last commit.
+
+	* VERSION: Set to 3.0.1.
+
+2010-01-11  Michael Wiegand <michael.wiegand@intevation.de>
+
 	Preparing the openvas-libraries 3.0.1 release.
 
 	* CHANGES: Updated.
