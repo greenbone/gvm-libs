@@ -30,11 +30,8 @@ struct in_addr cidr_get_last_ip (struct in_addr, int);
 
 void hg_gather_subnet_hosts(struct hg_globals *, struct hg_host *);
 
-
-void 
-hg_gather_subnet_hosts(globals, host)
- struct hg_globals * globals;
- struct hg_host    * host;
+void
+hg_gather_subnet_hosts (struct hg_globals * globals, struct hg_host * host)
 {
  struct in_addr start;
  struct in_addr end;
@@ -46,19 +43,17 @@ hg_gather_subnet_hosts(globals, host)
  end   = cidr_get_last_ip (start, host->cidr_netmask);
  hg_get_name_from_ip(&in6addr, hostname, sizeof(hostname));
  start.s_addr = in6addr.s6_addr32[3];    /* This works only for ipv4 as of now */
- hg_add_host_with_options(globals, strdup(hostname), 
+ hg_add_host_with_options(globals, strdup(hostname),
 				  start, 1, 32, 1,
-				  &end);	
+				  &end);
 }
 
 
-struct in_addr 
-cidr_get_first_ip(addr, netmask)
- struct in_addr addr;
- int netmask;
+struct in_addr
+cidr_get_first_ip (struct in_addr addr, int netmask)
 {
-#if DANGEROUS 
- 
+#if DANGEROUS
+
  struct in_addr ret;
  /*
   * Netmask is the integer that the 
@@ -79,26 +74,22 @@ cidr_get_first_ip(addr, netmask)
 #endif
 }
 
-struct in_addr 
-cidr_get_last_ip(start, netmask)
- struct in_addr start;
- int netmask;
+struct in_addr
+cidr_get_last_ip (struct in_addr start, int netmask)
 {
  struct in_addr ret;
- /*
-  * The last IP is the first IP plus
-  * 2 ^ (32 - netmask ) - 1
-  */
+ /* The last IP is the first IP plus
+  * 2 ^ (32 - netmask ) - 1 */
  ret.s_addr = ntohl(start.s_addr);
  ret.s_addr >>= (32 - netmask);
  ret.s_addr++;
  ret.s_addr <<= (32 - netmask);
- 
+
  if(netmask != 31)
   ret.s_addr-=2; /* skip the broadcast */
  else
   ret.s_addr-=1; /* skip the broadcast */
- 
+
  ret.s_addr = htonl(ret.s_addr);
  return(ret);
 }

@@ -1,3 +1,8 @@
+2010-01-11  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* hg/hg_add_hosts.c, hg/hg_dns_axfr.c, hg/hg_subnet.c: Reformatting,
+	* doc and todos added.
+
 2010-01-08  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* hg/hg_add_hosts.c (getaddrfamily, real_ip, range, hg_add_host)

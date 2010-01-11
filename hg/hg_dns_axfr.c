@@ -53,8 +53,7 @@
 
 /* The HG_GET16 macro and the hg_get16 function were copied from glibc 2.7
  * (include/arpa/nameser.h (NS_GET16) and resolv/ns_netint.c (ns_get16)) to
- *  avoid using private glibc functions.
- */
+ *  avoid using private glibc functions. */
 
 # define HG_GET16(s, cp)                \
   do {                                  \
@@ -78,10 +77,7 @@ hg_get16(const u_char *src)
 }
 
 static u_char *
-hg_dns_axfr_expand_name(cp, msg, name, namelen)
-	u_char *cp, *msg;
-	char *name;
-        int namelen;
+hg_dns_axfr_expand_name (u_char* cp, u_char* msg, char* name, int namelen)
 {
 	int n;
 
@@ -95,11 +91,9 @@ hg_dns_axfr_expand_name(cp, msg, name, namelen)
 }
 
 static char *
-hg_dns_axfr_add_host(globals, cp, msg)
-	struct hg_globals * globals;
-	u_char *cp, *msg;
+hg_dns_axfr_add_host (struct hg_globals * globals, u_char* cp, u_char* msg)
 {
- 	int type;
+	int type;
 	char name[MAXDNAME];
 
 	if ((cp = (u_char *)hg_dns_axfr_expand_name(cp, msg, name, sizeof(name))) == NULL)
@@ -117,54 +111,47 @@ hg_dns_axfr_add_host(globals, cp, msg)
 }
 
 
-/*
- * Asks to the nameserver the names of the
- * name servers that are taking care of
- * the domain we are interested in. Returns the
- * length of the answer
+/**
+ * @brief Asks to the nameserver the names of the name servers that are taking
+ * @brief care of the domain we are interested in.
+ *
+ * @return The length of the answer.
  */
 static int
- hg_dns_get_nameservers(globals, domain, answer)
-  struct hg_globals * globals;
-  char 		    * domain;
-  querybuf	    * answer;
+hg_dns_get_nameservers (struct hg_globals * globals, char* domain,
+                        querybuf* answer)
 {
  int msglen;
  querybuf buffer;
- 
+
  msglen = res_mkquery(QUERY, domain, C_IN, T_NS, NULL, 0, NULL, buffer.qb2,
- 		      sizeof(buffer));
+		      sizeof(buffer));
  if(msglen < 0) return(-1);
  msglen = res_send(buffer.qb2, msglen, answer->qb2, sizeof(*answer));
  if(msglen < 0) return(-1);
  return(msglen);
 }
 
-/*
- * Decodes the nameserver reply and put
- * the list of nameservers into a struct
+/**
+ * @brief Decodes the nameserver reply and put the list of nameservers into a
+ * @brief struct.
  */
 static int
- hg_dns_read_ns_from_answer(domainname, answer, ns, msglen)
-  char * domainname;
-  querybuf answer;
-  struct hg_host ** ns;
-  int msglen;
+hg_dns_read_ns_from_answer (char * domainname, querybuf answer,
+                            struct hg_host ** ns, int msglen)
 {
  struct hg_host * host;
  int count;
  u_char * cp;
- 
+
  count = ntohs(answer.qb1.ancount) + ntohs(answer.qb1.nscount) +
- 	 ntohs(answer.qb1.arcount);
+	 ntohs(answer.qb1.arcount);
  if(!count||answer.qb1.rcode != NOERROR)return(-1);
  cp = (u_char *)answer.qb2 + 12; 
  if(ntohs(answer.qb1.qdcount) > 0)
       cp += dn_skipname(cp, answer.qb2 + msglen) + QFIXEDSZ;
-  
- /*
-  * Now adding the nameservers into our host list
-  */
+
+  /* Now adding the nameservers into our host list. */
   host = malloc(sizeof(struct hg_host));
   bzero(host, sizeof(struct hg_host));
   while(count)
@@ -190,8 +177,8 @@ static int
       {
        if(host && host->hostname && !strcasecmp(host->hostname, name))ok = 0;
        t = t->next;
-      }	
-     
+      }
+
      if(ok)
      {
       int len;
@@ -224,19 +211,16 @@ static int
  *ns = host;
  return(0);
 }
-     
-/*
- * Checks that we have the IP addresses
- * of all the NS in our list
- *
+
+/**
+ * @brief Checks that we have the IP addresses of all the NS in our list.
  */
 static void
- hg_dns_fill_ns_addrs(ns)
-  struct hg_host * ns;
+hg_dns_fill_ns_addrs (struct hg_host * ns)
 {
  struct hg_host * t = ns;
  struct in6_addr in6addr;
- 
+
  while(t && t->next)
  {
   hg_resolv(t->hostname, &in6addr, AF_INET);
@@ -247,10 +231,7 @@ static void
 
 
 static int
- hg_dns_axfr_decode(globals, answer, limit)
- struct hg_globals * globals;
- querybuf *answer;
- u_char * limit;
+hg_dns_axfr_decode (struct hg_globals * globals, querybuf *answer, u_char * limit)
 {
   HEADER * hp = (HEADER *)answer;
   u_char * cp;
@@ -260,22 +241,18 @@ static int
   ancount = ntohs(hp->ancount);
   nscount = ntohs(hp->nscount);
   arcount = ntohs(hp->arcount);
-  
+
   if(!(qdcount + ancount + nscount + arcount))return(-1);
   cp = (u_char *)answer + HFIXEDSZ;
   while(qdcount--)cp += dn_skipname(cp, limit) + QFIXEDSZ;
   hg_dns_axfr_add_host(globals, cp, answer);
-  
+
  return(0);
 }
- 
+
 static int
- hg_dns_axfr_query(globals, domain, ns, answer, limit)
-struct hg_globals * globals;
-char * domain;
-struct hg_host * ns;
-querybuf * answer;
-u_char ** limit;
+hg_dns_axfr_query (struct hg_globals * globals, char * domain,
+                   struct hg_host * ns, querybuf * answer, u_char ** limit)
 {
  int soc;
  int msglen;
@@ -291,7 +268,7 @@ u_char ** limit;
 
  msglen = res_mkquery(QUERY, domain, C_IN, T_AXFR, NULL, 0, NULL,
  	  	      query.qb2, sizeof(query));
-		      
+
  if(msglen < 0)return(-1);
  bzero(&addr, sizeof(struct sockaddr_in));
  addr.sin_family = AF_INET;
@@ -310,12 +287,12 @@ u_char ** limit;
   close(soc);
   return(-1);
  }
- 
+
  while(!finished)
  {
  fd_set rd;
  struct timeval tv = {0, 5};
- 
+
  cp = (u_char *)answer;
  FD_ZERO(&rd);
  FD_SET(soc, &rd);
@@ -338,7 +315,7 @@ u_char ** limit;
  {
   int num_read;
   int left;
-  
+
   left = len;
   while(left > 0)
   {
@@ -377,13 +354,11 @@ else finished = 1;
 
 
 
-/*
+/**
  * Our "main" function regarding DNS AXFR
- */	    
+ */
 void
- hg_dns_axfr_add_hosts(globals, domain)
-  struct hg_globals * globals;
-  char * domain;
+hg_dns_axfr_add_hosts (struct hg_globals * globals, char * domain)
 {
  int msglen;
  querybuf answer;
@@ -397,7 +372,7 @@ void
  if(msglen < 0)return;
  if(hg_dns_read_ns_from_answer(domain, answer, &ns, msglen)<0)return;
  hg_dns_fill_ns_addrs(ns);
- 
+
  bzero(&answer, sizeof(answer));
 #ifdef DEBUG_HIGH
  hg_dump_hosts(ns);
