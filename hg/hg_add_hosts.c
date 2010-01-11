@@ -178,7 +178,7 @@ netmask_to_cidr_netmask (struct in_addr nm)
  *
  * @TODO verify @return 0 if successfull, -1 otherwise?
  */
-int
+static int
 hg_add_host (struct hg_globals * globals, char* hostname)
 {
   int cidr_netmask = 32;
