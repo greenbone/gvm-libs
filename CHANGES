@@ -1,3 +1,21 @@
+openvas-libraries 3.0.1 (2010-01-11)
+
+This is the first maintenance release of the openvas-libraries module for the
+Open Vulnerability Assessment System (OpenVAS) 3.0 series.
+
+It contains an update to the OMP API and solves an issue that raised the version
+dependency on GnuTLS unnecessarily.
+
+Many thanks to everyone who has contributed to this release:
+Matthew Mundell, Michael Wiegand and Felix Wolfsteller
+
+Main changes compared to 3.0.0:
+
+* The OMP API has been updated.
+* An unnecessary GnuTLS call has been removed.
+* Minor code cleanups.
+
+
 openvas-libraries 3.0.0 (2009-12-18)
 
 This is the 3.0.0 release of the openvas-libraries module for the Open
