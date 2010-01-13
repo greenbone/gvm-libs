@@ -30,12 +30,33 @@
  * This file contains the protos for \ref settings.c
  */
 
-#ifndef _SETTINGS_H
-#define _SETTINGS_H
+#ifndef _OPENVAS_LIBRARIES_BASE_SETTINGS_H
+#define _OPENVAS_LIBRARIES_BASE_SETTINGS_H
 
 #include <glib.h>
 
-GHashTable *
-get_all_settings (const gchar *, const gchar *);
+typedef struct
+{
+  gchar *group_name;
+  GKeyFile *key_file;
+  gchar **keys;
+  gchar **current_key;
+  gchar **last_key;
+} settings_iterator_t;
 
-#endif /* not _SETTINGS_H */
+int
+init_settings_iterator (settings_iterator_t *, const char *, const char *);
+
+void
+cleanup_settings_iterator (settings_iterator_t *);
+
+int
+settings_iterator_next (settings_iterator_t *);
+
+const gchar *
+settings_iterator_name (settings_iterator_t *);
+
+const gchar *
+settings_iterator_value (settings_iterator_t *);
+
+#endif /* not _OPENVAS_LIBRARIES_BASE_SETTINGS_H */

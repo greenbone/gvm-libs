@@ -1,3 +1,17 @@
+2010-01-13  Matthew Mundell <matthew.mundell@intevation.de>
+
+	Switch to using GKeyFile to represent settings.  In the process hide
+	this underlying type from the settings user.
+
+	* base/settings.c (get_all_settings): Remove.
+	(init_settings_iterator, cleanup_settings_iterator)
+	(settings_iterator_next, settings_iterator_name)
+	(settings_iterator_value): New functions.
+
+	* base/settings.h: Update headers accordingly.  Make header check
+	symbol more unique.
+	(settings_iterator_t): New type.
+
 2010-01-11  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post-release version bump.

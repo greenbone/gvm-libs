@@ -37,42 +37,41 @@
 #include "settings.h"
 
 /**
- * @brief Returns a HashTable of setting retrieved from a given group of
- * an configuration file.
+ * @brief Initialise a settings iterator.
  *
- * @param filename The complete name of the configuration file.
- * @param group The name of the group.
+ * @param[in]  iterator  Settings iterator.
+ * @param[in]  filename  Complete name of the configuration file.
+ * @param[in]  group     Name of the group in the file.
  *
- * @return A pointer to a GHashTable containing key/value pairs of all
- * settings found in the group or NULL if the file contents could not be
- * accessed. The HashTable should be freed with g_hash_table_destroy() when no
- * longer needed.
+ * @return 0 success, -1 error.
  */
-GHashTable *
-get_all_settings (const gchar * filename, const gchar * group)
+int
+init_settings_iterator (settings_iterator_t *settings, const char *filename,
+                        const char *group)
 {
-  g_assert (filename);
-  g_assert (group);
-
-  GKeyFile* settingskeyfile = g_key_file_new ();
   GError* error = NULL;
-  gchar** keys = NULL;
-  GHashTable* settings = NULL;
-  int i;
+  gsize keys_length;
 
-  if (! g_key_file_load_from_file (settingskeyfile, filename,
-                                   G_KEY_FILE_NONE, &error))
+  if (filename == NULL || group == NULL)
+    return -1;
+
+  settings->key_file = g_key_file_new ();
+
+  if (!g_key_file_load_from_file (settings->key_file, filename, G_KEY_FILE_NONE,
+                                  &error))
     {
-      g_warning ("Failed to load configuration from %s: %s", filename,
+      g_warning ("Failed to load configuration from %s: %s",
+                 filename,
                  error->message);
-      g_key_file_free (settingskeyfile);
       g_error_free (error);
-      return NULL;
+      g_key_file_free (settings->key_file);
+      return -1;
     }
 
-  keys =  g_key_file_get_keys (settingskeyfile, group, NULL, &error);
+  settings->keys = g_key_file_get_keys (settings->key_file, group, &keys_length,
+                                        &error);
 
-  if (keys == NULL)
+  if (settings->keys == NULL)
     {
       if (error)
         {
@@ -80,24 +79,71 @@ get_all_settings (const gchar * filename, const gchar * group)
                      filename, error->message);
           g_error_free (error);
         }
-      g_key_file_free (settingskeyfile);
-      return NULL;
+      g_key_file_free (settings->key_file);
+      return -1;
     }
 
-  settings = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                    g_free, g_free);
+  settings->current_key = settings->keys - 1;
+  settings->last_key = settings->keys + keys_length - 1;
+  settings->group_name = g_strdup (group);
 
-  for (i = 0; i < g_strv_length (keys); i++)
-    {
-      gchar* value = g_key_file_get_value (settingskeyfile, group,
-                                           keys[i], &error);
-      g_hash_table_insert (settings, g_strdup (keys[i]), g_strdup (value));
-      g_free (value);
-    }
-
-  g_strfreev (keys);
-  g_key_file_free (settingskeyfile);
-
-  return settings;
+  return 0;
 }
 
+/**
+ * @brief Cleanup a settings iterator.
+ *
+ * @param[in]  iterator  Settings iterator.
+ */
+void
+cleanup_settings_iterator (settings_iterator_t *settings)
+{
+  g_free (settings->group_name);
+  g_strfreev (settings->keys);
+  g_key_file_free (settings->key_file);
+}
+
+/**
+ * @brief Increment an iterator.
+ *
+ * @param[in]  iterator  Settings iterator.
+ *
+ * @return TRUE if there was a next item, else FALSE.
+ */
+gboolean
+settings_iterator_next (settings_iterator_t *settings)
+{
+  if (settings->current_key == settings->last_key)
+    return FALSE;
+  settings->current_key++;
+  return TRUE;
+}
+
+/**
+ * @brief Get the name from a settings iterator.
+ *
+ * @param[in]  iterator  Settings iterator.
+ *
+ * @return Name of current key.
+ */
+const gchar *
+settings_iterator_name (settings_iterator_t *settings)
+{
+  return *settings->current_key;
+}
+
+/**
+ * @brief Get the value from a settings iterator.
+ *
+ * @param[in]  iterator  Settings iterator.
+ *
+ * @return Value of current key.
+ */
+const gchar *
+settings_iterator_value (settings_iterator_t *settings)
+{
+  return g_key_file_get_value (settings->key_file,
+                               settings->group_name,
+                               *settings->current_key,
+                               NULL);
+}
