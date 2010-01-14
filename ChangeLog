@@ -1,3 +1,20 @@
+2010-01-14  Matthew Mundell <matthew.mundell@intevation.de>
+
+	Add support for modifying the scanner configuration file.
+
+	* base/settings.c (settings_init, settings_cleanup, settings_set)
+	(settings_save, init_settings_iterator): New functions.
+	(init_settings_iterator): Move key_file init to settings_init.
+	(cleanup_settings_iterator): Call through to settings cleanup.
+	(settings_iterator_next, settings_iterator_name): Rename iterator param.
+	(settings_iterator_value): Get fields from settings.
+
+	* base/settings.h: Update headers accordingly.  Make header style more
+	standard.
+	(settings_t): New type.
+	(settings_iterator_t): Move file fields to settings_t and include a
+	settings_t.
+
 2010-01-13  Matthew Mundell <matthew.mundell@intevation.de>
 
 	Switch to using GKeyFile to represent settings.  In the process hide

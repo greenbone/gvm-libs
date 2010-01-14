@@ -3,10 +3,11 @@
  * Description: API (structs and protos) for configuration file management
  *
  * Authors:
+ * Matthew Mundell <matthew.mundell@intevation.de>
  * Michael Wiegand <michael.wiegand@intevation.de>
  *
  * Copyright:
- * Copyright (C) 2009 Greenbone Networks GmbH
+ * Copyright (C) 2010 Greenbone Networks GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -37,26 +38,28 @@
 
 typedef struct
 {
+  gchar *file_name;
   gchar *group_name;
   GKeyFile *key_file;
+} settings_t;
+
+int settings_init (settings_t *, const gchar *, const gchar *);
+void settings_cleanup (settings_t *);
+void settings_set (settings_t *, const gchar *, const gchar *);
+int settings_save (settings_t *);
+
+typedef struct
+{
   gchar **keys;
+  settings_t settings;
   gchar **current_key;
   gchar **last_key;
 } settings_iterator_t;
 
-int
-init_settings_iterator (settings_iterator_t *, const char *, const char *);
-
-void
-cleanup_settings_iterator (settings_iterator_t *);
-
-int
-settings_iterator_next (settings_iterator_t *);
-
-const gchar *
-settings_iterator_name (settings_iterator_t *);
-
-const gchar *
-settings_iterator_value (settings_iterator_t *);
+int init_settings_iterator (settings_iterator_t *, const gchar *, const gchar *);
+void cleanup_settings_iterator (settings_iterator_t *);
+int settings_iterator_next (settings_iterator_t *);
+const gchar *settings_iterator_name (settings_iterator_t *);
+const gchar *settings_iterator_value (settings_iterator_t *);
 
 #endif /* not _OPENVAS_LIBRARIES_BASE_SETTINGS_H */
