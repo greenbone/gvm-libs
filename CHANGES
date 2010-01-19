@@ -1,3 +1,20 @@
+openvas-libraries 3.0.2 (2010-01-19)
+
+This is the second maintenance release of the openvas-libraries module for the
+Open Vulnerability Assessment System (OpenVAS) 3.0 series.
+
+It adds support for modifying the scanner configuration file through API calls,
+for example for use in the openvas-administrator.
+
+Many thanks to everyone who has contributed to this release:
+Matthew Mundell and Michael Wiegand.
+
+Main changes compared to 3.0.1:
+
+* Support for modifying scanner configuration files has been added.
+* The API for retrieving settings has been improved.
+
+
 openvas-libraries 3.0.1 (2010-01-11)
 
 This is the first maintenance release of the openvas-libraries module for the
