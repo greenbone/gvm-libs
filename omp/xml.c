@@ -160,7 +160,7 @@ add_attribute (entity_t entity, const char* name, const char* value)
 /**
  * @brief Free an entity, recursively.
  *
- * @param[in]  entity  The entity.
+ * @param[in]  entity  The entity, can be NULL.
  */
 void
 free_entity (entity_t entity)
@@ -572,6 +572,69 @@ int
 read_entity (gnutls_session_t* session, entity_t* entity)
 {
   return read_entity_and_string (session, entity, NULL);
+}
+
+/**
+ * @brief Print an XML entity for g_slist_foreach to a GString.
+ *
+ * @param[in]  entity  The entity, as a gpointer.
+ * @param[in]  string  The stream to which to print, as a gpointer.
+ */
+static void
+foreach_print_entity_to_string (gpointer entity, gpointer string)
+{
+  print_entity_to_string ((entity_t) entity, (GString*) string);
+}
+
+/**
+ * @brief Print an XML attribute for g_hash_table_foreach to a GString.
+ *
+ * @param[in]  name    The attribute name.
+ * @param[in]  value   The attribute value.
+ * @param[in]  string  The string to which to print.
+ */
+static void
+foreach_print_attribute_to_string (gpointer name, gpointer value,
+                                   gpointer string)
+{
+  g_string_append_printf ((GString*) string, " %s=\"%s\"", (char*) name,
+                          (char*) value);
+}
+
+/**
+ * @brief Print an XML entity tree to a GString, appending it if string is not
+ * @brief empty.
+ *
+ * @param[in]      entity  Entity tree to print to string.
+ * @param[in,out]  string  String to write to (will be created if NULL).
+ */
+void
+print_entity_to_string (entity_t entity, GString* string)
+{
+  gchar* text_escaped = NULL;
+  g_string_append_printf (string, "<%s", entity->name);
+  if (entity->attributes && g_hash_table_size (entity->attributes))
+    g_hash_table_foreach (entity->attributes,
+                          foreach_print_attribute_to_string,
+                          string);
+  g_string_append_printf (string, ">");
+  text_escaped = g_markup_escape_text (entity->text, -1);
+  g_string_append_printf (string, "%s", text_escaped);
+  g_free (text_escaped);
+  g_slist_foreach (entity->entities, foreach_print_entity_to_string, string);
+  g_string_append_printf (string, "</%s>", entity->name);
+}
+
+/**
+ * @brief Print an XML entity tree to string.
+ *
+ * @param[in]  string    The string to which to print.
+ * @param[in]  entities  The entities.
+ */
+void
+print_entities_to_string (GString* string, entities_t entities)
+{
+  g_slist_foreach (entities, foreach_print_entity_to_string, string);
 }
 
 /**

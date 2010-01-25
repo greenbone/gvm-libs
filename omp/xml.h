@@ -94,4 +94,10 @@ read_entity_and_text (gnutls_session_t*, entity_t*, char**);
 int
 read_entity (gnutls_session_t*, entity_t*);
 
+void
+print_entity_to_string (entity_t entity, GString* string);
+
+void
+print_entities_to_string (GString* string, entities_t entities);
+
 #endif /* not _OPENVAS_LIBRARIES_XML_H */
