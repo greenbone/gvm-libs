@@ -1,14 +1,13 @@
-2010-01-25  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+2010-01-26  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
-	Added functionality to print an xml entity tree to a string.
+	* hg/hg_add_hosts.c (range): Doc, renamed parameters.
+	(netmask_to_cidr_netmask): Added doc, minor cosmetic.
+	
+	* hg/hg_filter.c: Minor cosmetics.
 
-	* omp/xml.c (free_entity): Tiny doc change.
-	(foreach_print_entity_to_string, foreach_print_attribute_to_string)
-	(print_entity_to_string, print_entities_to_string): New functions to
-	print an xml entity tree to string.
-
-	* omp/xml.h (print_entity_to_string, print_entitites_to_string): Protos
-	for new functions.
+	* hg/hg_subnet.c: Include header file, remove forward declarations,
+	minor cosmetics.
+	(hg_gather_subnet_hosts): Marked a comment about IPv6 as TODO.
 
 2010-01-19  Michael Wiegand <michael.wiegand@intevation.de>
 

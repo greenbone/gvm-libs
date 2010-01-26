@@ -49,7 +49,7 @@
 #define OCTETRANGE "%3d%*1[-]%3d"
 #define OCTET "%3d"
 #define DOT "%*1[.]"
-#define COMP "%7[0-9-]"  
+#define COMP "%7[0-9-]"
 #define REMINDER "%s"
 
 /**
@@ -108,7 +108,7 @@ real_ip (char * s)
 /**
  * @brief From a string representation of an ips octet range (like 2-10)
  * @brief retrieves start (like 2) and end (10) of the range. Works with single
- * @brief numbers, too.
+ * @brief numbers (like 2), too.
  *
  * @param[in]  data Input string (like "2-13", "22-1"). Can also be a single
  *                  number. Numbers have been between 0 and 255.
@@ -118,7 +118,7 @@ real_ip (char * s)
  * @return 0 on success, -1 if input is not a valid range.
  */
 static int
-range (char* data, int* s, int* e)
+range (char* data, int* start, int* end)
 {
  int convs;
  int first, last;
@@ -151,21 +151,30 @@ range (char* data, int* s, int* e)
     first ^= last;
   }
 
- if (s) *s = first;
- if (e) *e = last;
+ if (start) *start = first;
+ if (end) *end = last;
  return 0;
 }
 
+/**
+ * @brief Transforms a netmask in dot notation (e.g. 255.255.255.0) to a cidr
+ * @brief "number" (e.g. 24).
+ *
+ * @param[in] nm Netmask to transform into cidr.
+ *
+ * @return cidr notation "number" (between 0 and 32).
+ */
 static int
 netmask_to_cidr_netmask (struct in_addr nm)
 {
   int ret = 32;
 
+  // Start looking from end how many 0 bits we have.
   nm.s_addr = ntohl (nm.s_addr);
   while (!(nm.s_addr & 1))
     {
       ret--;
-      nm.s_addr >>=1;
+      nm.s_addr >>= 1;
     }
   return ret;
 }

@@ -15,13 +15,12 @@
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
  */
 
 #include <string.h> /* for strcmp */
 
 #include "hosts_gatherer.h"
-#include  "hg_subnet.h"
+#include "hg_subnet.h"
 
 /**
  * Returns 1 if the host must be filtered, that is, it must NOT be included in
@@ -36,8 +35,7 @@ hg_filter_host (struct hg_globals* globals, char* hostname, struct in_addr addr)
 #if DISABLED
  struct hg_host * list = globals->host_list;
 
-/* 
- 
+/*
  int i;
 
  char * copy;
@@ -46,7 +44,6 @@ int len = strlen(hostname);
  strncpy(copy, hostname, len);
  
   for(i=0;i<len;i++)copy[i]=tolower(copy[i]);
-
  */
 
  while(list->next)
@@ -55,7 +52,7 @@ int len = strlen(hostname);
   {
    if((ntohl(addr.s_addr) >= ntohl(list->min.s_addr))&&
       (ntohl(addr.s_addr) <= ntohl(list->max.s_addr)))
-      	{
+	{
 	/* free(copy); */
 	 return 1;
 	}
@@ -74,7 +71,7 @@ int len = strlen(hostname);
 
 
 /**
- * @brief Returns 1 if the subnet must NOT be tested
+ * @brief Returns 1 if the subnet must NOT be tested.
  *
  * @return 1 if the subnet must not be tested.
  */
@@ -102,20 +99,24 @@ hg_filter_subnet (struct hg_globals * globals, struct in_addr addr, int netmask)
  return(0);
 }
 
+
 /**
- * @brief Returns 1 if the domain must NOT be tested
+ * @brief Returns 1 if the domain must NOT be tested.
  *
  * @return 1 if the domain must NOT be tested.
  */
 int
 hg_filter_domain (struct hg_globals* globals, char* domain)
 {
- struct hg_host * list = globals->tested;
- if(!domain)return(0);
- while(list && list->next)
- {
-  if(list->domain)if(!strcmp(list->domain, domain))return(1);
-  list = list->next;
- }
- return(0);
+  struct hg_host * list = globals->tested;
+  if (!domain)
+    return (0);
+  while (list && list->next)
+    {
+      if (list->domain)
+        if (!strcmp (list->domain, domain))
+          return (1);
+      list = list->next;
+    }
+  return (0);
 }
