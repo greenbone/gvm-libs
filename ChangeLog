@@ -1,5 +1,12 @@
 2010-01-26  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* misc/openvas_logging.c (openvas_syslog_func): New logging function.
+	Plain wrapper to syslog, does not touch the message.
+	(setup_log_handlers) [0]: Register openvas_syslog_func in case the
+	filename is "syslog".
+
+2010-01-26  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* hg/hg_add_hosts.c (range): Doc, renamed parameters.
 	(netmask_to_cidr_netmask): Added doc, minor cosmetic.
 	

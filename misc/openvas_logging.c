@@ -41,6 +41,7 @@
 #include <stdio.h> /* for fprintf */
 #include <string.h> /* for strlen */
 #include <stdlib.h> /* for atoi */
+#include <syslog.h> /* for syslog */
 #include <unistd.h> /* for getpid */
 #include <libgen.h>
 #include <errno.h>
@@ -55,12 +56,12 @@
  */
 typedef struct
 {
-  gchar *log_domain;         ///< Affected logdomain e.g libnasl.
-  gchar *prepend_string;     ///< Prepend this string before every message.
+  gchar *log_domain;          ///< Affected logdomain e.g libnasl.
+  gchar *prepend_string;      ///< Prepend this string before every message.
   gchar *prepend_time_format; ///< If prependstring has %t, format for strftime.
-  gchar *log_file;           ///< Where to log to.
+  gchar *log_file;            ///< Where to log to.
   GLogLevelFlags *default_level; ///< What severity level to use as default.
-  GIOChannel *log_channel;   ///< Gio Channel - FD holder for logfile.
+  GIOChannel *log_channel;    ///< Gio Channel - FD holder for logfile.
 } openvas_logging_t;
 
 
@@ -286,6 +287,48 @@ openvas_log_silent (const char *log_domain, GLogLevelFlags log_level,
                     const char *message, gpointer openvas_log_config_list)
 {
   return;
+}
+
+/**
+ * @brief Sends message to syslog.
+ *
+ * @param log_domain (ignored) A string containing the message's log domain.
+ * @param log_level  Flags defining the message's log level.
+ * @param message    A string containing the log message.
+ * @param openvas_log_config_list (ignored) A pointer to the configuration
+ *                                linked list.
+ */
+static void
+openvas_syslog_func (const char *log_domain, GLogLevelFlags log_level,
+                     const char *message, gpointer openvas_log_config_list)
+{
+  switch (log_level)
+    {
+      case G_LOG_FLAG_FATAL:
+        syslog (LOG_ALERT, message);
+        break;
+      case G_LOG_LEVEL_ERROR:
+        syslog (LOG_ERR, message);
+        break;
+      case G_LOG_LEVEL_CRITICAL:
+        syslog (LOG_CRIT, message);
+        break;
+      case G_LOG_LEVEL_WARNING:
+        syslog (LOG_WARNING, message);
+        break;
+      case G_LOG_LEVEL_MESSAGE:
+        syslog (LOG_NOTICE, message);
+        break;
+      case G_LOG_LEVEL_INFO:
+        syslog (LOG_INFO, message);
+        break;
+      case G_LOG_LEVEL_DEBUG:
+        syslog (LOG_DEBUG, message);
+        break;
+      default:
+        syslog (LOG_INFO, message);
+        break;
+    }
 }
 
 /**
@@ -594,6 +637,14 @@ setup_log_handlers (GSList * openvas_log_config_list)
           /* Get the list data which is an openvas_logging_t struct. */
           log_domain_entry = log_domain_list_tmp->data;
 
+          GLogFunc logfunc =
+#if 0
+                            (!strcmp (log_domain_entry, "syslog"))
+                             ? openvas_syslog_func
+                             :
+#endif
+              openvas_log_func;
+
           if (g_ascii_strcasecmp (log_domain_entry->log_domain, "*"))
             {
               g_log_set_handler (log_domain_entry->log_domain,
@@ -605,12 +656,12 @@ setup_log_handlers (GSList * openvas_log_config_list)
                                                    G_LOG_LEVEL_ERROR |
                                                    G_LOG_FLAG_FATAL |
                                                    G_LOG_FLAG_RECURSION),
-                                 (GLogFunc) openvas_log_func,
+                                 (GLogFunc) logfunc,
                                  openvas_log_config_list);
             }
           else
             {
-              g_log_set_default_handler ((GLogFunc) openvas_log_func,
+              g_log_set_default_handler ((GLogFunc) logfunc,
                                          openvas_log_config_list);
             }
 
