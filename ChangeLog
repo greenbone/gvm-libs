@@ -1,3 +1,24 @@
+2010-01-28  Chandrashekhar B <bchandra@secpod.com>
+
+	Added new crypto functions and support for SMB NTLMv1 and NTLMv2.
+	Initial patch by Tim Brown <timb@openvas.org>
+
+	* nasl/nasl_crypto.c (nasl_gcrypt_hash): Addressed compiler warning
+	(nasl_md2) (nasl_hmac_md2) (nasl_ntlmv1_hash) (nasl_nt_owf_gen):
+	(nasl_lm_owf_gen) (nasl_ntv2_owf_gen) (nasl_ntlmv2_hash): Added new.
+
+	* nasl/nasl_crypto.h: Included new functions from nasl_crypto.c
+
+	* nasl/smb_crypt.c: Added new.
+
+	* nasl/smb_crypt.h: Added new.
+
+	* nasl/smb_crypt2.c: Added new.
+
+	* nasl/CMakeLists.txt: Updated to include smb_crypt.c, smb_crypt2.c
+
+	* nasl/nasl_init.c: Updated to include newly added functions in nasl_crypto.c.
+
 2010-01-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* omp/xml.c (read_string): Corrected call.
