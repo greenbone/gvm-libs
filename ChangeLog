@@ -1,3 +1,9 @@
+2010-01-28  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* misc/openvas_logging.c: Revert last change.
+
+	* ChangeLog: Neaten entry, flush whitespace.
+
 2010-01-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Straightened up log config handling.
@@ -17,8 +23,8 @@
 	Initial patch by Tim Brown <timb@openvas.org>
 
 	* nasl/nasl_crypto.c (nasl_gcrypt_hash): Addressed compiler warning
-	(nasl_md2) (nasl_hmac_md2) (nasl_ntlmv1_hash) (nasl_nt_owf_gen):
-	(nasl_lm_owf_gen) (nasl_ntv2_owf_gen) (nasl_ntlmv2_hash): Added new.
+	(nasl_md2, nasl_hmac_md2, nasl_ntlmv1_hash, nasl_nt_owf_gen)
+	(nasl_lm_owf_gen, nasl_ntv2_owf_gen, nasl_ntlmv2_hash): Added new.
 
 	* nasl/nasl_crypto.h: Included new functions from nasl_crypto.c
 
@@ -68,7 +74,7 @@
 
 	* hg/hg_add_hosts.c (range): Doc, renamed parameters.
 	(netmask_to_cidr_netmask): Added doc, minor cosmetic.
-	
+
 	* hg/hg_filter.c: Minor cosmetics.
 
 	* hg/hg_subnet.c: Include header file, remove forward declarations,

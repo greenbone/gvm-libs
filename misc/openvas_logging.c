@@ -41,11 +41,7 @@
 #include <stdio.h> /* for fprintf */
 #include <string.h> /* for strlen */
 #include <stdlib.h> /* for atoi */
-
-#ifdef SYSLOG_SUPPORT
 #include <syslog.h> /* for syslog */
-#endif
-
 #include <unistd.h> /* for getpid */
 #include <libgen.h>
 #include <errno.h>
@@ -293,15 +289,14 @@ openvas_log_silent (const char *log_domain, GLogLevelFlags log_level,
   return;
 }
 
-#ifdef SYSLOG_SUPPORT
 /**
  * @brief Sends message to syslog.
  *
  * @param log_domain (ignored) A string containing the message's log domain.
  * @param log_level  Flags defining the message's log level.
  * @param message    A string containing the log message.
- * @param openvas_log_config_list (ignored) A pointer to the log configuration
- *                                for this domain.
+ * @param openvas_log_config_list (ignored) A pointer to the configuration
+ *                                linked list.
  */
 static void
 openvas_syslog_func (const char *log_domain, GLogLevelFlags log_level,
@@ -335,7 +330,6 @@ openvas_syslog_func (const char *log_domain, GLogLevelFlags log_level,
         break;
     }
 }
-#endif /* #ifdef SYSLOG_SUPPORT*/
 
 /**
  * @brief Creates the formatted string and outputs it to the log destination.
@@ -343,12 +337,11 @@ openvas_syslog_func (const char *log_domain, GLogLevelFlags log_level,
  * @param log_domain A string containing the message's log domain.
  * @param log_level  Flags defining the message's log level.
  * @param message    A string containing the log message.
- * @param openvas_log_config A pointer to openvas_logging_t that should be used
- *                           for this log domain.
+ * @param openvas_log_config_list A pointer to the configuration linked list.
  */
 void
 openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
-                  const char *message, gpointer openvas_log_config)
+                  const char *message, gpointer openvas_log_config_list)
 {
   gchar *prepend;
   gchar *prepend_buf;
@@ -356,14 +349,17 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
   gchar *prepend_tmp1;
   gchar *tmp;
 
-  openvas_logging_t *log_config = (openvas_logging_t*) openvas_log_config;
+  /* For link list operations. */
+  GSList *log_domain_list_tmp;
+  openvas_logging_t *log_domain_entry;
 
   /* Channel to log through. */
   GIOChannel *channel;
   GError *error = NULL;
 
   /* The default parameters to be used. The group '*' will override
-   * these defaults if it's found. */
+   * these defaults if it's found.
+   */
   gchar *prepend_format = "%p %t - ";
   gchar *time_format = "%Y-%m-%d %Hh%M.%S %Z";
 
@@ -373,17 +369,81 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
   GLogLevelFlags default_level = G_LOG_LEVEL_DEBUG;
   channel = NULL;
 
-  /* Let's load the configuration file directives if a linked list item for
-   * the log domain group exists. */
-  if (log_config != NULL && log_domain != NULL)
+  /* Let's load the default configuration file directives from the
+   * linked list. Scanning the link list twice is inefficient but
+   * leaves the source cleaner.
+   */
+  if (openvas_log_config_list != NULL && log_domain != NULL)
     {
-      /* Get the struct contents. */
-      prepend_format = log_config->prepend_string;
-      time_format = log_config->prepend_time_format;
-      log_file = log_config->log_file;
-      if (log_config->default_level)
-        default_level = *log_config->default_level;
-      channel = log_config->log_channel;
+
+      /* Go the the head of the list. */
+      log_domain_list_tmp = (GSList *) openvas_log_config_list;
+
+      while (log_domain_list_tmp != NULL)
+        {
+          openvas_logging_t *entry;
+
+          entry = log_domain_list_tmp->data;
+
+          /* Override defaults if the current linklist group name is '*'. */
+          if (g_ascii_strcasecmp (entry->log_domain, "*") == 0)
+            {
+              /* Get the list data for later use. */
+              log_domain_entry = entry;
+
+              /* Override defaults if the group items are not null. */
+              if (log_domain_entry->prepend_string)
+                prepend_format = log_domain_entry->prepend_string;
+              if (log_domain_entry->prepend_time_format)
+                time_format = log_domain_entry->prepend_time_format;
+              if (log_domain_entry->log_file)
+                log_file = log_domain_entry->log_file;
+              if (log_domain_entry->default_level)
+                default_level = *log_domain_entry->default_level;
+              if (log_domain_entry->log_channel)
+                channel = log_domain_entry->log_channel;
+              break;
+            }
+
+          /* Go to the next item. */
+          log_domain_list_tmp = g_slist_next (log_domain_list_tmp);
+        }
+    }
+
+  /* Let's load the configuration file directives if a linked list item for
+   * the log domain group exists.
+   */
+  if (openvas_log_config_list != NULL && log_domain != NULL)
+    {
+
+      /* Go the the head of the list. */
+      log_domain_list_tmp = (GSList *) openvas_log_config_list;
+
+      while (log_domain_list_tmp != NULL)
+        {
+          openvas_logging_t *entry;
+
+          entry = log_domain_list_tmp->data;
+
+          /* Search for the log domain in the link list. */
+          if (g_ascii_strcasecmp (entry->log_domain, log_domain) == 0)
+            {
+              /* Get the list data which is an openvas_logging_t struct. */
+              log_domain_entry = entry;
+
+              /* Get the struct contents. */
+              prepend_format = log_domain_entry->prepend_string;
+              time_format = log_domain_entry->prepend_time_format;
+              log_file = log_domain_entry->log_file;
+              if (log_domain_entry->default_level)
+                default_level = *log_domain_entry->default_level;
+              channel = log_domain_entry->log_channel;
+              break;
+            }
+
+          /* Go to the next item. */
+          log_domain_list_tmp = g_slist_next (log_domain_list_tmp);
+        }
     }
 
   /* If the current log entry is less severe than the specified log level,
@@ -543,10 +603,9 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
             }
 
           /* Store it in the struct for later use. */
-          if (log_config != NULL)
-            log_config->log_channel = channel;
+          if (log_domain_entry != NULL)
+            log_domain_entry->log_channel = channel;
         }
-
       g_io_channel_write_chars (channel, (const gchar *) tmpstr, -1, NULL,
                                 &error);
       g_io_channel_flush (channel, NULL);
@@ -566,50 +625,50 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
 void
 setup_log_handlers (GSList * openvas_log_config_list)
 {
-  GSList *log_domain_list_tmp = openvas_log_config_list;
+  GSList *log_domain_list_tmp;
   openvas_logging_t *log_domain_entry;
-  gboolean default_handler_set = FALSE;
-
-  /* Loop over the list. */
-  while (log_domain_list_tmp != NULL)
+  if (openvas_log_config_list != NULL)
     {
-      /* Get the list data which is an openvas_logging_t struct. */
-      log_domain_entry = log_domain_list_tmp->data;
+      /* Go to the head of the list. */
+      log_domain_list_tmp = (GSList *) openvas_log_config_list;
 
-      GLogFunc logfunc =
-#ifdef SYSLOG_SUPPORT
-                        (!strcmp (log_domain_list_tmp->log_file, "syslog"))
-                        ? openvas_syslog_func
-                        :
-#endif /* SYSLOG_SUPPORT */
-          openvas_log_func;
-
-      fprintf (stderr, "Comparing %s\n", log_domain_entry->log_domain);
-      if (g_ascii_strcasecmp (log_domain_entry->log_domain, "*"))
+      while (log_domain_list_tmp != NULL)
         {
-          g_log_set_handler (log_domain_entry->log_domain,
-                            (GLogLevelFlags) (G_LOG_LEVEL_DEBUG |
-                                              G_LOG_LEVEL_INFO |
-                                              G_LOG_LEVEL_MESSAGE |
-                                              G_LOG_LEVEL_WARNING |
-                                              G_LOG_LEVEL_CRITICAL |
-                                              G_LOG_LEVEL_ERROR |
-                                              G_LOG_FLAG_FATAL |
-                                              G_LOG_FLAG_RECURSION),
-                            (GLogFunc) logfunc,
-                            log_domain_entry);
-        }
-      else
-        {
-          g_log_set_default_handler ((GLogFunc) logfunc, log_domain_entry);
-          default_handler_set = TRUE;
-        }
+          /* Get the list data which is an openvas_logging_t struct. */
+          log_domain_entry = log_domain_list_tmp->data;
 
-      /* Go to the next item. */
-      log_domain_list_tmp = g_slist_next (log_domain_list_tmp);
+          GLogFunc logfunc =
+#if 0
+                            (!strcmp (log_domain_entry, "syslog"))
+                             ? openvas_syslog_func
+                             :
+#endif
+              openvas_log_func;
+
+          if (g_ascii_strcasecmp (log_domain_entry->log_domain, "*"))
+            {
+              g_log_set_handler (log_domain_entry->log_domain,
+                                 (GLogLevelFlags) (G_LOG_LEVEL_DEBUG |
+                                                   G_LOG_LEVEL_INFO |
+                                                   G_LOG_LEVEL_MESSAGE |
+                                                   G_LOG_LEVEL_WARNING |
+                                                   G_LOG_LEVEL_CRITICAL |
+                                                   G_LOG_LEVEL_ERROR |
+                                                   G_LOG_FLAG_FATAL |
+                                                   G_LOG_FLAG_RECURSION),
+                                 (GLogFunc) logfunc,
+                                 openvas_log_config_list);
+            }
+          else
+            {
+              g_log_set_default_handler ((GLogFunc) logfunc,
+                                         openvas_log_config_list);
+            }
+
+          /* Go to the next item. */
+          log_domain_list_tmp = g_slist_next (log_domain_list_tmp);
+        }
     }
-
-  /* Application level. */
   g_log_set_handler ("",
                      (GLogLevelFlags) (G_LOG_LEVEL_DEBUG | G_LOG_LEVEL_INFO |
                                        G_LOG_LEVEL_MESSAGE | G_LOG_LEVEL_WARNING
@@ -617,14 +676,5 @@ setup_log_handlers (GSList * openvas_log_config_list)
                                        G_LOG_LEVEL_ERROR | G_LOG_FLAG_FATAL |
                                        G_LOG_FLAG_RECURSION),
                      (GLogFunc) openvas_log_func,
-                     openvas_log_config_list ? openvas_log_config_list->data : NULL);
-  /* Set default if not yet set. */
-  if (default_handler_set == FALSE)
-    {
-      /** @todo Defaulting to openvas_log_func with the first entry, if any? */
-      g_log_set_default_handler ((GLogFunc) openvas_log_func,
-                                  openvas_log_config_list
-                                       ? openvas_log_config_list->data 
-                                       : NULL);
-    }
+                     openvas_log_config_list);
 }
