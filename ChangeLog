@@ -1,5 +1,12 @@
 2010-01-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* base/drop_privileges.c (drop_privileges): Prevent error-pile-up.
+
+	* base/drop_priviliges.h: Define return value for error-pile-up
+	programming mistake.
+
+2010-01-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	Added module for basic support for privilege dropping.
 
 	* base/drop_privileges.c, base/drop_privileges.h: New module

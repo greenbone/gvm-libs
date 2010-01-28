@@ -68,7 +68,8 @@ drop_privileges_error (GError** error, gint errorcode, const gchar* message)
  *
  * @param[in]  username The user to become. Its safe to pass "NULL", in which
  *                      case it will default to "nobody".
- * @param[out] error    Return location for errors.
+ * @param[out] error    Return location for errors or NULL if not interested
+ *                      in errors.
  *
  * @return OPENVAS_DROP_PRIVILEGES_OK in case of success. Sets \param error
  *         otherwise and returns the error code.
@@ -77,6 +78,10 @@ int
 drop_privileges (gchar* username, GError** error)
 {
   struct passwd * user_pw = NULL;
+
+  g_return_val_if_fail (*error == NULL,
+                        OPENVAS_DROP_PRIVILEGES_ERROR_ALREADY_SET);
+
   if (username == NULL)
     username = "nobody";
 

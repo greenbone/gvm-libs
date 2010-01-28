@@ -34,7 +34,9 @@
  */
 #define OPENVAS_DROP_PRIVILEGES g_quark_from_static_string ("openvas-drop-privileges-error-quark")
 
-// Various error codes
+/* Definitions of the return codes. */
+#define OPENVAS_DROP_PRIVILEGES_ERROR_ALREADY_SET -1
+
 #define OPENVAS_DROP_PRIVILEGES_OK 0
 #define OPENVAS_DROP_PRIVILEGES_FAIL_NOT_ROOT 1
 #define OPENVAS_DROP_PRIVILEGES_FAIL_UNKNOWN_USER 2
