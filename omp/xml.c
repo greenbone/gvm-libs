@@ -560,6 +560,27 @@ read_entity_and_text (gnutls_session_t* session, entity_t* entity, char** text)
   return read_entity_and_string (session, entity, NULL);
 }
 
+
+/**
+ * @brief Read entity and text. Free the entity immediately.
+ *
+ * @param[in]   session  Pointer to GNUTLS session to read from.
+ * @param[out]  string   Return location for the string.
+ *
+ * @return 0 success, -1 read error, -2 parse error, -3 end of file.
+ */
+int
+read_string (gnutls_session_t* session, GString** string)
+{
+  int ret = 0;
+  entity_t entity;
+
+  if (!(ret = read_entity_and_string (session, &entity, string)))
+    entity_free (entity);
+
+  return ret;
+}
+
 /**
  * @brief Read an XML entity tree from the manager.
  *

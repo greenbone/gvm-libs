@@ -94,6 +94,9 @@ read_entity_and_text (gnutls_session_t*, entity_t*, char**);
 int
 read_entity (gnutls_session_t*, entity_t*);
 
+int
+read_string (gnutls_session_t*, GString**);
+
 void
 print_entity_to_string (entity_t entity, GString* string);
 
