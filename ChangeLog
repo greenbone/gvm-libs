@@ -1,3 +1,16 @@
+2010-01-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Straightened up log config handling.
+
+	* misc/openvas_logging.c (openvas_syslog_func): [SYSLOG_SUPPORT]
+	Guarded.
+	(openvas_syslog_func): Changed name of user data parameter and doc.
+	(openvas_log_func): Changed user data parameter, doc, removed
+	looping over list to determine the default (will not be used anyway).
+	(setup_log_handlers): Changed semantics of user data parameter,
+	instead of a more or less unused list, pass the single matching
+	openvas_logging_t struct. Set default handler differently.
+
 2010-01-28  Chandrashekhar B <bchandra@secpod.com>
 
 	Added new crypto functions and support for SMB NTLMv1 and NTLMv2.
