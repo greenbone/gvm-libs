@@ -576,7 +576,7 @@ read_string (gnutls_session_t* session, GString** string)
   entity_t entity;
 
   if (!(ret = read_entity_and_string (session, &entity, string)))
-    entity_free (entity);
+    free_entity (entity);
 
   return ret;
 }

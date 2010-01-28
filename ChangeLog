@@ -1,5 +1,16 @@
 2010-01-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* omp/xml.c (read_string): Corrected call.
+
+2010-01-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* omp/xml.c (read_string): New wrapper function, read entity and
+	string, free entity immediately.
+
+	* omp/xml.h (read_string): Proto added.
+
+2010-01-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* base/drop_privileges.c (drop_privileges): Prevent error-pile-up.
 
 	* base/drop_priviliges.h: Define return value for error-pile-up
