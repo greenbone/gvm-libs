@@ -1,3 +1,10 @@
+2010-01-28  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Added module for basic support for privilege dropping.
+
+	* base/drop_privileges.c, base/drop_privileges.h: New module
+	containing basic code to drop privileges.
+
 2010-01-26  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* misc/openvas_logging.c (openvas_syslog_func): New logging function.
