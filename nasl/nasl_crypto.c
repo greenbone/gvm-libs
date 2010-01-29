@@ -34,6 +34,8 @@
 #include "smb_crypt.h"
 #include "nasl_debug.h"
 
+#include "system.h"
+#include <ctype.h>
 #include "strutils.h"
 #include <assert.h>
 
@@ -170,12 +172,12 @@ nasl_hmac_ripemd160 (lex_ctxt * lexic)
 tree_cell *
 nasl_ntlmv1_hash(lex_ctxt * lexic)
 {
-  char * cryptkey = get_str_var_by_name(lexic, "cryptkey");
+  const uchar * cryptkey = (uchar *)get_str_var_by_name(lexic, "cryptkey");
   char * password = get_str_var_by_name(lexic, "passhash");
   int pass_len  = get_var_size_by_name(lexic, "passhash");
   unsigned char p21[21];
   tree_cell * retc;
-  char * ret;
+  uchar * ret;
 
   if (cryptkey == NULL || password == NULL )
    {
@@ -192,7 +194,7 @@ nasl_ntlmv1_hash(lex_ctxt * lexic)
   retc = alloc_tree_cell(0, NULL);
   retc->type = CONST_DATA;
   retc->size  = 24;
-  retc->x.str_val = ret;
+  retc->x.str_val = (char *)ret;
 
   return retc;
 }
@@ -243,8 +245,8 @@ nasl_lm_owf_gen(lex_ctxt * lexic)
   char * pass = get_str_var_by_num(lexic, 0);
   int    pass_len = get_var_size_by_num(lexic, 0);
   tree_cell * retc;
-  char pwd[15];
-  char p16[16];
+  uchar pwd[15];
+  uchar p16[16];
   int i;
 
   if (pass_len < 0 || pass == NULL )
@@ -254,7 +256,7 @@ nasl_lm_owf_gen(lex_ctxt * lexic)
    }
 
   bzero(pwd, sizeof(pwd));
-  strncpy(pwd, pass, sizeof(pwd) - 1);
+  strncpy((char *)pwd, pass, sizeof(pwd) - 1);
   for(i=0;i<sizeof(pwd);i++)pwd[i] = toupper(pwd[i]);
 
   E_P16(pwd, p16);
@@ -262,7 +264,7 @@ nasl_lm_owf_gen(lex_ctxt * lexic)
   retc = alloc_tree_cell(0, NULL);
   retc->type = CONST_DATA;
   retc->size = 16;
-  retc->x.str_val = nasl_strndup(p16, 16);
+  retc->x.str_val = nasl_strndup((char *)p16, 16);
   return retc;
 }
 
@@ -270,7 +272,7 @@ nasl_lm_owf_gen(lex_ctxt * lexic)
 tree_cell *
 nasl_ntv2_owf_gen(lex_ctxt * lexic)
 {
-  char *owf_in = get_str_var_by_name(lexic, "owf");
+  const uchar *owf_in = (uchar *)get_str_var_by_name(lexic, "owf");
   int  owf_in_len = get_var_size_by_name(lexic, "owf");
   char *user_in = get_str_var_by_name(lexic, "login");
   int  user_in_len = get_var_size_by_name(lexic, "login");
@@ -283,7 +285,7 @@ nasl_ntv2_owf_gen(lex_ctxt * lexic)
   size_t user_byte_len;
   size_t domain_byte_len;
   tree_cell * retc;
-  char * kr_buf;
+  uchar * kr_buf;
   HMACMD5Context ctx;
 
   if (owf_in_len<0 || owf_in == NULL || user_in_len<0 || user_in == NULL || domain_len<0 || domain_in==NULL)
@@ -348,7 +350,7 @@ nasl_ntv2_owf_gen(lex_ctxt * lexic)
   retc = alloc_tree_cell(0, NULL);
   retc->type = CONST_DATA;
   retc->size  = 16;
-  retc->x.str_val = kr_buf;
+  retc->x.str_val = (char *)kr_buf;
 
   return retc;
 }
@@ -356,9 +358,9 @@ nasl_ntv2_owf_gen(lex_ctxt * lexic)
 tree_cell *
 nasl_ntlmv2_hash(lex_ctxt * lexic)
 {
-  char * server_chal = get_str_var_by_name(lexic, "cryptkey");
+  const uchar * server_chal = (uchar *) get_str_var_by_name(lexic, "cryptkey");
   int sc_len = get_var_size_by_name(lexic, "cryptkey");
-  char * ntlm_v2_hash = get_str_var_by_name(lexic, "passhash");
+  const uchar * ntlm_v2_hash = (uchar *)get_str_var_by_name(lexic, "passhash");
   int hash_len  = get_var_size_by_name(lexic, "passhash");
   int client_chal_length = get_int_var_by_name(lexic, "length", -1);
   tree_cell * retc;
@@ -397,7 +399,7 @@ nasl_ntlmv2_hash(lex_ctxt * lexic)
   retc = alloc_tree_cell(0, NULL);
   retc->type = CONST_DATA;
   retc->size  = client_chal_length + sizeof(ntlmv2_response);
-  retc->x.str_val = final_response;
+  retc->x.str_val = (char *) final_response;
 
   return retc;
 }

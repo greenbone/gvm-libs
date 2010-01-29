@@ -1,3 +1,7 @@
+2010-01-29  Chandrashekhar B <bchandra@secpod.com>
+
+	* nasl/nasl_crypto.c: Addressed compiler warnings.
+
 2010-01-28  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* misc/openvas_logging.c: Revert last change.
