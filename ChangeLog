@@ -1,7 +1,7 @@
 2010-01-29  Chandrashekhar B <bchandra@secpod.com>
 
-	* nasl/nasl_crypto.c (nasl_ntlmv1_hash), (nasl_lm_owf_gen)
-	(nasl_ntv2_owf_gen), (nasl_ntlmv2_hash): Addressed compiler warnings.
+	* nasl/nasl_crypto.c (nasl_ntlmv1_hash, nasl_lm_owf_gen)
+	(nasl_ntv2_owf_gen, nasl_ntlmv2_hash): Addressed compiler warnings.
 
 2010-01-28  Matthew Mundell <matthew.mundell@intevation.de>
 
