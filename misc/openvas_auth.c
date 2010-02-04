@@ -123,7 +123,7 @@ get_password_hashes (int gcrypt_algorithm, const gchar * password)
 }
 
 /**
- * @brief Authenticate a credential pair.
+ * @brief Authenticate a credential pair against openvas user file contents.
  *
  * @param username Username.
  * @param password Password.
@@ -165,6 +165,7 @@ openvas_authenticate (const gchar * username, const gchar * password)
       g_warning ("Failed to split auth contents.");
       g_free (hash);
       g_strfreev (split);
+      /** @todo evaluate poss. memleak: actual */
       return -1;
     }
 

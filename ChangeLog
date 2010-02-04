@@ -1,3 +1,8 @@
+2010-02-04  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* misc/openvas_auth.c (openvas_authenticate): Minor doc, added TODO
+	about possible memleak.
+
 2010-01-29  Chandrashekhar B <bchandra@secpod.com>
 
 	* nasl/nasl_crypto.c (nasl_ntlmv1_hash, nasl_lm_owf_gen)
