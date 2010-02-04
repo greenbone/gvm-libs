@@ -1,3 +1,21 @@
+openvas-libraries 3.0.3 (2010-02-04)
+
+This is the third maintenance release of the openvas-libraries module for the
+Open Vulnerability Assessment System (OpenVAS) 3.0 series.
+
+It improves support for OMP parsing, adds initial support for dropping
+privileges, and adds new crypto functions and support for SMB NTLMv1 and NTLMv2.
+
+Many thanks to everyone who has contributed to this release:
+Chandrashekhar B, Tim Brown, Matthew Mundell, Michael Wiegand and Felix
+Wolfsteller.
+
+Main changes compared to 3.0.2:
+
+* Initial support for dropping privileges.
+* New crypto functions and support for SMB NTLMv1 and NTLMv2.
+
+
 openvas-libraries 3.0.2 (2010-01-19)
 
 This is the second maintenance release of the openvas-libraries module for the

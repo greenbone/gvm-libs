@@ -1,3 +1,13 @@
+2010-02-04  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Preparing the openvas-libraries 3.0.3 release.
+
+	* CHANGES: Updated.
+
+	* VERSION: Set to 3.0.3.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Updated PROJECT_NUMBER.
+
 2010-02-04  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* misc/openvas_auth.c (openvas_authenticate): Minor doc, added TODO
