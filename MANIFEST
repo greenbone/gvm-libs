@@ -184,6 +184,9 @@ nasl/preparse.c
 nasl/preparse.h
 nasl/regex.c
 nasl/smb_interface_stub.c
+nasl/smb_crypt.c
+nasl/smb_crypt.h
+nasl/smb_crypt2.c
 nasl/strutils.c
 nasl/strutils.h
 nasl/tests/

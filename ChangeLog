@@ -1,5 +1,9 @@
 2010-02-04  Michael Wiegand <michael.wiegand@intevation.de>
 
+	* MANIFEST: Added missing files.
+
+2010-02-04  Michael Wiegand <michael.wiegand@intevation.de>
+
 	Preparing the openvas-libraries 3.0.3 release.
 
 	* CHANGES: Updated.
