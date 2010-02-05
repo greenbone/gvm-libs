@@ -1,3 +1,8 @@
+2010-02-04  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* misc/openvas_logging.c (openvas_syslog_func): Applying patch from
+	Stephan Kleine, fixing bug #1272 (http://bugs.openvas.org/1272).
+
 2010-02-04  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post-release version bump.
