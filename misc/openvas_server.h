@@ -34,6 +34,14 @@
 #ifndef _OPENVAS_LIBRARIES_SERVER_H
 #define _OPENVAS_LIBRARIES_SERVER_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#if 0
+}
+#endif
+#endif
+
 #include <gnutls/gnutls.h>
 #include <netinet/ip.h>
 
@@ -67,5 +75,12 @@ openvas_server_free (int,
 int
 openvas_server_session_free (gnutls_session_t,
                              gnutls_certificate_credentials_t);
+
+#if 0
+{
+#endif
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* not _OPENVAS_LIBRARIES_SERVER_H */

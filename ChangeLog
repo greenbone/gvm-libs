@@ -1,5 +1,9 @@
 2010-02-11  Matthew Mundell <matthew.mundell@intevation.de>
 
+	* omp/openvas_server.h: Add extern for C++.
+
+2010-02-11  Matthew Mundell <matthew.mundell@intevation.de>
+
 	* omp/omp.h, omp.xsl.h: Add externs for C++.
 
 2010-02-04  Felix Wolfsteller <felix.wolfsteller@intevation.de>
