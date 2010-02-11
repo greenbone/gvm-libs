@@ -30,6 +30,14 @@
 #include <gnutls/gnutls.h>
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+#if 0
+}
+#endif
+#endif
+
 typedef GSList* entities_t;
 
 /**
@@ -102,5 +110,12 @@ print_entity_to_string (entity_t entity, GString* string);
 
 void
 print_entities_to_string (GString* string, entities_t entities);
+
+#if 0
+{
+#endif
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* not _OPENVAS_LIBRARIES_XML_H */

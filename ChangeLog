@@ -1,3 +1,7 @@
+2010-02-11  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* omp/omp.h, omp.xsl.h: Add externs for C++.
+
 2010-02-04  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* misc/openvas_logging.c (openvas_syslog_func): Applying patch from

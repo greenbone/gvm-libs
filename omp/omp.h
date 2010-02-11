@@ -28,6 +28,14 @@
 
 #include "xml.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#if 0
+}
+#endif
+#endif
+
 int
 check_response (gnutls_session_t*);
 
@@ -157,5 +165,12 @@ omp_delete_agent (gnutls_session_t*, const char*);
 
 int
 omp_get_nvt_details_503 (gnutls_session_t*, const char *, entity_t*);
+
+#if 0
+{
+#endif
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* not _OPENVAS_LIBRARIES_OMP_H */
