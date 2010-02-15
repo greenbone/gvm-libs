@@ -174,6 +174,9 @@ add_library (openvas_nasl_static STATIC ${FILES})
 set_target_properties (openvas_nasl_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS}")
 set_target_properties (openvas_nasl_static PROPERTIES OUTPUT_NAME "openvas_nasl")
 set_target_properties (openvas_nasl_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+target_link_libraries (openvas_nasl_static libopenvas_base libopenvas_misc
+			libopenvas_hg glib-2.0 gcrypt gpgme
+			gpg-error gnutls pcap resolv)
 
 add_library (openvas_nasl_shared SHARED ${FILES})
 set_target_properties (openvas_nasl_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS}")
@@ -181,9 +184,7 @@ set_target_properties (openvas_nasl_shared PROPERTIES OUTPUT_NAME "openvas_nasl"
 set_target_properties (openvas_nasl_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_nasl_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_nasl_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
-target_link_libraries (openvas_nasl_shared libopenvas_base libopenvas_misc
-			libopenvas_hg glib-2.0 gcrypt gpgme
-			gpg-error gnutls pcap resolv)
+
 
 # Find GLib
 exec_program (pkg-config
@@ -195,15 +196,15 @@ exec_program (pkg-config
               OUTPUT_VARIABLE GLIB_LDFLAGS)
 
 # Add ("import") static libs from Make based subprojects of openvas-libraries
-add_library (libopenvas_base STATIC IMPORTED)
-add_library (libopenvas_hg STATIC IMPORTED)
-add_library (libopenvas_misc STATIC IMPORTED)
+add_library (libopenvas_base SHARED IMPORTED)
+add_library (libopenvas_hg SHARED IMPORTED)
+add_library (libopenvas_misc SHARED IMPORTED)
 set_property (TARGET libopenvas_misc PROPERTY
-              IMPORTED_LOCATION ../base/libopenvas_base.a)
+              IMPORTED_LOCATION ../base/libopenvas_base.so)
 set_property (TARGET libopenvas_base PROPERTY
-              IMPORTED_LOCATION ../misc/.libs/libopenvas_misc.a)
+              IMPORTED_LOCATION ../misc/.libs/libopenvas_misc.so)
 set_property (TARGET libopenvas_hg PROPERTY
-              IMPORTED_LOCATION ../hg/.libs/libopenvas_hg.a)
+              IMPORTED_LOCATION ../hg/.libs/libopenvas_hg.so)
 
 # Link the openvas-nasl executable
 add_executable (openvas-nasl ${FILES})
