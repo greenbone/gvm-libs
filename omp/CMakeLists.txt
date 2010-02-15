@@ -135,6 +135,7 @@ set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall")
 set (FILES xml.c omp.c)
 
 include_directories (../misc)
+link_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../misc/.libs )
 
 add_library (openvas_omp_static STATIC ${FILES})
 set_target_properties (openvas_omp_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
@@ -147,6 +148,7 @@ set_target_properties (openvas_omp_shared PROPERTIES OUTPUT_NAME "openvas_omp")
 set_target_properties (openvas_omp_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_omp_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_omp_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
+target_link_libraries (openvas_omp_shared openvas_misc glib-2.0 gnutls)
 
 ## Install
 

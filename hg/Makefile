@@ -22,9 +22,10 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include ../openvas-libraries.tmpl
-COMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(include) $(CFLAGS) -Wall -I../misc
+COMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(include) $(CFLAGS) -Wall -fPIC -I../misc
 LINK = $(LIBTOOL) --mode=link $(CC) $(LDFLAGS)
 
+LIBS += -L../misc -lopenvas_misc
 
 OBJS = hg_utils.o hg_add_hosts.o hg_subnet.o hg_filter.o hosts_gatherer.o \
 	hg_debug.o hg_dns_axfr.o

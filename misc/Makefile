@@ -25,6 +25,7 @@
 include ../openvas-libraries.tmpl
 
 LIBS += $(GLIB_LIBS)
+LIBS += -L../base -lopenvas_base
 
 OBJS = plugutils.o system.o network.o resolve.o arglists.o ftp_funcs.o \
 	scanners_utils.o pcap.o hlst.o  harglists.o \
@@ -47,7 +48,7 @@ LO_OBJS = plugutils.lo system.lo network.lo resolve.lo arglists.lo \
 CFLAGS+=-g -Wall
 INCLUDE = $(include) $(GLIB_CFLAGS) $(DEFS) -I../base
 CIPHER = -I../$(CIPHER_SUBDIR)
-COMPILE = $(LIBTOOL) --mode=compile $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS)
+COMPILE = $(LIBTOOL) --mode=compile $(CC) $(CIPHER) $(DEFS) $(INCLUDE) $(CFLAGS) -fPIC
 LINK = $(LIBTOOL) --mode=link $(CC) $(LDFLAGS)
 all : libopenvas_misc.la
 

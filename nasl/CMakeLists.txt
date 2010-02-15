@@ -181,6 +181,9 @@ set_target_properties (openvas_nasl_shared PROPERTIES OUTPUT_NAME "openvas_nasl"
 set_target_properties (openvas_nasl_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_nasl_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_nasl_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
+target_link_libraries (openvas_nasl_shared libopenvas_base libopenvas_misc
+			libopenvas_hg glib-2.0 gcrypt gpgme
+			gpg-error gnutls pcap resolv)
 
 # Find GLib
 exec_program (pkg-config

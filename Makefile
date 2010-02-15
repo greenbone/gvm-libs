@@ -31,8 +31,8 @@ ALLDEPS = openvas-libraries.tmpl
 
 all: $(ALLDEPS)
 	cd base && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -DSYSCONFDIR=${sysconfdir} -DLOCALSTATEDIR=${localstatedir} -DHAVE_WMI=$(HAVE_WMI) -DLIBDIR=$(libdir) && ${MAKE}
-	cd hg   && ${MAKE}
 	cd misc && ${MAKE}
+	cd hg   && ${MAKE}
 	cd nasl && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -DSYSCONFDIR=${sysconfdir} -DLOCALSTATEDIR=${localstatedir} -DLIBDIR=$(libdir) && ${MAKE}
 	cd omp  && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -DSYSCONFDIR=${sysconfdir} -DLOCALSTATEDIR=${localstatedir} -DLIBDIR=$(libdir) && ${MAKE}
 
@@ -52,8 +52,8 @@ install: all install-tools
 	test -d $(DESTDIR)${includedir}/openvas/omp || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas/omp
 
 	cd base && ${MAKE} install
-	cd hg   && ${MAKE} install
 	cd misc && ${MAKE} install
+	cd hg   && ${MAKE} install
 	cd nasl && ${MAKE} install
 	cd omp  && ${MAKE} install
 

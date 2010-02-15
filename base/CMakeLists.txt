@@ -132,8 +132,8 @@ exec_program (pkg-config
 
 ## Library
 
-set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Wall")
-set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall")
+set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Wall -fPIC")
+set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -fPIC")
 
 set (FILES certificate.c hash_table_util.c nvti.c nvticache.c
 openvas_certificate_file.c openvas_string.c pidfile.c severity_filter.c
