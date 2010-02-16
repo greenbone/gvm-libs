@@ -12,6 +12,12 @@
 
 	* ChangeLog: Corrected path.
 
+2010-02-15  Stephan Kleine
+
+	* Makefile, base/CMakeLists.txt, hg/Makefile, misc/Makefile,
+	nasl/CMakeLists.txt, omp/CMakeLists.txt:
+	Fix build order and some linking issues to fix builds on Mandriva
+
 2010-02-11  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* omp/openvas_server.h: Add extern for C++.
