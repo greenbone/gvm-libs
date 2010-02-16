@@ -1,3 +1,10 @@
+2010-02-16  Chandrashekhar B <bchandra@secpod.com>
+
+	* misc/pcap.c (v6_routethrough):
+	Get IPv4/IPv6 routes according to the target IP, whether v4 or v6
+	and Try connectsockettechnique if procroutetechnique failed. This
+	is to resolve the issues reported with this_host() function.
+
 2010-02-15  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* nasl/CMakeLists.txt: Link the standalone nasl interpreter dynamically.

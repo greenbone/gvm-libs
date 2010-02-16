@@ -1171,13 +1171,16 @@ v6_routethrough (struct in6_addr *dest, struct in6_addr *source)
     /* Dummy socket for ioctl */
     initialized = 1;
     mydevs = v6_getinterfaces(&numinterfaces);
-    if(getipv4routes(myroutes, &numroutes) < 0)
+    if(IN6_IS_ADDR_V4MAPPED(dest))
+    {
+      if(getipv4routes(myroutes, &numroutes) < 0)
+          technique = connectsockettechnique;
+    }
+    else
     {
       if(getipv6routes(myroutes, &numroutes) < 0)
         technique = connectsockettechnique;
     }
-    if(getipv6routes(myroutes, &numroutes) < 0)
-      technique = connectsockettechnique;
   } else {
     mydevs = v6_getinterfaces(&numinterfaces);
   }
@@ -1248,8 +1251,10 @@ v6_routethrough (struct in6_addr *dest, struct in6_addr *source)
         }
         return myroutes[i].dev->name;
       }
+      technique = connectsockettechnique;
     }
-  } else if (technique == connectsockettechnique) {
+  } 
+  if (technique == connectsockettechnique) {
     if (!v6_getsourceip(&addy, dest))
       return NULL;
     if(IN6_ARE_ADDR_EQUAL(&addy, &in6addr))
