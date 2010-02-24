@@ -231,8 +231,7 @@ openvas_server_open (gnutls_session_t * session,
         break;
       if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
         continue;
-      g_message ("Failed to shake hands with server.");
-      gnutls_perror (ret);
+      g_message ("Failed to shake hands with server: %s", gnutls_strerror (ret));
       if (shutdown (server_socket, SHUT_RDWR) == -1)
         g_message ("Failed to shutdown server socket");
       close (server_socket);
@@ -405,8 +404,7 @@ openvas_server_attach (int socket, gnutls_session_t* session)
         break;
       if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
         continue;
-      g_message ("Failed to shake hands with peer.");
-      gnutls_perror (ret);
+      g_message ("Failed to shake hands with peer: %s", gnutls_strerror (ret));
       if (shutdown (socket, SHUT_RDWR) == -1)
         g_message ("Failed to shutdown server socket");
       sigaction (SIGPIPE, &original_action, NULL);
@@ -456,8 +454,7 @@ openvas_server_send (gnutls_session_t* session, const char* string)
               g_message ("   openvas_server_send rehandshake");
               continue;
             }
-          g_message ("Failed to write to server.");
-          gnutls_perror (count);
+          g_message ("Failed to write to server: %s", gnutls_strerror (count));
           sigaction (SIGPIPE, &original_action, NULL);
           return -1;
         }

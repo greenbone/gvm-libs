@@ -1,3 +1,10 @@
+2010-02-24  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* misc/openvas_server.c (openvas_server_open, openvas_server_connect)
+	(openvas_server_attach): Avoid printing GnuTLS error messages to stderr;
+	they are now handed to g_message so that they can be properly logged if
+	desired.
+
 2010-02-16  Chandrashekhar B <bchandra@secpod.com>
 
 	* misc/pcap.c (v6_routethrough):
