@@ -379,7 +379,7 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
  * @return NULL if the query fails.
  *         Else a tree_cell with the Registry value.
  *
- * Retrieves local variables "wmi_handle", "key", "key_name"
+ * Retrieves local variables "wmi_handle", "hive", "key", "key_name"
  * from the lexical context, performs the registry query
  * returning a string value.
  */
@@ -392,6 +392,7 @@ nasl_wmi_reg_get_sz (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
   char *key_name = get_str_local_var_by_name (lexic, "key_name");       // REGISTRY value name
 
@@ -405,7 +406,7 @@ nasl_wmi_reg_get_sz (lex_ctxt * lexic)
   retc->x.str_val = NULL;
   retc->size = 0;
 
-  value = wmi_reg_get_sz (handle, key, key_name, &res);
+  value = wmi_reg_get_sz (handle, hive, key, key_name, &res);
 
   if ((value == -1) || (res == NULL))
     {
@@ -427,7 +428,7 @@ nasl_wmi_reg_get_sz (lex_ctxt * lexic)
  * @return NULL if the query fails.
  *         Else a tree_cell with the Registry values.
  *
- * Retrieves local variables "wmi_handle", "key"
+ * Retrieves local variables "wmi_handle", "hive", "key"
  * from the lexical context, performs the registry query
  * returning a string value.
  */
@@ -440,6 +441,7 @@ nasl_wmi_reg_enum_value (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
 
   char *res = NULL;
@@ -452,7 +454,7 @@ nasl_wmi_reg_enum_value (lex_ctxt * lexic)
   retc->x.str_val = NULL;
   retc->size = 0;
 
-  value = wmi_reg_enum_value (handle, key, &res);
+  value = wmi_reg_enum_value (handle, hive, key, &res);
 
   if ((value == -1) || (res == NULL))
     {
@@ -474,7 +476,7 @@ nasl_wmi_reg_enum_value (lex_ctxt * lexic)
  * @return NULL if the query fails.
  *         Else a tree_cell with the Registry keys.
  *
- * Retrieves local variables "wmi_handle", "key"
+ * Retrieves local variables "wmi_handle", "hive", "key"
  * from the lexical context, performs the registry query
  * returning a string value.
  */
@@ -487,6 +489,7 @@ nasl_wmi_reg_enum_key (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
 
   char *res = NULL;
@@ -499,7 +502,7 @@ nasl_wmi_reg_enum_key (lex_ctxt * lexic)
   retc->x.str_val = NULL;
   retc->size = 0;
 
-  value = wmi_reg_enum_key (handle, key, &res);
+  value = wmi_reg_enum_key (handle, hive, key, &res);
 
   if ((value == -1) || (res == NULL))
     {
@@ -521,7 +524,7 @@ nasl_wmi_reg_enum_key (lex_ctxt * lexic)
  * @return NULL on failure, else tree_cell containing string
  *         representation of binary value
  *
- * Retrieves local variables "wmi_handle", "key", "val_name"
+ * Retrieves local variables "wmi_handle", "hive", "key", "val_name"
  * from the lexical context, performs the registry operation
  * querying binary value.
  */
@@ -534,6 +537,7 @@ nasl_wmi_reg_get_bin_val (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
   char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
@@ -548,7 +552,7 @@ nasl_wmi_reg_get_bin_val (lex_ctxt * lexic)
   retc->x.str_val = NULL;
   retc->size = 0;
 
-  value = wmi_reg_get_bin_val (handle, key, val_name, &res);
+  value = wmi_reg_get_bin_val (handle, hive, key, val_name, &res);
 
   if ((value == -1) || (res == NULL))
     {
@@ -569,7 +573,7 @@ nasl_wmi_reg_get_bin_val (lex_ctxt * lexic)
  * @return NULL on failure, else tree_cell containing string
  *         representation of DWORD value
  *
- * Retrieves local variables "wmi_handle", "key", "val_name"
+ * Retrieves local variables "wmi_handle", "hive", "key", "val_name"
  * from the lexical context, performs the registry operation
  * querying DWORD value.
  */
@@ -582,6 +586,7 @@ nasl_wmi_reg_get_dword_val (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
   char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
@@ -596,7 +601,7 @@ nasl_wmi_reg_get_dword_val (lex_ctxt * lexic)
   retc->x.str_val = NULL;
   retc->size = 0;
 
-  value = wmi_reg_get_dword_val (handle, key, val_name, &res);
+  value = wmi_reg_get_dword_val (handle, hive, key, val_name, &res);
 
   if ((value == 0) && (res == 0))
     res = "0";
@@ -620,7 +625,7 @@ nasl_wmi_reg_get_dword_val (lex_ctxt * lexic)
  * @return NULL on failure, else tree_cell containing string
  *         representation of Expanded String value
  *
- * Retrieves local variables "wmi_handle", "key", "val_name"
+ * Retrieves local variables "wmi_handle", "hive", "key", "val_name"
  * from the lexical context, performs the registry operation
  * querying Expanded string value.
  */
@@ -633,6 +638,7 @@ nasl_wmi_reg_get_ex_string_val (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
   char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
@@ -647,7 +653,7 @@ nasl_wmi_reg_get_ex_string_val (lex_ctxt * lexic)
   retc->x.str_val = NULL;
   retc->size = 0;
 
-  value = wmi_reg_get_ex_string_val (handle, key, val_name, &res);
+  value = wmi_reg_get_ex_string_val (handle, hive, key, val_name, &res);
 
   if ((value == -1) || (res == NULL))
     {
@@ -668,7 +674,7 @@ nasl_wmi_reg_get_ex_string_val (lex_ctxt * lexic)
  * @return NULL on failure, else tree_cell containing string
  *         representation of multi valued strings
  *
- * Retrieves local variables "wmi_handle", "key", "val_name"
+ * Retrieves local variables "wmi_handle", "hive", "key", "val_name"
  * from the lexical context, performs the registry operation
  * querying Expanded string value.
  */
@@ -681,6 +687,7 @@ nasl_wmi_reg_get_mul_string_val (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
   char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
@@ -695,7 +702,7 @@ nasl_wmi_reg_get_mul_string_val (lex_ctxt * lexic)
   retc->x.str_val = NULL;
   retc->size = 0;
 
-  value = wmi_reg_get_mul_string_val (handle, key, val_name, &res);
+  value = wmi_reg_get_mul_string_val (handle, hive, key, val_name, &res);
 
   if ((value == -1) || (res == NULL))
     {
@@ -716,7 +723,7 @@ nasl_wmi_reg_get_mul_string_val (lex_ctxt * lexic)
  * @return NULL on failure, else tree_cell containing string
  *         representation of QWORD value
  *
- * Retrieves local variables "wmi_handle", "key", "val_name"
+ * Retrieves local variables "wmi_handle", "hive", "key", "val_name"
  * from the lexical context, performs the registry operation
  * querying Expanded string value.
  */
@@ -729,6 +736,7 @@ nasl_wmi_reg_get_qword_val (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
   char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
@@ -743,7 +751,7 @@ nasl_wmi_reg_get_qword_val (lex_ctxt * lexic)
   retc->x.str_val = NULL;
   retc->size = 0;
 
-  value = wmi_reg_get_qword_val (handle, key, val_name, &res);
+  value = wmi_reg_get_qword_val (handle, hive, key, val_name, &res);
 
   if ((value == -1) || (res == NULL))
     {

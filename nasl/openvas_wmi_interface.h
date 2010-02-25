@@ -47,14 +47,14 @@ int wmi_connect_rsop (const char *, const char *, const char *, WMI_HANDLE *);
 int wmi_query_rsop (WMI_HANDLE, const char *, char **);
 
 int wmi_connect_reg (const char *, const char *, const char *, WMI_HANDLE *);
-int wmi_reg_get_sz (WMI_HANDLE, const char *, const char *, char **);
-int wmi_reg_enum_value (WMI_HANDLE, const char *, char **);
-int wmi_reg_enum_key (WMI_HANDLE, const char *, char **);
-int wmi_reg_get_bin_val (WMI_HANDLE, const char *, const char *, char **);
-int wmi_reg_get_dword_val (WMI_HANDLE, const char *, const char *, char **);
-int wmi_reg_get_ex_string_val (WMI_HANDLE, const char *, const char *, char **);
-int wmi_reg_get_mul_string_val (WMI_HANDLE, const char *, const char *,
+int wmi_reg_get_sz (WMI_HANDLE, unsigned int, const char *, const char *, char **);
+int wmi_reg_enum_value (WMI_HANDLE, unsigned int, const char *, char **);
+int wmi_reg_enum_key (WMI_HANDLE, unsigned int, const char *, char **);
+int wmi_reg_get_bin_val (WMI_HANDLE, unsigned int, const char *, const char *, char **);
+int wmi_reg_get_dword_val (WMI_HANDLE, unsigned int, const char *, const char *, char **);
+int wmi_reg_get_ex_string_val (WMI_HANDLE, unsigned int, const char *, const char *, char **);
+int wmi_reg_get_mul_string_val (WMI_HANDLE, unsigned int, const char *, const char *,
                                 char **);
-int wmi_reg_get_qword_val (WMI_HANDLE, const char *, const char *, char **);
+int wmi_reg_get_qword_val (WMI_HANDLE, unsigned int, const char *, const char *, char **);
 
 #endif

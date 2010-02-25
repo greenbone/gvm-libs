@@ -163,6 +163,8 @@ wmi_connect_reg (const char *username, const char *password,
  *
  * @param[in] handle - WMI connection handle
  *
+ * @param[in] hive - Registry Hive
+ *
  * @param[in] key - Registry key name
  *
  * @param[in] key_name - Registry value name.
@@ -172,7 +174,7 @@ wmi_connect_reg (const char *username, const char *password,
  * @return, 0 on success, -1 on failure
  */
 int
-wmi_reg_get_sz (WMI_HANDLE handle, const char *key,
+wmi_reg_get_sz (WMI_HANDLE handle, unsigned int hive, const char *key,
                 const char *key_name, char **res)
 {
   return -1;
@@ -183,6 +185,8 @@ wmi_reg_get_sz (WMI_HANDLE handle, const char *key,
  *
  * @param[in] handle - WMI connection handle
  *
+ * @param[in] hive - Registry hive
+ *
  * @param[in] key - Registry key name
  *
  * @param[out] res - Result string
@@ -191,7 +195,8 @@ wmi_reg_get_sz (WMI_HANDLE handle, const char *key,
  */
 
 int
-wmi_reg_enum_value (WMI_HANDLE handle, const char *key, char **res)
+wmi_reg_enum_value (WMI_HANDLE handle, unsigned int hive, const char *key,
+                    char **res)
 {
   return -1;
 }
@@ -201,6 +206,8 @@ wmi_reg_enum_value (WMI_HANDLE handle, const char *key, char **res)
  *
  * @param[in] handle - WMI connection handle
  *
+ * @param[in] hive - Registry hive
+ *
  * @param[in] key - Registry key
  *
  * @param[out] res - Result string
@@ -209,7 +216,8 @@ wmi_reg_enum_value (WMI_HANDLE handle, const char *key, char **res)
  */
 
 int
-wmi_reg_enum_key (WMI_HANDLE handle, const char *key, char **res)
+wmi_reg_enum_key (WMI_HANDLE handle, unsigned int hive, const char *key,
+                  char **res)
 {
   return -1;
 }
@@ -218,6 +226,8 @@ wmi_reg_enum_key (WMI_HANDLE handle, const char *key, char **res)
  * @brief Get Registry binary value.
  *
  * @param[in] handle - WMI connection handle
+ *
+ * @param[in] hive - Registry hive
  *
  * @param[in] key - Registry key containing the value to be queried
  *
@@ -228,7 +238,7 @@ wmi_reg_enum_key (WMI_HANDLE handle, const char *key, char **res)
  * @return, 0 on success, -1 on failure
  */
 int
-wmi_reg_get_bin_val (WMI_HANDLE handle, const char *key,
+wmi_reg_get_bin_val (WMI_HANDLE handle, unsigned int hive, const char *key,
                      const char *val_name, char **res)
 {
   return -1;
@@ -239,6 +249,8 @@ wmi_reg_get_bin_val (WMI_HANDLE handle, const char *key,
  *
  * @param[in] handle - WMI connection handle
  *
+ * @param[in] hive - Registry hive
+ *
  * @param[in] key - Registry key containing the value to be queried
  *
  * @param[in] val_name - Registry value to be queried
@@ -248,7 +260,7 @@ wmi_reg_get_bin_val (WMI_HANDLE handle, const char *key,
  * @return, 0 on success, -1 on failure
  */
 int
-wmi_reg_get_dword_val (WMI_HANDLE handle, const char *key,
+wmi_reg_get_dword_val (WMI_HANDLE handle, unsigned int hive, const char *key,
                        const char *val_name, char **res)
 {
   return -1;
@@ -259,6 +271,8 @@ wmi_reg_get_dword_val (WMI_HANDLE handle, const char *key,
  *
  * @param[in] handle - WMI connection handle
  *
+ * @param[in] hive - Registry hive
+ *
  * @param[in] key - Registry key containing the value to be queried
  *
  * @param[in] val_name - Registry value to be queried
@@ -268,7 +282,7 @@ wmi_reg_get_dword_val (WMI_HANDLE handle, const char *key,
  * @return, 0 on success, -1 on failure
  */
 int
-wmi_reg_get_ex_string_val (WMI_HANDLE handle, const char *key,
+wmi_reg_get_ex_string_val (WMI_HANDLE handle, unsigned int hive, const char *key,
                            const char *val_name, char **res)
 {
   return -1;
@@ -279,6 +293,8 @@ wmi_reg_get_ex_string_val (WMI_HANDLE handle, const char *key,
  *
  * @param[in] handle - WMI connection handle
  *
+ * @param[in] hive - Registry hive
+ *
  * @param[in] key - Registry key containing the value to be queried
  *
  * @param[in] val_name - Registry value to be queried
@@ -288,7 +304,7 @@ wmi_reg_get_ex_string_val (WMI_HANDLE handle, const char *key,
  * @return, 0 on success, -1 on failure
  */
 int
-wmi_reg_get_mul_string_val (WMI_HANDLE handle, const char *key,
+wmi_reg_get_mul_string_val (WMI_HANDLE handle, unsigned int hive, const char *key,
                             const char *val_name, char **res)
 {
   return -1;
@@ -299,6 +315,8 @@ wmi_reg_get_mul_string_val (WMI_HANDLE handle, const char *key,
  *
  * @param[in] handle - WMI connection handle
  *
+ * @param[in] hive - Registry hive
+ *
  * @param[in] key - Registry key containing the value to be queried
  *
  * @param[in] val_name - Registry value to be queried
@@ -308,8 +326,9 @@ wmi_reg_get_mul_string_val (WMI_HANDLE handle, const char *key,
  * @return, 0 on success, -1 on failure
  */
 int
-wmi_reg_get_qword_val (WMI_HANDLE handle, const char *key,
+wmi_reg_get_qword_val (WMI_HANDLE handle, unsigned int hive, const char *key,
                        const char *val_name, char **res)
 {
   return -1;
 }
+

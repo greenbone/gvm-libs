@@ -1,3 +1,20 @@
+2010-02-25  Chandrashekhar B <bchandra@secpod.com>
+
+	* nasl/nasl_wmi.c (nasl_wmi_reg_get_sz, nasl_wmi_reg_enum_value)
+	(nasl_wmi_reg_enum_key, nasl_wmi_reg_get_bin_val, nasl_wmi_reg_get_dword_val)
+	(nasl_wmi_reg_get_ex_string_val, nasl_wmi_reg_get_mul_string_val)
+	(nasl_wmi_reg_get_qword_val): Added REGISTRTY_HIVE as an argument
+
+	* nasl/openvas_wmi_interface.h: Updated with an additional arg for REGISTRY HIVE
+
+	* nasl/wmi_interface_stub.c: (nasl_wmi_reg_get_sz, nasl_wmi_reg_enum_value)
+	(nasl_wmi_reg_enum_key, nasl_wmi_reg_get_bin_val, nasl_wmi_reg_get_dword_val)
+	(nasl_wmi_reg_get_ex_string_val, nasl_wmi_reg_get_mul_string_val)
+	(nasl_wmi_reg_get_qword_val): Added REGISTRTY_HIVE as an argument
+
+	* nasl/nasl_init.c: Updated WMI Registry functions with an additional arg
+	 for REGISTRY HIVE
+
 2010-02-24  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* misc/openvas_server.c (openvas_server_open, openvas_server_connect)
