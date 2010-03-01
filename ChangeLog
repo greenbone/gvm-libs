@@ -1,3 +1,7 @@
+2010-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/CMakeLists.txt: Better naming for VERSION variables.
+
 2010-02-25  Chandrashekhar B <bchandra@secpod.com>
 
 	* nasl/nasl_wmi.c (nasl_wmi_reg_get_sz, nasl_wmi_reg_enum_value)
