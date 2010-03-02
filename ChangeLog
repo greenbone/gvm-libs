@@ -1,3 +1,10 @@
+2010-03-02  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* configure.in: Added support for determining the correct libdir early
+	and for library checking in that directory.
+
+	* configure: Regenerated.
+
 2010-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/CMakeLists.txt: Better naming for VERSION variables.

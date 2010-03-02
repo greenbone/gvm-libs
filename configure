@@ -24331,6 +24331,20 @@ _ACEOF
 fi
 
 
+if test x$libdir = "x\${exec_prefix}/lib" ; then
+  if test x$exec_prefix = xNONE ; then
+    if test x$prefix != xNONE ; then
+      exp_libdir="$prefix/lib"
+    fi
+  else
+    exp_libdir=`eval echo \""$libdir"\"`
+  fi
+else
+  exp_libdir="$libdir"
+fi
+if test x$exp_libdir != x ; then
+  LDFLAGS="-L$exp_libdir $LDFLAGS"
+fi
 { echo "$as_me:$LINENO: checking for wmi_connect in -lwmiclient" >&5
 echo $ECHO_N "checking for wmi_connect in -lwmiclient... $ECHO_C" >&6; }
 if test "${ac_cv_lib_wmiclient_wmi_connect+set}" = set; then

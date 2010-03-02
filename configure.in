@@ -336,6 +336,20 @@ AC_CHECK_FUNC(inet_aton, AC_DEFINE(HAVE_INET_ATON))
 AC_CHECK_LIB(resolv, inet_aton, AC_DEFINE(HAVE_INET_ATON))
 AC_CHECK_LIB(nsl, inet_aton, AC_DEFINE(HAVE_INET_ATON))
 
+if test x$libdir = "x\${exec_prefix}/lib" ; then
+  if test x$exec_prefix = xNONE ; then
+    if test x$prefix != xNONE ; then
+      exp_libdir="$prefix/lib"
+    fi
+  else
+    exp_libdir=`eval echo \""$libdir"\"`
+  fi
+else
+  exp_libdir="$libdir"
+fi
+if test x$exp_libdir != x ; then
+  LDFLAGS="-L$exp_libdir $LDFLAGS"
+fi
 AC_CHECK_LIB(wmiclient, wmi_connect, HAVE_WMI="YES", HAVE_WMI="NO")
 
 dnl This test is from the configure.in of Unix Network Programming second
