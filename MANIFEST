@@ -3,6 +3,8 @@ aclocal.m4
 base/CMakeLists.txt
 base/certificate.c
 base/certificate.h
+base/drop_privileges.c
+base/drop_privileges.h
 base/hash_table_util.c
 base/hash_table_util.h
 base/nvti.c

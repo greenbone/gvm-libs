@@ -1,5 +1,17 @@
 2010-03-03  Michael Wiegand <michael.wiegand@intevation.de>
 
+	Preparing the openvas-libraries 3.0.4 release.
+
+	* CHANGES: Updated.
+
+	* VERSION: Set to 3.0.4.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Updated PROJECT_NUMBER.
+
+	* MANIFEST: Updated.
+
+2010-03-03  Michael Wiegand <michael.wiegand@intevation.de>
+
 	* base/nvti.c (nvti_to_keyfile): Use g_mkdir_with_parents to create
 	cache directories to handle multiple levels of subdirectories correctly.
 

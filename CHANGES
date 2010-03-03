@@ -1,3 +1,30 @@
+openvas-libraries 3.0.4 (2010-03-03)
+
+This is the fourth maintenance release of the openvas-libraries module for the
+Open Vulnerability Assessment System (OpenVAS) 3.0 series.
+
+It fixes several build issues, adds support for Windows registry hives and for
+using parts of openvas-libraries with C++.
+
+Many thanks to everyone who has contributed to this release:
+Chandrashekhar B, Stephan Kleine, Matthew Mundell, Jan-Oliver Wagner, Michael
+Wiegand and Felix Wolfsteller.
+
+Main changes compared to 3.0.3:
+
+* Several build issues on Mandriva have been fixed.
+* Support for using openvas-libraries in C++ code has been introduced for some
+  OMP libraries.
+* The openvas-nasl standalone NASL interpreter is now linked dynamically.
+* A bug which caused some GnuTLS error messages to be printed to stderr instead
+  of to the logs had been fix.
+* Support for registry hives has been added to the WMI registry functions.
+* Support for detecting libraries in non-standard locations during the
+  configuration process has been added.
+* Support for multiple levels of subdirectories in the NVT directory has been
+  improved.
+
+
 openvas-libraries 3.0.3 (2010-02-04)
 
 This is the third maintenance release of the openvas-libraries module for the
