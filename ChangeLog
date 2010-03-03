@@ -1,3 +1,8 @@
+2010-03-03  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* base/nvti.c (nvti_to_keyfile): Use g_mkdir_with_parents to create
+	cache directories to handle multiple levels of subdirectories correctly.
+
 2010-03-02  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* configure.in: Added support for determining the correct libdir early

@@ -1149,7 +1149,7 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
       FILE *fp = fopen (fn, "w");
       if (! fp) { // second try: maybe the directory was missing.
         gchar * cache_dir = g_path_get_dirname(fn);
-        if ((mkdir(cache_dir, 0755) < 0) && (errno != EEXIST)) {
+        if ((g_mkdir_with_parents (cache_dir, 0755) < 0) && (errno != EEXIST)) {
           fprintf(stderr, "mkdir(%s) : %s\n", cache_dir, strerror(errno));
           g_free(text);
           g_key_file_free (keyfile);
