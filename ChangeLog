@@ -1,3 +1,9 @@
+2010-03-08  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Initial ldap_auth module to enable future ldap authentication support.
+
+	* misc/ldap_auth.c, misc/ldap_auth.h: Added new files.
+
 2010-03-03  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post-release version bump.
