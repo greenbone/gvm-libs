@@ -1,5 +1,40 @@
 2010-03-09  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	Add code to add support for remote (ldap) authentication with the
+	openvas_auth module.
+	Authentication methods are somewhat abstracted ("authenticators") and
+	configurable via a file .auth.conf that is expected to be found in
+	the openvas "users" directory. An exemplary .auth.conf file is found
+	in the doc subdirectory. Note that to test ldap authentication
+	modifications to the Makefile are neccessary.
+
+	* misc/openvas_auth.c (auth_method_from_string): New function to get
+	an authentication type from its string representation.
+	(order_compare): New helper function to sort entries read in from the
+	configuration file.
+	(classic_authenticator_new): New function to create an authenticator
+	that behaves as it is now (authentication against file).
+	(add_authenticator): New function to add authenticators to the list of
+	authenticators.
+	(openvas_auth_init): New function to initialize the list of
+	authenticators from the configuration file.
+	(openvas_auth_tear_down): New stub function to free memory associated
+	to the authenticators.
+	(openvas_authenticate_classic): New, extracted from
+	openvas_authenticate.
+	(openvas_authenticate): Fall back to the extracted
+	openvas_authenticate_classic if authenticators list was not
+	successfully initialized, otherwise use the sorted list of
+	authenticators.
+
+	* misc/openvas_auth.h (openvas_auth_init)
+	(openvas_auth_tear_down): Added new protos.
+
+	* doc/example.auth.conf: Exemplary .auth.conf config file for the
+	authentication methods.
+
+2010-03-09  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* misc/ldap_auth.c, misc/ldap_auth.h: Use angle brackets for
 	non-project include.
 

@@ -1,13 +1,14 @@
 /* OpenVAS Libraries
  * $Id$
- * Description: Authentication mechanism.
+ * Description: Authentication mechanism(s).
  *
  * Authors:
  * Matthew Mundell <matt@mundell.ukfsn.org>
  * Michael Wiegand <michael.wiegand@greenbone.net>
+ * Felix Wolfsteller <felix.wolfsteller@intevation.de>
  *
  * Copyright:
- * Copyright (C) 2009 Greenbone Networks GmbH
+ * Copyright (C) 2009,2010 Greenbone Networks GmbH
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,6 +30,270 @@
 #include <errno.h>
 #include <gcrypt.h>
 #include <glib/gstdio.h>
+
+#if ENABLE_LDAP_AUTH != 0
+#include "ldap_auth.h"
+#endif /*ENABLE_LDAP_AUTH*/
+
+#define AUTH_CONF_FILE ".auth.conf"
+
+#define GROUP_PREFIX_METHOD "method:"
+#define KEY_ORDER "order"
+
+
+/**
+ * @file misc/openvas_auth.c
+ *
+ * @brief Authentication mechanisms used by openvas-manager and
+ * @brief openvas-administrator.
+ *
+ * Two authentication mechanisms are supported:
+ *  - local file authentication. The classical authentication mechanism to
+ *    authenticate against files (in PREFIX/var/lib/openvas/users).
+ *  - remote ldap authentication. To authenticate against a remote ldap
+ *    directory server.
+ *
+ * Also a mixture of both can be used. To do so, a configuration file
+ * (PREFIX/var/lib/openvas/.auth.conf) has to be used and the authentication
+ * system has to be initialised with a call to \ref openvas_auth_init and can
+ * be freed with \ref openvas_tear_down .
+ *
+ * The configuration file allows to specify details of a remote ldap
+ * authentication and to assign an "order" value to the specified
+ * authentication mechanisms. Mechanisms with a lower order will be tried
+ * first.
+ */
+
+
+/**
+ * @brief Numerical representation of the supported authentication methods.
+ * @brief Beware to have it in sync with \ref authentication_methods.
+ */
+enum authentication_method {
+  AUTHENTICATION_METHOD_FILE = 0,
+  AUTHENTICATION_METHOD_LDAP,
+  AUTHENTICATION_METHOD_LAST
+};
+
+/** @brief Type for the numerical representation of the supported
+ *  @brief authentication methods. */
+typedef enum authentication_method auth_method_t;
+
+/**
+ * @brief Array of string representations of the supported authentication
+ * @brief methods. Beware to have it in sync with \ref authentication_method.
+ */
+static const gchar* authentication_methods[] = { "file", "ldap", NULL};
+
+/** @brief Flag whether the config file was read. */
+static gboolean initialized = FALSE;
+
+/** @brief List of authentication methods. */
+static GSList* authenticators = NULL;
+
+/** @brief Representation of an abstract authentication mechanism. */
+struct authenticator {
+  /** @brief The method of this authenticator. */
+  auth_method_t method;
+  /** @brief The order. Authenticators with lower order will be tried first. */
+  int order;
+  /** @brief Authentication callback function. */
+  int (*authenticate) (const gchar* user, const gchar* pass, void* data);
+  /** @brief Optional data to be passed to the \ref authenticate callback
+   *  @brief function. */
+  void* data;
+};
+
+/** @brief Authenticator type. */
+typedef struct authenticator* authenticator_t;
+
+
+// forward decl.
+static int
+openvas_authenticate_classic (const gchar * usr, const gchar * pas, void* dat);
+
+
+/**
+ * @brief Return a auth_method_t from string representation (e.g. "ldap").
+ *
+ * Keep in sync with \ref authentication_methods and
+ * \ref authentication_method .
+ *
+ * @param method The string representation of an auth_method_t (e.g. "file").
+ *
+ * @return Respective auth_method_t, -1 for unknown.
+ */
+static auth_method_t
+auth_method_from_string (const char* method)
+{
+  if (method == NULL)
+    return -1;
+
+  int i = 0;
+  for (i = 0; i < AUTHENTICATION_METHOD_LAST; i++)
+    if (!strcmp (method, authentication_methods[i]))
+      return i;
+  return -1;
+}
+
+
+/**
+ * @brief Implements a (GCompareFunc) to add authenticators to the
+ * @brief authenticator list, sorted by the order.
+ *
+ * @param first_auth  First authenticator to be compared.
+ * @param second_auth Second authenticator to be compared.
+ *
+ * @return >0 If the first authenticator should come after the second.
+ */
+static gint
+order_compare (authenticator_t first_auth, authenticator_t second_auth)
+{
+  return (first_auth->order - second_auth->order);
+}
+
+
+/**
+ * @brief Create a fresh authenticator to authenticate against a file.
+ *
+ * @param order Order of the authenticator.
+ *
+ * @return A fresh authenticator to authenticate against a file.
+ */
+static authenticator_t
+classic_authenticator_new (int order)
+{
+  authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
+  authent->order = order;
+  authent->authenticate = &openvas_authenticate_classic;
+  authent->data = (void*) NULL;
+  authent->method = AUTHENTICATION_METHOD_FILE;
+  return authent;
+}
+
+/**
+ * @brief Add an authenticator.
+ *
+ * @param key_file GKeyFile to access for getting data.
+ * @param group    Groupname within \ref key_file to query.
+ */
+static void
+add_authenticator (GKeyFile* key_file, const gchar* group)
+{
+  const char* auth_method_str = group + strlen (GROUP_PREFIX_METHOD);
+  auth_method_t auth_method = auth_method_from_string (auth_method_str);
+  GError* error = NULL;
+  int order = g_key_file_get_integer (key_file, group, KEY_ORDER, &error);
+  if (error != NULL)
+    {
+      g_warning ("No order for authentication method %s specified, "
+                 "skipping this entry.\n", group);
+      g_error_free (error);
+      return;
+    }
+  switch (auth_method)
+    {
+      case AUTHENTICATION_METHOD_FILE:
+        {
+          authenticator_t authent = classic_authenticator_new (order);
+          authenticators = g_slist_insert_sorted (authenticators, authent,
+                                                  (GCompareFunc) order_compare);
+          break;
+        }
+      case AUTHENTICATION_METHOD_LDAP:
+        {
+#ifdef ENABLE_LDAP_AUTH
+          //int (*authenticate_func) (const gchar* user, const gchar* pass, void* data) = NULL;
+          authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
+          authent->order = order;
+          authent->authenticate = &ldap_authenticate;
+          ldap_auth_info_t info = ldap_auth_info_from_key_file (key_file, group);
+          authent->data = info;
+          authent->method = AUTHENTICATION_METHOD_LDAP;
+          authenticators = g_slist_insert_sorted (authenticators, authent,
+                                                  (GCompareFunc) order_compare);
+#else
+          g_warning ("LDAP Authentication was configured, but "
+                    "openvas-libraries was not build with "
+                    "ldap-support. The configuration entry will "
+                    "have no effect.");
+#endif /* ENABLE_LDAP_AUTH */
+          break;
+        }
+      default:
+        g_warning ("Unsupported authentication method: %s.", group);
+        break;
+    }
+}
+
+/**
+ * @brief Initializes the list of authentication methods.
+ *
+ * Parses PREFIX/var/lib/openvas/.auth.conf and adds respective authenticators
+ * to the authenticators list.
+ *
+ * Call once before calls to openvas_authenticate, otherwise the
+ * authentication method will default to file-system based authentication.
+ *
+ * The list should be freed with \ref openvas_auth_tear_down once no further
+ * authentication trials will be done.
+ *
+ * A warning will be issued if \ref openvas_auth_init is called a second time
+ * without a call to \ref openvas_auth_tear_down in between. In this case,
+ * no reconfiguration will take place.
+ */
+void
+openvas_auth_init ()
+{
+  if (initialized == TRUE)
+    {
+      g_warning ("openvas_auth_init called a second time.");
+      return;
+    }
+
+  GKeyFile* key_file = g_key_file_new ();
+  gchar* config_file = g_build_filename (OPENVAS_USERS_DIR, ".auth.conf",
+                                         NULL);
+  gboolean loaded = g_key_file_load_from_file (key_file, config_file, G_KEY_FILE_NONE, NULL);
+  gchar** groups  = NULL;
+  gchar** group   = NULL;
+  g_free (config_file);
+
+  if (loaded == FALSE)
+    {
+      g_key_file_free (key_file);
+      initialized = TRUE;
+      g_warning ("Authentication configuration could not be loaded.\n");
+      return;
+    }
+
+  groups = g_key_file_get_groups (key_file, NULL);
+
+  group = groups;
+  while (*group != NULL)
+    {
+      if (g_str_has_prefix (*group, GROUP_PREFIX_METHOD))
+        {
+          add_authenticator (key_file, *group);
+        }
+      group++;
+    }
+
+  g_key_file_free (key_file);
+  g_strfreev (groups);
+  initialized = TRUE;
+}
+
+/**
+ * @brief Free memory associated to authentication configuration.
+ *
+ * This will have no effect if openvas_auth_init was not called.
+ */
+void
+openvas_auth_tear_down ()
+{
+  /** @todo Close memleak, destroy list and content. */
+}
 
 /**
  * @brief Generate a hexadecimal representation of a message digest.
@@ -127,11 +392,13 @@ get_password_hashes (int gcrypt_algorithm, const gchar * password)
  *
  * @param username Username.
  * @param password Password.
+ * @param data     Ignored.
  *
  * @return 0 authentication success, 1 authentication failure, -1 error.
  */
-int
-openvas_authenticate (const gchar * username, const gchar * password)
+static int
+openvas_authenticate_classic (const gchar * username, const gchar * password,
+                              void* data)
 {
   int gcrypt_algorithm = GCRY_MD_MD5; // FIX whatever configer used
   int ret;
@@ -183,6 +450,43 @@ openvas_authenticate (const gchar * username, const gchar * password)
   ret = strcmp (expect, actual) ? 1 : 0;
   g_free (expect);
   g_free (actual);
+  return ret;
+}
+
+/**
+ * @brief Authenticate a credential pair.
+ *
+ * Uses the configurable authenticators list, if available.
+ * Defaults to file-based (openvas users directory) authentication otherwise.
+ *
+ * @param username Username.
+ * @param password Password.
+ *
+ * @return 0 authentication success, otherwise the result of the last
+ *         authentication trial: 1 authentication failure, -1 error.
+ */
+int
+openvas_authenticate (const gchar * username, const gchar * password)
+{
+  if (initialized == FALSE || authenticators == NULL)
+    return openvas_authenticate_classic (username, password, NULL);
+
+  // Try each authenticator in the list.
+  int ret = -1;
+  GSList* item = authenticators;
+  while (item)
+    {
+      authenticator_t authent = (authenticator_t) item->data;
+      ret = authent->authenticate (username, password, authent->data);
+      g_debug ("Authentication trial, order %d, method %s -> %d.", authent->order,
+               authentication_methods[authent->method], ret);
+
+      // Return if successfull
+      if (ret == 0)
+        return 0;
+
+      item = g_slist_next (item);
+    }
   return ret;
 }
 
