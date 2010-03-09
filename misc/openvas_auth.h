@@ -1,13 +1,14 @@
-/* OpenVAS-Client
+/* OpenVAS Libraries
  * $Id$
- * Description: SSH Key management.
+ * Description: Header for authentication mechanism.
  *
  * Authors:
  * Matthew Mundell <matt@mundell.ukfsn.org>
  * Michael Wiegand <michael.wiegand@greenbone.net>
+ * Felix Wolfsteller <felix.wolfsteller@intevation.de>
  *
  * Copyright:
- * Copyright (C) 2009 Greenbone Networks GmbH
+ * Copyright (C) 2009,2010 Greenbone Networks GmbH
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,6 +30,12 @@
 #define _OPENVAS_AUTH_H
 
 #include <glib.h>
+
+void
+openvas_auth_init ();
+
+void
+openvas_auth_tear_down ();
 
 gchar *
 get_password_hashes (int, const gchar *);

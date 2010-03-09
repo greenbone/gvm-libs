@@ -1,6 +1,6 @@
-/* OpenVAS-Client
+/* OpenVAS Libraries
  * $Id$
- * Description: SSH Key management.
+ * Description: Authentication mechanism.
  *
  * Authors:
  * Matthew Mundell <matt@mundell.ukfsn.org>

@@ -1,4 +1,4 @@
-/* OpenVAS-Client
+/* OpenVAS Libraries
  * $Id$
  * Description: LSC Credentials management.
  *

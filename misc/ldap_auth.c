@@ -1,4 +1,4 @@
-/* OpenVAS Manager
+/* OpenVAS Libraries
  * $Id$
  * Description: LDAP Authentication module.
  *
