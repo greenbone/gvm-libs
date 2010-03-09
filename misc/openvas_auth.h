@@ -31,12 +31,6 @@
 
 #include <glib.h>
 
-void
-openvas_auth_init ();
-
-void
-openvas_auth_tear_down ();
-
 gchar *
 get_password_hashes (int, const gchar *);
 

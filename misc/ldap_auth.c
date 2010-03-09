@@ -27,7 +27,7 @@
 
 #include <stdio.h>
 
-#include "glib.h"
+#include <glib.h>
 
 /** @todo Use non-deprecated counterparts of openldap functionality. */
 #define LDAP_DEPRECATED 1

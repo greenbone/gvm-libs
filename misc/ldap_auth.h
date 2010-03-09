@@ -30,7 +30,7 @@
 #ifndef LDAP_AUTH_H
 #define LDAP_AUTH_H
 
-#include "glib.h"
+#include <glib.h>
 
 
 /**
