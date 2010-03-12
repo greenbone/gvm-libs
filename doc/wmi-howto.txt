@@ -1,0 +1,72 @@
+COMPILING OPENVAS-LIBRARIES WITH WMI SUPPORT
+============================================
+
+Last updated: 2010-03-12
+
+To compile openvas-libraries with WMI support, please follow the steps described
+below. Our hope is that this code will ultimately make it into Samba itself;
+until then, some additional work is necessary but should be straightforward if
+you follow this guide.
+
+1) Download the source tarball for wmi-0.1.13
+This can be a bit difficult since the tarball is no longer provided by the
+original authors; as of the time of this writing, the tarball is available from
+the following location:
+
+http://www.openvas.org/download/wmi/wmi_0.1.13.orig.tar.gz
+
+The tarball should have the following MD5 checksum:
+778e020ab780de36ac7ae2a0bdb60b19
+
+Untar the source tarball with the following command:
+$ tar xzvf wmi_0.1.13.orig.tar.gz
+
+2) Apply the patch
+To enable the WMI integration in OpenVAS, a patch needs to be applied to the
+source you just downloaded. You can download the patch from the following
+location:
+
+http://www.openvas.org/download/wmi/openvas-wmi.patch
+
+The patch should have the following MD5 checksum:
+b57a51c791a8bbf8dd4abb59b44cc50d
+
+Copy the patch to the wmi-0.1.13 directory you just created and apply the patch
+with the following command:
+
+$ patch -p1 < openvas-wmi.patch
+
+3) Compile the source
+In the wmi-0.1.13 directory, execute the following commands:
+$ cd Samba/source
+$ ./autogen.sh
+$ ./configure
+$ make proto wmi/libwmiclient.so
+
+If successful, this will result in the creation of the file
+wmi-0.1.13/Samba/source/wmi/libwmiclient.so. Copy this file to your OpenVAS library
+directory, which may be /usr/lib, /usr/local/lib or $prefix/lib, depending on
+the configuration options you chose when building the other OpenVAS modules.
+
+4) Compile openvas-libraries
+Now configure openvas-libraries in the usual way. Remember to chose the same
+prefix (if any) you used in the previous step. For example:
+
+$ ./configure --prefix=/prefix/to/your/openvas/install
+
+Watch the configure output closely. If you followed the steps above correctly,
+you should see the following line close to the end of the output:
+
+"checking for wmi_connect in -lwmiclient... yes"
+
+If this line ends in "no" instead, make sure you have placed libwmiclient.so in
+the correct directory and run the configure command again.
+
+Now (re)build openvas-libraries and install them:
+
+$ make
+$ make install
+
+After installing, you will be able to use NASL NVTs incorporating the new WMI
+NASL functions.
+

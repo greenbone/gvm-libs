@@ -1,3 +1,9 @@
+2010-03-12  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Added howto for compiling openvas-libraries with WMI support.
+
+	* doc/wmi-howto.txt: New.
+
 2010-03-09  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Add code to add support for remote (ldap) authentication with the
