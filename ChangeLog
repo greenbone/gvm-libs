@@ -1,3 +1,9 @@
+2010-03-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Patch contributed by Mareike Piechowiak <noplant@gmx.de>:
+
+	* base/CMakeLists.txt: Get version dynamically from file VERSION.
+
 2010-03-12  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Added howto for compiling openvas-libraries with WMI support.
