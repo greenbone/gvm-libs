@@ -32,7 +32,7 @@ ALLDEPS = openvas-libraries.tmpl
 all: $(ALLDEPS)
 	cd base && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -DSYSCONFDIR=${sysconfdir} -DLOCALSTATEDIR=${localstatedir} -DHAVE_WMI=$(HAVE_WMI) -DLIBDIR=$(libdir) && ${MAKE}
 	cd misc && ${MAKE}
-	cd hg   && ${MAKE}
+	cd hg   && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -DSYSCONFDIR=${sysconfdir} -DLOCALSTATEDIR=${localstatedir} -DLIBDIR=$(libdir) && ${MAKE}
 	cd nasl && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -DSYSCONFDIR=${sysconfdir} -DLOCALSTATEDIR=${localstatedir} -DLIBDIR=$(libdir) && ${MAKE}
 	cd omp  && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -DSYSCONFDIR=${sysconfdir} -DLOCALSTATEDIR=${localstatedir} -DLIBDIR=$(libdir) && ${MAKE}
 
