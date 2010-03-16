@@ -45,9 +45,13 @@
  *       care.
  */
 struct ldap_auth_info {
-  gchar* auth_dn_before_user; ///< First part of the DN to authenticate with.
-  gchar* auth_dn_after_user;  ///< Last part of the DN to authenticate with.
-  gchar* ldap_host;          ///< Adress of the ldap server, might include port.
+  gchar* ldap_host;         ///< Adress of the ldap server, might include port.
+  gchar* auth_dn;                 ///< DN to authenticate with.
+  /** @brief Attribute to check against \ref role_user_values and
+   *  @brief \ref role_admin_values. Empty string if n/a. */
+  gchar* role_attribute;
+  gchar*/***/ role_admin_values;  ///< Attribute values that qualify an admin.
+  gchar*/***/ role_user_values;   ///< Attribute values that qualify a user.
 };
 
 /** @brief Authentication schema and adress type. */
@@ -55,15 +59,16 @@ typedef struct ldap_auth_info* ldap_auth_info_t;
 
 
 ldap_auth_info_t
-ldap_auth_info_new (const gchar* _auth_dn_before_user,
-                    const gchar* _auth_dn_after_user,
-                    const gchar* _ldap_host);
+ldap_auth_info_new (const gchar* ldap_host, const gchar* auth_dn,
+                    const gchar* role_attribute,
+                    const gchar* role_user_values,
+                    const gchar* role_admin_values);
 
 void
 ldap_auth_info_free (ldap_auth_info_t info);
 
 int
-ldap_authenticate (const gchar* username, const gchar* password, 
+ldap_authenticate (const gchar* username, const gchar* password,
                    ldap_auth_info_t info);
 
 ldap_auth_info_t

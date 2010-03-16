@@ -23,21 +23,24 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifdef ENABLE_LDAP_AUTH
+
 #include "ldap_auth.h"
 
 #include <stdio.h>
 
 #include <glib.h>
 
-/** @todo Use non-deprecated counterparts of openldap functionality. */
+/** @todo Use non-deprecated counterparts of openldap functionality (see
+ *        further TODOS). */
 #define LDAP_DEPRECATED 1
 #include "ldap.h"
 
-//#define KEY_LDAP_AUTHDN "authdn"
-#define KEY_LDAP_DNPRE "dnpre"
-#define KEY_LDAP_DNPOST "dnpost"
 #define KEY_LDAP_HOST "ldaphost"
-
+#define KEY_LDAP_DN_AUTH "authdn"
+#define KEY_LDAP_ROLE_ATTRIBUTE "role-attribute"
+#define KEY_LDAP_ROLE_USER_VALUES "role-user-values"
+#define KEY_LDAP_ROLE_ADMIN_VALUES "role-admin-values"
 
 /**
  * @file ldap_auth.c
@@ -46,30 +49,71 @@
  */
 
 /**
+ * @brief True if parameter contains just one %s and no evil other characters.
+ *
+ * @param authdn The string to check.
+ *
+ * @return TRUE if authdn is considered safe enough to be sprintf'ed into.
+ */
+static gboolean
+auth_dn_is_good (const gchar* authdn)
+{
+  if (authdn == NULL)
+    return FALSE;
+
+  // Must contain %s
+  if (!strstr (authdn, "%s"))
+    return FALSE;
+
+  // Must not contain other %-signs
+  char* pos = strchr (authdn, '%');
+  pos = strchr (pos + 1, '%');
+  if (pos != NULL)
+    return FALSE;
+
+  return TRUE;
+}
+
+
+/**
  * @brief Create a new ldap authentication schema and info.
  *
- * @param a_auth_dn_before_user Part of the DN before the actual user name,
- *                              e.g. \"uid=\". Might not be NULL, but empty.
- * @param a_auth_dn_after_user  Part of the DN after the actual user name,
- *                              e.g. \",cn=powerusers,o=greenbone,c=net\".
- *                              Might not be NULL, but empty.
+ * @param ldap_host         Host to authenticate against. Might not be NULL,
+ *                          but empty.
+ * @param auth_dn           DN where the actual user name is to be inserted at
+ *                          "%s", e.g. uid=%s,cn=users. Might not be NULL,
+ *                          but empty, has to contain a single %s.
+ * @param role_attribute    Attribute that qualifies a role. Might not be NULL,
+ *                          but empty.
+ * @param role_user_values  Comma-separated list of values for
+ *                          \ref role_attribute that qualify as a user.
+ *                          Might not be NULL, but empty.
+ * @param role_admin_values Comma-separated list of values
+ *                          for \ref role_attribute that qualify as an admin.
+ *                          Might not be NULL, but empty.
  *
  * @return Fresh ldap_auth_info_t, or NULL if one of the given parameters was
  *         NULL. Free with ldap_auth_info_free.
  */
 ldap_auth_info_t
-ldap_auth_info_new (const gchar* _auth_dn_before_user,
-                    const gchar* _auth_dn_after_user,
-                    const gchar* _ldap_host)
+ldap_auth_info_new (const gchar* ldap_host, const gchar* auth_dn,
+                    const gchar* role_attribute,
+                    const gchar* role_user_values,
+                    const gchar* role_admin_values)
 {
   // Parameters might not be NULL.
-  if (!_auth_dn_before_user || !_auth_dn_after_user || !_ldap_host)
+  if (!ldap_host || !auth_dn || !role_attribute || !role_user_values || !role_admin_values)
+    return NULL;
+
+  if (auth_dn_is_good (auth_dn) == FALSE)
     return NULL;
 
   ldap_auth_info_t info = g_malloc0 (sizeof (struct ldap_auth_info));
-  info->auth_dn_before_user = g_strdup (_auth_dn_before_user);
-  info->auth_dn_after_user = g_strdup (_auth_dn_after_user);
-  info->ldap_host = g_strdup (_ldap_host);
+  info->ldap_host = g_strdup (ldap_host);
+  info->auth_dn = g_strdup (auth_dn);
+  info->role_attribute = g_strdup (role_attribute);
+  info->role_user_values = g_strdup (role_user_values);
+  info->role_admin_values = g_strdup (role_admin_values);
 
   return info;
 }
@@ -83,9 +127,11 @@ ldap_auth_info_new (const gchar* _auth_dn_before_user,
 void
 ldap_auth_info_free (ldap_auth_info_t info)
 {
-  g_free (info->auth_dn_before_user);
-  g_free (info->auth_dn_after_user);
   g_free (info->ldap_host);
+  g_free (info->auth_dn);
+  g_free (info->role_attribute);
+  g_free (info->role_admin_values);
+  g_free (info->role_user_values);
 
   g_free (info);
 }
@@ -106,8 +152,8 @@ ldap_auth_info_create_dn (const ldap_auth_info_t info, const gchar* username)
   if (info == NULL || username == NULL)
     return NULL;
 
-  gchar* dn = g_strdup_printf ("%s%s%s", info->auth_dn_before_user, username,
-                               info->auth_dn_after_user);
+  gchar* dn = g_strdup_printf (info->auth_dn, username);
+
   return dn;
 }
 
@@ -128,6 +174,7 @@ ldap_authenticate (const gchar* username, const gchar* password,
   if (info == NULL || username == NULL || password == NULL || !info->ldap_host)
     return -1;
 
+  /** @todo deprecated, use ldap_initialize or ldap_create */
   LDAP* ldap      = (LDAP*) ldap_open (info->ldap_host, LDAP_PORT);
   gchar* dn       = NULL;
   int ldap_return = 0;
@@ -140,16 +187,21 @@ ldap_authenticate (const gchar* username, const gchar* password,
 
   dn = ldap_auth_info_create_dn (info, username);
 
+  /** @todo deprecated, use ldap_sasl_bind_s */
   ldap_return = ldap_simple_bind_s (ldap, dn, password);
   if (ldap_return != LDAP_SUCCESS)
     {
       g_warning ("LDAP authentication failure.");
     }
 
+  /** @todo If just a role-attribute and a role-mapping is defined in this
+   *        configuration, check the attribute value(s) here. */
+
   /** @todo Administrator/ Access-attributes to be checked here. */
 
-  g_free (dn);
+  /** @todo deprecated, use ldap_unbind_ext_s */
   ldap_unbind (ldap);
+  g_free (dn);
 
   if (ldap_return != LDAP_SUCCESS)
     return 1;
@@ -172,16 +224,43 @@ ldap_auth_info_from_key_file (GKeyFile* key_file, const gchar* group)
   if (key_file == NULL || group == NULL)
     return NULL;
 
-  /** @todo Errors to be checked here. */
-  gchar* dnpre = g_key_file_get_string (key_file, group, KEY_LDAP_DNPRE, NULL);
-  gchar* dnpost = g_key_file_get_string (key_file, group, KEY_LDAP_DNPOST, NULL);
-  gchar* ldaphost = g_key_file_get_string (key_file, group, KEY_LDAP_HOST, NULL);
+  /** @todo Errors to be checked here, get string lists for the role values. */
+  gchar* auth_dn = g_key_file_get_string (key_file, group,
+                                          KEY_LDAP_DN_AUTH, NULL);
+  gchar* ldap_host = g_key_file_get_string (key_file, group,
+                                            KEY_LDAP_HOST, NULL);
+  gchar* role_attr = g_key_file_get_string (key_file, group,
+                                            KEY_LDAP_ROLE_ATTRIBUTE, NULL);
+  gchar* role_usrv = g_key_file_get_string (key_file, group,
+                                            KEY_LDAP_ROLE_USER_VALUES, NULL);
+  gchar* role_admv = g_key_file_get_string (key_file, group,
+                                            KEY_LDAP_ROLE_ADMIN_VALUES, NULL);
 
-  ldap_auth_info_t info = ldap_auth_info_new (dnpre, dnpost, ldaphost);
+  ldap_auth_info_t info = ldap_auth_info_new (ldap_host, auth_dn,
+                                              role_attr,
+                                              role_usrv,
+                                              role_admv);
 
-  g_free (dnpre);
-  g_free (dnpost);
-  g_free (ldaphost);
+  g_free (auth_dn);
+  g_free (ldap_host);
+  g_free (role_attr);
+  g_free (role_usrv);
+  g_free (role_admv);
 
   return info;
 }
+
+
+/**
+ * @brief Query the role of a user.
+ *
+ * @return Role of the user, e.g. "admin", "user" or "none".
+ */
+gchar*
+ldap_auth_query_role (const gchar* username, const gchar* password,
+                   /*const*/ ldap_auth_info_t info)
+{
+  return NULL;
+}
+
+#endif /* ENABLE_LDAP_AUTH */

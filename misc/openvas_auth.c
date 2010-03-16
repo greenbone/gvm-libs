@@ -31,7 +31,7 @@
 #include <gcrypt.h>
 #include <glib/gstdio.h>
 
-#if ENABLE_LDAP_AUTH != 0
+#ifdef ENABLE_LDAP_AUTH
 #include "ldap_auth.h"
 #endif /*ENABLE_LDAP_AUTH*/
 

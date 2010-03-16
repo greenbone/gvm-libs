@@ -1,3 +1,21 @@
+2010-03-16  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	Improved remote authentication (ldap), changed config file format.
+
+	* misc/openvas_auth.c: Use ifdef instead of if != 0 .
+
+	* misc/ldap_auth.h: Extended ldap_auth_info struct to cover upcoming
+	possible admin/user distinction, replaced two entries for DN to
+	authenticate against with a single entry.
+
+	* misc/ldap_auth.c (auth_dn_is_good): New function to check auth_dn
+	entry of keyfile.
+	(ldap_auth_dn_new, ldap_info_create_dn): Reflect changes to the
+	ldap_auth_info struct.
+	(ldap_auth_query_role): New function stub to find out role of user.
+
+	* doc/example.auth.conf: Updated.
+
 2010-03-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Patch contributed by Mareike Piechowiak <noplant@gmx.de>:
