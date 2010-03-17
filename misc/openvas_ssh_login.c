@@ -26,10 +26,10 @@
 #include <glib/gstdio.h>
 
 #include <fcntl.h> /* for open */
-#include <system.h> /* for efree */
 #include <unistd.h> /* for write */
 
 #include "openvas_ssh_login.h"
+#include "system.h" /* for efree */
 
 #define KEY_SSHLOGIN_USERNAME     "username"
 #define KEY_SSHLOGIN_USERPASSWORD "userpassword"

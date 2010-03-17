@@ -67,6 +67,7 @@ misc/arglists.c
 misc/arglists.h
 misc/bpf_share.h
 misc/bpf_share.c
+misc/CMakeLists.txt
 misc/comm.h
 misc/ftp_funcs.c
 misc/ftp_funcs.h
@@ -80,7 +81,6 @@ misc/ids_send.c
 misc/ids_send.h
 misc/kb.c
 misc/kb.h
-misc/Makefile
 misc/network.c
 misc/network.h
 misc/otp.h

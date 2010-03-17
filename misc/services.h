@@ -24,14 +24,14 @@
 
 /* **** FILES **** */
 
-#define OPENVAS_SERVICES	 OPENVAS_STATE_DIR "/lib/openvas/openvas-services"
+#define OPENVAS_SERVICES	 OPENVAS_STATE_DIR "/openvas-services"
 /* If you want OpenVAS to use a second input file, uncomment next line */
 /*#define OPENVAS_IANA_PORTS	CONF_DIR "/iana-port-numbers"*/
 
-#define OPENVAS_SERVICES_TCP	OPENVAS_STATE_DIR "/lib/openvas/services.tcp"
-#define OPENVAS_SERVICES_UDP	OPENVAS_STATE_DIR "/lib/openvas/services.udp"
+#define OPENVAS_SERVICES_TCP	OPENVAS_STATE_DIR "/services.tcp"
+#define OPENVAS_SERVICES_UDP	OPENVAS_STATE_DIR "/services.udp"
 /* Not really useful but for debug or information */
-#define OPENVAS_SERVICES_TXT	OPENVAS_STATE_DIR "/lib/openvas/services.txt"
+#define OPENVAS_SERVICES_TXT	OPENVAS_STATE_DIR "/services.txt"
 
 #define SERVICES_MAGIC 0x42
 

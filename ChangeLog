@@ -1,3 +1,20 @@
+2010-03-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Patch contributed by Mareike Piechowiak <noplant@gmx.de>:
+
+	* misc/Makefile: Removed.
+
+	* misc/CMakeLists.txt: New.
+
+	* Makefile: Run cmake for library misc.
+
+	* MANIFEST: Updated.
+
+	* misc/openvas_ssh_login.c, misc/proctitle.c: Change <system.h>
+	to "system.h" to run with CMakeLists.txt.
+
+	* misc/services.h: Fixed paths.
+
 2010-03-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Patch contributed by Mareike Piechowiak <noplant@gmx.de>:

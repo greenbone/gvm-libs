@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include <system.h>
 #ifndef HAVE_SETPROCTITLE
 #ifdef __linux__
 #include "proctitle.h"
+#include "system.h"
 
  static char	**Argv = NULL;		/* pointer to argument vector */
  static char	*LastArgv = NULL;	/* end of argv */
