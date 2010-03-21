@@ -125,6 +125,7 @@ distclean: clean
 	rm -f openvas-libraries.tmpl libopenvas-config libopenvas-config.pre
 	rm -f libopenvas.pc
 	rm -rf doc/generated
+	find . -name CMakeCache.txt -exec rm {} \;
 
 dist:
 	version="`cat VERSION`"; \
