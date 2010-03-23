@@ -206,11 +206,11 @@ add_library (libopenvas_base SHARED IMPORTED)
 add_library (libopenvas_hg SHARED IMPORTED)
 add_library (libopenvas_misc SHARED IMPORTED)
 set_property (TARGET libopenvas_misc PROPERTY
-              IMPORTED_LOCATION ../base/libopenvas_base.so)
+              IMPORTED_LOCATION ../misc/libopenvas_misc.so)
 set_property (TARGET libopenvas_base PROPERTY
-              IMPORTED_LOCATION ../misc/.libs/libopenvas_misc.so)
+              IMPORTED_LOCATION ../base/libopenvas_base.so)
 set_property (TARGET libopenvas_hg PROPERTY
-              IMPORTED_LOCATION ../hg/.libs/libopenvas_hg.so)
+              IMPORTED_LOCATION ../hg/libopenvas_hg.so)
 
 # Link the openvas-nasl executable
 add_executable (openvas-nasl ${FILES})

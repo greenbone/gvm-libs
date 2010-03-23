@@ -134,7 +134,6 @@ exec_program (pkg-config
 ## Pass-throughs
 
 include_directories(../misc)
-link_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../misc/.libs )
 
 # Library
 

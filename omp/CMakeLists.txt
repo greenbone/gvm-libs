@@ -141,7 +141,7 @@ set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall")
 set (FILES xml.c omp.c)
 
 include_directories (../misc)
-link_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../misc/.libs )
+link_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../misc )
 
 add_library (openvas_omp_static STATIC ${FILES})
 set_target_properties (openvas_omp_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")

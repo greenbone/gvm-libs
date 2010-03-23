@@ -1,3 +1,14 @@
+2010-03-23  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Fixed some library paths that broke linking.
+
+	* omp/CMakeLists.txt: Removed superfluous .libs from link_directories.
+
+	* nasl/CMakeLists.txt: Fixed IMPORTED_LOCATION for libopenvas_hg and
+	libopenvas_base, corrected order of set_property.
+
+	* hg/CMakeLists.txt: Removed entirely superfluous link_directories.
+
 2010-03-21  Vlatko Kosturjak <kost@linux.hr>
 
 	* Makefile: with distclean clean CMakeCache.txt recursively
