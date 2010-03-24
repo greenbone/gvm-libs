@@ -151,10 +151,17 @@ set (FILES arglists.c bpf_share.c ftp_funcs.c harglists.c hash_table_file.c hlst
            rand.c resolve.c scanners_utils.c services1.c services.c share_fd.c
            store.c system.c www_funcs.c pcap.c)
 
+set (HEADERS arglists.h bpf_share.h ftp_funcs.h hash_table_file.h kb.h
+             network.h otp.h pcap_openvas.h plugutils.h popen.h proctitle.h
+             rand.h resolve.h openvas_ssh_login.h openvas_logging.h
+             openvas_server.h openvas_auth.h scanners_utils.h services1.h
+             share_fd.h store.h system.h www_funcs.h)
+
 add_library (openvas_misc_static STATIC ${FILES})
 set_target_properties (openvas_misc_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
 set_target_properties (openvas_misc_static PROPERTIES OUTPUT_NAME "openvas_misc")
 set_target_properties (openvas_misc_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+set_target_properties (openvas_misc_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 add_library (openvas_misc_shared SHARED ${FILES})
 set_target_properties (openvas_misc_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
@@ -162,6 +169,7 @@ set_target_properties (openvas_misc_shared PROPERTIES OUTPUT_NAME "openvas_misc"
 set_target_properties (openvas_misc_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_misc_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_misc_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
+set_target_properties (openvas_misc_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 if (OPENVAS_USERS_DIR)
   add_definitions (-DOPENVAS_USERS_DIR=\\\"${OPENVAS_USERS_DIR}\\\")
@@ -184,6 +192,7 @@ message ("-- installing libraries...")
 install (TARGETS openvas_misc_static openvas_misc_shared
          RUNTIME DESTINATION ${BINDIR}
          LIBRARY DESTINATION ${LIBDIR}
-         ARCHIVE DESTINATION ${LIBDIR})
+         ARCHIVE DESTINATION ${LIBDIR}
+         PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/openvas")
 
 

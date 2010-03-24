@@ -144,10 +144,14 @@ set (FILES certificate.c hash_table_util.c nvti.c nvticache.c
 openvas_certificate_file.c openvas_string.c pidfile.c severity_filter.c
 settings.c)
 
+set (HEADERS certificate.h hash_table_util.h nvti.h settings.h
+openvas_certificate_file.h openvas_string.h pidfile.h severity_filter.h)
+
 add_library (openvas_base_static STATIC ${FILES})
 set_target_properties (openvas_base_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
 set_target_properties (openvas_base_static PROPERTIES OUTPUT_NAME "openvas_base")
 set_target_properties (openvas_base_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+set_target_properties (openvas_base_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 add_library (openvas_base_shared SHARED ${FILES})
 set_target_properties (openvas_base_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
@@ -155,6 +159,7 @@ set_target_properties (openvas_base_shared PROPERTIES OUTPUT_NAME "openvas_base"
 set_target_properties (openvas_base_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_base_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_base_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
+set_target_properties (openvas_base_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 if (OPENVAS_PID_DIR)
   add_definitions (-DOPENVAS_PID_DIR=\\\"${OPENVAS_PID_DIR}\\\")
@@ -168,7 +173,8 @@ target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS})
 install (TARGETS openvas_base_static openvas_base_shared
          RUNTIME DESTINATION ${BINDIR}
          LIBRARY DESTINATION ${LIBDIR}
-         ARCHIVE DESTINATION ${LIBDIR})
+         ARCHIVE DESTINATION ${LIBDIR}
+         PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/openvas/base")
 
 ## Documentation
 

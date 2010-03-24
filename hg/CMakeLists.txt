@@ -143,10 +143,13 @@ set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -fPIC")
 set (FILES hg_add_hosts.c hg_debug.c hg_dns_axfr.c hg_filter.c hg_subnet.c 
            hg_utils.c hosts_gatherer.c)
 
+set (HEADERS hg_utils.h hosts_gatherer.h)
+
 add_library (openvas_hg_static STATIC ${FILES})
 set_target_properties (openvas_hg_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
 set_target_properties (openvas_hg_static PROPERTIES OUTPUT_NAME "openvas_hg")
 set_target_properties (openvas_hg_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+set_target_properties (openvas_hg_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 add_library (openvas_hg_shared SHARED ${FILES})
 set_target_properties (openvas_hg_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
@@ -154,6 +157,7 @@ set_target_properties (openvas_hg_shared PROPERTIES OUTPUT_NAME "openvas_hg")
 set_target_properties (openvas_hg_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_hg_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_hg_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
+set_target_properties (openvas_hg_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 if (OPENVAS_PID_DIR)
   add_definitions (-DOPENVAS_PID_DIR=\\\"${OPENVAS_PID_DIR}\\\")
@@ -167,7 +171,8 @@ message ("-- installing libraries...")
 install (TARGETS openvas_hg_static openvas_hg_shared
          RUNTIME DESTINATION ${BINDIR}
          LIBRARY DESTINATION ${LIBDIR}
-         ARCHIVE DESTINATION ${LIBDIR})
+         ARCHIVE DESTINATION ${LIBDIR}
+         PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/openvas/hg")
 
 
 #documentation

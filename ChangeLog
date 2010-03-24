@@ -1,3 +1,15 @@
+2010-03-24  Michael Wiegand <michael.wiegand@intevation.de>
+
+	Moved installation of header files away from top level Makefile and
+	into the CMakeLists.txt of the individual modules.
+
+	* omp/CMakeLists.txt, misc/CMakeLists.txt, nasl/CMakeLists.txt,
+	hg/CMakeLists.txt, base/CMakeLists.txt: Added handling of header
+	installation.
+
+	* Makefile: Removed handling of header file installation for individual
+	modules.
+
 2010-03-23  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Fixed some library paths that broke linking.

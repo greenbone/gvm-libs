@@ -47,9 +47,6 @@ install-tools:
 install: all install-tools
 	test -d $(DESTDIR)${prefix} || ${INSTALL_DIR} -m 755 $(DESTDIR)${prefix}
 	test -d $(DESTDIR)${includedir}/openvas || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas
-	test -d $(DESTDIR)${includedir}/openvas/base || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas/base
-	test -d $(DESTDIR)${includedir}/openvas/nasl || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas/nasl
-	test -d $(DESTDIR)${includedir}/openvas/omp || ${INSTALL_DIR} -m 755 $(DESTDIR)${includedir}/openvas/omp
 
 	cd base && ${MAKE} install
 	cd misc && ${MAKE} install
@@ -59,40 +56,6 @@ install: all install-tools
 
 	$(INSTALL) -m 0444 include/nvt_categories.h $(DESTDIR)${includedir}/openvas
 	$(INSTALL) -m 0444 include/libvers.h   $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/arglists.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/bpf_share.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/ftp_funcs.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/hash_table_file.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/kb.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/network.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/otp.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/pcap_openvas.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/plugutils.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/popen.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/proctitle.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/rand.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/resolve.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/openvas_ssh_login.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/openvas_logging.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/openvas_server.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/openvas_auth.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/scanners_utils.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/services1.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/share_fd.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/store.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/system.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 misc/www_funcs.h $(DESTDIR)${includedir}/openvas
-	$(INSTALL) -m 0444 base/certificate.h $(DESTDIR)${includedir}/openvas/base
-	$(INSTALL) -m 0444 base/hash_table_util.h $(DESTDIR)${includedir}/openvas/base
-	$(INSTALL) -m 0444 nasl/nasl.h   $(DESTDIR)${includedir}/openvas/nasl
-	$(INSTALL) -m 0444 base/nvti.h $(DESTDIR)${includedir}/openvas/base
-	$(INSTALL) -m 0444 base/settings.h $(DESTDIR)${includedir}/openvas/base
-	$(INSTALL) -m 0444 base/openvas_certificate_file.h $(DESTDIR)${includedir}/openvas/base
-	$(INSTALL) -m 0444 base/openvas_string.h $(DESTDIR)${includedir}/openvas/base
-	$(INSTALL) -m 0444 base/pidfile.h $(DESTDIR)${includedir}/openvas/base
-	$(INSTALL) -m 0444 base/severity_filter.h $(DESTDIR)${includedir}/openvas/base
-	$(INSTALL) -m 0444 omp/omp.h $(DESTDIR)${includedir}/openvas/omp
-	$(INSTALL) -m 0444 omp/xml.h $(DESTDIR)${includedir}/openvas/omp
 	test -d $(DESTDIR)${bindir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${bindir}
 	$(INSTALL) -m 0755 libopenvas-config $(DESTDIR)${bindir}/libopenvas-config
 	test -d $(DESTDIR)${mandir} || ${INSTALL_DIR} -m 755 $(DESTDIR)${mandir}

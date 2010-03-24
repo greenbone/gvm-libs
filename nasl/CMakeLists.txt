@@ -156,6 +156,8 @@ set (FILES capture_packet.c exec.c hmacmd5.c lint.c lsearch.c md5.c nasl.c
      nasl_signature.c nasl_smb.c nasl_socket.c nasl_text_utils.c nasl_tree.c
      nasl_var.c nasl_wmi.c preparse.c regex.c strutils.c smb_crypt.c smb_crypt2.c)
 
+set (HEADERS nasl.h)
+
 if (NOT HAVE_WMI)
   set (FILES smb_interface_stub.c wmi_interface_stub.c ${FILES})
 else (NOT HAVE_WMI)
@@ -180,6 +182,7 @@ add_library (openvas_nasl_static STATIC ${FILES})
 set_target_properties (openvas_nasl_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS}")
 set_target_properties (openvas_nasl_static PROPERTIES OUTPUT_NAME "openvas_nasl")
 set_target_properties (openvas_nasl_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+set_target_properties (openvas_nasl_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
 target_link_libraries (openvas_nasl_static libopenvas_base libopenvas_misc
 			libopenvas_hg glib-2.0 gcrypt gpgme
 			gpg-error gnutls pcap resolv)
@@ -190,6 +193,7 @@ set_target_properties (openvas_nasl_shared PROPERTIES OUTPUT_NAME "openvas_nasl"
 set_target_properties (openvas_nasl_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_nasl_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_nasl_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
+set_target_properties (openvas_nasl_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 
 # Find GLib
@@ -227,7 +231,8 @@ set_target_properties (openvas-nasl PROPERTIES LINK_FLAGS
 install (TARGETS openvas_nasl_static openvas_nasl_shared openvas-nasl
          RUNTIME DESTINATION ${BINDIR}
          LIBRARY DESTINATION ${LIBDIR}
-         ARCHIVE DESTINATION ${LIBDIR})
+         ARCHIVE DESTINATION ${LIBDIR}
+         PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/openvas/nasl")
 
 ## Documentation
 
