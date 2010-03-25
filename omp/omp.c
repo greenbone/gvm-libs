@@ -432,6 +432,78 @@ omp_start_task (gnutls_session_t* session, const char* task_id)
   return omp_start_task_report (session, task_id, NULL);
 }
 
+/**
+ * @brief Resume or start a task and read the manager response.
+ *
+ * @param[in]   session    Pointer to GNUTLS session.
+ * @param[in]   task_id    ID of task.
+ * @param[out]  report_id  ID of report.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+omp_resume_or_start_task_report (gnutls_session_t* session, const char* task_id,
+                                 char** report_id)
+{
+  if (openvas_server_sendf (session,
+                            "<resume_or_start_task task_id=\"%s\"/>",
+                            task_id)
+      == -1)
+    return -1;
+
+  /* Read the response. */
+
+  entity_t entity = NULL;
+  if (read_entity (session, &entity)) return -1;
+
+  /* Check the response. */
+
+  const char* status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  char first = status[0];
+  if (first == '2')
+    {
+      if (report_id)
+        {
+          entity_t report_id_xml = entity_child (entity, "report_id");
+          if (report_id_xml)
+            *report_id = g_strdup (entity_text (report_id_xml));
+          else
+            {
+              free_entity (entity);
+              return -1;
+            }
+        }
+      free_entity (entity);
+      return 0;
+    }
+  free_entity (entity);
+  return -1;
+}
+
+/**
+ * @brief Resume or start a task and read the manager response.
+ *
+ * @param[in]   session    Pointer to GNUTLS session.
+ * @param[in]   task_id    ID of task.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+omp_resume_or_start_task (gnutls_session_t* session, const char* task_id)
+{
+  return omp_resume_or_start_task_report (session, task_id, NULL);
+}
+
 /** @todo Use this in the other functions. */
 /**
  * @brief Read response and convert status of response to a return value.

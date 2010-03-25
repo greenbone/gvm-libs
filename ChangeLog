@@ -1,3 +1,10 @@
+2010-03-25  Matthew Mundell <matthew.mundell@intevation.de>
+
+	* omp/omp.c (omp_resume_or_start_task_report, omp_resume_or_start_task):
+	New functions.
+
+	* omp/omp.h: Add headers accordingly.
+
 2010-03-24  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Moved installation of header files away from top level Makefile and
@@ -88,7 +95,7 @@
 2010-03-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Patch contributed by Mareike Piechowiak <noplant@gmx.de>:
-	
+
 	* omp/CMakeLists.txt: Get version dynamically from file VERSION.
 
 2010-03-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
