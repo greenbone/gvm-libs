@@ -200,6 +200,10 @@ int which_ttl(method, old_ttl)
   close(f);
   ttl = atoi(rd);
  }
+ else
+ {
+  ttl = 64;
+ }
 #else
  /*
   * TODO :

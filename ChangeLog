@@ -1,3 +1,7 @@
+2010-03-25  Tim Brown <timb@openvas.org>
+
+	* openvas-libraries/misc/ids_send.c: Fixed uninitialised variable.
+
 2010-03-25  Matthew Mundell <matthew.mundell@intevation.de>
 
 	* omp/omp.c (omp_resume_or_start_task_report, omp_resume_or_start_task):
