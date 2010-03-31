@@ -253,12 +253,12 @@ store_load_plugin (const char * file, struct arglist * prefs)
   plug_set_version (ret, nvti_version(n));
   plug_set_cve_id (ret, nvti_cve(n));
   plug_set_bugtraq_id (ret, nvti_bid(n));
-// TODO: these two need exra parameter parsed out
-// of the actual string. However, xref and tag
-// seem not to appear in the nvti files at all,
-// so this needs to be fixed first.
-//  plug_set_xref (ret, nvti_xref(n));
-//  plug_set_tag (ret, nvti_tag(n));
+  if (nvti_tag (n) != NULL)
+    arg_add_value (ret, "TAGS", ARG_STRING,
+                   strlen (nvti_tag (n)), g_strdup (nvti_tag (n)));
+  if (nvti_xref (n) != NULL)
+    arg_add_value (ret, "XREFS", ARG_STRING,
+                   strlen (nvti_xref (n)), g_strdup (nvti_xref (n)));
   plug_set_summary (ret, nvti_summary(n));
   plug_set_description (ret, nvti_description(n));
   plug_set_copyright (ret, nvti_copyright(n));

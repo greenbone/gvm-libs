@@ -1,3 +1,8 @@
+2010-03-31  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* misc/store.c (store_load_plugin): Load tags and xrefs into the arglist
+	if they are set in the NVTi cache. Removed obsolete TODO.
+
 2010-03-25  Tim Brown <timb@openvas.org>
 
 	* openvas-libraries/misc/ids_send.c: Fixed uninitialised variable.
