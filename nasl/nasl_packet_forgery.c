@@ -1,4 +1,4 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2004 Tenable Network Security
  *
@@ -1022,7 +1022,7 @@ tree_cell*	forge_icmp_packet(lex_ctxt* lexic)
       icmp->icmp_id = htons(get_int_local_var_by_name(lexic, "icmp_id", 0));
      
       if(data != NULL)bcopy(data, &(p[8]), len);
-  
+
       if(get_int_local_var_by_name(lexic, "icmp_cksum", -1) == -1 )
       	icmp->icmp_cksum = np_in_cksum((u_short *) icmp, len + 8);
       else
@@ -1173,13 +1173,17 @@ tree_cell * forge_igmp_packet(lex_ctxt * lexic)
 
 tree_cell * nasl_tcp_ping(lex_ctxt * lexic)
 {
+  struct arglist *  script_infos = lexic->script_infos;
+  struct in6_addr * dst = plug_get_host_ip(script_infos);
+  if(IN6_IS_ADDR_V4MAPPED(dst) != 1){
+	tree_cell * retc = nasl_tcp_v6_ping(lexic);
+	return retc;
+  }
   int port;
   u_char packet[sizeof(struct ip)+sizeof(struct tcphdr)];
   int soc;
   struct ip * ip = (struct ip *)packet;
   struct tcphdr * tcp = (struct tcphdr *)(packet + sizeof(struct ip));
-  struct arglist *  script_infos = lexic->script_infos;
-  struct in6_addr * dst = plug_get_host_ip(script_infos);
   struct in_addr src;
   struct sockaddr_in soca;
   int flag = 0;
@@ -1198,10 +1202,8 @@ tree_cell * nasl_tcp_ping(lex_ctxt * lexic)
   struct in_addr *pinaddr;
   struct in_addr inaddr;
 
-
   if( dst == NULL || (IN6_IS_ADDR_V4MAPPED(dst) != 1))
     return NULL;
-
   inaddr.s_addr = dst->s6_addr32[3];
   pinaddr = &inaddr;
   for(i=0;i < sizeof(sports) / sizeof(int); i ++)
@@ -1210,11 +1212,8 @@ tree_cell * nasl_tcp_ping(lex_ctxt * lexic)
   }
 
 
-
-
   for(i=0;ports[i];i++)num_ports ++;
   i = 0;
-
 
   soc = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
   if(soc < 0)
@@ -1223,8 +1222,6 @@ tree_cell * nasl_tcp_ping(lex_ctxt * lexic)
   if(setsockopt(soc, IPPROTO_IP, IP_HDRINCL, (char*)&opt, sizeof(opt))<0)
     perror("setsockopt ");
 #endif
-
-
 
   port = get_int_local_var_by_name(lexic, "port", -1);
   if(port == -1)
@@ -1420,28 +1417,39 @@ tree_cell * nasl_pcap_next(lex_ctxt* lexic)
   static char errbuf[PCAP_ERRBUF_SIZE];
   int is_ip = 0;
   struct ip * ret = NULL;
+  struct ip6_hdr * ret6 = NULL;
   char *filter = get_str_local_var_by_name(lexic, "pcap_filter");
   int timeout = get_int_local_var_by_name(lexic, "timeout", 5);
   tree_cell * retc;
   int sz;
   struct in6_addr * dst = plug_get_host_ip(lexic->script_infos);
   struct in_addr inaddr;
+  char hostname1[INET6_ADDRSTRLEN];
+  char hostname2[INET6_ADDRSTRLEN];
 
-  if(dst == NULL || (IN6_IS_ADDR_V4MAPPED(dst) != 1 ))
-    return NULL;
+  if(dst == NULL ){
+	return NULL;
+  }
+  int v4_addr = IN6_IS_ADDR_V4MAPPED(dst);
   if(interface == NULL )
   {
-    struct in_addr src;
-    bzero(&src, sizeof(src));
-    inaddr.s_addr = dst->s6_addr32[3];
-    interface = routethrough(&inaddr, &src);
+	if(v4_addr){
+		struct in_addr src;
+                bzero(&src, sizeof(src));
+                inaddr.s_addr = dst->s6_addr32[3];
+                interface = routethrough(&inaddr, &src);
+	}
+	else{
+		struct in6_addr src;
+                bzero(&src, sizeof(src));
+                interface = v6_routethrough(dst, &src);
+    }
     if( interface == NULL )interface = pcap_lookupdev(errbuf);
   }
 
-  if(interface != NULL)
+  if(interface != NULL){
     bpf = bpf_open_live(interface, filter);
-
-
+  }
   if(bpf < 0)
   {
     nasl_perror(lexic, "pcap_next: Could not get a bpf\n");
@@ -1466,27 +1474,48 @@ tree_cell * nasl_pcap_next(lex_ctxt* lexic)
       if(timeout != 0)
       {
         gettimeofday(&now, NULL);
-        if(now.tv_sec - then.tv_sec >= timeout)break;
+        if(now.tv_sec - then.tv_sec >= timeout){
+        	break;
+        }
       }
     }
 
     if(packet)
     {
-      struct ip * ip;
-      ip = (struct ip*)(packet + dl_len);
-      sz = UNFIX(ip->ip_len);
-      ret = emalloc(sz);
+	  if(v4_addr){
+		  struct ip * ip;
+		  ip = (struct ip*)(packet + dl_len);
+		  sz = UNFIX(ip->ip_len);
+		  ret = emalloc(sz);
 
-      is_ip = (ip->ip_v == 4);
-      if(is_ip)
-      {
+		  is_ip = (ip->ip_v == 4);
 
-        bcopy(ip, ret, sz);
-      }
-      else {
-        sz = len - dl_len;
-        bcopy(ip, ret, sz);
-      }
+		  if(is_ip)
+		  {
+			  bcopy(ip, ret, sz);
+		  }
+		  else {
+			  sz = len - dl_len;
+			  bcopy(ip, ret, sz);
+		  }
+	  }
+	 else{
+		 struct ip6_hdr * ip;
+		 ip = (struct ip6_hdr*)(packet + dl_len);
+		 sz = UNFIX(ip->ip6_plen);
+		 ret6 = emalloc(sz);
+
+		 is_ip = ((ip->ip6_flow & 0x3ffff) == 96);
+		 if(is_ip)
+		 {
+			 bcopy(ip, ret6, sz);
+		 }
+		 else {
+			 sz = len - dl_len;
+			 bcopy(ip, ret6, sz);
+		 }
+
+	  }
     }
     else {
       bpf_close(bpf);
@@ -1497,11 +1526,15 @@ tree_cell * nasl_pcap_next(lex_ctxt* lexic)
   retc = alloc_tree_cell(0, NULL);
 
   retc->type = CONST_DATA;
-  retc->x.str_val = (char*)ret;
+  if(v4_addr)
+	  retc->x.str_val = (char*)ret;
+  else
+	  retc->x.str_val = (char*)ret6;
   retc->size = sz;
 
   return retc;
 }
+
 
 tree_cell * nasl_send_capture(lex_ctxt* lexic)
 {
@@ -1510,6 +1543,7 @@ tree_cell * nasl_send_capture(lex_ctxt* lexic)
   static char errbuf[PCAP_ERRBUF_SIZE];
   int is_ip = 0;
   struct ip * ret = NULL;
+  struct ip6_hdr * ret6 = NULL;
   char *filter = get_str_local_var_by_name(lexic, "pcap_filter");
   int timeout = get_int_local_var_by_name(lexic, "timeout", 5);
   tree_cell * retc;
@@ -1517,21 +1551,28 @@ tree_cell * nasl_send_capture(lex_ctxt* lexic)
   struct in6_addr * dst = plug_get_host_ip(lexic->script_infos);
   struct in_addr inaddr;
 
-  if(dst == NULL || (IN6_IS_ADDR_V4MAPPED(dst) != 1 ))
+  if(dst == NULL)
     return NULL;
 
+  int v4_addr = IN6_IS_ADDR_V4MAPPED(dst);
   if(interface == NULL )
   {
-    struct in_addr src;
-    bzero(&src, sizeof(src));
-    inaddr.s_addr = dst->s6_addr32[3];
-    interface = routethrough(&inaddr, &src);
+    if(v4_addr){
+    	struct in_addr src;
+    	bzero(&src, sizeof(src));
+    	inaddr.s_addr = dst->s6_addr32[3];
+    	interface = routethrough(&inaddr, &src);
+    }
+    else{
+	struct in6_addr src;
+    	bzero(&src, sizeof(src));
+    	interface = v6_routethrough(dst, &src);
+    }
     if( interface == NULL )interface = pcap_lookupdev(errbuf);
   }
 
   if(interface != NULL)
     bpf = bpf_open_live(interface, filter);
-
 
   if(bpf < 0)
   {
@@ -1544,7 +1585,6 @@ tree_cell * nasl_send_capture(lex_ctxt* lexic)
     int dl_len = get_datalink_size(bpf_datalink(bpf));
     char * packet;
     struct timeval then, now;
-
 
     retc = nasl_send(lexic);
     efree(&retc);
@@ -1566,20 +1606,36 @@ tree_cell * nasl_send_capture(lex_ctxt* lexic)
 
     if(packet)
     {
-      struct ip * ip;
-      ip = (struct ip*)(packet + dl_len);
-      sz = UNFIX(ip->ip_len);
-      ret = emalloc(sz);
+      if(v4_addr){
+      	struct ip * ip;
+      	ip = (struct ip*)(packet + dl_len);
+      	sz = UNFIX(ip->ip_len);
+      	ret = emalloc(sz);
 
-      is_ip = (ip->ip_v == 4);
-      if(is_ip)
-      {
-
-        bcopy(ip, ret, sz);
-      }
-      else {
-        sz = len - dl_len;
-        bcopy(ip, ret, sz);
+      	is_ip = (ip->ip_v == 4);
+      	if(is_ip)
+      	{
+       		bcopy(ip, ret, sz);
+      	}
+      	else {
+        	sz = len - dl_len;
+        	bcopy(ip, ret, sz);
+      	}
+     }
+     else{
+	struct ip6_hdr * ip;
+      	ip = (struct ip6_hdr*)(packet + dl_len);
+      	sz = UNFIX(ip->ip6_plen);
+      	ret6 = emalloc(sz);
+      	is_ip = ((ip->ip6_flow & 0x3ffff) == 96);
+      	if(is_ip)
+      	{
+        	bcopy(ip, ret6, sz);
+      	}
+      	else {
+        	sz = len - dl_len;
+        	bcopy(ip, ret6, sz);
+      	}
       }
     }
     else {
@@ -1591,7 +1647,10 @@ tree_cell * nasl_send_capture(lex_ctxt* lexic)
   retc = alloc_tree_cell(0, NULL);
 
   retc->type = CONST_DATA;
-  retc->x.str_val = (char*)ret;
+  if(v4_addr)
+  	retc->x.str_val = (char*)ret;
+  else
+	retc->x.str_val = (char*)ret6;
   retc->size = sz;
 
   return retc;

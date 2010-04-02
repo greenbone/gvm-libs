@@ -133,3 +133,100 @@ struct ip * capture_next_packet(int bpf, int timeout, int * sz)
   }
  return((struct ip*)ret);
 }
+
+
+int init_v6_capture_device(struct in6_addr src, struct in6_addr dst, char * filter)
+{
+  int ret = -1;
+  char * interface = NULL;
+  char * a_dst, *a_src;
+  int free_filter = 0;
+  char name[INET6_ADDRSTRLEN];
+  char errbuf[PCAP_ERRBUF_SIZE];
+
+  a_src = estrdup(inet_ntop(AF_INET6, &src, name, INET6_ADDRSTRLEN));
+  a_dst = estrdup(inet_ntop(AF_INET6, &dst, name, INET6_ADDRSTRLEN));
+
+  if((filter == NULL) || (filter[0]=='\0') || (filter[0]=='0'))
+  {
+    filter = emalloc(256);
+    free_filter = 1;
+    if(v6_islocalhost(&src) == 0)
+      snprintf(filter, 256, "ip and (src host %s and dst host %s", a_src, a_dst);
+  }
+  else {
+    if(v6_islocalhost(&src) == 0)
+      filter = estrdup(filter);
+    else
+      filter = emalloc(1);
+    free_filter = 1;
+  }
+
+  efree(&a_dst);
+  efree(&a_src);
+
+  if((interface = v6_routethrough(&src, &dst))||
+    (interface = pcap_lookupdev(errbuf)))
+      ret = bpf_open_live(interface, filter);
+
+  if(free_filter != 0)
+    efree(&filter);
+
+  return ret;
+}
+
+
+struct ip6_hdr * capture_next_v6_packet(int bpf, int timeout, int * sz)
+{
+  int len;
+  int dl_len;
+  char * packet = NULL;
+  char * ret = NULL;
+  struct timeval past, now, then;
+  struct timezone tz;
+
+  if(bpf < 0)
+    return NULL;
+
+  dl_len =  get_datalink_size(bpf_datalink(bpf));
+  bzero(&past, sizeof(past));
+  bzero(&now, sizeof(now));
+  gettimeofday(&then, &tz);
+
+  for(;;)
+  {
+    bcopy(&then, &past, sizeof(then));
+    packet = (char*)bpf_next(bpf, &len);
+
+    if(packet != NULL)
+      break;
+
+    gettimeofday(&now, &tz);
+    if(now.tv_usec < past.tv_usec)
+    {
+      past.tv_sec ++;
+      now.tv_usec += 1000000;
+    }
+
+    if(timeout > 0)
+    {
+      if((now.tv_sec - past.tv_sec) >= timeout)
+        break;
+    }
+    else break;
+  }
+
+  if(packet != NULL)
+  {
+    struct ip6_hdr * ip6;
+    ip6 = (struct ip6_hdr *)(packet + dl_len);
+#ifdef BSD_BYTE_ORDERING
+    ip6->ip6_plen = ntohs(ip6->ip6_plen);
+#endif
+    ret = emalloc(len - dl_len);
+    bcopy(ip6, ret, len -  dl_len);
+    if(sz != NULL)*sz = len - dl_len;
+  }
+
+  return((struct ip6_hdr*)ret);
+}

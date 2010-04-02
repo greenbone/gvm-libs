@@ -46,6 +46,7 @@
 #include "nasl_crypto2.h"
 #include "nasl_wmi.h"
 #include "nasl_smb.h"
+#include "nasl_packet_forgery_v6.h"
 
 
 /* **************************************************************** */
@@ -204,29 +205,50 @@ static init_func libfuncs[] = {
   { "forge_ip_packet",	forge_ip_packet, 0, 
     { "data", "ip_dst", "ip_hl", "ip_id", "ip_len", "ip_off", "ip_p", 
       "ip_src", "ip_sum", "ip_tos", "ip_ttl", "ip_v", NULL } },
+  { "forge_ipv6_packet", forge_ipv6_packet, 0, 
+    { "data", "ip6_dst", "ip6_fl", "ip6_hlim", "ip6_p", "ip6_src", 
+      "ip6_tc", "ip6_v", NULL } },
 
   { "get_ip_element",	get_ip_element, 0, { "element", "ip", NULL } },
+  { "get_ipv6_element",	get_ipv6_element, 0, { "element", "ipv6", NULL } },
+
   { "set_ip_elements",	set_ip_elements, 0, 
     { "ip", "ip_dst", "ip_hl", "ip_id", 
       "ip_len", "ip_off", "ip_p", "ip_src", 
       "ip_sum", "ip_tos", "ip_ttl", "ip_v", NULL } },
+  { "set_ipv6_elements", set_ipv6_elements, 0,
+    { "ip6", "ip6_dst", "ip6_fl", "ip6_hlim", "ip6_nxt", "ip6_plen",
+      "ip6_src", "ip6_tc", "ip6_v", NULL } },
 
   { "insert_ip_options", insert_ip_options, 0, { "code", "ip", "length", "value", NULL} },
   { "dump_ip_packet", dump_ip_packet, 9999, { NULL } },
+  { "dump_ipv6_packet", dump_ipv6_packet, 9999, { NULL } },
 
   { "forge_tcp_packet", forge_tcp_packet, 0,
     { "data", "ip", "th_ack", "th_dport", "th_flags", "th_off", "th_seq",
       "th_sport", "th_sum", "th_urp", "th_win", "th_x2", "update_ip_len", NULL } },
+  { "forge_tcp_v6_packet", forge_tcp_v6_packet, 0,
+    { "data", "ip6", "th_ack", "th_dport", "th_flags", "th_off",
+      "th_seq", "th_sport", "th_sum", "th_urp", 
+      "th_win", "th_x2", NULL } },
 
   { "get_tcp_element", get_tcp_element, 0,
+    { "element", "tcp", NULL } },
+  { "get_tcp_v6_element", get_tcp_v6_element, 0,
     { "element", "tcp", NULL } },
 
   { "set_tcp_elements", set_tcp_elements, 0, 
     { "data", "tcp", "th_ack", "th_dport", "th_flags", "th_off", "th_seq",
       "th_sport", "th_sum", "th_urp", "th_win", "th_x2", NULL } },
+  { "set_tcp_v6_elements", set_tcp_v6_elements, 0,
+    { "data", "tcp", "th_ack", "th_dport",
+      "th_flags", "th_off", "th_seq", "th_sport",
+      "th_sum", "th_urp", "th_win", "th_x2", NULL } },
 
   { "dump_tcp_packet", dump_tcp_packet, 999, { NULL } },
+  { "dump_tcp_v6_packet", dump_tcp_v6_packet, 999, { NULL } },
   { "tcp_ping", nasl_tcp_ping, 0, { "port", NULL } },
+  { "tcp_v6_ping", nasl_tcp_v6_ping, 0, { "port", NULL } },
 
   { "forge_udp_packet", forge_udp_packet, 0,
     { "data", "ip", "uh_dport", "uh_sport", "uh_sum", "uh_ulen", "update_ip_len", NULL } },
@@ -249,6 +271,8 @@ static init_func libfuncs[] = {
   { "forge_igmp_packet", forge_igmp_packet, 0, 
     { "code", "data", "group", "ip", "type", "update_ip_len", NULL } },
   { "send_packet", nasl_send_packet, 99, 
+    { "length", "pcap_active", "pcap_filter", "pcap_timeout", NULL } },
+  { "send_v6packet", nasl_send_v6packet, 99,
     { "length", "pcap_active", "pcap_filter", "pcap_timeout", NULL } },
 
   { "pcap_next", nasl_pcap_next, 1, { "interface", "pcap_filter", "timeout", NULL} },

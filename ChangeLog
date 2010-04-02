@@ -1,3 +1,24 @@
+2010-04-02  Preeti Subramanian <spreeti@secpod.com>
+	Packet Forgery support for IPv6.
+
+	* nasl/capture_packet.c (init_v6_capture_device,
+	capture_next_v6_packet): Added new functions.
+
+	* nasl/capture_packet.h (init_v6_capture_device,
+	capture_next_v6_packet): Added new functions.
+
+	* nasl/nasl_packet_forgery.c (nasl_tcp_ping, nasl_pcap_next,
+	nasl_send_capture): Modified to support IPv6.
+
+	* nasl/nasl_packet_forgery_v6.c: Added new module.
+
+	* nasl/nasl_packet_forgery_v6.h: Added new.
+
+	* nasl/CMakeLists.txt: Included nasl_packet_forgery_v6.c.
+
+	* nasl/nasl_init.c: Updated newly added functions from
+	nasl_packet_forgery_v6.c
+
 2010-03-31  Michael Wiegand <michael.wiegand@intevation.de>
 
 	* misc/store.c (store_load_plugin): Load tags and xrefs into the arglist
