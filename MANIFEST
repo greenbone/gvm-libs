@@ -160,6 +160,8 @@ nasl/nasl_misc_funcs.c
 nasl/nasl_misc_funcs.h
 nasl/nasl_packet_forgery.c
 nasl/nasl_packet_forgery.h
+nasl/nasl_packet_forgery_v6.c
+nasl/nasl_packet_forgery_v6.h
 nasl/nasl_raw.h
 nasl/nasl_regex.h
 nasl/nasl_scanner_glue.c

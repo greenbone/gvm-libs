@@ -1,14 +1,21 @@
+2010-04-03  Michael Wiegand <michael.wiegand@intevation.de>
+
+	* MANIFEST: Added missing files.
+
+	* ChangeLog: Tidied last entry.
+
 2010-04-02  Preeti Subramanian <spreeti@secpod.com>
+
 	Packet Forgery support for IPv6.
 
-	* nasl/capture_packet.c (init_v6_capture_device,
-	capture_next_v6_packet): Added new functions.
+	* nasl/capture_packet.c (init_v6_capture_device)
+	(capture_next_v6_packet): Added new functions.
 
-	* nasl/capture_packet.h (init_v6_capture_device,
-	capture_next_v6_packet): Added new functions.
+	* nasl/capture_packet.h (init_v6_capture_device)
+	(capture_next_v6_packet): Added new functions.
 
-	* nasl/nasl_packet_forgery.c (nasl_tcp_ping, nasl_pcap_next,
-	nasl_send_capture): Modified to support IPv6.
+	* nasl/nasl_packet_forgery.c (nasl_tcp_ping, nasl_pcap_next)
+	(nasl_send_capture): Modified to support IPv6.
 
 	* nasl/nasl_packet_forgery_v6.c: Added new module.
 
