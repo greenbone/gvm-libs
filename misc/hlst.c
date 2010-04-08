@@ -106,12 +106,6 @@ size_hint_percentage_compressor = DEFAULT_PERCENTAGE_COMPRESSOR ;
 static void *sorter_desc ;
 static int (*sorter_fn)(void*,const char*,unsigned,const char*,unsigned);
 
-#ifdef USE_PTHREADS
-/* some global sync for logging etc  -- make custum sorting thread safe */
-static int glob_mutex_initialized = 0;
-static pthread_mutex_t glob_mutex; 
-#endif
-
 /* ------------------------------------------------------------------------- *
  *               hashed index ank key length calculation                     *
  * ------------------------------------------------------------------------- */
@@ -143,32 +137,12 @@ static pthread_mutex_t glob_mutex;
 #define GET_HASH_AND_LEN( h, H, len, key)	\
   { if (len) _GET_HASH (h,H,len,key) else _GET_HASH_AND_STRLEN(h,H,len,key) }
 
-
-#ifdef USE_PTHREADS
-# define mutex_init(x)     pthread_mutex_init    (x, 0)
-# define mutex_destroy(x)  pthread_mutex_destroy (x)
-# define mutex_lock(x)     pthread_mutex_lock    (x)
-# define mutex_unlock(x)   pthread_mutex_unlock  (x)
-# define globally_lock()   _glob_lock ()
-# define globally_unlock() mutex_unlock (&glob_mutex)
-static void
-_glob_lock
-  (void)
-{
-  if (glob_mutex_initialized == 0) {
-    mutex_init (&glob_mutex);
-    glob_mutex_initialized = 1;
-  }
-  mutex_lock (&glob_mutex);
-}
- #else
 # define mutex_init(x)     /* empty */
 # define mutex_lock(x)     /* empty */
 # define mutex_unlock(x)   /* empty */
 # define mutex_destroy(x)  /* empty */
 # define globally_lock()   /* empty */
 # define globally_unlock() /* empty */
-#endif
 
 /* ------------------------------------------------------------------------- *
  *                      private functions                                    *

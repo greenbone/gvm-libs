@@ -205,25 +205,6 @@ char *strchr (), *strrchr ();
 #endif            
 #endif   
 
-
-
-#ifdef WINDOWSNT
-#define USE_NT_THREADS
-#else
-#ifndef USE_PTHREADS
-#define USE_FORK_THREADS
-#endif
-
-
-#ifdef USE_PTHREADS
-#if HAVE_PTHREAD_H
-#include <pthread.h>
-#else
-#error "Your system is lacking pthread support"
-#endif
-#endif
-#endif /* not defined(WINDOWSNT) */
-
 #ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
 #endif

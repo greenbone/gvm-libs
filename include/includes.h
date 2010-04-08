@@ -165,30 +165,6 @@
 #include <setjmp.h>
 #endif
 
-/*
- * Threads management
- *
- * OpenVAS is currently able to deal with 
- * 3 kinds of threads API :
- *
- * - the POSIX Threads
- * - the WindowsNT Threads
- * - fork() used as Threads
- *
- */
-
-#ifndef USE_PTHREADS
-#define USE_FORK_THREADS
-#endif
-
-#ifdef USE_PTHREADS
-# ifdef HAVE_PTHREAD_H
-#  include <pthread.h>
-# else
-#  error "Your system is lacking pthread support"
-# endif
-#endif
-
 #ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
 #endif

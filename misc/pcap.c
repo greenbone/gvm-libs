@@ -1433,36 +1433,11 @@ routethrough (struct in_addr *dest, struct in_addr *source)
     if (!addy.s_addr)  {  /* Solaris 2.4 */
       struct hostent *myhostent = NULL;
       char myname[MAXHOSTNAMELEN + 1];
-#if defined(USE_PTHREADS) && defined(HAVE_GETHOSTBYNAME_R)
-      int Errno = 0;
-      char * buf = emalloc(4096);
-      struct hostent * res = NULL;
-      struct hostent * t = NULL;
-
-      myhostent = emalloc(sizeof(struct hostent));
-#ifdef HAVE_SOLARIS_GETHOSTBYNAME_R
-      gethostbyname_r(myname, myhostent, buf, 4096, &Errno);
-      if(Errno){
-        free(myhostent);
-        myhostent = NULL;
-      }
-#else
-      gethostbyname_r(myname, myhostent, buf, 4096, &res, &Errno);
-      t = myhostent;
-      myhostent = res;
-#endif /* HAVE_SOLARIS_... */
-      myhostent = res;
-#else
       myhostent = gethostbyname(myname);
-#endif /* USE_PTHREADS     */
       if (gethostname(myname, MAXHOSTNAMELEN) ||
           !myhostent)
         printf("Cannot get hostname!  Try using -S <my_IP_address> or -e <interface to scan through>\n");
       memcpy(&(addy.s_addr), myhostent->h_addr_list[0], sizeof(struct in_addr));
-#if defined(USE_PTHREADS) && defined(HAVE_GETHOSTBYNAME_R)
-      if(myhostent)free(myhostent);
-      free(buf);
-#endif
     }
 
     /* Now we insure this claimed address is a real interface ... */

@@ -79,18 +79,6 @@ openvas_lib_version (int* major, int* minor, int* rev)
  *rev   = OPENVASLIBS_REV;
 }
 
-#ifdef USE_PTHREADS
-int
-openvaslib_pthreads_enabled()
-{
- int enabled = 1;
- return(enabled);
-}
-#endif
-
-
-
-
 /**
  * @brief Escapes \\n and \\r and \\ in \<in\> properly. The
  * @brief resulting string is copied and returned.
