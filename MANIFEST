@@ -52,7 +52,6 @@ hg/hosts_gatherer.c
 hg/hosts_gatherer.h
 hg/test.c
 include/config.h.in
-include/includes.h
 include/libopenvas.h
 include/libvers.h.in
 include/nvt_categories.h

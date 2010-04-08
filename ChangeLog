@@ -1,5 +1,13 @@
 2010-04-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/smb_crypt2.c: Use local includes.h.
+
+	* include/includes.h: Removed.
+
+	* MANIFEST: Updated.
+
+2010-04-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* include/includes.h, misc/pcap.c, misc/plugutils.c,
 	misc/hlst.c, nasl/includes.h: Removed code path
 	for "USE_PTHREADS". It was never active anyway.
