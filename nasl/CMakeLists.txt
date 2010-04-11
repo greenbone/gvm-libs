@@ -185,7 +185,7 @@ set_target_properties (openvas_nasl_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_nasl_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
 target_link_libraries (openvas_nasl_static libopenvas_base libopenvas_misc
 			libopenvas_hg glib-2.0 gcrypt gpgme
-			gpg-error gnutls pcap resolv)
+			gpg-error gnutls pcap)
 
 add_library (openvas_nasl_shared SHARED ${FILES})
 set_target_properties (openvas_nasl_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS}")
@@ -194,6 +194,9 @@ set_target_properties (openvas_nasl_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_nasl_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_nasl_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
 set_target_properties (openvas_nasl_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
+target_link_libraries (openvas_nasl_shared libopenvas_base libopenvas_misc
+			libopenvas_hg glib-2.0 gcrypt gpgme
+			gpg-error gnutls pcap)
 
 
 # Find GLib

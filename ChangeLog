@@ -1,3 +1,9 @@
+2010-04-12  Stephan Kleine
+
+	* nasl/CMakeLists.txt: explicitly link against needed
+	libraries so it works also with no-undefined which is
+	e.g. used by Mandriva.
+
 2010-04-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/smb_crypt2.c: Replaced include of includes.h by ctype.h.
