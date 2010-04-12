@@ -1463,7 +1463,7 @@ tree_cell * nasl_tcp_v6_ping(lex_ctxt * lexic)
       bzero(&soca, sizeof(soca));
       soca.sin6_family = AF_INET6;
       soca.sin6_addr = ip->ip6_dst;
-      sendto(soc, (const void*)ip, 40, 0, (struct sockaddr *)&soca, sizeof(struct sockaddr_in6));
+      sendto(soc, (const void*)ip, sizeof(struct tcphdr) + sizeof(struct ip6_hdr), 0, (struct sockaddr *)&soca, sizeof(struct sockaddr_in6));
       tv.tv_sec = 0;
       tv.tv_usec = 100000;
       if(bpf >= 0 && (pk = bpf_next_tv(bpf, &len, &tv)))flag++;

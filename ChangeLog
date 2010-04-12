@@ -1,5 +1,10 @@
 2010-04-12  Preeti Subramanian <spreeti@secpod.com>
 
+	* nasl/nasl_packet_forgery_v6.c (nasl_tcp_v6_ping): Fixed 
+	issue in packet size caluclation.
+
+2010-04-12  Preeti Subramanian <spreeti@secpod.com>
+
 	Packet forgery support for ICMPv6, UDP, IGMP.
 
 	* nasl/nasl_packet_forgery.c: Addressed compilation warnings.
