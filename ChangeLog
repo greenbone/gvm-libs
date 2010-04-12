@@ -1,5 +1,10 @@
 2010-04-12  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
+	* nasl/CMakeLists.txt: Do not include standalone nasl tool object in
+	libraries. Statically link openvas-nasl instead.
+
+2010-04-12  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
 	* nasl/CMakeLists.txt: Lowercased cmake commands.
 
 2010-04-12  Stephan Kleine

@@ -149,7 +149,7 @@ add_custom_command (
    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.tab.h
    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.output)
 
-set (FILES capture_packet.c exec.c hmacmd5.c lint.c lsearch.c md5.c nasl.c
+set (FILES capture_packet.c exec.c hmacmd5.c lint.c lsearch.c md5.c
      nasl_cmd_exec.c nasl_crypto2.c nasl_crypto.c nasl_debug.c nasl_func.c
      nasl_grammar.tab.c nasl_host.c nasl_http.c nasl_init.c nasl_lex_ctxt.c
      nasl_misc_funcs.c nasl_scanner_glue.c nasl_packet_forgery.c nasl_packet_forgery_v6.c
@@ -221,10 +221,10 @@ set_property (TARGET libopenvas_hg PROPERTY
               IMPORTED_LOCATION ../hg/libopenvas_hg.so)
 
 # Link the openvas-nasl executable
-add_executable (openvas-nasl ${FILES})
-target_link_libraries (openvas-nasl libopenvas_base libopenvas_misc
-                       libopenvas_hg ${GLIB_LDFLAGS} -lgcrypt -lgpgme
-                       -lgpg-error -lgnutls -lpcap -lresolv)
+add_executable (openvas-nasl nasl.c)
+target_link_libraries (openvas-nasl openvas_nasl_static libopenvas_base
+                       libopenvas_misc libopenvas_hg ${GLIB_LDFLAGS} -lgcrypt
+                       -lgpgme -lgpg-error -lgnutls -lpcap -lresolv)
 set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
                        ${GLIB_CFLAGS})
 set_target_properties (openvas-nasl PROPERTIES LINK_FLAGS
