@@ -1,3 +1,7 @@
+2010-04-12  Felix Wolfsteller <felix.wolfsteller@intevation.de>
+
+	* nasl/CMakeLists.txt: Lowercased cmake commands.
+
 2010-04-12  Stephan Kleine
 
 	* nasl/CMakeLists.txt: explicitly link against needed
