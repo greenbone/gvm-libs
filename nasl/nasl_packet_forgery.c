@@ -45,6 +45,7 @@
 #include "capture_packet.h"
 #include "strutils.h"
 #include "nasl_packet_forgery.h"
+#include "nasl_packet_forgery_v6.h"
 
 /** @todo: It still needs to be taken care
  * BSD_BYTE_ORDERING gets here if defined (e.g. by config.h) */
@@ -1424,8 +1425,6 @@ tree_cell * nasl_pcap_next(lex_ctxt* lexic)
   int sz;
   struct in6_addr * dst = plug_get_host_ip(lexic->script_infos);
   struct in_addr inaddr;
-  char hostname1[INET6_ADDRSTRLEN];
-  char hostname2[INET6_ADDRSTRLEN];
 
   if(dst == NULL ){
 	return NULL;

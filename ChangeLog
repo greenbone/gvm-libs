@@ -1,3 +1,27 @@
+2010-04-12  Preeti Subramanian <spreeti@secpod.com>
+
+	Packet forgery support for ICMPv6, UDP, IGMP.
+
+	* nasl/nasl_packet_forgery.c: Addressed compilation warnings.
+
+	* nasl/nasl_packet_forgery_v6.c (insert_ipv6_options)
+	(forge_udp_v6_packet) (set_udp_v6_elements) (dump_udp_v6_packet)
+	(get_udp_v6_element) (forge_icmp_v6_packet) (get_icmp_v6_element)
+	(forge_igmp_v6_packet): Added new functions.
+
+	* nasl/nasl_packet_forgery_v6.c (nasl_tcp_v6_ping): Fixed checksum 
+	calculation logic and compiler warnings.
+
+	* nasl/nasl_packet_forgery_v6.c (nasl_send_v6packet): Fixed 
+	compiler warnings.
+
+	* nasl/nasl_packet_forgery_v6.h (insert_ipv6_options)
+	(forge_udp_v6_packet) (set_udp_v6_elements) (dump_udp_v6_packet)
+	(get_udp_v6_element) (forge_icmp_v6_packet) (get_icmp_v6_element)
+	(forge_igmp_v6_packet): Added new functions. 
+
+	* nasl/nasl_init.c: Added the above new functions.
+
 2010-04-12  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	* nasl/CMakeLists.txt: Do not include standalone nasl tool object in

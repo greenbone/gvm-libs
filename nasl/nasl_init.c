@@ -221,6 +221,7 @@ static init_func libfuncs[] = {
       "ip6_src", "ip6_tc", "ip6_v", NULL } },
 
   { "insert_ip_options", insert_ip_options, 0, { "code", "ip", "length", "value", NULL} },
+  { "insert_ipv6_options", insert_ipv6_options, 0, { "code", "flags", "ip6", "length", "lifetime", "reacheable_time", "retransmit_timer", "value", NULL} },
   { "dump_ip_packet", dump_ip_packet, 9999, { NULL } },
   { "dump_ipv6_packet", dump_ipv6_packet, 9999, { NULL } },
 
@@ -252,24 +253,38 @@ static init_func libfuncs[] = {
 
   { "forge_udp_packet", forge_udp_packet, 0,
     { "data", "ip", "uh_dport", "uh_sport", "uh_sum", "uh_ulen", "update_ip_len", NULL } },
+  { "forge_udp_v6_packet", forge_udp_v6_packet, 0,
+    { "data", "ip6", "uh_dport", "uh_sport", "uh_sum", "uh_ulen", "update_ip6_len", NULL } },
 
   { "get_udp_element", get_udp_element, 0, 
+    { "element", "udp", NULL } },
+  { "get_udp_v6_element", get_udp_v6_element, 0, 
     { "element", "udp", NULL } },
 
   { "set_udp_elements", set_udp_elements, 0,
     { "data", "udp", "uh_dport", "uh_sport", "uh_sum", "uh_ulen", NULL } },
+  { "set_udp_v6_elements", set_udp_v6_elements, 0,
+    { "data", "udp", "uh_dport", "uh_sport", "uh_sum", "uh_ulen", NULL } },
 
   { "dump_udp_packet", dump_udp_packet, 999, { NULL } },
+  { "dump_udp_v6_packet", dump_udp_v6_packet, 999, { NULL } },
 
   { "forge_icmp_packet",forge_icmp_packet, 0,
     { "data", "icmp_cksum", "icmp_code", "icmp_id", "icmp_seq", "icmp_type", 
       "ip", "update_ip_len", NULL } },
+  { "forge_icmp_v6_packet",forge_icmp_v6_packet, 0,
+    { "data", "icmp_cksum", "icmp_code", "icmp_id", "icmp_seq", "icmp_type", 
+      "ip6", "update_ip6_len", NULL } },
 
   { "get_icmp_element", get_icmp_element, 0, 
+    { "element", "icmp", NULL } },
+  { "get_icmp_v6_element", get_icmp_v6_element, 0, 
     { "element", "icmp", NULL } },
 
   { "forge_igmp_packet", forge_igmp_packet, 0, 
     { "code", "data", "group", "ip", "type", "update_ip_len", NULL } },
+  { "forge_igmp_v6_packet", forge_igmp_v6_packet, 0, 
+    { "code", "data", "group", "ip", "type", "update_ip6_len", NULL } },
   { "send_packet", nasl_send_packet, 99, 
     { "length", "pcap_active", "pcap_filter", "pcap_timeout", NULL } },
   { "send_v6packet", nasl_send_v6packet, 99,
