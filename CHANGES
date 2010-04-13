@@ -1,3 +1,25 @@
+openvas-libraries 3.0.5 (2010-04-13)
+
+This is the fifth maintenance release of the openvas-libraries module for the
+Open Vulnerability Assessment System (OpenVAS) 3.0 series.
+
+It contains support for resuming tasks, improved packet forgery support for IPv6
+environments and a reworked internal build infrastructure.
+
+Many thanks to everyone who has contributed to this release:
+Tim Brown, Stephan Kleine, Vlatko Kosturjak, Matthew Mundell, Mareike
+Piechowiak, Preeti Subramanian, Jan-Oliver Wagner, Michael Wiegand and Felix
+Wolfsteller.
+
+Main changes compared to 3.0.4:
+
+* The build infrastructure for the hg and misc modules has been switch to CMake
+  from autoconf.
+* Support for resuming tasks has been added to OMP.
+* Packet forgery support for IPv6 has been improved.
+* A build issue on Mandriva has been fixed.
+
+
 openvas-libraries 3.0.4 (2010-03-03)
 
 This is the fourth maintenance release of the openvas-libraries module for the

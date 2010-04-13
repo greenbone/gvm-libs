@@ -50,6 +50,7 @@ hg/hg_utils.c
 hg/hg_utils.h
 hg/hosts_gatherer.c
 hg/hosts_gatherer.h
+hg/README.txt
 hg/test.c
 include/config.h.in
 include/libopenvas.h
@@ -101,6 +102,7 @@ misc/proctitle.c
 misc/proctitle.h
 misc/rand.c
 misc/rand.h
+misc/README.txt
 misc/resolve.c
 misc/resolve.h
 misc/scanners_utils.c
@@ -184,6 +186,7 @@ nasl/openvas_smb_interface.h
 nasl/openvas_wmi_interface.h
 nasl/preparse.c
 nasl/preparse.h
+nasl/README.txt
 nasl/regex.c
 nasl/smb_interface_stub.c
 nasl/smb_crypt.c
