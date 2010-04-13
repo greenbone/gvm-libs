@@ -1,3 +1,9 @@
+2010-04-13 Stephan Kleine
+
+	* hg/CMakeLists.txt: Fix build with no-undefined.
+
+	* misc/CMakeLists.txt: Fix build with no-undefined.
+
 2010-04-13  Michael Wiegand <michael.wiegand@intevation.de>
 
 	Post-release version bump.

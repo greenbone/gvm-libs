@@ -145,6 +145,8 @@ set (FILES hg_add_hosts.c hg_debug.c hg_dns_axfr.c hg_filter.c hg_subnet.c
 
 set (HEADERS hg_utils.h hosts_gatherer.h)
 
+link_directories (${CMAKE_CURRENT_SOURCE_DIR}/../misc)
+
 add_library (openvas_hg_static STATIC ${FILES})
 set_target_properties (openvas_hg_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
 set_target_properties (openvas_hg_static PROPERTIES OUTPUT_NAME "openvas_hg")
@@ -158,6 +160,7 @@ set_target_properties (openvas_hg_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_hg_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_hg_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
 set_target_properties (openvas_hg_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
+target_link_libraries (openvas_hg_shared resolv openvas_misc)
 
 if (OPENVAS_PID_DIR)
   add_definitions (-DOPENVAS_PID_DIR=\\\"${OPENVAS_PID_DIR}\\\")

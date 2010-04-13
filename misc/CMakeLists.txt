@@ -157,6 +157,8 @@ set (HEADERS arglists.h bpf_share.h ftp_funcs.h hash_table_file.h kb.h
              openvas_server.h openvas_auth.h scanners_utils.h services1.h
              share_fd.h store.h system.h www_funcs.h)
 
+link_directories (${CMAKE_CURRENT_SOURCE_DIR}/../base)
+
 add_library (openvas_misc_static STATIC ${FILES})
 set_target_properties (openvas_misc_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
 set_target_properties (openvas_misc_static PROPERTIES OUTPUT_NAME "openvas_misc")
@@ -170,6 +172,7 @@ set_target_properties (openvas_misc_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_misc_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_misc_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
 set_target_properties (openvas_misc_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
+target_link_libraries (openvas_misc_shared glib-2.0 pcap gnutls gcrypt openvas_base)
 
 if (OPENVAS_USERS_DIR)
   add_definitions (-DOPENVAS_USERS_DIR=\\\"${OPENVAS_USERS_DIR}\\\")
