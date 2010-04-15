@@ -1,4 +1,19 @@
-2010-04-13 Stephan Kleine
+2010-04-15  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	Moved duplicate code from openvas-manager and
+	openvas-administrator to new module misc/openvas_uuid .
+
+	* misc/openvas_uuid.h, misc/openvas_uuid.c: New files, containing
+	duplicate code from openvas-manager/manage.c and
+	openvas-administrator/admin.c . Reflect module change in function name
+	change.
+
+	* MANIFEST: Added new module.
+
+	* misc/CMakeLists.txt: Added check for uuid library, added new module,
+	install new header.
+
+2010-04-13  Stephan Kleine
 
 	* hg/CMakeLists.txt: Fix build with no-undefined.
 

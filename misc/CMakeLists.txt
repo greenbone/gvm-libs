@@ -21,7 +21,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
 message ("-- Configure OpenVAS-libraries/misc...")
 
 project (openvas-libraries/misc C)
@@ -112,7 +111,7 @@ endif (NOT LOCALSTATEDIR)
 if (NOT INCLUDEDIR)
   set (INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include")
 endif (NOT INCLUDEDIR)
-                     
+
 set (OPENVAS_STATE_DIR   "${LOCALSTATEDIR}/lib/openvas")
 set (OPENVAS_LOG_DIR     "${LOCALSTATEDIR}/log/openvas")
 set (OPENVAS_PID_DIR     "${LOCALSTATEDIR}/run")
@@ -138,6 +137,12 @@ exec_program (pkg-config
               ARGS --cflags glib-2.0
               OUTPUT_VARIABLE GLIB_CFLAGS)
 
+message (STATUS "Looking for uuid...")
+find_library (UUID uuid)
+message (STATUS "Looking for uuid... ${UUID}")
+if (NOT UUID)
+  message (FATAL_ERROR "The uuid library is required.")
+endif (NOT UUID)
 
 # Library
 
@@ -145,16 +150,18 @@ message("-- prepare for add libraries ...")
 set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Wall -fPIC")
 set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -fPIC")
 
-set (FILES arglists.c bpf_share.c ftp_funcs.c harglists.c hash_table_file.c hlst.c
-           ids_send.c kb.c network.c openvas_auth.c openvas_logging.c 
-           openvas_server.c openvas_ssh_login.c plugutils.c popen.c proctitle.c
+set (FILES arglists.c bpf_share.c ftp_funcs.c harglists.c hash_table_file.c
+           hlst.c ids_send.c kb.c network.c openvas_auth.c openvas_logging.c
+           openvas_server.c openvas_ssh_login.c openvas_uuid.c plugutils.c
+           popen.c proctitle.c
            rand.c resolve.c scanners_utils.c services1.c services.c share_fd.c
            store.c system.c www_funcs.c pcap.c)
 
 set (HEADERS arglists.h bpf_share.h ftp_funcs.h hash_table_file.h kb.h
              network.h otp.h pcap_openvas.h plugutils.h popen.h proctitle.h
-             rand.h resolve.h openvas_ssh_login.h openvas_logging.h
-             openvas_server.h openvas_auth.h scanners_utils.h services1.h
+             rand.h resolve.h openvas_auth.h openvas_logging.h openvas_server.h
+             openvas_ssh_login.h openvas_uuid.h
+             scanners_utils.h services1.h
              share_fd.h store.h system.h www_funcs.h)
 
 link_directories (${CMAKE_CURRENT_SOURCE_DIR}/../base)
@@ -187,8 +194,8 @@ if (OPENVAS_SYSCONF_DIR)
   add_definitions (-DONF_DIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
 endif (OPENVAS_SYSCONF_DIR)
 
-target_link_libraries (openvas_misc_static ${GLIB_LDFLAGS})
-target_link_libraries (openvas_misc_shared ${GLIB_LDFLAGS})
+target_link_libraries (openvas_misc_static uuid ${GLIB_LDFLAGS})
+target_link_libraries (openvas_misc_shared uuid ${GLIB_LDFLAGS})
 
 # install library
 message ("-- installing libraries...")
@@ -197,5 +204,3 @@ install (TARGETS openvas_misc_static openvas_misc_shared
          LIBRARY DESTINATION ${LIBDIR}
          ARCHIVE DESTINATION ${LIBDIR}
          PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/openvas")
-
-

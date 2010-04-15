@@ -92,6 +92,8 @@ misc/openvas_ssh_login.c
 misc/openvas_ssh_login.h
 misc/openvas_server.c
 misc/openvas_server.h
+misc/openvas_uuid.c
+misc/openvas_uuid.h
 misc/pcap.c
 misc/pcap_openvas.h
 misc/plugutils.c
