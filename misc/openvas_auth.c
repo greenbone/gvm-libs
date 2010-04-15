@@ -27,6 +27,9 @@
  */
 
 #include "openvas_auth.h"
+
+#include "openvas_uuid.h"
+
 #include <errno.h>
 #include <gcrypt.h>
 #include <glib/gstdio.h>
@@ -489,6 +492,119 @@ openvas_authenticate (const gchar * username, const gchar * password)
     }
   return ret;
 }
+
+
+/**
+ * @brief Authenticate a credential pair, returning the user UUID.
+ *
+ * @param  username  Username.
+ * @param  password  Password.
+ * @param  uuid      UUID return.
+ *
+ * @return 0 authentication success, 1 authentication failure, -1 error.
+ */
+int
+openvas_authenticate_uuid (const gchar * username, const gchar * password,
+                           gchar **uuid)
+{
+  int ret;
+
+  // Authenticate
+  ret = openvas_authenticate (username, password);
+  if (ret)
+    {
+      return ret;
+    }
+
+  /** @todo Here we need to know the method with wich was sucessfully
+            authenticated, to save the uuid in a different folder if user
+            authenticated e.g. via ldap. */
+  // Get the uuid from file (create it if it did not yet exist).
+  *uuid = openvas_user_uuid (username /** @todo , method */);
+  if (*uuid)
+    return 0;
+  return -1;
+}
+
+/**
+ * @brief Return the UUID of a user from the OpenVAS user UUID file.
+ *
+ * If the user exists, ensure that the user has a UUID.
+ *
+ * @deprecated  Use \ref openvas_authenticate_uuid to receive users uuid where
+ *              you can. This leaves an issue in manager/schedular, that is
+ *              solveable by storing a uuid instead of manage_auth_allow_all
+ *              in openvasmd.
+ *
+ * @param[in]  name   User name.
+ *
+ * @return UUID of given user if user exists, else NULL.
+ */
+gchar *
+openvas_user_uuid (const char *name)
+{
+  gchar *user_dir = g_build_filename (OPENVAS_USERS_DIR, name, NULL);
+  if (!g_file_test (user_dir, G_FILE_TEST_EXISTS))
+    {
+      // Assume that the user does exist, but is remotely authenticated.
+      // Create a user dir to store the uuid.
+      /** @todo Resolve the issue that for remote authentication a directory
+       *        and uuid file has to be created. Also, handle error case. */
+      g_mkdir_with_parents (user_dir, 0700);
+    }
+
+    {
+      gchar *uuid_file = g_build_filename (user_dir, "uuid", NULL);
+      if (g_file_test (uuid_file, G_FILE_TEST_EXISTS))
+        {
+          gsize size;
+          gchar *uuid;
+          if (g_file_get_contents (uuid_file, &uuid, &size, NULL))
+            {
+              if (strlen (uuid) < 36)
+                g_free (uuid);
+              else
+                {
+                  g_free (user_dir);
+                  g_free (uuid_file);
+                  /* Drop any trailing characters. */
+                  uuid[36] = '\0';
+                  return uuid;
+                }
+            }
+        }
+      else
+        {
+          gchar *contents;
+          char *uuid;
+
+          uuid = openvas_uuid_make ();
+          if (uuid == NULL)
+            {
+              g_free (user_dir);
+              g_free (uuid_file);
+              return NULL;
+            }
+
+          contents = g_strdup_printf ("%s\n", uuid);
+
+          if (g_file_set_contents (uuid_file, contents, -1, NULL))
+            {
+              g_free (contents);
+              g_free (user_dir);
+              g_free (uuid_file);
+              return uuid;
+            }
+
+          g_free (contents);
+          free (uuid);
+        }
+      g_free (uuid_file);
+    }
+  g_free (user_dir);
+  return NULL;
+}
+
 
 /**
  * @brief Check if a user has administrative privileges.

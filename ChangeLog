@@ -1,5 +1,17 @@
 2010-04-15  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	Moved authentication/uuid code from openvas-manager to openvas_auth
+	module.
+
+	* misc/openvas_auth.c: Added openvas_uuid include.
+	(openvas_user_uuid): Moved from openvas-manager/manage_sql.c.
+	(openvas_authenticate_uuid): Moved from openvas-manager/manage_sql.c.
+
+	* misc/openvas_auth.h (openvas_user_uuid, openvas_authenticate_uuid):
+	Added headers accordingly.
+
+2010-04-15  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	Moved duplicate code from openvas-manager and
 	openvas-administrator to new module misc/openvas_uuid .
 

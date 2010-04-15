@@ -47,6 +47,12 @@ int
 openvas_authenticate (const gchar *, const gchar *);
 
 int
+openvas_authenticate_uuid (const gchar *, const gchar *, gchar** uuid);
+
+gchar *
+openvas_user_uuid (const char *name);
+
+int
 openvas_is_user_admin (const gchar *);
 
 int
