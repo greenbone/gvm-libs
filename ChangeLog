@@ -1,5 +1,15 @@
 2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	Fixed wmi/smb support.
+
+	* Makefile: Fixed building with WMI support. HAVE_WMI definition was
+	not passed correctly.
+
+	* nasl/CMakeLists.txt: Link openvas-nasl standalone interpretor
+	against WMI, if found.
+
+2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	Save uuids of users that are authenticated with a method other than
 	local file based (currently only ldap) in different locations.
 	The API has not settled yet.

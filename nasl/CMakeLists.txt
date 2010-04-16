@@ -224,7 +224,7 @@ set_property (TARGET libopenvas_hg PROPERTY
 add_executable (openvas-nasl nasl.c)
 target_link_libraries (openvas-nasl openvas_nasl_static libopenvas_base
                        libopenvas_misc libopenvas_hg ${GLIB_LDFLAGS} -lgcrypt
-                       -lgpgme -lgpg-error -lgnutls -lpcap -lresolv)
+                       -lgpgme -lgpg-error -lgnutls -lpcap -lresolv ${WMI_LIBS})
 set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
                        ${GLIB_CFLAGS})
 set_target_properties (openvas-nasl PROPERTIES LINK_FLAGS
