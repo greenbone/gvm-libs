@@ -1,5 +1,15 @@
 2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/ldap_auth.h, misc/ldap_auth.c (ldap_authenticate): Changed
+	signature to overcome compiler warning (likely to be solved
+	differently soon).
+
+	* misc/openvas_auth.c (openvas_authenticate_method): New function,
+	exposing the authentication method that led to authentication success.
+	(openvas_authenticate_uuid): Use new method, adjusted todo.
+
+2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* MANIFEST: Added misc/ldap_auth module.
 
 	* misc/CMakeLists.txt: Allow to enable ldap support at configure time

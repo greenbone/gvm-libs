@@ -69,7 +69,7 @@ ldap_auth_info_free (ldap_auth_info_t info);
 
 int
 ldap_authenticate (const gchar* username, const gchar* password,
-                   ldap_auth_info_t info);
+                   /*ldap_auth_info_t*/ void* info);
 
 ldap_auth_info_t
 ldap_auth_info_from_key_file (GKeyFile* keyfile, const gchar* group);

@@ -169,8 +169,10 @@ ldap_auth_info_create_dn (const ldap_auth_info_t info, const gchar* username)
  */
 int
 ldap_authenticate (const gchar* username, const gchar* password,
-                   /*const*/ ldap_auth_info_t info)
+                   /*const*/ /*ldap_auth_info_t*/ void* ldap_auth_info)
 {
+  ldap_auth_info_t info = (ldap_auth_info_t) ldap_auth_info;
+
   if (info == NULL || username == NULL || password == NULL || !info->ldap_host)
     return -1;
 

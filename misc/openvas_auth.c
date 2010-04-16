@@ -495,6 +495,51 @@ openvas_authenticate (const gchar * username, const gchar * password)
 
 
 /**
+ * @brief Authenticate a credential pair and expose the method used.
+ *
+ * Uses the configurable authenticators list, if available.
+ * Defaults to file-based (openvas users directory) authentication otherwise.
+ *
+ * @param username Username.
+ * @param password Password.
+ * @param method[out] Return location for the method that was used to
+ *                    authenticate the credential pair.
+ *
+ * @return 0 authentication success, otherwise the result of the last
+ *         authentication trial: 1 authentication failure, -1 error.
+ */
+static int
+openvas_authenticate_method (const gchar * username, const gchar * password,
+                             auth_method_t* method)
+{
+  *method = AUTHENTICATION_METHOD_FILE;
+  if (initialized == FALSE || authenticators == NULL)
+    return openvas_authenticate_classic (username, password, NULL);
+
+  // Try each authenticator in the list.
+  int ret = -1;
+  GSList* item = authenticators;
+  while (item)
+    {
+      authenticator_t authent = (authenticator_t) item->data;
+      ret = authent->authenticate (username, password, authent->data);
+      g_debug ("Authentication trial, order %d, method %s -> %d. (w/method)", authent->order,
+               authentication_methods[authent->method], ret);
+
+      // Return if successfull
+      if (ret == 0)
+        {
+          *method = authent->method;
+          return 0;
+        }
+
+      item = g_slist_next (item);
+    }
+  return ret;
+}
+
+
+/**
  * @brief Authenticate a credential pair, returning the user UUID.
  *
  * @param  username  Username.
@@ -510,15 +555,16 @@ openvas_authenticate_uuid (const gchar * username, const gchar * password,
   int ret;
 
   // Authenticate
-  ret = openvas_authenticate (username, password);
+  auth_method_t method;
+  ret = openvas_authenticate_method (username, password, &method);
   if (ret)
     {
       return ret;
     }
 
-  /** @todo Here we need to know the method with wich was sucessfully
-            authenticated, to save the uuid in a different folder if user
-            authenticated e.g. via ldap. */
+  /** @todo Now we know the method with wich was sucessfully
+   *        authenticated, so save/load the uuid from/to a folder, depending
+   *        on that. */
   // Get the uuid from file (create it if it did not yet exist).
   *uuid = openvas_user_uuid (username /** @todo , method */);
   if (*uuid)
