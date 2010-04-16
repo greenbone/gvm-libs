@@ -1,5 +1,13 @@
 2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* hg/hg_utils.c (hg_get_name_from_ip): Doc added. Formatting.
+
+	* misc/bpf_share.h, misc/proctitle.c, nasl/nasl.c, omp/xml.c:
+	Cosmetics.
+
+
+2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* configure.in: Added check for libuuid.
 
 	* configure: Regenerated.

@@ -742,7 +742,7 @@ foreach_print_attribute_format (gpointer name, gpointer value, gpointer none)
  *
  * @param[in]  entity  The entity.
  * @param[in]  indent  Indentation level, indentation width is 2 spaces.
- *                     use GINT_TO_POINTER to convert a integer value when
+ *                     Use GINT_TO_POINTER to convert a integer value when
  *                     passing this parameter.
  */
 void

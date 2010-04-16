@@ -98,6 +98,13 @@ hg_resolv (char* hostname, struct in6_addr *in6addr, int family)
 }
 
 
+/**
+ * @param[out] hostname Pointer to buffer that will contain hostname if
+ *                      successful.
+ * @param[in]  sz       Size of hostname buffer \ref hostname.
+ *
+ * @return Always returns 0.
+ */
 int
 hg_get_name_from_ip (struct in6_addr *ip, char * hostname, int sz)
 {
@@ -107,46 +114,47 @@ hg_get_name_from_ip (struct in6_addr *ip, char * hostname, int sz)
   struct sockaddr *sa;
   int    len;
 
-  if(IN6_IS_ADDR_V4MAPPED(ip))
-  {
-    saddr.sin_family = AF_INET;
-    len = sizeof(struct sockaddr_in);
-    saddr.sin_addr.s_addr =  ip->s6_addr32[3];
-    sa = (struct sockaddr *)&saddr;
-  }
+  if (IN6_IS_ADDR_V4MAPPED (ip))
+    {
+      saddr.sin_family = AF_INET;
+      len = sizeof (struct sockaddr_in);
+      saddr.sin_addr.s_addr =  ip->s6_addr32[3];
+      sa = (struct sockaddr *) & saddr;
+    }
   else
-  {
-    s6addr.sin6_family = AF_INET6;
-    len = sizeof(struct sockaddr_in6);
-    memcpy(&s6addr.sin6_addr, ip, sizeof(struct in6_addr));
-    sa = (struct sockaddr *)&s6addr;
-  }
-  if(getnameinfo(sa, len, hostname,sz,NULL, 0,0))
-  {
-      if(IN6_IS_ADDR_V4MAPPED(ip))
-        fprintf(stderr, "just copying address %s",inet_ntop(AF_INET, &saddr.sin_addr, hostname, sz));
+    {
+      s6addr.sin6_family = AF_INET6;
+      len = sizeof (struct sockaddr_in6);
+      memcpy (&s6addr.sin6_addr, ip, sizeof (struct in6_addr));
+      sa = (struct sockaddr *) & s6addr;
+    }
+  if (getnameinfo (sa, len, hostname, sz, NULL, 0, 0))
+    {
+      if (IN6_IS_ADDR_V4MAPPED (ip))
+        fprintf (stderr, "just copying address %s", inet_ntop (AF_INET, &saddr.sin_addr, hostname, sz));
       else
-        fprintf(stderr, "just copying address %s",inet_ntop(AF_INET6, ip, hostname, sz));
-  }
+        fprintf (stderr, "just copying address %s", inet_ntop (AF_INET6, ip, hostname, sz));
+    }
   else
-  {
-    fprintf(stderr, "resolved to name %s\n",hostname);
-  }
+    {
+      fprintf (stderr, "resolved to name %s\n", hostname);
+    }
 
   hostname[sz - 1] = '\0';
-  for ( i = 0 ; hostname[i] != '\0' ; i ++ )
-  {
-    if ( ! isalnum(hostname[i]) &&
-        hostname[i] != '.' &&
-        hostname[i] != '_' &&
-        hostname[i] != '-' &&
-        hostname[i] != ':' &&
-        hostname[i] != '%' ) hostname[i] = '?';
-    if(hostname[i] == '%')
-      hostname[i] = '\0';    /* To handle % in the hostname returned from getnameinfo*/
-  }
+  for (i = 0 ; hostname [i] != '\0' ; i++)
+    {
+      if (!isalnum(hostname[i]) &&
+          hostname[i] != '.' &&
+          hostname[i] != '_' &&
+          hostname[i] != '-' &&
+          hostname[i] != ':' &&
+          hostname[i] != '%' ) hostname[i] = '?';
+      if (hostname[i] == '%')
+        hostname[i] = '\0';    /* To handle % in the hostname returned from getnameinfo*/
+    }
   return 0; /* We never fail */
 }
+
 
 /**
  * @return 0 if adress info for \ref hostname could be found, 1 otherwise.
@@ -171,6 +179,7 @@ hg_valid_ip_addr (char *hostname)
       return 0;
     }
 }
+
 
 /**
  * input : hostname (ie : www.if.arf.com)
@@ -208,6 +217,7 @@ hg_host_cleanup (struct hg_host * hosts)
     free (hosts->domain);
   free (hosts);
 }
+
 
 /**
  * @brief Frees all hosts that are linked in hosts, using hg_host_cleanup.

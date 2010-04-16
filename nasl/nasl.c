@@ -63,7 +63,7 @@ init_hostinfos (char * hostname, struct in6_addr * ip)
   hostinfos = emalloc(sizeof(struct arglist));
   arg_add_value (hostinfos, "FQDN", ARG_STRING, strlen(hostname), hostname);
   arg_add_value (hostinfos, "NAME", ARG_STRING, strlen(hostname), hostname);
-  arg_add_value (hostinfos, "IP", ARG_PTR, sizeof(struct in6_addr), ip);
+  arg_add_value (hostinfos, "IP", ARG_PTR, sizeof (struct in6_addr), ip);
   ports = emalloc (sizeof(struct arglist));
   arg_add_value (hostinfos, "PORTS", ARG_ARGLIST, sizeof(struct arglist), ports);  
   return (hostinfos);
@@ -234,7 +234,7 @@ main (int argc, char ** argv)
      add_nasl_inc_dir (include_dir);
    }
 
- while (hg_next_host(hg_globals, &ip6, hostname, sizeof(hostname)) >= 0)
+ while (hg_next_host (hg_globals, &ip6, hostname, sizeof (hostname)) >= 0)
   {
     script_infos = init (hostname, ip6);
     n = start;

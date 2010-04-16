@@ -113,32 +113,26 @@
 
 #else  /* Not linux */
 
-void initsetproctitle(argc, argv, envp)
-	int argc;
-	char **argv;
-	char **envp;
+void
+initsetproctitle (int argc, char** argv, char** envp)
 {
- return;
+  return;
 }
 
 void
- setproctitle (const char *fmt,...)
+setproctitle (const char *fmt,...)
 {
- return;
+  return;
 }
 #endif
 
 
 #else /* the system has a setproctitle() call */
 
-void initsetproctitle(argc, argv, envp)
-	int argc;
-	char **argv;
-	char **envp;
+void
+initsetproctitle (int argc, char** argv, char** envp)
 {
- return;
+  return;
 }
 
 #endif
-
-
