@@ -1,10 +1,15 @@
 2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* base/CMakeLists.txt, hg/CMakeLists.txt, misc/CMakeLists.txt,
+	nasl/CMakeLists.txt, omp/CMakeLists.txt: Unified syntax of CMakeLists
+	to allow easier reading and extraction of macros.
+
+2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* hg/hg_utils.c (hg_get_name_from_ip): Doc added. Formatting.
 
 	* misc/bpf_share.h, misc/proctitle.c, nasl/nasl.c, omp/xml.c:
 	Cosmetics.
-
 
 2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
