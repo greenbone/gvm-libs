@@ -1,5 +1,11 @@
 2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/openvas_auth.c, misc/openvas_auth.h (openvas_auth_user_rules):
+	Moved from openvas-manager/manage_sql.c, access users rules
+	(currently only for locally authenticated users).
+
+2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	Fixed wmi/smb support.
 
 	* Makefile: Fixed building with WMI support. HAVE_WMI definition was

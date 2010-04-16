@@ -797,3 +797,39 @@ openvas_set_user_role (const gchar * username, const gchar * role)
   g_free (file_name);
   return ret;
 }
+
+
+/**
+ * @brief Get host access rules for a certain user.
+ *
+ * @param[in]   username  Name of the user to get rules for.
+ * @param[out]  rules     Return location for rules.
+ *
+ * @return 0 on failure, != 0 on success.
+ */
+int
+openvas_auth_user_rules (const gchar* username, gchar** rules)
+{
+  /** @todo Resolve issue stemming from multiple users with the same name, but
+   *        authenticated differently. e.g. memorize rules while authenticating
+   *        via remote service. Or, pass password or uuid in here. */
+  // File based: Get content of prefix/lib/openvas/users/user/auth/rules file
+  GError *error = NULL;
+  gchar* rules_file = g_build_filename (OPENVAS_USERS_DIR,
+                                        username,
+                                        "auth",
+                                        "rules",
+                                        NULL);
+  g_file_get_contents (rules_file, &rules, NULL, &error);
+
+  if (error)
+    {
+      g_error_free (error);
+      /** @todo access error message here, or pass it up. */
+      g_free (rules_file);
+      return 0;
+    }
+
+  g_free (rules_file);
+  return 1;
+}
