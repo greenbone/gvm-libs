@@ -1,8 +1,16 @@
 2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* MANIFEST: Added misc/ldap_auth module.
+
+	* misc/CMakeLists.txt: Allow to enable ldap support at configure time
+	- use -DBUILD_WITH_LDAP=ON to activate. Added check for openldap in
+	that case, include ldap_auth module and add definition.
+
+2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* base/CMakeLists.txt, hg/CMakeLists.txt, misc/CMakeLists.txt,
-	nasl/CMakeLists.txt, omp/CMakeLists.txt: Unified syntax of CMakeLists
-	to allow easier reading and extraction of macros.
+	nasl/CMakeLists.txt, omp/CMakeLists.txt: Unified formatting of
+	CMakeLists to allow easier reading and extraction of macros.
 
 2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 

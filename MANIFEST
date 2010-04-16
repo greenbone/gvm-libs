@@ -81,6 +81,8 @@ misc/ids_send.c
 misc/ids_send.h
 misc/kb.c
 misc/kb.h
+misc/ldap_auth.c
+misc/ldap_auth.h
 misc/network.c
 misc/network.h
 misc/otp.h

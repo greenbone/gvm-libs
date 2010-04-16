@@ -144,6 +144,20 @@ if (NOT UUID)
   message (FATAL_ERROR "The uuid library is required.")
 endif (NOT UUID)
 
+# Check for openldap if -DBUILD_WITH_LDAP=ON was given
+if (NOT BUILD_WITH_LDAP)
+   # fine
+else (NOT BUILD_WITH_LDAP)
+   message (STATUS "Looking for openldap...")
+   find_library (OPENLDAP ldap)
+   message (STATUS "Looking for openldap... ${OPENLDAP}")
+   if (NOT OPENLDAP)
+     message (FATAL_ERROR "Could not build with ldap support - no ldap library"
+              " was found. Consider building with -DBUILD_WITH_LDAP=OFF")
+   endif (NOT OPENLDAP)
+   add_definitions (-DENABLE_LDAP_AUTH=1)
+endif (NOT BUILD_WITH_LDAP)
+
 # Library
 
 message ("-- prepare for add libraries ...")
@@ -163,6 +177,10 @@ set (HEADERS arglists.h bpf_share.h ftp_funcs.h hash_table_file.h kb.h
              openvas_ssh_login.h openvas_uuid.h
              scanners_utils.h services1.h
              share_fd.h store.h system.h www_funcs.h)
+
+if (BUILD_WITH_LDAP)
+  list (APPEND FILES ldap_auth.c)
+endif (BUILD_WITH_LDAP)
 
 link_directories (${CMAKE_CURRENT_SOURCE_DIR}/../base)
 
@@ -194,8 +212,13 @@ if (OPENVAS_SYSCONF_DIR)
   add_definitions (-DONF_DIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
 endif (OPENVAS_SYSCONF_DIR)
 
-target_link_libraries (openvas_misc_static uuid ${GLIB_LDFLAGS})
-target_link_libraries (openvas_misc_shared uuid ${GLIB_LDFLAGS})
+if (NOT BUILD_WITH_LDAP)
+  target_link_libraries (openvas_misc_static uuid ${GLIB_LDFLAGS})
+  target_link_libraries (openvas_misc_shared uuid ${GLIB_LDFLAGS})
+else (NOT BUILD_WITH_LDAP)
+  target_link_libraries (openvas_misc_static uuid ${GLIB_LDFLAGS} ldap)
+  target_link_libraries (openvas_misc_shared uuid ${GLIB_LDFLAGS} ldap)
+endif (NOT BUILD_WITH_LDAP)
 
 # install library
 message ("-- installing libraries...")
