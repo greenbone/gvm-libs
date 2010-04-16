@@ -1,5 +1,18 @@
 2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	Save uuids of users that are authenticated with a method other than
+	local file based (currently only ldap) in different locations.
+	The API has not settled yet.
+
+	* misc/openvas_auth.c: Added todo, some need for documentation.
+	(openvas_user_uuid_method): New. Save uuids of users that are
+	"remotely" authenticated in
+	OPENVAS_STATE_DIR/users-remote/[method]/[user]/uuid.
+	(openvas_authenticate_uuid): Use new function. Removed todo.
+	(openvas_user_uuid): Clarified documentation.
+
+2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/ldap_auth.h, misc/ldap_auth.c (ldap_authenticate): Changed
 	signature to overcome compiler warning (likely to be solved
 	differently soon).

@@ -67,6 +67,9 @@
  * first.
  */
 
+/** @todo explain uuid file placement ("remote-users" vs user dir). Maybe
+ *        abondon OPENVAS_USER_DIR, use OPENVAS_STATE_DIR instead. */
+
 
 /**
  * @brief Numerical representation of the supported authentication methods.
@@ -540,6 +543,88 @@ openvas_authenticate_method (const gchar * username, const gchar * password,
 
 
 /**
+ * @brief Return the UUID of a user from the OpenVAS user UUID file.
+ *
+ * If the user exists, ensure that the user has a UUID (create that file).
+ *
+ * @param[in]  name   User name.
+ *
+ * @return UUID of given user if user exists, else NULL.
+ */
+static gchar *
+openvas_user_uuid_method (const char *name, const auth_method_t method)
+{
+  gchar *user_dir = (method == AUTHENTICATION_METHOD_FILE)
+                    ? g_build_filename (OPENVAS_USERS_DIR, name, NULL)
+                    : g_build_filename (OPENVAS_STATE_DIR,
+                                        "users-remote",
+                                        authentication_methods[method],
+                                        name, NULL);
+
+  if (!g_file_test (user_dir, G_FILE_TEST_EXISTS))
+    {
+      // Assume that the user does exist, and is remotely authenticated.
+      // Create a user dir to store the uuid.
+      /** @todo Handle error case. */
+      g_mkdir_with_parents (user_dir, 0700);
+    }
+
+    {
+      gchar *uuid_file = g_build_filename (user_dir, "uuid", NULL);
+      // File exists, get its content (the uuid).
+      if (g_file_test (uuid_file, G_FILE_TEST_EXISTS))
+        {
+          gsize size;
+          gchar *uuid;
+          if (g_file_get_contents (uuid_file, &uuid, &size, NULL))
+            {
+              if (strlen (uuid) < 36)
+                g_free (uuid);
+              else
+                {
+                  g_free (user_dir);
+                  g_free (uuid_file);
+                  /* Drop any trailing characters. */
+                  uuid[36] = '\0';
+                  return uuid;
+                }
+            }
+        }
+      // File does not exists, create file, set (new) uuid as content.
+      else
+        {
+          gchar *contents;
+          char *uuid;
+
+          uuid = openvas_uuid_make ();
+          if (uuid == NULL)
+            {
+              g_free (user_dir);
+              g_free (uuid_file);
+              return NULL;
+            }
+
+          contents = g_strdup_printf ("%s\n", uuid);
+
+          if (g_file_set_contents (uuid_file, contents, -1, NULL))
+            {
+              g_free (contents);
+              g_free (user_dir);
+              g_free (uuid_file);
+              return uuid;
+            }
+
+          g_free (contents);
+          free (uuid);
+        }
+      g_free (uuid_file);
+    }
+  g_free (user_dir);
+  return NULL;
+}
+
+
+/**
  * @brief Authenticate a credential pair, returning the user UUID.
  *
  * @param  username  Username.
@@ -562,20 +647,18 @@ openvas_authenticate_uuid (const gchar * username, const gchar * password,
       return ret;
     }
 
-  /** @todo Now we know the method with wich was sucessfully
-   *        authenticated, so save/load the uuid from/to a folder, depending
-   *        on that. */
   // Get the uuid from file (create it if it did not yet exist).
-  *uuid = openvas_user_uuid (username /** @todo , method */);
+  *uuid = openvas_user_uuid_method (username, method);
   if (*uuid)
     return 0;
   return -1;
 }
 
+
 /**
  * @brief Return the UUID of a user from the OpenVAS user UUID file.
  *
- * If the user exists, ensure that the user has a UUID.
+ * If the user exists, ensure that the user has a UUID (create that file).
  *
  * @deprecated  Use \ref openvas_authenticate_uuid to receive users uuid where
  *              you can. This leaves an issue in manager/schedular, that is
