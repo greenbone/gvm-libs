@@ -1,3 +1,9 @@
+2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* configure.in: Added check for libuuid.
+
+	* configure: Regenerated.
+
 2010-04-15  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	Moved authentication/uuid code from openvas-manager to openvas_auth

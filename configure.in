@@ -179,6 +179,10 @@ dnl Check for libpcap
 AC_CHECK_LIB(pcap, pcap_version, LIBS="-lpcap $LIBS",
   AC_MSG_ERROR(you need to install pcap library with development files))
 
+dnl Check for uuid
+AC_CHECK_LIB(uuid, uuid_is_null, LIBS="-luuid $LIBS",
+  AC_MSG_ERROR(you need to install the uuid library with development files))
+
 # These libraries break stuff under IRIX
 if  test "`uname`" != "IRIX" ;
 then
