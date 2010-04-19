@@ -1,5 +1,10 @@
 2010-04-19  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/openvas_auth.c (is_user_admin): Added todo (wrt remote auth).
+	(openvas_auth_user_rules): Fixed call with double pointer.
+
+2010-04-19  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	Improved support for ldap based authentication. Therefore expect the
 	configuration to hold the name of an attribute and possible values to
 	qualify a login as user or administrator. Deny access if the attribute

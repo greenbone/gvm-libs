@@ -755,6 +755,8 @@ openvas_is_user_admin (const gchar * username)
                                        NULL);
   gboolean file_exists = g_file_test (file_name, G_FILE_TEST_EXISTS);
 
+  /** @todo Resolve remote authentication case. */
+
   g_free (file_name);
   return file_exists;
 }
@@ -820,7 +822,7 @@ openvas_auth_user_rules (const gchar* username, gchar** rules)
                                         "auth",
                                         "rules",
                                         NULL);
-  g_file_get_contents (rules_file, &rules, NULL, &error);
+  g_file_get_contents (rules_file, rules, NULL, &error);
 
   if (error)
     {
