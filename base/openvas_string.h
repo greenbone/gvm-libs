@@ -40,4 +40,7 @@ char* openvas_strip_space (char*,  char*);
 int openvas_isalnumstr (const char*);
 
 int openvas_isbase64 (const char*);
+
+gboolean openvas_strv_contains_str (gchar** strv, const gchar* str);
+
 #endif /* not _OPENVAS_LIBRARIES_STRING_H */

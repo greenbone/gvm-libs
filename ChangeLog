@@ -1,3 +1,9 @@
+2010-04-19  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* base/openvas_string.c, misc/openvas_string.h
+	(openvas_strv_contains_str): New method. Checks whether a string vector
+	contains a certain string.
+
 2010-04-19 Geoff Galitz <geoff@eifel-consulting.eu>
 
 	* doc/wmi-howto.txt: Added a note about recompiling
