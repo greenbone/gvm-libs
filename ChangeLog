@@ -1,3 +1,8 @@
+2010-04-19 Geoff Galitz <geoff@eifel-consulting.eu>
+
+	* doc/wmi-howto.txt: Added a note about recompiling
+	openvas-scanner if adding WMI to an existing deployment.
+
 2010-04-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/openvas_auth.c, misc/openvas_auth.h (openvas_auth_user_rules):

@@ -1,7 +1,7 @@
 COMPILING OPENVAS-LIBRARIES WITH WMI SUPPORT
 ============================================
 
-Last updated: 2010-03-12
+Last updated: 2010-04-19
 
 To compile openvas-libraries with WMI support, please follow the steps described
 below. Our hope is that this code will ultimately make it into Samba itself;
@@ -67,6 +67,8 @@ Now (re)build openvas-libraries and install them:
 $ make
 $ make install
 
+Note that if you are adding WMI functions to an existing openvas deployment
+you must recompile openvas scanner also.
+
 After installing, you will be able to use NASL NVTs incorporating the new WMI
 NASL functions.
-
