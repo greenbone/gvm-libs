@@ -36,11 +36,16 @@
 #define LDAP_DEPRECATED 1
 #include "ldap.h"
 
+#include "openvas_string.h"
+
 #define KEY_LDAP_HOST "ldaphost"
 #define KEY_LDAP_DN_AUTH "authdn"
 #define KEY_LDAP_ROLE_ATTRIBUTE "role-attribute"
 #define KEY_LDAP_ROLE_USER_VALUES "role-user-values"
 #define KEY_LDAP_ROLE_ADMIN_VALUES "role-admin-values"
+#define KEY_LDAP_RULE_ATTRIBUTE "rule-attribute"
+#define KEY_LDAP_RULETYPE_ATTRIBUTE "ruletype-attribute"
+
 
 /**
  * @file ldap_auth.c
@@ -74,7 +79,6 @@ auth_dn_is_good (const gchar* authdn)
   return TRUE;
 }
 
-
 /**
  * @brief Create a new ldap authentication schema and info.
  *
@@ -98,8 +102,10 @@ auth_dn_is_good (const gchar* authdn)
 ldap_auth_info_t
 ldap_auth_info_new (const gchar* ldap_host, const gchar* auth_dn,
                     const gchar* role_attribute,
-                    const gchar* role_user_values,
-                    const gchar* role_admin_values)
+                    gchar** role_user_values,
+                    gchar** role_admin_values,
+                    const gchar* ruletype_attr,
+                    const gchar* rule_attr)
 {
   // Parameters might not be NULL.
   if (!ldap_host || !auth_dn || !role_attribute || !role_user_values || !role_admin_values)
@@ -112,8 +118,10 @@ ldap_auth_info_new (const gchar* ldap_host, const gchar* auth_dn,
   info->ldap_host = g_strdup (ldap_host);
   info->auth_dn = g_strdup (auth_dn);
   info->role_attribute = g_strdup (role_attribute);
-  info->role_user_values = g_strdup (role_user_values);
-  info->role_admin_values = g_strdup (role_admin_values);
+  info->role_user_values = g_strdupv (role_user_values);
+  info->role_admin_values = g_strdupv (role_admin_values);
+  info->ruletype_attribute = g_strdup (ruletype_attr);
+  info->rule_attribute = g_strdup (rule_attr);
 
   return info;
 }
@@ -130,8 +138,10 @@ ldap_auth_info_free (ldap_auth_info_t info)
   g_free (info->ldap_host);
   g_free (info->auth_dn);
   g_free (info->role_attribute);
-  g_free (info->role_admin_values);
-  g_free (info->role_user_values);
+  g_strfreev (info->role_admin_values);
+  g_strfreev (info->role_user_values);
+  g_free (info->rule_attribute);
+  g_free (info->ruletype_attribute);
 
   g_free (info);
 }
@@ -159,6 +169,84 @@ ldap_auth_info_create_dn (const ldap_auth_info_t info, const gchar* username)
 
 
 /**
+ * @brief Queries the role of a user.
+ *
+ * @param  ldap       The bound ldap session to use.
+ * @param  ldap_info  The ldap_auth_info struct to use.
+ * @param  dn         The dn to query from.
+ *
+ * @return -1 if an error occurred,
+ *          0 if user is neither "user" nor "admin",
+ *         +1 if user is "user",
+ *         +2 if user is "admin".
+ */
+static int
+ldap_auth_query_role (LDAP *ldap, ldap_auth_info_t auth_info, gchar* dn)
+{
+  char *attrs[]    = {auth_info->role_attribute, NULL};
+  char *attr_it    = NULL;
+  char **attr_vals = NULL;
+  BerElement *ber  = NULL;
+  LDAPMessage  *result, *result_it;
+  int found_role = -1; // error
+
+  int res = ldap_search_ext_s (ldap, dn /* base */, LDAP_SCOPE_BASE,
+                               NULL /* filter */,  attrs, 0 /* attrsonly */,
+                               NULL /* serverctrls */, NULL /* clientctrls */,
+                               LDAP_NO_LIMIT, /* timeout */
+                               LDAP_NO_LIMIT, /* sizelimit */
+                               &result);
+  if (res != LDAP_SUCCESS)
+    {
+      g_debug ("The role of an ldap user could not be found: %s\n",
+               ldap_err2string (res));
+      return found_role;
+    }
+
+  result_it = ldap_first_entry (ldap, result);
+  if (result_it != NULL)
+    {
+      // Iterate through each attribute in the entry.
+      attr_it = ldap_first_attribute (ldap, result_it, &ber);
+      while (attr_it != NULL)
+        {
+          // Get the value of that attribute (we expect to see one attr/value)
+          attr_vals = ldap_get_values (ldap, result_it, attr_it);
+          if (attr_vals != NULL)
+            {
+              // We expect exactly one value here, ignore others.
+              if (openvas_strv_contains_str (auth_info->role_admin_values,
+                                             attr_vals[0]))
+                found_role = 2; // is admin
+              else if (openvas_strv_contains_str (auth_info->role_user_values,
+                                                  attr_vals[0]))
+                found_role = 1; // is user
+              else
+                g_debug ("User is neither in admin nor users group.");
+
+              ldap_value_free (attr_vals);
+            }
+          ldap_memfree (attr_it);
+          attr_it = ldap_next_attribute (ldap, result_it, ber);
+        }
+      if (ber != NULL)
+        {
+          ber_free (ber, 0);
+        }
+    }
+  else // No such attribute(s)
+    {
+      g_debug ("User has no role, did not find role attribute.");
+      found_role = -1;
+    }
+
+  ldap_msgfree (result);
+
+  return found_role;
+}
+
+
+/**
  * @brief Authenticate against an ldap directory server.
  *
  * @param info      Schema and adress to use.
@@ -172,6 +260,7 @@ ldap_authenticate (const gchar* username, const gchar* password,
                    /*const*/ /*ldap_auth_info_t*/ void* ldap_auth_info)
 {
   ldap_auth_info_t info = (ldap_auth_info_t) ldap_auth_info;
+  int role = 0;
 
   if (info == NULL || username == NULL || password == NULL || !info->ldap_host)
     return -1;
@@ -194,21 +283,30 @@ ldap_authenticate (const gchar* username, const gchar* password,
   if (ldap_return != LDAP_SUCCESS)
     {
       g_warning ("LDAP authentication failure.");
+      return 1;
     }
 
-  /** @todo If just a role-attribute and a role-mapping is defined in this
-   *        configuration, check the attribute value(s) here. */
+  role = ldap_auth_query_role (ldap, info, dn);
 
-  /** @todo Administrator/ Access-attributes to be checked here. */
+  /** @todo Access-attributes/rules to be checked here. */
+  //ldap_auth_query_rules (ldap, info, dn);
 
   /** @todo deprecated, use ldap_unbind_ext_s */
   ldap_unbind (ldap);
   g_free (dn);
 
-  if (ldap_return != LDAP_SUCCESS)
-    return 1;
-  else
-    return 0;
+  switch (role)
+  {
+    case 2:
+      g_debug ("User has admin role.");
+    case 1:
+      g_debug ("User has user role.");
+      return 0;
+    case -1:
+    default:
+      g_warning ("User has no role.");
+      return 1;
+  }
 }
 
 
@@ -233,36 +331,34 @@ ldap_auth_info_from_key_file (GKeyFile* key_file, const gchar* group)
                                             KEY_LDAP_HOST, NULL);
   gchar* role_attr = g_key_file_get_string (key_file, group,
                                             KEY_LDAP_ROLE_ATTRIBUTE, NULL);
-  gchar* role_usrv = g_key_file_get_string (key_file, group,
-                                            KEY_LDAP_ROLE_USER_VALUES, NULL);
-  gchar* role_admv = g_key_file_get_string (key_file, group,
-                                            KEY_LDAP_ROLE_ADMIN_VALUES, NULL);
+  gchar** role_usrv = g_key_file_get_string_list (key_file, group,
+                                                  KEY_LDAP_ROLE_USER_VALUES,
+                                                  NULL, NULL);
+  gchar** role_admv = g_key_file_get_string_list (key_file, group,
+                                                  KEY_LDAP_ROLE_ADMIN_VALUES,
+                                                  NULL, NULL);
+  gchar* ruletype_attr = g_key_file_get_string (key_file, group,
+                                                KEY_LDAP_RULETYPE_ATTRIBUTE,
+                                                NULL);
+  gchar* rule_attr = g_key_file_get_string (key_file, group,
+                                            KEY_LDAP_RULE_ATTRIBUTE, NULL);
 
   ldap_auth_info_t info = ldap_auth_info_new (ldap_host, auth_dn,
                                               role_attr,
                                               role_usrv,
-                                              role_admv);
+                                              role_admv,
+                                              ruletype_attr,
+                                              rule_attr);
 
   g_free (auth_dn);
   g_free (ldap_host);
   g_free (role_attr);
   g_free (role_usrv);
   g_free (role_admv);
+  g_free (ruletype_attr);
+  g_free (rule_attr);
 
   return info;
-}
-
-
-/**
- * @brief Query the role of a user.
- *
- * @return Role of the user, e.g. "admin", "user" or "none".
- */
-gchar*
-ldap_auth_query_role (const gchar* username, const gchar* password,
-                   /*const*/ ldap_auth_info_t info)
-{
-  return NULL;
 }
 
 #endif /* ENABLE_LDAP_AUTH */

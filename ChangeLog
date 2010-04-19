@@ -1,5 +1,24 @@
 2010-04-19  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	Improved support for ldap based authentication. Therefore expect the
+	configuration to hold the name of an attribute and possible values to
+	qualify a login as user or administrator. Deny access if the attribute
+	is not found in the ldap directory or does not have the specified
+	values. Do this in every ldap authentication trial. Access rules
+	support (which was prepared) will work similar. Kept the module chatty
+	for debugging purpose. Note that to test, you have to enable LDAP
+	support during build time.
+
+	* misc/ldap_auth.h, misc/ldap_auth.c (ldap_auth_info_new)
+	(ldap_auth_info_free, ldap_auth_info_from_key_file, ldap_authenticate,
+	(ldap_auth_query_role): Added preliminary support for access rules,
+	added support for user roles.
+
+	* doc/example.auth.conf: Made role-user-values a semicolon separated
+	list.
+
+2010-04-19  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* base/openvas_string.c, misc/openvas_string.h
 	(openvas_strv_contains_str): New method. Checks whether a string vector
 	contains a certain string.

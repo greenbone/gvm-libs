@@ -50,8 +50,11 @@ struct ldap_auth_info {
   /** @brief Attribute to check against \ref role_user_values and
    *  @brief \ref role_admin_values. Empty string if n/a. */
   gchar* role_attribute;
-  gchar*/***/ role_admin_values;  ///< Attribute values that qualify an admin.
-  gchar*/***/ role_user_values;   ///< Attribute values that qualify a user.
+  gchar** role_admin_values;  ///< Attribute values that qualify an admin.
+  gchar** role_user_values;   ///< Attribute values that qualify a user.
+  gchar* ruletype_attribute;
+  gchar* rule_attribute;
+  /** @todo gchar* rule_type, gchar* rule */
 };
 
 /** @brief Authentication schema and adress type. */
@@ -61,8 +64,10 @@ typedef struct ldap_auth_info* ldap_auth_info_t;
 ldap_auth_info_t
 ldap_auth_info_new (const gchar* ldap_host, const gchar* auth_dn,
                     const gchar* role_attribute,
-                    const gchar* role_user_values,
-                    const gchar* role_admin_values);
+                    gchar** role_user_values,
+                    gchar** role_admin_values,
+                    const gchar* ruletype_attribute,
+                    const gchar* rule_attribute);
 
 void
 ldap_auth_info_free (ldap_auth_info_t info);
