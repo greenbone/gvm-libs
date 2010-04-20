@@ -838,8 +838,12 @@ openvas_auth_user_rules (const gchar* username, gchar** rules)
 }
 
 /**
+ * @brief Stores the rules for a user.
+ *
  * @param[in]  hosts        The host the user is allowed/forbidden to scan.
  * @param[in]  hosts_allow  Whether hosts is allow or forbid.
+ *
+ * @return 0 if successfull, -1 if an error occurred.
  */
 int
 openvas_auth_store_user_rules (const gchar* username, const gchar* hosts,
@@ -852,7 +856,7 @@ openvas_auth_store_user_rules (const gchar* username, const gchar* hosts,
     {
       gchar **split = g_strsplit (hosts, ",", 0);
 
-      // @todo Do better format checking on hosts. 
+      // @todo Do better format checking on hosts.
 
       if (hosts_allow)
         {
@@ -891,9 +895,6 @@ openvas_auth_store_user_rules (const gchar* username, const gchar* hosts,
     {
       g_warning ("%s", error->message);
       g_error_free (error);
-      if (openvas_file_remove_recurse (user_dir_name))
-        g_warning ("Could not remove %s while trying to revert changes!",
-                    user_dir_name);
       g_string_free (rules, TRUE);
       g_free (user_dir_name);
       g_free (user_rules_file_name);
@@ -903,4 +904,6 @@ openvas_auth_store_user_rules (const gchar* username, const gchar* hosts,
   g_chmod (user_rules_file_name, 0600);
   g_free (user_rules_file_name);
   g_free (user_dir_name);
+
+  return 0;
 }
