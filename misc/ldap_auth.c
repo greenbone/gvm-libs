@@ -36,6 +36,7 @@
 #define LDAP_DEPRECATED 1
 #include "ldap.h"
 
+#include "openvas_auth.h"
 #include "openvas_string.h"
 
 #define KEY_LDAP_HOST "ldaphost"
@@ -167,6 +168,110 @@ ldap_auth_info_create_dn (const ldap_auth_info_t info, const gchar* username)
   return dn;
 }
 
+/**
+ * @brief Queries the accessrules of a user and saves them to disc.
+ *
+ * @param  ldap[in]       The bound ldap session to use.
+ * @param  ldap_info[in]  The ldap_auth_info struct to use.
+ * @param  dn[in]         The dn to query from.
+ * @param  username[in]   The username.
+ *
+ * @return  0 if successfull,
+ *         -1 if failed.
+ */
+static int
+ldap_auth_query_rules (LDAP *ldap, ldap_auth_info_t auth_info, const gchar* dn,
+                       const gchar* username)
+{
+  char *attrs[]    = { auth_info->ruletype_attribute,
+                       auth_info->rule_attribute,
+                       NULL };
+  char *attr_it    = NULL;
+  char **attr_vals = NULL;
+  BerElement *ber  = NULL;
+  gchar *rule      = NULL;
+  int ruletype     = -1;
+  LDAPMessage *result, *result_it;
+
+  int res = ldap_search_ext_s (ldap, dn /* base */, LDAP_SCOPE_BASE,
+                               NULL /* filter */,  attrs, 0 /* attrsonly */,
+                               NULL /* serverctrls */, NULL /* clientctrls */,
+                               LDAP_NO_LIMIT, /* timeout */
+                               LDAP_NO_LIMIT, /* sizelimit */
+                               &result);
+  if (res != LDAP_SUCCESS)
+    {
+      g_debug ("The rule/ruletype of an ldap user could not be found: %s\n",
+               ldap_err2string (res));
+      return -1;
+    }
+
+  result_it = ldap_first_entry (ldap, result);
+  if (result_it != NULL)
+    {
+      // Iterate through each attribute in the entry.
+      attr_it = ldap_first_attribute (ldap, result_it, &ber);
+      while (attr_it != NULL)
+        {
+          /* For each attribute, print the attribute name and values. */
+          attr_vals = ldap_get_values (ldap, result_it, attr_it);
+          if (attr_vals != NULL)
+            {
+              // Found ruletype attribute
+              if (strcmp (attr_it, auth_info->ruletype_attribute) == 0)
+                {
+                  // 3 Ruletypes are possible
+                  if (strcmp (attr_vals[0], "allow") == 0)
+                    ruletype = 1;
+                  else if (strcmp (attr_vals[0], "allow all") == 0)
+                    ruletype = 2;
+                  else if (strcmp (attr_vals[0], "deny") == 0)
+                    ruletype = 0;
+                  else
+                    g_debug ("unknown rule type"); // (ruletype = -1)
+                }
+              // Found rule attribute
+              else if (strcmp (attr_it, auth_info->rule_attribute) == 0)
+                {
+                  rule = g_strdup (attr_vals[0]);
+                }
+
+              ldap_value_free (attr_vals);
+            }
+          ldap_memfree (attr_it);
+          attr_it = ldap_next_attribute (ldap, result_it, ber);
+        }
+
+      // Save the rules
+      if (ruletype == -1)
+        g_warning ("No ruletype specified!");
+      else
+        {
+          gchar* user_dir = g_build_filename (OPENVAS_STATE_DIR,
+                                              "users-remote", "ldap",
+                                              username, NULL);
+          openvas_auth_store_user_rules (user_dir, rule, ruletype);
+          g_free (user_dir);
+        }
+
+      g_free (rule);
+
+      if (ber != NULL)
+        {
+          ber_free (ber, 0);
+        }
+    }
+  else // No such attribute(s)
+    {
+      g_debug ("User has no rule/ruletype, did not find the attributes.");
+    }
+
+  ldap_msgfree (result);
+
+  /** @todo proper returns */
+  return 0;
+}
+
 
 /**
  * @brief Queries the role of a user.
@@ -286,10 +391,15 @@ ldap_authenticate (const gchar* username, const gchar* password,
       return 1;
     }
 
+  // Get the role.
   role = ldap_auth_query_role (ldap, info, dn);
 
-  /** @todo Access-attributes/rules to be checked here. */
-  //ldap_auth_query_rules (ldap, info, dn);
+  // Query and save users rules if s/he is at least a "User".
+  if (role != 2 && role != 1)
+    {
+      if (ldap_auth_query_rules (ldap, info, dn, username) == -1);
+        g_warning ("Users rules could not be found on ldap directory.");
+    }
 
   /** @todo deprecated, use ldap_unbind_ext_s */
   ldap_unbind (ldap);

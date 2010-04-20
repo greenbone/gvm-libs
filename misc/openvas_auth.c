@@ -840,17 +840,23 @@ openvas_auth_user_rules (const gchar* username, gchar** rules)
 /**
  * @brief Stores the rules for a user.
  *
- * @param[in]  hosts        The host the user is allowed/forbidden to scan.
- * @param[in]  hosts_allow  Whether hosts is allow or forbid.
+ * The rules will be saved in a file in \ref user_dir_name /auth/rules .
+ *
+ * @param[in]  user_dir_name  Directory under wich the autch/rules file will
+ *                            be placed.
+ * @param[in]  hosts          The hosts the user is allowed/forbidden to scan.
+ * @param[in]  hosts_allow    Whether access to \ref hosts is allowed (!=0) or
+ *                            forbidden (0).
  *
  * @return 0 if successfull, -1 if an error occurred.
  */
 int
-openvas_auth_store_user_rules (const gchar* username, const gchar* hosts,
+openvas_auth_store_user_rules (const gchar* user_dir_name, const gchar* hosts,
                                int hosts_allow)
 {
   GError* error = NULL;
-  gchar *user_dir_name, *user_rules_file_name;
+  gchar *user_rules_file_name = NULL;
+  gchar* auth_dir_name        = NULL;
   GString* rules = g_string_new (RULES_FILE_HEADER);
   if (hosts && strlen (hosts))
     {
@@ -882,12 +888,17 @@ openvas_auth_store_user_rules (const gchar* username, const gchar* hosts,
       g_strfreev (split);
     }
 
-  /** @brief Need to know here what to do in remote authentication case */
-  user_dir_name = g_build_filename (OPENVAS_USERS_DIR, username, NULL);
-
+  auth_dir_name = g_build_filename (user_dir_name, "auth",
+                                           NULL);
   // Put the rules in auth/rules.
-  user_rules_file_name = g_build_filename (user_dir_name, "auth",
-                                            "rules", NULL);
+  user_rules_file_name = g_build_filename (auth_dir_name, "rules", NULL);
+
+  // Create the directories if they do not exist
+  if (g_mkdir_with_parents (auth_dir_name, 0700) != 0)
+    g_warning ("user directory could not be created");
+
+  g_free (auth_dir_name);
+
   if (!g_file_set_contents (user_rules_file_name,
                             rules->str,
                             -1,
@@ -896,14 +907,12 @@ openvas_auth_store_user_rules (const gchar* username, const gchar* hosts,
       g_warning ("%s", error->message);
       g_error_free (error);
       g_string_free (rules, TRUE);
-      g_free (user_dir_name);
       g_free (user_rules_file_name);
       return -1;
     }
   g_string_free (rules, TRUE);
   g_chmod (user_rules_file_name, 0600);
   g_free (user_rules_file_name);
-  g_free (user_dir_name);
 
   return 0;
 }

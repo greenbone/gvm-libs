@@ -1,5 +1,26 @@
 2010-04-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	Added initial support for saving rules of users that were remotely
+	authenticated. Rules file will be saved in
+	OPENVAS_STATE_DIR/users-remote/ldap/USERNAME/auth/rules .
+
+	* misc/openvas_auth.c (openvas_auth_store_user_rules): Improved doc.
+	Expect a directory where to save the rules file (instead of just the
+	username), to circumvent discrimination of locally and remotely
+	authenticated users.
+
+	* misc/openvas_auth.h (openvas_auth_store_user_rules): Adjusted header.
+
+	* misc/ldap_auth.c: Include openvas_auth.
+	(ldap_auth_query_rules): New function, queries and saves the
+	access-rules of a user.
+	(ldap_authenticate): Call ldap_auth_query_rules for users and admins
+	to query and save the access-rules.
+
+	* doc/example.auth.conf: Added new configuration parameters.
+
+2010-04-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/openvas_auth.c (openvas_auth_store_user_rules): Documented. Do
 	not delete users dir in error case. Return proper.
 
