@@ -1,3 +1,23 @@
+2010-04-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* base/openvas_string.c: Added missing include, updated copyright.
+
+2010-04-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	Created new module for file based utility functions, moved some
+	functions from openvas-administrator into it.
+	Also, abort build of libopenvas_base library on compiler warnings.
+
+	* base/openvas_file.c, base/openvas_file.h
+	(openvas_file_remove_recurse, openvas_file_check_is_dir): Added new
+	module with utility functions moved from
+	openvas-administrator/src/admin.c .
+
+	* MANIFEST: Added new files.
+
+	* base/CMakeLists.txt: Added new files, pass -Werror to compiler as in
+	other new modules.
+
 2010-04-19  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/openvas_auth.c (is_user_admin): Added todo (wrt remote auth).

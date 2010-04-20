@@ -6,7 +6,7 @@
  * Matthew Mundell <matt@mundell.ukfsn.org>
  *
  * Copyright:
- * Copyright (C) 2009 Greenbone Networks GmbH
+ * Copyright (C) 2009,2010 Greenbone Networks GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -39,6 +39,7 @@
 #include <ctype.h>
 #include <glib.h>
 #include <stdio.h>
+#include <string.h> /* for strcmp */
 #include <sys/types.h>
 #include <unistd.h>
 
