@@ -13,6 +13,8 @@ base/nvticache.c
 base/nvticache.h
 base/openvas_certificate_file.c
 base/openvas_certificate_file.h
+base/openvas_file.c
+base/openvas_file.h
 base/openvas_string.c
 base/openvas_string.h
 base/pidfile.c

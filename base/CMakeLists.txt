@@ -137,15 +137,16 @@ exec_program (pkg-config
 
 ## Library
 
-set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Wall -fPIC")
-set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -fPIC")
+set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Werror -Wall -fPIC")
+set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -Werror -fPIC")
 
 set (FILES certificate.c hash_table_util.c nvti.c nvticache.c
-openvas_certificate_file.c openvas_string.c pidfile.c severity_filter.c
-settings.c)
+     openvas_certificate_file.c openvas_file.c openvas_string.c pidfile.c
+     severity_filter.c settings.c)
 
 set (HEADERS certificate.h hash_table_util.h nvti.h settings.h
-openvas_certificate_file.h openvas_string.h pidfile.h severity_filter.h)
+     openvas_certificate_file.h openvas_file.h openvas_string.h pidfile.h
+     severity_filter.h)
 
 add_library (openvas_base_static STATIC ${FILES})
 set_target_properties (openvas_base_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
