@@ -66,10 +66,27 @@
  * authentication and to assign an "order" value to the specified
  * authentication mechanisms. Mechanisms with a lower order will be tried
  * first.
+ *
+ * Each user has a directory somewhere under OPENVAS_STATE_DIR.
+ * The directories of locally authenticated users reside under
+ * OPENVAS_STATE_DIR/users .
+ * The directory of remotely authenticated users reside under
+ * OPENVAS_STATE_DIR/users-remote/[method] , where [method] currently can only
+ * be "ldap".
+ *
+ * A users directory will contain:
+ *
+ *  - uuid : File containing the users uuid.
+ *  - isadmin : (optional) flag to mark the user being an admin.
+ *  - auth/rules : The rules file.
+ *  - auth/hash : (only for locally authenticated users) hash of the users
+ *                password
+ *  - kbs/ : (not handled by the openvas_auth module) directory that can
+ *           contain knowledge bases saved by the openvas-scanner process.
  */
 
-/** @todo explain uuid file placement ("remote-users" vs user dir). Maybe
- *        abondon OPENVAS_USER_DIR, use OPENVAS_STATE_DIR instead. */
+/** @todo Abondon OPENVAS_USER_DIR, use OPENVAS_STATE_DIR + "users" or
+ *        "users-remote/[method]" instead. */
 
 
 /**
@@ -439,7 +456,7 @@ openvas_authenticate_classic (const gchar * username, const gchar * password,
       g_warning ("Failed to split auth contents.");
       g_free (hash);
       g_strfreev (split);
-      /** @todo evaluate poss. memleak: actual */
+      g_free (actual);
       return -1;
     }
 
@@ -496,7 +513,6 @@ openvas_authenticate (const gchar * username, const gchar * password)
     }
   return ret;
 }
-
 
 /**
  * @brief Authenticate a credential pair and expose the method used.
@@ -562,12 +578,12 @@ openvas_user_uuid_method (const char *name, const auth_method_t method)
                                         authentication_methods[method],
                                         name, NULL);
 
-  if (!g_file_test (user_dir, G_FILE_TEST_EXISTS))
+  // Create a user dir to store the uuid, if it did not yet exist.
+  if (g_mkdir_with_parents (user_dir, 0700) != 0)
     {
-      // Assume that the user does exist, and is remotely authenticated.
-      // Create a user dir to store the uuid.
-      /** @todo Handle error case. */
-      g_mkdir_with_parents (user_dir, 0700);
+      g_warning ("Directory to store user information could not be accessed.");
+      g_free (user_dir);
+      return NULL;
     }
 
     {
@@ -620,6 +636,7 @@ openvas_user_uuid_method (const char *name, const auth_method_t method)
         }
       g_free (uuid_file);
     }
+
   g_free (user_dir);
   return NULL;
 }
@@ -674,13 +691,11 @@ gchar *
 openvas_user_uuid (const char *name)
 {
   gchar *user_dir = g_build_filename (OPENVAS_USERS_DIR, name, NULL);
-  if (!g_file_test (user_dir, G_FILE_TEST_EXISTS))
+  // Create a user dir to store the uuid if it does not exist.
+  if (g_mkdir_with_parents (user_dir, 0700) != 0)
     {
-      // Assume that the user does exist, but is remotely authenticated.
-      // Create a user dir to store the uuid.
-      /** @todo Resolve the issue that for remote authentication a directory
-       *        and uuid file has to be created. Also, handle error case. */
-      g_mkdir_with_parents (user_dir, 0700);
+      g_warning ("Unable to access or create user directory.");
+      return NULL;
     }
 
     {
@@ -756,7 +771,7 @@ openvas_is_user_admin (const gchar * username)
                                        NULL);
   gboolean file_exists = g_file_test (file_name, G_FILE_TEST_EXISTS);
 
-  /** @todo Resolve remote authentication case. */
+  /** @todo Resolve remote authentication case, need another function parameter. */
 
   g_free (file_name);
   return file_exists;
@@ -765,21 +780,30 @@ openvas_is_user_admin (const gchar * username)
 /**
  * @brief Set the role of a user.
  *
- * @param username Username.
- * @param role Role.
+ * @param username      Username.
+ * @param role          Role.
+ * @param user_dir_name Directory of user. Can be NULL than the default (for
+ *                      locally authenticated users) will be taken.
  *
  * @return 0 success, -1 failure.
  */
 int
-openvas_set_user_role (const gchar * username, const gchar * role)
+openvas_set_user_role (const gchar * username, const gchar * role,
+                       const gchar* user_dir_name)
 {
   int ret = -1;
   gchar *file_name;
 
-  file_name = g_build_filename (OPENVAS_USERS_DIR,
-                                username,
-                                "isadmin",
-                                NULL);
+  // Take default directory if none passed as parameter.
+  if (user_dir_name == NULL)
+    file_name = g_build_filename (OPENVAS_USERS_DIR,
+                                  username,
+                                  "isadmin",
+                                  NULL);
+  else
+    file_name = g_build_filename (user_dir_name,
+                                  "isadmin",
+                                  NULL);
 
   if (strcmp (role, "User") == 0)
     {
@@ -862,7 +886,7 @@ openvas_auth_store_user_rules (const gchar* user_dir_name, const gchar* hosts,
     {
       gchar **split = g_strsplit (hosts, ",", 0);
 
-      // @todo Do better format checking on hosts.
+      /** @todo Do better format checking on hosts. */
 
       if (hosts_allow)
         {

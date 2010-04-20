@@ -56,7 +56,8 @@ int
 openvas_is_user_admin (const gchar *);
 
 int
-openvas_set_user_role (const gchar *, const gchar *);
+openvas_set_user_role (const gchar *, const gchar *,
+                       const gchar* user_dir_name);
 
 int
 openvas_auth_user_rules (const gchar* username, gchar** rules);

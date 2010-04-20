@@ -38,11 +38,6 @@
  *
  * Use like an opaque struct, create with ldap_auth_schema_new, do not modify,
  * free with ldap_auth_schema_free.
- *
- * @todo auth_dn[before|after]_user should be collapsed. The format might
- *       e.g. become auth_dn="uid=%s,cn=users,o=greenbone,c=net" .
- *       As we would sprintf with that string it has to be checked with great
- *       care.
  */
 struct ldap_auth_info {
   gchar* ldap_host;         ///< Adress of the ldap server, might include port.
@@ -52,9 +47,8 @@ struct ldap_auth_info {
   gchar* role_attribute;
   gchar** role_admin_values;  ///< Attribute values that qualify an admin.
   gchar** role_user_values;   ///< Attribute values that qualify a user.
-  gchar* ruletype_attribute;
-  gchar* rule_attribute;
-  /** @todo gchar* rule_type, gchar* rule */
+  gchar* ruletype_attribute;  ///< Attribute to hold the ruletype.
+  gchar* rule_attribute;      ///< Attribute to hold the rule (hosts) itself.
 };
 
 /** @brief Authentication schema and adress type. */

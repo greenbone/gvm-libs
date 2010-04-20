@@ -168,6 +168,7 @@ ldap_auth_info_create_dn (const ldap_auth_info_t info, const gchar* username)
   return dn;
 }
 
+
 /**
  * @brief Queries the accessrules of a user and saves them to disc.
  *
@@ -395,10 +396,17 @@ ldap_authenticate (const gchar* username, const gchar* password,
   role = ldap_auth_query_role (ldap, info, dn);
 
   // Query and save users rules if s/he is at least a "User".
-  if (role != 2 && role != 1)
+  if (role == 2 || role == 1)
     {
-      if (ldap_auth_query_rules (ldap, info, dn, username) == -1);
+      if (ldap_auth_query_rules (ldap, info, dn, username) == -1)
         g_warning ("Users rules could not be found on ldap directory.");
+      // If user is admin, mark it so.
+      gchar* user_dir_name = g_build_filename (OPENVAS_STATE_DIR,
+                                              "users-remote", "ldap",
+                                               username, NULL);
+      openvas_set_user_role (username, (role == 2) ? "Admin" : "User",
+                             user_dir_name);
+      g_free (user_dir_name);
     }
 
   /** @todo deprecated, use ldap_unbind_ext_s */

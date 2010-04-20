@@ -1,5 +1,27 @@
 2010-04-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	Mark remotely authenticated Administrators with isadmin flag. Resolved
+	several other minor todos.
+
+	* misc/ldap_auth.c (ldap_authenticate): Corrected role check, trigger
+	isadmin flag setting / deleting.
+
+	* misc/ldap_auth.h: Removed todos, which were resolved. Improved
+	documentation.
+
+	* misc/openvas_auth.c: Improved documentation.
+	(openvas_authenticate_classic): Resolved todo and memleak.
+	(openvas_user_uuid, openvas_user_uuid_method): Handle error case,
+	simplified condition.
+	(openvas_is_user_admin): Clarified todo.
+	(openvas_set_user_role): Added new parameter, doc. Can optionally take
+	the directory where to save the isadmin flag.
+	(openvas_auth_store_user_roles): Made todo visible with doxygen.
+
+	* misc/openvas_auth.h (openvas_auth_store_user_roles): Adjusted proto.
+
+2010-04-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	Added initial support for saving rules of users that were remotely
 	authenticated. Rules file will be saved in
 	OPENVAS_STATE_DIR/users-remote/ldap/USERNAME/auth/rules .
@@ -9,7 +31,7 @@
 	username), to circumvent discrimination of locally and remotely
 	authenticated users.
 
-	* misc/openvas_auth.h (openvas_auth_store_user_rules): Adjusted header.
+	* misc/openvas_auth.h (openvas_auth_store_user_rules): Adjusted proto.
 
 	* misc/ldap_auth.c: Include openvas_auth.
 	(ldap_auth_query_rules): New function, queries and saves the
