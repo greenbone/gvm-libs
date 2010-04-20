@@ -1,5 +1,11 @@
 2010-04-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/openvas_auth.c, misc/openvas_auth.h
+	(openvas_auth_store_user_rules): Moved from
+	openvas-administrator/src/admin module.
+
+2010-04-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* base/openvas_string.c: Added missing include, updated copyright.
 
 2010-04-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>

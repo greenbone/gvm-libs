@@ -43,6 +43,7 @@
 #define GROUP_PREFIX_METHOD "method:"
 #define KEY_ORDER "order"
 
+#define RULES_FILE_HEADER "# This file is managed by the OpenVAS Administrator.\n# Any modifications must keep to the format that the Administrator expects.\n"
 
 /**
  * @file misc/openvas_auth.c
@@ -834,4 +835,72 @@ openvas_auth_user_rules (const gchar* username, gchar** rules)
 
   g_free (rules_file);
   return 1;
+}
+
+/**
+ * @param[in]  hosts        The host the user is allowed/forbidden to scan.
+ * @param[in]  hosts_allow  Whether hosts is allow or forbid.
+ */
+int
+openvas_auth_store_user_rules (const gchar* username, const gchar* hosts,
+                               int hosts_allow)
+{
+  GError* error = NULL;
+  gchar *user_dir_name, *user_rules_file_name;
+  GString* rules = g_string_new (RULES_FILE_HEADER);
+  if (hosts && strlen (hosts))
+    {
+      gchar **split = g_strsplit (hosts, ",", 0);
+
+      // @todo Do better format checking on hosts. 
+
+      if (hosts_allow)
+        {
+          gchar **host;
+          g_string_append_printf (rules, "# allow %s\n", hosts);
+          for (host = split; *host; host++)
+            g_string_append_printf (rules,
+                                    "accept %s\n",
+                                    g_strstrip (*host));
+          g_string_append (rules, "default deny\n");
+        }
+      else
+        {
+          gchar **host;
+          g_string_append_printf (rules, "# deny %s\n", hosts);
+          for (host = split; *host; host++)
+            g_string_append_printf (rules,
+                                    "deny %s\n",
+                                    g_strstrip (*host));
+          g_string_append (rules, "default accept\n");
+        }
+
+      g_strfreev (split);
+    }
+
+  /** @brief Need to know here what to do in remote authentication case */
+  user_dir_name = g_build_filename (OPENVAS_USERS_DIR, username, NULL);
+
+  // Put the rules in auth/rules.
+  user_rules_file_name = g_build_filename (user_dir_name, "auth",
+                                            "rules", NULL);
+  if (!g_file_set_contents (user_rules_file_name,
+                            rules->str,
+                            -1,
+                            &error))
+    {
+      g_warning ("%s", error->message);
+      g_error_free (error);
+      if (openvas_file_remove_recurse (user_dir_name))
+        g_warning ("Could not remove %s while trying to revert changes!",
+                    user_dir_name);
+      g_string_free (rules, TRUE);
+      g_free (user_dir_name);
+      g_free (user_rules_file_name);
+      return -1;
+    }
+  g_string_free (rules, TRUE);
+  g_chmod (user_rules_file_name, 0600);
+  g_free (user_rules_file_name);
+  g_free (user_dir_name);
 }

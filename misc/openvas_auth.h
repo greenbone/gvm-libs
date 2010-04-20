@@ -61,4 +61,8 @@ openvas_set_user_role (const gchar *, const gchar *);
 int
 openvas_auth_user_rules (const gchar* username, gchar** rules);
 
+int
+openvas_auth_store_user_rules (const gchar* username, const gchar* hosts,
+                               int hosts_allow);
+
 #endif /* not _OPENVAS_AUTH_H */
