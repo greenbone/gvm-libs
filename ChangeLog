@@ -1,3 +1,8 @@
+2010-04-21  Preeti Subramanian <spreeti@secpod.com>
+
+	* misc/pcap.c (v6_getinterfaces): Replaced pcap_findalldevs() with
+	getifaddrs().
+
 2010-04-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	Mark remotely authenticated Administrators with isadmin flag. Resolved

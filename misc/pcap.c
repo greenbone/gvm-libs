@@ -29,6 +29,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <ifaddrs.h>
+
 
 #include "bpf_share.h"
 #include "pcap_openvas.h"
@@ -632,88 +635,64 @@ get_random_bytes (void *buf, int numbytes)
 
 struct interface_info *v6_getinterfaces(int *howmany)
 {
-  char errbuf[PCAP_ERRBUF_SIZE];
-  pcap_if_t *alldevap;
-  pcap_if_t *tmp;
-  int retval;
-  pcap_addr_t *addr;
-  struct sockaddr *sa;
   struct sockaddr_in *saddr;
   struct sockaddr_in6 *s6addr;
   static struct interface_info mydevs[1024];
   int numinterfaces = 0;
+  struct ifaddrs *ifaddr, *ifa;
+  int family;
 
-  #ifdef TCPIP_DEBUGGING
-    char ipaddr[INET6_ADDRSTRLEN];
-  #endif
-
-  memset(errbuf, 0, sizeof(errbuf));
-
-  retval = pcap_findalldevs(&alldevap, errbuf);
-  if(retval == -1)
-  {
-    printf("pcap_findalldevs returned error %s\n",errbuf);
-  }
+  if (getifaddrs(&ifaddr) == -1) {
+      perror("getifaddrs");
+   }
   else
   {
-    tmp = alldevap;
-    while(tmp)
-    {
-      if(tmp->addresses)
-      {
-        addr = tmp->addresses;
-        while(addr)
-        {
-          sa = addr->addr;
-          if(sa->sa_family == AF_INET)
-          {
-            memcpy(mydevs[numinterfaces].name,tmp->name, strlen(tmp->name));
-            saddr = (struct sockaddr_in *) sa;
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+      family = ifa->ifa_addr->sa_family;
+      if(family == AF_INET)
+         {
+            memcpy(mydevs[numinterfaces].name,ifa->ifa_name, strlen(ifa->ifa_name));
+            saddr = (struct sockaddr_in *) ifa->ifa_addr;
             mydevs[numinterfaces].addr6.s6_addr32[0] = 0;
             mydevs[numinterfaces].addr6.s6_addr32[1] = 0;
             mydevs[numinterfaces].addr6.s6_addr32[2] = htonl(0xffff);
             mydevs[numinterfaces].addr6.s6_addr32[3] = saddr->sin_addr.s_addr;
-            saddr = (struct sockaddr_in *) addr->netmask;
+            saddr = (struct sockaddr_in *) ifa->ifa_netmask;
             mydevs[numinterfaces].mask.s6_addr32[0] = 0;
             mydevs[numinterfaces].mask.s6_addr32[1] = 0;
             mydevs[numinterfaces].mask.s6_addr32[2] = htonl(0xffff);
             mydevs[numinterfaces].mask.s6_addr32[3] = saddr->sin_addr.s_addr;
 #ifdef TCPIP_DEBUGGING
-	          printf("interface name is %s\n",tmp->name);
+            printf("interface name is %s\n",ifa->ifa_name);
             printf("\tAF_INET family\n");
             printf("\taddress is %s\n",inet_ntoa(saddr->sin_addr));
             printf("\tnetmask is %s\n",inet_ntoa(saddr->sin_addr));
 #endif
             numinterfaces++;
           }
-          else if(sa->sa_family == AF_INET6)
+        else if(family == AF_INET6)
           {
-            memcpy(mydevs[numinterfaces].name,tmp->name, strlen(tmp->name));
-            s6addr = (struct sockaddr_in6 *) sa;
-            memcpy(&(mydevs[numinterfaces].addr6), (char *) &(s6addr->sin6_addr), sizeof(struct in6_addr));
-            s6addr = (struct sockaddr_in6 *) addr->netmask;
-            memcpy(&(mydevs[numinterfaces].mask), (char *) &(s6addr->sin6_addr), sizeof(struct in6_addr));
-            numinterfaces++;
+             memcpy(mydevs[numinterfaces].name,ifa->ifa_name, strlen(ifa->ifa_name));
+             s6addr = (struct sockaddr_in6 *) ifa->ifa_addr;
+             memcpy(&(mydevs[numinterfaces].addr6), (char *) &(s6addr->sin6_addr), sizeof(struct in6_addr));
+             s6addr = (struct sockaddr_in6 *) ifa->ifa_netmask;
+             memcpy(&(mydevs[numinterfaces].mask), (char *) &(s6addr->sin6_addr), sizeof(struct in6_addr));
+             numinterfaces++;
 #ifdef TCPIP_DEBUGGING
-            printf("\tAF_INET6 family\n");
-	          printf("interface name is %s\n",tmp->name);
-            printf("\taddress is %s\n",inet_ntop(AF_INET6, &s6addr->sin6_addr, ipaddr, sizeof(ipaddr)));
-            printf("\tnetmask is %s\n",inet_ntop(AF_INET6, &s6addr->sin6_addr, ipaddr, sizeof(ipaddr)));
+             printf("\tAF_INET6 family\n");
+             printf("interface name is %s\n",ifa->ifa_name);
+             printf("\taddress is %s\n",inet_ntop(AF_INET6, &s6addr->sin6_addr, ipaddr, sizeof(ipaddr)));
 #endif
-          }
-          else
-          {
+           }
+         else
+           {
 #ifdef TCPIP_DEBUGGING
-            printf("\tfamily is %d\n",sa->sa_family);
+             printf("\tfamily is %d\n",ifa->ifa_addr->sa_family);
 #endif
-          }
-          addr = addr->next;
-        }
+           }
       }
-      tmp = tmp->next;
-    }
     *howmany = numinterfaces;
-  }
+   }
   return mydevs;
 }
 
