@@ -1,3 +1,9 @@
+2010-04-23  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/pcap.c (getinterfaces): Reworked for loop which broke
+	strict-aliasing rules by dereferencing a type-punned pointer. Patch
+	was authored by Matthew Mundell.
+
 2010-04-21  Preeti Subramanian <spreeti@secpod.com>
 
 	* misc/pcap.c (v6_getinterfaces): Replaced pcap_findalldevs() with

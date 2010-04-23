@@ -712,6 +712,7 @@ getinterfaces (int *howmany)
   struct ifconf ifc;
   struct ifreq *ifr;
   struct sockaddr_in *sin;
+  char *bufp;
 
   /* Dummy socket for ioctl. */
   sd = socket (AF_INET, SOCK_DGRAM, 0);
@@ -725,12 +726,11 @@ getinterfaces (int *howmany)
     printf ("Failed to determine your configured interfaces!\n");
 
   close (sd);
-  ifr = (struct ifreq *) buf;
   if (ifc.ifc_len == 0)
     printf ("getinterfaces: SIOCGIFCONF claims you have no network interfaces!\n");
 
 #ifdef HAVE_SOCKADDR_SA_LEN
-    len = ifr->ifr_addr.sa_len;
+    len = ((struct ifreq *) buf)->ifr_addr.sa_len;
 #else
 #ifdef HAVE_STRUCT_IFMAP
     len = sizeof (struct ifmap);
@@ -739,15 +739,11 @@ getinterfaces (int *howmany)
 #endif
 #endif
 
-  for ( ; ifr && *((char*) ifr) && ((char*) ifr) < buf + ifc.ifc_len;
-    /* FIXME: for the next source code line the gentoo packaging process
-     * reports the following problem (disregard the line number):
-     * QA Notice: Package has poor programming practices which may compile
-     *            fine but exhibit random runtime failures.
-     * pcap.c:342: warning: dereferencing type-punned pointer will break strict-aliasing rules
-     */
-      ((*(char **)&ifr) +=  sizeof (ifr->ifr_name) + len ))
+    for (bufp = buf;
+         bufp && *bufp && (bufp < (buf + ifc.ifc_len));
+         bufp += sizeof (ifr->ifr_name) + len)
     {
+      ifr = (struct ifreq *) bufp;
       sin = (struct sockaddr_in *) &ifr->ifr_addr;
       memcpy (&(mydevs[numinterfaces].addr), (char *) &(sin->sin_addr), sizeof (struct in_addr));
       /* In case it is a stinkin' alias */
