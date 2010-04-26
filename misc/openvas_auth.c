@@ -45,6 +45,12 @@
 
 #define RULES_FILE_HEADER "# This file is managed by the OpenVAS Administrator.\n# Any modifications must keep to the format that the Administrator expects.\n"
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib logging domain.
+ */
+#define G_LOG_DOMAIN "lib  auth"
+
 /**
  * @file misc/openvas_auth.c
  *
@@ -672,6 +678,38 @@ openvas_authenticate_uuid (const gchar * username, const gchar * password,
   return -1;
 }
 
+/**
+ * @brief Get contents of a uuid file.
+ *
+ * @param[in]  uuid_file_path  Path to uuid file.
+ *
+ * @return uuid found in uuid file or NULL in case of malconditions / errors.
+ */
+static gchar*
+uuid_file_contents (const gchar* uuid_file_path)
+{
+  gsize size;
+  gchar *uuid = NULL;
+
+  if (g_file_test (uuid_file_path, G_FILE_TEST_EXISTS))
+    {
+      if (g_file_get_contents (uuid_file_path, &uuid, &size, NULL))
+        {
+          if (strlen (uuid) < 36)
+            {
+              g_free (uuid);
+              uuid = NULL;
+            }
+          else
+            {
+              /* Drop any trailing characters. */
+              uuid[36] = '\0';
+            }
+        }
+    }
+
+  return uuid;
+}
 
 /**
  * @brief Return the UUID of a user from the OpenVAS user UUID file.
@@ -685,7 +723,8 @@ openvas_authenticate_uuid (const gchar * username, const gchar * password,
  *
  * @param[in]  name   User name.
  *
- * @return UUID of given user if user exists, else NULL.
+ * @return UUID of given user if (locally authenticated) user exists,
+ *         else NULL.
  */
 gchar *
 openvas_user_uuid (const char *name)
@@ -825,9 +864,93 @@ openvas_set_user_role (const gchar * username, const gchar * role,
   return ret;
 }
 
+/**
+ * @brief Get host access rules for a certain user.
+ *
+ * @param[in]   username  Name of the user to get rules for.
+ * @param[in]   uuid      UUID of user, needed to tell apart two or more users
+ *                        with the same name (e.g. locally and remotely
+ *                        authenticated). Can be NULL, then fall back to locally
+ *                        authenticated users only.
+ * @param[out]  rules     Return location for rules.
+ *
+ * @return 0 on failure, != 0 on success.
+ */
+int
+openvas_auth_user_uuid_rules (const gchar* username, const gchar* user_uuid,
+                              gchar** rules)
+{
+  gchar* uuid_file  = NULL;
+  gchar* uuid       = NULL;
+  GError *error     = NULL;
+  gchar* rules_file = NULL;
+  int i = 0;
+
+  if (user_uuid == NULL)
+    return openvas_auth_user_rules (username, rules);
+
+  g_warning ("Now, find user %s: %s", username, user_uuid);
+
+  // Look in users dir
+  uuid_file = g_build_filename (OPENVAS_USERS_DIR,
+                                        username,
+                                        "uuid",
+                                        NULL);
+  uuid = uuid_file_contents (uuid_file);
+  g_free (uuid_file);
+  if (strcmp (uuid, user_uuid) == 0)
+    {
+      g_free (uuid);
+      return openvas_auth_user_rules (username, rules);
+    }
+  g_free (uuid);
+
+  // Look in users-remote dir, iterate subdirectories for all known
+  // authentication mechanisms.
+  for (i = 0; i < AUTHENTICATION_METHOD_LAST; i++)
+    {
+      uuid_file = g_build_filename (OPENVAS_STATE_DIR, "users-remote",
+                                    authentication_methods[i], username,
+                                    "uuid", NULL);
+      uuid = uuid_file_contents (username);
+      // If we found a user with matching uuid, try to access its rules file.
+      if (strcmp (uuid, user_uuid) == 0)
+        {
+          g_free (uuid);
+          g_free (uuid_file);
+
+          rules_file = g_build_filename (OPENVAS_STATE_DIR, "users-remote",
+                                         authentication_methods[i],
+                                         username,
+                                         "auth",
+                                         "rules",
+                                         NULL);
+          g_file_get_contents (rules_file, rules, NULL, &error);
+          if (error)
+            {
+              g_error_free (error);
+              /** @todo access error message here, or pass it up. */
+              g_free (rules_file);
+              return 0;
+            }
+
+          g_free (rules_file);
+          return 1;
+        }
+      g_free (uuid);
+      g_free (uuid_file);
+    }
+
+  return 0;
+}
+
 
 /**
  * @brief Get host access rules for a certain user.
+ *
+ * @deprecated  Use \ref openvas_auth_user_uuid_rules where possible (need to
+ *              know the uuid of user). Use \ref openvas_authenticate_uuid to
+ *              obtain a users uuid if not known.
  *
  * @param[in]   username  Name of the user to get rules for.
  * @param[out]  rules     Return location for rules.

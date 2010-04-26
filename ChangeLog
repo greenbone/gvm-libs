@@ -1,3 +1,17 @@
+2010-04-26  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/openvas_auth.c: Set the log domain.
+	(uuid_file_contents): New function to access file content as uuid.
+	(openvas_user_uuid): Clarified doc.
+	(openvas_auth_user_uuid_rules): New function, reworked rules access for
+	remotely authenticated users.
+	(openvas_auth_user_rules): Deprecated in favor of the new
+	openvas_auth_user_uuid_rules function.
+
+	* misc/openvas_auth.h: Added proto.
+
+	* misc/ldap_auth.c: Set the log domain.
+
 2010-04-23  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/pcap.c (getinterfaces): Reworked for loop which broke

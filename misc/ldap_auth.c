@@ -47,6 +47,11 @@
 #define KEY_LDAP_RULE_ATTRIBUTE "rule-attribute"
 #define KEY_LDAP_RULETYPE_ATTRIBUTE "ruletype-attribute"
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib logging domain.
+ */
+#define G_LOG_DOMAIN "lib  ldap"
 
 /**
  * @file ldap_auth.c

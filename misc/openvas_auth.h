@@ -63,6 +63,10 @@ int
 openvas_auth_user_rules (const gchar* username, gchar** rules);
 
 int
+openvas_auth_user_uuid_rules (const gchar* username, const gchar* user_uuid,
+                              gchar** rules);
+
+int
 openvas_auth_store_user_rules (const gchar* user_dir, const gchar* hosts,
                                int hosts_allow);
 
