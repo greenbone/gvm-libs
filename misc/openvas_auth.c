@@ -889,7 +889,7 @@ openvas_auth_user_uuid_rules (const gchar* username, const gchar* user_uuid,
   if (user_uuid == NULL)
     return openvas_auth_user_rules (username, rules);
 
-  g_warning ("Now, find user %s: %s", username, user_uuid);
+  g_debug ("Searching rules file for user %s (%s)", username, user_uuid);
 
   // Look in users dir
   uuid_file = g_build_filename (OPENVAS_USERS_DIR,
@@ -898,7 +898,7 @@ openvas_auth_user_uuid_rules (const gchar* username, const gchar* user_uuid,
                                         NULL);
   uuid = uuid_file_contents (uuid_file);
   g_free (uuid_file);
-  if (strcmp (uuid, user_uuid) == 0)
+  if (uuid && strcmp (uuid, user_uuid) == 0)
     {
       g_free (uuid);
       return openvas_auth_user_rules (username, rules);
@@ -912,9 +912,9 @@ openvas_auth_user_uuid_rules (const gchar* username, const gchar* user_uuid,
       uuid_file = g_build_filename (OPENVAS_STATE_DIR, "users-remote",
                                     authentication_methods[i], username,
                                     "uuid", NULL);
-      uuid = uuid_file_contents (username);
+      uuid = uuid_file_contents (uuid_file);
       // If we found a user with matching uuid, try to access its rules file.
-      if (strcmp (uuid, user_uuid) == 0)
+      if (uuid && strcmp (uuid, user_uuid) == 0)
         {
           g_free (uuid);
           g_free (uuid_file);

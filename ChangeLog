@@ -1,3 +1,9 @@
+2010-04-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_auth_user_uuid_rules): Emit debug
+	message with g_debug, check parameters passed to strcmp, fix bug where
+	wrong variable is passed as users rules file name parameter.
+
 2010-04-26  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/openvas_auth.c: Set the log domain.
