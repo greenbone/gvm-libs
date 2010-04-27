@@ -39,16 +39,13 @@
 void
 free_credentials (credentials_t* credentials)
 {
-  if (credentials->username)
-    {
-      g_free (credentials->username);
-      credentials->username = NULL;
-    }
-  if (credentials->password)
-    {
-      g_free (credentials->password);
-      credentials->password = NULL;
-    }
+  g_free (credentials->username);
+  credentials->username = NULL;
+
+  g_free (credentials->password);
+  credentials->password = NULL;
+
+  /** @todo Check whether uuid has to be freed, too. */
 }
 
 /**

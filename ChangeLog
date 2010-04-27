@@ -1,5 +1,14 @@
 2010-04-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	Merge changes to credentials from openvas-manager.
+
+	* base/credentials.h (struct credentials): Added uuid field.
+
+	* base/credentials.c (free_credentials): Use easier openvas-manager
+	variant, todo about possible leakage of uuid.
+
+2010-04-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	Added near-duplicate code from openvas-administrator / openvas-manager.
 
 	* base/credentials.h, base/credentials.c: New module, moved from

@@ -39,6 +39,7 @@ typedef struct
 {
   /*@null@*/ gchar* username; ///< Login name of user.
   /*@null@*/ gchar* password; ///< Password of user.
+  /*@null@*/ gchar* uuid;     ///< UUID of user.
 } credentials_t;
 
 void
