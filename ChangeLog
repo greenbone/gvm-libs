@@ -1,5 +1,17 @@
 2010-04-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	Added near-duplicate code from openvas-administrator / openvas-manager.
+
+	* base/credentials.h, base/credentials.c: New module, moved from
+	openvas-administrator/oap module.
+
+	* base/CMakeLists.txt: Added header and source files to respective
+	lists.
+
+	* MANIFEST: Added new files.
+
+2010-04-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/openvas_auth.c (openvas_auth_user_uuid_rules): Emit debug
 	message with g_debug, check parameters passed to strcmp, fix bug where
 	wrong variable is passed as users rules file name parameter.
