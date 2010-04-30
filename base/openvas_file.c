@@ -118,3 +118,34 @@ openvas_file_remove_recurse (const gchar * pathname)
 
   return g_remove (pathname);
 }
+
+/**
+ * @brief Reads in contents of file, and returns it, base64-encoded.
+ *
+ * This function does neither log any occuring error, nor does it make it
+ * available, it will just return NULL.
+ *
+ * @param[in]  filename  File to read in.
+ *
+ * @return NULL if any error occurred, content of file, base64 encoded, freshly
+ *        allocated, free with g_free.
+ */
+gchar*
+openvas_file_read_b64_encode (const gchar* filename)
+{
+  gchar *file_contents = NULL;
+  gchar *contents_b64  = NULL;
+  GError *error        = NULL;
+  gsize file_size;
+
+  g_file_get_contents (filename, &file_contents, &file_size, &error);
+  if (error)
+    {
+      g_error_free (error);
+      return NULL;
+    }
+
+  contents_b64 = g_base64_encode ((guchar*) file_contents, file_size);
+  g_free (file_contents);
+  return contents_b64;
+}

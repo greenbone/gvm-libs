@@ -1,3 +1,10 @@
+2010-04-30  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* base/openvas_file.c (openvas_file_read_b64_encode): New utility
+	function to read in a file and return its content base64 encoded.
+
+	* base/openvas_file.h: Added proto.
+
 2010-04-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	Merge changes to credentials from openvas-manager.
