@@ -1,3 +1,9 @@
+2010-04-30  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* doc/test_ipv6_packet_forgery.nasl: New. A test/demonstrator
+	for the IPv6 package forgery.
+	Developed by Preeti Subramanian.
+
 2010-04-30  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* base/openvas_file.c (openvas_file_read_b64_encode): New utility
