@@ -137,8 +137,10 @@ exec_program (pkg-config
 
 ## Library
 
-set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Werror -Wall -fPIC")
-set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -Werror -fPIC")
+if (NOT MINGW)
+  set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Werror -Wall -fPIC")
+  set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -Werror -fPIC")
+endif (NOT MINGW)
 
 set (FILES certificate.c credentials.c hash_table_util.c nvti.c nvticache.c
      openvas_certificate_file.c openvas_file.c openvas_string.c pidfile.c
@@ -166,8 +168,13 @@ if (OPENVAS_PID_DIR)
   add_definitions (-DOPENVAS_PID_DIR=\\\"${OPENVAS_PID_DIR}\\\")
 endif (OPENVAS_PID_DIR)
 
-target_link_libraries (openvas_base_static ${GLIB_LDFLAGS})
-target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS})
+if (MINGW)
+  target_link_libraries (openvas_base_static ${GLIB_LDFlAGS} intl iconv ole32)
+  target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS} intl iconv ole32)
+else (MINGW)
+  target_link_libraries (openvas_base_static ${GLIB_LDFLAGS})
+  target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS})
+endif (MINGW)
 
 ## Install
 

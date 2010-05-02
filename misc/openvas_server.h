@@ -43,7 +43,9 @@ extern "C"
 #endif
 
 #include <gnutls/gnutls.h>
-#include <netinet/ip.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
 
 int
 openvas_server_open (gnutls_session_t*, const char*, int);

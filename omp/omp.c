@@ -38,6 +38,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#ifdef _WIN32
+#include <winsock2.h>
+#define sleep Sleep
+#endif
+
 #include <errno.h>
 
 #include "omp.h"

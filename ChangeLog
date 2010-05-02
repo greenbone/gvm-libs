@@ -1,3 +1,20 @@
+2010-05-02  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Windows support (partial, only what is need to run OMP clients)
+	contributed Raimund Renkert:
+
+	* base/CMakeLists.txt, omp/CMakeLists.txt, misc/CMakeLists.txt:
+	Add MINGW support and switch off what is not needed for OMP clients.
+
+	* omp/omp.c: Added support for Windows (just include/define).
+
+	* misc/openvas_auth.c: Deactivate large parts of the code that
+	is not necessary for Windows support for OMP clients.
+
+	* misc/openvas_server.c: Deactivate some signal handling for Windows.
+
+	* misc/openvas_server.h: Include Windows-specific sockets.
+
 2010-04-30  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* doc/test_ipv6_packet_forgery.nasl: New. A test/demonstrator

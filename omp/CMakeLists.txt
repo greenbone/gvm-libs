@@ -157,7 +157,14 @@ set_target_properties (openvas_omp_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_omp_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_omp_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
 set_target_properties (openvas_omp_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
-target_link_libraries (openvas_omp_shared openvas_misc glib-2.0 gnutls)
+
+if (MINGW)
+  target_link_libraries (openvas_omp_shared openvas_misc -lglib-2.0 -lgnutls
+                         -lgcrypt -lgpg-error -lintl -lws2_32 -liconv -lole32
+                         -lz -lkernel32)
+else (MINGW)
+  target_link_libraries (openvas_omp_shared openvas_misc glib-2.0 gnutls)
+endif (MINGW)
 
 ## Install
 

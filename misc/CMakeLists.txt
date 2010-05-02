@@ -131,18 +131,31 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 include_directories (../include)
 include_directories (../base)
 
+if (MINGW)
+  if (CROSS_ENV)
+    include_directories (${CROSS_ENV}/include)
+    include_directories (${CROSS_ENV}/include/glib-2.0)
+    include_directories (${CROSS_ENV}/lib/glib-2.0/include)
+  else (CROSS_ENV)
+    message (FATAL_ERROR "Could not find include path for WIN32. Consider"
+             " building with -DCROSS_ENV=path/to win32/environment")
+  endif (CROSS_ENV)
+endif (MINGW)
+
 ## Config
 
 exec_program (pkg-config
               ARGS --cflags glib-2.0
               OUTPUT_VARIABLE GLIB_CFLAGS)
 
-message (STATUS "Looking for uuid...")
-find_library (UUID uuid)
-message (STATUS "Looking for uuid... ${UUID}")
-if (NOT UUID)
-  message (FATAL_ERROR "The uuid library is required.")
-endif (NOT UUID)
+if (NOT MINGW)
+  message (STATUS "Looking for uuid...")
+  find_library (UUID uuid)
+  message (STATUS "Looking for uuid... ${UUID}")
+  if (NOT UUID)
+    message (FATAL_ERROR "The uuid library is required.")
+  endif (NOT UUID)
+endif (NOT MINGW)
 
 # Check for openldap if -DBUILD_WITH_LDAP=ON was given
 if (NOT BUILD_WITH_LDAP)
@@ -164,19 +177,24 @@ message ("-- prepare for add libraries ...")
 set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Wall -fPIC")
 set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -fPIC")
 
-set (FILES arglists.c bpf_share.c ftp_funcs.c harglists.c hash_table_file.c
-           hlst.c ids_send.c kb.c network.c openvas_auth.c openvas_logging.c
-           openvas_server.c openvas_ssh_login.c openvas_uuid.c plugutils.c
-           popen.c proctitle.c
-           rand.c resolve.c scanners_utils.c services1.c services.c share_fd.c
-           store.c system.c www_funcs.c pcap.c)
+if (MINGW)
+  set (FILES openvas_auth.c openvas_server.c proctitle.c)
+  set (HEADERS proctitle.h openvas_auth.h openvas_server.h share_fd.h)
+else (MINGW)
+  set (FILES arglists.c bpf_share.c ftp_funcs.c harglists.c hash_table_file.c
+             hlst.c ids_send.c kb.c network.c openvas_auth.c openvas_logging.c
+             openvas_server.c openvas_ssh_login.c openvas_uuid.c plugutils.c
+             popen.c proctitle.c
+             rand.c resolve.c scanners_utils.c services1.c services.c share_fd.c
+             store.c system.c www_funcs.c pcap.c)
 
-set (HEADERS arglists.h bpf_share.h ftp_funcs.h hash_table_file.h kb.h
-             network.h otp.h pcap_openvas.h plugutils.h popen.h proctitle.h
-             rand.h resolve.h openvas_auth.h openvas_logging.h openvas_server.h
-             openvas_ssh_login.h openvas_uuid.h
-             scanners_utils.h services1.h
-             share_fd.h store.h system.h www_funcs.h)
+  set (HEADERS arglists.h bpf_share.h ftp_funcs.h hash_table_file.h kb.h
+               network.h otp.h pcap_openvas.h plugutils.h popen.h proctitle.h
+               rand.h resolve.h openvas_auth.h openvas_logging.h
+               openvas_server.h openvas_ssh_login.h openvas_uuid.h
+               scanners_utils.h services1.h
+               share_fd.h store.h system.h www_funcs.h)
+endif (MINGW)
 
 if (BUILD_WITH_LDAP)
   list (APPEND FILES ldap_auth.c)
@@ -185,20 +203,23 @@ endif (BUILD_WITH_LDAP)
 link_directories (${CMAKE_CURRENT_SOURCE_DIR}/../base)
 
 add_library (openvas_misc_static STATIC ${FILES})
+
 set_target_properties (openvas_misc_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
 set_target_properties (openvas_misc_static PROPERTIES OUTPUT_NAME "openvas_misc")
 set_target_properties (openvas_misc_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_misc_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 add_library (openvas_misc_shared SHARED ${FILES})
+
 set_target_properties (openvas_misc_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
 set_target_properties (openvas_misc_shared PROPERTIES OUTPUT_NAME "openvas_misc")
 set_target_properties (openvas_misc_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_misc_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_misc_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
 set_target_properties (openvas_misc_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
-target_link_libraries (openvas_misc_shared glib-2.0 pcap gnutls gcrypt openvas_base)
-
+if (NOT MINGW)
+  target_link_libraries (openvas_misc_shared glib-2.0 pcap gnutls gcrypt openvas_base)
+endif (NOT MINGW)
 if (OPENVAS_USERS_DIR)
   add_definitions (-DOPENVAS_USERS_DIR=\\\"${OPENVAS_USERS_DIR}\\\")
 endif (OPENVAS_USERS_DIR)
@@ -212,13 +233,22 @@ if (OPENVAS_SYSCONF_DIR)
   add_definitions (-DONF_DIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
 endif (OPENVAS_SYSCONF_DIR)
 
-if (NOT BUILD_WITH_LDAP)
-  target_link_libraries (openvas_misc_static uuid ${GLIB_LDFLAGS})
-  target_link_libraries (openvas_misc_shared uuid ${GLIB_LDFLAGS})
-else (NOT BUILD_WITH_LDAP)
-  target_link_libraries (openvas_misc_static uuid ${GLIB_LDFLAGS} ldap)
-  target_link_libraries (openvas_misc_shared uuid ${GLIB_LDFLAGS} ldap)
-endif (NOT BUILD_WITH_LDAP)
+if (MINGW)
+  target_link_libraries (openvas_misc_static uuid openvas_base ${GLIB_LDFLAGS} -lglib-2.0
+                         -lgcrypt -lgnutls -lintl -liconv -lgpg-error -lws2_32
+                         -lole32 -lz)
+  target_link_libraries (openvas_misc_shared uuid openvas_base ${GLIB_LDFLAGS} -lglib-2.0
+                         -lgcrypt -lgnutls -lintl -liconv -lgpg-error -lws2_32
+                         -lole32 -lz)
+else (MINGW)
+  if (NOT BUILD_WITH_LDAP)
+    target_link_libraries (openvas_misc_static uuid ${GLIB_LDFLAGS})
+    target_link_libraries (openvas_misc_shared uuid ${GLIB_LDFLAGS})
+  else (NOT BUILD_WITH_LDAP)
+    target_link_libraries (openvas_misc_static uuid ${GLIB_LDFLAGS} ldap)
+    target_link_libraries (openvas_misc_shared uuid ${GLIB_LDFLAGS} ldap)
+  endif (NOT BUILD_WITH_LDAP)
+endif (MINGW)
 
 # install library
 message ("-- installing libraries...")

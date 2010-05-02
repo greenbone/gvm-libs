@@ -28,7 +28,9 @@
 
 #include "openvas_auth.h"
 
+#ifndef _WIN32
 #include "openvas_uuid.h"
+#endif
 
 #include <errno.h>
 #include <gcrypt.h>
@@ -520,6 +522,7 @@ openvas_authenticate (const gchar * username, const gchar * password)
   return ret;
 }
 
+#ifndef _WIN32
 /**
  * @brief Authenticate a credential pair and expose the method used.
  *
@@ -788,7 +791,7 @@ openvas_user_uuid (const char *name)
   g_free (user_dir);
   return NULL;
 }
-
+#endif // not _WIN32
 
 /**
  * @brief Check if a user has administrative privileges.
@@ -864,6 +867,7 @@ openvas_set_user_role (const gchar * username, const gchar * role,
   return ret;
 }
 
+#ifndef _WIN32
 /**
  * @brief Get host access rules for a certain user.
  *
@@ -1063,3 +1067,4 @@ openvas_auth_store_user_rules (const gchar* user_dir_name, const gchar* hosts,
 
   return 0;
 }
+#endif // not _WIN32
