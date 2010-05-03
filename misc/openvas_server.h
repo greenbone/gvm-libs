@@ -45,6 +45,8 @@ extern "C"
 #include <gnutls/gnutls.h>
 #ifdef _WIN32
 #include <winsock2.h>
+#else
+#include <netinet/ip.h>
 #endif
 
 int
