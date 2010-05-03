@@ -440,3 +440,27 @@ nasl_same_host(lex_ctxt* lexic)
     }
   return retc;
 }
+
+tree_cell*
+nasl_target_is_ipv6(lex_ctxt* lexic)
+{
+  tree_cell *retc;
+  struct arglist * script_infos = lexic->script_infos;
+  struct in6_addr * addr;
+
+  addr = plug_get_host_ip(script_infos);
+  retc = alloc_tree_cell(0, NULL);
+  retc->type = CONST_INT;
+
+  if(addr == NULL)
+  {
+    nasl_perror(lexic, "address is NULL!\n");
+    return NULL;
+  }
+  if(IN6_IS_ADDR_V4MAPPED(addr) == 1)
+    retc->x.i_val = 0;
+  else
+    retc->x.i_val = 1;
+
+  return retc;
+}

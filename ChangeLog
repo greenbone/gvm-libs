@@ -1,3 +1,13 @@
+2010-05-03  Preeti Subramanian <spreeti@secpod.com>
+
+	Added a function to check if the target is IPv6:
+
+	* nasl/nasl_host.c (nasl_target_is_ipv6): Added new function
+
+	* nasl/nasl_host.h: Added new function
+
+	* nasl/nasl_init.c: Added TARGET_IS_IPV6 as nasl function
+
 2010-05-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/openvas_uuid.c: Fixed compiler warning by adding missing stdlib

@@ -129,6 +129,7 @@ static init_func libfuncs[] = {
   { "get_host_name",	get_hostname, 0, { NULL } }, 
   { "get_host_ip",      get_host_ip,  0, { NULL } },
   { "same_host",	nasl_same_host, 2, { "cmp_hostname" } },
+  { "TARGET_IS_IPV6",   nasl_target_is_ipv6, 0, { NULL } },
 
   { "get_host_open_port", get_host_open_port, 0, { NULL } },
   { "get_port_state",     get_port_state, 1, { NULL } },

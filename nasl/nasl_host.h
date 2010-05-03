@@ -32,6 +32,7 @@ tree_cell * nasl_islocalnet(lex_ctxt * );
 tree_cell * nasl_this_host(lex_ctxt *);
 tree_cell * nasl_this_host_name(lex_ctxt *);
 tree_cell * get_port_transport(lex_ctxt * );
-tree_cell*  nasl_same_host(lex_ctxt*);
+tree_cell * nasl_same_host(lex_ctxt*);
+tree_cell * nasl_target_is_ipv6(lex_ctxt* lexic);
 
 #endif
