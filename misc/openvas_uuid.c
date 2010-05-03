@@ -29,7 +29,7 @@
 #include "openvas_uuid.h"
 
 #include <glib.h>
-
+#include <stdlib.h>
 #include <uuid/uuid.h>
 
 
