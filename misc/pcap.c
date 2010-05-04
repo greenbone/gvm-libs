@@ -739,9 +739,9 @@ getinterfaces (int *howmany)
 #endif
 #endif
 
-    for (bufp = buf;
-         bufp && *bufp && (bufp < (buf + ifc.ifc_len));
-         bufp += sizeof (ifr->ifr_name) + len)
+  for (bufp = buf;
+       bufp && *bufp && (bufp < (buf + ifc.ifc_len));
+       bufp += sizeof (ifr->ifr_name) + len)
     {
       ifr = (struct ifreq *) bufp;
       sin = (struct sockaddr_in *) &ifr->ifr_addr;

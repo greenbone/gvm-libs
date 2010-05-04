@@ -1,3 +1,7 @@
+2010-05-04  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/pcap.c (getinterfaces): Indent `for' properly.
+
 2010-05-04  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* base/openvas_file.h, base/array.h: Fixed include-guard comments.
