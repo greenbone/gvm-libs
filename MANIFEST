@@ -1,5 +1,7 @@
 .root-dir
 aclocal.m4
+base/array.c
+base/array.h
 base/CMakeLists.txt
 base/certificate.c
 base/certificate.h

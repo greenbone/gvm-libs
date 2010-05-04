@@ -1,3 +1,13 @@
+2010-05-04  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	Added array module, extracted from openvas-manager and
+	openvas-administrator.
+
+	* base/array.c, base/array.h: New modules, extracted functions from
+	openvas-manager and openvas-administrator.
+
+	* MANIFEST, base/CMakeLists.txt: Added new module.
+
 2010-05-03  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/openvas_server.h: Restored lost include for non-Windows builds.

@@ -142,13 +142,13 @@ if (NOT MINGW)
   set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -Werror -fPIC")
 endif (NOT MINGW)
 
-set (FILES certificate.c credentials.c hash_table_util.c nvti.c nvticache.c
-     openvas_certificate_file.c openvas_file.c openvas_string.c pidfile.c
-     severity_filter.c settings.c)
+set (FILES array.c certificate.c credentials.c hash_table_util.c nvti.c
+     nvticache.c openvas_certificate_file.c openvas_file.c openvas_string.c
+     pidfile.c severity_filter.c settings.c)
 
-set (HEADERS certificate.h credentials.h hash_table_util.h nvti.h settings.h
-     openvas_certificate_file.h openvas_file.h openvas_string.h pidfile.h
-     severity_filter.h)
+set (HEADERS array.h certificate.h credentials.h hash_table_util.h nvti.h
+     settings.h openvas_certificate_file.h openvas_file.h openvas_string.h
+     pidfile.h severity_filter.h)
 
 add_library (openvas_base_static STATIC ${FILES})
 set_target_properties (openvas_base_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
