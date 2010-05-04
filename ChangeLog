@@ -1,5 +1,12 @@
 2010-05-04  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* base/array.c (free_array): Rename array_free.  Update caller.
+	(array_free): New function.  Was free_array.
+
+	* base/array.h: Update header accordingly.
+
+2010-05-04  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* misc/pcap.c (getinterfaces): Indent `for' properly.
 
 2010-05-04  Felix Wolfsteller <felix.wolfsteller@greenbone.net>

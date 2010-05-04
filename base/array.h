@@ -34,7 +34,7 @@ GPtrArray * make_array ();
 
 void array_reset (array_t **array);
 
-void free_array (GPtrArray *array);
+void array_free (GPtrArray *array);
 
 void array_add (array_t *array, gpointer pointer);
 

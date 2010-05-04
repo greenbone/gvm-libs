@@ -49,7 +49,7 @@ make_array ()
 void
 array_reset (array_t **array)
 {
-  free_array (*array);
+  array_free (*array);
   *array = make_array ();
 }
 
@@ -61,7 +61,7 @@ array_reset (array_t **array)
  * @param[in]  array  Pointer to array.
  */
 void
-free_array (GPtrArray *array)
+array_free (GPtrArray *array)
 {
   if (array)
     {
