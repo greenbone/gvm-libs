@@ -40,4 +40,4 @@ void array_add (array_t *array, gpointer pointer);
 
 void array_terminate (array_t *array);
 
-#endif /* not _OPENVAS_LIBRARIES_STRING_H */
+#endif /* not _OPENVAS_ARRAY_H */

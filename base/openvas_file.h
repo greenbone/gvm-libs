@@ -39,4 +39,4 @@ openvas_file_remove_recurse (const gchar * pathname);
 gchar*
 openvas_file_read_b64_encode (const gchar* filename);
 
-#endif /* not _OPENVAS_LIBRARIES_STRING_H */
+#endif /* not _OPENVAS_FILE_H */

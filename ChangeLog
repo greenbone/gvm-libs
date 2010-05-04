@@ -1,5 +1,9 @@
 2010-05-04  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* base/openvas_file.h, base/array.h: Fixed include-guard comments.
+
+2010-05-04  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	Added array module, extracted from openvas-manager and
 	openvas-administrator.
 
