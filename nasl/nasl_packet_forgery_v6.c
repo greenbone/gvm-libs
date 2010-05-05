@@ -1419,7 +1419,7 @@ tree_cell * nasl_tcp_v6_ping(lex_ctxt * lexic)
     v6_routethrough(dst, &src);
   }
 
-  snprintf(filter, sizeof(filter), "ip6 and src host %s", inet_ntop(AF_INET6, &src, addr, sizeof(addr))); /* RATS: ignore */
+  snprintf(filter, sizeof(filter), "ip6 and src host %s and not icmp6", inet_ntop(AF_INET6, dst, addr, sizeof(addr))); /* RATS: ignore */
   bpf = init_v6_capture_device(*dst, src, filter);
 
   if(v6_islocalhost(dst) != 0)
@@ -1436,14 +1436,14 @@ tree_cell * nasl_tcp_v6_ping(lex_ctxt * lexic)
       ip->ip6_hlim = 0x40,
       ip->ip6_src = src;
       ip->ip6_dst = *dst;
-      ip->ip6_ctlun.ip6_un1.ip6_un1_plen = FIX(sizeof(struct tcphdr) + sizeof(struct ip6_hdr));
+      ip->ip6_ctlun.ip6_un1.ip6_un1_plen = FIX(sizeof(struct tcphdr));
 
       /* TCP */
       tcp->th_sport = port ? htons(rnd_tcp_port()) : htons(sports[i%num_ports]);  tcp->th_flags = TH_SYN;
       tcp->th_dport = port ? htons(port):htons(ports[i%num_ports]);
       tcp->th_seq = rand();
       tcp->th_ack = 0;  tcp->th_x2  = 0;
-      tcp->th_off = 5;  tcp->th_win = 2048;
+      tcp->th_off = 5;  tcp->th_win = htons(512);
       tcp->th_urp = 0;  tcp->th_sum = 0;
 
       /* CKsum */

@@ -1,3 +1,8 @@
+2010-05-05  Preeti Subramanian <spreeti@secpod.com>
+
+	* nasl/nasl_packet_forgery_v6.c (nasl_tcp_v6_ping): Bug Fix. Corrected
+	tcp ping for IPv6
+
 2010-05-04  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* base/array.c (free_array): Rename array_free.  Update caller.
