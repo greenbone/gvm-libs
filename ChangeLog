@@ -1,3 +1,8 @@
+2010-05-05  Stephan Kleine
+
+	* configure.in: Change check for pcap from pcap_restart to
+	pcap_version since the former doesn't work on Ubuntu 10.04.
+
 2009-09-01  Felix Wolfsteller <felix.wolfsteller@intevation.de>
 
 	Backported from trunk (revision 4792).
