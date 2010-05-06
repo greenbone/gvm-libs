@@ -1419,7 +1419,7 @@ tree_cell * nasl_tcp_v6_ping(lex_ctxt * lexic)
     v6_routethrough(dst, &src);
   }
 
-  snprintf(filter, sizeof(filter), "ip6 and src host %s and not icmp6", inet_ntop(AF_INET6, dst, addr, sizeof(addr))); /* RATS: ignore */
+  snprintf(filter, sizeof(filter), "ip6 and src host %s", inet_ntop(AF_INET6, dst, addr, sizeof(addr))); /* RATS: ignore */
   bpf = init_v6_capture_device(*dst, src, filter);
 
   if(v6_islocalhost(dst) != 0)
