@@ -1,5 +1,10 @@
 2010-05-07  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/openvas_auth.c (openvas_auth_init): Use strcmp instead of
+	g_strcmp.
+
+2010-05-07  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	Extended openvas-auth module to be able to write and merge its config.
 	Also, added an "enabled" parameter to disable authentication
 	configurations without loosing the details.

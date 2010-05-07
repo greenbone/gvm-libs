@@ -308,7 +308,7 @@ openvas_auth_init ()
         {
           /* Add the classic/file based authentication regardless of its
            * "enabled" value. */
-          if (!g_strcmp (*group, "method:file"))
+          if (!strcmp (*group, "method:file"))
             {
               add_authenticator (key_file, *group);
             }
@@ -316,7 +316,7 @@ openvas_auth_init ()
           {
             // Add other authenticators iff they are enabled.
             gchar* enabled_value = g_key_file_get_value (key_file, *group, "enable", NULL);
-            if (!g_strcmp (enabled_value, "true"))
+            if (!strcmp (enabled_value, "true"))
               {
                 add_authenticator (key_file, *group);
               }
