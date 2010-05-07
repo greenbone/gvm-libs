@@ -306,7 +306,22 @@ openvas_auth_init ()
     {
       if (g_str_has_prefix (*group, GROUP_PREFIX_METHOD))
         {
-          add_authenticator (key_file, *group);
+          /* Add the classic/file based authentication regardless of its
+           * "enabled" value. */
+          if (!g_strcmp (*group, "method:file"))
+            {
+              add_authenticator (key_file, *group);
+            }
+          else
+          {
+            // Add other authenticators iff they are enabled.
+            gchar* enabled_value = g_key_file_get_value (key_file, *group, "enable", NULL);
+            if (!g_strcmp (enabled_value, "true"))
+              {
+                add_authenticator (key_file, *group);
+              }
+            g_free (enabled_value);
+          }
         }
       group++;
     }
@@ -325,6 +340,105 @@ void
 openvas_auth_tear_down ()
 {
   /** @todo Close memleak, destroy list and content. */
+}
+
+/**
+ * @brief Writes the authentication mechanism configuration, merging with
+ * @brief defaults and existing configuration.
+ *
+ * @param[in] keyfile The KeyFile to merge and write. Can be NULL, in which
+ *                    case just the default will be written.#
+ *
+ * @return 1 if file has been written successfully, != 1 otherwise.
+ */
+int
+openvas_auth_write_config (GKeyFile* key_file)
+{
+  GKeyFile* new_conffile  = g_key_file_new ();
+  GKeyFile* old_conffile  = g_key_file_new ();
+  gchar** groups      = NULL;
+  gchar** group       = NULL;
+  gchar** keys        = NULL;
+  gchar** key         = NULL;
+  gchar* file_content = NULL;
+  gboolean written    = FALSE;
+  gchar* file_path    = g_build_filename (OPENVAS_USERS_DIR, ".auth.conf",
+                                          NULL);
+
+  // Instead of clever merging with existing file and the defaults, fill
+  // conffile with defaults and overwrite with values from parameter, if any.
+
+  // "Classic authentication" configuration.
+  g_key_file_set_comment (new_conffile, NULL, NULL, "This file was automatically generated.", NULL);
+  g_key_file_set_value (new_conffile, "method:file", "enable", "true");
+  g_key_file_set_value (new_conffile, "method:file", "order", "1");
+  // LDAP configuration.
+  g_key_file_set_value (new_conffile, "method:ldap", "enable", "false");
+  g_key_file_set_value (new_conffile, "method:ldap", "order", "2");
+  g_key_file_set_value (new_conffile, "method:ldap", "ldaphost", "localhost");
+  g_key_file_set_value (new_conffile, "method:ldap", "authdn", "authdn=uid=%s,cn=users,o=yourserver,c=yournet");
+  g_key_file_set_value (new_conffile, "method:ldap", "role-attribute", "x-gsm-role");
+  g_key_file_set_value (new_conffile, "method:ldap", "role-user-values", "user;admin");
+  g_key_file_set_value (new_conffile, "method:ldap", "role-admin-values", "admin");
+  g_key_file_set_value (new_conffile, "method:ldap", "ruletype-attribute", "x-gsm-ruletype");
+  g_key_file_set_value (new_conffile, "method:ldap", "rule-attribute", "x-gsm-rule");
+
+  // Old, user-provided configuration, if any.
+  /** @todo Preserve comments in file. */
+  old_conffile = g_key_file_new ();
+  if (g_key_file_load_from_file (old_conffile, file_path, G_KEY_FILE_KEEP_COMMENTS,
+                                 NULL) == TRUE)
+    {
+      // Old file does exist.
+      groups = g_key_file_get_groups (old_conffile, NULL);
+
+      group = groups;
+      while (group && *group != NULL)
+        {
+          keys = g_key_file_get_keys (old_conffile, *group, NULL, NULL);
+          key = keys;
+          while (*key != NULL)
+            {
+              gchar* value = g_key_file_get_value (old_conffile, *group, *key, NULL);
+              g_key_file_set_value (new_conffile, *group, *key, value);
+              key++;
+            }
+          g_strfreev (keys);
+          group++;
+        }
+      g_strfreev (groups);
+      g_key_file_free (old_conffile);
+    }
+
+  // New, user-provided configuration, if any.
+  groups = (key_file) ? g_key_file_get_groups (key_file, NULL) : NULL;
+
+  group = groups;
+  while (group && *group != NULL)
+    {
+      keys = g_key_file_get_keys (key_file, *group, NULL, NULL);
+      key = keys;
+      while (*key != NULL)
+        {
+          gchar* value = g_key_file_get_value (key_file, *group, *key, NULL);
+          g_key_file_set_value (new_conffile, *group, *key, value);
+          key++;
+        }
+      g_strfreev (keys);
+      group++;
+    }
+  g_strfreev (groups);
+
+  // Write file.
+  file_content = g_key_file_to_data (new_conffile, NULL, NULL);
+  written = g_file_set_contents (file_path, file_content, -1, NULL);
+
+  // Clean up.
+  g_key_file_free (new_conffile);
+  g_free (file_content);
+  g_free (file_path);
+
+  return (written == TRUE) ? 1 : 0;
 }
 
 /**
@@ -1067,4 +1181,5 @@ openvas_auth_store_user_rules (const gchar* user_dir_name, const gchar* hosts,
 
   return 0;
 }
+
 #endif // not _WIN32

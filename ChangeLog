@@ -1,3 +1,21 @@
+2010-05-07  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	Extended openvas-auth module to be able to write and merge its config.
+	Also, added an "enabled" parameter to disable authentication
+	configurations without loosing the details.
+
+	* misc/openvas_auth.c (openvas_auth_init): Respect enabled parameter,
+	except for file-based authentication which is always enabled.
+	(openvas_auth_write_config): New, interface for changes of the
+	configuration.
+	Added newline before #endif macro.
+
+	* misc/openvas_auth.h: Unified header comment with implementation file.
+	(openvas_auth_write_config): Added proto.
+
+	* doc/example.auth.conf: Added exemplary enabled parameters, added
+	comment.
+
 2010-05-06  Michael Meyer <michael.meyer@greenbone.net>
 
 	* nasl/nasl_packet_forgery_v6.c:

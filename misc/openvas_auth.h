@@ -1,6 +1,6 @@
 /* OpenVAS Libraries
  * $Id$
- * Description: Header for authentication mechanism.
+ * Description: Header for authentication mechanism(s).
  *
  * Authors:
  * Matthew Mundell <matt@mundell.ukfsn.org>
@@ -36,6 +36,9 @@ openvas_auth_init ();
 
 void
 openvas_auth_tear_down ();
+
+int
+openvas_auth_write_config (GKeyFile* keyfile);
 
 gchar *
 get_password_hashes (int, const gchar *);
