@@ -1,3 +1,8 @@
+2010-05-10  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_set_user_role): Return -2 if all roles
+	fail to match.
+
 2010-05-07  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_auth_init): Use strcmp instead of
@@ -387,7 +392,7 @@
 
 2010-04-12  Preeti Subramanian <spreeti@secpod.com>
 
-	* nasl/nasl_packet_forgery_v6.c (nasl_tcp_v6_ping): Fixed 
+	* nasl/nasl_packet_forgery_v6.c (nasl_tcp_v6_ping): Fixed
 	issue in packet size caluclation.
 
 2010-04-12  Preeti Subramanian <spreeti@secpod.com>
@@ -401,16 +406,16 @@
 	(get_udp_v6_element) (forge_icmp_v6_packet) (get_icmp_v6_element)
 	(forge_igmp_v6_packet): Added new functions.
 
-	* nasl/nasl_packet_forgery_v6.c (nasl_tcp_v6_ping): Fixed checksum 
+	* nasl/nasl_packet_forgery_v6.c (nasl_tcp_v6_ping): Fixed checksum
 	calculation logic and compiler warnings.
 
-	* nasl/nasl_packet_forgery_v6.c (nasl_send_v6packet): Fixed 
+	* nasl/nasl_packet_forgery_v6.c (nasl_send_v6packet): Fixed
 	compiler warnings.
 
 	* nasl/nasl_packet_forgery_v6.h (insert_ipv6_options)
 	(forge_udp_v6_packet) (set_udp_v6_elements) (dump_udp_v6_packet)
 	(get_udp_v6_element) (forge_icmp_v6_packet) (get_icmp_v6_element)
-	(forge_igmp_v6_packet): Added new functions. 
+	(forge_igmp_v6_packet): Added new functions.
 
 	* nasl/nasl_init.c: Added the above new functions.
 

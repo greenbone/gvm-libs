@@ -941,7 +941,7 @@ openvas_is_user_admin (const gchar * username)
  * @param user_dir_name Directory of user. Can be NULL than the default (for
  *                      locally authenticated users) will be taken.
  *
- * @return 0 success, -1 failure.
+ * @return 0 success, -1 failure, -2 unknown role.
  */
 int
 openvas_set_user_role (const gchar * username, const gchar * role,
@@ -975,6 +975,11 @@ openvas_set_user_role (const gchar * username, const gchar * role,
     {
       g_chmod (file_name, 0600);
       ret = 0;
+    }
+  else
+    {
+      g_free (file_name);
+      return -2;
     }
 
   g_free (file_name);
