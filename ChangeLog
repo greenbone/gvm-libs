@@ -1,3 +1,13 @@
+2010-05-11  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/openvas_ssh_login.c: Refactored and added functionality to read
+	ssh login data from a buffer instead of from a file. Patch provided by
+	Felix Wolfsteller.
+	(read_from_keyfile, openvas_ssh_login_file_read_buffer): New.
+	(openvas_ssh_login_file_read): Refactored to use read_from_keyfile.
+
+	* misc/openvas_ssh_login.h: Updated.
+
 2010-05-10  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_set_user_role): Return -2 if all roles

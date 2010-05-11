@@ -49,7 +49,11 @@ openvas_ssh_login* openvas_ssh_login_new(char* name, char* pubkey_file,
 
 void openvas_ssh_login_free(openvas_ssh_login* loginfo);
 
-GHashTable* openvas_ssh_login_file_read(char* filename, gboolean);
+GHashTable* openvas_ssh_login_file_read (char* filename, gboolean check);
+
+GHashTable* openvas_ssh_login_file_read_buffer (const char* buffer,
+                                                gsize buffer_size,
+                                                gboolean check);
 
 gboolean openvas_ssh_login_file_write(GHashTable* ssh_logins, char* filename);
 

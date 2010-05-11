@@ -241,48 +241,25 @@ openvas_ssh_login_file_write (GHashTable* ssh_logins, char* filename)
  *
  * The GHashTable contains the names as keys and pointers to openvas_ssh_logins
  * as values.
- * If check_keyfiles TRUE, openvas_ssh_logins are checked before being 
+ * If check_keyfiles TRUE, openvas_ssh_logins are checked before being
  * added to the hashtable:
- * if the public and private key files do not exist, the openvas_ssh_login would
- * not be added.
+ * if the public and private key files do not exist, the openvas_ssh_login
+ * will not be added.
  *
- * @param filename       File to read from.
+ * @param key_file       Pointer to GKeyFile structure to read from.
  * @param check_keyfiles If TRUE, checks if referenced keyfiles do exist, before
  *                       adding the openvas_ssh_login to the HashTable.
  *
  * @return GHashTable, keys are names of openvas_ssh_logins, who are values.
  */
-GHashTable*
-openvas_ssh_login_file_read (char* filename, gboolean check_keyfiles)
+static GHashTable*
+read_from_keyfile (GKeyFile* key_file, gboolean check_keyfiles)
 {
-  gchar** names;
+  GHashTable* loginfos = g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
+                                      (GDestroyNotify) openvas_ssh_login_free);
   gsize length;
-  GKeyFile* key_file = g_key_file_new();
-  GError* err        = NULL;
-  GHashTable* loginfos   = g_hash_table_new_full(g_str_hash, g_str_equal,
-                                NULL, (GDestroyNotify) openvas_ssh_login_free);
-
-  g_key_file_load_from_file (key_file, filename, G_KEY_FILE_NONE, &err);
-
-  if(err != NULL)
-  {
-    // No file found? Thats ok, return empty hashtable.
-    if(err->code == G_KEY_FILE_ERROR_NOT_FOUND || err->code == G_FILE_ERROR_NOENT)
-    {
-      g_key_file_free(key_file);
-      g_error_free (err);
-      return loginfos;
-    }
-
-    g_hash_table_destroy(loginfos);
-    //show_error(_("Error loading sshlogin store %s: %s"), filename,
-    //           err->message);
-    g_key_file_free(key_file);
-    g_error_free (err);
-    return NULL;
-  }
-
-  names = g_key_file_get_groups (key_file, &length);
+  gchar** names = g_key_file_get_groups (key_file, &length);
+  GError* err   = NULL;
 
   // Read ssh login information from file and add entry to hashtable.
   int i = 0;
@@ -351,7 +328,103 @@ openvas_ssh_login_file_read (char* filename, gboolean check_keyfiles)
       }
   }
 
-  g_key_file_free(key_file);
+  return loginfos;
+}
+
+/**
+ * @brief Reads a ssh_login file and returns info in a GHashTable.
+ *
+ * The GHashTable contains the names as keys and pointers to openvas_ssh_logins
+ * as values.
+ * If check_keyfiles TRUE, openvas_ssh_logins are checked before being 
+ * added to the hashtable:
+ * if the public and private key files do not exist, the openvas_ssh_login would
+ * not be added.
+ *
+ * @param filename       File to read from.
+ * @param check_keyfiles If TRUE, checks if referenced keyfiles do exist, before
+ *                       adding the openvas_ssh_login to the HashTable.
+ *
+ * @return GHashTable, keys are names of openvas_ssh_logins, who are values.
+ */
+GHashTable*
+openvas_ssh_login_file_read (char* filename, gboolean check_keyfiles)
+{
+  GKeyFile* key_file   = g_key_file_new();
+  GError* err          = NULL;
+  GHashTable* loginfos = NULL;
+
+  g_key_file_load_from_file (key_file, filename, G_KEY_FILE_NONE, &err);
+
+  if(err != NULL)
+  {
+    // No file found? Thats ok, return empty hashtable.
+    if(err->code == G_KEY_FILE_ERROR_NOT_FOUND || err->code == G_FILE_ERROR_NOENT)
+    {
+      g_key_file_free(key_file);
+      g_error_free (err);
+      return loginfos;
+    }
+
+    //show_error(_("Error loading sshlogin store %s: %s"), filename,
+    //           err->message);
+    g_key_file_free(key_file);
+    g_error_free (err);
+    return NULL;
+  }
+
+  loginfos = read_from_keyfile (key_file, check_keyfiles);
+
+  g_key_file_free (key_file);
 
   return loginfos;
 } /* openvas_ssh_login_file_read */
+
+/**
+ * @brief Reads from contents of a ssh_login file and returns info in a
+ * @brief GHashTable.
+ *
+ * Like \ref openvas_ssh_login_file_read, but used when the file content is
+ * known already.
+ *
+ * @param filename       Buffer to read from.
+ * @param check_keyfiles If TRUE, checks if referenced keyfiles do exist, before
+ *                       adding the openvas_ssh_login to the HashTable.
+ *
+ * @return GHashTable, keys are names of openvas_ssh_logins, who are values.
+ * @see openvas_ssh_login_file_read
+ */
+GHashTable*
+openvas_ssh_login_file_read_buffer (const char* buffer, gsize buffer_size,
+                                    gboolean check_keyfiles)
+{
+  GKeyFile* key_file   = g_key_file_new();
+  GError* err          = NULL;
+  GHashTable* loginfos = NULL;
+
+  g_key_file_load_from_data (key_file, buffer, buffer_size, G_KEY_FILE_NONE,
+                             &err);
+
+  if(err != NULL)
+  {
+    // No file found? Thats ok, return empty hashtable.
+    if(err->code == G_KEY_FILE_ERROR_NOT_FOUND || err->code == G_FILE_ERROR_NOENT)
+    {
+      g_key_file_free(key_file);
+      g_error_free (err);
+      return loginfos;
+    }
+
+    //show_error(_("Error loading sshlogin store %s: %s"), filename,
+    //           err->message);
+    g_key_file_free(key_file);
+    g_error_free (err);
+    return NULL;
+  }
+
+  loginfos = read_from_keyfile (key_file, check_keyfiles);
+
+  g_key_file_free (key_file);
+
+  return loginfos;
+}
