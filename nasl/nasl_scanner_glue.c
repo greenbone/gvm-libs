@@ -465,19 +465,9 @@ tree_cell * script_get_preference_file_content(lex_ctxt * lexic)
  struct arglist *  script_infos = lexic->script_infos;
  tree_cell * retc;
  char * pref = get_str_var_by_num(lexic, 0);
- char * value;
- int fd, n;
- struct stat st;
- char * buffer;
-
- /*
-  * Only signed scripts can access files uploaded by the user
-  */
- if (check_authenticated(lexic) < 0)
-   {
-     nasl_perror(lexic, "script_get_preference_file_content: script is not authenticated!\n");
-     return NULL;
-   }
+ char *value;
+ const char *content;
+ int contentsize = 0;
 
  if(pref == NULL){
  	nasl_perror(lexic, "Argument error in the function script_get_preference()\n");
@@ -488,55 +478,23 @@ tree_cell * script_get_preference_file_content(lex_ctxt * lexic)
  value = get_plugin_preference(script_infos, pref);
  if(value == NULL) return NULL;
 
- value = (char*)get_plugin_preference_fname(script_infos, value);
- if ( value == NULL ) return FAKE_CELL;
-
- fd = open(value, O_RDONLY);
- if (fd < 0)
-   {
-     nasl_perror(lexic, "script_get_preference_file_content: open(%s): %s\n",
-		 value, strerror(errno));
-     return NULL;
-   }
- 
- if (fstat(fd, &st) < 0)
-   {
-     nasl_perror(lexic, "script_get_preference_file_content: fstat(%s): %s\n",
-		 value, strerror(errno));
-     close(fd);
-     return NULL;
-   }
-
- buffer = emalloc ( st.st_size );
- n = 0;
- while ( n < (int)st.st_size )
- {
-   int	e;
-   errno = 0;
-   e = read(fd, buffer + n , (int)st.st_size - n);
-   if (e > 0)
-     n+= e;
-   else if (e == 0)		/* EOF */
-   {
-     nasl_perror(lexic, "script_get_preference_file_content: unexpected EOF on %s\n", value);
-     break;
-   }
-   else				/* error */
-       if (errno == EINTR) continue;
-       else
-       {
-	 nasl_perror(lexic, "script_get_preference_file_content: read(%s): %s",
-		     value, strerror(errno));
-	 break;
-       }
- }
-
- close(fd);
+  content = get_plugin_preference_file_content (script_infos, value);
+  if (content == NULL)
+    {
+      nasl_perror (lexic, "script_get_preference_file_content: could not get contents of file from preference %s\n", pref);
+      return FAKE_CELL;
+    }
+  contentsize = get_plugin_preference_file_size (script_infos, value);
+  if (content <= 0 )
+    {
+      nasl_perror (lexic, "script_get_preference_file_content: could not get size of file from preference %s\n", pref);
+      return NULL;
+    }
 
  retc = alloc_tree_cell(0, NULL);
- retc->type = CONST_DATA; 
- retc->size = n;
- retc->x.str_val = buffer;
+ retc->type = CONST_DATA;
+ retc->size = contentsize;
+ retc->x.str_val = content;
 
  return retc;
 }

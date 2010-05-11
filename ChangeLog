@@ -1,5 +1,25 @@
 2010-05-11  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Changed preference file infrastructure to handle file uploads stored
+	in memory instead of on disk. Part of OpenVAS Change Request #47
+	(http://www.openvas.org/openvas-cr-47.html).
+
+	* misc/plugutils.c (get_plugin_preference_fname): Changed to write the
+	file contents from memory to a temporary file and return the name of
+	the temporary file. This is currently necessary for NVTs which need to
+	access a file, but will become deprecated soon.
+	(get_plugin_preference_file_content): New. Provides the contents of an
+	uploaded preference file.
+	(get_plugin_preference_file_size): New. Provides the size of an
+	uploaded preference file.
+
+	* misc/plugutils.h: Updated.
+
+	* nasl/nasl_scanner_glue.c (script_get_preference_file_content):
+	Changed to serve file from memory instead of from disk.
+
+2010-05-11  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/openvas_ssh_login.c: Refactored and added functionality to read
 	ssh login data from a buffer instead of from a file. Patch provided by
 	Felix Wolfsteller.

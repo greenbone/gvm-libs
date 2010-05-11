@@ -1147,6 +1147,59 @@ get_plugin_preference (struct arglist * desc, const char * name)
 const char *
 get_plugin_preference_fname (struct arglist * desc, const char * filename)
 {
+  const char *content;
+  long contentsize = 0;
+  gint tmpfile;
+  gchar *tmpfilename;
+  GError *error = NULL;
+
+  content = get_plugin_preference_file_content (desc, filename);
+  if (content == NULL)
+    {
+      return NULL;
+    }
+  contentsize = get_plugin_preference_file_size (desc, filename);
+  if (content <= 0 )
+    {
+      return NULL;
+    }
+
+  tmpfile = g_file_open_tmp ("openvassd-file-upload.XXXXXX", &tmpfilename, &error);
+  if (tmpfile == -1)
+    {
+      fprintf (stderr, "get_plugin_preference_fname: Could not open temporary file for %s: %s\n", filename, error->message);
+      g_error_free (error);
+      return NULL;
+    }
+  close (tmpfile);
+
+  if (! g_file_set_contents (tmpfilename, content, contentsize, &error))
+    {
+      fprintf (stderr, "get_plugin_preference_fname: could set contents of temporary file for %s: %s\n", filename, error->message);
+      g_error_free (error);
+      return NULL;
+    }
+
+  return tmpfilename;
+}
+
+
+/**
+ * @brief Get the file contents of a plugins preference that is of type "file".
+ *
+ * As files sent to the scanner (e.g. as plugin preference) are stored in a hash
+ * table with an identifier supplied by the client as the key, the contents have
+ * to be looked up here.
+ *
+ * @param identifier Identifier that was supplied by the client when the file
+ *                   was uploaded.
+ *
+ * @return Contents of the file identified by \ref identifier, NULL if not found or setup
+ *         broken.
+ */
+const char *
+get_plugin_preference_file_content (struct arglist *desc, const char *identifier)
+{
  struct arglist * globals = arg_get_value (desc, "globals");
  GHashTable * trans;
 
@@ -1157,7 +1210,43 @@ get_plugin_preference_fname (struct arglist * desc, const char * filename)
  if (!trans)
   return NULL;
 
- return g_hash_table_lookup (trans, filename);
+ return g_hash_table_lookup (trans, identifier);
+}
+
+
+/**
+ * @brief Get the file size of a plugins preference that is of type "file".
+ *
+ * Files sent to the scanner (e.g. as plugin preference) are stored in a hash
+ * table with an identifier supplied by the client as the key. The size of the
+ * file is stored in a separate hash table with the same identifier as key,
+ * which can be looked up here.
+ *
+ * @param identifier Identifier that was supplied by the client when the file
+ *                   was uploaded.
+ *
+ * @return Size of the file identified by \ref identifier, -1 if not found or
+ *         setup broken.
+ */
+const long
+get_plugin_preference_file_size (struct arglist *desc, const char *identifier)
+{
+ struct arglist * globals = arg_get_value (desc, "globals");
+ GHashTable * trans;
+ gchar *filesize_str;
+
+ if (!globals)
+  return -1;
+
+ trans = arg_get_value (globals, "files_size_translation");
+ if (!trans)
+  return -1;
+
+ filesize_str = g_hash_table_lookup (trans, identifier);
+ if (filesize_str == NULL)
+   return -1;
+
+ return atol (filesize_str);
 }
 
 
