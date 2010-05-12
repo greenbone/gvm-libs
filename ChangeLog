@@ -1,3 +1,14 @@
+2010-05-12  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Add CVSS base and risk factor to nvti_t.
+
+	* base/nvti.c (nvti_cvss_base, nvti_risk_factor, nvti_set_cvss_base)
+	(nvti_set_risk_factor): New functions.
+	(nvti_free): Free cvss_base and risk_factor.
+
+	* base/nvti.h: Add headers accordingly.
+	(nvti_t): Add cvss_base and risk_factor.
+
 2010-05-11  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Changed preference file infrastructure to handle file uploads stored

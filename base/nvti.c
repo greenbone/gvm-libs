@@ -157,6 +157,8 @@ nvti_free (nvti_t * n)
   if (n->bid) g_free (n->bid);
   if (n->xref) g_free (n->xref);
   if (n->tag) g_free (n->tag);
+  if (n->cvss_base) g_free (n->cvss_base);
+  if (n->risk_factor) g_free (n->risk_factor);
   if (n->dependencies) g_free (n->dependencies);
   if (n->required_keys) g_free (n->required_keys);
   if (n->mandatory_keys) g_free (n->mandatory_keys);
@@ -314,6 +316,34 @@ gchar *
 nvti_tag (const nvti_t * n)
 {
   return (n->tag);
+}
+
+/**
+ * @brief Get the CVSS base.
+ *
+ * @param n The NVT Info structure of which the CVSS base should
+ *          be returned.
+ *
+ * @return The cvss_bas string. Don't free this.
+ */
+gchar *
+nvti_cvss_base (const nvti_t * n)
+{
+  return (n->cvss_base);
+}
+
+/**
+ * @brief Get the risk factor.
+ *
+ * @param n The NVT Info structure of which the risk factor should
+ *          be returned.
+ *
+ * @return The risk_factors string. Don't free this.
+ */
+gchar *
+nvti_risk_factor (const nvti_t * n)
+{
+  return (n->risk_factor);
 }
 
 /**
@@ -682,6 +712,48 @@ nvti_set_tag (nvti_t * n, const gchar * tag)
     n->tag = g_strdup (tag);
   else
     n->tag = NULL;
+  return (0);
+}
+
+/**
+ * @brief Set the CVSS base of an NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param tag The CVSS base to set. A copy will be created from this.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_cvss_base (nvti_t * n, const gchar * cvss_base)
+{
+  if (n->cvss_base)
+    g_free (n->cvss_base);
+  if (cvss_base && cvss_base[0])
+    n->cvss_base = g_strdup (cvss_base);
+  else
+    n->cvss_base = NULL;
+  return (0);
+}
+
+/**
+ * @brief Set the risk factor of an NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param tag The risk factor to set. A copy will be created from this.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_risk_factor (nvti_t * n, const gchar * risk_factor)
+{
+  if (n->risk_factor)
+    g_free (n->risk_factor);
+  if (risk_factor && risk_factor[0])
+    n->risk_factor = g_strdup (risk_factor);
+  else
+    n->risk_factor = NULL;
   return (0);
 }
 

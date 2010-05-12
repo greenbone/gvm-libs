@@ -71,11 +71,13 @@ typedef struct nvti
   gchar *copyright;          /**< @brief Copyright for the NVT */
 
   gchar *cve;               /**< @brief List of CVEs, this NVT corresponds to */
-  gchar *bid;               /**< @brief List of Bugtraq IDs, this NVT 
+  gchar *bid;               /**< @brief List of Bugtraq IDs, this NVT
                                         corresponds to */
   gchar *xref;              /**< @brief List of Cross-references, this NVT
                                         corresponds to */
   gchar *tag;               /**< @brief List of tags attached to this NVT */
+  gchar *cvss_base;         /**< @brief CVSS base score for this NVT. */
+  gchar *risk_factor;       /**< @brief Risk factor for this NVT. */
 
   gchar *dependencies;      /**< @brief List of dependencies of this NVT */
   gchar *required_keys;     /**< @brief List of required KB keys of this NVT */
@@ -111,6 +113,8 @@ gchar *nvti_cve (const nvti_t *);
 gchar *nvti_bid (const nvti_t *);
 gchar *nvti_xref (const nvti_t *);
 gchar *nvti_tag (const nvti_t *);
+gchar *nvti_cvss_base (const nvti_t *);
+gchar *nvti_risk_factor (const nvti_t *);
 gchar *nvti_dependencies (const nvti_t *);
 gchar *nvti_required_keys (const nvti_t *);
 gchar *nvti_mandatory_keys (const nvti_t *);
@@ -135,6 +139,8 @@ int nvti_set_cve (nvti_t *, const gchar *);
 int nvti_set_bid (nvti_t *, const gchar *);
 int nvti_set_xref (nvti_t *, const gchar *);
 int nvti_set_tag (nvti_t *, const gchar *);
+int nvti_set_cvss_base (nvti_t *, const gchar *);
+int nvti_set_risk_factor (nvti_t *, const gchar *);
 int nvti_set_dependencies (nvti_t *, const gchar *);
 int nvti_set_required_keys (nvti_t *, const gchar *);
 int nvti_set_mandatory_keys (nvti_t *, const gchar *);
