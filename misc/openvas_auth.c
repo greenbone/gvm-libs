@@ -971,7 +971,7 @@ openvas_set_user_role (const gchar * username, const gchar * role,
         ret = 0;
     }
   else if (strcmp (role, "Admin") == 0
-           && g_file_set_contents (file_name, "", 0, NULL))
+           && g_file_set_contents (file_name, "", -1, NULL))
     {
       g_chmod (file_name, 0600);
       ret = 0;

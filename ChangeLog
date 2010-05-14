@@ -1,3 +1,10 @@
+2010-05-14  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_set_user_role): Fix glib API call to
+	g_set_file_contents to better conform to the API documentation;
+	passing 0 as length seems to break glib file creation under certain
+	circumstances. Bug found by Michael Meyer.
+
 2010-05-12  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Add CVSS base and risk factor to nvti_t.
