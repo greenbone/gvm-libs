@@ -21,6 +21,8 @@
  * This file contains all the cryptographic functions NASL has.
  */
 
+/* MODIFICATION: added definitions for implemention NTLMSSP features */
+
 #include <gcrypt.h>
 
 #include "nasl_tree.h"
@@ -36,9 +38,24 @@
 
 #include "system.h"
 #include <ctype.h>
+#include <stdlib.h>
 #include "strutils.h"
 #include <assert.h>
+#include "smb.h"
+#include "smb_signing.h"
+#include "ntlmssp.h"
 
+#ifndef uchar
+#define uchar unsigned char
+#endif
+
+#ifndef uint8
+#define uint8 uint8_t
+#endif
+
+#ifndef uint32
+#define uint32 uint32_t
+#endif
 
 /*-------------------[  Std. HASH ]-------------------------------------*/
 static tree_cell*
@@ -168,6 +185,161 @@ nasl_hmac_ripemd160 (lex_ctxt * lexic)
 }
 
 /*-------------------[ Windows ]-------------------------------------*/
+tree_cell *
+nasl_get_sign(lex_ctxt * lexic)
+{
+  char * mac_key = (char *)get_str_var_by_name(lexic, "key");
+  uint8_t * buf = (uint8_t *)get_str_var_by_name(lexic, "buf");
+  int buflen = get_int_var_by_name(lexic, "buflen", -1);
+  uint32 seq_num = get_int_var_by_name(lexic, "seq_number", -1);
+  if (mac_key == NULL ||  buf == NULL || buflen == -1 || seq_num == -1)
+   {
+     nasl_perror(lexic, "Syntax : get_sign(key:<k>, buf:<b>, buflen:<bl>, seq_number:<s>)\n");
+     return NULL;
+   }
+  uint8_t calc_md5_mac[16];
+  simple_packet_signature((uint8_t *)mac_key, buf, seq_num, calc_md5_mac);
+  memcpy(buf+18, calc_md5_mac, 8);
+  char * ret = emalloc(buflen);
+  bzero(ret, buflen);
+  memcpy(ret, buf, buflen);
+  tree_cell *retc;
+  retc = alloc_tree_cell(0, NULL);
+  retc->type = CONST_DATA;
+  retc->size  = buflen;
+  retc->x.str_val = (char*)ret;
+  return retc;
+}
+
+tree_cell *
+nasl_ntlmv2_response(lex_ctxt * lexic)
+{
+  char * cryptkey = (char *)get_str_var_by_name(lexic, "cryptkey");
+  char * user = (char *)get_str_var_by_name(lexic, "user");
+  char * domain = (char *)get_str_var_by_name(lexic, "domain");
+  unsigned char * ntlmv2_hash = (unsigned char *)get_str_var_by_name(lexic, "ntlmv2_hash");
+  char * address_list = get_str_var_by_name(lexic, "address_list");
+  int address_list_len = get_int_var_by_name(lexic, "address_list_len", -1);
+
+  if (cryptkey == NULL || user == NULL || domain == NULL || ntlmv2_hash == NULL || address_list == NULL || address_list_len < 0 )
+   {
+     nasl_perror(lexic, "Syntax : ntlmv2_response(cryptkey:<c>, user:<u>, domain:<d>, ntlmv2_hash:<n>, address_list:<a>, address_list_len:<len>)\n");
+     return NULL;
+   }
+  uint8_t lm_response[24];
+  uint8_t nt_response [16 + 28 + address_list_len];
+  uint8_t session_key[16];
+  bzero(lm_response, sizeof(lm_response));
+  bzero(nt_response, sizeof(nt_response));
+  bzero(session_key, sizeof(session_key));
+
+  ntlmssp_genauth_ntlmv2(user, domain, address_list, address_list_len, cryptkey, lm_response, nt_response, session_key, ntlmv2_hash);
+  tree_cell * retc;
+  int lm_response_len = 24;
+  int nt_response_len = 16 + 28 + address_list_len;
+  int len = lm_response_len + nt_response_len + sizeof(session_key);
+  char * ret = emalloc(len);
+  memcpy(ret, lm_response, lm_response_len);
+  memcpy(ret+lm_response_len, session_key, sizeof(session_key));
+  memcpy(ret+lm_response_len+sizeof(session_key), nt_response, nt_response_len);
+  retc = alloc_tree_cell(0, NULL);
+  retc->type = CONST_DATA;
+  retc->size  = len;
+  retc->x.str_val = ret;
+  return retc;
+}
+
+tree_cell *
+nasl_ntlm2_response(lex_ctxt * lexic)
+{
+  char * cryptkey = (char *)get_str_var_by_name(lexic, "cryptkey");
+  char * password = get_str_var_by_name(lexic, "password");
+  unsigned char * nt_hash = (unsigned char *) get_str_var_by_name(lexic, "nt_hash");
+
+   if (cryptkey == NULL || password == NULL )
+   {
+     nasl_perror(lexic, "Syntax : ntlm2_response(cryptkey:<c>, password:<p>, nt_hash:<n>)\n");
+     return NULL;
+   }
+
+  uint8_t lm_response[24];
+  uint8_t nt_response[24];
+  uint8_t session_key[16];
+
+  tree_cell * retc;
+  ntlmssp_genauth_ntlm2(password, lm_response, nt_response, session_key, cryptkey, nt_hash);
+  int len = sizeof(lm_response) + sizeof(nt_response) + sizeof(session_key);
+  char * ret = emalloc(len);
+  memcpy(ret, lm_response, sizeof(lm_response));
+  memcpy(ret+sizeof(lm_response), nt_response, sizeof(nt_response));
+  memcpy(ret+sizeof(lm_response)+sizeof(nt_response), session_key, sizeof(session_key));
+  retc = alloc_tree_cell(0, NULL);
+  retc->type = CONST_DATA;
+  retc->size  = len;
+  retc->x.str_val = ret;
+  return retc;
+}
+
+tree_cell *
+nasl_ntlm_response(lex_ctxt * lexic)
+{
+  char * cryptkey = (char *)get_str_var_by_name(lexic, "cryptkey");
+  char * password = get_str_var_by_name(lexic, "password");
+  unsigned char * nt_hash = (unsigned char *)get_str_var_by_name(lexic, "nt_hash");
+  int neg_flags = get_int_var_by_name(lexic, "neg_flags", -1);
+
+   if (cryptkey == NULL || password == NULL || nt_hash == NULL || neg_flags < 0)
+   {
+     nasl_perror(lexic, "Syntax : ntlm_response(cryptkey:<c>, password:<p>, nt_hash:<n>, neg_flags:<nf>)\n");
+     return NULL;
+   }
+
+  uint8_t lm_response[24];
+  uint8_t nt_response[24];
+  uint8_t session_key[16];
+
+  tree_cell * retc;
+
+  ntlmssp_genauth_ntlm(password, lm_response, nt_response, session_key, cryptkey, nt_hash, neg_flags);
+
+  int len = sizeof(lm_response) + sizeof(nt_response) + sizeof(session_key);
+  char * ret = emalloc(len);
+  memcpy(ret, lm_response, sizeof(lm_response));
+  memcpy(ret+sizeof(lm_response), nt_response, sizeof(nt_response));
+  memcpy(ret+sizeof(lm_response)+sizeof(nt_response), session_key, sizeof(session_key));
+  retc = alloc_tree_cell(0, NULL);
+  retc->type = CONST_DATA;
+  retc->size  = len;
+  retc->x.str_val = ret;
+  return retc;
+}
+
+tree_cell *
+nasl_keyexchg(lex_ctxt * lexic)
+{
+  char * cryptkey = (char *)get_str_var_by_name(lexic, "cryptkey");
+  uint8_t * session_key = (uint8_t*)get_str_var_by_name(lexic, "session_key");
+  unsigned char * nt_hash = (unsigned char *)get_str_var_by_name(lexic, "nt_hash");
+
+   if (cryptkey == NULL || session_key == NULL || nt_hash == NULL )
+   {
+     nasl_perror(lexic, "Syntax : keyexchg(cryptkey:<c>, session_key:<s>, nt_hash:<n> )\n");
+     return NULL;
+   }
+  uint8_t new_sess_key[16];
+  tree_cell * retc;
+  uint8_t * encrypted_session_key = NULL;
+  encrypted_session_key = ntlmssp_genauth_keyexchg(session_key, cryptkey, nt_hash, (uint8_t*)&new_sess_key);
+  int len = 16 + 16;
+  char * ret = emalloc(len);
+  memcpy(ret, new_sess_key, 16);
+  memcpy(ret+16, encrypted_session_key, 16);
+  retc = alloc_tree_cell(0, NULL);
+  retc->type = CONST_DATA;
+  retc->size  = len;
+  retc->x.str_val = ret;
+  return retc;
+}
 
 tree_cell *
 nasl_ntlmv1_hash(lex_ctxt * lexic)
@@ -265,6 +437,48 @@ nasl_lm_owf_gen(lex_ctxt * lexic)
   retc->type = CONST_DATA;
   retc->size = 16;
   retc->x.str_val = nasl_strndup((char *)p16, 16);
+  return retc;
+}
+
+tree_cell *
+nasl_insert_hexzeros(lex_ctxt * lexic)
+{
+  const uchar *in = (uchar *)get_str_var_by_name(lexic, "in");
+  int in_len = get_var_size_by_name(lexic, "in");
+  char *src;
+  smb_ucs2_t *out, *dst, val;
+  int i;
+  size_t byte_len;
+  tree_cell * retc;
+  if (in_len<0 || in == NULL)
+  {
+    nasl_perror(lexic, "Syntax : insert_hexzeros(in:<i>)\n");
+    return NULL;
+  }
+
+  byte_len=sizeof(smb_ucs2_t)*(strlen((char*)in)+1);
+  out = emalloc(byte_len);
+  dst = out;
+  src = (char*)in;
+
+  for (i = 0 ; i < in_len ; i ++)
+   {
+     val = *src;
+     *dst = val;
+     dst ++;
+     src ++;
+     if (val == 0)
+       break;
+   }
+
+
+  /* We don't want null termination */
+  byte_len = byte_len - 2;
+
+  retc = alloc_tree_cell(0, NULL);
+  retc->type = CONST_DATA;
+  retc->size  = byte_len;
+  retc->x.str_val = (char *)out;
   return retc;
 }
 

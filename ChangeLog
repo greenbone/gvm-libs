@@ -1,3 +1,51 @@
+2010-05-17  Preeti Subramanian <spreeti@secpod.com>
+
+	NTLMSSP feature support.
+
+	* nasl/smb_signing.c: Added new module.
+	* nasl/smb_signing.h: Added new module.
+	* nasl/byteorder.h: Added new module.
+	* nasl/proto.h: Added new module.
+	* nasl/genrand.c: Added new module.
+	* nasl/time.c: Added new module.
+	* nasl/charset.h: Added new module.
+	* nasl/ntlmssp.c: Added new module.
+	* nasl/ntlmssp.h: Added new module.
+	* nasl/iconv.c: Added new module.
+	* nasl/iconv.h: Added new module.
+	* nasl/md4.c: Added new module.
+	* nasl/md4.h: Added new module.
+	* nasl/charcnv.c: Added new module.
+
+	* nasl/nasl_misc_funcs.c (nasl_dec2str): Added utility
+	function.
+	* nasl/nasl_misc_funcs.h (nasl_dec2str): Added function
+	declaration.
+
+	* nasl/nasl_crypto.c (nasl_get_sign) (nasl_ntlmv2_response)
+	(nasl_ntlm2_response) (nasl_ntlm_response) (nasl_keyexchg)
+	(nasl_insert_hexzeros): Added new functions to support NTLMSSP
+	responses.
+	* nasl/nasl_crypto.h: Added new functions to support NTLMSSP
+	responses.
+	* nasl/smb_crypt.c (SMBsesskeygen_ntv1) (SMBOWFencrypt)
+	(SMBencrypt) (SMBencrypt_hash) (SMBNTencrypt_hash)
+	(SMBsesskeygen_lm_sess_key) (E_md5hash) (E_deshash)
+	(SMBsesskeygen_ntv2) (NTLMv2_generate_client_data)
+	(NTLMv2_generate_response) (LMv2_generate_response)
+	(SMBNTLMv2encrypt_hash): Added new functions to support NTLMSSP.
+	* nasl/smb_crypt.h: Added new functions.
+	* nasl/smb_crypt2.c: Added file include.
+
+	* nasl/smb_crypt.c (SMBOWFencrypt_ntv2): Modified function calls to
+	remove warnings.
+	* nasl/hmacmd5.h (hmac_md5): Added function declaration
+	to remove warning.
+
+	* nasl/CMakeLists.txt: Added new functions.
+	* nasl/nasl_init.c: Added newly defined functions.
+	* MANIFEST: Added new modules.
+
 2010-05-14  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_set_user_role): Fix glib API call to

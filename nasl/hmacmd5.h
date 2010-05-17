@@ -81,4 +81,6 @@ void hmac_md5_init_limK_to_64(const uchar* key, int key_len, HMACMD5Context *ctx
 void hmac_md5_update(const uchar* text, int text_len, HMACMD5Context *ctx);
 void hmac_md5_final(uchar *digest, HMACMD5Context *ctx);
 
+void hmac_md5( uchar key[16], uchar* data, int data_len, uchar* digest);
+
 #endif /* _HMAC_MD5_H */

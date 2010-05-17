@@ -42,10 +42,26 @@
    about the applicability of ITAR regulations to this code then you
    should confirm it for yourself (and maybe let me know if you come
    up with a different answer to the one above)
+
+   MODIFICATION: support for NTLMSSP feature in OpenVAS
+   Modified By Preeti Subramanian <spreeti@secpod.com>
+     * BOOL is replaced by bool
+     * SMBNTLMv2encrypt_hash function body is modified - does not compute 
+       ntv2_owf_gen, rather ntv2_owf_gen value is passed to this function 
+       and this function returns void,
+     * SMBNTLMv2encrypt_hash, LMv2_generate_response, NTLMv2_generate_response,
+       NTLMv2_generate_client_data functions' signatures are modified.
 */
 
+#include "smb_crypt.h"
+#include "proto.h"
+#define int16 1
 
-#define uchar unsigned char
+#ifndef FSTRING_LEN
+#define FSTRING_LEN 256
+typedef char fstring[FSTRING_LEN];
+#endif
+
 
 static const uchar perm1[56] = {57, 49, 41, 33, 25, 17,  9,
 			 1, 58, 50, 42, 34, 26, 18,
@@ -417,3 +433,205 @@ void sam_pwd_hash(unsigned int rid, const uchar *in, uchar *out, int forw)
 	smbhash(out, in, s, forw);
 	smbhash(out+8, in+8, s+7, forw);
 }
+void SMBsesskeygen_ntv1(const uchar kr[16],
+			const uchar * nt_resp, uint8 sess_key[16])
+{
+  /* yes, this session key does not change - yes, this
+     is a problem - but it is 128 bits */
+
+  mdfour((unsigned char *)sess_key, kr, 16);
+
+}
+
+/* Does the des encryption from the NT or LM MD4 hash. */
+void SMBOWFencrypt(const uchar passwd[16], const uchar *c8, uchar p24[24])
+{
+  uchar p21[21];
+
+  ZERO_STRUCT(p21);
+  memcpy(p21, passwd, 16);
+  E_P24(p21, c8, p24);
+}
+
+void SMBencrypt(const char *passwd, const uchar *c8, uchar p24[24])
+{
+  bool ret;
+  uchar lm_hash[16];
+
+  ret = E_deshash(passwd, lm_hash);
+  SMBencrypt_hash(lm_hash, c8, p24);
+}
+
+void SMBencrypt_hash(const uchar lm_hash[16], const uchar *c8, uchar p24[24])
+{
+  uchar p21[21];
+
+  memset(p21,'\0',21);
+  memcpy(p21, lm_hash, 16);
+  SMBOWFencrypt(p21, c8, p24);
+}
+
+
+/* Does the des encryption. */
+void SMBNTencrypt_hash(const uchar nt_hash[16], uchar *c8, uchar *p24)
+{
+  uchar p21[21];
+
+  memset(p21,'\0',21);
+  memcpy(p21, nt_hash, 16);
+  SMBOWFencrypt(p21, c8, p24);
+}
+
+void SMBsesskeygen_lm_sess_key(const uchar lm_hash[16], const uchar lm_resp[24], uint8 sess_key[16])
+{
+  uchar p24[24];
+  uchar partial_lm_hash[16];
+
+  memcpy(partial_lm_hash, lm_hash, 8);
+  memset(partial_lm_hash + 8, 0xbd, 8);
+  SMBOWFencrypt(partial_lm_hash, lm_resp, p24);
+  memcpy(sess_key, p24, 16);
+}
+
+/**
+ * Creates the MD5 Hash of a combination of 16 byte salt and 16 byte NT hash.
+ * @param 16 byte salt.
+ * @param 16 byte NT hash.
+ * @param 16 byte return hashed with md5, caller allocated 16 byte buffer
+**/
+
+void E_md5hash(const uchar salt[16], const uchar nthash[16], uchar hash_out[16])
+{
+  struct MD5Context tctx;
+  uchar array[32];
+
+  memset(hash_out, '\0', 16);
+  memcpy(array, salt, 16);
+  memcpy(&array[16], nthash, 16);
+  MD5Init(&tctx);
+  MD5Update(&tctx, array, 32);
+  MD5Final(hash_out, &tctx);
+}
+
+/**
+ * Creates the DES forward-only Hash of the users password in DOS ASCII charset
+ * @param passwd password in 'unix' charset.
+ * @param p16 return password hashed with DES, caller allocated 16 byte buffer
+ * @return False if password was > 14 characters, and therefore may be incorrect, otherwise True
+ * @note p16 is filled in regardless
+ **/
+bool E_deshash(const char *passwd, uchar p16[16])
+{
+  bool ret = True;
+  fstring dospwd;
+  ZERO_STRUCT(dospwd);
+
+  /* Password must be converted to DOS charset - null terminated, uppercase. */
+  push_ascii(dospwd, passwd, sizeof(dospwd), STR_UPPER|STR_TERMINATE);
+
+  /* Only the fisrt 14 chars are considered, password need not be null terminated. */
+  E_P16((unsigned char *)dospwd, p16);
+
+  if (strlen(dospwd) > 14) {
+    ret = False;
+  }
+
+  ZERO_STRUCT(dospwd);
+
+  return ret;
+}
+void SMBsesskeygen_ntv2(const uchar kr[16],
+                        const uchar * nt_resp, uint8 sess_key[16])
+{
+  /* a very nice, 128 bit, variable session key */
+
+  HMACMD5Context ctx;
+
+  hmac_md5_init_limK_to_64(kr, 16, &ctx);
+  hmac_md5_update(nt_resp, 16, &ctx);
+  hmac_md5_final((unsigned char *)sess_key, &ctx);
+}
+
+
+uint8_t * NTLMv2_generate_client_data(const char *addr_list, int address_list_len)
+{
+  int i = 0;
+  /*length of response
+   *header-4, reserved-4, date-8, client chal-8, unknown-4, addr_list-size sent in arguments
+   */
+  uchar client_chal[8];
+  uint8_t *response = emalloc(28 + address_list_len);
+  char long_date[8];
+  int header = 0x00000101;
+  int zeros  = 0x00000000;
+
+  generate_random_buffer(client_chal, sizeof(client_chal));
+
+  put_long_date(long_date, time(NULL));
+  SIVAL(response, 0, header);
+  SIVAL(response, 4, zeros);
+  memcpy(response+4+4, long_date, 8);
+  memcpy(response+4+4+sizeof(long_date), client_chal, 8);
+  SIVAL(response, 24, zeros);
+  for(i=0; i<address_list_len;i++)
+  {
+    *(response+28+i) = *(addr_list+i);
+  }
+
+  return response;
+}
+
+
+void NTLMv2_generate_response(const uchar ntlm_v2_hash[16],
+                                          const char *server_chal,
+                                          const char *address_list, int address_list_len, uint8_t *nt_response)
+{
+  uchar ntlmv2_response[16];
+  uint8_t * ntlmv2_client_data;
+
+  /* NTLMv2 */
+  /* generate some data to pass into the response function - including
+     the hostname and domain name of the server */
+  ntlmv2_client_data = NTLMv2_generate_client_data(address_list, address_list_len);
+
+  /* Given that data, and the challenge from the server, generate a response */
+  int client_data_len = 28 + address_list_len;
+  SMBOWFencrypt_ntv2(ntlm_v2_hash, (const uchar*)server_chal, 8, ntlmv2_client_data, client_data_len, ntlmv2_response);
+  memcpy(nt_response, ntlmv2_response, sizeof(ntlmv2_response));
+  memcpy(nt_response+sizeof(ntlmv2_response),ntlmv2_client_data, client_data_len);
+}
+
+void LMv2_generate_response(const uchar ntlm_v2_hash[16],
+                                        const char *server_chal, uint8_t *lm_response)
+{
+  uchar lmv2_response[16];
+  uint8_t lmv2_client_data[8];
+
+  /* LMv2 */
+  /* client-supplied random data */
+  generate_random_buffer(lmv2_client_data, sizeof(lmv2_client_data));
+
+  /* Given that data, and the challenge from the server, generate a response */
+  SMBOWFencrypt_ntv2(ntlm_v2_hash, (const uchar*)server_chal, 8, lmv2_client_data, sizeof(lmv2_client_data), lmv2_response);
+  memcpy(lm_response, lmv2_response, sizeof(lmv2_response));
+
+  /* after the first 16 bytes is the random data we generated above,
+  so the server can verify us with it */
+  memcpy(lm_response+sizeof(lmv2_response), lmv2_client_data, sizeof(lmv2_client_data));
+}
+
+void SMBNTLMv2encrypt_hash(const char *user, const char *domain, uchar ntlm_v2_hash[16],
+                      const char *server_chal,
+                      const char *address_list, int address_list_len,
+                      uint8_t *lm_response, uint8_t *nt_response,
+                      uint8_t *user_session_key)
+{
+  NTLMv2_generate_response(ntlm_v2_hash, server_chal, address_list, address_list_len, nt_response);
+
+  /* The NTLMv2 calculations also provide a session key, for signing etc later */
+  /* use only the first 16 bytes of nt_response for session key */
+  SMBsesskeygen_ntv2(ntlm_v2_hash, nt_response, user_session_key);
+
+  LMv2_generate_response(ntlm_v2_hash, server_chal, lm_response);
+}
+

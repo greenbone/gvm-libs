@@ -45,6 +45,9 @@
 #include "nasl_packet_forgery.h"
 #include "nasl_debug.h"
 #include "nasl_misc_funcs.h"
+#include "byteorder.h"
+
+#define uint32 unsigned int
 
 
 /*---------------------------------------------------------------------*/
@@ -884,3 +887,23 @@ nasl_open_sock_kdc(lex_ctxt* lexic)
   retc->x.i_val = ret;
   return retc;
 }
+
+tree_cell *
+nasl_dec2str(lex_ctxt * lexic)
+{
+   /*converts integer to 4 byte buffer*/
+   uint32 num = get_int_local_var_by_name(lexic, "num", -1);
+   if(num == -1){
+       nasl_perror(lexic, "Syntax : dec2str(num:<n>)\n");
+       return NULL;
+   }
+   char * ret = emalloc(sizeof(num));
+   SIVAL(ret, 0, num);
+   tree_cell *retc;
+   retc = alloc_tree_cell(0, NULL);
+   retc->type = CONST_DATA;
+   retc->size  = sizeof(num);
+   retc->x.str_val = ret;
+   return retc;
+}
+
