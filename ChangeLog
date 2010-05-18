@@ -1,3 +1,8 @@
+2010-05-18  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/CMakeLists.txt: Improved check for ldap libraries, be happy with
+	both libldap2 and libldap.
+
 2010-05-17  Preeti Subramanian <spreeti@secpod.com>
 
 	NTLMSSP feature support.

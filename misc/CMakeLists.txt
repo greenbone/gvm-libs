@@ -162,7 +162,10 @@ if (NOT BUILD_WITH_LDAP)
    # fine
 else (NOT BUILD_WITH_LDAP)
    message (STATUS "Looking for openldap...")
-   find_library (OPENLDAP ldap)
+   find_library (OPENLDAP ldap2)
+   if (NOT OPENLDAP)
+     find_library (OPENLDAP ldap)
+   endif (NOT OPENLDAP)
    message (STATUS "Looking for openldap... ${OPENLDAP}")
    if (NOT OPENLDAP)
      message (FATAL_ERROR "Could not build with ldap support - no ldap library"
