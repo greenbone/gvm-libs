@@ -1,5 +1,18 @@
 2010-05-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/settings.c, base/openvas_string.c, base/drop_privileges.h,
+	base/credentials.h, base/nvticache.c, base/settings.h,
+	base/openvas_string.h, base/nvticache.h, base/openvas_file.c,
+	base/accessrules.c, base/openvas_certificate_file.c, base/pidfile.c,
+	base/array.c, base/openvas_file.h, base/severity_filter.c,
+	base/nvti.c, base/accessrules.h, base/openvas_certificate_file.h,
+	base/certificate.c, base/array.h, base/severity_filter.h, base/nvti.h,
+	base/hash_table_util.c, base/certificate.h, base/hash_table_util.h,
+	base/drop_privileges.c, base/credentials.c: Format according to coding
+	style. Command was 'indent --no-tabs --ignore-newlines -l 80 *.c *.h'.
+
+2010-05-19  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* nasl/strutils.h, nasl/capture_packet.h, nasl/nasl_http.h,
 	nasl/nasl_tcp.h, nasl/nasl_wmi.c, nasl/config.h, nasl/nasl_tree.c,
 	nasl/nasl_signature.c, nasl/nasl_crypto2.c, nasl/nasl_tree.h,

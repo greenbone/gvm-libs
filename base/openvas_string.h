@@ -29,18 +29,18 @@
 
 #include <glib.h>
 
-typedef gchar* string;
+typedef gchar *string;
 
-void openvas_append_string (string*, const gchar*);
-void openvas_append_text (string*, const gchar*, gsize);
-void openvas_free_string_var (string*);
+void openvas_append_string (string *, const gchar *);
+void openvas_append_text (string *, const gchar *, gsize);
+void openvas_free_string_var (string *);
 
-char* openvas_strip_space (char*,  char*);
+char *openvas_strip_space (char *, char *);
 
-int openvas_isalnumstr (const char*);
+int openvas_isalnumstr (const char *);
 
-int openvas_isbase64 (const char*);
+int openvas_isbase64 (const char *);
 
-gboolean openvas_strv_contains_str (gchar** strv, const gchar* str);
+gboolean openvas_strv_contains_str (gchar ** strv, const gchar * str);
 
 #endif /* not _OPENVAS_LIBRARIES_STRING_H */

@@ -39,7 +39,7 @@
 #include <ctype.h>
 #include <glib.h>
 #include <stdio.h>
-#include <string.h> /* for strcmp */
+#include <string.h>             /* for strcmp */
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -69,11 +69,11 @@
  * @param[in]  string  The string to append to the string in the variable.
  */
 void
-openvas_append_string (gchar** var, const gchar* string)
+openvas_append_string (gchar ** var, const gchar * string)
 {
   if (*var)
     {
-      char* old = *var;
+      char *old = *var;
       *var = g_strconcat (old, string, NULL);
       g_free (old);
     }
@@ -99,11 +99,11 @@ openvas_append_string (gchar** var, const gchar* string)
  * @param[in]  length  The length of string.
  */
 void
-openvas_append_text (gchar** var, const gchar* string, gsize length)
+openvas_append_text (gchar ** var, const gchar * string, gsize length)
 {
   if (*var)
     {
-      char* old = *var;
+      char *old = *var;
       *var = g_strconcat (old, string, NULL);
       g_free (old);
     }
@@ -120,7 +120,7 @@ openvas_append_text (gchar** var, const gchar* string, gsize length)
  *                  a string.
  */
 void
-openvas_free_string_var (string* var)
+openvas_free_string_var (string * var)
 {
   g_free (*var);
   *var = NULL;
@@ -140,11 +140,12 @@ openvas_free_string_var (string* var)
  *
  * @return A new pointer into the string.
  */
-char*
-openvas_strip_space (char* string, char* end)
+char *
+openvas_strip_space (char *string, char *end)
 {
   assert (string <= end);
-  if (string >= end) return string;
+  if (string >= end)
+    return string;
   end--;
   while (string[0] == ' ' || string[0] == '\n')
     {
@@ -160,7 +161,10 @@ openvas_strip_space (char* string, char* end)
   if (end[0] == ' ' || end[0] == '\n')
     {
       end--;
-      while (end >= string && (end[0] == ' ' || end[0] == '\n')) { end--; }
+      while (end >= string && (end[0] == ' ' || end[0] == '\n'))
+        {
+          end--;
+        }
       end[1] = '\0';
     }
   return string;
@@ -174,9 +178,13 @@ openvas_strip_space (char* string, char* end)
  * @return 1 if all characters are alphanumeric, else 0.
  */
 int
-openvas_isalnumstr (const char* string)
+openvas_isalnumstr (const char *string)
 {
-  while (*string) if (isalnum (*string)) string++; else return 0;
+  while (*string)
+    if (isalnum (*string))
+      string++;
+    else
+      return 0;
   return 1;
 }
 
@@ -188,7 +196,7 @@ openvas_isalnumstr (const char* string)
  * @return 1 if all characters are base64 characters, else 0.
  */
 int
-openvas_isbase64 (const char* string)
+openvas_isbase64 (const char *string)
 {
   while (*string)
     if (isprint (*string))
@@ -211,9 +219,9 @@ openvas_isbase64 (const char* string)
  * @return TRUE if str is found in strv, FALSE otherwise.
  */
 gboolean
-openvas_strv_contains_str (gchar** strv, const gchar* str)
+openvas_strv_contains_str (gchar ** strv, const gchar * str)
 {
-  gchar** strv_it = strv;
+  gchar **strv_it = strv;
   while (*strv_it != NULL)
     {
       if (strcmp (str, *strv_it) == 0)

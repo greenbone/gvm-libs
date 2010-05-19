@@ -28,6 +28,6 @@
 
 #include "glib.h"
 
-GSList* keys_as_string_list (GHashTable* hash_table, GCompareFunc cmp_func);
+GSList *keys_as_string_list (GHashTable * hash_table, GCompareFunc cmp_func);
 
 #endif /* _HASH_TABLE_UTIL */

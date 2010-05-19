@@ -58,13 +58,17 @@
 nvtpref_t *
 nvtpref_new (gchar * name, gchar * type, gchar * dflt)
 {
-  nvtpref_t * np = g_malloc0 (sizeof (nvtpref_t));
+  nvtpref_t *np = g_malloc0 (sizeof (nvtpref_t));
 
-  if (! np) return NULL;
+  if (!np)
+    return NULL;
 
-  if (name) np->name = g_strdup (name);
-  if (type) np->type = g_strdup (type);
-  if (dflt) np->dflt = g_strdup (dflt);
+  if (name)
+    np->name = g_strdup (name);
+  if (type)
+    np->type = g_strdup (type);
+  if (dflt)
+    np->dflt = g_strdup (dflt);
 
   return (np);
 }
@@ -77,9 +81,12 @@ nvtpref_new (gchar * name, gchar * type, gchar * dflt)
 void
 nvtpref_free (nvtpref_t * np)
 {
-  if (np->name) g_free (np->name);
-  if (np->type) g_free (np->type);
-  if (np->dflt) g_free (np->dflt);
+  if (np->name)
+    g_free (np->name);
+  if (np->type)
+    g_free (np->type);
+  if (np->dflt)
+    g_free (np->dflt);
   g_free (np);
 }
 
@@ -147,34 +154,56 @@ nvti_new (void)
 void
 nvti_free (nvti_t * n)
 {
-  if (n->oid) g_free (n->oid);
-  if (n->version) g_free (n->version);
-  if (n->name) g_free (n->name);
-  if (n->summary) g_free (n->summary);
-  if (n->description) g_free (n->description);
-  if (n->copyright) g_free (n->copyright);
-  if (n->cve) g_free (n->cve);
-  if (n->bid) g_free (n->bid);
-  if (n->xref) g_free (n->xref);
-  if (n->tag) g_free (n->tag);
-  if (n->cvss_base) g_free (n->cvss_base);
-  if (n->risk_factor) g_free (n->risk_factor);
-  if (n->dependencies) g_free (n->dependencies);
-  if (n->required_keys) g_free (n->required_keys);
-  if (n->mandatory_keys) g_free (n->mandatory_keys);
-  if (n->excluded_keys) g_free (n->excluded_keys);
-  if (n->required_ports) g_free (n->required_ports);
-  if (n->required_udp_ports) g_free (n->required_udp_ports);
-  if (n->sign_key_ids) g_free (n->sign_key_ids);
-  if (n->family) g_free (n->family);
-  if (n->src) g_free (n->src);
-  if (n->prefs) {
-    guint len = g_slist_length(n->prefs);
-    int i;
-    for (i = 0;i < len;i ++)
-      nvtpref_free(g_slist_nth_data(n->prefs, i));
-    g_slist_free(n->prefs);
-  }
+  if (n->oid)
+    g_free (n->oid);
+  if (n->version)
+    g_free (n->version);
+  if (n->name)
+    g_free (n->name);
+  if (n->summary)
+    g_free (n->summary);
+  if (n->description)
+    g_free (n->description);
+  if (n->copyright)
+    g_free (n->copyright);
+  if (n->cve)
+    g_free (n->cve);
+  if (n->bid)
+    g_free (n->bid);
+  if (n->xref)
+    g_free (n->xref);
+  if (n->tag)
+    g_free (n->tag);
+  if (n->cvss_base)
+    g_free (n->cvss_base);
+  if (n->risk_factor)
+    g_free (n->risk_factor);
+  if (n->dependencies)
+    g_free (n->dependencies);
+  if (n->required_keys)
+    g_free (n->required_keys);
+  if (n->mandatory_keys)
+    g_free (n->mandatory_keys);
+  if (n->excluded_keys)
+    g_free (n->excluded_keys);
+  if (n->required_ports)
+    g_free (n->required_ports);
+  if (n->required_udp_ports)
+    g_free (n->required_udp_ports);
+  if (n->sign_key_ids)
+    g_free (n->sign_key_ids);
+  if (n->family)
+    g_free (n->family);
+  if (n->src)
+    g_free (n->src);
+  if (n->prefs)
+    {
+      guint len = g_slist_length (n->prefs);
+      int i;
+      for (i = 0; i < len; i++)
+        nvtpref_free (g_slist_nth_data (n->prefs, i));
+      g_slist_free (n->prefs);
+    }
   g_free (n);
 }
 
@@ -468,7 +497,7 @@ nvti_family (const nvti_t * n)
 guint
 nvti_pref_len (const nvti_t * n)
 {
-  return(g_slist_length(n->prefs));
+  return (g_slist_length (n->prefs));
 }
 
 /**
@@ -483,7 +512,7 @@ nvti_pref_len (const nvti_t * n)
 nvtpref_t *
 nvti_pref (const nvti_t * n, guint p)
 {
-  return(g_slist_nth_data(n->prefs, p));
+  return (g_slist_nth_data (n->prefs, p));
 }
 
 /**
@@ -984,7 +1013,7 @@ nvti_set_category (nvti_t * n, const gint category)
 int
 nvti_add_pref (nvti_t * n, nvtpref_t * np)
 {
-  n->prefs = g_slist_append(n->prefs, np);
+  n->prefs = g_slist_append (n->prefs, np);
   return (0);
 }
 
@@ -1002,23 +1031,40 @@ nvti_as_text (const nvti_t * n)
 {
   return (g_strconcat
           ("NVT Info for OID ", (n->oid ? n->oid : "(unset)"), ":\n\n",
-           "\nVersion: ", (n->version ? n->version : "(unset, probably in-memory)"),
+           "\nVersion: ",
+           (n->version ? n->version : "(unset, probably in-memory)"),
            "\nName: ", (n->name ? n->name : "(unset, probably in-memory)"),
-           "\nSummary: ", (n->summary ? n->summary : "(unset, probably in-memory)"),
-           "\nDescription: ", (n->description ? n->description : "(unset, probably in-memory)"),
-           "\nCopyright: ", (n->copyright ? n->copyright : "(unset, probably in-memory)"),
+           "\nSummary: ",
+           (n->summary ? n->summary : "(unset, probably in-memory)"),
+           "\nDescription: ",
+           (n->description ? n->description : "(unset, probably in-memory)"),
+           "\nCopyright: ",
+           (n->copyright ? n->copyright : "(unset, probably in-memory)"),
            "\nCVE: ", (n->cve ? n->cve : "(unset, probably in-memory)"),
            "\nBID: ", (n->bid ? n->bid : "(unset, probably in-memory)"),
            "\nXref: ", (n->xref ? n->xref : "(unset, probably in-memory)"),
            "\nTag: ", (n->tag ? n->tag : "(unset, probably in-memory)"),
-           "\nDependencies: ", (n->dependencies ? n->dependencies : "(unset, probably in-memory)"),
-           "\nRequired Keys: ", (n->required_keys ? n->required_keys : "(unset, probably in-memory)"),
-           "\nMandatory Keys: ", (n->mandatory_keys ? n->mandatory_keys : "(unset, probably in-memory)"),
-           "\nExcluded Keys: ", (n->excluded_keys ? n->excluded_keys : "(unset, probably in-memory)"),
-           "\nRequired Ports: ", (n->required_ports ? n->required_ports : "(unset, probably in-memory)"),
-           "\nRequired UDP ports: ", (n->required_udp_ports ? n->required_udp_ports : "(unset, probably in-memory)"),
-           "\nSignKey IDs: ", (n->sign_key_ids ? n->sign_key_ids : "(unset, probably in-memory)"),
-           "\nFamily: ", (n->family ? n->family : "(unset, probably in-memory)"),
+           "\nDependencies: ",
+           (n->dependencies ? n->dependencies : "(unset, probably in-memory)"),
+           "\nRequired Keys: ",
+           (n->required_keys ? n->
+            required_keys : "(unset, probably in-memory)"),
+           "\nMandatory Keys: ",
+           (n->mandatory_keys ? n->
+            mandatory_keys : "(unset, probably in-memory)"),
+           "\nExcluded Keys: ",
+           (n->excluded_keys ? n->
+            excluded_keys : "(unset, probably in-memory)"),
+           "\nRequired Ports: ",
+           (n->required_ports ? n->
+            required_ports : "(unset, probably in-memory)"),
+           "\nRequired UDP ports: ",
+           (n->required_udp_ports ? n->
+            required_udp_ports : "(unset, probably in-memory)"),
+           "\nSignKey IDs: ",
+           (n->sign_key_ids ? n->sign_key_ids : "(unset, probably in-memory)"),
+           "\nFamily: ",
+           (n->family ? n->family : "(unset, probably in-memory)"),
            "\nSource: ", (n->src ? n->src : "(unset, probably in-memory)"),
 //         "\nTimeout: ", (n->timeout <= 0 ? n->timeout : "(unset, probably in-memory)"),
 //         "\nCategory: ", (n->category <= 0 ? n->category : "(unset, probably in-memory)"),
@@ -1039,7 +1085,7 @@ nvti_as_text (const nvti_t * n)
 gchar *
 nvti_as_openvas_nvt_cache_entry (const nvti_t * n)
 {
-  return (NULL);        // not implemented yet
+  return (NULL);                // not implemented yet
 }
 
 /**
@@ -1059,7 +1105,7 @@ nvti_from_keyfile (const gchar * fn)
   gchar **keys;
   int i;
   gsize size_dummy;
-  gchar * utf8str = NULL;
+  gchar *utf8str = NULL;
 
   if (!g_key_file_load_from_file (keyfile, fn, G_KEY_FILE_NONE, &error))
     {
@@ -1069,47 +1115,82 @@ nvti_from_keyfile (const gchar * fn)
 
   n = nvti_new ();
   nvti_set_oid (n, g_key_file_get_string (keyfile, "NVT Info", "OID", NULL));
-  nvti_set_version (n, g_key_file_get_string (keyfile, "NVT Info", "Version", NULL));
+  nvti_set_version (n,
+                    g_key_file_get_string (keyfile, "NVT Info", "Version",
+                                           NULL));
   utf8str = g_key_file_get_string (keyfile, "NVT Info", "Name", NULL);
   if (utf8str)
-    nvti_set_name (n, g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy, NULL));
+    nvti_set_name (n,
+                   g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
+                              &size_dummy, NULL));
   utf8str = g_key_file_get_string (keyfile, "NVT Info", "Summary", NULL);
   if (utf8str)
-    nvti_set_summary (n, g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy, NULL));
+    nvti_set_summary (n,
+                      g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
+                                 &size_dummy, NULL));
   utf8str = g_key_file_get_string (keyfile, "NVT Info", "Description", NULL);
   if (utf8str)
-    nvti_set_description (n, g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy, NULL));
+    nvti_set_description (n,
+                          g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
+                                     &size_dummy, NULL));
   utf8str = g_key_file_get_string (keyfile, "NVT Info", "Copyright", NULL);
   if (utf8str)
-    nvti_set_copyright (n, g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy, NULL));
+    nvti_set_copyright (n,
+                        g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
+                                   &size_dummy, NULL));
   nvti_set_cve (n, g_key_file_get_string (keyfile, "NVT Info", "CVEs", NULL));
   nvti_set_bid (n, g_key_file_get_string (keyfile, "NVT Info", "BIDs", NULL));
   nvti_set_xref (n, g_key_file_get_string (keyfile, "NVT Info", "XREFs", NULL));
   nvti_set_tag (n, g_key_file_get_string (keyfile, "NVT Info", "Tags", NULL));
-  nvti_set_dependencies (n, g_key_file_get_string (keyfile, "NVT Info", "Dependencies", NULL));
-  nvti_set_required_keys (n, g_key_file_get_string (keyfile, "NVT Info", "RequiredKeys", NULL));
-  nvti_set_mandatory_keys (n, g_key_file_get_string (keyfile, "NVT Info", "MandatoryKeys", NULL));
-  nvti_set_excluded_keys (n, g_key_file_get_string (keyfile, "NVT Info", "ExcludedKeys", NULL));
-  nvti_set_required_ports (n, g_key_file_get_string (keyfile, "NVT Info", "RequiredPorts", NULL));
-  nvti_set_required_udp_ports (n, g_key_file_get_string (keyfile, "NVT Info", "RequiredUDPPorts", NULL));
-  nvti_set_sign_key_ids (n, g_key_file_get_string (keyfile, "NVT Info", "SignKeyIDs", NULL));
-  nvti_set_family (n, g_key_file_get_string (keyfile, "NVT Info", "Family", NULL));
+  nvti_set_dependencies (n,
+                         g_key_file_get_string (keyfile, "NVT Info",
+                                                "Dependencies", NULL));
+  nvti_set_required_keys (n,
+                          g_key_file_get_string (keyfile, "NVT Info",
+                                                 "RequiredKeys", NULL));
+  nvti_set_mandatory_keys (n,
+                           g_key_file_get_string (keyfile, "NVT Info",
+                                                  "MandatoryKeys", NULL));
+  nvti_set_excluded_keys (n,
+                          g_key_file_get_string (keyfile, "NVT Info",
+                                                 "ExcludedKeys", NULL));
+  nvti_set_required_ports (n,
+                           g_key_file_get_string (keyfile, "NVT Info",
+                                                  "RequiredPorts", NULL));
+  nvti_set_required_udp_ports (n,
+                               g_key_file_get_string (keyfile, "NVT Info",
+                                                      "RequiredUDPPorts",
+                                                      NULL));
+  nvti_set_sign_key_ids (n,
+                         g_key_file_get_string (keyfile, "NVT Info",
+                                                "SignKeyIDs", NULL));
+  nvti_set_family (n,
+                   g_key_file_get_string (keyfile, "NVT Info", "Family", NULL));
   nvti_set_src (n, g_key_file_get_string (keyfile, "NVT Info", "src", NULL));
-  nvti_set_timeout (n, g_key_file_get_integer (keyfile, "NVT Info", "Timeout", NULL));
-  nvti_set_category (n, g_key_file_get_integer (keyfile, "NVT Info", "Category", NULL));
+  nvti_set_timeout (n,
+                    g_key_file_get_integer (keyfile, "NVT Info", "Timeout",
+                                            NULL));
+  nvti_set_category (n,
+                     g_key_file_get_integer (keyfile, "NVT Info", "Category",
+                                             NULL));
 
-  if (g_key_file_has_group(keyfile, "NVT Prefs")) {
-    keys = g_key_file_get_keys(keyfile, "NVT Prefs", NULL, NULL);
-    for (i = 0;keys[i];i ++) {
-      gsize len;
-      gchar ** items = g_key_file_get_string_list(keyfile, "NVT Prefs", keys[i], &len, NULL);
-      if (len != 3) continue; // format error for this pref.
-      nvtpref_t *np = nvtpref_new(items[0], items[1], items[2]);
-      nvti_add_pref(n, np);
-      g_strfreev(items);
+  if (g_key_file_has_group (keyfile, "NVT Prefs"))
+    {
+      keys = g_key_file_get_keys (keyfile, "NVT Prefs", NULL, NULL);
+      for (i = 0; keys[i]; i++)
+        {
+          gsize len;
+          gchar **items =
+            g_key_file_get_string_list (keyfile, "NVT Prefs", keys[i], &len,
+                                        NULL);
+          if (len != 3)
+            continue;           // format error for this pref.
+          nvtpref_t *np = nvtpref_new (items[0], items[1], items[2]);
+          nvti_add_pref (n, np);
+          g_strfreev (items);
+        }
+      g_strfreev (keys);
     }
-    g_strfreev(keys);
-  }
 
   g_key_file_free (keyfile);
 
@@ -1136,34 +1217,38 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
     g_key_file_set_string (keyfile, "NVT Info", "OID", n->oid);
   if (n->version)
     g_key_file_set_string (keyfile, "NVT Info", "Version", n->version);
-  if (n->name) {
-    gsize size_dummy;
-    gchar * utf8str = g_convert (n->name, -1, "UTF-8", "ISO_8859-1",
-                                 NULL, &size_dummy, NULL);
-    g_key_file_set_string (keyfile, "NVT Info", "Name", utf8str);
-    g_free(utf8str);
-  }
-  if (n->summary) {
-    gsize size_dummy;
-    gchar * utf8str = g_convert (n->summary, -1, "UTF-8", "ISO_8859-1",
-                                 NULL, &size_dummy, NULL);
-    g_key_file_set_string (keyfile, "NVT Info", "Summary", utf8str);
-    g_free(utf8str);
-  }
-  if (n->description) {
-    gsize size_dummy;
-    gchar * utf8str = g_convert (n->description, -1, "UTF-8", "ISO_8859-1",
-                                 NULL, &size_dummy, NULL);
-    g_key_file_set_string (keyfile, "NVT Info", "Description", utf8str);
-    g_free(utf8str);
-  }
-  if (n->copyright) {
-    gsize size_dummy;
-    gchar * utf8str = g_convert (n->copyright, -1, "UTF-8", "ISO_8859-1",
-                                 NULL, &size_dummy, NULL);
-    g_key_file_set_string (keyfile, "NVT Info", "Copyright", utf8str);
-    g_free(utf8str);
-  }
+  if (n->name)
+    {
+      gsize size_dummy;
+      gchar *utf8str = g_convert (n->name, -1, "UTF-8", "ISO_8859-1",
+                                  NULL, &size_dummy, NULL);
+      g_key_file_set_string (keyfile, "NVT Info", "Name", utf8str);
+      g_free (utf8str);
+    }
+  if (n->summary)
+    {
+      gsize size_dummy;
+      gchar *utf8str = g_convert (n->summary, -1, "UTF-8", "ISO_8859-1",
+                                  NULL, &size_dummy, NULL);
+      g_key_file_set_string (keyfile, "NVT Info", "Summary", utf8str);
+      g_free (utf8str);
+    }
+  if (n->description)
+    {
+      gsize size_dummy;
+      gchar *utf8str = g_convert (n->description, -1, "UTF-8", "ISO_8859-1",
+                                  NULL, &size_dummy, NULL);
+      g_key_file_set_string (keyfile, "NVT Info", "Description", utf8str);
+      g_free (utf8str);
+    }
+  if (n->copyright)
+    {
+      gsize size_dummy;
+      gchar *utf8str = g_convert (n->copyright, -1, "UTF-8", "ISO_8859-1",
+                                  NULL, &size_dummy, NULL);
+      g_key_file_set_string (keyfile, "NVT Info", "Copyright", utf8str);
+      g_free (utf8str);
+    }
   if (n->cve)
     g_key_file_set_string (keyfile, "NVT Info", "CVEs", n->cve);
   if (n->bid)
@@ -1173,17 +1258,23 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
   if (n->tag)
     g_key_file_set_string (keyfile, "NVT Info", "Tags", n->tag);
   if (n->dependencies)
-    g_key_file_set_string (keyfile, "NVT Info", "Dependencies", n->dependencies);
+    g_key_file_set_string (keyfile, "NVT Info", "Dependencies",
+                           n->dependencies);
   if (n->required_keys)
-    g_key_file_set_string (keyfile, "NVT Info", "RequiredKeys", n->required_keys);
+    g_key_file_set_string (keyfile, "NVT Info", "RequiredKeys",
+                           n->required_keys);
   if (n->mandatory_keys)
-    g_key_file_set_string (keyfile, "NVT Info", "MandatoryKeys", n->mandatory_keys);
+    g_key_file_set_string (keyfile, "NVT Info", "MandatoryKeys",
+                           n->mandatory_keys);
   if (n->excluded_keys)
-    g_key_file_set_string (keyfile, "NVT Info", "ExcludedKeys", n->excluded_keys);
+    g_key_file_set_string (keyfile, "NVT Info", "ExcludedKeys",
+                           n->excluded_keys);
   if (n->required_ports)
-    g_key_file_set_string (keyfile, "NVT Info", "RequiredPorts", n->required_ports);
+    g_key_file_set_string (keyfile, "NVT Info", "RequiredPorts",
+                           n->required_ports);
   if (n->required_udp_ports)
-    g_key_file_set_string (keyfile, "NVT Info", "RequiredUDPPorts", n->required_udp_ports);
+    g_key_file_set_string (keyfile, "NVT Info", "RequiredUDPPorts",
+                           n->required_udp_ports);
   if (n->sign_key_ids)
     g_key_file_set_string (keyfile, "NVT Info", "SignKeyIDs", n->sign_key_ids);
   if (n->family)
@@ -1196,50 +1287,55 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
     g_key_file_set_integer (keyfile, "NVT Info", "Category", n->category);
 
   int i;
-  for (i=0;i < nvti_pref_len(n);i ++) {
-    nvtpref_t * np = nvti_pref(n, i);
-    gchar * lst[3];
-    gchar buf[10];
-    lst[0] = ((nvtpref_t *)np)->name;
-    lst[1] = ((nvtpref_t *)np)->type;
-    lst[2] = ((nvtpref_t *)np)->dflt;
+  for (i = 0; i < nvti_pref_len (n); i++)
+    {
+      nvtpref_t *np = nvti_pref (n, i);
+      gchar *lst[3];
+      gchar buf[10];
+      lst[0] = ((nvtpref_t *) np)->name;
+      lst[1] = ((nvtpref_t *) np)->type;
+      lst[2] = ((nvtpref_t *) np)->dflt;
 
-    g_snprintf(buf, 10, "P%d", i);
-    g_key_file_set_string_list((GKeyFile *)keyfile, "NVT Prefs", buf, (const gchar **)lst, 3);
+      g_snprintf (buf, 10, "P%d", i);
+      g_key_file_set_string_list ((GKeyFile *) keyfile, "NVT Prefs", buf,
+                                  (const gchar **) lst, 3);
 //    g_key_file_set_string_list((GKeyFile *)keyfile, "NVT Prefs", (gchar *)lst[0], (const gchar **)lst, 3);
-  }
+    }
 
   text = g_key_file_to_data (keyfile, NULL, &error);
   if (error != NULL)
     {
-      fprintf (stderr, "Error occured while preparing %s: %s\n",
-               fn, error->message);
+      fprintf (stderr, "Error occured while preparing %s: %s\n", fn,
+               error->message);
       g_error_free (error);
     }
   else
     {
       FILE *fp = fopen (fn, "w");
-      if (! fp) { // second try: maybe the directory was missing.
-        gchar * cache_dir = g_path_get_dirname(fn);
-        if ((g_mkdir_with_parents (cache_dir, 0755) < 0) && (errno != EEXIST)) {
-          fprintf(stderr, "mkdir(%s) : %s\n", cache_dir, strerror(errno));
-          g_free(text);
-          g_key_file_free (keyfile);
-          return (1);
+      if (!fp)
+        {                       // second try: maybe the directory was missing.
+          gchar *cache_dir = g_path_get_dirname (fn);
+          if ((g_mkdir_with_parents (cache_dir, 0755) < 0) && (errno != EEXIST))
+            {
+              fprintf (stderr, "mkdir(%s) : %s\n", cache_dir, strerror (errno));
+              g_free (text);
+              g_key_file_free (keyfile);
+              return (1);
+            }
+          fp = fopen (fn, "w");
         }
-        fp = fopen (fn, "w");
-      }
 
-      if (! fp) { // again failed
-          fprintf(stderr, "fopen(%s) : %s\n", fn, strerror(errno));
-          g_free(text);
+      if (!fp)
+        {                       // again failed
+          fprintf (stderr, "fopen(%s) : %s\n", fn, strerror (errno));
+          g_free (text);
           g_key_file_free (keyfile);
           return (2);
-      }
+        }
 
       fputs (text, fp);
       fclose (fp);
-      g_free(text);
+      g_free (text);
     }
 
   g_key_file_free (keyfile);
@@ -1258,18 +1354,16 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
 static void
 free_nvti_for_hash_table (gpointer nvti)
 {
-  nvti_free ((nvti_t*) nvti);
+  nvti_free ((nvti_t *) nvti);
 }
 
 /**
  * @brief Make a collection of NVT Infos.
  */
-nvtis_t*
+nvtis_t *
 nvtis_new ()
 {
-  return g_hash_table_new_full (g_str_hash,
-                                g_str_equal,
-                                NULL,
+  return g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
                                 free_nvti_for_hash_table);
 }
 
@@ -1279,9 +1373,10 @@ nvtis_new ()
  * @param nvtis The collection of NVT Infos.
  */
 void
-nvtis_free (nvtis_t* nvtis)
+nvtis_free (nvtis_t * nvtis)
 {
-  if (nvtis) g_hash_table_destroy (nvtis);
+  if (nvtis)
+    g_hash_table_destroy (nvtis);
 }
 
 /**
@@ -1290,7 +1385,7 @@ nvtis_free (nvtis_t* nvtis)
  * @return The number of entries in the collection.
  */
 guint
-nvtis_size (nvtis_t* nvtis)
+nvtis_size (nvtis_t * nvtis)
 {
   return g_hash_table_size (nvtis);
 }
@@ -1302,7 +1397,7 @@ nvtis_size (nvtis_t* nvtis)
  * @param nvti  The NVT Info to add.
  */
 void
-nvtis_add (nvtis_t* nvtis, nvti_t* nvti)
+nvtis_add (nvtis_t * nvtis, nvti_t * nvti)
 {
   if (nvti)
     g_hash_table_insert (nvtis, (gpointer) nvti_oid (nvti), (gpointer) nvti);
@@ -1316,8 +1411,8 @@ nvtis_add (nvtis_t* nvtis, nvti_t* nvti)
  *
  * @return The NVT Info, if found, else NULL.
  */
-nvti_t*
-nvtis_lookup (nvtis_t* nvtis, const char* oid)
+nvti_t *
+nvtis_lookup (nvtis_t * nvtis, const char *oid)
 {
   return g_hash_table_lookup (nvtis, oid);
 }

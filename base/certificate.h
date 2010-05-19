@@ -39,17 +39,18 @@
  * The elements of this structure should always be accessed using the
  * function interface (get_fingerprint, set_owner, etc.).
  */
-typedef struct {
-  gchar* fingerprint;  ///< Fingerprint.
-  gchar* owner;        ///< Name of the owner of the certificate.
-  gchar* public_key;   ///< Full public key.
-  gboolean trusted;   ///< TRUE if the certificate is trusted.
+typedef struct
+{
+  gchar *fingerprint;           ///< Fingerprint.
+  gchar *owner;                 ///< Name of the owner of the certificate.
+  gchar *public_key;            ///< Full public key.
+  gboolean trusted;             ///< TRUE if the certificate is trusted.
 } certificate_t;
 
 certificate_t *certificate_create (void);
-certificate_t *certificate_create_full (const char* fingerprint,
-                                        const char* owner,
-                                        const char* public_key,
+certificate_t *certificate_create_full (const char *fingerprint,
+                                        const char *owner,
+                                        const char *public_key,
                                         gboolean trusted);
 void certificate_free (certificate_t *);
 
@@ -74,8 +75,9 @@ void certificate_set_trusted (certificate_t *, gboolean);
  * The elements of this structure should always be accessed using the
  * function interface (certificates_add, etc.).
  */
-typedef struct {
-  GSList *list;  ///< A list of pointers to certificate_t's.
+typedef struct
+{
+  GSList *list;                 ///< A list of pointers to certificate_t's.
 } certificates_t;
 
 certificates_t *certificates_create ();
@@ -85,9 +87,7 @@ guint certificates_size (certificates_t *);
 
 void certificates_add (certificates_t *, certificate_t *);
 
-certificate_t*
-certificates_find (certificates_t* certificates,
-                   gconstpointer data,
-                   GCompareFunc function);
+certificate_t *certificates_find (certificates_t * certificates,
+                                  gconstpointer data, GCompareFunc function);
 
 #endif /* not _CERTIFICATE_H */

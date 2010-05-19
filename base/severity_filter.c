@@ -88,7 +88,7 @@
 
 /* temporary, should be part of the global context */
 /* initialized in two cases: severity filtering dialog and severity filtering activation (both in extra menu) */
-severity_filter_t * global_filter = NULL;
+severity_filter_t *global_filter = NULL;
 
 static gboolean severity_filter_to_xml (const severity_filter_t * filter);
 
@@ -111,15 +111,15 @@ severity_override_new (const gchar * name, const gchar * host,
       || reason == NULL || severity_from == NULL || severity_to == NULL)
     return NULL;
 
-  severity_override_t* override = g_malloc (sizeof (severity_override_t));
+  severity_override_t *override = g_malloc (sizeof (severity_override_t));
   override->name = g_strdup (name);
   override->host = g_strdup (host);
   override->port = g_strdup (port);
-  override->OID  = g_strdup (oid);
-  override->reason    = g_strdup (reason);
+  override->OID = g_strdup (oid);
+  override->reason = g_strdup (reason);
   override->severity_from = g_strdup (severity_from);
-  override->severity_to   = g_strdup (severity_to);
-  override->active        = active;
+  override->severity_to = g_strdup (severity_to);
+  override->active = active;
 
   return override;
 }
@@ -131,8 +131,8 @@ severity_override_new (const gchar * name, const gchar * host,
  * 
  * @return Duplicate of override or NULL if override is underspecified.
  */
-const severity_override_t*
-severity_override_duplicate (const severity_override_t* override)
+const severity_override_t *
+severity_override_duplicate (const severity_override_t * override)
 {
   return severity_override_new (override->name, override->host, override->port,
                                 override->OID, override->reason,
@@ -147,15 +147,23 @@ severity_override_duplicate (const severity_override_t* override)
 void
 severity_override_free (severity_override_t * override)
 {
-  if (override == NULL) return;
+  if (override == NULL)
+    return;
 
-  if (override->name != NULL) g_free (override->name);
-  if (override->host != NULL) g_free (override->host);
-  if (override->port != NULL) g_free (override->port);
-  if (override->OID != NULL)  g_free (override->OID);
-  if (override->reason != NULL) g_free (override->reason);
-  if (override->severity_from != NULL) g_free (override->severity_from);
-  if (override->severity_to != NULL) g_free (override->severity_to);
+  if (override->name != NULL)
+    g_free (override->name);
+  if (override->host != NULL)
+    g_free (override->host);
+  if (override->port != NULL)
+    g_free (override->port);
+  if (override->OID != NULL)
+    g_free (override->OID);
+  if (override->reason != NULL)
+    g_free (override->reason);
+  if (override->severity_from != NULL)
+    g_free (override->severity_from);
+  if (override->severity_to != NULL)
+    g_free (override->severity_to);
   g_free (override);
 }
 
@@ -172,17 +180,17 @@ severity_override_free (severity_override_t * override)
  * @return Fresh, named severity_filter.
  */
 severity_filter_t *
-severity_filter_new (const gchar* name, const gchar* filename)
+severity_filter_new (const gchar * name, const gchar * filename)
 {
   if (name == NULL || filename == NULL)
     return NULL;
 
-  severity_filter_t* filter = g_malloc (sizeof(severity_filter_t));
+  severity_filter_t *filter = g_malloc (sizeof (severity_filter_t));
   filter->overrides = NULL;
   filter->name = g_strdup (name);
   filter->filename = g_strdup (filename);
 
-  return(filter);
+  return (filter);
 }
 
 
@@ -191,12 +199,13 @@ severity_filter_new (const gchar* name, const gchar* filename)
  *
  * @param filter The filter to be free'd.
  */
-void severity_filter_free (severity_filter_t* filter)
+void
+severity_filter_free (severity_filter_t * filter)
 {
   g_free (filter->name);
   g_free (filter->filename);
 
-  g_slist_foreach (filter->overrides, (GFunc)severity_override_free, NULL);
+  g_slist_foreach (filter->overrides, (GFunc) severity_override_free, NULL);
 
   g_free (filter);
 }
@@ -223,25 +232,30 @@ const gchar *
 severity_filter_apply (const gchar * host, const gchar * port,
                        const gchar * oid, const gchar * severity)
 {
-  if (global_filter == NULL
-      || host == NULL || port == NULL || oid == NULL || severity == NULL)
+  if (global_filter == NULL || host == NULL || port == NULL || oid == NULL
+      || severity == NULL)
     {
       return NULL;
     }
 
-  GSList * o = g_slist_nth(global_filter->overrides, 0);
+  GSList *o = g_slist_nth (global_filter->overrides, 0);
 
-  while (o) {
-    // Check matches. Optimization possible as probably many strings are
-    // compared against always the same strings or patterns. However, we do not
-    // want to carry compiled versions of the patterns around.
-    if ( g_pattern_match_simple (((severity_override_t *)o->data)->host, host) == TRUE &&
-         g_pattern_match_simple (((severity_override_t *)o->data)->port, port) == TRUE &&
-        (!strcmp(oid, ((severity_override_t *)o->data)->OID)) &&
-        (!strcmp(severity, ((severity_override_t *)o->data)->severity_from)))
-      return ((severity_override_t *)o->data)->severity_to;
-    o = g_slist_next(o);
-  }
+  while (o)
+    {
+      // Check matches. Optimization possible as probably many strings are
+      // compared against always the same strings or patterns. However, we do not
+      // want to carry compiled versions of the patterns around.
+      if (g_pattern_match_simple (((severity_override_t *) o->data)->host, host)
+          == TRUE
+          && g_pattern_match_simple (((severity_override_t *) o->data)->port,
+                                     port) == TRUE
+          && (!strcmp (oid, ((severity_override_t *) o->data)->OID))
+          &&
+          (!strcmp
+           (severity, ((severity_override_t *) o->data)->severity_from)))
+        return ((severity_override_t *) o->data)->severity_to;
+      o = g_slist_next (o);
+    }
 
   return NULL;
 }
@@ -261,18 +275,19 @@ severity_filter_apply (const gchar * host, const gchar * port,
  *         least on is NULL.
  */
 static gint
-severity_override_similarity_predicate (const severity_override_t* override1,
-                                        const severity_override_t* override2)
+severity_override_similarity_predicate (const severity_override_t * override1,
+                                        const severity_override_t * override2)
 {
   if (override1 == NULL || override2 == NULL)
     return 1;
 
-  if (   !strcmp(override1->OID,           override2->OID)
-      && !strcmp(override1->host,          override2->host)
-      && !strcmp(override1->port,          override2->port)
-      && !strcmp(override1->severity_from, override2->severity_from))
+  if (!strcmp (override1->OID, override2->OID)
+      && !strcmp (override1->host, override2->host)
+      && !strcmp (override1->port, override2->port)
+      && !strcmp (override1->severity_from, override2->severity_from))
     return 0;
-  else return 1;
+  else
+    return 1;
 }
 
 
@@ -289,14 +304,17 @@ severity_override_similarity_predicate (const severity_override_t* override1,
  *         FALSE otherwise or if one of the arguments is NULL.
  */
 gboolean
-severity_filter_contains_conflicting_override (const severity_filter_t* filter,
-                                               const severity_override_t* override)
+severity_filter_contains_conflicting_override (const severity_filter_t * filter,
+                                               const severity_override_t *
+                                               override)
 {
   // No filter, override or conflict?
   if (filter == NULL || override == NULL
-      || (g_slist_find_custom (filter->overrides, override, (GCompareFunc) severity_override_similarity_predicate)
-                             == NULL))
-      return FALSE;
+      ||
+      (g_slist_find_custom
+       (filter->overrides, override,
+        (GCompareFunc) severity_override_similarity_predicate) == NULL))
+    return FALSE;
 
   return TRUE;
 }
@@ -317,22 +335,22 @@ severity_filter_contains_conflicting_override (const severity_filter_t* filter,
  *         of a conflict-to-be, FALSE otherwise or if one of the arguments is NULL.
  */
 gboolean
-severity_filter_contains_conflicting (const severity_filter_t* filter,
-                                      const gchar* host, const gchar* port,
-                                      const gchar* oid,  const gchar* from)
+severity_filter_contains_conflicting (const severity_filter_t * filter,
+                                      const gchar * host, const gchar * port,
+                                      const gchar * oid, const gchar * from)
 {
-  if (filter == NULL || host == NULL || port == NULL || oid == NULL || from == NULL)
+  if (filter == NULL || host == NULL || port == NULL || oid == NULL
+      || from == NULL)
     return FALSE;
 
-  severity_override_t* override = NULL;
-  GSList* walk = filter->overrides;
+  severity_override_t *override = NULL;
+  GSList *walk = filter->overrides;
   while (walk)
     {
       override = walk->data;
-      if (   !strcmp (override->host, host)
-          && !strcmp (override->port, port)
+      if (!strcmp (override->host, host) && !strcmp (override->port, port)
           && !strcmp (override->OID, oid)
-          && !strcmp (override->severity_from , from))
+          && !strcmp (override->severity_from, from))
         return TRUE;
       walk = g_slist_next (walk);
     }
@@ -364,7 +382,7 @@ severity_filter_add (severity_filter_t * filter,
   if (filter == NULL || override == NULL)
     return FALSE;
 
-  filter->overrides = g_slist_prepend (filter->overrides, (void*) override);
+  filter->overrides = g_slist_prepend (filter->overrides, (void *) override);
 
   return severity_filter_to_xml (filter);
 }
@@ -385,7 +403,8 @@ severity_filter_add (severity_filter_t * filter,
  * @return TRUE if file-writing was successfull, FALSE otherwise.
  */
 gboolean
-severity_filter_remove (severity_filter_t* filter, severity_override_t* override)
+severity_filter_remove (severity_filter_t * filter,
+                        severity_override_t * override)
 {
   filter->overrides = g_slist_remove (filter->overrides, override);
   severity_override_free (override);
@@ -399,25 +418,24 @@ severity_filter_remove (severity_filter_t* filter, severity_override_t* override
  * @param fd       The file descriptor to write to.
  */
 static void
-write_override_xml_elem (severity_override_t* override, FILE* fd)
+write_override_xml_elem (severity_override_t * override, FILE * fd)
 {
-  if (!fd) return;
+  if (!fd)
+    return;
 
-  gchar* override_elem = g_markup_printf_escaped (
-                           "\t<severity_override name=\"%s\"\n"
-                           "\t\thost=\"%s\"\n"
-                           "\t\tport=\"%s\"\n"
-                           "\t\tOID=\"%s\"\n"
-                           "\t\tseverity_from=\"%s\"\n"
-                           "\t\tseverity_to=\"%s\"\n"
-                           "\t\tactive=\"%s\">\n",
-                            override->name, override->host,override->port,
-                            override->OID, override->severity_from,
-                            override->severity_to,
-                            (override->active == TRUE)? "true" : "false");
+  gchar *override_elem =
+    g_markup_printf_escaped ("\t<severity_override name=\"%s\"\n"
+                             "\t\thost=\"%s\"\n" "\t\tport=\"%s\"\n"
+                             "\t\tOID=\"%s\"\n" "\t\tseverity_from=\"%s\"\n"
+                             "\t\tseverity_to=\"%s\"\n" "\t\tactive=\"%s\">\n",
+                             override->name, override->host, override->port,
+                             override->OID, override->severity_from,
+                             override->severity_to,
+                             (override->active == TRUE) ? "true" : "false");
 
-  gchar* reason_elem = g_markup_printf_escaped ("\t\t<reason>\n\t\t%s\n\t\t</reason>\n",
-                                                override->reason);
+  gchar *reason_elem =
+    g_markup_printf_escaped ("\t\t<reason>\n\t\t%s\n\t\t</reason>\n",
+                             override->reason);
 
   fprintf (fd, "%s", override_elem);
   fprintf (fd, "%s", reason_elem);
@@ -441,16 +459,19 @@ write_override_xml_elem (severity_override_t* override, FILE* fd)
 static gboolean
 severity_filter_to_xml (const severity_filter_t * filter)
 {
-  FILE* fd;
+  FILE *fd;
 
-  if (filter == NULL) return FALSE;
+  if (filter == NULL)
+    return FALSE;
 
   fd = fopen (filter->filename, "w");
-  if (fd <= 0) return FALSE;
+  if (fd <= 0)
+    return FALSE;
 
-  gchar* filter_start_elem = g_markup_printf_escaped ("<severity_filter name=\"%s\">\n", filter->name);
+  gchar *filter_start_elem =
+    g_markup_printf_escaped ("<severity_filter name=\"%s\">\n", filter->name);
   fprintf (fd, "%s", filter_start_elem);
-  g_slist_foreach (filter->overrides, (GFunc) write_override_xml_elem , fd);
+  g_slist_foreach (filter->overrides, (GFunc) write_override_xml_elem, fd);
   fprintf (fd, "</severity_filter>");
   g_free (filter_start_elem);
 
@@ -472,15 +493,16 @@ severity_filter_to_xml (const severity_filter_t * filter)
  * @param filter      The filter whose attributes to set.
  */
 static void
-severity_filter_xml_elem (const gchar** attr_names, const gchar** attr_values,
-                          severity_filter_t* filter)
+severity_filter_xml_elem (const gchar ** attr_names, const gchar ** attr_values,
+                          severity_filter_t * filter)
 {
-  while (*attr_names != NULL) {
-    if (!strcmp (*attr_names, XML_ATTR_NAME) && *attr_values != NULL)
-      filter->name = g_strdup(*attr_values);
-    ++attr_values;
-    ++attr_names;
-  }
+  while (*attr_names != NULL)
+    {
+      if (!strcmp (*attr_names, XML_ATTR_NAME) && *attr_values != NULL)
+        filter->name = g_strdup (*attr_values);
+      ++attr_values;
+      ++attr_names;
+    }
 }
 
 
@@ -496,40 +518,41 @@ severity_filter_xml_elem (const gchar** attr_names, const gchar** attr_values,
  * @return A fresh severity_override_t if all attributes and values were found
  *         in the parameter lists.
  */
-static const severity_override_t*
-severity_override_xml_elem (const gchar** attr_names, const gchar** attr_values)
+static const severity_override_t *
+severity_override_xml_elem (const gchar ** attr_names,
+                            const gchar ** attr_values)
 {
-  const severity_override_t* override = NULL;
-  const gchar *name = NULL,
-              *host = NULL,
-              *port = NULL,
-              *oid  = NULL,
-              *severity_from = NULL,
-              *severity_to = NULL;
+  const severity_override_t *override = NULL;
+  const gchar *name = NULL, *host = NULL, *port = NULL, *oid =
+    NULL, *severity_from = NULL, *severity_to = NULL;
   gboolean active = FALSE;
 
-  while (*attr_names != NULL) {
-    if (!strcmp (*attr_names, XML_ATTR_NAME) && *attr_values != NULL)
-      name = *attr_values;
-    else if (!strcmp (*attr_names, XML_ATTR_HOST) && *attr_values != NULL)
-      host = *attr_values;
-    else if (!strcmp (*attr_names, XML_ATTR_PORT) && *attr_values != NULL)
-      port = *attr_values;
-    else if (!strcmp (*attr_names, XML_ATTR_OID) && *attr_values != NULL)
-      oid = *attr_values;
-    else if (!strcmp (*attr_names, XML_ATTR_SEVERITY_FROM) && *attr_values != NULL)
-      severity_from = *attr_values;
-    else if (!strcmp (*attr_names, XML_ATTR_SEVERITY_TO) && *attr_values != NULL)
-      severity_to = *attr_values;
-    else if (!strcmp (*attr_names, XML_ATTR_ACTIVE) && *attr_values != NULL)
-      active = (!strcmp (*attr_values, XML_ATTR_ACTIVE_TRUE)) ? TRUE : FALSE;
+  while (*attr_names != NULL)
+    {
+      if (!strcmp (*attr_names, XML_ATTR_NAME) && *attr_values != NULL)
+        name = *attr_values;
+      else if (!strcmp (*attr_names, XML_ATTR_HOST) && *attr_values != NULL)
+        host = *attr_values;
+      else if (!strcmp (*attr_names, XML_ATTR_PORT) && *attr_values != NULL)
+        port = *attr_values;
+      else if (!strcmp (*attr_names, XML_ATTR_OID) && *attr_values != NULL)
+        oid = *attr_values;
+      else if (!strcmp (*attr_names, XML_ATTR_SEVERITY_FROM)
+               && *attr_values != NULL)
+        severity_from = *attr_values;
+      else if (!strcmp (*attr_names, XML_ATTR_SEVERITY_TO)
+               && *attr_values != NULL)
+        severity_to = *attr_values;
+      else if (!strcmp (*attr_names, XML_ATTR_ACTIVE) && *attr_values != NULL)
+        active = (!strcmp (*attr_values, XML_ATTR_ACTIVE_TRUE)) ? TRUE : FALSE;
 
-    ++attr_values;
-    ++attr_names;
-  }
+      ++attr_values;
+      ++attr_names;
+    }
 
-  override = severity_override_new (name, host, port, oid, "", severity_from,
-                                    severity_to, active);
+  override =
+    severity_override_new (name, host, port, oid, "", severity_from,
+                           severity_to, active);
 
   return override;
 }
@@ -547,38 +570,43 @@ severity_override_xml_elem (const gchar** attr_names, const gchar** attr_values)
  * @param user_data[in,out] Double-pointer to a severity_filter_t.
  */
 static void
-severity_filter_xml_start_element (GMarkupParseContext *context,
-                                   const gchar *element_name,
-                                   const gchar **attribute_names,
-                                   const gchar **attribute_values,
-                                   gpointer user_data, GError **error)
+severity_filter_xml_start_element (GMarkupParseContext * context,
+                                   const gchar * element_name,
+                                   const gchar ** attribute_names,
+                                   const gchar ** attribute_values,
+                                   gpointer user_data, GError ** error)
 {
-  severity_filter_t* filter = user_data;
+  severity_filter_t *filter = user_data;
 
   /* Its a: <severity_filter name="My severity Filter"> */
-  if (!strcmp (element_name, XML_ELEM_SEVERITY_FILTER)) {
-    if (filter->name != NULL)
-      printf (_("XML parser error: second filter specified in file\n"));
+  if (!strcmp (element_name, XML_ELEM_SEVERITY_FILTER))
+    {
+      if (filter->name != NULL)
+        printf (_("XML parser error: second filter specified in file\n"));
 
-    severity_filter_xml_elem (attribute_names, attribute_values, filter);
+      severity_filter_xml_elem (attribute_names, attribute_values, filter);
 
-    if (filter->name == NULL)
-      printf (_("XML parser error: error parsing filter element\n"));
-  }
+      if (filter->name == NULL)
+        printf (_("XML parser error: error parsing filter element\n"));
+    }
   /* Its a: <severity_override name="SeverityOverride2" host="192.168.11.35"
-                  port="general/tcp" OID="1.3.6.1.4.1.25623.1.0.900505"
-                  severity_from="NOTE" severity_to="FALSE" active="true"> ...  */
+     port="general/tcp" OID="1.3.6.1.4.1.25623.1.0.900505"
+     severity_from="NOTE" severity_to="FALSE" active="true"> ...  */
   else if (!strcmp (element_name, XML_ELEM_SEVERITY_OVERRIDE))
-  {
-    if (filter != NULL) {
-      const severity_override_t* override =
-        severity_override_xml_elem (attribute_names, attribute_values);
-      if (override != NULL)
-        filter->overrides = g_slist_prepend (filter->overrides, (void*) override);
-      else printf (_("XML Parser Error: override parsing error\n"));
-    } else
-      printf (_("XML Parser Error: override without filter\n"));
-  }
+    {
+      if (filter != NULL)
+        {
+          const severity_override_t *override =
+            severity_override_xml_elem (attribute_names, attribute_values);
+          if (override != NULL)
+            filter->overrides =
+              g_slist_prepend (filter->overrides, (void *) override);
+          else
+            printf (_("XML Parser Error: override parsing error\n"));
+        }
+      else
+        printf (_("XML Parser Error: override without filter\n"));
+    }
 }
 
 
@@ -593,21 +621,19 @@ severity_filter_xml_start_element (GMarkupParseContext *context,
  * @param [in,out] user_data The severity_filter that is currently parsed.
  */
 static void
-severity_override_xml_reason_text (GMarkupParseContext *context,
-                                   const gchar *text,
-                                   gsize text_len, gpointer user_data,
-                                   GError **error)
+severity_override_xml_reason_text (GMarkupParseContext * context,
+                                   const gchar * text, gsize text_len,
+                                   gpointer user_data, GError ** error)
 {
-  severity_filter_t* filter = user_data;
+  severity_filter_t *filter = user_data;
   if (!strcmp (g_markup_parse_context_get_element (context), XML_ELEM_REASON)
-      && filter != NULL 
-      && filter->overrides != NULL
+      && filter != NULL && filter->overrides != NULL
       && filter->overrides->data != NULL)
-  {
-    severity_override_t* override = filter->overrides->data;
-    g_free (override->reason);
-    override->reason = g_strstrip (g_strdup (text));
-  }
+    {
+      severity_override_t *override = filter->overrides->data;
+      g_free (override->reason);
+      override->reason = g_strstrip (g_strdup (text));
+    }
   // Else either not in a reason element or no override to set reason for.
   // Later case should be handled as an error.
 }
@@ -631,7 +657,7 @@ severity_filter_from_xml (const gchar * filename)
   GMarkupParseContext *context = NULL;
   gchar *filebuffer = NULL;
   gsize length = 0;
-  severity_filter_t* filter = malloc (sizeof (severity_filter_t));
+  severity_filter_t *filter = malloc (sizeof (severity_filter_t));
   filter->filename = g_strdup (filename);
   filter->overrides = NULL;
   filter->name = NULL;
@@ -645,27 +671,32 @@ severity_filter_from_xml (const gchar * filename)
 
   // Init XML subset parser
   parser.start_element = severity_filter_xml_start_element;
-  parser.end_element   = NULL;
-  parser.text          = severity_override_xml_reason_text;
-  parser.passthrough   = NULL;
-  parser.error         = NULL;
+  parser.end_element = NULL;
+  parser.text = severity_override_xml_reason_text;
+  parser.passthrough = NULL;
+  parser.error = NULL;
 
   // Setup context and parse it
   context = g_markup_parse_context_new (&parser, 0, filter, NULL);
   if (g_markup_parse_context_parse (context, filebuffer, length, NULL) == TRUE)
-  {
+    {
 #ifdef DEBUG
-    if (filter) {
-      printf ("Parsing of severity- XML (%s) done.\n", filter->name);
-      if (filter->overrides) {
-        severity_override_t* override = filter->overrides->data;
-        printf ("\tFirst override: %s\n", override->name);
-        printf ("\treason %s\n", override->reason);
-      }
-    } else
-      printf ("Parsing severity- XML succeeded but no valid filter found.\n");
+      if (filter)
+        {
+          printf ("Parsing of severity- XML (%s) done.\n", filter->name);
+          if (filter->overrides)
+            {
+              severity_override_t *override = filter->overrides->data;
+              printf ("\tFirst override: %s\n", override->name);
+              printf ("\treason %s\n", override->reason);
+            }
+        }
+      else
+        printf ("Parsing severity- XML succeeded but no valid filter found.\n");
 #endif
-  } else printf(_("XML Parser error: Parsing failed"));
+    }
+  else
+    printf (_("XML Parser error: Parsing failed"));
 
   g_free (filebuffer);
   g_markup_parse_context_free (context);

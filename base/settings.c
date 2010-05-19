@@ -47,23 +47,21 @@
  * @return 0 success, -1 error.
  */
 int
-settings_init (settings_t *settings, const gchar *filename, const gchar *group)
+settings_init (settings_t * settings, const gchar * filename,
+               const gchar * group)
 {
-  GError* error = NULL;
+  GError *error = NULL;
 
   if (filename == NULL || group == NULL)
     return -1;
 
   settings->key_file = g_key_file_new ();
 
-  if (!g_key_file_load_from_file (settings->key_file,
-                                  filename,
-                                  G_KEY_FILE_KEEP_COMMENTS
-                                  | G_KEY_FILE_KEEP_TRANSLATIONS,
-                                  &error))
+  if (!g_key_file_load_from_file
+      (settings->key_file, filename,
+       G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS, &error))
     {
-      g_warning ("Failed to load configuration from %s: %s",
-                 filename,
+      g_warning ("Failed to load configuration from %s: %s", filename,
                  error->message);
       g_error_free (error);
       g_key_file_free (settings->key_file);
@@ -82,7 +80,7 @@ settings_init (settings_t *settings, const gchar *filename, const gchar *group)
  * @param[in]  iterator  Settings iterator.
  */
 void
-settings_cleanup (settings_t *settings)
+settings_cleanup (settings_t * settings)
 {
   g_free (settings->group_name);
   g_free (settings->file_name);
@@ -97,12 +95,9 @@ settings_cleanup (settings_t *settings)
  * @param[in]  value     Value of setting.
  */
 void
-settings_set (settings_t *settings, const gchar *name, const gchar *value)
+settings_set (settings_t * settings, const gchar * name, const gchar * value)
 {
-  g_key_file_set_value (settings->key_file,
-                        settings->group_name,
-                        name,
-                        value);
+  g_key_file_set_value (settings->key_file, settings->group_name, name, value);
 }
 
 /**
@@ -113,7 +108,7 @@ settings_set (settings_t *settings, const gchar *name, const gchar *value)
  * @return 0 success, -1 error.
  */
 int
-settings_save (settings_t *settings)
+settings_save (settings_t * settings)
 {
   gsize length;
   GError *error = NULL;
@@ -148,20 +143,20 @@ settings_save (settings_t *settings)
  * @return 0 success, -1 error.
  */
 int
-init_settings_iterator (settings_iterator_t *iterator, const gchar *filename,
-                        const gchar *group)
+init_settings_iterator (settings_iterator_t * iterator, const gchar * filename,
+                        const gchar * group)
 {
   int ret;
   gsize keys_length;
   GError *error = NULL;
 
   ret = settings_init (&iterator->settings, filename, group);
-  if (ret) return ret;
+  if (ret)
+    return ret;
 
-  iterator->keys = g_key_file_get_keys (iterator->settings.key_file,
-                                        group,
-                                        &keys_length,
-                                        &error);
+  iterator->keys =
+    g_key_file_get_keys (iterator->settings.key_file, group, &keys_length,
+                         &error);
 
   if (iterator->keys == NULL)
     {
@@ -187,7 +182,7 @@ init_settings_iterator (settings_iterator_t *iterator, const gchar *filename,
  * @param[in]  iterator  Settings iterator.
  */
 void
-cleanup_settings_iterator (settings_iterator_t *iterator)
+cleanup_settings_iterator (settings_iterator_t * iterator)
 {
   g_strfreev (iterator->keys);
   settings_cleanup (&iterator->settings);
@@ -201,7 +196,7 @@ cleanup_settings_iterator (settings_iterator_t *iterator)
  * @return TRUE if there was a next item, else FALSE.
  */
 gboolean
-settings_iterator_next (settings_iterator_t *iterator)
+settings_iterator_next (settings_iterator_t * iterator)
 {
   if (iterator->current_key == iterator->last_key)
     return FALSE;
@@ -217,7 +212,7 @@ settings_iterator_next (settings_iterator_t *iterator)
  * @return Name of current key.
  */
 const gchar *
-settings_iterator_name (settings_iterator_t *iterator)
+settings_iterator_name (settings_iterator_t * iterator)
 {
   return *iterator->current_key;
 }
@@ -230,10 +225,9 @@ settings_iterator_name (settings_iterator_t *iterator)
  * @return Value of current key.
  */
 const gchar *
-settings_iterator_value (settings_iterator_t *iterator)
+settings_iterator_value (settings_iterator_t * iterator)
 {
   return g_key_file_get_value (iterator->settings.key_file,
                                iterator->settings.group_name,
-                               *iterator->current_key,
-                               NULL);
+                               *iterator->current_key, NULL);
 }

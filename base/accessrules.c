@@ -62,8 +62,10 @@ accessrule_new (void)
 void
 accessrule_free (accessrule_t * r)
 {
-  if (r->ip) g_free (r->ip);
-  if (r->comment) g_free (r->comment);
+  if (r->ip)
+    g_free (r->ip);
+  if (r->comment)
+    g_free (r->comment);
   g_free (r);
 }
 
@@ -174,18 +176,11 @@ accessrule_as_xml (const accessrule_t * r)
 {
   /** @TODO Use g_markup_escape here */
   return (g_strconcat
-          ("<accessrule>",
-             "<rule>",
-               (r->rule == ALLOW ? "allow" : "reject"),
-             "</rule>",
-             (r->ip ? "<ip>" :""),
-               (r->ip ? r->ip : ""),
-             (r->ip ? "</ip>" : ""),
-             (r->comment ? "<comment>" :""),
-               (r->comment ? r->comment : ""),
-             (r->comment ? "</comment>" : ""),
-           "</accessrule>",
-           NULL));
+          ("<accessrule>", "<rule>", (r->rule == ALLOW ? "allow" : "reject"),
+           "</rule>", (r->ip ? "<ip>" : ""), (r->ip ? r->ip : ""),
+           (r->ip ? "</ip>" : ""), (r->comment ? "<comment>" : ""),
+           (r->comment ? r->comment : ""), (r->comment ? "</comment>" : ""),
+           "</accessrule>", NULL));
 }
 
 
@@ -199,18 +194,16 @@ accessrule_as_xml (const accessrule_t * r)
 static void
 free_accessrule_for_hash_table (gpointer r)
 {
-  accessrule_free ((accessrule_t*) r);
+  accessrule_free ((accessrule_t *) r);
 }
 
 /**
  * @brief Make a collection of Access Rules.
  */
-accessrules_t*
+accessrules_t *
 accessrules_new ()
 {
-  return g_hash_table_new_full (g_str_hash,
-                                g_str_equal,
-                                NULL,
+  return g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
                                 free_accessrule_for_hash_table);
 }
 
@@ -220,9 +213,10 @@ accessrules_new ()
  * @param rules The collection of Access Rules.
  */
 void
-accessrules_free (accessrules_t* rules)
+accessrules_free (accessrules_t * rules)
 {
-  if (rules) g_hash_table_destroy (rules);
+  if (rules)
+    g_hash_table_destroy (rules);
 }
 
 /**
@@ -231,7 +225,7 @@ accessrules_free (accessrules_t* rules)
  * @return The number of entries in the collection.
  */
 guint
-accessrules_size (accessrules_t* rules)
+accessrules_size (accessrules_t * rules)
 {
   return g_hash_table_size (rules);
 }
@@ -242,9 +236,9 @@ accessrules_size (accessrules_t* rules)
  * @param rules The collection of Access Rules (must have ip set).
  */
 void
-accessrules_add (accessrules_t* rules, accessrule_t* r)
+accessrules_add (accessrules_t * rules, accessrule_t * r)
 {
-  if (r && accessrule_ip(r))
+  if (r && accessrule_ip (r))
     g_hash_table_insert (rules, (gpointer) accessrule_ip (r), (gpointer) r);
 }
 
@@ -259,12 +253,10 @@ accessrules_add (accessrules_t* rules, accessrule_t* r)
  * @param[in]  error             Error parameter.
  */
 static void
-handle_start_element (GMarkupParseContext* context,
-                      const gchar *element_name,
-                      const gchar **attribute_names,
-                      const gchar **attribute_values,
-                      gpointer user_data,
-                      GError **error)
+handle_start_element (GMarkupParseContext * context, const gchar * element_name,
+                      const gchar ** attribute_names,
+                      const gchar ** attribute_values, gpointer user_data,
+                      GError ** error)
 {
   // Can be:
   // <accessrules>
@@ -283,12 +275,10 @@ handle_start_element (GMarkupParseContext* context,
  * @param[in]  error             Error parameter.
  */
 static void
-handle_end_element (GMarkupParseContext* context,
-                    const gchar *element_name,
-                    gpointer user_data,
-                    GError **error)
+handle_end_element (GMarkupParseContext * context, const gchar * element_name,
+                    gpointer user_data, GError ** error)
 {
-  
+
 }
 
 /**
@@ -301,13 +291,10 @@ handle_end_element (GMarkupParseContext* context,
  * @param[in]  error             Error parameter.
  */
 static void
-handle_text (GMarkupParseContext* context,
-             const gchar *text,
-             gsize text_len,
-             gpointer user_data,
-             GError **error)
+handle_text (GMarkupParseContext * context, const gchar * text, gsize text_len,
+             gpointer user_data, GError ** error)
 {
-  
+
 }
 
 /**
@@ -318,11 +305,9 @@ handle_text (GMarkupParseContext* context,
  * @param[in]  user_data         Dummy parameter.
  */
 static void
-handle_error (GMarkupParseContext* context,
-              GError *error,
-              gpointer user_data)
+handle_error (GMarkupParseContext * context, GError * error, gpointer user_data)
 {
-  
+
 }
 
 /**
@@ -337,16 +322,16 @@ accessrules_t *
 accessrules_from_file (gchar * fn)
 {
   GMarkupParser xml_parser;
-  GError* error = NULL;
+  GError *error = NULL;
   GMarkupParseContext *context;
-  gchar* file_contents;
+  gchar *file_contents;
 
   /* Set up the XML parser. */
   xml_parser.start_element = handle_start_element;
-  xml_parser.end_element   = handle_end_element;
-  xml_parser.text          = handle_text;
-  xml_parser.passthrough   = NULL;
-  xml_parser.error         = handle_error;
+  xml_parser.end_element = handle_end_element;
+  xml_parser.text = handle_text;
+  xml_parser.passthrough = NULL;
+  xml_parser.error = handle_error;
 
   /** @TODO Create a access_rules_t* and pass as user data */
   context = g_markup_parse_context_new (&xml_parser, 0, NULL, NULL);
@@ -354,8 +339,8 @@ accessrules_from_file (gchar * fn)
   /** @TODO error checks, handling */
   if (g_file_get_contents (fn, &file_contents, NULL, &error) == FALSE)
     ;
-  if (g_markup_parse_context_parse (context, file_contents,
-                                   strlen(file_contents), error) == FALSE)
+  if (g_markup_parse_context_parse
+      (context, file_contents, strlen (file_contents), error) == FALSE)
     ;
 
   return NULL;
@@ -370,12 +355,12 @@ accessrules_from_file (gchar * fn)
  * @param file File handle to write to.
  */
 static void
-accessrule_to_file (gchar* ip, accessrule_t * rule, FILE * file)
+accessrule_to_file (gchar * ip, accessrule_t * rule, FILE * file)
 {
   if (!file || !rule)
     return;
 
-  gchar* rule_as_xml = accessrule_as_xml (rule);
+  gchar *rule_as_xml = accessrule_as_xml (rule);
   if (rule_as_xml)
     {
       fprintf (file, "%s", rule_as_xml);
@@ -394,18 +379,20 @@ accessrule_to_file (gchar* ip, accessrule_t * rule, FILE * file)
  * @return 0 in case of success, other values mean a failure.
  */
 guint
-accessrules_to_file (accessrules_t* rules, gchar * fn)
+accessrules_to_file (accessrules_t * rules, gchar * fn)
 {
-  FILE * fp;
+  FILE *fp;
 
-  if ((! rules) || (! fn)) return 1;
+  if ((!rules) || (!fn))
+    return 1;
 
   fp = fopen (fn, "w");
-  if (! fp) return NULL;
+  if (!fp)
+    return NULL;
 
-  fprintf(fp, "<acessrules>\n");
+  fprintf (fp, "<acessrules>\n");
   g_hash_table_foreach (rules, accessrule_to_file, fp);
-  fprintf(fp, "</acessrules>\n");
+  fprintf (fp, "</acessrules>\n");
 
   fclose (fp);
   return 0;

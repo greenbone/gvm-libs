@@ -44,16 +44,16 @@
  */
 typedef struct nvtpref
 {
-  gchar * type;  ///< Preference type
-  gchar * name;  ///< Name of the preference
-  gchar * dflt;  ///< Default value of the preference
+  gchar *type;                  ///< Preference type
+  gchar *name;                  ///< Name of the preference
+  gchar *dflt;                  ///< Default value of the preference
 } nvtpref_t;
 
 nvtpref_t *nvtpref_new (gchar *, gchar *, gchar *);
 void nvtpref_free (nvtpref_t *);
-gchar * nvtpref_name(const nvtpref_t *);
-gchar * nvtpref_type(const nvtpref_t *);
-gchar * nvtpref_default(const nvtpref_t *);
+gchar *nvtpref_name (const nvtpref_t *);
+gchar *nvtpref_type (const nvtpref_t *);
+gchar *nvtpref_default (const nvtpref_t *);
 
 /**
  * @brief The structure of a information record that corresponds to a NVT.
@@ -92,7 +92,7 @@ typedef struct nvti
   gchar *src;               /**< @brief the source of the corresponding script,
                                         can be filename or other URI */
 
-  GSList * prefs;           /**< @brief Collection of NVT preferences */
+  GSList *prefs;            /**< @brief Collection of NVT preferences */
 
   // The following are not settled yet.
   gint timeout;             /**< @brief Default timeout time for this NVT */
@@ -127,7 +127,7 @@ gint nvti_timeout (const nvti_t *);
 gint nvti_category (const nvti_t *);
 gchar *nvti_family (const nvti_t *);
 guint nvti_pref_len (const nvti_t *);
-nvtpref_t * nvti_pref (const nvti_t *, guint);
+nvtpref_t *nvti_pref (const nvti_t *, guint);
 
 int nvti_set_oid (nvti_t *, const gchar *);
 int nvti_set_version (nvti_t *, const gchar *);

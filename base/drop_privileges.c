@@ -51,7 +51,7 @@
  * @return \param errorcode.
  */
 static gint
-drop_privileges_error (GError** error, gint errorcode, const gchar* message)
+drop_privileges_error (GError ** error, gint errorcode, const gchar * message)
 {
   g_set_error (error, OPENVAS_DROP_PRIVILEGES, errorcode, message);
   return errorcode;
@@ -75,9 +75,9 @@ drop_privileges_error (GError** error, gint errorcode, const gchar* message)
  *         otherwise and returns the error code.
  */
 int
-drop_privileges (gchar* username, GError** error)
+drop_privileges (gchar * username, GError ** error)
 {
-  struct passwd * user_pw = NULL;
+  struct passwd *user_pw = NULL;
 
   g_return_val_if_fail (*error == NULL,
                         OPENVAS_DROP_PRIVILEGES_ERROR_ALREADY_SET);
@@ -101,8 +101,8 @@ drop_privileges (gchar* username, GError** error)
       else
         {
           g_set_error (error, OPENVAS_DROP_PRIVILEGES,
-                      OPENVAS_DROP_PRIVILEGES_FAIL_UNKNOWN_USER,
-                      "Failed to get gid and uid for user %s.", username);
+                       OPENVAS_DROP_PRIVILEGES_FAIL_UNKNOWN_USER,
+                       "Failed to get gid and uid for user %s.", username);
           return OPENVAS_DROP_PRIVILEGES_FAIL_UNKNOWN_USER;
         }
       return OPENVAS_DROP_PRIVILEGES_OK;

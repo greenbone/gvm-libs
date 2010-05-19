@@ -44,7 +44,7 @@
  */
 struct list_and_cmpfunc
 {
-  GSList * list;
+  GSList *list;
   GCompareFunc cmp_func;
 } list_and_cmpfunc;
 
@@ -59,14 +59,14 @@ struct list_and_cmpfunc
  * @param list_and_cmpf Data- element holds list and compare function.
  */
 static void
-add_key_to_list (gchar* key, gpointer value,
-                 struct list_and_cmpfunc* list_and_cmpf)
+add_key_to_list (gchar * key, gpointer value,
+                 struct list_and_cmpfunc *list_and_cmpf)
 {
-  GSList * list = list_and_cmpf->list;
+  GSList *list = list_and_cmpf->list;
   if (list_and_cmpf->cmp_func)
     {
-      list_and_cmpf->list = g_slist_insert_sorted (list, key,
-                                                   list_and_cmpf->cmp_func);
+      list_and_cmpf->list =
+        g_slist_insert_sorted (list, key, list_and_cmpf->cmp_func);
     }
   else
     {
@@ -88,10 +88,10 @@ add_key_to_list (gchar* key, gpointer value,
  * @return A GSList containing pointers to the keys of the given GHashTable.
  */
 GSList *
-keys_as_string_list (GHashTable* hash_table, GCompareFunc cmp_func)
+keys_as_string_list (GHashTable * hash_table, GCompareFunc cmp_func)
 {
   struct list_and_cmpfunc list_and_cmpf;
-  list_and_cmpf.list     = NULL;
+  list_and_cmpf.list = NULL;
   list_and_cmpf.cmp_func = NULL;
 
   g_hash_table_foreach (hash_table, (GHFunc) add_key_to_list, &list_and_cmpf);

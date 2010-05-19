@@ -29,13 +29,13 @@
  */
 
 #include <glib.h>
-#include <glib/gstdio.h> /* for g_fopen */
+#include <glib/gstdio.h>        /* for g_fopen */
 
-#include <stdio.h> /* for FILE */
+#include <stdio.h>              /* for FILE */
 #include <stdlib.h>
-#include <string.h> /* for strerror */
-#include <errno.h> /* for errno */
-#include <unistd.h> /* for getpid */
+#include <string.h>             /* for strerror */
+#include <errno.h>              /* for errno */
+#include <unistd.h>             /* for getpid */
 
 /**
  * @brief GLib log domain.
@@ -64,14 +64,13 @@ pidfile_create (gchar * daemon_name)
 
   if (pidfile == NULL)
     {
-      g_critical ("%s: failed to open pidfile: %s\n",
-                  __FUNCTION__,
+      g_critical ("%s: failed to open pidfile: %s\n", __FUNCTION__,
                   strerror (errno));
       return 1;
     }
   else
     {
-      g_fprintf (pidfile, "%d\n", getpid());
+      g_fprintf (pidfile, "%d\n", getpid ());
       fclose (pidfile);
       g_free (pidfile_name);
     }
@@ -90,7 +89,7 @@ pidfile_remove (gchar * daemon_name)
   gchar *pidfile_name = g_build_filename (OPENVAS_PID_DIR, name_pid, NULL);
   gchar *pidfile_contents;
 
-  g_free(name_pid);
+  g_free (name_pid);
 
   if (g_file_get_contents (pidfile_name, &pidfile_contents, NULL, NULL))
     {

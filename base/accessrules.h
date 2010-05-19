@@ -38,9 +38,10 @@
 /**
  * @brief The possible types of a rule.
  */
-typedef enum {
-  ALLOW = 1,  ///< allow a corresponding IP
-  REJECT = 2  ///< reject a corresponding IP
+typedef enum
+{
+  ALLOW = 1,                    ///< allow a corresponding IP
+  REJECT = 2                    ///< reject a corresponding IP
 } rule_t;
 
 /**
@@ -51,10 +52,10 @@ typedef enum {
  */
 typedef struct accessrule
 {
-  rule_t rule;      ///< Rule type
-  gchar * ip;       ///< hostname, IP or IP with netmask. This is also used as
-                    ///< unique key for collections of access rules
-  gchar * comment;  ///< Comment for this access rule
+  rule_t rule;                  ///< Rule type
+  gchar *ip;                    ///< hostname, IP or IP with netmask. This is also used as
+  ///< unique key for collections of access rules
+  gchar *comment;               ///< Comment for this access rule
 } accessrule_t;
 
 accessrule_t *accessrule_new (void);
@@ -83,6 +84,6 @@ guint accessrules_size (accessrules_t *);
 void accessrules_add (accessrules_t *, accessrule_t *);
 
 guint accessrules_to_file (accessrules_t *, gchar *);
-accessrules_t * accessrules_from_file (gchar *);
+accessrules_t *accessrules_from_file (gchar *);
 
 #endif /* not _OPENVAS_ACCESSRULE_H */

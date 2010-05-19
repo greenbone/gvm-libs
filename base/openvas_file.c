@@ -34,7 +34,7 @@
 
 #include <sys/stat.h>
 
-#include <glib/gstdio.h> /* for g_remove */
+#include <glib/gstdio.h>        /* for g_remove */
 
 /**
  * @brief Checks whether a file is a directory or not.
@@ -52,7 +52,7 @@
  *         exist or could not be accessed.
  */
 int
-openvas_file_check_is_dir (const char* name)
+openvas_file_check_is_dir (const char *name)
 {
   struct stat sb;
 
@@ -130,12 +130,12 @@ openvas_file_remove_recurse (const gchar * pathname)
  * @return NULL if any error occurred, content of file, base64 encoded, freshly
  *        allocated, free with g_free.
  */
-gchar*
-openvas_file_read_b64_encode (const gchar* filename)
+gchar *
+openvas_file_read_b64_encode (const gchar * filename)
 {
   gchar *file_contents = NULL;
-  gchar *contents_b64  = NULL;
-  GError *error        = NULL;
+  gchar *contents_b64 = NULL;
+  GError *error = NULL;
   gsize file_size;
 
   g_file_get_contents (filename, &file_contents, &file_size, &error);
@@ -145,7 +145,7 @@ openvas_file_read_b64_encode (const gchar* filename)
       return NULL;
     }
 
-  contents_b64 = g_base64_encode ((guchar*) file_contents, file_size);
+  contents_b64 = g_base64_encode ((guchar *) file_contents, file_size);
   g_free (file_contents);
   return contents_b64;
 }

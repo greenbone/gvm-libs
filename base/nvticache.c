@@ -52,12 +52,15 @@
 nvticache_t *
 nvticache_new (const gchar * cache_path, const gchar * src_path)
 {
-  nvticache_t * cache = g_malloc0 (sizeof (nvticache_t));
+  nvticache_t *cache = g_malloc0 (sizeof (nvticache_t));
 
-  if (! cache) return NULL;
+  if (!cache)
+    return NULL;
 
-  if (cache_path) cache->cache_path = g_strdup (cache_path);
-  if (src_path) cache->src_path = g_strdup (src_path);
+  if (cache_path)
+    cache->cache_path = g_strdup (cache_path);
+  if (src_path)
+    cache->src_path = g_strdup (src_path);
 
   return (cache);
 }
@@ -70,9 +73,11 @@ nvticache_new (const gchar * cache_path, const gchar * src_path)
 void
 nvticache_free (const nvticache_t * cache)
 {
-  if (cache->cache_path) g_free (cache->cache_path);
-  if (cache->src_path) g_free (cache->src_path);
-  g_free ((nvticache_t *)cache);
+  if (cache->cache_path)
+    g_free (cache->cache_path);
+  if (cache->src_path)
+    g_free (cache->src_path);
+  g_free ((nvticache_t *) cache);
 }
 
 /**
@@ -92,23 +97,25 @@ nvticache_free (const nvticache_t * cache)
 nvti_t *
 nvticache_get (const nvticache_t * cache, const gchar * filename)
 {
-  nvti_t * n = NULL;
-  gchar * src_file = g_build_filename (cache->src_path, filename, NULL);
-  gchar * dummy    = g_build_filename (cache->cache_path, filename, NULL);
-  gchar * cache_file = g_strconcat (dummy, ".nvti", NULL); 
+  nvti_t *n = NULL;
+  gchar *src_file = g_build_filename (cache->src_path, filename, NULL);
+  gchar *dummy = g_build_filename (cache->cache_path, filename, NULL);
+  gchar *cache_file = g_strconcat (dummy, ".nvti", NULL);
   struct stat src_stat;
   struct stat cache_stat;
 
-  g_free(dummy);
+  g_free (dummy);
 
-  if (src_file && cache_file && stat(src_file, &src_stat) >= 0 &&
-      stat(cache_file, &cache_stat) >= 0 &&
-      (cache_stat.st_mtime > src_stat.st_mtime))
+  if (src_file && cache_file && stat (src_file, &src_stat) >= 0
+      && stat (cache_file, &cache_stat) >= 0
+      && (cache_stat.st_mtime > src_stat.st_mtime))
     {
-      n = nvti_from_keyfile(cache_file);
+      n = nvti_from_keyfile (cache_file);
     }
 
-  if (src_file) g_free(src_file);
-  if (cache_file) g_free(cache_file);
+  if (src_file)
+    g_free (src_file);
+  if (cache_file)
+    g_free (cache_file);
   return n;
 }

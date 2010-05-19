@@ -43,7 +43,6 @@
 #define OPENVAS_DROP_PRIVILEGES_FAIL_DROP_GID 3
 #define OPENVAS_DROP_PRIVILEGES_FAIL_DROP_UID 4
 
-int
-drop_privileges (gchar* username, GError** error);
+int drop_privileges (gchar * username, GError ** error);
 
 #endif
