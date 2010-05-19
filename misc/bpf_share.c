@@ -27,8 +27,13 @@
 #undef DEBUG_HIGH
 #define NUM_CLIENTS 128
 
+/** Shared pcap_t's. */
 static pcap_t * pcaps[NUM_CLIENTS];
 
+/**
+ * @return -1 in case of error, index of the opened pcap_t in \ref pcaps
+ *         otherwise.
+ */
 int
 bpf_open_live (char * iface, char * filter)
 {

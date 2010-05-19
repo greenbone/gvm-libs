@@ -1,3 +1,7 @@
+2010-05-19  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/bpf_share.c: Minor doc added.
+
 2010-05-18  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/CMakeLists.txt: Improved check for ldap libraries, be happy with
