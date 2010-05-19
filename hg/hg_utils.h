@@ -19,8 +19,8 @@
 #ifndef HL2_UTILS_H__
 #define HL2_UTILS_H__
 
-int hg_resolv (char* , struct in6_addr *, int );
-char * hg_name_to_domain (char * name);
+int hg_resolv (char *, struct in6_addr *, int);
+char *hg_name_to_domain (char *name);
 void hg_hosts_cleanup (struct hg_host *);
 void hg_host_cleanup (struct hg_host *);
 int hg_get_name_from_ip (struct in6_addr *, char *, int);

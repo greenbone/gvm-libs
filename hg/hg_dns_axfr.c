@@ -18,16 +18,16 @@
  *
  */
 
-#include <stdlib.h> /* for malloc */
-#include <string.h> /* for bcopy */
-#include <unistd.h> /* for close */
+#include <stdlib.h>             /* for malloc */
+#include <string.h>             /* for bcopy */
+#include <unistd.h>             /* for close */
 
 #include "hosts_gatherer.h"
 #include "hg_filter.h"
 #include "hg_utils.h"
 #include "hg_add_hosts.h"
 #include <arpa/inet.h>
-#ifdef HAVE_NETINET_IN_H /* (debian) linux wants this - jh */
+#ifdef HAVE_NETINET_IN_H        /* (debian) linux wants this - jh */
 #include <netinet/in.h>
 #endif
 #ifdef USE_ARPA_NAMESER_COMPAT_H
@@ -62,52 +62,56 @@
     (cp) += NS_INT16SZ;                 \
 } while (0)
 
-typedef union {
-	HEADER qb1;
-	u_char qb2[PACKETSZ];
+typedef union
+{
+  HEADER qb1;
+  u_char qb2[PACKETSZ];
 } querybuf;
 
 u_int
-hg_get16(const u_char *src)
+hg_get16 (const u_char * src)
 {
-	u_int dst;
+  u_int dst;
 
-	HG_GET16(dst, src);
-	return (dst);
+  HG_GET16 (dst, src);
+  return (dst);
 }
 
 static u_char *
-hg_dns_axfr_expand_name (u_char* cp, u_char* msg, char* name, int namelen)
+hg_dns_axfr_expand_name (u_char * cp, u_char * msg, char *name, int namelen)
 {
-	int n;
+  int n;
 
-  if ((n = dn_expand(msg, msg + 512, cp, name, namelen - 2)) < 0)
-		return (NULL);
-	if (name[0] == '\0') {
-		name[0] = '.';
-		name[1] = '\0';
-	}
-	return (cp + n);
+  if ((n = dn_expand (msg, msg + 512, cp, name, namelen - 2)) < 0)
+    return (NULL);
+  if (name[0] == '\0')
+    {
+      name[0] = '.';
+      name[1] = '\0';
+    }
+  return (cp + n);
 }
 
 static char *
-hg_dns_axfr_add_host (struct hg_globals * globals, u_char* cp, u_char* msg)
+hg_dns_axfr_add_host (struct hg_globals *globals, u_char * cp, u_char * msg)
 {
-	int type;
-	char name[MAXDNAME];
+  int type;
+  char name[MAXDNAME];
 
-	if ((cp = (u_char *)hg_dns_axfr_expand_name(cp, msg, name, sizeof(name))) == NULL)
-		return (NULL);			/* compression error */
-		
-	type = hg_get16(cp);
-	cp += INT16SZ*3 + INT32SZ;
-	if(type == T_A)
-	{
-	struct in_addr addr;
-	bcopy(cp, &addr, sizeof(addr));
-	hg_add_host_with_options(globals, name, addr, 0, 32, 0, NULL);
-	}
-	return(NULL);
+  if ((cp =
+       (u_char *) hg_dns_axfr_expand_name (cp, msg, name,
+                                           sizeof (name))) == NULL)
+    return (NULL);              /* compression error */
+
+  type = hg_get16 (cp);
+  cp += INT16SZ * 3 + INT32SZ;
+  if (type == T_A)
+    {
+      struct in_addr addr;
+      bcopy (cp, &addr, sizeof (addr));
+      hg_add_host_with_options (globals, name, addr, 0, 32, 0, NULL);
+    }
+  return (NULL);
 }
 
 
@@ -118,18 +122,21 @@ hg_dns_axfr_add_host (struct hg_globals * globals, u_char* cp, u_char* msg)
  * @return The length of the answer.
  */
 static int
-hg_dns_get_nameservers (struct hg_globals * globals, char* domain,
-                        querybuf* answer)
+hg_dns_get_nameservers (struct hg_globals *globals, char *domain,
+                        querybuf * answer)
 {
- int msglen;
- querybuf buffer;
+  int msglen;
+  querybuf buffer;
 
- msglen = res_mkquery(QUERY, domain, C_IN, T_NS, NULL, 0, NULL, buffer.qb2,
-		      sizeof(buffer));
- if(msglen < 0) return(-1);
- msglen = res_send(buffer.qb2, msglen, answer->qb2, sizeof(*answer));
- if(msglen < 0) return(-1);
- return(msglen);
+  msglen =
+    res_mkquery (QUERY, domain, C_IN, T_NS, NULL, 0, NULL, buffer.qb2,
+                 sizeof (buffer));
+  if (msglen < 0)
+    return (-1);
+  msglen = res_send (buffer.qb2, msglen, answer->qb2, sizeof (*answer));
+  if (msglen < 0)
+    return (-1);
+  return (msglen);
 }
 
 /**
@@ -137,219 +144,247 @@ hg_dns_get_nameservers (struct hg_globals * globals, char* domain,
  * @brief struct.
  */
 static int
-hg_dns_read_ns_from_answer (char * domainname, querybuf answer,
-                            struct hg_host ** ns, int msglen)
+hg_dns_read_ns_from_answer (char *domainname, querybuf answer,
+                            struct hg_host **ns, int msglen)
 {
- struct hg_host * host;
- int count;
- u_char * cp;
+  struct hg_host *host;
+  int count;
+  u_char *cp;
 
- count = ntohs(answer.qb1.ancount) + ntohs(answer.qb1.nscount) +
-	 ntohs(answer.qb1.arcount);
- if(!count||answer.qb1.rcode != NOERROR)return(-1);
- cp = (u_char *)answer.qb2 + 12; 
- if(ntohs(answer.qb1.qdcount) > 0)
-      cp += dn_skipname(cp, answer.qb2 + msglen) + QFIXEDSZ;
+  count =
+    ntohs (answer.qb1.ancount) + ntohs (answer.qb1.nscount) +
+    ntohs (answer.qb1.arcount);
+  if (!count || answer.qb1.rcode != NOERROR)
+    return (-1);
+  cp = (u_char *) answer.qb2 + 12;
+  if (ntohs (answer.qb1.qdcount) > 0)
+    cp += dn_skipname (cp, answer.qb2 + msglen) + QFIXEDSZ;
 
   /* Now adding the nameservers into our host list. */
-  host = malloc(sizeof(struct hg_host));
-  bzero(host, sizeof(struct hg_host));
-  while(count)
-  {
-   int type;
-   int dlen;
-   char domain[256];
-   cp += dn_expand(answer.qb2, answer.qb2 + msglen, cp, domain,sizeof(domain));
-   type = hg_get16(cp);
-   cp += 2 * INT16SZ + INT32SZ;
-   dlen = hg_get16(cp);
-   cp += INT16SZ;
-   if( type == T_NS) /* name server name */
-   {
-    char name[256];
-    if(dn_expand(answer.qb2, answer.qb2 + msglen, cp, name, sizeof(name)) >= 0)
+  host = malloc (sizeof (struct hg_host));
+  bzero (host, sizeof (struct hg_host));
+  while (count)
     {
-     int ok = 1;
-     struct hg_host * t = host;
-     if(!strcasecmp(domain, domainname))
-     {
-      while((t && t->next)&& ok) /* avoid duplicates */
-      {
-       if(host && host->hostname && !strcasecmp(host->hostname, name))ok = 0;
-       t = t->next;
-      }
+      int type;
+      int dlen;
+      char domain[256];
+      cp +=
+        dn_expand (answer.qb2, answer.qb2 + msglen, cp, domain,
+                   sizeof (domain));
+      type = hg_get16 (cp);
+      cp += 2 * INT16SZ + INT32SZ;
+      dlen = hg_get16 (cp);
+      cp += INT16SZ;
+      if (type == T_NS)         /* name server name */
+        {
+          char name[256];
+          if (dn_expand
+              (answer.qb2, answer.qb2 + msglen, cp, name, sizeof (name)) >= 0)
+            {
+              int ok = 1;
+              struct hg_host *t = host;
+              if (!strcasecmp (domain, domainname))
+                {
+                  while ((t && t->next) && ok)  /* avoid duplicates */
+                    {
+                      if (host && host->hostname
+                          && !strcasecmp (host->hostname, name))
+                        ok = 0;
+                      t = t->next;
+                    }
 
-     if(ok)
-     {
-      int len;
-      t = host;
-      while(t && t->next)t = t->next;
-      t->next = malloc(sizeof(struct hg_host));
-      bzero(t->next, sizeof(struct hg_host));
-      len = strlen(name);
-      t->hostname = malloc(len + 1);
-      strncpy(t->hostname, name, len + 1);
-     }
+                  if (ok)
+                    {
+                      int len;
+                      t = host;
+                      while (t && t->next)
+                        t = t->next;
+                      t->next = malloc (sizeof (struct hg_host));
+                      bzero (t->next, sizeof (struct hg_host));
+                      len = strlen (name);
+                      t->hostname = malloc (len + 1);
+                      strncpy (t->hostname, name, len + 1);
+                    }
+                }
+            }
+        }
+      else if (type == T_A)     /* name server address */
+        {
+          struct hg_host *t = host;
+          while (t && t->next)
+            {
+              if (!strcmp (t->hostname, domain))
+                {
+                  bcopy (cp, &t->addr, sizeof (t->addr));
+                  t = NULL;
+                }
+              else
+                t = t->next;
+            }
+        }
+      cp += dlen;
+      count--;
     }
-   }
-  }
-  else if (type == T_A) /* name server address */
-  {
-   struct hg_host * t = host;
-   while(t && t->next)
-   {
-    if(!strcmp(t->hostname, domain)){
-     bcopy(cp, &t->addr, sizeof(t->addr));
-     t = NULL;
-    }
-    else t = t->next;
-   }
-  }
- cp += dlen;
- count --;
- }
- *ns = host;
- return(0);
+  *ns = host;
+  return (0);
 }
 
 /**
  * @brief Checks that we have the IP addresses of all the NS in our list.
  */
 static void
-hg_dns_fill_ns_addrs (struct hg_host * ns)
+hg_dns_fill_ns_addrs (struct hg_host *ns)
 {
- struct hg_host * t = ns;
- struct in6_addr in6addr;
+  struct hg_host *t = ns;
+  struct in6_addr in6addr;
 
- while(t && t->next)
- {
-  hg_resolv(t->hostname, &in6addr, AF_INET);
-  if(!t->addr.s_addr)t->addr.s_addr = in6addr.s6_addr32[3];
-  t = t->next;
- }
+  while (t && t->next)
+    {
+      hg_resolv (t->hostname, &in6addr, AF_INET);
+      if (!t->addr.s_addr)
+        t->addr.s_addr = in6addr.s6_addr32[3];
+      t = t->next;
+    }
 }
 
 
 static int
-hg_dns_axfr_decode (struct hg_globals * globals, querybuf *answer, u_char * limit)
+hg_dns_axfr_decode (struct hg_globals *globals, querybuf * answer,
+                    u_char * limit)
 {
-  HEADER * hp = (HEADER *)answer;
-  u_char * cp;
+  HEADER *hp = (HEADER *) answer;
+  u_char *cp;
   int qdcount, ancount, nscount, arcount;
-  if(hp->rcode != NOERROR)return(-1);
-  qdcount = ntohs(hp->qdcount);
-  ancount = ntohs(hp->ancount);
-  nscount = ntohs(hp->nscount);
-  arcount = ntohs(hp->arcount);
+  if (hp->rcode != NOERROR)
+    return (-1);
+  qdcount = ntohs (hp->qdcount);
+  ancount = ntohs (hp->ancount);
+  nscount = ntohs (hp->nscount);
+  arcount = ntohs (hp->arcount);
 
-  if(!(qdcount + ancount + nscount + arcount))return(-1);
-  cp = (u_char *)answer + HFIXEDSZ;
-  while(qdcount--)cp += dn_skipname(cp, limit) + QFIXEDSZ;
-  hg_dns_axfr_add_host(globals, cp, answer);
+  if (!(qdcount + ancount + nscount + arcount))
+    return (-1);
+  cp = (u_char *) answer + HFIXEDSZ;
+  while (qdcount--)
+    cp += dn_skipname (cp, limit) + QFIXEDSZ;
+  hg_dns_axfr_add_host (globals, cp, answer);
 
- return(0);
+  return (0);
 }
 
 static int
-hg_dns_axfr_query (struct hg_globals * globals, char * domain,
-                   struct hg_host * ns, querybuf * answer, u_char ** limit)
+hg_dns_axfr_query (struct hg_globals *globals, char *domain, struct hg_host *ns,
+                   querybuf * answer, u_char ** limit)
 {
- int soc;
- int msglen;
- querybuf query;
- int len;
- int finished = 0;
- int num;
- u_char * cp, *nmp;
- struct sockaddr_in addr;
- char dname[2][255];
- int soacnt = 0;
- int error_code;
+  int soc;
+  int msglen;
+  querybuf query;
+  int len;
+  int finished = 0;
+  int num;
+  u_char *cp, *nmp;
+  struct sockaddr_in addr;
+  char dname[2][255];
+  int soacnt = 0;
+  int error_code;
 
- msglen = res_mkquery(QUERY, domain, C_IN, T_AXFR, NULL, 0, NULL,
- 	  	      query.qb2, sizeof(query));
+  msglen =
+    res_mkquery (QUERY, domain, C_IN, T_AXFR, NULL, 0, NULL, query.qb2,
+                 sizeof (query));
 
- if(msglen < 0)return(-1);
- bzero(&addr, sizeof(struct sockaddr_in));
- addr.sin_family = AF_INET;
- addr.sin_port   = htons(53);
- addr.sin_addr   = ns->addr;
- soc = socket(AF_INET, SOCK_STREAM, 0);
- if(soc < 0)return(-1);
- if(connect(soc, (struct sockaddr *)&addr, sizeof(addr))<0){
-  close(soc);
-  return(-1);
-  }
- putshort(msglen,(u_char *)&len);
- num = send(soc, (char *)&len, INT16SZ, 0);
- num = send(soc, (char *)&query, msglen, 0);
- if(num < msglen){
-  close(soc);
-  return(-1);
- }
+  if (msglen < 0)
+    return (-1);
+  bzero (&addr, sizeof (struct sockaddr_in));
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons (53);
+  addr.sin_addr = ns->addr;
+  soc = socket (AF_INET, SOCK_STREAM, 0);
+  if (soc < 0)
+    return (-1);
+  if (connect (soc, (struct sockaddr *) &addr, sizeof (addr)) < 0)
+    {
+      close (soc);
+      return (-1);
+    }
+  putshort (msglen, (u_char *) & len);
+  num = send (soc, (char *) &len, INT16SZ, 0);
+  num = send (soc, (char *) &query, msglen, 0);
+  if (num < msglen)
+    {
+      close (soc);
+      return (-1);
+    }
 
- while(!finished)
- {
- fd_set rd;
- struct timeval tv = {0, 5};
+  while (!finished)
+    {
+      fd_set rd;
+      struct timeval tv = { 0, 5 };
 
- cp = (u_char *)answer;
- FD_ZERO(&rd);
- FD_SET(soc, &rd);
- if(!select(soc+1, &rd, NULL, NULL, &tv))
- {
-  close(soc);
-  return -1;
- }
- if(recv(soc, (char*)&len, INT16SZ, 0)<0)
- {
-  close(soc);
+      cp = (u_char *) answer;
+      FD_ZERO (&rd);
+      FD_SET (soc, &rd);
+      if (!select (soc + 1, &rd, NULL, NULL, &tv))
+        {
+          close (soc);
+          return -1;
+        }
+      if (recv (soc, (char *) &len, INT16SZ, 0) < 0)
+        {
+          close (soc);
 #ifdef DEBUG
-   perror("recv in axfr ");
+          perror ("recv in axfr ");
 #endif
-   return(-1);
-  }
- len = ntohs(len);
- error_code = -1;
- if(len>0)
- {
-  int num_read;
-  int left;
+          return (-1);
+        }
+      len = ntohs (len);
+      error_code = -1;
+      if (len > 0)
+        {
+          int num_read;
+          int left;
 
-  left = len;
-  while(left > 0)
-  {
-   num_read = recv(soc, cp, left, 0);
-   if(num_read < 0)
-   {
+          left = len;
+          while (left > 0)
+            {
+              num_read = recv (soc, cp, left, 0);
+              if (num_read < 0)
+                {
 #ifdef DEBUG
-	perror("recv in axfr ");
+                  perror ("recv in axfr ");
 #endif
-	close(soc);
-	return(-1);
-   }
-   left -= num_read;
-   cp += num_read;
-  }
- error_code = answer->qb1.rcode;
- hg_dns_axfr_decode(globals, answer, cp);
- cp = answer->qb2 + HFIXEDSZ;
- if(ntohs(answer->qb1.qdcount) > 0)
-    cp+= dn_skipname(cp, answer->qb2 + len) + QFIXEDSZ;
- nmp = cp;
- cp += dn_skipname(cp, (u_char *)answer + len);
- if((hg_get16(cp) == T_SOA)){
-  (void)dn_expand(answer->qb2, answer->qb2 + len, nmp,dname[soacnt], 256);
-  if(soacnt){if(!strcmp(dname[0], dname[1]))finished = 1;}
-  else soacnt++;
- }
-}
-else finished = 1;
-}
- shutdown(soc, 2);
- close(soc);
- *limit = cp;
- return(error_code);
+                  close (soc);
+                  return (-1);
+                }
+              left -= num_read;
+              cp += num_read;
+            }
+          error_code = answer->qb1.rcode;
+          hg_dns_axfr_decode (globals, answer, cp);
+          cp = answer->qb2 + HFIXEDSZ;
+          if (ntohs (answer->qb1.qdcount) > 0)
+            cp += dn_skipname (cp, answer->qb2 + len) + QFIXEDSZ;
+          nmp = cp;
+          cp += dn_skipname (cp, (u_char *) answer + len);
+          if ((hg_get16 (cp) == T_SOA))
+            {
+              (void) dn_expand (answer->qb2, answer->qb2 + len, nmp,
+                                dname[soacnt], 256);
+              if (soacnt)
+                {
+                  if (!strcmp (dname[0], dname[1]))
+                    finished = 1;
+                }
+              else
+                soacnt++;
+            }
+        }
+      else
+        finished = 1;
+    }
+  shutdown (soc, 2);
+  close (soc);
+  *limit = cp;
+  return (error_code);
 }
 
 
@@ -358,25 +393,28 @@ else finished = 1;
  * Our "main" function regarding DNS AXFR
  */
 void
-hg_dns_axfr_add_hosts (struct hg_globals * globals, char * domain)
+hg_dns_axfr_add_hosts (struct hg_globals *globals, char *domain)
 {
- int msglen;
- querybuf answer;
- struct hg_host * ns = NULL;
- u_char * limit;
- if(!domain)return;
- hg_add_domain(globals, domain);
- res_init();
- bzero(&answer, sizeof(answer));
- msglen = hg_dns_get_nameservers(globals, domain, &answer);
- if(msglen < 0)return;
- if(hg_dns_read_ns_from_answer(domain, answer, &ns, msglen)<0)return;
- hg_dns_fill_ns_addrs(ns);
+  int msglen;
+  querybuf answer;
+  struct hg_host *ns = NULL;
+  u_char *limit;
+  if (!domain)
+    return;
+  hg_add_domain (globals, domain);
+  res_init ();
+  bzero (&answer, sizeof (answer));
+  msglen = hg_dns_get_nameservers (globals, domain, &answer);
+  if (msglen < 0)
+    return;
+  if (hg_dns_read_ns_from_answer (domain, answer, &ns, msglen) < 0)
+    return;
+  hg_dns_fill_ns_addrs (ns);
 
- bzero(&answer, sizeof(answer));
+  bzero (&answer, sizeof (answer));
 #ifdef DEBUG_HIGH
- hg_dump_hosts(ns);
+  hg_dump_hosts (ns);
 #endif
- hg_dns_axfr_query(globals, domain, ns, &answer, &limit);
- hg_hosts_cleanup(ns);
+  hg_dns_axfr_query (globals, domain, ns, &answer, &limit);
+  hg_hosts_cleanup (ns);
 }

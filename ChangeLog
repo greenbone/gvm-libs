@@ -1,3 +1,11 @@
+2010-05-19  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* hg/hg_filter.c, hg/hg_debug.c, hg/hg_utils.c, hg/hg_subnet.c,
+	hg/test.c, hg/hosts_gatherer.c, hg/hg_dns_axfr.c, hg/hg_utils.h,
+	hg/hg_subnet.h, hg/hosts_gatherer.h, hg/hg_add_hosts.c,
+	hg/hg_dns_axfr.h, hg/hg_add_hosts.h: Format according to coding style.
+	Command was 'indent --no-tabs --ignore-newlines -l 80 *.c *.h'.
+
 2010-05-19  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/bpf_share.c: Minor doc added.

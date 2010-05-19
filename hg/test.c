@@ -17,10 +17,10 @@
  */
 
 
-#include <stdio.h> /* for printf */
-#include <stdlib.h> /* for exit */
-#include <unistd.h> /* for getopt */
-#include <arpa/inet.h> /* for inet_ntoa */
+#include <stdio.h>              /* for printf */
+#include <stdlib.h>             /* for exit */
+#include <unistd.h>             /* for getopt */
+#include <arpa/inet.h>          /* for inet_ntoa */
 
 #include "network.h"
 #include "hosts_gatherer.h"
@@ -35,43 +35,53 @@
 
 extern int optind;
 
-int main (int argc, char * argv[])
+int
+main (int argc, char *argv[])
 {
-  struct hg_globals * globals;
+  struct hg_globals *globals;
   char m[1024];
   int e;
   int i;
   int flags = 0;
 
   struct in_addr ip;
-  while ((i = getopt (argc, argv, "dpsnD")) != -1) /* RATS: ignore */
+  while ((i = getopt (argc, argv, "dpsnD")) != -1)      /* RATS: ignore */
     switch (i)
       {
-        case 'd' : flags |= HG_DNS_AXFR; break;
-        case 'p' : flags |= HG_PING;     break;
-        case 's' : flags |= HG_SUBNET;   break;
-        case 'n' : flags |= HG_REVLOOKUP; /** @TODO forgot to break here? */
-        case 'D' : flags |= HG_DISTRIBUTE;
+      case 'd':
+        flags |= HG_DNS_AXFR;
+        break;
+      case 'p':
+        flags |= HG_PING;
+        break;
+      case 's':
+        flags |= HG_SUBNET;
+        break;
+      case 'n':
+        flags |= HG_REVLOOKUP;            /** @TODO forgot to break here? */
+      case 'D':
+        flags |= HG_DISTRIBUTE;
       }
 
   if (!argv[optind])
     {
-      printf ("Usage : test -dps hostname/netmask\n-d : DNS axfr\n-p : ping hosts\n-s : whole network\n-D: distribute the load\n");
+      printf
+        ("Usage : test -dps hostname/netmask\n-d : DNS axfr\n-p : ping hosts\n-s : whole network\n-D: distribute the load\n");
       exit (0);
     }
   if ((flags & HG_PING) && geteuid ())
     {
-      printf("the ping flag will be ignored -- you are not root\n");
+      printf ("the ping flag will be ignored -- you are not root\n");
     }
 
-  if (hg_test_syntax (argv[optind], flags) < 0 )
+  if (hg_test_syntax (argv[optind], flags) < 0)
     {
       printf ("BAD SYNTAX\n");
       exit (1);
     }
 
   globals = hg_init (argv[optind], flags);
-  e  = hg_next_host (globals, &ip, m, sizeof (m));
+  e = hg_next_host (globals, &ip, m, sizeof (m));
   while (e >= 0)
     {
       printf ("%s (%s)\n", m, inet_ntoa (ip));

@@ -16,20 +16,19 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <arpa/inet.h> /* for inet_ntoa */
-#include <stdio.h> /* for printf */
+#include <arpa/inet.h>          /* for inet_ntoa */
+#include <stdio.h>              /* for printf */
 
 #include "hosts_gatherer.h"
 
 void
-hg_dump_hosts (struct hg_host * hosts)
+hg_dump_hosts (struct hg_host *hosts)
 {
   while (hosts && hosts->next)
     {
-      printf ("\t[ %s ]\tT: %d\tA : %d\tN : %d\t(%s)\n", inet_ntoa (hosts->addr),
-              hosts->tested, hosts->alive,
-              hosts->cidr_netmask,
-              hosts->hostname);
+      printf ("\t[ %s ]\tT: %d\tA : %d\tN : %d\t(%s)\n",
+              inet_ntoa (hosts->addr), hosts->tested, hosts->alive,
+              hosts->cidr_netmask, hosts->hostname);
       hosts = hosts->next;
     }
 }

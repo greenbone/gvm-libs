@@ -17,7 +17,7 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <string.h> /* for strcmp */
+#include <string.h>             /* for strcmp */
 
 #include "hosts_gatherer.h"
 #include "hg_subnet.h"
@@ -30,10 +30,10 @@
  * @return 0 if host must be included, 1 host must not be included
  */
 int
-hg_filter_host (struct hg_globals* globals, char* hostname, struct in_addr addr)
+hg_filter_host (struct hg_globals *globals, char *hostname, struct in_addr addr)
 {
 #if DISABLED
- struct hg_host * list = globals->host_list;
+  struct hg_host *list = globals->host_list;
 
 /*
  int i;
@@ -46,27 +46,27 @@ int len = strlen(hostname);
   for(i=0;i<len;i++)copy[i]=tolower(copy[i]);
  */
 
- while(list->next)
- {
-  if(list->use_max)
-  {
-   if((ntohl(addr.s_addr) >= ntohl(list->min.s_addr))&&
-      (ntohl(addr.s_addr) <= ntohl(list->max.s_addr)))
-	{
-	/* free(copy); */
-	 return 1;
-	}
-  }
-  else if((list->addr.s_addr == addr.s_addr))
+  while (list->next)
     {
-     /* free(copy); */
-     return(1);
+      if (list->use_max)
+        {
+          if ((ntohl (addr.s_addr) >= ntohl (list->min.s_addr))
+              && (ntohl (addr.s_addr) <= ntohl (list->max.s_addr)))
+            {
+              /* free(copy); */
+              return 1;
+            }
+        }
+      else if ((list->addr.s_addr == addr.s_addr))
+        {
+          /* free(copy); */
+          return (1);
+        }
+      list = list->next;
     }
-  list = list->next;
- }
- /*free(copy);*/
+  /*free(copy); */
 #endif
- return(0);
+  return (0);
 }
 
 
@@ -76,27 +76,29 @@ int len = strlen(hostname);
  * @return 1 if the subnet must not be tested.
  */
 int
-hg_filter_subnet (struct hg_globals * globals, struct in_addr addr, int netmask)
+hg_filter_subnet (struct hg_globals *globals, struct in_addr addr, int netmask)
 {
- struct hg_host * list = globals->tested;
- struct in_addr subnet;
+  struct hg_host *list = globals->tested;
+  struct in_addr subnet;
 
- while(list && list->next)
- {
-  struct in_addr subnet_2;
-  if(list->addr.s_addr)
-  {
-   if(addr.s_addr != list->addr.s_addr)
-   {
-    int l_netmask = list->cidr_netmask < netmask ? list->cidr_netmask:netmask;
-    subnet   = cidr_get_first_ip(addr, l_netmask);
-    subnet_2 = cidr_get_first_ip(list->addr, l_netmask);
-    if(subnet.s_addr == subnet_2.s_addr)return(1);
-   }
-  }
-  list = list->next;
- }
- return(0);
+  while (list && list->next)
+    {
+      struct in_addr subnet_2;
+      if (list->addr.s_addr)
+        {
+          if (addr.s_addr != list->addr.s_addr)
+            {
+              int l_netmask =
+                list->cidr_netmask < netmask ? list->cidr_netmask : netmask;
+              subnet = cidr_get_first_ip (addr, l_netmask);
+              subnet_2 = cidr_get_first_ip (list->addr, l_netmask);
+              if (subnet.s_addr == subnet_2.s_addr)
+                return (1);
+            }
+        }
+      list = list->next;
+    }
+  return (0);
 }
 
 
@@ -106,9 +108,9 @@ hg_filter_subnet (struct hg_globals * globals, struct in_addr addr, int netmask)
  * @return 1 if the domain must NOT be tested.
  */
 int
-hg_filter_domain (struct hg_globals* globals, char* domain)
+hg_filter_domain (struct hg_globals *globals, char *domain)
 {
-  struct hg_host * list = globals->tested;
+  struct hg_host *list = globals->tested;
   if (!domain)
     return (0);
   while (list && list->next)
