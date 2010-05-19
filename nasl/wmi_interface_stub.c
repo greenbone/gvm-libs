@@ -65,8 +65,8 @@ wmi_versioninfo ()
  * @return, 0 on success, -1 on failure
  */
 int
-wmi_connect (const char *username, const char *password,
-             const char *host, const char *namespace, WMI_HANDLE * handle)
+wmi_connect (const char *username, const char *password, const char *host,
+             const char *namespace, WMI_HANDLE * handle)
 {
   return -1;
 }
@@ -115,8 +115,8 @@ wmi_query (WMI_HANDLE handle, const char *query, char **result)
  * @return, 0 on success, -1 on failure
  */
 int
-wmi_connect_rsop (const char *username, const char *password,
-                  const char *host, WMI_HANDLE * handle)
+wmi_connect_rsop (const char *username, const char *password, const char *host,
+                  WMI_HANDLE * handle)
 {
   return -1;
 }
@@ -152,8 +152,8 @@ wmi_query_rsop (WMI_HANDLE handle, const char *query, char **res)
  * @return, 0 on success, -1 on failure
  */
 int
-wmi_connect_reg (const char *username, const char *password,
-                 const char *host, WMI_HANDLE * handle)
+wmi_connect_reg (const char *username, const char *password, const char *host,
+                 WMI_HANDLE * handle)
 {
   return -1;
 }
@@ -282,8 +282,8 @@ wmi_reg_get_dword_val (WMI_HANDLE handle, unsigned int hive, const char *key,
  * @return, 0 on success, -1 on failure
  */
 int
-wmi_reg_get_ex_string_val (WMI_HANDLE handle, unsigned int hive, const char *key,
-                           const char *val_name, char **res)
+wmi_reg_get_ex_string_val (WMI_HANDLE handle, unsigned int hive,
+                           const char *key, const char *val_name, char **res)
 {
   return -1;
 }
@@ -304,8 +304,8 @@ wmi_reg_get_ex_string_val (WMI_HANDLE handle, unsigned int hive, const char *key
  * @return, 0 on success, -1 on failure
  */
 int
-wmi_reg_get_mul_string_val (WMI_HANDLE handle, unsigned int hive, const char *key,
-                            const char *val_name, char **res)
+wmi_reg_get_mul_string_val (WMI_HANDLE handle, unsigned int hive,
+                            const char *key, const char *val_name, char **res)
 {
   return -1;
 }
@@ -331,4 +331,3 @@ wmi_reg_get_qword_val (WMI_HANDLE handle, unsigned int hive, const char *key,
 {
   return -1;
 }
-

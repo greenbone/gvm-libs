@@ -17,10 +17,10 @@
  *
  */
 
-#include <ctype.h> /* for tolower */
-#include <string.h> /* for bcopy */
+#include <ctype.h>              /* for tolower */
+#include <string.h>             /* for bcopy */
 
-#include "system.h" /* for emalloc */
+#include "system.h"             /* for emalloc */
 
 #include "strutils.h"
 
@@ -30,16 +30,16 @@
  */
 
 char *
-nasl_strndup (char * str, int length)
+nasl_strndup (char *str, int length)
 {
-  char * ret = emalloc (length + 1);
+  char *ret = emalloc (length + 1);
   bcopy (str, ret, length);
   return ret;
 }
 
 /** @todo In parts replacable by g_pattern_match function (when not icase) */
 int
-str_match (const char* string, const char* pattern, int icase)
+str_match (const char *string, const char *pattern, int icase)
 {
   while (*pattern != '\0')
     {
@@ -54,13 +54,14 @@ str_match (const char* string, const char* pattern, int icase)
           do
             if (str_match (p, pattern + 1, icase))
               return 1;
-          while (*p ++ != '\0');
+          while (*p++ != '\0');
           return 0;
         }
-      else if ( (icase && (tolower (*pattern) != tolower (*string))) ||
-                (! icase && (*pattern != *string)))
+      else if ((icase && (tolower (*pattern) != tolower (*string)))
+               || (!icase && (*pattern != *string)))
         return 0;
-      pattern ++; string ++;
+      pattern++;
+      string++;
     }
   return *string == '\0';
 }
@@ -71,24 +72,24 @@ str_match (const char* string, const char* pattern, int icase)
  * @brief Slow replacement for memmem.
  */
 void *
-nasl_memmem (const void * haystack, size_t hl_len,
-             const void * needle, size_t n_len)
+nasl_memmem (const void *haystack, size_t hl_len, const void *needle,
+             size_t n_len)
 {
-  char * hs = (char*) haystack;
-  char * nd = (char*) needle;
+  char *hs = (char *) haystack;
+  char *nd = (char *) needle;
   int i;
 
   if (hl_len < n_len)
     return NULL;
 
-  for (i = 0 ; i <= hl_len - n_len ; i++)
+  for (i = 0; i <= hl_len - n_len; i++)
     {
       if (hs[i] == nd[0])
         {
           int flag = 1;
           int j;
           for (j = 1; j < n_len; j++)
-            if (hs[i+j] != nd[j])
+            if (hs[i + j] != nd[j])
               {
                 flag = 0;
                 break;

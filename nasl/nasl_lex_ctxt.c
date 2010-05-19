@@ -17,7 +17,7 @@
  *
  */
 
-#include "system.h" /* for emalloc */
+#include "system.h"             /* for emalloc */
 
 #include "nasl_func.h"
 #include "nasl_tree.h"
@@ -25,16 +25,16 @@
 #include "nasl_global_ctxt.h"
 #include "nasl_lex_ctxt.h"
 
-lex_ctxt*
-init_empty_lex_ctxt()
+lex_ctxt *
+init_empty_lex_ctxt ()
 {
-  lex_ctxt	*c = emalloc(sizeof(lex_ctxt));
-  int		i;
+  lex_ctxt *c = emalloc (sizeof (lex_ctxt));
+  int i;
 
-  c->ctx_vars.hash_elt = emalloc(sizeof(named_nasl_var) * VAR_NAME_HASH);
+  c->ctx_vars.hash_elt = emalloc (sizeof (named_nasl_var) * VAR_NAME_HASH);
   c->ctx_vars.num_elt = NULL;
   c->ctx_vars.max_idx = 0;
-  for (i = 0; i < FUNC_NAME_HASH; i ++)
+  for (i = 0; i < FUNC_NAME_HASH; i++)
     c->functions[i] = NULL;
   c->ret_val = NULL;
   c->fct_ctxt = 0;
@@ -42,27 +42,27 @@ init_empty_lex_ctxt()
 }
 
 void
-free_lex_ctxt(lex_ctxt* c)
+free_lex_ctxt (lex_ctxt * c)
 {
-  int	i;
+  int i;
 
 #if 0
   if (c->exit_flag && c->up_ctxt != NULL)
-    ((lex_ctxt*)c->up_ctxt)->exit_flag = 1;
+    ((lex_ctxt *) c->up_ctxt)->exit_flag = 1;
 #endif
-  deref_cell(c->ret_val);
-  free_array(&c->ctx_vars);
-  for (i = 0; i < FUNC_NAME_HASH; i ++)
+  deref_cell (c->ret_val);
+  free_array (&c->ctx_vars);
+  for (i = 0; i < FUNC_NAME_HASH; i++)
     {
-      free_func_chain(c->functions[i]);
+      free_func_chain (c->functions[i]);
     }
-  efree(&c);
+  efree (&c);
 }
 
-lex_ctxt*
-get_top_level_ctxt(lex_ctxt* ctxt)
+lex_ctxt *
+get_top_level_ctxt (lex_ctxt * ctxt)
 {
-  lex_ctxt	*top = ctxt;
+  lex_ctxt *top = ctxt;
 
   while (top->up_ctxt != NULL)
     top = top->up_ctxt;
@@ -70,34 +70,34 @@ get_top_level_ctxt(lex_ctxt* ctxt)
 }
 
 void
-dump_ctxt(lex_ctxt* c)
+dump_ctxt (lex_ctxt * c)
 {
-  int	i;
-  named_nasl_var	*v;
-  nasl_func	*f;
+  int i;
+  named_nasl_var *v;
+  nasl_func *f;
 
-  printf("--------<CTXT>--------\n");
+  printf ("--------<CTXT>--------\n");
   if (c->fct_ctxt)
-    printf("Is a function context\n");
+    printf ("Is a function context\n");
   if (c->up_ctxt == NULL)
-    printf("Is the top level context\n");
+    printf ("Is the top level context\n");
   if (c->ret_val)
     {
-      printf("Return value\n");
-      nasl_dump_tree(c->ret_val);
+      printf ("Return value\n");
+      nasl_dump_tree (c->ret_val);
     }
 
-  printf("Variables:\n");
-  for (i = 0; i < VAR_NAME_HASH; i ++)
-    for (v = c->ctx_vars.hash_elt[i]; v != NULL; v=v->next_var)
-      printf("%s\t", v->var_name);
-  putchar('\n');
+  printf ("Variables:\n");
+  for (i = 0; i < VAR_NAME_HASH; i++)
+    for (v = c->ctx_vars.hash_elt[i]; v != NULL; v = v->next_var)
+      printf ("%s\t", v->var_name);
+  putchar ('\n');
 
-  printf("Functions:\n");
-  for (i = 0; i < FUNC_NAME_HASH; i ++)
+  printf ("Functions:\n");
+  for (i = 0; i < FUNC_NAME_HASH; i++)
     for (f = c->functions[i]; f != NULL; f = f->next_func)
-      printf("%s\t", f->func_name);
-  putchar('\n');
+      printf ("%s\t", f->func_name);
+  putchar ('\n');
 
-  printf("----------------------\n");
+  printf ("----------------------\n");
 }

@@ -17,9 +17,9 @@
  *
  */
 
-#include <stdlib.h> /* for malloc */
-#include <string.h> /* for memcpy */
-#include "system.h" /* for emalloc */
+#include <stdlib.h>             /* for malloc */
+#include <string.h>             /* for memcpy */
+#include "system.h"             /* for emalloc */
 
 #include "nasl_regex.h"
 
@@ -32,143 +32,143 @@
 
 #include "nasl_debug.h"
 
-tree_cell*
-alloc_tree_cell(int lnb, char * s)
+tree_cell *
+alloc_tree_cell (int lnb, char *s)
 {
-  tree_cell	*p = malloc(sizeof(tree_cell));
-  int		i;
+  tree_cell *p = malloc (sizeof (tree_cell));
+  int i;
 
   if (p == NULL)
     {
-      perror("malloc");
-      abort();
+      perror ("malloc");
+      abort ();
     }
   p->type = 0;
   p->size = 0;
   p->line_nb = lnb;
   p->x.str_val = s;
   p->ref_count = 1;
-  for (i = 0; i < 4;i ++)
+  for (i = 0; i < 4; i++)
     p->link[i] = NULL;
   return p;
 }
 
-tree_cell*
-alloc_typed_cell(int typ)
+tree_cell *
+alloc_typed_cell (int typ)
 {
-  tree_cell	*c = alloc_tree_cell(0, NULL);
+  tree_cell *c = alloc_tree_cell (0, NULL);
   c->type = typ;
   return c;
 }
-  
-tree_cell*
-alloc_RE_cell(int lnb, int t, tree_cell *l, char *re_str)
-{
-  regex_t	*re = emalloc(sizeof(regex_t));
-  int	e;
 
-  tree_cell *c = alloc_tree_cell(lnb, NULL);
-  c->type = t;			/* We could check the type... */
+tree_cell *
+alloc_RE_cell (int lnb, int t, tree_cell * l, char *re_str)
+{
+  regex_t *re = emalloc (sizeof (regex_t));
+  int e;
+
+  tree_cell *c = alloc_tree_cell (lnb, NULL);
+  c->type = t;                  /* We could check the type... */
   c->link[0] = l;
   c->link[1] = FAKE_CELL;
-  e = nasl_regcomp(re, re_str, REG_EXTENDED|REG_NOSUB|REG_ICASE);
-  if (! e)
+  e = nasl_regcomp (re, re_str, REG_EXTENDED | REG_NOSUB | REG_ICASE);
+  if (!e)
     c->x.ref_val = re;
   else
     {
-      nasl_perror(NULL, "Line %d: Cannot compile regex: %s (error = %d)\n",
-		  lnb, re_str, e);
-      efree(&re);
+      nasl_perror (NULL, "Line %d: Cannot compile regex: %s (error = %d)\n",
+                   lnb, re_str, e);
+      efree (&re);
     }
-  free(re_str);
+  free (re_str);
   return c;
 }
 
-tree_cell*
-alloc_expr_cell(int lnb, int t, tree_cell *l, tree_cell *r)
+tree_cell *
+alloc_expr_cell (int lnb, int t, tree_cell * l, tree_cell * r)
 {
-  tree_cell *c = alloc_tree_cell(lnb, NULL);
+  tree_cell *c = alloc_tree_cell (lnb, NULL);
   c->type = t;
   c->link[0] = l;
   c->link[1] = r;
   return c;
 }
 
-tree_cell*
-dup_cell(const tree_cell* tc)
+tree_cell *
+dup_cell (const tree_cell * tc)
 {
-  tree_cell	*r;
-  int		i;
+  tree_cell *r;
+  int i;
 
   if (tc == NULL)
     return NULL;
   else if (tc == FAKE_CELL)
     return FAKE_CELL;
 
-  r  = alloc_tree_cell(tc->line_nb, NULL);
+  r = alloc_tree_cell (tc->line_nb, NULL);
   r->type = tc->type;
   r->size = tc->size;
   switch (tc->type)
     {
     case CONST_STR:
     case CONST_DATA:
-      r->x.str_val = emalloc(tc->size);
-      memcpy(r->x.str_val, tc->x.str_val, tc->size);
+      r->x.str_val = emalloc (tc->size);
+      memcpy (r->x.str_val, tc->x.str_val, tc->size);
       break;
     default:
       r->x = tc->x;
       break;
     }
 
-  for (i = 0; i < 4; i ++)
-    r->link[i] = dup_cell(tc->link[i]);
+  for (i = 0; i < 4; i++)
+    r->link[i] = dup_cell (tc->link[i]);
   return r;
 }
 
 static void
-free_tree(tree_cell *c)
+free_tree (tree_cell * c)
 {
-  int			i;
-  nasl_array		*a;
+  int i;
+  nasl_array *a;
 
   if (c == NULL || c == FAKE_CELL)
     return;
 #if 0
-  nasl_dump_tree(c);
+  nasl_dump_tree (c);
 #endif
-  for (i = 0; i < 4; i ++)
+  for (i = 0; i < 4; i++)
     if (c->link[i] != NULL)
-      deref_cell(c->link[i]);
+      deref_cell (c->link[i]);
   if (c->x.str_val != NULL)
-    switch(c->type)
+    switch (c->type)
       {
       case CONST_STR:
       case CONST_DATA:
 #ifdef SCRATCH_FREED_MEMORY
-	if (c->size > 0)
-	  memset(c->x.str_val, 0xFF, c->size);
+        if (c->size > 0)
+          memset (c->x.str_val, 0xFF, c->size);
 #endif
-	efree(&c->x.str_val);
-	break;
+        efree (&c->x.str_val);
+        break;
 
       case CONST_REGEX:
       case COMP_RE_MATCH:
       case COMP_RE_NOMATCH:
-	if (c->x.ref_val != NULL)
-	  {
-	    nasl_regfree(c->x.ref_val);
-	    efree(&c->x.ref_val);
-	  }
-	break;
+        if (c->x.ref_val != NULL)
+          {
+            nasl_regfree (c->x.ref_val);
+            efree (&c->x.ref_val);
+          }
+        break;
 
       case DYN_ARRAY:
-	a = c->x.ref_val;
-	if (a != NULL)
-	  {
-	    free_array(a);
-	    efree(&c->x.ref_val);
-	  }
-	break;
+        a = c->x.ref_val;
+        if (a != NULL)
+          {
+            free_array (a);
+            efree (&c->x.ref_val);
+          }
+        break;
 
       case NODE_FUN_DEF:
       case NODE_FUN_CALL:
@@ -177,41 +177,41 @@ free_tree(tree_cell *c)
       case NODE_ARG:
       case NODE_ARRAY_EL:
       case NODE_FOREACH:
-	efree(&c->x.str_val);
-	break;
+        efree (&c->x.str_val);
+        break;
       }
 #ifdef SCRATCH_FREED_MEMORY
-  memset(c, 0xFF, sizeof(*c));
+  memset (c, 0xFF, sizeof (*c));
 #endif
-  efree(&c);
+  efree (&c);
 }
 
 void
-ref_cell(tree_cell* c)
+ref_cell (tree_cell * c)
 {
   if (c == NULL || c == FAKE_CELL)
     return;
-  c->ref_count ++;
+  c->ref_count++;
   if (c->ref_count < 0)
     {
-      nasl_perror(NULL, "ref_cell: ref count is negative!\n");
-      nasl_dump_tree(c);
-      abort();
+      nasl_perror (NULL, "ref_cell: ref count is negative!\n");
+      nasl_dump_tree (c);
+      abort ();
     }
 }
 
 void
-deref_cell(tree_cell* c)
+deref_cell (tree_cell * c)
 {
   if (c == NULL || c == FAKE_CELL)
     return;
-  if (-- c->ref_count <= 0)
-    free_tree(c);
+  if (--c->ref_count <= 0)
+    free_tree (c);
 }
 
 /* Debug */
 
-static char * node_names[] = { 
+static char *node_names[] = {
   "NODE_EMPTY",
   "NODE_IF_ELSE",
   "NODE_INSTR_L",
@@ -288,95 +288,95 @@ static char * node_names[] = {
 };
 
 static void
-prefix(int n, int i)
+prefix (int n, int i)
 {
-  int	j;
-  for (j = 0; j < n; j ++)
-    putchar(' ');
+  int j;
+  for (j = 0; j < n; j++)
+    putchar (' ');
   if (i <= 0)
-    fputs("   ", stdout);
+    fputs ("   ", stdout);
   else
-    printf("%d: ", i);
+    printf ("%d: ", i);
 }
 
-char*
-dump_cell_val(const tree_cell* c)
+char *
+dump_cell_val (const tree_cell * c)
 {
-  static char	txt[80];
+  static char txt[80];
 
   if (c == NULL)
     return "NULL";
   else if (c == FAKE_CELL)
-     return "FAKE";
+    return "FAKE";
   else
-    switch(c->type)
+    switch (c->type)
       {
       case CONST_INT:
-	snprintf(txt, sizeof(txt), "%d", c->x.i_val); /* RATS: ignore */
-	break;
+        snprintf (txt, sizeof (txt), "%d", c->x.i_val); /* RATS: ignore */
+        break;
       case CONST_STR:
-      case CONST_DATA:		/* Beurk */
-	if (c->size >= sizeof(txt) + 2)
-	  {
-	    snprintf(txt, sizeof(txt), "\"%s", c->x.str_val); /* RATS: ignore */
-	    strcpy(txt + (sizeof(txt) - 5), "...\"");
-	  }
-	else
-	  snprintf(txt, sizeof(txt), "\"%s\"", c->x.str_val); /* RATS: ignore */
-	break;
+      case CONST_DATA:         /* Beurk */
+        if (c->size >= sizeof (txt) + 2)
+          {
+            snprintf (txt, sizeof (txt), "\"%s", c->x.str_val); /* RATS: ignore */
+            strcpy (txt + (sizeof (txt) - 5), "...\"");
+          }
+        else
+          snprintf (txt, sizeof (txt), "\"%s\"", c->x.str_val); /* RATS: ignore */
+        break;
       default:
-	snprintf(txt, sizeof(txt), "???? (%s)", nasl_type_name(c->type)); /* RATS: ignore */
-	break;
+        snprintf (txt, sizeof (txt), "???? (%s)", nasl_type_name (c->type));    /* RATS: ignore */
+        break;
       }
   return txt;
 }
 
 static void
-dump_tree(const tree_cell* c, int n, int idx)
+dump_tree (const tree_cell * c, int n, int idx)
 {
-  int	i;
+  int i;
 
   if (c == NULL)
     return;
 
-  prefix(n, idx);
+  prefix (n, idx);
 
   if (c == FAKE_CELL)
     {
-      puts("* FAKE *");
+      puts ("* FAKE *");
       return;
     }
 
   if (c->line_nb > 0)
-    printf("L%d: ", c->line_nb);
+    printf ("L%d: ", c->line_nb);
 
 #if 0
   if ((int) c < 0x1000)
     {
-      printf("* INVALID PTR 0x%x *\n", (int) c);
+      printf ("* INVALID PTR 0x%x *\n", (int) c);
       return;
     }
 #endif
-  if (c->type < 0 || c->type >= sizeof(node_names) / sizeof(node_names[0]))
-    printf("* UNKNOWN %d (0x%x)*\n", c->type, c->type);
+  if (c->type < 0 || c->type >= sizeof (node_names) / sizeof (node_names[0]))
+    printf ("* UNKNOWN %d (0x%x)*\n", c->type, c->type);
   else
-    printf("%s (%d)\n", node_names[c->type],c->type);
+    printf ("%s (%d)\n", node_names[c->type], c->type);
 
 
-  prefix(n, idx);
-  printf("Ref_count=%d", c->ref_count);
+  prefix (n, idx);
+  printf ("Ref_count=%d", c->ref_count);
   if (c->size > 0)
     {
-      /*prefix(n, idx);*/
-      printf("\tSize=%d (0x%x)", c->size, c->size);
+      /*prefix(n, idx); */
+      printf ("\tSize=%d (0x%x)", c->size, c->size);
     }
-  putchar('\n');
+  putchar ('\n');
 
-  switch(c->type)
+  switch (c->type)
     {
     case CONST_INT:
-      prefix(n, 0);
-      printf("Val=%d\n", c->x.i_val);
+      prefix (n, 0);
+      printf ("Val=%d\n", c->x.i_val);
       break;
 
     case CONST_STR:
@@ -388,23 +388,23 @@ dump_tree(const tree_cell* c, int n, int idx)
     case NODE_ARG:
     case NODE_ARRAY_EL:
     case ARRAY_ELEM:
-      prefix(n, 0);
+      prefix (n, 0);
       if (c->x.str_val == NULL)
-	printf("Val=(null)\n");
+        printf ("Val=(null)\n");
       else
-	printf("Val=\"%s\"\n", c->x.str_val);
+        printf ("Val=\"%s\"\n", c->x.str_val);
       break;
     case REF_VAR:
-      prefix(n, 0);
+      prefix (n, 0);
       if (c->x.ref_val == NULL)
-	printf("Ref=(null)\n");
+        printf ("Ref=(null)\n");
       else
-	{
-	  named_nasl_var	*v = c->x.ref_val;
-	  printf("Ref=(type=%d, name=%s, value=%s)\n",
-		 v->u.var_type, v->var_name != NULL ? v->var_name : "(null)",
-		 var2str(&v->u));
-	}
+        {
+          named_nasl_var *v = c->x.ref_val;
+          printf ("Ref=(type=%d, name=%s, value=%s)\n", v->u.var_type,
+                  v->var_name != NULL ? v->var_name : "(null)",
+                  var2str (&v->u));
+        }
       break;
 
     case REF_ARRAY:
@@ -412,60 +412,61 @@ dump_tree(const tree_cell* c, int n, int idx)
       break;
     }
 
-  for (i = 0; i < 4; i ++)
+  for (i = 0; i < 4; i++)
     {
-      dump_tree(c->link[i], n+3, i+1);
+      dump_tree (c->link[i], n + 3, i + 1);
     }
 }
 
-const char*
-nasl_type_name(int t)
+const char *
+nasl_type_name (int t)
 {
-  static char	txt4[4][32];	/*  This function may be called 4 times in the same expression */
-  static int	i = 0;
-  char	*txt;
+  static char txt4[4][32];      /*  This function may be called 4 times in the same expression */
+  static int i = 0;
+  char *txt;
 
-  if (++ i > 4) i = 0;
+  if (++i > 4)
+    i = 0;
   txt = txt4[i];
 
-  if (t >= 0 || t < sizeof(node_names) / sizeof(node_names[0]))
-    snprintf(txt, 32, "%s (%d)", node_names[t], t); /* RATS: ignore */
+  if (t >= 0 || t < sizeof (node_names) / sizeof (node_names[0]))
+    snprintf (txt, 32, "%s (%d)", node_names[t], t);    /* RATS: ignore */
   else
-    snprintf(txt, 32, "*UNKNOWN* (%d)", t); /* RATS: ignore */
+    snprintf (txt, 32, "*UNKNOWN* (%d)", t);    /* RATS: ignore */
   return txt;
 }
- 
+
 
 void
-nasl_dump_tree(const tree_cell* c)
+nasl_dump_tree (const tree_cell * c)
 {
-  printf("^^^^ %p ^^^^^\n", c);
+  printf ("^^^^ %p ^^^^^\n", c);
   if (c == NULL)
-    puts("NULL CELL");
+    puts ("NULL CELL");
   else if (c == FAKE_CELL)
     puts ("FAKE CELL");
   else
-    dump_tree(c, 0, 0);
-  printf("vvvvvvvvvvvvvvvvvv\n");
+    dump_tree (c, 0, 0);
+  printf ("vvvvvvvvvvvvvvvvvv\n");
 }
 
-char*
-get_line_nb(const tree_cell* c)
+char *
+get_line_nb (const tree_cell * c)
 {
   static char txt[32];
   if (c == NULL || c == FAKE_CELL || c->line_nb <= 0)
     return "";
-  snprintf(txt, sizeof(txt), " at or near line %d ", c->line_nb); /* RATS: ignore */
+  snprintf (txt, sizeof (txt), " at or near line %d ", c->line_nb);     /* RATS: ignore */
   return txt;
 }
 
 
 int
-nasl_is_leaf(const tree_cell* pc)
+nasl_is_leaf (const tree_cell * pc)
 {
   if (pc == NULL || pc == FAKE_CELL)
     return 1;
-  switch(pc->type)
+  switch (pc->type)
     {
     case CONST_INT:
     case CONST_STR:
@@ -476,17 +477,13 @@ nasl_is_leaf(const tree_cell* pc)
     default:
       return 0;
     }
-  /*NOTREACHED*/
-}
+ /*NOTREACHED*/}
 
 int
-cell_type(const tree_cell* c)
+cell_type (const tree_cell * c)
 {
-  if (c == NULL || c== FAKE_CELL)
+  if (c == NULL || c == FAKE_CELL)
     return 0;
   else
     return c->type;
 }
-
-
-

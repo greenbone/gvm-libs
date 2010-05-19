@@ -22,18 +22,18 @@
 /* for FILE */
 #include <stdio.h>
 
-typedef struct {
-  int		line_nb;
-  FILE		*fp;
-  tree_cell	*tree;
-  char		*buffer;
-  int		authenticated;
-  int		always_authenticated;
-  int		maxlen;
+typedef struct
+{
+  int line_nb;
+  FILE *fp;
+  tree_cell *tree;
+  char *buffer;
+  int authenticated;
+  int always_authenticated;
+  int maxlen;
 } naslctxt;
 
-int	init_nasl_ctx(naslctxt*, const char*);
-void	nasl_clean_ctx(naslctxt*);
+int init_nasl_ctx (naslctxt *, const char *);
+void nasl_clean_ctx (naslctxt *);
 
 #endif
-

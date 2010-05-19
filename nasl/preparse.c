@@ -37,15 +37,15 @@ extern int naslparse (naslctxt *);
  * @return 0 on success, -1 on error.
  */
 int
-nasl_reload_or_parse (naslctxt* ctx, const char* name)
+nasl_reload_or_parse (naslctxt * ctx, const char *name)
 {
-  if (init_nasl_ctx(ctx, name) < 0)
+  if (init_nasl_ctx (ctx, name) < 0)
     return -1;
 
-  if (naslparse(ctx))
+  if (naslparse (ctx))
     {
-      fprintf(stderr, "\nParse error at or near line %d\n", ctx->line_nb);
-      nasl_clean_ctx(ctx);
+      fprintf (stderr, "\nParse error at or near line %d\n", ctx->line_nb);
+      nasl_clean_ctx (ctx);
       return -1;
     }
 

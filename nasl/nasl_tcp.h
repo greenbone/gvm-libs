@@ -17,24 +17,25 @@
 #undef HAVE_TCPHDR_TH_OFF
 #define HAVE_TCPHDR_TH_OFF 1
 #define HAVE_STRUCT_TCPHDR 1
-struct tcphdr {
-	u_short	th_sport;		/* source port */
-	u_short	th_dport;		/* destination port */
-	tcp_seq	th_seq;			/* sequence number */
-	tcp_seq	th_ack;			/* acknowledgement number */
+struct tcphdr
+{
+  u_short th_sport;             /* source port */
+  u_short th_dport;             /* destination port */
+  tcp_seq th_seq;               /* sequence number */
+  tcp_seq th_ack;               /* acknowledgement number */
 #if !WORDS_BIGENDIAN
-	u_int	th_x2:4,		/* (unused) */
-		th_off:4;		/* data offset */
+  u_int th_x2:4,                /* (unused) */
+    th_off:4;                   /* data offset */
 #endif
 #if WORDS_BIGENDIAN
-	u_int	th_off:4,		/* data offset */
-		th_x2:4;		/* (unused) */
+  u_int th_off:4,               /* data offset */
+    th_x2:4;                    /* (unused) */
 #endif
-	u_char	th_flags;
+  u_char th_flags;
 
-	u_short	th_win;			/* window */
-	u_short	th_sum;			/* checksum */
-	u_short	th_urp;			/* urgent pointer */
+  u_short th_win;               /* window */
+  u_short th_sum;               /* checksum */
+  u_short th_urp;               /* urgent pointer */
 };
 
 #endif

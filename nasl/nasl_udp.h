@@ -7,11 +7,12 @@
 
 #if !defined(HAVE_STRUCT_UDPHDR) || HAVE_STRUCT_UDPHDR == 0
 #define HAVE_STRUCT_UDPHDR 1
-struct udphdr {
-	u_short	uh_sport;		/* source port */
-	u_short	uh_dport;		/* destination port */
-	u_short	uh_ulen;		/* udp length */
-	u_short	uh_sum;			/* udp checksum */
+struct udphdr
+{
+  u_short uh_sport;             /* source port */
+  u_short uh_dport;             /* destination port */
+  u_short uh_ulen;              /* udp length */
+  u_short uh_sum;               /* udp checksum */
 };
 #endif
 

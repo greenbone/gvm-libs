@@ -20,6 +20,6 @@
 #ifndef NASL_PREPARSE_H__
 #define NASL_PREPARSE_H__
 
-int nasl_reload_or_parse (naslctxt* ctx, const char* name);
+int nasl_reload_or_parse (naslctxt * ctx, const char *name);
 
 #endif

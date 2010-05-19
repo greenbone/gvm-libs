@@ -23,10 +23,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h> /* for strlen */
-#include "system.h" /* for emalloc */
+#include <string.h>             /* for strlen */
+#include "system.h"             /* for emalloc */
 
-#include "certificate.h" /* for certificate_t */
+#include "certificate.h"        /* for certificate_t */
 
 #include "nasl_signature.h"
 
@@ -45,8 +45,8 @@
 static void
 print_gpgme_error (char *function, gpgme_error_t err)
 {
-  nasl_perror (NULL, "%s failed: %s/%s\n",
-               function, gpgme_strsource(err), gpgme_strerror(err));
+  nasl_perror (NULL, "%s failed: %s/%s\n", function, gpgme_strsource (err),
+               gpgme_strerror (err));
 }
 
 /**
@@ -62,43 +62,43 @@ print_gpgme_error (char *function, gpgme_error_t err)
 static int
 examine_signatures (gpgme_verify_result_t result)
 {
-  int num_sigs  = 0;
+  int num_sigs = 0;
   int num_valid = 0;
   gpgme_signature_t sig;
 
-  nasl_trace(NULL, "examine_signatures\n");
+  nasl_trace (NULL, "examine_signatures\n");
 
   sig = result->signatures;
   while (sig)
     {
       num_sigs += 1;
 
-      if (nasl_trace_enabled())
-	{
-	  nasl_trace(NULL, "examine_signatures: signature #%d:\n", num_sigs);
-	  nasl_trace(NULL, "examine_signatures:    summary: %d\n",
-		     sig->summary);
-	  nasl_trace(NULL, "examine_signatures:    validity: %d\n",
-		     sig->validity);
-	  nasl_trace(NULL, "examine_signatures:    status: %s\n",
-		     gpg_strerror(sig->status));
-	  nasl_trace(NULL, "examine_signatures:    timestamp: %ld\n",
-		     sig->timestamp);
-	  nasl_trace(NULL, "examine_signatures:    exp_timestamp: %ld\n",
-		     sig->exp_timestamp);
-	  nasl_trace(NULL, "examine_signatures:    fpr: %s\n", sig->fpr);
-	}
+      if (nasl_trace_enabled ())
+        {
+          nasl_trace (NULL, "examine_signatures: signature #%d:\n", num_sigs);
+          nasl_trace (NULL, "examine_signatures:    summary: %d\n",
+                      sig->summary);
+          nasl_trace (NULL, "examine_signatures:    validity: %d\n",
+                      sig->validity);
+          nasl_trace (NULL, "examine_signatures:    status: %s\n",
+                      gpg_strerror (sig->status));
+          nasl_trace (NULL, "examine_signatures:    timestamp: %ld\n",
+                      sig->timestamp);
+          nasl_trace (NULL, "examine_signatures:    exp_timestamp: %ld\n",
+                      sig->exp_timestamp);
+          nasl_trace (NULL, "examine_signatures:    fpr: %s\n", sig->fpr);
+        }
 
       if (sig->summary & GPGME_SIGSUM_VALID)
-	{
-	  nasl_trace(NULL, "examine_signatures: signature is valid\n");
-	  num_valid += 1;
-	}
+        {
+          nasl_trace (NULL, "examine_signatures: signature is valid\n");
+          num_valid += 1;
+        }
       else
-	{
-      	  nasl_trace(NULL, "examine_signatures: signature is invalid\n");
+        {
+          nasl_trace (NULL, "examine_signatures: signature is invalid\n");
           /** @todo Early stop might be possible. Can return here. */
-	}
+        }
       sig = sig->next;
     }
 
@@ -119,8 +119,8 @@ static char *
 determine_gpghome ()
 {
   /** @todo Use glibs g_build_filename */
-  char * default_dir = OPENVAS_SYSCONFDIR "/gnupg";
-  char * envdir = getenv("OPENVAS_GPGHOME");
+  char *default_dir = OPENVAS_SYSCONFDIR "/gnupg";
+  char *envdir = getenv ("OPENVAS_GPGHOME");
 
   return estrdup (envdir ? envdir : default_dir);
 }
@@ -136,13 +136,13 @@ init_openvas_gpgme_ctx ()
 {
   gpgme_error_t err;
   gpgme_ctx_t ctx = NULL;
-  char * gpghome = determine_gpghome();
+  char *gpghome = determine_gpghome ();
 
   /* Calls seem to be necessary for certain versions of gpgme (for
-    initialization). Note that we could check the version number here, but do so
-    in configure. */
+     initialization). Note that we could check the version number here, but do so
+     in configure. */
   gpgme_check_version (NULL);
-  err = gpgme_engine_check_version(GPGME_PROTOCOL_OpenPGP);
+  err = gpgme_engine_check_version (GPGME_PROTOCOL_OpenPGP);
 
   if (err)
     {
@@ -151,28 +151,29 @@ init_openvas_gpgme_ctx ()
 
   if (!err)
     {
-    err = gpgme_new(&ctx);
-    if (err)
-      {
-        print_gpgme_error ("gpgme_new", err);
-        if (ctx != NULL)
-          gpgme_release (ctx);
-        ctx = NULL;
-      }
-     }
+      err = gpgme_new (&ctx);
+      if (err)
+        {
+          print_gpgme_error ("gpgme_new", err);
+          if (ctx != NULL)
+            gpgme_release (ctx);
+          ctx = NULL;
+        }
+    }
 
   if (!err)
     {
-    nasl_trace(NULL, "init_openvas_gpgme_ctx: setting homedir '%s'\n", gpghome);
-    err = gpgme_ctx_set_engine_info(ctx, GPGME_PROTOCOL_OpenPGP, NULL,
-                                    gpghome);
-    if (err)
-      {
-        print_gpgme_error("gpgme_ctx_set_engine_info", err);
-        if(ctx != NULL)
-          gpgme_release(ctx);
-        ctx = NULL;
-      }
+      nasl_trace (NULL, "init_openvas_gpgme_ctx: setting homedir '%s'\n",
+                  gpghome);
+      err =
+        gpgme_ctx_set_engine_info (ctx, GPGME_PROTOCOL_OpenPGP, NULL, gpghome);
+      if (err)
+        {
+          print_gpgme_error ("gpgme_ctx_set_engine_info", err);
+          if (ctx != NULL)
+            gpgme_release (ctx);
+          ctx = NULL;
+        }
     }
 
   return ctx;
@@ -197,32 +198,32 @@ init_openvas_gpgme_ctx ()
  *         or error.
  */
 int
-nasl_verify_signature (const char* filename)
+nasl_verify_signature (const char *filename)
 {
   int retcode = -1;
-  char * sigfilename = NULL;
+  char *sigfilename = NULL;
   gpgme_error_t err;
-  gpgme_ctx_t ctx = init_openvas_gpgme_ctx();
+  gpgme_ctx_t ctx = init_openvas_gpgme_ctx ();
   gpgme_data_t sig = NULL, text = NULL;
 
-  if(ctx == NULL)
+  if (ctx == NULL)
     {
       nasl_trace (NULL, "gpgme context could not be initialized.\n");
       goto fail;
     }
 
   nasl_trace (NULL, "nasl_verify_signature: loading scriptfile '%s'\n",
-	      filename);
+              filename);
 
-  err = gpgme_data_new_from_file(&text, filename, 1);
+  err = gpgme_data_new_from_file (&text, filename, 1);
   if (err)
     {
-      print_gpgme_error("gpgme_data_new_from_file", err);
+      print_gpgme_error ("gpgme_data_new_from_file", err);
       goto fail;
     }
 
-  sigfilename = emalloc (strlen(filename) + 4 + 1);
-  strcpy (sigfilename, filename); /* Flawfinder: ignore */
+  sigfilename = emalloc (strlen (filename) + 4 + 1);
+  strcpy (sigfilename, filename);       /* Flawfinder: ignore */
   strcat (sigfilename, ".asc");
   nasl_trace (NULL, "nasl_verify_signature: loading signature file '%s'\n",
               sigfilename);
@@ -235,8 +236,8 @@ nasl_verify_signature (const char* filename)
       if (gpgme_err_code (err) != GPG_ERR_ENOENT)
         print_gpgme_error ("gpgme_data_new_from_file", err);
       else
-        nasl_trace (NULL, "nasl_verify_signature: %s: %s\n",
-                    sigfilename, gpgme_strerror(err));
+        nasl_trace (NULL, "nasl_verify_signature: %s: %s\n", sigfilename,
+                    gpgme_strerror (err));
       goto fail;
     }
 
@@ -244,21 +245,21 @@ nasl_verify_signature (const char* filename)
   nasl_trace (NULL, "nasl_verify_signature: gpgme_op_verify -> '%d'\n", err);
   if (err)
     {
-      print_gpgme_error("gpgme_op_verify", err);
+      print_gpgme_error ("gpgme_op_verify", err);
       goto fail;
     }
 
-  if (examine_signatures (gpgme_op_verify_result(ctx)))
+  if (examine_signatures (gpgme_op_verify_result (ctx)))
     retcode = 0;
   else
     retcode = 1;
 
- fail:
-  gpgme_data_release(sig);
-  gpgme_data_release(text);
-  if(ctx != NULL)
-    gpgme_release(ctx);
-  efree(&sigfilename);
+fail:
+  gpgme_data_release (sig);
+  gpgme_data_release (text);
+  if (ctx != NULL)
+    gpgme_release (ctx);
+  efree (&sigfilename);
 
   return retcode;
 }
@@ -277,34 +278,35 @@ nasl_verify_signature (const char* filename)
  * 
  * @see nasl_verify_signature( const char* filename )
  */
-char*
-nasl_extract_signature_fprs (const char* filename)
+char *
+nasl_extract_signature_fprs (const char *filename)
 {
-  char * sigfilename = NULL;
+  char *sigfilename = NULL;
   gpgme_error_t err;
-  gpgme_ctx_t ctx   = init_openvas_gpgme_ctx();
-  gpgme_data_t sig  = NULL;
+  gpgme_ctx_t ctx = init_openvas_gpgme_ctx ();
+  gpgme_data_t sig = NULL;
   gpgme_data_t text = NULL;
   gpgme_signature_t signature;
   /** @todo Once there was a size limitation for the cache.
     * It was removed since OpenVAS > 2.0 and this
     * fixed size here should eventually be replaced by dynamic solution. */
-  char* key_fprs = emalloc( (3*48 + 3) *sizeof(char)); 
+  char *key_fprs = emalloc ((3 * 48 + 3) * sizeof (char));
   key_fprs[0] = '\0';
   gboolean failed = FALSE;
 
-  if ( ctx == NULL)
+  if (ctx == NULL)
     {
-    err = 0;
-    failed = TRUE;
+      err = 0;
+      failed = TRUE;
     }
 
-  if(!err)
+  if (!err)
     {
-    nasl_trace (NULL, "nasl_extract_signature_fprs: loading scriptfile '%s'\n",
-               filename);
-    err = gpgme_data_new_from_file (&text, filename, 1);
-    if (err)
+      nasl_trace (NULL,
+                  "nasl_extract_signature_fprs: loading scriptfile '%s'\n",
+                  filename);
+      err = gpgme_data_new_from_file (&text, filename, 1);
+      if (err)
         {
           print_gpgme_error ("gpgme_data_new_from_file", err);
           failed = TRUE;
@@ -313,82 +315,86 @@ nasl_extract_signature_fprs (const char* filename)
 
   if (!err)
     {
-    sigfilename = emalloc (strlen(filename) + 4 + 1);
-    strcpy (sigfilename, filename); /* Flawfinder: ignore */
-    strcat (sigfilename, ".asc");
+      sigfilename = emalloc (strlen (filename) + 4 + 1);
+      strcpy (sigfilename, filename);   /* Flawfinder: ignore */
+      strcat (sigfilename, ".asc");
 
-    nasl_trace(NULL, "nasl_extract_signature_fprs: loading signature file '%s'\n",
-	       sigfilename);
-    err = gpgme_data_new_from_file(&sig, sigfilename, 1);
-    if (err)
-      {
-        /* If the file doesn't exist, fail without an error message
-         * because an unsigned file is a very common and expected
-         * condition */
-        if (gpgme_err_code(err) != GPG_ERR_ENOENT)
-          print_gpgme_error("gpgme_data_new_from_file", err);
-        else
-          nasl_trace(NULL, "nasl_extract_signature_fprs: %s: %s\n",
-		   sigfilename, gpgme_strerror(err));
-        failed = TRUE;
-      }
-    }
-
-  if(!err)
-    {
-      err = gpgme_op_verify (ctx, sig, text, NULL);
-      nasl_trace (NULL, "nasl_extract_signature_fprs: gpgme_op_verify -> '%d'\n", err);
+      nasl_trace (NULL,
+                  "nasl_extract_signature_fprs: loading signature file '%s'\n",
+                  sigfilename);
+      err = gpgme_data_new_from_file (&sig, sigfilename, 1);
       if (err)
         {
-          print_gpgme_error("gpgme_op_verify", err);
+          /* If the file doesn't exist, fail without an error message
+           * because an unsigned file is a very common and expected
+           * condition */
+          if (gpgme_err_code (err) != GPG_ERR_ENOENT)
+            print_gpgme_error ("gpgme_data_new_from_file", err);
+          else
+            nasl_trace (NULL, "nasl_extract_signature_fprs: %s: %s\n",
+                        sigfilename, gpgme_strerror (err));
           failed = TRUE;
         }
     }
 
   if (!err)
     {
-    gpgme_verify_result_t result = gpgme_op_verify_result (ctx);
+      err = gpgme_op_verify (ctx, sig, text, NULL);
+      nasl_trace (NULL,
+                  "nasl_extract_signature_fprs: gpgme_op_verify -> '%d'\n",
+                  err);
+      if (err)
+        {
+          print_gpgme_error ("gpgme_op_verify", err);
+          failed = TRUE;
+        }
+    }
 
-    signature = result->signatures;
-    // Concatenate the fingerprints of the signatures in the sig (.asc) file.
-    while (signature)
-      {
-        // Enough mem to store the new fingerprint (old + ',' + new + '\0')?
-        if (strlen(key_fprs) + strlen(signature->fpr) < (3*48+1) )
-          {
-            // If already fingerprint(s) found, separate new one by ','.
-            if (key_fprs[0] != '\0')
-              {
-                strcat (key_fprs,",");             /* RATS: ignore */
-                strcat (key_fprs, signature->fpr); /* RATS: ignore */
-              }
-            // Else it is the first key found, copy it.
-            else
-              {
-                strcpy (key_fprs, signature->fpr);
-              }
-          }
-        else
-          {
-            printf ("Too much fingerprints for %s found. "
-                    "Clients will see only parts of them.", filename);
-            nasl_trace (NULL, "nasl_extract_signature_fprs: cropping fingerprints\n");
-          }
+  if (!err)
+    {
+      gpgme_verify_result_t result = gpgme_op_verify_result (ctx);
 
-        signature = signature->next;
-      }
+      signature = result->signatures;
+      // Concatenate the fingerprints of the signatures in the sig (.asc) file.
+      while (signature)
+        {
+          // Enough mem to store the new fingerprint (old + ',' + new + '\0')?
+          if (strlen (key_fprs) + strlen (signature->fpr) < (3 * 48 + 1))
+            {
+              // If already fingerprint(s) found, separate new one by ','.
+              if (key_fprs[0] != '\0')
+                {
+                  strcat (key_fprs, ",");       /* RATS: ignore */
+                  strcat (key_fprs, signature->fpr);    /* RATS: ignore */
+                }
+              // Else it is the first key found, copy it.
+              else
+                {
+                  strcpy (key_fprs, signature->fpr);
+                }
+            }
+          else
+            {
+              printf ("Too much fingerprints for %s found. "
+                      "Clients will see only parts of them.", filename);
+              nasl_trace (NULL,
+                          "nasl_extract_signature_fprs: cropping fingerprints\n");
+            }
+
+          signature = signature->next;
+        }
     }
 
   gpgme_data_release (sig);
   gpgme_data_release (text);
   if (ctx != NULL)
-    gpgme_release(ctx);
+    gpgme_release (ctx);
   efree (&sigfilename);
 
-  char* return_string = NULL;
+  char *return_string = NULL;
 
   if (failed == FALSE)
-     return_string = estrdup (key_fprs);
+    return_string = estrdup (key_fprs);
 
   efree (&key_fprs);
   return return_string;
@@ -405,27 +411,27 @@ nasl_extract_signature_fprs (const char* filename)
  * @return The public key belonging to fingerprint in an g_malloc'ed string 
  *         or NULL if an error occurred.
  */
-char*
-nasl_get_pubkey (gpgme_ctx_t ctx, char* fingerprint)
+char *
+nasl_get_pubkey (gpgme_ctx_t ctx, char *fingerprint)
 {
   gpgme_set_armor (ctx, 1);
 
   gpgme_error_t err;
   gpgme_data_t pkey;
-  char* key_string = NULL;
+  char *key_string = NULL;
   gpgme_data_new (&pkey);
 
   err = gpgme_data_set_encoding (pkey, GPGME_DATA_ENCODING_ARMOR);
   if (err)
     {
-      print_gpgme_error("gpgme_data_set_encoding", err);
+      print_gpgme_error ("gpgme_data_set_encoding", err);
     }
 
-  err = gpgme_op_export(ctx, fingerprint, 0, pkey);
+  err = gpgme_op_export (ctx, fingerprint, 0, pkey);
   if (err)
     {
-      print_gpgme_error("gpgme_op_export", err);
-      gpgme_data_release(pkey);
+      print_gpgme_error ("gpgme_op_export", err);
+      gpgme_data_release (pkey);
       return NULL;
     }
 
@@ -435,18 +441,19 @@ nasl_get_pubkey (gpgme_ctx_t ctx, char* fingerprint)
   // Public keys length must be >0
   if (key_length == -1)
     {
-      nasl_trace (NULL, "gpgme couldn't find public key for %s.\n", fingerprint);
+      nasl_trace (NULL, "gpgme couldn't find public key for %s.\n",
+                  fingerprint);
       gpgme_data_release (pkey);
       return NULL;
     }
 
-  key_string = g_malloc ((key_length + 1) * sizeof(char));
+  key_string = g_malloc ((key_length + 1) * sizeof (char));
 
   // Rewind data
   if (gpgme_data_seek (pkey, 0, SEEK_SET) != 0)
     {
-      nasl_trace (NULL, "gpgme couldn't deal with public key data "
-                         "for %s.\n", fingerprint);
+      nasl_trace (NULL, "gpgme couldn't deal with public key data " "for %s.\n",
+                  fingerprint);
       gpgme_data_release (pkey);
       efree (&key_string);
       return NULL;
@@ -456,8 +463,8 @@ nasl_get_pubkey (gpgme_ctx_t ctx, char* fingerprint)
   size_t bytes_read = gpgme_data_read (pkey, key_string, key_length);
   if (bytes_read != key_length)
     {
-      nasl_trace (NULL, "gpgme couldn't read all public key data "
-                        "for %s.\n", fingerprint);
+      nasl_trace (NULL, "gpgme couldn't read all public key data " "for %s.\n",
+                  fingerprint);
       gpgme_data_release (pkey);
       efree (&key_string);
       return NULL;
@@ -483,66 +490,69 @@ nasl_get_pubkey (gpgme_ctx_t ctx, char* fingerprint)
  * @return Pointer to a GSList containing pointers to certificate structs.
  * @todo consider using the certificates_t type from base/certificates.c
  */
-GSList*
+GSList *
 nasl_get_all_certificates ()
 {
-  GSList* certificates = NULL;
+  GSList *certificates = NULL;
   // Certificate retrieval
   gpgme_error_t err;
-  gpgme_ctx_t ctx = init_openvas_gpgme_ctx();
+  gpgme_ctx_t ctx = init_openvas_gpgme_ctx ();
 
-  if ( ctx == NULL)
+  if (ctx == NULL)
     {
       return NULL;
     }
 
-  err = gpgme_op_keylist_ext_start(ctx, NULL, 0, 0);
+  err = gpgme_op_keylist_ext_start (ctx, NULL, 0, 0);
   if (err)
     {
-       nasl_trace(NULL, "otp_1_0_send_certificates: trouble finding gpgme keys %s.\n", strerror(err));
+      nasl_trace (NULL,
+                  "otp_1_0_send_certificates: trouble finding gpgme keys %s.\n",
+                  strerror (err));
     }
 
   gpgme_key_t key = NULL;
 
   while (!err)
     {
-       err = gpgme_op_keylist_next (ctx, &key);
+      err = gpgme_op_keylist_next (ctx, &key);
 
-       // No more keys
-       if (key == NULL)
+      // No more keys
+      if (key == NULL)
+        break;
+      // Other error
+      if (err)
+        {
+          if (key != NULL)
+            gpgme_key_release (key);
+          print_gpgme_error ("gpgme_op_keylist_next", err);
           break;
-       // Other error
-       if (err)
-          {
-            if (key != NULL)
-              gpgme_key_release (key);
-            print_gpgme_error ("gpgme_op_keylist_next", err);
-            break;
-          }
+        }
 
-       certificate_t* cert = certificate_create ();
-       cert->fingerprint = g_strdup (key->subkeys->fpr);
-       cert->owner = g_strdup (key->uids->name);
-       if (key->owner_trust == GPGME_VALIDITY_FULL || key->owner_trust == GPGME_VALIDITY_ULTIMATE)
-          cert->trusted = TRUE;
-       else
-          cert->trusted = FALSE;
+      certificate_t *cert = certificate_create ();
+      cert->fingerprint = g_strdup (key->subkeys->fpr);
+      cert->owner = g_strdup (key->uids->name);
+      if (key->owner_trust == GPGME_VALIDITY_FULL
+          || key->owner_trust == GPGME_VALIDITY_ULTIMATE)
+        cert->trusted = TRUE;
+      else
+        cert->trusted = FALSE;
 
        /** @todo base/certificate.c offers certificates (list) functionality */
-       certificates = g_slist_prepend (certificates, cert);
-       gpgme_key_release (key);
+      certificates = g_slist_prepend (certificates, cert);
+      gpgme_key_release (key);
     }
 
   // Fetch the full keys
-  GSList* list = certificates;
+  GSList *list = certificates;
   while (list != NULL && list->data != NULL)
     {
-      certificate_t* cert = list->data;
+      certificate_t *cert = list->data;
       cert->public_key = nasl_get_pubkey (ctx, cert->fingerprint);
       list = g_slist_next (list);
     }
 
-  gpgme_release(ctx);
+  gpgme_release (ctx);
 
   return certificates;
 }

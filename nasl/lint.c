@@ -36,32 +36,32 @@
 #define NASL_DEBUG 0
 #endif
 
-tree_cell*
-nasl_lint(lex_ctxt* lexic, tree_cell* st)
+tree_cell *
+nasl_lint (lex_ctxt * lexic, tree_cell * st)
 {
-  int		i;
-  tree_cell	*ret = FAKE_CELL;
-  nasl_func	*pf;
+  int i;
+  tree_cell *ret = FAKE_CELL;
+  nasl_func *pf;
 
   switch (st->type)
     {
     case NODE_FUN_DEF:
       /* x.str_val = function name, [0] = argdecl, [1] = block */
-      ret = decl_nasl_func(lexic, st);
+      ret = decl_nasl_func (lexic, st);
       return ret;
     case NODE_FUN_CALL:
-      pf = get_func_ref_by_name(lexic, st->x.str_val);
+      pf = get_func_ref_by_name (lexic, st->x.str_val);
       if (pf == NULL)
-	{
-	  nasl_perror(lexic, "Undefined function '%s'\n", st->x.str_val);
-	  return NULL;
-	}
+        {
+          nasl_perror (lexic, "Undefined function '%s'\n", st->x.str_val);
+          return NULL;
+        }
     default:
-      for (i = 0; i < 4; i ++)
-	if (st->link[i] != NULL && st->link[i] != FAKE_CELL)
-	  if ((ret = nasl_lint(lexic, st->link[i])) == NULL)
-	    return NULL;
+      for (i = 0; i < 4; i++)
+        if (st->link[i] != NULL && st->link[i] != FAKE_CELL)
+          if ((ret = nasl_lint (lexic, st->link[i])) == NULL)
+            return NULL;
       return ret;
     }
-  
+
 }

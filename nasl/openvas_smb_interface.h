@@ -37,12 +37,13 @@
 
 typedef int SMB_HANDLE;
 
-char * smb_versioninfo();
-int smb_connect(const char *, const char *, const char *, const char *, SMB_HANDLE *);
-int smb_close(SMB_HANDLE);
-char * smb_file_SDDL(SMB_HANDLE, const char *);
-char * smb_file_OwnerSID(SMB_HANDLE, const char *);
-char * smb_file_GroupSID(SMB_HANDLE, const char *);
-char * smb_file_TrusteeRights(SMB_HANDLE, const char *);
+char *smb_versioninfo ();
+int smb_connect (const char *, const char *, const char *, const char *,
+                 SMB_HANDLE *);
+int smb_close (SMB_HANDLE);
+char *smb_file_SDDL (SMB_HANDLE, const char *);
+char *smb_file_OwnerSID (SMB_HANDLE, const char *);
+char *smb_file_GroupSID (SMB_HANDLE, const char *);
+char *smb_file_TrusteeRights (SMB_HANDLE, const char *);
 
 #endif

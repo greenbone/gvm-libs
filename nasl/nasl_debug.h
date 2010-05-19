@@ -19,8 +19,8 @@
 #ifndef NASL_DEBUG_H__
 #define NASL_DEBUG_H__
 
-void nasl_perror(lex_ctxt *, char*, ...);
-void nasl_trace(lex_ctxt *, char *, ...);
-int  nasl_trace_enabled();
+void nasl_perror (lex_ctxt *, char *, ...);
+void nasl_trace (lex_ctxt *, char *, ...);
+int nasl_trace_enabled ();
 
 #endif

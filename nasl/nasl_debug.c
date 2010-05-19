@@ -30,33 +30,34 @@
 #include "exec.h"
 
 
-extern FILE * nasl_trace_fp;
+extern FILE *nasl_trace_fp;
 
 
 
-void nasl_perror(lex_ctxt * lexic, char * msg, ...)
+void
+nasl_perror (lex_ctxt * lexic, char *msg, ...)
 {
- va_list param;
- char debug_message[4096];
- char *script_name = "", *p;
- 
- va_start(param, msg);
+  va_list param;
+  char debug_message[4096];
+  char *script_name = "", *p;
 
- if( lexic != NULL )
- {
-  script_name = arg_get_value(lexic->script_infos, "script_name");
-  if(script_name == NULL)
-   script_name = "";
- }
- 
- vsnprintf(debug_message, sizeof(debug_message), msg, param);
- for (p = debug_message; *p != '\0'; p ++)
-   ;
- if (p == debug_message || p[-1] != '\n')
-   fprintf(stderr, "[%d](%s) %s\n",getpid(), script_name, debug_message); 
- else
-   fprintf(stderr, "[%d](%s) %s",getpid(), script_name, debug_message); 
- va_end(param);
+  va_start (param, msg);
+
+  if (lexic != NULL)
+    {
+      script_name = arg_get_value (lexic->script_infos, "script_name");
+      if (script_name == NULL)
+        script_name = "";
+    }
+
+  vsnprintf (debug_message, sizeof (debug_message), msg, param);
+  for (p = debug_message; *p != '\0'; p++)
+    ;
+  if (p == debug_message || p[-1] != '\n')
+    fprintf (stderr, "[%d](%s) %s\n", getpid (), script_name, debug_message);
+  else
+    fprintf (stderr, "[%d](%s) %s", getpid (), script_name, debug_message);
+  va_end (param);
 }
 
 /**
@@ -67,10 +68,10 @@ void nasl_perror(lex_ctxt * lexic, char * msg, ...)
 int
 nasl_trace_enabled ()
 {
- if (nasl_trace_fp == NULL)
-   return 0;
- else
-   return 1;
+  if (nasl_trace_fp == NULL)
+    return 0;
+  else
+    return 1;
 }
 
 /**
@@ -79,30 +80,32 @@ nasl_trace_enabled ()
  * Like @ref nasl_perror, but to the nasl_trace_fp.
  */
 void
-nasl_trace (lex_ctxt * lexic, char * msg, ...)
+nasl_trace (lex_ctxt * lexic, char *msg, ...)
 {
- va_list param;
- char debug_message[4096];
- char *script_name = "", *p;
+  va_list param;
+  char debug_message[4096];
+  char *script_name = "", *p;
 
- if (nasl_trace_fp == NULL)
-  return;
- va_start (param, msg);
+  if (nasl_trace_fp == NULL)
+    return;
+  va_start (param, msg);
 
- if (lexic != NULL)
-  {
-    script_name = arg_get_value (lexic->script_infos, "script_name");
-    if (script_name == NULL)
-    script_name = "";
-  }
+  if (lexic != NULL)
+    {
+      script_name = arg_get_value (lexic->script_infos, "script_name");
+      if (script_name == NULL)
+        script_name = "";
+    }
 
- vsnprintf (debug_message, sizeof(debug_message), msg, param);
- for (p = debug_message; *p != '\0'; p ++)
-   ;
- if (p == debug_message || p[-1] != '\n')
-   fprintf (nasl_trace_fp, "[%d](%s) %s\n", getpid(), script_name, debug_message);
- else
-   fprintf (nasl_trace_fp, "[%d](%s) %s", getpid(), script_name, debug_message);
+  vsnprintf (debug_message, sizeof (debug_message), msg, param);
+  for (p = debug_message; *p != '\0'; p++)
+    ;
+  if (p == debug_message || p[-1] != '\n')
+    fprintf (nasl_trace_fp, "[%d](%s) %s\n", getpid (), script_name,
+             debug_message);
+  else
+    fprintf (nasl_trace_fp, "[%d](%s) %s", getpid (), script_name,
+             debug_message);
 
- va_end (param);
+  va_end (param);
 }

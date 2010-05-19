@@ -1,5 +1,29 @@
 2010-05-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* nasl/strutils.h, nasl/capture_packet.h, nasl/nasl_http.h,
+	nasl/nasl_tcp.h, nasl/nasl_wmi.c, nasl/config.h, nasl/nasl_tree.c,
+	nasl/nasl_signature.c, nasl/nasl_crypto2.c, nasl/nasl_tree.h,
+	nasl/preparse.c, nasl/nasl_signature.h, nasl/nasl_crypto2.h,
+	nasl/preparse.h, nasl/nasl_host.c, nasl/nasl_crypto.c,
+	nasl/nasl_host.h, nasl/nasl_crypto.h, nasl/nasl_debug.c,
+	nasl/nasl_socket.c, nasl/nasl_func.c, nasl/nasl_debug.h,
+	nasl/nasl_socket.h, nasl/nasl_func.h, nasl/nasl_packet_forgery.c,
+	nasl/nasl_text_utils.c, nasl/nasl_scanner_glue.c, nasl/exec.c,
+	nasl/nasl_packet_forgery.h, nasl/nasl_text_utils.h,
+	nasl/nasl_scanner_glue.h, nasl/exec.h, nasl/nasl_ip.h,
+	nasl/nasl_packet_forgery_v6.c, nasl/nasl_smb.c,
+	nasl/nasl_packet_forgery_v6.h, nasl/openvas_smb_interface.h,
+	nasl/nasl_smb.h, nasl/nasl_var.c, nasl/lint.c, nasl/nasl_misc_funcs.c,
+	nasl/nasl_lex_ctxt.c, nasl/nasl_var.h, nasl/nasl_misc_funcs.h,
+	nasl/nasl_lex_ctxt.h, nasl/openvas_wmi_interface.h,
+	nasl/nasl_global_ctxt.h, nasl/nasl_cmd_exec.c, nasl/nasl_cmd_exec.h,
+	nasl/nasl.c, nasl/nasl.h, nasl/wmi_interface_stub.c, nasl/nasl_icmp.h,
+	nasl/nasl_udp.h, nasl/nasl_init.c, nasl/nasl_init.h, nasl/strutils.c,
+	nasl/capture_packet.c, nasl/nasl_http.c: Format according to coding
+	style. Command was 'indent --no-tabs --ignore-newlines -l 80 *.c *.h'.
+
+2010-05-19  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/comm.h, misc/harglists.c, misc/openvas_uuid.c, misc/kb.h,
 	misc/store.h, misc/services1.c, misc/harglists.h, misc/openvas_uuid.h,
 	misc/services1.h, misc/resolve.c, misc/openvas_logging.c, misc/pcap.c,

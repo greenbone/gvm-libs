@@ -95,25 +95,32 @@
 
 #include <glib.h>
 
-#include "arglists.h" /* for struct arglist */
+#include "arglists.h"           /* for struct arglist */
 
 /* Signature information extraction and verification (not nasl- specific 
   anymore, thus likely to be moved to openvas-libraries): */
-int nasl_verify_signature(const char* filename);
-char* nasl_extract_signature_fprs(const char* filename);
-GSList* nasl_get_all_certificates();
+int nasl_verify_signature (const char *filename);
+char *nasl_extract_signature_fprs (const char *filename);
+GSList *nasl_get_all_certificates ();
 /* End of Signature information extraction */
 
 int add_nasl_inc_dir (const char *);
 
 /* These can be removed with the next major release after 2.0: */
-__attribute__ ((__deprecated__)) int execute_nasl_script(struct arglist *, const char *, const char *, int);
+__attribute__ ((__deprecated__))
+int
+execute_nasl_script (struct arglist *, const char *, const char *, int);
 
-int exec_nasl_script(struct arglist *, const char *, int);
-int execute_preparsed_nasl_script(struct arglist *, char *, char *, int, int);
-char * nasl_version();
-pid_t nasl_server_start(char *, char *);
-void  nasl_server_recompile(char*, char *);
+int
+exec_nasl_script (struct arglist *, const char *, int);
+int
+execute_preparsed_nasl_script (struct arglist *, char *, char *, int, int);
+char *
+nasl_version ();
+pid_t
+nasl_server_start (char *, char *);
+void
+nasl_server_recompile (char *, char *);
 
 /* exec_nasl_script modes */
 #define NASL_EXEC_DESCR			   (1 << 0)

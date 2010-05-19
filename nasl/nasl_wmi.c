@@ -60,8 +60,8 @@
 tree_cell *
 nasl_wmi_versioninfo (lex_ctxt * lexic)
 {
-  char * version = wmi_versioninfo ();
-  tree_cell * retc = alloc_tree_cell (0, NULL);
+  char *version = wmi_versioninfo ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   if (!retc)
     return NULL;
@@ -392,7 +392,7 @@ nasl_wmi_reg_get_sz (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
   char *key_name = get_str_local_var_by_name (lexic, "key_name");       // REGISTRY value name
 
@@ -441,7 +441,7 @@ nasl_wmi_reg_enum_value (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
 
   char *res = NULL;
@@ -489,7 +489,7 @@ nasl_wmi_reg_enum_key (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
 
   char *res = NULL;
@@ -537,7 +537,7 @@ nasl_wmi_reg_get_bin_val (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
   char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
@@ -586,7 +586,7 @@ nasl_wmi_reg_get_dword_val (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
   char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
@@ -638,7 +638,7 @@ nasl_wmi_reg_get_ex_string_val (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
   char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
@@ -687,7 +687,7 @@ nasl_wmi_reg_get_mul_string_val (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
   char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
@@ -736,7 +736,7 @@ nasl_wmi_reg_get_qword_val (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0); // REGISTRY Hive
+  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
   char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
   char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
