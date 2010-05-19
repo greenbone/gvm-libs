@@ -1,5 +1,10 @@
 2010-05-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* omp/omp.h, omp/xml.c, omp/xml.h: Format according to coding style.
+	Command was 'indent --no-tabs --ignore-newlines -l 80 *.c *.h'.
+
+2010-05-19  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/settings.c, base/openvas_string.c, base/drop_privileges.h,
 	base/credentials.h, base/nvticache.c, base/settings.h,
 	base/openvas_string.h, base/nvticache.h, base/openvas_file.c,

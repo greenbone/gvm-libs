@@ -62,9 +62,9 @@
  */
 typedef struct
 {
-  GSList* first;    ///< The name of the very first entity.
-  GSList* current;  ///< The element currently being parsed.
-  gboolean done;    ///< Flag which is true when the first element is closed.
+  GSList *first;                ///< The name of the very first entity.
+  GSList *current;              ///< The element currently being parsed.
+  gboolean done;                ///< Flag which is true when the first element is closed.
 } context_data_t;
 
 /**
@@ -76,12 +76,12 @@ typedef struct
  * @return A newly allocated entity.
  */
 entity_t
-make_entity (const char* name, const char* text)
+make_entity (const char *name, const char *text)
 {
   entity_t entity;
   entity = g_malloc (sizeof (*entity));
-  entity->name = g_strdup (name ?: "");
-  entity->text = g_strdup (text ?: "");
+  entity->name = g_strdup (name ? : "");
+  entity->text = g_strdup (text ? : "");
   entity->entities = NULL;
   entity->attributes = NULL;
   return entity;
@@ -129,7 +129,7 @@ first_entity (entities_t entities)
  * @return The new entity.
  */
 entity_t
-add_entity (entities_t* entities, const char* name, const char* text)
+add_entity (entities_t * entities, const char *name, const char *text)
 {
   entity_t entity = make_entity (name, text);
   if (entities)
@@ -149,11 +149,11 @@ add_entity (entities_t* entities, const char* name, const char* text)
  * @return The new entity.
  */
 void
-add_attribute (entity_t entity, const char* name, const char* value)
+add_attribute (entity_t entity, const char *name, const char *value)
 {
   if (entity->attributes == NULL)
-    entity->attributes = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                                g_free, g_free);
+    entity->attributes =
+      g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
   g_hash_table_insert (entity->attributes, g_strdup (name), g_strdup (value));
 }
 
@@ -169,10 +169,11 @@ free_entity (entity_t entity)
     {
       free (entity->name);
       free (entity->text);
-      if (entity->attributes) g_hash_table_destroy (entity->attributes);
+      if (entity->attributes)
+        g_hash_table_destroy (entity->attributes);
       if (entity->entities)
         {
-          GSList* list = entity->entities;
+          GSList *list = entity->entities;
           while (list)
             {
               free_entity (list->data);
@@ -190,7 +191,7 @@ free_entity (entity_t entity)
  *
  * @return Entity text, which is freed by free_entity.
  */
-char*
+char *
 entity_text (entity_t entity)
 {
   return entity->text;
@@ -203,7 +204,7 @@ entity_text (entity_t entity)
  *
  * @return Entity name, which is freed by free_entity.
  */
-char*
+char *
 entity_name (entity_t entity)
 {
   return entity->name;
@@ -221,7 +222,7 @@ entity_name (entity_t entity)
 int
 compare_entity_with_name (gconstpointer entity, gconstpointer name)
 {
-  return strcmp (entity_name ((entity_t) entity), (char*) name);
+  return strcmp (entity_name ((entity_t) entity), (char *) name);
 }
 
 /**
@@ -233,7 +234,7 @@ compare_entity_with_name (gconstpointer entity, gconstpointer name)
  * @return Entity if found, else NULL.
  */
 entity_t
-entity_child (entity_t entity, const char* name)
+entity_child (entity_t entity, const char *name)
 {
   if (entity->entities)
     {
@@ -253,11 +254,11 @@ entity_child (entity_t entity, const char* name)
  *
  * @return Attribute if found, else NULL.
  */
-const char*
-entity_attribute (entity_t entity, const char* name)
+const char *
+entity_attribute (entity_t entity, const char *name)
 {
   if (entity->attributes)
-    return (const char*) g_hash_table_lookup (entity->attributes, name);
+    return (const char *) g_hash_table_lookup (entity->attributes, name);
   return NULL;
 }
 
@@ -269,12 +270,12 @@ char buffer_start[BUFFER_SIZE];
 /**
  * @brief Current position in the manager reading buffer.
  */
-char* buffer_point = buffer_start;
+char *buffer_point = buffer_start;
 
 /**
  * @brief End of the manager reading buffer.
  */
-char* buffer_end = buffer_start + BUFFER_SIZE;
+char *buffer_end = buffer_start + BUFFER_SIZE;
 
 /**
  * @brief Add attributes from an XML callback to an entity.
@@ -284,18 +285,17 @@ char* buffer_end = buffer_start + BUFFER_SIZE;
  * @param[in]  values  List of attribute values.
  */
 void
-add_attributes (entity_t entity, const gchar **names, const gchar **values)
+add_attributes (entity_t entity, const gchar ** names, const gchar ** values)
 {
   if (*names && *values)
     {
       if (entity->attributes == NULL)
-        entity->attributes = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                                    g_free, g_free);
+        entity->attributes =
+          g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
       while (*names && *values)
         {
           if (*values)
-            g_hash_table_insert (entity->attributes,
-                                 g_strdup (*names),
+            g_hash_table_insert (entity->attributes, g_strdup (*names),
                                  g_strdup (*values));
           names++;
           values++;
@@ -314,22 +314,20 @@ add_attributes (entity_t entity, const gchar **names, const gchar **values)
  * @param[in]  error             Error parameter.
  */
 void
-handle_start_element (GMarkupParseContext* context,
-                      const gchar *element_name,
-                      const gchar **attribute_names,
-                      const gchar **attribute_values,
-                      gpointer user_data,
-                      GError **error)
+handle_start_element (GMarkupParseContext * context, const gchar * element_name,
+                      const gchar ** attribute_names,
+                      const gchar ** attribute_values, gpointer user_data,
+                      GError ** error)
 {
   entity_t entity;
-  context_data_t* data = (context_data_t*) user_data;
+  context_data_t *data = (context_data_t *) user_data;
   if (data->current)
     {
       entity_t current = (entity_t) data->current->data;
       entity = add_entity (&current->entities, element_name, NULL);
     }
   else
-     entity = add_entity (NULL, element_name, NULL);
+    entity = add_entity (NULL, element_name, NULL);
 
   add_attributes (entity, attribute_names, attribute_values);
 
@@ -349,23 +347,21 @@ handle_start_element (GMarkupParseContext* context,
  * @param[in]  error             Error parameter.
  */
 void
-handle_end_element (GMarkupParseContext* context,
-                    const gchar *element_name,
-                    gpointer user_data,
-                    GError **error)
+handle_end_element (GMarkupParseContext * context, const gchar * element_name,
+                    gpointer user_data, GError ** error)
 {
-  context_data_t* data = (context_data_t*) user_data;
+  context_data_t *data = (context_data_t *) user_data;
   assert (data->current && data->first);
   if (data->current == data->first)
     {
       assert (strcmp (element_name,
                       /* The name of the very first entity. */
-                      ((entity_t) (data->first->data))->name)
-              == 0);
+                      ((entity_t) (data->first->data))->name) == 0);
       data->done = TRUE;
     }
   /* "Pop" the element. */
-  if (data->current) data->current = g_slist_next (data->current);
+  if (data->current)
+    data->current = g_slist_next (data->current);
 }
 
 /**
@@ -378,17 +374,13 @@ handle_end_element (GMarkupParseContext* context,
  * @param[in]  error             Error parameter.
  */
 void
-handle_text (GMarkupParseContext* context,
-             const gchar *text,
-             gsize text_len,
-             gpointer user_data,
-             GError **error)
+handle_text (GMarkupParseContext * context, const gchar * text, gsize text_len,
+             gpointer user_data, GError ** error)
 {
-  context_data_t* data = (context_data_t*) user_data;
+  context_data_t *data = (context_data_t *) user_data;
   entity_t current = (entity_t) data->current->data;
-  current->text = current->text
-                  ? g_strconcat (current->text, text, NULL)
-                  : g_strdup (text);
+  current->text =
+    current->text ? g_strconcat (current->text, text, NULL) : g_strdup (text);
 }
 
 /**
@@ -399,9 +391,7 @@ handle_text (GMarkupParseContext* context,
  * @param[in]  user_data         Dummy parameter.
  */
 void
-handle_error (GMarkupParseContext* context,
-              GError *error,
-              gpointer user_data)
+handle_error (GMarkupParseContext * context, GError * error, gpointer user_data)
 {
   g_message ("   Error: %s\n", error->message);
 }
@@ -421,13 +411,13 @@ handle_error (GMarkupParseContext* context,
  * @return 0 success, -1 read error, -2 parse error, -3 end of file.
  */
 int
-read_entity_and_string (gnutls_session_t* session, entity_t* entity,
-                        GString** string_return)
+read_entity_and_string (gnutls_session_t * session, entity_t * entity,
+                        GString ** string_return)
 {
   GMarkupParser xml_parser;
-  GError* error = NULL;
+  GError *error = NULL;
   GMarkupParseContext *xml_context;
-  GString* string;
+  GString *string;
 
   if (string_return == NULL)
     string = NULL;
@@ -451,10 +441,8 @@ read_entity_and_string (gnutls_session_t* session, entity_t* entity,
 
   /* Setup the XML context. */
 
-  xml_context = g_markup_parse_context_new (&xml_parser,
-                                            0,
-                                            &context_data,
-                                            NULL);
+  xml_context =
+    g_markup_parse_context_new (&xml_parser, 0, &context_data, NULL);
 
   /* Read and parse, until encountering end of file or error. */
 
@@ -464,9 +452,9 @@ read_entity_and_string (gnutls_session_t* session, entity_t* entity,
       while (1)
         {
           g_message ("   asking for %i\n", buffer_end - buffer_start);
-          count = gnutls_record_recv (*session,
-                                      buffer_start,
-                                      buffer_end - buffer_start);
+          count =
+            gnutls_record_recv (*session, buffer_start,
+                                buffer_end - buffer_start);
           if (count < 0)
             {
               if (count == GNUTLS_E_INTERRUPTED)
@@ -501,21 +489,19 @@ read_entity_and_string (gnutls_session_t* session, entity_t* entity,
 
       g_message ("<= %.*s\n", count, buffer_start);
 
-      if (string) g_string_append_len (string, buffer_start, count);
+      if (string)
+        g_string_append_len (string, buffer_start, count);
 
-      g_markup_parse_context_parse (xml_context,
-				    buffer_start,
-				    count,
-				    &error);
+      g_markup_parse_context_parse (xml_context, buffer_start, count, &error);
       if (error)
-	{
-	  g_error_free (error);
+        {
+          g_error_free (error);
           if (context_data.first && context_data.first->data)
             free_entity (context_data.first->data);
           if (string && *string_return == NULL)
             g_string_free (string, TRUE);
-	  return -2;
-	}
+          return -2;
+        }
       if (context_data.done)
         {
           g_markup_parse_context_end_parse (xml_context, &error);
@@ -528,7 +514,8 @@ read_entity_and_string (gnutls_session_t* session, entity_t* entity,
               return -2;
             }
           *entity = (entity_t) context_data.first->data;
-          if (string) *string_return = string;
+          if (string)
+            *string_return = string;
           return 0;
         }
     }
@@ -547,13 +534,15 @@ read_entity_and_string (gnutls_session_t* session, entity_t* entity,
  * @return 0 success, -1 read error, -2 parse error, -3 end of file.
  */
 int
-read_entity_and_text (gnutls_session_t* session, entity_t* entity, char** text)
+read_entity_and_text (gnutls_session_t * session, entity_t * entity,
+                      char **text)
 {
   if (text)
     {
       GString *string = NULL;
       int ret = read_entity_and_string (session, entity, &string);
-      if (ret) return ret;
+      if (ret)
+        return ret;
       *text = g_string_free (string, FALSE);
       return 0;
     }
@@ -570,7 +559,7 @@ read_entity_and_text (gnutls_session_t* session, entity_t* entity, char** text)
  * @return 0 success, -1 read error, -2 parse error, -3 end of file.
  */
 int
-read_string (gnutls_session_t* session, GString** string)
+read_string (gnutls_session_t * session, GString ** string)
 {
   int ret = 0;
   entity_t entity;
@@ -590,7 +579,7 @@ read_string (gnutls_session_t* session, GString** string)
  * @return 0 success, -1 read error, -2 parse error, -3 end of file.
  */
 int
-read_entity (gnutls_session_t* session, entity_t* entity)
+read_entity (gnutls_session_t * session, entity_t * entity)
 {
   return read_entity_and_string (session, entity, NULL);
 }
@@ -604,7 +593,7 @@ read_entity (gnutls_session_t* session, entity_t* entity)
 static void
 foreach_print_entity_to_string (gpointer entity, gpointer string)
 {
-  print_entity_to_string ((entity_t) entity, (GString*) string);
+  print_entity_to_string ((entity_t) entity, (GString *) string);
 }
 
 /**
@@ -618,8 +607,8 @@ static void
 foreach_print_attribute_to_string (gpointer name, gpointer value,
                                    gpointer string)
 {
-  g_string_append_printf ((GString*) string, " %s=\"%s\"", (char*) name,
-                          (char*) value);
+  g_string_append_printf ((GString *) string, " %s=\"%s\"", (char *) name,
+                          (char *) value);
 }
 
 /**
@@ -630,13 +619,12 @@ foreach_print_attribute_to_string (gpointer name, gpointer value,
  * @param[in,out]  string  String to write to (will be created if NULL).
  */
 void
-print_entity_to_string (entity_t entity, GString* string)
+print_entity_to_string (entity_t entity, GString * string)
 {
-  gchar* text_escaped = NULL;
+  gchar *text_escaped = NULL;
   g_string_append_printf (string, "<%s", entity->name);
   if (entity->attributes && g_hash_table_size (entity->attributes))
-    g_hash_table_foreach (entity->attributes,
-                          foreach_print_attribute_to_string,
+    g_hash_table_foreach (entity->attributes, foreach_print_attribute_to_string,
                           string);
   g_string_append_printf (string, ">");
   text_escaped = g_markup_escape_text (entity->text, -1);
@@ -653,7 +641,7 @@ print_entity_to_string (entity_t entity, GString* string)
  * @param[in]  entities  The entities.
  */
 void
-print_entities_to_string (GString* string, entities_t entities)
+print_entities_to_string (GString * string, entities_t entities)
 {
   g_slist_foreach (entities, foreach_print_entity_to_string, string);
 }
@@ -667,7 +655,7 @@ print_entities_to_string (GString* string, entities_t entities)
 static void
 foreach_print_entity (gpointer entity, gpointer stream)
 {
-  print_entity ((FILE*) stream, (entity_t) entity);
+  print_entity ((FILE *) stream, (entity_t) entity);
 }
 
 /**
@@ -680,7 +668,7 @@ foreach_print_entity (gpointer entity, gpointer stream)
 static void
 foreach_print_attribute (gpointer name, gpointer value, gpointer stream)
 {
-  fprintf ((FILE*) stream, " %s=\"%s\"", (char*) name, (char*) value);
+  fprintf ((FILE *) stream, " %s=\"%s\"", (char *) name, (char *) value);
 }
 
 /**
@@ -690,14 +678,12 @@ foreach_print_attribute (gpointer name, gpointer value, gpointer stream)
  * @param[in]  stream  The stream to which to print.
  */
 void
-print_entity (FILE* stream, entity_t entity)
+print_entity (FILE * stream, entity_t entity)
 {
-  gchar* text_escaped = NULL;
+  gchar *text_escaped = NULL;
   fprintf (stream, "<%s", entity->name);
   if (entity->attributes && g_hash_table_size (entity->attributes))
-    g_hash_table_foreach (entity->attributes,
-                          foreach_print_attribute,
-                          stream);
+    g_hash_table_foreach (entity->attributes, foreach_print_attribute, stream);
   fprintf (stream, ">");
   text_escaped = g_markup_escape_text (entity->text, -1);
   fprintf (stream, "%s", text_escaped);
@@ -714,7 +700,7 @@ print_entity (FILE* stream, entity_t entity)
  * @param[in]  entities  The entities.
  */
 void
-print_entities (FILE* stream, entities_t entities)
+print_entities (FILE * stream, entities_t entities)
 {
   g_slist_foreach (entities, foreach_print_entity, stream);
 }
@@ -731,7 +717,7 @@ print_entities (FILE* stream, entities_t entities)
 static void
 foreach_print_attribute_format (gpointer name, gpointer value, gpointer none)
 {
-  printf (" %s=\"%s\"", (char*) name, (char*) value);
+  printf (" %s=\"%s\"", (char *) name, (char *) value);
 }
 
 /**
@@ -750,15 +736,14 @@ print_entity_format (entity_t entity, gpointer indent)
 {
   int i = 0;
   int indentation = GPOINTER_TO_INT (indent);
-  gchar* text_escaped = NULL;
+  gchar *text_escaped = NULL;
 
   for (i = 0; i < indentation; i++)
     printf ("  ");
 
   printf ("<%s", entity->name);
   if (entity->attributes && g_hash_table_size (entity->attributes))
-    g_hash_table_foreach (entity->attributes,
-                          foreach_print_attribute_format,
+    g_hash_table_foreach (entity->attributes, foreach_print_attribute_format,
                           indent);
   printf (">");
 
@@ -769,7 +754,8 @@ print_entity_format (entity_t entity, gpointer indent)
   if (entity->entities)
     {
       printf ("\n");
-      g_slist_foreach (entity->entities, (GFunc) print_entity_format, GINT_TO_POINTER (indentation+1));
+      g_slist_foreach (entity->entities, (GFunc) print_entity_format,
+                       GINT_TO_POINTER (indentation + 1));
       for (i = 0; i < indentation; i++)
         printf ("  ");
     }
@@ -804,9 +790,10 @@ print_entities_format (entities_t entities, int indent)
 gboolean
 compare_find_attribute (gpointer key, gpointer value, gpointer attributes2)
 {
-  gchar* value2 = g_hash_table_lookup (attributes2, key);
-  if (value2 && strcmp (value, value2) == 0) return FALSE;
-  g_message ("  compare failed attribute: %s\n", (char*) value);
+  gchar *value2 = g_hash_table_lookup (attributes2, key);
+  if (value2 && strcmp (value, value2) == 0)
+    return FALSE;
+  g_message ("  compare failed attribute: %s\n", (char *) value);
   return TRUE;
 }
 
@@ -821,31 +808,36 @@ compare_find_attribute (gpointer key, gpointer value, gpointer attributes2)
 int
 compare_entities (entity_t entity1, entity_t entity2)
 {
-  if (entity1 == NULL) return entity2 == NULL ? 0 : 1;
-  if (entity2 == NULL) return 1;
+  if (entity1 == NULL)
+    return entity2 == NULL ? 0 : 1;
+  if (entity2 == NULL)
+    return 1;
 
   if (strcmp (entity1->name, entity2->name))
     {
-      g_message ("  compare failed name: %s vs %s\n", entity1->name, entity2->name);
+      g_message ("  compare failed name: %s vs %s\n", entity1->name,
+                 entity2->name);
       return 1;
     }
   if (strcmp (entity1->text, entity2->text))
     {
-      g_message ("  compare failed text %s vs %s (%s)\n",
-                 entity1->text, entity2->text, entity1->name);
+      g_message ("  compare failed text %s vs %s (%s)\n", entity1->text,
+                 entity2->text, entity1->name);
       return 1;
     }
 
   if (entity1->attributes == NULL)
     {
-      if (entity2->attributes) return 1;
+      if (entity2->attributes)
+        return 1;
     }
   else
     {
-      if (entity2->attributes == NULL) return 1;
-      if (g_hash_table_find (entity1->attributes,
-                             compare_find_attribute,
-                             (gpointer) entity2->attributes))
+      if (entity2->attributes == NULL)
+        return 1;
+      if (g_hash_table_find
+          (entity1->attributes, compare_find_attribute,
+           (gpointer) entity2->attributes))
         {
           g_message ("  compare failed attributes\n");
           return 1;
@@ -853,8 +845,8 @@ compare_entities (entity_t entity1, entity_t entity2)
     }
 
   // FIX entities can be in any order
-  GSList* list1 = entity1->entities;
-  GSList* list2 = entity2->entities;
+  GSList *list1 = entity1->entities;
+  GSList *list2 = entity2->entities;
   while (list1 && list2)
     {
       if (compare_entities (list1->data, list2->data))
@@ -865,7 +857,8 @@ compare_entities (entity_t entity1, entity_t entity2)
       list1 = g_slist_next (list1);
       list2 = g_slist_next (list2);
     }
-  if (list1 == list2) return 0;
+  if (list1 == list2)
+    return 0;
   /* More entities in one of the two. */
   g_message ("  compare failed number of entities (%s)\n", entity1->name);
   return 1;
