@@ -29,9 +29,9 @@
 #include <sys/types.h>
 
 int bpf_server ();
-int bpf_open_live (char*, char*);
-u_char* bpf_next (int, int *);
-u_char* bpf_next_tv (int, int *, struct timeval *);
+int bpf_open_live (char *, char *);
+u_char *bpf_next (int, int *);
+u_char *bpf_next_tv (int, int *, struct timeval *);
 void bpf_close (int);
 int bpf_datalink (int);
 

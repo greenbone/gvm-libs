@@ -28,9 +28,9 @@
 
 #include <stdio.h>
 
-FILE * openvas_popen4(const char*, char *const[], pid_t*, int);
-int openvas_pclose(FILE*, pid_t);
-char ** append_argv (char **argv, char *opt);
-void    destroy_argv (char **argv);
+FILE *openvas_popen4 (const char *, char *const[], pid_t *, int);
+int openvas_pclose (FILE *, pid_t);
+char **append_argv (char **argv, char *opt);
+void destroy_argv (char **argv);
 
 #endif

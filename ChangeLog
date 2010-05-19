@@ -1,5 +1,27 @@
 2010-05-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* misc/comm.h, misc/harglists.c, misc/openvas_uuid.c, misc/kb.h,
+	misc/store.h, misc/services1.c, misc/harglists.h, misc/openvas_uuid.h,
+	misc/services1.h, misc/resolve.c, misc/openvas_logging.c, misc/pcap.c,
+	misc/services.c, misc/resolve.h, misc/system.c, misc/services.h,
+	misc/plugutils.c, misc/arglists.c, misc/system.h,
+	misc/hash_table_file.c, misc/bpf_share.c, misc/network.c,
+	misc/scanners_utils.c, misc/openvas_auth.c, misc/plugutils.h,
+	misc/arglists.h, misc/hash_table_file.h, misc/bpf_share.h,
+	misc/network.h, misc/openvas_server.c, misc/openvas_auth.h,
+	misc/ldap_auth.c, misc/scanners_utils.h, misc/proctitle.c,
+	misc/openvas_server.h, misc/ldap_auth.h, misc/otp.h, misc/hlst.c,
+	misc/proctitle.h, misc/share_fd.c, misc/hlst.h,
+	misc/openvas_ssh_login.c, misc/share_fd.h, misc/popen.c,
+	misc/www_funcs.c, misc/pcap_openvas.h, misc/rand.c,
+	misc/openvas_ssh_login.h, misc/system_internal.h, misc/popen.h,
+	misc/ftp_funcs.c, misc/www_funcs.h, misc/ids_send.c, misc/rand.h,
+	misc/kb.c, misc/ftp_funcs.h, misc/store.c, misc/ids_send.h: Format
+	according to coding style.  Command was 'indent --no-tabs
+	--ignore-newlines -l 80 *.c *.h'.
+
+2010-05-19  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* hg/hg_filter.c, hg/hg_debug.c, hg/hg_utils.c, hg/hg_subnet.c,
 	hg/test.c, hg/hosts_gatherer.c, hg/hg_dns_axfr.c, hg/hg_utils.h,
 	hg/hg_subnet.h, hg/hosts_gatherer.h, hg/hg_add_hosts.c,

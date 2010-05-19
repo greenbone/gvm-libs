@@ -30,42 +30,41 @@ int
 send_fd (int socket, int fd)
 {
 #if defined(HAVE_SENDMSG) && (defined(HAVE_ACCRIGHTS_IN_MSGHDR) || defined(HAVE_CONTROL_IN_MSGHDR))
-	struct msghdr msg;
-	struct iovec vec;
-	char ch = '\0';
-	int n;
+  struct msghdr msg;
+  struct iovec vec;
+  char ch = '\0';
+  int n;
 #ifndef HAVE_ACCRIGHTS_IN_MSGHDR
-	char tmp[CMSG_SPACE(sizeof(int))];
-	struct cmsghdr *cmsg;
+  char tmp[CMSG_SPACE (sizeof (int))];
+  struct cmsghdr *cmsg;
 #endif
 
-	memset(&msg, 0, sizeof(msg));
+  memset (&msg, 0, sizeof (msg));
 #ifdef HAVE_ACCRIGHTS_IN_MSGHDR
-	msg.msg_accrights = (caddr_t)&fd;
-	msg.msg_accrightslen = sizeof(fd);
+  msg.msg_accrights = (caddr_t) & fd;
+  msg.msg_accrightslen = sizeof (fd);
 #else
-	msg.msg_control = (caddr_t)tmp;
-	msg.msg_controllen = CMSG_LEN(sizeof(int));
-	cmsg = CMSG_FIRSTHDR(&msg);
-	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
-	cmsg->cmsg_level = SOL_SOCKET;
-	cmsg->cmsg_type = SCM_RIGHTS;
-	*(int *)CMSG_DATA(cmsg) = fd;
+  msg.msg_control = (caddr_t) tmp;
+  msg.msg_controllen = CMSG_LEN (sizeof (int));
+  cmsg = CMSG_FIRSTHDR (&msg);
+  cmsg->cmsg_len = CMSG_LEN (sizeof (int));
+  cmsg->cmsg_level = SOL_SOCKET;
+  cmsg->cmsg_type = SCM_RIGHTS;
+  *(int *) CMSG_DATA (cmsg) = fd;
 #endif
 
-	vec.iov_base = &ch;
-	vec.iov_len = 1;
-	msg.msg_iov = &vec;
-	msg.msg_iovlen = 1;
+  vec.iov_base = &ch;
+  vec.iov_len = 1;
+  msg.msg_iov = &vec;
+  msg.msg_iovlen = 1;
 
-	if ((n = sendmsg(socket, &msg, 0)) == -1)
-		fprintf(stderr, "send_fd(): sendmsg(%d): %s", fd,
-		    strerror(errno));
-	if (n != 1)
-		fprintf(stderr, "send_fd(): sendmsg: expected sent 1 got %d", n);
- return 0;
+  if ((n = sendmsg (socket, &msg, 0)) == -1)
+    fprintf (stderr, "send_fd(): sendmsg(%d): %s", fd, strerror (errno));
+  if (n != 1)
+    fprintf (stderr, "send_fd(): sendmsg: expected sent 1 got %d", n);
+  return 0;
 #else
- return -1;
+  return -1;
 #endif
 }
 
@@ -73,46 +72,44 @@ int
 recv_fd (int socket)
 {
 #if defined(HAVE_RECVMSG) && (defined(HAVE_ACCRIGHTS_IN_MSGHDR) || defined(HAVE_CONTROL_IN_MSGHDR))
-	struct msghdr msg;
-	struct iovec vec;
-	char ch;
-	int fd, n;
+  struct msghdr msg;
+  struct iovec vec;
+  char ch;
+  int fd, n;
 #ifndef HAVE_ACCRIGHTS_IN_MSGHDR
-	char tmp[CMSG_SPACE(sizeof(int))];
-	struct cmsghdr *cmsg;
+  char tmp[CMSG_SPACE (sizeof (int))];
+  struct cmsghdr *cmsg;
 #endif
 
-	memset(&msg, 0, sizeof(msg));
-	vec.iov_base = &ch;
-	vec.iov_len = 1;
-	msg.msg_iov = &vec;
-	msg.msg_iovlen = 1;
+  memset (&msg, 0, sizeof (msg));
+  vec.iov_base = &ch;
+  vec.iov_len = 1;
+  msg.msg_iov = &vec;
+  msg.msg_iovlen = 1;
 #ifdef HAVE_ACCRIGHTS_IN_MSGHDR
-	msg.msg_accrights = (caddr_t)&fd;
-	msg.msg_accrightslen = sizeof(fd);
+  msg.msg_accrights = (caddr_t) & fd;
+  msg.msg_accrightslen = sizeof (fd);
 #else
-	msg.msg_control = tmp;
-	msg.msg_controllen = sizeof(tmp);
+  msg.msg_control = tmp;
+  msg.msg_controllen = sizeof (tmp);
 #endif
 
-	if ((n = recvmsg(socket, &msg, 0)) == -1)
-		printf("%s: recvmsg: %s", __func__, strerror(errno));
-	if (n != 1)
-		printf("%s: recvmsg: expected received 1 got %d",
-		    __func__, n);
+  if ((n = recvmsg (socket, &msg, 0)) == -1)
+    printf ("%s: recvmsg: %s", __func__, strerror (errno));
+  if (n != 1)
+    printf ("%s: recvmsg: expected received 1 got %d", __func__, n);
 
 #ifdef HAVE_ACCRIGHTS_IN_MSGHDR
-	if (msg.msg_accrightslen != sizeof(fd))
-		printf("recv_fd(): no fd\n");
+  if (msg.msg_accrightslen != sizeof (fd))
+    printf ("recv_fd(): no fd\n");
 #else
-	cmsg = CMSG_FIRSTHDR(&msg);
-	if (cmsg->cmsg_type != SCM_RIGHTS)
-		printf("recv_fd():  expected type %d got %d",
-		    SCM_RIGHTS, cmsg->cmsg_type);
-	fd = (*(int *)CMSG_DATA(cmsg));
+  cmsg = CMSG_FIRSTHDR (&msg);
+  if (cmsg->cmsg_type != SCM_RIGHTS)
+    printf ("recv_fd():  expected type %d got %d", SCM_RIGHTS, cmsg->cmsg_type);
+  fd = (*(int *) CMSG_DATA (cmsg));
 #endif
-	return fd;
+  return fd;
 #else
-	return -1;
+  return -1;
 #endif
 }

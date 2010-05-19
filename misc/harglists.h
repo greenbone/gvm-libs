@@ -927,30 +927,30 @@
 #undef _WIN32
 #endif
 
-typedef
-enum _hargtype_t {
+typedef enum _hargtype_t
+{
 
   /* bits: 0..7 (0x00ff) is non-null for specific data types
-              8 (0x0100) unused
-              9 (0x0200) harg list data type
-             10 (0x0400) blob/string data type
-             11 (0x0800) scalar data type as int, ptr etc.
-             13 (0x1000) data type with (void*) key, otherwise char string
-             14 (0x2000) remote data type, usually a remote list
-  */
+     8 (0x0100) unused
+     9 (0x0200) harg list data type
+     10 (0x0400) blob/string data type
+     11 (0x0800) scalar data type as int, ptr etc.
+     13 (0x1000) data type with (void*) key, otherwise char string
+     14 (0x2000) remote data type, usually a remote list
+   */
 
   /* ----------------------------------------------------------------------- *
    *         standard data types addressed by a string type key, a           *
    *                \0-terminated character string                           *
    * ----------------------------------------------------------------------- */
 
-  HARG_ANY       = 0x0000,
-  HARG_HARG      = 0x0201,
-  HARG_STRING    = 0x0401,
+  HARG_ANY = 0x0000,
+  HARG_HARG = 0x0201,
+  HARG_STRING = 0x0401,
   HARG_BLOB,
   /* blob data types follow ... */
 
-  HARG_PTR       = 0x0801,
+  HARG_PTR = 0x0801,
   HARG_INT,
   /* scalar data types follow ... */
 
@@ -963,15 +963,15 @@ enum _hargtype_t {
    *    sizeof(void*) bytes -- all types following have the 8th bit set      *
    * ----------------------------------------------------------------------- */
 
-  HARG_PANY      = 0x1000,
-  HARG_PHARG     = 0x1201,
-  HARG_PSTRING   = 0x1401,
+  HARG_PANY = 0x1000,
+  HARG_PHARG = 0x1201,
+  HARG_PSTRING = 0x1401,
   HARG_PBLOB,
   /* data types follow (same order as above) ... */
 
-  HARG_PPTR      = 0x1801,
+  HARG_PPTR = 0x1801,
   HARG_PINT,
- /* data types follow (same order as above) ... */
+  /* data types follow (same order as above) ... */
 
 # ifdef ARG_ARGLIST
   HARG_PARGLIST,
@@ -980,28 +980,28 @@ enum _hargtype_t {
   /* ----------------------------------------------------------------------- *
    *              remote data types -- not directly accessible               *
    * ----------------------------------------------------------------------- */
-  
-  RHARG_ANY      = 0x2000,
-  RHARG_HARG     = 0x2201,
-  RHARG_PANY     = 0x3000,
-  RHARG_PHARG    = 0x3201
-} hargtype_t ;
+
+  RHARG_ANY = 0x2000,
+  RHARG_HARG = 0x2201,
+  RHARG_PANY = 0x3000,
+  RHARG_PHARG = 0x3201
+} hargtype_t;
 
 
 #ifdef __HARG_INTERNAL__
 /* data type qualifiers */
-#define is_specific_type(t) ((t) & 0x00ff) /* eg. is not HARG_PANY */
+#define is_specific_type(t) ((t) & 0x00ff)      /* eg. is not HARG_PANY */
 #define is_harglst_type(t)  ((t) & 0x0200)
 #define is_blob_type(t)     ((t) & 0x0400)
 #define is_scalar_type(t)   ((t) & 0x0800)
 #define is_ptrkey_type(t)   ((t) & 0x1000)
 #define is_remote_type(t)   ((t) & 0x2000)
 
-#define get_local_type(t)   ((t) & 0xDfff) /* off remote bits */
-#define get_yekrtp_type(t)  ((t) & 0xEfff) /* off ptr key bits */ 
-#define get_simple_type(t)  ((t) & 0xCfff) /* off remote and ptr key bits */ 
+#define get_local_type(t)   ((t) & 0xDfff)      /* off remote bits */
+#define get_yekrtp_type(t)  ((t) & 0xEfff)      /* off ptr key bits */
+#define get_simple_type(t)  ((t) & 0xCfff)      /* off remote and ptr key bits */
 
-#define make_remote_type(t) ((t) | 0x2000) /* set the remote bit */
+#define make_remote_type(t) ((t) | 0x2000)      /* set the remote bit */
 #endif /* __HARG_INTERNAL__ */
 
 
@@ -1009,32 +1009,32 @@ enum _hargtype_t {
  *                  mode arguments to harg_inct()                            *
  * ------------------------------------------------------------------------- */
 
-typedef  
-enum _incmode_t {
+typedef enum _incmode_t
+{
 
   /* bits: 4 (0x0100) increment, otherwise decrement
-	   5 (0x0200) data record will be created
-	   6 (0x0400) non-zero data record must not exist
-	   7 (0x0800) destroy when zero
-	   8 (0x1000) record must not become negative
-	   9 (0x2000) record must not remain positive
-  */
-  HARG_INC_OP  = 0x0101, /* normal increment and decrement */
-  HARG_DEC_OP  = 0x0001,
-  
-  HARG_INC0_OP = 0x0301, /* automatically create if necessary */
-  HARG_DEC0_OP = 0x0801, /* automatically destroy when smaller or equal 0 */
+     5 (0x0200) data record will be created
+     6 (0x0400) non-zero data record must not exist
+     7 (0x0800) destroy when zero
+     8 (0x1000) record must not become negative
+     9 (0x2000) record must not remain positive
+   */
+  HARG_INC_OP = 0x0101,         /* normal increment and decrement */
+  HARG_DEC_OP = 0x0001,
 
-  HARG_INC1_OP = 0x0701, /* Automatically create if necessary. In
-			    addition to that, it is an error if the
-			    entry exists and is non-zero */
-  HARG_DEC1_OP = 0x1801, /* Automatically destroy, when 0. In addition
-			    to that, it is an error if the entry would
-			    become negative.*/
-  HARG_DEC2_OP = 0x3801 /* Automatically destroy, when 0. In addition
-			    to that, it is an error if the entry would
-			    remain non-zero.*/
-} incmode_t ;
+  HARG_INC0_OP = 0x0301,        /* automatically create if necessary */
+  HARG_DEC0_OP = 0x0801,        /* automatically destroy when smaller or equal 0 */
+
+  HARG_INC1_OP = 0x0701,        /* Automatically create if necessary. In
+                                   addition to that, it is an error if the
+                                   entry exists and is non-zero */
+  HARG_DEC1_OP = 0x1801,        /* Automatically destroy, when 0. In addition
+                                   to that, it is an error if the entry would
+                                   become negative. */
+  HARG_DEC2_OP = 0x3801         /* Automatically destroy, when 0. In addition
+                                   to that, it is an error if the entry would
+                                   remain non-zero. */
+} incmode_t;
 
 #ifdef __HARG_INTERNAL__
 # define inc_op_increments_record(x) ((x) & 0x0100)
@@ -1049,22 +1049,28 @@ enum _incmode_t {
  *                 descriptors, contants, typedefs                           *
  * ------------------------------------------------------------------------- */
 
-typedef const char hargkey_t ;
+typedef const char hargkey_t;
 
 #ifdef __HARG_INTERNAL__
-typedef 
-struct _harglst {
-  hlst           *x ;
-  short destroy_mode ;
-  short       rflags ;  /* open/mode flags for remote processing */
-  void       *sorter ;  /* custom sorting defs */
+typedef struct _harglst
+{
+  hlst *x;
+  short destroy_mode;
+  short rflags;                 /* open/mode flags for remote processing */
+  void *sorter;                 /* custom sorting defs */
 } harglst;
 #else
 
-typedef struct _harglst  {char opaq;} harglst;
+typedef struct _harglst
+{
+  char opaq;
+} harglst;
 #endif /* __HARG_INTERNAL__ */
 
-typedef struct _hargwalk {char opaq;} hargwalk;
+typedef struct _hargwalk
+{
+  char opaq;
+} hargwalk;
 
 /* recusion depth, tree walk */
 #ifndef HLST_MAX_RDEPTH
@@ -1075,70 +1081,80 @@ typedef struct _hargwalk {char opaq;} hargwalk;
  *                stategy flags for remote lists and records                 *
  * ------------------------------------------------------------------------- */
 
-#define H_sTAINTED  0x0100 /* filter out tainted records */
-#define H_sSTICKY   0x0200 /* cannot be flushed with the cache */
-#define H_sREMOTE   0x0800 /* NOOP, indicates remote processing or origin */
-#define H_sWRTHRU   0x1000 /* write through (and cache locally) */
-#define H_sRECURSE  0x2000 /* apply to all, eg. harg_close_any() */
+#define H_sTAINTED  0x0100      /* filter out tainted records */
+#define H_sSTICKY   0x0200      /* cannot be flushed with the cache */
+#define H_sREMOTE   0x0800      /* NOOP, indicates remote processing or origin */
+#define H_sWRTHRU   0x1000      /* write through (and cache locally) */
+#define H_sRECURSE  0x2000      /* apply to all, eg. harg_close_any() */
 
 /* remote open mode/initialization flags */
-#define H_oCREATE   0x0002 /* create new data base (must not exist) */
-#define H_oOPEN     0x0004 /* data base need not exist when creating */
-#define H_oTRUNC    0x0008 /* empty data base */
-#define H_oCOPY     0x0010 /* copy data to/from the server */
-#define H_oMOVE     0x0020 /* move data to/from the server */
-#define H_oOWRITE   0x0040 /* overwrite data on the server */
+#define H_oCREATE   0x0002      /* create new data base (must not exist) */
+#define H_oOPEN     0x0004      /* data base need not exist when creating */
+#define H_oTRUNC    0x0008      /* empty data base */
+#define H_oCOPY     0x0010      /* copy data to/from the server */
+#define H_oMOVE     0x0020      /* move data to/from the server */
+#define H_oOWRITE   0x0040      /* overwrite data on the server */
 
 /* other flags */
-#define H_fLOCALQ   0x8000 /* local queue instead of io stream */
+#define H_fLOCALQ   0x8000      /* local queue instead of io stream */
 
 /* ------------------------------------------------------------------------- *
  *                         functional interface                              *
  * ------------------------------------------------------------------------- */
 
-extern harglst*    harg_create               (unsigned estimated_size);
-extern harglst*    harg_dup        (harglst*, unsigned estimated_size);
-extern void        harg_close_any  (harglst*,int);
-extern hargkey_t  *harg_addt       (harglst*,hargkey_t*,hargtype_t,int,unsigned,void*);
-extern int         harg_inct       (harglst*,hargkey_t*,hargtype_t,incmode_t,int);
-extern int         harg_removet    (harglst*,hargkey_t*,hargtype_t);
-extern int         harg_renamet    (harglst*,hargkey_t*,hargtype_t,hargkey_t*,hargtype_t);
-extern int         harg_set_valuet (harglst*,hargkey_t*,hargtype_t,unsigned,void*);
-extern void       *harg_get_valuet (harglst*,hargkey_t*,hargtype_t);
-extern hargkey_t  *harg_get_ntht   (harglst*,unsigned,  hargtype_t);
-extern int         harg_csort      (harglst*,int(*)(void*,harglst*,hargkey_t*,hargtype_t,hargkey_t*,hargtype_t),void*);
-extern hargtype_t  harg_get_typet  (harglst*,hargkey_t*,hargtype_t);
-extern unsigned    harg_get_sizet  (harglst*,hargkey_t*,hargtype_t);
-extern hargwalk   *harg_walk_init  (harglst*);
-extern hargkey_t  *harg_walk_nextT (hargwalk*,hargtype_t*);
-extern void        harg_walk_stop  (hargwalk*);
-extern void harg_sort(harglst*);
+extern harglst *harg_create (unsigned estimated_size);
+extern harglst *harg_dup (harglst *, unsigned estimated_size);
+extern void harg_close_any (harglst *, int);
+extern hargkey_t *harg_addt (harglst *, hargkey_t *, hargtype_t, int, unsigned,
+                             void *);
+extern int harg_inct (harglst *, hargkey_t *, hargtype_t, incmode_t, int);
+extern int harg_removet (harglst *, hargkey_t *, hargtype_t);
+extern int harg_renamet (harglst *, hargkey_t *, hargtype_t, hargkey_t *,
+                         hargtype_t);
+extern int harg_set_valuet (harglst *, hargkey_t *, hargtype_t, unsigned,
+                            void *);
+extern void *harg_get_valuet (harglst *, hargkey_t *, hargtype_t);
+extern hargkey_t *harg_get_ntht (harglst *, unsigned, hargtype_t);
+extern int harg_csort (harglst *,
+                       int (*)(void *, harglst *, hargkey_t *, hargtype_t,
+                               hargkey_t *, hargtype_t), void *);
+extern hargtype_t harg_get_typet (harglst *, hargkey_t *, hargtype_t);
+extern unsigned harg_get_sizet (harglst *, hargkey_t *, hargtype_t);
+extern hargwalk *harg_walk_init (harglst *);
+extern hargkey_t *harg_walk_nextT (hargwalk *, hargtype_t *);
+extern void harg_walk_stop (hargwalk *);
+extern void harg_sort (harglst *);
 
-extern int         harg_do         (harglst*, 
-   int(*)(void*state,void*data,hargtype_t,unsigned size,hargkey_t*),
-   void *state) ;
+extern int harg_do (harglst *,
+                    int (*)(void *state, void *data, hargtype_t, unsigned size,
+                            hargkey_t *), void *state);
 
-extern void        harg_dump       (harglst*);
-extern void        harg_tracker_flush (void);
-extern void        harg_tracker_dump (void);
+extern void harg_dump (harglst *);
+extern void harg_tracker_flush (void);
+extern void harg_tracker_dump (void);
 
-extern void (*harg_logger(void(*f)(const char *, ...)))(const char *, ...);
-extern int    harg_debuglevel (int level); /* set HARG_DEBUG to enable */
+extern void (*harg_logger (void (*f) (const char *, ...))) (const char *, ...);
+extern int harg_debuglevel (int level); /* set HARG_DEBUG to enable */
 
 /* ------------------------------------------------------------------------- *
  *           remote extensions for the functional interface                  *
  * ------------------------------------------------------------------------- */
 
-extern int         harg_attach     (int fd, harglst* localserver, harglst* lst, const char *name, int (*drain)(void*),void*,int tmo, int flags);
-extern int         harg_detach     (harglst*, int flags);
-extern int         harg_rstrategy  (harglst*, int flags);
-extern int         harg_get_origint(harglst*,hargkey_t*,hargtype_t);
-extern int         harg_runserver  (harglst*,int,int (*cb)(void*),void*);
-extern void        harg_addacceptor(harglst*,int,void (*cb)(void*,int,int),void*);
+extern int harg_attach (int fd, harglst * localserver, harglst * lst,
+                        const char *name, int (*drain) (void *), void *,
+                        int tmo, int flags);
+extern int harg_detach (harglst *, int flags);
+extern int harg_rstrategy (harglst *, int flags);
+extern int harg_get_origint (harglst *, hargkey_t *, hargtype_t);
+extern int harg_runserver (harglst *, int, int (*cb) (void *), void *);
+extern void harg_addacceptor (harglst *, int, void (*cb) (void *, int, int),
+                              void *);
 
-extern const char *harg_datadir    (const char *); /* see hlstio_datadir () */
-extern int         harg_rdump      (harglst*, const char *fname, int open_flags,   int open_mode);
-extern int         harg_rload      (harglst*, const char *fname, int flush_server, int overwrite);
+extern const char *harg_datadir (const char *); /* see hlstio_datadir () */
+extern int harg_rdump (harglst *, const char *fname, int open_flags,
+                       int open_mode);
+extern int harg_rload (harglst *, const char *fname, int flush_server,
+                       int overwrite);
 
 /* ------------------------------------------------------------------------- *
  *                             convenience macros                            *
@@ -1148,12 +1164,12 @@ extern int         harg_rload      (harglst*, const char *fname, int flush_serve
 #define harg_close_all(           d)              harg_close_any   ((d),           H_sRECURSE)
 #define harg_purge(               d)              harg_close_any   ((d), H_sWRTHRU)
 #define harg_purge_all(           d)              harg_close_any   ((d), H_sWRTHRU|H_sRECURSE)
-#define harg_walk_next(           w)              harg_walk_nextT  ((w),0) 
+#define harg_walk_next(           w)              harg_walk_nextT  ((w),0)
 
-#define harg_ddump(               d,f)            harg_rdump       ((d),(f),O_TRUNC|O_CREAT,0600) /* overwrite file */
+#define harg_ddump(               d,f)            harg_rdump       ((d),(f),O_TRUNC|O_CREAT,0600)       /* overwrite file */
 #define harg_store(               d,f)            harg_rdump       ((d),(f),        O_CREAT,0600)
-#define harg_undump(              d,f)            harg_rload       ((d),(f),              1,   1) /* flush list */
-#define harg_load(                d,f)            harg_rload       ((d),(f),              0,   1) /* overwrite list */
+#define harg_undump(              d,f)            harg_rload       ((d),(f),              1,   1)       /* flush list */
+#define harg_load(                d,f)            harg_rload       ((d),(f),              0,   1)       /* overwrite list */
 #define harg_merge(               d,f)            harg_rload       ((d),(f),              0,   0)
 
 #define harg_add_string(          d,k,  s)        harg_addt        ((d),             (k),HARG_STRING,  1, 0, (void*)(s))
@@ -1282,14 +1298,14 @@ extern int         harg_rload      (harglst*, const char *fname, int flush_serve
 
 #define harg_name_set_string(     d,k,l)          harg_renamet     ((d),             (k),HARG_ANY,(l),HARG_STRING)
 #define harg_name_set_ptr(        d,k,l)          harg_renamet     ((d),             (k),HARG_ANY,(l),HARG_PTR)
-#define harg_name_set_harg(       d,k,l)          harg_renamet     ((d),             (k),HARG_ANY,(l),HARG_HARGLST) 
+#define harg_name_set_harg(       d,k,l)          harg_renamet     ((d),             (k),HARG_ANY,(l),HARG_HARGLST)
 #define harg_name_set_blob(       d,k,l)          harg_renamet     ((d),             (k),HARG_ANY,(l),HARG_BLOB)
 #define harg_name_set_int(        d,k,l)          harg_renamet     ((d),             (k),HARG_ANY,(l),HARG_INT)
 #define harg_name_set_any(        d,k,l)          harg_renamet     ((d),             (k),HARG_ANY,(l),HARG_INT)
 
 #define harg_name_set_pstring(    d,p,q)          harg_renamet     ((d),(hargkey_t*)&(p),HARG_PANY,(hargkey_t*)&(q),HARG_PSTRING)
 #define harg_name_set_pptr(       d,p,q)          harg_renamet     ((d),(hargkey_t*)&(p),HARG_PANY,(hargkey_t*)&(q),HARG_PPTR)
-#define harg_name_set_pharg(      d,p,q)          harg_renamet     ((d),(hargkey_t*)&(p),HARG_PANY,(hargkey_t*)&(q),HARG_PHARGLST) 
+#define harg_name_set_pharg(      d,p,q)          harg_renamet     ((d),(hargkey_t*)&(p),HARG_PANY,(hargkey_t*)&(q),HARG_PHARGLST)
 #define harg_name_set_pblob(      d,p,q)          harg_renamet     ((d),(hargkey_t*)&(p),HARG_PANY,(hargkey_t*)&(q),HARG_PBLOB)
 #define harg_name_set_pint(       d,p,q)          harg_renamet     ((d),(hargkey_t*)&(p),HARG_PANY,(hargkey_t*)&(q),HARG_PINT)
 #define harg_name_set_pany(       d,p,q)          harg_renamet     ((d),(hargkey_t*)&(p),HARG_PANY,(hargkey_t*)&(q),HARG_PINT)

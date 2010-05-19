@@ -26,6 +26,6 @@
 #ifndef OPENVAS_SERVICES1_H
 #define OPENVAS_SERVICES1_H
 
-int openvas_init_svc();
+int openvas_init_svc ();
 
 #endif

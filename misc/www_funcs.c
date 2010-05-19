@@ -80,228 +80,228 @@ This is a perfect log entry and nobody can suspect on it :-)
 */
 
 char *
-build_encode_URL (struct arglist* data, char* method, char* path, char* name,
-                  char* httpver)
+build_encode_URL (struct arglist *data, char *method, char *path, char *name,
+                  char *httpver)
 {
-  int		i, l = 0, n_slash = 0, n_backslash = 0, start_with_slash = 0;
-  char		*ret, *ret2;
+  int i, l = 0, n_slash = 0, n_backslash = 0, start_with_slash = 0;
+  char *ret, *ret2;
   /* NIDS evasion options */
-  char		*s, *s2;
-  int		double_slash, reverse_traversal, self_ref_dir;
-  int		prem_req_end, param_hiding, cgipm_param;
-  int		dos_win_syntax, null_method, tab_sep, http09;
-  char		*abs_URI_type, *abs_URI_host;
-  char		sep_c;
+  char *s, *s2;
+  int double_slash, reverse_traversal, self_ref_dir;
+  int prem_req_end, param_hiding, cgipm_param;
+  int dos_win_syntax, null_method, tab_sep, http09;
+  char *abs_URI_type, *abs_URI_host;
+  char sep_c;
 #define URL_CODE_NONE		0
 #define URL_CODE_HEX		1
 #define URL_CODE_UTF16		2
 #define URL_CODE_UTF16MS	3
 #define URL_CODE_UTF8BAD	4
-  int		url_encoding;
-  char		gizmo[32];
-  struct kb_item ** kb = plug_get_kb(data);
+  int url_encoding;
+  char gizmo[32];
+  struct kb_item **kb = plug_get_kb (data);
 
   /* Basically, we need to store the path, a slash, and the name.
    * Encoding will expand this
    * We'll add the method in front of all this and the HTTP version
    * at the end when all is done. That's not optimized, but that's simpler.
    */
-  l = path !=  NULL ? strlen(path) : 0;
-  l += strlen(name) + (path != NULL);
+  l = path != NULL ? strlen (path) : 0;
+  l += strlen (name) + (path != NULL);
 
   /** @todo Evaluate if GLib functions for building paths are applicable here */
-  ret = emalloc(l+ 1);
+  ret = emalloc (l + 1);
   if (path == NULL)
     strcpy (ret, name);
   else
     sprintf (ret, "%s/%s", path, name);
 
 #ifdef URL_DEBUG
-  fprintf(stderr, "Request => %s\n", ret);
+  fprintf (stderr, "Request => %s\n", ret);
 #endif
 
-  for (s = ret; *s != '\0'; s ++)
+  for (s = ret; *s != '\0'; s++)
     if (*s == '/')
-      n_slash ++;
+      n_slash++;
     else if (*s == '\\')
-      n_backslash ++;
+      n_backslash++;
 
   start_with_slash = (*ret == '/');
 
-  s = kb_item_get_str(kb, "NIDS/HTTP/CGIpm_param");
-  cgipm_param = (s != NULL && strcmp(s, "yes") == 0);
+  s = kb_item_get_str (kb, "NIDS/HTTP/CGIpm_param");
+  cgipm_param = (s != NULL && strcmp (s, "yes") == 0);
   if (cgipm_param)
     {
 #ifdef URL_DEBUG
       i = 0;
 #endif
-      for (s = ret; *s != '\0' && *s != '?'; s ++)
-	;
+      for (s = ret; *s != '\0' && *s != '?'; s++)
+        ;
       if (*s == '?')
-	for (; *s != '\0'; s ++)
-	  if (*s == '&')
-	    {
-	      *s = ';';
+        for (; *s != '\0'; s++)
+          if (*s == '&')
+            {
+              *s = ';';
 #ifdef URL_DEBUG
-	      i ++;
+              i++;
 #endif
-	    }
+            }
 #ifdef URL_DEBUG
       if (i > 0)
-	fprintf(stderr, "Request =  %s\n", ret);
+        fprintf (stderr, "Request =  %s\n", ret);
 #endif
     }
 
-  s = kb_item_get_str(kb, "NIDS/HTTP/self_ref_dir");
-  self_ref_dir = (s != NULL && strcmp(s, "yes") == 0);
+  s = kb_item_get_str (kb, "NIDS/HTTP/self_ref_dir");
+  self_ref_dir = (s != NULL && strcmp (s, "yes") == 0);
   if (self_ref_dir)
     {
       l += 2 * n_slash;
-      ret2 = emalloc(l + 1);
-      for (s = ret, s2 = ret2; *s != '\0' && *s != '?'; s ++)
-	if (*s != '/')
-	  *s2++ = *s;
-	else
-	  {
-	    strncpy(s2, "/./", l);
-	    s2 += 3;
-	  }
+      ret2 = emalloc (l + 1);
+      for (s = ret, s2 = ret2; *s != '\0' && *s != '?'; s++)
+        if (*s != '/')
+          *s2++ = *s;
+        else
+          {
+            strncpy (s2, "/./", l);
+            s2 += 3;
+          }
       while (*s != '\0')
-	*s2++ = *s++;
+        *s2++ = *s++;
       *s2 = '\0';
-      efree(&ret);
+      efree (&ret);
       ret = ret2;
       n_slash *= 2;
 #ifdef URL_DEBUG
-      fprintf(stderr, "Request =  %s\n", ret);
+      fprintf (stderr, "Request =  %s\n", ret);
 #endif
     }
 
-  s = kb_item_get_str(kb, "NIDS/HTTP/reverse_traversal");
-  reverse_traversal = (s == NULL ? 0 : atoi(s));
+  s = kb_item_get_str (kb, "NIDS/HTTP/reverse_traversal");
+  reverse_traversal = (s == NULL ? 0 : atoi (s));
 
   if (reverse_traversal > 0)
     {
-      l += (reverse_traversal + 4)  * n_slash;
-      ret2 = emalloc(l + 1);
+      l += (reverse_traversal + 4) * n_slash;
+      ret2 = emalloc (l + 1);
 
-      for (s = ret, s2 = ret2; *s != '\0' && *s != '?'; s ++)
-	if (*s != '/')
-	  *s2++ = *s;
-	else
-	  {
-	    *s2++ = '/';
-	    for (i = reverse_traversal; i > 0; i --) 
-	      *s2++ = lrand48() % 26 + 'a'; /* RATS: ignore */
-	    strncpy(s2, "/../", l);
-	    s2 += 4;
-	  }
+      for (s = ret, s2 = ret2; *s != '\0' && *s != '?'; s++)
+        if (*s != '/')
+          *s2++ = *s;
+        else
+          {
+            *s2++ = '/';
+            for (i = reverse_traversal; i > 0; i--)
+              *s2++ = lrand48 () % 26 + 'a';    /* RATS: ignore */
+            strncpy (s2, "/../", l);
+            s2 += 4;
+          }
       while (*s != '\0')
-	*s2++ = *s++;
+        *s2++ = *s++;
       *s2 = '\0';
-      efree(&ret);
+      efree (&ret);
       ret = ret2;
       n_slash *= 3;
 #ifdef URL_DEBUG
-      fprintf(stderr, "Request =  %s\n", ret);
+      fprintf (stderr, "Request =  %s\n", ret);
 #endif
     }
 
-  s = kb_item_get_str(kb, "NIDS/HTTP/premature_request_ending");
-  prem_req_end = (s != NULL && strcmp(s, "yes") == 0);
+  s = kb_item_get_str (kb, "NIDS/HTTP/premature_request_ending");
+  prem_req_end = (s != NULL && strcmp (s, "yes") == 0);
   if (prem_req_end)
     {
       l += 36;
-      ret2 = emalloc(l + 1);
+      ret2 = emalloc (l + 1);
       n_slash += 4;
 
       s = gizmo;
-      *s++ = lrand48() % 26 + 'A'; /* RATS: ignore */
-      for (i = 1; i < 8; i ++)
-	*s++ = lrand48() % 26 + 'a'; /* RATS: ignore */
+      *s++ = lrand48 () % 26 + 'A';     /* RATS: ignore */
+      for (i = 1; i < 8; i++)
+        *s++ = lrand48 () % 26 + 'a';   /* RATS: ignore */
       *s++ = '\0';
-      snprintf(ret2, l, "/%%20HTTP/1.0%%0d%%0a%s:%%20/../..%s", gizmo, ret); /* RATS: ignore */
-      efree(&ret);
+      snprintf (ret2, l, "/%%20HTTP/1.0%%0d%%0a%s:%%20/../..%s", gizmo, ret);   /* RATS: ignore */
+      efree (&ret);
       ret = ret2;
 #ifdef URL_DEBUG
-      fprintf(stderr, "Request =  %s\n", ret);
+      fprintf (stderr, "Request =  %s\n", ret);
 #endif
     }
 
-  s = kb_item_get_str(kb, "NIDS/HTTP/param_hiding");
-  param_hiding = (s != NULL && strcmp(s, "yes") == 0);
+  s = kb_item_get_str (kb, "NIDS/HTTP/param_hiding");
+  param_hiding = (s != NULL && strcmp (s, "yes") == 0);
   if (param_hiding)
     {
       l += 25;
-      ret2 = emalloc(l + 1);
+      ret2 = emalloc (l + 1);
       n_slash += 2;
 
       s = gizmo;
-      for (i = 0; i < 8; i ++)
-	*s++ = lrand48() % 26 + 'a'; /* RATS: ignore */
+      for (i = 0; i < 8; i++)
+        *s++ = lrand48 () % 26 + 'a';   /* RATS: ignore */
       *s++ = '\0';
-      snprintf(ret2, l, "/index.htm%%3f%s=/..%s", gizmo, ret); /* RATS: ignore */
-      efree(&ret);
+      snprintf (ret2, l, "/index.htm%%3f%s=/..%s", gizmo, ret); /* RATS: ignore */
+      efree (&ret);
       ret = ret2;
 #ifdef URL_DEBUG
-      fprintf(stderr, "Request =  %s\n", ret);
+      fprintf (stderr, "Request =  %s\n", ret);
 #endif
     }
 
-  s = kb_item_get_str(kb, "NIDS/HTTP/double_slash");
-  double_slash = (s != NULL && strcmp(s, "yes") == 0);
+  s = kb_item_get_str (kb, "NIDS/HTTP/double_slash");
+  double_slash = (s != NULL && strcmp (s, "yes") == 0);
   if (double_slash)
     {
       l += n_slash;
 
-      ret2 = emalloc(l + 1);
-      for (s = ret, s2 = ret2; *s != '\0' && *s != '?'; s ++)
-	if (*s != '/')
-	  *s2++ = *s;
-	else
-	  {
-	    *s2++ = '/';
-	    *s2++ = '/';
-	  }
+      ret2 = emalloc (l + 1);
+      for (s = ret, s2 = ret2; *s != '\0' && *s != '?'; s++)
+        if (*s != '/')
+          *s2++ = *s;
+        else
+          {
+            *s2++ = '/';
+            *s2++ = '/';
+          }
       while (*s != '\0')
-	*s2++ = *s++;
+        *s2++ = *s++;
       *s2 = '\0';
-      efree(&ret);
+      efree (&ret);
       ret = ret2;
       n_slash *= 2;
 #ifdef URL_DEBUG
-      fprintf(stderr, "Request =  %s\n", ret);
+      fprintf (stderr, "Request =  %s\n", ret);
 #endif
     }
 
-  s = kb_item_get_str(kb, "NIDS/HTTP/dos_win_syntax");
-  dos_win_syntax = (s != NULL && strcmp(s, "yes") == 0);
+  s = kb_item_get_str (kb, "NIDS/HTTP/dos_win_syntax");
+  dos_win_syntax = (s != NULL && strcmp (s, "yes") == 0);
   if (dos_win_syntax)
     {
-      for (s = ret + 1; *s != '\0' && *s != '?'; s ++)
-	if (*s == '/')
-	  {
-	    *s = '\\';
-	    n_backslash ++;
-	  }
+      for (s = ret + 1; *s != '\0' && *s != '?'; s++)
+        if (*s == '/')
+          {
+            *s = '\\';
+            n_backslash++;
+          }
 #ifdef URL_DEBUG
-      fprintf(stderr, "Request =  %s\n", ret);
+      fprintf (stderr, "Request =  %s\n", ret);
 #endif
     }
 
-  s = kb_item_get_str(kb, "NIDS/HTTP/URL_encoding");
+  s = kb_item_get_str (kb, "NIDS/HTTP/URL_encoding");
   url_encoding = URL_CODE_NONE;
   if (s != NULL)
-  {
-    if (strcmp(s, "Hex") == 0)
-      url_encoding = URL_CODE_HEX;
-    else if (strcmp(s, "UTF-16 (double byte)") == 0)
-      url_encoding = URL_CODE_UTF16;
-    else if (strcmp(s, "UTF-16 (MS %u)") == 0)
-      url_encoding = URL_CODE_UTF16MS;
-    else if (strcmp(s, "Incorrect UTF-8") == 0)
-      url_encoding = URL_CODE_UTF8BAD;
-  }
+    {
+      if (strcmp (s, "Hex") == 0)
+        url_encoding = URL_CODE_HEX;
+      else if (strcmp (s, "UTF-16 (double byte)") == 0)
+        url_encoding = URL_CODE_UTF16;
+      else if (strcmp (s, "UTF-16 (MS %u)") == 0)
+        url_encoding = URL_CODE_UTF16MS;
+      else if (strcmp (s, "Incorrect UTF-8") == 0)
+        url_encoding = URL_CODE_UTF8BAD;
+    }
 
 
   switch (url_encoding)
@@ -321,178 +321,182 @@ build_encode_URL (struct arglist* data, char* method, char* path, char* name,
 
   if (url_encoding != URL_CODE_NONE)
     {
-      ret2 = emalloc(l + 1);
+      ret2 = emalloc (l + 1);
 
-      for (s = ret, s2 = ret2; *s != '\0'; s ++)
-	if (*s == '/' ||
-	    ((url_encoding == URL_CODE_UTF8BAD ||
-	      url_encoding == URL_CODE_UTF16 ||
-	      url_encoding == URL_CODE_UTF16MS) && *s == '\\'))
-	  *s2++ = *s;
-	else if (s[0] == '%' && isxdigit(s[1]) && isxdigit(s[2]))
-	  {
-	    /* Already % encoded. Do not change it! */
-	    *s2++ = *s++;
-	    *s2++ = *s++;
-	    *s2++ = *s;
-	  }
-	else if (s[0] == '%' && tolower(s[1]) == 'u' &&
-		 isxdigit(s[2]) && isxdigit(s[3]) &&
-		 isxdigit(s[4]) && isxdigit(s[5]) )
-	  {
-	    /* Already %u encoded. Do not change it! */
-	    *s2++ = *s++;
-	    *s2++ = *s++;
-	    *s2++ = *s++;
-	    *s2++ = *s++;
-	    *s2++ = *s;
-	  }	  
-	else if (url_encoding == URL_CODE_UTF16MS)
-	  {
-	    sprintf(s2, "%%u00%02x", *(unsigned char*)s); 
-	    /* The argument MUST be "unsigned char" */
-	    s2 += 6;
-	  }
-	else if (url_encoding == URL_CODE_UTF16)
-	  {
-	    sprintf(s2, "%%00%%%02x", *(unsigned char*)s); 
-	    /* The argument MUST be "unsigned char" */
-	    s2 += 6;
-	  }
-	else if (url_encoding == URL_CODE_UTF8BAD)
-	  {
-	    unsigned char c = *(unsigned char*)s;
-	    sprintf(s2, "%%%02x%%%02x",
-		    0xC0 | (c >> 6), 0x80 | (c & 0x3F)); 
-	    s2 += 6;
-	    /* Note: we could also use the raw unencoded characters */
-	  }
-	else
-	  {
-	    sprintf(s2, "%%%02x", *(unsigned char*)s); 
-	    /* The argument MUST be "unsigned char", so that it stays between
-	     * 0 and 255. Otherwise, we might get something like %FFFFFF42 */
-	    s2 += 3;
-	    if (*s == '\\')
-	      n_backslash --;
-	  }
+      for (s = ret, s2 = ret2; *s != '\0'; s++)
+        if (*s == '/'
+            ||
+            ((url_encoding == URL_CODE_UTF8BAD || url_encoding == URL_CODE_UTF16
+              || url_encoding == URL_CODE_UTF16MS) && *s == '\\'))
+          *s2++ = *s;
+        else if (s[0] == '%' && isxdigit (s[1]) && isxdigit (s[2]))
+          {
+            /* Already % encoded. Do not change it! */
+            *s2++ = *s++;
+            *s2++ = *s++;
+            *s2++ = *s;
+          }
+        else if (s[0] == '%' && tolower (s[1]) == 'u' && isxdigit (s[2])
+                 && isxdigit (s[3]) && isxdigit (s[4]) && isxdigit (s[5]))
+          {
+            /* Already %u encoded. Do not change it! */
+            *s2++ = *s++;
+            *s2++ = *s++;
+            *s2++ = *s++;
+            *s2++ = *s++;
+            *s2++ = *s;
+          }
+        else if (url_encoding == URL_CODE_UTF16MS)
+          {
+            sprintf (s2, "%%u00%02x", *(unsigned char *) s);
+            /* The argument MUST be "unsigned char" */
+            s2 += 6;
+          }
+        else if (url_encoding == URL_CODE_UTF16)
+          {
+            sprintf (s2, "%%00%%%02x", *(unsigned char *) s);
+            /* The argument MUST be "unsigned char" */
+            s2 += 6;
+          }
+        else if (url_encoding == URL_CODE_UTF8BAD)
+          {
+            unsigned char c = *(unsigned char *) s;
+            sprintf (s2, "%%%02x%%%02x", 0xC0 | (c >> 6), 0x80 | (c & 0x3F));
+            s2 += 6;
+            /* Note: we could also use the raw unencoded characters */
+          }
+        else
+          {
+            sprintf (s2, "%%%02x", *(unsigned char *) s);
+            /* The argument MUST be "unsigned char", so that it stays between
+             * 0 and 255. Otherwise, we might get something like %FFFFFF42 */
+            s2 += 3;
+            if (*s == '\\')
+              n_backslash--;
+          }
       *s2 = '\0';
-      efree(&ret);
+      efree (&ret);
       ret = ret2;
 #ifdef URL_DEBUG
-      fprintf(stderr, "Request =  %s\n", ret);
+      fprintf (stderr, "Request =  %s\n", ret);
 #endif
     }
 
-  abs_URI_type = kb_item_get_str(kb, "NIDS/HTTP/absolute_URI/type");
-  if (start_with_slash && 
-      abs_URI_type != NULL && strcmp(abs_URI_type, "none") != 0)
+  abs_URI_type = kb_item_get_str (kb, "NIDS/HTTP/absolute_URI/type");
+  if (start_with_slash && abs_URI_type != NULL
+      && strcmp (abs_URI_type, "none") != 0)
     {
 #ifndef MAXHOSTNAMELEN
 # define MAXHOSTNAMELEN	64
 #endif
-      char	h[MAXHOSTNAMELEN];
+      char h[MAXHOSTNAMELEN];
 
-      abs_URI_host = kb_item_get_str(kb, "NIDS/HTTP/absolute_URI/host");
+      abs_URI_host = kb_item_get_str (kb, "NIDS/HTTP/absolute_URI/host");
       h[0] = '\0';
       if (abs_URI_host != NULL)
-      {
-	if (strcmp(abs_URI_host, "host name") == 0)
-	  {
-	    if ((s = (char*)plug_get_hostname(data)) != NULL)
-	      strncpy(h, s, sizeof(h));
-	    h[sizeof(h)-1] = '\0';
-	  }
-	else if (strcmp(abs_URI_host, "host IP") == 0)
-	  {
-	    struct in6_addr * ptr;
-            char *asc;
-            char hostname[255];
+        {
+          if (strcmp (abs_URI_host, "host name") == 0)
+            {
+              if ((s = (char *) plug_get_hostname (data)) != NULL)
+                strncpy (h, s, sizeof (h));
+              h[sizeof (h) - 1] = '\0';
+            }
+          else if (strcmp (abs_URI_host, "host IP") == 0)
+            {
+              struct in6_addr *ptr;
+              char *asc;
+              char hostname[255];
 
-	    if ((ptr = plug_get_host_ip (data)) != NULL)
-	    {
-              if(IN6_IS_ADDR_V4MAPPED(ptr))
-              {
-                asc = estrdup(inet_ntop(AF_INET, (struct in_addr *)ptr->s6_addr32[3], hostname, sizeof(hostname)));
-              }
-              else
-                asc = estrdup(inet_ntop(AF_INET6, &ptr, hostname, sizeof(hostname)));
+              if ((ptr = plug_get_host_ip (data)) != NULL)
+                {
+                  if (IN6_IS_ADDR_V4MAPPED (ptr))
+                    {
+                      asc =
+                        estrdup (inet_ntop
+                                 (AF_INET, (struct in_addr *) ptr->s6_addr32[3],
+                                  hostname, sizeof (hostname)));
+                    }
+                  else
+                    asc =
+                      estrdup (inet_ntop
+                               (AF_INET6, &ptr, hostname, sizeof (hostname)));
 
-	      strncpy(h, asc, sizeof(h));
-	    }
-	    h[sizeof(h)-1] = '\0';
-	  }
-	else if (strcmp(abs_URI_host, "random name") == 0)
-	  {
-	    for (s2 = h, i = 0; i < 16; i ++)
-	      *s2++ = lrand48() % 26 + 'a'; /* RATS: ignore */
-	    *s2++ = '\0';
-	  }
-	else if (strcmp(abs_URI_host, "random IP") == 0)
-	  sprintf(h, "%d.%d.%d.%d", rand() % 256, rand() % 256, rand() % 256, rand() % 256);
+                  strncpy (h, asc, sizeof (h));
+                }
+              h[sizeof (h) - 1] = '\0';
+            }
+          else if (strcmp (abs_URI_host, "random name") == 0)
+            {
+              for (s2 = h, i = 0; i < 16; i++)
+                *s2++ = lrand48 () % 26 + 'a';  /* RATS: ignore */
+              *s2++ = '\0';
+            }
+          else if (strcmp (abs_URI_host, "random IP") == 0)
+            sprintf (h, "%d.%d.%d.%d", rand () % 256, rand () % 256,
+                     rand () % 256, rand () % 256);
 #if 0
-	else
-	  fprintf(stderr, "Unhandled value %s\n", abs_URI_host);
+          else
+            fprintf (stderr, "Unhandled value %s\n", abs_URI_host);
 #endif
-     }
+        }
 
-      l += strlen(h) + strlen(abs_URI_type) + 3;
+      l += strlen (h) + strlen (abs_URI_type) + 3;
       n_slash += 2;
-      ret2 = emalloc(l + 1);
+      ret2 = emalloc (l + 1);
 
-      snprintf(ret2, l, "%s://%s%s", abs_URI_type, h, ret); /* RATS: ignore */
-      efree(&ret);
+      snprintf (ret2, l, "%s://%s%s", abs_URI_type, h, ret);    /* RATS: ignore */
+      efree (&ret);
       ret = ret2;
 #ifdef URL_DEBUG
-      fprintf(stderr, "Request =  %s\n", ret);
+      fprintf (stderr, "Request =  %s\n", ret);
 #endif
     }
 
 
-  s = kb_item_get_str(kb, "NIDS/HTTP/null_method");
-  null_method = (s != NULL && strcmp(s, "yes") == 0);
+  s = kb_item_get_str (kb, "NIDS/HTTP/null_method");
+  null_method = (s != NULL && strcmp (s, "yes") == 0);
   if (null_method)
     {
       l += 3;
-      ret2 = emalloc(l + 1);
-      strncpy(ret2, "%00", l);
-      strncpy(ret2+3, ret, (l - 3));
-      efree(&ret);
+      ret2 = emalloc (l + 1);
+      strncpy (ret2, "%00", l);
+      strncpy (ret2 + 3, ret, (l - 3));
+      efree (&ret);
       ret = ret2;
     }
 
-  l += strlen(method) + 1;
+  l += strlen (method) + 1;
 
-  s = kb_item_get_str(kb, "NIDS/HTTP/http09");
-  http09 = (s != NULL && strcmp(s, "yes") == 0);
-  if (! http09)
+  s = kb_item_get_str (kb, "NIDS/HTTP/http09");
+  http09 = (s != NULL && strcmp (s, "yes") == 0);
+  if (!http09)
     {
-      s = kb_item_get_str(kb, "NIDS/HTTP/protocol_string");
+      s = kb_item_get_str (kb, "NIDS/HTTP/protocol_string");
       if (s != NULL && *s != '\0')
-	{
-	  httpver = s;
+        {
+          httpver = s;
 #if 0
-	  fprintf(stderr, "NIDS/HTTP/protocol_string = %s\n", s);
+          fprintf (stderr, "NIDS/HTTP/protocol_string = %s\n", s);
 #endif
-	}
-      l += strlen(httpver) + 2;
+        }
+      l += strlen (httpver) + 2;
     }
 
 
-  s = kb_item_get_str(kb, "NIDS/HTTP/tab_separator");
-  tab_sep = (s != NULL && strcmp(s, "yes") == 0);
+  s = kb_item_get_str (kb, "NIDS/HTTP/tab_separator");
+  tab_sep = (s != NULL && strcmp (s, "yes") == 0);
   sep_c = (tab_sep ? '\t' : ' ');
 
-  ret2 = emalloc(l + 1);
+  ret2 = emalloc (l + 1);
   if (http09)
-    snprintf(ret2, l, "%s%c%s", method, sep_c, ret); /* RATS: ignore */
+    snprintf (ret2, l, "%s%c%s", method, sep_c, ret);   /* RATS: ignore */
   else
-    snprintf(ret2, l, "%s%c%s%c%s", method, sep_c, ret, sep_c, httpver); /* RATS: ignore */
-  efree(&ret);
+    snprintf (ret2, l, "%s%c%s%c%s", method, sep_c, ret, sep_c, httpver);       /* RATS: ignore */
+  efree (&ret);
   ret = ret2;
 
 #ifdef URL_DEBUG
-      fprintf(stderr, "Request <= %s\n", ret);
+  fprintf (stderr, "Request <= %s\n", ret);
 #endif
   return ret;
 }

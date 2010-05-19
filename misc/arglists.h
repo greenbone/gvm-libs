@@ -26,14 +26,15 @@
 #ifndef OPENVAS_ARGLISTS_H
 #define OPENVAS_ARGLISTS_H
 
-struct arglist {
-	char * name;
-	int type;
-	void * value;
-	long length;
-	struct arglist * next;
-	int hash;
-	};
+struct arglist
+{
+  char *name;
+  int type;
+  void *value;
+  long length;
+  struct arglist *next;
+  int hash;
+};
 
 /**
  * @brief Struct to cache names (keys) of arglist entries.
@@ -43,12 +44,13 @@ struct arglist {
  * 
  * This saves about 300Kb of memory, with minimal performance impact
  */
-struct name_cache {
-	char * name;
-	int occurences;
-	struct name_cache * next;
-	struct name_cache * prev;
-	};
+struct name_cache
+{
+  char *name;
+  int occurences;
+  struct name_cache *next;
+  struct name_cache *prev;
+};
 
 #define ARG_STRING  1
 #define ARG_PTR     2
@@ -56,21 +58,21 @@ struct name_cache {
 #define ARG_ARGLIST 4
 #define ARG_STRUCT  5
 
-char * cache_inc (const char * name);
-void cache_dec (const char * name);
+char *cache_inc (const char *name);
+void cache_dec (const char *name);
 
-void arg_add_value_at_head (struct arglist * arglst, const char * name,
-                            int type, long length, void * value);
-void arg_add_value(struct arglist *, const char *, int, long, void *);
-int arg_set_value(struct arglist *, const char *, long, void *);
-int arg_set_type(struct arglist *, const char *, int);
-void * arg_get_value(struct arglist *, const char *);
-int arg_get_length(struct arglist *, const char *);
-int arg_get_type(struct arglist *, const char *);
-void arg_dump(struct arglist *, int);
-void arg_dup(struct arglist *, struct arglist *);
-void arg_free(struct arglist *);
-void arg_free_all(struct arglist *);
-void arg_free_name(char*);
+void arg_add_value_at_head (struct arglist *arglst, const char *name, int type,
+                            long length, void *value);
+void arg_add_value (struct arglist *, const char *, int, long, void *);
+int arg_set_value (struct arglist *, const char *, long, void *);
+int arg_set_type (struct arglist *, const char *, int);
+void *arg_get_value (struct arglist *, const char *);
+int arg_get_length (struct arglist *, const char *);
+int arg_get_type (struct arglist *, const char *);
+void arg_dump (struct arglist *, int);
+void arg_dup (struct arglist *, struct arglist *);
+void arg_free (struct arglist *);
+void arg_free_all (struct arglist *);
+void arg_free_name (char *);
 
 #endif /* OPENVAS_ARGLISTS_H */

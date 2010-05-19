@@ -29,6 +29,6 @@
 #ifndef _OPENVAS_UUID_H
 #define _OPENVAS_UUID_H
 
-char* openvas_uuid_make ();
+char *openvas_uuid_make ();
 
 #endif /* not _OPENVAS_UUID_H */

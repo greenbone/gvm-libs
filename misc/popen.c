@@ -34,119 +34,123 @@
 #define RLIM_INFINITY (1024*1024*1024)
 #endif
 
-FILE*
-openvas_popen4(const char* cmd, char *const args[], pid_t* ppid, int inice)
+FILE *
+openvas_popen4 (const char *cmd, char *const args[], pid_t * ppid, int inice)
 {
-  int		fd, pipes[2];
-  pid_t		son;
-  FILE		*fp;
+  int fd, pipes[2];
+  pid_t son;
+  FILE *fp;
 
 #if DEBUG
   int i;
-  fprintf(stderr, "openvas_popen4: running %s -", cmd);
-  for (i = 0; args[i] != NULL; i ++)
-    fprintf(stderr, " %s", args[i]);
-  fputc('\n', stderr);
+  fprintf (stderr, "openvas_popen4: running %s -", cmd);
+  for (i = 0; args[i] != NULL; i++)
+    fprintf (stderr, " %s", args[i]);
+  fputc ('\n', stderr);
 #endif
 
- /* pipe() does not always work well on some OS */
-  if (socketpair(AF_UNIX, SOCK_STREAM, 0, pipes) < 0)  
+  /* pipe() does not always work well on some OS */
+  if (socketpair (AF_UNIX, SOCK_STREAM, 0, pipes) < 0)
     {
-      perror("socketpair");
+      perror ("socketpair");
       return NULL;
       /* filedes[0]  is  for  reading, filedes[1] is for writing. */
     }
-  if ((son = fork()) < 0)
+  if ((son = fork ()) < 0)
     {
-      perror("fork");
-      close(pipes[0]); close(pipes[1]);
+      perror ("fork");
+      close (pipes[0]);
+      close (pipes[1]);
       return NULL;
     }
   if (son == 0)
     {
-      struct rlimit	rl;
+      struct rlimit rl;
       int i;
 
       /* Child process */
 
       if (inice)
-	{
-	  errno = 0;
-	  /* Some systems returned the new nice value => it may be < 0 */
-	  if (nice(inice) < 0 && errno)
-	    perror("nice");
-	}
+        {
+          errno = 0;
+          /* Some systems returned the new nice value => it may be < 0 */
+          if (nice (inice) < 0 && errno)
+            perror ("nice");
+        }
       /* Memory usage: unlimited */
       rl.rlim_cur = rl.rlim_max = RLIM_INFINITY;
 #ifdef RLIMIT_DATA
-      if (setrlimit(RLIMIT_DATA, &rl) < 0) perror("RLIMIT_DATA");
+      if (setrlimit (RLIMIT_DATA, &rl) < 0)
+        perror ("RLIMIT_DATA");
 #endif
 #ifdef RLIMIT_RSS
-      if (setrlimit(RLIMIT_RSS, &rl) < 0) perror("RLIMIT_RSS");
+      if (setrlimit (RLIMIT_RSS, &rl) < 0)
+        perror ("RLIMIT_RSS");
 #endif
 #ifdef RLIMIT_STACK
-      if (setrlimit(RLIMIT_STACK, &rl) < 0) perror("RLIMIT_STACK");
+      if (setrlimit (RLIMIT_STACK, &rl) < 0)
+        perror ("RLIMIT_STACK");
 #endif
       /* We could probably limit the CPU time, but to which value? */
 
-      if ((fd = open("/dev/null", O_RDONLY)) < 0)
-	{
-	  perror("/dev/null");
-	  exit(1);
-	}
-      close(0);
-      if (dup2(fd, 0) < 0)
-	{
-	  perror("dup2");
-	  exit(1);
-	}
-      close(fd);
+      if ((fd = open ("/dev/null", O_RDONLY)) < 0)
+        {
+          perror ("/dev/null");
+          exit (1);
+        }
+      close (0);
+      if (dup2 (fd, 0) < 0)
+        {
+          perror ("dup2");
+          exit (1);
+        }
+      close (fd);
 
-      close(1);
-      close(2);
-      if (dup2(pipes[1], 1) < 0 ||
-	  dup2(pipes[1], 2) < 0)
-	{
-	  /* Cannot print error as 2 is closed! */
-	  exit(1);
-	}
+      close (1);
+      close (2);
+      if (dup2 (pipes[1], 1) < 0 || dup2 (pipes[1], 2) < 0)
+        {
+          /* Cannot print error as 2 is closed! */
+          exit (1);
+        }
 
       /*
        * Close all the fd's
        */
-      for(i=3;i<256;i++)
-      {
-       close(i);
-      }
-      signal(SIGTERM, _exit);
-      signal(SIGPIPE, _exit);
-      execvp(cmd, args);
-      perror("execvp");
-      _exit(1);
+      for (i = 3; i < 256; i++)
+        {
+          close (i);
+        }
+      signal (SIGTERM, _exit);
+      signal (SIGPIPE, _exit);
+      execvp (cmd, args);
+      perror ("execvp");
+      _exit (1);
     }
-  close(pipes[1]);
-  if ((fp = fdopen(pipes[0], "r")) == NULL)
+  close (pipes[1]);
+  if ((fp = fdopen (pipes[0], "r")) == NULL)
     {
-      perror("fdopen");
-      close(pipes[0]);
+      perror ("fdopen");
+      close (pipes[0]);
       return NULL;
     }
 
-  if (ppid != NULL) *ppid = son;
+  if (ppid != NULL)
+    *ppid = son;
   return fp;
 }
 
 int
-openvas_pclose(FILE* fp, pid_t pid)
+openvas_pclose (FILE * fp, pid_t pid)
 {
   if (pid > 0)
-    if (waitpid(pid, NULL, WNOHANG) == 0)
-      if (kill(pid, SIGTERM) >= 0)
-	if (waitpid(pid, NULL, WNOHANG) == 0)
-	  {
-	    usleep(400);
-	    (void) kill(pid, SIGKILL);
-	    (void) waitpid(pid, NULL, WNOHANG);
-	  }
-  return fclose(fp);
+    if (waitpid (pid, NULL, WNOHANG) == 0)
+      if (kill (pid, SIGTERM) >= 0)
+        if (waitpid (pid, NULL, WNOHANG) == 0)
+          {
+            usleep (400);
+            (void) kill (pid, SIGKILL);
+            (void) waitpid (pid, NULL, WNOHANG);
+          }
+  return fclose (fp);
 }

@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  * TCP/IP service functions (getservent enhancement)
- */ 
+ */
 
 
 #include <stdarg.h>
@@ -44,51 +44,51 @@
  * IMPORTANT ! Some options are defined in services.h
  */
 
-struct my_svc {
-  FILE		*fp;
-  int		port;		/* 2 * port + proto_idx (0 = tcp, 1 = udp) */
-  char		name[128];
+struct my_svc
+{
+  FILE *fp;
+  int port;                     /* 2 * port + proto_idx (0 = tcp, 1 = udp) */
+  char name[128];
   /* Debug */
-  char		*filename;
-  int		line;
+  char *filename;
+  int line;
 };
 
 static int
-get_next_svc(struct my_svc *psvc)
+get_next_svc (struct my_svc *psvc)
 {
-  char		line[256], proto[32], *p;
+  char line[256], proto[32], *p;
 
- for (;;)
-   {
-     do
-       {
-	 if (fgets(line, sizeof(line), psvc->fp) == NULL)
-	   {
-	       fclose(psvc->fp);
-	     return 0;
-	   }
-	 psvc->line ++;
-       }
-     while (line[0] == '#' || isspace(line[0]));
+  for (;;)
+    {
+      do
+        {
+          if (fgets (line, sizeof (line), psvc->fp) == NULL)
+            {
+              fclose (psvc->fp);
+              return 0;
+            }
+          psvc->line++;
+        }
+      while (line[0] == '#' || isspace (line[0]));
 
-     for (p = line; ! isspace(*p) && *p != '\0'; p ++)
-       ;
-     if (*p == '\0')
-       continue;
-     *p = '\0';
-     if (sscanf(p+1, "%d/%s", &psvc->port, proto) == 2
-	 )
-       {
-	 psvc->port *= 2;
-	 if (strcmp(proto, "udp") == 0)
-	   psvc->port ++;
-	 else if (strcmp(proto, "tcp") != 0)
-	   continue;
-	 psvc->name[sizeof(psvc->name) - 1] = '\0';
-	 strncpy(psvc->name, line, sizeof(psvc->name) - 1);
-	 return 1;
-       }
-   }
+      for (p = line; !isspace (*p) && *p != '\0'; p++)
+        ;
+      if (*p == '\0')
+        continue;
+      *p = '\0';
+      if (sscanf (p + 1, "%d/%s", &psvc->port, proto) == 2)
+        {
+          psvc->port *= 2;
+          if (strcmp (proto, "udp") == 0)
+            psvc->port++;
+          else if (strcmp (proto, "tcp") != 0)
+            continue;
+          psvc->name[sizeof (psvc->name) - 1] = '\0';
+          strncpy (psvc->name, line, sizeof (psvc->name) - 1);
+          return 1;
+        }
+    }
 }
 
 /*
@@ -97,73 +97,85 @@ get_next_svc(struct my_svc *psvc)
  */
 
 int
-openvas_init_svc()
+openvas_init_svc ()
 {
   static int flag = 0;
-  int		l, error_flag = 0, rebuild = 0;
+  int l, error_flag = 0, rebuild = 0;
 #define N_SVC_F	5
-  struct my_svc	svc[N_SVC_F];
-  int		nf = 0, i, j, prev_p, prev_p_udp;
-  FILE		*fpT = NULL, *fpU = NULL, *fpTXT = NULL;
-  struct openvas_service	ness_svc;
-  struct stat	st;
-  time_t	t;
+  struct my_svc svc[N_SVC_F];
+  int nf = 0, i, j, prev_p, prev_p_udp;
+  FILE *fpT = NULL, *fpU = NULL, *fpTXT = NULL;
+  struct openvas_service ness_svc;
+  struct stat st;
+  time_t t;
 
-  bzero(&ness_svc, sizeof(ness_svc));
+  bzero (&ness_svc, sizeof (ness_svc));
 
   if (flag)
     return 0;
 
   /* Verify files date */
-  
-  if (stat(OPENVAS_SERVICES_TCP, &st) < 0)
+
+  if (stat (OPENVAS_SERVICES_TCP, &st) < 0)
     t = 0;
   else
     {
       int fd;
-      char * buf;
-     
-      fd = open(OPENVAS_SERVICES_TCP, O_RDONLY);
-      if ( fd < 0 ) { perror("open "); rebuild ++; }
+      char *buf;
+
+      fd = open (OPENVAS_SERVICES_TCP, O_RDONLY);
+      if (fd < 0)
+        {
+          perror ("open ");
+          rebuild++;
+        }
       else
-       {
-  	int len;
-	len = (int)st.st_size;
-        buf = mmap(NULL, len, PROT_READ, MAP_SHARED, fd, 0);
-        if ( buf == MAP_FAILED || buf == NULL ){ perror("mmap "); rebuild ++; }
-        else {
-            struct openvas_service * s;
-            s = (struct openvas_service*)(buf);
-            if ( s->magic != SERVICES_MAGIC ) rebuild ++;
-            munmap(buf, len);
-           }
-         close(fd);
-	 fd = -1;
-       }
+        {
+          int len;
+          len = (int) st.st_size;
+          buf = mmap (NULL, len, PROT_READ, MAP_SHARED, fd, 0);
+          if (buf == MAP_FAILED || buf == NULL)
+            {
+              perror ("mmap ");
+              rebuild++;
+            }
+          else
+            {
+              struct openvas_service *s;
+              s = (struct openvas_service *) (buf);
+              if (s->magic != SERVICES_MAGIC)
+                rebuild++;
+              munmap (buf, len);
+            }
+          close (fd);
+          fd = -1;
+        }
       t = st.st_mtime;
-      if (stat(OPENVAS_SERVICES_UDP, & st) < 0)
-	t = 0;
-      else if ((unsigned)st.st_mtime < (unsigned)t)
-	t = st.st_mtime;
+      if (stat (OPENVAS_SERVICES_UDP, &st) < 0)
+        t = 0;
+      else if ((unsigned) st.st_mtime < (unsigned) t)
+        t = st.st_mtime;
     }
-      
- if ( stat(OPENVAS_SERVICES, &st) < 0 )
-	{
-	 fprintf(stderr, "**** %s could not be found. Install it and try again\n", OPENVAS_SERVICES);
-	 exit(1);
-	}
-  if (stat(OPENVAS_SERVICES, &st) >= 0 && (unsigned)st.st_mtime > (unsigned)t)
-    rebuild ++;
-  
-  if (! rebuild)
+
+  if (stat (OPENVAS_SERVICES, &st) < 0)
+    {
+      fprintf (stderr, "**** %s could not be found. Install it and try again\n",
+               OPENVAS_SERVICES);
+      exit (1);
+    }
+  if (stat (OPENVAS_SERVICES, &st) >= 0
+      && (unsigned) st.st_mtime > (unsigned) t)
+    rebuild++;
+
+  if (!rebuild)
     return 0;
 
   /* fputs("Rebuilding OpenVAS services list\n", stderr); */
 
-  for (i = 0; i < N_SVC_F; i ++)
+  for (i = 0; i < N_SVC_F; i++)
     svc[i].line = 1;
   nf = 0;
-  (void) mkdir(OPENVAS_STATE_DIR, 0755);
+  (void) mkdir (OPENVAS_STATE_DIR, 0755);
 
   /*
    * Although our code is all right to parse /etc/services, we also
@@ -171,116 +183,119 @@ openvas_init_svc()
    * some other kind of database. getservent() is supposed to walk through it.
    */
   /* openvas-services file is supposed to be sorted */
-  if ((svc[nf].fp = fopen(OPENVAS_SERVICES, "r")) != NULL)
-  {
-    if (get_next_svc(&svc[nf]))
+  if ((svc[nf].fp = fopen (OPENVAS_SERVICES, "r")) != NULL)
     {
-      svc[nf].filename = OPENVAS_SERVICES;
-      nf ++;
+      if (get_next_svc (&svc[nf]))
+        {
+          svc[nf].filename = OPENVAS_SERVICES;
+          nf++;
+        }
     }
-  }
 
 
 
   if (nf > 0)
     {
-      if ((fpT = fopen(OPENVAS_SERVICES_TCP, "w")) == NULL)
-	{
-	  perror(OPENVAS_SERVICES_TCP);
-	  error_flag ++;
-	}
-      else if ((fpU = fopen(OPENVAS_SERVICES_UDP, "w")) == NULL)
-	{
-	  perror(OPENVAS_SERVICES_UDP);
-	  error_flag ++;
-	}
-      else if ((fpTXT = fopen(OPENVAS_SERVICES_TXT, "w")) == NULL)
-	{
-	  perror(OPENVAS_SERVICES_TXT);
-	  error_flag ++;
-	}
+      if ((fpT = fopen (OPENVAS_SERVICES_TCP, "w")) == NULL)
+        {
+          perror (OPENVAS_SERVICES_TCP);
+          error_flag++;
+        }
+      else if ((fpU = fopen (OPENVAS_SERVICES_UDP, "w")) == NULL)
+        {
+          perror (OPENVAS_SERVICES_UDP);
+          error_flag++;
+        }
+      else if ((fpTXT = fopen (OPENVAS_SERVICES_TXT, "w")) == NULL)
+        {
+          perror (OPENVAS_SERVICES_TXT);
+          error_flag++;
+        }
     }
 
   prev_p = prev_p_udp = -1;
-  while (nf > 0 && ! error_flag)
+  while (nf > 0 && !error_flag)
     {
-      for (j = 0, i = 1; i < nf; i ++)
-	{
-	  if (svc[i].port < svc[j].port)
-	    j = i;
-	}
-      if ( ( svc[j].port % 2 == 0 && svc[j].port < prev_p     ) ||
-           ( svc[j].port % 2 != 0 && svc[j].port < prev_p_udp ) ) 
-	{
-#if PANIC_THE_USER		
-	  if (*svc[j].filename == '/') /* No warning on system base */
-	  fprintf(stderr, "openvas_init_svc: %s is not sorted! Found %d/%s at the wrong place (line %d)\n",
-		  svc[j].filename,
-		  svc[j].port / 2, svc[j].port % 2 ? "udp" : "tcp",
-		  svc[j].line);
-#endif		  
-	}
-      else if ( (svc[j].port % 2 == 0 && svc[j].port != prev_p) || 
-                (svc[j].port % 2 != 0 && svc[j].port != prev_p_udp) )
-	{
-	  if ( svc[j].port % 2 == 0 )
- 	   prev_p = svc[j].port;
-	  else
-	   prev_p_udp = svc[j].port;
-
-	  ness_svc.ns_port = svc[j].port / 2;
-	  l = strlen(svc[j].name);
-	  if (l > sizeof(ness_svc.ns_name) - 1)
-	    l = sizeof(ness_svc.ns_name) - 1;
-          ness_svc.magic = SERVICES_MAGIC;
-	  memcpy (ness_svc.ns_name, svc[j].name, l); /* RATS: ignore, l got sanitized */
-	  memset(ness_svc.ns_name + l, 0, sizeof(ness_svc.ns_name) - l);
-#ifdef ULTRA_VERBOSE_DEBUG
-	  fprintf(stderr, "From %d: name=%s port=%d => %d\n",
-		  j, ness_svc.ns_name, svc[j].port, ness_svc.ns_port);
+      for (j = 0, i = 1; i < nf; i++)
+        {
+          if (svc[i].port < svc[j].port)
+            j = i;
+        }
+      if ((svc[j].port % 2 == 0 && svc[j].port < prev_p)
+          || (svc[j].port % 2 != 0 && svc[j].port < prev_p_udp))
+        {
+#if PANIC_THE_USER
+          if (*svc[j].filename == '/')  /* No warning on system base */
+            fprintf (stderr,
+                     "openvas_init_svc: %s is not sorted! Found %d/%s at the wrong place (line %d)\n",
+                     svc[j].filename, svc[j].port / 2,
+                     svc[j].port % 2 ? "udp" : "tcp", svc[j].line);
 #endif
-	  if (svc[j].port % 2)
-	    {
-	      fprintf(fpTXT, "%s\t%d/udp\n", ness_svc.ns_name, ness_svc.ns_port);
-	      if (fwrite(&ness_svc, sizeof(ness_svc), 1, fpU) < 1)
-		{
-		  perror("fwrite");
-		  error_flag ++;
-		}
-	    }
-	  else
-	    {
-	      fprintf(fpTXT, "%s\t%d/tcp\n", ness_svc.ns_name, ness_svc.ns_port);
-	      if (fwrite(&ness_svc, sizeof(ness_svc), 1, fpT) < 1)
-		{
-		  perror("fwrite");
-		  error_flag ++;
-		}
-	    }
-	}
-      if (! get_next_svc(&svc[j]))
-	{
-	  for (i = j; i < nf - 1; i ++)
-	    svc[i] = svc[i+1];
-	  nf --;
-	}
+        }
+      else if ((svc[j].port % 2 == 0 && svc[j].port != prev_p)
+               || (svc[j].port % 2 != 0 && svc[j].port != prev_p_udp))
+        {
+          if (svc[j].port % 2 == 0)
+            prev_p = svc[j].port;
+          else
+            prev_p_udp = svc[j].port;
+
+          ness_svc.ns_port = svc[j].port / 2;
+          l = strlen (svc[j].name);
+          if (l > sizeof (ness_svc.ns_name) - 1)
+            l = sizeof (ness_svc.ns_name) - 1;
+          ness_svc.magic = SERVICES_MAGIC;
+          memcpy (ness_svc.ns_name, svc[j].name, l);    /* RATS: ignore, l got sanitized */
+          memset (ness_svc.ns_name + l, 0, sizeof (ness_svc.ns_name) - l);
+#ifdef ULTRA_VERBOSE_DEBUG
+          fprintf (stderr, "From %d: name=%s port=%d => %d\n", j,
+                   ness_svc.ns_name, svc[j].port, ness_svc.ns_port);
+#endif
+          if (svc[j].port % 2)
+            {
+              fprintf (fpTXT, "%s\t%d/udp\n", ness_svc.ns_name,
+                       ness_svc.ns_port);
+              if (fwrite (&ness_svc, sizeof (ness_svc), 1, fpU) < 1)
+                {
+                  perror ("fwrite");
+                  error_flag++;
+                }
+            }
+          else
+            {
+              fprintf (fpTXT, "%s\t%d/tcp\n", ness_svc.ns_name,
+                       ness_svc.ns_port);
+              if (fwrite (&ness_svc, sizeof (ness_svc), 1, fpT) < 1)
+                {
+                  perror ("fwrite");
+                  error_flag++;
+                }
+            }
+        }
+      if (!get_next_svc (&svc[j]))
+        {
+          for (i = j; i < nf - 1; i++)
+            svc[i] = svc[i + 1];
+          nf--;
+        }
     }
 
-  if( fpTXT != NULL )(void) fclose(fpTXT);
-  if ((fpT != NULL && fclose(fpT) < 0) || (fpU != NULL && fclose(fpU) < 0))
+  if (fpTXT != NULL)
+    (void) fclose (fpTXT);
+  if ((fpT != NULL && fclose (fpT) < 0) || (fpU != NULL && fclose (fpU) < 0))
     {
-      perror("fclose");
-      error_flag ++;
+      perror ("fclose");
+      error_flag++;
     }
 
   if (error_flag)
     {
-      for (i = 0; i < nf; i ++)
-	if (svc[i].fp != NULL && svc[i].fp != (void*) 1)
-	    fclose(svc[i].fp);
-      unlink(OPENVAS_SERVICES_TCP);
-      unlink(OPENVAS_SERVICES_UDP);
-      unlink(OPENVAS_SERVICES_TXT);
+      for (i = 0; i < nf; i++)
+        if (svc[i].fp != NULL && svc[i].fp != (void *) 1)
+          fclose (svc[i].fp);
+      unlink (OPENVAS_SERVICES_TCP);
+      unlink (OPENVAS_SERVICES_UDP);
+      unlink (OPENVAS_SERVICES_TXT);
     }
   return error_flag ? -1 : 0;
 }

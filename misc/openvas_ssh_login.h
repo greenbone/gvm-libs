@@ -31,32 +31,34 @@
 /**
  * SSH Login information struct. (credentials)
  */
-typedef struct {
-  char* name;               /// Name to identify this credentials
-  char* username;           /// Name of the user
-  char* userpassword;       /// Password of the user
-  char* public_key_path;    /// Path to the public key
-  char* private_key_path;   /// Path to the private key
-  char* ssh_key_passphrase; /// Passphrase for the key
-  char* comment;            /// Optional comment
+typedef struct
+{
+  char *name;                   /// Name to identify this credentials
+  char *username;               /// Name of the user
+  char *userpassword;           /// Password of the user
+  char *public_key_path;        /// Path to the public key
+  char *private_key_path;       /// Path to the private key
+  char *ssh_key_passphrase;     /// Passphrase for the key
+  char *comment;                /// Optional comment
   gboolean valid;           /**< @brief TRUE if all information and key files
                              *         available, FALSE otherwise.*/
 } openvas_ssh_login;
 
-openvas_ssh_login* openvas_ssh_login_new(char* name, char* pubkey_file,
-                                         char* privkey_file, char* passphrase,
-                                         char* comment, char* uname, char* upass);
+openvas_ssh_login *openvas_ssh_login_new (char *name, char *pubkey_file,
+                                          char *privkey_file, char *passphrase,
+                                          char *comment, char *uname,
+                                          char *upass);
 
-void openvas_ssh_login_free(openvas_ssh_login* loginfo);
+void openvas_ssh_login_free (openvas_ssh_login * loginfo);
 
-GHashTable* openvas_ssh_login_file_read (char* filename, gboolean check);
+GHashTable *openvas_ssh_login_file_read (char *filename, gboolean check);
 
-GHashTable* openvas_ssh_login_file_read_buffer (const char* buffer,
+GHashTable *openvas_ssh_login_file_read_buffer (const char *buffer,
                                                 gsize buffer_size,
                                                 gboolean check);
 
-gboolean openvas_ssh_login_file_write(GHashTable* ssh_logins, char* filename);
+gboolean openvas_ssh_login_file_write (GHashTable * ssh_logins, char *filename);
 
-char* openvas_ssh_login_prefstring(openvas_ssh_login* loginfo);
+char *openvas_ssh_login_prefstring (openvas_ssh_login * loginfo);
 
 #endif

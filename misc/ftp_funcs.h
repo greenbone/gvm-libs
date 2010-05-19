@@ -29,7 +29,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-int ftp_log_in(int , char * , char * );
-int ftp_get_pasv_address(int , struct sockaddr_in * );
+int ftp_log_in (int, char *, char *);
+int ftp_get_pasv_address (int, struct sockaddr_in *);
 
 #endif

@@ -16,7 +16,7 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  * Random generator helper functions
- */ 
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,17 +30,17 @@
  */
 
 void
-openvas_init_random()
+openvas_init_random ()
 {
-  FILE	*fp;
-  long	x = 0;
+  FILE *fp;
+  long x = 0;
 
 
-  if ((fp = fopen("/dev/urandom", "r")) != NULL)
+  if ((fp = fopen ("/dev/urandom", "r")) != NULL)
     {
-      (void) fread(&x, sizeof(x), 1, fp);
-      fclose(fp);
+      (void) fread (&x, sizeof (x), 1, fp);
+      fclose (fp);
     }
-  x += time(NULL) + getpid() + getppid();
-  srand48(x);
+  x += time (NULL) + getpid () + getppid ();
+  srand48 (x);
 }

@@ -45,32 +45,34 @@
  * Knowledge base item (defined by name, type (int/char*) and value).
  * Implemented as a singly linked list
  */
-struct kb_item {
-  char * name; /**< Name of this knowledge base item.  */
+struct kb_item
+{
+  char *name;  /**< Name of this knowledge base item.  */
   char type;   /**< One of KB_TYPE_INT or KB_TYPE_STR. */
   /** @todo Check if this is safe. (What happens if char* and int have not 
             the same size?) */
-  union {
-    char * v_str;
+  union
+  {
+    char *v_str;
     int v_int;
   } v;        /**< Value of this knowledge base item.  */
-  struct kb_item * next; /**< Next item in list.       */
+  struct kb_item *next;  /**< Next item in list.       */
 };
 
-struct kb_item ** kb_new();
-struct kb_item * kb_item_get_single(struct kb_item **, char *, int );
-char * kb_item_get_str(struct kb_item **, char *);
-int    kb_item_get_int(struct kb_item **, char *);
-struct kb_item * kb_item_get_all(struct kb_item **, char *);
-struct kb_item * kb_item_get_pattern(struct kb_item **, char *);
-void   kb_item_get_all_free(struct kb_item *);
+struct kb_item **kb_new ();
+struct kb_item *kb_item_get_single (struct kb_item **, char *, int);
+char *kb_item_get_str (struct kb_item **, char *);
+int kb_item_get_int (struct kb_item **, char *);
+struct kb_item *kb_item_get_all (struct kb_item **, char *);
+struct kb_item *kb_item_get_pattern (struct kb_item **, char *);
+void kb_item_get_all_free (struct kb_item *);
 
-int    kb_item_add_str(struct kb_item **, char *, char *);
-int    kb_item_set_str(struct kb_item **, char *, char *);
-int    kb_item_add_int(struct kb_item **, char *, int   );
-int    kb_item_set_int(struct kb_item **, char *, int   );
-void   kb_item_rm_all(struct kb_item **, char *);
+int kb_item_add_str (struct kb_item **, char *, char *);
+int kb_item_set_str (struct kb_item **, char *, char *);
+int kb_item_add_int (struct kb_item **, char *, int);
+int kb_item_set_int (struct kb_item **, char *, int);
+void kb_item_rm_all (struct kb_item **, char *);
 
-struct arglist * plug_get_oldstyle_kb(struct arglist * );
+struct arglist *plug_get_oldstyle_kb (struct arglist *);
 
 #endif

@@ -38,7 +38,7 @@
 
 #ifdef ENABLE_LDAP_AUTH
 #include "ldap_auth.h"
-#endif /*ENABLE_LDAP_AUTH*/
+#endif /*ENABLE_LDAP_AUTH */
 
 #define AUTH_CONF_FILE ".auth.conf"
 
@@ -101,7 +101,8 @@
  * @brief Numerical representation of the supported authentication methods.
  * @brief Beware to have it in sync with \ref authentication_methods.
  */
-enum authentication_method {
+enum authentication_method
+{
   AUTHENTICATION_METHOD_FILE = 0,
   AUTHENTICATION_METHOD_LDAP,
   AUTHENTICATION_METHOD_LAST
@@ -115,34 +116,35 @@ typedef enum authentication_method auth_method_t;
  * @brief Array of string representations of the supported authentication
  * @brief methods. Beware to have it in sync with \ref authentication_method.
  */
-static const gchar* authentication_methods[] = { "file", "ldap", NULL};
+static const gchar *authentication_methods[] = { "file", "ldap", NULL };
 
 /** @brief Flag whether the config file was read. */
 static gboolean initialized = FALSE;
 
 /** @brief List of authentication methods. */
-static GSList* authenticators = NULL;
+static GSList *authenticators = NULL;
 
 /** @brief Representation of an abstract authentication mechanism. */
-struct authenticator {
+struct authenticator
+{
   /** @brief The method of this authenticator. */
   auth_method_t method;
   /** @brief The order. Authenticators with lower order will be tried first. */
   int order;
   /** @brief Authentication callback function. */
-  int (*authenticate) (const gchar* user, const gchar* pass, void* data);
+  int (*authenticate) (const gchar * user, const gchar * pass, void *data);
   /** @brief Optional data to be passed to the \ref authenticate callback
    *  @brief function. */
-  void* data;
+  void *data;
 };
 
 /** @brief Authenticator type. */
-typedef struct authenticator* authenticator_t;
+typedef struct authenticator *authenticator_t;
 
 
 // forward decl.
-static int
-openvas_authenticate_classic (const gchar * usr, const gchar * pas, void* dat);
+static int openvas_authenticate_classic (const gchar * usr, const gchar * pas,
+                                         void *dat);
 
 
 /**
@@ -156,7 +158,7 @@ openvas_authenticate_classic (const gchar * usr, const gchar * pas, void* dat);
  * @return Respective auth_method_t, -1 for unknown.
  */
 static auth_method_t
-auth_method_from_string (const char* method)
+auth_method_from_string (const char *method)
 {
   if (method == NULL)
     return -1;
@@ -198,7 +200,7 @@ classic_authenticator_new (int order)
   authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
   authent->order = order;
   authent->authenticate = &openvas_authenticate_classic;
-  authent->data = (void*) NULL;
+  authent->data = (void *) NULL;
   authent->method = AUTHENTICATION_METHOD_FILE;
   return authent;
 }
@@ -210,11 +212,11 @@ classic_authenticator_new (int order)
  * @param group    Groupname within \ref key_file to query.
  */
 static void
-add_authenticator (GKeyFile* key_file, const gchar* group)
+add_authenticator (GKeyFile * key_file, const gchar * group)
 {
-  const char* auth_method_str = group + strlen (GROUP_PREFIX_METHOD);
+  const char *auth_method_str = group + strlen (GROUP_PREFIX_METHOD);
   auth_method_t auth_method = auth_method_from_string (auth_method_str);
-  GError* error = NULL;
+  GError *error = NULL;
   int order = g_key_file_get_integer (key_file, group, KEY_ORDER, &error);
   if (error != NULL)
     {
@@ -225,36 +227,38 @@ add_authenticator (GKeyFile* key_file, const gchar* group)
     }
   switch (auth_method)
     {
-      case AUTHENTICATION_METHOD_FILE:
-        {
-          authenticator_t authent = classic_authenticator_new (order);
-          authenticators = g_slist_insert_sorted (authenticators, authent,
-                                                  (GCompareFunc) order_compare);
-          break;
-        }
-      case AUTHENTICATION_METHOD_LDAP:
-        {
-#ifdef ENABLE_LDAP_AUTH
-          //int (*authenticate_func) (const gchar* user, const gchar* pass, void* data) = NULL;
-          authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
-          authent->order = order;
-          authent->authenticate = &ldap_authenticate;
-          ldap_auth_info_t info = ldap_auth_info_from_key_file (key_file, group);
-          authent->data = info;
-          authent->method = AUTHENTICATION_METHOD_LDAP;
-          authenticators = g_slist_insert_sorted (authenticators, authent,
-                                                  (GCompareFunc) order_compare);
-#else
-          g_warning ("LDAP Authentication was configured, but "
-                    "openvas-libraries was not build with "
-                    "ldap-support. The configuration entry will "
-                    "have no effect.");
-#endif /* ENABLE_LDAP_AUTH */
-          break;
-        }
-      default:
-        g_warning ("Unsupported authentication method: %s.", group);
+    case AUTHENTICATION_METHOD_FILE:
+      {
+        authenticator_t authent = classic_authenticator_new (order);
+        authenticators =
+          g_slist_insert_sorted (authenticators, authent,
+                                 (GCompareFunc) order_compare);
         break;
+      }
+    case AUTHENTICATION_METHOD_LDAP:
+      {
+#ifdef ENABLE_LDAP_AUTH
+        //int (*authenticate_func) (const gchar* user, const gchar* pass, void* data) = NULL;
+        authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
+        authent->order = order;
+        authent->authenticate = &ldap_authenticate;
+        ldap_auth_info_t info = ldap_auth_info_from_key_file (key_file, group);
+        authent->data = info;
+        authent->method = AUTHENTICATION_METHOD_LDAP;
+        authenticators =
+          g_slist_insert_sorted (authenticators, authent,
+                                 (GCompareFunc) order_compare);
+#else
+        g_warning ("LDAP Authentication was configured, but "
+                   "openvas-libraries was not build with "
+                   "ldap-support. The configuration entry will "
+                   "have no effect.");
+#endif /* ENABLE_LDAP_AUTH */
+        break;
+      }
+    default:
+      g_warning ("Unsupported authentication method: %s.", group);
+      break;
     }
 }
 
@@ -283,12 +287,13 @@ openvas_auth_init ()
       return;
     }
 
-  GKeyFile* key_file = g_key_file_new ();
-  gchar* config_file = g_build_filename (OPENVAS_USERS_DIR, ".auth.conf",
+  GKeyFile *key_file = g_key_file_new ();
+  gchar *config_file = g_build_filename (OPENVAS_USERS_DIR, ".auth.conf",
                                          NULL);
-  gboolean loaded = g_key_file_load_from_file (key_file, config_file, G_KEY_FILE_NONE, NULL);
-  gchar** groups  = NULL;
-  gchar** group   = NULL;
+  gboolean loaded =
+    g_key_file_load_from_file (key_file, config_file, G_KEY_FILE_NONE, NULL);
+  gchar **groups = NULL;
+  gchar **group = NULL;
   g_free (config_file);
 
   if (loaded == FALSE)
@@ -313,15 +318,16 @@ openvas_auth_init ()
               add_authenticator (key_file, *group);
             }
           else
-          {
-            // Add other authenticators iff they are enabled.
-            gchar* enabled_value = g_key_file_get_value (key_file, *group, "enable", NULL);
-            if (!strcmp (enabled_value, "true"))
-              {
-                add_authenticator (key_file, *group);
-              }
-            g_free (enabled_value);
-          }
+            {
+              // Add other authenticators iff they are enabled.
+              gchar *enabled_value =
+                g_key_file_get_value (key_file, *group, "enable", NULL);
+              if (!strcmp (enabled_value, "true"))
+                {
+                  add_authenticator (key_file, *group);
+                }
+              g_free (enabled_value);
+            }
         }
       group++;
     }
@@ -352,42 +358,49 @@ openvas_auth_tear_down ()
  * @return 1 if file has been written successfully, != 1 otherwise.
  */
 int
-openvas_auth_write_config (GKeyFile* key_file)
+openvas_auth_write_config (GKeyFile * key_file)
 {
-  GKeyFile* new_conffile  = g_key_file_new ();
-  GKeyFile* old_conffile  = g_key_file_new ();
-  gchar** groups      = NULL;
-  gchar** group       = NULL;
-  gchar** keys        = NULL;
-  gchar** key         = NULL;
-  gchar* file_content = NULL;
-  gboolean written    = FALSE;
-  gchar* file_path    = g_build_filename (OPENVAS_USERS_DIR, ".auth.conf",
-                                          NULL);
+  GKeyFile *new_conffile = g_key_file_new ();
+  GKeyFile *old_conffile = g_key_file_new ();
+  gchar **groups = NULL;
+  gchar **group = NULL;
+  gchar **keys = NULL;
+  gchar **key = NULL;
+  gchar *file_content = NULL;
+  gboolean written = FALSE;
+  gchar *file_path = g_build_filename (OPENVAS_USERS_DIR, ".auth.conf",
+                                       NULL);
 
   // Instead of clever merging with existing file and the defaults, fill
   // conffile with defaults and overwrite with values from parameter, if any.
 
   // "Classic authentication" configuration.
-  g_key_file_set_comment (new_conffile, NULL, NULL, "This file was automatically generated.", NULL);
+  g_key_file_set_comment (new_conffile, NULL, NULL,
+                          "This file was automatically generated.", NULL);
   g_key_file_set_value (new_conffile, "method:file", "enable", "true");
   g_key_file_set_value (new_conffile, "method:file", "order", "1");
   // LDAP configuration.
   g_key_file_set_value (new_conffile, "method:ldap", "enable", "false");
   g_key_file_set_value (new_conffile, "method:ldap", "order", "2");
   g_key_file_set_value (new_conffile, "method:ldap", "ldaphost", "localhost");
-  g_key_file_set_value (new_conffile, "method:ldap", "authdn", "authdn=uid=%s,cn=users,o=yourserver,c=yournet");
-  g_key_file_set_value (new_conffile, "method:ldap", "role-attribute", "x-gsm-role");
-  g_key_file_set_value (new_conffile, "method:ldap", "role-user-values", "user;admin");
-  g_key_file_set_value (new_conffile, "method:ldap", "role-admin-values", "admin");
-  g_key_file_set_value (new_conffile, "method:ldap", "ruletype-attribute", "x-gsm-ruletype");
-  g_key_file_set_value (new_conffile, "method:ldap", "rule-attribute", "x-gsm-rule");
+  g_key_file_set_value (new_conffile, "method:ldap", "authdn",
+                        "authdn=uid=%s,cn=users,o=yourserver,c=yournet");
+  g_key_file_set_value (new_conffile, "method:ldap", "role-attribute",
+                        "x-gsm-role");
+  g_key_file_set_value (new_conffile, "method:ldap", "role-user-values",
+                        "user;admin");
+  g_key_file_set_value (new_conffile, "method:ldap", "role-admin-values",
+                        "admin");
+  g_key_file_set_value (new_conffile, "method:ldap", "ruletype-attribute",
+                        "x-gsm-ruletype");
+  g_key_file_set_value (new_conffile, "method:ldap", "rule-attribute",
+                        "x-gsm-rule");
 
   // Old, user-provided configuration, if any.
   /** @todo Preserve comments in file. */
   old_conffile = g_key_file_new ();
-  if (g_key_file_load_from_file (old_conffile, file_path, G_KEY_FILE_KEEP_COMMENTS,
-                                 NULL) == TRUE)
+  if (g_key_file_load_from_file
+      (old_conffile, file_path, G_KEY_FILE_KEEP_COMMENTS, NULL) == TRUE)
     {
       // Old file does exist.
       groups = g_key_file_get_groups (old_conffile, NULL);
@@ -399,7 +412,8 @@ openvas_auth_write_config (GKeyFile* key_file)
           key = keys;
           while (*key != NULL)
             {
-              gchar* value = g_key_file_get_value (old_conffile, *group, *key, NULL);
+              gchar *value =
+                g_key_file_get_value (old_conffile, *group, *key, NULL);
               g_key_file_set_value (new_conffile, *group, *key, value);
               key++;
             }
@@ -420,7 +434,7 @@ openvas_auth_write_config (GKeyFile* key_file)
       key = keys;
       while (*key != NULL)
         {
-          gchar* value = g_key_file_get_value (key_file, *group, *key, NULL);
+          gchar *value = g_key_file_get_value (key_file, *group, *key, NULL);
           g_key_file_set_value (new_conffile, *group, *key, value);
           key++;
         }
@@ -458,17 +472,16 @@ digest_hex (int gcrypt_algorithm, const guchar * digest)
   gcry_error_t err = gcry_md_test_algo (gcrypt_algorithm);
   if (err != 0)
     {
-      g_warning ("Could not select gcrypt algorithm: %s",
-                 gcry_strerror (err));
+      g_warning ("Could not select gcrypt algorithm: %s", gcry_strerror (err));
       return NULL;
     }
 
-  gchar *hex = g_malloc0(gcry_md_get_algo_dlen (gcrypt_algorithm) * 2 + 1);
+  gchar *hex = g_malloc0 (gcry_md_get_algo_dlen (gcrypt_algorithm) * 2 + 1);
   int i;
 
   for (i = 0; i < gcry_md_get_algo_dlen (gcrypt_algorithm); i++)
     {
-      g_snprintf(hex + i * 2, 3, "%02x", digest[i]);
+      g_snprintf (hex + i * 2, 3, "%02x", digest[i]);
     }
 
   return hex;
@@ -499,8 +512,7 @@ get_password_hashes (int gcrypt_algorithm, const gchar * password)
   gcry_error_t err = gcry_md_test_algo (gcrypt_algorithm);
   if (err != 0)
     {
-      g_warning ("Could not select gcrypt algorithm: %s",
-                 gcry_strerror (err));
+      g_warning ("Could not select gcrypt algorithm: %s", gcry_strerror (err));
       return NULL;
     }
 
@@ -544,13 +556,13 @@ get_password_hashes (int gcrypt_algorithm, const gchar * password)
  */
 static int
 openvas_authenticate_classic (const gchar * username, const gchar * password,
-                              void* data)
+                              void *data)
 {
-  int gcrypt_algorithm = GCRY_MD_MD5; // FIX whatever configer used
+  int gcrypt_algorithm = GCRY_MD_MD5;   // FIX whatever configer used
   int ret;
-  gchar* actual;
-  gchar* expect;
-  GError* error = NULL;
+  gchar *actual;
+  gchar *expect;
+  GError *error = NULL;
   gchar *seed_pass = NULL;
   guchar *hash = g_malloc0 (gcry_md_get_algo_dlen (gcrypt_algorithm));
   gchar *hash_hex = NULL;
@@ -619,13 +631,13 @@ openvas_authenticate (const gchar * username, const gchar * password)
 
   // Try each authenticator in the list.
   int ret = -1;
-  GSList* item = authenticators;
+  GSList *item = authenticators;
   while (item)
     {
       authenticator_t authent = (authenticator_t) item->data;
       ret = authent->authenticate (username, password, authent->data);
-      g_debug ("Authentication trial, order %d, method %s -> %d.", authent->order,
-               authentication_methods[authent->method], ret);
+      g_debug ("Authentication trial, order %d, method %s -> %d.",
+               authent->order, authentication_methods[authent->method], ret);
 
       // Return if successfull
       if (ret == 0)
@@ -653,7 +665,7 @@ openvas_authenticate (const gchar * username, const gchar * password)
  */
 static int
 openvas_authenticate_method (const gchar * username, const gchar * password,
-                             auth_method_t* method)
+                             auth_method_t * method)
 {
   *method = AUTHENTICATION_METHOD_FILE;
   if (initialized == FALSE || authenticators == NULL)
@@ -661,13 +673,13 @@ openvas_authenticate_method (const gchar * username, const gchar * password,
 
   // Try each authenticator in the list.
   int ret = -1;
-  GSList* item = authenticators;
+  GSList *item = authenticators;
   while (item)
     {
       authenticator_t authent = (authenticator_t) item->data;
       ret = authent->authenticate (username, password, authent->data);
-      g_debug ("Authentication trial, order %d, method %s -> %d. (w/method)", authent->order,
-               authentication_methods[authent->method], ret);
+      g_debug ("Authentication trial, order %d, method %s -> %d. (w/method)",
+               authent->order, authentication_methods[authent->method], ret);
 
       // Return if successfull
       if (ret == 0)
@@ -694,12 +706,14 @@ openvas_authenticate_method (const gchar * username, const gchar * password,
 static gchar *
 openvas_user_uuid_method (const char *name, const auth_method_t method)
 {
-  gchar *user_dir = (method == AUTHENTICATION_METHOD_FILE)
-                    ? g_build_filename (OPENVAS_USERS_DIR, name, NULL)
-                    : g_build_filename (OPENVAS_STATE_DIR,
-                                        "users-remote",
-                                        authentication_methods[method],
-                                        name, NULL);
+  gchar *user_dir =
+    (method ==
+     AUTHENTICATION_METHOD_FILE) ? g_build_filename (OPENVAS_USERS_DIR, name,
+                                                     NULL) :
+    g_build_filename (OPENVAS_STATE_DIR,
+                      "users-remote",
+                      authentication_methods[method],
+                      name, NULL);
 
   // Create a user dir to store the uuid, if it did not yet exist.
   if (g_mkdir_with_parents (user_dir, 0700) != 0)
@@ -709,56 +723,56 @@ openvas_user_uuid_method (const char *name, const auth_method_t method)
       return NULL;
     }
 
-    {
-      gchar *uuid_file = g_build_filename (user_dir, "uuid", NULL);
-      // File exists, get its content (the uuid).
-      if (g_file_test (uuid_file, G_FILE_TEST_EXISTS))
-        {
-          gsize size;
-          gchar *uuid;
-          if (g_file_get_contents (uuid_file, &uuid, &size, NULL))
-            {
-              if (strlen (uuid) < 36)
-                g_free (uuid);
-              else
-                {
-                  g_free (user_dir);
-                  g_free (uuid_file);
-                  /* Drop any trailing characters. */
-                  uuid[36] = '\0';
-                  return uuid;
-                }
-            }
-        }
-      // File does not exists, create file, set (new) uuid as content.
-      else
-        {
-          gchar *contents;
-          char *uuid;
+  {
+    gchar *uuid_file = g_build_filename (user_dir, "uuid", NULL);
+    // File exists, get its content (the uuid).
+    if (g_file_test (uuid_file, G_FILE_TEST_EXISTS))
+      {
+        gsize size;
+        gchar *uuid;
+        if (g_file_get_contents (uuid_file, &uuid, &size, NULL))
+          {
+            if (strlen (uuid) < 36)
+              g_free (uuid);
+            else
+              {
+                g_free (user_dir);
+                g_free (uuid_file);
+                /* Drop any trailing characters. */
+                uuid[36] = '\0';
+                return uuid;
+              }
+          }
+      }
+    // File does not exists, create file, set (new) uuid as content.
+    else
+      {
+        gchar *contents;
+        char *uuid;
 
-          uuid = openvas_uuid_make ();
-          if (uuid == NULL)
-            {
-              g_free (user_dir);
-              g_free (uuid_file);
-              return NULL;
-            }
+        uuid = openvas_uuid_make ();
+        if (uuid == NULL)
+          {
+            g_free (user_dir);
+            g_free (uuid_file);
+            return NULL;
+          }
 
-          contents = g_strdup_printf ("%s\n", uuid);
+        contents = g_strdup_printf ("%s\n", uuid);
 
-          if (g_file_set_contents (uuid_file, contents, -1, NULL))
-            {
-              g_free (contents);
-              g_free (user_dir);
-              g_free (uuid_file);
-              return uuid;
-            }
+        if (g_file_set_contents (uuid_file, contents, -1, NULL))
+          {
+            g_free (contents);
+            g_free (user_dir);
+            g_free (uuid_file);
+            return uuid;
+          }
 
-          g_free (contents);
-          free (uuid);
-        }
-      g_free (uuid_file);
-    }
+        g_free (contents);
+        free (uuid);
+      }
+    g_free (uuid_file);
+  }
 
   g_free (user_dir);
   return NULL;
@@ -776,7 +790,7 @@ openvas_user_uuid_method (const char *name, const auth_method_t method)
  */
 int
 openvas_authenticate_uuid (const gchar * username, const gchar * password,
-                           gchar **uuid)
+                           gchar ** uuid)
 {
   int ret;
 
@@ -802,8 +816,8 @@ openvas_authenticate_uuid (const gchar * username, const gchar * password,
  *
  * @return uuid found in uuid file or NULL in case of malconditions / errors.
  */
-static gchar*
-uuid_file_contents (const gchar* uuid_file_path)
+static gchar *
+uuid_file_contents (const gchar * uuid_file_path)
 {
   gsize size;
   gchar *uuid = NULL;
@@ -854,54 +868,54 @@ openvas_user_uuid (const char *name)
       return NULL;
     }
 
-    {
-      gchar *uuid_file = g_build_filename (user_dir, "uuid", NULL);
-      if (g_file_test (uuid_file, G_FILE_TEST_EXISTS))
-        {
-          gsize size;
-          gchar *uuid;
-          if (g_file_get_contents (uuid_file, &uuid, &size, NULL))
-            {
-              if (strlen (uuid) < 36)
-                g_free (uuid);
-              else
-                {
-                  g_free (user_dir);
-                  g_free (uuid_file);
-                  /* Drop any trailing characters. */
-                  uuid[36] = '\0';
-                  return uuid;
-                }
-            }
-        }
-      else
-        {
-          gchar *contents;
-          char *uuid;
+  {
+    gchar *uuid_file = g_build_filename (user_dir, "uuid", NULL);
+    if (g_file_test (uuid_file, G_FILE_TEST_EXISTS))
+      {
+        gsize size;
+        gchar *uuid;
+        if (g_file_get_contents (uuid_file, &uuid, &size, NULL))
+          {
+            if (strlen (uuid) < 36)
+              g_free (uuid);
+            else
+              {
+                g_free (user_dir);
+                g_free (uuid_file);
+                /* Drop any trailing characters. */
+                uuid[36] = '\0';
+                return uuid;
+              }
+          }
+      }
+    else
+      {
+        gchar *contents;
+        char *uuid;
 
-          uuid = openvas_uuid_make ();
-          if (uuid == NULL)
-            {
-              g_free (user_dir);
-              g_free (uuid_file);
-              return NULL;
-            }
+        uuid = openvas_uuid_make ();
+        if (uuid == NULL)
+          {
+            g_free (user_dir);
+            g_free (uuid_file);
+            return NULL;
+          }
 
-          contents = g_strdup_printf ("%s\n", uuid);
+        contents = g_strdup_printf ("%s\n", uuid);
 
-          if (g_file_set_contents (uuid_file, contents, -1, NULL))
-            {
-              g_free (contents);
-              g_free (user_dir);
-              g_free (uuid_file);
-              return uuid;
-            }
+        if (g_file_set_contents (uuid_file, contents, -1, NULL))
+          {
+            g_free (contents);
+            g_free (user_dir);
+            g_free (uuid_file);
+            return uuid;
+          }
 
-          g_free (contents);
-          free (uuid);
-        }
-      g_free (uuid_file);
-    }
+        g_free (contents);
+        free (uuid);
+      }
+    g_free (uuid_file);
+  }
   g_free (user_dir);
   return NULL;
 }
@@ -945,27 +959,23 @@ openvas_is_user_admin (const gchar * username)
  */
 int
 openvas_set_user_role (const gchar * username, const gchar * role,
-                       const gchar* user_dir_name)
+                       const gchar * user_dir_name)
 {
   int ret = -1;
   gchar *file_name;
 
   // Take default directory if none passed as parameter.
   if (user_dir_name == NULL)
-    file_name = g_build_filename (OPENVAS_USERS_DIR,
-                                  username,
-                                  "isadmin",
-                                  NULL);
+    file_name = g_build_filename (OPENVAS_USERS_DIR, username, "isadmin", NULL);
   else
-    file_name = g_build_filename (user_dir_name,
-                                  "isadmin",
-                                  NULL);
+    file_name = g_build_filename (user_dir_name, "isadmin", NULL);
 
   if (strcmp (role, "User") == 0)
     {
       if (g_remove (file_name))
         {
-          if (errno == ENOENT) ret = 0;
+          if (errno == ENOENT)
+            ret = 0;
         }
       else
         ret = 0;
@@ -1000,13 +1010,13 @@ openvas_set_user_role (const gchar * username, const gchar * role,
  * @return 0 on failure, != 0 on success.
  */
 int
-openvas_auth_user_uuid_rules (const gchar* username, const gchar* user_uuid,
-                              gchar** rules)
+openvas_auth_user_uuid_rules (const gchar * username, const gchar * user_uuid,
+                              gchar ** rules)
 {
-  gchar* uuid_file  = NULL;
-  gchar* uuid       = NULL;
-  GError *error     = NULL;
-  gchar* rules_file = NULL;
+  gchar *uuid_file = NULL;
+  gchar *uuid = NULL;
+  GError *error = NULL;
+  gchar *rules_file = NULL;
   int i = 0;
 
   if (user_uuid == NULL)
@@ -1015,10 +1025,7 @@ openvas_auth_user_uuid_rules (const gchar* username, const gchar* user_uuid,
   g_debug ("Searching rules file for user %s (%s)", username, user_uuid);
 
   // Look in users dir
-  uuid_file = g_build_filename (OPENVAS_USERS_DIR,
-                                        username,
-                                        "uuid",
-                                        NULL);
+  uuid_file = g_build_filename (OPENVAS_USERS_DIR, username, "uuid", NULL);
   uuid = uuid_file_contents (uuid_file);
   g_free (uuid_file);
   if (uuid && strcmp (uuid, user_uuid) == 0)
@@ -1032,9 +1039,9 @@ openvas_auth_user_uuid_rules (const gchar* username, const gchar* user_uuid,
   // authentication mechanisms.
   for (i = 0; i < AUTHENTICATION_METHOD_LAST; i++)
     {
-      uuid_file = g_build_filename (OPENVAS_STATE_DIR, "users-remote",
-                                    authentication_methods[i], username,
-                                    "uuid", NULL);
+      uuid_file =
+        g_build_filename (OPENVAS_STATE_DIR, "users-remote",
+                          authentication_methods[i], username, "uuid", NULL);
       uuid = uuid_file_contents (uuid_file);
       // If we found a user with matching uuid, try to access its rules file.
       if (uuid && strcmp (uuid, user_uuid) == 0)
@@ -1042,12 +1049,10 @@ openvas_auth_user_uuid_rules (const gchar* username, const gchar* user_uuid,
           g_free (uuid);
           g_free (uuid_file);
 
-          rules_file = g_build_filename (OPENVAS_STATE_DIR, "users-remote",
-                                         authentication_methods[i],
-                                         username,
-                                         "auth",
-                                         "rules",
-                                         NULL);
+          rules_file =
+            g_build_filename (OPENVAS_STATE_DIR, "users-remote",
+                              authentication_methods[i], username, "auth",
+                              "rules", NULL);
           g_file_get_contents (rules_file, rules, NULL, &error);
           if (error)
             {
@@ -1081,14 +1086,14 @@ openvas_auth_user_uuid_rules (const gchar* username, const gchar* user_uuid,
  * @return 0 on failure, != 0 on success.
  */
 int
-openvas_auth_user_rules (const gchar* username, gchar** rules)
+openvas_auth_user_rules (const gchar * username, gchar ** rules)
 {
   /** @todo Resolve issue stemming from multiple users with the same name, but
    *        authenticated differently. e.g. memorize rules while authenticating
    *        via remote service. Or, pass password or uuid in here. */
   // File based: Get content of prefix/lib/openvas/users/user/auth/rules file
   GError *error = NULL;
-  gchar* rules_file = g_build_filename (OPENVAS_USERS_DIR,
+  gchar *rules_file = g_build_filename (OPENVAS_USERS_DIR,
                                         username,
                                         "auth",
                                         "rules",
@@ -1121,13 +1126,13 @@ openvas_auth_user_rules (const gchar* username, gchar** rules)
  * @return 0 if successfull, -1 if an error occurred.
  */
 int
-openvas_auth_store_user_rules (const gchar* user_dir_name, const gchar* hosts,
+openvas_auth_store_user_rules (const gchar * user_dir_name, const gchar * hosts,
                                int hosts_allow)
 {
-  GError* error = NULL;
+  GError *error = NULL;
   gchar *user_rules_file_name = NULL;
-  gchar* auth_dir_name        = NULL;
-  GString* rules = g_string_new (RULES_FILE_HEADER);
+  gchar *auth_dir_name = NULL;
+  GString *rules = g_string_new (RULES_FILE_HEADER);
   if (hosts && strlen (hosts))
     {
       gchar **split = g_strsplit (hosts, ",", 0);
@@ -1139,9 +1144,7 @@ openvas_auth_store_user_rules (const gchar* user_dir_name, const gchar* hosts,
           gchar **host;
           g_string_append_printf (rules, "# allow %s\n", hosts);
           for (host = split; *host; host++)
-            g_string_append_printf (rules,
-                                    "accept %s\n",
-                                    g_strstrip (*host));
+            g_string_append_printf (rules, "accept %s\n", g_strstrip (*host));
           g_string_append (rules, "default deny\n");
         }
       else
@@ -1149,17 +1152,14 @@ openvas_auth_store_user_rules (const gchar* user_dir_name, const gchar* hosts,
           gchar **host;
           g_string_append_printf (rules, "# deny %s\n", hosts);
           for (host = split; *host; host++)
-            g_string_append_printf (rules,
-                                    "deny %s\n",
-                                    g_strstrip (*host));
+            g_string_append_printf (rules, "deny %s\n", g_strstrip (*host));
           g_string_append (rules, "default accept\n");
         }
 
       g_strfreev (split);
     }
 
-  auth_dir_name = g_build_filename (user_dir_name, "auth",
-                                           NULL);
+  auth_dir_name = g_build_filename (user_dir_name, "auth", NULL);
   // Put the rules in auth/rules.
   user_rules_file_name = g_build_filename (auth_dir_name, "rules", NULL);
 
@@ -1169,10 +1169,7 @@ openvas_auth_store_user_rules (const gchar* user_dir_name, const gchar* hosts,
 
   g_free (auth_dir_name);
 
-  if (!g_file_set_contents (user_rules_file_name,
-                            rules->str,
-                            -1,
-                            &error))
+  if (!g_file_set_contents (user_rules_file_name, rules->str, -1, &error))
     {
       g_warning ("%s", error->message);
       g_error_free (error);

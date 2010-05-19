@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */   
- 
+ */
+
 
 #ifndef _OPENVAS_SERVICES_H
 #define _OPENVAS_SERVICES_H
@@ -35,13 +35,14 @@
 
 #define SERVICES_MAGIC 0x42
 
-struct openvas_service {
-  char		 	magic;
-  unsigned short	ns_port;
-  char			ns_name[128];
+struct openvas_service
+{
+  char magic;
+  unsigned short ns_port;
+  char ns_name[128];
 };
 
-const char*	openvas_get_svc_name(int, const char*);
-unsigned short * get_tcp_svcs(int * );
+const char *openvas_get_svc_name (int, const char *);
+unsigned short *get_tcp_svcs (int *);
 
 #endif

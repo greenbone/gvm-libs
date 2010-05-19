@@ -30,11 +30,11 @@
 
 #ifndef HUNT_MEM_LEAKS
 #ifndef DMALLOC
-void * emalloc(size_t);
-char * estrdup(const char *);
-void efree(void *);
+void *emalloc (size_t);
+char *estrdup (const char *);
+void efree (void *);
 #endif
 #endif
-size_t estrlen(const char *, size_t);
+size_t estrlen (const char *, size_t);
 
 #endif

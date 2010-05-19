@@ -39,10 +39,10 @@
  * @return A newly allocated string holding the identifier, which the
  *         caller must free, or NULL on failure.
  */
-char*
+char *
 openvas_uuid_make ()
 {
-  char* id;
+  char *id;
   uuid_t uuid;
 
   /* Generate an UUID. */

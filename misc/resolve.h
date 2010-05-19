@@ -21,6 +21,6 @@
 
 #include <netinet/in.h>
 
-int nn_resolve(const char *, struct in6_addr *);
+int nn_resolve (const char *, struct in6_addr *);
 
 #endif

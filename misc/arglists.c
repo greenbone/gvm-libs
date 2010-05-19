@@ -41,394 +41,415 @@
  * arg_get_value().
  */
 static int
-mkhash (const char * name)
+mkhash (const char *name)
 {
   return g_str_hash (name) % HASH_MAX;
 }
 
 static int cache_inited = 0;
-static struct name_cache cache[HASH_MAX+1];
+static struct name_cache cache[HASH_MAX + 1];
 
 
-static void cache_init()
+static void
+cache_init ()
 {
- int i;
- for(i=0;i<HASH_MAX+1;i++)
- 	{
-	bzero(&(cache[i]), sizeof(cache[i]));
-	}
- cache_inited = 1;
-}
-
-static struct name_cache * 
-cache_get_name(const char* name, int h)
-{
- struct name_cache * nc;
-
- if(cache_inited == 0)
- 	cache_init();
-	
- if (!name)
-  return NULL;
-
- nc = cache[h].next;
-
- while(nc != NULL)
- {
-  if(nc->name != NULL && 
-    !strcmp(nc->name, name))
-    	return nc;
-  else
-  	nc = nc->next;
- }
- return NULL;
+  int i;
+  for (i = 0; i < HASH_MAX + 1; i++)
+    {
+      bzero (&(cache[i]), sizeof (cache[i]));
+    }
+  cache_inited = 1;
 }
 
 static struct name_cache *
-cache_add_name(const char* name, int h)
+cache_get_name (const char *name, int h)
 {
- struct name_cache * nc;
+  struct name_cache *nc;
 
- if(name == NULL)
+  if (cache_inited == 0)
+    cache_init ();
+
+  if (!name)
+    return NULL;
+
+  nc = cache[h].next;
+
+  while (nc != NULL)
+    {
+      if (nc->name != NULL && !strcmp (nc->name, name))
+        return nc;
+      else
+        nc = nc->next;
+    }
   return NULL;
+}
 
- nc = emalloc(sizeof(struct name_cache));
- nc->next = cache[h].next;
- nc->prev = NULL;
- nc->name = estrdup(name);
- nc->occurences = 1;
- if ( cache[h].next != NULL )
-  cache[h].next->prev = nc;
- 
- cache[h].next = nc;
- 
- return nc;
+static struct name_cache *
+cache_add_name (const char *name, int h)
+{
+  struct name_cache *nc;
+
+  if (name == NULL)
+    return NULL;
+
+  nc = emalloc (sizeof (struct name_cache));
+  nc->next = cache[h].next;
+  nc->prev = NULL;
+  nc->name = estrdup (name);
+  nc->occurences = 1;
+  if (cache[h].next != NULL)
+    cache[h].next->prev = nc;
+
+  cache[h].next = nc;
+
+  return nc;
 }
 
 char *
-cache_inc (const char * name)
+cache_inc (const char *name)
 {
-  struct name_cache * nc;
+  struct name_cache *nc;
   int h = mkhash (name);
-  nc = cache_get_name(name, h);
- if(nc != NULL)
-  nc->occurences ++;
- else
-   nc = cache_add_name(name, h);
- return nc->name;
-}
-
-
-void 
-cache_dec(const char * name)
-{
- struct name_cache* nc;
- int h;
-
- if(!name)
-  return;
-
- h = mkhash (name);
- nc  = cache_get_name(name, h);
- if( nc == NULL)
- {
-  /*
-  fprintf(stderr, "libopenvas_misc: cache_dec(): non-existant name\n");
-  */
-  return;
- }
- 
- nc->occurences --;
- if( nc->occurences == 0 ){
- 	 int h = mkhash(name);
- 	 efree(&nc->name);
-	 if(nc->next != NULL)
-	  nc->next->prev = nc->prev;
-	  
-	 if(nc->prev != NULL)
-	  nc->prev->next = nc->next;
-	 else
-	  cache[h].next = nc->next;
-	 
-	 efree(&nc);
-	}
-}
-
-void arg_free_name(char * name)
-{
- cache_dec(name);
-}
-
-void arg_add_value(arglst, name, type, length, value)
-  struct arglist * arglst;
-  const char * name;
-  int type;
-  long length;
-  void * value;
-{
-	if(!arglst)return;
-	while(arglst->next)arglst = arglst->next;
-	
-	if (type == ARG_STRUCT) {
-    	 void* new_val = emalloc(length);
-     	 memcpy(new_val, value, length);
-    	 value = new_val;
-   	}
-
-	arglst->name = cache_inc(name);
-	arglst->value = value;
-	arglst->length = length;
-	arglst->type = type;
-	arglst->next = emalloc(sizeof(struct arglist));
-	arglst->hash = mkhash(arglst->name);
-}
-
-
-static struct arglist * arg_get(struct arglist * arg, const char * name)
-{
- int h = mkhash(name);
- if(arg == NULL)
-  return NULL;
- 
- while(arg->next != NULL)
- {
-  if(arg->hash == h && strcmp(arg->name, name) == 0)
-    return arg;
+  nc = cache_get_name (name, h);
+  if (nc != NULL)
+    nc->occurences++;
   else
-   arg = arg->next;
- }
- return NULL;
+    nc = cache_add_name (name, h);
+  return nc->name;
+}
+
+
+void
+cache_dec (const char *name)
+{
+  struct name_cache *nc;
+  int h;
+
+  if (!name)
+    return;
+
+  h = mkhash (name);
+  nc = cache_get_name (name, h);
+  if (nc == NULL)
+    {
+      /*
+         fprintf(stderr, "libopenvas_misc: cache_dec(): non-existant name\n");
+       */
+      return;
+    }
+
+  nc->occurences--;
+  if (nc->occurences == 0)
+    {
+      int h = mkhash (name);
+      efree (&nc->name);
+      if (nc->next != NULL)
+        nc->next->prev = nc->prev;
+
+      if (nc->prev != NULL)
+        nc->prev->next = nc->next;
+      else
+        cache[h].next = nc->next;
+
+      efree (&nc);
+    }
+}
+
+void
+arg_free_name (char *name)
+{
+  cache_dec (name);
+}
+
+void
+arg_add_value (arglst, name, type, length, value)
+     struct arglist *arglst;
+     const char *name;
+     int type;
+     long length;
+     void *value;
+{
+  if (!arglst)
+    return;
+  while (arglst->next)
+    arglst = arglst->next;
+
+  if (type == ARG_STRUCT)
+    {
+      void *new_val = emalloc (length);
+      memcpy (new_val, value, length);
+      value = new_val;
+    }
+
+  arglst->name = cache_inc (name);
+  arglst->value = value;
+  arglst->length = length;
+  arglst->type = type;
+  arglst->next = emalloc (sizeof (struct arglist));
+  arglst->hash = mkhash (arglst->name);
+}
+
+
+static struct arglist *
+arg_get (struct arglist *arg, const char *name)
+{
+  int h = mkhash (name);
+  if (arg == NULL)
+    return NULL;
+
+  while (arg->next != NULL)
+    {
+      if (arg->hash == h && strcmp (arg->name, name) == 0)
+        return arg;
+      else
+        arg = arg->next;
+    }
+  return NULL;
 }
 
 
 
 
-int arg_set_value(arglst, name, length, value)
- struct arglist * arglst;
- const char * name;
- long length;
- void *value;
+int
+arg_set_value (arglst, name, length, value)
+     struct arglist *arglst;
+     const char *name;
+     long length;
+     void *value;
 {
- 
- if(name == NULL)
-  return -1;
-  
- arglst = arg_get(arglst, name);
-  
-  if(arglst != NULL)
+
+  if (name == NULL)
+    return -1;
+
+  arglst = arg_get (arglst, name);
+
+  if (arglst != NULL)
     {
-      if (arglst->type == ARG_STRUCT) {
-	void* new_val = emalloc(length);
-	if (arglst->value) efree(&arglst->value);
-	memcpy(new_val, value, length);
-	value = new_val;
-      }
+      if (arglst->type == ARG_STRUCT)
+        {
+          void *new_val = emalloc (length);
+          if (arglst->value)
+            efree (&arglst->value);
+          memcpy (new_val, value, length);
+          value = new_val;
+        }
       arglst->value = value;
       arglst->length = length;
       return 0;
     }
-  else return -1; 
+  else
+    return -1;
 }
 
-int arg_set_type(arglst, name, type)
- struct arglist * arglst;
- const char * name;
- int type;
+int
+arg_set_type (arglst, name, type)
+     struct arglist *arglst;
+     const char *name;
+     int type;
 {
-  arglst = arg_get(arglst, name);
-  if(arglst == NULL)
-   return -1;
-   
-  if (arglst->type == ARG_STRUCT  &&  type != ARG_STRUCT) {
-    efree(&arglst->value);
-  }
+  arglst = arg_get (arglst, name);
+  if (arglst == NULL)
+    return -1;
+
+  if (arglst->type == ARG_STRUCT && type != ARG_STRUCT)
+    {
+      efree (&arglst->value);
+    }
   arglst->type = type;
   return 0;
 }
 
-void * arg_get_value(args, name)
- struct arglist * args;
- const char * name;
+void *
+arg_get_value (args, name)
+     struct arglist *args;
+     const char *name;
 {
 
-  if(args == NULL)
-   return NULL;
-  
-  args = arg_get(args, name);
-  if(args == NULL)
-   return NULL;
-  else  
-  return(args->value);
+  if (args == NULL)
+    return NULL;
+
+  args = arg_get (args, name);
+  if (args == NULL)
+    return NULL;
+  else
+    return (args->value);
 }
 
 
-int arg_get_length(args,name)
- struct arglist * args;
- const char * name;
+int
+arg_get_length (args, name)
+     struct arglist *args;
+     const char *name;
 {
-  args = arg_get(args, name);
-  if(args != NULL)
-    return(args->length);
-  else 
+  args = arg_get (args, name);
+  if (args != NULL)
+    return (args->length);
+  else
     return 0;
 }
 
 
-int arg_get_type(args,name)
- struct arglist * args;
- const char * name;
+int
+arg_get_type (args, name)
+     struct arglist *args;
+     const char *name;
 {
- args = arg_get(args, name);
- if( args != NULL )
-    return(args->type);
-  else 
+  args = arg_get (args, name);
+  if (args != NULL)
+    return (args->type);
+  else
     return -1;
 }
 
 
-void arg_dup(dst, src)
- struct arglist * dst;
- struct arglist * src;
+void
+arg_dup (dst, src)
+     struct arglist *dst;
+     struct arglist *src;
 {
- if(!src)
-  return;
-  
- while(src->next)
- {
-  dst->name = cache_inc(src->name);
-  dst->type = src->type;
-  dst->length = src->length;
-  dst->hash = src->hash;
-  switch(src->type)
-  {
-   case ARG_INT :
-   case ARG_PTR : 
-    dst->value = src->value;
-    break;
-    
-   case ARG_STRING :
-    if(src->value){
-     dst->value = estrdup((char*)src->value);
+  if (!src)
+    return;
+
+  while (src->next)
+    {
+      dst->name = cache_inc (src->name);
+      dst->type = src->type;
+      dst->length = src->length;
+      dst->hash = src->hash;
+      switch (src->type)
+        {
+        case ARG_INT:
+        case ARG_PTR:
+          dst->value = src->value;
+          break;
+
+        case ARG_STRING:
+          if (src->value)
+            {
+              dst->value = estrdup ((char *) src->value);
+            }
+          break;
+
+        case ARG_STRUCT:
+          if (src->value)
+            {
+              dst->value = emalloc (src->length);
+              memcpy (dst->value, src->value, src->length);
+              dst->length = src->length;
+            }
+          break;
+
+
+        case ARG_ARGLIST:
+          dst->value = emalloc (sizeof (struct arglist));
+          arg_dup ((struct arglist *) dst->value,
+                   (struct arglist *) src->value);
+          break;
+        }
+      dst->next = emalloc (sizeof (struct arglist));
+      dst = dst->next;
+      src = src->next;
     }
-    break;
-    
-   case ARG_STRUCT :
-     if (src->value) {
-       dst->value = emalloc(src->length);
-       memcpy(dst->value, src->value, src->length);
-       dst->length = src->length;
-     }
-     break;
-
- 
-  case ARG_ARGLIST :
-    dst->value = emalloc(sizeof(struct arglist));
-    arg_dup((struct arglist *)dst->value, (struct arglist *)src->value);
-    break;
-  }
-  dst->next = emalloc(sizeof(struct arglist));
-  dst = dst->next;
-  src = src->next;
- }
 }
 
 
-void arg_dump(args, level)
- struct arglist * args;
- int level;
+void
+arg_dump (args, level)
+     struct arglist *args;
+     int level;
 {
-	const char * spaces = "--------------------";
-	if(!args)
-	{
-		printf("Error ! args == NULL\n");
-		return;
-	}
-	
-	if(args)
-	 while(args->next)
-	 {
-		switch(args->type)
-		{
-			case ARG_STRING :
-			
-			fprintf(stderr, "%sargs->%s : %s\n",spaces+(20-level),
-				args->name,
-				(char *)args->value);
-			break;
-			case ARG_ARGLIST :
-			
-			fprintf(stderr, "%sargs->%s :\n", spaces+(20-level),
-				args->name);
-				arg_dump(args->value, level+1);
-			break;
-			case ARG_INT :
-			fprintf(stderr, "%sargs->%s : %d\n",spaces+(20-level),
-				args->name,
-				(int)GPOINTER_TO_SIZE(args->value));
-			break;
-			default :
-			fprintf(stderr, "%sargs->%s : %d\n",spaces+(20-level),
-				args->name,
-				(int)GPOINTER_TO_SIZE(args->value));
-			break;
-		}
-		args = args->next;
-	}
+  const char *spaces = "--------------------";
+  if (!args)
+    {
+      printf ("Error ! args == NULL\n");
+      return;
+    }
+
+  if (args)
+    while (args->next)
+      {
+        switch (args->type)
+          {
+          case ARG_STRING:
+
+            fprintf (stderr, "%sargs->%s : %s\n", spaces + (20 - level),
+                     args->name, (char *) args->value);
+            break;
+          case ARG_ARGLIST:
+
+            fprintf (stderr, "%sargs->%s :\n", spaces + (20 - level),
+                     args->name);
+            arg_dump (args->value, level + 1);
+            break;
+          case ARG_INT:
+            fprintf (stderr, "%sargs->%s : %d\n", spaces + (20 - level),
+                     args->name, (int) GPOINTER_TO_SIZE (args->value));
+            break;
+          default:
+            fprintf (stderr, "%sargs->%s : %d\n", spaces + (20 - level),
+                     args->name, (int) GPOINTER_TO_SIZE (args->value));
+            break;
+          }
+        args = args->next;
+      }
 }
 
 
-void arg_free(arg)
- struct arglist* arg;
+void
+arg_free (arg)
+     struct arglist *arg;
 {
- while(arg)
- {
-  struct arglist * next = arg->next;
-  cache_dec(arg->name);
-  efree(&arg);
-  arg = next;
- }
+  while (arg)
+    {
+      struct arglist *next = arg->next;
+      cache_dec (arg->name);
+      efree (&arg);
+      arg = next;
+    }
 }
 
 
-void arg_free_all(arg)
- struct arglist* arg;
+void
+arg_free_all (arg)
+     struct arglist *arg;
 {
- while(arg)
- {
-  struct arglist * next = arg->next;
-  switch(arg->type)
-  {
-   case ARG_ARGLIST :
-    arg_free_all(arg->value);
-    break;
-   case ARG_STRING :
-    efree(&arg->value);
-    break;
-   case ARG_STRUCT :
-    efree(&arg->value);
-    break;
-  }
-  cache_dec(arg->name);
-  efree(&arg);
-  arg = next;
- }
+  while (arg)
+    {
+      struct arglist *next = arg->next;
+      switch (arg->type)
+        {
+        case ARG_ARGLIST:
+          arg_free_all (arg->value);
+          break;
+        case ARG_STRING:
+          efree (&arg->value);
+          break;
+        case ARG_STRUCT:
+          efree (&arg->value);
+          break;
+        }
+      cache_dec (arg->name);
+      efree (&arg);
+      arg = next;
+    }
 }
 
 
 
 static void
-init_element(struct arglist * arglst, const char * name, int type,
-    long length, void * value)
+init_element (struct arglist *arglst, const char *name, int type, long length,
+              void *value)
 {
-  int	h;
-  if (type == ARG_STRUCT) {
-    void* new_val = emalloc(length);
-    memcpy(new_val, value, length);
-    value = new_val;
-  }
+  int h;
+  if (type == ARG_STRUCT)
+    {
+      void *new_val = emalloc (length);
+      memcpy (new_val, value, length);
+      value = new_val;
+    }
 
   h = mkhash (name);
-  arglst->name = cache_inc(name);
+  arglst->name = cache_inc (name);
   arglst->value = value;
   arglst->length = length;
   arglst->type = type;
@@ -443,65 +464,70 @@ init_element(struct arglist * arglst, const char * name, int type,
  * @see arg_add_value
  */
 void
-arg_add_value_at_head (struct arglist * arglst, const char * name, int type,
-                       long length, void * value)
+arg_add_value_at_head (struct arglist *arglst, const char *name, int type,
+                       long length, void *value)
 {
-  if(!arglst)
+  if (!arglst)
     return;
 
   if (arglst->next)
-  {
-    struct arglist * element = emalloc(sizeof(struct arglist));
-    init_element(element, name, type, length, value);
-    element->next = arglst->next;
-    arglst->next = element;
-  }
+    {
+      struct arglist *element = emalloc (sizeof (struct arglist));
+      init_element (element, name, type, length, value);
+      element->next = arglst->next;
+      arglst->next = element;
+    }
   else
-  {
-    arglst->next = emalloc(sizeof(struct arglist));
-    init_element(arglst, name, type, length, value);
-  }
+    {
+      arglst->next = emalloc (sizeof (struct arglist));
+      init_element (arglst, name, type, length, value);
+    }
 }
 
 
 void
-arg_del_value(args, name)
- struct arglist * args;
- const char * name;
+arg_del_value (args, name)
+     struct arglist *args;
+     const char *name;
 {
   int h = mkhash (name);
-  struct arglist * pivot;
-  struct arglist * element = NULL;
+  struct arglist *pivot;
+  struct arglist *element = NULL;
   struct arglist store;
 
   if (args == NULL)
     return;
- 
+
   pivot = args;
 
-  while (pivot->next != NULL) {
-    if (pivot->hash == h && strcmp(pivot->name, name) == 0) {
-      element = pivot;
-      break;
+  while (pivot->next != NULL)
+    {
+      if (pivot->hash == h && strcmp (pivot->name, name) == 0)
+        {
+          element = pivot;
+          break;
+        }
+      pivot = pivot->next;
     }
-    pivot = pivot->next;
- }
 
-  if (!element || element->hash != h || strcmp(element->name, name))
+  if (!element || element->hash != h || strcmp (element->name, name))
     return;
 
-  if (args == element) {
-    element = args->next;
-    memcpy(&store, element, sizeof(struct arglist));
-    memcpy(element, args, sizeof(struct arglist));
-    memcpy(args, &store, sizeof(struct arglist));
-  } else {
-    pivot = args;
-    while (pivot->next != NULL && pivot->next != element)
-      pivot = pivot->next;
-    pivot->next = element->next;
-  }
+  if (args == element)
+    {
+      element = args->next;
+      memcpy (&store, element, sizeof (struct arglist));
+      memcpy (element, args, sizeof (struct arglist));
+      memcpy (args, &store, sizeof (struct arglist));
+    }
+  else
+    {
+      pivot = args;
+      while (pivot->next != NULL && pivot->next != element)
+        pivot = pivot->next;
+      pivot->next = element->next;
+    }
   element->next = NULL;
 
-  arg_free(element);
+  arg_free (element);
 }

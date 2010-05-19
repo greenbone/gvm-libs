@@ -21,14 +21,14 @@
 
 #include "arglists.h"
 
-int comm_init(int);
-void comm_terminate(struct arglist *);
-void comm_send_pluginlist(struct arglist *);
-void comm_send_preferences(struct arglist *);
-void comm_send_rules(struct arglist *);
-void comm_wait_order(struct arglist *);
-void comm_setup_plugins(struct arglist *, char *);
-void client_handler();
-int comm_send_status(struct arglist *, char *, char *, int, int);
+int comm_init (int);
+void comm_terminate (struct arglist *);
+void comm_send_pluginlist (struct arglist *);
+void comm_send_preferences (struct arglist *);
+void comm_send_rules (struct arglist *);
+void comm_wait_order (struct arglist *);
+void comm_setup_plugins (struct arglist *, char *);
+void client_handler ();
+int comm_send_status (struct arglist *, char *, char *, int, int);
 
 #endif

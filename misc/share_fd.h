@@ -26,7 +26,7 @@
 #ifndef OPENVAS_SHARE_FD_H
 #define OPENVAS_SHARE_FD_H
 
-int send_fd(int, int);
-int recv_fd(int);
+int send_fd (int, int);
+int recv_fd (int);
 
 #endif

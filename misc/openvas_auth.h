@@ -31,46 +31,33 @@
 
 #include <glib.h>
 
-void
-openvas_auth_init ();
+void openvas_auth_init ();
 
-void
-openvas_auth_tear_down ();
+void openvas_auth_tear_down ();
 
-int
-openvas_auth_write_config (GKeyFile* keyfile);
+int openvas_auth_write_config (GKeyFile * keyfile);
 
-gchar *
-get_password_hashes (int, const gchar *);
+gchar *get_password_hashes (int, const gchar *);
 
-gchar *
-digest_hex (int, const guchar *);
+gchar *digest_hex (int, const guchar *);
 
-int
-openvas_authenticate (const gchar *, const gchar *);
+int openvas_authenticate (const gchar *, const gchar *);
 
-int
-openvas_authenticate_uuid (const gchar *, const gchar *, gchar** uuid);
+int openvas_authenticate_uuid (const gchar *, const gchar *, gchar ** uuid);
 
-gchar *
-openvas_user_uuid (const char *name);
+gchar *openvas_user_uuid (const char *name);
 
-int
-openvas_is_user_admin (const gchar *);
+int openvas_is_user_admin (const gchar *);
 
-int
-openvas_set_user_role (const gchar *, const gchar *,
-                       const gchar* user_dir_name);
+int openvas_set_user_role (const gchar *, const gchar *,
+                           const gchar * user_dir_name);
 
-int
-openvas_auth_user_rules (const gchar* username, gchar** rules);
+int openvas_auth_user_rules (const gchar * username, gchar ** rules);
 
-int
-openvas_auth_user_uuid_rules (const gchar* username, const gchar* user_uuid,
-                              gchar** rules);
+int openvas_auth_user_uuid_rules (const gchar * username,
+                                  const gchar * user_uuid, gchar ** rules);
 
-int
-openvas_auth_store_user_rules (const gchar* user_dir, const gchar* hosts,
-                               int hosts_allow);
+int openvas_auth_store_user_rules (const gchar * user_dir, const gchar * hosts,
+                                   int hosts_allow);
 
 #endif /* not _OPENVAS_AUTH_H */

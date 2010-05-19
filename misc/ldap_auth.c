@@ -67,7 +67,7 @@
  * @return TRUE if authdn is considered safe enough to be sprintf'ed into.
  */
 static gboolean
-auth_dn_is_good (const gchar* authdn)
+auth_dn_is_good (const gchar * authdn)
 {
   if (authdn == NULL)
     return FALSE;
@@ -77,7 +77,7 @@ auth_dn_is_good (const gchar* authdn)
     return FALSE;
 
   // Must not contain other %-signs
-  char* pos = strchr (authdn, '%');
+  char *pos = strchr (authdn, '%');
   pos = strchr (pos + 1, '%');
   if (pos != NULL)
     return FALSE;
@@ -106,15 +106,14 @@ auth_dn_is_good (const gchar* authdn)
  *         NULL. Free with ldap_auth_info_free.
  */
 ldap_auth_info_t
-ldap_auth_info_new (const gchar* ldap_host, const gchar* auth_dn,
-                    const gchar* role_attribute,
-                    gchar** role_user_values,
-                    gchar** role_admin_values,
-                    const gchar* ruletype_attr,
-                    const gchar* rule_attr)
+ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
+                    const gchar * role_attribute, gchar ** role_user_values,
+                    gchar ** role_admin_values, const gchar * ruletype_attr,
+                    const gchar * rule_attr)
 {
   // Parameters might not be NULL.
-  if (!ldap_host || !auth_dn || !role_attribute || !role_user_values || !role_admin_values)
+  if (!ldap_host || !auth_dn || !role_attribute || !role_user_values
+      || !role_admin_values)
     return NULL;
 
   if (auth_dn_is_good (auth_dn) == FALSE)
@@ -162,13 +161,13 @@ ldap_auth_info_free (ldap_auth_info_t info)
  * @return Freshly allocated dn or NULL if one of the parameters was NULL. Free
  *         with g_free.
  */
-static gchar*
-ldap_auth_info_create_dn (const ldap_auth_info_t info, const gchar* username)
+static gchar *
+ldap_auth_info_create_dn (const ldap_auth_info_t info, const gchar * username)
 {
   if (info == NULL || username == NULL)
     return NULL;
 
-  gchar* dn = g_strdup_printf (info->auth_dn, username);
+  gchar *dn = g_strdup_printf (info->auth_dn, username);
 
   return dn;
 }
@@ -186,24 +185,25 @@ ldap_auth_info_create_dn (const ldap_auth_info_t info, const gchar* username)
  *         -1 if failed.
  */
 static int
-ldap_auth_query_rules (LDAP *ldap, ldap_auth_info_t auth_info, const gchar* dn,
-                       const gchar* username)
+ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
+                       const gchar * dn, const gchar * username)
 {
-  char *attrs[]    = { auth_info->ruletype_attribute,
-                       auth_info->rule_attribute,
-                       NULL };
-  char *attr_it    = NULL;
+  char *attrs[] = { auth_info->ruletype_attribute,
+    auth_info->rule_attribute,
+    NULL
+  };
+  char *attr_it = NULL;
   char **attr_vals = NULL;
-  BerElement *ber  = NULL;
-  gchar *rule      = NULL;
-  int ruletype     = -1;
+  BerElement *ber = NULL;
+  gchar *rule = NULL;
+  int ruletype = -1;
   LDAPMessage *result, *result_it;
 
-  int res = ldap_search_ext_s (ldap, dn /* base */, LDAP_SCOPE_BASE,
-                               NULL /* filter */,  attrs, 0 /* attrsonly */,
-                               NULL /* serverctrls */, NULL /* clientctrls */,
-                               LDAP_NO_LIMIT, /* timeout */
-                               LDAP_NO_LIMIT, /* sizelimit */
+  int res = ldap_search_ext_s (ldap, dn /* base */ , LDAP_SCOPE_BASE,
+                               NULL /* filter */ , attrs, 0 /* attrsonly */ ,
+                               NULL /* serverctrls */ , NULL /* clientctrls */ ,
+                               LDAP_NO_LIMIT,   /* timeout */
+                               LDAP_NO_LIMIT,   /* sizelimit */
                                &result);
   if (res != LDAP_SUCCESS)
     {
@@ -234,7 +234,7 @@ ldap_auth_query_rules (LDAP *ldap, ldap_auth_info_t auth_info, const gchar* dn,
                   else if (strcmp (attr_vals[0], "deny") == 0)
                     ruletype = 0;
                   else
-                    g_debug ("unknown rule type"); // (ruletype = -1)
+                    g_debug ("unknown rule type");      // (ruletype = -1)
                 }
               // Found rule attribute
               else if (strcmp (attr_it, auth_info->rule_attribute) == 0)
@@ -253,7 +253,7 @@ ldap_auth_query_rules (LDAP *ldap, ldap_auth_info_t auth_info, const gchar* dn,
         g_warning ("No ruletype specified!");
       else
         {
-          gchar* user_dir = g_build_filename (OPENVAS_STATE_DIR,
+          gchar *user_dir = g_build_filename (OPENVAS_STATE_DIR,
                                               "users-remote", "ldap",
                                               username, NULL);
           openvas_auth_store_user_rules (user_dir, rule, ruletype);
@@ -267,7 +267,7 @@ ldap_auth_query_rules (LDAP *ldap, ldap_auth_info_t auth_info, const gchar* dn,
           ber_free (ber, 0);
         }
     }
-  else // No such attribute(s)
+  else                          // No such attribute(s)
     {
       g_debug ("User has no rule/ruletype, did not find the attributes.");
     }
@@ -292,20 +292,20 @@ ldap_auth_query_rules (LDAP *ldap, ldap_auth_info_t auth_info, const gchar* dn,
  *         +2 if user is "admin".
  */
 static int
-ldap_auth_query_role (LDAP *ldap, ldap_auth_info_t auth_info, gchar* dn)
+ldap_auth_query_role (LDAP * ldap, ldap_auth_info_t auth_info, gchar * dn)
 {
-  char *attrs[]    = {auth_info->role_attribute, NULL};
-  char *attr_it    = NULL;
+  char *attrs[] = { auth_info->role_attribute, NULL };
+  char *attr_it = NULL;
   char **attr_vals = NULL;
-  BerElement *ber  = NULL;
-  LDAPMessage  *result, *result_it;
-  int found_role = -1; // error
+  BerElement *ber = NULL;
+  LDAPMessage *result, *result_it;
+  int found_role = -1;          // error
 
-  int res = ldap_search_ext_s (ldap, dn /* base */, LDAP_SCOPE_BASE,
-                               NULL /* filter */,  attrs, 0 /* attrsonly */,
-                               NULL /* serverctrls */, NULL /* clientctrls */,
-                               LDAP_NO_LIMIT, /* timeout */
-                               LDAP_NO_LIMIT, /* sizelimit */
+  int res = ldap_search_ext_s (ldap, dn /* base */ , LDAP_SCOPE_BASE,
+                               NULL /* filter */ , attrs, 0 /* attrsonly */ ,
+                               NULL /* serverctrls */ , NULL /* clientctrls */ ,
+                               LDAP_NO_LIMIT,   /* timeout */
+                               LDAP_NO_LIMIT,   /* sizelimit */
                                &result);
   if (res != LDAP_SUCCESS)
     {
@@ -326,11 +326,12 @@ ldap_auth_query_role (LDAP *ldap, ldap_auth_info_t auth_info, gchar* dn)
           if (attr_vals != NULL)
             {
               // We expect exactly one value here, ignore others.
-              if (openvas_strv_contains_str (auth_info->role_admin_values,
-                                             attr_vals[0]))
+              if (openvas_strv_contains_str
+                  (auth_info->role_admin_values, attr_vals[0]))
                 found_role = 2; // is admin
-              else if (openvas_strv_contains_str (auth_info->role_user_values,
-                                                  attr_vals[0]))
+              else
+                if (openvas_strv_contains_str
+                    (auth_info->role_user_values, attr_vals[0]))
                 found_role = 1; // is user
               else
                 g_debug ("User is neither in admin nor users group.");
@@ -345,7 +346,7 @@ ldap_auth_query_role (LDAP *ldap, ldap_auth_info_t auth_info, gchar* dn)
           ber_free (ber, 0);
         }
     }
-  else // No such attribute(s)
+  else                          // No such attribute(s)
     {
       g_debug ("User has no role, did not find role attribute.");
       found_role = -1;
@@ -367,8 +368,8 @@ ldap_auth_query_role (LDAP *ldap, ldap_auth_info_t auth_info, gchar* dn)
  * @return 0 authentication success, 1 authentication failure, -1 error.
  */
 int
-ldap_authenticate (const gchar* username, const gchar* password,
-                   /*const*/ /*ldap_auth_info_t*/ void* ldap_auth_info)
+ldap_authenticate (const gchar * username, const gchar * password,
+                   /*const *//*ldap_auth_info_t */ void *ldap_auth_info)
 {
   ldap_auth_info_t info = (ldap_auth_info_t) ldap_auth_info;
   int role = 0;
@@ -377,8 +378,8 @@ ldap_authenticate (const gchar* username, const gchar* password,
     return -1;
 
   /** @todo deprecated, use ldap_initialize or ldap_create */
-  LDAP* ldap      = (LDAP*) ldap_open (info->ldap_host, LDAP_PORT);
-  gchar* dn       = NULL;
+  LDAP *ldap = (LDAP *) ldap_open (info->ldap_host, LDAP_PORT);
+  gchar *dn = NULL;
   int ldap_return = 0;
 
   if (ldap == NULL)
@@ -406,8 +407,8 @@ ldap_authenticate (const gchar* username, const gchar* password,
       if (ldap_auth_query_rules (ldap, info, dn, username) == -1)
         g_warning ("Users rules could not be found on ldap directory.");
       // If user is admin, mark it so.
-      gchar* user_dir_name = g_build_filename (OPENVAS_STATE_DIR,
-                                              "users-remote", "ldap",
+      gchar *user_dir_name = g_build_filename (OPENVAS_STATE_DIR,
+                                               "users-remote", "ldap",
                                                username, NULL);
       openvas_set_user_role (username, (role == 2) ? "Admin" : "User",
                              user_dir_name);
@@ -419,7 +420,7 @@ ldap_authenticate (const gchar* username, const gchar* password,
   g_free (dn);
 
   switch (role)
-  {
+    {
     case 2:
       g_debug ("User has admin role.");
     case 1:
@@ -429,7 +430,7 @@ ldap_authenticate (const gchar* username, const gchar* password,
     default:
       g_warning ("User has no role.");
       return 1;
-  }
+    }
 }
 
 
@@ -442,28 +443,28 @@ ldap_authenticate (const gchar* username, const gchar* password,
  * @return Fresh ldap_auth_info, or NULL in case of errors.
  */
 ldap_auth_info_t
-ldap_auth_info_from_key_file (GKeyFile* key_file, const gchar* group)
+ldap_auth_info_from_key_file (GKeyFile * key_file, const gchar * group)
 {
   if (key_file == NULL || group == NULL)
     return NULL;
 
   /** @todo Errors to be checked here, get string lists for the role values. */
-  gchar* auth_dn = g_key_file_get_string (key_file, group,
+  gchar *auth_dn = g_key_file_get_string (key_file, group,
                                           KEY_LDAP_DN_AUTH, NULL);
-  gchar* ldap_host = g_key_file_get_string (key_file, group,
+  gchar *ldap_host = g_key_file_get_string (key_file, group,
                                             KEY_LDAP_HOST, NULL);
-  gchar* role_attr = g_key_file_get_string (key_file, group,
+  gchar *role_attr = g_key_file_get_string (key_file, group,
                                             KEY_LDAP_ROLE_ATTRIBUTE, NULL);
-  gchar** role_usrv = g_key_file_get_string_list (key_file, group,
+  gchar **role_usrv = g_key_file_get_string_list (key_file, group,
                                                   KEY_LDAP_ROLE_USER_VALUES,
                                                   NULL, NULL);
-  gchar** role_admv = g_key_file_get_string_list (key_file, group,
+  gchar **role_admv = g_key_file_get_string_list (key_file, group,
                                                   KEY_LDAP_ROLE_ADMIN_VALUES,
                                                   NULL, NULL);
-  gchar* ruletype_attr = g_key_file_get_string (key_file, group,
+  gchar *ruletype_attr = g_key_file_get_string (key_file, group,
                                                 KEY_LDAP_RULETYPE_ATTRIBUTE,
                                                 NULL);
-  gchar* rule_attr = g_key_file_get_string (key_file, group,
+  gchar *rule_attr = g_key_file_get_string (key_file, group,
                                             KEY_LDAP_RULE_ATTRIBUTE, NULL);
 
   ldap_auth_info_t info = ldap_auth_info_new (ldap_host, auth_dn,

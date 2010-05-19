@@ -60,7 +60,7 @@
  * @param file The Key/value file (userdata).
  */
 static void
-add_to_keyfile (char* key_str, char* value_str, GKeyFile* keyfile)
+add_to_keyfile (char *key_str, char *value_str, GKeyFile * keyfile)
 {
   g_key_file_set_string (keyfile, GROUP_NONE, key_str, value_str);
 }
@@ -81,24 +81,24 @@ add_to_keyfile (char* key_str, char* value_str, GKeyFile* keyfile)
  * @see GKeyFile
  */
 gboolean
-hash_table_file_write (GHashTable* ghashtable, const char* filename)
+hash_table_file_write (GHashTable * ghashtable, const char *filename)
 {
   int fd;
-  gchar* keyfile_data;
+  gchar *keyfile_data;
   gsize data_length;
-  GKeyFile* file;
+  GKeyFile *file;
 
   // Initialize the key file
   file = g_key_file_new ();
   g_key_file_set_comment (file, GROUP_NONE, NULL,
-                         "Automatically generated file - please to not edit",
-                         NULL);
+                          "Automatically generated file - please to not edit",
+                          NULL);
   // Add the entries of the hashtable to the keyfile (in mem)
   g_hash_table_foreach (ghashtable, (GHFunc) add_to_keyfile, file);
 
   // Open a file to write content to.
   // (with GLIB >= 2.8 we can use file_set_contents)
-  fd = open (filename, O_RDWR|O_CREAT|O_TRUNC, 0600);
+  fd = open (filename, O_RDWR | O_CREAT | O_TRUNC, 0600);
   if (!fd)
     {
       g_key_file_free (file);
@@ -111,13 +111,13 @@ hash_table_file_write (GHashTable* ghashtable, const char* filename)
 
   // Clean up
   close (fd);
-  g_free(keyfile_data);
-  g_key_file_free(file);
+  g_free (keyfile_data);
+  g_key_file_free (file);
 
   if (written != data_length)
-  {
-    return FALSE;
-  }
+    {
+      return FALSE;
+    }
 
   // Assume that everything went just fine
   return TRUE;
@@ -132,13 +132,13 @@ hash_table_file_write (GHashTable* ghashtable, const char* filename)
  *
  * @return A GHashTable, mirroring the file or NULL in case of an error.
  */
-static GHashTable*
-hash_table_from_gkeyfile (GKeyFile* gkeyfile)
+static GHashTable *
+hash_table_from_gkeyfile (GKeyFile * gkeyfile)
 {
-  gchar** keys;
-  gchar** keys_it;
+  gchar **keys;
+  gchar **keys_it;
   gsize length;
-  GHashTable* returntable = NULL;
+  GHashTable *returntable = NULL;
 
   if (!gkeyfile)
     return NULL;
@@ -149,10 +149,11 @@ hash_table_from_gkeyfile (GKeyFile* gkeyfile)
   keys_it = keys;
 
   // Add each key / value pair from file
-  while ( keys_it != NULL && (*keys_it) != NULL)
+  while (keys_it != NULL && (*keys_it) != NULL)
     {
-      char* value = g_key_file_get_value (gkeyfile, GROUP_NONE, (*keys_it), NULL);
-      g_hash_table_insert (returntable, estrdup(*keys_it), value);
+      char *value =
+        g_key_file_get_value (gkeyfile, GROUP_NONE, (*keys_it), NULL);
+      g_hash_table_insert (returntable, estrdup (*keys_it), value);
       ++keys_it;
     }
 
@@ -179,10 +180,10 @@ hash_table_from_gkeyfile (GKeyFile* gkeyfile)
  * @see hash_table_file_write
  * @see GKeyFile
  */
-GHashTable*
-hash_table_file_read_text (const char* text, gsize length)
+GHashTable *
+hash_table_file_read_text (const char *text, gsize length)
 {
-  GKeyFile* file = NULL;
+  GKeyFile *file = NULL;
 
   // Load key file from mem
   file = g_key_file_new ();
@@ -203,10 +204,10 @@ hash_table_file_read_text (const char* text, gsize length)
  * @see hash_table_file_write
  * @see GKeyFile
  */
-GHashTable*
-hash_table_file_read (const char* filename)
+GHashTable *
+hash_table_file_read (const char *filename)
 {
-  GKeyFile* file = NULL;
+  GKeyFile *file = NULL;
 
   // Load key file into mem
   file = g_key_file_new ();

@@ -17,7 +17,7 @@
  *
  * 
  * Knowledge base management API
- */ 
+ */
 
 /**
  * @file
@@ -55,19 +55,19 @@
  * @return Hash value for string name or 0 if name == NULL.
  */
 static unsigned int
-mkkey (char * name )
+mkkey (char *name)
 {
- char * p;
- unsigned int h = 0;
+  char *p;
+  unsigned int h = 0;
 
- if ( name == NULL )
-	return 0;
+  if (name == NULL)
+    return 0;
 
- for ( p = name ; *p != '\0' ; p ++ )
-  h = (h << 3) + (unsigned char)*p;
+  for (p = name; *p != '\0'; p++)
+    h = (h << 3) + (unsigned char) *p;
 
 
- return h % HASH_MAX;
+  return h % HASH_MAX;
 }
 
 
@@ -76,10 +76,10 @@ mkkey (char * name )
  *
  * @return Pointer to first item in knowledge base item array.
  */
-struct kb_item**
+struct kb_item **
 kb_new ()
 {
- return emalloc(HASH_MAX * sizeof(struct kb_item*));
+  return emalloc (HASH_MAX * sizeof (struct kb_item *));
 }
 
 
@@ -89,23 +89,25 @@ kb_new ()
  * @return kb_item in knowledge base with name name and type type or NULL if 
  *         none found.
  */
-struct kb_item*
-kb_item_get_single (struct kb_item ** kb, char * name, int type)
+struct kb_item *
+kb_item_get_single (struct kb_item **kb, char *name, int type)
 {
- unsigned int h = mkkey(name);
- struct kb_item * ret;
+  unsigned int h = mkkey (name);
+  struct kb_item *ret;
 
- if ( kb == NULL || name == NULL ) return NULL;
+  if (kb == NULL || name == NULL)
+    return NULL;
 
 
- ret = kb[h];
- while ( ret != NULL )
- {
-  if( (strcmp(ret->name, name) == 0) && (type == 0 || (ret->type == type)) ) return ret;
-  ret = ret->next;
- }
+  ret = kb[h];
+  while (ret != NULL)
+    {
+      if ((strcmp (ret->name, name) == 0) && (type == 0 || (ret->type == type)))
+        return ret;
+      ret = ret->next;
+    }
 
- return ret;
+  return ret;
 }
 
 
@@ -114,15 +116,15 @@ kb_item_get_single (struct kb_item ** kb, char * name, int type)
  *
  * @return (char*) value of the kb_item name with type KB_TYPE_STR.
  */
-char*
-kb_item_get_str (struct kb_item ** kb, char * name)
+char *
+kb_item_get_str (struct kb_item **kb, char *name)
 {
- struct kb_item * item = kb_item_get_single(kb, name, KB_TYPE_STR);
+  struct kb_item *item = kb_item_get_single (kb, name, KB_TYPE_STR);
 
- if(item == NULL)
-	return NULL;
- else
-	return item->v.v_str;
+  if (item == NULL)
+    return NULL;
+  else
+    return item->v.v_str;
 }
 
 /**
@@ -132,9 +134,9 @@ kb_item_get_str (struct kb_item ** kb, char * name)
  *         does not exist.
  */
 int
-kb_item_get_int (struct kb_item ** kb, char * name)
+kb_item_get_int (struct kb_item **kb, char *name)
 {
-  struct kb_item * item = kb_item_get_single (kb, name, KB_TYPE_INT);
+  struct kb_item *item = kb_item_get_single (kb, name, KB_TYPE_INT);
   if (item == NULL)
     return -1;
   else
@@ -153,31 +155,31 @@ kb_item_get_int (struct kb_item ** kb, char * name)
  *
  * @return A kb_item list (has to be freed) with kb_items of name name.
  */
-struct kb_item*
-kb_item_get_all (struct kb_item ** kb, char * name)
+struct kb_item *
+kb_item_get_all (struct kb_item **kb, char *name)
 {
- unsigned h = mkkey(name);
- struct kb_item * k;
- struct kb_item *ret = NULL;
+  unsigned h = mkkey (name);
+  struct kb_item *k;
+  struct kb_item *ret = NULL;
 
- if ( kb == NULL || name ==  NULL) 
+  if (kb == NULL || name == NULL)
     return NULL;
 
- k = kb[h];
- while ( k != NULL )
- {
-  if( strcmp(k->name, name) == 0 ) 
+  k = kb[h];
+  while (k != NULL)
+    {
+      if (strcmp (k->name, name) == 0)
         {
-        struct kb_item * p;
+          struct kb_item *p;
 
-        p = emalloc(sizeof(struct kb_item));
-        memcpy(p, k, sizeof(struct kb_item));
-        p->next = ret;
-        ret = p;
+          p = emalloc (sizeof (struct kb_item));
+          memcpy (p, k, sizeof (struct kb_item));
+          p->next = ret;
+          ret = p;
         }
-        k = k->next;
- }
- return ret;
+      k = k->next;
+    }
+  return ret;
 }
 
 /**
@@ -191,32 +193,32 @@ kb_item_get_all (struct kb_item ** kb, char * name)
  * @return A list of kb_items (has to be freed) whose name matches the pattern
  *         exp.
  */
-struct kb_item*
-kb_item_get_pattern (struct kb_item ** kb, char * expr )
+struct kb_item *
+kb_item_get_pattern (struct kb_item **kb, char *expr)
 {
- int i;
- struct kb_item * k;
- struct kb_item * ret = NULL;
+  int i;
+  struct kb_item *k;
+  struct kb_item *ret = NULL;
 
   if (kb == NULL)
     return NULL;
 
- for ( i = 0 ; i < HASH_MAX ; i ++ )
- {
-  k = kb[i];
-  while ( k != NULL )
-  {
-   if( fnmatch(expr, k->name, 0) == 0)
-   {
-    struct kb_item * p;
-    p = emalloc(sizeof(struct kb_item));
-    memcpy(p, k, sizeof(struct kb_item));
-    p->next = ret;
-    ret = p;
-   }
-   k = k->next;
-   }
-  }
+  for (i = 0; i < HASH_MAX; i++)
+    {
+      k = kb[i];
+      while (k != NULL)
+        {
+          if (fnmatch (expr, k->name, 0) == 0)
+            {
+              struct kb_item *p;
+              p = emalloc (sizeof (struct kb_item));
+              memcpy (p, k, sizeof (struct kb_item));
+              p->next = ret;
+              ret = p;
+            }
+          k = k->next;
+        }
+    }
   return ret;
 }
 
@@ -230,16 +232,16 @@ kb_item_get_pattern (struct kb_item ** kb, char * expr )
  * @param items The list of kb_items to free.
  */
 void
-kb_item_get_all_free (struct kb_item * items)
+kb_item_get_all_free (struct kb_item *items)
 {
- while ( items != NULL )
- {
-  struct kb_item * next;
-  next = items->next;
-  memset(items, 0xd7, sizeof(struct kb_item));
-  efree(&items);
-  items = next;
- }
+  while (items != NULL)
+    {
+      struct kb_item *next;
+      next = items->next;
+      memset (items, 0xd7, sizeof (struct kb_item));
+      efree (&items);
+      items = next;
+    }
 }
 
 
@@ -257,12 +259,12 @@ kb_item_get_all_free (struct kb_item * items)
  *         success.
  */
 static int
-kb_item_addset_str (struct kb_item ** kb, char * name, char * value, int replace)
+kb_item_addset_str (struct kb_item **kb, char *name, char *value, int replace)
 {
- /* Before we write anything to the KB, we need to make sure that the same
-  * (name,value) pair is not present already. */
+  /* Before we write anything to the KB, we need to make sure that the same
+   * (name,value) pair is not present already. */
   int h = mkkey (name);
-  struct kb_item * item;
+  struct kb_item *item;
 
   if (kb == NULL)
     return -1;
@@ -270,34 +272,33 @@ kb_item_addset_str (struct kb_item ** kb, char * name, char * value, int replace
   item = kb[h];
 
   while (item != NULL)
-  {
-   if ( strcmp(item->name, name) == 0 )
-   {
-   if(item->type == KB_TYPE_STR 	    &&
-      strcmp(item->v.v_str, value) == 0)
-	return -1;
-
-    if ( replace != 0 )
     {
-    if ( item->type == KB_TYPE_STR )
-	efree(&item->v.v_str);
+      if (strcmp (item->name, name) == 0)
+        {
+          if (item->type == KB_TYPE_STR && strcmp (item->v.v_str, value) == 0)
+            return -1;
 
-    item->type = KB_TYPE_STR;
-    item->v.v_str = estrdup(value);
-    return 0;
+          if (replace != 0)
+            {
+              if (item->type == KB_TYPE_STR)
+                efree (&item->v.v_str);
+
+              item->type = KB_TYPE_STR;
+              item->v.v_str = estrdup (value);
+              return 0;
+            }
+        }
+
+      item = item->next;
     }
-   }
 
-   item = item->next;
-  }
-
- item = emalloc(sizeof(struct kb_item));
- item->name = estrdup(name);
- item->v.v_str = estrdup(value);
- item->type = KB_TYPE_STR;
- item->next = kb[h];
- kb[h] = item;
- return 0;
+  item = emalloc (sizeof (struct kb_item));
+  item->name = estrdup (name);
+  item->v.v_str = estrdup (value);
+  item->type = KB_TYPE_STR;
+  item->next = kb[h];
+  kb[h] = item;
+  return 0;
 }
 
 /**
@@ -310,13 +311,13 @@ kb_item_addset_str (struct kb_item ** kb, char * name, char * value, int replace
  * @param value Value of the entry.
  */
 int
-kb_item_add_str (struct kb_item ** kb, char * name, char * value)
+kb_item_add_str (struct kb_item **kb, char *name, char *value)
 {
   return kb_item_addset_str (kb, name, value, 0);
 }
 
 int
-kb_item_set_str (struct kb_item ** kb, char * name, char * value)
+kb_item_set_str (struct kb_item **kb, char *name, char *value)
 {
   return kb_item_addset_str (kb, name, value, 1);
 }
@@ -327,123 +328,127 @@ kb_item_set_str (struct kb_item ** kb, char * name, char * value)
  * @return -1 if kn is NULL or 
  */
 static int
-kb_item_addset_int (struct kb_item ** kb, char * name, int value, int replace)
+kb_item_addset_int (struct kb_item **kb, char *name, int value, int replace)
 {
- /* Before we write anything to the KB, we need to make sure that the same
-  * (name,value) pair is not present already. */
-  int h = mkkey(name);
-  struct kb_item * item;
+  /* Before we write anything to the KB, we need to make sure that the same
+   * (name,value) pair is not present already. */
+  int h = mkkey (name);
+  struct kb_item *item;
 
   if (kb == NULL)
     return -1;
 
 
-  item  = kb[h];
+  item = kb[h];
 
-  while ( item != NULL )
-  {
-   if ( strcmp(item->name, name) == 0 )
-   {
-    if(item->type == KB_TYPE_INT 	    && 
-      item->v.v_int == value)
-	return -1;
-
-    if ( replace != 0 )
+  while (item != NULL)
     {
-    if ( item->type == KB_TYPE_STR )
-	efree(&item->v.v_str);
+      if (strcmp (item->name, name) == 0)
+        {
+          if (item->type == KB_TYPE_INT && item->v.v_int == value)
+            return -1;
 
-    item->type = KB_TYPE_INT;
-    item->v.v_int = value;
-    return 0;
+          if (replace != 0)
+            {
+              if (item->type == KB_TYPE_STR)
+                efree (&item->v.v_str);
+
+              item->type = KB_TYPE_INT;
+              item->v.v_int = value;
+              return 0;
+            }
+        }
+
+      item = item->next;
     }
-   }
 
-   item = item->next;
-  }
-
- item = emalloc(sizeof(struct kb_item));
- item->name = estrdup(name);
- item->v.v_int = value;
- item->type = KB_TYPE_INT;
- item->next = kb[h];
- kb[h] = item;
- return 0;
+  item = emalloc (sizeof (struct kb_item));
+  item->name = estrdup (name);
+  item->v.v_int = value;
+  item->type = KB_TYPE_INT;
+  item->next = kb[h];
+  kb[h] = item;
+  return 0;
 }
 
 
 int
-kb_item_set_int (struct kb_item ** kb, char * name, int value)
+kb_item_set_int (struct kb_item **kb, char *name, int value)
 {
- return kb_item_addset_int(kb, name, value, 1);
+  return kb_item_addset_int (kb, name, value, 1);
 }
 
 int
-kb_item_add_int(struct kb_item ** kb, char * name, int value)
+kb_item_add_int (struct kb_item **kb, char *name, int value)
 {
- return kb_item_addset_int(kb, name, value, 0);
+  return kb_item_addset_int (kb, name, value, 0);
 }
 
 
 void
-kb_item_rm_all (struct kb_item ** kb, char * name)
+kb_item_rm_all (struct kb_item **kb, char *name)
 {
- int h = mkkey(name);
- struct kb_item * k, * prev = NULL;
+  int h = mkkey (name);
+  struct kb_item *k, *prev = NULL;
 
- if ( kb == NULL )
+  if (kb == NULL)
     return;
 
- k = kb[h];
- while ( k != NULL )
- {
-  if(strcmp(k->name, name) == 0)
-  {
-   struct kb_item * next;
-   if(k->type == ARG_STRING)
-    efree(&k->v.v_str);
+  k = kb[h];
+  while (k != NULL)
+    {
+      if (strcmp (k->name, name) == 0)
+        {
+          struct kb_item *next;
+          if (k->type == ARG_STRING)
+            efree (&k->v.v_str);
 
-   efree(&k->name);
-   next = k->next;
-   efree(&k);
-   if(prev != NULL) prev->next = next;
-   else kb[h] = next;
-   k = next; 
-  }
-  else {
-    prev = k;
-    k = k->next;
+          efree (&k->name);
+          next = k->next;
+          efree (&k);
+          if (prev != NULL)
+            prev->next = next;
+          else
+            kb[h] = next;
+          k = next;
+        }
+      else
+        {
+          prev = k;
+          k = k->next;
+        }
     }
- }
 }
 
 
 /**
  * Backward compatibilty 
  */
-struct arglist*
-plug_get_oldstyle_kb (struct arglist * desc )
+struct arglist *
+plug_get_oldstyle_kb (struct arglist *desc)
 {
- struct kb_item ** kb = arg_get_value(desc, "key");
- struct arglist * ret;
- struct kb_item * k;
- int i;
- if ( kb == NULL )
-	return NULL;
+  struct kb_item **kb = arg_get_value (desc, "key");
+  struct arglist *ret;
+  struct kb_item *k;
+  int i;
+  if (kb == NULL)
+    return NULL;
 
- ret = emalloc ( sizeof(struct arglist) );
- for ( i = 0 ; i < HASH_MAX ; i ++ )
- {
-  k = kb[i];
-  while ( k != NULL )
-  {
-  if ( k->type == KB_TYPE_INT )
-	arg_add_value(ret, k->name, ARG_INT, -1, GSIZE_TO_POINTER(k->v.v_int));
-  else if ( k->type == KB_TYPE_STR )
-	arg_add_value(ret, k->name, ARG_STRING, strlen(k->v.v_str), estrdup(k->v.v_str));
-   k = k->next;
-  }
- }
+  ret = emalloc (sizeof (struct arglist));
+  for (i = 0; i < HASH_MAX; i++)
+    {
+      k = kb[i];
+      while (k != NULL)
+        {
+          if (k->type == KB_TYPE_INT)
+            arg_add_value (ret, k->name, ARG_INT, -1,
+                           GSIZE_TO_POINTER (k->v.v_int));
+          else if (k->type == KB_TYPE_STR)
+            arg_add_value (ret, k->name, ARG_STRING, strlen (k->v.v_str),
+                           estrdup (k->v.v_str));
+          k = k->next;
+        }
+    }
 
- return ret;
+  return ret;
 }

@@ -28,121 +28,128 @@
 #define NUM_CLIENTS 128
 
 /** Shared pcap_t's. */
-static pcap_t * pcaps[NUM_CLIENTS];
+static pcap_t *pcaps[NUM_CLIENTS];
 
 /**
  * @return -1 in case of error, index of the opened pcap_t in \ref pcaps
  *         otherwise.
  */
 int
-bpf_open_live (char * iface, char * filter)
+bpf_open_live (char *iface, char *filter)
 {
- char errbuf[PCAP_ERRBUF_SIZE];
- pcap_t * ret;
- bpf_u_int32 netmask, network;
- struct bpf_program filter_prog;
- int i;
+  char errbuf[PCAP_ERRBUF_SIZE];
+  pcap_t *ret;
+  bpf_u_int32 netmask, network;
+  struct bpf_program filter_prog;
+  int i;
 
- for (i = 0 ; i < NUM_CLIENTS && pcaps[i] ; i++)
-   ;
+  for (i = 0; i < NUM_CLIENTS && pcaps[i]; i++)
+    ;
 
- if (pcaps[i])
-  {
-    printf ("no free pcap\n");
-    return -1;
-  }
+  if (pcaps[i])
+    {
+      printf ("no free pcap\n");
+      return -1;
+    }
 
 
- if(iface == NULL)
-  iface = pcap_lookupdev(errbuf);
+  if (iface == NULL)
+    iface = pcap_lookupdev (errbuf);
 
- ret = pcap_open_live(iface, 1500, 0, 1, errbuf);
- if(ret == NULL)
- {
-    printf("%s\n", errbuf);
-  return -1;
- }
+  ret = pcap_open_live (iface, 1500, 0, 1, errbuf);
+  if (ret == NULL)
+    {
+      printf ("%s\n", errbuf);
+      return -1;
+    }
 
- if(pcap_lookupnet(iface, &network, &netmask, 0) < 0)
- {
-   printf("pcap_lookupnet failed\n");
-   pcap_close(ret);
-   return -1;
- }
+  if (pcap_lookupnet (iface, &network, &netmask, 0) < 0)
+    {
+      printf ("pcap_lookupnet failed\n");
+      pcap_close (ret);
+      return -1;
+    }
 
- if(pcap_compile(ret, &filter_prog, filter, 1, netmask) < 0)
- {
-  pcap_perror(ret, "pcap_compile");
-  pcap_close(ret);
-  return -1;
- }
+  if (pcap_compile (ret, &filter_prog, filter, 1, netmask) < 0)
+    {
+      pcap_perror (ret, "pcap_compile");
+      pcap_close (ret);
+      return -1;
+    }
 
- if (pcap_setnonblock(ret,1,NULL)==-1) {
-	pcap_perror(ret,"pcap_setnonblock");
-	printf("call to pcap_setnonblock failed, some plugins/scripts will hang/freeze. Upgrade your version of libcap!\n");	
- }
+  if (pcap_setnonblock (ret, 1, NULL) == -1)
+    {
+      pcap_perror (ret, "pcap_setnonblock");
+      printf
+        ("call to pcap_setnonblock failed, some plugins/scripts will hang/freeze. Upgrade your version of libcap!\n");
+    }
 
- if (pcap_setfilter(ret, &filter_prog) < 0)
- {
-  pcap_perror(ret, "pcap_setfilter\n");
-  pcap_close(ret);
-  return -1;
- }
- pcaps[i] = ret;
- return i;
+  if (pcap_setfilter (ret, &filter_prog) < 0)
+    {
+      pcap_perror (ret, "pcap_setfilter\n");
+      pcap_close (ret);
+      return -1;
+    }
+  pcaps[i] = ret;
+  return i;
 }
 
 
 
-u_char*
-bpf_next_tv (int bpf, int * caplen, struct timeval * tv)
+u_char *
+bpf_next_tv (int bpf, int *caplen, struct timeval * tv)
 {
-  u_char * p = NULL;
+  u_char *p = NULL;
   struct pcap_pkthdr head;
   struct timeval timeout, now;
 
-  gettimeofday(&timeout, NULL);
+  gettimeofday (&timeout, NULL);
   timeout.tv_sec += tv->tv_sec;
   timeout.tv_usec += tv->tv_usec;
-  while ( timeout.tv_usec >= 1000000 ) {
-        timeout.tv_sec ++;
-        timeout.tv_usec -= 1000000;
-  }
+  while (timeout.tv_usec >= 1000000)
+    {
+      timeout.tv_sec++;
+      timeout.tv_usec -= 1000000;
+    }
 
- do {
-  p = (u_char*)pcap_next(pcaps[bpf], &head);
-  *caplen  = head.caplen;
-  if ( p != NULL ) break;
-  gettimeofday(&now, NULL);
- } while ( !((now.tv_sec > timeout.tv_sec) ||
-             (now.tv_sec == timeout.tv_sec && now.tv_usec >= timeout.tv_usec ) ));
+  do
+    {
+      p = (u_char *) pcap_next (pcaps[bpf], &head);
+      *caplen = head.caplen;
+      if (p != NULL)
+        break;
+      gettimeofday (&now, NULL);
+    }
+  while (!
+         ((now.tv_sec > timeout.tv_sec)
+          || (now.tv_sec == timeout.tv_sec && now.tv_usec >= timeout.tv_usec)));
 
 
- return p;
+  return p;
 }
 
 
-u_char*
-bpf_next (int bpf, int * caplen)
+u_char *
+bpf_next (int bpf, int *caplen)
 {
- struct timeval tv = {0, 100000};
+  struct timeval tv = { 0, 100000 };
 
- return bpf_next_tv(bpf, caplen, &tv);
+  return bpf_next_tv (bpf, caplen, &tv);
 }
 
 
 int
 bpf_datalink (int bpf)
 {
- return pcap_datalink(pcaps[bpf]);
+  return pcap_datalink (pcaps[bpf]);
 }
 
 
 void
 bpf_close (int bpf)
 {
- pcap_close(pcaps[bpf]);
- pcaps[bpf] = NULL;
+  pcap_close (pcaps[bpf]);
+  pcaps[bpf] = NULL;
 }
 
 
