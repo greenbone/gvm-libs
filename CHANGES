@@ -1,3 +1,29 @@
+openvas-libraries 3.1.0.rc1 (2010-05-19)
+
+This is the first release candidate of the openvas-libraries module for the
+Open Vulnerability Assessment System (OpenVAS) 3.1 series.
+
+It adds support for NTLMSSP, for LDAP authentication, for preference file
+uploads to memory and for building some parts of openvas-libraries on Windows.
+
+Many thanks to everyone who has contributed to this release:
+Geoff Galitz, Stephan Kleine, Michael Meyer, Matthew Mundell, Raimund Renkert,
+Preeti Subramanian, Jan-Oliver Wagner, Michael Wiegand and Felix Wolfsteller.
+
+Main changes compared to 3.0.5:
+
+* Code cleanup: Code from openvas-administrator and openvas-manager which could
+  be more appropriately placed in openvas-libraries has been moved here.
+* Initial support for LDAP authentication has been added.
+* A bug which caused WMI support to be disabled in the standalone NASL
+  interpreter has been fixed.
+* IPv6 support has been improved.
+* Support for building parts of openvas-libraries on Windows has been added.
+* Support for reading preference file uploads from memory instead of from disk
+  has been added.
+* Support for NTLMSSP has been added.
+
+
 openvas-libraries 3.0.5 (2010-04-13)
 
 This is the fifth maintenance release of the openvas-libraries module for the
