@@ -116,7 +116,7 @@ openvas_certificate_file_write (GHashTable * certs, char *filename)
       g_hash_table_foreach (certs, (GHFunc) add_cert_to_file, key_file);
     }                           // (else file content is comment only)
 
-  // Write GKeyFile to filesystem.
+  // Open/Close/Create file in the desired mode.
   fd = open (filename, O_RDWR | O_CREAT | O_TRUNC, 0600);
   if (!fd)
     {
@@ -124,19 +124,29 @@ openvas_certificate_file_write (GHashTable * certs, char *filename)
       g_key_file_free (key_file);
       return FALSE;
     }
+  if (close (fd) != 0)
+    {
+      g_key_file_free (key_file);
+      return FALSE;
+    }
 
+  // Create data to write to file.
   keyfile_data = g_key_file_to_data (key_file, &data_length, &err);
   if (err != NULL)
     {
       //show_error(_("Error exporting key file: %s"), err->message);
       g_error_free (err);
       g_key_file_free (key_file);
-      close (fd);
       return FALSE;
     }
 
-  write (fd, keyfile_data, data_length);
-  close (fd);
+  // Write data to file.
+  if (g_file_set_contents (filename, keyfile_data, data_length, &err) == FALSE)
+    {
+      g_error_free (err);
+      g_key_file_free (key_file);
+      return FALSE;
+    }
 
   g_key_file_free (key_file);
 
