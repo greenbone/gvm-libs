@@ -1,5 +1,10 @@
 2010-05-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/ldap_auth.c (ldap_authenticate): Require ldap-server to talk
+	LDAPv3 and proper StartTLS initialization.
+
+2010-05-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* base/openvas_certificate_file.c (openvas_certificate_file_write):
 	Adressed compiler warning that prevented build on some systems.
 	Open the file, close it directly, set contents with GLib File Utility
