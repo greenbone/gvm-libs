@@ -176,6 +176,25 @@ else (MINGW)
   target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS})
 endif (MINGW)
 
+## Experimental indentation target, improveable (currently it cleans up with a
+## nasty trick, output is messy). Target should be conditioned on existence of
+## indent tool.
+
+foreach (FILE ${FILES})
+  # Create a target that checks whether indent is unhappy, print diff.
+  add_custom_command (OUTPUT .indent.${FILE}
+                      COMMAND indent --no-tabs --ignore-newlines
+                              -l 80 ${FILE} -o .indent.${FILE}
+                               && \( diff ${FILE} .indent.${FILE} && rm .indent.${FILE} \)
+                               || \( echo "STYLE-WARNING: ${FILE} does not conform to GNU coding style as interpreted by indent"
+                               && rm .indent.${FILE} \)
+                      DEPENDS ${FILE})
+  list (APPEND INDENT_FILES .indent.${FILE})
+endforeach (FILE ${FILES})
+
+add_custom_target (print-indent-diff
+                   DEPENDS ${INDENT_FILES})
+
 ## Install
 
 install (TARGETS openvas_base_static openvas_base_shared

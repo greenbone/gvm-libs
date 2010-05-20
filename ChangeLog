@@ -1,5 +1,10 @@
 2010-05-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* base/CMakeLists.txt: Experimental indent target to check whether code
+	conforms to GNU Coding Style as parsed by the indent tool.
+
+2010-05-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/ldap_auth.c (ldap_authenticate): Require ldap-server to talk
 	LDAPv3 and proper StartTLS initialization.
 
