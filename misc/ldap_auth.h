@@ -25,13 +25,13 @@
 
 #ifndef ENABLE_LDAP_AUTH
 // Handle cases where openldap is not available.
-#endif
+#else
 
 #ifndef LDAP_AUTH_H
 #define LDAP_AUTH_H
 
 #include <glib.h>
-
+#include <ldap.h>
 
 /**
  * @brief Schema (dn) and info to use for a basic ldap authentication.
@@ -69,7 +69,16 @@ void ldap_auth_info_free (ldap_auth_info_t info);
 int ldap_authenticate (const gchar * username, const gchar * password,
                        /*ldap_auth_info_t */ void *info);
 
+int
+ldap_auth_query_role (LDAP * ldap, ldap_auth_info_t auth_info, gchar * dn);
+
+int
+ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
+                       const gchar * dn, const gchar * username);
+
 ldap_auth_info_t ldap_auth_info_from_key_file (GKeyFile * keyfile,
                                                const gchar * group);
 
 #endif /* not LDAP_AUTH_H */
+
+#endif /* ENABLE_LDAP_AUTH */

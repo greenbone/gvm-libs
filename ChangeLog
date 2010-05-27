@@ -1,3 +1,17 @@
+2010-05-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/ldap_auth.c: Use angle bracket include for ldap header.
+	(ldap_auth_query_rules): Made non-static.
+	(ldap_auth_query_role): Made non-static.
+	(ldap_authenticate): Make connection without StartTLS possible if
+	macro is defined, added todo about usage of configuration entry instead
+	of compile-time-macro.
+
+	* misc/ldap_auth.h: Include ldap header. Be empty if ENABLE_LDAP_AUTH
+	is undefined.
+	(ldap_auth_query_rules): Expose proto.
+	(ldap_auth_query_role): Expose proto.
+
 2010-05-20  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* base/CMakeLists.txt: Experimental indent target to check whether code

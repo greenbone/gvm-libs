@@ -34,7 +34,7 @@
 /** @todo Use non-deprecated counterparts of openldap functionality (see
  *        further TODOS). */
 #define LDAP_DEPRECATED 1
-#include "ldap.h"
+#include <ldap.h>
 
 #include "openvas_auth.h"
 #include "openvas_string.h"
@@ -184,7 +184,7 @@ ldap_auth_info_create_dn (const ldap_auth_info_t info, const gchar * username)
  * @return  0 if successfull,
  *         -1 if failed.
  */
-static int
+int
 ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
                        const gchar * dn, const gchar * username)
 {
@@ -291,7 +291,7 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
  *         +1 if user is "user",
  *         +2 if user is "admin".
  */
-static int
+int
 ldap_auth_query_role (LDAP * ldap, ldap_auth_info_t auth_info, gchar * dn)
 {
   char *attrs[] = { auth_info->role_attribute, NULL };
@@ -403,7 +403,10 @@ ldap_authenticate (const gchar * username, const gchar * password,
     {
       g_warning ("Could not init LDAP StartTLS: %s.",
                  ldap_err2string (ldap_return));
+/** @todo make a config entry whether starttls initialization is mandatory. */
+#ifndef ALLOW_PLAINTEXT_LDAP_CONNECTION
       return -1;
+#endif
     }
   else
     g_debug ("LDAP StartTLS initialized.");
