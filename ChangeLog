@@ -1,5 +1,17 @@
 2010-05-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	Last part of commits for basic support for authentication against an
+	ADS. Authenticator implementation in openvas_auth module.
+
+	* misc/openvas_auth.c: Include ads_auth header.
+	(authentication_method): Add ADS Method enum.
+	(authentication_methods): Add ADS Mehtod string, made warning more
+	prominent and marked semantically.
+	(add_authenticator): Init and add an ADS authenticator.
+	(openvas_auth_write_config): Add exemplary ADS authentication config.
+
+2010-05-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/ldap_auth.c (ldap_auth_info_free): Handle case where parameter
 	is NULL, updated doc.
 	(ldap_auth_info_create_dn): Renamed to ldap_auth_info_auth_dn.

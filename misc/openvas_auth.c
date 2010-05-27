@@ -38,6 +38,7 @@
 
 #ifdef ENABLE_LDAP_AUTH
 #include "ldap_auth.h"
+#include "ads_auth.h"
 #endif /*ENABLE_LDAP_AUTH */
 
 #define AUTH_CONF_FILE ".auth.conf"
@@ -104,6 +105,7 @@
 enum authentication_method
 {
   AUTHENTICATION_METHOD_FILE = 0,
+  AUTHENTICATION_METHOD_ADS,
   AUTHENTICATION_METHOD_LDAP,
   AUTHENTICATION_METHOD_LAST
 };
@@ -114,9 +116,10 @@ typedef enum authentication_method auth_method_t;
 
 /**
  * @brief Array of string representations of the supported authentication
- * @brief methods. Beware to have it in sync with \ref authentication_method.
+ * @brief methods.
  */
-static const gchar *authentication_methods[] = { "file", "ldap", NULL };
+/** @warning  Beware to have it in sync with \ref authentication_method. */
+static const gchar *authentication_methods[] = { "file", "ads", "ldap", NULL };
 
 /** @brief Flag whether the config file was read. */
 static gboolean initialized = FALSE;
@@ -250,6 +253,25 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
                                  (GCompareFunc) order_compare);
 #else
         g_warning ("LDAP Authentication was configured, but "
+                   "openvas-libraries was not build with "
+                   "ldap-support. The configuration entry will "
+                   "have no effect.");
+#endif /* ENABLE_LDAP_AUTH */
+        break;
+      }
+    case AUTHENTICATION_METHOD_ADS:
+      {
+#ifdef ENABLE_LDAP_AUTH
+        authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
+        authent->order = order;
+        authent->authenticate = &ads_authenticate;
+        ads_auth_info_t info = ads_auth_info_from_key_file (key_file, group);
+        authent->data = info;
+        authent->method = AUTHENTICATION_METHOD_ADS;
+        authenticators = g_slist_insert_sorted (authenticators, authent,
+                                                (GCompareFunc) order_compare);
+#else
+        g_warning ("LDAP/ADS Authentication was configured, but "
                    "openvas-libraries was not build with "
                    "ldap-support. The configuration entry will "
                    "have no effect.");
@@ -394,6 +416,22 @@ openvas_auth_write_config (GKeyFile * key_file)
   g_key_file_set_value (new_conffile, "method:ldap", "ruletype-attribute",
                         "x-gsm-ruletype");
   g_key_file_set_value (new_conffile, "method:ldap", "rule-attribute",
+                        "x-gsm-rule");
+  // ADS Configuration
+  g_key_file_set_value (new_conffile, "method:ads", "enable", "false");
+  g_key_file_set_value (new_conffile, "method:ads", "order", "3");
+  g_key_file_set_value (new_conffile, "method:ads", "ldaphost", "localhost");
+  g_key_file_set_value (new_conffile, "method:ads", "authdn", "user@domain");
+  g_key_file_set_value (new_conffile, "method:ads", "domain", "domain.org");
+  g_key_file_set_value (new_conffile, "method:ads", "role-attribute",
+                        "x-gsm-role");
+  g_key_file_set_value (new_conffile, "method:ads", "role-user-values",
+                        "user;admin");
+  g_key_file_set_value (new_conffile, "method:ads", "role-admin-values",
+                        "admin");
+  g_key_file_set_value (new_conffile, "method:ads", "ruletype-attribute",
+                        "x-gsm-ruletype");
+  g_key_file_set_value (new_conffile, "method:ads", "rule-attribute",
                         "x-gsm-rule");
 
   // Old, user-provided configuration, if any.
