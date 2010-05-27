@@ -1,5 +1,13 @@
 2010-05-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/ldap_auth.c (ldap_auth_info_free): Handle case where parameter
+	is NULL, updated doc.
+	(ldap_auth_info_create_dn): Renamed to ldap_auth_info_auth_dn.
+	(ldap_auth_info_auth_dn): Renamed from ldap_auth_info_create_dn.
+	(ldap_authenticate): Updated call.
+
+2010-05-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	Added basic support for authentication against an ADS
 	(Active Directory Server). Note that to test, a configure switch
 	(BUILD_WITH_LDAP) has to be set and appropriate values have to be

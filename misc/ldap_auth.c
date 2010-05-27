@@ -135,11 +135,14 @@ ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
 /**
  * @brief Free an ldap_auth_info and all associated memory.
  *
- * @param info ldap_auth_schema_t to free.
+ * @param info ldap_auth_schema_t to free, can be NULL.
  */
 void
 ldap_auth_info_free (ldap_auth_info_t info)
 {
+  if (!info)
+    return;
+
   g_free (info->ldap_host);
   g_free (info->auth_dn);
   g_free (info->role_attribute);
@@ -162,7 +165,7 @@ ldap_auth_info_free (ldap_auth_info_t info)
  *         with g_free.
  */
 static gchar *
-ldap_auth_info_create_dn (const ldap_auth_info_t info, const gchar * username)
+ldap_auth_info_auth_dn (const ldap_auth_info_t info, const gchar * username)
 {
   if (info == NULL || username == NULL)
     return NULL;
@@ -411,7 +414,7 @@ ldap_authenticate (const gchar * username, const gchar * password,
   else
     g_debug ("LDAP StartTLS initialized.");
 
-  dn = ldap_auth_info_create_dn (info, username);
+  dn = ldap_auth_info_auth_dn (info, username);
 
   /** @todo deprecated, use ldap_sasl_bind_s */
   ldap_return = ldap_simple_bind_s (ldap, dn, password);
