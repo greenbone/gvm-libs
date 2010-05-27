@@ -232,10 +232,9 @@ ads_authenticate (const gchar * username, const gchar * password,
     {
       g_warning ("Could not init LDAP StartTLS: %s.",
                  ldap_err2string (ldap_return));
-/** @todo make a configuration file entry for the plaintext ldap authentication. */
-#ifndef ALLOW_PLAINTEXT_LDAP_CONNECTION
-      return -1;
-#endif
+
+      if (info->allow_plaintext == FALSE)
+        return -1;
     }
   else
     g_debug ("LDAP StartTLS initialized.");

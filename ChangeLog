@@ -1,5 +1,23 @@
 2010-05-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	Made StartTLS requirement configurable, solving 2 todos. The
+	configuration entry is not found in the exemplary .auth.conf as it
+	is highly advised not to use it other for testing purposes.
+
+	* misc/ldap_auth.h (ldap_auth_info): Added field whether StartTLS is
+	mandatory, adjusted proto.
+	
+	* misc/ldap_auth.c (ldap_auth_info_new): Added parameter whehter
+	StartTLS is required.
+	(ldap_authenticate): Respect new configuration entry.
+	(ldap_auth_info_from_key_file): Read in new configuration entry.
+
+	* misc/ads_auth.c (ads_authenticate): Use parameter to decide wheter
+	StartTLS initialization success is mandatory.
+
+
+2010-05-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/openvas_auth.c (openvas_write_config_file): When one of two
 	methods is configured, do not create default entries for the other.
 	Updated doc.
