@@ -69,6 +69,8 @@ libopenvas-config.in
 ltmain.sh
 Makefile
 MANIFEST
+misc/ads_auth.c
+misc/ads_auth.h
 misc/arglists.c
 misc/arglists.h
 misc/bpf_share.h

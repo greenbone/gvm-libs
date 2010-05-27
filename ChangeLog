@@ -1,5 +1,23 @@
 2010-05-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	Added basic support for authentication against an ADS
+	(Active Directory Server). Note that to test, a configure switch
+	(BUILD_WITH_LDAP) has to be set and appropriate values have to be
+	entered in the authentication configuration file.
+
+	* misc/ads_auth.c, misc/ads_auth.h: New module, analogous to the ldap
+	authenticator.
+
+	* doc/example.auth.conf: Added exemplary ADS authentication
+	configuration.
+
+	* misc/CMakeLists.txt: Add ads_auth module if BUILD_WITH_LDAP configure
+	switch is set.
+
+	* MANIFEST: Added new files.
+
+2010-05-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/ldap_auth.c: Use angle bracket include for ldap header.
 	(ldap_auth_query_rules): Made non-static.
 	(ldap_auth_query_role): Made non-static.
