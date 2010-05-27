@@ -1,5 +1,11 @@
 2010-05-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/openvas_auth.c (openvas_write_config_file): When one of two
+	methods is configured, do not create default entries for the other.
+	Updated doc.
+
+2010-05-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	Last part of commits for basic support for authentication against an
 	ADS. Authenticator implementation in openvas_auth module.
 

@@ -374,8 +374,11 @@ openvas_auth_tear_down ()
  * @brief Writes the authentication mechanism configuration, merging with
  * @brief defaults and existing configuration.
  *
+ * If the passed key-file contains just one of the two groups (method:ldap and
+ * method:ads), do not write the defaults of the other group.
+ *
  * @param[in] keyfile The KeyFile to merge and write. Can be NULL, in which
- *                    case just the default will be written.#
+ *                    case just the default will be written.
  *
  * @return 1 if file has been written successfully, != 1 otherwise.
  */
@@ -401,38 +404,48 @@ openvas_auth_write_config (GKeyFile * key_file)
                           "This file was automatically generated.", NULL);
   g_key_file_set_value (new_conffile, "method:file", "enable", "true");
   g_key_file_set_value (new_conffile, "method:file", "order", "1");
+
   // LDAP configuration.
-  g_key_file_set_value (new_conffile, "method:ldap", "enable", "false");
-  g_key_file_set_value (new_conffile, "method:ldap", "order", "2");
-  g_key_file_set_value (new_conffile, "method:ldap", "ldaphost", "localhost");
-  g_key_file_set_value (new_conffile, "method:ldap", "authdn",
-                        "authdn=uid=%s,cn=users,o=yourserver,c=yournet");
-  g_key_file_set_value (new_conffile, "method:ldap", "role-attribute",
-                        "x-gsm-role");
-  g_key_file_set_value (new_conffile, "method:ldap", "role-user-values",
-                        "user;admin");
-  g_key_file_set_value (new_conffile, "method:ldap", "role-admin-values",
-                        "admin");
-  g_key_file_set_value (new_conffile, "method:ldap", "ruletype-attribute",
-                        "x-gsm-ruletype");
-  g_key_file_set_value (new_conffile, "method:ldap", "rule-attribute",
-                        "x-gsm-rule");
+  if (key_file == NULL
+      || g_key_file_has_group (key_file, "method:ldap") == TRUE)
+    {
+      g_key_file_set_value (new_conffile, "method:ldap", "enable", "false");
+      g_key_file_set_value (new_conffile, "method:ldap", "order", "2");
+      g_key_file_set_value (new_conffile, "method:ldap", "ldaphost", "localhost");
+      g_key_file_set_value (new_conffile, "method:ldap", "authdn",
+                            "authdn=uid=%s,cn=users,o=yourserver,c=yournet");
+      g_key_file_set_value (new_conffile, "method:ldap", "role-attribute",
+                            "x-gsm-role");
+      g_key_file_set_value (new_conffile, "method:ldap", "role-user-values",
+                            "user;admin");
+      g_key_file_set_value (new_conffile, "method:ldap", "role-admin-values",
+                            "admin");
+      g_key_file_set_value (new_conffile, "method:ldap", "ruletype-attribute",
+                            "x-gsm-ruletype");
+      g_key_file_set_value (new_conffile, "method:ldap", "rule-attribute",
+                            "x-gsm-rule");
+    }
+
   // ADS Configuration
-  g_key_file_set_value (new_conffile, "method:ads", "enable", "false");
-  g_key_file_set_value (new_conffile, "method:ads", "order", "3");
-  g_key_file_set_value (new_conffile, "method:ads", "ldaphost", "localhost");
-  g_key_file_set_value (new_conffile, "method:ads", "authdn", "user@domain");
-  g_key_file_set_value (new_conffile, "method:ads", "domain", "domain.org");
-  g_key_file_set_value (new_conffile, "method:ads", "role-attribute",
-                        "x-gsm-role");
-  g_key_file_set_value (new_conffile, "method:ads", "role-user-values",
-                        "user;admin");
-  g_key_file_set_value (new_conffile, "method:ads", "role-admin-values",
-                        "admin");
-  g_key_file_set_value (new_conffile, "method:ads", "ruletype-attribute",
-                        "x-gsm-ruletype");
-  g_key_file_set_value (new_conffile, "method:ads", "rule-attribute",
-                        "x-gsm-rule");
+  if (key_file == NULL
+      || g_key_file_has_group (key_file, "method:ads") == TRUE)
+    {
+      g_key_file_set_value (new_conffile, "method:ads", "enable", "false");
+      g_key_file_set_value (new_conffile, "method:ads", "order", "3");
+      g_key_file_set_value (new_conffile, "method:ads", "ldaphost", "localhost");
+      g_key_file_set_value (new_conffile, "method:ads", "authdn", "%s@domain");
+      g_key_file_set_value (new_conffile, "method:ads", "domain", "domain.org");
+      g_key_file_set_value (new_conffile, "method:ads", "role-attribute",
+                            "x-gsm-role");
+      g_key_file_set_value (new_conffile, "method:ads", "role-user-values",
+                            "user;admin");
+      g_key_file_set_value (new_conffile, "method:ads", "role-admin-values",
+                            "admin");
+      g_key_file_set_value (new_conffile, "method:ads", "ruletype-attribute",
+                            "x-gsm-ruletype");
+      g_key_file_set_value (new_conffile, "method:ads", "rule-attribute",
+                            "x-gsm-rule");
+    }
 
   // Old, user-provided configuration, if any.
   /** @todo Preserve comments in file. */
