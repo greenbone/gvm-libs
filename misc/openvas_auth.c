@@ -668,7 +668,8 @@ openvas_authenticate_classic (const gchar * username, const gchar * password,
  * Uses the configurable authenticators list, if available.
  * Defaults to file-based (openvas users directory) authentication otherwise.
  *
- * @param username Username.
+ * @param username Username, might not contain %-sign (otherwise -1 is
+ *                 returned).
  * @param password Password.
  *
  * @return 0 authentication success, otherwise the result of the last
@@ -677,6 +678,9 @@ openvas_authenticate_classic (const gchar * username, const gchar * password,
 int
 openvas_authenticate (const gchar * username, const gchar * password)
 {
+  if (strchr (username, '%') != NULL)
+    return -1;
+
   if (initialized == FALSE || authenticators == NULL)
     return openvas_authenticate_classic (username, password, NULL);
 
@@ -687,8 +691,8 @@ openvas_authenticate (const gchar * username, const gchar * password)
     {
       authenticator_t authent = (authenticator_t) item->data;
       ret = authent->authenticate (username, password, authent->data);
-      g_debug ("Authentication trial, order %d, method %s -> %d.",
-               authent->order, authentication_methods[authent->method], ret);
+      g_debug ("Authentication via '%s' (order %d) returned %d.",
+               authentication_methods[authent->method], authent->order, ret);
 
       // Return if successfull
       if (ret == 0)

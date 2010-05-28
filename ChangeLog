@@ -1,3 +1,12 @@
+2010-05-28  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	Prevent certain formatting attacks by dissallowing percentage sign in
+	username.
+
+	* misc/openvas_auth.c (openvas_authenticate): Return -1 (failure) if
+	percentage sign is found in username, adjusted documentation, improved
+	debug message.
+
 2010-05-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/CMakeLists.txt: Make library compile again
@@ -19,7 +28,6 @@
 
 	* misc/ads_auth.c (ads_authenticate): Use parameter to decide wheter
 	StartTLS initialization success is mandatory.
-
 
 2010-05-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
