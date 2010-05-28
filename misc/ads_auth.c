@@ -206,15 +206,19 @@ ads_authenticate (const gchar * username, const gchar * password,
   if (info == NULL || username == NULL || password == NULL || !info->ldap_host)
     return -1;
 
-  /** @todo deprecated, use ldap_initialize or ldap_create */
-  LDAP *ldap = (LDAP *) ldap_open (info->ldap_host, LDAP_PORT);
+  LDAP *ldap;
+  int res = 0;
   gchar *authdn = NULL;
   int ldap_return = 0;
   int ldapv3 = 3;
+  gchar* ldapuri = g_strconcat ("ldap://", info->ldap_host, NULL);
 
-  if (ldap == NULL)
+  res = ldap_initialize (&ldap, ldapuri);
+  g_free (ldapuri);
+
+  if (ldap == NULL || res != LDAP_SUCCESS)
     {
-      g_warning ("Could not open LDAP connection for authentication.");
+      g_warning ("Could not open ADS/LDAP connection for authentication.");
       return -1;
     }
 
@@ -246,7 +250,7 @@ ads_authenticate (const gchar * username, const gchar * password,
   ldap_return = ldap_simple_bind_s (ldap, authdn, password);
   if (ldap_return != LDAP_SUCCESS)
     {
-      g_warning ("LDAP authentication failure.");
+      g_warning ("ADS/LDAP authentication failure.");
       return 1;
     }
 

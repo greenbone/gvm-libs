@@ -1,5 +1,15 @@
 2010-05-28  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/ldap_auth.c (ldap_authenticate): Adressed todo regarding
+	deprecated ldap functions. Use ldap_initialize with an ldap uri instead
+	of ldap_open, ldap_unbind_ext_s instead of ldap_unbind.
+
+	* misc/ads_auth.c (ads_authenticate): Adressed todo regarding
+	deprecated ldap functions. Use ldap_initialize with an ldap uri instead
+	of ldap_open. Made warnings/debug output more specific.
+
+2010-05-28  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	Prevent certain formatting attacks by dissallowing percentage sign in
 	username.
 

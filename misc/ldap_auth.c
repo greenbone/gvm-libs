@@ -379,17 +379,21 @@ ldap_authenticate (const gchar * username, const gchar * password,
 {
   ldap_auth_info_t info = (ldap_auth_info_t) ldap_auth_info;
   int role = 0;
+  LDAP *ldap = NULL;
+  gchar *dn = NULL;
+  int ldap_return = 0;
+  int ldapv3 = 3;
+  int res = 0;
 
   if (info == NULL || username == NULL || password == NULL || !info->ldap_host)
     return -1;
 
-  /** @todo deprecated, use ldap_initialize or ldap_create */
-  LDAP *ldap = (LDAP *) ldap_open (info->ldap_host, LDAP_PORT);
-  gchar *dn = NULL;
-  int ldap_return = 0;
-  int ldapv3 = 3;
+  gchar* ldapuri = g_strconcat ("ldap://", info->ldap_host, NULL);
+  res = ldap_initialize (&ldap, ldapuri);
+  g_free (ldapuri);
 
-  if (ldap == NULL)
+
+  if (ldap == NULL || res != LDAP_SUCCESS)
     {
       g_warning ("Could not open LDAP connection for authentication.");
       return -1;
@@ -418,7 +422,7 @@ ldap_authenticate (const gchar * username, const gchar * password,
 
   dn = ldap_auth_info_auth_dn (info, username);
 
-  /** @todo deprecated, use ldap_sasl_bind_s */
+  /** @todo deprecated, use ldap_sasl_bind_s or bind with METHOD_SIMPLE */
   ldap_return = ldap_simple_bind_s (ldap, dn, password);
   if (ldap_return != LDAP_SUCCESS)
     {
@@ -443,8 +447,7 @@ ldap_authenticate (const gchar * username, const gchar * password,
       g_free (user_dir_name);
     }
 
-  /** @todo deprecated, use ldap_unbind_ext_s */
-  ldap_unbind (ldap);
+  ldap_unbind_ext_s (ldap, NULL, NULL);
   g_free (dn);
 
   switch (role)
