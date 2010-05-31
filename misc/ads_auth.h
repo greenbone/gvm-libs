@@ -47,7 +47,7 @@ struct ads_auth_info
   gchar* domain_dc; ///< The domain as ldap dc, like "dc=domain,dc=org".
 };
 
-/** @brief Authentication schema and adress type. */
+/** @brief Authentication info for an ADS. */
 typedef struct ads_auth_info *ads_auth_info_t;
 
 ads_auth_info_t

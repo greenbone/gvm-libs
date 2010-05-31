@@ -226,6 +226,7 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
       while (attr_it != NULL)
         {
           /* For each attribute, print the attribute name and values. */
+          /** @todo deprecated, use ldap_get_values_len */
           attr_vals = ldap_get_values (ldap, result_it, attr_it);
           if (attr_vals != NULL)
             {
@@ -328,19 +329,31 @@ ldap_auth_query_role (LDAP * ldap, ldap_auth_info_t auth_info, gchar * dn)
       while (attr_it != NULL)
         {
           // Get the value of that attribute (we expect to see one attr/value)
+          /** @todo deprecated, use ldap_get_values_len */
           attr_vals = ldap_get_values (ldap, result_it, attr_it);
           if (attr_vals != NULL)
             {
-              // We expect exactly one value here, ignore others.
-              if (openvas_strv_contains_str
-                  (auth_info->role_admin_values, attr_vals[0]))
-                found_role = 2; // is admin
-              else
-                if (openvas_strv_contains_str
-                    (auth_info->role_user_values, attr_vals[0]))
-                found_role = 1; // is user
-              else
-                g_debug ("User is neither in admin nor users group.");
+              char ** attr_vals_it = attr_vals;
+              // Iterate over the values.
+              while (*attr_vals_it)
+                {
+                  if (openvas_strv_contains_str
+                      (auth_info->role_admin_values, *attr_vals_it))
+                    found_role = 2; // is admin
+                  else
+                    {
+                      /* If object carries values for both user and admin, make
+                       * it an admin. */
+                      if (openvas_strv_contains_str
+                          (auth_info->role_user_values, *attr_vals_it))
+                        if (found_role < 1) found_role = 1; // is user
+                    }
+#if 0
+                    else
+                    g_debug ("User is neither in admin nor users group.");
+#endif
+                  attr_vals_it++;
+                }
 
               ldap_value_free (attr_vals);
             }

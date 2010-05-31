@@ -1,3 +1,26 @@
+2010-05-31  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	For configured ADS authentication: made rules working.
+
+	* misc/ads_auth.c: Added some documenting text.
+	(domain_to_ldap_dc): Added error condition, comment.
+	(ads_auth_info_from_key_file): Improved debug message.
+	(ldap_object_get_attribute_values): New function to query values of an
+	attribute of an ldap object.
+	(ldap_object_attribute_has_value): New function. Conveniently checks
+	the values of an attribute.
+	(ads_query_rules): New function to find and save accessrule of a user.
+	(ads_authenticate): Use new ads_query_rules instead of
+	ldap_auth_query_rules. Save rules and role in users-remote/ads instead
+	of users-remote/ldap .
+
+	* misc/ads_auth.h (ads_auth_info): Improved doc.
+
+	* misc/ldap_auth.c (ldap_auth_query_rules): Added todo about usage of
+	deprecated ldap function.
+	(ldap_auth_query_role): Added deprecation todo, made role check work
+	with multiple value attributes.
+
 2010-05-28  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/ldap_auth.c (ldap_authenticate): Adressed todo regarding
