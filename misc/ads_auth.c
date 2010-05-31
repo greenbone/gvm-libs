@@ -176,7 +176,7 @@ char**
 ldap_object_get_attribute_values (LDAP * ldap, const gchar * dn,
                                   gchar * attribute)
 {
-  char *attrs[] = { attribute };
+  char *attrs[] = { attribute , NULL };
   char *attr_it = NULL;
   char **attr_vals = NULL;
   BerElement *ber = NULL;
@@ -231,6 +231,7 @@ ldap_object_get_attribute_values (LDAP * ldap, const gchar * dn,
 
   return attr_vals;
 }
+
 
 /**
  * @brief Finds out whether an objects attribute has a certain value.

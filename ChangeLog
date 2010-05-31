@@ -1,5 +1,10 @@
 2010-05-31  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/ads_auth.c (ldap_object_get_attribute_values): NULL-terminate
+	the attribute array.
+
+2010-05-31  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	For configured ADS authentication: made rules working.
 
 	* misc/ads_auth.c: Added some documenting text.
