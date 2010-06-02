@@ -222,6 +222,8 @@ set_property (TARGET libopenvas_base PROPERTY
 set_property (TARGET libopenvas_hg PROPERTY
               IMPORTED_LOCATION ../hg/libopenvas_hg.so)
 
+link_directories (${LIBDIR})
+
 # Link the openvas-nasl executable
 add_executable (openvas-nasl nasl.c)
 target_link_libraries (openvas-nasl openvas_nasl_static libopenvas_base

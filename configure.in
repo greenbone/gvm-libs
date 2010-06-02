@@ -340,6 +340,9 @@ AC_CHECK_FUNC(inet_aton, AC_DEFINE(HAVE_INET_ATON))
 AC_CHECK_LIB(resolv, inet_aton, AC_DEFINE(HAVE_INET_ATON))
 AC_CHECK_LIB(nsl, inet_aton, AC_DEFINE(HAVE_INET_ATON))
 
+dnl Add a path to library search location, depending on settings of libdir and
+dnl given prefix.
+
 if test x$libdir = "x\${exec_prefix}/lib" ; then
   if test x$exec_prefix = xNONE ; then
     if test x$prefix != xNONE ; then
@@ -354,6 +357,7 @@ fi
 if test x$exp_libdir != x ; then
   LDFLAGS="-L$exp_libdir $LDFLAGS"
 fi
+
 AC_CHECK_LIB(wmiclient, wmi_connect, HAVE_WMI="YES", HAVE_WMI="NO")
 
 dnl This test is from the configure.in of Unix Network Programming second

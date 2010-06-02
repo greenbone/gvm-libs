@@ -1,3 +1,12 @@
+2010-06-02  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* configure.in: Added small comment.
+
+	* nasl/CMakeLists.txt: As done in configure, add prefix/lib or libdir
+	to path to search for libraries. Fixes linking of the openvas-nasl
+	standalone interpretor against wmi-libs if these are not in the default
+	path.
+
 2010-05-31  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/ads_auth.c (ldap_object_get_attribute_values): NULL-terminate
