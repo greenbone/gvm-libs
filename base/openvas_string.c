@@ -230,3 +230,31 @@ openvas_strv_contains_str (gchar ** strv, const gchar * str)
     }
   return FALSE;
 }
+
+/**
+ * @brief Concatenates strings in a GSList, optionally separating these with
+ * @brief a defined string.
+ *
+ * @param[in]  string_list  List of strings, if NULL, return empty string.
+ * @param[in]  separator    If not NULL, string to put between each two strings
+ *                          in \ref string_list.
+ *
+ * @return Concatenation of strings in \ref string_list, empty string if list
+ *         is empty.
+ */
+gchar*
+openvas_string_flatten_string_list (GSList* string_list, const gchar* separator)
+{
+  /* This is an inefficient solution. Improvements can be done by
+   * precalculating the length, or use GString or the like. */
+  gchar* result = "";
+  GSList* it = string_list;
+  while (it)
+    {
+      openvas_append_string (&result, it->data);
+      if (separator)
+        openvas_append_string (&result, separator);
+      it = g_slist_next (it);
+    }
+  return result;
+}

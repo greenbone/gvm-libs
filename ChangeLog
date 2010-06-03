@@ -1,5 +1,13 @@
 2010-06-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* base/openvas_string.c (openvas_string_flatten_string_list): New
+	utility function.
+
+	* base/openvas_string.h (openvas_string_flatten_string_list): Added
+	proto.
+
+2010-06-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	Added module to retrieve resources from sources. In the current
 	implementation this means retrieve strings from an ADS/LDAP- directory.
 	Implementation was done aiming at these strings becoming target
