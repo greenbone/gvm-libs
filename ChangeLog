@@ -1,5 +1,10 @@
 2010-06-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* base/openvas_string.c (openvas_string_flatten_string_list): Donate
+	own memory to returned variable.
+
+2010-06-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* base/openvas_string.c (openvas_string_flatten_string_list): New
 	utility function.
 

@@ -240,14 +240,14 @@ openvas_strv_contains_str (gchar ** strv, const gchar * str)
  *                          in \ref string_list.
  *
  * @return Concatenation of strings in \ref string_list, empty string if list
- *         is empty.
+ *         is empty. Caller has to free with g_free.
  */
 gchar*
 openvas_string_flatten_string_list (GSList* string_list, const gchar* separator)
 {
   /* This is an inefficient solution. Improvements can be done by
    * precalculating the length, or use GString or the like. */
-  gchar* result = "";
+  gchar* result = g_strdup ("");
   GSList* it = string_list;
   while (it)
     {
