@@ -1,3 +1,7 @@
+2010-06-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/ads_auth.c (ads_authenticate): Close memleaks.
+
 2010-06-02  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* configure.in: Added small comment.

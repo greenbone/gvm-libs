@@ -449,6 +449,7 @@ ads_authenticate (const gchar * username, const gchar * password,
   if (ldap_return != LDAP_SUCCESS)
     {
       g_warning ("ADS/LDAP authentication failure.");
+      g_free (authdn);
       return 1;
     }
 
@@ -473,6 +474,7 @@ ads_authenticate (const gchar * username, const gchar * password,
     }
 
   ldap_unbind_ext_s (ldap, NULL, NULL);
+  g_free (authdn);
   free (dn);
 
   switch (role)
