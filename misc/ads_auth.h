@@ -57,6 +57,14 @@ void
 ads_auth_info_free (ads_auth_info_t info);
 
 int ads_authenticate (const gchar * username, const gchar * password,
-                       /*ads_auth_info_t */ void *info);
+                      /*ads_auth_info_t */ void *info);
+
+GSList* ads_auth_bind_query (const gchar* host,
+                             const char* domain,
+                             const char* dn,
+                             const gchar* username,
+                             const gchar* password,
+                             const gchar* filter,
+                             const gchar* attribute);
 
 #endif /* not ADS_AUTH_H */

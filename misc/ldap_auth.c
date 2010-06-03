@@ -85,6 +85,7 @@ auth_dn_is_good (const gchar * authdn)
   return TRUE;
 }
 
+
 /**
  * @brief Create a new ldap authentication schema and info.
  *
@@ -178,6 +179,210 @@ ldap_auth_info_auth_dn (const ldap_auth_info_t info, const gchar * username)
   return dn;
 }
 
+/** @todo refactor/merge with ldap_auth module.*/
+
+/**
+ * @brief Setup and bind to an LDAP.
+ *
+ * @param[in] host           Host to connect to.
+ * @param[in] userdn         DN to authenticate against
+ * @param[in] password       Password for userdn.
+ * @param[in] force_starttls Whether or not to abort if StartTLS initialization
+ *                           failed.
+ *
+ * @return LDAP Handle or NULL if an error occured, authentication failed etc.
+ */
+static LDAP*
+ldap_auth_bind (const gchar* host, const gchar* userdn, const gchar* password,
+                gboolean force_starttls)
+{
+  LDAP* ldap = NULL;
+  int ldap_return = 0;
+  int ldapv3      = 3;
+  int res         = 0;
+  gchar* ldapuri  = NULL;
+
+  if (host == NULL || userdn == NULL || password == NULL)
+    return NULL;
+
+  if (force_starttls == FALSE)
+    g_warning ("Allowed plaintext LDAP authentication");
+
+  ldapuri = g_strconcat ("ldap://", host, NULL);
+  ldap_initialize (&ldap, ldapuri);
+  g_free (ldapuri);
+
+  if (ldap == NULL || res != LDAP_SUCCESS)
+    {
+      g_warning ("Could not open LDAP connection for authentication.");
+      return NULL;
+    }
+
+  /* Fail if server doesnt talk LDAPv3 or StartTLS initialization fails. */
+  ldap_return = ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
+  if (ldap_return != LDAP_SUCCESS)
+    {
+      g_warning ("Could not set ldap protocol version to 3: %s.",
+                 ldap_err2string (ldap_return));
+      return NULL;
+    }
+
+  ldap_return = ldap_start_tls_s (ldap, NULL, NULL);
+  if (ldap_return != LDAP_SUCCESS)
+    {
+      if (force_starttls == TRUE)
+        {
+          g_warning ("Aborting ldap authentication: Could not init LDAP StartTLS: %s.",
+                     ldap_err2string (ldap_return));
+          return NULL;
+        }
+      else
+        {
+          g_warning ("Could not init LDAP StartTLS: %s.",
+                     ldap_err2string (ldap_return));
+          g_warning ("Doing plaintext authentication");
+        }
+    }
+  else
+    g_debug ("LDAP StartTLS initialized.");
+
+
+  /** @todo deprecated, use ldap_sasl_bind_s or bind with METHOD_SIMPLE */
+  ldap_return = ldap_simple_bind_s (ldap, userdn, password);
+  if (ldap_return != LDAP_SUCCESS)
+    {
+      g_warning ("LDAP authentication failure.");
+      return NULL;
+    }
+
+  return ldap;
+}
+
+/**
+ * @brief Queries an LDAP directory.
+ *
+ * @param ldap      The ldap handle to use.
+ * @param dn        The dn whose subtree to search.
+ * @param filter    Filter for object (e.g. "objectClass=person").
+ * @param attribute Attribute to query (e.g. "gender").
+ *
+ * @return Values of attribute of objects matching filter as a gchar* list.
+ *         Caller has to free.
+ */
+GSList*
+ldap_auth_query (LDAP* ldap, const gchar* dn, const gchar* filter,
+                 const gchar* attribute)
+{
+  if (ldap == NULL || dn == NULL || filter == NULL || attribute == NULL)
+    return NULL;
+
+  char* attrs[] = {
+    attribute,
+    NULL
+  };
+
+  GSList* value_list = NULL;
+  char *attr_it = NULL;
+  char **attr_vals = NULL;
+  char **attr_vals_it = NULL;
+  BerElement *ber = NULL;
+  LDAPMessage *result, *result_it;
+
+  int res = ldap_search_ext_s (ldap, dn /* base */ , LDAP_SCOPE_SUBTREE,
+                               filter /* filter */ , attrs, 0 /* attrsonly */ ,
+                               NULL /* serverctrls */ , NULL /* clientctrls */ ,
+                               LDAP_NO_LIMIT,   /* timeout */
+                               LDAP_NO_LIMIT,   /* sizelimit */
+                               &result);
+  if (res != LDAP_SUCCESS)
+    {
+      g_debug ("LDAP Query failed: %s\n", ldap_err2string (res));
+      return NULL;
+    }
+  else
+    {
+      g_debug ("LDAP Query returned %d results.",
+               ldap_count_entries (ldap, result));
+    }
+
+  result_it = ldap_first_entry (ldap, result);
+  while (result_it != NULL)
+    {
+      // Iterate through each attribute in the entry.
+      attr_it = ldap_first_attribute (ldap, result_it, &ber);
+      while (attr_it != NULL)
+        {
+          /* For each attribute, check its value(s). */
+          /** @todo deprecated, use ldap_get_values_len */
+          attr_vals = ldap_get_values (ldap, result_it, attr_it);
+          if (attr_vals != NULL)
+            {
+              attr_vals_it = attr_vals;
+              while (*attr_vals_it)
+                {
+                  value_list = g_slist_prepend (value_list, g_strdup (*attr_vals_it));
+                  attr_vals_it++;
+                }
+              ldap_value_free (attr_vals);
+            }
+          ldap_memfree (attr_it);
+          attr_it = ldap_next_attribute (ldap, result_it, ber);
+        }
+
+      if (ber != NULL)
+        {
+          ber_free (ber, 0);
+        }
+      result_it = ldap_next_entry (ldap, result_it);
+    }
+
+  ldap_msgfree (result);
+  return value_list;
+}
+
+
+/**
+ * @brief Binds to an LDAP and returns result of query.
+ *
+ * @param host      The host to connect to.
+ * @param userdn_tmpl The DN to authenticate against as template, containing
+ *                    single %s.
+ * @param username  Username to print into userdn_tmpl.
+ * @param password  Password for userdn.
+ * @param dn        The dn whose subtree to search.
+ * @param filter    Filter for object (e.g. "objectClass=person").
+ * @param attribute Attribute to query (e.g. "gender").
+ *
+ * @return Result of query.
+ */
+GSList*
+ldap_auth_bind_query (const gchar* host,
+                      const gchar* userdn_tmpl,
+                      const gchar* username,
+                      const gchar* password,
+                      const gchar* dn,
+                      const gchar* filter,
+                      const gchar* attribute)
+{
+  if (auth_dn_is_good (userdn_tmpl) == FALSE)
+    return NULL;
+
+  GSList* attribute_values = NULL;
+  gchar *userdn = g_strdup_printf (userdn_tmpl, username);
+  LDAP* ldap = ldap_auth_bind (host, userdn, password, FALSE);
+
+  if (!ldap)
+    {
+      g_warning ("LDAP Connection for query failed.");
+    }
+
+  attribute_values = ldap_auth_query (ldap, dn, filter, attribute);
+
+  if (ldap)
+    ldap_unbind_ext_s (ldap, NULL, NULL);
+
+  return attribute_values;
+}
 
 /**
  * @brief Queries the accessrules of a user and saves them to disc.

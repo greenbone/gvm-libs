@@ -1,5 +1,22 @@
 2010-06-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/ads_auth.c (ads_auth_bind): New function, binds to ads.
+	(ads_auth_bind_query): New function, binds to ads and returns result of
+	query.
+	Added todo, as duplicate code was introduced.
+
+	* misc/ldap_auth.c (ldap_auth_bind): New function, binds with ldap.
+	(ldap_auth_query): New function, queries via a bound ldap handle.
+	(ldap_auth_bind_query): Convenience wrapper for the two new functions.
+	Added todo about duplicate code.
+
+	* misc/ldap_auth.h (ldap_auth_query, ldap_auth_bind_query): Added
+	protos.
+
+	* misc/ads_auth.h (ads_auth_bind_query): Added proto.
+
+2010-06-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/ads_auth.c (ads_authenticate): Close memleaks.
 
 2010-06-02  Felix Wolfsteller <felix.wolfsteller@greenbone.net>

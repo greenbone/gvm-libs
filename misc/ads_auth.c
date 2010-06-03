@@ -30,6 +30,7 @@
 
 #include <stdio.h>
 #include <stdlib.h> /* for free */
+#include <string.h> /* for strcasestr */
 
 #include <glib.h>
 
@@ -180,7 +181,6 @@ ldap_object_get_attribute_values (LDAP * ldap, const gchar * dn,
   char *attr_it = NULL;
   char **attr_vals = NULL;
   BerElement *ber = NULL;
-  gboolean found = FALSE;
   LDAPMessage *result, *result_it;
 
   int res = ldap_search_ext_s (ldap, dn /* base */ , LDAP_SCOPE_BASE,
@@ -230,6 +230,131 @@ ldap_object_get_attribute_values (LDAP * ldap, const gchar * dn,
   ldap_msgfree (result);
 
   return attr_vals;
+}
+
+
+/** @todo refactor/merge with ldap_auth module. */
+
+/**
+ * @brief Setup and bind to an LDAP.
+ *
+ * @param[in] host           Host to connect to.
+ * @param[in] domain         Domain to connect to.
+ * @param[in] username       Username.
+ * @param[in] password       Password for user@domain.
+ * @param[in] force_starttls Whether or not to abort if StartTLS initialization
+ *                           failed.
+ *
+ * @return LDAP Handle or NULL if an error occured, authentication failed etc.
+ */
+static LDAP*
+ads_auth_bind (const gchar* host, const gchar* domain, const gchar* username,
+               const gchar* password, gboolean force_starttls)
+{
+  LDAP* ldap      = NULL;
+  int ldap_return = 0;
+  int ldapv3      = 3;
+  int res         = 0;
+  gchar* ldapuri  = NULL;
+  gchar* authdn   = NULL;
+
+  if (host == NULL || username == NULL || password == NULL || domain == NULL)
+    return NULL;
+
+  if (force_starttls == FALSE)
+    g_warning ("Allowed plaintext ADS/LDAP authentication");
+
+  ldapuri = g_strconcat ("ldap://", host, NULL);
+  ldap_initialize (&ldap, ldapuri);
+  g_free (ldapuri);
+
+  if (ldap == NULL || res != LDAP_SUCCESS)
+    {
+      g_warning ("Could not open ADS/LDAP connection for authentication.");
+      return NULL;
+    }
+
+  /* Fail if server doesnt talk LDAPv3 or StartTLS initialization fails. */
+  ldap_return = ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
+  if (ldap_return != LDAP_SUCCESS)
+    {
+      g_warning ("Could not set ads/ldap protocol version to 3: %s.",
+                 ldap_err2string (ldap_return));
+      return NULL;
+    }
+
+  ldap_return = ldap_start_tls_s (ldap, NULL, NULL);
+  if (ldap_return != LDAP_SUCCESS)
+    {
+      if (force_starttls == TRUE)
+        {
+          g_warning ("Aborting ads/ldap authentication: Could not init LDAP StartTLS: %s.",
+                     ldap_err2string (ldap_return));
+          return NULL;
+        }
+      else
+        {
+          g_warning ("Could not init ADS/LDAP StartTLS: %s.",
+                     ldap_err2string (ldap_return));
+          g_warning ("Doing plaintext authentication");
+        }
+    }
+  else
+    g_debug ("LDAP StartTLS initialized.");
+
+  authdn = g_strconcat (username, "@", domain, NULL);
+
+  /** @todo deprecated, use ldap_sasl_bind_s */
+  ldap_return = ldap_simple_bind_s (ldap, authdn, password);
+  if (ldap_return != LDAP_SUCCESS)
+    {
+      g_warning ("ADS/LDAP authentication failure.");
+      g_free (authdn);
+      return NULL;
+    }
+
+  g_free (authdn);
+
+  return ldap;
+}
+
+
+/**
+ * @brief Binds to an ADS and returns result of a query.
+ *
+ * @param[in] host       The host to connect to.
+ * @param[in] domain     The domain to connect to.
+ * @param[in] dn         The dn whose subtree to query.
+ * @param[in] username   Username to authenticate with.
+ * @param[in] password   Password for user@domain.
+ * @param[in] filter     The filter for query (e.g. "(objectClass=person)").
+ * @param[in] attribute  The attribute to query (e.g. "gender").
+ *
+ * @return List of strings (values of attribute of objects matching filter).
+ */
+GSList*
+ads_auth_bind_query (const gchar* host,
+                     const char* domain,
+                     const char* dn,
+                     const gchar* username,
+                     const gchar* password,
+                     const gchar* filter,
+                     const gchar* attribute)
+{
+  GSList* attribute_values = NULL;
+  LDAP* ldap = ads_auth_bind (host, domain, username, password, FALSE);
+
+  if (!ldap)
+    {
+      g_warning ("LDAP Connection for query failed.");
+    }
+
+  attribute_values = ldap_auth_query (ldap, dn, filter, attribute);
+
+  if (ldap)
+    ldap_unbind_ext_s (ldap, NULL, NULL);
+
+  return attribute_values;
 }
 
 

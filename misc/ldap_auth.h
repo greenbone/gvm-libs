@@ -81,6 +81,19 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
 ldap_auth_info_t ldap_auth_info_from_key_file (GKeyFile * keyfile,
                                                const gchar * group);
 
+GSList*
+ldap_auth_query (LDAP* ldap, const gchar* dn, const gchar* filter,
+                 const gchar* attribute);
+
+GSList*
+ldap_auth_bind_query (const gchar* host,
+                      const gchar* userdn,
+                      const gchar* username,
+                      const gchar* password,
+                      const gchar* dn,
+                      const gchar* filter,
+                      const gchar* attribute);
+
 #endif /* not LDAP_AUTH_H */
 
 #endif /* ENABLE_LDAP_AUTH */
