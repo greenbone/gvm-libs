@@ -1,3 +1,22 @@
+2010-06-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	Added module to retrieve resources from sources. In the current
+	implementation this means retrieve strings from an ADS/LDAP- directory.
+	Implementation was done aiming at these strings becoming target
+	definitions.
+	Sources are configurable via a configuration file residing in
+	the openvas-sysconfdir (PREFIX/etc/openvas).
+
+	* misc/resource_request.c, misc/resource_request.h: New module to
+	expose source names and request resources string.
+
+	* misc/CMakeLists.txt: Added new module, repaired setting of
+	OPENVAS_SYSCONF_DIR.
+
+	* MANIFEST: Added new files of new module.
+
+	* doc/example.target.sources: Added exemplary source definitions.
+
 2010-06-03  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* nasl/nasl_crypto2.c (set_mpi_retc): Removed padding of returned

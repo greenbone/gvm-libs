@@ -188,13 +188,15 @@ else (MINGW)
              hlst.c ids_send.c kb.c network.c openvas_auth.c openvas_logging.c
              openvas_server.c openvas_ssh_login.c openvas_uuid.c plugutils.c
              popen.c proctitle.c
-             rand.c resolve.c scanners_utils.c services1.c services.c share_fd.c
+             rand.c resolve.c resource_request.c scanners_utils.c services1.c
+             services.c share_fd.c
              store.c system.c www_funcs.c pcap.c)
 
   set (HEADERS arglists.h bpf_share.h ftp_funcs.h hash_table_file.h kb.h
                network.h otp.h pcap_openvas.h plugutils.h popen.h proctitle.h
                rand.h resolve.h openvas_auth.h openvas_logging.h
                openvas_server.h openvas_ssh_login.h openvas_uuid.h
+               resource_request.h
                scanners_utils.h services1.h
                share_fd.h store.h system.h www_funcs.h)
 endif (MINGW)
@@ -231,9 +233,11 @@ if (OPENVAS_STATE_DIR)
   add_definitions (-DOPENVAS_STATE_DIR=\\\"${OPENVAS_STATE_DIR}\\\")
 endif (OPENVAS_STATE_DIR)
 
+# @todo Why is this definition setting guarded? OPENVAS_SYSCONF_DIR should
+#       always be set.
 #$(COMPILE) -DOPENVAS_STATE_DIR=\"$(localstatedir)\" -DCONF_DIR=\"$(sysconfdir)\" -c services1.c
 if (OPENVAS_SYSCONF_DIR)
-  add_definitions (-DONF_DIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
+  add_definitions (-DOPENVAS_SYSCONF_DIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
 endif (OPENVAS_SYSCONF_DIR)
 
 if (MINGW)

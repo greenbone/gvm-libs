@@ -117,6 +117,8 @@ misc/rand.h
 misc/README.txt
 misc/resolve.c
 misc/resolve.h
+misc/resource_request.c
+misc/resource_request.h
 misc/scanners_utils.c
 misc/scanners_utils.h
 misc/services1.c

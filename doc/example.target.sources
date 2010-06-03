@@ -1,0 +1,17 @@
+[LDAP Hosts]
+sourcetype=ldap
+host=myldap.mydomain
+rootdn=o=mydomain,c=org
+filter=(objectClass=host)
+attribute=dns
+userdn=uid=%s,cn=users,o=mydomain,c=org
+description=Arbitrary LDAP scheme.
+
+[ADS Computers]
+rootdn=DC=mydomain,DC=local
+host=mydomain.local
+sourcetype=ads
+filter=(objectClass=computer)
+attribute=dNSHostName
+domain=mydomain.local
+description=Standard ADS configuration.
