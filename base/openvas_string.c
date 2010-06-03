@@ -252,9 +252,26 @@ openvas_string_flatten_string_list (GSList* string_list, const gchar* separator)
   while (it)
     {
       openvas_append_string (&result, it->data);
-      if (separator)
+      if (separator && g_slist_next (it) != NULL)
         openvas_append_string (&result, separator);
       it = g_slist_next (it);
     }
   return result;
+}
+
+/**
+ * @brief Frees content of list and list with g_(slist_)free.
+ *
+ * @param[in] string_list GSList to free.
+ */
+void
+openvas_string_list_free (GSList* string_list)
+{
+  GSList* it = string_list;
+  while (it)
+    {
+      g_free (it->data);
+      it = g_slist_next (it);
+    }
+  g_slist_free (string_list);
 }

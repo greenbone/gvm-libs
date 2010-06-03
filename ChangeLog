@@ -1,5 +1,14 @@
 2010-06-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* base/openvas_string.c (openvas_string_flatten_string_list): Do not
+	terminate with given separator.
+	(openvas_string_list_free): New. Convenience function to free a list of
+	gchar*s.
+
+	* base/openvas_string.h (openvas_string_list_free): Added proto.
+
+2010-06-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* base/openvas_string.c (openvas_string_flatten_string_list): Donate
 	own memory to returned variable.
 

@@ -46,4 +46,6 @@ gboolean openvas_strv_contains_str (gchar ** strv, const gchar * str);
 gchar* openvas_string_flatten_string_list (GSList* string_list,
                                            const gchar* separator);
 
+void openvas_string_list_free (GSList* string_list);
+
 #endif /* not _OPENVAS_LIBRARIES_STRING_H */
