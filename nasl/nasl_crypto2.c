@@ -141,13 +141,19 @@ mpi_from_named_parameter (lex_ctxt * lexic, gcry_mpi_t * dest,
 
 /**
  * @brief Sets the return value in retc from the MPI mpi.
- * 
- * The MPI is converted
- * to a byte string as an unsigned int in bigendian form (libgcrypts
- * GCRYMPI_FMT_USG format).  If first byte in the string has it's most
- * significant bit set, i.e. if it would be considered negative when
- * interpreted as two's-complement representation, a null-byte is
+ *
+ * The MPI is converted to a byte string as an unsigned int in bigendian form
+ * (libgcrypts GCRYMPI_FMT_USG format).
+ *
+ * In an earlier implementation of this function, if first byte in the string
+ * had it's most significant bit set, i.e. if it would be considered negative
+ * when interpreted as two's-complement representation, a null-byte was
  * prepended to make sure the number is always considered positive.
+ *
+ * However, this behavior caused problems during certain SSH operations because
+ * the buffer returned by this function would be one byte larger than expected.
+ * For now, the str_val of retc will always have the content and size returned
+ * by gcry_mpi_aprint ().
  *
  * @return 0 on success and -1 on failure.
  */
@@ -156,21 +162,14 @@ set_mpi_retc (tree_cell * retc, gcry_mpi_t mpi)
 {
   unsigned char *buffer = NULL;
   size_t size;
-  int extra;
 
   gcry_mpi_aprint (GCRYMPI_FMT_USG, &buffer, &size, mpi);
   if (!buffer)
     return -1;
 
-  if (buffer[0] & 0x80)
-    extra = 1;
-  else
-    extra = 0;
-
-  retc->x.str_val = emalloc (size + extra);
-  retc->x.str_val[0] = '\0';
-  memcpy (retc->x.str_val + extra, buffer, size);
-  retc->size = size + extra;
+  retc->x.str_val = emalloc (size);
+  memcpy (retc->x.str_val, buffer, size);
+  retc->size = size;
 
   gcry_free (buffer);
 

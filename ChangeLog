@@ -1,3 +1,10 @@
+2010-06-03  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* nasl/nasl_crypto2.c (set_mpi_retc): Removed padding of returned
+	buffer for cases when the most significant bit in the libgcrypt API
+	response was set as this caused problems during SSH logins with RSA
+	keys. Changed function documentation to explain this change.
+
 2010-06-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/ads_auth.c (ads_auth_bind): New function, binds to ads.
