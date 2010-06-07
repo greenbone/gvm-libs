@@ -257,6 +257,7 @@ ads_auth_bind (const gchar* host, const gchar* domain, const gchar* username,
   int res         = 0;
   gchar* ldapuri  = NULL;
   gchar* authdn   = NULL;
+  struct berval credential;
 
   if (host == NULL || username == NULL || password == NULL || domain == NULL)
     return NULL;
@@ -304,8 +305,12 @@ ads_auth_bind (const gchar* host, const gchar* domain, const gchar* username,
 
   authdn = g_strconcat (username, "@", domain, NULL);
 
-  /** @todo deprecated, use ldap_sasl_bind_s */
-  ldap_return = ldap_simple_bind_s (ldap, authdn, password);
+  credential.bv_val = password;
+  credential.bv_len = strlen (password);
+
+  ldap_return = ldap_sasl_bind_s (ldap, authdn, LDAP_SASL_SIMPLE, &credential,
+                                  NULL, NULL, NULL);
+
   if (ldap_return != LDAP_SUCCESS)
     {
       g_warning ("ADS/LDAP authentication failure.");
@@ -530,53 +535,13 @@ ads_authenticate (const gchar * username, const gchar * password,
     return -1;
 
   LDAP *ldap;
-  int res = 0;
   gchar *authdn = NULL;
-  int ldap_return = 0;
-  int ldapv3 = 3;
-  gchar* ldapuri = g_strconcat ("ldap://", info->ldap_host, NULL);
 
-  res = ldap_initialize (&ldap, ldapuri);
-  g_free (ldapuri);
+  ldap = ads_auth_bind (info->ldap_host, ads_info->domain, username,
+                        password, (info->allow_plaintext == FALSE) ? TRUE : FALSE);
 
-  if (ldap == NULL || res != LDAP_SUCCESS)
-    {
-      g_warning ("Could not open ADS/LDAP connection for authentication.");
-      return -1;
-    }
-
-  /* Fail if server doesnt talk LDAPv3 or StartTLS initialization fails. */
-  ldap_return = ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
-  if (ldap_return != LDAP_SUCCESS)
-    {
-      g_warning ("Could not set ldap protocol version to 3: %s.",
-                 ldap_err2string (ldap_return));
-      return -1;
-    }
-
-  ldap_return = ldap_start_tls_s (ldap, NULL, NULL);
-  if (ldap_return != LDAP_SUCCESS)
-    {
-      g_warning ("Could not init LDAP StartTLS: %s.",
-                 ldap_err2string (ldap_return));
-
-      if (info->allow_plaintext == FALSE)
-        return -1;
-    }
-  else
-    g_debug ("LDAP StartTLS initialized.");
-
-  // Create user@domain authentication string.
-  authdn = g_strconcat (username, "@", ads_info->domain, NULL);
-
-  /** @todo deprecated, use ldap_sasl_bind_s */
-  ldap_return = ldap_simple_bind_s (ldap, authdn, password);
-  if (ldap_return != LDAP_SUCCESS)
-    {
-      g_warning ("ADS/LDAP authentication failure.");
-      g_free (authdn);
-      return 1;
-    }
+  if (ldap == NULL)
+    return -1;
 
   // Get the "real" DN by searching for samAccountName=user .
   char* dn = ads_query_user_dn (ldap, username, ads_info->domain_dc);

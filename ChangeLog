@@ -1,3 +1,18 @@
+2010-06-07  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	Adressed openldap deprecation warnings, resolving respective todos.
+	Resolved code duplicates.
+
+	* misc/ads_auth.c (ads_auth_bind): Use ldap_sasl_bind instead of
+	deprecated ldap_simple_bind.
+	(ads_authenticate): Use ads_auth_bind instead of binding with duplicate
+	code.
+
+	* misc/ldap_auth.c (ldap_auth_bind): Use ldap_sasl_bind instead of
+	deprecated ldap_simple_bind.
+	(ldap_authenticate): Use ldap_auth_bind instead of binding with
+	duplicate code.
+
 2010-06-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* base/openvas_string.c (openvas_string_flatten_string_list): Do not
