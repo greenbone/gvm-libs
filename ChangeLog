@@ -1,6 +1,27 @@
 2010-06-07  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	Adressed openldap deprecation warnings, resolving respective todos.
+
+	* misc/ads_auth.c (ldap_object_get_attribute_values): Changed return
+	type, use ldap_get_values_len instead of ldap_get_values, copy values
+	returned by ldap.
+	(ads_auth_bind): duplicate and free value passed to ldap that is marked
+	const in signature.
+	(ldap_object_attribute_has_value, ads_query_rules): Adjusted to changed
+	ldap_object_get_attribute_values.
+	(ads_authenticate): Declare variable dn earlier.
+
+	* misc/ldap_auth.c (ldap_auth_bind): duplicate and free value passed
+	to ldap that is marked const in signature.
+	(ldap_auth_query): Improved const-correctness, use ldap_get_values_len
+	instead of ldap_get_values.
+	(ldap_auth_query_rules, ldap_auth_query_role): use ldap_get_values_len
+	instead of ldap_get_values.
+	(ldap_authenticate): Removed unused variable.
+
+2010-06-07  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	Adressed openldap deprecation warnings, resolving respective todos.
 	Resolved code duplicates.
 
 	* misc/ads_auth.c (ads_auth_bind): Use ldap_sasl_bind instead of

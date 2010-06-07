@@ -28,12 +28,10 @@
 #include "ldap_auth.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <glib.h>
 
-/** @todo Use non-deprecated counterparts of openldap functionality (see
- *        further TODOS). */
-#define LDAP_DEPRECATED 1
 #include <ldap.h>
 
 #include "openvas_auth.h"
@@ -247,11 +245,12 @@ ldap_auth_bind (const gchar* host, const gchar* userdn, const gchar* password,
   else
     g_debug ("LDAP StartTLS initialized.");
 
-  credential.bv_val = password;
+  credential.bv_val = strdup (password);
   credential.bv_len = strlen (password);
 
   ldap_return = ldap_sasl_bind_s (ldap, userdn, LDAP_SASL_SIMPLE, &credential,
                                   NULL, NULL, NULL);
+  free (credential.bv_val);
   if (ldap_return != LDAP_SUCCESS)
     {
       g_warning ("LDAP authentication failure: %s", ldap_err2string (ldap_return));
@@ -279,15 +278,18 @@ ldap_auth_query (LDAP* ldap, const gchar* dn, const gchar* filter,
   if (ldap == NULL || dn == NULL || filter == NULL || attribute == NULL)
     return NULL;
 
+  // Keep const correctness.
+  char* attr_cpy = strdup (attribute);
+
   char* attrs[] = {
-    attribute,
+    attr_cpy,
     NULL
   };
 
   GSList* value_list = NULL;
   char *attr_it = NULL;
-  char **attr_vals = NULL;
-  char **attr_vals_it = NULL;
+  struct berval **attr_vals = NULL;
+  struct berval **attr_vals_it = NULL;
   BerElement *ber = NULL;
   LDAPMessage *result, *result_it;
 
@@ -297,6 +299,7 @@ ldap_auth_query (LDAP* ldap, const gchar* dn, const gchar* filter,
                                LDAP_NO_LIMIT,   /* timeout */
                                LDAP_NO_LIMIT,   /* sizelimit */
                                &result);
+  free (attr_cpy);
   if (res != LDAP_SUCCESS)
     {
       g_debug ("LDAP Query failed: %s\n", ldap_err2string (res));
@@ -316,17 +319,18 @@ ldap_auth_query (LDAP* ldap, const gchar* dn, const gchar* filter,
       while (attr_it != NULL)
         {
           /* For each attribute, check its value(s). */
-          /** @todo deprecated, use ldap_get_values_len */
-          attr_vals = ldap_get_values (ldap, result_it, attr_it);
+          attr_vals = ldap_get_values_len (ldap, result_it, attr_it);
           if (attr_vals != NULL)
             {
               attr_vals_it = attr_vals;
               while (*attr_vals_it)
                 {
-                  value_list = g_slist_prepend (value_list, g_strdup (*attr_vals_it));
+                  value_list =
+                          g_slist_prepend (value_list,
+                                            g_strdup ((*attr_vals_it)->bv_val));
                   attr_vals_it++;
                 }
-              ldap_value_free (attr_vals);
+              ldap_value_free_len (attr_vals);
             }
           ldap_memfree (attr_it);
           attr_it = ldap_next_attribute (ldap, result_it, ber);
@@ -407,7 +411,7 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
     NULL
   };
   char *attr_it = NULL;
-  char **attr_vals = NULL;
+  struct berval **attr_vals = NULL;
   BerElement *ber = NULL;
   gchar *rule = NULL;
   int ruletype = -1;
@@ -434,19 +438,18 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
       while (attr_it != NULL)
         {
           /* For each attribute, print the attribute name and values. */
-          /** @todo deprecated, use ldap_get_values_len */
-          attr_vals = ldap_get_values (ldap, result_it, attr_it);
-          if (attr_vals != NULL)
+          attr_vals = ldap_get_values_len (ldap, result_it, attr_it);
+          if (attr_vals != NULL && *attr_vals != NULL)
             {
               // Found ruletype attribute
               if (strcmp (attr_it, auth_info->ruletype_attribute) == 0)
                 {
                   // 3 Ruletypes are possible
-                  if (strcmp (attr_vals[0], "allow") == 0)
+                  if (strcmp ((*attr_vals)->bv_val, "allow") == 0)
                     ruletype = 1;
-                  else if (strcmp (attr_vals[0], "allow all") == 0)
+                  else if (strcmp ((*attr_vals)->bv_val, "allow all") == 0)
                     ruletype = 2;
-                  else if (strcmp (attr_vals[0], "deny") == 0)
+                  else if (strcmp ((*attr_vals)->bv_val, "deny") == 0)
                     ruletype = 0;
                   else
                     g_debug ("unknown rule type");      // (ruletype = -1)
@@ -454,10 +457,10 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
               // Found rule attribute
               else if (strcmp (attr_it, auth_info->rule_attribute) == 0)
                 {
-                  rule = g_strdup (attr_vals[0]);
+                  rule = g_strdup ((*attr_vals)->bv_val);
                 }
 
-              ldap_value_free (attr_vals);
+              ldap_value_free_len (attr_vals);
             }
           ldap_memfree (attr_it);
           attr_it = ldap_next_attribute (ldap, result_it, ber);
@@ -511,7 +514,7 @@ ldap_auth_query_role (LDAP * ldap, ldap_auth_info_t auth_info, gchar * dn)
 {
   char *attrs[] = { auth_info->role_attribute, NULL };
   char *attr_it = NULL;
-  char **attr_vals = NULL;
+  struct berval **attr_vals = NULL;
   BerElement *ber = NULL;
   LDAPMessage *result, *result_it;
   int found_role = -1;          // error
@@ -537,23 +540,22 @@ ldap_auth_query_role (LDAP * ldap, ldap_auth_info_t auth_info, gchar * dn)
       while (attr_it != NULL)
         {
           // Get the value of that attribute (we expect to see one attr/value)
-          /** @todo deprecated, use ldap_get_values_len */
-          attr_vals = ldap_get_values (ldap, result_it, attr_it);
+          attr_vals = ldap_get_values_len (ldap, result_it, attr_it);
           if (attr_vals != NULL)
             {
-              char ** attr_vals_it = attr_vals;
+              struct berval ** attr_vals_it = attr_vals;
               // Iterate over the values.
               while (*attr_vals_it)
                 {
                   if (openvas_strv_contains_str
-                      (auth_info->role_admin_values, *attr_vals_it))
+                      (auth_info->role_admin_values, (*attr_vals_it)->bv_val))
                     found_role = 2; // is admin
                   else
                     {
                       /* If object carries values for both user and admin, make
                        * it an admin. */
                       if (openvas_strv_contains_str
-                          (auth_info->role_user_values, *attr_vals_it))
+                          (auth_info->role_user_values, (*attr_vals_it)->bv_val))
                         if (found_role < 1) found_role = 1; // is user
                     }
 #if 0
@@ -563,7 +565,7 @@ ldap_auth_query_role (LDAP * ldap, ldap_auth_info_t auth_info, gchar * dn)
                   attr_vals_it++;
                 }
 
-              ldap_value_free (attr_vals);
+              ldap_value_free_len (attr_vals);
             }
           ldap_memfree (attr_it);
           attr_it = ldap_next_attribute (ldap, result_it, ber);
@@ -602,7 +604,6 @@ ldap_authenticate (const gchar * username, const gchar * password,
   int role = 0;
   LDAP *ldap = NULL;
   gchar *dn = NULL;
-  int ldap_return = 0;
 
   if (info == NULL || username == NULL || password == NULL || !info->ldap_host)
     return -1;
