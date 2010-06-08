@@ -189,11 +189,15 @@ foreach (FILE ${FILES})
                                || \( echo "STYLE-WARNING: ${FILE} does not conform to GNU coding style as interpreted by indent"
                                && rm .indent.${FILE} \)
                       DEPENDS ${FILE})
-  list (APPEND INDENT_FILES .indent.${FILE})
+  list (APPEND INDENT_DIFF_FILES .indent.${FILE})
 endforeach (FILE ${FILES})
 
+
 add_custom_target (print-indent-diff
-                   DEPENDS ${INDENT_FILES})
+                   DEPENDS ${INDENT_DIFF_FILES})
+
+add_custom_target (indent indent --no-tabs --ignore-newlines -l 80
+                   ${FILES})
 
 ## Install
 

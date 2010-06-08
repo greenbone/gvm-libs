@@ -1,3 +1,10 @@
+2010-06-08  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* base/CMakeList.txt: Added experimental "indent" target that calls
+	indent on all source files in base.
+
+	* base/credentials.h, openvas_string.c: Indented using new make target.
+
 2010-06-07  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	Adressed openldap deprecation warnings, resolving respective todos.
