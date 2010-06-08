@@ -1,5 +1,13 @@
 2010-06-08  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* openvas_macros.cmake: New file containing indentation target
+	definitions (refactored from base/CMakeLists).
+
+	* misc/CMakeLists.txt, base/CMakeLists.txt: Include new file, create
+	indentation targets.
+
+2010-06-08  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* base/CMakeList.txt: Added experimental "indent" target that calls
 	indent on all source files in base.
 

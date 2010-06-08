@@ -21,6 +21,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
+include (../openvas_macros.cmake)
+
 message ("-- Configure OpenVAS-libraries/misc...")
 
 project (openvas-libraries/misc C)
@@ -206,6 +208,9 @@ if (BUILD_WITH_LDAP)
 endif (BUILD_WITH_LDAP)
 
 link_directories (${CMAKE_CURRENT_SOURCE_DIR}/../base)
+
+# Indentation targets
+add_custom_indent_targets (${FILES})
 
 add_library (openvas_misc_static STATIC ${FILES})
 

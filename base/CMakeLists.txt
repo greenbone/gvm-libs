@@ -22,6 +22,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
+include (../openvas_macros.cmake)
+
 message ("-- Configuring OpenVAS-libraries/base...")
 
 project (openvas-libraries/base C)
@@ -176,28 +178,7 @@ else (MINGW)
   target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS})
 endif (MINGW)
 
-## Experimental indentation target, improveable (currently it cleans up with a
-## nasty trick, output is messy). Target should be conditioned on existence of
-## indent tool.
-
-foreach (FILE ${FILES})
-  # Create a target that checks whether indent is unhappy, print diff.
-  add_custom_command (OUTPUT .indent.${FILE}
-                      COMMAND indent --no-tabs --ignore-newlines
-                              -l 80 ${FILE} -o .indent.${FILE}
-                               && \( diff ${FILE} .indent.${FILE} && rm .indent.${FILE} \)
-                               || \( echo "STYLE-WARNING: ${FILE} does not conform to GNU coding style as interpreted by indent"
-                               && rm .indent.${FILE} \)
-                      DEPENDS ${FILE})
-  list (APPEND INDENT_DIFF_FILES .indent.${FILE})
-endforeach (FILE ${FILES})
-
-
-add_custom_target (print-indent-diff
-                   DEPENDS ${INDENT_DIFF_FILES})
-
-add_custom_target (indent indent --no-tabs --ignore-newlines -l 80
-                   ${FILES})
+add_custom_indent_targets (${FILES})
 
 ## Install
 
