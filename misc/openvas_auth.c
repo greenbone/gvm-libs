@@ -268,8 +268,9 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
         ads_auth_info_t info = ads_auth_info_from_key_file (key_file, group);
         authent->data = info;
         authent->method = AUTHENTICATION_METHOD_ADS;
-        authenticators = g_slist_insert_sorted (authenticators, authent,
-                                                (GCompareFunc) order_compare);
+        authenticators =
+          g_slist_insert_sorted (authenticators, authent,
+                                 (GCompareFunc) order_compare);
 #else
         g_warning ("LDAP/ADS Authentication was configured, but "
                    "openvas-libraries was not build with "
@@ -411,7 +412,8 @@ openvas_auth_write_config (GKeyFile * key_file)
     {
       g_key_file_set_value (new_conffile, "method:ldap", "enable", "false");
       g_key_file_set_value (new_conffile, "method:ldap", "order", "2");
-      g_key_file_set_value (new_conffile, "method:ldap", "ldaphost", "localhost");
+      g_key_file_set_value (new_conffile, "method:ldap", "ldaphost",
+                            "localhost");
       g_key_file_set_value (new_conffile, "method:ldap", "authdn",
                             "authdn=uid=%s,cn=users,o=yourserver,c=yournet");
       g_key_file_set_value (new_conffile, "method:ldap", "role-attribute",
@@ -427,12 +429,12 @@ openvas_auth_write_config (GKeyFile * key_file)
     }
 
   // ADS Configuration
-  if (key_file == NULL
-      || g_key_file_has_group (key_file, "method:ads") == TRUE)
+  if (key_file == NULL || g_key_file_has_group (key_file, "method:ads") == TRUE)
     {
       g_key_file_set_value (new_conffile, "method:ads", "enable", "false");
       g_key_file_set_value (new_conffile, "method:ads", "order", "3");
-      g_key_file_set_value (new_conffile, "method:ads", "ldaphost", "localhost");
+      g_key_file_set_value (new_conffile, "method:ads", "ldaphost",
+                            "localhost");
       g_key_file_set_value (new_conffile, "method:ads", "authdn", "%s@domain");
       g_key_file_set_value (new_conffile, "method:ads", "domain", "domain.org");
       g_key_file_set_value (new_conffile, "method:ads", "role-attribute",

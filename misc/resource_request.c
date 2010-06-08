@@ -51,6 +51,8 @@
 #define SOURCE_TYPE_LDAP "ldap"
 #define SOURCE_TYPE_ADS  "ads"
 
+#define TARGET_LOCATOR_FILE_NAME "target.locators"
+
 #undef G_LOG_DOMAIN
 /**
  * @brief GLib logging domain.
@@ -65,15 +67,16 @@
  * @return List of source names for resource. Caller has to free list and
  *         contained gchar*s.
  */
-GSList*
+GSList *
 resource_request_sources (resource_type_t resource_type)
 {
   if (resource_type != RESOURCE_TYPE_TARGET)
     return NULL;
 
-  GSList * sources = NULL;
+  GSList *sources = NULL;
   GKeyFile *key_file = g_key_file_new ();
-  gchar *config_file = g_build_filename (OPENVAS_SYSCONF_DIR, "target.sources",
+  gchar *config_file = g_build_filename (OPENVAS_SYSCONF_DIR,
+                                         TARGET_LOCATOR_FILE_NAME,
                                          NULL);
   gboolean loaded =
     g_key_file_load_from_file (key_file, config_file, G_KEY_FILE_NONE, NULL);
@@ -115,18 +118,19 @@ resource_request_sources (resource_type_t resource_type)
  *
  * @return List of resources, NULL in case of error / empty list.
  */
-GSList*
-resource_request_resource (const gchar* source, resource_type_t resource_type,
-                           const gchar* username, const gchar* password)
+GSList *
+resource_request_resource (const gchar * source, resource_type_t resource_type,
+                           const gchar * username, const gchar * password)
 {
   if (resource_type != RESOURCE_TYPE_TARGET)
     return NULL;
 
-  GSList* resources = NULL;
+  GSList *resources = NULL;
   GKeyFile *key_file = g_key_file_new ();
-  gchar *config_file = g_build_filename (OPENVAS_SYSCONF_DIR, "target.sources",
+  gchar *config_file = g_build_filename (OPENVAS_SYSCONF_DIR,
+                                         TARGET_LOCATOR_FILE_NAME,
                                          NULL);
-  gchar* value = NULL;
+  gchar *value = NULL;
 
   gboolean loaded =
     g_key_file_load_from_file (key_file, config_file, G_KEY_FILE_NONE, NULL);
@@ -153,18 +157,19 @@ resource_request_resource (const gchar* source, resource_type_t resource_type,
   if (strcasecmp (value, SOURCE_TYPE_LDAP) == 0)
     {
 #ifdef ENABLE_LDAP_AUTH
-      gchar* userdn = g_key_file_get_string (key_file, source, KEY_USERDN,
+      gchar *userdn = g_key_file_get_string (key_file, source, KEY_USERDN,
                                              NULL);
-      gchar* rootdn = g_key_file_get_string (key_file, source, KEY_ROOTDN,
+      gchar *rootdn = g_key_file_get_string (key_file, source, KEY_ROOTDN,
                                              NULL);
-      gchar* host = g_key_file_get_string (key_file, source, KEY_HOST, NULL);
-      gchar* filter = g_key_file_get_string (key_file, source, KEY_FILTER,
+      gchar *host = g_key_file_get_string (key_file, source, KEY_HOST, NULL);
+      gchar *filter = g_key_file_get_string (key_file, source, KEY_FILTER,
                                              NULL);
-      gchar* attribute = g_key_file_get_string (key_file, source,
+      gchar *attribute = g_key_file_get_string (key_file, source,
                                                 KEY_ATTRIBUTE, NULL);
 
-      resources = ldap_auth_bind_query (host, userdn, username, password,
-                                        rootdn, filter, attribute);
+      resources =
+        ldap_auth_bind_query (host, userdn, username, password, rootdn, filter,
+                              attribute);
       g_free (attribute);
       g_free (filter);
       g_free (host);
@@ -178,18 +183,19 @@ resource_request_resource (const gchar* source, resource_type_t resource_type,
   else if (strcasecmp (value, SOURCE_TYPE_ADS) == 0)
     {
 #ifdef ENABLE_LDAP_AUTH
-      gchar* rootdn = g_key_file_get_string (key_file, source, KEY_ROOTDN,
+      gchar *rootdn = g_key_file_get_string (key_file, source, KEY_ROOTDN,
                                              NULL);
-      gchar* host = g_key_file_get_string (key_file, source, KEY_HOST,
+      gchar *host = g_key_file_get_string (key_file, source, KEY_HOST,
                                            NULL);
-      gchar* filter = g_key_file_get_string (key_file, source, KEY_FILTER,
+      gchar *filter = g_key_file_get_string (key_file, source, KEY_FILTER,
                                              NULL);
-      gchar* attribute = g_key_file_get_string (key_file, source,
+      gchar *attribute = g_key_file_get_string (key_file, source,
                                                 KEY_ATTRIBUTE, NULL);
-      gchar* domain = g_key_file_get_string (key_file, source, KEY_DOMAIN,
+      gchar *domain = g_key_file_get_string (key_file, source, KEY_DOMAIN,
                                              NULL);
-      resources = ads_auth_bind_query (host, domain, rootdn, username,
-                                       password, filter, attribute);
+      resources =
+        ads_auth_bind_query (host, domain, rootdn, username, password, filter,
+                             attribute);
       g_free (attribute);
       g_free (domain);
       g_free (filter);

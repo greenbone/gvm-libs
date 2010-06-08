@@ -190,15 +190,15 @@ ldap_auth_info_auth_dn (const ldap_auth_info_t info, const gchar * username)
  *
  * @return LDAP Handle or NULL if an error occured, authentication failed etc.
  */
-static LDAP*
-ldap_auth_bind (const gchar* host, const gchar* userdn, const gchar* password,
-                gboolean force_starttls)
+static LDAP *
+ldap_auth_bind (const gchar * host, const gchar * userdn,
+                const gchar * password, gboolean force_starttls)
 {
-  LDAP* ldap = NULL;
+  LDAP *ldap = NULL;
   int ldap_return = 0;
-  int ldapv3      = 3;
-  int res         = 0;
-  gchar* ldapuri  = NULL;
+  int ldapv3 = 3;
+  int res = 0;
+  gchar *ldapuri = NULL;
   struct berval credential;
 
   if (host == NULL || userdn == NULL || password == NULL)
@@ -231,8 +231,9 @@ ldap_auth_bind (const gchar* host, const gchar* userdn, const gchar* password,
     {
       if (force_starttls == TRUE)
         {
-          g_warning ("Aborting ldap authentication: Could not init LDAP StartTLS: %s.",
-                     ldap_err2string (ldap_return));
+          g_warning
+            ("Aborting ldap authentication: Could not init LDAP StartTLS: %s.",
+             ldap_err2string (ldap_return));
           return NULL;
         }
       else
@@ -248,12 +249,14 @@ ldap_auth_bind (const gchar* host, const gchar* userdn, const gchar* password,
   credential.bv_val = strdup (password);
   credential.bv_len = strlen (password);
 
-  ldap_return = ldap_sasl_bind_s (ldap, userdn, LDAP_SASL_SIMPLE, &credential,
-                                  NULL, NULL, NULL);
+  ldap_return =
+    ldap_sasl_bind_s (ldap, userdn, LDAP_SASL_SIMPLE, &credential, NULL, NULL,
+                      NULL);
   free (credential.bv_val);
   if (ldap_return != LDAP_SUCCESS)
     {
-      g_warning ("LDAP authentication failure: %s", ldap_err2string (ldap_return));
+      g_warning ("LDAP authentication failure: %s",
+                 ldap_err2string (ldap_return));
       return NULL;
     }
 
@@ -271,22 +274,22 @@ ldap_auth_bind (const gchar* host, const gchar* userdn, const gchar* password,
  * @return Values of attribute of objects matching filter as a gchar* list.
  *         Caller has to free.
  */
-GSList*
-ldap_auth_query (LDAP* ldap, const gchar* dn, const gchar* filter,
-                 const gchar* attribute)
+GSList *
+ldap_auth_query (LDAP * ldap, const gchar * dn, const gchar * filter,
+                 const gchar * attribute)
 {
   if (ldap == NULL || dn == NULL || filter == NULL || attribute == NULL)
     return NULL;
 
   // Keep const correctness.
-  char* attr_cpy = strdup (attribute);
+  char *attr_cpy = strdup (attribute);
 
-  char* attrs[] = {
+  char *attrs[] = {
     attr_cpy,
     NULL
   };
 
-  GSList* value_list = NULL;
+  GSList *value_list = NULL;
   char *attr_it = NULL;
   struct berval **attr_vals = NULL;
   struct berval **attr_vals_it = NULL;
@@ -326,8 +329,8 @@ ldap_auth_query (LDAP* ldap, const gchar* dn, const gchar* filter,
               while (*attr_vals_it)
                 {
                   value_list =
-                          g_slist_prepend (value_list,
-                                            g_strdup ((*attr_vals_it)->bv_val));
+                    g_slist_prepend (value_list,
+                                     g_strdup ((*attr_vals_it)->bv_val));
                   attr_vals_it++;
                 }
               ldap_value_free_len (attr_vals);
@@ -362,21 +365,18 @@ ldap_auth_query (LDAP* ldap, const gchar* dn, const gchar* filter,
  *
  * @return Result of query.
  */
-GSList*
-ldap_auth_bind_query (const gchar* host,
-                      const gchar* userdn_tmpl,
-                      const gchar* username,
-                      const gchar* password,
-                      const gchar* dn,
-                      const gchar* filter,
-                      const gchar* attribute)
+GSList *
+ldap_auth_bind_query (const gchar * host, const gchar * userdn_tmpl,
+                      const gchar * username, const gchar * password,
+                      const gchar * dn, const gchar * filter,
+                      const gchar * attribute)
 {
   if (auth_dn_is_good (userdn_tmpl) == FALSE)
     return NULL;
 
-  GSList* attribute_values = NULL;
+  GSList *attribute_values = NULL;
   gchar *userdn = g_strdup_printf (userdn_tmpl, username);
-  LDAP* ldap = ldap_auth_bind (host, userdn, password, FALSE);
+  LDAP *ldap = ldap_auth_bind (host, userdn, password, FALSE);
 
   if (!ldap)
     {
@@ -543,24 +543,26 @@ ldap_auth_query_role (LDAP * ldap, ldap_auth_info_t auth_info, gchar * dn)
           attr_vals = ldap_get_values_len (ldap, result_it, attr_it);
           if (attr_vals != NULL)
             {
-              struct berval ** attr_vals_it = attr_vals;
+              struct berval **attr_vals_it = attr_vals;
               // Iterate over the values.
               while (*attr_vals_it)
                 {
                   if (openvas_strv_contains_str
                       (auth_info->role_admin_values, (*attr_vals_it)->bv_val))
-                    found_role = 2; // is admin
+                    found_role = 2;     // is admin
                   else
                     {
                       /* If object carries values for both user and admin, make
                        * it an admin. */
                       if (openvas_strv_contains_str
-                          (auth_info->role_user_values, (*attr_vals_it)->bv_val))
-                        if (found_role < 1) found_role = 1; // is user
+                          (auth_info->role_user_values,
+                           (*attr_vals_it)->bv_val))
+                        if (found_role < 1)
+                          found_role = 1;       // is user
                     }
 #if 0
-                    else
-                    g_debug ("User is neither in admin nor users group.");
+                  else
+                  g_debug ("User is neither in admin nor users group.");
 #endif
                   attr_vals_it++;
                 }
@@ -610,8 +612,7 @@ ldap_authenticate (const gchar * username, const gchar * password,
 
   dn = ldap_auth_info_auth_dn (info, username);
 
-  ldap = ldap_auth_bind (info->ldap_host, dn, password,
-                         !info->allow_plaintext);
+  ldap = ldap_auth_bind (info->ldap_host, dn, password, !info->allow_plaintext);
 
   if (ldap == NULL)
     return -1;

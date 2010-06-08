@@ -1,5 +1,12 @@
 2010-06-08  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/openvas_auth.c, misc/ldap_auth.c, misc/ads_auth.c:
+	`make indent`
+
+	* misc/resource_request.c: Added macro for file name, `make indent`.
+
+2010-06-08  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* openvas_macros.cmake: New file containing indentation target
 	definitions (refactored from base/CMakeLists).
 

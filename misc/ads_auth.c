@@ -29,8 +29,8 @@
 #include "ldap_auth.h"
 
 #include <stdio.h>
-#include <stdlib.h> /* for free */
-#include <string.h> /* for strcasestr */
+#include <stdlib.h>             /* for free */
+#include <string.h>             /* for strcasestr */
 
 #include <glib.h>
 
@@ -82,17 +82,17 @@
  *
  * @return The domain as ldap dc's to be used with ldap-queries.
  */
-static gchar*
-domain_to_ldap_dc (const gchar* domain)
+static gchar *
+domain_to_ldap_dc (const gchar * domain)
 {
   if (domain == NULL)
     return NULL;
 
-  gchar ** domain_components = g_strsplit (domain, ".", -1);
-  gchar * part = g_strjoinv (",dc=", domain_components);
+  gchar **domain_components = g_strsplit (domain, ".", -1);
+  gchar *part = g_strjoinv (",dc=", domain_components);
   // Now we have "domain,dc=org"
   g_strfreev (domain_components);
-  gchar * result = g_strconcat ("dc=", part, NULL);
+  gchar *result = g_strconcat ("dc=", part, NULL);
   g_free (part);
 
   return result;
@@ -115,7 +115,7 @@ ads_auth_info_from_key_file (GKeyFile * key_file, const gchar * group)
     return NULL;
 
   ldap_auth_info_t ldapinfo = ldap_auth_info_from_key_file (key_file, group);
-  gchar* ads_domain;
+  gchar *ads_domain;
 
   if (ldapinfo == NULL)
     {
@@ -125,8 +125,7 @@ ads_auth_info_from_key_file (GKeyFile * key_file, const gchar * group)
 
   ads_auth_info_t info = g_malloc0 (sizeof (struct ads_auth_info));
   info->ldap_auth_conf = ldapinfo;
-  ads_domain = g_key_file_get_string (key_file, group, KEY_ADS_DOMAIN,
-                                              NULL);
+  ads_domain = g_key_file_get_string (key_file, group, KEY_ADS_DOMAIN, NULL);
 
   if (ads_domain == NULL)
     {
@@ -170,16 +169,16 @@ ads_auth_info_free (ads_auth_info_t info)
  * @return List of gchar*s, to be freed by caller. NULL for empty list or
  *         error.
  */
-GSList*
+GSList *
 ldap_object_get_attribute_values (LDAP * ldap, const gchar * dn,
                                   gchar * attribute)
 {
-  char *attrs[] = { attribute , NULL };
+  char *attrs[] = { attribute, NULL };
   char *attr_it = NULL;
   struct berval **attr_vals = NULL;
   BerElement *ber = NULL;
   LDAPMessage *result, *result_it;
-  GSList * string_list = NULL;
+  GSList *string_list = NULL;
 
   int res = ldap_search_ext_s (ldap, dn /* base */ , LDAP_SCOPE_BASE,
                                NULL /* filter */ , attrs, 0 /* attrsonly */ ,
@@ -205,12 +204,12 @@ ldap_object_get_attribute_values (LDAP * ldap, const gchar * dn,
           attr_vals = ldap_get_values_len (ldap, result_it, attr_it);
           if (attr_vals != NULL)
             {
-              struct berval ** attr_vals_it = attr_vals;
+              struct berval **attr_vals_it = attr_vals;
               while (attr_vals_it && *attr_vals_it)
                 {
                   string_list =
-                          g_slist_prepend (string_list,
-                                          g_strdup ((*attr_vals_it)->bv_val));
+                    g_slist_prepend (string_list,
+                                     g_strdup ((*attr_vals_it)->bv_val));
                   attr_vals_it++;
                 }
 
@@ -218,7 +217,7 @@ ldap_object_get_attribute_values (LDAP * ldap, const gchar * dn,
             }
           else
             {
-             g_debug ("Empty result of LDAP query for attribute values.");
+              g_debug ("Empty result of LDAP query for attribute values.");
             }
           ldap_memfree (attr_it);
         }
@@ -252,16 +251,16 @@ ldap_object_get_attribute_values (LDAP * ldap, const gchar * dn,
  *
  * @return LDAP Handle or NULL if an error occured, authentication failed etc.
  */
-static LDAP*
-ads_auth_bind (const gchar* host, const gchar* domain, const gchar* username,
-               const gchar* password, gboolean force_starttls)
+static LDAP *
+ads_auth_bind (const gchar * host, const gchar * domain, const gchar * username,
+               const gchar * password, gboolean force_starttls)
 {
-  LDAP* ldap      = NULL;
+  LDAP *ldap = NULL;
   int ldap_return = 0;
-  int ldapv3      = 3;
-  int res         = 0;
-  gchar* ldapuri  = NULL;
-  gchar* authdn   = NULL;
+  int ldapv3 = 3;
+  int res = 0;
+  gchar *ldapuri = NULL;
+  gchar *authdn = NULL;
   struct berval credential;
 
   if (host == NULL || username == NULL || password == NULL || domain == NULL)
@@ -294,8 +293,9 @@ ads_auth_bind (const gchar* host, const gchar* domain, const gchar* username,
     {
       if (force_starttls == TRUE)
         {
-          g_warning ("Aborting ads/ldap authentication: Could not init LDAP StartTLS: %s.",
-                     ldap_err2string (ldap_return));
+          g_warning
+            ("Aborting ads/ldap authentication: Could not init LDAP StartTLS: %s.",
+             ldap_err2string (ldap_return));
           return NULL;
         }
       else
@@ -314,8 +314,9 @@ ads_auth_bind (const gchar* host, const gchar* domain, const gchar* username,
   credential.bv_val = strdup (password);
   credential.bv_len = strlen (password);
 
-  ldap_return = ldap_sasl_bind_s (ldap, authdn, LDAP_SASL_SIMPLE, &credential,
-                                  NULL, NULL, NULL);
+  ldap_return =
+    ldap_sasl_bind_s (ldap, authdn, LDAP_SASL_SIMPLE, &credential, NULL, NULL,
+                      NULL);
 
   free (credential.bv_val);
   if (ldap_return != LDAP_SUCCESS)
@@ -344,17 +345,13 @@ ads_auth_bind (const gchar* host, const gchar* domain, const gchar* username,
  *
  * @return List of strings (values of attribute of objects matching filter).
  */
-GSList*
-ads_auth_bind_query (const gchar* host,
-                     const char* domain,
-                     const char* dn,
-                     const gchar* username,
-                     const gchar* password,
-                     const gchar* filter,
-                     const gchar* attribute)
+GSList *
+ads_auth_bind_query (const gchar * host, const char *domain, const char *dn,
+                     const gchar * username, const gchar * password,
+                     const gchar * filter, const gchar * attribute)
 {
-  GSList* attribute_values = NULL;
-  LDAP* ldap = ads_auth_bind (host, domain, username, password, FALSE);
+  GSList *attribute_values = NULL;
+  LDAP *ldap = ads_auth_bind (host, domain, username, password, FALSE);
 
   if (!ldap)
     {
@@ -384,11 +381,11 @@ ads_auth_bind_query (const gchar* host,
  *         \ref value . FALSE otherwise.
  */
 gboolean
-ldap_object_attribute_has_value (LDAP* ldap, const gchar * dn,
+ldap_object_attribute_has_value (LDAP * ldap, const gchar * dn,
                                  gchar * attribute, const gchar * value)
 {
-  GSList * attr_vals = ldap_object_get_attribute_values (ldap, dn, attribute);
-  GSList * attr_vals_it = attr_vals;
+  GSList *attr_vals = ldap_object_get_attribute_values (ldap, dn, attribute);
+  GSList *attr_vals_it = attr_vals;
   gboolean found = FALSE;
 
   while (attr_vals_it)
@@ -417,16 +414,17 @@ ldap_object_attribute_has_value (LDAP* ldap, const gchar * dn,
  * @return 1 in case of success, -1 in case of errors.
  */
 static int
-ads_query_rules (LDAP* ldap, const gchar * dn, const gchar * username)
+ads_query_rules (LDAP * ldap, const gchar * dn, const gchar * username)
 {
   // Find out whether a proper group membership exist.
-  GSList * attr_vals = ldap_object_get_attribute_values (ldap, dn, "memberOf");
-  GSList * attr_vals_it = attr_vals;
+  GSList *attr_vals = ldap_object_get_attribute_values (ldap, dn, "memberOf");
+  GSList *attr_vals_it = attr_vals;
   int ruletype = -1;
 
   while (attr_vals_it)
     {
-      if (strcasestr (attr_vals_it->data, "OU=GSM Accessrules,OU=greenbone") != 0)
+      if (strcasestr (attr_vals_it->data, "OU=GSM Accessrules,OU=greenbone") !=
+          0)
         {
           // Found a ruletype specification.
           if (strcasestr (attr_vals_it->data, "GSM Rule Allow,") != 0)
@@ -443,10 +441,10 @@ ads_query_rules (LDAP* ldap, const gchar * dn, const gchar * username)
             }
 
           // Find rule, specified in the info attribute.
-          GSList* rule_content =
-                          ldap_object_get_attribute_values (ldap,
-                                                            attr_vals_it->data,
-                                                            "info");
+          GSList *rule_content = ldap_object_get_attribute_values (ldap,
+                                                                   attr_vals_it->
+                                                                   data,
+                                                                   "info");
           if (rule_content == NULL)
             {
               g_warning ("Could not find rule target of rule.");
@@ -459,7 +457,8 @@ ads_query_rules (LDAP* ldap, const gchar * dn, const gchar * username)
           gchar *user_dir = g_build_filename (OPENVAS_STATE_DIR,
                                               "users-remote", "ads",
                                               username, NULL);
-          openvas_auth_store_user_rules (user_dir, rule_content->data, ruletype);
+          openvas_auth_store_user_rules (user_dir, rule_content->data,
+                                         ruletype);
           g_free (user_dir);
           openvas_string_list_free (rule_content);
           openvas_string_list_free (attr_vals);
@@ -485,16 +484,17 @@ ads_query_rules (LDAP* ldap, const gchar * dn, const gchar * username)
  * @return DN of user object, NULL in case of errors / not found. Caller has
  *         to free.
  */
-static char*
+static char *
 ads_query_user_dn (LDAP * ldap, const gchar * username, const gchar * domain)
 {
   LDAPMessage *result;
-  char* dn = NULL;
-  int res = ldap_search_ext_s (ldap, domain /* base */,
-                               LDAP_SCOPE_SUBTREE, /* scope */
-                              ("(&(objectClass=user)(sAMAccountName=gsmtest))")
-                               /* filter */, NULL /*attrs*/, 0 /* attrsonly */,
-                               NULL /* serverctrls */ , NULL /* clientctrls */,
+  char *dn = NULL;
+  int res = ldap_search_ext_s (ldap, domain /* base */ ,
+                               LDAP_SCOPE_SUBTREE,      /* scope */
+                               ("(&(objectClass=user)(sAMAccountName=gsmtest))")
+                               /* filter */ , NULL /*attrs */ ,
+                               0 /* attrsonly */ ,
+                               NULL /* serverctrls */ , NULL /* clientctrls */ ,
                                LDAP_NO_LIMIT,   /* timeout */
                                LDAP_NO_LIMIT,   /* sizelimit */
                                &result);
@@ -533,7 +533,7 @@ ads_query_user_dn (LDAP * ldap, const gchar * username, const gchar * domain)
  */
 int
 ads_authenticate (const gchar * username, const gchar * password,
-                   /*const *//*ads_auth_info_t */ void *ads_auth_info)
+                  /*const *//*ads_auth_info_t */ void *ads_auth_info)
 {
   ldap_auth_info_t info = ((ads_auth_info_t) ads_auth_info)->ldap_auth_conf;
   ads_auth_info_t ads_info = (ads_auth_info_t) ads_auth_info;
@@ -544,10 +544,11 @@ ads_authenticate (const gchar * username, const gchar * password,
 
   LDAP *ldap;
   gchar *authdn = NULL;
-  char* dn = NULL;
+  char *dn = NULL;
 
-  ldap = ads_auth_bind (info->ldap_host, ads_info->domain, username,
-                        password, (info->allow_plaintext == FALSE) ? TRUE : FALSE);
+  ldap =
+    ads_auth_bind (info->ldap_host, ads_info->domain, username, password,
+                   (info->allow_plaintext == FALSE) ? TRUE : FALSE);
 
   if (ldap == NULL)
     return -1;
@@ -562,7 +563,8 @@ ads_authenticate (const gchar * username, const gchar * password,
   if (role == 2 || role == 1)
     {
       if (ads_query_rules (ldap, dn, username) == -1)
-        g_warning ("Users accessrule could not be found on ADS/LDAP directory.");
+        g_warning
+          ("Users accessrule could not be found on ADS/LDAP directory.");
       // If user is admin, mark it so.
       gchar *user_dir_name = g_build_filename (OPENVAS_STATE_DIR,
                                                "users-remote", "ads",
