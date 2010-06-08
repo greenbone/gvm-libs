@@ -1,5 +1,18 @@
 2010-06-08  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	Refactored, resolved code duplicate.
+
+	* misc/ads_auth.c (ads_auth_bind): Removed.
+	(ads_auth_bind_query): Use ldap_auth_bind instead of ads_auth_bind.
+	(ads_authenticate): Use ldap_auth_bind instead of ads_auth_bind.
+	Prevent login attempt without given domain.
+
+	* misc/ldap_auth.c (ldap_auth_bind): Made non-static.
+
+	* misc/ldap_auth.h (ldap_auth_bind): Expose.
+
+2010-06-08  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/openvas_auth.c, misc/ldap_auth.c, misc/ads_auth.c:
 	`make indent`
 

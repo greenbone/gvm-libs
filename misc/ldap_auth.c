@@ -190,7 +190,7 @@ ldap_auth_info_auth_dn (const ldap_auth_info_t info, const gchar * username)
  *
  * @return LDAP Handle or NULL if an error occured, authentication failed etc.
  */
-static LDAP *
+LDAP *
 ldap_auth_bind (const gchar * host, const gchar * userdn,
                 const gchar * password, gboolean force_starttls)
 {

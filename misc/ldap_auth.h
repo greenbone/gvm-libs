@@ -85,6 +85,10 @@ GSList*
 ldap_auth_query (LDAP* ldap, const gchar* dn, const gchar* filter,
                  const gchar* attribute);
 
+LDAP *
+ldap_auth_bind (const gchar * host, const gchar * userdn,
+                const gchar * password, gboolean force_starttls);
+
 GSList*
 ldap_auth_bind_query (const gchar* host,
                       const gchar* userdn,

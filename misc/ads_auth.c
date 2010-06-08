@@ -240,99 +240,6 @@ ldap_object_get_attribute_values (LDAP * ldap, const gchar * dn,
 /** @todo refactor/merge with ldap_auth module. */
 
 /**
- * @brief Setup and bind to an LDAP.
- *
- * @param[in] host           Host to connect to.
- * @param[in] domain         Domain to connect to.
- * @param[in] username       Username.
- * @param[in] password       Password for user@domain.
- * @param[in] force_starttls Whether or not to abort if StartTLS initialization
- *                           failed.
- *
- * @return LDAP Handle or NULL if an error occured, authentication failed etc.
- */
-static LDAP *
-ads_auth_bind (const gchar * host, const gchar * domain, const gchar * username,
-               const gchar * password, gboolean force_starttls)
-{
-  LDAP *ldap = NULL;
-  int ldap_return = 0;
-  int ldapv3 = 3;
-  int res = 0;
-  gchar *ldapuri = NULL;
-  gchar *authdn = NULL;
-  struct berval credential;
-
-  if (host == NULL || username == NULL || password == NULL || domain == NULL)
-    return NULL;
-
-  if (force_starttls == FALSE)
-    g_warning ("Allowed plaintext ADS/LDAP authentication");
-
-  ldapuri = g_strconcat ("ldap://", host, NULL);
-  ldap_initialize (&ldap, ldapuri);
-  g_free (ldapuri);
-
-  if (ldap == NULL || res != LDAP_SUCCESS)
-    {
-      g_warning ("Could not open ADS/LDAP connection for authentication.");
-      return NULL;
-    }
-
-  /* Fail if server doesnt talk LDAPv3 or StartTLS initialization fails. */
-  ldap_return = ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
-  if (ldap_return != LDAP_SUCCESS)
-    {
-      g_warning ("Could not set ads/ldap protocol version to 3: %s.",
-                 ldap_err2string (ldap_return));
-      return NULL;
-    }
-
-  ldap_return = ldap_start_tls_s (ldap, NULL, NULL);
-  if (ldap_return != LDAP_SUCCESS)
-    {
-      if (force_starttls == TRUE)
-        {
-          g_warning
-            ("Aborting ads/ldap authentication: Could not init LDAP StartTLS: %s.",
-             ldap_err2string (ldap_return));
-          return NULL;
-        }
-      else
-        {
-          g_warning ("Could not init ADS/LDAP StartTLS: %s.",
-                     ldap_err2string (ldap_return));
-          g_warning ("Doing plaintext authentication");
-        }
-    }
-  else
-    g_debug ("LDAP StartTLS initialized.");
-
-  authdn = g_strconcat (username, "@", domain, NULL);
-
-  // Keep const correctness.
-  credential.bv_val = strdup (password);
-  credential.bv_len = strlen (password);
-
-  ldap_return =
-    ldap_sasl_bind_s (ldap, authdn, LDAP_SASL_SIMPLE, &credential, NULL, NULL,
-                      NULL);
-
-  free (credential.bv_val);
-  if (ldap_return != LDAP_SUCCESS)
-    {
-      g_warning ("ADS/LDAP authentication failure.");
-      g_free (authdn);
-      return NULL;
-    }
-
-  g_free (authdn);
-
-  return ldap;
-}
-
-
-/**
  * @brief Binds to an ADS and returns result of a query.
  *
  * @param[in] host       The host to connect to.
@@ -351,7 +258,9 @@ ads_auth_bind_query (const gchar * host, const char *domain, const char *dn,
                      const gchar * filter, const gchar * attribute)
 {
   GSList *attribute_values = NULL;
-  LDAP *ldap = ads_auth_bind (host, domain, username, password, FALSE);
+  gchar *authdn = g_strconcat (username, "@", domain, NULL);
+  LDAP *ldap = ldap_auth_bind (host, authdn, password, FALSE);
+  g_free (authdn);
 
   if (!ldap)
     {
@@ -442,8 +351,7 @@ ads_query_rules (LDAP * ldap, const gchar * dn, const gchar * username)
 
           // Find rule, specified in the info attribute.
           GSList *rule_content = ldap_object_get_attribute_values (ldap,
-                                                                   attr_vals_it->
-                                                                   data,
+                                                                   attr_vals_it->data,
                                                                    "info");
           if (rule_content == NULL)
             {
@@ -539,16 +447,19 @@ ads_authenticate (const gchar * username, const gchar * password,
   ads_auth_info_t ads_info = (ads_auth_info_t) ads_auth_info;
   int role = 0;
 
-  if (info == NULL || username == NULL || password == NULL || !info->ldap_host)
+  if (info == NULL || username == NULL || password == NULL || !info->ldap_host
+      || ads_info->domain)
     return -1;
 
   LDAP *ldap;
   gchar *authdn = NULL;
   char *dn = NULL;
 
+  authdn = g_strconcat (username, "@", ads_info->domain, NULL);
   ldap =
-    ads_auth_bind (info->ldap_host, ads_info->domain, username, password,
-                   (info->allow_plaintext == FALSE) ? TRUE : FALSE);
+    ldap_auth_bind (info->ldap_host, authdn, password,
+                    (info->allow_plaintext == FALSE) ? TRUE : FALSE);
+  g_free (authdn);
 
   if (ldap == NULL)
     return -1;
