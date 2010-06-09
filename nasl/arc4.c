@@ -27,7 +27,7 @@
  arc4 state is 258 bytes - last 2 bytes are the index bytes.
 *****************************************************************/
 
-void smb_arc4_init(unsigned char arc4_state_out[258], const unsigned char *key, size_t keylen)
+void smb_arc4_init_ntlmssp(unsigned char arc4_state_out[258], const unsigned char *key, size_t keylen)
 {
   size_t ind;
   unsigned char j = 0;
@@ -54,7 +54,7 @@ void smb_arc4_init(unsigned char arc4_state_out[258], const unsigned char *key, 
  arc4 state is 258 bytes - last 2 bytes are the index bytes.
 *****************************************************************/
 
-void smb_arc4_crypt(unsigned char arc4_state_inout[258], unsigned char *data, size_t len)
+void smb_arc4_crypt_ntlmssp(unsigned char arc4_state_inout[258], unsigned char *data, size_t len)
 {
   unsigned char index_i = arc4_state_inout[256];
   unsigned char index_j = arc4_state_inout[257];

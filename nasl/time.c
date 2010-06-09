@@ -51,7 +51,7 @@
 
 #define TIME_FIXUP_CONSTANT_INT 11644473600LL
 
-time_t convert_timespec_to_time_t(struct timespec ts)
+time_t convert_timespec_to_time_t_ntlmssp(struct timespec ts)
 {
 	/* 1 ns == 1,000,000,000 - one thousand millionths of a second.
 	   increment if it's greater than 500 millionth of a second. */
@@ -64,7 +64,7 @@ time_t convert_timespec_to_time_t(struct timespec ts)
  *  Convert a normalized timeval to a timespec.
  *  ****************************************************************************/
 
-struct timespec convert_timeval_to_timespec(const struct timeval tv)
+struct timespec convert_timeval_to_timespec_ntlmssp(const struct timeval tv)
 {
 	struct timespec ts;
 	ts.tv_sec = tv.tv_sec;
@@ -76,7 +76,7 @@ struct timespec convert_timeval_to_timespec(const struct timeval tv)
  *  Put a 8 byte filetime from a struct timespec. Uses GMT.
  *  ****************************************************************************/
 
-void unix_timespec_to_nt_time(NTTIME *nt, struct timespec ts)
+void unix_timespec_to_nt_time_ntlmssp(NTTIME *nt, struct timespec ts)
 {
 	uint64_t d;
 
@@ -106,7 +106,7 @@ void unix_timespec_to_nt_time(NTTIME *nt, struct timespec ts)
  *  Convert a normalized timespec to a timeval.
  *  ****************************************************************************/
 
-struct timeval convert_timespec_to_timeval(const struct timespec ts)
+struct timeval convert_timespec_to_timeval_ntlmssp(const struct timespec ts)
 {
 	struct timeval tv;
 	tv.tv_sec = ts.tv_sec;
@@ -118,7 +118,7 @@ struct timeval convert_timespec_to_timeval(const struct timespec ts)
  A gettimeofday wrapper.
 ****************************************************************************/
 
-void GetTimeOfDay(struct timeval *tval)
+void GetTimeOfDay_ntlmssp(struct timeval *tval)
 {
         gettimeofday(tval,NULL);
 }
@@ -129,19 +129,19 @@ void GetTimeOfDay(struct timeval *tval)
  pointed to by p.
 ****************************************************************************/
 
-void put_long_date_timespec(char *p, struct timespec ts)
+void put_long_date_timespec_ntlmssp(char *p, struct timespec ts)
 {
 	NTTIME nt;
-	unix_timespec_to_nt_time(&nt, ts);
+	unix_timespec_to_nt_time_ntlmssp(&nt, ts);
 	SIVAL(p, 0, nt & 0xFFFFFFFF);
 	SIVAL(p, 4, nt >> 32);
 }
 
-void put_long_date(char *p, time_t t)
+void put_long_date_ntlmssp(char *p, time_t t)
 {
 	struct timespec ts;
 	ts.tv_sec = t;
 	ts.tv_nsec = 0;
-	put_long_date_timespec(p, ts);
+	put_long_date_timespec_ntlmssp(p, ts);
 }
 

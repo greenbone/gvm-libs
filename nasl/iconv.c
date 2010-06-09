@@ -31,19 +31,19 @@
 
 typedef unsigned int bool;
 
-static size_t iconv_copy(void *,const char **, size_t *, char **, size_t *);
+static size_t iconv_copy_ntlmssp(void *,const char **, size_t *, char **, size_t *);
 
-static const struct charset_functions builtin_functions[] = {
+static const struct charset_functions_ntlmssp builtin_functions_ntlmssp[] = {
         /* windows is closest to UTF-16 */
-        {"UCS-2LE",  iconv_copy, iconv_copy},
-        {"UTF-16LE",  iconv_copy, iconv_copy},
+        {"UCS-2LE",  iconv_copy_ntlmssp, iconv_copy_ntlmssp},
+        {"UTF-16LE",  iconv_copy_ntlmssp, iconv_copy_ntlmssp},
 };
 
-static struct charset_functions *charsets = NULL;
+static struct charset_functions_ntlmssp *charsets = NULL;
 
-static struct charset_functions *find_charset_functions(const char *name)
+static struct charset_functions_ntlmssp *find_charset_functions_ntlmssp(const char *name)
 {
-        struct charset_functions *c = charsets;
+        struct charset_functions_ntlmssp *c = charsets;
 
         while(c) {
                 if (strcasecmp(name, c->name) == 0) {
@@ -62,7 +62,7 @@ static struct charset_functions *find_charset_functions(const char *name)
  * enough that Samba works on systems that don't have iconv.
  **/
 
-size_t smb_iconv(smb_iconv_t cd, 
+size_t smb_iconv_ntlmssp(smb_iconv_t cd, 
 		 const char **inbuf, size_t *inbytesleft,
 		 char **outbuf, size_t *outbytesleft)
 {
@@ -99,7 +99,7 @@ size_t smb_iconv(smb_iconv_t cd,
 }
 
 
-static bool is_utf16(const char *name)
+static bool is_utf16_ntlmssp(const char *name)
 {
 	return strcasecmp(name, "UCS-2LE") == 0 ||
 		strcasecmp(name, "UTF-16LE") == 0;
@@ -109,10 +109,10 @@ static bool is_utf16(const char *name)
 /*
   simple iconv_open() wrapper
  */
-smb_iconv_t smb_iconv_open(const char *tocode, const char *fromcode)
+smb_iconv_t smb_iconv_open_ntlmssp(const char *tocode, const char *fromcode)
 {
 	smb_iconv_t ret;
-	struct charset_functions *from, *to;
+	struct charset_functions_ntlmssp *from, *to;
 	
 	from = charsets;
 	to = charsets;
@@ -129,15 +129,15 @@ smb_iconv_t smb_iconv_open(const char *tocode, const char *fromcode)
 
 	/* check for the simplest null conversion */
 	if (strcasecmp(fromcode, tocode) == 0) {
-		ret->direct = iconv_copy;
+		ret->direct = iconv_copy_ntlmssp;
 		return ret;
 	}
 
 	/* check if we have a builtin function for this conversion */
-	from = find_charset_functions(fromcode);
+	from = find_charset_functions_ntlmssp(fromcode);
 	if(from)ret->pull = from->pull;
 	
-	to = find_charset_functions(tocode);
+	to = find_charset_functions_ntlmssp(tocode);
 	if(to)ret->push = to->push;
 
 	/* check if we can use iconv for this conversion */
@@ -161,14 +161,14 @@ smb_iconv_t smb_iconv_open(const char *tocode, const char *fromcode)
 	
 	/* check if there is a module available that can do this conversion */
 	/*if (!ret->pull && NT_STATUS_IS_OK(smb_probe_module("charset", fromcode))) {
-		 if(!(from = find_charset_functions(fromcode)))
+		 if(!(from = find_charset_functions_ntlmssp(fromcode)))
                         fprintf(stderr,"Module %s doesn't provide charset %s!\n", fromcode, fromcode);
 		else
                         ret->pull = from->pull;
 	}
 
 	if (!ret->push && NT_STATUS_IS_OK(smb_probe_module("charset", tocode))) {
-		if(!(to = find_charset_functions(tocode)))
+		if(!(to = find_charset_functions_ntlmssp(tocode)))
                         fprintf(stderr, "Module %s doesn't provide charset %s!\n", tocode, tocode);
 		else 
 			ret->push = to->push;
@@ -183,13 +183,13 @@ smb_iconv_t smb_iconv_open(const char *tocode, const char *fromcode)
 	}
 
 	/* check for conversion to/from ucs2 */
-	if (is_utf16(fromcode) && to) {
+	if (is_utf16_ntlmssp(fromcode) && to) {
 		ret->direct = to->push;
 		ret->push = ret->pull = NULL;
 		return ret;
 	}
 
-	if (is_utf16(tocode) && from) {
+	if (is_utf16_ntlmssp(tocode) && from) {
 		ret->direct = from->pull;
 		ret->push = ret->pull = NULL;
 		return ret;
@@ -217,7 +217,7 @@ smb_iconv_t smb_iconv_open(const char *tocode, const char *fromcode)
 /*
   simple iconv_close() wrapper
 */
-int smb_iconv_close (smb_iconv_t cd)
+int smb_iconv_close_ntlmssp(smb_iconv_t cd)
 {
 #ifdef HAVE_NATIVE_ICONV
 	if (cd->cd_direct) iconv_close((iconv_t)cd->cd_direct);
@@ -233,7 +233,7 @@ int smb_iconv_close (smb_iconv_t cd)
 	return 0;
 }
 
-static size_t iconv_copy(void *cd, const char **inbuf, size_t *inbytesleft,
+static size_t iconv_copy_ntlmssp(void *cd, const char **inbuf, size_t *inbytesleft,
 			 char **outbuf, size_t *outbytesleft)
 {
 	int n;

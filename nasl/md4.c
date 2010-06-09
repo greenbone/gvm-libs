@@ -59,7 +59,7 @@ static uint32 lshift(uint32 x, int s)
 #define ROUND3(a,b,c,d,k,s) a = lshift(a + H(b,c,d) + X[k] + (uint32)0x6ED9EBA1,s)
 
 /* this applies md4 to 64 byte chunks */
-static void mdfour64(uint32 *M)
+static void mdfour64_ntlmssp(uint32 *M)
 {
 	int j;
 	uint32 AA, BB, CC, DD;
@@ -106,7 +106,7 @@ static void mdfour64(uint32 *M)
 		X[j] = 0;
 }
 
-static void copy64(uint32 *M, const unsigned char *in)
+static void copy64_ntlmssp(uint32 *M, const unsigned char *in)
 {
 	int i;
 
@@ -115,7 +115,7 @@ static void copy64(uint32 *M, const unsigned char *in)
 			(in[i*4+1]<<8) | (in[i*4+0]<<0);
 }
 
-static void copy4(unsigned char *out, uint32 x)
+static void copy4_ntlmssp(unsigned char *out, uint32 x)
 {
 	out[0] = x&0xFF;
 	out[1] = (x>>8)&0xFF;
@@ -124,7 +124,7 @@ static void copy4(unsigned char *out, uint32 x)
 }
 
 /* produce a md4 message digest from data of length n bytes */
-void mdfour(unsigned char *out, const unsigned char *in, int n)
+void mdfour_ntlmssp(unsigned char *out, const unsigned char *in, int n)
 {
 	unsigned char buf[128];
 	uint32 M[16];
@@ -137,8 +137,8 @@ void mdfour(unsigned char *out, const unsigned char *in, int n)
 	D = 0x10325476;
 
 	while (n > 64) {
-		copy64(M, in);
-		mdfour64(M);
+		copy64_ntlmssp(M, in);
+		mdfour64_ntlmssp(M);
 		in += 64;
 		n -= 64;
 	}
@@ -149,27 +149,26 @@ void mdfour(unsigned char *out, const unsigned char *in, int n)
 	buf[n] = 0x80;
 	
 	if (n <= 55) {
-		copy4(buf+56, b);
-		copy64(M, buf);
-		mdfour64(M);
+		copy4_ntlmssp(buf+56, b);
+		copy64_ntlmssp(M, buf);
+		mdfour64_ntlmssp(M);
 	} else {
-		copy4(buf+120, b); 
-		copy64(M, buf);
-		mdfour64(M);
-		copy64(M, buf+64);
-		mdfour64(M);
+		copy4_ntlmssp(buf+120, b); 
+		copy64_ntlmssp(M, buf);
+		mdfour64_ntlmssp(M);
+		copy64_ntlmssp(M, buf+64);
+		mdfour64_ntlmssp(M);
 	}
 
 	for (i=0;i<128;i++)
 		buf[i] = 0;
-	copy64(M, buf);
+	copy64_ntlmssp(M, buf);
 
-	copy4(out, A);
-	copy4(out+4, B);
-	copy4(out+8, C);
-	copy4(out+12, D);
+	copy4_ntlmssp(out, A);
+	copy4_ntlmssp(out+4, B);
+	copy4_ntlmssp(out+8, C);
+	copy4_ntlmssp(out+12, D);
 
 	A = B = C = D = 0;
 }
-
 

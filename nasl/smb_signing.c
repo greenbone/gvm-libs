@@ -24,7 +24,7 @@
 */
 #include "smb_signing.h"
 
-void simple_packet_signature(uint8_t *mac_key, const uchar *buf, uint32 seq_number, unsigned char *calc_md5_mac)
+void simple_packet_signature_ntlmssp(uint8_t *mac_key, const uchar *buf, uint32 seq_number, unsigned char *calc_md5_mac)
 {
 	const size_t offset_end_of_sig = (smb_ss_field + 8);
 	unsigned char sequence_buf[8];

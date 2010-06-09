@@ -1,3 +1,15 @@
+2010-06-09  Preeti Subramanian <spreeti@secpod.com>
+
+	Buf Fix. Changed function names related to NTLMSSP by appending
+	_ntlmssp. This would prevent conflicts that occur while WMI and
+	NTLMSSP features co-exist.
+	
+	* nasl/smb_signing.c, nasl/smb_signing.h, nasl/proto.h,
+	nasl/genrand.c, nasl/nasl_crypto.c, nasl/charset.h, nasl/time.c,
+	nasl/ntlmssp.c, nasl/smb_crypt.c, nasl/smb_crypt.h, nasl/smb_crypt2.c,
+	nasl/iconv.c, nasl/md4.c, nasl/md4.h, nasl/charcnv.c, nasl/arc4.c:
+	Changed conflicting function names by appending names with _ntlmssp. 
+
 2010-06-08  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	Refactored, resolved code duplicate.

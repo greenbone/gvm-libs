@@ -57,22 +57,22 @@ typedef unsigned int bool;
 #define False 0
 #define True 1
 
-static uint8 *valid_table;
-static bool valid_table_use_unmap;
-size_t convert_string(charset_t from, charset_t to,
+static uint8 *valid_table_ntlmssp;
+static bool valid_table_use_unmap_ntlmssp;
+size_t convert_string_ntlmssp(charset_t from, charset_t to,
                                 void const *src, size_t srclen,
                                 void *dest, size_t destlen, bool allow_badcharcnv);
-static int check_dos_char_slowly(uint16 c)
+static int check_dos_char_slowly_ntlmssp(uint16 c)
 {
   char buf[10];
   uint16_t c2 = 0;
   int len1, len2;
 
-  len1 = convert_string(CH_UTF16LE, CH_DOS, &c, 2, buf, sizeof(buf),False);
+  len1 = convert_string_ntlmssp(CH_UTF16LE, CH_DOS, &c, 2, buf, sizeof(buf),False);
   if (len1 == 0) {
     return 0;
   }
-  len2 = convert_string(CH_DOS, CH_UTF16LE, buf, len1, &c2, 2,False);
+  len2 = convert_string_ntlmssp(CH_DOS, CH_UTF16LE, buf, len1, &c2, 2,False);
   if (len2 != 2) {
     return 0;
   }
@@ -81,7 +81,7 @@ static int check_dos_char_slowly(uint16 c)
 
 /* We can parameterize this if someone complains.... JRA. */
 
-char lp_failed_convert_char(void)
+char lp_failed_convert_char_ntlmssp(void)
 {
   return '_';
 }
@@ -101,10 +101,10 @@ char lp_failed_convert_char(void)
  * @sa lib/iconv.c
  */
 
-static smb_iconv_t conv_handles[NUM_CHARSETS][NUM_CHARSETS];
-static bool conv_silent; /* Should we do a debug if the conversion fails ? */
+static smb_iconv_t conv_handles_ntlmssp[NUM_CHARSETS][NUM_CHARSETS];
+static bool conv_silent_ntlmssp; /* Should we do a debug if the conversion fails ? */
 
-void init_valid_table(void)
+void init_valid_table_ntlmssp(void)
 {
   static int mapped_file;
   int i;
@@ -122,19 +122,19 @@ if (mapped_file) {
  * free() the old one. */
 
 /* use free rather than unmap */
-valid_table_use_unmap = False;
+valid_table_use_unmap_ntlmssp = False;
 
-  valid_table = (uint8 *)SMB_MALLOC(0x10000);
+  valid_table_ntlmssp = (uint8 *)SMB_MALLOC(0x10000);
   for (i=0;i<128;i++) {
-    valid_table[i] = isalnum(i) || strchr(allowed,i);
+    valid_table_ntlmssp[i] = isalnum(i) || strchr(allowed,i);
   }
 
-  lazy_initialize_conv();
+  lazy_initialize_conv_ntlmssp();
 
   for (;i<0x10000;i++) {
     uint16_t c;
     SSVAL(&c, 0, i);
-    valid_table[i] = check_dos_char_slowly(c);
+    valid_table_ntlmssp[i] = check_dos_char_slowly_ntlmssp(c);
   }
 }
 
@@ -142,7 +142,7 @@ valid_table_use_unmap = False;
  *  Count the number of characters in a uint16_t string.
  *  ********************************************************************/
 
-size_t strlen_w(const uint16 *src)
+size_t strlen_w_ntlmssp(const uint16 *src)
 {
   size_t len;
   uint16 c;
@@ -157,7 +157,7 @@ size_t strlen_w(const uint16 *src)
 /**
  *  Convert a string to UPPER case.
  *  **/
-_PUBLIC_ void strupper_m(char *s)
+_PUBLIC_ void strupper_m_ntlmssp(char *s)
 {
 
 /* this is quite a common operation, so we want it to be
@@ -174,7 +174,7 @@ _PUBLIC_ void strupper_m(char *s)
 /**
  *  * Return the name of a charset to give to iconv().
  *   **/
-static const char *charset_name(charset_t ch)
+static const char *charset_name_ntlmssp(charset_t ch)
 {
 const char *ret = NULL;
 
@@ -193,11 +193,11 @@ const char *ret = NULL;
     if (ln) {
       /* Check whether the charset name is supported
       by iconv */
-    smb_iconv_t handle = smb_iconv_open(ln,"UCS-2LE");
+    smb_iconv_t handle = smb_iconv_open_ntlmssp(ln,"UCS-2LE");
     if (handle == (smb_iconv_t) -1) {
       ln = NULL;
     } else {
-       smb_iconv_close(handle);
+       smb_iconv_close_ntlmssp(handle);
     }
   }
   ret = ln;
@@ -208,13 +208,13 @@ if (!ret || !*ret) ret = "ASCII";
 return ret;
 }
 
-void lazy_initialize_conv(void)
+void lazy_initialize_conv_ntlmssp(void)
 {
   static int initialized = False;
 
   if (!initialized) {
     initialized = True;
-    init_iconv();
+    init_iconv_ntlmssp();
   }
 }
 
@@ -226,44 +226,44 @@ void lazy_initialize_conv(void)
  * every time the configuration is reloaded, because the charset or
  * codepage might have changed.
  **/
-void init_iconv(void)
+void init_iconv_ntlmssp(void)
 {
   int c1, c2;
   bool did_reload = False;
 
   /* so that charset_name() works we need to get the UNIX<->UCS2 going
    first */
-  if (!conv_handles[CH_UNIX][CH_UTF16LE])
-    conv_handles[CH_UNIX][CH_UTF16LE] = smb_iconv_open(charset_name(CH_UTF16LE), "ASCII");
+  if (!conv_handles_ntlmssp[CH_UNIX][CH_UTF16LE])
+    conv_handles_ntlmssp[CH_UNIX][CH_UTF16LE] = smb_iconv_open_ntlmssp(charset_name_ntlmssp(CH_UTF16LE), "ASCII");
 
-  if (!conv_handles[CH_UTF16LE][CH_UNIX])
-    conv_handles[CH_UTF16LE][CH_UNIX] = smb_iconv_open("ASCII", charset_name(CH_UTF16LE));
+  if (!conv_handles_ntlmssp[CH_UTF16LE][CH_UNIX])
+    conv_handles_ntlmssp[CH_UTF16LE][CH_UNIX] = smb_iconv_open_ntlmssp("ASCII", charset_name_ntlmssp(CH_UTF16LE));
 
   for (c1=0;c1<NUM_CHARSETS;c1++) {
     for (c2=0;c2<NUM_CHARSETS;c2++) {
-      const char *n1 = charset_name((charset_t)c1);
-      const char *n2 = charset_name((charset_t)c2);
-      if (conv_handles[c1][c2] &&
-          strcmp(n1, conv_handles[c1][c2]->from_name) == 0 &&
-          strcmp(n2, conv_handles[c1][c2]->to_name) == 0)
+      const char *n1 = charset_name_ntlmssp((charset_t)c1);
+      const char *n2 = charset_name_ntlmssp((charset_t)c2);
+      if (conv_handles_ntlmssp[c1][c2] &&
+          strcmp(n1, conv_handles_ntlmssp[c1][c2]->from_name) == 0 &&
+          strcmp(n2, conv_handles_ntlmssp[c1][c2]->to_name) == 0)
            continue;
 
       did_reload = True;
 
-      if (conv_handles[c1][c2])
-        smb_iconv_close(conv_handles[c1][c2]);
+      if (conv_handles_ntlmssp[c1][c2])
+        smb_iconv_close_ntlmssp(conv_handles_ntlmssp[c1][c2]);
 
-      conv_handles[c1][c2] = smb_iconv_open(n2,n1);
-      if (conv_handles[c1][c2] == (smb_iconv_t)-1) {
+      conv_handles_ntlmssp[c1][c2] = smb_iconv_open_ntlmssp(n2,n1);
+      if (conv_handles_ntlmssp[c1][c2] == (smb_iconv_t)-1) {
         if (c1 != CH_UTF16LE && c1 != CH_UTF16BE) {
           n1 = "ASCII";
         }
         if (c2 != CH_UTF16LE && c2 != CH_UTF16BE) {
           n2 = "ASCII";
         }
-        conv_handles[c1][c2] = smb_iconv_open(n2,n1);
-        if (!conv_handles[c1][c2]) {
-          printf("init_iconv: conv_handle initialization failed");
+        conv_handles_ntlmssp[c1][c2] = smb_iconv_open_ntlmssp(n2,n1);
+        if (!conv_handles_ntlmssp[c1][c2]) {
+          printf("init_iconv_ntlmssp: conv_handle initialization failed");
         }
       }
     }
@@ -273,9 +273,9 @@ void init_iconv(void)
   /* XXX: Does this really get called every time the dos
    * codepage changes? */
   /* XXX: Is the did_reload test too strict? */
-    conv_silent = True;
-    init_valid_table();
-    conv_silent = False;
+    conv_silent_ntlmssp = True;
+    init_valid_table_ntlmssp();
+    conv_silent_ntlmssp = False;
   }
 }
 
@@ -295,7 +295,7 @@ void init_iconv(void)
  *
  **/
 
-static size_t convert_string_internal(charset_t from, charset_t to,
+static size_t convert_string_internal_ntlmssp(charset_t from, charset_t to,
     void const *src, size_t srclen,
     void *dest, size_t destlen, bool allow_bad_conv)
 {
@@ -305,13 +305,13 @@ static size_t convert_string_internal(charset_t from, charset_t to,
   char* outbuf = (char*)dest;
   smb_iconv_t descriptor;
 
-  lazy_initialize_conv();
+  lazy_initialize_conv_ntlmssp();
 
-  descriptor = conv_handles[from][to];
+  descriptor = conv_handles_ntlmssp[from][to];
 
   if (srclen == (size_t)-1) {
     if (from == CH_UTF16LE || from == CH_UTF16BE) {
-      srclen = (strlen_w((const uint16 *)src)+1) * 2;
+      srclen = (strlen_w_ntlmssp((const uint16 *)src)+1) * 2;
     } else {
         srclen = strlen((const char *)src)+1;
     }
@@ -319,7 +319,7 @@ static size_t convert_string_internal(charset_t from, charset_t to,
 
 
   if (descriptor == (smb_iconv_t)-1 || descriptor == (smb_iconv_t)0) {
-    if (!conv_silent)
+    if (!conv_silent_ntlmssp)
       return (size_t)-1;
   }
 
@@ -328,13 +328,13 @@ static size_t convert_string_internal(charset_t from, charset_t to,
 
  again:
 
-  retval = smb_iconv(descriptor, &inbuf, &i_len, &outbuf, &o_len);
+  retval = smb_iconv_ntlmssp(descriptor, &inbuf, &i_len, &outbuf, &o_len);
   if(retval==(size_t)-1) {
     const char *reason="unknown error";
     switch(errno) {
       case EINVAL:
         reason="Incomplete multibyte sequence";
-        if (!conv_silent)
+        if (!conv_silent_ntlmssp)
           if (allow_bad_conv)
             goto use_as_is;
         return (size_t)-1;
@@ -374,7 +374,7 @@ static size_t convert_string_internal(charset_t from, charset_t to,
       if (i_len < 2)
         return destlen - o_len;
       if (i_len >= 2) {
-        *outbuf = lp_failed_convert_char();
+        *outbuf = lp_failed_convert_char_ntlmssp();
 
       outbuf++;
       o_len--;
@@ -396,7 +396,7 @@ static size_t convert_string_internal(charset_t from, charset_t to,
     if (o_len < 2)
       return destlen - o_len;
 
-    outbuf[0] = lp_failed_convert_char();
+    outbuf[0] = lp_failed_convert_char_ntlmssp();
     outbuf[1] = '\0';
 
     inbuf++;
@@ -415,7 +415,7 @@ static size_t convert_string_internal(charset_t from, charset_t to,
              to != CH_UTF16LE && to != CH_UTF16BE) {
       /* Failed multibyte to multibyte. Just copy the default fail char and
          try again. */
-    outbuf[0] = lp_failed_convert_char();
+    outbuf[0] = lp_failed_convert_char_ntlmssp();
 
     inbuf++;
     i_len--;
@@ -453,7 +453,7 @@ static size_t convert_string_internal(charset_t from, charset_t to,
  * Don't change unless you really know what you are doing. JRA.
  **/
 
-size_t convert_string(charset_t from, charset_t to,
+size_t convert_string_ntlmssp(charset_t from, charset_t to,
       void const *src, size_t srclen,
       void *dest, size_t destlen, bool allow_bad_conv)
 {
@@ -489,7 +489,7 @@ size_t convert_string(charset_t from, charset_t to,
       #ifdef BROKEN_UNICODE_COMPOSE_CHARACTERS
       goto general_case;
       #else
-      size_t ret = convert_string_internal(from, to, p, slen, q, dlen, allow_bad_conv);
+      size_t ret = convert_string_internal_ntlmssp(from, to, p, slen, q, dlen, allow_bad_conv);
       if (ret == (size_t)-1) {
         return ret;
       }
@@ -529,7 +529,7 @@ size_t convert_string(charset_t from, charset_t to,
         #ifdef BROKEN_UNICODE_COMPOSE_CHARACTERS
         goto general_case;
         #else
-        return retval + convert_string_internal(from, to, p, slen, q, dlen, allow_bad_conv);
+        return retval + convert_string_internal_ntlmssp(from, to, p, slen, q, dlen, allow_bad_conv);
         #endif
       }
    }
@@ -565,7 +565,7 @@ size_t convert_string(charset_t from, charset_t to,
        #ifdef BROKEN_UNICODE_COMPOSE_CHARACTERS
        goto general_case;
        #else
-       return retval + convert_string_internal(from, to, p, slen, q, dlen, allow_bad_conv);
+       return retval + convert_string_internal_ntlmssp(from, to, p, slen, q, dlen, allow_bad_conv);
        #endif
      }
    }
@@ -582,7 +582,7 @@ size_t convert_string(charset_t from, charset_t to,
   #ifdef BROKEN_UNICODE_COMPOSE_CHARACTERS
   general_case:
   #endif
-  return convert_string_internal(from, to, src, srclen, dest, destlen, allow_bad_conv);
+  return convert_string_internal_ntlmssp(from, to, src, srclen, dest, destlen, allow_bad_conv);
 }
 
 /**
@@ -599,7 +599,7 @@ size_t convert_string(charset_t from, charset_t to,
  * @param dest_len the maximum length in bytes allowed in the
  * destination.  If @p dest_len is -1 then no maximum is used.
  **/
-size_t push_ascii(void *dest, const char *src, size_t dest_len, int flags)
+size_t push_ascii_ntlmssp(void *dest, const char *src, size_t dest_len, int flags)
 {
   size_t src_len = strlen(src);
   char *tmpbuf = NULL;
@@ -615,7 +615,7 @@ size_t push_ascii(void *dest, const char *src, size_t dest_len, int flags)
     if (!tmpbuf) {
       printf("malloc fail");
     }
-    strupper_m(tmpbuf);
+    strupper_m_ntlmssp(tmpbuf);
     src = tmpbuf;
   }
 
@@ -623,7 +623,7 @@ size_t push_ascii(void *dest, const char *src, size_t dest_len, int flags)
     src_len++;
   }
 
-  ret = convert_string(CH_UNIX, CH_DOS, src, src_len, dest, dest_len, True);
+  ret = convert_string_ntlmssp(CH_UNIX, CH_DOS, src, src_len, dest, dest_len, True);
   if (ret == (size_t)-1 &&
      (flags & (STR_TERMINATE | STR_TERMINATE_ASCII))
      && dest_len > 0) {

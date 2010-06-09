@@ -199,7 +199,7 @@ nasl_get_sign (lex_ctxt * lexic)
       return NULL;
     }
   uint8_t calc_md5_mac[16];
-  simple_packet_signature ((uint8_t *) mac_key, buf, seq_num, calc_md5_mac);
+  simple_packet_signature_ntlmssp ((uint8_t *) mac_key, buf, seq_num, calc_md5_mac);
   memcpy (buf + 18, calc_md5_mac, 8);
   char *ret = emalloc (buflen);
   bzero (ret, buflen);
@@ -625,7 +625,7 @@ nasl_ntlmv2_hash (lex_ctxt * lexic)
 
   assert (hash_len == 16);
   /* Given that data, and the challenge from the server, generate a response */
-  SMBOWFencrypt_ntv2 (ntlm_v2_hash, server_chal, 8, ntlmv2_client_data,
+  SMBOWFencrypt_ntv2_ntlmssp(ntlm_v2_hash, server_chal, 8, ntlmv2_client_data,
                       client_chal_length, ntlmv2_response);
 
   /* put it into nt_response, for the code below to put into the packet */

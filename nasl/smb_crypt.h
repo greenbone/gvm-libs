@@ -24,45 +24,45 @@ void E_P16(uchar *p14,uchar *p16);
 
 int strupper_w(smb_ucs2_t *s);/*implemented in smb_crypt2.c*/
 
-void SMBsesskeygen_lm_sess_key(const uchar lm_hash[16], const uchar lm_resp[24], uint8 sess_key[16]);
+void SMBsesskeygen_lm_sess_key_ntlmssp(const uchar lm_hash[16], const uchar lm_resp[24], uint8 sess_key[16]);
 
-void SMBsesskeygen_ntv1(const uchar kr[16], const uchar * nt_resp, uint8 sess_key[16]);
+void SMBsesskeygen_ntv1_ntlmssp(const uchar kr[16], const uchar * nt_resp, uint8 sess_key[16]);
 
-void SMBOWFencrypt(const uchar passwd[16], const uchar *c8, uchar p24[24]);
+void SMBOWFencrypt_ntlmssp(const uchar passwd[16], const uchar *c8, uchar p24[24]);
 
-void SMBencrypt(const char *passwd, const uchar *c8, uchar p24[24]);
+void SMBencrypt_ntlmssp(const char *passwd, const uchar *c8, uchar p24[24]);
 
-void SMBencrypt_hash(const uchar lm_hash[16], const uchar *c8, uchar p24[24]);
+void SMBencrypt_hash_ntlmssp(const uchar lm_hash[16], const uchar *c8, uchar p24[24]);
 
-void SMBNTencrypt_hash(const uchar nt_hash[16], uchar *c8, uchar *p24);
+void SMBNTencrypt_hash_ntlmssp(const uchar nt_hash[16], uchar *c8, uchar *p24);
 
-void E_md5hash(const uchar salt[16], const uchar nthash[16], uchar hash_out[16]);
+void E_md5hash_ntlmssp(const uchar salt[16], const uchar nthash[16], uchar hash_out[16]);
 
-bool E_deshash(const char *passwd, uchar p16[16]);
+bool E_deshash_ntlmssp(const char *passwd, uchar p16[16]);
 
-void SamOEMhash( uchar *data, const uchar *key, int val);
+void SamOEMhash_ntlmssp( uchar *data, const uchar *key, int val);
 
 /* Does the md5 encryption from the Key Response for NTLMv2. */
-void SMBOWFencrypt_ntv2(const uchar kr[16],
+void SMBOWFencrypt_ntv2_ntlmssp(const uchar kr[16],
                         const uint8_t *srv_chal,
                         int srv_chal_len,
                         const uint8_t *cli_chal,
                         int cli_chal_len,
                         uchar resp_buf[16]);
 
-void SMBsesskeygen_ntv2(const uchar kr[16],
+void SMBsesskeygen_ntv2_ntlmssp(const uchar kr[16],
                         const uchar * nt_resp, uint8 sess_key[16]);
 
-uint8_t * NTLMv2_generate_client_data(const char *addr_list, int address_list_len);
+uint8_t * NTLMv2_generate_client_data_ntlmssp(const char *addr_list, int address_list_len);
 
-void NTLMv2_generate_response(const uchar ntlm_v2_hash[16],
+void NTLMv2_generate_response_ntlmssp(const uchar ntlm_v2_hash[16],
                                           const char *server_chal,
                                           const char *address_list, int address_list_len, uint8_t *nt_response);
 
-void LMv2_generate_response(const uchar ntlm_v2_hash[16],
+void LMv2_generate_response_ntlmssp(const uchar ntlm_v2_hash[16],
                                         const char *server_chal, uint8_t *lm_response);
 
-void SMBNTLMv2encrypt_hash(const char *user, const char *domain, uchar ntlm_v2_hash[16],
+void SMBNTLMv2encrypt_hash_ntlmssp(const char *user, const char *domain, uchar ntlm_v2_hash[16],
                       const char *server_chal,
                       const char *address_list, int address_list_len,
                       unsigned char *lm_response, unsigned char *nt_response,

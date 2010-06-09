@@ -35,12 +35,12 @@ typedef enum {CH_UTF16LE=0, CH_UTF16=0, CH_UNIX=1, CH_DISPLAY=2, CH_DOS=3, CH_UT
  *   buffer, and a function that pulls from ucs2 buffer to that  charset.
  */
 
-struct charset_functions {
+struct charset_functions_ntlmssp {
   const char *name;
   size_t (*pull)(void *, const char **inbuf, size_t *inbytesleft,
   char **outbuf, size_t *outbytesleft);
   size_t (*push)(void *, const char **inbuf, size_t *inbytesleft,
   char **outbuf, size_t *outbytesleft);
-  struct charset_functions *prev, *next;
+  struct charset_functions_ntlmssp *prev, *next;
 };
 #endif

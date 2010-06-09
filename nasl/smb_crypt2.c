@@ -54,7 +54,7 @@ int strupper_w(smb_ucs2_t *s)
 }
 
 /* Does the md5 encryption from the NT hash for NTLMv2. */
-void SMBOWFencrypt_ntv2(const uchar* kr,
+void SMBOWFencrypt_ntv2_ntlmssp(const uchar* kr,
 			const uchar* srv_chal_data,
 			int srv_chal_len,
 			const uchar* cli_chal_data,

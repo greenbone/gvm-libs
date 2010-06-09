@@ -64,28 +64,28 @@ static uint32 counter;
 /* zero a structure */
 #define ZERO_STRUCT(x) memset((char *)&(x), 0, sizeof(x))
 
-static bool done_reseed = False;
-static void (*reseed_callback)(int *newseed);
+static bool done_reseed_ntlmssp = False;
+static void (*reseed_callback_ntlmssp)(int *newseed);
 
 /**************************************************************** 
  Copy any user given reseed data.
 *****************************************************************/
 
-void set_rand_reseed_callback(void (*fn)(int *))
+void set_rand_reseed_callback_ntlmssp(void (*fn)(int *))
 {
-	reseed_callback = fn;
-	set_need_random_reseed();
+	reseed_callback_ntlmssp = fn;
+	set_need_random_reseed_ntlmssp();
 }
 
-void set_need_random_reseed()
+void set_need_random_reseed_ntlmssp()
 {
-	done_reseed = False;
+	done_reseed_ntlmssp = False;
 }
 
-static void get_rand_reseed_data(int *reseed_data)
+static void get_rand_reseed_data_ntlmssp(int *reseed_data)
 {
-	if (reseed_callback) {
-		reseed_callback(reseed_data);
+	if (reseed_callback_ntlmssp) {
+		reseed_callback_ntlmssp(reseed_data);
 	} else {
 		*reseed_data = 0;
 	}
@@ -96,7 +96,7 @@ static void get_rand_reseed_data(int *reseed_data)
  Note that the hash is not initialised.
 *****************************************************************/
 
-static void do_filehash(const char *fname, unsigned char *the_hash)
+static void do_filehash_ntlmssp(const char *fname, unsigned char *the_hash)
 {
 	unsigned char buf[1011]; /* deliberate weird size */
 	unsigned char tmp_md4[16];
@@ -107,7 +107,7 @@ static void do_filehash(const char *fname, unsigned char *the_hash)
 		return;
 
 	while ((n = read(fd, (char *)buf, sizeof(buf))) > 0) {
-		mdfour(tmp_md4, buf, n);
+		mdfour_ntlmssp(tmp_md4, buf, n);
 		for (n=0;n<16;n++)
 			the_hash[n] ^= tmp_md4[n];
 	}
@@ -126,7 +126,7 @@ static void do_filehash(const char *fname, unsigned char *the_hash)
  above...
 **************************************************************/
 
-static int do_reseed(bool use_fd, int fd)
+static int do_reseed_ntlmssp(bool use_fd, int fd)
 {
 	unsigned char seed_inbuf[40];
 	uint32 v1, v2; struct timeval tval; pid_t mypid;
@@ -142,12 +142,12 @@ static int do_reseed(bool use_fd, int fd)
 
 	/* Add in some secret file contents */
 
-	do_filehash("/etc/shadow", &seed_inbuf[0]);
+	do_filehash_ntlmssp("/etc/shadow", &seed_inbuf[0]);
 	/*
 	 * Add the counter, time of day, and pid.
 	 */
 
-	GetTimeOfDay(&tval);
+	GetTimeOfDay_ntlmssp(&tval);
 	mypid = getpid();
 	v1 = (counter++) + mypid + tval.tv_sec;
 	v2 = (counter++) * mypid + tval.tv_usec;
@@ -159,14 +159,14 @@ static int do_reseed(bool use_fd, int fd)
 	 * Add any user-given reseed data.
 	 */
 
-	get_rand_reseed_data(&reseed_data);
+	get_rand_reseed_data_ntlmssp(&reseed_data);
 	if (reseed_data) {
 		size_t i;
 		for (i = 0; i < sizeof(seed_inbuf); i++)
 			seed_inbuf[i] ^= ((char *)(&reseed_data))[i % sizeof(reseed_data)];
 	}
 
-	smb_arc4_init(smb_arc4_state, seed_inbuf, sizeof(seed_inbuf));
+	smb_arc4_init_ntlmssp(smb_arc4_state, seed_inbuf, sizeof(seed_inbuf));
 
 	return -1;
 }
@@ -175,16 +175,16 @@ static int do_reseed(bool use_fd, int fd)
  Interface to the (hopefully) good crypto random number generator.
 ********************************************************************/
 
-void generate_random_buffer( unsigned char *out, int len)
+void generate_random_buffer_ntlmssp( unsigned char *out, int len)
 {
 	static int urand_fd = -1;
 	unsigned char md4_buf[64];
 	unsigned char tmp_buf[16];
 	unsigned char *p;
 
-	if(!done_reseed) {
-		urand_fd = do_reseed(True, urand_fd);
-		done_reseed = True;
+	if(!done_reseed_ntlmssp) {
+		urand_fd = do_reseed_ntlmssp(True, urand_fd);
+		done_reseed_ntlmssp = True;
 	}
 
 	if (urand_fd != -1 && len > 0) {
@@ -195,8 +195,8 @@ void generate_random_buffer( unsigned char *out, int len)
 		/* Read of urand error, drop back to non urand method. */
 		close(urand_fd);
 		urand_fd = -1;
-		do_reseed(False, -1);
-		done_reseed = True;
+		do_reseed_ntlmssp(False, -1);
+		done_reseed_ntlmssp = True;
 	}
 
 	/*
@@ -210,8 +210,8 @@ void generate_random_buffer( unsigned char *out, int len)
 	while(len > 0) {
 		int copy_len = len > 16 ? 16 : len;
 
-		smb_arc4_crypt(smb_arc4_state, md4_buf, sizeof(md4_buf));
-		mdfour(tmp_buf, md4_buf, sizeof(md4_buf));
+		smb_arc4_crypt_ntlmssp(smb_arc4_state, md4_buf, sizeof(md4_buf));
+		mdfour_ntlmssp(tmp_buf, md4_buf, sizeof(md4_buf));
 		memcpy(p, tmp_buf, copy_len);
 		p += copy_len;
 		len -= copy_len;
