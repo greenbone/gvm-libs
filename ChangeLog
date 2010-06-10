@@ -1,3 +1,7 @@
+2010-06-10  Raimund Renkert <raimund.renkert@intevation.de>
+
+	* omp/xml.h: Donate entity struct a name.
+
 2010-06-09  Preeti Subramanian <spreeti@secpod.com>
 
 	Buf Fix. Changed function names related to NTLMSSP by appending

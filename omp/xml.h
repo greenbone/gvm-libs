@@ -43,13 +43,14 @@ typedef GSList *entities_t;
 /**
  * @brief XML element.
  */
-typedef struct
+struct entity_s
 {
   char *name;                   ///< Name.
   char *text;                   ///< Text.
   GHashTable *attributes;       ///< Attributes.
   entities_t entities;          ///< Children.
-} *entity_t;
+};
+typedef struct entity_s *entity_t;
 
 entities_t next_entities (entities_t);
 
