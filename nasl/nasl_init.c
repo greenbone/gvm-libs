@@ -46,7 +46,6 @@
 #include "nasl_crypto2.h"
 #include "nasl_wmi.h"
 #include "nasl_smb.h"
-#include "nasl_ssh.h"
 #include "nasl_packet_forgery_v6.h"
 
 /* **************************************************************** */
