@@ -1,3 +1,9 @@
+2010-06-16  Tim Brown <timb@openvas.org>
+
+	* nasl/nasl_misc_funcs.c, nasl/nasl_misc_funcs.h, nasl/nasl_init.c:
+	Added get_byte_order function as proposed by Goran Li¿ina
+	<goran.licina@lss.hr>.
+
 2010-06-10  Raimund Renkert <raimund.renkert@intevation.de>
 
 	* omp/xml.h: Donate entity struct a name.

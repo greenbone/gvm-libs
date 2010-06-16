@@ -46,8 +46,8 @@
 #include "nasl_crypto2.h"
 #include "nasl_wmi.h"
 #include "nasl_smb.h"
+#include "nasl_ssh.h"
 #include "nasl_packet_forgery_v6.h"
-
 
 /* **************************************************************** */
 
@@ -366,6 +366,7 @@ static init_func libfuncs[] = {
   {"unlink", nasl_unlink, 1, {NULL}},
   {"get_tmp_dir", nasl_get_tmp_dir, 0, {NULL}},
 
+  {"get_byte_order", nasl_get_byte_order, 0, { NULL }},
 
   {"file_stat", nasl_file_stat, 1, {NULL}},
   {"file_open", nasl_file_open, 0, {"mode", "name", NULL}},

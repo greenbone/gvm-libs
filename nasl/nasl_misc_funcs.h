@@ -45,6 +45,7 @@ tree_cell *nasl_gettimeofday (lex_ctxt *);
 tree_cell *nasl_localtime (lex_ctxt *);
 tree_cell *nasl_mktime (lex_ctxt *);
 tree_cell *nasl_open_sock_kdc (lex_ctxt *);
-tree_cell *nasl_dec2str (lex_ctxt * lexic);
+tree_cell *nasl_dec2str (lex_ctxt *);
+tree_cell *nasl_get_byte_order(lex_ctxt *);
 
 #endif

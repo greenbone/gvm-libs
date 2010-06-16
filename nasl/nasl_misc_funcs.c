@@ -950,3 +950,21 @@ nasl_dec2str (lex_ctxt * lexic)
   retc->x.str_val = ret;
   return retc;
 }
+
+/**
+ * This function returns 1 on little-endian systems, 0 otherwise
+ */
+tree_cell*
+nasl_get_byte_order(lex_ctxt *lexic)
+{
+  tree_cell *retc;
+  short w = 0x0001;
+  char *p = (char *)&w;
+  int val;
+
+  val = (*p == 1);
+
+  retc = alloc_typed_cell(CONST_INT);
+  retc->x.i_val = val;
+  return retc;
+}
