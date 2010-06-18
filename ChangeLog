@@ -1,3 +1,8 @@
+2010-06-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* doc/example.target.sources: Renamed to
+	doc/example.target.locators.
+
 2010-06-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* doc/example.auth.conf: More "OpenVAS" in example.
