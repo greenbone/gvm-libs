@@ -1,3 +1,14 @@
+2010-06-18  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c: Replace GET_STATUS with GET_TASKS in comments.
+	(omp_wait_for_task_start, omp_wait_for_task_end)
+	(omp_wait_for_task_stop, omp_wait_for_task_delete): Use new name GET_TASKS
+	in OMP.
+	(omp_get_status): Remove.
+	(omp_get_tasks): New function.  Rename from omp_get_status.
+
+	* omp/omp.h: Update headers accordingly.
+
 2010-06-17  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* nasl/nasl_misc_funcs.c: Indented with
@@ -18,12 +29,12 @@
 	Buf Fix. Changed function names related to NTLMSSP by appending
 	_ntlmssp. This would prevent conflicts that occur while WMI and
 	NTLMSSP features co-exist.
-	
+
 	* nasl/smb_signing.c, nasl/smb_signing.h, nasl/proto.h,
 	nasl/genrand.c, nasl/nasl_crypto.c, nasl/charset.h, nasl/time.c,
 	nasl/ntlmssp.c, nasl/smb_crypt.c, nasl/smb_crypt.h, nasl/smb_crypt2.c,
 	nasl/iconv.c, nasl/md4.c, nasl/md4.h, nasl/charcnv.c, nasl/arc4.c:
-	Changed conflicting function names by appending names with _ntlmssp. 
+	Changed conflicting function names by appending names with _ntlmssp.
 
 2010-06-08  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
@@ -234,7 +245,7 @@
 
 	* misc/ldap_auth.h (ldap_auth_info): Added field whether StartTLS is
 	mandatory, adjusted proto.
-	
+
 	* misc/ldap_auth.c (ldap_auth_info_new): Added parameter whehter
 	StartTLS is required.
 	(ldap_authenticate): Respect new configuration entry.

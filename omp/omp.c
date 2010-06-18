@@ -100,9 +100,9 @@
 /* OMP. */
 
 /**
- * @brief Get the task status from an OMP GET_STATUS response.
+ * @brief Get the task status from an OMP GET_TASKS response.
  *
- * @param[in]  response   GET_STATUS response.
+ * @param[in]  response   GET_TASKS response.
  *
  * @return The entity_text of the status entity if the entity is found, else
  *         NULL.
@@ -694,7 +694,7 @@ omp_wait_for_task_start (gnutls_session_t* session,
 {
   while (1)
     {
-      if (openvas_server_sendf (session, "<get_status/>") == -1)
+      if (openvas_server_sendf (session, "<get_tasks/>") == -1)
         return -1;
 
       /* Read the response. */
@@ -798,7 +798,7 @@ omp_wait_for_task_end (gnutls_session_t* session, const char* id)
 {
   while (1)
     {
-      if (openvas_server_sendf (session, "<get_status/>") == -1)
+      if (openvas_server_sendf (session, "<get_tasks/>") == -1)
         return -1;
 
       /* Read the response. */
@@ -906,7 +906,7 @@ omp_wait_for_task_stop (gnutls_session_t* session, const char* id)
 {
   while (1)
     {
-      if (openvas_server_sendf (session, "<get_status/>") == -1)
+      if (openvas_server_sendf (session, "<get_tasks/>") == -1)
         return -1;
 
       /* Read the response. */
@@ -1018,7 +1018,7 @@ omp_wait_for_task_delete (gnutls_session_t* session,
       const char* status;
 
       if (openvas_server_sendf (session,
-                                "<get_status task_id=\"%s\"/>",
+                                "<get_tasks task_id=\"%s\"/>",
                                 id)
           == -1)
         return -1;
@@ -1061,14 +1061,14 @@ omp_delete_task (gnutls_session_t* session, const char* id)
  * @param[in]  session         Pointer to GNUTLS session.
  * @param[in]  id              ID of task or NULL for all tasks.
  * @param[in]  include_rcfile  Request rcfile in status if true.
- * @param[out] status          Status return.  On success contains GET_STATUS
+ * @param[out] status          Status return.  On success contains GET_TASKS
  *                             response.
  *
  * @return 0 on success, -1 or OMP response code on error.
  */
 int
-omp_get_status (gnutls_session_t* session, const char* id, int include_rcfile,
-                entity_t* status)
+omp_get_tasks (gnutls_session_t* session, const char* id, int include_rcfile,
+               entity_t* status)
 {
   const char* status_code;
   int ret;
@@ -1076,7 +1076,7 @@ omp_get_status (gnutls_session_t* session, const char* id, int include_rcfile,
   if (id == NULL)
     {
       if (openvas_server_sendf (session,
-                                "<get_status rcfile=\"%i\"/>",
+                                "<get_tasks rcfile=\"%i\"/>",
                                 include_rcfile)
           == -1)
         return -1;
@@ -1084,7 +1084,7 @@ omp_get_status (gnutls_session_t* session, const char* id, int include_rcfile,
   else
     {
       if (openvas_server_sendf (session,
-                                "<get_status task_id=\"%s\" rcfile=\"%i\"/>",
+                                "<get_tasks task_id=\"%s\" rcfile=\"%i\"/>",
                                 id,
                                 include_rcfile)
           == -1)
@@ -1802,7 +1802,7 @@ omp_delete_agent (gnutls_session_t* session,
  *
  * @param[in]  session         Pointer to GNUTLS session.
  * @param[in]  oid             OID of NVT or NULL for all NVTs.
- * @param[out] response        Status return. On success contains GET_STATUS
+ * @param[out] response        Status return. On success contains GET_TASKS
  *                             response.
  *
  * @return 0 on success, -1 on error.
