@@ -1,3 +1,10 @@
+2010-06-22  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_abort_task): Remove.
+	(omp_start_task): New function.  Rename from omp_get_status.
+
+	* omp/omp.h: Update header accordingly.
+
 2010-06-22  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/CMakeLists.txt: Make sure drop_privileges.c gets build and

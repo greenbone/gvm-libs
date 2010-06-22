@@ -559,10 +559,10 @@ check_response (gnutls_session_t* session)
  * @return 0 on success, -1 on error.
  */
 int
-omp_abort_task (gnutls_session_t* session, const char* id)
+omp_stop_task (gnutls_session_t* session, const char* id)
 {
   if (openvas_server_sendf (session,
-                            "<abort_task task_id=\"%s\"/>",
+                            "<stop_task task_id=\"%s\"/>",
                             id)
       == -1)
     return -1;
