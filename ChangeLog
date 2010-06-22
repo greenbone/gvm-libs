@@ -1,3 +1,8 @@
+2010-06-22  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* base/CMakeLists.txt: Make sure drop_privileges.c gets build and
+	drop_privileges.h gets installed.
+
 2010-06-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* doc/example.target.sources: Renamed to
