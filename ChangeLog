@@ -1,3 +1,12 @@
+2010-06-25  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/openvas_logging.c: Added to elements to openvas_logging_t for
+	syslog related configuration.
+	(facility_int_from_string): New. Convenience
+	function to convert a syslog facility string to its corresponding
+	integer value.
+	(openvas_log_func): Enable support for logging to syslog.
+
 2010-06-22  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_abort_task): Remove.

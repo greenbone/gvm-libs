@@ -41,7 +41,9 @@
 #include <stdio.h>              /* for fprintf */
 #include <string.h>             /* for strlen */
 #include <stdlib.h>             /* for atoi */
+#define SYSLOG_NAMES
 #include <syslog.h>             /* for syslog */
+#undef SYSLOG_NAMES
 #include <unistd.h>             /* for getpid */
 #include <libgen.h>
 #include <errno.h>
@@ -62,6 +64,8 @@ typedef struct
   gchar *log_file;              ///< Where to log to.
   GLogLevelFlags *default_level;        ///< What severity level to use as default.
   GIOChannel *log_channel;      ///< Gio Channel - FD holder for logfile.
+  gchar *syslog_facility;       ///< Syslog facility to use for syslog logging.
+  gchar *syslog_ident;          ///< Syslog ident to use for syslog logging.
 } openvas_logging_t;
 
 
@@ -124,6 +128,29 @@ level_int_from_string (const gchar * level)
 }
 
 /**
+ * @brief Return the integer corresponding to a syslog facility string.
+ *
+ * @param facility Facility name.
+ *
+ * @return Facility integer if facility matches a facility name, else LOG_LOCAL0.
+ */
+static gint
+facility_int_from_string (const gchar * facility)
+{
+  if (facility && strlen (facility) > 0)
+    {
+      int i = 0;
+      while (facilitynames[i].c_name != NULL)
+        {
+          if (g_ascii_strcasecmp (facility, facilitynames[i].c_name) == 0)
+            return facilitynames[i].c_val;
+          i++;
+        }
+    }
+  return LOG_LOCAL0;
+}
+
+/**
  * @brief Loads parameters from a config file into a linked list.
  *
  * @param config_file A string containing the path to the configuration file
@@ -181,6 +208,8 @@ load_log_configuration (gchar * config_file)
       log_domain_entry->log_file = NULL;
       log_domain_entry->default_level = NULL;
       log_domain_entry->log_channel = NULL;
+      log_domain_entry->syslog_facility = NULL;
+      log_domain_entry->syslog_ident = NULL;
 
 
       /* Look for the prepend string. */
@@ -216,6 +245,24 @@ load_log_configuration (gchar * config_file)
           *log_domain_entry->default_level = level_int_from_string (level);
           g_free (level);
         }
+
+      /* Look for the syslog_facility string. */
+      if (g_key_file_has_key (key_file, *group, "syslog_facility", &error))
+        {
+          log_domain_entry->syslog_facility =
+            g_key_file_get_value (key_file, *group, "syslog_facility", &error);
+        }
+      else
+        log_domain_entry->syslog_facility = "local0";
+
+      /* Look for the syslog_ident string. */
+      if (g_key_file_has_key (key_file, *group, "syslog_ident", &error))
+        {
+          log_domain_entry->syslog_ident =
+            g_key_file_get_value (key_file, *group, "syslog_ident", &error);
+        }
+      else
+        log_domain_entry->syslog_ident =  g_strdup (*group);
 
       /* Attach the struct to the list. */
       log_domain_list = g_slist_prepend (log_domain_list, log_domain_entry);
@@ -297,6 +344,9 @@ openvas_log_silent (const char *log_domain, GLogLevelFlags log_level,
  * @param message    A string containing the log message.
  * @param openvas_log_config_list (ignored) A pointer to the configuration
  *                                linked list.
+ *
+ * @TODO: syslog logging is now handled in openvas_log_func, do we need a
+ * separate handler for this?
  */
 static void
 openvas_syslog_func (const char *log_domain, GLogLevelFlags log_level,
@@ -368,6 +418,8 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
   gchar *log_file = "-";
   GLogLevelFlags default_level = G_LOG_LEVEL_DEBUG;
   channel = NULL;
+  gchar *syslog_facility = "local0";
+  gchar *syslog_ident = NULL;
 
   /* Let's load the default configuration file directives from the
    * linked list. Scanning the link list twice is inefficient but
@@ -402,6 +454,8 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
                 default_level = *log_domain_entry->default_level;
               if (log_domain_entry->log_channel)
                 channel = log_domain_entry->log_channel;
+              if (log_domain_entry->syslog_facility)
+                syslog_facility = log_domain_entry->syslog_facility;
               break;
             }
 
@@ -438,6 +492,8 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
               if (log_domain_entry->default_level)
                 default_level = *log_domain_entry->default_level;
               channel = log_domain_entry->log_channel;
+              syslog_facility = log_domain_entry->syslog_facility;
+              syslog_ident = log_domain_entry->syslog_ident;
               break;
             }
 
@@ -560,6 +616,46 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
     {
       fprintf (stderr, "%s", tmpstr);
       fflush (stderr);
+    }
+  /* Output everything to syslog if logfile is "syslog" */
+  else if (g_ascii_strcasecmp (log_file, "syslog") == 0)
+    {
+      int facility = facility_int_from_string (syslog_facility);
+      int syslog_level = LOG_INFO;
+
+      openlog (syslog_ident, LOG_CONS | LOG_PID | LOG_NDELAY, facility);
+
+      switch (log_level)
+        {
+        case G_LOG_FLAG_FATAL:
+          syslog_level = LOG_ALERT;
+          break;
+        case G_LOG_LEVEL_ERROR:
+          syslog_level = LOG_ERR;
+          break;
+        case G_LOG_LEVEL_CRITICAL:
+          syslog_level = LOG_CRIT;
+          break;
+        case G_LOG_LEVEL_WARNING:
+          syslog_level = LOG_WARNING;
+          break;
+        case G_LOG_LEVEL_MESSAGE:
+          syslog_level = LOG_NOTICE;
+          break;
+        case G_LOG_LEVEL_INFO:
+          syslog_level = LOG_INFO;
+          break;
+        case G_LOG_LEVEL_DEBUG:
+          syslog_level = LOG_DEBUG;
+          break;
+        default:
+          syslog_level = LOG_INFO;
+          break;
+        }
+
+      syslog (syslog_level, "%s", message);
+
+      closelog ();
     }
   else
     {
