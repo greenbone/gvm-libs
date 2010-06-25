@@ -1,5 +1,11 @@
 2010-06-25  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* misc/plugutils.c (plug_get_host_fqdn): Use plug_get_key to get
+	vhosts from the KB; this forks if there is more than one vhost and
+	results in a different return value in each fork.
+
+2010-06-25  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/openvas_auth.c (openvas_authenticate_uuid): Added event logging
 	to user authentication.
 

@@ -819,7 +819,14 @@ plug_get_host_fqdn (struct arglist *desc)
 {
   struct arglist *hinfos = arg_get_value (desc, "HOSTNAME");
   if (hinfos)
-    return ((char *) arg_get_value (hinfos, "FQDN"));
+    {
+      int type;
+      char *vhosts = plug_get_key (desc, "hostinfos/vhosts", &type);
+      if (vhosts)
+        return vhosts;
+      else
+        return ((char *) arg_get_value (hinfos, "FQDN"));
+    }
   else
     return (NULL);
 }
