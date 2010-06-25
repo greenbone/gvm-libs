@@ -1,5 +1,10 @@
 2010-06-25  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* misc/openvas_auth.c (openvas_authenticate_uuid): Added event logging
+	to user authentication.
+
+2010-06-25  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/openvas_logging.c: Added to elements to openvas_logging_t for
 	syslog related configuration.
 	(facility_int_from_string): New. Convenience

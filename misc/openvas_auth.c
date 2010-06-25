@@ -856,13 +856,26 @@ openvas_authenticate_uuid (const gchar * username, const gchar * password,
   ret = openvas_authenticate_method (username, password, &method);
   if (ret)
     {
+      if (ret == 1)
+        g_log ("event auth", G_LOG_LEVEL_MESSAGE,
+               "Authentication failure for user %s", username);
+      if (ret == -1)
+        g_log ("event auth", G_LOG_LEVEL_MESSAGE,
+               "Authentication error for user %s", username);
       return ret;
     }
 
   // Get the uuid from file (create it if it did not yet exist).
   *uuid = openvas_user_uuid_method (username, method);
   if (*uuid)
-    return 0;
+    {
+      g_log ("event auth", G_LOG_LEVEL_MESSAGE,
+             "Authentication success for user %s", username);
+      return 0;
+    }
+
+  g_log ("event auth", G_LOG_LEVEL_MESSAGE,
+         "Authentication error for user %s", username);
   return -1;
 }
 
