@@ -1,5 +1,10 @@
 2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* misc/plugutils.h: Removed duplicate declarations of
+	plug_get_bugtraq_id and plug_get_cve_id.
+
+2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/pidfile.c: Added missing include.
 
 2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>

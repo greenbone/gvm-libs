@@ -103,9 +103,6 @@ unsigned int plug_get_host_open_port (struct arglist *desc);
 
 void plug_set_port_transport (struct arglist *, int, int);
 
-char *plug_get_cve_id (struct arglist *);
-char *plug_get_bugtraq_id (struct arglist *);
-
 void plug_require_key (struct arglist *, const char *);
 struct arglist *plug_get_required_keys (struct arglist *);
 
