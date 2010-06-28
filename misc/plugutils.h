@@ -94,6 +94,7 @@ char *plug_get_sign_key_ids (struct arglist *);
 void plug_set_ssl_cert (struct arglist *, char *);
 void plug_set_ssl_key (struct arglist *, char *);
 void plug_set_ssl_pem_password (struct arglist *, char *);
+void plug_set_ssl_CA_file (struct arglist *, char *);
 
 
 const char *plug_get_hostname (struct arglist *);
