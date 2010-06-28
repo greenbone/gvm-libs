@@ -251,6 +251,7 @@ omp/omp.h
 omp/xml.c
 omp/xml.h
 openvas-libraries.tmpl.in
+openvas_macros.cmake
 README
 TODO
 tools/
