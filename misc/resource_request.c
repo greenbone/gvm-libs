@@ -154,7 +154,7 @@ resource_request_resource (const gchar * source, resource_type_t resource_type,
       return NULL;
     }
 
-  if (strcasecmp (value, SOURCE_TYPE_LDAP) == 0)
+  if (g_ascii_strcasecmp (value, SOURCE_TYPE_LDAP) == 0)
     {
 #ifdef ENABLE_LDAP_AUTH
       gchar *userdn = g_key_file_get_string (key_file, source, KEY_USERDN,
@@ -180,7 +180,7 @@ resource_request_resource (const gchar * source, resource_type_t resource_type,
                  "not configured to use openldap.");
 #endif /* ENABLE_LDAP_AUTH */
     }
-  else if (strcasecmp (value, SOURCE_TYPE_ADS) == 0)
+  else if (g_ascii_strcasecmp (value, SOURCE_TYPE_ADS) == 0)
     {
 #ifdef ENABLE_LDAP_AUTH
       gchar *rootdn = g_key_file_get_string (key_file, source, KEY_ROOTDN,

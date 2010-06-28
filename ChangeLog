@@ -1,5 +1,11 @@
 2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* misc/resource_request.c (resource_request_resource): Use
+	g_ascii_strcasecmp instead of strcasecmp, thereby removing the need
+	for including strings.h and resolving a compiler warning.
+
+2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/CMakeLists.txt, hg/CMakeLists.txt, misc/CMakeLists.txt,
 	nasl/CMakeLists.txt, omp/CMakeLists.txt: Make CMake generated
 	Makefiles less verbose to make it easier to spot compiler warnings.
