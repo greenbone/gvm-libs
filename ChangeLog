@@ -1,5 +1,13 @@
 2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/CMakeLists.txt, hg/CMakeLists.txt, misc/CMakeLists.txt,
+	nasl/CMakeLists.txt, omp/CMakeLists.txt: Removed redundant compiler
+	flags from CMAKE_C_FLAGS_DEBUG; CMAKE_C_FLAGS will be passed to the
+	compiler in any case, so there is no need to put the flags into
+	CMAKE_C_FLAGS_DEBUG as well.
+
+2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/plugutils.c (get_plugin_preference_file_content): Removed
 	superfluous const qualifier from return type.
 

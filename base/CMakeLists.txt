@@ -140,7 +140,7 @@ exec_program (pkg-config
 ## Library
 
 if (NOT MINGW)
-  set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Werror -Wall -fPIC")
+  set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG}")
   set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -Werror -fPIC")
 endif (NOT MINGW)
 

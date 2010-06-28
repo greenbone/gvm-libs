@@ -179,7 +179,7 @@ endif (NOT BUILD_WITH_LDAP)
 # Library
 
 message ("-- prepare for add libraries ...")
-set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Wall -fPIC")
+set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG}")
 set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -fPIC")
 
 if (MINGW)
