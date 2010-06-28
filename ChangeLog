@@ -1,3 +1,8 @@
+2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* base/drop_privileges.c (drop_privileges_error): Set format string
+	when calling g_set_error.
+
 2010-06-25  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/plugutils.c (plug_get_host_fqdn): Use plug_get_key to get

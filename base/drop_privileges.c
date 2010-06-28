@@ -53,7 +53,7 @@
 static gint
 drop_privileges_error (GError ** error, gint errorcode, const gchar * message)
 {
-  g_set_error (error, OPENVAS_DROP_PRIVILEGES, errorcode, message);
+  g_set_error (error, OPENVAS_DROP_PRIVILEGES, errorcode, "%s", message);
   return errorcode;
 }
 
