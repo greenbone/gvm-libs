@@ -267,7 +267,7 @@ hg_dns_axfr_decode (struct hg_globals *globals, querybuf * answer,
   cp = (u_char *) answer + HFIXEDSZ;
   while (qdcount--)
     cp += dn_skipname (cp, limit) + QFIXEDSZ;
-  hg_dns_axfr_add_host (globals, cp, answer);
+  hg_dns_axfr_add_host (globals, cp, (u_char *) answer);
 
   return (0);
 }

@@ -1,5 +1,11 @@
 2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* hg/hg_dns_axfr.c (hg_dns_axfr_decode): Cast union parameter for
+	hg_dns_axfr_add_host to the expected type, thereby resolving a
+	compiler warning.
+
+2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/resource_request.c (resource_request_resource): Use
 	g_ascii_strcasecmp instead of strcasecmp, thereby removing the need
 	for including strings.h and resolving a compiler warning.
