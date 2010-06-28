@@ -82,7 +82,7 @@ include (CPack)
 ## Variables
 
 set (CMAKE_BUILD                Debug)
-set (CMAKE_VERBOSE_MAKEFILE     ON)
+set (CMAKE_VERBOSE_MAKEFILE     OFF)
 
 if (NOT SYSCONFDIR)
   set (SYSCONFDIR "${CMAKE_INSTALL_PREFIX}/etc")
