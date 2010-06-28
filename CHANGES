@@ -1,3 +1,26 @@
+openvas-libraries 3.1.0.rc2 (2010-06-28)
+
+This is the second release candidate of the openvas-libraries module for the
+Open Vulnerability Assessment System (OpenVAS) 3.1 series.
+
+It extends the authentication mechanism to support LDAP and ADS and introduces
+support for logging messages to syslog and scanning virtual web hosts.
+
+Many thanks to everyone who has contributed to this release:
+Tim Brown, Goran Licina, Matthew Mundell, Raimund Renkert, Preeti Subramanian,
+Jan-Oliver Wagner, Michael Wiegand and Felix Wolfsteller.
+
+Main changes compared to 3.1.0.rc1:
+* QA: A number of compiler warnings have been addressed.
+* Authentication mechanism extended to support LDAP and ADS.
+* An issue which caused SSH logins with RSA keys on remote systems to fail under
+  certain circumstances has been fixed.
+* A bug which caused segmentation faults when using NTLMSSP authentication in
+  openvas-libraries built with WMI supports has been fixed.
+* Support for logging to syslog has been added.
+* Support for scanning virtual web hosts has been added.
+
+
 openvas-libraries 3.1.0.rc1 (2010-05-19)
 
 This is the first release candidate of the openvas-libraries module for the
