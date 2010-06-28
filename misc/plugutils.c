@@ -1244,7 +1244,7 @@ get_plugin_preference_fname (struct arglist *desc, const char *filename)
  * @return Contents of the file identified by \ref identifier, NULL if not found or setup
  *         broken.
  */
-const char *
+char *
 get_plugin_preference_file_content (struct arglist *desc,
                                     const char *identifier)
 {

@@ -505,7 +505,7 @@ script_get_preference_file_content (lex_ctxt * lexic)
   tree_cell *retc;
   char *pref = get_str_var_by_num (lexic, 0);
   char *value;
-  const char *content;
+  char *content;
   int contentsize = 0;
 
   if (pref == NULL)

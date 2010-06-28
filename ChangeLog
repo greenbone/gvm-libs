@@ -1,5 +1,15 @@
 2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* misc/plugutils.c (get_plugin_preference_file_content): Removed
+	superfluous const qualifier from return type.
+
+	* misc/plugutils.h: Updated.
+
+	* nasl/nasl_scanner_glue.c (script_get_preference_file_content):
+	Removed const qualifier to match updated function declaration.
+
+2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* hg/hg_dns_axfr.c (hg_dns_axfr_decode): Cast union parameter for
 	hg_dns_axfr_add_host to the expected type, thereby resolving a
 	compiler warning.
