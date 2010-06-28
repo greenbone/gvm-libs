@@ -37,6 +37,8 @@
 #include <errno.h>              /* for errno */
 #include <unistd.h>             /* for getpid */
 
+#include "pidfile.h"
+
 /**
  * @brief GLib log domain.
  */

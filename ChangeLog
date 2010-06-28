@@ -1,5 +1,9 @@
 2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/pidfile.c: Added missing include.
+
+2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/CMakeLists.txt, hg/CMakeLists.txt, misc/CMakeLists.txt,
 	nasl/CMakeLists.txt, omp/CMakeLists.txt: Removed redundant compiler
 	flags from CMAKE_C_FLAGS_DEBUG; CMAKE_C_FLAGS will be passed to the
