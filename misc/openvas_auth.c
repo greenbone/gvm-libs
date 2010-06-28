@@ -870,7 +870,7 @@ openvas_authenticate_uuid (const gchar * username, const gchar * password,
   if (*uuid)
     {
       g_log ("event auth", G_LOG_LEVEL_MESSAGE,
-             "Authentication success for user %s", username);
+             "Authentication success for user %s (%s)", username, *uuid);
       return 0;
     }
 

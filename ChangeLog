@@ -1,5 +1,9 @@
 2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* misc/openvas_auth.c (openvas_authenticate_uuid): Log uuid as well.
+
+2010-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/plugutils.h: Expose plug_set_ssl_CA_file since it is needed by
 	openvas-scanner/cnvts/find_service/find_service.c.
 
