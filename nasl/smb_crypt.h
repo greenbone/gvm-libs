@@ -40,7 +40,7 @@ void E_md5hash_ntlmssp(const uchar salt[16], const uchar nthash[16], uchar hash_
 
 bool E_deshash_ntlmssp(const char *passwd, uchar p16[16]);
 
-void SamOEMhash_ntlmssp( uchar *data, const uchar *key, int val);
+void SamOEMhash( uchar *data, const uchar *key, int val);
 
 /* Does the md5 encryption from the Key Response for NTLMv2. */
 void SMBOWFencrypt_ntv2_ntlmssp(const uchar kr[16],
