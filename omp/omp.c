@@ -551,6 +551,22 @@ check_response (gnutls_session_t* session)
 
 
 /**
+ * @brief Deprecated wrapper function for /ref omp_stop_task.
+ *
+ * @deprecated Use /ref omp_stop_task instead.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  id       ID of task.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+omp_abort_task (gnutls_session_t* session, const char* id)
+{
+  return omp_stop_task (session, id);
+}
+
+/**
  * @brief Stop a task and read the manager response.
  *
  * @param[in]  session  Pointer to GNUTLS session.
@@ -1053,6 +1069,26 @@ omp_delete_task (gnutls_session_t* session, const char* id)
     return -1;
 
   return check_response (session);
+}
+
+/**
+ * @brief Deprecated wrapper function for /ref omp_get_tasks.
+ *
+ * @deprecated Use /ref omp_get_tasks instead.
+ *
+ * @param[in]  session         Pointer to GNUTLS session.
+ * @param[in]  id              ID of task or NULL for all tasks.
+ * @param[in]  include_rcfile  Request rcfile in status if true.
+ * @param[out] status          Status return.  On success contains GET_TASKS
+ *                             response.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_get_status (gnutls_session_t* session, const char* id, int include_rcfile,
+               entity_t* status)
+{
+  return omp_get_tasks (session, id, include_rcfile, status);
 }
 
 /**

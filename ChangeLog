@@ -1,3 +1,14 @@
+2010-06-30  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* omp/omp.c (omp_abort_task): Brought back as a deprecated wrapper
+	function for omp_stop_task to ensure backward compatibility.
+	(omp_get_status): Brought back as a deprecated wrapper function for
+	omp_get_tasks to ensure backward compatibility.
+
+	* omp/omp.h: Updated.
+
+	* ChangeLog: Fixed entry from 2010-06-22.
+
 2010-06-29  Preeti Subramanian <spreeti@secpod.com>
 
 	* nasl/smb_crypt.h: Removed warning.
@@ -110,7 +121,7 @@
 2010-06-22  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_abort_task): Remove.
-	(omp_start_task): New function.  Rename from omp_get_status.
+	(omp_stop_task): New function.  Rename from omp_abort_task.
 
 	* omp/omp.h: Update header accordingly.
 
