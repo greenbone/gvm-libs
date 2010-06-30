@@ -1,5 +1,11 @@
 2010-06-30  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* nasl/CMakeLists.txt: Use gpgme-config to get the correct flags for
+	building with gpgme. This fixes an issue which caused the build to
+	fail on Gentoo.
+
+2010-06-30  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* omp/omp.c (omp_abort_task): Brought back as a deprecated wrapper
 	function for omp_stop_task to ensure backward compatibility.
 	(omp_get_status): Brought back as a deprecated wrapper function for

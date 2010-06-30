@@ -131,6 +131,9 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 exec_program (pkg-config
               ARGS --cflags glib-2.0
               OUTPUT_VARIABLE GLIB_CFLAGS)
+execute_process (COMMAND gpgme-config --cflags
+                 OUTPUT_VARIABLE GPGME_CFLAGS
+                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 ## Library
 
@@ -181,7 +184,7 @@ include_directories (../include)
 
 add_library (openvas_nasl_static STATIC ${FILES})
 
-set_target_properties (openvas_nasl_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS}")
+set_target_properties (openvas_nasl_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS} ${GPGME_CFLAGS}")
 set_target_properties (openvas_nasl_static PROPERTIES OUTPUT_NAME "openvas_nasl")
 set_target_properties (openvas_nasl_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_nasl_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
@@ -190,7 +193,7 @@ target_link_libraries (openvas_nasl_static libopenvas_base libopenvas_misc
 			gpg-error gnutls pcap)
 
 add_library (openvas_nasl_shared SHARED ${FILES})
-set_target_properties (openvas_nasl_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS}")
+set_target_properties (openvas_nasl_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS} ${GPGME_CFLAGS}")
 set_target_properties (openvas_nasl_shared PROPERTIES OUTPUT_NAME "openvas_nasl")
 set_target_properties (openvas_nasl_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_nasl_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
@@ -210,6 +213,12 @@ exec_program (pkg-config
 exec_program (pkg-config
               ARGS --libs glib-2.0
               OUTPUT_VARIABLE GLIB_LDFLAGS)
+execute_process (COMMAND gpgme-config --cflags
+                 OUTPUT_VARIABLE GPGME_CFLAGS
+                 OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process (COMMAND gpgme-config --libs
+                 OUTPUT_VARIABLE GPGME_LDFLAGS
+                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # Add ("import") static libs from Make based subprojects of openvas-libraries
 add_library (libopenvas_base SHARED IMPORTED)
@@ -230,9 +239,9 @@ target_link_libraries (openvas-nasl openvas_nasl_static libopenvas_base
                        libopenvas_misc libopenvas_hg ${GLIB_LDFLAGS} -lgcrypt
                        -lgpgme -lgpg-error -lgnutls -lpcap -lresolv ${WMI_LIBS})
 set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
-                       ${GLIB_CFLAGS})
+                       "${GLIB_CFLAGS} ${GPGME_CFLAGS}")
 set_target_properties (openvas-nasl PROPERTIES LINK_FLAGS
-                       ${GLIB_LDFLAGS})
+                       "${GLIB_LDFLAGS} ${GPGME_LDFLAGS}")
 
 ## Install
 
