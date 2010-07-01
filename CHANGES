@@ -1,3 +1,22 @@
+openvas-libraries 3.1.0.rc3 (2010-07-01)
+
+This is the third release candidate of the openvas-libraries module for the
+Open Vulnerability Assessment System (OpenVAS) 3.1 series.
+
+It fixes a build issue Gentoo GNU/Linux systems, addresses a compiler warning in
+the NTLMSSP code and ensure the most recent releases of openvas-client,
+openvas-cli and openvas-manager build with openvas-libraries 3.1.0.
+
+Many thanks to everyone who has contributed to this release:
+Preeti Subramanian and Michael Wiegand.
+
+Main changes compared to 3.1.0.rc2:
+* An issue which caused the build to fail on Gentoo GNU/Linux systems has been
+  fixed.
+* An issue which caused openvas-client, openvas-cli and openvas-manager to fail
+  to build with openvas-libraries has been fixed.
+
+
 openvas-libraries 3.1.0.rc2 (2010-06-28)
 
 This is the second release candidate of the openvas-libraries module for the
