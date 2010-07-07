@@ -1,3 +1,7 @@
+2010-07-07  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* nasl/nasl_signature.c (nasl_get_pubkey): Terminate key_string.
+
 2010-07-01  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post-release version bump.

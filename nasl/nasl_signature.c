@@ -475,6 +475,8 @@ nasl_get_pubkey (gpgme_ctx_t ctx, char *fingerprint)
   if (err && key_string != NULL)
     efree (&key_string);
 
+  key_string[key_length] = '\0';
+
   return key_string;
 }
 
