@@ -1,3 +1,8 @@
+2010-07-08  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/network.c (auth_printf): Increase buffer size, as the public keys
+	included in OTP CERTIFICATES can be larger than 65535.
+
 2010-07-07  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* nasl/nasl_signature.c (nasl_get_pubkey): Terminate key_string.

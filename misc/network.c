@@ -2481,7 +2481,7 @@ void
 auth_printf (struct arglist *globals, char *data, ...)
 {
   va_list param;
-  char buffer[65535];
+  char buffer[1048576];
 
   bzero (buffer, sizeof (buffer));
 
