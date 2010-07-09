@@ -33,7 +33,9 @@ if (POLICY CMP0005)
    cmake_policy (SET CMP0005 OLD)
 endif (POLICY CMP0005)
 
-set (CMAKE_BUILD_TYPE debug)
+if (NOT CMAKE_BUILD_TYPE)
+  set (CMAKE_BUILD_TYPE Debug)
+endif (NOT CMAKE_BUILD_TYPE)
 
 # Version
 file (READ ../VERSION  _OPENVASLIBMISC_VERSION)
@@ -82,9 +84,6 @@ include (CPack)
 
 ## Variables
 message ("-- Variables will set...")
-
-set (CMAKE_BUILD                Debug)
-set (CMAKE_VERBOSE_MAKEFILE     OFF)
 
 if (NOT SYSCONFDIR)
   set (SYSCONFDIR "${CMAKE_INSTALL_PREFIX}/etc")

@@ -1,3 +1,24 @@
+2010-07-09  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Make cmake environment more flexible as discussed on openvas-devel.
+
+	* configure.in: Add new configuration options
+	--enable-verbose-makefile and --enable-cmake-release and pass their
+	values to the output files.
+
+	* configure: Regenerated.
+
+	* openvas-libraries.tmpl.in: Add new variables VERBOSE_MAKEFILE and
+	BUILD_TYPE.
+
+	* Makefile (all): Add VERBOSE_MAKEFILE and BUILD_TYPE to the calls to
+	cmake.
+
+	* base/CMakeLists.txt, hg/CMakeLists.txt, misc/CMakeLists.txt,
+	nasl/CMakeLists.txt, omp/CMakeLists.txt: Set CMAKE_BUILD_TYPE only to
+	"Debug" if it is not already set. Do not set CMAKE_VERBOSE_MAKEFILE,
+	let it default to OFF.
+
 2010-07-08  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/network.c (auth_printf): Increase buffer size, as the public keys
