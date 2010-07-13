@@ -634,8 +634,9 @@ get_omp_response_503 (gnutls_session_t* session, const gchar* command,
       return -1;
     }
 }
+
 /**
- * @brief Issue an OMP \<get_nvt_all\/\> command and wait for the response.
+ * @brief Issue an OMP \<get_nvts\/\> command and wait for the response.
  *
  * @param[in]  session   Session to the server.
  * @param[out] response  Entity containing the response, must be freed.
@@ -645,7 +646,7 @@ get_omp_response_503 (gnutls_session_t* session, const gchar* command,
 int
 omp_get_nvt_all (gnutls_session_t* session, entity_t* response)
 {
-  return get_omp_response_503 (session, "<get_nvt_all/>", response);
+  return get_omp_response_503 (session, "<get_nvts details=\"0\"/>", response);
 }
 
 /**
@@ -1086,9 +1087,9 @@ omp_delete_task (gnutls_session_t* session, const char* id)
  */
 int
 omp_get_status (gnutls_session_t* session, const char* id, int include_rcfile,
-               entity_t* status)
+                entity_t* status)
 {
-  return omp_get_tasks (session, id, include_rcfile, status);
+  return omp_get_tasks (session, id, 1, include_rcfile, status);
 }
 
 /**
@@ -1096,6 +1097,7 @@ omp_get_status (gnutls_session_t* session, const char* id, int include_rcfile,
  *
  * @param[in]  session         Pointer to GNUTLS session.
  * @param[in]  id              ID of task or NULL for all tasks.
+ * @param[in]  details         Whether to request task details.
  * @param[in]  include_rcfile  Request rcfile in status if true.
  * @param[out] status          Status return.  On success contains GET_TASKS
  *                             response.
@@ -1103,8 +1105,8 @@ omp_get_status (gnutls_session_t* session, const char* id, int include_rcfile,
  * @return 0 on success, -1 or OMP response code on error.
  */
 int
-omp_get_tasks (gnutls_session_t* session, const char* id, int include_rcfile,
-               entity_t* status)
+omp_get_tasks (gnutls_session_t* session, const char* id, int details,
+               int include_rcfile, entity_t* status)
 {
   const char* status_code;
   int ret;
@@ -1112,7 +1114,8 @@ omp_get_tasks (gnutls_session_t* session, const char* id, int include_rcfile,
   if (id == NULL)
     {
       if (openvas_server_sendf (session,
-                                "<get_tasks rcfile=\"%i\"/>",
+                                "<get_tasks details=\"%i\" rcfile=\"%i\"/>",
+                                details,
                                 include_rcfile)
           == -1)
         return -1;
@@ -1120,8 +1123,12 @@ omp_get_tasks (gnutls_session_t* session, const char* id, int include_rcfile,
   else
     {
       if (openvas_server_sendf (session,
-                                "<get_tasks task_id=\"%s\" rcfile=\"%i\"/>",
+                                "<get_tasks"
+                                " task_id=\"%s\""
+                                " details=\"%i\""
+                                " rcfile=\"%i\"/>",
                                 id,
+                                details,
                                 include_rcfile)
           == -1)
         return -1;
@@ -1168,7 +1175,7 @@ omp_get_report (gnutls_session_t* session,
                 entity_t* response)
 {
   if (openvas_server_sendf (session,
-                            "<get_report format=\"%s\" report_id=\"%s\"/>",
+                            "<get_reports format=\"%s\" report_id=\"%s\"/>",
                             format ? format : "nbe",
                             id))
     return -1;
@@ -1204,7 +1211,7 @@ omp_get_report_format (gnutls_session_t* session,
   entity_t entity;
 
   if (openvas_server_sendf (session,
-                            "<get_report format=\"%s\" report_id=\"%s\"/>",
+                            "<get_reports format=\"%s\" report_id=\"%s\"/>",
                             format,
                             id))
     return -1;
@@ -1851,9 +1858,16 @@ omp_get_nvt_details_503 (gnutls_session_t* session, const char * oid,
   int ret;
 
   if (oid)
-    request = g_strdup_printf ("<get_nvt_details oid=\"%s\"/>", oid);
+    request = g_strdup_printf ("<get_nvts"
+                               " nvt_oid=\"%s\""
+                               " details=\"1\""
+                               " preferences=\"1\"/>",
+                               oid);
   else
-    request = g_strdup ("<get_nvt_details/>");
+    request = g_strdup ("<get_nvts"
+                        " details=\"1\""
+                        " timeout=\"1\""
+                        " preference_count=\"1\"/>");
 
   ret = get_omp_response_503 (session, request, response);
 

@@ -1,3 +1,13 @@
+2010-07-13  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_get_nvt_all): Switch to GET_NVTS.
+	(omp_get_status): Align param.
+	(omp_get_tasks): Add details arg.  Update caller.
+	(omp_get_report): Add s to command.
+	(omp_get_nvt_details_503): Switch to GET_NVTS.
+
+	* omp/omp.h: Update header accordingly.
+
 2010-07-09  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Make cmake environment more flexible as discussed on openvas-devel.
