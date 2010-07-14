@@ -1,3 +1,8 @@
+2010-07-14  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* tools/openvas-lsc-rpm-creator.sh: Updated with new version generated
+	by ../tools/openvas-lsc-target-preparation.
+
 2010-07-13  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_get_nvt_all): Switch to GET_NVTS.
