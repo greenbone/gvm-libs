@@ -1,5 +1,15 @@
 2010-07-14  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Preparing the openvas-libraries 3.1.0 release.
+
+	* CHANGES: Updated.
+
+	* VERSION: Set to 3.1.0.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Updated PROJECT_NUMBER.
+
+2010-07-14  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* tools/openvas-lsc-rpm-creator.sh: Updated with new version generated
 	by ../tools/openvas-lsc-target-preparation.
 

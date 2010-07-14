@@ -1,3 +1,33 @@
+openvas-libraries 3.1.0 (2010-07-14)
+
+This is the 3.1.0 release of the openvas-libraries module for the Open
+Vulnerability Assessment System (OpenVAS).
+
+It adds a number of new features, for example support for NTLMSSP, for LDAP
+authentication, for preference file uploads to memory, for logging messages to
+syslog and for scanning virtual web hosts.
+
+Many thanks to everyone who has contributed to this release:
+Tim Brown, Geoff Galitz, Stephan Kleine, Goran Licina, Michael Meyer, Matthew
+Mundell, Raimund Renkert, Preeti Subramanian, Jan-Oliver Wagner, Michael Wiegand
+and Felix Wolfsteller.
+
+Main changes compared to 3.0.5:
+* Code cleanup: Code from openvas-administrator and openvas-manager which could
+  be more appropriately placed in openvas-libraries has been moved here.
+* Initial support for LDAP authentication has been added.
+* IPv6 support has been improved.
+* Support for building parts of openvas-libraries on Windows has been added.
+* Support for reading preference file uploads from memory instead of from disk
+  has been added.
+* Support for NTLMSSP has been added.
+* Authentication mechanism extended to support LDAP and ADS.
+* An issue which caused SSH logins with RSA keys on remote systems to fail under
+  certain circumstances has been fixed.
+* Support for logging to syslog has been added.
+* Support for scanning virtual web hosts has been added.
+
+
 openvas-libraries 3.1.0.rc3 (2010-07-01)
 
 This is the third release candidate of the openvas-libraries module for the
