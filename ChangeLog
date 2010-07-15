@@ -1,4 +1,8 @@
-2010-07-01  Michael Wiegand <michael.wiegand@greenbone.net>
+2010-07-15  Raimund Renkert <raimund.renkert@intevation.de>
+
+	* base/CMakeLists.txt: Added crosscompile support for mingw32.
+
+2010-07-14  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post-release version bump.
 
