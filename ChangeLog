@@ -1,5 +1,10 @@
 2010-07-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* COPYING: New. Summary of licenses for each file of this
+	package. First part - not complete yet.
+
+2010-07-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Added license information for module "proctitle".
 	I searched the "LICENSE" file of LPRng and found this:
 	"* You may use "LPRng" or "IFHP" under either the terms of the GNU

@@ -1,0 +1,76 @@
+License information about openvas-libraries
+-------------------------------------------
+
+The openvas-libraries module reveals a number
+of different licenses of the GNU family of licenses.
+
+Th effective license of the modules as a whole
+is the GNU General Public License Version 2 (GNU GPLv2).
+
+Single files, however, are licensed under either
+under GNU Lesser General Public License (GNU LGPLv2)
+or under "GNU GPLv2 or any later version" (GNU GPLv2+)
+or other GPL-compatible licenses. So, subsets of the
+module can be used under the respective licenses.
+
+The following overview was created 20100725 based
+on the header of the respective files:
+
+base/accessrules.[c|h]: GPLv2+
+base/array.[c|h]: GPLv2+
+base/certificate.[c|h]: GPLv2+
+base/CMakeLists.txt: GPLv2+
+base/credentials.[c|h]: GPLv2+
+base/drop_privileges.[c|h]: GPLv2+
+base/hash_table_util.[c|h]: GPLv2+
+base/nvti.[c|h]: GPLv2+
+base/nvticache.[c|h]: GPLv2+
+base/openvas_certificate_file.[c|h]: GPLv2+
+base/openvas_file.[c|h]: GPLv2+
+base/openvas_string.[c|h]: GPLv2+
+base/pidfile.[c|h]: GPLv2+
+base/settings.[c|h]: GPLv2+
+base/severity_filter.[c|h]: GPLv2+
+
+hg/CMakeLists.txt: GPLv2+
+hg/hg_add_hosts.[c|h]: LGPLv2+
+hg/hg_debug.c: LGPLv2+
+hg/hg_dns_axfr.[c|h]: LGPLv2+
+hg/hg_filter.[c|h]: LGPLv2+
+hg/hg_subnet.[c|h]: LGPLv2+
+hg/hg_utils.[c|h]: LGPLv2+
+hg/hosts_gatherer.[c|h]: LGPLv2+
+hg/test.c: LGPLv2+
+
+include/config.h.in: GPLv2+
+include/libopenvas.h: LGPLv2+
+include/libvers.h.in: GPLv2+
+include/nvt_categories.h: LGPLv2+
+
+misc/ads_auth.[c|h]: GPLv2+
+misc/arglists.[c|h]: LGPLv2+
+misc/bpf_share.c: GPLv2
+misc/bpf_share.h: LGPLv2+
+misc/CMakeLists.txt: GPLv2
+misc/comm.h: GPLv2+
+misc/ftp_funcs.[c|h]: LGPLv2+
+misc/harglists.[c|h]: LGPLv2+
+misc/hash_table_file.[c|h]: GPLv2+
+misc/hlst.[c|h]: LGPLv2+
+misc/ids_send.[c|h]: LGPLv2+
+misc/kb.[c|h]: LGPLv2+
+misc/ldap_auth.[c|h]: GPLv2+
+misc/network.[c|h]: LGPLv2+
+misc/openvas_auth.[c|h]: GPLv2+
+misc/openvas_logging.[c|h]: GPLv2+
+misc/openvas_server.[c|h]: GPLv2+
+misc/openvas_ssh_login.[c|h]: GPLv2+
+misc/openvas_uuid.[c|h]: GPLv2+
+misc/otp.h: GPLv2+
+misc/pcap.c: LGPLv2+
+misc/pcap_openvas.h: LGPLv2+
+misc/plugutils.[c|h]: LGPLv2+
+misc/popen.[c|h]: LGPLv2+
+misc/proctitle.[c|h]: GPLv2
+
+TODO: List not complete yet.
