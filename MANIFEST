@@ -35,6 +35,8 @@ config.sub
 configure
 configure.in
 COPYING
+COPYING.GPLv2
+COPYING.LGPLv2
 doc/
 doc/Doxyfile
 doc/Doxyfile_full
