@@ -1,3 +1,21 @@
+/***************************************************************************
+ * LPRng - An Extended Print Spooler System
+ *
+ * Copyright 1988-2002, Patrick Powell, San Diego, CA
+ *     papowell@lprng.com
+ * See LICENSE for conditions of use.
+ ***************************************************************************/
+
+/* The "LICENSE" file of LPRng states:
+
+  "* You may use "LPRng" or "IFHP" under either the terms of the GNU
+  GPL License or the Artistc License. These licenses are included
+  below.  The licenses were obtained from the http://www.opensource.org
+  web site on 28 Aug 2003".
+
+  The included license is GNU General Public License Version 2.
+*/
+
 
 #include <stdio.h>
 #include <string.h>

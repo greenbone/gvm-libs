@@ -1,5 +1,17 @@
 2010-07-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Added license information for module "proctitle".
+	I searched the "LICENSE" file of LPRng and found this:
+	"* You may use "LPRng" or "IFHP" under either the terms of the GNU
+	GPL License or the Artistc License. These licenses are included
+	below.  The licenses were obtained from the http://www.opensource.org
+	web site on 28 Aug 2003".
+	So, the files are actually GPLv2.
+
+	* misc/proctitle.c, misc/proctitle.h: Added clearifying license note.
+
+2010-07-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/ids_send.h: Added missing header with author, copyright
 	and license. Since this header file was developed for ids_send.c
 	the full header of ids_send.c is used for ids_send.h as well.
