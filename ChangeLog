@@ -1,5 +1,11 @@
 2010-07-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* COPYING.BSD2: New.
+
+	* MANIFEST: Updated.
+
+2010-07-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/rand.h: Added missing header with author, copyright
 	and license. Since this header file was developed for rand.c
 	the full header of rand.c is used for rand.h as well.
