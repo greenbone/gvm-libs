@@ -1,5 +1,9 @@
 2010-07-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* configure: Updated.
+
+2010-07-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	This patch removes the config.h file of nasl which was
 	a static version derived from the previous libnasl module.
 	It contained static settings like LINUX=1 and therfore
