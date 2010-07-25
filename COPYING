@@ -72,5 +72,26 @@ misc/pcap_openvas.h: LGPLv2+
 misc/plugutils.[c|h]: LGPLv2+
 misc/popen.[c|h]: LGPLv2+
 misc/proctitle.[c|h]: GPLv2
+misc/rand.[c|h]: LGPLv2+
+misc/resolve.[c|h]: LGPLv2+
+misc/resource_request.[c|h]: GPLv2
+misc/scanners_utils.[c|h]: LGPLv2+
+misc/services1.[c|h]: LGPLv2+
+misc/services.[c|h]: LGPLv2+
+misc/share_fd.c: BSD2
+misc/share_fd.h: LGPLv2+
+misc/store.[c|h]: LGPLv2+
+misc/system.[c|h]: LGPLv2+
+misc/system_internal.h: LGPLv2+
+misc/www_funcs.c: GPLv2
+misc/www_funcs.h: LGPLv2+
+
+nasl/arc4.c: GPLv2+
+nasl/byteorder.h: GPLv2+
+nasl/capture_packet.[c|h]: GPLv2
+nasl/charcnv.c: GPLv2+
+nasl/charset.h: GPLv2+
+nasl/CMakeLists.txt: GPLv2+
+
 
 TODO: List not complete yet.
