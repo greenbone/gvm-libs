@@ -289,6 +289,7 @@ case "$host" in
     AC_DEFINE(HAVE_NETINET_TCP_H)
     ;;
  *)
+    AC_CHECK_HEADERS(sys/socket.h netinet/ip.h netinet/tcp.h)
     ;;
 esac
     
@@ -307,8 +308,64 @@ AC_CHECK_FUNCS(strchr memcpy select poll unlockpt)
 AC_CHECK_FUNCS(vsnprintf snprintf vasnprintf vasprintf asprintf asnprintf)
 
 
+AC_CHECK_FUNC(memmem, AC_DEFINE(HAVE_MEMMEM))
 AC_CHECK_FUNCS(bzero bcopy setsid)
 AC_CHECK_FUNCS(addr2ascii inet_neta lrand48 setitimer sendmsg recvmsg)
+
+AC_CHECK_FUNCS(lfind)
+AC_CHECK_LIB(compat, lfind, compat_lib="-lcompat")
+
+test -n "$compat_lib" && AC_DEFINE(HAVE_LFIND)
+
+
+AC_MSG_CHECKING([BSD struct udphdr])
+AC_TRY_COMPILE([#ifdef __linux__
+#define __BSD_SOURCE
+#define _BSD_SOURCE
+#define __FAVOR_BSD
+#endif
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <netinet/in_systm.h>
+#include <netinet/ip.h>
+#include <netinet/udp.h>],
+                [struct udphdr udp;udp.uh_dport = 0;],
+[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_BSD_STRUCT_UDPHDR)],
+[AC_MSG_RESULT(no)])
+
+
+AC_MSG_CHECKING([struct tcphdr])
+AC_TRY_COMPILE([#include <sys/types.h>
+#include <netinet/in.h>
+#include <netinet/in_systm.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>],
+                [struct tcphdr tcp;],
+[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_STRUCT_TCPHDR)],
+[AC_MSG_RESULT(no)])
+
+
+AC_MSG_CHECKING([struct icmp])
+AC_TRY_COMPILE([#include <sys/types.h>
+#include <netinet/in.h>
+#include <netinet/in_systm.h>
+#include <netinet/ip.h>
+#include <netinet/ip_icmp.h>],
+                [struct icmp icmp;],
+[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_STRUCT_ICMP)],
+[AC_MSG_RESULT(no)])
+
+
+dnl Check whether we have to redefine the structs ip and icmp
+AC_MSG_CHECKING([struct ip]) 
+AC_TRY_COMPILE([#include <sys/types.h>
+#include <netinet/in.h>
+#include <netinet/in_systm.h>
+#include <netinet/ip.h>],
+                [struct ip ip;],
+[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_STRUCT_IP)],
+[AC_MSG_RESULT(no)])
+
 
 # disable openpty() upon request, only
 if test x$USE_OPENPTY != xno -a x$USE_PTMX != xyes ; then
@@ -407,6 +464,10 @@ AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 AC_TYPE_UID_T
 
+AC_CHECK_SIZEOF(short)
+AC_CHECK_SIZEOF(int)
+AC_CHECK_SIZEOF(long)
+
 
 darwin=`uname`
 test "$darwin" = "Darwin" && {
@@ -502,6 +563,17 @@ AC_TRY_LINK([
   [AC_MSG_RESULT(yes)
    AC_DEFINE(GETTIMEOFDAY_ONE_ARGUMENT)])
 fi
+
+
+dnl Check whether we have to redefine the structs ip and icmp
+AC_MSG_CHECKING([struct ip has ip_hl]) 
+AC_TRY_COMPILE([#include <sys/types.h>
+#include <netinet/in.h>
+#include <netinet/in_systm.h>
+#include <netinet/ip.h>],
+                [struct ip ip;ip.ip_hl = 1],
+[AC_MSG_RESULT(yes); AC_DEFINE(HAVE_IP_HL)],
+[AC_MSG_RESULT(no)])
 
 
 dnl Define several paths

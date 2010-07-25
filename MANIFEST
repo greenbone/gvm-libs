@@ -144,7 +144,6 @@ nasl/capture_packet.c
 nasl/capture_packet.h
 nasl/charcnv.c
 nasl/charset.h
-nasl/config.h
 nasl/exec.c
 nasl/exec.h
 nasl/genrand.c

@@ -213,3 +213,9 @@
 
 #undef HAVE_ACCRIGHTS_IN_MSGHDR
 #undef HAVE_CONTROL_IN_MSGHDR
+
+/* Some defines inherited from nasl library. */
+
+#undef SIZEOF_SHORT
+#undef SIZEOF_INT
+#undef SIZEOF_LONG
