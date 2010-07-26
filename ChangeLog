@@ -1,5 +1,18 @@
 2010-07-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/smb_crypt.h: Added missing header with author, copyright
+	and license. Since this header file was developed for smb_crypt.c
+	the full header of smb_crypt.c is used for smb_crypt.h as well.
+	
+	* nasl/smb_signing.h: Added missing header with author, copyright
+	and license. Since this header file was developed for smb_signing.c
+	the full header of smb_signing.c is used for smb_signing.h as well.
+
+	* nasl/tests/Makefile, nasl/tests/signed.nasl,
+	nasl/tests/test_script_signing.sh: Added missing header.
+
+2010-07-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* COPYING.BSD3: New.
 
 	* nasl/md4.h: Added missing header with author, copyright
