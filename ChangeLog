@@ -1,5 +1,18 @@
 2010-07-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_icmp.h, nasl/nasl_ip.h, nasl/nasl_raw.h,
+	nasl/nasl_tcp.h, nasl/nasl_udp.h: Added missing header
+	with author, copyright and license. Since this header
+	file was part of libnasl, the full header of
+	libnasl/nasl/capture_packet.c is used as a typical
+	representative of this module.
+
+	* nasl/proto.h: Added missing header. Copied from ntlmssp.h.
+
+	* COPYING: Completed.
+
+2010-07-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/smb_crypt.h: Added missing header with author, copyright
 	and license. Since this header file was developed for smb_crypt.c
 	the full header of smb_crypt.c is used for smb_crypt.h as well.

@@ -13,7 +13,12 @@ or under "GNU GPLv2 or any later version" (GNU GPLv2+)
 or other GPL-compatible licenses. So, subsets of the
 module can be used under the respective licenses.
 
-The following overview was created 20100725 based
+GPLv2: See file COPYING.GPLv2
+LGPLv2: See file COPYING.LGPLv2
+BSD2: See file COPYING.BSD2
+BSD3: See file COPYING.BSD3
+
+The following overview was collected 20100726 based
 on the header of the respective files:
 
 base/accessrules.[c|h]: GPLv2+
@@ -92,6 +97,72 @@ nasl/capture_packet.[c|h]: GPLv2
 nasl/charcnv.c: GPLv2+
 nasl/charset.h: GPLv2+
 nasl/CMakeLists.txt: GPLv2+
+nasl/exec.[c|h]: GPLv2
+nasl/genrand.c: GPLv2+
+nasl/hmacmd5.[c|h]: GPLv2+
+nasl/iconv.[c|h]: GPLv2+
+nasl/lint.c: GPLv2
+nasl/lsearch.c: BSD3
+nasl/md4.[c|h]: GPLv2+
+nasl/md5.[c|h]: Public Domain
+nasl/nasl.[c|h]: GPLv2
+nasl/nasl_cmd_exec.[c|h]: GPLv2
+nasl/nasl_crypto2.[c|h]: GPLv2
+nasl/nasl_crypto.[c|h]: GPLv2
+nasl/nasl_debug.[c|h]: GPLv2
+nasl/nasl_func.[c|h]: GPLv2
+nasl/nasl_global_ctxt.h: GPLv2
+nasl/nasl_grammar.y: GPLv2
+nasl/nasl_host.[c|h]: GPLv2
+nasl/nasl_http.[c|h]: GPLv2
+nasl/nasl_icmp.h: GPLv2
+nasl/nasl_init.[c|h]: GPLv2
+nasl/nasl_ip.h: GPLv2
+nasl/nasl_lex_ctxt.[c|h]: GPLv2
+nasl/nasl_misc_funcs.[c|h]: GPLv2
+nasl/nasl_packet_forgery.[c|h]: GPLv2
+nasl/nasl_packet_forgery_v6.[c|h]: GPLv2
+nasl/nasl_raw.h: GPLv2
+nasl/nasl_regex.h: GPLv2
+nasl/nasl_scanner_glue.[c|h]: GPLv2
+nasl/nasl_signature.[c|h]: GPLv2+
+nasl/nasl_smb.[c|h]: GPLv2+
+nasl/nasl_socket.[c|h]: GPLv2
+nasl/nasl_tcp.h: GPLv2
+nasl/nasl_text_utils.[c|h]: GPLv2
+nasl/nasl_tree.[c|h]: GPLv2
+nasl/nasl_udp.h: GPLv2
+nasl/nasl_var.[c|h]: GPLv2
+nasl/nasl_wmi.[c|h]: GPLv2+
+nasl/ntlmssp.[c|h]: GPLv2+
+nasl/openvas_smb_interface.h: GPLv2+
+nasl/openvas_wmi_interface.h: GPLv2+
+nasl/preparse.[c|h]: GPLv2
+nasl/proto.h: GPLv2+
+nasl/regex.c: GPLv2
+nasl/smb_crypt2.c: GPLv2+
+nasl/smb_crypt.[c|h]: GPLv2+
+nasl/smb.h: GPLv2+
+nasl/smb_interface_stub.c: GPLv2+
+nasl/smb_signing.[c|h]: GPLv2+
+nasl/strutils.[c|h]: GPLv2
+nasl/strutils.c: GPLv2+
+nasl/wmi_interface_stub.c: GPLv2+
 
+nasl/tests/Makefile: GPLv2
+nasl/tests/signed.nasl: GPLv2
+nasl/tests/test_blowfish.nasl: GPLv2
+nasl/tests/test_bn.nasl: GPLv2
+nasl/tests/test_dh.nasl: GPLv2
+nasl/tests/test_dsa.nasl: GPLv2
+nasl/tests/test_hexstr.nasl: GPLv2
+nasl/tests/test_md.nasl: GPLv2
+nasl/tests/test_privkey.nasl: GPLv2
+nasl/tests/test_rsa.nasl: GPLv2
+nasl/tests/test_script_signing.sh: GPLv2
+nasl/tests/testsuiteinit.nasl: GPLv2
+nasl/tests/testsuitesummary.nasl: GPLv2
 
-TODO: List not complete yet.
+omp/CMakeLists.txt: GPLv2+
+omp/omp.[c|h]: GPLv2+
+omp/xml.[c|h]: GPLv2+
