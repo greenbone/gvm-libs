@@ -36,6 +36,7 @@ configure
 configure.in
 COPYING
 COPYING.BSD2
+COPYING.BSD3
 COPYING.GPLv2
 COPYING.LGPLv2
 doc/

@@ -1,5 +1,23 @@
 2010-07-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* COPYING.BSD3: New.
+
+	* nasl/md4.h: Added missing header with author, copyright
+	and license. Since this header file was developed for md4.c
+	the full header of md4.c is used for md4.h as well.
+
+	* nasl/md5.h: Added missing header with author, copyright
+	and license. Since this header file was developed for md5.c
+	the full header of md5.c is used for md5.h as well.
+
+	* nasl/nasl.h: Added missing header with author, copyright
+	and license. Since this header file was developed for nasl.c
+	the full header of nasl.c is used for nasl.h as well.
+
+	* MANIFEST: Updated.
+
+2010-07-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* configure: Updated.
 
 2010-07-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
