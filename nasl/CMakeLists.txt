@@ -130,6 +130,12 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 exec_program (pkg-config
               ARGS --cflags glib-2.0
               OUTPUT_VARIABLE GLIB_CFLAGS)
+exec_program (pkg-config
+              ARGS --libs glib-2.0
+              OUTPUT_VARIABLE GLIB_LDFLAGS)
+execute_process (COMMAND gpgme-config --libs
+                 OUTPUT_VARIABLE GPGME_LDFLAGS
+                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process (COMMAND gpgme-config --cflags
                  OUTPUT_VARIABLE GPGME_CFLAGS
                  OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -181,6 +187,8 @@ include_directories (../hg)
 include_directories (../misc)
 include_directories (../include)
 
+link_directories (${LIBDIR})
+
 add_library (openvas_nasl_static STATIC ${FILES})
 
 set_target_properties (openvas_nasl_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS} ${GPGME_CFLAGS}")
@@ -204,21 +212,6 @@ target_link_libraries (openvas_nasl_shared libopenvas_base libopenvas_misc
 			gpg-error gnutls pcap)
 
 
-# Find GLib
-exec_program (pkg-config
-              ARGS --cflags glib-2.0
-              OUTPUT_VARIABLE GLIB_CFLAGS)
-              # Find GLib and compile and link the openvas-nasl executable
-exec_program (pkg-config
-              ARGS --libs glib-2.0
-              OUTPUT_VARIABLE GLIB_LDFLAGS)
-execute_process (COMMAND gpgme-config --cflags
-                 OUTPUT_VARIABLE GPGME_CFLAGS
-                 OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process (COMMAND gpgme-config --libs
-                 OUTPUT_VARIABLE GPGME_LDFLAGS
-                 OUTPUT_STRIP_TRAILING_WHITESPACE)
-
 # Add ("import") static libs from Make based subprojects of openvas-libraries
 add_library (libopenvas_base SHARED IMPORTED)
 add_library (libopenvas_hg SHARED IMPORTED)
@@ -230,7 +223,6 @@ set_property (TARGET libopenvas_base PROPERTY
 set_property (TARGET libopenvas_hg PROPERTY
               IMPORTED_LOCATION ../hg/libopenvas_hg.so)
 
-link_directories (${LIBDIR})
 
 # Link the openvas-nasl executable
 add_executable (openvas-nasl nasl.c)
