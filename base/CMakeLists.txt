@@ -24,7 +24,7 @@
 
 include (../openvas_macros.cmake)
 
-message ("-- Configuring OpenVAS-libraries/base...")
+message ("-- Configuring openvas-libraries/base ...")
 
 project (openvas-libraries/base C)
 
@@ -189,7 +189,6 @@ endif (MINGW)
 add_custom_indent_targets (${FILES})
 
 ## Install
-
 install (TARGETS openvas_base_static openvas_base_shared
          RUNTIME DESTINATION ${BINDIR}
          LIBRARY DESTINATION ${LIBDIR}

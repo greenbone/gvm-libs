@@ -23,7 +23,7 @@
 
 include (../openvas_macros.cmake)
 
-message ("-- Configure OpenVAS-libraries/misc...")
+message ("-- Configuring openvas-libraries/misc...")
 
 project (openvas-libraries/misc C)
 
@@ -83,8 +83,6 @@ set (CPACK_SOURCE_IGNORE_FILES
 include (CPack)
 
 ## Variables
-message ("-- Variables will set...")
-
 if (NOT SYSCONFDIR)
   set (SYSCONFDIR "${CMAKE_INSTALL_PREFIX}/etc")
 endif (NOT SYSCONFDIR)
@@ -177,7 +175,6 @@ endif (NOT BUILD_WITH_LDAP)
 
 # Library
 
-message ("-- prepare for add libraries ...")
 set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG}")
 set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -fPIC")
 
@@ -262,7 +259,6 @@ else (MINGW)
 endif (MINGW)
 
 # install library
-message ("-- installing libraries...")
 install (TARGETS openvas_misc_static openvas_misc_shared
          RUNTIME DESTINATION ${BINDIR}
          LIBRARY DESTINATION ${LIBDIR}

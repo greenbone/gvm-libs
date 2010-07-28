@@ -21,7 +21,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-message ("-- Configure OpenVAS-libraries/hg...")
+message ("-- Configuring openvas-libraries/hg ...")
 
 project (openvas-libraries/hg C)
 
@@ -169,7 +169,6 @@ target_link_libraries (openvas_hg_static ${GLIB_LDFLAGS})
 target_link_libraries (openvas_hg_shared ${GLIB_LDFLAGS})
 
 # install library
-message ("-- installing libraries...")
 install (TARGETS openvas_hg_static openvas_hg_shared
          RUNTIME DESTINATION ${BINDIR}
          LIBRARY DESTINATION ${LIBDIR}

@@ -1,5 +1,11 @@
 2010-07-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/CMakeLists.txt, hg/CMakeLists.txt, misc/CMakeLists.txt,
+	nasl/CMakeLists.txt: Make messages printed during the build process
+	more consistent. Removed superfluous and wrongly placed messages.
+
+2010-07-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* nasl/CMakeLists.txt: Removed duplicate calls to external programs,
 	consolidated calls in one place. Moved the setting of link_directories
 	up to ensure it is set before the first target_link_libraries call.
