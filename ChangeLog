@@ -1,3 +1,18 @@
+2010-08-03  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Updated WMI infrastructure.
+
+	* nasl/nasl_wmi.c (nasl_wmi_connect, nasl_wmi_connect_rsop)
+	(nasl_wmi_connect_rsop): Adjusted WMI function calls to new patch API
+	based on work done by Chandrashekhar B.
+
+	* nasl/openvas_wmi_interface.h: Updated prototypes.
+
+	* nasl/CMakeLists.txt: Include "wmiclient" in target_link_libraries if
+	it is present.
+
+	* nasl/wmi_interface_stub.c: Adjusted to new patch API.
+
 2010-07-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/CMakeLists.txt, hg/CMakeLists.txt, misc/CMakeLists.txt,

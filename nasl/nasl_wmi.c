@@ -43,11 +43,15 @@
  *       has to evaluated if that is okay or leads to memory leaks.
  */
 
-#include <stdio.h>
 #include <string.h>
+#include <stdio.h>
+#include "system.h"
 
 #include "nasl_wmi.h"
 #include "openvas_wmi_interface.h"
+
+#define IMPORT(var) char *var = get_str_local_var_by_name(lexic, #var)
+#define max 5
 
 /**
  * @brief Get a version string of the WMI implementation.
@@ -99,15 +103,21 @@ nasl_wmi_versioninfo (lex_ctxt * lexic)
 tree_cell *
 nasl_wmi_connect (lex_ctxt * lexic)
 {
-  char *host = get_str_local_var_by_name (lexic, "host");
-  char *username = get_str_local_var_by_name (lexic, "username");
-  char *password = get_str_local_var_by_name (lexic, "password");
-  char *namespace = get_str_local_var_by_name (lexic, "ns");
-  WMI_HANDLE handle;
-  int value;
+  IMPORT (host);
+  IMPORT (username);
+  IMPORT (password);
+  char *ns = NULL;
+//  IMPORT(ns);
 
-  if (namespace == NULL)
-    namespace = "root\\cimv2";
+  if (ns == NULL)
+    ns = "root\\cimv2";
+
+  char *argv[max];
+
+  WMI_HANDLE handle;
+  int argc = 5, value;
+  char *argv1 = "wmic";
+  char *argv2 = "-U";
 
   if ((host == NULL) || (username == NULL) || (password == NULL))
     {
@@ -122,12 +132,28 @@ nasl_wmi_connect (lex_ctxt * lexic)
       return NULL;
     }
 
+  argv[0] = (char *) emalloc (strlen (argv1));
+  argv[1] = (char *) emalloc (strlen (argv2));
+  argv[2] = (char *) emalloc (strlen (username) + strlen (password) + 1);
+  argv[3] = (char *) emalloc (strlen (host) + 2);
+  argv[4] = (char *) emalloc (strlen (ns));
+
+  // Construct the WMI query
+  strcpy (argv[0], argv1);
+  strcpy (argv[1], "-U");
+  strcpy (argv[2], username);
+  strcat (argv[2], "%");
+  strcat (argv[2], password);
+  strcpy (argv[3], "//");
+  strcat (argv[3], host);
+  strcpy (argv[4], ns);
+
   tree_cell *retc = alloc_tree_cell (0, NULL);
   if (!retc)
     return NULL;
 
   retc->type = CONST_INT;
-  value = wmi_connect (username, password, host, namespace, &handle);
+  value = wmi_connect (argc, argv, &handle);
   if (value == -1)
     {
       fprintf (stderr, "nasl_wmi_connect: WMI Connect failed\n");
@@ -238,11 +264,21 @@ nasl_wmi_query (lex_ctxt * lexic)
 tree_cell *
 nasl_wmi_connect_rsop (lex_ctxt * lexic)
 {
-  char *host = get_str_local_var_by_name (lexic, "host");
-  char *username = get_str_local_var_by_name (lexic, "username");
-  char *password = get_str_local_var_by_name (lexic, "password");
+  IMPORT (host);
+  IMPORT (username);
+  IMPORT (password);
+  char *ns = NULL;
+//  IMPORT(ns);
+
+  if (ns == NULL)
+    ns = "root\\cimv2";
+
+  char *argv[max];
+
   WMI_HANDLE handle;
-  int value;
+  int argc = 5, value;
+  char *argv1 = "wmic";
+  char *argv2 = "-U";
 
   if ((host == NULL) || (username == NULL) || (password == NULL))
     {
@@ -257,15 +293,31 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
       return NULL;
     }
 
+  argv[0] = (char *) emalloc (strlen (argv1));
+  argv[1] = (char *) emalloc (strlen (argv2));
+  argv[2] = (char *) emalloc (strlen (username) + strlen (password) + 1);
+  argv[3] = (char *) emalloc (strlen (host) + 2);
+  argv[4] = (char *) emalloc (strlen (ns));
+
+  // Construct the WMI query
+  strcpy (argv[0], argv1);
+  strcpy (argv[1], "-U");
+  strcpy (argv[2], username);
+  strcat (argv[2], "%");
+  strcat (argv[2], password);
+  strcpy (argv[3], "//");
+  strcat (argv[3], host);
+  strcpy (argv[4], ns);
+
   tree_cell *retc = alloc_tree_cell (0, NULL);
   if (!retc)
     return NULL;
 
   retc->type = CONST_INT;
-  value = wmi_connect_rsop (username, password, host, &handle);
+  value = wmi_connect_rsop (argc, argv, &handle);
   if (value == -1)
     {
-      fprintf (stderr, "nasl_wmi_connect_rsop: WMI RSOP Connect failed\n");
+      fprintf (stderr, "nasl_wmi_connect_rsop: WMI Connect failed\n");
       return NULL;
     }
 
@@ -336,11 +388,21 @@ nasl_wmi_query_rsop (lex_ctxt * lexic)
 tree_cell *
 nasl_wmi_connect_reg (lex_ctxt * lexic)
 {
-  char *host = get_str_local_var_by_name (lexic, "host");
-  char *username = get_str_local_var_by_name (lexic, "username");
-  char *password = get_str_local_var_by_name (lexic, "password");
+  IMPORT (host);
+  IMPORT (username);
+  IMPORT (password);
+  char *ns = NULL;
+//  IMPORT(ns);
+
+  if (ns == NULL)
+    ns = "root\\cimv2";
+
+  char *argv[max];
+
   WMI_HANDLE handle;
-  int value;
+  int argc = 5, value;
+  char *argv1 = "wmic";
+  char *argv2 = "-U";
 
   if ((host == NULL) || (username == NULL) || (password == NULL))
     {
@@ -355,15 +417,31 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
       return NULL;
     }
 
+  argv[0] = (char *) emalloc (strlen (argv1));
+  argv[1] = (char *) emalloc (strlen (argv2));
+  argv[2] = (char *) emalloc (strlen (username) + strlen (password) + 1);
+  argv[3] = (char *) emalloc (strlen (host) + 2);
+  argv[4] = (char *) emalloc (strlen (ns));
+
+  // Construct the WMI query
+  strcpy (argv[0], argv1);
+  strcpy (argv[1], "-U");
+  strcpy (argv[2], username);
+  strcat (argv[2], "%");
+  strcat (argv[2], password);
+  strcpy (argv[3], "//");
+  strcat (argv[3], host);
+  strcpy (argv[4], ns);
+
   tree_cell *retc = alloc_tree_cell (0, NULL);
   if (!retc)
     return NULL;
 
   retc->type = CONST_INT;
-  value = wmi_connect_reg (username, password, host, &handle);
+  value = wmi_connect_reg (argc, argv, &handle);
   if (value == -1)
     {
-      fprintf (stderr, "nasl_wmi_connect_reg: WMI REGISTRY Connect failed\n");
+      fprintf (stderr, "nasl_wmi_connect_reg: WMI Connect failed\n");
       return NULL;
     }
 

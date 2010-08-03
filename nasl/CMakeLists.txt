@@ -172,6 +172,7 @@ if (NOT HAVE_WMI)
   set (FILES smb_interface_stub.c wmi_interface_stub.c ${FILES})
 else (NOT HAVE_WMI)
   set (WMI_LIBS -lwmiclient)
+  set (WMI wmiclient)
 endif (NOT HAVE_WMI)
 
 
@@ -197,7 +198,7 @@ set_target_properties (openvas_nasl_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_nasl_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
 target_link_libraries (openvas_nasl_static libopenvas_base libopenvas_misc
 			libopenvas_hg glib-2.0 gcrypt gpgme
-			gpg-error gnutls pcap)
+			gpg-error gnutls pcap ${WMI})
 
 add_library (openvas_nasl_shared SHARED ${FILES})
 set_target_properties (openvas_nasl_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS} ${GPGME_CFLAGS}")
@@ -209,7 +210,7 @@ set_target_properties (openvas_nasl_shared PROPERTIES PUBLIC_HEADER "${HEADERS}"
 # line bellow is needed so it also works with no-undefined which is e.g. used by Mandriva
 target_link_libraries (openvas_nasl_shared libopenvas_base libopenvas_misc
 			libopenvas_hg glib-2.0 gcrypt gpgme
-			gpg-error gnutls pcap)
+			gpg-error gnutls pcap ${WMI})
 
 
 # Add ("import") static libs from Make based subprojects of openvas-libraries

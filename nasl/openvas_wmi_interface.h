@@ -38,15 +38,14 @@
 typedef int WMI_HANDLE;
 
 char *wmi_versioninfo ();
-int wmi_connect (const char *, const char *, const char *, const char *,
-                 WMI_HANDLE *);
+int wmi_connect (int argc, char **argv, WMI_HANDLE * handle);
 int wmi_close (WMI_HANDLE);
 int wmi_query (WMI_HANDLE, const char *, char **);
 
-int wmi_connect_rsop (const char *, const char *, const char *, WMI_HANDLE *);
+int wmi_connect_rsop (int argc, char **argv, WMI_HANDLE * handle);
 int wmi_query_rsop (WMI_HANDLE, const char *, char **);
 
-int wmi_connect_reg (const char *, const char *, const char *, WMI_HANDLE *);
+int wmi_connect_reg (int argc, char **argv, WMI_HANDLE * handle);
 int wmi_reg_get_sz (WMI_HANDLE, unsigned int, const char *, const char *,
                     char **);
 int wmi_reg_enum_value (WMI_HANDLE, unsigned int, const char *, char **);
