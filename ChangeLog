@@ -1,5 +1,11 @@
 2010-08-03  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/CMakeLists.txt, hg/CMakeLists.txt: Make messages printed during
+	the build process even more consistent. Inconsistency spotted by Felix
+	Wolfsteller.
+
+2010-08-03  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* doc/wmi-howto.txt: Updated WMI documentation.
 
 2010-08-03  Michael Wiegand <michael.wiegand@greenbone.net>

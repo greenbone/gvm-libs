@@ -24,7 +24,7 @@
 
 include (../openvas_macros.cmake)
 
-message ("-- Configuring openvas-libraries/base ...")
+message ("-- Configuring openvas-libraries/base...")
 
 project (openvas-libraries/base C)
 
