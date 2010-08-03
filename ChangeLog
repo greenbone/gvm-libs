@@ -1,5 +1,15 @@
 2010-08-03  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Preparing the openvas-libraries 3.1.1 release.
+
+	* CHANGES: Updated.
+
+	* VERSION: Set to 3.1.1.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Updated PROJECT_NUMBER.
+
+2010-08-03  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/CMakeLists.txt, hg/CMakeLists.txt: Make messages printed during
 	the build process even more consistent. Inconsistency spotted by Felix
 	Wolfsteller.

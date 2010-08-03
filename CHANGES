@@ -1,3 +1,25 @@
+openvas-libraries 3.1.1 (2010-08-03)
+
+This is the 3.1.1 release of the openvas-libraries module for the Open
+Vulnerability Assessment System (OpenVAS).
+
+It clarifies a number of licensing issues, updates the WMI infrastructure and
+documentation and adds cross compile support for mingw32 to
+openvas-libraries/base.
+
+Many thanks to everyone who has contributed to this release:
+Raimund Renkert, Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to 3.1.0:
+* Cross compile support for mingw32 has been added to openvas-libraries/base.
+* Missing copyright and license information has been added to a number of files.
+* The COPYING file has been updated to better indicate the licenses of
+  individual files and the full text for all licenses has been added.
+* The WMI infrastructure has been updated to match necessary changes in the API
+  of the WMI patch.
+* The documentation on using WMI in openvas-libraries has been updated.
+
+
 openvas-libraries 3.1.0 (2010-07-14)
 
 This is the 3.1.0 release of the openvas-libraries module for the Open
