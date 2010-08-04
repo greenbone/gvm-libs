@@ -1,3 +1,19 @@
+openvas-libraries 3.1.2 (2010-08-04)
+
+This is the 3.1.2 release of the openvas-libraries module for the Open
+Vulnerability Assessment System (OpenVAS).
+
+It fixes a build issue that was discovered after the release of
+openvas-libraries 3.1.1.
+
+Many thanks to everyone who has contributed to this release:
+Michael Wiegand.
+
+Main changes compared to 3.1.1:
+* A bug in the WMI interface stub which caused the build to fail when configured
+  without WMI has been fixed.
+
+
 openvas-libraries 3.1.1 (2010-08-03)
 
 This is the 3.1.1 release of the openvas-libraries module for the Open

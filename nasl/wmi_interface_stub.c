@@ -150,7 +150,7 @@ wmi_query_rsop (WMI_HANDLE handle, const char *query, char **res)
  * @return, 0 on success, -1 on failure
  */
 int
-wmi_connect_rsop (int argc, char **argv, WMI_HANDLE * handle)
+wmi_connect_reg (int argc, char **argv, WMI_HANDLE * handle)
 {
   return -1;
 }
