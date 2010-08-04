@@ -1,5 +1,13 @@
 2010-08-04  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Post release version bump.
+
+	* VERSION: Set to 3.1.3.SVN.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Updated PROJECT_NUMBER.
+
+2010-08-04  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Preparing the openvas-libraries 3.1.2 release.
 
 	* CHANGES: Updated.
