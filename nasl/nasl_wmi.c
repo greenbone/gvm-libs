@@ -106,8 +106,7 @@ nasl_wmi_connect (lex_ctxt * lexic)
   IMPORT (host);
   IMPORT (username);
   IMPORT (password);
-  char *ns = NULL;
-//  IMPORT(ns);
+  IMPORT(ns);
 
   if (ns == NULL)
     ns = "root\\cimv2";
@@ -267,16 +266,10 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
   IMPORT (host);
   IMPORT (username);
   IMPORT (password);
-  char *ns = NULL;
-//  IMPORT(ns);
-
-  if (ns == NULL)
-    ns = "root\\cimv2";
-
-  char *argv[max];
+  char *argv[4];
 
   WMI_HANDLE handle;
-  int argc = 5, value;
+  int argc = 4, value;
   char *argv1 = "wmic";
   char *argv2 = "-U";
 
@@ -297,7 +290,6 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
   argv[1] = (char *) emalloc (strlen (argv2));
   argv[2] = (char *) emalloc (strlen (username) + strlen (password) + 1);
   argv[3] = (char *) emalloc (strlen (host) + 2);
-  argv[4] = (char *) emalloc (strlen (ns));
 
   // Construct the WMI query
   strcpy (argv[0], argv1);
@@ -307,7 +299,6 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
   strcat (argv[2], password);
   strcpy (argv[3], "//");
   strcat (argv[3], host);
-  strcpy (argv[4], ns);
 
   tree_cell *retc = alloc_tree_cell (0, NULL);
   if (!retc)
@@ -391,16 +382,10 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
   IMPORT (host);
   IMPORT (username);
   IMPORT (password);
-  char *ns = NULL;
-//  IMPORT(ns);
-
-  if (ns == NULL)
-    ns = "root\\cimv2";
-
-  char *argv[max];
+  char *argv[4];
 
   WMI_HANDLE handle;
-  int argc = 5, value;
+  int argc = 4, value;
   char *argv1 = "wmic";
   char *argv2 = "-U";
 
@@ -421,7 +406,6 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
   argv[1] = (char *) emalloc (strlen (argv2));
   argv[2] = (char *) emalloc (strlen (username) + strlen (password) + 1);
   argv[3] = (char *) emalloc (strlen (host) + 2);
-  argv[4] = (char *) emalloc (strlen (ns));
 
   // Construct the WMI query
   strcpy (argv[0], argv1);
@@ -431,7 +415,6 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
   strcat (argv[2], password);
   strcpy (argv[3], "//");
   strcat (argv[3], host);
-  strcpy (argv[4], ns);
 
   tree_cell *retc = alloc_tree_cell (0, NULL);
   if (!retc)
