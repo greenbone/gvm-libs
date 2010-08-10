@@ -1175,7 +1175,7 @@ omp_get_report (gnutls_session_t* session,
                 entity_t* response)
 {
   if (openvas_server_sendf (session,
-                            "<get_reports format=\"%s\" report_id=\"%s\"/>",
+                            "<get_reports format_id=\"%s\" report_id=\"%s\"/>",
                             format ? format : "nbe",
                             id))
     return -1;
@@ -1190,6 +1190,8 @@ omp_get_report (gnutls_session_t* session,
 
 /**
  * @brief Get a report in a given format.
+ *
+ * @todo This now has a bad name, because there is an OMP GET_REPORT_FORMATS.
  *
  * @param[in]  session      Pointer to GNUTLS session.
  * @param[in]  id           ID of report.
@@ -1211,7 +1213,7 @@ omp_get_report_format (gnutls_session_t* session,
   entity_t entity;
 
   if (openvas_server_sendf (session,
-                            "<get_reports format=\"%s\" report_id=\"%s\"/>",
+                            "<get_reports format_id=\"%s\" report_id=\"%s\"/>",
                             format,
                             id))
     return -1;

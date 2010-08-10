@@ -1,3 +1,8 @@
+2010-08-10  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_get_report, omp_get_report_format): Pass format_id
+	instead of format to GET_REPORTS.  Note bad name.
+
 2010-08-06  Chandrashekhar B <bchandra@secpod.com>
 
 	* nasl/nasl_wmi.c (nasl_wmi_connect_reg, nasl_wmi_connect_rsop):
@@ -98,7 +103,7 @@
 	* nasl/smb_crypt.h: Added missing header with author, copyright
 	and license. Since this header file was developed for smb_crypt.c
 	the full header of smb_crypt.c is used for smb_crypt.h as well.
-	
+
 	* nasl/smb_signing.h: Added missing header with author, copyright
 	and license. Since this header file was developed for smb_signing.c
 	the full header of smb_signing.c is used for smb_signing.h as well.
