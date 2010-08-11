@@ -1175,7 +1175,13 @@ omp_get_report (gnutls_session_t* session,
                 entity_t* response)
 {
   if (openvas_server_sendf (session,
+                            /** @todo Enable after 3.2 release, so that 3.2
+                              *       remains compatible with Manager 1.0. */
+#if 0
                             "<get_reports format_id=\"%s\" report_id=\"%s\"/>",
+#else
+                            "<get_reports format=\"%s\" report_id=\"%s\"/>",
+#endif
                             format ? format : "nbe",
                             id))
     return -1;
@@ -1213,7 +1219,13 @@ omp_get_report_format (gnutls_session_t* session,
   entity_t entity;
 
   if (openvas_server_sendf (session,
+                            /** @todo Enable after 3.2 release, so that 3.2
+                              *       remains compatible with Manager 1.0. */
+#if 0
                             "<get_reports format_id=\"%s\" report_id=\"%s\"/>",
+#else
+                            "<get_reports format=\"%s\" report_id=\"%s\"/>",
+#endif
                             format,
                             id))
     return -1;

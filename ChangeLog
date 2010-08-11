@@ -1,3 +1,8 @@
+2010-08-11  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_get_report, omp_get_report_format): Temporarily pass
+	format to GET_REPORTS again, to remain compatible with Manager 1.0.
+
 2010-08-10  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_get_report, omp_get_report_format): Pass format_id
