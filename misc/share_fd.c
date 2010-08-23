@@ -26,6 +26,15 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
+#include "config.h"
+
 int
 send_fd (int socket, int fd)
 {

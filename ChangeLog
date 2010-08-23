@@ -1,3 +1,8 @@
+2010-08-23  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/share_fd.c: Add missing includes to make sure all neccessary
+	defines are indeed defined and recv_fd operates properly.
+
 2010-08-11  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_get_report, omp_get_report_format): Temporarily pass
