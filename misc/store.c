@@ -268,7 +268,6 @@ store_load_plugin (const char *file, struct arglist *prefs)
   plug_set_summary (ret, nvti_summary (n));
   plug_set_description (ret, nvti_description (n));
   plug_set_copyright (ret, nvti_copyright (n));
-  plug_set_family (ret, nvti_family (n));
   plug_set_category (ret, nvti_category (n));
   plug_set_path (ret, nvti_src (n));
   plug_set_family (ret, nvti_family (n));

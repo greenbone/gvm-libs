@@ -1,5 +1,9 @@
 2010-09-03 Thomas Reinke <reinke@securityspace.com>
 
+	* misc/store.c: removed extra plug_set_family call
+
+2010-09-03 Thomas Reinke <reinke@securityspace.com>
+
 	* base/nvti.c: free memory allocated from use of glib routines
 
 2010-08-23  Michael Wiegand <michael.wiegand@greenbone.net>
