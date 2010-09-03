@@ -1106,6 +1106,7 @@ nvti_from_keyfile (const gchar * fn)
   int i;
   gsize size_dummy;
   gchar *utf8str = NULL;
+  gchar *gStr;
 
   if (!g_key_file_load_from_file (keyfile, fn, G_KEY_FILE_NONE, &error))
     {
@@ -1114,59 +1115,72 @@ nvti_from_keyfile (const gchar * fn)
     }
 
   n = nvti_new ();
-  nvti_set_oid (n, g_key_file_get_string (keyfile, "NVT Info", "OID", NULL));
-  nvti_set_version (n,
-                    g_key_file_get_string (keyfile, "NVT Info", "Version",
-                                           NULL));
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "OID", NULL);
+  nvti_set_oid (n, gStr); g_free(gStr);
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "Version", NULL);
+  nvti_set_version (n, gStr); g_free(gStr);
   utf8str = g_key_file_get_string (keyfile, "NVT Info", "Name", NULL);
   if (utf8str)
+    {
     nvti_set_name (n,
                    g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
                               &size_dummy, NULL));
+    g_free(utf8str);
+    }
   utf8str = g_key_file_get_string (keyfile, "NVT Info", "Summary", NULL);
   if (utf8str)
-    nvti_set_summary (n,
-                      g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
-                                 &size_dummy, NULL));
+    {
+    gStr = g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy,
+    		NULL);
+    nvti_set_summary (n, gStr);
+    g_free(gStr);
+    g_free(utf8str);
+    }
   utf8str = g_key_file_get_string (keyfile, "NVT Info", "Description", NULL);
   if (utf8str)
-    nvti_set_description (n,
-                          g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
-                                     &size_dummy, NULL));
+    {
+    gStr = g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
+                                     &size_dummy, NULL);
+    nvti_set_description (n, gStr);
+    g_free(gStr);
+    g_free(utf8str);
+    }
   utf8str = g_key_file_get_string (keyfile, "NVT Info", "Copyright", NULL);
   if (utf8str)
-    nvti_set_copyright (n,
-                        g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
-                                   &size_dummy, NULL));
-  nvti_set_cve (n, g_key_file_get_string (keyfile, "NVT Info", "CVEs", NULL));
-  nvti_set_bid (n, g_key_file_get_string (keyfile, "NVT Info", "BIDs", NULL));
-  nvti_set_xref (n, g_key_file_get_string (keyfile, "NVT Info", "XREFs", NULL));
-  nvti_set_tag (n, g_key_file_get_string (keyfile, "NVT Info", "Tags", NULL));
-  nvti_set_dependencies (n,
-                         g_key_file_get_string (keyfile, "NVT Info",
-                                                "Dependencies", NULL));
-  nvti_set_required_keys (n,
-                          g_key_file_get_string (keyfile, "NVT Info",
-                                                 "RequiredKeys", NULL));
-  nvti_set_mandatory_keys (n,
-                           g_key_file_get_string (keyfile, "NVT Info",
-                                                  "MandatoryKeys", NULL));
-  nvti_set_excluded_keys (n,
-                          g_key_file_get_string (keyfile, "NVT Info",
-                                                 "ExcludedKeys", NULL));
-  nvti_set_required_ports (n,
-                           g_key_file_get_string (keyfile, "NVT Info",
-                                                  "RequiredPorts", NULL));
-  nvti_set_required_udp_ports (n,
-                               g_key_file_get_string (keyfile, "NVT Info",
-                                                      "RequiredUDPPorts",
-                                                      NULL));
-  nvti_set_sign_key_ids (n,
-                         g_key_file_get_string (keyfile, "NVT Info",
-                                                "SignKeyIDs", NULL));
-  nvti_set_family (n,
-                   g_key_file_get_string (keyfile, "NVT Info", "Family", NULL));
-  nvti_set_src (n, g_key_file_get_string (keyfile, "NVT Info", "src", NULL));
+    {
+    gStr = g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy,
+    		NULL);
+    nvti_set_copyright (n, gStr);
+    g_free(gStr);
+    g_free(utf8str);
+    }
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "CVEs", NULL);
+  nvti_set_cve (n, gStr); g_free(gStr);
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "BIDs", NULL);
+  nvti_set_bid (n, gStr); g_free(gStr);
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "XREFs", NULL);
+  nvti_set_xref (n, gStr); g_free(gStr);
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "Tags", NULL);
+  nvti_set_tag (n, gStr); g_free(gStr);
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "Dependencies", NULL);
+  nvti_set_dependencies (n, gStr); g_free(gStr);
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "RequiredKeys", NULL);
+  nvti_set_required_keys (n, gStr); g_free(gStr);
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "MandatoryKeys", NULL);
+  nvti_set_mandatory_keys (n, gStr); g_free(gStr);
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "ExcludedKeys", NULL);
+  nvti_set_excluded_keys (n, gStr); g_free(gStr);
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "RequiredPorts", NULL);
+  nvti_set_required_ports (n, gStr); g_free(gStr);
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "RequiredUDPPorts",
+                                                      NULL);
+  nvti_set_required_udp_ports (n, gStr); g_free(gStr);
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "SignKeyIDs", NULL);
+  nvti_set_sign_key_ids (n, gStr); g_free(gStr);
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "Family", NULL);
+  nvti_set_family (n, gStr); g_free(gStr);
+  gStr = g_key_file_get_string (keyfile, "NVT Info", "src", NULL);
+  nvti_set_src (n, gStr); g_free(gStr);
   nvti_set_timeout (n,
                     g_key_file_get_integer (keyfile, "NVT Info", "Timeout",
                                             NULL));

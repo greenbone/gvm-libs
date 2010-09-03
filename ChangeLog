@@ -1,3 +1,7 @@
+2010-09-03 Thomas Reinke <reinke@securityspace.com>
+
+	* base/nvti.c: free memory allocated from use of glib routines
+
 2010-08-23  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/share_fd.c: Add missing includes to make sure all neccessary
