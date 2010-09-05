@@ -1,3 +1,9 @@
+2010-09-05 Thomas Reinke <reinke@securityspace.com>
+
+	* misc/store.c: kept memory management model consistent
+	  by using estrdup instead of g_strdup for arglists when
+	  freeing up is done with efree
+
 2010-09-03 Thomas Reinke <reinke@securityspace.com>
 
 	* misc/store.c: removed extra plug_set_family call
