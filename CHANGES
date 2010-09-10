@@ -4,7 +4,7 @@ This is the 3.1.3 release of the openvas-libraries module for the Open
 Vulnerability Assessment System (OpenVAS).
 
 It fixes primarily a significant memory leak that will
-allow improve high load performance by about 40%.
+improve high load performance by about 40%.
 
 This release is recommended for anyone using OpenVAS
 for large scans to improve performance.
@@ -16,7 +16,7 @@ Chandrashekhar B, Matthew Mundell, Thomas Reinke
 Main changes compared to 3.1.1:
 * Significant memory leaks are closed.
 * Bug fix for handling shared file descriptors that now
-  prevents unnecessary use of new file descriptiors under
+  prevents unnecessary use of new file descriptors under
   certain circumstances.
 * Little fix in the nasl wmi api.
 
