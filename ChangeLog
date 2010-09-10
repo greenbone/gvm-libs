@@ -1,3 +1,13 @@
+2010-09-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Preparing the openvas-libraries 3.1.3 release.
+
+	* CHANGES: Updated.
+
+	* VERSION: Set to 3.1.3.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Updated PROJECT_NUMBER.
+
 2010-09-05 Thomas Reinke <reinke@securityspace.com>
 
 	* misc/store.c: kept memory management model consistent
