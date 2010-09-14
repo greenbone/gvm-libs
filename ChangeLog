@@ -1,3 +1,23 @@
+2010-09-14  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_create_task): Pass IDs in OMP.  Read response with
+	omp_read_create_response.
+	(omp_read_create_response, omp_pause_task, omp_resume_paused_task)
+	(omp_resume_stopped_task, omp_resume_stopped_task_report): New functions.
+	(omp_wait_for_task_delete): Free entity after use.
+	(omp_get_report): Add first_result_number argument.  Match GET_REPORTS
+	call to Manager trunk.
+	(omp_get_results): New function.
+	(omp_create_target): Add credential arg and UUID return arg.  Use
+	omp_read_create_response.
+	(omp_delete_target, omp_delete_config): Use openvas_server_sendf.
+	(omp_create_lsc_credential): Add password arg and UUID return arg.  Use
+	omp_read_create_response.
+	(omp_delete_lsc_credential): Add UUID return arg.  Use
+	openvas_server_sendf.
+
+	* omp/omp.h: Update headers accordingly.
+
 2010-09-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CHANGES: Fixed two typos.
@@ -20,17 +40,17 @@
 
 	* doc/Doxyfile, doc/Doxyfile_full: Updated PROJECT_NUMBER.
 
-2010-09-05 Thomas Reinke <reinke@securityspace.com>
+2010-09-05  Thomas Reinke <reinke@securityspace.com>
 
 	* misc/store.c: kept memory management model consistent
-	  by using estrdup instead of g_strdup for arglists when
-	  freeing up is done with efree
+	by using estrdup instead of g_strdup for arglists when
+	freeing up is done with efree
 
-2010-09-03 Thomas Reinke <reinke@securityspace.com>
+2010-09-03  Thomas Reinke <reinke@securityspace.com>
 
 	* misc/store.c: removed extra plug_set_family call
 
-2010-09-03 Thomas Reinke <reinke@securityspace.com>
+2010-09-03  Thomas Reinke <reinke@securityspace.com>
 
 	* base/nvti.c: free memory allocated from use of glib routines
 

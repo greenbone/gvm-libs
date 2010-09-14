@@ -212,7 +212,7 @@ omp_authenticate_env (gnutls_session_t* session)
  * @param[out]  id          Pointer for newly allocated ID of new task.  Only
  *                          set on successful return.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, -1 or OMP response code on error.
  */
 int
 omp_create_task (gnutls_session_t* session,
@@ -226,8 +226,8 @@ omp_create_task (gnutls_session_t* session,
 
   gchar* new_task_request;
   new_task_request = g_strdup_printf ("<create_task>"
-                                      "<config>%s</config>"
-                                      "<target>%s</target>"
+                                      "<config id=\"%s\"/>"
+                                      "<target id=\"%s\"/>"
                                       "<name>%s</name>"
                                       "<comment>%s</comment>"
                                       "</create_task>",
@@ -244,19 +244,10 @@ omp_create_task (gnutls_session_t* session,
 
   /* Read the response. */
 
-  entity_t entity = NULL;
-  if (read_entity (session, &entity)) return -1;
-
-  /* Get the ID of the new task from the response. */
-
-  entity_t id_entity = entity_child (entity, "task_id");
-  if (id_entity == NULL)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  *id = g_strdup (entity_text (id_entity));
-  return 0;
+  ret = omp_read_create_response (session, id);
+  if (ret == 201)
+    return 0;
+  return ret;
 }
 
 /**
@@ -549,6 +540,61 @@ check_response (gnutls_session_t* session)
   return 1;
 }
 
+/**
+ * @brief Read response status and resource UUID.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[out] uuid     Either NULL or address for freshly allocated UUID of
+ *                      created response.
+ *
+ * @return OMP response code on success, -1 on error.
+ */
+int
+omp_read_create_response (gnutls_session_t* session, char **uuid)
+{
+  int ret;
+  const char *status, *id;
+  entity_t entity;
+
+  /* Read the response. */
+
+  entity = NULL;
+  if (read_entity (session, &entity)) return -1;
+
+  /* Parse the response. */
+
+  status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+
+  if (uuid)
+    {
+      id = entity_attribute (entity, "id");
+      if (id == NULL)
+        {
+          free_entity (entity);
+          return -1;
+        }
+      if (strlen (id) == 0)
+        {
+          free_entity (entity);
+          return -1;
+        }
+      *uuid = g_strdup (id);
+    }
+
+  ret = atoi (status);
+  free_entity (entity);
+  return ret;
+}
 
 /**
  * @brief Deprecated wrapper function for /ref omp_stop_task.
@@ -586,6 +632,123 @@ omp_stop_task (gnutls_session_t* session, const char* id)
   return check_response (session);
 }
 
+/**
+ * @brief Pause a task and read the manager response.
+ *
+ * @param[in]   session    Pointer to GNUTLS session.
+ * @param[in]   task_id    ID of task.
+ *
+ * @return 0 on success, 1 on OMP failure, -1 on error.
+ */
+int
+omp_pause_task (gnutls_session_t* session, const char* task_id)
+{
+  if (openvas_server_sendf (session,
+                            "<pause_task task_id=\"%s\"/>",
+                            task_id)
+      == -1)
+    return -1;
+
+  return check_response (session);
+}
+
+/**
+ * @brief Resume a paused task and read the manager response.
+ *
+ * @param[in]   session    Pointer to GNUTLS session.
+ * @param[in]   task_id    ID of task.
+ *
+ * @return 0 on success, 1 on OMP failure, -1 on error.
+ */
+int
+omp_resume_paused_task (gnutls_session_t* session, const char* task_id)
+{
+  if (openvas_server_sendf (session,
+                            "<resume_paused_task task_id=\"%s\"/>",
+                            task_id)
+      == -1)
+    return -1;
+
+  return check_response (session);
+}
+
+/**
+ * @brief Resume a stopped task and read the manager response.
+ *
+ * @param[in]   session    Pointer to GNUTLS session.
+ * @param[in]   task_id    ID of task.
+ *
+ * @return 0 on success, 1 on OMP failure, -1 on error.
+ */
+int
+omp_resume_stopped_task (gnutls_session_t* session, const char* task_id)
+{
+  if (openvas_server_sendf (session,
+                            "<resume_stopped_task task_id=\"%s\"/>",
+                            task_id)
+      == -1)
+    return -1;
+
+  return check_response (session);
+}
+
+/**
+ * @brief Resume a stopped task and read the manager response.
+ *
+ * @param[in]   session    Pointer to GNUTLS session.
+ * @param[in]   task_id    ID of task.
+ * @param[out]  report_id  ID of report.
+ *
+ * @return 0 on success, 1 on OMP failure, -1 on error.
+ */
+int
+omp_resume_stopped_task_report (gnutls_session_t* session, const char* task_id,
+                                char** report_id)
+{
+  if (openvas_server_sendf (session,
+                            "<resume_stopped_task task_id=\"%s\"/>",
+                            task_id)
+      == -1)
+    return -1;
+
+  /* Read the response. */
+
+  entity_t entity = NULL;
+  if (read_entity (session, &entity)) return -1;
+
+  /* Check the response. */
+
+  const char* status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  char first = status[0];
+  if (first == '2')
+    {
+      if (report_id)
+        {
+          entity_t report_id_xml = entity_child (entity, "report_id");
+          if (report_id_xml)
+            *report_id = g_strdup (entity_text (report_id_xml));
+          else
+            {
+              free_entity (entity);
+              return -1;
+            }
+        }
+      free_entity (entity);
+      return 0;
+    }
+  free_entity (entity);
+  return -1;
+}
 
 /**
  * @brief Issue \ref command against the server in \ref session, waits for
@@ -1044,8 +1207,12 @@ omp_wait_for_task_delete (gnutls_session_t* session,
       if (read_entity (session, &entity)) return -1;
 
       status = omp_task_status (entity);
+      if (status == NULL)
+        {
+          free_entity (entity);
+          break;
+        }
       free_entity (entity);
-      if (status == NULL) break;
 
       sleep (1);
     }
@@ -1172,17 +1339,19 @@ int
 omp_get_report (gnutls_session_t* session,
                 const char* id,
                 const char* format,
+                int first_result_number,
                 entity_t* response)
 {
   if (openvas_server_sendf (session,
-                            /** @todo Enable after 3.2 release, so that 3.2
-                              *       remains compatible with Manager 1.0. */
-#if 0
-                            "<get_reports format_id=\"%s\" report_id=\"%s\"/>",
-#else
-                            "<get_reports format=\"%s\" report_id=\"%s\"/>",
-#endif
-                            format ? format : "nbe",
+                            "<get_reports"
+                            " result_hosts_only=\"0\""
+                            " first_result=\"%i\""
+                            " sort_field=\"ROWID\""
+                            " sort_order=\"1\""
+                            " format_id=\"%s\""
+                            " report_id=\"%s\"/>",
+                            first_result_number,
+                            format ? format : "XML",
                             id))
     return -1;
 
@@ -1294,6 +1463,83 @@ omp_delete_report (gnutls_session_t* session, const char* id)
     return -1;
 
   return check_response (session);
+}
+
+/**
+ * @brief Get results.
+ *
+ * @param[in]  session            Pointer to GNUTLS session.
+ * @param[in]  task_id            ID of task whose to get, NULL for all.
+ * @param[in]  notes              Whether to include notes.
+ * @param[in]  notes_details      If notes, whether to include details.
+ * @param[in]  overrides          Whether to include notes.
+ * @param[in]  overrides_details  If overrides, whether to include details.
+ * @param[in]  apply_overrides    Whether to apply overrides.
+ * @param[out] response           On success contains the GET_RESULTS response.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_get_results (gnutls_session_t* session,
+                 const char* task_id,
+                 int notes,
+                 int notes_details,
+                 int overrides,
+                 int overrides_details,
+                 int apply_overrides,
+                 entity_t* response)
+{
+  if (openvas_server_sendf (session,
+                            "<get_results"
+                            "%s%s%s"
+                            " notes=\"%i\""
+                            " notes_details=\"%i\""
+                            " overrides=\"%i\""
+                            " overrides_details=\"%i\""
+                            " apply_overrides=\"%i\"/>",
+                            task_id ? " task_id=\"" : "",
+                            task_id ? task_id : "",
+                            task_id ? "\"" : "",
+                            notes,
+                            notes_details,
+                            overrides,
+                            overrides_details,
+                            apply_overrides))
+    return -1;
+
+  {
+    const char* status;
+    entity_t entity;
+
+    /* Read the response. */
+
+    entity = NULL;
+    if (read_entity (session, &entity)) return -1;
+
+    /* Check the response. */
+
+    status = entity_attribute (entity, "status");
+    if (status == NULL)
+      {
+        free_entity (entity);
+        return -1;
+      }
+    if (strlen (status) == 0)
+      {
+        free_entity (entity);
+        return -1;
+      }
+    if (status[0] == '2')
+      {
+        if (response)
+          *response = entity;
+        else
+          free_entity (entity);
+        return 0;
+      }
+    free_entity (entity);
+    return 1;
+  }
 }
 
 /**
@@ -1506,73 +1752,93 @@ omp_until_up (int (*function) (gnutls_session_t*, entity_t*),
  * @param[in]   name        Name of target.
  * @param[in]   hosts       Target hosts.
  * @param[in]   comment     Target comment.
+ * @param[in]   credential  UUID of LSC credential.
+ * @param[out]  uuid        Either NULL or address for UUID of created target.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, -1 or OMP response code on error.
  */
 int
 omp_create_target (gnutls_session_t* session,
                    const char* name,
                    const char* hosts,
-                   const char* comment)
+                   const char* comment,
+                   const char* credential,
+                   char** uuid)
 {
   int ret;
 
-  /* Create the OMP request. */
-
-  gchar* new_task_request;
   if (comment)
-    new_task_request = g_strdup_printf ("<create_target>"
-                                        "<name>%s</name>"
-                                        "<hosts>%s</hosts>"
-                                        "<comment>%s</comment>"
-                                        "</create_target>",
-                                        name,
-                                        hosts,
-                                        comment);
+    {
+      if (credential)
+        ret = openvas_server_sendf (session,
+                                    "<create_target>"
+                                    "<name>%s</name>"
+                                    "<hosts>%s</hosts>"
+                                    "<comment>%s</comment>"
+                                    "<lsc_credential id=\"%s\"/>"
+                                    "</create_target>",
+                                    name,
+                                    hosts,
+                                    comment,
+                                    credential);
+      else
+        ret = openvas_server_sendf (session,
+                                    "<create_target>"
+                                    "<name>%s</name>"
+                                    "<hosts>%s</hosts>"
+                                    "<comment>%s</comment>"
+                                    "</create_target>",
+                                    name,
+                                    hosts,
+                                    comment);
+    }
   else
-    new_task_request = g_strdup_printf ("<create_target>"
-                                        "<name>%s</name>"
-                                        "<hosts>%s</hosts>"
-                                        "</create_target>",
-                                        name,
-                                        hosts);
+    {
+      if (credential)
+        ret = openvas_server_sendf (session,
+                                    "<create_target>"
+                                    "<name>%s</name>"
+                                    "<hosts>%s</hosts>"
+                                    "<lsc_credential id=\"%s\"/>"
+                                    "</create_target>",
+                                    name,
+                                    hosts,
+                                    credential);
+      else
+        ret = openvas_server_sendf (session,
+                                    "<create_target>"
+                                    "<name>%s</name>"
+                                    "<hosts>%s</hosts>"
+                                    "</create_target>",
+                                    name,
+                                    hosts);
+    }
 
-  /* Send the request. */
-
-  ret = openvas_server_send (session, new_task_request);
-  g_free (new_task_request);
   if (ret) return -1;
 
-  return check_response (session);
+  ret = omp_read_create_response (session, uuid);
+  if (ret == 201)
+    return 0;
+  return ret;
 }
 
 /**
  * @brief Delete a target.
  *
  * @param[in]   session     Pointer to GNUTLS session.
- * @param[in]   name        Name of target.
+ * @param[in]   id          UUID of target.
  *
  * @return 0 on success, -1 on error.
  */
 int
 omp_delete_target (gnutls_session_t* session,
-                   const char* name)
+                   const char* id)
 {
-  int ret;
-
-  /* Create the OMP request. */
-
-  gchar* new_task_request;
-  new_task_request = g_strdup_printf ("<delete_target>"
-                                      "<name>%s</name>"
-                                      "</delete_target>",
-                                      name);
-
-  /* Send the request. */
-
-  ret = openvas_server_send (session, new_task_request);
-  g_free (new_task_request);
-  if (ret) return -1;
+  if (openvas_server_sendf (session,
+                            "<delete_target target_id=\"%s\"/>",
+                            id)
+      == -1)
+    return -1;
 
   return check_response (session);
 }
@@ -1677,29 +1943,19 @@ omp_create_config_from_rc_file (gnutls_session_t* session,
  * @brief Delete a config.
  *
  * @param[in]   session     Pointer to GNUTLS session.
- * @param[in]   name        Name of config.
+ * @param[in]   id          UUID of config.
  *
  * @return 0 on success, -1 on error.
  */
 int
 omp_delete_config (gnutls_session_t* session,
-                   const char* name)
+                   const char* id)
 {
-  int ret;
-
-  /* Create the OMP request. */
-
-  gchar* new_task_request;
-  new_task_request = g_strdup_printf ("<delete_config>"
-                                      "<name>%s</name>"
-                                      "</delete_config>",
-                                      name);
-
-  /* Send the request. */
-
-  ret = openvas_server_send (session, new_task_request);
-  g_free (new_task_request);
-  if (ret) return -1;
+  if (openvas_server_sendf (session,
+                            "<delete_config config_id=\"%s\"/>",
+                            id)
+      == -1)
+    return -1;
 
   return check_response (session);
 }
@@ -1707,40 +1963,70 @@ omp_delete_config (gnutls_session_t* session,
 /**
  * @brief Create an LSC Credential.
  *
- * @param[in]   session  Pointer to GNUTLS session.
- * @param[in]   name     Name of LSC Credential.
- * @param[in]   login    Login associated with name.
- * @param[in]   comment  LSC Credential comment.
+ * @param[in]   session   Pointer to GNUTLS session.
+ * @param[in]   name      Name of LSC Credential.
+ * @param[in]   login     Login associated with name.
+ * @param[in]   password  Password, or NULL for autogenerated credentials.
+ * @param[in]   comment   LSC Credential comment.
+ * @param[out]  uuid      Either NULL or address for UUID of created credential.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, -1 or OMP response code on error.
  */
 int
 omp_create_lsc_credential (gnutls_session_t* session,
                            const char* name,
                            const char* login,
-                           const char* comment)
+                           const char* password,
+                           const char* comment,
+                           char** uuid)
 {
   int ret;
 
   /* Create the OMP request. */
 
   gchar* new_task_request;
-  if (comment)
-    new_task_request = g_strdup_printf ("<create_lsc_credential>"
-                                        "<name>%s</name>"
-                                        "<login>%s</login>"
-                                        "<comment>%s</comment>"
-                                        "</create_lsc_credential>",
-                                        name,
-                                        login,
-                                        comment);
+  if (password)
+    {
+      if (comment)
+        new_task_request = g_strdup_printf ("<create_lsc_credential>"
+                                            "<name>%s</name>"
+                                            "<login>%s</login>"
+                                            "<password>%s</password>"
+                                            "<comment>%s</comment>"
+                                            "</create_lsc_credential>",
+                                            name,
+                                            login,
+                                            password,
+                                            comment);
+      else
+        new_task_request = g_strdup_printf ("<create_lsc_credential>"
+                                            "<name>%s</name>"
+                                            "<login>%s</login>"
+                                            "<password>%s</password>"
+                                            "</create_lsc_credential>",
+                                            name,
+                                            login,
+                                            password);
+    }
   else
-    new_task_request = g_strdup_printf ("<create_lsc_credential>"
-                                        "<name>%s</name>"
-                                        "<login>%s</login>"
-                                        "</create_lsc_credential>",
-                                        name,
-                                        login);
+    {
+      if (comment)
+        new_task_request = g_strdup_printf ("<create_lsc_credential>"
+                                            "<name>%s</name>"
+                                            "<login>%s</login>"
+                                            "<comment>%s</comment>"
+                                            "</create_lsc_credential>",
+                                            name,
+                                            login,
+                                            comment);
+      else
+        new_task_request = g_strdup_printf ("<create_lsc_credential>"
+                                            "<name>%s</name>"
+                                            "<login>%s</login>"
+                                            "</create_lsc_credential>",
+                                            name,
+                                            login);
+    }
 
   /* Send the request. */
 
@@ -1748,36 +2034,29 @@ omp_create_lsc_credential (gnutls_session_t* session,
   g_free (new_task_request);
   if (ret) return -1;
 
-  return check_response (session);
+  ret = omp_read_create_response (session, uuid);
+  if (ret == 201)
+    return 0;
+  return ret;
 }
 
 /**
  * @brief Delete a LSC credential.
  *
  * @param[in]   session     Pointer to GNUTLS session.
- * @param[in]   name        Name of LSC credential.
+ * @param[in]   uuid        UUID of LSC credential.
  *
  * @return 0 on success, -1 on error.
  */
 int
 omp_delete_lsc_credential (gnutls_session_t* session,
-                           const char* name)
+                           const char* id)
 {
-  int ret;
-
-  /* Create the OMP request. */
-
-  gchar* new_task_request;
-  new_task_request = g_strdup_printf ("<delete_lsc_credential>"
-                                      "<name>%s</name>"
-                                      "</delete_lsc_credential>",
-                                      name);
-
-  /* Send the request. */
-
-  ret = openvas_server_send (session, new_task_request);
-  g_free (new_task_request);
-  if (ret) return -1;
+  if (openvas_server_sendf (session,
+                            "<delete_lsc_credential lsc_credential_id=\"%s\"/>",
+                            id)
+      == -1)
+    return -1;
 
   return check_response (session);
 }

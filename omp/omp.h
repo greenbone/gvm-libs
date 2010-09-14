@@ -38,6 +38,8 @@ extern "C"
 
 int check_response (gnutls_session_t *);
 
+int omp_read_create_response (gnutls_session_t*, char **);
+
 const char *omp_task_status (entity_t status_response);
 
 int omp_get_nvt_all (gnutls_session_t * session, entity_t * response);
@@ -74,6 +76,14 @@ int omp_abort_task (gnutls_session_t *, const char *);
 
 int omp_stop_task (gnutls_session_t *, const char *);
 
+int omp_pause_task (gnutls_session_t*, const char*);
+
+int omp_resume_paused_task (gnutls_session_t*, const char*);
+
+int omp_resume_stopped_task (gnutls_session_t*, const char*);
+
+int omp_resume_stopped_task_report (gnutls_session_t*, const char*, char**);
+
 int omp_wait_for_task_end (gnutls_session_t *, const char *);
 
 int omp_wait_for_task_start (gnutls_session_t *, const char *);
@@ -86,12 +96,15 @@ int omp_get_status (gnutls_session_t *, const char *, int, entity_t *);
 
 int omp_get_tasks (gnutls_session_t *, const char *, int, int, entity_t *);
 
-int omp_get_report (gnutls_session_t *, const char *, const char *, entity_t *);
+int omp_get_report (gnutls_session_t *, const char *, const char *, int, entity_t *);
 
 int omp_get_report_format (gnutls_session_t *, const char *, const char *,
                            void **, gsize *);
 
 int omp_delete_report (gnutls_session_t *, const char *);
+
+int omp_get_results (gnutls_session_t *, const char *, int, int, int, int, int,
+                     entity_t *);
 
 int omp_delete_task (gnutls_session_t *, const char *);
 
@@ -111,7 +124,7 @@ int omp_until_up (int (*)(gnutls_session_t *, entity_t *), gnutls_session_t *,
                   entity_t *);
 
 int omp_create_target (gnutls_session_t *, const char *, const char *,
-                       const char *);
+                       const char *, const char *, char **);
 
 int omp_delete_target (gnutls_session_t *, const char *);
 
@@ -124,7 +137,7 @@ int omp_create_config_from_rc_file (gnutls_session_t *, const char *,
 int omp_delete_config (gnutls_session_t *, const char *);
 
 int omp_create_lsc_credential (gnutls_session_t *, const char *, const char *,
-                               const char *);
+                               const char *, const char *, char **);
 
 int omp_delete_lsc_credential (gnutls_session_t *, const char *);
 
