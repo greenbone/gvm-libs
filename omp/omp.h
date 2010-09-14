@@ -46,8 +46,6 @@ int omp_get_nvt_all (gnutls_session_t * session, entity_t * response);
 
 int omp_get_nvt_feed_checksum (gnutls_session_t * session, entity_t * response);
 
-int omp_get_rules_503 (gnutls_session_t * session, entity_t * response);
-
 int omp_get_dependencies_503 (gnutls_session_t * session, entity_t * response);
 
 int omp_authenticate (gnutls_session_t * session, const char *username,

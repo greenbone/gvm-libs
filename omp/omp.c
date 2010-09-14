@@ -831,21 +831,6 @@ omp_get_nvt_feed_checksum (gnutls_session_t* session, entity_t* response)
 
 
 /**
- * @brief Issue an OMP \<get_rules\/\> command and wait for the response.
- *
- * @param[in]  session   Session to the server.
- * @param[out] response  Entity containing the response, must be freed.
- *
- * @return 0 in case of success. -1 otherwise (e.g. invalid session).
- */
-int
-omp_get_rules_503 (gnutls_session_t* session, entity_t* response)
-{
-  return get_omp_response_503 (session, "<get_rules/>", response);
-}
-
-
-/**
  * @brief Issue an OMP \<get_dependencies/\> command and wait for the response.
  *
  * @param[in]  session   Session to the server.
@@ -1388,13 +1373,7 @@ omp_get_report_format (gnutls_session_t* session,
   entity_t entity;
 
   if (openvas_server_sendf (session,
-                            /** @todo Enable after 3.2 release, so that 3.2
-                              *       remains compatible with Manager 1.0. */
-#if 0
                             "<get_reports format_id=\"%s\" report_id=\"%s\"/>",
-#else
-                            "<get_reports format=\"%s\" report_id=\"%s\"/>",
-#endif
                             format,
                             id))
     return -1;
@@ -2159,7 +2138,6 @@ omp_get_nvt_details_503 (gnutls_session_t* session, const char * oid,
   else
     request = g_strdup ("<get_nvts"
                         " details=\"1\""
-                        " timeout=\"1\""
                         " preference_count=\"1\"/>");
 
   ret = get_omp_response_503 (session, request, response);

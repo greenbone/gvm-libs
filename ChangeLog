@@ -1,5 +1,14 @@
 2010-09-14  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* omp/omp.c (omp_get_rules_503): Remove.  Pre OMP 1.0 command.
+	(omp_get_report_format): Match GET_REPORTS call to Manager trunk.
+	(omp_get_nvt_details_503): Remove timeout attribute, which requires a
+	config attribute.
+
+	* omp/omp.h: Remove header accordingly.
+
+2010-09-14  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* omp/omp.c (omp_create_task): Pass IDs in OMP.  Read response with
 	omp_read_create_response.
 	(omp_read_create_response, omp_pause_task, omp_resume_paused_task)
