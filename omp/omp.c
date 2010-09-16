@@ -1312,6 +1312,69 @@ omp_get_tasks (gnutls_session_t* session, const char* id, int details,
 }
 
 /**
+ * @brief Get a target.
+ *
+ * @param[in]  session         Pointer to GNUTLS session.
+ * @param[in]  id              ID of target or NULL for all targets.
+ * @param[in]  tasks           Whether to include tasks that use the target.
+ * @param[out] target          Target return.  On success contains GET_TARGETS
+ *                             response.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_get_targets (gnutls_session_t* session, const char* id, int tasks,
+                 int include_rcfile, entity_t* target)
+{
+  const char* status_code;
+  int ret;
+
+  if (id == NULL)
+    {
+      if (openvas_server_sendf (session,
+                                "<get_targets tasks=\"%i\"/>",
+                                tasks)
+          == -1)
+        return -1;
+    }
+  else
+    {
+      if (openvas_server_sendf (session,
+                                "<get_targets"
+                                " target_id=\"%s\""
+                                " tasks=\"%i\"/>",
+                                id,
+                                tasks)
+          == -1)
+        return -1;
+    }
+
+  /* Read the response. */
+
+  *target = NULL;
+  if (read_entity (session, target)) return -1;
+
+  /* Check the response. */
+
+  status_code = entity_attribute (*target, "status");
+  if (status_code == NULL)
+    {
+      free_entity (*target);
+      return -1;
+    }
+  if (strlen (status_code) == 0)
+    {
+      free_entity (*target);
+      return -1;
+    }
+  if (status_code[0] == '2') return 0;
+  ret = (int) strtol (status_code, NULL, 10);
+  free_entity (*target);
+  if (errno == ERANGE) return -1;
+  return ret;
+}
+
+/**
  * @brief Get a report.
  *
  * @param[in]  session   Pointer to GNUTLS session.

@@ -94,6 +94,8 @@ int omp_get_status (gnutls_session_t *, const char *, int, entity_t *);
 
 int omp_get_tasks (gnutls_session_t *, const char *, int, int, entity_t *);
 
+int omp_get_targets (gnutls_session_t *, const char *, int, int, entity_t *);
+
 int omp_get_report (gnutls_session_t *, const char *, const char *, int, entity_t *);
 
 int omp_get_report_format (gnutls_session_t *, const char *, const char *,
