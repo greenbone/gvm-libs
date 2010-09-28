@@ -92,6 +92,8 @@ void print_entity_to_string (entity_t entity, GString * string);
 
 void print_entities_to_string (GString * string, entities_t entities);
 
+int xml_count_entities (entities_t);
+
 #if 0
 {
 #endif

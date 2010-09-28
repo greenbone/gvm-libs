@@ -863,3 +863,22 @@ compare_entities (entity_t entity1, entity_t entity2)
   g_message ("  compare failed number of entities (%s)\n", entity1->name);
   return 1;
 }
+
+/**
+ * @brief Count the number of entities.
+ *
+ * @param[in]  entities  Entities.
+ *
+ * @return Number of entities.
+ */
+int
+xml_count_entities (entities_t entities)
+{
+  int count = 0;
+  while (first_entity (entities))
+    {
+      entities = next_entities (entities);
+      count++;
+    }
+  return count;
+}

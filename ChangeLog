@@ -1,3 +1,16 @@
+2010-09-28  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_start_task_report, omp_resume_or_start_task_report)
+	(omp_resume_or_start_task): Return 1 on OMP failure.
+	(omp_start_task): Doc return value.
+	(omp_get_system_reports): New function.
+
+	* omp/omp.h: Add header accordingly.
+
+	* omp/xml.c (xml_count_entities): New function.
+
+	* omp/xml.h: Add header accordingly.
+
 2010-09-16  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_get_targets): New function.

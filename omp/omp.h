@@ -147,6 +147,8 @@ int omp_delete_agent (gnutls_session_t *, const char *);
 
 int omp_get_nvt_details_503 (gnutls_session_t *, const char *, entity_t *);
 
+int omp_get_system_reports (gnutls_session_t *, const char *, int, entity_t *);
+
 #if 0
 {
 #endif

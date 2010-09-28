@@ -364,7 +364,7 @@ omp_create_task_rc_file (gnutls_session_t* session,
  * @param[in]   task_id    ID of task.
  * @param[out]  report_id  ID of report.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, 1 on failure, -1 on error.
  */
 int
 omp_start_task_report (gnutls_session_t* session, const char* task_id,
@@ -412,7 +412,7 @@ omp_start_task_report (gnutls_session_t* session, const char* task_id,
       return 0;
     }
   free_entity (entity);
-  return -1;
+  return 1;
 }
 
 /**
@@ -421,7 +421,7 @@ omp_start_task_report (gnutls_session_t* session, const char* task_id,
  * @param[in]   session    Pointer to GNUTLS session.
  * @param[in]   task_id    ID of task.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, 1 on failure, -1 on error.
  */
 int
 omp_start_task (gnutls_session_t* session, const char* task_id)
@@ -436,7 +436,7 @@ omp_start_task (gnutls_session_t* session, const char* task_id)
  * @param[in]   task_id    ID of task.
  * @param[out]  report_id  ID of report.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, 1 on failure, -1 on error.
  */
 int
 omp_resume_or_start_task_report (gnutls_session_t* session, const char* task_id,
@@ -484,7 +484,7 @@ omp_resume_or_start_task_report (gnutls_session_t* session, const char* task_id,
       return 0;
     }
   free_entity (entity);
-  return -1;
+  return 1;
 }
 
 /**
@@ -493,7 +493,7 @@ omp_resume_or_start_task_report (gnutls_session_t* session, const char* task_id,
  * @param[in]   session    Pointer to GNUTLS session.
  * @param[in]   task_id    ID of task.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, 1 on failure, -1 on error.
  */
 int
 omp_resume_or_start_task (gnutls_session_t* session, const char* task_id)
@@ -747,7 +747,7 @@ omp_resume_stopped_task_report (gnutls_session_t* session, const char* task_id,
       return 0;
     }
   free_entity (entity);
-  return -1;
+  return 1;
 }
 
 /**
@@ -2208,4 +2208,62 @@ omp_get_nvt_details_503 (gnutls_session_t* session, const char * oid,
   g_free (request);
 
   return ret;
+}
+
+/**
+ * @brief Get system reports.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  name     Name of system report.  NULL for all.
+ * @param[in]  brief    Whether to request brief response.
+ * @param[out] reports  Reports return.  On success contains GET_SYSTEM_REPORTS
+ *                      response.
+ *
+ * @return 0 on success, 1 on failure, -1 on error.
+ */
+int
+omp_get_system_reports (gnutls_session_t* session, const char* name, int brief,
+                        entity_t *reports)
+{
+  int ret;
+  const char *status_code;
+
+  if (name)
+    {
+      if (openvas_server_sendf (session,
+                                "<get_system_reports name=\"%s\" brief=\"%i\"/>",
+                                name,
+                                brief)
+          == -1)
+        return -1;
+    }
+  else if (openvas_server_sendf (session,
+                                 "<get_system_reports brief=\"%i\"/>",
+                                 brief)
+           == -1)
+    return -1;
+
+  /* Read the response. */
+
+  *reports = NULL;
+  if (read_entity (session, reports)) return -1;
+
+  /* Check the response. */
+
+  status_code = entity_attribute (*reports, "status");
+  if (status_code == NULL)
+    {
+      free_entity (*reports);
+      return -1;
+    }
+  if (strlen (status_code) == 0)
+    {
+      free_entity (*reports);
+      return -1;
+    }
+  if (status_code[0] == '2') return 0;
+  ret = (int) strtol (status_code, NULL, 10);
+  free_entity (*reports);
+  if (errno == ERANGE) return -1;
+  return 1;
 }
