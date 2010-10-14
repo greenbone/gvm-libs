@@ -182,8 +182,8 @@ if (MINGW)
   set (FILES openvas_auth.c openvas_server.c proctitle.c)
   set (HEADERS proctitle.h openvas_auth.h openvas_server.h share_fd.h)
 else (MINGW)
-  set (FILES arglists.c bpf_share.c ftp_funcs.c harglists.c hash_table_file.c
-             hlst.c ids_send.c kb.c network.c openvas_auth.c openvas_logging.c
+  set (FILES arglists.c bpf_share.c ftp_funcs.c hash_table_file.c
+             ids_send.c kb.c network.c openvas_auth.c openvas_logging.c
              openvas_server.c openvas_ssh_login.c openvas_uuid.c plugutils.c
              popen.c proctitle.c
              rand.c resolve.c resource_request.c scanners_utils.c services1.c

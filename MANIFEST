@@ -83,12 +83,8 @@ misc/CMakeLists.txt
 misc/comm.h
 misc/ftp_funcs.c
 misc/ftp_funcs.h
-misc/harglists.c
-misc/harglists.h
 misc/hash_table_file.c
 misc/hash_table_file.h
-misc/hlst.c
-misc/hlst.h
 misc/ids_send.c
 misc/ids_send.h
 misc/kb.c

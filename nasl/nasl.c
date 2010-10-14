@@ -26,7 +26,6 @@
 #include <stdlib.h>             /* for exit */
 #include <unistd.h>             /* for geteuid */
 
-#include "harglists.h"
 #include "hosts_gatherer.h"
 #include "kb.h"                 /* for kb_new */
 #include "network.h"

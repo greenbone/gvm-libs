@@ -41,7 +41,6 @@
 #include "system.h"             /* for efree */
 
 #include "nasl.h"
-#include "harglists.h"
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -105,23 +104,30 @@ block_socket (int soc)
  *
  */
 
+struct udp_record {
+  int len;
+  char * data;
+};
+
 /* add udp data in our cache */
 static int
 add_udp_data (struct arglist *script_infos, int soc, char *data, int len)
 {
-  harglst *udp_data = arg_get_value (script_infos, "udp_data");
-  char name[12];
+  GHashTable * udp_data = arg_get_value (script_infos, "udp_data");
+  struct udp_record * data_record = g_malloc0 (sizeof(struct udp_record));
+  int * key = g_memdup (&soc, sizeof(int));
+
+  data_record->len = len;
+  data_record->data = g_memdup ((gconstpointer)data, (guint)len);
+
   if (udp_data == NULL)
     {
-      udp_data = harg_create (123);
+      udp_data = g_hash_table_new_full (g_int_hash, g_int_equal, g_free, g_free);
       arg_add_value (script_infos, "udp_data", ARG_PTR, -1, udp_data);
     }
-  snprintf (name, sizeof (name), "%d", soc);    /* RATS: ignore */
 
-  if (harg_get_blob (udp_data, name) != NULL)
-    harg_set_blob (udp_data, name, len, data);
-  else
-    harg_add_blob (udp_data, name, len, data);
+  g_hash_table_replace (udp_data, (gpointer)key, (gpointer)data_record);
+
   return 0;
 }
 
@@ -129,34 +135,22 @@ add_udp_data (struct arglist *script_infos, int soc, char *data, int len)
 static char *
 get_udp_data (struct arglist *script_infos, int soc, int *len)
 {
-  harglst *udp_data = arg_get_value (script_infos, "udp_data");
-  char name[12];
-  char *ret;
+  GHashTable * udp_data = arg_get_value (script_infos, "udp_data");
+  struct udp_record * data_record = g_hash_table_lookup (udp_data, (gconstpointer)&soc);
 
-  if (udp_data == NULL)
-    return NULL;
+  if (!data_record) return NULL;
 
-  snprintf (name, sizeof (name), "%d", soc);    /* RATS: ignore */
-  ret = harg_get_blob (udp_data, name);
-  if (ret == NULL)
-    return NULL;
-
-  *len = harg_get_size (udp_data, name);
-  return ret;
+  *len = data_record->len;
+  return data_record->data;
 }
 
 /* remove the udp data for socket <soc> */
 static void
 rm_udp_data (struct arglist *script_infos, int soc)
 {
-  harglst *udp_data = arg_get_value (script_infos, "udp_data");
-  char name[12];
+  GHashTable * udp_data = arg_get_value (script_infos, "udp_data");
 
-  if (udp_data == NULL)
-    return;
-
-  snprintf (name, sizeof (name), "%d", soc);    /* RATS: ignore */
-  harg_remove (udp_data, name);
+  g_hash_table_remove (udp_data, (gconstpointer)&soc);
 }
 
 
