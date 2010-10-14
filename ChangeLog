@@ -1,3 +1,24 @@
+2010-10-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Backport of revision 9220 from trunk.
+
+	Drop over 3500 lines of code by replacing a last use of the
+	hlst and harglists code.
+
+	* nasl/nasl_socket.c (struct udp_record): New. Stores a
+	udp record with length information to be used for hashtable.
+	(add_udp_data, get_udp_data, rm_udp_data): Replace the whole
+	implementation of harglists by glib's hashtable.
+
+	* nasl/nasl.c: Removed include of harglists.h.
+
+	* misc/hlst.c, misc/hlst.h, misc/harglists.c,
+	misc/harglists.h: Removed.
+
+	* misc/CMakeLists.txt: Removed handling of modules hlst and harglist.
+
+	* COPYING, MANIFEST: Removed entries for harglist and hlst.
+
 2010-09-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CHANGES: Fixed two typos.
