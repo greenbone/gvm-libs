@@ -1,3 +1,13 @@
+2010-10-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Move arglist-related functions into module arglists.
+
+	* misc/arglists.c (arglist2str, str2arglist): New.
+
+	* misc/arglists.h: Added protos accordingly.
+
+	* misc/store.c (arglist2str, str2arglist): Removed.
+
 2010-10-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Drop over 3500 lines of code by replacing a last use of the

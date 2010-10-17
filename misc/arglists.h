@@ -75,4 +75,7 @@ void arg_free (struct arglist *);
 void arg_free_all (struct arglist *);
 void arg_free_name (char *);
 
+char * arglist2str (struct arglist *);
+struct arglist * str2arglist (char *str);
+
 #endif /* OPENVAS_ARGLISTS_H */
