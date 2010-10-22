@@ -1,3 +1,9 @@
+2010-10-22  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* base/array.c (array_free): Iterate using length, instead of depending
+	on the caller to terminate the array. (Backport from trunk; initially
+	committed in r9250 by Matthew Mundell.)
+
 2010-10-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Backport of revision 9223 from trunk.

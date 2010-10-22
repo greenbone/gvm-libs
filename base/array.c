@@ -65,10 +65,9 @@ array_free (GPtrArray * array)
 {
   if (array)
     {
-      int index = 0;
-      gpointer item;
-      while ((item = g_ptr_array_index (array, index++)))
-        g_free (item);
+      guint index = array->len;
+      while (index--)
+        g_free (g_ptr_array_index (array, index));
       g_ptr_array_free (array, TRUE);
     }
 }
