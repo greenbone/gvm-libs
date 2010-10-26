@@ -1,3 +1,8 @@
+2010-10-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* configure.in: Fix module name in error message. (Backport from
+	trunk; initially committed in r9276.)
+
 2010-10-22  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/array.c (array_free): Iterate using length, instead of depending

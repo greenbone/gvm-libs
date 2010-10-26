@@ -108,7 +108,7 @@ AC_PATH_PROG(GPGME_CONFIG, gpgme-config)
 test "x$GPGME_CONFIG" = x && AC_ERROR(""
 ""
 "*** gpgme is not installed ! You need to install it before you"
-"compile openvas-libnasl."
+"compile openvas-libraries."
 "See http://www.gnupg.org/gpgme.html")
 
 GPGME_VERSION=`$GPGME_CONFIG --version | sed 's/-.*$//'`
