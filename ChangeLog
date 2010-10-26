@@ -1,5 +1,15 @@
 2010-10-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Do not log errors when there are no errors.
+
+	* nasl/nasl_scanner_glue.c (script_get_preference_file_content): Do
+	not log an error if the content for files that were not uploaded could
+	not be found.
+	(script_get_preference_file_location): Do not log an error if the
+	location of a file that was not uploaded could not be determined.
+
+2010-10-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* configure.in: Fix module name in error message.
 
 2010-10-21  Matthew Mundell <matthew.mundell@greenbone.net>
