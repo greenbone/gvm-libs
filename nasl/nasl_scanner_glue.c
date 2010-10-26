@@ -523,12 +523,7 @@ script_get_preference_file_content (lex_ctxt * lexic)
 
   content = get_plugin_preference_file_content (script_infos, value);
   if (content == NULL)
-    {
-      nasl_perror (lexic,
-                   "script_get_preference_file_content: could not get contents of file from preference %s\n",
-                   pref);
-      return FAKE_CELL;
-    }
+    return FAKE_CELL;
   contentsize = get_plugin_preference_file_size (script_infos, value);
   if (content <= 0)
     {
@@ -582,12 +577,7 @@ script_get_preference_file_location (lex_ctxt * lexic)
     }
   local = get_plugin_preference_fname (script_infos, value);
   if (local == NULL)
-    {
-      nasl_perror (lexic,
-                   "script_get_preference_file_location: could not get local file name from preference %s\n",
-                   pref);
-      return NULL;
-    }
+    return NULL;
 
   len = strlen (local);
   retc = alloc_typed_cell (CONST_DATA);
