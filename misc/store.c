@@ -24,7 +24,7 @@
  */
 
 /** @file
- * OpenVAS-Server employs a plugin cache to avoid parsing all known nvts at
+ * OpenVAS-Scanner employs a plugin cache to avoid parsing all known nvts at
  * start-up.
  *
  * The cache consists of a .desc file for each script (e.g. cache file of
@@ -175,7 +175,6 @@ struct arglist *
 store_load_plugin (const char *file, struct arglist *prefs)
 {
   struct arglist *ret;
-  struct arglist *al;
   int i;
 
   nvti_t *n = nvticache_get (nvti_cache, file);
@@ -183,54 +182,8 @@ store_load_plugin (const char *file, struct arglist *prefs)
     return NULL;
 
   ret = emalloc (sizeof (struct arglist));
-  plug_set_oid (ret, nvti_oid (n));
-  plug_set_version (ret, nvti_version (n));
-  plug_set_cve_id (ret, nvti_cve (n));
-  plug_set_bugtraq_id (ret, nvti_bid (n));
-  if (nvti_tag (n) != NULL)
-    arg_add_value (ret, "TAGS", ARG_STRING, strlen (nvti_tag (n)),
-                   estrdup (nvti_tag (n)));
-  if (nvti_xref (n) != NULL)
-    arg_add_value (ret, "XREFS", ARG_STRING, strlen (nvti_xref (n)),
-                   estrdup (nvti_xref (n)));
-  plug_set_summary (ret, nvti_summary (n));
-  plug_set_description (ret, nvti_description (n));
-  plug_set_copyright (ret, nvti_copyright (n));
-  plug_set_category (ret, nvti_category (n));
-  plug_set_path (ret, nvti_src (n));
-  plug_set_family (ret, nvti_family (n));
-  plug_set_sign_key_ids (ret, nvti_sign_key_ids (n));
 
-  al = str2arglist (nvti_required_ports (n));
-  if (al != NULL)
-    arg_add_value (ret, "required_ports", ARG_ARGLIST, -1, al);
-
-  al = str2arglist (nvti_required_keys (n));
-  if (al != NULL)
-    arg_add_value (ret, "required_keys", ARG_ARGLIST, -1, al);
-
-  al = str2arglist (nvti_mandatory_keys (n));
-  if (al != NULL)
-    arg_add_value (ret, "mandatory_keys", ARG_ARGLIST, -1, al);
-
-  al = str2arglist (nvti_required_udp_ports (n));
-  if (al != NULL)
-    arg_add_value (ret, "required_udp_ports", ARG_ARGLIST, -1, al);
-
-  al = str2arglist (nvti_excluded_keys (n));
-  if (al != NULL)
-    arg_add_value (ret, "excluded_keys", ARG_ARGLIST, -1, al);
-
-  al = str2arglist (nvti_dependencies (n));
-  if (al != NULL)
-    arg_add_value (ret, "DEPENDENCIES", ARG_ARGLIST, -1, al);
-
-  if (nvti_timeout (n) != 0)
-    arg_add_value (ret, "TIMEOUT", ARG_INT, -1,
-                   GSIZE_TO_POINTER (nvti_timeout (n)));
-
-  arg_add_value (ret, "NAME", ARG_STRING, strlen (nvti_name (n)),
-                 estrdup (nvti_name (n)));
+  plug_set_nvti (ret, n);
 
   arg_add_value (ret, "preferences", ARG_ARGLIST, -1, prefs);
 
@@ -240,8 +193,6 @@ store_load_plugin (const char *file, struct arglist *prefs)
       _add_plugin_preference (prefs, nvti_name (n), nvtpref_name (np),
                               nvtpref_type (np), nvtpref_default (np));
     }
-
-  nvti_free (n);
 
   return ret;
 }
@@ -262,8 +213,6 @@ store_plugin (struct arglist *plugin, char *file)
   gchar *desc_file = g_strconcat (dummy, ".nvti", NULL);
   // assume there is a ".nvti" at the end in the cache path
   gchar *path = g_strdup (file);
-  char *str;
-  struct arglist *arglist;
 
   g_free (dummy);
 
@@ -280,64 +229,8 @@ store_plugin (struct arglist *plugin, char *file)
       return;                   // g_build_filename failed
     }
 
-  nvti_t *n = nvti_new ();
-
-  nvti_set_oid (n, plug_get_oid (plugin));
-  nvti_set_version (n, plug_get_version (plugin));
-  nvti_set_name (n, plug_get_name (plugin));
-  nvti_set_summary (n, plug_get_summary (plugin));
-  nvti_set_description (n, plug_get_description (plugin));
-  nvti_set_copyright (n, plug_get_copyright (plugin));
-  nvti_set_cve (n, plug_get_cve_id (plugin));
-  nvti_set_bid (n, plug_get_bugtraq_id (plugin));
-  nvti_set_xref (n, plug_get_xref (plugin));
-  nvti_set_tag (n, plug_get_tag (plugin));
-  str = arglist2str (plug_get_deps (plugin));
-  nvti_set_dependencies (n, str);
-  efree (&str);
-  str = arglist2str (plug_get_required_keys (plugin));
-  nvti_set_required_keys (n, str);
-  efree (&str);
-  str = arglist2str (plug_get_mandatory_keys (plugin));
-  nvti_set_mandatory_keys (n, str);
-  efree (&str);
-  str = arglist2str (plug_get_excluded_keys (plugin));
-  nvti_set_excluded_keys (n, str);
-  efree (&str);
-  str = arglist2str (plug_get_required_ports (plugin));
-  nvti_set_required_ports (n, str);
-  efree (&str);
-  str = arglist2str (plug_get_required_udp_ports (plugin));
-  nvti_set_required_udp_ports (n, str);
-  efree (&str);
-  nvti_set_sign_key_ids (n, plug_get_sign_key_ids (plugin));
-  nvti_set_family (n, plug_get_family (plugin));
-  nvti_set_src (n, plug_get_path (plugin));
-  nvti_set_timeout (n, plug_get_timeout (plugin));
-  nvti_set_category (n, plug_get_category (plugin));
-
-  arglist = arg_get_value (plugin, "PLUGIN_PREFS");
-  if (arglist != NULL)
-    {
-      while (arglist->next != NULL)
-        {
-          nvtpref_t *np;
-          char *name = arglist->name;
-          char *dfl = arglist->value;
-          char *type, *str;
-
-          type = arglist->name;
-          str = strchr (type, '/');
-          str[0] = '\0';
-          name = str + 1;
-
-          np = nvtpref_new (name, type, dfl);
-          nvti_add_pref (n, np);
-
-          str[0] = '/';
-          arglist = arglist->next;
-        }
-    }
+  nvti_t *n = arg_get_value (plugin, "NVTI");
+  if (!n) n = nvti_new();
 
   nvti_to_keyfile (n, desc_file);
   nvti_free (n);

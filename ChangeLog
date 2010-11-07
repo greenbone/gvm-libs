@@ -1,3 +1,34 @@
+2010-11-07  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	This patch removes the use of arglist elements for storing
+	NVT meta data. It is replaced by usng the NVTI structure.
+	This lowers the overall memory footprint of the scanner.
+	It is also intended that the use of the plug_set* and plug_get*
+	commands is reduced in the scanner, removed entirely in the
+	optimal case.
+ 
+	* misc/plugutils.c (plug_set_nvti, plug_get_nvti): New.
+	(plug_set_version, plug_get_version, plug_set_path, plug_get_path,
+	plug_set_id, plug_get_oid, plug_get_oid, plug_set_cve_id,
+	plug_get_cve_id, plug_set_bugtraq_id, plug_get_bugtraq_id,
+	plug_set_xref, plug_get_xref, plug_set_tag, plug_get_tag,
+	plug_set_sign_key_ids, plug_get_sign_key_ids, plug_set_family,
+	plug_get_family, plug_require_key, plug_get_required_keys,
+	plug_mandatory_key, plug_get_mandatory_keys, plug_exclude_key,
+	plug_get_excluded_keys, plug_require_port, plug_get_required_ports,
+	plug_require_udp_port, plug_get_required_udp_ports, plug_set_dep,
+	plug_get_deps, plug_set_timeout, plug_get_timeout, plug_set_name,
+	plug_get_name, plug_set_summary, plug_get_summary,
+	plug_set_description, plug_get_description, plug_set_copyright,
+	plug_get_copyright, plug_set_category, plug_get_category,
+	add_plugin_preference): Set and get the data from the nvti
+	object instead of using arglist elements.
+
+	* misc/plugutils.h: Added nvti and new protos.
+
+	* misc/store.c (store_load_plugin, store_plugin): Only handle
+	the nvti obejct.
+
 2010-10-27  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post branch version bump.

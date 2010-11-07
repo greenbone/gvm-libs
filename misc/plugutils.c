@@ -178,33 +178,55 @@ rmslashes (char *in)
   return realloc (ret, strlen (ret) + 1);
 }
 
+void
+plug_set_nvti (struct arglist *desc, nvti_t *n)
+{
+  nvti_t *previous = arg_get_value (desc, "NVTI");
+  if (! n)
+    return;
+
+  if (previous)
+    nvti_free (previous);
+
+  arg_add_value (desc, "NVTI", ARG_PTR, -1, n);
+}
+
+nvti_t *
+plug_get_nvti (struct arglist *desc)
+{
+  nvti_t *n = arg_get_value (desc, "NVTI");
+
+  if (!n)
+    {
+      n = nvti_new();
+      arg_add_value (desc, "NVTI", ARG_PTR, -1, n);
+    }
+
+  return n;
+}
 
 void
 plug_set_version (struct arglist *desc, const char *version)
 {
-  if (version)
-    arg_add_value (desc, "VERSION", ARG_STRING, strlen (version),
-                   estrdup ((char *) version));
+  nvti_set_version (plug_get_nvti (desc), version);
 }
 
 char *
 plug_get_version (struct arglist *desc)
 {
-  return arg_get_value (desc, "VERSION");
+  return nvti_version (plug_get_nvti (desc));
 }
 
 void
 plug_set_path (struct arglist *desc, const char *path)
 {
-  if (path)
-    arg_add_value (desc, "PATH", ARG_STRING, strlen (path),
-                   estrdup ((char *) path));
+  nvti_set_src (plug_get_nvti (desc), path);
 }
 
 char *
 plug_get_path (struct arglist *desc)
 {
-  return arg_get_value (desc, "PATH");
+  return nvti_src (plug_get_nvti (desc));
 }
 
 void
@@ -212,18 +234,10 @@ plug_set_id (struct arglist *desc, int id)
 {
   arg_add_value (desc, "ID", ARG_INT, sizeof (gpointer), GSIZE_TO_POINTER (id));
   /* If a script_id has been set then set a matching script_oid */
-  char *oldid = arg_get_value (desc, "OID");
-  if (oldid != NULL)
-    {
-      oldid = erealloc (oldid, strlen (LEGACY_OID) + (sizeof (id) * 3) + 1);
-    }
-  else
-    {
-      oldid = emalloc (strlen (LEGACY_OID) + (sizeof (id) * 3) + 1);
-    }
-  // RATS: ignore
-  snprintf (oldid, 100, LEGACY_OID "%i", id);
-  arg_add_value (desc, "OID", ARG_STRING, strlen (oldid), estrdup (oldid));
+  char new[100];
+
+  snprintf (new, sizeof (new), LEGACY_OID "%i", id); // RATS: ignore
+  nvti_set_oid (plug_get_nvti (desc), new);
 #ifdef DEBUG
   fprintf (stderr, "plug_set_id: Legacy plugin %i detected\n", id);
 #endif
@@ -242,7 +256,7 @@ plug_set_oid (struct arglist *desc, char *id)
   /* Only allow a scipt_oid to be set if no script_id has already been set */
   if (oldid <= 0)
     {
-      arg_add_value (desc, "OID", ARG_STRING, strlen (id), estrdup (id));
+      nvti_set_oid (plug_get_nvti (desc), id);
     }
   else
     {
@@ -255,122 +269,91 @@ plug_set_oid (struct arglist *desc, char *id)
 char *
 plug_get_oid (struct arglist *desc)
 {
-  return arg_get_value (desc, "OID");
+  return nvti_oid (plug_get_nvti (desc));
 }
 
 void
 plug_set_cve_id (struct arglist *desc, char *id)
 {
-  char *old = arg_get_value (desc, "CVE_ID");
+  nvti_t *n = plug_get_nvti (desc);
+  gchar *new = g_strconcat (nvti_cve (n), ", ", id, NULL);
 
-  if (!id)
-    return;
-
-  if (old != NULL)
-    {
-      old = erealloc (old, strlen (old) + strlen (id) + 3);
-      strcat (old, ", ");       /* RATS: ignore */
-      /* Rid ff warnings */
-      /* Stmt's valid since len(id)+len(old)+len('\0'+", ") = size of realloc'd memory */
-      strcat (old, id);         /* RATS: ignore */
-      arg_set_value (desc, "CVE_ID", strlen (old), old);
-    }
+  if (new)
+  {
+    nvti_set_cve (n, new);
+    g_free (new);
+  }
   else
-    arg_add_value (desc, "CVE_ID", ARG_STRING, strlen (id), estrdup (id));
+    nvti_set_cve (n, id);
 }
 
 char *
 plug_get_cve_id (struct arglist *desc)
 {
-  return arg_get_value (desc, "CVE_ID");
+  return nvti_cve (plug_get_nvti (desc));
 }
-
 
 void
 plug_set_bugtraq_id (struct arglist *desc, char *id)
 {
-  char *old = arg_get_value (desc, "BUGTRAQ_ID");
+  nvti_t *n = plug_get_nvti (desc);
+  gchar *new = g_strconcat (nvti_bid (n), ", ", id, NULL);
 
-  if (!id)
-    return;
-
-  if (old != NULL)
-    {
-      old = erealloc (old, strlen (old) + strlen (id) + 3);
-      strcat (old, ", ");       /* RATS: ignore */
-      strcat (old, id);         /* RATS: ignore */
-      arg_set_value (desc, "BUGTRAQ_ID", strlen (old), old);
-    }
+  if (new)
+  {
+    nvti_set_bid (n, new);
+    g_free (new);
+  }
   else
-    arg_add_value (desc, "BUGTRAQ_ID", ARG_STRING, strlen (id), estrdup (id));
+    nvti_set_bid (n, id);
 }
 
 char *
 plug_get_bugtraq_id (struct arglist *desc)
 {
-  return arg_get_value (desc, "BUGTRAQ_ID");
+  return nvti_bid (plug_get_nvti (desc));
 }
 
 void
 plug_set_xref (struct arglist *desc, char *name, char *value)
 {
-  char *old = arg_get_value (desc, "XREFS");
-  if (old != NULL)
-    {
-      old = erealloc (old, strlen (old) + strlen (name) + strlen (value) + 4);
-      strcat (old, ", ");       /* RATS: ignore */
-      strcat (old, name);       /* RATS: ignore */
-      strcat (old, ":");        /* RATS: ignore */
-      strcat (old, value);      /* RATS: ignore */
-      arg_set_value (desc, "XREFS", strlen (old), old);
-    }
+  nvti_t *n = plug_get_nvti (desc);
+  char *new;
+
+  if (nvti_xref (n))
+    new = g_strconcat (nvti_xref (n), ", ", name, ":", value, NULL);
   else
-    {
-      char *str;
-      // g_strdup_printf
-      str = emalloc (strlen (name) + strlen (value) + 2);
-      strcat (str, name);       /* RATS: ignore */
-      strcat (str, ":");
-      strcat (str, value);      /* RATS: ignore */
-      arg_add_value (desc, "XREFS", ARG_STRING, strlen (str), str);
-    }
+    new = g_strconcat (name, ":", value, NULL);
+
+  nvti_set_xref (n, new);
+  g_free (new);
 }
 
 char *
 plug_get_xref (struct arglist *desc)
 {
-  return arg_get_value (desc, "XREFS");
+  return nvti_xref (plug_get_nvti (desc));
 }
 
 void
 plug_set_tag (struct arglist *desc, char *name, char *value)
 {
-  char *old = arg_get_value (desc, "TAGS");
-  if (old != NULL)
-    {
-      old = erealloc (old, strlen (old) + strlen (name) + strlen (value) + 3);
-      strcat (old, "|");
-      strcat (old, name);       /* RATS: ignore */
-      strcat (old, "=");
-      strcat (old, value);      /* RATS: ignore */
-      arg_set_value (desc, "TAGS", strlen (old), old);
-    }
-  else
-    {
-      char *str;
+  nvti_t *n = plug_get_nvti (desc);
+  char *new;
 
-      str = emalloc (strlen (name) + strlen (value) + 2);
-      strcat (str, name);       /* RATS: ignore */
-      strcat (str, "=");
-      strcat (str, value);      /* RATS: ignore */
-      arg_add_value (desc, "TAGS", ARG_STRING, strlen (str), str);
-    }
+  if (nvti_tag (n))
+    new = g_strconcat (nvti_tag (n), "|", name, "=", value, NULL);
+  else
+    new = g_strconcat (name, "=", value, NULL);
+
+  nvti_set_tag (n, new);
+  g_free (new);
 }
 
 char *
 plug_get_tag (struct arglist *desc)
 {
-  return arg_get_value (desc, "TAGS");
+  return nvti_tag (plug_get_nvti (desc));
 }
 
 /**
@@ -385,21 +368,16 @@ plug_get_tag (struct arglist *desc)
 void
 plug_set_sign_key_ids (struct arglist *desc, char *key_ids)
 {
-  char *value = plug_get_sign_key_ids (desc);
-  if (key_ids == NULL)
-    return;
-  if (value != NULL)
-    {
-      value = erealloc (value, strlen (value) + strlen (key_ids) + 2);
-      strcat (value, ",");
-      strcat (value, key_ids);  /* RATS: ignore */
-      arg_add_value (desc, "SIGN_KEY_IDS", ARG_STRING, strlen (value), value);
-    }
+  nvti_t *n = plug_get_nvti (desc);
+  gchar *new = g_strconcat (nvti_sign_key_ids (n), ", ", key_ids, NULL);
+
+  if (new)
+  {
+    nvti_set_sign_key_ids (n, new);
+    g_free (new);
+  }
   else
-    {
-      arg_add_value (desc, "SIGN_KEY_IDS", ARG_STRING, strlen (key_ids),
-                     estrdup (key_ids));
-    }
+    nvti_set_sign_key_ids (n, key_ids);
 }
 
 /**
@@ -408,179 +386,183 @@ plug_set_sign_key_ids (struct arglist *desc, char *key_ids)
 char *
 plug_get_sign_key_ids (struct arglist *desc)
 {
-  return arg_get_value (desc, "SIGN_KEY_IDS");
+  return nvti_sign_key_ids (plug_get_nvti (desc));
 }
-
 
 void
 plug_set_family (struct arglist *desc, const char *family)
 {
-  if (!family)
-    return;
-
-  arg_add_value (desc, "FAMILY", ARG_STRING, strlen (family), estrdup (family));
+  nvti_set_family (plug_get_nvti (desc), family);
 }
 
 char *
 plug_get_family (struct arglist *desc)
 {
-  return arg_get_value (desc, "FAMILY");
+  return nvti_family (plug_get_nvti (desc));
 }
-
 
 void
 plug_require_key (struct arglist *desc, const char *keyname)
 {
-  struct arglist *keys;
-  if (keyname)
-    {
-      keys = arg_get_value (desc, "required_keys");
-      if (!keys)
-        {
-          keys = emalloc (sizeof (struct arglist));
-          arg_add_value (desc, "required_keys", ARG_ARGLIST, -1, keys);
-        }
-      arg_add_value (keys, keyname, ARG_INT, 0, (void *) 1);
-    }
-}
+  nvti_t *n = plug_get_nvti (desc);
+  struct arglist *keys = str2arglist (nvti_required_keys (n));
+  char * str;
 
+  if (!keys)
+    keys = emalloc (sizeof (struct arglist));
+
+  arg_add_value (keys, keyname, ARG_STRING, 0, estrdup (""));
+
+  str = arglist2str (keys);
+  nvti_set_required_keys (n, str);
+
+  efree (&str);
+  arg_free_all (keys);
+}
 
 struct arglist *
 plug_get_required_keys (struct arglist *desc)
 {
-  return arg_get_value (desc, "required_keys");
+  return str2arglist (nvti_required_keys (plug_get_nvti (desc)));
 }
 
 void
 plug_mandatory_key (struct arglist *desc, const char *keyname)
 {
-  struct arglist *keys;
-  if (keyname)
-    {
-      keys = arg_get_value (desc, "mandatory_keys");
-      if (!keys)
-        {
-          keys = emalloc (sizeof (struct arglist));
-          arg_add_value (desc, "mandatory_keys", ARG_ARGLIST, -1, keys);
-        }
-      arg_add_value (keys, keyname, ARG_INT, 0, (void *) 1);
-    }
-}
+  nvti_t *n = plug_get_nvti (desc);
+  struct arglist *keys = str2arglist (nvti_mandatory_keys (n));
+  char * str;
 
+  if (!keys)
+    keys = emalloc (sizeof (struct arglist));
+
+  arg_add_value (keys, keyname, ARG_STRING, 0, estrdup (""));
+
+  str = arglist2str (keys);
+  nvti_set_mandatory_keys (n, str);
+
+  efree (&str);
+  arg_free_all (keys);
+}
 
 struct arglist *
 plug_get_mandatory_keys (struct arglist *desc)
 {
-  return arg_get_value (desc, "mandatory_keys");
+  return str2arglist (nvti_mandatory_keys (plug_get_nvti (desc)));
 }
 
 void
 plug_exclude_key (struct arglist *desc, const char *keyname)
 {
-  struct arglist *keys;
-  if (keyname)
-    {
-      keys = arg_get_value (desc, "excluded_keys");
-      if (!keys)
-        {
-          keys = emalloc (sizeof (struct arglist));
-          arg_add_value (desc, "excluded_keys", ARG_ARGLIST, -1, keys);
-        }
-      arg_add_value (keys, keyname, ARG_INT, 0, (void *) 1);
-    }
+  nvti_t *n = plug_get_nvti (desc);
+  struct arglist *keys = str2arglist (nvti_excluded_keys (n));
+  char * str;
+
+  if (!keys)
+    keys = emalloc (sizeof (struct arglist));
+
+  arg_add_value (keys, keyname, ARG_STRING, 0, estrdup (""));
+
+  str = arglist2str (keys);
+  nvti_set_excluded_keys (n, str);
+
+  efree (&str);
+  arg_free_all (keys);
 }
 
 struct arglist *
 plug_get_excluded_keys (struct arglist *desc)
 {
-  return arg_get_value (desc, "excluded_keys");
+  return str2arglist (nvti_excluded_keys (plug_get_nvti (desc)));
 }
 
 void
 plug_require_port (struct arglist *desc, const char *portname)
 {
-  struct arglist *ports;
+  nvti_t *n = plug_get_nvti (desc);
+  struct arglist *ports = str2arglist (nvti_required_ports (n));
+  char * str;
 
-  if (portname != NULL)
-    {
-      ports = arg_get_value (desc, "required_ports");
-      if (!ports)
-        {
-          ports = emalloc (sizeof (struct arglist));
-          arg_add_value (desc, "required_ports", ARG_ARGLIST, -1, ports);
-        }
+  if (!ports)
+    ports = emalloc (sizeof (struct arglist));
 
-      arg_add_value (ports, portname, ARG_INT, 0, (void *) 1);
-    }
+  arg_add_value (ports, portname, ARG_INT, 0, (void *) 1);
+
+  str = arglist2str (ports);
+  nvti_set_required_ports (n, str);
+
+  efree (&str);
+  arg_free_all (ports);
 }
 
 struct arglist *
 plug_get_required_ports (struct arglist *desc)
 {
-  return arg_get_value (desc, "required_ports");
+  return str2arglist (nvti_required_ports (plug_get_nvti (desc)));
 }
 
 
 void
 plug_require_udp_port (struct arglist *desc, const char *portname)
 {
-  struct arglist *ports;
+  nvti_t *n = plug_get_nvti (desc);
+  struct arglist *ports = str2arglist (nvti_required_udp_ports (n));
+  char * str;
 
-  if (portname != NULL)
-    {
-      ports = arg_get_value (desc, "required_udp_ports");
-      if (!ports)
-        {
-          ports = emalloc (sizeof (struct arglist));
-          arg_add_value (desc, "required_udp_ports", ARG_ARGLIST, -1, ports);
-        }
+  if (!ports)
+    ports = emalloc (sizeof (struct arglist));
 
-      arg_add_value (ports, portname, ARG_INT, 0, (void *) 1);
-    }
+  arg_add_value (ports, portname, ARG_INT, 0, (void *) 1);
+
+  str = arglist2str (ports);
+  nvti_set_required_udp_ports (n, str);
+
+  efree (&str);
+  arg_free_all (ports);
 }
 
 struct arglist *
 plug_get_required_udp_ports (struct arglist *desc)
 {
-  return arg_get_value (desc, "required_udp_ports");
+  return str2arglist (nvti_required_udp_ports (plug_get_nvti (desc)));
 }
-
 
 void
 plug_set_dep (struct arglist *desc, const char *depname)
 {
-  struct arglist *deps;
-  if (depname)
-    {
-      deps = arg_get_value (desc, "DEPENDENCIES");
-      if (!deps)
-        {
-          deps = emalloc (sizeof (struct arglist));
-          arg_add_value (desc, "DEPENDENCIES", ARG_ARGLIST, -1, deps);
-        }
-      arg_add_value (deps, depname, ARG_STRING, 0, estrdup (""));
-    }
+  nvti_t *n = plug_get_nvti (desc);
+  struct arglist *deps = str2arglist (nvti_dependencies (n));
+  char * str;
+
+  if (!deps)
+    deps = emalloc (sizeof (struct arglist));
+
+  arg_add_value (deps, depname, ARG_STRING, 0, estrdup (""));
+
+  str = arglist2str (deps);
+  nvti_set_dependencies (n, str);
+
+  efree (&str);
+  arg_free_all (deps);
 }
 
 struct arglist *
 plug_get_deps (struct arglist *desc)
 {
-  return arg_get_value (desc, "DEPENDENCIES");
+  return str2arglist (nvti_dependencies (plug_get_nvti (desc)));
 }
 
 void
 plug_set_timeout (struct arglist *desc, int timeout)
 {
-  arg_add_value (desc, "TIMEOUT", ARG_INT, sizeof (gpointer),
-                 GSIZE_TO_POINTER (timeout));
+  nvti_set_timeout (plug_get_nvti (desc), timeout);
 }
 
 int
 plug_get_timeout (struct arglist *desc)
 {
-  return GPOINTER_TO_SIZE (arg_get_value (desc, "TIMEOUT"));
+  return nvti_timeout (plug_get_nvti (desc));
 }
-
 
 void
 plug_set_launch (struct arglist *desc, int launch)
@@ -600,86 +582,65 @@ plug_get_launch (struct arglist *desc)
   return (GPOINTER_TO_SIZE (arg_get_value (desc, "ENABLED")));
 }
 
-
 void
 plug_set_name (struct arglist *desc, const char *name)
 {
-  if (!name)
-    return;
-
-  arg_add_value (desc, "NAME", ARG_STRING, strlen (name), estrdup (name));
+  nvti_set_name (plug_get_nvti (desc), name);
 }
 
 char *
 plug_get_name (struct arglist *desc)
 {
-  return arg_get_value (desc, "NAME");
+  return nvti_name (plug_get_nvti (desc));
 }
-
 
 void
 plug_set_summary (struct arglist *desc, const char *summary)
 {
-  if (!summary)
-    return;
-
-  arg_add_value (desc, "SUMMARY", ARG_STRING, strlen (summary),
-                 estrdup (summary));
+  nvti_set_summary (plug_get_nvti (desc), summary);
 }
 
 char *
 plug_get_summary (struct arglist *desc)
 {
-  return arg_get_value (desc, "SUMMARY");
+  return nvti_summary (plug_get_nvti (desc));
 }
-
 
 void
 plug_set_description (struct arglist *desc, const char *description)
 {
-  if (!description)
-    return;
-
-  arg_add_value (desc, "DESCRIPTION", ARG_STRING, strlen (description),
-                 estrdup (description));
+  nvti_set_description (plug_get_nvti (desc), description);
 }
 
 char *
 plug_get_description (struct arglist *desc)
 {
-  return arg_get_value (desc, "DESCRIPTION");
+  return nvti_description (plug_get_nvti (desc));
 }
 
 void
 plug_set_copyright (struct arglist *desc, const char *copyright)
 {
-  if (!copyright)
-    return;
-
-  arg_add_value (desc, "COPYRIGHT", ARG_STRING, strlen (copyright),
-                 estrdup (copyright));
+  nvti_set_copyright (plug_get_nvti (desc), copyright);
 }
 
 char *
 plug_get_copyright (struct arglist *desc)
 {
-  return arg_get_value (desc, "COPYRIGHT");
+  return nvti_copyright (plug_get_nvti (desc));
 }
-
 
 void
 plug_set_category (struct arglist *desc, int category)
 {
-  arg_add_value (desc, "CATEGORY", ARG_INT, sizeof (gpointer),
-                 GSIZE_TO_POINTER (category));
+  nvti_set_category (plug_get_nvti (desc), category);
 }
 
 int
 plug_get_category (struct arglist *desc)
 {
-  return GPOINTER_TO_SIZE (arg_get_value (desc, "CATEGORY"));
+  return nvti_category (plug_get_nvti (desc));
 }
-
 
 void
 plug_add_host (struct arglist *desc, struct arglist *hostname)
@@ -1106,17 +1067,10 @@ void
 add_plugin_preference (struct arglist *desc, const char *name, const char *type,
                        const char *defaul)
 {
-  struct arglist *prefs = arg_get_value (desc, "PLUGIN_PREFS");
-  char pref[1024];
+  nvti_t *n = plug_get_nvti (desc);
+  nvtpref_t *np = nvtpref_new ((gchar *)name, (gchar *)type, (gchar *)defaul);
 
-  if (prefs == NULL)
-    {
-      prefs = emalloc (sizeof (struct arglist));
-      arg_add_value (desc, "PLUGIN_PREFS", ARG_ARGLIST, -1, prefs);
-    }
-
-  snprintf (pref, sizeof (pref), "%s/%s", type, name);  /* RATS: ignore */
-  arg_add_value (prefs, pref, ARG_STRING, strlen (defaul), estrdup (defaul));
+  nvti_add_pref (n, np);
 }
 
 

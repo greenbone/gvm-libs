@@ -28,6 +28,8 @@
 
 #include "arglists.h"
 
+#include "nvti.h"
+
 #define LEGACY_OID "1.3.6.1.4.1.25623.1.0."
 
 void scanner_add_port (struct arglist *, int, char *);
@@ -36,6 +38,9 @@ void scanner_add_port (struct arglist *, int, char *);
 /*
  * Arglist management at plugin-level
  */
+void plug_set_nvti (struct arglist *, nvti_t *);
+nvti_t *plug_get_nvti (struct arglist *);
+
 void plug_set_name (struct arglist *, const char *);
 char *plug_get_name (struct arglist *);
 
