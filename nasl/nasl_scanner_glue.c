@@ -609,6 +609,50 @@ safe_checks (lex_ctxt * lexic)
   return retc;
 }
 
+tree_cell *
+scan_phase (lex_ctxt * lexic)
+{
+  struct arglist *script_infos = lexic->script_infos;
+  struct arglist *globals = arg_get_value (script_infos, "globals");
+  char *value;
+  tree_cell *retc = alloc_tree_cell (0, NULL);
+
+  retc->type = CONST_INT;
+  value = arg_get_value (globals, "network_scan_status");
+  if (value)
+    {
+      if (strcmp (value, "busy") == 0)
+        retc->x.i_val = 1;
+      else
+        retc->x.i_val = 2;
+    }
+  else
+    retc->x.i_val = 0;
+
+  return retc;
+}
+
+tree_cell *
+network_targets (lex_ctxt * lexic)
+{
+  struct arglist *script_infos = lexic->script_infos;
+  struct arglist *globals = arg_get_value (script_infos, "globals");
+  char *value;
+  tree_cell *retc;
+
+  value = arg_get_value (globals, "network_targets");
+  retc = alloc_typed_cell (CONST_DATA);
+  if (value)
+    {
+      retc->x.str_val = strdup (value);
+      retc->size = strlen (value);
+    }
+  else
+    return NULL;
+
+  return retc;
+}
+
 /*--------------------[ KB ]---------------------------------------*/
 
 #define SECRET_KB_PREFIX	"Secret/"

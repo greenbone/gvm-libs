@@ -1,3 +1,16 @@
+2010-11-09  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	New functions for network level scans as described in OpenVAS Change
+	Request #49 (see http://www.openvas.org/openvas-cr-49.html).
+
+	* nasl/nasl_scanner_glue.c (scan_phase, network_targets): New
+	functions to retrieve the current scan phase and network targes from
+	the KB.
+
+	* nasl/nasl_scanner_glue.h: Updated.
+
+	* nasl/nasl_init.c: Exposed new functions.
+
 2010-11-07  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	This patch removes the use of arglist elements for storing

@@ -45,6 +45,8 @@ tree_cell *script_get_preference (lex_ctxt *);
 tree_cell *script_get_preference_file_content (lex_ctxt *);
 tree_cell *script_get_preference_file_location (lex_ctxt *);
 tree_cell *safe_checks (lex_ctxt *);
+tree_cell *scan_phase (lex_ctxt *);
+tree_cell *network_targets (lex_ctxt *);
 tree_cell *get_kb_item (lex_ctxt *);
 tree_cell *get_kb_fresh_item (lex_ctxt *);
 tree_cell *get_kb_list (lex_ctxt *);
