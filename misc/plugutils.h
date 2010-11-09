@@ -26,9 +26,9 @@
 #ifndef OPENVAS_PLUGUTILS_H
 #define OPENVAS_PLUGUTILS_H
 
-#include "arglists.h"
+#include "../misc/arglists.h"
 
-#include "nvti.h"
+#include "../base/nvti.h"
 
 #define LEGACY_OID "1.3.6.1.4.1.25623.1.0."
 

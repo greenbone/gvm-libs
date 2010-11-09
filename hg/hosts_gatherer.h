@@ -20,7 +20,7 @@
 #define HOSTS_GATHERER_H__
 
 #include <netinet/in.h>         /* for in_addr */
-#include "arglists.h"
+#include "../misc/arglists.h"
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff

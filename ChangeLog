@@ -1,3 +1,11 @@
+2010-11-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/CMakeLists.txt: Changed install directory for headers
+	of library "misc" from "openvas" to "openvas/misc".
+
+	* nasl/nasl.h, hg/hosts_gatherer.h, misc/plugutils.h,
+	nasl/nasl_debug.c: Adjusted include paths accordingly.
+
 2010-11-09  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	New functions for network level scans as described in OpenVAS Change

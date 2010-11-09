@@ -263,4 +263,4 @@ install (TARGETS openvas_misc_static openvas_misc_shared
          RUNTIME DESTINATION ${BINDIR}
          LIBRARY DESTINATION ${LIBDIR}
          ARCHIVE DESTINATION ${LIBDIR}
-         PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/openvas")
+         PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/openvas/misc")
