@@ -145,18 +145,18 @@ endif (NOT MINGW)
 
 if (MINGW)
   set  (FILES array.c certificate.c credentials.c
-       hash_table_util.c nvti.c nvticache.c openvas_certificate_file.c
+       hash_table_util.c memory.c nvti.c nvticache.c openvas_certificate_file.c
        openvas_file.c openvas_string.c pidfile.c severity_filter.c settings.c)
   set (HEADERS array.h certificate.h credentials.h
-       hash_table_util.h nvti.h settings.h openvas_certificate_file.h openvas_file.h
+       hash_table_util.h memory.h nvti.h settings.h openvas_certificate_file.h openvas_file.h
        openvas_string.h pidfile.h severity_filter.h)
 else (MINGW)
   set (FILES array.c certificate.c credentials.c drop_privileges.c
-       hash_table_util.c nvti.c nvticache.c openvas_certificate_file.c
+       hash_table_util.c memory.c nvti.c nvticache.c openvas_certificate_file.c
        openvas_file.c openvas_string.c pidfile.c severity_filter.c settings.c)
 
   set (HEADERS array.h certificate.h credentials.h drop_privileges.h
-       hash_table_util.h nvti.h settings.h openvas_certificate_file.h openvas_file.h
+       hash_table_util.h memory.h nvti.h settings.h openvas_certificate_file.h openvas_file.h
        openvas_string.h pidfile.h severity_filter.h)
 endif (MINGW)
 
