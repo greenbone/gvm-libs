@@ -1,5 +1,10 @@
 2010-11-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_func.c (qsortcmp): Added this typedef to allow proper cast.
+	(insert_nasl_func): Apply cast to qsortcmp for strcmp used in qsort.
+
+2010-11-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/bpf_share.c (bpf_open_live): Lowered limit of for-loop by 1
 	because currently it would exceed the fixed field size.
 	This is just from reading the code and because we got a compiler

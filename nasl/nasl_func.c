@@ -74,6 +74,8 @@ get_func (lex_ctxt * ctxt, const char *name, int h)
   return NULL;
 }
 
+typedef int(*qsortcmp)(const void *, const void *);
+
 nasl_func *
 insert_nasl_func (lex_ctxt * lexic, const char *fname, tree_cell * decl_node)
 {
@@ -106,7 +108,7 @@ insert_nasl_func (lex_ctxt * lexic, const char *fname, tree_cell * decl_node)
           pf->args_names[i++] = estrdup (pc->x.str_val);
       /* Sort argument names */
       qsort (pf->args_names, pf->nb_named_args, sizeof (pf->args_names[0]),
-             strcmp);
+             (qsortcmp)strcmp);
 
       pf->block = decl_node->link[1];
       ref_cell (pf->block);
