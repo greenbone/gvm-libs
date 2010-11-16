@@ -337,51 +337,6 @@ openvas_log_silent (const char *log_domain, GLogLevelFlags log_level,
 }
 
 /**
- * @brief Sends message to syslog.
- *
- * @param log_domain (ignored) A string containing the message's log domain.
- * @param log_level  Flags defining the message's log level.
- * @param message    A string containing the log message.
- * @param openvas_log_config_list (ignored) A pointer to the configuration
- *                                linked list.
- *
- * @TODO: syslog logging is now handled in openvas_log_func, do we need a
- * separate handler for this?
- */
-static void
-openvas_syslog_func (const char *log_domain, GLogLevelFlags log_level,
-                     const char *message, gpointer openvas_log_config_list)
-{
-  switch (log_level)
-    {
-    case G_LOG_FLAG_FATAL:
-      syslog (LOG_ALERT, "%s", message);
-      break;
-    case G_LOG_LEVEL_ERROR:
-      syslog (LOG_ERR, "%s", message);
-      break;
-    case G_LOG_LEVEL_CRITICAL:
-      syslog (LOG_CRIT, "%s", message);
-      break;
-    case G_LOG_LEVEL_WARNING:
-      syslog (LOG_WARNING, "%s", message);
-      break;
-    case G_LOG_LEVEL_MESSAGE:
-      syslog (LOG_NOTICE, "%s", message);
-      break;
-    case G_LOG_LEVEL_INFO:
-      syslog (LOG_INFO, "%s", message);
-      break;
-    case G_LOG_LEVEL_DEBUG:
-      syslog (LOG_DEBUG, "%s", message);
-      break;
-    default:
-      syslog (LOG_INFO, "%s", message);
-      break;
-    }
-}
-
-/**
  * @brief Creates the formatted string and outputs it to the log destination.
  *
  * @param log_domain A string containing the message's log domain.
@@ -401,7 +356,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
 
   /* For link list operations. */
   GSList *log_domain_list_tmp;
-  openvas_logging_t *log_domain_entry;
+  openvas_logging_t *log_domain_entry = NULL;
 
   /* Channel to log through. */
   GIOChannel *channel;

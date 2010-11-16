@@ -559,9 +559,7 @@ hg_add_ipv6host_with_options (struct hg_globals *globals, char *hostname,
                               struct in6_addr *ip, int alive, int netmask,
                               int use_max, struct in6_addr *ip_max)
 {
-  /** @TODO To be sane, shouldnt c_hostname be initialized to NULL? What is it
-   *        used for anyways? */
-  char *c_hostname;
+  char *c_hostname = NULL;
   struct hg_host *host;
   int i;
   char local_hostname[1024];

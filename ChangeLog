@@ -1,3 +1,19 @@
+2010-11-16  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Addressed compiler warnings regarding uninitialized variables and
+	unused functions.
+
+	* nasl/nasl_packet_forgery_v6.c (forge_icmp_v6_packet): Make sure
+	routersolicit, routeradvert, neighborsolicit and neighboradvert are
+	initialized before use.
+
+	* hg/hg_add_hosts.c (hg_add_ipv6host_with_options): Addressed TODO,
+	ensure c_hostname is initialized before use.
+
+	* misc/openvas_logging.c (openvas_syslog_func): Removed superfluous
+	function, logging to syslog is now handled by openvas_log_func.
+	(openvas_log_func): Ensure log_domain_entry is initialized before use.
+
 2010-11-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/CMakeLists.txt: Removed accidental change in last commit.

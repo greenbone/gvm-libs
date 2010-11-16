@@ -1191,10 +1191,10 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
   struct ip6_hdr *ip6_icmp;
   int ip6_sz, size = 0, sz = 0;
   struct icmp6_hdr *icmp;
-  struct nd_router_solicit *routersolicit;
-  struct nd_router_advert *routeradvert;
-  struct nd_neighbor_solicit *neighborsolicit;
-  struct nd_neighbor_advert *neighboradvert;
+  struct nd_router_solicit *routersolicit = NULL;
+  struct nd_router_advert *routeradvert = NULL;
+  struct nd_neighbor_solicit *neighborsolicit = NULL;
+  struct nd_neighbor_advert *neighboradvert = NULL;
 
   char *data, *p;
   int len;
