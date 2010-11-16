@@ -43,7 +43,7 @@ bpf_open_live (char *iface, char *filter)
   struct bpf_program filter_prog;
   int i;
 
-  for (i = 0; i < NUM_CLIENTS && pcaps[i]; i++)
+  for (i = 0; (i < (NUM_CLIENTS - 1)) && (pcaps[i]); i++)
     ;
 
   if (pcaps[i])

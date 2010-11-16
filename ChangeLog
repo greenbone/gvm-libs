@@ -1,3 +1,11 @@
+2010-11-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/bpf_share.c (bpf_open_live): Lowered limit of for-loop by 1
+	because currently it would exceed the fixed field size.
+	This is just from reading the code and because we got a compiler
+	warning "array subscript is above array bounds". It is unclear
+	how or whether there is any positive effect in practice at all.
+
 2010-11-16  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Addressed compiler warnings regarding uninitialized variables and
