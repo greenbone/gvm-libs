@@ -176,7 +176,7 @@ endif (NOT BUILD_WITH_LDAP)
 # Library
 
 set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG}")
-set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -fPIC")
+set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -Werror -fPIC")
 
 if (MINGW)
   set (FILES openvas_auth.c openvas_server.c proctitle.c)

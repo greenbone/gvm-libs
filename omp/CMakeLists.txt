@@ -134,7 +134,7 @@ exec_program (pkg-config
 ## Library
 
 set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG}")
-set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall")
+set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -Werror")
 
 set (FILES xml.c omp.c)
 
