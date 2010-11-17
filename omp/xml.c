@@ -487,7 +487,7 @@ read_entity_and_string (gnutls_session_t * session, entity_t * entity,
           break;
         }
 
-      g_message ("<= %.*s\n", count, buffer_start);
+      g_message ("<= %.*s\n", (int) count, buffer_start);
 
       if (string)
         g_string_append_len (string, buffer_start, count);

@@ -1,5 +1,15 @@
 2010-11-17  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Addressed more 64 bit compiler warnings.
+
+	* misc/openvas_server.c (openvas_server_send): Cast argument to int
+	when using it to specify field precision.
+
+	* omp/xml.c (read_entity_and_string): Cast argument to int
+	when using it to specify field precision.
+
+2010-11-17  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Addressed two 64 bit compiler warnings.
 
 	* misc/openvas_server.c (openvas_server_send): Use %zu for size_t.

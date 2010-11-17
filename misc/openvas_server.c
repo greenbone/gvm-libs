@@ -508,7 +508,7 @@ openvas_server_send (gnutls_session_t * session, const char *string)
   while (left)
     {
       ssize_t count;
-      g_message ("   send %zu from %.*s[...]", left, left < 30 ? left : 30,
+      g_message ("   send %zu from %.*s[...]", left, left < 30 ? (int) left : 30,
                  string);
       count = gnutls_record_send (*session, string, left);
       if (count < 0)
@@ -541,7 +541,7 @@ openvas_server_send (gnutls_session_t * session, const char *string)
 
           return 1;
         }
-      g_message ("=> %.*s", count, string);
+      g_message ("=> %.*s", (int) count, string);
       string += count;
       left -= count;
     }
