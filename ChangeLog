@@ -1,3 +1,9 @@
+2010-11-17  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/www_funcs.c (build_encode_URL): Addressed yet another compiler
+	warning. Call inet_ntop () with a proper in_addr pointer instead of
+	trying to cast a uint32_t to it.
+
 2010-11-17  Preeti Subramanian <spreeti@secpod.com>
 
 	* misc/ids_send.c (open_sock_tcp): Addressed compiler warnings.
