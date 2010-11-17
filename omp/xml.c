@@ -451,7 +451,7 @@ read_entity_and_string (gnutls_session_t * session, entity_t * entity,
       ssize_t count;
       while (1)
         {
-          g_message ("   asking for %i\n", buffer_end - buffer_start);
+          g_message ("   asking for %i\n", (int) (buffer_end - buffer_start));
           count =
             gnutls_record_recv (*session, buffer_start,
                                 buffer_end - buffer_start);

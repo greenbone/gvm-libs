@@ -1,3 +1,11 @@
+2010-11-17  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Addressed two 64 bit compiler warnings.
+
+	* misc/openvas_server.c (openvas_server_send): Use %zu for size_t.
+
+	* omp/xml.c (read_entity_and_string): Cast to match format string.
+
 2010-11-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_func.c (qsortcmp): Added this typedef to allow proper cast.
