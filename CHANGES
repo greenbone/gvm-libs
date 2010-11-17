@@ -1,3 +1,29 @@
+openvas-libraries 4.0+beta1 (2010-11-18)
+
+This release is the first beta version of the next major release
+of openvas-libraries. It will be part of the upcoming "OpenVAS 4".
+
+Main new feature and other changes of 4.0 compared to 3.1 include:
+Support of a network scan level, reduced memory consumption,
+cleanup and reduction of code base and support of upcoming protocol
+OMP 2.0.
+
+Many thanks to everyone who has contributed to this release:
+Matthew Mundell, Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to 3.1.3:
+* Network level scan support.
+* The code for providing OMP functionality has been cleaned up.
+* Further code cleanup has lead to the removal of more than 3,500 lines of
+  unused code.
+* A bug which tried to free memory that was not allocated before under some
+  circumstances has been fixed.
+* Superfluous log messages regarding file uploads have been removed.
+* NVT meta data management has been improved, resulting in a smaller memory
+  footprint of the scanner.
+* The install path for header files has been made more consistent.
+
+
 openvas-libraries 3.1.3 (2010-09-10)
 
 This is the 3.1.3 release of the openvas-libraries module for the Open

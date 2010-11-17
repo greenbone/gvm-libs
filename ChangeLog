@@ -1,3 +1,7 @@
+2010-11-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* CHANGES: Updated for 4.0+beta1.
+
 2010-11-17  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* hg/CMakeLists.txt, misc/CMakeLists.txt, nasl/CMakeLists.txt,
