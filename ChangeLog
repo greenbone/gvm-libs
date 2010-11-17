@@ -1,3 +1,8 @@
+2010-11-17  Preeti Subramanian <spreeti@secpod.com>
+
+	* misc/ids_send.c (open_sock_tcp): Addressed compiler warnings.
+	Changed src6 to instance of structure in6_addr.
+
 2010-11-17  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Addressed more 64 bit compiler warnings.

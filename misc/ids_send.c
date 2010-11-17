@@ -692,7 +692,7 @@ ids_open_sock_tcp (args, port, method, timeout)
 {
   int bpf;
   struct in_addr dst, src;
-  struct in6_addr *dst6, *src6;
+  struct in6_addr *dst6 = NULL, src6;
   char *iface;
   char filter[255];
   char *src_host, *dst_host;
@@ -719,10 +719,9 @@ ids_open_sock_tcp (args, port, method, timeout)
   else
     {
       family = AF_INET6;
-      bzero (src6, sizeof (*src6));
-      iface = v6_routethrough (dst6, src6);
+      iface = v6_routethrough (dst6, &src6);
       src_host =
-        estrdup (inet_ntop (AF_INET6, src6, hostname, sizeof (hostname)));
+        estrdup (inet_ntop (AF_INET6, &src6, hostname, sizeof (hostname)));
       dst_host =
         estrdup (inet_ntop (AF_INET6, dst6, hostname, sizeof (hostname)));
     }
