@@ -1,3 +1,11 @@
+2010-11-18  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the openvas-libraries 4.0+beta1 release.
+
+	* VERSION: Set to 4.0.0.beta1.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Updated PROJECT_NUMBER.
+
 2010-11-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CHANGES: Updated for 4.0+beta1.
