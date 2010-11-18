@@ -1,3 +1,10 @@
+2010-11-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_signature.c (nasl_get_pubkey): Moved memory
+	allocation for key_string a bit more down to save one
+	free(). Changed g_malloc to g_malloc0. Fixed efree() calls to
+	use g_free and to release to correct pointer.
+
 2010-11-18  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/CMakeLists.txt: Add services.h to the list of headers to be

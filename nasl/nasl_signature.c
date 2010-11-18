@@ -447,17 +447,16 @@ nasl_get_pubkey (gpgme_ctx_t ctx, char *fingerprint)
       return NULL;
     }
 
-  key_string = g_malloc ((key_length + 1) * sizeof (char));
-
   // Rewind data
   if (gpgme_data_seek (pkey, 0, SEEK_SET) != 0)
     {
       nasl_trace (NULL, "gpgme couldn't deal with public key data " "for %s.\n",
                   fingerprint);
       gpgme_data_release (pkey);
-      efree (&key_string);
       return NULL;
     }
+
+  key_string = g_malloc0 ((key_length + 1) * sizeof (char));
 
   // Copy certificate into buffer
   size_t bytes_read = gpgme_data_read (pkey, key_string, key_length);
@@ -466,14 +465,14 @@ nasl_get_pubkey (gpgme_ctx_t ctx, char *fingerprint)
       nasl_trace (NULL, "gpgme couldn't read all public key data " "for %s.\n",
                   fingerprint);
       gpgme_data_release (pkey);
-      efree (&key_string);
+      g_free (key_string);
       return NULL;
     }
 
   gpgme_data_release (pkey);
 
   if (err && key_string != NULL)
-    efree (&key_string);
+    g_free (key_string);
 
   key_string[key_length] = '\0';
 
