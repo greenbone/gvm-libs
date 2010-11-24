@@ -25,6 +25,7 @@
 
 #ifdef ENABLE_LDAP_AUTH
 
+#define _GNU_SOURCE
 #include "ads_auth.h"
 #include "ldap_auth.h"
 

@@ -1,3 +1,9 @@
+2010-11-24  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/ads_auth.c: Ensure strcasestr () is available by defining
+	_GNU_SOURCE. Fixes a compiler warning when building with
+	ENABLE_LDAP_AUTH.
+
 2010-11-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_signature.c (nasl_get_pubkey): Moved memory
