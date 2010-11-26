@@ -135,9 +135,10 @@ exec_program (pkg-config
 include_directories(../misc)
 
 # Library
+set (HARDENING_FLAGS            "-Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector -Wl,-z,relro -Wl,-z,now")
 
 set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG}")
-set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -Werror -fPIC")
+set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -Werror -fPIC")
 
 set (FILES hg_add_hosts.c hg_debug.c hg_dns_axfr.c hg_filter.c hg_subnet.c 
            hg_utils.c hosts_gatherer.c)

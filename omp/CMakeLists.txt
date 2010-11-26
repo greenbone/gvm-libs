@@ -133,8 +133,10 @@ exec_program (pkg-config
 
 ## Library
 
+set (HARDENING_FLAGS            "-Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector -Wl,-z,relro -Wl,-z,now")
+
 set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG}")
-set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -Werror")
+set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -Werror")
 
 set (FILES xml.c omp.c)
 

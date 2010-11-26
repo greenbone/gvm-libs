@@ -1,5 +1,12 @@
 2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/CMakeLists.txt, hg/CMakeLists.txt, misc/CMakeLists.txt,
+	nasl/CMakeLists.txt, omp/CMakeLists.txt: Add a collection of code
+	hardening flags to CMAKE_C_FLAGS, inspired by hardening-wrapper on
+	Debian.
+
+2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* nasl/nasl_cmd_exec.c (nasl_fwrite): Check return value of call to
 	ftruncate () and report an error if the call failed.
 

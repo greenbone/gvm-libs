@@ -142,9 +142,11 @@ execute_process (COMMAND gpgme-config --cflags
 
 ## Library
 
+set (HARDENING_FLAGS            "-Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector -Wl,-z,relro -Wl,-z,now")
+
 set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG}")
 # The "-D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1" is necessary for GPGME!
-set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} -Wall -Werror -D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1")
+set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -Werror -D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1")
 
 
 ## Compile the parser - note that there are (better) CMake macros to achieve
