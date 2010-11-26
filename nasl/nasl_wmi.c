@@ -45,7 +45,9 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <netinet/in.h>
 #include "system.h"
+#include "plugutils.h"
 
 #include "nasl_wmi.h"
 #include "openvas_wmi_interface.h"
@@ -103,7 +105,10 @@ nasl_wmi_versioninfo (lex_ctxt * lexic)
 tree_cell *
 nasl_wmi_connect (lex_ctxt * lexic)
 {
-  IMPORT (host);
+  struct arglist *script_infos = lexic->script_infos;
+  struct in6_addr *host = plug_get_host_ip (script_infos);
+  char *ip;
+  char name[512];
   IMPORT (username);
   IMPORT (password);
   IMPORT(ns);
@@ -124,8 +129,17 @@ nasl_wmi_connect (lex_ctxt * lexic)
       return NULL;
     }
 
+  if (IN6_IS_ADDR_V4MAPPED (host))
+    {
+      ip = estrdup (inet_ntoa (host->s6_addr32[3]));
+    }
+  else
+    {
+      ip = estrdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
+    }
+
   if ((strlen (password) == 0) || (strlen (username) == 0)
-      || strlen (host) == 0)
+        || strlen (ip) == 0)
     {
       fprintf (stderr, "nasl_wmi_connect: Invalid input arguments\n");
       return NULL;
@@ -134,7 +148,7 @@ nasl_wmi_connect (lex_ctxt * lexic)
   argv[0] = (char *) emalloc (strlen (argv1));
   argv[1] = (char *) emalloc (strlen (argv2));
   argv[2] = (char *) emalloc (strlen (username) + strlen (password) + 1);
-  argv[3] = (char *) emalloc (strlen (host) + 2);
+  argv[3] = (char *) emalloc (strlen (ip) + 2);
   argv[4] = (char *) emalloc (strlen (ns));
 
   // Construct the WMI query
@@ -144,7 +158,7 @@ nasl_wmi_connect (lex_ctxt * lexic)
   strcat (argv[2], "%");
   strcat (argv[2], password);
   strcpy (argv[3], "//");
-  strcat (argv[3], host);
+  strcat (argv[3], ip);
   strcpy (argv[4], ns);
 
   tree_cell *retc = alloc_tree_cell (0, NULL);
@@ -263,7 +277,10 @@ nasl_wmi_query (lex_ctxt * lexic)
 tree_cell *
 nasl_wmi_connect_rsop (lex_ctxt * lexic)
 {
-  IMPORT (host);
+  struct arglist *script_infos = lexic->script_infos;
+  struct in6_addr *host = plug_get_host_ip (script_infos);
+  char *ip;
+  char name[512];
   IMPORT (username);
   IMPORT (password);
   char *argv[4];
@@ -279,8 +296,17 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
       return NULL;
     }
 
+  if (IN6_IS_ADDR_V4MAPPED (host))
+    {
+      ip = estrdup (inet_ntoa (host->s6_addr32[3]));
+    }
+  else
+    {
+      ip = estrdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
+    }
+
   if ((strlen (password) == 0) || (strlen (username) == 0)
-      || strlen (host) == 0)
+      || strlen (ip) == 0)
     {
       fprintf (stderr, "nasl_wmi_connect_rsop: Invalid input arguments\n");
       return NULL;
@@ -289,7 +315,7 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
   argv[0] = (char *) emalloc (strlen (argv1));
   argv[1] = (char *) emalloc (strlen (argv2));
   argv[2] = (char *) emalloc (strlen (username) + strlen (password) + 1);
-  argv[3] = (char *) emalloc (strlen (host) + 2);
+  argv[3] = (char *) emalloc (strlen (ip) + 2);
 
   // Construct the WMI query
   strcpy (argv[0], argv1);
@@ -298,7 +324,7 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
   strcat (argv[2], "%");
   strcat (argv[2], password);
   strcpy (argv[3], "//");
-  strcat (argv[3], host);
+  strcat (argv[3], ip);
 
   tree_cell *retc = alloc_tree_cell (0, NULL);
   if (!retc)
@@ -379,7 +405,10 @@ nasl_wmi_query_rsop (lex_ctxt * lexic)
 tree_cell *
 nasl_wmi_connect_reg (lex_ctxt * lexic)
 {
-  IMPORT (host);
+  struct arglist *script_infos = lexic->script_infos;
+  struct in6_addr *host = plug_get_host_ip (script_infos);
+  char *ip;
+  char name[512];
   IMPORT (username);
   IMPORT (password);
   char *argv[4];
@@ -395,8 +424,17 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
       return NULL;
     }
 
+  if (IN6_IS_ADDR_V4MAPPED (host))
+    {
+      ip = estrdup (inet_ntoa (host->s6_addr32[3]));
+    }
+  else
+    {
+      ip = estrdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
+    }
+
   if ((strlen (password) == 0) || (strlen (username) == 0)
-      || strlen (host) == 0)
+      || strlen (ip) == 0)
     {
       fprintf (stderr, "nasl_wmi_connect_reg: Invalid input arguments\n");
       return NULL;
@@ -405,7 +443,7 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
   argv[0] = (char *) emalloc (strlen (argv1));
   argv[1] = (char *) emalloc (strlen (argv2));
   argv[2] = (char *) emalloc (strlen (username) + strlen (password) + 1);
-  argv[3] = (char *) emalloc (strlen (host) + 2);
+  argv[3] = (char *) emalloc (strlen (ip) + 2);
 
   // Construct the WMI query
   strcpy (argv[0], argv1);
@@ -414,7 +452,7 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
   strcat (argv[2], "%");
   strcat (argv[2], password);
   strcpy (argv[3], "//");
-  strcat (argv[3], host);
+  strcat (argv[3], ip);
 
   tree_cell *retc = alloc_tree_cell (0, NULL);
   if (!retc)

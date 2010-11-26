@@ -1,3 +1,14 @@
+2010-11-26  Sooraj KS <kssooraj@secpod.com>
+
+	* nasl/nasl_wmi.c (wmi_connect, wmi_connect_rsop, wmi_connect_reg):
+	removed host argument and fetch host internally.
+
+	* nasl/nasl_smb.c (smb_connect):
+	removed host argument and fetch host internally.
+
+	* nasl/nasl_init.c:
+	updated function declarations.
+
 2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/CMakeLists.txt, hg/CMakeLists.txt, misc/CMakeLists.txt,

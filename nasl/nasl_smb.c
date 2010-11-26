@@ -43,6 +43,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <netinet/in.h>
 
 #include "nasl_smb.h"
 #include "openvas_smb_interface.h"
@@ -91,7 +92,10 @@ nasl_smb_versioninfo (lex_ctxt * lexic)
 tree_cell *
 nasl_smb_connect (lex_ctxt * lexic)
 {
-  char *host = get_str_local_var_by_name (lexic, "host");
+  struct arglist *script_infos = lexic->script_infos;
+  struct in6_addr *host = plug_get_host_ip (script_infos);
+  char *ip;
+  char name[512];
   char *username = get_str_local_var_by_name (lexic, "username");
   char *password = get_str_local_var_by_name (lexic, "password");
   char *share = get_str_local_var_by_name (lexic, "share");
@@ -106,9 +110,17 @@ nasl_smb_connect (lex_ctxt * lexic)
       fprintf (stderr, "nasl_smb_connect: Invalid input arguments\n");
       return NULL;
     }
+  if (IN6_IS_ADDR_V4MAPPED (host))
+   {
+      ip = estrdup (inet_ntoa (host->s6_addr32[3]));
+   }
+  else
+   {
+      ip = estrdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
+   }
 
   if ((strlen (password) == 0) || (strlen (username) == 0)
-      || (strlen (host) == 0) || (strlen (share) == 0))
+      || (strlen (ip) == 0) || (strlen (share) == 0))
     {
       fprintf (stderr, "nasl_smb_connect: Invalid input arguments\n");
       return NULL;
@@ -119,7 +131,7 @@ nasl_smb_connect (lex_ctxt * lexic)
     return NULL;
 
   retc->type = CONST_INT;
-  value = smb_connect (host, share, username, password, &handle);
+  value = smb_connect (ip, share, username, password, &handle);
 
   if (value == -1)
     {
