@@ -1,5 +1,11 @@
 2010-11-26  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* misc/openvas_server.c (openvas_server_free): Only shut down the local
+	side of the session in the gnutls_bye, and remove the interrupted
+	countdown.
+
+2010-11-26  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* misc/openvas_server.c (openvas_server_open, openvas_server_connect)
 	(openvas_server_attach, openvas_server_send, openvas_server_new)
 	(openvas_server_free): Make failure messages g_warnings, and trace

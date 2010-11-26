@@ -739,8 +739,6 @@ openvas_server_free (int server_socket, gnutls_session_t server_session,
   struct sigaction new_action, original_action;
 #endif
 
-  int count;
-
 #if 0
   /* Turn on blocking. */
   // FIX get flags first
@@ -773,13 +771,11 @@ openvas_server_free (int server_socket, gnutls_session_t server_session,
     return -1;
 #endif
 
-  count = 100;
-  while (count)
+  while (1)
     {
-      int ret = gnutls_bye (server_session, GNUTLS_SHUT_RDWR);
+      int ret = gnutls_bye (server_session, GNUTLS_SHUT_WR);
       if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
         {
-          count--;
           continue;
         }
       if (ret)
@@ -792,8 +788,6 @@ openvas_server_free (int server_socket, gnutls_session_t server_session,
         }
       break;
     }
-  if (count == 0)
-    g_warning ("   Gave up trying to gnutls_bye\n");
 
 #ifndef _WIN32
   if (sigaction (SIGPIPE, &original_action, NULL))
