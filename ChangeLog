@@ -1,5 +1,11 @@
 2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* misc/rand.c (openvas_init_random): Check return values of calls to
+	fread () and fclose () and log a warning if something seems wrong with
+	/dev/urandom.
+
+2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/openvas_ssh_login.c (openvas_ssh_login_file_write): Check
 	return value and return FALSE if the call to write () failed.
 

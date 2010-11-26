@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <glib.h>
 
 
 /**
@@ -38,8 +39,10 @@ openvas_init_random ()
 
   if ((fp = fopen ("/dev/urandom", "r")) != NULL)
     {
-      (void) fread (&x, sizeof (x), 1, fp);
-      fclose (fp);
+      if (fread (&x, sizeof (x), 1, fp) != 1)
+        g_warning ("%s: failed to read from /dev/urandom", __FUNCTION__);
+      if (fclose (fp) != 0)
+        g_warning ("%s: failed to close /dev/urandom", __FUNCTION__);
     }
   x += time (NULL) + getpid () + getppid ();
   srand48 (x);
