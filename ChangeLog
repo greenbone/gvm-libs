@@ -1,3 +1,10 @@
+2010-11-26  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_server.c (openvas_server_open, openvas_server_connect)
+	(openvas_server_attach, openvas_server_send, openvas_server_new)
+	(openvas_server_free): Make failure messages g_warnings, and trace
+	messages g_debugs.
+
 2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Ensure the last commit actually compiles and does not produce
@@ -203,7 +210,7 @@
 	It is also intended that the use of the plug_set* and plug_get*
 	commands is reduced in the scanner, removed entirely in the
 	optimal case.
- 
+
 	* misc/plugutils.c (plug_set_nvti, plug_get_nvti): New.
 	(plug_set_version, plug_get_version, plug_set_path, plug_get_path,
 	plug_set_id, plug_get_oid, plug_get_oid, plug_set_cve_id,
