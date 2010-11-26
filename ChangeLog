@@ -1,5 +1,9 @@
 2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* nasl/exec.c (exec_nasl_script): Removed superfluous use of chdir ().
+
+2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/pcap.c (getipv4routes, routethrough): Handle cases when opening
 	/proc/net/route worked, but no content can be read.
 

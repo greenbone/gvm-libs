@@ -1931,7 +1931,6 @@ exec_nasl_script (struct arglist *script_infos, const char *name, int mode)
   nasl_dump_tree (ctx.tree);
 #endif
 
-  chdir (old_dir);
   if (g_chdir (old_dir) != 0)
     {
       g_free (old_dir);
