@@ -129,10 +129,14 @@ renice_myself ()
 
   if (pid != cpid)
     {
+      int renice_result;
       if (nice (0) >= 10)
         return;
       pid = cpid;
-      nice (1);
+      renice_result = nice (1);
+      // @todo: Check value if renice_result to see if it was successful.
+      // Keep in mind that even -1 can mean success here; see man page of nice
+      // for details.
     }
 }
 

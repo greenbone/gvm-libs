@@ -1,3 +1,8 @@
+2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/network.c: Addressed compiler warning and catch result of call
+	to nice (). Added todo for checking the return value.
+
 2010-11-24  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/ads_auth.c: Ensure strcasestr () is available by defining
