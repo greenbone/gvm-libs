@@ -477,7 +477,12 @@ nasl_fwrite (lex_ctxt * lexic)
             }
         }
     }
-  ftruncate (fd, 0);
+  if (ftruncate (fd, 0) == -1)
+    {
+      close (fd);
+      nasl_perror (lexic, "fwrite: %s: %s\n", fname, strerror (errno));
+      return NULL;
+    }
   fp = fdopen (fd, "w");
   if (fp == NULL)
     {

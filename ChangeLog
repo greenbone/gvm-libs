@@ -1,5 +1,10 @@
 2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* nasl/nasl_cmd_exec.c (nasl_fwrite): Check return value of call to
+	ftruncate () and report an error if the call failed.
+
+2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* nasl/exec.c (exec_nasl_script): Removed superfluous use of chdir ().
 
 2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
