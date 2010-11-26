@@ -1,3 +1,17 @@
+2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Ensure the last commit actually compiles and does not produce
+	warnings.
+
+	* nasl/nasl_wmi.c: Added missing includes.
+	(nasl_wmi_connect, nasl_wmi_connect_rsop, nasl_wmi_connect_reg): Call
+	inet_ntoa () with a proper in_addr struct instead of trying to cast a
+	uint32_t to it.
+
+	* nasl/nasl_smb.c: Added missing includes.
+	(nasl_smb_connect): Call inet_ntoa () with a proper in_addr struct
+	instead of trying to cast a uint32_t to it.
+
 2010-11-26  Sooraj KS <kssooraj@secpod.com>
 
 	* nasl/nasl_wmi.c (wmi_connect, wmi_connect_rsop, wmi_connect_reg):

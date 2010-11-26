@@ -44,9 +44,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <netinet/in.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
 #include "nasl_smb.h"
 #include "openvas_smb_interface.h"
+#include "../misc/plugutils.h"
+#include "../misc/system.h"
 
 /**
  * @brief Get a version string of the SMB implementation.
@@ -112,7 +116,9 @@ nasl_smb_connect (lex_ctxt * lexic)
     }
   if (IN6_IS_ADDR_V4MAPPED (host))
    {
-      ip = estrdup (inet_ntoa (host->s6_addr32[3]));
+     struct in_addr *v4_addr = NULL;
+     v4_addr->s_addr = host->s6_addr32[3];
+     ip = estrdup (inet_ntoa (*v4_addr));
    }
   else
    {
