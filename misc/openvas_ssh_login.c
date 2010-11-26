@@ -230,7 +230,11 @@ openvas_ssh_login_file_write (GHashTable * ssh_logins, char *filename)
       return FALSE;
     }
 
-  write (fd, keyfile_data, data_length);
+  if (write (fd, keyfile_data, data_length) == -1)
+    {
+      g_key_file_free (key_file);
+      return FALSE;
+    }
   close (fd);
 
   g_key_file_free (key_file);

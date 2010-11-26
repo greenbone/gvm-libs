@@ -1,7 +1,14 @@
 2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
-	* misc/network.c: Addressed compiler warning and catch result of call
-	to nice (). Added todo for checking the return value.
+	* misc/openvas_ssh_login.c (openvas_ssh_login_file_write): Check
+	return value and return FALSE if the call to write () failed.
+
+	* ChangeLog: Added missing function name to last entry.
+
+2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/network.c (renice_myself): Addressed compiler warning and catch
+	result of call to nice (). Added todo for checking the return value.
 
 2010-11-24  Michael Wiegand <michael.wiegand@greenbone.net>
 
