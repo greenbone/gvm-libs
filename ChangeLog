@@ -1,5 +1,10 @@
 2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* misc/pcap.c (getipv4routes, routethrough): Handle cases when opening
+	/proc/net/route worked, but no content can be read.
+
+2010-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/rand.c (openvas_init_random): Check return values of calls to
 	fread () and fclose () and log a warning if something seems wrong with
 	/dev/urandom.

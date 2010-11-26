@@ -991,7 +991,13 @@ getipv4routes (struct myroute *myroutes, int *numroutes)
     {
       /* OK, linux style /proc/net/route ... we can handle this ... */
       /* Now that we've got the interfaces, we g0 after the r0ut3Z */
-      fgets (buf, sizeof (buf), routez);        /* Kill the first line */
+      if (fgets (buf, sizeof (buf), routez) == NULL)  /* Kill the first line */
+        {
+          // /proc/net/route was empty or an error occurred.
+          printf ("Could not read from /proc/net/route");
+          fclose (routez);
+          return -1;
+        }
       while (fgets (buf, sizeof (buf), routez))
         {
           p = strtok (buf, " \t\n");
@@ -1419,7 +1425,8 @@ routethrough (struct in_addr *dest, struct in_addr *source)
         {
           /* OK, linux style /proc/net/route ... we can handle this ... */
           /* Now that we've got the interfaces, we g0 after the r0ut3Z */
-          fgets (buf, sizeof (buf), routez);    /* Kill the first line */
+          if (fgets (buf, sizeof (buf), routez) == NULL)  /* Kill the first line */
+            printf ("Could not read from /proc/net/route");
           while (fgets (buf, sizeof (buf), routez))
             {
               p = strtok (buf, " \t\n");
