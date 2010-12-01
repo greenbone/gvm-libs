@@ -1,3 +1,13 @@
+2010-12-01  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the openvas-libraries 4.0+beta2 release.
+
+	* VERSION: Set to 4.0.0.beta2.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Updated PROJECT_NUMBER.
+
+	* CHANGES: Updated.
+
 2010-11-26  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/openvas_server.c (openvas_server_free): Only shut down the local

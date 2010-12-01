@@ -1,3 +1,26 @@
+openvas-libraries 4.0+beta2 (2010-12-01)
+
+This release is the second beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS 4".
+
+It features improved handling of finished GnuTLS session, more consistent NASL
+functions for SMB and WMI connections and a number of fixes to the code and the
+build environment in an effort to make the code even more secure and more
+compatible.
+
+Many thanks to everyone who has contributed to this release:
+Sooraj KS, Matthew Mundell, Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to 4.0+beta1:
+* Further code analysis has resulted in a number of fixes to the code and the
+  build environment in an effort to make the code even more secure and
+  compatible across a wider range of platforms.
+* The arguments for the NASL functions for WMI and SMB connections have been
+  made more consistent.
+* The handling of finished GnuTLS sessions has been improved, eliminating
+  superfluous log messages.
+
+
 openvas-libraries 4.0+beta1 (2010-11-18)
 
 This release is the first beta version of the next major release
