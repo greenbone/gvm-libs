@@ -1,5 +1,13 @@
 2010-12-01  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Post release version bump to 4.0+beta3.SVN.
+
+	* VERSION: Set to 4.0.0.beta3.SVN.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Updated PROJECT_NUMBER.
+
+2010-12-01  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Preparing the openvas-libraries 4.0+beta2 release.
 
 	* VERSION: Set to 4.0.0.beta2.
