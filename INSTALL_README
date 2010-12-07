@@ -27,12 +27,14 @@ which are also checked by the configure command:
  * libgnutls >= 2.0
  * libpcap
  * libgpgme >= 1.1.2
+ * uuid-dev (from e2fsprogs)
 
 Apart from these, some tools are required:
 
  * a C compiler (e.g. gcc)
  * bison
  * flex
+ * cmake
 
 
 configure options
