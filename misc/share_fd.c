@@ -59,7 +59,7 @@ send_fd (int socket, int fd)
   cmsg->cmsg_len = CMSG_LEN (sizeof (int));
   cmsg->cmsg_level = SOL_SOCKET;
   cmsg->cmsg_type = SCM_RIGHTS;
-  *(int *) CMSG_DATA (cmsg) = fd;
+  *((int *) ((struct cmsghdr *) (cmsg) + 1)) = fd;
 #endif
 
   vec.iov_base = &ch;
@@ -115,7 +115,7 @@ recv_fd (int socket)
   cmsg = CMSG_FIRSTHDR (&msg);
   if (cmsg->cmsg_type != SCM_RIGHTS)
     printf ("recv_fd():  expected type %d got %d", SCM_RIGHTS, cmsg->cmsg_type);
-  fd = (*(int *) CMSG_DATA (cmsg));
+  fd = (*((int *) ((struct cmsghdr *) (cmsg) + 1)));
 #endif
   return fd;
 #else

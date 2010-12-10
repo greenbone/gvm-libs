@@ -137,6 +137,11 @@ struct pseudohdr
   struct tcp_packet tcpheader;
 };
 
+union sockaddr_u {
+  struct sockaddr_in in;
+  struct sockaddr_in6 in6;
+  struct sockaddr sockaddr;
+};
 
 /*
  * This function returns the TTL we should use when forging our own
@@ -533,6 +538,7 @@ ids_send (fd, buf0, n, method)
   struct sockaddr_in6 sockaddr6;
   struct sockaddr_in *saddr;
   struct sockaddr *sa;
+  union sockaddr_u *su = NULL;
   char *iface;
   char filter[255];
   char *src_host, *dst_host;
@@ -547,16 +553,16 @@ ids_send (fd, buf0, n, method)
   char hostname[INET6_ADDRSTRLEN];
   int family;
 
-  bzero (&sockaddr6, sizeof (sockaddr6));
-  if (getpeername (fd, (struct sockaddr *) &sockaddr6, &sz) < 0)
+  bzero (&(su->sockaddr), sizeof (su->sockaddr));
+  if (getpeername (fd, &(su->sockaddr), &sz) < 0)
     {
       perror ("getpeername() ");
     }
-  sa = (struct sockaddr *) &sockaddr6;
+  sa = &(su->sockaddr);
   if (sa->sa_family == AF_INET)
     {
       family = AF_INET;
-      saddr = (struct sockaddr_in *) &sockaddr6;
+      saddr = &(su->in);
       port = ntohs (saddr->sin_port);
       dst.s_addr = saddr->sin_addr.s_addr;
       src.s_addr = 0;
@@ -573,6 +579,7 @@ ids_send (fd, buf0, n, method)
     }
   else
     {
+      sockaddr6 = su->in6;
       family = AF_INET6;
       port = ntohs (sockaddr6.sin6_port);
       memcpy (&dst6, &sockaddr6.sin6_addr, sizeof (struct in6_addr));

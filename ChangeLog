@@ -1,3 +1,20 @@
+2010-12-10  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Address compiler warnings from gcc 4.4 to ensure openvas-libraries
+	compiles without warnings with newer compilers as well.
+
+	* nasl/lsearch.c (lfind): Remove superfluous function which is also
+	provided by glibc.
+
+	* nasl/CMakeLists.txt: Add "-fno-strict-aliasing" to CFLAGS to silence
+	warnings caused by macros defined in nasl/byteorder.h.
+
+	* misc/share_fd.c (send_fd, recv_fd): Do not use CMSG_DATA macro to
+	avoid double casting.
+
+	* misc/ids_send.c (ids_send): Avoid casting between different types of
+	sockaddr structs; use a union containing the different types instead.
+
 2010-12-07  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* INSTALL_README: Updated prerequisites.

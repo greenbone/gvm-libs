@@ -146,7 +146,9 @@ set (HARDENING_FLAGS            "-Wformat -Wformat-security -O2 -D_FORTIFY_SOURC
 
 set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG}")
 # The "-D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1" is necessary for GPGME!
-set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -Werror -D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1")
+# The "-fno-strict-aliasing" silences warnings caused by macros defined in byteorder.h.
+# Once the warnings have been addressed this flag should be removed.
+set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -Werror -D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1 -fno-strict-aliasing")
 
 
 ## Compile the parser - note that there are (better) CMake macros to achieve
