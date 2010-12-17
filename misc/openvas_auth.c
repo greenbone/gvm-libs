@@ -1233,10 +1233,6 @@ openvas_auth_store_user_rules (const gchar * user_dir_name, const gchar * hosts,
   // Put the rules in auth/rules.
   user_rules_file_name = g_build_filename (auth_dir_name, "rules", NULL);
 
-  // Create the directories if they do not exist
-  if (g_mkdir_with_parents (auth_dir_name, 0700) != 0)
-    g_warning ("user directory could not be created");
-
   g_free (auth_dir_name);
 
   if (!g_file_set_contents (user_rules_file_name, rules->str, -1, &error))

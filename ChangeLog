@@ -1,3 +1,10 @@
+2010-12-17  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_auth_store_user_rules): Removed
+	superfluous call to g_mkdir_with_parents (). The "auth" directory
+	already exists at this point and this call has been observed to behave
+	badly when called in setuid binaries.
+
 2010-12-10  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Address compiler warnings from gcc 4.4 to ensure openvas-libraries
