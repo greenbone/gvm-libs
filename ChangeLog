@@ -1,5 +1,11 @@
 2010-12-17  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* configure.in: Fix help string for --enable-cmake-release parameter.
+
+	* configure: Regenerated.
+
+2010-12-17  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* INSTALL_README: Updated and rephrased a large part of the
 	installation instruction, removed outdated information.
 

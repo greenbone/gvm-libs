@@ -1473,7 +1473,7 @@ Optional Features:
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --enable-verbose-makefile
                           Enable verbose Makefiles
-  --enable-cmake-release  Enable verbose Makefiles
+  --enable-cmake-release  Set CMake build type to Release
   --enable-release	  set the compiler flags to -O6
   --enable-debug-ssl	  produce verbose output regarding SSL
   --enable-debug	  set the compiler flags to -g
@@ -19262,12 +19262,12 @@ fi
 test "x$GPGME_CONFIG" = x && { { echo "$as_me:$LINENO: error: \"\"
 \"\"
 \"*** gpgme is not installed ! You need to install it before you\"
-\"compile openvas-libnasl.\"
+\"compile openvas-libraries.\"
 \"See http://www.gnupg.org/gpgme.html\"" >&5
 echo "$as_me: error: \"\"
 \"\"
 \"*** gpgme is not installed ! You need to install it before you\"
-\"compile openvas-libnasl.\"
+\"compile openvas-libraries.\"
 \"See http://www.gnupg.org/gpgme.html\"" >&2;}
    { (exit 1); exit 1; }; }
 
