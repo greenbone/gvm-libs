@@ -6,20 +6,6 @@
 	hint on a broken design. The store (actually: cache)
 	feature should eventually be designed in a better way.
 	
-2008-03-27 <Jan-Oliver.Wagner@intevation.de>
-
-	* Makefile: Fix dependencies to new header files.
-
-2008-03-26 <Jan-Oliver.Wagner@intevation.de>
-
-	* include/includes.h: This file is not being used
-	for misc anymore nor installed. (It is still
-	used for hg).
-	However, this change might cause compile failures
-	or other defects on systems other than Debian Etch.
-	So, the remaining file might serve for reference
-	to resolve such problems.
-
 2007-10-11 <Jan-Oliver.Wagner@intevation.de>
 
 	* MANIFEST: The method to create a dist could be imoroved to
