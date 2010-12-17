@@ -1,27 +1,15 @@
-$Id$
-
 openvas-libraries: How to build and install
 ===========================================
 
-Quick Guide:
-------------
-
-This should work on most systems:
-
-./configure && make install
-
-During configure, missing dependencies might be reported.
-You need to resolve these and re-run the configure command.
-
-Pre-installation requirements
+Pre-Installation Requirements
 -----------------------------
 
-You first may want to remove older installations of OpenVAS
-to avoid conflicts. Experts know how to have concurrent
-installtions without conflicts.
+Please note: If you have built and installed an older version of
+openvas-libraries before, make sure that the two versions do not interfere with
+each other, for example by using a different installation prefix or by removing
+the files installed by the old version before installing the new.
 
-You need a number of development packages installed
-which are also checked by the configure command:
+You need a number of development packages to build openvas-libraries:
 
  * libglib >= 2.12
  * libgnutls >= 2.0
@@ -36,53 +24,76 @@ Apart from these, some tools are required:
  * flex
  * cmake
 
+The "configure" step will check for the presence of the prerequisites. Please
+refer to the documentation provided with you distribution for instruction on
+installing missing packages.
 
-configure options
------------------
+Configuring and Compiling
+-------------------------
 
-  All the configure options have been centralized the the 
-  'configure' script of openvas-libraries.
+First, configure openvas-libraries with the following command:
 
-  The current configure options are :
+  ./configure
 
-        --disable-ptmx        use this directive if you have problems
-                              with the pseudo tty multiplexer; on 
-                              some linux (kernel > 2.2) systems, the
-                              /dev/ptmx is avaiable but the supporting
-                              functions sometimes do not work as
-                              expected
+During configuration, missing dependencies might be reported. If this is the
+case, you need to resolve these issues and re-run the configure command.
 
-        --enable-zlib=peks    explicitely configure and compile the
-			      data stream compression package against
-                              the source fragment that comes with peks,
-	                      even if the operating system provides
-			      it as a library
+Please see below for configuration options which can be set through configure.
 
-        --enable-gmp=peks     explicitely configure and compile the
-			      maths package against the source fragment
-			      that comes with peks, even if the operating
-		              system provides it as a library
+Once you have successfully configured openvas-libraries you can compile with the
+following command:
 
-        --enable-splitgmp     split off the gmp library that comes with the
-			      peks sources from the cipher lib, and provide
-			      a sepatate library instance: this flag is
-			      needed only if the assembler part of the gmp
-		  	      lib should not be used as a shared library,
-			      while the libpeks, is.
+  make
 
-  Some more elaborate options allow you to control whether to compile and
-  link against the packages that come with peks, or to use resources from
-  your operating system.
+After you have compiled openvas-libraries you can use the following command to
+install openvas-libraries:
 
-        --enable-zlib[=/path]  do not use the package provided with
-                               peks, but the one already installed
+  make install
 
-        --enable-gmp[=/path]   do not use the package provided with
-                               peks, but the one already installed
+Please keep in mind that this will install openvas-libraries into the default
+prefix /usr/local if you have not set a different prefix during configuration.
+Note that you might need elevated privileges to install files into this
+location.
 
-        --enable-random[=/dev] use this device as an additional random
-                               source; you may need to set this explicitlely
-			       on systems other than Linux and BSD where
-                               there is a character device /dev/urandom
-                               available (other device names will not be 
-			       auto-detected.)
+
+Configuration Options
+---------------------
+
+You can pass a number of parameters to the "configure" command if required. The
+most relevant are:
+
+  --prefix=path
+Use this parameter to configure openvas-libraries for installation into a custom
+prefix. This can be useful for testing purposes and times when you cannot (or do
+not want to) install openvas-libraries in the default prefix.
+
+  --enable-verbose-makefile
+Use this parameter if you want to see more verbose output during the build
+process, like the compiler and linker flags used for individual files.
+
+  --enable-cmake-release
+Use this parameter to change the build type used for the CMake based submodules
+(base, hg, misc, nasl, omp) from the default "Debug" to "Release". This will
+result in more optimized code at the expense of debugging support in the code.
+
+You can get a list of all available configuration parameters using the following
+command:
+
+  ./configure --help
+
+
+Source Code Documentation
+-------------------------
+
+If you have doxygen installed on your system you can use the following command
+to generated an HTML documentation based on the source code itself:
+
+  make doc
+
+The HTML documentation is generated into the doc/generated/html directory. A
+LaTeX version can be found in the doc/generated/latex directory.
+
+For an even more verbose documentation including function dependency graphs you
+can use the following command:
+
+make doc-full
