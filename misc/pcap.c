@@ -827,9 +827,9 @@ v6_getsourceip (struct in6_addr *src, struct in6_addr *dst)
 #endif
 
   if (IN6_IS_ADDR_V4MAPPED (dst))
-    *src = socket_get_next_source_v4_addr (NULL);
+    *src = socket_get_next_source_v4_addr ();
   else
-    *src = socket_get_next_source_v6_addr (NULL);
+    *src = socket_get_next_source_v6_addr ();
   if (!IN6_ARE_ADDR_EQUAL (src, &in6addr_any))
     {
       return 1;
@@ -928,7 +928,7 @@ getsourceip (struct in_addr *src, struct in_addr *dst)
   unsigned short p1;
 
 
-  *src = socket_get_next_source_addr (NULL);
+  *src = socket_get_next_source_addr ();
   if (src->s_addr != INADDR_ANY)
     {
       return 1;
@@ -1224,9 +1224,9 @@ v6_routethrough (struct in6_addr *dest, struct in6_addr *source)
     printf ("ipaddr2devname passed a NULL dest address");
 
   if (IN6_IS_ADDR_V4MAPPED (dest))
-    src = socket_get_next_source_v4_addr (NULL);
+    src = socket_get_next_source_v4_addr ();
   else
-    src = socket_get_next_source_v6_addr (NULL);
+    src = socket_get_next_source_v6_addr ();
 
   if (!initialized)
     {
@@ -1407,7 +1407,7 @@ routethrough (struct in_addr *dest, struct in_addr *source)
   static int numroutes = 0;
   FILE *routez;
 
-  struct in_addr src = socket_get_next_source_addr (NULL);
+  struct in_addr src = socket_get_next_source_addr ();
 
   if (!dest)
     printf ("ipaddr2devname passed a NULL dest address");

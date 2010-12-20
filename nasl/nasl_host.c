@@ -199,10 +199,10 @@ nasl_this_host (lex_ctxt * lexic)
 
   if (IN6_IS_ADDR_V4MAPPED (ia))
     addr =
-      socket_get_next_source_v4_addr (arg_get_value (script_infos, "globals"));
+      socket_get_next_source_v4_addr ();
   else
     addr =
-      socket_get_next_source_v6_addr (arg_get_value (script_infos, "globals"));
+      socket_get_next_source_v6_addr ();
   if (!IN6_ARE_ADDR_EQUAL (&addr, &in6addr_any))
     {
       if (IN6_IS_ADDR_V4MAPPED (&addr))

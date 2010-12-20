@@ -1,5 +1,19 @@
 2010-12-20  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Make sure function calls match the prototype for the function.
+	Discovered by Stephan Kleine.
+
+	* nasl/nasl_host.c (nasl_this_host): Adjust calls to
+	socket_get_next_source_v4_addr and socket_get_next_source_v6_addr to
+	match their prototypes.
+
+	* misc/pcap.c (v6_getsourceip, getsourceip, v6_routethrough)
+	(routethrough): Adjust calls to socket_get_next_source_addr,
+	socket_get_next_source_v4_addr and socket_get_next_source_v6_addr to
+	match their prototypes.
+
+2010-12-20  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Post release version bump.
 
 	* VERSION: Set to 4.0.0.rc2.SVN.
