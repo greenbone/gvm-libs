@@ -1,5 +1,15 @@
 2010-12-20  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Preparing the openvas-libraries 4.0+rc1 release.
+
+	* VERSION: Set to 4.0.0.rc1.
+
+	* doc/Doxyfile, doc/Doxyfile_full: Updated PROJECT_NUMBER.
+
+	* CHANGES: Updated.
+
+2010-12-20  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* tools/openvas-macros.cmake: Removed outdated and unused CMake
 	macros.
 

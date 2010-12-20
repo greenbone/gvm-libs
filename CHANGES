@@ -1,3 +1,21 @@
+openvas-libraries 4.0+rc1 (2010-12-20)
+
+This release is the first release candidate for the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS 4".
+
+It features updated documentation, addresses a number of compiler warning and
+fixes an incorrect warning in setuid environments.
+
+Many thanks to everyone who has contributed to this release:
+Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to 4.0+beta2:
+* The documentation in the INSTALL_README file has been updated.
+* A number of compiler warnings by gcc 4.4 has been addressed.
+* A incorrect error message during user creation that only occurred in setuid
+  environments has been removed.
+
+
 openvas-libraries 4.0+beta2 (2010-12-01)
 
 This release is the second beta version of the next major release of
