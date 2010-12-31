@@ -72,7 +72,7 @@ int ldap_authenticate (const gchar * username, const gchar * password,
                        /*ldap_auth_info_t */ void *info);
 
 int
-ldap_auth_query_role (LDAP * ldap, ldap_auth_info_t auth_info, gchar * dn);
+ldap_auth_query_role (LDAP * ldap, ldap_auth_info_t auth_info, const gchar * dn);
 
 int
 ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,

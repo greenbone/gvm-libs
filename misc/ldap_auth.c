@@ -510,7 +510,7 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
  *         +2 if user is "admin".
  */
 int
-ldap_auth_query_role (LDAP * ldap, ldap_auth_info_t auth_info, gchar * dn)
+ldap_auth_query_role (LDAP * ldap, ldap_auth_info_t auth_info, const gchar * dn)
 {
   char *attrs[] = { auth_info->role_attribute, NULL };
   char *attr_it = NULL;

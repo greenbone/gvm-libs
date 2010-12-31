@@ -1,3 +1,8 @@
+2010-12-31  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/ldap_auth.h, misc/ldap_auth.c (ldap_auth_query_role): Made a
+	parameter const.
+
 2010-12-20  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Make sure function calls match the prototype for the function.
@@ -952,7 +957,7 @@
 
 2010-06-09  Preeti Subramanian <spreeti@secpod.com>
 
-	Buf Fix. Changed function names related to NTLMSSP by appending
+	Bug Fix. Changed function names related to NTLMSSP by appending
 	_ntlmssp. This would prevent conflicts that occur while WMI and
 	NTLMSSP features co-exist.
 
