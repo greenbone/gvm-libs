@@ -435,6 +435,7 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
   gchar *rule = NULL;
   int ruletype = -1;
   LDAPMessage *result, *result_it;
+  gchar *user_dir = user_dir_path (username);
 
   int res = ldap_search_ext_s (ldap, dn /* base */ , LDAP_SCOPE_BASE,
                                NULL /* filter */ , attrs, 0 /* attrsonly */ ,
@@ -442,10 +443,18 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
                                LDAP_NO_LIMIT,   /* timeout */
                                LDAP_NO_LIMIT,   /* sizelimit */
                                &result);
+
+  // Ensure that rules directory exists in every case.
+  openvas_auth_mkrulesdir (user_dir);
+
   if (res != LDAP_SUCCESS)
     {
       g_debug ("The rule/ruletype of an ldap user could not be found: %s\n",
                ldap_err2string (res));
+      g_debug ("Storing default rules.");
+      openvas_auth_store_user_rules (user_dir, rule, ruletype);
+      g_free (user_dir);
+
       return -1;
     }
 
@@ -487,13 +496,9 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
 
       // Save the rules
       if (ruletype == -1)
-        g_warning ("No ruletype specified!");
-      else
-        {
-          gchar *user_dir = user_dir_path (username);
-          openvas_auth_store_user_rules (user_dir, rule, ruletype);
-          g_free (user_dir);
-        }
+        g_warning ("No ruletype specified, using defaults");
+
+      openvas_auth_store_user_rules (user_dir, rule, ruletype);
 
       g_free (rule);
 
@@ -505,8 +510,10 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
   else                          // No such attribute(s)
     {
       g_debug ("User has no rule/ruletype, did not find the attributes.");
+      openvas_auth_store_user_rules (user_dir, rule, ruletype);
     }
 
+  g_free (user_dir);
   ldap_msgfree (result);
 
   /** @todo proper returns */

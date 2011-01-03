@@ -1,10 +1,5 @@
 2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
-	* misc/openvas_auth.c (openvas_auth_store_user_rules): Clarify
-	parameter documentation.
-
-2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
-
 	Fix rule saving for ldap authenticated users by ensuring existence of
 	rules directory.
 
@@ -12,6 +7,11 @@
 	directory if it does not exist (previously done by
 	openvas_auth_store_user_rules). Save rules also if none fetched (i.e.
 	empty, default rules).
+
+2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_auth_store_user_rules): Clarify
+	parameter documentation.
 
 2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
