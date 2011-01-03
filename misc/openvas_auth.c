@@ -1144,7 +1144,8 @@ openvas_auth_user_uuid_rules (const gchar * username, const gchar * user_uuid,
 
 
 /**
- * @brief Get host access rules for a certain user.
+ * @brief Get host access rules for a certain user for file-based ("classic")
+ * @brief authentication.
  *
  * @deprecated  Use \ref openvas_auth_user_uuid_rules where possible (need to
  *              know the uuid of user). Use \ref openvas_authenticate_uuid to
@@ -1158,9 +1159,6 @@ openvas_auth_user_uuid_rules (const gchar * username, const gchar * user_uuid,
 int
 openvas_auth_user_rules (const gchar * username, gchar ** rules)
 {
-  /** @todo Resolve issue stemming from multiple users with the same name, but
-   *        authenticated differently. e.g. memorize rules while authenticating
-   *        via remote service. Or, pass password or uuid in here. */
   // File based: Get content of prefix/lib/openvas/users/user/auth/rules file
   GError *error = NULL;
   gchar *rules_file = g_build_filename (OPENVAS_USERS_DIR,

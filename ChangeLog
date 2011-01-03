@@ -1,3 +1,9 @@
+2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_auth_user_rules)
+	(openvas_auth_user_uuid_rules): Removed one todo comment, precised one
+	other brief comment.
+
 2010-12-31  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/ldap_auth.h, misc/ldap_auth.c (ldap_auth_query_role): Made a
