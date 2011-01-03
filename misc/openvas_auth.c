@@ -58,7 +58,9 @@
  * @file misc/openvas_auth.c
  *
  * @brief Authentication mechanisms used by openvas-manager and
- * @brief openvas-administrator.
+ * openvas-administrator.
+ *
+ * @section authentication_mechanisms Authentication Mechanisms
  *
  * Three authentication mechanisms are supported:
  *  - local file authentication. The classical authentication mechanism to
@@ -77,6 +79,8 @@
  * authentication and to assign an "order" value to the specified
  * authentication mechanisms. Mechanisms with a lower order will be tried
  * first.
+ *
+ * @section user_directories User Directories
  *
  * Each user has a directory somewhere under OPENVAS_STATE_DIR.
  * The directories of locally authenticated users reside under
