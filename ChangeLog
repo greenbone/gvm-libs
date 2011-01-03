@@ -1,5 +1,13 @@
 2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/openvas_auth.c (openvas_auth_mkrulesdir): New function to create
+	the directory where users rules are placed ("auth").
+
+	* misc/openvas_auth.h (openvas_auth_mkrulesdir): Proto for new
+	function.
+
+2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/openvas_auth.c (openvas_auth_store_user_rules): Removed use of
 	temporary variable "auth_dir_name" wich became superflous in
 	revision 9746, note in documentation that directory has to exist prior

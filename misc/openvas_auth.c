@@ -1180,6 +1180,39 @@ openvas_auth_user_rules (const gchar * username, gchar ** rules)
   return 1;
 }
 
+
+/**
+ * @brief Creates the directory for the users rules (userdir/auth), if it does
+ * @brief not yet exist.
+ *
+ * @warning Due to access () system calls nested in employed GLib functions,
+ * @warning this function might behave differently than expected in setuid
+ * @warning binaries.
+ *
+ * @param[in]  user_dir_name  The users directory.
+ *
+ * @return 0 if directory existed or was created, -1 if it could not be
+ *         created.
+ */
+int
+openvas_auth_mkrulesdir (const gchar * user_dir_name)
+{
+  int mkdir_result = 0;
+  gchar * auth_dir_name = g_build_filename (user_dir_name, "auth", NULL);
+
+  mkdir_result = g_mkdir_with_parents (auth_dir_name, 0700);
+  g_free (auth_dir_name);
+
+  if (mkdir_result != 0)
+    {
+      g_warning ("Users rules directory could not be created.");
+      return -1;
+    }
+
+  return 0;
+}
+
+
 /**
  * @brief Stores the rules for a user.
  *
