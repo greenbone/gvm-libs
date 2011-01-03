@@ -1,5 +1,11 @@
 2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/ldap_auth.c (user_dir_path): New function to determine user
+	directory.
+	(ldap_auth_query_rules, ldap_authenticate): Use new function.
+
+2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/openvas_auth.c: Minimal structural improvement of module
 	documentation.
 

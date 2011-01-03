@@ -85,6 +85,25 @@ auth_dn_is_good (const gchar * authdn)
 
 
 /**
+ * @brief Returns path to users directory.
+ *
+ * @param[in]  username  The users name.
+ *
+ * @return Path to users directory. Caller has to free with g_free. NULL if
+ *         parameter is NULL.
+ */
+static gchar *
+user_dir_path (const gchar * username)
+{
+  if (username == NULL)
+    return NULL;
+
+  return g_build_filename (OPENVAS_STATE_DIR, "users-remote", "ldap", username,
+                           NULL);
+}
+
+
+/**
  * @brief Create a new ldap authentication schema and info.
  *
  * @param ldap_host         Host to authenticate against. Might not be NULL,
@@ -471,9 +490,7 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
         g_warning ("No ruletype specified!");
       else
         {
-          gchar *user_dir = g_build_filename (OPENVAS_STATE_DIR,
-                                              "users-remote", "ldap",
-                                              username, NULL);
+          gchar *user_dir = user_dir_path (username);
           openvas_auth_store_user_rules (user_dir, rule, ruletype);
           g_free (user_dir);
         }
@@ -626,9 +643,7 @@ ldap_authenticate (const gchar * username, const gchar * password,
       if (ldap_auth_query_rules (ldap, info, dn, username) == -1)
         g_warning ("Users rules could not be found on ldap directory.");
       // If user is admin, mark it so.
-      gchar *user_dir_name = g_build_filename (OPENVAS_STATE_DIR,
-                                               "users-remote", "ldap",
-                                               username, NULL);
+      gchar *user_dir_name = user_dir_path (username);
       openvas_set_user_role (username, (role == 2) ? "Admin" : "User",
                              user_dir_name);
       g_free (user_dir_name);
