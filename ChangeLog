@@ -1,5 +1,12 @@
 2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/openvas_auth.c (openvas_auth_store_user_rules): Removed use of
+	temporary variable "auth_dir_name" wich became superflous in
+	revision 9746, note in documentation that directory has to exist prior
+	to function call.
+
+2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/openvas_auth.c (openvas_auth_user_rules)
 	(openvas_auth_user_uuid_rules): Removed one todo comment, precised one
 	other brief comment.

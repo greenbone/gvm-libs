@@ -1184,6 +1184,8 @@ openvas_auth_user_rules (const gchar * username, gchar ** rules)
  * @brief Stores the rules for a user.
  *
  * The rules will be saved in a file in \ref user_dir_name /auth/rules .
+ * This directory has to exist prior to this function call, otherwise the
+ * file will not be written and -1 will be returned.
  *
  * @param[in]  user_dir_name  Directory under wich the autch/rules file will
  *                            be placed.
@@ -1199,7 +1201,6 @@ openvas_auth_store_user_rules (const gchar * user_dir_name, const gchar * hosts,
 {
   GError *error = NULL;
   gchar *user_rules_file_name = NULL;
-  gchar *auth_dir_name = NULL;
   GString *rules = g_string_new (RULES_FILE_HEADER);
   if (hosts && strlen (hosts))
     {
@@ -1227,11 +1228,8 @@ openvas_auth_store_user_rules (const gchar * user_dir_name, const gchar * hosts,
       g_strfreev (split);
     }
 
-  auth_dir_name = g_build_filename (user_dir_name, "auth", NULL);
   // Put the rules in auth/rules.
-  user_rules_file_name = g_build_filename (auth_dir_name, "rules", NULL);
-
-  g_free (auth_dir_name);
+  user_rules_file_name = g_build_filename (user_dir_name, "auth", "rules", NULL);
 
   if (!g_file_set_contents (user_rules_file_name, rules->str, -1, &error))
     {
