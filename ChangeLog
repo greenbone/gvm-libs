@@ -1,5 +1,20 @@
 2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/openvas_auth.c (openvas_auth_store_user_rules): Clarify
+	parameter documentation.
+
+2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	Fix rule saving for ldap authenticated users by ensuring existence of
+	rules directory.
+
+	* misc/ldap_auth.c (ldap_auth_query_rules): Create users rules
+	directory if it does not exist (previously done by
+	openvas_auth_store_user_rules). Save rules also if none fetched (i.e.
+	empty, default rules).
+
+2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/ldap_auth.c (user_dir_path): New function to determine user
 	directory.
 	(ldap_auth_query_rules, ldap_authenticate): Use new function.

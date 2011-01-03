@@ -1226,6 +1226,7 @@ openvas_auth_mkrulesdir (const gchar * user_dir_name)
  * @param[in]  user_dir_name  Directory under wich the autch/rules file will
  *                            be placed.
  * @param[in]  hosts          The hosts the user is allowed/forbidden to scan.
+ *                            Can be NULL, then defaults to allow-all.
  * @param[in]  hosts_allow    Whether access to \ref hosts is allowed (!=0) or
  *                            forbidden (0).
  *
