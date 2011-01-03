@@ -60,18 +60,20 @@
  * @brief Authentication mechanisms used by openvas-manager and
  * @brief openvas-administrator.
  *
- * Two authentication mechanisms are supported:
+ * Three authentication mechanisms are supported:
  *  - local file authentication. The classical authentication mechanism to
  *    authenticate against files (in PREFIX/var/lib/openvas/users).
  *  - remote ldap authentication. To authenticate against a remote ldap
  *    directory server.
+ *  - remote ads authentication. To authenticate against a remote ADS (active
+ *    directory server).
  *
- * Also a mixture of both can be used. To do so, a configuration file
+ * Also a mixture can be used. To do so, a configuration file
  * (PREFIX/var/lib/openvas/.auth.conf) has to be used and the authentication
  * system has to be initialised with a call to \ref openvas_auth_init and can
- * be freed with \ref openvas_tear_down .
+ * be freed with \ref openvas_auth_tear_down .
  *
- * The configuration file allows to specify details of a remote ldap
+ * The configuration file allows to specify details of a remote ldap and/or ads
  * authentication and to assign an "order" value to the specified
  * authentication mechanisms. Mechanisms with a lower order will be tried
  * first.
@@ -81,7 +83,7 @@
  * OPENVAS_STATE_DIR/users .
  * The directory of remotely authenticated users reside under
  * OPENVAS_STATE_DIR/users-remote/[method] , where [method] currently can only
- * be "ldap".
+ * be "ldap" or "ads".
  *
  * A users directory will contain:
  *
@@ -93,9 +95,6 @@
  *  - kbs/ : (not handled by the openvas_auth module) directory that can
  *           contain knowledge bases saved by the openvas-scanner process.
  */
-
-/** @todo Abondon OPENVAS_USER_DIR, use OPENVAS_STATE_DIR + "users" or
- *        "users-remote/[method]" instead. */
 
 
 /**

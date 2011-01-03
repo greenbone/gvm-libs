@@ -1,5 +1,11 @@
 2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/openvas_auth.c: Updated module documentation to include the
+	possibility to use an ADS as remote authentication source.
+	Removed todo comment about OPENVAS_USER_DIR, which is not used anymore.
+
+2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/openvas_auth.c (openvas_auth_mkrulesdir): New function to create
 	the directory where users rules are placed ("auth").
 
