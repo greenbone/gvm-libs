@@ -1,3 +1,7 @@
+2011-01-08  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* base/openvas_file.c: Remove todos about moving into this module.
+
 2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	Fix rule saving for ldap authenticated users by ensuring existence of

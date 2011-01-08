@@ -44,7 +44,6 @@
  * application and glib are compiled with a different libc.
  *
  * @todo FIXME: handle symbolic links
- * @todo Move to libs?
  *
  * @param[in]  name  Name of file or directory.
  *
@@ -71,8 +70,6 @@ openvas_file_check_is_dir (const char *name)
  *
  * This function will recursively call itself to delete a path and any
  * contents of this path.
- *
- * @todo Move to libs?
  *
  * @param[in]  pathname  The name of the file to be deleted from the filesystem.
  *
