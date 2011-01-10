@@ -1,3 +1,19 @@
+openvas-libraries 4.0+rc2 (2011-01-10)
+
+This release is the second release candidate for the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS 4".
+
+It features a more robust user creation process and address further compiler
+warnings.
+
+Many thanks to everyone who has contributed to this release:
+Matthew Mundell, Michael Wiegand and Felix Wolfsteller.
+
+Main changes compared to 4.0+rc1:
+* The user creation process has been made more robust.
+* More compiler warnings have been addressed.
+
+
 openvas-libraries 4.0+rc1 (2010-12-20)
 
 This release is the first release candidate for the next major release of
