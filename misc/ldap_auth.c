@@ -223,7 +223,7 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
     return NULL;
 
   if (force_starttls == FALSE)
-    g_warning ("Allowed plaintext LDAP authentication");
+    g_warning ("Allowed plaintext LDAP authentication.");
 
   ldapuri = g_strconcat ("ldap://", host, NULL);
 
@@ -240,7 +240,7 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
   ldap_return = ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
   if (ldap_return != LDAP_SUCCESS)
     {
-      g_warning ("Could not set ldap protocol version to 3: %s.",
+      g_warning ("Aborting, could not set ldap protocol version to 3: %s.",
                  ldap_err2string (ldap_return));
       return NULL;
     }

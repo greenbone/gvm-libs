@@ -1,5 +1,9 @@
 2011-01-12  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/ldap_auth.c (ldap_auth_bind): Slightly improved log messages.
+
+2011-01-12  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/ldap_auth.c (ldap_auth_bind): Removed obsolete variable. Check
 	return of ldap_initialize.
 
