@@ -1,3 +1,8 @@
+2011-01-12  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/ldap_auth.c (ldap_auth_bind): Removed obsolete variable. Check
+	return of ldap_initialize.
+
 2011-01-10  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.

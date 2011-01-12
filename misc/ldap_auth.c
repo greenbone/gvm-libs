@@ -216,7 +216,6 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
   LDAP *ldap = NULL;
   int ldap_return = 0;
   int ldapv3 = 3;
-  int res = 0;
   gchar *ldapuri = NULL;
   struct berval credential;
 
@@ -227,10 +226,11 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
     g_warning ("Allowed plaintext LDAP authentication");
 
   ldapuri = g_strconcat ("ldap://", host, NULL);
-  ldap_initialize (&ldap, ldapuri);
+
+  ldap_return = ldap_initialize (&ldap, ldapuri);
   g_free (ldapuri);
 
-  if (ldap == NULL || res != LDAP_SUCCESS)
+  if (ldap == NULL || ldap_return != LDAP_SUCCESS)
     {
       g_warning ("Could not open LDAP connection for authentication.");
       return NULL;
