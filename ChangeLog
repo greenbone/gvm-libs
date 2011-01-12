@@ -1,5 +1,10 @@
 2011-01-12  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/openvas_auth.c (openvas_is_user_admin): Return 1 also if a
+	"remote admin" with the given username is found.
+
+2011-01-12  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/ldap_auth.c (ldap_auth_bind): Slightly improved log messages.
 
 2011-01-12  Felix Wolfsteller <felix.wolfsteller@greenbone.net>

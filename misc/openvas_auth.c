@@ -1002,21 +1002,63 @@ openvas_user_uuid (const char *name)
  *
  * @param username Username.
  *
+ * @warning No "sharp" test is performed, as it is possible to have multiple
+ *          users with the same name (in order to allow integration of remote
+ *          authentication sources). Would need the uuid here to fix this
+ *          behaviour.
+ *
  * @return 1 user has administrative privileges, 0 user does not have
  * administrative privileges
  */
 int
 openvas_is_user_admin (const gchar * username)
 {
-  gchar *file_name = g_build_filename (OPENVAS_USERS_DIR,
-                                       username,
+  gchar *dir_name = g_build_filename (OPENVAS_USERS_DIR, username, NULL);
+  gchar *file_name = g_build_filename (dir_name,
                                        "isadmin",
                                        NULL);
-  gboolean file_exists = g_file_test (file_name, G_FILE_TEST_EXISTS);
+  gboolean file_exists = FALSE;
+  if (g_file_test (dir_name, G_FILE_TEST_IS_DIR))
+    {
+      if (g_file_test (file_name, G_FILE_TEST_EXISTS))
+        {
+          g_free (file_name);
+          g_free (dir_name);
+          return 1;
+        }
+      g_free (file_name);
+      g_free (dir_name);
+      return 0;
+    }
 
-  /** @todo Resolve remote authentication case, need another function parameter. */
-
+  g_free (dir_name);
   g_free (file_name);
+
+  // Remote case.
+  if (file_exists == FALSE && (initialized == TRUE && authenticators != NULL))
+    {
+      // Try each authenticator in the list.
+      GSList *item = authenticators;
+      while (item)
+        {
+          authenticator_t authent = (authenticator_t) item->data;
+          file_name = g_build_filename (OPENVAS_STATE_DIR,
+                                        "users-remote",
+                                        authentication_methods[authent->method],
+                                        username,
+                                        "isadmin",
+                                        NULL);
+
+          if (g_file_test (file_name, G_FILE_TEST_EXISTS) == TRUE)
+            {
+              g_free (file_name);
+              return 1;
+            }
+          g_free (file_name);
+          item = g_slist_next (item);
+        }
+    }
+
   return file_exists;
 }
 
