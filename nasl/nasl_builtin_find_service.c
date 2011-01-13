@@ -2598,8 +2598,6 @@ plugin_run_find_service (lex_ctxt * lexic)
 	char           *cafile = get_plugin_preference(desc, CA_FILE);
 	char           *test_ssl_s = get_plugin_preference(desc, TEST_SSL_PREF);
 
-        fprintf(stderr, "builtin find_service");
-
 	if (key && key[0] != '\0')
 		key = (char *) get_plugin_preference_fname(desc, key);
 	else
