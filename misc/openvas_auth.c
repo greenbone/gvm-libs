@@ -426,9 +426,9 @@ openvas_auth_write_config (GKeyFile * key_file)
       g_key_file_set_value (new_conffile, "method:ldap", "role-admin-values",
                             "admin");
       g_key_file_set_value (new_conffile, "method:ldap", "ruletype-attribute",
-                            "x-gsm-ruletype");
+                            "x-gsm-accessruletype");
       g_key_file_set_value (new_conffile, "method:ldap", "rule-attribute",
-                            "x-gsm-rule");
+                            "x-gsm-accessrule");
     }
 
   // ADS Configuration
