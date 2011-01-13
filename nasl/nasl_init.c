@@ -48,6 +48,8 @@
 #include "nasl_smb.h"
 #include "nasl_packet_forgery_v6.h"
 
+#include "nasl_builtin_plugins.h"
+
 /* **************************************************************** */
 
 typedef struct
@@ -421,6 +423,8 @@ static init_func libfuncs[] = {
 
   {"scan_phase", scan_phase, 0, {NULL}},
   {"network_targets", network_targets, 0, {NULL}},
+
+  {"plugin_run_find_service", plugin_run_find_service, 0, {NULL}},
 
   {NULL, NULL, 0, {NULL}}
 };

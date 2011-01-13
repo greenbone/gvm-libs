@@ -3,11 +3,11 @@
 # Description: Top-level cmake control for the nasl library.
 #
 # Authors:
-# Matthew Mundell <matthew.mundell@intevation.de>
-# Felix Wolfsteller <felix.wolfsteller@intevation.de>
+# Matthew Mundell <matthew.mundell@greenbone.net>
+# Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 #
 # Copyright:
-# Copyright (C) 2009 Greenbone Networks GmbH
+# Copyright (C) 2009, 2010 Greenbone Networks GmbH
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2,
@@ -162,7 +162,8 @@ add_custom_command (
    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.output)
 
 set (FILES arc4.c capture_packet.c charcnv.c exec.c genrand.c hmacmd5.c
-     iconv.c lint.c lsearch.c md4.c md5.c nasl.c nasl_cmd_exec.c nasl_crypto2.c
+     iconv.c lint.c lsearch.c md4.c md5.c nasl.c nasl_builtin_find_service.c
+     nasl_cmd_exec.c nasl_crypto2.c
      nasl_crypto.c nasl_debug.c nasl_func.c nasl_grammar.tab.c nasl_host.c
      nasl_http.c nasl_init.c nasl_lex_ctxt.c nasl_misc_funcs.c nasl_scanner_glue.c
      nasl_packet_forgery.c nasl_packet_forgery_v6.c nasl_signature.c nasl_smb.c

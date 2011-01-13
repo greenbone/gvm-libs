@@ -1,3 +1,19 @@
+2011-01-13  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Add a builtin version of the find_service C NVT, to replace the C
+	version.  Most of work by Jan-Oliver Wagner.
+
+	* nasl/CMakeLists.txt: Use Greenbone addresses.  Add builtin
+	find_service to FILES.
+
+	* nasl/nasl_builtin_find_service.c: New file.  A copy of
+	openvas-scanner/cnvts/find_service/find_service.c, modified slightly
+	for NASL caller.
+
+	* nasl/nasl_builtin_plugins.h: New file.
+
+	* nasl/nasl_init.c (libfuncs): Add plugin_run_find_service.
+
 2011-01-12  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_is_user_admin): Return 1 also if a
