@@ -163,6 +163,7 @@ add_custom_command (
 
 set (FILES arc4.c capture_packet.c charcnv.c exec.c genrand.c hmacmd5.c
      iconv.c lint.c lsearch.c md4.c md5.c nasl.c nasl_builtin_find_service.c
+     nasl_builtin_openvas_tcp_scanner.c
      nasl_cmd_exec.c nasl_crypto2.c
      nasl_crypto.c nasl_debug.c nasl_func.c nasl_grammar.tab.c nasl_host.c
      nasl_http.c nasl_init.c nasl_lex_ctxt.c nasl_misc_funcs.c nasl_scanner_glue.c
@@ -215,7 +216,7 @@ set_target_properties (openvas_nasl_shared PROPERTIES PUBLIC_HEADER "${HEADERS}"
 # line bellow is needed so it also works with no-undefined which is e.g. used by Mandriva
 target_link_libraries (openvas_nasl_shared libopenvas_base libopenvas_misc
 			libopenvas_hg glib-2.0 gcrypt gpgme
-			gpg-error gnutls pcap ${WMI})
+			gpg-error gnutls pcap m ${WMI})
 
 
 # Add ("import") static libs from Make based subprojects of openvas-libraries
@@ -234,7 +235,7 @@ set_property (TARGET libopenvas_hg PROPERTY
 add_executable (openvas-nasl nasl.c)
 target_link_libraries (openvas-nasl openvas_nasl_static libopenvas_base
                        libopenvas_misc libopenvas_hg ${GLIB_LDFLAGS} -lgcrypt
-                       -lgpgme -lgpg-error -lgnutls -lpcap -lresolv ${WMI_LIBS})
+                       -lgpgme -lgpg-error -lgnutls -lpcap -lresolv -lm ${WMI_LIBS})
 set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
                        "${GLIB_CFLAGS} ${GPGME_CFLAGS}")
 set_target_properties (openvas-nasl PROPERTIES LINK_FLAGS

@@ -1,4 +1,4 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2004 Tenable Network Security
  *
@@ -425,6 +425,7 @@ static init_func libfuncs[] = {
   {"network_targets", network_targets, 0, {NULL}},
 
   {"plugin_run_find_service", plugin_run_find_service, 0, {NULL}},
+  {"plugin_run_openvas_tcp_scanner", plugin_run_openvas_tcp_scanner, 0, {NULL}},
 
   {NULL, NULL, 0, {NULL}}
 };
