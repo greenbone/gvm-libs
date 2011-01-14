@@ -1,5 +1,14 @@
 2011-01-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* omp/CMakeLists.txt, misc/CMakeLists.txt, nasl/CMakeLists.txt,
+	hg/CMakeLists.txt: Since these are not stand-alone
+	cmake controls anymore, several parts were remove as they
+	are part of the parent cmake control.
+
+	* CMakeLists.txt: Added subdirectories omp, misc, nasl and hg.
+
+2011-01-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* CMakeLists.txt: New.
 
 	* base/CMakeLists.txt: Since this is not a stand-alone
