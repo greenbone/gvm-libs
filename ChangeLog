@@ -1,3 +1,11 @@
+2011-01-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Removing autotools build environment.
+
+	* configure, configure.in, config.guess, config.sub, ltmain.sh,
+	openvas-libraries.tmpl.in, MANIFEST, Makefile, .root-dir, aclocal.m4,
+	install-sh: Removed.
+
 2011-01-14  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/plugutils.c (plug_set_dep): Convert the dependency file type
