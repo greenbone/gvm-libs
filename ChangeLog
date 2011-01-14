@@ -1,3 +1,11 @@
+2011-01-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* CMakeLists.txt: New.
+
+	* base/CMakeLists.txt: Since this is not a stand-alone
+	cmake control anymore, several parts were remove as they
+	are part of the parent cmake control.
+
 2011-01-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* VERSION.in: Use cmake makro.
