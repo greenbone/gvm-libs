@@ -1,5 +1,19 @@
 2011-01-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* INSTALL_README, INSTALL: Renamed INSTALL_README to
+	INSTALL to be consistent with other OpenVAS modules.
+
+	* VERSION, VERSION.in: Renamed VERSION to VERSION.in
+	to prepare cmake handling.
+
+	* libopenvas-config.in, tools/libopenvas-config.in: Moved
+	libopenvas-config.in into tools/ directory for consistency.
+
+	* TODO: Removed entries about MANIFEST and configure.in as
+	these files don't exists anymore.
+
+2011-01-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Removing autotools build environment.
 
 	* configure, configure.in, config.guess, config.sub, ltmain.sh,

@@ -6,18 +6,6 @@
 	hint on a broken design. The store (actually: cache)
 	feature should eventually be designed in a better way.
 	
-2007-10-11 <Jan-Oliver.Wagner@intevation.de>
-
-	* MANIFEST: The method to create a dist could be imoroved to
-	use svn export. This could make MANIFEST unneeded which in
-	turn means less management efford.
-
-2007-04-26 <Jan-Oliver.Wagner@intevation.de>
-
-	* configure.in: which autoconf minimum standard to define?
-	Currently there are numerous warnings when running 2.13, e.g.
-	configure.in:95: warning: AC_HAVE_LIBRARY is obsolete; instead use AC_CHECK_LIB
-
 2007-04-12 <Jan-Oliver.Wagner@intevation.de>
 
 	* AIX: Is this a platform that is really important
