@@ -537,7 +537,23 @@ plug_set_dep (struct arglist *desc, const char *depname)
   if (!deps)
     deps = emalloc (sizeof (struct arglist));
 
-  arg_add_value (deps, depname, ARG_STRING, 0, estrdup (""));
+  if (g_str_has_suffix (depname, ".nes"))
+    {
+      gchar *nasl_depname;
+
+      /* The binary NES NVTs have now all been converted to NASL NVTs,
+       * so convert the "nes" file type to "nasl".  This ensures that
+       * any script that depends on the old NES depends instead on the
+       * replacement NASL.
+       */
+
+      nasl_depname = g_strdup_printf ("%sl", depname);
+      nasl_depname[strlen (nasl_depname) - 3] = 'a';
+      arg_add_value (deps, nasl_depname, ARG_STRING, 0, estrdup (""));
+      g_free (nasl_depname);
+    }
+  else
+    arg_add_value (deps, depname, ARG_STRING, 0, estrdup (""));
 
   str = arglist2str (deps);
   nvti_set_dependencies (n, str);

@@ -1,3 +1,8 @@
+2011-01-14  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/plugutils.c (plug_set_dep): Convert the dependency file type
+	to "nasl" if it is "nes", now that all NESs are NASLs.
+
 2011-01-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* MANIFEST, COPYING: Updated.
