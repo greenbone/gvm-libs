@@ -1,3 +1,17 @@
+2011-01-14  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Add a NASL builtin command to replace the synscan NES NVT.
+
+	* nasl/CMakeLists.txt: Add builtin openvas_tcp_scanner to FILES.
+
+	* nasl/nasl_builtin_synscan.c: New file.  A copy of
+	openvas-scanner/cnvts/synscan/synscan.c, modified
+	slightly for NASL caller.
+
+	* nasl/nasl_builtin_plugins.h: Add header.
+
+	* nasl/nasl_init.c (libfuncs): Add plugin_run_synscan.
+
 2011-01-13  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Add a NASL builtin command to replace the openvas_tcp_scanner NES NVT.

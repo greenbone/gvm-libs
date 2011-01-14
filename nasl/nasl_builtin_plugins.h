@@ -35,4 +35,6 @@ tree_cell * plugin_run_find_service (lex_ctxt *);
 
 tree_cell * plugin_run_openvas_tcp_scanner (lex_ctxt *);
 
+tree_cell * plugin_run_synscan (lex_ctxt *);
+
 #endif /* not _NASL_BUILTIN_PLUGINS_H */

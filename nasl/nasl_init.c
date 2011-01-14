@@ -426,6 +426,7 @@ static init_func libfuncs[] = {
 
   {"plugin_run_find_service", plugin_run_find_service, 0, {NULL}},
   {"plugin_run_openvas_tcp_scanner", plugin_run_openvas_tcp_scanner, 0, {NULL}},
+  {"plugin_run_synscan", plugin_run_synscan, 0, {NULL}},
 
   {NULL, NULL, 0, {NULL}}
 };

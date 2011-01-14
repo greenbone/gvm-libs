@@ -163,7 +163,7 @@ add_custom_command (
 
 set (FILES arc4.c capture_packet.c charcnv.c exec.c genrand.c hmacmd5.c
      iconv.c lint.c lsearch.c md4.c md5.c nasl.c nasl_builtin_find_service.c
-     nasl_builtin_openvas_tcp_scanner.c
+     nasl_builtin_openvas_tcp_scanner.c nasl_builtin_synscan.c
      nasl_cmd_exec.c nasl_crypto2.c
      nasl_crypto.c nasl_debug.c nasl_func.c nasl_grammar.tab.c nasl_host.c
      nasl_http.c nasl_init.c nasl_lex_ctxt.c nasl_misc_funcs.c nasl_scanner_glue.c
