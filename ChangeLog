@@ -1,5 +1,10 @@
 2011-01-14  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* nasl/nasl_builtin_openvas_tcp_scanner.c (plugin_init): Remove.
+	(plugin_run_openvas_tcp_scanner): Return NULL instead of 0.
+
+2011-01-14  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	Add a NASL builtin command to replace the synscan NES NVT.
 
 	* nasl/CMakeLists.txt: Add builtin openvas_tcp_scanner to FILES.

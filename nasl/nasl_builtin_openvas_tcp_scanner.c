@@ -76,35 +76,6 @@
 #define MAXINT 0x7fffffffL
 #endif
 
-#if ! defined STANDALONE
-int plugin_init(struct arglist * desc)
-{
- plug_set_id(desc, 10335);
- plug_set_version(desc, "$Revision: 1741 $");
-
- plug_set_name(desc, "OpenVAS TCP scanner");
- plug_set_summary(desc, "Look for open TCP ports & services banners");
- plug_set_description(desc, "\
-This plugin is a classical TCP port scanner\n\
-It shall be reasonably quick even against a firewalled target.\n\
-\n\
-Once a TCP connection is open, it grabs any available banner\n\
-for the service identification plugins\n\
-\n\
-Note that TCP scanners are more intrusive than \n\
-SYN (half open) scanners\
-");
-
- plug_set_copyright(desc, "(C) 2004 Michel Arboi <mikhail@nessus.org>");
- plug_set_category(desc, ACT_SCANNER);
- plug_set_family(desc, "Port scanners");
-
- plug_set_dep(desc, "ping_host.nasl");
- plug_set_tag (desc, "risk_factor", "None");
- return(0);
-}
-#endif
-
 typedef struct {
   int			fd;
   struct timeval	tictac;		/* open time */
@@ -1629,7 +1600,7 @@ plugin_run_openvas_tcp_scanner (lex_ctxt * lexic)
   comm_send_status(globals, arg_get_value(hostinfos, "NAME"),"portscan", 65535, 65535);
   plug_set_key(desc, "Host/scanned", ARG_INT, (void*)1);
   plug_set_key(desc, "Host/scanners/openvas_tcp_scanner", ARG_INT, (void*)1);
-  return 0;
+  return NULL;
 }
 #endif
 
