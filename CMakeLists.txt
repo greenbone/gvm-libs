@@ -218,8 +218,8 @@ set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG}")
 set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -Werror")
 
 add_subdirectory (base)
-add_subdirectory (hg)
 add_subdirectory (misc)
+add_subdirectory (hg)
 add_subdirectory (nasl)
 add_subdirectory (omp)
 

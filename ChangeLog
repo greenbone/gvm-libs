@@ -1,3 +1,7 @@
+2011-01-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* CMakeLists.txt: Fixed sequence of lib build.
+
 2011-01-16  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_authenticate, omp_create_task, omp_create_task_rc)
