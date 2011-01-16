@@ -141,12 +141,12 @@ omp_authenticate (gnutls_session_t* session,
 
   /* Send the auth request. */
 
-  msg = g_strdup_printf ("<authenticate><credentials>"
-                         "<username>%s</username>"
-                         "<password>%s</password>"
-                         "</credentials></authenticate>",
-                         username,
-                         password);
+  msg = g_markup_printf_escaped ("<authenticate><credentials>"
+                                 "<username>%s</username>"
+                                 "<password>%s</password>"
+                                 "</credentials></authenticate>",
+                                 username,
+                                 password);
   int ret = openvas_server_send (session, msg);
   g_free (msg);
   if (ret) return ret;
@@ -225,16 +225,16 @@ omp_create_task (gnutls_session_t* session,
   /* Create the OMP request. */
 
   gchar* new_task_request;
-  new_task_request = g_strdup_printf ("<create_task>"
-                                      "<config id=\"%s\"/>"
-                                      "<target id=\"%s\"/>"
-                                      "<name>%s</name>"
-                                      "<comment>%s</comment>"
-                                      "</create_task>",
-                                      config,
-                                      target,
-                                      name,
-                                      comment);
+  new_task_request = g_markup_printf_escaped ("<create_task>"
+                                              "<config id=\"%s\"/>"
+                                              "<target id=\"%s\"/>"
+                                              "<name>%s</name>"
+                                              "<comment>%s</comment>"
+                                              "</create_task>",
+                                              config,
+                                              target,
+                                              name,
+                                              comment);
 
   /* Send the request. */
 
@@ -280,14 +280,14 @@ omp_create_task_rc (gnutls_session_t* session,
   /* Create the OMP request. */
 
   gchar* new_task_request;
-  new_task_request = g_strdup_printf ("<create_task>"
-                                      "<rcfile>%s</rcfile>"
-                                      "<name>%s</name>"
-                                      "<comment>%s</comment>"
-                                      "</create_task>",
-                                      new_task_file,
-                                      name,
-                                      comment);
+  new_task_request = g_markup_printf_escaped ("<create_task>"
+                                              "<rcfile>%s</rcfile>"
+                                              "<name>%s</name>"
+                                              "<comment>%s</comment>"
+                                              "</create_task>",
+                                              new_task_file,
+                                              name,
+                                              comment);
   g_free (new_task_file);
 
   /* Send the request. */
@@ -1913,21 +1913,21 @@ omp_create_config (gnutls_session_t* session,
 
   gchar* new_config_request;
   if (comment)
-    new_config_request = g_strdup_printf ("<create_config>"
-                                          "<name>%s</name>"
-                                          "<comment>%s</comment>"
-                                          "<rcfile>%s</rcfile>"
-                                          "</create_config>",
-                                          name,
-                                          comment,
-                                          new_config_file);
+    new_config_request = g_markup_printf_escaped ("<create_config>"
+                                                  "<name>%s</name>"
+                                                  "<comment>%s</comment>"
+                                                  "<rcfile>%s</rcfile>"
+                                                  "</create_config>",
+                                                  name,
+                                                  comment,
+                                                  new_config_file);
   else
-    new_config_request = g_strdup_printf ("<create_config>"
-                                          "<name>%s</name>"
-                                          "<rcfile>%s</rcfile>"
-                                          "</create_config>",
-                                          name,
-                                          new_config_file);
+    new_config_request = g_markup_printf_escaped ("<create_config>"
+                                                  "<name>%s</name>"
+                                                  "<rcfile>%s</rcfile>"
+                                                  "</create_config>",
+                                                  name,
+                                                  new_config_file);
   g_free (new_config_file);
 
   /* Send the request. */
@@ -2030,44 +2030,44 @@ omp_create_lsc_credential (gnutls_session_t* session,
   if (password)
     {
       if (comment)
-        new_task_request = g_strdup_printf ("<create_lsc_credential>"
-                                            "<name>%s</name>"
-                                            "<login>%s</login>"
-                                            "<password>%s</password>"
-                                            "<comment>%s</comment>"
-                                            "</create_lsc_credential>",
-                                            name,
-                                            login,
-                                            password,
-                                            comment);
+        new_task_request = g_markup_printf_escaped ("<create_lsc_credential>"
+                                                    "<name>%s</name>"
+                                                    "<login>%s</login>"
+                                                    "<password>%s</password>"
+                                                    "<comment>%s</comment>"
+                                                    "</create_lsc_credential>",
+                                                    name,
+                                                    login,
+                                                    password,
+                                                    comment);
       else
-        new_task_request = g_strdup_printf ("<create_lsc_credential>"
-                                            "<name>%s</name>"
-                                            "<login>%s</login>"
-                                            "<password>%s</password>"
-                                            "</create_lsc_credential>",
-                                            name,
-                                            login,
-                                            password);
+        new_task_request = g_markup_printf_escaped ("<create_lsc_credential>"
+                                                    "<name>%s</name>"
+                                                    "<login>%s</login>"
+                                                    "<password>%s</password>"
+                                                    "</create_lsc_credential>",
+                                                    name,
+                                                    login,
+                                                    password);
     }
   else
     {
       if (comment)
-        new_task_request = g_strdup_printf ("<create_lsc_credential>"
-                                            "<name>%s</name>"
-                                            "<login>%s</login>"
-                                            "<comment>%s</comment>"
-                                            "</create_lsc_credential>",
-                                            name,
-                                            login,
-                                            comment);
+        new_task_request = g_markup_printf_escaped ("<create_lsc_credential>"
+                                                    "<name>%s</name>"
+                                                    "<login>%s</login>"
+                                                    "<comment>%s</comment>"
+                                                    "</create_lsc_credential>",
+                                                    name,
+                                                    login,
+                                                    comment);
       else
-        new_task_request = g_strdup_printf ("<create_lsc_credential>"
-                                            "<name>%s</name>"
-                                            "<login>%s</login>"
-                                            "</create_lsc_credential>",
-                                            name,
-                                            login);
+        new_task_request = g_markup_printf_escaped ("<create_lsc_credential>"
+                                                    "<name>%s</name>"
+                                                    "<login>%s</login>"
+                                                    "</create_lsc_credential>",
+                                                    name,
+                                                    login);
     }
 
   /* Send the request. */
@@ -2123,17 +2123,17 @@ omp_create_agent (gnutls_session_t* session,
 
   gchar* new_task_request;
   if (comment)
-    new_task_request = g_strdup_printf ("<create_agent>"
-                                        "<name>%s</name>"
-                                        "<comment>%s</comment>"
-                                        "</create_agent>",
-                                        name,
-                                        comment);
+    new_task_request = g_markup_printf_escaped ("<create_agent>"
+                                                "<name>%s</name>"
+                                                "<comment>%s</comment>"
+                                                "</create_agent>",
+                                                name,
+                                                comment);
   else
-    new_task_request = g_strdup_printf ("<create_agent>"
-                                        "<name>%s</name>"
-                                        "</create_agent>",
-                                        name);
+    new_task_request = g_markup_printf_escaped ("<create_agent>"
+                                                "<name>%s</name>"
+                                                "</create_agent>",
+                                                name);
 
   /* Send the request. */
 
@@ -2161,10 +2161,10 @@ omp_delete_agent (gnutls_session_t* session,
   /* Create the OMP request. */
 
   gchar* new_task_request;
-  new_task_request = g_strdup_printf ("<delete_agent>"
-                                      "<name>%s</name>"
-                                      "</delete_agent>",
-                                      name);
+  new_task_request = g_markup_printf_escaped ("<delete_agent>"
+                                              "<name>%s</name>"
+                                              "</delete_agent>",
+                                              name);
 
   /* Send the request. */
 
@@ -2193,11 +2193,11 @@ omp_get_nvt_details_503 (gnutls_session_t* session, const char * oid,
   int ret;
 
   if (oid)
-    request = g_strdup_printf ("<get_nvts"
-                               " nvt_oid=\"%s\""
-                               " details=\"1\""
-                               " preferences=\"1\"/>",
-                               oid);
+    request = g_markup_printf_escaped ("<get_nvts"
+                                       " nvt_oid=\"%s\""
+                                       " details=\"1\""
+                                       " preferences=\"1\"/>",
+                                       oid);
   else
     request = g_strdup ("<get_nvts"
                         " details=\"1\""

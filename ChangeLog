@@ -1,3 +1,10 @@
+2011-01-16  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_authenticate, omp_create_task, omp_create_task_rc)
+	(omp_create_config, omp_create_lsc_credential, omp_create_agent)
+	(omp_delete_agent, omp_get_nvt_details_503): Print with
+	g_markup_printf_escaped so that special chars in args are encoded.
+
 2011-01-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* omp/CMakeLists.txt, misc/CMakeLists.txt, nasl/CMakeLists.txt,
