@@ -244,6 +244,8 @@ install (FILES tools/libopenvas-config
 install (FILES doc/libopenvas-config.1 doc/openvas-nasl.1
          DESTINATION ${DATADIR}/man )
 
+install (DIRECTORY DESTINATION ${OPENVAS_USERS_DIR})
+
 ## Tests
 
 enable_testing ()

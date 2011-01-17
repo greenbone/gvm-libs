@@ -1,5 +1,9 @@
 2011-01-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* CMakeLists.txt: Install users directory.
+
+2011-01-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* include/nvt_categories.h, misc/nvt_categories.h: Moved
 	nvt_categories.h from include directory to misc directory
 	as the include directory is going to be eliminated. Misc
