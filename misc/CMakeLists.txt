@@ -92,7 +92,7 @@ else (MINGW)
                network.h otp.h pcap_openvas.h plugutils.h popen.h proctitle.h
                rand.h resolve.h openvas_auth.h openvas_logging.h
                openvas_server.h openvas_ssh_login.h openvas_uuid.h
-               resource_request.h
+               resource_request.h nvt_categories.h
                scanners_utils.h services1.h services.h
                share_fd.h store.h system.h www_funcs.h)
 endif (MINGW)
