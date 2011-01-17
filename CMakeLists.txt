@@ -199,6 +199,13 @@ if (NOT GLIB2)
   message (FATAL_ERROR "The glib-2.0 library is required.")
 endif (NOT GLIB2)
 
+message (STATUS "Looking for wmiclient...")
+find_library (WMICLIENT wmiclient)
+message (STATUS "Looking for wmiclient... ${WMICLIENT}")
+if (NOT WMICLIENT)
+  message (STATUS "WMI support disabled.")
+endif (NOT WMICLIENT)
+
 ## Version
 
 string (REPLACE "

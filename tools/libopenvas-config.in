@@ -29,20 +29,14 @@
 
 # these two are necessary to suffice the replacements
 # for libdir and includedir
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-
-LIBDIR=@libdir@
-INCLUDEDIR=@includedir@
-VERSION=@version@
-EXTRA="@EXTRA@"
-EGDPATH="@egdpath@"
-NASLLIBS="@NASLLIBS@"
-HAVE_WMI="@HAVE_WMI@"
+LIBDIR=@LIBDIR@
+INCLUDEDIR=@INCLUDEDIR@
+VERSION=@OPENVASLIB_VERSION@
+HAVE_WMI="@WMICLIENT@"
 
 usage()
 {
- echo "Usage : libopenvas-config [ --cflags | --libs | --version | --egd ]"
+ echo "Usage : libopenvas-config [ --cflags | --libs | --version ]"
  exit $1
 }
 
@@ -64,17 +58,14 @@ while test $# -gt 0; do
 		exit 0
 		;;
 	--libs)
-		if [ $HAVE_WMI = "NO" ]; then
-			echo $Xn "-L$LIBDIR -lopenvas_misc -lopenvas_hg -lopenvas_base $EXTRA -lopenvas_nasl -lopenvas_omp $NASLLIBS $Xc"
+		if [ $HAVE_WMI = "WMICLIENT-NOTFOUND" ]; then
+			echo $Xn "-L$LIBDIR -lopenvas_misc -lopenvas_hg -lopenvas_base -lopenvas_nasl -lopenvas_omp $Xc"
 		else
-			echo $Xn "-L$LIBDIR -lopenvas_misc -lopenvas_hg -lopenvas_base -lwmiclient $EXTRA -lopenvas_nasl -lopenvas_omp $NASLLIBS $Xc"
+			echo $Xn "-L$LIBDIR -lopenvas_misc -lopenvas_hg -lopenvas_base -lwmiclient -lopenvas_nasl -lopenvas_omp $Xc"
 		fi
 		;;
 	--cflags)
 		echo $Xn "$DEFS -I$INCLUDEDIR -I$INCLUDEDIR/openvas $Xc"
-		;;
-	--egd)
-		echo $Xn "$EGDPATH" $Xc
 		;;
 	--help | -h)
 		usage 0
