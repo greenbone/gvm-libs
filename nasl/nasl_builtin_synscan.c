@@ -48,6 +48,11 @@
 
 #define NUM_RETRIES 2
 
+#if 0
+/* Enable when running standalone. */
+#define DEBUG 1
+#endif
+
 /*----------------------------------------------------------------------------*/
 struct pseudohdr {
 	struct in_addr  saddr;
@@ -829,7 +834,7 @@ scan (struct arglist * env, char* hostname, char* portrange,
   printf ("===> Target = %s\n", inet_ntoa (dst));
 #endif
 
-  ports = (unsigned short *) getpts (portrange, &num);
+  ports = (unsigned short *) getpts (portrange ? portrange : "default", &num);
 
   if (soc < 0)
     {
@@ -946,7 +951,7 @@ plugin_run_synscan (lex_ctxt * lexic)
   tv = timeval (rtt);
 
 #ifdef DEBUG
-	printf ("That's %d seconds and %d usecs\n", tv.tv_sec, tv.tv_usec);
+	printf ("That's %ld seconds and %ld usecs\n", tv.tv_sec, tv.tv_usec);
 #endif
 
   struct arglist *hostinfos = arg_get_value (env, "HOSTNAME");
@@ -957,44 +962,3 @@ plugin_run_synscan (lex_ctxt * lexic)
   plug_set_key (env, "Host/scanners/synscan", ARG_INT, (void*)1);
   return NULL;
 }
-
-
-#ifdef STANDALONE
-/**
- * @brief main- function of a basic standalone syn-scanner (for debugging
- * @brief purposes). Define STANDALONE and DEBUG and link against
- * @brief libopenvas_hg, libopenvas_base and libopenvas_misc.
- *
- * Call like standalone-synscan \<host\> [portrange]
- * (e.g. "standalone-syncscan myhost.mydomain 10-100")
- */
-int
-main (int argc, char* argv[])
-{
-  char* target    = NULL;
-  char* portrange = "default";
-  unsigned long rtt = htonl (1 << 28);
-  struct in6_addr dst6;
-
-  if (argc < 2)
-    {
-      printf ("Usage: synscan_standalone <host> [portrange].\n");
-      exit (1);
-    }
-
-  if (argc == 3)
-    {
-      portrange = argv[2];
-    }
-
-  target = argv[1];
-
-  printf ("Resolving host...\n");
-  hg_resolv (target, &dst6, AF_INET6);
-  printf ("Starting scan\n");
-  scan (NULL, target, portrange, &dst6, rtt);
-  printf ("Done.\n");
-
-  exit (0);
-}
-#endif

@@ -1,3 +1,16 @@
+2011-01-17  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Remove standalone parts of builtin plugins, as they can be run
+	standalone via the NASL wrappers.
+
+	* nasl/nasl_builtin_openvas_tcp_scanner.c (read_sysctl_maxsysfd)
+	(compute_min_max_cnx, usage, main): Remove.
+
+	* nasl/nasl_builtin_synscan.c (scan): Set fallback port range for
+	openvas-nasl.
+	(plugin_run_synscan): Change time format string types to longs.
+	(main): Remove.
+
 2011-01-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CMakeLists.txt: Fixed sequence of lib build.
