@@ -22,14 +22,16 @@
 
 #include "nasl_ip.h"
 
-#ifdef HAVE_NETINET_TCP_H
 #include <netinet/tcp.h>
-#endif
 
 #ifdef _CYGWIN_
 #define tcp_seq u_int
 #endif
 
+// TODO: this deactivates most of the following code which
+// perhaps can be deleted eventually. Actually this whole file
+// seems to be candidate for removal.
+#define HAVE_STRUCT_TCPHDR 1
 
 #if !defined(HAVE_STRUCT_TCPHDR) || (HAVE_STRUCT_TCPHDR == 0)
 #undef HAVE_TCPHDR_TH_X2_OFF

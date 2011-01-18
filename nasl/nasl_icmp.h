@@ -20,9 +20,9 @@
 #ifndef OPENVAS_ICMP_H
 #define OPENVAS_ICMP_H
 
-#ifdef HAVE_NETINET_IP_ICMP_H
 #include <netinet/ip_icmp.h>
-#endif
+
+#define HAVE_STRUCT_ICMP 1
 
 #if !defined(HAVE_STRUCT_ICMP) || (HAVE_STRUCT_ICMP == 0)
 struct icmp_ra_addr

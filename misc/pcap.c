@@ -23,9 +23,6 @@
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <netdb.h>
-#ifdef HAVE_SYS_SOCKIO_H
-#include <sys/sockio.h>
-#endif
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -37,7 +34,6 @@
 #include "pcap_openvas.h"
 #include "system_internal.h"
 #include "network.h"
-#include "config.h"
 
 #define MAXROUTES 1024
 
@@ -770,15 +766,7 @@ getinterfaces (int *howmany)
     printf
       ("getinterfaces: SIOCGIFCONF claims you have no network interfaces!\n");
 
-#ifdef HAVE_SOCKADDR_SA_LEN
-  len = ((struct ifreq *) buf)->ifr_addr.sa_len;
-#else
-#ifdef HAVE_STRUCT_IFMAP
   len = sizeof (struct ifmap);
-#else
-  len = sizeof (struct sockaddr);
-#endif
-#endif
 
   for (bufp = buf; bufp && *bufp && (bufp < (buf + ifc.ifc_len));
        bufp += sizeof (ifr->ifr_name) + len)
@@ -799,10 +787,6 @@ getinterfaces (int *howmany)
             ("You seem to have more than 1023 network interfaces. Things may not work right.\n");
           break;
         }
-#if HAVE_SOCKADDR_SA_LEN
-      /* len = MAX(sizeof(struct sockaddr), ifr->ifr_addr.sa_len); */
-      len = ifr->ifr_addr.sa_len;
-#endif
       mydevs[numinterfaces].name[0] = '\0';
     }
 

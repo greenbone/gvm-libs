@@ -20,10 +20,9 @@
 #ifndef OPENVAS_UDP_H__
 #define OPENVAS_UDP_H__
 
-#ifdef HAVE_STRUCT_UDPHDR
 #include <netinet/udp.h>
-#endif
 
+#define HAVE_STRUCT_UDPHDR 1
 #if !defined(HAVE_STRUCT_UDPHDR) || HAVE_STRUCT_UDPHDR == 0
 #define HAVE_STRUCT_UDPHDR 1
 struct udphdr
@@ -35,11 +34,11 @@ struct udphdr
 };
 #endif
 
-#if defined(HAVE_STRUCT_UDPHDR) && !defined(HAVE_BSD_STRUCT_UDPHDR) && !defined(_CYGWIN_)
-#define uh_sport source
-#define uh_dport dest
-#define uh_ulen len
-#define uh_sum check
-#endif
+//#if defined(HAVE_STRUCT_UDPHDR) && !defined(HAVE_BSD_STRUCT_UDPHDR) && !defined(_CYGWIN_)
+//#define uh_sport source
+//#define uh_dport dest
+//#define uh_ulen len
+//#define uh_sum check
+//#endif
 
 #endif

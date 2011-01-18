@@ -27,8 +27,6 @@
 
 /* We need this for `regex.h', and perhaps for the Emacs include files.  */
 
-#include <config.h>
-
 #include <glib.h>
 
 #ifndef HAVE_REGEX_SUPPORT
@@ -46,30 +44,8 @@
 
 #else  /* not emacs */
 
-/* We used to test for `BSTRING' here, but only GCC and Emacs define
-   `BSTRING', as far as I know, and neither of them use this code.  */
-#if HAVE_STRING_H || STDC_HEADERS
 #include <string.h>
-#ifndef bcmp
-#define bcmp(s1, s2, n)	memcmp ((s1), (s2), (n))
-#endif
-#ifndef bcopy
-#define bcopy(s, d, n)	memcpy ((d), (s), (n))
-#endif
-#ifndef bzero
-#define bzero(s, n)	memset ((s), 0, (n))
-#endif
-#else
-#include <strings.h>
-#endif
-
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#else
-char *malloc ();
-char *realloc ();
-#endif
-
 
 /* Define the syntax stuff for \<, \>, etc.  */
 

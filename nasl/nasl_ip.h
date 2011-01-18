@@ -19,11 +19,7 @@
 
 #ifndef OPENVAS_IP_H__
 
-#include "config.h"
-
-#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
-#endif
 
 #ifndef IP_RF
 #define	IP_RF 0x8000            /* reserved fragment flag */
@@ -40,6 +36,11 @@
 #ifndef IP_OFFMASK
 #define	IP_OFFMASK 0x1fff       /* mask for fragmenting bits */
 #endif
+
+// TODO: this deactivates most of the following code which
+// perhaps can be deleted eventually. Actually this whole file
+// seems to be candidate for removal.
+#define HAVE_STRUCT_IP 1
 
 #if !defined(HAVE_STRUCT_IP) || (HAVE_STRUCT_IP == 0)
 
@@ -67,7 +68,4 @@ struct ip
 
 #endif /* not defined(HAVE_STRUCT_IP) */
 
-#ifdef HAVE_STRUCT_IP_CSUM
-#define ip_sum ip_csum
-#endif
 #endif

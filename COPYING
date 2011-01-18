@@ -47,10 +47,8 @@ hg/hg_utils.[c|h]: LGPLv2+
 hg/hosts_gatherer.[c|h]: LGPLv2+
 hg/test.c: LGPLv2+
 
-include/config.h.in: GPLv2+
 include/libopenvas.h: LGPLv2+
 include/libvers.h.in: GPLv2+
-include/nvt_categories.h: LGPLv2+
 
 misc/ads_auth.[c|h]: GPLv2+
 misc/arglists.[c|h]: LGPLv2+
@@ -64,6 +62,7 @@ misc/ids_send.[c|h]: LGPLv2+
 misc/kb.[c|h]: LGPLv2+
 misc/ldap_auth.[c|h]: GPLv2+
 misc/network.[c|h]: LGPLv2+
+misc/nvt_categories.h: LGPLv2+
 misc/openvas_auth.[c|h]: GPLv2+
 misc/openvas_logging.[c|h]: GPLv2+
 misc/openvas_server.[c|h]: GPLv2+

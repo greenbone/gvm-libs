@@ -1,3 +1,33 @@
+2011-01-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Resolving config.h.
+
+	* include/config.h.in: Removed.
+
+	* misc/pcap.c: Removed include of config.h. Remove conditional
+	include of sys/sockio.h (HAVE_SYS_SOCKIO_H).
+	(getinterfaces): Removed code paths for HAVE_SOCKADDR_SA_LEN,
+	activated code path for HAVE_STRUCT_IFMAP.
+
+	* misc/share_fd.c: Removed include of config.h.
+
+	* nasl/nasl_tcp.h: Activated code path for HAVE_NETINET_TCP_H
+	and for HAVE_STRUCT_TCPHDR.
+
+	* nasl/nasl_ip.h: Activated code path for HAVE_NETINET_IP_H
+	and for HAVE_STRUCT_TCPHDR. Deactivate code for HAVE_STRUCT_IP_CSUM.
+
+	* nasl/nasl_udp.h: Activate code path for HAVE_STRUCT_UDPHDR.
+	Deactivated code for not HAVE_BSD_STRUCT_UDPHDR.
+
+	* nasl/nasl_icmp.h: Activate code patch for HAVE_NETINET_IP_ICMP_H
+	and HAVE_STRUCT_ICMP.
+
+	* nasl/regex.c: Removed include of config.h. Activate code for
+	HAVE_STRING_H and HAVE_STDLIB_H.
+
+	* COPYING: Updated.
+
 2011-01-18  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_create_target): Separate credential arg into per

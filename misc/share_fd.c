@@ -33,8 +33,6 @@
 #include <string.h>
 #include <errno.h>
 
-#include "config.h"
-
 int
 send_fd (int socket, int fd)
 {
