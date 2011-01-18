@@ -1,99 +1,51 @@
-openvas-libraries: How to build and install
-===========================================
+INSTALLATION INSTRUCTIONS FOR OPENVAS-LIBRARIES
+===============================================
 
-Pre-Installation Requirements
------------------------------
+Please note: The reference system used by most of the developers is Debian
+GNU/Linux 'Lenny' 5.0.  The build might fail on any other systems.  Also
+it is necessary to install dependent development packages.
 
-Please note: If you have built and installed an older version of
-openvas-libraries before, make sure that the two versions do not interfere with
-each other, for example by using a different installation prefix or by removing
-the files installed by the old version before installing the new.
+Compiling openvas-libraries
+---------------------------
 
-You need a number of development packages to build openvas-libraries:
-
- * libglib >= 2.12
- * libgnutls >= 2.0
- * libpcap
- * libgpgme >= 1.1.2
- * uuid-dev (from e2fsprogs)
+Prerequisites:
+* libglib >= 2.12
+* libgnutls >= 2.0
+* libpcap
+* libgpgme >= 1.1.2
+* uuid-dev (from e2fsprogs)
 
 Apart from these, some tools are required:
+* a C compiler (e.g. gcc)
+* bison
+* flex
+* cmake
 
- * a C compiler (e.g. gcc)
- * bison
- * flex
- * cmake
+Prerequisites for building documentation:
+* Doxygen
+* xmltoman (optional, for building man page)
+* sqlfairy (optional, for producing database diagram)
 
-The "configure" step will check for the presence of the prerequisites. Please
-refer to the documentation provided with you distribution for instruction on
-installing missing packages.
+Configure the build with
 
-Configuring and Compiling
--------------------------
+    $ cmake -DCMAKE_INSTALL_PREFIX=/path/to/your/installation .
 
-First, configure openvas-libraries with the following command:
+or (if you want to use the default installation path /usr/local)
 
-  ./configure
+    $ cmake .
 
-During configuration, missing dependencies might be reported. If this is the
-case, you need to resolve these issues and re-run the configure command.
+This only needs to be done once.
 
-Please see below for configuration options which can be set through configure.
+Thereafter, the following commands are useful.
 
-Once you have successfully configured openvas-libraries you can compile with the
-following command:
-
-  make
-
-After you have compiled openvas-libraries you can use the following command to
-install openvas-libraries:
-
-  make install
-
-Please keep in mind that this will install openvas-libraries into the default
-prefix /usr/local if you have not set a different prefix during configuration.
-Note that you might need elevated privileges to install files into this
-location.
+    $ make                # build the scanner
+    $ make doc            # build the documentation
+    $ make doc-full       # build more developer-oriented documentation
+    $ make install        # install the build
+    $ make rebuild_cache  # rebuild the make system cache
 
 
-Configuration Options
----------------------
+$ make install
 
-You can pass a number of parameters to the "configure" command if required. The
-most relevant are:
-
-  --prefix=path
-Use this parameter to configure openvas-libraries for installation into a custom
-prefix. This can be useful for testing purposes and times when you cannot (or do
-not want to) install openvas-libraries in the default prefix.
-
-  --enable-verbose-makefile
-Use this parameter if you want to see more verbose output during the build
-process, like the compiler and linker flags used for individual files.
-
-  --enable-cmake-release
-Use this parameter to change the build type used for the CMake based submodules
-(base, hg, misc, nasl, omp) from the default "Debug" to "Release". This will
-result in more optimized code at the expense of debugging support in the code.
-
-You can get a list of all available configuration parameters using the following
-command:
-
-  ./configure --help
-
-
-Source Code Documentation
--------------------------
-
-If you have doxygen installed on your system you can use the following command
-to generated an HTML documentation based on the source code itself:
-
-  make doc
-
-The HTML documentation is generated into the doc/generated/html directory. A
-LaTeX version can be found in the doc/generated/latex directory.
-
-For an even more verbose documentation including function dependency graphs you
-can use the following command:
-
-make doc-full
+Please note that you may have to execute this command as root, especially if you
+have specified a prefix for which your user does not have full permissions.
