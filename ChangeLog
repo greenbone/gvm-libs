@@ -1,5 +1,12 @@
 2011-01-18  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* omp/omp.c (omp_create_target): Separate credential arg into per
+	protocol args.
+
+	* omp/omp.h: Add header accordingly.
+
+2011-01-18  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* omp/omp.c (omp_create_target): Use new SSH_LSC_CREDENTIAL element
 	instead of old LSC_CREDENTIAL.
 
