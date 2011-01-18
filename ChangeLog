@@ -1,5 +1,18 @@
 2011-01-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Resolving libvers.h.in.
+
+	* include/, include/libvers.h.in: Removed.
+
+	* misc/plugutils.c: Removed include of libvers.h.  Harmonized
+	macros for VERSION and version elements with CMakeLists.txt.
+
+	* misc/CMakeLists.txt: Add transfer of version makros.
+
+	* COPYING: Updated.
+
+2011-01-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* include/libopenvas.h: Removed. It was no code in there anyway.
 
 	* COPYING: Updated.

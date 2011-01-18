@@ -18,8 +18,8 @@ LGPLv2: See file COPYING.LGPLv2
 BSD2: See file COPYING.BSD2
 BSD3: See file COPYING.BSD3
 
-The following overview was collected 20100726 based
-on the header of the respective files:
+The following overview was initially collected 20100726 based
+on the header of the respective files and last updated 20110118:
 
 base/accessrules.[c|h]: GPLv2+
 base/array.[c|h]: GPLv2+
@@ -46,8 +46,6 @@ hg/hg_subnet.[c|h]: LGPLv2+
 hg/hg_utils.[c|h]: LGPLv2+
 hg/hosts_gatherer.[c|h]: LGPLv2+
 hg/test.c: LGPLv2+
-
-include/libvers.h.in: GPLv2+
 
 misc/ads_auth.[c|h]: GPLv2+
 misc/arglists.[c|h]: LGPLv2+

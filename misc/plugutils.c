@@ -49,9 +49,6 @@
 #include "services.h"
 #include "share_fd.h"
 #include "system.h"
-
-/* want version stuff */
-#include "libvers.h"
 #include "scanners_utils.h"
 
 /**
@@ -62,7 +59,7 @@ char *
 openvaslib_version ()
 {
   static char vers[255];        /* RATS: ignore, vers is used wisely. */
-  strncpy (vers, VERSION, sizeof (vers) - 1);
+  strncpy (vers, OPENVASLIB_VERSION, sizeof (vers) - 1);
   vers[sizeof (vers) - 1] = '\0';
   return vers;
 }
@@ -74,9 +71,9 @@ openvaslib_version ()
 void
 openvas_lib_version (int *major, int *minor, int *rev)
 {
-  *major = OPENVASLIBS_MAJOR;
-  *minor = OPENVASLIBS_MINOR;
-  *rev = OPENVASLIBS_REV;
+  *major = OPENVASLIB_VERSION_MAJOR;
+  *minor = OPENVASLIB_VERSION_MINOR;
+  *rev = OPENVASLIB_VERSION_PATCH;
 }
 
 /**

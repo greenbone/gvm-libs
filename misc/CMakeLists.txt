@@ -126,6 +126,19 @@ set_target_properties (openvas_misc_shared PROPERTIES PUBLIC_HEADER "${HEADERS}"
 if (NOT MINGW)
   target_link_libraries (openvas_misc_shared glib-2.0 pcap gnutls gcrypt openvas_base)
 endif (NOT MINGW)
+
+if (OPENVASLIB_VERSION)
+  add_definitions (-DOPENVASLIB_VERSION=\\\"${OPENVASLIB_VERSION}\\\")
+
+  string (REGEX REPLACE "^\([0-9]+\).*" "\\1" PATCH_VERS
+          ${CPACK_PACKAGE_VERSION_PATCH})
+
+  add_definitions (-DOPENVASLIB_VERSION_MAJOR=${CPACK_PACKAGE_VERSION_MAJOR})
+  add_definitions (-DOPENVASLIB_VERSION_MINOR=${CPACK_PACKAGE_VERSION_MINOR})
+  add_definitions (-DOPENVASLIB_VERSION_PATCH=${PATCH_VERS})
+endif (OPENVASLIB_VERSION)
+
+
 if (OPENVAS_USERS_DIR)
   add_definitions (-DOPENVAS_USERS_DIR=\\\"${OPENVAS_USERS_DIR}\\\")
 endif (OPENVAS_USERS_DIR)
