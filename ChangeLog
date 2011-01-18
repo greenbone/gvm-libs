@@ -1,3 +1,8 @@
+2011-01-18  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* doc/example.auth.conf: Updated with more sensible values and
+	additional comments.
+
 2011-01-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CMakeLists.txt: Install users directory.
