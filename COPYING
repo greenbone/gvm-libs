@@ -47,7 +47,6 @@ hg/hg_utils.[c|h]: LGPLv2+
 hg/hosts_gatherer.[c|h]: LGPLv2+
 hg/test.c: LGPLv2+
 
-include/libopenvas.h: LGPLv2+
 include/libvers.h.in: GPLv2+
 
 misc/ads_auth.[c|h]: GPLv2+

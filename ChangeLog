@@ -1,5 +1,11 @@
 2011-01-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* include/libopenvas.h: Removed. It was no code in there anyway.
+
+	* COPYING: Updated.
+
+2011-01-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Resolving config.h.
 
 	* include/config.h.in: Removed.
