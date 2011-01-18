@@ -1,3 +1,8 @@
+2011-01-18  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_create_target): Use new SSH_LSC_CREDENTIAL element
+	instead of old LSC_CREDENTIAL.
+
 2011-01-18  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* doc/example.auth.conf: Updated with more sensible values and

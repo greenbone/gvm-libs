@@ -1817,7 +1817,7 @@ omp_create_target (gnutls_session_t* session,
                                     "<name>%s</name>"
                                     "<hosts>%s</hosts>"
                                     "<comment>%s</comment>"
-                                    "<lsc_credential id=\"%s\"/>"
+                                    "<ssh_lsc_credential id=\"%s\"/>"
                                     "</create_target>",
                                     name,
                                     hosts,
@@ -1841,7 +1841,7 @@ omp_create_target (gnutls_session_t* session,
                                     "<create_target>"
                                     "<name>%s</name>"
                                     "<hosts>%s</hosts>"
-                                    "<lsc_credential id=\"%s\"/>"
+                                    "<ssh_lsc_credential id=\"%s\"/>"
                                     "</create_target>",
                                     name,
                                     hosts,
