@@ -18,6 +18,8 @@
 
 	* misc/system.c: Activated code path for HAVE_MALLOC_H.
 
+	* CMakeLists.txt: Added install directive for several directories.
+
 2011-01-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* INSTALL: Updated to cmake build system and harmonized
