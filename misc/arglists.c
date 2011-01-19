@@ -213,6 +213,28 @@ arg_get (struct arglist *arg, const char *name)
 
 
 int
+arg_set_name (arglst, name, new_name)
+     struct arglist *arglst;
+     const char *name;
+     const char *new_name;
+{
+  if (name == NULL || new_name == NULL)
+    return -1;
+
+  arglst = arg_get (arglst, name);
+
+  if (arglst != NULL)
+    {
+      cache_dec (arglst->name);
+      arglst->name = cache_inc (new_name);
+      arglst->hash = mkhash (arglst->name);
+      return 0;
+    }
+  else
+    return -1;
+}
+
+int
 arg_set_value (arglst, name, length, value)
      struct arglist *arglst;
      const char *name;

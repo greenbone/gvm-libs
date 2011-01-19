@@ -64,6 +64,7 @@ void cache_dec (const char *name);
 void arg_add_value_at_head (struct arglist *arglst, const char *name, int type,
                             long length, void *value);
 void arg_add_value (struct arglist *, const char *, int, long, void *);
+int arg_set_name (struct arglist *, const char *, const char *);
 int arg_set_value (struct arglist *, const char *, long, void *);
 int arg_set_type (struct arglist *, const char *, int);
 void *arg_get_value (struct arglist *, const char *);

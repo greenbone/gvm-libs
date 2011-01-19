@@ -1,3 +1,12 @@
+2011-01-19  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/arglists.c (arg_set_name): New function.
+
+	* misc/arglists.h: Add header accordingly.
+
+	* misc/store.c (store_load_plugin): Convert any dependencies of file type
+	"nes" to "nasl", now that all NESs are NASLs.
+
 2011-01-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CMakeLists.txt: Create installation directory for
