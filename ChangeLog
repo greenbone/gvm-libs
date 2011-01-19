@@ -1,3 +1,8 @@
+2011-01-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* CMakeLists.txt: Create installation directory for
+	openvas sysconf (usually /etc/openvas/)
+
 2011-01-19  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* CMakeLists.txt (CPACK_PACKAGE_VERSION_PATCH): Remove "0".
