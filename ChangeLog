@@ -1,3 +1,11 @@
+2011-01-19  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* CMakeLists.txt (CPACK_PACKAGE_VERSION_PATCH): Remove "0".
+	(CPACK_PACKAGE_VERSION0): Remove ".".
+
+	* misc/CMakeLists.txt: Set PATCH_VERS to "0" if the patch version is
+	missing.
+
 2011-01-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_icmp.h: Removed code path for not HAS_ICMP_ICMP_LIFETIME.
@@ -5,7 +13,7 @@
 	* hg/hg_dns_axfr.c: Activated code path for HAVE_NETINET_IN_H.
 
 	* misc/plugutils.c (sig_n): Activated code path for HAVE_SIGACTION,
-	removed code path for not HAVE_SIGACTION. 
+	removed code path for not HAVE_SIGACTION.
 
 	* misc/proctitle.c: Activated code path for not HAVE_SETPROCTITLE.
 	Activated code path for HAVE_VNSPRINTF.
