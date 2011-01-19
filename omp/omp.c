@@ -1814,96 +1814,96 @@ omp_create_target (gnutls_session_t* session,
   if (comment)
     {
       if (ssh_credential && smb_credential)
-        ret = openvas_server_sendf (session,
-                                    "<create_target>"
-                                    "<name>%s</name>"
-                                    "<hosts>%s</hosts>"
-                                    "<comment>%s</comment>"
-                                    "<ssh_lsc_credential id=\"%s\"/>"
-                                    "<smb_lsc_credential id=\"%s\"/>"
-                                    "</create_target>",
-                                    name,
-                                    hosts,
-                                    comment,
-                                    ssh_credential,
-                                    smb_credential);
+        ret = openvas_server_sendf_xml (session,
+                                        "<create_target>"
+                                        "<name>%s</name>"
+                                        "<hosts>%s</hosts>"
+                                        "<comment>%s</comment>"
+                                        "<ssh_lsc_credential id=\"%s\"/>"
+                                        "<smb_lsc_credential id=\"%s\"/>"
+                                        "</create_target>",
+                                        name,
+                                        hosts,
+                                        comment,
+                                        ssh_credential,
+                                        smb_credential);
       else if (ssh_credential)
-        ret = openvas_server_sendf (session,
-                                    "<create_target>"
-                                    "<name>%s</name>"
-                                    "<hosts>%s</hosts>"
-                                    "<comment>%s</comment>"
-                                    "<ssh_lsc_credential id=\"%s\"/>"
-                                    "</create_target>",
-                                    name,
-                                    hosts,
-                                    comment,
-                                    ssh_credential);
+        ret = openvas_server_sendf_xml (session,
+                                        "<create_target>"
+                                        "<name>%s</name>"
+                                        "<hosts>%s</hosts>"
+                                        "<comment>%s</comment>"
+                                        "<ssh_lsc_credential id=\"%s\"/>"
+                                        "</create_target>",
+                                        name,
+                                        hosts,
+                                        comment,
+                                        ssh_credential);
       else if (smb_credential)
-        ret = openvas_server_sendf (session,
-                                    "<create_target>"
-                                    "<name>%s</name>"
-                                    "<hosts>%s</hosts>"
-                                    "<comment>%s</comment>"
-                                    "<smb_lsc_credential id=\"%s\"/>"
-                                    "</create_target>",
-                                    name,
-                                    hosts,
-                                    comment,
-                                    smb_credential);
+        ret = openvas_server_sendf_xml (session,
+                                        "<create_target>"
+                                        "<name>%s</name>"
+                                        "<hosts>%s</hosts>"
+                                        "<comment>%s</comment>"
+                                        "<smb_lsc_credential id=\"%s\"/>"
+                                        "</create_target>",
+                                        name,
+                                        hosts,
+                                        comment,
+                                        smb_credential);
       else
-        ret = openvas_server_sendf (session,
-                                    "<create_target>"
-                                    "<name>%s</name>"
-                                    "<hosts>%s</hosts>"
-                                    "<comment>%s</comment>"
-                                    "</create_target>",
-                                    name,
-                                    hosts,
-                                    comment);
+        ret = openvas_server_sendf_xml (session,
+                                        "<create_target>"
+                                        "<name>%s</name>"
+                                        "<hosts>%s</hosts>"
+                                        "<comment>%s</comment>"
+                                        "</create_target>",
+                                        name,
+                                        hosts,
+                                        comment);
     }
   else
     {
       if (ssh_credential && smb_credential)
-        ret = openvas_server_sendf (session,
-                                    "<create_target>"
-                                    "<name>%s</name>"
-                                    "<hosts>%s</hosts>"
-                                    "<ssh_lsc_credential id=\"%s\"/>"
-                                    "<smb_lsc_credential id=\"%s\"/>"
-                                    "</create_target>",
-                                    name,
-                                    hosts,
-                                    ssh_credential,
-                                    smb_credential);
+        ret = openvas_server_sendf_xml (session,
+                                        "<create_target>"
+                                        "<name>%s</name>"
+                                        "<hosts>%s</hosts>"
+                                        "<ssh_lsc_credential id=\"%s\"/>"
+                                        "<smb_lsc_credential id=\"%s\"/>"
+                                        "</create_target>",
+                                        name,
+                                        hosts,
+                                        ssh_credential,
+                                        smb_credential);
       else if (ssh_credential)
-        ret = openvas_server_sendf (session,
-                                    "<create_target>"
-                                    "<name>%s</name>"
-                                    "<hosts>%s</hosts>"
-                                    "<ssh_lsc_credential id=\"%s\"/>"
-                                    "</create_target>",
-                                    name,
-                                    hosts,
-                                    ssh_credential);
+        ret = openvas_server_sendf_xml (session,
+                                        "<create_target>"
+                                        "<name>%s</name>"
+                                        "<hosts>%s</hosts>"
+                                        "<ssh_lsc_credential id=\"%s\"/>"
+                                        "</create_target>",
+                                        name,
+                                        hosts,
+                                        ssh_credential);
       else if (smb_credential)
-        ret = openvas_server_sendf (session,
-                                    "<create_target>"
-                                    "<name>%s</name>"
-                                    "<hosts>%s</hosts>"
-                                    "<ssh_lsc_credential id=\"%s\"/>"
-                                    "</create_target>",
-                                    name,
-                                    hosts,
-                                    smb_credential);
+        ret = openvas_server_sendf_xml (session,
+                                        "<create_target>"
+                                        "<name>%s</name>"
+                                        "<hosts>%s</hosts>"
+                                        "<ssh_lsc_credential id=\"%s\"/>"
+                                        "</create_target>",
+                                        name,
+                                        hosts,
+                                        smb_credential);
       else
-        ret = openvas_server_sendf (session,
-                                    "<create_target>"
-                                    "<name>%s</name>"
-                                    "<hosts>%s</hosts>"
-                                    "</create_target>",
-                                    name,
-                                    hosts);
+        ret = openvas_server_sendf_xml (session,
+                                        "<create_target>"
+                                        "<name>%s</name>"
+                                        "<hosts>%s</hosts>"
+                                        "</create_target>",
+                                        name,
+                                        hosts);
     }
 
   if (ret) return -1;

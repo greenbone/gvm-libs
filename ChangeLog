@@ -1,3 +1,13 @@
+2011-01-19  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_server.c (openvas_server_sendf_xml): New function, from
+	gsa.
+
+	* misc/openvas_server.h: Add header accordingly.
+
+	* omp/omp.c (omp_create_target): Send with openvas_server_send_xml
+	so that special chars in args are encoded.
+
 2011-01-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_tcp.h, nasl/nasl_ip.h, nasl/nasl_udp.h, nasl/nasl_icmp.h:
