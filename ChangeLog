@@ -1,5 +1,25 @@
 2011-01-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_icmp.h: Removed code path for not HAS_ICMP_ICMP_LIFETIME.
+
+	* hg/hg_dns_axfr.c: Activated code path for HAVE_NETINET_IN_H.
+
+	* misc/plugutils.c (sig_n): Activated code path for HAVE_SIGACTION,
+	removed code path for not HAVE_SIGACTION. 
+
+	* misc/proctitle.c: Activated code path for not HAVE_SETPROCTITLE.
+	Activated code path for HAVE_VNSPRINTF.
+
+	* misc/proctitle.h: Activated code path for not HAVE_SETPROCTITLE.
+
+	* misc/share_fd.c: Activate code path for HAVE_SENDMSG, for HAVE_RECVMSG
+	and for HAVE_CONTROL_IN_MSGHDR. Activate code for not
+	HAVE_ACCRIGHTS_IN_MSGHDR.
+
+	* misc/system.c: Activated code path for HAVE_MALLOC_H.
+
+2011-01-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* INSTALL: Updated to cmake build system and harmonized
 	with other modules.
 

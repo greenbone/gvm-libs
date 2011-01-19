@@ -27,9 +27,7 @@
 #include "hg_utils.h"
 #include "hg_add_hosts.h"
 #include <arpa/inet.h>
-#ifdef HAVE_NETINET_IN_H        /* (debian) linux wants this - jh */
 #include <netinet/in.h>
-#endif
 #ifdef USE_ARPA_NAMESER_COMPAT_H
 #include <arpa/nameser_compat.h>
 #else

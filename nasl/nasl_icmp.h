@@ -100,10 +100,6 @@ struct icmp
 
 #endif /* not defined(HAVE_STRUCT_ICMP) */
 
-#ifndef HAS_ICMP_ICMP_LIFETIME
-#define SET_ICMP_LIFETIME(x,y) (x).icmp_hun.ih_void = (x).icmp_hun.ih_void & y
-#else
 #define SET_ICMP_LIFETIME(x,y) (x).icmp_lifetime = y
-#endif
 
 #endif

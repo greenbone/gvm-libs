@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#ifndef HAVE_SETPROCTITLE
+
 #ifdef __linux__
 #include "proctitle.h"
 #include "system.h"
@@ -101,11 +101,7 @@ setproctitle (const char *fmt, ...)
 
   /* print the argument string */
   va_start (param, fmt);
-#if HAVE_VNSPRINTF
-  (void) vsnprintf (buf, sizeof (buf), fmt, param);
-#else
-  vsprintf (buf, fmt, param);
-#endif
+  vsnprintf (buf, sizeof (buf), fmt, param);
   va_end (param);
 
   snprintf (buf2, sizeof (buf2), "openvassd: %s", buf); /* RATS: ignore */
@@ -145,15 +141,4 @@ setproctitle (const char *fmt, ...)
 {
   return;
 }
-#endif
-
-
-#else /* the system has a setproctitle() call */
-
-void
-initsetproctitle (int argc, char **argv, char **envp)
-{
-  return;
-}
-
 #endif

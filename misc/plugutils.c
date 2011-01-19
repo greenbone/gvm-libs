@@ -1472,15 +1472,11 @@ plug_get_key_sigchld (int sig)
 static void
 sig_n (int signo, void (*fnc) (int))
 {
-#ifdef HAVE_SIGACTION
   struct sigaction sa;
   sa.sa_handler = fnc;
   sa.sa_flags = 0;
   sigemptyset (&sa.sa_mask);
   sigaction (signo, &sa, (struct sigaction *) 0);
-#else
-  signal (signo, fnc);
-#endif
 }
 
 static void

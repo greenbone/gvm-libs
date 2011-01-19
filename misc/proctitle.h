@@ -25,11 +25,7 @@
 #endif
 
 void initsetproctitle (int argc, char *argv[], char *envp[]);
-/* VARARGS3 */
-#if !defined(HAVE_SETPROCTITLE) || !defined(HAVE_SETPROCTITLE_DEF)
 void setproctitle (const char *fmt, ...);
 void proctitle (const char *fmt, ...);
-#endif
 
-/* PROTOTYPES */
 #endif

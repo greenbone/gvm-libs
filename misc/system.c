@@ -34,9 +34,7 @@
 #include <arpa/inet.h>
 
 #include "system_internal.h"
-#ifdef HAVE_MALLOC_H
 #include <malloc.h>
-#endif
 
 /**
  * This method always returns the requested
