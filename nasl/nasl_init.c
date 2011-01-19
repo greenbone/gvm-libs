@@ -17,24 +17,23 @@
  *
  */
 
-#include <string.h>             /* for memset */
+#include "nasl_raw.h"       /* to e.g. favour BSD, but also for IPPROTO_TCP
+                               and TH_FIN */
 
-#include "nvt_categories.h"     /* for ACT_INIT */
-#include "plugutils.h"          /* for OPENVAS_ENCAPS_IP */
+#include <string.h>         /* for memset */
 
-#include "nasl_tcp.h"
+#include "nvt_categories.h" /* for ACT_INIT */
+#include "plugutils.h"      /* for OPENVAS_ENCAPS_IP */
+
 #include "nasl.h"
-
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
 #include "nasl_func.h"
 #include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
 #include "exec.h"
-
 #include "nasl_packet_forgery.h"
 #include "nasl_debug.h"
-
 #include "nasl_socket.h"
 #include "nasl_http.h"
 #include "nasl_host.h"
@@ -47,7 +46,6 @@
 #include "nasl_wmi.h"
 #include "nasl_smb.h"
 #include "nasl_packet_forgery_v6.h"
-
 #include "nasl_builtin_plugins.h"
 
 /* **************************************************************** */

@@ -1,3 +1,16 @@
+2011-01-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_tcp.h, nasl/nasl_ip.h, nasl/nasl_udp.h, nasl/nasl_icmp.h:
+	Removed. These don't add anything anymore.
+
+	* nasl/nasl_raw.h: Include netinet componentd rather than the above
+	header files that did include them.
+
+	* nasl/nasl_init.c: Include nasl_raw.h (early as it sets some relevant
+	makros). Dont't include nasl_tcp anymore.
+
+	* COPYING: Updated.
+
 2011-01-19  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/arglists.c (arg_set_name): New function.

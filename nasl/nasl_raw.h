@@ -33,9 +33,8 @@
 #endif
 #endif
 
-#include "nasl_ip.h"
-#include "nasl_tcp.h"
-#include "nasl_udp.h"
-#include "nasl_icmp.h"
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
+#include <netinet/ip_icmp.h>
 
 #endif

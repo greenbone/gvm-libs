@@ -113,9 +113,7 @@ nasl/nasl_global_ctxt.h: GPLv2
 nasl/nasl_grammar.y: GPLv2
 nasl/nasl_host.[c|h]: GPLv2
 nasl/nasl_http.[c|h]: GPLv2
-nasl/nasl_icmp.h: GPLv2
 nasl/nasl_init.[c|h]: GPLv2
-nasl/nasl_ip.h: GPLv2
 nasl/nasl_lex_ctxt.[c|h]: GPLv2
 nasl/nasl_misc_funcs.[c|h]: GPLv2
 nasl/nasl_packet_forgery.[c|h]: GPLv2
@@ -126,10 +124,8 @@ nasl/nasl_scanner_glue.[c|h]: GPLv2
 nasl/nasl_signature.[c|h]: GPLv2+
 nasl/nasl_smb.[c|h]: GPLv2+
 nasl/nasl_socket.[c|h]: GPLv2
-nasl/nasl_tcp.h: GPLv2
 nasl/nasl_text_utils.[c|h]: GPLv2
 nasl/nasl_tree.[c|h]: GPLv2
-nasl/nasl_udp.h: GPLv2
 nasl/nasl_var.[c|h]: GPLv2
 nasl/nasl_wmi.[c|h]: GPLv2+
 nasl/ntlmssp.[c|h]: GPLv2+
