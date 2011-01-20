@@ -437,7 +437,7 @@ static struct
 } libsvars[] =
 {
   {
-  "OPENVAS_VERSION", VERSION},
+  "OPENVAS_VERSION", OPENVASLIB_VERSION},
   {
 NULL, NULL},};
 
@@ -622,8 +622,8 @@ init_nasl_library (lex_ctxt * lexic)
 char *
 nasl_version ()
 {
-  static char vers[sizeof (VERSION) + 1];
-  strncpy (vers, VERSION, sizeof (vers) - 1);   /* Flawfinder: ignore
+  static char vers[sizeof (OPENVASLIB_VERSION) + 1];
+  strncpy (vers, OPENVASLIB_VERSION, sizeof (vers) - 1);   /* Flawfinder: ignore
                                                    (\0-termination taken care of) */
   vers[sizeof (vers) - 1] = '\0';
   return vers;
