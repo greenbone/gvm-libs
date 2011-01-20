@@ -99,6 +99,7 @@ set (CPACK_SOURCE_IGNORE_FILES
 "Doxyfile$"
 "Doxyfile_full$"
 "VERSION$"
+"tools/libopenvas-config$"
 )
 
 include (CPack)
