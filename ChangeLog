@@ -1,5 +1,11 @@
 2011-01-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Post release version bump.
+
+	* CMakeLists.txt: Set to 4.0+rc4
+
+2011-01-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Quick fixes before release.
 
 	* TODO: Removed. The last two entries are not of notable
