@@ -1,3 +1,33 @@
+openvas-libraries 4.0+rc3 (2011-01-20)
+
+This release is the third release candidate for the next major release of
+Libraries module. It will be part of the upcoming "OpenVAS 4".
+
+It features a complete exchange of the build process which now
+is cmake-based. Also, numerous code elements were removed
+of which it was unclear whether they have still practical relevance.
+
+Many thanks to everyone who has contributed to this release:
+Matthew Mundell, Michael Wiegand, Jan-Oliver Wagner and Felix Wolfsteller.
+
+Main changes compared to 4.0+rc2:
+* Improved and fixed remote LDAP authentication.
+* Former binary ".nes" NVTs "find_service", "openvas_tcp_scanner"
+  and "synscan" are now built-in NASL methods.
+* Any autotools-related build environment was removed.
+* At top-level a cmake-based build environment was introduced.
+* libopenvas_omp: Activated escaping of characters so that
+  special characters can more save be allowed for some OMP commands.
+* example_auth.conf was updated with more sensible values.
+* Bug fix on Credential creation.
+* this package now initially creates required directories in the
+  installation directory (if not present). This was done by other
+  modules previously (mostly openvas-scanner)
+* Many old code paths for certain operting system environments
+  have been removed. Most likely, HPUX, Solaris and similar
+  won't compile this code anymore.
+
+
 openvas-libraries 4.0+rc2 (2011-01-10)
 
 This release is the second release candidate for the next major release of

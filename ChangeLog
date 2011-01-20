@@ -1,5 +1,27 @@
 2011-01-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Preparing the openvas-libraries 4.0+rc3 release.
+
+	* openvas_macros.cmake, openvas_cmake_macros: Renamed
+	openvas_macros.cmake to openvas_cmake_macros to avoid
+	confusion with temporary .cmake files and to avoid
+	special treatment in the CMakeLists.txt for CPack.
+
+	* libopenvas.pc.in: Removed. It is was yet another remains
+	of the autotools time.
+
+	* CHANGES: Updated.
+
+2011-01-08  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* base/openvas_file.c: Remove todos about moving into this module.
+
+2011-01-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	Fix rule saving for ldap authenticated users by ensuring existence of
+
+2011-01-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/CMakeLists.txt: Pass OPENVASLIB_VERSION properly for compilation.
 
 	* nasl/nasl_init.c (libsvars, nasl_version): Renamed VERSION
