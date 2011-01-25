@@ -1914,7 +1914,7 @@ get_encaps_through (int code)
 }
 
 static int
-open_socket (struct sockaddr *paddr, int port, int type, int protocol,
+open_socket (struct sockaddr *paddr, int type, int protocol,
              int timeout, int len)
 {
   fd_set fd_w;
@@ -2040,7 +2040,7 @@ open_sock_opt_hn (const char *hostname, unsigned int port, int type,
       addr.sin_family = AF_INET;
       addr.sin_port = htons ((unsigned short) port);
       addr.sin_addr.s_addr = in6addr.s6_addr32[3];
-      return open_socket ((struct sockaddr *) &addr, port, type, protocol,
+      return open_socket ((struct sockaddr *) &addr, type, protocol,
                           timeout, sizeof (struct sockaddr_in));
     }
   else
@@ -2049,7 +2049,7 @@ open_sock_opt_hn (const char *hostname, unsigned int port, int type,
       addr6.sin6_family = AF_INET6;
       addr6.sin6_port = htons ((unsigned short) port);
       memcpy (&addr6.sin6_addr, &in6addr, sizeof (struct in6_addr));
-      return open_socket ((struct sockaddr *) &addr6, port, type, protocol,
+      return open_socket ((struct sockaddr *) &addr6, type, protocol,
                           timeout, sizeof (struct sockaddr_in6));
     }
 
@@ -2344,7 +2344,7 @@ open_sock_option (struct arglist *args, unsigned int port, int type,
       addr.sin_family = AF_INET;
       addr.sin_port = htons ((unsigned short) port);
       addr.sin_addr.s_addr = t->s6_addr32[3];
-      return open_socket ((struct sockaddr *) &addr, port, type, protocol,
+      return open_socket ((struct sockaddr *) &addr, type, protocol,
                           timeout, sizeof (struct sockaddr_in));
     }
   else
@@ -2353,7 +2353,7 @@ open_sock_option (struct arglist *args, unsigned int port, int type,
       addr6.sin6_family = AF_INET6;
       addr6.sin6_port = htons ((unsigned short) port);
       memcpy (&addr6.sin6_addr, t, sizeof (struct in6_addr));
-      return open_socket ((struct sockaddr *) &addr6, port, type, protocol,
+      return open_socket ((struct sockaddr *) &addr6, type, protocol,
                           timeout, sizeof (struct sockaddr_in6));
     }
 
