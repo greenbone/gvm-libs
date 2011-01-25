@@ -1,3 +1,7 @@
+2011-01-25  Stephan Kleine
+
+        * CMakeLists.txt: install man pages into proper directory.
+
 2011-01-25  Christian Kuersteiner <ckuerste@gmx.ch>
 
 	* misc/network.c (open_socket): Removed unnecessary parameter.

@@ -243,7 +243,7 @@ install (FILES tools/libopenvas-config
                      GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 install (FILES doc/libopenvas-config.1 doc/openvas-nasl.1
-         DESTINATION ${DATADIR}/man )
+         DESTINATION ${DATADIR}/man/man1 )
 
 install (DIRECTORY DESTINATION ${OPENVAS_USERS_DIR})
 install (DIRECTORY DESTINATION ${OPENVAS_LOG_DIR})
