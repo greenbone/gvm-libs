@@ -1,5 +1,13 @@
 2011-01-25  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* nasl/CMakeList.txt: Add option to ignore warnings regarding
+	unprototyped calls in nasl/regex.c to fix the build process with
+	recent versions of openSUSE.
+
+	* INSTALL: Add section documenting compiler options.
+
+2011-01-25  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* doc/CMakeLists.txt: New. Added missing file required to build
 	documentation.
 

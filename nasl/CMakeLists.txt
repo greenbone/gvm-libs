@@ -54,6 +54,11 @@ set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG}")
 # Once the warnings have been addressed this flag should be removed.
 set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -Werror -D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1 -fno-strict-aliasing")
 
+# The "-Wno-error=unprototyped-calls" silences warnings produced by an
+# openSUSE-patched gcc caused by code in regex.c.
+if (IGNORE_UNPROTOTYPED_CALLS)
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error=unprototyped-calls")
+endif (IGNORE_UNPROTOTYPED_CALLS)
 
 ## Compile the parser - note that there are (better) CMake macros to achieve
 ## that and that the user is not warned if bison is not installed
