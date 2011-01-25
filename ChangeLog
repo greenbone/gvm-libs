@@ -1,3 +1,8 @@
+2011-01-25  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* nasl/CMakeList.txt: Fix linking of nasl libraries with other parts
+	of openvas-libraries to fix build issue with newer cmake versions.
+
 2011-01-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Post release version bump.

@@ -25,6 +25,12 @@
 
 ## Config
 
+# Set policy for consistent behaviour regarding relative paths in
+# link_directories
+if (POLICY CMP0015)
+  cmake_policy (SET CMP0015 OLD)
+endif (POLICY CMP0015)
+
 exec_program (pkg-config
               ARGS --cflags glib-2.0
               OUTPUT_VARIABLE GLIB_CFLAGS)
@@ -92,7 +98,7 @@ include_directories (../hg)
 include_directories (../misc)
 include_directories (../include)
 
-link_directories (${LIBDIR})
+link_directories (${LIBDIR} ../base ../hg ../misc)
 
 add_library (openvas_nasl_static STATIC ${FILES})
 
@@ -100,8 +106,8 @@ set_target_properties (openvas_nasl_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLA
 set_target_properties (openvas_nasl_static PROPERTIES OUTPUT_NAME "openvas_nasl")
 set_target_properties (openvas_nasl_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_nasl_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
-target_link_libraries (openvas_nasl_static libopenvas_base libopenvas_misc
-			libopenvas_hg glib-2.0 gcrypt gpgme
+target_link_libraries (openvas_nasl_static openvas_base openvas_misc
+			openvas_hg glib-2.0 gcrypt gpgme
 			gpg-error gnutls pcap ${WMI})
 
 add_library (openvas_nasl_shared SHARED ${FILES})
@@ -112,27 +118,14 @@ set_target_properties (openvas_nasl_shared PROPERTIES SOVERSION "${CPACK_PACKAGE
 set_target_properties (openvas_nasl_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
 set_target_properties (openvas_nasl_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 # line bellow is needed so it also works with no-undefined which is e.g. used by Mandriva
-target_link_libraries (openvas_nasl_shared libopenvas_base libopenvas_misc
-			libopenvas_hg glib-2.0 gcrypt gpgme
+target_link_libraries (openvas_nasl_shared openvas_base openvas_misc
+			openvas_hg glib-2.0 gcrypt gpgme
 			gpg-error gnutls pcap m ${WMI})
-
-
-# Add ("import") static libs from Make based subprojects of openvas-libraries
-add_library (libopenvas_base SHARED IMPORTED)
-add_library (libopenvas_hg SHARED IMPORTED)
-add_library (libopenvas_misc SHARED IMPORTED)
-set_property (TARGET libopenvas_misc PROPERTY
-              IMPORTED_LOCATION ../misc/libopenvas_misc.so)
-set_property (TARGET libopenvas_base PROPERTY
-              IMPORTED_LOCATION ../base/libopenvas_base.so)
-set_property (TARGET libopenvas_hg PROPERTY
-              IMPORTED_LOCATION ../hg/libopenvas_hg.so)
-
 
 # Link the openvas-nasl executable
 add_executable (openvas-nasl nasl.c)
-target_link_libraries (openvas-nasl openvas_nasl_static libopenvas_base
-                       libopenvas_misc libopenvas_hg ${GLIB_LDFLAGS} -lgcrypt
+target_link_libraries (openvas-nasl openvas_nasl_static openvas_base
+                       openvas_misc openvas_hg ${GLIB_LDFLAGS} -lgcrypt
                        -lgpgme -lgpg-error -lgnutls -lpcap -lresolv -lm ${WMI_LIBS})
 set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
                        "${GLIB_CFLAGS} ${GPGME_CFLAGS}")
