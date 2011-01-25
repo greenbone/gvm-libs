@@ -1,6 +1,11 @@
 2011-01-25  Stephan Kleine
 
-        * CMakeLists.txt: install man pages into proper directory.
+	* omp/CMakeLists.txt, misc/CMakeLists.txt, hg/CMakeLists.txt: fix
+	link_directories for out of source builds.
+
+2011-01-25  Stephan Kleine
+
+	* CMakeLists.txt: install man pages into proper directory.
 
 2011-01-25  Christian Kuersteiner <ckuerste@gmx.ch>
 

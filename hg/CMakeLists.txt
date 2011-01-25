@@ -42,7 +42,7 @@ set (FILES hg_add_hosts.c hg_debug.c hg_dns_axfr.c hg_filter.c hg_subnet.c
 
 set (HEADERS hg_utils.h hosts_gatherer.h)
 
-link_directories (${CMAKE_CURRENT_SOURCE_DIR}/../misc)
+link_directories (${CMAKE_CURRENT_BINARY_DIR}/../misc)
 
 add_library (openvas_hg_static STATIC ${FILES})
 set_target_properties (openvas_hg_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")

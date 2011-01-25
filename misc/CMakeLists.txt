@@ -101,7 +101,7 @@ if (BUILD_WITH_LDAP)
   list (APPEND FILES ldap_auth.c ads_auth.c)
 endif (BUILD_WITH_LDAP)
 
-link_directories (${CMAKE_CURRENT_SOURCE_DIR}/../base)
+link_directories (${CMAKE_CURRENT_BINARY_DIR}/../base)
 
 # Indentation targets
 # TODO: Commented out as it provokes error. Unclear

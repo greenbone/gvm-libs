@@ -40,7 +40,7 @@ set (FILES xml.c omp.c)
 set (HEADERS xml.h omp.h)
 
 include_directories (../misc)
-link_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../misc )
+link_directories( ${CMAKE_CURRENT_BINARY_DIR}/../misc )
 
 add_library (openvas_omp_static STATIC ${FILES})
 set_target_properties (openvas_omp_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
