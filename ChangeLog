@@ -1,3 +1,10 @@
+2011-01-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* INSTALL: Added hint on wmi cient library.
+
+	* doc/wmi-howto.txt: Adpated to cmake messages and added
+	note on library name.
+
 2011-01-25  Stephan Kleine
 
 	* omp/CMakeLists.txt, misc/CMakeLists.txt, hg/CMakeLists.txt: fix

@@ -43,8 +43,9 @@ $ make proto all
 $ make libraries
 
 If successful, this will result in the creation of the file
-wmi-1.3.13/Samba/source/wmi/libwmiclient.so. Copy this file to your OpenVAS library
-directory, which may be /usr/lib, /usr/local/lib or $prefix/lib, depending on
+wmi-1.3.13/Samba/source/wmi/libwmiclient.so.0. Copy this file as
+libwmiclient.so to your OpenVAS library directory, which may
+be /usr/lib, /usr/local/lib or $prefix/lib, depending on
 the configuration options you chose when building the other OpenVAS modules.
 
 4) Compile openvas-libraries
@@ -56,10 +57,10 @@ $ ./configure --prefix=/prefix/to/your/openvas/install
 Watch the configure output closely. If you followed the steps above correctly,
 you should see the following line close to the end of the output:
 
-"checking for wmi_connect in -lwmiclient... yes"
+"-- Looking for wmiclient... /prefix/to/your/openvas/install/lib/libwmiclient.so"
 
-If this line ends in "no" instead, make sure you have placed libwmiclient.so in
-the correct directory and run the configure command again.
+If this line ends in "WMICLIENT-NOTFOUND" instead, make sure you have placed
+libwmiclient.so in the correct directory and run the configure command again.
 
 Now (re)build openvas-libraries and install them:
 

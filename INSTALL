@@ -26,6 +26,9 @@ Prerequisites for building documentation:
 * xmltoman (optional, for building man page)
 * sqlfairy (optional, for producing database diagram)
 
+Recommended to have WMI support:
+* wmiclient library (see doc/wmi-howto.txt)
+
 Configure the build with
 
     $ cmake -DCMAKE_INSTALL_PREFIX=/path/to/your/installation .
