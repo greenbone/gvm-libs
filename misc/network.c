@@ -1639,7 +1639,7 @@ write_stream_connection4 (int fd, void *buf0, int n, int i_opt)
 
 #if DEBUG_SSL > 8
   fprintf (stderr,
-           "> write_stream_connection(%d, 0x%x, %d, 0x%x) \tE=%d 0=0x%x\n", fd,
+           "> write_stream_connection(%d, %s, %d, 0x%x) \tE=%d 0=0x%x\n", fd,
            buf, n, i_opt, fp->transport, fp->options);
 #endif
 

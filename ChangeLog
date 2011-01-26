@@ -1,5 +1,10 @@
 2011-01-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* misc/network.c (write_stream_connection4): Fix format string in
+	debug message. Spotted by Felix Wolfsteller.
+
+2011-01-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* README: Remove outdated information, redirect readers to the INSTALL
 	file instead.
 
