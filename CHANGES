@@ -1,3 +1,22 @@
+openvas-libraries 4.0+rc4 (2011-01-26)
+
+This release is the fourth release candidate for the next major release of the
+OpenVAS Libraries module. It will be part of the upcoming "OpenVAS 4".
+
+It features a number of fixes to the build environment and updated
+documentation.
+
+Many thanks to everyone who has contributed to this release:
+Stephan Kleine, Christian Kuersteiner, Michael Wiegand, Jan-Oliver Wagner and
+Felix Wolfsteller.
+
+Main changes compared to 4.0+rc3:
+* The build environment has fixed in a number of places to restore expected
+  behaviour after the move to cmake.
+* The documentation has been updated to match the changes in the build
+  environment.
+
+
 openvas-libraries 4.0+rc3 (2011-01-20)
 
 This release is the third release candidate for the next major release of

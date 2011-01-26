@@ -1,5 +1,11 @@
 2011-01-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Preparing the openvas-libraries 4.0+rc4 release.
+
+	* CHANGES: Updated.
+
+2011-01-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Ensure that the command "libopenvas-config --version" returns a string
 	in the expected format even when CPACK_PACKAGE_VERSION_PATCH indicates
 	that this is a beta or rc version.
