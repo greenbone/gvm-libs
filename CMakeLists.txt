@@ -212,6 +212,13 @@ endif (NOT WMICLIENT)
 string (REPLACE "
 " "" OPENVASLIB_VERSION ${CPACK_PACKAGE_VERSION})
 
+string(SUBSTRING ${CPACK_PACKAGE_VERSION_PATCH} 0 1 BETA_INDICATOR)
+if (BETA_INDICATOR MATCHES "^\\+")
+  set (LIBOPENVASCONFIG_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.0")
+else (BETA_INDICATOR MATCHES "^\\+")
+  set (LIBOPENVASCONFIG_VERSION "${OPENVASLIB_VERSION}")
+endif (BETA_INDICATOR MATCHES "^\\+")
+
 # Configure Doxyfile with version number
 configure_file (doc/Doxyfile.in doc/Doxyfile @ONLY)
 configure_file (doc/Doxyfile_full.in doc/Doxyfile_full @ONLY)

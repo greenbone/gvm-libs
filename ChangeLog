@@ -1,5 +1,17 @@
 2011-01-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Ensure that the command "libopenvas-config --version" returns a string
+	in the expected format even when CPACK_PACKAGE_VERSION_PATCH indicates
+	that this is a beta or rc version.
+
+	* CMakeLists.txt: Define LIBOPENVASCONFIG_VERSION based on the
+	contents of CPACK_PACKAGE_VERSION_PATCH.
+
+	* tools/libopenvas-config.in: Use LIBOPENVASCONFIG_VERSION instead of
+	OPENVASLIB_VERSION for the version display.
+
+2011-01-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/network.c (write_stream_connection4): Fix format string in
 	debug message. Spotted by Felix Wolfsteller.
 
