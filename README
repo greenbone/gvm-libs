@@ -9,49 +9,14 @@ http://www.openvas.org/.
 
 Please see the file COPYING for the license information.
 
-Please refer to the instructions provided below if you want to install
-openvas-libraries. If you are not familiar or comfortable with the procedure
-described below, we recommend that you use a binary package provided by your
-distribution. Information regarding available binary packages is available from
-the OpenVAS website.
+Please refer to the instructions provided in the file INSTALL if you want to
+install openvas-libraries. If you are not familiar or comfortable with the
+procedure described below, we recommend that you use a binary package provided
+by your distribution. Information regarding available binary packages is
+available from the OpenVAS website.
 
 If you have any question or suggestions, please feel free to use the mailing
 list and the IRC chat to contact the OpenVAS developers.
 
 Please use the OpenVAS bug tracker located at http://bugs.openvas.org/ to report
 bugs.
-
-
-Compiling openvas-libraries
----------------------------
-
-Before compiling, you will need to configure openvas-libraries. This can be done
-by executing the following command:
-
-$ ./configure
-
-During configuration, error messages may show up if libraries or applications
-needed to compile openvas-libraries are not present on your system. Please
-resolve the issues reported and run configure again.
-
-If you want to install openvas-libraries into a different hierarchy, you may
-want to use the prefix option during configuration:
-
-$ ./configure --prefix=/opt/openvas
-
-More information about the configuration options is available through the help
-option:
-
-$ ./configure --help
-
-Once you have configured openvas-libraries successfully, you can start the
-compilation by executing the following command:
-
-$ make
-
-To install openvas-libraries, you can use the following command:
-
-$ make install
-
-Please note that you may have to execute this command as root, especially if you
-have specified a prefix for which your user does not have full permissions.
