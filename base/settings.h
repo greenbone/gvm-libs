@@ -58,6 +58,8 @@ typedef struct
 
 int init_settings_iterator (settings_iterator_t *, const gchar *,
                             const gchar *);
+int init_settings_iterator_from_file (settings_iterator_t *, const gchar *,
+                                      const gchar *);
 void cleanup_settings_iterator (settings_iterator_t *);
 int settings_iterator_next (settings_iterator_t *);
 const gchar *settings_iterator_name (settings_iterator_t *);

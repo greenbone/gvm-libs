@@ -1,3 +1,17 @@
+2011-01-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* base/settings.c: Adapt settings handling to new openvas-scanner
+	behaviour.
+	(settings_init_from_file): New function to read setting from a file.
+	(settings_init): Read settings directly from the output of "openvassd
+	-s" now.
+	(settings_save): Only write new or changed settings to the settings
+	file.
+	(init_settings_iterator_from_file): New function to initialize an
+	iterator from a file.
+
+	* base/settings.h: Updated.
+
 2011-01-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.
