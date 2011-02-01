@@ -1,3 +1,20 @@
+2011-02-01  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Add/resurrect pkg-config support to openvas-libraries and remove now
+	obsolete libopenvas-config infrastructure.
+
+	* tools/libopenvas-config.in: Removed.
+
+	* doc/libopenvas-config.1: Removed.
+
+	* libopenvas.pc.in: New. Template for pkg-config metadata file for
+	openvas-libraries.
+
+	* CMakeLists.txt: Move checks for glib and gnutls to pkg-config.
+	Remove handling of libopenvas-config. Add handling of libopenvas.pc.
+
+	* INSTALL: Update requirements. Add hint on setting PKG_CONFIG_PATH.
+
 2011-01-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/settings.c: Adapt settings handling to new openvas-scanner

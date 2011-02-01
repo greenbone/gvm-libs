@@ -20,6 +20,7 @@ Apart from these, some tools are required:
 * bison
 * flex
 * cmake
+* pkg-config
 
 Prerequisites for building documentation:
 * Doxygen
@@ -28,6 +29,12 @@ Prerequisites for building documentation:
 
 Recommended to have WMI support:
 * wmiclient library (see doc/wmi-howto.txt)
+
+If you have installed required libraries to a non-standard location, remember to
+set the PKG_CONFIG_PATH environment variable to the location of you pkg-config
+files before configuring:
+
+    $ export PKG_CONFIG_PATH=/your/location/lib/pkgconfig
 
 Configure the build with
 

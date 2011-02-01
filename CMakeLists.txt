@@ -35,6 +35,8 @@ if (POLICY CMP0005)
   cmake_policy (SET CMP0005 OLD)
 endif (POLICY CMP0005)
 
+include (FindPkgConfig)
+
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Debug)
 endif (NOT CMAKE_BUILD_TYPE)
@@ -99,7 +101,6 @@ set (CPACK_SOURCE_IGNORE_FILES
 "Doxyfile$"
 "Doxyfile_full$"
 "VERSION$"
-"tools/libopenvas-config$"
 )
 
 include (CPack)
@@ -172,12 +173,8 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 ## list and throw an error, otherwise long install-cmake-install-cmake cycles
 ## might occur.
 
-message (STATUS "Looking for gnutls...")
-find_library (GNUTLS gnutls)
-message (STATUS "Looking for gnutls... ${GNUTLS}")
-if (NOT GNUTLS)
-  message (FATAL_ERROR "The gnutls library is required.")
-endif (NOT GNUTLS)
+pkg_check_modules (GNUTLS REQUIRED gnutls>=2.0)
+pkg_check_modules (GLIB REQUIRED glib-2.0>=2.12)
 
 message (STATUS "Looking for pcap...")
 find_library (PCAP pcap)
@@ -192,13 +189,6 @@ message (STATUS "Looking for gpgme... ${GPGME}")
 if (NOT GPGME)
   message (FATAL_ERROR "The gpgme library is required.")
 endif (NOT GPGME)
-
-message (STATUS "Looking for glib-2.0...")
-find_library (GLIB2 glib-2.0)
-message (STATUS "Looking for glib-2.0... ${GLIB2}")
-if (NOT GLIB2)
-  message (FATAL_ERROR "The glib-2.0 library is required.")
-endif (NOT GLIB2)
 
 message (STATUS "Looking for wmiclient...")
 find_library (WMICLIENT wmiclient)
@@ -223,7 +213,7 @@ endif (BETA_INDICATOR MATCHES "^\\+")
 configure_file (doc/Doxyfile.in doc/Doxyfile @ONLY)
 configure_file (doc/Doxyfile_full.in doc/Doxyfile_full @ONLY)
 configure_file (VERSION.in VERSION @ONLY)
-configure_file (tools/libopenvas-config.in tools/libopenvas-config @ONLY)
+configure_file (libopenvas.pc.in libopenvas.pc @ONLY)
 
 ## Program
 
@@ -244,13 +234,11 @@ add_subdirectory (doc)
 
 ## Install
 
-install (FILES tools/libopenvas-config
-         DESTINATION ${BINDIR}
-         PERMISSIONS OWNER_EXECUTE OWNER_READ OWNER_WRITE
-                     GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-
-install (FILES doc/libopenvas-config.1 doc/openvas-nasl.1
+install (FILES doc/openvas-nasl.1
          DESTINATION ${DATADIR}/man/man1 )
+
+install (FILES libopenvas.pc
+         DESTINATION ${LIBDIR}/pkgconfig)
 
 install (DIRECTORY DESTINATION ${OPENVAS_USERS_DIR})
 install (DIRECTORY DESTINATION ${OPENVAS_LOG_DIR})
