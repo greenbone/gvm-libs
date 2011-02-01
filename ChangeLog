@@ -1,5 +1,9 @@
 2011-02-01  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* INSTALL: Improved example as suggested by Felix Wolfsteller.
+
+2011-02-01  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Add/resurrect pkg-config support to openvas-libraries and remove now
 	obsolete libopenvas-config infrastructure.
 
