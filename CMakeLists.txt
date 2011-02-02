@@ -175,6 +175,7 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 pkg_check_modules (GNUTLS REQUIRED gnutls>=2.0)
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.12)
+pkg_check_modules (WMICLIENT wmiclient>=1.3.14)
 
 message (STATUS "Looking for pcap...")
 find_library (PCAP pcap)
@@ -189,13 +190,6 @@ message (STATUS "Looking for gpgme... ${GPGME}")
 if (NOT GPGME)
   message (FATAL_ERROR "The gpgme library is required.")
 endif (NOT GPGME)
-
-message (STATUS "Looking for wmiclient...")
-find_library (WMICLIENT wmiclient)
-message (STATUS "Looking for wmiclient... ${WMICLIENT}")
-if (NOT WMICLIENT)
-  message (STATUS "WMI support disabled.")
-endif (NOT WMICLIENT)
 
 ## Version
 

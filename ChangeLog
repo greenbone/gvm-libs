@@ -1,5 +1,14 @@
 2011-02-02  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Switch libwmiclient detection to pkg-config.
+
+	* CMakeLists.txt: Use pkg_check_modules to find libwmiclient.
+
+	* nasl/CMakeLists.txt: Use WMICLIENT_FOUND instead of HAVE_WMI as an
+	indicator for the presence of libwmiclient.
+
+2011-02-02  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Install openvas-services into the correct location according to the
 	FHS.
 

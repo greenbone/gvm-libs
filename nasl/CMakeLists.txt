@@ -83,12 +83,12 @@ set (FILES arc4.c capture_packet.c charcnv.c exec.c genrand.c hmacmd5.c
 
 set (HEADERS nasl.h)
 
-if (NOT HAVE_WMI)
+if (NOT WMICLIENT_FOUND)
   set (FILES smb_interface_stub.c wmi_interface_stub.c ${FILES})
-else (NOT HAVE_WMI)
+else (NOT WMICLIENT_FOUND)
   set (WMI_LIBS -lwmiclient)
   set (WMI wmiclient)
-endif (NOT HAVE_WMI)
+endif (NOT WMICLIENT_FOUND)
 
 
 set_source_files_properties (nasl_grammar.tab.c GENERATED)
