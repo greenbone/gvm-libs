@@ -240,7 +240,7 @@ install (FILES doc/openvas-nasl.1
 install (FILES libopenvas.pc
          DESTINATION ${LIBDIR}/pkgconfig)
 
-install (FILES openvas-services DESTINATION ${OPENVAS_STATE_DIR}
+install (FILES openvas-services DESTINATION ${OPENVAS_DATA_DIR}
          PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 
 install (DIRECTORY DESTINATION ${OPENVAS_USERS_DIR})

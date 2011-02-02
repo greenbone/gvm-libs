@@ -1,5 +1,19 @@
 2011-02-02  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Install openvas-services into the correct location according to the
+	FHS.
+
+	* CMakeLists.txt: Install openvas-services to OPENVAS_DATA_DIR
+	instead of OPENVAS_STATE_DIR.
+
+	* misc/CMakeLists.txt: Define OPENVAS_DATA_DIR if it is set
+	OPENVAS_DATA_DIR.
+
+	* misc/services.h: Update define so OPENVAS_SERVICES points to the
+	correct location.
+
+2011-02-02  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Move installation of openvas-services file from openvas-scanner to
 	openvas-libraries since the only function using it resides in
 	openvas-libraries.

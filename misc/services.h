@@ -24,7 +24,7 @@
 
 /* **** FILES **** */
 
-#define OPENVAS_SERVICES	 OPENVAS_STATE_DIR "/openvas-services"
+#define OPENVAS_SERVICES	 OPENVAS_DATA_DIR "/openvas-services"
 /* If you want OpenVAS to use a second input file, uncomment next line */
 /*#define OPENVAS_IANA_PORTS	CONF_DIR "/iana-port-numbers"*/
 
