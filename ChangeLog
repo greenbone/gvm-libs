@@ -1,3 +1,13 @@
+2011-02-02  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Move installation of openvas-services file from openvas-scanner to
+	openvas-libraries since the only function using it resides in
+	openvas-libraries.
+
+	* openvas-services: New. Was openvas-scanner/openvas-services.
+
+	* CMakeLists.txt: Add handling of openvas-services.
+
 2011-02-01  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* INSTALL: Improved example as suggested by Felix Wolfsteller.
