@@ -1,3 +1,7 @@
+2011-02-03  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* doc/wmi-howto.txt: Updated to match new wmi version and new patch.
+
 2011-02-02  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Switch libwmiclient detection to pkg-config.
