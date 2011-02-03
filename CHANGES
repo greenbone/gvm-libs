@@ -1,3 +1,46 @@
+openvas-libraries 4.0.0 (2011-02-03)
+
+This is the first release of the openvas-libraries 4.0 module for the Open
+Vulnerability Assessment System (OpenVAS). Compared to the previous major
+release it contains a major cleanup of code, build process and installation.
+This increases the efficiency of the OpenVAS Libraries, makes the build easier
+for and the installation compliant with the Filesystem Hierarchy Standard (FHS
+2.3).
+
+Feature wise this release adds support for a network scan level, improves
+support for remote LDAP authentication, adds support for the extended OMP 2.0
+protocol and introduced numerous other features request from the OpenVAS user
+community.
+
+Many thanks to everyone who has contributed to the 4.0.0 release:
+Stephan Kleine, Sooraj KS, Christian Kuersteiner, Matthew Mundell, Michael
+Wiegand, Jan-Oliver Wagner and Felix Wolfsteller.
+
+Main changes compared to 3.1.x:
+
+* NVT meta data management has been improved, resulting in a smaller memory
+  footprint of the scanner.
+* Network level scan support. For example a initial port scan across a whole
+  network segment is possible now.
+* Improved and fixed remote LDAP authentication which allows to manage
+  OpenVAS users in a central LDAP service.
+* Former binary ".nes" NVTs "find_service", "openvas_tcp_scanner"
+  and "synscan" are now built-in NASL methods.
+* Superfluous log messages regarding file uploads have been removed.
+* Further code analysis has resulted in a number of fixes to the code and the
+  build environment in an effort to make the code even more secure and
+  compatible across a wider range of platforms.
+* The former autotools build environment has been replaces with a build process
+  using cmake and using pkgconfig for dependency checks.
+
+Main changes compared to last release candidate 4.0+rc4:
+
+* Setting file handling has been updated to match changes in openvas-scanner.
+* Support for pkg-config has been (re-)introduced.
+* File locations have been adjusted to conform to the Filesystem Hierarchy
+  Standard.
+
+
 openvas-libraries 4.0+rc4 (2011-01-26)
 
 This release is the fourth release candidate for the next major release of the

@@ -1,5 +1,13 @@
 2011-02-03  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Preparing the openvas-libraries 4.0.0 release.
+
+	* CHANGES: Updated.
+
+	* CMakeLists.txt: Updated.
+
+2011-02-03  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* CMakeLists.txt: Attempt to detect whether we are installing on a 32
 	or 64 bit system and set LIBDIR accordingly.
 
