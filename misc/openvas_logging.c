@@ -536,6 +536,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
     case G_LOG_LEVEL_CRITICAL:
       prepend = g_strdup_printf ("CRITICAL%s", prepend_buf);
       break;
+
     case G_LOG_LEVEL_WARNING:
       prepend = g_strdup_printf ("WARNING%s", prepend_buf);
       break;
@@ -553,7 +554,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
       break;
 
     default:
-      prepend = g_strdup_printf ("UNKWOWN%s", prepend_buf);
+      prepend = g_strdup_printf ("UNKNOWN%s", prepend_buf);
       break;
     }
 
