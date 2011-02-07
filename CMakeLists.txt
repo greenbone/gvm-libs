@@ -200,6 +200,23 @@ if (NOT GPGME)
   message (FATAL_ERROR "The gpgme library is required.")
 endif (NOT GPGME)
 
+execute_process (COMMAND gpgme-config --libs
+  OUTPUT_VARIABLE GPGME_LDFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process (COMMAND gpgme-config --cflags
+  OUTPUT_VARIABLE GPGME_CFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+exec_program (pkg-config
+  ARGS --cflags glib-2.0
+  OUTPUT_VARIABLE GLIB_CFLAGS)
+exec_program (pkg-config
+  ARGS --libs glib-2.0
+  OUTPUT_VARIABLE GLIB_LDFLAGS)
+
+set (EXTRA_LIBS "${GPGME_LDFLAGS}")
+set (EXTRA_CFLAGS "${GPGME_CFLAGS}")
+
 ## Version
 
 string (REPLACE "

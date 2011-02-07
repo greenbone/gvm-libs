@@ -31,19 +31,6 @@ if (POLICY CMP0015)
   cmake_policy (SET CMP0015 OLD)
 endif (POLICY CMP0015)
 
-exec_program (pkg-config
-              ARGS --cflags glib-2.0
-              OUTPUT_VARIABLE GLIB_CFLAGS)
-exec_program (pkg-config
-              ARGS --libs glib-2.0
-              OUTPUT_VARIABLE GLIB_LDFLAGS)
-execute_process (COMMAND gpgme-config --libs
-                 OUTPUT_VARIABLE GPGME_LDFLAGS
-                 OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process (COMMAND gpgme-config --cflags
-                 OUTPUT_VARIABLE GPGME_CFLAGS
-                 OUTPUT_STRIP_TRAILING_WHITESPACE)
-
 ## Library
 
 set (HARDENING_FLAGS            "-Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector -Wl,-z,relro -Wl,-z,now")

@@ -1,3 +1,19 @@
+2011-02-07  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Further consolidation: Move common checks in submodules to top-level
+	CMakeLists.txt so they are only executed once. Improve pkg-config
+	support.
+
+	* hg/CMakeLists.txt, base/CMakeLists.txt, nasl/CMakeLists.txt,
+	misc/CMakeLists.txt, omp/CMakeLists.txt: Remove checks for glib and
+	gpgme flags since they are now done by the top-level CMakeLists.txt.
+
+	* CMakeLists.txt: Make sure flags for glib and gpgme are set. Add
+	gpgme flags to EXTRA_LIBS and EXTRA_CFLAGS so pkg-config sees them.
+
+	* libopenvas.pc.in: Add EXTRA_LIBS and EXTRA_CFLAGS to care for
+	libraries which are not yet pkg-config compliant.
+
 2011-02-04  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/openvas_logging.c (openvas_log_func): Correct typo in format.

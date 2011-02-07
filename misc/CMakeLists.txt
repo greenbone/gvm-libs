@@ -39,10 +39,6 @@ endif (MINGW)
 
 ## Config
 
-exec_program (pkg-config
-              ARGS --cflags glib-2.0
-              OUTPUT_VARIABLE GLIB_CFLAGS)
-
 if (NOT MINGW)
   message (STATUS "Looking for uuid...")
   find_library (UUID uuid)
