@@ -1,7 +1,7 @@
 COMPILING OPENVAS-LIBRARIES WITH WMI SUPPORT
 ============================================
 
-Last updated: 2010-08-03
+Last updated: 2011-02-03
 
 To compile openvas-libraries with WMI support, please follow the steps described
 below. Our hope is that this code will ultimately make it into Samba itself;
