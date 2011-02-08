@@ -1,3 +1,8 @@
+2011-02-08  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* CMakeLists.txt: Replace call to deprecated exec_program with
+	execute_process.
+
 2011-02-07  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* doc/wmi-howto.txt: Fix date.
