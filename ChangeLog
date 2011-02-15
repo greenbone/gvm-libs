@@ -1,3 +1,8 @@
+2011-02-15  Chandrashekhar B <bchandra@secpod.com>
+
+	* misc/pcap.c (v6_getinterfaces): Fixed a segfault issue
+	when null ifaddrs struct is encountered.
+
 2011-02-08  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* CMakeLists.txt: Replace call to deprecated exec_program with
