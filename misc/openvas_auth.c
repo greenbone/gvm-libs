@@ -1020,7 +1020,7 @@ openvas_is_user_admin (const gchar * username)
   gboolean file_exists = FALSE;
   if (g_file_test (dir_name, G_FILE_TEST_IS_DIR))
     {
-      if (g_file_test (file_name, G_FILE_TEST_EXISTS))
+      if (g_file_test (file_name, G_FILE_TEST_IS_REGULAR))
         {
           g_free (file_name);
           g_free (dir_name);

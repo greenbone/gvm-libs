@@ -1,3 +1,9 @@
+2011-02-16  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_is_user_admin): Make check for
+	administrative privileges stricter; isadmin is expected to be a
+	regular file.
+
 2011-02-15  Chandrashekhar B <bchandra@secpod.com>
 
 	* misc/pcap.c (v6_getinterfaces): Fixed a segfault issue
