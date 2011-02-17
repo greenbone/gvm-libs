@@ -1009,7 +1009,7 @@ openvas_is_user_admin (const gchar * username)
                                        username,
                                        "isadmin",
                                        NULL);
-  gboolean file_exists = g_file_test (file_name, G_FILE_TEST_EXISTS);
+  gboolean file_exists = g_file_test (file_name, G_FILE_TEST_IS_REGULAR);
 
   /** @todo Resolve remote authentication case, need another function parameter. */
 

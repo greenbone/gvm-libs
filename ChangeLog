@@ -1,3 +1,9 @@
+2011-02-17  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_is_user_admin): Make check for
+	administrative privileges stricter; isadmin is expected to be a
+	regular file. (Backport; adapted from SVN revision 10323 in trunk.)
+
 2010-10-27  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.
