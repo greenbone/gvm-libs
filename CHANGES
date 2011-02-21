@@ -1,3 +1,22 @@
+openvas-libraries 4.0.1 (2011-02-21)
+
+This is the first maintenance release of the openvas-libraries 4.0 module for
+the Open Vulnerability Assessment System (OpenVAS).
+
+This release features improvements to the build environment, fixes an issue with
+IPv6 support on older systems and makes the check for administrative privileges
+more strict.
+
+Many thanks to everyone who has contributed this release:
+Chandrashekhar B, Matthew Mundell and Michael Wiegand.
+
+Main changes compared to 4.0.0:
+* The build environment has been consolidated.
+* A bug which could cause a segmentation fault when using IPv6 under certain
+  circumstances has been fixed.
+* The check for administrative user privileges has been made more strict.
+
+
 openvas-libraries 4.0.0 (2011-02-03)
 
 This is the first release of the openvas-libraries 4.0 module for the Open

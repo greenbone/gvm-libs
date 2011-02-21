@@ -1,3 +1,9 @@
+2011-02-21  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the openvas-libraries 4.0.1 release.
+
+	* CHANGES: Updated.
+
 2011-02-16  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_is_user_admin): Make check for
