@@ -1,3 +1,9 @@
+2011-02-23  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* doc/example.auth.conf: Corrected comment about which parameter
+	to pass to cmake in order to compile libraries with LDAP-support.
+	Switch example to "enable" keyword.
+
 2011-02-22  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* CMakeLists.txt: Ensure that tools/openvas-lsc-rpm-creator.sh gets
