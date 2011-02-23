@@ -1,3 +1,9 @@
+2011-02-23  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the openvas-libraries 4.0.2 release.
+
+	* CHANGES: Updated.
+
 2011-02-23  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* doc/example.auth.conf: Fixed parameter name as spotted by Michael

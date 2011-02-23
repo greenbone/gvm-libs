@@ -1,3 +1,19 @@
+openvas-libraries 4.0.2 (2011-02-23)
+
+This is the second maintenance release of the openvas-libraries 4.0 module for
+the Open Vulnerability Assessment System (OpenVAS).
+
+This release ensures that a file required by OpenVAS Manager and OpenVAS Client
+to build credential packages for Local Security Checks (LSCs) is installed
+properly. Releases >= 4.0+rc3 failed to install this file.
+
+Many thanks to everyone who has contributed this release:
+Michael Wiegand and Felix Wolfsteller.
+
+Main changes compared to 4.0.1:
+* The LSC RPM creator support script is now installed correctly.
+
+
 openvas-libraries 4.0.1 (2011-02-21)
 
 This is the first maintenance release of the openvas-libraries 4.0 module for
