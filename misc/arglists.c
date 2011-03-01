@@ -596,33 +596,24 @@ struct arglist *
 str2arglist (char *str)
 {
   struct arglist *ret;
-  char *t;
 
   if (!str || str[0] == '\0')
     {
       return NULL;
     }
 
-  t = strchr (str, ',');
-
   ret = emalloc (sizeof (struct arglist));
 
-  while ((t = strchr (str, ',')) != NULL)
+  int i = 0;
+  gchar **deparray = g_strsplit (str, ", ", 0);
+
+  while (deparray[i] != NULL)
     {
-      t[0] = 0;
-      while (str[0] == ' ')
-        str++;
-      if (str[0] != '\0')
-        {
-          arg_add_value (ret, str, ARG_INT, 0, (void *) 1);
-        }
-      str = t + 1;
+      arg_add_value (ret, g_strdup (deparray[i]), ARG_INT, 0, (void *) 1);
+      i++;
     }
 
-  while (str[0] == ' ')
-    str++;
-  if (str[0] != '\0')
-    arg_add_value (ret, str, ARG_INT, 0, (void *) 1);
+  g_strfreev (deparray);
 
   return ret;
 }

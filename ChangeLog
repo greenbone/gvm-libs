@@ -1,3 +1,9 @@
+2011-03-01  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/arglists.c (str2arglist): Fix handling of input string.
+	Inserting null bytes into the string caused resulting arglists to end
+	prematurely.
+
 2011-02-23  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.
