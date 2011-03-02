@@ -1,3 +1,12 @@
+2011-03-02  Chandrashekhar B <bchandra@secpod.com>
+
+	* nasl/nasl_wmi.c (nasl_wmi_connect, nasl_wmi_connect_reg,
+	nasl_wmi_connect_rsop): Fixed an issue with fetching IP
+	string from the struct
+
+	* nasl/nasl_smb.c (nasl_smb_connect): Fixed an issue with
+	fetching IP string from the struct.
+
 2011-03-01  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/arglists.c (str2arglist): Fix handling of input string.

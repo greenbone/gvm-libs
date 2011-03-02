@@ -133,9 +133,9 @@ nasl_wmi_connect (lex_ctxt * lexic)
 
   if (IN6_IS_ADDR_V4MAPPED (host))
     {
-      struct in_addr *v4_addr = NULL;
-      v4_addr->s_addr = host->s6_addr32[3];
-      ip = estrdup (inet_ntoa (*v4_addr));
+      struct in_addr v4_addr;
+      v4_addr.s_addr = host->s6_addr32[3];
+      ip = estrdup (inet_ntoa (v4_addr));
     }
   else
     {
@@ -302,9 +302,9 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
 
   if (IN6_IS_ADDR_V4MAPPED (host))
     {
-      struct in_addr *v4_addr = NULL;
-      v4_addr->s_addr = host->s6_addr32[3];
-      ip = estrdup (inet_ntoa (*v4_addr));
+      struct in_addr v4_addr;
+      v4_addr.s_addr = host->s6_addr32[3];
+      ip = estrdup (inet_ntoa (v4_addr));
     }
   else
     {
@@ -432,9 +432,9 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
 
   if (IN6_IS_ADDR_V4MAPPED (host))
     {
-      struct in_addr *v4_addr = NULL;
-      v4_addr->s_addr = host->s6_addr32[3];
-      ip = estrdup (inet_ntoa (*v4_addr));
+      struct in_addr v4_addr;
+      v4_addr.s_addr = host->s6_addr32[3];
+      ip = estrdup (inet_ntoa (v4_addr));
     }
   else
     {
