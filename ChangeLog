@@ -1,3 +1,9 @@
+2011-03-03  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the openvas-libraries 4.0.3 release.
+
+	* CHANGES: Updated.
+
 2011-03-02  Chandrashekhar B <bchandra@secpod.com>
 
 	* nasl/nasl_wmi.c (nasl_wmi_connect, nasl_wmi_connect_reg,

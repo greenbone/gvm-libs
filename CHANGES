@@ -1,3 +1,20 @@
+openvas-libraries 4.0.3 (2011-03-03)
+
+This is the third maintenance release of the openvas-libraries 4.0 module for
+the Open Vulnerability Assessment System (OpenVAS).
+
+This release fixes a bug which lead to an incorrect dependency resolution when
+scheduling NVTs due to considering only the first dependency. It also fixes an
+issue which caused WMI requests to fail.
+
+Many thanks to everyone who has contributed this release:
+Chandrashekhar B and Michael Wiegand.
+
+Main changes compared to 4.0.2:
+* A bug which caused only the first NVT dependency to be considered has been fixed.
+* A bug which caused WMI connects to fail has been fixed.
+
+
 openvas-libraries 4.0.2 (2011-02-23)
 
 This is the second maintenance release of the openvas-libraries 4.0 module for
