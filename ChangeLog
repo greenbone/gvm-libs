@@ -1,3 +1,10 @@
+2011-03-07  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* hg/CMakeLists.txt, misc/CMakeLists.txt, nasl/CMakeLists.txt,
+	omp/CMakeLists.txt: Refer to libraries by their target name to allow
+	cmake to handle dependencies correctly. Add missing link between misc
+	and base when doing static linking.
+
 2011-03-03  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.

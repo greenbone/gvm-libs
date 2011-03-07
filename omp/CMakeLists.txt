@@ -51,11 +51,11 @@ set_target_properties (openvas_omp_shared PROPERTIES VERSION "${CPACK_PACKAGE_VE
 set_target_properties (openvas_omp_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 if (MINGW)
-  target_link_libraries (openvas_omp_shared openvas_misc -lglib-2.0 -lgnutls
+  target_link_libraries (openvas_omp_shared openvas_misc_shared -lglib-2.0 -lgnutls
                          -lgcrypt -lgpg-error -lintl -lws2_32 -liconv -lole32
                          -lz -lkernel32)
 else (MINGW)
-  target_link_libraries (openvas_omp_shared openvas_misc glib-2.0 gnutls)
+  target_link_libraries (openvas_omp_shared openvas_misc_shared glib-2.0 gnutls)
 endif (MINGW)
 
 ## Install

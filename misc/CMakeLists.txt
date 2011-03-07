@@ -110,6 +110,7 @@ set_target_properties (openvas_misc_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLA
 set_target_properties (openvas_misc_static PROPERTIES OUTPUT_NAME "openvas_misc")
 set_target_properties (openvas_misc_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_misc_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
+target_link_libraries (openvas_misc_static openvas_base_static)
 
 add_library (openvas_misc_shared SHARED ${FILES})
 
@@ -120,7 +121,7 @@ set_target_properties (openvas_misc_shared PROPERTIES SOVERSION "${CPACK_PACKAGE
 set_target_properties (openvas_misc_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
 set_target_properties (openvas_misc_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 if (NOT MINGW)
-  target_link_libraries (openvas_misc_shared glib-2.0 pcap gnutls gcrypt openvas_base)
+  target_link_libraries (openvas_misc_shared glib-2.0 pcap gnutls gcrypt openvas_base_shared)
 endif (NOT MINGW)
 
 if (OPENVASLIB_VERSION)
@@ -160,10 +161,10 @@ if (OPENVAS_SYSCONF_DIR)
 endif (OPENVAS_SYSCONF_DIR)
 
 if (MINGW)
-  target_link_libraries (openvas_misc_static uuid openvas_base ${GLIB_LDFLAGS} -lglib-2.0
+  target_link_libraries (openvas_misc_static uuid openvas_base_static ${GLIB_LDFLAGS} -lglib-2.0
                          -lgcrypt -lgnutls -lintl -liconv -lgpg-error -lws2_32
                          -lole32 -lz)
-  target_link_libraries (openvas_misc_shared uuid openvas_base ${GLIB_LDFLAGS} -lglib-2.0
+  target_link_libraries (openvas_misc_shared uuid openvas_base_shared ${GLIB_LDFLAGS} -lglib-2.0
                          -lgcrypt -lgnutls -lintl -liconv -lgpg-error -lws2_32
                          -lole32 -lz)
 else (MINGW)

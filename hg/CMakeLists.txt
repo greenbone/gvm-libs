@@ -51,7 +51,7 @@ set_target_properties (openvas_hg_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_hg_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_hg_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
 set_target_properties (openvas_hg_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
-target_link_libraries (openvas_hg_shared resolv openvas_misc)
+target_link_libraries (openvas_hg_shared resolv openvas_misc_shared openvas_base_shared)
 
 if (OPENVAS_PID_DIR)
   add_definitions (-DOPENVAS_PID_DIR=\\\"${OPENVAS_PID_DIR}\\\")
