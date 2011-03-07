@@ -358,10 +358,17 @@ handle_end_element (GMarkupParseContext * context, const gchar * element_name,
                       /* The name of the very first entity. */
                       ((entity_t) (data->first->data))->name) == 0);
       data->done = TRUE;
+      /* "Pop" the element. */
+      data->current = g_slist_next (data->current);
     }
-  /* "Pop" the element. */
-  if (data->current)
-    data->current = g_slist_next (data->current);
+  else if (data->current)
+    {
+      GSList *front;
+      /* "Pop" and free the element. */
+      front = data->current;
+      data->current = g_slist_next (data->current);
+      g_slist_free_1 (front);
+    }
 }
 
 /**
@@ -464,7 +471,10 @@ read_entity_and_string (gnutls_session_t * session, entity_t * entity,
                 /* Try again. TODO Rehandshake. */
                 continue;
               if (context_data.first && context_data.first->data)
-                free_entity (context_data.first->data);
+                {
+                  free_entity (context_data.first->data);
+                  g_slist_free_1 (context_data.first);
+                }
               if (string && *string_return == NULL)
                 g_string_free (string, TRUE);
               return -1;
@@ -479,7 +489,10 @@ read_entity_and_string (gnutls_session_t * session, entity_t * entity,
                   g_error_free (error);
                 }
               if (context_data.first && context_data.first->data)
-                free_entity (context_data.first->data);
+                {
+                  free_entity (context_data.first->data);
+                  g_slist_free_1 (context_data.first);
+                }
               if (string && *string_return == NULL)
                 g_string_free (string, TRUE);
               return -3;
@@ -497,7 +510,10 @@ read_entity_and_string (gnutls_session_t * session, entity_t * entity,
         {
           g_error_free (error);
           if (context_data.first && context_data.first->data)
-            free_entity (context_data.first->data);
+            {
+              free_entity (context_data.first->data);
+              g_slist_free_1 (context_data.first);
+            }
           if (string && *string_return == NULL)
             g_string_free (string, TRUE);
           return -2;
@@ -510,7 +526,10 @@ read_entity_and_string (gnutls_session_t * session, entity_t * entity,
               g_message ("   End error: %s\n", error->message);
               g_error_free (error);
               if (context_data.first && context_data.first->data)
-                free_entity (context_data.first->data);
+                {
+                  free_entity (context_data.first->data);
+                  g_slist_free_1 (context_data.first);
+                }
               return -2;
             }
           *entity = (entity_t) context_data.first->data;
