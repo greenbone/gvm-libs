@@ -738,7 +738,7 @@ kb_get_port_state_proto (struct kb_item **kb, struct arglist *prefs,
     return unscanned_ports_as_closed (prefs);
   else if (!strcmp (proto, "udp")
            && kb_item_get_int (kb, "Host/udp_scanned") <= 0)
-    return 1;
+    return unscanned_ports_as_closed (prefs);
 
   range = (u_short *) getpts (prange, &num);
 
