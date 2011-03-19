@@ -88,6 +88,8 @@ int read_entity (gnutls_session_t *, entity_t *);
 
 int read_string (gnutls_session_t *, GString **);
 
+int parse_entity (const char *, entity_t *);
+
 void print_entity_to_string (entity_t entity, GString * string);
 
 void print_entities_to_string (GString * string, entities_t entities);

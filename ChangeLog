@@ -1,3 +1,9 @@
+2011-03-19  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/xml.c (parse_entity): New function.
+
+	* omp/xml.h: Add header accordingly.
+
 2011-03-09  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/plugutils.c (kb_get_port_state_proto): Honor unscanned_closed
@@ -6,7 +12,7 @@
 2011-03-07  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/xml.c (handle_end_element, read_entity_and_string): Free context
-	data list elements.
+	data list elements.  From valgrind by Pavel Sejnoha.
 
 2011-03-07  Michael Wiegand <michael.wiegand@greenbone.net>
 

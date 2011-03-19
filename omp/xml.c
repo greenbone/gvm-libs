@@ -604,6 +604,78 @@ read_entity (gnutls_session_t * session, entity_t * entity)
 }
 
 /**
+ * @brief Read an XML entity tree from a string.
+ *
+ * @param[in]   string  Input string.
+ * @param[out]  entity  Pointer to an entity tree.
+ *
+ * @return 0 success, -1 read error, -2 parse error, -3 XML ended prematurely.
+ */
+int
+parse_entity (const char *string, entity_t * entity)
+{
+  GMarkupParser xml_parser;
+  GError *error = NULL;
+  GMarkupParseContext *xml_context;
+  context_data_t context_data;
+
+  /* Create the XML parser. */
+
+  xml_parser.start_element = handle_start_element;
+  xml_parser.end_element = handle_end_element;
+  xml_parser.text = handle_text;
+  xml_parser.passthrough = NULL;
+  xml_parser.error = handle_error;
+
+  context_data.done = FALSE;
+  context_data.first = NULL;
+  context_data.current = NULL;
+
+  /* Setup the XML context. */
+
+  xml_context =
+    g_markup_parse_context_new (&xml_parser, 0, &context_data, NULL);
+
+  /* Parse the string. */
+
+  g_markup_parse_context_parse (xml_context, string, strlen (string), &error);
+  if (error)
+    {
+      g_error_free (error);
+      if (context_data.first && context_data.first->data)
+        {
+          free_entity (context_data.first->data);
+          g_slist_free_1 (context_data.first);
+        }
+      return -2;
+    }
+  if (context_data.done)
+    {
+      g_markup_parse_context_end_parse (xml_context, &error);
+      if (error)
+        {
+          g_message ("   End error: %s\n", error->message);
+          g_error_free (error);
+          if (context_data.first && context_data.first->data)
+            {
+              free_entity (context_data.first->data);
+              g_slist_free_1 (context_data.first);
+            }
+          return -2;
+        }
+      *entity = (entity_t) context_data.first->data;
+      g_slist_free_1 (context_data.first);
+      return 0;
+    }
+  if (context_data.first && context_data.first->data)
+    {
+      free_entity (context_data.first->data);
+      g_slist_free_1 (context_data.first);
+    }
+  return -3;
+}
+
+/**
  * @brief Print an XML entity for g_slist_foreach to a GString.
  *
  * @param[in]  entity  The entity, as a gpointer.
