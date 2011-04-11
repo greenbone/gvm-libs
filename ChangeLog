@@ -1,3 +1,15 @@
+2011-04-11  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/xml.c (try_read_entity_and_string): New function.  Body from
+	read_entity_and_string, with timeout arg.
+	(read_entity_and_string): Call through to try_read_entity_and_string.
+	(try_read_entity): New function.
+	(read_entity): Call through to try_read_entity.
+
+	* omp/omp.c (omp_ping): New function.
+
+	* omp/xml.h, omp/omp.h: Add headers accordingly.
+
 2011-03-19  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/xml.c (parse_entity): New function.

@@ -42,6 +42,8 @@ int omp_read_create_response (gnutls_session_t*, char **);
 
 const char *omp_task_status (entity_t status_response);
 
+int omp_ping (gnutls_session_t *, int);
+
 int omp_get_nvt_all (gnutls_session_t * session, entity_t * response);
 
 int omp_get_nvt_feed_checksum (gnutls_session_t * session, entity_t * response);

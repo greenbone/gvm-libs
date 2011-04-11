@@ -80,9 +80,14 @@ void print_entity_format (entity_t, gpointer indentation);
 
 void print_entities_format (entities_t, int indentation);
 
+int try_read_entity_and_string (gnutls_session_t *, int, entity_t *,
+                                GString **);
+
 int read_entity_and_string (gnutls_session_t *, entity_t *, GString **);
 
 int read_entity_and_text (gnutls_session_t *, entity_t *, char **);
+
+int try_read_entity (gnutls_session_t *, int, entity_t *);
 
 int read_entity (gnutls_session_t *, entity_t *);
 

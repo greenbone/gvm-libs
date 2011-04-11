@@ -120,6 +120,62 @@ omp_task_status (entity_t response)
 }
 
 /**
+ * @brief "Ping" the manager.
+ *
+ * @param[in]  session   Pointer to GNUTLS session.
+ * @param[in]  timeout   Server idle time before giving up, in milliseconds.  0
+ *                       to wait forever.
+ *
+ * @return 0 on success, 1 if manager closed connection, 2 on timeout,
+ *         -1 on error.
+ */
+int
+omp_ping (gnutls_session_t *session, int timeout)
+{
+  entity_t entity;
+  const char* status;
+  char first;
+  int ret;
+
+  /* Send a GET_VERSION request. */
+
+  ret = openvas_server_send (session, "<get_version/>");
+  if (ret)
+    return ret;
+
+  /* Read the response, with a timeout. */
+
+  entity = NULL;
+  switch (try_read_entity (session, timeout, &entity))
+    {
+      case 0:
+        break;
+      case -4:
+        return 2;
+      default:
+        return -1;
+    }
+
+  /* Check the response. */
+
+  status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  first = status[0];
+  free_entity (entity);
+  if (first == '2') return 0;
+  return -1;
+}
+
+/**
  * @brief Authenticate with the manager.
  *
  * @param[in]  session   Pointer to GNUTLS session.
