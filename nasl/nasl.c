@@ -161,6 +161,7 @@ main (int argc, char **argv)
       g_print ("%s\n\n", error->message);
       exit (0);
     }
+  g_option_context_free (option_context);
  /*--------------------------------------------
  	Command-line options
   ---------------------------------------------*/

@@ -557,6 +557,8 @@ init_nasl_ctx(naslctxt* pc, const char* name)
   pc->fp = NULL;
 
   while (inc_dir != NULL) {
+    if (full_name)
+      g_free (full_name);
     full_name = g_build_filename(inc_dir->data, name, NULL);
 
     if ((pc->fp = fopen(full_name, "r")) != NULL)
