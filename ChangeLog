@@ -1,3 +1,9 @@
+2011-04-15  Henri Doreau <henri.doreau@greenbone.net>
+
+	* misc/popen.c (openvas_popen4): replaced raw fd numbers for
+	stdin/stdout/stderr by the corresponding STD*_FILENO macros from
+	unistd.h
+
 2011-04-11  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/xml.c (try_read_entity_and_string): New function.  Body from

@@ -98,19 +98,19 @@ openvas_popen4 (const char *cmd, char *const args[], pid_t * ppid, int inice)
           perror ("/dev/null");
           exit (1);
         }
-      close (0);
-      if (dup2 (fd, 0) < 0)
+      close (STDIN_FILENO);
+      if (dup2 (fd, STDIN_FILENO) < 0)
         {
           perror ("dup2");
           exit (1);
         }
       close (fd);
 
-      close (1);
-      close (2);
-      if (dup2 (pipes[1], 1) < 0 || dup2 (pipes[1], 2) < 0)
+      close (STDOUT_FILENO);
+      close (STDERR_FILENO);
+      if (dup2 (pipes[1], STDOUT_FILENO) < 0 || dup2 (pipes[1], STDERR_FILENO) < 0)
         {
-          /* Cannot print error as 2 is closed! */
+          /* Cannot print error as STDERR is closed! */
           exit (1);
         }
 
