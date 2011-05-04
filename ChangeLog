@@ -1,3 +1,9 @@
+2011-05-04  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the openvas-libraries 4.0.4 release.
+
+	* CHANGES: Updated.
+
 2011-04-15  Henri Doreau <henri.doreau@greenbone.net>
 
 	* nasl/nasl_grammar.y (init_nasl_ctx), nasl/nasl.c (main): fixed memory

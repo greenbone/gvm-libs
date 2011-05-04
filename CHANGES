@@ -1,3 +1,23 @@
+openvas-libraries 4.0.4 (2011-05-04)
+
+This is the fourth maintenance release of the openvas-libraries 4.0 module for
+the Open Vulnerability Assessment System (OpenVAS).
+
+This release features improvements to the build environment, closes two
+potential resource leaks and ensures the unscanned_closed setting in honored for
+UDP ports as well.
+
+Many thanks to everyone who has contributed this release:
+Henri Doreau, Matthew Mundell, Pavel Sejnoha and Michael Wiegand.
+
+Main changes compared to 4.0.3:
+* The handling of internal dependencies while linking has been improved,
+  parallel builds of openvas-libraries should now work.
+* Two potential resource leaks reported by Pavel Sejnoha and Henri Doreau have
+  been fixed.
+* The setting "unscanned_closed" is now properly applied to UDP ports.
+
+
 openvas-libraries 4.0.3 (2011-03-03)
 
 This is the third maintenance release of the openvas-libraries 4.0 module for
