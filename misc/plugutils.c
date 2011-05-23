@@ -719,6 +719,23 @@ unscanned_ports_as_closed (struct arglist *prefs)
 
 
 /**
+ * @brief Report state of preferences "unscanned_closed_udp".
+ * 
+ * @return 0 if pref is "yes", 1 otherwise.
+ */
+static int
+unscanned_udp_ports_as_closed (struct arglist *prefs)
+{
+  char *unscanned;
+  unscanned = arg_get_value (prefs, "unscanned_closed_udp");
+  if (unscanned && !strcmp (unscanned, "yes"))
+    return 0;
+  else
+    return 1;
+}
+
+
+/**
  * @param proto Protocol (udp/tcp). If NULL, "tcp" will be used.
  */
 int
@@ -738,7 +755,7 @@ kb_get_port_state_proto (struct kb_item **kb, struct arglist *prefs,
     return unscanned_ports_as_closed (prefs);
   else if (!strcmp (proto, "udp")
            && kb_item_get_int (kb, "Host/udp_scanned") <= 0)
-    return unscanned_ports_as_closed (prefs);
+    return unscanned_udp_ports_as_closed (prefs);
 
   range = (u_short *) getpts (prange, &num);
 
