@@ -1,3 +1,8 @@
+2011-05-24  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_get_system_reports): Return status code instead of 1, as
+	in other functions.  Thanks to Stephan Kleine for reporting.
+
 2011-05-23  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/plugutils.c: Add support for separate control of

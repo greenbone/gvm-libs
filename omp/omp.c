@@ -2325,7 +2325,7 @@ omp_get_nvt_details_503 (gnutls_session_t* session, const char * oid,
  * @param[out] reports  Reports return.  On success contains GET_SYSTEM_REPORTS
  *                      response.
  *
- * @return 0 on success, 1 on failure, -1 on error.
+ * @return 0 on success, -1 or OMP response code on error.
  */
 int
 omp_get_system_reports (gnutls_session_t* session, const char* name, int brief,
@@ -2371,5 +2371,5 @@ omp_get_system_reports (gnutls_session_t* session, const char* name, int brief,
   ret = (int) strtol (status_code, NULL, 10);
   free_entity (*reports);
   if (errno == ERANGE) return -1;
-  return 1;
+  return ret;
 }
