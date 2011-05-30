@@ -1,3 +1,9 @@
+2011-05-30  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Post branch version bump.
+
+	* CMakeLists.txt: Set version to 5.0.0.
+
 2011-05-24  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_get_system_reports): Return status code instead of 1, as
