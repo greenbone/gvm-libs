@@ -374,12 +374,6 @@ static init_func libfuncs[] = {
   {"file_write", nasl_file_write, 0, {"data", "fp", NULL}},
   {"file_seek", nasl_file_seek, 0, {"fp", "offset", NULL}},
 
-  {"shared_socket_register", nasl_shared_socket_register, 0,
-   {"name", "socket", NULL}},
-  {"shared_socket_acquire", nasl_shared_socket_acquire, 1, {NULL}},
-  {"shared_socket_release", nasl_shared_socket_release, 1, {NULL}},
-  {"shared_socket_destroy", nasl_shared_socket_destroy, 1, {NULL}},
-
   {"wmi_versioninfo", nasl_wmi_versioninfo, 0, {NULL}},
   {"wmi_connect", nasl_wmi_connect, 4,
    {"ns", "password", "username", NULL}},

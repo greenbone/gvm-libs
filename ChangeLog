@@ -1,3 +1,20 @@
+2011-05-30  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_init.c (libfuncs): removed registration of functions
+	"shared_socket_register", "shared_socket_acquire",
+	"shared_socket_release" and "shared_socket_destroy".
+
+	* nasl/nasl_scanner_glue.c (SECRET_SOCKET_PREFIX,
+	nasl_shared_socket_register, nasl_shared_socket_acquire,
+	nasl_shared_socket_release, nasl_shared_socket_destroy): Removed.
+
+	* nasl/nasl_scanner_glue.h: Removed protos accordingly.
+
+	* misc/plugutils.c (shared_socket_register, shared_socket_acquire,
+	shared_socket_release, shared_socket_destroy): Removed.
+
+	* misc/plugutils.h: Removed protos accordingly.
+
 2011-05-30  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post branch version bump.

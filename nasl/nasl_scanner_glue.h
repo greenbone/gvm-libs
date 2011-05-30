@@ -61,8 +61,4 @@ tree_cell *nasl_scanner_get_port (lex_ctxt *);
 tree_cell *nasl_scanner_add_port (lex_ctxt *);
 tree_cell *nasl_scanner_status (lex_ctxt *);
 
-tree_cell *nasl_shared_socket_register (lex_ctxt *);
-tree_cell *nasl_shared_socket_acquire (lex_ctxt *);
-tree_cell *nasl_shared_socket_release (lex_ctxt *);
-tree_cell *nasl_shared_socket_destroy (lex_ctxt *);
 #endif

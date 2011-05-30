@@ -193,11 +193,6 @@ const long get_plugin_preference_file_size (struct arglist *, const char *);
 
 char *find_in_path (char *, int);
 
-int shared_socket_register (struct arglist *, int, char *);
-int shared_socket_acquire (struct arglist *, char *);
-int shared_socket_release (struct arglist *, char *);
-int shared_socket_destroy (struct arglist *, char *);
-
 /** @todo Donate modules to these defines, eg. internal_comm.h, openvas_encaps.h
  * Old comment: In fact, these defines might better be in a separate files.
  * They are inserted here simply because plugutils uses them a lot. */
