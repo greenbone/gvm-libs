@@ -1,3 +1,13 @@
+2011-05-31  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Deal with GCC 4.6 warnings.  Thanks to Stephan Kleine for original patch.
+	Backport from trunk r11035.
+
+	* misc/network.c (renice_myself): Check nice return.
+
+	* misc/plugutils.c (plug_get_key): Remove stray variable usage left from
+	Nessus times.
+
 2011-05-24  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_get_system_reports): Return status code instead of 1, as
