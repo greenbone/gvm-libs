@@ -28,7 +28,7 @@
 #include "comm.h"
 #include "network.h"
 #include "services.h"
-#include "plugutils.h"
+#include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_DATA */
 #include "system.h"
 
 /**

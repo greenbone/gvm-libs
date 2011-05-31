@@ -193,33 +193,9 @@ const long get_plugin_preference_file_size (struct arglist *, const char *);
 
 char *find_in_path (char *, int);
 
-/** @todo Donate modules to these defines, eg. internal_comm.h, openvas_encaps.h
+/** @todo Donate modules to these defines, eg. openvas_encaps.h
  * Old comment: In fact, these defines might better be in a separate files.
  * They are inserted here simply because plugutils uses them a lot. */
-
-#define INTERNAL_COMM_MSG_TYPE_CTRL (1 << 16)
-#define INTERNAL_COMM_MSG_TYPE_KB (1 << 17)
-#define INTERNAL_COMM_MSG_TYPE_DATA (1 << 18)
-#define INTERNAL_COMM_MSG_SHARED_SOCKET (1 << 19)
-
-#define INTERNAL_COMM_KB_REPLACE 1
-#define INTERNAL_COMM_KB_GET 2
-#define INTERNAL_COMM_KB_SENDING_INT 4
-#define INTERNAL_COMM_KB_SENDING_STR 8
-#define INTERNAL_COMM_KB_ERROR 16
-
-
-#define INTERNAL_COMM_CTRL_FINISHED 1
-#define INTERNAL_COMM_CTRL_ACK      2
-
-#define INTERNAL_COMM_SHARED_SOCKET_REGISTER 1
-#define INTERNAL_COMM_SHARED_SOCKET_ACQUIRE 2
-#define INTERNAL_COMM_SHARED_SOCKET_RELEASE 4
-#define INTERNAL_COMM_SHARED_SOCKET_DESTROY 8
-
-#define INTERNAL_COMM_SHARED_SOCKET_DORECVMSG 16
-#define INTERNAL_COMM_SHARED_SOCKET_BUSY  32
-#define INTERNAL_COMM_SHARED_SOCKET_ERROR 64
 
 /*
  * Type of "transport layer", for encapsulated connections

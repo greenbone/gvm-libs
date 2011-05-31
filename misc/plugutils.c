@@ -46,6 +46,7 @@
 #include "network.h"
 #include "rand.h"
 #include "plugutils.h"
+#include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_KB */
 #include "services.h"
 #include "share_fd.h"
 #include "system.h"

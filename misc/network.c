@@ -49,7 +49,8 @@
 
 #include "resolve.h"
 #include "ids_send.h"
-#include "plugutils.h"
+#include "plugutils.h" /* for OPENVAS_ENCAPS_IP */
+#include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_CTRL */
 
 #include <setjmp.h>
 
