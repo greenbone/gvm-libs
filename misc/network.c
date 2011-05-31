@@ -25,6 +25,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <errno.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdarg.h>
@@ -133,10 +134,12 @@ renice_myself ()
       if (nice (0) >= 10)
         return;
       pid = cpid;
+      errno = 0;
       renice_result = nice (1);
-      // @todo: Check value if renice_result to see if it was successful.
-      // Keep in mind that even -1 can mean success here; see man page of nice
-      // for details.
+      if (renice_result == -1 && errno != 0)
+        {
+          fprintf (stderr, "Unable to renice process: %d", errno);
+        }
     }
 }
 

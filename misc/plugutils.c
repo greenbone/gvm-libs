@@ -1567,9 +1567,8 @@ plug_get_key (struct arglist *args, char *name, int *type)
       socketpair (AF_UNIX, SOCK_STREAM, 0, sockpair);
       if ((pid = fork ()) == 0)
         {
-          int tictac = 0;
           int old, soc;
-          struct arglist *globals, *preferences = NULL;
+          struct arglist *globals;
 
           close (sockpair[0]);
           globals = arg_get_value (args, "globals");
@@ -1581,15 +1580,6 @@ plug_get_key (struct arglist *args, char *name, int *type)
                          GSIZE_TO_POINTER (soc));
           arg_set_value (args, "SOCKET", sizeof (gpointer),
                          GSIZE_TO_POINTER (soc));
-
-          if (globals != NULL)
-            preferences = arg_get_value (globals, "preferences");
-          if (preferences != NULL)
-            {
-              char *to = arg_get_value (preferences, "plugins_timeout");
-              if (to != NULL)
-                tictac = atoi (to);
-            }
 
           srand48 (getpid () + getppid () + time (NULL));       /* RATS: ignore */
 
