@@ -1,5 +1,10 @@
 2011-05-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/internal_com.h: Removed all *SHARED_SOCKET* defines
+	as they are not needed anymore.
+
+2011-05-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* COPYING: Added misc/internal_com.h and nasl/nasl_builtin_nmap.c.
 
 2011-05-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
