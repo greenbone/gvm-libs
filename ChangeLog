@@ -1,5 +1,10 @@
 2011-05-31  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* nasl/nasl_builtin_nmap.c (register_service, save_traceroute_details): Do
+	cast in 64 bit friendly way, else compilation fails.
+
+2011-05-31  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	Deal with GCC 4.6 warnings.  Thanks to Stephan Kleine for original patch.
 
 	* misc/network.c (renice_myself): Check nice return.

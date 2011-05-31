@@ -1428,7 +1428,7 @@ register_service (nmap_t * nmap, struct nmap_port *p)
   else
     g_snprintf (key, sizeof (key), "%s/Services/%s/%s", nmap->tmphost.addr,
                 p->proto, p->service);
-  plug_set_key (nmap->env, key, ARG_INT, (void *) atoi (p->portno));
+  plug_set_key (nmap->env, key, ARG_INT, GINT_TO_POINTER (atoi (p->portno)));
 
   /* The service detection system requires discovered services to be
    * registered under the "Known" label too */
@@ -1495,7 +1495,8 @@ save_traceroute_details (nmap_t * nmap)
     return -1;
 
   g_snprintf (key, sizeof (key), "%s/Host/distance", nmap->tmphost.addr);
-  plug_set_key (nmap->env, key, ARG_INT, (void *) nmap->tmphost.distance);
+  plug_set_key (nmap->env, key, ARG_INT,
+                GINT_TO_POINTER (nmap->tmphost.distance));
 
   for (i = 0; i < nmap->tmphost.distance; i++)
     {
