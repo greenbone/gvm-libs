@@ -1,5 +1,9 @@
 2011-05-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* COPYING: Added misc/internal_com.h and nasl/nasl_builtin_nmap.c.
+
+2011-05-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/internal_com.h: New. Collects INTERNAL_COM* defines.
 
 	* misc/plugutils.h: Removed INTERNAL_COM* defines.

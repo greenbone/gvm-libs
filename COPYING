@@ -56,6 +56,7 @@ misc/comm.h: GPLv2+
 misc/ftp_funcs.[c|h]: LGPLv2+
 misc/hash_table_file.[c|h]: GPLv2+
 misc/ids_send.[c|h]: LGPLv2+
+misc/internal_com.h: GPLv2+
 misc/kb.[c|h]: LGPLv2+
 misc/ldap_auth.[c|h]: GPLv2+
 misc/network.[c|h]: LGPLv2+
@@ -101,6 +102,7 @@ nasl/md4.[c|h]: GPLv2+
 nasl/md5.[c|h]: Public Domain
 nasl/nasl.[c|h]: GPLv2
 nasl/nasl_builtin_find_service.c: GPLv2
+nasl/nasl_builtin_nmap.c: GPLv2
 nasl/nasl_builtin_openvas_tcp_scanner.c: GPLv2
 nasl/nasl_builtin_plugins.h: GPLv2+
 nasl/nasl_builtin_synscan.c: GPLv2
