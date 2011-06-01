@@ -1,3 +1,20 @@
+openvas-libraries 4.0.5 (2011-06-01)
+
+This is the fifth maintenance release of the openvas-libraries 4.0 module for
+the Open Vulnerability Assessment System (OpenVAS).
+
+This release adds a separate control for the handling of unscanned UDP ports and
+addresses compiler warnings discovered by Stephan Kleine.
+
+Many thanks to everyone who has contributed this release:
+Stephan Kleine, Matthew Mundell and Michael Wiegand.
+
+Main changes compared to 4.0.4:
+* OpenVAS Libraries will now honor the unscanned_closed_udp preference when
+  deciding how an unscanned UDP port should be treated.
+* Compiler warnings from gcc 4.6 have been addressed.
+
+
 openvas-libraries 4.0.4 (2011-05-04)
 
 This is the fourth maintenance release of the openvas-libraries 4.0 module for
