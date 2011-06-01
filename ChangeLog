@@ -1,5 +1,11 @@
 2011-06-01  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Post release version bump.
+
+	* CMakeLists.txt: Set version to 4.0.6.
+
+2011-06-01  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Preparing the openvas-libraries 4.0.5 release.
 
 	* CHANGES: Updated.
