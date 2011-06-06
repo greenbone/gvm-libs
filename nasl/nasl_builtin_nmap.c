@@ -82,6 +82,7 @@
 /* script options */
 #define PREF_TREAT_ALL_HOST_ONLINE  "Treat all hosts as online"
 #define PREF_TRACEROUTE             "Trace hop path to each host"
+#define PREF_NO_DNS                 "Disable DNS resolution"
 #define PREF_TCP_SCANNING_TECHNIQUE "TCP scanning technique"
 #define PREF_UDP_PORT_SCAN          "UDP port scan"
 #define PREF_SERVICE_SCAN           "Service scan"
@@ -429,6 +430,7 @@ build_cmd_line (nmap_t * nmap)
     /* --- Host discovery --- */
     {PREF_TREAT_ALL_HOST_ONLINE, "-P0", FALSE},
     {PREF_TRACEROUTE, "--traceroute", FALSE},
+    {PREF_NO_DNS, "-n", FALSE},
 
     /* --- Scan techniques --- */
     {PREF_UDP_PORT_SCAN, "-sU", FALSE},
@@ -464,8 +466,6 @@ build_cmd_line (nmap_t * nmap)
   add_arg (nmap, NMAP_CMD, NULL);
   /* Enable XML output on stdout */
   add_arg (nmap, "-oX", "-");
-  /* disable DNS resolution */
-  add_arg (nmap, "-n", NULL);
 
   for (i = 0; options[i].optname; i++)
     {
