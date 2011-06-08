@@ -126,7 +126,7 @@ get_var_by_name (nasl_array * a, const char *s)
 static named_nasl_var *
 get_var_ref_by_name (lex_ctxt * ctxt, const char *name, int climb)
 {
-  named_nasl_var *v, *prev;
+  named_nasl_var *v;
   int h = hash_str (name);
   lex_ctxt *c;
 
@@ -134,46 +134,16 @@ get_var_ref_by_name (lex_ctxt * ctxt, const char *name, int climb)
     {
       for (c = ctxt; c != NULL; c = c->up_ctxt)
         if (c->ctx_vars.hash_elt != NULL)
-          for (prev = NULL, v = c->ctx_vars.hash_elt[h]; v != NULL;
-               v = v->next_var)
+          for (v = c->ctx_vars.hash_elt[h]; v != NULL; v = v->next_var)
             if (v->var_name != NULL && strcmp (name, v->var_name) == 0)
-              {
-#ifdef SILLY_OPT
-                if (prev != NULL)       /* Move it to start of list */
-                  {
-                    prev->next_var = v->next_var;
-                    v->next_var = c->ctx_vars.hash_elt[h];
-                    c->ctx_vars.hash_elt[h] = v;
-                  }
-#endif
-                return v;
-              }
-#ifdef SILLY_OPT
-            else
-              prev = v;
-#endif
+              return v;
     }
   else
     {
       if (ctxt->ctx_vars.hash_elt != NULL)
-        for (prev = NULL, v = ctxt->ctx_vars.hash_elt[h]; v != NULL;
-             v = v->next_var)
+        for (v = ctxt->ctx_vars.hash_elt[h]; v != NULL; v = v->next_var)
           if (v->var_name != NULL && strcmp (name, v->var_name) == 0)
-            {
-#ifdef SILLY_OPT
-              if (prev != NULL) /* Move it to start of list */
-                {
-                  prev->next_var = v->next_var;
-                  v->next_var = ctxt->ctx_vars.hash_elt[h];
-                  ctxt->ctx_vars.hash_elt[h] = v;
-                }
-#endif
-              return v;
-            }
-#ifdef SILLY_OPT
-          else
-            prev = v;
-#endif
+            return v;
     }
 
   if (ctxt->ctx_vars.hash_elt == NULL)
