@@ -737,7 +737,7 @@ get_default_portrange (void)
 {
   gchar *portrange = NULL;
   unsigned short *ports;
-  int i, plen = sizeof (ports) / sizeof (unsigned short);
+  int i, plen;
   int start = -1, stop = -1;
 
   ports = getpts ("default", &plen);

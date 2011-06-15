@@ -1,5 +1,10 @@
 2011-06-15  Henri Doreau <henri.doreau@greenbone.net>
 
+	* nasl/nasl_builtin_nmap.c (get_default_portrange): removed obsolete
+	and unused variable initialization code.
+
+2011-06-15  Henri Doreau <henri.doreau@greenbone.net>
+
 	* nasl/nasl_host.c (nasl_islocalhost, nasl_islocalnet), nasl/smb_crypt
 	(SMBencrypt_ntlmssp), nasl/nasl_packet_forgery.c (forge_tcp_packet,
 	nasl_tcp_ping), nasl/nasl_packet_forgery_v6.c (set_ipv6_elements,
