@@ -465,7 +465,6 @@ forge_tcp_packet (lex_ctxt * lexic)
   tree_cell *retc;
   char *data;
   int len;
-  u_char *pkt;
   struct ip *ip, *tcp_packet;
   struct tcphdr *tcp;
   int ipsz;
@@ -492,7 +491,6 @@ forge_tcp_packet (lex_ctxt * lexic)
   retc->type = CONST_DATA;
   tcp_packet = (struct ip *) emalloc (ipsz + sizeof (struct tcphdr) + len);
   retc->x.str_val = (char *) tcp_packet;
-  pkt = (u_char *) tcp_packet;
 
   bcopy (ip, tcp_packet, ipsz);
   /* recompute the ip checksum, because the ip length changed */
@@ -1409,13 +1407,11 @@ nasl_tcp_ping (lex_ctxt * lexic)
     { 139, 135, 445, 80, 22, 515, 23, 21, 6000, 1025, 25, 111, 1028, 9100, 1029,
 79, 497, 548, 5000, 1917, 53, 161, 9001, 65535, 443, 113, 993, 8080, 0 };
   int num_ports = 0;
-  struct in_addr *pinaddr;
   struct in_addr inaddr;
 
   if (dst == NULL || (IN6_IS_ADDR_V4MAPPED (dst) != 1))
     return NULL;
   inaddr.s_addr = dst->s6_addr32[3];
-  pinaddr = &inaddr;
   for (i = 0; i < sizeof (sports) / sizeof (int); i++)
     {
       if (sports[i] == 0)

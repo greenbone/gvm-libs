@@ -292,9 +292,6 @@ set_ipv6_elements (lex_ctxt * lexic)
   tree_cell *retc = alloc_tree_cell (0, NULL);
   struct ip6_hdr *pkt;
   char *s;
-  int ver;
-  int tc;
-  int fl;
 
   if (o_pkt == NULL)
     {
@@ -304,11 +301,6 @@ set_ipv6_elements (lex_ctxt * lexic)
 
   pkt = (struct ip6_hdr *) emalloc (size);
   bcopy (o_pkt, pkt, size);
-
-  ver = get_int_local_var_by_name (lexic, "ip6_v", (pkt->ip6_flow & 0x3ffff));
-  tc =
-    get_int_local_var_by_name (lexic, "ip6_tc", (pkt->ip6_flow >> 20) & 0xff);
-  fl = get_int_local_var_by_name (lexic, "ip6_fl", pkt->ip6_flow >> 28);
 
   pkt->ip6_plen = get_int_local_var_by_name (lexic, "ip6_plen", pkt->ip6_plen);
   pkt->ip6_nxt = get_int_local_var_by_name (lexic, "ip6_nxt", pkt->ip6_nxt);
@@ -476,7 +468,6 @@ forge_tcp_v6_packet (lex_ctxt * lexic)
   tree_cell *retc;
   char *data;
   int len;
-  u_char *pkt;
   struct ip6_hdr *ip6, *tcp_packet;
   struct tcphdr *tcp;
   int ipsz;
@@ -502,7 +493,6 @@ forge_tcp_v6_packet (lex_ctxt * lexic)
   retc->type = CONST_DATA;
   tcp_packet = (struct ip6_hdr *) emalloc (ipsz + sizeof (struct tcphdr) + len);
   retc->x.str_val = (char *) tcp_packet;
-  pkt = (u_char *) tcp_packet;
 
   bcopy (ip6, tcp_packet, ipsz);
   /* Adjust length in ipv6 header */
@@ -949,7 +939,6 @@ get_udp_v6_element (lex_ctxt * lexic)
   tree_cell *retc;
   char *udp;
   char *element;
-  struct ip6_hdr *ip6;
   int ipsz;
   struct udphdr *udphdr;
   int ret;
@@ -964,7 +953,6 @@ get_udp_v6_element (lex_ctxt * lexic)
       printf ("element = get_udp_v6_element(udp:<udp>,element:<element>\n");
       return NULL;
     }
-  ip6 = (struct ip6_hdr *) udp;
 
   if (40 + sizeof (struct udphdr) > ipsz)
     return NULL;

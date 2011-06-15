@@ -430,7 +430,7 @@ tree_cell *
 nasl_make_array (lex_ctxt * lexic)
 {
   tree_cell *retc = NULL;
-  int i, vi;
+  int vi;
   anon_nasl_var *v, *v2;
   nasl_array *a;
 
@@ -439,7 +439,7 @@ nasl_make_array (lex_ctxt * lexic)
   retc->type = DYN_ARRAY;
   retc->x.ref_val = a = emalloc (sizeof (nasl_array));
 
-  i = vi = 0;
+  vi = 0;
   while ((v = nasl_get_var_by_num (&lexic->ctx_vars, vi++, 0)) != NULL)
     {
       v2 = nasl_get_var_by_num (&lexic->ctx_vars, vi++, 0);

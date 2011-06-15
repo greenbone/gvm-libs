@@ -1,3 +1,14 @@
+2011-06-15  Henri Doreau <henri.doreau@greenbone.net>
+
+	* nasl/nasl_host.c (nasl_islocalhost, nasl_islocalnet), nasl/smb_crypt
+	(SMBencrypt_ntlmssp), nasl/nasl_packet_forgery.c (forge_tcp_packet,
+	nasl_tcp_ping), nasl/nasl_packet_forgery_v6.c (set_ipv6_elements,
+	forge_tcp_v6_packet, get_udp_v6_element),
+	nasl/nasl_builtin_openvas_tcp_scanner.c (banner_grab),
+	nasl/nasl_misc_funcs.c (nasl_make_array), nasl/nasl_builtin_synscan.c
+	(plugin_run_synscan), nasl/charcnv.c (convert_string_internal_ntlmssp):
+	fixed GCC 4.6 warnings concerning set but never used variables.
+
 2011-06-08  Henri Doreau <henri.doreau@greenbone.net>
 
 	* nasl/nasl_func.c (get_func), nasl/nasl_var.c (get_var_ref_by_name):

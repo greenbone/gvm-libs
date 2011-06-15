@@ -455,10 +455,9 @@ void SMBOWFencrypt_ntlmssp(const uchar passwd[16], const uchar *c8, uchar p24[24
 
 void SMBencrypt_ntlmssp(const char *passwd, const uchar *c8, uchar p24[24])
 {
-  bool ret;
   uchar lm_hash[16];
 
-  ret = E_deshash_ntlmssp(passwd, lm_hash);
+  E_deshash_ntlmssp(passwd, lm_hash);
   SMBencrypt_hash_ntlmssp(lm_hash, c8, p24);
 }
 
