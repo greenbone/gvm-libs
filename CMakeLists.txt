@@ -185,6 +185,7 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 pkg_check_modules (GNUTLS REQUIRED gnutls>=2.0)
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.12)
 pkg_check_modules (WMICLIENT wmiclient>=1.3.14)
+pkg_check_modules (LIBSSH libssh>=0.4.5)
 
 message (STATUS "Looking for pcap...")
 find_library (PCAP pcap)
@@ -213,6 +214,107 @@ execute_process (COMMAND pkg-config --cflags glib-2.0
 execute_process (COMMAND pkg-config --libs glib-2.0
   OUTPUT_VARIABLE GLIB_LDFLAGS
   OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+if (NOT LIBSSH_FOUND)
+  message (STATUS "Did not find libssh via pkg-config, trying alternative approach ...")
+  set (LibSSH_FIND_VERSION TRUE)
+  if (LIBSSH_LIBRARIES AND LIBSSH_INCLUDE_DIRS)
+    # in cache already
+    set(LIBSSH_FOUND TRUE)
+  else (LIBSSH_LIBRARIES AND LIBSSH_INCLUDE_DIRS)
+
+    find_path(LIBSSH_INCLUDE_DIR
+      NAMES
+      libssh/libssh.h
+      PATHS
+      /usr/include
+      /usr/local/include
+      ${CMAKE_INCLUDE_PATH}
+      ${CMAKE_INSTALL_PREFIX}/include
+      )
+
+    find_library(SSH_LIBRARY
+      NAMES
+      ssh
+      libssh
+      PATHS
+      /usr/lib
+      /usr/local/lib
+      ${CMAKE_LIBRARY_PATH}
+      ${CMAKE_INSTALL_PREFIX}/lib
+      )
+
+    if (LIBSSH_INCLUDE_DIR AND SSH_LIBRARY)
+      set(LIBSSH_FOUND TRUE)
+    endif (LIBSSH_INCLUDE_DIR AND SSH_LIBRARY)
+
+    set(LIBSSH_INCLUDE_DIRS
+      ${LIBSSH_INCLUDE_DIR}
+      )
+
+    if (LIBSSH_FOUND)
+      set(LIBSSH_LIBRARIES
+        ${LIBSSH_LIBRARIES}
+        ${SSH_LIBRARY}
+        )
+
+      if (LibSSH_FIND_VERSION)
+        file(STRINGS ${LIBSSH_INCLUDE_DIR}/libssh/libssh.h LIBSSH_VERSION_MAJOR
+          REGEX "#define[ ]+LIBSSH_VERSION_MAJOR[ ]+[0-9]+")
+
+        # Older versions of libssh like libssh-0.2 have LIBSSH_VERSION but not LIBSSH_VERSION_MAJOR
+        if (LIBSSH_VERSION_MAJOR)
+          string(REGEX MATCH "[0-9]+" LIBSSH_VERSION_MAJOR ${LIBSSH_VERSION_MAJOR})
+          file(STRINGS ${LIBSSH_INCLUDE_DIR}/libssh/libssh.h LIBSSH_VERSION_MINOR
+            REGEX "#define[ ]+LIBSSH_VERSION_MINOR[ ]+[0-9]+")
+          string(REGEX MATCH "[0-9]+" LIBSSH_VERSION_MINOR ${LIBSSH_VERSION_MINOR})
+          file(STRINGS ${LIBSSH_INCLUDE_DIR}/libssh/libssh.h LIBSSH_VERSION_PATCH
+            REGEX "#define[ ]+LIBSSH_VERSION_MICRO[ ]+[0-9]+")
+          string(REGEX MATCH "[0-9]+" LIBSSH_VERSION_PATCH ${LIBSSH_VERSION_PATCH})
+
+          set(LIBSSH_VERSION ${LIBSSH_VERSION_MAJOR}.${LIBSSH_VERSION_MINOR}.${LIBSSH_VERSION_PATCH})
+
+        else (LIBSSH_VERSION_MAJOR)
+          set(LIBSSH_FOUND FALSE)
+        endif (LIBSSH_VERSION_MAJOR)
+      endif (LibSSH_FIND_VERSION)
+    endif (LIBSSH_FOUND)
+
+    # If the version is too old, but libs and includes are set,
+    # find_package_handle_standard_args will set LIBSSH_FOUND to TRUE again,
+    # so we need this if() here.
+    if (LIBSSH_FOUND)
+      include(FindPackageHandleStandardArgs)
+      find_package_handle_standard_args(LibSSH DEFAULT_MSG LIBSSH_LIBRARIES LIBSSH_INCLUDE_DIRS)
+    endif (LIBSSH_FOUND)
+
+    # show the LIBSSH_INCLUDE_DIRS and LIBSSH_LIBRARIES variables only in the advanced view
+    mark_as_advanced(LIBSSH_INCLUDE_DIRS LIBSSH_LIBRARIES)
+
+  endif (LIBSSH_LIBRARIES AND LIBSSH_INCLUDE_DIRS)
+  if (LIBSSH_FOUND)
+    message (STATUS "Found libssh ${LIBSSH_VERSION}.")
+  else (LIBSSH_FOUND)
+    message (STATUS "Did not find libssh.")
+  endif (LIBSSH_FOUND)
+else (NOT LIBSSH_FOUND)
+  execute_process (COMMAND pkg-config --cflags libssh
+    OUTPUT_VARIABLE LIBSSH_CFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process (COMMAND pkg-config --libs libssh
+    OUTPUT_VARIABLE LIBSSH_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif (NOT LIBSSH_FOUND)
+
+if (LIBSSH_FOUND)
+  if (NOT LIBSSH_CFLAGS)
+    set (LIBSSH_CFLAGS "-I${LIBSSH_INCLUDE_DIRS}")
+  endif (NOT LIBSSH_CFLAGS)
+  if (NOT LIBSSH_LDFLAGS)
+    get_filename_component (LIBSSH_LIB_DIR ${LIBSSH_LIBRARIES} PATH)
+    set (LIBSSH_LDFLAGS "-L${LIBSSH_LIB_DIR} -lssh")
+  endif (NOT LIBSSH_LDFLAGS)
+endif (LIBSSH_FOUND)
 
 set (EXTRA_LIBS "${GPGME_LDFLAGS}")
 set (EXTRA_CFLAGS "${GPGME_CFLAGS}")

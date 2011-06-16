@@ -30,6 +30,9 @@ Prerequisites for building documentation:
 Recommended to have WMI support:
 * wmiclient library (see doc/wmi-howto.txt)
 
+Recommended to have improved SSH support:
+* libssh >= 0.4.5
+
 If you have installed required libraries to a non-standard location, remember to
 set the PKG_CONFIG_PATH environment variable to the location of you pkg-config
 files before configuring:

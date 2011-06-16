@@ -1,3 +1,22 @@
+2011-06-16  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Add infrastructure for improved ssh support as outlined in OpenVAS
+	Change Request #54 (http://www.openvas.org/openvas-cr-54.html).
+
+	* nasl/nasl_ssh.c: New. Contains the new ssh functionality through
+	libssh.
+
+	* nasl/nasl_ssh.h: New. Header file for the new ssh functionality.
+
+	* nasl/CMakeLists.txt: Add handling of nasl_ssh.c.
+
+	* nasl/nasl_init.c: Add ssh_exec to the list of NASL commands.
+
+	* CMakeLists.txt: Add detection and identification of libssh.
+
+	* INSTALL: Add note that libssh >= 0.4.5 is required for improved ssh
+	support.
+
 2011-06-15  Henri Doreau <henri.doreau@greenbone.net>
 
 	* nasl/nasl_builtin_nmap.c: improved code documentation

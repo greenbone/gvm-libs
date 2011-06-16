@@ -47,6 +47,7 @@
 #include "nasl_smb.h"
 #include "nasl_packet_forgery_v6.h"
 #include "nasl_builtin_plugins.h"
+#include "nasl_ssh.h"
 
 /* **************************************************************** */
 
@@ -357,6 +358,11 @@ static init_func libfuncs[] = {
   {"rsa_sign", nasl_rsa_sign, 0, {"d", "data", "e", "n", NULL}},
   {"dsa_do_sign", nasl_dsa_do_sign, 0,
    {"data", "g", "p", "priv", "pub", "q", NULL}},
+
+#ifdef HAVE_LIBSSH
+  {"ssh_exec", nasl_ssh_exec, 0,
+      { "cmd", "login", "passphrase", "password", "port", "privkey", "pubkey", NULL}},
+#endif
 
   {"pread", nasl_pread, 0, {"argv", "cd", "cmd", "nice", NULL}},
   {"find_in_path", nasl_find_in_path, 1, {NULL}},
