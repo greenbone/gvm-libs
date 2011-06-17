@@ -577,7 +577,7 @@ build_cmd_line (nmap_t * nmap)
   /* this list handles basic options (simple flag or name/value) */
   nmap_opt_t options[] = {
     /* --- Host discovery --- */
-    {PREF_TREAT_ALL_HOST_ONLINE, "-P0", FALSE},
+    {PREF_TREAT_ALL_HOST_ONLINE, "-Pn", FALSE},
     {PREF_TRACEROUTE, "--traceroute", FALSE},
     {PREF_NO_DNS, "-n", FALSE},
 

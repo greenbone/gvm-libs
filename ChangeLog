@@ -1,3 +1,8 @@
+2011-06-17  Henri Doreau <henri.doreau@greenbone.net>
+
+	* nasl/nasl_builtin_nmap.c (build_cmd_line): Use -Pn instead of the
+	deprecated -P0 to disable the ping phase.
+
 2011-06-16  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Add infrastructure for improved ssh support as outlined in OpenVAS
