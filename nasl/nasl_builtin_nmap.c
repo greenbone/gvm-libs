@@ -256,10 +256,11 @@ struct traceroute_hop
  */
 struct nmap_port
 {
-  gchar *proto;
-  gchar *portno;
-  gchar *state;
-  gchar *service;
+  gchar *proto;     /**< Layer 4 protocol */
+  gchar *portno;    /**< Port number */
+  gchar *state;     /**< Port state (open/closed/filtered...) */
+  gchar *service;   /**< Service name (can be different from the standard port/service combo) */
+  gchar *version;   /**< Discovered product, version, extrainfo (version detection) */
   struct nse_script *port_scripts;
   struct nmap_port *next;
 };
@@ -1276,6 +1277,7 @@ port_destroy (struct nmap_port *port)
       g_free (port->portno);
       g_free (port->state);
       g_free (port->service);
+      g_free (port->version);
 
       s = port->port_scripts;
       while (s != NULL)
@@ -1545,7 +1547,29 @@ xmltag_open_service (nmap_t * nmap, const gchar ** attrnames,
   if (!nmap->parser.in_port || !nmap->tmpport.proto || !nmap->tmpport.portno)
     dbg ("Error: opening <service> tag out of port description\n");
   else
-    nmap->tmpport.service = get_attr_value ("name", attrnames, attrval);
+    {
+      gchar *product, *version, *extrainfo;
+
+      nmap->tmpport.service = get_attr_value ("name", attrnames, attrval);
+
+      /* also store version detection results if available */
+      product = get_attr_value ("product", attrnames, attrval);
+      version = get_attr_value ("version", attrnames, attrval);
+      extrainfo = get_attr_value ("extrainfo", attrnames, attrval);
+
+      if (product || version || extrainfo)
+#define PRINT_NOT_NULL(x) ((x) ? (x) : "")
+        nmap->tmpport.version = g_strdup_printf ("%s %s %s",
+                                                 PRINT_NOT_NULL(product),
+                                                 PRINT_NOT_NULL(version),
+                                                 PRINT_NOT_NULL(extrainfo));
+#undef PRINT_NOT_NULL
+
+      /* g_free'ing NULLs is harmless */
+      g_free (product);
+      g_free (version);
+      g_free (extrainfo);
+    }
 }
 
 /**
@@ -1901,7 +1925,12 @@ register_service (nmap_t * nmap, struct nmap_port *p)
    * registered under the "Known" label too */
   g_snprintf (key, sizeof (key), "%s/Known/%s/%s", nmap->tmphost.addr,
               p->proto, p->portno);
-  plug_replace_key (nmap->env, key, ARG_STRING, p->service);
+  plug_set_key (nmap->env, key, ARG_STRING, p->service);
+
+  /* Store version detection results if available */
+  g_snprintf (key, sizeof (key), "%s/Version/%s/%s", nmap->tmphost.addr,
+              p->proto, p->portno);
+  plug_set_key (nmap->env, key, ARG_STRING, p->version);
 
   return 1;
 }

@@ -1,5 +1,11 @@
 2011-06-17  Henri Doreau <henri.doreau@greenbone.net>
 
+	* nasl/nasl_builtin_nmap.c (port_destroy, xmltag_open_service,
+	register_service): Improved version detection support to report
+	additional information about the discovered services.
+
+2011-06-17  Henri Doreau <henri.doreau@greenbone.net>
+
 	* nasl/nasl_builtin_nmap.c (build_cmd_line): Use -Pn instead of the
 	deprecated -P0 to disable the ping phase.
 
