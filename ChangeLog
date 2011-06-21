@@ -1,3 +1,11 @@
+2011-06-21  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the openvas-libraries 5.0+beta1 release.
+
+	* CHANGES: Updated.
+
+	* CMakeLists.txt: Updated.
+
 2011-06-17  Henri Doreau <henri.doreau@greenbone.net>
 
 	* nasl/nasl_builtin_nmap.c (port_destroy, xmltag_open_service,

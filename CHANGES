@@ -1,3 +1,26 @@
+openvas-libraries 5.0+beta1 (2011-06-21)
+
+This release is the first beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS 5".
+
+Main new feature and other changes of 5.0 compared to 4.0 include:
+Support for comprehensive network scanning with nmap and for improved SSH
+functionality. Also support for shared sockets has been removed in accordance
+with OpenVAS Change Request #53.
+
+Many thanks to everyone who has contributed this release:
+Henri Doreau, Matthew Mundell, Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to 4.0.4:
+* Support for improved SSH functionality has been added.
+* Support for comprehensive network scanning with nmap has been added.
+* A number of compiler warnings have been addressed.
+* Support for shared sockets has been removed.
+* OpenVAS Libraries will now honor the unscanned_closed_udp preference when
+  deciding how an unscanned UDP port should be treated.
+* Nmap support has been improved.
+
+
 openvas-libraries 4.0.4 (2011-05-04)
 
 This is the fourth maintenance release of the openvas-libraries 4.0 module for
