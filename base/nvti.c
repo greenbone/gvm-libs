@@ -39,6 +39,8 @@
 #include <stdio.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <utime.h>
 
 #include "nvti.h"
 
@@ -1349,6 +1351,24 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
 
       fputs (text, fp);
       fclose (fp);
+
+      /* Set timestamp of cache file to the timestamp of the original NVT, if
+       * possible */
+      if (n->src)
+        {
+          struct stat src_stat;
+          if (stat (n->src, &src_stat) == 0)
+            {
+              struct utimbuf src_timestamp;
+              src_timestamp.actime = src_stat.st_atime;
+              src_timestamp.modtime = src_stat.st_mtime;
+              if (utime (fn, &src_timestamp) != 0)
+                fprintf (stderr, "utime(%s) : %s\n", fn, strerror (errno));
+            }
+          else
+            fprintf (stderr, "stat(%s) : %s\n", n->src, strerror (errno));
+        }
+
       g_free (text);
     }
 
