@@ -1,3 +1,16 @@
+2011-06-22  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Enforce that timestamps for newly cached files are identical with
+	those of the original NVTs. This prevents cache issues for rare cases
+	where the cache file was erroneously considered newer than an updated
+	NVT. Backport from trunk r11184.
+
+	* base/nvti.c (nvti_to_keyfile): Set the timestamp of the cache file
+	to the timestamp of the original NVT.
+
+	* base/nvticache.c (nvticache_get): Accept caches with the same
+	timestamp as the original file.
+
 2011-06-01  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.

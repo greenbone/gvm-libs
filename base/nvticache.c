@@ -108,7 +108,7 @@ nvticache_get (const nvticache_t * cache, const gchar * filename)
 
   if (src_file && cache_file && stat (src_file, &src_stat) >= 0
       && stat (cache_file, &cache_stat) >= 0
-      && (cache_stat.st_mtime > src_stat.st_mtime))
+      && (cache_stat.st_mtime >= src_stat.st_mtime))
     {
       n = nvti_from_keyfile (cache_file);
     }
