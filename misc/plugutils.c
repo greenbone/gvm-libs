@@ -403,19 +403,19 @@ void
 plug_require_key (struct arglist *desc, const char *keyname)
 {
   nvti_t *n = plug_get_nvti (desc);
-  struct arglist *keys = str2arglist (nvti_required_keys (n));
-  char * str;
+  gchar * old = nvti_required_keys (n);
+  gchar * new = NULL;
 
-  if (!keys)
-    keys = emalloc (sizeof (struct arglist));
+  if (!keyname) return;
 
-  arg_add_value (keys, keyname, ARG_STRING, 0, estrdup (""));
-
-  str = arglist2str (keys);
-  nvti_set_required_keys (n, str);
-
-  efree (&str);
-  arg_free_all (keys);
+  if (old)
+  {
+    new = g_strdup_printf ("%s, %s", old, keyname);
+    nvti_set_required_keys (n, new);
+    g_free (new);
+  }
+  else
+    nvti_set_required_keys (n, keyname);
 }
 
 struct arglist *
@@ -428,19 +428,19 @@ void
 plug_mandatory_key (struct arglist *desc, const char *keyname)
 {
   nvti_t *n = plug_get_nvti (desc);
-  struct arglist *keys = str2arglist (nvti_mandatory_keys (n));
-  char * str;
+  gchar * old = nvti_mandatory_keys (n);
+  gchar * new;
 
-  if (!keys)
-    keys = emalloc (sizeof (struct arglist));
+  if (!keyname) return;
 
-  arg_add_value (keys, keyname, ARG_STRING, 0, estrdup (""));
-
-  str = arglist2str (keys);
-  nvti_set_mandatory_keys (n, str);
-
-  efree (&str);
-  arg_free_all (keys);
+  if (old)
+  {
+    new = g_strdup_printf ("%s, %s", old, keyname);
+    nvti_set_mandatory_keys (n, new);
+    g_free (new);
+  }
+  else
+    nvti_set_mandatory_keys (n, keyname);
 }
 
 struct arglist *
@@ -453,19 +453,19 @@ void
 plug_exclude_key (struct arglist *desc, const char *keyname)
 {
   nvti_t *n = plug_get_nvti (desc);
-  struct arglist *keys = str2arglist (nvti_excluded_keys (n));
-  char * str;
+  gchar * old = nvti_excluded_keys (n);
+  gchar * new;
 
-  if (!keys)
-    keys = emalloc (sizeof (struct arglist));
+  if (!keyname) return;
 
-  arg_add_value (keys, keyname, ARG_STRING, 0, estrdup (""));
-
-  str = arglist2str (keys);
-  nvti_set_excluded_keys (n, str);
-
-  efree (&str);
-  arg_free_all (keys);
+  if (old)
+  {
+    new = g_strdup_printf ("%s, %s", old, keyname);
+    nvti_set_excluded_keys (n, new);
+    g_free (new);
+  }
+  else
+    nvti_set_excluded_keys (n, keyname);
 }
 
 struct arglist *
@@ -478,19 +478,19 @@ void
 plug_require_port (struct arglist *desc, const char *portname)
 {
   nvti_t *n = plug_get_nvti (desc);
-  struct arglist *ports = str2arglist (nvti_required_ports (n));
-  char * str;
+  gchar * old = nvti_required_ports (n);
+  gchar * new;
 
-  if (!ports)
-    ports = emalloc (sizeof (struct arglist));
+  if (!portname) return;
 
-  arg_add_value (ports, portname, ARG_INT, 0, (void *) 1);
-
-  str = arglist2str (ports);
-  nvti_set_required_ports (n, str);
-
-  efree (&str);
-  arg_free_all (ports);
+  if (old)
+  {
+    new = g_strdup_printf ("%s, %s", old, portname);
+    nvti_set_required_ports (n, new);
+    g_free (new);
+  }
+  else
+    nvti_set_required_ports (n, portname);
 }
 
 struct arglist *
@@ -504,19 +504,19 @@ void
 plug_require_udp_port (struct arglist *desc, const char *portname)
 {
   nvti_t *n = plug_get_nvti (desc);
-  struct arglist *ports = str2arglist (nvti_required_udp_ports (n));
-  char * str;
+  gchar * old = nvti_required_udp_ports (n);
+  gchar * new;
 
-  if (!ports)
-    ports = emalloc (sizeof (struct arglist));
+  if (!portname) return;
 
-  arg_add_value (ports, portname, ARG_INT, 0, (void *) 1);
-
-  str = arglist2str (ports);
-  nvti_set_required_udp_ports (n, str);
-
-  efree (&str);
-  arg_free_all (ports);
+  if (old)
+  {
+    new = g_strdup_printf ("%s, %s", old, portname);
+    nvti_set_required_udp_ports (n, new);
+    g_free (new);
+  }
+  else
+    nvti_set_required_udp_ports (n, portname);
 }
 
 struct arglist *
@@ -529,35 +529,47 @@ void
 plug_set_dep (struct arglist *desc, const char *depname)
 {
   nvti_t *n = plug_get_nvti (desc);
-  struct arglist *deps = str2arglist (nvti_dependencies (n));
-  char * str;
+  gchar * old = nvti_dependencies (n);
+  gchar * new;
 
-  if (!deps)
-    deps = emalloc (sizeof (struct arglist));
+  if (!depname) return;
 
   if (g_str_has_suffix (depname, ".nes"))
     {
-      gchar *nasl_depname;
-
       /* The binary NES NVTs have now all been converted to NASL NVTs,
        * so convert the "nes" file type to "nasl".  This ensures that
        * any script that depends on the old NES depends instead on the
        * replacement NASL.
+       * This special treatment can be removed once OpenVAS 3.1 is retired
+       * and for all NVTs ".nes" dependencies are renamed to ".nasl".
        */
 
-      nasl_depname = g_strdup_printf ("%sl", depname);
+      gchar *nasl_depname = g_strdup_printf ("%sl", depname);
+
       nasl_depname[strlen (nasl_depname) - 3] = 'a';
-      arg_add_value (deps, nasl_depname, ARG_STRING, 0, estrdup (""));
+
+      if (old)
+        {
+          new = g_strdup_printf ("%s, %s", old, nasl_depname);
+          nvti_set_dependencies (n, new);
+          g_free (new);
+        }
+      else
+        nvti_set_dependencies (n, nasl_depname);
+
       g_free (nasl_depname);
     }
   else
-    arg_add_value (deps, depname, ARG_STRING, 0, estrdup (""));
-
-  str = arglist2str (deps);
-  nvti_set_dependencies (n, str);
-
-  efree (&str);
-  arg_free_all (deps);
+    {
+      if (old)
+        {
+          new = g_strdup_printf ("%s, %s", old, depname);
+          nvti_set_dependencies (n, new);
+          g_free (new);
+        }
+      else
+        nvti_set_dependencies (n, depname);
+    }
 }
 
 struct arglist *

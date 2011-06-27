@@ -1,3 +1,11 @@
+2011-06-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/plugutils.c (plug_require_key, plug_mandatory_key,
+	plug_exclude_key, plug_require_port, plug_require_udp_port,
+	plug_set_dep): Replace intermediate step of converting csv
+	strings to arglist and back again just for adding one entry
+	by direct string modification.
+
 2011-06-22  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Enforce that timestamps for newly cached files are identical with
