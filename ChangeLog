@@ -1,3 +1,13 @@
+2011-06-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/store.c (store_load_plugin): Removed conversion of
+	".nes" to ".nasl" for dependencies. When a cache file
+	is created, the conversion is always done already.
+	This change makes it mandatory to remove the old
+	cache when migrating from OpenVAS-4 to OpenVAS-5
+	in order to ensure to not have any old cache file
+	with ".nes" somewhere.
+
 2011-06-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/plugutils.c (plug_require_key, plug_mandatory_key,

@@ -176,47 +176,10 @@ store_load_plugin (const char *file, struct arglist *prefs)
 {
   struct arglist *ret;
   int i;
-  gchar *dependencies;
 
   nvti_t *n = nvticache_get (nvti_cache, file);
   if (!n)
     return NULL;
-
-  dependencies = nvti_dependencies (n);
-  if (dependencies)
-    {
-      struct arglist *arglist;
-
-      /* The binary NES NVTs have now all been converted to NASL NVTs, so
-       * convert any "nes" dependencies of the NVT to "nasl".  This ensures
-       * that any script that depends on the old NES depends instead on the
-       * replacement NASL, including in the cache.
-       */
-
-      arglist = str2arglist (dependencies);
-      if (arglist)
-        {
-          char *new_deps;
-          struct arglist *point;
-          point = arglist;
-          while (point->name)
-            if (g_str_has_suffix (point->name, ".nes"))
-              {
-                gchar *nasl_depname;
-                nasl_depname = g_strdup_printf ("%sl", point->name);
-                nasl_depname[strlen (nasl_depname) - 3] = 'a';
-                arg_set_name (point, point->name, nasl_depname);
-                g_free (nasl_depname);
-                point = point->next;
-              }
-            else
-              point = point->next;
-          new_deps = arglist2str (arglist);
-          nvti_set_dependencies (n, new_deps);
-          efree (&new_deps);
-          arg_free_all (arglist);
-        }
-    }
 
   ret = emalloc (sizeof (struct arglist));
 
