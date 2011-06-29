@@ -1,3 +1,9 @@
+2011-06-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/nvti.c (nvti_add_sign_key_id): New.
+
+	* base/nvti.h: Added proto accordingly.
+
 2011-06-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/store.c (store_load_plugin): Removed conversion of

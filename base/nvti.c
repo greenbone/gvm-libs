@@ -4,10 +4,10 @@
  *
  * Authors:
  * Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
- * Matthew Mundell <matt@mundell.ukfsn.org>
+ * Matthew Mundell <matthew.mundell@greenbone.net>
  *
  * Copyright:
- * Copyright (C) 2009 Greenbone Networks GmbH
+ * Copyright (C) 2009,2011 Greenbone Networks GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -932,6 +932,35 @@ nvti_set_sign_key_ids (nvti_t * n, const gchar * sign_key_ids)
     n->sign_key_ids = g_strdup (sign_key_ids);
   else
     n->sign_key_ids = NULL;
+  return (0);
+}
+
+/**
+ * @brief Add a single sign key id of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param sign_key_id The sign key id to add. A copy will be created from this.
+ *
+ * @return 0 for success. 1 if n was NULL.
+ */
+int
+nvti_add_sign_key_id (nvti_t * n, const gchar * sign_key_id)
+{
+  gchar * old;
+
+  if (! n) return (1);
+
+  old = n->sign_key_ids;
+
+  if (old)
+  {
+    n->sign_key_ids = g_strdup_printf ("%s, %s", old, sign_key_id);
+    g_free (old);
+  }
+  else
+    n->sign_key_ids = g_strdup (sign_key_id);
+
   return (0);
 }
 

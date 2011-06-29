@@ -4,10 +4,10 @@
  *
  * Authors:
  * Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
- * Matthew Mundell <matt@mundell.ukfsn.org>
+ * Matthew Mundell <matthew.mundell@greenbone.net>
  *
  * Copyright:
- * Copyright (C) 2009 Greenbone Networks GmbH
+ * Copyright (C) 2009, 2011 Greenbone Networks GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -148,6 +148,7 @@ int nvti_set_excluded_keys (nvti_t *, const gchar *);
 int nvti_set_required_ports (nvti_t *, const gchar *);
 int nvti_set_required_udp_ports (nvti_t *, const gchar *);
 int nvti_set_sign_key_ids (nvti_t *, const gchar *);
+int nvti_add_sign_key_id (nvti_t *, const gchar *);
 int nvti_set_src (nvti_t *, const gchar *);
 int nvti_set_timeout (nvti_t *, const gint);
 int nvti_set_category (nvti_t *, const gint);
