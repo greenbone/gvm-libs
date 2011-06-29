@@ -210,30 +210,6 @@ arg_get (struct arglist *arg, const char *name)
 }
 
 
-
-
-int
-arg_set_name (arglst, name, new_name)
-     struct arglist *arglst;
-     const char *name;
-     const char *new_name;
-{
-  if (name == NULL || new_name == NULL)
-    return -1;
-
-  arglst = arg_get (arglst, name);
-
-  if (arglst != NULL)
-    {
-      cache_dec (arglst->name);
-      arglst->name = cache_inc (new_name);
-      arglst->hash = mkhash (arglst->name);
-      return 0;
-    }
-  else
-    return -1;
-}
-
 int
 arg_set_value (arglst, name, length, value)
      struct arglist *arglst;
@@ -555,42 +531,6 @@ arg_del_value (args, name)
 
   arg_free (element);
 }
-
-char *
-arglist2str (struct arglist *arg)
-{
-  char *ret;
-  int sz;
-
-  if (arg == NULL)
-    return estrdup ("");
-
-  if (arg->name == NULL)
-    return estrdup ("");
-
-  sz = (strlen (arg->name) + 1) * 10;
-  ret = emalloc (sz);
-  strncpy (ret, arg->name, sz - 1);
-  arg = arg->next;
-  if (arg == NULL)
-    return ret;
-
-  while (arg->next != NULL)
-    {
-      if (arg->name == NULL)
-        return ret;
-      if (strlen (arg->name) + 3 + strlen (ret) >= sz)
-        {
-          sz = strlen (arg->name) + 3 + strlen (ret) * 2;
-          ret = erealloc (ret, sz);
-        }
-      strncat (ret, ", ", sz - 1);      /* RATS: ignore */
-      strncat (ret, arg->name, sz - 1); /* RATS: ignore */
-      arg = arg->next;
-    }
-  return ret;
-}
-
 
 struct arglist *
 str2arglist (char *str)

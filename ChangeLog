@@ -1,5 +1,12 @@
 2011-06-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/arglists.c (arg_set_name, arglist2str): Removed
+	now unused functions.
+
+	* misc/arglists.h: Removed protos accordingly.
+
+2011-06-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* base/nvti.c (nvti_add_sign_key_id): New.
 
 	* base/nvti.h: Added proto accordingly.
