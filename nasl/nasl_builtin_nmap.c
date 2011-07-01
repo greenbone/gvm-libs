@@ -492,14 +492,7 @@ plugin_run_nmap (lex_ctxt * lexic)
  */
 nmap_t * nmap_create (lex_ctxt * lexic) { gchar *pref; nmap_t *nmap;
 
-  nmap = (nmap_t *) g_malloc (sizeof (nmap_t));
-  if (nmap == NULL)
-    {
-      err ("g_malloc()");
-      return NULL;
-    }
-
-  memset (nmap, 0x00, sizeof (nmap_t));
+  nmap = (nmap_t *) g_malloc0 (sizeof (nmap_t));
 
   nmap->env = lexic->script_infos;
 
@@ -679,11 +672,6 @@ add_arg (nmap_t * nmap, const gchar * name, const gchar * value)
     {
       /* Initial call, instanciate the NULL terminated list of arguments */
       nmap->args = (gchar **) g_malloc (sizeof (gchar **));
-      if (!nmap->args)
-        {
-          err ("g_malloc()");
-          return -1;
-        }
       nmap->arg_idx = 0;
     }
 
@@ -1321,12 +1309,6 @@ tmphost_add_port (nmap_t * nmap)
   struct nmap_port *newport;
 
   newport = (struct nmap_port *) g_malloc (sizeof (struct nmap_port));
-  if (!newport)
-    {
-      err ("g_malloc()");
-      return -1;
-    }
-
   memcpy (newport, &nmap->tmpport, sizeof (struct nmap_port));
   newport->next = nmap->tmphost.ports;
   nmap->tmphost.ports = newport;
@@ -1347,12 +1329,6 @@ tmphost_add_nse_hostscript (nmap_t * nmap, gchar * name, gchar * output)
   struct nse_script *s;
 
   s = (struct nse_script *) g_malloc (sizeof (struct nse_script));
-  if (!s)
-    {
-      err ("g_malloc()");
-      return -1;
-    }
-
   s->name = name;
   s->output = output;
   s->next = nmap->tmphost.host_scripts;
@@ -1376,12 +1352,6 @@ tmphost_add_nse_portscript (nmap_t * nmap, gchar * name, gchar * output)
   struct nse_script *s;
 
   s = (struct nse_script *) g_malloc (sizeof (struct nse_script));
-  if (!s)
-    {
-      err ("g_malloc()");
-      return -1;
-    }
-
   s->name = name;
   s->output = output;
   s->next = nmap->tmpport.port_scripts;
