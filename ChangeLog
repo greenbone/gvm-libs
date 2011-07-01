@@ -1,5 +1,17 @@
 2011-07-01  Henri Doreau <henri.doreau@greenbone.net>
 
+	* nasl/nasl_builtin_nmap.c: Improved documentation (formatting and
+	content).
+
+	*  nasl/nasl_builtin_nmap.c (tmphost_add_port,
+	tmphost_add_nse_hostscript, tmphost_add_nse_portscript,
+	current_host_saveall, save_host_state, save_open_ports,
+	register_service, save_detected_os, save_tcpseq_details,
+	save_ipidseq_details, save_traceroute_details, save_portscripts,
+	save_hostscripts): Changed return type to void.
+
+011-07-01  Henri Doreau <henri.doreau@greenbone.net>
+
 	* nasl/nasl_builtin_nmap.c (nmap_run_and_parse): Added a check to
 	distinguish between error and eof after fread() on imported files.
 

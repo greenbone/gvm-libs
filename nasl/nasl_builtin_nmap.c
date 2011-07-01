@@ -77,17 +77,17 @@
 
 
 /**
- * @brief input chunks size for the XML parser
+ * @brief Input chunks size for the XML parser.
  */
 #define CHUNK_LEN 512
 
 /**
- * @brief maximum number of hops to the target
+ * @brief Maximum number of hops to the target.
  */
 #define MAX_TRACE_HOPS  64
 
 /**
- * @brief nmap command to call
+ * @brief Nmap command to call.
  */
 #define NMAP_CMD    "nmap"
 
@@ -95,69 +95,72 @@
 /* -- script options -- */
 
 /**
- * @brief Plugin parameter description: skip alive hosts discovery phase
+ * @brief Plugin parameter description: skip alive hosts discovery phase.
  */
 #define PREF_TREAT_ALL_HOST_ONLINE  "Treat all hosts as online"
 
 /**
- * @brief Plugin parameter description: perform traceroute
+ * @brief Plugin parameter description: perform traceroute.
  */
 #define PREF_TRACEROUTE             "Trace hop path to each host"
 
 /**
  * @brief Plugin parameter description: don't perform reverse resolution on
- * discovered IP addresses
+ *        discovered IP addresses.
  */
 #define PREF_NO_DNS                 "Disable DNS resolution"
 
 /**
- * @brief Plugin parameter description: TCP port scanning technique to use
+ * @brief Plugin parameter description: TCP port scanning technique to use.
  */
 #define PREF_TCP_SCANNING_TECHNIQUE "TCP scanning technique"
 
 /**
- * @brief Plugin parameter description: perform UDP port scan
+ * @brief Plugin parameter description: perform UDP port scan.
  */
 #define PREF_UDP_PORT_SCAN          "UDP port scan"
 
 /**
- * @brief Plugin parameter description: perform service/version detection scan
+ * @brief Plugin parameter description: perform service/version detection
+ *        scan.
  */
 #define PREF_SERVICE_SCAN           "Service scan"
 
 /**
- * @brief Plugin parameter description: perform RPC port scan
+ * @brief Plugin parameter description: perform RPC port scan.
  */
 #define PREF_RPC_PORT_SCAN          "RPC port scan"
 
 /**
- * @brief Plugin parameter description: perform remote OS fingerprinting
+ * @brief Plugin parameter description: perform remote OS fingerprinting.
  */
 #define PREF_IDENTIFY_REMOTE_OS     "Identify the remote OS"
 
 /**
- * @brief Plugin parameter description: guess OS from closest match if necessary
+ * @brief Plugin parameter description: guess OS from closest match if
+ *        necessary.
  */
 #define PREF_AGGRESSIVE_OS_DETECT   "Aggressive OS detection"
 
 /**
  * @brief Plugin parameter description: try to evade defense by fragmenting IP
- * packets
+ *        packets.
  */
 #define PREF_FRAGMENT_IP            "Fragment IP packets (bypasses firewalls)"
 
 /**
- * @brief Plugin parameter description: set source port
+ * @brief Plugin parameter description: set source port.
  */
 #define PREF_SOURCE_PORT            "Source port"
 
 /**
- * @brief Plugin parameter description: select timing template
+ * @brief Plugin parameter description: select timing template.
  */
 #define PREF_TIMING_POLICY          "Timing policy"
 
 /**
- * @brief Plugin parameter description: give up on host after this time elapsed
+ * @brief Plugin parameter description: give up on host after this time
+ *        elapsed.
  */
 #define PREF_HOST_TIMEOUT           "Host Timeout (ms)"
 
@@ -169,70 +172,70 @@
 
 /**
  * @brief Plugin parameter description: probe round trip time hint (maximal
- * value)
+ *        value).
  */
 #define PREF_MAX_RTT_TIMEOUT        "Max RTT Timeout (ms)"
 
 /**
  * @brief Plugin parameter description: probe round trip time hint (initial
- * value)
+ *        value).
  */
 #define PREF_INITIAL_RTT_TIMEOUT    "Initial RTT timeout (ms)"
 
 /**
  * @brief Plugin parameter description: force minimum number of parallel active
- * probes
+ *        probes.
  */
 #define PREF_MIN_PARALLELISM        "Ports scanned in parallel (min)"
 
 /**
  * @brief Plugin parameter description: force maximum number of parallel active
- * probes
+ *        probes.
  */
 #define PREF_MAX_PARALLELISM        "Ports scanned in parallel (max)"
 
 /**
  * @brief Plugin parameter description: force minimum number of hosts to scan in
- * parallel
+ *        parallel.
  */
 #define PREF_MIN_HOSTGROUP          "Hosts scanned in parallel (min)"
 
 /**
  * @brief Plugin parameter description: force maximum number of hosts to scan in
- * parallel
+ *        parallel.
  */
 #define PREF_MAX_HOSTGROUP          "Hosts scanned in parallel (max)"
 
 /**
- * @brief Plugin parameter description: set idle interval between probes
+ * @brief Plugin parameter description: set idle interval between probes.
  */
 #define PREF_INTERPROBE_DELAY       "Minimum wait between probes (ms)"
 
 /**
  * @brief Plugin parameter description: comma-separated list of hosts to exclude
- * from the scan
+ *        from the scan.
  */
 #define PREF_EXCLUDE_HOSTS          "Exclude hosts"
 
 /**
- * @brief Plugin parameter description: import XML file
+ * @brief Plugin parameter description: import XML file.
  */
 #define PREF_IMPORT_XML_FILE        "File containing XML results"
 
 
 /**
- * @brief checkbox value (set)
+ * @brief Checkbox value (when set).
  */
 #define OPT_SET   "yes"
 
 /**
- * @brief checkbox value (unset)
+ * @brief Checkbox value (when unset).
  */
 #define OPT_UNSET "no"
 
 
 /**
- * @brief handle the results of a NSE script
+ * @brief Handle the results of a NSE script.
  */
 struct nse_script
 {
@@ -242,63 +245,68 @@ struct nse_script
 };
 
 /**
- * @brief describe a detected hop on the route
+ * @brief Describe a detected hop on the route.
  */
 struct traceroute_hop
 {
-  gchar *addr;  /**< host IP address */
-  gchar *host;  /**< hostname (or NULL if unavailable) */
-  gchar *rtt;   /**< smoothed round time trip (or NULL if unavailable) */
+  gchar *addr;  /**< Host IP address. */
+  gchar *host;  /**< Hostname (or NULL if unavailable). */
+  gchar *rtt;   /**< Smoothed round time trip (or NULL if unavailable). */
 };
 
 /**
- * @brief store port information
+ * @brief Store port information.
  */
 struct nmap_port
 {
-  gchar *proto;     /**< Layer 4 protocol */
-  gchar *portno;    /**< Port number */
-  gchar *state;     /**< Port state (open/closed/filtered...) */
-  gchar *service;   /**< Service name (can be different from the standard port/service combo) */
-  gchar *version;   /**< Discovered product, version, extrainfo (version detection) */
-  struct nse_script *port_scripts;
-  struct nmap_port *next;
+  gchar *proto;     /**< Layer 4 protocol. */
+  gchar *portno;    /**< Port number. */
+  gchar *state;     /**< Port state (open/closed/filtered...). */
+  gchar *service;   /**< Service name (can be different from the standard port/service combo). */
+  gchar *version;   /**< Discovered product, version, extrainfo (version detection). */
+  struct nse_script *port_scripts;  /**< NULL terminated list of related port script results. */
+  struct nmap_port *next;           /**< Next item in the linked list. */
 };
 
 /**
- * @brief store host information.
+ * @brief Store host information.
+ *
+ * Most entries are represented as gchar* despite they represent numbers.
+ * Conversion would be overkill as these entries are read as strings and
+ * reported as strings as well.
  */
 struct nmap_host
 {
-  gchar *addr;
-  gchar *state;
-  gchar *best_os;
-  gchar *tcpseq_index;
-  gchar *tcpseq_difficulty;
-  gchar *ipidseq;
-  int distance;
-  struct traceroute_hop trace[MAX_TRACE_HOPS];
-  int os_confidence;
-  struct nse_script *host_scripts;
-  struct nmap_port *ports;
+  gchar *addr;    /**< Host IP address. */
+  gchar *state;   /**< Host aliveness. */
+  gchar *best_os; /**< Best OS fingerprinting guess. */
+  gchar *tcpseq_index;      /**< TCP sequence index. */
+  gchar *tcpseq_difficulty; /**< TCP sequence prediction difficulty. */
+  gchar *ipidseq;           /**< IP ID sequence. */
+
+  int distance;  /**< Hop count to the target. */
+  struct traceroute_hop trace[MAX_TRACE_HOPS];  /**< Traceroute results. */
+  int os_confidence;                /**< OS detection confidence score. */
+  struct nse_script *host_scripts;  /**< NULL termiated list of related host script results. */
+  struct nmap_port *ports;          /**< NULL terminated list of ports. */
 };
 
 /**
- * @brief handle states for XML parsing
+ * @brief Handle states for XML parsing.
  */
 struct nmap_parser
 {
-  GHashTable *opentag;    /**< parsing callbacks for opening tags */
-  GHashTable *closetag;   /**< parsing callbacks for closing tags */
+  GHashTable *opentag;    /**< Parsing callbacks for opening tags. */
+  GHashTable *closetag;   /**< Parsing callbacks for closing tags. */
 
-  gboolean in_host;       /**< parsing flag: mark host section */
-  gboolean in_ports;      /**< parsing flag: mark ports section */
-  gboolean in_port;       /**< parsing flag: mark port section */
-  gboolean in_hostscript; /**< parsing flag: mark hostscript section */
+  gboolean in_host;       /**< Parsing flag: mark host section. */
+  gboolean in_ports;      /**< Parsing flag: mark ports section. */
+  gboolean in_port;       /**< Parsing flag: mark port section. */
+  gboolean in_hostscript; /**< Parsing flag: mark hostscript section. */
 };
 
 /**
- * @brief main nmap execution handler
+ * @brief Main nmap execution handler.
  */
 typedef struct
 {
@@ -320,27 +328,27 @@ typedef struct
 } nmap_t;
 
 /**
- * @brief describe an nmap option
+ * @brief Describe an nmap command line option.
  */
 typedef struct
 {
-  gchar *optname;             /**< NASL option as exported to the user */
-  gchar *flag;                /**< nmap flag to set */
-  gboolean argument_required; /**< add option value to the command line */
+  gchar *optname;             /**< NASL option name as exported to the user. */
+  gchar *flag;                /**< Corresponding nmap flag to set. */
+  gboolean argument_required; /**< Add option value to the command line. */
 } nmap_opt_t;
 
 
 /* --------------------- INTERNAL FUNCTIONS PROTOTYPES ---------------------- */
 
 /*
- * Nmap handler ctor/dtor
+ * Nmap handler ctor/dtor.
  */
 static nmap_t *nmap_create (lex_ctxt * lexic);
 static void nmap_destroy (nmap_t * nmap);
 
 
 /*
- * Command line generation from supplied options and parameters
+ * Command line generation from supplied options and parameters.
  */
 static int build_cmd_line (nmap_t * nmap);
 static int add_arg (nmap_t * nmap, const gchar * name, const gchar * value);
@@ -360,21 +368,21 @@ static void dbg_display_cmdline (nmap_t * nmap);
 
 
 /*
- * Execution control and high level results parsing
+ * Execution control and high level results parsing.
  */
 static int nmap_run_and_parse (nmap_t * nmap);
 static void current_host_reset (nmap_t * nmap);
 static void port_destroy (struct nmap_port *port);
 static void nse_script_destroy (struct nse_script *script);
-static int tmphost_add_port (nmap_t * nmap);
-static int tmphost_add_nse_hostscript (nmap_t * nmap, gchar * name,
-                                       gchar * output);
-static int tmphost_add_nse_portscript (nmap_t * nmap, gchar * name,
+static void tmphost_add_port (nmap_t * nmap);
+static void tmphost_add_nse_hostscript (nmap_t * nmap, gchar * name,
+                                        gchar * output);
+static void tmphost_add_nse_portscript (nmap_t * nmap, gchar * name,
                                        gchar * output);
 
 
 /*
- * Top level callbacks to handle opening/closing XML elements
+ * Top level callbacks to handle opening/closing XML elements.
  */
 static void
 xml_start_element (GMarkupParseContext * context, const gchar * element_name,
@@ -387,7 +395,7 @@ xml_end_element (GMarkupParseContext * context, const gchar * element_name,
 
 
 /*
- * Callbacks for opening recognized elements
+ * Callbacks for opening recognized elements.
  */
 static void xmltag_open_host (nmap_t * nmap, const gchar ** attrnames,
                               const gchar ** attrval);
@@ -420,7 +428,7 @@ static void xmltag_open_distance (nmap_t * nmap, const gchar ** attrnames,
 
 
 /*
- * Callbacks for closing recognized elements
+ * Callbacks for closing recognized elements.
  */
 static void xmltag_close_host (nmap_t * nmap);
 static void xmltag_close_ports (nmap_t * nmap);
@@ -429,7 +437,7 @@ static void xmltag_close_hostscript (nmap_t * nmap);
 
 
 /*
- * Helper function to get the strdup'ed value of a given attribute
+ * Helper function to get the strdup'ed value of a given attribute.
  */
 static gchar *get_attr_value (const gchar * name,
                               const gchar ** attribute_names,
@@ -437,26 +445,26 @@ static gchar *get_attr_value (const gchar * name,
 
 
 /*
- * Store host results in the KB
+ * Store host results in the KB.
  */
-static int current_host_saveall (nmap_t * nmap);
-static int save_host_state (nmap_t * nmap);
-static int save_open_ports (nmap_t * nmap);
-static int register_service (nmap_t * nmap, struct nmap_port *p);
-static int save_detected_os (nmap_t * nmap);
-static int save_tcpseq_details (nmap_t * nmap);
-static int save_ipidseq_details (nmap_t * nmap);
-static int save_traceroute_details (nmap_t * nmap);
-static int save_portscripts (nmap_t * nmap);
-static int save_hostscripts (nmap_t * nmap);
+static void current_host_saveall (nmap_t * nmap);
+static void save_host_state (nmap_t * nmap);
+static void save_open_ports (nmap_t * nmap);
+static void register_service (nmap_t * nmap, struct nmap_port *p);
+static void save_detected_os (nmap_t * nmap);
+static void save_tcpseq_details (nmap_t * nmap);
+static void save_ipidseq_details (nmap_t * nmap);
+static void save_traceroute_details (nmap_t * nmap);
+static void save_portscripts (nmap_t * nmap);
+static void save_hostscripts (nmap_t * nmap);
 
 /* -------------------------------------------------------------------------- */
 
 
 /**
- * @brief run the nmap_net subsystem.
+ * @brief Run the nmap_net subsystem.
  *
- * @param[in] lexic NASL state
+ * @param[in] lexic NASL state.
  *
  * @return NULL on error, FAKE_CELL on success.
  */
@@ -484,12 +492,12 @@ plugin_run_nmap (lex_ctxt * lexic)
 }
 
 /**
- * @brief instanciate a new nmap handler, rebuild command line or open XML file
- * to parse.
+ * @brief Instanciate a new nmap handler, rebuild command line or open XML file
+ *        to parse.
  *
  * @param[in] lexic NASL state
  *
- * @return the newly allocated nmap handler or NULL on error
+ * @return The newly allocated nmap handler or NULL on error.
  */
 nmap_t * nmap_create (lex_ctxt * lexic) { gchar *pref; nmap_t *nmap;
 
@@ -529,9 +537,9 @@ nmap_t * nmap_create (lex_ctxt * lexic) { gchar *pref; nmap_t *nmap;
 }
 
 /**
- * @brief release a nmap handler and associated resources
+ * @brief Release a nmap handler and associated resources.
  *
- * @param[in,out] nmap handler to free
+ * @param[in,out] nmap  Handler to free.
  */
 void
 nmap_destroy (nmap_t * nmap)
@@ -559,11 +567,11 @@ nmap_destroy (nmap_t * nmap)
 }
 
 /**
- * @brief rebuild command line to run according to plugin parameters
+ * @brief Rebuild command line to run according to plugin parameters.
  *
- * @param[in,out] nmap handler to use
+ * @param[in,out] nmap  Handler to use.
  *
- * @return -1 failure, 1 success
+ * @return -1 on failure and 1 on success.
  */
 int
 build_cmd_line (nmap_t * nmap)
@@ -608,6 +616,7 @@ build_cmd_line (nmap_t * nmap)
 
   /* Nmap invocation */
   add_arg (nmap, NMAP_CMD, NULL);
+
   /* Enable XML output on stdout */
   add_arg (nmap, "-oX", "-");
 
@@ -655,13 +664,13 @@ build_cmd_line (nmap_t * nmap)
 }
 
 /**
- * @brief add a couple argument/value on the command line
+ * @brief Add a couple argument/value on the command line.
  *
- * @param[in,out] nmap  nmap handle to use
- * @param[in] name  name of the flag/option
- * @param[in] value value of the option (or NULL for simple flags)
+ * @param[in,out] nmap  Handler to use.
+ * @param[in] name  Name of the flag/option.
+ * @param[in] value Value of the option (or NULL for simple flags).
  *
- * @return -1 failure, 1 success
+ * @return -1 on failure or 1 on success.
  */
 int
 add_arg (nmap_t * nmap, const gchar * name, const gchar * value)
@@ -699,17 +708,14 @@ add_arg (nmap_t * nmap, const gchar * name, const gchar * value)
 }
 
 /**
- * @brief add NSE (nmap scripting engine) related arguments to command line
- * according to user script selection and preferences
+ * @brief Add NSE (nmap scripting engine) related arguments to the command
+ *        line according to user script selection and preferences.
  *
- * @param[in,out] nmap the nmap handle to use
+ * @param[in,out] nmap  Handler to use.
  *
  * @return 1 success
  */
-int
-add_nse_arguments (nmap_t * nmap)
-{
-  gchar *pscript, *pargs;
+int add_nse_arguments (nmap_t * nmap) { gchar *pscript, *pargs;
 
   pscript = get_script_list (nmap);
   pargs = get_script_args (nmap);
@@ -728,12 +734,12 @@ add_nse_arguments (nmap_t * nmap)
 }
 
 /**
- * @brief make the comma-separated list of NSE scripts selected by the user
+ * @brief Make the comma-separated list of NSE scripts selected by the user.
  *
- * @param[in,out] nmap  nmap handle to use
+ * @param[in,out] nmap  Handler to use.
  *
- * @return a dynamically allocated string containing the list of NSE scripts to
- * run
+ * @return A dynamically allocated string containing the list of NSE scripts to
+ *         run.
  */
 gchar *
 get_script_list (nmap_t * nmap)
@@ -770,12 +776,12 @@ get_script_list (nmap_t * nmap)
 }
 
 /**
- * @brief make the comma-separated list of NSE arguments set by the user
+ * @brief Make the comma-separated list of NSE arguments set by the user.
  *
- * @param[in,out] nmap  nmap handle to use
+ * @param[in,out] nmap  Handler to use.
  *
- * @return a dynamically allocated string containing the list of NSE arguments to
- * use
+ * @return A dynamically allocated string containing the list of NSE arguments to
+ *         use
  */
 gchar *
 get_script_args (nmap_t * nmap)
@@ -810,11 +816,11 @@ get_script_args (nmap_t * nmap)
 }
 
 /**
- * @brief add the TCP scantype flag to the command line
+ * @brief Add the TCP scantype flag to the command line.
  *
- * @param[in,out] nmap  nmap handle to use
+ * @param[in,out] nmap  Handler to use.
  *
- * @return -1 failure, 0 success
+ * @return -1 on failure or 1 on success.
  */
 int
 add_scantype_arguments (nmap_t * nmap)
@@ -847,11 +853,11 @@ add_scantype_arguments (nmap_t * nmap)
 }
 
 /**
- * @brief add timing template argument to the command line
+ * @brief Add timing template argument to the command line.
  *
- * @param[in,out] nmap  nmap handle to use
+ * @param[in,out] nmap  Handler to use.
  *
- * @return -1 failure, 0 success
+ * @return -1 on failure or 1 on success.
  */
 int
 add_timing_arguments (nmap_t * nmap)
@@ -880,11 +886,11 @@ add_timing_arguments (nmap_t * nmap)
 }
 
 /**
- * @brief add the range of ports to scan to the command line
+ * @brief Add the range of ports to scan to the command line.
  *
- * @param[in,out] nmap  nmap handle to use
+ * @param[in,out] nmap  Handler to use.
  *
- * @return -1 failure, 0 success
+ * @return -1 on failure or 1 on success.
  */
 int
 add_portrange (nmap_t * nmap)
@@ -944,9 +950,9 @@ cmp (const void *p1, const void *p2)
 }
 
 /**
- * @brief get default portrange as a reduced string (x-y,z)
+ * @brief Get the default portrange as a reduced string (x-y,z).
  *
- * @return a newly allocated string describing the portrange
+ * @return A newly allocated string describing the portrange.
  */
 gchar *
 get_default_portrange (void)
@@ -999,11 +1005,11 @@ get_default_portrange (void)
 }
 
 /**
- * @brief setup XML parser internals
+ * @brief Setup XML parser internals.
  *
- * @param[in,out] nmap  nmap handle to use
+ * @param[in,out] nmap  Handler to use.
  *
- * @return -1 failure, 1 success
+ * @return -1 on failure or 1 on success.
  */
 int
 setup_xml_parser (nmap_t * nmap)
@@ -1028,11 +1034,11 @@ setup_xml_parser (nmap_t * nmap)
 }
 
 /**
- * @brief populate the callbacks hashtable with handlers for opening tags
+ * @brief Populate the callbacks hashtable with handlers for opening tags.
  *
- * @param[out] open the hashtable to populate
+ * @param[out] open The hashtable to populate.
  *
- * @return -1 failure, 1 success
+ * @return -1 on failure or 1 on success.
  */
 int
 set_opentag_callbacks (GHashTable * open)
@@ -1067,11 +1073,11 @@ set_opentag_callbacks (GHashTable * open)
 }
 
 /**
- * @brief populate the callbacks hashtable with handlers for closing tags
+ * @brief Populate the callbacks hashtable with handlers for closing tags.
  *
- * @param[out] close the hashtable to populate
+ * @param[out] close The hashtable to populate.
  *
- * @return -1 failure, 1 success
+ * @return -1 on failure or 1 on success.
  */
 int
 set_closetag_callbacks (GHashTable * close)
@@ -1096,11 +1102,11 @@ set_closetag_callbacks (GHashTable * close)
 }
 
 /**
- * @brief append scan target to the command line
+ * @brief Append scan target to the command line.
  *
- * @param[in,out] nmap  nmap handle to use
+ * @param[in,out] nmap  Handler to use.
  *
- * @return -1 failure, 1 success
+ * @return -1 on failure or 1 on success.
  */
 int
 add_target (nmap_t * nmap)
@@ -1126,9 +1132,9 @@ add_target (nmap_t * nmap)
 }
 
 /**
- * @brief display the final command line for debug
+ * @brief Display the final command line for debug.
  *
- * @param[in,out] nmap  nmap handle to use
+ * @param[in,out] nmap  Handler to use.
  */
 void
 dbg_display_cmdline (nmap_t * nmap)
@@ -1145,11 +1151,12 @@ dbg_display_cmdline (nmap_t * nmap)
 }
 
 /**
- * @brief run nmap and parse its XML output (or an external file if requested)
+ * @brief Run nmap and parse its XML output (or load an external file if
+ *        requested).
  *
- * @param[in,out] nmap  nmap handle to use
+ * @param[in,out] nmap  Handler to use.
  *
- * @return -1 failure, 1 success
+ * @return -1 on failure or 1 on success.
  */
 int
 nmap_run_and_parse (nmap_t * nmap)
@@ -1222,9 +1229,9 @@ nmap_run_and_parse (nmap_t * nmap)
 }
 
 /**
- * @brief clear the current host object
+ * @brief Clear the current host object.
  *
- * @param[in,out] nmap  nmap handle to use
+ * @param[in,out] nmap  Handler to use.
  */
 void
 current_host_reset (nmap_t * nmap)
@@ -1271,9 +1278,9 @@ current_host_reset (nmap_t * nmap)
 }
 
 /**
- * @brief completely release a port object
+ * @brief Completely release a port object.
  *
- * @param[in] port  the port structure to free
+ * @param[in] port  The port structure to free.
  */
 void
 port_destroy (struct nmap_port *port)
@@ -1302,9 +1309,9 @@ port_destroy (struct nmap_port *port)
 }
 
 /**
- * @brief completely release a NSE script object
+ * @brief Completely release a NSE script object.
  *
- * @param[in] script  the nse script structure to free
+ * @param[in] script  The nse script structure to free.
  */
 void
 nse_script_destroy (struct nse_script *script)
@@ -1318,13 +1325,11 @@ nse_script_destroy (struct nse_script *script)
 }
 
 /**
- * @brief add port information to the current host object
+ * @brief Add port information to the current host object.
  *
- * @param[in,out] nmap  nmap handle to use
- *
- * @return -1 failure, 1 success
+ * @param[in,out] nmap  Handler to use.
  */
-int
+void
 tmphost_add_port (nmap_t * nmap)
 {
   struct nmap_port *newport;
@@ -1333,18 +1338,16 @@ tmphost_add_port (nmap_t * nmap)
   memcpy (newport, &nmap->tmpport, sizeof (struct nmap_port));
   newport->next = nmap->tmphost.ports;
   nmap->tmphost.ports = newport;
-
-  return 1;
 }
 
 /**
- * @brief add port information to the current host object
+ * @brief Add NSE hostscript result to the current host object.
  *
- * @param[in,out] nmap  nmap handle to use
- *
- * @return -1 failure, 1 success
+ * @param[in,out] nmap  Handler to use.
+ * @param[in] name  Name of the NSE script that produced the output.
+ * @param[in] output  Output produced by this NSE script.
  */
-int
+void
 tmphost_add_nse_hostscript (nmap_t * nmap, gchar * name, gchar * output)
 {
   struct nse_script *s;
@@ -1354,20 +1357,16 @@ tmphost_add_nse_hostscript (nmap_t * nmap, gchar * name, gchar * output)
   s->output = output;
   s->next = nmap->tmphost.host_scripts;
   nmap->tmphost.host_scripts = s;
-
-  return 1;
 }
 
 /**
- * @brief add NSE results to a port of the current host
+ * @brief Add NSE portscript result to a port of the current host.
  *
- * @param[in,out] nmap  nmap handle to use
- * @param[in] name  NSE script name that produced the output
- * @param[in] output  actual script results
- *
- * @return -1 failure, 1 success
+ * @param[in,out] nmap  Handler to use.
+ * @param[in] name  Name of the NSE script that produced the output.
+ * @param[in] output  Output produced by this NSE script.
  */
-int
+void
 tmphost_add_nse_portscript (nmap_t * nmap, gchar * name, gchar * output)
 {
   struct nse_script *s;
@@ -1377,20 +1376,18 @@ tmphost_add_nse_portscript (nmap_t * nmap, gchar * name, gchar * output)
   s->output = output;
   s->next = nmap->tmpport.port_scripts;
   nmap->tmpport.port_scripts = s;
-
-  return 1;
 }
 
 /**
- * @brief top level XML parser callback: handle an opening tag and call the
- * corresponding method
+ * @brief Top level XML parser callback: handle an opening tag and call the
+ *        corresponding method.
  *
- * @param[in] context  the XML parser
- * @param[in] element_name  the name of the current tag
- * @param[in] attribute_names  NULL terminated list of attributes names
- * @param[in] attribute_values  NULL terminated list of attributes values
- * @param[in] user_data  a pointer to the current nmap_t structure
- * @param[in] error  return location of a GError
+ * @param[in] context  The XML parser.
+ * @param[in] element_name  The name of the current tag.
+ * @param[in] attribute_names  NULL terminated list of attributes names.
+ * @param[in] attribute_values  NULL terminated list of attributes values.
+ * @param[in] user_data  A pointer to the current nmap_t structure.
+ * @param[in] error  Return location of a GError.
  */
 void
 xml_start_element (GMarkupParseContext * context, const gchar * element_name,
@@ -1407,15 +1404,15 @@ xml_start_element (GMarkupParseContext * context, const gchar * element_name,
 }
 
 /**
- * @brief top level XML parser callback: handle an closing tag and call the
- * corresponding method
+ * @brief Top level XML parser callback: handle an closing tag and call the
+ *        corresponding method.
  *
- * @param[in] context  the XML parser
- * @param[in] element_name  the name of the current tag
- * @param[in] attribute_names  NULL terminated list of attributes names
- * @param[in] attribute_values  NULL terminated list of attributes values
- * @param[in] user_data  a pointer to the current nmap_t structure
- * @param[in] error  return location of a GError
+ * @param[in] context  The XML parser.
+ * @param[in] element_name  The name of the current tag.
+ * @param[in] attribute_names  NULL terminated list of attributes names.
+ * @param[in] attribute_values  NULL terminated list of attributes values.
+ * @param[in] user_data  A pointer to the current nmap_t structure.
+ * @param[in] error  Return location of a GError.
  */
 void
 xml_end_element (GMarkupParseContext * context, const gchar * element_name,
@@ -1430,11 +1427,11 @@ xml_end_element (GMarkupParseContext * context, const gchar * element_name,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an opening host tag
+ * @brief Sublevel XML parser callback: handle an opening host tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
- * @param[in] attrnames  NULL terminated list of attributes names
- * @param[in] attrval  NULL terminated list of attributes values
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
  */
 void
 xmltag_open_host (nmap_t * nmap, const gchar ** attrnames,
@@ -1444,11 +1441,11 @@ xmltag_open_host (nmap_t * nmap, const gchar ** attrnames,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an opening status tag
+ * @brief Sublevel XML parser callback: handle an opening status tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
- * @param[in] attrnames  NULL terminated list of attributes names
- * @param[in] attrval  NULL terminated list of attributes values
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
  */
 void
 xmltag_open_status (nmap_t * nmap, const gchar ** attrnames,
@@ -1461,11 +1458,11 @@ xmltag_open_status (nmap_t * nmap, const gchar ** attrnames,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an opening address tag
+ * @brief Sublevel XML parser callback: handle an opening address tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
- * @param[in] attrnames  NULL terminated list of attributes names
- * @param[in] attrval  NULL terminated list of attributes values
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
  */
 void
 xmltag_open_address (nmap_t * nmap, const gchar ** attrnames,
@@ -1478,11 +1475,11 @@ xmltag_open_address (nmap_t * nmap, const gchar ** attrnames,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an opening ports tag
+ * @brief Sublevel XML parser callback: handle an opening ports tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
- * @param[in] attrnames  NULL terminated list of attributes names
- * @param[in] attrval  NULL terminated list of attributes values
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
  */
 void
 xmltag_open_ports (nmap_t * nmap, const gchar ** attrnames,
@@ -1492,11 +1489,11 @@ xmltag_open_ports (nmap_t * nmap, const gchar ** attrnames,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an opening port tag
+ * @brief Sublevel XML parser callback: handle an opening port tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
- * @param[in] attrnames  NULL terminated list of attributes names
- * @param[in] attrval  NULL terminated list of attributes values
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
  */
 void
 xmltag_open_port (nmap_t * nmap, const gchar ** attrnames,
@@ -1508,11 +1505,11 @@ xmltag_open_port (nmap_t * nmap, const gchar ** attrnames,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an opening state tag
+ * @brief Sublevel XML parser callback: handle an opening state tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
- * @param[in] attrnames  NULL terminated list of attributes names
- * @param[in] attrval  NULL terminated list of attributes values
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
  */
 void
 xmltag_open_state (nmap_t * nmap, const gchar ** attrnames,
@@ -1525,11 +1522,11 @@ xmltag_open_state (nmap_t * nmap, const gchar ** attrnames,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an opening service tag
+ * @brief Sublevel XML parser callback: handle an opening service tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
- * @param[in] attrnames  NULL terminated list of attributes names
- * @param[in] attrval  NULL terminated list of attributes values
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
  */
 void
 xmltag_open_service (nmap_t * nmap, const gchar ** attrnames,
@@ -1564,11 +1561,11 @@ xmltag_open_service (nmap_t * nmap, const gchar ** attrnames,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an opening hostscript tag
+ * @brief Sublevel XML parser callback: handle an opening hostscript tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
- * @param[in] attrnames  NULL terminated list of attributes names
- * @param[in] attrval  NULL terminated list of attributes values
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
  */
 void
 xmltag_open_hostscript (nmap_t * nmap, const gchar ** attrnames,
@@ -1578,11 +1575,11 @@ xmltag_open_hostscript (nmap_t * nmap, const gchar ** attrnames,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an opening osmatch tag
+ * @brief Sublevel XML parser callback: handle an opening osmatch tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
- * @param[in] attrnames  NULL terminated list of attributes names
- * @param[in] attrval  NULL terminated list of attributes values
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
  */
 void
 xmltag_open_osmatch (nmap_t * nmap, const gchar ** attrnames,
@@ -1608,11 +1605,11 @@ xmltag_open_osmatch (nmap_t * nmap, const gchar ** attrnames,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an opening script tag
+ * @brief Sublevel XML parser callback: handle an opening script tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
- * @param[in] attrnames  NULL terminated list of attributes names
- * @param[in] attrval  NULL terminated list of attributes values
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
  */
 void
 xmltag_open_script (nmap_t * nmap, const gchar ** attrnames,
@@ -1633,11 +1630,11 @@ xmltag_open_script (nmap_t * nmap, const gchar ** attrnames,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an opening tcpsequence tag
+ * @brief Sublevel XML parser callback: handle an opening tcpsequence tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
- * @param[in] attrnames  NULL terminated list of attributes names
- * @param[in] attrval  NULL terminated list of attributes values
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
  */
 void
 xmltag_open_tcpsequence (nmap_t * nmap, const gchar ** attrnames,
@@ -1652,11 +1649,11 @@ xmltag_open_tcpsequence (nmap_t * nmap, const gchar ** attrnames,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an opening ipidsequence tag
+ * @brief Sublevel XML parser callback: handle an opening ipidsequence tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
- * @param[in] attrnames  NULL terminated list of attributes names
- * @param[in] attrval  NULL terminated list of attributes values
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
  */
 void
 xmltag_open_ipidsequence (nmap_t * nmap, const gchar ** attrnames,
@@ -1669,11 +1666,11 @@ xmltag_open_ipidsequence (nmap_t * nmap, const gchar ** attrnames,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an opening distance tag
+ * @brief Sublevel XML parser callback: handle an opening distance tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
- * @param[in] attrnames  NULL terminated list of attributes names
- * @param[in] attrval  NULL terminated list of attributes values
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
  */
 void
 xmltag_open_distance (nmap_t * nmap, const gchar ** attrnames,
@@ -1693,11 +1690,11 @@ xmltag_open_distance (nmap_t * nmap, const gchar ** attrnames,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an opening hop tag
+ * @brief Sublevel XML parser callback: handle an opening hop tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
- * @param[in] attrnames  NULL terminated list of attributes names
- * @param[in] attrval  NULL terminated list of attributes values
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
  */
 void
 xmltag_open_hop (nmap_t * nmap, const gchar ** attrnames,
@@ -1733,9 +1730,9 @@ xmltag_open_hop (nmap_t * nmap, const gchar ** attrnames,
 }
 
 /**
- * @brief sublevel XML parser callback: handle an closing host tag
+ * @brief Sublevel XML parser callback: handle an closing host tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
+ * @param[in] nmap  Handler to use.
  */
 void
 xmltag_close_host (nmap_t * nmap)
@@ -1746,9 +1743,9 @@ xmltag_close_host (nmap_t * nmap)
 }
 
 /**
- * @brief sublevel XML parser callback: handle an closing host tag
+ * @brief Sublevel XML parser callback: handle an closing host tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
+ * @param[in] nmap  Handler to use.
  */
 void
 xmltag_close_ports (nmap_t * nmap)
@@ -1757,9 +1754,9 @@ xmltag_close_ports (nmap_t * nmap)
 }
 
 /**
- * @brief sublevel XML parser callback: handle an closing port tag
+ * @brief Sublevel XML parser callback: handle an closing port tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
+ * @param[in] nmap  Handler to use.
  */
 void
 xmltag_close_port (nmap_t * nmap)
@@ -1770,9 +1767,9 @@ xmltag_close_port (nmap_t * nmap)
 }
 
 /**
- * @brief sublevel XML parser callback: handle an closing hostscript tag
+ * @brief Sublevel XML parser callback: handle an closing hostscript tag.
  *
- * @param[in] nmap  a pointer to the current nmap_t structure
+ * @param[in] nmap  Handler to use.
  */
 void
 xmltag_close_hostscript (nmap_t * nmap)
@@ -1781,12 +1778,12 @@ xmltag_close_hostscript (nmap_t * nmap)
 }
 
 /**
- * @brief helper function: get attribute value from the separate name/value
- * tables
+ * @brief Helper function: get attribute value from the separate name/value
+ *        tables.
  *
- * @param[in] name  name of the attribute to lookup
- * @param[in] attribute_names  table of the attribute names
- * @param[in] attribute_values  table of the attribute values
+ * @param[in] name  Name of the attribute to lookup.
+ * @param[in] attribute_names  Table of the attribute names.
+ * @param[in] attribute_values  Table of the attribute values.
  *
  * @return the desired value or NULL if nothing was found
  */
@@ -1803,13 +1800,11 @@ get_attr_value (const gchar * name, const gchar **
 }
 
 /**
- * @brief dump current host object state into the knowledge base
+ * @brief Dump current host object state into the knowledge base.
  *
- * @param[in] nmap  nmap handle to use
- *
- * @return 1 success
+ * @param[in] nmap  Handler to use.
  */
-int
+void
 current_host_saveall (nmap_t * nmap)
 {
   /* Host state: dead or alive */
@@ -1831,39 +1826,32 @@ current_host_saveall (nmap_t * nmap)
   /* NSE results */
   save_hostscripts (nmap);
   save_portscripts (nmap);
-
-  return 1;
 }
 
 /**
- * @brief store host state (host alive/dead) into the knowledge base
+ * @brief Store host state (host alive/dead) into the knowledge base.
  *
- * @param[in] nmap  nmap handle to use
- *
- * @return -1 failure, 1 success
+ * @param[in] nmap  Handler to use.
  */
-int
+void
 save_host_state (nmap_t * nmap)
 {
   gchar key[32];
 
   if (!nmap->tmphost.state)
-    return -1;
+    return;
 
   g_snprintf (key, sizeof (key), "%s/Host/State", nmap->tmphost.addr);
   plug_set_key (nmap->env, key, ARG_STRING, nmap->tmphost.state);
-  return 1;
 }
 
 /**
- * @brief save information about open ports for the current host into the
- * knowledge base
+ * @brief Save information about open ports for the current host into the
+ *        knowledge base.
  *
- * @param[in] nmap  nmap handle to use
- *
- * @return 1 success
+ * @param[in] nmap  Handler to use.
  */
-int
+void
 save_open_ports (nmap_t * nmap)
 {
   struct nmap_port *p;
@@ -1882,25 +1870,22 @@ save_open_ports (nmap_t * nmap)
           register_service (nmap, p);
         }
     }
-  return 1;
 }
 
 /**
- * @brief save information about a detected service (version) into the knowledge
- * base
+ * @brief Save information about a detected service (version) into the knowledge
+ *        base.
  *
- * @param[in] nmap  nmap handle to use
- * @param[in] p  service description
- *
- * @return -1 failure, 1 success
+ * @param[in] nmap  Handler to use.
+ * @param[in] p  Service description.
  */
-int
+void
 register_service (nmap_t * nmap, struct nmap_port *p)
 {
   gchar key[64];
 
   if (!p->portno || !p->proto || !p->service)
-    return -1;
+    return;
 
   /* TCP services aren't stored with the same syntax than the other layer 4
    * protocols. */
@@ -1925,47 +1910,39 @@ register_service (nmap_t * nmap, struct nmap_port *p)
                   p->proto, p->portno);
       plug_set_key (nmap->env, key, ARG_STRING, p->version);
   }
-
-  return 1;
 }
 
 /**
- * @brief save information about detected operating system into the knowledge
- * base
+ * @brief Save information about detected operating system into the knowledge
+ *        base.
  *
- * @param[in] nmap  nmap handle to use
- *
- * @return -1 failure, 1 success
+ * @param[in] nmap  Handler to use.
  */
-int
+void
 save_detected_os (nmap_t * nmap)
 {
   gchar key[32];
 
   if (!nmap->tmphost.best_os)
-    return -1;
+    return;
 
   g_snprintf (key, sizeof (key), "%s/Host/OS", nmap->tmphost.addr);
   plug_set_key (nmap->env, key, ARG_STRING, nmap->tmphost.best_os);
-
-  return 1;
 }
 
 /**
- * @brief save information about TCP sequence number generation into the
- * knowledge base
+ * @brief Save information about TCP sequence number generation into the
+ *        knowledge base.
  *
- * @param[in] nmap  nmap handle to use
- *
- * @return -1 failure, 1 success
+ * @param[in] nmap  Handler to use.
  */
-int
+void
 save_tcpseq_details (nmap_t * nmap)
 {
   gchar key[64];
 
   if (!nmap->tmphost.tcpseq_index || !nmap->tmphost.tcpseq_difficulty)
-    return -1;
+    return;
 
   g_snprintf (key, sizeof (key), "%s/Host/tcp_seq_index", nmap->tmphost.addr);
   plug_set_key (nmap->env, key, ARG_STRING, nmap->tmphost.tcpseq_index);
@@ -1973,47 +1950,39 @@ save_tcpseq_details (nmap_t * nmap)
   g_snprintf (key, sizeof (key), "%s/Host/tcp_seq_difficulty",
               nmap->tmphost.addr);
   plug_set_key (nmap->env, key, ARG_STRING, nmap->tmphost.tcpseq_difficulty);
-
-  return 1;
 }
 
 /**
- * @brief save information about IP ID generation into the knowledge base
+ * @brief Save information about IP ID generation into the knowledge base.
  *
- * @param[in] nmap  nmap handle to use
- *
- * @return -1 failure, 1 success
+ * @param[in] nmap  Handler to use.
  */
-int
+void
 save_ipidseq_details (nmap_t * nmap)
 {
   gchar key[32];
 
   if (!nmap->tmphost.ipidseq)
-    return -1;
+    return;
 
   g_snprintf (key, sizeof (key), "%s/Host/ipidseq", nmap->tmphost.addr);
   plug_set_key (nmap->env, key, ARG_STRING, nmap->tmphost.ipidseq);
-
-  return 1;
 }
 
 /**
- * @brief save information about network topology to the target (traceroute)
- * into the knowledge base
+ * @brief Save information about network topology to the target (traceroute)
+ *        into the knowledge base.
  *
- * @param[in] nmap  nmap handle to use
- *
- * @return -1 failure, 1 success
+ * @param[in] nmap  Handler to use.
  */
-int
+void
 save_traceroute_details (nmap_t * nmap)
 {
   int i;
   gchar key[64];
 
   if (!nmap->tmphost.distance || nmap->tmphost.distance >= MAX_TRACE_HOPS)
-    return -1;
+    return;
 
   g_snprintf (key, sizeof (key), "%s/Host/distance", nmap->tmphost.addr);
   plug_set_key (nmap->env, key, ARG_INT,
@@ -2033,18 +2002,14 @@ save_traceroute_details (nmap_t * nmap)
                   nmap->tmphost.addr, i + 1);
       plug_set_key (nmap->env, key, ARG_STRING, nmap->tmphost.trace[i].host);
     }
-
-  return 1;
 }
 
 /**
- * @brief save information about postrule NSE scripts into the knowledge base
+ * @brief Save information about postrule NSE scripts into the knowledge base.
  *
- * @param[in] nmap  nmap handle to use
- *
- * @return -1 failure, 1 success
+ * @param[in] nmap  Handler to use.
  */
-int
+void
 save_portscripts (nmap_t * nmap)
 {
   struct nmap_port *port;
@@ -2069,17 +2034,14 @@ save_portscripts (nmap_t * nmap)
           plug_set_key (nmap->env, key, ARG_STRING, script->output);
         }
     }
-  return 1;
 }
 
 /**
- * @brief save information about hostrule NSE scripts into the knowledge base
+ * @brief Save information about hostrule NSE scripts into the knowledge base.
  *
- * @param[in] nmap  nmap handle to use
- *
- * @return -1 failure, 1 success
+ * @param[in] nmap  Handler to use.
  */
-int
+void
 save_hostscripts (nmap_t * nmap)
 {
   struct nse_script *script;
@@ -2093,6 +2055,5 @@ save_hostscripts (nmap_t * nmap)
                   nmap->tmphost.addr, script->name);
       plug_set_key (nmap->env, key, ARG_STRING, script->output);
     }
-  return 1;
 }
 
