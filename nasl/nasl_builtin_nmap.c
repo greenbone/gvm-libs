@@ -360,9 +360,9 @@ static int add_timing_arguments (nmap_t * nmap);
 static int add_portrange (nmap_t * nmap);
 static int cmp (const void *p1, const void *p2);
 static gchar *get_default_portrange (void);
-static int setup_xml_parser (nmap_t * nmap);
-static int set_opentag_callbacks (GHashTable * open);
-static int set_closetag_callbacks (GHashTable * close);
+static void setup_xml_parser (nmap_t * nmap);
+static void set_opentag_callbacks (GHashTable * open);
+static void set_closetag_callbacks (GHashTable * close);
 static int add_target (nmap_t * nmap);
 static void dbg_display_cmdline (nmap_t * nmap);
 
@@ -527,12 +527,7 @@ nmap_t * nmap_create (lex_ctxt * lexic) { gchar *pref; nmap_t *nmap;
       dbg ("Reading nmap results from file: %s\n", nmap->filename);
     }
 
-  if (setup_xml_parser (nmap) < 0)
-    {
-      nmap_destroy (nmap);
-      return NULL;
-    }
-
+  setup_xml_parser (nmap);
   return nmap;
 }
 
@@ -1008,10 +1003,8 @@ get_default_portrange (void)
  * @brief Setup XML parser internals.
  *
  * @param[in,out] nmap  Handler to use.
- *
- * @return -1 on failure or 1 on success.
  */
-int
+void
 setup_xml_parser (nmap_t * nmap)
 {
   /* reset internal states */
@@ -1022,25 +1015,17 @@ setup_xml_parser (nmap_t * nmap)
 
   nmap->parser.opentag = g_hash_table_new (g_str_hash, g_str_equal);
   nmap->parser.closetag = g_hash_table_new (g_str_hash, g_str_equal);
-  if (!nmap->parser.opentag || !nmap->parser.closetag)
-    {
-      err ("HashTables allocation failure:");
-      return -1;    /* allocated resources will be free'd in nmap_destroy() */
-    }
 
   set_opentag_callbacks (nmap->parser.opentag);
   set_closetag_callbacks (nmap->parser.closetag);
-  return 1;
 }
 
 /**
  * @brief Populate the callbacks hashtable with handlers for opening tags.
  *
  * @param[out] open The hashtable to populate.
- *
- * @return -1 on failure or 1 on success.
  */
-int
+void
 set_opentag_callbacks (GHashTable * open)
 {
   const struct
@@ -1068,18 +1053,14 @@ set_opentag_callbacks (GHashTable * open)
 
   for (i = 0; callbacks[i].tag; i++)
     g_hash_table_insert (open, (void *) callbacks[i].tag, callbacks[i].func);
-
-  return 1;
 }
 
 /**
  * @brief Populate the callbacks hashtable with handlers for closing tags.
  *
  * @param[out] close The hashtable to populate.
- *
- * @return -1 on failure or 1 on success.
  */
-int
+void
 set_closetag_callbacks (GHashTable * close)
 {
   const struct
@@ -1097,8 +1078,6 @@ set_closetag_callbacks (GHashTable * close)
 
   for (i = 0; callbacks[i].tag; i++)
     g_hash_table_insert (close, (void *) callbacks[i].tag, callbacks[i].func);
-
-  return 1;
 }
 
 /**

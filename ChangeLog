@@ -1,5 +1,17 @@
 2011-07-01  Henri Doreau <henri.doreau@greenbone.net>
 
+	* nasl/nasl_builtin_nmap.c (setup_xml_parser): Removed
+	superfluous check of the return value of g_hash_table_new which is
+	guaranteed to succeed.
+
+	* nasl/nasl_builtin_nmap.c (setup_xml_parser, set_opentag_callbacks,
+	set_closetag_callbacks): Changed return type to void.
+
+	* nasl/nasl_builtin_nmap.c (nmap_create): No need to check the return
+	value of setup_xml_parser() anymore.
+
+2011-07-01  Henri Doreau <henri.doreau@greenbone.net>
+
 	* nasl/nasl_builtin_nmap.c: Improved documentation (formatting and
 	content).
 
