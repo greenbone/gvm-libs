@@ -1,5 +1,10 @@
 2011-07-01  Henri Doreau <henri.doreau@greenbone.net>
 
+	* nasl/nasl_builtin_nmap.c (get_default_portrange): Moved the internal cmp()
+	function to a higher level as nested functions are not standard (GCC extension).
+
+2011-07-01  Henri Doreau <henri.doreau@greenbone.net>
+
 	* nasl/nasl_builtin_nmap.c (nmap_create, add_arg, tmphost_add_port,
 	tmphost_add_nse_hostscript, tmphost_add_nse_portscript): Removed
 	superfluous checks of the return value of g_malloc which doesn't

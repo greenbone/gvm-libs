@@ -350,6 +350,7 @@ static gchar *get_script_args (nmap_t * nmap);
 static int add_scantype_arguments (nmap_t * nmap);
 static int add_timing_arguments (nmap_t * nmap);
 static int add_portrange (nmap_t * nmap);
+static int cmp (const void *p1, const void *p2);
 static gchar *get_default_portrange (void);
 static int setup_xml_parser (nmap_t * nmap);
 static int set_opentag_callbacks (GHashTable * open);
@@ -925,6 +926,24 @@ add_portrange (nmap_t * nmap)
 }
 
 /**
+ * @brief Compares two unsigned shorts located at p1 and p2.
+ *
+ * @param[in] p1 location of the first unsigned short integer (pp1)
+ * @param[in] p2 location of the second unsigned short integer (pp2)
+ *
+ * @return A positive value if pp1 > pp2, a negative one if pp1 < pp2 and zero
+ *         if pp1 == pp2.
+ */
+int
+cmp (const void *p1, const void *p2)
+{
+  unsigned short *pp1 = (unsigned short *) p1;
+  unsigned short *pp2 = (unsigned short *) p2;
+
+  return (*pp1) - (*pp2);
+}
+
+/**
  * @brief get default portrange as a reduced string (x-y,z)
  *
  * @return a newly allocated string describing the portrange
@@ -941,13 +960,6 @@ get_default_portrange (void)
   if (!ports || !plen)
     return NULL;
 
-  int cmp (const void *p1, const void *p2)
-  {
-    unsigned short *pp1 = (unsigned short *) p1;
-    unsigned short *pp2 = (unsigned short *) p2;
-
-    return (*pp1) - (*pp2);
-  }
   qsort (ports, plen, sizeof (unsigned short), cmp);
 
   for (i = 0; i < plen; i++)
