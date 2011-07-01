@@ -1927,10 +1927,13 @@ register_service (nmap_t * nmap, struct nmap_port *p)
               p->proto, p->portno);
   plug_set_key (nmap->env, key, ARG_STRING, p->service);
 
-  /* Store version detection results if available */
-  g_snprintf (key, sizeof (key), "%s/Version/%s/%s", nmap->tmphost.addr,
-              p->proto, p->portno);
-  plug_set_key (nmap->env, key, ARG_STRING, p->version);
+  if (p->version)
+    {
+      /* Store version detection results if available */
+      g_snprintf (key, sizeof (key), "%s/Version/%s/%s", nmap->tmphost.addr,
+                  p->proto, p->portno);
+      plug_set_key (nmap->env, key, ARG_STRING, p->version);
+  }
 
   return 1;
 }
