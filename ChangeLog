@@ -1,5 +1,9 @@
 2011-07-01  Henri Doreau <henri.doreau@greenbone.net>
 
+	* nasl/nasl_builtin_nmap.c: Minor coding style fixes.
+
+2011-07-01  Henri Doreau <henri.doreau@greenbone.net>
+
 	* nasl/nasl_builtin_nmap.c (setup_xml_parser): Removed
 	superfluous check of the return value of g_hash_table_new which is
 	guaranteed to succeed.

@@ -378,7 +378,7 @@ static void tmphost_add_port (nmap_t * nmap);
 static void tmphost_add_nse_hostscript (nmap_t * nmap, gchar * name,
                                         gchar * output);
 static void tmphost_add_nse_portscript (nmap_t * nmap, gchar * name,
-                                       gchar * output);
+                                        gchar * output);
 
 
 /*
@@ -499,7 +499,11 @@ plugin_run_nmap (lex_ctxt * lexic)
  *
  * @return The newly allocated nmap handler or NULL on error.
  */
-nmap_t * nmap_create (lex_ctxt * lexic) { gchar *pref; nmap_t *nmap;
+nmap_t *
+nmap_create (lex_ctxt * lexic)
+{
+  gchar *pref;
+  nmap_t *nmap;
 
   nmap = (nmap_t *) g_malloc0 (sizeof (nmap_t));
 
@@ -710,7 +714,10 @@ add_arg (nmap_t * nmap, const gchar * name, const gchar * value)
  *
  * @return 1 success
  */
-int add_nse_arguments (nmap_t * nmap) { gchar *pscript, *pargs;
+int
+add_nse_arguments (nmap_t * nmap)
+{
+  gchar *pscript, *pargs;
 
   pscript = get_script_list (nmap);
   pargs = get_script_args (nmap);
@@ -1191,9 +1198,9 @@ nmap_run_and_parse (nmap_t * nmap)
         }
     }
 
-  if (nmap->filename && ferror(fproc))
+  if (nmap->filename && ferror (fproc))
     {
-      err("nmap_run_and_parse()");
+      err ("nmap_run_and_parse()");
       ret = -1;
     }
 
