@@ -1,5 +1,10 @@
 2011-07-01  Henri Doreau <henri.doreau@greenbone.net>
 
+	* nasl/nasl_builtin_nmap.c (nmap_run_and_parse): Added a check to
+	distinguish between error and eof after fread() on imported files.
+
+2011-07-01  Henri Doreau <henri.doreau@greenbone.net>
+
 	* nasl/nasl_builtin_nmap.c (get_default_portrange): Moved the internal cmp()
 	function to a higher level as nested functions are not standard (GCC extension).
 

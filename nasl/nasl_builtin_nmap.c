@@ -1156,6 +1156,7 @@ nmap_run_and_parse (nmap_t * nmap)
 {
   FILE *fproc;
   size_t len;
+  int ret = 1; /* success */
   pid_t pid;
   gchar chunk[CHUNK_LEN];
   GMarkupParseContext *ctx;
@@ -1197,9 +1198,17 @@ nmap_run_and_parse (nmap_t * nmap)
               /* display the problematic chunk */
               chunk[len] = '\0';
               dbg ("Error occured while parsing: %s\n", chunk);
+
+              ret = -1;
             }
           break;
         }
+    }
+
+  if (nmap->filename && ferror(fproc))
+    {
+      err("nmap_run_and_parse()");
+      ret = -1;
     }
 
   if (nmap->filename)
@@ -1209,7 +1218,7 @@ nmap_run_and_parse (nmap_t * nmap)
 
   g_markup_parse_context_free (ctx);
 
-  return 1;
+  return ret;
 }
 
 /**
