@@ -36,7 +36,7 @@
 
 #include "comm.h"               /* for comm_send_status */
 #include "kb.h"                 /* for KB_TYPE_INT */
-#include "plugutils.h"          /* for plug_set_timeout */
+#include "plugutils.h"          /* for plug_set_id */
 #include "scanners_utils.h"     /* for getpts */
 #include "system.h"             /* for estrdup */
 
@@ -88,13 +88,13 @@ isalldigit (char *str, int len)
 tree_cell *
 script_timeout (lex_ctxt * lexic)
 {
-  struct arglist *script_infos = lexic->script_infos;
+  nvti_t *nvti = arg_get_value (lexic->script_infos, "NVTI");
   int to = get_int_var_by_num (lexic, 0, -65535);
 
   if (to == -65535)
     return FAKE_CELL;
 
-  plug_set_timeout (script_infos, to ? to : -1);
+  nvti_set_timeout (nvti, to ? to : -1);
   return FAKE_CELL;
 }
 
@@ -245,18 +245,17 @@ script_name (lex_ctxt * lexic)
 tree_cell *
 script_version (lex_ctxt * lexic)
 {
-  struct arglist *script_infos = lexic->script_infos;
+  nvti_t *nvti = arg_get_value (lexic->script_infos, "NVTI");
 
   char *version = get_str_var_by_num (lexic, 0);
   if (version == NULL)
     {
       nasl_perror (lexic, "Argument error in function script_version()\n");
-      nasl_perror (lexic, "Function usage is : script_version(<name>)\n");
-      nasl_perror (lexic, "Where <name> is the name of another script\n");
+      nasl_perror (lexic, "Function usage is : script_version(<version>)\n");
+      nasl_perror (lexic, "Where <version> is the version of this script\n");
     }
-
   else
-    plug_set_version (script_infos, version);
+    nvti_set_version (nvti, version);
 
   return FAKE_CELL;
 }

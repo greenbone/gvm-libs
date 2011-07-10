@@ -855,7 +855,7 @@ plug_get_host_ip (struct arglist *desc)
 static void
 mark_successful_plugin (struct arglist *desc)
 {
-  char *oid = plug_get_oid (desc);
+  char *oid = nvti_oid (plug_get_nvti (desc));
   char data[512];
 
   bzero (data, sizeof (data));
@@ -872,7 +872,8 @@ mark_post (struct arglist *desc, const char *action, const char *content)
   if (strlen (action) > (sizeof (entry_name) - 20))
     return;
 
-  snprintf (entry_name, sizeof (entry_name), "SentData/%s/%s", plug_get_oid (desc), action);    /* RATS: ignore */
+  snprintf (entry_name, sizeof (entry_name), "SentData/%s/%s",
+            nvti_oid (plug_get_nvti (desc)), action);    /* RATS: ignore */
   plug_set_key (desc, entry_name, ARG_STRING, ccontent);
 }
 
@@ -894,13 +895,14 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   char *cve;
   char *bid;
   char *xref;
+  nvti_t * nvti = plug_get_nvti (desc);
 
   if (action == NULL)
-    action = plug_get_description (desc);
+    action = nvti_description (nvti);
 
-  cve = plug_get_cve_id (desc);
-  bid = plug_get_bugtraq_id (desc);
-  xref = plug_get_xref (desc);
+  cve = nvti_cve (nvti);
+  bid = nvti_bid (nvti);
+  xref = nvti_xref (nvti);
 
   if (action == NULL)
     return;
@@ -956,7 +958,7 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
     }
   else
     {
-      char *oid = plug_get_oid (desc);
+      char *oid = nvti_oid (nvti);
       snprintf (idbuffer, sizeof (idbuffer), "<|> %s ", oid);   /* RATS: ignore */
     }
   if (port > 0)
@@ -1121,7 +1123,7 @@ char *
 get_plugin_preference (struct arglist *desc, const char *name)
 {
   struct arglist *prefs = arg_get_value (desc, "preferences");
-  char *plug_name = plug_get_name (desc);
+  char *plug_name = nvti_name (plug_get_nvti (desc));
   char *cname = estrdup (name);
   int len;
 
