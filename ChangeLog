@@ -1,5 +1,17 @@
 2011-07-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/plugutils.c (plug_set_version, plug_get_version, plug_set_path,
+	plug_get_path, plug_get_oid, plug_get_cve_id, plug_get_bugtraq_id,
+	plug_get_xref, plug_get_tag, plug_get_sign_key_ids, plug_get_family,
+	plug_set_timeout, plug_get_timeout, plug_get_name, plug_get_summary,
+	plug_get_description, plug_get_copyright, plug_get_category): Removed.
+	These functions are not used anymore.
+	(proto_post_wrapped): Replaced call of plug_get_oid() by nvti_oid().
+
+	* misc/plugutils.h: Removed protos accordingly.
+
+2011-07-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/plugutils.c (mark_successful_plugin, proto_post_wrapped,
 	get_plugin_preference):
 	Replace use of plug_*() by direct call of nvti_*() where

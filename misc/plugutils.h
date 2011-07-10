@@ -42,34 +42,19 @@ void plug_set_nvti (struct arglist *, nvti_t *);
 nvti_t *plug_get_nvti (struct arglist *);
 
 void plug_set_name (struct arglist *, const char *);
-char *plug_get_name (struct arglist *);
-
-void plug_set_path (struct arglist *, const char *);
-char *plug_get_path (struct arglist *);
-
-void plug_set_version (struct arglist *, const char *);
-char *plug_get_version (struct arglist *);
-
-void plug_set_timeout (struct arglist *, int);
-int plug_get_timeout (struct arglist *);
 
 void plug_set_launch (struct arglist *, int);
 int plug_get_launch (struct arglist *);
 
 void plug_set_summary (struct arglist *, const char *);
-char *plug_get_summary (struct arglist *);
 
 void plug_set_description (struct arglist *, const char *);
-char *plug_get_description (struct arglist *);
 
 void plug_set_category (struct arglist *, int);
-int plug_get_category (struct arglist *);
 
 void plug_set_copyright (struct arglist *, const char *);
-char *plug_get_copyright (struct arglist *);
 
 void plug_set_family (struct arglist *, const char *);
-char *plug_get_family (struct arglist *);
 
 void plug_set_dep (struct arglist *, const char *);
 struct arglist *plug_get_deps (struct arglist *);
@@ -79,22 +64,16 @@ void plug_set_id (struct arglist *, int);
 int plug_get_id (struct arglist *);
 
 void plug_set_oid (struct arglist *, char *);
-char *plug_get_oid (struct arglist *);
 
 void plug_set_cve_id (struct arglist *, char *);
-char *plug_get_cve_id (struct arglist *);
 
 void plug_set_bugtraq_id (struct arglist *, char *);
-char *plug_get_bugtraq_id (struct arglist *);
 
 void plug_set_xref (struct arglist *, char *, char *);
-char *plug_get_xref (struct arglist *);
 
 void plug_set_tag (struct arglist *, char *, char *);
-char *plug_get_tag (struct arglist *);
 
 void plug_set_sign_key_ids (struct arglist *, char *);
-char *plug_get_sign_key_ids (struct arglist *);
 
 void plug_set_ssl_cert (struct arglist *, char *);
 void plug_set_ssl_key (struct arglist *, char *);

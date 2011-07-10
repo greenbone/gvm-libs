@@ -204,30 +204,6 @@ plug_get_nvti (struct arglist *desc)
 }
 
 void
-plug_set_version (struct arglist *desc, const char *version)
-{
-  nvti_set_version (plug_get_nvti (desc), version);
-}
-
-char *
-plug_get_version (struct arglist *desc)
-{
-  return nvti_version (plug_get_nvti (desc));
-}
-
-void
-plug_set_path (struct arglist *desc, const char *path)
-{
-  nvti_set_src (plug_get_nvti (desc), path);
-}
-
-char *
-plug_get_path (struct arglist *desc)
-{
-  return nvti_src (plug_get_nvti (desc));
-}
-
-void
 plug_set_id (struct arglist *desc, int id)
 {
   arg_add_value (desc, "ID", ARG_INT, sizeof (gpointer), GSIZE_TO_POINTER (id));
@@ -264,12 +240,6 @@ plug_set_oid (struct arglist *desc, char *id)
     }
 }
 
-char *
-plug_get_oid (struct arglist *desc)
-{
-  return nvti_oid (plug_get_nvti (desc));
-}
-
 void
 plug_set_cve_id (struct arglist *desc, char *id)
 {
@@ -283,12 +253,6 @@ plug_set_cve_id (struct arglist *desc, char *id)
   }
   else
     nvti_set_cve (n, id);
-}
-
-char *
-plug_get_cve_id (struct arglist *desc)
-{
-  return nvti_cve (plug_get_nvti (desc));
 }
 
 void
@@ -306,12 +270,6 @@ plug_set_bugtraq_id (struct arglist *desc, char *id)
     nvti_set_bid (n, id);
 }
 
-char *
-plug_get_bugtraq_id (struct arglist *desc)
-{
-  return nvti_bid (plug_get_nvti (desc));
-}
-
 void
 plug_set_xref (struct arglist *desc, char *name, char *value)
 {
@@ -327,12 +285,6 @@ plug_set_xref (struct arglist *desc, char *name, char *value)
   g_free (new);
 }
 
-char *
-plug_get_xref (struct arglist *desc)
-{
-  return nvti_xref (plug_get_nvti (desc));
-}
-
 void
 plug_set_tag (struct arglist *desc, char *name, char *value)
 {
@@ -346,12 +298,6 @@ plug_set_tag (struct arglist *desc, char *name, char *value)
 
   nvti_set_tag (n, new);
   g_free (new);
-}
-
-char *
-plug_get_tag (struct arglist *desc)
-{
-  return nvti_tag (plug_get_nvti (desc));
 }
 
 /**
@@ -378,25 +324,10 @@ plug_set_sign_key_ids (struct arglist *desc, char *key_ids)
     nvti_set_sign_key_ids (n, key_ids);
 }
 
-/**
- * @brief Return pointer to the string that lists signature keys for a plugin.
- */
-char *
-plug_get_sign_key_ids (struct arglist *desc)
-{
-  return nvti_sign_key_ids (plug_get_nvti (desc));
-}
-
 void
 plug_set_family (struct arglist *desc, const char *family)
 {
   nvti_set_family (plug_get_nvti (desc), family);
-}
-
-char *
-plug_get_family (struct arglist *desc)
-{
-  return nvti_family (plug_get_nvti (desc));
 }
 
 void
@@ -579,18 +510,6 @@ plug_get_deps (struct arglist *desc)
 }
 
 void
-plug_set_timeout (struct arglist *desc, int timeout)
-{
-  nvti_set_timeout (plug_get_nvti (desc), timeout);
-}
-
-int
-plug_get_timeout (struct arglist *desc)
-{
-  return nvti_timeout (plug_get_nvti (desc));
-}
-
-void
 plug_set_launch (struct arglist *desc, int launch)
 {
   if (arg_set_value
@@ -614,22 +533,10 @@ plug_set_name (struct arglist *desc, const char *name)
   nvti_set_name (plug_get_nvti (desc), name);
 }
 
-char *
-plug_get_name (struct arglist *desc)
-{
-  return nvti_name (plug_get_nvti (desc));
-}
-
 void
 plug_set_summary (struct arglist *desc, const char *summary)
 {
   nvti_set_summary (plug_get_nvti (desc), summary);
-}
-
-char *
-plug_get_summary (struct arglist *desc)
-{
-  return nvti_summary (plug_get_nvti (desc));
 }
 
 void
@@ -638,34 +545,16 @@ plug_set_description (struct arglist *desc, const char *description)
   nvti_set_description (plug_get_nvti (desc), description);
 }
 
-char *
-plug_get_description (struct arglist *desc)
-{
-  return nvti_description (plug_get_nvti (desc));
-}
-
 void
 plug_set_copyright (struct arglist *desc, const char *copyright)
 {
   nvti_set_copyright (plug_get_nvti (desc), copyright);
 }
 
-char *
-plug_get_copyright (struct arglist *desc)
-{
-  return nvti_copyright (plug_get_nvti (desc));
-}
-
 void
 plug_set_category (struct arglist *desc, int category)
 {
   nvti_set_category (plug_get_nvti (desc), category);
-}
-
-int
-plug_get_category (struct arglist *desc)
-{
-  return nvti_category (plug_get_nvti (desc));
 }
 
 void
@@ -952,7 +841,7 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   buffer = emalloc (1024 + len);
   char idbuffer[105];
   const char *svc_name = openvas_get_svc_name (port, proto);
-  if (plug_get_oid (desc) == NULL)
+  if (nvti_oid (plug_get_nvti (desc)) == NULL)
     {
       *idbuffer = '\0';
     }
