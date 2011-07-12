@@ -179,38 +179,19 @@ rmslashes (char *in)
 void
 plug_set_id (struct arglist *desc, int id)
 {
-  arg_add_value (desc, "ID", ARG_INT, sizeof (gpointer), GSIZE_TO_POINTER (id));
   /* If a script_id has been set then set a matching script_oid */
-  char new[100];
-
-  snprintf (new, sizeof (new), LEGACY_OID "%i", id); // RATS: ignore
+  char * new = g_strdup_printf ("%s%i", LEGACY_OID, id);
   nvti_set_oid (arg_get_value (desc, "NVTI"), new);
+  g_free (new);
 #ifdef DEBUG
   fprintf (stderr, "plug_set_id: Legacy plugin %i detected\n", id);
 #endif
 }
 
-int
-plug_get_id (struct arglist *desc)
-{
-  return GPOINTER_TO_SIZE (arg_get_value (desc, "ID"));
-}
-
 void
 plug_set_oid (struct arglist *desc, char *id)
 {
-  int oldid = GPOINTER_TO_SIZE (arg_get_value (desc, "ID"));
-  /* Only allow a scipt_oid to be set if no script_id has already been set */
-  if (oldid <= 0)
-    {
-      nvti_set_oid (arg_get_value (desc, "NVTI"), id);
-    }
-  else
-    {
-      fprintf (stderr,
-               "plug_set_oid: Invalid script_oid call, legacy plugin %i detected\n",
-               oldid);
-    }
+  nvti_set_oid (arg_get_value (desc, "NVTI"), id);
 }
 
 void

@@ -1,5 +1,14 @@
 2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/plugutils.c (plug_set_id): Don't store the ID in the
+	arglist structure anymore. Now use g_strdup_printf to create
+	the legacy oid.
+	(plug_get_id): Removed. Not used anywhere.
+	(plug_set_oid): If a oid is set, any previous set legacy oid
+	will now be overwritten.
+
+2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_scanner_glue.c (script_category): Replaced call of
 	plug_set_category by nvti_set_category.
 
