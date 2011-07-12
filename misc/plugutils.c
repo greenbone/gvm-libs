@@ -177,24 +177,6 @@ rmslashes (char *in)
 }
 
 void
-plug_set_id (struct arglist *desc, int id)
-{
-  /* If a script_id has been set then set a matching script_oid */
-  char * new = g_strdup_printf ("%s%i", LEGACY_OID, id);
-  nvti_set_oid (arg_get_value (desc, "NVTI"), new);
-  g_free (new);
-#ifdef DEBUG
-  fprintf (stderr, "plug_set_id: Legacy plugin %i detected\n", id);
-#endif
-}
-
-void
-plug_set_oid (struct arglist *desc, char *id)
-{
-  nvti_set_oid (arg_get_value (desc, "NVTI"), id);
-}
-
-void
 plug_set_xref (struct arglist *desc, char *name, char *value)
 {
   nvti_t *n = arg_get_value (desc, "NVTI");

@@ -44,11 +44,6 @@ int plug_get_launch (struct arglist *);
 void plug_set_dep (struct arglist *, const char *);
 struct arglist *plug_get_deps (struct arglist *);
 
-void plug_set_id (struct arglist *, int);
-int plug_get_id (struct arglist *);
-
-void plug_set_oid (struct arglist *, char *);
-
 void plug_set_xref (struct arglist *, char *, char *);
 
 void plug_set_tag (struct arglist *, char *, char *);
