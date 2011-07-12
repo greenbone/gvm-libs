@@ -1,5 +1,20 @@
 2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/plugutils.c (plug_set_id, plug_set_oid, plug_set_cve_id,
+	plug_set_bugtraq_id, plug_set_xref, plug_set_tag, plug_set_sign_key_ids,
+	plug_require_key, plug_get_required_keys, plug_mandatory_key,
+	plug_get_mandatory_keys, plug_exclude_key, plug_get_excluded_keys,
+	plug_require_port, plug_get_required_ports, plug_require_udp_port,
+	plug_get_required_udp_ports, plug_set_dep, plug_get_deps,
+	plug_set_category, mark_successful_plugin, mark_post,
+	proto_post_wrapped, add_plugin_preference, get_plugin_preference):
+	Replaced calls of plug_get_nvti by direct access to arglist structure.
+	(plug_get_nvti): Removed. It is not being used anymore now.
+
+	* misc/plugutils.h: Removed proto accordingly.
+
+2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_scanner_glue.c (script_require_keys, script_mandatory_keys,
 	script_exclude_keys, script_require_ports, script_require_udp_ports):
 	Replace plug_* call by corresponding call of nvti_add_*.

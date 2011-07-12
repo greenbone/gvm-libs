@@ -189,20 +189,6 @@ plug_set_nvti (struct arglist *desc, nvti_t *n)
   arg_add_value (desc, "NVTI", ARG_PTR, -1, n);
 }
 
-nvti_t *
-plug_get_nvti (struct arglist *desc)
-{
-  nvti_t *n = arg_get_value (desc, "NVTI");
-
-  if (!n)
-    {
-      n = nvti_new();
-      arg_add_value (desc, "NVTI", ARG_PTR, -1, n);
-    }
-
-  return n;
-}
-
 void
 plug_set_id (struct arglist *desc, int id)
 {
@@ -211,7 +197,7 @@ plug_set_id (struct arglist *desc, int id)
   char new[100];
 
   snprintf (new, sizeof (new), LEGACY_OID "%i", id); // RATS: ignore
-  nvti_set_oid (plug_get_nvti (desc), new);
+  nvti_set_oid (arg_get_value (desc, "NVTI"), new);
 #ifdef DEBUG
   fprintf (stderr, "plug_set_id: Legacy plugin %i detected\n", id);
 #endif
@@ -230,7 +216,7 @@ plug_set_oid (struct arglist *desc, char *id)
   /* Only allow a scipt_oid to be set if no script_id has already been set */
   if (oldid <= 0)
     {
-      nvti_set_oid (plug_get_nvti (desc), id);
+      nvti_set_oid (arg_get_value (desc, "NVTI"), id);
     }
   else
     {
@@ -243,7 +229,7 @@ plug_set_oid (struct arglist *desc, char *id)
 void
 plug_set_cve_id (struct arglist *desc, char *id)
 {
-  nvti_t *n = plug_get_nvti (desc);
+  nvti_t *n = arg_get_value (desc, "NVTI");
   gchar *new = g_strconcat (nvti_cve (n), ", ", id, NULL);
 
   if (new)
@@ -258,7 +244,7 @@ plug_set_cve_id (struct arglist *desc, char *id)
 void
 plug_set_bugtraq_id (struct arglist *desc, char *id)
 {
-  nvti_t *n = plug_get_nvti (desc);
+  nvti_t *n = arg_get_value (desc, "NVTI");
   gchar *new = g_strconcat (nvti_bid (n), ", ", id, NULL);
 
   if (new)
@@ -273,7 +259,7 @@ plug_set_bugtraq_id (struct arglist *desc, char *id)
 void
 plug_set_xref (struct arglist *desc, char *name, char *value)
 {
-  nvti_t *n = plug_get_nvti (desc);
+  nvti_t *n = arg_get_value (desc, "NVTI");
   char *new;
 
   if (nvti_xref (n))
@@ -288,7 +274,7 @@ plug_set_xref (struct arglist *desc, char *name, char *value)
 void
 plug_set_tag (struct arglist *desc, char *name, char *value)
 {
-  nvti_t *n = plug_get_nvti (desc);
+  nvti_t *n = arg_get_value (desc, "NVTI");
   char *new;
 
   if (nvti_tag (n))
@@ -312,7 +298,7 @@ plug_set_tag (struct arglist *desc, char *name, char *value)
 void
 plug_set_sign_key_ids (struct arglist *desc, char *key_ids)
 {
-  nvti_t *n = plug_get_nvti (desc);
+  nvti_t *n = arg_get_value (desc, "NVTI");
   gchar *new = g_strconcat (nvti_sign_key_ids (n), ", ", key_ids, NULL);
 
   if (new)
@@ -327,7 +313,7 @@ plug_set_sign_key_ids (struct arglist *desc, char *key_ids)
 void
 plug_require_key (struct arglist *desc, const char *keyname)
 {
-  nvti_t *n = plug_get_nvti (desc);
+  nvti_t *n = arg_get_value (desc, "NVTI");
   gchar * old = nvti_required_keys (n);
   gchar * new = NULL;
 
@@ -346,13 +332,13 @@ plug_require_key (struct arglist *desc, const char *keyname)
 struct arglist *
 plug_get_required_keys (struct arglist *desc)
 {
-  return str2arglist (nvti_required_keys (plug_get_nvti (desc)));
+  return str2arglist (nvti_required_keys (arg_get_value (desc, "NVTI")));
 }
 
 void
 plug_mandatory_key (struct arglist *desc, const char *keyname)
 {
-  nvti_t *n = plug_get_nvti (desc);
+  nvti_t *n = arg_get_value (desc, "NVTI");
   gchar * old = nvti_mandatory_keys (n);
   gchar * new;
 
@@ -371,13 +357,13 @@ plug_mandatory_key (struct arglist *desc, const char *keyname)
 struct arglist *
 plug_get_mandatory_keys (struct arglist *desc)
 {
-  return str2arglist (nvti_mandatory_keys (plug_get_nvti (desc)));
+  return str2arglist (nvti_mandatory_keys (arg_get_value (desc, "NVTI")));
 }
 
 void
 plug_exclude_key (struct arglist *desc, const char *keyname)
 {
-  nvti_t *n = plug_get_nvti (desc);
+  nvti_t *n = arg_get_value (desc, "NVTI");
   gchar * old = nvti_excluded_keys (n);
   gchar * new;
 
@@ -396,13 +382,13 @@ plug_exclude_key (struct arglist *desc, const char *keyname)
 struct arglist *
 plug_get_excluded_keys (struct arglist *desc)
 {
-  return str2arglist (nvti_excluded_keys (plug_get_nvti (desc)));
+  return str2arglist (nvti_excluded_keys (arg_get_value (desc, "NVTI")));
 }
 
 void
 plug_require_port (struct arglist *desc, const char *portname)
 {
-  nvti_t *n = plug_get_nvti (desc);
+  nvti_t *n = arg_get_value (desc, "NVTI");
   gchar * old = nvti_required_ports (n);
   gchar * new;
 
@@ -421,14 +407,14 @@ plug_require_port (struct arglist *desc, const char *portname)
 struct arglist *
 plug_get_required_ports (struct arglist *desc)
 {
-  return str2arglist (nvti_required_ports (plug_get_nvti (desc)));
+  return str2arglist (nvti_required_ports (arg_get_value (desc, "NVTI")));
 }
 
 
 void
 plug_require_udp_port (struct arglist *desc, const char *portname)
 {
-  nvti_t *n = plug_get_nvti (desc);
+  nvti_t *n = arg_get_value (desc, "NVTI");
   gchar * old = nvti_required_udp_ports (n);
   gchar * new;
 
@@ -447,13 +433,13 @@ plug_require_udp_port (struct arglist *desc, const char *portname)
 struct arglist *
 plug_get_required_udp_ports (struct arglist *desc)
 {
-  return str2arglist (nvti_required_udp_ports (plug_get_nvti (desc)));
+  return str2arglist (nvti_required_udp_ports (arg_get_value (desc, "NVTI")));
 }
 
 void
 plug_set_dep (struct arglist *desc, const char *depname)
 {
-  nvti_t *n = plug_get_nvti (desc);
+  nvti_t *n = arg_get_value (desc, "NVTI");
   gchar * old = nvti_dependencies (n);
   gchar * new;
 
@@ -500,7 +486,7 @@ plug_set_dep (struct arglist *desc, const char *depname)
 struct arglist *
 plug_get_deps (struct arglist *desc)
 {
-  return str2arglist (nvti_dependencies (plug_get_nvti (desc)));
+  return str2arglist (nvti_dependencies (arg_get_value (desc, "NVTI")));
 }
 
 void
@@ -524,7 +510,7 @@ plug_get_launch (struct arglist *desc)
 void
 plug_set_category (struct arglist *desc, int category)
 {
-  nvti_set_category (plug_get_nvti (desc), category);
+  nvti_set_category (arg_get_value (desc, "NVTI"), category);
 }
 
 void
@@ -714,7 +700,7 @@ plug_get_host_ip (struct arglist *desc)
 static void
 mark_successful_plugin (struct arglist *desc)
 {
-  char *oid = nvti_oid (plug_get_nvti (desc));
+  char *oid = nvti_oid (arg_get_value (desc, "NVTI"));
   char data[512];
 
   bzero (data, sizeof (data));
@@ -732,7 +718,7 @@ mark_post (struct arglist *desc, const char *action, const char *content)
     return;
 
   snprintf (entry_name, sizeof (entry_name), "SentData/%s/%s",
-            nvti_oid (plug_get_nvti (desc)), action);    /* RATS: ignore */
+            nvti_oid (arg_get_value (desc, "NVTI")), action);    /* RATS: ignore */
   plug_set_key (desc, entry_name, ARG_STRING, ccontent);
 }
 
@@ -754,7 +740,7 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   char *cve;
   char *bid;
   char *xref;
-  nvti_t * nvti = plug_get_nvti (desc);
+  nvti_t * nvti = arg_get_value (desc, "NVTI");
 
   if (action == NULL)
     action = nvti_description (nvti);
@@ -811,7 +797,7 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   buffer = emalloc (1024 + len);
   char idbuffer[105];
   const char *svc_name = openvas_get_svc_name (port, proto);
-  if (nvti_oid (plug_get_nvti (desc)) == NULL)
+  if (nvti_oid (arg_get_value (desc, "NVTI")) == NULL)
     {
       *idbuffer = '\0';
     }
@@ -971,7 +957,7 @@ void
 add_plugin_preference (struct arglist *desc, const char *name, const char *type,
                        const char *defaul)
 {
-  nvti_t *n = plug_get_nvti (desc);
+  nvti_t *n = arg_get_value (desc, "NVTI");
   nvtpref_t *np = nvtpref_new ((gchar *)name, (gchar *)type, (gchar *)defaul);
 
   nvti_add_pref (n, np);
@@ -982,7 +968,7 @@ char *
 get_plugin_preference (struct arglist *desc, const char *name)
 {
   struct arglist *prefs = arg_get_value (desc, "preferences");
-  char *plug_name = nvti_name (plug_get_nvti (desc));
+  char *plug_name = nvti_name (arg_get_value (desc, "NVTI"));
   char *cname = estrdup (name);
   int len;
 
