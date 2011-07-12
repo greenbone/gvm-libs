@@ -1,5 +1,10 @@
 2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/store.c (store_load_plugin): Replaced call of plug_set_nvti
+	by direct arglist retrieval.
+
+2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_scanner_glue.c (script_elem): Removed. Last trace of
 	old i18n attempt.
 	(script_name, script_description, script_copyright, script_summary,

@@ -183,8 +183,7 @@ store_load_plugin (const char *file, struct arglist *prefs)
 
   ret = emalloc (sizeof (struct arglist));
 
-  plug_set_nvti (ret, n);
-
+  arg_add_value (ret, "NVTI", ARG_PTR, -1, n);
   arg_add_value (ret, "preferences", ARG_ARGLIST, -1, prefs);
 
   for (i = 0; i < nvti_pref_len (n); i++)
