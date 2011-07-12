@@ -148,11 +148,19 @@ int nvti_set_excluded_keys (nvti_t *, const gchar *);
 int nvti_set_required_ports (nvti_t *, const gchar *);
 int nvti_set_required_udp_ports (nvti_t *, const gchar *);
 int nvti_set_sign_key_ids (nvti_t *, const gchar *);
-int nvti_add_sign_key_id (nvti_t *, const gchar *);
 int nvti_set_src (nvti_t *, const gchar *);
 int nvti_set_timeout (nvti_t *, const gint);
 int nvti_set_category (nvti_t *, const gint);
 int nvti_set_family (nvti_t *, const gchar *);
+
+int nvti_add_cve (nvti_t *, const gchar *);
+int nvti_add_bid (nvti_t *, const gchar *);
+int nvti_add_required_keys (nvti_t *, const gchar *);
+int nvti_add_mandatory_keys (nvti_t *, const gchar *);
+int nvti_add_excluded_keys (nvti_t *, const gchar *);
+int nvti_add_required_ports (nvti_t *, const gchar *);
+int nvti_add_required_udp_ports (nvti_t *, const gchar *);
+int nvti_add_sign_key_id (nvti_t *, const gchar *);
 int nvti_add_pref (nvti_t *, nvtpref_t *);
 
 gchar *nvti_as_text (const nvti_t *);

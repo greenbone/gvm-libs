@@ -1,5 +1,15 @@
 2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* base/nvti.c (nvti_add_sign_key_id, nvti_add_cve, nvti_add_bid,
+	nvti_add_required_keys, nvti_add_mandatory_keys, nvti_add_excluded_keys,
+	nvti_add_required_ports, nvti_add_required_udp_ports,
+	nvti_add_sign_key_id): New methods to add elements to alreay
+	existing ones.
+
+	* base/nvti.h: Added new protos accordingly.
+
+2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/store.c (store_load_plugin): Replaced call of plug_set_nvti
 	by direct arglist retrieval.
 

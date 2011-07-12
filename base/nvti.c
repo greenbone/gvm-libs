@@ -936,35 +936,6 @@ nvti_set_sign_key_ids (nvti_t * n, const gchar * sign_key_ids)
 }
 
 /**
- * @brief Add a single sign key id of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param sign_key_id The sign key id to add. A copy will be created from this.
- *
- * @return 0 for success. 1 if n was NULL.
- */
-int
-nvti_add_sign_key_id (nvti_t * n, const gchar * sign_key_id)
-{
-  gchar * old;
-
-  if (! n) return (1);
-
-  old = n->sign_key_ids;
-
-  if (old)
-  {
-    n->sign_key_ids = g_strdup_printf ("%s, %s", old, sign_key_id);
-    g_free (old);
-  }
-  else
-    n->sign_key_ids = g_strdup (sign_key_id);
-
-  return (0);
-}
-
-/**
  * @brief Set the family of a NVT.
  *
  * @param n The NVT Info structure.
@@ -1029,6 +1000,246 @@ int
 nvti_set_category (nvti_t * n, const gint category)
 {
   n->category = category;
+  return (0);
+}
+
+/**
+ * @brief Add a single CVE ID of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param cve_id The CVE ID to add. A copy will be created from this.
+ *
+ * @return 0 for success. 1 if n was NULL, 2 if cve_id was NULL.
+ */
+int
+nvti_add_cve (nvti_t * n, const gchar * cve_id)
+{
+  gchar * old;
+
+  if (! n) return (1);
+  if (! cve_id) return (2);
+
+  old = n->cve;
+
+  if (old)
+  {
+    n->cve = g_strdup_printf ("%s, %s", old, cve_id);
+    g_free (old);
+  }
+  else
+    n->cve = g_strdup (cve_id);
+
+  return (0);
+}
+
+/**
+ * @brief Add a single BID ID of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param cve_id The BID ID to add. A copy will be created from this.
+ *
+ * @return 0 for success. 1 if n was NULL. 2 if bid_id was NULL.
+ */
+int
+nvti_add_bid (nvti_t * n, const gchar * bid_id)
+{
+  gchar * old;
+
+  if (! n) return (1);
+  if (! bid_id) return (2);
+
+  old = n->bid;
+
+  if (old)
+  {
+    n->bid = g_strdup_printf ("%s, %s", old, bid_id);
+    g_free (old);
+  }
+  else
+    n->bid = g_strdup (bid_id);
+
+  return (0);
+}
+
+/**
+ * @brief Add a required key of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param key The required key to add. A copy will be created from this.
+ *
+ * @return 0 for success. 1 if n was NULL. 2 if key was NULL.
+ */
+int
+nvti_add_required_keys (nvti_t * n, const gchar * key)
+{
+  gchar * old;
+
+  if (! n) return (1);
+  if (! key) return (2);
+
+  old = n->required_keys;
+
+  if (old)
+  {
+    n->required_keys = g_strdup_printf ("%s, %s", old, key);
+    g_free (old);
+  }
+  else
+    n->required_keys = g_strdup (key);
+
+  return (0);
+}
+
+/**
+ * @brief Add a mandatory key of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param key The mandatory key to add. A copy will be created from this.
+ *
+ * @return 0 for success. 1 if n was NULL. 2 if key was NULL.
+ */
+int
+nvti_add_mandatory_keys (nvti_t * n, const gchar * key)
+{
+  gchar * old;
+
+  if (! n) return (1);
+  if (! key) return (2);
+
+  old = n->mandatory_keys;
+
+  if (old)
+  {
+    n->mandatory_keys = g_strdup_printf ("%s, %s", old, key);
+    g_free (old);
+  }
+  else
+    n->mandatory_keys = g_strdup (key);
+
+  return (0);
+}
+
+/**
+ * @brief Add a excluded key of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param key The excluded key to add. A copy will be created from this.
+ *
+ * @return 0 for success. 1 if n was NULL. 2 if key was NULL.
+ */
+int
+nvti_add_excluded_keys (nvti_t * n, const gchar * key)
+{
+  gchar * old;
+
+  if (! n) return (1);
+  if (! key) return (2);
+
+  old = n->excluded_keys;
+
+  if (old)
+  {
+    n->excluded_keys = g_strdup_printf ("%s, %s", old, key);
+    g_free (old);
+  }
+  else
+    n->excluded_keys = g_strdup (key);
+
+  return (0);
+}
+
+/**
+ * @brief Add a required port of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param port The required port to add. A copy will be created from this.
+ *
+ * @return 0 for success. 1 if n was NULL. 2 if port was NULL.
+ */
+int
+nvti_add_required_ports (nvti_t * n, const gchar * port)
+{
+  gchar * old;
+
+  if (! n) return (1);
+  if (! port) return (2);
+
+  old = n->required_ports;
+
+  if (old)
+  {
+    n->required_ports = g_strdup_printf ("%s, %s", old, port);
+    g_free (old);
+  }
+  else
+    n->required_ports = g_strdup (port);
+
+  return (0);
+}
+
+/**
+ * @brief Add a required udp port of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param port The required udp port to add. A copy will be created from this.
+ *
+ * @return 0 for success. 1 if n was NULL. 2 if port was NULL.
+ */
+int
+nvti_add_required_udp_ports (nvti_t * n, const gchar * port)
+{
+  gchar * old;
+
+  if (! n) return (1);
+  if (! port) return (2);
+
+  old = n->required_udp_ports;
+
+  if (old)
+  {
+    n->required_udp_ports = g_strdup_printf ("%s, %s", old, port);
+    g_free (old);
+  }
+  else
+    n->required_udp_ports = g_strdup (port);
+
+  return (0);
+}
+
+/**
+ * @brief Add a single sign key id of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param sign_key_id The sign key id to add. A copy will be created from this.
+ *
+ * @return 0 for success. 1 if n was NULL. 2 if sign_key_id was NULL.
+ */
+int
+nvti_add_sign_key_id (nvti_t * n, const gchar * sign_key_id)
+{
+  gchar * old;
+
+  if (! n) return (1);
+  if (! sign_key_id) return (2);
+
+  old = n->sign_key_ids;
+
+  if (old)
+  {
+    n->sign_key_ids = g_strdup_printf ("%s, %s", old, sign_key_id);
+    g_free (old);
+  }
+  else
+    n->sign_key_ids = g_strdup (sign_key_id);
+
   return (0);
 }
 
