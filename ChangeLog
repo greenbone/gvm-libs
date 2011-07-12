@@ -1,5 +1,15 @@
 2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_scanner_glue.c (script_category): Replaced call of
+	plug_set_category by nvti_set_category.
+
+	* misc/plugutils.c (plug_set_nvti, plug_set_category): Removed
+	the now unused functions.
+
+	* misc/plugutils.h: Removed protos accordingly.
+
+2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_scanner_glue.c (script_cve_id): Replaced call of
 	plug_set_cve_id by nvti_add_cve.
 	(script_bugtraq_id): Replaced call of plug_set_bugtraq_id by

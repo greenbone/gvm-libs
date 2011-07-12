@@ -276,7 +276,7 @@ script_category (lex_ctxt * lexic)
       nasl_perror (lexic, "Function usage is : script_category(<category>)\n");
       return FAKE_CELL;
     }
-  plug_set_category (script_infos, category);
+  nvti_set_category (arg_get_value (script_infos, "NVTI"), category);
   return FAKE_CELL;
 }
 

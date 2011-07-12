@@ -177,19 +177,6 @@ rmslashes (char *in)
 }
 
 void
-plug_set_nvti (struct arglist *desc, nvti_t *n)
-{
-  nvti_t *previous = arg_get_value (desc, "NVTI");
-  if (! n)
-    return;
-
-  if (previous)
-    nvti_free (previous);
-
-  arg_add_value (desc, "NVTI", ARG_PTR, -1, n);
-}
-
-void
 plug_set_id (struct arglist *desc, int id)
 {
   arg_add_value (desc, "ID", ARG_INT, sizeof (gpointer), GSIZE_TO_POINTER (id));
@@ -355,12 +342,6 @@ int
 plug_get_launch (struct arglist *desc)
 {
   return (GPOINTER_TO_SIZE (arg_get_value (desc, "ENABLED")));
-}
-
-void
-plug_set_category (struct arglist *desc, int category)
-{
-  nvti_set_category (arg_get_value (desc, "NVTI"), category);
 }
 
 void
