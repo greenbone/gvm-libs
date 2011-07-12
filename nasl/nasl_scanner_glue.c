@@ -212,33 +212,12 @@ script_see_also (lex_ctxt * lexic)
   return FAKE_CELL;
 }
 
-typedef void (*script_register_func_t) (struct arglist *, const char *);
-
-// TODO: This function can be elminiated (functionality back to script_name, etc)
-// once all NASL scripts are being cleared of old I18N concept
-static tree_cell *
-script_elem (lex_ctxt * lexic, script_register_func_t script_register_func)
-{
-  struct arglist *script_infos = lexic->script_infos;
-  char *str;
-
-  str = get_str_local_var_by_name (lexic, "english");
-  if (str == NULL)
-    {
-      str = get_str_var_by_num (lexic, 0);
-      if (str == NULL)
-        return FAKE_CELL;
-    }
-
-  script_register_func (script_infos, str);
-  return FAKE_CELL;
-}
-
-
 tree_cell *
 script_name (lex_ctxt * lexic)
 {
-  return (script_elem (lexic, plug_set_name));
+  nvti_set_name (arg_get_value (lexic->script_infos, "NVTI"),
+                 get_str_var_by_num (lexic, 0));
+  return FAKE_CELL;
 }
 
 
@@ -263,19 +242,25 @@ script_version (lex_ctxt * lexic)
 tree_cell *
 script_description (lex_ctxt * lexic)
 {
-  return (script_elem (lexic, plug_set_description));
+  nvti_set_description (arg_get_value (lexic->script_infos, "NVTI"),
+                        get_str_var_by_num (lexic, 0));
+  return FAKE_CELL;
 }
 
 tree_cell *
 script_copyright (lex_ctxt * lexic)
 {
-  return (script_elem (lexic, plug_set_copyright));
+  nvti_set_copyright (arg_get_value (lexic->script_infos, "NVTI"),
+                      get_str_var_by_num (lexic, 0));
+  return FAKE_CELL;
 }
 
 tree_cell *
 script_summary (lex_ctxt * lexic)
 {
-  return (script_elem (lexic, plug_set_summary));
+  nvti_set_summary (arg_get_value (lexic->script_infos, "NVTI"),
+                    get_str_var_by_num (lexic, 0));
+  return FAKE_CELL;
 }
 
 tree_cell *
@@ -298,7 +283,9 @@ script_category (lex_ctxt * lexic)
 tree_cell *
 script_family (lex_ctxt * lexic)
 {
-  return (script_elem (lexic, plug_set_family));
+  nvti_set_family (arg_get_value (lexic->script_infos, "NVTI"),
+                 get_str_var_by_num (lexic, 0));
+  return FAKE_CELL;
 }
 
 tree_cell *

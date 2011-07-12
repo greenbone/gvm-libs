@@ -325,12 +325,6 @@ plug_set_sign_key_ids (struct arglist *desc, char *key_ids)
 }
 
 void
-plug_set_family (struct arglist *desc, const char *family)
-{
-  nvti_set_family (plug_get_nvti (desc), family);
-}
-
-void
 plug_require_key (struct arglist *desc, const char *keyname)
 {
   nvti_t *n = plug_get_nvti (desc);
@@ -525,30 +519,6 @@ int
 plug_get_launch (struct arglist *desc)
 {
   return (GPOINTER_TO_SIZE (arg_get_value (desc, "ENABLED")));
-}
-
-void
-plug_set_name (struct arglist *desc, const char *name)
-{
-  nvti_set_name (plug_get_nvti (desc), name);
-}
-
-void
-plug_set_summary (struct arglist *desc, const char *summary)
-{
-  nvti_set_summary (plug_get_nvti (desc), summary);
-}
-
-void
-plug_set_description (struct arglist *desc, const char *description)
-{
-  nvti_set_description (plug_get_nvti (desc), description);
-}
-
-void
-plug_set_copyright (struct arglist *desc, const char *copyright)
-{
-  nvti_set_copyright (plug_get_nvti (desc), copyright);
 }
 
 void

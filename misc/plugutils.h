@@ -41,24 +41,13 @@ void scanner_add_port (struct arglist *, int, char *);
 void plug_set_nvti (struct arglist *, nvti_t *);
 nvti_t *plug_get_nvti (struct arglist *);
 
-void plug_set_name (struct arglist *, const char *);
-
 void plug_set_launch (struct arglist *, int);
 int plug_get_launch (struct arglist *);
 
-void plug_set_summary (struct arglist *, const char *);
-
-void plug_set_description (struct arglist *, const char *);
-
 void plug_set_category (struct arglist *, int);
-
-void plug_set_copyright (struct arglist *, const char *);
-
-void plug_set_family (struct arglist *, const char *);
 
 void plug_set_dep (struct arglist *, const char *);
 struct arglist *plug_get_deps (struct arglist *);
-
 
 void plug_set_id (struct arglist *, int);
 int plug_get_id (struct arglist *);
