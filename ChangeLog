@@ -1,5 +1,11 @@
 2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_scanner_glue.c (script_require_keys, script_mandatory_keys,
+	script_exclude_keys, script_require_ports, script_require_udp_ports):
+	Replace plug_* call by corresponding call of nvti_add_*.
+
+2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* base/nvti.c (nvti_add_sign_key_id, nvti_add_cve, nvti_add_bid,
 	nvti_add_required_keys, nvti_add_mandatory_keys, nvti_add_excluded_keys,
 	nvti_add_required_ports, nvti_add_required_udp_ports,

@@ -318,8 +318,6 @@ script_dependencie (lex_ctxt * lexic)
 tree_cell *
 script_require_keys (lex_ctxt * lexic)
 {
-  struct arglist *script_infos = lexic->script_infos;
-
   char *keys = get_str_var_by_num (lexic, 0);
   int i;
 
@@ -334,8 +332,7 @@ script_require_keys (lex_ctxt * lexic)
   for (i = 0; keys != NULL; i++)
     {
       keys = get_str_var_by_num (lexic, i);
-      if (keys != NULL)
-        plug_require_key (script_infos, keys);
+      nvti_add_required_keys (arg_get_value (lexic->script_infos, "NVTI"), keys);
     }
 
   return FAKE_CELL;
@@ -344,8 +341,6 @@ script_require_keys (lex_ctxt * lexic)
 tree_cell *
 script_mandatory_keys (lex_ctxt * lexic)
 {
-  struct arglist *script_infos = lexic->script_infos;
-
   char *keys = get_str_var_by_num (lexic, 0);
   int i;
 
@@ -362,8 +357,7 @@ script_mandatory_keys (lex_ctxt * lexic)
   for (i = 0; keys != NULL; i++)
     {
       keys = get_str_var_by_num (lexic, i);
-      if (keys != NULL)
-        plug_mandatory_key (script_infos, keys);
+      nvti_add_mandatory_keys (arg_get_value (lexic->script_infos, "NVTI"), keys);
     }
 
   return FAKE_CELL;
@@ -372,18 +366,21 @@ script_mandatory_keys (lex_ctxt * lexic)
 tree_cell *
 script_exclude_keys (lex_ctxt * lexic)
 {
-  struct arglist *script_infos = lexic->script_infos;
-
-  int i;
   char *keys = get_str_var_by_num (lexic, 0);
+  int i;
+
+  if (keys == NULL)
+    {
+      nasl_perror (lexic, "Argument error in function script_exclude_keys()\n");
+      nasl_perror (lexic, "Function usage is : script_exclude_keys(<name>)\n");
+      nasl_perror (lexic, "Where <name> is the name of a key\n");
+      return FAKE_CELL;
+    }
 
   for (i = 0; keys != NULL; i++)
     {
       keys = get_str_var_by_num (lexic, i);
-      if (keys != NULL)
-        {
-          plug_exclude_key (script_infos, keys);
-        }
+      nvti_add_excluded_keys (arg_get_value (lexic->script_infos, "NVTI"), keys);
     }
 
   return FAKE_CELL;
@@ -393,7 +390,6 @@ script_exclude_keys (lex_ctxt * lexic)
 tree_cell *
 script_require_ports (lex_ctxt * lexic)
 {
-  struct arglist *script_infos = lexic->script_infos;
   char *port;
   int i;
 
@@ -401,7 +397,7 @@ script_require_ports (lex_ctxt * lexic)
     {
       port = get_str_var_by_num (lexic, i);
       if (port != NULL)
-        plug_require_port (script_infos, port);
+        nvti_add_required_ports (arg_get_value (lexic->script_infos, "NVTI"), port);
       else
         break;
     }
@@ -413,7 +409,6 @@ script_require_ports (lex_ctxt * lexic)
 tree_cell *
 script_require_udp_ports (lex_ctxt * lexic)
 {
-  struct arglist *script_infos = lexic->script_infos;
   int i;
   char *port;
 
@@ -421,7 +416,7 @@ script_require_udp_ports (lex_ctxt * lexic)
     {
       port = get_str_var_by_num (lexic, i);
       if (port != NULL)
-        plug_require_udp_port (script_infos, port);
+        nvti_add_required_udp_ports (arg_get_value (lexic->script_infos, "NVTI"), port);
       else
         break;
     }
