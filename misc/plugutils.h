@@ -53,15 +53,9 @@ int plug_get_id (struct arglist *);
 
 void plug_set_oid (struct arglist *, char *);
 
-void plug_set_cve_id (struct arglist *, char *);
-
-void plug_set_bugtraq_id (struct arglist *, char *);
-
 void plug_set_xref (struct arglist *, char *, char *);
 
 void plug_set_tag (struct arglist *, char *, char *);
-
-void plug_set_sign_key_ids (struct arglist *, char *);
 
 void plug_set_ssl_cert (struct arglist *, char *);
 void plug_set_ssl_key (struct arglist *, char *);
@@ -76,22 +70,14 @@ unsigned int plug_get_host_open_port (struct arglist *desc);
 
 void plug_set_port_transport (struct arglist *, int, int);
 
-void plug_require_key (struct arglist *, const char *);
 struct arglist *plug_get_required_keys (struct arglist *);
-
-void plug_mandatory_key (struct arglist *, const char *);
 struct arglist *plug_get_mandatory_keys (struct arglist *);
-
-void plug_exclude_key (struct arglist *, const char *);
 struct arglist *plug_get_excluded_keys (struct arglist *);
 
-void plug_require_port (struct arglist *, const char *);
 struct arglist *plug_get_required_ports (struct arglist *);
-
-void plug_require_udp_port (struct arglist *, const char *);
 struct arglist *plug_get_required_udp_ports (struct arglist *);
-int plug_get_port_transport (struct arglist *, int);
 
+int plug_get_port_transport (struct arglist *, int);
 
 /*
  * Reporting functions

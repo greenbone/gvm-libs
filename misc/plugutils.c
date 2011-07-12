@@ -227,36 +227,6 @@ plug_set_oid (struct arglist *desc, char *id)
 }
 
 void
-plug_set_cve_id (struct arglist *desc, char *id)
-{
-  nvti_t *n = arg_get_value (desc, "NVTI");
-  gchar *new = g_strconcat (nvti_cve (n), ", ", id, NULL);
-
-  if (new)
-  {
-    nvti_set_cve (n, new);
-    g_free (new);
-  }
-  else
-    nvti_set_cve (n, id);
-}
-
-void
-plug_set_bugtraq_id (struct arglist *desc, char *id)
-{
-  nvti_t *n = arg_get_value (desc, "NVTI");
-  gchar *new = g_strconcat (nvti_bid (n), ", ", id, NULL);
-
-  if (new)
-  {
-    nvti_set_bid (n, new);
-    g_free (new);
-  }
-  else
-    nvti_set_bid (n, id);
-}
-
-void
 plug_set_xref (struct arglist *desc, char *name, char *value)
 {
   nvti_t *n = arg_get_value (desc, "NVTI");
@@ -286,72 +256,10 @@ plug_set_tag (struct arglist *desc, char *name, char *value)
   g_free (new);
 }
 
-/**
- * @brief Set string that lists signature keys for a plugin or add it, if not
- * @brief empty.
- *
- * Key-ids are stored as comma- seperated list ('ABCDEFGH,ABCDEFG1').
- *
- * @param desc Plugin as arglist.
- * @param key_ids Comma-separated fingerprints.
- */
-void
-plug_set_sign_key_ids (struct arglist *desc, char *key_ids)
-{
-  nvti_t *n = arg_get_value (desc, "NVTI");
-  gchar *new = g_strconcat (nvti_sign_key_ids (n), ", ", key_ids, NULL);
-
-  if (new)
-  {
-    nvti_set_sign_key_ids (n, new);
-    g_free (new);
-  }
-  else
-    nvti_set_sign_key_ids (n, key_ids);
-}
-
-void
-plug_require_key (struct arglist *desc, const char *keyname)
-{
-  nvti_t *n = arg_get_value (desc, "NVTI");
-  gchar * old = nvti_required_keys (n);
-  gchar * new = NULL;
-
-  if (!keyname) return;
-
-  if (old)
-  {
-    new = g_strdup_printf ("%s, %s", old, keyname);
-    nvti_set_required_keys (n, new);
-    g_free (new);
-  }
-  else
-    nvti_set_required_keys (n, keyname);
-}
-
 struct arglist *
 plug_get_required_keys (struct arglist *desc)
 {
   return str2arglist (nvti_required_keys (arg_get_value (desc, "NVTI")));
-}
-
-void
-plug_mandatory_key (struct arglist *desc, const char *keyname)
-{
-  nvti_t *n = arg_get_value (desc, "NVTI");
-  gchar * old = nvti_mandatory_keys (n);
-  gchar * new;
-
-  if (!keyname) return;
-
-  if (old)
-  {
-    new = g_strdup_printf ("%s, %s", old, keyname);
-    nvti_set_mandatory_keys (n, new);
-    g_free (new);
-  }
-  else
-    nvti_set_mandatory_keys (n, keyname);
 }
 
 struct arglist *
@@ -360,74 +268,16 @@ plug_get_mandatory_keys (struct arglist *desc)
   return str2arglist (nvti_mandatory_keys (arg_get_value (desc, "NVTI")));
 }
 
-void
-plug_exclude_key (struct arglist *desc, const char *keyname)
-{
-  nvti_t *n = arg_get_value (desc, "NVTI");
-  gchar * old = nvti_excluded_keys (n);
-  gchar * new;
-
-  if (!keyname) return;
-
-  if (old)
-  {
-    new = g_strdup_printf ("%s, %s", old, keyname);
-    nvti_set_excluded_keys (n, new);
-    g_free (new);
-  }
-  else
-    nvti_set_excluded_keys (n, keyname);
-}
-
 struct arglist *
 plug_get_excluded_keys (struct arglist *desc)
 {
   return str2arglist (nvti_excluded_keys (arg_get_value (desc, "NVTI")));
 }
 
-void
-plug_require_port (struct arglist *desc, const char *portname)
-{
-  nvti_t *n = arg_get_value (desc, "NVTI");
-  gchar * old = nvti_required_ports (n);
-  gchar * new;
-
-  if (!portname) return;
-
-  if (old)
-  {
-    new = g_strdup_printf ("%s, %s", old, portname);
-    nvti_set_required_ports (n, new);
-    g_free (new);
-  }
-  else
-    nvti_set_required_ports (n, portname);
-}
-
 struct arglist *
 plug_get_required_ports (struct arglist *desc)
 {
   return str2arglist (nvti_required_ports (arg_get_value (desc, "NVTI")));
-}
-
-
-void
-plug_require_udp_port (struct arglist *desc, const char *portname)
-{
-  nvti_t *n = arg_get_value (desc, "NVTI");
-  gchar * old = nvti_required_udp_ports (n);
-  gchar * new;
-
-  if (!portname) return;
-
-  if (old)
-  {
-    new = g_strdup_printf ("%s, %s", old, portname);
-    nvti_set_required_udp_ports (n, new);
-    g_free (new);
-  }
-  else
-    nvti_set_required_udp_ports (n, portname);
 }
 
 struct arglist *
