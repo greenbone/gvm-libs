@@ -1,3 +1,8 @@
+2011-07-13  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* ChangeLog: Always close the parentheses on the line they are opened on,
+	as this is much easier to parse.
+
 2011-07-13  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* CMakeLists.txt: Do not try to fix LIBSSH_CFLAGS and LIBSSH_LDFLAGS
@@ -7,7 +12,7 @@
 
 	* nasl/nasl_scanner_glue.c (script_id): Create legacy OID directly
 	and update nvti directly.
- 	(script_oid): Replace call of plug_set_oid by nvti_set_oid.
+	(script_oid): Replace call of plug_set_oid by nvti_set_oid.
 
 	* misc/plugutils.c (plug_set_id, plug_set_oid): Removed the now
 	unused functions.
@@ -40,23 +45,23 @@
 	(script_bugtraq_id): Replaced call of plug_set_bugtraq_id by
 	nvti_add_bid.
 
-	* misc/plugutils.c (plug_set_cve_id, plug_set_bugtraq_id,
-	plug_set_sign_key_ids, plug_require_key, plug_mandatory_key,
-	plug_exclude_key, plug_require_port, plug_require_udp_port): Removed.
+	* misc/plugutils.c (plug_set_cve_id, plug_set_bugtraq_id)
+	(plug_set_sign_key_ids, plug_require_key, plug_mandatory_key)
+	(plug_exclude_key, plug_require_port, plug_require_udp_port): Removed.
 	These functions are not used anymore.
 
 	* misc/plugutils.h: Removed protos accordingly.
 
 2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
-	* misc/plugutils.c (plug_set_id, plug_set_oid, plug_set_cve_id,
-	plug_set_bugtraq_id, plug_set_xref, plug_set_tag, plug_set_sign_key_ids,
-	plug_require_key, plug_get_required_keys, plug_mandatory_key,
-	plug_get_mandatory_keys, plug_exclude_key, plug_get_excluded_keys,
-	plug_require_port, plug_get_required_ports, plug_require_udp_port,
-	plug_get_required_udp_ports, plug_set_dep, plug_get_deps,
-	plug_set_category, mark_successful_plugin, mark_post,
-	proto_post_wrapped, add_plugin_preference, get_plugin_preference):
+	* misc/plugutils.c (plug_set_id, plug_set_oid, plug_set_cve_id)
+	(plug_set_bugtraq_id, plug_set_xref, plug_set_tag, plug_set_sign_key_ids)
+	(plug_require_key, plug_get_required_keys, plug_mandatory_key)
+	(plug_get_mandatory_keys, plug_exclude_key, plug_get_excluded_keys)
+	(plug_require_port, plug_get_required_ports, plug_require_udp_port)
+	(plug_get_required_udp_ports, plug_set_dep, plug_get_deps)
+	(plug_set_category, mark_successful_plugin, mark_post)
+	(proto_post_wrapped, add_plugin_preference, get_plugin_preference):
 	Replaced calls of plug_get_nvti by direct access to arglist structure.
 	(plug_get_nvti): Removed. It is not being used anymore now.
 
@@ -64,16 +69,16 @@
 
 2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
-	* nasl/nasl_scanner_glue.c (script_require_keys, script_mandatory_keys,
-	script_exclude_keys, script_require_ports, script_require_udp_ports):
+	* nasl/nasl_scanner_glue.c (script_require_keys, script_mandatory_keys)
+	(script_exclude_keys, script_require_ports, script_require_udp_ports):
 	Replace plug_* call by corresponding call of nvti_add_*.
 
 2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
-	* base/nvti.c (nvti_add_sign_key_id, nvti_add_cve, nvti_add_bid,
-	nvti_add_required_keys, nvti_add_mandatory_keys, nvti_add_excluded_keys,
-	nvti_add_required_ports, nvti_add_required_udp_ports,
-	nvti_add_sign_key_id): New methods to add elements to alreay
+	* base/nvti.c (nvti_add_sign_key_id, nvti_add_cve, nvti_add_bid)
+	(nvti_add_required_keys, nvti_add_mandatory_keys, nvti_add_excluded_keys)
+	(nvti_add_required_ports, nvti_add_required_udp_ports)
+	(nvti_add_sign_key_id): New methods to add elements to alreay
 	existing ones.
 
 	* base/nvti.h: Added new protos accordingly.
@@ -87,23 +92,23 @@
 
 	* nasl/nasl_scanner_glue.c (script_elem): Removed. Last trace of
 	old i18n attempt.
-	(script_name, script_description, script_copyright, script_summary,
-	script_family): Replaced script_elem call with direct call of
+	(script_name, script_description, script_copyright, script_summary)
+	(script_family): Replaced script_elem call with direct call of
 	the corresponding nvti function.
 
-	* misc/plugutils.c (plug_set_family, plug_set_name, plug_set_summary,
-	plug_set_description, plug_set_copyright): Removed the now unused
+	* misc/plugutils.c (plug_set_family, plug_set_name, plug_set_summary)
+	(plug_set_description, plug_set_copyright): Removed the now unused
 	functions.
 
 	* misc/plugutils.h: Removed protos accordingly.
 
 2011-07-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
-	* misc/plugutils.c (plug_set_version, plug_get_version, plug_set_path,
-	plug_get_path, plug_get_oid, plug_get_cve_id, plug_get_bugtraq_id,
-	plug_get_xref, plug_get_tag, plug_get_sign_key_ids, plug_get_family,
-	plug_set_timeout, plug_get_timeout, plug_get_name, plug_get_summary,
-	plug_get_description, plug_get_copyright, plug_get_category): Removed.
+	* misc/plugutils.c (plug_set_version, plug_get_version, plug_set_path)
+	(plug_get_path, plug_get_oid, plug_get_cve_id, plug_get_bugtraq_id)
+	(plug_get_xref, plug_get_tag, plug_get_sign_key_ids, plug_get_family)
+	(plug_set_timeout, plug_get_timeout, plug_get_name, plug_get_summary)
+	(plug_get_description, plug_get_copyright, plug_get_category): Removed.
 	These functions are not used anymore.
 	(proto_post_wrapped): Replaced call of plug_get_oid() by nvti_oid().
 
@@ -111,8 +116,8 @@
 
 2011-07-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
-	* misc/plugutils.c (mark_successful_plugin, proto_post_wrapped,
-	get_plugin_preference):
+	* misc/plugutils.c (mark_successful_plugin, proto_post_wrapped)
+	(get_plugin_preference):
 	Replace use of plug_*() by direct call of nvti_*() where
 	nvti elements are concerned.
 
@@ -130,8 +135,8 @@
 	superfluous check of the return value of g_hash_table_new which is
 	guaranteed to succeed.
 
-	* nasl/nasl_builtin_nmap.c (setup_xml_parser, set_opentag_callbacks,
-	set_closetag_callbacks): Changed return type to void.
+	* nasl/nasl_builtin_nmap.c (setup_xml_parser, set_opentag_callbacks)
+	(set_closetag_callbacks): Changed return type to void.
 
 	* nasl/nasl_builtin_nmap.c (nmap_create): No need to check the return
 	value of setup_xml_parser() anymore.
@@ -141,12 +146,12 @@
 	* nasl/nasl_builtin_nmap.c: Improved documentation (formatting and
 	content).
 
-	*  nasl/nasl_builtin_nmap.c (tmphost_add_port,
-	tmphost_add_nse_hostscript, tmphost_add_nse_portscript,
-	current_host_saveall, save_host_state, save_open_ports,
-	register_service, save_detected_os, save_tcpseq_details,
-	save_ipidseq_details, save_traceroute_details, save_portscripts,
-	save_hostscripts): Changed return type to void.
+	*  nasl/nasl_builtin_nmap.c (tmphost_add_port)
+	(tmphost_add_nse_hostscript, tmphost_add_nse_portscript)
+	(current_host_saveall, save_host_state, save_open_ports)
+	(register_service, save_detected_os, save_tcpseq_details)
+	(save_ipidseq_details, save_traceroute_details, save_portscripts)
+	(save_hostscripts): Changed return type to void.
 
 011-07-01  Henri Doreau <henri.doreau@greenbone.net>
 
@@ -160,8 +165,8 @@
 
 2011-07-01  Henri Doreau <henri.doreau@greenbone.net>
 
-	* nasl/nasl_builtin_nmap.c (nmap_create, add_arg, tmphost_add_port,
-	tmphost_add_nse_hostscript, tmphost_add_nse_portscript): Removed
+	* nasl/nasl_builtin_nmap.c (nmap_create, add_arg, tmphost_add_port)
+	(tmphost_add_nse_hostscript, tmphost_add_nse_portscript): Removed
 	superfluous checks of the return value of g_malloc which doesn't
 	return on failure.
 
@@ -195,9 +200,9 @@
 
 2011-06-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
-	* misc/plugutils.c (plug_require_key, plug_mandatory_key,
-	plug_exclude_key, plug_require_port, plug_require_udp_port,
-	plug_set_dep): Replace intermediate step of converting csv
+	* misc/plugutils.c (plug_require_key, plug_mandatory_key)
+	(plug_exclude_key, plug_require_port, plug_require_udp_port)
+	(plug_set_dep): Replace intermediate step of converting csv
 	strings to arglist and back again just for adding one entry
 	by direct string modification.
 
@@ -230,8 +235,8 @@
 
 2011-06-17  Henri Doreau <henri.doreau@greenbone.net>
 
-	* nasl/nasl_builtin_nmap.c (port_destroy, xmltag_open_service,
-	register_service): Improved version detection support to report
+	* nasl/nasl_builtin_nmap.c (port_destroy, xmltag_open_service)
+	(register_service): Improved version detection support to report
 	additional information about the discovered services.
 
 2011-06-17  Henri Doreau <henri.doreau@greenbone.net>
@@ -270,9 +275,9 @@
 2011-06-15  Henri Doreau <henri.doreau@greenbone.net>
 
 	* nasl/nasl_host.c (nasl_islocalhost, nasl_islocalnet), nasl/smb_crypt
-	(SMBencrypt_ntlmssp), nasl/nasl_packet_forgery.c (forge_tcp_packet,
-	nasl_tcp_ping), nasl/nasl_packet_forgery_v6.c (set_ipv6_elements,
-	forge_tcp_v6_packet, get_udp_v6_element),
+	(SMBencrypt_ntlmssp), nasl/nasl_packet_forgery.c (forge_tcp_packet)
+	(nasl_tcp_ping), nasl/nasl_packet_forgery_v6.c (set_ipv6_elements)
+	(forge_tcp_v6_packet, get_udp_v6_element),
 	nasl/nasl_builtin_openvas_tcp_scanner.c (banner_grab),
 	nasl/nasl_misc_funcs.c (nasl_make_array), nasl/nasl_builtin_synscan.c
 	(plugin_run_synscan), nasl/charcnv.c (convert_string_internal_ntlmssp):
