@@ -1,3 +1,8 @@
+2011-07-13  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* CMakeLists.txt: Do not try to fix LIBSSH_CFLAGS and LIBSSH_LDFLAGS
+	if they have already been set by pkg-config.
+
 2011-07-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_scanner_glue.c (script_id): Create legacy OID directly
