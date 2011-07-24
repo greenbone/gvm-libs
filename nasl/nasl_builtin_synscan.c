@@ -927,7 +927,9 @@ plugin_run_synscan (lex_ctxt * lexic)
   struct in6_addr *dst6 = plug_get_host_ip (env);
   struct in_addr  *dst;
   struct in_addr  inaddr;
+#ifdef DEBUG
   struct timeval  tv;
+#endif
 
   inaddr.s_addr = dst6->s6_addr32[3];
   dst = &inaddr;
@@ -944,14 +946,9 @@ plugin_run_synscan (lex_ctxt * lexic)
     rtt = htonl (1 << 28);
 
 #ifdef DEBUG
-    printf ("RTT = 0x%.8x\n", ntohl (rtt));
-#endif
-
-  /** @TODO belongs to debug section? */
+  printf ("RTT = 0x%.8x\n", ntohl (rtt));
   tv = timeval (rtt);
-
-#ifdef DEBUG
-	printf ("That's %ld seconds and %ld usecs\n", tv.tv_sec, tv.tv_usec);
+  printf ("That's %ld seconds and %ld usecs\n", tv.tv_sec, tv.tv_usec);
 #endif
 
   struct arglist *hostinfos = arg_get_value (env, "HOSTNAME");

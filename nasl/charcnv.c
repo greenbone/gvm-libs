@@ -330,27 +330,26 @@ static size_t convert_string_internal_ntlmssp(charset_t from, charset_t to,
 
   retval = smb_iconv_ntlmssp(descriptor, &inbuf, &i_len, &outbuf, &o_len);
   if(retval==(size_t)-1) {
-    const char *reason="unknown error";
     switch(errno) {
       case EINVAL:
-        reason="Incomplete multibyte sequence";
+        /* Incomplete multibyte sequence */
         if (!conv_silent_ntlmssp)
           if (allow_bad_conv)
             goto use_as_is;
         return (size_t)-1;
       case E2BIG:
-        reason="No more room";
+        /* No more room */
       break;
       case EILSEQ:
-        reason="Illegal multibyte sequence";
+        /* Illegal multibyte sequence */
         if (allow_bad_conv)
           goto use_as_is;
 
         return (size_t)-1;
       default:
+        /* unknown error */
         return (size_t)-1;
     }
-    /* printf(reason); */
   }
   return destlen-o_len;
 

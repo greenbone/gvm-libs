@@ -690,11 +690,16 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	  if (wait_sock_nb == 0)
 	    if (rtt_max[0] > 0 || ping_rtt > 0)
 	      {
+#if DEBUG > 1
 		int	y;
+#endif
 		if (rtt_max[0] > 0)
-		  y = x = rtt_max[0];
+		  x = rtt_max[0];
 		else
-		  y = x = ping_rtt;
+		  x = ping_rtt;
+#if DEBUG > 1
+                y = x;
+#endif
 
 		if (doublecheck_flag)
 		  {

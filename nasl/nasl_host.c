@@ -155,11 +155,9 @@ nasl_islocalhost (lex_ctxt * lexic)
   struct arglist *script_infos = lexic->script_infos;
   struct in6_addr *dst = plug_get_host_ip (script_infos);
   tree_cell *retc;
-  struct in_addr inaddr;
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
-  inaddr.s_addr = dst->s6_addr32[3];
   retc->x.i_val = v6_islocalhost (dst);
   return retc;
 }
@@ -171,11 +169,9 @@ nasl_islocalnet (lex_ctxt * lexic)
   struct arglist *script_infos = lexic->script_infos;
   struct in6_addr *ip = plug_get_host_ip (script_infos);
   tree_cell *retc;
-  struct in_addr inaddr;
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
-  inaddr.s_addr = ip->s6_addr32[3];
   retc->x.i_val = v6_is_local_ip (ip);
   return retc;
 }
