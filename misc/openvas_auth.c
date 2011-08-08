@@ -384,7 +384,8 @@ openvas_auth_tear_down ()
  * @param[in] keyfile The KeyFile to merge and write. Can be NULL, in which
  *                    case just the default will be written.
  *
- * @return 1 if file has been written successfully, != 1 otherwise.
+ * @return 0 if file has been written successfully, 1 authdn validation
+ *         failed, -1 error.
  */
 int
 openvas_auth_write_config (GKeyFile * key_file)
@@ -499,6 +500,23 @@ openvas_auth_write_config (GKeyFile * key_file)
     }
   g_strfreev (groups);
 
+#ifdef ENABLE_LDAP_AUTH
+  // Validate.
+  {
+    gchar *authdn;
+    authdn = g_key_file_get_value (new_conffile, "method:ldap", "authdn", NULL);
+    if (authdn && (ldap_auth_dn_is_good (authdn) == FALSE))
+      {
+        // Clean up.
+        g_key_file_free (new_conffile);
+        g_free (file_content);
+        g_free (file_path);
+
+        return 1;
+      }
+  }
+#endif
+
   // Write file.
   file_content = g_key_file_to_data (new_conffile, NULL, NULL);
   written = g_file_set_contents (file_path, file_content, -1, NULL);
@@ -508,7 +526,7 @@ openvas_auth_write_config (GKeyFile * key_file)
   g_free (file_content);
   g_free (file_path);
 
-  return (written == TRUE) ? 1 : 0;
+  return (written == TRUE) ? 0 : -1;
 }
 
 /**

@@ -56,6 +56,7 @@ struct ldap_auth_info
 /** @brief Authentication schema and adress type. */
 typedef struct ldap_auth_info *ldap_auth_info_t;
 
+gboolean ldap_auth_dn_is_good (const gchar * authdn);
 
 ldap_auth_info_t ldap_auth_info_new (const gchar * ldap_host,
                                      const gchar * auth_dn,

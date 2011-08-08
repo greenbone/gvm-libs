@@ -64,9 +64,12 @@
  *
  * @return TRUE if authdn is considered safe enough to be sprintf'ed into.
  */
-static gboolean
-auth_dn_is_good (const gchar * authdn)
+gboolean
+ldap_auth_dn_is_good (const gchar * authdn)
 {
+  gchar *eg;
+  LDAPDN dn;
+
   if (authdn == NULL)
     return FALSE;
 
@@ -79,6 +82,17 @@ auth_dn_is_good (const gchar * authdn)
   pos = strchr (pos + 1, '%');
   if (pos != NULL)
     return FALSE;
+
+  /* Validate the DN with the LDAP library. */
+  eg = g_strdup_printf (authdn, "example");
+  dn = NULL;
+  if (ldap_str2dn (eg, &dn, LDAP_DN_FORMAT_LDAPV3))
+    {
+      g_free (eg);
+      return FALSE;
+    }
+  g_free (eg);
+  ldap_memfree (dn);
 
   return TRUE;
 }
@@ -136,7 +150,7 @@ ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
       || !role_admin_values)
     return NULL;
 
-  if (auth_dn_is_good (auth_dn) == FALSE)
+  if (ldap_auth_dn_is_good (auth_dn) == FALSE)
     return NULL;
 
   ldap_auth_info_t info = g_malloc0 (sizeof (struct ldap_auth_info));
@@ -390,7 +404,7 @@ ldap_auth_bind_query (const gchar * host, const gchar * userdn_tmpl,
                       const gchar * dn, const gchar * filter,
                       const gchar * attribute)
 {
-  if (auth_dn_is_good (userdn_tmpl) == FALSE)
+  if (ldap_auth_dn_is_good (userdn_tmpl) == FALSE)
     return NULL;
 
   GSList *attribute_values = NULL;
