@@ -338,8 +338,6 @@ nasl_ssh_exec (lex_ctxt * lexic)
       pubkey_contents =
         g_strdup_printf ("%s %s user@host", privkey_type, pubkey);
 
-      fprintf (stderr, "pubkey_contents: %s\n", pubkey_contents);
-
       g_file_set_contents (pubkey_filename, pubkey_contents,
                            strlen (pubkey_contents), &error);
       if (error)
@@ -480,7 +478,6 @@ nasl_ssh_exec (lex_ctxt * lexic)
         }
 
       /* auth success */
-      fprintf (stderr, "Successfully authenticated using %s", privkey_filename);
       ssh_string_free (pubkey_string);
       privatekey_free (ssh_privkey);
 

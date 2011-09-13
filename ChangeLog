@@ -1,3 +1,8 @@
+2011-09-13  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* nasl/nasl_ssh.c (nasl_ssh_exec): Remove superfluous log messages for
+	non-error cases.
+
 2011-08-08  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Validate LDAP auth DN.
