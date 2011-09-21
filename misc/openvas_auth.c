@@ -934,6 +934,34 @@ uuid_file_contents (const gchar * uuid_file_path)
 }
 
 /**
+ * @brief Check whether a user exists.
+ *
+ * @param[in]  name   User name.
+ *
+ * @return 1 yes, 0 no, -1 error.
+ */
+int
+openvas_user_exists (const char *name)
+{
+  gchar *user_dir;
+  struct stat state;
+  int err;
+
+  user_dir = g_build_filename (OPENVAS_USERS_DIR, name, NULL);
+  err = stat (user_dir, &state);
+  g_free (user_dir);
+  if (err)
+    switch (errno)
+      {
+        case ENOENT:
+          return 0;
+        default:
+          return -1;
+      }
+  return 1;
+}
+
+/**
  * @brief Return the UUID of a user from the OpenVAS user UUID file.
  *
  * If the user exists, ensure that the user has a UUID (create that file).

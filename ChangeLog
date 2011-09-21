@@ -1,3 +1,11 @@
+2011-09-21  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_user_exists): New function.
+
+	* misc/openvas_auth.h: Add header accordingly.
+
+	* ChangeLog: Cleanup some entries.
+
 2011-09-13  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* nasl/nasl_ssh.c (nasl_ssh_exec): Remove superfluous log messages for
@@ -6136,12 +6144,12 @@
 
 	* libopenvas/store.c (str2arglist): Apply strchr
 	only if the string is non-empty.
-	(store_load_plugin, store_plugin, store_fetch_path,
-	store_fetch_version, store_fetch_summary, store_fetch_description,
-	store_fetch_copyright, store_fetch_family, store_fetch_oid,
-	store_fetch_cve_id, store_fetch_bugtraq_id, store_fetch_xref,
-	store_fetch_tag, store_fetch_required_keys, store_fetch_excluded_keys,
-	store_fetch_required_ports, store_fetch_required_udp_ports):
+	(store_load_plugin, store_plugin, store_fetch_path)
+	(store_fetch_version, store_fetch_summary, store_fetch_description)
+	(store_fetch_copyright, store_fetch_family, store_fetch_oid)
+	(store_fetch_cve_id, store_fetch_bugtraq_id, store_fetch_xref)
+	(store_fetch_tag, store_fetch_required_keys, store_fetch_excluded_keys)
+	(store_fetch_required_ports, store_fetch_required_udp_ports):
 	Replace handling from "desc" files to "nvti" files.
 
 2009-06-11  Michael Wiegand <michael.wiegand@intevation.de>
@@ -8866,4 +8874,4 @@
 2007-03-28  Jan-Oliver Wagner <jan-oliver.wagner@intevation.de>
 
 	* VERSION: Changed version number to 0.9.0 to not confuse with nessus
-		versioning and to make clear that for OpenVAS this is not yet stable.
+	versioning and to make clear that for OpenVAS this is not yet stable.
