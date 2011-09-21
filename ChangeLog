@@ -1,5 +1,9 @@
 2011-09-21  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* misc/openvas_auth.c (openvas_auth_store_user_rules): Correct doc typo.
+
+2011-09-21  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* misc/openvas_auth.c (openvas_user_exists): New function.
 
 	* misc/openvas_auth.h: Add header accordingly.

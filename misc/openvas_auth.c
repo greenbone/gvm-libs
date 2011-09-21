@@ -1311,7 +1311,7 @@ openvas_auth_mkrulesdir (const gchar * user_dir_name)
  * This directory has to exist prior to this function call, otherwise the
  * file will not be written and -1 will be returned.
  *
- * @param[in]  user_dir_name  Directory under wich the autch/rules file will
+ * @param[in]  user_dir_name  Directory under which the auth/rules file will
  *                            be placed.
  * @param[in]  hosts          The hosts the user is allowed/forbidden to scan.
  *                            Can be NULL, then defaults to allow-all.
