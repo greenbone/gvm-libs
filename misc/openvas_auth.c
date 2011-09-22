@@ -93,6 +93,7 @@
  *
  *  - uuid : File containing the users uuid.
  *  - isadmin : (optional) flag to mark the user being an admin.
+ *  - isobserver : (optional) flag to mark the user being an observer.
  *  - auth/rules : The rules file.
  *  - auth/hash : (only for locally authenticated users) hash of the users
  *                password
@@ -1109,6 +1110,73 @@ openvas_is_user_admin (const gchar * username)
 }
 
 /**
+ * @brief Check if a user is an observer.
+ *
+ * The check for administrative privileges is currently done by looking for an
+ * "ispassword" file in the user directory.
+ *
+ * @param username Username.
+ *
+ * @warning No "sharp" test is performed, as it is possible to have multiple
+ *          users with the same name (in order to allow integration of remote
+ *          authentication sources). Would need the uuid here to fix this
+ *          behaviour.
+ *
+ * @return 1 if user is observer, else 0.
+ */
+int
+openvas_is_user_observer (const gchar * username)
+{
+  gchar *dir_name = g_build_filename (OPENVAS_USERS_DIR, username, NULL);
+  gchar *file_name = g_build_filename (dir_name,
+                                       "isobserver",
+                                       NULL);
+  gboolean file_exists = FALSE;
+  if (g_file_test (dir_name, G_FILE_TEST_IS_DIR))
+    {
+      if (g_file_test (file_name, G_FILE_TEST_IS_REGULAR))
+        {
+          g_free (file_name);
+          g_free (dir_name);
+          return 1;
+        }
+      g_free (file_name);
+      g_free (dir_name);
+      return 0;
+    }
+
+  g_free (dir_name);
+  g_free (file_name);
+
+  // Remote case.
+  if (file_exists == FALSE && (initialized == TRUE && authenticators != NULL))
+    {
+      // Try each authenticator in the list.
+      GSList *item = authenticators;
+      while (item)
+        {
+          authenticator_t authent = (authenticator_t) item->data;
+          file_name = g_build_filename (OPENVAS_STATE_DIR,
+                                        "users-remote",
+                                        authentication_methods[authent->method],
+                                        username,
+                                        "isobserver",
+                                        NULL);
+
+          if (g_file_test (file_name, G_FILE_TEST_EXISTS) == TRUE)
+            {
+              g_free (file_name);
+              return 1;
+            }
+          g_free (file_name);
+          item = g_slist_next (item);
+        }
+    }
+
+  return file_exists;
+}
+
+/**
  * @brief Set the role of a user.
  *
  * @param username      Username.
@@ -1122,39 +1190,70 @@ int
 openvas_set_user_role (const gchar * username, const gchar * role,
                        const gchar * user_dir_name)
 {
-  int ret = -1;
-  gchar *file_name;
+  gchar *admin_file_name, *observer_file_name;
 
   // Take default directory if none passed as parameter.
+
   if (user_dir_name == NULL)
-    file_name = g_build_filename (OPENVAS_USERS_DIR, username, "isadmin", NULL);
+    admin_file_name = g_build_filename (OPENVAS_USERS_DIR, username, "isadmin",
+                                        NULL);
   else
-    file_name = g_build_filename (user_dir_name, "isadmin", NULL);
+    admin_file_name = g_build_filename (user_dir_name, "isadmin", NULL);
+
+  if (user_dir_name == NULL)
+    observer_file_name = g_build_filename (OPENVAS_USERS_DIR, username,
+                                           "isobserver", NULL);
+  else
+    observer_file_name = g_build_filename (user_dir_name, "isobserver", NULL);
 
   if (strcmp (role, "User") == 0)
     {
-      if (g_remove (file_name))
-        {
-          if (errno == ENOENT)
-            ret = 0;
-        }
-      else
-        ret = 0;
+      if (g_remove (admin_file_name) && errno != ENOENT)
+        goto fail;
+
+      if (g_remove (observer_file_name) && errno != ENOENT)
+        goto fail;
     }
-  else if (strcmp (role, "Admin") == 0
-           && g_file_set_contents (file_name, "", -1, NULL))
+  else if (strcmp (role, "Admin") == 0)
     {
-      g_chmod (file_name, 0600);
-      ret = 0;
+      if (g_remove (admin_file_name) && errno != ENOENT)
+        goto fail;
+
+      if (g_remove (observer_file_name) && errno != ENOENT)
+        goto fail;
+
+      if (g_file_set_contents (admin_file_name, "", -1, NULL)
+          == FALSE)
+        goto fail;
+
+      g_chmod (admin_file_name, 0600);
+    }
+  else if (strcmp (role, "Observer") == 0)
+    {
+      if (g_remove (admin_file_name) && errno != ENOENT)
+        goto fail;
+
+      if (g_remove (observer_file_name) && errno != ENOENT)
+        goto fail;
+
+      if (g_file_set_contents (observer_file_name, "", -1, NULL)
+          == FALSE)
+        goto fail;
+
+      g_chmod (observer_file_name, 0600);
     }
   else
     {
-      g_free (file_name);
+      g_free (admin_file_name);
       return -2;
     }
 
-  g_free (file_name);
-  return ret;
+  g_free (admin_file_name);
+  return 0;
+
+ fail:
+  g_free (admin_file_name);
+  return -1;
 }
 
 #ifndef _WIN32

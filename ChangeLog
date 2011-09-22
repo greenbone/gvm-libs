@@ -1,3 +1,10 @@
+2011-09-22  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_is_user_observer): New function.
+	(openvas_set_user_role): Add observer role.
+
+	* misc/openvas_auth.h: Add header accordingly.
+
 2011-09-21  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_auth_store_user_rules): Correct doc typo.

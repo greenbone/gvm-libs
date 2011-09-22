@@ -51,6 +51,8 @@ gchar *openvas_user_uuid (const char *name);
 
 int openvas_is_user_admin (const gchar *);
 
+int openvas_is_user_observer (const gchar *);
+
 int openvas_set_user_role (const gchar *, const gchar *,
                            const gchar * user_dir_name);
 
