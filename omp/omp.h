@@ -53,6 +53,9 @@ int omp_get_dependencies_503 (gnutls_session_t * session, entity_t * response);
 int omp_authenticate (gnutls_session_t * session, const char *username,
                       const char *password);
 
+int omp_authenticate_info (gnutls_session_t * session, const char *username,
+                           const char *, char **, char **);
+
 int omp_authenticate_env (gnutls_session_t * session);
 
 int omp_create_task_rc (gnutls_session_t *, const char *, unsigned int,

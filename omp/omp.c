@@ -232,6 +232,80 @@ omp_authenticate (gnutls_session_t* session,
 }
 
 /**
+ * @brief Authenticate with the manager.
+ *
+ * @param[in]  session   Pointer to GNUTLS session.
+ * @param[in]  username  Username.
+ * @param[in]  password  Password.
+ * @param[out] role      Role.
+ * @param[out] timezone  Timezone if any, else NULL.
+ *
+ * @return 0 on success, 1 if manager closed connection, 2 if auth failed,
+ *         -1 on error.
+ */
+int
+omp_authenticate_info (gnutls_session_t *session,
+                       const char *username,
+                       const char *password,
+                       char **role,
+                       char **timezone)
+{
+  entity_t entity;
+  const char* status;
+  char first;
+  gchar* msg;
+
+  *timezone = NULL;
+
+  /* Send the auth request. */
+
+  msg = g_markup_printf_escaped ("<authenticate><credentials>"
+                                 "<username>%s</username>"
+                                 "<password>%s</password>"
+                                 "</credentials></authenticate>",
+                                 username,
+                                 password);
+  int ret = openvas_server_send (session, msg);
+  g_free (msg);
+  if (ret) return ret;
+
+  /* Read the response. */
+
+  entity = NULL;
+  if (read_entity (session, &entity)) return -1;
+
+  /* Check the response. */
+
+  status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  first = status[0];
+  if (first == '2')
+    {
+      entity_t timezone_entity, role_entity;
+      /* Get the extra info. */
+      timezone_entity = entity_child (entity, "timezone");
+      if (timezone_entity)
+        *timezone = g_strdup (entity_text (timezone_entity));
+      role_entity = entity_child (entity, "role");
+      if (role_entity)
+        *role = g_strdup (entity_text (role_entity));
+      free_entity (entity);
+      return 0;
+    }
+  free_entity (entity);
+  return 2;
+}
+
+/**
  * @brief Authenticate, getting credentials from the environment.
  *
  * Get the user name from environment variable OPENVAS_TEST_USER if that is

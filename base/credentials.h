@@ -43,6 +43,10 @@ typedef struct
   ///< Password of user.
   /*@null@ */ gchar *uuid;
   ///< UUID of user.
+  /*@null@ */ gchar *timezone;
+  ///< Timezone of user.  Set in OpenVAS Manager.
+  /*@null@ */ gchar *role;
+  ///< Timezone of role.  Set in OpenVAS Manager.
 } credentials_t;
 
 void free_credentials (credentials_t * credentials);

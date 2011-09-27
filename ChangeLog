@@ -1,3 +1,13 @@
+2011-09-27  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_authenticate_info): New function.
+
+	* omp/omp.h: Add header accordingly.
+
+	* base/credentials.h (credentials_t): Add timezone and role.
+
+	* base/credentials.c (free_credentials): Free timezone and role.
+
 2011-09-22  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_is_user_observer): New function.

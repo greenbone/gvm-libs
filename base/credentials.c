@@ -46,6 +46,12 @@ free_credentials (credentials_t * credentials)
   credentials->password = NULL;
 
   /** @todo Check whether uuid has to be freed, too. */
+
+  g_free (credentials->timezone);
+  credentials->timezone = NULL;
+
+  g_free (credentials->role);
+  credentials->role = NULL;
 }
 
 /**
