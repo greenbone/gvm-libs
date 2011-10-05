@@ -1,3 +1,10 @@
+2011-10-05  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* src/openvas_auth.c (openvas_user_modify): New function.  Body from
+	openvas-administrator openvas_admin_modify_user.
+
+	* misc/openvas_auth.h: Add header accordingly.
+
 2011-09-27  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_authenticate_info): New function.

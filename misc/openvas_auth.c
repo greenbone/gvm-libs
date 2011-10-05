@@ -1176,6 +1176,89 @@ openvas_is_user_observer (const gchar * username)
   return file_exists;
 }
 
+/** @todo handle remotely authenticated users. */
+/**
+ * @brief Modify a user.
+ *
+ * @param[in]  name         The name of the new user.
+ * @param[in]  password     The password of the new user.  NULL to leave as is.
+ * @param[in]  role         The role of the user.  NULL to leave as is.
+ * @param[in]  hosts        The host the user is allowed/forbidden to scan.
+ *                          NULL to leave as is.
+ * @param[in]  hosts_allow  Whether hosts is allow or forbid.
+ * @param[in]  directory    The directory containing the user directories.  It
+ *                          will be created if it does not exist already.
+ *
+ * @return 0 if the user has been added successfully, -1 on error, -2 for an
+ *         unknown role, -3 if user exists already.
+ */
+int
+openvas_user_modify (const gchar * name, const gchar * password,
+                     const gchar * role, const gchar * hosts,
+                     int hosts_allow, const gchar * directory)
+{
+  g_assert (name != NULL);
+
+  if (directory == NULL)
+    directory = OPENVAS_USERS_DIR;
+
+  if (strcmp (name, "om") == 0)
+    {
+      g_warning ("Attempt to modify special \"om\" user!");
+      return -1;
+    }
+
+  if (g_file_test (directory, G_FILE_TEST_IS_DIR))
+    {
+      GError *error = NULL;
+      gchar *user_hash_file_name, *hashes_out;
+
+      /* Put the password hashes in auth/hash. */
+
+      if (password)
+        {
+          hashes_out = get_password_hashes (GCRY_MD_MD5, password);
+          user_hash_file_name =
+            g_build_filename (directory, name, "auth", "hash", NULL);
+          if (!g_file_set_contents
+              (user_hash_file_name, hashes_out, -1, &error))
+            {
+              g_warning ("%s", error->message);
+              g_error_free (error);
+              g_free (hashes_out);
+              g_free (user_hash_file_name);
+              return -1;
+            }
+          g_free (hashes_out);
+          g_free (user_hash_file_name);
+        }
+
+      /* Create rules according to hosts. */
+      if (hosts)
+        {
+          gchar *user_dir_name = g_build_filename (directory, name, NULL);
+          if (openvas_auth_store_user_rules (user_dir_name, hosts, hosts_allow)
+              == -1)
+            {
+              g_free (user_dir_name);
+              return -1;
+            }
+
+          g_free (user_dir_name);
+        }
+
+      /* Set the role of the user. */
+
+      if (role)
+        return openvas_set_user_role (name, role, NULL);
+
+      return 0;
+    }
+
+  g_warning ("Could not access %s!", directory);
+  return -1;
+}
+
 /**
  * @brief Set the role of a user.
  *

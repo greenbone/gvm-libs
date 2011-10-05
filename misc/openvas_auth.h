@@ -56,6 +56,9 @@ int openvas_is_user_observer (const gchar *);
 int openvas_set_user_role (const gchar *, const gchar *,
                            const gchar * user_dir_name);
 
+int openvas_user_modify (const gchar *, const gchar *, const gchar *,
+                         const gchar *, int, const gchar *);
+
 int openvas_auth_mkrulesdir (const gchar * user_dir_name);
 
 int openvas_auth_user_rules (const gchar * username, gchar ** rules);
