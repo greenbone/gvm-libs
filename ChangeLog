@@ -1,6 +1,10 @@
+2011-10-06  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* ChangeLog: Fix path in last entry.
+
 2011-10-05  Matthew Mundell <matthew.mundell@greenbone.net>
 
-	* src/openvas_auth.c (openvas_user_modify): New function.  Body from
+	* misc/openvas_auth.c (openvas_user_modify): New function.  Body from
 	openvas-administrator openvas_admin_modify_user.
 
 	* misc/openvas_auth.h: Add header accordingly.
