@@ -1,3 +1,32 @@
+openvas-libraries 5.0+beta2 (2011-10-07)
+
+This release is the second beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS 5".
+
+This release fixes a cache file management issue discovered after there release
+of openvas-libraries 5.0+beta1, introduces support for the observer role and
+includes the result of a code cleanup and refactoring in the NVT meta data
+management.
+
+NOTE: Due to the changes in 5.0+beta2, it is strongly recommended to delete the
+contents of the OpenVAS Scanner cache directory to remove obsolete files and to
+force the Scanner to rebuild the cache.
+
+Many thanks to everyone who has contributed this release:
+Henri Doreau, Matthew Mundell, Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to 5.0+beta1:
+* A bug which caused outdated cache files to be used under rare circumstances
+  has been fixed.
+* Code cleanup and refactoring has taken place in NVT meta data management.
+* Libssh detection has been improved.
+* The LDAP auth DN validation has been improved.
+* Support for the observer role has been added and functionality for user
+  management has been moved from openvas-administrator to openvas-libraries.
+* Support for name conversion for legacy .nes dependencies when loading the
+  cache has been removed.
+
+
 openvas-libraries 5.0+beta1 (2011-06-21)
 
 This release is the first beta version of the next major release of
