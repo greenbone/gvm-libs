@@ -1,5 +1,11 @@
 2011-10-07  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Post release version bump.
+
+	* CMakeLists.txt: Set version to 5.0+beta3.
+
+2011-10-07  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Preparing the openvas-libraries 5.0+beta2 release.
 
 	* CHANGES: Updated.
