@@ -137,15 +137,15 @@ hg_get_name_from_ip (struct in6_addr *ip, char *hostname, int sz)
   if (getnameinfo (sa, len, hostname, sz, NULL, 0, 0))
     {
       if (IN6_IS_ADDR_V4MAPPED (ip))
-        fprintf (stderr, "just copying address %s",
+        fprintf (stderr, "hg_get_name_from_ip: copying address %s\n",
                  inet_ntop (AF_INET, &saddr.sin_addr, hostname, sz));
       else
-        fprintf (stderr, "just copying address %s",
+        fprintf (stderr, "hg_get_name_from_ip: copying address (IPv6) %s\n",
                  inet_ntop (AF_INET6, ip, hostname, sz));
     }
   else
     {
-      fprintf (stderr, "resolved to name %s\n", hostname);
+      fprintf (stderr, "hg_get_name_from_ip: resolved to name %s\n", hostname);
     }
 
   hostname[sz - 1] = '\0';
