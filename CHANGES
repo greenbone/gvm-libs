@@ -1,3 +1,20 @@
+openvas-libraries 4.0.6 (2011-11-03)
+
+This is the sixth maintenance release of the openvas-libraries 4.0 module for
+the Open Vulnerability Assessment System (OpenVAS).
+
+This release fixes a cache file management issue and addresses compiler warnings
+discovered by Henri Doreau.
+
+Many thanks to everyone who has contributed this release:
+Henri Doreau, Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to 4.0.5:
+* A bug which caused outdated cache files to be used under rare circumstances
+  has been fixed.
+* Compiler warnings from gcc 4.6 have been addressed.
+
+
 openvas-libraries 4.0.5 (2011-06-01)
 
 This is the fifth maintenance release of the openvas-libraries 4.0 module for
