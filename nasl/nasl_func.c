@@ -47,28 +47,14 @@ hash_str (const char *s)
 static nasl_func *
 get_func (lex_ctxt * ctxt, const char *name, int h)
 {
-  nasl_func *v, *prev;
+  nasl_func *v;
   lex_ctxt *c;
 
   for (c = ctxt; c != NULL; c = c->up_ctxt)
     {
-      for (prev = NULL, v = c->functions[h]; v != NULL; v = v->next_func)
+      for (v = c->functions[h]; v != NULL; v = v->next_func)
         if (v->func_name != NULL && strcmp (name, v->func_name) == 0)
-          {
-#ifdef SILLY_OPT
-            if (prev != NULL)   /* Move it to start of list */
-              {
-                prev->next_func = v->next_func;
-                v->next_func = c->functions[h];
-                c->functions[h] = v;
-              }
-#endif
-            return v;
-          }
-#ifdef SILLY_OPT
-        else
-          prev = v;
-#endif
+          return v;
     }
 
   return NULL;
