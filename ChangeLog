@@ -1,5 +1,40 @@
 2011-11-07  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* hg/hg_add_hosts.c, hg/hg_add_hosts.h, hg/hg_debug.c,
+	hg/hg_dns_axfr.c, hg/hg_dns_axfr.h, hg/hg_filter.c, hg/hg_filter.h,
+	hg/hg_subnet.c, hg/hg_subnet.h, hg/hg_utils.c, hg/hg_utils.h,
+	hg/hosts_gatherer.c, hg/hosts_gatherer.h, hg/test.c, misc/bpf_share.c,
+	misc/comm.h, misc/kb.c, misc/nvt_categories.h, misc/pcap.c,
+	misc/popen.c, misc/rand.c, misc/rand.h, misc/resolve.c,
+	misc/resolve.h, misc/scanners_utils.c, misc/scanners_utils.h,
+	misc/services1.c, misc/services.h, misc/www_funcs.c, nasl/arc4.c,
+	nasl/byteorder.h, nasl/capture_packet.c, nasl/capture_packet.h,
+	nasl/charcnv.c, nasl/charset.h, nasl/exec.c, nasl/exec.h,
+	nasl/genrand.c, nasl/hmacmd5.c, nasl/hmacmd5.h, nasl/iconv.c,
+	nasl/iconv.h, nasl/lint.c, nasl/md4.c, nasl/md4.h,
+	nasl/nasl_builtin_openvas_tcp_scanner.c, nasl/nasl.c,
+	nasl/nasl_cmd_exec.c, nasl/nasl_cmd_exec.h, nasl/nasl_crypto2.c,
+	nasl/nasl_crypto2.h, nasl/nasl_crypto.c, nasl/nasl_crypto.h,
+	nasl/nasl_debug.c, nasl/nasl_debug.h, nasl/nasl_func.c,
+	nasl/nasl_func.h, nasl/nasl_global_ctxt.h, nasl/nasl_grammar.y,
+	nasl/nasl.h, nasl/nasl_host.c, nasl/nasl_host.h, nasl/nasl_http.c,
+	nasl/nasl_http.h, nasl/nasl_init.c, nasl/nasl_init.h,
+	nasl/nasl_lex_ctxt.c, nasl/nasl_lex_ctxt.h, nasl/nasl_misc_funcs.c,
+	nasl/nasl_misc_funcs.h, nasl/nasl_packet_forgery.c,
+	nasl/nasl_packet_forgery.h, nasl/nasl_packet_forgery_v6.c,
+	nasl/nasl_packet_forgery_v6.h, nasl/nasl_raw.h, nasl/nasl_regex.h,
+	nasl/nasl_scanner_glue.c, nasl/nasl_scanner_glue.h,
+	nasl/nasl_socket.c, nasl/nasl_socket.h, nasl/nasl_text_utils.c,
+	nasl/nasl_text_utils.h, nasl/nasl_tree.c, nasl/nasl_tree.h,
+	nasl/nasl_var.c, nasl/nasl_var.h, nasl/preparse.c, nasl/preparse.h,
+	nasl/regex.c, nasl/smb_crypt2.c, nasl/smb_crypt.c, nasl/smb.h,
+	nasl/smb_signing.c, nasl/smb_signing.h, nasl/strutils.c,
+	nasl/strutils.h, nasl/time.c: Ensure that the license text contains
+	the correct address if the Free Software Foundation. Suggested by
+	Michal Ambroz.
+
+2011-11-07  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* COPYING.GPLv2, COPYING.LGPLv2: Update with fresh copies obtained
 	from http://www.gnu.org/licenses/old-licenses/ to ensure the licenses
 	contains the correct address of the Free Software Foundation and to
