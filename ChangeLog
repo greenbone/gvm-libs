@@ -1,5 +1,13 @@
 2011-11-07  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* COPYING.GPLv2, COPYING.LGPLv2: Update with fresh copies obtained
+	from http://www.gnu.org/licenses/old-licenses/ to ensure the licenses
+	contains the correct address of the Free Software Foundation and to
+	have consistent formatting. Suggested by Michal Ambroz. Backport from
+	SVN trunk, originally committed in r12008.
+
+2011-11-07  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* nasl/nasl_func.c (get_func), nasl/nasl_var.c (get_var_ref_by_name):
 	removed dead code contained in #ifdef SILLY_OPT checks. Backport from
 	SVN trunk, originally committed by Henri Doreau in r11111.
