@@ -1,5 +1,10 @@
 2011-11-07  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* nasl/smb_crypt.h: Ensure that the license text contains the correct
+	address if the Free Software Foundation.
+
+2011-11-07  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* hg/hg_add_hosts.c, hg/hg_add_hosts.h, hg/hg_debug.c,
 	hg/hg_dns_axfr.c, hg/hg_dns_axfr.h, hg/hg_filter.c, hg/hg_filter.h,
 	hg/hg_subnet.c, hg/hg_subnet.h, hg/hg_utils.c, hg/hg_utils.h,
