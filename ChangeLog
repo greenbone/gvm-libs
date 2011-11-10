@@ -1,5 +1,10 @@
 2011-11-10  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* nasl/CMakeLists.txt: Adjust bison call in custom command to enable
+	out-of-source builds.
+
+2011-11-10  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/network.c (open_SSL_connection): Call
 	gnutls_transport_set_lowat only for gnutls < 2.12.0 since it is
 	deprecated in newer versions. Patch suggested by Stephan Kleine.

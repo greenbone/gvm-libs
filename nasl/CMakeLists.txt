@@ -51,8 +51,9 @@ endif (IGNORE_UNPROTOTYPED_CALLS)
 ## that and that the user is not warned if bison is not installed
 add_custom_command (
    COMMAND bison
-   ARGS -d -v -t -p nasl nasl_grammar.y
-   DEPENDS nasl_grammar.y
+   ARGS -d -v -t -p nasl ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.y
+   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.y
    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.tab.c
    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.tab.h
    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.output)
