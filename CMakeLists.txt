@@ -360,7 +360,7 @@ add_subdirectory (doc)
 install (FILES doc/openvas-nasl.1
          DESTINATION ${DATADIR}/man/man1 )
 
-install (FILES libopenvas.pc
+install (FILES ${CMAKE_BINARY_DIR}/libopenvas.pc
          DESTINATION ${LIBDIR}/pkgconfig)
 
 install (FILES openvas-services DESTINATION ${OPENVAS_DATA_DIR}

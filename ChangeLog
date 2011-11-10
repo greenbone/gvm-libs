@@ -1,5 +1,10 @@
 2011-11-10  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* CMakeLists.txt: Adjust path of source file in install to point to
+	the correct file for out-of-source builds.
+
+2011-11-10  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* doc/Doxyfile.in, doc/Doxyfile_full.in: Use CPACK_PACKAGE_VERSION
 	instead of a static value for the version.
 
