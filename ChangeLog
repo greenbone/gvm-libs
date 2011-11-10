@@ -1,3 +1,10 @@
+2011-11-10  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/network.c (open_SSL_connection): Call
+	gnutls_transport_set_lowat only for gnutls < 2.12.0 since it is
+	deprecated in newer versions. Patch suggested by Stephan Kleine.
+	Backport from trunk r12083.
+
 2011-11-07  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* nasl/smb_crypt.h: Ensure that the license text contains the correct
