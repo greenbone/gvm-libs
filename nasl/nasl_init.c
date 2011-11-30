@@ -96,6 +96,7 @@ static init_func libfuncs[] = {
   {"script_tag", script_tag, 0, {"name", "value", NULL}},
   {"get_preference", nasl_get_preference, 1, {NULL}},
   {"safe_checks", safe_checks, 0, {NULL}},
+  {"get_script_oid", get_script_oid, 0, {NULL}},
   {"replace_kb_item", replace_kb_item, 0, {"name", "value", NULL}},
   {"set_kb_item", set_kb_item, 0, {"name", "value", NULL}},
   {"get_kb_item", get_kb_item, 1, {NULL}},

@@ -634,6 +634,33 @@ network_targets (lex_ctxt * lexic)
   return retc;
 }
 
+/**
+ * @brief Return the OID of the current script.
+ *
+ * @param[in] lexic     NASL lexer.
+ *
+ * @return lex cell containing the OID as a string.
+ */
+tree_cell *
+get_script_oid (lex_ctxt * lexic)
+{
+  nvti_t *nvti = arg_get_value (lexic->script_infos, "NVTI");
+  char *oid;
+  tree_cell *retc;
+
+  retc = NULL;
+  oid = strdup (nvti_oid (nvti));
+
+  if (oid)
+    {
+      retc = alloc_typed_cell (CONST_DATA);
+      retc->x.str_val = oid;
+      retc->size = strlen (oid);
+    }
+
+  return retc;
+}
+
 /*--------------------[ KB ]---------------------------------------*/
 
 #define SECRET_KB_PREFIX	"Secret/"

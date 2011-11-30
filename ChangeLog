@@ -1,3 +1,14 @@
+2011-11-30  Henri Doreau <henri.doreau@greenbone.net>
+
+	Export a new function get_script_oid() to NASL.
+
+	* nasl/nasl_init.c: Add get_script_oid() to the list of the NASL
+	functions.
+
+	* nasl/nasl_scanner_glue.c (get_script_oid): New function.
+
+	* nasl/nasl_scanner_glue.h: Update header accordingly.
+
 2011-11-10  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* CMakeLists.txt: Adjust path of source file in install to point to
