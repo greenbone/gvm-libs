@@ -1,3 +1,8 @@
+2011-12-07  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_get_report): NULL-check response.  Check the response for
+	errors.
+
 2011-11-30  Henri Doreau <henri.doreau@greenbone.net>
 
 	Export a new function get_script_oid() to NASL.

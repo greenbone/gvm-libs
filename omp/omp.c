@@ -1520,6 +1520,12 @@ omp_get_report (gnutls_session_t* session,
                 int first_result_number,
                 entity_t* response)
 {
+  int ret;
+  const char *status_code;
+
+  if (response == NULL)
+    return -1;
+
   if (openvas_server_sendf (session,
                             "<get_reports"
                             " result_hosts_only=\"0\""
@@ -1536,9 +1542,24 @@ omp_get_report (gnutls_session_t* session,
   *response = NULL;
   if (read_entity (session, response)) return -1;
 
-  // FIX check status
+  /* Check the response. */
 
-  return 0;
+  status_code = entity_attribute (*response, "status");
+  if (status_code == NULL)
+    {
+      free_entity (*response);
+      return -1;
+    }
+  if (strlen (status_code) == 0)
+    {
+      free_entity (*response);
+      return -1;
+    }
+  if (status_code[0] == '2') return 0;
+  ret = (int) strtol (status_code, NULL, 10);
+  free_entity (*response);
+  if (errno == ERANGE) return -1;
+  return ret;
 }
 
 /**
