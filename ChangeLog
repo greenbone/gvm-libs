@@ -1,3 +1,22 @@
+2011-12-12  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Implement LDAP observers.
+
+	* misc/ldap_auth.h: Update headers accordingly.
+	(struct ldap_auth_info): Add role_observer_values.
+
+	* misc/ldap_auth.c (KEY_LDAP_ROLE_OBSERVER_VALUES): New define.
+	(ldap_auth_info_new, ldap_auth_info_free): Add arg role_observer_values.
+	(ldap_auth_query_role, ldap_authenticate): Add observer role.
+	(ldap_auth_info_from_key_file): Handle KEY_LDAP_ROLE_OBSERVER_VALUES.
+	(ldap_user_exists): New function.
+
+	* src/openvas_auth.c (struct authenticator): Add user_exists.
+	(classic_authenticator_new, add_authenticator): Init user_exists.
+	(openvas_user_exists_classic): New function.  Body from
+	openvas_user_exists.
+	(openvas_user_exists, openvas_user_uuid): Try all authentication types.
+
 2011-12-07  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_get_report): NULL-check response.  Check the response for

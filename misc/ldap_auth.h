@@ -47,6 +47,7 @@ struct ldap_auth_info
    *  @brief \ref role_admin_values. Empty string if n/a. */
   gchar *role_attribute;
   gchar **role_admin_values;    ///< Attribute values that qualify an admin.
+  gchar **role_observer_values; ///< Attribute values that qualify an observer.
   gchar **role_user_values;     ///< Attribute values that qualify a user.
   gchar *ruletype_attribute;    ///< Attribute to hold the ruletype.
   gchar *rule_attribute;        ///< Attribute to hold the rule (hosts) itself.
@@ -63,6 +64,7 @@ ldap_auth_info_t ldap_auth_info_new (const gchar * ldap_host,
                                      const gchar * role_attribute,
                                      gchar ** role_user_values,
                                      gchar ** role_admin_values,
+                                     gchar ** role_observer_values,
                                      const gchar * ruletype_attribute,
                                      const gchar * rule_attribute,
                                      gboolean allow_plaintext);
@@ -98,6 +100,9 @@ ldap_auth_bind_query (const gchar* host,
                       const gchar* dn,
                       const gchar* filter,
                       const gchar* attribute);
+
+int
+ldap_user_exists (const gchar *, void *);
 
 #endif /* not LDAP_AUTH_H */
 

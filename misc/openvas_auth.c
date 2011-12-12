@@ -140,8 +140,9 @@ struct authenticator
   int order;
   /** @brief Authentication callback function. */
   int (*authenticate) (const gchar * user, const gchar * pass, void *data);
-  /** @brief Optional data to be passed to the \ref authenticate callback
-   *  @brief function. */
+  /** @brief Existence predicate callback function. */
+  int (*user_exists) (const gchar * user, void *data);
+  /** @brief Optional data to be passed to callback functions. */
   void *data;
 };
 
@@ -153,6 +154,7 @@ typedef struct authenticator *authenticator_t;
 static int openvas_authenticate_classic (const gchar * usr, const gchar * pas,
                                          void *dat);
 
+static int openvas_user_exists_classic (const gchar *name, void *data);
 
 /**
  * @brief Return a auth_method_t from string representation (e.g. "ldap").
@@ -208,6 +210,7 @@ classic_authenticator_new (int order)
   authent->order = order;
   authent->authenticate = &openvas_authenticate_classic;
   authent->data = (void *) NULL;
+  authent->user_exists = &openvas_user_exists_classic;
   authent->method = AUTHENTICATION_METHOD_FILE;
   return authent;
 }
@@ -249,6 +252,7 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
         authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
         authent->order = order;
         authent->authenticate = &ldap_authenticate;
+        authent->user_exists = &ldap_user_exists;
         ldap_auth_info_t info = ldap_auth_info_from_key_file (key_file, group);
         authent->data = info;
         authent->method = AUTHENTICATION_METHOD_LDAP;
@@ -269,6 +273,7 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
         authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
         authent->order = order;
         authent->authenticate = &ads_authenticate;
+        authent->user_exists = NULL;
         ads_auth_info_t info = ads_auth_info_from_key_file (key_file, group);
         authent->data = info;
         authent->method = AUTHENTICATION_METHOD_ADS;
@@ -935,14 +940,15 @@ uuid_file_contents (const gchar * uuid_file_path)
 }
 
 /**
- * @brief Check whether a user exists.
+ * @brief Check whether a local user exists.
  *
  * @param[in]  name   User name.
+ * @param[in]  data   Dummy arg.
  *
  * @return 1 yes, 0 no, -1 error.
  */
-int
-openvas_user_exists (const char *name)
+static int
+openvas_user_exists_classic (const gchar *name, void *data)
 {
   gchar *user_dir;
   struct stat state;
@@ -963,14 +969,50 @@ openvas_user_exists (const char *name)
 }
 
 /**
+ * @brief Check whether a user exists.
+ *
+ * @param[in]  name   User name.
+ *
+ * @return 1 yes, 0 no, -1 error.
+ */
+int
+openvas_user_exists (const char *name)
+{
+  GSList *item;
+
+  g_debug ("%s: 0", __FUNCTION__);
+
+  if (initialized == FALSE || authenticators == NULL)
+    {
+      g_debug ("%s: 1", __FUNCTION__);
+      return openvas_user_exists_classic (name, NULL);
+    }
+
+  g_debug ("%s: 2", __FUNCTION__);
+
+  // Try each authenticator in the list.
+  item = authenticators;
+  while (item)
+    {
+      authenticator_t authent;
+
+      authent = (authenticator_t) item->data;
+      if (authent->user_exists)
+        {
+          int ret;
+          ret = authent->user_exists (name, authent->data);
+          if (ret)
+            return ret;
+        }
+      item = g_slist_next (item);
+    }
+  return 0;
+}
+
+/**
  * @brief Return the UUID of a user from the OpenVAS user UUID file.
  *
  * If the user exists, ensure that the user has a UUID (create that file).
- *
- * @deprecated  Use \ref openvas_authenticate_uuid to receive users uuid where
- *              you can. This leaves an issue in manager/schedular, that is
- *              solveable by storing a uuid instead of manage_auth_allow_all
- *              in openvasmd.
  *
  * @param[in]  name   User name.
  *
@@ -980,64 +1022,30 @@ openvas_user_exists (const char *name)
 gchar *
 openvas_user_uuid (const char *name)
 {
-  gchar *user_dir = g_build_filename (OPENVAS_USERS_DIR, name, NULL);
-  // Create a user dir to store the uuid if it does not exist.
-  if (g_mkdir_with_parents (user_dir, 0700) != 0)
+  GSList *item;
+
+  if (initialized == FALSE || authenticators == NULL)
+    return openvas_user_uuid_method (name, AUTHENTICATION_METHOD_FILE);
+
+  // Try each authenticator in the list.
+  item = authenticators;
+  while (item)
     {
-      g_warning ("Unable to access or create user directory.");
-      return NULL;
-    }
+      authenticator_t authent;
 
-  {
-    gchar *uuid_file = g_build_filename (user_dir, "uuid", NULL);
-    if (g_file_test (uuid_file, G_FILE_TEST_EXISTS))
-      {
-        gsize size;
-        gchar *uuid;
-        if (g_file_get_contents (uuid_file, &uuid, &size, NULL))
-          {
-            if (strlen (uuid) < 36)
-              g_free (uuid);
-            else
-              {
-                g_free (user_dir);
-                g_free (uuid_file);
-                /* Drop any trailing characters. */
-                uuid[36] = '\0';
-                return uuid;
-              }
-          }
-      }
-    else
-      {
-        gchar *contents;
-        char *uuid;
-
-        uuid = openvas_uuid_make ();
-        if (uuid == NULL)
-          {
-            g_free (user_dir);
-            g_free (uuid_file);
+      authent = (authenticator_t) item->data;
+      if (authent->user_exists)
+        {
+          int ret;
+          ret = authent->user_exists (name, authent->data);
+          if (ret == 1)
+            return openvas_user_uuid_method (name, authent->method);
+          if (ret)
             return NULL;
-          }
-
-        contents = g_strdup_printf ("%s\n", uuid);
-
-        if (g_file_set_contents (uuid_file, contents, -1, NULL))
-          {
-            g_free (contents);
-            g_free (user_dir);
-            g_free (uuid_file);
-            return uuid;
-          }
-
-        g_free (contents);
-        free (uuid);
-      }
-    g_free (uuid_file);
-  }
-  g_free (user_dir);
-  return NULL;
+        }
+      item = g_slist_next (item);
+    }
+  return 0;
 }
 #endif // not _WIN32
 
