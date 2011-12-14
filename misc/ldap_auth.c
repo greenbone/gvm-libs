@@ -152,7 +152,7 @@ ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
 {
   // Parameters might not be NULL.
   if (!ldap_host || !auth_dn || !role_attribute || !role_user_values
-      || !role_admin_values || !role_observer_values)
+      || !role_admin_values)
     return NULL;
 
   if (ldap_auth_dn_is_good (auth_dn) == FALSE)
@@ -236,7 +236,7 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
 {
   LDAP *ldap = NULL;
   int ldap_return = 0;
-  int ldapv3 = 3;
+  int ldapv3 = LDAP_VERSION3;
   gchar *ldapuri = NULL;
   struct berval credential;
 
