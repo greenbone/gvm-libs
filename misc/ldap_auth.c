@@ -804,7 +804,7 @@ ldap_user_exists (const gchar *username, void *ldap_auth_info)
     LDAPMessage *result;
     gchar *filter;
 
-    filter = g_strdup_printf ("(cn=%s)", username);
+    filter = g_strdup_printf ("(%s=%s)", info->role_attribute, username);
     ret = ldap_search_ext_s (ldap, NULL /* base */ , LDAP_SCOPE_ONELEVEL,
                              filter /* filter */ , attrs, 0 /* attrsonly */ ,
                              NULL /* serverctrls */ , NULL /* clientctrls */ ,

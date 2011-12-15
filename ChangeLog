@@ -1,3 +1,8 @@
+2011-12-15  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/ldap_auth.c (ldap_user_exists): Replace static role attribute with
+	actual one.
+
 2011-12-14  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/ldap_auth.c (ldap_auth_info_new): Remove role_observer_values
