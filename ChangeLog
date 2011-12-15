@@ -1,5 +1,9 @@
 2011-12-15  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* misc/ldap_auth.c (ldap_user_exists): Search entire subtree.
+
+2011-12-15  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* misc/ldap_auth.c (ldap_user_exists): Replace static role attribute with
 	actual one.
 
