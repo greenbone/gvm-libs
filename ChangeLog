@@ -1,3 +1,7 @@
+2011-12-20  Henri Doreau <henri.doreau@greenbone.net>
+
+	*  misc/plugutils.c (proto_post_wrapped): Fixed typo in comment.
+
 2011-12-15  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/ldap_auth.c (ldap_user_exists): Search entire subtree.

@@ -616,7 +616,7 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   soc = GPOINTER_TO_SIZE (arg_get_value (desc, "SOCKET"));
   internal_send (soc, buffer, INTERNAL_COMM_MSG_TYPE_DATA);
 
-  /* Mark in the KB that the plugin was sucessful */
+  /* Mark in the KB that the plugin was successful */
   mark_successful_plugin (desc);
   efree (&buffer);
   efree (&naction);
