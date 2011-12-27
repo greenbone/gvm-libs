@@ -1,29 +1,34 @@
 INSTALLATION INSTRUCTIONS FOR OPENVAS-LIBRARIES
 ===============================================
 
-Please note: The reference system used by most of the developers is Debian
-GNU/Linux 'Lenny' 5.0.  The build might fail on any other systems.  Also
-it is necessary to install dependent development packages.
+Please note: The reference systems used by most of the developers are Debian
+GNU/Linux 'Lenny' 5.0 and Debian GNU/Linux 'Squeeze' 6.0.  The build might fail
+on any other systems.  Also it is necessary to install dependent development
+packages.
 
-Compiling openvas-libraries
----------------------------
 
-Prerequisites:
-* libglib >= 2.12
-* libgnutls >= 2.0
-* libpcap
-* libgpgme >= 1.1.2
-* uuid-dev (from e2fsprogs)
+Prerequisites for openvas-libraries
+-----------------------------------
 
-Apart from these, some tools are required:
+See at the end of this section how to easily install these prerequisites on
+some supported platforms.
+
+General build environment:
 * a C compiler (e.g. gcc)
 * bison
 * flex
 * cmake
 * pkg-config
 
+Specific development libraries:
+* libglib >= 2.12
+* libgnutls >= 2.0
+* libpcap
+* libgpgme >= 1.1.2
+* uuid-dev (from e2fsprogs)
+
 Prerequisites for building documentation:
-* Doxygen
+* doxygen
 * xmltoman (optional, for building man page)
 * sqlfairy (optional, for producing database diagram)
 
@@ -33,8 +38,16 @@ Recommended to have WMI support:
 Recommended to have improved SSH support:
 * libssh >= 0.4.5
 
+Install prerequistes on Debian GNU/Linux 'Squeeze' 6.0:
+# apt-get install pkg-config libssh-dev gnutls-dev libglib2.0-dev libpcap-dev \
+  libgpgme11-dev uuid-dev bison
+
+
+Compiling openvas-libraries
+---------------------------
+
 If you have installed required libraries to a non-standard location, remember to
-set the PKG_CONFIG_PATH environment variable to the location of you pkg-config
+set the PKG_CONFIG_PATH environment variable to the location of your pkg-config
 files before configuring:
 
     $ export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/your/location/lib/pkgconfig
@@ -62,6 +75,7 @@ $ make install
 
 Please note that you may have to execute this command as root, especially if you
 have specified a prefix for which your user does not have full permissions.
+
 
 Configuration Options
 ---------------------
