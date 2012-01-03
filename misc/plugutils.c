@@ -531,54 +531,19 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   int soc;
   char *naction;
   int len;
-  char *cve;
-  char *bid;
-  char *xref;
   nvti_t * nvti = arg_get_value (desc, "NVTI");
 
   if (action == NULL)
     action = nvti_description (nvti);
 
-  cve = nvti_cve (nvti);
-  bid = nvti_bid (nvti);
-  xref = nvti_xref (nvti);
-
   if (action == NULL)
     return;
 
   len = strlen (action) + 1;
-  if (cve != NULL)
-    len += strlen (cve) + 20;
-
-  if (bid != NULL)
-    len += strlen (bid) + 20;
-
-  if (xref != NULL)
-    len += strlen (xref) + 20;
 
   naction = emalloc (len + 1);
   strncpy (naction, action, strlen (action));
   strcat (naction, "\n");
-  if (cve != NULL && cve[0] != '\0')
-    {
-      strcat (naction, "CVE : ");       /* RATS: ignore */
-      strcat (naction, cve);    /* RATS: ignore */
-      strcat (naction, "\n");
-    }
-
-  if (bid != NULL && bid[0] != '\0')
-    {
-      strcat (naction, "BID : ");       /* RATS: ignore */
-      strcat (naction, bid);    /* RATS: ignore */
-      strcat (naction, "\n");
-    }
-
-  if (xref != NULL && xref[0] != '\0')
-    {
-      strcat (naction, "Other references : ");  /* RATS: ignore */
-      strcat (naction, xref);   /* RATS: ignore */
-      strcat (naction, "\n");
-    }
 
   {
     char *old = naction;

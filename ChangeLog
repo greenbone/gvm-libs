@@ -1,3 +1,8 @@
+2012-01-03  Henri Doreau <henri.doreau@greenbone.net>
+
+	* misc/plugutils.c (proto_post_wrapped): Don't add vulnerability
+	references to the script results.
+
 2011-12-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* INSTALL: Re-arranged text a bit and added some Debian 6 info.
