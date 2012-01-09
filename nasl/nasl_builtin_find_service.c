@@ -92,7 +92,7 @@ mark_chargen_server(desc, port)
 	int             port;
 {
 	register_service(desc, port, "chargen");
-	post_note(desc, port, "Chargen is running on this port");
+	post_log(desc, port, "Chargen is running on this port");
 }
 
 void
@@ -101,7 +101,7 @@ mark_echo_server(desc, port)
 	int             port;
 {
 	register_service(desc, port, "echo");
-	post_note(desc, port, "An echo server is running on this port");
+	post_log(desc, port, "An echo server is running on this port");
 }
 
 void
@@ -146,7 +146,7 @@ mark_nntp_server(desc, port, buffer, trp)
 	plug_replace_key(desc, ban, ARG_STRING, buffer);
 	snprintf(ban, sizeof(ban), "An NNTP server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 
@@ -178,7 +178,7 @@ mark_mldonkey(desc, port, buffer)
 	char            ban[512];
 	register_service(desc, port, "mldonkey");
 	snprintf(ban, sizeof(ban), "A mldonkey server is running on this port");
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 
@@ -195,7 +195,7 @@ mark_http_server(desc, port, buffer, trp)
 	plug_replace_key(desc, ban, ARG_STRING, buffer);
 	snprintf(ban, sizeof(ban), "A web server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 
@@ -211,14 +211,14 @@ mark_locked_adsubtract_server(desc, port, buffer, trp)
 	plug_replace_key(desc, ban, ARG_STRING, buffer);
 	snprintf(ban, sizeof(ban), "A (locked) AdSubtract server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 static void
 mark_gopher_server(struct arglist * desc, int port)
 {
 	register_service(desc, port, "gopher");
-	post_note(desc, port, "A gopher server is running on this port");
+	post_log(desc, port, "A gopher server is running on this port");
 }
 
 #if 0
@@ -235,7 +235,7 @@ mark_gnutella_servent(desc, port, buffer, trp)
 	plug_replace_key(desc, ban, ARG_STRING, buffer);
 	snprintf(ban, sizeof(ban), "A Gnutella servent is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 #endif
 
@@ -252,7 +252,7 @@ mark_rmserver(desc, port, buffer, trp)
 
 	snprintf(ban, sizeof(ban), "A RealMedia server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 void
@@ -277,7 +277,7 @@ mark_smtp_server(desc, port, buffer, trp)
 		snprintf(report, 255 + strlen(buffer), "An SMTP server is running on this port%s\n\
 Here is its banner : \n%s",
 			 get_encaps_through(trp), buffer);
-		post_note(desc, port, report);
+		post_log(desc, port, report);
 		efree(&report);
 	}
 }
@@ -301,7 +301,7 @@ mark_snpp_server(desc, port, buffer, trp)
 		 "An SNPP server is running on this port%s\n\
 Here is its banner : \n%s",
 		 get_encaps_through(trp), buffer);
-	post_note(desc, port, report);
+	post_log(desc, port, report);
 	efree(&report);
 }
 
@@ -327,13 +327,13 @@ mark_ftp_server(desc, port, buffer, trp)
 		snprintf(report, 255 + strlen(buffer), "An FTP server is running on this port%s.\n\
 Here is its banner : \n%s",
 			 get_encaps_through(trp), buffer);
-		post_note(desc, port, report);
+		post_log(desc, port, report);
 		efree(&report);
 	} else {
 		char            report[255];
 		snprintf(report, sizeof(report), "An FTP server is running on this port%s.",
 			 get_encaps_through(trp));
-		post_note(desc, port, report);
+		post_log(desc, port, report);
 	}
 }
 
@@ -348,7 +348,7 @@ mark_ssh_server(desc, port, buffer, trp)
 	while ((buffer[strlen(buffer) - 1] == '\n') ||
 	       (buffer[strlen(buffer) - 1] == '\r'))
 		buffer[strlen(buffer) - 1] = '\0';
-	post_note(desc, port, "An ssh server is running on this port");
+	post_log(desc, port, "An ssh server is running on this port");
 }
 
 void
@@ -362,7 +362,7 @@ mark_http_proxy(desc, port, buffer, trp)
 	register_service(desc, port, "http_proxy");
 	snprintf(ban, sizeof(ban), "An HTTP proxy is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 void
@@ -388,12 +388,12 @@ mark_pop_server(desc, port, buffer)
 		register_service(desc, port, "pop2");
 		snprintf(ban, sizeof(ban), "pop2/banner/%d", port);
 		plug_replace_key(desc, ban, ARG_STRING, buffer);
-		post_note(desc, port, "a pop2 server is running on this port");
+		post_log(desc, port, "a pop2 server is running on this port");
 	} else {
 		register_service(desc, port, "pop3");
 		snprintf(ban, sizeof(ban), "pop3/banner/%d", port);
 		plug_replace_key(desc, ban, ARG_STRING, buffer);
-		post_note(desc, port, "A pop3 server is running on this port");
+		post_log(desc, port, "A pop3 server is running on this port");
 	}
 	efree(&buffer2);
 }
@@ -411,7 +411,7 @@ mark_imap_server(desc, port, buffer, trp)
 	{
 		snprintf(ban, sizeof(ban), "An IMAP server is running on this port%s",
 			 get_encaps_through(trp));
-		post_note(desc, port, ban);
+		post_log(desc, port, ban);
 	}
 }
 
@@ -422,7 +422,7 @@ mark_auth_server(desc, port, buffer)
 	char           *buffer;
 {
 	register_service(desc, port, "auth");
-	post_note(desc, port, "An identd server is running on this port");
+	post_log(desc, port, "An identd server is running on this port");
 }
 
 
@@ -438,7 +438,7 @@ mark_postgresql(desc, port, buffer)
 {
 	register_service(desc, port, "postgresql");
 	/* if (port != 5432) */
-	post_note(desc, port, "A PostgreSQL server is running on this port");
+	post_log(desc, port, "A PostgreSQL server is running on this port");
 }
 
 void
@@ -449,7 +449,7 @@ mark_mysql(desc, port, buffer)
 {
 	register_service(desc, port, "mysql");
 	/* if (port != 3306) */
-	post_note(desc, port, "A MySQL server is running on this port");
+	post_log(desc, port, "A MySQL server is running on this port");
 }
 
 void
@@ -461,7 +461,7 @@ mark_cvspserver(desc, port, buffer, trp)
 {
 	register_service(desc, port, "cvspserver");
 	/* if (port != 2401) */
-	post_info(desc, port, "A CVS pserver server is running on this port");
+	post_log(desc, port, "A CVS pserver server is running on this port");
 }
 
 
@@ -473,7 +473,7 @@ mark_cvsupserver(desc, port, buffer, trp)
 	int             trp;
 {
 	register_service(desc, port, "cvsup");
-	post_info(desc, port, "A CVSup server is running on this port");
+	post_log(desc, port, "A CVSup server is running on this port");
 }
 
 
@@ -486,7 +486,7 @@ mark_cvslockserver(desc, port, buffer, trp)
 {
 	register_service(desc, port, "cvslockserver");
 	/* if (port != 2401) */
-	post_info(desc, port, "A CVSLock server server is running on this port");
+	post_log(desc, port, "A CVSLock server server is running on this port");
 }
 
 void
@@ -497,7 +497,7 @@ mark_rsyncd(desc, port, buffer, trp)
 	int             trp;
 {
 	register_service(desc, port, "rsyncd");
-	post_info(desc, port, "An rsync server is running on this port");
+	post_log(desc, port, "An rsync server is running on this port");
 }
 
 
@@ -524,7 +524,7 @@ mark_telnet_server(desc, port, buffer, trp)
 	{
 		snprintf(ban, sizeof(ban), "A telnet server seems to be running on this port%s",
 			 get_encaps_through(trp));
-		post_note(desc, port, ban);
+		post_log(desc, port, ban);
 	}
 }
 
@@ -539,7 +539,7 @@ mark_gnome14_server(desc, port, buffer, trp)
 	{
 		snprintf(ban, sizeof(ban), "A Gnome 1.4 server seems to be running on this port%s",
 			 get_encaps_through(trp));
-		post_note(desc, port, ban);
+		post_log(desc, port, ban);
 	}
 }
 
@@ -554,7 +554,7 @@ mark_eggdrop_server(desc, port, buffer, trp)
 	{
 		snprintf(ban, sizeof(ban), "An eggdrop IRC bot seems to be running a control server on this port%s",
 			 get_encaps_through(trp));
-		post_note(desc, port, ban);
+		post_log(desc, port, ban);
 	}
 }
 
@@ -580,7 +580,7 @@ mark_linuxconf(desc, port, buffer)
 	register_service(desc, port, "linuxconf");
 	snprintf(ban, sizeof(ban), "linuxconf/banner/%d", port);
 	plug_replace_key(desc, ban, ARG_STRING, buffer);
-	post_note(desc, port, "Linuxconf is running on this port");
+	post_log(desc, port, "Linuxconf is running on this port");
 }
 
 static void
@@ -596,7 +596,7 @@ mark_finger_server(desc, port, banner, trp)
 
 	snprintf(tmp, sizeof(tmp), "A finger server seems to be running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, tmp);
+	post_log(desc, port, tmp);
 }
 
 
@@ -622,7 +622,7 @@ mark_vtun_server(desc, port, banner, trp)
 
 
 
-	post_note(desc, port, tmp);
+	post_log(desc, port, tmp);
 }
 
 static void
@@ -640,7 +640,7 @@ mark_uucp_server(desc, port, banner, trp)
 
 	snprintf(tmp, sizeof(tmp), "An UUCP server seems to be running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, tmp);
+	post_log(desc, port, tmp);
 }
 
 
@@ -656,7 +656,7 @@ mark_lpd_server(desc, port, banner, trp)
 	register_service(desc, port, "lpd");
 	snprintf(tmp, sizeof(tmp), "A LPD server seems to be running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, tmp);
+	post_log(desc, port, tmp);
 }
 
 
@@ -672,7 +672,7 @@ mark_lyskom_server(desc, port, banner, trp)
 	register_service(desc, port, "lyskom");
 	snprintf(tmp, sizeof(tmp), "A LysKOM server seems to be running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, tmp);
+	post_log(desc, port, tmp);
 }
 
 /* http://www.emailman.com/ph/ */
@@ -687,7 +687,7 @@ mark_ph_server(desc, port, banner, trp)
 	register_service(desc, port, "ph");
 	snprintf(tmp, sizeof(tmp), "A PH server seems to be running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, tmp);
+	post_log(desc, port, tmp);
 }
 
 static void
@@ -701,7 +701,7 @@ mark_time_server(desc, port, banner, trp)
 	register_service(desc, port, "time");
 	snprintf(tmp, sizeof(tmp), "A time server seems to be running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, tmp);
+	post_log(desc, port, tmp);
 }
 
 
@@ -716,7 +716,7 @@ mark_ens_server(desc, port, banner, trp)
 
 	snprintf(tmp, sizeof(tmp), "An iPlanet ENS (Event Notification Server) seems to be running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, tmp);
+	post_log(desc, port, tmp);
 }
 
 static void
@@ -730,7 +730,7 @@ mark_citrix_server(desc, port, banner, trp)
 	register_service(desc, port, "citrix");
 	snprintf(tmp, sizeof(tmp), "a Citrix server seems to be running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, tmp);
+	post_log(desc, port, tmp);
 }
 
 static void
@@ -745,7 +745,7 @@ mark_giop_server(desc, port, banner, trp)
 	snprintf(tmp, sizeof(tmp), "A GIOP-enabled service is running on this port%s",
 		 get_encaps_through(trp));
 
-	post_note(desc, port, tmp);
+	post_log(desc, port, tmp);
 }
 
 static void
@@ -762,7 +762,7 @@ mark_exchg_routing_server(desc, port, buffer, trp)
 	{
 		snprintf(ban, sizeof(ban), "A Microsoft Exchange routing server is running on this port%s",
 			 get_encaps_through(trp));
-		post_note(desc, port, ban);
+		post_log(desc, port, ban);
 	}
 }
 
@@ -778,7 +778,7 @@ mark_tcpmux_server(desc, port, buffer, trp)
 	register_service(desc, port, "tcpmux");
 	snprintf(msg, sizeof(msg), "A tcpmux server seems to be running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, msg);
+	post_log(desc, port, msg);
 }
 
 
@@ -793,7 +793,7 @@ mark_BitTorrent_server(desc, port, buffer, trp)
 	register_service(desc, port, "BitTorrent");
 	snprintf(msg, sizeof(msg), "A BitTorrent server seems to be running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, msg);
+	post_log(desc, port, msg);
 }
 
 static void
@@ -807,7 +807,7 @@ mark_smux_server(desc, port, buffer, trp)
 	register_service(desc, port, "smux");
 	snprintf(msg, sizeof(msg), "A SNMP Multiplexer (smux) seems to be running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, msg);
+	post_log(desc, port, msg);
 }
 
 
@@ -828,7 +828,7 @@ mark_LISa_server(desc, port, banner, trp)
 	snprintf(tmp, sizeof(tmp), "A LISa daemon is running on this port%s",
 		 get_encaps_through(trp));
 
-	post_note(desc, port, tmp);
+	post_log(desc, port, tmp);
 }
 
 
@@ -845,7 +845,7 @@ mark_msdtc_server(desc, port, buffer)
 	unsigned char  *buffer;
 {
 	register_service(desc, port, "msdtc");
-	post_note(desc, port, "A MSDTC server is running on this port");
+	post_log(desc, port, "A MSDTC server is running on this port");
 }
 
 static void
@@ -859,7 +859,7 @@ mark_pop3pw_server(desc, port, buffer, trp)
 	snprintf(ban, sizeof(ban), "pop3pw/banner/%d", port);
 	plug_replace_key(desc, ban, ARG_STRING, buffer);
 	snprintf(ban, sizeof(ban), "A pop3pw server is running on this port%s", get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 /*
@@ -886,7 +886,7 @@ mark_whois_plus2_server(desc, port, buffer, trp)
 	snprintf(ban, sizeof(ban), "whois++/banner/%d", port);
 	plug_replace_key(desc, ban, ARG_STRING, buffer);
 	snprintf(ban, sizeof(ban), "A whois++ server is running on this port%s", get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 /*
@@ -909,7 +909,7 @@ mark_mon_server(desc, port, buffer, trp)
 	snprintf(ban, sizeof(ban), "mon/banner/%d", port);
 	plug_replace_key(desc, ban, ARG_STRING, buffer);
 	snprintf(ban, sizeof(ban), "A mon server is running on this port%s", get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 
@@ -923,7 +923,7 @@ mark_fw1(desc, port, buffer, trp)
 	register_service(desc, port, "cpfw1");
 	plug_replace_key(desc, ban, ARG_STRING, buffer);
 	snprintf(ban, sizeof(ban), "A CheckPoint FW1 SecureRemote or FW1 FWModule server is running on this port%s", get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 /*
@@ -946,7 +946,7 @@ mark_psybnc(desc, port, buffer, trp)
 	register_service(desc, port, "psybnc");
 	plug_replace_key(desc, ban, ARG_STRING, buffer);
 	snprintf(ban, sizeof(ban), "A PsyBNC IRC proxy is running on this port%s", get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 /*
@@ -966,7 +966,7 @@ mark_shoutcast_server(desc, port, buffer, trp)
 	register_service(desc, port, "shoutcast");
 	plug_replace_key(desc, ban, ARG_STRING, buffer);
 	snprintf(ban, sizeof(ban), "A shoutcast server is running on this port%s", get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 
@@ -986,7 +986,7 @@ mark_adsgone(desc, port, buffer, trp)
 	register_service(desc, port, "adsgone");
 	plug_replace_key(desc, ban, ARG_STRING, buffer);
 	snprintf(ban, sizeof(ban), "An AdsGone (a popup banner blocking server) is running on this port%s", get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 
@@ -1022,7 +1022,7 @@ mark_acap_server(desc, port, buffer, trp)
 	{
 		snprintf(ban, sizeof(ban), "An ACAP server is running on this port%s",
 			 get_encaps_through(trp));
-		post_note(desc, port, ban);
+		post_log(desc, port, ban);
 	}
 }
 
@@ -1051,7 +1051,7 @@ mark_nagiosd_server(desc, port, buffer, trp)
 	register_service(desc, port, "nagiosd");
 	snprintf(ban, sizeof(ban), "A nagiosd server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 
 }
 
@@ -1072,7 +1072,7 @@ mark_teamspeak2_server(desc, port, buffer, trp)
 	register_service(desc, port, "teamspeak2");
 	snprintf(ban, sizeof(ban), "A teamspeak2 server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 
 }
 
@@ -1101,7 +1101,7 @@ mark_websm_server(desc, port, buffer, trp)
 	register_service(desc, port, "websm");
 	snprintf(ban, sizeof(ban), "A WEBSM server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 
 }
 
@@ -1119,7 +1119,7 @@ mark_ofa_express_server(desc, port, buffer, trp)
 	register_service(desc, port, "ofa_express");
 	snprintf(ban, sizeof(ban), "An OFA/Express server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 
 }
 
@@ -1141,7 +1141,7 @@ mark_smppd_server(desc, port, buffer, trp)
 	register_service(desc, port, "smppd");
 	snprintf(ban, sizeof(ban), "A SuSE Meta pppd server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 /*
@@ -1161,7 +1161,7 @@ mark_upsmon_server(desc, port, buffer, trp)
 	register_service(desc, port, "upsmon");
 	snprintf(ban, sizeof(ban), "An upsd/upsmon server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 /*
@@ -1203,7 +1203,7 @@ mark_spamd_server(desc, port, buffer, trp)
 	register_service(desc, port, "spamd");
 	snprintf(ban, sizeof(ban), "a spamd server (part of spamassassin) is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 /* Thanks to Mike Blomgren */
@@ -1217,7 +1217,7 @@ mark_quicktime_streaming_server(desc, port, buffer, trp)
 	register_service(desc, port, "quicktime-streaming-server");
 	snprintf(ban, sizeof(ban), "a quicktime streaming server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 /* Thanks to Allan <als@bpal.com> */
@@ -1231,7 +1231,7 @@ mark_dameware_server(desc, port, buffer, trp)
 	register_service(desc, port, "dameware");
 	snprintf(ban, sizeof(ban), "a dameware server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 static void
@@ -1244,7 +1244,7 @@ mark_stonegate_auth_server(desc, port, buffer, trp)
 	register_service(desc, port, "SG_ClientAuth");
 	snprintf(ban, sizeof(ban), "a StoneGate authentication server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 
@@ -1260,7 +1260,7 @@ mark_listserv_server(desc, port, buffer, trp)
 	{
 		snprintf(ban, sizeof(ban), "A LISTSERV daemon seems to be running on this port%s",
 			 get_encaps_through(trp));
-		post_note(desc, port, ban);
+		post_log(desc, port, ban);
 	}
 }
 
@@ -1308,7 +1308,7 @@ mark_wrapped_svc(desc, port, delta)
 
 	snprintf(msg, sizeof(msg), "The service closed the connection after %d seconds without sending any data\n\
 It might be protected by some TCP wrapper\n", delta);
-	post_note(desc, port, msg);
+	post_log(desc, port, msg);
 	/* Do NOT use plug_replace_key! */
 	plug_set_key(desc, "Services/wrapped", ARG_INT, GSIZE_TO_POINTER(port));
 }
@@ -1412,7 +1412,7 @@ It is usually reserved for %s",
 			 get_encaps_through(trp), norm);
 	}
 	if (*tmp != '\0')
-		post_note(desc, port, tmp);
+		post_log(desc, port, tmp);
 }
 
 static void
@@ -1421,7 +1421,7 @@ mark_gnuserv(desc, port)
 	int             port;
 {
 	register_service(desc, port, "gnuserv");
-	post_note(desc, port, "gnuserv is running on this port");
+	post_log(desc, port, "gnuserv is running on this port");
 }
 
 static void
@@ -1430,7 +1430,7 @@ mark_iss_realsecure(desc, port)
 	int             port;
 {
 	register_service(desc, port, "issrealsecure");
-	post_note(desc, port, "ISS RealSecure is running on this port");
+	post_log(desc, port, "ISS RealSecure is running on this port");
 }
 
 static void
@@ -1446,7 +1446,7 @@ mark_vmware_auth(desc, port, buffer, trp)
 
 	snprintf(ban, sizeof(ban), "A VMWare authentication daemon is running on this port%s:\n%s",
 		 get_encaps_through(trp), buffer);
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 
 }
 
@@ -1462,7 +1462,7 @@ mark_interscan_viruswall(desc, port, buffer, trp)
 
 	snprintf(ban, sizeof(ban), "An interscan viruswall is running on this port%s:\n%s",
 		 get_encaps_through(trp), buffer);
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 static void
@@ -1477,7 +1477,7 @@ mark_ppp_daemon(desc, port, buffer, trp)
 
 	snprintf(ban, sizeof(ban), "A PPP daemon is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 static void
@@ -1493,7 +1493,7 @@ mark_zebra_server(desc, port, buffer, trp)
 	plug_replace_key(desc, ban, ARG_STRING, buffer);
 	snprintf(ban, sizeof(ban), "A zebra daemon (bgpd or zebrad) is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 static void
@@ -1508,7 +1508,7 @@ mark_ircxpro_admin_server(desc, port, buffer, trp)
 
 	snprintf(ban, sizeof(ban), "An IRCXPro administrative server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 
@@ -1524,7 +1524,7 @@ mark_gnocatan_server(desc, port, buffer, trp)
 
 	snprintf(ban, sizeof(ban), "A gnocatan game server is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 /* Thanks to Owell Crow */
@@ -1540,7 +1540,7 @@ mark_pbmaster_server(desc, port, buffer, trp)
 
 	snprintf(ban, sizeof(ban), "A PowerBroker master server is running on this port%s:\n%s",
 		 get_encaps_through(trp), buffer);
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 /* Thanks to Paulo Jorge */
@@ -1556,7 +1556,7 @@ mark_dictd_server(desc, port, buffer, trp)
 
 	snprintf(ban, sizeof(ban), "A dictd server is running on this port%s:\n%s",
 		 get_encaps_through(trp), buffer);
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 
@@ -1573,7 +1573,7 @@ mark_pnsclient(desc, port, buffer, trp)
 
 	snprintf(ban, sizeof(ban), "A Netsaint plugin (pNSClient.exe) is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 /* Thanks to Jesus D. Munoz */
@@ -1588,7 +1588,7 @@ mark_veritas_backup(desc, port, buffer, trp)
 
 	snprintf(ban, sizeof(ban), "VeritasNetBackup is running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 static void
@@ -1603,7 +1603,7 @@ mark_pblocald_server(desc, port, buffer, trp)
 
 	snprintf(ban, sizeof(ban), "A PowerBroker locald server is running on this port%s:\n%s",
 		 get_encaps_through(trp), buffer);
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 static void
@@ -1616,7 +1616,7 @@ mark_jabber_server(desc, port, buffer, trp)
 	register_service(desc, port, "jabber");
 	snprintf(ban, sizeof(ban), "jabber daemon seems to be running on this port%s",
 		 get_encaps_through(trp));
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 
@@ -1633,7 +1633,7 @@ mark_avotus_mm_server(desc, port, buffer, trp)
 
 	snprintf(ban, sizeof(ban), "An avotus 'mm' server is running on this port%s:\n%s",
 		 get_encaps_through(trp), buffer);
-	post_note(desc, port, ban);
+	post_log(desc, port, ban);
 }
 
 static void
@@ -1646,7 +1646,7 @@ mark_socks_proxy(desc, port, ver)
 	snprintf(str, sizeof(str), "socks%d", ver);
 	register_service(desc, port, str);
 	snprintf(str, sizeof(str), "A SOCKS%d proxy is running on this port. ", ver);
-	post_note(desc, port, str);
+	post_log(desc, port, str);
 }
 
 static void
@@ -1658,7 +1658,7 @@ mark_direct_connect_hub(desc, port, trp)
 
 	register_service(desc, port, "DirectConnectHub");
 	snprintf(str, sizeof(str), "A Direct Connect Hub is running on this port%s", get_encaps_through(trp));
-	post_note(desc, port, str);
+	post_log(desc, port, str);
 }
 
 /*
@@ -1922,7 +1922,7 @@ plugin_do_run(desc, h, test_ssl)
 					char            report[160];
 					snprintf(report, sizeof(report), "A %s server answered on this port\n",
 						 get_encaps_name(trp));
-					post_note(desc, port, report);
+					post_log(desc, port, report);
 					plug_set_key(desc, "Transport/SSL", ARG_INT, GSIZE_TO_POINTER(port));
 				}
 

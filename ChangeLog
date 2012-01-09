@@ -1,3 +1,8 @@
+2012-01-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_builtin_find_service.c: Turn any post_note and post_info
+	into post_log message. This change is part of CR#57.
+
 2012-01-03  Henri Doreau <henri.doreau@greenbone.net>
 
 	* misc/plugutils.c (proto_post_wrapped): Don't add vulnerability
