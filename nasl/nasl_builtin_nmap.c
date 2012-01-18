@@ -241,7 +241,6 @@ struct nse_script
 {
   gchar *name;              /**< NSE script id (or name) */
   gchar *output;            /**< NSE script output */
-  struct nse_script *next;  /**< pointer to the next element or NULL */
 };
 
 /**
@@ -264,8 +263,7 @@ struct nmap_port
   gchar *state;     /**< Port state (open/closed/filtered...). */
   gchar *service;   /**< Service name (can be different from the standard port/service combo). */
   gchar *version;   /**< Discovered product, version, extrainfo (version detection). */
-  struct nse_script *port_scripts;  /**< NULL terminated list of related port script results. */
-  struct nmap_port *next;           /**< Next item in the linked list. */
+  GSList *port_scripts;  /**< List of related port script results. */
 };
 
 /**
@@ -286,9 +284,9 @@ struct nmap_host
 
   int distance;  /**< Hop count to the target. */
   struct traceroute_hop trace[MAX_TRACE_HOPS];  /**< Traceroute results. */
-  int os_confidence;                /**< OS detection confidence score. */
-  struct nse_script *host_scripts;  /**< NULL termiated list of related host script results. */
-  struct nmap_port *ports;          /**< NULL terminated list of ports. */
+  int os_confidence;      /**< OS detection confidence score. */
+  GSList *host_scripts;   /**< List of related host script results. */
+  GSList *ports;          /**< List of ports. */
 };
 
 /**
@@ -325,6 +323,10 @@ typedef struct
 
   struct nmap_host tmphost;
   struct nmap_port tmpport;
+
+  /* Trash stacks to prevent from constantly alloc/free'ing the same structures */
+  GTrashStack *free_ports;
+  GTrashStack *free_scripts;
 } nmap_t;
 
 /**
@@ -358,7 +360,7 @@ static gchar *get_script_args (nmap_t * nmap);
 static int add_scantype_arguments (nmap_t * nmap);
 static int add_timing_arguments (nmap_t * nmap);
 static int add_portrange (nmap_t * nmap);
-static int cmp (const void *p1, const void *p2);
+static int cmp (const void * p1, const void * p2);
 static gchar *get_default_portrange (void);
 static void setup_xml_parser (nmap_t * nmap);
 static void set_opentag_callbacks (GHashTable * open);
@@ -372,8 +374,10 @@ static void dbg_display_cmdline (nmap_t * nmap);
  */
 static int nmap_run_and_parse (nmap_t * nmap);
 static void current_host_reset (nmap_t * nmap);
-static void port_destroy (struct nmap_port *port);
-static void nse_script_destroy (struct nse_script *script);
+static void port_destroy (gpointer data, gpointer udata);
+static void nse_script_destroy (gpointer data, gpointer udata);
+static struct nmap_port * nmap_get_free_port (nmap_t * nmap);
+static struct nse_script * nmap_get_free_nse_script (nmap_t * nmap);
 static void tmphost_add_port (nmap_t * nmap);
 static void tmphost_add_nse_hostscript (nmap_t * nmap, gchar * name,
                                         gchar * output);
@@ -450,7 +454,7 @@ static gchar *get_attr_value (const gchar * name,
 static void current_host_saveall (nmap_t * nmap);
 static void save_host_state (nmap_t * nmap);
 static void save_open_ports (nmap_t * nmap);
-static void register_service (nmap_t * nmap, struct nmap_port *p);
+static void register_service (nmap_t * nmap, struct nmap_port * p);
 static void save_detected_os (nmap_t * nmap);
 static void save_tcpseq_details (nmap_t * nmap);
 static void save_ipidseq_details (nmap_t * nmap);
@@ -543,6 +547,8 @@ nmap_create (lex_ctxt * lexic)
 void
 nmap_destroy (nmap_t * nmap)
 {
+  void *p;
+
   if (!nmap)
     return;
 
@@ -561,6 +567,12 @@ nmap_destroy (nmap_t * nmap)
 
   if (nmap->parser.closetag)
     g_hash_table_destroy (nmap->parser.closetag);
+
+  while ((p = (void *) g_trash_stack_pop (&nmap->free_ports)) != NULL)
+    g_free (p);
+
+  while ((p = (void *) g_trash_stack_pop (&nmap->free_scripts)) != NULL)
+    g_free (p);
 
   g_free (nmap);
 }
@@ -943,7 +955,7 @@ add_portrange (nmap_t * nmap)
  *         if pp1 == pp2.
  */
 int
-cmp (const void *p1, const void *p2)
+cmp (const void * p1, const void * p2)
 {
   unsigned short *pp1 = (unsigned short *) p1;
   unsigned short *pp2 = (unsigned short *) p2;
@@ -1214,6 +1226,15 @@ nmap_run_and_parse (nmap_t * nmap)
   return ret;
 }
 
+#define list_free(list, dtor, udata) do {  \
+                       if (list)    \
+                         {          \
+                           g_slist_foreach (list, (GFunc) dtor, udata);  \
+                           g_slist_free (list); \
+                           list = NULL; \
+                         }          \
+                     } while (0)
+
 /**
  * @brief Clear the current host object.
  *
@@ -1223,8 +1244,6 @@ void
 current_host_reset (nmap_t * nmap)
 {
   int i;
-  struct nmap_port *p;
-  struct nse_script *s;
 
   g_free (nmap->tmphost.addr);
   g_free (nmap->tmphost.state);
@@ -1240,74 +1259,109 @@ current_host_reset (nmap_t * nmap)
       g_free (nmap->tmphost.trace[i].host);
     }
 
-  p = nmap->tmphost.ports;
-  while (p != NULL)
-    {
-      struct nmap_port *next;
-
-      next = p->next;
-      port_destroy (p);
-      p = next;
-    }
-
-  s = nmap->tmphost.host_scripts;
-  while (s != NULL)
-    {
-      struct nse_script *next;
-
-      next = s->next;
-      nse_script_destroy (s);
-      s = next;
-    }
+  list_free (nmap->tmphost.ports, port_destroy, nmap);
+  list_free (nmap->tmphost.host_scripts, nse_script_destroy, nmap);
 
   memset (&nmap->tmphost, 0x00, sizeof (struct nmap_host));
 }
 
 /**
- * @brief Completely release a port object.
+ * @brief Completely release a port object. Memory is pushed on top of a
+ *        GTrashStack for reuse.
  *
- * @param[in] port  The port structure to free.
+ * @param[in] data   List item data pointer (according to GFunc specification).
+ *                   A struct nmap_port * is expected here.
+ * @param[in] udata  User defined data pointer (according to GFunc
+ *                   specification). A nmap_t * is expected here.
  */
 void
-port_destroy (struct nmap_port *port)
+port_destroy (gpointer data, gpointer udata)
 {
+  struct nmap_port *port;
+  nmap_t *nmap;
+
+  port = (struct nmap_port *) data;
+  nmap = (nmap_t *) udata;
+
   if (port)
     {
-      struct nse_script *s;
-
       g_free (port->proto);
       g_free (port->portno);
       g_free (port->state);
       g_free (port->service);
       g_free (port->version);
 
-      s = port->port_scripts;
-      while (s != NULL)
-        {
-          struct nse_script *next;
+      list_free (port->port_scripts, nse_script_destroy, nmap);
 
-          next = s->next;
-          nse_script_destroy (s);
-          s = next;
-        }
-      g_free (port);
+      g_trash_stack_push (&nmap->free_ports, port);
     }
 }
 
 /**
- * @brief Completely release a NSE script object.
+ * @brief Completely release a NSE script object. Memory is pushed on top of a
+ *        GTrashStack for reuse.
  *
- * @param[in] script  The nse script structure to free.
+ * @param[in] data   List item data pointer (according to GFunc specification).
+ *                   A struct nse_script * is expected here.
+ * @param[in] udata  User defined data pointer (according to GFunc
+ *                   specification). A nmap_t * is expected here.
  */
 void
-nse_script_destroy (struct nse_script *script)
+nse_script_destroy (gpointer data, gpointer udata)
 {
+  struct nse_script *script;
+  nmap_t *nmap;
+
+  script = (struct nse_script *) data;
+  nmap = (nmap_t *) udata;
+
   if (script)
     {
       g_free (script->name);
       g_free (script->output);
-      g_free (script);
+
+      g_trash_stack_push (&nmap->free_scripts, script);
     }
+}
+
+/**
+ * @brief Return an empty nmap_port structure. Re-use a free one or allocate a
+ *        new structure if necessary. Result should be free'd with
+ *        port_destroy().
+ *
+ * @param[in] nmap  The nmap handle.
+ *
+ * @return A pointer to an empty nmap_port structure.
+ */
+struct nmap_port *
+nmap_get_free_port (nmap_t * nmap)
+{
+  struct nmap_port *newport;
+
+  newport = g_trash_stack_pop (&nmap->free_ports);
+  if (!newport)
+    newport = (struct nmap_port *) g_malloc (sizeof (struct nmap_port));
+  return newport;
+}
+
+/**
+ * @brief Return an empty nse_script structure. Re-use a free one or allocate a
+ *        new structure if necessary. Result should be free'd with
+ *        nse_script_destroy().
+ *
+ * @param[in] nmap  The nmap handle.
+ *
+ * @return A pointer to an empty nse_script structure.
+ */
+struct nse_script *
+nmap_get_free_nse_script (nmap_t * nmap)
+{
+  struct nse_script *newscript;
+
+  newscript = g_trash_stack_pop (&nmap->free_scripts);
+  if (!newscript)
+    newscript = (struct nse_script *) g_malloc (sizeof (struct nse_script));
+  return newscript;
 }
 
 /**
@@ -1320,10 +1374,9 @@ tmphost_add_port (nmap_t * nmap)
 {
   struct nmap_port *newport;
 
-  newport = (struct nmap_port *) g_malloc (sizeof (struct nmap_port));
+  newport = nmap_get_free_port (nmap);
   memcpy (newport, &nmap->tmpport, sizeof (struct nmap_port));
-  newport->next = nmap->tmphost.ports;
-  nmap->tmphost.ports = newport;
+  nmap->tmphost.ports = g_slist_prepend (nmap->tmphost.ports, newport);
 }
 
 /**
@@ -1338,11 +1391,10 @@ tmphost_add_nse_hostscript (nmap_t * nmap, gchar * name, gchar * output)
 {
   struct nse_script *s;
 
-  s = (struct nse_script *) g_malloc (sizeof (struct nse_script));
+  s = nmap_get_free_nse_script (nmap);
   s->name = name;
   s->output = output;
-  s->next = nmap->tmphost.host_scripts;
-  nmap->tmphost.host_scripts = s;
+  nmap->tmphost.host_scripts = g_slist_prepend (nmap->tmphost.host_scripts, s);
 }
 
 /**
@@ -1357,11 +1409,10 @@ tmphost_add_nse_portscript (nmap_t * nmap, gchar * name, gchar * output)
 {
   struct nse_script *s;
 
-  s = (struct nse_script *) g_malloc (sizeof (struct nse_script));
+  s = nmap_get_free_nse_script (nmap);
   s->name = name;
   s->output = output;
-  s->next = nmap->tmpport.port_scripts;
-  nmap->tmpport.port_scripts = s;
+  nmap->tmpport.port_scripts = g_slist_prepend (nmap->tmpport.port_scripts, s);
 }
 
 /**
@@ -1840,10 +1891,13 @@ save_host_state (nmap_t * nmap)
 void
 save_open_ports (nmap_t * nmap)
 {
-  struct nmap_port *p;
+  GSList *pport;
 
-  for (p = nmap->tmphost.ports; p != NULL; p = p->next)
+  for (pport = nmap->tmphost.ports; pport; pport = g_slist_next (pport))
     {
+      struct nmap_port *p;
+
+      p = (struct nmap_port *) pport->data;
       if (g_strcmp0 (p->state, "open") == 0)
         {
           gchar key[64];
@@ -1998,15 +2052,22 @@ save_traceroute_details (nmap_t * nmap)
 void
 save_portscripts (nmap_t * nmap)
 {
-  struct nmap_port *port;
+  GSList *pport;
 
-  for (port = nmap->tmphost.ports; port != NULL; port = port->next)
+  for (pport = nmap->tmphost.ports; pport; pport = g_slist_next (pport))
     {
-      struct nse_script *script;
+      GSList *pscript;
+      struct nmap_port *port;
 
-      for (script = port->port_scripts; script; script = script->next)
+      port = (struct nmap_port *) pport->data;
+
+      for (pscript = port->port_scripts; pscript;
+           pscript = g_slist_next (pscript))
         {
+          struct nse_script *script;
           gchar key[128], portspec[16];
+
+          script = (struct nse_script *) pscript->data;
 
           g_snprintf (key, sizeof (key), "%s/NmapNSE/results/%s",
                       nmap->tmphost.addr, script->name);
@@ -2030,13 +2091,15 @@ save_portscripts (nmap_t * nmap)
 void
 save_hostscripts (nmap_t * nmap)
 {
-  struct nse_script *script;
+  GSList *pscript;
 
-  for (script = nmap->tmphost.host_scripts; script != NULL;
-       script = script->next)
+  for (pscript = nmap->tmphost.host_scripts; pscript;
+       pscript = g_slist_next (pscript))
     {
+      struct nse_script *script;
       gchar key[128];
 
+      script = (struct nse_script *) pscript->data;
       g_snprintf (key, sizeof (key), "%s/NmapNSE/results/hostscripts/%s",
                   nmap->tmphost.addr, script->name);
       plug_set_key (nmap->env, key, ARG_STRING, script->output);

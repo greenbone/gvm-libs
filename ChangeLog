@@ -1,3 +1,15 @@
+2012-01-18  Henri Doreau <henri.doreau@greenbone.net>
+
+	Code cleanup to improve efficiency and maintainability.
+
+	* nasl/nasl_builtin_nmap.c (nmap_destroy, list_free)
+	(current_host_reset, port_destroy, nse_script_destroy)
+	(nmap_get_free_port, nmap_get_free_nse_script, tmphost_add_port)
+	(tmphost_add_nse_hostscript, tmphost_add_nse_portscript)
+	(save_open_ports, save_portscripts, save_hostscripts):
+	Replaced custom linked lists by GSLists from GLib. Use GTrashStacks to
+	prevent from constantly alloc/free'ing the same structures.
+
 2012-01-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_builtin_find_service.c: Turn any post_note and post_info
