@@ -264,6 +264,7 @@ struct nmap_port
   gchar *service;   /**< Service name (can be different from the standard port/service combo). */
   gchar *version;   /**< Discovered product, version, extrainfo (version detection). */
   GSList *port_scripts;  /**< List of related port script results. */
+  GSList *version_cpes;  /**< List of CPEs gathered during version detection scan. */
 };
 
 /**
@@ -287,6 +288,7 @@ struct nmap_host
   int os_confidence;      /**< OS detection confidence score. */
   GSList *host_scripts;   /**< List of related host script results. */
   GSList *ports;          /**< List of ports. */
+  GSList *os_cpes;        /**< List of CPEs gathered during OS fingerprinting. */
 };
 
 /**
@@ -301,6 +303,8 @@ struct nmap_parser
   gboolean in_ports;      /**< Parsing flag: mark ports section. */
   gboolean in_port;       /**< Parsing flag: mark port section. */
   gboolean in_hostscript; /**< Parsing flag: mark hostscript section. */
+  gboolean enable_read;   /**< Parsing flag: care about text. */
+  gchar *rbuff;           /**< Read buffer to handle text sections. */
 };
 
 /**
@@ -376,6 +380,7 @@ static int nmap_run_and_parse (nmap_t * nmap);
 static void current_host_reset (nmap_t * nmap);
 static void port_destroy (gpointer data, gpointer udata);
 static void nse_script_destroy (gpointer data, gpointer udata);
+static void simple_item_destroy (gpointer data, gpointer udata);
 static struct nmap_port * nmap_get_free_port (nmap_t * nmap);
 static struct nse_script * nmap_get_free_nse_script (nmap_t * nmap);
 static void tmphost_add_port (nmap_t * nmap);
@@ -397,6 +402,10 @@ static void
 xml_end_element (GMarkupParseContext * context, const gchar * element_name,
                  gpointer user_data, GError ** error);
 
+static void
+xml_read_text (GMarkupParseContext * context, const gchar * text,
+               gsize text_len, gpointer user_data, GError ** error);
+
 
 /*
  * Callbacks for opening recognized elements.
@@ -415,6 +424,8 @@ static void xmltag_open_state (nmap_t * nmap, const gchar ** attrnames,
                                const gchar ** attrval);
 static void xmltag_open_service (nmap_t * nmap, const gchar ** attrnames,
                                  const gchar ** attrval);
+static void xmltag_open_cpe (nmap_t * nmap, const gchar ** attrnames,
+                             const gchar ** attrval);
 static void xmltag_open_hostscript (nmap_t * nmap, const gchar ** attrnames,
                                     const gchar ** attrval);
 static void xmltag_open_osmatch (nmap_t * nmap, const gchar ** attrnames,
@@ -437,6 +448,7 @@ static void xmltag_open_distance (nmap_t * nmap, const gchar ** attrnames,
 static void xmltag_close_host (nmap_t * nmap);
 static void xmltag_close_ports (nmap_t * nmap);
 static void xmltag_close_port (nmap_t * nmap);
+static void xmltag_close_cpe (nmap_t * nmap);
 static void xmltag_close_hostscript (nmap_t * nmap);
 
 
@@ -1031,6 +1043,7 @@ setup_xml_parser (nmap_t * nmap)
   nmap->parser.in_ports = FALSE;
   nmap->parser.in_port = FALSE;
   nmap->parser.in_hostscript = FALSE;
+  nmap->parser.enable_read = FALSE;
 
   nmap->parser.opentag = g_hash_table_new (g_str_hash, g_str_equal);
   nmap->parser.closetag = g_hash_table_new (g_str_hash, g_str_equal);
@@ -1056,6 +1069,7 @@ set_opentag_callbacks (GHashTable * open)
     {"osmatch", xmltag_open_osmatch},
     {"port", xmltag_open_port},
     {"service", xmltag_open_service},
+    {"cpe", xmltag_open_cpe},
     {"state", xmltag_open_state},
     {"status", xmltag_open_status},
     {"host", xmltag_open_host},
@@ -1090,6 +1104,7 @@ set_closetag_callbacks (GHashTable * close)
     {"host", xmltag_close_host},
     {"ports", xmltag_close_ports},
     {"port", xmltag_close_port},
+    {"cpe", xmltag_close_cpe},
     {"hostscript", xmltag_close_hostscript},
     {NULL, NULL}
   };
@@ -1168,7 +1183,7 @@ nmap_run_and_parse (nmap_t * nmap)
   const GMarkupParser callbacks = {
     xml_start_element,
     xml_end_element,
-    NULL,     /* text */
+    xml_read_text,
     NULL,     /* passthrough */
     NULL      /* error */
   };
@@ -1261,6 +1276,7 @@ current_host_reset (nmap_t * nmap)
 
   list_free (nmap->tmphost.ports, port_destroy, nmap);
   list_free (nmap->tmphost.host_scripts, nse_script_destroy, nmap);
+  list_free (nmap->tmphost.os_cpes, simple_item_destroy, NULL);
 
   memset (&nmap->tmphost, 0x00, sizeof (struct nmap_host));
 }
@@ -1292,6 +1308,7 @@ port_destroy (gpointer data, gpointer udata)
       g_free (port->version);
 
       list_free (port->port_scripts, nse_script_destroy, nmap);
+      list_free (port->version_cpes, simple_item_destroy, NULL);
 
       g_trash_stack_push (&nmap->free_ports, port);
     }
@@ -1322,6 +1339,21 @@ nse_script_destroy (gpointer data, gpointer udata)
 
       g_trash_stack_push (&nmap->free_scripts, script);
     }
+}
+
+/**
+ * @brief Simple wrapper to call g_free from within g_slist_foreach
+ *        statements.
+ *
+ * @param[in] data   List item data pointer (according to GFunc specification).
+ *                   A struct nse_script * is expected here.
+ * @param[in] udata  User defined data pointer (according to GFunc
+ *                   specification). This parameter is not used.
+ */
+void
+simple_item_destroy (gpointer data, gpointer udata)
+{
+  g_free (data);
 }
 
 /**
@@ -1464,6 +1496,39 @@ xml_end_element (GMarkupParseContext * context, const gchar * element_name,
 }
 
 /**
+ * @brief Top level XML parser callback: handle text sections and store it
+ *        into the read buffer if enable_read is set to TRUE.
+ *
+ * @param[in] context  The XML parser.
+ * @param[in] text  The current text chunk.
+ * @param[in] text_len  Chunk size.
+ * @param[in] user_data  A pointer to the current nmap_t structure.
+ * @param[in] error  Return location of a GError.
+ */
+void
+xml_read_text (GMarkupParseContext * context, const gchar * text,
+               gsize text_len, gpointer user_data, GError ** error)
+{
+  nmap_t *nmap = (nmap_t *) user_data;
+
+  if (!nmap->parser.enable_read)
+    return;
+
+  if (nmap->parser.rbuff)
+    {
+      gchar *tmpbuff;
+
+      tmpbuff = g_strdup_printf ("%s%s", nmap->parser.rbuff, text);
+      g_free (nmap->parser.rbuff);
+      nmap->parser.rbuff = tmpbuff;
+    }
+  else
+    {
+      nmap->parser.rbuff = g_strdup (text);
+    }
+}
+
+/**
  * @brief Sublevel XML parser callback: handle an opening host tag.
  *
  * @param[in] nmap  Handler to use.
@@ -1595,6 +1660,26 @@ xmltag_open_service (nmap_t * nmap, const gchar ** attrnames,
       g_free (version);
       g_free (extrainfo);
     }
+}
+
+/**
+ * @brief Sublevel XML parser callback: handle an opening cpe tag.
+ *
+ * @param[in] nmap  Handler to use.
+ * @param[in] attrnames  NULL terminated list of attributes names.
+ * @param[in] attrval  NULL terminated list of attributes values.
+ */
+void
+xmltag_open_cpe (nmap_t * nmap, const gchar ** attrnames,
+                             const gchar ** attrval)
+{
+  /* Safety check */
+  if (nmap->parser.rbuff)
+    {
+      g_free (nmap->parser.rbuff);
+      nmap->parser.rbuff = NULL;
+    }
+  nmap->parser.enable_read = TRUE;
 }
 
 /**
@@ -1804,6 +1889,29 @@ xmltag_close_port (nmap_t * nmap)
 }
 
 /**
+ * @brief Sublevel XML parser callback: handle an closing cpe tag.
+ *
+ * @param[in] nmap  Handler to use.
+ */
+void
+xmltag_close_cpe (nmap_t * nmap)
+{
+  if (nmap->parser.rbuff)
+    {
+      if (nmap->parser.in_port)
+        nmap->tmpport.version_cpes = g_slist_prepend (nmap->tmpport.version_cpes,
+                                                      nmap->parser.rbuff);
+      else
+        nmap->tmphost.os_cpes = g_slist_prepend (nmap->tmphost.os_cpes,
+                                                 nmap->parser.rbuff);
+    }
+  
+  /* Don't free rbuff here, as we need it in the CPE list. */
+  nmap->parser.rbuff = NULL;
+  nmap->parser.enable_read = FALSE;
+}
+
+/**
  * @brief Sublevel XML parser callback: handle an closing hostscript tag.
  *
  * @param[in] nmap  Handler to use.
@@ -1950,6 +2058,17 @@ register_service (nmap_t * nmap, struct nmap_port *p)
                   p->proto, p->portno);
       plug_set_key (nmap->env, key, ARG_STRING, p->version);
   }
+
+  if (p->version_cpes)
+    {
+      GSList *pcpe;
+
+      g_snprintf (key, sizeof (key), "%s/App/%s/%s", nmap->tmphost.addr,
+                  p->proto, p->portno);
+
+      for (pcpe = p->version_cpes; pcpe; pcpe = g_slist_next (pcpe))
+        plug_set_key (nmap->env, key, ARG_STRING, (gchar *) pcpe->data);
+    }
 }
 
 /**
@@ -1963,11 +2082,22 @@ save_detected_os (nmap_t * nmap)
 {
   gchar key[32];
 
-  if (!nmap->tmphost.best_os)
-    return;
+  if (nmap->tmphost.best_os)
+    {
+      g_snprintf (key, sizeof (key), "%s/Host/OS", nmap->tmphost.addr);
+      plug_set_key (nmap->env, key, ARG_STRING, nmap->tmphost.best_os);
+    }
 
-  g_snprintf (key, sizeof (key), "%s/Host/OS", nmap->tmphost.addr);
-  plug_set_key (nmap->env, key, ARG_STRING, nmap->tmphost.best_os);
+  if (nmap->tmphost.os_cpes)
+    {
+      GSList *pcpe;
+
+      /* Use a different key to ensure that Host/OS remains unique. */
+      g_snprintf (key, sizeof (key), "%s/Host/CPE", nmap->tmphost.addr);
+
+      for (pcpe = nmap->tmphost.os_cpes; pcpe; pcpe = g_slist_next (pcpe))
+        plug_set_key (nmap->env, key, ARG_STRING, (gchar *) pcpe->data);
+    }
 }
 
 /**
