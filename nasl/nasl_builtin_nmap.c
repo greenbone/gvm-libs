@@ -56,6 +56,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <glib.h>
 
 #include "../misc/arglists.h"
@@ -376,6 +379,8 @@ static void dbg_display_cmdline (nmap_t * nmap);
 /*
  * Execution control and high level results parsing.
  */
+static void sig_h ();
+static void sig_c ();
 static int nmap_run_and_parse (nmap_t * nmap);
 static void current_host_reset (nmap_t * nmap);
 static void port_destroy (gpointer data, gpointer udata);
@@ -476,6 +481,8 @@ static void save_hostscripts (nmap_t * nmap);
 
 /* -------------------------------------------------------------------------- */
 
+/* PID of the nmap subprocess. Declared global for access from within sighandlers. */
+static pid_t pid;
 
 /**
  * @brief Run the nmap_net subsystem.
@@ -1164,6 +1171,26 @@ dbg_display_cmdline (nmap_t * nmap)
 }
 
 /**
+ * @brief Signal handler (Halt).
+ */
+void
+sig_h ()
+{
+  if (pid > 0)
+    kill (pid, SIGKILL);
+}
+
+/**
+ * @brief Signal handler (Child).
+ */
+void
+sig_c ()
+{
+  if (pid > 0)
+    waitpid (pid, NULL, WNOHANG);
+}
+
+/**
  * @brief Run nmap and parse its XML output (or load an external file if
  *        requested).
  *
@@ -1177,8 +1204,10 @@ nmap_run_and_parse (nmap_t * nmap)
   FILE *fproc;
   size_t len;
   int ret = 1; /* success */
-  pid_t pid;
   gchar chunk[CHUNK_LEN];
+  void (*old_sig_t) () = NULL;
+  void (*old_sig_i) () = NULL;
+  void (*old_sig_c) () = NULL;
   GMarkupParseContext *ctx;
   const GMarkupParser callbacks = {
     xml_start_element,
@@ -1188,12 +1217,22 @@ nmap_run_and_parse (nmap_t * nmap)
     NULL      /* error */
   };
 
+
   if (nmap->filename)
-    /* read results from external file */
-    fproc = fopen (nmap->filename, "r");
+    {
+      /* read results from external file */
+      fproc = fopen (nmap->filename, "r");
+    }
   else
-    /* execute nmap and read results from the process output */
-    fproc = openvas_popen4 (nmap->args[0], nmap->args, &pid, 0);
+    {
+      /* Update signal handlers. */
+      old_sig_t = signal (SIGTERM, sig_h);
+      old_sig_i = signal (SIGINT, sig_h);
+      old_sig_c = signal (SIGCHLD, sig_c);
+
+      /* execute nmap and read results from the process output */
+     fproc = openvas_popen4 (nmap->args[0], nmap->args, &pid, 0);
+    }
 
   if (!fproc)
     {
@@ -1232,9 +1271,17 @@ nmap_run_and_parse (nmap_t * nmap)
     }
 
   if (nmap->filename)
-    fclose (fproc);
+    {
+      fclose (fproc);
+    }
   else
-    openvas_pclose (fproc, pid);
+    {
+      openvas_pclose (fproc, pid);
+
+      signal (SIGINT, old_sig_i);
+      signal (SIGTERM, old_sig_t);
+      signal (SIGCHLD, old_sig_c);
+    }
 
   g_markup_parse_context_free (ctx);
 

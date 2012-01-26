@@ -1,3 +1,10 @@
+2012-01-26  Henri Doreau <henri.doreau@greenbone.net>
+
+	* nasl/nasl_builtin_nmap.c (nmap_run_and_parse): Set proper signal
+	handlers to prevent the nmap subprocess from being zombified if the scan is
+	stopped.
+	(sig_h, sig_c): New.
+
 2012-01-19  Henri Doreau <henri.doreau@greenbone.net>
 
 	Handle CPE codes produced by nmap, if any. Changes are backward
