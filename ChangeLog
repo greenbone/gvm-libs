@@ -1,5 +1,9 @@
 2012-01-26  Henri Doreau <henri.doreau@greenbone.net>
 
+	* misc/arglists.h: Export arg_del_value().
+
+2012-01-26  Henri Doreau <henri.doreau@greenbone.net>
+
 	* nasl/nasl_builtin_nmap.c (nmap_run_and_parse): Set proper signal
 	handlers to prevent the nmap subprocess from being zombified if the scan is
 	stopped.
