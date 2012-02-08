@@ -1,3 +1,8 @@
+2012-02-08  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* nasl/nasl_builtin_openvas_tcp_scanner.c (banner_grab): Check for the
+	T: and U: type specifiers in the port range.
+
 2012-01-26  Henri Doreau <henri.doreau@greenbone.net>
 
 	* misc/arglists.h: Export arg_del_value().

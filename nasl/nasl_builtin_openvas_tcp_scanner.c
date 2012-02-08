@@ -279,6 +279,15 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	  while (*p == ',')
 	    p ++;
 
+	  /* Scanner accepts only T:1-3,6,U:103-333,770 due to getpts. */
+
+	  if (*p == 'T' && p[1] && p[1] == ':')
+	    /* Skip over the leading "T:". */
+	    p += 2;
+	  else if (*p == 'U' && p[1] && p[1] == ':')
+	    /* "U:" for UDP.  Skip the rest. */
+	    break;
+
 	  if (*p == '-')
 	    {
 	      po1 = 1;
