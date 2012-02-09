@@ -2053,7 +2053,7 @@ save_open_ports (nmap_t * nmap)
       struct nmap_port *p;
 
       p = (struct nmap_port *) pport->data;
-      if (g_strcmp0 (p->state, "open") == 0)
+      if (strncmp (p->state, "open", 4) == 0)
         {
           gchar key[64];
 
