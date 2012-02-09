@@ -49,6 +49,7 @@
 
 #define uint32 unsigned int
 
+#define NASL_EXIT_NOTVULN  99
 
 /*---------------------------------------------------------------------*/
 tree_cell *
@@ -315,15 +316,32 @@ nasl_dump_ctxt (lex_ctxt * lexic)
 
 
 
+static void
+simple_register_host_detail(lex_ctxt *lexic, char *name, char *value)
+{
+  char *oid, detail[128];
+  nvti_t *nvti = arg_get_value (lexic->script_infos, "NVTI");
 
+  oid = nvti_oid (nvti);
+
+  plug_set_key (lexic->script_infos, "HostDetails", ARG_STRING, name);
+  plug_set_key (lexic->script_infos, "HostDetails/NVT", ARG_STRING, oid);
+
+  g_snprintf (detail, sizeof (detail), "HostDetails/NVT/%s/%s", oid, name);
+  plug_set_key (lexic->script_infos, detail, ARG_STRING, value);
+}
 
 tree_cell *
 nasl_do_exit (lex_ctxt * lexic)
 {
-  int x = get_int_var_by_num (lexic, 0, 0);
+  int retcode = get_int_var_by_num (lexic, 0, 0);
   tree_cell *retc = alloc_tree_cell (0, NULL);
+
   retc->type = CONST_INT;
-  retc->x.i_val = x;
+  retc->x.i_val = retcode;
+
+  if (retcode == NASL_EXIT_NOTVULN)
+    simple_register_host_detail(lexic, "EXIT_CODE", "EXIT_NOTVULN");
 
   while (lexic != NULL)
     {
