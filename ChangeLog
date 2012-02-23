@@ -1,3 +1,9 @@
+2012-02-23  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* CMakeLists.txt: Increased dependency for gnutls from 2.0 to 2.2
+	to ensure we can use gnutls_priority_set_direct which is
+	the replacement for the deprecated function gnutls_protocol_set_priority.
+
 2012-02-09  Henri Doreau <henri.doreau@greenbone.net>
 
 	Initial changes for a false positive auto detection/removal feature.
