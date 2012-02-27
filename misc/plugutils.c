@@ -679,26 +679,26 @@ post_log_udp (struct arglist *desc, int port, const char *action)
 }
 
 void
-proto_post_debug (struct arglist *desc, int port, const char *proto,
+proto_post_error (struct arglist *desc, int port, const char *proto,
                   const char *action)
 {
-  proto_post_wrapped (desc, port, proto, action, "DEBUG");
+  proto_post_wrapped (desc, port, proto, action, "ERRMSG");
 }
 
 
 void
-post_debug (struct arglist *desc, int port, const char *action)
+post_error (struct arglist *desc, int port, const char *action)
 {
-  proto_post_debug (desc, port, "tcp", action);
+  proto_post_error (desc, port, "tcp", action);
 }
 
 /**
  * @brief Post a debug message about a udp port.
  */
 void
-post_debug_udp (struct arglist *desc, int port, const char *action)
+post_error_udp (struct arglist *desc, int port, const char *action)
 {
-  proto_post_debug (desc, port, "udp", action);
+  proto_post_error (desc, port, "udp", action);
 }
 
 

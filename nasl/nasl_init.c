@@ -109,7 +109,7 @@ static init_func libfuncs[] = {
   {"security_hole", security_hole, 1,
    {"data", "port", "proto", "protocol", NULL}},
   {"log_message", log_message, 1, {"data", "port", "proto", "protocol", NULL}},
-  {"debug_message", debug_message, 1,
+  {"error_message", error_message, 1,
    {"data", "port", "proto", "protocol", NULL}},
 
   {"open_sock_tcp", nasl_open_sock_tcp, 1,

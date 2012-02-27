@@ -88,10 +88,10 @@ void post_note (struct arglist *, int, const char *);
 void post_note_udp (struct arglist *, int, const char *);
 #define post_note_tcp post_note
 
-void proto_post_debug (struct arglist *, int, const char *, const char *);
-void post_debug (struct arglist *, int, const char *);
-void post_debug_udp (struct arglist *, int, const char *);
-#define post_debug_tcp post_debug
+void proto_post_error (struct arglist *, int, const char *, const char *);
+void post_error (struct arglist *, int, const char *);
+void post_error_udp (struct arglist *, int, const char *);
+#define post_error_tcp post_error
 
 void proto_post_log (struct arglist *, int, const char *, const char *);
 void post_log (struct arglist *, int, const char *);

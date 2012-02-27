@@ -1040,9 +1040,9 @@ log_message (lex_ctxt * lexic)
 }
 
 tree_cell *
-debug_message (lex_ctxt * lexic)
+error_message (lex_ctxt * lexic)
 {
-  return security_something (lexic, proto_post_debug, post_debug);
+  return security_something (lexic, proto_post_error, post_error);
 }
 
 tree_cell *

@@ -1,3 +1,21 @@
+2012-02-27  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Rename NASL debug_function to error_function.  Rename the associated
+	OTP token from DEBUG to ERRMSG.
+
+	* misc/plugutils.c (proto_post_debug, post_debug, post_debug_udp): Remove.
+	(proto_post_error, post_error, post_error_udp): New functions.  Rename
+	from debug versions.
+
+	* misc/plugutils.h: Update headers accordingly.
+
+	* nasl/nasl_init.c (libfuncs): Rename debug_message to error_message.
+
+	* nasl/nasl_scanner_glue.c (debug_message): Remove.
+	(error_message): New function.  Rename from debug version.
+
+	* nasl/nasl_scanner_glue.h: Update headers accordingly.
+
 2012-02-23  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CMakeLists.txt: Increased dependency for gnutls from 2.0 to 2.2
@@ -9,7 +27,7 @@
 	Initial changes for a false positive auto detection/removal feature.
 
 	* nasl/nasl_misc_funcs.c (simple_register_host_detail): New.
-	(nasl_do_exit):	Store the exit code as host detail if equals to
+	(nasl_do_exit): Store the exit code as host detail if equals to
 	NASL_EXIT_NOTVULN.
 
 2012-02-09  Matthew Mundell <matthew.mundell@greenbone.net>
