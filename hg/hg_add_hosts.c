@@ -23,6 +23,7 @@
 #include <string.h>             /* for strlen */
 
 #include "network.h"            /* for convipv4toipv4mappedaddr */
+#include "support.h"
 
 #include "hosts_gatherer.h"
 #include "hg_utils.h"

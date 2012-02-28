@@ -45,6 +45,7 @@
 #include "pcap_openvas.h"
 #include "plugutils.h"
 #include "system.h"
+#include "support.h"
 
 /** @todo: It still needs to be taken care
  * BSD_BYTE_ORDERING gets here if defined (e.g. by config.h) */

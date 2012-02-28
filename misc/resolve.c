@@ -22,6 +22,7 @@
 #include <netdb.h>
 
 #include "resolve.h"
+#include "support.h"
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff

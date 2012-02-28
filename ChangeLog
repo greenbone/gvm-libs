@@ -1,5 +1,16 @@
 2012-02-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Make it easier to compile on MacOS. Patch by Andre Heinecke.
+
+	* misc/support.h: New. Support for MacOS.
+
+	* misc/network.c, misc/ids_send.c, misc/resolve.c, misc/pcap.c,
+	misc/www_funcs.c, hg/hg_add_hosts.c: Use support.h.
+
+	* COPYING: Add support.h.
+
+2012-02-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Remove local copy of regexp.
 
 	* nasl/nasl_tree.c (alloc_RE_cell): Replaced call of nasl_regcomp by regcomp

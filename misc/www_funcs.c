@@ -25,6 +25,7 @@
 #include "kb.h"
 #include "plugutils.h"
 #include "system.h"
+#include "support.h"
 
 /*
  * This function implements "whisker like" IDS evasion tactics plus a couple
