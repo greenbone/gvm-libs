@@ -206,7 +206,7 @@ ldap_auth_info_free (ldap_auth_info_t info)
  * @return Freshly allocated dn or NULL if one of the parameters was NULL. Free
  *         with g_free.
  */
-static gchar *
+gchar *
 ldap_auth_info_auth_dn (const ldap_auth_info_t info, const gchar * username)
 {
   if (info == NULL || username == NULL)

@@ -1,3 +1,8 @@
+2012-02-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/ldap_auth.h, misc/ldap_auth.c (ldap_auth_info_auth_dn): Expose
+	  function to be reusable in upcoming ldap_connect authenticator.
+
 2012-02-27  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Rename NASL debug_function to error_function.  Rename the associated

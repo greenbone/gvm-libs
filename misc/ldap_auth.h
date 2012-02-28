@@ -71,6 +71,9 @@ ldap_auth_info_t ldap_auth_info_new (const gchar * ldap_host,
 
 void ldap_auth_info_free (ldap_auth_info_t info);
 
+gchar* ldap_auth_info_auth_dn (const ldap_auth_info_t info,
+                               const gchar* username);
+
 int ldap_authenticate (const gchar * username, const gchar * password,
                        /*ldap_auth_info_t */ void *info);
 
