@@ -1,4 +1,9 @@
-2012-02-27  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+2012-02-28  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/ldap_connect_auth.h, misc/ldap_connect_auth.c: New
+	  ldap_connect_auth authenticator stub.
+
+2012-02-28  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/ldap_auth.h, misc/ldap_auth.c (ldap_auth_info_auth_dn): Expose
 	  function to be reusable in upcoming ldap_connect authenticator.
