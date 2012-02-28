@@ -1,5 +1,15 @@
 2012-02-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Several Cmake improvements towards full out-of-source builds
+	by Andre Heinecke.
+
+	* doc/Doxyfile.in, doc/Doxyfile_full.in: Use @CMAKE_CURRENT_BINARY_DIR@.
+ 
+	* CMakeLists.txt: Set minimum cmake version to 2.6.
+	Use ${CMAKE_CURRENT_BINARY_DIR} and ${CMAKE_SOURCE_DIR}.
+
+2012-02-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Make it easier to compile on MacOS. Patch by Andre Heinecke.
 
 	* misc/support.h: New. Support for MacOS.

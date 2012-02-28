@@ -7,7 +7,7 @@
 # Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 #
 # Copyright:
-# Copyright (C) 2011 Greenbone Networks GmbH
+# Copyright (C) 2011, 2012 Greenbone Networks GmbH
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2,
@@ -22,6 +22,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+
+cmake_minimum_required(VERSION 2.6)
 
 include (openvas_cmake_macros)
 
@@ -333,10 +335,10 @@ else (BETA_INDICATOR MATCHES "^\\+")
 endif (BETA_INDICATOR MATCHES "^\\+")
 
 # Configure Doxyfile with version number
-configure_file (doc/Doxyfile.in doc/Doxyfile @ONLY)
-configure_file (doc/Doxyfile_full.in doc/Doxyfile_full @ONLY)
-configure_file (VERSION.in VERSION @ONLY)
-configure_file (libopenvas.pc.in libopenvas.pc @ONLY)
+configure_file (doc/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile @ONLY)
+configure_file (doc/Doxyfile_full.in ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile_full @ONLY)
+configure_file (VERSION.in ${CMAKE_CURRENT_BINARY_DIR}/VERSION @ONLY)
+configure_file (libopenvas.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libopenvas.pc @ONLY)
 
 ## Program
 
@@ -360,13 +362,13 @@ add_subdirectory (doc)
 install (FILES doc/openvas-nasl.1
          DESTINATION ${DATADIR}/man/man1 )
 
-install (FILES ${CMAKE_BINARY_DIR}/libopenvas.pc
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/libopenvas.pc
          DESTINATION ${LIBDIR}/pkgconfig)
 
-install (FILES openvas-services DESTINATION ${OPENVAS_DATA_DIR}
+install (FILES ${CMAKE_SOURCE_DIR}/openvas-services DESTINATION ${OPENVAS_DATA_DIR}
          PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 
-install (FILES tools/openvas-lsc-rpm-creator.sh
+install (FILES ${CMAKE_SOURCE_DIR}/tools/openvas-lsc-rpm-creator.sh
          DESTINATION ${OPENVAS_DATA_DIR}
          PERMISSIONS OWNER_EXECUTE OWNER_READ OWNER_WRITE
                      GROUP_READ GROUP_EXECUTE
