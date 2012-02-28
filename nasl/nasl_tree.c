@@ -21,7 +21,7 @@
 #include <string.h>             /* for memcpy */
 #include "system.h"             /* for emalloc */
 
-#include "nasl_regex.h"
+#include "regex.h"
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -71,7 +71,7 @@ alloc_RE_cell (int lnb, int t, tree_cell * l, char *re_str)
   c->type = t;                  /* We could check the type... */
   c->link[0] = l;
   c->link[1] = FAKE_CELL;
-  e = nasl_regcomp (re, re_str, REG_EXTENDED | REG_NOSUB | REG_ICASE);
+  e = regcomp (re, re_str, REG_EXTENDED | REG_NOSUB | REG_ICASE);
   if (!e)
     c->x.ref_val = re;
   else
@@ -156,7 +156,7 @@ free_tree (tree_cell * c)
       case COMP_RE_NOMATCH:
         if (c->x.ref_val != NULL)
           {
-            nasl_regfree (c->x.ref_val);
+            regfree (c->x.ref_val);
             efree (&c->x.ref_val);
           }
         break;

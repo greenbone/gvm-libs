@@ -17,8 +17,6 @@
  *
  */
 
-#include "nasl_regex.h"
-
 #include "nasl.h"
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"

@@ -41,12 +41,6 @@ set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG}")
 # Once the warnings have been addressed this flag should be removed.
 set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -Werror -D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1 -fno-strict-aliasing")
 
-# The "-Wno-error=unprototyped-calls" silences warnings produced by an
-# openSUSE-patched gcc caused by code in regex.c.
-if (IGNORE_UNPROTOTYPED_CALLS)
-  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error=unprototyped-calls")
-endif (IGNORE_UNPROTOTYPED_CALLS)
-
 ## Compile the parser - note that there are (better) CMake macros to achieve
 ## that and that the user is not warned if bison is not installed
 add_custom_command (
@@ -66,7 +60,7 @@ set (FILES arc4.c capture_packet.c charcnv.c exec.c genrand.c hmacmd5.c
      nasl_http.c nasl_init.c nasl_lex_ctxt.c nasl_misc_funcs.c nasl_scanner_glue.c
      nasl_packet_forgery.c nasl_packet_forgery_v6.c nasl_signature.c nasl_smb.c
      nasl_socket.c nasl_text_utils.c nasl_tree.c nasl_var.c nasl_wmi.c
-     ntlmssp.c preparse.c regex.c strutils.c smb_crypt.c smb_crypt2.c
+     ntlmssp.c preparse.c strutils.c smb_crypt.c smb_crypt2.c
      smb_signing.c time.c)
 
 set (HEADERS nasl.h)

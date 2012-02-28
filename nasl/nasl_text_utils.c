@@ -38,7 +38,7 @@
 #include "exec.h"
 
 #include "strutils.h"
-#include "nasl_regex.h"
+#include "regex.h"
 #include "nasl_debug.h"
 
 #include "nasl_text_utils.h"
@@ -464,8 +464,7 @@ nasl_ereg (lex_ctxt * lexic)
   if (pattern == NULL || string == NULL)
     return NULL;
 
-  nasl_re_set_syntax (RE_SYNTAX_POSIX_EGREP);
-  if (nasl_regcomp (&re, pattern, REG_EXTENDED | REG_NOSUB | copt))
+  if (regcomp (&re, pattern, REG_EXTENDED | REG_NOSUB | copt))
     {
       nasl_perror (lexic, "ereg() : regcomp() failed\n");
       return NULL;
@@ -482,7 +481,7 @@ nasl_ereg (lex_ctxt * lexic)
     s[0] = '\0';
   if (s != string)
     {
-      if (nasl_regexec (&re, string, 0, NULL, 0) == 0)
+      if (regexec (&re, string, 0, NULL, 0) == 0)
         retc->x.i_val = 1;
       else
         retc->x.i_val = 0;
@@ -491,7 +490,7 @@ nasl_ereg (lex_ctxt * lexic)
     retc->x.i_val = 0;
 
   efree (&string);
-  nasl_regfree (&re);
+  regfree (&re);
   return retc;
 }
 
@@ -523,7 +522,7 @@ _regreplace (const char *pattern, const char *replace, const char *string,
     copts = REG_ICASE;
   if (extended)
     copts |= REG_EXTENDED;
-  err = nasl_regcomp (&re, pattern, copts);
+  err = regcomp (&re, pattern, copts);
   if (err)
     {
       return NULL;
@@ -541,8 +540,8 @@ _regreplace (const char *pattern, const char *replace, const char *string,
   while (!err)
     {
       err =
-        nasl_regexec (&re, &string[pos], (size_t) NS, subs,
-                      (pos ? REG_NOTBOL : 0));
+        regexec (&re, &string[pos], (size_t) NS, subs,
+                 (pos ? REG_NOTBOL : 0));
 
       if (err && err != REG_NOMATCH)
         {
@@ -643,7 +642,7 @@ _regreplace (const char *pattern, const char *replace, const char *string,
     }
 
   buf[new_l] = '\0';
-  nasl_regfree (&re);
+  regfree (&re);
   /* whew. */
   return (buf);
 }
@@ -733,15 +732,14 @@ nasl_egrep (lex_ctxt * lexic)
     for (;;)
       {
         bzero (&re, sizeof (re));
-        nasl_re_set_syntax (RE_SYNTAX_POSIX_EGREP);
-        if (nasl_regcomp (&re, pattern, REG_EXTENDED | copt))
+        if (regcomp (&re, pattern, REG_EXTENDED | copt))
           {
             nasl_perror (lexic, "egrep() : regcomp() failed\n");
             return NULL;
           }
 
 
-        if (nasl_regexec (&re, s, (size_t) NS, subs, 0) == 0)
+        if (regexec (&re, s, (size_t) NS, subs, 0) == 0)
           {
             char *t = strchr (s, '\n');
 
@@ -754,7 +752,7 @@ nasl_egrep (lex_ctxt * lexic)
               t[0] = '\n';
           }
 
-        nasl_regfree (&re);
+        regfree (&re);
 
         if (t == NULL)
           s = NULL;
@@ -820,16 +818,15 @@ nasl_eregmatch (lex_ctxt * lexic)
   if (pattern == NULL || string == NULL)
     return NULL;
 
-  nasl_re_set_syntax (RE_SYNTAX_POSIX_EGREP);
-  if (nasl_regcomp (&re, pattern, REG_EXTENDED | copt))
+  if (regcomp (&re, pattern, REG_EXTENDED | copt))
     {
       nasl_perror (lexic, "regmatch() : regcomp() failed\n");
       return NULL;
     }
 
-  if (nasl_regexec (&re, string, (size_t) NS, subs, 0) != 0)
+  if (regexec (&re, string, (size_t) NS, subs, 0) != 0)
     {
-      nasl_regfree (&re);
+      regfree (&re);
       return NULL;
     }
 
@@ -846,7 +843,7 @@ nasl_eregmatch (lex_ctxt * lexic)
         (void) add_var_to_list (a, i, &v);
       }
 
-  nasl_regfree (&re);
+  regfree (&re);
   return retc;
 }
 

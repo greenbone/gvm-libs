@@ -23,7 +23,6 @@
 #include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
 #include "exec.h"
-#include "nasl_regex.h"
 #include "nasl_debug.h"
 
 extern int naslparse (naslctxt *);

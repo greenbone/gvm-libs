@@ -1,3 +1,33 @@
+2012-02-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Remove local copy of regexp.
+
+	* nasl/nasl_tree.c (alloc_RE_cell): Replaced call of nasl_regcomp by regcomp
+	and nasl_regfree by regfree.
+
+	* nasl/preparse.c, nasl/lint.c: Removed unecessary include of nasl_regex.h.
+
+	* nasl/nasl_text_utils.c (nasl_ereg): Replaced call of nasl_regexec by
+	regexec and nasl_regfree by regfree. Removed call of nasl_re_set_syntax
+	because POSIX is the default anyway.
+	(_regreplace): Replaced call of nasl_regcomp by regcomp and nasl_regexec
+	by regexec and nasl_regfree by regfree.
+	(nasl_egrep): Replaced call of nasl_regcomp by regcomp and
+	nasl_regexec by regexec and nasl_regfree by regfree.
+	Removed call of nasl_re_set_syntax because POSIX is the default anyway.
+	(nasl_eregmatch): Replaced call of nasl_regcomp by by regcomp and
+	nasl_regexec by regexec and nasl_regfree by regfree.
+	Removed call of nasl_re_set_syntax because POSIX is the default anyway.
+	* nasl/exec.c (nasl_exec): Replaced call of nasl_regexec by regexec.
+
+	* nasl/CMakeLists.txt: Removed handling of module regex.c.
+	Removed openSUSE special treatment for compile problem in regexp.c.
+
+	* nasl/regex.c, nasl/nasl_regex.h: Removed.
+
+	* COPYING: Removed entries for removed files nasl/regex.c and
+	nasl/nasl_regex.h.
+
 2012-02-28  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/ldap_connect_auth.h, misc/ldap_connect_auth.c: New

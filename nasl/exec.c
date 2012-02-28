@@ -26,7 +26,7 @@
 
 #include "system.h"             /* for efree */
 
-#include "nasl_regex.h"
+#include "regex.h"
 
 #include "nasl.h"
 #include "nasl_tree.h"
@@ -1707,7 +1707,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
       s1 = cell2str (lexic, st->link[0]);
       if (s1 == NULL)
         return 0;
-      flag = nasl_regexec (st->x.ref_val, s1, 0, NULL, 0);
+      flag = regexec (st->x.ref_val, s1, 0, NULL, 0);
       free (s1);
       if (st->type == COMP_RE_MATCH)
         return bool2cell (flag != REG_NOMATCH);
