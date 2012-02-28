@@ -59,6 +59,7 @@ misc/ids_send.[c|h]: LGPLv2+
 misc/internal_com.h: GPLv2+
 misc/kb.[c|h]: LGPLv2+
 misc/ldap_auth.[c|h]: GPLv2+
+misc/ldap_connect_auth.[c|h]: GPLv2+
 misc/network.[c|h]: LGPLv2+
 misc/nvt_categories.h: LGPLv2+
 misc/openvas_auth.[c|h]: GPLv2+

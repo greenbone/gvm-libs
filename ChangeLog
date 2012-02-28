@@ -1,5 +1,10 @@
 2012-02-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* COPYING: Added recently added modules misc/ldap_connect_auth.h
+	and misc/ldap_connect_auth.c.
+
+2012-02-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Several Cmake improvements towards full out-of-source builds
 	by Andre Heinecke.
 
