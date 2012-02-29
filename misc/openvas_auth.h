@@ -31,6 +31,8 @@
 
 #include <glib.h>
 
+#include "../base/array.h"
+
 void openvas_auth_init ();
 
 void openvas_auth_tear_down ();
@@ -57,7 +59,8 @@ int openvas_set_user_role (const gchar *, const gchar *,
                            const gchar * user_dir_name);
 
 int openvas_user_modify (const gchar *, const gchar *, const gchar *,
-                         const gchar *, int, const gchar *);
+                         const gchar *, int, const gchar *,
+                         const array_t * allowed_methods);
 
 int openvas_auth_mkrulesdir (const gchar * user_dir_name);
 
@@ -68,5 +71,11 @@ int openvas_auth_user_uuid_rules (const gchar * username,
 
 int openvas_auth_store_user_rules (const gchar * user_dir, const gchar * hosts,
                                    int hosts_allow);
+GSList *
+openvas_auth_user_methods (const gchar * user_name);
+
+int
+openvas_auth_user_set_allowed_methods (const gchar * username,
+                                  const array_t * allowed_methods);
 
 #endif /* not _OPENVAS_AUTH_H */

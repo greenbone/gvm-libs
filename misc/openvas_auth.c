@@ -32,12 +32,16 @@
 #include "openvas_uuid.h"
 #endif
 
+#include "openvas_file.h"
+#include "array.h"
+
 #include <errno.h>
 #include <gcrypt.h>
 #include <glib/gstdio.h>
 
 #ifdef ENABLE_LDAP_AUTH
 #include "ldap_auth.h"
+#include "ldap_connect_auth.h"
 #include "ads_auth.h"
 #endif /*ENABLE_LDAP_AUTH */
 
@@ -70,10 +74,20 @@
  *  - remote ads authentication. To authenticate against a remote ADS (active
  *    directory server).
  *
+ * These mechanisms are also used for authorization (role and access management).
+ *
  * Also a mixture can be used. To do so, a configuration file
  * (PREFIX/var/lib/openvas/.auth.conf) has to be used and the authentication
  * system has to be initialised with a call to \ref openvas_auth_init and can
  * be freed with \ref openvas_auth_tear_down .
+ *
+ * In addition, there is an authentication mechanism that can be enabled per user
+ * and does not do authorization (role and access management).
+ *  - 'simple ldap authentication' against remote ldap directory server
+ *    (ldap-connect).
+ * As an exception, this method ignores any priority settings: If ldap-connect is
+ * enabled for a user, it is the only method tried (i.e. the password stored for
+ * the file-based authentication cannot be used).
  *
  * The configuration file allows to specify details of a remote ldap and/or ads
  * authentication and to assign an "order" value to the specified
@@ -111,6 +125,7 @@ enum authentication_method
   AUTHENTICATION_METHOD_FILE = 0,
   AUTHENTICATION_METHOD_ADS,
   AUTHENTICATION_METHOD_LDAP,
+  AUTHENTICATION_METHOD_LDAP_CONNECT,
   AUTHENTICATION_METHOD_LAST
 };
 
@@ -123,13 +138,23 @@ typedef enum authentication_method auth_method_t;
  * @brief methods.
  */
 /** @warning  Beware to have it in sync with \ref authentication_method. */
-static const gchar *authentication_methods[] = { "file", "ads", "ldap", NULL };
+static const gchar *authentication_methods[] = { "file",
+                                                 "ads",
+                                                 "ldap",
+                                                 "ldap_connect",
+                                                 NULL };
 
 /** @brief Flag whether the config file was read. */
 static gboolean initialized = FALSE;
 
-/** @brief List of authentication methods. */
+/** @brief List of configured authentication methods. */
 static GSList *authenticators = NULL;
+
+/**
+ * @brief Whether or not an exclusive per-user ldap authentication method is
+ * @brief configured.
+ */ 
+static gboolean ldap_connect_configured = FALSE;
 
 /** @brief Representation of an abstract authentication mechanism. */
 struct authenticator
@@ -155,6 +180,10 @@ static int openvas_authenticate_classic (const gchar * usr, const gchar * pas,
                                          void *dat);
 
 static int openvas_user_exists_classic (const gchar *name, void *data);
+
+static int openvas_auth_mkmethodsdir (const gchar *dir);
+
+static gchar* openvas_auth_user_methodsdir (const gchar * username);
 
 /**
  * @brief Return a auth_method_t from string representation (e.g. "ldap").
@@ -184,6 +213,8 @@ auth_method_from_string (const char *method)
  * @brief Implements a (GCompareFunc) to add authenticators to the
  * @brief authenticator list, sorted by the order.
  *
+ * One exception is that LDAP_CONNECT always comes first.
+ *
  * @param first_auth  First authenticator to be compared.
  * @param second_auth Second authenticator to be compared.
  *
@@ -192,6 +223,11 @@ auth_method_from_string (const char *method)
 static gint
 order_compare (authenticator_t first_auth, authenticator_t second_auth)
 {
+  if (first_auth->method == AUTHENTICATION_METHOD_LDAP_CONNECT)
+    return -1;
+  else if (second_auth->method == AUTHENTICATION_METHOD_LDAP_CONNECT)
+    return 1;
+
   return (first_auth->order - second_auth->order);
 }
 
@@ -261,6 +297,32 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
                                  (GCompareFunc) order_compare);
 #else
         g_warning ("LDAP Authentication was configured, but "
+                   "openvas-libraries was not build with "
+                   "ldap-support. The configuration entry will "
+                   "have no effect.");
+#endif /* ENABLE_LDAP_AUTH */
+        break;
+      }
+    case AUTHENTICATION_METHOD_LDAP_CONNECT:
+      {
+#ifdef ENABLE_LDAP_AUTH
+        //int (*authenticate_func) (const gchar* user, const gchar* pass, void* data) = NULL;
+        // Use ldap_connect for authentication, but file-based authorization.
+        authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
+        // TODO: The order is ignored in this case (oder_compare does sort
+        //       LDAP_CONNECT differently), make order optional.
+        authent->order = order;
+        authent->authenticate = &ldap_connect_authenticate;
+        // TODO Use openvas_user_exists_classic instead.
+        authent->user_exists = &ldap_user_exists;
+        ldap_auth_info_t info = ldap_auth_info_from_key_file (key_file, group);
+        authent->data = info;
+        authent->method = AUTHENTICATION_METHOD_LDAP_CONNECT;
+        authenticators =
+          g_slist_insert_sorted (authenticators, authent,
+                                 (GCompareFunc) order_compare);
+#else
+        g_warning ("LDAP-connect Authentication was configured, but "
                    "openvas-libraries was not build with "
                    "ldap-support. The configuration entry will "
                    "have no effect.");
@@ -359,6 +421,11 @@ openvas_auth_init ()
                   add_authenticator (key_file, *group);
                 }
               g_free (enabled_value);
+              // Remember that we enabled ldap_connect.
+              if (!strcmp (*group, "method:ldap_connect"))
+                {
+                  ldap_connect_configured = TRUE;
+                }
             }
         }
       group++;
@@ -436,6 +503,22 @@ openvas_auth_write_config (GKeyFile * key_file)
                             "x-gsm-accessruletype");
       g_key_file_set_value (new_conffile, "method:ldap", "rule-attribute",
                             "x-gsm-accessrule");
+      g_key_file_set_value (new_conffile, "method:ldap", "allow-plaintext",
+                            "false");
+    }
+
+  // LDAP configuration.
+  if (key_file == NULL
+      || g_key_file_has_group (key_file, "method:ldap_connect") == TRUE)
+    {
+      g_key_file_set_value (new_conffile, "method:ldap_connect", "enable", "false");
+      g_key_file_set_value (new_conffile, "method:ldap_connect", "order", "-1");
+      g_key_file_set_value (new_conffile, "method:ldap_connect", "ldaphost",
+                            "localhost");
+      g_key_file_set_value (new_conffile, "method:ldap_connect", "authdn",
+                            "authdn=uid=%s,cn=users,o=yourserver,c=yournet");
+      g_key_file_set_value (new_conffile, "method:ldap", "allow-plaintext",
+                            "false");
     }
 
   // ADS Configuration
@@ -517,9 +600,23 @@ openvas_auth_write_config (GKeyFile * key_file)
         g_key_file_free (new_conffile);
         g_free (file_content);
         g_free (file_path);
+        g_free (authdn);
 
         return 1;
       }
+    g_free (authdn);
+    authdn = g_key_file_get_value (new_conffile, "method:ldap_connect", "authdn", NULL);
+    if (authdn && (ldap_auth_dn_is_good (authdn) == FALSE))
+      {
+        // Clean up.
+        g_key_file_free (new_conffile);
+        g_free (file_content);
+        g_free (file_path);
+        g_free (authdn);
+
+        return 1;
+      }
+    g_free (authdn);
   }
 #endif
 
@@ -692,6 +789,45 @@ openvas_authenticate_classic (const gchar * username, const gchar * password,
 }
 
 /**
+ * @brief Check for existence of ldap_connect file in user auth/methods directory.
+ *
+ * If ldap_connect authentication is disabled, return FALSE.
+ *
+ * @param[in] username Username for which to check the existence of file.
+ *
+ * @return TRUE if the user is allowed to authenticate exclusively with an
+ *         configured ldap_connect method, FALSE otherwise.
+ */
+static gboolean
+can_user_ldap_connect (const gchar * username)
+{
+  // If ldap_connect is not globally enabled, no need to check locally.
+  if (ldap_connect_configured == FALSE)
+    return FALSE;
+
+  // Does the directory and file exist?
+  gchar * methodsdir = openvas_auth_user_methodsdir (username);
+
+  if (g_file_test (methodsdir, G_FILE_TEST_IS_DIR))
+    {
+      gchar * ldap_connect_file = g_build_filename (methodsdir, "ldap_connect", NULL);
+      if (g_file_test (ldap_connect_file, G_FILE_TEST_IS_REGULAR))
+        {
+          g_free (ldap_connect_file);
+          g_free (methodsdir);
+          return TRUE;
+        }
+      g_free (ldap_connect_file);
+      g_free (methodsdir);
+      return FALSE;
+    }
+
+  g_free (methodsdir);
+
+  return FALSE;
+}
+
+/**
  * @brief Authenticate a credential pair.
  *
  * Uses the configurable authenticators list, if available.
@@ -719,6 +855,21 @@ openvas_authenticate (const gchar * username, const gchar * password)
   while (item)
     {
       authenticator_t authent = (authenticator_t) item->data;
+
+      // LDAP_CONNECT is either the only method to try or not tried.
+      if (authent->method == AUTHENTICATION_METHOD_LDAP_CONNECT)
+        {
+          if (can_user_ldap_connect (username) == TRUE)
+            {
+              return authent->authenticate (username, password, authent->data);
+            }
+          else
+            {
+              item = g_slist_next (item);
+              continue;
+            }
+        }
+
       ret = authent->authenticate (username, password, authent->data);
       g_debug ("Authentication via '%s' (order %d) returned %d.",
                authentication_methods[authent->method], authent->order, ret);
@@ -761,6 +912,21 @@ openvas_authenticate_method (const gchar * username, const gchar * password,
   while (item)
     {
       authenticator_t authent = (authenticator_t) item->data;
+
+      // LDAP_CONNECT is either the only method to try or not tried.
+      if (authent->method == AUTHENTICATION_METHOD_LDAP_CONNECT)
+        {
+          if (can_user_ldap_connect (username) == TRUE)
+            {
+              return authent->authenticate (username, password, authent->data);
+            }
+          else
+            {
+              item = g_slist_next (item);
+              continue;
+            }
+        }
+
       ret = authent->authenticate (username, password, authent->data);
       g_debug ("Authentication trial, order %d, method %s -> %d. (w/method)",
                authent->order, authentication_methods[authent->method], ret);
@@ -774,6 +940,7 @@ openvas_authenticate_method (const gchar * username, const gchar * password,
 
       item = g_slist_next (item);
     }
+
   return ret;
 }
 
@@ -1118,6 +1285,21 @@ openvas_is_user_admin (const gchar * username)
 }
 
 /**
+ * @brief Create string with path to users methods directory.
+ *
+ * @param username name of the user whose directory to access
+ *
+ * @return path to users method directory, free yourself with g_free.
+ */
+static gchar*
+openvas_auth_user_methodsdir (const gchar * username)
+{
+  gchar * method_dir = g_build_filename (OPENVAS_USERS_DIR, username, "auth",
+                                        "methods", NULL);
+  return method_dir;
+}
+
+/**
  * @brief Check if a user is an observer.
  *
  * The check for administrative privileges is currently done by looking for an
@@ -1203,7 +1385,8 @@ openvas_is_user_observer (const gchar * username)
 int
 openvas_user_modify (const gchar * name, const gchar * password,
                      const gchar * role, const gchar * hosts,
-                     int hosts_allow, const gchar * directory)
+                     int hosts_allow, const gchar * directory,
+		     const array_t * allowed_methods)
 {
   g_assert (name != NULL);
 
@@ -1222,7 +1405,6 @@ openvas_user_modify (const gchar * name, const gchar * password,
       gchar *user_hash_file_name, *hashes_out;
 
       /* Put the password hashes in auth/hash. */
-
       if (password)
         {
           hashes_out = get_password_hashes (GCRY_MD_MD5, password);
@@ -1255,16 +1437,79 @@ openvas_user_modify (const gchar * name, const gchar * password,
           g_free (user_dir_name);
         }
 
-      /* Set the role of the user. */
+      /* Set the authentication methods for the user. */
+      if (allowed_methods != NULL)
+        {
+          if (openvas_auth_user_set_allowed_methods (name, allowed_methods) != 1)
+            return -1;
+        }
 
+      /* Set the role of the user. */
       if (role)
         return openvas_set_user_role (name, role, NULL);
+
 
       return 0;
     }
 
   g_warning ("Could not access %s!", directory);
   return -1;
+}
+
+
+/**
+ * @brief Place files in users /auth/methods/ directory indicating the
+ * @brief allowed authentication methods for this user.
+ *
+ * Note that currently only the ldap_connect method takes advantage of this
+ * mechanism.
+ *
+ * @param[in] username Name of the user (to find the correct directory).
+ * @param[in] allowed_methods list of strings matching the allowed methods.
+ *
+ * @return 0 if operation failed. 1 otherwise.
+ */
+int
+openvas_auth_user_set_allowed_methods (const gchar * username,
+                                       const array_t * allowed_methods)
+{
+  int idx = 0;
+  GError * error = NULL;
+  gchar * method;
+  gchar * directory = OPENVAS_USERS_DIR;
+  gchar * method_dir = g_build_filename (directory, username, "auth",
+                                        "methods", NULL);
+  gchar * user_dir = g_build_filename (directory, username, NULL);
+
+  // Wipe directory, then recreate it.
+  openvas_file_remove_recurse (method_dir);
+  openvas_auth_mkmethodsdir (user_dir);
+  g_chmod (method_dir, 0700);
+
+  while ((method = g_ptr_array_index (allowed_methods, idx++)))
+    {
+      // TODO sanity check. ensure there is no ".." or other
+      //      nasty stuff in filename, idially use a alnum validator.
+      if (g_strrstr (method, "..") != NULL)
+        {
+          g_critical ("Attempt was made to allow method '%s'.", method);
+          return 0;
+        }
+      gchar* method_file =
+          g_build_filename (method_dir, method, NULL);
+      if (!g_file_set_contents
+             (method_file, "", -1, &error))
+        {
+          g_error ("%s", error->message);
+          g_error_free (error);
+          g_free (method_file);
+          return 0;
+        }
+
+      g_chmod (method_file, 0600);
+    }
+
+  return 1;
 }
 
 /**
@@ -1491,6 +1736,76 @@ openvas_auth_mkrulesdir (const gchar * user_dir_name)
     }
 
   return 0;
+}
+
+/**
+ * @brief Create the /auth/methods directory for given user.
+ *
+ * @param user_dir_name path to users directory.
+ *
+ * @return -1 if operation failed, 0 otherwise.
+ */
+static int
+openvas_auth_mkmethodsdir (const gchar * user_dir_name)
+{
+  int mkdir_result = 0;
+  gchar * methods_dir_name = g_build_filename (user_dir_name, "auth", "methods", NULL);
+
+  mkdir_result = g_mkdir_with_parents (methods_dir_name, 0700);
+  g_free (methods_dir_name);
+
+  if (mkdir_result != 0)
+    {
+      g_warning ("Users methods directory could not be created.");
+      return -1;
+    }
+
+  return 0;
+}
+
+/**
+ * @brief Get list of methods allowed to use for a given user.
+ *
+ * Note that currently only the ldap_connect method repsects this setting.
+ *
+ * @param[in] user_name name of the user.
+ *
+ * @return List of strings with methods allowed for user.
+ */
+GSList *
+openvas_auth_user_methods (const gchar * user_name)
+{
+  GSList * user_methods = NULL;
+  GError * error = NULL;
+  gchar * method_dir = g_build_filename (OPENVAS_USERS_DIR,
+                                         user_name, "auth",
+	                                 "methods", NULL);
+
+  if (!g_file_test (method_dir, G_FILE_TEST_IS_DIR))
+    return user_methods;
+
+  GDir * directory = g_dir_open(method_dir, 0, &error);
+  if (directory == NULL)
+    {
+      if (error)
+        {
+          g_error ("Could not open user method dir %s .", method_dir);
+          g_error_free (error);
+          g_free (method_dir);
+          return user_methods;
+        }
+      return user_methods;
+    }
+  else
+    {
+      const gchar * entry = NULL;
+      while ((entry = g_dir_read_name (directory)))
+	{
+	  user_methods = g_slist_prepend (user_methods, g_strdup (entry));
+	}
+    }
+
+  return user_methods;
 }
 
 

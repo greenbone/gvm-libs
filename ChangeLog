@@ -1,3 +1,33 @@
+2012-02-29  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/CMakeLists.txt: Compile new module ldap_connect_auth (if build
+	with ldap flag is set).
+
+	* misc/openvas_auth.c: Added stub for new ldap_connect authenticator.
+	  (order_compare): Let the ldap_connect authenticator always be the
+	  first.
+	  (add_authenticator): Respect and add ldap_connect authenticator.
+	  (openvas_auth_init): Remember whether ldap_connect authenticator was
+	  configured.
+	  (openvas_auth_write_config): Write ldap_connect part of config,
+	  validate given values. Closed leaking string in error case.
+	  (can_user_ldap_connect): New. Return true if ldap_connect enabled
+	  for user.
+	  (openvas_authenticate, openvas_authenticate_method): Realise
+	  exclusivity of ldap_connect mehtod.
+	  (openvas_auth_user_methodsdir): New, convenience to find users
+	  auth/methods directory.
+	  (openvas_user_modify): Added ability to set allowed methods per
+	  user.
+	  (openvas_auth_user_set_allowed_methods): New. Set allowed methods per
+	  user.
+	  (openvas_auth_mkmethodsdir): New. Create users auth/methods directory.
+	  (openvas_auth_user_methods): New. Access allowed methods for a user.
+
+	* misc/openvas_auth.h (openvas_user_modify): Adjusted signature.
+	  (openvas_auth_user_methods, openvas_auth_user_set_allowed_methods):
+	  New, exposed functions (will be used by openvas-administrator).
+
 2012-02-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* COPYING: Added recently added modules misc/ldap_connect_auth.h
@@ -9,7 +39,7 @@
 	by Andre Heinecke.
 
 	* doc/Doxyfile.in, doc/Doxyfile_full.in: Use @CMAKE_CURRENT_BINARY_DIR@.
- 
+
 	* CMakeLists.txt: Set minimum cmake version to 2.6.
 	Use ${CMAKE_CURRENT_BINARY_DIR} and ${CMAKE_SOURCE_DIR}.
 
