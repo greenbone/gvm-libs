@@ -276,3 +276,44 @@ openvas_string_list_free (GSList * string_list)
     }
   g_slist_free (string_list);
 }
+
+/**
+ * @brief Explodes list to a (very flat) xml tree.
+ *
+ * Example: list contains "apple", "banana"
+ * call openvas_string_list_to_xml (list, "trees", "kind")
+ * results in <trees><kind>apple</kind><kind>banana</kind></trees>
+ *
+ * @param root Name of root element, assumed to be sane
+ * @param child Name of child element(s), assumed to be sane
+ * @param string_list GSList containing strings.
+ *
+ * @return String holding xml representation of list.
+ */
+gchar *
+openvas_string_list_to_xml (const GSList * string_list, const gchar * root,
+                            const gchar * child)
+{
+  GString * xml_string;
+  gchar * xml;
+  if (string_list == NULL)
+    {
+      return g_strdup_printf ("<%s/>", root);
+    }
+  xml_string = g_string_new ("");
+  const GSList * it = string_list;
+  while (it)
+    {
+      gchar * escape_buffer = g_markup_printf_escaped ("<%s>%s</%s>",
+	                                               child,
+						       (gchar*) it->data,
+						       child);
+      xml_string = g_string_append (xml_string, escape_buffer);
+      g_free (escape_buffer);
+      it = g_slist_next (it);
+    }
+
+  xml = g_strdup_printf ("<%s>%s</%s>", root, xml_string->str, root);
+  g_string_free (xml_string, TRUE);
+  return xml;
+}

@@ -48,4 +48,8 @@ gchar* openvas_string_flatten_string_list (GSList* string_list,
 
 void openvas_string_list_free (GSList* string_list);
 
+gchar *
+openvas_string_list_to_xml (const GSList * string_list, const gchar * root,
+                            const gchar * child);
+
 #endif /* not _OPENVAS_LIBRARIES_STRING_H */
