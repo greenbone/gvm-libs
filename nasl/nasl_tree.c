@@ -76,8 +76,10 @@ alloc_RE_cell (int lnb, int t, tree_cell * l, char *re_str)
     c->x.ref_val = re;
   else
     {
-      nasl_perror (NULL, "Line %d: Cannot compile regex: %s (error = %d)\n",
-                   lnb, re_str, e);
+      char errbuf[100];
+      regerror (e, re, errbuf, sizeof (errbuf));
+      nasl_perror (NULL, "Line %d: Cannot compile regex: %s (error %d: %s)\n",
+                   lnb, re_str, e, errbuf);
       efree (&re);
     }
   free (re_str);
