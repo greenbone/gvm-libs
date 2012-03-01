@@ -1,5 +1,12 @@
 2012-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl.h: Removed NASL_LEVEL as it is long time deprecated.
+
+	* nasl/nasl_init.c (libivars): Removed NASL_LEVEL as it is long
+	time deprecated.
+
+2012-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/openvas_server.c (openvas_server_new): Removed dead code
 	about a magic user "admin" that was removed long time ago.
 	 

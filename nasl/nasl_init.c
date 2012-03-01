@@ -477,8 +477,6 @@ static struct
   {
   "ENCAPS_TLSv1", OPENVAS_ENCAPS_TLSv1},
   {
-  "NASL_LEVEL", NASL_LEVEL},    /* deprecated: can be removed once openvas-plugins < 1.0.6 is deprecated */
-  {
   "OPENVAS_NASL_LEVEL", OPENVAS_NASL_LEVEL},
   {
   "TH_FIN", TH_FIN},

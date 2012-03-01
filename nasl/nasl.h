@@ -106,9 +106,6 @@
  * New functions: script_mandatory_keys()
  */
 
-/* NASL_LEVEL is deprecated: can be removed once openvas-plugins < 1.0.6 is deprecated */
-#define NASL_LEVEL 2205
-
 #define OPENVAS_NASL_LEVEL 2320
 
 #include <glib.h>
