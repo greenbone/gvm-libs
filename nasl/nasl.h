@@ -121,11 +121,6 @@ GSList *nasl_get_all_certificates ();
 
 int add_nasl_inc_dir (const char *);
 
-/* These can be removed with the next major release after 2.0: */
-__attribute__ ((__deprecated__))
-int
-execute_nasl_script (struct arglist *, const char *, const char *, int);
-
 int
 exec_nasl_script (struct arglist *, const char *, int);
 int
