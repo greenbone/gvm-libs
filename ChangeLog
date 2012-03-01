@@ -1,5 +1,19 @@
 2012-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	This patch was developed by Bernhard Herzog.
+
+	* misc/network.c (set_gnutls_priorities, set_gnutls_sslv23)
+	(set_gnutls_sslv3, set_gnutls_tlsv1): Removed.
+	(set_gnutls_protocol): Use gnutls_priority_set_direct to set the
+	various priorities instead of (indirectly via the now removed
+	set_gnutls_* functions) using the deprecated functions
+	gnutls_protocol_set_priority, gnutls_cipher_set_priority,
+	gnutls_compression_set_priority, gnutls_mac_set_priority. The
+	gnutls_priority_set_direct function accepts all the priority
+	settings as a single string.
+
+2012-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl.h: Removed NASL_LEVEL as it is long time deprecated.
 
 	* nasl/nasl_init.c (libivars): Removed NASL_LEVEL as it is long

@@ -414,133 +414,40 @@ ovas_get_tlssession_from_connection (int fd)
   return &fp->tls_session;
 }
 
-static int
-set_gnutls_priorities (gnutls_session_t session, int *protocol_priority,
-                       int *cipher_priority, int *comp_priority,
-                       int *kx_priority, int *mac_priority)
-{
-  int err;
-
-  if ((err = gnutls_protocol_set_priority (session, protocol_priority))
-      || (err = gnutls_cipher_set_priority (session, cipher_priority))
-      || (err = gnutls_compression_set_priority (session, comp_priority))
-      || (err = gnutls_kx_set_priority (session, kx_priority))
-      || (err = gnutls_mac_set_priority (session, mac_priority)))
-    {
-      tlserror ("setting session priorities", err);
-      return -1;
-    }
-  return 0;
-}
-
-static int
-set_gnutls_sslv23 (gnutls_session_t session)
-{
-  static int protocol_priority[] = { GNUTLS_TLS1,
-    GNUTLS_SSL3,
-    0
-  };
-  static int cipher_priority[] = { GNUTLS_CIPHER_AES_128_CBC,
-    GNUTLS_CIPHER_3DES_CBC,
-    GNUTLS_CIPHER_AES_256_CBC,
-    GNUTLS_CIPHER_ARCFOUR_128,
-    0
-  };
-  static int comp_priority[] = { GNUTLS_COMP_ZLIB,
-    GNUTLS_COMP_NULL,
-    0
-  };
-  static int kx_priority[] = { GNUTLS_KX_DHE_RSA,
-    GNUTLS_KX_RSA,
-    GNUTLS_KX_DHE_DSS,
-    0
-  };
-  static int mac_priority[] = { GNUTLS_MAC_SHA1,
-    GNUTLS_MAC_MD5,
-    0
-  };
-
-  return set_gnutls_priorities (session, protocol_priority, cipher_priority,
-                                comp_priority, kx_priority, mac_priority);
-}
-
-static int
-set_gnutls_sslv3 (gnutls_session_t session)
-{
-  static int protocol_priority[] = { GNUTLS_SSL3,
-    0
-  };
-  static int cipher_priority[] = { GNUTLS_CIPHER_3DES_CBC,
-    GNUTLS_CIPHER_ARCFOUR_128,
-    0
-  };
-  static int comp_priority[] = { GNUTLS_COMP_ZLIB,
-    GNUTLS_COMP_NULL,
-    0
-  };
-
-  static int kx_priority[] = { GNUTLS_KX_DHE_RSA,
-    GNUTLS_KX_RSA,
-    GNUTLS_KX_DHE_DSS,
-    0
-  };
-
-  static int mac_priority[] = { GNUTLS_MAC_SHA1,
-    GNUTLS_MAC_MD5,
-    0
-  };
-
-  return set_gnutls_priorities (session, protocol_priority, cipher_priority,
-                                comp_priority, kx_priority, mac_priority);
-}
-
-static int
-set_gnutls_tlsv1 (gnutls_session_t session)
-{
-  static int protocol_priority[] = { GNUTLS_TLS1,
-    0
-  };
-  static int cipher_priority[] = { GNUTLS_CIPHER_AES_128_CBC,
-    GNUTLS_CIPHER_3DES_CBC,
-    GNUTLS_CIPHER_AES_256_CBC,
-    GNUTLS_CIPHER_ARCFOUR_128,
-    0
-  };
-  static int comp_priority[] = { GNUTLS_COMP_ZLIB,
-    GNUTLS_COMP_NULL,
-    0
-  };
-  static int kx_priority[] = { GNUTLS_KX_DHE_RSA,
-    GNUTLS_KX_RSA,
-    GNUTLS_KX_DHE_DSS,
-    0
-  };
-  static int mac_priority[] = { GNUTLS_MAC_SHA1,
-    GNUTLS_MAC_MD5,
-    0
-  };
-
-  return set_gnutls_priorities (session, protocol_priority, cipher_priority,
-                                comp_priority, kx_priority, mac_priority);
-}
-
 /**
  * Sets the priorities for the GnuTLS session according to encaps, one
- * of hte OPENVAS_ENCAPS_* constants.
+ * of the OPENVAS_ENCAPS_* constants.
  */
 static int
 set_gnutls_protocol (gnutls_session_t session, int encaps)
 {
+  const char * priorities;
+  int err;
+
+  /*
+   * MAC Priority: From gnutls 3.0 on this could be "MAC-ALL",
+   * but older versions don't support this. Therefore
+   * "+SHA1:+MD5" is applied.
+   * COMPRESSION Priority: * From gnutls 3.0 on this could be "COMP-ALL",
+   * but older versions don't support this. Therefore
+   * "+COMP-DEFLATE:+COMP-NULL" is applied.
+   */
+
   switch (encaps)
     {
     case OPENVAS_ENCAPS_SSLv3:
-      set_gnutls_sslv3 (session);
+      priorities = ("NONE:+VERS-SSL3.0:+3DES-CBC:+ARCFOUR-128:+COMP-DEFLATE"
+                    ":+COMP-NULL:+RSA:+DHE-RSA:+DHE-DSS:+SHA1:+MD5");
       break;
     case OPENVAS_ENCAPS_TLSv1:
-      set_gnutls_tlsv1 (session);
+      priorities = ("NONE:+VERS-TLS1.0:+AES-256-CBC:+AES-128-CBC:+3DES-CBC"
+                    ":+ARCFOUR-128:+COMP-DEFLATE:+COMP-NULL"
+		    ":+RSA:+DHE-RSA:+DHE-DSS:+SHA1:+MD5");
       break;
     case OPENVAS_ENCAPS_SSLv23:        /* Compatibility mode */
-      set_gnutls_sslv23 (session);
+      priorities = ("NONE:+VERS-TLS1.0:+VERS-SSL3.0:+AES-256-CBC:+AES-128-CBC"
+                    ":+3DES-CBC:+ARCFOUR-128:+COMP-DEFLATE:+COMP-NULL"
+                    ":+RSA:+DHE-RSA:+DHE-DSS:+SHA1:+MD5");
       break;
 
     default:
@@ -548,8 +455,17 @@ set_gnutls_protocol (gnutls_session_t session, int encaps)
       fprintf (stderr, "*Bug* at %s:%d. Unknown transport %d\n", __FILE__,
                __LINE__, encaps);
 #endif
-      set_gnutls_sslv23 (session);
+      /* Use same priorities as for OPENVAS_ENCAPS_SSLv23 */
+      priorities = ("NONE:+VERS-TLS1.0:+VERS-SSL3.0:+AES-256-CBC:+AES-128-CBC"
+                    ":+3DES-CBC:+ARCFOUR-128:+COMP-DEFLATE:+COMP-NULL"
+                    ":+RSA:+DHE-RSA:+DHE-DSS:+SHA1:+MD5");
       break;
+    }
+
+  if ((err = gnutls_priority_set_direct (session, priorities, NULL)))
+    {
+      tlserror ("setting session priorities", err);
+      return -1;
     }
 
   return 0;
