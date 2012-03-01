@@ -1,5 +1,10 @@
 2012-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/openvas_server.c (openvas_server_new): Removed dead code
+	about a magic user "admin" that was removed long time ago.
+	 
+2012-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	This patch was developed by Bernhard Herzog.
 
 	* misc/openvas_server.c (openvas_server_open): Remove the call to

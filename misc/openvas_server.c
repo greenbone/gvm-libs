@@ -1,6 +1,6 @@
 /**
  * GnuTLS based functions for communication with an OpenVAS server.
- * Copyright (C) 2009  Greenbone Networks GmbH
+ * Copyright (C) 2009, 2012  Greenbone Networks GmbH
  *
  * Authors:
  * Matthew Mundell <matt@mundell.ukfsn.org>
@@ -675,12 +675,6 @@ openvas_server_new (gnutls_connection_end_t end_type, gchar * ca_cert_file,
     }
 
   gnutls_certificate_server_set_request (*server_session, GNUTLS_CERT_REQUEST);
-
-#if 0
-  // FIX admin also had this
-
-  gnutls_dh_set_prime_bits (session, DH_BITS);
-#endif
 
   return 0;
 
