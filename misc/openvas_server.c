@@ -142,19 +142,6 @@ openvas_server_open (gnutls_session_t * session, const char *host, int port)
       return -1;
     }
 
-  const int kx_priority[] = { GNUTLS_KX_DHE_RSA,
-    GNUTLS_KX_RSA,
-    GNUTLS_KX_DHE_DSS,
-    0
-  };
-  if (gnutls_kx_set_priority (*session, kx_priority))
-    {
-      g_warning ("Failed to set server key exchange priority.");
-      gnutls_deinit (*session);
-      gnutls_certificate_free_credentials (credentials);
-      return -1;
-    }
-
   if (gnutls_credentials_set (*session, GNUTLS_CRD_CERTIFICATE, credentials))
     {
       g_warning ("Failed to set server credentials.");
@@ -615,29 +602,7 @@ openvas_server_new (gnutls_connection_end_t end_type, gchar * ca_cert_file,
                     gnutls_session_t * server_session,
                     gnutls_certificate_credentials_t * server_credentials)
 {
-  // FIX static vars?
-  const int protocol_priority[] = { GNUTLS_TLS1,
-    0
-  };
-  const int cipher_priority[] = { GNUTLS_CIPHER_AES_128_CBC,
-    GNUTLS_CIPHER_3DES_CBC,
-    GNUTLS_CIPHER_AES_256_CBC,
-    GNUTLS_CIPHER_ARCFOUR_128,
-    0
-  };
-  const int comp_priority[] = { GNUTLS_COMP_ZLIB,
-    GNUTLS_COMP_NULL,
-    0
-  };
-  const int kx_priority[] = { GNUTLS_KX_DHE_RSA,
-    GNUTLS_KX_RSA,
-    GNUTLS_KX_DHE_DSS,
-    0
-  };
-  const int mac_priority[] = { GNUTLS_MAC_SHA1,
-    GNUTLS_MAC_MD5,
-    0
-  };
+  int err_gnutls;
 
   /* Turn off use of /dev/random, as this can block. */
 
@@ -686,34 +651,19 @@ openvas_server_new (gnutls_connection_end_t end_type, gchar * ca_cert_file,
       goto server_free_fail;
     }
 
-  if (gnutls_protocol_set_priority (*server_session, protocol_priority))
+  /* Depending on gnutls version different priority strings are
+     possible. At least from 3.0 this is an option:
+     "NONE:+VERS-TLS1.0:+CIPHER-ALL:+COMP-ALL:+RSA:+DHE-RSA:+DHE-DSS:+MAC-ALL"
+     But in fact this function is only for OpenVAS internal
+     purposes, not for scanning abilities. So, the conservative "SECURE"
+     is choosen.
+  */
+ 
+  if ((err_gnutls = gnutls_priority_set_direct (*server_session,
+                                                "SECURE", NULL)))
     {
-      g_warning ("%s: failed to set protocol priority\n", __FUNCTION__);
-      goto server_fail;
-    }
-
-  if (gnutls_cipher_set_priority (*server_session, cipher_priority))
-    {
-      g_warning ("%s: failed to set cipher priority\n", __FUNCTION__);
-      goto server_fail;
-    }
-
-  if (gnutls_compression_set_priority (*server_session, comp_priority))
-    {
-      g_warning ("%s: failed to set compression priority\n", __FUNCTION__);
-      goto server_fail;
-    }
-
-  if (gnutls_kx_set_priority (*server_session, kx_priority))
-    {
-      g_warning ("%s: failed to set server key exchange priority\n",
-                 __FUNCTION__);
-      goto server_fail;
-    }
-
-  if (gnutls_mac_set_priority (*server_session, mac_priority))
-    {
-      g_warning ("%s: failed to set mac priority\n", __FUNCTION__);
+      g_warning ("%s: failed to set tls priorities: %s\n", __FUNCTION__,
+                 gnutls_strerror(err_gnutls));
       goto server_fail;
     }
 

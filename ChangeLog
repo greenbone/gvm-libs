@@ -1,3 +1,19 @@
+2012-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	This patch was developed by Bernhard Herzog.
+
+	* misc/openvas_server.c (openvas_server_open): Remove the call to
+	the deprecated gnutls_kx_set_priority function. The preceding
+	gnutls_set_default_priority call should have set suitable key
+	exchange priorities. The key exchange algorithms set by
+	gnutls_set_default_priority (in gnutls 3.0.9) include all the
+	algorithms set by the gnutls_kx_set_priority, although in
+	different order, and some more, like the EC variants.
+	(openvas_server_new): Use gnutls_priority_set_direct to set the
+	various priorities instead of the deprecated gnutls_*_set_priority
+	functions. As priority string now uses the SECURE choice as
+	it is primarily for internal OpenVAS connections.
+
 2012-02-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_tree.c (alloc_RE_cell): Print error string along with
