@@ -312,6 +312,7 @@ nasl_ssh_exec (lex_ctxt * lexic)
           fprintf (stderr, "Failed to write private key: %s", error->message);
           g_error_free (error);
           g_free (privkey_filename);
+          g_free (pubkey_filename);
           ssh_disconnect (session);
           ssh_free (session);
           file_utils_rmdir_rf (key_dir);

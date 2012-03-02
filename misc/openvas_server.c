@@ -161,6 +161,7 @@ openvas_server_open (gnutls_session_t * session, const char *host, int port)
       g_warning ("WSAStartup failed");
       gnutls_deinit (*session);
       gnutls_certificate_free_credentials (credentials);
+      g_free (port_string);
       return -1;
     }
 #endif

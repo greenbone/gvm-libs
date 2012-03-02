@@ -1,5 +1,10 @@
 2012-03-02  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/openvas_server.c (openvas_server_open), nasl/nasl_ssh.c
+	(nasl_ssh_exec): Fixed memleaks spotted by cppcheck.
+
+2012-03-02  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/openvas_auth.c (openvas_modify_user): Documentation added.
 
 2012-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
