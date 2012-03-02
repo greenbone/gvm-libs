@@ -1378,6 +1378,8 @@ openvas_is_user_observer (const gchar * username)
  * @param[in]  hosts_allow  Whether hosts is allow or forbid.
  * @param[in]  directory    The directory containing the user directories.  It
  *                          will be created if it does not exist already.
+ * @param[in] allowed_methods Array of strings of allowed authenticators.  If
+ *                            NULL, do no modifications.
  *
  * @return 0 if the user has been added successfully, -1 on error, -2 for an
  *         unknown role, -3 if user exists already.

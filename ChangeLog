@@ -1,3 +1,7 @@
+2012-03-02  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_modify_user): Documentation added.
+
 2012-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl.h: Removed prot for deprecated function execute_nasl_script.
