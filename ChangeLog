@@ -1,3 +1,8 @@
+2012-03-05  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* nasl/nasl_debug.c (nasl_perror): Add prospective code to send an
+	ERRMSG to the client.
+
 2012-03-02  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/openvas_server.c (openvas_server_open), nasl/nasl_ssh.c
@@ -36,7 +41,7 @@
 
 	* misc/openvas_server.c (openvas_server_new): Removed dead code
 	about a magic user "admin" that was removed long time ago.
-	 
+
 2012-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	This patch was developed by Bernhard Herzog.
@@ -57,7 +62,7 @@
 
 	* nasl/nasl_tree.c (alloc_RE_cell): Print error string along with
 	error code to help understand RE errors.
-	
+
 2012-02-29  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* base/openvas_string.h, base/openvas_string.c

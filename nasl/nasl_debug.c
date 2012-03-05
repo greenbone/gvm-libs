@@ -1,4 +1,4 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2004 Tenable Network Security
  *
@@ -28,6 +28,7 @@
 #include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
 #include "exec.h"
+#include "plugutils.h"
 
 
 extern FILE *nasl_trace_fp;
@@ -57,6 +58,13 @@ nasl_perror (lex_ctxt * lexic, char *msg, ...)
     fprintf (stderr, "[%d](%s) %s\n", getpid (), script_name, debug_message);
   else
     fprintf (stderr, "[%d](%s) %s", getpid (), script_name, debug_message);
+
+  /** @todo Enable this when the NVTs are ready.  Sends ERRMSG to client. */
+#if 0
+  if (lexic != NULL)
+    post_error (lexic->script_infos, 1, debug_message);
+#endif
+
   va_end (param);
 }
 
