@@ -1,3 +1,13 @@
+2012-03-06  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Add NASL function security_message.  This change is part of CR 59.
+
+	* nasl/nasl_init.c (libfuncs): Add security_message.
+
+	* nasl/nasl_scanner_glue.c (security_message): New function.
+
+	* nasl/nasl_scanner_glue.h: Add header accordingly.
+
 2012-03-05  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* nasl/nasl_debug.c (nasl_perror): Add prospective code to send an

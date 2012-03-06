@@ -1,4 +1,4 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2004 Tenable Network Security
  *
@@ -31,6 +31,7 @@
 #include <string.h>             /* for strcmp */
 #include <sys/stat.h>           /* for stat */
 #include <unistd.h>             /* for close */
+#include <math.h>
 
 #include <glib.h>
 
@@ -1013,6 +1014,114 @@ security_something (lex_ctxt * lexic, proto_post_something_t proto_post_func,
     proto_post_func (script_infos, port, proto, NULL);
 
   return FAKE_CELL;
+}
+
+/**
+ * @brief Send a security message to the client.
+ *
+ * @param[in]  lexic  NASL lexer.
+ *
+ * @return FAKE_CELL.
+ */
+tree_cell *
+security_message (lex_ctxt * lexic)
+{
+  char *end, *given_type;
+  double cvss;
+  gchar *cvss_string, *tags;
+  nvti_t *nvti;
+  gchar **split, **point;
+
+  given_type = get_str_local_var_by_name (lexic, "threat");
+  if (given_type)
+    {
+      if ((strcasecmp (given_type, "High") == 0)
+          || (strcasecmp (given_type, "hole") == 0))
+        return security_something (lexic, proto_post_hole, post_hole);
+      if ((strcasecmp (given_type, "Medium") == 0)
+          || (strcasecmp (given_type, "warning") == 0))
+        return security_something (lexic, proto_post_info, post_info);
+      if ((strcasecmp (given_type, "Low") == 0)
+          || (strcasecmp (given_type, "note") == 0))
+        return security_something (lexic, proto_post_note, post_note);
+      if ((strcasecmp (given_type, "Log") == 0)
+          || (strcasecmp (given_type, "log") == 0))
+        return security_something (lexic, proto_post_log, post_log);
+      if (strcasecmp (given_type, "Error") == 0)
+        return security_something (lexic, proto_post_error, post_error);
+      nasl_perror (lexic, "%s: error in threat param\n", __FUNCTION__);
+      return FAKE_CELL;
+    }
+
+  split = NULL;
+  cvss_string = get_str_local_var_by_name (lexic, "cvss_base");
+
+  if (cvss_string == NULL)
+    {
+      nvti = arg_get_value (lexic->script_infos, "NVTI");
+      if (nvti == NULL)
+        {
+          nasl_perror (lexic, "%s: NVTI missing\n", __FUNCTION__);
+          return FAKE_CELL;
+        }
+
+      /* Get the CVSS base tag. */
+      tags = nvti_tag (nvti);
+      if (tags == NULL)
+        {
+          nasl_perror (lexic, "%s: cvss_base missing\n", __FUNCTION__);
+          return FAKE_CELL;
+        }
+      point = split = g_strsplit (tags, "|", 0);
+      cvss_string = NULL;
+      while (*point)
+        {
+          if (strncmp (*point, "cvss_base=", strlen ("cvss_base=")) == 0)
+            {
+              cvss_string = *point + strlen ("cvss_base=");
+              break;
+            }
+          point++;
+        }
+      if (cvss_string == NULL)
+        {
+          nasl_perror (lexic, "%s: NVT missing cvss_base tag\n", __FUNCTION__);
+          return FAKE_CELL;
+        }
+    }
+
+  /* Parse the CVSS from the string value. */
+  errno = 0;
+  cvss = strtod (cvss_string, &end);
+  if (((errno == ERANGE) && (cvss == HUGE_VALF || cvss == HUGE_VALF))
+      || (errno != 0 && cvss == 0))
+    {
+      nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
+      return FAKE_CELL;
+    }
+  if (cvss_string == end)
+    {
+      nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
+      return FAKE_CELL;
+    }
+
+  g_strfreev (split);
+
+  /* Check the CVSS. */
+  if (cvss < 0 || cvss > 10)
+    {
+      nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
+      return FAKE_CELL;
+    }
+
+  /* Call one of the specific message functions according to the CVSS. */
+  if (cvss == 0)
+    return security_something (lexic, proto_post_log, post_log);
+  if (cvss <= 2)
+    return security_something (lexic, proto_post_note, post_note);
+  if (cvss <= 5)
+    return security_something (lexic, proto_post_info, post_info);
+  return security_something (lexic, proto_post_hole, post_hole);
 }
 
 tree_cell *

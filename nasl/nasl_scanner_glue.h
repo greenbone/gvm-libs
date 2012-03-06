@@ -1,4 +1,4 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2003 Michel Arboi and Renaud Deraison
  *
@@ -53,6 +53,7 @@ tree_cell *get_kb_fresh_item (lex_ctxt *);
 tree_cell *get_kb_list (lex_ctxt *);
 tree_cell *set_kb_item (lex_ctxt *);
 tree_cell *replace_kb_item (lex_ctxt *);
+tree_cell *security_message (lex_ctxt *);
 tree_cell *security_hole (lex_ctxt *);
 tree_cell *security_warning (lex_ctxt *);
 tree_cell *security_note (lex_ctxt *);
