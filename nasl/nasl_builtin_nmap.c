@@ -119,11 +119,6 @@
 #define PREF_TCP_SCANNING_TECHNIQUE "TCP scanning technique"
 
 /**
- * @brief Plugin parameter description: perform UDP port scan.
- */
-#define PREF_UDP_PORT_SCAN          "UDP port scan"
-
-/**
  * @brief Plugin parameter description: perform service/version detection
  *        scan.
  */
@@ -615,7 +610,6 @@ build_cmd_line (nmap_t * nmap)
     {PREF_NO_DNS, "-n", FALSE},
 
     /* --- Scan techniques --- */
-    {PREF_UDP_PORT_SCAN, "-sU", FALSE},
     {PREF_SERVICE_SCAN, "-sV", FALSE},
     {PREF_RPC_PORT_SCAN, "-sR", FALSE},
 
@@ -673,6 +667,10 @@ build_cmd_line (nmap_t * nmap)
     }
 
   if (add_portrange (nmap) < 0)
+    return -1;
+
+  /* Always enable UDP port scan, so that the port list controls this. */
+  if (add_arg (nmap, "-Su", NULL) < 0)
     return -1;
 
   /* Scan technique */
@@ -1952,7 +1950,7 @@ xmltag_close_cpe (nmap_t * nmap)
         nmap->tmphost.os_cpes = g_slist_prepend (nmap->tmphost.os_cpes,
                                                  nmap->parser.rbuff);
     }
-  
+
   /* Don't free rbuff here, as we need it in the CPE list. */
   nmap->parser.rbuff = NULL;
   nmap->parser.enable_read = FALSE;
