@@ -1,3 +1,32 @@
+openvas-libraries 5.0+rc1 (2012-03-10)
+
+This release is the first release candidate of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS 5".
+
+This release fixes various build issues and adds some long-waiting
+API extensions.
+
+Many thanks to everyone who has contributed this release:
+Michal Ambroz, Henri Doreau, Andre Heinecke, Bernhard Herzog, Stephan Kleine,
+Matthew Mundell, Jan-Oliver Wagner, Michael Wiegand and Felix Wolfsteller.
+
+Main changes compared to 5.0+beta2:
+* New NASL function get_script_oid().
+* NASL function debug_message() renamed to error_message().
+* New NASL function security_message().
+* Added "Observer" role for LDAP users.
+* Vulnerability references (CVE, BID) are not added to result text anymore.
+* Built-in NVT Find Services now sends only log messages.
+* Built-in NVT Nmap: Improved efficiency and support CPE sent by Nmap.
+* Extended support for LDAP authentication
+* Removed copy of regexp and use system functions always.
+* Replaced deprecated gnutls function calls by proper replacements
+  to simplify build process.
+* Some support for simpler MacOS compilation.
+* Removed NASL variable NASL_LEVEL (was already marked deprecated) 
+* Various improvements to build process.
+
+
 openvas-libraries 5.0+beta2 (2011-10-07)
 
 This release is the second beta version of the next major release of

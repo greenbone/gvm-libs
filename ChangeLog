@@ -1,3 +1,11 @@
+2012-03-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Preparing the openvas-libraries 5.0+rc1 release.
+
+	* CHANGES: Updated.
+
+	* CMakeLists.txt: Version bump to 5.0+rc1.
+
 2012-03-08  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* nasl/nasl_builtin_nmap.c (PREF_UDP_PORT_SCAN): Remove.
