@@ -1093,7 +1093,7 @@ security_message (lex_ctxt * lexic)
   /* Parse the CVSS from the string value. */
   errno = 0;
   cvss = strtod (cvss_string, &end);
-  if (((errno == ERANGE) && (cvss == HUGE_VALF || cvss == HUGE_VALF))
+  if (((errno == ERANGE) && (cvss == HUGE_VAL || cvss == -HUGE_VAL))
       || (errno != 0 && cvss == 0))
     {
       nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);

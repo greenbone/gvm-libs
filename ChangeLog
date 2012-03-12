@@ -1,3 +1,8 @@
+2012-03-12  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* nasl/nasl_scanner_glue.c (security_message): Use HUGE_VAL because
+	HUGE_VALF is for strtof, and add missing negation.
+
 2012-03-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Post release version bump.
