@@ -49,7 +49,8 @@
 
 #define uint32 unsigned int
 
-#define NASL_EXIT_NOTVULN  99
+#define NASL_EXIT_DEPRECATED 66
+#define NASL_EXIT_NOTVULN    99
 
 /*---------------------------------------------------------------------*/
 tree_cell *
@@ -342,6 +343,9 @@ nasl_do_exit (lex_ctxt * lexic)
 
   if (retcode == NASL_EXIT_NOTVULN)
     simple_register_host_detail(lexic, "EXIT_CODE", "EXIT_NOTVULN");
+
+//  if (retcode == NASL_EXIT_DEPRECATED)
+    // This return code is reserved for future handling.
 
   while (lexic != NULL)
     {
