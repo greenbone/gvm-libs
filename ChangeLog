@@ -1,3 +1,12 @@
+2012-03-13  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/plugutils.c (proto_post_wrapped): Add support for using the
+	scanner preferences result_prepend_tags and result_append_tags to
+	prepend or append tag contents to the description of a result. This is
+	convenience functionality in preparation for the breaking up of the
+	NVT description block and adding proper handling of refined meta
+	information all over the OpenVAS Framework. Merge from trunk r13022.
+
 2011-11-10  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/network.c (open_SSL_connection): Call

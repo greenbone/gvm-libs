@@ -876,11 +876,17 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
 {
   char *buffer;
   int soc;
-  char *naction;
   int len;
   char *cve;
   char *bid;
   char *xref;
+  char *prepend_tags;
+  char *append_tags;
+  GString *action_str;
+  gchar *action_escaped;
+  GString *action_str_escaped;
+  nvti_t * nvti = arg_get_value (desc, "NVTI");
+  gchar **nvti_tags = NULL;
 
   if (action == NULL)
     action = plug_get_description (desc);
@@ -892,47 +898,123 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   if (action == NULL)
     return;
 
-  len = strlen (action) + 1;
-  if (cve != NULL)
-    len += strlen (cve) + 20;
+  action_str = g_string_new (action);
 
-  if (bid != NULL)
-    len += strlen (bid) + 20;
+  prepend_tags = get_preference (desc, "result_prepend_tags");
+  append_tags = get_preference (desc, "result_append_tags");
 
-  if (xref != NULL)
-    len += strlen (xref) + 20;
+  if (prepend_tags || append_tags)
+    {
+      nvti_tags = g_strsplit (nvti_tag (nvti), "|", 0);
+    }
 
-  naction = emalloc (len + 1);
-  strncpy (naction, action, strlen (action));
-  strcat (naction, "\n");
+  /* This is convenience functionality in preparation for the breaking up of the
+   * NVT description block and adding proper handling of refined meta
+   * information all over the OpenVAS Framework.
+   */
+  if (nvti_tags != NULL)
+    {
+      if (prepend_tags != NULL)
+        {
+          gchar **tags = g_strsplit (prepend_tags, ",", 0);
+          int i = 0;
+          gchar *tag_prefix;
+          gchar *tag_value;
+          while (tags[i] != NULL)
+            {
+              int j = 0;
+              tag_value = NULL;
+              tag_prefix = g_strconcat (tags[i], "=", NULL);
+              while (nvti_tags[j] != NULL && tag_value == NULL)
+                {
+                  if (g_str_has_prefix (nvti_tags[j], tag_prefix))
+                    {
+                      tag_value = g_strstr_len (nvti_tags[j], -1, "=");
+                    }
+                  j++;
+                }
+              g_free (tag_prefix);
+
+              if (tag_value != NULL)
+                {
+                  tag_value = tag_value + 1;
+                  gchar *tag_line = g_strdup_printf ("%s:\n%s\n\n", tags[i],
+                                                     tag_value);
+                  g_string_prepend (action_str, tag_line);
+
+                  g_free (tag_line);
+                }
+              i++;
+            }
+          g_strfreev (tags);
+        }
+
+      if (append_tags != NULL)
+        {
+          gchar **tags = g_strsplit (append_tags, ",", 0);
+          int i = 0;
+          gchar *tag_prefix;
+          gchar *tag_value;
+
+          g_string_append (action_str, "\n");
+          while (tags[i] != NULL)
+            {
+              int j = 0;
+              tag_value = NULL;
+              tag_prefix = g_strconcat (tags[i], "=", NULL);
+              while (nvti_tags[j] != NULL && tag_value == NULL)
+                {
+                  if (g_str_has_prefix (nvti_tags[j], tag_prefix))
+                    {
+                      tag_value = g_strstr_len (nvti_tags[j], -1, "=");
+                    }
+                  j++;
+                }
+              g_free (tag_prefix);
+
+              if (tag_value != NULL)
+                {
+                  tag_value = tag_value + 1;
+                  gchar *tag_line = g_strdup_printf ("%s:\n%s\n\n", tags[i],
+                                                     tag_value);
+                  g_string_append (action_str, tag_line);
+
+                  g_free (tag_line);
+                }
+              i++;
+            }
+          g_strfreev (tags);
+        }
+    }
+
   if (cve != NULL && cve[0] != '\0')
     {
-      strcat (naction, "CVE : ");       /* RATS: ignore */
-      strcat (naction, cve);    /* RATS: ignore */
-      strcat (naction, "\n");
+      gchar *cve_line = g_strdup_printf ("CVE: %s\n", cve);
+      g_string_append (action_str, cve_line);
+      g_free (cve_line);
     }
 
   if (bid != NULL && bid[0] != '\0')
     {
-      strcat (naction, "BID : ");       /* RATS: ignore */
-      strcat (naction, bid);    /* RATS: ignore */
-      strcat (naction, "\n");
+      gchar *bid_line = g_strdup_printf ("BID: %s\n", bid);
+      g_string_append (action_str, bid_line);
+      g_free (bid_line);
     }
 
   if (xref != NULL && xref[0] != '\0')
     {
-      strcat (naction, "Other references : ");  /* RATS: ignore */
-      strcat (naction, xref);   /* RATS: ignore */
-      strcat (naction, "\n");
+      gchar *xref_line = g_strdup_printf ("Other references: %s\n", xref);
+      g_string_append (action_str, xref_line);
+      g_free (xref_line);
     }
+  action_escaped = g_strescape (action_str->str, NULL);
 
-  {
-    char *old = naction;
-    len -= strlen (naction);
-    naction = addslashes (naction);
-    len += strlen (naction);
-    efree (&old);
-  }
+  action_str_escaped = g_string_new (action_escaped);
+
+  g_free (action_escaped);
+  g_string_free (action_str, TRUE);
+
+  len = action_str_escaped->len;
 
   buffer = emalloc (1024 + len);
   char idbuffer[105];
@@ -950,13 +1032,14 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
     {
       snprintf (buffer, 1024 + len,
                 "SERVER <|> %s <|> %s <|> %s (%d/%s) <|> %s %s<|> SERVER\n",
-                what, plug_get_hostname (desc), svc_name, port, proto, naction,
-                idbuffer);
+                what, plug_get_hostname (desc), svc_name, port, proto,
+                action_str_escaped->str, idbuffer);
     }
   else
     snprintf (buffer, 1024 + len,
               "SERVER <|> %s <|> %s <|> general/%s <|> %s %s<|> SERVER\n", what,
-              plug_get_hostname (desc), proto, naction, idbuffer);
+              plug_get_hostname (desc), proto, action_str_escaped->str,
+              idbuffer);
 
   mark_post (desc, what, action);
   soc = GPOINTER_TO_SIZE (arg_get_value (desc, "SOCKET"));
@@ -965,7 +1048,7 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   /* Mark in the KB that the plugin was sucessful */
   mark_successful_plugin (desc);
   efree (&buffer);
-  efree (&naction);
+  g_string_free (action_str_escaped, TRUE);
 }
 
 void
