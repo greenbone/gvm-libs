@@ -1,3 +1,9 @@
+2012-03-14 Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/plugutils.c (proto_post_wrapped): Ensure the newline
+	after the actual result text is always placed where it was before.
+	This lowers the number of changed results texts significantly.
+
 2012-03-13  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/plugutils.c (proto_post_wrapped): Add support for using the

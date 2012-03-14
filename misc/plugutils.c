@@ -899,6 +899,7 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
     return;
 
   action_str = g_string_new (action);
+  g_string_append (action_str, "\n");
 
   prepend_tags = get_preference (desc, "result_prepend_tags");
   append_tags = get_preference (desc, "result_append_tags");
@@ -956,7 +957,6 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
           gchar *tag_prefix;
           gchar *tag_value;
 
-          g_string_append (action_str, "\n");
           while (tags[i] != NULL)
             {
               int j = 0;
