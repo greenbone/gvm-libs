@@ -313,8 +313,7 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
         //       LDAP_CONNECT differently), make order optional.
         authent->order = order;
         authent->authenticate = &ldap_connect_authenticate;
-        // TODO Use openvas_user_exists_classic instead.
-        authent->user_exists = &ldap_user_exists;
+        authent->user_exists = &openvas_user_exists_classic;
         ldap_auth_info_t info = ldap_auth_info_from_key_file (key_file, group);
         authent->data = info;
         authent->method = AUTHENTICATION_METHOD_LDAP_CONNECT;

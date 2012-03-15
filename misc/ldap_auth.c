@@ -140,8 +140,8 @@ user_dir_path (const gchar * username)
  * @param allow_plaintext   If FALSE, require StartTLS initialization to
  *                          succeed.
  *
- * @return Fresh ldap_auth_info_t, or NULL if one of the given parameters was
- *         NULL. Free with ldap_auth_info_free.
+ * @return Fresh ldap_auth_info_t, or NULL if one of the last five parameters
+ *         is NULL. Free with ldap_auth_info_free.
  */
 ldap_auth_info_t
 ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
@@ -150,9 +150,8 @@ ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
                     const gchar * ruletype_attr, const gchar * rule_attr,
                     gboolean allow_plaintext)
 {
-  // Parameters might not be NULL.
-  if (!ldap_host || !auth_dn || !role_attribute || !role_user_values
-      || !role_admin_values)
+  // Certain parameters might not be NULL.
+  if (!ldap_host || !auth_dn)
     return NULL;
 
   if (ldap_auth_dn_is_good (auth_dn) == FALSE)

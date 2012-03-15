@@ -65,7 +65,6 @@ int
 ldap_connect_authenticate (const gchar * username, const gchar * password,
                    /*const *//*ldap_auth_info_t */ void *ldap_auth_info)
 {
-  // TODO this is an incomplete copy of ldap_authenticate.
   ldap_auth_info_t info = (ldap_auth_info_t) ldap_auth_info;
   LDAP *ldap = NULL;
   gchar *dn = NULL;
@@ -84,12 +83,9 @@ ldap_connect_authenticate (const gchar * username, const gchar * password,
     return -1;
   }
 
-  // TODO: ldap_user_exists in ldap_auth.c 
-  int user_exists = ldap_user_exists(username, info);
+  ldap_unbind_ext_s (ldap, NULL, NULL);
 
-  // TODO do a proper authentication.
-
-  return user_exists;
+  return 0;
 }
 
 #endif /* ENABLE_LDAP_AUTH */
