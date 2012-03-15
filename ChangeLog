@@ -1,10 +1,16 @@
 2012-03-15  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* doc/example.auth.conf: Add a simple example for "ldap_connect"
+	authentication configuration (this is an exclusive per-user
+	authentication without authorization).
+
+2012-03-15  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/ldap_connect_auth.c (ldap_connect_authenticate):
-	  Do not call ldap_user_exists, only bind. Also, undbind.
+	Do not call ldap_user_exists, only bind. Also, undbind.
 
 	* misc/openvas_auth.c (add_authenticator): Do not use ldap_user_exists
-	  but the "classic" file-exist for ldap_connect authenticator.
+	but the "classic" file-exist for ldap_connect authenticator.
 
 	* misc/ldap_auth.c (ldap_auth_new): Allow NULL for certain parameters.
 
