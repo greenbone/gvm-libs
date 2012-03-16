@@ -217,6 +217,24 @@ execute_process (COMMAND pkg-config --libs glib-2.0
   OUTPUT_VARIABLE GLIB_LDFLAGS
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+if (NOT BUILD_WITHOUT_LDAP)
+  message (STATUS "Looking for libldap...")
+
+  find_library (LIBLDAP ldap2)
+  if (NOT LIBLDAP)
+    find_library (LIBLDAP ldap)
+  endif (NOT LIBLDAP)
+  if (NOT LIBLDAP)
+    message (STATUS "  No ldap library found - ldap support disabled")
+  else (NOT LIBLDAP)
+    message (STATUS "  Found ${LIBLDAP} - ldap support enabled")
+    add_definitions (-DENABLE_LDAP_AUTH=1)
+    add_definitions (-DBUILD_WITH_LDAP=1)
+  endif (NOT LIBLDAP)
+else (NOT BUILD_WITHOUT_LDAP)
+  message (STATUS "Disabled ldap via configuration option")
+endif (NOT BUILD_WITHOUT_LDAP)
+
 if (NOT LIBSSH_FOUND)
   message (STATUS "Did not find libssh via pkg-config, trying alternative approach ...")
   set (LibSSH_FIND_VERSION TRUE)

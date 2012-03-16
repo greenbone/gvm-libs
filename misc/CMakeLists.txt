@@ -48,23 +48,6 @@ if (NOT MINGW)
   endif (NOT UUID)
 endif (NOT MINGW)
 
-# Check for openldap if -DBUILD_WITH_LDAP=ON was given
-if (NOT BUILD_WITH_LDAP)
-   # fine
-else (NOT BUILD_WITH_LDAP)
-   message (STATUS "Looking for openldap...")
-   find_library (OPENLDAP ldap2)
-   if (NOT OPENLDAP)
-     find_library (OPENLDAP ldap)
-   endif (NOT OPENLDAP)
-   message (STATUS "Looking for openldap... ${OPENLDAP}")
-   if (NOT OPENLDAP)
-     message (FATAL_ERROR "Could not build with ldap support - no ldap library"
-              " was found. Consider building with -DBUILD_WITH_LDAP=OFF")
-   endif (NOT OPENLDAP)
-   add_definitions (-DENABLE_LDAP_AUTH=1)
-endif (NOT BUILD_WITH_LDAP)
-
 # Library
 
 set (HARDENING_FLAGS            "-Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector -Wl,-z,relro -Wl,-z,now")

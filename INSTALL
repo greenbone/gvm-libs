@@ -38,6 +38,10 @@ Recommended to have WMI support:
 Recommended to have improved SSH support:
 * libssh >= 0.4.5
 
+Recommended to have LDAP support:
+* libldap >= 2.4.11
+  (LDAP can be disabled with -DBUILD_WITHOUT_LDAP=1)
+
 Install prerequistes on Debian GNU/Linux 'Squeeze' 6.0:
 # apt-get install pkg-config libssh-dev gnutls-dev libglib2.0-dev libpcap-dev \
   libgpgme11-dev uuid-dev bison
