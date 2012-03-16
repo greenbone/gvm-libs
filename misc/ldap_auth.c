@@ -70,8 +70,9 @@ ldap_auth_dn_is_good (const gchar * authdn)
 {
   gchar *eg;
   LDAPDN dn;
+  int ln = 0;
 
-  if (authdn == NULL)
+  if (authdn == NULL || authdn[0] == '\0')
     return FALSE;
 
   // Must contain %s
@@ -83,6 +84,16 @@ ldap_auth_dn_is_good (const gchar * authdn)
   pos = strchr (pos + 1, '%');
   if (pos != NULL)
     return FALSE;
+
+  ln = strlen (authdn);
+
+  // As a special exception allow ADS-style domain\user - pairs.
+  if (strchr (authdn, '\\') && authdn[ln-2] == '%' && authdn[ln-1] == 's')
+    return TRUE;
+
+  // Also allow user@domain - pairs.
+  if (authdn[0] == '%' && authdn[1] == 's' && authdn[2] == '@')
+    return TRUE;
 
   /* Validate the DN with the LDAP library. */
   eg = g_strdup_printf (authdn, "example");

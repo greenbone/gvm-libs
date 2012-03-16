@@ -1,3 +1,8 @@
+2012-03-16  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/ldap_auth.c (ldap_auth_dn_is_good): Allow special cases
+	for ADS use cases.
+
 2012-03-15  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* doc/example.auth.conf: Add a simple example for "ldap_connect"
