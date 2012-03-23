@@ -144,6 +144,10 @@ int omp_delete_config (gnutls_session_t *, const char *);
 int omp_create_lsc_credential (gnutls_session_t *, const char *, const char *,
                                const char *, const char *, char **);
 
+int omp_create_lsc_credential_key (gnutls_session_t *, const char *,
+                                   const char *, const char *, const char *,
+                                   const char *, const char *, char **);
+
 int omp_delete_lsc_credential (gnutls_session_t *, const char *);
 
 int omp_create_agent (gnutls_session_t *, const char *, const char *);

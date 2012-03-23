@@ -2284,6 +2284,85 @@ omp_create_lsc_credential (gnutls_session_t* session,
 }
 
 /**
+ * @brief Create an LSC Credential with a key.
+ *
+ * @param[in]   session      Pointer to GNUTLS session.
+ * @param[in]   name         Name of LSC Credential.
+ * @param[in]   login        Login associated with name.
+ * @param[in]   passphrase   Passphrase for public key.
+ * @param[in]   public_key   Public key.
+ * @param[in]   private_key  Private key.
+ * @param[in]   comment      LSC Credential comment.
+ * @param[out]  uuid         Either NULL or address for UUID of created
+ *                           credential.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_create_lsc_credential_key (gnutls_session_t *session,
+                               const char *name,
+                               const char *login,
+                               const char *passphrase,
+                               const char *public_key,
+                               const char *private_key,
+                               const char *comment,
+                               char **uuid)
+{
+  int ret;
+
+  /* Create the OMP request. */
+
+  gchar* request;
+  if (comment)
+    request = g_markup_printf_escaped ("<create_lsc_credential>"
+                                       "<name>%s</name>"
+                                       "<login>%s</login>"
+                                       "<key>"
+                                       "<phrase>%s</phrase>"
+                                       "<public>%s</public>"
+                                       "<private>%s</private>"
+                                       "</key>"
+                                       "<comment>%s</comment>"
+                                       "</create_lsc_credential>",
+                                       name,
+                                       login,
+                                       passphrase
+                                        ? passphrase
+                                        : "",
+                                       public_key,
+                                       private_key,
+                                       comment);
+  else
+    request = g_markup_printf_escaped ("<create_lsc_credential>"
+                                       "<name>%s</name>"
+                                       "<login>%s</login>"
+                                       "<key>"
+                                       "<phrase>%s</phrase>"
+                                       "<public>%s</public>"
+                                       "<private>%s</private>"
+                                       "</key>"
+                                       "</create_lsc_credential>",
+                                       name,
+                                       login,
+                                       passphrase
+                                        ? passphrase
+                                        : "",
+                                       public_key,
+                                       private_key);
+
+  /* Send the request. */
+
+  ret = openvas_server_send (session, request);
+  g_free (request);
+  if (ret) return -1;
+
+  ret = omp_read_create_response (session, uuid);
+  if (ret == 201)
+    return 0;
+  return ret;
+}
+
+/**
  * @brief Delete a LSC credential.
  *
  * @param[in]   session     Pointer to GNUTLS session.

@@ -1,3 +1,9 @@
+2012-03-23  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_create_lsc_credential_key): New function.
+
+	* omp/omp.h: Add header accordingly.
+
 2012-03-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CMakeLists.txt: Fixed build for LDAP.
@@ -6,7 +12,7 @@
 
 	* CMakeLists.txt: Added check for LDAP library and make
 	LDAP default in case it is found. BUILD_WITHOUT_LDAP will
-	explicitely disable LDAP. 
+	explicitely disable LDAP.
 
 	* misc/CMakeLists.txt: Removed check for ldap library.
 
