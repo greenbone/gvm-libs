@@ -1,3 +1,59 @@
+openvas-libraries 5.0.0 (2012-03-25)
+
+This is the first release of the openvas-libraries 5.0 module for the Open
+Vulnerability Assessment System 5 (OpenVAS-5). Compared to the previous major
+release it covers a broad set of improvements for the various OpenVAS services
+and applications.
+
+Many thanks to everyone who has contributed to the 5.0.0 release:
+Michal Ambroz, Henri Doreau, Andre Heinecke, Bernhard Herzog, Stephan Kleine,
+Matthew Mundell, Jan-Oliver Wagner, Michael Wiegand and Felix Wolfsteller.
+
+Main changes compared to 4.0.x:
+
+* New NASL function get_script_oid().
+* NASL function debug_message() renamed to error_message().
+* New NASL function security_message().
+* Added "Observer" role for LDAP users.
+* Extended support for LDAP authentication
+* The LDAP auth DN validation has been improved.
+* Vulnerability references (CVE, BID) are not added to result text anymore.
+* Built-in NVT Find Services now sends only log messages.
+* Built-in NVT Nmap: Improved efficiency and support CPE sent by Nmap.
+* Removed copy of regexp and use system functions always.
+* Replaced deprecated gnutls function calls by proper replacements
+  to simplify build process.
+* Some support for simpler MacOS compilation.
+* Removed NASL variable NASL_LEVEL (was already marked deprecated) 
+* Various improvements to build process.
+* A bug which caused outdated cache files to be used under rare circumstances
+  has been fixed.
+* Code cleanup and refactoring has taken place in NVT meta data management.
+* Libssh detection has been improved.
+* Support for the observer role has been added and functionality for user
+  management has been moved from openvas-administrator to openvas-libraries.
+* Support for name conversion for legacy .nes dependencies when loading the
+  cache has been removed.
+* Support for improved SSH functionality has been added.
+* Support for comprehensive network scanning with nmap has been added.
+* A number of compiler warnings have been addressed.
+* Support for shared sockets has been removed.
+* OpenVAS Libraries will now honor the unscanned_closed_udp preference when
+  deciding how an unscanned UDP port should be treated.
+* Nmap support has been improved.
+
+And additionally changes compared to last release candidate 5.0+rc1:
+
+* Made LDAP support default during configuration. This can
+  be disabled with cmake setting BUILD_WITHOUT_LDAP.
+* Added simple LDAP authentication support.
+* Added scanner preferences result_prepend_tags and result_append_tags to
+  prepend or append tag contents to the description of a result. This is
+  convenience functionality in preparation for the breaking up of the
+  NVT description block and adding proper handling of refined meta
+  information all over the OpenVAS Framework.
+
+
 openvas-libraries 5.0+rc1 (2012-03-10)
 
 This release is the first release candidate of the next major release of
