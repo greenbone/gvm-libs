@@ -1,3 +1,28 @@
+openvas-libraries 4.0.7 (2012-03-26)
+
+This is the seventh maintenance release of the openvas-libraries 4.0 module for
+the Open Vulnerability Assessment System (OpenVAS).
+
+This release corrects the use of gnutls function calls, adds support for adding
+tag contents to the description of a result and updates the FSF address in a
+number of files.
+
+Many thanks to everyone who has contributed this release:
+Michel Ambroz, Henri Doreau, Stephan Kleine, Jan-Oliver Wagner and Michael
+Wiegand.
+
+Main changes compared to 4.0.6:
+* Replaced deprecated gnutls function calls by proper replacements
+  to simplify build process.
+* Added scanner preferences result_prepend_tags and result_append_tags to
+  prepend or append tag contents to the description of a result. This is
+  convenience functionality in preparation for the breaking up of the
+  NVT description block and adding proper handling of refined meta
+  information all over the OpenVAS Framework.
+* The licenses in a number of files have been updated to contain the most
+  recent address of the Free Software Foundation.
+
+
 openvas-libraries 4.0.6 (2011-11-03)
 
 This is the sixth maintenance release of the openvas-libraries 4.0 module for
