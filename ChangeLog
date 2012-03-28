@@ -1,6 +1,6 @@
 2012-03-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
-	* CMakeLists.txt, README: Raised dependency for glib from 2.12
+	* CMakeLists.txt, INSTALL: Raised dependency for glib from 2.12
 	to 2.16. We are using already methods from 2.16 and other OpenVAS
 	modules have already 2.16 as minimum requirement.
  
