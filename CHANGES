@@ -1,3 +1,19 @@
+openvas-libraries 5.0.1 (2012-04-24)
+
+This is the first maintenance release of the openvas-libraries 5.0 module for
+the Open Vulnerability Assessment System 5 (OpenVAS-5).
+
+It contains a fix for the route selection and raises the glib dependency to 2.16.
+
+Many thanks to everyone who has contributed to the 5.0.1 release:
+Christian Schmidt, Jan-Oliver Wagner and Michael Wiegand
+
+Main changes compared to 5.0.0:
+* Route selection now uses the most specific route instead of the first matching.
+* The glib dependency has been raised from 2.12 to 2.16 since the current
+  version already uses functions from 2.16.
+
+
 openvas-libraries 5.0.0 (2012-03-25)
 
 This is the first release of the openvas-libraries 5.0 module for the Open
