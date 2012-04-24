@@ -1,3 +1,9 @@
+2012-04-24  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/pcap.c (routethrough): Use the most specific route and not the
+	first matching route. Patch suggested by Christian Schmidt
+	<christian.schmidt@greenbone.net>.
+
 2012-03-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CMakeLists.txt, INSTALL: Raised dependency for glib from 2.12

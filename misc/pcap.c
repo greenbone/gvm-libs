@@ -1394,6 +1394,8 @@ routethrough (struct in_addr *dest, struct in_addr *source)
   char iface[64];
   static int numroutes = 0;
   FILE *routez;
+  long match = -1;
+  unsigned long bestmatch = 0;
 
   struct in_addr src = socket_get_next_source_addr ();
 
@@ -1512,7 +1514,7 @@ routethrough (struct in_addr *dest, struct in_addr *source)
     {
       for (i = 0; i < numroutes; i++)
         {
-          if ((dest->s_addr & myroutes[i].mask) == myroutes[i].dest)
+          if ((dest->s_addr & myroutes[i].mask) == myroutes[i].dest && myroutes[i].mask >= bestmatch)
             {
               if (source)
                 {
@@ -1521,9 +1523,12 @@ routethrough (struct in_addr *dest, struct in_addr *source)
                   else
                     source->s_addr = myroutes[i].dev->addr.s_addr;
                 }
-              return myroutes[i].dev->name;
+              match = i;
+              bestmatch = myroutes[i].mask;
             }
         }
+      if (match != -1)
+          return myroutes[match].dev->name;
     }
   else if (technique == connectsockettechnique)
     {
