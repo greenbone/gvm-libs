@@ -320,13 +320,20 @@ nasl_dump_ctxt (lex_ctxt * lexic)
 static void
 simple_register_host_detail(lex_ctxt *lexic, char *name, char *value)
 {
-  char *oid, detail[128];
+  char *oid, *cve, detail[128];
   nvti_t *nvti = arg_get_value (lexic->script_infos, "NVTI");
 
   oid = nvti_oid (nvti);
 
   plug_set_key (lexic->script_infos, "HostDetails", ARG_STRING, name);
   plug_set_key (lexic->script_infos, "HostDetails/NVT", ARG_STRING, oid);
+
+  cve = nvti_cve (nvti);
+  if (cve)
+    {
+      g_snprintf (detail, sizeof (detail), "HostDetails/NVT/%s", oid);
+      plug_set_key (lexic->script_infos, detail, ARG_STRING, cve);
+    }
 
   g_snprintf (detail, sizeof (detail), "HostDetails/NVT/%s/%s", oid, name);
   plug_set_key (lexic->script_infos, detail, ARG_STRING, value);

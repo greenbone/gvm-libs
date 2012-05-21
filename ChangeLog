@@ -1,3 +1,8 @@
+2012-05-21  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* nasl/nasl_misc_funcs.c (simple_register_host_detail): Add CVE as
+	source description if there is one.
+
 2012-04-24  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.
@@ -21,7 +26,7 @@
 	* CMakeLists.txt, INSTALL: Raised dependency for glib from 2.12
 	to 2.16. We are using already methods from 2.16 and other OpenVAS
 	modules have already 2.16 as minimum requirement.
- 
+
 2012-03-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CMakeLists.txt: Fixed svn revisioning.
