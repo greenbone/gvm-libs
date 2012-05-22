@@ -1,3 +1,8 @@
+2012-05-22  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* nasl/nasl_misc_funcs.c (simple_register_host_detail): Revert last
+	commit.
+
 2012-05-21  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* nasl/nasl_misc_funcs.c (simple_register_host_detail): Add CVE as
