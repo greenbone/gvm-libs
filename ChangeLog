@@ -1,3 +1,16 @@
+2012-06-07  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_auth_init): Added debug message
+	to provide information aboud disable authenticators.
+
+	* misc/ldap_auth.c (ldap_auth_info_new): Added parameter to
+	indicate whether certain options are obligatory (for ldap-method) or
+	not (for ldap_connect-method).
+	(ldap_auth_info_from_key_file): Set new parameter depending on
+	authenticators group name.
+
+	* misc/ldap_auth.h (ldap_auth_info_new): Updated header accordingly.
+
 2012-05-22  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* nasl/nasl_misc_funcs.c (simple_register_host_detail): Revert last

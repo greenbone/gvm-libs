@@ -67,7 +67,8 @@ ldap_auth_info_t ldap_auth_info_new (const gchar * ldap_host,
                                      gchar ** role_observer_values,
                                      const gchar * ruletype_attribute,
                                      const gchar * rule_attribute,
-                                     gboolean allow_plaintext);
+                                     gboolean allow_plaintext,
+                                     gboolean is_connect);
 
 void ldap_auth_info_free (ldap_auth_info_t info);
 

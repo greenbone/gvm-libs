@@ -415,9 +415,14 @@ openvas_auth_init ()
               // Add other authenticators iff they are enabled.
               gchar *enabled_value =
                 g_key_file_get_value (key_file, *group, "enable", NULL);
-              if (!strcmp (enabled_value, "true"))
+              if (enabled_value != NULL && !strcmp (enabled_value, "true"))
                 {
                   add_authenticator (key_file, *group);
+                }
+              else
+                {
+                  g_log ("event auth", G_LOG_LEVEL_MESSAGE,
+                    "Authentication method configured but not enabled: %s", *group);
                 }
               g_free (enabled_value);
               // Remember that we enabled ldap_connect.

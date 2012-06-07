@@ -150,6 +150,7 @@ user_dir_path (const gchar * username)
  *                               observer.  Might not be NULL, but empty.
  * @param allow_plaintext   If FALSE, require StartTLS initialization to
  *                          succeed.
+ * @param is_connect        If TRUE, certain parameters are not needed.
  *
  * @return Fresh ldap_auth_info_t, or NULL if one of the last five parameters
  *         is NULL. Free with ldap_auth_info_free.
@@ -159,7 +160,7 @@ ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
                     const gchar * role_attribute, gchar ** role_user_values,
                     gchar ** role_admin_values, gchar ** role_observer_values,
                     const gchar * ruletype_attr, const gchar * rule_attr,
-                    gboolean allow_plaintext)
+                    gboolean allow_plaintext, gboolean is_connect)
 {
   // Certain parameters might not be NULL.
   if (!ldap_host || !auth_dn)
@@ -167,6 +168,12 @@ ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
 
   if (ldap_auth_dn_is_good (auth_dn) == FALSE)
     return NULL;
+
+  if (!is_connect)
+    {
+      if (!ruletype_attr || !rule_attr)
+        return NULL;
+    }
 
   ldap_auth_info_t info = g_malloc0 (sizeof (struct ldap_auth_info));
   info->ldap_host = g_strdup (ldap_host);
@@ -732,6 +739,7 @@ ldap_auth_info_from_key_file (GKeyFile * key_file, const gchar * group)
   if (key_file == NULL || group == NULL)
     return NULL;
   gboolean allow_plaintext = FALSE;
+  gboolean is_connect = FALSE;
 
   /** @todo Errors to be checked here, get string lists for the role values. */
   gchar *auth_dn = g_key_file_get_string (key_file, group,
@@ -763,6 +771,9 @@ ldap_auth_info_from_key_file (GKeyFile * key_file, const gchar * group)
     }
   g_free (plaintext_ok);
 
+  if (strcmp (group, "method:ldap_connect") == 0)
+    is_connect = TRUE;
+   
   ldap_auth_info_t info = ldap_auth_info_new (ldap_host, auth_dn,
                                               role_attr,
                                               role_usrv,
@@ -770,7 +781,8 @@ ldap_auth_info_from_key_file (GKeyFile * key_file, const gchar * group)
                                               role_obsv,
                                               ruletype_attr,
                                               rule_attr,
-                                              allow_plaintext);
+                                              allow_plaintext,
+                                              is_connect);
 
   g_free (auth_dn);
   g_free (ldap_host);
