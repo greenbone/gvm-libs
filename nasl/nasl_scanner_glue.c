@@ -48,7 +48,6 @@
 #include "nasl_func.h"
 #include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
-#include "exec.h"
 
 #include "nasl_debug.h"
 #include "nasl_scanner_glue.h"
@@ -532,15 +531,6 @@ script_get_preference_file_location (lex_ctxt * lexic)
   char *pref = get_str_var_by_num (lexic, 0);
   const char *value, *local;
   int len;
-
-  /* Getting the local file name is not dangerous, but
-   * only signed scripts can access files uploaded by the user */
-  if (check_authenticated (lexic) < 0)
-    {
-      nasl_perror (lexic,
-                   "script_get_preference_file_location: script is not authenticated!\n");
-      return NULL;
-    }
 
   if (pref == NULL)
     {

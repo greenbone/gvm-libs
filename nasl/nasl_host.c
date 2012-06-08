@@ -40,7 +40,6 @@
 #include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
 #include "nasl_debug.h"
-#include "exec.h"
 
 #include "nasl_host.h"
 
@@ -316,10 +315,6 @@ nasl_same_host (lex_ctxt * lexic)
   struct in_addr ia, *a[2];
   int i, j, n[2], names_nb[2], flag;
   int cmp_hostname = get_int_local_var_by_name (lexic, "cmp_hostname", 0);
-
-  if (check_authenticated (lexic) < 0)
-    return NULL;
-
 
   for (i = 0; i < 2; i++)
     {

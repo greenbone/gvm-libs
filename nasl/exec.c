@@ -47,27 +47,6 @@
 
 extern int naslparse (naslctxt *);
 
-/**
- * @brief Check if a lexical context is authenticated.
- * 
- * Prints a nasl error if the context is not authenticated
- * 
- * @return 0 if the context is authenticated, -1 otherwise.
- */
-int
-check_authenticated (lex_ctxt * lexic)
-{
-  if (lexic->authenticated == 1)
-    return 0;
-  else
-    {
-      nasl_perror (lexic,
-                   "A non-authenticated script attempted to use an authenticated function - returning NULL\n");
-      return -1;
-    }
-}
-
-
 static int
 cell2bool (lex_ctxt * lexic, tree_cell * c)
 {

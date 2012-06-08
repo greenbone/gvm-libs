@@ -39,7 +39,6 @@
 #include "nasl_func.h"
 #include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
-#include "exec.h"
 
 #include "strutils.h"
 #include "nasl_packet_forgery.h"
@@ -328,9 +327,6 @@ nasl_pem_to (lex_ctxt * lexic, int type)
   gnutls_x509_privkey_t privkey = NULL;
   gcry_mpi_t key = NULL;
   int err;
-
-  if (check_authenticated (lexic) < 0)
-    return FAKE_CELL;
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
@@ -843,9 +839,6 @@ nasl_rsa_sign (lex_ctxt * lexic)
   gnutls_x509_privkey_t priv_key = NULL;
   gcry_error_t err;
 
-  if (check_authenticated (lexic) < 0)
-    return FAKE_CELL;
-
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
 
@@ -1004,9 +997,6 @@ nasl_dsa_do_sign (lex_ctxt * lexic)
   long rlen, slen;
   unsigned char *sigblob = NULL;
   gcry_error_t err;
-
-  if (check_authenticated (lexic) < 0)
-    return FAKE_CELL;
 
   retc = emalloc (sizeof (tree_cell));
   retc->ref_count = 1;

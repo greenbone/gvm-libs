@@ -1,3 +1,29 @@
+2012-06-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Removing the code that prevented special functions being executed
+	by non-authenticated NVTs. Background is that either the whole
+	feed is treated as authenticated or as non-authenticated, but
+	not a mixture of it.
+
+	* nasl/nasl_cmd_exec.c (nasl_pread, nasl_find_in_path, nasl_fread,
+	nasl_unlink, nasl_fwrite, nasl_get_tmp_dir, nasl_file_stat,
+	nasl_file_open, nasl_file_close, nasl_file_read, nasl_file_write,
+	nasl_file_seek): Removed check that ensured the NVT
+	is authenticated.
+
+	* nasl/nasl_crypto2.c (nasl_pem_to, nasl_rsa_sign, nasl_dsa_do_sign):
+	Removed check that ensured the NVT is authenticated.
+
+	* nasl/nasl_host.c (nasl_same_host): Removed check that ensured the NVT
+	is authenticated.
+
+	* nasl/nasl_scanner_glue.c (script_get_preference_file_location):
+	Removed check that ensured the NVT is authenticated.
+
+	* nasl/exec.c (check_authenticated): Removed function.
+
+	* nasl/exec.h: Removed proto accordingly.
+
 2012-06-07  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_auth_init): Added debug message

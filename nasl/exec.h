@@ -22,5 +22,4 @@
 tree_cell *nasl_exec (lex_ctxt *, tree_cell *);
 int cell_cmp (lex_ctxt *, tree_cell *, tree_cell *);
 tree_cell *cell2atom (lex_ctxt *, tree_cell *);
-int check_authenticated (lex_ctxt *);
 #endif

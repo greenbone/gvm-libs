@@ -41,7 +41,6 @@
 #include "nasl_func.h"
 #include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
-#include "exec.h"
 
 #include "strutils.h"
 #include "nasl_cmd_exec.h"
@@ -75,9 +74,6 @@ nasl_pread (lex_ctxt * lexic)
   char **args = NULL, *cmd, *str, *str2, buf[8192];
   FILE *fp;
   char cwd[MAXPATHLEN], newdir[MAXPATHLEN];
-
-  if (check_authenticated (lexic) < 0)
-    return NULL;
 
   if (pid != 0)
     {
@@ -232,11 +228,6 @@ nasl_find_in_path (lex_ctxt * lexic)
   tree_cell *retc;
   char *cmd;
 
-
-  if (check_authenticated (lexic) < 0)
-    return NULL;
-
-
   cmd = get_str_var_by_num (lexic, 0);
   if (cmd == NULL)
     {
@@ -253,7 +244,7 @@ nasl_find_in_path (lex_ctxt * lexic)
  * Not a command, but dangerous anyway
  */
 /**
- * @brief Read file if check_authenticated.
+ * @brief Read file
  * @ingroup nasl_implement 
  */
 tree_cell *
@@ -266,9 +257,6 @@ nasl_fread (lex_ctxt * lexic)
   char *buf, *p;
   int alen, len, n;
   FILE *fp;
-
-  if (check_authenticated (lexic) < 0)
-    return NULL;
 
   fname = get_str_var_by_num (lexic, 0);
   if (fname == NULL)
@@ -377,16 +365,13 @@ error:
  * Not a command, but dangerous anyway
  */
 /**
- * @brief Unlink file if check_authenticated.
+ * @brief Unlink file
  * @ingroup nasl_implement
  */
 tree_cell *
 nasl_unlink (lex_ctxt * lexic)
 {
   char *fname;
-
-  if (check_authenticated (lexic) < 0)
-    return NULL;
 
   fname = get_str_var_by_num (lexic, 0);
   if (fname == NULL)
@@ -406,7 +391,7 @@ nasl_unlink (lex_ctxt * lexic)
 
 /* Definitely dangerous too */
 /**
- * @brief Write file if check_authenticated.
+ * @brief Write file
  */
 tree_cell *
 nasl_fwrite (lex_ctxt * lexic)
@@ -417,13 +402,6 @@ nasl_fwrite (lex_ctxt * lexic)
   int fd;
   int len, i, x;
   FILE *fp;
-
-  if (check_authenticated (lexic) < 0)
-    {
-      nasl_perror (lexic,
-                   "fwrite may only be called by an authenticated script\n");
-      return NULL;
-    }
 
   content = get_str_local_var_by_name (lexic, "data");
   fname = get_str_local_var_by_name (lexic, "file");
@@ -524,9 +502,6 @@ nasl_get_tmp_dir (lex_ctxt * lexic)
   tree_cell *retc;
   char path[MAXPATHLEN];
 
-  if (check_authenticated (lexic) < 0)
-    return NULL;
-
   snprintf (path, sizeof (path), "%s/", g_get_tmp_dir ());
   if (access (path, R_OK | W_OK | X_OK) < 0)
     {
@@ -549,7 +524,7 @@ nasl_get_tmp_dir (lex_ctxt * lexic)
  */
 
 /**
- * @brief Stat file if check_authenticated.
+ * @brief Stat file
  * @ingroup nasl_implement
  */
 tree_cell *
@@ -558,9 +533,6 @@ nasl_file_stat (lex_ctxt * lexic)
   tree_cell *retc;
   char *fname;
   struct stat st;
-
-  if (check_authenticated (lexic) < 0)
-    return NULL;
 
   fname = get_str_var_by_num (lexic, 0);
   if (fname == NULL)
@@ -578,7 +550,7 @@ nasl_file_stat (lex_ctxt * lexic)
 }
 
 /**
- * @brief Open file if check_authenticated.
+ * @brief Open file
  */
 tree_cell *
 nasl_file_open (lex_ctxt * lexic)
@@ -588,9 +560,6 @@ nasl_file_open (lex_ctxt * lexic)
   struct stat lstat_info, fstat_info;
   int fd;
   int imode = O_RDONLY;
-
-  if (check_authenticated (lexic) < 0)
-    return NULL;
 
   fname = get_str_local_var_by_name (lexic, "name");
   if (fname == NULL)
@@ -667,16 +636,13 @@ nasl_file_open (lex_ctxt * lexic)
 }
 
 /**
- * @brief Close file if check_authenticated.
+ * @brief Close file
  */
 tree_cell *
 nasl_file_close (lex_ctxt * lexic)
 {
   tree_cell *retc;
   int fd;
-
-  if (check_authenticated (lexic) < 0)
-    return NULL;
 
   fd = get_int_var_by_num (lexic, 0, -1);
   if (fd < 0)
@@ -698,7 +664,7 @@ nasl_file_close (lex_ctxt * lexic)
 
 
 /**
- * @brief Read file if check_authenticated.
+ * @brief Read file
  */
 tree_cell *
 nasl_file_read (lex_ctxt * lexic)
@@ -708,10 +674,6 @@ nasl_file_read (lex_ctxt * lexic)
   int fd;
   int flength;
   int n;
-
-  if (check_authenticated (lexic) < 0)
-    return NULL;
-
 
   fd = get_int_local_var_by_name (lexic, "fp", -1);
   if (fd < 0)
@@ -753,7 +715,7 @@ error:
 
 
 /**
- * @brief Write file if check_authenticated.
+ * @brief Write file
  */
 tree_cell *
 nasl_file_write (lex_ctxt * lexic)
@@ -763,9 +725,6 @@ nasl_file_write (lex_ctxt * lexic)
   int len;
   int fd;
   int n;
-
-  if (check_authenticated (lexic) < 0)
-    return NULL;
 
   content = get_str_local_var_by_name (lexic, "data");
   fd = get_int_local_var_by_name (lexic, "fp", -1);
@@ -802,7 +761,7 @@ nasl_file_write (lex_ctxt * lexic)
 }
 
 /**
- * @brief Seek in file if check_authenticated.
+ * @brief Seek in file.
  */
 tree_cell *
 nasl_file_seek (lex_ctxt * lexic)
@@ -810,10 +769,6 @@ nasl_file_seek (lex_ctxt * lexic)
   tree_cell *retc;
   int fd;
   int foffset;
-
-  if (check_authenticated (lexic) < 0)
-    return NULL;
-
 
   foffset = get_int_local_var_by_name (lexic, "offset", 0);
   fd = get_int_local_var_by_name (lexic, "fp", -1);
