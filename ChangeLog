@@ -1,5 +1,32 @@
 2012-06-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Removing code that tries to remember which part of NVTs
+	is authenticated.
+
+	* nasl/exec.c (exec_nasl_script): Removed code that sets
+	"authenticated" status.
+
+	* nasl/nasl_func.c (nasl_func_call): Removed code to handle
+	"authenticated" status.
+
+	* nasl/nasl_grammar.y (INCLUDE): Remove downgrading present script
+	in case non authenticated include file is loaded. Left todo that
+	we need to ensure only signed include files are considered at all.
+	(init_nasl_ctx): Removed initialization of "authenticated". Changed
+	check to directly ignore non-signed NVTs.
+
+	* nasl/nasl_scanner_glue.c (get_kb_list, get_kb_item, get_kb_fresh_item,
+	replace_kb_item, set_kb_item): Drop check for authenticated
+	status.
+
+	* nasl/nasl_global_ctxt.h (struct naslctxt): Removed element
+	"authenticated".
+
+	* nasl/nasl_lex_ctxt (struct struct_lex_ctxt): Removed element
+	"authenticated".
+
+2012-06-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Removing the code that prevented special functions being executed
 	by non-authenticated NVTs. Background is that either the whole
 	feed is treated as authenticated or as non-authenticated, but

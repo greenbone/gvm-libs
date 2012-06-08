@@ -1828,11 +1828,6 @@ exec_nasl_script (struct arglist *script_infos, const char *name, int mode)
   lexic = init_empty_lex_ctxt ();
   lexic->script_infos = script_infos;
 
-  if (mode & NASL_ALWAYS_SIGNED)
-    lexic->authenticated = 1;
-  else
-    lexic->authenticated = ctx.authenticated;
-
   str = arg_get_value (prefs, "checks_read_timeout");
   if (str != NULL)
     to = atoi (str);

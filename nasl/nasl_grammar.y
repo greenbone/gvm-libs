@@ -290,6 +290,9 @@ inc: INCLUDE '(' string ')'
 	  naslctxt	subctx;
 	  int		x;
 
+          // TODO: Only include file if it is authenticated or authenticate is
+          // generally disabled.
+
  	  subctx.always_authenticated = ((naslctxt*)parm)->always_authenticated;
 	  x = init_nasl_ctx(&subctx, $3);
 	  $$ = NULL;
@@ -305,14 +308,6 @@ inc: INCLUDE '(' string ')'
 	      efree(&subctx.buffer);
 	      fclose(subctx.fp); 
 	      subctx.fp = NULL;
-	      /* If we are an authenticated script and the script we include is *NOT* authenticated,
-   		 then we lose our authentication status */
-	      if ( ((naslctxt*)parm)->always_authenticated == 0 &&
-	          ((naslctxt*)parm)->authenticated != 0 && subctx.authenticated == 0 )
-			{
-			((naslctxt*)parm)->authenticated = 0;
-			nasl_perror(NULL, "Including %s which is not authenticated - losing our authenticated status\n", $3);
-			}
 	    }
 	  efree(& $3);
 	} ;
@@ -553,7 +548,6 @@ init_nasl_ctx(naslctxt* pc, const char* name)
   pc->tree = NULL;
   pc->buffer = emalloc(80);
   pc->maxlen = 80;
-  pc->authenticated = 0;
   pc->fp = NULL;
 
   while (inc_dir != NULL) {
@@ -573,19 +567,13 @@ init_nasl_ctx(naslctxt* pc, const char* name)
     return -1;
   }
 
-  if (pc->always_authenticated)
-    pc->authenticated = 1;
-  else {
-    pc->authenticated = (nasl_verify_signature(full_name) == 0 ? 1 : 0);
-
-    if (pc->authenticated == 0) {
-      fprintf(stderr, "%s: bad or missing signature."
-                      " Will not execute this script\n", full_name);
-      fclose(pc->fp);
-      pc->fp = NULL;
-      g_free(full_name);
-      return -1;
-    }
+  if (! pc->always_authenticated && nasl_verify_signature(full_name) != 0) {
+    fprintf(stderr, "%s: bad or missing signature."
+                    " Will not execute this script\n", full_name);
+    fclose(pc->fp);
+    pc->fp = NULL;
+    g_free(full_name);
+    return -1;
   }
 
   g_free(full_name);

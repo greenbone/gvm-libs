@@ -35,7 +35,6 @@ typedef struct struct_lex_ctxt
   unsigned fct_ctxt:1;          /* This is a function context */
   unsigned break_flag:1;        /* Break from loop */
   unsigned cont_flag:1;         /* Next iteration in loop */
-  unsigned authenticated:1;     /* Authenticated script */
   unsigned always_authenticated:1;
   struct arglist *script_infos;
   int recv_timeout;

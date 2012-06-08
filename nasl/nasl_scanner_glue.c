@@ -689,31 +689,21 @@ get_kb_list (lex_ctxt * lexic)
       anon_nasl_var v;
       bzero (&v, sizeof (v));
 
-      if (lexic->authenticated
-          || strncmp (res->name, SECRET_KB_PREFIX,
-                      sizeof (SECRET_KB_PREFIX) - 1) != 0)
+      if (res->type == KB_TYPE_INT)
         {
-          if (res->type == KB_TYPE_INT)
-            {
-              v.var_type = VAR2_INT;
-              v.v.v_int = res->v.v_int;
-              add_var_to_array (a, res->name, &v);
-              num_elems++;
-            }
-          else if (res->type == KB_TYPE_STR)
-            {
-              v.var_type = VAR2_DATA;
-              v.v.v_str.s_val = (unsigned char *) res->v.v_str;
-              v.v.v_str.s_siz = strlen (res->v.v_str);
-              add_var_to_array (a, res->name, &v);
-              num_elems++;
-            }
+          v.var_type = VAR2_INT;
+          v.v.v_int = res->v.v_int;
+          add_var_to_array (a, res->name, &v);
+          num_elems++;
         }
-#if NASL_DEBUG > 0
-      else
-        nasl_perror (lexic, "get_kb_list: skipping protected KN entry %s\n",
-                     res->name);
-#endif
+      else if (res->type == KB_TYPE_STR)
+        {
+          v.var_type = VAR2_DATA;
+          v.v.v_str.s_val = (unsigned char *) res->v.v_str;
+          v.v.v_str.s_siz = strlen (res->v.v_str);
+          add_var_to_array (a, res->name, &v);
+          num_elems++;
+        }
       res = res->next;
     }
 
@@ -739,16 +729,6 @@ get_kb_item (lex_ctxt * lexic)
 
   if (kb_entry == NULL)
     return NULL;
-
-  if (!lexic->authenticated
-      && strncmp (kb_entry, SECRET_KB_PREFIX,
-                  sizeof (SECRET_KB_PREFIX) - 1) == 0)
-    {
-      nasl_perror (lexic,
-                   "Untrusted script cannot read protected KB entry %s\n",
-                   kb_entry);
-      return NULL;
-    }
 
   val = plug_get_key (script_infos, kb_entry, &type);
 
@@ -800,16 +780,6 @@ get_kb_fresh_item (lex_ctxt * lexic)
   if (kb_entry == NULL)
     return NULL;
 
-  if (!lexic->authenticated
-      && strncmp (kb_entry, SECRET_KB_PREFIX,
-                  sizeof (SECRET_KB_PREFIX) - 1) == 0)
-    {
-      nasl_perror (lexic,
-                   "Untrusted script cannot read protected KB entry %s\n",
-                   kb_entry);
-      return NULL;
-    }
-
   val = plug_get_fresh_key (script_infos, kb_entry, &type);
 
 
@@ -855,13 +825,6 @@ replace_kb_item (lex_ctxt * lexic)
       return FAKE_CELL;
     }
 
-  if (!lexic->authenticated
-      && strncmp (name, SECRET_KB_PREFIX, sizeof (SECRET_KB_PREFIX) - 1) == 0)
-    {
-      nasl_perror (lexic, "Only signed scripts can set a Secret/ KB entry\n");
-      return FAKE_CELL;
-    }
-
   if (type == VAR2_INT)
     {
       int value = get_int_local_var_by_name (lexic, "value", -1);
@@ -902,14 +865,6 @@ set_kb_item (lex_ctxt * lexic)
                    name);
       return FAKE_CELL;
     }
-
-  if (!lexic->authenticated
-      && strncmp (name, SECRET_KB_PREFIX, sizeof (SECRET_KB_PREFIX) - 1) == 0)
-    {
-      nasl_perror (lexic, "Only signed scripts can set a Secret/ KB entry\n");
-      return FAKE_CELL;
-    }
-
 
   if (type == VAR2_INT)
     {

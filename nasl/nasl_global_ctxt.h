@@ -28,7 +28,6 @@ typedef struct
   FILE *fp;
   tree_cell *tree;
   char *buffer;
-  int authenticated;
   int always_authenticated;
   int maxlen;
 } naslctxt;
