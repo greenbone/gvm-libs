@@ -654,8 +654,6 @@ get_script_oid (lex_ctxt * lexic)
 
 /*--------------------[ KB ]---------------------------------------*/
 
-#define SECRET_KB_PREFIX	"Secret/"
-
 tree_cell *
 get_kb_list (lex_ctxt * lexic)
 {

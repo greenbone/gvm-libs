@@ -1,5 +1,9 @@
 2012-06-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_scanner_glue.c: Removed now unused macro SECRET_KB_PREFIX.
+
+2012-06-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Removing code that tries to remember which part of NVTs
 	is authenticated.
 
@@ -54,7 +58,7 @@
 2012-06-07  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_auth_init): Added debug message
-	to provide information aboud disable authenticators.
+	to provide information about disable authenticators.
 
 	* misc/ldap_auth.c (ldap_auth_info_new): Added parameter to
 	indicate whether certain options are obligatory (for ldap-method) or
