@@ -518,6 +518,9 @@ verify_peer_certificate (gnutls_session_t session)
 
   for (i = 0; messages[i].message != NULL; i++)
     {
+      /* TODO If you run openvassd in the background then these very useful
+       * messages everywhere in this file are sent to /dev/null.  Should be
+       * using GLib logging. */
       if (status & messages[i].flag)
         fprintf (stderr, "[%d] failed to verify certificate: %s\n", getpid (),
                  messages[i].message);
