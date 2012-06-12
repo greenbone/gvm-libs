@@ -1,3 +1,12 @@
+2012-06-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl.h: Removed history of NASL_LEVEL as it is not
+	relevant for current code anymore.
+	(OPENVAS_NASL_LEVEL): Removed Macro.
+
+	* nasl/nasl_init.c (libivars): Removed NASL built-in variable
+	"OPENVAS_NASL_LEVEL".
+
 2012-06-11  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/network.c (verify_peer_certificate): Add TODO.

@@ -479,8 +479,6 @@ static struct
   {
   "ENCAPS_TLSv1", OPENVAS_ENCAPS_TLSv1},
   {
-  "OPENVAS_NASL_LEVEL", OPENVAS_NASL_LEVEL},
-  {
   "TH_FIN", TH_FIN},
   {
   "TH_SYN", TH_SYN},
