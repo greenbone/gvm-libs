@@ -350,7 +350,7 @@ omp_create_task (gnutls_session_t* session,
                  const char* config,
                  const char* target,
                  const char* comment,
-                 char** id)
+                 gchar** id)
 {
   /* Create the OMP request. */
 
@@ -680,7 +680,7 @@ check_response (gnutls_session_t* session)
  * @return OMP response code on success, -1 on error.
  */
 int
-omp_read_create_response (gnutls_session_t* session, char **uuid)
+omp_read_create_response (gnutls_session_t* session, gchar **uuid)
 {
   int ret;
   const char *status, *id;
@@ -1958,7 +1958,7 @@ omp_create_target (gnutls_session_t* session,
                    const char* comment,
                    const char* ssh_credential,
                    const char* smb_credential,
-                   char** uuid)
+                   gchar** uuid)
 {
   int ret;
 
@@ -2221,7 +2221,7 @@ omp_create_lsc_credential (gnutls_session_t* session,
                            const char* login,
                            const char* password,
                            const char* comment,
-                           char** uuid)
+                           gchar** uuid)
 {
   int ret;
 
@@ -2306,7 +2306,7 @@ omp_create_lsc_credential_key (gnutls_session_t *session,
                                const char *public_key,
                                const char *private_key,
                                const char *comment,
-                               char **uuid)
+                               gchar **uuid)
 {
   int ret;
 

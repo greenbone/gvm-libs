@@ -38,7 +38,7 @@ extern "C"
 
 int check_response (gnutls_session_t *);
 
-int omp_read_create_response (gnutls_session_t*, char **);
+int omp_read_create_response (gnutls_session_t*, gchar **);
 
 const char *omp_task_status (entity_t status_response);
 
@@ -62,7 +62,7 @@ int omp_create_task_rc (gnutls_session_t *, const char *, unsigned int,
                         const char *, const char *, char **);
 
 int omp_create_task (gnutls_session_t *, const char *, const char *,
-                     const char *, const char *, char **);
+                     const char *, const char *, gchar **);
 
 int omp_create_task_rc_file (gnutls_session_t *, const char *, const char *,
                              const char *, char **);
@@ -129,7 +129,7 @@ int omp_until_up (int (*)(gnutls_session_t *, entity_t *), gnutls_session_t *,
                   entity_t *);
 
 int omp_create_target (gnutls_session_t *, const char *, const char *,
-                       const char *, const char *, const char *, char **);
+                       const char *, const char *, const char *, gchar **);
 
 int omp_delete_target (gnutls_session_t *, const char *);
 
@@ -142,11 +142,11 @@ int omp_create_config_from_rc_file (gnutls_session_t *, const char *,
 int omp_delete_config (gnutls_session_t *, const char *);
 
 int omp_create_lsc_credential (gnutls_session_t *, const char *, const char *,
-                               const char *, const char *, char **);
+                               const char *, const char *, gchar **);
 
 int omp_create_lsc_credential_key (gnutls_session_t *, const char *,
                                    const char *, const char *, const char *,
-                                   const char *, const char *, char **);
+                                   const char *, const char *, gchar **);
 
 int omp_delete_lsc_credential (gnutls_session_t *, const char *);
 

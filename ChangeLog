@@ -1,3 +1,11 @@
+2012-06-13  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_create_task, omp_read_create_response)
+	(omp_create_lsc_credential, omp_create_lsc_credential_key): Use gchar
+	for return param.
+
+	* omp/omp.h: Update headers accordingly.
+
 2012-06-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl.h: Removed history of NASL_LEVEL as it is not
