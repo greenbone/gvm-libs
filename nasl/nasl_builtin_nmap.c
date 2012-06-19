@@ -670,7 +670,7 @@ build_cmd_line (nmap_t * nmap)
     return -1;
 
   /* Always enable UDP port scan, so that the port list controls this. */
-  if (add_arg (nmap, "-Su", NULL) < 0)
+  if (add_arg (nmap, "-sU", NULL) < 0)
     return -1;
 
   /* Scan technique */
