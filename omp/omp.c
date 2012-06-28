@@ -1505,20 +1505,26 @@ omp_get_targets (gnutls_session_t* session, const char* id, int tasks,
 }
 
 /**
- * @brief Get a report.
+ * @brief Get a report (extended version).
+ *
+ * FIXME: Fold into omp_get_report
  *
  * @param[in]  session   Pointer to GNUTLS session.
  * @param[in]  id        ID of report.
+ * @param[in]  override  0 := Do not include overrides
+ *                       1 := Include overrides
+ *                       2 := Include overrides and details
  * @param[out] response  Report.  On success contains GET_REPORT response.
  *
  * @return 0 on success, -1 or OMP response code on error.
  */
 int
-omp_get_report (gnutls_session_t* session,
-                const char* id,
-                const char* format,
-                int first_result_number,
-                entity_t* response)
+omp_get_report_ext (gnutls_session_t* session,
+                    const char* id,
+                    const char* format,
+                    int override,
+                    int first_result_number,
+                    entity_t* response)
 {
   int ret;
   const char *status_code;
@@ -1529,11 +1535,17 @@ omp_get_report (gnutls_session_t* session,
   if (openvas_server_sendf (session,
                             "<get_reports"
                             " result_hosts_only=\"0\""
+                            "%s"
                             " first_result=\"%i\""
                             " sort_field=\"ROWID\""
                             " sort_order=\"1\""
                             " format_id=\"%s\""
                             " report_id=\"%s\"/>",
+                            (override == 0
+                              ? ""
+                              : (override == 1
+                                  ? " overrides=\"1\""
+                                  : " overrides=\"1\" override_details=\"1\"")),
                             first_result_number,
                             format ? format : "XML",
                             id))
@@ -1560,6 +1572,26 @@ omp_get_report (gnutls_session_t* session,
   free_entity (*response);
   if (errno == ERANGE) return -1;
   return ret;
+}
+
+/**
+ * @brief Get a report.
+ *
+ * @param[in]  session   Pointer to GNUTLS session.
+ * @param[in]  id        ID of report.
+ * @param[out] response  Report.  On success contains GET_REPORT response.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_get_report (gnutls_session_t* session,
+                const char* id,
+                const char* format,
+                int first_result_number,
+                entity_t* response)
+{
+  return omp_get_report_ext (session, id, format,
+                             0, first_result_number, response);
 }
 
 /**

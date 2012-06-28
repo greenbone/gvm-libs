@@ -1,3 +1,12 @@
+2012-06-28  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Add omp_get_report_ext, for control of overrides.  Patch by Werner Koch.
+
+	* omp/omp.c (omp_get_report_ext): New function.  Body from omp_get_report.
+	(omp_get_report): Call through to omp_get_report_ext.
+
+	* omp/omp.h: Update headers accordingly.
+
 2012-06-19  Michael Meyer <michael.meyer@greenbone.net>
 
 	* nasl/nasl_builtin_nmap.c:
