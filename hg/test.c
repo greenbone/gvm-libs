@@ -44,7 +44,7 @@ main (int argc, char *argv[])
   int i;
   int flags = 0;
 
-  struct in_addr ip;
+  struct in6_addr ip;
   while ((i = getopt (argc, argv, "dpsnD")) != -1)      /* RATS: ignore */
     switch (i)
       {
@@ -84,7 +84,9 @@ main (int argc, char *argv[])
   e = hg_next_host (globals, &ip, m, sizeof (m));
   while (e >= 0)
     {
-      printf ("%s (%s)\n", m, inet_ntoa (ip));
+      char hostname[INET6_ADDRSTRLEN];
+      inet_ntop (AF_INET6, &ip, hostname, sizeof(struct in6_addr));
+      printf ("%s (%s)\n", m, hostname);
       e = hg_next_host (globals, &ip, m, sizeof (m));
     }
   hg_cleanup (globals);

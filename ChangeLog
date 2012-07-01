@@ -1,3 +1,10 @@
+2012-07-01  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* hg/CMakeLists.txt: Add new executable 'hg-test' which is a minimal
+	testing interface to the hg module.
+
+	* hg/test.c: Adapt to older IPv6 library changes.
+
 2012-06-28  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Add omp_get_report_ext, for control of overrides.  Patch by Werner Koch.
