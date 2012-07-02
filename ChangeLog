@@ -1,5 +1,9 @@
 2012-07-02  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* hg/test.c: Fix definition of bufferlen for inet_ntop.
+
+2012-07-02  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* hg/test.c: Fix switch/case statement (resolving a TODO), expand
 	usage output.
 

@@ -87,7 +87,7 @@ main (int argc, char *argv[])
   while (e >= 0)
     {
       char hostname[INET6_ADDRSTRLEN];
-      inet_ntop (AF_INET6, &ip, hostname, sizeof(struct in6_addr));
+      inet_ntop (AF_INET6, &ip, hostname, INET6_ADDRSTRLEN);
       printf ("%s (%s)\n", m, hostname);
       e = hg_next_host (globals, &ip, m, sizeof (m));
     }
