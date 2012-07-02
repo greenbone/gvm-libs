@@ -58,15 +58,17 @@ main (int argc, char *argv[])
         flags |= HG_SUBNET;
         break;
       case 'n':
-        flags |= HG_REVLOOKUP;            /** @TODO forgot to break here? */
+        flags |= HG_REVLOOKUP;
+        break;
       case 'D':
         flags |= HG_DISTRIBUTE;
+        break;
       }
 
   if (!argv[optind])
     {
       printf
-        ("Usage : test -dps hostname/netmask\n-d : DNS axfr\n-p : ping hosts\n-s : whole network\n-D: distribute the load\n");
+        ("Usage : test -dpnsD hostname/netmask\n-d : DNS axfr\n-p : ping hosts\n-n : reverse lookup\n-s : whole network\n-D : distribute the load\n");
       exit (0);
     }
   if ((flags & HG_PING) && geteuid ())

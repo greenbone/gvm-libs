@@ -1,3 +1,8 @@
+2012-07-02  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* hg/test.c: Fix switch/case statement (resolving a TODO), expand
+	usage output.
+
 2012-07-01  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* hg/CMakeLists.txt: Add new executable 'hg-test' which is a minimal
