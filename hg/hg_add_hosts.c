@@ -413,6 +413,10 @@ noranges:
               c_start = first;
               c_end = cidr_get_last_ip (c_start, cidr_netmask + addition);
 
+              memset(&c_start6, 0, sizeof(struct in6_addr));
+              c_start6.s6_addr32[3]=c_start.s_addr;
+              c_start6.s6_addr16[5]=(unsigned short)0xFFFF;
+
               for (;;)
                 {
                   int dobreak = 0;
@@ -420,7 +424,8 @@ noranges:
                   if (ntohl (c_end.s_addr) >= ntohl (last.s_addr))
                     dobreak = 1;
 
-                  hg_get_name_from_ip (&c_start6, hostname, sizeof (hostname));
+                  // @TODO fix bufferlength argument.
+                  hg_get_name_from_ip (&c_start6, hostname, strlen(hostname)+1);
 
                   c_start.s_addr = c_start6.s6_addr32[3];
                   hg_add_host_with_options (globals, strdup (hostname), c_start,

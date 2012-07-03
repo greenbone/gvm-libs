@@ -1,3 +1,8 @@
+2012-07-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* hg/hg_add_hosts.c (hg_add_host): Initialize struct with sensible
+	value before using, stunt with bufferlength.
+
 2012-07-02  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* hg/test.c: Fix definition of bufferlen for inet_ntop.
