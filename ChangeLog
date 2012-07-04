@@ -1,5 +1,10 @@
 2012-07-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* hg/CMakeLists.txt: Commented hg-test executable target,
+	as it causes build failures in certain environments.
+
+2012-07-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* hg/hg_add_hosts.c (hg_add_host): Initialize struct with sensible
 	value before using, stunt with bufferlength.
 

@@ -60,9 +60,10 @@ endif (OPENVAS_PID_DIR)
 target_link_libraries (openvas_hg_static ${GLIB_LDFLAGS})
 target_link_libraries (openvas_hg_shared ${GLIB_LDFLAGS})
 
-# Build the hg testing executable.
-add_executable (hg-test test.c)
-target_link_libraries (hg-test openvas_hg_static openvas_misc_static pcap)
+# Build the hg testing executable (uncommented, as of linker errors in certain
+# environments)
+#add_executable (hg-test test.c)
+#target_link_libraries (hg-test openvas_hg_static openvas_misc_static pcap)
 
 # Would be great to build the little test tool.
 
