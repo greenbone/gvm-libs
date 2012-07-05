@@ -290,9 +290,6 @@ inc: INCLUDE '(' string ')'
 	  naslctxt	subctx;
 	  int		x;
 
-          // TODO: Only include file if it is authenticated or authenticate is
-          // generally disabled.
-
  	  subctx.always_authenticated = ((naslctxt*)parm)->always_authenticated;
 	  x = init_nasl_ctx(&subctx, $3);
 	  $$ = NULL;

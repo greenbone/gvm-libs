@@ -1,3 +1,8 @@
+2012-07-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_grammar.y: Removed TODO about signature checking.
+	The signature check is ensured via function call of init_nasl_ctx().
+
 2012-07-05  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* nasl/CMakeLists.txt: Ensure that compilation with modern
