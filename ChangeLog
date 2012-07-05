@@ -1,3 +1,9 @@
+2012-07-05  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* nasl/CMakeLists.txt: Ensure that compilation with modern
+	gccs works by moving linker flags from LINK_FLAGS to
+	target_link_libraries.
+
 2012-07-03  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* hg/CMakeLists.txt: Commented hg-test executable target,
