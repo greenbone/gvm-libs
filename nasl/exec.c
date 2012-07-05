@@ -35,7 +35,6 @@
 #include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
 #include "exec.h"
-#include "preparse.h"
 
 #include "nasl_debug.h"
 #include "strutils.h"
@@ -1815,7 +1814,18 @@ exec_nasl_script (struct arglist *script_infos, const char *name, int mode)
   if (mode & NASL_ALWAYS_SIGNED)
     ctx.always_authenticated = 1;
 
-  if (nasl_reload_or_parse (&ctx, name) < 0)
+  if (init_nasl_ctx (&ctx, name) == 0)
+    {
+      if (naslparse (&ctx))
+        {
+          fprintf (stderr, "\nParse error at or near line %d\n", ctx.line_nb);
+          nasl_clean_ctx (&ctx);
+          g_chdir (old_dir);
+          g_free (old_dir);
+          return -1;
+        }
+    }
+  else
     {
       g_chdir (old_dir);
       g_free (old_dir);

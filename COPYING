@@ -134,7 +134,6 @@ nasl/nasl_wmi.[c|h]: GPLv2+
 nasl/ntlmssp.[c|h]: GPLv2+
 nasl/openvas_smb_interface.h: GPLv2+
 nasl/openvas_wmi_interface.h: GPLv2+
-nasl/preparse.[c|h]: GPLv2
 nasl/proto.h: GPLv2+
 nasl/smb_crypt2.c: GPLv2+
 nasl/smb_crypt.[c|h]: GPLv2+

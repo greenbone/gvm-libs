@@ -1,5 +1,21 @@
 2012-07-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Removing preparse module which was a left-over of a never-finished
+	concept of pre-compiled nasl files.
+
+	* nasl/preparse.c, nasl/preparse.h: Removed.
+
+	* nasl/exec.c (exec_nasl_script): Replaced call of nasl_reload_or_parse()
+	by immediate calls to init and parse a nasl.
+
+	* nasl/lint.c: Removed unnecessary include of preparse.h.
+
+	* nasl/CMakeLists.txt: Removed handling of module preparse.c.
+
+	COPYING: Remove preparse.c|h from the list.
+
+2012-07-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_grammar.y: Removed TODO about signature checking.
 	The signature check is ensured via function call of init_nasl_ctx().
 
