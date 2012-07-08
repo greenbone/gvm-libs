@@ -1,3 +1,9 @@
+2012-06-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Backport of r13600 from trunk.
+
+	* base/nvti.c: Added sanity NULL-check to various functions.
+
 2012-06-07  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_auth_init): Added debug message
