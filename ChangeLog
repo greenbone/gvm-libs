@@ -1,5 +1,13 @@
 2012-07-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Backport of r13683 from trunk by Michael Wiegand.
+
+	* nasl/CMakeLists.txt: Ensure that compilation with modern
+	gccs works by moving linker flags from LINK_FLAGS to
+	target_link_libraries.
+
+2012-07-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Backport of r13616 from trunk by Michael Meyer.
 
 	* nasl/nasl_builtin_nmap.c: Typo fixed.
