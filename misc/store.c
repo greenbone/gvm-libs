@@ -208,23 +208,16 @@ store_load_plugin (const char *file, struct arglist *prefs)
 void
 store_plugin (struct arglist *plugin, char *file)
 {
-  gchar *dummy = g_build_filename (nvti_cache->cache_path, file, NULL);
-  gchar *desc_file = g_strconcat (dummy, ".nvti", NULL);
-  // assume there is a ".nvti" at the end in the cache path
-
-  g_free (dummy);
-
-  if (desc_file == NULL)
-    return;                   // g_build_filename failed
-
   nvti_t *n = arg_get_value (plugin, "NVTI");
   if (!n) n = nvti_new();
 
-  nvti_to_keyfile (n, desc_file);
+  if (nvticache_add (nvti_cache, n, file))
+    {
+      nvti_free (n);
+      return;
+    }
   nvti_free (n);
 
   arg_set_value (plugin, "preferences", -1, NULL);
   arg_free_all (plugin);
-
-  g_free (desc_file);
 }
