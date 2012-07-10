@@ -1,5 +1,12 @@
 2012-07-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* base/nvticache.c (nvticache_add): New function to write a nvti file
+	to the cache.
+
+	* base/nvticache.h: Add proto accordingly.
+
+2012-07-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/store.c (store_plugin): Removed code that handles the
 	unused variable "path".
 

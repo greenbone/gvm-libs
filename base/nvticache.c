@@ -119,3 +119,30 @@ nvticache_get (const nvticache_t * cache, const gchar * filename)
     g_free (cache_file);
   return n;
 }
+
+/**
+ * @brief Add a NVT Information to the cache.
+ *
+ * @param cache    The NVTI Cache to use
+ *
+ * @param nvti     The NVT Information to add
+ *
+ * @param filename The name of the original NVT without the path
+ *                 to the base location of NVTs (e.g.
+ *                 "scriptname1.nasl" or even
+ *                 "subdir1/subdir2/scriptname2.nasl" )
+ *
+ * @return 0 in case of success, anything else indicates an error.
+ */
+int
+nvticache_add (const nvticache_t * cache, nvti_t * nvti, gchar * filename)
+{
+  gchar *dummy = g_build_filename (cache->cache_path, filename, NULL);
+  gchar *cache_file = g_strconcat (dummy, ".nvti", NULL);
+  int result = nvti_to_keyfile (nvti, cache_file);
+
+  g_free (dummy);
+  g_free (cache_file);
+
+  return result;
+}
