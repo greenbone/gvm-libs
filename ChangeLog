@@ -1,3 +1,8 @@
+2012-07-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/plugutils.c (proto_post_wrapped): Resolved unnecessary
+	call of arg_get_value.
+
 2012-07-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Removing preparse module which was a left-over of a never-finished

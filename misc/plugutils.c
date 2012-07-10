@@ -645,7 +645,7 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   buffer = emalloc (1024 + len);
   char idbuffer[105];
   const char *svc_name = openvas_get_svc_name (port, proto);
-  if (nvti_oid (arg_get_value (desc, "NVTI")) == NULL)
+  if (nvti_oid (nvti) == NULL)
     {
       *idbuffer = '\0';
     }
