@@ -211,22 +211,11 @@ store_plugin (struct arglist *plugin, char *file)
   gchar *dummy = g_build_filename (nvti_cache->cache_path, file, NULL);
   gchar *desc_file = g_strconcat (dummy, ".nvti", NULL);
   // assume there is a ".nvti" at the end in the cache path
-  gchar *path = g_strdup (file);
 
   g_free (dummy);
 
-  if (desc_file == NULL || path == NULL)
-    {
-      if (desc_file != NULL)
-        {
-          g_free (desc_file);
-        }
-      if (path != NULL)
-        {
-          g_free (path);
-        }
-      return;                   // g_build_filename failed
-    }
+  if (desc_file == NULL)
+    return;                   // g_build_filename failed
 
   nvti_t *n = arg_get_value (plugin, "NVTI");
   if (!n) n = nvti_new();
@@ -238,5 +227,4 @@ store_plugin (struct arglist *plugin, char *file)
   arg_free_all (plugin);
 
   g_free (desc_file);
-  g_free (path);
 }

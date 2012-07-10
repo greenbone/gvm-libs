@@ -1,5 +1,10 @@
 2012-07-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/store.c (store_plugin): Removed code that handles the
+	unused variable "path".
+
+2012-07-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/plugutils.c (proto_post_wrapped): Resolved unnecessary
 	call of arg_get_value.
 
