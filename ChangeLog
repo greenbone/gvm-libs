@@ -1,5 +1,12 @@
 2012-07-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Post branch version bump. (A little late as the branch actually
+	happened already).
+
+	* CMakeLists.txt: Set version to 6.0.0 and status to beta.
+
+2012-07-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/store.c (store_plugin): Reduced code by using new function
 	nvticache_add().
 
