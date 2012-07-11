@@ -69,7 +69,7 @@
 
 #include "nvti.h"
 
-/* for nvticache_t */
+/* for nvticache_get */
 #include "nvticache.h"
 
 void
@@ -107,48 +107,6 @@ _add_plugin_preference (struct arglist *prefs, const char *p_name,
 }
 
 /**
- * @brief Global Handle for NVTI Cache
- */
-static nvticache_t *nvti_cache;
-
-/**
- * @brief Initializes the global NVTI Cache.
- *
- * @param dir Path to the cache-directory. It must exist.
- * @param src Path to the plugin-directory. It must exist.
- *
- * @return    0  in case of success (@ref nvti_cache is set now)
- *            -1 if the given path exeeds the buffer size
- *            -2 if the directory does not exist
- *            -3 if the given path was NULL
- *            In any other case than 0 @ref nvti_cache is
- *            not set and a error is printed to stderr
- */
-int
-store_init (const char *dir, const char *src)
-{
-  struct stat st;
-
-  if (dir == NULL)
-    {
-      fprintf (stderr, "store_init(): called with NULL\n");
-      return -3;
-    }
-
-  if (stat (dir, &st) < 0)
-    {                           // check for existance
-      fprintf (stderr, "stat(%s): %s\n", dir, strerror (errno));
-      return -2;
-    }
-
-  nvti_cache = nvticache_new (dir, src);
-
-  if (nvti_cache)
-    return 0;
-  return -1;
-}
-
-/**
  * @brief Returns a (plugin) arglist assembled from the cached description file
  *
  * @param file Filename of the plugin (e.g. "scriptname1.nasl"
@@ -177,7 +135,7 @@ store_load_plugin (const char *file, struct arglist *prefs)
   struct arglist *ret;
   int i;
 
-  nvti_t *n = nvticache_get (nvti_cache, file);
+  nvti_t *n = nvticache_get (arg_get_value(prefs, "nvticache"), file);
   if (!n)
     return NULL;
 
@@ -194,30 +152,4 @@ store_load_plugin (const char *file, struct arglist *prefs)
     }
 
   return ret;
-}
-
-/**
- * @brief Creates an entry in the store for data of "plugin" into cache file
- * @brief "file" which is placed in the cache directory.
- *
- * @param plugin    Data structure that contains a plugin description
- * @param file      Name of corresponding plugin file (e.g. "x.nasl", "x.nes"
- *                  or "x.oval". It can also be something like
- *                  "subdir1/subdir2/scriptname.nasl").
- */
-void
-store_plugin (struct arglist *plugin, char *file)
-{
-  nvti_t *n = arg_get_value (plugin, "NVTI");
-  if (!n) n = nvti_new();
-
-  if (nvticache_add (nvti_cache, n, file))
-    {
-      nvti_free (n);
-      return;
-    }
-  nvti_free (n);
-
-  arg_set_value (plugin, "preferences", -1, NULL);
-  arg_free_all (plugin);
 }

@@ -1,3 +1,18 @@
+2012-07-11  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/store.c (store_init): Removed. The initialization is
+	now done by scanner directly via nvticache_new().
+	(nvti_cache): Removed. This global variable is not necessary
+	anymore because scanner will handle the variable in a global context.
+        (store_load_plugin): Use the nvticache fomr the arglist instead the
+	the static global one.
+        (store_plugin): Removed. The remaining simple calls for nvti_cache
+	were moved to the respective code in the Scanner.
+
+        * misc/store.h: Removed protos accordingly.
+
+	* CMakeLists.txt: Also install nvticache.h.
+
 2012-07-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Post branch version bump. (A little late as the branch actually
