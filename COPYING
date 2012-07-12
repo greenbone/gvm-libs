@@ -81,7 +81,6 @@ misc/services1.[c|h]: LGPLv2+
 misc/services.[c|h]: LGPLv2+
 misc/share_fd.c: BSD2
 misc/share_fd.h: LGPLv2+
-misc/store.[c|h]: LGPLv2+
 misc/support.h: GPLv2+
 misc/system.[c|h]: LGPLv2+
 misc/system_internal.h: LGPLv2+

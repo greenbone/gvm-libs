@@ -70,6 +70,8 @@ struct arglist *plug_get_required_udp_ports (struct arglist *);
 
 int plug_get_port_transport (struct arglist *, int);
 
+struct arglist * plug_create_from_nvti_and_prefs (nvti_t *, struct arglist *);
+
 /*
  * Reporting functions
  */

@@ -65,7 +65,7 @@ else (MINGW)
              popen.c proctitle.c
              rand.c resolve.c resource_request.c scanners_utils.c services1.c
              services.c share_fd.c
-             store.c system.c www_funcs.c pcap.c)
+             system.c www_funcs.c pcap.c)
 
   set (HEADERS arglists.h bpf_share.h ftp_funcs.h hash_table_file.h kb.h
                network.h otp.h pcap_openvas.h plugutils.h popen.h proctitle.h
@@ -73,7 +73,7 @@ else (MINGW)
                openvas_server.h openvas_ssh_login.h openvas_uuid.h
                resource_request.h nvt_categories.h internal_com.h
                scanners_utils.h services1.h services.h
-               share_fd.h store.h system.h www_funcs.h)
+               share_fd.h system.h www_funcs.h)
 endif (MINGW)
 
 if (BUILD_WITH_LDAP)

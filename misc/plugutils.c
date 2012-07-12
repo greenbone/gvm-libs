@@ -319,6 +319,74 @@ plug_add_host (struct arglist *desc, struct arglist *hostname)
     arg_set_value (desc, "HOSTNAME", sizeof (hostname), hostname);
 }
 
+void
+_add_plugin_preference (struct arglist *prefs, const char *p_name,
+                        const char *name, const char *type, const char *defaul)
+{
+  char *pref;
+  char *cname;
+  int len;
+
+  cname = estrdup (name);
+  len = strlen (cname);
+  // Terminate string before last trailing space
+  while (cname[len - 1] == ' ')
+    {
+      cname[len - 1] = '\0';
+      len--;
+    }
+  if (!prefs || !p_name)
+    {
+      efree (&cname);
+      return;
+    }
+
+
+  pref = emalloc (strlen (p_name) + 10 + strlen (type) + strlen (cname));
+  // RATS: ignore
+  snprintf (pref, strlen (p_name) + 10 + strlen (type) + strlen (cname),
+            "%s[%s]:%s", p_name, type, cname);
+  if (arg_get_value (prefs, pref) == NULL)
+    arg_add_value (prefs, pref, ARG_STRING, strlen (defaul), estrdup (defaul));
+
+  efree (&cname);
+  efree (&pref);
+}
+
+/**
+ * @brief Returns a (plugin) arglist assembled from the nvti.
+ *
+ * @param nvti NVT Information to be used for the creation.
+ *
+ * @param prefs Plugin preference arglist that is added to
+ *              new arglist and where all preferences of the NVTI
+ *              are copied to as single entries.
+ *
+ * @return Pointer to plugin as arglist or NULL.
+ */
+struct arglist *
+plug_create_from_nvti_and_prefs (nvti_t * nvti, struct arglist *prefs)
+{
+  struct arglist *ret;
+  int i;
+
+  if (!nvti)
+    return NULL;
+
+  ret = emalloc (sizeof (struct arglist));
+
+  arg_add_value (ret, "NVTI", ARG_PTR, -1, nvti);
+  arg_add_value (ret, "preferences", ARG_ARGLIST, -1, prefs);
+
+  for (i = 0; i < nvti_pref_len (nvti); i++)
+    {
+      nvtpref_t *np = nvti_pref (nvti, i);
+      _add_plugin_preference (prefs, nvti_name (nvti), nvtpref_name (np),
+                              nvtpref_type (np), nvtpref_default (np));
+    }
+
+  return ret;
+}
 
 void
 host_add_port_proto (struct arglist *args, int portnum, int state, char *proto)
