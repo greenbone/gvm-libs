@@ -1736,22 +1736,6 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
 extern tree_cell *nasl_lint (lex_ctxt *, tree_cell *);
 
 /**
- * @brief This method is deprecated. Use @ref exec_nasl_script
- *        This function can be removed with the next major
- *        release after 2.0.
- *
- * @param script_infos The plugin as arglist. Has to be allocated, and at least
- *                     "preferences" sould be set.
- * @return Values < 0 
- */
-int
-execute_nasl_script (struct arglist *script_infos, const char *name,
-                     const char *cache_dir, int mode)
-{
-  return exec_nasl_script (script_infos, name, mode);
-}
-
-/**
  * @brief Execute a NASL script.
  *
  * "mode" is a bit field:
