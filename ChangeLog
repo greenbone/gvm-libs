@@ -1,5 +1,9 @@
 2012-07-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/kb.h (NEW_KB_MGMT): Removed. Deprectated loong time ago.
+
+2012-07-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/exec.c (execute_nasl_script): Removed. This was marked deprecated since
 	two major releases already.
 
@@ -23,12 +27,12 @@
 	now done by scanner directly via nvticache_new().
 	(nvti_cache): Removed. This global variable is not necessary
 	anymore because scanner will handle the variable in a global context.
-        (store_load_plugin): Use the nvticache fomr the arglist instead the
+	(store_load_plugin): Use the nvticache fomr the arglist instead the
 	the static global one.
-        (store_plugin): Removed. The remaining simple calls for nvti_cache
+	(store_plugin): Removed. The remaining simple calls for nvti_cache
 	were moved to the respective code in the Scanner.
 
-        * misc/store.h: Removed protos accordingly.
+	* misc/store.h: Removed protos accordingly.
 
 	* CMakeLists.txt: Also install nvticache.h.
 

@@ -26,10 +26,6 @@
 #ifndef OPENVAS_KB_H
 #define OPENVAS_KB_H
 
-/* this define can be removed, once openvas-plugins 1.0.5 is mandatory
-   minimum version */
-#define NEW_KB_MGMT
-
 /**
  * Possible type of a kb_item.
  * The kb_items v should then be interpreted as int.
