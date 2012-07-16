@@ -110,14 +110,14 @@ set_target_properties (openvas_nasl_shared PROPERTIES PUBLIC_HEADER "${HEADERS}"
 # line bellow is needed so it also works with no-undefined which is e.g. used by Mandriva
 target_link_libraries (openvas_nasl_shared openvas_base_shared openvas_misc_shared
 			openvas_hg_shared glib-2.0 gcrypt gpgme
-			gpg-error gnutls pcap m ${WMI} "${LIBSSH_LDFLAGS}")
+			gpg-error gnutls pcap m ${WMI} ${LIBSSH_LDFLAGS})
 
 # Link the openvas-nasl executable
 add_executable (openvas-nasl nasl.c)
 target_link_libraries (openvas-nasl openvas_nasl_static openvas_base_static
                        openvas_misc_static openvas_hg_static ${GLIB_LDFLAGS} -lgcrypt
                        -lgpgme -lgpg-error -lgnutls -lpcap -lresolv -lm ${WMI_LIBS}
-                       "${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS}")
+                       ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS})
 set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
                        "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS}")
 
