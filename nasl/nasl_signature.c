@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>             /* for strlen */
+#include <locale.h>             /* for LC_CTYPE  */
 #include "system.h"             /* for emalloc */
 
 #include "certificate.h"        /* for certificate_t */
@@ -126,55 +127,74 @@ determine_gpghome ()
 }
 
 /**
- * Inits a gpgme context with the custom gpghome directory, protocol version
- * etc. Returns the context or NULL if an error occurred.
+ * Inits a gpgme context with the custom gpghome directory, protocol
+ * version etc. Returns the context or NULL if an error occurred.
+ * This function also does an gpgme initialization the first time it
+ * is called.  It is advisable to call this function as early as
+ * possible to notice a bad installation (e.g. an too old gpg version).
  * 
  * @return The gpgme_ctx_t to the context or NULL if an error occurred.
  */
 gpgme_ctx_t
 init_openvas_gpgme_ctx ()
 {
+  static int initialized;
   gpgme_error_t err;
-  gpgme_ctx_t ctx = NULL;
-  char *gpghome = determine_gpghome ();
+  gpgme_ctx_t ctx;
 
-  /* Calls seem to be necessary for certain versions of gpgme (for
-     initialization). Note that we could check the version number here, but do so
-     in configure. */
-  gpgme_check_version (NULL);
-  err = gpgme_engine_check_version (GPGME_PROTOCOL_OpenPGP);
-
-  if (err)
+  /* Initialize GPGME the first time we are called.  This is a
+     failsafe mode; it would be better to initialize GPGME early at
+     process startup instead of this on-the-fly method; however in
+     this non-threaded system; this is an easier way for a library.
+     We allow to initialize until a valid gpgme or a gpg backend has
+     been found.  */
+  if (!initialized)
     {
-      print_gpgme_error ("gpgme_engine_check_version", err);
-    }
+      char *gpghome;
+      gpgme_engine_info_t info;
 
-  if (!err)
-    {
-      err = gpgme_new (&ctx);
-      if (err)
+      if (!gpgme_check_version (NULL))
         {
-          print_gpgme_error ("gpgme_new", err);
-          if (ctx != NULL)
-            gpgme_release (ctx);
-          ctx = NULL;
+          nasl_perror (NULL, "gpgme library could not be initialized.\n");
+          return NULL;
         }
-    }
+      gpgme_set_locale (NULL, LC_CTYPE, setlocale (LC_CTYPE, NULL));
+#   ifdef LC_MESSAGES
+      gpgme_set_locale (NULL, LC_MESSAGES, setlocale (LC_MESSAGES, NULL));
+#   endif
 
-  if (!err)
-    {
+      gpghome = determine_gpghome ();
       nasl_trace (NULL, "init_openvas_gpgme_ctx: setting homedir '%s'\n",
                   gpghome);
-      err =
-        gpgme_ctx_set_engine_info (ctx, GPGME_PROTOCOL_OpenPGP, NULL, gpghome);
+      err = gpgme_set_engine_info (GPGME_PROTOCOL_OpenPGP, NULL, gpghome);
+      efree (&gpghome);
       if (err)
         {
-          print_gpgme_error ("gpgme_ctx_set_engine_info", err);
-          if (ctx != NULL)
-            gpgme_release (ctx);
-          ctx = NULL;
+          print_gpgme_error ("gpgme_set_engine_info", err);
+          return NULL;
         }
+
+      /* Show the OpenPGP engine version.  */
+      if (!gpgme_get_engine_info (&info))
+        {
+          while (info && info->protocol != GPGME_PROTOCOL_OpenPGP)
+            info = info->next;
+        }
+      else
+        info = NULL;
+      nasl_trace (NULL,
+                  "init_openvas_gpgme_ctx: OpenPGP engine version is '%s'\n",
+                  info && info->version? info->version: "[?]");
+
+      /* Everything is fine.  */
+      initialized = 1;
     }
+
+  /* Allocate the context.  */
+  ctx = NULL;
+  err = gpgme_new (&ctx);
+  if (err)
+    print_gpgme_error ("gpgme_new", err);
 
   return ctx;
 }
