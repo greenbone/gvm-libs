@@ -1,3 +1,8 @@
+2012-07-17  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* nasl/CMakeLists.txt: Remove superfluous quotes. Backport from r13734
+	from trunk.
+
 2012-07-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Backport of r13683 from trunk by Michael Wiegand.
