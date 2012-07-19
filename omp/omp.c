@@ -56,6 +56,9 @@
  */
 #define G_LOG_DOMAIN "lib   omp"
 
+#define OMP_FMT_BOOL_ATTRIB(var, attrib)            \
+  (var.attrib == 0 ? "" : " " #attrib "=\"1\"")
+
 
 /* Local XML interface extension. */
 
@@ -1505,25 +1508,20 @@ omp_get_targets (gnutls_session_t* session, const char* id, int tasks,
 }
 
 /**
- * @brief Get a report (extended version).
+ * @brief Get a report (generic version).
  *
- * FIXME: Fold into omp_get_report
+ * FIXME: Using the according opts it should be possible to generate
+ * any type of get_reports request defined by the spec.
  *
  * @param[in]  session   Pointer to GNUTLS session.
- * @param[in]  id        ID of report.
- * @param[in]  override  0 := Do not include overrides
- *                       1 := Include overrides
- *                       2 := Include overrides and details
+ * @param[in]  opts      Struct containing the options to apply.
  * @param[out] response  Report.  On success contains GET_REPORT response.
  *
  * @return 0 on success, -1 or OMP response code on error.
  */
 int
 omp_get_report_ext (gnutls_session_t* session,
-                    const char* id,
-                    const char* format,
-                    int override,
-                    int first_result_number,
+                    omp_get_report_opts_t opts,
                     entity_t* response)
 {
   int ret;
@@ -1534,21 +1532,21 @@ omp_get_report_ext (gnutls_session_t* session,
 
   if (openvas_server_sendf (session,
                             "<get_reports"
-                            " result_hosts_only=\"0\""
-                            "%s"
-                            " first_result=\"%i\""
-                            " sort_field=\"ROWID\""
-                            " sort_order=\"1\""
+                            " report_id=\"%s\""
                             " format_id=\"%s\""
-                            " report_id=\"%s\"/>",
-                            (override == 0
-                              ? ""
-                              : (override == 1
-                                  ? " overrides=\"1\""
-                                  : " overrides=\"1\" override_details=\"1\"")),
-                            first_result_number,
-                            format ? format : "XML",
-                            id))
+                            " sort_field=\"%s\""
+                            " sort_order=\"%s\""
+                            " first_result=\"%i\""
+                            "%s%s%s%s/>",
+                            opts.report_id,
+                            opts.format_id,
+                            opts.sort_field,
+                            opts.sort_order,
+                            opts.first_result,
+                            OMP_FMT_BOOL_ATTRIB (opts, overrides),
+                            OMP_FMT_BOOL_ATTRIB (opts, override_details),
+                            OMP_FMT_BOOL_ATTRIB (opts, apply_overrides),
+                            OMP_FMT_BOOL_ATTRIB (opts, result_hosts_only)))
     return -1;
 
   *response = NULL;
@@ -1590,8 +1588,14 @@ omp_get_report (gnutls_session_t* session,
                 int first_result_number,
                 entity_t* response)
 {
-  return omp_get_report_ext (session, id, format,
-                             0, first_result_number, response);
+  omp_get_report_opts_t opts;
+
+  opts = omp_get_report_opts_defaults;
+  opts.report_id = id;
+  opts.format_id = format;
+  opts.first_result = first_result_number;
+
+  return omp_get_report_ext (session, opts, response);
 }
 
 /**
@@ -1606,6 +1610,8 @@ omp_get_report (gnutls_session_t* session,
  * @param[out] report_size  Size of report in bytes.
  *
  * @return 0 on success, -1 on error.
+ *
+ * FIXME: should be using omp_get_report_ext.
  */
 int
 omp_get_report_format (gnutls_session_t* session,

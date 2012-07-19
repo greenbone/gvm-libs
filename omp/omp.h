@@ -36,6 +36,35 @@ extern "C"
 #endif
 #endif
 
+/**
+ * @brief Struct holding options for omp get_report command.
+ *
+ * FIXME: This SHOULD contain all valid options from the OMP spec.
+ */
+typedef struct
+{
+  const char* report_id;   ///< ID of single report to get.
+  const char* format_id;   ///< ID of required report format.
+  const char* sort_field;
+  const char* sort_order;
+  int first_result;        ///< First result to get.
+  /* Boolean flags: */
+  int overrides;           ///< Whether to include overrides in the report.
+  int override_details;    ///< If overrides, whether to include details.
+  int apply_overrides;     ///< Whether overrides are applied.
+  int result_hosts_only;   ///< Whether to include only hosts that have results.
+} omp_get_report_opts_t;
+
+/**
+ * @brief Sensible default values for omp_get_report_opts_t.
+ */
+const omp_get_report_opts_t omp_get_report_opts_defaults =
+  {
+    .sort_field = "ROWID",
+    .sort_order = "ascending",
+    .format_id = "XML",
+  };
+
 int check_response (gnutls_session_t *);
 
 int omp_read_create_response (gnutls_session_t*, gchar **);
@@ -103,8 +132,7 @@ int omp_get_targets (gnutls_session_t *, const char *, int, int, entity_t *);
 
 int omp_get_report (gnutls_session_t *, const char *, const char *,
                     int, entity_t *);
-int omp_get_report_ext (gnutls_session_t *, const char *, const char *,
-                        int, int, entity_t *);
+int omp_get_report_ext (gnutls_session_t *, omp_get_report_opts_t, entity_t *);
 
 int omp_get_report_format (gnutls_session_t *, const char *, const char *,
                            void **, gsize *);
