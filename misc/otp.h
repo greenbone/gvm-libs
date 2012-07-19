@@ -27,5 +27,6 @@
 #define _OPENVAS_OTP_H
 
 #define OTP_10 100              /* OTP/1.0 */
+#define OTP_11 110              /* OTP/1.1 */
 
 #endif

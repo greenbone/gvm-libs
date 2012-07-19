@@ -1,3 +1,8 @@
+2012-07-18  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/otp.h (OTP_11): New define.  Part of OTP 1.1 patch by Jan-Oliver
+	Wagner.
+
 2012-07-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Avoid too many "gpg --version" calls.
