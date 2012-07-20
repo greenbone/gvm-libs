@@ -58,11 +58,11 @@ typedef struct
 /**
  * @brief Sensible default values for omp_get_report_opts_t.
  */
-const omp_get_report_opts_t omp_get_report_opts_defaults =
+static const omp_get_report_opts_t omp_get_report_opts_defaults =
   {
     .sort_field = "ROWID",
     .sort_order = "ascending",
-    .format_id = "XML",
+    .format_id = "a994b278-1f62-11e1-96ac-406186ea4fc5",
   };
 
 int check_response (gnutls_session_t *);

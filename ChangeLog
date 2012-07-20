@@ -1,3 +1,8 @@
+2012-07-20  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.h (omp_get_report_opts_defaults): Make static.  Use new
+	format_id.  Missed piece of Sascha Wilde's patch.
+
 2012-07-20  Werner Koch  <wk@gnupg.org>
 
 	* misc/openvas_logging.c (openvas_log_func): Trim off extra LF
