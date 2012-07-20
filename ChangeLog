@@ -1,3 +1,9 @@
+2012-07-20  Werner Koch  <wk@gnupg.org>
+
+	* misc/openvas_logging.c (openvas_log_func): Trim off extra LF
+	from MESSAGE to avoid empty lines in the log.  Replace g_string
+	hack by a single g_strdup_printf.
+
 2012-07-04  Sascha Wilde  <wilde@intevation.de>
 
 	* omp/omp.c (OMP_FMT_BOOL_ATTRIB): New define.

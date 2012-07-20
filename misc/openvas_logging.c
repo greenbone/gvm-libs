@@ -353,6 +353,8 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
   gchar *prepend_tmp;
   gchar *prepend_tmp1;
   gchar *tmp;
+  gchar *tmpstr;
+  int messagelen;
 
   /* For link list operations. */
   GSList *log_domain_list_tmp;
@@ -558,15 +560,18 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
       break;
     }
 
-  /* If the current log entry is more severe than the specified log level,
-   * print out the message.
+  /* If the current log entry is more severe than the specified log
+   * level, print out the message.  In case MESSAGE already ends in a
+   * LF and there is not only the LF, remove the LF to avoid empty
+   * lines in the log.
    */
-  GString *log_str = g_string_new ("");
-  g_string_append_printf (log_str, "%s%s%s%s %s\n",
-                          log_domain ? log_domain : "", log_separator, prepend,
-                          log_separator, message);
+  messagelen = message? strlen (message) : 0;
+  if (messagelen > 1 && message[messagelen-1] == '\n')
+    messagelen--;
+  tmpstr = g_strdup_printf ("%s%s%s%s %.*s\n",
+                            log_domain ? log_domain : "", log_separator,
+                            prepend, log_separator, messagelen, message);
 
-  gchar *tmpstr = g_string_free (log_str, FALSE);
   /* Output everything to stderr if logfile is "-". */
   if (g_ascii_strcasecmp (log_file, "-") == 0)
     {
