@@ -105,6 +105,11 @@ typedef struct
 
 static openvas_connection connections[OPENVAS_FD_MAX];
 
+
+static void my_gnutls_transport_set_lowat_default (gnutls_session_t session);
+
+
+
 /**
  * OPENVAS_STREAM(x) is TRUE if <x> is a OpenVAS-ified fd
  */
@@ -1171,6 +1176,7 @@ ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc)
           tlserror ("gnutls_init", ret);
           goto fail;
         }
+      my_gnutls_transport_set_lowat_default (fp->tls_session);
 
       ret = set_gnutls_protocol (fp->tls_session, fp->transport);
       if (ret < 0)
@@ -1743,7 +1749,7 @@ nrecv (int fd, void *data, int length, int i_opt)
       else
         return read_stream_connection (fd, data, length);
     }
-  /* Trying OS's recv() 
+  /* Trying OS's recv()
    *
    * Do *NOT* use os_recv() here, as it will be blocking until the exact
    * amount of requested data arrives
@@ -2246,7 +2252,7 @@ open_sock_option (struct arglist *args, unsigned int port, int type,
   struct in6_addr *t;
 
 #if 0
-  /* 
+  /*
    * MA 2004-08-15: IMHO, as this is often (always?) tested in the NASL scripts
    * this should not be here.
    * If it has to be somewhere else, I'd rather put it in libnasl (and add
@@ -2679,7 +2685,7 @@ internal_send (int soc, char *data, int msg_type)
  * When processes are passing messages to each other, the format is
  * <length><msg>, with <length> being a long integer. The functions
  * internal_send() and internal_recv() encapsulate and decapsulate
- * the messages themselves. 
+ * the messages themselves.
  */
 int
 internal_recv (int soc, char **data, int *data_sz, int *msg_type)
@@ -2760,4 +2766,19 @@ stream_pending (int fd)
   else if (fp->transport != OPENVAS_ENCAPS_IP)
     return gnutls_record_check_pending (fp->tls_session);
   return 0;
+}
+
+
+
+/* GnuTLS 2.11.1 changed the semantics of set_lowat and 2.99.0 removed
+   that function.  As a quick workaround we set it back to the old
+   default.  gcc 4.4 has no diagnostic push pragma, thus we better put
+   this function at the end of the file.  */
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+static void
+my_gnutls_transport_set_lowat_default (gnutls_session_t session)
+{
+#if GNUTLS_VERSION_NUMBER >= 0x020b01 && GNUTLS_VERSION_NUMBER < 0x026300
+  gnutls_transport_set_lowat (session, 1);
+#endif
 }

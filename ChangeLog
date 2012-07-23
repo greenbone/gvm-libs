@@ -1,3 +1,12 @@
+2012-07-23  Werner Koch  <wk@gnupg.org>
+
+	* misc/network.c (my_gnutls_transport_set_lowat_default): New.
+	Used only for GnuTLS >= 2.11.1 and < 2.99.0.
+	(ovas_scanner_context_attach): Call new function.
+	* misc/openvas_server.c (my_gnutls_transport_set_lowat_default):
+	New.  See above.
+	(openvas_server_open, openvas_server_new): Call new function.
+
 2012-07-20  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.h (omp_get_report_opts_defaults): Make static.  Use new
@@ -12,16 +21,16 @@
 2012-07-04  Sascha Wilde  <wilde@intevation.de>
 
 	* omp/omp.c (OMP_FMT_BOOL_ATTRIB): New define.
-	(omp_get_report_ext): Converted function to be a generic interface to OMP
-	get_reports using an single omp_get_report_opts_t argument for
-	configuration.
+	(omp_get_report_ext): Converted function to be a generic interface
+	to OMP get_reports using an single omp_get_report_opts_t argument
+	for configuration.
 	(omp_get_report): Use new omp_get_report_ext implementation.
 
 	* omp/omp.h: Update header accordingly.
-	(typedef struct omp_get_report_opts_t): New struct type to represent all
-	possible options (attributes) of OMP get_reports.
-	(omp_get_report_opts_defaults): Sensible default values for initialization
-	of new omp_get_report_opts_t objects.
+	(typedef struct omp_get_report_opts_t): New struct type to
+	represent all possible options (attributes) of OMP get_reports.
+	(omp_get_report_opts_defaults): Sensible default values for
+	initialization of new omp_get_report_opts_t objects.
 
 2012-07-18  Matthew Mundell <matthew.mundell@greenbone.net>
 
