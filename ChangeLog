@@ -1,3 +1,15 @@
+2012-07-23  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Backport of r13767 from trunk by Werner Koch to fix compatibility with
+	GnuTLS >= 2.11.1 and < 2.99.0.
+
+	* misc/network.c (my_gnutls_transport_set_lowat_default): New.
+	Used only for GnuTLS >= 2.11.1 and < 2.99.0.
+	(ovas_scanner_context_attach): Call new function.
+	* misc/openvas_server.c (my_gnutls_transport_set_lowat_default):
+	New.  See above.
+	(openvas_server_open, openvas_server_new): Call new function.
+
 2012-07-17  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* nasl/CMakeLists.txt: Remove superfluous quotes. Backport from r13734
