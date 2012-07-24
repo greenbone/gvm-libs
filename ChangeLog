@@ -1,3 +1,9 @@
+2012-07-24  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.h (omp_get_report_opts_t): Reorder fields slightly.
+	(omp_get_report_opts_defaults): Init by position instead of by name, so
+	that this compiles in C++.
+
 2012-07-23  Werner Koch  <wk@gnupg.org>
 
 	* misc/network.c (my_gnutls_transport_set_lowat_default): New.

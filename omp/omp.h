@@ -43,10 +43,10 @@ extern "C"
  */
 typedef struct
 {
-  const char* report_id;   ///< ID of single report to get.
-  const char* format_id;   ///< ID of required report format.
   const char* sort_field;
   const char* sort_order;
+  const char* format_id;   ///< ID of required report format.
+  const char* report_id;   ///< ID of single report to get.
   int first_result;        ///< First result to get.
   /* Boolean flags: */
   int overrides;           ///< Whether to include overrides in the report.
@@ -60,9 +60,7 @@ typedef struct
  */
 static const omp_get_report_opts_t omp_get_report_opts_defaults =
   {
-    .sort_field = "ROWID",
-    .sort_order = "ascending",
-    .format_id = "a994b278-1f62-11e1-96ac-406186ea4fc5",
+    "ROWID", "ascending", "a994b278-1f62-11e1-96ac-406186ea4fc5"
   };
 
 int check_response (gnutls_session_t *);
