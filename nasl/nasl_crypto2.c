@@ -1,6 +1,6 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
- * Copyright (C) 2002 - 2004 Tenable Network Security 
+ * Copyright (C) 2002 - 2004 Tenable Network Security
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -56,7 +56,7 @@
 
 /**
  * @brief Prints a GnuTLS error.
- * 
+ *
  * The parameter err should be the GnuTLS error code
  */
 void
@@ -67,7 +67,7 @@ print_tls_error (lex_ctxt * lexic, char *txt, int err)
 
 /**
  * @brief Prints a libgcrypt error.
- * 
+ *
  * The parameter err should be the libgcrypt error code
  */
 void
@@ -79,7 +79,7 @@ print_gcrypt_error (lex_ctxt * lexic, char *function, int err)
 
 /**
  * @brief Converts a string to a gcry_mpi_t.
- * 
+ *
  * The string of len bytes at data
  * should contain the MPI as an unsigned int in bigendian form
  * (libgcrypt's GCRYMPI_FMT_USG).  The new MPI object is stored in dest.
@@ -114,7 +114,7 @@ mpi_from_string (lex_ctxt * lexic, gcry_mpi_t * dest, void *data, size_t len,
 
 /**
  * @brief Converts a named nasl parameter to a gcry_mpi_t.
- * 
+ *
  * The new MPI object
  * is stored in dest.  The parameter parameter is the name of the
  * parameter to be taken from lexic.  The parameter function is used in
@@ -252,7 +252,7 @@ ret:
 
 /**
  * @brief Loads a private key from a string.
- * 
+ *
  * The string is taken from the nasl
  * parameter whose name is given by priv_name.  The passphrase_name is
  * the name of the parameter holding the passphrase if any.  The string
@@ -430,7 +430,7 @@ nasl_pem_to_dsa (lex_ctxt * lexic)
 
 /**
  * @brief compute the diffie hellman public key.
- * 
+ *
  * Neither GnuTLS nor Libgcrypt
  * contain a direct counterpart to OpenSSL's DH_generate_key, so we
  * implement it ourselves.  This function was copied from from gnutls
@@ -457,7 +457,7 @@ calc_dh_public (gcry_mpi_t g, gcry_mpi_t prime, gcry_mpi_t priv)
 
 /**
  * @brief Compute the diffie hellman shared secret key.
- * 
+ *
  * Neither GnuTLS nor
  * libgcrypt contain a direct counterpart to OpenSSL's DH_compute_key,
  * so we implement it ourselves.  This function was copied from from
@@ -582,7 +582,7 @@ ret:
 
 /**
  * @brief Extracts an MPI value from a libgcryt s-expression.
- * 
+ *
  * The return value
  * is the cadr of the subexpression whose car is given by token.  The
  * function returns NULL if the token doesn't occur in the expression or
@@ -612,7 +612,7 @@ extract_mpi_from_sexp (gcry_sexp_t sexp, const char *token)
 
 /**
  * @brief Sets the return value in retc from an sexpression.
- * 
+ *
  * The function uses
  * extract_mpi_from_sexp to extract an MPI from the sexpression sexp and
  * the subexpression given by token.
