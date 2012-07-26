@@ -1,3 +1,8 @@
+2012-07-26  Werner Koch  <wk@gnupg.org>
+
+	* nasl/nasl_crypto2.c (nasl_sexp_from_privkey): Re-compute the
+	inverse of P and Q after swapping their values.
+
 2012-07-24  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.h (omp_get_report_opts_t): Reorder fields slightly.

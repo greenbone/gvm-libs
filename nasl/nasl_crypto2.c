@@ -789,6 +789,7 @@ nasl_sexp_from_privkey (lex_ctxt * lexic, gnutls_x509_privkey_t privkey)
   if (gcry_mpi_cmp (mpis[3], mpis[4]) > 0)
     {
       gcry_mpi_swap (mpis[3], mpis[4]);
+      gcry_mpi_invm (mpis[5], mpis[3], mpis[4]);
     }
 
   gerr =
