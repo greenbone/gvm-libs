@@ -1,3 +1,9 @@
+2012-08-02  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_crypto2.c (nasl_sexp_from_privkey): Re-compute the
+	inverse of P and Q after swapping their values. Backport from trunk
+	(r13790), patch by Werner Koch.
+
 2012-07-23  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Backport of r13767 from trunk by Werner Koch to fix compatibility with
