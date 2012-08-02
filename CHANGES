@@ -1,3 +1,24 @@
+openvas-libraries 5.0.2 (2012-08-02)
+
+This is the second maintenance release of the openvas-libraries 5.0 module for
+the Open Vulnerability Assessment System 5 (OpenVAS-5).
+
+It contains a number bug fixes and built improvements. Namely, compilation
+with newer gnutls and gcc.
+
+Many thanks to everyone who has contributed to the 5.0.1 release:
+Werner Koch, Michael Meyer, Michael Wiegand and Felix Wolfsteller
+
+Main changes compared to 5.0.1:
+* Fixed handling of ssh keys for certain cases.
+* Fixed support for newer gnutls libraries.
+* Improved built environment for modern gcc compilers.
+* nmap builtin control: Bugfix in nmap parameters.
+* Added various sanity NULL checks.
+* Slightly improved ldap authentication API to mark obligatory and optional
+  parameters.
+
+
 openvas-libraries 5.0.1 (2012-04-24)
 
 This is the first maintenance release of the openvas-libraries 5.0 module for
