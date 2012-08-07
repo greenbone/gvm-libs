@@ -332,6 +332,95 @@ omp_authenticate_env (gnutls_session_t* session)
 }
 
 /**
+ * @brief Create a task.
+ *
+ * FIXME: Using the according opts it should be possible to generate
+ * any type of create_task request defined by the spec.
+ *
+ * @param[in]  session   Pointer to GNUTLS session.
+ * @param[in]  opts      Struct containing the options to apply.
+ * @param[out]  id       Pointer for newly allocated ID of new task, or NULL.
+ *                       Only set on successful return.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_create_task_ext (gnutls_session_t* session,
+                     omp_create_task_opts_t opts,
+                     gchar** id)
+{
+  /* Create the OMP request. */
+
+  gchar *new, *prefs, *start;
+
+  if ((opts.config_id == NULL) || (opts.target_id == NULL))
+    return -1;
+
+  prefs = NULL;
+  start = g_markup_printf_escaped ("<create_task>"
+                                   "<config id=\"%s\"/>"
+                                   "<target id=\"%s\"/>"
+                                   "<name>%s</name>"
+                                   "<comment>%s</comment>",
+                                   opts.config_id,
+                                   opts.target_id,
+                                   opts.name ? opts.name : "unnamed",
+                                   opts.comment ? opts.comment : "");
+
+  if (opts.max_checks || opts.max_hosts)
+    {
+      gchar *checks, *hosts;
+
+      checks = hosts = NULL;
+
+      if (opts.max_checks)
+        checks = g_markup_printf_escaped ("<preference>"
+                                          "<scanner_name>"
+                                          "max_hosts"
+                                          "</scanner_name>"
+                                          "<value>"
+                                          "%s"
+                                          "</value>"
+                                          "</preference>",
+                                          opts.max_hosts);
+
+      if (opts.max_checks)
+        hosts = g_markup_printf_escaped ("<preference>"
+                                         "<scanner_name>"
+                                         "max_checks"
+                                         "</scanner_name>"
+                                         "<value>"
+                                         "%s"
+                                         "</value>"
+                                         "</preference>",
+                                         opts.max_checks);
+
+      prefs = g_strdup_printf ("<preferences>%s%s</preferences>",
+                               checks ? checks : "",
+                               hosts ? hosts : "");
+      g_free (checks);
+      g_free (hosts);
+    }
+
+  new = g_strdup_printf ("%s%s</create_task>", start, prefs);
+  g_free (start);
+  g_free (prefs);
+
+  /* Send the request. */
+
+  int ret = openvas_server_send (session, new);
+  g_free (new);
+  if (ret) return -1;
+
+  /* Read the response. */
+
+  ret = omp_read_create_response (session, id);
+  if (ret == 201)
+    return 0;
+  return ret;
+}
+
+/**
  * @brief Create a task given a config and target.
  *
  * @param[in]   session     Pointer to GNUTLS session.

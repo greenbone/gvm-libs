@@ -1,3 +1,14 @@
+2012-08-07  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Add extended version of omp_create_task to allow preferences to be set.
+	Backport from trunk r13862.
+
+	* omp/omp.h: Add header accordingly.
+	(omp_create_task_opts_t): New type.
+	(omp_create_task_opts_defaults): New variable.
+
+	* omp/omp.c (omp_create_task_ext): New function.
+
 2012-08-02  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Preparing the openvas-libraries 5.0.2 release.
