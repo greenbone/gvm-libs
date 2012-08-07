@@ -63,6 +63,27 @@ static const omp_get_report_opts_t omp_get_report_opts_defaults =
     "ROWID", "ascending", "a994b278-1f62-11e1-96ac-406186ea4fc5"
   };
 
+/**
+ * @brief Struct holding options for omp create_task command.
+ *
+ * FIXME: This SHOULD contain all valid options from the OMP spec.
+ */
+typedef struct
+{
+  const char* config_id;   ///< ID of config.
+  const char* target_id;   ///< ID of target.
+  const char* name;        ///< Name of task.
+  const char* comment;     ///< Comment on task.
+  const char* max_hosts;   ///< Max hosts preference.
+  const char* max_checks;  ///< Max checks preference.
+} omp_create_task_opts_t;
+
+/**
+ * @brief Sensible default values for omp_get_report_opts_t.
+ */
+static const omp_create_task_opts_t omp_create_task_opts_defaults =
+  { };
+
 int check_response (gnutls_session_t *);
 
 int omp_read_create_response (gnutls_session_t*, gchar **);
@@ -90,6 +111,8 @@ int omp_create_task_rc (gnutls_session_t *, const char *, unsigned int,
 
 int omp_create_task (gnutls_session_t *, const char *, const char *,
                      const char *, const char *, gchar **);
+
+int omp_create_task_ext (gnutls_session_t *, omp_create_task_opts_t, gchar **);
 
 int omp_create_task_rc_file (gnutls_session_t *, const char *, const char *,
                              const char *, char **);
