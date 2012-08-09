@@ -1,3 +1,12 @@
+2012-08-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Preparing the openvas-libraries 5.0.3 release.
+
+	* CHANGES: Updated.
+
+	* CMakeLists.txt: Set version to 5.0.3. (Forgotten release bump
+	after last release)
+
 2012-08-07  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Add extended version of omp_create_task to allow preferences to be set.

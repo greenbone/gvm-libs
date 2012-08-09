@@ -1,3 +1,18 @@
+openvas-libraries 5.0.3 (2012-08-09)
+
+This is the third maintenance release of the openvas-libraries 5.0 module for
+the Open Vulnerability Assessment System 5 (OpenVAS-5).
+
+It contains a small extension of OMP in order to allow bugfixes
+in OpenVAS Manager.
+
+Many thanks to everyone who has contributed to the 5.0.2 release:
+Matthew Mundell.
+
+Main changes compared to 5.0.2:
+* Add extended version of omp_create_task to allow preferences to be set.
+
+
 openvas-libraries 5.0.2 (2012-08-02)
 
 This is the second maintenance release of the openvas-libraries 5.0 module for
