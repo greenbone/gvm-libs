@@ -6,7 +6,7 @@ the Open Vulnerability Assessment System 5 (OpenVAS-5).
 It contains a small extension of OMP in order to allow bugfixes
 in OpenVAS Manager.
 
-Many thanks to everyone who has contributed to the 5.0.2 release:
+Many thanks to everyone who has contributed to the 5.0.3 release:
 Matthew Mundell.
 
 Main changes compared to 5.0.2:
