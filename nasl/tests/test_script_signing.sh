@@ -25,7 +25,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
 export OPENVAS_GPGHOME=gnupg
-NASL=../nasl/openvas-nasl
+NASL=../openvas-nasl
 
 signed_file=signed.nasl
 signed_file_sig=signed.nasl.asc
@@ -40,7 +40,7 @@ numfailed=0
 check_script() {
     echo -n "$1 "
     result=$($NASL $1 2> $1.err.log)
-    if [ "x$result" == "x$2" ]; then
+    if [ "x$result" = "x$2" ]; then
 	numok=$((numok + 1))
 	echo OK
     else

@@ -1,5 +1,11 @@
 2012-08-16  Werner Koch  <wk@gnupg.org>
 
+	* nasl/tests/signed.nasl.asc: Re-create - the signature was broken.
+
+	* nasl/tests/Makefile (check): Fix file name of openvas-nasl.
+	* nasl/tests/test_script_signing.sh (NASL): Ditto.
+	(check_script): Remove bashism (use of "==" as test operator).
+
 	* nasl/: Remove trailing white space from all files.
 
 	* nasl/nasl_ssh.c (nasl_ssh_exec): Check error of ssh_new.  Print
