@@ -231,20 +231,25 @@ nasl_ssh_exec (lex_ctxt * lexic)
   if ((port <= 0) || (username == NULL) || (commandline == NULL))
     {
       fprintf (stderr,
-               "Insufficient parameters: port=%d, username=%s, commandline=%s!\n",
+               "Insufficient parameters: port=%d, username=%s, commandline=%s\n",
                port, username, commandline);
       return NULL;
     }
   if ((privkey == NULL) && (password == NULL))
     {
       fprintf (stderr,
-               "Insufficient parameters: Both privkey and password are NULL!\n");
+               "Insufficient parameters: Both privkey and password are NULL\n");
       return NULL;
     }
 
   hostname = plug_get_hostname (script_infos);
 
   session = ssh_new ();
+  if (!session)
+    {
+      fprintf (stderr, "Failed to allocate a new SSH session\n");
+      return NULL;
+    }
 
   ssh_options_set (session, SSH_OPTIONS_HOST, hostname);
   ssh_options_set (session, SSH_OPTIONS_USER, username);
@@ -253,7 +258,8 @@ nasl_ssh_exec (lex_ctxt * lexic)
   ssh_connect (session);
   if (session == NULL)
     {
-      fprintf (stderr, "Failed to establish SSH session!\n");
+      fprintf (stderr, "Failed to connect to SSH server '%s': %s\n",
+               hostname, ssh_get_error (session));
       ssh_free (session);
       return NULL;
     }
@@ -264,8 +270,12 @@ nasl_ssh_exec (lex_ctxt * lexic)
       rc = ssh_userauth_password (session, NULL, password);
       if (rc != SSH_AUTH_SUCCESS)
         {
-          fprintf (stderr, "SSH password authentication failed: %s\n",
-                   ssh_get_error (session));
+          fprintf (stderr,
+                   "SSH password authentication to '%s%s%s' failed: %s\n",
+                   username?username:"",
+                   username?"@":"",
+                   hostname, ssh_get_error (session));
+          ssh_disconnect (session);
           ssh_free (session);
           return NULL;
         }
@@ -491,16 +501,17 @@ nasl_ssh_exec (lex_ctxt * lexic)
   channel = ssh_channel_new (session);
   if (channel == NULL)
     {
+      fprintf (stderr, "ssh_channel_new failed: %s\n", ssh_get_error (session));
       ssh_disconnect (session);
       ssh_free (session);
-      fprintf (stderr, "ssh_channel_new failed!\n");
       return NULL;
     }
 
   rc = ssh_channel_open_session (channel);
   if (rc < 0)
     {
-      fprintf (stderr, "ssh_channel_open_session failed!\n");
+      fprintf (stderr, "ssh_channel_open_session failed: %s\n",
+               ssh_get_error (session));
       ssh_channel_send_eof (channel);
       ssh_channel_close (channel);
       ssh_channel_free (channel);
@@ -512,7 +523,8 @@ nasl_ssh_exec (lex_ctxt * lexic)
   rc = ssh_channel_request_exec (channel, commandline);
   if (rc < 0)
     {
-      fprintf (stderr, "ssh_channel_request_exec failed!\n");
+      fprintf (stderr, "ssh_channel_request_exec failed: %s\n",
+               ssh_get_error (session));
       ssh_channel_send_eof (channel);
       ssh_channel_close (channel);
       ssh_channel_free (channel);
@@ -532,7 +544,8 @@ nasl_ssh_exec (lex_ctxt * lexic)
 
   if (nbytes < 0)
     {
-      fprintf (stderr, "ssh_channel_read failed!\n");
+      fprintf (stderr, "ssh_channel_read failed: %s\n",
+               ssh_get_error (session));
       ssh_channel_send_eof (channel);
       ssh_channel_close (channel);
       ssh_channel_free (channel);

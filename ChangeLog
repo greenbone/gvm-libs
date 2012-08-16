@@ -1,3 +1,9 @@
+2012-08-16  Werner Koch  <wk@gnupg.org>
+
+	* nasl/nasl_ssh.c (nasl_ssh_exec): Check error of ssh_new.  Print
+	ssh error strings to diagnostics.  Use ssh_disconnect after a
+	failed userauth.
+
 2012-08-07  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Add extended version of omp_create_task to allow preferences to be set.
