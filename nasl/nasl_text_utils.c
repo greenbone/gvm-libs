@@ -1,4 +1,4 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2004 Tenable Network Security
  * Copyright (C) 2009 Greenbone Networks GmbH
@@ -183,7 +183,7 @@ nasl_rawstring (lex_ctxt * lexic)
           /* Should we test if the variable is composed only of digits? */
           if (typ == VAR2_STRING)
             {
-              /* TBD:I should decide at last if we keep those "purified" 
+              /* TBD:I should decide at last if we keep those "purified"
                * string or not, and if we do, if "CONST_STR" & "VAR2_STR" are
                * "not pure" strings */
               for (i = 0, j = 0; i < sz; i++)

@@ -46,8 +46,8 @@
    MODIFICATION: support for NTLMSSP feature in OpenVAS
    Modified By Preeti Subramanian <spreeti@secpod.com>
      * BOOL is replaced by bool
-     * SMBNTLMv2encrypt_hash function body is modified - does not compute 
-       ntv2_owf_gen, rather ntv2_owf_gen value is passed to this function 
+     * SMBNTLMv2encrypt_hash function body is modified - does not compute
+       ntv2_owf_gen, rather ntv2_owf_gen value is passed to this function
        and this function returns void,
      * SMBNTLMv2encrypt_hash, LMv2_generate_response, NTLMv2_generate_response,
        NTLMv2_generate_client_data functions' signatures are modified.

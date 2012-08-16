@@ -1,4 +1,4 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2004 Tenable Network Security
  *
@@ -38,7 +38,7 @@ extern int islocalhost (struct in_addr *);
  * @brief Set up the pcap filter, and select the correct interface.
  *
  * The filter will be changed only if this is necessary
- * 
+ *
  */
 int
 init_capture_device (struct in_addr src, struct in_addr dst, char *filter)

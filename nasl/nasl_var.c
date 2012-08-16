@@ -1,4 +1,4 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2004 Tenable Network Security
  *
@@ -678,7 +678,7 @@ affect_to_anon_var (anon_nasl_var * v1, tree_cell * rval)
     }
 
   /*
-   * Bug #146: when executing 
+   * Bug #146: when executing
    *    x = 'abc'; x = x;  or   x = make_list(...); x = x[0];
    * the rvalue will be freed before it is copied to the lvalue
    */

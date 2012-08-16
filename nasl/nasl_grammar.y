@@ -126,7 +126,7 @@ static int nasllex(YYSTYPE * lvalp, void * parm);
 %left '^'
 %left '&'
 %nonassoc R_SHIFT R_USHIFT L_SHIFT
-%left '+' '-' 
+%left '+' '-'
 %left '*' '/' '%'
 %nonassoc NOT
 %nonassoc UMINUS BIT_NOT
@@ -142,14 +142,14 @@ tiptop: instr_decl_list
 	{
 	  ((naslctxt*)parm)->tree = $1;
 	} ;
- 
+
 instr_decl_list: instr_decl
 	{
 	  $$ = alloc_tree_cell(LNB, NULL);
 	  $$->type = NODE_INSTR_L;
 	  $$->link[0] = $1;
 	}
-	| instr_decl instr_decl_list 
+	| instr_decl instr_decl_list
 	{
 	  $$ = alloc_tree_cell(LNB, NULL);
 	  $$->type = NODE_INSTR_L;
@@ -169,16 +169,16 @@ func_decl: FUNCTION identifier '(' arg_decl ')' block
 
 arg_decl: { $$ = NULL; } | arg_decl_1 { $$ = $1; };
 arg_decl_1: identifier { $$ = alloc_tree_cell(LNB, $1); $$->type = NODE_DECL; }
-	| identifier ',' arg_decl_1 
+	| identifier ',' arg_decl_1
 	{
 	  $$ = alloc_tree_cell(LNB, $1);
 	  $$->type = NODE_DECL;
-	  $$->link[0] = $3; 
+	  $$->link[0] = $3;
 	};
 
 /* Block */
 block: '{' instr_list '}' { $$ = $2; } | '{' '}' { $$ = NULL; };
-instr_list: instr 
+instr_list: instr
 	| instr instr_list
 	{
 	  if ($1 == NULL)
@@ -188,7 +188,7 @@ instr_list: instr
 	      $$ = alloc_tree_cell(LNB, NULL);
 	      $$->type = NODE_INSTR_L;
 	      $$->link[0] = $1;
-	      $$->link[1] = $2; 
+	      $$->link[1] = $2;
 	    }
 	} ;
 
@@ -222,7 +222,7 @@ ret: RETURN expr
 	} ;
 
 /* If block */
-if_block: IF '(' expr ')' instr 
+if_block: IF '(' expr ')' instr
 	{
 	  $$ = alloc_tree_cell(LNB, NULL);
 	  $$->type = NODE_IF_ELSE;
@@ -237,7 +237,7 @@ if_block: IF '(' expr ')' instr
 
 /* Loops */
 loop : for_loop | while_loop | repeat_loop | foreach_loop ;
-for_loop : FOR '(' aff_func ';' expr ';' aff_func ')' instr 
+for_loop : FOR '(' aff_func ';' expr ';' aff_func ')' instr
 	{
 	  $$ = alloc_tree_cell(LNB, NULL);
 	  $$->type = NODE_FOR;
@@ -262,7 +262,7 @@ repeat_loop : REPEAT instr UNTIL expr ';'
 	  $$->link[1] = $4;
 	} ;
 
-foreach_loop : FOREACH identifier '(' expr ')'  instr 
+foreach_loop : FOREACH identifier '(' expr ')'  instr
 	{
 	  $$ = alloc_tree_cell(LNB, $2);
 	  $$->type = NODE_FOREACH;
@@ -286,7 +286,7 @@ string : STRING1 { $$ = $1.val; } | STRING2 ;
 
 /* include */
 inc: INCLUDE '(' string ')'
-	{ 
+	{
 	  naslctxt	subctx;
 	  int		x;
 
@@ -303,7 +303,7 @@ inc: INCLUDE '(' string ')'
 		nasl_perror(NULL, "%s: Parse error at or near line %d\n",
 			$3, subctx.line_nb);
 	      efree(&subctx.buffer);
-	      fclose(subctx.fp); 
+	      fclose(subctx.fp);
 	      subctx.fp = NULL;
 	    }
 	  efree(& $3);
@@ -330,7 +330,7 @@ arg : expr
 	  $$->type = NODE_ARG;
 	  $$->link[0] = $1;
 	}
-	| identifier ':' expr 
+	| identifier ':' expr
 	{
 	  $$ = alloc_tree_cell(LNB, $1);
 	  $$->type = NODE_ARG;
@@ -347,9 +347,9 @@ aff:	lvalue '=' expr
 	| lvalue MULT_EQ expr { $$ = alloc_expr_cell(LNB, NODE_MULT_EQ, $1, $3); }
 	| lvalue DIV_EQ expr  { $$ = alloc_expr_cell(LNB, NODE_DIV_EQ, $1, $3); }
 	| lvalue MODULO_EQ expr  { $$ = alloc_expr_cell(LNB, NODE_MODULO_EQ, $1, $3); }
-	| lvalue R_SHIFT_EQ expr { $$ = alloc_expr_cell(LNB, NODE_R_SHIFT_EQ, $1, $3); } 
-	| lvalue R_USHIFT_EQ expr { $$ = alloc_expr_cell(LNB, NODE_R_USHIFT_EQ, $1, $3); } 
-	| lvalue L_SHIFT_EQ expr { $$ = alloc_expr_cell(LNB, NODE_L_SHIFT_EQ, $1, $3); } 
+	| lvalue R_SHIFT_EQ expr { $$ = alloc_expr_cell(LNB, NODE_R_SHIFT_EQ, $1, $3); }
+	| lvalue R_USHIFT_EQ expr { $$ = alloc_expr_cell(LNB, NODE_R_USHIFT_EQ, $1, $3); }
+	| lvalue L_SHIFT_EQ expr { $$ = alloc_expr_cell(LNB, NODE_L_SHIFT_EQ, $1, $3); }
 	;
 
 lvalue:	identifier { $$ = alloc_tree_cell(LNB, $1); $$->type = NODE_VAR; } | array_elem ;
@@ -374,23 +374,23 @@ post_pre_incr:
 
 /* expression. We accepte affectations inside parenthesis */
 expr: '(' expr ')' { $$ = $2; }
-	| expr AND expr {  $$ = alloc_expr_cell(LNB, EXPR_AND, $1, $3); } 
+	| expr AND expr {  $$ = alloc_expr_cell(LNB, EXPR_AND, $1, $3); }
 	| '!' expr %prec NOT {  $$ = alloc_expr_cell(LNB, EXPR_NOT, $2, NULL); }
-	| expr OR expr { $$ = alloc_expr_cell(LNB, EXPR_OR, $1, $3); } 
-	| expr '+' expr { $$ = alloc_expr_cell(LNB, EXPR_PLUS, $1, $3); } 
-	| expr '-' expr { $$ = alloc_expr_cell(LNB, EXPR_MINUS, $1, $3); } 
-	| '-' expr %prec UMINUS { $$ = alloc_expr_cell(LNB, EXPR_U_MINUS, $2, NULL);} 
-	| '~' expr %prec BIT_NOT { $$ = alloc_expr_cell(LNB, EXPR_BIT_NOT, $2, NULL);} 
-	| expr '*' expr { $$ = alloc_expr_cell(LNB, EXPR_MULT, $1, $3); } 
-	| expr EXPO expr { $$ = alloc_expr_cell(LNB, EXPR_EXPO, $1, $3); } 
-	| expr '/' expr { $$ = alloc_expr_cell(LNB, EXPR_DIV, $1, $3); } 
-	| expr '%' expr { $$ = alloc_expr_cell(LNB, EXPR_MODULO, $1, $3); } 
-	| expr '&' expr { $$ = alloc_expr_cell(LNB, EXPR_BIT_AND, $1, $3); } 
-	| expr '^' expr { $$ = alloc_expr_cell(LNB, EXPR_BIT_XOR, $1, $3); } 
-	| expr '|' expr { $$ = alloc_expr_cell(LNB, EXPR_BIT_OR, $1, $3); } 
-	| expr R_SHIFT expr { $$ = alloc_expr_cell(LNB, EXPR_R_SHIFT, $1, $3); } 
-	| expr R_USHIFT expr { $$ = alloc_expr_cell(LNB, EXPR_R_USHIFT, $1, $3); } 
-	| expr L_SHIFT expr { $$ = alloc_expr_cell(LNB, EXPR_L_SHIFT, $1, $3); } 
+	| expr OR expr { $$ = alloc_expr_cell(LNB, EXPR_OR, $1, $3); }
+	| expr '+' expr { $$ = alloc_expr_cell(LNB, EXPR_PLUS, $1, $3); }
+	| expr '-' expr { $$ = alloc_expr_cell(LNB, EXPR_MINUS, $1, $3); }
+	| '-' expr %prec UMINUS { $$ = alloc_expr_cell(LNB, EXPR_U_MINUS, $2, NULL);}
+	| '~' expr %prec BIT_NOT { $$ = alloc_expr_cell(LNB, EXPR_BIT_NOT, $2, NULL);}
+	| expr '*' expr { $$ = alloc_expr_cell(LNB, EXPR_MULT, $1, $3); }
+	| expr EXPO expr { $$ = alloc_expr_cell(LNB, EXPR_EXPO, $1, $3); }
+	| expr '/' expr { $$ = alloc_expr_cell(LNB, EXPR_DIV, $1, $3); }
+	| expr '%' expr { $$ = alloc_expr_cell(LNB, EXPR_MODULO, $1, $3); }
+	| expr '&' expr { $$ = alloc_expr_cell(LNB, EXPR_BIT_AND, $1, $3); }
+	| expr '^' expr { $$ = alloc_expr_cell(LNB, EXPR_BIT_XOR, $1, $3); }
+	| expr '|' expr { $$ = alloc_expr_cell(LNB, EXPR_BIT_OR, $1, $3); }
+	| expr R_SHIFT expr { $$ = alloc_expr_cell(LNB, EXPR_R_SHIFT, $1, $3); }
+	| expr R_USHIFT expr { $$ = alloc_expr_cell(LNB, EXPR_R_USHIFT, $1, $3); }
+	| expr L_SHIFT expr { $$ = alloc_expr_cell(LNB, EXPR_L_SHIFT, $1, $3); }
 	| post_pre_incr
 	| expr MATCH expr { $$ = alloc_expr_cell(LNB, COMP_MATCH, $1, $3); }
 	| expr NOMATCH expr { $$ = alloc_expr_cell(LNB, COMP_NOMATCH, $1, $3); }
@@ -412,8 +412,8 @@ list_array_data: array_data { $$ = $1; }
 		$1->link[1] = $3; $$ = $1;
 	};
 
-array_data: simple_array_data { 
-	  $$ = alloc_typed_cell(ARRAY_ELEM); 
+array_data: simple_array_data {
+	  $$ = alloc_typed_cell(ARRAY_ELEM);
 	  $$->link[0] = $1;
 	} | string ARROW simple_array_data {
 	  $$ = alloc_typed_cell(ARRAY_ELEM);
@@ -422,11 +422,11 @@ array_data: simple_array_data {
 	} ;
 
 atom:	INTEGER {  $$ = alloc_typed_cell(CONST_INT); $$->x.i_val = $1; }
-	| STRING2 { 
+	| STRING2 {
 	  $$ = alloc_typed_cell(CONST_STR); $$->x.str_val = $1;
 	  $$->size = strlen($1);
 	}
-	| STRING1 { 
+	| STRING1 {
 	  $$ = alloc_typed_cell(CONST_DATA); $$->x.str_val = $1.val;
 	  $$->size = $1.len;
 	} ;
@@ -438,7 +438,7 @@ var:	var_name { $$ = alloc_tree_cell(LNB, $1); $$->type = NODE_VAR; }
 
 var_name: identifier;
 
-ipaddr: INTEGER '.' INTEGER '.' INTEGER '.' INTEGER 
+ipaddr: INTEGER '.' INTEGER '.' INTEGER '.' INTEGER
 	{
 	  char	*s = emalloc(44);
 	  snprintf(s, 44, "%d.%d.%d.%d", $1, $3, $5, $7);
@@ -448,16 +448,16 @@ ipaddr: INTEGER '.' INTEGER '.' INTEGER '.' INTEGER
 	};
 
 /* Local variable declaration */
-loc: LOCAL arg_decl 
-	{ 
+loc: LOCAL arg_decl
+	{
 	  $$ = alloc_tree_cell(LNB, NULL);
 	  $$->type = NODE_LOCAL;
 	  $$->link[0] = $2;
 	};
 
 /* Global variable declaration */
-glob: GLOBAL arg_decl 
-	{ 
+glob: GLOBAL arg_decl
+	{
 	  $$ = alloc_tree_cell(LNB, NULL);
 	  $$->type = NODE_GLOBAL;
 	  $$->link[0] = $2;
@@ -468,7 +468,7 @@ glob: GLOBAL arg_decl
 #include <stdio.h>
 #include <stdlib.h>
 
-static void 
+static void
 naslerror(const char *s)
 {
   fputs(s, stderr);
@@ -501,9 +501,9 @@ add_nasl_inc_dir (const char * dir)
       inc_dirs = g_slist_append (inc_dirs, g_strdup((gchar *)dir));
       return 0;
     }
-  
+
   struct stat stat_buf;
-  
+
   if (stat (dir, &stat_buf) != 0)
     return -1;
 
@@ -628,7 +628,7 @@ enum lex_state {
   ST_COMMENT,
   ST_SUP,
   ST_INF,
-  ST_SUP_EXCL,  
+  ST_SUP_EXCL,
   ST_STRING1,
   ST_STRING1_ESC,
   ST_STRING2,
@@ -786,7 +786,7 @@ mylex(lvalp, parm)
 			ctx->line_nb ++;
 
 		      c = tolower(c);
-		      if (c >= '0' && c <= '9') 
+		      if (c >= '0' && c <= '9')
 			x = x * 16 + (c - '0');
 		      else if (c >= 'a' && c <= 'f')
 			x = x * 16 + 10 + (c - 'a');
@@ -799,7 +799,7 @@ mylex(lvalp, parm)
 			  break;
 			}
 		    }
-		  *p++ = x; len ++;		    
+		  *p++ = x; len ++;
 		  break;
 
 		default:
@@ -825,7 +825,7 @@ mylex(lvalp, parm)
 	  else
 	    {
 	      ungetc(c, fp);
-	      if (c == '\n') 
+	      if (c == '\n')
 		ctx->line_nb --;
 	      goto exit_loop;
 	    }
@@ -920,7 +920,7 @@ mylex(lvalp, parm)
 	      goto exit_loop;
 	    }
 	  break;
-	    
+
 	case ST_SPACE:
 	  if (! isspace(c))
 	    {
@@ -1059,7 +1059,7 @@ mylex(lvalp, parm)
 	  ungetc(c, fp);
 	  if (c ==  '\n')
 	    ctx->line_nb --;
-	  return '='; 
+	  return '=';
 
 	case ST_PLUS:
 	  if (c == '+')
@@ -1070,8 +1070,8 @@ mylex(lvalp, parm)
 	  ungetc(c, fp);
 	  if (c ==  '\n')
 	    ctx->line_nb --;
-	  return '+'; 
-	  
+	  return '+';
+
 	case ST_MINUS:
 	  if (c == '-')
 	    return MINUS_MINUS;
@@ -1081,8 +1081,8 @@ mylex(lvalp, parm)
 	  ungetc(c, fp);
 	  if (c ==  '\n')
 	    ctx->line_nb --;
-	  return '-'; 
-	  
+	  return '-';
+
 	case ST_MULT:
 	  if (c == '=')
 	    return MULT_EQ;
@@ -1091,8 +1091,8 @@ mylex(lvalp, parm)
 	  ungetc(c, fp);
 	  if (c ==  '\n')
 	    ctx->line_nb --;
-	  return '*'; 
-	  
+	  return '*';
+
 	case ST_DIV:
 	  if (c == '=')
 	    return DIV_EQ;
@@ -1100,8 +1100,8 @@ mylex(lvalp, parm)
 	  ungetc(c, fp);
 	  if (c ==  '\n')
 	    ctx->line_nb --;
-	  return '/'; 
-	  
+	  return '/';
+
 	case ST_MODULO:
 	  if (c == '=')
 	    return MODULO_EQ;
@@ -1109,11 +1109,11 @@ mylex(lvalp, parm)
 	  ungetc(c, fp);
 	  if (c ==  '\n')
 	    ctx->line_nb --;
-	  return '%'; 
-	  
+	  return '%';
+
 	}
 
-      if (len >= ctx->maxlen) 
+      if (len >= ctx->maxlen)
 	{
 	  int	offs = p - ctx->buffer;
 	  char	*buf2;
@@ -1142,14 +1142,14 @@ mylex(lvalp, parm)
       r = STRING2;
       lvalp->str = estrdup(ctx->buffer);
       return r;
-      
+
     case ST_STRING1:
       r = STRING1;
       lvalp->data.val = emalloc(len+2);
       memcpy(lvalp->data.val, ctx->buffer, len+1);
       lvalp->data.len = len;
       return r;
-      
+
     case ST_IDENT:
       if (strcmp(ctx->buffer, "if") == 0)
 	r = IF;

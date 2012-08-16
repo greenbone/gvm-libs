@@ -1,4 +1,4 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2004 Tenable Network Security
  *
@@ -99,7 +99,7 @@ block_socket (int soc)
  * fails. The point is to take care of packets lost en route.
  *
  * To do this, we store a copy of the data sent by a given socket
- * each time send() is called, and we re-send() it each time 
+ * each time send() is called, and we re-send() it each time
  * recv() is called and fails
  *
  */
@@ -399,7 +399,7 @@ nasl_open_sock_tcp (lex_ctxt * lexic)
 /*
  * Opening a UDP socket is a little more tricky, since
  * UDP works in a way which is different from TCP...
- * 
+ *
  * Our goal is to hide this difference for the end-user
  */
 tree_cell *
@@ -699,7 +699,7 @@ nasl_close_socket (lex_ctxt * lexic)
    * the program embedding the NASL interpreter.  Other functions should probably
    * also check the descriptors.
    *
-   * I also wonder whether the original code (disallowing any file descriptor <= 4) 
+   * I also wonder whether the original code (disallowing any file descriptor <= 4)
    * actually was correct and the real defect is that open_sock_udp actually
    * returned 4.  Under which circumstances does it actually do that?  In my brief
    * tests with the stand-alone nasl interpreter the smallest number it returned

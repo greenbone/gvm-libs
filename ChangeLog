@@ -1,5 +1,7 @@
 2012-08-16  Werner Koch  <wk@gnupg.org>
 
+	* nasl/: Remove trailing white space from all files.
+
 	* nasl/nasl_ssh.c (nasl_ssh_exec): Check error of ssh_new.  Print
 	ssh error strings to diagnostics.  Use ssh_disconnect after a
 	failed userauth.

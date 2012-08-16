@@ -39,7 +39,7 @@
 
 /**
  * @brief Prints an error message for errors returned by gpgme.
- * 
+ *
  * @param function Calling function name (debug info).
  * @param err The gpgme error that caused the problem.
  */
@@ -57,7 +57,7 @@ print_gpgme_error (char *function, gpgme_error_t err)
  * The function returns 1 if all signatures are fully valid and 0 otherwise.
  *
  * @param result The verification result to examine.
- * 
+ *
  * @return 1 if signatures found and all are fully valid, 0 otherwise.
  */
 static int
@@ -113,7 +113,7 @@ examine_signatures (gpgme_verify_result_t result)
  * openvas/gnupg under the sysconfdir that was set by configure (usually
  * $prefix/etc).  The return value has been created by estrdup and must
  * be deallocated by efree.
- * 
+ *
  * @return Custom path of the GnuPG home directory.
  */
 static char *
@@ -132,7 +132,7 @@ determine_gpghome ()
  * This function also does an gpgme initialization the first time it
  * is called.  It is advisable to call this function as early as
  * possible to notice a bad installation (e.g. an too old gpg version).
- * 
+ *
  * @return The gpgme_ctx_t to the context or NULL if an error occurred.
  */
 gpgme_ctx_t
@@ -209,11 +209,11 @@ init_openvas_gpgme_ctx ()
  * valid or was made by an unknown or untrusted key, the function
  * returns 1.  If an error occurs or the file does not have a
  * corresponding detached signature the function returns -1.
- * 
+ *
  * @param filename Filename (e.g. 1.txt) for which to check signature (e.g.
                    1.txt.asc).
- * 
- * @return Zero, if files exists and all signatures are fully trusted. 1 if at 
+ *
+ * @return Zero, if files exists and all signatures are fully trusted. 1 if at
  *         least one signature from invalid or untrusted key. -1 on missing file
  *         or error.
  */
@@ -291,11 +291,11 @@ fail:
  *
  * Works like nasl_verify_signature, but always returns a string with the
  * fingerprints in it (NULL if error), even if the keys are not trusted.
- * 
+ *
  * @param filename Path to the signed file (e.g. /../check_killerapp.nasl).
- * 
+ *
  * @return A string with comma- separated fingerprints or NULL if error.
- * 
+ *
  * @see nasl_verify_signature( const char* filename )
  */
 char *
@@ -424,11 +424,11 @@ nasl_extract_signature_fprs (const char *filename)
 /**
  * @brief Reads in a full public key.
  * The returned string will be ascii- armored.
- * 
+ *
  * @param ctx The gpgme context to work in.
  * @param fingerprint Fingerprint of the key to return.
- * 
- * @return The public key belonging to fingerprint in an g_malloc'ed string 
+ *
+ * @return The public key belonging to fingerprint in an g_malloc'ed string
  *         or NULL if an error occurred.
  */
 char *
@@ -503,11 +503,11 @@ nasl_get_pubkey (gpgme_ctx_t ctx, char *fingerprint)
  * @brief Creates certificate_ts for all certificates found in the
  * @brief (custom) gpg home directory
  * and returns a pointer to a GSList containing (pointers to) them.
- * 
+ *
  * Creation has to be done in two steps: First retrieve info like ownername and
  * trust level and then read in the full public key. The two steps have to
  * be done seperately because the two gpgme listing operations are exclusive.
- * 
+ *
  * @return Pointer to a GSList containing pointers to certificate structs.
  * @todo consider using the certificates_t type from base/certificates.c
  */

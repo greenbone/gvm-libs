@@ -1,4 +1,4 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2005 Tenable Network Security
  *
@@ -21,7 +21,7 @@
 
 /**
  * @mainpage
- * 
+ *
  * @section installation Overview and installation instructions
  * @verbinclude README
  *
@@ -33,7 +33,7 @@
 
 #include "../misc/arglists.h"           /* for struct arglist */
 
-/* Signature information extraction and verification (not nasl- specific 
+/* Signature information extraction and verification (not nasl- specific
   anymore, thus likely to be moved to openvas-libraries): */
 int nasl_verify_signature (const char *filename);
 char *nasl_extract_signature_fprs (const char *filename);

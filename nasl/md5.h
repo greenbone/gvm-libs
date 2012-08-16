@@ -15,14 +15,14 @@
  * will fill a supplied 16-byte array with the digest.
  */
 
-/* This code slightly modified to fit into Samba by 
+/* This code slightly modified to fit into Samba by
    abartlet@samba.org Jun 2001 */
 
 #ifndef MD5_H
 #define MD5_H
 #ifndef HEADER_MD5_H
 /* Try to avoid clashes with OpenSSL */
-#define HEADER_MD5_H 
+#define HEADER_MD5_H
 #endif
 
 /*

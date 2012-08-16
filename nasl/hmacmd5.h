@@ -1,19 +1,19 @@
-/* 
+/*
    Unix SMB/CIFS implementation.
    Interface header: Scheduler service
    Copyright (C) Luke Kenneth Casson Leighton 1996-1999
    Copyright (C) Andrew Tridgell 1992-1999
-   
+
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -31,7 +31,7 @@
 /* zero a structure */
 #define ZERO_STRUCT(x) memset((char *)&(x), 0, sizeof(x))
 
-typedef struct 
+typedef struct
 {
         struct MD5Context ctx;
         uchar k_ipad[65];
@@ -39,7 +39,7 @@ typedef struct
 
 } HMACMD5Context;
 
-#ifndef SAFE_FREE 
+#ifndef SAFE_FREE
 /**
  * Free memory if the pointer and zero the pointer.
  *
@@ -50,7 +50,7 @@ typedef struct
 #endif
 
 /*
- * Note we duplicate the size tests in the unsigned 
+ * Note we duplicate the size tests in the unsigned
  * case as int16 may be a typedef from rpc/rpc.h
  */
 

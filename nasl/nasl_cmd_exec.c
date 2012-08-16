@@ -1,4 +1,4 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2004 Tenable Network Security
  *
@@ -245,7 +245,7 @@ nasl_find_in_path (lex_ctxt * lexic)
  */
 /**
  * @brief Read file
- * @ingroup nasl_implement 
+ * @ingroup nasl_implement
  */
 tree_cell *
 nasl_fread (lex_ctxt * lexic)

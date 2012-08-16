@@ -1,19 +1,19 @@
-/* 
+/*
    Unix SMB/CIFS implementation.
    HMAC MD5 code for use in NTLMv2
    Copyright (C) Luke Kenneth Casson Leighton 1996-2000
    Copyright (C) Andrew Tridgell 1992-2000
-   
+
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -62,7 +62,7 @@ void hmac_md5_init_rfc2104(uchar*  key, int key_len, HMACMD5Context *ctx)
         }
 
         MD5Init(&ctx->ctx);
-        MD5Update(&ctx->ctx, ctx->k_ipad, 64);  
+        MD5Update(&ctx->ctx, ctx->k_ipad, 64);
 }
 
 /**
@@ -92,7 +92,7 @@ void hmac_md5_init_limK_to_64(const uchar* key, int key_len,
         }
 
         MD5Init(&ctx->ctx);
-        MD5Update(&ctx->ctx, ctx->k_ipad, 64);  
+        MD5Update(&ctx->ctx, ctx->k_ipad, 64);
 }
 
 /**

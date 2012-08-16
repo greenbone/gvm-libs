@@ -1,4 +1,4 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2004 Tenable Network Security
  *
@@ -262,7 +262,7 @@ nasl_end_denial (lex_ctxt * lexic)
   struct arglist *script_infos = lexic->script_infos;
   tree_cell *retc = NULL;
 
-  /* 
+  /*
    * We must wait the time the DoS does its effect
    */
   sleep (10);
@@ -443,7 +443,7 @@ nasl_make_list (lex_ctxt * lexic)
 
 /*
  * This function takes any _even_ number of arguments and makes
- * an array from them. In each pair, the 1st argument is the index, the 
+ * an array from them. In each pair, the 1st argument is the index, the
  * 2nd the value.
  * Illegal types are droped with a warning
  */

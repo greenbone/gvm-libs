@@ -573,7 +573,7 @@ size_t convert_string_ntlmssp(charset_t from, charset_t to,
      if (((slen != (size_t)-1) && slen) ||
         ((slen == (size_t)-1) && lastp)) {
            errno = E2BIG;
-     }   
+     }
     }
     return retval;
   }

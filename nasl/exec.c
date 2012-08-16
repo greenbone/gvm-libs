@@ -1,4 +1,4 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2004 Tenable Network Security
  *
@@ -66,12 +66,12 @@ cell2bool (lex_ctxt * lexic, tree_cell * c)
         return 0;
       if (c->x.str_val[0] == '0' && c->size == 1)
         {
-          /* 
-           * This gives the same semantics as Perl ("0" is false), 
-           * but I do not agree with it. 
-           * This piece of code is here from the begining of NASL2; it 
-           * probably fixed some compatibility issue with old 
-           * quick & dirty scripts. 
+          /*
+           * This gives the same semantics as Perl ("0" is false),
+           * but I do not agree with it.
+           * This piece of code is here from the begining of NASL2; it
+           * probably fixed some compatibility issue with old
+           * quick & dirty scripts.
            * I added this warning to check if we can switch to a
            * simpler behaviour (empty string = false, not empty = true)
            */
@@ -311,7 +311,7 @@ cell_cmp (lex_ctxt * lexic, tree_cell * c1, tree_cell * c2)
   c2 = cell2atom (lexic, c2);
 
   /*
-   * Comparing anything to something else which is entirely different 
+   * Comparing anything to something else which is entirely different
    * may lead to unpredictable results.
    * Here are the rules:
    * 1. No problem with same types, although we do not compare arrays yet
@@ -1123,7 +1123,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
 #endif
 
       /*
-       * I wonder... 
+       * I wonder...
        * Will nasl_exec be really called with NODE_EXEC or NODE_ARG?
        */
     case NODE_DECL:            /* Used in function declarations */

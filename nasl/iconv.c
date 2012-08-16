@@ -1,19 +1,19 @@
-/* 
+/*
    Unix SMB/CIFS implementation.
    minimal iconv implementation
    Copyright (C) Andrew Tridgell 2001
    Copyright (C) Jelmer Vernooij 2002,2003
-   
+
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -62,7 +62,7 @@ static struct charset_functions_ntlmssp *find_charset_functions_ntlmssp(const ch
  * enough that Samba works on systems that don't have iconv.
  **/
 
-size_t smb_iconv_ntlmssp(smb_iconv_t cd, 
+size_t smb_iconv_ntlmssp(smb_iconv_t cd,
 		 const char **inbuf, size_t *inbytesleft,
 		 char **outbuf, size_t *outbytesleft)
 {
@@ -73,7 +73,7 @@ size_t smb_iconv_ntlmssp(smb_iconv_t cd,
 
 	/* in many cases we can go direct */
 	if (cd->direct) {
-		return cd->direct(cd->cd_direct, 
+		return cd->direct(cd->cd_direct,
 				  inbuf, inbytesleft, outbuf, outbytesleft);
 	}
 
@@ -82,16 +82,16 @@ size_t smb_iconv_ntlmssp(smb_iconv_t cd,
 	while (*inbytesleft > 0) {
 		bufp = cvtbuf;
 		bufsize = sizeof(cvtbuf);
-		
-		if (cd->pull(cd->cd_pull, 
+
+		if (cd->pull(cd->cd_pull,
 			     inbuf, inbytesleft, &bufp, &bufsize) == -1
 		    && errno != E2BIG) return -1;
 
 		bufp = cvtbuf;
 		bufsize = sizeof(cvtbuf) - bufsize;
 
-		if (cd->push(cd->cd_push, 
-			     (const char **)&bufp, &bufsize, 
+		if (cd->push(cd->cd_push,
+			     (const char **)&bufp, &bufsize,
 			     outbuf, outbytesleft) == -1) return -1;
 	}
 
@@ -113,7 +113,7 @@ smb_iconv_t smb_iconv_open_ntlmssp(const char *tocode, const char *fromcode)
 {
 	smb_iconv_t ret;
 	struct charset_functions_ntlmssp *from, *to;
-	
+
 	from = charsets;
 	to = charsets;
 
@@ -136,7 +136,7 @@ smb_iconv_t smb_iconv_open_ntlmssp(const char *tocode, const char *fromcode)
 	/* check if we have a builtin function for this conversion */
 	from = find_charset_functions_ntlmssp(fromcode);
 	if(from)ret->pull = from->pull;
-	
+
 	to = find_charset_functions_ntlmssp(tocode);
 	if(to)ret->push = to->push;
 
@@ -158,7 +158,7 @@ smb_iconv_t smb_iconv_open_ntlmssp(const char *tocode, const char *fromcode)
 			ret->push = sys_iconv;
 	}
 #endif
-	
+
 	/* check if there is a module available that can do this conversion */
 	/*if (!ret->pull && NT_STATUS_IS_OK(smb_probe_module("charset", fromcode))) {
 		 if(!(from = find_charset_functions_ntlmssp(fromcode)))
@@ -170,7 +170,7 @@ smb_iconv_t smb_iconv_open_ntlmssp(const char *tocode, const char *fromcode)
 	if (!ret->push && NT_STATUS_IS_OK(smb_probe_module("charset", tocode))) {
 		if(!(to = find_charset_functions_ntlmssp(tocode)))
                         fprintf(stderr, "Module %s doesn't provide charset %s!\n", tocode, tocode);
-		else 
+		else
 			ret->push = to->push;
 	}*/
 

@@ -1,4 +1,4 @@
-/* Nessus Attack Scripting Language 
+/* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2004 Tenable Network Security
  *
@@ -195,7 +195,7 @@ nasl_func_call (lex_ctxt * lexic, const nasl_func * f, tree_cell * arg_list)
                      f->func_name, nb_n, nb_u, f->nb_unnamed_args,
                      f->nb_named_args);
       /*
-       * I should look exactly how unnamed arguments works... 
+       * I should look exactly how unnamed arguments works...
        * Or maybe I should remove this feature?
        */
 
