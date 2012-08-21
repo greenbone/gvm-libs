@@ -1,3 +1,11 @@
+2012-08-21  Werner Koch  <wk@gnupg.org>
+
+	* misc/plugutils.c (plug_set_replace_key): Do not send a change
+	notification if the global socket is not available.  This is for
+	example the case in the standalone interpreter.
+
+	* misc/: Remove trailing white space from all files.
+
 2012-08-16  Werner Koch  <wk@gnupg.org>
 
 	* nasl/tests/signed.nasl.asc: Re-create - the signature was broken.

@@ -1151,7 +1151,7 @@ plug_set_replace_key (struct arglist *args, char *name, int type, void *value,
       break;
     }
 
-  if (str)
+  if (str && soc)
     {
       int e;
       if (replace != 0)
@@ -1349,6 +1349,8 @@ plug_get_key (struct arglist *args, char *name, int *type)
 
           close (sockpair[0]);
           globals = arg_get_value (args, "globals");
+          /* FIXME: Potential problem: If "global_socket" is not set
+             we are closing fd 0! */
           old = GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
           close (old);
           soc = dup2 (sockpair[1], 4);
