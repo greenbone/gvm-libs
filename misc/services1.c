@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2002 Michel Arboi
  *
  * Some modifications (C) Tenable Network Security
@@ -179,7 +179,7 @@ openvas_init_svc ()
 
   /*
    * Although our code is all right to parse /etc/services, we also
-   * call getservent because the system may implement yellow pages or 
+   * call getservent because the system may implement yellow pages or
    * some other kind of database. getservent() is supposed to walk through it.
    */
   /* openvas-services file is supposed to be sorted */

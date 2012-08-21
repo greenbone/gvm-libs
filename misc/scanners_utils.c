@@ -95,7 +95,7 @@ qsort_compar (const void *a, const void *b)
  *
  * This function is (c) Fyodor <fyodor@dhp.com> and was taken from
  * his excellent and outstanding scanner Nmap
- * See http://www.insecure.org/nmap/ for details about 
+ * See http://www.insecure.org/nmap/ for details about
  * Nmap
  */
 unsigned short *

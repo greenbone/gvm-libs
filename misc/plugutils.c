@@ -84,7 +84,7 @@ openvas_lib_version (int *major, int *minor, int *rev)
  * @param in String in which to escape \\n, \\r and \\.
  *
  * @return Copy of in with \\n, \\r and \\ escaped, NULL if @ref in is NULL.
- * 
+ *
  * @see To undo, call rmslashes.
  */
 char *
@@ -135,7 +135,7 @@ addslashes (char *in)
 
 /**
  * @brief Replaces escape codes (\\n, \\r) by the real value.
- * 
+ *
  * The resulting string is stored in another buffer.
  *
  * @see (slashes could have been added with addslashes)
@@ -423,7 +423,7 @@ port_in_ports (u_short port, u_short * ports, int s, int e)
 
 /**
  * @brief Report state of preferences "unscanned_closed".
- * 
+ *
  * @return 0 if pref is "yes", 1 otherwise.
  */
 static int
@@ -440,7 +440,7 @@ unscanned_ports_as_closed (struct arglist *prefs)
 
 /**
  * @brief Report state of preferences "unscanned_closed_udp".
- * 
+ *
  * @return 0 if pref is "yes", 1 otherwise.
  */
 static int
@@ -556,7 +556,7 @@ plug_get_host_ip (struct arglist *desc)
 
 /**
  * @brief Sets a Success kb- entry for the plugin described with parameter desc.
- * 
+ *
  * @param desc Plugin-arglist.
  */
 static void

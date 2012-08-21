@@ -68,7 +68,7 @@ initsetproctitle (argc, argv, envp)
   Argv = argv;
 
   /*
-   **  Determine how much space we can use for setproctitle.  
+   **  Determine how much space we can use for setproctitle.
    **  Use all contiguous argv and envp pointers starting at argv[0]
    */
   for (i = 0; i < argc; i++)

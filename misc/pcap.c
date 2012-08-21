@@ -536,7 +536,7 @@ islocalhost (struct in_addr *addr)
   if (addr == NULL)
     return -1;
 
-  /* If it is 0.0.0.0 or starts with 127.0.0.1 then it is 
+  /* If it is 0.0.0.0 or starts with 127.0.0.1 then it is
      probably localhost */
   if ((addr->s_addr & htonl (0xFF000000)) == htonl (0x7F000000))
     return 1;

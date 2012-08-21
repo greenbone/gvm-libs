@@ -148,8 +148,8 @@ union sockaddr_u {
  * This function returns the TTL we should use when forging our own
  * IP packets. If <method & OPENVAS_CNX_IDS_EVASION_SHORT_TTL>, then
  * it returns an estimation of the number of hops between us and the
- * remote host (see comment), minus 1. 
- * 
+ * remote host (see comment), minus 1.
+ *
  * By default, it returns the TTL our OS usually returns (to be improved)
  *
  */
@@ -166,7 +166,7 @@ which_ttl (method, old_ttl)
        * To find out the number of hops to the remote host,
        * we assume that the TTL set remotely is one of {32,64,128,255}.
        * (by default, I know of no OS which uses a different value)
-       * 
+       *
        * We could fine grain that by reading Host/OS or even by
        * computing the traceroute by ourselves (especially since we're
        * not sure that our packets will go through the same path as those
@@ -296,11 +296,11 @@ tcp_cksum (packet, len)
 
 /*
  * This function injects a tcp packet in a stream. If
- * method & OPENVAS_CNX_IDS_EVASION_SHORT_TTL != 0, then 
+ * method & OPENVAS_CNX_IDS_EVASION_SHORT_TTL != 0, then
  * the injected tcp packet will be completely valid but will
  * have a short TTL (so that it does not reach the remote host).
  *
- * If method & OPENVAS_CNX_IDS_EVASION_INJECT != 0, then 
+ * If method & OPENVAS_CNX_IDS_EVASION_INJECT != 0, then
  * the injected tcp packet will have a normal TTL but will
  * have a bad checksum.
  *
@@ -320,7 +320,7 @@ tcp_cksum (packet, len)
  *
  * <data> is the data we should append to our tcp packet. This can
  * be NULL
- * <data_len> is the length of the data. 
+ * <data_len> is the length of the data.
  *
  *
  * Note that this function opens a raw socket each time it's called, which
@@ -378,7 +378,7 @@ inject (orig_packet, packet_len, method, flags, data, data_len)
   ip = (struct ip_packet *) packet;
   tcp = (struct tcp_packet *) (packet + sizeof (struct ip_packet));
 
-  /* 
+  /*
    * for the sake of code shortness, we copy the header of the
    * received packet into the packet we forge, and we'll change
    * some stuff in it.

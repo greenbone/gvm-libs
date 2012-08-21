@@ -153,7 +153,7 @@ static GSList *authenticators = NULL;
 /**
  * @brief Whether or not an exclusive per-user ldap authentication method is
  * @brief configured.
- */ 
+ */
 static gboolean ldap_connect_configured = FALSE;
 
 /** @brief Representation of an abstract authentication mechanism. */

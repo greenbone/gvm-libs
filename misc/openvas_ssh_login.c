@@ -50,7 +50,7 @@
  *
  *
  * FIXME: handle symbolic links
- * FIXME: this one is a code duplicate of check_exists in 
+ * FIXME: this one is a code duplicate of check_exists in
  * openvas-client/context.c, but needed in openvas-libraries as well.
  *
  * @return 1 if file exists, 0 otherwise.
@@ -349,7 +349,7 @@ read_from_keyfile (GKeyFile * key_file, gboolean check_keyfiles)
  *
  * The GHashTable contains the names as keys and pointers to openvas_ssh_logins
  * as values.
- * If check_keyfiles TRUE, openvas_ssh_logins are checked before being 
+ * If check_keyfiles TRUE, openvas_ssh_logins are checked before being
  * added to the hashtable:
  * if the public and private key files do not exist, the openvas_ssh_login would
  * not be added.

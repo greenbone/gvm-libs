@@ -51,10 +51,10 @@
 
 /**
  * @brief Adds a key/value pair of strings to a keyfile.
- * 
+ *
  * The group for this entry will be GROUP_NONE (defined as GHashTableGKeyFile).
  * This function is of main use within a g_hash_table_foreach.
- * 
+ *
  * @param key The key to add.
  * @param value The value to add.
  * @param file The Key/value file (userdata).
@@ -67,16 +67,16 @@ add_to_keyfile (char *key_str, char *value_str, GKeyFile * keyfile)
 
 /**
  * @brief  Writes key/value pairs from a g_hash_table into a key/value file.
- * 
+ *
  * The procedure will only work with string keys and string values.
  * The file format follows freedesktop.org specifications, the group will be
  * GROUP_NONE (define).
- * 
+ *
  * @param ghashtable The hashtable to read key/value pairs from.
  * @param filename The filename for the key/value file.
- * 
+ *
  * @return TRUE in case of success, FALSE otherwise.
- * 
+ *
  * @see hash_table_file_read
  * @see GKeyFile
  */
@@ -195,12 +195,12 @@ hash_table_file_read_text (const char *text, gsize length)
 
 /**
  * @brief Reads key/value pairs (strings) from a file back into a GHashtable.
- * 
+ *
  * The file has to follow freedesktop.org specifications.
- * 
+ *
  * @param filename The filename to read from.
  * @return A GHashTable, mirroring the file or NULL in case of an error.
- * 
+ *
  * @see hash_table_file_write
  * @see GKeyFile
  */

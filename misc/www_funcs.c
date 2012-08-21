@@ -37,7 +37,7 @@
  * 2002-02-26: added Pavel kankovsky's "absolute URI"
  * 2002-03-06: added "CGI.pm parameters" by Noam Rathaus from securiteam.com
  * Partial support: we should changed & to ; in the "posted" data.
- * 2002-05-29: added "protocol string". See Alla Bezroutchko's message on 
+ * 2002-05-29: added "protocol string". See Alla Bezroutchko's message on
  * VULN-DEV (Date: 15 Feb 2002; From: <alla@scanit.be>;
  * Subject: Possible IDS-evasion technique
  * Message-ID: <3C6D434B.4377034A@scanit.be>)
@@ -314,7 +314,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
       l = (l - n_slash - n_backslash) * 6 + n_slash + n_backslash;
       break;
     case URL_CODE_HEX:
-      /* We do not encode slashes, as this does not work against Apache, 
+      /* We do not encode slashes, as this does not work against Apache,
        * at least apache-1.3.22-2 from redhat */
       l = (l - n_slash) * 3 + n_slash;
       break;

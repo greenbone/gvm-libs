@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2002 Michel Arboi
  *
  * This library is free software; you can redistribute it and/or

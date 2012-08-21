@@ -38,10 +38,10 @@ struct arglist
 
 /**
  * @brief Struct to cache names (keys) of arglist entries.
- * 
+ *
  * A lot of entries in our arglists have the same name.
  * We use a caching system to avoid to allocate twice the same name
- * 
+ *
  * This saves about 300Kb of memory, with minimal performance impact
  */
 struct name_cache

@@ -15,7 +15,7 @@
  * License along with this library; if not, write to the Free
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * 
+ *
  * Knowledge base management API
  */
 
@@ -25,8 +25,8 @@
  * Knowledge bases collect information and can be used to share information
  * between NVTs.\n
  * A knowledge base is an array of knowledge base items (kb_item).
- * An item is defined by its name and has a value (either int or char*), a 
- * type flag (indicating whether the value shall be interpreted as int or char*) 
+ * An item is defined by its name and has a value (either int or char*), a
+ * type flag (indicating whether the value shall be interpreted as int or char*)
  * and a pointer to the "next" item.\n
  * A knowledge base (kb_item**) stores single items at a position according to
  * a hash of the items name (function mkkey). Because of that, a knwoledge
@@ -86,7 +86,7 @@ kb_new ()
 /**
  * @brief READ the knowledge base
  *
- * @return kb_item in knowledge base with name name and type type or NULL if 
+ * @return kb_item in knowledge base with name name and type type or NULL if
  *         none found.
  */
 struct kb_item *
@@ -147,7 +147,7 @@ kb_item_get_int (struct kb_item **kb, char *name)
  * @brief Returns a list of copies of kb_items with name name in a knowledge base.
  *
  * The result has to be freed (kb_item_get_all_free).
- * Use kb_item_get_pattern if you want to get all items matching a pattern, 
+ * Use kb_item_get_pattern if you want to get all items matching a pattern,
  * rather than a single name.
  *
  * @param kb The knowledge base.
@@ -226,7 +226,7 @@ kb_item_get_pattern (struct kb_item **kb, char *expr)
 /**
  * @brief Frees a list of kb_items.
  *
- * Can be used to free the results of querying the kb with kb_item_get_all() or 
+ * Can be used to free the results of querying the kb with kb_item_get_all() or
  * kb_item_get_pattern().
  *
  * @param items The list of kb_items to free.
@@ -255,7 +255,7 @@ kb_item_get_all_free (struct kb_item *items)
  *                lists), different than 0 if the value of an existing item with
  *                that name shall be replaced.
  *
- * @return -1 if kb equals NULL or if an item as wished exists already, 0 if 
+ * @return -1 if kb equals NULL or if an item as wished exists already, 0 if
  *         success.
  */
 static int
@@ -303,7 +303,7 @@ kb_item_addset_str (struct kb_item **kb, char *name, char *value, int replace)
 
 /**
  * @brief Adds a string to the knowledge base.
- * In contrast to kb_item_set_str the item will not be replaced (useful for 
+ * In contrast to kb_item_set_str the item will not be replaced (useful for
  * list creation).
  *
  * @param kb    The knowledge base.
@@ -325,7 +325,7 @@ kb_item_set_str (struct kb_item **kb, char *name, char *value)
 /**
  * @brief Replace an old value in the KB by a new one.
  *
- * @return -1 if kn is NULL or 
+ * @return -1 if kn is NULL or
  */
 static int
 kb_item_addset_int (struct kb_item **kb, char *name, int value, int replace)
@@ -422,7 +422,7 @@ kb_item_rm_all (struct kb_item **kb, char *name)
 
 
 /**
- * Backward compatibilty 
+ * Backward compatibilty
  */
 struct arglist *
 plug_get_oldstyle_kb (struct arglist *desc)

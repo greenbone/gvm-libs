@@ -773,7 +773,7 @@ ldap_auth_info_from_key_file (GKeyFile * key_file, const gchar * group)
 
   if (strcmp (group, "method:ldap_connect") == 0)
     is_connect = TRUE;
-   
+
   ldap_auth_info_t info = ldap_auth_info_new (ldap_host, auth_dn,
                                               role_attr,
                                               role_usrv,
