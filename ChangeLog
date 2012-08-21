@@ -1,5 +1,23 @@
 2012-08-21  Werner Koch  <wk@gnupg.org>
 
+	* nasl/nasl_ssh.c (next_session_id, get_ssh_port)
+	(nasl_ssh_connect, find_session_id, nasl_ssh_disconnect)
+	(nasl_ssh_session_id_from_sock, nasl_ssh_get_sock)
+	(nasl_ssh_userauth, nasl_ssh_request_exec): New.
+	* nasl/nasl_ssh.h: Add prototypes for new functions.
+	* nasl/nasl_init.c: Include stdlib.h.
+	(libfuncs) [HAVE_LIBSSH]: Add new ssh functions.
+	(init_nasl_library) [HAVE_LIBSSH]: Define "_HAVE_LIBSSH".
+
+	* CMakeLists.txt: Require libssh 0.5 so we will be able to switch
+	to the the new pki API.
+	* nasl/nasl_ssh.c: Remove libssh 0.4 compatibility macros.  Check
+	that SSH_OK has the expected value.
+	(DIM, DIMof): New.
+	(init_membuf, put_membuf, get_membuf): New.  Taken from GnuPG.
+
+2012-08-21  Werner Koch  <wk@gnupg.org>
+
 	* misc/plugutils.c (plug_set_replace_key): Do not send a change
 	notification if the global socket is not available.  This is for
 	example the case in the standalone interpreter.

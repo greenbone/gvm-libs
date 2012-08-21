@@ -23,6 +23,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef NASL_SSH_H
+#define NASL_SSH_H
+
 /**
  * @file nasl_ssh.h
  * @brief Protos and data structures for SSH functions used by NASL scripts
@@ -31,9 +34,16 @@
  */
 
 #ifdef HAVE_LIBSSH
-#ifndef NASL_SSH_H
-#define NASL_SSH_H
+
+tree_cell *nasl_ssh_connect (lex_ctxt *lexic);
+tree_cell *nasl_ssh_disconnect (lex_ctxt *lexic);
+tree_cell *nasl_ssh_session_id_from_sock (lex_ctxt *lexic);
+tree_cell *nasl_ssh_get_sock (lex_ctxt *lexic);
+tree_cell *nasl_ssh_userauth (lex_ctxt *lexic);
+tree_cell *nasl_ssh_request_exec (lex_ctxt *lexic);
 
 tree_cell *nasl_ssh_exec (lex_ctxt *);
-#endif
-#endif
+
+#endif /*HAVE_LIBSSH*/
+
+#endif /*NASL_SSH_H*/

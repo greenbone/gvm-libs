@@ -21,6 +21,7 @@
                                and TH_FIN */
 
 #include <string.h>         /* for memset */
+#include <stdlib.h>         /* for getenv.  */
 
 #include "nvt_categories.h" /* for ACT_INIT */
 #include "plugutils.h"      /* for OPENVAS_ENCAPS_IP */
@@ -48,6 +49,7 @@
 #include "nasl_packet_forgery_v6.h"
 #include "nasl_builtin_plugins.h"
 #include "nasl_ssh.h"
+
 
 /* **************************************************************** */
 
@@ -363,8 +365,15 @@ static init_func libfuncs[] = {
    {"data", "g", "p", "priv", "pub", "q", NULL}},
 
 #ifdef HAVE_LIBSSH
+  {"ssh_connect", nasl_ssh_connect, 0, {"port", "socket", NULL }},
+  {"ssh_disconnect", nasl_ssh_disconnect, 1, {NULL }},
+  {"ssh_session_id_from_sock", nasl_ssh_session_id_from_sock, 1, {NULL }},
+  {"ssh_get_sock", nasl_ssh_get_sock, 1, {NULL }},
+  {"ssh_userauth", nasl_ssh_userauth, 1, {"login", "password", NULL }},
+  {"ssh_request_exec", nasl_ssh_request_exec, 1, {"cmd", NULL }},
   {"ssh_exec", nasl_ssh_exec, 0,
-      { "cmd", "login", "passphrase", "password", "port", "privkey", "pubkey", NULL}},
+   {"cmd", "login", "passphrase", "password", "port", "privkey",
+    "pubkey", NULL}},
 #endif
 
   {"pread", nasl_pread, 0, {"argv", "cd", "cmd", "nice", NULL}},
@@ -595,6 +604,22 @@ init_nasl_library (lex_ctxt * lexic)
         }
       c++;
     }
+
+  /* Add feature test constants.  */
+#ifdef HAVE_LIBSSH
+  {
+    const char *name;
+    name = "_HAVE_LIBSSH";
+    tc.x.i_val = !!getenv ("OPENVAS_USE_LIBSSH");
+    if ((v = add_named_var_to_ctxt (lexic, name, &tc)) == NULL)
+      {
+        nasl_perror (lexic, "init_nasl2_library: could not define var '%s'\n",
+                     name);
+      }
+    else
+      c++;
+  }
+#endif /*HAVE_LIBSSH*/
 
   // Initialize constant string terms
   tc.type = CONST_DATA;

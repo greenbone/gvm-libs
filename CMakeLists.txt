@@ -193,7 +193,7 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 pkg_check_modules (GNUTLS REQUIRED gnutls>=2.2)
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.16)
 pkg_check_modules (WMICLIENT wmiclient>=1.3.14)
-pkg_check_modules (LIBSSH libssh>=0.4.5)
+pkg_check_modules (LIBSSH libssh>=0.5.0)
 
 message (STATUS "Looking for pcap...")
 find_library (PCAP pcap)

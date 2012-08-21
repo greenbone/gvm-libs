@@ -4,9 +4,10 @@
  *
  * Authors:
  * Michael Wiegand <michael.wiegand@greenbone.net>
+ * Werner Koch <wk@gnupg.org>
  *
  * Copyright:
- * Copyright (C) 2011 Greenbone Networks GmbH
+ * Copyright (C) 2011, 2012 Greenbone Networks GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -50,24 +51,22 @@
 #include "nasl_lex_ctxt.h"
 #include "exec.h"
 #include "plugutils.h"
+#include "kb.h"
+#include "nasl_debug.h"
 
 #include "nasl_ssh.h"
 
-/**
- * @brief Set of defines for libssh API changes.
- */
-#ifdef LIBSSH_VERSION_INT
-#if LIBSSH_VERSION_INT < SSH_VERSION_INT (0, 5, 0)
-#define ssh_string_free string_free
-#define ssh_channel_new channel_new
-#define ssh_channel_open_session channel_open_session
-#define ssh_channel_send_eof channel_send_eof
-#define ssh_channel_close channel_close
-#define ssh_channel_free channel_free
-#define ssh_channel_request_exec channel_request_exec
-#define ssh_channel_read channel_read
+
+#ifndef DIM
+# define DIM(v)		     (sizeof(v)/sizeof((v)[0]))
+# define DIMof(type,member)   DIM(((type *)0)->member)
 #endif
+
+
+#if SSH_OK != 0
+# error Oops, libssh ABI changed
 #endif
+
 
 /**
  * @brief Enum for the SSH key types.
@@ -81,6 +80,651 @@ enum public_key_types_e
   TYPE_RSA1
 };
 
+
+/* This object is used to keep track of libssh contexts.  Because they
+   are pointers they can't be mapped easily to the NASL type system.
+   We would need to define a new type featuring a callback which would
+   be called when that variable will be freed.  This is not easy and
+   has several implications.  A clean solution requires a decent
+   garbage collector system with an interface to flange arbitrary C
+   subsystems to it.  After all we would end up with a complete VM
+   and FFI.  We don't want to do that now.
+
+   Our solution is to track those contexts here and clean up any left
+   over context at the end of a script run.  We could use undocumented
+   "on_exit" feature but that one is not well implemented; thus we use
+   explicit code in the interpreter for the cleanup.  The scripts are
+   expected to close the sessions, but as long as they don't open too
+   many of them, the system will take care of it at script termination
+   time.
+
+   We associate each context with a session id, which is a global
+   counter of this process.  The simpler version of using slot numbers
+   won't allow for better consistency checks.  A session id of 0 marks
+   an unused table entry.
+
+   Note that we can't reuse a session for another connection. To use a
+   session is always an active or meanwhile broken connection to the
+   server.
+ */
+struct session_table_item_s
+{
+  int session_id;
+  ssh_session session;
+  int sock;                 /* The associated socket. */
+  unsigned int user_set:1;  /* Set if a user has been set for the
+                               session.  */
+};
+
+
+#define MAX_SSH_SESSIONS 10
+static struct session_table_item_s session_table[MAX_SSH_SESSIONS];
+
+
+
+/* A simple implementation of a dynamic buffer.  Use init_membuf() to
+   create a buffer, put_membuf to append bytes and get_membuf to
+   release and return the buffer.  Allocation errors are detected but
+   only returned at the final get_membuf(), this helps not to clutter
+   the code with out of core checks.  The code has been lifted from
+   GnuPG; it was entirely written by me <wk@gnupg.org>.  It is
+   licensed under LGPLv3+ or GPLv2+.  We use it here to avoid g_string
+   which has the disadvange that we can't use the emalloc functions
+   and thus need to copy the result again. */
+
+/* The definition of the structure is private, we only need it here,
+   so it can be allocated on the stack. */
+struct private_membuf_s
+{
+  size_t len;
+  size_t size;
+  char *buf;
+  int out_of_core;
+};
+
+typedef struct private_membuf_s membuf_t;
+
+static void
+init_membuf (membuf_t *mb, int initiallen)
+{
+  mb->len = 0;
+  mb->size = initiallen;
+  mb->out_of_core = 0;
+  mb->buf = emalloc (initiallen);
+  if (!mb->buf)
+    mb->out_of_core = errno;
+}
+
+
+static void
+put_membuf (membuf_t *mb, const void *buf, size_t len)
+{
+  if (mb->out_of_core || !len)
+    return;
+
+  if (mb->len + len >= mb->size)
+    {
+      char *p;
+
+      mb->size += len + 1024;
+      p = erealloc (mb->buf, mb->size);
+      if (!p)
+        {
+          mb->out_of_core = errno ? errno : ENOMEM;
+          return;
+        }
+      mb->buf = p;
+    }
+  memcpy (mb->buf + mb->len, buf, len);
+  mb->len += len;
+}
+
+
+static void *
+get_membuf (membuf_t *mb, size_t *len)
+{
+  char *p;
+
+  if (mb->out_of_core)
+    {
+      if (mb->buf)
+        {
+          efree (&mb->buf);
+        }
+      errno = mb->out_of_core;
+      return NULL;
+    }
+
+  p = mb->buf;
+  if (len)
+    *len = mb->len;
+  mb->buf = NULL;
+  mb->out_of_core = ENOMEM; /* Hack to make sure it won't get reused. */
+  return p;
+}
+
+
+
+/* Return the next session id.  Note that the first session ID we will
+   hand out is an arbitrary high number, this is only to help
+   debugging.  */
+static int
+next_session_id (void)
+{
+  static int last = 9000;
+  int i;
+
+ again:
+  last++;
+  /* Because we don't have an unsigned type, it is better to avoid
+     negative values.  Thus if LAST turns negative we wrap around to
+     1; this also avoids the verboten zero.  */
+  if (last <= 0)
+    last = 1;
+  /* Now it may happen that after wrapping there is still a session id
+     with that new value in use.  We can't allow that and check for
+     it.  */
+  for (i=0; i < DIM (session_table); i++)
+    if (session_table[i].session_id == last)
+      goto again;
+
+  return last;
+}
+
+
+/* Return the port for an SSH connection.  It first looks up the port
+   in the preferences, then falls back to the KB, and finally resorts
+   to the standard port. */
+static unsigned short
+get_ssh_port (lex_ctxt *lexic)
+{
+  struct arglist *prefs;
+  void *value;
+  int type;
+  unsigned short port;
+
+  prefs = arg_get_value (lexic->script_infos, "preferences");
+  if (prefs)
+    {
+      value = arg_get_value (prefs, "auth_port_ssh");
+      if (value && (port = (unsigned short)strtoul (value, NULL, 10)) > 0)
+        return port;
+    }
+
+  value = plug_get_key (lexic->script_infos, "Services/ssh", &type);
+  if (value && type == KB_TYPE_INT && (port = GPOINTER_TO_SIZE (value)) > 0)
+    return (unsigned short)port;
+
+  return 22;
+}
+
+
+/**
+ * @brief Connect to the target host via TCP and setup an ssh
+ *        connection.
+ *
+ * If the named argument "socket" is given, that socket will be used
+ * instead of a creating a new TCP connection.  If socket is not given
+ * or 0, the port is looked up in the prefwerences and the KB unless
+ * overriden by the named parameter "port".
+ *
+ * On success an ssh session to the host has been established; the
+ * caller may then run an authentication function.  If the connection
+ * is no longer needed, ssh_disconnect may be used to disconnect and
+ * close the socket.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return On success the function returns a tree-cell with a non-zero
+ *         integer identifying that ssh session; zero is returned on a
+ *         connection error.  In case of an internal error NULL is
+ *         returned.
+ */
+tree_cell *
+nasl_ssh_connect (lex_ctxt *lexic)
+{
+  ssh_session session;
+  tree_cell *retc;
+  const char *hostname;
+  int port, sock;
+  int tbl_slot;
+
+  sock = get_int_local_var_by_name (lexic, "socket", 0);
+  if (sock)
+    port = 0; /* The port is ignored if "socket" is given.  */
+   else
+     {
+       port = get_int_local_var_by_name (lexic, "port", 0);
+       if (port <= 0)
+         port = get_ssh_port (lexic);
+     }
+
+  hostname = plug_get_hostname (lexic->script_infos);
+  if (!hostname)
+    {
+      /* Note: We want the hostname even if we are working on an open
+         socket.  libssh may use it for example to maintain its
+         known_hosts file.  */
+      fprintf (stderr, "No hostname available to ssh_connect\n");
+      return NULL;
+    }
+
+  session = ssh_new ();
+  if (!session)
+    {
+      fprintf (stderr, "Failed to allocate a new SSH session\n");
+      return NULL;
+    }
+
+  if (ssh_options_set (session, SSH_OPTIONS_HOST, hostname))
+    {
+      fprintf (stderr, "Failed to set SSH hostname '%s': %s\n",
+               hostname, ssh_get_error (session));
+      ssh_free (session);
+      return NULL;
+    }
+  if (port)
+    {
+      unsigned int my_port = port;
+
+      if (ssh_options_set (session, SSH_OPTIONS_PORT, &my_port))
+        {
+          fprintf (stderr, "Failed to set SSH port for '%s' to %d: %s\n",
+                   hostname, port, ssh_get_error (session));
+          ssh_free (session);
+          return NULL;
+        }
+    }
+  if (sock)
+    {
+      socket_t my_fd = sock;
+
+      if (ssh_options_set (session, SSH_OPTIONS_FD, &my_fd))
+        {
+          fprintf (stderr, "Failed to set SSH fd for '%s' to %d: %s\n",
+                   hostname, sock, ssh_get_error (session));
+          ssh_free (session);
+          return NULL;
+        }
+    }
+
+  /* Find a place in the table to save the session.  */
+  for (tbl_slot=0; tbl_slot < DIM (session_table); tbl_slot++)
+    if (!session_table[tbl_slot].session_id)
+      break;
+  if (!(tbl_slot < DIM (session_table)))
+    {
+      fprintf (stderr, "No space left in SSH session table\n");
+      ssh_free (session);
+      return NULL;
+    }
+
+  /* Connect to the host.  */
+  if (ssh_connect (session))
+    {
+      fprintf (stderr, "Failed to connect to SSH server '%s'"
+               " (port %d, sock %d): %s\n",
+               hostname, port, sock, ssh_get_error (session));
+      ssh_free (session);
+      /* return 0 to indicate the error.  */
+      /* FIXME: Set the last error string.  */
+      retc = alloc_typed_cell (CONST_INT);
+      retc->x.i_val = 0;
+      return retc;
+    }
+
+  /* How that we are connected, save the session.  */
+  session_table[tbl_slot].session_id = next_session_id ();
+  session_table[tbl_slot].session = session;
+  session_table[tbl_slot].sock = ssh_get_fd (session);
+  session_table[tbl_slot].user_set = 0;
+
+  /* Return the session id.  */
+  retc = alloc_typed_cell (CONST_INT);
+  retc->x.i_val = session_table[tbl_slot].session_id;
+  return retc;
+}
+
+
+/* Helper function to find and validate the session id.  On error 0 is
+   returned, on success the session id and in this case the slot number
+   from the table is stored at R_SLOT.  */
+static int
+find_session_id (lex_ctxt *lexic, const char *funcname, int *r_slot)
+{
+  int tbl_slot;
+  int session_id;
+
+  session_id = get_int_var_by_num (lexic, 0, -1);
+  if (session_id <= 0)
+    {
+      if (funcname)
+        fprintf (stderr, "Invalid SSH session id %d passed to %s\n",
+                 session_id, funcname);
+      return 0;
+    }
+  for (tbl_slot=0; tbl_slot < DIM (session_table); tbl_slot++)
+    if (session_table[tbl_slot].session_id == session_id)
+      break;
+  if (!(tbl_slot < DIM (session_table)))
+    {
+      if (funcname)
+        fprintf (stderr, "Bad SSH session id %d passed to %s\n",
+                 session_id, funcname);
+      return 0;
+    }
+
+  *r_slot = tbl_slot;
+  return session_id;
+}
+
+
+/**
+ * @brief Disconnect an ssh connection
+ *
+ * This function takes the ssh session id (as returned by ssh_connect)
+ * as its only unnamed argument.  Passing 0 as session id is
+ * explicitly allowed and does nothing.  If there are any open
+ * channels they are closed as well and their ids will be marked as
+ * invalid.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return Nothing.
+ */
+tree_cell *
+nasl_ssh_disconnect (lex_ctxt *lexic)
+{
+  int tbl_slot;
+  int session_id;
+
+  session_id = find_session_id (lexic, NULL, &tbl_slot);
+  if (!session_id)
+    return FAKE_CELL;
+
+  ssh_disconnect (session_table[tbl_slot].session);
+  ssh_free (session_table[tbl_slot].session);
+  session_table[tbl_slot].session_id = 0;
+  session_table[tbl_slot].session = NULL;
+  session_table[tbl_slot].sock = -1;
+  return FAKE_CELL;
+}
+
+
+/**
+ * @brief Given a socket, return the corresponding session id.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return The session id on success or 0 if not found.
+ */
+tree_cell *
+nasl_ssh_session_id_from_sock (lex_ctxt *lexic)
+{
+  int tbl_slot, sock, session_id;
+  tree_cell *retc;
+
+  session_id = 0;
+  sock = get_int_var_by_num (lexic, 0, -1);
+  if (sock != -1)
+    {
+      for (tbl_slot=0; tbl_slot < DIM (session_table); tbl_slot++)
+        if (session_table[tbl_slot].sock == sock
+            && session_table[tbl_slot].session_id) {
+          session_id = session_table[tbl_slot].session_id;
+          break;
+        }
+    }
+
+  retc = alloc_typed_cell (CONST_INT);
+  retc->x.i_val = session_id;
+  return retc;
+}
+
+
+/**
+ * @brief Given a session id, return the corresponding socket
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return The socket or -1 on error.
+ */
+tree_cell *
+nasl_ssh_get_sock (lex_ctxt *lexic)
+{
+  int tbl_slot, sock;
+  tree_cell *retc;
+
+  if (!find_session_id (lexic, "ssh_get_sock", &tbl_slot))
+    sock = -1;
+  else
+    sock = session_table[tbl_slot].sock;
+
+  retc = alloc_typed_cell (CONST_INT);
+  retc->x.i_val = sock;
+  return retc;
+}
+
+
+
+/**
+ * @brief Authenticate a user on an ssh connection
+ *
+ * The function expects the session id as its first unnamed argument.
+ * The first time this function is called for a session id, the named
+ * argument "login" is also expected; it defaults the KB entry
+ * "Secret/SSH/login".  It should contain the user name to login.
+ * Given that many servers don't allow changing the login for an
+ * established connection, the "login" parameter is silently ignored
+ * on all further calls.
+ *
+ * To perform a password based authentication, the named argument
+ * "password" must contain a non-empry password.
+ *
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return 0 is returned on success.  Any other value indicates an
+ *         error.
+ */
+tree_cell *
+nasl_ssh_userauth (lex_ctxt *lexic)
+{
+  int tbl_slot;
+  int session_id;
+  ssh_session session;
+  char *password;
+  int rc;
+  struct kb_item **kb;
+  tree_cell *retc;
+
+  session_id = find_session_id (lexic, "ssh_userauth", &tbl_slot);
+  if (!session_id)
+    return NULL;
+  session = session_table[tbl_slot].session;
+
+  /* Check if we need to set the user.  This is done only once per
+     session.  */
+  if (!session_table[tbl_slot].user_set)
+    {
+      char *username;
+
+      username = get_str_local_var_by_name (lexic, "login");
+      if (!username)
+        {
+          kb = plug_get_kb (lexic->script_infos);
+          username = kb_item_get_str (kb, "Secret/SSH/login");
+        }
+      if (username && ssh_options_set (session, SSH_OPTIONS_USER, username))
+        {
+          fprintf (stderr, "Failed to set SSH username '%s': %s\n",
+                   username, ssh_get_error (session));
+          return NULL;
+        }
+      /* In any case mark the user has set.  */
+      session_table[tbl_slot].user_set = 1;
+    }
+
+  /* First check whether any specific methods have been requested.  if
+     not fall back to the default.  */
+  password = get_str_local_var_by_name (lexic, "password");
+  if (password && *password)
+    ;
+  /* else if (pubkey_args) */
+  /*   ; */
+  else
+    {
+      /* Nothing supported.  Try the passphrase from the KB.  */
+      kb = plug_get_kb (lexic->script_infos);
+      password = kb_item_get_str (kb, "Secret/SSH/password");
+    }
+
+
+  /* Check whether a non-empty password has beeen given.  If so, try
+     to authenticate using that password.  */
+  if (password && *password)
+    {
+      rc = ssh_userauth_password (session, NULL, password);
+      if (rc == SSH_AUTH_SUCCESS)
+        {
+          retc = alloc_typed_cell (CONST_INT);
+          retc->x.i_val = 0;
+          return retc;
+        }
+
+      /* Fixme: We need to implement the keyboard-interactive
+         methods.  */
+
+      fprintf (stderr,
+               "SSH password authentication failed for session %d: %s\n",
+               session_id, ssh_get_error (session));
+      /* Keep on trying.  */
+    }
+
+  /* Fixme: Authenticate using public key.  */
+
+  fprintf (stderr, "No SSH authentication method avilable in session %d\n",
+           session_id);
+  retc = alloc_typed_cell (CONST_INT);
+  retc->x.i_val = -1;
+  return retc;
+}
+
+
+
+/**
+ * @brief Run a command via ssh.
+ *
+ * The function opens a channel, to the remote end, and ask it to
+ * execite a command.  The output of the command is then returned as a
+ * data block.  The first unnamed argument is the session id. The
+ * command itself is expected as string in the named argument "cmd".
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return A data/string is returned on success.  NULL indicates an
+ *         error.
+ */
+tree_cell *
+nasl_ssh_request_exec (lex_ctxt *lexic)
+{
+  int tbl_slot;
+  int session_id;
+  ssh_session session;
+  char *cmd;
+  ssh_channel channel;
+  int rc;
+  char buffer[1024];
+  membuf_t response;
+  int nread;
+  size_t len;
+  tree_cell *retc;
+  char *p;
+
+  session_id = find_session_id (lexic, "ssh_request_exec", &tbl_slot);
+  if (!session_id)
+    return NULL;
+  session = session_table[tbl_slot].session;
+
+  cmd = get_str_local_var_by_name (lexic, "cmd");
+  if (!cmd || !*cmd)
+    {
+      fprintf (stderr, "No command passed to ssh_request_exec\n");
+      return NULL;
+    }
+
+  channel = ssh_channel_new (session);
+  if (!channel)
+    {
+      fprintf (stderr, "ssh_channel_new failed: %s\n", ssh_get_error (session));
+      return NULL;
+    }
+
+  rc = ssh_channel_open_session (channel);
+  if (rc)
+    {
+      /* FIXME: Handle SSH_AGAIN.  */
+      fprintf (stderr, "ssh_channel_open_session failed: %s\n",
+               ssh_get_error (session));
+      ssh_channel_send_eof (channel);
+      ssh_channel_close (channel);
+      ssh_channel_free (channel);
+      return NULL;
+    }
+
+  rc = ssh_channel_request_exec (channel, cmd);
+  if (rc)
+    {
+      /* FIXME: Handle SSH_AGAIN.  */
+      fprintf (stderr, "ssh_channel_request_exec failed for '%s': %s\n",
+               cmd, ssh_get_error (session));
+      ssh_channel_send_eof (channel);
+      ssh_channel_close (channel);
+      ssh_channel_free (channel);
+      return NULL;
+    }
+
+  /* Allocate some space in advance.  Most commands won't output too
+     much and thus 512 bytes (6 standard terminal lines) should often
+     be sufficient.  */
+  init_membuf (&response, 512);
+  while ((nread = ssh_channel_read (channel, buffer, sizeof buffer, 0)) > 0)
+    {
+      put_membuf (&response, buffer, nread);
+    }
+
+  if (nread < 0)
+    {
+      fprintf (stderr, "ssh_channel_read failed for session id %d: %s\n",
+               session_id, ssh_get_error (session));
+      ssh_channel_send_eof (channel);
+      p = get_membuf (&response, NULL);
+      efree (&p);
+      ssh_channel_close (channel);
+      ssh_channel_free (channel);
+      return NULL;
+    }
+
+  ssh_channel_send_eof (channel);
+  ssh_channel_close (channel);
+  ssh_channel_free (channel);
+
+  p = get_membuf (&response, &len);
+  if (!p)
+    {
+      fprintf (stderr, "ssh_request_exec memory problem: %s\n",
+               strerror (-1));
+      return NULL;
+    }
+
+  retc = alloc_typed_cell (CONST_DATA);
+  retc->size = len;
+  retc->x.str_val = p;
+  return retc;
+}
+
+
+
 /**
  * @brief Convert a key type to a string.
  *
@@ -573,4 +1217,5 @@ nasl_ssh_exec (lex_ctxt * lexic)
       return NULL;
     }
 }
-#endif
+
+#endif /*HAVE_LIBSSH*/
