@@ -1,3 +1,11 @@
+2012-08-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* CMakeLists.txt: Removed non-pkg-config routines to detect libssh.
+	Since the minimum required version is 0.5.0 and libssh has from
+	0.5.0 ships always a libssh.pc file, we can rely on the pkgconfig
+	detection. Apart from this, the compilation would fail if libssh < 0.5
+	and no libssh.pc is available like on Debian 6.
+
 2012-08-21  Werner Koch  <wk@gnupg.org>
 
 	* nasl/nasl_ssh.c (next_session_id, get_ssh_port)
