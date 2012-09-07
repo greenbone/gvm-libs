@@ -1698,6 +1698,58 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
   return (0);
 }
 
+/**
+ * @brief Create a full copy of a NVT Info.
+ *
+ * @param n The NVT Info object to clone.
+ *
+ * @return A pointer to the cloned NVT Info or NULL in case of an error.
+ */
+nvti_t *
+nvti_clone (const nvti_t * n)
+{
+  nvti_t * new_nvti;
+
+  if (! n) return NULL;
+
+  new_nvti = nvti_new ();
+
+  nvti_set_oid (new_nvti, g_strdup (nvti_oid (n)));
+  nvti_set_version (new_nvti, g_strdup (nvti_version (n)));
+  nvti_set_name (new_nvti, g_strdup (nvti_name (n)));
+  nvti_set_summary (new_nvti, g_strdup (nvti_summary (n)));
+  nvti_set_description (new_nvti, g_strdup (nvti_description (n)));
+  nvti_set_copyright (new_nvti, g_strdup (nvti_copyright (n)));
+  nvti_set_cve (new_nvti, g_strdup (nvti_cve (n)));
+  nvti_set_bid (new_nvti, g_strdup (nvti_bid (n)));
+  nvti_set_xref (new_nvti, g_strdup (nvti_xref (n)));
+  nvti_set_tag (new_nvti, g_strdup (nvti_tag (n)));
+  nvti_set_cvss_base (new_nvti, g_strdup (nvti_cvss_base (n)));
+  nvti_set_risk_factor (new_nvti, g_strdup (nvti_risk_factor (n)));
+  nvti_set_dependencies (new_nvti, g_strdup (nvti_dependencies (n)));
+  nvti_set_required_keys (new_nvti, g_strdup (nvti_required_keys (n)));
+  nvti_set_mandatory_keys (new_nvti, g_strdup (nvti_mandatory_keys (n)));
+  nvti_set_excluded_keys (new_nvti, g_strdup (nvti_excluded_keys (n)));
+  nvti_set_required_ports (new_nvti, g_strdup (nvti_required_ports (n)));
+  nvti_set_required_udp_ports (new_nvti, g_strdup (nvti_required_udp_ports (n)));
+  nvti_set_sign_key_ids (new_nvti, g_strdup (nvti_sign_key_ids (n)));
+  nvti_set_src (new_nvti, g_strdup (nvti_src (n)));
+  nvti_set_timeout (new_nvti, nvti_timeout (n));
+  nvti_set_category (new_nvti, nvti_category (n));
+  nvti_set_family (new_nvti, g_strdup (nvti_family (n)));
+
+  int i;
+  for (i = 0; i < nvti_pref_len (n); i++)
+    {
+      nvtpref_t *np = nvti_pref (n, i);
+      nvtpref_t * new_pref = nvtpref_new (g_strdup (nvtpref_name (np)),
+        g_strdup (nvtpref_type (np)), g_strdup (nvtpref_default (np)));
+      nvti_add_pref (new_nvti, new_pref);
+    }
+
+  return (new_nvti);
+}
+
 
 /* Collections of nvtis. */
 
