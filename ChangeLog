@@ -1,3 +1,9 @@
+2012-09-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/nvti.c (nvti_clone): Don't create copies of the strings,
+	the nvti_set_* functions will do anyway. This way removing a
+	memleak. Thanks to Matthew Mundell for pointing this out.
+
 2012-09-07  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/plugutils.c (plug_get_required_keys, plug_get_mandatory_keys,
