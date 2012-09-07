@@ -206,36 +206,6 @@ plug_set_tag (struct arglist *desc, char *name, char *value)
   g_free (new);
 }
 
-struct arglist *
-plug_get_required_keys (struct arglist *desc)
-{
-  return str2arglist (nvti_required_keys (arg_get_value (desc, "NVTI")));
-}
-
-struct arglist *
-plug_get_mandatory_keys (struct arglist *desc)
-{
-  return str2arglist (nvti_mandatory_keys (arg_get_value (desc, "NVTI")));
-}
-
-struct arglist *
-plug_get_excluded_keys (struct arglist *desc)
-{
-  return str2arglist (nvti_excluded_keys (arg_get_value (desc, "NVTI")));
-}
-
-struct arglist *
-plug_get_required_ports (struct arglist *desc)
-{
-  return str2arglist (nvti_required_ports (arg_get_value (desc, "NVTI")));
-}
-
-struct arglist *
-plug_get_required_udp_ports (struct arglist *desc)
-{
-  return str2arglist (nvti_required_udp_ports (arg_get_value (desc, "NVTI")));
-}
-
 void
 plug_set_dep (struct arglist *desc, const char *depname)
 {
@@ -281,12 +251,6 @@ plug_set_dep (struct arglist *desc, const char *depname)
       else
         nvti_set_dependencies (n, depname);
     }
-}
-
-struct arglist *
-plug_get_deps (struct arglist *desc)
-{
-  return str2arglist (nvti_dependencies (arg_get_value (desc, "NVTI")));
 }
 
 void

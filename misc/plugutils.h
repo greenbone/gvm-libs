@@ -42,7 +42,6 @@ void plug_set_launch (struct arglist *, int);
 int plug_get_launch (struct arglist *);
 
 void plug_set_dep (struct arglist *, const char *);
-struct arglist *plug_get_deps (struct arglist *);
 
 void plug_set_xref (struct arglist *, char *, char *);
 
@@ -60,13 +59,6 @@ void plug_add_host (struct arglist *, struct arglist *);
 unsigned int plug_get_host_open_port (struct arglist *desc);
 
 void plug_set_port_transport (struct arglist *, int, int);
-
-struct arglist *plug_get_required_keys (struct arglist *);
-struct arglist *plug_get_mandatory_keys (struct arglist *);
-struct arglist *plug_get_excluded_keys (struct arglist *);
-
-struct arglist *plug_get_required_ports (struct arglist *);
-struct arglist *plug_get_required_udp_ports (struct arglist *);
 
 int plug_get_port_transport (struct arglist *, int);
 
