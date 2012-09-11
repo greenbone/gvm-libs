@@ -305,6 +305,7 @@ free_log_configuration (GSList * log_domain_list)
       g_free (log_domain_entry->prepend_time_format);
       g_free (log_domain_entry->log_file);
       g_free (log_domain_entry->default_level);
+      g_free (log_domain_entry->syslog_ident);
 
       /* Drop the reference to the GIOChannel. */
       if (log_domain_entry->log_channel)
@@ -571,6 +572,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
   tmpstr = g_strdup_printf ("%s%s%s%s %.*s\n",
                             log_domain ? log_domain : "", log_separator,
                             prepend, log_separator, messagelen, message);
+  g_free (prepend);
 
   /* Output everything to stderr if logfile is "-". */
   if (g_ascii_strcasecmp (log_file, "-") == 0)

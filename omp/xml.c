@@ -184,6 +184,7 @@ free_entity (entity_t entity)
             }
           g_slist_free (entity->entities);
         }
+      free (entity);
     }
 }
 
@@ -389,8 +390,14 @@ handle_text (GMarkupParseContext * context, const gchar * text, gsize text_len,
 {
   context_data_t *data = (context_data_t *) user_data;
   entity_t current = (entity_t) data->current->data;
-  current->text =
-    current->text ? g_strconcat (current->text, text, NULL) : g_strdup (text);
+  if (current->text)
+    {
+      gchar *old = current->text;
+      current->text = g_strconcat (current->text, text, NULL);
+      g_free (old);
+    }
+  else
+    current->text = g_strdup (text);
 }
 
 /**

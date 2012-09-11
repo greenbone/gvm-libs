@@ -1,3 +1,11 @@
+2012-09-11  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_logging.c (free_log_configuration): Free syslog_ident.
+	(openvas_log_func): Free prepend.
+
+	* omp/xml.c (free_entity): Free the actual entity too.
+	(handle_text): Free the old value of current->text when replacing it.
+
 2012-09-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/nvti.c (nvti_clone): Don't create copies of the strings,
