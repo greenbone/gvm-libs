@@ -41,7 +41,11 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
+#include <gnutls/gnutls.h>      /* Used to convert pkcs8 to ssh format.  */
+#include <gnutls/x509.h>
+
 #include <libssh/libssh.h>
+#include <libssh/legacy.h>      /* Remove for libssh 0.6.  */
 
 #include "system.h"             /* for emalloc */
 #include "nasl_tree.h"
@@ -180,6 +184,13 @@ put_membuf (membuf_t *mb, const void *buf, size_t len)
 }
 
 
+static void
+put_membuf_byte (membuf_t *mb, unsigned char c)
+{
+  put_membuf (mb, &c, 1);
+}
+
+
 static void *
 get_membuf (membuf_t *mb, size_t *len)
 {
@@ -201,6 +212,400 @@ get_membuf (membuf_t *mb, size_t *len)
   mb->buf = NULL;
   mb->out_of_core = ENOMEM; /* Hack to make sure it won't get reused. */
   return p;
+}
+
+
+/* Wrapper functions to make a future migration to the libssh 0.6 API
+   easier.  The idea is that you only need to remove these wrappers
+   and s/my_ssh_/ssh_/ on this file.  */
+
+struct my_ssh_key_s
+{
+  ssh_private_key privkey;
+  int type;
+  ssh_string pubkey_string;
+};
+typedef struct my_ssh_key_s *my_ssh_key;
+
+/* Release an ssh key object.  NULL for KEY is allowed.  */
+static void
+my_ssh_key_free (my_ssh_key key)
+{
+  if (!key)
+    return;
+  privatekey_free (key->privkey);
+  ssh_string_free (key->pubkey_string);
+  g_free (key);
+}
+
+
+/* Create a TLV tag and store it at BUFFER.  A LENGTH greater than
+   65535 is truncated.  This is used to write DER encoded data.  */
+static void
+add_tl (membuf_t *buffer, unsigned int tag, size_t length)
+{
+  g_assert (tag <= 0xffff);
+  if (tag > 0xff)
+    put_membuf_byte (buffer, tag >> 8);
+  put_membuf_byte (buffer, tag);
+  if (length < 128)
+    put_membuf_byte (buffer, length);
+  else if (length < 256)
+    {
+      put_membuf_byte (buffer, 0x81);
+      put_membuf_byte (buffer, length);
+    }
+  else
+    {
+      if (length > 0xffff)
+        length = 0xffff;
+      put_membuf_byte (buffer, 0x82);
+      put_membuf_byte (buffer, length >> 8);
+      put_membuf_byte (buffer, length);
+    }
+}
+
+
+/* Create a TLV tag and value and store it at BUFFER.  A LENGTH
+   greater than 65535 is truncated.  This is used to write DER encoded
+   data.  */
+static void
+add_tlv (membuf_t *buffer, unsigned int tag, void *value, size_t length)
+{
+  add_tl (buffer, tag, length);
+  put_membuf (buffer, value, length);
+}
+
+
+/* Assume the PEM object in SSHPRIVKEYSTR is a pkcs#8 private RSA key
+   and convert it into the standard ssh format without any protection.
+   PASSPHRASE is the passphrase for the pkcs#8 object.  Note that we
+   only support RSA here. */
+static char *
+pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
+{
+  int rc;
+  gnutls_datum_t sshkey;
+  gnutls_x509_privkey_t key;
+  gnutls_datum_t m, e, d, p, q, u, dmp1, dmq1;
+  membuf_t dermb;
+  void *derbuf;
+  size_t derlen;
+  gnutls_datum_t der, pem;
+
+  rc = gnutls_x509_privkey_init (&key);
+  if (rc)
+    {
+      fprintf (stderr, "gnutls key init failed: %s\n", gnutls_strerror (rc));
+      return NULL;
+    }
+
+  sshkey.size = strlen (sshprivkeystr);
+  sshkey.data = g_try_malloc (sshkey.size + 1);
+  if (!sshkey.data)
+    {
+      fprintf (stderr, "malloc failed in %s\n", __FUNCTION__);
+      gnutls_x509_privkey_deinit (key);
+      return NULL;
+    }
+  strcpy ((char*)sshkey.data, sshprivkeystr);
+
+  rc = gnutls_x509_privkey_import_pkcs8 (key, &sshkey, GNUTLS_X509_FMT_PEM,
+                                         passphrase, 0);
+  g_free (sshkey.data);
+  if (rc)
+    {
+      fprintf (stderr, "gnutls import pkcs#8 failed: %s\n",
+               gnutls_strerror (rc));
+      gnutls_x509_privkey_deinit (key);
+      return NULL;
+    }
+
+  rc = gnutls_x509_privkey_export_rsa_raw2 (key, &m, &e, &d, &p, &q, &u,
+                                            &dmp1, &dmq1);
+  gnutls_x509_privkey_deinit (key);
+  if (rc)
+    {
+      fprintf (stderr, "gnutls privkey export raw RSA key failed: %s\n",
+               gnutls_strerror (rc));
+      return NULL;
+    }
+
+  /* Create a DER object.  */
+  init_membuf (&dermb, 4096);
+  add_tlv (&dermb, 0x02, "", 1);                /* INTEGER: 0 */
+  add_tlv (&dermb, 0x02, m.data, m.size);       /* INTEGER: m */
+  add_tlv (&dermb, 0x02, e.data, e.size);       /* INTEGER: e */
+  add_tlv (&dermb, 0x02, d.data, d.size);       /* INTEGER: d */
+  add_tlv (&dermb, 0x02, q.data, q.size);       /* INTEGER: q */
+  add_tlv (&dermb, 0x02, p.data, p.size);       /* INTEGER: p */
+  add_tlv (&dermb, 0x02, dmq1.data, dmq1.size); /* INTEGER: dmq1 */
+  add_tlv (&dermb, 0x02, dmp1.data, dmp1.size); /* INTEGER: dmp1 */
+  add_tlv (&dermb, 0x02, u.data, u.size);       /* INTEGER: u */
+
+  gnutls_free (m.data);
+  gnutls_free (e.data);
+  gnutls_free (d.data);
+  gnutls_free (p.data);
+  gnutls_free (q.data);
+  gnutls_free (dmp1.data);
+  gnutls_free (dmq1.data);
+  gnutls_free (u.data);
+
+  derbuf = get_membuf (&dermb, &derlen);
+  if (!derbuf)
+    {
+      fprintf (stderr, "get_membuf failed in %s: %s\n",
+               __FUNCTION__, strerror (-1));
+      return NULL;
+    }
+  init_membuf (&dermb, 4096);
+  add_tlv (&dermb, 0x30, derbuf, derlen);
+  efree (&derbuf);
+  derbuf = get_membuf (&dermb, &derlen);
+  if (!derbuf)
+    {
+      fprintf (stderr, "get_membuf failed in %s (2): %s\n",
+               __FUNCTION__, strerror (-1));
+      return NULL;
+    }
+
+  der.data = derbuf;
+  der.size = derlen;
+  rc = gnutls_pem_base64_encode_alloc ("RSA PRIVATE KEY", &der, &pem);
+  efree (&derbuf);
+  if (rc)
+    {
+      fprintf (stderr, "gnutls_pem_base64_encode_alloc failed: %s\n",
+               gnutls_strerror (rc));
+      return NULL;
+    }
+  return (char*)pem.data;
+}
+
+
+/* Remove the temporary directory and its key file.  FILENAME is also freed. */
+static void
+remove_and_free_temp_key_file (char *filename)
+{
+  char *p;
+
+  if (g_remove (filename) && errno != ENOENT)
+    fprintf (stderr, "Failed to remove temporary file '%s': %s\n",
+             filename, strerror (errno));
+  p = strrchr (filename, '/');
+  g_assert (p);
+  *p = 0;
+  if (g_rmdir (filename))
+    fprintf (stderr, "Failed to remove temporary directory '%s': %s\n",
+             filename, strerror (errno));
+  g_free (filename);
+}
+
+
+/* Import a base64 formatted key from a memory c-string.
+ *
+ * B64_KEY is a string holding the base64 encoded key.  PASSPHRASE is
+ * the passphrase used to unprotect that key; if the key has no
+ * protection NULL may be passed.  AUTH_FN and AUTH_DATA are defined
+ * by libssh to allow for an authentication callback (i.e. asking for
+ * the passphrase; it is not used here.  The SESSION is required only
+ * for this wrapper.
+ *
+ * On success the a key object is allocated and stored at PKEY.  The
+ * caller must free that value.  It is suggested that the caller
+ * stores NULL at it before calling the function.
+ *
+ * The function returns 0 on success or a non-zero value on failure.
+ */
+static int
+my_ssh_pki_import_privkey_base64(ssh_session session,
+                                 const char *b64_key,
+                                 const char *passphrase,
+                                 void *auth_fn,
+                                 void *auth_data,
+                                 my_ssh_key *r_pkey)
+{
+#if !GLIB_CHECK_VERSION (2,30,0)
+# ifdef __GNUC__
+#  warning glib 2.30.0 required
+# endif
+  return SSH_AUTH_ERROR;
+#else
+  ssh_private_key ssh_privkey;
+  ssh_public_key ssh_pubkey;
+  gchar *privkey_filename;
+  char key_dir[] = "/tmp/openvas_key_XXXXXX";
+  GError *error;
+  my_ssh_key pkey;
+  char *pkcs8_buffer = NULL;
+
+  /* Write the private key to a file in a temporary directory.  */
+  if (!g_mkdtemp_full (key_dir, S_IRUSR|S_IWUSR|S_IXUSR))
+    {
+      fprintf (stderr, "%s: g_mkdtemp failed\n", __FUNCTION__);
+      return SSH_AUTH_ERROR;
+    }
+
+  privkey_filename = g_strdup_printf ("%s/key", key_dir);
+
+ read_again:
+  error = NULL;
+  g_file_set_contents (privkey_filename, b64_key, strlen (b64_key), &error);
+  if (error)
+    {
+      fprintf (stderr, "Failed to write private key to temporary file: %s\n",
+               error->message);
+      g_error_free (error);
+      remove_and_free_temp_key_file (privkey_filename);
+      g_free (pkcs8_buffer);
+      return SSH_AUTH_ERROR;
+    }
+
+  /* We should have created the file with approriate permission in the
+     first place.  Unfortunately glib does not allow that.  */
+  g_chmod (privkey_filename, S_IRUSR | S_IWUSR);
+
+  ssh_privkey = privatekey_from_file (session, privkey_filename, 0, passphrase);
+  if (!ssh_privkey)
+    fprintf (stderr, "Reading private key from '%s' failed: %s\n",
+             privkey_filename, ssh_get_error (session));
+  if (!ssh_privkey && !pkcs8_buffer)
+    {
+      fprintf (stderr, "Converting from PKCS#8 and trying again ...\n");
+
+      pkcs8_buffer = pkcs8_to_sshprivatekey (b64_key, passphrase);
+      if (pkcs8_buffer)
+        {
+          b64_key = pkcs8_buffer;
+          g_remove (privkey_filename);
+          goto read_again;
+        }
+    }
+  if (pkcs8_buffer)
+    {
+      g_free (pkcs8_buffer);
+      pkcs8_buffer = NULL;
+      fprintf (stderr, "... this worked.\n");
+    }
+
+  remove_and_free_temp_key_file (privkey_filename);
+  privkey_filename = NULL;
+  if (!ssh_privkey)
+    return SSH_AUTH_ERROR;
+
+  /* Create our key object.  */
+  pkey = g_try_malloc0 (sizeof *pkey);
+  if (!pkey)
+    {
+      privatekey_free (ssh_privkey);
+      fprintf (stderr, "%s: malloc failed\n", __FUNCTION__);
+      return SSH_AUTH_ERROR;
+    }
+  pkey->privkey = ssh_privkey;
+  pkey->type = ssh_privatekey_type (ssh_privkey);
+  if (pkey->type == SSH_KEYTYPE_UNKNOWN)
+    {
+      my_ssh_key_free (pkey);
+      fprintf (stderr, "%s: key type is not known\n", __FUNCTION__);
+      return SSH_AUTH_ERROR;
+    }
+
+  /* Extract the public key from the private key.  */
+  ssh_pubkey = publickey_from_privatekey (ssh_privkey);
+  if (!ssh_pubkey)
+    {
+      my_ssh_key_free (pkey);
+      fprintf (stderr, "%s: publickey_from_privatekey failed\n", __FUNCTION__);
+      return SSH_AUTH_ERROR;
+    }
+  pkey->pubkey_string = publickey_to_string (ssh_pubkey);
+  publickey_free (ssh_pubkey);
+  if (!pkey->pubkey_string)
+    {
+      my_ssh_key_free (pkey);
+      fprintf (stderr, "%s: publickey_to_string failed\n", __FUNCTION__);
+      return SSH_AUTH_ERROR;
+    }
+
+  *r_pkey = pkey;
+  return SSH_AUTH_SUCCESS;
+#endif /*!GLIB_CHECK_VERSION*/
+}
+
+
+/* Try to authenticate with the given public key.
+
+   To avoid unnecessary processing and user interaction, the following
+   method is provided for querying whether authentication using the
+   given key would be possible.
+
+   SESSION is the session object.  USERNAME should be passed as NULL.
+   It is expected that ssh_options_set has been been used to set the
+   username before the first authentication attempt.  The reason is
+   that most servers do not permit changing the username during the
+   authentication phase.  KEY is the ssh key object; the function uses
+   only the public key part.
+
+   Returns:
+
+    SSH_SUCCESS (0)  - The public key is accepted.
+
+    SSH_AUTH_DENIED  - The server doesn't accept that public key as an
+                       authentication token.
+
+    SSH_AUTH_ERROR   - A serious error happened.
+
+    SSH_AUTH_PARTIAL - You have been partially authenticated, you
+                       still have to use another method.
+
+ */
+static int
+my_ssh_userauth_try_publickey (ssh_session session,
+                               const char *username,
+                               const my_ssh_key key)
+{
+  int rc;
+
+  (void)username;
+
+  rc = ssh_userauth_offer_pubkey (session, NULL, key->type, key->pubkey_string);
+  return rc;
+}
+
+
+/* Authenticate with the given private key.
+
+   SESSION is the session object.  USERNAME should be passed as NULL.
+   It is expected that ssh_options_set has been been used to set the
+   username before the first authentication attempt.  The reason is
+   that most servers do not permit changing the username during the
+   authentication phase.  KEY is the ssh key object.
+
+   Returns:
+
+    SSH_SUCCESS (0)  - The public key is accepted.
+
+    SSH_AUTH_DENIED  - The server doesn't accept that key as an
+                       authentication token.
+
+    SSH_AUTH_ERROR   - A serious error happened.
+
+    SSH_AUTH_PARTIAL - You have been partially authenticated, you
+                       still have to use another method.
+
+ */
+static int
+my_ssh_userauth_publickey(ssh_session session,
+                          const char *username,
+                          const my_ssh_key key)
+{
+  int rc;
+
+  (void)username;
+
+  rc = ssh_userauth_pubkey (session, NULL, key->pubkey_string, key->privkey);
+  return rc;
 }
 
 
@@ -288,6 +693,7 @@ nasl_ssh_connect (lex_ctxt *lexic)
   const char *hostname;
   int port, sock;
   int tbl_slot;
+  const char *s;
 
   sock = get_int_local_var_by_name (lexic, "socket", 0);
   if (sock)
@@ -316,6 +722,13 @@ nasl_ssh_connect (lex_ctxt *lexic)
       return NULL;
     }
 
+  if ((s = getenv ("OPENVAS_LIBSSH_DEBUG")) && *s)
+    {
+      int intval = atoi (s);
+
+      ssh_options_set (session, SSH_OPTIONS_LOG_VERBOSITY, &intval);
+    }
+
   if (ssh_options_set (session, SSH_OPTIONS_HOST, hostname))
     {
       fprintf (stderr, "Failed to set SSH hostname '%s': %s\n",
@@ -323,6 +736,7 @@ nasl_ssh_connect (lex_ctxt *lexic)
       ssh_free (session);
       return NULL;
     }
+
   if (port)
     {
       unsigned int my_port = port;
@@ -519,8 +933,26 @@ nasl_ssh_get_sock (lex_ctxt *lexic)
  * on all further calls.
  *
  * To perform a password based authentication, the named argument
- * "password" must contain a non-empry password.
+ * "password" must contain a password.
  *
+ * To perform a public key based authentication, the named argument
+ * "privatekey" must contain a base64 encoded private key in ssh
+ * native or in PKCS#8 format.
+ *
+ * If both, "password" and "privatekey" are given as named arguments
+ * only "password" is used.  If neither are given the values are taken
+ * from the KB ("Secret/SSH/password" and "Secret/SSH/privatekey") and
+ * tried in the order {password, privatekey}.  Note well, that if one
+ * of the named arguments are given, only those are used and the KB is
+ * not consulted.
+ *
+ * If the private key is protected, its passphrase is taken from the
+ * named argument "passphrase" or, if not given, taken from the KB
+ * ("Secret/SSH/passphrase").
+ *
+ * Note that the named argument "publickey" and the KB item
+ * ("Secret/SSH/publickey") are ignored - they are not longer required
+ * because they can be derived from the private key.
  *
  * @param[in] lexic Lexical context of NASL interpreter.
  *
@@ -533,14 +965,16 @@ nasl_ssh_userauth (lex_ctxt *lexic)
   int tbl_slot;
   int session_id;
   ssh_session session;
-  char *password;
+  const char *password = NULL;
+  const char *privkeystr = NULL;
+  const char *privkeypass = NULL;
   int rc;
   struct kb_item **kb;
-  tree_cell *retc;
+  int retc_val = -1;
 
   session_id = find_session_id (lexic, "ssh_userauth", &tbl_slot);
   if (!session_id)
-    return NULL;
+    return NULL;  /* Ooops.  */
   session = session_table[tbl_slot].session;
 
   /* Check if we need to set the user.  This is done only once per
@@ -559,37 +993,52 @@ nasl_ssh_userauth (lex_ctxt *lexic)
         {
           fprintf (stderr, "Failed to set SSH username '%s': %s\n",
                    username, ssh_get_error (session));
-          return NULL;
+          return NULL; /* Ooops.  */
         }
       /* In any case mark the user has set.  */
       session_table[tbl_slot].user_set = 1;
     }
 
-  /* First check whether any specific methods have been requested.  if
+  /* First check whether any specific methods have been requested.  If
      not fall back to the default.  */
-  password = get_str_local_var_by_name (lexic, "password");
-  if (password && *password)
-    ;
-  /* else if (pubkey_args) */
-  /*   ; */
+  if ((password = get_str_local_var_by_name (lexic, "password")))
+    ; /* Password provided - do not bother looking for a private key.  */
+  else if ((privkeystr = get_str_local_var_by_name (lexic, "privatekey")))
+    ; /* A private key is available.  */
   else
     {
-      /* Nothing supported.  Try the passphrase from the KB.  */
+      /* Nothing supported.  Use the values from the KB.  */
       kb = plug_get_kb (lexic->script_infos);
-      password = kb_item_get_str (kb, "Secret/SSH/password");
+      password      = kb_item_get_str (kb, "Secret/SSH/password");
+      privkeystr    = kb_item_get_str (kb, "Secret/SSH/privatekey");
+    }
+
+  /* If a private key is available get a corresponding passphrase so
+     that we are later able to unprotect that key if needed.  */
+  if (privkeystr)
+    {
+      privkeypass = get_str_local_var_by_name (lexic, "passphrase");
+      if (!privkeypass)
+        {
+          kb = plug_get_kb (lexic->script_infos);
+          privkeypass = kb_item_get_str (kb, "Secret/SSH/passphrase");
+        }
     }
 
 
-  /* Check whether a non-empty password has beeen given.  If so, try
-     to authenticate using that password.  */
-  if (password && *password)
+  /* Check whether a password has been given.  If so, try to
+     authenticate using that password.  Note that the OpenSSH client
+     uses a different order it first tries the public key and then the
+     password.  However, the old NASL SSH protocol implementation tries
+     the password before the public key authentication.  Because we
+     want to be compatible, we do it in that order. */
+  if (password)
     {
       rc = ssh_userauth_password (session, NULL, password);
       if (rc == SSH_AUTH_SUCCESS)
         {
-          retc = alloc_typed_cell (CONST_INT);
-          retc->x.i_val = 0;
-          return retc;
+          retc_val = 0;
+          goto leave;
         }
 
       /* Fixme: We need to implement the keyboard-interactive
@@ -601,13 +1050,47 @@ nasl_ssh_userauth (lex_ctxt *lexic)
       /* Keep on trying.  */
     }
 
-  /* Fixme: Authenticate using public key.  */
+  /* If we have a private key, try public key authentication.  */
+  if (privkeystr)
+    {
+      my_ssh_key key = NULL;
 
-  fprintf (stderr, "No SSH authentication method avilable in session %d\n",
-           session_id);
-  retc = alloc_typed_cell (CONST_INT);
-  retc->x.i_val = -1;
-  return retc;
+      /* SESSION is only used by our emulation - FIXME: remove it for 0.6.  */
+      if (my_ssh_pki_import_privkey_base64 (session, privkeystr, privkeypass,
+                                            NULL, NULL, &key))
+        {
+          fprintf (stderr,
+                   "SSH public key authentication failed for session %d: %s\n",
+                   session_id, "Error converting provided key");
+        }
+      else if (my_ssh_userauth_try_publickey (session, NULL, key)
+               != SSH_AUTH_SUCCESS)
+        {
+          fprintf (stderr,
+                   "SSH public key authentication failed for session %d: %s\n",
+                   session_id, "Server does not want our key");
+        }
+      else if (my_ssh_userauth_publickey (session, NULL, key)
+               == SSH_AUTH_SUCCESS)
+        {
+          retc_val = 0;
+          my_ssh_key_free (key);
+          goto leave;
+        }
+      my_ssh_key_free (key);
+      /* Keep on trying.  */
+    }
+
+  fprintf (stderr, "SSH authentication failed for session %d: %s\n",
+           session_id, "No more authentication methods to try");
+ leave:
+  {
+    tree_cell *retc;
+
+    retc = alloc_typed_cell (CONST_INT);
+    retc->x.i_val = retc_val;
+    return retc;
+  }
 }
 
 
