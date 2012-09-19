@@ -1,5 +1,14 @@
 2012-09-19  Werner Koch  <wk@gnupg.org>
 
+	* nasl/nasl_ssh.c (nasl_ssh_userauth): Detect available
+	authentication methods and allow only those.  Implement
+	keyboard-interactive authentication method.
+
+	* nasl/nasl_ssh.c (session_table_item_s): Add field VERBOSE.
+	(nasl_ssh_connect): Set VERBOSE if OPENVAS_LIBSSH_DEBUG is set.
+
+2012-09-19  Werner Koch  <wk@gnupg.org>
+
 	* nasl/nasl_ssh.c (my_ssh_pki_import_privkey_base64): Use mkdtemp
 	for glib < 2.30.
 

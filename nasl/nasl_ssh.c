@@ -118,6 +118,7 @@ struct session_table_item_s
   int sock;                 /* The associated socket. */
   unsigned int user_set:1;  /* Set if a user has been set for the
                                session.  */
+  unsigned int verbose:1;   /* Verbose diagnostics.  */
 };
 
 
@@ -693,6 +694,7 @@ nasl_ssh_connect (lex_ctxt *lexic)
   int port, sock;
   int tbl_slot;
   const char *s;
+  int any_debug = 0;
 
   sock = get_int_local_var_by_name (lexic, "socket", 0);
   if (sock)
@@ -721,11 +723,15 @@ nasl_ssh_connect (lex_ctxt *lexic)
       return NULL;
     }
 
-  if ((s = getenv ("OPENVAS_LIBSSH_DEBUG")) && *s)
+  if ((s = getenv ("OPENVAS_LIBSSH_DEBUG")))
     {
-      int intval = atoi (s);
+      any_debug = 1;
+      if (*s)
+        {
+          int intval = atoi (s);
 
-      ssh_options_set (session, SSH_OPTIONS_LOG_VERBOSITY, &intval);
+          ssh_options_set (session, SSH_OPTIONS_LOG_VERBOSITY, &intval);
+        }
     }
 
   if (ssh_options_set (session, SSH_OPTIONS_HOST, hostname))
@@ -791,6 +797,7 @@ nasl_ssh_connect (lex_ctxt *lexic)
   session_table[tbl_slot].session = session;
   session_table[tbl_slot].sock = ssh_get_fd (session);
   session_table[tbl_slot].user_set = 0;
+  session_table[tbl_slot].verbose = any_debug;
 
   /* Return the session id.  */
   retc = alloc_typed_cell (CONST_INT);
@@ -970,11 +977,15 @@ nasl_ssh_userauth (lex_ctxt *lexic)
   int rc;
   struct kb_item **kb;
   int retc_val = -1;
+  int methods;
+  int verbose;
 
   session_id = find_session_id (lexic, "ssh_userauth", &tbl_slot);
   if (!session_id)
     return NULL;  /* Ooops.  */
   session = session_table[tbl_slot].session;
+  verbose = session_table[tbl_slot].verbose;
+
 
   /* Check if we need to set the user.  This is done only once per
      session.  */
@@ -1024,6 +1035,47 @@ nasl_ssh_userauth (lex_ctxt *lexic)
         }
     }
 
+  /* Get the list of supported authentication schemes.  */
+  rc = ssh_userauth_none (session, NULL);
+  if (rc == SSH_AUTH_SUCCESS)
+    {
+      fprintf (stderr,
+               "SSH authentication succeeded using the none method - "
+               "should not happen; very old server?\n");
+      retc_val = 0;
+      goto leave;
+    }
+  else if (rc == SSH_AUTH_DENIED)
+    {
+      methods = ssh_userauth_list (session, NULL);
+    }
+  else
+    {
+      fprintf (stderr,
+               "SSH server did not return a list of authentication methods - "
+               "trying all\n");
+      methods = (SSH_AUTH_METHOD_NONE
+                 | SSH_AUTH_METHOD_PASSWORD
+                 | SSH_AUTH_METHOD_PUBLICKEY
+                 | SSH_AUTH_METHOD_HOSTBASED
+                 | SSH_AUTH_METHOD_INTERACTIVE);
+    }
+
+  if (verbose)
+    {
+      fputs ("SSH available authentication methods:", stderr);
+      if ((methods & SSH_AUTH_METHOD_NONE))
+        fputs (" none", stderr);
+      if ((methods & SSH_AUTH_METHOD_PASSWORD))
+        fputs (" password", stderr);
+      if ((methods & SSH_AUTH_METHOD_PUBLICKEY))
+        fputs (" publickey", stderr);
+      if ((methods & SSH_AUTH_METHOD_HOSTBASED))
+        fputs (" hostbased", stderr);
+      if ((methods & SSH_AUTH_METHOD_INTERACTIVE))
+        fputs (" keyboard-interactive", stderr);
+      fputs ("\n", stderr);
+    }
 
   /* Check whether a password has been given.  If so, try to
      authenticate using that password.  Note that the OpenSSH client
@@ -1031,7 +1083,7 @@ nasl_ssh_userauth (lex_ctxt *lexic)
      password.  However, the old NASL SSH protocol implementation tries
      the password before the public key authentication.  Because we
      want to be compatible, we do it in that order. */
-  if (password)
+  if (password && (methods & SSH_AUTH_METHOD_PASSWORD))
     {
       rc = ssh_userauth_password (session, NULL, password);
       if (rc == SSH_AUTH_SUCCESS)
@@ -1040,17 +1092,69 @@ nasl_ssh_userauth (lex_ctxt *lexic)
           goto leave;
         }
 
-      /* Fixme: We need to implement the keyboard-interactive
-         methods.  */
-
       fprintf (stderr,
                "SSH password authentication failed for session %d: %s\n",
                session_id, ssh_get_error (session));
       /* Keep on trying.  */
     }
 
+  if (password && (methods & SSH_AUTH_METHOD_INTERACTIVE))
+    {
+      /* Our strategy for kbint is to send the password to the first
+         prompt marked as non-echo.  */
+      while ((rc = ssh_userauth_kbdint (session, NULL, NULL)) == SSH_AUTH_INFO)
+        {
+          const char *s;
+          int n, nprompt;
+          char echoflag;
+          int found_prompt = 0;
+
+          if (verbose)
+            {
+              s = ssh_userauth_kbdint_getname (session);
+              if (s && *s)
+                fprintf (stderr, "SSH kbdint name='%s'\n", s);
+              s = ssh_userauth_kbdint_getinstruction (session);
+              if (s && *s)
+                fprintf (stderr, "SSH kbdint instruction='%s'\n", s);
+            }
+          nprompt = ssh_userauth_kbdint_getnprompts (session);
+          for (n=0; n < nprompt; n++)
+            {
+              s = ssh_userauth_kbdint_getprompt (session, n, &echoflag);
+              if (s && *s && verbose)
+                fprintf (stderr, "SSH kbdint prompt='%s'%s\n",
+                         s, echoflag? "":" [hide input]");
+              if (s && *s && !echoflag && !found_prompt)
+                {
+                  found_prompt = 1;
+                  rc = ssh_userauth_kbdint_setanswer (session, n, password);
+                  if (rc != SSH_AUTH_SUCCESS)
+                    {
+                      fprintf (stderr,
+                               "SSH keyboard-interactive authentication failed"
+                               " at prompt %d for session %d: %s\n",
+                               n, session_id, ssh_get_error (session));
+                    }
+                }
+            }
+        }
+
+      if (rc == SSH_AUTH_SUCCESS)
+        {
+          retc_val = 0;
+          goto leave;
+        }
+
+      fprintf (stderr,
+               "SSH keyboard-interactive authentication failed for session %d"
+               ": %s\n",
+               session_id, ssh_get_error (session));
+      /* Keep on trying.  */
+    }
+
   /* If we have a private key, try public key authentication.  */
-  if (privkeystr)
+  if (privkeystr && (methods & SSH_AUTH_METHOD_PUBLICKEY))
     {
       my_ssh_key key = NULL;
 
