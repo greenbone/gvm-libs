@@ -426,12 +426,6 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
                                  void *auth_data,
                                  my_ssh_key *r_pkey)
 {
-#if !GLIB_CHECK_VERSION (2,30,0)
-# ifdef __GNUC__
-#  warning glib 2.30.0 required
-# endif
-  return SSH_AUTH_ERROR;
-#else
   ssh_private_key ssh_privkey;
   ssh_public_key ssh_pubkey;
   gchar *privkey_filename;
@@ -441,9 +435,15 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
   char *pkcs8_buffer = NULL;
 
   /* Write the private key to a file in a temporary directory.  */
-  if (!g_mkdtemp_full (key_dir, S_IRUSR|S_IWUSR|S_IXUSR))
+  if (
+#if GLIB_CHECK_VERSION (2,30,0)
+      !g_mkdtemp_full (key_dir, S_IRUSR|S_IWUSR|S_IXUSR)
+#else
+      !mkdtemp (key_dir)
+#endif
+      )
     {
-      fprintf (stderr, "%s: g_mkdtemp failed\n", __FUNCTION__);
+      fprintf (stderr, "%s: g_mkdtemp_full/mkdtemp failed\n", __FUNCTION__);
       return SSH_AUTH_ERROR;
     }
 
@@ -530,7 +530,6 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
 
   *r_pkey = pkey;
   return SSH_AUTH_SUCCESS;
-#endif /*!GLIB_CHECK_VERSION*/
 }
 
 

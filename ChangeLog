@@ -1,5 +1,10 @@
 2012-09-19  Werner Koch  <wk@gnupg.org>
 
+	* nasl/nasl_ssh.c (my_ssh_pki_import_privkey_base64): Use mkdtemp
+	for glib < 2.30.
+
+2012-09-19  Werner Koch  <wk@gnupg.org>
+
 	Support public key authentication with libssh. The ssh public key
 	is not needed anymore.  The code uses a wrappers to be prepared
 	for the forthcoming libssh 0.6 API.
