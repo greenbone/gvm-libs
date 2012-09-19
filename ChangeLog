@@ -1,3 +1,20 @@
+2012-09-19  Werner Koch  <wk@gnupg.org>
+
+	Support public key authentication with libssh. The ssh public key
+	is not needed anymore.  The code uses a wrappers to be prepared
+	for the forthcoming libssh 0.6 API.
+
+	* nasl/nasl_ssh.c: Include gnutls.h and libssh/legacy.h.
+	(get_membuf): New.
+	(my_ssh_key): New type.
+	(my_ssh_key_free, add_tl, add_tlv, pkcs8_to_sshprivatekey)
+	(remove_and_free_temp_key_file)
+	(my_ssh_pki_import_privkey_base64)
+	(my_ssh_userauth_try_publickey, my_ssh_userauth_publickey): New.
+	(nasl_ssh_connect): Use envvar OPENVAS_LIBSSH_DEBUG to allow
+	libssh debugging.
+	(nasl_ssh_userauth): Add public key authentication.
+
 2012-09-11  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/openvas_logging.c (free_log_configuration): Free syslog_ident.
