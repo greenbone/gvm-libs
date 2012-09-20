@@ -57,6 +57,7 @@
 #include "plugutils.h"
 #include "kb.h"
 #include "nasl_debug.h"
+#include "network.h"            /* for openvas_get_socket_from_connection */
 
 #include "nasl_ssh.h"
 
@@ -70,19 +71,6 @@
 #if SSH_OK != 0
 # error Oops, libssh ABI changed
 #endif
-
-
-/**
- * @brief Enum for the SSH key types.
- *
- * Duplicated from libssh since it does not expose it.
- */
-enum public_key_types_e
-{
-  TYPE_DSS = 1,
-  TYPE_RSA,
-  TYPE_RSA1
-};
 
 
 /* This object is used to keep track of libssh contexts.  Because they
@@ -115,10 +103,13 @@ struct session_table_item_s
 {
   int session_id;
   ssh_session session;
-  int sock;                 /* The associated socket. */
-  unsigned int user_set:1;  /* Set if a user has been set for the
-                               session.  */
-  unsigned int verbose:1;   /* Verbose diagnostics.  */
+  int sock;                         /* The associated socket. */
+  int authmethods;                  /* Bit fields with available
+                                       authentication methods.  */
+  unsigned int authmethods_valid:1; /* Indicating that methods is valid.  */
+  unsigned int user_set:1;          /* Set if a user has been set for
+                                       the session.  */
+  unsigned int verbose:1;           /* Verbose diagnostics.  */
 };
 
 
@@ -680,7 +671,7 @@ get_ssh_port (lex_ctxt *lexic)
  *
  * If the named argument "socket" is given, that socket will be used
  * instead of a creating a new TCP connection.  If socket is not given
- * or 0, the port is looked up in the prefwerences and the KB unless
+ * or 0, the port is looked up in the preferences and the KB unless
  * overriden by the named parameter "port".
  *
  * On success an ssh session to the host has been established; the
@@ -704,17 +695,18 @@ nasl_ssh_connect (lex_ctxt *lexic)
   int port, sock;
   int tbl_slot;
   const char *s;
-  int any_debug = 0;
+  int verbose = 0;
+  int forced_sock = -1;
 
   sock = get_int_local_var_by_name (lexic, "socket", 0);
   if (sock)
     port = 0; /* The port is ignored if "socket" is given.  */
-   else
-     {
-       port = get_int_local_var_by_name (lexic, "port", 0);
-       if (port <= 0)
-         port = get_ssh_port (lexic);
-     }
+  else
+    {
+      port = get_int_local_var_by_name (lexic, "port", 0);
+      if (port <= 0)
+        port = get_ssh_port (lexic);
+    }
 
   hostname = plug_get_hostname (lexic->script_infos);
   if (!hostname)
@@ -735,7 +727,7 @@ nasl_ssh_connect (lex_ctxt *lexic)
 
   if ((s = getenv ("OPENVAS_LIBSSH_DEBUG")))
     {
-      any_debug = 1;
+      verbose = 1;
       if (*s)
         {
           int intval = atoi (s);
@@ -766,15 +758,21 @@ nasl_ssh_connect (lex_ctxt *lexic)
     }
   if (sock)
     {
-      socket_t my_fd = sock;
+      socket_t my_fd = openvas_get_socket_from_connection (sock);
 
+      if (verbose)
+        fprintf (stderr, "Setting SSH fd for '%s' to %d (NASL sock=%d)\n",
+                 hostname, my_fd, sock);
       if (ssh_options_set (session, SSH_OPTIONS_FD, &my_fd))
         {
-          fprintf (stderr, "Failed to set SSH fd for '%s' to %d: %s\n",
-                   hostname, sock, ssh_get_error (session));
+          fprintf (stderr,
+                   "Failed to set SSH fd for '%s' to %d (NASL sock=%d): %s\n",
+                   hostname, my_fd, sock, ssh_get_error (session));
           ssh_free (session);
           return NULL;
         }
+      /* Remember the NASL socket.  */
+      forced_sock = sock;
     }
 
   /* Find a place in the table to save the session.  */
@@ -788,13 +786,33 @@ nasl_ssh_connect (lex_ctxt *lexic)
       return NULL;
     }
 
+  /* Prepare the session table entry.  */
+  session_table[tbl_slot].session = session;
+  session_table[tbl_slot].authmethods_valid = 0;
+  session_table[tbl_slot].user_set = 0;
+  session_table[tbl_slot].verbose = verbose;
+
   /* Connect to the host.  */
+  if (verbose)
+    fprintf (stderr, "Connecting to SSH server '%s' (port %d, sock %d)\n",
+             hostname, port, sock);
   if (ssh_connect (session))
     {
       fprintf (stderr, "Failed to connect to SSH server '%s'"
-               " (port %d, sock %d): %s\n",
-               hostname, port, sock, ssh_get_error (session));
-      ssh_free (session);
+               " (port %d, sock %d, f=%d): %s\n",
+               hostname, port, sock, forced_sock, ssh_get_error (session));
+      if (forced_sock != -1)
+        {
+          /* If the caller passed us a socket we can't call ssh_free
+             on it because we expect the caller to close that socket
+             himself.  Instead we need to setup a table entry so that
+             it will then be close it via nasl_ssh_internal_close.  */
+          session_table[tbl_slot].session_id = next_session_id ();
+          session_table[tbl_slot].sock = forced_sock;
+         }
+     else
+       ssh_free (session);
+
       /* return 0 to indicate the error.  */
       /* FIXME: Set the last error string.  */
       retc = alloc_typed_cell (CONST_INT);
@@ -804,10 +822,8 @@ nasl_ssh_connect (lex_ctxt *lexic)
 
   /* How that we are connected, save the session.  */
   session_table[tbl_slot].session_id = next_session_id ();
-  session_table[tbl_slot].session = session;
-  session_table[tbl_slot].sock = ssh_get_fd (session);
-  session_table[tbl_slot].user_set = 0;
-  session_table[tbl_slot].verbose = any_debug;
+  session_table[tbl_slot].sock =
+    forced_sock != -1? forced_sock : ssh_get_fd (session);
 
   /* Return the session id.  */
   retc = alloc_typed_cell (CONST_INT);
@@ -849,6 +865,18 @@ find_session_id (lex_ctxt *lexic, const char *funcname, int *r_slot)
 }
 
 
+/* Helper for nasl_ssh_disconnect et al.  */
+static void
+do_nasl_ssh_disconnect (int tbl_slot)
+{
+  ssh_disconnect (session_table[tbl_slot].session);
+  ssh_free (session_table[tbl_slot].session);
+  session_table[tbl_slot].session_id = 0;
+  session_table[tbl_slot].session = NULL;
+  session_table[tbl_slot].sock = -1;
+}
+
+
 /**
  * @brief Disconnect an ssh connection
  *
@@ -871,13 +899,48 @@ nasl_ssh_disconnect (lex_ctxt *lexic)
   session_id = find_session_id (lexic, NULL, &tbl_slot);
   if (!session_id)
     return FAKE_CELL;
-
-  ssh_disconnect (session_table[tbl_slot].session);
-  ssh_free (session_table[tbl_slot].session);
-  session_table[tbl_slot].session_id = 0;
-  session_table[tbl_slot].session = NULL;
-  session_table[tbl_slot].sock = -1;
+  do_nasl_ssh_disconnect (tbl_slot);
   return FAKE_CELL;
+}
+
+
+/**
+ * @brief Close a socket associated with an ssh connection.
+ *
+ * NASL code may be using "ssh_connect" passing an open socket and
+ * later closing this socket using "close" instead of calling
+ * "ssh_disconnect".  Thus the close code needs to check whether the
+ * socket refers to an ssh connection and call ssh_disconnect then
+ * (libssh takes ownership of the socket if set via SSH_OPTIONS_FD).
+ * This function implements the check and closing
+ *
+ * @param[in] A socket
+ *
+ * @return Zero if the socket was closed (disconnected).
+ */
+int
+nasl_ssh_internal_close (int sock)
+{
+  int tbl_slot, session_id;
+
+  /* fprintf (stderr, "%s: sock=%d ...", __FUNCTION__, sock); */
+  if (sock == -1)
+    return -1;
+
+  session_id = 0;
+  for (tbl_slot=0; tbl_slot < DIM (session_table); tbl_slot++)
+    {
+      if (session_table[tbl_slot].sock == sock
+          && session_table[tbl_slot].session_id) {
+        session_id = session_table[tbl_slot].session_id;
+        break;
+      }
+    }
+  /* fprintf (stderr, " found %d\n", session_id); */
+  if (!session_id)
+    return -1;
+  do_nasl_ssh_disconnect (tbl_slot);
+  return 0;
 }
 
 
@@ -915,6 +978,10 @@ nasl_ssh_session_id_from_sock (lex_ctxt *lexic)
 /**
  * @brief Given a session id, return the corresponding socket
  *
+ * The socket is either a native file descriptor or a NASL connection
+ * socket (if a open socket was passed to ssh_connect).  The NASL
+ * network code handles both of them.
+ *
  * @param[in] lexic Lexical context of NASL interpreter.
  *
  * @return The socket or -1 on error.
@@ -935,6 +1002,120 @@ nasl_ssh_get_sock (lex_ctxt *lexic)
   return retc;
 }
 
+
+/* Get the list of supported authentication schemes.  Returns 0 if no
+   authentication is required; otherwise non-zero.  */
+static int
+get_authmethods (int tbl_slot)
+{
+  int rc;
+  int retc_val = -1;
+  ssh_session session;
+  int verbose;
+  int methods;
+
+  session = session_table[tbl_slot].session;
+  verbose = session_table[tbl_slot].verbose;
+
+  rc = ssh_userauth_none (session, NULL);
+  if (rc == SSH_AUTH_SUCCESS)
+    {
+      fprintf (stderr,
+               "SSH authentication succeeded using the none method - "
+               "should not happen; very old server?\n");
+      retc_val = 0;
+      methods = 0;
+      goto leave;
+    }
+  else if (rc == SSH_AUTH_DENIED)
+    {
+      methods = ssh_userauth_list (session, NULL);
+    }
+  else
+    {
+      fprintf (stderr,
+               "SSH server did not return a list of authentication methods - "
+               "trying all\n");
+      methods = (SSH_AUTH_METHOD_NONE
+                 | SSH_AUTH_METHOD_PASSWORD
+                 | SSH_AUTH_METHOD_PUBLICKEY
+                 | SSH_AUTH_METHOD_HOSTBASED
+                 | SSH_AUTH_METHOD_INTERACTIVE);
+    }
+
+  if (verbose)
+    {
+      fputs ("SSH available authentication methods:", stderr);
+      if ((methods & SSH_AUTH_METHOD_NONE))
+        fputs (" none", stderr);
+      if ((methods & SSH_AUTH_METHOD_PASSWORD))
+        fputs (" password", stderr);
+      if ((methods & SSH_AUTH_METHOD_PUBLICKEY))
+        fputs (" publickey", stderr);
+      if ((methods & SSH_AUTH_METHOD_HOSTBASED))
+        fputs (" hostbased", stderr);
+      if ((methods & SSH_AUTH_METHOD_INTERACTIVE))
+        fputs (" keyboard-interactive", stderr);
+      fputs ("\n", stderr);
+    }
+
+ leave:
+  session_table[tbl_slot].authmethods = methods;
+  session_table[tbl_slot].authmethods_valid = 1;
+
+  return retc_val;
+}
+
+
+/**
+ * @brief Set the login name for the authentication.
+ *
+ * This is an optional function and usuallay not required.  However,
+ * if you want to get the banner before starting the authentication,
+ * you need to tell libssh the user because it is often not possible
+ * to chnage the user after the first call to an authentication
+ * methods - getting the banner usees an authntication function.
+ *
+ * The named argument "login" is used for the login name; it defaults
+ * the KB entry "Secret/SSH/login".  It should contain the user name
+ * to login.  Given that many servers don't allow changing the login
+ * for an established connection, the "login" parameter is silently
+ * ignored on all further calls.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return none.
+ */
+tree_cell *
+nasl_ssh_set_login (lex_ctxt *lexic)
+{
+  int tbl_slot;
+
+  if (!find_session_id (lexic, "ssh_set_login", &tbl_slot))
+    return NULL;  /* Ooops.  */
+  if (!session_table[tbl_slot].user_set)
+    {
+      ssh_session session = session_table[tbl_slot].session;
+      struct kb_item **kb;
+      char *username;
+
+      username = get_str_local_var_by_name (lexic, "login");
+      if (!username)
+        {
+          kb = plug_get_kb (lexic->script_infos);
+          username = kb_item_get_str (kb, "Secret/SSH/login");
+        }
+      if (username && ssh_options_set (session, SSH_OPTIONS_USER, username))
+        {
+          fprintf (stderr, "Failed to set SSH username '%s': %s\n",
+                   username, ssh_get_error (session));
+          return NULL; /* Ooops.  */
+        }
+      /* In any case mark the user has set.  */
+      session_table[tbl_slot].user_set = 1;
+    }
+  return FAKE_CELL;
+}
 
 
 /**
@@ -996,28 +1177,10 @@ nasl_ssh_userauth (lex_ctxt *lexic)
   session = session_table[tbl_slot].session;
   verbose = session_table[tbl_slot].verbose;
 
-
   /* Check if we need to set the user.  This is done only once per
      session.  */
   if (!session_table[tbl_slot].user_set)
-    {
-      char *username;
-
-      username = get_str_local_var_by_name (lexic, "login");
-      if (!username)
-        {
-          kb = plug_get_kb (lexic->script_infos);
-          username = kb_item_get_str (kb, "Secret/SSH/login");
-        }
-      if (username && ssh_options_set (session, SSH_OPTIONS_USER, username))
-        {
-          fprintf (stderr, "Failed to set SSH username '%s': %s\n",
-                   username, ssh_get_error (session));
-          return NULL; /* Ooops.  */
-        }
-      /* In any case mark the user has set.  */
-      session_table[tbl_slot].user_set = 1;
-    }
+    nasl_ssh_set_login (lexic);
 
   /* First check whether any specific methods have been requested.  If
      not fall back to the default.  */
@@ -1045,47 +1208,16 @@ nasl_ssh_userauth (lex_ctxt *lexic)
         }
     }
 
-  /* Get the list of supported authentication schemes.  */
-  rc = ssh_userauth_none (session, NULL);
-  if (rc == SSH_AUTH_SUCCESS)
+  /* Get the authentication methods onlye once per session.  */
+  if (!session_table[tbl_slot].authmethods_valid)
     {
-      fprintf (stderr,
-               "SSH authentication succeeded using the none method - "
-               "should not happen; very old server?\n");
-      retc_val = 0;
-      goto leave;
+      if (!get_authmethods (tbl_slot))
+        {
+          retc_val = 0;
+          goto leave;
+        }
     }
-  else if (rc == SSH_AUTH_DENIED)
-    {
-      methods = ssh_userauth_list (session, NULL);
-    }
-  else
-    {
-      fprintf (stderr,
-               "SSH server did not return a list of authentication methods - "
-               "trying all\n");
-      methods = (SSH_AUTH_METHOD_NONE
-                 | SSH_AUTH_METHOD_PASSWORD
-                 | SSH_AUTH_METHOD_PUBLICKEY
-                 | SSH_AUTH_METHOD_HOSTBASED
-                 | SSH_AUTH_METHOD_INTERACTIVE);
-    }
-
-  if (verbose)
-    {
-      fputs ("SSH available authentication methods:", stderr);
-      if ((methods & SSH_AUTH_METHOD_NONE))
-        fputs (" none", stderr);
-      if ((methods & SSH_AUTH_METHOD_PASSWORD))
-        fputs (" password", stderr);
-      if ((methods & SSH_AUTH_METHOD_PUBLICKEY))
-        fputs (" publickey", stderr);
-      if ((methods & SSH_AUTH_METHOD_HOSTBASED))
-        fputs (" hostbased", stderr);
-      if ((methods & SSH_AUTH_METHOD_INTERACTIVE))
-        fputs (" keyboard-interactive", stderr);
-      fputs ("\n", stderr);
-    }
+  methods = session_table[tbl_slot].authmethods;
 
   /* Check whether a password has been given.  If so, try to
      authenticate using that password.  Note that the OpenSSH client
@@ -1320,498 +1452,55 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
 }
 
 
-
 /**
- * @brief Convert a key type to a string.
+ * @brief Get the issue banner
  *
- * @param[in] type  The type to convert.
- *
- * @returns A string for the keytype or NULL if unknown.
- *
- * Duplicated from libssh since it does not expose it.
- */
-const char *
-type_to_char (int type)
-{
-  switch (type)
-    {
-    case TYPE_DSS:
-      return "ssh-dss";
-    case TYPE_RSA:
-      return "ssh-rsa";
-    case TYPE_RSA1:
-      return "ssh-rsa1";
-    default:
-      return NULL;
-    }
-}
-
-/** @todo Duplicated from openvas-manager. */
-/**
- * @brief Checks whether a file is a directory or not.
- *
- * This is a replacement for the g_file_test functionality which is reported
- * to be unreliable under certain circumstances, for example if this
- * application and glib are compiled with a different libc.
- *
- * @todo Handle symbolic links.
- * @todo Move to libs?
- *
- * @param[in]  name  File name.
- *
- * @return 1 if parameter is directory, 0 if it is not, -1 if it does not
- *         exist or could not be accessed.
- */
-static int
-check_is_dir (const char *name)
-{
-  struct stat sb;
-
-  if (stat (name, &sb))
-    {
-      return -1;
-    }
-  else
-    {
-      return (S_ISDIR (sb.st_mode));
-    }
-}
-
-/** @todo Duplicated from openvas-manager. */
-/**
- * @brief Recursively removes files and directories.
- *
- * This function will recursively call itself to delete a path and any
- * contents of this path.
- *
- * @param[in]  pathname  Name of file to be deleted from filesystem.
- *
- * @return 0 if the name was successfully deleted, -1 if an error occurred.
- */
-int
-file_utils_rmdir_rf (const gchar * pathname)
-{
-  if (check_is_dir (pathname) == 1)
-    {
-      GError *error = NULL;
-      GDir *directory = g_dir_open (pathname, 0, &error);
-
-      if (directory == NULL)
-        {
-          if (error)
-            {
-              g_warning ("g_dir_open(%s) failed - %s\n", pathname,
-                         error->message);
-              g_error_free (error);
-            }
-          return -1;
-        }
-      else
-        {
-          int ret = 0;
-          const gchar *entry = NULL;
-
-          while ((entry = g_dir_read_name (directory)) != NULL && (ret == 0))
-            {
-              gchar *entry_path = g_build_filename (pathname, entry, NULL);
-              ret = file_utils_rmdir_rf (entry_path);
-              g_free (entry_path);
-              if (ret != 0)
-                {
-                  g_warning ("Failed to remove %s from %s!", entry, pathname);
-                  g_dir_close (directory);
-                  return ret;
-                }
-            }
-          g_dir_close (directory);
-        }
-    }
-
-  return g_remove (pathname);
-}
-
-/**
- * @brief Connect to the remote system via SSH and execute a command there.
+ * The function returns a string with the issue banner.  This is
+ * usually displayed before authentication.
  *
  * @param[in] lexic Lexical context of NASL interpreter.
  *
- * @return    NULL in case of error, else a tree_cell containing the result of
- * the command.
+ * @return A string is returned on success.  NULL indicates that the
+ *         server did not send a banner or that the connection has not
+ *         yet been established.
  */
 tree_cell *
-nasl_ssh_exec (lex_ctxt * lexic)
+nasl_ssh_get_issue_banner (lex_ctxt *lexic)
 {
-  struct arglist *script_infos = lexic->script_infos;
-  char *commandline;
-  char *username;
-  char *password;
-  char *pubkey;
-  char *privkey;
-  char *passphrase;
+  int tbl_slot;
   ssh_session session;
-  ssh_channel channel;
-  int rc;
-  int bytecount = 0;
-  GString *cmd_response = NULL;
-  tree_cell *retc = NULL;
-  const char *hostname;
-  int port;
-  int type = 0;
-  char buffer[4096];
-  int nbytes;
+  char *banner;
+  tree_cell *retc;
 
-  port = get_int_local_var_by_name (lexic, "port", 0);
-  username = get_str_local_var_by_name (lexic, "login");
-  password = get_str_local_var_by_name (lexic, "password");
-  commandline = get_str_local_var_by_name (lexic, "cmd");
-  privkey = get_str_local_var_by_name (lexic, "privkey");
-  pubkey = get_str_local_var_by_name (lexic, "pubkey");
-  passphrase = get_str_local_var_by_name (lexic, "passphrase");
+  if (!find_session_id (lexic, "ssh_get_issue_banner", &tbl_slot))
+    return NULL;
+  session = session_table[tbl_slot].session;
 
-  if ((port <= 0) || (username == NULL) || (commandline == NULL))
-    {
-      fprintf (stderr,
-               "Insufficient parameters: port=%d, username=%s, commandline=%s\n",
-               port, username, commandline);
-      return NULL;
-    }
-  if ((privkey == NULL) && (password == NULL))
-    {
-      fprintf (stderr,
-               "Insufficient parameters: Both privkey and password are NULL\n");
-      return NULL;
-    }
+  /* We need to make sure that we got the auth methods so that libssh
+     has the banner.  */
+  if (!session_table[tbl_slot].user_set)
+    nasl_ssh_set_login (lexic);
+  if (!session_table[tbl_slot].authmethods_valid)
+    get_authmethods (tbl_slot);
 
-  hostname = plug_get_hostname (script_infos);
+  banner = ssh_get_issue_banner (session);
+  if (!banner)
+    return NULL;
 
-  session = ssh_new ();
-  if (!session)
-    {
-      fprintf (stderr, "Failed to allocate a new SSH session\n");
-      return NULL;
-    }
-
-  ssh_options_set (session, SSH_OPTIONS_HOST, hostname);
-  ssh_options_set (session, SSH_OPTIONS_USER, username);
-  ssh_options_set (session, SSH_OPTIONS_PORT, &port);
-
-  ssh_connect (session);
-  if (session == NULL)
-    {
-      fprintf (stderr, "Failed to connect to SSH server '%s': %s\n",
-               hostname, ssh_get_error (session));
-      ssh_free (session);
-      return NULL;
-    }
-
-  if (strlen (password) != 0)
-    {
-      /* We could authenticate via password */
-      rc = ssh_userauth_password (session, NULL, password);
-      if (rc != SSH_AUTH_SUCCESS)
-        {
-          fprintf (stderr,
-                   "SSH password authentication to '%s%s%s' failed: %s\n",
-                   username?username:"",
-                   username?"@":"",
-                   hostname, ssh_get_error (session));
-          ssh_disconnect (session);
-          ssh_free (session);
-          return NULL;
-        }
-    }
-  else
-    {
-      /* Or by public key */
-      ssh_private_key ssh_privkey;
-      ssh_string pubkey_string;
-      /* This is only needed if we generate the public key from the private key
-       * (see below).
-       */
-#if 0
-      ssh_public_key ssh_pubkey;
-#endif
-      gchar *pubkey_filename;
-      gchar *privkey_filename;
-      gchar *pubkey_contents;
-      const char *privkey_type;
-      char key_dir[] = "/tmp/openvas_key_XXXXXX";
-      GError *error;
-
-      /* Write the keyfiles to a temporary directory. */
-      /**
-       * @todo Ultimately we would like to be able to use the keys we already
-       * have in memory, unfortunately libssh does not support this yet.
-       * In June 2011, libssh developers were confident to introduce this
-       * feature for libssh > 0.5 with the new ssh_pki_import_* API.
-       * */
-      if (mkdtemp (key_dir) == NULL)
-        {
-          fprintf (stderr, "%s: mkdtemp failed\n", __FUNCTION__);
-          ssh_free (session);
-          return NULL;
-        }
-
-      pubkey_filename = g_strdup_printf ("%s/key.pub", key_dir);
-      privkey_filename = g_strdup_printf ("%s/key", key_dir);
-
-      error = NULL;
-      g_file_set_contents (privkey_filename, privkey, strlen (privkey), &error);
-      if (error)
-        {
-          fprintf (stderr, "Failed to write private key: %s", error->message);
-          g_error_free (error);
-          g_free (privkey_filename);
-          g_free (pubkey_filename);
-          ssh_disconnect (session);
-          ssh_free (session);
-          file_utils_rmdir_rf (key_dir);
-          return NULL;
-        }
-
-      g_chmod (privkey_filename, S_IRUSR | S_IWUSR);
-
-      ssh_privkey =
-        privatekey_from_file (session, privkey_filename, TYPE_RSA, passphrase);
-      if (ssh_privkey == NULL)
-        {
-          fprintf (stderr, "Reading private key %s failed (%s)\n",
-                   privkey_filename, ssh_get_error (session));
-          g_free (privkey_filename);
-          ssh_disconnect (session);
-          ssh_free (session);
-          file_utils_rmdir_rf (key_dir);
-          return NULL;
-        }
-
-      type = ssh_privatekey_type (ssh_privkey);
-      privkey_type = type_to_char (type);
-      pubkey_contents =
-        g_strdup_printf ("%s %s user@host", privkey_type, pubkey);
-
-      g_file_set_contents (pubkey_filename, pubkey_contents,
-                           strlen (pubkey_contents), &error);
-      if (error)
-        {
-          fprintf (stderr, "Failed to write public key: %s", error->message);
-          g_error_free (error);
-          g_free (pubkey_filename);
-          g_free (privkey_filename);
-          privatekey_free (ssh_privkey);
-          ssh_disconnect (session);
-          ssh_free (session);
-          file_utils_rmdir_rf (key_dir);
-          return NULL;
-        }
-
-      g_free (pubkey_contents);
-
-      g_chmod (pubkey_filename, S_IRUSR | S_IWUSR);
-
-      rc =
-        ssh_try_publickey_from_file (session, privkey_filename, &pubkey_string,
-                                     &type);
-      if (rc != 0)
-        {
-          fprintf (stderr, "ssh_try_publickey_from_file failed: %d\n", rc);
-          g_free (pubkey_filename);
-          g_free (privkey_filename);
-          ssh_disconnect (session);
-          ssh_free (session);
-          file_utils_rmdir_rf (key_dir);
-          return NULL;
-        }
-
-      /* The code below would in theory generate the public key from the private
-       * key. It is not yet known if this would work for all keys.
-       */
-#if 0
-      if (rc == 1)
-        {
-          char *publickey_file;
-          size_t len;
-
-          ssh_pubkey = publickey_from_privatekey (ssh_privkey);
-          if (ssh_pubkey == NULL)
-            {
-              privatekey_free (ssh_privkey);
-              return NULL;
-            }
-
-          pubkey_string = publickey_to_string (ssh_pubkey);
-          type = ssh_privatekey_type (ssh_privkey);
-          publickey_free (ssh_pubkey);
-          if (pubkey_string == NULL)
-            {
-              return NULL;
-            }
-
-          len = strlen (privkey_filename) + 5;
-          publickey_file = malloc (len);
-          if (publickey_file == NULL)
-            {
-              return NULL;
-            }
-          snprintf (publickey_file, len, "%s.pub", privkey_filename);
-          rc =
-            ssh_publickey_to_file (session, publickey_file, pubkey_string,
-                                   type);
-          if (rc < 0)
-            {
-              fprintf (stderr, "Could not write public key to file: %s",
-                       publickey_file);
-            }
-        }
-      else if (rc < 0)
-        {
-          /* TODO: Handle Error */
-        }
-#endif
-
-      rc = ssh_userauth_offer_pubkey (session, NULL, type, pubkey_string);
-      if (rc == SSH_AUTH_ERROR)
-        {
-          fprintf (stderr, "Publickey authentication error");
-          ssh_string_free (pubkey_string);
-          privatekey_free (ssh_privkey);
-          g_free (pubkey_filename);
-          g_free (privkey_filename);
-          ssh_disconnect (session);
-          ssh_free (session);
-          file_utils_rmdir_rf (key_dir);
-          return NULL;
-        }
-      else
-        {
-          if (rc != SSH_AUTH_SUCCESS)
-            {
-              fprintf (stderr, "Publickey refused by server");
-              ssh_string_free (pubkey_string);
-              privatekey_free (ssh_privkey);
-              g_free (pubkey_filename);
-              g_free (privkey_filename);
-              ssh_disconnect (session);
-              ssh_free (session);
-              file_utils_rmdir_rf (key_dir);
-              return NULL;
-            }
-        }
-
-      /* Public key accepted by server! */
-      rc = ssh_userauth_pubkey (session, NULL, pubkey_string, ssh_privkey);
-      if (rc == SSH_AUTH_ERROR)
-        {
-          fprintf (stderr, "ssh_userauth_pubkey failed!\n");
-          ssh_string_free (pubkey_string);
-          privatekey_free (ssh_privkey);
-          g_free (pubkey_filename);
-          g_free (privkey_filename);
-          ssh_disconnect (session);
-          ssh_free (session);
-          file_utils_rmdir_rf (key_dir);
-          return NULL;
-        }
-      else
-        {
-          if (rc != SSH_AUTH_SUCCESS)
-            {
-              fprintf (stderr,
-                       "The server accepted the public key but refused the signature");
-              ssh_string_free (pubkey_string);
-              privatekey_free (ssh_privkey);
-              g_free (pubkey_filename);
-              g_free (privkey_filename);
-              ssh_disconnect (session);
-              ssh_free (session);
-              file_utils_rmdir_rf (key_dir);
-              return NULL;
-            }
-        }
-
-      /* auth success */
-      ssh_string_free (pubkey_string);
-      privatekey_free (ssh_privkey);
-
-      g_free (pubkey_filename);
-      g_free (privkey_filename);
-
-      file_utils_rmdir_rf (key_dir);
-    }
-
-  channel = ssh_channel_new (session);
-  if (channel == NULL)
-    {
-      fprintf (stderr, "ssh_channel_new failed: %s\n", ssh_get_error (session));
-      ssh_disconnect (session);
-      ssh_free (session);
-      return NULL;
-    }
-
-  rc = ssh_channel_open_session (channel);
-  if (rc < 0)
-    {
-      fprintf (stderr, "ssh_channel_open_session failed: %s\n",
-               ssh_get_error (session));
-      ssh_channel_send_eof (channel);
-      ssh_channel_close (channel);
-      ssh_channel_free (channel);
-      ssh_disconnect (session);
-      ssh_free (session);
-      return NULL;
-    }
-
-  rc = ssh_channel_request_exec (channel, commandline);
-  if (rc < 0)
-    {
-      fprintf (stderr, "ssh_channel_request_exec failed: %s\n",
-               ssh_get_error (session));
-      ssh_channel_send_eof (channel);
-      ssh_channel_close (channel);
-      ssh_channel_free (channel);
-      ssh_disconnect (session);
-      ssh_free (session);
-      return NULL;
-    }
-
-  cmd_response = g_string_new ("");
-  nbytes = ssh_channel_read (channel, buffer, sizeof (buffer), 0);
-  while (nbytes > 0)
-    {
-      g_string_append_len (cmd_response, buffer, nbytes);
-      bytecount += nbytes;
-      nbytes = ssh_channel_read (channel, buffer, sizeof (buffer), 0);
-    }
-
-  if (nbytes < 0)
-    {
-      fprintf (stderr, "ssh_channel_read failed: %s\n",
-               ssh_get_error (session));
-      ssh_channel_send_eof (channel);
-      ssh_channel_close (channel);
-      ssh_channel_free (channel);
-      ssh_disconnect (session);
-      ssh_free (session);
-      return NULL;
-    }
-
-  ssh_channel_send_eof (channel);
-  ssh_channel_close (channel);
-  ssh_channel_free (channel);
-  ssh_disconnect (session);
-  ssh_free (session);
-
-  if (cmd_response != NULL)
-    {
-      retc = alloc_typed_cell (CONST_DATA);
-      retc->size = bytecount;
-      retc->x.str_val = g_strdup (cmd_response->str);
-      g_string_free (cmd_response, TRUE);
-      return retc;
-    }
-  else
-    {
-      return NULL;
-    }
+  retc = alloc_typed_cell (CONST_DATA);
+  retc->x.str_val = estrdup (banner);
+  retc->size = strlen (banner);
+  ssh_string_free_char (banner);
+  return retc;
 }
 
-#endif /*HAVE_LIBSSH*/
+
+#else /*!HAVE_LIBSSH*/
+/* Dummy version of the function.  This is required because that
+   stupid cmake does not convey global definitions like HAVE_LIBSSH.  */
+int
+nasl_ssh_internal_close (int sock)
+{
+  return -1;
+}
+#endif /*!HAVE_LIBSSH*/

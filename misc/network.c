@@ -52,6 +52,7 @@
 #include "plugutils.h" /* for OPENVAS_ENCAPS_IP */
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_CTRL */
 #include "support.h"
+#include "../nasl/nasl_ssh.h"   /* for nasl_ssh_internal_close */
 
 #include <setjmp.h>
 
@@ -225,6 +226,10 @@ release_connection_fd (int fd)
  * code shall be fixed. */
   if (p->fd >= 0)
     {
+#if DEBUG_SSL > 1
+      fprintf (stderr,
+               "[%d] release_connection_fd: fd > 0 fd=%d\n", getpid (), p->fd);
+#endif
       if (shutdown (p->fd, 2) < 0)
         {
 #if DEBUG_SSL > 1
@@ -1774,10 +1779,14 @@ close_stream_connection (int fd)
       return -1;
     }
   fp = &(connections[fd - OPENVAS_FD_OFF]);
-  fprintf (stderr, "close_stream_connection TCP:%d\n", fp->port);
+  fprintf (stderr, "close_stream_connection TCP:%d (fd=%d)\n", fp->port, fd);
 #endif
 
-  if (!OPENVAS_STREAM (fd))     /* Will never happen if debug is on! */
+  if (0)
+    ;
+  else if (!nasl_ssh_internal_close (fd))
+    return 0;
+  else if (!OPENVAS_STREAM (fd))     /* Will never happen if debug is on! */
     {
       if (fd < 0 || fd > 1024)
         {

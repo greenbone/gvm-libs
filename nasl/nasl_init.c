@@ -369,11 +369,10 @@ static init_func libfuncs[] = {
   {"ssh_disconnect", nasl_ssh_disconnect, 1, {NULL }},
   {"ssh_session_id_from_sock", nasl_ssh_session_id_from_sock, 1, {NULL }},
   {"ssh_get_sock", nasl_ssh_get_sock, 1, {NULL }},
+  {"ssh_set_login", nasl_ssh_set_login, 1, {"login", NULL }},
   {"ssh_userauth", nasl_ssh_userauth, 1, {"login", "password", NULL }},
   {"ssh_request_exec", nasl_ssh_request_exec, 1, {"cmd", NULL }},
-  {"ssh_exec", nasl_ssh_exec, 0,
-   {"cmd", "login", "passphrase", "password", "port", "privkey",
-    "pubkey", NULL}},
+  {"ssh_get_issue_banner", nasl_ssh_get_issue_banner, 1, {NULL }},
 #endif
 
   {"pread", nasl_pread, 0, {"argv", "cd", "cmd", "nice", NULL}},

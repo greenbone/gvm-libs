@@ -1,5 +1,27 @@
 2012-09-20  Werner Koch  <wk@gnupg.org>
 
+	* nasl/nasl_init.c (libfuncs) [HAVE_LIBSSH]: Add functions
+	"ssh_set_login" and "ssh_get_issue_banner".
+	* nasl/nasl_ssh.c: Include "network.h"
+	(session_table_item_s): Add fields AUTHMETHODS and
+	AUTHMETHODS_VALID.
+	(nasl_ssh_connect): Fix use with provided socket.
+	(nasl_ssh_disconnect): Factor some code out to ...
+	(do_nasl_ssh_disconnect): New.
+	(nasl_ssh_internal_close): New.  Also as dummy for !HAVE_LIBSSH.
+	(nasl_ssh_userauth): Factor some code out to ...
+	(nasl_ssh_set_login, get_authmethods): New.
+	* misc/network.c: Include "nasl_ssh.h".
+	(release_connection_fd) [DEBUG_SSL]: Improve debug output.
+	(close_stream_connection) [DEBUG_SSL]: Ditto.
+	(close_stream_connection): Try to close ssh connections.
+
+	* nasl/nasl_init.c (libfuncs) [HAVE_LIBSSH]: Remove ssh_exec.
+	* nasl/nasl_ssh.c (nasl_ssh_exec): Remove.  Not needed because
+	the NASL function ssh_cmd_exec does now use the new libssh code.
+	(file_utils_rmdir_rf, check_is_dir, type_to_char): Remove.
+	(public_key_types_e): Remove.
+
 	* nasl/nasl_ssh.c (pkcs8_to_sshprivatekey): Provide fallback for
 	older gnutls versions.
 
