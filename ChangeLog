@@ -1,3 +1,8 @@
+2012-09-20  Werner Koch  <wk@gnupg.org>
+
+	* nasl/nasl_ssh.c (pkcs8_to_sshprivatekey): Provide fallback for
+	older gnutls versions.
+
 2012-09-19  Werner Koch  <wk@gnupg.org>
 
 	* nasl/nasl_ssh.c (nasl_ssh_userauth): Detect available

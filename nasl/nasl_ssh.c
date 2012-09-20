@@ -241,9 +241,11 @@ my_ssh_key_free (my_ssh_key key)
 
 
 /* Create a TLV tag and store it at BUFFER.  A LENGTH greater than
-   65535 is truncated.  This is used to write DER encoded data.  */
+   65535 is truncated.  If VALUE is NULL only the tag and length
+   values will be written.  This is used to write DER encoded
+   data.  */
 static void
-add_tl (membuf_t *buffer, unsigned int tag, size_t length)
+add_tlv (membuf_t *buffer, unsigned int tag, void *value, size_t length)
 {
   g_assert (tag <= 0xffff);
   if (tag > 0xff)
@@ -264,17 +266,8 @@ add_tl (membuf_t *buffer, unsigned int tag, size_t length)
       put_membuf_byte (buffer, length >> 8);
       put_membuf_byte (buffer, length);
     }
-}
-
-
-/* Create a TLV tag and value and store it at BUFFER.  A LENGTH
-   greater than 65535 is truncated.  This is used to write DER encoded
-   data.  */
-static void
-add_tlv (membuf_t *buffer, unsigned int tag, void *value, size_t length)
-{
-  add_tl (buffer, tag, length);
-  put_membuf (buffer, value, length);
+  if (value)
+    put_membuf (buffer, value, length);
 }
 
 
@@ -322,8 +315,25 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
       return NULL;
     }
 
+#if GNUTLS_VERSION_NUMBER >= 0x020b00  /* ...raw2 added in 2.11.0 */
   rc = gnutls_x509_privkey_export_rsa_raw2 (key, &m, &e, &d, &p, &q, &u,
                                             &dmp1, &dmq1);
+#else
+  rc = gnutls_x509_privkey_export_rsa_raw (key, &m, &e, &d, &p, &q, &u);
+  if (!rc)
+    {
+      /* The libgcrypt version of libssh does not use dmp1 and dmq1.
+         Thus we can safely provide dummy values.  */
+      dmp1.size = 4;
+      dmp1.data = gnutls_malloc (4);
+      if (dmp1.data)
+        memcpy (dmp1.data, "\x42\x42\x42\x42", 4);
+      dmq1.size = 4;
+      dmq1.data = gnutls_malloc (4);
+      if (dmq1.data)
+        memcpy (dmq1.data, "\x42\x42\x42\x42", 4);
+    }
+#endif
   gnutls_x509_privkey_deinit (key);
   if (rc)
     {
