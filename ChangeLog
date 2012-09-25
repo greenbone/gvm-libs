@@ -1,3 +1,7 @@
+2012-09-25  Andre Heinecke <aheinecke@intevation.de>
+
+	* nasl/CMakeLists.txt: Fix library order when linking openvas-nasl
+
 2012-09-20  Werner Koch  <wk@gnupg.org>
 
 	* nasl/nasl_init.c (libfuncs) [HAVE_LIBSSH]: Add functions

@@ -114,8 +114,8 @@ target_link_libraries (openvas_nasl_shared openvas_base_shared openvas_misc_shar
 
 # Link the openvas-nasl executable
 add_executable (openvas-nasl nasl.c)
-target_link_libraries (openvas-nasl openvas_nasl_static openvas_base_static
-                       openvas_misc_static openvas_hg_static ${GLIB_LDFLAGS} -lgcrypt
+target_link_libraries (openvas-nasl openvas_misc_static openvas_nasl_static
+                        openvas_base_static openvas_hg_static ${GLIB_LDFLAGS} -lgcrypt
                        -lgpgme -lgpg-error -lgnutls -lpcap -lresolv -lm ${WMI_LIBS}
                        ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS})
 set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
