@@ -1,3 +1,7 @@
+2012-10-09  Werner Koch  <wk@gnupg.org>
+
+	* doc/Doxyfile.in: Remove trailing white space.
+
 2012-09-25  Andre Heinecke <aheinecke@intevation.de>
 
 	* nasl/CMakeLists.txt: Fix library order when linking openvas-nasl
