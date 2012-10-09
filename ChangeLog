@@ -1,5 +1,13 @@
 2012-10-09  Werner Koch  <wk@gnupg.org>
 
+	Add a simple way to document NASL function APIs.
+
+	* doc/Doxyfile.in (ALIASES): Add commands naslfn, nasluparam,
+	naslnparam, naslret.
+	(PREDEFINED): Add HAVE_LIBSSH and HAVE_LIBKSBA so that doxygen is
+	abale to parse the doc strings.
+	* nasl/nasl_ssh.c: Document the NASL API.
+
 	* doc/Doxyfile.in: Remove trailing white space.
 
 2012-09-25  Andre Heinecke <aheinecke@intevation.de>

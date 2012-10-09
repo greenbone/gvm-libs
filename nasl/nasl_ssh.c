@@ -24,6 +24,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file nasl_ssh.c
+ *
+ * @brief Implementation of an API for SSH functions.
+ *
+ * This file contains the implementaion of the Secure Shell related
+ * NASL builtin functions.  They are only available if build with
+ * libssh support.
+ */
+
 #ifdef HAVE_LIBSSH
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -275,7 +285,7 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
   gnutls_datum_t m, e, d, p, q, u, dmp1, dmq1;
   membuf_t dermb;
   void *derbuf;
-  size_t derlen;
+  size_t derlen = 0;  /* Silence gcc 4.7.1 warning. */
   gnutls_datum_t der, pem;
 
   rc = gnutls_x509_privkey_init (&key);
@@ -668,6 +678,7 @@ get_ssh_port (lex_ctxt *lexic)
 /**
  * @brief Connect to the target host via TCP and setup an ssh
  *        connection.
+ * @naslfn{ssh_connect}
  *
  * If the named argument "socket" is given, that socket will be used
  * instead of a creating a new TCP connection.  If socket is not given
@@ -678,6 +689,16 @@ get_ssh_port (lex_ctxt *lexic)
  * caller may then run an authentication function.  If the connection
  * is no longer needed, ssh_disconnect may be used to disconnect and
  * close the socket.
+ *
+ * @naslnparam
+ *
+ * - @a socket If given, this socket will be used instead of creating
+ *             a new connection.
+ *
+ * - @a port A non-standard port to connect to.  This is only used if
+ *           @a socket is not given or 0.
+ *
+ * @naslret An integer to identify the ssh session. Zero on error.
  *
  * @param[in] lexic Lexical context of NASL interpreter.
  *
@@ -879,12 +900,19 @@ do_nasl_ssh_disconnect (int tbl_slot)
 
 /**
  * @brief Disconnect an ssh connection
+ * @naslfn{ssh_disconnect}
  *
  * This function takes the ssh session id (as returned by ssh_connect)
  * as its only unnamed argument.  Passing 0 as session id is
  * explicitly allowed and does nothing.  If there are any open
  * channels they are closed as well and their ids will be marked as
  * invalid.
+ *
+ * @nasluparam
+ *
+ * - An ssh session id.  A value of 0 is allowed and acts as a NOP.
+ *
+ * @naslret Nothing
  *
  * @param[in] lexic Lexical context of NASL interpreter.
  *
@@ -946,6 +974,12 @@ nasl_ssh_internal_close (int sock)
 
 /**
  * @brief Given a socket, return the corresponding session id.
+ * @naslfn{ssh_session_id_from_sock}
+ * @nasluparam
+ * - A NASL socket value
+ *
+ * @naslret An integer with the corresponding ssh session id or 0 if
+ *          no session id is known for the given socket.
  *
  * @param[in] lexic Lexical context of NASL interpreter.
  *
@@ -977,10 +1011,17 @@ nasl_ssh_session_id_from_sock (lex_ctxt *lexic)
 
 /**
  * @brief Given a session id, return the corresponding socket
+ * @naslfn{ssh_get_sock}
  *
  * The socket is either a native file descriptor or a NASL connection
  * socket (if a open socket was passed to ssh_connect).  The NASL
  * network code handles both of them.
+ *
+ * @nasluparam
+ *
+ * - An ssh session id.
+ *
+ * @naslret An integer representing the socket or -1 on error.
  *
  * @param[in] lexic Lexical context of NASL interpreter.
  *
@@ -1069,6 +1110,7 @@ get_authmethods (int tbl_slot)
 
 /**
  * @brief Set the login name for the authentication.
+ * @naslfn{ssh_set_login}
  *
  * This is an optional function and usuallay not required.  However,
  * if you want to get the banner before starting the authentication,
@@ -1081,6 +1123,16 @@ get_authmethods (int tbl_slot)
  * to login.  Given that many servers don't allow changing the login
  * for an established connection, the "login" parameter is silently
  * ignored on all further calls.
+ *
+ * @nasluparam
+ *
+ * - An ssh session id.
+ *
+ * @naslnparam
+ *
+ * - @a login A string with the login name (optional).
+ *
+ * @naslret None
  *
  * @param[in] lexic Lexical context of NASL interpreter.
  *
@@ -1120,6 +1172,7 @@ nasl_ssh_set_login (lex_ctxt *lexic)
 
 /**
  * @brief Authenticate a user on an ssh connection
+ * @naslfn{ssh_userauth}
  *
  * The function expects the session id as its first unnamed argument.
  * The first time this function is called for a session id, the named
@@ -1150,6 +1203,24 @@ nasl_ssh_set_login (lex_ctxt *lexic)
  * Note that the named argument "publickey" and the KB item
  * ("Secret/SSH/publickey") are ignored - they are not longer required
  * because they can be derived from the private key.
+ *
+ * @nasluparam
+ *
+ * - An ssh session id.
+ *
+ * @naslnparam
+ *
+ * - @a login A string with the login name.
+ *
+ * - @a password A string with the password.
+ *
+ * - @a privatekey A base64 encoded private key in ssh native or in
+ *      pkcs#8 format.  This parameter is ignored if @a password is given.
+ *
+ * - @a passphrase A string with the passphrase used to unprotect @a
+ *      privatekey.
+ *
+ * @naslret An integer as status value; 0 indicates success.
  *
  * @param[in] lexic Lexical context of NASL interpreter.
  *
@@ -1342,11 +1413,22 @@ nasl_ssh_userauth (lex_ctxt *lexic)
 
 /**
  * @brief Run a command via ssh.
+ * @naslfn{ssh_request_exec}
  *
- * The function opens a channel, to the remote end, and ask it to
- * execite a command.  The output of the command is then returned as a
+ * The function opens a channel to the remote end and ask it to
+ * execute a command.  The output of the command is then returned as a
  * data block.  The first unnamed argument is the session id. The
  * command itself is expected as string in the named argument "cmd".
+ *
+ * @nasluparam
+ *
+ * - An ssh session id.
+ *
+ * @naslnparam
+ *
+ * - @a cmd A string with the command to execute.
+ *
+ * @naslret A data block on success or NULL on error.
  *
  * @param[in] lexic Lexical context of NASL interpreter.
  *
@@ -1365,7 +1447,7 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   char buffer[1024];
   membuf_t response;
   int nread;
-  size_t len;
+  size_t len = 0;
   tree_cell *retc;
   char *p;
 
@@ -1454,9 +1536,16 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
 
 /**
  * @brief Get the issue banner
+ * @naslfn{ssh_get_issue_banner}
  *
  * The function returns a string with the issue banner.  This is
  * usually displayed before authentication.
+ *
+ * @nasluparam
+ *
+ * - An ssh session id.
+ *
+ * @naslret A data block on success or NULL on error.
  *
  * @param[in] lexic Lexical context of NASL interpreter.
  *

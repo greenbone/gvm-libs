@@ -180,6 +180,10 @@ TAB_SIZE               = 2
 # You can put \n's in the value part of an alias to insert newlines.
 
 ALIASES                = "TODO=\todo"
+ALIASES               += "naslfn{1}=\par NASL Function: \b \1\n"
+ALIASES               += "nasluparam=\par NASL Unnamed Parameters:\n"
+ALIASES               += "naslnparam=\par NASL Named Parameters:\n"
+ALIASES               += "naslret=\par NASL Returns:\n"
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C
 # sources only. Doxygen will then generate output that is more tailored for C.
@@ -1012,7 +1016,7 @@ INCLUDE_FILE_PATTERNS  =
 # undefined via #undef or recursively expanded use the := operator
 # instead of the = operator.
 
-PREDEFINED             =
+PREDEFINED             = HAVE_LIBSSH HAVE_LIBKSBA
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
 # this tag can be used to specify a list of macro names that should be expanded.
