@@ -1,3 +1,8 @@
+2012-10-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_init.c (libfuncs): Fixed buggy definition of
+	nasl function security_message.
+ 
 2012-10-09  Werner Koch  <wk@gnupg.org>
 
 	Add a simple way to document NASL function APIs.
