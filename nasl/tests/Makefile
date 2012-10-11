@@ -22,7 +22,8 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
 TEST_SCRIPTS = test_bn.nasl test_md.nasl test_dh.nasl test_blowfish.nasl \
-               test_dsa.nasl test_privkey.nasl test_rsa.nasl test_hexstr.nasl
+               test_dsa.nasl test_privkey.nasl test_rsa.nasl test_hexstr.nasl \
+	       test_isotime.nasl
 
 # Scripts which are useful for debugging.  Eventually they should be
 # enhanced so that they can be run as part of the regression test.

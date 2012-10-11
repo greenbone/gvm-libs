@@ -49,6 +49,8 @@
 #include "nasl_packet_forgery_v6.h"
 #include "nasl_builtin_plugins.h"
 #include "nasl_ssh.h"
+#include "nasl_cert.h"
+#include "nasl_isotime.h"
 
 
 /* **************************************************************** */
@@ -375,6 +377,12 @@ static init_func libfuncs[] = {
   {"ssh_get_issue_banner", nasl_ssh_get_issue_banner, 1, {NULL }},
 #endif
 
+#ifdef HAVE_LIBKSBA
+  {"cert_open", nasl_cert_open, 1, {"errorvar", NULL }},
+  {"cert_close", nasl_cert_close, 1, {NULL }},
+  {"cert_query", nasl_cert_query, 2, {"idx", NULL }},
+#endif /*HAVE_LIBKSBA*/
+
   {"pread", nasl_pread, 0, {"argv", "cd", "cmd", "nice", NULL}},
   {"find_in_path", nasl_find_in_path, 1, {NULL}},
   {"fread", nasl_fread, 1, {NULL}},
@@ -437,6 +445,12 @@ static init_func libfuncs[] = {
   {"plugin_run_openvas_tcp_scanner", plugin_run_openvas_tcp_scanner, 0, {NULL}},
   {"plugin_run_synscan", plugin_run_synscan, 0, {NULL}},
   {"plugin_run_nmap", plugin_run_nmap, 0, {NULL}},
+
+  {"isotime_now",      nasl_isotime_now, 0, {NULL}},
+  {"isotime_is_valid", nasl_isotime_is_valid, 1, {NULL}},
+  {"isotime_scan",     nasl_isotime_scan, 1, {NULL}},
+  {"isotime_print",    nasl_isotime_print, 1, {NULL}},
+  {"isotime_add",      nasl_isotime_add, 1, {"days", "seconds", "years", NULL}},
 
   {NULL, NULL, 0, {NULL}}
 };

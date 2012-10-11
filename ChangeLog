@@ -1,8 +1,24 @@
+2012-10-11  Werner Koch  <wk@gnupg.org>
+
+	* nasl/nasl_cert.c: New.
+	* nasl/nasl_isotime.c: New.
+	* nasl/nasl_init.c: Include nasl_cert.h and nasl_isotime.h.
+	(libfuncs) [HAVE_LIBSSH]: Add "cert_*" functions.
+	(libfuncs): Add "isotime_*" functions.
+	* nasl/tests/test_isotime.nasl: New.
+	* nasl/tests/Makefile (TEST_SCRIPTS): Add test_isotime.nasl
+	* CMakeLists.txt: Check for libksba.
+	* nasl/CMakeLists.txt (add_custom_command): Add nasl_cert.c and
+	nasl_isotime.c.
+	(add_definitions): Define HAVE_LIBKSBA.
+	(set_target_properties): Add KSAB_CFLAGS.
+	(target_link_libraries): Add ksba.
+
 2012-10-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_init.c (libfuncs): Fixed buggy definition of
 	nasl function security_message.
- 
+
 2012-10-09  Werner Koch  <wk@gnupg.org>
 
 	Add a simple way to document NASL function APIs.
@@ -10,7 +26,7 @@
 	* doc/Doxyfile.in (ALIASES): Add commands naslfn, nasluparam,
 	naslnparam, naslret.
 	(PREDEFINED): Add HAVE_LIBSSH and HAVE_LIBKSBA so that doxygen is
-	abale to parse the doc strings.
+	able to parse the doc strings.
 	* nasl/nasl_ssh.c: Document the NASL API.
 
 	* doc/Doxyfile.in: Remove trailing white space.

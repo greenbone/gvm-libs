@@ -216,6 +216,17 @@ execute_process (COMMAND gpgme-config --cflags
   OUTPUT_VARIABLE GPGME_CFLAGS
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+message (STATUS "Looking for ksba...")
+find_library (KSBA ksba)
+message (STATUS "Looking for ksba... ${KSBA}")
+
+execute_process (COMMAND ksba-config --libs
+  OUTPUT_VARIABLE KSBA_LDFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process (COMMAND ksba-config --cflags
+  OUTPUT_VARIABLE KSBA_CFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 execute_process (COMMAND pkg-config --cflags glib-2.0
   OUTPUT_VARIABLE GLIB_CFLAGS
   OUTPUT_STRIP_TRAILING_WHITESPACE)

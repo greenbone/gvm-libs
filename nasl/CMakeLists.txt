@@ -55,11 +55,12 @@ add_custom_command (
 set (FILES arc4.c capture_packet.c charcnv.c exec.c genrand.c hmacmd5.c
      iconv.c lint.c lsearch.c md4.c md5.c nasl.c nasl_builtin_find_service.c
      nasl_builtin_openvas_tcp_scanner.c nasl_builtin_synscan.c nasl_builtin_nmap.c
-     nasl_cmd_exec.c nasl_crypto2.c nasl_ssh.c
+     nasl_cmd_exec.c nasl_crypto2.c nasl_ssh.c nasl_cert.c
      nasl_crypto.c nasl_debug.c nasl_func.c nasl_grammar.tab.c nasl_host.c
      nasl_http.c nasl_init.c nasl_lex_ctxt.c nasl_misc_funcs.c nasl_scanner_glue.c
      nasl_packet_forgery.c nasl_packet_forgery_v6.c nasl_signature.c nasl_smb.c
      nasl_socket.c nasl_text_utils.c nasl_tree.c nasl_var.c nasl_wmi.c
+     nasl_isotime.c
      ntlmssp.c strutils.c smb_crypt.c smb_crypt2.c
      smb_signing.c time.c)
 
@@ -75,6 +76,10 @@ endif (NOT WMICLIENT_FOUND)
 if (LIBSSH_FOUND)
   add_definitions (-DHAVE_LIBSSH)
 endif (LIBSSH_FOUND)
+
+if (LIBKSBA)
+  add_definitions (-DHAVE_LIBKSBA)
+endif (LIBKSBA)
 
 set_source_files_properties (nasl_grammar.tab.c GENERATED)
 
@@ -92,16 +97,16 @@ link_directories (${LIBDIR} ../base ../hg ../misc)
 
 add_library (openvas_nasl_static STATIC ${FILES})
 
-set_target_properties (openvas_nasl_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS}")
+set_target_properties (openvas_nasl_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS}")
 set_target_properties (openvas_nasl_static PROPERTIES OUTPUT_NAME "openvas_nasl")
 set_target_properties (openvas_nasl_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_nasl_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
 target_link_libraries (openvas_nasl_static openvas_base_static openvas_misc_static
-			openvas_hg_static glib-2.0 gcrypt gpgme
+			openvas_hg_static glib-2.0 gcrypt gpgme ksba
 			gpg-error gnutls pcap ${WMI} "${LIBSSH_LDFLAGS}")
 
 add_library (openvas_nasl_shared SHARED ${FILES})
-set_target_properties (openvas_nasl_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS}")
+set_target_properties (openvas_nasl_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS}")
 set_target_properties (openvas_nasl_shared PROPERTIES OUTPUT_NAME "openvas_nasl")
 set_target_properties (openvas_nasl_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_nasl_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
@@ -109,17 +114,17 @@ set_target_properties (openvas_nasl_shared PROPERTIES VERSION "${CPACK_PACKAGE_V
 set_target_properties (openvas_nasl_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 # line bellow is needed so it also works with no-undefined which is e.g. used by Mandriva
 target_link_libraries (openvas_nasl_shared openvas_base_shared openvas_misc_shared
-			openvas_hg_shared glib-2.0 gcrypt gpgme
+			openvas_hg_shared glib-2.0 gcrypt gpgme ksba
 			gpg-error gnutls pcap m ${WMI} ${LIBSSH_LDFLAGS})
 
 # Link the openvas-nasl executable
 add_executable (openvas-nasl nasl.c)
 target_link_libraries (openvas-nasl openvas_misc_static openvas_nasl_static
                         openvas_base_static openvas_hg_static ${GLIB_LDFLAGS} -lgcrypt
-                       -lgpgme -lgpg-error -lgnutls -lpcap -lresolv -lm ${WMI_LIBS}
-                       ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS})
+                       -lgpgme -lksba -lgpg-error -lgnutls -lpcap -lresolv -lm ${WMI_LIBS}
+                       ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS})
 set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
-                       "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS}")
+                       "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS}")
 
 ## Install
 
