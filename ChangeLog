@@ -1,3 +1,7 @@
+2012-10-12  Andre Heinecke <aheinecke@intevation.de>
+
+	* nasl/CMakeLists.txt: Remove hard library references to ksba
+
 2012-10-12  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/xml.c (xml_string_append): New function.
