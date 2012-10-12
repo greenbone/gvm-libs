@@ -1,3 +1,9 @@
+2012-10-12  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/xml.c (xml_string_append): New function.
+
+	* omp/xml.h: Add header accordingly.
+
 2012-10-11  Werner Koch  <wk@gnupg.org>
 
 	* nasl/nasl_cert.c: New.

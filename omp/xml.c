@@ -1079,3 +1079,25 @@ xml_count_entities (entities_t entities)
     }
   return count;
 }
+
+/**
+ * @brief Append formatted escaped XML to a string.
+ *
+ * @param[in]  xml     XML string.
+ * @param[in]  format  Format string.
+ * @param[in]  ...     Arguments for format string.
+ *
+ * @return Result of XSL transformation.
+ */
+void
+xml_string_append (GString *xml, const char *format, ...)
+{
+  gchar *piece;
+  va_list args;
+
+  va_start (args, format);
+  piece = g_markup_vprintf_escaped (format, args);
+  va_end (args);
+  g_string_append (xml, piece);
+  g_free (piece);
+}

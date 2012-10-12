@@ -101,6 +101,8 @@ void print_entities_to_string (GString * string, entities_t entities);
 
 int xml_count_entities (entities_t);
 
+void xml_string_append (GString *, const char *, ...);
+
 #if 0
 {
 #endif
