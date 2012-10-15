@@ -66,9 +66,6 @@
 #define ExtFunc
 #endif
 
-extern int plug_get_port_transport (struct arglist *, int);
-extern void plug_set_port_transport (struct arglist *, int, int);
-
 
 /*----------------------------------------------------------------*
  * Low-level connection management                                *
@@ -1021,10 +1018,12 @@ open_stream_auto_encaps (struct arglist *args, unsigned int port, int timeout)
 
   if (trp == 0)
     {
+      /* Try to connect while figuring out the used encapsulation mode.  */
       if ((fd =
            open_stream_connection_unknown_encaps (args, port, timeout,
                                                   &trp)) < 0)
         return -1;
+      /* Store that encapsulation mode in the KB.  */
       plug_set_port_transport (args, port, trp);
       return fd;
     }

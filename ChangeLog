@@ -1,3 +1,14 @@
+2012-10-15  Werner Koch  <wk@gnupg.org>
+
+	* nasl/nasl_socket.c (nasl_open_sock_tcp_bufsz): Add a fixme comment.
+
+	* misc/network.c (plug_get_port_transport)
+	(plug_set_port_transport): Remove "extern" prototypes as they are
+	already declared by plugutils.h.
+
+	* misc/plugutils.c (plug_get_port_transport): Document function.
+	* nasl/nasl_host.c (get_port_transport): Ditto.
+
 2012-10-12  Andre Heinecke <aheinecke@intevation.de>
 
 	* nasl/CMakeLists.txt: Remove hard library references to ksba

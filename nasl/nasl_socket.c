@@ -373,6 +373,13 @@ nasl_open_sock_tcp_bufsz (lex_ctxt * lexic, int bufsz)
   if (port < 0)
     return NULL;
 
+  /* FIXME: We do auto encapsulation only if "transport" has not been
+     given.  However, the KB and other functions use a value of 0 to
+     request auto detection.  For consistency we should allow this
+     here as well.  It would also be useful to define an ENCAPS_AUTO
+     constant.  Note also that the KB item "Transports/TCP/<port>"
+     must be set to 0 to enable the automatic detection; if it is set
+     to another value, that one is used with a fallback to ENCAPS_IP.  */
   if (transport < 0)
     soc = open_stream_auto_encaps (script_infos, port, to);
   else

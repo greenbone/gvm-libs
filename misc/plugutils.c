@@ -1482,6 +1482,11 @@ plug_set_port_transport (struct arglist *args, int port, int tr)
   plug_set_key (args, s, ARG_INT, GSIZE_TO_POINTER (tr));
 }
 
+
+/* Return the transport encapsulation mode (OPENVAS_ENCAPS_*) for the
+   given PORT.  If no such encapsulation mode has been stored in the
+   knowledge base (or its value is < 0), OPENVAS_ENCAPS_IP is
+   currently returned.  */
 int
 plug_get_port_transport (struct arglist *args, int port)
 {

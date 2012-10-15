@@ -16,11 +16,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
- /*
-  * This file contains all the functions which deal with the remote host :
-  * which ports are open, what is its IP, what is our IP, what transport
-  * is on the remote port, and so on...
-  */
+
+/**
+ * @file nasl_host.c
+ *
+ * @brief Remote host helper functions.
+ *
+ * This file contains all the functions which deal with the remote
+ * host: which ports are open, what is its IP, what is our IP, what
+ * transport is on the remote port, and so on...
+ */
 
 #include <arpa/inet.h>          /* for inet_aton */
 #include <netdb.h>              /* for gethostbyaddr */
@@ -287,6 +292,29 @@ nasl_this_host_name (lex_ctxt * lexic)
 }
 
 
+/**
+ * @brief Return the encapsulation mode of a socket (port).
+ * @naslfn{get_port_transport}
+ *
+ * Takes a NASL socket and returns its encapsulation mode (ENCAPS_*)
+ * The defined encapsulation modes are:
+ *          - @a 0             Automatic encapsulation detection.
+ *          - @a ENCAPS_IP     No encapsulation
+ *          - @a ENCAPS_SSLv23 Request compatibility options
+ *          - @a ENCAPS_SSLv2  SSL version 2
+ *          - @a ENCAPS_SSLv3  SSL version 3
+ *          - @a ENCAPS_TLSv1  TLS version 1.0
+ *
+ * @nasluparam
+ *
+ * - An integer with a NASL socket.
+ *
+ * @naslret An integer with the encapsulation mode or NULL on error.
+ *
+ * @param[in] lexic  Lexical context of the NASL interpreter.
+ *
+ * @return A tree cell.
+ */
 tree_cell *
 get_port_transport (lex_ctxt * lexic)
 {
