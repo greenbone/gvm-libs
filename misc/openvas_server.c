@@ -309,6 +309,8 @@ openvas_server_close (int socket, gnutls_session_t session)
 
   gnutls_bye (session, GNUTLS_SHUT_RDWR);
 
+  gnutls_deinit (session);
+
 #ifndef _WIN32
   if (sigaction (SIGPIPE, &original_action, NULL))
     return -1;

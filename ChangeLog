@@ -1,5 +1,9 @@
 2012-10-17  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* misc/openvas_server.c (openvas_server_close): Deinit the session.
+
+2012-10-17  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* omp/xml.c (try_read_entity_and_string): Always free xml_context.
 	(read_entity_and_text): Free string in fail case.
 
