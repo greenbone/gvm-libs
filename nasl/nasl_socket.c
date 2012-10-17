@@ -1,6 +1,14 @@
-/* Nessus Attack Scripting Language
+/* openvas-libraries/nasl/nasl_socket.c
+ * $Id$
+ * Description: NASL socket API
  *
+ * Authors:
+ * Unknown
+ * Werner Koch <wk@gnupg.org>
+ *
+ * Copyright:
  * Copyright (C) 2002 - 2004 Tenable Network Security
+ * Copyright (C) 2012 Greenbone Networks GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -17,15 +25,15 @@
  *
  */
 
-
-
-/** @file
-  * This file contains all the functions related to the handling of the sockets
-  * within a NASL script - namely, this is the implementation
-  * of open_(priv_)?sock_(udp|tcp)(), send(), recv(), recv_line() and
-  * close().
-  */
-
+/**
+ * @file nasl_socket.c
+ *
+ * @brief The NASL socket API.
+ *
+ * This file contains all the functions related to the handling of the
+ * sockets within a NASL script - for example the implementation of
+ * the NASL built-ins open_sock_tcp, send, recv, recv_line, and close.
+ */
 
 
 /*--------------------------------------------------------------------------*/
@@ -35,6 +43,8 @@
 #include <netinet/in.h>         /* for sockaddr_in */
 #include <string.h>             /* for bzero */
 #include <unistd.h>             /* for close */
+
+#include <gnutls/gnutls.h>
 
 #include "network.h"            /* for set_socket_source_addr */
 #include "plugutils.h"          /* for plug_get_host_ip */
@@ -358,14 +368,36 @@ nasl_open_sock_tcp_bufsz (lex_ctxt * lexic, int bufsz)
 {
   int soc = -1;
   struct arglist *script_infos = lexic->script_infos;
-  int to, port, transport = -1;
+  int to, port;
+  int transport = -1;
+  const char *priority;
   tree_cell *retc;
+  const char *name;
+  int type;
 
   to = get_int_local_var_by_name (lexic, "timeout", lexic->recv_timeout * 2);
   if (to < 0)
     to = 10;
 
   transport = get_int_local_var_by_name (lexic, "transport", -1);
+
+  if (transport == OPENVAS_ENCAPS_TLScustom)
+    {
+      name = "priority";
+      priority = get_str_local_var_by_name (lexic, name);
+      if (!priority
+          || !((type = get_local_var_type_by_name (lexic, name)) == VAR2_STRING
+               || type == VAR2_DATA))
+
+        {
+          nasl_perror (lexic,
+                       "error: argument '%s' is not of type string\n", name);
+          return NULL;
+        }
+    }
+  else
+    priority = NULL;
+
   if (bufsz < 0)
     bufsz = get_int_local_var_by_name (lexic, "bufsz", 0);
 
@@ -373,17 +405,14 @@ nasl_open_sock_tcp_bufsz (lex_ctxt * lexic, int bufsz)
   if (port < 0)
     return NULL;
 
-  /* FIXME: We do auto encapsulation only if "transport" has not been
-     given.  However, the KB and other functions use a value of 0 to
-     request auto detection.  For consistency we should allow this
-     here as well.  It would also be useful to define an ENCAPS_AUTO
-     constant.  Note also that the KB item "Transports/TCP/<port>"
-     must be set to 0 to enable the automatic detection; if it is set
-     to another value, that one is used with a fallback to ENCAPS_IP.  */
-  if (transport < 0)
-    soc = open_stream_auto_encaps (script_infos, port, to);
+  /* If "transport" has not been given, use auto detection if enabled
+     in the KB. if "transport" has been given with a value of 0 force
+     autodetection reagardless of what the KB tells.  */
+  if (transport <= 0)
+    soc = open_stream_auto_encaps_ext (script_infos, port, to, !transport);
   else
-    soc = open_stream_connection (script_infos, port, transport, to);
+    soc = open_stream_connection_ext (script_infos, port, transport, to,
+                                      priority);
   if (bufsz > 0 && soc >= 0)
     {
       if (stream_set_buffer (soc, bufsz) < 0)
@@ -397,11 +426,52 @@ nasl_open_sock_tcp_bufsz (lex_ctxt * lexic, int bufsz)
   return retc;
 }
 
+/**
+ * @brief Open a TCP socket to the target host
+ * @naslfn{open_sock_tcp}
+ *
+ * This function is used to create a TCP connection to the target
+ * host.  It requires the port number as its argument and has various
+ * optional named arguments to control encapsulation, timeout and
+ * buffering.
+ *
+ * @nasluparam
+ *
+ * - A non-negative integer with the TCP port number.
+ *
+ * @naslnparam
+ *
+ * - @a bufsz An integer with the the size buffer size.  Note that by
+ *    default, no buffering is used.
+ *
+ * - @a timeout An integer with the timeout value in seconds.  The
+ *    default timeout is controlled by a global value.
+ *
+ * - @a transport One of the ENCAPS_* constants to force a specific
+ *    encapsulation mode or force trying of all modes (ENCAPS_AUTO).
+ *    This is for example useful to select a specific TLS or SSL
+ *    version or use specific TLS connection setup priorities.  See
+ *    \ref get_port_transport for a description of the ENCAPS
+ *    constants.
+ *
+ * - @a priority A string value with priorities for an TLS
+ *    encapsulation.  For the syntax of the priority string see the
+ *    GNUTLS manual.  This argument is only used in @a
+ *    ENCAPS_TLScustom encapsulation.
+ *
+ * @naslret A positive integer as a NASL socket, 0 on connection error or
+ * NULL on other errors.
+ *
+ * @param[in] lexic  Lexical context of the NASL interpreter.
+ *
+ * @return A tree cell.
+ */
 tree_cell *
 nasl_open_sock_tcp (lex_ctxt * lexic)
 {
   return nasl_open_sock_tcp_bufsz (lexic, -1);
 }
+
 
 /*
  * Opening a UDP socket is a little more tricky, since
@@ -855,6 +925,8 @@ nasl_leave_multicast_group (lex_ctxt * lexic)
   return NULL;
 }
 
+
+/* Fixme: Merge this into nasl_get_sock_info.  */
 tree_cell *
 nasl_get_source_port (lex_ctxt * lexic)
 {
@@ -937,6 +1009,251 @@ nasl_socket_get_error (lex_ctxt * lexic)
 
     default:
       fprintf (stderr, "Unknown error %d %s\n", err, strerror (err));
+    }
+
+  return retc;
+}
+
+
+/**
+ * @brief Get info pertaining to a socket.
+ * @naslfn{get_sock_info}
+ *
+ * This function is used to retrieve various information about an
+ * active socket.  It requires the NASL socket number and a string to
+ * select the information to retrieve.
+ *
+ * Supported keywords are:
+ *
+ * - @a dport Return the destination port.  This is an integer.  NOTE:
+ *   Not yet implemented.
+ *
+ * - @a sport Return the source port.  This is an integer.  NOTE: Not
+ *   yet implemented.
+ *
+ * - @a encaps Return the encapsulation of the socket.  Example
+ *   output: "TLScustom".
+ *
+ * - @a tls-proto Return a string with the actual TLS protocol in use.
+ *   n/a" is returned if no SSL/TLS session is active.  Example
+ *   output: "TLSv1".
+ *
+ * - @a tls-kx Return a string describing the key exchange algorithm.
+ *   Example output: "RSA".
+ *
+ * - @a tls-certtype Return the type of the certificate in use by the
+ *   session.  Example output: "X.509"
+ *
+ * - @a tls-cipher Return the cipher algorithm in use by the session;
+ *   Example output: "AES-256-CBC".
+ *
+ * - @a tls-mac Return the message authentication algorithms used by
+ *   the session.  Example output: "SHA1".
+ *
+ * - @a tls-comp Return the compression algorithms in use by the
+ *   session.  Example output: "DEFLATE".
+ *
+ * - @a tls-auth Return the peer's authentication type.  Example
+ *   output: "CERT".
+ *
+ * - @a tls-cert Return the peer's certificates for an SSL or TLS
+ *   connection.  This is an array of binary strings or NULL if no
+ *   certificate is known.
+ *
+ * @nasluparam
+ *
+ * - A NASL socket
+ *
+ * - A string keyword; see above.
+ *
+ * @naslnparam
+ *
+ * - @a asstring If true return a human readable string instead of
+ *   an integer.  Used only with these keywords: encaps.
+ *
+ * @naslret An integer or a string or NULL on error.
+ *
+ * @param[in] lexic  Lexical context of the NASL interpreter.
+ *
+ * @return A tree cell.
+ */
+tree_cell *
+nasl_get_sock_info (lex_ctxt * lexic)
+{
+  int sock;
+  int type;
+  int err;
+  const char *keyword, *s;
+  tree_cell *retc;
+  int as_string;
+  int transport;
+  gnutls_session_t tls_session;
+  char *strval;
+  int intval;
+
+  sock = get_int_var_by_num (lexic, 0, -1);
+  if (sock <= 0)
+    {
+      nasl_perror (lexic, "error: socket %d is not valid\n");
+      return NULL;
+    }
+
+  keyword = get_str_var_by_num (lexic, 1);
+  if (!keyword || !((type = get_var_type_by_num (lexic, 1)) == VAR2_STRING
+                    || type == VAR2_DATA))
+    {
+      nasl_perror (lexic, "error: second argument is not of type string\n");
+      return NULL;
+    }
+
+  as_string = !!get_int_local_var_by_name (lexic, "asstring", 0);
+
+  transport = 0;
+  strval = NULL;
+  intval = 0;
+  retc = FAKE_CELL; /* Dummy value to detect retc == NULL.  */
+
+  {
+    void *tmp = NULL;
+    err = get_sock_infos (sock, &transport, &tmp);
+    tls_session = tmp;
+  }
+  if (err)
+    {
+      nasl_perror (lexic, "error retrieving infos for socket %d: %s\n",
+                   sock, strerror (err));
+      retc = NULL;
+    }
+  else if (!strcmp (keyword, "encaps"))
+    {
+      if (as_string)
+        strval = estrdup (get_encaps_name (transport));
+      else
+        intval = transport;
+    }
+  else if (!strcmp (keyword, "tls-proto"))
+    {
+      if (!tls_session)
+        s = "n/a";
+      else
+        s = gnutls_protocol_get_name
+          (gnutls_protocol_get_version (tls_session));
+      strval = estrdup (s?s:"[?]");
+    }
+  else if (!strcmp (keyword, "tls-kx"))
+    {
+      if (!tls_session)
+        s = "n/a";
+      else
+        s = gnutls_kx_get_name (gnutls_kx_get (tls_session));
+      strval = estrdup (s?s:"");
+    }
+  else if (!strcmp (keyword, "tls-certtype"))
+    {
+      if (!tls_session)
+        s = "n/a";
+      else
+        s = gnutls_certificate_type_get_name
+          (gnutls_certificate_type_get (tls_session));
+      strval = estrdup (s?s:"");
+    }
+  else if (!strcmp (keyword, "tls-cipher"))
+    {
+      if (!tls_session)
+        s = "n/a";
+      else
+        s = gnutls_cipher_get_name (gnutls_cipher_get (tls_session));
+      strval = estrdup (s?s:"");
+    }
+  else if (!strcmp (keyword, "tls-mac"))
+    {
+      if (!tls_session)
+        s = "n/a";
+      else
+        s = gnutls_mac_get_name (gnutls_mac_get (tls_session));
+      strval = estrdup (s?s:"");
+    }
+  else if (!strcmp (keyword, "tls-comp"))
+    {
+      if (!tls_session)
+        s = "n/a";
+      else
+        s = gnutls_compression_get_name
+          (gnutls_compression_get (tls_session));
+      strval = estrdup (s?s:"");
+    }
+  else if (!strcmp (keyword, "tls-auth"))
+    {
+      if (!tls_session)
+        s = "n/a";
+      else
+        {
+          switch (gnutls_auth_get_type (tls_session))
+            {
+            case GNUTLS_CRD_ANON:        s = "ANON"; break;
+            case GNUTLS_CRD_CERTIFICATE: s = "CERT"; break;
+            case GNUTLS_CRD_PSK:         s = "PSK";  break;
+            case GNUTLS_CRD_SRP:         s = "SRP";  break;
+            default:                     s = "[?]";  break;
+            }
+        }
+      strval = estrdup (s?s:"");
+    }
+  else if (!strcmp (keyword, "tls-cert"))
+    {
+      /* We only support X.509 for now.  GNUTLS also allows for
+         OpenPGP, but we are not prepared for that.  */
+      if (!tls_session
+          || gnutls_certificate_type_get (tls_session) != GNUTLS_CRT_X509)
+        s = "n/a";
+      else
+        {
+          const gnutls_datum_t *list;
+          unsigned int nlist = 0;
+          int i;
+          nasl_array *a;
+          anon_nasl_var v;
+
+          list = gnutls_certificate_get_peers (tls_session, &nlist);
+          if (!list)
+            retc = NULL;  /* No certificate or other error.  */
+          else
+            {
+              retc = alloc_tree_cell (0, NULL);
+              retc->type = DYN_ARRAY;
+              retc->x.ref_val = a = emalloc (sizeof *a);
+
+              for (i=0; i < nlist; i++)
+                {
+                  memset (&v, 0, sizeof v);
+                  v.var_type = VAR2_DATA;
+                  v.v.v_str.s_val = list[i].data;
+                  v.v.v_str.s_siz = list[i].size;
+                  add_var_to_list (a, i, &v);
+                }
+            }
+        }
+    }
+  else
+    {
+      nasl_perror (lexic, "unknown keyword '%s'\n", keyword);
+      retc = NULL;
+    }
+
+  if (!retc)
+    ;
+  else if (retc != FAKE_CELL)
+    ; /* Already allocated.  */
+  else if (strval)
+    {
+      retc = alloc_typed_cell (CONST_STR);
+      retc->x.str_val = strval;
+      retc->size = strlen (strval);
+    }
+  else
+    {
+      retc = alloc_typed_cell (CONST_INT);
+      retc->x.i_val = intval;
     }
 
   return retc;

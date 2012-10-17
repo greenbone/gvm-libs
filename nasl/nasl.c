@@ -75,6 +75,14 @@ sighandler (int s)
   exit (0);
 }
 
+static void
+my_gnutls_log_func (int level, const char *text)
+{
+  fprintf (stderr, "[%d] (%d) %s", getpid (), level, text);
+  if (*text && text[strlen (text) -1] != '\n')
+    putc ('\n', stderr);
+}
+
 struct arglist *
 init (char *hostname, struct in6_addr ip)
 {
@@ -126,6 +134,7 @@ main (int argc, char **argv)
   static gboolean authenticated_mode = FALSE;
   static gchar *include_dir = NULL;
   static gchar **nasl_filenames = NULL;
+  static int debug_tls = 0;
   GError *error = NULL;
   GOptionContext *option_context;
   static GOptionEntry entries[] = {
@@ -146,8 +155,10 @@ main (int argc, char **argv)
      NULL},
     {"authenticated", 'X', 0, G_OPTION_ARG_NONE, &authenticated_mode,
      "Run the script in 'authenticated' mode", NULL},
-    {"include-dir", 'i', 0, G_OPTION_ARG_FILENAME, &include_dir,
-     "Search for includes in <directory>", NULL},
+    {"include-dir", 'i', 0, G_OPTION_ARG_STRING, &include_dir,
+     "Search for includes in <dir>", "<dir>"},
+    {"debug-tls", 0, 0, G_OPTION_ARG_INT, &debug_tls,
+     "Enable TLS debugging at <level>", "<level>"},
     {G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &nasl_filenames,
      NULL, NULL},
     {NULL}
@@ -222,6 +233,13 @@ main (int argc, char **argv)
   signal (SIGTERM, sighandler);
   signal (SIGPIPE, SIG_IGN);
 #endif
+
+  if (debug_tls)
+    {
+      gnutls_global_set_log_function (my_gnutls_log_func);
+      gnutls_global_set_log_level (debug_tls);
+    }
+
   if (!target)
     target = g_strdup (default_target);
 

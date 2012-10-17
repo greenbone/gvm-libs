@@ -41,12 +41,17 @@ int open_sock_option (struct arglist *, unsigned int, int, int, int);
 int recv_line (int, char *, size_t);
 int nrecv (int, void *, int, int);
 int socket_close (int);
+int get_sock_infos (int sock, int *r_transport, void **r_tls_session);
 
 int open_stream_connection (struct arglist *, unsigned int, int, int);
+int open_stream_connection_ext (struct arglist *, unsigned int, int, int,
+                                const char *);
 int open_stream_connection_unknown_encaps (struct arglist *, unsigned int, int,
                                            int *);
 int open_stream_connection_unknown_encaps5 (struct arglist *, unsigned int, int,
                                             int *, int *);
+int open_stream_auto_encaps_ext (struct arglist *args, unsigned int port,
+                                 int timeout, int force);
 int open_stream_auto_encaps (struct arglist *, unsigned int, int);
 
 int write_stream_connection (int, void *buf, int n);
@@ -54,6 +59,7 @@ int read_stream_connection (int, void *, int);
 int read_stream_connection_min (int, void *, int, int);
 int nsend (int, void *, int, int);
 int close_stream_connection (int);
+
 const char *get_encaps_name (int);
 const char *get_encaps_through (int);
 

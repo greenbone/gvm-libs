@@ -50,4 +50,6 @@ tree_cell *nasl_leave_multicast_group (lex_ctxt *);
 
 tree_cell *nasl_get_source_port (lex_ctxt *);
 
+tree_cell *nasl_get_sock_info (lex_ctxt *lexic);
+
 #endif

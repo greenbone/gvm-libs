@@ -119,7 +119,7 @@ static init_func libfuncs[] = {
    {"data", "port", "proto", "protocol", NULL}},
 
   {"open_sock_tcp", nasl_open_sock_tcp, 1,
-   {"bufsz", "timeout", "transport", NULL}},
+   {"bufsz", "priority", "timeout", "transport", NULL}},
   {"open_sock_udp", nasl_open_sock_udp, 1, {NULL}},
   {"open_priv_sock_tcp", nasl_open_priv_sock_tcp, 0,
    {"dport", "sport", "timeout", NULL}},
@@ -133,6 +133,7 @@ static init_func libfuncs[] = {
   {"join_multicast_group", nasl_join_multicast_group, 1, {NULL}},
   {"leave_multicast_group", nasl_leave_multicast_group, 1, {NULL}},
   {"get_source_port", nasl_get_source_port, 1, {NULL}}, /* DOC! */
+  {"get_sock_info", nasl_get_sock_info, 2, {"asstring", NULL}},
 
   {"cgibin", cgibin, 0, {NULL}},
   {"http_open_socket", http_open_socket, 1, {NULL}},
@@ -157,7 +158,7 @@ static init_func libfuncs[] = {
   {"scanner_get_port", nasl_scanner_get_port, 1, {NULL}},
   {"islocalhost", nasl_islocalhost, 0, {NULL}},
   {"islocalnet", nasl_islocalnet, 0, {NULL}},
-  {"get_port_transport", get_port_transport, 1, {NULL}},
+  {"get_port_transport", get_port_transport, 1, {"asstring", NULL}},
   {"this_host", nasl_this_host, 0, {NULL}},
   {"this_host_name", nasl_this_host_name, 0, {NULL}},
 
@@ -491,6 +492,8 @@ static struct
   {
   "IPPROTO_IGMP", IPPROTO_IGMP},
   {
+  "ENCAPS_AUTO", OPENVAS_ENCAPS_AUTO},
+  {
   "ENCAPS_IP", OPENVAS_ENCAPS_IP},
   {
   "ENCAPS_SSLv23", OPENVAS_ENCAPS_SSLv23},
@@ -500,6 +503,8 @@ static struct
   "ENCAPS_SSLv3", OPENVAS_ENCAPS_SSLv3},
   {
   "ENCAPS_TLSv1", OPENVAS_ENCAPS_TLSv1},
+  {
+  "ENCAPS_TLScustom", OPENVAS_ENCAPS_TLScustom},
   {
   "TH_FIN", TH_FIN},
   {

@@ -293,23 +293,30 @@ nasl_this_host_name (lex_ctxt * lexic)
 
 
 /**
- * @brief Return the encapsulation mode of a socket (port).
+ * @brief Return the encapsulation mode of a port.
  * @naslfn{get_port_transport}
  *
- * Takes a NASL socket and returns its encapsulation mode (ENCAPS_*)
+ * Takes a port number and returns its encapsulation mode (ENCAPS_*)
  * The defined encapsulation modes are:
- *          - @a 0             Automatic encapsulation detection.
+ *          - @a ENCAPS_AUTO   Automatic encapsulation detection.
  *          - @a ENCAPS_IP     No encapsulation
  *          - @a ENCAPS_SSLv23 Request compatibility options
  *          - @a ENCAPS_SSLv2  SSL version 2
  *          - @a ENCAPS_SSLv3  SSL version 3
  *          - @a ENCAPS_TLSv1  TLS version 1.0
+ *          - @a ENCAPS_TLScustom SSL or TLS with custom priorities
  *
  * @nasluparam
  *
- * - An integer with a NASL socket.
+ * - An integer with the port number.
  *
- * @naslret An integer with the encapsulation mode or NULL on error.
+ * @naslnparam
+ *
+ * -@a asstring If not 0 return a human readabale string instead of
+ *   an integer.
+ *
+ * @naslret An integer or a string with the encapsulation mode or NULL
+ * on error.
  *
  * @param[in] lexic  Lexical context of the NASL interpreter.
  *
@@ -325,9 +332,20 @@ get_port_transport (lex_ctxt * lexic)
   if (port >= 0)
     {
       int trp = plug_get_port_transport (script_infos, port);
+
       retc = alloc_tree_cell (0, NULL);
-      retc->type = CONST_INT;
-      retc->x.i_val = trp;
+      if (get_int_local_var_by_name (lexic, "asstring", 0))
+        {
+          const char *s = get_encaps_name (trp);
+          retc->type = CONST_STR;
+          retc->x.str_val = estrdup (s);
+          retc->size = strlen (s);
+        }
+      else
+        {
+          retc->type = CONST_INT;
+          retc->x.i_val = trp;
+        }
       return retc;
     }
   return NULL;

@@ -5,10 +5,12 @@
  * Authors:
  * Renaud Deraison <deraison@nessus.org> (Original pre-fork development)
  * Michel Arboi (Original pre-fork development)
+ * Werner Koch <wk@gnupg.org>
  *
  * Copyright:
  * Based on work Copyright (C) 1998 - 2002 Renaud Deraison
  *               SSL Support Copyright (C) 2001 Michel Arboi
+ * Copyright (C) 2012 Greenbone Networks GmbH
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -66,7 +68,6 @@
 #define ExtFunc
 #endif
 
-
 /*----------------------------------------------------------------*
  * Low-level connection management                                *
  *----------------------------------------------------------------*/
@@ -77,8 +78,9 @@ typedef struct
   int fd;        /**< socket number, or whatever */
   int transport; /**< "transport" layer code when stream is encapsultated.
                    * Negative transport signals a free descriptor */
+  char *priority;/**< Malloced "priority" string for certain transports.  */
   int timeout;   /**< timeout, in seconds. Special values: -2 for default */
-  int options;   /**< Misc options - see libopenvas.h */
+  int options;   /**< Misc options - see ids_send.h */
 
   int port;
 
@@ -156,6 +158,12 @@ pid_perror (const char *error)
 {
   fprintf (stderr, "[%d] %s : %s\n", getpid (), error, strerror (errno));
   return 0;
+}
+
+static void
+pid_notice (const char *text)
+{
+  fprintf (stderr, "[%d] %s\n", getpid (), text);
 }
 
 
@@ -247,8 +255,11 @@ release_connection_fd (int fd)
   if (p->tls_cred != NULL)
     gnutls_certificate_free_credentials (p->tls_cred);
 
+  efree (&p->priority);
+
   bzero (p, sizeof (*p));
   p->transport = -1;
+
   return 0;
 }
 
@@ -277,8 +288,10 @@ ovas_allocate_connection (int soc, void *ssl,
   p->timeout = TIMEOUT;         /* default value */
   p->port = 0;                  /* just used for debug */
   p->fd = soc;
-  p->transport =
-    (ssl != NULL) ? OPENVAS_ENCAPS_TLSv1 : OPENVAS_ENCAPS_IP, p->last_err = 0;
+  p->transport = (ssl != NULL) ? OPENVAS_ENCAPS_TLSv1 : OPENVAS_ENCAPS_IP;
+  p->priority = NULL;
+  p->last_err = 0;
+
   return fd;
 }
 
@@ -303,6 +316,10 @@ openvas_deregister_connection (int fd)
     }
 
   p = connections + (fd - OPENVAS_FD_OFF);
+  /* Fixme: Code duplicated from release_connection_fd.  Check usage
+     of this function make sure that TLS stuff is also released in
+     case it is used here.  */
+  efree (&p->priority);
   bzero (p, sizeof (*p));
   p->transport = -1;
   return 0;
@@ -423,12 +440,15 @@ ovas_get_tlssession_from_connection (int fd)
 
 /**
  * Sets the priorities for the GnuTLS session according to encaps, one
- * of the OPENVAS_ENCAPS_* constants.
+ * of the OPENVAS_ENCAPS_* constants.  PRIORITY is used to convey
+ * custom priorities; it is only used if ENCAPS is set to
+ * OPENVAS_ENCAPS_TLScustom.
  */
 static int
-set_gnutls_protocol (gnutls_session_t session, int encaps)
+set_gnutls_protocol (gnutls_session_t session, int encaps, const char *priority)
 {
   const char * priorities;
+  const char * errloc;
   int err;
 
   /*
@@ -456,6 +476,14 @@ set_gnutls_protocol (gnutls_session_t session, int encaps)
                     ":+3DES-CBC:+ARCFOUR-128:+COMP-DEFLATE:+COMP-NULL"
                     ":+RSA:+DHE-RSA:+DHE-DSS:+SHA1:+MD5");
       break;
+    case OPENVAS_ENCAPS_TLScustom:
+      if (!priority || !*priority)
+        {
+          pid_notice ("no priority string given for ENCAPS_TLScustom");
+          return -1;
+        }
+      priorities = priority;
+      break;
 
     default:
 #if DEBUG_SSL > 0
@@ -469,9 +497,10 @@ set_gnutls_protocol (gnutls_session_t session, int encaps)
       break;
     }
 
-  if ((err = gnutls_priority_set_direct (session, priorities, NULL)))
+  if ((err = gnutls_priority_set_direct (session, priorities, &errloc)))
     {
-      tlserror ("setting session priorities", err);
+      fprintf (stderr, "[%d] setting session priorities '%.20s': %s\n",
+               getpid (), errloc, gnutls_strerror (err));
       return -1;
     }
 
@@ -715,7 +744,7 @@ open_SSL_connection (openvas_connection * fp, int timeout, const char *cert,
    * OPENVAS_ENCAPS_SSLv2, so it should never end up calling
    * open_SSL_connection with OPENVAS_ENCAPS_SSLv2.
    */
-  if (set_gnutls_protocol (fp->tls_session, fp->transport) < 0)
+  if (set_gnutls_protocol (fp->tls_session, fp->transport, fp->priority) < 0)
     return -1;
 
   ret = gnutls_certificate_allocate_credentials (&(fp->tls_cred));
@@ -768,7 +797,9 @@ open_SSL_connection (openvas_connection * fp, int timeout, const char *cert,
 
       if (err == 0)
         {
-          /* success! */
+#ifdef DEBUG_SSL
+          pid_notice ("gnutls_handshake succeeded");
+#endif
           return 1;
         }
 
@@ -856,9 +887,14 @@ set_ids_evasion_mode (struct arglist *args, openvas_connection * fp)
     }
 }
 
+
+/* Extended version of open_stream_connection to allow passing a
+   priority string.
+
+   ABI_BREAK_NOTE: Merge this with open_stream_connection.  */
 int
-open_stream_connection (struct arglist *args, unsigned int port, int transport,
-                        int timeout)
+open_stream_connection_ext (struct arglist *args, unsigned int port,
+                            int transport, int timeout, const char *priority)
 {
   int fd;
   openvas_connection *fp;
@@ -867,11 +903,14 @@ open_stream_connection (struct arglist *args, unsigned int port, int transport,
   char *passwd = NULL;
   char *cafile = NULL;
 
+  if (!priority)
+    priority = ""; /* To us an empty string is equivalent to NULL.  */
 
 #if DEBUG_SSL > 2
   fprintf (stderr,
-           "[%d] open_stream_connection: TCP:%d transport:%d timeout:%d\n",
-           getpid (), port, transport, timeout);
+           "[%d] open_stream_connection: TCP:%d transport:%d timeout:%d "
+           " priority: '%s'\n",
+           getpid (), port, transport, timeout, priority);
 #endif
 
   if (timeout == -2)
@@ -884,6 +923,7 @@ open_stream_connection (struct arglist *args, unsigned int port, int transport,
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLScustom:
       break;
 
     case OPENVAS_ENCAPS_SSLv2:
@@ -902,6 +942,9 @@ open_stream_connection (struct arglist *args, unsigned int port, int transport,
 
 
   fp->transport = transport;
+  efree (&fp->priority);
+  if (*priority)
+    fp->priority = estrdup (priority);
   fp->timeout = timeout;
   fp->port = port;
   fp->last_err = 0;
@@ -922,6 +965,7 @@ open_stream_connection (struct arglist *args, unsigned int port, int transport,
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLScustom:
       renice_myself ();
       cert = kb_item_get_str (plug_get_kb (args), "SSL/cert");
       key = kb_item_get_str (plug_get_kb (args), "SSL/key");
@@ -943,6 +987,14 @@ open_stream_connection (struct arglist *args, unsigned int port, int transport,
 failed:
   release_connection_fd (fd);
   return -1;
+}
+
+
+int
+open_stream_connection (struct arglist *args, unsigned int port,
+                        int transport, int timeout)
+{
+  return open_stream_connection_ext (args, port, transport, timeout, NULL);
 }
 
 
@@ -1010,10 +1062,13 @@ open_stream_connection_unknown_encaps (struct arglist *args, unsigned int port,
 }
 
 
+/* Same as open_stream_auto_encaps but allows to force auto detection
+   of the protocols if FORCE is true.  */
 int
-open_stream_auto_encaps (struct arglist *args, unsigned int port, int timeout)
+open_stream_auto_encaps_ext (struct arglist *args, unsigned int port,
+                             int timeout, int force)
 {
-  int trp = plug_get_port_transport (args, port);
+  int trp = force? 0 : plug_get_port_transport (args, port);
   int fd;
 
   if (trp == 0)
@@ -1032,8 +1087,15 @@ open_stream_auto_encaps (struct arglist *args, unsigned int port, int timeout)
       fd = open_stream_connection (args, port, trp, timeout);
       return fd;
     }
- /*NOTREACHED*/}
+ /*NOTREACHED*/
+}
 
+
+int
+open_stream_auto_encaps (struct arglist *args, unsigned int port, int timeout)
+{
+  return open_stream_auto_encaps_ext (args, port, timeout, 0);
+}
 
 /*
  * Scanner socket functions
@@ -1182,7 +1244,7 @@ ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc)
         }
       my_gnutls_transport_set_lowat_default (fp->tls_session);
 
-      ret = set_gnutls_protocol (fp->tls_session, fp->transport);
+      ret = set_gnutls_protocol (fp->tls_session, fp->transport, NULL);
       if (ret < 0)
         {
           goto fail;
@@ -1818,6 +1880,8 @@ get_encaps_name (int code)
   static char str[100];
   switch (code)
     {
+    case OPENVAS_ENCAPS_AUTO:
+      return "auto";
     case OPENVAS_ENCAPS_IP:
       return "IP";
     case OPENVAS_ENCAPS_SSLv2:
@@ -1828,6 +1892,8 @@ get_encaps_name (int code)
       return "SSLv3";
     case OPENVAS_ENCAPS_TLSv1:
       return "TLSv1";
+    case OPENVAS_ENCAPS_TLScustom:
+      return "TLScustom";
     default:
       snprintf (str, sizeof (str), "[unknown transport layer - code %d (0x%x)]", code, code);   /* RATS: ignore */
       return str;
@@ -1954,6 +2020,9 @@ open_socket (struct sockaddr *paddr, int type, int protocol,
           return -1;
         }
     }
+#if DEBUG_SSL > 2
+  pid_notice ("connect succeeded");
+#endif
   block_socket (soc);
   return soc;
 }
@@ -2776,6 +2845,22 @@ stream_pending (int fd)
   return 0;
 }
 
+
+/* This is a helper function for nasl_get_sock_info.  It is used to
+   retrieve information about SOCK.  */
+int
+get_sock_infos (int sock, int *r_transport, void **r_tls_session)
+{
+  openvas_connection *fp;
+
+  if (!OPENVAS_STREAM (sock))
+    return ENOTSOCK;
+  fp = &(connections[sock - OPENVAS_FD_OFF]);
+
+  *r_transport = fp->transport;
+  *r_tls_session = fp->tls_session;
+  return 0;
+}
 
 
 /* GnuTLS 2.11.1 changed the semantics of set_lowat and 2.99.0 removed

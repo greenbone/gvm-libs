@@ -1,5 +1,49 @@
 2012-10-17  Werner Koch  <wk@gnupg.org>
 
+	* nasl/nasl.c (main): Add option --debug-tls.
+	(my_gnutls_log_func): New.
+
+	* nasl/nasl_socket.c: Include gnutls.h.
+	(nasl_open_sock_tcp_bufsz): Support ENCAPS_TLScustom.
+	(nasl_open_sock_tcp): Document.
+	(nasl_get_sock_info): New.
+	* misc/network.c (openvas_connection): Add field PRIORITY.
+	(pid_notice): New.
+	(release_connection_fd, openvas_deregister_connection): Free
+	PRIORITY.
+	(ovas_allocate_connection): Clear PRIORITY.  Replace sequence
+	operator by semicolon for bert readability.
+	(set_gnutls_protocol): Add arg "priority" and implement
+	ENCAPS_TLScustom.
+	(open_SSL_connection): Pass priority to set_gnutls_protocol.
+	(open_stream_connection): Factor all code out to...
+	(open_stream_connection_ext): new.  Support priority.
+	(ovas_scanner_context_attach): Pass NULL for priority to
+	set_gnutls_protocol.
+	(get_sock_infos): New.
+	* nasl/nasl_init.c (libfunc) <open_sock_tcp>: Add named arg
+	"priority".
+	(libfunc) <get_sock_info>: New.
+	(libfunc) <get_port_transport>: Add named arg "asstring".
+	(libivars) <ENCAPS_AUTO, ENCAPS_TLScustom>: New.
+	* nasl/tests/test_socket.nasl: New.
+
+	* misc/plugutils.h (OPENVAS_ENCAPS_AUTO): Add constant for 0.
+	(OPENVAS_ENCAPS_TLScustom): New.
+	(IS_ENCAPS_SSL): Adjust.
+	* misc/network.c (get_encaps_name): Print strings for ENCAPS_AUTO
+	and ENCAPS_TLScustom.
+
+	* misc/network.c (open_stream_auto_encaps): Factor code out to ...
+	(open_stream_auto_encaps_ext): new.  Add arg "force".
+	* nasl/nasl_socket.c (nasl_open_sock_tcp_bufsz): Allow forcing of
+	transport auto detection.
+
+	* nasl/nasl_host.c (get_port_transport): Implement named argument
+	"asstring".
+
+2012-10-17  Werner Koch  <wk@gnupg.org>
+
 	* INSTALL: Add recommendation for libssl and libksba.
 
 2012-10-17  Matthew Mundell <matthew.mundell@greenbone.net>
