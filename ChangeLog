@@ -1,3 +1,8 @@
+2012-10-17  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/xml.c (try_read_entity_and_string): Always free xml_context.
+	(read_entity_and_text): Free string in fail case.
+
 2012-10-15  Werner Koch  <wk@gnupg.org>
 
 	* nasl/nasl_socket.c (nasl_open_sock_tcp_bufsz): Add a fixme comment.

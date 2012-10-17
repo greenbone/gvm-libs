@@ -512,6 +512,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
                     {
                       g_message ("   timeout\n");
                       fcntl (socket, F_SETFL, 0L);
+                      g_markup_parse_context_free (xml_context);
                       return -4;
                     }
                   continue;
@@ -528,6 +529,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
                 g_string_free (string, TRUE);
               if (timeout > 0)
                 fcntl (socket, F_SETFL, 0L);
+              g_markup_parse_context_free (xml_context);
               return -1;
             }
           if (count == 0)
@@ -548,6 +550,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
                 g_string_free (string, TRUE);
               if (timeout > 0)
                 fcntl (socket, F_SETFL, 0L);
+              g_markup_parse_context_free (xml_context);
               return -3;
             }
           break;
@@ -571,6 +574,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
             g_string_free (string, TRUE);
           if (timeout > 0)
             fcntl (socket, F_SETFL, 0L);
+          g_markup_parse_context_free (xml_context);
           return -2;
         }
       if (context_data.done)
@@ -587,6 +591,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
                 }
               if (timeout > 0)
                 fcntl (socket, F_SETFL, 0L);
+              g_markup_parse_context_free (xml_context);
               return -2;
             }
           *entity = (entity_t) context_data.first->data;
@@ -594,6 +599,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
             *string_return = string;
           if (timeout > 0)
             fcntl (socket, F_SETFL, 0L);
+          g_markup_parse_context_free (xml_context);
           return 0;
         }
 
@@ -602,6 +608,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
           g_message ("   failed to get current time (1): %s\n",
                      strerror (errno));
           fcntl (socket, F_SETFL, 0L);
+          g_markup_parse_context_free (xml_context);
           return -1;
         }
     }
@@ -651,7 +658,11 @@ read_entity_and_text (gnutls_session_t * session, entity_t * entity,
       GString *string = NULL;
       int ret = read_entity_and_string (session, entity, &string);
       if (ret)
-        return ret;
+        {
+          if (string)
+            g_string_free (string, TRUE);
+          return ret;
+        }
       *text = g_string_free (string, FALSE);
       return 0;
     }
