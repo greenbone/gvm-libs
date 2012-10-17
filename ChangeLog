@@ -1,3 +1,7 @@
+2012-10-17  Werner Koch  <wk@gnupg.org>
+
+	* INSTALL: Add recommendation for libssl and libksba.
+
 2012-10-17  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/openvas_server.c (openvas_server_close): Deinit the session.

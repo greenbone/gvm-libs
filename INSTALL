@@ -36,7 +36,10 @@ Recommended to have WMI support:
 * wmiclient library (see doc/wmi-howto.txt)
 
 Recommended to have improved SSH support:
-* libssh >= 0.4.5
+* libssh >= 0.5.0
+
+Recommended to have improved SSL support:
+* libksba >= 1.0.7
 
 Recommended to have LDAP support:
 * libldap >= 2.4.11
@@ -44,7 +47,7 @@ Recommended to have LDAP support:
 
 Install prerequistes on Debian GNU/Linux 'Squeeze' 6.0:
 # apt-get install pkg-config libssh-dev gnutls-dev libglib2.0-dev libpcap-dev \
-  libgpgme11-dev uuid-dev bison
+  libgpgme11-dev uuid-dev bison libksba-dev
 
 
 Compiling openvas-libraries
