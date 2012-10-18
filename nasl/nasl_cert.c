@@ -58,6 +58,22 @@
 # define DIMof(type,member)   DIM(((type *)0)->member)
 #endif
 
+/* Useful helper macros to avoid problems with locales.  */
+#define spacep(p)   (*(p) == ' ' || *(p) == '\t')
+#define digitp(p)   (*(p) >= '0' && *(p) <= '9')
+#define hexdigitp(a) (digitp (a)                       \
+                      || (*(a) >= 'A' && *(a) <= 'F')  \
+                      || (*(a) >= 'a' && *(a) <= 'f'))
+
+/* The atoi macros assume that the buffer has only valid digits. */
+#define atoi_1(p)   (*(p) - '0' )
+#define atoi_2(p)   ((atoi_1(p) * 10) + atoi_1((p)+1))
+#define atoi_4(p)   ((atoi_2(p) * 100) + atoi_2((p)+2))
+#define xtoi_1(p)   (*(p) <= '9'? (*(p)- '0'):                  \
+                     *(p) <= 'F'? (*(p)-'A'+10):(*(p)-'a'+10))
+#define xtoi_2(p)   ((xtoi_1((const unsigned char *)(p)) * 16)  \
+                     + xtoi_1((const unsigned char *)(p)+1))
+
 
 
 /* This object is used to keep track of KSBA certificate objects.
@@ -276,6 +292,220 @@ nasl_cert_close (lex_ctxt *lexic)
 }
 
 
+/* Helper to get the value of the Common Name part.  */
+static const char *
+parse_dn_part_for_CN (const char *string, char **r_value)
+{
+  const char *s, *s1;
+  size_t n;
+  char *p = NULL;
+  int found;
+
+  *r_value = NULL;
+
+  /* Parse attributeType */
+  for (s = string+1; *s && *s != '='; s++)
+    ;
+  if (!*s)
+    return NULL; /* Error */
+  n = s - string;
+  if (!n)
+    return NULL; /* Empty key */
+
+  found = (n == 2 && string[0] == 'C' && string[1] == 'N');
+  string = s + 1;
+
+  if (*string == '#') /* Hex encoded value.  */
+    {
+      string++;
+      for (s=string; hexdigitp (s); s++)
+        s++;
+      n = s - string;
+      if (!n || (n & 1))
+        return NULL; /* No or odd number of digits. */
+      n /= 2;
+      if (found)
+        {
+          *r_value = p = malloc (n+1);
+          if (!p)
+            return NULL; /* Out of core.  */
+        }
+      for (s1=string; n; s1 += 2, n--, p++)
+        {
+          if (found)
+            {
+              *(unsigned char *)p = xtoi_2 (s1);
+              if (!*p)
+                *p = 0x01; /* Better return a wrong value than
+                              truncate the string. */
+            }
+        }
+      if (found)
+        *p = 0;
+   }
+  else /* Regular V3 quoted string */
+    {
+      for (n=0, s=string; *s; s++)
+        {
+          if (*s == '\\') /* Pair */
+            {
+              s++;
+              if (*s == ',' || *s == '=' || *s == '+'
+                  || *s == '<' || *s == '>' || *s == '#' || *s == ';'
+                  || *s == '\\' || *s == '\"' || *s == ' ')
+                n++;
+              else if (hexdigitp (s) && hexdigitp (s+1))
+                {
+                  s++;
+                  n++;
+                }
+              else
+                return NULL; /* Invalid escape sequence. */
+            }
+          else if (*s == '\"')
+            return NULL;     /* Invalid encoding.  */
+          else if (*s == ',' || *s == '=' || *s == '+'
+                   || *s == '<' || *s == '>' || *s == ';' )
+            break; /* End of that part.  */
+          else
+            n++;
+        }
+
+      if (found)
+        {
+          *r_value = p = malloc (n+1);
+          if (!p)
+            return NULL;
+        }
+      for (s=string; n; s++, n--)
+        {
+          if (*s == '\\')
+            {
+              s++;
+              if (hexdigitp (s))
+                {
+                  if (found)
+                    {
+                      *(unsigned char *)p = xtoi_2 (s);
+                      if (!*p)
+                        *p = 0x01; /* Better return a wrong value than
+                                      truncate the string. */
+                      p++;
+                    }
+                  s++;
+                }
+              else if (found)
+                *p++ = *s;
+            }
+          else if (found)
+            *p++ = *s;
+        }
+      if (found)
+        *p = 0;
+    }
+  return s;
+}
+
+
+/* Parse a DN and return the value of the CommonName.  Note that this
+   is not a validating parser and it does not support any old-stylish
+   syntax; this is not a problem because KSBA will always return
+   RFC-2253 compatible strings.  The caller must use free to free the
+   returned value. */
+static char *
+parse_dn_for_CN (const char *string)
+{
+  char *value = NULL;
+
+  while (*string && !value)
+    {
+      while (*string == ' ')
+        string++;
+      if (!*string)
+        break; /* ready */
+      string = parse_dn_part_for_CN (string, &value);
+      if (!string)
+        goto failure;
+      while (*string == ' ')
+        string++;
+      if (*string && *string != ',' && *string != ';' && *string != '+')
+        goto failure; /* Invalid delimiter.  */
+      if (*string == '+')
+        goto failure; /* A multivalued CN is not supported.  */
+      if (*string)
+        string++;
+    }
+  return value;
+
+ failure:
+  free (value);
+  return NULL;
+}
+
+
+/* Given a CERT object, build an array with all hostnames identified
+   by the certifciate.  */
+static tree_cell *
+build_hostname_list (ksba_cert_t cert)
+{
+  tree_cell *retc;
+  char *name, *value;
+  int arridx;
+  int idx;
+  nasl_array *a;
+  anon_nasl_var v;
+
+  name = ksba_cert_get_subject (cert, 0);
+  if (!name)
+    return NULL; /* No valid subject.  */
+
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = DYN_ARRAY;
+  retc->x.ref_val = a = emalloc (sizeof *a);
+  arridx = 0;
+
+  value = parse_dn_for_CN (name);
+  ksba_free (name);
+
+  /* Add the CN to the array but only if it looks like a hostname.  We
+     assume a hostname if at least one dot is in the name.  */
+  if (value && strchr (value, '.'))
+    {
+      memset (&v, 0, sizeof v);
+      v.var_type = VAR2_DATA;
+      v.v.v_str.s_val = (unsigned char*)value;
+      v.v.v_str.s_siz = strlen (value);
+      add_var_to_list (a, arridx++, &v);
+    }
+  free (value);
+  value = NULL;
+
+  for (idx=1; (name = ksba_cert_get_subject (cert, idx)); idx++)
+    {
+      /* Poor man's s-expression parser.  Despite it simple code, it
+         is correct in this case because ksba will always return a
+         valid s-expression.  */
+      if (*name == '(' && name[1] == '8' && name[2] == ':'
+          && !memcmp (name+3, "dns-name", 8))
+        {
+          char *endp;
+          unsigned long n = strtoul (name+11, &endp, 10);
+
+          g_assert (*endp == ':');
+          endp++;
+          memset (&v, 0, sizeof v);
+          v.var_type = VAR2_DATA;
+          v.v.v_str.s_val = (unsigned char*)endp;
+          v.v.v_str.s_siz = n;
+          add_var_to_list (a, arridx++, &v);
+        }
+      ksba_free (name);
+    }
+
+  return retc;
+}
+
+
 /**
  * @brief Query a certificate object.
  * @naslfn{cert_query}
@@ -287,8 +517,7 @@ nasl_cert_close (lex_ctxt *lexic)
  * return value may be a number, a string, or an array of strings.
  * Supported commands are:
  *
- * - @a serial The serial number of the certificate.  This is
- *             returned as a hex encoded string.
+ * - @a serial The serial number of the certificate.
  *
  * - @a subject Returns the subject.  To query the subjectAltName the
  *               named parameters @a idx can be used.  If @a idx is
@@ -304,7 +533,11 @@ nasl_cert_close (lex_ctxt *lexic)
  *                 (e.g. "20280929T143520").
  *
  * - @a all Return all available information in a human readable
- *          format.
+ *          format.  Not yet implemented.
+ *
+ * - @a hostnames Return an array with all hostnames listed in the
+ *   certificates, i.e. the CN part of the subject and all dns-name
+ *   type subjectAltNames.
  *
  * @nasluparam
  *
@@ -333,6 +566,7 @@ nasl_cert_query (lex_ctxt *lexic)
   int cmdidx;
   char *result;
   ksba_isotime_t isotime;
+  ksba_sexp_t sexp;
   tree_cell *retc;
 
   object_id = get_int_var_by_num (lexic, 0, -1);
@@ -366,7 +600,26 @@ nasl_cert_query (lex_ctxt *lexic)
   retc = NULL;
   if (!strcmp (command, "serial"))
     {
-      /* FIXME */
+      const unsigned char *s;
+      char *endp;
+      unsigned long n;
+
+      sexp = ksba_cert_get_serial (obj->cert);
+      s = sexp;
+      if (!s || *s != '(')
+        return NULL; /* Ooops.  */
+      s++;
+      n = strtoul ((const char*)s, &endp, 10);
+      s = (const unsigned char *)endp;
+      if (*s == ':')
+        {
+          s++;
+          retc = alloc_typed_cell (CONST_DATA);
+          retc->x.str_val = emalloc (n);
+          memcpy (retc->x.str_val, s, n);
+          retc->size = n;
+        }
+      ksba_free (sexp);
     }
   else if (!strcmp (command, "issuer"))
     {
@@ -377,6 +630,7 @@ nasl_cert_query (lex_ctxt *lexic)
       retc = alloc_typed_cell (CONST_STR);
       retc->x.str_val = estrdup (result);
       retc->size = strlen (result);
+      ksba_free (result);
     }
   else if (!strcmp (command, "subject"))
     {
@@ -387,6 +641,7 @@ nasl_cert_query (lex_ctxt *lexic)
       retc = alloc_typed_cell (CONST_STR);
       retc->x.str_val = estrdup (result);
       retc->size = strlen (result);
+      ksba_free (result);
     }
   else if (!strcmp (command, "not-before"))
     {
@@ -405,6 +660,10 @@ nasl_cert_query (lex_ctxt *lexic)
   else if (!strcmp (command, "all"))
     {
       /* FIXME */
+    }
+  else if (!strcmp (command, "hostnames"))
+    {
+      retc = build_hostname_list (obj->cert);
     }
   else
     {

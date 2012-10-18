@@ -1,3 +1,11 @@
+2012-10-18  Werner Koch  <wk@gnupg.org>
+
+	* nasl/nasl_cert.c (spacep, digitp, hexdigitp, atoi_1, atoi_2)
+	(atoi_4, xtoi_1, xtoi_2): New.
+	(parse_dn_part_for_CN, parse_dn_for_CN): New.
+	(build_hostname_list): New.
+	(nasl_cert_query): Implement "serial" and add "hostnames".
+
 2012-10-17  Werner Koch  <wk@gnupg.org>
 
 	* nasl/nasl.c (main): Add option --debug-tls.

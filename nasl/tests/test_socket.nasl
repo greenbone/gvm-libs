@@ -37,7 +37,7 @@ target_port = 443;
 
 function test_open_sock_tcp_tlscustom()
 {
-  local_var sock, certlist, cert;
+    local_var sock, certlist, cert, name, i, j;
 
   testcase_start(string("test_open_sock_tcp_tlscustom"));
 
@@ -66,18 +66,33 @@ function test_open_sock_tcp_tlscustom()
             display("\ttls_cert: ",i,": error parsing certificate\n");
           else {
             display("\ttls_cert: ",i,":     serial: ",
-                    cert_query(cert, "serial"),"\n");
+                    toupper(hexstr(cert_query(cert, "serial"))),"\n");
+            # Note: we use raw_string here to avoid a NASL warning
+            # about the unknown escape sequence "\,", which is valid
+            # RFC-2253 syntax. For a real output we would need to
+            # parse a DN into its parts, to avoid those escape
+            # conflicts.
             display("\ttls_cert: ",i,":     issuer: ",
-                    cert_query(cert, "issuer"),"\n");
+                    raw_string(cert_query(cert, "issuer")),"\n");
             display("\ttls_cert: ",i,":    subject: ",
-                    cert_query(cert, "subject"),"\n");
+                    raw_string(cert_query(cert, "subject")),"\n");
+            for(j=1; (name = cert_query(cert, "subject", idx:j)); j++)
+                display("\ttls_cert: ",i,": altsubject: ", name, "\n");
             display("\ttls_cert: ",i,": not-before: ",
                     cert_query(cert, "not-before"),"\n");
             display("\ttls_cert: ",i,":  not-after: ",
                     cert_query(cert, "not-after"),"\n");
+
+            hostnames = cert_query(cert, "hostnames");
+            for (j=0; j < max_index(hostnames); j++) {
+                display("\ttls_cert: ",i,":   hostname: ", hostnames[j], "\n");
+            }
             cert_close(cert);
           }
         }
+
+
+
       }
 
   }
