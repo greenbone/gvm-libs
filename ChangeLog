@@ -1,3 +1,9 @@
+2012-10-22  Werner Koch  <wk@gnupg.org>
+
+	* nasl/nasl_init.c (init_nasl_library) [HAVE_LIBSSH]: Define nasl
+	constant "_HAVE_LIBSSH" by default.  Allow to disable it using
+	OPENVAS_DISABLE_LIBSSH.  Remove use of envvar OPENVAS_USE_LIBSSH.
+
 2012-10-18  Werner Koch  <wk@gnupg.org>
 
 	* nasl/nasl_cert.c (spacep, digitp, hexdigitp, atoi_1, atoi_2)

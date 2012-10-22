@@ -628,7 +628,7 @@ init_nasl_library (lex_ctxt * lexic)
   {
     const char *name;
     name = "_HAVE_LIBSSH";
-    tc.x.i_val = !!getenv ("OPENVAS_USE_LIBSSH");
+    tc.x.i_val = !getenv ("OPENVAS_DISABLE_LIBSSH");
     if ((v = add_named_var_to_ctxt (lexic, name, &tc)) == NULL)
       {
         nasl_perror (lexic, "init_nasl2_library: could not define var '%s'\n",
