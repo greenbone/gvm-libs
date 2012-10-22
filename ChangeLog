@@ -1,3 +1,7 @@
+2012-10-22  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* COPYING: Added missing entries for the new files added recently.
+
 2012-10-22  Werner Koch  <wk@gnupg.org>
 
 	* nasl/nasl_init.c (init_nasl_library) [HAVE_LIBSSH]: Define nasl

@@ -107,6 +107,7 @@ nasl/nasl_builtin_nmap.c: GPLv2
 nasl/nasl_builtin_openvas_tcp_scanner.c: GPLv2
 nasl/nasl_builtin_plugins.h: GPLv2+
 nasl/nasl_builtin_synscan.c: GPLv2
+nasl/nasl_cert.[c|h]: GPLv2+
 nasl/nasl_cmd_exec.[c|h]: GPLv2
 nasl/nasl_crypto2.[c|h]: GPLv2
 nasl/nasl_crypto.[c|h]: GPLv2
@@ -117,6 +118,7 @@ nasl/nasl_grammar.y: GPLv2
 nasl/nasl_host.[c|h]: GPLv2
 nasl/nasl_http.[c|h]: GPLv2
 nasl/nasl_init.[c|h]: GPLv2
+nasl/nasl_isotime.[c|h]: GPLv2+
 nasl/nasl_lex_ctxt.[c|h]: GPLv2
 nasl/nasl_misc_funcs.[c|h]: GPLv2
 nasl/nasl_packet_forgery.[c|h]: GPLv2
@@ -150,10 +152,12 @@ nasl/tests/test_bn.nasl: GPLv2
 nasl/tests/test_dh.nasl: GPLv2
 nasl/tests/test_dsa.nasl: GPLv2
 nasl/tests/test_hexstr.nasl: GPLv2
+nasl/tests/test_isotime.nasl: GPLv2+
 nasl/tests/test_md.nasl: GPLv2
 nasl/tests/test_privkey.nasl: GPLv2
 nasl/tests/test_rsa.nasl: GPLv2
 nasl/tests/test_script_signing.sh: GPLv2
+nasl/tests/test_socket.nasl: GPLv2+
 nasl/tests/testsuiteinit.nasl: GPLv2
 nasl/tests/testsuitesummary.nasl: GPLv2
 
