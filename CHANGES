@@ -1,3 +1,32 @@
+openvas-libraries 6.0+beta1 (2012-10-XX)
+
+This release is the first beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-6".
+
+Main new feature and other changes of 6.0 compared to 5.0 include:
+New support of x509 certificate NASL API and improved SSH support.
+
+Many thanks to everyone who has contributed this release:
+Andre Heinecke, Werner Koch, Michael Meyer, Matthew Mundell, Jan-Oliver Wagner,
+Sascha Wilde and Felix Wolfsteller.
+
+Main changes compared to 5.0.x:
+* Added TLS support for NASL API to allow x509 certificate testing
+  in NVTs.
+* Improved support of libssh for SSH connection handling.
+  Environment variable "OPENVAS_DISABLE_LIBSSH" can disable
+  the new functionality.
+* Improved performance by avoiding too many "gpg --version" calls.
+* Removing the code that prevented special functions being executed
+  by non-authenticated NVTs. Background is that either the whole
+  feed is treated as authenticated or as non-authenticated, but
+  not a mixture of it.
+* Removed deprecated NASL variable "OPENVAS_NASL_LEVEL".
+* Several memory leaks fixed.
+* Various compile for special compilers issues fixed.
+* Internal code cleanups.
+
+
 openvas-libraries 5.0.1 (2012-04-24)
 
 This is the first maintenance release of the openvas-libraries 5.0 module for
