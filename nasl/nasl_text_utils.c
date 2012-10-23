@@ -120,8 +120,8 @@ nasl_string (lex_ctxt * lexic)
                       }
                     break;
                   default:
-                    nasl_perror (lexic, "Unknown%d escape sequence '\\%c'\n",
-                                 getpid (), isprint (p1[1]) ? p1[1] : '.');
+                    nasl_perror (lexic, "Unknown escape sequence '\\%c'\n",
+                                 isprint (p1[1]) ? p1[1] : '.');
                     retc->size--;
                     break;
                   }
