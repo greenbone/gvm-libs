@@ -1,10 +1,20 @@
+2012-10-23  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Backport r14319 from trunk.
+
+	* omp/omp.c (omp_create_target_ext): New function.
+
+	* omp/omp.h (omp_create_target_opts_t): New type.
+	(omp_create_target_opts_defaults): New variable.
+	(omp_create_target_ext): New function.
+
 2012-10-11  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Backport r14230 from trunk.
 
 	* nasl/nasl_init.c (libfuncs): Fixed buggy definition of
 	nasl function security_message.
- 
+
 2012-08-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CHANGES: Fixed version typo.

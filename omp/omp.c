@@ -2155,6 +2155,85 @@ omp_create_target (gnutls_session_t* session,
 }
 
 /**
+ * @brief Create a target.
+ *
+ * FIXME: Using the according opts it should be possible to generate
+ * any type of create_target request defined by the spec.
+ *
+ * @param[in]  session   Pointer to GNUTLS session.
+ * @param[in]  opts      Struct containing the options to apply.
+ * @param[out] id        Pointer for newly allocated ID of new target, or NULL.
+ *                       Only set on successful return.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_create_target_ext (gnutls_session_t* session,
+                       omp_create_target_opts_t opts,
+                       gchar** id)
+{
+  gchar *new, *comment, *ssh, *smb, *port_range, *start;
+
+  /* Create the OMP request. */
+
+  if (opts.hosts == NULL)
+    return -1;
+
+  start = g_markup_printf_escaped ("<create_target>"
+                                   "<name>%s</name>"
+                                   "<hosts>%s</hosts>",
+                                   opts.name ? opts.name : "unnamed",
+                                   opts.hosts);
+
+  if (opts.comment)
+    comment = g_markup_printf_escaped ("<comment>"
+                                       "%s"
+                                       "</comment>",
+                                      opts.comment);
+  else
+    comment = NULL;
+
+  if (opts.ssh_credential_id)
+    ssh = g_markup_printf_escaped ("<ssh_lsc_credential id=\"%s\">",
+                                   opts.ssh_credential_id);
+  else
+    ssh = NULL;
+
+  if (opts.smb_credential_id)
+    smb = g_markup_printf_escaped ("<smb_lsc_credential id=\"%s\">",
+                                   opts.smb_credential_id);
+  else
+    smb = NULL;
+
+  if (opts.port_range)
+    port_range = g_markup_printf_escaped ("<port_range>%s</port_range>",
+                                          opts.port_range);
+  else
+    port_range = NULL;
+
+  new = g_strdup_printf ("%s%s%s%s%s</create_target>", start,
+                         ssh ? ssh : "",
+                         smb ? smb : "",
+                         port_range ? port_range : "",
+                         comment ? comment : "");
+  g_free (start);
+  g_free (comment);
+
+  /* Send the request. */
+
+  int ret = openvas_server_send (session, new);
+  g_free (new);
+  if (ret) return -1;
+
+  /* Read the response. */
+
+  ret = omp_read_create_response (session, id);
+  if (ret == 201)
+    return 0;
+  return ret;
+}
+
+/**
  * @brief Delete a target.
  *
  * @param[in]   session     Pointer to GNUTLS session.

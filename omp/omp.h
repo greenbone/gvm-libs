@@ -57,6 +57,25 @@ typedef struct
 static const omp_create_task_opts_t omp_create_task_opts_defaults =
   { };
 
+/**
+ * @brief Struct holding options for omp create_target command.
+ */
+typedef struct
+{
+  const char* ssh_credential_id;   ///< ID of SSH credential.
+  const char* smb_credential_id;   ///< ID of SMB credential.
+  const char* port_range;          ///< Port range.
+  const char* name;                ///< Name of target.
+  const char* comment;             ///< Comment on target.
+  const char* hosts;               ///< Name of target.
+} omp_create_target_opts_t;
+
+/**
+ * @brief Sensible default values for omp_get_report_opts_t.
+ */
+static const omp_create_target_opts_t omp_create_target_opts_defaults =
+  { };
+
 int check_response (gnutls_session_t *);
 
 int omp_read_create_response (gnutls_session_t*, char **);
@@ -153,6 +172,9 @@ int omp_until_up (int (*)(gnutls_session_t *, entity_t *), gnutls_session_t *,
 
 int omp_create_target (gnutls_session_t *, const char *, const char *,
                        const char *, const char *, const char *, char **);
+
+int omp_create_target_ext (gnutls_session_t *, omp_create_target_opts_t,
+                           gchar**);
 
 int omp_delete_target (gnutls_session_t *, const char *);
 
