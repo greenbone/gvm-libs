@@ -1,5 +1,10 @@
 2012-10-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* INSTALL: Update instructions to use out-of-source building, fix
+	typo.
+
+2012-10-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* COPYING: Fix typo, update date.
 
 2012-10-23  Michael Wiegand <michael.wiegand@greenbone.net>
