@@ -1,4 +1,4 @@
-openvas-libraries 6.0+beta1 (2012-10-XX)
+openvas-libraries 6.0+beta1 (2012-10-26)
 
 This release is the first beta version of the next major release of
 openvas-libraries. It will be part of the upcoming "OpenVAS-6".
@@ -25,6 +25,7 @@ Main changes compared to 5.0.x:
 * Several memory leaks fixed.
 * Various compile for special compilers issues fixed.
 * Internal code cleanups.
+* Updated documentation.
 
 
 openvas-libraries 5.0.1 (2012-04-24)
