@@ -4,7 +4,7 @@ License information about openvas-libraries
 The openvas-libraries module reveals a number
 of different licenses of the GNU family of licenses.
 
-Th effective license of the modules as a whole
+The effective license of the modules as a whole
 is the GNU General Public License Version 2 (GNU GPLv2).
 
 Single files, however, are licensed under either
@@ -19,7 +19,7 @@ BSD2: See file COPYING.BSD2
 BSD3: See file COPYING.BSD3
 
 The following overview was initially collected 20100726 based
-on the header of the respective files and last updated 20110118:
+on the header of the respective files and last updated 20121022:
 
 base/accessrules.[c|h]: GPLv2+
 base/array.[c|h]: GPLv2+
