@@ -268,10 +268,10 @@ else (BETA_INDICATOR MATCHES "^\\+")
 endif (BETA_INDICATOR MATCHES "^\\+")
 
 # Configure Doxyfile with version number
-configure_file (doc/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile @ONLY)
-configure_file (doc/Doxyfile_full.in ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile_full @ONLY)
-configure_file (VERSION.in ${CMAKE_CURRENT_BINARY_DIR}/VERSION @ONLY)
-configure_file (libopenvas.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libopenvas.pc @ONLY)
+configure_file (doc/Doxyfile.in ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
+configure_file (doc/Doxyfile_full.in ${CMAKE_BINARY_DIR}/doc/Doxyfile_full @ONLY)
+configure_file (VERSION.in ${CMAKE_BINARY_DIR}/VERSION @ONLY)
+configure_file (libopenvas.pc.in ${CMAKE_BINARY_DIR}/libopenvas.pc @ONLY)
 
 ## Program
 
@@ -295,7 +295,7 @@ add_subdirectory (doc)
 install (FILES doc/openvas-nasl.1
          DESTINATION ${DATADIR}/man/man1 )
 
-install (FILES ${CMAKE_CURRENT_BINARY_DIR}/libopenvas.pc
+install (FILES ${CMAKE_BINARY_DIR}/libopenvas.pc
          DESTINATION ${LIBDIR}/pkgconfig)
 
 install (FILES ${CMAKE_SOURCE_DIR}/openvas-services DESTINATION ${OPENVAS_DATA_DIR}

@@ -1,5 +1,10 @@
 2012-10-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* CMakeLists.txt: Simplify usage of CMAKE_CURRENT_BINARY_DIR to
+	CMAKE_BINARY_DIR since the two are identical in this context.
+
+2012-10-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* INSTALL: Update instructions to use out-of-source building, fix
 	typo.
 
