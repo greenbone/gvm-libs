@@ -1,5 +1,17 @@
 2012-10-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Update "doc" and "doc-full" targets for out-of-source builds.
+
+	* doc/CMakeLists.txt: Update commands and targets to work with
+	out-of-source builds.
+
+	* doc/Doxyfile.in: Updated to work with out-of-source builds.
+
+	* doc/Doxyfile_full.in: Stripped trailing spaces, harmonized with
+	Doxyfile.in.
+
+2012-10-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* CMakeLists.txt: Simplify usage of CMAKE_CURRENT_BINARY_DIR to
 	CMAKE_BINARY_DIR since the two are identical in this context.
 

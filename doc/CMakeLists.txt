@@ -31,20 +31,20 @@ if (NOT DOXYGEN_EXECUTABLE)
   message (STATUS "WARNING: Doxygen is required to build the HTML docs.")
 else (NOT DOXYGEN_EXECUTABLE)
   add_custom_target (doc COMMENT "Building documentation..."
-    DEPENDS Doxyfile .built-html)
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/.built-html)
 
   add_custom_command (OUTPUT .built-html
     COMMAND sh
-    ARGS -c \"cd .. && ${DOXYGEN_EXECUTABLE} doc/Doxyfile && touch doc/.built-html\;\"
-    DEPENDS Doxyfile ../README ../base/*.c ../base/*.h ../hg/*.c ../hg/*.h ../misc/*.c ../misc/*.h ../nasl/*.c ../nasl/*.h ../omp/*.c ../omp/*.h)
+    ARGS -c \"${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile && touch ${CMAKE_CURRENT_BINARY_DIR}/.built-html\;\"
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
   add_custom_target (doc-full COMMENT "Building documentation..."
-    DEPENDS Doxyfile_full .built-html_full)
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile_full ${CMAKE_CURRENT_BINARY_DIR}/.built-html_full)
 
   add_custom_command (OUTPUT .built-html_full
     COMMAND sh
-    ARGS -c \"cd .. && ${DOXYGEN_EXECUTABLE} doc/Doxyfile_full && touch doc/.built-html_full\;\"
-    DEPENDS Doxyfile_full ../README ../base/*.c ../base/*.h ../hg/*.c ../hg/*.h ../misc/*.c ../misc/*.h ../nasl/*.c ../nasl/*.h ../omp/*.c ../omp/*.h)
+    ARGS -c \"${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile_full && touch ${CMAKE_CURRENT_BINARY_DIR}/.built-html_full\;\"
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile_full)
 endif (NOT DOXYGEN_EXECUTABLE)
 
 
