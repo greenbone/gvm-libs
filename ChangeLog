@@ -1,5 +1,9 @@
 2012-10-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* INSTALL: Fix wrong module name in comment.
+
+2012-10-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* doc/Doxyfile.in: Set EXTRACT_ALL to YES for consistency across
 	modules.
 

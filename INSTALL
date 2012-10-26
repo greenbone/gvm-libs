@@ -76,7 +76,7 @@ This only needs to be done once.
 
 Thereafter, the following commands are useful.
 
-    $ make                # build the scanner
+    $ make                # build the libraries
     $ make doc            # build the documentation
     $ make doc-full       # build more developer-oriented documentation
     $ make install        # install the build
