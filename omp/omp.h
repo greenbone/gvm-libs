@@ -103,6 +103,22 @@ typedef struct
 static const omp_create_target_opts_t omp_create_target_opts_defaults =
   { };
 
+/**
+ * @brief Struct holding options for omp get_system_reports command.
+ */
+typedef struct
+{
+  const char* name;                ///< Name of report.
+  const char* duration;            ///< Duration.
+  int brief;                       ///< Brief flag.
+} omp_get_system_reports_opts_t;
+
+/**
+ * @brief Sensible default values for omp_get_report_opts_t.
+ */
+static const omp_get_system_reports_opts_t omp_get_system_reports_opts_defaults =
+  { };
+
 int check_response (gnutls_session_t *);
 
 int omp_read_create_response (gnutls_session_t*, gchar **);
@@ -231,6 +247,10 @@ int omp_delete_agent (gnutls_session_t *, const char *);
 int omp_get_nvt_details_503 (gnutls_session_t *, const char *, entity_t *);
 
 int omp_get_system_reports (gnutls_session_t *, const char *, int, entity_t *);
+
+int omp_get_system_reports_ext (gnutls_session_t *,
+                                omp_get_system_reports_opts_t,
+                                entity_t *);
 
 #if 0
 {

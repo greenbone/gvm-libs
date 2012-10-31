@@ -2753,3 +2753,89 @@ omp_get_system_reports (gnutls_session_t* session, const char* name, int brief,
   if (errno == ERANGE) return -1;
   return ret;
 }
+
+/**
+ * @brief Get system reports.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  opts     Struct containing the options to apply.
+ * @param[out] reports  Reports return.  On success contains GET_SYSTEM_REPORTS
+ *                      response.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_get_system_reports_ext (gnutls_session_t* session,
+                            omp_get_system_reports_opts_t opts,
+                            entity_t *reports)
+{
+  const char* status_code;
+  int ret;
+
+  /* Create the OMP request. */
+
+  if (opts.name && opts.duration)
+    {
+      if (openvas_server_sendf (session,
+                                "<get_system_reports"
+                                " name=\"%s\""
+                                " duration=\"%s\""
+                                " brief=\"%i\"/>",
+                                opts.name,
+                                opts.duration,
+                                opts.brief)
+          == -1)
+        return -1;
+    }
+  else if (opts.name)
+    {
+      if (openvas_server_sendf (session,
+                                "<get_system_reports"
+                                " name=\"%s\""
+                                " brief=\"%i\"/>",
+                                opts.name,
+                                opts.brief)
+          == -1)
+        return -1;
+    }
+  else if (opts.duration)
+    {
+      if (openvas_server_sendf (session,
+                                "<get_system_reports"
+                                " duration=\"%s\""
+                                " brief=\"%i\"/>",
+                                opts.duration,
+                                opts.brief)
+          == -1)
+        return -1;
+    }
+  else if (openvas_server_sendf (session,
+                                 "<get_system_reports brief=\"%i\"/>",
+                                 opts.brief)
+           == -1)
+    return -1;
+
+  /* Read the response. */
+
+  *reports = NULL;
+  if (read_entity (session, reports)) return -1;
+
+  /* Check the response. */
+
+  status_code = entity_attribute (*reports, "status");
+  if (status_code == NULL)
+    {
+      free_entity (*reports);
+      return -1;
+    }
+  if (strlen (status_code) == 0)
+    {
+      free_entity (*reports);
+      return -1;
+    }
+  if (status_code[0] == '2') return 0;
+  ret = (int) strtol (status_code, NULL, 10);
+  free_entity (*reports);
+  if (errno == ERANGE) return -1;
+  return ret;
+}
