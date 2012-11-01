@@ -1,10 +1,9 @@
 INSTALLATION INSTRUCTIONS FOR OPENVAS-LIBRARIES
 ===============================================
 
-Please note: The reference systems used by most of the developers are Debian
-GNU/Linux 'Lenny' 5.0 and Debian GNU/Linux 'Squeeze' 6.0.  The build might fail
-on any other systems.  Also it is necessary to install dependent development
-packages.
+Please note: The reference system used by most of the developers is Debian
+GNU/Linux 'Squeeze' 6.0. The build might fail on any other system. Also it is
+necessary to install dependent development packages.
 
 
 Prerequisites for openvas-libraries

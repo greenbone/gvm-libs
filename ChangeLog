@@ -1,3 +1,7 @@
+2012-11-01  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* INSTALL: Update reference system section.
+
 2012-10-31  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_get_system_reports_ext): New function.
