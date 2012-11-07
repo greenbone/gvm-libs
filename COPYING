@@ -145,21 +145,21 @@ nasl/strutils.[c|h]: GPLv2
 nasl/strutils.c: GPLv2+
 nasl/wmi_interface_stub.c: GPLv2+
 
-nasl/tests/Makefile: GPLv2
-nasl/tests/signed.nasl: GPLv2
-nasl/tests/test_blowfish.nasl: GPLv2
-nasl/tests/test_bn.nasl: GPLv2
-nasl/tests/test_dh.nasl: GPLv2
-nasl/tests/test_dsa.nasl: GPLv2
-nasl/tests/test_hexstr.nasl: GPLv2
+nasl/tests/Makefile: GPLv2+
+nasl/tests/signed.nasl: GPLv2+
+nasl/tests/test_blowfish.nasl: GPLv2+
+nasl/tests/test_bn.nasl: GPLv2+
+nasl/tests/test_dh.nasl: GPLv2+
+nasl/tests/test_dsa.nasl: GPLv2+
+nasl/tests/test_hexstr.nasl: GPLv2+
 nasl/tests/test_isotime.nasl: GPLv2+
-nasl/tests/test_md.nasl: GPLv2
-nasl/tests/test_privkey.nasl: GPLv2
-nasl/tests/test_rsa.nasl: GPLv2
-nasl/tests/test_script_signing.sh: GPLv2
+nasl/tests/test_md.nasl: GPLv2+
+nasl/tests/test_privkey.nasl: GPLv2+
+nasl/tests/test_rsa.nasl: GPLv2+
+nasl/tests/test_script_signing.sh: GPLv2+
 nasl/tests/test_socket.nasl: GPLv2+
-nasl/tests/testsuiteinit.nasl: GPLv2
-nasl/tests/testsuitesummary.nasl: GPLv2
+nasl/tests/testsuiteinit.nasl: GPLv2+
+nasl/tests/testsuitesummary.nasl: GPLv2+
 
 omp/CMakeLists.txt: GPLv2+
 omp/omp.[c|h]: GPLv2+

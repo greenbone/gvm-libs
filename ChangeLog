@@ -1,3 +1,15 @@
+2012-11-07  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/tests/test_rsa.nasl, nasl/tests/test_privkey.nasl,
+	nasl/tests/test_dh.nasl, nasl/tests/test_bn.nasl,
+	nasl/tests/test_script_signing.sh, nasl/tests/test_md.nasl,
+	nasl/tests/test_dsa.nasl, nasl/tests/testsuitesummary.nasl,
+	nasl/tests/signed.nasl, nasl/tests/test_blowfish.nasl,
+	nasl/tests/test_hexstr.nasl, nasl/tests/testsuiteinit.nasl,
+	nasl/tests/Makefile: Change license from GPLv2 to GPLv2+.
+
+	* COPYING: Updated accordingly.
+
 2012-11-02  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.
