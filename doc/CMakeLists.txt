@@ -46,8 +46,3 @@ else (NOT DOXYGEN_EXECUTABLE)
     ARGS -c \"${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile_full && touch ${CMAKE_CURRENT_BINARY_DIR}/.built-html_full\;\"
     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile_full)
 endif (NOT DOXYGEN_EXECUTABLE)
-
-
-## Install
-
-file (MAKE_DIRECTORY generated/)
