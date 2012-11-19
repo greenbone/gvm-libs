@@ -1,5 +1,9 @@
 2012-11-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* nasl/CMakeLists.txt: Actually link openvas_nasl against libksba.
+
+2012-11-19  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Use detected flags instead of hardcoding them.
 
 	* CMakeLists.txt: Add detection of pcap flags.
