@@ -202,6 +202,13 @@ if (NOT PCAP)
   message (FATAL_ERROR "The pcap library is required.")
 endif (NOT PCAP)
 
+execute_process (COMMAND pcap-config --libs
+  OUTPUT_VARIABLE PCAP_LDFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process (COMMAND pcap-config --cflags
+  OUTPUT_VARIABLE PCAP_CFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 message (STATUS "Looking for gpgme...")
 find_library (GPGME gpgme)
 message (STATUS "Looking for gpgme... ${GPGME}")

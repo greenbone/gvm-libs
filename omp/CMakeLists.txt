@@ -55,7 +55,7 @@ if (MINGW)
                          -lgcrypt -lgpg-error -lintl -lws2_32 -liconv -lole32
                          -lz -lkernel32)
 else (MINGW)
-  target_link_libraries (openvas_omp_shared openvas_misc_shared glib-2.0 gnutls)
+  target_link_libraries (openvas_omp_shared openvas_misc_shared "${GLIB_LDLAGS}" gnutls)
 endif (MINGW)
 
 ## Install

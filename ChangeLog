@@ -1,5 +1,14 @@
 2012-11-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Use detected flags instead of hardcoding them.
+
+	* CMakeLists.txt: Add detection of pcap flags.
+
+	* nasl/CMakeLists.txt, omp/CMakeLists.txt: Use variables instead of
+	relying on hardcoded values.
+
+2012-11-19  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* nasl/CMakeLists.txt: Use correct variable to determine whether
 	libksba was found.
 
