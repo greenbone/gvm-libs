@@ -448,6 +448,7 @@ remove_and_free_temp_key_file (char *filename)
  */
 static int
 my_ssh_pki_import_privkey_base64(ssh_session session,
+                                 int verbose,
                                  const char *b64_key,
                                  const char *passphrase,
                                  void *auth_fn,
@@ -495,12 +496,13 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
   g_chmod (privkey_filename, S_IRUSR | S_IWUSR);
 
   ssh_privkey = privatekey_from_file (session, privkey_filename, 0, passphrase);
-  if (!ssh_privkey)
+  if (!ssh_privkey && verbose)
     fprintf (stderr, "Reading private key from '%s' failed: %s\n",
              privkey_filename, ssh_get_error (session));
   if (!ssh_privkey && !pkcs8_buffer)
     {
-      fprintf (stderr, "Converting from PKCS#8 and trying again ...\n");
+      if (verbose)
+        fprintf (stderr, "Converting from PKCS#8 and trying again ...\n");
 
       pkcs8_buffer = pkcs8_to_sshprivatekey (b64_key, passphrase);
       if (pkcs8_buffer)
@@ -514,7 +516,8 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
     {
       g_free (pkcs8_buffer);
       pkcs8_buffer = NULL;
-      fprintf (stderr, "... this worked.\n");
+      if (verbose)
+        fprintf (stderr, "... this worked.\n");
     }
 
   remove_and_free_temp_key_file (privkey_filename);
@@ -535,7 +538,8 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
   if (pkey->type == SSH_KEYTYPE_UNKNOWN)
     {
       my_ssh_key_free (pkey);
-      fprintf (stderr, "%s: key type is not known\n", __FUNCTION__);
+      if (verbose)
+        fprintf (stderr, "%s: key type is not known\n", __FUNCTION__);
       return SSH_AUTH_ERROR;
     }
 
@@ -544,7 +548,9 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
   if (!ssh_pubkey)
     {
       my_ssh_key_free (pkey);
-      fprintf (stderr, "%s: publickey_from_privatekey failed\n", __FUNCTION__);
+      if (verbose)
+        fprintf (stderr, "%s: publickey_from_privatekey failed\n",
+                 __FUNCTION__);
       return SSH_AUTH_ERROR;
     }
   pkey->pubkey_string = publickey_to_string (ssh_pubkey);
@@ -552,7 +558,8 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
   if (!pkey->pubkey_string)
     {
       my_ssh_key_free (pkey);
-      fprintf (stderr, "%s: publickey_to_string failed\n", __FUNCTION__);
+      if (verbose)
+        fprintf (stderr, "%s: publickey_to_string failed\n", __FUNCTION__);
       return SSH_AUTH_ERROR;
     }
 
@@ -818,7 +825,8 @@ nasl_ssh_connect (lex_ctxt *lexic)
       break;
   if (!(tbl_slot < DIM (session_table)))
     {
-      fprintf (stderr, "No space left in SSH session table\n");
+      if (verbose)
+        fprintf (stderr, "No space left in SSH session table\n");
       ssh_free (session);
       return NULL;
     }
@@ -835,9 +843,10 @@ nasl_ssh_connect (lex_ctxt *lexic)
              hostname, port, sock);
   if (ssh_connect (session))
     {
-      fprintf (stderr, "Failed to connect to SSH server '%s'"
-               " (port %d, sock %d, f=%d): %s\n",
-               hostname, port, sock, forced_sock, ssh_get_error (session));
+      if (verbose)
+        fprintf (stderr, "Failed to connect to SSH server '%s'"
+                 " (port %d, sock %d, f=%d): %s\n",
+                 hostname, port, sock, forced_sock, ssh_get_error (session));
       if (forced_sock != -1)
         {
           /* If the caller passed us a socket we can't call ssh_free
@@ -1090,9 +1099,10 @@ get_authmethods (int tbl_slot)
     }
   else
     {
-      fprintf (stderr,
-               "SSH server did not return a list of authentication methods - "
-               "trying all\n");
+      if (verbose)
+        fprintf (stderr,
+                 "SSH server did not return a list of authentication methods"
+                 " - trying all\n");
       methods = (SSH_AUTH_METHOD_NONE
                  | SSH_AUTH_METHOD_PASSWORD
                  | SSH_AUTH_METHOD_PUBLICKEY
@@ -1321,9 +1331,10 @@ nasl_ssh_userauth (lex_ctxt *lexic)
           goto leave;
         }
 
-      fprintf (stderr,
-               "SSH password authentication failed for session %d: %s\n",
-               session_id, ssh_get_error (session));
+      if (verbose)
+        fprintf (stderr,
+                 "SSH password authentication failed for session %d: %s\n",
+                 session_id, ssh_get_error (session));
       /* Keep on trying.  */
     }
 
@@ -1360,10 +1371,11 @@ nasl_ssh_userauth (lex_ctxt *lexic)
                   rc = ssh_userauth_kbdint_setanswer (session, n, password);
                   if (rc != SSH_AUTH_SUCCESS)
                     {
-                      fprintf (stderr,
-                               "SSH keyboard-interactive authentication failed"
-                               " at prompt %d for session %d: %s\n",
-                               n, session_id, ssh_get_error (session));
+                      if (verbose)
+                        fprintf (stderr,
+                                 "SSH keyboard-interactive authentication "
+                                 "failed at prompt %d for session %d: %s\n",
+                                 n, session_id, ssh_get_error (session));
                     }
                 }
             }
@@ -1375,10 +1387,11 @@ nasl_ssh_userauth (lex_ctxt *lexic)
           goto leave;
         }
 
-      fprintf (stderr,
-               "SSH keyboard-interactive authentication failed for session %d"
-               ": %s\n",
-               session_id, ssh_get_error (session));
+      if (verbose)
+        fprintf (stderr,
+                 "SSH keyboard-interactive authentication failed for session %d"
+                 ": %s\n",
+                 session_id, ssh_get_error (session));
       /* Keep on trying.  */
     }
 
@@ -1388,19 +1401,24 @@ nasl_ssh_userauth (lex_ctxt *lexic)
       my_ssh_key key = NULL;
 
       /* SESSION is only used by our emulation - FIXME: remove it for 0.6.  */
-      if (my_ssh_pki_import_privkey_base64 (session, privkeystr, privkeypass,
+      if (my_ssh_pki_import_privkey_base64 (session, verbose,
+                                            privkeystr, privkeypass,
                                             NULL, NULL, &key))
         {
-          fprintf (stderr,
-                   "SSH public key authentication failed for session %d: %s\n",
-                   session_id, "Error converting provided key");
+          if (verbose)
+            fprintf (stderr,
+                     "SSH public key authentication failed for "
+                     "session %d: %s\n",
+                     session_id, "Error converting provided key");
         }
       else if (my_ssh_userauth_try_publickey (session, NULL, key)
                != SSH_AUTH_SUCCESS)
         {
-          fprintf (stderr,
-                   "SSH public key authentication failed for session %d: %s\n",
-                   session_id, "Server does not want our key");
+          if (verbose)
+            fprintf (stderr,
+                     "SSH public key authentication failed for "
+                     "session %d: %s\n",
+                     session_id, "Server does not want our key");
         }
       else if (my_ssh_userauth_publickey (session, NULL, key)
                == SSH_AUTH_SUCCESS)
@@ -1413,8 +1431,9 @@ nasl_ssh_userauth (lex_ctxt *lexic)
       /* Keep on trying.  */
     }
 
-  fprintf (stderr, "SSH authentication failed for session %d: %s\n",
-           session_id, "No more authentication methods to try");
+  if (verbose)
+    fprintf (stderr, "SSH authentication failed for session %d: %s\n",
+             session_id, "No more authentication methods to try");
  leave:
   {
     tree_cell *retc;
@@ -1484,6 +1503,7 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   int tbl_slot;
   int session_id;
   ssh_session session;
+  int verbose;
   char *cmd;
   ssh_channel channel;
   int rc;
@@ -1499,6 +1519,8 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   if (!session_id)
     return NULL;
   session = session_table[tbl_slot].session;
+
+  verbose = session_table[tbl_slot].verbose;
 
   cmd = get_str_local_var_by_name (lexic, "cmd");
   if (!cmd || !*cmd)
@@ -1539,8 +1561,9 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   if (rc)
     {
       /* FIXME: Handle SSH_AGAIN.  */
-      fprintf (stderr, "ssh_channel_open_session failed: %s\n",
-               ssh_get_error (session));
+      if (verbose)
+        fprintf (stderr, "ssh_channel_open_session failed: %s\n",
+                 ssh_get_error (session));
       ssh_channel_send_eof (channel);
       ssh_channel_close (channel);
       ssh_channel_free (channel);
@@ -1551,8 +1574,9 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   if (rc)
     {
       /* FIXME: Handle SSH_AGAIN.  */
-      fprintf (stderr, "ssh_channel_request_exec failed for '%s': %s\n",
-               cmd, ssh_get_error (session));
+      if (verbose)
+        fprintf (stderr, "ssh_channel_request_exec failed for '%s': %s\n",
+                 cmd, ssh_get_error (session));
       ssh_channel_send_eof (channel);
       ssh_channel_close (channel);
       ssh_channel_free (channel);
@@ -1600,8 +1624,9 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
 
   if (nread == SSH_ERROR)
     {
-      fprintf (stderr, "ssh_channel_read failed for session id %d: %s\n",
-               session_id, ssh_get_error (session));
+      if (verbose)
+        fprintf (stderr, "ssh_channel_read failed for session id %d: %s\n",
+                 session_id, ssh_get_error (session));
       ssh_channel_send_eof (channel);
       if (compat_buf_inuse)
         {

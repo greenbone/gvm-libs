@@ -1,5 +1,12 @@
 2012-11-20  Werner Koch  <wk@gnupg.org>
 
+	* nasl/nasl_ssh.c: Change to print most diagnostics only in
+	verbose mode.
+	(my_ssh_pki_import_privkey_base64): Add arg VERBOSE.  Let caller
+	pass that arg.
+
+2012-11-20  Werner Koch  <wk@gnupg.org>
+
 	* nasl/nasl_ssh.c (put_membuf_str, put_membuf_comma_str): New.
 	(nasl_ssh_get_auth_methods): New.
 	* nasl/nasl_ssh.h (nasl_ssh_get_auth_methods): Add prototype.
