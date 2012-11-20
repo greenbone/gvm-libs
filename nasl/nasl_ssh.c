@@ -1420,6 +1420,27 @@ nasl_ssh_userauth (lex_ctxt *lexic)
  * data block.  The first unnamed argument is the session id. The
  * command itself is expected as string in the named argument "cmd".
  *
+ * Regarding the handling of the stderr and stdout stream, this
+ * function may be used in different modes.
+ *
+ * If either the named arguments @a stdout or @a stderr are given and
+ * that one is set to 1, only the output of the specified stream is
+ * returned.
+ *
+ * If @a stdout and @a stderr are both given and set to 1, the output
+ * of both is returned interleaved.  NOTE: The following feature has
+ * not yet been implemented: The output is guaranteed not to switch
+ * between stderr and stdout within a line.
+ *
+ * If @a stdout and @a stderr are both given but set to 0, a special
+ * backward compatibility mode is used: First all output to stderr is
+ * collected up until any output to stdout is received.  Then all
+ * output to stdout is returned while ignoring all further stderr
+ * output; at EOF the initial collected data from stderr is returned.
+ *
+ * If the named parameters @a stdout and @a stderr are not given, the
+ * function acts exactly as if only @a stdout has been set to 1.
+ *
  * @nasluparam
  *
  * - An ssh session id.
@@ -1427,6 +1448,12 @@ nasl_ssh_userauth (lex_ctxt *lexic)
  * @naslnparam
  *
  * - @a cmd A string with the command to execute.
+ *
+ * - @a stdout An integer with value 0 or 1; see above for a full
+ *    description.
+ *
+ * - @a stderr An integer with value 0 or 1; see above for a full
+ *    description.
  *
  * @naslret A data block on success or NULL on error.
  *
@@ -1445,11 +1472,12 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   ssh_channel channel;
   int rc;
   char buffer[1024];
-  membuf_t response;
+  membuf_t response, compat_buf;
   int nread;
   size_t len = 0;
   tree_cell *retc;
   char *p;
+  int to_stdout, to_stderr, compat_mode, compat_buf_inuse;
 
   session_id = find_session_id (lexic, "ssh_request_exec", &tbl_slot);
   if (!session_id)
@@ -1462,6 +1490,27 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
       fprintf (stderr, "No command passed to ssh_request_exec\n");
       return NULL;
     }
+
+  to_stdout = get_int_local_var_by_name (lexic, "stdout", -1);
+  to_stderr = get_int_local_var_by_name (lexic, "stderr", -1);
+  compat_mode = 0;
+  if (to_stdout == -1 && to_stderr == -1)
+    {
+      /* None of the two named args are given.  */
+      to_stdout = 1;
+    }
+  else if (to_stdout == 0 && to_stderr == 0)
+    {
+      /* Compatibility mode.  */
+      to_stdout = 1;
+      compat_mode = 1;
+    }
+
+  if (to_stdout < 0)
+    to_stdout = 0;
+  if (to_stderr < 0)
+    to_stderr = 0;
+
 
   channel = ssh_channel_new (session);
   if (!channel)
@@ -1498,16 +1547,51 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
      much and thus 512 bytes (6 standard terminal lines) should often
      be sufficient.  */
   init_membuf (&response, 512);
-  while ((nread = ssh_channel_read (channel, buffer, sizeof buffer, 0)) > 0)
+  if (compat_mode)
     {
-      put_membuf (&response, buffer, nread);
+      init_membuf (&compat_buf, 512);
+      compat_buf_inuse = 1;
     }
+  else
+    compat_buf_inuse = 0;
 
-  if (nread < 0)
+  do
+    {
+      nread = ssh_channel_poll (channel, 1);
+      if (nread > 0
+          && (nread = ssh_channel_read (channel, buffer, sizeof buffer, 1)) > 0)
+        {
+          if (to_stderr)
+            put_membuf (&response, buffer, nread);
+          if (compat_mode)
+            put_membuf (&compat_buf, buffer, nread);
+        }
+      else if (nread == SSH_ERROR)
+        break;
+
+      nread = ssh_channel_poll (channel, 0);
+      if (nread > 0
+          && (nread = ssh_channel_read (channel, buffer, sizeof buffer, 0)) > 0)
+        {
+          compat_mode = 0;
+          if (to_stdout)
+            put_membuf (&response, buffer, nread);
+        }
+      else if (nread == SSH_ERROR)
+        break;
+    }
+  while (!ssh_channel_is_eof (channel));
+
+  if (nread == SSH_ERROR)
     {
       fprintf (stderr, "ssh_channel_read failed for session id %d: %s\n",
                session_id, ssh_get_error (session));
       ssh_channel_send_eof (channel);
+      if (compat_buf_inuse)
+        {
+          p = get_membuf (&compat_buf, NULL);
+          efree (&p);
+        }
       p = get_membuf (&response, NULL);
       efree (&p);
       ssh_channel_close (channel);
@@ -1519,6 +1603,18 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   ssh_channel_close (channel);
   ssh_channel_free (channel);
 
+  /* Append the compatibility buffer to the output.  */
+  if (compat_buf_inuse)
+    {
+      p = get_membuf (&compat_buf, &len);
+      if (p)
+        {
+          put_membuf (&response, p, len);
+          efree (&p);
+        }
+    }
+
+  /* Return the the output.  */
   p = get_membuf (&response, &len);
   if (!p)
     {
@@ -1581,6 +1677,54 @@ nasl_ssh_get_issue_banner (lex_ctxt *lexic)
   retc->size = strlen (banner);
   ssh_string_free_char (banner);
   return retc;
+}
+
+
+#if 0
+/**
+ * @brief Get the server banner
+ * @naslfn{ssh_get_server_banner}
+ *
+ * The function returns a string with the server banner.  This is
+ * usually the first data sent by the server.
+ *
+ * @nasluparam
+ *
+ * - An ssh session id.
+ *
+ * @naslret A data block on success or NULL on error.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return A string is returned on success.  NULL indicates that the
+ *         connection has not yet been established.
+ */
+#endif
+tree_cell *
+nasl_ssh_get_server_banner (lex_ctxt *lexic)
+{
+#if 0 /* FIXME: Enable this if we can use LIBSSH 0.6  */
+  int tbl_slot;
+  ssh_session session;
+  char *banner;
+  tree_cell *retc;
+
+  if (!find_session_id (lexic, "ssh_get_server_banner", &tbl_slot))
+    return NULL;
+  session = session_table[tbl_slot].session;
+
+  banner = ssh_get_serverbanner (session);
+  if (!banner)
+    return NULL;
+
+  retc = alloc_typed_cell (CONST_DATA);
+  retc->x.str_val = estrdup (banner);
+  retc->size = strlen (banner);
+  ssh_string_free_char (banner);
+  return retc;
+#endif
+  (void)lexic;
+  return NULL;
 }
 
 

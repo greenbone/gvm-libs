@@ -1,3 +1,18 @@
+2012-11-20  Werner Koch  <wk@gnupg.org>
+
+	* nasl/nasl_ssh.c (nasl_ssh_request_exec): Add named arguments
+	"stdout" and "stderr" to allow selection of the output stream.
+	Implemented a basic compatibility mode for the NASL based ssh
+	code.
+	* nasl/nasl_init.c (libfunc) <ssh_request_exec>: Add the new named
+	args.
+
+	* nasl/nasl_ssh.c (nasl_ssh_get_server_banner): New function stub
+	to be prepared for libssh 0.6.
+	* nasl/nasl_ssh.h (nasl_ssh_get_server_banner): Add Prototype.
+	* nasl/nasl_init.c (libfunc) <ssh_get_server_banner>: Add
+	commented out init for the new function.
+
 2012-11-20  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* CMakeLists.txt: Fall back to manual setting of flags for libpcap <
