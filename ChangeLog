@@ -1,3 +1,8 @@
+2012-11-20  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* CMakeLists.txt: Fall back to manual setting of flags for libpcap <
+	1.0.0 since it does not yet have pcap-config.
+
 2012-11-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* nasl/CMakeLists.txt: Actually link openvas_nasl against libksba.

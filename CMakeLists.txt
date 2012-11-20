@@ -202,12 +202,22 @@ if (NOT PCAP)
   message (FATAL_ERROR "The pcap library is required.")
 endif (NOT PCAP)
 
-execute_process (COMMAND pcap-config --libs
-  OUTPUT_VARIABLE PCAP_LDFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process (COMMAND pcap-config --cflags
-  OUTPUT_VARIABLE PCAP_CFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
+message (STATUS "Looking for pcap-config...")
+find_program (PCAP_CONFIG pcap-config)
+
+if (PCAP_CONFIG)
+  message (STATUS "Looking for pcap-config... ${PCAP_CONFIG}")
+  execute_process (COMMAND pcap-config --libs
+    OUTPUT_VARIABLE PCAP_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process (COMMAND pcap-config --cflags
+    OUTPUT_VARIABLE PCAP_CFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+else (PCAP_CONFIG)
+  message (STATUS "pcap-config not found, using defaults...")
+  set (PCAP_LDFLAGS "-L/usr/lib -lpcap")
+  set (PCAP_CFLAGS "-I/usr/include")
+endif (PCAP_CONFIG)
 
 message (STATUS "Looking for gpgme...")
 find_library (GPGME gpgme)
