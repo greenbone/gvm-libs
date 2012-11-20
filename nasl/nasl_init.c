@@ -379,6 +379,7 @@ static init_func libfuncs[] = {
   {"ssh_get_issue_banner", nasl_ssh_get_issue_banner, 1, {NULL }},
   /* Enable the next fucntion with LIBSSH 0.6: */
   /*{"ssh_get_server_banner", nasl_ssh_get_server_banner, 1, {NULL }},*/
+  {"ssh_get_auth_methods", nasl_ssh_get_auth_methods, 1, {NULL }},
 #endif
 
 #ifdef HAVE_LIBKSBA

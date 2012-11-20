@@ -187,6 +187,22 @@ put_membuf (membuf_t *mb, const void *buf, size_t len)
 
 
 static void
+put_membuf_str (membuf_t *mb, const char *string)
+{
+  put_membuf (mb, string, strlen (string));
+}
+
+
+static void
+put_membuf_comma_str (membuf_t *mb, const char *string)
+{
+  if (mb->len)
+    put_membuf_str (mb, ",");
+  put_membuf_str (mb, string);
+}
+
+
+static void
 put_membuf_byte (membuf_t *mb, unsigned char c)
 {
   put_membuf (mb, &c, 1);
@@ -1725,6 +1741,69 @@ nasl_ssh_get_server_banner (lex_ctxt *lexic)
 #endif
   (void)lexic;
   return NULL;
+}
+
+
+/**
+ * @brief Get the list of authmethods
+ * @naslfn{ssh_get_auth_methods}
+ *
+ * The function returns a string with comma separated authentication
+ * methods.  This is basically the same as returned by
+ * SSH_MSG_USERAUTH_FAILURE protocol element; however, it has been
+ * screened and put into a definitive order.
+ *
+ * @nasluparam
+ *
+ * - An ssh session id.
+ *
+ * @naslret A string on success or NULL on error.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return A string is returned on success.  NULL indicates that the
+ *         connection has not yet been established.
+ */
+tree_cell *
+nasl_ssh_get_auth_methods (lex_ctxt *lexic)
+{
+  int tbl_slot;
+  int methods;
+  membuf_t mb;
+  size_t len;
+  char *p;
+  tree_cell *retc;
+
+  if (!find_session_id (lexic, "ssh_get_auth_methods", &tbl_slot))
+    return NULL;
+
+  if (!session_table[tbl_slot].user_set)
+    nasl_ssh_set_login (lexic);
+  if (!session_table[tbl_slot].authmethods_valid)
+    get_authmethods (tbl_slot);
+
+  methods = session_table[tbl_slot].authmethods;
+
+  init_membuf (&mb, 128);
+  if ((methods & SSH_AUTH_METHOD_NONE))
+    put_membuf_comma_str (&mb, "none");
+  if ((methods & SSH_AUTH_METHOD_PASSWORD))
+    put_membuf_comma_str (&mb, "password");
+  if ((methods & SSH_AUTH_METHOD_PUBLICKEY))
+    put_membuf_comma_str (&mb, "publickey");
+  if ((methods & SSH_AUTH_METHOD_HOSTBASED))
+    put_membuf_comma_str (&mb, "hostbased");
+  if ((methods & SSH_AUTH_METHOD_INTERACTIVE))
+    put_membuf_comma_str (&mb, "keyboard-interactive");
+  put_membuf (&mb, "", 1);
+  p = get_membuf (&mb, &len);
+  if (!p)
+    return NULL;
+
+  retc = alloc_typed_cell (CONST_DATA);
+  retc->x.str_val = p;
+  retc->size = len;
+  return retc;
 }
 
 

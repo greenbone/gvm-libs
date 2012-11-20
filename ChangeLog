@@ -1,5 +1,12 @@
 2012-11-20  Werner Koch  <wk@gnupg.org>
 
+	* nasl/nasl_ssh.c (put_membuf_str, put_membuf_comma_str): New.
+	(nasl_ssh_get_auth_methods): New.
+	* nasl/nasl_ssh.h (nasl_ssh_get_auth_methods): Add prototype.
+	* nasl/nasl_init.c (libfunc) <ssh_get_auth_methods>: New.
+
+2012-11-20  Werner Koch  <wk@gnupg.org>
+
 	* nasl/nasl_ssh.c (nasl_ssh_request_exec): Add named arguments
 	"stdout" and "stderr" to allow selection of the output stream.
 	Implemented a basic compatibility mode for the NASL based ssh
