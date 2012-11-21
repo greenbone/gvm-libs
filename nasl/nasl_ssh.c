@@ -322,7 +322,7 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
   strcpy ((char*)sshkey.data, sshprivkeystr);
 
   rc = gnutls_x509_privkey_import_pkcs8 (key, &sshkey, GNUTLS_X509_FMT_PEM,
-                                         passphrase, 0);
+                                         passphrase?passphrase:"", 0);
   g_free (sshkey.data);
   if (rc)
     {
