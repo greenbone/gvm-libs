@@ -1,3 +1,12 @@
+2012-11-23  Werner Koch  <wk@gnupg.org>
+
+	* nasl/nasl_ssh.c: Include gcrypt.h.
+	(add_tlv): Fixup negative integer values.
+	(mpi_from_gnutls_datum, mpi_to_gnutls_datum): New.  Only used with
+	gnutls < 2.11.
+	(pkcs8_to_sshprivatekey): Swap P and Q is needed and recompute u.
+	Only used with gnutls < 2.11.
+
 2012-11-21  Werner Koch  <wk@gnupg.org>
 
 	* nasl/nasl_ssh.c (pkcs8_to_sshprivatekey): Pass an empty string

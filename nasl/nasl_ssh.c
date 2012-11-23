@@ -53,6 +53,7 @@
 
 #include <gnutls/gnutls.h>      /* Used to convert pkcs8 to ssh format.  */
 #include <gnutls/x509.h>
+#include <gcrypt.h>
 
 #include <libssh/libssh.h>
 #include <libssh/legacy.h>      /* Remove for libssh 0.6.  */
@@ -259,12 +260,22 @@ my_ssh_key_free (my_ssh_key key)
 
 /* Create a TLV tag and store it at BUFFER.  A LENGTH greater than
    65535 is truncated.  If VALUE is NULL only the tag and length
-   values will be written.  This is used to write DER encoded
-   data.  */
+   values will be written.  This is used to write DER encoded data.
+   To cope with a problem in old GNUTLS versions we make sure that
+   integer values are always positive. */
 static void
 add_tlv (membuf_t *buffer, unsigned int tag, void *value, size_t length)
 {
+  int fix_negative = 0;
+
   g_assert (tag <= 0xffff);
+
+  if (tag == 0x02 && length && value && (*(unsigned char *)value & 0x80))
+    {
+      fix_negative = 1;
+      length++;
+    }
+
   if (tag > 0xff)
     put_membuf_byte (buffer, tag >> 8);
   put_membuf_byte (buffer, tag);
@@ -283,9 +294,70 @@ add_tlv (membuf_t *buffer, unsigned int tag, void *value, size_t length)
       put_membuf_byte (buffer, length >> 8);
       put_membuf_byte (buffer, length);
     }
+
+  if (fix_negative)
+    {
+      put_membuf (buffer, "", 1);  /* Prepend a 0x00.  */
+      length--;
+    }
   if (value)
     put_membuf (buffer, value, length);
 }
+
+
+/* Return a new MPI filled with the value from DATUM. */
+#if GNUTLS_VERSION_NUMBER < 0x020b00
+static gcry_mpi_t
+mpi_from_gnutls_datum (gnutls_datum_t *datum)
+{
+  gcry_error_t err;
+  gcry_mpi_t a;
+
+  err = gcry_mpi_scan (&a, GCRYMPI_FMT_USG, datum->data, datum->size, NULL);
+  if (err)
+    {
+      fprintf (stderr, "gcry_mpi_scan failed: %s\n", gcry_strerror (err));
+      abort ();
+    }
+
+  return a;
+}
+#endif /*GNUTLS_VERSION_NUMBER < 0x020b00*/
+
+
+/* Allocate a new DATUM and fill it with the value from A. */
+#if GNUTLS_VERSION_NUMBER < 0x020b00
+static void
+mpi_to_gnutls_datum (gnutls_datum_t *datum, gcry_mpi_t a)
+{
+  gcry_error_t err;
+  unsigned char *buffer;
+  size_t buflen;
+
+  err = gcry_mpi_print (GCRYMPI_FMT_STD, NULL, 0, &buflen, a);
+  if (err)
+    {
+      fprintf (stderr, "gcry_mpi_print failed: %s\n", gcry_strerror (err));
+      abort ();
+    }
+
+  buffer = gnutls_malloc (buflen);
+  if (!buffer)
+    {
+      perror ("gnutls_malloc");
+      abort ();
+    }
+
+  err = gcry_mpi_print (GCRYMPI_FMT_STD, buffer, buflen, &buflen, a);
+  if (err)
+    {
+      fprintf (stderr, "gcry_mpi_print failed (2): %s\n", gcry_strerror (err));
+      abort ();
+    }
+  datum->size = buflen;
+  datum->data = buffer;
+}
+#endif /*GNUTLS_VERSION_NUMBER < 0x020b00*/
 
 
 /* Assume the PEM object in SSHPRIVKEYSTR is a pkcs#8 private RSA key
@@ -339,6 +411,8 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
   rc = gnutls_x509_privkey_export_rsa_raw (key, &m, &e, &d, &p, &q, &u);
   if (!rc)
     {
+      gcry_mpi_t p_mpi, q_mpi, u_mpi;
+
       /* The libgcrypt version of libssh does not use dmp1 and dmq1.
          Thus we can safely provide dummy values.  */
       dmp1.size = 4;
@@ -349,6 +423,30 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
       dmq1.data = gnutls_malloc (4);
       if (dmq1.data)
         memcpy (dmq1.data, "\x42\x42\x42\x42", 4);
+
+      /* Some gnutls versions swap p and q; we need P < Q.  We fix
+         that here and, to be on the safe side, always recompute u. */
+
+      p_mpi = mpi_from_gnutls_datum (&p);
+      q_mpi = mpi_from_gnutls_datum (&q);
+
+      if (gcry_mpi_cmp (p_mpi, q_mpi) > 0)
+        gcry_mpi_swap (p_mpi, q_mpi);
+
+      u_mpi = gcry_mpi_new (0);
+      gcry_mpi_invm (u_mpi, p_mpi, q_mpi);
+
+      gnutls_free (u.data);
+      mpi_to_gnutls_datum (&u, u_mpi);
+      gcry_mpi_release (u_mpi);
+
+      gnutls_free (p.data);
+      mpi_to_gnutls_datum (&p, p_mpi);
+      gcry_mpi_release (p_mpi);
+
+      gnutls_free (q.data);
+      mpi_to_gnutls_datum (&q, q_mpi);
+      gcry_mpi_release (q_mpi);
     }
 #endif
   gnutls_x509_privkey_deinit (key);
