@@ -52,6 +52,9 @@ cell2bool (lex_ctxt * lexic, tree_cell * c)
   tree_cell *c2;
   int flag;
 
+#if 0
+  nasl_dump_tree (c);
+#endif
 
   if (c == NULL || c == FAKE_CELL)
     return 0;
@@ -60,25 +63,10 @@ cell2bool (lex_ctxt * lexic, tree_cell * c)
     {
     case CONST_INT:
       return c->x.i_val != 0;
+
     case CONST_STR:
     case CONST_DATA:
-      if (c->size == 0)
-        return 0;
-      if (c->x.str_val[0] == '0' && c->size == 1)
-        {
-          /*
-           * This gives the same semantics as Perl ("0" is false),
-           * but I do not agree with it.
-           * This piece of code is here from the begining of NASL2; it
-           * probably fixed some compatibility issue with old
-           * quick & dirty scripts.
-           * I added this warning to check if we can switch to a
-           * simpler behaviour (empty string = false, not empty = true)
-           */
-          nasl_perror (lexic, "cell2boll: string '0' is FALSE\n");
-          return 0;
-        }
-      return 1;
+      return c->size != 0;
 
     case REF_ARRAY:
     case DYN_ARRAY:
