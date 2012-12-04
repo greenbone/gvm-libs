@@ -2232,13 +2232,13 @@ omp_create_target_ext (gnutls_session_t* session,
     comment = NULL;
 
   if (opts.ssh_credential_id)
-    ssh = g_markup_printf_escaped ("<ssh_lsc_credential id=\"%s\">",
+    ssh = g_markup_printf_escaped ("<ssh_lsc_credential id=\"%s\"/>",
                                    opts.ssh_credential_id);
   else
     ssh = NULL;
 
   if (opts.smb_credential_id)
-    smb = g_markup_printf_escaped ("<smb_lsc_credential id=\"%s\">",
+    smb = g_markup_printf_escaped ("<smb_lsc_credential id=\"%s\"/>",
                                    opts.smb_credential_id);
   else
     smb = NULL;
