@@ -1534,6 +1534,70 @@ omp_get_tasks (gnutls_session_t* session, const char* id, int details,
 }
 
 /**
+ * @brief Get a task (generic version).
+ *
+ * FIXME: Using the according opts it should be possible to generate
+ * any type of get_tasks request defined by the spec.
+ *
+ * @param[in]  session   Pointer to GNUTLS session.
+ * @param[in]  opts      Struct containing the options to apply.
+ * @param[out] response  Tasks.  On success contains GET_TASK response.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_get_tasks_ext (gnutls_session_t* session,
+                   omp_get_tasks_opts_t opts,
+                   entity_t* response)
+{
+  int ret;
+  const char *status_code;
+
+  if (response == NULL)
+    return -1;
+
+  if (opts.actions)
+    {
+      if (openvas_server_sendf (session,
+                                "<get_tasks"
+                                " actions=\"%s\""
+                                "%s%s/>",
+                                opts.actions,
+                                OMP_FMT_BOOL_ATTRIB (opts, details),
+                                OMP_FMT_BOOL_ATTRIB (opts, rcfile)))
+        return -1;
+    }
+  else if (openvas_server_sendf (session,
+                                 "<get_tasks"
+                                 "%s%s/>",
+                                 OMP_FMT_BOOL_ATTRIB (opts, details),
+                                 OMP_FMT_BOOL_ATTRIB (opts, rcfile)))
+    return -1;
+
+  *response = NULL;
+  if (read_entity (session, response)) return -1;
+
+  /* Check the response. */
+
+  status_code = entity_attribute (*response, "status");
+  if (status_code == NULL)
+    {
+      free_entity (*response);
+      return -1;
+    }
+  if (strlen (status_code) == 0)
+    {
+      free_entity (*response);
+      return -1;
+    }
+  if (status_code[0] == '2') return 0;
+  ret = (int) strtol (status_code, NULL, 10);
+  free_entity (*response);
+  if (errno == ERANGE) return -1;
+  return ret;
+}
+
+/**
  * @brief Get a target.
  *
  * @param[in]  session         Pointer to GNUTLS session.

@@ -64,6 +64,23 @@ static const omp_get_report_opts_t omp_get_report_opts_defaults =
   };
 
 /**
+ * @brief Struct holding options for omp get_tasks command.
+ */
+typedef struct
+{
+  const char* actions;   ///< Actions argument.
+  /* Boolean flags: */
+  int details;           ///< Whether to include overrides in the tasks.
+  int rcfile;            ///< If overrides, whether to include details.
+} omp_get_tasks_opts_t;
+
+/**
+ * @brief Sensible default values for omp_get_tasks_opts_t.
+ */
+static const omp_get_tasks_opts_t omp_get_tasks_opts_defaults =
+  { };
+
+/**
  * @brief Struct holding options for omp create_task command.
  *
  * FIXME: This SHOULD contain all valid options from the OMP spec.
@@ -183,6 +200,8 @@ int omp_wait_for_task_delete (gnutls_session_t *, const char *);
 int omp_get_status (gnutls_session_t *, const char *, int, entity_t *);
 
 int omp_get_tasks (gnutls_session_t *, const char *, int, int, entity_t *);
+
+int omp_get_tasks_ext (gnutls_session_t *, omp_get_tasks_opts_t, entity_t *);
 
 int omp_get_targets (gnutls_session_t *, const char *, int, int, entity_t *);
 
