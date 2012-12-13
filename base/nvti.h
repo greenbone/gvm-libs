@@ -113,6 +113,7 @@ gchar *nvti_cve (const nvti_t *);
 gchar *nvti_bid (const nvti_t *);
 gchar *nvti_xref (const nvti_t *);
 gchar *nvti_tag (const nvti_t *);
+double nvti_cvss (const nvti_t *);
 gchar *nvti_cvss_base (const nvti_t *);
 gchar *nvti_cvss_base_vector (const nvti_t *);
 gchar *nvti_risk_factor (const nvti_t *);

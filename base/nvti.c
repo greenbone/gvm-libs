@@ -36,6 +36,8 @@
  */
 
 #include <string.h>
+#include <stdlib.h>     /* for strtod   */
+#include <math.h>       /* for HUGE_VAL */
 #include <stdio.h>
 #include <errno.h>
 #include <sys/stat.h>
@@ -401,6 +403,80 @@ nvti_cvss_base_vector (const nvti_t * n)
   g_strfreev (split);
 
   return (cvss_base_vector);
+}
+
+/**
+ * @brief Get the CVSS base value.
+ *
+ * @param n The NVT Info structure of which the CVSS base value should
+ *          be returned.
+ *
+ * @return The cvss_base value as double. It will always be between 0 and 10.
+ *         -1 indicates missing CVSS data.
+ *         -2 indicates error (like parse error for base vector).
+ */
+double
+nvti_cvss (const nvti_t * n)
+{
+  gchar * tags = nvti_tag (n);
+  gchar * cvss_base_vector = nvti_cvss_base_vector (n);
+  gchar **split, **point;
+  gchar * cvss_base = NULL;
+  double cvss = -1;
+
+  if (n == NULL) return -2;
+
+  /* First try to get the cvss_base_vector and compute CVSS from it */
+
+  if (cvss_base_vector)
+    {
+    // TODO: Parse cvss base vector to compute cvss value, return -2 upon error
+    }
+
+  /* Second try to get the cvss_base string from the tags */
+
+  if (cvss == -1 && tags)
+    {
+      point = split = g_strsplit (tags, "|", 0);
+
+      while (*point)
+        {
+          if (strncmp (*point, "cvss_base=", strlen ("cvss_base=")) == 0)
+            {
+              cvss_base = g_strdup (*point + strlen ("cvss_base="));
+              break;
+            }
+          point++;
+        }
+
+      g_strfreev (split);
+    }
+
+  if (cvss_base)
+    {
+      errno = 0;
+      cvss = strtod (cvss_base, NULL);
+      g_free (cvss_base);
+      if (((errno == ERANGE) && (cvss == HUGE_VAL || cvss == -HUGE_VAL))
+          || (errno != 0 && cvss == 0))
+        {
+          return -2;
+        }
+
+      if (cvss < 0 || cvss > 10)
+        {
+          return -2;
+        }
+    }
+
+  /* Third try to get the cvss_base string from the attribute */
+  
+  if (cvss == -1)
+    {
+      // TODO: Get nvti_cvss_base (n) and convert it to double, return -2 upon error
+    }
+
+  return (cvss);
 }
 
 /**
