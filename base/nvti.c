@@ -361,12 +361,46 @@ nvti_tag (const nvti_t * n)
  * @param n The NVT Info structure of which the CVSS base should
  *          be returned.
  *
- * @return The cvss_bas string. Don't free this.
+ * @return The cvss_base string. Don't free this.
  */
 gchar *
 nvti_cvss_base (const nvti_t * n)
 {
   return (n ? n->cvss_base : NULL);
+}
+
+/**
+ * @brief Get the CVSS base vector string.
+ *
+ * @param n The NVT Info structure of which the CVSS base vector should
+ *          be returned.
+ *
+ * @return A copy of the cvss_base_vector string. Needs to be free'ed with g_free().
+ */
+gchar *
+nvti_cvss_base_vector (const nvti_t * n)
+{
+  gchar * tags = nvti_tag (n);
+  gchar **split, **point;
+  gchar * cvss_base_vector = NULL;
+
+  if (tags == NULL) return NULL;
+
+  point = split = g_strsplit (tags, "|", 0);
+
+  while (*point)
+    {
+      if (strncmp (*point, "cvss_base_vector=", strlen ("cvss_base_vector=")) == 0)
+        {
+          cvss_base_vector = g_strdup (*point + strlen ("cvss_base_vector="));
+          break;
+        }
+      point++;
+    }
+
+  g_strfreev (split);
+
+  return (cvss_base_vector);
 }
 
 /**

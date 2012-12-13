@@ -1,3 +1,10 @@
+2012-12-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/nvti.c (nvti_cvss_base_vector): New. Pulls out the
+	cvss_base_vector from the tag string.
+
+	* base/nvti.h: Added proto accordingly.
+
 2012-12-13  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_get_task_ext): New function.
