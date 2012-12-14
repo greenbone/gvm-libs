@@ -1,3 +1,23 @@
+openvas-libraries 6.0+beta3 (2012-12-14)
+
+This release is the third beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-6".
+
+It fixes an issue which caused credentials to be not transferred
+correctly when scanning through a slave and improves SSH and X.509
+functionality and dependency handling in the build process.
+
+Many thanks to everyone who has contributed this release:
+Werner Koch, Matthew Mundell Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to 6.0+beta2:
+* An issue which caused credentials to be not transferred correctly when
+  scanning through a slave has been fixed.
+* SSH functionality has been improved.
+* Library detection and handling of library flags during the build
+  process have been improved.
+
+
 openvas-libraries 6.0+beta2 (2012-11-02)
 
 This release is the second beta version of the next major release of
