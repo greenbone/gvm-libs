@@ -1,3 +1,9 @@
+2012-12-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/cvss.c, base/cvss.h: New. Implemented by Preeti Subramanian.
+
+	* base/CMakeLists.txt: Add new module cvss to build routines.
+
 2012-12-14  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.
