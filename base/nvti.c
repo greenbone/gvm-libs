@@ -432,6 +432,7 @@ nvti_cvss (const nvti_t * n)
   if (cvss_base_vector)
     {
     cvss =  get_cvss_score_from_base_metrics ((char *)cvss_base_vector);
+    g_free (cvss_base_vector);
     if (cvss < 0)
       return -2;
     }
@@ -455,6 +456,13 @@ nvti_cvss (const nvti_t * n)
       g_strfreev (split);
     }
 
+  if (! cvss_base)
+    {
+      /* Third try to get the cvss_base string from the attribute */
+  
+      cvss_base = g_strdup (nvti_cvss_base (n));
+    }
+
   if (cvss_base)
     {
       errno = 0;
@@ -470,13 +478,6 @@ nvti_cvss (const nvti_t * n)
         {
           return -2;
         }
-    }
-
-  /* Third try to get the cvss_base string from the attribute */
-  
-  if (cvss == -1)
-    {
-      // TODO: Get nvti_cvss_base (n) and convert it to double, return -2 upon error
     }
 
   return (cvss);
