@@ -45,6 +45,7 @@
 #include <utime.h>
 
 #include "nvti.h"
+#include "cvss.h"  /* for get_cvss_score_from_base_metrics */
 
 /**
  * @brief Create a new nvtpref structure filled with the given values.
@@ -430,7 +431,9 @@ nvti_cvss (const nvti_t * n)
 
   if (cvss_base_vector)
     {
-    // TODO: Parse cvss base vector to compute cvss value, return -2 upon error
+    cvss =  get_cvss_score_from_base_metrics ((char *)cvss_base_vector);
+    if (cvss < 0)
+      return -2;
     }
 
   /* Second try to get the cvss_base string from the tags */
