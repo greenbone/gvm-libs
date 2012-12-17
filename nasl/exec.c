@@ -82,20 +82,6 @@ cell2bool (lex_ctxt * lexic, tree_cell * c)
 }
 
 static int
-cvt_bool (lex_ctxt * lexic, tree_cell * c)
-{
-  int flag;
-
-#if 0
-  nasl_dump_tree (c);
-#endif
-  flag = cell2bool (lexic, c);
-  /* free(c); free_tree(c); */
-  return flag;
-}
-
-
-static int
 cell2int3 (lex_ctxt * lexic, tree_cell * c, int warn)
 {
   tree_cell *c2 = NULL;
@@ -882,7 +868,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
       if (ret == NULL)
         return NULL;
 #endif
-      if (cvt_bool (lexic, ret))
+      if (cell2bool (lexic, ret))
         ret2 = nasl_exec (lexic, st->link[1]);
       else if (st->link[2] != NULL)     /* else branch */
         ret2 = nasl_exec (lexic, st->link[2]);
@@ -923,7 +909,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
           /* condition */
           if ((ret = nasl_exec (lexic, st->link[1])) == NULL)
             return NULL;        /* We can return here, as NULL is false */
-          flag = cvt_bool (lexic, ret);
+          flag = cell2bool (lexic, ret);
           deref_cell (ret);
           if (!flag)
             break;
@@ -967,7 +953,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
           /* Condition */
           if ((ret = nasl_exec (lexic, st->link[0])) == NULL)
             return NULL;        /* NULL is false */
-          flag = cvt_bool (lexic, ret);
+          flag = cell2bool (lexic, ret);
           deref_cell (ret);
           if (!flag)
             break;
@@ -1021,7 +1007,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
           if (ret == NULL)
             return NULL;
 #endif
-          flag = cvt_bool (lexic, ret);
+          flag = cell2bool (lexic, ret);
           deref_cell (ret);
           if (flag)
             break;
