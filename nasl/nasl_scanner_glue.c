@@ -971,9 +971,8 @@ security_message (lex_ctxt * lexic)
 {
   char *end, *given_type;
   double cvss;
-  gchar *cvss_string, *tags;
+  gchar *cvss_string;
   nvti_t *nvti;
-  gchar **split, **point;
 
   given_type = get_str_local_var_by_name (lexic, "threat");
   if (given_type)
@@ -996,11 +995,30 @@ security_message (lex_ctxt * lexic)
       return FAKE_CELL;
     }
 
-  split = NULL;
   cvss_string = get_str_local_var_by_name (lexic, "cvss_base");
 
-  if (cvss_string == NULL)
+  if (cvss_string)
     {
+      // Parse the CVSS from the string value given as parameter
+      errno = 0;
+      cvss = strtod (cvss_string, &end);
+      if (((errno == ERANGE) && (cvss == HUGE_VAL || cvss == -HUGE_VAL))
+          || (errno != 0 && cvss == 0))
+        {
+          nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
+          return FAKE_CELL;
+        }
+      if (cvss_string == end)
+        {
+          nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
+          return FAKE_CELL;
+        }
+    }
+  else
+    {
+      // In case no special parameter is given, use the regular
+      // cvss from the meta data of this NVT.
+
       nvti = arg_get_value (lexic->script_infos, "NVTI");
       if (nvti == NULL)
         {
@@ -1008,47 +1026,13 @@ security_message (lex_ctxt * lexic)
           return FAKE_CELL;
         }
 
-      /* Get the CVSS base tag. */
-      tags = nvti_tag (nvti);
-      if (tags == NULL)
-        {
-          nasl_perror (lexic, "%s: cvss_base missing\n", __FUNCTION__);
-          return FAKE_CELL;
-        }
-      point = split = g_strsplit (tags, "|", 0);
-      cvss_string = NULL;
-      while (*point)
-        {
-          if (strncmp (*point, "cvss_base=", strlen ("cvss_base=")) == 0)
-            {
-              cvss_string = *point + strlen ("cvss_base=");
-              break;
-            }
-          point++;
-        }
+      cvss = nvti_cvss (nvti);
       if (cvss_string == NULL)
         {
-          nasl_perror (lexic, "%s: NVT missing cvss_base tag\n", __FUNCTION__);
+          nasl_perror (lexic, "%s: cvss_base_vector missing\n", __FUNCTION__);
           return FAKE_CELL;
         }
     }
-
-  /* Parse the CVSS from the string value. */
-  errno = 0;
-  cvss = strtod (cvss_string, &end);
-  if (((errno == ERANGE) && (cvss == HUGE_VAL || cvss == -HUGE_VAL))
-      || (errno != 0 && cvss == 0))
-    {
-      nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
-      return FAKE_CELL;
-    }
-  if (cvss_string == end)
-    {
-      nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
-      return FAKE_CELL;
-    }
-
-  g_strfreev (split);
 
   /* Check the CVSS. */
   if (cvss < 0 || cvss > 10)
