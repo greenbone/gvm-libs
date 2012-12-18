@@ -26,6 +26,7 @@ base/array.[c|h]: GPLv2+
 base/certificate.[c|h]: GPLv2+
 base/CMakeLists.txt: GPLv2+
 base/credentials.[c|h]: GPLv2+
+base/cvss.[c|h]: GPLv2+
 base/drop_privileges.[c|h]: GPLv2+
 base/hash_table_util.[c|h]: GPLv2+
 base/nvti.[c|h]: GPLv2+

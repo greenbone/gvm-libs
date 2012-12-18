@@ -33,6 +33,9 @@
 #ifndef _CVSS_H
 #define _CVSS_H
 
+#include <glib.h>
+
 double get_cvss_score_from_base_metrics (char *);
+gchar * cvss_as_str (double);
 
 #endif /* not _CVSS_H */

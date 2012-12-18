@@ -67,6 +67,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 
+#include <glib.h>
+
 /* AccessVector (AV) Constants */
 #define AV_NETWORK          1.0
 #define AV_ADJACENT_NETWORK 0.646
@@ -277,4 +279,23 @@ get_cvss_score_from_base_metrics (char * base_metrics)
   if (impact_subscore == 0.0)
     impact = 0.0;
   return (((0.6 * impact_subscore) + (0.4 * exploitability_subscore) - 1.5) * impact);
+}
+
+/**
+ * @brief Return a CVSS value in string form (%2.1f)
+ *
+ * @param cvss Value of access vector.
+ *
+ * @return The resulting string. An empty string in case the value was
+ *         < 0 or > 10. You need to free it with g_free in either case.
+ */
+gchar *
+cvss_as_str (double cvss)
+{
+  gchar * str = g_malloc0 (sizeof (char) * 5);
+
+  if (cvss >= 0 && cvss <= 10)
+      sprintf (str, "%2.1f", cvss);
+
+  return (str);
 }
