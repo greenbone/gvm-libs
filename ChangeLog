@@ -1,3 +1,13 @@
+2012-12-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/nvti.c (nvti_free): Don't free risk factor anymore.
+	(nvti_risk_factor): Compute the risk factor based on cvss.
+	(nvti_set_risk_factor): Removed.
+	(nvti_clone): Don't clone risk factor anymore.
+
+	* base/nvti.h: Removed proto accordingly.
+	(struct nvti): Removed element risk_factor.
+
 2012-12-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* COPYING: Added cvss module.

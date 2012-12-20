@@ -187,8 +187,6 @@ nvti_free (nvti_t * n)
     g_free (n->tag);
   if (n->cvss_base)
     g_free (n->cvss_base);
-  if (n->risk_factor)
-    g_free (n->risk_factor);
   if (n->dependencies)
     g_free (n->dependencies);
   if (n->required_keys)
@@ -489,12 +487,25 @@ nvti_cvss (const nvti_t * n)
  * @param n The NVT Info structure of which the risk factor should
  *          be returned.
  *
- * @return The risk_factors string. Don't free this.
+ * @return The risk_factor string. Don't free this.
  */
 gchar *
 nvti_risk_factor (const nvti_t * n)
 {
-  return (n ? n->risk_factor : NULL);
+  double cvss = nvti_cvss (n);
+
+  if (cvss > 8)
+    return ("Critical");
+  if (cvss > 5)
+    return ("High");
+  if (cvss > 2)
+    return ("Medium");
+  if (cvss > 0)
+    return ("Low");
+  if (cvss == 0)
+    return ("None");
+
+  return ("Not Available");
 }
 
 /**
@@ -917,30 +928,6 @@ nvti_set_cvss_base (nvti_t * n, const gchar * cvss_base)
     n->cvss_base = g_strdup (cvss_base);
   else
     n->cvss_base = NULL;
-  return (0);
-}
-
-/**
- * @brief Set the risk factor of an NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param tag The risk factor to set. A copy will be created from this.
- *
- * @return 0 for success. Anything else indicates an error.
- */
-int
-nvti_set_risk_factor (nvti_t * n, const gchar * risk_factor)
-{
-  if (! n)
-    return (-1);
-
-  if (n->risk_factor)
-    g_free (n->risk_factor);
-  if (risk_factor && risk_factor[0])
-    n->risk_factor = g_strdup (risk_factor);
-  else
-    n->risk_factor = NULL;
   return (0);
 }
 
@@ -1839,7 +1826,6 @@ nvti_clone (const nvti_t * n)
   nvti_set_xref (new_nvti, nvti_xref (n));
   nvti_set_tag (new_nvti, nvti_tag (n));
   nvti_set_cvss_base (new_nvti, nvti_cvss_base (n));
-  nvti_set_risk_factor (new_nvti, nvti_risk_factor (n));
   nvti_set_dependencies (new_nvti, nvti_dependencies (n));
   nvti_set_required_keys (new_nvti, nvti_required_keys (n));
   nvti_set_mandatory_keys (new_nvti, nvti_mandatory_keys (n));

@@ -77,7 +77,6 @@ typedef struct nvti
                                         corresponds to */
   gchar *tag;               /**< @brief List of tags attached to this NVT */
   gchar *cvss_base;         /**< @brief CVSS base score for this NVT. */
-  gchar *risk_factor;       /**< @brief Risk factor for this NVT. */
 
   gchar *dependencies;      /**< @brief List of dependencies of this NVT */
   gchar *required_keys;     /**< @brief List of required KB keys of this NVT */
@@ -142,7 +141,6 @@ int nvti_set_bid (nvti_t *, const gchar *);
 int nvti_set_xref (nvti_t *, const gchar *);
 int nvti_set_tag (nvti_t *, const gchar *);
 int nvti_set_cvss_base (nvti_t *, const gchar *);
-int nvti_set_risk_factor (nvti_t *, const gchar *);
 int nvti_set_dependencies (nvti_t *, const gchar *);
 int nvti_set_required_keys (nvti_t *, const gchar *);
 int nvti_set_mandatory_keys (nvti_t *, const gchar *);
