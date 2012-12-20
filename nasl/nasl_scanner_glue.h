@@ -25,7 +25,6 @@ tree_cell *script_cve_id (lex_ctxt *);
 tree_cell *script_bugtraq_id (lex_ctxt *);
 tree_cell *script_xref (lex_ctxt *);
 tree_cell *script_tag (lex_ctxt *);
-tree_cell *script_see_also (lex_ctxt *);
 tree_cell *script_name (lex_ctxt *);
 tree_cell *script_version (lex_ctxt *);
 tree_cell *script_description (lex_ctxt *);

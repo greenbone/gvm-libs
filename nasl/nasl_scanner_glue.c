@@ -203,15 +203,6 @@ script_tag (lex_ctxt * lexic)
 }
 
 
-
-/* UNUSED */
-tree_cell *
-script_see_also (lex_ctxt * lexic)
-{
-  nasl_perror (lexic, "Error - script_see_also() called\n");
-  return FAKE_CELL;
-}
-
 tree_cell *
 script_name (lex_ctxt * lexic)
 {
