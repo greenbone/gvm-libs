@@ -27,7 +27,7 @@
  * @file cvss.c
  * @brief CVSS utility functions
  *
- * This file contains utitlity functions for handlung CVSS.
+ * This file contains utility functions for handling CVSS.
  * Namels a calculator for the CVSS base score from a CVSS base
  * vector.
  *
@@ -54,20 +54,21 @@
  *                       partial:           0.275
  *                       complete:          0.660
  * IntegImpact      = case IntegrityImpact of
- *                        none:              0.0
- *                        partial:           0.275
- *                        complete:          0.660
+ *                       none:              0.0
+ *                       partial:           0.275
+ *                       complete:          0.660
  * AvailImpact      = case AvailabilityImpact of
  *                       none:              0.0
  *                       partial:           0.275
  *                       complete:          0.660
  */
 
-#include<string.h>
-#include<stdio.h>
-#include<stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <glib.h>
+
 
 /* AccessVector (AV) Constants */
 #define AV_NETWORK          1.0
@@ -99,68 +100,203 @@
 #define A_PARTIAL  0.275
 #define A_COMPLETE 0.660
 
+
 enum base_metrics { A, I, C, Au, AC, AV };
 
 /**
- * @brief Determin base metric enumeration from a string.
+ * @brief Describe a CVSS impact element.
+ */
+struct impact_item
+{
+  const char *name; /**< Impact element name */
+  double nvalue;    /**< Numerical value */
+};
+
+/**
+ * @brief Describe a CVSS metrics.
+ */
+struct cvss
+{
+  double conf_impact;       /**< Confidentiality impact. */
+  double integ_impact;      /**< Integrity impact. */
+  double avail_impact;      /**< Availability impact. */
+  double access_vector;     /**< Access vector. */
+  double access_complexity; /**< Access complexity. */
+  double authentication;    /**< Authentication. */
+};
+
+
+static const struct impact_item impact_map[][3] = {
+   [A] = {
+       {"N", A_NONE},
+       {"P", A_PARTIAL},
+       {"C", A_COMPLETE},
+   },
+   [I] = {
+       {"N", I_NONE},
+       {"P", I_PARTIAL},
+       {"C", I_COMPLETE},
+   },
+   [C] = {
+       {"N", C_NONE},
+       {"P", C_PARTIAL},
+       {"C", C_COMPLETE},
+   },
+   [Au] = {
+       {"N", Au_NONE},
+       {"M", Au_MULTIPLE_INSTANCES},
+       {"C", Au_SINGLE_INSTANCE},
+   },
+   [AV] = {
+       {"N", AV_NETWORK},
+       {"A", AV_ADJACENT_NETWORK},
+       {"L", AV_LOCAL},
+   },
+   [AC] = {
+       {"L", AC_LOW},
+       {"M", AC_MEDIUM},
+       {"H", AC_HIGH},
+   },
+};
+
+/**
+ * @brief Determine base metric enumeration from a string.
  *
- * @param str Base metric in string form, for example "A".
+ * @param[in] str Base metric in string form, for example "A".
  *
  * @return The respective base_metric enumeration for the
  *         string. -1 in case parsing the string failed.
  */
 static enum base_metrics
-toenum (char * str)
+toenum (const char * str)
 {
-  if (strcmp(str,"A") == 0)
-    return A;
-  else if (strcmp(str,"I") == 0)
-    return I;
-  else if (strcmp(str,"C") == 0)
-    return C;
-  else if (strcmp(str,"Au") == 0)
-    return Au;
-  else if (strcmp(str,"AV") == 0)
-    return AV;
-  else if (strcmp(str,"AC") == 0)
-    return AC;
-  return -1;
+ if (g_strcmp0 (str, "A") == 0)
+   return A;
+ else if (g_strcmp0 (str, "I") == 0)
+   return I;
+ else if (g_strcmp0 (str, "C") == 0)
+   return C;
+ else if (g_strcmp0 (str, "Au") == 0)
+   return Au;
+ else if (g_strcmp0 (str, "AV") == 0)
+   return AV;
+ else if (g_strcmp0 (str, "AC") == 0)
+   return AC;
+ return -1;
 }
 
 /**
  * @brief Calculate Impact Sub Score.
  *
- * @param conf_impact Confidentially impact.
+ * @param[in] cvss  Contains the subscores associated
+ *            to the metrics.
  *
- * @param integ_impact Integrity impact.
- *
- * @param avail_impact Availability impact.
- *
- * @return The resulting sub score.
+ * @return The resulting subscore.
  */
 static double
-get_impact_subscore (double conf_impact, double integ_impact,
-                     double avail_impact)
+get_impact_subscore (const struct cvss *cvss)
 {
-  return (10.41 * (1 - (1 - conf_impact) * (1 - integ_impact) * (1 - avail_impact)));
+  return (10.41 * (1 -
+                   (1 - cvss->conf_impact) *
+                   (1 - cvss->integ_impact) *
+                   (1 - cvss->avail_impact)));
 }
 
 /**
  * @brief Calculate Exploitability Sub Score.
  *
- * @param access_vector Value of access vector.
+ * @param[in] cvss  Contains the subscores associated
+ *            to the metrics.
  *
- * @param access_complexity Value of access complexity.
- *
- * @param authentication Value of authentication.
- *
- * @return The resulting sub score.
+ * @return The resulting subscore.
  */
 static double
-get_exploitability_subscore (double access_vector, double access_complexity,
-                             double authentication)
+get_exploitability_subscore (const struct cvss *cvss)
 {
-    return (20 * access_vector * access_complexity * authentication);
+  return (20 * cvss->access_vector *
+          cvss->access_complexity * cvss->authentication);
+}
+
+/**
+ * @brief  Set impact score from string representation.
+ *
+ * @param[in] value  The litteral value associated to the metric.
+ * @param[in] metric The enumeration constant identifying the metric.
+ * @param[out] cvss  The structure to update with the score.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static inline int
+set_impact_from_str (const char *value, enum base_metrics metric,
+                     struct cvss *cvss)
+{
+  int i;
+
+  for (i = 0; i < 3; i++)
+    {
+      const struct impact_item *impact;
+
+      impact = &impact_map[metric][i];
+
+      if (g_strcmp0 (impact->name, value) == 0)
+        {
+          switch (metric)
+            {
+              case A:
+                cvss->avail_impact = impact->nvalue;
+                break;
+
+              case I:
+                cvss->integ_impact = impact->nvalue;
+                break;
+
+              case C:
+                cvss->conf_impact = impact->nvalue;
+                break;
+
+              case Au:
+                cvss->authentication = impact->nvalue;
+                break;
+
+              case AV:
+                cvss->access_vector = impact->nvalue;
+                break;
+
+              case AC:
+                cvss->access_complexity = impact->nvalue;
+                break;
+
+              default:
+                return -1;
+            }
+          return 0;
+        }
+    }
+  return -1;
+}
+
+/**
+ * @brief Final CVSS score computation helper.
+ *
+ * @param[in] cvss  The CVSS structure that contains the
+ *                  different metrics and associated scores.
+ *
+ * @return the CVSS score, as a double.
+ */
+static double
+__get_cvss_score (struct cvss *cvss)
+{
+  double impact = 1.176;
+  double impact_sub;
+  double exploitability_sub;
+
+  impact_sub = get_impact_subscore (cvss);
+  exploitability_sub = get_exploitability_subscore (cvss);
+
+  if (impact_sub < 0.1)
+    impact = 0.0;
+
+  return (((0.6 * impact_sub) + (0.4 * exploitability_sub) - 1.5) * impact);
 }
 
 /**
@@ -171,131 +307,44 @@ get_exploitability_subscore (double access_vector, double access_complexity,
  * @return The resulting score. -1 upon error during parsing.
  */
 double
-get_cvss_score_from_base_metrics (char * base_metrics)
+get_cvss_score_from_base_metrics (const char *cvss_str)
 {
-  double conf_impact = 0.0;
-  double integ_impact = 0.0;
-  double avail_impact = 0.0;
-  double access_vector = 0.0;
-  double access_complexity = 0.0;
-  double authentication = 0.0;
-  double impact_subscore = 0.0;
-  double exploitability_subscore = 0.0;
- 
-  if(base_metrics == NULL)
+  struct cvss cvss;
+  char *token, *base_str, *base_metrics;
+
+  memset(&cvss, 0x00, sizeof(struct cvss));
+
+  if (cvss_str == NULL)
     return 0.0;
 
-  base_metrics = strdup (base_metrics);
-  strcat (base_metrics, "/");
-  char *token = strchr (base_metrics, '/');
+  base_str = base_metrics = g_strdup_printf ("%s/", cvss_str);
 
-  while (token != NULL)
+  while ((token = strchr (base_metrics, '/')) != NULL)
     {
-      char * token2 = strtok (base_metrics, ":");
-      char * base_metric = token2;
+      char *token2 = strtok (base_metrics, ":");
+      char *metric_name = token2;
+      char *metric_value;
 
       *token++ = '\0';
 
-      if (base_metric == NULL)
-        return -1;
+      if (metric_name == NULL)
+        goto ret_err;
 
-      char * base_metric_value = strtok (NULL, ":");
+      metric_value = strtok (NULL, ":");
 
-      if (base_metric_value == NULL)
-        return -1;
+      if (metric_value == NULL)
+        goto ret_err;
 
-      switch (toenum (base_metric))
-      {
-        case A:
-          if (strcmp (base_metric_value, "N") == 0)
-            avail_impact = A_NONE;
-          else if (strcmp (base_metric_value, "P") == 0)
-            avail_impact = A_PARTIAL;
-          else if (strcmp (base_metric_value, "C") == 0)
-            avail_impact = A_COMPLETE;
-          else
-            return -1;
-          break;
-        case I:
-          if (strcmp (base_metric_value, "N") == 0)
-            integ_impact = I_NONE;
-          else if (strcmp (base_metric_value, "P") == 0)
-            integ_impact = I_PARTIAL;
-          else if (strcmp (base_metric_value, "C") == 0)
-            integ_impact = I_COMPLETE;
-          else
-            return -1;
-          break;
-        case C:
-          if (strcmp (base_metric_value, "N") == 0)
-            conf_impact = C_NONE;
-          else if (strcmp (base_metric_value, "P") == 0)
-            conf_impact = C_PARTIAL;
-          else if (strcmp (base_metric_value, "C") == 0)
-            conf_impact = C_COMPLETE;
-          else
-            return -1;
-          break;
-        case Au:
-          if (strcmp (base_metric_value, "N") == 0)
-            authentication = Au_NONE;
-          else if (strcmp (base_metric_value, "M") == 0)
-            authentication = Au_MULTIPLE_INSTANCES;
-          else if (strcmp (base_metric_value, "S") == 0)
-            authentication = Au_SINGLE_INSTANCE;
-          else
-            return -1;
-          break;
-        case AV:
-          if (strcmp (base_metric_value, "N") == 0)
-            access_vector = AV_NETWORK;
-          else if (strcmp (base_metric_value, "A") == 0)
-            access_vector = AV_ADJACENT_NETWORK;
-          else if (strcmp (base_metric_value, "L") == 0)
-            access_vector = AV_LOCAL;
-          else
-            return -1;
-          break;
-        case AC:
-          if (strcmp (base_metric_value, "L") == 0)
-            access_complexity = AC_LOW;
-          else if (strcmp (base_metric_value, "M") == 0)
-            access_complexity = AC_MEDIUM;
-          else if (strcmp (base_metric_value, "H") == 0)
-            access_complexity = AC_HIGH;
-          else
-            return -1;
-          break;
-        default:
-          return -1;
-      }
+      if (set_impact_from_str (metric_value, toenum (metric_name), &cvss))
+        goto ret_err;
+
       base_metrics = token;
-      token = strchr (base_metrics, '/');
     }
-  free(token);
-  impact_subscore = get_impact_subscore (conf_impact, integ_impact, avail_impact);
-  exploitability_subscore = get_exploitability_subscore (access_vector, access_complexity, authentication);
-  double impact = 1.176;
-  if (impact_subscore == 0.0)
-    impact = 0.0;
-  return (((0.6 * impact_subscore) + (0.4 * exploitability_subscore) - 1.5) * impact);
-}
 
-/**
- * @brief Return a CVSS value in string form (%2.1f)
- *
- * @param cvss Value of access vector.
- *
- * @return The resulting string. An empty string in case the value was
- *         < 0 or > 10. You need to free it with g_free in either case.
- */
-gchar *
-cvss_as_str (double cvss)
-{
-  gchar * str = g_malloc0 (sizeof (char) * 5);
+  g_free (base_str);
+  return __get_cvss_score (&cvss);
 
-  if (cvss >= 0 && cvss <= 10)
-      sprintf (str, "%2.1f", cvss);
-
-  return (str);
+ret_err:
+  g_free (base_str);
+  return (double)-1;
 }
