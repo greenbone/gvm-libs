@@ -1,3 +1,8 @@
+2012-12-28  Henri Doreau <henri.doreau@greenbone.net>
+
+	* base/cvss.c (get_cvss_score_from_base_metrics): Check for
+	a valid toenum() return value.
+
 2012-12-27  Henri Doreau <henri.doreau@greenbone.net>
 
 	Refactored code to match the project's coding standards.

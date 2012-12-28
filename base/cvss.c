@@ -324,6 +324,7 @@ get_cvss_score_from_base_metrics (const char *cvss_str)
       char *token2 = strtok (base_metrics, ":");
       char *metric_name = token2;
       char *metric_value;
+      enum base_metrics  mval;
 
       *token++ = '\0';
 
@@ -335,7 +336,11 @@ get_cvss_score_from_base_metrics (const char *cvss_str)
       if (metric_value == NULL)
         goto ret_err;
 
-      if (set_impact_from_str (metric_value, toenum (metric_name), &cvss))
+      mval = toenum (metric_name);
+      if (mval == -1)
+        goto ret_err;
+
+      if (set_impact_from_str (metric_value, mval, &cvss))
         goto ret_err;
 
       base_metrics = token;
