@@ -1,3 +1,8 @@
+2013-01-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_scanner_glue.c (security_message): Removed
+	unneeded check. It was misplaced here.
+
 2013-01-04  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* hg/CMakeLists.txt: In commented hg-test executable target,

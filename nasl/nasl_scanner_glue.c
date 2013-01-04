@@ -1028,11 +1028,6 @@ security_message (lex_ctxt * lexic)
         }
 
       cvss = nvti_cvss (nvti);
-      if (cvss_string == NULL)
-        {
-          nasl_perror (lexic, "%s: cvss_base_vector missing\n", __FUNCTION__);
-          return FAKE_CELL;
-        }
     }
 
   /* Check the CVSS. */
