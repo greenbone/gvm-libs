@@ -1,3 +1,9 @@
+2013-01-04  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* hg/CMakeLists.txt: In commented hg-test executable target,
+	also statically link against nasl (because of
+	nasl*ssh_internal_close).
+
 2012-12-28  Henri Doreau <henri.doreau@greenbone.net>
 
 	* base/cvss.c (get_cvss_score_from_base_metrics): Check for
