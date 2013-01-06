@@ -340,6 +340,8 @@ plug_create_from_nvti_and_prefs (nvti_t * nvti, struct arglist *prefs)
   ret = emalloc (sizeof (struct arglist));
 
   arg_add_value (ret, "NVTI", ARG_PTR, -1, nvti);
+  arg_add_value (ret, "OID", ARG_STRING, strlen (nvti_oid (nvti)),
+                 g_strdup (nvti_oid (nvti)));
   arg_add_value (ret, "preferences", ARG_ARGLIST, -1, prefs);
 
   for (i = 0; i < nvti_pref_len (nvti); i++)
@@ -526,11 +528,11 @@ plug_get_host_ip (struct arglist *desc)
 static void
 mark_successful_plugin (struct arglist *desc)
 {
-  char *oid = nvti_oid (arg_get_value (desc, "NVTI"));
   char data[512];
 
   bzero (data, sizeof (data));
-  snprintf (data, sizeof (data), "Success/%s", oid);    /* RATS: ignore */
+  snprintf (data, sizeof (data), "Success/%s",
+            (char *)arg_get_value (desc, "OID"));    /* RATS: ignore */
   plug_set_key (desc, data, ARG_INT, (void *) 1);
 }
 
@@ -544,7 +546,7 @@ mark_post (struct arglist *desc, const char *action, const char *content)
     return;
 
   snprintf (entry_name, sizeof (entry_name), "SentData/%s/%s",
-            nvti_oid (arg_get_value (desc, "NVTI")), action);    /* RATS: ignore */
+            (char *)arg_get_value (desc, "OID"), action);    /* RATS: ignore */
   plug_set_key (desc, entry_name, ARG_STRING, ccontent);
 }
 

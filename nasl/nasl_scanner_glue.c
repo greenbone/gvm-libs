@@ -636,12 +636,8 @@ network_targets (lex_ctxt * lexic)
 tree_cell *
 get_script_oid (lex_ctxt * lexic)
 {
-  nvti_t *nvti = arg_get_value (lexic->script_infos, "NVTI");
-  char *oid;
-  tree_cell *retc;
-
-  retc = NULL;
-  oid = strdup (nvti_oid (nvti));
+  char *oid = arg_get_value (lexic->script_infos, "OID");
+  tree_cell *retc = NULL;
 
   if (oid)
     {
