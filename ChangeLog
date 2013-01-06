@@ -1,5 +1,32 @@
 2013-01-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Third part towards clean separation of NVTI into the NVTI Cache:
+	The nvti objects in memory are shrinked to essential data
+	and details are loaded from file when needed.
+	This decreases memory consumption by around 30M per process
+	in my test environment.
+
+	* base/nvti.c (nvti_shrink): New. Free memory of all elements
+	except src and oid.
+
+	* base/nvti.h: Add proto for nvti_shrink.
+
+	* base/nvticache.c (nvticache_get): Search the nvtis and return
+	nvti if found. If new, shrink it and then add it to nvtis.
+	In any case a cloned, shrinked nvti is returned.
+	(nvticache_get_by_oid): Because the nvti is shrinked, load
+	the full object from file, create a new object and return it.
+
+	* nasl/nasl_scanner_glue.c (security_message): Free the nvti object
+	because it is a clone now.
+
+	* misc/plugutils.c (plug_create_from_nvti_and_prefs): Use a copy
+	of the oid string for OID.
+	(proto_post_wrapped, get_plugin_preference): Free the nvti object
+	after use.
+
+2013-01-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Second part towards clean separation of NVTI into the NVTI Cache:
 	The nvti objects are stored in the cache object in memory and
 	all remaining access to NVTI object via "NVTI" is replaced

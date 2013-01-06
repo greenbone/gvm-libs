@@ -342,8 +342,6 @@ plug_create_from_nvti_and_prefs (nvti_t * nvti, struct arglist *prefs)
   ret = emalloc (sizeof (struct arglist));
 
   arg_add_value (ret, "OID", ARG_STRING, strlen (nvti_oid (nvti)),
-                 nvti_oid (nvti)); // attention: no copy of oid is created
-  arg_add_value (ret, "OID", ARG_STRING, strlen (nvti_oid (nvti)),
                  g_strdup (nvti_oid (nvti)));
   arg_add_value (ret, "preferences", ARG_ARGLIST, -1, prefs);
 
@@ -580,7 +578,10 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
     action = nvti_description (nvti);
 
   if (action == NULL)
-    return;
+    {
+      nvti_free (nvti);
+      return;
+    }
 
   action_str = g_string_new (action);
   g_string_append (action_str, "\n");
@@ -708,6 +709,8 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   mark_post (desc, what, action);
   soc = GPOINTER_TO_SIZE (arg_get_value (desc, "SOCKET"));
   internal_send (soc, buffer, INTERNAL_COMM_MSG_TYPE_DATA);
+
+  nvti_free (nvti);
 
   /* Mark in the KB that the plugin was successful */
   mark_successful_plugin (desc);
@@ -872,6 +875,7 @@ get_plugin_preference (struct arglist *desc, const char *name)
   if (!prefs)
     {
       efree (&cname);
+      nvti_free (nvti);
       return NULL;
     }
 
@@ -898,6 +902,7 @@ get_plugin_preference (struct arglist *desc, const char *name)
                 {
                   a[0] = old;
                   efree (&cname);
+                  nvti_free (nvti);
                   return (prefs->value);
                 }
               a[0] = old;
@@ -906,6 +911,7 @@ get_plugin_preference (struct arglist *desc, const char *name)
       prefs = prefs->next;
     }
   efree (&cname);
+  nvti_free (nvti);
   return (NULL);
 }
 

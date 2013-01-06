@@ -217,6 +217,63 @@ nvti_free (nvti_t * n)
 }
 
 /**
+ * @brief Free memory of all elements except src and oid.
+ *
+ * @param n The structure to be shrinked.
+ */
+void
+nvti_shrink (nvti_t * n)
+{
+  if (!n)
+    return;
+
+  if (n->version)
+    g_free (n->version);
+  if (n->name)
+    g_free (n->name);
+  if (n->summary)
+    g_free (n->summary);
+  if (n->description)
+    g_free (n->description);
+  if (n->copyright)
+    g_free (n->copyright);
+  if (n->cve)
+    g_free (n->cve);
+  if (n->bid)
+    g_free (n->bid);
+  if (n->xref)
+    g_free (n->xref);
+  if (n->tag)
+    g_free (n->tag);
+  if (n->cvss_base)
+    g_free (n->cvss_base);
+  if (n->dependencies)
+    g_free (n->dependencies);
+  if (n->required_keys)
+    g_free (n->required_keys);
+  if (n->mandatory_keys)
+    g_free (n->mandatory_keys);
+  if (n->excluded_keys)
+    g_free (n->excluded_keys);
+  if (n->required_ports)
+    g_free (n->required_ports);
+  if (n->required_udp_ports)
+    g_free (n->required_udp_ports);
+  if (n->sign_key_ids)
+    g_free (n->sign_key_ids);
+  if (n->family)
+    g_free (n->family);
+  if (n->prefs)
+    {
+      guint len = g_slist_length (n->prefs);
+      int i;
+      for (i = 0; i < len; i++)
+        nvtpref_free (g_slist_nth_data (n->prefs, i));
+      g_slist_free (n->prefs);
+    }
+}
+
+/**
  * @brief Get the OID string.
  *
  * @param n The NVT Info structure of which the OID should

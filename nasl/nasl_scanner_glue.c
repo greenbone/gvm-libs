@@ -1007,6 +1007,7 @@ security_message (lex_ctxt * lexic)
           nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
           return FAKE_CELL;
         }
+
       if (cvss_string == end)
         {
           nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
@@ -1030,6 +1031,7 @@ security_message (lex_ctxt * lexic)
         }
 
       cvss = nvti_cvss (nvti);
+      nvti_free (nvti);
     }
 
   /* Check the CVSS. */

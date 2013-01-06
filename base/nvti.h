@@ -101,6 +101,7 @@ typedef struct nvti
 
 nvti_t *nvti_new (void);
 void nvti_free (nvti_t *);
+void nvti_shrink (nvti_t *);
 
 gchar *nvti_oid (const nvti_t *);
 gchar *nvti_version (const nvti_t *);

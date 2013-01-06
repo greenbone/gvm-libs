@@ -40,6 +40,8 @@
 /* for nvticache_t */
 #include "nvticache.h"
 
+#include <string.h> // for strlen
+
 /**
  * @brief Create a new nvticache structure initialized with a path.
  *
@@ -100,7 +102,7 @@ nvticache_free (const nvticache_t * cache)
 nvti_t *
 nvticache_get (const nvticache_t * cache, const gchar * filename)
 {
-  nvti_t *n = NULL;
+  nvti_t *n = NULL, *n2;
   gchar *src_file = g_build_filename (cache->src_path, filename, NULL);
   gchar *dummy = g_build_filename (cache->cache_path, filename, NULL);
   gchar *cache_file = g_strconcat (dummy, ".nvti", NULL);
@@ -121,12 +123,23 @@ nvticache_get (const nvticache_t * cache, const gchar * filename)
   if (cache_file)
     g_free (cache_file);
 
-// TODO: Shouldn't we check first whether there is a nvti
-// already present with the same OID? 
-  nvtis_add (cache->nvtis, n);
+  if (!n) return NULL;
 
-// TODO: Here we should return a copy of the object.
-  return n;
+  n2 = nvtis_lookup (cache->nvtis, nvti_oid (n));
+  if (n2) 
+    {
+// TODO: Shouldn't we remove the old one with the same OID now
+// and use the the new one
+// Like: nvtis_remove (cache->nvtis, n2); // <- this function is missing yet
+      return nvti_clone (n2);
+    }
+  else
+    {
+      n2 = nvti_clone (n);
+      nvti_shrink (n);
+      nvtis_add (cache->nvtis, n);
+      return n2;
+    }
 }
 
 /**
@@ -170,6 +183,20 @@ nvticache_get_by_oid (const nvticache_t * cache, const gchar * oid)
 {
   nvti_t * nvti = nvtis_lookup (cache->nvtis, oid);
 
-  // @todo: Next step is to return a copy that then needs to be free'd.
-  return nvti;
+  if (! nvti) return NULL;
+
+  gchar * filename = nvti_src (nvti);
+  int l = strlen (cache->src_path);
+  filename += l;
+
+  gchar *dummy = g_build_filename (cache->cache_path, filename, NULL);
+  gchar *cache_file = g_strconcat (dummy, ".nvti", NULL);
+
+  g_free (dummy);
+
+  nvti_t * n = nvti_from_keyfile (cache_file);
+
+  g_free (cache_file);
+
+  return n;
 }
