@@ -52,6 +52,8 @@
 #include "system.h"
 #include "scanners_utils.h"
 
+#include "../base/nvticache.h" /* for nvticache_get_by_oid() */
+
 /**
  * @brief Returns a static version string.
  * @return Version of openvas-libraries, do not modify nor free.
@@ -339,7 +341,8 @@ plug_create_from_nvti_and_prefs (nvti_t * nvti, struct arglist *prefs)
 
   ret = emalloc (sizeof (struct arglist));
 
-  arg_add_value (ret, "NVTI", ARG_PTR, -1, nvti);
+  arg_add_value (ret, "OID", ARG_STRING, strlen (nvti_oid (nvti)),
+                 nvti_oid (nvti)); // attention: no copy of oid is created
   arg_add_value (ret, "OID", ARG_STRING, strlen (nvti_oid (nvti)),
                  g_strdup (nvti_oid (nvti)));
   arg_add_value (ret, "preferences", ARG_ARGLIST, -1, prefs);
@@ -569,7 +572,8 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   GString *action_str;
   gchar *action_escaped;
   GString *action_str_escaped;
-  nvti_t * nvti = arg_get_value (desc, "NVTI");
+  nvti_t * nvti = nvticache_get_by_oid (arg_get_value (arg_get_value (desc,
+    "preferences"), "nvticache"), arg_get_value (desc, "OID"));
   gchar **nvti_tags = NULL;
 
   if (action == NULL)
@@ -851,7 +855,9 @@ char *
 get_plugin_preference (struct arglist *desc, const char *name)
 {
   struct arglist *prefs = arg_get_value (desc, "preferences");
-  char *plug_name = nvti_name (arg_get_value (desc, "NVTI"));
+  nvti_t * nvti = nvticache_get_by_oid (arg_get_value (arg_get_value (desc,
+    "preferences"), "nvticache"), arg_get_value (desc, "OID"));
+  char *plug_name = nvti_name (nvti);
   char *cname = estrdup (name);
   int len;
 

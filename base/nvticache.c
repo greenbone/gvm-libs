@@ -62,6 +62,8 @@ nvticache_new (const gchar * cache_path, const gchar * src_path)
   if (src_path)
     cache->src_path = g_strdup (src_path);
 
+  cache->nvtis = nvtis_new ();
+
   return (cache);
 }
 
@@ -77,6 +79,7 @@ nvticache_free (const nvticache_t * cache)
     g_free (cache->cache_path);
   if (cache->src_path)
     g_free (cache->src_path);
+  nvtis_free (cache->nvtis);
   g_free ((nvticache_t *) cache);
 }
 
@@ -117,6 +120,12 @@ nvticache_get (const nvticache_t * cache, const gchar * filename)
     g_free (src_file);
   if (cache_file)
     g_free (cache_file);
+
+// TODO: Shouldn't we check first whether there is a nvti
+// already present with the same OID? 
+  nvtis_add (cache->nvtis, n);
+
+// TODO: Here we should return a copy of the object.
   return n;
 }
 
@@ -145,4 +154,22 @@ nvticache_add (const nvticache_t * cache, nvti_t * nvti, gchar * filename)
   g_free (cache_file);
 
   return result;
+}
+
+/**
+ * @brief Get a NVT Information from the cache by OID.
+ *
+ * @param cache    The NVTI Cache to use
+ *
+ * @param oid      The OID to look up
+ *
+ * @return A copy of the NVTI object or NULL if not found.
+ */
+nvti_t *
+nvticache_get_by_oid (const nvticache_t * cache, const gchar * oid)
+{
+  nvti_t * nvti = nvtis_lookup (cache->nvtis, oid);
+
+  // @todo: Next step is to return a copy that then needs to be free'd.
+  return nvti;
 }

@@ -1,5 +1,32 @@
 2013-01-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Second part towards clean separation of NVTI into the NVTI Cache:
+	The nvti objects are stored in the cache object in memory and
+	all remaining access to NVTI object via "NVTI" is replaced
+	by access via OID.
+	The only exception is the parsing code for the description
+	block where the OID is not necessarily known at the beginning
+	and therefore can not be relied on.
+	
+	* base/nvticache.h (struct nvticache): Added collection of NVTIs.
+	(nvticache_get_by_oid): Added proto.
+
+	* base/nvticache.c (nvticache_new): Initialize nvtis.
+	(nvticache_free): Free the nvtis.
+	(nvticache_get): Add the new nvti to the nvtis.
+	(nvticache_get_by_oid): New.
+
+	* misc/plugutils.c (plug_create_from_nvti_and_prefs): Don't set
+	the NVTI anymore. Don't duplicate the oid string when setting the OID.
+	(proto_post_wrapped, get_plugin_preference): Don't get the object
+	via NVTI, get it via OID. 
+
+	* nasl/nasl_scanner_glue.c (get_script_oid): Create a copy of the OID
+	when setting the str_val.
+	(security_message): Get the nvti object via OID instead of via NVTI.
+
+2013-01-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	First part towards clean separation of NVTI into the NVTI Cache:
 	Plugin arg_list are provided with explicit OID element.
 	And whereever only the OID is required, it is directly retrieved

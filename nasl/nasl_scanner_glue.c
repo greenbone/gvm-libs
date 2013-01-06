@@ -52,6 +52,8 @@
 #include "nasl_debug.h"
 #include "nasl_scanner_glue.h"
 
+#include "../base/nvticache.h"
+
 #ifndef NASL_DEBUG
 #define NASL_DEBUG 0
 #endif
@@ -642,7 +644,7 @@ get_script_oid (lex_ctxt * lexic)
   if (oid)
     {
       retc = alloc_typed_cell (CONST_DATA);
-      retc->x.str_val = oid;
+      retc->x.str_val = g_strdup (oid);
       retc->size = strlen (oid);
     }
 
@@ -1016,7 +1018,11 @@ security_message (lex_ctxt * lexic)
       // In case no special parameter is given, use the regular
       // cvss from the meta data of this NVT.
 
-      nvti = arg_get_value (lexic->script_infos, "NVTI");
+      nvticache_t *nvticache = (nvticache_t *)arg_get_value (
+        arg_get_value (lexic->script_infos, "preferences"), "nvticache");
+      char *oid = (char *)arg_get_value (lexic->script_infos, "OID");
+      nvti = (oid == NULL ? NULL : nvticache_get_by_oid (nvticache, oid));
+
       if (nvti == NULL)
         {
           nasl_perror (lexic, "%s: NVTI missing\n", __FUNCTION__);
