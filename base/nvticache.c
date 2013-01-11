@@ -200,3 +200,22 @@ nvticache_get_by_oid (const nvticache_t * cache, const gchar * oid)
 
   return n;
 }
+
+/**
+ * @brief Get the src element of a NVT Information from the
+ * cache by OID.
+ *
+ * @param cache    The NVTI Cache to use
+ *
+ * @param oid      The OID to look up
+ *
+ * @return A copy of the src or NULL if not found. This needs to
+ *         to be free'd.
+ */
+gchar *
+nvticache_get_src_by_oid (const nvticache_t * cache, const gchar * oid)
+{
+  nvti_t * nvti = nvtis_lookup (cache->nvtis, oid);
+
+  return g_strdup (nvti_src (nvti));
+}

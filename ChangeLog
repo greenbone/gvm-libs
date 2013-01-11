@@ -1,3 +1,13 @@
+2013-01-11  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/nvticache.c (nvticache_get_src_by_oid): New. Returns
+	the copy of the src string. This function is special because
+	src is the only element that is directly stored in a shrinked
+	nvti object. Using this function prevents the loading of the
+	nvti object from filesystem when only src is needed.
+
+	* base/nvticache.h: Added proto accordingly.
+
 2013-01-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Third part towards clean separation of NVTI into the NVTI Cache:
