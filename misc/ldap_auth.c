@@ -260,6 +260,11 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
   if (host == NULL || userdn == NULL || password == NULL)
     return NULL;
 
+  // Prevent empty password, bind against ADS will succeed with
+  // empty password by default.
+  if (strlen(password) == 0)
+    return NULL;
+
   if (force_starttls == FALSE)
     g_warning ("Allowed plaintext LDAP authentication.");
 
