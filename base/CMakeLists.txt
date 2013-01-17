@@ -28,7 +28,9 @@ set (HARDENING_FLAGS            "-Wformat -Wformat-security -O2 -D_FORTIFY_SOURC
 
 if (NOT MINGW)
   set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG}")
-  set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -Werror -fPIC")
+  # FIXME: certain flags should be defined on the global level,
+  # because they change the API (e.g. _FILE_OFFSET_BITS).
+  set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -D_FILE_OFFSET_BITS=64 -Wall -Werror -fPIC")
 endif (NOT MINGW)
 
 if (MINGW)
