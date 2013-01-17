@@ -29,7 +29,6 @@
 #include <unistd.h>             /* for write */
 
 #include "openvas_ssh_login.h"
-#include "system.h"             /* for efree */
 
 #define KEY_SSHLOGIN_USERNAME     "username"
 #define KEY_SSHLOGIN_USERPASSWORD "userpassword"
@@ -82,7 +81,7 @@ openvas_ssh_login_new (char *name, char *pubkey_file, char *privkey_file,
                        char *passphrase, char *comment, char *uname,
                        char *upass)
 {
-  openvas_ssh_login *loginfo = emalloc (sizeof (openvas_ssh_login));
+  openvas_ssh_login *loginfo = g_malloc0 (sizeof (openvas_ssh_login));
   loginfo->name = name;
   loginfo->username = uname;
   loginfo->userpassword = upass;
@@ -109,20 +108,20 @@ openvas_ssh_login_free (openvas_ssh_login * loginfo)
   if (loginfo == NULL)
     return;
   if (loginfo->name)
-    efree (&loginfo->name);
+    g_free (loginfo->name);
   if (loginfo->username)
-    efree (&loginfo->username);
+    g_free (loginfo->username);
   if (loginfo->userpassword)
-    efree (&loginfo->userpassword);
+    g_free (loginfo->userpassword);
   if (loginfo->public_key_path)
-    efree (&loginfo->public_key_path);
+    g_free (loginfo->public_key_path);
   if (loginfo->private_key_path)
-    efree (&loginfo->private_key_path);
+    g_free (loginfo->private_key_path);
   if (loginfo->ssh_key_passphrase)
-    efree (&loginfo->ssh_key_passphrase);
+    g_free (loginfo->ssh_key_passphrase);
   if (loginfo->comment)
-    efree (&loginfo->comment);
-  efree (&loginfo);
+    g_free (loginfo->comment);
+  g_free (loginfo);
 }
 
 /**
