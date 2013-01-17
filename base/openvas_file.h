@@ -36,4 +36,10 @@ int openvas_file_remove_recurse (const gchar * pathname);
 
 gchar *openvas_file_read_b64_encode (const gchar * filename);
 
+gboolean openvas_file_copy (const gchar *, const gchar *);
+
+int openvas_file_rmdir_rf (const gchar * pathname);
+
+gboolean openvas_file_move (const gchar *, const gchar *);
+
 #endif /* not _OPENVAS_FILE_H */

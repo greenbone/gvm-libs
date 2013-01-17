@@ -1,3 +1,10 @@
+2013-01-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvticache.c (openvas_file_copy, openvas_file_move)
+	(openvas_file_rmdir_rf): New functions.
+
+	* base/openvas_file.h: Add headers accordingly.
+
 2013-01-17  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/ldap_auth.c (ldap_auth_bind): If switching to StartTLS
