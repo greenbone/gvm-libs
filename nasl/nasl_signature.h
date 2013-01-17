@@ -24,12 +24,11 @@
 #ifndef NASL_SIGNATURE_H
 #define NASL_SIGNATURE_H
 
-#include <gpgme.h>
 #include <glib.h>
+#include "../base/gpgme_util.h"
 
 int nasl_verify_signature (const char *filename);
 char *nasl_extract_signature_fprs (const char *filename);
-gpgme_ctx_t init_openvas_gpgme_ctx (void);
 char *nasl_get_pubkey (gpgme_ctx_t ctx, char *fingerprint);
 GSList *nasl_get_all_certificates ();
 
