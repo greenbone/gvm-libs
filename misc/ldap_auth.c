@@ -271,11 +271,11 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
   ldapuri = g_strconcat ("ldap://", host, NULL);
 
   ldap_return = ldap_initialize (&ldap, ldapuri);
-  g_free (ldapuri);
 
   if (ldap == NULL || ldap_return != LDAP_SUCCESS)
     {
       g_warning ("Could not open LDAP connection for authentication.");
+      g_free (ldapuri);
       return NULL;
     }
 
@@ -285,6 +285,7 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
     {
       g_warning ("Aborting, could not set ldap protocol version to 3: %s.",
                  ldap_err2string (ldap_return));
+      g_free (ldapuri);
       return NULL;
     }
 
@@ -296,17 +297,31 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
           g_warning
             ("Aborting ldap authentication: Could not init LDAP StartTLS: %s.",
              ldap_err2string (ldap_return));
+          g_free (ldapuri);
           return NULL;
         }
       else
         {
           g_warning ("Could not init LDAP StartTLS: %s.",
                      ldap_err2string (ldap_return));
-          g_warning ("Doing plaintext authentication");
+          g_warning ("Reinit LDAP connection to do plaintext authentication");
+          ldap_unbind_ext_s (ldap, NULL, NULL);
+
+          // Note that for connections to default ADS, a failed
+          // StartTLS negotiation breaks the future bind, so retry.
+          ldap_return = ldap_initialize (&ldap, ldapuri);
+          if (ldap == NULL || ldap_return != LDAP_SUCCESS)
+            {
+              g_warning ("Could not reopen LDAP connection for authentication.");
+              g_free (ldapuri);
+              return NULL;
+            }
         }
     }
   else
     g_debug ("LDAP StartTLS initialized.");
+
+  g_free (ldapuri);
 
   credential.bv_val = strdup (password);
   credential.bv_len = strlen (password);

@@ -1,5 +1,12 @@
 2013-01-17  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/ldap_auth.c (ldap_auth_bind): If switching to StartTLS
+	fails and allow-plaintext is true, close and re-establish connection,
+	to overcome fact that ADS does not allow bind after StartTLS
+	negotiation fail. Reuse ldapuri, thus free at other places.
+
+2013-01-17  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/ldap_auth.c (ldap_auth_bind): Abort if password is
 	of zero length. Default ADS behaviour allows binding with
 	correct username but empty password.
