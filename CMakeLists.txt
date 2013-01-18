@@ -247,7 +247,7 @@ execute_process (COMMAND ksba-config --cflags
 execute_process (COMMAND pkg-config --cflags glib-2.0
   OUTPUT_VARIABLE GLIB_CFLAGS
   OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process (COMMAND pkg-config --libs glib-2.0
+execute_process (COMMAND pkg-config --libs glib-2.0 gio-2.0
   OUTPUT_VARIABLE GLIB_LDFLAGS
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
