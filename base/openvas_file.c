@@ -32,6 +32,7 @@
 
 #include "openvas_file.h"
 
+#include <errno.h>
 #include <sys/stat.h>
 
 #include <glib/gstdio.h>        /* for g_remove */
@@ -43,7 +44,7 @@
  * to be unreliable under certain circumstances, for example if this
  * application and glib are compiled with a different libc.
  *
- * @todo FIXME: handle symbolic links
+ * Symbolic links are not followed.
  *
  * @param[in]  name  Name of file or directory.
  *
@@ -55,14 +56,13 @@ openvas_file_check_is_dir (const char *name)
 {
   struct stat sb;
 
-  if (stat (name, &sb))
+  if (g_lstat (name, &sb))
     {
+      g_warning ("g_lstat(%s) failed - %s\n", name, g_strerror (errno));
       return -1;
     }
-  else
-    {
-      return (S_ISDIR (sb.st_mode));
-    }
+
+  return (S_ISDIR (sb.st_mode));
 }
 
 /**
@@ -160,6 +160,7 @@ openvas_file_read_b64_encode (const gchar * filename)
 gboolean
 openvas_file_copy (const gchar *source_file, const gchar *dest_file)
 {
+  gboolean rc;
   GFile *sfile, *dfile;
   GError *error;
 
@@ -167,19 +168,19 @@ openvas_file_copy (const gchar *source_file, const gchar *dest_file)
   sfile = g_file_new_for_path (source_file);
   dfile = g_file_new_for_path (dest_file);
   error = NULL;
-  if (!g_file_copy (sfile, dfile, G_FILE_COPY_OVERWRITE, NULL, NULL,
-                    NULL, &error))
+
+  rc = g_file_copy (sfile, dfile, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL,
+                    &error);
+  if (!rc)
     {
-      g_object_unref (sfile);
-      g_object_unref (dfile);
-      g_warning ("%s: %s\n\n", __FUNCTION__, error->message);
+      g_warning ("%s: g_file_copy(%s, %s) failed - %s\n", __FUNCTION__,
+                 source_file, dest_file, error->message);
       g_error_free (error);
-      return FALSE;
     }
 
   g_object_unref (sfile);
   g_object_unref (dfile);
-  return TRUE;
+  return rc;
 }
 
 /**
@@ -195,6 +196,7 @@ openvas_file_copy (const gchar *source_file, const gchar *dest_file)
 gboolean
 openvas_file_move (const gchar *source_file, const gchar *dest_file)
 {
+  gboolean rc;
   GFile *sfile, *dfile;
   GError *error;
 
@@ -202,16 +204,18 @@ openvas_file_move (const gchar *source_file, const gchar *dest_file)
   sfile = g_file_new_for_path (source_file);
   dfile = g_file_new_for_path (dest_file);
   error = NULL;
-  if (!g_file_move (sfile, dfile, G_FILE_COPY_OVERWRITE, NULL, NULL,
-                    NULL, &error))
+
+  rc = g_file_move (sfile, dfile, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL,
+                    &error);
+  if (!rc)
     {
-      g_warning ("%s: %s\n\n", __FUNCTION__, error->message);
-      g_object_unref (sfile);
-      g_object_unref (dfile);
+      g_warning ("%s: g_file_move(%s, %s) failed - %s\n", __FUNCTION__,
+                 source_file, dest_file, error->message);
       g_error_free (error);
-      return FALSE;
     }
+
   g_object_unref (sfile);
   g_object_unref (dfile);
-  return TRUE;
+  return rc;
 }
+

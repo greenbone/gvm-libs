@@ -1,5 +1,13 @@
 2013-01-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Patch by Henri Doreau.
+
+	* base/openvas_file.c: Include errno.h.
+	(openvas_file_check_is_dir): Use g_lstat instead of stat. Code cleanup.
+	(openvas_file_copy, openvas_file_move): Code deduplication and cleanup.
+
+2013-01-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/openvas_file.c (openvas_file_rmdir_rf): Remove function as it
 	duplicates with openvas_file_remove_recurse.
 	(openvas_file_copy): Use g_file_copy and g_file_new_path functions from
