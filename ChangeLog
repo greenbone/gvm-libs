@@ -1,3 +1,8 @@
+2013-01-19  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (check_response): Return OMP status if there is one.
+	Reflect this in docs of callers.
+
 2013-01-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Patch by Henri Doreau.

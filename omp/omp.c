@@ -729,12 +729,12 @@ omp_resume_or_start_task (gnutls_session_t* session, const char* task_id)
  *
  * @param[in]  session  Pointer to GNUTLS session.
  *
- * @return 0 on success, 1 on failure, -1 on error.
+ * @return 0 on success, -1 or OMP response code on error.
  */
 int
 check_response (gnutls_session_t* session)
 {
-  char first;
+  int ret;
   const char* status;
   entity_t entity;
 
@@ -756,10 +756,15 @@ check_response (gnutls_session_t* session)
       free_entity (entity);
       return -1;
     }
-  first = status[0];
+  if (status[0] == '2')
+    {
+      free_entity (entity);
+      return 0;
+    }
+  ret = (int) strtol (status, NULL, 10);
   free_entity (entity);
-  if (first == '2') return 0;
-  return 1;
+  if (errno == ERANGE) return -1;
+  return ret;
 }
 
 /**
@@ -840,7 +845,7 @@ omp_abort_task (gnutls_session_t* session, const char* id)
  * @param[in]  session  Pointer to GNUTLS session.
  * @param[in]  id       ID of task.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, OMP response code on failure, -1 on error.
  */
 int
 omp_stop_task (gnutls_session_t* session, const char* id)
@@ -860,7 +865,7 @@ omp_stop_task (gnutls_session_t* session, const char* id)
  * @param[in]   session    Pointer to GNUTLS session.
  * @param[in]   task_id    ID of task.
  *
- * @return 0 on success, 1 on OMP failure, -1 on error.
+ * @return 0 on success, OMP response code on failure, -1 on error.
  */
 int
 omp_pause_task (gnutls_session_t* session, const char* task_id)
@@ -880,7 +885,7 @@ omp_pause_task (gnutls_session_t* session, const char* task_id)
  * @param[in]   session    Pointer to GNUTLS session.
  * @param[in]   task_id    ID of task.
  *
- * @return 0 on success, 1 on OMP failure, -1 on error.
+ * @return 0 on success, OMP response code on failure, -1 on error.
  */
 int
 omp_resume_paused_task (gnutls_session_t* session, const char* task_id)
@@ -900,7 +905,7 @@ omp_resume_paused_task (gnutls_session_t* session, const char* task_id)
  * @param[in]   session    Pointer to GNUTLS session.
  * @param[in]   task_id    ID of task.
  *
- * @return 0 on success, 1 on OMP failure, -1 on error.
+ * @return 0 on success, OMP response code on failure, -1 on error.
  */
 int
 omp_resume_stopped_task (gnutls_session_t* session, const char* task_id)
@@ -1432,7 +1437,7 @@ omp_wait_for_task_delete (gnutls_session_t* session,
  * @param[in]  session  Pointer to GNUTLS session.
  * @param[in]  id       ID of task.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, OMP response code on failure, -1 on error.
  */
 int
 omp_delete_task (gnutls_session_t* session, const char* id)
@@ -1900,7 +1905,7 @@ omp_get_report_format (gnutls_session_t* session,
  * @param[in]  session   Pointer to GNUTLS session.
  * @param[in]  id        ID of report.
  *
- * @return 0 on success, -1 or OMP response code on error.
+ * @return 0 on success, OMP response code on failure, -1 on error.
  */
 int
 omp_delete_report (gnutls_session_t* session, const char* id)
@@ -2403,7 +2408,7 @@ omp_create_target_ext (gnutls_session_t* session,
  * @param[in]   session     Pointer to GNUTLS session.
  * @param[in]   id          UUID of target.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, -1 or OMP response code on error.
  */
 int
 omp_delete_target (gnutls_session_t* session,
@@ -2427,7 +2432,7 @@ omp_delete_target (gnutls_session_t* session,
  * @param[in]   config      Config configuration.
  * @param[in]   config_len  Length of config.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, -1 or OMP response code on error.
  */
 int
 omp_create_config (gnutls_session_t* session,
@@ -2520,7 +2525,7 @@ omp_create_config_from_rc_file (gnutls_session_t* session,
  * @param[in]   session     Pointer to GNUTLS session.
  * @param[in]   id          UUID of config.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, -1 or OMP response code on error.
  */
 int
 omp_delete_config (gnutls_session_t* session,
@@ -2700,7 +2705,7 @@ omp_create_lsc_credential_key (gnutls_session_t *session,
  * @param[in]   session     Pointer to GNUTLS session.
  * @param[in]   uuid        UUID of LSC credential.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, -1 or OMP response code on error.
  */
 int
 omp_delete_lsc_credential (gnutls_session_t* session,
@@ -2722,7 +2727,7 @@ omp_delete_lsc_credential (gnutls_session_t* session,
  * @param[in]   name        Name of agent.
  * @param[in]   comment     Agent comment.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, -1 or OMP response code on error.
  */
 int
 omp_create_agent (gnutls_session_t* session,
@@ -2762,7 +2767,7 @@ omp_create_agent (gnutls_session_t* session,
  * @param[in]   session     Pointer to GNUTLS session.
  * @param[in]   name        Name of agent.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, -1 or OMP response code on error.
  */
 int
 omp_delete_agent (gnutls_session_t* session,
