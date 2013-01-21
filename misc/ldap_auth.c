@@ -239,17 +239,17 @@ ldap_auth_info_auth_dn (const ldap_auth_info_t info, const gchar * username)
 /**
  * @brief Setup and bind to an LDAP.
  *
- * @param[in] host           Host to connect to.
- * @param[in] userdn         DN to authenticate against
- * @param[in] password       Password for userdn.
- * @param[in] force_starttls Whether or not to abort if StartTLS initialization
- *                           failed.
+ * @param[in] host              Host to connect to.
+ * @param[in] userdn            DN to authenticate against
+ * @param[in] password          Password for userdn.
+ * @param[in] force_encryption  Whether or not to abort if connection
+ *                              encryption via StartTLS or ldaps failed.
  *
  * @return LDAP Handle or NULL if an error occured, authentication failed etc.
  */
 LDAP *
 ldap_auth_bind (const gchar * host, const gchar * userdn,
-                const gchar * password, gboolean force_starttls)
+                const gchar * password, gboolean force_encryption)
 {
   LDAP *ldap = NULL;
   int ldap_return = 0;
@@ -265,7 +265,7 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
   if (strlen(password) == 0)
     return NULL;
 
-  if (force_starttls == FALSE)
+  if (force_encryption == FALSE)
     g_warning ("Allowed plaintext LDAP authentication.");
 
   ldapuri = g_strconcat ("ldap://", host, NULL);
@@ -292,7 +292,7 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
   ldap_return = ldap_start_tls_s (ldap, NULL, NULL);
   if (ldap_return != LDAP_SUCCESS)
     {
-      if (force_starttls == TRUE)
+      if (force_encryption == TRUE)
         {
           g_warning
             ("Aborting ldap authentication: Could not init LDAP StartTLS: %s.",
