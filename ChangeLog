@@ -1,3 +1,10 @@
+2013-01-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/accessrules.c (accessrule_set_oid): Rename into
+	accessrule_set_rule to match header.
+
+	* base/credentials.h (credentials_t): Fix documentation.
+
 2013-01-19  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (check_response): Return OMP status if there is one.

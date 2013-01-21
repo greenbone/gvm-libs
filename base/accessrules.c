@@ -121,7 +121,7 @@ accessrule_comment (const accessrule_t * r)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-accessrule_set_oid (accessrule_t * r, const rule_t rule)
+accessrule_set_rule (accessrule_t * r, const rule_t rule)
 {
   r->rule = rule;
   return (0);

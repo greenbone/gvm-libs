@@ -46,7 +46,7 @@ typedef struct
   /*@null@ */ gchar *timezone;
   ///< Timezone of user.  Set in OpenVAS Manager.
   /*@null@ */ gchar *role;
-  ///< Timezone of role.  Set in OpenVAS Manager.
+  ///< Role of user.
 } credentials_t;
 
 void free_credentials (credentials_t * credentials);
