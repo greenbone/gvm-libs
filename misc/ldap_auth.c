@@ -292,29 +292,38 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
   ldap_return = ldap_start_tls_s (ldap, NULL, NULL);
   if (ldap_return != LDAP_SUCCESS)
     {
-      if (force_encryption == TRUE)
-        {
-          g_warning
-            ("Aborting ldap authentication: Could not init LDAP StartTLS: %s.",
-             ldap_err2string (ldap_return));
-          g_free (ldapuri);
-          return NULL;
-        }
-      else
-        {
-          g_warning ("Could not init LDAP StartTLS: %s.",
-                     ldap_err2string (ldap_return));
-          g_warning ("Reinit LDAP connection to do plaintext authentication");
-          ldap_unbind_ext_s (ldap, NULL, NULL);
+      // Try ldaps.
+      g_warning ("StartTLS failed, trying to establish ldaps connection.");
+      g_free (ldapuri);
+      ldapuri = g_strconcat ("ldaps://", host, NULL);
 
-          // Note that for connections to default ADS, a failed
-          // StartTLS negotiation breaks the future bind, so retry.
-          ldap_return = ldap_initialize (&ldap, ldapuri);
-          if (ldap == NULL || ldap_return != LDAP_SUCCESS)
+      ldap_return = ldap_initialize (&ldap, ldapuri);
+      if (ldap == NULL || ldap_return != LDAP_SUCCESS)
+        {
+          if (force_encryption == TRUE)
             {
-              g_warning ("Could not reopen LDAP connection for authentication.");
+              g_warning
+                ("Aborting ldap authentication: Could not init LDAP StartTLS nor ldaps: %s.",
+                 ldap_err2string (ldap_return));
               g_free (ldapuri);
               return NULL;
+            }
+          else
+            {
+              g_warning ("Could not init LDAP StartTLS, nor ldaps: %s.",
+                         ldap_err2string (ldap_return));
+              g_warning ("Reinit LDAP connection to do plaintext authentication");
+              ldap_unbind_ext_s (ldap, NULL, NULL);
+
+              // Note that for connections to default ADS, a failed
+              // StartTLS negotiation breaks the future bind, so retry.
+              ldap_return = ldap_initialize (&ldap, ldapuri);
+              if (ldap == NULL || ldap_return != LDAP_SUCCESS)
+                {
+                  g_warning ("Could not reopen LDAP connection for authentication.");
+                  g_free (ldapuri);
+                  return NULL;
+                }
             }
         }
     }

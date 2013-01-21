@@ -1,5 +1,10 @@
 2013-01-21  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* misc/ldap_auth.c (ldap_auth_bind): Before giving up if
+	StartTLS failed, try to establish ldaps connection.
+
+2013-01-21  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* misc/ldap_auth.c (ldap_auth_bind): Renamed parameter from
 	force_starttls to force_encryption (upcoming: ldaps support).
 
