@@ -908,7 +908,7 @@ forge_udp_v6_packet (lex_ctxt * lexic)
           if (v != 0)
             {
               udp_packet->ip6_ctlun.ip6_un1.ip6_un1_plen =
-                FIX (ntohs (udp->uh_ulen) + 40);
+                FIX (ntohs (udp->uh_ulen));
             }
         }
 
@@ -1036,7 +1036,7 @@ set_udp_v6_elements (lex_ctxt * lexic)
       ip6 = (struct ip6_hdr *) pkt;
       if (data != NULL)
         {
-          ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = FIX (sz);
+          ip6->ip6_ctlun.ip6_un1.ip6_un1_plen = FIX (sz - 40);
         }
       udp = (struct udphdr *) (pkt + 40);
 

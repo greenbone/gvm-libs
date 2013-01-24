@@ -1,3 +1,9 @@
+2013-01-21  Chandrashekhar B <bchandra@secpod.com>
+	* nasl/nasl_packet_forgery_v6.c (forge_udp_v6_packet): IPv6
+	packet length was set to 40 more than the size in UDP forging.
+	(set_udp_v6_elements): IPv6 packet length was set to 40 more
+	than the size in UDP forging.
+
 2013-01-21  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* misc/ldap_auth.c (ldap_auth_bind): Before giving up if
