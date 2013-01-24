@@ -1,3 +1,26 @@
+2013-01-24  Werner Koch  <wk@gnupg.org>
+
+	Change to allow printing of useful diagnostics even if stderr is
+	redirected to the bit bucket.
+
+	* misc/network.c: Include openvas_logging.h.  Replace all fprintf
+	to stderr calls by calls to log_legacy_write.
+	(openvas_get_socket_from_connection): Repalce fflush by
+	log_legacy_fflush.
+	(verify_peer_certificate): Add messages for not yet valid and
+	expired certifciates, print invalid status last, and pretty print
+	those messages.
+
+	* misc/openvas_logging.c: Include stdarg.h.
+	(legacy_log_handler): New variable.
+	(setup_legacy_log_handler, log_legacy_write, log_legacy_fflush): New.
+	* misc/openvas_logging.h: Add prototypes for new functions.
+
+	* misc/openvas_logging.c: Include gnutls.h.
+	(log_func_for_gnutls): New.
+	(setup_log_handlers): Enable GNUTLS logging if the evnvar
+	OPENVAS_GNUTLS_DEBUG is set.
+
 2013-01-24  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_auth_write_config): Correct group for

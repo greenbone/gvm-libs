@@ -36,8 +36,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <signal.h>
-
-#include <stdio.h>              /* for fprintf() */
+#include <stdio.h>              /* for FILE */
 #include <sys/time.h>           /* for gettimeofday */
 
 #include <glib.h>
@@ -54,6 +53,7 @@
 #include "plugutils.h" /* for OPENVAS_ENCAPS_IP */
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_CTRL */
 #include "support.h"
+#include "openvas_logging.h"
 #include "../nasl/nasl_ssh.h"   /* for nasl_ssh_internal_close */
 
 #include <setjmp.h>
@@ -145,7 +145,7 @@ renice_myself ()
       renice_result = nice (1);
       if (renice_result == -1 && errno != 0)
         {
-          fprintf (stderr, "Unable to renice process: %d", errno);
+          log_legacy_write ("Unable to renice process: %d", errno);
         }
     }
 }
@@ -156,14 +156,14 @@ renice_myself ()
 static int
 pid_perror (const char *error)
 {
-  fprintf (stderr, "[%d] %s : %s\n", getpid (), error, strerror (errno));
+  log_legacy_write ("[%d] %s : %s\n", getpid (), error, strerror (errno));
   return 0;
 }
 
 static void
 pid_notice (const char *text)
 {
-  fprintf (stderr, "[%d] %s\n", getpid (), text);
+  log_legacy_write ("[%d] %s\n", getpid (), text);
 }
 
 
@@ -199,8 +199,8 @@ get_connection_fd ()
           return i + OPENVAS_FD_OFF;
         }
     }
-  fprintf (stderr, "[%d] %s:%d : Out of OpenVAS file descriptors\n", getpid (),
-           __FILE__, __LINE__);
+  log_legacy_write ("[%d] %s:%d : Out of OpenVAS file descriptors\n",
+                    getpid (), __FILE__, __LINE__);
   errno = EMFILE;
   return -1;
 }
@@ -232,7 +232,7 @@ release_connection_fd (int fd)
   if (p->fd >= 0)
     {
 #if DEBUG_SSL > 1
-      fprintf (stderr,
+      log_legacy_write (
                "[%d] release_connection_fd: fd > 0 fd=%d\n", getpid (), p->fd);
 #endif
       if (shutdown (p->fd, 2) < 0)
@@ -375,7 +375,7 @@ block_socket (int soc)
 void
 tlserror (char *txt, int err)
 {
-  fprintf (stderr, "[%d] %s: %s\n", getpid (), txt, gnutls_strerror (err));
+  log_legacy_write ("[%d] %s: %s\n", getpid (), txt, gnutls_strerror (err));
 }
 
 
@@ -411,15 +411,16 @@ openvas_get_socket_from_connection (int fd)
 
   if (!OPENVAS_STREAM (fd))
     {
-      fprintf (stderr, "[%d] openvas_get_socket_from_connection: bad fd <%d>\n",
+      log_legacy_write (
+               "[%d] openvas_get_socket_from_connection: bad fd <%d>\n",
                getpid (), fd);
-      fflush (stderr);
+      log_legacy_fflush ();
       return fd;
     }
   fp = connections + (fd - OPENVAS_FD_OFF);
   if (fp->transport <= 0)
     {
-      fprintf (stderr,
+      log_legacy_write (
                "openvas_get_socket_from_connection: fd <%d> is closed\n", fd);
       return -1;
     }
@@ -487,8 +488,8 @@ set_gnutls_protocol (gnutls_session_t session, int encaps, const char *priority)
 
     default:
 #if DEBUG_SSL > 0
-      fprintf (stderr, "*Bug* at %s:%d. Unknown transport %d\n", __FILE__,
-               __LINE__, encaps);
+      log_legacy_write ("*Bug* at %s:%d. Unknown transport %d\n", __FILE__,
+                        __LINE__, encaps);
 #endif
       /* Use same priorities as for OPENVAS_ENCAPS_SSLv23 */
       priorities = ("NONE:+VERS-TLS1.0:+VERS-SSL3.0:+AES-256-CBC:+AES-128-CBC"
@@ -499,8 +500,8 @@ set_gnutls_protocol (gnutls_session_t session, int encaps, const char *priority)
 
   if ((err = gnutls_priority_set_direct (session, priorities, &errloc)))
     {
-      fprintf (stderr, "[%d] setting session priorities '%.20s': %s\n",
-               getpid (), errloc, gnutls_strerror (err));
+      log_legacy_write ("[%d] setting session priorities '%.20s': %s\n",
+                        getpid (), errloc, gnutls_strerror (err));
       return -1;
     }
 
@@ -509,7 +510,7 @@ set_gnutls_protocol (gnutls_session_t session, int encaps, const char *priority)
 
 /**
  * Verifies the peer's certificate.  If the certificate is not valid or
- * cannot be verified, the function prints diagnostics to stderr and
+ * cannot be verified, the function logs a diagnostics and
  * returns -1.  If the certificate was verified successfully the
  * function returns 0.  If the peer did not send a certificate, the
  * function also returns 0.
@@ -524,22 +525,27 @@ verify_peer_certificate (gnutls_session_t session)
   } messages[] =
   {
     {
-    GNUTLS_CERT_INVALID, "The peer certificate is invalid"},
+    GNUTLS_CERT_NOT_ACTIVATED, "The certificate is not yet valid"},
     {
-    GNUTLS_CERT_REVOKED, "The peer certificate has been revoked"},
+    GNUTLS_CERT_EXPIRED, "The certificate has expired"},
+    {
+    GNUTLS_CERT_REVOKED, "The certificate has been revoked"},
     {
     GNUTLS_CERT_SIGNER_NOT_FOUND,
-        "The peer certificate doesn't have a known issuer"},
+        "The certificate doesn't have a known issuer"},
     {
-    GNUTLS_CERT_SIGNER_NOT_CA, "The peer certificate's issuer is not a CA"},
+    GNUTLS_CERT_SIGNER_NOT_CA, "The certificate's issuer is not a CA"},
     {
     GNUTLS_CERT_INSECURE_ALGORITHM,
-        "The peer certificate was signed using an insecure algorithm"},
+        "The certificate was signed using an insecure algorithm"},
+    {
+    GNUTLS_CERT_INVALID, "The certificate is invalid"},
     {
   0, NULL},};
   unsigned int status;
   int ret;
   int i;
+  int any_error;
 
   ret = gnutls_certificate_verify_peers2 (session, &status);
   if (ret == GNUTLS_E_NO_CERTIFICATE_FOUND)
@@ -552,14 +558,20 @@ verify_peer_certificate (gnutls_session_t session)
       return -1;
     }
 
-  for (i = 0; messages[i].message != NULL; i++)
+  for (i = any_error = 0; messages[i].message != NULL; i++)
+    if (status & messages[i].flag)
+      any_error = 1;
+
+  if (any_error)
     {
-      /* TODO If you run openvassd in the background then these very useful
-       * messages everywhere in this file are sent to /dev/null.  Should be
-       * using GLib logging. */
-      if (status & messages[i].flag)
-        fprintf (stderr, "[%d] failed to verify certificate: %s\n", getpid (),
-                 messages[i].message);
+      log_legacy_write ("[%d] failed to verify the peer certificate:\n",
+                        getpid ());
+      for (i = 0; messages[i].message != NULL; i++)
+        {
+          if (status & messages[i].flag)
+            log_legacy_write ("[%d]    %s\n",
+                              getpid (), messages[i].message);
+        }
     }
 
   if (status)
@@ -630,8 +642,8 @@ load_cert_and_key (gnutls_certificate_credentials_t xcred, const char *cert,
   data = load_file (cert);
   if (data.data == NULL)
     {
-      fprintf (stderr, "[%d] load_cert_and_key: Error loading cert file %s\n",
-               getpid (), cert);
+      log_legacy_write ("[%d] load_cert_and_key: Error loading cert file %s\n",
+                        getpid (), cert);
       result = -1;
       goto cleanup;
     }
@@ -659,8 +671,8 @@ load_cert_and_key (gnutls_certificate_credentials_t xcred, const char *cert,
   data = load_file (key);
   if (data.data == NULL)
     {
-      fprintf (stderr, "[%d] load_cert_and_key: Error loading key file %s\n",
-               getpid (), key);
+      log_legacy_write ("[%d] load_cert_and_key: Error loading key file %s\n",
+                        getpid (), key);
       result = -1;
       goto cleanup;
     }
@@ -907,7 +919,7 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
     priority = ""; /* To us an empty string is equivalent to NULL.  */
 
 #if DEBUG_SSL > 2
-  fprintf (stderr,
+  log_legacy_write (
            "[%d] open_stream_connection: TCP:%d transport:%d timeout:%d "
            " priority: '%s'\n",
            getpid (), port, transport, timeout, priority);
@@ -928,7 +940,7 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
 
     case OPENVAS_ENCAPS_SSLv2:
     default:
-      fprintf (stderr,
+      log_legacy_write (
                "open_stream_connection(): unsupported transport layer %d\n",
                transport);
       errno = EINVAL;
@@ -1016,8 +1028,8 @@ open_stream_connection_unknown_encaps5 (struct arglist *args, unsigned int port,
   };
 
 #if DEBUG_SSL > 2
-  fprintf (stderr, "[%d] open_stream_connection_unknown_encaps: TCP:%d; %d\n",
-           getpid (), port, timeout);
+  log_legacy_write ("[%d] open_stream_connection_unknown_encaps: TCP:%d; %d\n",
+                    getpid (), port, timeout);
 #endif
 
   for (i = 0; i < sizeof (encaps) / sizeof (*encaps); i++)
@@ -1028,9 +1040,9 @@ open_stream_connection_unknown_encaps5 (struct arglist *args, unsigned int port,
         {
           *p = encaps[i];
 #if DEBUG_SSL > 2
-          fprintf (stderr,
-                   "[%d] open_stream_connection_unknown_encaps: TCP:%d -> transport=%d\n",
-                   getpid (), port, *p);
+          log_lecacy_write ("[%d] open_stream_connection_unknown_encaps: "
+                            "TCP:%d -> transport=%d\n",
+                            getpid (), port, *p);
 #endif
           if (delta_t != NULL)
             {
@@ -1044,9 +1056,9 @@ open_stream_connection_unknown_encaps5 (struct arglist *args, unsigned int port,
       else if (__port_closed)
         {
 #if DEBUG_SSL > 2
-          fprintf (stderr,
-                   "[%d] open_stream_connection_unknown_encaps: TCP:%d -> closed\n",
-                   getpid (), port);
+          log_lecacy_write ("[%d] open_stream_connection_unknown_encaps: "
+                            "TCP:%d -> closed\n",
+                            getpid (), port);
 #endif
           return -1;
         }
@@ -1363,8 +1375,8 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
   int select_status;
 
 #if 0
-  fprintf (stderr, "read_stream_connection(%d, 0x%x, %d, %d)\n", fd, buf,
-           min_len, max_len);
+  log_lecacy_write ("read_stream_connection(%d, 0x%x, %d, %d)\n", fd, buf,
+                    min_len, max_len);
 #endif
 
   if (OPENVAS_STREAM (fd))
@@ -1379,8 +1391,8 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
   else
     {
 #if 0
-      fprintf (stderr, "read_stream_connection[%d] : supposedly bad fd %d\n",
-               getpid (), fd);
+      log_lecacy_write ("read_stream_connection[%d] : supposedly bad fd %d\n",
+                        getpid (), fd);
 #endif
       trp = OPENVAS_ENCAPS_IP;
       if (fd < 0 || fd > 1024)
@@ -1457,9 +1469,9 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
 # if DEBUG_SSL > 0
       if (getpid () != fp->pid)
         {
-          fprintf (stderr,
-                   "PID %d tries to use a SSL connection established by PID %d\n",
-                   getpid (), fp->pid);
+          log_lecacy_write ("PID %d tries to use a SSL connection established "
+                            "by PID %d\n",
+                            getpid (), fp->pid);
           errno = EINVAL;
           return -1;
         }
@@ -1507,8 +1519,8 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
                     }
                   else
                     {
-                      fprintf (stderr, "gnutls_record_recv[%d]: EOF\n",
-                               getpid ());
+                      log_lecacy_write ("gnutls_record_recv[%d]: EOF\n",
+                                        getpid ());
                     }
 #endif
                   fp->last_err = EPIPE;
@@ -1533,15 +1545,17 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
 
     default:
       if (fp->transport != -1 || fp->fd != 0)
-        fprintf (stderr, "Severe bug! Unhandled transport layer %d (fd=%d)\n",
-                 fp->transport, fd);
+        log_legacy_write ("Severe bug! Unhandled transport layer %d (fd=%d)\n",
+                          fp->transport, fd);
       else
-        fprintf (stderr, "read_stream_connection_unbuffered: fd=%d is closed\n",
-                 fd);
+        log_legacy_write ("read_stream_connection_unbuffered: "
+                          "fd=%d is closed\n",
+                          fd);
       errno = EINVAL;
       return -1;
     }
- /*NOTREACHED*/}
+ /*NOTREACHED*/
+}
 
 int
 read_stream_connection_min (int fd, void *buf0, int min_len, int max_len)
@@ -1623,7 +1637,7 @@ write_stream_connection4 (int fd, void *buf0, int n, int i_opt)
   if (!OPENVAS_STREAM (fd))
     {
 #if DEBUG_SSL > 0
-      fprintf (stderr, "write_stream_connection: fd <%d> invalid\n", fd);
+      log_lecacy_write ("write_stream_connection: fd <%d> invalid\n", fd);
 # if 0
       abort ();
 # endif
@@ -1636,7 +1650,7 @@ write_stream_connection4 (int fd, void *buf0, int n, int i_opt)
   fp->last_err = 0;
 
 #if DEBUG_SSL > 8
-  fprintf (stderr,
+  log_lecacy_write (
            "> write_stream_connection(%d, %s, %d, 0x%x) \tE=%d 0=0x%x\n", fd,
            buf, n, i_opt, fp->transport, fp->options);
 #endif
@@ -1699,7 +1713,7 @@ write_stream_connection4 (int fd, void *buf0, int n, int i_opt)
                 }
               else
                 {
-                  fprintf (stderr, "gnutls_record_send[%d]: EOF\n", getpid ());
+                  log_lecacy_write ("gnutls_record_send[%d]: EOF\n", getpid ());
                 }
 #endif
               fp->last_err = EPIPE;
@@ -1736,11 +1750,11 @@ write_stream_connection4 (int fd, void *buf0, int n, int i_opt)
 
     default:
       if (fp->transport != -1 || fp->fd != 0)
-        fprintf (stderr, "Severe bug! Unhandled transport layer %d (fd=%d)\n",
-                 fp->transport, fd);
+        log_legacy_write ("Severe bug! Unhandled transport layer %d (fd=%d)\n",
+                          fp->transport, fd);
       else
-        fprintf (stderr, "read_stream_connection_unbuffered: fd=%d is closed\n",
-                 fd);
+        log_legacy_write ("read_stream_connection_unbuffered: fd=%d is "
+                          "closed\n", fd);
       errno = EINVAL;
       return -1;
     }
@@ -1765,13 +1779,13 @@ nsend (int fd, void *data, int length, int i_opt)
   if (OPENVAS_STREAM (fd))
     {
       if (connections[fd - OPENVAS_FD_OFF].fd < 0)
-        fprintf (stderr, "OpenVAS file descriptor %d closed ?!\n", fd);
+        log_legacy_write ("OpenVAS file descriptor %d closed ?!\n", fd);
       else
         return write_stream_connection4 (fd, data, length, i_opt);
     }
 #if DEBUG_SSL > 1
   else
-    fprintf (stderr, "nsend[%d]: fd=%d\n", getpid (), fd);
+    log_legacy_write ("nsend[%d]: fd=%d\n", getpid (), fd);
 #endif
   /* Trying OS's send() */
   block_socket (fd);            /* ??? */
@@ -1797,7 +1811,7 @@ nsend (int fd, void *data, int length, int i_opt)
     }
   while (n <= 0 && errno == EINTR);
   if (n < 0)
-    fprintf (stderr, "[%d] nsend():send %s\n", getpid (), strerror (errno));
+    log_legacy_write ("[%d] nsend():send %s\n", getpid (), strerror (errno));
   return n;
 }
 
@@ -1806,12 +1820,12 @@ nrecv (int fd, void *data, int length, int i_opt)
 {
   int e;
 #if DEBUG_SSL > 8
-  fprintf (stderr, "nrecv: fd=%d len=%d\n", fd, length);
+  log_legacy_write ("nrecv: fd=%d len=%d\n", fd, length);
 #endif
   if (OPENVAS_STREAM (fd))
     {
       if (connections[fd - OPENVAS_FD_OFF].fd < 0)
-        fprintf (stderr, "OpenVAS file descriptor %d closed ?!\n", fd);
+        log_legacy_write ("OpenVAS file descriptor %d closed ?!\n", fd);
       else
         return read_stream_connection (fd, data, length);
     }
@@ -1840,7 +1854,7 @@ close_stream_connection (int fd)
       return -1;
     }
   fp = &(connections[fd - OPENVAS_FD_OFF]);
-  fprintf (stderr, "close_stream_connection TCP:%d (fd=%d)\n", fp->port, fd);
+  log_legacy_write ("close_stream_connection TCP:%d (fd=%d)\n", fp->port, fd);
 #endif
 
   if (0)
@@ -1867,7 +1881,7 @@ get_encaps (int fd)
 {
   if (!OPENVAS_STREAM (fd))
     {
-      fprintf (stderr, "get_encaps() : bad argument\n");
+      log_legacy_write ("get_encaps() : bad argument\n");
       return -1;
     }
   return connections[fd - OPENVAS_FD_OFF].transport;
@@ -2040,7 +2054,7 @@ open_sock_opt_hn (const char *hostname, unsigned int port, int type,
   nn_resolve (hostname, &in6addr);
   /*if (IN6_ARE_ADDR_EQUAL(&addr6, &in6addr_any))
      {
-     fprintf(stderr, "open_sock_opt_hn: invalid socket address\n");
+     log_legacy_write ("open_sock_opt_hn: invalid socket address\n");
      return  -1;
      } */
   if (IN6_IS_ADDR_V4MAPPED (&in6addr))
@@ -2341,7 +2355,7 @@ open_sock_option (struct arglist *args, unsigned int port, int type,
   t = plug_get_host_ip (args);
   if (!t)
     {
-      fprintf (stderr, "ERROR ! NO ADDRESS ASSOCIATED WITH NAME\n");
+      log_legacy_write ("ERROR ! NO ADDRESS ASSOCIATED WITH NAME\n");
       arg_dump (args, 0);
       return (-1);
     }
@@ -2748,8 +2762,8 @@ internal_send (int soc, char *data, int msg_type)
   e = os_recv (soc, &ack, sizeof (ack), 0);
   if (e < 0)
     {
-      fprintf (stderr, "internal_send->os_recv(%d): %s\n", soc,
-               strerror (errno));
+      log_legacy_write ("internal_send->os_recv(%d): %s\n", soc,
+                        strerror (errno));
       return -1;
     }
 
