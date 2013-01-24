@@ -1,3 +1,8 @@
+2013-01-24  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_auth_write_config): Correct group for
+	allow-plaintext entry.
+
 2013-01-21  Chandrashekhar B <bchandra@secpod.com>
 	* nasl/nasl_packet_forgery_v6.c (forge_udp_v6_packet): IPv6
 	packet length was set to 40 more than the size in UDP forging.

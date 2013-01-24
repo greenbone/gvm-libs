@@ -521,7 +521,7 @@ openvas_auth_write_config (GKeyFile * key_file)
                             "localhost");
       g_key_file_set_value (new_conffile, "method:ldap_connect", "authdn",
                             "authdn=uid=%s,cn=users,o=yourserver,c=yournet");
-      g_key_file_set_value (new_conffile, "method:ldap", "allow-plaintext",
+      g_key_file_set_value (new_conffile, "method:ldap_connect", "allow-plaintext",
                             "false");
     }
 
