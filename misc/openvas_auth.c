@@ -421,7 +421,7 @@ openvas_auth_init ()
                 }
               else
                 {
-                  g_log ("event auth", G_LOG_LEVEL_MESSAGE,
+                  g_log ("event auth", G_LOG_LEVEL_DEBUG,
                     "Authentication method configured but not enabled: %s", *group);
                 }
               g_free (enabled_value);

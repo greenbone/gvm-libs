@@ -1,3 +1,8 @@
+2013-01-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_auth_init): Downgrade log level for
+	debug message.
+
 2013-01-24  Werner Koch  <wk@gnupg.org>
 
 	Change to allow printing of useful diagnostics even if stderr is
