@@ -1,3 +1,8 @@
+2013-01-29  Werner Koch  <wk@gnupg.org>
+
+	* nasl/nasl.c: Include libssh and nasl_signature.h.
+	(main): Display library versions if --debug-tls is given.
+
 2013-01-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_auth_init): Downgrade log level for

@@ -25,6 +25,9 @@
 #include <string.h>             /* for strlen */
 #include <stdlib.h>             /* for exit */
 #include <unistd.h>             /* for geteuid */
+#ifdef HAVE_LIBSSH
+# include <libssh/libssh.h>     /* for ssh_version */
+#endif
 
 #include "hosts_gatherer.h"
 #include "kb.h"                 /* for kb_new */
@@ -38,6 +41,7 @@
 #include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
 #include "exec.h"
+#include "../base/gpgme_util.h" /* for gpgme_check_version */
 
 #include <glib.h>
 
@@ -179,7 +183,17 @@ main (int argc, char **argv)
 
   if (display_version)
     {
-      printf ("openvas-nasl %s\n\n", nasl_version ());
+      printf ("openvas-nasl %s\n", nasl_version ());
+      if (debug_tls)
+        {
+          printf ("gnutls %s\n", gnutls_check_version (NULL));
+#       ifdef HAVE_LIBSSH
+          printf ("libssh %s\n", ssh_version (0));
+#       endif
+          printf ("gpgme %s\n", gpgme_check_version (NULL));
+        }
+      else
+        putchar ('\n');
       printf ("Copyright (C) 2002 - 2004 Tenable Network Security\n");
       printf ("Copyright (C) 2009 Greenbone Networks GmbH\n\n");
       exit (0);
