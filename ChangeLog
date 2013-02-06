@@ -1,3 +1,8 @@
+2013-02-06  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (OMP_FMT_BOOL_ATTRIB): Add the attribute when it is 0 too,
+	because the OMP default is sometimes 1.
+
 2013-01-29  Werner Koch  <wk@gnupg.org>
 
 	* nasl/nasl.c: Include libssh and nasl_signature.h.

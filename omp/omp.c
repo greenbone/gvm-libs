@@ -57,7 +57,7 @@
 #define G_LOG_DOMAIN "lib   omp"
 
 #define OMP_FMT_BOOL_ATTRIB(var, attrib)            \
-  (var.attrib == 0 ? "" : " " #attrib "=\"1\"")
+  (var.attrib == 0 ? " " #attrib "=\"0\"" : " " #attrib "=\"1\"")
 
 
 /* Local XML interface extension. */
