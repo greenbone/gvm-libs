@@ -1,7 +1,7 @@
 COMPILING OPENVAS-LIBRARIES WITH WMI SUPPORT
 ============================================
 
-Last updated: 2011-02-03
+Last updated: 2013-02-07
 
 To compile openvas-libraries with WMI support, please follow the steps described
 below. Our hope is that this code will ultimately make it into Samba itself;
@@ -22,17 +22,19 @@ http://www.openvas.org/download/wmi/wmi-1.3.14.tar.bz2
 Untar the source tarball with the following command:
 $ tar xjvf wmi-1.3.14.tar.bz2
 
-2) Apply the patch
-To enable the WMI integration in OpenVAS, a patch needs to be applied to the
-source you just downloaded. You can download the patch from the following
+2) Apply the wmi patches
+To enable the WMI integration in OpenVAS, 2 patches need to be applied to the
+source you just downloaded. You can download the patches from the following
 location:
 
 http://www.openvas.org/download/wmi/openvas-wmi-1.3.14.patch
+http://www.openvas.org/download/wmi/openvas-wmi-1.3.14.patch2
 
-Copy the patch to the wmi-1.3.14 directory you just created and apply the patch
-with the following command:
+Copy the patches to the wmi-1.3.14 directory you just created and apply the patches
+with the following commands:
 
 $ patch -p1 < openvas-wmi-1.3.14.patch
+$ patch -p1 < openvas-wmi-1.3.14.patch2
 
 3) Compile the source
 In the wmi-1.3.14 directory, execute the following commands:
