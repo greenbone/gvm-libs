@@ -343,7 +343,7 @@ wmi_reg_get_qword_val (WMI_HANDLE handle, unsigned int hive, const char *key,
  */
 int 
 wmi_reg_set_dword_val(WMI_HANDLE handle, const char *key, const char *val_name, 
-						uint32_t *val)
+						uint32_t val)
 {
   return -1;
 }
@@ -361,7 +361,7 @@ wmi_reg_set_dword_val(WMI_HANDLE handle, const char *key, const char *val_name,
  */
 int 
 wmi_reg_set_qword_val(WMI_HANDLE handle, const char *key, const char *val_name, 
-						uint64_t *val)
+						uint64_t val)
 {
   return -1;
 }

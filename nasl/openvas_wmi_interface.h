@@ -35,6 +35,8 @@
 #ifndef _NASL_OPENVAS_WMI_INTERFACE_H
 #define _NASL_OPENVAS_WMI_INTERFACE_H
 
+#include <stdint.h> /* for uint32_t, uint64_t */
+
 typedef int WMI_HANDLE;
 
 char *wmi_versioninfo ();
