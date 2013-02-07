@@ -48,6 +48,8 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <ctype.h>
+#include <inttypes.h>
 #include "system.h"
 #include "plugutils.h"
 
@@ -56,6 +58,46 @@
 
 #define IMPORT(var) char *var = get_str_local_var_by_name(lexic, #var)
 #define max 5
+
+/**
+ * Returns 0 if any alphabets are present
+ */
+int check_alpha(char *val)
+{
+  int i, val_len;
+  val_len = strlen(val);
+
+  if((strcmp(val,"-1")) != 0 )
+  {
+    for(i = 0; i < val_len; i++)
+      if(!isdigit(val[i]))
+        return 0;
+  }
+  else
+     return 0;
+
+ return 1;
+}
+
+/** 
+ * Convert string to unsign int 32 bit 
+ */
+uint32_t stoi_uint32_t(char * s)
+{
+  uint32_t v;
+  sscanf(s, "%" PRIu32, &v);
+  return v;
+}
+
+/** 
+ * Convert string to unsign int 64 bit 
+ */
+uint64_t stoi_uint64_t(char * s)
+{
+  uint64_t v;
+  sscanf(s, "%" PRIu64, &v);
+  return v;
+}
 
 /**
  * @brief Get a version string of the WMI implementation.
@@ -832,7 +874,7 @@ nasl_wmi_reg_get_mul_string_val (lex_ctxt * lexic)
  *
  * Retrieves local variables "wmi_handle", "hive", "key", "val_name"
  * from the lexical context, performs the registry operation
- * querying Expanded string value.
+ * querying 64-bit unsigned integer.
  */
 tree_cell *
 nasl_wmi_reg_get_qword_val (lex_ctxt * lexic)
@@ -869,4 +911,284 @@ nasl_wmi_reg_get_qword_val (lex_ctxt * lexic)
   retc->x.str_val = strdup (res);
   retc->size = strlen (res);
   return retc;
+}
+
+/**
+ * @brief Set Registry DWORD value.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return NULL on failure
+ *
+ * Retrieves local variables "wmi_handle", "key", "val_name", "val"
+ * from the lexical context, performs the registry set/create operation
+ * for double word data type.
+ *
+ * It will work only if the key exist
+ */
+tree_cell *
+nasl_wmi_reg_set_dword_val (lex_ctxt * lexic)
+{
+  WMI_HANDLE handle =
+    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+
+  if (!handle)
+    return NULL;
+
+  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
+  char *val = get_str_local_var_by_name (lexic, "val");  //REGISTERY VALUE TO SET
+
+  uint32_t val1;
+  int value;
+
+  // Return NULL if any alphabet is present
+  if (check_alpha(val) == 0)
+    return NULL;
+
+  // Convert string to proper 64 bit integer
+  val1 = stoi_uint32_t(val);
+
+  tree_cell *retc = alloc_tree_cell (0, NULL);
+  if (!retc)
+    return NULL;
+
+  retc->type = CONST_INT;
+  retc->x.i_val = 1;
+
+  value = wmi_reg_set_dword_val (handle, key, val_name, val1);
+
+  if (value == -1)
+    {
+      fprintf (stderr, "nasl_wmi_reg_set_dword_val: WMI registry set operation failed\n");
+      return NULL;
+    }
+  return retc;
+}
+
+/**
+ * @brief Set Registry QWORD value.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return NULL on failure
+ *
+ * Retrieves local variables "wmi_handle", "key", "val_name", "val"
+ * from the lexical context, performs the registry set/create operation
+ * for 64-bit unsigned integer.
+ *
+ * It will work only if the key exist
+ */
+tree_cell *
+nasl_wmi_reg_set_qword_val (lex_ctxt * lexic)
+{
+  WMI_HANDLE handle =
+    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+
+  if (!handle)
+    return NULL;
+
+  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
+  char *val = get_str_local_var_by_name (lexic, "val");  //REGISTERY VALUE TO SET
+
+  uint64_t val1;
+  int value;
+
+  // Return if alphabets present
+  if (check_alpha(val) == 0)
+    return NULL;
+
+  // Convert string to proper integer
+  val1 = stoi_uint64_t(val);
+
+  tree_cell *retc = alloc_tree_cell (0, NULL);
+  if (!retc)
+    return NULL;
+
+  retc->type = CONST_INT;
+  retc->x.i_val = 1;
+
+  value = wmi_reg_set_qword_val (handle, key, val_name, val1);
+
+  if (value == -1)
+    {
+      fprintf (stderr, "nasl_wmi_reg_set_qword_val: WMI register set operation failed\n");
+      return NULL;
+    }
+  return retc;
+}
+
+/**
+ * @brief Set Registry Expanded string value.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return NULL on failure
+ *
+ * Retrieves local variables "wmi_handle", "key", "val_name", "val"
+ * from the lexical context, performs the registry set/create operation
+ * for string value.
+ *
+ * It will work only if the key exist
+ */
+tree_cell *
+nasl_wmi_reg_set_ex_string_val (lex_ctxt * lexic)
+{
+  WMI_HANDLE handle =
+    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+
+  if (!handle)
+    return NULL;
+
+  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
+  char *val = get_str_local_var_by_name (lexic, "val");  //REGISTERY VALUE TO SET
+
+  int value;
+
+  tree_cell *retc = alloc_tree_cell (0, NULL);
+  if (!retc)
+    return NULL;
+
+  retc->type = CONST_INT;
+  retc->x.i_val = 1;
+
+  value = wmi_reg_set_ex_string_val (handle, key, val_name, val);
+
+  if (value == -1)
+    {
+      fprintf (stderr, "nasl_wmi_reg_set_ex_string_val: WMI registery set operation failed\n");
+      return NULL;
+    }
+  return retc;
+}
+
+/**
+ * @brief Set Registry string value.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return NULL on failure
+ *
+ * Retrieves local variables "wmi_handle", "key", "val_name", "val"
+ * from the lexical context, performs the registry set/create operation
+ * for string value.
+ *
+ * It will work only if the key exist
+ */
+tree_cell *
+nasl_wmi_reg_set_string_val (lex_ctxt * lexic)
+{
+  WMI_HANDLE handle =
+    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+
+  if (!handle)
+    return NULL;
+
+  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
+  char *val = get_str_local_var_by_name (lexic, "val");  //REGISTERY VALUE TO SET
+
+  int value;
+
+  tree_cell *retc = alloc_tree_cell (0, NULL);
+  if (!retc)
+    return NULL;
+
+  retc->type = CONST_INT;
+  retc->x.i_val = 1;
+
+  value = wmi_reg_set_string_val (handle, key, val_name, val);
+
+  if (value == -1)
+    {
+      fprintf (stderr, "nasl_wmi_reg_set_string_val: WMI registery set operation failed\n");
+      return NULL;
+    }
+    return retc;
+}
+
+/**
+ * @brief Create Registry key.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return NULL on failure
+ *
+ * Retrieves local variables "wmi_handle", "key"
+ * from the lexical context, performs the registry create operation
+ * for the key.
+ */
+tree_cell *
+nasl_wmi_reg_create_key (lex_ctxt * lexic)
+{
+  WMI_HANDLE handle =
+    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+
+  if (!handle)
+    return NULL;
+
+  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
+
+  int value;
+
+  tree_cell *retc = alloc_tree_cell (0, NULL);
+  if (!retc)
+    return NULL;
+
+  retc->type = CONST_INT;
+  retc->x.i_val = 1;
+
+  value = wmi_reg_create_key (handle, key);
+
+  if (value == -1)
+    {
+      fprintf (stderr, "nasl_wmi_reg_create_key: WMI registery key create operation failed\n");
+      return NULL;
+    }
+    return retc;
+}
+
+/**
+ * @brief Delete Registry key.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return NULL on failure
+ *
+ * Retrieves local variables "wmi_handle", "key"
+ * from the lexical context, performs the registry delete operation
+ * for the key.
+ *
+ * It will work only if the key exist
+ */
+tree_cell *
+nasl_wmi_reg_delete_key (lex_ctxt * lexic)
+{
+  WMI_HANDLE handle =
+    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+
+  if (!handle)
+    return NULL;
+
+  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
+
+  int value;
+
+  tree_cell *retc = alloc_tree_cell (0, NULL);
+  if (!retc)
+    return NULL;
+
+  retc->type = CONST_INT;
+  retc->x.i_val = 1;
+
+  value = wmi_reg_delete_key (handle, key);
+
+  if (value == -1)
+    {
+      fprintf (stderr, "nasl_wmi_reg_delete_key: WMI registery key delete operation failed\n");
+      return NULL;
+    }
+    return retc;
 }

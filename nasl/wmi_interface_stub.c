@@ -328,3 +328,106 @@ wmi_reg_get_qword_val (WMI_HANDLE handle, unsigned int hive, const char *key,
 {
   return -1;
 }
+
+/**
+
+ * @brief Set Registry DWORD value.
+ *
+ * @param[in] handle - WMI connection handle
+ *
+ * @param[in] key - Registry key containing the value to be set
+ *
+ * @param[in] val_name - Registry value to set
+ *
+ * @return, 0 on success, -1 on failure
+ */
+int 
+wmi_reg_set_dword_val(WMI_HANDLE handle, const char *key, const char *val_name, 
+						uint32_t *val)
+{
+  return -1;
+}
+
+/**
+ * @brief Set Registry QWORD value.
+ *
+ * @param[in] handle - WMI connection handle
+ *
+ * @param[in] key - Registry key containing the value to be set
+ *
+ * @param[in] val_name - Registry value to set
+ *
+ * @return, 0 on success, -1 on failure
+ */
+int 
+wmi_reg_set_qword_val(WMI_HANDLE handle, const char *key, const char *val_name, 
+						uint64_t *val)
+{
+  return -1;
+}
+
+/**
+ * @brief Set Registry Expanded string value.
+ *
+ * @param[in] handle - WMI connection handle
+ *
+ * @param[in] key - Registry key containing the value to be set
+ *
+ * @param[in] val_name - Registry value to set
+ *
+ * @return, 0 on success, -1 on failure
+ */
+int 
+wmi_reg_set_ex_string_val(WMI_HANDLE handle, const char *key,
+				 const char *val_name, const char *val)
+{
+  return -1;
+}
+
+/**
+ * @brief Set Registry string value.
+ *
+ * @param[in] handle - WMI connection handle
+ *
+ * @param[in] key - Registry key containing the value to be set
+ *
+ * @param[in] val_name - Registry value to set
+ *
+ * @return, 0 on success, -1 on failure
+ */
+int 
+wmi_reg_set_string_val(WMI_HANDLE handle, const char *key,
+				 const char *val_name, const char *val)
+{
+  return -1;
+}
+
+/**
+ * @brief Create Registry Key.
+ *
+ * @param[in] handle - WMI connection handle
+ *
+ * @param[in] key - Registry key need to be created
+ *
+ * @return, 0 on success, -1 on failure
+ */
+int 
+wmi_reg_create_key(WMI_HANDLE handle, const char *key)
+{
+  return -1;
+}
+
+/**
+ * @brief Delete Registry Key.
+ *
+ * @param[in] handle - WMI connection handle
+ *
+ * @param[in] key - Registry key need to be Deleted
+ *
+ * @return, 0 on success, -1 on failure
+ */
+int 
+wmi_reg_delete_key(WMI_HANDLE handle, const char *key)
+{
+  return -1;
+}

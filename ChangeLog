@@ -1,3 +1,11 @@
+2013-02-07  Veerendra G.G <veerendragg@secpod.com>
+
+	* nasl/nasl_wmi.c,
+	nasl/nasl_wmi.h,
+	nasl/nasl_init.c,
+	nasl/wmi_interface_stub.c,
+	nasl/openvas_wmi_interface.h: Added 6 new WMI Registry functions.
+
 2013-02-06  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (OMP_FMT_BOOL_ATTRIB): Add the attribute when it is 0 too,

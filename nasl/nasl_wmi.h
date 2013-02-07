@@ -56,5 +56,11 @@ tree_cell *nasl_wmi_reg_get_dword_val (lex_ctxt * lexic);
 tree_cell *nasl_wmi_reg_get_ex_string_val (lex_ctxt * lexic);
 tree_cell *nasl_wmi_reg_get_mul_string_val (lex_ctxt * lexic);
 tree_cell *nasl_wmi_reg_get_qword_val (lex_ctxt * lexic);
+tree_cell *nasl_wmi_reg_set_dword_val (lex_ctxt * lexic);
+tree_cell *nasl_wmi_reg_set_qword_val (lex_ctxt * lexic);
+tree_cell *nasl_wmi_reg_set_ex_string_val (lex_ctxt * lexic);
+tree_cell *nasl_wmi_reg_set_string_val (lex_ctxt * lexic);
+tree_cell *nasl_wmi_reg_create_key (lex_ctxt * lexic);
+tree_cell *nasl_wmi_reg_delete_key (lex_ctxt * lexic);
 
 #endif

@@ -60,5 +60,14 @@ int wmi_reg_get_mul_string_val (WMI_HANDLE, unsigned int, const char *,
                                 const char *, char **);
 int wmi_reg_get_qword_val (WMI_HANDLE, unsigned int, const char *, const char *,
                            char **);
+int wmi_reg_set_dword_val (WMI_HANDLE, const char *, const char *, uint32_t);
+int wmi_reg_set_qword_val (WMI_HANDLE, const char *, const char *, uint64_t);
+int wmi_reg_set_ex_string_val (WMI_HANDLE, const char *,
+                               const char *,const char *);
+int wmi_reg_set_string_val (WMI_HANDLE, const char *,
+                               const char *,const char *);
+int wmi_reg_create_key (WMI_HANDLE, const char *);
+
+int wmi_reg_delete_key (WMI_HANDLE, const char *);
 
 #endif
