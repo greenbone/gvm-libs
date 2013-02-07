@@ -62,7 +62,7 @@ visible to openvas-libraries.
 Now configure openvas-libraries in the usual way. Remember to chose the same
 prefix (if any) you used in the previous step. For example:
 
-$ cmake -DCMAKE_INSTALL_PREFIX=/prefix/to/your/openvas/install
+$ cmake -DCMAKE_INSTALL_PREFIX=/prefix/to/your/openvas/install ..
 
 Watch the configure output closely. If you followed the steps above correctly,
 you should see the following lines in the output:

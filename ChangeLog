@@ -1,3 +1,8 @@
+2013-02-07  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* doc/wmi-howto.txt: Fix cmake call, make example appropriate for
+	out-of-source builds.
+
 2013-02-07  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* doc/wmi-howto.txt: Updated with hint on second wmi patch.
