@@ -46,6 +46,7 @@ typedef struct
   const char* sort_field;
   const char* sort_order;
   const char* format_id;   ///< ID of required report format.
+  const char* levels;      ///< Result levels to include.
   const char* report_id;   ///< ID of single report to get.
   int first_result;        ///< First result to get.
   /* Boolean flags: */
@@ -60,7 +61,7 @@ typedef struct
  */
 static const omp_get_report_opts_t omp_get_report_opts_defaults =
   {
-    "ROWID", "ascending", "a994b278-1f62-11e1-96ac-406186ea4fc5"
+    "ROWID", "ascending", "a994b278-1f62-11e1-96ac-406186ea4fc5", "hmlgd"
   };
 
 /**

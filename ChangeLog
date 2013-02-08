@@ -1,3 +1,10 @@
+2013-02-08  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.h (omp_get_report_opts_t, omp_get_report_opts_defaults): Add
+	levels.
+
+	* omp/omp.c (omp_get_report_ext): Add levels.
+
 2013-02-07  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* doc/wmi-howto.txt: Fix cmake call, make example appropriate for

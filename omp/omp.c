@@ -1756,12 +1756,14 @@ omp_get_report_ext (gnutls_session_t* session,
                             " format_id=\"%s\""
                             " sort_field=\"%s\""
                             " sort_order=\"%s\""
+                            " levels=\"%s\""
                             " first_result=\"%i\""
                             "%s%s%s%s/>",
                             opts.report_id,
                             opts.format_id,
                             opts.sort_field,
                             opts.sort_order,
+                            opts.levels,
                             opts.first_result,
                             OMP_FMT_BOOL_ATTRIB (opts, overrides),
                             OMP_FMT_BOOL_ATTRIB (opts, override_details),
