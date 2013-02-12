@@ -1,3 +1,8 @@
+2013-02-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/md5.c (MD5Final): memset with sizeof buffer, not pointer.
+	Via Michal Ambroz.
+
 2013-02-08  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.h (omp_get_report_opts_t, omp_get_report_opts_defaults): Add
