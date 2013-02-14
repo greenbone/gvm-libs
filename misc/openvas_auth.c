@@ -688,9 +688,9 @@ digest_hex (int gcrypt_algorithm, const guchar * digest)
  * space or NULL if an unavailable message digest algorithm was selected.
  */
 gchar *
-get_password_hashes (int gcrypt_algorithm, const gchar * password)
+get_password_hashes (int digest_algorithm, const gchar * password)
 {
-  gcry_error_t err = gcry_md_test_algo (gcrypt_algorithm);
+  gcry_error_t err = gcry_md_test_algo (digest_algorithm);
   if (err != 0)
     {
       g_warning ("Could not select gcrypt algorithm: %s", gcry_strerror (err));
@@ -701,19 +701,19 @@ get_password_hashes (int gcrypt_algorithm, const gchar * password)
 
   /* RATS:ignore, is sanely used with gcry_create_nonce and gcry_md_hash_buffer */
   unsigned char *nonce_buffer[256];
-  guchar *seed = g_malloc0 (gcry_md_get_algo_dlen (gcrypt_algorithm));
+  guchar *seed = g_malloc0 (gcry_md_get_algo_dlen (digest_algorithm));
   gchar *seed_hex = NULL;
   gchar *seed_pass = NULL;
-  guchar *hash = g_malloc0 (gcry_md_get_algo_dlen (gcrypt_algorithm));
+  guchar *hash = g_malloc0 (gcry_md_get_algo_dlen (digest_algorithm));
   gchar *hash_hex = NULL;
   gchar *hashes_out = NULL;
 
   gcry_create_nonce (nonce_buffer, 256);
-  gcry_md_hash_buffer (GCRY_MD_MD5, seed, nonce_buffer, 256);
-  seed_hex = digest_hex (GCRY_MD_MD5, seed);
+  gcry_md_hash_buffer (digest_algorithm, seed, nonce_buffer, 256);
+  seed_hex = digest_hex (digest_algorithm, seed);
   seed_pass = g_strconcat (seed_hex, password, NULL);
-  gcry_md_hash_buffer (GCRY_MD_MD5, hash, seed_pass, strlen (seed_pass));
-  hash_hex = digest_hex (GCRY_MD_MD5, hash);
+  gcry_md_hash_buffer (digest_algorithm, hash, seed_pass, strlen (seed_pass));
+  hash_hex = digest_hex (digest_algorithm, hash);
 
   hashes_out = g_strjoin (" ", hash_hex, seed_hex, NULL);
 

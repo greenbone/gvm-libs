@@ -1,3 +1,9 @@
+2013-02-14  Werner Koch  <wk@gnupg.org>
+
+	* misc/openvas_auth.c (get_password_hashes): Remove partly
+	hardwired use of MD5 to be future proof.  Rename variable to avoid
+	a Libgcrypt namespace clash.
+
 2013-02-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/md5.c (MD5Final): memset with sizeof buffer, not pointer.
