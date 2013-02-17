@@ -1,3 +1,9 @@
+2013-02-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Preparing the openvas-libraries 6.0+beta4 release.
+
+	* CHANGES: Updated.
+
 2013-02-14  Werner Koch  <wk@gnupg.org>
 
 	* misc/openvas_auth.c (get_password_hashes): Remove partly
