@@ -32,7 +32,7 @@ tree_cell *script_copyright (lex_ctxt *);
 tree_cell *script_summary (lex_ctxt *);
 tree_cell *script_category (lex_ctxt *);
 tree_cell *script_family (lex_ctxt *);
-tree_cell *script_dependencie (lex_ctxt *);
+tree_cell *script_dependencies (lex_ctxt *);
 tree_cell *script_require_keys (lex_ctxt *);
 tree_cell *script_mandatory_keys (lex_ctxt *);
 tree_cell *script_exclude_keys (lex_ctxt *);

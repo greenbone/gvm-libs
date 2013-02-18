@@ -292,7 +292,7 @@ script_family (lex_ctxt * lexic)
 }
 
 tree_cell *
-script_dependencie (lex_ctxt * lexic)
+script_dependencies (lex_ctxt * lexic)
 {
   struct arglist *script_infos = lexic->script_infos;
   char *dep = get_str_var_by_num (lexic, 0);
@@ -300,8 +300,8 @@ script_dependencie (lex_ctxt * lexic)
 
   if (dep == NULL)
     {
-      nasl_perror (lexic, "Argument error in function script_dependencie()\n");
-      nasl_perror (lexic, "Function usage is : script_dependencie(<name>)\n");
+      nasl_perror (lexic, "Argument error in function script_dependencies()\n");
+      nasl_perror (lexic, "Function usage is : script_dependencies(<name>)\n");
       nasl_perror (lexic, "Where <name> is the name of another script\n");
 
       return FAKE_CELL;

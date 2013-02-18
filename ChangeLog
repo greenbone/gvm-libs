@@ -1,3 +1,17 @@
+2013-02-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Deperecating "script_dependencie" which is some very old
+	work around for typos that happend when trying to spell
+	"script_dependencies".
+
+	* nasl/nasl_init.c (libfuncs): Removed "script_dependencie",
+	renamed mapping to "script_dependencies".
+
+	* nasl_scanner_glue.c (script_dependencie): Renamed to
+	script_dependencies.
+
+	* nasl_scanner_glue.h: Adjusted proto accordingly.
+ 
 2013-02-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Preparing the openvas-libraries 6.0+beta4 release.
