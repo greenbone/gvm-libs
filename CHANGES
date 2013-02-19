@@ -1,4 +1,4 @@
-openvas-libraries 6.0+beta4 (2013-XX-XX)
+openvas-libraries 6.0+beta4 (2013-02-19)
 
 This release is the fourth beta version of the next major release of
 openvas-libraries. It will be part of the upcoming "OpenVAS-6".
@@ -11,7 +11,7 @@ Jan-Oliver Wagner and Felix Wolfsteller.
 
 Main changes compared to 6.0+beta3:
 * Internally compute CVSS and Risk Factor always from CVSS Base
-  vector, if available.  
+  vector, if available.
 * Ignore NASL tags setting a risk_factor. It will therefore not be
   stored in nvti files and not transferred via OTP.
 * Internal memory storage for NVTI changed to use caching.
@@ -19,6 +19,7 @@ Main changes compared to 6.0+beta3:
 * New: Support for LDAPS.
 * Added: WMI registry functions.
 * Various little code improvements, bug-fixes and cleanups.
+
 
 openvas-libraries 6.0+beta3 (2012-12-14)
 
