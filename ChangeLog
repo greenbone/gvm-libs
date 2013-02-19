@@ -1,3 +1,15 @@
+2013-02-19  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Move "-Werror" flag to the "Debug" build type.
+
+	* misc/CMakeLists.txt, omp/CMakeLists.txt, nasl/CMakeLists.txt,
+	hg/CMakeLists.txt, base/CMakeLists.txt: Move "-Werror" from
+	CMAKE_C_FLAGS to CMAKE_C_FLAGS_DEBUG to keep it out of the "Release"
+	build type.
+
+	* CMakeLists.txt: Do not set any flags as this is currently handled by
+	the individual CMakeLists.txt in the subdirectories.
+
 2013-02-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Deperecating "script_dependencie" which is some very old
