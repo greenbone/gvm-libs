@@ -1,5 +1,15 @@
 2013-02-20  Werner Koch  <wk@gnupg.org>
 
+	* base/pwpolicy.c: New.  Taken from openvas-administrator.
+	* base/pwpolicy.h: New.
+	* base/CMakeLists.h: Add new files.
+
+	* base/CMakeLists.txt: Change -D OPENVAS_SYSCONFDIR to
+	OPENVAS_SYSCONF_DIR for consistency.
+	* base/gpgme_util.c (determine_gpghome): Adjust for this change.
+	* nasl/CMakeLists.txt: Change -D OPENVAS_SYSCONFDIR to
+	OPENVAS_SYSCONF_DIR for consistency.  It is not used anyway.
+
 	* misc/openvas_server.c (openvas_server_open): Print host and port
 	in debug and warning messages.
 

@@ -6,7 +6,7 @@
 # Matthew Mundell <matthew.mundell@greenbone.net>
 #
 # Copyright:
-# Copyright (C) 2009,2010 Greenbone Networks GmbH
+# Copyright (C) 2009,2010,2013 Greenbone Networks GmbH
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2,
@@ -37,22 +37,22 @@ if (MINGW)
   set  (FILES array.c certificate.c credentials.c
        hash_table_util.c nvti.c nvticache.c openvas_certificate_file.c
        openvas_file.c openvas_string.c pidfile.c severity_filter.c settings.c
-       gpgme_util.c)
+       gpgme_util.c pwpolicy.c)
   set (HEADERS array.h certificate.h credentials.h
        hash_table_util.h nvti.h settings.h openvas_certificate_file.h
        openvas_file.h openvas_string.h pidfile.h severity_filter.h
-       gpgme_util.h)
+       gpgme_util.h pwpolicy.h)
 else (MINGW)
   set (FILES array.c certificate.c credentials.c
        cvss.c drop_privileges.c
        hash_table_util.c nvti.c nvticache.c openvas_certificate_file.c
        openvas_file.c openvas_string.c pidfile.c severity_filter.c settings.c
-       gpgme_util.c)
+       gpgme_util.c pwpolicy.c)
   set (HEADERS array.h certificate.h credentials.h
        cvss.h drop_privileges.h nvticache.h
        hash_table_util.h nvti.h settings.h openvas_certificate_file.h
        openvas_file.h openvas_string.h pidfile.h severity_filter.h
-       gpgme_util.h)
+       gpgme_util.h pwpolicy.h)
 endif (MINGW)
 
 add_library (openvas_base_static STATIC ${FILES})
@@ -69,7 +69,7 @@ set_target_properties (openvas_base_shared PROPERTIES SOVERSION "${CPACK_PACKAGE
 set_target_properties (openvas_base_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
 set_target_properties (openvas_base_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-add_definitions (-DOPENVAS_SYSCONFDIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
+add_definitions (-DOPENVAS_SYSCONF_DIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
 if (OPENVAS_PID_DIR)
   add_definitions (-DOPENVAS_PID_DIR=\\\"${OPENVAS_PID_DIR}\\\")
 endif (OPENVAS_PID_DIR)

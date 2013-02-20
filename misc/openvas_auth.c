@@ -1394,6 +1394,10 @@ openvas_user_modify (const gchar * name, const gchar * password,
                      int hosts_allow, const gchar * directory,
 		     const array_t * allowed_methods)
 {
+  /* FIXME: Do password policy checking right here and not before
+     calling this function.  This has not yet been done because in
+     openvasad an explicit check is done when creating a user.  */
+
   g_assert (name != NULL);
 
   if (directory == NULL)
