@@ -1,3 +1,8 @@
+2013-02-20  Werner Koch  <wk@gnupg.org>
+
+	* misc/openvas_server.c (openvas_server_open): Print host and port
+	in debug and warning messages.
+
 2013-02-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.

@@ -233,7 +233,7 @@ openvas_server_open (gnutls_session_t * session, const char *host, int port)
       return -1;
     }
 
-  g_debug ("   Connected to server.");
+  g_debug ("   Connected to server '%s' port %d.", host, port);
 
   /* Complete setup of server session. */
 
@@ -257,8 +257,8 @@ openvas_server_open (gnutls_session_t * session, const char *host, int port)
         break;
       if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
         continue;
-      g_warning ("Failed to shake hands with server: %s",
-                 gnutls_strerror (ret));
+      g_warning ("Failed to shake hands with server '%s' port %d: %s",
+                 host, port, gnutls_strerror (ret));
       if (shutdown (server_socket, SHUT_RDWR) == -1)
         g_warning ("Failed to shutdown server socket");
       close (server_socket);
@@ -271,7 +271,7 @@ openvas_server_open (gnutls_session_t * session, const char *host, int port)
 
       return -1;
     }
-  g_debug ("   Shook hands with server.");
+  g_debug ("   Shook hands with server '%s' port %d.", host, port);
 
 #ifndef _WIN32
   if (sigaction (SIGPIPE, &original_action, NULL))
