@@ -1,3 +1,7 @@
+2013-02-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* COPYING: Added module pwpolicy.
+
 2013-02-20  Werner Koch  <wk@gnupg.org>
 
 	* base/pwpolicy.c: New.  Taken from openvas-administrator.
