@@ -582,13 +582,13 @@ verify_peer_certificate (gnutls_session_t session)
 
 
 /** helper function copied from cli.c from GnuTLS
- Reads a file into a gnutls_datum
+    Reads a file into a gnutls_datum_t
  **/
-static gnutls_datum
+static gnutls_datum_t
 load_file (const char *file)
 {
   FILE *f;
-  gnutls_datum loaded_file = { NULL, 0 };
+  gnutls_datum_t loaded_file = { NULL, 0 };
   long filelen;
   void *ptr;
 
@@ -615,7 +615,7 @@ load_file (const char *file)
  * twice on the same data.
  */
 static void
-unload_file (gnutls_datum * data)
+unload_file (gnutls_datum_t * data)
 {
   efree (&(data->data));
 }
@@ -635,7 +635,7 @@ load_cert_and_key (gnutls_certificate_credentials_t xcred, const char *cert,
 {
   gnutls_x509_crt_t x509_crt = NULL;
   gnutls_x509_privkey_t x509_key = NULL;
-  gnutls_datum data = { NULL, 0 };
+  gnutls_datum_t data = { NULL, 0 };
   int ret;
   int result = 0;
 
