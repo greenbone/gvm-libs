@@ -126,7 +126,7 @@ nvticache_get (const nvticache_t * cache, const gchar * filename)
   if (!n) return NULL;
 
   n2 = nvtis_lookup (cache->nvtis, nvti_oid (n));
-  if (n2) 
+  if (n2)
     {
 // TODO: Shouldn't we remove the old one with the same OID now
 // and use the the new one
@@ -181,9 +181,14 @@ nvticache_add (const nvticache_t * cache, nvti_t * nvti, gchar * filename)
 nvti_t *
 nvticache_get_by_oid (const nvticache_t * cache, const gchar * oid)
 {
-  nvti_t * nvti = nvtis_lookup (cache->nvtis, oid);
+  nvti_t * nvti;
 
-  if (! nvti) return NULL;
+  if (!cache || !cache->nvtis)
+    return NULL;
+
+  nvti = nvtis_lookup (cache->nvtis, oid);
+  if (! nvti)
+    return NULL;
 
   gchar * filename = nvti_src (nvti);
   int l = strlen (cache->src_path);
