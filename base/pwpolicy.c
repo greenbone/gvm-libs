@@ -122,6 +122,17 @@ static gboolean disable_password_policy;
 
 
 /**
+ * @return A malloced string to be returned on read and configuration
+ * errors.
+ */
+static char *
+policy_checking_failed (void)
+{
+  return g_strdup ("Password policy checking failed (internal error)");
+}
+
+
+/**
  * @brief Check whether a string starts with a keyword
  *
  * Note that the keyword may optionally be terminated by a colon.
@@ -265,13 +276,15 @@ parse_pattern_line (char *line, const char *fname, int lineno,
 
           sret = search_file (p, password);
           if (sret == -1)
-            ret = g_strdup_printf ("error searching '%s'"
-                                   " (requested at line %d): %s",
-                                   p, lineno, g_strerror (errno));
+            {
+              g_warning ("error searching '%s' (requested at line %d): %s",
+                         p, lineno, g_strerror (errno));
+              ret = policy_checking_failed ();
+            }
           else if (sret && *descp)
-            ret = g_strdup_printf ("%s (line %d)", *descp, lineno);
+            ret = g_strdup_printf ("Weak password (%s)", *descp);
           else if (sret)
-            ret = g_strdup_printf ("found in '%s'", p);
+            ret = g_strdup_printf ("Weak password (found in '%s')", p);
           else
             ret = NULL;
         }
@@ -284,18 +297,23 @@ parse_pattern_line (char *line, const char *fname, int lineno,
           if (!username)
             ret = NULL;
           else if (!g_ascii_strcasecmp (password, username))
-            ret = g_strdup_printf ("user name matches password (line %d)",
-                                   lineno);
+            ret = g_strdup_printf ("Weak password (%s)",
+                                   "user name matches password");
           else if (strstr (password, username))
-            ret = g_strdup_printf ("user name included in password (line %d)",
-                                   lineno);
+            ret = g_strdup_printf ("Weak password (%s)",
+                                   "user name is part of the password");
+          else if (strstr (username, password))
+            ret = g_strdup_printf ("Weak password (%s)",
+                                   "password is part of the user name");
           else
             ret = NULL;
         }
       else
-        ret = g_strdup_printf ("error reading '%s', line %d: %s",
-                               fname, lineno,
-                               "unknown processing instruction");
+        {
+          g_warning ("error reading '%s', line %d: %s",
+                     fname, lineno, "unknown processing instruction");
+          ret = policy_checking_failed ();
+        }
     }
   else if (*line == '#') /* Comment */
     {
@@ -314,18 +332,20 @@ parse_pattern_line (char *line, const char *fname, int lineno,
       if ((!g_regex_match_simple (line, password, G_REGEX_CASELESS, 0) ^rev))
         ret = NULL;
       else if (*descp)
-        ret = g_strdup_printf ("%s (line %d)", *descp, lineno);
+        ret = g_strdup_printf ("Weak password (%s)", *descp);
       else
-        ret = g_strdup_printf ("see rule in '%s', line %d", fname, lineno);
+        ret = g_strdup_printf ("Weak password (see '%s' line %d)",
+                               fname, lineno);
     }
   else /* Simple string.  */
     {
       if (g_ascii_strcasecmp (line, password))
         ret = NULL;
       else if (*descp)
-        ret = g_strdup_printf ("%s (line %d)", *descp, lineno);
+        ret = g_strdup_printf ("Weak password (%s)", *descp);
       else
-        ret = g_strdup_printf ("see rule in '%s', line %d", fname, lineno);
+        ret = g_strdup_printf ("Weak password (see '%s' line %d)",
+                               fname, lineno);
     }
 
   return ret;
@@ -357,12 +377,14 @@ openvas_validate_password (const char *password, const char *username)
     return NULL;
 
   if (!password || !*password)
-    return g_strdup ("empty password");
+    return g_strdup ("Empty password");
 
   fp = fopen (patternfile, "r");
   if (!fp)
-    return g_strdup_printf ("error opening '%s': %s",
-                            patternfile, g_strerror (errno));
+    {
+      g_warning ("error opening '%s': %s", patternfile, g_strerror (errno));
+      return policy_checking_failed ();
+    }
   lineno = 0;
   ret = NULL;
   while (fgets (line, DIM(line)-1, fp))
@@ -371,9 +393,10 @@ openvas_validate_password (const char *password, const char *username)
       len = strlen (line);
       if (!len || line[len-1] != '\n')
         {
-          ret = g_strdup_printf ("error reading '%s', line %d: %s",
-                                 patternfile, lineno,
-                                 len? "line too long":"line without a LF");
+          g_warning ("error reading '%s', line %d: %s",
+                     patternfile, lineno,
+                     len? "line too long":"line without a LF");
+          ret = policy_checking_failed ();
           break;
         }
       line[--len] = 0; /* Chop the LF. */
