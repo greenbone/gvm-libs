@@ -1,3 +1,8 @@
+2013-02-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvticache.c (get_plugin_preference): Check prefs is not null
+	before using it. Style update to remove mixed declarations and code.
+
 2013-02-21  Werner Koch  <wk@gnupg.org>
 
 	* base/nvticache.c (nvticache_get_by_oid): Take care of a NULL

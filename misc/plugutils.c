@@ -857,12 +857,18 @@ add_plugin_preference (struct arglist *desc, const char *name, const char *type,
 char *
 get_plugin_preference (struct arglist *desc, const char *name)
 {
-  struct arglist *prefs = arg_get_value (desc, "preferences");
-  nvti_t * nvti = nvticache_get_by_oid (arg_get_value (arg_get_value (desc,
-    "preferences"), "nvticache"), arg_get_value (desc, "OID"));
-  char *plug_name = nvti_name (nvti);
-  char *cname = estrdup (name);
   int len;
+  struct arglist *prefs;
+  char *plug_name, *cname;
+
+  prefs = arg_get_value (desc, "preferences");
+  if (!prefs)
+    return NULL;
+
+  nvti_t * nvti = nvticache_get_by_oid (arg_get_value (prefs, "nvticache"),
+                                        arg_get_value (desc, "OID"));
+  plug_name = nvti_name (nvti);
+  cname = estrdup (name);
 
   len = strlen (cname);
 
@@ -870,13 +876,6 @@ get_plugin_preference (struct arglist *desc, const char *name)
     {
       cname[len - 1] = '\0';
       len--;
-    }
-
-  if (!prefs)
-    {
-      efree (&cname);
-      nvti_free (nvti);
-      return NULL;
     }
 
   while (prefs->next)
