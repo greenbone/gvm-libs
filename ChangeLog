@@ -1,5 +1,9 @@
 2013-02-22  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* nasl/nasl.c (main): Update year in copyright notice.
+
+2013-02-22  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Preparing the openvas-libraries 6.0+beta5 release.
 
 	* CHANGES: Updated.

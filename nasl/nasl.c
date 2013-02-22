@@ -195,7 +195,7 @@ main (int argc, char **argv)
       else
         putchar ('\n');
       printf ("Copyright (C) 2002 - 2004 Tenable Network Security\n");
-      printf ("Copyright (C) 2009 Greenbone Networks GmbH\n\n");
+      printf ("Copyright (C) 2013 Greenbone Networks GmbH\n\n");
       exit (0);
     }
   mode |= NASL_COMMAND_LINE;
