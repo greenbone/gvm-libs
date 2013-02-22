@@ -1,3 +1,9 @@
+2013-02-22  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the openvas-libraries 6.0+beta5 release.
+
+	* CHANGES: Updated.
+
 2013-02-21  Werner Koch  <wk@gnupg.org>
 
 	* misc/network.c (load_file, unload_file, load_cert_and_key):

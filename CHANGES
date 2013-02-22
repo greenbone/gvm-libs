@@ -1,3 +1,20 @@
+openvas-libraries 6.0+beta5 (2013-02-22)
+
+This release is the fifth beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-6".
+
+This release includes support for enforcing a password policy for
+passwords changes through various OpenVAS modules.
+
+Many thanks to everyone who has contributed this release:
+Hani Benhabiles, Werner Koch and Jan-Oliver Wagner.
+
+Main changes compared to 6.0+beta4:
+* Support for enforcing a password policy has been moved to
+  openvas-libraries.
+* A bug in NVTI cache handling has been fixed.
+
+
 openvas-libraries 6.0+beta4 (2013-02-19)
 
 This release is the fourth beta version of the next major release of
