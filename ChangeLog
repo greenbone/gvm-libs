@@ -1,5 +1,11 @@
 2013-02-22  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Post release version bump.
+
+	* CMakeLists.txt: Set version to 6.0+beta6.
+
+2013-02-22  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* nasl/nasl.c (main): Update year in copyright notice.
 
 2013-02-22  Michael Wiegand <michael.wiegand@greenbone.net>
