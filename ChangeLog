@@ -1,3 +1,8 @@
+2013-02-25  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* base/CMakeLists.txt: Add GPGME_CFLAGS to compiler flags. Patch
+	suggested by Hanno Boeck.
+
 2013-02-22  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.
