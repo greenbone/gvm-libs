@@ -1452,6 +1452,28 @@ omp_delete_task (gnutls_session_t* session, const char* id)
 }
 
 /**
+ * @brief Delete a task and read the manager response.
+ *
+ * @param[in]  session   Pointer to GNUTLS session.
+ * @param[in]  id        ID of task.
+ * @param[in]  opts      Struct containing the options to apply.
+ *
+ * @return 0 on success, OMP response code on failure, -1 on error.
+ */
+int
+omp_delete_task_ext (gnutls_session_t* session, const char* id,
+                     omp_delete_opts_t opts)
+{
+  if (openvas_server_sendf (session,
+                            "<delete_task task_id=\"%s\" ultimate=\"%d\"/>",
+                            id, opts.ultimate)
+      == -1)
+    return -1;
+
+  return check_response (session);
+}
+
+/**
  * @brief Deprecated wrapper function for /ref omp_get_tasks.
  *
  * @deprecated Use /ref omp_get_tasks instead.
@@ -2426,6 +2448,29 @@ omp_delete_target (gnutls_session_t* session,
 }
 
 /**
+ * @brief Delete a target.
+ *
+ * @param[in]   session     Pointer to GNUTLS session.
+ * @param[in]   id          UUID of target.
+ * @param[in]   opts        Struct containing the options to apply.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_delete_target_ext (gnutls_session_t* session,
+                       const char* id,
+                       omp_delete_opts_t opts)
+{
+  if (openvas_server_sendf (session,
+                            "<delete_target target_id=\"%s\" ultimate=\"%d\"/>",
+                            id, opts.ultimate)
+      == -1)
+    return -1;
+
+  return check_response (session);
+}
+
+/**
  * @brief Create a config, given the config description as a string.
  *
  * @param[in]   session     Pointer to GNUTLS session.
@@ -2536,6 +2581,29 @@ omp_delete_config (gnutls_session_t* session,
   if (openvas_server_sendf (session,
                             "<delete_config config_id=\"%s\"/>",
                             id)
+      == -1)
+    return -1;
+
+  return check_response (session);
+}
+
+/**
+ * @brief Delete a config.
+ *
+ * @param[in]   session     Pointer to GNUTLS session.
+ * @param[in]   id          UUID of config.
+ * @param[in]   opts        Struct containing the options to apply.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_delete_config_ext (gnutls_session_t* session,
+                       const char* id,
+                       omp_delete_opts_t opts)
+{
+  if (openvas_server_sendf (session,
+                            "<delete_config config_id=\"%s\" ultimate=\"%d\"/>",
+                            id, opts.ultimate)
       == -1)
     return -1;
 
@@ -2716,6 +2784,30 @@ omp_delete_lsc_credential (gnutls_session_t* session,
   if (openvas_server_sendf (session,
                             "<delete_lsc_credential lsc_credential_id=\"%s\"/>",
                             id)
+      == -1)
+    return -1;
+
+  return check_response (session);
+}
+
+/**
+ * @brief Delete a LSC credential.
+ *
+ * @param[in]   session     Pointer to GNUTLS session.
+ * @param[in]   uuid        UUID of LSC credential.
+ * @param[in]   opts        Struct containing the options to apply.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_delete_lsc_credential_ext (gnutls_session_t* session,
+                               const char* id,
+                               omp_delete_opts_t opts)
+{
+  if (openvas_server_sendf (session,
+                            "<delete_lsc_credential lsc_credential_id=\"%s\""
+                            " ultimate=\"%d\"/>",
+                            id, opts.ultimate)
       == -1)
     return -1;
 

@@ -155,6 +155,26 @@ typedef struct
 static const omp_get_system_reports_opts_t omp_get_system_reports_opts_defaults =
   { };
 
+/**
+ * @brief Struct holding options for various omp delete_[...] commands.
+ */
+typedef struct
+{
+  int ultimate; /// Whether to delete ultimately.
+} omp_delete_opts_t;
+
+/**
+ * @brief Sensible default values for omp_get_report_opts_t.
+ */
+static const omp_delete_opts_t omp_delete_opts_defaults =
+  { 0 };
+
+/**
+ * @brief Default values for omp_get_report_opts_t for ultimate deletion.
+ */
+static const omp_delete_opts_t omp_delete_opts_ultimate_defaults =
+  { 1 };
+
 int check_response (gnutls_session_t *);
 
 int omp_read_create_response (gnutls_session_t*, gchar **);
@@ -240,6 +260,8 @@ int omp_get_results (gnutls_session_t *, const char *, int, int, int, int, int,
 
 int omp_delete_task (gnutls_session_t *, const char *);
 
+int omp_delete_task_ext (gnutls_session_t *, const char *, omp_delete_opts_t);
+
 int omp_modify_task (gnutls_session_t *, const char *, const char *,
                      const char *, const char *);
 
@@ -263,6 +285,8 @@ int omp_create_target_ext (gnutls_session_t *, omp_create_target_opts_t,
 
 int omp_delete_target (gnutls_session_t *, const char *);
 
+int omp_delete_target_ext (gnutls_session_t *, const char *, omp_delete_opts_t);
+
 int omp_create_config (gnutls_session_t *, const char *, const char *,
                        const char *, unsigned int);
 
@@ -270,6 +294,8 @@ int omp_create_config_from_rc_file (gnutls_session_t *, const char *,
                                     const char *, const char *);
 
 int omp_delete_config (gnutls_session_t *, const char *);
+
+int omp_delete_config_ext (gnutls_session_t *, const char *, omp_delete_opts_t);
 
 int omp_create_lsc_credential (gnutls_session_t *, const char *, const char *,
                                const char *, const char *, gchar **);
@@ -279,6 +305,9 @@ int omp_create_lsc_credential_key (gnutls_session_t *, const char *,
                                    const char *, const char *, gchar **);
 
 int omp_delete_lsc_credential (gnutls_session_t *, const char *);
+
+int omp_delete_lsc_credential_ext (gnutls_session_t *, const char *,
+                                   omp_delete_opts_t);
 
 int omp_create_agent (gnutls_session_t *, const char *, const char *);
 
