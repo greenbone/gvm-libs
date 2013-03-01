@@ -1,3 +1,9 @@
+2013-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Post branch version bump.
+
+	* CMakeLists.txt: Set version to 7.0.0 and status to beta.
+
 2013-02-27  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* omp.c (omp_delete_task_ext, omp_delete_target_ext) 
