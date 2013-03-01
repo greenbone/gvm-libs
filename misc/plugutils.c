@@ -47,7 +47,6 @@
 #include "rand.h"
 #include "plugutils.h"
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_KB */
-#include "services.h"
 #include "share_fd.h"
 #include "system.h"
 #include "scanners_utils.h"
@@ -683,7 +682,6 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
 
   buffer = emalloc (1024 + len);
   char idbuffer[105];
-  const char *svc_name = openvas_get_svc_name (port, proto);
   if (nvti_oid (nvti) == NULL)
     {
       *idbuffer = '\0';
@@ -696,8 +694,8 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   if (port > 0)
     {
       snprintf (buffer, 1024 + len,
-                "SERVER <|> %s <|> %s <|> %s (%d/%s) <|> %s %s<|> SERVER\n",
-                what, plug_get_hostname (desc), svc_name, port, proto,
+                "SERVER <|> %s <|> %s <|> %d/%s <|> %s %s<|> SERVER\n",
+                what, plug_get_hostname (desc), port, proto,
                 action_str_escaped->str, idbuffer);
     }
   else
@@ -1162,7 +1160,6 @@ void
 scanner_add_port (struct arglist *args, int port, char *proto)
 {
   char *buf;
-  const char *svc_name = openvas_get_svc_name (port, proto);
   const char *hn = plug_get_hostname (args);
   int len;
   int soc;
@@ -1191,10 +1188,10 @@ scanner_add_port (struct arglist *args, int port, char *proto)
 
   host_add_port_proto (args, port, 1, proto);
 
-  len = 255 + (hn ? strlen (hn) : 0) + strlen (svc_name);
+  len = 255 + (hn ? strlen (hn) : 0);
   buf = emalloc (len);
-  snprintf (buf, len, "SERVER <|> PORT <|> %s <|> %s (%d/%s) <|> SERVER\n", hn,
-            svc_name, port, proto);
+  snprintf (buf, len, "SERVER <|> PORT <|> %s <|> %d/%s <|> SERVER\n", hn,
+            port, proto);
 
   if (do_send)
     {

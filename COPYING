@@ -80,8 +80,6 @@ misc/rand.[c|h]: LGPLv2+
 misc/resolve.[c|h]: LGPLv2+
 misc/resource_request.[c|h]: GPLv2
 misc/scanners_utils.[c|h]: LGPLv2+
-misc/services1.[c|h]: LGPLv2+
-misc/services.[c|h]: LGPLv2+
 misc/share_fd.c: BSD2
 misc/share_fd.h: LGPLv2+
 misc/support.h: GPLv2+

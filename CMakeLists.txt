@@ -310,9 +310,6 @@ install (FILES doc/openvas-nasl.1
 install (FILES ${CMAKE_BINARY_DIR}/libopenvas.pc
          DESTINATION ${LIBDIR}/pkgconfig)
 
-install (FILES ${CMAKE_SOURCE_DIR}/openvas-services DESTINATION ${OPENVAS_DATA_DIR}
-         PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
-
 install (FILES ${CMAKE_SOURCE_DIR}/tools/openvas-lsc-rpm-creator.sh
          DESTINATION ${OPENVAS_DATA_DIR}
          PERMISSIONS OWNER_EXECUTE OWNER_READ OWNER_WRITE

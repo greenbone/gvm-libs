@@ -1,5 +1,44 @@
 2013-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Removing handling of services list from libraries/scanner.
+	Basically this is about the statice services list that
+	is used to return a service identifier for port numbers.
+
+	In case of a ssh running at port 80, the result so far
+	would still be "http (80/tcp)" which is pretty misleading.
+
+	The scanner should not at all use some static services list
+	and match the ports to it. It should rather try to identify
+	a service and report this (which is actually done via NVTs).
+	In fact it should be the task of the Manager to attach IANA
+	definition for informational purposes. Ideally the detected
+	service is also shown.
+
+	* misc/services1.c, misc/services1.h, misc/services.c,
+	misc/services.h: Removed.
+
+	* misc/scanners_utils.c: Removed unused include of "services.h".
+
+	* misc/plugutils.c (proto_post_wrapped, scanner_add_port): Removed
+	sending of the service name via OTP. For example "80/tcp" is now
+	sent instead of "http (80/tcp)"
+
+	* misc/CMakeLists.txt: Removed handling of modules services1.c
+	and services.c.
+
+	* nasl/nasl_builtin_openvas_tcp_scanner.c (std_port): Reduced to always
+	return false. The code used the services list to determine whether it was
+	a standard port. Now any port is judged to be a non-standard port.
+	A todo about this to be resolved is left in the code.
+
+	* CMakeLists.txt: Removed installtion of file "openvas-services".
+
+	* COPYING: Removed modules services1 and services.
+
+	* openvas-services: Removed.
+
+2013-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Remove handling of "default" as a option for the port range.
 	It is a arbitrary and intransparent option for the users.
 	Scanner clients should always send an explicit port range.

@@ -35,7 +35,6 @@
 #include "../misc/plugutils.h" /* for find_in_path */
 #include "../misc/scanners_utils.h" /* for comm_send_status */
 #include "../misc/system.h" /* for efree */
-#include "../misc/services.h" /* for get_tcp_svcs */
 
 #include "nasl_lex_ctxt.h"
 
@@ -126,16 +125,10 @@ my_socket_close(int s)
 
 static int std_port(int port)
 {
-  const char	*name;
-
-  if (port < 1 || port > 65535) return 0;
-  name = openvas_get_svc_name(port, NULL);
-  if  (name == NULL || strcmp(name, "unknown") == 0)
-    return 0;
-#if DEBUG > 2
-  fprintf(stderr, "openvas_tcp_scanner: std_port(%d)=%s\n", port, name != NULL ? name : "(null)");
-#endif
-  return 1;
+  return 0; // @toto: We are not able anymore to judge wether a port is a standard
+            // port. Previously a port was believed to be a standard port
+            // when it occured in the currently configured list of ports.
+            // This needs to be resolved.
 }
 
 static int
