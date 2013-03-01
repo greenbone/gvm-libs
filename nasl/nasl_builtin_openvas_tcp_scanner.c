@@ -256,24 +256,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
     p = (char*)portrange;
     untested_ports_nb = 0;
 
-    if (p == NULL || *p == '\0' || strcmp(p, "default") == 0)
-      {
-	int	last_num = 0;
-	unsigned short * nums = GSIZE_TO_POINTER(get_tcp_svcs(&last_num));
-
-	if (nums == NULL)
-	  {
-	    fprintf(stderr, "openvas_tcp_scanner: Cannot get list of default services\n");
-	    return -1;
-	  }
-	for (i = 0; i < last_num; i ++)
-	    {
-	      ports_states[nums[i]] = GRAB_PORT_UNKNOWN;
-	      untested_ports_nb ++;
-	    }
-	efree(&nums);
-      }
-    else
+    if (p)
       while (*p != '\0')
 	{
 	  while (*p == ',')
@@ -341,6 +324,11 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	      untested_ports_nb ++;
 	    }
 	}
+    else
+      {
+         fprintf(stderr, "openvas_tcp_scanner: port list empty\n");
+         return -1;
+      }
   }
 
   for (i = 0; i < max_cnx; i ++)

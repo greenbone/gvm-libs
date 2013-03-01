@@ -362,8 +362,6 @@ static gchar *get_script_args (nmap_t * nmap);
 static int add_scantype_arguments (nmap_t * nmap);
 static int add_timing_arguments (nmap_t * nmap);
 static int add_portrange (nmap_t * nmap);
-static int cmp (const void * p1, const void * p2);
-static gchar *get_default_portrange (void);
 static void setup_xml_parser (nmap_t * nmap);
 static void set_opentag_callbacks (GHashTable * open);
 static void set_closetag_callbacks (GHashTable * close);
@@ -926,7 +924,6 @@ add_timing_arguments (nmap_t * nmap)
 int
 add_portrange (nmap_t * nmap)
 {
-  int ret;
   struct arglist *pref;
   gchar *portrange;
 
@@ -944,95 +941,7 @@ add_portrange (nmap_t * nmap)
       return -1;
     }
 
-  if (g_strcmp0 (portrange, "default") == 0)
-    {
-      gchar *pr_default = get_default_portrange ();
-
-      if (!pr_default)
-        {
-          dbg ("Invalid default port range\n");
-          return -1;
-        }
-      ret = add_arg (nmap, "-p", pr_default);
-      g_free (pr_default);
-    }
-  else
-    ret = add_arg (nmap, "-p", portrange);
-
-  return ret;
-}
-
-/**
- * @brief Compares two unsigned shorts located at p1 and p2.
- *
- * @param[in] p1 location of the first unsigned short integer (pp1)
- * @param[in] p2 location of the second unsigned short integer (pp2)
- *
- * @return A positive value if pp1 > pp2, a negative one if pp1 < pp2 and zero
- *         if pp1 == pp2.
- */
-int
-cmp (const void * p1, const void * p2)
-{
-  unsigned short *pp1 = (unsigned short *) p1;
-  unsigned short *pp2 = (unsigned short *) p2;
-
-  return (*pp1) - (*pp2);
-}
-
-/**
- * @brief Get the default portrange as a reduced string (x-y,z).
- *
- * @return A newly allocated string describing the portrange.
- */
-gchar *
-get_default_portrange (void)
-{
-  gchar *portrange = NULL;
-  unsigned short *ports;
-  int i, plen;
-  int start = -1, stop = -1;
-
-  ports = getpts ("default", &plen);
-  if (!ports || !plen)
-    return NULL;
-
-  qsort (ports, plen, sizeof (unsigned short), cmp);
-
-  for (i = 0; i < plen; i++)
-    {
-      gboolean last_run = (i == plen - 1);
-      gchar *tmp, chunk[16];
-
-      if (start == -1)
-        {
-          start = stop = ports[i];
-          if (!last_run)
-            continue;
-        }
-      else if (ports[i] == stop + 1)
-        {
-          stop = ports[i];
-          if (!last_run)
-            continue;
-        }
-
-      if (start != stop)
-        g_snprintf (chunk, sizeof (chunk), "%d-%d", start, stop);
-      else
-        g_snprintf (chunk, sizeof (chunk), "%d", start);
-
-      start = stop = ports[i];
-
-      if (portrange)
-        tmp = g_strdup_printf ("%s,%s", portrange, chunk);
-      else
-        tmp = g_strdup_printf ("%s", chunk);
-      g_free (portrange);        /* g_free'ing NULL pointers is harmless */
-      portrange = tmp;
-    }
-
-  return portrange;
+  return add_arg (nmap, "-p", portrange);
 }
 
 /**

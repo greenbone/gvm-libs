@@ -1,5 +1,26 @@
 2013-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Remove handling of "default" as a option for the port range.
+	It is a arbitrary and intransparent option for the users.
+	Scanner clients should always send an explicit port range.
+
+	* nasl/nasl_builtin_nmap.c (get_default_portrange): Removed.
+	(add_portrange): Removed handling of case where port range
+	is "default".
+	(cmp): Removed.
+
+	* nasl/nasl_builtin_openvas_tcp_scanner.c (banner_grab): Removed
+	code to try to get default ports for services list. Exit with
+	error when port_list is empty.
+
+	* nasl/nasl_builtin_synscan.c (scan): Don't apply "default" as a
+	fallback when port list is empty.
+
+	* misc/scanners_utils.c (getpts): Remove handling for port lists
+	of type "default".
+
+2013-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Post branch version bump.
 
 	* CMakeLists.txt: Set version to 7.0.0 and status to beta.

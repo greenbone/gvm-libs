@@ -112,19 +112,6 @@ getpts (char *origexpr, int *len)
   static char *last_expr = NULL;
   static int last_num;
 
-  if (strcmp (origexpr, "default") == 0)
-    {
-      if (last_expr != NULL)
-        efree (&last_expr);
-      if (last_ret != NULL)
-        efree (&last_ret);
-      last_expr = estrdup (origexpr);
-      last_ret = get_tcp_svcs (&last_num);
-      if (len != NULL)
-        *len = last_num;
-      return last_ret;
-    }
-
   expr = estrdup (origexpr);
   exlen = strlen (origexpr);
   mem = expr;
