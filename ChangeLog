@@ -1,4 +1,4 @@
-2013-03-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+2013-03-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/plugutils.c (plugin_is_newstyle): Change tag name detection to
 	vuldetect.
