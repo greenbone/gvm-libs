@@ -566,7 +566,7 @@ plugin_is_newstyle (const nvti_t *nvti)
           && strstr (tag, "summary=")
           && strstr (tag, "affected=")
           && strstr (tag, "insight=")
-          && strstr (tag, "detection=")
+          && strstr (tag, "vuldetect=")
           && strstr (tag, "impact=")
           && strstr (tag, "solution="));
 }
