@@ -12,7 +12,8 @@ Hani Benhabiles, Henri Doreau, Jan-Oliver Wagner.
 Main changes compared to 6.0+beta5:
 * Increase GnuTLS dependencies from 2.2 to 2.8.
 * Support for checking if a plugin has all new nvt style tags.
-* License change to GPLv2+.
+* License change from GPLv2 to GPLv2+ for nasl_builtin_nmap.c file for license
+  harmonization purposes.
 
 
 openvas-libraries 6.0+beta5 (2013-02-22)
