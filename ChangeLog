@@ -1,5 +1,11 @@
 2013-03-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Post release version bump.
+
+	* CMakeLists.txt: Set version to 6.0+rc2.
+
+2013-03-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Preparing the openvas-libraries 6.0.0 release.
 
 	* CHANGES: Updated.
