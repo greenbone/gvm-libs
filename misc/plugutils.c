@@ -551,6 +551,26 @@ mark_post (struct arglist *desc, const char *action, const char *content)
   plug_set_key (desc, entry_name, ARG_STRING, ccontent);
 }
 
+/**
+ * @brief Checks if a plugin has all new nvt style tags.
+ *
+ * @param nvti NVT Information to check in for new style tags.
+ *
+ * @return 0 if not new style plugin, 1 otherwise.
+ */
+int
+plugin_is_newstyle (const nvti_t *nvti)
+{
+  const char* tag = nvti_tag (nvti);
+
+  return (tag
+          && strstr (tag, "summary=")
+          && strstr (tag, "affected=")
+          && strstr (tag, "insight=")
+          && strstr (tag, "detection=")
+          && strstr (tag, "impact=")
+          && strstr (tag, "solution="));
+}
 
 /**
  * @brief Post a security message (e.g. LOG, NOTE, WARNING ...).
@@ -574,17 +594,23 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
     "preferences"), "nvticache"), arg_get_value (desc, "OID"));
   gchar **nvti_tags = NULL;
 
-  if (action == NULL)
-    action = nvti_description (nvti);
-
-  if (action == NULL)
+  if (action == NULL && plugin_is_newstyle (nvti))
+    action_str = g_string_new ("");
+  else if (action == NULL)
     {
-      nvti_free (nvti);
-      return;
+      action = nvti_description (nvti);
+      if (action == NULL)
+        {
+          nvti_free (nvti);
+          return;
+        }
     }
 
-  action_str = g_string_new (action);
-  g_string_append (action_str, "\n");
+  if (action)
+    {
+      action_str = g_string_new (action);
+      g_string_append (action_str, "\n");
+    }
 
   prepend_tags = get_preference (desc, "result_prepend_tags");
   append_tags = get_preference (desc, "result_append_tags");
