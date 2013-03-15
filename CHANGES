@@ -1,3 +1,20 @@
+openvas-libraries 6.0+rc1 (2013-03-15)
+
+This release is the first release candidate of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-6".
+
+Changes include increasing GnuTLS version dependency and support for new nvt
+style checking.
+
+Many thanks to everyone who has contributed this release:
+Hani Benhabiles, Henri Doreau, Jan-Oliver Wagner.
+
+Main changes compared to 6.0+beta5:
+* Increase GnuTLS dependencies from 2.2 to 2.8.
+* Support for checking if a plugin has all new nvt style tags.
+* License change to GPLv2+.
+
+
 openvas-libraries 6.0+beta5 (2013-02-22)
 
 This release is the fifth beta version of the next major release of
