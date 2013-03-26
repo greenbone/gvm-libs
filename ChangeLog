@@ -1,3 +1,12 @@
+2013-03-26  Werner Koch  <wk@gnupg.org>
+
+	* INSTALL: State that gnutls 2.8 is required.
+
+	* misc/openvas_server.c (openvas_server_new): Change type of the
+	END_TYPE arg to unsigned int.  On most platforms this is
+	compatible to the enum used by gnutls 2.x.
+	* misc/openvas_server.h (openvas_server_new): Ditto.
+
 2013-03-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CMakeLists.txt: Increased dependency to gnutls from 2.2 to 2.8.
@@ -88,14 +97,14 @@
 
 2013-02-27  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
-	* omp.c (omp_delete_task_ext, omp_delete_target_ext) 
+	* omp.c (omp_delete_task_ext, omp_delete_target_ext)
 	(omp_delete_config_ext, omp_delete_lsc_credential_ext): New functions
 	to delete tasks, targets, configs and lsc_credentials with options.
 
 	* omp.h (omp_delete_opts_t): New typedef for omp_delete_... options.
 	(omp_delete_opts_defaults, omp_delete_opts_ultimate_defaults): New
 	constants for omp_delete_opts_t default values.
-	(omp_delete_task_ext, omp_delete_target_ext) 
+	(omp_delete_task_ext, omp_delete_target_ext)
 	(omp_delete_config_ext, omp_delete_lsc_credential_ext): New function
 	prototypes.
 
