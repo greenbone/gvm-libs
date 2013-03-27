@@ -608,7 +608,7 @@ openvas_server_sendf_xml (gnutls_session_t * session, const char *format, ...)
  * @return 0 on success, -1 on error.
  */
 int
-openvas_server_new (gnutls_connection_end_t end_type, gchar * ca_cert_file,
+openvas_server_new (unsigned int end_type, gchar * ca_cert_file,
                     gchar * cert_file, gchar * key_file,
                     gnutls_session_t * server_session,
                     gnutls_certificate_credentials_t * server_credentials)
