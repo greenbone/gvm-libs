@@ -1,3 +1,8 @@
+2013-03-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/proctitle.c (setproctitle): Remove "openvassd:" from new process
+	name as the library call may be used by other daemons.
+
 2013-03-26  Werner Koch  <wk@gnupg.org>
 
 	* INSTALL: State that gnutls 2.8 is required.

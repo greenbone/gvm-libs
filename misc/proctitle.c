@@ -104,7 +104,7 @@ setproctitle (const char *fmt, ...)
   vsnprintf (buf, sizeof (buf), fmt, param);
   va_end (param);
 
-  snprintf (buf2, sizeof (buf2), "openvassd: %s", buf); /* RATS: ignore */
+  snprintf (buf2, sizeof (buf2), "%s", buf); /* RATS: ignore */
   bzero (buf, sizeof (buf));
   strncpy (buf, buf2, sizeof (buf) - 1);
 
