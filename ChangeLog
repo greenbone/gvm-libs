@@ -1,3 +1,8 @@
+2013-04-03  Werner Koch  <wk@gnupg.org>
+
+	* misc/openvas_server.c (server_attach_internal): Fix doc buglet.
+	(openvas_server_attach): Ditto.
+
 2013-04-02  Werner Koch  <wk@gnupg.org>
 
 	* misc/openvas_server.c	(server_attach): Factor all code out to ..
