@@ -1052,24 +1052,6 @@ security_message (lex_ctxt * lexic)
 }
 
 tree_cell *
-security_hole (lex_ctxt * lexic)
-{
-  return security_something (lexic, proto_post_hole, post_hole);
-}
-
-tree_cell *
-security_warning (lex_ctxt * lexic)
-{
-  return security_something (lexic, proto_post_info, post_info);
-}
-
-tree_cell *
-security_note (lex_ctxt * lexic)
-{
-  return security_something (lexic, proto_post_note, post_note);
-}
-
-tree_cell *
 log_message (lex_ctxt * lexic)
 {
   return security_something (lexic, proto_post_log, post_log);

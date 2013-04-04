@@ -1,3 +1,43 @@
+2013-04-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	This patch forces the scanner to only consider the CVSS of the
+	NVT to decide about the severity class (HOLE, WARNING, NOTE, also
+	known as Hight, Medium, Low) sent with the result.
+
+	The scanner relies here on presence of a CVSS assigned to each NVT
+	which was established in March 2013 for the regular feed.
+ 
+	This change has significant impact on reporting behaviour because
+	many (mostly older and various generic/sepcial ones) used either
+	a mixture of security_note, _hole, _warning or are not in line
+	with the assigned CVSS.
+
+	For the latter case, these NVTs need to be fixed. Either the CVSS
+	assignment was wrong, or the severity type. In some cases this
+	will require to break up the NVT into multiple ones, separating
+	log activity out into a NVT of its own.
+
+	Splitting up into multiple NVTs is also relevant for those NVTs
+	where severity message mixture was used.
+
+	The hardest case to resolve will be NVTs that use the severity
+	class as user preference. 
+
+	The analysis for mismatches can be done on NASL source code
+	level of NVTs, simply comparing security_* calls with CVSS
+	tag. At the end of the day any such mismatch must be resolved
+	in the regular feed.
+
+	* nasl/nasl_init.c (libfuncs): Replace call of security_hole,
+	security_warning and security_note by call of security_message.
+	Also left a comment on when the API functions can be ultimately
+	eliminated.
+
+	* nasl/nasl_scanner_glue.c (security_hole, security_warning,
+	security_note): Removed.
+
+	* nasl/nasl_scanner_glue.h: Removed protos accordingly.
+
 2013-04-03  Werner Koch  <wk@gnupg.org>
 
 	* misc/openvas_server.c (server_attach_internal): Fix doc buglet.
