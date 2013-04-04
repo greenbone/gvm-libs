@@ -6,6 +6,7 @@
  * Matthew Mundell <matt@mundell.ukfsn.org>
  * Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
  * Michael Wiegand <michael.wiegand@greenbone.net>
+ * Werner Koch <wk@gnupg.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -77,7 +78,14 @@ struct sockaddr_in address;
 
 
 
-static void my_gnutls_transport_set_lowat_default (gnutls_session_t session);
+static int server_attach_internal (int, gnutls_session_t *,
+                                   const char *, int);
+static int server_new_internal (unsigned int, const char *,
+                                gchar *,
+                                gchar *, gchar *,
+                                gnutls_session_t *,
+                                gnutls_certificate_credentials_t *);
+static void my_gnutls_transport_set_lowat_default (gnutls_session_t);
 
 
 
@@ -93,6 +101,7 @@ static void my_gnutls_transport_set_lowat_default (gnutls_session_t session);
 int
 openvas_server_open (gnutls_session_t * session, const char *host, int port)
 {
+  int ret;
   int server_socket;
   struct addrinfo address_hints;
   struct addrinfo *addresses, *address;
@@ -101,62 +110,23 @@ openvas_server_open (gnutls_session_t * session, const char *host, int port)
   WSADATA wsaData;
 #endif
 
-#ifndef _WIN32
-  struct sigaction new_action, original_action;
-#endif
+  gnutls_certificate_credentials_t credentials;
 
   /** @todo Ensure that host and port have sane values. */
   /** @todo Improve logging. */
+  /** @todo On success we are leaking the credentials.  We can't free
+      them because the session only makes a shallow copy.  A
+      solution would be to lookup already created credentials and
+      reuse them.  */
 
-  /* Turn off use of /dev/random, as this can block. */
-
-  gcry_control (GCRYCTL_ENABLE_QUICK_RANDOM, 0);
-
-  /* Initialize security library. */
-
-  int ret = gnutls_global_init ();
-  if (ret < 0)
+  if (server_new_internal (GNUTLS_CLIENT, "NORMAL",
+                           NULL, NULL, NULL,
+                           session, &credentials))
     {
-      g_warning ("Failed to initialize GNUTLS.");
+      g_warning ("Failed to create client TLS session.");
       return -1;
     }
 
-  /* Setup server session. */
-
-  /** @todo Use openvas_server_new. */
-
-  gnutls_certificate_credentials_t credentials;
-  if (gnutls_certificate_allocate_credentials (&credentials))
-    {
-      g_warning ("Failed to allocate server credentials.");
-      return -1;
-    }
-
-  // FIX always a client?
-  if (gnutls_init (session, GNUTLS_CLIENT))
-    {
-      g_warning ("Failed to initialise server session.");
-      gnutls_certificate_free_credentials (credentials);
-      return -1;
-    }
-
-  my_gnutls_transport_set_lowat_default (*session);
-
-  if (gnutls_set_default_priority (*session))
-    {
-      g_warning ("Failed to set server session priority.");
-      gnutls_deinit (*session);
-      gnutls_certificate_free_credentials (credentials);
-      return -1;
-    }
-
-  if (gnutls_credentials_set (*session, GNUTLS_CRD_CERTIFICATE, credentials))
-    {
-      g_warning ("Failed to set server credentials.");
-      gnutls_deinit (*session);
-      gnutls_certificate_free_credentials (credentials);
-      return -1;
-    }
 
   /* Create the port string. */
 
@@ -236,53 +206,23 @@ openvas_server_open (gnutls_session_t * session, const char *host, int port)
   g_debug ("   Connected to server '%s' port %d.", host, port);
 
   /* Complete setup of server session. */
-
-  gnutls_transport_set_ptr (*session,
-                            (gnutls_transport_ptr_t)
-                            GSIZE_TO_POINTER (server_socket));
-
-#ifndef _WIN32
-  new_action.sa_flags = 0;
-  if (sigemptyset (&new_action.sa_mask))
-    return -1;
-  new_action.sa_handler = SIG_IGN;
-  if (sigaction (SIGPIPE, &new_action, &original_action))
-    return -1;
-#endif
-
-  while (1)
+  ret = server_attach_internal (server_socket, session, host, port);
+  if (ret)
     {
-      int ret = gnutls_handshake (*session);
-      if (ret >= 0)
-        break;
-      if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
-        continue;
-      g_warning ("Failed to shake hands with server '%s' port %d: %s",
-                 host, port, gnutls_strerror (ret));
-      if (shutdown (server_socket, SHUT_RDWR) == -1)
-        g_warning ("Failed to shutdown server socket");
-      close (server_socket);
-      gnutls_deinit (*session);
-      gnutls_certificate_free_credentials (credentials);
-
-#ifndef _WIN32
-      sigaction (SIGPIPE, &original_action, NULL);
-#endif
-
+      if (ret == -2)
+        {
+          close (server_socket);
+          gnutls_deinit (*session);
+          gnutls_certificate_free_credentials (credentials);
+        }
       return -1;
     }
-  g_debug ("   Shook hands with server '%s' port %d.", host, port);
-
-#ifndef _WIN32
-  if (sigaction (SIGPIPE, &original_action, NULL))
-    return -1;
-#endif
 
   return server_socket;
 }
 
 /**
- * @brief Close a server connection.
+ * @brief Close a server connection and its socket.
  *
  * @param[in]  socket   Socket connected to server (from \ref connect_to_server).
  * @param[in]  session  GNUTLS session with server.
@@ -292,34 +232,9 @@ openvas_server_open (gnutls_session_t * session, const char *host, int port)
 int
 openvas_server_close (int socket, gnutls_session_t session)
 {
-#ifndef _WIN32
-  struct sigaction new_action, original_action;
-
-  /* Turn off blocking. */
-  if (fcntl (socket, F_SETFL, O_NONBLOCK) == -1)
-    return -1;
-
-  new_action.sa_flags = 0;
-  if (sigemptyset (&new_action.sa_mask))
-    return -1;
-  new_action.sa_handler = SIG_IGN;
-  if (sigaction (SIGPIPE, &new_action, &original_action))
-    return -1;
-#endif
-
-  gnutls_bye (session, GNUTLS_SHUT_RDWR);
-
-  gnutls_deinit (session);
-
-#ifndef _WIN32
-  if (sigaction (SIGPIPE, &original_action, NULL))
-    return -1;
-#endif
-
-  close (socket);
-  gnutls_global_deinit ();
-  return 0;
+  return openvas_server_free (socket, session, NULL);
 }
+
 
 /**
  * @brief Connect to a server.
@@ -338,10 +253,6 @@ openvas_server_connect (int server_socket, struct sockaddr_in *server_address,
 {
   int ret;
   socklen_t ret_len = sizeof (ret);
-
-#ifndef _WIN32
-  struct sigaction new_action, original_action;
-#endif
 
   if (interrupted)
     {
@@ -390,11 +301,30 @@ openvas_server_connect (int server_socket, struct sockaddr_in *server_address,
     }
   g_debug ("   Connected to server on socket %i.\n", server_socket);
 
-  /* Complete setup of server session. */
+  return openvas_server_attach (server_socket, server_session);
+}
 
-  gnutls_transport_set_ptr (*server_session,
-                            (gnutls_transport_ptr_t)
-                            GSIZE_TO_POINTER (server_socket));
+/**
+ * @brief Attach a socket to a session, and shake hands with the peer.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  socket   Socket.
+ * @param[in]  host     NULL or the name of the host for diagnostics
+ * @param[in]  port     Port number for diagnostics; only used
+ *                      if \a host is not NULL
+ *
+ * @return 0 on success, -1 on general error, -2 if the TLS handshake failed.
+ */
+static int
+server_attach_internal (int socket, gnutls_session_t * session,
+                        const char *host, int port)
+{
+#ifndef _WIN32
+  struct sigaction new_action, original_action;
+#endif
+
+  gnutls_transport_set_ptr (*session,
+                            (gnutls_transport_ptr_t) GSIZE_TO_POINTER (socket));
 
 #ifndef _WIN32
   new_action.sa_flags = 0;
@@ -407,21 +337,28 @@ openvas_server_connect (int server_socket, struct sockaddr_in *server_address,
 
   while (1)
     {
-      ret = gnutls_handshake (*server_session);
+      int ret = gnutls_handshake (*session);
       if (ret >= 0)
         break;
       if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
         continue;
-      g_warning ("%s: failed to shake hands with server: %s\n", __FUNCTION__,
-                 gnutls_strerror (ret));
-      if (shutdown (server_socket, SHUT_RDWR) == -1)
-        g_warning ("   Failed to shutdown server socket: %s\n",
-                   strerror (errno));
+      if (host)
+        g_warning ("Failed to shake hands with server '%s' port %d: %s",
+                   host, port, gnutls_strerror (ret));
+      else
+        g_warning ("Failed to shake hands with peer: %s",
+                   gnutls_strerror (ret));
+      if (shutdown (socket, SHUT_RDWR) == -1)
+        g_warning ("Failed to shutdown server socket");
 #ifndef _WIN32
       sigaction (SIGPIPE, &original_action, NULL);
 #endif
-      return -1;
+      return -2;
     }
+  if (host)
+    g_debug ("   Shook hands with server '%s' port %d.", host, port);
+  else
+    g_debug ("   Shook hands with peer.");
 
 #ifndef _WIN32
   if (sigaction (SIGPIPE, &original_action, NULL))
@@ -439,43 +376,14 @@ openvas_server_connect (int server_socket, struct sockaddr_in *server_address,
  *
  * @return 0 on success, -1 on error.
  */
-#ifndef _WIN32
 int
 openvas_server_attach (int socket, gnutls_session_t * session)
 {
-  struct sigaction new_action, original_action;
+  int ret;
 
-  gnutls_transport_set_ptr (*session,
-                            (gnutls_transport_ptr_t) GSIZE_TO_POINTER (socket));
-
-  new_action.sa_flags = 0;
-  if (sigemptyset (&new_action.sa_mask))
-    return -1;
-  new_action.sa_handler = SIG_IGN;
-  if (sigaction (SIGPIPE, &new_action, &original_action))
-    return -1;
-
-  while (1)
-    {
-      int ret = gnutls_handshake (*session);
-      if (ret >= 0)
-        break;
-      if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
-        continue;
-      g_warning ("Failed to shake hands with peer: %s", gnutls_strerror (ret));
-      if (shutdown (socket, SHUT_RDWR) == -1)
-        g_warning ("Failed to shutdown server socket");
-      sigaction (SIGPIPE, &original_action, NULL);
-      return -1;
-    }
-  g_debug ("   Shook hands with peer.");
-
-  if (sigaction (SIGPIPE, &original_action, NULL))
-    return -1;
-
-  return 0;
+  ret = server_attach_internal (socket, session, NULL, 0);
+  return ret? -1 : 0;
 }
-#endif
 
 /**
  * @brief Send a string to the server.
@@ -599,6 +507,7 @@ openvas_server_sendf_xml (gnutls_session_t * session, const char *format, ...)
  *
  * @param[in]   end_type            Connecton end type (GNUTLS_SERVER or
  *                                  GNUTLS_CLIENT).
+ * @param[in]   priority            Custom priority string or NULL.
  * @param[in]   ca_file             Certificate authority file.
  * @param[in]   cert_file           Certificate file.
  * @param[in]   key_file            Key file.
@@ -607,11 +516,12 @@ openvas_server_sendf_xml (gnutls_session_t * session, const char *format, ...)
  *
  * @return 0 on success, -1 on error.
  */
-int
-openvas_server_new (unsigned int end_type, gchar * ca_cert_file,
-                    gchar * cert_file, gchar * key_file,
-                    gnutls_session_t * server_session,
-                    gnutls_certificate_credentials_t * server_credentials)
+static int
+server_new_internal (unsigned int end_type, const char *priority,
+                     gchar * ca_cert_file,
+                     gchar * cert_file, gchar * key_file,
+                     gnutls_session_t * server_session,
+                     gnutls_certificate_credentials_t * server_credentials)
 {
   int err_gnutls;
 
@@ -673,7 +583,8 @@ openvas_server_new (unsigned int end_type, gchar * ca_cert_file,
   */
 
   if ((err_gnutls = gnutls_priority_set_direct (*server_session,
-                                                "SECURE", NULL)))
+                                                priority? priority : "SECURE",
+                                                NULL)))
     {
       g_warning ("%s: failed to set tls priorities: %s\n", __FUNCTION__,
                  gnutls_strerror(err_gnutls));
@@ -687,7 +598,9 @@ openvas_server_new (unsigned int end_type, gchar * ca_cert_file,
       goto server_fail;
     }
 
-  gnutls_certificate_server_set_request (*server_session, GNUTLS_CERT_REQUEST);
+  if (end_type == GNUTLS_SERVER)
+    gnutls_certificate_server_set_request (*server_session,
+                                           GNUTLS_CERT_REQUEST);
 
   return 0;
 
@@ -700,13 +613,40 @@ server_free_fail:
   return -1;
 }
 
-/** @todo vs openvas_server_close */
+/**
+ * @brief Make a session for connecting to a server.
+ *
+ * @param[in]   end_type            Connecton end type (GNUTLS_SERVER or
+ *                                  GNUTLS_CLIENT).
+ * @param[in]   ca_file             Certificate authority file.
+ * @param[in]   cert_file           Certificate file.
+ * @param[in]   key_file            Key file.
+ * @param[out]  server_session      The session with the server.
+ * @param[out]  server_credentials  Server credentials.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+openvas_server_new (unsigned int end_type,
+                    gchar * ca_cert_file,
+                    gchar * cert_file, gchar * key_file,
+                    gnutls_session_t * server_session,
+                    gnutls_certificate_credentials_t * server_credentials)
+{
+  return server_new_internal (end_type, NULL,
+                              ca_cert_file, cert_file, key_file,
+                              server_session, server_credentials);
+}
+
 /**
  * @brief Cleanup a server session.
  *
+ * This shuts down the TLS session, closes the socket and releases the
+ * TLS resources.
+ *
  * @param[in]  server_socket       The socket connected to the server.
  * @param[in]  server_session      The session with the server.
- * @param[in]  server_credentials  Credentials.
+ * @param[in]  server_credentials  Credentials or NULL.
  *
  * @return 0 success, -1 error.
  */
@@ -768,30 +708,46 @@ openvas_server_free (int server_socket, gnutls_session_t server_session,
       break;
     }
 
-#ifndef _WIN32
-  if (sigaction (SIGPIPE, &original_action, NULL))
-    return -1;
-
-  if (shutdown (server_socket, SHUT_RDWR) == -1)
+  /* The former separate code in openvas_server_close and here
+     differed in the order the TLS session and socket was closed.  The
+     way we do it here seems to be the right thing but for full
+     backward compatibility we do it for calls from
+     openvas_server_close in the old way.  We can distinguish the two
+     modes by the existence of server_credentials.  */
+  if (server_credentials)
     {
-      if (errno == ENOTCONN)
-        return 0;
-      g_warning ("%s: failed to shutdown server socket: %s\n", __FUNCTION__,
-                 strerror (errno));
-      return -1;
-    }
+#ifndef _WIN32
+      if (sigaction (SIGPIPE, &original_action, NULL))
+        return -1;
+
+      if (shutdown (server_socket, SHUT_RDWR) == -1)
+        {
+          if (errno == ENOTCONN)
+            return 0;
+          g_warning ("%s: failed to shutdown server socket: %s\n", __FUNCTION__,
+                     strerror (errno));
+          return -1;
+        }
 #endif
 
-  if (close (server_socket) == -1)
-    {
-      g_warning ("%s: failed to close server socket: %s\n", __FUNCTION__,
-                 strerror (errno));
-      return -1;
+      if (close (server_socket) == -1)
+        {
+          g_warning ("%s: failed to close server socket: %s\n", __FUNCTION__,
+                     strerror (errno));
+          return -1;
+        }
+      gnutls_deinit (server_session);
+      gnutls_certificate_free_credentials (server_credentials);
     }
-
-  gnutls_deinit (server_session);
-
-  gnutls_certificate_free_credentials (server_credentials);
+  else
+    {
+      gnutls_deinit (server_session);
+#ifndef _WIN32
+      if (sigaction (SIGPIPE, &original_action, NULL))
+        return -1;
+#endif
+      close (server_socket);
+    }
 
   gnutls_global_deinit ();
 

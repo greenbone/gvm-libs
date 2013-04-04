@@ -1,5 +1,22 @@
 2013-03-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Backport for r15897. Patch by Werner Koch.
+
+	* misc/openvas_server.c	(server_attach): Factor all code out to ..
+	(server_attach_internal): new function.  Add and use args HOST and
+	PORT.  Return -2 on handshake failure.
+	(openvas_server_new): Factor all code out to ..
+	(server_new_internal): new function.  Add optional arg PRIORITY.
+	(openvas_server_open): Replace duplicate code by calls to
+	server_new_internal and server_attach_internal.
+	(openvas_server_connect): Replace handshake code by a call to
+	openvas_server_attach.
+	(openvas_server_free): Add backward compatibility change to allow
+	use by openvas_server_close.
+	(openvas_server_close): Replace by call to openvas_server_free.
+
+2013-03-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Backport for r15849. Patch by Werner Koch.
 
 	* INSTALL: State that gnutls 2.8 is required.
