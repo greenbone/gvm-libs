@@ -1,3 +1,9 @@
+2013-04-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_auth_init): Test for authentication
+	configuration's existence before trying to load it. Log key file
+	loading error as warning.
+
 2013-04-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	This patch forces the scanner to only consider the CVSS of the
