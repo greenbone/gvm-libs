@@ -383,6 +383,14 @@ openvas_auth_init ()
   GKeyFile *key_file = g_key_file_new ();
   gchar *config_file = g_build_filename (OPENVAS_USERS_DIR, ".auth.conf",
                                          NULL);
+
+  if (!g_file_test (config_file, G_FILE_TEST_EXISTS))
+    {
+      g_log ("lib auth", G_LOG_LEVEL_INFO,
+             "Authentication configuration not found.\n");
+      return;
+    }
+
   gboolean loaded =
     g_key_file_load_from_file (key_file, config_file, G_KEY_FILE_NONE, NULL);
   gchar **groups = NULL;

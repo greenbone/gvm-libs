@@ -1,3 +1,11 @@
+2013-04-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport for r15920. Patch by Hani Benhabiles.
+
+	* misc/openvas_auth.c (openvas_auth_init): Test for authentication
+	configuration's existence before trying to load it. Log key file
+	loading error as warning.
+
 2013-03-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport for r15897. Patch by Werner Koch.
