@@ -145,7 +145,7 @@ static const struct impact_item impact_map[][3] = {
    [Au] = {
        {"N", Au_NONE},
        {"M", Au_MULTIPLE_INSTANCES},
-       {"C", Au_SINGLE_INSTANCE},
+       {"S", Au_SINGLE_INSTANCE},
    },
    [AV] = {
        {"N", AV_NETWORK},
