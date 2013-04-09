@@ -1,3 +1,8 @@
+2013-04-09  Werner Koch  <wk@gnupg.org>
+
+	* nasl/nasl_ssh.c (nasl_ssh_get_auth_methods): Fix length of
+	returned string.  A garbage byte at the end was returned.
+
 2013-04-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_auth_init): Test for authentication
@@ -12,7 +17,7 @@
 
 	The scanner relies here on presence of a CVSS assigned to each NVT
 	which was established in March 2013 for the regular feed.
- 
+
 	This change has significant impact on reporting behaviour because
 	many (mostly older and various generic/sepcial ones) used either
 	a mixture of security_note, _hole, _warning or are not in line
@@ -27,7 +32,7 @@
 	where severity message mixture was used.
 
 	The hardest case to resolve will be NVTs that use the severity
-	class as user preference. 
+	class as user preference.
 
 	The analysis for mismatches can be done on NASL source code
 	level of NVTs, simply comparing security_* calls with CVSS

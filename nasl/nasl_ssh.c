@@ -1893,7 +1893,6 @@ nasl_ssh_get_auth_methods (lex_ctxt *lexic)
   int tbl_slot;
   int methods;
   membuf_t mb;
-  size_t len;
   char *p;
   tree_cell *retc;
 
@@ -1919,13 +1918,13 @@ nasl_ssh_get_auth_methods (lex_ctxt *lexic)
   if ((methods & SSH_AUTH_METHOD_INTERACTIVE))
     put_membuf_comma_str (&mb, "keyboard-interactive");
   put_membuf (&mb, "", 1);
-  p = get_membuf (&mb, &len);
+  p = get_membuf (&mb, NULL);
   if (!p)
     return NULL;
 
   retc = alloc_typed_cell (CONST_DATA);
   retc->x.str_val = p;
-  retc->size = len;
+  retc->size = strlen (p);
   return retc;
 }
 
