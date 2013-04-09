@@ -296,7 +296,8 @@ __get_cvss_score (struct cvss *cvss)
   if (impact_sub < 0.1)
     impact = 0.0;
 
-  return (((0.6 * impact_sub) + (0.4 * exploitability_sub) - 1.5) * impact);
+  return (((0.6 * impact_sub) + (0.4 * exploitability_sub) - 1.5) * impact)
+         + 0.0;
 }
 
 /**
@@ -315,7 +316,7 @@ get_cvss_score_from_base_metrics (const char *cvss_str)
   memset(&cvss, 0x00, sizeof(struct cvss));
 
   if (cvss_str == NULL)
-    return 0.0;
+    return -1.0;
 
   base_str = base_metrics = g_strdup_printf ("%s/", cvss_str);
 

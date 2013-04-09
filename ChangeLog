@@ -1,5 +1,12 @@
 2013-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/cvss.c (__get_cvss_score): Add 0.0 to result to fix cases where
+	result equals -0.0.
+	(get_cvss_score_from_base): Return -1.0 instead of 0.0 when passed a
+	null pointer to indicate an error as documented.
+
+2013-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/cvss.c (impact_map): Fix Authentication Single Instance value
 	from "C" to "S".
 
