@@ -1,3 +1,57 @@
+openvas-libraries 6.0.0 (2012-04-10)
+
+This is the first release of the openvas-libraries 6.0 module for the Open
+Vulnerability Assessment System 6 (OpenVAS-6). Compared to the previous major
+release it covers a broad set of improvements for the various OpenVAS services
+and applications.
+
+Many thanks to everyone who has contributed to the 6.0.0 release:
+Andre Heinecke, Hani Benhabiles, Henri Doreau, Werner Koch, Michael Meyer,
+Preeti Subramanian, Jan-Oliver Wagner, Michael Wiegand, Sascha Wilde and Felix
+Wolfsteller.
+
+Main changes compared to 5.0.x:
+* The GnuTLS dependency has been increased from 2.2 to 2.8.
+* Support for checking if an NVT has all "new style" tags has been added.
+* License change from GPLv2 to GPLv2+ for nasl_builtin_nmap.c file for license
+  harmonization purposes.
+* Support for enforcing a password policy has been moved to
+  openvas-libraries.
+* CVSS and Risk Factor are now computed from the CVSS Base
+  vector, if available.
+* NASL tags setting a risk_factor are now ignored. It will therefore not be
+  stored in nvti files and not transferred via OTP.
+* Internal memory storage for NVTI has been changed to use caching.
+* Binding procedures for MS Active Directory Services have been improved.
+* Support for LDAPS has been added.
+* WMI registry functions have been added.
+* An issue which caused credentials to be not transferred correctly when
+  scanning through a slave has been fixed.
+* Library detection and handling of library flags during the build
+  process have been improved.
+* Handling of system report requests has been improved.
+* TLS support has been added to the NASL API to allow x509 certificate testing
+  in NVTs.
+* Support of libssh for SSH connection handling has been improved.
+  The environment variable "OPENVAS_DISABLE_LIBSSH" can be used to disable
+  the new functionality.
+* Performance has been improved by avoiding excessive "gpg --version" calls.
+* Code that prevented special functions from being executed by
+  non-authenticated NVTs has been removed. Background is that either the whole
+  feed is treated as authenticated or as non-authenticated, but not a mixture
+  of it.
+* The deprecated NASL variable "OPENVAS_NASL_LEVEL" has been removed.
+* Several memory leaks have been fixed.
+* Various compile issues have been fixed.
+* Internal code cleanups and refactoring has taken place.
+* The documentation has been updated.
+
+And additionally changes compared to last release candidate 6.0+rc1:
+* Server connection handling has been refactored.
+* A bug in the CVSS base vector parsing has been fixed.
+* GnuTLS compatibility has been improved.
+
+
 openvas-libraries 6.0+rc1 (2013-03-15)
 
 This release is the first release candidate of the next major release of
