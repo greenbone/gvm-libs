@@ -6,7 +6,7 @@
  * Werner Koch <wk@gnupg.org>
  *
  * Copyright:
- * Copyright (C) 2012 Greenbone Networks GmbH
+ * Copyright (C) 2012, 2013 Greenbone Networks GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -41,6 +41,7 @@
 #include <glib/gstdio.h>
 
 #include <ksba.h>
+#include <gcrypt.h>
 
 #include "system.h"             /* for emalloc */
 #include "nasl_tree.h"
@@ -74,6 +75,8 @@
 #define xtoi_2(p)   ((xtoi_1((const unsigned char *)(p)) * 16)  \
                      + xtoi_1((const unsigned char *)(p)+1))
 
+/* Convert N to a hex digit.  N must be in the range 0..15.  */
+#define tohex(n) ((n) < 10 ? ((n) + '0') : (((n) - 10) + 'A'))
 
 
 /* This object is used to keep track of KSBA certificate objects.
@@ -505,26 +508,136 @@ build_hostname_list (ksba_cert_t cert)
   return retc;
 }
 
+/**
+ * @brief Convert a memory buffer to a tree cell with a hex string
+ *
+ */
+static tree_cell *
+make_hexstring (const void *buffer, size_t length)
+{
+  const unsigned char *s;
+  tree_cell *retc;
+  char *p;
+
+  retc = alloc_typed_cell (CONST_STR);
+  retc->size = length*2;
+  retc->x.str_val = p = emalloc (length*2 + 1);
+
+  for (s = buffer; length; length--, s++)
+    {
+      *p++ = tohex ((*s>>4)&15);
+      *p++ = tohex (*s&15);
+    }
+  *p = 0;
+
+  return retc;
+}
+
+
+
+/**
+ * @brief Take a certificate object and return its fingerprint.
+ *
+ * @param cert  A KSBA certificate object.
+ * @param algo  Either GCRY_MD_SHA1 or GCRY_MD_SHA256
+ *
+ * @return A new tree cell with an all uppercase hex string
+ *         representing the fingerprint or NULL on error.
+ */
+static tree_cell *
+get_fingerprint (ksba_cert_t cert, int algo)
+{
+  int dlen;
+  const unsigned char *der;
+  size_t derlen;
+  unsigned char digest[32];
+
+  dlen = gcry_md_get_algo_dlen (algo);
+  if (dlen != 20 && dlen != 32)
+    return NULL; /* We only support SHA-1 and SHA-256.  */
+
+  der = ksba_cert_get_image (cert, &derlen);
+  if (!der)
+    return NULL;
+  gcry_md_hash_buffer (algo, digest, der, derlen);
+
+  return make_hexstring (digest, dlen);
+}
+
+
+/**
+ * @brief Helper to convert a RFC-2253 string to a tree cell.
+ *
+ * This function also takes care of the special formats the
+ * ksba_get_subjscte uses.
+ */
+static tree_cell *
+get_name (const char *string)
+{
+  tree_cell *retc;
+
+  if (*string == '(')
+    {
+      /* This is an s-expression in canonical format.  We convert it
+         to advanced format.  */
+      gcry_sexp_t sexp;
+      size_t len;
+      char *buffer;
+
+      len = gcry_sexp_canon_len ((const unsigned char*)string, 0, NULL, NULL);
+      if (gcry_sexp_sscan (&sexp, NULL, string, len))
+        return NULL;  /* Invalid encoding.  */
+      len = gcry_sexp_sprint (sexp, GCRYSEXP_FMT_ADVANCED, NULL, 0);
+      g_assert (len);
+      buffer = emalloc (len);
+      len = gcry_sexp_sprint (sexp, GCRYSEXP_FMT_ADVANCED, buffer, len);
+      g_assert (len);
+      len = strlen (buffer);
+      /* Strip a trailing linefeed.  */
+      if (len && buffer[len-1] == '\n')
+        buffer[--len] = 0;
+      gcry_sexp_release (sexp);
+      retc = alloc_typed_cell (CONST_STR);
+      retc->x.str_val = buffer;
+      retc->size = len;
+    }
+  else
+    {
+      /* RFC-2822 style mailboxes or RFC-2253 strings are returned
+         verbatim.  */
+      retc = alloc_typed_cell (CONST_STR);
+      retc->x.str_val = estrdup (string);
+      retc->size = strlen (retc->x.str_val);
+    }
+
+  return retc;
+}
 
 /**
  * @brief Query a certificate object.
  * @naslfn{cert_query}
  *
  * Takes a cert identifier as first unnamed argument and a command
- * string as second argument.  That commonis used to select specific
- * information from the certificate.  For certain commandss the named
+ * string as second argument.  That command is used to select specific
+ * information from the certificate.  For certain commands the named
  * argument @a idx is used as well.  Depending on this command the
  * return value may be a number, a string, or an array of strings.
  * Supported commands are:
  *
- * - @a serial The serial number of the certificate.
+ * - @a serial The serial number of the certificate as a hex string.
  *
- * - @a subject Returns the subject.  To query the subjectAltName the
- *               named parameters @a idx can be used.  If @a idx is
- *               used the return value is an array, with the first
- *               element giving the type of the altSubjectName and the
- *               second element the actual data.  Types may be one:
- *               "xxx", "xxx", "xxx".
+ * - @a issuer Returns the issuer.  The returned value is a string in
+ *             rfc-2253 format.
+
+ * - @a subject Returns the subject. The returned value is a string in
+ *              rfc-2253 format.  To query the subjectAltName the
+ *              named parameters @a idx with values starting at 1 can
+ *              be used. In this case the format is either an rfc2253
+ *              string as used above, an rfc2822 mailbox name
+ *              indicated by the first character being a left angle
+ *              bracket or an S-expression in advanced format for all
+ *              other types of subjectAltnames which is indicated by
+ *              an opening parentheses.
  *
  * - @a not-before The notBefore time as UTC value in ISO time format
  *                 (e.g. "20120930T143521").
@@ -538,6 +651,16 @@ build_hostname_list (ksba_cert_t cert)
  * - @a hostnames Return an array with all hostnames listed in the
  *   certificates, i.e. the CN part of the subject and all dns-name
  *   type subjectAltNames.
+ *
+ * - @a fpr-sha-256 The SHA-256 fingerprint of the certificate.  The
+ *                  fingerprint is, as usual, computed over the entire
+ *                  DER encode certificate.
+ *
+ * - @a fpr-sha-1   The SHA-1 fingerprint of the certificate.  The
+ *                  fingerprint is, as usual, computed over the entire
+ *                  DER encode certificate.
+ *
+ * - @a image       Return the entire certificate as binary data.
  *
  * @nasluparam
  *
@@ -614,10 +737,7 @@ nasl_cert_query (lex_ctxt *lexic)
       if (*s == ':')
         {
           s++;
-          retc = alloc_typed_cell (CONST_DATA);
-          retc->x.str_val = emalloc (n);
-          memcpy (retc->x.str_val, s, n);
-          retc->size = n;
+          retc = make_hexstring (s, n);
         }
       ksba_free (sexp);
     }
@@ -627,9 +747,7 @@ nasl_cert_query (lex_ctxt *lexic)
       if (!result)
         return NULL;
 
-      retc = alloc_typed_cell (CONST_STR);
-      retc->x.str_val = estrdup (result);
-      retc->size = strlen (result);
+      retc = get_name (result);
       ksba_free (result);
     }
   else if (!strcmp (command, "subject"))
@@ -638,9 +756,7 @@ nasl_cert_query (lex_ctxt *lexic)
       if (!result)
         return NULL;
 
-      retc = alloc_typed_cell (CONST_STR);
-      retc->x.str_val = estrdup (result);
-      retc->size = strlen (result);
+      retc = get_name (result);
       ksba_free (result);
     }
   else if (!strcmp (command, "not-before"))
@@ -657,6 +773,14 @@ nasl_cert_query (lex_ctxt *lexic)
       retc->x.str_val = estrdup (isotime);
       retc->size = strlen (isotime);
     }
+  else if (!strcmp (command, "fpr-sha-256"))
+    {
+      retc = get_fingerprint (obj->cert, GCRY_MD_SHA256);
+    }
+  else if (!strcmp (command, "fpr-sha-1"))
+    {
+      retc = get_fingerprint (obj->cert, GCRY_MD_SHA1);
+    }
   else if (!strcmp (command, "all"))
     {
       /* FIXME */
@@ -664,6 +788,20 @@ nasl_cert_query (lex_ctxt *lexic)
   else if (!strcmp (command, "hostnames"))
     {
       retc = build_hostname_list (obj->cert);
+    }
+  else if (!strcmp (command, "image"))
+    {
+      const unsigned char *der;
+      size_t derlen;
+
+      der = ksba_cert_get_image (obj->cert, &derlen);
+      if (der && derlen)
+        {
+          retc = alloc_typed_cell (CONST_DATA);
+          retc->size = derlen;
+          retc->x.str_val = emalloc (derlen);
+          memcpy (retc->x.str_val, der, derlen);
+        }
     }
   else
     {
