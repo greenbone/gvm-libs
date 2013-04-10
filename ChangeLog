@@ -1,3 +1,10 @@
+2013-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport for r15962. Patch by Hani Benhabiles.
+
+	* base/cvss.c (impact_map): Fix Authentication Single Instance value
+	from "C" to "S".
+
 2013-04-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport for r15920. Patch by Hani Benhabiles.
