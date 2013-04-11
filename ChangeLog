@@ -1,3 +1,7 @@
+2013-04-11  Henri Doreau <henri.doreau@cea.fr>
+
+	* misc/kb.c: Fixed typo.
+
 2013-04-10  Werner Koch  <wk@gnupg.org>
 
 	* nasl/nasl_cert.c: Include gcrypt.h.

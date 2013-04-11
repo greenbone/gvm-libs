@@ -29,7 +29,7 @@
  * type flag (indicating whether the value shall be interpreted as int or char*)
  * and a pointer to the "next" item.\n
  * A knowledge base (kb_item**) stores single items at a position according to
- * a hash of the items name (function mkkey). Because of that, a knwoledge
+ * a hash of the items name (function mkkey). Because of that, a knowledge
  * base has a fixed size of 65537 items and kb_items are implemented as lists.\n
  */
 
