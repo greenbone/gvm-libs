@@ -1,3 +1,8 @@
+2013-04-25  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* nasl/nasl_builtin_openvas_tcp_scanner.c (banner_grab): Fix name in
+	error message.
+
 2013-04-11  Henri Doreau <henri.doreau@cea.fr>
 
 	* misc/kb.c: Fixed typo.

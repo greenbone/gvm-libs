@@ -966,7 +966,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 		    untested_ports_nb --;
 		    break;
 		  default:
-		    fprintf(stderr, "nesssus_tcp_scanner: Unhandled case %d at %s:%d\n", sockets[i].state, __FILE__, __LINE__);
+		    fprintf(stderr, "openvas_tcp_scanner: Unhandled case %d at %s:%d\n", sockets[i].state, __FILE__, __LINE__);
 		    break;
 		  }
 		my_socket_close(sockets[i].fd); sockets[i].fd = -1;
