@@ -366,8 +366,8 @@ ads_query_rules (LDAP * ldap, const gchar * dn, const gchar * username)
           gchar *user_dir = g_build_filename (OPENVAS_STATE_DIR,
                                               "users-remote", "ads",
                                               username, NULL);
-          openvas_auth_store_user_rules (user_dir, rule_content->data,
-                                         ruletype);
+          openvas_auth_store_user_rules (user_dir, AUTHENTICATION_METHOD_ADS,
+                                         rule_content->data, ruletype);
           g_free (user_dir);
           openvas_string_list_free (rule_content);
           openvas_string_list_free (attr_vals);

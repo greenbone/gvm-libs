@@ -1,3 +1,45 @@
+2013-04-25  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Convert authentication system to support database users.
+
+	* misc/openvas_auth.c (enum authentication_method)
+	(auth_method_t): Remove.  Now in openvas_auth.h.
+	(auth_method_name): New function.
+	(add_authenticator): Set role function in ldap info.
+	(openvas_auth_init): Call through to new funcs version.
+	(openvas_auth_init_funcs): New function.  Body from openvas_auth_init,
+	but also initialises global functions.
+	(openvas_authenticate_classic): Use global function to get hash, instead
+	of reading it from disk.
+	(can_user_ldap_connect): Use global function to check if user exists,
+	instead of reading disk.
+	(openvas_authenticate): Require the initilisation function to have been
+	called.
+	(openvas_authenticate_method): Require the initilisation function to
+	have been called.  Export.  Set method in ldap_connect case too.
+	(openvas_user_uuid_method, openvas_user_exists_classic): Use global
+	function instead of reading disk.
+	(openvas_authenticate_uuid, openvas_auth_user_methodsdir)
+	(openvas_user_modify): Remove.  Out of use.
+	(openvas_user_exists): Remove old tracing.
+	(openvas_auth_make_user_rules): New function.  Body from
+	openvas_auth_store_user_rules.
+	(openvas_auth_store_user_rules): Use global function instead of reading
+	disk.  Add method arg.
+
+	* misc/openvas_auth.h: Update headers accordingly.
+
+	* misc/ldap_auth.c (user_dir_path): Remove.
+	(ldap_auth_query_rules): Remove disk calls.  Pass method to
+	openvas_auth_store_user_rules.
+	(ldap_authenticate): Remove disk calls.  Set role via callback function
+	from info.
+
+	* misc/ldap_auth.h (ldap_auth_info): Add user_set_role.
+
+	* misc/adc_auth.c (ads_query_rules): Add method to
+	openvas_auth_store_user_rules.
+
 2013-04-25  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* nasl/nasl_builtin_openvas_tcp_scanner.c (banner_grab): Fix name in

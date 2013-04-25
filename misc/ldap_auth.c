@@ -111,25 +111,6 @@ ldap_auth_dn_is_good (const gchar * authdn)
 
 
 /**
- * @brief Returns path to users directory.
- *
- * @param[in]  username  The users name.
- *
- * @return Path to users directory. Caller has to free with g_free. NULL if
- *         parameter is NULL.
- */
-static gchar *
-user_dir_path (const gchar * username)
-{
-  if (username == NULL)
-    return NULL;
-
-  return g_build_filename (OPENVAS_STATE_DIR, "users-remote", "ldap", username,
-                           NULL);
-}
-
-
-/**
  * @brief Create a new ldap authentication schema and info.
  *
  * @param ldap_host         Host to authenticate against. Might not be NULL,
@@ -502,7 +483,6 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
   gchar *rule = NULL;
   int ruletype = -1;
   LDAPMessage *result, *result_it;
-  gchar *user_dir = user_dir_path (username);
 
   int res = ldap_search_ext_s (ldap, dn /* base */ , LDAP_SCOPE_BASE,
                                NULL /* filter */ , attrs, 0 /* attrsonly */ ,
@@ -511,16 +491,13 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
                                LDAP_NO_LIMIT,   /* sizelimit */
                                &result);
 
-  // Ensure that rules directory exists in every case.
-  openvas_auth_mkrulesdir (user_dir);
-
   if (res != LDAP_SUCCESS)
     {
       g_debug ("The rule/ruletype of an ldap user could not be found: %s\n",
                ldap_err2string (res));
       g_debug ("Storing default rules.");
-      openvas_auth_store_user_rules (user_dir, rule, ruletype);
-      g_free (user_dir);
+      openvas_auth_store_user_rules (username, AUTHENTICATION_METHOD_LDAP,
+                                     rule, ruletype);
 
       return -1;
     }
@@ -565,7 +542,8 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
       if (ruletype == -1)
         g_warning ("No ruletype specified, using defaults");
 
-      openvas_auth_store_user_rules (user_dir, rule, ruletype);
+      openvas_auth_store_user_rules (username, AUTHENTICATION_METHOD_LDAP,
+                                     rule, ruletype);
 
       g_free (rule);
 
@@ -577,10 +555,10 @@ ldap_auth_query_rules (LDAP * ldap, ldap_auth_info_t auth_info,
   else                          // No such attribute(s)
     {
       g_debug ("User has no rule/ruletype, did not find the attributes.");
-      openvas_auth_store_user_rules (user_dir, rule, ruletype);
+      openvas_auth_store_user_rules (username, AUTHENTICATION_METHOD_LDAP,
+                                     rule, ruletype);
     }
 
-  g_free (user_dir);
   ldap_msgfree (result);
 
   /** @todo proper returns */
@@ -724,14 +702,13 @@ ldap_authenticate (const gchar * username, const gchar * password,
     {
       if (ldap_auth_query_rules (ldap, info, dn, username) == -1)
         g_warning ("Users rules could not be found on ldap directory.");
+
       // If user is admin or observer, mark it so.
-      gchar *user_dir_name = user_dir_path (username);
-      openvas_set_user_role (username,
-                             (role == 3)
-                               ? "Observer"
-                               : ((role == 2) ? "Admin" : "User"),
-                             user_dir_name);
-      g_free (user_dir_name);
+      info->user_set_role (username,
+                           auth_method_name (AUTHENTICATION_METHOD_LDAP),
+                           (role == 3)
+                             ? "Observer"
+                             : ((role == 2) ? "Admin" : "User"));
     }
 
   ldap_unbind_ext_s (ldap, NULL, NULL);

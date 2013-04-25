@@ -33,7 +33,34 @@
 
 #include "../base/array.h"
 
+/**
+ * @brief Numerical representation of the supported authentication methods.
+ * @brief Beware to have it in sync with \ref authentication_methods.
+ */
+enum authentication_method
+{
+  AUTHENTICATION_METHOD_FILE = 0,
+  AUTHENTICATION_METHOD_ADS,
+  AUTHENTICATION_METHOD_LDAP,
+  AUTHENTICATION_METHOD_LDAP_CONNECT,
+  AUTHENTICATION_METHOD_LAST
+};
+
+/** @brief Type for the numerical representation of the supported
+ *  @brief authentication methods. */
+typedef enum authentication_method auth_method_t;
+
+const gchar *auth_method_name (auth_method_t);
+
 void openvas_auth_init ();
+
+void openvas_auth_init_funcs (gchar * (*) (const gchar *),
+                              int (*) (const gchar *, const gchar *,
+                                       const gchar *),
+                              int (*) (const gchar *, auth_method_t),
+                              int (*) (const gchar *, const gchar *,
+                                       const gchar *, int),
+                              gchar * (*) (const gchar *, auth_method_t));
 
 void openvas_auth_tear_down ();
 
@@ -42,6 +69,8 @@ int openvas_auth_write_config (GKeyFile * keyfile);
 gchar *get_password_hashes (int, const gchar *);
 
 gchar *digest_hex (int, const guchar *);
+
+int openvas_authenticate_method (const gchar *, const gchar *, auth_method_t *);
 
 int openvas_authenticate (const gchar *, const gchar *);
 
@@ -58,10 +87,6 @@ int openvas_is_user_observer (const gchar *);
 int openvas_set_user_role (const gchar *, const gchar *,
                            const gchar * user_dir_name);
 
-int openvas_user_modify (const gchar *, const gchar *, const gchar *,
-                         const gchar *, int, const gchar *,
-                         const array_t * allowed_methods);
-
 int openvas_auth_mkrulesdir (const gchar * user_dir_name);
 
 int openvas_auth_user_rules (const gchar * username, gchar ** rules);
@@ -69,8 +94,9 @@ int openvas_auth_user_rules (const gchar * username, gchar ** rules);
 int openvas_auth_user_uuid_rules (const gchar * username,
                                   const gchar * user_uuid, gchar ** rules);
 
-int openvas_auth_store_user_rules (const gchar * user_dir, const gchar * hosts,
-                                   int hosts_allow);
+int openvas_auth_store_user_rules (const gchar * user_dir, auth_method_t,
+                                   const gchar * hosts, int hosts_allow);
+GString *openvas_auth_make_user_rules (const gchar *, int);
 GSList *
 openvas_auth_user_methods (const gchar * user_name);
 

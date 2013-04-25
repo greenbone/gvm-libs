@@ -117,23 +117,6 @@
 
 
 /**
- * @brief Numerical representation of the supported authentication methods.
- * @brief Beware to have it in sync with \ref authentication_methods.
- */
-enum authentication_method
-{
-  AUTHENTICATION_METHOD_FILE = 0,
-  AUTHENTICATION_METHOD_ADS,
-  AUTHENTICATION_METHOD_LDAP,
-  AUTHENTICATION_METHOD_LDAP_CONNECT,
-  AUTHENTICATION_METHOD_LAST
-};
-
-/** @brief Type for the numerical representation of the supported
- *  @brief authentication methods. */
-typedef enum authentication_method auth_method_t;
-
-/**
  * @brief Array of string representations of the supported authentication
  * @brief methods.
  */
@@ -183,7 +166,17 @@ static int openvas_user_exists_classic (const gchar *name, void *data);
 
 static int openvas_auth_mkmethodsdir (const gchar *dir);
 
-static gchar* openvas_auth_user_methodsdir (const gchar * username);
+gchar* (*classic_get_hash) (const gchar *) = NULL;
+
+int (*user_uuid_method) (const char *method) = NULL;
+
+int (*user_set_role) (const gchar *, const gchar *, const gchar *) = NULL;
+
+gchar* (*user_get_uuid) (const gchar *, auth_method_t) = NULL;
+
+int (*user_set_rules) (const gchar *, const gchar *, const gchar *, int) = NULL;
+
+int (*user_exists) (const gchar *, auth_method_t) = NULL;
 
 /**
  * @brief Return a auth_method_t from string representation (e.g. "ldap").
@@ -208,6 +201,23 @@ auth_method_from_string (const char *method)
   return -1;
 }
 
+/**
+ * @brief Return name of auth_method_t.
+ *
+ * Keep in sync with \ref authentication_methods and
+ * \ref authentication_method .
+ *
+ * @param method Auth method.
+ *
+ * @return Name of auth method.
+ */
+const gchar *
+auth_method_name (auth_method_t method)
+{
+  if ((method < 0) || (method >= AUTHENTICATION_METHOD_LAST))
+    return "ERROR";
+  return authentication_methods[method];
+}
 
 /**
  * @brief Implements a (GCompareFunc) to add authenticators to the
@@ -290,6 +300,7 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
         authent->authenticate = &ldap_authenticate;
         authent->user_exists = &ldap_user_exists;
         ldap_auth_info_t info = ldap_auth_info_from_key_file (key_file, group);
+        info->user_set_role = user_set_role;
         authent->data = info;
         authent->method = AUTHENTICATION_METHOD_LDAP;
         authenticators =
@@ -374,11 +385,45 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
 void
 openvas_auth_init ()
 {
+  openvas_auth_init_funcs (NULL, NULL, NULL, NULL, NULL);
+}
+
+/**
+ * @brief Initializes the list of authentication methods.
+ *
+ * Parses PREFIX/var/lib/openvas/.auth.conf and adds respective authenticators
+ * to the authenticators list.
+ *
+ * Call once before calls to openvas_authenticate, otherwise the
+ * authentication method will default to file-system based authentication.
+ *
+ * The list should be freed with \ref openvas_auth_tear_down once no further
+ * authentication trials will be done.
+ *
+ * A warning will be issued if \ref openvas_auth_init is called a second time
+ * without a call to \ref openvas_auth_tear_down in between. In this case,
+ * no reconfiguration will take place.
+ */
+void
+openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
+                         int (*set_role) (const gchar *, const gchar *,
+                                          const gchar *),
+                         int (*user_exists_arg) (const gchar *, auth_method_t),
+                         int (*set_rules) (const gchar *, const gchar *,
+                                           const gchar *, int),
+                         gchar * (*get_uuid) (const gchar *, auth_method_t))
+{
   if (initialized == TRUE)
     {
       g_warning ("openvas_auth_init called a second time.");
       return;
     }
+
+  user_exists = user_exists_arg;
+  classic_get_hash = get_hash;
+  user_get_uuid = get_uuid;
+  user_set_role = set_role;
+  user_set_rules = set_rules;
 
   GKeyFile *key_file = g_key_file_new ();
   gchar *config_file = g_build_filename (OPENVAS_USERS_DIR, ".auth.conf",
@@ -390,6 +435,8 @@ openvas_auth_init ()
              "Authentication configuration not found.\n");
       return;
     }
+
+  g_debug ("loading auth: %s", config_file);
 
   gboolean loaded =
     g_key_file_load_from_file (key_file, config_file, G_KEY_FILE_NONE, NULL);
@@ -749,41 +796,29 @@ openvas_authenticate_classic (const gchar * username, const gchar * password,
 {
   int gcrypt_algorithm = GCRY_MD_MD5;   // FIX whatever configer used
   int ret;
-  gchar *actual;
-  gchar *expect;
-  GError *error = NULL;
-  gchar *seed_pass = NULL;
-  guchar *hash = g_malloc0 (gcry_md_get_algo_dlen (gcrypt_algorithm));
-  gchar *hash_hex = NULL;
-  gchar **seed_hex;
-  gchar **split;
+  gchar *actual, *expect, *seed_pass;
+  guchar *hash;
+  gchar *hash_hex, **seed_hex, **split;
 
-  gchar *file_name = g_build_filename (OPENVAS_USERS_DIR,
-                                       username,
-                                       "auth",
-                                       "hash",
-                                       NULL);
-  g_file_get_contents (file_name, &actual, NULL, &error);
-  g_free (file_name);
-  if (error)
-    {
-      g_free (hash);
-      g_error_free (error);
-      return 1;
-    }
+  if (classic_get_hash == NULL)
+    return -1;
+
+  actual = classic_get_hash (username);
+  if (actual == NULL)
+    return 1;
 
   split = g_strsplit_set (g_strchomp (actual), " ", 2);
   seed_hex = split + 1;
   if (*split == NULL || *seed_hex == NULL)
     {
       g_warning ("Failed to split auth contents.");
-      g_free (hash);
       g_strfreev (split);
       g_free (actual);
       return -1;
     }
 
   seed_pass = g_strconcat (*seed_hex, password, NULL);
+  hash = g_malloc0 (gcry_md_get_algo_dlen (gcrypt_algorithm));
   gcry_md_hash_buffer (GCRY_MD_MD5, hash, seed_pass, strlen (seed_pass));
   hash_hex = digest_hex (GCRY_MD_MD5, hash);
 
@@ -817,26 +852,10 @@ can_user_ldap_connect (const gchar * username)
   if (ldap_connect_configured == FALSE)
     return FALSE;
 
-  // Does the directory and file exist?
-  gchar * methodsdir = openvas_auth_user_methodsdir (username);
+  if (user_exists (username, AUTHENTICATION_METHOD_LDAP_CONNECT) == 0)
+    return FALSE;
 
-  if (g_file_test (methodsdir, G_FILE_TEST_IS_DIR))
-    {
-      gchar * ldap_connect_file = g_build_filename (methodsdir, "ldap_connect", NULL);
-      if (g_file_test (ldap_connect_file, G_FILE_TEST_IS_REGULAR))
-        {
-          g_free (ldap_connect_file);
-          g_free (methodsdir);
-          return TRUE;
-        }
-      g_free (ldap_connect_file);
-      g_free (methodsdir);
-      return FALSE;
-    }
-
-  g_free (methodsdir);
-
-  return FALSE;
+  return TRUE;
 }
 
 /**
@@ -858,7 +877,13 @@ openvas_authenticate (const gchar * username, const gchar * password)
   if (strchr (username, '%') != NULL)
     return -1;
 
-  if (initialized == FALSE || authenticators == NULL)
+  if (initialized == FALSE)
+    {
+      g_warning ("Call init function first.");
+      return -1;
+    }
+
+  if (authenticators == NULL)
     return openvas_authenticate_classic (username, password, NULL);
 
   // Try each authenticator in the list.
@@ -910,12 +935,19 @@ openvas_authenticate (const gchar * username, const gchar * password)
  * @return 0 authentication success, otherwise the result of the last
  *         authentication trial: 1 authentication failure, -1 error.
  */
-static int
+int
 openvas_authenticate_method (const gchar * username, const gchar * password,
                              auth_method_t * method)
 {
   *method = AUTHENTICATION_METHOD_FILE;
-  if (initialized == FALSE || authenticators == NULL)
+
+  if (initialized == FALSE)
+    {
+      g_warning ("Call init function first.");
+      return -1;
+    }
+
+  if (authenticators == NULL)
     return openvas_authenticate_classic (username, password, NULL);
 
   // Try each authenticator in the list.
@@ -930,6 +962,7 @@ openvas_authenticate_method (const gchar * username, const gchar * password,
         {
           if (can_user_ldap_connect (username) == TRUE)
             {
+              *method = AUTHENTICATION_METHOD_LDAP_CONNECT;
               return authent->authenticate (username, password, authent->data);
             }
           else
@@ -969,121 +1002,12 @@ openvas_authenticate_method (const gchar * username, const gchar * password,
 static gchar *
 openvas_user_uuid_method (const char *name, const auth_method_t method)
 {
-  gchar *user_dir =
-    (method ==
-     AUTHENTICATION_METHOD_FILE) ? g_build_filename (OPENVAS_USERS_DIR, name,
-                                                     NULL) :
-    g_build_filename (OPENVAS_STATE_DIR,
-                      "users-remote",
-                      authentication_methods[method],
-                      name, NULL);
+  if (user_get_uuid == NULL)
+    return NULL;
 
-  // Create a user dir to store the uuid, if it did not yet exist.
-  if (g_mkdir_with_parents (user_dir, 0700) != 0)
-    {
-      g_warning ("Directory to store user information could not be accessed.");
-      g_free (user_dir);
-      return NULL;
-    }
-
-  {
-    gchar *uuid_file = g_build_filename (user_dir, "uuid", NULL);
-    // File exists, get its content (the uuid).
-    if (g_file_test (uuid_file, G_FILE_TEST_EXISTS))
-      {
-        gsize size;
-        gchar *uuid;
-        if (g_file_get_contents (uuid_file, &uuid, &size, NULL))
-          {
-            if (strlen (uuid) < 36)
-              g_free (uuid);
-            else
-              {
-                g_free (user_dir);
-                g_free (uuid_file);
-                /* Drop any trailing characters. */
-                uuid[36] = '\0';
-                return uuid;
-              }
-          }
-      }
-    // File does not exists, create file, set (new) uuid as content.
-    else
-      {
-        gchar *contents;
-        char *uuid;
-
-        uuid = openvas_uuid_make ();
-        if (uuid == NULL)
-          {
-            g_free (user_dir);
-            g_free (uuid_file);
-            return NULL;
-          }
-
-        contents = g_strdup_printf ("%s\n", uuid);
-
-        if (g_file_set_contents (uuid_file, contents, -1, NULL))
-          {
-            g_free (contents);
-            g_free (user_dir);
-            g_free (uuid_file);
-            return uuid;
-          }
-
-        g_free (contents);
-        free (uuid);
-      }
-    g_free (uuid_file);
-  }
-
-  g_free (user_dir);
-  return NULL;
+  return user_get_uuid (name, method);
 }
 
-
-/**
- * @brief Authenticate a credential pair, returning the user UUID.
- *
- * @param  username  Username.
- * @param  password  Password.
- * @param  uuid      UUID return.
- *
- * @return 0 authentication success, 1 authentication failure, -1 error.
- */
-int
-openvas_authenticate_uuid (const gchar * username, const gchar * password,
-                           gchar ** uuid)
-{
-  int ret;
-
-  // Authenticate
-  auth_method_t method;
-  ret = openvas_authenticate_method (username, password, &method);
-  if (ret)
-    {
-      if (ret == 1)
-        g_log ("event auth", G_LOG_LEVEL_MESSAGE,
-               "Authentication failure for user %s", username);
-      if (ret == -1)
-        g_log ("event auth", G_LOG_LEVEL_MESSAGE,
-               "Authentication error for user %s", username);
-      return ret;
-    }
-
-  // Get the uuid from file (create it if it did not yet exist).
-  *uuid = openvas_user_uuid_method (username, method);
-  if (*uuid)
-    {
-      g_log ("event auth", G_LOG_LEVEL_MESSAGE,
-             "Authentication success for user %s (%s)", username, *uuid);
-      return 0;
-    }
-
-  g_log ("event auth", G_LOG_LEVEL_MESSAGE,
-         "Authentication error for user %s", username);
-  return -1;
-}
 
 /**
  * @brief Get contents of a uuid file.
@@ -1129,22 +1053,10 @@ uuid_file_contents (const gchar * uuid_file_path)
 static int
 openvas_user_exists_classic (const gchar *name, void *data)
 {
-  gchar *user_dir;
-  struct stat state;
-  int err;
+  if (user_exists == NULL)
+    return -1;
 
-  user_dir = g_build_filename (OPENVAS_USERS_DIR, name, NULL);
-  err = stat (user_dir, &state);
-  g_free (user_dir);
-  if (err)
-    switch (errno)
-      {
-        case ENOENT:
-          return 0;
-        default:
-          return -1;
-      }
-  return 1;
+  return user_exists (name, AUTHENTICATION_METHOD_FILE);
 }
 
 /**
@@ -1159,15 +1071,8 @@ openvas_user_exists (const char *name)
 {
   GSList *item;
 
-  g_debug ("%s: 0", __FUNCTION__);
-
   if (initialized == FALSE || authenticators == NULL)
-    {
-      g_debug ("%s: 1", __FUNCTION__);
-      return openvas_user_exists_classic (name, NULL);
-    }
-
-  g_debug ("%s: 2", __FUNCTION__);
+    return openvas_user_exists_classic (name, NULL);
 
   // Try each authenticator in the list.
   item = authenticators;
@@ -1297,21 +1202,6 @@ openvas_is_user_admin (const gchar * username)
 }
 
 /**
- * @brief Create string with path to users methods directory.
- *
- * @param username name of the user whose directory to access
- *
- * @return path to users method directory, free yourself with g_free.
- */
-static gchar*
-openvas_auth_user_methodsdir (const gchar * username)
-{
-  gchar * method_dir = g_build_filename (OPENVAS_USERS_DIR, username, "auth",
-                                        "methods", NULL);
-  return method_dir;
-}
-
-/**
  * @brief Check if a user is an observer.
  *
  * The check for administrative privileges is currently done by looking for an
@@ -1376,102 +1266,6 @@ openvas_is_user_observer (const gchar * username)
     }
 
   return file_exists;
-}
-
-/** @todo handle remotely authenticated users. */
-/**
- * @brief Modify a user.
- *
- * @param[in]  name         The name of the new user.
- * @param[in]  password     The password of the new user.  NULL to leave as is.
- * @param[in]  role         The role of the user.  NULL to leave as is.
- * @param[in]  hosts        The host the user is allowed/forbidden to scan.
- *                          NULL to leave as is.
- * @param[in]  hosts_allow  Whether hosts is allow or forbid.
- * @param[in]  directory    The directory containing the user directories.  It
- *                          will be created if it does not exist already.
- * @param[in] allowed_methods Array of strings of allowed authenticators.  If
- *                            NULL, do no modifications.
- *
- * @return 0 if the user has been added successfully, -1 on error, -2 for an
- *         unknown role, -3 if user exists already.
- */
-int
-openvas_user_modify (const gchar * name, const gchar * password,
-                     const gchar * role, const gchar * hosts,
-                     int hosts_allow, const gchar * directory,
-		     const array_t * allowed_methods)
-{
-  /* FIXME: Do password policy checking right here and not before
-     calling this function.  This has not yet been done because in
-     openvasad an explicit check is done when creating a user.  */
-
-  g_assert (name != NULL);
-
-  if (directory == NULL)
-    directory = OPENVAS_USERS_DIR;
-
-  if (strcmp (name, "om") == 0)
-    {
-      g_warning ("Attempt to modify special \"om\" user!");
-      return -1;
-    }
-
-  if (g_file_test (directory, G_FILE_TEST_IS_DIR))
-    {
-      GError *error = NULL;
-      gchar *user_hash_file_name, *hashes_out;
-
-      /* Put the password hashes in auth/hash. */
-      if (password)
-        {
-          hashes_out = get_password_hashes (GCRY_MD_MD5, password);
-          user_hash_file_name =
-            g_build_filename (directory, name, "auth", "hash", NULL);
-          if (!g_file_set_contents
-              (user_hash_file_name, hashes_out, -1, &error))
-            {
-              g_warning ("%s", error->message);
-              g_error_free (error);
-              g_free (hashes_out);
-              g_free (user_hash_file_name);
-              return -1;
-            }
-          g_free (hashes_out);
-          g_free (user_hash_file_name);
-        }
-
-      /* Create rules according to hosts. */
-      if (hosts)
-        {
-          gchar *user_dir_name = g_build_filename (directory, name, NULL);
-          if (openvas_auth_store_user_rules (user_dir_name, hosts, hosts_allow)
-              == -1)
-            {
-              g_free (user_dir_name);
-              return -1;
-            }
-
-          g_free (user_dir_name);
-        }
-
-      /* Set the authentication methods for the user. */
-      if (allowed_methods != NULL)
-        {
-          if (openvas_auth_user_set_allowed_methods (name, allowed_methods) != 1)
-            return -1;
-        }
-
-      /* Set the role of the user. */
-      if (role)
-        return openvas_set_user_role (name, role, NULL);
-
-
-      return 0;
-    }
-
-  g_warning ("Could not access %s!", directory);
-  return -1;
 }
 
 
@@ -1826,7 +1620,6 @@ openvas_auth_user_methods (const gchar * user_name)
   return user_methods;
 }
 
-
 /**
  * @brief Stores the rules for a user.
  *
@@ -1841,15 +1634,14 @@ openvas_auth_user_methods (const gchar * user_name)
  * @param[in]  hosts_allow    Whether access to \ref hosts is allowed (!=0) or
  *                            forbidden (0).
  *
- * @return 0 if successfull, -1 if an error occurred.
+ * @return Rules.
  */
-int
-openvas_auth_store_user_rules (const gchar * user_dir_name, const gchar * hosts,
-                               int hosts_allow)
+GString *
+openvas_auth_make_user_rules (const gchar * hosts, int hosts_allow)
 {
-  GError *error = NULL;
-  gchar *user_rules_file_name = NULL;
-  GString *rules = g_string_new (RULES_FILE_HEADER);
+  GString *rules;
+
+  rules = g_string_new (RULES_FILE_HEADER);
   if (hosts && strlen (hosts))
     {
       gchar **split = g_strsplit (hosts, ",", 0);
@@ -1875,22 +1667,32 @@ openvas_auth_store_user_rules (const gchar * user_dir_name, const gchar * hosts,
 
       g_strfreev (split);
     }
+  return rules;
+}
 
-  // Put the rules in auth/rules.
-  user_rules_file_name = g_build_filename (user_dir_name, "auth", "rules", NULL);
-
-  if (!g_file_set_contents (user_rules_file_name, rules->str, -1, &error))
-    {
-      g_warning ("%s", error->message);
-      g_error_free (error);
-      g_string_free (rules, TRUE);
-      g_free (user_rules_file_name);
-      return -1;
-    }
-  g_string_free (rules, TRUE);
-  g_chmod (user_rules_file_name, 0600);
-  g_free (user_rules_file_name);
-
+/**
+ * @brief Stores the rules for a user.
+ *
+ * The rules will be saved in a file in \ref user_dir_name /auth/rules .
+ * This directory has to exist prior to this function call, otherwise the
+ * file will not be written and -1 will be returned.
+ *
+ * @param[in]  user_dir_name  Directory under which the auth/rules file will
+ *                            be placed.
+ * @param[in]  hosts          The hosts the user is allowed/forbidden to scan.
+ *                            Can be NULL, then defaults to allow-all.
+ * @param[in]  hosts_allow    Whether access to \ref hosts is allowed (!=0) or
+ *                            forbidden (0).
+ *
+ * @return 0 if successfull, -1 if an error occurred.
+ */
+int
+openvas_auth_store_user_rules (const gchar * username, auth_method_t method,
+                               const gchar * hosts, int hosts_allow)
+{
+  if (user_set_rules == NULL)
+    return -1;
+  user_set_rules (username, auth_method_name (method), hosts, hosts_allow);
   return 0;
 }
 
