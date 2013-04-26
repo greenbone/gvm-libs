@@ -34,6 +34,7 @@
 #include <glib.h>
 #include <stdlib.h>
 #include <locale.h>             /* for LC_CTYPE  */
+#include <unistd.h>             /* for F_OK */
 
 #include "gpgme_util.h"
 
@@ -44,26 +45,65 @@
 #define G_LOG_DOMAIN "base gpgme"
 
 /**
- * @brief Return the name of the GnuPG home directory
+ * @brief Log function with extra gpg-error style output
+ *
+ * If @ref err is not 0, the appropriate error string is appended to
+ * the output.  It takes care to only add the error source string if
+ * it makes sense.
+ *
+ * TODO: Make this a global function.  There is already a copy in the
+ *       manager
+ *
+ * @param level  The GLib style log level
+ * @param err    An gpg-error value or 0
+ * @param fmt    The printf style format string, followed by its
+ *                arguments.
+ *
+ */
+static void
+log_gpgme (GLogLevelFlags level, gpg_error_t err, const char *fmt, ...)
+{
+  va_list arg_ptr;
+  char *msg;
+
+  va_start (arg_ptr, fmt);
+  msg = g_strdup_vprintf (fmt, arg_ptr);
+  va_end (arg_ptr);
+  if (err && gpg_err_source (err) != GPG_ERR_SOURCE_ANY
+          && gpg_err_source (err))
+    g_log (G_LOG_DOMAIN, level, "%s: %s <%s>",
+           msg, gpg_strerror (err), gpg_strsource (err));
+  else if (err)
+    g_log (G_LOG_DOMAIN, level, "%s: %s",
+           msg, gpg_strerror (err));
+  else
+    g_log (G_LOG_DOMAIN, level, "%s",
+           msg);
+  g_free (msg);
+}
+
+/**
+ * @brief Return the name of the writable GnuPG home directory
  *
  * Returns the name of the GnuPG home directory to use when checking
  * GnuPG signatures.  The return value is the value of the environment
- * variable OPENVAS_GPGHOME if it is set.  Otherwise it is the directory
- * openvas/gnupg under the sysconfdir that was set by configure (usually
- * $prefix/etc).  The return value must be released with g_free.
+ * variable OPENVAS_GPGHOME if it is set.  Otherwise it is the
+ * directory openvas/gnupg under the statedir that was set by
+ * configure (usually $prefix/var/lib/openvas/gnupg).  The return
+ * value must be released with g_free.
  *
- * @return Custom path of the GnuPG home directory.
+ * @return Custom name of the GnuPG home directory for general use.
  */
 static char *
 determine_gpghome (void)
 {
-  /** @todo Use glibs g_build_filename */
-  char *default_dir = OPENVAS_SYSCONF_DIR "/gnupg";
   char *envdir = getenv ("OPENVAS_GPGHOME");
 
-  return g_strdup (envdir ? envdir : default_dir);
+  if (envdir)
+    return g_strdup (envdir);
+  else
+    return g_build_filename (OPENVAS_STATE_DIR, "gnupg", NULL);
 }
-
 
 /**
  * @brief Returns a new gpgme context.
@@ -106,13 +146,14 @@ openvas_init_gpgme_ctx (void)
 
       gpghome = determine_gpghome ();
       g_message ("Setting GnuPG homedir to '%s'", gpghome);
-      err = gpgme_set_engine_info (GPGME_PROTOCOL_OpenPGP, NULL, gpghome);
+      if (access (gpghome, F_OK))
+        err = gpg_error_from_syserror ();
+      else
+        err = gpgme_set_engine_info (GPGME_PROTOCOL_OpenPGP, NULL, gpghome);
       g_free (gpghome);
       if (err)
         {
-          g_warning ("Setting GnuPG homedir failed: %s/%s",
-                     gpgme_strsource (err), gpgme_strerror (err));
-
+          log_gpgme (G_LOG_LEVEL_WARNING, err, "Setting GnuPG homedir failed");
           return NULL;
         }
 
@@ -135,8 +176,7 @@ openvas_init_gpgme_ctx (void)
   ctx = NULL;
   err = gpgme_new (&ctx);
   if (err)
-    g_warning ("Creating GPGME context failed: %s/%s",
-               gpgme_strsource (err), gpgme_strerror (err));
+    log_gpgme (G_LOG_LEVEL_WARNING, err, "Creating GPGME context failed");
 
   return ctx;
 }
