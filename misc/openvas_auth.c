@@ -433,6 +433,7 @@ openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
     {
       g_log ("lib auth", G_LOG_LEVEL_INFO,
              "Authentication configuration not found.\n");
+      initialized = TRUE;
       return;
     }
 

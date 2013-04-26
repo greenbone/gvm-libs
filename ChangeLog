@@ -1,3 +1,8 @@
+2013-04-26  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_auth_init_funcs): Set initialized flag
+	even when there was no .auth.conf.
+
 2013-04-25  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Convert authentication system to support database users.
