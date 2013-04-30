@@ -180,3 +180,69 @@ openvas_init_gpgme_ctx (void)
 
   return ctx;
 }
+
+/**
+ * @brief Return the name of the sysconf GnuPG home directory
+ *
+ * Returns the name of the GnuPG home directory to use when checking
+ * signatures.  It is the directory openvas/gnupg under the sysconfdir
+ * that was set by configure (usually $prefix/etc).
+ *
+ * @return Static name of the Sysconf GnuPG home directory.
+ */
+static const char *
+get_sysconf_gpghome (void)
+{
+  static char *name;
+
+  if (!name)
+    name = g_build_filename (OPENVAS_SYSCONF_DIR, "gnupg", NULL);
+
+  return name;
+}
+
+/**
+ * @brief Returns a new gpgme context using the sycconf directory.
+ *
+ * Inits a gpgme context with the systeconf gpghome directory,
+ * protocol version etc. Returns the context or NULL if an error
+ * occurred.  This function also does an gpgme initialization the
+ * first time it is called.  It is advisable to call this function (or
+ * openvas_init_gpgme_ctx) as early as possible to notice a bad
+ * installation (e.g. an too old gpg version).
+ *
+ * @return The gpgme_ctx_t to the context or NULL if an error occurred.
+ */
+gpgme_ctx_t
+openvas_init_gpgme_sysconf_ctx (void)
+{
+  static int info_shown;
+  gpg_error_t err;
+  gpgme_ctx_t ctx;
+
+  ctx = openvas_init_gpgme_ctx ();
+  if (!ctx)
+    return NULL;
+
+  if (!info_shown)
+    {
+      info_shown = 1;
+      g_message ("Setting GnuPG sysconf homedir to '%s'",
+                 get_sysconf_gpghome());
+    }
+  if (access (get_sysconf_gpghome (), F_OK))
+    err = gpg_error_from_syserror ();
+  else
+    err = gpgme_ctx_set_engine_info (ctx, GPGME_PROTOCOL_OpenPGP,
+                                     NULL, get_sysconf_gpghome ());
+  if (err)
+    {
+      log_gpgme (G_LOG_LEVEL_WARNING, err,
+                 "Setting GnuPG sysconf homedir to '%s' failed",
+                 get_sysconf_gpghome());
+      gpgme_release (ctx);
+      ctx = NULL;
+    }
+
+  return ctx;
+}

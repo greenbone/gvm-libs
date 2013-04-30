@@ -131,7 +131,7 @@ nasl_verify_signature (const char *filename)
   int retcode = -1;
   char *sigfilename = NULL;
   gpgme_error_t err;
-  gpgme_ctx_t ctx = openvas_init_gpgme_ctx ();
+  gpgme_ctx_t ctx = openvas_init_gpgme_sysconf_ctx ();
   gpgme_data_t sig = NULL, text = NULL;
 
   if (ctx == NULL)

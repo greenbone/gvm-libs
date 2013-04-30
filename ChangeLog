@@ -1,3 +1,12 @@
+2013-04-30  Werner Koch  <wk@gnupg.org>
+
+	Use the sysconf directory for signature verification again.
+
+	* base/gpgme_util.c (get_sysconf_gpghome): New.
+	(openvas_init_gpgme_sysconf_ctx): New.
+	* base/gpgme_util.h: Add prototype.
+	* nasl/nasl_signature.c (nasl_verify_signature): Use new function.
+
 2013-04-26  Werner Koch  <wk@gnupg.org>
 
 	* base/CMakeLists.txt: Add definition for OPENVAS_STATE_DIR.
