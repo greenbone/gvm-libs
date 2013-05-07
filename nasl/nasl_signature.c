@@ -211,7 +211,7 @@ nasl_extract_signature_fprs (const char *filename)
 {
   char *sigfilename = NULL;
   gpgme_error_t err;
-  gpgme_ctx_t ctx = openvas_init_gpgme_ctx ();
+  gpgme_ctx_t ctx;
   gpgme_data_t sig = NULL;
   gpgme_data_t text = NULL;
   gpgme_signature_t signature;
@@ -219,12 +219,15 @@ nasl_extract_signature_fprs (const char *filename)
     * It was removed since OpenVAS > 2.0 and this
     * fixed size here should eventually be replaced by dynamic solution. */
   char *key_fprs = emalloc ((3 * 48 + 3) * sizeof (char));
-  key_fprs[0] = '\0';
   gboolean failed = FALSE;
+  char *return_string = NULL;
 
+  key_fprs[0] = '\0';
+
+  ctx = openvas_init_gpgme_ctx ();
   if (ctx == NULL)
     {
-      err = 0;
+      err = GPG_ERR_GENERAL;
       failed = TRUE;
     }
 
@@ -318,8 +321,6 @@ nasl_extract_signature_fprs (const char *filename)
   if (ctx != NULL)
     gpgme_release (ctx);
   efree (&sigfilename);
-
-  char *return_string = NULL;
 
   if (failed == FALSE)
     return_string = estrdup (key_fprs);
