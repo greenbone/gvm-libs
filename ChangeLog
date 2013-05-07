@@ -1,7 +1,12 @@
 2013-05-07  Werner Koch  <wk@gnupg.org>
 
+	* nasl/nasl_signature.c (nasl_extract_signature_fprs)
+	(nasl_get_all_certificates): Also use sysconf directory.
+
+2013-05-07  Werner Koch  <wk@gnupg.org>
+
 	* nasl/nasl_signature.c (nasl_extract_signature_fprs): Set ERR if
-	CTX creation failed.  Also moved all var definitions to the top.
+	CTX creation failed.  Also move all var definitions to the top.
 
 2013-04-30  Werner Koch  <wk@gnupg.org>
 

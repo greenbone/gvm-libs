@@ -224,7 +224,7 @@ nasl_extract_signature_fprs (const char *filename)
 
   key_fprs[0] = '\0';
 
-  ctx = openvas_init_gpgme_ctx ();
+  ctx = openvas_init_gpgme_sysconf_ctx ();
   if (ctx == NULL)
     {
       err = GPG_ERR_GENERAL;
@@ -426,8 +426,9 @@ nasl_get_all_certificates ()
   GSList *certificates = NULL;
   // Certificate retrieval
   gpgme_error_t err;
-  gpgme_ctx_t ctx = openvas_init_gpgme_ctx ();
+  gpgme_ctx_t ctx;
 
+  ctx = openvas_init_gpgme_sysconf_ctx ();
   if (ctx == NULL)
     {
       return NULL;
