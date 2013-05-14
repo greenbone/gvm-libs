@@ -1603,10 +1603,11 @@ nvti_from_keyfile (const gchar * fn)
   utf8str = g_key_file_get_string (keyfile, "NVT Info", "Name", NULL);
   if (utf8str)
     {
-    nvti_set_name (n,
-                   g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
-                              &size_dummy, NULL));
-    g_free(utf8str);
+      gStr = g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
+                        &size_dummy, NULL);
+      nvti_set_name (n, gStr);
+      g_free(gStr);
+      g_free(utf8str);
     }
   utf8str = g_key_file_get_string (keyfile, "NVT Info", "Summary", NULL);
   if (utf8str)
