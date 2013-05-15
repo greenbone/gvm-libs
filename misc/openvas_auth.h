@@ -87,15 +87,6 @@ int openvas_is_user_observer (const gchar *);
 int openvas_set_user_role (const gchar *, const gchar *,
                            const gchar * user_dir_name);
 
-int openvas_auth_mkrulesdir (const gchar * user_dir_name);
-
-int openvas_auth_user_rules (const gchar * username, gchar ** rules);
-
-int openvas_auth_user_uuid_rules (const gchar * username,
-                                  const gchar * user_uuid, gchar ** rules);
-
-int openvas_auth_store_user_rules (const gchar * user_dir, auth_method_t,
-                                   const gchar * hosts, int hosts_allow);
 GString *openvas_auth_make_user_rules (const gchar *, int);
 GSList *
 openvas_auth_user_methods (const gchar * user_name);
