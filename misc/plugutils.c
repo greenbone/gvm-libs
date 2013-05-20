@@ -1189,7 +1189,6 @@ scanner_add_port (struct arglist *args, int port, char *proto)
   const char *hn = plug_get_hostname (args);
   int len;
   int soc;
-  int do_send = 1;
   static int confirm = -1;
 
   if (confirm < 0)
@@ -1199,19 +1198,6 @@ scanner_add_port (struct arglist *args, int port, char *proto)
         confirm = GPOINTER_TO_SIZE (arg_get_value (globals, "confirm"));
     }
 
-  /*
-   * Diff scan stuff : if the port was known to be open,
-   * there is no need to report it again.
-   */
-  if (arg_get_value (args, "DIFF_SCAN"))
-    {
-      char port_s[255];
-      snprintf (port_s, sizeof (port_s), "Ports/%s/%d", proto, port);   /* RATS: ignore */
-      if (kb_item_get_int (plug_get_kb (args), port_s) > 0)
-        do_send = 0;
-    }
-
-
   host_add_port_proto (args, port, 1, proto);
 
   len = 255 + (hn ? strlen (hn) : 0);
@@ -1219,11 +1205,9 @@ scanner_add_port (struct arglist *args, int port, char *proto)
   snprintf (buf, len, "SERVER <|> PORT <|> %s <|> %d/%s <|> SERVER\n", hn,
             port, proto);
 
-  if (do_send)
-    {
-      soc = GPOINTER_TO_SIZE (arg_get_value (args, "SOCKET"));
-      internal_send (soc, buf, INTERNAL_COMM_MSG_TYPE_DATA);
-    }
+  soc = GPOINTER_TO_SIZE (arg_get_value (args, "SOCKET"));
+  internal_send (soc, buf, INTERNAL_COMM_MSG_TYPE_DATA);
+
   efree (&buf);
 }
 

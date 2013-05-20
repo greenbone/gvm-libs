@@ -1,3 +1,10 @@
+2013-05-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* src/plugutils.c (scanner_add_port): Removed cocde path for case
+	of presense of a "DIFF_SCAN" argument. This one is not set
+	anywhere nor does it make much sense. Probably remains of some
+	experiments.
+
 2013-05-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_file.c (openvas_file_copy, openvas_file_move): Check Glib
