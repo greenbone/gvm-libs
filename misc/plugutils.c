@@ -1189,14 +1189,6 @@ scanner_add_port (struct arglist *args, int port, char *proto)
   const char *hn = plug_get_hostname (args);
   int len;
   int soc;
-  static int confirm = -1;
-
-  if (confirm < 0)
-    {
-      struct arglist *globals = arg_get_value (args, "globals");
-      if (globals)
-        confirm = GPOINTER_TO_SIZE (arg_get_value (globals, "confirm"));
-    }
 
   host_add_port_proto (args, port, 1, proto);
 

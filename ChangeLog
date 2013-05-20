@@ -1,6 +1,12 @@
 2013-05-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
-	* src/plugutils.c (scanner_add_port): Removed cocde path for case
+	* src/plugutils.c (scanner_add_port): Remove dead code that
+	make no sense. It sets a variable "confirm" as static, but
+	this variable is never used.
+
+2013-05-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* src/plugutils.c (scanner_add_port): Removed code path for case
 	of presense of a "DIFF_SCAN" argument. This one is not set
 	anywhere nor does it make much sense. Probably remains of some
 	experiments.
