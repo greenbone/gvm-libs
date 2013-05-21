@@ -1,3 +1,14 @@
+2013-05-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/ads_auth.c (ads_authenticate): Removed any role management.
+	We don't let directory services do role management anymore.
+
+	* misc/openvas_auth.c (openvas_is_user_admin, openvas_is_user_observer,
+	openvas_set_user_role): Removed. The role management is done in Manager
+	dabase now.
+
+	* misc/openvas_auth.h: Removed protos accordingly.
+
 2013-05-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* src/plugutils.c (scanner_add_port): Remove dead code that

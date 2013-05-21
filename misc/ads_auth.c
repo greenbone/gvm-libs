@@ -377,7 +377,6 @@ ads_authenticate (const gchar * username, const gchar * password,
 {
   ldap_auth_info_t info = ((ads_auth_info_t) ads_auth_info)->ldap_auth_conf;
   ads_auth_info_t ads_info = (ads_auth_info_t) ads_auth_info;
-  int role = 0;
 
   if (info == NULL || username == NULL || password == NULL || !info->ldap_host
       || ads_info->domain)
@@ -399,37 +398,11 @@ ads_authenticate (const gchar * username, const gchar * password,
   // Get the "real" DN by searching for samAccountName=user .
   dn = ads_query_user_dn (ldap, username, ads_info->domain_dc);
 
-  // Get the role.
-  role = ldap_auth_query_role (ldap, info, dn);
-
-  // Query and save users rules if s/he is at least a "User".
-  if (role == 2 || role == 1)
-    {
-      // If user is admin, mark it so.
-      gchar *user_dir_name = g_build_filename (OPENVAS_STATE_DIR,
-                                               "users-remote", "ads",
-                                               username, NULL);
-      openvas_set_user_role (username, (role == 2) ? "Admin" : "User",
-                             user_dir_name);
-      g_free (user_dir_name);
-    }
-
   ldap_unbind_ext_s (ldap, NULL, NULL);
   g_free (authdn);
   free (dn);
 
-  switch (role)
-    {
-    case 2:
-      g_debug ("User has admin role.");
-    case 1:
-      g_debug ("User has user role.");
-      return 0;
-    case -1:
-    default:
-      g_warning ("User has no role.");
-      return 1;
-    }
+  return 1;
 }
 
 #endif /* ENABLE_LDAP_AUTH */
