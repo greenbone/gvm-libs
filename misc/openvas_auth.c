@@ -162,8 +162,6 @@ static int openvas_authenticate_classic (const gchar * usr, const gchar * pas,
 
 static int openvas_user_exists_classic (const gchar *name, void *data);
 
-static int openvas_auth_mkmethodsdir (const gchar *dir);
-
 gchar* (*classic_get_hash) (const gchar *) = NULL;
 
 int (*user_uuid_method) (const char *method) = NULL;
@@ -1100,132 +1098,7 @@ openvas_user_uuid (const char *name)
 #endif // not _WIN32
 
 
-/**
- * @brief Place files in users /auth/methods/ directory indicating the
- * @brief allowed authentication methods for this user.
- *
- * Note that currently only the ldap_connect method takes advantage of this
- * mechanism.
- *
- * @param[in] username Name of the user (to find the correct directory).
- * @param[in] allowed_methods list of strings matching the allowed methods.
- *
- * @return 0 if operation failed. 1 otherwise.
- */
-int
-openvas_auth_user_set_allowed_methods (const gchar * username,
-                                       const array_t * allowed_methods)
-{
-  int idx = 0;
-  GError * error = NULL;
-  gchar * method;
-  gchar * directory = OPENVAS_USERS_DIR;
-  gchar * method_dir = g_build_filename (directory, username, "auth",
-                                        "methods", NULL);
-  gchar * user_dir = g_build_filename (directory, username, NULL);
-
-  // Wipe directory, then recreate it.
-  openvas_file_remove_recurse (method_dir);
-  openvas_auth_mkmethodsdir (user_dir);
-  g_chmod (method_dir, 0700);
-
-  while ((method = g_ptr_array_index (allowed_methods, idx++)))
-    {
-      // TODO sanity check. ensure there is no ".." or other
-      //      nasty stuff in filename, idially use a alnum validator.
-      if (g_strrstr (method, "..") != NULL)
-        {
-          g_critical ("Attempt was made to allow method '%s'.", method);
-          return 0;
-        }
-      gchar* method_file =
-          g_build_filename (method_dir, method, NULL);
-      if (!g_file_set_contents
-             (method_file, "", -1, &error))
-        {
-          g_error ("%s", error->message);
-          g_error_free (error);
-          g_free (method_file);
-          return 0;
-        }
-
-      g_chmod (method_file, 0600);
-    }
-
-  return 1;
-}
-
 #ifndef _WIN32
-/**
- * @brief Create the /auth/methods directory for given user.
- *
- * @param user_dir_name path to users directory.
- *
- * @return -1 if operation failed, 0 otherwise.
- */
-static int
-openvas_auth_mkmethodsdir (const gchar * user_dir_name)
-{
-  int mkdir_result = 0;
-  gchar * methods_dir_name = g_build_filename (user_dir_name, "auth", "methods", NULL);
-
-  mkdir_result = g_mkdir_with_parents (methods_dir_name, 0700);
-  g_free (methods_dir_name);
-
-  if (mkdir_result != 0)
-    {
-      g_warning ("Users methods directory could not be created.");
-      return -1;
-    }
-
-  return 0;
-}
-
-/**
- * @brief Get list of methods allowed to use for a given user.
- *
- * Note that currently only the ldap_connect method repsects this setting.
- *
- * @param[in] user_name name of the user.
- *
- * @return List of strings with methods allowed for user.
- */
-GSList *
-openvas_auth_user_methods (const gchar * user_name)
-{
-  GSList * user_methods = NULL;
-  GError * error = NULL;
-  gchar * method_dir = g_build_filename (OPENVAS_USERS_DIR,
-                                         user_name, "auth",
-	                                 "methods", NULL);
-
-  if (!g_file_test (method_dir, G_FILE_TEST_IS_DIR))
-    return user_methods;
-
-  GDir * directory = g_dir_open(method_dir, 0, &error);
-  if (directory == NULL)
-    {
-      if (error)
-        {
-          g_error ("Could not open user method dir %s .", method_dir);
-          g_error_free (error);
-          g_free (method_dir);
-          return user_methods;
-        }
-      return user_methods;
-    }
-  else
-    {
-      const gchar * entry = NULL;
-      while ((entry = g_dir_read_name (directory)))
-	{
-	  user_methods = g_slist_prepend (user_methods, g_strdup (entry));
-	}
-    }
-
-  return user_methods;
-}
-
 /**
  * @brief Stores the rules for a user.
  *
