@@ -45,7 +45,7 @@
 #include "ads_auth.h"
 #endif /*ENABLE_LDAP_AUTH */
 
-#define AUTH_CONF_FILE ".auth.conf"
+#define AUTH_CONF_FILE "auth.conf"
 
 #define GROUP_PREFIX_METHOD "method:"
 #define KEY_ORDER "order"
@@ -77,7 +77,7 @@
  * These mechanisms are also used for authorization (role and access management).
  *
  * Also a mixture can be used. To do so, a configuration file
- * (PREFIX/var/lib/openvas/.auth.conf) has to be used and the authentication
+ * (PREFIX/var/lib/openvas/auth.conf) has to be used and the authentication
  * system has to be initialised with a call to \ref openvas_auth_init and can
  * be freed with \ref openvas_auth_tear_down .
  *
@@ -367,7 +367,7 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
 /**
  * @brief Initializes the list of authentication methods.
  *
- * Parses PREFIX/var/lib/openvas/.auth.conf and adds respective authenticators
+ * Parses PREFIX/var/lib/openvas/auth.conf and adds respective authenticators
  * to the authenticators list.
  *
  * Call once before calls to openvas_authenticate, otherwise the
@@ -389,7 +389,7 @@ openvas_auth_init ()
 /**
  * @brief Initializes the list of authentication methods.
  *
- * Parses PREFIX/var/lib/openvas/.auth.conf and adds respective authenticators
+ * Parses PREFIX/var/lib/openvas/auth.conf and adds respective authenticators
  * to the authenticators list.
  *
  * Call once before calls to openvas_authenticate, otherwise the
@@ -424,7 +424,7 @@ openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
   user_set_rules = set_rules;
 
   GKeyFile *key_file = g_key_file_new ();
-  gchar *config_file = g_build_filename (OPENVAS_USERS_DIR, ".auth.conf",
+  gchar *config_file = g_build_filename (OPENVAS_STATE_DIR, "auth.conf",
                                          NULL);
 
   if (!g_file_test (config_file, G_FILE_TEST_EXISTS))
@@ -529,7 +529,7 @@ openvas_auth_write_config (GKeyFile * key_file)
   gchar **key = NULL;
   gchar *file_content = NULL;
   gboolean written = FALSE;
-  gchar *file_path = g_build_filename (OPENVAS_USERS_DIR, ".auth.conf",
+  gchar *file_path = g_build_filename (OPENVAS_STATE_DIR, "auth.conf",
                                        NULL);
 
   // Instead of clever merging with existing file and the defaults, fill
