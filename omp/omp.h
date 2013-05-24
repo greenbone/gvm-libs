@@ -193,7 +193,7 @@ int omp_authenticate (gnutls_session_t * session, const char *username,
                       const char *password);
 
 int omp_authenticate_info (gnutls_session_t * session, const char *username,
-                           const char *, char **, char **);
+                           const char *, char **, char **, char **);
 
 int omp_authenticate_env (gnutls_session_t * session);
 
