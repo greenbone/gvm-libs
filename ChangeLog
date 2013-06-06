@@ -1,3 +1,11 @@
+2013-06-06  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_auth.c (user_set_rules): Remove.  Jan recently removed
+	rules support
+	(openvas_auth_init_funcs): Remove set_rules arg.
+
+	* misc/openvas_auth.h: Update header accordingly.
+
 2013-05-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* omp/omp.c (omp_authenticate_info): Add parameter for severity class.

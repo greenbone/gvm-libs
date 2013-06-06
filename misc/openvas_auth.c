@@ -170,8 +170,6 @@ int (*user_set_role) (const gchar *, const gchar *, const gchar *) = NULL;
 
 gchar* (*user_get_uuid) (const gchar *, auth_method_t) = NULL;
 
-int (*user_set_rules) (const gchar *, const gchar *, const gchar *, int) = NULL;
-
 int (*user_exists) (const gchar *, auth_method_t) = NULL;
 
 /**
@@ -381,7 +379,7 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
 void
 openvas_auth_init ()
 {
-  openvas_auth_init_funcs (NULL, NULL, NULL, NULL, NULL);
+  openvas_auth_init_funcs (NULL, NULL, NULL, NULL);
 }
 
 /**
@@ -405,8 +403,6 @@ openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
                          int (*set_role) (const gchar *, const gchar *,
                                           const gchar *),
                          int (*user_exists_arg) (const gchar *, auth_method_t),
-                         int (*set_rules) (const gchar *, const gchar *,
-                                           const gchar *, int),
                          gchar * (*get_uuid) (const gchar *, auth_method_t))
 {
   if (initialized == TRUE)
@@ -419,7 +415,6 @@ openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
   classic_get_hash = get_hash;
   user_get_uuid = get_uuid;
   user_set_role = set_role;
-  user_set_rules = set_rules;
 
   GKeyFile *key_file = g_key_file_new ();
   gchar *config_file = g_build_filename (OPENVAS_STATE_DIR, "auth.conf",

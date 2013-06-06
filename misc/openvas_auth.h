@@ -58,8 +58,6 @@ void openvas_auth_init_funcs (gchar * (*) (const gchar *),
                               int (*) (const gchar *, const gchar *,
                                        const gchar *),
                               int (*) (const gchar *, auth_method_t),
-                              int (*) (const gchar *, const gchar *,
-                                       const gchar *, int),
                               gchar * (*) (const gchar *, auth_method_t));
 
 void openvas_auth_tear_down ();
