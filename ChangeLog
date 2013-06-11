@@ -1,3 +1,15 @@
+2013-06-11  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Remove "SERVER <|> PORT" message of OTP.
+	This remove results in the report that have no reference to
+	a NVT. It has no internal impact on scanner and will not affect
+	the port list reported via host details or via special port listing
+	NVTs.
+
+	* misc/plugutils.c (scanner_add_port): Removed sending a 
+	"SERVER <|> PORT" message. The port will still be registered in
+	the KB.
+
 2013-06-06  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/openvas_auth.c (user_set_rules): Remove.  Jan recently removed

@@ -1185,22 +1185,7 @@ plug_replace_key (struct arglist *args, char *name, int type, void *value)
 void
 scanner_add_port (struct arglist *args, int port, char *proto)
 {
-  char *buf;
-  const char *hn = plug_get_hostname (args);
-  int len;
-  int soc;
-
   host_add_port_proto (args, port, 1, proto);
-
-  len = 255 + (hn ? strlen (hn) : 0);
-  buf = emalloc (len);
-  snprintf (buf, len, "SERVER <|> PORT <|> %s <|> %d/%s <|> SERVER\n", hn,
-            port, proto);
-
-  soc = GPOINTER_TO_SIZE (arg_get_value (args, "SOCKET"));
-  internal_send (soc, buf, INTERNAL_COMM_MSG_TYPE_DATA);
-
-  efree (&buf);
 }
 
 
