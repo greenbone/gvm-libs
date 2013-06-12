@@ -1,3 +1,7 @@
+2013-06-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/pcap.c (v6_routethrough, routethrough): Fix error message.
+
 2013-06-11  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Remove "SERVER <|> PORT" message of OTP.
@@ -6,7 +10,7 @@
 	the port list reported via host details or via special port listing
 	NVTs.
 
-	* misc/plugutils.c (scanner_add_port): Removed sending a 
+	* misc/plugutils.c (scanner_add_port): Removed sending a
 	"SERVER <|> PORT" message. The port will still be registered in
 	the KB.
 

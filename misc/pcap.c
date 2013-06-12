@@ -1358,8 +1358,8 @@ v6_routethrough (struct in6_addr *dest, struct in6_addr *source)
       return NULL;
     }
   else
-    printf
-      ("I know sendmail technique ... I know rdist technique ... but I don't know what the hell kindof technique you are attempting!!!");
+    printf ("%s: Provided technique is neither proc route nor connect socket",
+            __FUNCTION__);
   return NULL;
 }
 
@@ -1559,7 +1559,7 @@ routethrough (struct in_addr *dest, struct in_addr *source)
       return NULL;
     }
   else
-    printf
-      ("I know sendmail technique ... I know rdist technique ... but I don't know what the hell kindof technique you are attempting!!!");
+    printf ("%s: Provided technique is neither proc route nor connect socket",
+            __FUNCTION__);
   return NULL;
 }
