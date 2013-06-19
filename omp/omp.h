@@ -49,6 +49,7 @@ typedef struct
   const char* levels;      ///< Result levels to include.
   const char* report_id;   ///< ID of single report to get.
   int first_result;        ///< First result to get.
+  int autofp;              ///< Whether to trust vendor security updates. 0 No, 1 full match, 2 partial.
   /* Boolean flags: */
   int overrides;           ///< Whether to include overrides in the report.
   int override_details;    ///< If overrides, whether to include details.

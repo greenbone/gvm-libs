@@ -1,3 +1,12 @@
+2013-06-19  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Add support for setting the "autofp" parameter via
+	omp_get_report_ext.
+
+	* omp/omp.h (omp_get_report_opts_t): Add autofp.
+
+	* omp/omp.c (omp_get_report_ext): Add autofp.
+
 2013-04-10  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.
