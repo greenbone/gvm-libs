@@ -166,6 +166,9 @@ static const struct impact_item impact_map[][3] = {
  *
  * @return The respective base_metric enumeration for the
  *         string. -1 in case parsing the string failed.
+ *
+ * @todo Avoid negative enum return value since enums are not
+ *       guaranteed to be of a signed type.
  */
 static enum base_metrics
 toenum (const char * str)

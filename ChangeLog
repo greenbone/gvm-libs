@@ -1,5 +1,9 @@
 2013-06-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/cvss.c (toenum): Add todo regarding negative values in enums.
+
+2013-06-19  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Add support for setting the "autofp" parameter via omp_get_report_ext.
 
 	* omp/omp.h (omp_get_report_opts_t): Add autofp.
