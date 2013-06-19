@@ -1,3 +1,7 @@
+2013-06-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvti.c, base/nvti.h (nvti_risk_factor): Remove function.
+
 2013-06-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/cvss.c (toenum): Add todo regarding negative values in enums.

@@ -539,33 +539,6 @@ nvti_cvss (const nvti_t * n)
 }
 
 /**
- * @brief Get the risk factor.
- *
- * @param n The NVT Info structure of which the risk factor should
- *          be returned.
- *
- * @return The risk_factor string. Don't free this.
- */
-gchar *
-nvti_risk_factor (const nvti_t * n)
-{
-  double cvss = nvti_cvss (n);
-
-  if (cvss > 8)
-    return ("Critical");
-  if (cvss > 5)
-    return ("High");
-  if (cvss > 2)
-    return ("Medium");
-  if (cvss > 0)
-    return ("Low");
-  if (cvss == 0)
-    return ("None");
-
-  return ("Not Available");
-}
-
-/**
  * @brief Get the dependencies list.
  *
  * @param n The NVT Info structure of which the name should
