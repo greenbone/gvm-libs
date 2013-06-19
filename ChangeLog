@@ -1,3 +1,11 @@
+2013-06-19  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Add support for setting the "autofp" parameter via omp_get_report_ext.
+
+	* omp/omp.h (omp_get_report_opts_t): Add autofp.
+
+	* omp/omp.c (omp_get_report_ext): Add autofp.
+
 2013-06-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/pcap.c (v6_routethrough, routethrough): Fix error message.
