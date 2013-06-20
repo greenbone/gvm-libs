@@ -1,3 +1,33 @@
+openvas-libraries 7.0+beta1 (2013-06-20)
+
+This release is the first beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-7".
+
+Main new features and other changes of 7.0 compared to 6.0 include the removal
+of functionality now being handler by other modules, changes to the OTP
+protocol, support for CVSS based severity classification and code cleanups.
+
+Many thanks to everyone who has contributed this release:
+Hani Benhabiles, Hanno Boeck, Henri Doreau, Werner Koch, Matthew Mundell, Timo
+Pollmeier, Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to 6.0.x:
+* The port range option "default" has been removed.
+* Service list handling has been removed.
+* Support for NVT with new style tags has been added.
+* The required minimum GnuTLS version has increased to 2.8.
+* NVT severity classification now uses the CVSS value of the NVTs instead of
+  separate message types.
+* The authentication system has been converted to support database users.
+* Separate key directories are now used for signature verification and
+  credential encryption.
+* File based user specific rules support has been removed.
+* File based role management has been removed.
+* Sending of the "SERVER <|> PORT" message of OTP has been removed.
+* Protocol version has been changed to OTP 2.x.
+* Code cleanup.
+
+
 openvas-libraries 6.0+beta5 (2013-02-22)
 
 This release is the fifth beta version of the next major release of

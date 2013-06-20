@@ -1,5 +1,11 @@
 2013-06-20  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Preparing the openvas-libraries 7.0+beta1 release.
+
+	* CHANGES: Updated.
+
+2013-06-20  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/otp.h: Increase protocol defines for protocol version switch.
 
 2013-06-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
