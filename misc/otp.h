@@ -26,7 +26,7 @@
 #ifndef _OPENVAS_OTP_H
 #define _OPENVAS_OTP_H
 
-#define OTP_10 100              /* OTP/1.0 */
-#define OTP_11 110              /* OTP/1.1 */
+#define OTP_20 200              /* OTP/2.0 */
+#define OTP_21 210              /* OTP/2.1 */
 
 #endif
