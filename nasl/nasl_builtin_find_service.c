@@ -1291,7 +1291,7 @@ mark_remote_nc_server(desc, port, buffer, trp)
 	{
 		snprintf(ban, sizeof(ban), "A RemoteNC backdoor seems to be running on this port%s",
 			 get_encaps_through(trp));
-		post_hole(desc, port, ban);
+		post_log(desc, port, ban);
 	}
 }
 
