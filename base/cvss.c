@@ -162,30 +162,32 @@ static const struct impact_item impact_map[][3] = {
 /**
  * @brief Determine base metric enumeration from a string.
  *
- * @param[in] str Base metric in string form, for example "A".
+ * @param[in]  str Base metric in string form, for example "A".
+ * @param[out] res Where to write the desired value.
  *
- * @return The respective base_metric enumeration for the
- *         string. -1 in case parsing the string failed.
- *
- * @todo Avoid negative enum return value since enums are not
- *       guaranteed to be of a signed type.
+ * @return 0 on success, -1 on error.
  */
-static enum base_metrics
-toenum (const char * str)
+static int
+toenum (const char * str, enum base_metrics *res)
 {
- if (g_strcmp0 (str, "A") == 0)
-   return A;
- else if (g_strcmp0 (str, "I") == 0)
-   return I;
- else if (g_strcmp0 (str, "C") == 0)
-   return C;
- else if (g_strcmp0 (str, "Au") == 0)
-   return Au;
- else if (g_strcmp0 (str, "AV") == 0)
-   return AV;
- else if (g_strcmp0 (str, "AC") == 0)
-   return AC;
- return -1;
+  int rc = 0; /* let's be optimistic */
+
+  if (g_strcmp0 (str, "A") == 0)
+    *res = A;
+  else if (g_strcmp0 (str, "I") == 0)
+    *res = I;
+  else if (g_strcmp0 (str, "C") == 0)
+    *res = C;
+  else if (g_strcmp0 (str, "Au") == 0)
+    *res = Au;
+  else if (g_strcmp0 (str, "AV") == 0)
+    *res = AV;
+  else if (g_strcmp0 (str, "AC") == 0)
+   *res = AC;
+  else
+    rc = -1;
+
+ return rc;
 }
 
 /**
@@ -329,6 +331,7 @@ get_cvss_score_from_base_metrics (const char *cvss_str)
       char *metric_name = token2;
       char *metric_value;
       enum base_metrics  mval;
+      int rc;
 
       *token++ = '\0';
 
@@ -340,8 +343,8 @@ get_cvss_score_from_base_metrics (const char *cvss_str)
       if (metric_value == NULL)
         goto ret_err;
 
-      mval = toenum (metric_name);
-      if (mval == -1)
+      rc = toenum (metric_name, &mval);
+      if (rc)
         goto ret_err;
 
       if (set_impact_from_str (metric_value, mval, &cvss))

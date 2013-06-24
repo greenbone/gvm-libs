@@ -1,3 +1,8 @@
+2013-06-24  Henri Doreau <henri.doreau@cea.fr>
+
+	* base/cvss.c (toenum): Use a separate variable to express
+	success or failure, in order to not use negative values in enums.
+
 2013-06-24  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* nasl/nasl_builtin_openvas_tcp_scanner.c (std_port): Fix typo in
