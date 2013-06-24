@@ -1,3 +1,8 @@
+2013-06-24  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* nasl/nasl_builtin_openvas_tcp_scanner.c (std_port): Fix typo in
+	comment and comment syntax.
+
 2013-06-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_builtin_find_service.c (mark_remote_nc_server): Don't

@@ -125,10 +125,11 @@ my_socket_close(int s)
 
 static int std_port(int port)
 {
-  return 0; // @toto: We are not able anymore to judge wether a port is a standard
-            // port. Previously a port was believed to be a standard port
-            // when it occured in the currently configured list of ports.
-            // This needs to be resolved.
+  return 0; /** @todo: We are not able anymore to judge wether a port is a standard
+             * port. Previously a port was believed to be a standard port
+             * when it occured in the currently configured list of ports.
+             * This needs to be resolved.
+             */
 }
 
 static int
