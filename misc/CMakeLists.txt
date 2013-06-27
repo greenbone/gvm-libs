@@ -46,6 +46,12 @@ if (NOT MINGW)
   if (NOT UUID)
     message (FATAL_ERROR "The uuid library is required.")
   endif (NOT UUID)
+  execute_process (COMMAND pkg-config --cflags uuid
+    OUTPUT_VARIABLE UUID_CFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process (COMMAND pkg-config --libs uuid
+    OUTPUT_VARIABLE UUID_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif (NOT MINGW)
 
 # Library
@@ -91,7 +97,6 @@ set_target_properties (openvas_misc_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLA
 set_target_properties (openvas_misc_static PROPERTIES OUTPUT_NAME "openvas_misc")
 set_target_properties (openvas_misc_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_misc_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
-target_link_libraries (openvas_misc_static openvas_base_static)
 
 add_library (openvas_misc_shared SHARED ${FILES})
 
@@ -101,9 +106,6 @@ set_target_properties (openvas_misc_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_misc_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_misc_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
 set_target_properties (openvas_misc_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
-if (NOT MINGW)
-  target_link_libraries (openvas_misc_shared glib-2.0 pcap gnutls gcrypt openvas_base_shared)
-endif (NOT MINGW)
 
 if (OPENVASLIB_VERSION)
   add_definitions (-DOPENVASLIB_VERSION=\\\"${OPENVASLIB_VERSION}\\\")
@@ -145,13 +147,8 @@ if (MINGW)
                          -lgcrypt -lgnutls -lintl -liconv -lgpg-error -lws2_32
                          -lole32 -lz)
 else (MINGW)
-  if (NOT BUILD_WITH_LDAP)
-    target_link_libraries (openvas_misc_static uuid ${GLIB_LDFLAGS})
-    target_link_libraries (openvas_misc_shared uuid ${GLIB_LDFLAGS})
-  else (NOT BUILD_WITH_LDAP)
-    target_link_libraries (openvas_misc_static uuid ${GLIB_LDFLAGS} ldap)
-    target_link_libraries (openvas_misc_shared uuid ${GLIB_LDFLAGS} ldap)
-  endif (NOT BUILD_WITH_LDAP)
+    target_link_libraries (openvas_misc_static openvas_base_static ${UUID_LDFLAGS} ${GLIB_LDFLAGS} ${LDAP_LDFLAGS})
+    target_link_libraries (openvas_misc_shared ${UUID_LDFLAGS} ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${GNUTLS_LDFLAGS} ${GCRYPT_LDFLAGS} openvas_base_shared ${LDAP_LDFLAGS})
 endif (MINGW)
 
 # install library

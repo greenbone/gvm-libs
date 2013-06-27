@@ -1,5 +1,22 @@
 2013-06-27  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Improve handling of linker flags, partly based on a patch by Guillaume
+	Rousse.
+
+	* CMakeLists.txt: Gather linker flags for GnuTLS via pkg-config, for
+	libgcrypt via libgcrypt-config. Hard code LDAP_LDFLAGS if libldap is
+	found since libldap does not provide it's linker flags.
+
+	* misc/CMakeLists.txt: Gather linker flags for uuid via pkg-config
+	when not using MINGW. Consolidate target_link_libraries calls and use
+	linker flags gathered during configuration instead of hard coded
+	values.
+
+	* base/CMakeLists.txt: Add GPGME_LDFLAGS to target_link_libraries to
+	ensure linking works with strict linking options.
+
+2013-06-27  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* CMakeLists.txt: Make SVN revision in version string available again
 	for out-of-source build.
 

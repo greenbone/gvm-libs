@@ -250,6 +250,20 @@ execute_process (COMMAND pkg-config --libs glib-2.0 gio-2.0
   OUTPUT_VARIABLE GLIB_LDFLAGS
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+execute_process (COMMAND pkg-config --cflags gnutls
+  OUTPUT_VARIABLE GNUTLS_CFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process (COMMAND pkg-config --libs gnutls
+  OUTPUT_VARIABLE GNUTLS_LDFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process (COMMAND libgcrypt-config --libs
+  OUTPUT_VARIABLE GCRYPT_LDFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process (COMMAND libgcrypt-config --cflags
+  OUTPUT_VARIABLE GCRYPT_CFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 if (NOT BUILD_WITHOUT_LDAP)
   message (STATUS "Looking for libldap...")
 
@@ -263,6 +277,7 @@ if (NOT BUILD_WITHOUT_LDAP)
     message (STATUS "  Found ${LIBLDAP} - ldap support enabled")
     add_definitions (-DENABLE_LDAP_AUTH=1)
     set (BUILD_WITH_LDAP TRUE)
+    set (LDAP_LDFLAGS "-lldap -llber")
   endif (NOT LIBLDAP)
 else (NOT BUILD_WITHOUT_LDAP)
   message (STATUS "Disabled ldap via configuration option")
