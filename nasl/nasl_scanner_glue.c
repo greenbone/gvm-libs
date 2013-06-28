@@ -968,71 +968,22 @@ security_something (lex_ctxt * lexic, proto_post_something_t proto_post_func,
 tree_cell *
 security_message (lex_ctxt * lexic)
 {
-  char *end, *given_type;
   double cvss;
-  gchar *cvss_string;
   nvti_t *nvti;
 
-  given_type = get_str_local_var_by_name (lexic, "threat");
-  if (given_type)
+  nvticache_t *nvticache = (nvticache_t *)arg_get_value (
+    arg_get_value (lexic->script_infos, "preferences"), "nvticache");
+  char *oid = (char *)arg_get_value (lexic->script_infos, "OID");
+  nvti = (oid == NULL ? NULL : nvticache_get_by_oid (nvticache, oid));
+
+  if (nvti == NULL)
     {
-      if ((strcasecmp (given_type, "High") == 0)
-          || (strcasecmp (given_type, "hole") == 0))
-        return security_something (lexic, proto_post_hole, post_hole);
-      if ((strcasecmp (given_type, "Medium") == 0)
-          || (strcasecmp (given_type, "warning") == 0))
-        return security_something (lexic, proto_post_info, post_info);
-      if ((strcasecmp (given_type, "Low") == 0)
-          || (strcasecmp (given_type, "note") == 0))
-        return security_something (lexic, proto_post_note, post_note);
-      if ((strcasecmp (given_type, "Log") == 0)
-          || (strcasecmp (given_type, "log") == 0))
-        return security_something (lexic, proto_post_log, post_log);
-      if (strcasecmp (given_type, "Error") == 0)
-        return security_something (lexic, proto_post_error, post_error);
-      nasl_perror (lexic, "%s: error in threat param\n", __FUNCTION__);
+      nasl_perror (lexic, "%s: NVTI missing\n", __FUNCTION__);
       return FAKE_CELL;
     }
 
-  cvss_string = get_str_local_var_by_name (lexic, "cvss_base");
-
-  if (cvss_string)
-    {
-      // Parse the CVSS from the string value given as parameter
-      errno = 0;
-      cvss = strtod (cvss_string, &end);
-      if (((errno == ERANGE) && (cvss == HUGE_VAL || cvss == -HUGE_VAL))
-          || (errno != 0 && cvss == 0))
-        {
-          nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
-          return FAKE_CELL;
-        }
-
-      if (cvss_string == end)
-        {
-          nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
-          return FAKE_CELL;
-        }
-    }
-  else
-    {
-      // In case no special parameter is given, use the regular
-      // cvss from the meta data of this NVT.
-
-      nvticache_t *nvticache = (nvticache_t *)arg_get_value (
-        arg_get_value (lexic->script_infos, "preferences"), "nvticache");
-      char *oid = (char *)arg_get_value (lexic->script_infos, "OID");
-      nvti = (oid == NULL ? NULL : nvticache_get_by_oid (nvticache, oid));
-
-      if (nvti == NULL)
-        {
-          nasl_perror (lexic, "%s: NVTI missing\n", __FUNCTION__);
-          return FAKE_CELL;
-        }
-
-      cvss = nvti_cvss (nvti);
-      nvti_free (nvti);
-    }
+  cvss = nvti_cvss (nvti);
+  nvti_free (nvti);
 
   /* Check the CVSS. */
   if (cvss < 0 || cvss > 10)

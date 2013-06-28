@@ -1,3 +1,16 @@
+2013-06-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Remove parameters "threat" and "cvss" from security_message.
+	In fact these were forseen for a transitional phase according
+	to CR 59. Meanwhile any NVT has a CVSS and a NVT should
+	never send different severities decided at runtime.
+
+	* nasl/nasl_init.c (lib_funcs): Removed parameters "threat" and
+	"cvss" from security_message.
+
+	* nasl/nasl_scanner_glue.c (security_message): Don't interpret and
+	handle parameters "threat" and "cvss".
+
 2013-06-27  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Improve handling of linker flags, partly based on a patch by Guillaume
