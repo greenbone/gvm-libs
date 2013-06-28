@@ -1,3 +1,14 @@
+2013-06-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_builtin_find_service.c: Replaced all calls of post_hole
+	by post_alert.
+
+	* misc/plugutils.c (proto_post_hole, post_hole, post_hole_udp,
+	post_info, post_info_udp, proto_post_info, post_note,
+	post_note_udp, proto_post_note): Removed.
+
+	* misc/plugutils.h: Removed protos accordingly.
+
 2013-06-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Move the decision of the message level to the message sending.

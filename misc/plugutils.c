@@ -798,69 +798,6 @@ post_alert (struct arglist *desc, int port, const char *action)
 }
 
 
-void
-proto_post_hole (struct arglist *desc, int port, const char *proto,
-                 const char *action)
-{
-  proto_post_wrapped (desc, port, proto, action, "HOLE");
-}
-
-
-void
-post_hole (struct arglist *desc, int port, const char *action)
-{
-  proto_post_hole (desc, port, "tcp", action);
-}
-
-
-void
-post_hole_udp (struct arglist *desc, int port, const char *action)
-{
-  proto_post_hole (desc, port, "udp", action);
-}
-
-
-void
-post_info (struct arglist *desc, int port, const char *action)
-{
-  proto_post_info (desc, port, "tcp", action);
-}
-
-
-void
-post_info_udp (struct arglist *desc, int port, const char *action)
-{
-  proto_post_info (desc, port, "udp", action);
-}
-
-
-void
-proto_post_info (struct arglist *desc, int port, const char *proto,
-                 const char *action)
-{
-  proto_post_wrapped (desc, port, proto, action, "INFO");
-}
-
-void
-post_note (struct arglist *desc, int port, const char *action)
-{
-  proto_post_wrapped (desc, port, "tcp", action, "NOTE");
-}
-
-
-void
-post_note_udp (struct arglist *desc, int port, const char *action)
-{
-  proto_post_wrapped (desc, port, "udp", action, "NOTE");
-}
-
-void
-proto_post_note (struct arglist *desc, int port, const char *proto,
-                 const char *action)
-{
-  proto_post_wrapped (desc, port, proto, action, "NOTE");
-}
-
 /**
  * @brief Post a log message
  */

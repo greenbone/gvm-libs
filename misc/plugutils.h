@@ -72,21 +72,6 @@ void post_alert (struct arglist *, int, const char *);
 void post_alert_udp (struct arglist *, int, const char *);
 #define post_alert_tcp post_alert
 
-void proto_post_hole (struct arglist *, int, const char *, const char *);
-void post_hole (struct arglist *, int, const char *);
-void post_hole_udp (struct arglist *, int, const char *);
-#define post_hole_tcp post_hole
-
-void proto_post_info (struct arglist *, int, const char *, const char *);
-void post_info (struct arglist *, int, const char *);
-void post_info_udp (struct arglist *, int, const char *);
-#define post_info_tcp post_info
-
-void proto_post_note (struct arglist *, int, const char *, const char *);
-void post_note (struct arglist *, int, const char *);
-void post_note_udp (struct arglist *, int, const char *);
-#define post_note_tcp post_note
-
 void proto_post_error (struct arglist *, int, const char *, const char *);
 void post_error (struct arglist *, int, const char *);
 void post_error_udp (struct arglist *, int, const char *);
