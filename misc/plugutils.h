@@ -67,6 +67,11 @@ struct arglist * plug_create_from_nvti_and_prefs (nvti_t *, struct arglist *);
 /*
  * Reporting functions
  */
+void proto_post_alert (struct arglist *, int, const char *, const char *);
+void post_alert (struct arglist *, int, const char *);
+void post_alert_udp (struct arglist *, int, const char *);
+#define post_alert_tcp post_alert
+
 void proto_post_hole (struct arglist *, int, const char *, const char *);
 void post_hole (struct arglist *, int, const char *);
 void post_hole_udp (struct arglist *, int, const char *);

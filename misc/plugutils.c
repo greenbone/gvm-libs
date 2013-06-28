@@ -574,8 +574,12 @@ plugin_is_newstyle (const nvti_t *nvti)
 /**
  * @brief Post a security message (e.g. LOG, NOTE, WARNING ...).
  *
+ * @param desc  The arglist where to get the nvtichache from and some
+ *              other settings and it is used to send the messages
  * @param port  Port number related to the issue.
- * @param proto Protocol related to the issue.
+ * @param proto Protocol related to the issue (tcp or udp).
+ * @param action The actual result text
+ * @param what   The type, like "LOG".
  */
 void
 proto_post_wrapped (struct arglist *desc, int port, const char *proto,
@@ -741,6 +745,58 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   efree (&buffer);
   g_string_free (action_str_escaped, TRUE);
 }
+
+void
+proto_post_alert (struct arglist *desc, int port, const char *proto,
+                 const char *action)
+{
+  double cvss;
+  nvti_t *nvti;
+
+  nvticache_t *nvticache = (nvticache_t *)arg_get_value (
+    arg_get_value (desc, "preferences"), "nvticache");
+  char *oid = (char *)arg_get_value (desc, "OID");
+  nvti = (oid == NULL ? NULL : nvticache_get_by_oid (nvticache, oid));
+
+  if (nvti == NULL)
+    return;
+
+  cvss = nvti_cvss (nvti);
+  nvti_free (nvti);
+
+  /* Check the CVSS. */
+  if (cvss < 0 || cvss > 10)
+    return;
+
+  /* Call one of the specific message functions according to the CVSS. */
+  if (cvss == 0)
+    {
+      proto_post_wrapped (desc, port, proto, action, "LOG");
+      return;
+    }
+  if (cvss <= 2)
+    {
+      proto_post_wrapped (desc, port, proto, action, "NOTE");
+      return;
+    }
+  if (cvss <= 5)
+    {
+      proto_post_wrapped (desc, port, proto, action, "INFO");
+      return;
+    }
+
+  proto_post_wrapped (desc, port, proto, action, "HOLE");
+
+  // TODO: This is what finally needs to be called
+  // proto_post_wrapped (desc, port, proto, action, "ALERT");
+}
+
+void
+post_alert (struct arglist *desc, int port, const char *action)
+{
+  proto_post_alert (desc, port, "tcp", action);
+}
+
 
 void
 proto_post_hole (struct arglist *desc, int port, const char *proto,

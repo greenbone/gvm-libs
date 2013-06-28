@@ -968,38 +968,7 @@ security_something (lex_ctxt * lexic, proto_post_something_t proto_post_func,
 tree_cell *
 security_message (lex_ctxt * lexic)
 {
-  double cvss;
-  nvti_t *nvti;
-
-  nvticache_t *nvticache = (nvticache_t *)arg_get_value (
-    arg_get_value (lexic->script_infos, "preferences"), "nvticache");
-  char *oid = (char *)arg_get_value (lexic->script_infos, "OID");
-  nvti = (oid == NULL ? NULL : nvticache_get_by_oid (nvticache, oid));
-
-  if (nvti == NULL)
-    {
-      nasl_perror (lexic, "%s: NVTI missing\n", __FUNCTION__);
-      return FAKE_CELL;
-    }
-
-  cvss = nvti_cvss (nvti);
-  nvti_free (nvti);
-
-  /* Check the CVSS. */
-  if (cvss < 0 || cvss > 10)
-    {
-      nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
-      return FAKE_CELL;
-    }
-
-  /* Call one of the specific message functions according to the CVSS. */
-  if (cvss == 0)
-    return security_something (lexic, proto_post_log, post_log);
-  if (cvss <= 2)
-    return security_something (lexic, proto_post_note, post_note);
-  if (cvss <= 5)
-    return security_something (lexic, proto_post_info, post_info);
-  return security_something (lexic, proto_post_hole, post_hole);
+  return security_something (lexic, proto_post_alert, post_alert);
 }
 
 tree_cell *

@@ -1,5 +1,19 @@
 2013-06-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Move the decision of the message level to the message sending.
+	This reduces the retrievals of the nvt details from cache by one.
+
+	* nasl/nasl_scanner_glue.c (security_message): Don't
+	use the CVSS of the NVT to determine actual message level.
+	Instead call the new alert function.
+
+	* misc/plugutils.c (proto_post_alert, post_alert): New.
+	Use the CVSS of the NVT to apply the actual message.
+
+	* misc/plugutils.h: Added protos accordingly.
+
+2013-06-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Remove parameters "threat" and "cvss" from security_message.
 	In fact these were forseen for a transitional phase according
 	to CR 59. Meanwhile any NVT has a CVSS and a NVT should
