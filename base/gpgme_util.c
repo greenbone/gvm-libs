@@ -145,7 +145,9 @@ openvas_init_gpgme_ctx (void)
 #   endif
 
       gpghome = determine_gpghome ();
+#ifndef NDEBUG
       g_message ("Setting GnuPG homedir to '%s'", gpghome);
+#endif
       if (access (gpghome, F_OK))
         err = gpg_error_from_syserror ();
       else
@@ -165,8 +167,10 @@ openvas_init_gpgme_ctx (void)
         }
       else
         info = NULL;
+#ifndef NDEBUG
       g_message ("Using OpenPGP engine version '%s'",
                  info && info->version? info->version: "[?]");
+#endif
 
       /* Everything is fine.  */
       initialized = 1;
@@ -227,8 +231,10 @@ openvas_init_gpgme_sysconf_ctx (void)
   if (!info_shown)
     {
       info_shown = 1;
+#ifndef NDEBUG
       g_message ("Setting GnuPG sysconf homedir to '%s'",
                  get_sysconf_gpghome());
+#endif
     }
   if (access (get_sysconf_gpghome (), F_OK))
     err = gpg_error_from_syserror ();

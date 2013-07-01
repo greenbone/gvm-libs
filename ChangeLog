@@ -1,5 +1,12 @@
 2013-07-01  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/gpgme_util.c (openvas_init_gpgme_ctx)
+	(openvas_init_gpgme_sysconf_ctx): Hide debug output behind NDEBUG
+	ndefines so it does not show up when built with the "Release" build
+	type.
+
+2013-07-01  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Remove files containing now obsolete convenience code. The
 	functionality was not currently in use and is now available directly
 	in glib.
