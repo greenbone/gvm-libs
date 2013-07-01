@@ -595,7 +595,12 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   GString *action_str_escaped;
   nvti_t * nvti = nvticache_get_by_oid (arg_get_value (arg_get_value (desc,
     "preferences"), "nvticache"), arg_get_value (desc, "OID"));
+  double cvss = nvti_cvss (nvti);
   gchar **nvti_tags = NULL;
+
+  /* Should not happen, just to avoid trouble stop here if no NVTI found */
+  if (nvti == NULL)
+    return;
 
   if (action == NULL && plugin_is_newstyle (nvti))
     action_str = g_string_new ("");
@@ -708,6 +713,16 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   g_free (action_escaped);
   g_string_free (action_str, TRUE);
 
+  /* Find out the message type depending on CVSS. */
+  /* This is convenience until OTP supports ALARM message type */
+  if (! strncmp (what, "ALARM", sizeof("ALARM")))
+    {
+      if (cvss == 0) what = "LOG";
+      else if (cvss <= 2) what = "NOTE";
+      else if (cvss <= 5) what = "INFO";
+      else what = "HOLE";
+    }
+
   len = action_str_escaped->len;
 
   buffer = emalloc (1024 + len);
@@ -750,45 +765,7 @@ void
 proto_post_alarm (struct arglist *desc, int port, const char *proto,
                   const char *action)
 {
-  double cvss;
-  nvti_t *nvti;
-
-  nvticache_t *nvticache = (nvticache_t *)arg_get_value (
-    arg_get_value (desc, "preferences"), "nvticache");
-  char *oid = (char *)arg_get_value (desc, "OID");
-  nvti = (oid == NULL ? NULL : nvticache_get_by_oid (nvticache, oid));
-
-  if (nvti == NULL)
-    return;
-
-  cvss = nvti_cvss (nvti);
-  nvti_free (nvti);
-
-  /* Check the CVSS. */
-  if (cvss < 0 || cvss > 10)
-    return;
-
-  /* Call one of the specific message functions according to the CVSS. */
-  if (cvss == 0)
-    {
-      proto_post_wrapped (desc, port, proto, action, "LOG");
-      return;
-    }
-  if (cvss <= 2)
-    {
-      proto_post_wrapped (desc, port, proto, action, "NOTE");
-      return;
-    }
-  if (cvss <= 5)
-    {
-      proto_post_wrapped (desc, port, proto, action, "INFO");
-      return;
-    }
-
-  proto_post_wrapped (desc, port, proto, action, "HOLE");
-
-  // TODO: This is what finally needs to be called
-  // proto_post_wrapped (desc, port, proto, action, "ALERT");
+  proto_post_wrapped (desc, port, proto, action, "ALARM");
 }
 
 void

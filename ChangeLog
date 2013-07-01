@@ -1,5 +1,12 @@
 2013-07-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/plugutils.c (proto_post_wrapped): Handle message
+	according to cvss here instead of in proto_post_alarm.
+	(proto_post_alarm): Removed cvss-depending code.
+
+
+2013-07-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Renamed "alert" to "alarm" to not mix up with the alerts as
 	used in OpenVAS Manager.
  
