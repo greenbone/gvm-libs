@@ -1,3 +1,18 @@
+2013-07-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Renamed "alert" to "alarm" to not mix up with the alerts as
+	used in OpenVAS Manager.
+ 
+	* nasl/nasl_builtin_find_service.c: Replaced all calls of post_alert
+	by post_alarm.
+
+	* misc/plugutils.c (proto_post_alert, post_alert): Renamed
+	to proto_post_alarm and post_alarm.
+
+	* misc/plugutils.h: Renamed protos accordingly.
+
+	* nasl/nasl_scanner_glue.c (security_message): Renamed call accordingly.
+
 2013-07-01  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/gpgme_util.c (openvas_init_gpgme_ctx)

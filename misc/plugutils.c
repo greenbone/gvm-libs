@@ -747,8 +747,8 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
 }
 
 void
-proto_post_alert (struct arglist *desc, int port, const char *proto,
-                 const char *action)
+proto_post_alarm (struct arglist *desc, int port, const char *proto,
+                  const char *action)
 {
   double cvss;
   nvti_t *nvti;
@@ -792,9 +792,9 @@ proto_post_alert (struct arglist *desc, int port, const char *proto,
 }
 
 void
-post_alert (struct arglist *desc, int port, const char *action)
+post_alarm (struct arglist *desc, int port, const char *action)
 {
-  proto_post_alert (desc, port, "tcp", action);
+  proto_post_alarm (desc, port, "tcp", action);
 }
 
 

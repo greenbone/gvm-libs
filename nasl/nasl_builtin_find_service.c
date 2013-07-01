@@ -510,7 +510,7 @@ mark_wild_shell(desc, port, buffer, trp)
 
 	register_service(desc, port, "wild_shell");
 
-	post_alert(desc, port, "A shell seems to be running on this port ! (this is a possible backdoor)");
+	post_alarm(desc, port, "A shell seems to be running on this port ! (this is a possible backdoor)");
 }
 
 void
@@ -566,7 +566,7 @@ mark_netbus_server(desc, port, buffer)
 {
 
 	register_service(desc, port, "netbus");
-	post_alert(desc, port, "NetBus is running on this port");
+	post_alarm(desc, port, "NetBus is running on this port");
 }
 
 
@@ -1182,7 +1182,7 @@ mark_sub7_server(desc, port, buffer, trp)
 	register_service(desc, port, "sub7");
 	snprintf(ban, sizeof(ban), "The Sub7 trojan is running on this port%s",
 		 get_encaps_through(trp));
-	post_alert(desc, port, ban);
+	post_alarm(desc, port, ban);
 }
 
 
@@ -1276,7 +1276,7 @@ mark_fssniffer(desc, port, buffer, trp)
 	{
 		snprintf(ban, sizeof(ban), "A FsSniffer backdoor seems to be running on this port%s",
 			 get_encaps_through(trp));
-		post_alert(desc, port, ban);
+		post_alarm(desc, port, ban);
 	}
 }
 

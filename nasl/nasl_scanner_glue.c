@@ -968,7 +968,7 @@ security_something (lex_ctxt * lexic, proto_post_something_t proto_post_func,
 tree_cell *
 security_message (lex_ctxt * lexic)
 {
-  return security_something (lexic, proto_post_alert, post_alert);
+  return security_something (lexic, proto_post_alarm, post_alarm);
 }
 
 tree_cell *
