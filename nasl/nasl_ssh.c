@@ -128,6 +128,9 @@ struct session_table_item_s
 static struct session_table_item_s session_table[MAX_SSH_SESSIONS];
 
 
+/* Local prototypes.  */
+static int nasl_ssh_close_hook (int);
+
 
 /* A simple implementation of a dynamic buffer.  Use init_membuf() to
    create a buffer, put_membuf to append bytes and get_membuf to
@@ -744,12 +747,21 @@ my_ssh_userauth_publickey(ssh_session session,
 
 /* Return the next session id.  Note that the first session ID we will
    hand out is an arbitrary high number, this is only to help
-   debugging.  */
+   debugging.  This function is also used to setup a hook to the
+   network layer. */
 static int
 next_session_id (void)
 {
+  static int initialized;
   static int last = 9000;
   int i;
+
+  if (!initialized)
+    {
+      add_close_stream_connection_hook (nasl_ssh_close_hook);
+      initialized = 1;
+    }
+
 
  again:
   last++;
@@ -1056,21 +1068,21 @@ nasl_ssh_disconnect (lex_ctxt *lexic)
 
 
 /**
- * @brief Close a socket associated with an ssh connection.
+ * @brief Hook to close a socket associated with an ssh connection.
  *
  * NASL code may be using "ssh_connect" passing an open socket and
  * later closing this socket using "close" instead of calling
  * "ssh_disconnect".  Thus the close code needs to check whether the
  * socket refers to an ssh connection and call ssh_disconnect then
  * (libssh takes ownership of the socket if set via SSH_OPTIONS_FD).
- * This function implements the check and closing
+ * This function implements the hook for checking and closing.
  *
  * @param[in] A socket
  *
  * @return Zero if the socket was closed (disconnected).
  */
-int
-nasl_ssh_internal_close (int sock)
+static int
+nasl_ssh_close_hook (int sock)
 {
   int tbl_slot, session_id;
 
@@ -1929,12 +1941,4 @@ nasl_ssh_get_auth_methods (lex_ctxt *lexic)
 }
 
 
-#else /*!HAVE_LIBSSH*/
-/* Dummy version of the function.  This is required because that
-   stupid cmake does not convey global definitions like HAVE_LIBSSH.  */
-int
-nasl_ssh_internal_close (int sock)
-{
-  return -1;
-}
-#endif /*!HAVE_LIBSSH*/
+#endif /*HAVE_LIBSSH*/

@@ -54,7 +54,6 @@
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_CTRL */
 #include "support.h"
 #include "openvas_logging.h"
-#include "../nasl/nasl_ssh.h"   /* for nasl_ssh_internal_close */
 
 #include <setjmp.h>
 
@@ -104,6 +103,20 @@ typedef struct
 #define OPENVAS_FD_OFF 1000000
 
 static openvas_connection connections[OPENVAS_FD_MAX];
+
+/**
+ * @brief Object to store a list of hooks for close_stream_connection.
+ */
+struct csc_hook_s
+{
+  struct csc_hook_s *next;
+  int (*fnc)(int fd);
+};
+
+/**
+ * @brief Linked list of hooks to be run by close_stream_connection.
+ */
+static struct csc_hook_s *csc_hooks;
 
 
 static void my_gnutls_transport_set_lowat_default (gnutls_session_t session);
@@ -1843,6 +1856,59 @@ nrecv (int fd, void *data, int length, int i_opt)
   return e;
 }
 
+
+/**
+ * @brief Register a hook function for close_stream_connection.
+ *
+ * The function adds the given hook function to the list of hooks to
+ * be run by close_stream_connection.  These hooks are intended to
+ * test whether they need to close the stream them self.  See argument
+ * to the hook function is the file descriptor of the stream.  The
+ * hook shall return 0 if it has taken over control of that file
+ * descriptor.  The same function is only aded once to the list of
+ * hooks.
+ *
+ * @param fnc  The hook function.  See above for details.
+ */
+void
+add_close_stream_connection_hook (int (*fnc)(int fd))
+{
+  struct csc_hook_s *hook;
+
+  for (hook = csc_hooks; hook; hook = hook->next)
+    if (hook->fnc == fnc)
+      return; /* Already added.  */
+
+  hook = emalloc (sizeof *hook);
+  hook->fnc = fnc;
+  hook->next = csc_hooks;
+  csc_hooks = hook;
+}
+
+/**
+ * @brief Run the hooks for close_stream_connection.
+ *
+ * The function runs all registered hooks until the first hook returns
+ * with zero to indicate that it has taken over control of the socket.
+ * Further hooks are then not anymore run because the file descriptor
+ * is not anymore valid.
+ *
+ * @param fd The file descriptor of the stream.
+
+ * @return Zero if one of the hooks has closed the connection;
+ *         non-zero otherwise.
+ */
+static int
+run_csc_hooks (int fd)
+{
+  struct csc_hook_s *hook;
+
+  for (hook = csc_hooks; hook; hook = hook->next)
+    if (hook->fnc && !hook->fnc (fd))
+      return 0;
+  return -1;
+}
+
 int
 close_stream_connection (int fd)
 {
@@ -1859,8 +1925,8 @@ close_stream_connection (int fd)
 
   if (0)
     ;
-  else if (!nasl_ssh_internal_close (fd))
-    return 0;
+  else if (!run_csc_hooks (fd))
+    return 0; /* A hook already closed the fd.  */
   else if (!OPENVAS_STREAM (fd))     /* Will never happen if debug is on! */
     {
       if (fd < 0 || fd > 1024)

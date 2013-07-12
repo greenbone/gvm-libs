@@ -1,3 +1,21 @@
+2013-07-12  Werner Koch  <wk@gnupg.org>
+
+        Remove circular dependency between misc/ and nasl/ introduced by
+	me on 2012-09-20.
+
+	* misc/network.c: Remove nasl_ssh.h include.
+	(struct csc_hook_s): New.
+	(csc_hooks): New.
+	(add_close_stream_connection_hook): New.
+	(run_csc_hooks): New.
+	(close_stream_connection): Call run_csc_hooks instead of
+	nasl_ssh_internal_close.
+	* misc/network.h (add_close_stream_connection_hook): New
+	prototype.
+	* nasl/nasl_ssh.c (nasl_ssh_internal_close): Make static and
+	rename to nasl_ssh_close_hook.
+	(next_session_id): Register hook.
+
 2013-07-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/plugutils.c (proto_post_wrapped): Handle message
@@ -9,7 +27,7 @@
 
 	Renamed "alert" to "alarm" to not mix up with the alerts as
 	used in OpenVAS Manager.
- 
+
 	* nasl/nasl_builtin_find_service.c: Replaced all calls of post_alert
 	by post_alarm.
 

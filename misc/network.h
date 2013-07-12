@@ -58,6 +58,7 @@ int write_stream_connection (int, void *buf, int n);
 int read_stream_connection (int, void *, int);
 int read_stream_connection_min (int, void *, int, int);
 int nsend (int, void *, int, int);
+void add_close_stream_connection_hook (int (*)(int));
 int close_stream_connection (int);
 
 const char *get_encaps_name (int);
