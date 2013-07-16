@@ -1,6 +1,10 @@
+2013-07-16  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	ChangeLog: Clean up a little formatting.
+
 2013-07-12  Werner Koch  <wk@gnupg.org>
 
-        Remove circular dependency between misc/ and nasl/ introduced by
+	Remove circular dependency between misc/ and nasl/ introduced by
 	me on 2012-09-20.
 
 	* misc/network.c: Remove nasl_ssh.h include.
@@ -21,7 +25,6 @@
 	* misc/plugutils.c (proto_post_wrapped): Handle message
 	according to cvss here instead of in proto_post_alarm.
 	(proto_post_alarm): Removed cvss-depending code.
-
 
 2013-07-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
@@ -62,9 +65,9 @@
 	* nasl/nasl_builtin_find_service.c: Replaced all calls of post_hole
 	by post_alert.
 
-	* misc/plugutils.c (proto_post_hole, post_hole, post_hole_udp,
-	post_info, post_info_udp, proto_post_info, post_note,
-	post_note_udp, proto_post_note): Removed.
+	* misc/plugutils.c (proto_post_hole, post_hole, post_hole_udp)
+	(post_info, post_info_udp, proto_post_info, post_note)
+	(post_note_udp, proto_post_note): Removed.
 
 	* misc/plugutils.h: Removed protos accordingly.
 
@@ -432,7 +435,7 @@
 
 2013-04-02  Werner Koch  <wk@gnupg.org>
 
-	* misc/openvas_server.c	(server_attach): Factor all code out to ..
+	* misc/openvas_server.c (server_attach): Factor all code out to ..
 	(server_attach_internal): new function.  Add and use args HOST and
 	PORT.  Return -2 on handshake failure.
 	(openvas_server_new): Factor all code out to ..
