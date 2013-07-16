@@ -1,6 +1,11 @@
 2013-07-16  Matthew Mundell <matthew.mundell@greenbone.net>
 
-	ChangeLog: Clean up a little formatting.
+	* misc/plugutils.c (proto_post_wrapped): Enable sending of ALARM in
+	place of LOG, NOTE and INFO.
+
+2013-07-16  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* ChangeLog: Clean up a little formatting.
 
 2013-07-12  Werner Koch  <wk@gnupg.org>
 

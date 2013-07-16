@@ -595,7 +595,6 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   GString *action_str_escaped;
   nvti_t * nvti = nvticache_get_by_oid (arg_get_value (arg_get_value (desc,
     "preferences"), "nvticache"), arg_get_value (desc, "OID"));
-  double cvss = nvti_cvss (nvti);
   gchar **nvti_tags = NULL;
 
   /* Should not happen, just to avoid trouble stop here if no NVTI found */
@@ -712,16 +711,6 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
 
   g_free (action_escaped);
   g_string_free (action_str, TRUE);
-
-  /* Find out the message type depending on CVSS. */
-  /* This is convenience until OTP supports ALARM message type */
-  if (! strncmp (what, "ALARM", sizeof("ALARM")))
-    {
-      if (cvss == 0) what = "LOG";
-      else if (cvss <= 2) what = "NOTE";
-      else if (cvss <= 5) what = "INFO";
-      else what = "HOLE";
-    }
 
   len = action_str_escaped->len;
 
