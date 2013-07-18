@@ -19,7 +19,9 @@
 #include <arpa/inet.h>          /* for inet_addr */
 #include <ctype.h>              /* isalnum */
 #include <netdb.h>              /* for addrinfo */
+#ifndef NDEBUG
 #include <stdio.h>              /* for stderr */
+#endif
 #include <stdlib.h>             /* for free */
 #include <string.h>             /* for strncpy */
 
@@ -137,15 +139,25 @@ hg_get_name_from_ip (struct in6_addr *ip, char *hostname, int sz)
   if (getnameinfo (sa, len, hostname, sz, NULL, 0, 0))
     {
       if (IN6_IS_ADDR_V4MAPPED (ip))
+#ifndef NDEBUG
         fprintf (stderr, "hg_get_name_from_ip: copying address %s\n",
                  inet_ntop (AF_INET, &saddr.sin_addr, hostname, sz));
+#else
+        inet_ntop (AF_INET, &saddr.sin_addr, hostname, sz);
+#endif
       else
+#ifndef NDEBUG
         fprintf (stderr, "hg_get_name_from_ip: copying address (IPv6) %s\n",
                  inet_ntop (AF_INET6, ip, hostname, sz));
+#else
+        inet_ntop (AF_INET6, ip, hostname, sz);
+#endif
     }
   else
     {
+#ifndef NDEBUG
       fprintf (stderr, "hg_get_name_from_ip: resolved to name %s\n", hostname);
+#endif
     }
 
   hostname[sz - 1] = '\0';

@@ -1,3 +1,9 @@
+2013-07-18  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* hg/hg_utils.c (hg_get_name_from_ip): Hide debug output behind NDEBUG
+	ndefines so it does not show up when built with the "Release" build
+	type.
+
 2013-07-16  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/plugutils.c (proto_post_wrapped): Enable sending of ALARM in
