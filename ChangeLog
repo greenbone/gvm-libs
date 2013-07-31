@@ -1,3 +1,26 @@
+2013-07-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Adding capability to NASL to run commands on a remote Windows
+	machine when being authenticated. Similar like it is already
+	possible to run commands on remote Linux systems using ssh.
+	These patches were developed by Thanga Prakash <tprakash@secpod.com>.
+
+	* nasl/smb_interface_stub.c (wincmd): New.
+
+	* nasl/openvas_smb_interface.h: Add proto accordingly.
+
+	* nasl/nasl_smb.c (nasl_win_cmd_exec): New.
+
+	* nasl/nasl_smb.h: Add proto accordingly.
+
+	* nasl/CMakeLists.txt: Added checks for wincmd library and handle
+	if is found.
+
+	* doc/wmi-howto.txt: Updated to consider additional patch and
+	installation.
+
+	* CMakeLists.txt: Add configure check for wincmd.
+
 2013-07-24  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* INSTALL: Reorder PKG_CONFIG_PATH export, in case another openvas

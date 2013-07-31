@@ -1,7 +1,7 @@
 COMPILING OPENVAS-LIBRARIES WITH WMI SUPPORT
 ============================================
 
-Last updated: 2013-02-07
+Last updated: 2013-07-31
 
 To compile openvas-libraries with WMI support, please follow the steps described
 below. Our hope is that this code will ultimately make it into Samba itself;
@@ -29,12 +29,14 @@ location:
 
 http://www.openvas.org/download/wmi/openvas-wmi-1.3.14.patch
 http://www.openvas.org/download/wmi/openvas-wmi-1.3.14.patch2
+http://www.openvas.org/download/wmi/openvas-wmi-1.3.14.patch3
 
 Copy the patches to the wmi-1.3.14 directory you just created and apply the patches
 with the following commands:
 
 $ patch -p1 < openvas-wmi-1.3.14.patch
 $ patch -p1 < openvas-wmi-1.3.14.patch2
+$ patch -p1 < openvas-wmi-1.3.14.patch3
 
 3) Compile the source
 In the wmi-1.3.14 directory, execute the following commands:
@@ -47,15 +49,17 @@ $ make libraries
 If successful, this will result in the creation of the file
 wmi-1.3.14/Samba/source/wmi/libwmiclient.so.
 
-Now execute the "install-libwmiclient.sh" script in the Samba/source directory:
+Now execute the installations routines in the Samba/source directory:
 $ bash install-libwmiclient.sh
+$ bash install-libwincmd.sh
 
 NOTE: If you want to use a prefix for your OpenVAS installation, remember to add
-it when calling the script:
+it when calling the scripts:
 
 $ bash install-libwmiclient.sh /prefix/to/your/openvas/install
+$ bash install-libwincmd.sh /prefix/to/your/openvas/install
 
-The script will copy the library files to the correct location and ensure it is
+The script will copy the files to the correct location and ensure it is
 visible to openvas-libraries.
 
 4) Compile openvas-libraries

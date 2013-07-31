@@ -46,5 +46,6 @@ tree_cell *nasl_smb_file_SDDL (lex_ctxt * lexic);
 tree_cell *nasl_smb_file_owner_sid (lex_ctxt * lexic);
 tree_cell *nasl_smb_file_group_sid (lex_ctxt * lexic);
 tree_cell *nasl_smb_file_trustee_rights (lex_ctxt * lexic);
+tree_cell *nasl_win_cmd_exec (lex_ctxt * lexic);
 
 #endif
