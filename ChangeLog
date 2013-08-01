@@ -1,3 +1,7 @@
+2013-08-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* hg/hosts_gatherer.h: Fix comment typo.
+
 2013-07-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Adding capability to NASL to run commands on a remote Windows

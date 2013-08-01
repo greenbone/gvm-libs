@@ -31,7 +31,7 @@
 #undef DEBUG_HIGH
 
 
-/* Flags for hg_hlobals */
+/* Flags for hg_globals */
 #define HG_NFS                1
 #define HG_DNS_AXFR           2
 #define HG_SUBNET             4
