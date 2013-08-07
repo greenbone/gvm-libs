@@ -1,3 +1,10 @@
+2013-08-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport for r16369. Patch by Hani Benhabiles.
+
+	* base/openvas_file.c (openvas_file_copy, openvas_file_move): Check Glib
+	version before using recently deprecated g_type_init().
+
 2013-06-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Add support for setting the "autofp" parameter via
