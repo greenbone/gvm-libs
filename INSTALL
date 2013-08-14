@@ -2,7 +2,7 @@ INSTALLATION INSTRUCTIONS FOR OPENVAS-LIBRARIES
 ===============================================
 
 Please note: The reference system used by most of the developers is Debian
-GNU/Linux 'Squeeze' 6.0. The build might fail on any other system. Also it is
+GNU/Linux 'Wheezy' 7. The build might fail on any other system. Also it is
 necessary to install dependent development packages.
 
 
