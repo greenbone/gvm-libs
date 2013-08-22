@@ -164,7 +164,7 @@ main (int argc, char **argv)
     {"debug-tls", 0, 0, G_OPTION_ARG_INT, &debug_tls,
      "Enable TLS debugging at <level>", "<level>"},
     {G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &nasl_filenames,
-     NULL, NULL},
+     "Absolute path to one or more nasl scripts", "NASL_FILE..."},
     {NULL}
   };
 
@@ -233,7 +233,7 @@ main (int argc, char **argv)
   openvas_SSL_init ();
   if (!nasl_filenames)
     {
-      fprintf (stderr, "Error. No input file specified !\n");
+      fprintf (stderr, "Error. No input file(s) specified !\n");
       exit (1);
     }
 

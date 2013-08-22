@@ -1,5 +1,11 @@
 2013-08-22  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* nasl/nasl.c (main): Document obligatory command line argument
+	and clarify that multiple can be given (in error message when none is
+	passed).
+
+2013-08-22  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* nasl/nasl_scanner_glue.c (script_xref, script_tag): Use nasl_perror
 	to print the NVT name, verbose debugging messages when parameters
 	are not set.
