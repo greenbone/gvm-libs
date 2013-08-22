@@ -175,11 +175,25 @@ script_xref (lex_ctxt * lexic)
 
   if (value == NULL || name == NULL)
     {
-      nvti_t *n = arg_get_value (script_infos, "NVTI");
-
-      fprintf (stderr,
-               "%s:script_xref() syntax error - should be"
-               " script_xref(name:<name>, value:<value>)\n", nvti_name (n));
+      nasl_perror (lexic,
+               "script_xref() syntax error - should be"
+               " script_xref(name:<name>, value:<value>)\n");
+      if (name == NULL)
+        {
+          nasl_perror (lexic, "  <name> is empty\n");
+        }
+      else
+        {
+          nasl_perror (lexic, "  <name> is %s\n", name);
+        }
+      if (value == NULL)
+        {
+          nasl_perror (lexic, "  <value> is empty)\n");
+        }
+      else
+        {
+          nasl_perror (lexic, "  <value> is %s\n)", value);
+        }
       return FAKE_CELL;
     }
 
@@ -197,11 +211,24 @@ script_tag (lex_ctxt * lexic)
 
   if (value == NULL || name == NULL)
     {
-      nvti_t *n = arg_get_value (script_infos, "NVTI");
-
-      fprintf (stderr,
-               "%s:script_tag() syntax error - should be"
-               " script_tag(name:<name>, value:<value>)\n", nvti_name (n));
+      nasl_perror (lexic, "script_tag() syntax error - should be"
+                          " script_tag(name:<name>, value:<value>)\n");
+      if (name == NULL)
+        {
+          nasl_perror (lexic, "  <name> is empty\n");
+        }
+      else
+        {
+          nasl_perror (lexic, "  <name> is %s\n", name);
+        }
+      if (value == NULL)
+        {
+          nasl_perror (lexic, "  <value> is empty)\n");
+        }
+      else
+        {
+          nasl_perror (lexic, "  <value> is %s\n)", value);
+        }
       return FAKE_CELL;
     }
 
@@ -442,8 +469,10 @@ script_add_preference (lex_ctxt * lexic)
   struct arglist *script_infos = lexic->script_infos;
 
   if (name == NULL || type == NULL || value == NULL)
-    nasl_perror (lexic,
-                 "Argument error in the call to script_add_preference()\n");
+    {
+      nasl_perror (lexic,
+                   "Argument error in the call to script_add_preference()\n");
+    }
   else
     add_plugin_preference (script_infos, name, type, value);
 

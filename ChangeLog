@@ -1,3 +1,9 @@
+2013-08-22  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
+	* nasl/nasl_scanner_glue.c (script_xref, script_tag): Use nasl_perror
+	to print the NVT name, verbose debugging messages when parameters
+	are not set.
+
 2013-08-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_scanner_glue.c (script_xref, script_tag): Make error message
