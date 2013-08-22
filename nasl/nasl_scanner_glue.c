@@ -175,8 +175,11 @@ script_xref (lex_ctxt * lexic)
 
   if (value == NULL || name == NULL)
     {
+      nvti_t *n = arg_get_value (script_infos, "NVTI");
+
       fprintf (stderr,
-               "script_xref() syntax error - should be script_xref(name:<name>, value:<value>)\n");
+               "%s:script_xref() syntax error - should be"
+               " script_xref(name:<name>, value:<value>)\n", nvti_name (n));
       return FAKE_CELL;
     }
 
@@ -194,8 +197,11 @@ script_tag (lex_ctxt * lexic)
 
   if (value == NULL || name == NULL)
     {
+      nvti_t *n = arg_get_value (script_infos, "NVTI");
+
       fprintf (stderr,
-               "script_tag() syntax error - should be script_tag(name:<name>, value:<value>)\n");
+               "%s:script_tag() syntax error - should be"
+               " script_tag(name:<name>, value:<value>)\n", nvti_name (n));
       return FAKE_CELL;
     }
 
