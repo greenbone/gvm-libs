@@ -1,5 +1,9 @@
 2013-08-22  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
+	* nasl/nasl_scanner_glue.c (script_xref): Conform to coding style.
+
+2013-08-22  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
+
 	* nasl/nasl.c (main): Document obligatory command line argument
 	and clarify that multiple can be given (in error message when none is
 	passed).

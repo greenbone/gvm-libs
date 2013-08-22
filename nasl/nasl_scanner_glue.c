@@ -176,8 +176,8 @@ script_xref (lex_ctxt * lexic)
   if (value == NULL || name == NULL)
     {
       nasl_perror (lexic,
-               "script_xref() syntax error - should be"
-               " script_xref(name:<name>, value:<value>)\n");
+                   "script_xref() syntax error - should be"
+                   " script_xref(name:<name>, value:<value>)\n");
       if (name == NULL)
         {
           nasl_perror (lexic, "  <name> is empty\n");
