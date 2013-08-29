@@ -1,3 +1,7 @@
+2013-08-29  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* COPYING: Update date to reflect the latest change.
+
 2013-08-22  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
 
 	* nasl/nasl_scanner_glue.c (script_xref): Conform to coding style.

@@ -19,7 +19,7 @@ BSD2: See file COPYING.BSD2
 BSD3: See file COPYING.BSD3
 
 The following overview was initially collected 20100726 based
-on the header of the respective files and last updated 20130117:
+on the header of the respective files and last updated 20130701:
 
 base/accessrules.[c|h]: GPLv2+
 base/array.[c|h]: GPLv2+
