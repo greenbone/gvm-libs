@@ -1,5 +1,9 @@
 2013-09-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* COPYING: Add license for new files.
+
+2013-09-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Initial commit for new Hosts API that will replace hg module.
 
 	* base/openvas_hosts.c, base/openvas_hosts.c: New files.
