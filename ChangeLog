@@ -1,3 +1,10 @@
+2013-09-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_hosts.c (ipv4_mapped_ipv6, openvas_host_addr6): New
+	functions.
+
+	* base/openvas_hosts.h: Add openvas_host_addr6 function prototype.
+
 2013-09-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* COPYING: Add license for new files.

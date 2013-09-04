@@ -126,4 +126,7 @@ openvas_host_value_str (const openvas_host_t *);
 int
 openvas_host_resolve (const openvas_host_t *, void *, int);
 
+int
+openvas_host_addr6 (const openvas_host_t *, struct in6_addr *);
+
 #endif /* not _OPENVAS_HOSTS_H */
