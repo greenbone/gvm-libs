@@ -29,19 +29,15 @@
 # include <libssh/libssh.h>     /* for ssh_version */
 #endif
 
-#include "hosts_gatherer.h"
 #include "kb.h"                 /* for kb_new */
 #include "network.h"
 #include "system.h"             /* for efree */
 
 #include "nasl.h"
-#include "nasl_tree.h"
-#include "nasl_global_ctxt.h"
-#include "nasl_func.h"
-#include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
 #include "exec.h"
 #include "../base/gpgme_util.h" /* for gpgme_check_version */
+#include <../base/openvas_hosts.h> /* for openvas_hosts_* and openvas_host_* */
 
 #include <glib.h>
 
@@ -120,12 +116,11 @@ int
 main (int argc, char **argv)
 {
   struct arglist *script_infos;
+  openvas_hosts_t *hosts;
+  openvas_host_t *host;
   static gchar *target = NULL;
   gchar *default_target = "127.0.0.1";
-  struct hg_globals *hg_globals;
-  struct in6_addr ip6;
   int start, n;
-  char hostname[1024];
   int mode = 0;
   int err = 0;
 
@@ -259,7 +254,7 @@ main (int argc, char **argv)
 
   start = 0;
 
-  hg_globals = hg_init (target, 4);
+  hosts = openvas_hosts_new (target);
   efree (&target);
 
   // for absolute and relative paths
@@ -269,8 +264,13 @@ main (int argc, char **argv)
       add_nasl_inc_dir (include_dir);
     }
 
-  while (hg_next_host (hg_globals, &ip6, hostname, sizeof (hostname)) >= 0)
+  while ((host = openvas_hosts_next (hosts)))
     {
+      struct in6_addr ip6;
+      char *hostname;
+
+      hostname = openvas_host_value_str (host);
+      openvas_host_addr6 (host, &ip6);
       script_infos = init (hostname, ip6);
       n = start;
       while (nasl_filenames[n])
@@ -284,7 +284,6 @@ main (int argc, char **argv)
   if (nasl_trace_fp != NULL)
     fflush (nasl_trace_fp);
 
-  hg_cleanup (hg_globals);
-
+  openvas_hosts_free (hosts);
   return err;
 }

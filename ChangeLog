@@ -1,5 +1,14 @@
 2013-09-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Remove hg module usage and integrate openvas_hosts interface for
+	openvas-nasl.
+
+	* nasl/nasl.c: Remove useless includes. Include base/openvas_hosts.h
+	(main): Replace hg_* functions with openvas_hosts_* and openvas_host_*
+	functions and make necessary adjustments.
+
+2013-09-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/openvas_hosts.c (ipv4_mapped_ipv6, openvas_host_addr6): New
 	functions.
 
