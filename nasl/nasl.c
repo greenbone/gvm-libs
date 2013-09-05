@@ -31,7 +31,6 @@
 
 #include "kb.h"                 /* for kb_new */
 #include "network.h"
-#include "system.h"             /* for efree */
 
 #include "nasl.h"
 #include "nasl_lex_ctxt.h"
@@ -59,11 +58,11 @@ init_hostinfos (char *hostname, struct in6_addr *ip)
   struct arglist *hostinfos;
   struct arglist *ports;
 
-  hostinfos = emalloc (sizeof (struct arglist));
+  hostinfos = g_malloc0 (sizeof (struct arglist));
   arg_add_value (hostinfos, "FQDN", ARG_STRING, strlen (hostname), hostname);
   arg_add_value (hostinfos, "NAME", ARG_STRING, strlen (hostname), hostname);
   arg_add_value (hostinfos, "IP", ARG_PTR, sizeof (struct in6_addr), ip);
-  ports = emalloc (sizeof (struct arglist));
+  ports = g_malloc0 (sizeof (struct arglist));
   arg_add_value (hostinfos, "PORTS", ARG_ARGLIST, sizeof (struct arglist),
                  ports);
   return (hostinfos);
@@ -86,18 +85,18 @@ my_gnutls_log_func (int level, const char *text)
 struct arglist *
 init (char *hostname, struct in6_addr ip)
 {
-  struct arglist *script_infos = emalloc (sizeof (struct arglist));
-  struct arglist *prefs = emalloc (sizeof (struct arglist));
-  struct in6_addr *pip = emalloc (sizeof (*pip));
+  struct arglist *script_infos = g_malloc0 (sizeof (struct arglist));
+  struct arglist *prefs = g_malloc0 (sizeof (struct arglist));
+  struct in6_addr *pip = g_malloc0 (sizeof (*pip));
   memcpy (pip, &ip, sizeof (struct in6_addr));
 
   arg_add_value (script_infos, "standalone", ARG_INT, sizeof (int), (void *) 1);
-  arg_add_value (prefs, "checks_read_timeout", ARG_STRING, 4, estrdup ("5"));
+  arg_add_value (prefs, "checks_read_timeout", ARG_STRING, 4, g_strdup ("5"));
   arg_add_value (script_infos, "preferences", ARG_ARGLIST, -1, prefs);
   arg_add_value (script_infos, "key", ARG_PTR, -1, kb_new ());
 
   if (safe_checks_only != 0)
-    arg_add_value (prefs, "safe_checks", ARG_STRING, 3, estrdup ("yes"));
+    arg_add_value (prefs, "safe_checks", ARG_STRING, 3, g_strdup ("yes"));
 
   arg_add_value (script_infos, "HOSTNAME", ARG_ARGLIST, -1,
                  init_hostinfos (hostname, pip));
@@ -255,7 +254,7 @@ main (int argc, char **argv)
   start = 0;
 
   hosts = openvas_hosts_new (target);
-  efree (&target);
+  g_free (target);
 
   // for absolute and relative paths
   add_nasl_inc_dir ("");
@@ -270,7 +269,13 @@ main (int argc, char **argv)
       char *hostname;
 
       hostname = openvas_host_value_str (host);
-      openvas_host_addr6 (host, &ip6);
+      if (openvas_host_get_addr6 (host, &ip6) == -1)
+        {
+          fprintf (stderr, "Couldn't resolve %s\n", hostname);
+          err++;
+          g_free (hostname);
+          continue;
+        }
       script_infos = init (hostname, ip6);
       n = start;
       while (nasl_filenames[n])
@@ -279,6 +284,7 @@ main (int argc, char **argv)
             err++;
           n++;
         }
+      g_free (hostname);
     }
 
   if (nasl_trace_fp != NULL)

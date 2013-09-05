@@ -965,7 +965,7 @@ ipv4_mapped_ipv6 (const struct in_addr *ip4, struct in6_addr *ip6)
  * @return -1 if error, 0 otherwise.
  */
 int
-openvas_host_addr6 (const openvas_host_t *host, struct in6_addr *ip6)
+openvas_host_get_addr6 (const openvas_host_t *host, struct in6_addr *ip6)
 {
   if (host == NULL || ip6 == NULL)
     return -1;

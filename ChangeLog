@@ -1,3 +1,13 @@
+2013-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_hosts.c, src/openvas_hosts.h: Rename openvas_host_addr6
+	to openvas_host_get_addr6 to make it clearer that interface resolves
+	address when unavailable.
+
+	* nasl/nasl.c: Remove system.h include. Replace usage of
+	emalloc/estrdup/efree with equivalent glib functions.
+	(main): Handle openvas_host_get_addr6 error. Free hostname.
+
 2013-09-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Remove hg module usage and integrate openvas_hosts interface for
