@@ -1,8 +1,19 @@
+2013-09-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* hg/: Removed.
+
 2013-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Remove unused hg/ module.
 
-	* hg/: Remove directory.
+	* hg/hg_filter.h, hg/hg_subnet.c,
+	hg/hg_utils.c, hg/test.c,
+	hg/hosts_gatherer.c, hg/hg_dns_axfr.c,
+	hg/hg_subnet.h, hg/hg_utils.h,
+	hg/hg_add_hosts.c, hg/hosts_gatherer.h,
+	hg/hg_dns_axfr.h, hg/README.txt,
+	hg/hg_add_hosts.h, hg/CMakeLists.txt,
+	hg/hg_filter.c, hg/hg_debug.c: Removed.
 
 	* COPYING: Remove hg license information.
 
