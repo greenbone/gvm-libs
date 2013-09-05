@@ -1,5 +1,14 @@
 2013-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Cache openvas_hosts count, instead of counting host objects each time.
+
+	* base/openvas_hosts.c (openvas_hosts_remove_duplicates): Substract
+	duplicates from count.
+	(openvas_hosts_new): Increment hosts count when adding a host object.
+	(openvas_hosts_count): Return count element value.
+
+2013-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/openvas_hosts.c, src/openvas_hosts.h: Rename openvas_host_addr6
 	to openvas_host_get_addr6 to make it clearer that interface resolves
 	address when unavailable.

@@ -553,6 +553,8 @@ openvas_hosts_remove_duplicates (openvas_hosts_t *hosts)
       element = element->next;
     }
 
+  /* Remove duplicates from count. */
+  hosts->count -= hosts->removed;
   hosts->current = hosts->hosts;
 }
 
@@ -626,6 +628,7 @@ openvas_hosts_new (const gchar *hosts_str)
                 inet_pton (AF_INET6, stripped, &host->addr6);
               /* Prepend to list of hosts. */
               hosts->hosts = g_list_prepend (hosts->hosts, host);
+              hosts->count++;
               break;
             }
           case HOST_TYPE_CIDR_BLOCK:
@@ -661,6 +664,7 @@ openvas_hosts_new (const gchar *hosts_str)
                   host->type = HOST_TYPE_IPV4;
                   host->addr.s_addr = current;
                   hosts->hosts = g_list_prepend (hosts->hosts, host);
+                  hosts->count++;
                   /* Next IP address. */
                   current = htonl (ntohl (current) + 1);
                 }
@@ -776,7 +780,7 @@ openvas_hosts_shuffle (openvas_hosts_t * hosts)
 unsigned int
 openvas_hosts_count (const openvas_hosts_t * hosts)
 {
-  return hosts ? g_list_length (hosts->hosts) : 0;
+  return hosts ? hosts->count : 0;
 }
 
 /**
