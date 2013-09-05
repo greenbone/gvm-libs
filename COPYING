@@ -40,16 +40,6 @@ base/pidfile.[c|h]: GPLv2+
 base/settings.[c|h]: GPLv2+
 base/severity_filter.[c|h]: GPLv2+
 
-hg/CMakeLists.txt: GPLv2+
-hg/hg_add_hosts.[c|h]: LGPLv2+
-hg/hg_debug.c: LGPLv2+
-hg/hg_dns_axfr.[c|h]: LGPLv2+
-hg/hg_filter.[c|h]: LGPLv2+
-hg/hg_subnet.[c|h]: LGPLv2+
-hg/hg_utils.[c|h]: LGPLv2+
-hg/hosts_gatherer.[c|h]: LGPLv2+
-hg/test.c: LGPLv2+
-
 misc/ads_auth.[c|h]: GPLv2+
 misc/arglists.[c|h]: LGPLv2+
 misc/bpf_share.c: GPLv2

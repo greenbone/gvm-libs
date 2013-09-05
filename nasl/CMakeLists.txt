@@ -96,11 +96,10 @@ add_definitions (-DOPENVASLIB_VERSION=\\\"${OPENVASLIB_VERSION}\\\")
 add_definitions (-DOPENVAS_SYSCONF_DIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
 
 include_directories (../base)
-include_directories (../hg)
 include_directories (../misc)
 include_directories (../include)
 
-link_directories (${LIBDIR} ../base ../hg ../misc)
+link_directories (${LIBDIR} ../base ../misc)
 
 add_library (openvas_nasl_static STATIC ${FILES})
 
@@ -109,7 +108,7 @@ set_target_properties (openvas_nasl_static PROPERTIES OUTPUT_NAME "openvas_nasl"
 set_target_properties (openvas_nasl_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_nasl_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
 target_link_libraries (openvas_nasl_static openvas_base_static openvas_misc_static
-                       openvas_hg_static "${GLIB_LDFLAGS}" gcrypt "${GPGME_LDFLAGS}"
+                       "${GLIB_LDFLAGS}" gcrypt "${GPGME_LDFLAGS}"
                        gnutls "${PCAP_LDFLAGS}" "${WMI}" "${WINCMD}" "${LIBSSH_LDFLAGS}" "${KSBA_LDFLAGS}")
 
 add_library (openvas_nasl_shared SHARED ${FILES})
@@ -121,13 +120,13 @@ set_target_properties (openvas_nasl_shared PROPERTIES VERSION "${CPACK_PACKAGE_V
 set_target_properties (openvas_nasl_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 # line bellow is needed so it also works with no-undefined which is e.g. used by Mandriva
 target_link_libraries (openvas_nasl_shared openvas_base_shared openvas_misc_shared
-                       openvas_hg_shared "${GLIB_LDFLAGS}" "${GPGME_LDFLAGS}"
+                       "${GLIB_LDFLAGS}" "${GPGME_LDFLAGS}"
                        gnutls "${PCAP_LDFLAGS}" m ${WMI} ${WINCMD} ${LIBSSH_LDFLAGS} "${KSBA_LDFLAGS}")
 
 # Link the openvas-nasl executable
 add_executable (openvas-nasl nasl.c)
 target_link_libraries (openvas-nasl openvas_misc_static openvas_nasl_static
-                        openvas_base_static openvas_hg_static ${GLIB_LDFLAGS} -lgcrypt
+                        openvas_base_static ${GLIB_LDFLAGS} -lgcrypt
                        "${GPGME_LDFLAGS}" -lgnutls "${PCAP_LDFLAGS}" -lresolv -lm ${WMI_LIBS}
                        ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS} ${WINCMD_LIBS}) 
 set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS

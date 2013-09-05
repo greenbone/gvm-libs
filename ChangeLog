@@ -1,5 +1,16 @@
 2013-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Remove unused hg/ module.
+
+	* hg/: Remove directory.
+
+	* COPYING: Remove hg license information.
+
+	* nasl/CMakeLists, CMakeLists, libopenvas.pc.in: Remove hg directory and
+	library related entries.
+
+2013-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Add CIDR IPv6 ranges support.
 
 	* base/openvas_hosts.c (cidr_block_ips): Detail documentation.

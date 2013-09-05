@@ -309,7 +309,6 @@ configure_file (libopenvas.pc.in ${CMAKE_BINARY_DIR}/libopenvas.pc @ONLY)
 
 add_subdirectory (base)
 add_subdirectory (misc)
-add_subdirectory (hg)
 add_subdirectory (nasl)
 add_subdirectory (omp)
 
