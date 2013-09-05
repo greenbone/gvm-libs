@@ -1,5 +1,12 @@
 2013-09-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* base/test-hosts.c: New. A stand-alone test tool for module
+	openvas_hosts. Developed by Hani Benhabiles.
+
+	* base/CMakeLists.txt: Add handling for test-hosts.c.
+
+2013-09-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* doc/Doxyfile.in: Removed handling of module hg.
 
 2013-09-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>

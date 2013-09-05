@@ -85,6 +85,14 @@ endif (MINGW)
 
 add_custom_indent_targets (${FILES})
 
+# Link the test-hosts executable
+add_executable (test-hosts test-hosts.c)
+target_link_libraries (test-hosts openvas_base_static ${GLIB_LDFLAGS} -lgcrypt
+                       "${GPGME_LDFLAGS}" -lgnutls "${PCAP_LDFLAGS}" -lresolv -lm ${WMI_LIBS}
+                       ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS} ${WINCMD_LIBS}) 
+set_target_properties (test-hosts PROPERTIES COMPILE_FLAGS
+                       "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS}")
+
 ## Install
 install (TARGETS openvas_base_static openvas_base_shared
          RUNTIME DESTINATION ${BINDIR}
