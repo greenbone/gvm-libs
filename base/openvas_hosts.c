@@ -178,7 +178,12 @@ cidr_get_ip (const char *str, struct in_addr *addr)
 /**
  * @brief Gets the first and last usable IPv4 addresses from a CIDR-expressed
  * block. eg. "192.168.1.0/24 would give 192.168.1.1 as first and 192.168.1.254
- * as last. Thus, it skips the network and broadcast addresses.
+ * as last.
+ *
+ * Both network and broadcast addresses are skipped:
+ * - They are _never_ used as a host address. Not being included is the expected
+ *   behaviour from users.
+ * - When needed, short/long ranges (eg. 192.168.1.0-255) are available.
  *
  * @param[in]   str     Buffer containing CIDR-expressed block.
  * @param[out]  first   First IPv4 address in block.
@@ -399,6 +404,178 @@ is_hostname (const char *str)
 }
 
 /**
+ * @brief Checks if a buffer points to an IPv6 CIDR-exprpessed block.
+ * "2620:0:2d0:200::7/120" is valid, "2620:0:2d0:200::7/129" is not.
+ *
+ * @param[in]   str Buffer to check in.
+ *
+ * @return 1 if valid IPv6 CIDR-expressed block, 0 otherwise.
+ */
+static int
+is_cidr6_block (const char *str)
+{
+  long block;
+  char *addr6_str, *block_str, *p;
+
+  addr6_str = g_strdup (str);
+  block_str = strchr (addr6_str, '/');
+  if (block_str == NULL)
+    {
+      g_free (addr6_str);
+      return 0;
+    }
+
+  /* Separate the address from the block value. */
+  *block_str = '\0';
+  block_str++;
+
+  if (!is_ipv6_address (addr6_str) || !isdigit (*block_str))
+    {
+      g_free (addr6_str);
+      return 0;
+    }
+
+  p = NULL;
+  block = strtol (block_str, &p, 10);
+  g_free (addr6_str);
+
+  if (*p || block <= 0 || block > 128)
+    return 0;
+
+  return 1;
+}
+
+/**
+ * @brief Gets the network block value from a CIDR-expressed block string.
+ * For "192.168.1.1/24" it is 24.
+ *
+ * @param[in]   str     Buffer containing CIDR-expressed block.
+ * @param[out]  block   Variable to store block value.
+ *
+ * @return -1 if error, 0 otherwise.
+ */
+static int
+cidr6_get_block (const char *str, unsigned int *block)
+{
+  if (str == NULL || block == NULL)
+    return -1;
+
+  if (sscanf (str, "%*[0-9a-fA-F.:]/%3u", block)
+      != 1)
+    return -1;
+
+  return 0;
+}
+
+/**
+ * @brief Gets the IPv4 value from a CIDR-expressed block.
+ * eg. For "192.168.1.10/24" it is "192.168.1.10".
+ *
+ * @param[in]   str     String containing CIDR-expressed block.
+ * @param[out]  addr    Variable to store the IPv4 address value.
+ *
+ * @return -1 if error, 0 otherwise.
+ */
+static int
+cidr6_get_ip (const char *str, struct in6_addr *addr6)
+{
+  gchar *addr6_str, *tmp;
+
+  if (str == NULL || addr6 == NULL)
+    return -1;
+
+  addr6_str = g_strdup (str);
+  tmp = strchr (addr6_str, '/');
+  if (tmp == NULL)
+    {
+      g_free (addr6_str);
+      return -1;
+    }
+  *tmp = '\0';
+
+  if (inet_pton (AF_INET6, addr6_str, addr6) != 1)
+    return -1;
+
+  g_free (addr6_str);
+  return 0;
+}
+
+/**
+ * @brief Gets the first and last usable IPv4 addresses from a CIDR-expressed
+ * block. eg. "192.168.1.0/24 would give 192.168.1.1 as first and 192.168.1.254
+ * as last. Thus, it skips the network and broadcast addresses.
+ *
+ * @param[in]   str     Buffer containing CIDR-expressed block.
+ * @param[out]  first   First IPv4 address in block.
+ * @param[out]  last    Last IPv4 address in block.
+ *
+ * @return -1 if error, 0 else.
+ */
+int
+cidr6_block_ips (const char *str, struct in6_addr *first, struct in6_addr *last)
+{
+  unsigned int block;
+  int i, j;
+
+  if (str == NULL || first == NULL || last == NULL)
+    return -1;
+
+  /* Get IP and block values. */
+  if (cidr6_get_block (str, &block) == -1)
+    return -1;
+  if (cidr6_get_ip (str, first) == -1)
+    return -1;
+  memcpy (&last->s6_addr, &first->s6_addr, 16);
+
+  /* /128 => Specified address is the first and last one. */
+  if (block == 128)
+    return 0;
+
+  /* First IP: And with mask and increment to skip network address. */
+  j = 15;
+  for (i = (128 - block) / 8; i > 0; i--)
+    {
+      first->s6_addr[j] = 0;
+      j--;
+    }
+  first->s6_addr[j] &= 0xff ^ ((1 << ((128 - block) % 8)) - 1);
+
+  /* Last IP: Broadcast address - 1. */
+  j = 15;
+  for (i = (128 - block) / 8; i > 0; i--)
+    {
+      last->s6_addr[j] = 0xff;
+      j--;
+    }
+  last->s6_addr[j] |= (1 << ((128 - block) % 8)) - 1;
+
+  /* /127 => Only two addresses. Don't skip network / broadcast addresses.*/
+  if (block == 127)
+    return 0;
+
+  /* Increment first IP. */
+  for (i = 15; i >= 0; --i)
+    if (first->s6_addr[i] < 255)
+      {
+        first->s6_addr[i]++;
+        break;
+      }
+    else
+      first->s6_addr[i] = 0;
+  /* Decrement last IP. */
+  for (i = 15; i >= 0; --i)
+    if (last->s6_addr[i] > 0)
+      {
+        last->s6_addr[i]--;
+        break;
+      }
+    else
+      last->s6_addr[i] = 0xff;
+
+  return 0;
+}
+
+/**
  * @brief Determines the host type in a buffer.
  *
  * @param[in] str   Buffer that contains host definition, could a be hostname,
@@ -439,6 +616,10 @@ determine_host_type (const gchar *str_stripped)
   /* Check for long range-expressed networks "192.168.1.0-192.168.3.44" */
   if (is_long_range_network (str_stripped))
     return HOST_TYPE_RANGE_LONG;
+
+  /* Check for regular IPv6 CIDR-expressed block like "2620:0:2d0:200::7/120" */
+  if (is_cidr6_block (str_stripped))
+    return HOST_TYPE_CIDR6_BLOCK;
 
   /* Check for hostname. */
   if (is_hostname (str_stripped))
@@ -521,6 +702,10 @@ openvas_hosts_remove_duplicates (openvas_hosts_t *hosts)
    * hostnames) which would take more memory space but has ~O(N) complexity
    * instead.
    */
+  int duplicates = 0;
+
+  if (hosts == NULL)
+    return;
   GList *element = hosts->hosts;
 
   /* Iterate over list elements. */
@@ -543,7 +728,7 @@ openvas_hosts_remove_duplicates (openvas_hosts_t *hosts)
               openvas_host_free (host2);
               hosts->hosts = g_list_delete_link (hosts->hosts, tmp);
               /* Increment duplicates/invalid count. */
-              hosts->removed++;
+              duplicates++;
             }
           else
             next = next->next;
@@ -554,7 +739,8 @@ openvas_hosts_remove_duplicates (openvas_hosts_t *hosts)
     }
 
   /* Remove duplicates from count. */
-  hosts->count -= hosts->removed;
+  hosts->count -= duplicates;
+  hosts->removed += duplicates;
   hosts->current = hosts->hosts;
 }
 
@@ -668,6 +854,50 @@ openvas_hosts_new (const gchar *hosts_str)
                   /* Next IP address. */
                   current = htonl (ntohl (current) + 1);
                 }
+              break;
+            }
+          case HOST_TYPE_CIDR6_BLOCK:
+            {
+              struct in6_addr first, last;
+              unsigned char current[16];
+              int (*ips_func) (const char *, struct in6_addr *, struct in6_addr *);
+
+              if (host_type == HOST_TYPE_CIDR6_BLOCK)
+                ips_func = cidr6_block_ips;
+              else
+                continue;
+
+              if (ips_func (stripped, &first, &last) == -1)
+                break;
+
+              /* Make sure the first comes before the last. */
+              if (memcmp (&first.s6_addr, &last.s6_addr, 16) > 0)
+                {
+                  fprintf (stderr, "ERROR - %s: Inversed limits.\n", stripped);
+                  break;
+                }
+
+              /* Add addresses from first to last as single hosts. */
+              memcpy (current, &first.s6_addr, 16);
+              while (memcmp (current, &last.s6_addr, 16) <= 0)
+                {
+                  int i;
+
+                  openvas_host_t *host = openvas_host_new ();
+                  host->type = HOST_TYPE_IPV6;
+                  memcpy (host->addr6.s6_addr, current, 16);
+                  hosts->hosts = g_list_prepend (hosts->hosts, host);
+                  hosts->count++;
+                  /* Next IPv6 address. */
+                  for (i = 15; i >= 0; --i)
+                    if (current[i] < 255)
+                      {
+                        current[i]++;
+                        break;
+                      }
+                    else
+                      current[i] = 0;
+                 }
               break;
             }
           case -1:

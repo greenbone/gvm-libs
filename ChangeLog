@@ -1,5 +1,18 @@
 2013-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Add CIDR IPv6 ranges support.
+
+	* base/openvas_hosts.c (cidr_block_ips): Detail documentation.
+	(is_cidr6_block, cidr6_get_block, cidr6_get_ip, cidr6_block_ips): New
+	functions.
+	(determine_host_type): Check for IPv6 CIDR-blocks syntax.
+	(openvas_hoss_remove_duplicates): Fix duplicates count substraction.
+	(openvas_hosts_new): Handle adding single hosts for CIDR IPv6 blocks.
+
+	* base/openvas_hosts.h: Add HOST_TYPE_CIDR6_BLOCK value.
+
+2013-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Cache openvas_hosts count, instead of counting host objects each time.
 
 	* base/openvas_hosts.c (openvas_hosts_remove_duplicates): Substract
