@@ -92,7 +92,7 @@ get_host_ip (lex_ctxt * lexic)
     {
       txt_ip = estrdup (inet_ntop (AF_INET6, ip, name, sizeof (name)));
     }
-  retc->x.str_val = estrdup (txt_ip);
+  retc->x.str_val = txt_ip;
   retc->size = strlen (retc->x.str_val);
 
   return retc;

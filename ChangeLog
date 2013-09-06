@@ -1,3 +1,16 @@
+2013-09-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Fix a couple of memory leaks.
+
+	* misc/pcap.c (v6_getinterfaces): Call freeifaddrs if getifaddrs call
+	succeeds.
+
+	* misc/plugutils.c (plug_set_replace_key): Free str when soc is null
+	too.
+
+	* nasl/nasl_host.c (get_host_ip): Use the already duplicated txt_ip
+	instead of duplicating it again.
+
 2013-09-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/test-hosts.c: New. A stand-alone test tool for module

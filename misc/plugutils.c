@@ -1123,8 +1123,9 @@ plug_set_replace_key (struct arglist *args, char *name, int type, void *value,
       if (e < 0)
         fprintf (stderr, "[%d] plug_set_key:internal_send(%d)['%s']: %s\n",
                  getpid (), soc, str, strerror (errno));
-      efree (&str);
     }
+  if (str)
+    efree (&str);
 }
 
 

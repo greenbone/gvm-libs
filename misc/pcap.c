@@ -732,6 +732,8 @@ v6_getinterfaces (int *howmany)
             }
         }
       *howmany = numinterfaces;
+
+      freeifaddrs (ifaddr);
     }
   return mydevs;
 }
