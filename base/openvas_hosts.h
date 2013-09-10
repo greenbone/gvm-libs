@@ -91,7 +91,7 @@ struct openvas_hosts
   GList *hosts;             /* Hosts objects list. */
   GList *current;           /* Current host object in iteration. */
   unsigned int count;       /* Number of single host objects in hosts list. */
-  unsigned int removed;     /* Number of duplicate/invalid values. */
+  unsigned int removed;     /* Number of duplicate/invalid/excluded values. */
 };
 
 /* Function prototypes. */
@@ -108,6 +108,9 @@ openvas_hosts_free (openvas_hosts_t *);
 
 void
 openvas_hosts_shuffle (openvas_hosts_t *);
+
+int
+openvas_hosts_exclude (openvas_hosts_t *, const char *);
 
 unsigned int
 openvas_hosts_count (const openvas_hosts_t *);

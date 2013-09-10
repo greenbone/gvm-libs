@@ -672,7 +672,7 @@ openvas_host_free (gpointer host)
  * @return 1 if the two hosts are equal, 0 otherwise.
  */
 static int
-openvas_host_equal (openvas_host_t *host, openvas_host_t *host2)
+openvas_host_equal (const openvas_host_t *host, const openvas_host_t *host2)
 {
   if (!host || !host2 || host->type != host2->type)
     return 0;
@@ -952,7 +952,7 @@ openvas_hosts_next (openvas_hosts_t *hosts)
  *
  */
 void
-openvas_hosts_free (openvas_hosts_t * hosts)
+openvas_hosts_free (openvas_hosts_t *hosts)
 {
   if (hosts == NULL)
     return;
@@ -975,7 +975,7 @@ openvas_hosts_free (openvas_hosts_t * hosts)
  * @param[in] hosts The hosts collection to shuffle.
  */
 void
-openvas_hosts_shuffle (openvas_hosts_t * hosts)
+openvas_hosts_shuffle (openvas_hosts_t *hosts)
 {
   int count;
   GList *new_list;
@@ -1005,6 +1005,76 @@ openvas_hosts_shuffle (openvas_hosts_t * hosts)
 }
 
 /**
+ * @brief Excludes a set of hosts provided as a string from a hosts collection.
+ * Not to be used while iterating over the single hosts as it resets the
+ * iterator.
+ *
+ * @param[in] hosts         The hosts collection from which to exclude.
+ * @param[in] excluded_str  String of hosts to exclude.
+ *
+ * @return Number of excluded hosts, -1 if error.
+ */
+int
+openvas_hosts_exclude (openvas_hosts_t *hosts, const char *excluded_str)
+{
+  /*
+   * @todo: Could be further optimized from O(N*M) to O(N+M) using hash tables
+   * (1st pass over M to store excluded values, 2nd pass to check each host from
+   * N.)
+   */
+  openvas_hosts_t *excluded_hosts;
+
+  if (hosts == NULL || excluded_str == NULL)
+    return -1;
+
+  excluded_hosts = openvas_hosts_new (excluded_str);
+  if (excluded_hosts == NULL)
+    return -1;
+
+  if (openvas_hosts_count (excluded_hosts) == 0)
+    {
+      openvas_hosts_free (excluded_hosts);
+      return 0;
+    }
+  else
+    {
+      GList *excluded;
+      int count = 0;
+
+      excluded = excluded_hosts->hosts;
+      while (excluded)
+      {
+        GList *element = hosts->hosts;
+
+        while (element)
+          {
+            /**
+             * Skipping the rest of the hosts list after the first equal as
+             * duplicates are removed by openvas_hosts_remove_duplicates() call
+             * within openvas_hosts_new().
+             */
+            if (openvas_host_equal (excluded->data, element->data))
+              {
+                openvas_host_free (element->data);
+                hosts->hosts = g_list_delete_link (hosts->hosts, element);
+                count++;
+                break;
+              }
+            else
+              element = element->next;
+          }
+        excluded = excluded->next;
+      }
+
+      hosts->count -= count;
+      hosts->removed += count;
+      hosts->current = hosts->hosts;
+      openvas_hosts_free (excluded_hosts);
+      return count;
+    }
+}
+
+/**
  * @brief Gets the count of single hosts objects in a hosts collection.
  *
  * @param[in] hosts The hosts collection to count hosts of.
@@ -1012,7 +1082,7 @@ openvas_hosts_shuffle (openvas_hosts_t * hosts)
  * @return The number of single hosts.
  */
 unsigned int
-openvas_hosts_count (const openvas_hosts_t * hosts)
+openvas_hosts_count (const openvas_hosts_t *hosts)
 {
   return hosts ? hosts->count : 0;
 }
@@ -1026,7 +1096,7 @@ openvas_hosts_count (const openvas_hosts_t * hosts)
  * @return The number of removed values.
  */
 unsigned int
-openvas_hosts_removed (const openvas_hosts_t * hosts)
+openvas_hosts_removed (const openvas_hosts_t *hosts)
 {
     return hosts ? hosts->removed : 0;
 }
@@ -1124,7 +1194,7 @@ openvas_host_value_str (const openvas_host_t *host)
  * should be of type HOST_TYPE_NAME.
  *
  * @param[in] host      The host object whose name to resolve.
- * @param[in] dst       Buffer to store resolved address. Size must be at least
+ * @param[out] dst      Buffer to store resolved address. Size must be at least
  *                      4 bytes for AF_INET and 16 bytes for AF_INET6.
  * @param[in] family    Either AF_INET or AF_INET6.
  *
