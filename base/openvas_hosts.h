@@ -46,7 +46,7 @@
 
 /* Static values */
 
-enum {
+enum host_type {
   HOST_TYPE_NAME = 0,       /* Hostname eg. foo */
   HOST_TYPE_IPV4,           /* eg. 192.168.1.1 */
   HOST_TYPE_CIDR_BLOCK,     /* eg. 192.168.15.0/24 */
@@ -76,7 +76,7 @@ struct openvas_host
     struct in_addr addr;    /* IPv4 address */
     struct in6_addr addr6;  /* IPv6 address */
   };
-  unsigned int type;  /* HOST_TYPE_NAME, HOST_TYPE_IPV4 or HOST_TYPE_IPV6. */
+  enum host_type type;  /* HOST_TYPE_NAME, HOST_TYPE_IPV4 or HOST_TYPE_IPV6. */
 };
 
 /**
@@ -91,7 +91,7 @@ struct openvas_hosts
   GList *hosts;             /* Hosts objects list. */
   GList *current;           /* Current host object in iteration. */
   unsigned int count;       /* Number of single host objects in hosts list. */
-  int removed;              /* Number of duplicate/invalid values. */
+  unsigned int removed;     /* Number of duplicate/invalid values. */
 };
 
 /* Function prototypes. */

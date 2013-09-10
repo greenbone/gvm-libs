@@ -702,11 +702,12 @@ openvas_hosts_remove_duplicates (openvas_hosts_t *hosts)
    * hostnames) which would take more memory space but has ~O(N) complexity
    * instead.
    */
+  GList *element;
   int duplicates = 0;
 
   if (hosts == NULL)
     return;
-  GList *element = hosts->hosts;
+  element = hosts->hosts;
 
   /* Iterate over list elements. */
   while (element)

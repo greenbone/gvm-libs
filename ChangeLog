@@ -1,3 +1,15 @@
+2013-09-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	A couple of changes based on suggestions by Henri Doreau, more to
+	follow.
+
+	* base/openvas_hosts.h: name the HOST_TYPE_* enum as host_type.
+	(openvas_host): Change type's type to host_type.
+	(openvas_hosts): Make removed variable unsigned.
+
+	* base/openvas_hosts.c (openvas_hosts_remove_duplicates): Declare
+	elements variable at top of the block.
+
 2013-09-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/resolve.c (host2ip): Removed. It is an unused function.
