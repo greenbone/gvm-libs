@@ -1,3 +1,8 @@
+2013-09-10  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	* base/openvas_hosts.c (openvas_hosts_free): Free hosts list in
+	two steps instead of using g_list_free_full.
+
 2013-09-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	A couple of changes based on suggestions by Henri Doreau, more to
