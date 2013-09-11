@@ -838,10 +838,7 @@ openvas_hosts_new (const gchar *hosts_str)
 
               /* Make sure that first actually comes before last */
               if (ntohl (first.s_addr) > ntohl (last.s_addr))
-                {
-                  fprintf (stderr, "ERROR - %s: Inversed limits.\n", stripped);
-                  break;
-                }
+                break;
 
               /* Add addresses from first to last as single hosts. */
               current = first.s_addr;
@@ -873,10 +870,7 @@ openvas_hosts_new (const gchar *hosts_str)
 
               /* Make sure the first comes before the last. */
               if (memcmp (&first.s6_addr, &last.s6_addr, 16) > 0)
-                {
-                  fprintf (stderr, "ERROR - %s: Inversed limits.\n", stripped);
-                  break;
-                }
+                break;
 
               /* Add addresses from first to last as single hosts. */
               memcpy (current, &first.s6_addr, 16);
@@ -903,8 +897,8 @@ openvas_hosts_new (const gchar *hosts_str)
             }
           case -1:
           default:
+            /* Invalid host string. */
             hosts->removed++;
-            fprintf (stderr, "ERROR - %s: Invalid host string.\n", stripped);
             break;
         }
       host_element++; /* move on to next element of splitted list */
@@ -1082,21 +1076,22 @@ openvas_hosts_exclude (openvas_hosts_t *hosts, const char *excluded_str)
  *
  * @param[in] host The host to reverse-lookup.
  *
- * @return 1 if success or host of type name already, 0 otherwise.
+ * @return Result of look-up or name if host of type name already, NULL
+ * otherwise. Free with g_free().
  */
-static int
+static gchar *
 openvas_host_reverse_lookup (openvas_host_t *host)
 {
 
   if (host == NULL)
-    return 0;
+    return NULL;
 
   if (host->type == HOST_TYPE_NAME)
-    return 1;
+    return g_strdup (host->name);
   else if (host->type == HOST_TYPE_IPV4)
     {
       struct sockaddr_in sa;
-      char hostname[1000];
+      gchar hostname[1000];
 
       bzero (&sa, sizeof (struct sockaddr));
       sa.sin_addr = host->addr;
@@ -1104,9 +1099,9 @@ openvas_host_reverse_lookup (openvas_host_t *host)
 
       if (getnameinfo ((struct sockaddr *) &sa, sizeof (sa), hostname,
                        sizeof (hostname), NULL, 0, NI_NAMEREQD))
-        return 0;
+        return NULL;
       else
-        return 1;
+        return g_strdup (hostname);
     }
   else if (host->type == HOST_TYPE_IPV6)
     {
@@ -1119,16 +1114,18 @@ openvas_host_reverse_lookup (openvas_host_t *host)
 
       if (getnameinfo ((struct sockaddr *) &sa, sizeof (sa), hostname,
                        sizeof (hostname), NULL, 0, NI_NAMEREQD))
-        return 0;
+        return NULL;
       else
-        return 1;
+        return g_strdup (hostname);
     }
   else
-    return 0;
+    return NULL;
 }
 
 /**
  * @brief Removes hosts that don't reverse-lookup from the hosts collection.
+ * Not to be used while iterating over the single hosts as it resets the
+ * iterator.
  *
  * @param[in] hosts The hosts collection to filter.
  *
@@ -1147,7 +1144,9 @@ openvas_hosts_reverse_lookup_only (openvas_hosts_t *hosts)
   element = hosts->hosts;
   while (element)
   {
-    if (openvas_host_reverse_lookup (element->data) == 0)
+    gchar *name = openvas_host_reverse_lookup (element->data);
+
+    if (name == NULL)
       {
         GList *tmp;
 
@@ -1157,11 +1156,75 @@ openvas_hosts_reverse_lookup_only (openvas_hosts_t *hosts)
         count++;
       }
     else
-      element = element->next;
+      {
+        g_free (name);
+        element = element->next;
+      }
   }
 
   hosts->count -= count;
   hosts->removed += count;
+  hosts->current = hosts->hosts;
+  return count;
+}
+
+/**
+ * @brief Removes hosts duplicates that reverse-lookup to the same value.
+ * Not to be used while iterating over the single hosts as it resets the
+ * iterator.
+ *
+ * @param[in] hosts The hosts collection to filter.
+ *
+ * @return Number of hosts removed, -1 if error.
+ */
+int
+openvas_hosts_reverse_lookup_unify (openvas_hosts_t *hosts)
+{
+  /**
+   * Uses a hash table in order to unify the hosts list in O(N) time.
+   */
+  int count;
+  GList *element;
+  GHashTable *name_table;
+
+  if (hosts == NULL)
+    return -1;
+
+  name_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  count = 0;
+  element = hosts->hosts;
+  while (element)
+  {
+    gchar *name;
+
+    if ((name = openvas_host_reverse_lookup (element->data)))
+      {
+        if (g_hash_table_lookup (name_table, name))
+          {
+            GList *tmp;
+
+            tmp = element;
+            element = element->next;
+            hosts->hosts = g_list_delete_link (hosts->hosts, tmp);
+            count++;
+            g_free (name);
+            /* Remove this host. */
+          }
+        else
+          {
+            /* Insert in the hash table. Value not important. */
+            g_hash_table_insert (name_table, name, hosts);
+            element = element->next;
+          }
+
+      }
+    else
+      element = element->next;
+  }
+
+  g_hash_table_destroy (name_table);
+  hosts->removed += count;
+  hosts->count -= count;
   hosts->current = hosts->hosts;
   return count;
 }

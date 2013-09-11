@@ -1,5 +1,15 @@
 2013-09-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/openvas_hosts.c (openvas_host_reverse_lookup): Return looked-up
+	value. Update documentation.
+	(openvas_hosts_resolve_lookup_only): Adjust for previous change.
+	(openvas_hosts_resolve_lookup_unify): New function.
+	(openvas_hosts_new): Remove debug output functions.
+
+	* base/openvas_hosts.h: Add prototype accordingly.
+
+2013-09-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/openvas_hosts.c (openvas_hosts_shuffle): Add null pointer check.
 	(openvas_host_reverse_lookup, openvas_hosts_reverse_lookup_only): New
 	functions.
