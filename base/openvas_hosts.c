@@ -981,6 +981,9 @@ openvas_hosts_shuffle (openvas_hosts_t *hosts)
   GList *new_list;
   GRand *rand;
 
+  if (hosts == NULL)
+    return;
+
   count = openvas_hosts_count (hosts);
   new_list = NULL;
 
@@ -1072,6 +1075,95 @@ openvas_hosts_exclude (openvas_hosts_t *hosts, const char *excluded_str)
       openvas_hosts_free (excluded_hosts);
       return count;
     }
+}
+
+/**
+ * @brief Checks for a host object reverse dns lookup existence.
+ *
+ * @param[in] host The host to reverse-lookup.
+ *
+ * @return 1 if success or host of type name already, 0 otherwise.
+ */
+static int
+openvas_host_reverse_lookup (openvas_host_t *host)
+{
+
+  if (host == NULL)
+    return 0;
+
+  if (host->type == HOST_TYPE_NAME)
+    return 1;
+  else if (host->type == HOST_TYPE_IPV4)
+    {
+      struct sockaddr_in sa;
+      char hostname[1000];
+
+      bzero (&sa, sizeof (struct sockaddr));
+      sa.sin_addr = host->addr;
+      sa.sin_family = AF_INET;
+
+      if (getnameinfo ((struct sockaddr *) &sa, sizeof (sa), hostname,
+                       sizeof (hostname), NULL, 0, NI_NAMEREQD))
+        return 0;
+      else
+        return 1;
+    }
+  else if (host->type == HOST_TYPE_IPV6)
+    {
+      struct sockaddr_in6 sa;
+      char hostname[1000];
+
+      bzero (&sa, sizeof (struct sockaddr));
+      memcpy (&sa.sin6_addr, &host->addr6, 16);
+      sa.sin6_family = AF_INET6;
+
+      if (getnameinfo ((struct sockaddr *) &sa, sizeof (sa), hostname,
+                       sizeof (hostname), NULL, 0, NI_NAMEREQD))
+        return 0;
+      else
+        return 1;
+    }
+  else
+    return 0;
+}
+
+/**
+ * @brief Removes hosts that don't reverse-lookup from the hosts collection.
+ *
+ * @param[in] hosts The hosts collection to filter.
+ *
+ * @return Number of hosts removed, -1 if error.
+ */
+int
+openvas_hosts_reverse_lookup_only (openvas_hosts_t *hosts)
+{
+  int count;
+  GList *element;
+
+  if (hosts == NULL)
+    return -1;
+
+  count = 0;
+  element = hosts->hosts;
+  while (element)
+  {
+    if (openvas_host_reverse_lookup (element->data) == 0)
+      {
+        GList *tmp;
+
+        tmp = element;
+        element = element->next;
+        hosts->hosts = g_list_delete_link (hosts->hosts, tmp);
+        count++;
+      }
+    else
+      element = element->next;
+  }
+
+  hosts->count -= count;
+  hosts->removed += count;
+  hosts->current = hosts->hosts;
+  return count;
 }
 
 /**

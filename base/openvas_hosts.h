@@ -110,7 +110,10 @@ void
 openvas_hosts_shuffle (openvas_hosts_t *);
 
 int
-openvas_hosts_exclude (openvas_hosts_t *, const char *);
+openvas_hosts_exclude (openvas_hosts_t *, const gchar *);
+
+int
+openvas_hosts_reverse_lookup_only (openvas_hosts_t *);
 
 unsigned int
 openvas_hosts_count (const openvas_hosts_t *);
