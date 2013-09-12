@@ -1,5 +1,11 @@
 2013-09-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/openvas_hosts.c (openvas_hosts_reverse): New function.
+
+	* base/openvas_hosts.h: Add prototype accordingly.
+
+2013-09-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Huge performance boost for hosts deduplication and exclusion.
 
 	* base/openvas_hosts.c (openvas_host_equal): Remove unused function.

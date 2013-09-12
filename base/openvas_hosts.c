@@ -975,6 +975,23 @@ openvas_hosts_shuffle (openvas_hosts_t *hosts)
 }
 
 /**
+ * @brief Reverses the order of the hosts objects in the collection.
+ * Not to be used while iterating over the single hosts as it resets the
+ * iterator.
+ *
+ * @param[in] hosts The hosts collection to reverse.
+ */
+void
+openvas_hosts_reverse (openvas_hosts_t *hosts)
+{
+  if (hosts == NULL || hosts->hosts == NULL)
+    return;
+
+  hosts->hosts = g_list_reverse (hosts->hosts);
+  hosts->current = hosts->hosts;
+}
+
+/**
  * @brief Removes an element from the hosts list and frees the host object.
  *
  * @param[in] hosts     The hosts collection from which to remove.
