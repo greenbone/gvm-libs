@@ -664,82 +664,55 @@ openvas_host_free (gpointer host)
 }
 
 /**
- * @brief Gives if two openvas_host structs have equal types and values.
- *
- * @param[in] host      First host object.
- * @param[in] host2     Second host object.
- *
- * @return 1 if the two hosts are equal, 0 otherwise.
- */
-static int
-openvas_host_equal (const openvas_host_t *host, const openvas_host_t *host2)
-{
-  if (!host || !host2 || host->type != host2->type)
-    return 0;
-
-  if (host->type == HOST_TYPE_IPV4)
-    return host->addr.s_addr == host2->addr.s_addr;
-  else if (host->type == HOST_TYPE_IPV6)
-    return !memcmp (host->addr6.s6_addr, host2->addr6.s6_addr, 16);
-  else if (host->type == HOST_TYPE_NAME)
-    return !strcmp (host->name, host2->name);
-
-  return 0;
-}
-
-/**
  * @brief Removes duplicate hosts values from an openvas_hosts_t structure.
  * Also resets the iterator current position.
  *
  * @param[in] hosts hosts collection from which to remove duplicates.
  */
 static void
-openvas_hosts_remove_duplicates (openvas_hosts_t *hosts)
+openvas_hosts_deduplicate (openvas_hosts_t *hosts)
 {
   /**
-   * @todo: Runtime complexity is O(N^2). If that ends up inadequate for very
-   * large networks, investigate using hash tables (1 per type (ipv4, ipv6 and
-   * hostnames) which would take more memory space but has ~O(N) complexity
-   * instead.
+   * Uses a hash table in order to deduplicate the hosts list in O(N) time.
    */
   GList *element;
+  GHashTable *name_table;
   int duplicates = 0;
 
   if (hosts == NULL)
     return;
   element = hosts->hosts;
+  name_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-  /* Iterate over list elements. */
   while (element)
     {
-      openvas_host_t *host;
-      GList *next = element->next;
+      gchar *name;
 
-      host = element->data;
-      while (next)
+      if ((name = openvas_host_value_str (element->data)))
         {
-          openvas_host_t *host2 = next->data;
-
-          if (openvas_host_equal (host, host2))
+          if (g_hash_table_lookup (name_table, name))
             {
-              GList *tmp = next;
-              next = next->next;
+              GList *tmp;
 
-              /* Remove host and list element containing it. */
-              openvas_host_free (host2);
+              tmp = element;
+              element = element->next;
+              openvas_host_free (tmp->data);
               hosts->hosts = g_list_delete_link (hosts->hosts, tmp);
-              /* Increment duplicates/invalid count. */
               duplicates++;
+              g_free (name);
             }
           else
-            next = next->next;
+            {
+              /* Insert in hash table. Value not important, but not NULL. */
+              g_hash_table_insert (name_table, name, hosts);
+              element = element->next;
+            }
         }
-
-      /* Go to next list element */
-      element = element->next;
+      else
+        element = element->next;
     }
 
-  /* Remove duplicates from count. */
+  g_hash_table_destroy (name_table);
   hosts->count -= duplicates;
   hosts->removed += duplicates;
   hosts->current = hosts->hosts;
@@ -908,7 +881,7 @@ openvas_hosts_new (const gchar *hosts_str)
   hosts->hosts = g_list_reverse (hosts->hosts);
 
   /* Remove duplicated values. */
-  openvas_hosts_remove_duplicates (hosts);
+  openvas_hosts_deduplicate (hosts);
 
   /* Set current to start of hosts list. */
   hosts->current = hosts->hosts;
@@ -1002,6 +975,26 @@ openvas_hosts_shuffle (openvas_hosts_t *hosts)
 }
 
 /**
+ * @brief Removes an element from the hosts list and frees the host object.
+ *
+ * @param[in] hosts     The hosts collection from which to remove.
+ * @param[in] element   Element to remove from the list.
+ *
+ * @return Next element value.
+ */
+static GList *
+openvas_hosts_remove_element (openvas_hosts_t *hosts, GList *element)
+{
+  GList *tmp;
+
+  tmp = element;
+  element = element->next;
+  openvas_host_free (tmp->data);
+  hosts->hosts = g_list_delete_link (hosts->hosts, tmp);
+  return element;
+}
+
+/**
  * @brief Excludes a set of hosts provided as a string from a hosts collection.
  * Not to be used while iterating over the single hosts as it resets the
  * iterator.
@@ -1014,12 +1007,13 @@ openvas_hosts_shuffle (openvas_hosts_t *hosts)
 int
 openvas_hosts_exclude (openvas_hosts_t *hosts, const char *excluded_str)
 {
-  /*
-   * @todo: Could be further optimized from O(N*M) to O(N+M) using hash tables
-   * (1st pass over M to store excluded values, 2nd pass to check each host from
-   * N.)
+  /**
+   * Uses a hash table in order to exclude hosts in O(N+M) time.
    */
   openvas_hosts_t *excluded_hosts;
+  GList *element;
+  GHashTable *name_table;
+  int excluded = 0;
 
   if (hosts == NULL || excluded_str == NULL)
     return -1;
@@ -1033,42 +1027,48 @@ openvas_hosts_exclude (openvas_hosts_t *hosts, const char *excluded_str)
       openvas_hosts_free (excluded_hosts);
       return 0;
     }
-  else
+
+  /* Hash host values from excluded hosts list. */
+  element = excluded_hosts->hosts;
+  name_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  while (element)
     {
-      GList *excluded;
-      int count = 0;
+      gchar *name;
 
-      excluded = excluded_hosts->hosts;
-      while (excluded)
-      {
-        GList *element = hosts->hosts;
-
-        while (element)
-          {
-            /**
-             * Skipping the rest of the hosts list after the first equal as
-             * duplicates are removed by openvas_hosts_remove_duplicates() call
-             * within openvas_hosts_new().
-             */
-            if (openvas_host_equal (excluded->data, element->data))
-              {
-                openvas_host_free (element->data);
-                hosts->hosts = g_list_delete_link (hosts->hosts, element);
-                count++;
-                break;
-              }
-            else
-              element = element->next;
-          }
-        excluded = excluded->next;
-      }
-
-      hosts->count -= count;
-      hosts->removed += count;
-      hosts->current = hosts->hosts;
-      openvas_hosts_free (excluded_hosts);
-      return count;
+      if ((name = openvas_host_value_str (element->data)))
+        g_hash_table_insert (name_table, name, hosts);
+      element = element->next;
     }
+
+  /* Check for hosts values in hash table. */
+  element = hosts->hosts;
+  while (element)
+    {
+      gchar *name;
+
+      if ((name = openvas_host_value_str (element->data)))
+        {
+          if (g_hash_table_lookup (name_table, name))
+            {
+              element = openvas_hosts_remove_element (hosts, element);
+              excluded++;
+            }
+          else
+            element = element->next;
+
+          g_free (name);
+        }
+      else
+        element = element->next;
+    }
+
+  /* Cleanup. */
+  hosts->count -= excluded;
+  hosts->removed += excluded;
+  hosts->current = hosts->hosts;
+  g_hash_table_destroy (name_table);
+  openvas_hosts_free (excluded_hosts);
+  return excluded;
 }
 
 /**
@@ -1143,24 +1143,20 @@ openvas_hosts_reverse_lookup_only (openvas_hosts_t *hosts)
   count = 0;
   element = hosts->hosts;
   while (element)
-  {
-    gchar *name = openvas_host_reverse_lookup (element->data);
+    {
+      gchar *name = openvas_host_reverse_lookup (element->data);
 
-    if (name == NULL)
-      {
-        GList *tmp;
-
-        tmp = element;
-        element = element->next;
-        hosts->hosts = g_list_delete_link (hosts->hosts, tmp);
-        count++;
-      }
-    else
-      {
-        g_free (name);
-        element = element->next;
-      }
-  }
+      if (name == NULL)
+        {
+          element = openvas_hosts_remove_element (hosts, element);
+          count++;
+        }
+      else
+        {
+          g_free (name);
+          element = element->next;
+        }
+    }
 
   hosts->count -= count;
   hosts->removed += count;
@@ -1194,33 +1190,27 @@ openvas_hosts_reverse_lookup_unify (openvas_hosts_t *hosts)
   count = 0;
   element = hosts->hosts;
   while (element)
-  {
-    gchar *name;
+    {
+      gchar *name;
 
-    if ((name = openvas_host_reverse_lookup (element->data)))
-      {
-        if (g_hash_table_lookup (name_table, name))
-          {
-            GList *tmp;
-
-            tmp = element;
-            element = element->next;
-            hosts->hosts = g_list_delete_link (hosts->hosts, tmp);
-            count++;
-            g_free (name);
-            /* Remove this host. */
-          }
-        else
-          {
-            /* Insert in the hash table. Value not important. */
-            g_hash_table_insert (name_table, name, hosts);
-            element = element->next;
-          }
-
-      }
-    else
-      element = element->next;
-  }
+      if ((name = openvas_host_reverse_lookup (element->data)))
+        {
+          if (g_hash_table_lookup (name_table, name))
+            {
+              element = openvas_hosts_remove_element (hosts, element);
+              count++;
+              g_free (name);
+            }
+          else
+            {
+              /* Insert in the hash table. Value not important. */
+              g_hash_table_insert (name_table, name, hosts);
+              element = element->next;
+            }
+        }
+      else
+        element = element->next;
+    }
 
   g_hash_table_destroy (name_table);
   hosts->removed += count;

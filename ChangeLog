@@ -1,5 +1,19 @@
 2013-09-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Huge performance boost for hosts deduplication and exclusion.
+
+	* base/openvas_hosts.c (openvas_host_equal): Remove unused function.
+	(openvas_hosts_remove_duplicates): Rename to openvas_hosts_deduplicate.
+	Use a hash table to deduplicate in O(N) time.
+	(openvas_hosts_new): Adjust function call.
+	(openvas_hosts_remove_element): New function.
+	(openvas_hosts_exclude): Use a hash table to exclude hosts in O(N+M)
+	time.
+	(openvas_hosts_reverse_lookup_only, openvas_hosts_reverse_lookup_unify):
+	Code style fix.
+
+2013-09-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/openvas_hosts.c (openvas_host_reverse_lookup): Return looked-up
 	value. Update documentation.
 	(openvas_hosts_resolve_lookup_only): Adjust for previous change.
