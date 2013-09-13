@@ -1,10 +1,20 @@
-2013-09-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+2013-09-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Add support for IPv6 long range-expressed networks.
+
+	* base/openvas_hosts.c: Coding style and documentation typos fixes.
+	(is_long_range6_network, long_range6_network_ips): New functions.
+	(determine_host_type, openvas_hosts_new): Handle IPv6 long ranges case.
+
+	* base/openvas_hosts.h (host_type): Add HOST_TYPE_RANGE6_LONG value.
+
+2013-09-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_hosts.c (openvas_hosts_reverse): New function.
 
 	* base/openvas_hosts.h: Add prototype accordingly.
 
-2013-09-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+2013-09-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Huge performance boost for hosts deduplication and exclusion.
 

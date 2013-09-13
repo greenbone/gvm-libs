@@ -177,7 +177,7 @@ cidr_get_ip (const char *str, struct in_addr *addr)
 
 /**
  * @brief Gets the first and last usable IPv4 addresses from a CIDR-expressed
- * block. eg. "192.168.1.0/24 would give 192.168.1.1 as first and 192.168.1.254
+ * block. eg. "192.168.1.0/24" would give 192.168.1.1 as first and 192.168.1.254
  * as last.
  *
  * Both network and broadcast addresses are skipped:
@@ -248,7 +248,7 @@ is_long_range_network (const char *str)
 
 /**
  * @brief Gets the first and last IPv4 addresses from a long range-expressed
- * network. eg. "192.168.1.1-192.168.2.40 would give 192.168.1.1 as first and
+ * network. eg. "192.168.1.1-192.168.2.40" would give 192.168.1.1 as first and
  * 192.168.2.40 as last.
  *
  * @param[in]   str     String containing long range-expressed network.
@@ -333,7 +333,7 @@ is_short_range_network (const char *str)
 
 /**
  * @brief Gets the first and last IPv4 addresses from a short range-expressed
- * network. "192.168.1.1-40 would give 192.168.1.1 as first and 192.168.1.40 as
+ * network. "192.168.1.1-40" would give 192.168.1.1 as first and 192.168.1.40 as
  * last.
  *
  * @param[in]   str     String containing short range-expressed network.
@@ -511,7 +511,7 @@ cidr6_get_ip (const char *str, struct in6_addr *addr6)
  *
  * @return -1 if error, 0 else.
  */
-int
+static int
 cidr6_block_ips (const char *str, struct in6_addr *first, struct in6_addr *last)
 {
   unsigned int block;
@@ -576,6 +576,81 @@ cidr6_block_ips (const char *str, struct in6_addr *first, struct in6_addr *last)
 }
 
 /**
+ * @brief Checks if a buffer points to a valid long IPv6 range-expressed
+ * network. "::fee5-::1:530" is valid.
+ *
+ * @param[in]   str Buffer to check in.
+ *
+ * @return 1 if valid long range-expressed network, 0 otherwise.
+ */
+static int
+is_long_range6_network (const char *str)
+{
+  char *first_str, *second_str;
+  int ret;
+
+  first_str = g_strdup (str);
+  second_str = strchr (first_str, '-');
+  if (second_str == NULL)
+    {
+      g_free (first_str);
+      return 0;
+    }
+
+  /* Separate the addreses. */
+  *second_str = '\0';
+  second_str++;
+
+  ret = is_ipv6_address (first_str) && is_ipv6_address (second_str);
+  g_free (first_str);
+
+  return ret;
+}
+
+/**
+ * @brief Gets the first and last IPv6 addresses from a long range-expressed
+ * network. eg. "::1:200:7-::1:205:500" would give ::1:200:7 as first and
+ * ::1:205:500 as last.
+ *
+ * @param[in]   str     String containing long IPv6 range-expressed network.
+ * @param[out]  first   First IPv6 address in block.
+ * @param[out]  last    Last IPv6 address in block.
+ *
+ * @return -1 if error, 0 else.
+ */
+static int
+long_range6_network_ips (const char *str, struct in6_addr *first,
+                         struct in6_addr *last)
+{
+  char *first_str, *last_str;
+
+  if (str == NULL || first == NULL || last == NULL)
+    return -1;
+
+  first_str = g_strdup (str);
+  last_str = strchr (first_str, '-');
+  if (last_str == NULL)
+    {
+      g_free (first_str);
+      return -1;
+    }
+
+  /* Separate the two IPs. */
+  *last_str = '\0';
+  last_str++;
+
+  if (inet_pton (AF_INET6, first_str, first) != 1
+      || inet_pton (AF_INET6, last_str, last) != 1)
+  {
+    g_free (first_str);
+    return -1;
+  }
+
+  g_free (first_str);
+  return 0;
+}
+
+/**
  * @brief Determines the host type in a buffer.
  *
  * @param[in] str   Buffer that contains host definition, could a be hostname,
@@ -620,6 +695,10 @@ determine_host_type (const gchar *str_stripped)
   /* Check for regular IPv6 CIDR-expressed block like "2620:0:2d0:200::7/120" */
   if (is_cidr6_block (str_stripped))
     return HOST_TYPE_CIDR6_BLOCK;
+
+  /* Check for long IPv6 range-expressed networks like "::1:20:7-::1:25:3" */
+  if (is_long_range6_network (str_stripped))
+    return HOST_TYPE_RANGE6_LONG;
 
   /* Check for hostname. */
   if (is_hostname (str_stripped))
@@ -828,6 +907,7 @@ openvas_hosts_new (const gchar *hosts_str)
               break;
             }
           case HOST_TYPE_CIDR6_BLOCK:
+          case HOST_TYPE_RANGE6_LONG:
             {
               struct in6_addr first, last;
               unsigned char current[16];
@@ -835,6 +915,8 @@ openvas_hosts_new (const gchar *hosts_str)
 
               if (host_type == HOST_TYPE_CIDR6_BLOCK)
                 ips_func = cidr6_block_ips;
+              else if (host_type == HOST_TYPE_RANGE6_LONG)
+                ips_func = long_range6_network_ips;
               else
                 continue;
 

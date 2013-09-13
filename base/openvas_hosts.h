@@ -54,6 +54,7 @@ enum host_type {
   HOST_TYPE_RANGE_LONG,     /* eg. 192.168.15.10-192.168.18.3 */
   HOST_TYPE_IPV6,           /* eg. ::1 */
   HOST_TYPE_CIDR6_BLOCK,    /* eg. ::ffee/120 */
+  HOST_TYPE_RANGE6_LONG,    /* eg. ::1:200:7-::1:205:500 */
   HOST_TYPE_MAX             /* Boundary checking. */
 };
 
