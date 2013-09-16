@@ -1,3 +1,14 @@
+2013-09-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Add support for IPv6 short range-expressed networks.
+
+	* base/openvas_hosts.c (is_long_range_network, long_range_network_ips):
+	Fix comments and coding style.
+	(is_short_range6_network, short_range6_network_ips): New functions.
+	(determine_host_type, openvas_hosts_new): Handle short IPv6 range case.
+
+	* base/openvas_hosts.h (host_type): Add HOST_TYPE_RANGE6_SHORT value.
+
 2013-09-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Add support for IPv6 long range-expressed networks.

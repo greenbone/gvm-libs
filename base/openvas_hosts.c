@@ -236,7 +236,7 @@ is_long_range_network (const char *str)
       return 0;
     }
 
-  /* Separate the addreses. */
+  /* Separate the addresses. */
   *second_str = '\0';
   second_str++;
 
@@ -613,8 +613,8 @@ is_long_range6_network (const char *str)
  * ::1:205:500 as last.
  *
  * @param[in]   str     String containing long IPv6 range-expressed network.
- * @param[out]  first   First IPv6 address in block.
- * @param[out]  last    Last IPv6 address in block.
+ * @param[out]  first   First IPv6 address in range.
+ * @param[out]  last    Last IPv6 address in range.
  *
  * @return -1 if error, 0 else.
  */
@@ -641,10 +641,103 @@ long_range6_network_ips (const char *str, struct in6_addr *first,
 
   if (inet_pton (AF_INET6, first_str, first) != 1
       || inet_pton (AF_INET6, last_str, last) != 1)
-  {
-    g_free (first_str);
+    {
+      g_free (first_str);
+      return -1;
+    }
+
+  g_free (first_str);
+  return 0;
+}
+
+/**
+ * @brief Checks if a buffer points to a valid short IPv6 range-expressed
+ * network. "::200:ff:1-fee5" is valid.
+ *
+ * @param   str String to check in.
+ *
+ * @return 1 if str points to a valid short-range IPv6 network, 0 otherwise.
+ */
+static int
+is_short_range6_network (const char *str)
+{
+  char *ip_str, *end_str, *p;
+
+  ip_str = g_strdup (str);
+  end_str = strchr (ip_str, '-');
+  if (end_str == NULL)
+    {
+      g_free (ip_str);
+      return 0;
+    }
+
+  /* Separate the addresses. */
+  *end_str = '\0';
+  end_str++;
+
+  if (!is_ipv6_address (ip_str) || *end_str == '\0')
+    {
+      g_free (ip_str);
+      return 0;
+    }
+
+  p = end_str;
+  /* Check that the 2nd part is at most 4 hexadecimal characters. */
+  while (isxdigit (*p) && p++);
+  if (*p || p - end_str > 4)
+    {
+      g_free (ip_str);
+      return 0;
+    }
+
+  g_free (ip_str);
+  return 1;
+}
+
+/**
+ * @brief Gets the first and last IPv6 addresses from a short range-expressed
+ * network. eg. "::ffee:1:1001-1005" would give ::ffee:1:1001 as first and
+ * ::ffee:1:1005 as last.
+ *
+ * @param[in]   str     String containing short IPv6 range-expressed network.
+ * @param[out]  first   First IPv6 address in range.
+ * @param[out]  last    Last IPv6 address in range.
+ *
+ * @return -1 if error, 0 else.
+ */
+static int
+short_range6_network_ips (const char *str, struct in6_addr *first,
+                          struct in6_addr *last)
+{
+  char *first_str, *last_str;
+  long int end;
+
+  if (str == NULL || first == NULL || last == NULL)
     return -1;
-  }
+
+  first_str = g_strdup (str);
+  last_str = strchr (first_str, '-');
+  if (last_str == NULL)
+    {
+      g_free (first_str);
+      return -1;
+    }
+
+  /* Separate the first IP. */
+  *last_str = '\0';
+  last_str++;
+
+  if (inet_pton (AF_INET6, first_str, first) != 1)
+    {
+      g_free (first_str);
+      return -1;
+    }
+
+  /* Calculate the last IP. */
+  memcpy (last, first, sizeof (*last));
+  end = strtol (last_str, NULL, 16);
+  memcpy (&last->s6_addr[15], &end, 1);
+  memcpy (&last->s6_addr[14], ((char *) &end) + 1, 1);
 
   g_free (first_str);
   return 0;
@@ -695,6 +788,10 @@ determine_host_type (const gchar *str_stripped)
   /* Check for regular IPv6 CIDR-expressed block like "2620:0:2d0:200::7/120" */
   if (is_cidr6_block (str_stripped))
     return HOST_TYPE_CIDR6_BLOCK;
+
+  /* Check for short range-expressed networks "::1-ef12" */
+  if (is_short_range6_network (str_stripped))
+    return HOST_TYPE_RANGE6_SHORT;
 
   /* Check for long IPv6 range-expressed networks like "::1:20:7-::1:25:3" */
   if (is_long_range6_network (str_stripped))
@@ -908,6 +1005,7 @@ openvas_hosts_new (const gchar *hosts_str)
             }
           case HOST_TYPE_CIDR6_BLOCK:
           case HOST_TYPE_RANGE6_LONG:
+          case HOST_TYPE_RANGE6_SHORT:
             {
               struct in6_addr first, last;
               unsigned char current[16];
@@ -915,6 +1013,8 @@ openvas_hosts_new (const gchar *hosts_str)
 
               if (host_type == HOST_TYPE_CIDR6_BLOCK)
                 ips_func = cidr6_block_ips;
+              else if (host_type == HOST_TYPE_RANGE6_SHORT)
+                ips_func = short_range6_network_ips;
               else if (host_type == HOST_TYPE_RANGE6_LONG)
                 ips_func = long_range6_network_ips;
               else
