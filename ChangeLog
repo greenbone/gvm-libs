@@ -1,3 +1,12 @@
+2013-09-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_hosts.c (openvas_hosts_resolve): New function.
+	(openvas_hosts_exclude): Add boolean to choose whether to resolve
+	excluded hostnames before filtering them out. Call new function
+	adequately.
+
+	* base/openvas_hosts.h: Add and modify function prototypes.
+
 2013-09-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Add support for IPv6 short range-expressed networks.

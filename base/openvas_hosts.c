@@ -1194,17 +1194,53 @@ openvas_hosts_remove_element (openvas_hosts_t *hosts, GList *element)
 }
 
 /**
+ * @brief Resolves host objects of type name in a hosts collection, replacing
+ * hostnames with IPv4 values.
+ * Not to be used while iterating over the single hosts as it resets the
+ * iterator.
+ *
+ * @param[in] hosts         The hosts collection from which to exclude.
+ */
+void
+openvas_hosts_resolve (openvas_hosts_t *hosts)
+{
+  openvas_host_t *host;
+
+  hosts->current = hosts->hosts;
+
+  while ((host = openvas_hosts_next (hosts)))
+    {
+      struct in_addr addr;
+
+      if (host->type != HOST_TYPE_NAME)
+        continue;
+
+      if (openvas_host_resolve (host, &addr, AF_INET) == 0)
+        {
+          g_free (host->name);
+          host->type = HOST_TYPE_IPV4;
+          memcpy (&host->addr, &addr, sizeof (host->addr));
+        }
+    }
+
+  hosts->current = hosts->hosts;
+}
+
+/**
  * @brief Excludes a set of hosts provided as a string from a hosts collection.
  * Not to be used while iterating over the single hosts as it resets the
  * iterator.
  *
  * @param[in] hosts         The hosts collection from which to exclude.
  * @param[in] excluded_str  String of hosts to exclude.
+ * @param[in] resolve       Boolean. Whether to resolve the hostnames in
+ *                          excluded_str before excluding.
  *
  * @return Number of excluded hosts, -1 if error.
  */
 int
-openvas_hosts_exclude (openvas_hosts_t *hosts, const char *excluded_str)
+openvas_hosts_exclude (openvas_hosts_t *hosts, const char *excluded_str,
+                       int resolve)
 {
   /**
    * Uses a hash table in order to exclude hosts in O(N+M) time.
@@ -1220,6 +1256,9 @@ openvas_hosts_exclude (openvas_hosts_t *hosts, const char *excluded_str)
   excluded_hosts = openvas_hosts_new (excluded_str);
   if (excluded_hosts == NULL)
     return -1;
+
+  if (resolve)
+    openvas_hosts_resolve (excluded_hosts);
 
   if (openvas_hosts_count (excluded_hosts) == 0)
     {
