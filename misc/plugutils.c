@@ -216,42 +216,14 @@ plug_set_dep (struct arglist *desc, const char *depname)
 
   if (!depname) return;
 
-  if (g_str_has_suffix (depname, ".nes"))
+  if (old)
     {
-      /* The binary NES NVTs have now all been converted to NASL NVTs,
-       * so convert the "nes" file type to "nasl".  This ensures that
-       * any script that depends on the old NES depends instead on the
-       * replacement NASL.
-       * This special treatment can be removed once OpenVAS 3.1 is retired
-       * and for all NVTs ".nes" dependencies are renamed to ".nasl".
-       */
-
-      gchar *nasl_depname = g_strdup_printf ("%sl", depname);
-
-      nasl_depname[strlen (nasl_depname) - 3] = 'a';
-
-      if (old)
-        {
-          new = g_strdup_printf ("%s, %s", old, nasl_depname);
-          nvti_set_dependencies (n, new);
-          g_free (new);
-        }
-      else
-        nvti_set_dependencies (n, nasl_depname);
-
-      g_free (nasl_depname);
+      new = g_strdup_printf ("%s, %s", old, depname);
+      nvti_set_dependencies (n, new);
+      g_free (new);
     }
   else
-    {
-      if (old)
-        {
-          new = g_strdup_printf ("%s, %s", old, depname);
-          nvti_set_dependencies (n, new);
-          g_free (new);
-        }
-      else
-        nvti_set_dependencies (n, depname);
-    }
+    nvti_set_dependencies (n, depname);
 }
 
 void

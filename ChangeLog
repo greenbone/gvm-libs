@@ -1,3 +1,8 @@
+2013-09-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/plugutils.c (plug_set_dep): Remove handling of dependencies with
+	.nes extension case as they were fully converted.
+
 2013-09-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_hosts.c (openvas_hosts_resolve): New function.
