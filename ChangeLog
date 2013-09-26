@@ -1,3 +1,11 @@
+2013-09-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Revert part of r15612, so that nvt description is sent instead of empty
+	results, even for new style plugins.
+
+	* misc/plugutils.c (proto_post_wrapped): Don't test for new style
+	plugins before setting action to nvt description.
+
 2013-08-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport for r16369. Patch by Hani Benhabiles.

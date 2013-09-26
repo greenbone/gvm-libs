@@ -594,23 +594,17 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
     "preferences"), "nvticache"), arg_get_value (desc, "OID"));
   gchar **nvti_tags = NULL;
 
-  if (action == NULL && plugin_is_newstyle (nvti))
-    action_str = g_string_new ("");
-  else if (action == NULL)
+  if (action == NULL)
+    action = nvti_description (nvti);
+
+  if (action == NULL)
     {
-      action = nvti_description (nvti);
-      if (action == NULL)
-        {
-          nvti_free (nvti);
-          return;
-        }
+      nvti_free (nvti);
+      return;
     }
 
-  if (action)
-    {
-      action_str = g_string_new (action);
-      g_string_append (action_str, "\n");
-    }
+  action_str = g_string_new (action);
+  g_string_append (action_str, "\n");
 
   prepend_tags = get_preference (desc, "result_prepend_tags");
   append_tags = get_preference (desc, "result_append_tags");
