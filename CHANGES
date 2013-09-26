@@ -1,3 +1,32 @@
+openvas-libraries 7.0+beta2 (2013-09-26)
+
+This release is the second beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-7".
+
+This release includes the openvas_hosts interface that replaces the HG module,
+handling of .nes extensions removal, memory leaks fixes, unifying of message
+types as alarm, ability for nasl to run windows commands remotely and  various
+other small changes.
+
+Many thanks to everyone who has contributed this release:
+Jan-Oliver Wagner, Michael Wiegand, Henri Doreau, Werner Koch, Matthew Mundell,
+Hani Benhabiles, Thanga Prakash, Felix Wolfsteller and Timo Pollmeier.
+
+Main changes compared to 7.0+beta2:
+* Remove handling of .nes dependencies extensions.
+* New OpenVAS Hosts API with cleaner code and documentation and various new
+  features (IPv6 ranges, hosts exclusions and deduplications, reverse lookups
+  only/unify hosts, multiple hosts ordering strategies etc,.)
+* Removal of HG submodule.
+* Fix a couple of memory leaks.
+* openvas-nasl now uses new openvas_hosts interface instead of hg.
+* Add debug info when parameters are missing in script_xref / script_tag calls.
+* Add support for NASL to run commands remotely on Windows when authenticated.
+* Unify LOG, NOTE and INFO message types as ALARM.
+* Don't interpret threat and cvss parameters in security_message.
+* Various small fixes, improvements and code cleanups.
+
+
 openvas-libraries 7.0+beta1 (2013-06-20)
 
 This release is the first beta version of the next major release of
