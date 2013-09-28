@@ -43,6 +43,7 @@ if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Debug)
 endif (NOT CMAKE_BUILD_TYPE)
 
+OPTION(OPENVAS_OMP_ONLY "Build only the omp library and the required base and misc libraries" OFF)
 ## Retrieve svn revision (at configure time)
 #  Not using Subversion_WC_INFO, as it would have to connect to the repo
 find_program (SVN_EXECUTABLE svn DOC "subversion command line client")
@@ -191,33 +192,35 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 pkg_check_modules (GNUTLS REQUIRED gnutls>=2.8)
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.16)
-pkg_check_modules (WMICLIENT wmiclient>=1.3.14)
-pkg_check_modules (WINCMD wincmd>=0.80)
-pkg_check_modules (LIBSSH libssh>=0.5.0)
+if (NOT OPENVAS_OMP_ONLY)
+  pkg_check_modules (WMICLIENT wmiclient>=1.3.14)
+  pkg_check_modules (WINCMD wincmd>=0.80)
+  pkg_check_modules (LIBSSH libssh>=0.5.0)
 
-message (STATUS "Looking for pcap...")
-find_library (PCAP pcap)
-message (STATUS "Looking for pcap... ${PCAP}")
-if (NOT PCAP)
-  message (FATAL_ERROR "The pcap library is required.")
-endif (NOT PCAP)
+  message (STATUS "Looking for pcap...")
+  find_library (PCAP pcap)
+  message (STATUS "Looking for pcap... ${PCAP}")
+  if (NOT PCAP)
+    message (FATAL_ERROR "The pcap library is required.")
+  endif (NOT PCAP)
 
-message (STATUS "Looking for pcap-config...")
-find_program (PCAP_CONFIG pcap-config)
+  message (STATUS "Looking for pcap-config...")
+  find_program (PCAP_CONFIG pcap-config)
 
-if (PCAP_CONFIG)
-  message (STATUS "Looking for pcap-config... ${PCAP_CONFIG}")
-  execute_process (COMMAND pcap-config --libs
-    OUTPUT_VARIABLE PCAP_LDFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process (COMMAND pcap-config --cflags
-    OUTPUT_VARIABLE PCAP_CFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-else (PCAP_CONFIG)
-  message (STATUS "pcap-config not found, using defaults...")
-  set (PCAP_LDFLAGS "-L/usr/lib -lpcap")
-  set (PCAP_CFLAGS "-I/usr/include")
-endif (PCAP_CONFIG)
+  if (PCAP_CONFIG)
+    message (STATUS "Looking for pcap-config... ${PCAP_CONFIG}")
+    execute_process (COMMAND pcap-config --libs
+      OUTPUT_VARIABLE PCAP_LDFLAGS
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process (COMMAND pcap-config --cflags
+      OUTPUT_VARIABLE PCAP_CFLAGS
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+  else (PCAP_CONFIG)
+    message (STATUS "pcap-config not found, using defaults...")
+    set (PCAP_LDFLAGS "-L/usr/lib -lpcap")
+    set (PCAP_CFLAGS "-I/usr/include")
+  endif (PCAP_CONFIG)
+endif (NOT OPENVAS_OMP_ONLY)
 
 message (STATUS "Looking for gpgme...")
 find_library (GPGME gpgme)
@@ -309,7 +312,9 @@ configure_file (libopenvas.pc.in ${CMAKE_BINARY_DIR}/libopenvas.pc @ONLY)
 
 add_subdirectory (base)
 add_subdirectory (misc)
-add_subdirectory (nasl)
+if (NOT OPENVAS_OMP_ONLY)
+  add_subdirectory (nasl)
+endif (NOT OPENVAS_OMP_ONLY)
 add_subdirectory (omp)
 
 ## Documentation

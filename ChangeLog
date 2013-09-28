@@ -1,5 +1,12 @@
 2013-09-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* CMakeLists.txt: Add option to build only the omp part of
+	openvas-libraries. This can be used to prevent building of the nasl
+	part when this part is not required or desired.  Patch suggested by
+	Andre Heinecke.
+
+2013-09-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* omp/CMakeLists.txt: Do not apply hardening flags when using MINGW.
 	Patch suggested by Andre Heinecke.
 
