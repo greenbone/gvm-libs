@@ -50,6 +50,10 @@
 #define GROUP_PREFIX_METHOD "method:"
 #define KEY_ORDER "order"
 
+#ifndef OPENVAS_STATE_DIR
+#define OPENVAS_STATE_DIR "."
+#endif
+
 #define RULES_FILE_HEADER "# This file is managed by the OpenVAS Administrator.\n# Any modifications must keep to the format that the Administrator expects.\n"
 
 #undef G_LOG_DOMAIN
