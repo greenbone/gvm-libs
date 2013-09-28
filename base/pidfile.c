@@ -45,10 +45,6 @@
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "base pidfile"
 
-#ifndef OPENVAS_PID_DIR
-#define OPENVAS_PID_DIR "."
-#endif
-
 /**
  * @brief Create a PID-file.
  *

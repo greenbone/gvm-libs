@@ -975,8 +975,6 @@ openvas_hosts_new (const gchar *hosts_str)
               uint32_t current;
               int (*ips_func) (const char *, struct in_addr *, struct in_addr *);
 
-              ips_func = NULL;
-
               if (host_type == HOST_TYPE_CIDR_BLOCK)
                 ips_func = cidr_block_ips;
               else if (host_type == HOST_TYPE_RANGE_SHORT)
@@ -1012,8 +1010,6 @@ openvas_hosts_new (const gchar *hosts_str)
               struct in6_addr first, last;
               unsigned char current[16];
               int (*ips_func) (const char *, struct in6_addr *, struct in6_addr *);
-
-              ips_func = NULL;
 
               if (host_type == HOST_TYPE_CIDR6_BLOCK)
                 ips_func = cidr6_block_ips;

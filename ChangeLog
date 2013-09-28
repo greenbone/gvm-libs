@@ -1,5 +1,10 @@
 2013-09-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/openvas_hosts.c, base/pidfile.c, misc/openvas_auth.c: Revert
+	patches accidentally included in last commit.
+
+2013-09-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/CMakeLists.txt: Add missing files to MINGW section.
 
 2013-09-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
