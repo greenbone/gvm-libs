@@ -1,5 +1,10 @@
 2013-09-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* omp/CMakeLists.txt: Do not apply hardening flags when using MINGW.
+	Patch suggested by Andre Heinecke.
+
+2013-09-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/CMakeLists.txt: Do not apply hardening flags when using MINGW.
 	Patch suggested by Andre Heinecke.
 
