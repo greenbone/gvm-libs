@@ -1,3 +1,9 @@
+2013-10-03  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* CMakeLists.txt: Avoid library detection when cross compiling since
+	it is unreliable in this situation. Added TODO. Patch suggested by
+	Andre Heinecke.
+
 2013-09-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* CMakeLists.txt: Add option to build only the omp part of

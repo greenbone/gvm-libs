@@ -222,31 +222,6 @@ if (NOT OPENVAS_OMP_ONLY)
   endif (PCAP_CONFIG)
 endif (NOT OPENVAS_OMP_ONLY)
 
-message (STATUS "Looking for gpgme...")
-find_library (GPGME gpgme)
-message (STATUS "Looking for gpgme... ${GPGME}")
-if (NOT GPGME)
-  message (FATAL_ERROR "The gpgme library is required.")
-endif (NOT GPGME)
-
-execute_process (COMMAND gpgme-config --libs
-  OUTPUT_VARIABLE GPGME_LDFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process (COMMAND gpgme-config --cflags
-  OUTPUT_VARIABLE GPGME_CFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-message (STATUS "Looking for ksba...")
-find_library (KSBA ksba)
-message (STATUS "Looking for ksba... ${KSBA}")
-
-execute_process (COMMAND ksba-config --libs
-  OUTPUT_VARIABLE KSBA_LDFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process (COMMAND ksba-config --cflags
-  OUTPUT_VARIABLE KSBA_CFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-
 execute_process (COMMAND pkg-config --cflags glib-2.0
   OUTPUT_VARIABLE GLIB_CFLAGS
   OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -261,31 +236,63 @@ execute_process (COMMAND pkg-config --libs gnutls
   OUTPUT_VARIABLE GNUTLS_LDFLAGS
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process (COMMAND libgcrypt-config --libs
-  OUTPUT_VARIABLE GCRYPT_LDFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process (COMMAND libgcrypt-config --cflags
-  OUTPUT_VARIABLE GCRYPT_CFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-if (NOT BUILD_WITHOUT_LDAP)
-  message (STATUS "Looking for libldap...")
+if (NOT MINGW)
+  # TODO: We do not have a library lookup for those modules
+  # which also works when cross compiling. Library names
+  # are hardcoded in the corresponding linker commands.
+  message (STATUS "Looking for gpgme...")
+  find_library (GPGME gpgme)
+  message (STATUS "Looking for gpgme... ${GPGME}")
+  if (NOT GPGME)
+    message (FATAL_ERROR "The gpgme library is required.")
+  endif (NOT GPGME)
 
-  find_library (LIBLDAP ldap2)
-  if (NOT LIBLDAP)
-    find_library (LIBLDAP ldap)
-  endif (NOT LIBLDAP)
-  if (NOT LIBLDAP)
-    message (STATUS "  No ldap library found - ldap support disabled")
-  else (NOT LIBLDAP)
-    message (STATUS "  Found ${LIBLDAP} - ldap support enabled")
-    add_definitions (-DENABLE_LDAP_AUTH=1)
-    set (BUILD_WITH_LDAP TRUE)
-    set (LDAP_LDFLAGS "-lldap -llber")
-  endif (NOT LIBLDAP)
-else (NOT BUILD_WITHOUT_LDAP)
-  message (STATUS "Disabled ldap via configuration option")
-endif (NOT BUILD_WITHOUT_LDAP)
+  execute_process (COMMAND gpgme-config --libs
+    OUTPUT_VARIABLE GPGME_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process (COMMAND gpgme-config --cflags
+    OUTPUT_VARIABLE GPGME_CFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  message (STATUS "Looking for ksba...")
+  find_library (KSBA ksba)
+  message (STATUS "Looking for ksba... ${KSBA}")
+
+  execute_process (COMMAND ksba-config --libs
+    OUTPUT_VARIABLE KSBA_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process (COMMAND ksba-config --cflags
+    OUTPUT_VARIABLE KSBA_CFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  execute_process (COMMAND libgcrypt-config --libs
+    OUTPUT_VARIABLE GCRYPT_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process (COMMAND libgcrypt-config --cflags
+    OUTPUT_VARIABLE GCRYPT_CFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  if (NOT BUILD_WITHOUT_LDAP)
+    message (STATUS "Looking for libldap...")
+
+    find_library (LIBLDAP ldap2)
+    if (NOT LIBLDAP)
+      find_library (LIBLDAP ldap)
+    endif (NOT LIBLDAP)
+    if (NOT LIBLDAP)
+      message (STATUS "  No ldap library found - ldap support disabled")
+    else (NOT LIBLDAP)
+      message (STATUS "  Found ${LIBLDAP} - ldap support enabled")
+      add_definitions (-DENABLE_LDAP_AUTH=1)
+      set (BUILD_WITH_LDAP TRUE)
+      set (LDAP_LDFLAGS "-lldap -llber")
+    endif (NOT LIBLDAP)
+  else (NOT BUILD_WITHOUT_LDAP)
+    message (STATUS "Disabled ldap via configuration option")
+  endif (NOT BUILD_WITHOUT_LDAP)
+
+endif (NOT MINGW)
 
 set (EXTRA_LIBS "${GPGME_LDFLAGS}")
 set (EXTRA_CFLAGS "${GPGME_CFLAGS}")
