@@ -573,19 +573,9 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   if (nvti == NULL)
     return;
 
-  if (action == NULL && plugin_is_newstyle (nvti))
+  if (action == NULL)
     action_str = g_string_new ("");
-  else if (action == NULL)
-    {
-      action = nvti_description (nvti);
-      if (action == NULL)
-        {
-          nvti_free (nvti);
-          return;
-        }
-    }
-
-  if (action)
+  else
     {
       action_str = g_string_new (action);
       g_string_append (action_str, "\n");

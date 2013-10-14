@@ -1,3 +1,8 @@
+2013-10-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/plugutils.c (proto_post_wrapped): Don't append description when
+	plugin is not new style in empty action case.
+
 2013-10-03  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* CMakeLists.txt: Avoid library detection when cross compiling since
