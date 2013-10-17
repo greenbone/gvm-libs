@@ -35,7 +35,6 @@
 
 #include <glib.h>
 
-#include "comm.h"               /* for comm_send_status */
 #include "kb.h"                 /* for KB_TYPE_INT */
 #include "plugutils.h"          /* for plug_set_id */
 #include "scanners_utils.h"     /* for getpts */

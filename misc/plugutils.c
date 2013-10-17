@@ -41,7 +41,6 @@
 #include <glib.h>
 
 #include "arglists.h"
-#include "comm.h"
 #include "kb.h"
 #include "network.h"
 #include "rand.h"

@@ -126,6 +126,4 @@ int stream_pending (int);
 int stream_set_timeout (int, int);
 int stream_set_options (int, int, int);
 
-void convipv4toipv4mappedaddr (struct in_addr, struct in6_addr *);
-
 #endif

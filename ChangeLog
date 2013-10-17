@@ -1,3 +1,13 @@
+2013-10-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network.c, misc/network.h: Remove unused function
+	convipv4toipv4mappedaddr.
+
+	* misc/plugutils.c, misc/scanner_utils.c, nasl/nasl_scanner_glue.c:
+	Don't include comm.h header.
+
+	* misc/comm.h: Remove file.
+
 2013-10-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/plugutils.c (proto_post_wrapped): Don't append description when

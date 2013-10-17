@@ -133,15 +133,6 @@ static void my_gnutls_transport_set_lowat_default (gnutls_session_t session);
  */
 #define OVAS_CONNECTION_FROM_FD(fd) (connections + ((fd) - OPENVAS_FD_OFF))
 
-void
-convipv4toipv4mappedaddr (struct in_addr inaddr, struct in6_addr *in6addr)
-{
-  in6addr->s6_addr32[0] = 0;
-  in6addr->s6_addr32[1] = 0;
-  in6addr->s6_addr32[2] = htonl (0xffff);
-  in6addr->s6_addr32[3] = inaddr.s_addr;
-}
-
 static void
 renice_myself ()
 {
