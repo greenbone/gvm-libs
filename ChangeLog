@@ -1,3 +1,7 @@
+2013-10-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* COPYING: Remove recently removed comm.h.
+
 2013-10-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c, misc/network.h: Remove unused function
