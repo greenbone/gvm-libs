@@ -1,5 +1,12 @@
 2013-10-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/openvas_hosts.c (ipv4_mapped_ipv6): Delete function.
+	(openvas_host_get_addr6): Call ipv4_as_ipv6 instead of deleted function.
+
+	* base/openvas_hosts.h: Include openvas_networking.h
+
+2013-10-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/openvas_networking.c, base/openvas_networking.h: New files.
 
 	* COPYING: Add license information for new files.

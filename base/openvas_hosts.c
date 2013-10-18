@@ -1625,25 +1625,6 @@ openvas_host_resolve (const openvas_host_t *host, void *dst, int family)
 }
 
 /**
- * @brief Gives an IPv4-mapped IPv6 address.
- * eg. 192.168.10.20 would map to ::ffff:192.168.10.20.
- *
- * @param[in]  ip4  IPv4 address to map.
- * @param[out] ip6  Buffer to store the IPv6 address.
- */
-static void
-ipv4_mapped_ipv6 (const struct in_addr *ip4, struct in6_addr *ip6)
-{
-  if (ip4 == NULL || ip6 == NULL)
-    return;
-
-  ip6->s6_addr32[0] = 0;
-  ip6->s6_addr32[1] = 0;
-  ip6->s6_addr32[2] = htonl (0xffff);
-  memcpy (&ip6->s6_addr32[3], ip4, sizeof (struct in_addr));
-}
-
-/**
  * @brief Gives a host object's value as an IPv6 address.
  * If the host type is hostname, it resolves the IPv4 address then gives an
  * IPv4-mapped IPv6 address (eg. ::ffff:192.168.1.1 .)
@@ -1668,7 +1649,7 @@ openvas_host_get_addr6 (const openvas_host_t *host, struct in6_addr *ip6)
         return 0;
 
       case HOST_TYPE_IPV4:
-        ipv4_mapped_ipv6 (&host->addr, ip6);
+        ipv4_as_ipv6 (&host->addr, ip6);
         return 0;
 
       case HOST_TYPE_NAME:
@@ -1678,7 +1659,7 @@ openvas_host_get_addr6 (const openvas_host_t *host, struct in6_addr *ip6)
           if (openvas_host_resolve (host, &ip4, AF_INET) == -1)
             return -1;
 
-          ipv4_mapped_ipv6 (&ip4, ip6);
+          ipv4_as_ipv6 (&ip4, ip6);
           return 0;
         }
 

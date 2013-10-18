@@ -35,6 +35,8 @@
 #ifndef _OPENVAS_HOSTS_H
 #define _OPENVAS_HOSTS_H
 
+#include "openvas_networking.h"
+
 #include <glib.h>
 #include <ctype.h>
 #include <string.h>
