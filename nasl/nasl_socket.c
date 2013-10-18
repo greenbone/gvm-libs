@@ -46,7 +46,8 @@
 
 #include <gnutls/gnutls.h>
 
-#include "network.h"            /* for set_socket_source_addr */
+#include "network.h"
+#include "openvas_networking.h" /* for openvas_source_set_socket */
 #include "plugutils.h"          /* for plug_get_host_ip */
 #include "system.h"             /* for efree */
 
@@ -235,7 +236,7 @@ tryagain:
   if (current_sport < 128 && sport < 0)
     return NULL;
   e =
-    set_socket_source_addr (sock, sport > 0 ? sport : current_sport--, family);
+    openvas_source_set_socket (sock, sport > 0 ? sport : current_sport--, family);
 
   /*
    * bind() failed - try again on a lower port
@@ -505,7 +506,7 @@ nasl_open_sock_udp (lex_ctxt * lexic)
       soca.sin_family = AF_INET;
 
       soc = socket (AF_INET, SOCK_DGRAM, 0);
-      set_socket_source_addr (soc, 0, AF_INET);
+      openvas_source_set_socket (soc, 0, AF_INET);
       connect (soc, (struct sockaddr *) &soca, sizeof (soca));
     }
   else
@@ -516,7 +517,7 @@ nasl_open_sock_udp (lex_ctxt * lexic)
       soca6.sin6_family = AF_INET6;
 
       soc = socket (AF_INET6, SOCK_DGRAM, 0);
-      set_socket_source_addr (soc, 0, AF_INET6);
+      openvas_source_set_socket (soc, 0, AF_INET6);
       connect (soc, (struct sockaddr *) &soca6, sizeof (soca6));
     }
 

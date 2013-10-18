@@ -817,9 +817,9 @@ v6_getsourceip (struct in6_addr *src, struct in6_addr *dst)
 #endif
 
   if (IN6_IS_ADDR_V4MAPPED (dst))
-    *src = socket_get_next_source_v4_addr ();
+    openvas_source_addr_as_addr6 (src);
   else
-    *src = socket_get_next_source_v6_addr ();
+    openvas_source_addr6 (src);
   if (!IN6_ARE_ADDR_EQUAL (src, &in6addr_any))
     {
       return 1;
@@ -918,7 +918,7 @@ getsourceip (struct in_addr *src, struct in_addr *dst)
   unsigned short p1;
 
 
-  *src = socket_get_next_source_addr ();
+  openvas_source_addr (src);
   if (src->s_addr != INADDR_ANY)
     {
       return 1;
@@ -1214,9 +1214,9 @@ v6_routethrough (struct in6_addr *dest, struct in6_addr *source)
     printf ("ipaddr2devname passed a NULL dest address");
 
   if (IN6_IS_ADDR_V4MAPPED (dest))
-    src = socket_get_next_source_v4_addr ();
+    openvas_source_addr_as_addr6 (&src);
   else
-    src = socket_get_next_source_v6_addr ();
+    openvas_source_addr6 (&src);
 
   if (!initialized)
     {
@@ -1399,8 +1399,9 @@ routethrough (struct in_addr *dest, struct in_addr *source)
   long match = -1;
   unsigned long bestmatch = 0;
 
-  struct in_addr src = socket_get_next_source_addr ();
+  struct in_addr src;
 
+  openvas_source_addr (&src);
   if (!dest)
     printf ("ipaddr2devname passed a NULL dest address");
 

@@ -33,7 +33,8 @@
 #include <string.h>             /* for strlen */
 #include <unistd.h>             /* for gethostname */
 
-#include "network.h"            /* for socket_get_next_source_addr */
+#include "network.h"
+#include "../base/openvas_networking.h"
 #include "plugutils.h"          /* for plug_get_host_fqdn */
 #include "resolve.h"            /* for nn_resolve */
 #include "system.h"             /* for estrdup */
@@ -198,11 +199,10 @@ nasl_this_host (lex_ctxt * lexic)
   retc->type = CONST_DATA;
 
   if (IN6_IS_ADDR_V4MAPPED (ia))
-    addr =
-      socket_get_next_source_v4_addr ();
+    openvas_source_addr_as_addr6 (&addr);
   else
-    addr =
-      socket_get_next_source_v6_addr ();
+    openvas_source_addr6 (&addr);
+
   if (!IN6_ARE_ADDR_EQUAL (&addr, &in6addr_any))
     {
       if (IN6_IS_ADDR_V4MAPPED (&addr))

@@ -1,5 +1,28 @@
 2013-10-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/network.c (open_socket): Call openvas_source_set_socket instead
+	of set_socket_source_addr.
+	(_socket_get_next_source_addr, _socket_get_next_source_v4_addr)
+	(_socket_get_next_source_v6_addr, socket_get_next_source_addr)
+	(socket_get_next_source_v4_addr, socket_get_next_source_v6_addr,
+	(set_socket_source_addr, socket_source_init): Delete functions.
+
+	* misc/network.h: Include openvas_networking.h. Remove deleted functions
+	prototypes.
+
+	* misc/pcap.c (v6_getsourceip, getsourceip, v6_routethrough)
+	(routethrough): Call adequate openvas_source functions instead of
+	removed ones.
+
+	* nasl/nasl_host.c: Add include.
+	(nasl_this_host): Adequately call openvas_source functions.
+
+	* nasl/nasl_socket.c: Add include
+	(nasl_open_sock_udp, nasl_open_privileged_socket): Adequately call
+	openvas_source functions.
+
+2013-10-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/openvas_hosts.c (ipv4_mapped_ipv6): Delete function.
 	(openvas_host_get_addr6): Call ipv4_as_ipv6 instead of deleted function.
 

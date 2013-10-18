@@ -33,6 +33,7 @@
 #include <gnutls/x509.h>
 
 #include "arglists.h"
+#include "../base/openvas_networking.h"
 
 /* Plugin specific network functions */
 int open_sock_tcp (struct arglist *, unsigned int, int);
@@ -107,12 +108,6 @@ gnutls_session_t *ovas_get_tlssession_from_connection (int);
 int stream_zero (fd_set *);
 int stream_set (int, fd_set *);
 int stream_isset (int, fd_set *);
-
-struct in_addr socket_get_next_source_addr ();
-struct in6_addr socket_get_next_source_v4_addr ();
-struct in6_addr socket_get_next_source_v6_addr ();
-int set_socket_source_addr (int, int, int);
-void socket_source_init (struct in6_addr *, int family);
 
 int os_send (int, void *, int, int);
 int os_recv (int, void *, int, int);
