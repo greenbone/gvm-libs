@@ -34,6 +34,7 @@ base/nvticache.[c|h]: GPLv2+
 base/openvas_certificate_file.[c|h]: GPLv2+
 base/openvas_file.[c|h]: GPLv2+
 base/openvas_hosts.[c|h]: GPLv2+
+base/openvas_networking.[c|h]: GPLv2+
 base/openvas_string.[c|h]: GPLv2+
 base/pwpolicy.[c|h]: GPLv2+
 base/pidfile.[c|h]: GPLv2+

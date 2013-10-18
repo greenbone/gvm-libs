@@ -1,3 +1,11 @@
+2013-10-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_networking.c, base/openvas_networking.h: New files.
+
+	* COPYING: Add license information for new files.
+
+	* base/CMakeLists.txt: Build new files.
+
 2013-10-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* COPYING: Remove recently removed comm.h.
