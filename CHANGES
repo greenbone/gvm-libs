@@ -1,4 +1,21 @@
-openvas-libraries 6.0.0 (2012-04-10)
+openvas-libraries 6.0.1 (2013-10-20)
+
+This is the first maintenance release of the openvas-libraries 6.0 module for
+the Open Vulnerability Assessment System 6 (OpenVAS-6).
+
+It contains a fix for better handling of new-style NVTs.
+
+Many thanks to everyone who has contributed to the 6.0.1 release:
+Michael Wiegand and Hani Benhabiles.
+
+Main changes compared to 6.0.0:
+* Add support for setting the "autofp" parameter via omp_get_report_ext.
+* Improve compilation regarding Glib versions.
+* Take care that NVT description is sent instead of empty results,
+  even for new style plugins.
+
+
+openvas-libraries 6.0.0 (2013-04-10)
 
 This is the first release of the openvas-libraries 6.0 module for the Open
 Vulnerability Assessment System 6 (OpenVAS-6). Compared to the previous major

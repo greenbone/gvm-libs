@@ -1,3 +1,9 @@
+2013-10-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* Preparing the openvas-libraries 6.0.1 release.
+
+	* CHANGES: Updated.
+
 2013-09-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Revert part of r15612, so that nvt description is sent instead of empty
