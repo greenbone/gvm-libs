@@ -67,7 +67,6 @@ misc/plugutils.[c|h]: LGPLv2+
 misc/popen.[c|h]: LGPLv2+
 misc/proctitle.[c|h]: GPLv2
 misc/rand.[c|h]: LGPLv2+
-misc/resolve.[c|h]: LGPLv2+
 misc/resource_request.[c|h]: GPLv2
 misc/scanners_utils.[c|h]: LGPLv2+
 misc/share_fd.c: BSD2

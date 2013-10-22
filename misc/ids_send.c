@@ -39,7 +39,6 @@
 
 #include "arglists.h"
 #include "bpf_share.h"
-#include "resolve.h"
 #include "ids_send.h"
 #include "network.h"
 #include "pcap_openvas.h"

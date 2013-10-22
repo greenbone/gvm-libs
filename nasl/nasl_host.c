@@ -36,7 +36,6 @@
 #include "network.h"
 #include "../base/openvas_networking.h"
 #include "plugutils.h"          /* for plug_get_host_fqdn */
-#include "resolve.h"            /* for nn_resolve */
 #include "system.h"             /* for estrdup */
 #include "pcap_openvas.h"       /* for v6_is_local_ip */
 
@@ -255,7 +254,7 @@ nasl_this_host (lex_ctxt * lexic)
 
       hostname[sizeof (hostname) - 1] = '\0';
       gethostname (hostname, sizeof (hostname) - 1);
-      nn_resolve (hostname, &in6addr);
+      openvas_resolve_as_addr6 (hostname, &in6addr);
 
       if (IN6_IS_ADDR_V4MAPPED (&in6addr))
         {

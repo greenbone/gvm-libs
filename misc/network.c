@@ -48,7 +48,6 @@
 #include "network.h"            /* for socket_close() */
 #include "kb.h"                 /* for kb_item_get_str() */
 
-#include "resolve.h"
 #include "ids_send.h"
 #include "plugutils.h" /* for OPENVAS_ENCAPS_IP */
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_CTRL */
@@ -2108,12 +2107,7 @@ open_sock_opt_hn (const char *hostname, unsigned int port, int type,
   struct sockaddr_in6 addr6;
   struct in6_addr in6addr;
 
-  nn_resolve (hostname, &in6addr);
-  /*if (IN6_ARE_ADDR_EQUAL(&addr6, &in6addr_any))
-     {
-     log_legacy_write ("open_sock_opt_hn: invalid socket address\n");
-     return  -1;
-     } */
+  openvas_resolve_as_addr6 (hostname, &in6addr);
   if (IN6_IS_ADDR_V4MAPPED (&in6addr))
     {
       bzero ((void *) &addr, sizeof (addr));

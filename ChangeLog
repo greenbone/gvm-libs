@@ -1,5 +1,22 @@
 2013-10-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/resolve.c, misc/resolve.h: Delete files.
+
+	* base/CMakeLists.txt: Remove resolve.c and resolve.h from build.
+
+	* misc/ids_send.c: Don't include resolve.h
+
+	* misc/network.c: Don't include resolve.h
+	(open_sock_opt_hn): Replace nn_resolve call with
+	openvas_resolve_as_addr6.
+
+	* nasl/nasl_host.c: Don't include resolve.h
+	(nasl_this_host): Replace nn_resolve call with openvas_resolve_as_addr6.
+
+	* COPYING: Remove deleted files licensing.
+
+2013-10-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/openvas_hosts.c (openvas_host_resolve): Call
 	openvas_resolve.
 
