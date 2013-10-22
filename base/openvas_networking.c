@@ -237,3 +237,74 @@ ipv4_as_ipv6 (const struct in_addr *ip4, struct in6_addr *ip6)
   memcpy (&ip6->s6_addr32[3], ip4, sizeof (struct in_addr));
 }
 
+
+/**
+ * @brief Resolves a hostname to an IPv4 or IPv6 address.
+ *
+ * @param[in]   name    Hostname to resolve.
+ * @param[out]  dst     Buffer to store resolved address. Size must be at least
+ *                      4 bytes for AF_INET and 16 bytes for AF_INET6.
+ * @param[in] family    Either AF_INET or AF_INET6.
+ *
+ * @return -1 if error, 0 otherwise.
+ */
+int
+openvas_resolve (const char *name, void *dst, int family)
+{
+  struct addrinfo hints, *info, *p;
+
+  if (name == NULL || dst == NULL
+      || (family != AF_INET && family != AF_INET6 && family != AF_UNSPEC))
+    return -1;
+
+  bzero (&hints, sizeof (hints));
+  hints.ai_family = family;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = 0;
+  if ((getaddrinfo (name, NULL, &hints, &info)) != 0)
+    return -1;
+
+  p = info;
+  while (p)
+    {
+      if (p->ai_family == family || family == AF_UNSPEC)
+        {
+          if (p->ai_family == AF_INET && family == AF_UNSPEC)
+            {
+              struct sockaddr_in *addrin = (struct sockaddr_in *) p->ai_addr;
+              ipv4_as_ipv6 (&(addrin->sin_addr), dst);
+            }
+          else if (p->ai_family == AF_INET)
+            {
+              struct sockaddr_in *addrin = (struct sockaddr_in *) p->ai_addr;
+              memcpy (dst, &(addrin->sin_addr), sizeof (struct in_addr));
+            }
+          else if (p->ai_family == AF_INET6)
+            {
+              struct sockaddr_in6 *addrin = (struct sockaddr_in6 *) p->ai_addr;
+              memcpy (dst, &(addrin->sin6_addr), sizeof (struct in6_addr));
+            }
+          break;
+        }
+
+      p = p->ai_next;
+    }
+
+  freeaddrinfo (info);
+  return 0;
+}
+
+/**
+ * @brief Resolves a hostname to an IPv4-mapped IPv6 or IPv6 address.
+ *
+ * @param[in]   name    Hostname to resolve.
+ * @param[out]  ip6     Buffer to store resolved address.
+ *
+ * @return -1 if error, 0 otherwise.
+ */
+int
+openvas_resolve_as_addr6 (const char *name, struct in6_addr *ip6)
+{
+  return openvas_resolve (name, ip6, AF_UNSPEC);
+}
+

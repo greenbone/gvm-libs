@@ -1586,42 +1586,10 @@ openvas_host_value_str (const openvas_host_t *host)
 int
 openvas_host_resolve (const openvas_host_t *host, void *dst, int family)
 {
-  struct addrinfo hints, *info, *p;
-
-  if (host == NULL || dst == NULL || host->type != HOST_TYPE_NAME
-      || (family != AF_INET && family != AF_INET6))
-    return 0;
-
-  bzero (&hints, sizeof (hints));
-  hints.ai_family = family;
-  hints.ai_socktype = SOCK_STREAM;
-  hints.ai_protocol = 0;
-  if ((getaddrinfo (host->name, NULL, &hints, &info)) != 0)
+  if (host == NULL || dst == NULL || host->type != HOST_TYPE_NAME)
     return -1;
 
-  p = info;
-  while (p)
-    {
-      if (p->ai_family == family)
-        {
-          if (family == AF_INET)
-            {
-              struct sockaddr_in *addrin = (struct sockaddr_in *) p->ai_addr;
-              memcpy (dst, &(addrin->sin_addr), sizeof (struct in_addr));
-            }
-          else if (family == AF_INET6)
-            {
-              struct sockaddr_in6 *addrin = (struct sockaddr_in6 *) p->ai_addr;
-              memcpy (dst, &(addrin->sin6_addr), sizeof (struct in6_addr));
-            }
-          break;
-        }
-
-      p = p->ai_next;
-    }
-
-  freeaddrinfo (info);
-  return 0;
+  return openvas_resolve (host->name, dst, family);
 }
 
 /**

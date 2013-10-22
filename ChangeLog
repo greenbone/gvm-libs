@@ -1,3 +1,13 @@
+2013-10-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_hosts.c (openvas_host_resolve): Call
+	openvas_resolve.
+
+	* base/openvas_networking.c (openvas_resolve)
+	(openvas_resolve_as_addr6): New functions.
+
+	* base/openvas_networking.h: Add include and new prototypes.
+
 2013-10-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (open_socket): Call openvas_source_set_socket instead

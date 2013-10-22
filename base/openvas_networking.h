@@ -30,6 +30,7 @@
 #include <net/if.h>
 #include <sys/types.h>
 #include <ifaddrs.h>
+#include <netdb.h>
 #include <glib.h>
 
 #ifndef _OPENVAS_NETWORKING_H
@@ -61,5 +62,11 @@ openvas_source_addr6_str ();
 
 void
 ipv4_as_ipv6 (const struct in_addr *, struct in6_addr *);
+
+int
+openvas_resolve (const char *, void *, int);
+
+int
+openvas_resolve_as_addr6 (const char *, struct in6_addr *);
 
 #endif /* not _OPENVAS_HOSTS_H */
