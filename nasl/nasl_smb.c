@@ -52,8 +52,6 @@
 #include "../misc/plugutils.h"
 #include "../misc/system.h"
 
-#define IMPORT(var) char *var = get_str_local_var_by_name(lexic, #var)
-
 /**
  * @brief Get a version string of the SMB implementation.
  *
@@ -376,97 +374,5 @@ nasl_smb_file_trustee_rights (lex_ctxt * lexic)
       retc->size = strlen (buffer);
       retc->x.str_val = strdup (buffer);
     }
-  return retc;
-}
-
-
-/**
- * @brief Execute the command in windows
- *
- * @param[in] lexic Lexical context of NASL interpreter.
- *
- * @return NULL if the query fails.
- *  Else a tree_cell with the command execution result.
- *
- * Retrieves local variables "cmd" from the lexical
- * context, performs the windows command execution operation
- * returning the result.
- */
-
-tree_cell *
-nasl_win_cmd_exec (lex_ctxt * lexic)
-{
-  struct arglist *script_infos = lexic->script_infos;
-  struct in6_addr *host = plug_get_host_ip (script_infos);
-  char *ip;
-  char name[512];
-  char *res = NULL;
-  char *argv[5];
-
-  IMPORT (username);
-  IMPORT (password);
-  IMPORT (cmd);
-
-  int argc = 5, value;
-  char *argv1 = "winexe";
-  char *argv2 = "-U";
-
-  if ((host == NULL) || (username == NULL) || (password == NULL))
-    {
-      fprintf (stderr, "win_cmd_exec: Invalid input arguments\n");
-      return NULL;
-    }
-
-  if (IN6_IS_ADDR_V4MAPPED (host))
-    {
-      struct in_addr v4_addr;
-      v4_addr.s_addr = host->s6_addr32[3];
-      ip = estrdup (inet_ntoa (v4_addr));
-    }
-  else
-    {
-      ip = estrdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
-    }
-
-  if ((strlen (password) == 0) || (strlen (username) == 0)
-      || strlen (ip) == 0)
-    {
-      fprintf (stderr, "win_cmd_exec: Invalid input arguments\n");
-      return NULL;
-    }
-
-  argv[0] = (char *) emalloc (strlen (argv1));
-  argv[1] = (char *) emalloc (strlen (argv2));
-  argv[2] = (char *) emalloc (strlen (username) + strlen (password) + 1);
-  argv[3] = (char *) emalloc (strlen (ip) + 2);
-  argv[4] = (char *) emalloc (strlen (cmd));
-
-  // Construct the WinCMD query
-  strcpy (argv[0], argv1);
-  strcpy (argv[1], "-U");
-  strcpy (argv[2], username);
-  strcat (argv[2], "%");
-  strcat (argv[2], password);
-  strcpy (argv[3], "//");
-  strcat (argv[3], ip);
-  strcpy (argv[4], cmd);
-
-  tree_cell *retc = alloc_tree_cell (0, NULL);
-  if (!retc)
-    return NULL;
-
-  retc->type = CONST_DATA;
-  retc->x.str_val = NULL;
-  retc->size = 0;
-
-  value = wincmd (argc, argv, &res);
-  if (value == -1)
-    {
-      fprintf (stderr, "win_cmd_exec: WinCMD Connect failed\n");
-      return NULL;
-    }
-
-  retc->x.str_val = strdup (res);
-  retc->size = strlen (res);
   return retc;
 }

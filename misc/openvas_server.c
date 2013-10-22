@@ -307,8 +307,8 @@ openvas_server_connect (int server_socket, struct sockaddr_in *server_address,
 /**
  * @brief Attach a socket to a session, and shake hands with the peer.
  *
- * @param[in]  socket   Socket.
  * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  socket   Socket.
  * @param[in]  host     NULL or the name of the host for diagnostics
  * @param[in]  port     Port number for diagnostics; only used
  *                      if \a host is not NULL
@@ -371,9 +371,8 @@ server_attach_internal (int socket, gnutls_session_t * session,
 /**
  * @brief Attach a socket to a session, and shake hands with the peer.
  *
- * @param[in]  socket   Socket.
  * @param[in]  session  Pointer to GNUTLS session.
- *                      FIXME: Why is this a pointer to a session?
+ * @param[in]  socket   Socket.
  *
  * @return 0 on success, -1 on error.
  */

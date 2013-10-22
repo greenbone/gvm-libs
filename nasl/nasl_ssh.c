@@ -128,9 +128,6 @@ struct session_table_item_s
 static struct session_table_item_s session_table[MAX_SSH_SESSIONS];
 
 
-/* Local prototypes.  */
-static int nasl_ssh_close_hook (int);
-
 
 /* A simple implementation of a dynamic buffer.  Use init_membuf() to
    create a buffer, put_membuf to append bytes and get_membuf to
@@ -747,21 +744,12 @@ my_ssh_userauth_publickey(ssh_session session,
 
 /* Return the next session id.  Note that the first session ID we will
    hand out is an arbitrary high number, this is only to help
-   debugging.  This function is also used to setup a hook to the
-   network layer. */
+   debugging.  */
 static int
 next_session_id (void)
 {
-  static int initialized;
   static int last = 9000;
   int i;
-
-  if (!initialized)
-    {
-      add_close_stream_connection_hook (nasl_ssh_close_hook);
-      initialized = 1;
-    }
-
 
  again:
   last++;
@@ -1068,21 +1056,21 @@ nasl_ssh_disconnect (lex_ctxt *lexic)
 
 
 /**
- * @brief Hook to close a socket associated with an ssh connection.
+ * @brief Close a socket associated with an ssh connection.
  *
  * NASL code may be using "ssh_connect" passing an open socket and
  * later closing this socket using "close" instead of calling
  * "ssh_disconnect".  Thus the close code needs to check whether the
  * socket refers to an ssh connection and call ssh_disconnect then
  * (libssh takes ownership of the socket if set via SSH_OPTIONS_FD).
- * This function implements the hook for checking and closing.
+ * This function implements the check and closing
  *
  * @param[in] A socket
  *
  * @return Zero if the socket was closed (disconnected).
  */
-static int
-nasl_ssh_close_hook (int sock)
+int
+nasl_ssh_internal_close (int sock)
 {
   int tbl_slot, session_id;
 
@@ -1905,6 +1893,7 @@ nasl_ssh_get_auth_methods (lex_ctxt *lexic)
   int tbl_slot;
   int methods;
   membuf_t mb;
+  size_t len;
   char *p;
   tree_cell *retc;
 
@@ -1930,15 +1919,23 @@ nasl_ssh_get_auth_methods (lex_ctxt *lexic)
   if ((methods & SSH_AUTH_METHOD_INTERACTIVE))
     put_membuf_comma_str (&mb, "keyboard-interactive");
   put_membuf (&mb, "", 1);
-  p = get_membuf (&mb, NULL);
+  p = get_membuf (&mb, &len);
   if (!p)
     return NULL;
 
   retc = alloc_typed_cell (CONST_DATA);
   retc->x.str_val = p;
-  retc->size = strlen (p);
+  retc->size = len;
   return retc;
 }
 
 
-#endif /*HAVE_LIBSSH*/
+#else /*!HAVE_LIBSSH*/
+/* Dummy version of the function.  This is required because that
+   stupid cmake does not convey global definitions like HAVE_LIBSSH.  */
+int
+nasl_ssh_internal_close (int sock)
+{
+  return -1;
+}
+#endif /*!HAVE_LIBSSH*/

@@ -8,5 +8,5 @@ Description: OpenVAS libraries
 Version: @LIBOPENVASCONFIG_VERSION@
 Requires: glib-2.0 >= 2.12.0, gnutls >= 2.0
 Cflags: -I${includedir} -I${includedir}/openvas @EXTRA_CFLAGS@
-Libs: -L${libdir} -lopenvas_misc -lopenvas_base -lopenvas_nasl -lopenvas_omp @EXTRA_LIBS@
+Libs: -L${libdir} -lopenvas_misc -lopenvas_hg -lopenvas_base -lopenvas_nasl -lopenvas_omp @EXTRA_LIBS@
 

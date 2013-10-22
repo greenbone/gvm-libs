@@ -34,25 +34,25 @@ if (NOT MINGW)
 endif (NOT MINGW)
 
 if (MINGW)
-  set  (FILES array.c certificate.c credentials.c openvas_hosts.c
-       cvss.c nvti.c nvticache.c openvas_certificate_file.c
+  set  (FILES array.c certificate.c credentials.c
+       hash_table_util.c nvti.c nvticache.c openvas_certificate_file.c
        openvas_file.c openvas_string.c pidfile.c severity_filter.c settings.c
        gpgme_util.c pwpolicy.c)
-  set (HEADERS array.h certificate.h credentials.h openvas_hosts.h
-       cvss.h nvti.h settings.h openvas_certificate_file.h
+  set (HEADERS array.h certificate.h credentials.h
+       hash_table_util.h nvti.h settings.h openvas_certificate_file.h
        openvas_file.h openvas_string.h pidfile.h severity_filter.h
        gpgme_util.h pwpolicy.h)
 else (MINGW)
-  set (FILES array.c certificate.c credentials.c openvas_hosts.c
+  set (FILES array.c certificate.c credentials.c
        cvss.c drop_privileges.c
-       nvti.c nvticache.c openvas_certificate_file.c
-       openvas_file.c openvas_networking.c openvas_string.c pidfile.c
-       severity_filter.c settings.c gpgme_util.c pwpolicy.c)
-  set (HEADERS array.h certificate.h credentials.h openvas_hosts.h
+       hash_table_util.c nvti.c nvticache.c openvas_certificate_file.c
+       openvas_file.c openvas_string.c pidfile.c severity_filter.c settings.c
+       gpgme_util.c pwpolicy.c)
+  set (HEADERS array.h certificate.h credentials.h
        cvss.h drop_privileges.h nvticache.h
-       nvti.h settings.h openvas_certificate_file.h
-       openvas_file.h openvas_networking.h openvas_string.h pidfile.h
-       severity_filter.h gpgme_util.h pwpolicy.h)
+       hash_table_util.h nvti.h settings.h openvas_certificate_file.h
+       openvas_file.h openvas_string.h pidfile.h severity_filter.h
+       gpgme_util.h pwpolicy.h)
 endif (MINGW)
 
 add_library (openvas_base_static STATIC ${FILES})
@@ -70,7 +70,6 @@ set_target_properties (openvas_base_shared PROPERTIES VERSION "${CPACK_PACKAGE_V
 set_target_properties (openvas_base_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 add_definitions (-DOPENVAS_SYSCONF_DIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
-add_definitions (-DOPENVAS_STATE_DIR=\\\"${OPENVAS_STATE_DIR}\\\")
 if (OPENVAS_PID_DIR)
   add_definitions (-DOPENVAS_PID_DIR=\\\"${OPENVAS_PID_DIR}\\\")
 endif (OPENVAS_PID_DIR)
@@ -79,19 +78,11 @@ if (MINGW)
   target_link_libraries (openvas_base_static ${GLIB_LDFlAGS} intl iconv ole32)
   target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS} intl iconv ole32)
 else (MINGW)
-  target_link_libraries (openvas_base_static ${GLIB_LDFLAGS} ${GPGME_LDFLAGS})
-  target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS} ${GPGME_LDFLAGS})
+  target_link_libraries (openvas_base_static ${GLIB_LDFLAGS})
+  target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS})
 endif (MINGW)
 
 add_custom_indent_targets (${FILES})
-
-# Link the test-hosts executable
-add_executable (test-hosts test-hosts.c)
-target_link_libraries (test-hosts openvas_base_static ${GLIB_LDFLAGS} -lgcrypt
-                       "${GPGME_LDFLAGS}" -lgnutls "${PCAP_LDFLAGS}" -lresolv -lm ${WMI_LIBS}
-                       ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS} ${WINCMD_LIBS}) 
-set_target_properties (test-hosts PROPERTIES COMPILE_FLAGS
-                       "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS}")
 
 ## Install
 install (TARGETS openvas_base_static openvas_base_shared

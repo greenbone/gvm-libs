@@ -41,11 +41,13 @@
 #include <glib.h>
 
 #include "arglists.h"
+#include "comm.h"
 #include "kb.h"
 #include "network.h"
 #include "rand.h"
 #include "plugutils.h"
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_KB */
+#include "services.h"
 #include "share_fd.h"
 #include "system.h"
 #include "scanners_utils.h"
@@ -215,14 +217,42 @@ plug_set_dep (struct arglist *desc, const char *depname)
 
   if (!depname) return;
 
-  if (old)
+  if (g_str_has_suffix (depname, ".nes"))
     {
-      new = g_strdup_printf ("%s, %s", old, depname);
-      nvti_set_dependencies (n, new);
-      g_free (new);
+      /* The binary NES NVTs have now all been converted to NASL NVTs,
+       * so convert the "nes" file type to "nasl".  This ensures that
+       * any script that depends on the old NES depends instead on the
+       * replacement NASL.
+       * This special treatment can be removed once OpenVAS 3.1 is retired
+       * and for all NVTs ".nes" dependencies are renamed to ".nasl".
+       */
+
+      gchar *nasl_depname = g_strdup_printf ("%sl", depname);
+
+      nasl_depname[strlen (nasl_depname) - 3] = 'a';
+
+      if (old)
+        {
+          new = g_strdup_printf ("%s, %s", old, nasl_depname);
+          nvti_set_dependencies (n, new);
+          g_free (new);
+        }
+      else
+        nvti_set_dependencies (n, nasl_depname);
+
+      g_free (nasl_depname);
     }
   else
-    nvti_set_dependencies (n, depname);
+    {
+      if (old)
+        {
+          new = g_strdup_printf ("%s, %s", old, depname);
+          nvti_set_dependencies (n, new);
+          g_free (new);
+        }
+      else
+        nvti_set_dependencies (n, depname);
+    }
 }
 
 void
@@ -545,12 +575,8 @@ plugin_is_newstyle (const nvti_t *nvti)
 /**
  * @brief Post a security message (e.g. LOG, NOTE, WARNING ...).
  *
- * @param desc  The arglist where to get the nvtichache from and some
- *              other settings and it is used to send the messages
  * @param port  Port number related to the issue.
- * @param proto Protocol related to the issue (tcp or udp).
- * @param action The actual result text
- * @param what   The type, like "LOG".
+ * @param proto Protocol related to the issue.
  */
 void
 proto_post_wrapped (struct arglist *desc, int port, const char *proto,
@@ -568,17 +594,17 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
     "preferences"), "nvticache"), arg_get_value (desc, "OID"));
   gchar **nvti_tags = NULL;
 
-  /* Should not happen, just to avoid trouble stop here if no NVTI found */
-  if (nvti == NULL)
-    return;
+  if (action == NULL)
+    action = nvti_description (nvti);
 
   if (action == NULL)
-    action_str = g_string_new ("");
-  else
     {
-      action_str = g_string_new (action);
-      g_string_append (action_str, "\n");
+      nvti_free (nvti);
+      return;
     }
+
+  action_str = g_string_new (action);
+  g_string_append (action_str, "\n");
 
   prepend_tags = get_preference (desc, "result_prepend_tags");
   append_tags = get_preference (desc, "result_append_tags");
@@ -677,6 +703,7 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
 
   buffer = emalloc (1024 + len);
   char idbuffer[105];
+  const char *svc_name = openvas_get_svc_name (port, proto);
   if (nvti_oid (nvti) == NULL)
     {
       *idbuffer = '\0';
@@ -689,8 +716,8 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   if (port > 0)
     {
       snprintf (buffer, 1024 + len,
-                "SERVER <|> %s <|> %s <|> %d/%s <|> %s %s<|> SERVER\n",
-                what, plug_get_hostname (desc), port, proto,
+                "SERVER <|> %s <|> %s <|> %s (%d/%s) <|> %s %s<|> SERVER\n",
+                what, plug_get_hostname (desc), svc_name, port, proto,
                 action_str_escaped->str, idbuffer);
     }
   else
@@ -712,18 +739,67 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
 }
 
 void
-proto_post_alarm (struct arglist *desc, int port, const char *proto,
-                  const char *action)
+proto_post_hole (struct arglist *desc, int port, const char *proto,
+                 const char *action)
 {
-  proto_post_wrapped (desc, port, proto, action, "ALARM");
+  proto_post_wrapped (desc, port, proto, action, "HOLE");
+}
+
+
+void
+post_hole (struct arglist *desc, int port, const char *action)
+{
+  proto_post_hole (desc, port, "tcp", action);
+}
+
+
+void
+post_hole_udp (struct arglist *desc, int port, const char *action)
+{
+  proto_post_hole (desc, port, "udp", action);
+}
+
+
+void
+post_info (struct arglist *desc, int port, const char *action)
+{
+  proto_post_info (desc, port, "tcp", action);
+}
+
+
+void
+post_info_udp (struct arglist *desc, int port, const char *action)
+{
+  proto_post_info (desc, port, "udp", action);
+}
+
+
+void
+proto_post_info (struct arglist *desc, int port, const char *proto,
+                 const char *action)
+{
+  proto_post_wrapped (desc, port, proto, action, "INFO");
 }
 
 void
-post_alarm (struct arglist *desc, int port, const char *action)
+post_note (struct arglist *desc, int port, const char *action)
 {
-  proto_post_alarm (desc, port, "tcp", action);
+  proto_post_wrapped (desc, port, "tcp", action, "NOTE");
 }
 
+
+void
+post_note_udp (struct arglist *desc, int port, const char *action)
+{
+  proto_post_wrapped (desc, port, "udp", action, "NOTE");
+}
+
+void
+proto_post_note (struct arglist *desc, int port, const char *proto,
+                 const char *action)
+{
+  proto_post_wrapped (desc, port, proto, action, "NOTE");
+}
 
 /**
  * @brief Post a log message
@@ -1084,9 +1160,8 @@ plug_set_replace_key (struct arglist *args, char *name, int type, void *value,
       if (e < 0)
         fprintf (stderr, "[%d] plug_set_key:internal_send(%d)['%s']: %s\n",
                  getpid (), soc, str, strerror (errno));
+      efree (&str);
     }
-  if (str)
-    efree (&str);
 }
 
 
@@ -1106,7 +1181,47 @@ plug_replace_key (struct arglist *args, char *name, int type, void *value)
 void
 scanner_add_port (struct arglist *args, int port, char *proto)
 {
+  char *buf;
+  const char *svc_name = openvas_get_svc_name (port, proto);
+  const char *hn = plug_get_hostname (args);
+  int len;
+  int soc;
+  int do_send = 1;
+  static int confirm = -1;
+
+  if (confirm < 0)
+    {
+      struct arglist *globals = arg_get_value (args, "globals");
+      if (globals)
+        confirm = GPOINTER_TO_SIZE (arg_get_value (globals, "confirm"));
+    }
+
+  /*
+   * Diff scan stuff : if the port was known to be open,
+   * there is no need to report it again.
+   */
+  if (arg_get_value (args, "DIFF_SCAN"))
+    {
+      char port_s[255];
+      snprintf (port_s, sizeof (port_s), "Ports/%s/%d", proto, port);   /* RATS: ignore */
+      if (kb_item_get_int (plug_get_kb (args), port_s) > 0)
+        do_send = 0;
+    }
+
+
   host_add_port_proto (args, port, 1, proto);
+
+  len = 255 + (hn ? strlen (hn) : 0) + strlen (svc_name);
+  buf = emalloc (len);
+  snprintf (buf, len, "SERVER <|> PORT <|> %s <|> %s (%d/%s) <|> SERVER\n", hn,
+            svc_name, port, proto);
+
+  if (do_send)
+    {
+      soc = GPOINTER_TO_SIZE (arg_get_value (args, "SOCKET"));
+      internal_send (soc, buf, INTERNAL_COMM_MSG_TYPE_DATA);
+    }
+  efree (&buf);
 }
 
 

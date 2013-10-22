@@ -251,7 +251,6 @@ omp_authenticate_info (gnutls_session_t *session,
                        const char *username,
                        const char *password,
                        char **role,
-                       char **severity,
                        char **timezone)
 {
   entity_t entity;
@@ -294,7 +293,7 @@ omp_authenticate_info (gnutls_session_t *session,
   first = status[0];
   if (first == '2')
     {
-      entity_t timezone_entity, role_entity, severity_entity;
+      entity_t timezone_entity, role_entity;
       /* Get the extra info. */
       timezone_entity = entity_child (entity, "timezone");
       if (timezone_entity)
@@ -302,9 +301,6 @@ omp_authenticate_info (gnutls_session_t *session,
       role_entity = entity_child (entity, "role");
       if (role_entity)
         *role = g_strdup (entity_text (role_entity));
-      severity_entity = entity_child (entity, "severity");
-      if (severity_entity)
-        *severity = g_strdup (entity_text (severity_entity));
       free_entity (entity);
       return 0;
     }

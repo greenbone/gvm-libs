@@ -1,60 +1,90 @@
-openvas-libraries 7.0+beta2 (2013-09-26)
+openvas-libraries 6.0.1 (2013-10-20)
 
-This release is the second beta version of the next major release of
-openvas-libraries. It will be part of the upcoming "OpenVAS-7".
+This is the first maintenance release of the openvas-libraries 6.0 module for
+the Open Vulnerability Assessment System 6 (OpenVAS-6).
 
-This release includes the openvas_hosts interface that replaces the HG module,
-handling of .nes extensions removal, memory leaks fixes, unifying of message
-types as alarm, ability for nasl to run windows commands remotely and  various
-other small changes.
+It contains a fix for better handling of new-style NVTs.
+
+Many thanks to everyone who has contributed to the 6.0.1 release:
+Michael Wiegand and Hani Benhabiles.
+
+Main changes compared to 6.0.0:
+* Add support for setting the "autofp" parameter via omp_get_report_ext.
+* Improve compilation regarding Glib versions.
+* Take care that NVT description is sent instead of empty results,
+  even for new style plugins.
+
+
+openvas-libraries 6.0.0 (2013-04-10)
+
+This is the first release of the openvas-libraries 6.0 module for the Open
+Vulnerability Assessment System 6 (OpenVAS-6). Compared to the previous major
+release it covers a broad set of improvements for the various OpenVAS services
+and applications.
+
+Many thanks to everyone who has contributed to the 6.0.0 release:
+Andre Heinecke, Hani Benhabiles, Henri Doreau, Werner Koch, Michael Meyer,
+Preeti Subramanian, Jan-Oliver Wagner, Michael Wiegand, Sascha Wilde and Felix
+Wolfsteller.
+
+Main changes compared to 5.0.x:
+* The GnuTLS dependency has been increased from 2.2 to 2.8.
+* Support for checking if an NVT has all "new style" tags has been added.
+* License change from GPLv2 to GPLv2+ for nasl_builtin_nmap.c file for license
+  harmonization purposes.
+* Support for enforcing a password policy has been moved to
+  openvas-libraries.
+* CVSS and Risk Factor are now computed from the CVSS Base
+  vector, if available.
+* NASL tags setting a risk_factor are now ignored. It will therefore not be
+  stored in nvti files and not transferred via OTP.
+* Internal memory storage for NVTI has been changed to use caching.
+* Binding procedures for MS Active Directory Services have been improved.
+* Support for LDAPS has been added.
+* WMI registry functions have been added.
+* An issue which caused credentials to be not transferred correctly when
+  scanning through a slave has been fixed.
+* Library detection and handling of library flags during the build
+  process have been improved.
+* Handling of system report requests has been improved.
+* TLS support has been added to the NASL API to allow x509 certificate testing
+  in NVTs.
+* Support of libssh for SSH connection handling has been improved.
+  The environment variable "OPENVAS_DISABLE_LIBSSH" can be used to disable
+  the new functionality.
+* Performance has been improved by avoiding excessive "gpg --version" calls.
+* Code that prevented special functions from being executed by
+  non-authenticated NVTs has been removed. Background is that either the whole
+  feed is treated as authenticated or as non-authenticated, but not a mixture
+  of it.
+* The deprecated NASL variable "OPENVAS_NASL_LEVEL" has been removed.
+* Several memory leaks have been fixed.
+* Various compile issues have been fixed.
+* Internal code cleanups and refactoring has taken place.
+* The documentation has been updated.
+
+And additionally changes compared to last release candidate 6.0+rc1:
+* Server connection handling has been refactored.
+* A bug in the CVSS base vector parsing has been fixed.
+* GnuTLS compatibility has been improved.
+
+
+openvas-libraries 6.0+rc1 (2013-03-15)
+
+This release is the first release candidate of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-6".
+
+Changes include increasing GnuTLS version dependency and support for new nvt
+style checking.
 
 Many thanks to everyone who has contributed this release:
-Jan-Oliver Wagner, Michael Wiegand, Henri Doreau, Werner Koch, Matthew Mundell,
-Hani Benhabiles, Thanga Prakash, Felix Wolfsteller and Timo Pollmeier.
+Hani Benhabiles, Henri Doreau, Jan-Oliver Wagner.
 
-Main changes compared to 7.0+beta2:
-* Remove handling of .nes dependencies extensions.
-* New OpenVAS Hosts API with cleaner code and documentation and various new
-  features (IPv6 ranges, hosts exclusions and deduplications, reverse lookups
-  only/unify hosts, multiple hosts ordering strategies etc,.)
-* Removal of HG submodule.
-* Fix a couple of memory leaks.
-* openvas-nasl now uses new openvas_hosts interface instead of hg.
-* Add debug info when parameters are missing in script_xref / script_tag calls.
-* Add support for NASL to run commands remotely on Windows when authenticated.
-* Unify LOG, NOTE and INFO message types as ALARM.
-* Don't interpret threat and cvss parameters in security_message.
-* Various small fixes, improvements and code cleanups.
-
-
-openvas-libraries 7.0+beta1 (2013-06-20)
-
-This release is the first beta version of the next major release of
-openvas-libraries. It will be part of the upcoming "OpenVAS-7".
-
-Main new features and other changes of 7.0 compared to 6.0 include the removal
-of functionality now being handler by other modules, changes to the OTP
-protocol, support for CVSS based severity classification and code cleanups.
-
-Many thanks to everyone who has contributed this release:
-Hani Benhabiles, Hanno Boeck, Henri Doreau, Werner Koch, Matthew Mundell, Timo
-Pollmeier, Jan-Oliver Wagner and Michael Wiegand.
-
-Main changes compared to 6.0.x:
-* The port range option "default" has been removed.
-* Service list handling has been removed.
-* Support for NVT with new style tags has been added.
-* The required minimum GnuTLS version has increased to 2.8.
-* NVT severity classification now uses the CVSS value of the NVTs instead of
-  separate message types.
-* The authentication system has been converted to support database users.
-* Separate key directories are now used for signature verification and
-  credential encryption.
-* File based user specific rules support has been removed.
-* File based role management has been removed.
-* Sending of the "SERVER <|> PORT" message of OTP has been removed.
-* Protocol version has been changed to OTP 2.x.
-* Code cleanup.
+Main changes compared to 6.0+beta5:
+* Increase GnuTLS dependencies from 2.2 to 2.8.
+* Support for checking if a plugin has all new nvt style tags.
+* License change from GPLv2 to GPLv2+ for nasl_builtin_nmap.c file for license
+  harmonization purposes.
 
 
 openvas-libraries 6.0+beta5 (2013-02-22)

@@ -162,32 +162,27 @@ static const struct impact_item impact_map[][3] = {
 /**
  * @brief Determine base metric enumeration from a string.
  *
- * @param[in]  str Base metric in string form, for example "A".
- * @param[out] res Where to write the desired value.
+ * @param[in] str Base metric in string form, for example "A".
  *
- * @return 0 on success, -1 on error.
+ * @return The respective base_metric enumeration for the
+ *         string. -1 in case parsing the string failed.
  */
-static int
-toenum (const char * str, enum base_metrics *res)
+static enum base_metrics
+toenum (const char * str)
 {
-  int rc = 0; /* let's be optimistic */
-
-  if (g_strcmp0 (str, "A") == 0)
-    *res = A;
-  else if (g_strcmp0 (str, "I") == 0)
-    *res = I;
-  else if (g_strcmp0 (str, "C") == 0)
-    *res = C;
-  else if (g_strcmp0 (str, "Au") == 0)
-    *res = Au;
-  else if (g_strcmp0 (str, "AV") == 0)
-    *res = AV;
-  else if (g_strcmp0 (str, "AC") == 0)
-   *res = AC;
-  else
-    rc = -1;
-
- return rc;
+ if (g_strcmp0 (str, "A") == 0)
+   return A;
+ else if (g_strcmp0 (str, "I") == 0)
+   return I;
+ else if (g_strcmp0 (str, "C") == 0)
+   return C;
+ else if (g_strcmp0 (str, "Au") == 0)
+   return Au;
+ else if (g_strcmp0 (str, "AV") == 0)
+   return AV;
+ else if (g_strcmp0 (str, "AC") == 0)
+   return AC;
+ return -1;
 }
 
 /**
@@ -301,8 +296,7 @@ __get_cvss_score (struct cvss *cvss)
   if (impact_sub < 0.1)
     impact = 0.0;
 
-  return (((0.6 * impact_sub) + (0.4 * exploitability_sub) - 1.5) * impact)
-         + 0.0;
+  return (((0.6 * impact_sub) + (0.4 * exploitability_sub) - 1.5) * impact);
 }
 
 /**
@@ -321,7 +315,7 @@ get_cvss_score_from_base_metrics (const char *cvss_str)
   memset(&cvss, 0x00, sizeof(struct cvss));
 
   if (cvss_str == NULL)
-    return -1.0;
+    return 0.0;
 
   base_str = base_metrics = g_strdup_printf ("%s/", cvss_str);
 
@@ -331,7 +325,6 @@ get_cvss_score_from_base_metrics (const char *cvss_str)
       char *metric_name = token2;
       char *metric_value;
       enum base_metrics  mval;
-      int rc;
 
       *token++ = '\0';
 
@@ -343,8 +336,8 @@ get_cvss_score_from_base_metrics (const char *cvss_str)
       if (metric_value == NULL)
         goto ret_err;
 
-      rc = toenum (metric_name, &mval);
-      if (rc)
+      mval = toenum (metric_name);
+      if (mval == -1)
         goto ret_err;
 
       if (set_impact_from_str (metric_value, mval, &cvss))

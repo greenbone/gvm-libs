@@ -539,6 +539,33 @@ nvti_cvss (const nvti_t * n)
 }
 
 /**
+ * @brief Get the risk factor.
+ *
+ * @param n The NVT Info structure of which the risk factor should
+ *          be returned.
+ *
+ * @return The risk_factor string. Don't free this.
+ */
+gchar *
+nvti_risk_factor (const nvti_t * n)
+{
+  double cvss = nvti_cvss (n);
+
+  if (cvss > 8)
+    return ("Critical");
+  if (cvss > 5)
+    return ("High");
+  if (cvss > 2)
+    return ("Medium");
+  if (cvss > 0)
+    return ("Low");
+  if (cvss == 0)
+    return ("None");
+
+  return ("Not Available");
+}
+
+/**
  * @brief Get the dependencies list.
  *
  * @param n The NVT Info structure of which the name should
@@ -1576,11 +1603,10 @@ nvti_from_keyfile (const gchar * fn)
   utf8str = g_key_file_get_string (keyfile, "NVT Info", "Name", NULL);
   if (utf8str)
     {
-      gStr = g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
-                        &size_dummy, NULL);
-      nvti_set_name (n, gStr);
-      g_free(gStr);
-      g_free(utf8str);
+    nvti_set_name (n,
+                   g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
+                              &size_dummy, NULL));
+    g_free(utf8str);
     }
   utf8str = g_key_file_get_string (keyfile, "NVT Info", "Summary", NULL);
   if (utf8str)

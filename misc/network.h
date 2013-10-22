@@ -33,7 +33,6 @@
 #include <gnutls/x509.h>
 
 #include "arglists.h"
-#include "../base/openvas_networking.h"
 
 /* Plugin specific network functions */
 int open_sock_tcp (struct arglist *, unsigned int, int);
@@ -59,7 +58,6 @@ int write_stream_connection (int, void *buf, int n);
 int read_stream_connection (int, void *, int);
 int read_stream_connection_min (int, void *, int, int);
 int nsend (int, void *, int, int);
-void add_close_stream_connection_hook (int (*)(int));
 int close_stream_connection (int);
 
 const char *get_encaps_name (int);
@@ -109,6 +107,12 @@ int stream_zero (fd_set *);
 int stream_set (int, fd_set *);
 int stream_isset (int, fd_set *);
 
+struct in_addr socket_get_next_source_addr ();
+struct in6_addr socket_get_next_source_v4_addr ();
+struct in6_addr socket_get_next_source_v6_addr ();
+int set_socket_source_addr (int, int, int);
+void socket_source_init (struct in6_addr *, int family);
+
 int os_send (int, void *, int, int);
 int os_recv (int, void *, int, int);
 
@@ -120,5 +124,7 @@ int stream_pending (int);
 
 int stream_set_timeout (int, int);
 int stream_set_options (int, int, int);
+
+void convipv4toipv4mappedaddr (struct in_addr, struct in6_addr *);
 
 #endif

@@ -54,6 +54,7 @@
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_CTRL */
 #include "support.h"
 #include "openvas_logging.h"
+#include "../nasl/nasl_ssh.h"   /* for nasl_ssh_internal_close */
 
 #include <setjmp.h>
 
@@ -104,20 +105,6 @@ typedef struct
 
 static openvas_connection connections[OPENVAS_FD_MAX];
 
-/**
- * @brief Object to store a list of hooks for close_stream_connection.
- */
-struct csc_hook_s
-{
-  struct csc_hook_s *next;
-  int (*fnc)(int fd);
-};
-
-/**
- * @brief Linked list of hooks to be run by close_stream_connection.
- */
-static struct csc_hook_s *csc_hooks;
-
 
 static void my_gnutls_transport_set_lowat_default (gnutls_session_t session);
 
@@ -132,6 +119,15 @@ static void my_gnutls_transport_set_lowat_default (gnutls_session_t session);
  * determine the openvas_connection* from the openvas fd
  */
 #define OVAS_CONNECTION_FROM_FD(fd) (connections + ((fd) - OPENVAS_FD_OFF))
+
+void
+convipv4toipv4mappedaddr (struct in_addr inaddr, struct in6_addr *in6addr)
+{
+  in6addr->s6_addr32[0] = 0;
+  in6addr->s6_addr32[1] = 0;
+  in6addr->s6_addr32[2] = htonl (0xffff);
+  in6addr->s6_addr32[3] = inaddr.s_addr;
+}
 
 static void
 renice_myself ()
@@ -1847,59 +1843,6 @@ nrecv (int fd, void *data, int length, int i_opt)
   return e;
 }
 
-
-/**
- * @brief Register a hook function for close_stream_connection.
- *
- * The function adds the given hook function to the list of hooks to
- * be run by close_stream_connection.  These hooks are intended to
- * test whether they need to close the stream them self.  See argument
- * to the hook function is the file descriptor of the stream.  The
- * hook shall return 0 if it has taken over control of that file
- * descriptor.  The same function is only aded once to the list of
- * hooks.
- *
- * @param fnc  The hook function.  See above for details.
- */
-void
-add_close_stream_connection_hook (int (*fnc)(int fd))
-{
-  struct csc_hook_s *hook;
-
-  for (hook = csc_hooks; hook; hook = hook->next)
-    if (hook->fnc == fnc)
-      return; /* Already added.  */
-
-  hook = emalloc (sizeof *hook);
-  hook->fnc = fnc;
-  hook->next = csc_hooks;
-  csc_hooks = hook;
-}
-
-/**
- * @brief Run the hooks for close_stream_connection.
- *
- * The function runs all registered hooks until the first hook returns
- * with zero to indicate that it has taken over control of the socket.
- * Further hooks are then not anymore run because the file descriptor
- * is not anymore valid.
- *
- * @param fd The file descriptor of the stream.
-
- * @return Zero if one of the hooks has closed the connection;
- *         non-zero otherwise.
- */
-static int
-run_csc_hooks (int fd)
-{
-  struct csc_hook_s *hook;
-
-  for (hook = csc_hooks; hook; hook = hook->next)
-    if (hook->fnc && !hook->fnc (fd))
-      return 0;
-  return -1;
-}
-
 int
 close_stream_connection (int fd)
 {
@@ -1916,8 +1859,8 @@ close_stream_connection (int fd)
 
   if (0)
     ;
-  else if (!run_csc_hooks (fd))
-    return 0; /* A hook already closed the fd.  */
+  else if (!nasl_ssh_internal_close (fd))
+    return 0;
   else if (!OPENVAS_STREAM (fd))     /* Will never happen if debug is on! */
     {
       if (fd < 0 || fd > 1024)
@@ -2032,7 +1975,7 @@ open_socket (struct sockaddr *paddr, int type, int protocol,
         return -1;
       }
 
-  openvas_source_set_socket (soc, 0, family);
+  set_socket_source_addr (soc, 0, family);
 
   if (connect (soc, paddr, len) < 0)
     {
@@ -2171,6 +2114,225 @@ open_sock_udp (struct arglist *args, unsigned int port)
 {
   return open_sock_option (args, port, SOCK_DGRAM, IPPROTO_UDP, 0);
 }
+
+
+struct in_addr
+_socket_get_next_source_addr (struct in_addr *addr)
+{
+  static struct in_addr *src_addrs = NULL;
+  static int current_src_addr = 0;
+  static pid_t current_src_addr_pid = 0;
+  static int num_addrs = 0;
+  struct in_addr ret;
+  pid_t mypid;
+
+  if (current_src_addr < 0)
+    {
+      ret.s_addr = INADDR_ANY;
+      return ret;
+    }
+
+  if (src_addrs == NULL && current_src_addr == 0)
+    {
+      src_addrs = addr;
+      if (src_addrs == NULL)
+        {
+          ret.s_addr = INADDR_ANY;
+          current_src_addr = -1;
+          return ret;
+        }
+
+      num_addrs = -1;
+      while (src_addrs[++num_addrs].s_addr != 0);
+    }
+
+
+  mypid = getpid ();
+  if (current_src_addr_pid != mypid)
+    {
+      current_src_addr_pid = mypid;
+      current_src_addr = lrand48 () % (num_addrs);      /* RATS: ignore */
+      if (src_addrs[current_src_addr].s_addr == 0)
+        current_src_addr = 0;
+    }
+
+  return src_addrs[current_src_addr];
+}
+
+struct in6_addr
+_socket_get_next_source_v4_addr (struct in6_addr *addr)
+{
+  static struct in6_addr *src_addrs = NULL;
+  static int current_src_addr = 0;
+  static pid_t current_src_addr_pid = 0;
+  static int num_addrs = 0;
+  struct in6_addr ret;
+  pid_t mypid;
+
+  if (current_src_addr < 0)
+    {
+      ret = in6addr_any;
+      return ret;
+    }
+
+  if (src_addrs == NULL && current_src_addr == 0)
+    {
+      src_addrs = addr;
+      if (src_addrs == NULL)
+        {
+          ret = in6addr_any;
+          current_src_addr = -1;
+          return ret;
+        }
+
+      num_addrs = -1;
+      while (src_addrs[++num_addrs].s6_addr32[3] != 0);
+      if (num_addrs == 0)
+        {
+          ret = in6addr_any;
+          current_src_addr = -1;
+          return ret;
+        }
+    }
+
+
+  mypid = getpid ();
+  if (current_src_addr_pid != mypid)
+    {
+      current_src_addr_pid = mypid;
+      current_src_addr = lrand48 () % (num_addrs);      /* RATS: ignore */
+      if (src_addrs[current_src_addr].s6_addr32[3] == 0)
+        current_src_addr = 0;
+    }
+
+  return src_addrs[current_src_addr];
+}
+
+struct in6_addr
+_socket_get_next_source_v6_addr (struct in6_addr *addr)
+{
+  static struct in6_addr *src_addrs = NULL;
+  static int current_src_addr = 0;
+  static pid_t current_src_addr_pid = 0;
+  static int num_addrs = 0;
+  struct in6_addr ret;
+  pid_t mypid;
+
+  if (current_src_addr < 0)
+    {
+      ret = in6addr_any;
+      return ret;
+    }
+
+  if (src_addrs == NULL && current_src_addr == 0)
+    {
+      src_addrs = addr;
+      if (src_addrs == NULL)
+        {
+          ret = in6addr_any;
+          current_src_addr = -1;
+          return ret;
+        }
+
+      num_addrs = 0;
+      while (!IN6_ARE_ADDR_EQUAL (&src_addrs[num_addrs], &in6addr_any))
+        num_addrs++;
+      if (num_addrs == 0)
+        {
+          ret = in6addr_any;
+          current_src_addr = -1;
+          return ret;
+        }
+    }
+
+
+  mypid = getpid ();
+  if (current_src_addr_pid != mypid)
+    {
+      current_src_addr_pid = mypid;
+      current_src_addr = lrand48 () % (num_addrs);      /* RATS: ignore */
+      if (IN6_ARE_ADDR_EQUAL (&src_addrs[current_src_addr], &in6addr_any))
+        current_src_addr = 0;
+    }
+
+  return src_addrs[current_src_addr];
+}
+
+struct in_addr
+socket_get_next_source_addr ()
+{
+  return _socket_get_next_source_addr (NULL);
+}
+
+struct in6_addr
+socket_get_next_source_v4_addr ()
+{
+  return _socket_get_next_source_v4_addr (NULL);
+}
+
+struct in6_addr
+socket_get_next_source_v6_addr ()
+{
+  return _socket_get_next_source_v6_addr (NULL);
+}
+
+int
+set_socket_source_addr (int soc, int port, int family)
+{
+  struct sockaddr_in bnd;
+  struct sockaddr_in6 bnd6;
+  int opt = 1;
+
+  struct in6_addr src;
+
+  if (family == AF_INET)
+    src = _socket_get_next_source_v4_addr (NULL);
+  else
+    src = _socket_get_next_source_v6_addr (NULL);
+  if (IN6_ARE_ADDR_EQUAL (&src, &in6addr_any) && port == 0)     /* No need to bind() */
+    return 0;
+
+  setsockopt (soc, SOL_SOCKET, SO_REUSEADDR, (void *) &opt, sizeof (int));
+
+  if (family == AF_INET)
+    {
+      bzero (&bnd, sizeof (bnd));
+
+      bnd.sin_port = htons (port);
+      bnd.sin_addr.s_addr = src.s6_addr32[3];
+      bnd.sin_family = AF_INET;
+
+      if (bind (soc, (struct sockaddr *) &bnd, sizeof (bnd)) < 0)
+        {
+          return -1;
+        }
+    }
+  else
+    {
+      bzero (&bnd6, sizeof (bnd6));
+
+      bnd6.sin6_port = htons (port);
+      bnd6.sin6_family = AF_INET6;
+      memcpy (&bnd6.sin6_addr, &src, sizeof (struct in6_addr));
+
+      if (bind (soc, (struct sockaddr *) &bnd6, sizeof (bnd6)) < 0)
+        {
+          return -1;
+        }
+    }
+
+  return 0;
+}
+
+void
+socket_source_init (struct in6_addr *addr, int family)
+{
+  if (family == AF_INET)
+    (void) _socket_get_next_source_v4_addr (addr);
+  else
+    (void) _socket_get_next_source_v6_addr (addr);
+}
+
 
 int
 open_sock_option (struct arglist *args, unsigned int port, int type,

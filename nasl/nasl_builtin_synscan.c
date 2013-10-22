@@ -834,7 +834,7 @@ scan (struct arglist * env, char* hostname, char* portrange,
   printf ("===> Target = %s\n", inet_ntoa (dst));
 #endif
 
-  ports = (unsigned short *) getpts (portrange, &num);
+  ports = (unsigned short *) getpts (portrange ? portrange : "default", &num);
 
   if (soc < 0)
     {

@@ -1,823 +1,67 @@
-2013-10-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+2013-10-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
-	* misc/network.c (open_socket): Call openvas_source_set_socket instead
-	of set_socket_source_addr.
-	(_socket_get_next_source_addr, _socket_get_next_source_v4_addr)
-	(_socket_get_next_source_v6_addr, socket_get_next_source_addr)
-	(socket_get_next_source_v4_addr, socket_get_next_source_v6_addr,
-	(set_socket_source_addr, socket_source_init): Delete functions.
-
-	* misc/network.h: Include openvas_networking.h. Remove deleted functions
-	prototypes.
-
-	* misc/pcap.c (v6_getsourceip, getsourceip, v6_routethrough)
-	(routethrough): Call adequate openvas_source functions instead of
-	removed ones.
-
-	* nasl/nasl_host.c: Add include.
-	(nasl_this_host): Adequately call openvas_source functions.
-
-	* nasl/nasl_socket.c: Add include
-	(nasl_open_sock_udp, nasl_open_privileged_socket): Adequately call
-	openvas_source functions.
-
-2013-10-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* base/openvas_hosts.c (ipv4_mapped_ipv6): Delete function.
-	(openvas_host_get_addr6): Call ipv4_as_ipv6 instead of deleted function.
-
-	* base/openvas_hosts.h: Include openvas_networking.h
-
-2013-10-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* base/openvas_networking.c, base/openvas_networking.h: New files.
-
-	* COPYING: Add license information for new files.
-
-	* base/CMakeLists.txt: Build new files.
-
-2013-10-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	* COPYING: Remove recently removed comm.h.
-
-2013-10-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* misc/network.c, misc/network.h: Remove unused function
-	convipv4toipv4mappedaddr.
-
-	* misc/plugutils.c, misc/scanner_utils.c, nasl/nasl_scanner_glue.c:
-	Don't include comm.h header.
-
-	* misc/comm.h: Remove file.
-
-2013-10-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* misc/plugutils.c (proto_post_wrapped): Don't append description when
-	plugin is not new style in empty action case.
-
-2013-10-03  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* CMakeLists.txt: Avoid library detection when cross compiling since
-	it is unreliable in this situation. Added TODO. Patch suggested by
-	Andre Heinecke.
-
-2013-09-28  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* CMakeLists.txt: Add option to build only the omp part of
-	openvas-libraries. This can be used to prevent building of the nasl
-	part when this part is not required or desired.  Patch suggested by
-	Andre Heinecke.
-
-2013-09-28  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* omp/CMakeLists.txt: Do not apply hardening flags when using MINGW.
-	Patch suggested by Andre Heinecke.
-
-2013-09-28  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* misc/CMakeLists.txt: Do not apply hardening flags when using MINGW.
-	Patch suggested by Andre Heinecke.
-
-2013-09-28  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* base/openvas_hosts.c, base/pidfile.c, misc/openvas_auth.c: Revert
-	patches accidentally included in last commit.
-
-2013-09-28  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* base/CMakeLists.txt: Add missing files to MINGW section.
-
-2013-09-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	Post release version bump.
-
-	* CMakeLists.txt: Set version to 7.0+beta3.
-
-2013-09-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	Preparing the openvas-libraries 7.0+beta2 release.
+	* Preparing the openvas-libraries 6.0.1 release.
 
 	* CHANGES: Updated.
 
-2013-09-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+2013-09-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
-	* misc/plugutils.c (plug_set_dep): Remove handling of dependencies with
-	.nes extension case as they were fully converted.
+	Revert part of r15612, so that nvt description is sent instead of empty
+	results, even for new style plugins.
 
-2013-09-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+	* misc/plugutils.c (proto_post_wrapped): Don't test for new style
+	plugins before setting action to nvt description.
 
-	* base/openvas_hosts.c (openvas_hosts_resolve): New function.
-	(openvas_hosts_exclude): Add boolean to choose whether to resolve
-	excluded hostnames before filtering them out. Call new function
-	adequately.
+2013-08-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
-	* base/openvas_hosts.h: Add and modify function prototypes.
+	Backport for r16369. Patch by Hani Benhabiles.
 
-2013-09-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	Add support for IPv6 short range-expressed networks.
-
-	* base/openvas_hosts.c (is_long_range_network, long_range_network_ips):
-	Fix comments and coding style.
-	(is_short_range6_network, short_range6_network_ips): New functions.
-	(determine_host_type, openvas_hosts_new): Handle short IPv6 range case.
-
-	* base/openvas_hosts.h (host_type): Add HOST_TYPE_RANGE6_SHORT value.
-
-2013-09-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	Add support for IPv6 long range-expressed networks.
-
-	* base/openvas_hosts.c: Coding style and documentation typos fixes.
-	(is_long_range6_network, long_range6_network_ips): New functions.
-	(determine_host_type, openvas_hosts_new): Handle IPv6 long ranges case.
-
-	* base/openvas_hosts.h (host_type): Add HOST_TYPE_RANGE6_LONG value.
-
-2013-09-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* base/openvas_hosts.c (openvas_hosts_reverse): New function.
-
-	* base/openvas_hosts.h: Add prototype accordingly.
-
-2013-09-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	Huge performance boost for hosts deduplication and exclusion.
-
-	* base/openvas_hosts.c (openvas_host_equal): Remove unused function.
-	(openvas_hosts_remove_duplicates): Rename to openvas_hosts_deduplicate.
-	Use a hash table to deduplicate in O(N) time.
-	(openvas_hosts_new): Adjust function call.
-	(openvas_hosts_remove_element): New function.
-	(openvas_hosts_exclude): Use a hash table to exclude hosts in O(N+M)
-	time.
-	(openvas_hosts_reverse_lookup_only, openvas_hosts_reverse_lookup_unify):
-	Code style fix.
-
-2013-09-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* base/openvas_hosts.c (openvas_host_reverse_lookup): Return looked-up
-	value. Update documentation.
-	(openvas_hosts_resolve_lookup_only): Adjust for previous change.
-	(openvas_hosts_resolve_lookup_unify): New function.
-	(openvas_hosts_new): Remove debug output functions.
-
-	* base/openvas_hosts.h: Add prototype accordingly.
-
-2013-09-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* base/openvas_hosts.c (openvas_hosts_shuffle): Add null pointer check.
-	(openvas_host_reverse_lookup, openvas_hosts_reverse_lookup_only): New
-	functions.
-
-	* base/openvas_hosts.h: Add prototype accordingly.
-
-2013-09-10  Timo Pollmeier <timo.pollmeier@greenbone.net>
-
-	* base/openvas_hosts.c (openvas_hosts_free): Free hosts list in
-	two steps instead of using g_list_free_full.
-
-2013-09-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* base/openvas_hosts.c (openvas_hosts_exclude): New function.
-	(openvas_hosts_count, openvas_hosts_removed, openvas_hosts_free)
-	(openvas_hosts_shuffle, openvas_host_equal): Coding style fix.
-
-	* base/openvas_hosts.h: Add openvas_hosts_exclude prototype.
-	(openvas_hosts_t): Update comment.
-
-2013-09-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	A couple of changes based on suggestions by Henri Doreau, more to
-	follow.
-
-	* base/openvas_hosts.h: name the HOST_TYPE_* enum as host_type.
-	(openvas_host): Change type's type to host_type.
-	(openvas_hosts): Make removed variable unsigned.
-
-	* base/openvas_hosts.c (openvas_hosts_remove_duplicates): Declare
-	elements variable at top of the block.
-
-2013-09-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	* misc/resolve.c (host2ip): Removed. It is an unused function.
-
-2013-09-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	Fix a couple of memory leaks.
-
-	* misc/pcap.c (v6_getinterfaces): Call freeifaddrs if getifaddrs call
-	succeeds.
-
-	* misc/plugutils.c (plug_set_replace_key): Free str when soc is null
-	too.
-
-	* nasl/nasl_host.c (get_host_ip): Use the already duplicated txt_ip
-	instead of duplicating it again.
-
-2013-09-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	* base/test-hosts.c: New. A stand-alone test tool for module
-	openvas_hosts. Developed by Hani Benhabiles.
-
-	* base/CMakeLists.txt: Add handling for test-hosts.c.
-
-2013-09-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	* doc/Doxyfile.in: Removed handling of module hg.
-
-2013-09-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	* hg/: Removed.
-
-2013-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	Remove unused hg/ module.
-
-	* hg/hg_filter.h, hg/hg_subnet.c,
-	hg/hg_utils.c, hg/test.c,
-	hg/hosts_gatherer.c, hg/hg_dns_axfr.c,
-	hg/hg_subnet.h, hg/hg_utils.h,
-	hg/hg_add_hosts.c, hg/hosts_gatherer.h,
-	hg/hg_dns_axfr.h, hg/README.txt,
-	hg/hg_add_hosts.h, hg/CMakeLists.txt,
-	hg/hg_filter.c, hg/hg_debug.c: Removed.
-
-	* COPYING: Remove hg license information.
-
-	* nasl/CMakeLists, CMakeLists, libopenvas.pc.in: Remove hg directory and
-	library related entries.
-
-2013-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	Add CIDR IPv6 ranges support.
-
-	* base/openvas_hosts.c (cidr_block_ips): Detail documentation.
-	(is_cidr6_block, cidr6_get_block, cidr6_get_ip, cidr6_block_ips): New
-	functions.
-	(determine_host_type): Check for IPv6 CIDR-blocks syntax.
-	(openvas_hoss_remove_duplicates): Fix duplicates count substraction.
-	(openvas_hosts_new): Handle adding single hosts for CIDR IPv6 blocks.
-
-	* base/openvas_hosts.h: Add HOST_TYPE_CIDR6_BLOCK value.
-
-2013-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	Cache openvas_hosts count, instead of counting host objects each time.
-
-	* base/openvas_hosts.c (openvas_hosts_remove_duplicates): Substract
-	duplicates from count.
-	(openvas_hosts_new): Increment hosts count when adding a host object.
-	(openvas_hosts_count): Return count element value.
-
-2013-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* base/openvas_hosts.c, src/openvas_hosts.h: Rename openvas_host_addr6
-	to openvas_host_get_addr6 to make it clearer that interface resolves
-	address when unavailable.
-
-	* nasl/nasl.c: Remove system.h include. Replace usage of
-	emalloc/estrdup/efree with equivalent glib functions.
-	(main): Handle openvas_host_get_addr6 error. Free hostname.
-
-2013-09-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	Remove hg module usage and integrate openvas_hosts interface for
-	openvas-nasl.
-
-	* nasl/nasl.c: Remove useless includes. Include base/openvas_hosts.h
-	(main): Replace hg_* functions with openvas_hosts_* and openvas_host_*
-	functions and make necessary adjustments.
-
-2013-09-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* base/openvas_hosts.c (ipv4_mapped_ipv6, openvas_host_addr6): New
-	functions.
-
-	* base/openvas_hosts.h: Add openvas_host_addr6 function prototype.
-
-2013-09-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* COPYING: Add license for new files.
-
-2013-09-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	Initial commit for new Hosts API that will replace hg module.
-
-	* base/openvas_hosts.c, base/openvas_hosts.c: New files.
-
-	* base/CMakeLists.txt: Add new files to build process.
-
-2013-08-29  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* COPYING: Update date to reflect the latest change.
-
-2013-08-22  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
-
-	* nasl/nasl_scanner_glue.c (script_xref): Conform to coding style.
-
-2013-08-22  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
-
-	* nasl/nasl.c (main): Document obligatory command line argument
-	and clarify that multiple can be given (in error message when none is
-	passed).
-
-2013-08-22  Felix Wolfsteller <felix.wolfsteller@greenbone.net>
-
-	* nasl/nasl_scanner_glue.c (script_xref, script_tag): Use nasl_perror
-	to print the NVT name, verbose debugging messages when parameters
-	are not set.
-
-2013-08-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* nasl/nasl_scanner_glue.c (script_xref, script_tag): Make error message
-	more descriptive by printing the NVT name.
-
-2013-08-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	* INSTALL: Updated reference system from Debian 6 to 7.
-
-2013-08-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* hg/hosts_gatherer.h: Fix comment typo.
-
-2013-07-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	Adding capability to NASL to run commands on a remote Windows
-	machine when being authenticated. Similar like it is already
-	possible to run commands on remote Linux systems using ssh.
-	These patches were developed by Thanga Prakash <tprakash@secpod.com>.
-
-	* nasl/smb_interface_stub.c (wincmd): New.
-
-	* nasl/openvas_smb_interface.h: Add proto accordingly.
-
-	* nasl/nasl_smb.c (nasl_win_cmd_exec): New.
-
-	* nasl/nasl_smb.h: Add proto accordingly.
-
-	* nasl/CMakeLists.txt: Added checks for wincmd library and handle
-	if is found.
-
-	* doc/wmi-howto.txt: Updated to consider additional patch and
-	installation.
-
-	* CMakeLists.txt: Add configure check for wincmd.
-
-2013-07-24  Matthew Mundell <matthew.mundell@greenbone.net>
-
-	* INSTALL: Reorder PKG_CONFIG_PATH export, in case another openvas
-	installation is already in existing PKG_CONFIG_PATH.
-
-2013-07-18  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* hg/hg_utils.c (hg_get_name_from_ip): Hide debug output behind NDEBUG
-	ndefines so it does not show up when built with the "Release" build
-	type.
-
-2013-07-16  Matthew Mundell <matthew.mundell@greenbone.net>
-
-	* misc/plugutils.c (proto_post_wrapped): Enable sending of ALARM in
-	place of LOG, NOTE and INFO.
-
-2013-07-16  Matthew Mundell <matthew.mundell@greenbone.net>
-
-	* ChangeLog: Clean up a little formatting.
-
-2013-07-12  Werner Koch  <wk@gnupg.org>
-
-	Remove circular dependency between misc/ and nasl/ introduced by
-	me on 2012-09-20.
-
-	* misc/network.c: Remove nasl_ssh.h include.
-	(struct csc_hook_s): New.
-	(csc_hooks): New.
-	(add_close_stream_connection_hook): New.
-	(run_csc_hooks): New.
-	(close_stream_connection): Call run_csc_hooks instead of
-	nasl_ssh_internal_close.
-	* misc/network.h (add_close_stream_connection_hook): New
-	prototype.
-	* nasl/nasl_ssh.c (nasl_ssh_internal_close): Make static and
-	rename to nasl_ssh_close_hook.
-	(next_session_id): Register hook.
-
-2013-07-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	* misc/plugutils.c (proto_post_wrapped): Handle message
-	according to cvss here instead of in proto_post_alarm.
-	(proto_post_alarm): Removed cvss-depending code.
-
-2013-07-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	Renamed "alert" to "alarm" to not mix up with the alerts as
-	used in OpenVAS Manager.
-
-	* nasl/nasl_builtin_find_service.c: Replaced all calls of post_alert
-	by post_alarm.
-
-	* misc/plugutils.c (proto_post_alert, post_alert): Renamed
-	to proto_post_alarm and post_alarm.
-
-	* misc/plugutils.h: Renamed protos accordingly.
-
-	* nasl/nasl_scanner_glue.c (security_message): Renamed call accordingly.
-
-2013-07-01  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* base/gpgme_util.c (openvas_init_gpgme_ctx)
-	(openvas_init_gpgme_sysconf_ctx): Hide debug output behind NDEBUG
-	ndefines so it does not show up when built with the "Release" build
-	type.
-
-2013-07-01  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	Remove files containing now obsolete convenience code. The
-	functionality was not currently in use and is now available directly
-	in glib.
-
-	* base/hash_table_util.c, base/hash_table_util.h: Removed.
-
-	* base/CMakeLists.txt: Updated to no longer include the removed files.
-
-	* COPYING: Updated to no longer include the removed files.
-
-2013-06-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	* nasl/nasl_builtin_find_service.c: Replaced all calls of post_hole
-	by post_alert.
-
-	* misc/plugutils.c (proto_post_hole, post_hole, post_hole_udp)
-	(post_info, post_info_udp, proto_post_info, post_note)
-	(post_note_udp, proto_post_note): Removed.
-
-	* misc/plugutils.h: Removed protos accordingly.
-
-2013-06-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	Move the decision of the message level to the message sending.
-	This reduces the retrievals of the nvt details from cache by one.
-
-	* nasl/nasl_scanner_glue.c (security_message): Don't
-	use the CVSS of the NVT to determine actual message level.
-	Instead call the new alert function.
-
-	* misc/plugutils.c (proto_post_alert, post_alert): New.
-	Use the CVSS of the NVT to apply the actual message.
-
-	* misc/plugutils.h: Added protos accordingly.
-
-2013-06-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	Remove parameters "threat" and "cvss" from security_message.
-	In fact these were forseen for a transitional phase according
-	to CR 59. Meanwhile any NVT has a CVSS and a NVT should
-	never send different severities decided at runtime.
-
-	* nasl/nasl_init.c (lib_funcs): Removed parameters "threat" and
-	"cvss" from security_message.
-
-	* nasl/nasl_scanner_glue.c (security_message): Don't interpret and
-	handle parameters "threat" and "cvss".
-
-2013-06-27  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	Improve handling of linker flags, partly based on a patch by Guillaume
-	Rousse.
-
-	* CMakeLists.txt: Gather linker flags for GnuTLS via pkg-config, for
-	libgcrypt via libgcrypt-config. Hard code LDAP_LDFLAGS if libldap is
-	found since libldap does not provide it's linker flags.
-
-	* misc/CMakeLists.txt: Gather linker flags for uuid via pkg-config
-	when not using MINGW. Consolidate target_link_libraries calls and use
-	linker flags gathered during configuration instead of hard coded
-	values.
-
-	* base/CMakeLists.txt: Add GPGME_LDFLAGS to target_link_libraries to
-	ensure linking works with strict linking options.
-
-2013-06-27  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* CMakeLists.txt: Make SVN revision in version string available again
-	for out-of-source build.
-
-2013-06-24  Henri Doreau <henri.doreau@cea.fr>
-
-	* base/cvss.c (toenum): Use a separate variable to express
-	success or failure, in order to not use negative values in enums.
-
-2013-06-24  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* nasl/nasl_builtin_openvas_tcp_scanner.c (std_port): Fix typo in
-	comment and comment syntax.
-
-2013-06-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	* nasl/nasl_builtin_find_service.c (mark_remote_nc_server): Don't
-	send a "hole" message anymore. Just a "log". The security aspect
-	is handled by another NVT (JM_RemoteNC.nasl).
-
-2013-06-20  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	Post release version bump.
-
-	* CMakeLists.txt: Set version to 7.0+beta2.
-
-2013-06-20  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	Preparing the openvas-libraries 7.0+beta1 release.
-
-	* CHANGES: Updated.
-
-2013-06-20  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* misc/otp.h: Increase protocol defines for protocol version switch.
-
-2013-06-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* base/nvti.c, base/nvti.h (nvti_risk_factor): Remove function.
+	* base/openvas_file.c (openvas_file_copy, openvas_file_move): Check Glib
+	version before using recently deprecated g_type_init().
 
 2013-06-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
-	* base/cvss.c (toenum): Add todo regarding negative values in enums.
-
-2013-06-19  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	Add support for setting the "autofp" parameter via omp_get_report_ext.
+	Add support for setting the "autofp" parameter via
+	omp_get_report_ext.
 
 	* omp/omp.h (omp_get_report_opts_t): Add autofp.
 
 	* omp/omp.c (omp_get_report_ext): Add autofp.
 
-2013-06-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+2013-04-10  Michael Wiegand <michael.wiegand@greenbone.net>
 
-	* misc/pcap.c (v6_routethrough, routethrough): Fix error message.
+	Post release version bump.
 
-2013-06-11  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+	* CMakeLists.txt: Set version to 6.0.1.
 
-	Remove "SERVER <|> PORT" message of OTP.
-	This remove results in the report that have no reference to
-	a NVT. It has no internal impact on scanner and will not affect
-	the port list reported via host details or via special port listing
-	NVTs.
+2013-04-10  Michael Wiegand <michael.wiegand@greenbone.net>
 
-	* misc/plugutils.c (scanner_add_port): Removed sending a
-	"SERVER <|> PORT" message. The port will still be registered in
-	the KB.
+	Preparing the openvas-libraries 6.0.0 release.
 
-2013-06-06  Matthew Mundell <matthew.mundell@greenbone.net>
+	* CHANGES: Updated.
 
-	* misc/openvas_auth.c (user_set_rules): Remove.  Jan recently removed
-	rules support
-	(openvas_auth_init_funcs): Remove set_rules arg.
-
-	* misc/openvas_auth.h: Update header accordingly.
-
-2013-05-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* omp/omp.c (omp_authenticate_info): Add parameter for severity class.
-
-	* omp/omp.h: Update omp_authenticate_info prototype accordingly.
-
-2013-05-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	* misc/openvas_auth.c (openvas_auth_user_set_allowed_methods,
-	openvas_auth_user_methods): Removed. This is handled in Manager
-	database now.
-	(openvas_auth_mkmethodsdir): Removed now-unused function.
-
-	* misc/openvas_auth.h: Removed protos accordingly.
-
-	* CMakeLists.txt, misc/CMakeLists.txt: Remove handling of now-unused
-	OPENVAS_USERS_DIR.
-
-2013-05-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	Renamed "OPENVAS_USERS_DIR/.auth.conf" to OPENVAS_STATE_DIR/auth.conf.
-
-	* misc/openvas_auth.c (openvas_auth_init_funcs, openvas_auth_write_config):
-	Replaced OPENVAS_USERS_DIR by OPENVAS_STATE_DIR.
-
-2013-05-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	* misc/ads_auth.c (ads_authenticate): Removed any role management.
-	We don't let directory services do role management anymore.
-
-	* misc/openvas_auth.c (openvas_is_user_admin, openvas_is_user_observer,
-	openvas_set_user_role): Removed. The role management is done in Manager
-	dabase now.
-
-	* misc/openvas_auth.h: Removed protos accordingly.
-
-2013-05-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	* src/plugutils.c (scanner_add_port): Remove dead code that
-	make no sense. It sets a variable "confirm" as static, but
-	this variable is never used.
-
-2013-05-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	* src/plugutils.c (scanner_add_port): Removed code path for case
-	of presense of a "DIFF_SCAN" argument. This one is not set
-	anywhere nor does it make much sense. Probably remains of some
-	experiments.
-
-2013-05-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
-
-	* base/openvas_file.c (openvas_file_copy, openvas_file_move): Check Glib
-	version before using recently deprecated g_type_init().
-
-2013-05-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	Removing file-based user-specific rules support.
-
-	* misc/openvas_auth.c (openvas_auth_user_rules,
-	openvas_auth_user_uuid_rules, uuid_file_contents,
-	openvas_auth_mkrulesdir, openvas_auth_store_user_rules): Removed.
-
-	* misc/openvas_auth.h: Removed protos accordingly.
-
-	* misc/ldap_auth.c (ldap_authenticate): Removed querying rules.
-	(ldap_auth_query_rules): Removed.
-
-	* misc/ads_auth.c (ads_authenticate): Removed querying rules.
-	(ads_query_rules): Removed.
-
-2013-05-14  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* base/nvti.c (nvti_from_keyfile): Consistently free result of
-	conversion.
-
-2013-05-07  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* CMakeLists.txt: Move creation of GnuPG homedirs here since
-	openvas-libraries expects the directories to exist.
-
-2013-05-07  Werner Koch  <wk@gnupg.org>
-
-	* nasl/nasl_signature.c (nasl_extract_signature_fprs)
-	(nasl_get_all_certificates): Also use sysconf directory.
-
-2013-05-07  Werner Koch  <wk@gnupg.org>
-
-	* nasl/nasl_signature.c (nasl_extract_signature_fprs): Set ERR if
-	CTX creation failed.  Also move all var definitions to the top.
-
-2013-04-30  Werner Koch  <wk@gnupg.org>
-
-	Use the sysconf directory for signature verification again.
-
-	* base/gpgme_util.c (get_sysconf_gpghome): New.
-	(openvas_init_gpgme_sysconf_ctx): New.
-	* base/gpgme_util.h: Add prototype.
-	* nasl/nasl_signature.c (nasl_verify_signature): Use new function.
-
-2013-04-26  Werner Koch  <wk@gnupg.org>
-
-	* base/CMakeLists.txt: Add definition for OPENVAS_STATE_DIR.
-	* base/gpgme_util.c (determine_gpghome): Change to use
-	OPENVAS_STATE_DIR.
-	(log_gpgme): New.
-
-2013-04-26  Matthew Mundell <matthew.mundell@greenbone.net>
-
-	* misc/openvas_auth.c (openvas_auth_init_funcs): Set initialized flag
-	even when there was no .auth.conf.
-
-2013-04-25  Matthew Mundell <matthew.mundell@greenbone.net>
-
-	Convert authentication system to support database users.
-
-	* misc/openvas_auth.c (enum authentication_method)
-	(auth_method_t): Remove.  Now in openvas_auth.h.
-	(auth_method_name): New function.
-	(add_authenticator): Set role function in ldap info.
-	(openvas_auth_init): Call through to new funcs version.
-	(openvas_auth_init_funcs): New function.  Body from openvas_auth_init,
-	but also initialises global functions.
-	(openvas_authenticate_classic): Use global function to get hash, instead
-	of reading it from disk.
-	(can_user_ldap_connect): Use global function to check if user exists,
-	instead of reading disk.
-	(openvas_authenticate): Require the initilisation function to have been
-	called.
-	(openvas_authenticate_method): Require the initilisation function to
-	have been called.  Export.  Set method in ldap_connect case too.
-	(openvas_user_uuid_method, openvas_user_exists_classic): Use global
-	function instead of reading disk.
-	(openvas_authenticate_uuid, openvas_auth_user_methodsdir)
-	(openvas_user_modify): Remove.  Out of use.
-	(openvas_user_exists): Remove old tracing.
-	(openvas_auth_make_user_rules): New function.  Body from
-	openvas_auth_store_user_rules.
-	(openvas_auth_store_user_rules): Use global function instead of reading
-	disk.  Add method arg.
-
-	* misc/openvas_auth.h: Update headers accordingly.
-
-	* misc/ldap_auth.c (user_dir_path): Remove.
-	(ldap_auth_query_rules): Remove disk calls.  Pass method to
-	openvas_auth_store_user_rules.
-	(ldap_authenticate): Remove disk calls.  Set role via callback function
-	from info.
-
-	* misc/ldap_auth.h (ldap_auth_info): Add user_set_role.
-
-	* misc/adc_auth.c (ads_query_rules): Add method to
-	openvas_auth_store_user_rules.
-
-2013-04-25  Michael Wiegand <michael.wiegand@greenbone.net>
-
-	* nasl/nasl_builtin_openvas_tcp_scanner.c (banner_grab): Fix name in
-	error message.
-
-2013-04-11  Henri Doreau <henri.doreau@cea.fr>
-
-	* misc/kb.c: Fixed typo.
-
-2013-04-10  Werner Koch  <wk@gnupg.org>
-
-	* nasl/nasl_cert.c: Include gcrypt.h.
-	(make_hexstring): New.
-	(tohex): New macro.
-	(get_fingerprint): New.
-	(get_name): New.
-	(nasl_cert_query): Replace some code by the new functions.
-	(nasl_cert_query): Add commands "image", "fpr-sha-256", and
-	"fpr-sha-1".
+	* CMakeLists.txt: Switch release version scheme.
 
 2013-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
-	* base/cvss.c (__get_cvss_score): Add 0.0 to result to fix cases where
-	result equals -0.0.
-	(get_cvss_score_from_base): Return -1.0 instead of 0.0 when passed a
-	null pointer to indicate an error as documented.
-
-2013-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+	Backport for r15962. Patch by Hani Benhabiles.
 
 	* base/cvss.c (impact_map): Fix Authentication Single Instance value
 	from "C" to "S".
 
-2013-04-09  Werner Koch  <wk@gnupg.org>
+2013-04-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
-	* nasl/nasl_ssh.c (nasl_ssh_get_auth_methods): Fix length of
-	returned string.  A garbage byte at the end was returned.
-
-2013-04-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+	Backport for r15920. Patch by Hani Benhabiles.
 
 	* misc/openvas_auth.c (openvas_auth_init): Test for authentication
 	configuration's existence before trying to load it. Log key file
 	loading error as warning.
 
-2013-04-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+2013-03-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
-	This patch forces the scanner to only consider the CVSS of the
-	NVT to decide about the severity class (HOLE, WARNING, NOTE, also
-	known as Hight, Medium, Low) sent with the result.
+	Backport for r15897. Patch by Werner Koch.
 
-	The scanner relies here on presence of a CVSS assigned to each NVT
-	which was established in March 2013 for the regular feed.
-
-	This change has significant impact on reporting behaviour because
-	many (mostly older and various generic/sepcial ones) used either
-	a mixture of security_note, _hole, _warning or are not in line
-	with the assigned CVSS.
-
-	For the latter case, these NVTs need to be fixed. Either the CVSS
-	assignment was wrong, or the severity type. In some cases this
-	will require to break up the NVT into multiple ones, separating
-	log activity out into a NVT of its own.
-
-	Splitting up into multiple NVTs is also relevant for those NVTs
-	where severity message mixture was used.
-
-	The hardest case to resolve will be NVTs that use the severity
-	class as user preference.
-
-	The analysis for mismatches can be done on NASL source code
-	level of NVTs, simply comparing security_* calls with CVSS
-	tag. At the end of the day any such mismatch must be resolved
-	in the regular feed.
-
-	* nasl/nasl_init.c (libfuncs): Replace call of security_hole,
-	security_warning and security_note by call of security_message.
-	Also left a comment on when the API functions can be ultimately
-	eliminated.
-
-	* nasl/nasl_scanner_glue.c (security_hole, security_warning,
-	security_note): Removed.
-
-	* nasl/nasl_scanner_glue.h: Removed protos accordingly.
-
-2013-04-03  Werner Koch  <wk@gnupg.org>
-
-	* misc/openvas_server.c (server_attach_internal): Fix doc buglet.
-	(openvas_server_attach): Ditto.
-
-2013-04-02  Werner Koch  <wk@gnupg.org>
-
-	* misc/openvas_server.c (server_attach): Factor all code out to ..
+	* misc/openvas_server.c	(server_attach): Factor all code out to ..
 	(server_attach_internal): new function.  Add and use args HOST and
 	PORT.  Return -2 on handshake failure.
 	(openvas_server_new): Factor all code out to ..
@@ -830,25 +74,36 @@
 	use by openvas_server_close.
 	(openvas_server_close): Replace by call to openvas_server_free.
 
-2013-03-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+2013-03-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
-	* misc/proctitle.c (setproctitle): Remove "openvassd:" from new process
-	name as the library call may be used by other daemons.
-
-2013-03-26  Werner Koch  <wk@gnupg.org>
+	Backport for r15849. Patch by Werner Koch.
 
 	* INSTALL: State that gnutls 2.8 is required.
 
 	* misc/openvas_server.c (openvas_server_new): Change type of the
-	END_TYPE arg to unsigned int.  On most platforms this is
+	END_TYPE arg to unsigned int. On most platforms this is
 	compatible to the enum used by gnutls 2.x.
 	* misc/openvas_server.h (openvas_server_new): Ditto.
+
+2013-03-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Post release version bump.
+
+	* CMakeLists.txt: Set version to 6.0+rc2.
+
+2013-03-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Preparing the openvas-libraries 6.0.0 release.
+
+	* CHANGES: Updated.
+
+	* CMakeLists.txt: Version bump to 6.0+rc1.
 
 2013-03-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CMakeLists.txt: Increased dependency to gnutls from 2.2 to 2.8.
 
-2013-03-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+2013-03-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/plugutils.c (plugin_is_newstyle): Change tag name detection to
 	vuldetect.
@@ -865,72 +120,6 @@
 	has new style tags.
 
 	* misc/plugutils.h: Add plugin_is_newstyle header.
-
-2013-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	Removing handling of services list from libraries/scanner.
-	Basically this is about the statice services list that
-	is used to return a service identifier for port numbers.
-
-	In case of a ssh running at port 80, the result so far
-	would still be "http (80/tcp)" which is pretty misleading.
-
-	The scanner should not at all use some static services list
-	and match the ports to it. It should rather try to identify
-	a service and report this (which is actually done via NVTs).
-	In fact it should be the task of the Manager to attach IANA
-	definition for informational purposes. Ideally the detected
-	service is also shown.
-
-	* misc/services1.c, misc/services1.h, misc/services.c,
-	misc/services.h: Removed.
-
-	* misc/scanners_utils.c: Removed unused include of "services.h".
-
-	* misc/plugutils.c (proto_post_wrapped, scanner_add_port): Removed
-	sending of the service name via OTP. For example "80/tcp" is now
-	sent instead of "http (80/tcp)"
-
-	* misc/CMakeLists.txt: Removed handling of modules services1.c
-	and services.c.
-
-	* nasl/nasl_builtin_openvas_tcp_scanner.c (std_port): Reduced to always
-	return false. The code used the services list to determine whether it was
-	a standard port. Now any port is judged to be a non-standard port.
-	A todo about this to be resolved is left in the code.
-
-	* CMakeLists.txt: Removed installtion of file "openvas-services".
-
-	* COPYING: Removed modules services1 and services.
-
-	* openvas-services: Removed.
-
-2013-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	Remove handling of "default" as a option for the port range.
-	It is a arbitrary and intransparent option for the users.
-	Scanner clients should always send an explicit port range.
-
-	* nasl/nasl_builtin_nmap.c (get_default_portrange): Removed.
-	(add_portrange): Removed handling of case where port range
-	is "default".
-	(cmp): Removed.
-
-	* nasl/nasl_builtin_openvas_tcp_scanner.c (banner_grab): Removed
-	code to try to get default ports for services list. Exit with
-	error when port_list is empty.
-
-	* nasl/nasl_builtin_synscan.c (scan): Don't apply "default" as a
-	fallback when port list is empty.
-
-	* misc/scanners_utils.c (getpts): Remove handling for port lists
-	of type "default".
-
-2013-03-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-	Post branch version bump.
-
-	* CMakeLists.txt: Set version to 7.0.0 and status to beta.
 
 2013-02-27  Timo Pollmeier <timo.pollmeier@greenbone.net>
 

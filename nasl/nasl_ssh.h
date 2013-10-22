@@ -52,4 +52,6 @@ tree_cell *nasl_ssh_get_auth_methods (lex_ctxt *lexic);
 
 #endif /*HAVE_LIBSSH*/
 
+int nasl_ssh_internal_close (int sock);
+
 #endif /*NASL_SSH_H*/

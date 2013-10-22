@@ -7,7 +7,7 @@
 # Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 #
 # Copyright:
-# Copyright (C) 2011-2013 Greenbone Networks GmbH
+# Copyright (C) 2011, 2012 Greenbone Networks GmbH
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2,
@@ -43,7 +43,6 @@ if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Debug)
 endif (NOT CMAKE_BUILD_TYPE)
 
-OPTION(OPENVAS_OMP_ONLY "Build only the omp library and the required base and misc libraries" OFF)
 ## Retrieve svn revision (at configure time)
 #  Not using Subversion_WC_INFO, as it would have to connect to the repo
 find_program (SVN_EXECUTABLE svn DOC "subversion command line client")
@@ -57,14 +56,14 @@ macro (Subversion_GET_REVISION dir variable)
 endmacro (Subversion_GET_REVISION)
 
 if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
-  if (EXISTS "${CMAKE_SOURCE_DIR}/.svn/")
+  if (EXISTS ".svn/")
     if (SVN_EXECUTABLE)
       Subversion_GET_REVISION(. ProjectRevision)
       set (SVN_REVISION ".SVN.r${ProjectRevision}")
     else (SVN_EXECUTABLE)
       set (SVN_REVISION ".SVN")
     endif (SVN_EXECUTABLE)
-  endif (EXISTS "${CMAKE_SOURCE_DIR}/.svn/")
+  endif (EXISTS ".svn/")
 endif (NOT CMAKE_BUILD_TYPE MATCHES "Release")
 
 # TODO: Check pkg-config (maybe with code like in gsa/CMakeLists.txt).
@@ -82,15 +81,15 @@ set (CPACK_SOURCE_GENERATOR "TGZ")
 set (CPACK_SOURCE_TOPLEVEL_TAG "")
 set (CPACK_SYSTEM_NAME "")
 set (CPACK_TOPLEVEL_TAG "")
-set (CPACK_PACKAGE_VERSION_MAJOR "7")
+set (CPACK_PACKAGE_VERSION_MAJOR "6")
 set (CPACK_PACKAGE_VERSION_MINOR "0")
 
 # Use this scheme for stable releases:
-#set (CPACK_PACKAGE_VERSION_PATCH "0${SVN_REVISION}")
-#set (CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+set (CPACK_PACKAGE_VERSION_PATCH "1${SVN_REVISION}")
+set (CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 # Use this scheme for +betaN and +rcN releases:
-set (CPACK_PACKAGE_VERSION_PATCH "+beta3${SVN_REVISION}")
-set (CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}${CPACK_PACKAGE_VERSION_PATCH}")
+#set (CPACK_PACKAGE_VERSION_PATCH "+rc2${SVN_REVISION}")
+#set (CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}${CPACK_PACKAGE_VERSION_PATCH}")
 
 set (CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}")
 set (CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}")
@@ -172,6 +171,7 @@ set (OPENVAS_CACHE_DIR   "${LOCALSTATEDIR}/cache/openvas")
 set (OPENVAS_PID_DIR     "${LOCALSTATEDIR}/run")
 set (OPENVAS_SYSCONF_DIR "${SYSCONFDIR}/openvas")
 
+set (OPENVAS_USERS_DIR   "${OPENVAS_STATE_DIR}/users")
 set (OPENVAS_NVT_DIR     "${OPENVAS_STATE_DIR}/plugins")
 
 set (OPENVAS_LIB_INSTALL_DIR     "${LIBDIR}")
@@ -192,35 +192,57 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 pkg_check_modules (GNUTLS REQUIRED gnutls>=2.8)
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.16)
-if (NOT OPENVAS_OMP_ONLY)
-  pkg_check_modules (WMICLIENT wmiclient>=1.3.14)
-  pkg_check_modules (WINCMD wincmd>=0.80)
-  pkg_check_modules (LIBSSH libssh>=0.5.0)
+pkg_check_modules (WMICLIENT wmiclient>=1.3.14)
+pkg_check_modules (LIBSSH libssh>=0.5.0)
 
-  message (STATUS "Looking for pcap...")
-  find_library (PCAP pcap)
-  message (STATUS "Looking for pcap... ${PCAP}")
-  if (NOT PCAP)
-    message (FATAL_ERROR "The pcap library is required.")
-  endif (NOT PCAP)
+message (STATUS "Looking for pcap...")
+find_library (PCAP pcap)
+message (STATUS "Looking for pcap... ${PCAP}")
+if (NOT PCAP)
+  message (FATAL_ERROR "The pcap library is required.")
+endif (NOT PCAP)
 
-  message (STATUS "Looking for pcap-config...")
-  find_program (PCAP_CONFIG pcap-config)
+message (STATUS "Looking for pcap-config...")
+find_program (PCAP_CONFIG pcap-config)
 
-  if (PCAP_CONFIG)
-    message (STATUS "Looking for pcap-config... ${PCAP_CONFIG}")
-    execute_process (COMMAND pcap-config --libs
-      OUTPUT_VARIABLE PCAP_LDFLAGS
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process (COMMAND pcap-config --cflags
-      OUTPUT_VARIABLE PCAP_CFLAGS
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-  else (PCAP_CONFIG)
-    message (STATUS "pcap-config not found, using defaults...")
-    set (PCAP_LDFLAGS "-L/usr/lib -lpcap")
-    set (PCAP_CFLAGS "-I/usr/include")
-  endif (PCAP_CONFIG)
-endif (NOT OPENVAS_OMP_ONLY)
+if (PCAP_CONFIG)
+  message (STATUS "Looking for pcap-config... ${PCAP_CONFIG}")
+  execute_process (COMMAND pcap-config --libs
+    OUTPUT_VARIABLE PCAP_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process (COMMAND pcap-config --cflags
+    OUTPUT_VARIABLE PCAP_CFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+else (PCAP_CONFIG)
+  message (STATUS "pcap-config not found, using defaults...")
+  set (PCAP_LDFLAGS "-L/usr/lib -lpcap")
+  set (PCAP_CFLAGS "-I/usr/include")
+endif (PCAP_CONFIG)
+
+message (STATUS "Looking for gpgme...")
+find_library (GPGME gpgme)
+message (STATUS "Looking for gpgme... ${GPGME}")
+if (NOT GPGME)
+  message (FATAL_ERROR "The gpgme library is required.")
+endif (NOT GPGME)
+
+execute_process (COMMAND gpgme-config --libs
+  OUTPUT_VARIABLE GPGME_LDFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process (COMMAND gpgme-config --cflags
+  OUTPUT_VARIABLE GPGME_CFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+message (STATUS "Looking for ksba...")
+find_library (KSBA ksba)
+message (STATUS "Looking for ksba... ${KSBA}")
+
+execute_process (COMMAND ksba-config --libs
+  OUTPUT_VARIABLE KSBA_LDFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process (COMMAND ksba-config --cflags
+  OUTPUT_VARIABLE KSBA_CFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process (COMMAND pkg-config --cflags glib-2.0
   OUTPUT_VARIABLE GLIB_CFLAGS
@@ -229,70 +251,23 @@ execute_process (COMMAND pkg-config --libs glib-2.0 gio-2.0
   OUTPUT_VARIABLE GLIB_LDFLAGS
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process (COMMAND pkg-config --cflags gnutls
-  OUTPUT_VARIABLE GNUTLS_CFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process (COMMAND pkg-config --libs gnutls
-  OUTPUT_VARIABLE GNUTLS_LDFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
+if (NOT BUILD_WITHOUT_LDAP)
+  message (STATUS "Looking for libldap...")
 
-
-if (NOT MINGW)
-  # TODO: We do not have a library lookup for those modules
-  # which also works when cross compiling. Library names
-  # are hardcoded in the corresponding linker commands.
-  message (STATUS "Looking for gpgme...")
-  find_library (GPGME gpgme)
-  message (STATUS "Looking for gpgme... ${GPGME}")
-  if (NOT GPGME)
-    message (FATAL_ERROR "The gpgme library is required.")
-  endif (NOT GPGME)
-
-  execute_process (COMMAND gpgme-config --libs
-    OUTPUT_VARIABLE GPGME_LDFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process (COMMAND gpgme-config --cflags
-    OUTPUT_VARIABLE GPGME_CFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-  message (STATUS "Looking for ksba...")
-  find_library (KSBA ksba)
-  message (STATUS "Looking for ksba... ${KSBA}")
-
-  execute_process (COMMAND ksba-config --libs
-    OUTPUT_VARIABLE KSBA_LDFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process (COMMAND ksba-config --cflags
-    OUTPUT_VARIABLE KSBA_CFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-  execute_process (COMMAND libgcrypt-config --libs
-    OUTPUT_VARIABLE GCRYPT_LDFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process (COMMAND libgcrypt-config --cflags
-    OUTPUT_VARIABLE GCRYPT_CFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-  if (NOT BUILD_WITHOUT_LDAP)
-    message (STATUS "Looking for libldap...")
-
-    find_library (LIBLDAP ldap2)
-    if (NOT LIBLDAP)
-      find_library (LIBLDAP ldap)
-    endif (NOT LIBLDAP)
-    if (NOT LIBLDAP)
-      message (STATUS "  No ldap library found - ldap support disabled")
-    else (NOT LIBLDAP)
-      message (STATUS "  Found ${LIBLDAP} - ldap support enabled")
-      add_definitions (-DENABLE_LDAP_AUTH=1)
-      set (BUILD_WITH_LDAP TRUE)
-      set (LDAP_LDFLAGS "-lldap -llber")
-    endif (NOT LIBLDAP)
-  else (NOT BUILD_WITHOUT_LDAP)
-    message (STATUS "Disabled ldap via configuration option")
-  endif (NOT BUILD_WITHOUT_LDAP)
-
-endif (NOT MINGW)
+  find_library (LIBLDAP ldap2)
+  if (NOT LIBLDAP)
+    find_library (LIBLDAP ldap)
+  endif (NOT LIBLDAP)
+  if (NOT LIBLDAP)
+    message (STATUS "  No ldap library found - ldap support disabled")
+  else (NOT LIBLDAP)
+    message (STATUS "  Found ${LIBLDAP} - ldap support enabled")
+    add_definitions (-DENABLE_LDAP_AUTH=1)
+    set (BUILD_WITH_LDAP TRUE)
+  endif (NOT LIBLDAP)
+else (NOT BUILD_WITHOUT_LDAP)
+  message (STATUS "Disabled ldap via configuration option")
+endif (NOT BUILD_WITHOUT_LDAP)
 
 set (EXTRA_LIBS "${GPGME_LDFLAGS}")
 set (EXTRA_CFLAGS "${GPGME_CFLAGS}")
@@ -319,9 +294,8 @@ configure_file (libopenvas.pc.in ${CMAKE_BINARY_DIR}/libopenvas.pc @ONLY)
 
 add_subdirectory (base)
 add_subdirectory (misc)
-if (NOT OPENVAS_OMP_ONLY)
-  add_subdirectory (nasl)
-endif (NOT OPENVAS_OMP_ONLY)
+add_subdirectory (hg)
+add_subdirectory (nasl)
 add_subdirectory (omp)
 
 ## Documentation
@@ -336,24 +310,22 @@ install (FILES doc/openvas-nasl.1
 install (FILES ${CMAKE_BINARY_DIR}/libopenvas.pc
          DESTINATION ${LIBDIR}/pkgconfig)
 
+install (FILES ${CMAKE_SOURCE_DIR}/openvas-services DESTINATION ${OPENVAS_DATA_DIR}
+         PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+
 install (FILES ${CMAKE_SOURCE_DIR}/tools/openvas-lsc-rpm-creator.sh
          DESTINATION ${OPENVAS_DATA_DIR}
          PERMISSIONS OWNER_EXECUTE OWNER_READ OWNER_WRITE
                      GROUP_READ GROUP_EXECUTE
                      WORLD_READ WORLD_EXECUTE)
 
+install (DIRECTORY DESTINATION ${OPENVAS_USERS_DIR})
 install (DIRECTORY DESTINATION ${OPENVAS_LOG_DIR})
 install (DIRECTORY DESTINATION ${OPENVAS_DATA_DIR})
 install (DIRECTORY DESTINATION ${OPENVAS_CACHE_DIR})
 install (DIRECTORY DESTINATION ${OPENVAS_PID_DIR})
 install (DIRECTORY DESTINATION ${OPENVAS_NVT_DIR})
 install (DIRECTORY DESTINATION ${OPENVAS_SYSCONF_DIR})
-install (DIRECTORY
-  DESTINATION ${OPENVAS_SYSCONF_DIR}/gnupg
-  DIRECTORY_PERMISSIONS OWNER_EXECUTE OWNER_READ OWNER_WRITE)
-install (DIRECTORY
-  DESTINATION ${OPENVAS_STATE_DIR}/gnupg
-  DIRECTORY_PERMISSIONS OWNER_EXECUTE OWNER_READ OWNER_WRITE)
 
 ## Tests
 

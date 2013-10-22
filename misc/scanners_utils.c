@@ -25,7 +25,9 @@
 
 #include <glib.h>
 
+#include "comm.h"
 #include "network.h"
+#include "services.h"
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_DATA */
 #include "system.h"
 
@@ -109,6 +111,19 @@ getpts (char *origexpr, int *len)
   static unsigned short *last_ret = NULL;
   static char *last_expr = NULL;
   static int last_num;
+
+  if (strcmp (origexpr, "default") == 0)
+    {
+      if (last_expr != NULL)
+        efree (&last_expr);
+      if (last_ret != NULL)
+        efree (&last_ret);
+      last_expr = estrdup (origexpr);
+      last_ret = get_tcp_svcs (&last_num);
+      if (len != NULL)
+        *len = last_num;
+      return last_ret;
+    }
 
   expr = estrdup (origexpr);
   exlen = strlen (origexpr);

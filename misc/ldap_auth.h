@@ -52,9 +52,6 @@ struct ldap_auth_info
   gchar *ruletype_attribute;    ///< Attribute to hold the ruletype.
   gchar *rule_attribute;        ///< Attribute to hold the rule (hosts) itself.
   gboolean allow_plaintext;     ///< !Whether or not StartTLS is required.
-  int (*user_set_role) (const gchar *,
-                        const gchar *,
-                        const gchar *);  ///< Function to set role of user.
 };
 
 /** @brief Authentication schema and adress type. */

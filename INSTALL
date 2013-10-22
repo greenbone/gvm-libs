@@ -2,7 +2,7 @@ INSTALLATION INSTRUCTIONS FOR OPENVAS-LIBRARIES
 ===============================================
 
 Please note: The reference system used by most of the developers is Debian
-GNU/Linux 'Wheezy' 7. The build might fail on any other system. Also it is
+GNU/Linux 'Squeeze' 6.0. The build might fail on any other system. Also it is
 necessary to install dependent development packages.
 
 
@@ -56,7 +56,7 @@ If you have installed required libraries to a non-standard location, remember to
 set the PKG_CONFIG_PATH environment variable to the location of your pkg-config
 files before configuring:
 
-    $ export PKG_CONFIG_PATH=/your/location/lib/pkgconfig:$PKG_CONFIG_PATH
+    $ export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/your/location/lib/pkgconfig
 
 Create a build directory and change into it with
 

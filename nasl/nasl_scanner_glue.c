@@ -35,6 +35,7 @@
 
 #include <glib.h>
 
+#include "comm.h"               /* for comm_send_status */
 #include "kb.h"                 /* for KB_TYPE_INT */
 #include "plugutils.h"          /* for plug_set_id */
 #include "scanners_utils.h"     /* for getpts */
@@ -174,25 +175,8 @@ script_xref (lex_ctxt * lexic)
 
   if (value == NULL || name == NULL)
     {
-      nasl_perror (lexic,
-                   "script_xref() syntax error - should be"
-                   " script_xref(name:<name>, value:<value>)\n");
-      if (name == NULL)
-        {
-          nasl_perror (lexic, "  <name> is empty\n");
-        }
-      else
-        {
-          nasl_perror (lexic, "  <name> is %s\n", name);
-        }
-      if (value == NULL)
-        {
-          nasl_perror (lexic, "  <value> is empty)\n");
-        }
-      else
-        {
-          nasl_perror (lexic, "  <value> is %s\n)", value);
-        }
+      fprintf (stderr,
+               "script_xref() syntax error - should be script_xref(name:<name>, value:<value>)\n");
       return FAKE_CELL;
     }
 
@@ -210,24 +194,8 @@ script_tag (lex_ctxt * lexic)
 
   if (value == NULL || name == NULL)
     {
-      nasl_perror (lexic, "script_tag() syntax error - should be"
-                          " script_tag(name:<name>, value:<value>)\n");
-      if (name == NULL)
-        {
-          nasl_perror (lexic, "  <name> is empty\n");
-        }
-      else
-        {
-          nasl_perror (lexic, "  <name> is %s\n", name);
-        }
-      if (value == NULL)
-        {
-          nasl_perror (lexic, "  <value> is empty)\n");
-        }
-      else
-        {
-          nasl_perror (lexic, "  <value> is %s\n)", value);
-        }
+      fprintf (stderr,
+               "script_tag() syntax error - should be script_tag(name:<name>, value:<value>)\n");
       return FAKE_CELL;
     }
 
@@ -468,10 +436,8 @@ script_add_preference (lex_ctxt * lexic)
   struct arglist *script_infos = lexic->script_infos;
 
   if (name == NULL || type == NULL || value == NULL)
-    {
-      nasl_perror (lexic,
-                   "Argument error in the call to script_add_preference()\n");
-    }
+    nasl_perror (lexic,
+                 "Argument error in the call to script_add_preference()\n");
   else
     add_plugin_preference (script_infos, name, type, value);
 
@@ -1002,7 +968,105 @@ security_something (lex_ctxt * lexic, proto_post_something_t proto_post_func,
 tree_cell *
 security_message (lex_ctxt * lexic)
 {
-  return security_something (lexic, proto_post_alarm, post_alarm);
+  char *end, *given_type;
+  double cvss;
+  gchar *cvss_string;
+  nvti_t *nvti;
+
+  given_type = get_str_local_var_by_name (lexic, "threat");
+  if (given_type)
+    {
+      if ((strcasecmp (given_type, "High") == 0)
+          || (strcasecmp (given_type, "hole") == 0))
+        return security_something (lexic, proto_post_hole, post_hole);
+      if ((strcasecmp (given_type, "Medium") == 0)
+          || (strcasecmp (given_type, "warning") == 0))
+        return security_something (lexic, proto_post_info, post_info);
+      if ((strcasecmp (given_type, "Low") == 0)
+          || (strcasecmp (given_type, "note") == 0))
+        return security_something (lexic, proto_post_note, post_note);
+      if ((strcasecmp (given_type, "Log") == 0)
+          || (strcasecmp (given_type, "log") == 0))
+        return security_something (lexic, proto_post_log, post_log);
+      if (strcasecmp (given_type, "Error") == 0)
+        return security_something (lexic, proto_post_error, post_error);
+      nasl_perror (lexic, "%s: error in threat param\n", __FUNCTION__);
+      return FAKE_CELL;
+    }
+
+  cvss_string = get_str_local_var_by_name (lexic, "cvss_base");
+
+  if (cvss_string)
+    {
+      // Parse the CVSS from the string value given as parameter
+      errno = 0;
+      cvss = strtod (cvss_string, &end);
+      if (((errno == ERANGE) && (cvss == HUGE_VAL || cvss == -HUGE_VAL))
+          || (errno != 0 && cvss == 0))
+        {
+          nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
+          return FAKE_CELL;
+        }
+
+      if (cvss_string == end)
+        {
+          nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
+          return FAKE_CELL;
+        }
+    }
+  else
+    {
+      // In case no special parameter is given, use the regular
+      // cvss from the meta data of this NVT.
+
+      nvticache_t *nvticache = (nvticache_t *)arg_get_value (
+        arg_get_value (lexic->script_infos, "preferences"), "nvticache");
+      char *oid = (char *)arg_get_value (lexic->script_infos, "OID");
+      nvti = (oid == NULL ? NULL : nvticache_get_by_oid (nvticache, oid));
+
+      if (nvti == NULL)
+        {
+          nasl_perror (lexic, "%s: NVTI missing\n", __FUNCTION__);
+          return FAKE_CELL;
+        }
+
+      cvss = nvti_cvss (nvti);
+      nvti_free (nvti);
+    }
+
+  /* Check the CVSS. */
+  if (cvss < 0 || cvss > 10)
+    {
+      nasl_perror (lexic, "%s: error in CVSS\n", __FUNCTION__);
+      return FAKE_CELL;
+    }
+
+  /* Call one of the specific message functions according to the CVSS. */
+  if (cvss == 0)
+    return security_something (lexic, proto_post_log, post_log);
+  if (cvss <= 2)
+    return security_something (lexic, proto_post_note, post_note);
+  if (cvss <= 5)
+    return security_something (lexic, proto_post_info, post_info);
+  return security_something (lexic, proto_post_hole, post_hole);
+}
+
+tree_cell *
+security_hole (lex_ctxt * lexic)
+{
+  return security_something (lexic, proto_post_hole, post_hole);
+}
+
+tree_cell *
+security_warning (lex_ctxt * lexic)
+{
+  return security_something (lexic, proto_post_info, post_info);
+}
+
+tree_cell *
+security_note (lex_ctxt * lexic)
+{
+  return security_something (lexic, proto_post_note, post_note);
 }
 
 tree_cell *

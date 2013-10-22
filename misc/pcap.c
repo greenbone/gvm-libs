@@ -732,8 +732,6 @@ v6_getinterfaces (int *howmany)
             }
         }
       *howmany = numinterfaces;
-
-      freeifaddrs (ifaddr);
     }
   return mydevs;
 }
@@ -817,9 +815,9 @@ v6_getsourceip (struct in6_addr *src, struct in6_addr *dst)
 #endif
 
   if (IN6_IS_ADDR_V4MAPPED (dst))
-    openvas_source_addr_as_addr6 (src);
+    *src = socket_get_next_source_v4_addr ();
   else
-    openvas_source_addr6 (src);
+    *src = socket_get_next_source_v6_addr ();
   if (!IN6_ARE_ADDR_EQUAL (src, &in6addr_any))
     {
       return 1;
@@ -918,7 +916,7 @@ getsourceip (struct in_addr *src, struct in_addr *dst)
   unsigned short p1;
 
 
-  openvas_source_addr (src);
+  *src = socket_get_next_source_addr ();
   if (src->s_addr != INADDR_ANY)
     {
       return 1;
@@ -1214,9 +1212,9 @@ v6_routethrough (struct in6_addr *dest, struct in6_addr *source)
     printf ("ipaddr2devname passed a NULL dest address");
 
   if (IN6_IS_ADDR_V4MAPPED (dest))
-    openvas_source_addr_as_addr6 (&src);
+    src = socket_get_next_source_v4_addr ();
   else
-    openvas_source_addr6 (&src);
+    src = socket_get_next_source_v6_addr ();
 
   if (!initialized)
     {
@@ -1360,8 +1358,8 @@ v6_routethrough (struct in6_addr *dest, struct in6_addr *source)
       return NULL;
     }
   else
-    printf ("%s: Provided technique is neither proc route nor connect socket",
-            __FUNCTION__);
+    printf
+      ("I know sendmail technique ... I know rdist technique ... but I don't know what the hell kindof technique you are attempting!!!");
   return NULL;
 }
 
@@ -1399,9 +1397,8 @@ routethrough (struct in_addr *dest, struct in_addr *source)
   long match = -1;
   unsigned long bestmatch = 0;
 
-  struct in_addr src;
+  struct in_addr src = socket_get_next_source_addr ();
 
-  openvas_source_addr (&src);
   if (!dest)
     printf ("ipaddr2devname passed a NULL dest address");
 
@@ -1562,7 +1559,7 @@ routethrough (struct in_addr *dest, struct in_addr *source)
       return NULL;
     }
   else
-    printf ("%s: Provided technique is neither proc route nor connect socket",
-            __FUNCTION__);
+    printf
+      ("I know sendmail technique ... I know rdist technique ... but I don't know what the hell kindof technique you are attempting!!!");
   return NULL;
 }

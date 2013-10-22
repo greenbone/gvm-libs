@@ -29,14 +29,19 @@
 # include <libssh/libssh.h>     /* for ssh_version */
 #endif
 
+#include "hosts_gatherer.h"
 #include "kb.h"                 /* for kb_new */
 #include "network.h"
+#include "system.h"             /* for efree */
 
 #include "nasl.h"
+#include "nasl_tree.h"
+#include "nasl_global_ctxt.h"
+#include "nasl_func.h"
+#include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
 #include "exec.h"
 #include "../base/gpgme_util.h" /* for gpgme_check_version */
-#include <../base/openvas_hosts.h> /* for openvas_hosts_* and openvas_host_* */
 
 #include <glib.h>
 
@@ -58,11 +63,11 @@ init_hostinfos (char *hostname, struct in6_addr *ip)
   struct arglist *hostinfos;
   struct arglist *ports;
 
-  hostinfos = g_malloc0 (sizeof (struct arglist));
+  hostinfos = emalloc (sizeof (struct arglist));
   arg_add_value (hostinfos, "FQDN", ARG_STRING, strlen (hostname), hostname);
   arg_add_value (hostinfos, "NAME", ARG_STRING, strlen (hostname), hostname);
   arg_add_value (hostinfos, "IP", ARG_PTR, sizeof (struct in6_addr), ip);
-  ports = g_malloc0 (sizeof (struct arglist));
+  ports = emalloc (sizeof (struct arglist));
   arg_add_value (hostinfos, "PORTS", ARG_ARGLIST, sizeof (struct arglist),
                  ports);
   return (hostinfos);
@@ -85,18 +90,18 @@ my_gnutls_log_func (int level, const char *text)
 struct arglist *
 init (char *hostname, struct in6_addr ip)
 {
-  struct arglist *script_infos = g_malloc0 (sizeof (struct arglist));
-  struct arglist *prefs = g_malloc0 (sizeof (struct arglist));
-  struct in6_addr *pip = g_malloc0 (sizeof (*pip));
+  struct arglist *script_infos = emalloc (sizeof (struct arglist));
+  struct arglist *prefs = emalloc (sizeof (struct arglist));
+  struct in6_addr *pip = emalloc (sizeof (*pip));
   memcpy (pip, &ip, sizeof (struct in6_addr));
 
   arg_add_value (script_infos, "standalone", ARG_INT, sizeof (int), (void *) 1);
-  arg_add_value (prefs, "checks_read_timeout", ARG_STRING, 4, g_strdup ("5"));
+  arg_add_value (prefs, "checks_read_timeout", ARG_STRING, 4, estrdup ("5"));
   arg_add_value (script_infos, "preferences", ARG_ARGLIST, -1, prefs);
   arg_add_value (script_infos, "key", ARG_PTR, -1, kb_new ());
 
   if (safe_checks_only != 0)
-    arg_add_value (prefs, "safe_checks", ARG_STRING, 3, g_strdup ("yes"));
+    arg_add_value (prefs, "safe_checks", ARG_STRING, 3, estrdup ("yes"));
 
   arg_add_value (script_infos, "HOSTNAME", ARG_ARGLIST, -1,
                  init_hostinfos (hostname, pip));
@@ -115,11 +120,12 @@ int
 main (int argc, char **argv)
 {
   struct arglist *script_infos;
-  openvas_hosts_t *hosts;
-  openvas_host_t *host;
   static gchar *target = NULL;
   gchar *default_target = "127.0.0.1";
+  struct hg_globals *hg_globals;
+  struct in6_addr ip6;
   int start, n;
+  char hostname[1024];
   int mode = 0;
   int err = 0;
 
@@ -158,7 +164,7 @@ main (int argc, char **argv)
     {"debug-tls", 0, 0, G_OPTION_ARG_INT, &debug_tls,
      "Enable TLS debugging at <level>", "<level>"},
     {G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &nasl_filenames,
-     "Absolute path to one or more nasl scripts", "NASL_FILE..."},
+     NULL, NULL},
     {NULL}
   };
 
@@ -227,7 +233,7 @@ main (int argc, char **argv)
   openvas_SSL_init ();
   if (!nasl_filenames)
     {
-      fprintf (stderr, "Error. No input file(s) specified !\n");
+      fprintf (stderr, "Error. No input file specified !\n");
       exit (1);
     }
 
@@ -253,8 +259,8 @@ main (int argc, char **argv)
 
   start = 0;
 
-  hosts = openvas_hosts_new (target);
-  g_free (target);
+  hg_globals = hg_init (target, 4);
+  efree (&target);
 
   // for absolute and relative paths
   add_nasl_inc_dir ("");
@@ -263,19 +269,8 @@ main (int argc, char **argv)
       add_nasl_inc_dir (include_dir);
     }
 
-  while ((host = openvas_hosts_next (hosts)))
+  while (hg_next_host (hg_globals, &ip6, hostname, sizeof (hostname)) >= 0)
     {
-      struct in6_addr ip6;
-      char *hostname;
-
-      hostname = openvas_host_value_str (host);
-      if (openvas_host_get_addr6 (host, &ip6) == -1)
-        {
-          fprintf (stderr, "Couldn't resolve %s\n", hostname);
-          err++;
-          g_free (hostname);
-          continue;
-        }
       script_infos = init (hostname, ip6);
       n = start;
       while (nasl_filenames[n])
@@ -284,12 +279,12 @@ main (int argc, char **argv)
             err++;
           n++;
         }
-      g_free (hostname);
     }
 
   if (nasl_trace_fp != NULL)
     fflush (nasl_trace_fp);
 
-  openvas_hosts_free (hosts);
+  hg_cleanup (hg_globals);
+
   return err;
 }

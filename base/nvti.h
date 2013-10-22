@@ -116,6 +116,7 @@ gchar *nvti_tag (const nvti_t *);
 double nvti_cvss (const nvti_t *);
 gchar *nvti_cvss_base (const nvti_t *);
 gchar *nvti_cvss_base_vector (const nvti_t *);
+gchar *nvti_risk_factor (const nvti_t *);
 gchar *nvti_dependencies (const nvti_t *);
 gchar *nvti_required_keys (const nvti_t *);
 gchar *nvti_mandatory_keys (const nvti_t *);

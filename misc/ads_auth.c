@@ -315,6 +315,75 @@ ldap_object_attribute_has_value (LDAP * ldap, const gchar * dn,
 
 
 /**
+ * @brief Query the access rules of an ADS user and saves them to disc.
+ *
+ * @param[in] ldap     The LDAP handle to use
+ * @param[in] dn       DN of the user whose rules to query.
+ * @param[in] username Name of the user whose rule to query.
+ *
+ * @return 1 in case of success, -1 in case of errors.
+ */
+static int
+ads_query_rules (LDAP * ldap, const gchar * dn, const gchar * username)
+{
+  // Find out whether a proper group membership exist.
+  GSList *attr_vals = ldap_object_get_attribute_values (ldap, dn, "memberOf");
+  GSList *attr_vals_it = attr_vals;
+  int ruletype = -1;
+
+  while (attr_vals_it)
+    {
+      if (strcasestr (attr_vals_it->data, "OU=GSM Accessrules,OU=greenbone") !=
+          0)
+        {
+          // Found a ruletype specification.
+          if (strcasestr (attr_vals_it->data, "GSM Rule Allow,") != 0)
+            ruletype = 1;
+          else if (strcasestr (attr_vals_it->data, "GSM Rule Deny,") != 0)
+            ruletype = 0;
+          else if (strcasestr (attr_vals_it->data, "GSM Rule Allow All,") != 0)
+            ruletype = 2;
+          else
+            {
+              g_warning ("Type of rule for user could not be determined.");
+              openvas_string_list_free (attr_vals);
+              return -1;
+            }
+
+          // Find rule, specified in the info attribute.
+          GSList *rule_content = ldap_object_get_attribute_values (ldap,
+                                                                   attr_vals_it->data,
+                                                                   "info");
+          if (rule_content == NULL)
+            {
+              g_warning ("Could not find rule target of rule.");
+              openvas_string_list_free (attr_vals);
+              return -1;
+            }
+#if 0
+          g_debug ("Found ruletype %d : rule %s", ruletype, *rule_content);
+#endif
+          gchar *user_dir = g_build_filename (OPENVAS_STATE_DIR,
+                                              "users-remote", "ads",
+                                              username, NULL);
+          openvas_auth_store_user_rules (user_dir, rule_content->data,
+                                         ruletype);
+          g_free (user_dir);
+          openvas_string_list_free (rule_content);
+          openvas_string_list_free (attr_vals);
+          return 1;
+        }
+
+      attr_vals_it = g_slist_next (attr_vals_it);
+    }
+
+  openvas_string_list_free (attr_vals);
+
+  return -1;
+}
+
+
+/**
  * @brief Queries the DN of an users object.
  *
  * @param[in] ldap     LDAP-Handle to use.
@@ -377,6 +446,7 @@ ads_authenticate (const gchar * username, const gchar * password,
 {
   ldap_auth_info_t info = ((ads_auth_info_t) ads_auth_info)->ldap_auth_conf;
   ads_auth_info_t ads_info = (ads_auth_info_t) ads_auth_info;
+  int role = 0;
 
   if (info == NULL || username == NULL || password == NULL || !info->ldap_host
       || ads_info->domain)
@@ -398,11 +468,40 @@ ads_authenticate (const gchar * username, const gchar * password,
   // Get the "real" DN by searching for samAccountName=user .
   dn = ads_query_user_dn (ldap, username, ads_info->domain_dc);
 
+  // Get the role.
+  role = ldap_auth_query_role (ldap, info, dn);
+
+  // Query and save users rules if s/he is at least a "User".
+  if (role == 2 || role == 1)
+    {
+      if (ads_query_rules (ldap, dn, username) == -1)
+        g_warning
+          ("Users accessrule could not be found on ADS/LDAP directory.");
+      // If user is admin, mark it so.
+      gchar *user_dir_name = g_build_filename (OPENVAS_STATE_DIR,
+                                               "users-remote", "ads",
+                                               username, NULL);
+      openvas_set_user_role (username, (role == 2) ? "Admin" : "User",
+                             user_dir_name);
+      g_free (user_dir_name);
+    }
+
   ldap_unbind_ext_s (ldap, NULL, NULL);
   g_free (authdn);
   free (dn);
 
-  return 1;
+  switch (role)
+    {
+    case 2:
+      g_debug ("User has admin role.");
+    case 1:
+      g_debug ("User has user role.");
+      return 0;
+    case -1:
+    default:
+      g_warning ("User has no role.");
+      return 1;
+    }
 }
 
 #endif /* ENABLE_LDAP_AUTH */

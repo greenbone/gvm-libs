@@ -35,6 +35,7 @@
 #include "../misc/plugutils.h" /* for find_in_path */
 #include "../misc/scanners_utils.h" /* for comm_send_status */
 #include "../misc/system.h" /* for efree */
+#include "../misc/services.h" /* for get_tcp_svcs */
 
 #include "nasl_lex_ctxt.h"
 
@@ -125,11 +126,16 @@ my_socket_close(int s)
 
 static int std_port(int port)
 {
-  return 0; /** @todo: We are not able anymore to judge wether a port is a standard
-             * port. Previously a port was believed to be a standard port
-             * when it occured in the currently configured list of ports.
-             * This needs to be resolved.
-             */
+  const char	*name;
+
+  if (port < 1 || port > 65535) return 0;
+  name = openvas_get_svc_name(port, NULL);
+  if  (name == NULL || strcmp(name, "unknown") == 0)
+    return 0;
+#if DEBUG > 2
+  fprintf(stderr, "openvas_tcp_scanner: std_port(%d)=%s\n", port, name != NULL ? name : "(null)");
+#endif
+  return 1;
 }
 
 static int
@@ -250,7 +256,24 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
     p = (char*)portrange;
     untested_ports_nb = 0;
 
-    if (p)
+    if (p == NULL || *p == '\0' || strcmp(p, "default") == 0)
+      {
+	int	last_num = 0;
+	unsigned short * nums = GSIZE_TO_POINTER(get_tcp_svcs(&last_num));
+
+	if (nums == NULL)
+	  {
+	    fprintf(stderr, "openvas_tcp_scanner: Cannot get list of default services\n");
+	    return -1;
+	  }
+	for (i = 0; i < last_num; i ++)
+	    {
+	      ports_states[nums[i]] = GRAB_PORT_UNKNOWN;
+	      untested_ports_nb ++;
+	    }
+	efree(&nums);
+      }
+    else
       while (*p != '\0')
 	{
 	  while (*p == ',')
@@ -318,11 +341,6 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	      untested_ports_nb ++;
 	    }
 	}
-    else
-      {
-         fprintf(stderr, "openvas_tcp_scanner: port list empty\n");
-         return -1;
-      }
   }
 
   for (i = 0; i < max_cnx; i ++)
@@ -967,7 +985,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 		    untested_ports_nb --;
 		    break;
 		  default:
-		    fprintf(stderr, "openvas_tcp_scanner: Unhandled case %d at %s:%d\n", sockets[i].state, __FILE__, __LINE__);
+		    fprintf(stderr, "nesssus_tcp_scanner: Unhandled case %d at %s:%d\n", sockets[i].state, __FILE__, __LINE__);
 		    break;
 		  }
 		my_socket_close(sockets[i].fd); sockets[i].fd = -1;

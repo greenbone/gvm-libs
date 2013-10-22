@@ -46,12 +46,6 @@ if (NOT MINGW)
   if (NOT UUID)
     message (FATAL_ERROR "The uuid library is required.")
   endif (NOT UUID)
-  execute_process (COMMAND pkg-config --cflags uuid
-    OUTPUT_VARIABLE UUID_CFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process (COMMAND pkg-config --libs uuid
-    OUTPUT_VARIABLE UUID_LDFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif (NOT MINGW)
 
 # Library
@@ -59,11 +53,7 @@ endif (NOT MINGW)
 set (HARDENING_FLAGS            "-Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector -Wl,-z,relro -Wl,-z,now")
 
 set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Werror")
-if (NOT MINGW)
-  # On windows we are always PIC and stack-protector is replaces by DEP
-  # Also stack protection needs a shared library to work
-  set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -fPIC")
-endif (NOT MINGW)
+set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -fPIC")
 
 if (MINGW)
   set (FILES openvas_auth.c openvas_server.c proctitle.c)
@@ -73,15 +63,17 @@ else (MINGW)
              ids_send.c kb.c network.c openvas_auth.c openvas_logging.c
              openvas_server.c openvas_ssh_login.c openvas_uuid.c plugutils.c
              popen.c proctitle.c
-             rand.c resolve.c resource_request.c scanners_utils.c
-             share_fd.c system.c www_funcs.c pcap.c)
+             rand.c resolve.c resource_request.c scanners_utils.c services1.c
+             services.c share_fd.c
+             system.c www_funcs.c pcap.c)
 
   set (HEADERS arglists.h bpf_share.h ftp_funcs.h hash_table_file.h kb.h
                network.h otp.h pcap_openvas.h plugutils.h popen.h proctitle.h
                rand.h resolve.h openvas_auth.h openvas_logging.h
                openvas_server.h openvas_ssh_login.h openvas_uuid.h
                resource_request.h nvt_categories.h internal_com.h
-               scanners_utils.h share_fd.h system.h www_funcs.h)
+               scanners_utils.h services1.h services.h
+               share_fd.h system.h www_funcs.h)
 endif (MINGW)
 
 if (BUILD_WITH_LDAP)
@@ -101,6 +93,7 @@ set_target_properties (openvas_misc_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLA
 set_target_properties (openvas_misc_static PROPERTIES OUTPUT_NAME "openvas_misc")
 set_target_properties (openvas_misc_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_misc_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
+target_link_libraries (openvas_misc_static openvas_base_static)
 
 add_library (openvas_misc_shared SHARED ${FILES})
 
@@ -110,6 +103,9 @@ set_target_properties (openvas_misc_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties (openvas_misc_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
 set_target_properties (openvas_misc_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
 set_target_properties (openvas_misc_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
+if (NOT MINGW)
+  target_link_libraries (openvas_misc_shared glib-2.0 pcap gnutls gcrypt openvas_base_shared)
+endif (NOT MINGW)
 
 if (OPENVASLIB_VERSION)
   add_definitions (-DOPENVASLIB_VERSION=\\\"${OPENVASLIB_VERSION}\\\")
@@ -127,6 +123,10 @@ if (OPENVASLIB_VERSION)
   add_definitions (-DOPENVASLIB_VERSION_PATCH=${PATCH_VERS})
 endif (OPENVASLIB_VERSION)
 
+
+if (OPENVAS_USERS_DIR)
+  add_definitions (-DOPENVAS_USERS_DIR=\\\"${OPENVAS_USERS_DIR}\\\")
+endif (OPENVAS_USERS_DIR)
 
 if (OPENVAS_STATE_DIR)
   add_definitions (-DOPENVAS_STATE_DIR=\\\"${OPENVAS_STATE_DIR}\\\")
@@ -151,8 +151,13 @@ if (MINGW)
                          -lgcrypt -lgnutls -lintl -liconv -lgpg-error -lws2_32
                          -lole32 -lz)
 else (MINGW)
-    target_link_libraries (openvas_misc_static openvas_base_static ${UUID_LDFLAGS} ${GLIB_LDFLAGS} ${LDAP_LDFLAGS})
-    target_link_libraries (openvas_misc_shared ${UUID_LDFLAGS} ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${GNUTLS_LDFLAGS} ${GCRYPT_LDFLAGS} openvas_base_shared ${LDAP_LDFLAGS})
+  if (NOT BUILD_WITH_LDAP)
+    target_link_libraries (openvas_misc_static uuid ${GLIB_LDFLAGS})
+    target_link_libraries (openvas_misc_shared uuid ${GLIB_LDFLAGS})
+  else (NOT BUILD_WITH_LDAP)
+    target_link_libraries (openvas_misc_static uuid ${GLIB_LDFLAGS} ldap)
+    target_link_libraries (openvas_misc_shared uuid ${GLIB_LDFLAGS} ldap)
+  endif (NOT BUILD_WITH_LDAP)
 endif (MINGW)
 
 # install library
