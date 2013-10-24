@@ -101,43 +101,66 @@ include_directories (../include)
 
 link_directories (${LIBDIR} ../base ../misc)
 
-add_library (openvas_nasl_static STATIC ${FILES})
+if (BUILD_STATIC)
+   add_library (openvas_nasl_static STATIC ${FILES})
 
-set_target_properties (openvas_nasl_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS} ${WINCMD_LIBS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS} ${PCAP_LDFLAGS}")
-set_target_properties (openvas_nasl_static PROPERTIES OUTPUT_NAME "openvas_nasl")
-set_target_properties (openvas_nasl_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-set_target_properties (openvas_nasl_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
-target_link_libraries (openvas_nasl_static openvas_base_static openvas_misc_static
-                       "${GLIB_LDFLAGS}" gcrypt "${GPGME_LDFLAGS}"
-                       gnutls "${PCAP_LDFLAGS}" "${WMI}" "${WINCMD}" "${LIBSSH_LDFLAGS}" "${KSBA_LDFLAGS}")
+   set_target_properties (openvas_nasl_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS} ${WINCMD_LIBS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS} ${PCAP_LDFLAGS}")
+   set_target_properties (openvas_nasl_static PROPERTIES OUTPUT_NAME "openvas_nasl")
+   set_target_properties (openvas_nasl_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+   set_target_properties (openvas_nasl_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
+   target_link_libraries (openvas_nasl_static openvas_base_static openvas_misc_static
+                          "${GLIB_LDFLAGS}" gcrypt "${GPGME_LDFLAGS}"
+                          gnutls "${PCAP_LDFLAGS}" "${WMI}" "${WINCMD}" "${LIBSSH_LDFLAGS}" "${KSBA_LDFLAGS}")
+endif (BUILD_STATIC)
 
-add_library (openvas_nasl_shared SHARED ${FILES})
-set_target_properties (openvas_nasl_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS} ${WINCMD_LIBS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS} ${PCAP_CFLAGS}")
-set_target_properties (openvas_nasl_shared PROPERTIES OUTPUT_NAME "openvas_nasl")
-set_target_properties (openvas_nasl_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-set_target_properties (openvas_nasl_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
-set_target_properties (openvas_nasl_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
-set_target_properties (openvas_nasl_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
+if (BUILD_SHARED)
+  add_library (openvas_nasl_shared SHARED ${FILES})
+  set_target_properties (openvas_nasl_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS} ${WINCMD_LIBS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS} ${PCAP_CFLAGS}")
+  set_target_properties (openvas_nasl_shared PROPERTIES OUTPUT_NAME "openvas_nasl")
+  set_target_properties (openvas_nasl_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+  set_target_properties (openvas_nasl_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
+  set_target_properties (openvas_nasl_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
+  set_target_properties (openvas_nasl_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 # line bellow is needed so it also works with no-undefined which is e.g. used by Mandriva
-target_link_libraries (openvas_nasl_shared openvas_base_shared openvas_misc_shared
-                       "${GLIB_LDFLAGS}" "${GPGME_LDFLAGS}"
-                       gnutls "${PCAP_LDFLAGS}" m ${WMI} ${WINCMD} ${LIBSSH_LDFLAGS} "${KSBA_LDFLAGS}")
+  target_link_libraries (openvas_nasl_shared openvas_base_shared openvas_misc_shared
+                         "${GLIB_LDFLAGS}" "${GPGME_LDFLAGS}"
+                         gnutls "${PCAP_LDFLAGS}" m ${WMI} ${WINCMD} ${LIBSSH_LDFLAGS} "${KSBA_LDFLAGS}")
+endif (BUILD_SHARED)
 
 # Link the openvas-nasl executable
-add_executable (openvas-nasl nasl.c)
-target_link_libraries (openvas-nasl openvas_misc_static openvas_nasl_static
-                        openvas_base_static ${GLIB_LDFLAGS} -lgcrypt
-                       "${GPGME_LDFLAGS}" -lgnutls "${PCAP_LDFLAGS}" -lresolv -lm ${WMI_LIBS}
-                       ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS} ${WINCMD_LIBS}) 
-set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
-                       "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS}")
+if (BUILD_STATIC)
+  add_executable (openvas-nasl nasl.c)
+  target_link_libraries (openvas-nasl openvas_misc_static openvas_nasl_static
+    openvas_base_static ${GLIB_LDFLAGS} -lgcrypt
+    "${GPGME_LDFLAGS}" -lgnutls "${PCAP_LDFLAGS}" -lresolv -lm ${WMI_LIBS}
+    ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS} ${WINCMD_LIBS}) 
+  set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
+    "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS}")
+endif (BUILD_STATIC)
+if (BUILD_SHARED)
+  add_executable (openvas-nasl nasl.c)
+  target_link_libraries (openvas-nasl openvas_misc_shared openvas_nasl_shared
+    openvas_base_shared ${GLIB_LDFLAGS} -lgcrypt
+    "${GPGME_LDFLAGS}" -lgnutls "${PCAP_LDFLAGS}" -lresolv -lm ${WMI_LIBS}
+    ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS} ${WINCMD_LIBS}) 
+  set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
+    "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS}")
+endif (BUILD_SHARED)
 
 ## Install
 
-install (TARGETS openvas_nasl_static openvas_nasl_shared openvas-nasl
-         RUNTIME DESTINATION ${BINDIR}
-         LIBRARY DESTINATION ${LIBDIR}
-         ARCHIVE DESTINATION ${LIBDIR}
-         PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/openvas/nasl")
+if (BUILD_STATIC)
+  install (TARGETS openvas_nasl_static openvas-nasl
+           RUNTIME DESTINATION ${BINDIR}
+           ARCHIVE DESTINATION ${LIBDIR}
+           PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/openvas/nasl")
+endif (BUILD_STATIC)
+if (BUILD_SHARED)
+  install (TARGETS openvas_nasl_shared openvas-nasl
+           RUNTIME DESTINATION ${BINDIR}
+           LIBRARY DESTINATION ${LIBDIR}
+           ARCHIVE DESTINATION ${LIBDIR}
+           PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/openvas/nasl")
+endif (BUILD_SHARED)
 
 ## End

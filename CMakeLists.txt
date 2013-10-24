@@ -44,6 +44,14 @@ if (NOT CMAKE_BUILD_TYPE)
 endif (NOT CMAKE_BUILD_TYPE)
 
 OPTION(OPENVAS_OMP_ONLY "Build only the omp library and the required base and misc libraries" OFF)
+OPTION(BUILD_STATIC "Build static versions of the openvas libraries" OFF)
+
+if (NOT BUILD_STATIC)
+  set (BUILD_SHARED ON)
+else (NOT BUILD_STATIC)
+  set (BUILD_SHARED OFF)
+endif (NOT BUILD_STATIC)
+
 ## Retrieve svn revision (at configure time)
 #  Not using Subversion_WC_INFO, as it would have to connect to the repo
 find_program (SVN_EXECUTABLE svn DOC "subversion command line client")

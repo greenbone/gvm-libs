@@ -1,3 +1,27 @@
+2013-10-24  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Change default build behaviour to build openvas-libraries only
+	dynamically / shared linked by default. For static linking between the
+	OpenVAS libraries the option BUILD_STATIC has been added. Based in
+	large parts on a patch suggested by Andre Heinecke.
+
+	* CMakeLists.txt: Add new option BUILD_STATIC.
+
+	* misc/CMakeLists.txt: Add handling of BUILD_STATIC and BUILD_SHARED.
+	Update MINGW case and move it into BUILD_SHARED case.
+
+	* omp/CMakeLists.txt: Add handling of BUILD_STATIC and BUILD_SHARED.
+	Move MINGW case into BUILD_SHARED case.
+
+	* nasl/CMakeLists.txt: Add handling of BUILD_STATIC and BUILD_SHARED.
+	Link openvas-nasl binary against static or dynamic OpenVAS libraries
+	depending on what was built.
+
+	* base/CMakeLists.txt: Add handling of BUILD_STATIC and BUILD_SHARED.
+	Update MINGW case and move it into BUILD_SHARED case. Link test-hosts
+	binary against static or dynamic OpenVAS libraries depending on what
+	was built.
+
 2013-10-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/resolve.c, misc/resolve.h: Delete files.

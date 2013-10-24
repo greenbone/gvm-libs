@@ -95,21 +95,34 @@ link_directories (${CMAKE_CURRENT_BINARY_DIR}/../base)
 # what this directive is good for.
 #add_custom_indent_targets (${FILES})
 
-add_library (openvas_misc_static STATIC ${FILES})
+if (BUILD_STATIC)
+  add_library (openvas_misc_static STATIC ${FILES})
 
-set_target_properties (openvas_misc_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
-set_target_properties (openvas_misc_static PROPERTIES OUTPUT_NAME "openvas_misc")
-set_target_properties (openvas_misc_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-set_target_properties (openvas_misc_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
+  set_target_properties (openvas_misc_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
+  set_target_properties (openvas_misc_static PROPERTIES OUTPUT_NAME "openvas_misc")
+  set_target_properties (openvas_misc_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+  set_target_properties (openvas_misc_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
+endif (BUILD_STATIC)
 
-add_library (openvas_misc_shared SHARED ${FILES})
+if (BUILD_SHARED)
+  add_library (openvas_misc_shared SHARED ${FILES})
 
-set_target_properties (openvas_misc_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
-set_target_properties (openvas_misc_shared PROPERTIES OUTPUT_NAME "openvas_misc")
-set_target_properties (openvas_misc_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-set_target_properties (openvas_misc_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
-set_target_properties (openvas_misc_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
-set_target_properties (openvas_misc_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
+  set_target_properties (openvas_misc_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
+  set_target_properties (openvas_misc_shared PROPERTIES OUTPUT_NAME "openvas_misc")
+  set_target_properties (openvas_misc_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+  set_target_properties (openvas_misc_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
+  set_target_properties (openvas_misc_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
+  set_target_properties (openvas_misc_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
+
+  if (MINGW)
+    set (GLIB_LDFLAGS -Wl,--start-group ${GLIB_LDFLAGS} gmodule-2.0 -Wl,--end-group)
+    set (W32LIBS uuid ${GLIB_LDFLAGS} gnutls intl iconv tasn1
+       gcrypt gpgme assuan libgpg-error ole32 ws2_32 ffi z shlwapi dnsapi winmm)
+    target_link_libraries (openvas_misc_shared openvas_base_shared ${W32LIBS})
+  else (MINGW)
+    target_link_libraries (openvas_misc_shared ${UUID_LDFLAGS} ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${GNUTLS_LDFLAGS} ${GCRYPT_LDFLAGS} openvas_base_shared ${LDAP_LDFLAGS})
+  endif (MINGW)
+endif (BUILD_SHARED)
 
 if (OPENVASLIB_VERSION)
   add_definitions (-DOPENVASLIB_VERSION=\\\"${OPENVASLIB_VERSION}\\\")
@@ -143,21 +156,19 @@ if (OPENVAS_SYSCONF_DIR)
   add_definitions (-DOPENVAS_SYSCONF_DIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
 endif (OPENVAS_SYSCONF_DIR)
 
-if (MINGW)
-  target_link_libraries (openvas_misc_static uuid openvas_base_static ${GLIB_LDFLAGS} -lglib-2.0
-                         -lgcrypt -lgnutls -lintl -liconv -lgpg-error -lws2_32
-                         -lole32 -lz)
-  target_link_libraries (openvas_misc_shared uuid openvas_base_shared ${GLIB_LDFLAGS} -lglib-2.0
-                         -lgcrypt -lgnutls -lintl -liconv -lgpg-error -lws2_32
-                         -lole32 -lz)
-else (MINGW)
-    target_link_libraries (openvas_misc_static openvas_base_static ${UUID_LDFLAGS} ${GLIB_LDFLAGS} ${LDAP_LDFLAGS})
-    target_link_libraries (openvas_misc_shared ${UUID_LDFLAGS} ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${GNUTLS_LDFLAGS} ${GCRYPT_LDFLAGS} openvas_base_shared ${LDAP_LDFLAGS})
-endif (MINGW)
 
 # install library
-install (TARGETS openvas_misc_static openvas_misc_shared
-         RUNTIME DESTINATION ${BINDIR}
-         LIBRARY DESTINATION ${LIBDIR}
-         ARCHIVE DESTINATION ${LIBDIR}
-         PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/openvas/misc")
+
+if (BUILD_STATIC)
+  install (TARGETS openvas_misc_static
+           RUNTIME DESTINATION ${BINDIR}
+           ARCHIVE DESTINATION ${LIBDIR}
+           PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/openvas/misc")
+endif (BUILD_STATIC)
+if (BUILD_SHARED)
+  install (TARGETS openvas_misc_shared
+           RUNTIME DESTINATION ${BINDIR}
+           LIBRARY DESTINATION ${LIBDIR}
+           ARCHIVE DESTINATION ${LIBDIR}
+           PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/openvas/misc")
+endif (BUILD_SHARED)
