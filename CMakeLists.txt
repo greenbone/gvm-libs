@@ -281,6 +281,17 @@ if (NOT MINGW)
     OUTPUT_VARIABLE GCRYPT_CFLAGS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+  message (STATUS "Looking for zlib...")
+  find_library (ZLIB z)
+  message (STATUS "Looking for zlib... ${ZLIB}")
+
+  execute_process (COMMAND zlib-config --libs
+    OUTPUT_VARIABLE ZLIB_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process (COMMAND zlib-config --cflags
+    OUTPUT_VARIABLE ZLIB_CFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
   if (NOT BUILD_WITHOUT_LDAP)
     message (STATUS "Looking for libldap...")
 

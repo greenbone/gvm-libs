@@ -1,0 +1,37 @@
+/* openvas-libraries/base
+ * $Id$
+ * Description: API related to data compression (gzip format.)
+ *
+ * Authors:
+ * Hani Benhabiles <hani.benhabiles@greenbone.net>
+ *
+ * Copyright:
+ * Copyright (C) 2013 Greenbone Networks GmbH
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2,
+ * or, at your option, any later version as published by the Free
+ * Software Foundation
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#include <string.h>
+#include <stdlib.h>
+#include <zlib.h>
+
+void *
+openvas_compress (const void *, size_t, size_t *);
+
+void *
+openvas_compress_string (const char *, size_t *);
+
+void *
+openvas_uncompress (const void *, size_t, size_t *);
