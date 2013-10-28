@@ -96,10 +96,10 @@ static void my_gnutls_transport_set_lowat_default (gnutls_session_t);
  *
  * @param[in]  session  Pointer to GNUTLS session.
  *
- * @return 0 on success, -1 on error.
+ * @return 0 on success, 1 on failure, -1 on error.
  */
-static int
-verify_certificate (gnutls_session_t session)
+int
+openvas_server_verify (gnutls_session_t session)
 {
   unsigned int status;
   int ret;
@@ -107,7 +107,9 @@ verify_certificate (gnutls_session_t session)
   ret = gnutls_certificate_verify_peers2 (session, &status);
   if (ret < 0)
     {
-      g_warning ("%s: failed to verify peer", __FUNCTION__);
+      g_warning ("%s: failed to verify peers: %s",
+                 __FUNCTION__,
+                 gnutls_strerror (ret));
       return -1;
     }
 
@@ -596,9 +598,6 @@ server_new_internal (unsigned int end_type, const char *priority,
       g_warning ("%s: failed to allocate server credentials\n", __FUNCTION__);
       return -1;
     }
-
-  gnutls_certificate_set_verify_function (*server_credentials,
-                                          verify_certificate);
 
   if (cert_file && key_file
       &&

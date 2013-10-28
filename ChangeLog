@@ -1,3 +1,13 @@
+2013-10-28  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_server.c (verify_certificate): Remove.  Now
+	openvas_server_verify.
+	(openvas_server_verify): New function.
+	(server_new_internal): Remove call to set verify function, which
+	requires GnuTLS 2.10.
+
+	* misc/openvas_server.h: Add header accordingly.
+
 2013-10-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/nvti.c (nvti_free, nvti_shrink): Don't free description.

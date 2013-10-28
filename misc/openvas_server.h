@@ -49,6 +49,8 @@ extern "C"
 #include <netinet/ip.h>
 #endif
 
+int openvas_server_verify (gnutls_session_t);
+
 int openvas_server_open (gnutls_session_t *, const char *, int);
 
 int openvas_server_close (int, gnutls_session_t);
