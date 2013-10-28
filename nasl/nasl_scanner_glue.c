@@ -277,8 +277,7 @@ script_version (lex_ctxt * lexic)
 tree_cell *
 script_description (lex_ctxt * lexic)
 {
-  nvti_set_description (arg_get_value (lexic->script_infos, "NVTI"),
-                        get_str_var_by_num (lexic, 0));
+  /* Does nothing. Kept for backward compatibility. */
   return FAKE_CELL;
 }
 

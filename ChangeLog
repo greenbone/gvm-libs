@@ -1,3 +1,15 @@
+2013-10-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvti.c (nvti_free, nvti_shrink): Don't free description.
+	(nvti_description, nvti_set_description): Delete functions.
+	(nvti_from_keyfile, nvti_to_keyfile, nvti_clone): Don't apply
+	description value.
+
+	* base/nvti.h: Remove prototypes accordingly.
+
+	* nasl/nasl_scanner_glue.c (script_description): Don't call removed
+	function.
+
 2013-10-28  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/openvas_server.c (verify_certificate): New function.

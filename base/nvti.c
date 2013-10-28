@@ -173,8 +173,6 @@ nvti_free (nvti_t * n)
     g_free (n->name);
   if (n->summary)
     g_free (n->summary);
-  if (n->description)
-    g_free (n->description);
   if (n->copyright)
     g_free (n->copyright);
   if (n->cve)
@@ -233,8 +231,6 @@ nvti_shrink (nvti_t * n)
     g_free (n->name);
   if (n->summary)
     g_free (n->summary);
-  if (n->description)
-    g_free (n->description);
   if (n->copyright)
     g_free (n->copyright);
   if (n->cve)
@@ -327,20 +323,6 @@ gchar *
 nvti_summary (const nvti_t * n)
 {
   return (n ? n->summary : NULL);
-}
-
-/**
- * @brief Get the description.
- *
- * @param n The NVT Info structure of which the name should
- *          be returned.
- *
- * @return The description string. Don't free this.
- */
-gchar *
-nvti_description (const nvti_t * n)
-{
-  return (n ? n->description : NULL);
 }
 
 /**
@@ -802,27 +784,6 @@ nvti_set_summary (nvti_t * n, const gchar * summary)
   if (n->summary)
     g_free (n->summary);
   n->summary = g_strdup (summary);
-  return (0);
-}
-
-/**
- * @brief Set the description of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param description The description to set. A copy will be created from this.
- *
- * @return 0 for success. Anything else indicates an error.
- */
-int
-nvti_set_description (nvti_t * n, const gchar * description)
-{
-  if (! n)
-    return (-1);
-
-  if (n->description)
-    g_free (n->description);
-  n->description = g_strdup (description);
   return (0);
 }
 
@@ -1490,8 +1451,6 @@ nvti_as_text (const nvti_t * n)
            "\nName: ", (n->name ? n->name : "(unset, probably in-memory)"),
            "\nSummary: ",
            (n->summary ? n->summary : "(unset, probably in-memory)"),
-           "\nDescription: ",
-           (n->description ? n->description : "(unset, probably in-memory)"),
            "\nCopyright: ",
            (n->copyright ? n->copyright : "(unset, probably in-memory)"),
            "\nCVE: ", (n->cve ? n->cve : "(unset, probably in-memory)"),
@@ -1588,15 +1547,6 @@ nvti_from_keyfile (const gchar * fn)
     gStr = g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy,
     		NULL);
     nvti_set_summary (n, gStr);
-    g_free(gStr);
-    g_free(utf8str);
-    }
-  utf8str = g_key_file_get_string (keyfile, "NVT Info", "Description", NULL);
-  if (utf8str)
-    {
-    gStr = g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
-                                     &size_dummy, NULL);
-    nvti_set_description (n, gStr);
     g_free(gStr);
     g_free(utf8str);
     }
@@ -1700,14 +1650,6 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
       gchar *utf8str = g_convert (n->summary, -1, "UTF-8", "ISO_8859-1",
                                   NULL, &size_dummy, NULL);
       g_key_file_set_string (keyfile, "NVT Info", "Summary", utf8str);
-      g_free (utf8str);
-    }
-  if (n->description)
-    {
-      gsize size_dummy;
-      gchar *utf8str = g_convert (n->description, -1, "UTF-8", "ISO_8859-1",
-                                  NULL, &size_dummy, NULL);
-      g_key_file_set_string (keyfile, "NVT Info", "Description", utf8str);
       g_free (utf8str);
     }
   if (n->copyright)
@@ -1850,7 +1792,6 @@ nvti_clone (const nvti_t * n)
   nvti_set_version (new_nvti, nvti_version (n));
   nvti_set_name (new_nvti, nvti_name (n));
   nvti_set_summary (new_nvti, nvti_summary (n));
-  nvti_set_description (new_nvti, nvti_description (n));
   nvti_set_copyright (new_nvti, nvti_copyright (n));
   nvti_set_cve (new_nvti, nvti_cve (n));
   nvti_set_bid (new_nvti, nvti_bid (n));
