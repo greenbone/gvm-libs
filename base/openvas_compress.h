@@ -25,7 +25,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <zlib.h>
 
 void *
 openvas_compress (const void *, unsigned long, unsigned long *);
