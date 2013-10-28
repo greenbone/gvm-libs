@@ -370,6 +370,8 @@ static init_func libfuncs[] = {
   {"rsa_sign", nasl_rsa_sign, 0, {"d", "data", "e", "n", NULL}},
   {"dsa_do_sign", nasl_dsa_do_sign, 0,
    {"data", "g", "p", "priv", "pub", "q", NULL}},
+  {"gunzip", nasl_gunzip, 0, {"data", "len", NULL}},
+  {"gzip", nasl_gzip, 0, {"data", "len", NULL}},
 
 #ifdef HAVE_LIBSSH
   {"ssh_connect", nasl_ssh_connect, 0, {"port", "socket", NULL }},

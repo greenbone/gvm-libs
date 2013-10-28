@@ -33,6 +33,7 @@
 #include "network.h"            /* read_stream_connection_min */
 #include "plugutils.h"          /* plug_get_host_open_port */
 #include "system.h"             /* for emalloc */
+#include "openvas_compress.h"
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -949,6 +950,59 @@ nasl_open_sock_kdc (lex_ctxt * lexic)
   retc->x.i_val = ret;
   return retc;
 }
+
+tree_cell *
+nasl_gunzip (lex_ctxt * lexic)
+{
+  tree_cell *retc;
+  void *data, *uncompressed;
+  unsigned long datalen, uncomplen;
+
+  data = get_str_local_var_by_name (lexic, "data");
+  if (data == NULL)
+    return NULL;
+  datalen = get_var_size_by_name (lexic, "data");
+  if (datalen <= 0)
+    return NULL;
+
+  uncompressed = openvas_uncompress (data, datalen, &uncomplen);
+  if (uncompressed == NULL)
+    return NULL;
+
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+  retc->size = uncomplen;
+  retc->x.str_val = uncompressed;
+
+  return retc;
+}
+
+tree_cell *
+nasl_gzip (lex_ctxt * lexic)
+{
+  tree_cell *retc;
+  void *data, *compressed;
+  unsigned long datalen, complen;
+
+  data = get_str_local_var_by_name (lexic, "data");
+  if (data == NULL)
+    return NULL;
+  datalen = get_var_size_by_name (lexic, "data");
+  if (datalen <= 0)
+    return NULL;
+
+  compressed = openvas_compress (data, datalen, &complen);
+  if (compressed == NULL)
+    return NULL;
+
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+  retc->size = complen;
+  retc->x.str_val = compressed;
+
+  return retc;
+}
+
 
 tree_cell *
 nasl_dec2str (lex_ctxt * lexic)
