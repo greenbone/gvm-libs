@@ -28,10 +28,10 @@
 #include <zlib.h>
 
 void *
-openvas_compress (const void *, uLong, size_t *);
+openvas_compress (const void *, unsigned long, unsigned long *);
 
 void *
-openvas_compress_string (const char *, uLong *);
+openvas_compress_string (const char *, unsigned long *);
 
 void *
-openvas_uncompress (const void *, uLong, size_t *);
+openvas_uncompress (const void *, unsigned long, unsigned long *);

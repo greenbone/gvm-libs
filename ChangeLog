@@ -1,5 +1,13 @@
 2013-10-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* INSTALL: Add zlib library dependency.
+
+	* base/openvas_compress.h, base/openvas_compress.c: Use unsigned long
+	instead of uLong/size_t to match the code base. Move zlib.h include to
+	from .h file to .c
+
+2013-10-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/openvas_compress.h, base/openvas_compress.c: Use uLong instead of
 	size_t. Solves build on 32 bits systems.
 
