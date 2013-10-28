@@ -1,3 +1,8 @@
+2013-10-28  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_server.c (verify_certificate): New function.
+	(server_new_internal): Set verification callback.
+
 2013-10-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_compress.h, base/openvas_compress.c: Move zlib.h include

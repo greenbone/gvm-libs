@@ -89,6 +89,57 @@ static void my_gnutls_transport_set_lowat_default (gnutls_session_t);
 
 
 
+/* Certificate verification. */
+
+/**
+ * @brief Verify certificate.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int
+verify_certificate (gnutls_session_t session)
+{
+  unsigned int status;
+  int ret;
+
+  ret = gnutls_certificate_verify_peers2 (session, &status);
+  if (ret < 0)
+    {
+      g_warning ("%s: failed to verify peer", __FUNCTION__);
+      return -1;
+    }
+
+  if (status & GNUTLS_CERT_INVALID)
+    g_warning ("%s: the certificate is not trusted", __FUNCTION__);
+
+  if (status & GNUTLS_CERT_SIGNER_NOT_CA)
+    g_warning ("%s: the certificate's issuer is not a CA", __FUNCTION__);
+
+  if (status & GNUTLS_CERT_INSECURE_ALGORITHM)
+    g_warning ("%s: the certificate was signed using an insecure algorithm",
+               __FUNCTION__);
+
+  if (status & GNUTLS_CERT_SIGNER_NOT_FOUND)
+    g_warning ("%s: the certificate hasn't got a known issuer", __FUNCTION__);
+
+  if (status & GNUTLS_CERT_REVOKED)
+    g_warning ("%s: the certificate has been revoked", __FUNCTION__);
+
+  if (status & GNUTLS_CERT_EXPIRED)
+    g_warning ("%s: the certificate has expired", __FUNCTION__);
+
+  if (status & GNUTLS_CERT_NOT_ACTIVATED)
+    g_warning ("%s: the certificate is not yet activated", __FUNCTION__);
+
+  if (status)
+    return 1;
+
+  return 0;
+}
+
+
 /**
  * @brief Connect to the server using a given host and port.
  *
@@ -545,6 +596,9 @@ server_new_internal (unsigned int end_type, const char *priority,
       g_warning ("%s: failed to allocate server credentials\n", __FUNCTION__);
       return -1;
     }
+
+  gnutls_certificate_set_verify_function (*server_credentials,
+                                          verify_certificate);
 
   if (cert_file && key_file
       &&
