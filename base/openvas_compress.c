@@ -36,10 +36,10 @@
  * @return Pointer to compressed data if success, NULL otherwise.
  */
 void *
-openvas_compress (const void *src, size_t srclen, size_t *dstlen)
+openvas_compress (const void *src, uLong srclen, size_t *dstlen)
 {
   void *buffer;
-  size_t buflen = srclen * 2;
+  uLong buflen = srclen * 2;
   int err;
 
   if (src == NULL || srclen <= 0 || dstlen == NULL)
@@ -74,7 +74,7 @@ openvas_compress (const void *src, size_t srclen, size_t *dstlen)
  * @return Pointer to compressed data if success, NULL otherwise.
  */
 void *
-openvas_compress_string (const char *str, size_t *dstlen)
+openvas_compress_string (const char *str, uLong *dstlen)
 {
   if (str == NULL || dstlen == NULL)
     return NULL;
@@ -92,10 +92,10 @@ openvas_compress_string (const char *str, size_t *dstlen)
  * @return Pointer to uncompressed data if success, NULL otherwise.
  */
 void *
-openvas_uncompress (const void *src, size_t srclen, size_t *dstlen)
+openvas_uncompress (const void *src, uLong srclen, size_t *dstlen)
 {
   void *buffer;
-  size_t buflen = 2;
+  uLong buflen = 2;
 
   if (src == NULL || srclen <= 0 || dstlen == NULL)
     return NULL;

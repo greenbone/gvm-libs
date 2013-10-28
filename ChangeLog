@@ -1,3 +1,8 @@
+2013-10-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_compress.h, base/openvas_compress.c: Use uLong instead of
+	size_t. Solves build on 32 bits systems.
+
 2013-10-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_compress.h, base/openvas_compress.c: New files.
