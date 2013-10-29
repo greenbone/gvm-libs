@@ -23,8 +23,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _OPENVAS_COMPERSS_H
-#define _OPENVAS_COMPERSS_H
+#ifndef _OPENVAS_COMPRESS_H
+#define _OPENVAS_COMPRESS_H
 
 #include <string.h>
 #include <stdlib.h>

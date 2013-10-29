@@ -1,5 +1,9 @@
 2013-10-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/openvas_compress.h: Fix define typo.
+
+2013-10-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/openvas_compress.c: Define ZLIB_CONST so that z_const is defined
 	as const.
 	(openvas_compress): Use deflateInit and deflate instead of compress
