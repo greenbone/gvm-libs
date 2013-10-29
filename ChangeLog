@@ -1,10 +1,16 @@
 2013-10-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
-	* misc/openvas_compress.h: Fix define typo.
+	* base/openvas_compress.c (openvas_compress, openvas_uncompress):
+	Unconstify src pointer when z_const is not defined to fix building on
+	with older zlib versions.
 
 2013-10-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
-	* misc/openvas_compress.c: Define ZLIB_CONST so that z_const is defined
+	* base/openvas_compress.h: Fix define typo.
+
+2013-10-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_compress.c: Define ZLIB_CONST so that z_const is defined
 	as const.
 	(openvas_compress): Use deflateInit and deflate instead of compress
 	call. Adjust stream initialization and error handling accordingly.
@@ -12,7 +18,7 @@
 	detection when decoding zlib/gzip format. Adjust stream initialization
 	and error handling accordingly.
 
-	* misc/openvas_compress.h: Add macro check to prevent multiple includes.
+	* base/openvas_compress.h: Add macro check to prevent multiple includes.
 
 2013-10-28  Matthew Mundell <matthew.mundell@greenbone.net>
 

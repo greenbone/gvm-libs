@@ -55,7 +55,12 @@ openvas_compress (const void *src, unsigned long srclen, unsigned long *dstlen)
   strm.zfree = Z_NULL;
   strm.opaque = Z_NULL;
   strm.avail_in = srclen;
+#ifdef z_const
   strm.next_in = src;
+#else
+  /* Workaround for older zlib. */
+  strm.next_in = (void *) src;
+#endif
 
   if (deflateInit(&strm, Z_DEFAULT_COMPRESSION) != Z_OK)
     return NULL;
@@ -133,7 +138,12 @@ openvas_uncompress (const void *src, unsigned long srclen,
   strm.zfree = Z_NULL;
   strm.opaque = Z_NULL;
   strm.avail_in = srclen;
+#ifdef z_const
   strm.next_in = src;
+#else
+  /* Workaround for older zlib. */
+  strm.next_in = (void *) src;
+#endif
 
   /*
    * From: http://www.zlib.net/manual.html
