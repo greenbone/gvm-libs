@@ -69,4 +69,4 @@ openvas_resolve (const char *, void *, int);
 int
 openvas_resolve_as_addr6 (const char *, struct in6_addr *);
 
-#endif /* not _OPENVAS_HOSTS_H */
+#endif /* not _OPENVAS_NETWORKING_H */

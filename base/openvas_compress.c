@@ -23,6 +23,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* For z_const to be defined as const. */
+#if !defined(ZLIB_CONST)
+#  define ZLIB_CONST
+#endif
+
 #include <zlib.h>
 #include "openvas_compress.h"
 
@@ -39,31 +44,52 @@
 void *
 openvas_compress (const void *src, unsigned long srclen, unsigned long *dstlen)
 {
-  void *buffer;
   unsigned long buflen = srclen * 2;
-  int err;
+  z_stream strm;
 
   if (src == NULL || srclen <= 0 || dstlen == NULL)
     return NULL;
 
-  /* For very small source buffers, compression result will be larger. */
-  if (buflen < 20)
-    buflen = 20;
+  /* Initialize deflate state */
+  strm.zalloc = Z_NULL;
+  strm.zfree = Z_NULL;
+  strm.opaque = Z_NULL;
+  strm.avail_in = srclen;
+  strm.next_in = src;
 
-  buffer = calloc (buflen, 1);
-  if (buffer == NULL)
+  if (deflateInit(&strm, Z_DEFAULT_COMPRESSION) != Z_OK)
     return NULL;
 
-  /* Compress */
-  err = compress (buffer, &buflen, src, srclen);
-  if (err != Z_OK)
+  while (1)
     {
-      free (buffer);
-      return NULL;
+      int err;
+      void *buffer;
+
+      buffer = calloc (buflen, 1);
+      if (buffer == NULL)
+        return NULL;
+      strm.avail_out = buflen;
+      strm.next_out = buffer;
+
+      err = deflate (&strm, Z_SYNC_FLUSH);
+      switch (err)
+        {
+          case Z_OK:
+            *dstlen = strm.total_out;
+            return buffer;
+
+          case Z_BUF_ERROR:
+            free (buffer);
+            buflen *= 2;
+            break;
+
+          default:
+            free (buffer);
+            return NULL;
+        }
     }
 
-  *dstlen = buflen;
-  return buffer;
+  return NULL;
 }
 
 /**
@@ -93,32 +119,51 @@ openvas_compress_string (const char *str, unsigned long *dstlen)
  * @return Pointer to uncompressed data if success, NULL otherwise.
  */
 void *
-openvas_uncompress (const void *src, unsigned long srclen, unsigned long *dstlen)
+openvas_uncompress (const void *src, unsigned long srclen,
+                    unsigned long *dstlen)
 {
-  void *buffer;
-  unsigned long buflen = 2;
+  unsigned long buflen = srclen * 2;
+  z_stream strm;
 
   if (src == NULL || srclen <= 0 || dstlen == NULL)
     return NULL;
 
-  buffer = calloc (buflen, 1);
-  if (buffer == NULL)
+  /* Initialize inflate state */
+  strm.zalloc = Z_NULL;
+  strm.zfree = Z_NULL;
+  strm.opaque = Z_NULL;
+  strm.avail_in = srclen;
+  strm.next_in = src;
+
+  /*
+   * From: http://www.zlib.net/manual.html
+   * Add 32 to windowBits to enable zlib and gzip decoding with automatic header
+   * detection.
+   */
+  if (inflateInit2(&strm, 15 + 32) != Z_OK)
     return NULL;
 
-  /* Uncompress */
   while (1)
     {
-      int err = uncompress (buffer, &buflen, src, srclen);
+      int err;
+      void *buffer;
+
+      buffer = calloc (buflen, 1);
+      if (buffer == NULL)
+        return NULL;
+      strm.avail_out = buflen;
+      strm.next_out = buffer;
+
+      err = inflate (&strm, Z_SYNC_FLUSH);
       switch (err)
         {
           case Z_OK:
-            *dstlen = buflen;
+            *dstlen = strm.total_out;
             return buffer;
 
           case Z_BUF_ERROR:
             free (buffer);
             buflen *= 2;
-            buffer = calloc (buflen, 1);
             break;
 
           default:
