@@ -1,3 +1,10 @@
+2013-10-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_scanner_glue.c (script_description): Added note under
+	which condition it can be removed.
+
+	* nasl/nasl_init.c: Added note here accordingly.
+
 2013-10-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_compress.c (openvas_compress, openvas_uncompress):
