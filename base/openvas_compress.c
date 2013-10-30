@@ -45,44 +45,54 @@ void *
 openvas_compress (const void *src, unsigned long srclen, unsigned long *dstlen)
 {
   unsigned long buflen = srclen * 2;
-  z_stream strm;
 
   if (src == NULL || srclen <= 0 || dstlen == NULL)
     return NULL;
 
-  /* Initialize deflate state */
-  strm.zalloc = Z_NULL;
-  strm.zfree = Z_NULL;
-  strm.opaque = Z_NULL;
-  strm.avail_in = srclen;
-#ifdef z_const
-  strm.next_in = src;
-#else
-  /* Workaround for older zlib. */
-  strm.next_in = (void *) src;
-#endif
-
-  if (deflateInit(&strm, Z_DEFAULT_COMPRESSION) != Z_OK)
-    return NULL;
+  if (buflen < 30)
+    buflen = 30;
 
   while (1)
     {
       int err;
       void *buffer;
+      z_stream strm;
+
+      /* Initialize deflate state */
+      strm.zalloc = Z_NULL;
+      strm.zfree = Z_NULL;
+      strm.opaque = Z_NULL;
+      strm.avail_in = srclen;
+#ifdef z_const
+      strm.next_in = src;
+#else
+      /* Workaround for older zlib. */
+      strm.next_in = (void *) src;
+#endif
+      if (deflateInit (&strm, Z_DEFAULT_COMPRESSION) != Z_OK)
+        return NULL;
 
       buffer = calloc (buflen, 1);
       if (buffer == NULL)
-        return NULL;
+        {
+          deflateEnd (&strm);
+          return NULL;
+        }
       strm.avail_out = buflen;
       strm.next_out = buffer;
 
       err = deflate (&strm, Z_SYNC_FLUSH);
+      deflateEnd (&strm);
       switch (err)
         {
           case Z_OK:
-            *dstlen = strm.total_out;
-            return buffer;
-
+          case Z_STREAM_END:
+            if (strm.avail_out != 0)
+              {
+                *dstlen = strm.total_out;
+                return buffer;
+              }
+            /* Fallthrough. */
           case Z_BUF_ERROR:
             free (buffer);
             buflen *= 2;
@@ -93,8 +103,6 @@ openvas_compress (const void *src, unsigned long srclen, unsigned long *dstlen)
             return NULL;
         }
     }
-
-  return NULL;
 }
 
 /**
@@ -128,49 +136,56 @@ openvas_uncompress (const void *src, unsigned long srclen,
                     unsigned long *dstlen)
 {
   unsigned long buflen = srclen * 2;
-  z_stream strm;
 
   if (src == NULL || srclen <= 0 || dstlen == NULL)
-    return NULL;
-
-  /* Initialize inflate state */
-  strm.zalloc = Z_NULL;
-  strm.zfree = Z_NULL;
-  strm.opaque = Z_NULL;
-  strm.avail_in = srclen;
-#ifdef z_const
-  strm.next_in = src;
-#else
-  /* Workaround for older zlib. */
-  strm.next_in = (void *) src;
-#endif
-
-  /*
-   * From: http://www.zlib.net/manual.html
-   * Add 32 to windowBits to enable zlib and gzip decoding with automatic header
-   * detection.
-   */
-  if (inflateInit2(&strm, 15 + 32) != Z_OK)
     return NULL;
 
   while (1)
     {
       int err;
       void *buffer;
+      z_stream strm;
+
+      /* Initialize inflate state */
+      strm.zalloc = Z_NULL;
+      strm.zfree = Z_NULL;
+      strm.opaque = Z_NULL;
+      strm.avail_in = srclen;
+#ifdef z_const
+      strm.next_in = src;
+#else
+      /* Workaround for older zlib. */
+      strm.next_in = (void *) src;
+#endif
+      /*
+       * From: http://www.zlib.net/manual.html
+       * Add 32 to windowBits to enable zlib and gzip decoding with automatic header
+       * detection.
+       */
+      if (inflateInit2 (&strm, 15 + 32) != Z_OK)
+        return NULL;
 
       buffer = calloc (buflen, 1);
       if (buffer == NULL)
-        return NULL;
+        {
+          inflateEnd (&strm);
+          return NULL;
+        }
       strm.avail_out = buflen;
       strm.next_out = buffer;
 
       err = inflate (&strm, Z_SYNC_FLUSH);
+      inflateEnd (&strm);
       switch (err)
         {
           case Z_OK:
-            *dstlen = strm.total_out;
-            return buffer;
-
+          case Z_STREAM_END:
+            if (strm.avail_out != 0)
+              {
+                *dstlen = strm.total_out;
+                return buffer;
+              }
+            /* Fallthrough. */
           case Z_BUF_ERROR:
             free (buffer);
             buflen *= 2;
@@ -181,6 +196,4 @@ openvas_uncompress (const void *src, unsigned long srclen,
             return NULL;
         }
     }
-
-  return NULL;
 }
