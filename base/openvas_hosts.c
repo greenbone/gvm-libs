@@ -981,6 +981,8 @@ openvas_hosts_new (const gchar *hosts_str)
                 ips_func = short_range_network_ips;
               else if (host_type == HOST_TYPE_RANGE_LONG)
                 ips_func = long_range_network_ips;
+              else
+                break;
 
               if (ips_func (stripped, &first, &last) == -1)
                 break;
