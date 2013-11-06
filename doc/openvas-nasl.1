@@ -3,7 +3,7 @@
 openvas-nasl \- Nessus Attack Scripting Language
 .SH SYNOPSIS
 .B openvas-nasl
-.I <[-vh] [-T tracefile] [-s] [-t target] [-sX] > files...
+.I <[-vh] [-T tracefile] [-s] [-t target] [-d] [-sX] > files...
 .SH DESCRIPTION
 .BR openvas-nasl
 executes a set of NASL scripts against a given target host. It can 
@@ -24,7 +24,6 @@ Apply the NASL script to
 .I target
 which may be a single host (127.0.0.1), a whole subnet (192.168.1.0/24)
 or several subnets (192.168.1.0/24, 192.168.243.0/24)
-
 
 .TP
 .B \-s
@@ -52,6 +51,10 @@ Show help
 .TP
 .B \-v
 Show the version of NASL.
+.TP
+.B \-d
+Output debug information to stderr.
+
 .SH SEE ALSO
 .BR The\ NASL2\ reference\ manual
 .BR OpenVAS-Client (1),

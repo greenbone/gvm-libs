@@ -52,6 +52,9 @@
 
 #include "../base/nvticache.h" /* for nvticache_get_by_oid() */
 
+/* Used to allow debugging for openvas-nasl */
+int global_nasl_debug = 0;
+
 /**
  * @brief Returns a static version string.
  * @return Version of openvas-libraries, do not modify nor free.
@@ -1045,10 +1048,6 @@ plug_set_replace_key (struct arglist *args, char *name, int type, void *value,
   char *str = NULL;
   int msg;
 
-#ifdef DEBUG
-  printf ("set key %s -> %d\n", name, value);
-#endif
-
   if (name == NULL || value == NULL)
     return;
 
@@ -1061,6 +1060,8 @@ plug_set_replace_key (struct arglist *args, char *name, int type, void *value,
       // RATS: ignore
       snprintf (str, strlen (name) + strlen (value) + 10, "%d %s=%s;\n",
                 ARG_STRING, name, (char *) value);
+      if (global_nasl_debug == 1)
+        fprintf (stderr, "set key %s -> %s\n", name, (char *) value);
       efree (&value);
       break;
     case ARG_INT:
@@ -1069,6 +1070,9 @@ plug_set_replace_key (struct arglist *args, char *name, int type, void *value,
       // RATS: ignore
       snprintf (str, strlen (name) + 20, "%d %s=%d;\n", ARG_INT, name,
                 (int) GPOINTER_TO_SIZE (value));
+      if (global_nasl_debug == 1)
+        fprintf (stderr, "set key %s -> %d\n", name,
+                 (int) GPOINTER_TO_SIZE (value));
       break;
     }
 

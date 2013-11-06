@@ -122,8 +122,10 @@ main (int argc, char **argv)
   int start, n;
   int mode = 0;
   int err = 0;
+  extern int global_nasl_debug;
 
   static gboolean display_version = FALSE;
+  static gboolean nasl_debug = FALSE;
   static gboolean description_only = FALSE;
   static gboolean parse_only = FALSE;
   static gboolean do_lint = FALSE;
@@ -138,6 +140,8 @@ main (int argc, char **argv)
   static GOptionEntry entries[] = {
     {"version", 'V', 0, G_OPTION_ARG_NONE, &display_version,
      "Display version information", NULL},
+    {"debug", 'd', 0, G_OPTION_ARG_NONE, &nasl_debug,
+     "Output debug information to stderr.", NULL},
     {"description", 'D', 0, G_OPTION_ARG_NONE, &description_only,
      "Only run the 'description' part of the script", NULL},
     {"parse", 'p', 0, G_OPTION_ARG_NONE, &parse_only,
@@ -192,6 +196,8 @@ main (int argc, char **argv)
       printf ("Copyright (C) 2013 Greenbone Networks GmbH\n\n");
       exit (0);
     }
+  if (nasl_debug)
+    global_nasl_debug = 1;
   mode |= NASL_COMMAND_LINE;
   if (authenticated_mode)
     mode |= NASL_ALWAYS_SIGNED;
