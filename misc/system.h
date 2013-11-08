@@ -32,6 +32,5 @@ void *emalloc (size_t);
 char *estrdup (const char *);
 void *erealloc (void *, size_t);
 void efree (void *);
-size_t estrlen (const char *, size_t);
 
 #endif

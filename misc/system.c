@@ -139,12 +139,3 @@ erealloc (void *ptr, size_t size)
   return ret;
 }
 
-
-size_t
-estrlen (const char *s, size_t n)
-{
-  size_t i;
-  for (i = 0; (*(s + i) != '\0' && i < n); i++);
-
-  return i;
-}

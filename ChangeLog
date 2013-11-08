@@ -1,3 +1,8 @@
+2013-11-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/system.c, misc/system.h, misc/system_internal.h: Remove unused
+	funtion estrlen.
+
 2013-11-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/plugutils.c (plug_set_replace_key): Add switch variable to output

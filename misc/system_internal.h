@@ -35,6 +35,5 @@ char *estrdup (const char *);
 void efree (void *);
 #endif
 #endif
-size_t estrlen (const char *, size_t);
 
 #endif
