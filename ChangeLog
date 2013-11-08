@@ -1,5 +1,11 @@
 2013-11-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/openvas_hosts.c (openvas_host_in_hosts): New function.
+
+	* base/openvas_hosts.h: Add function prototype.
+
+2013-11-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/system.c, misc/system.h, misc/system_internal.h: Remove unused
 	funtion estrlen.
 

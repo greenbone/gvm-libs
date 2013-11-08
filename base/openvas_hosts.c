@@ -1487,6 +1487,46 @@ openvas_hosts_removed (const openvas_hosts_t *hosts)
 }
 
 /**
+ * @brief Returns whether a host has an equal host in a hosts collection.
+ * eg. 192.168.10.1 has an equal in list created from
+ * "192.168.10.1-5, 192.168.10.10-20" string while 192.168.10.7 doesn't.
+ *
+ * @param[in] host  The host object.
+ * @param[in] hosts Hosts collection
+ *
+ * @return 1 if host has equal in hosts, 0 otherwise.
+ */
+int
+openvas_host_in_hosts (const openvas_host_t *host, const openvas_hosts_t *hosts)
+{
+  char *host_str;
+  GList *element;
+
+  if (host == NULL || hosts == NULL)
+    return 0;
+
+  host_str = openvas_host_value_str (host);
+
+  element = hosts->hosts;
+  while (element)
+    {
+      char *tmp = openvas_host_value_str (element->data);
+
+      if (strcmp (host_str, tmp) == 0)
+        {
+          g_free (host_str);
+          g_free (tmp);
+          return 1;
+        }
+      g_free (tmp);
+      element = element->next;
+    }
+
+  g_free (host_str);
+  return 0;
+}
+
+/**
  * @brief Gets a host object's type.
  *
  * @param[in] host  The host object.
