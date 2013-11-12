@@ -464,6 +464,8 @@ static init_func libfuncs[] = {
    {"filename", "smb_handle", NULL}},
   {"smb_file_trustee_rights", nasl_smb_file_trustee_rights, 0,
    {"filename", "smb_handle", NULL}},
+  {"win_cmd_exec", nasl_win_cmd_exec, 0,
+   {"cmd", "password", "username"}},
 
   {"scan_phase", scan_phase, 0, {NULL}},
   {"network_targets", network_targets, 0, {NULL}},
