@@ -1512,7 +1512,7 @@ openvas_host_in_hosts (const openvas_host_t *host, const openvas_hosts_t *hosts)
     {
       char *tmp = openvas_host_value_str (element->data);
 
-      if (strcmp (host_str, tmp) == 0)
+      if (strcasecmp (host_str, tmp) == 0)
         {
           g_free (host_str);
           g_free (tmp);

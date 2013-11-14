@@ -1,6 +1,11 @@
+2013-11-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_hosts.c (openvas_host_in_hosts): Make comparing of
+	strings case-insensitive.
+
 2013-11-12  Thomas Rotter <Thomas.Rotter@greenbone.net>
 
-	* nasl/nasl_init.c: Added missing win_cmd_exec 
+	* nasl/nasl_init.c: Added missing win_cmd_exec
 
 2013-11-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
