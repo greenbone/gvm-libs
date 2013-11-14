@@ -137,7 +137,8 @@ openvas_hosts_removed (const openvas_hosts_t *);
  /* openvas_host_t related */
 
 int
-openvas_host_in_hosts (const openvas_host_t *, const openvas_hosts_t *);
+openvas_host_in_hosts (const openvas_host_t *, const struct in6_addr *,
+                       const openvas_hosts_t *);
 
 gchar *
 openvas_host_type_str (const openvas_host_t *);

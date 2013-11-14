@@ -1492,12 +1492,15 @@ openvas_hosts_removed (const openvas_hosts_t *hosts)
  * "192.168.10.1-5, 192.168.10.10-20" string while 192.168.10.7 doesn't.
  *
  * @param[in] host  The host object.
- * @param[in] hosts Hosts collection
+ * @param[in] addr  Optional pointer to ip address. Could be used so that host
+ *                  isn't resolved multiple times when type is HOST_TYPE_NAME.
+ * @param[in] hosts Hosts collection.
  *
  * @return 1 if host has equal in hosts, 0 otherwise.
  */
 int
-openvas_host_in_hosts (const openvas_host_t *host, const openvas_hosts_t *hosts)
+openvas_host_in_hosts (const openvas_host_t *host, const struct in6_addr *addr,
+                       const openvas_hosts_t *hosts)
 {
   char *host_str;
   GList *element;
@@ -1519,6 +1522,20 @@ openvas_host_in_hosts (const openvas_host_t *host, const openvas_hosts_t *hosts)
           return 1;
         }
       g_free (tmp);
+
+      /* Hostnames in hosts list shouldn't be resolved. */
+      if (addr && openvas_host_type (element->data) != HOST_TYPE_NAME)
+        {
+          struct in6_addr tmpaddr;
+          openvas_host_get_addr6 (element->data, &tmpaddr);
+
+          if (memcmp (addr->s6_addr, &tmpaddr.s6_addr, 16) == 0)
+            {
+              g_free (host_str);
+              return 1;
+            }
+
+        }
       element = element->next;
     }
 
