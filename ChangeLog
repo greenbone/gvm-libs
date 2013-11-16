@@ -1,3 +1,11 @@
+2013-11-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_builtin_find_service.c (plugin_run_find_service): Make
+	test_ssl = 1 represent "All", test_ssl = 0 for "None" and have
+	any other string degfault to "All". This essentially drops the
+	previously considered "Known SSL Ports".
+	(plugin_do_run): Don't care about known ports anymore.
+
 2013-11-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_hosts.c (openvas_host_in_hosts): Add parameter to use as

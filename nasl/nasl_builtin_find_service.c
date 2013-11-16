@@ -1887,7 +1887,7 @@ plugin_do_run(desc, h, test_ssl)
 				if (banner != NULL)
 					efree(&banner);
 				banner = NULL;
-				if (test_ssl == 2 || (test_ssl == 1 && ssl_port)) {
+				if (test_ssl == 1) {
 					cnx = open_stream_connection_unknown_encaps5(desc, port, cnx_timeout2, &trp, &diff_tv);
 					diff_tv /= 1000;	/* Now in milliseconds */
 				} else {
@@ -2591,7 +2591,7 @@ plugin_run_find_service (lex_ctxt * lexic)
 	char           *head = "Ports/tcp/";
 	struct arglist *globals = arg_get_value(desc, "globals");
 	int             one_true_pipe = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
-	int             test_ssl = 0;
+	int             test_ssl = 1;
 	char           *key = get_plugin_preference(desc, KEY_FILE);
 	char           *cert = get_plugin_preference(desc, CERT_FILE);
 	char           *pempass = get_plugin_preference(desc, PEM_PASS);
@@ -2613,12 +2613,9 @@ plugin_run_find_service (lex_ctxt * lexic)
 	else
 		cafile = NULL;
 
-	test_ssl = 1;
 	if (test_ssl_s != NULL) {
 		if (strcmp(test_ssl_s, "None") == 0)
 			test_ssl = 0;
-		else if (strcmp(test_ssl_s, "All") == 0)
-			test_ssl = 2;
 	}
 	if (key || cert) {
 		if (!key)
