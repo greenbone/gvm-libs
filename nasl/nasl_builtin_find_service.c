@@ -1689,58 +1689,6 @@ may_be_time(time_t * rtime)
 		return 0;
 }
 
-/*
- * References:
- * IANA assigned number
- *
- * http://www.tivoli.com/support/public/Prodman/public_manuals/td/ITAME/GC32-0848-00/en_US/HTML/amwebmst09.htm
- * http://java.sun.com/webservices/docs/1.0/tutorial/doc/WebAppSecurity6.html
- */
-
-static int
-known_ssl_port(int port)
-{
-	switch (port) {
-		case 261:	/* Nsiiops = IIOP name service over tls/ssl */
-		case 443:	/* HTTPS */
-		case 448:	/* ddm-ssl */
-		case 465:	/* SMTPS */
-		case 563:	/* NNTPS */
-		case 585:	/* imap4-ssl (not recommended) */
-		case 614:	/* SSLshell */
-		case 636:	/* LDAPS */
-		case 684:	/* Corba IIOP SSL */
-		case 902:	/* VMWare auth daemon */
-		case 989:	/* FTPS data */
-		case 990:	/* FTPS control */
-		case 992:	/* telnets */
-		case 993:	/* IMAPS */
-		case 994:	/* IRCS */
-		case 995:	/* POP3S */
-		case 1241:	/* Nessus */
-		case 2381:	/* Compaq Web Management (HTTPS) */
-		case 2478:	/* SecurSight Authentication Server (SSL) */
-		case 2479:	/* SecurSight Event Logging Server (SSL) */
-		case 2482:	/* Oracle GIOP SSL */
-		case 2484:	/* Oracle TTC SSL */
-		case 2679:	/* Sync Server SSL */
-		case 3077:	/* Orbix 2000 Locator SSL */
-		case 3078:	/* Orbix 2000 Locator SSL */
-		case 3269:	/* Microsoft Global Catalog w/ LDAP/SSL */
-		case 3471:	/* jt400 SSL */
-		case 5007:	/* WSM Server SSL */
-		case 7135:	/* IBM Tivoli Access Manager runtime
-				 * environment - SSL Server Port */
-		case 8443:	/* Tomcat */
-		case 9443:	/* Websphere internal secure server */
-		case 10000:	/* WebMin+SSL */
-		case 19201:	/* SilkPerformer agent (secure connection) */
-		return 1;
-	default:
-		return 0;
-	}
-	/* NOTREACHED */
-}
 
 #ifndef MSG_DONTWAIT
 /* From http://www.kegel.com/dkftpbench/nonblocking.html */
@@ -1817,8 +1765,7 @@ plugin_do_run(desc, h, test_ssl)
 			int             maybe_wrapped = 0;
 			char            kb[64];
 			int             get_sent = 0;
-			int             ssl_port = known_ssl_port(port);
-			int             std_port = ssl_port || (port_to_name(port) != NULL);
+			int             std_port = (port_to_name(port) != NULL);
 			int             cnx_timeout2 = std_port ? cnx_timeout * 2 : cnx_timeout;
 			int             rw_timeout2 = std_port ? rw_timeout * 2 : rw_timeout;
 			struct timeval  tv1, tv2;
