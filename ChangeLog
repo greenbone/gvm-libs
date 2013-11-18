@@ -1,5 +1,12 @@
 2013-11-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_builtin_find_service.c (plugin_do_run): Do not magically
+	double timeouts for the list of services that are recognized by this
+	plugin. Now the timeouts as given in the preferences are applied
+	to all ports. This makes the behaviour transparent for the user.
+
+2013-11-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_builtin_find_service.c (plugin_do_run): Treat SSL ports
 	like any unknown one. Essentially this means that the timeouts
 	as specified by the NVT preference are applied instead of magically

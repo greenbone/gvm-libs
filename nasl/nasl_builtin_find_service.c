@@ -1765,9 +1765,6 @@ plugin_do_run(desc, h, test_ssl)
 			int             maybe_wrapped = 0;
 			char            kb[64];
 			int             get_sent = 0;
-			int             std_port = (port_to_name(port) != NULL);
-			int             cnx_timeout2 = std_port ? cnx_timeout * 2 : cnx_timeout;
-			int             rw_timeout2 = std_port ? rw_timeout * 2 : rw_timeout;
 			struct timeval  tv1, tv2;
 			int             diff_tv = 0, diff_tv2 = 0;
 			int             type, no_banner_grabbed = 0;
@@ -1835,12 +1832,12 @@ plugin_do_run(desc, h, test_ssl)
 					efree(&banner);
 				banner = NULL;
 				if (test_ssl == 1) {
-					cnx = open_stream_connection_unknown_encaps5(desc, port, cnx_timeout2, &trp, &diff_tv);
+					cnx = open_stream_connection_unknown_encaps5(desc, port, cnx_timeout, &trp, &diff_tv);
 					diff_tv /= 1000;	/* Now in milliseconds */
 				} else {
 					(void) gettimeofday(&tv1, NULL);
 					trp = OPENVAS_ENCAPS_IP;
-					cnx = open_stream_connection(desc, port, trp, cnx_timeout2);
+					cnx = open_stream_connection(desc, port, trp, cnx_timeout);
 					(void) gettimeofday(&tv2, NULL);
 					diff_tv = DIFFTV1000(tv2, tv1);
 				}
@@ -1863,7 +1860,7 @@ plugin_do_run(desc, h, test_ssl)
 				fprintf(stderr, "find_service(%s): Port %d is open. \"Transport\" is %d\n", inet_ntoa(*p_ip), port, trp);
 #endif
 				plug_set_port_transport(desc, port, trp);
-				(void) stream_set_timeout(port, rw_timeout2);
+				(void) stream_set_timeout(port, rw_timeout);
 
 				if (IS_ENCAPS_SSL(trp)) {
 					char            report[160];
@@ -1909,7 +1906,7 @@ plugin_do_run(desc, h, test_ssl)
 
 							(void) gettimeofday(&tv1, NULL);
 							tv.tv_usec = 0;
-							tv.tv_sec = rw_timeout2;
+							tv.tv_sec = rw_timeout;
 							x = select(realfd + 1, &rfds, &wfds, NULL, &tv);
 							if (x < 0) {
 								if (errno == EINTR)
@@ -2359,7 +2356,7 @@ plugin_do_run(desc, h, test_ssl)
 #ifdef DEBUG
 					fprintf(stderr, "find_service(%s): potentially wrapped service on port %d\n", inet_ntoa(*p_ip), port);
 #endif
-					nfd = open_stream_connection(desc, port, OPENVAS_ENCAPS_IP, cnx_timeout2);
+					nfd = open_stream_connection(desc, port, OPENVAS_ENCAPS_IP, cnx_timeout);
 					if (nfd >= 0) {
 						fd = openvas_get_socket_from_connection(nfd);
 #if 0
