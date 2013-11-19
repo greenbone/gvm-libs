@@ -375,11 +375,13 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
  * A warning will be issued if \ref openvas_auth_init is called a second time
  * without a call to \ref openvas_auth_tear_down in between. In this case,
  * no reconfiguration will take place.
+ *
+ * @return 0 success, -1 error.
  */
-void
+int
 openvas_auth_init ()
 {
-  openvas_auth_init_funcs (NULL, NULL, NULL, NULL);
+  return openvas_auth_init_funcs (NULL, NULL, NULL, NULL);
 }
 
 /**
@@ -397,18 +399,23 @@ openvas_auth_init ()
  * A warning will be issued if \ref openvas_auth_init is called a second time
  * without a call to \ref openvas_auth_tear_down in between. In this case,
  * no reconfiguration will take place.
+ *
+ * @return 0 success, -1 error.
  */
-void
+int
 openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
                          int (*set_role) (const gchar *, const gchar *,
                                           const gchar *),
                          int (*user_exists_arg) (const gchar *, auth_method_t),
                          gchar * (*get_uuid) (const gchar *, auth_method_t))
 {
+  GKeyFile *key_file;
+  gchar *config_file;
+
   if (initialized == TRUE)
     {
       g_warning ("openvas_auth_init called a second time.");
-      return;
+      return -1;
     }
 
   user_exists = user_exists_arg;
@@ -416,16 +423,50 @@ openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
   user_get_uuid = get_uuid;
   user_set_role = set_role;
 
-  GKeyFile *key_file = g_key_file_new ();
-  gchar *config_file = g_build_filename (OPENVAS_STATE_DIR, "auth.conf",
-                                         NULL);
+  /* Init Libgcrypt. */
+
+  /* Version check should be the very first call because it makes sure that
+   * important subsystems are intialized.
+   * We pass NULL to gcry_check_version to disable the internal version mismatch
+   * test. */
+  if (!gcry_check_version (NULL))
+    {
+      g_critical ("%s: libgcrypt version check failed\n", __FUNCTION__);
+      return -1;
+    }
+
+  /* We don't want to see any warnings, e.g. because we have not yet parsed
+   * program options which might be used to suppress such warnings. */
+  gcry_control (GCRYCTL_SUSPEND_SECMEM_WARN);
+
+  /* ... If required, other initialization goes here.  Note that the process
+   * might still be running with increased privileges and that the secure
+   * memory has not been intialized. */
+
+  /* Allocate a pool of 16k secure memory.  This make the secure memory
+   * available and also drops privileges where needed. */
+  gcry_control (GCRYCTL_INIT_SECMEM, 16384, 0);
+
+  /* It is now okay to let Libgcrypt complain when there was/is a problem with
+   * the secure memory. */
+  gcry_control (GCRYCTL_RESUME_SECMEM_WARN);
+
+  /* ... If required, other initialization goes here. */
+
+  /* Tell Libgcrypt that initialization has completed. */
+  gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+
+  /* Load auth config. */
+
+  key_file = g_key_file_new ();
+  config_file = g_build_filename (OPENVAS_STATE_DIR, "auth.conf", NULL);
 
   if (!g_file_test (config_file, G_FILE_TEST_EXISTS))
     {
       g_log ("lib auth", G_LOG_LEVEL_INFO,
              "Authentication configuration not found.\n");
       initialized = TRUE;
-      return;
+      return 0;
     }
 
   g_debug ("loading auth: %s", config_file);
@@ -441,7 +482,7 @@ openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
       g_key_file_free (key_file);
       initialized = TRUE;
       g_warning ("Authentication configuration could not be loaded.\n");
-      return;
+      return 0;
     }
 
   groups = g_key_file_get_groups (key_file, NULL);
@@ -485,6 +526,8 @@ openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
   g_key_file_free (key_file);
   g_strfreev (groups);
   initialized = TRUE;
+
+  return 0;
 }
 
 /**

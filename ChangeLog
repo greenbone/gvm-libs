@@ -1,3 +1,10 @@
+2013-11-19  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_auth_init): Add return.
+	(openvas_auth_init_funcs): Init Libgrypt.
+
+	* misc/openvas_auth.h: Update headers accordingly.
+
 2013-11-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_builtin_find_service.c (plugin_do_run): Do not magically
@@ -13,7 +20,7 @@
 	doubling the timeouts. Since the list of known SSL ports is
 	arbitrary and also entirely outdated there is no reason to handle
 	the currenty hard-coded list in a special way.
-        Additionally it is not transparent to the user that some (not visible
+	Additionally it is not transparent to the user that some (not visible
 	which ones) SSL ports are tested with doubled timeouts and others
 	with the regular (user-visible) timeout.
 	(known_ssl_port): Removed this now unused function.
