@@ -78,6 +78,4 @@ int openvas_user_exists (const char *);
 
 gchar *openvas_user_uuid (const char *name);
 
-GString *openvas_auth_make_user_rules (const gchar *, int);
-
 #endif /* not _OPENVAS_AUTH_H */

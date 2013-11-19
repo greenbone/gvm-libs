@@ -1,3 +1,12 @@
+2013-11-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_auth_make_user_rules): Removed.
+	The file based rules were removed and thus this function is
+	not relevant anymore. Actually it is not called anywhere anymore.
+	(RULES_FILE_HEADER): Removed.
+
+	* misc/openvas_auth.h: Removed proto accordingly.
+
 2013-11-19  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_auth_init): Add return.

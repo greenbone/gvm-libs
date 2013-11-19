@@ -50,8 +50,6 @@
 #define GROUP_PREFIX_METHOD "method:"
 #define KEY_ORDER "order"
 
-#define RULES_FILE_HEADER "# This file is managed by the OpenVAS Administrator.\n# Any modifications must keep to the format that the Administrator expects.\n"
-
 #undef G_LOG_DOMAIN
 /**
  * @brief GLib logging domain.
@@ -106,7 +104,6 @@
  * A users directory will contain:
  *
  *  - uuid : File containing the users uuid.
- *  - auth/rules : The rules file.
  *  - auth/hash : (only for locally authenticated users) hash of the users
  *                password
  *  - kbs/ : (not handled by the openvas_auth module) directory that can
@@ -1133,58 +1130,4 @@ openvas_user_uuid (const char *name)
     }
   return 0;
 }
-#endif // not _WIN32
-
-
-#ifndef _WIN32
-/**
- * @brief Stores the rules for a user.
- *
- * The rules will be saved in a file in \ref user_dir_name /auth/rules .
- * This directory has to exist prior to this function call, otherwise the
- * file will not be written and -1 will be returned.
- *
- * @param[in]  user_dir_name  Directory under which the auth/rules file will
- *                            be placed.
- * @param[in]  hosts          The hosts the user is allowed/forbidden to scan.
- *                            Can be NULL, then defaults to allow-all.
- * @param[in]  hosts_allow    Whether access to \ref hosts is allowed (!=0) or
- *                            forbidden (0).
- *
- * @return Rules.
- */
-GString *
-openvas_auth_make_user_rules (const gchar * hosts, int hosts_allow)
-{
-  GString *rules;
-
-  rules = g_string_new (RULES_FILE_HEADER);
-  if (hosts && strlen (hosts))
-    {
-      gchar **split = g_strsplit (hosts, ",", 0);
-
-      /** @todo Do better format checking on hosts. */
-
-      if (hosts_allow)
-        {
-          gchar **host;
-          g_string_append_printf (rules, "# allow %s\n", hosts);
-          for (host = split; *host; host++)
-            g_string_append_printf (rules, "accept %s\n", g_strstrip (*host));
-          g_string_append (rules, "default deny\n");
-        }
-      else
-        {
-          gchar **host;
-          g_string_append_printf (rules, "# deny %s\n", hosts);
-          for (host = split; *host; host++)
-            g_string_append_printf (rules, "deny %s\n", g_strstrip (*host));
-          g_string_append (rules, "default accept\n");
-        }
-
-      g_strfreev (split);
-    }
-  return rules;
-}
-
 #endif // not _WIN32
