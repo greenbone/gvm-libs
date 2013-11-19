@@ -21,7 +21,6 @@ BSD3: See file COPYING.BSD3
 The following overview was initially collected 20100726 based
 on the header of the respective files and last updated 20130903:
 
-base/accessrules.[c|h]: GPLv2+
 base/array.[c|h]: GPLv2+
 base/certificate.[c|h]: GPLv2+
 base/CMakeLists.txt: GPLv2+

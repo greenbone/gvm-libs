@@ -1,5 +1,13 @@
 2013-11-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* base/accessrules.c, base/accessrules.h: Removed. This was
+	a so far unused implementation anyway. With the change from rules
+	to host access this is not needed anymore.
+
+	* COPYING: Removed this module.
+
+2013-11-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/openvas_auth.c (openvas_auth_make_user_rules): Removed.
 	The file based rules were removed and thus this function is
 	not relevant anymore. Actually it is not called anywhere anymore.
