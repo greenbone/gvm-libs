@@ -94,9 +94,6 @@
  *
  * @section user_directories User Directories
  *
- * Each user has a directory somewhere under OPENVAS_STATE_DIR.
- * The directories of locally authenticated users reside under
- * OPENVAS_STATE_DIR/users .
  * The directory of remotely authenticated users reside under
  * OPENVAS_STATE_DIR/users-remote/[method] , where [method] currently can only
  * be "ldap" or "ads".
@@ -106,8 +103,6 @@
  *  - uuid : File containing the users uuid.
  *  - auth/hash : (only for locally authenticated users) hash of the users
  *                password
- *  - kbs/ : (not handled by the openvas_auth module) directory that can
- *           contain knowledge bases saved by the openvas-scanner process.
  */
 
 
