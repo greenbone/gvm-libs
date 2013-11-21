@@ -1,3 +1,27 @@
+openvas-libraries 7.0+beta3 (2013-11-21)
+
+This release is the third beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-7".
+
+This release includes support for gzip compression in NASL scripts and changes
+the default build behaviour to produce only dynamically linked files. It also
+features a number of small improvements to the build process and library use as
+well as code cleanups.
+
+Many thanks to everyone who has contributed this release:
+Hani Benhabiles, Andre Heinecke, Matthew Mundell, Thomas Rotter, Jan-Oliver
+Wagner and Michael Wiegand.
+
+Main changes compared to 7.0+beta2:
+* Support for gzip compression has been added to NASL, introducing a new dependency on zlib.
+* Default build behaviour has been changed to produce only dynamically linked files.
+* Simplify handling of certain SSL ports.
+* Fix support for NASL to run commands remotely on Windows when authenticated.
+* Add support for initializing libgcrypt before use.
+* Improved support for compiling openvas-libraries in MINGW.
+* Various small fixes, improvements and code cleanups.
+
+
 openvas-libraries 7.0+beta2 (2013-09-26)
 
 This release is the second beta version of the next major release of
