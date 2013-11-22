@@ -559,7 +559,7 @@ init_nasl_ctx(naslctxt* pc, const char* name)
   }
 
   if (! pc->fp) {
-    printf("%s: Not able to open nor to locate it in include paths\n", name);
+    fprintf(stderr, "%s: Not able to open nor to locate it in include paths\n", name);
     g_free(full_name);
     return -1;
   }
