@@ -1,5 +1,19 @@
 2013-11-22  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Remove obsolete severity_filter implementation.
+
+	* base/severity_filter.c, base/severity_filter.h: Removed. This was a
+	early client side implementation of the overrides concept and was only
+	used in the now obsolete Gtk client.
+
+	* base/CMakeLists.txt: Remove handling of severity_filter.c and
+	severity_filter.h.
+
+	* COPYING: Remove reference to severity_filter.c and
+	severity_filter.h.
+
+2013-11-22  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* nasl/nasl_grammar.y (init_nasl_ctx): Print error message to stderr
 	instead of stdout for consistency.
 
