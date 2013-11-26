@@ -1,3 +1,17 @@
+2013-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Remove obsolete certificate_file implementation.
+
+	* base/openvas_certificate_file.c, base/openvas_certificate_file.h:
+	Removed. This was used for saving certificate information to files and
+	was only used in the now obsolete Gtk client.
+
+	* base/CMakeLists.txt: Remove handling of openvas_certificate_file.c
+	and openvas_certificate_file.h.
+
+	* COPYING: Remove reference to openvas_certificate_file.c and
+	openvas_certificate_file.h. Bump date.
+
 2013-11-22  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Remove obsolete severity_filter implementation.

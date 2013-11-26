@@ -19,7 +19,7 @@ BSD2: See file COPYING.BSD2
 BSD3: See file COPYING.BSD3
 
 The following overview was initially collected 20100726 based
-on the header of the respective files and last updated 20130903:
+on the header of the respective files and last updated 20131126:
 
 base/array.[c|h]: GPLv2+
 base/certificate.[c|h]: GPLv2+
@@ -30,7 +30,6 @@ base/drop_privileges.[c|h]: GPLv2+
 base/gpgme_util.[c|h]: GPLv2+
 base/nvti.[c|h]: GPLv2+
 base/nvticache.[c|h]: GPLv2+
-base/openvas_certificate_file.[c|h]: GPLv2+
 base/openvas_file.[c|h]: GPLv2+
 base/openvas_hosts.[c|h]: GPLv2+
 base/openvas_networking.[c|h]: GPLv2+
