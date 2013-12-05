@@ -1,3 +1,12 @@
+2013-11-26  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/nvti.c (set_from_key): New function.
+	(nvti_from_keyfile): Use set_from_key to set the string fields, so that
+	UTF-8 conversion is always done.  Convert preferences to UTF-8.
+	(set_from_nvti): New function.
+	(nvti_to_keyfile): Use set_from_nvti to write strings to the keyfile, so
+	that ISO conversion is always done.  Convert preferences to ISO.
+
 2013-11-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Remove obsolete certificate_file implementation.
