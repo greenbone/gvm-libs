@@ -1572,6 +1572,32 @@ nvti_as_openvas_nvt_cache_entry (const nvti_t * n)
 /**
  * @brief Read NVT Info from a keyfile.
  *
+ * @param keyfile Keyfile.
+ * @param name    Key name.
+ * @param nvti    NVTI.
+ * @param set     Set function.
+ */
+static void
+set_from_key (GKeyFile *keyfile, const gchar *name,
+              nvti_t *nvti, int set (nvti_t * n, const gchar * oid))
+{
+  gchar *utf8;
+  utf8 = g_key_file_get_string (keyfile, "NVT Info", name, NULL);
+  if (utf8)
+    {
+      gsize size;
+      gchar *iso;
+
+      iso = g_convert (utf8, -1, "ISO_8859-1", "UTF-8", NULL, &size, NULL);
+      set (nvti, iso);
+      g_free (iso);
+      g_free (utf8);
+    }
+}
+
+/**
+ * @brief Read NVT Info from a keyfile.
+ *
  * @param fn The filename to read from.
  *
  * @return A newly allocated nvti_t object.
@@ -1585,9 +1611,6 @@ nvti_from_keyfile (const gchar * fn)
   GError *error = NULL;
   gchar **keys;
   int i;
-  gsize size_dummy;
-  gchar *utf8str = NULL;
-  gchar *gStr;
 
   if (!g_key_file_load_from_file (keyfile, fn, G_KEY_FILE_NONE, &error))
     {
@@ -1596,72 +1619,25 @@ nvti_from_keyfile (const gchar * fn)
     }
 
   n = nvti_new ();
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "OID", NULL);
-  nvti_set_oid (n, gStr); g_free(gStr);
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "Version", NULL);
-  nvti_set_version (n, gStr); g_free(gStr);
-  utf8str = g_key_file_get_string (keyfile, "NVT Info", "Name", NULL);
-  if (utf8str)
-    {
-    nvti_set_name (n,
-                   g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
-                              &size_dummy, NULL));
-    g_free(utf8str);
-    }
-  utf8str = g_key_file_get_string (keyfile, "NVT Info", "Summary", NULL);
-  if (utf8str)
-    {
-    gStr = g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy,
-    		NULL);
-    nvti_set_summary (n, gStr);
-    g_free(gStr);
-    g_free(utf8str);
-    }
-  utf8str = g_key_file_get_string (keyfile, "NVT Info", "Description", NULL);
-  if (utf8str)
-    {
-    gStr = g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL,
-                                     &size_dummy, NULL);
-    nvti_set_description (n, gStr);
-    g_free(gStr);
-    g_free(utf8str);
-    }
-  utf8str = g_key_file_get_string (keyfile, "NVT Info", "Copyright", NULL);
-  if (utf8str)
-    {
-    gStr = g_convert (utf8str, -1, "ISO_8859-1", "UTF-8", NULL, &size_dummy,
-    		NULL);
-    nvti_set_copyright (n, gStr);
-    g_free(gStr);
-    g_free(utf8str);
-    }
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "CVEs", NULL);
-  nvti_set_cve (n, gStr); g_free(gStr);
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "BIDs", NULL);
-  nvti_set_bid (n, gStr); g_free(gStr);
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "XREFs", NULL);
-  nvti_set_xref (n, gStr); g_free(gStr);
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "Tags", NULL);
-  nvti_set_tag (n, gStr); g_free(gStr);
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "Dependencies", NULL);
-  nvti_set_dependencies (n, gStr); g_free(gStr);
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "RequiredKeys", NULL);
-  nvti_set_required_keys (n, gStr); g_free(gStr);
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "MandatoryKeys", NULL);
-  nvti_set_mandatory_keys (n, gStr); g_free(gStr);
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "ExcludedKeys", NULL);
-  nvti_set_excluded_keys (n, gStr); g_free(gStr);
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "RequiredPorts", NULL);
-  nvti_set_required_ports (n, gStr); g_free(gStr);
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "RequiredUDPPorts",
-                                                      NULL);
-  nvti_set_required_udp_ports (n, gStr); g_free(gStr);
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "SignKeyIDs", NULL);
-  nvti_set_sign_key_ids (n, gStr); g_free(gStr);
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "Family", NULL);
-  nvti_set_family (n, gStr); g_free(gStr);
-  gStr = g_key_file_get_string (keyfile, "NVT Info", "src", NULL);
-  nvti_set_src (n, gStr); g_free(gStr);
+  set_from_key (keyfile, "OID", n, nvti_set_oid);
+  set_from_key (keyfile, "Version", n, nvti_set_version);
+  set_from_key (keyfile, "Name", n, nvti_set_name);
+  set_from_key (keyfile, "Summary", n, nvti_set_summary);
+  set_from_key (keyfile, "Description", n, nvti_set_description);
+  set_from_key (keyfile, "Copyright", n, nvti_set_copyright);
+  set_from_key (keyfile, "CVEs", n, nvti_set_cve);
+  set_from_key (keyfile, "BIDs", n, nvti_set_bid);
+  set_from_key (keyfile, "XREFs", n, nvti_set_xref);
+  set_from_key (keyfile, "Tags", n, nvti_set_tag);
+  set_from_key (keyfile, "Dependencies", n, nvti_set_dependencies);
+  set_from_key (keyfile, "RequiredKeys", n, nvti_set_required_keys);
+  set_from_key (keyfile, "MandatoryKeys", n, nvti_set_mandatory_keys);
+  set_from_key (keyfile, "ExcludedKeys", n, nvti_set_excluded_keys);
+  set_from_key (keyfile, "RequiredPorts", n, nvti_set_required_ports);
+  set_from_key (keyfile, "RequiredUDPPorts", n, nvti_set_required_udp_ports);
+  set_from_key (keyfile, "SignKeyIDs", n, nvti_set_sign_key_ids);
+  set_from_key (keyfile, "Family", n, nvti_set_family);
+  set_from_key (keyfile, "src", n, nvti_set_src);
   nvti_set_timeout (n,
                     g_key_file_get_integer (keyfile, "NVT Info", "Timeout",
                                             NULL));
@@ -1675,14 +1651,26 @@ nvti_from_keyfile (const gchar * fn)
       for (i = 0; keys[i]; i++)
         {
           gsize len;
+          gchar *name, *type, *dflt;
           gchar **items =
             g_key_file_get_string_list (keyfile, "NVT Prefs", keys[i], &len,
                                         NULL);
           if (len != 3)
             continue;           // format error for this pref.
-          nvtpref_t *np = nvtpref_new (items[0], items[1], items[2]);
+
+          name = g_convert (items[0], -1, "ISO_8859-1", "UTF-8", NULL, &len,
+                            NULL);
+          type = g_convert (items[1], -1, "ISO_8859-1", "UTF-8", NULL, &len,
+                            NULL);
+          dflt = g_convert (items[2], -1, "ISO_8859-1", "UTF-8", NULL, &len,
+                            NULL);
+
+          nvtpref_t *np = nvtpref_new (name, type, dflt);
           nvti_add_pref (n, np);
           g_strfreev (items);
+          g_free (name);
+          g_free (type);
+          g_free (dflt);
         }
       g_strfreev (keys);
     }
@@ -1690,6 +1678,29 @@ nvti_from_keyfile (const gchar * fn)
   g_key_file_free (keyfile);
 
   return (n);
+}
+
+/**
+ * @brief Read NVT Info from a keyfile.
+ *
+ * @param keyfile Keyfile.
+ * @param name    Key name.
+ * @param nvti    NVTI.
+ * @param value   Value.
+ */
+static void
+set_from_nvti (GKeyFile *keyfile, const gchar *name, const nvti_t *nvti,
+               const gchar *value)
+{
+  if (value)
+    {
+      gsize size;
+      gchar *utf8;
+
+      utf8 = g_convert (value, -1, "UTF-8", "ISO_8859-1", NULL, &size, NULL);
+      g_key_file_set_string (keyfile, "NVT Info", name, utf8);
+      g_free (utf8);
+    }
 }
 
 /**
@@ -1708,74 +1719,25 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
   gchar *text;
   GError *error = NULL;
 
-  if (n->oid)
-    g_key_file_set_string (keyfile, "NVT Info", "OID", n->oid);
-  if (n->version)
-    g_key_file_set_string (keyfile, "NVT Info", "Version", n->version);
-  if (n->name)
-    {
-      gsize size_dummy;
-      gchar *utf8str = g_convert (n->name, -1, "UTF-8", "ISO_8859-1",
-                                  NULL, &size_dummy, NULL);
-      g_key_file_set_string (keyfile, "NVT Info", "Name", utf8str);
-      g_free (utf8str);
-    }
-  if (n->summary)
-    {
-      gsize size_dummy;
-      gchar *utf8str = g_convert (n->summary, -1, "UTF-8", "ISO_8859-1",
-                                  NULL, &size_dummy, NULL);
-      g_key_file_set_string (keyfile, "NVT Info", "Summary", utf8str);
-      g_free (utf8str);
-    }
-  if (n->description)
-    {
-      gsize size_dummy;
-      gchar *utf8str = g_convert (n->description, -1, "UTF-8", "ISO_8859-1",
-                                  NULL, &size_dummy, NULL);
-      g_key_file_set_string (keyfile, "NVT Info", "Description", utf8str);
-      g_free (utf8str);
-    }
-  if (n->copyright)
-    {
-      gsize size_dummy;
-      gchar *utf8str = g_convert (n->copyright, -1, "UTF-8", "ISO_8859-1",
-                                  NULL, &size_dummy, NULL);
-      g_key_file_set_string (keyfile, "NVT Info", "Copyright", utf8str);
-      g_free (utf8str);
-    }
-  if (n->cve)
-    g_key_file_set_string (keyfile, "NVT Info", "CVEs", n->cve);
-  if (n->bid)
-    g_key_file_set_string (keyfile, "NVT Info", "BIDs", n->bid);
-  if (n->xref)
-    g_key_file_set_string (keyfile, "NVT Info", "XREFs", n->xref);
-  if (n->tag)
-    g_key_file_set_string (keyfile, "NVT Info", "Tags", n->tag);
-  if (n->dependencies)
-    g_key_file_set_string (keyfile, "NVT Info", "Dependencies",
-                           n->dependencies);
-  if (n->required_keys)
-    g_key_file_set_string (keyfile, "NVT Info", "RequiredKeys",
-                           n->required_keys);
-  if (n->mandatory_keys)
-    g_key_file_set_string (keyfile, "NVT Info", "MandatoryKeys",
-                           n->mandatory_keys);
-  if (n->excluded_keys)
-    g_key_file_set_string (keyfile, "NVT Info", "ExcludedKeys",
-                           n->excluded_keys);
-  if (n->required_ports)
-    g_key_file_set_string (keyfile, "NVT Info", "RequiredPorts",
-                           n->required_ports);
-  if (n->required_udp_ports)
-    g_key_file_set_string (keyfile, "NVT Info", "RequiredUDPPorts",
-                           n->required_udp_ports);
-  if (n->sign_key_ids)
-    g_key_file_set_string (keyfile, "NVT Info", "SignKeyIDs", n->sign_key_ids);
-  if (n->family)
-    g_key_file_set_string (keyfile, "NVT Info", "Family", n->family);
-  if (n->src)
-    g_key_file_set_string (keyfile, "NVT Info", "src", n->src);
+  set_from_nvti (keyfile, "OID", n, n->oid);
+  set_from_nvti (keyfile, "Version", n, n->version);
+  set_from_nvti (keyfile, "Name", n, n->name);
+  set_from_nvti (keyfile, "Summary", n, n->summary);
+  set_from_nvti (keyfile, "Description", n, n->description);
+  set_from_nvti (keyfile, "Copyright", n, n->copyright);
+  set_from_nvti (keyfile, "CVEs", n, n->cve);
+  set_from_nvti (keyfile, "BIDs", n, n->bid);
+  set_from_nvti (keyfile, "XREFs", n, n->xref);
+  set_from_nvti (keyfile, "Tags", n, n->tag);
+  set_from_nvti (keyfile, "Dependencies", n, n->dependencies);
+  set_from_nvti (keyfile, "RequiredKeys", n, n->required_keys);
+  set_from_nvti (keyfile, "MandatoryKeys", n, n->mandatory_keys);
+  set_from_nvti (keyfile, "ExcludedKeys", n, n->excluded_keys);
+  set_from_nvti (keyfile, "RequiredPorts", n, n->required_ports);
+  set_from_nvti (keyfile, "RequiredUDPPorts", n, n->required_udp_ports);
+  set_from_nvti (keyfile, "SignKeyIDs", n, n->sign_key_ids);
+  set_from_nvti (keyfile, "Family", n, n->family);
+  set_from_nvti (keyfile, "src", n, n->src);
   if (n->timeout > 0)
     g_key_file_set_integer (keyfile, "NVT Info", "Timeout", n->timeout);
   if (n->category > 0)
@@ -1787,14 +1749,23 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
       nvtpref_t *np = nvti_pref (n, i);
       gchar *lst[3];
       gchar buf[10];
-      lst[0] = ((nvtpref_t *) np)->name;
-      lst[1] = ((nvtpref_t *) np)->type;
-      lst[2] = ((nvtpref_t *) np)->dflt;
+      gsize size;
+
+      lst[0] = g_convert (((nvtpref_t *) np)->name, -1, "UTF-8", "ISO_8859-1",
+                          NULL, &size, NULL);
+      lst[1] = g_convert (((nvtpref_t *) np)->type, -1, "UTF-8", "ISO_8859-1",
+                          NULL, &size, NULL);
+      lst[2] = g_convert (((nvtpref_t *) np)->dflt, -1, "UTF-8", "ISO_8859-1",
+                          NULL, &size, NULL);
 
       g_snprintf (buf, 10, "P%d", i);
       g_key_file_set_string_list ((GKeyFile *) keyfile, "NVT Prefs", buf,
                                   (const gchar **) lst, 3);
 //    g_key_file_set_string_list((GKeyFile *)keyfile, "NVT Prefs", (gchar *)lst[0], (const gchar **)lst, 3);
+
+      g_free (lst[0]);
+      g_free (lst[1]);
+      g_free (lst[2]);
     }
 
   text = g_key_file_to_data (keyfile, NULL, &error);
