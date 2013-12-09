@@ -37,5 +37,6 @@ int v6_islocalhost (struct in6_addr *);
 int get_datalink_size (int);
 char *routethrough (struct in_addr *, struct in_addr *);
 char *v6_routethrough (struct in6_addr *, struct in6_addr *);
+int v6_getsourceip (struct in6_addr *, struct in6_addr *);
 
 #endif

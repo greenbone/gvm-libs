@@ -40,6 +40,9 @@ int
 openvas_source_iface_init (const char *);
 
 int
+openvas_source_iface_is_set ();
+
+int
 openvas_source_set_socket (int, int, int);
 
 void

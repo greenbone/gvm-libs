@@ -197,40 +197,35 @@ nasl_this_host (lex_ctxt * lexic)
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
 
-  if (IN6_IS_ADDR_V4MAPPED (ia))
-    openvas_source_addr_as_addr6 (&addr);
-  else
-    openvas_source_addr6 (&addr);
-
-  if (!IN6_ARE_ADDR_EQUAL (&addr, &in6addr_any))
+  if (openvas_source_iface_is_set ())
     {
-      if (IN6_IS_ADDR_V4MAPPED (&addr))
+      /* Use source_iface's IP address when available. */
+      if (IN6_IS_ADDR_V4MAPPED (ia))
         {
+          openvas_source_addr_as_addr6 (&addr);
           inaddr.s_addr = addr.s6_addr32[3];
           retc->x.str_val =
             estrdup (inet_ntop (AF_INET, &inaddr, hostname, sizeof (hostname)));
         }
       else
-        retc->x.str_val =
-          estrdup (inet_ntop (AF_INET6, &addr, hostname, sizeof (hostname)));
-
+        {
+          openvas_source_addr6 (&addr);
+          retc->x.str_val =
+            estrdup (inet_ntop (AF_INET6, &addr, hostname, sizeof (hostname)));
+        }
       retc->size = strlen (retc->x.str_val);
       return retc;
     }
-
-
-  if (ia)
+  else
     {
+      /* Manually find the source IP that will be used. */
+      int err = 1;
       if (v6_islocalhost (ia))
-        {
-          memcpy (&src6, ia, sizeof (struct in6_addr));
-        }
+        memcpy (&src6, ia, sizeof (struct in6_addr));
       else
-        {
-          (void) v6_routethrough (ia, &src6);
-        }
+        err = v6_getsourceip (&src6, ia);
 
-      if (!IN6_ARE_ADDR_EQUAL (&src6, &in6addr_any))
+      if (err && !IN6_ARE_ADDR_EQUAL (&src6, &in6addr_any))
         {
           char *ret;
 
@@ -254,20 +249,20 @@ nasl_this_host (lex_ctxt * lexic)
 
       hostname[sizeof (hostname) - 1] = '\0';
       gethostname (hostname, sizeof (hostname) - 1);
-      openvas_resolve_as_addr6 (hostname, &in6addr);
-
-      if (IN6_IS_ADDR_V4MAPPED (&in6addr))
+      if (openvas_resolve_as_addr6 (hostname, &in6addr))
         {
-          inaddr.s_addr = in6addr.s6_addr32[3];
-          ret =
-            estrdup (inet_ntop (AF_INET, &inaddr, hostname, sizeof (hostname)));
+          if (IN6_IS_ADDR_V4MAPPED (&in6addr))
+            {
+              inaddr.s_addr = in6addr.s6_addr32[3];
+              ret = estrdup (inet_ntop (AF_INET, &inaddr, hostname,
+                                        sizeof (hostname)));
+            }
+          else
+            ret = estrdup (inet_ntop (AF_INET6, &in6addr, hostname,
+                                      sizeof (hostname)));
+          retc->x.str_val = ret;
+          retc->size = strlen (ret);
         }
-      else
-        ret =
-          estrdup (inet_ntop (AF_INET6, &in6addr, hostname, sizeof (hostname)));
-
-      retc->x.str_val = ret;
-      retc->size = strlen (ret);
     }
   return retc;
 }

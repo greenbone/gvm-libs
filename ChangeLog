@@ -1,3 +1,17 @@
+2013-12-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_networking.c (openvas_source_iface_is_set): New function.
+
+	* base/openvas_networking.h: Add new function prototype.
+
+	* misc/pcap.c (v6_getsourceip, getsourceip): Don't recheck source
+	interface as callers already do it. Remove verbose error prints.
+
+	* misc/pcap_openvas.h: Add function prototype.
+
+	* nasl/nasl_host.c (nasl_this_host): Check if source_iface is set before
+	trying to use its address. Refactor code to better handle error returns.
+
 2013-11-26  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/nvti.c (set_from_key): New function.

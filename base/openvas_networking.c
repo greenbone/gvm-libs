@@ -94,6 +94,12 @@ openvas_source_iface_init (const char *iface)
   return ret;
 }
 
+int
+openvas_source_iface_is_set ()
+{
+  return *global_source_iface != '\0';
+}
+
 /**
  * @brief Binds a socket to use the global source address.
  *

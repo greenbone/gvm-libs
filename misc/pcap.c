@@ -816,15 +816,6 @@ v6_getsourceip (struct in6_addr *src, struct in6_addr *dst)
   char name[INET6_ADDRSTRLEN];
 #endif
 
-  if (IN6_IS_ADDR_V4MAPPED (dst))
-    openvas_source_addr_as_addr6 (src);
-  else
-    openvas_source_addr6 (src);
-  if (!IN6_ARE_ADDR_EQUAL (src, &in6addr_any))
-    {
-      return 1;
-    }
-
   get_random_bytes (&p1, 2);
   if (p1 < 5000)
     p1 += 5000;
@@ -842,7 +833,6 @@ v6_getsourceip (struct in6_addr *src, struct in6_addr *dst)
       if (connect (sd, (struct sockaddr *) &sock, sizeof (struct sockaddr_in))
           == -1)
         {
-          perror ("UDP connect()");
           close (sd);
           return 0;
         }
@@ -882,7 +872,6 @@ v6_getsourceip (struct in6_addr *src, struct in6_addr *dst)
       if (connect (sd, (struct sockaddr *) &sock6, sizeof (struct sockaddr_in6))
           == -1)
         {
-          perror ("UDP connect()");
           close (sd);
           return 0;
         }
@@ -917,13 +906,6 @@ getsourceip (struct in_addr *src, struct in_addr *dst)
   unsigned int socklen = sizeof (struct sockaddr_in);
   unsigned short p1;
 
-
-  openvas_source_addr (src);
-  if (src->s_addr != INADDR_ANY)
-    {
-      return 1;
-    }
-
   get_random_bytes (&p1, 2);
   if (p1 < 5000)
     p1 += 5000;
@@ -939,7 +921,6 @@ getsourceip (struct in_addr *src, struct in_addr *dst)
   if (connect (sd, (struct sockaddr *) &sock, sizeof (struct sockaddr_in)) ==
       -1)
     {
-      perror ("UDP connect()");
       close (sd);
       return 0;
     }
