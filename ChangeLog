@@ -1,5 +1,12 @@
 2013-12-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl.c: Add -e option for openvas-nasl to specify the source
+	interface.
+
+	* doc/openvas-nasl.1: Update documentation.
+
+2013-12-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/openvas_networking.c (openvas_source_iface_is_set): New function.
 
 	* base/openvas_networking.h: Add new function prototype.

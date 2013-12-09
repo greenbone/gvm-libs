@@ -130,6 +130,7 @@ main (int argc, char **argv)
   static gboolean parse_only = FALSE;
   static gboolean do_lint = FALSE;
   static gchar *trace_file = NULL;
+  static gchar *source_iface = NULL;
   static gboolean with_safe_checks = FALSE;
   static gboolean authenticated_mode = FALSE;
   static gchar *include_dir = NULL;
@@ -152,6 +153,9 @@ main (int argc, char **argv)
      "Execute the scripts against <target>", "<target>"},
     {"trace", 'T', 0, G_OPTION_ARG_FILENAME, &trace_file,
      "Log actions to <file> (or '-' for stderr)", "<file>"},
+    {"source-iface", 'e', 0, G_OPTION_ARG_STRING, &source_iface,
+     "Source network interface for established connections.",
+     "<iface_name>"},
     {"safe", 's', 0, G_OPTION_ARG_NONE, &with_safe_checks,
      "Specifies that the script should be run with 'safe checks' enabled",
      NULL},
@@ -248,6 +252,12 @@ main (int argc, char **argv)
   signal (SIGPIPE, SIG_IGN);
 #endif
 
+  if (source_iface && openvas_source_iface_init (source_iface))
+    {
+      fprintf (stderr, "Erroneous network source interface: %s\n",
+               source_iface);
+      exit (1);
+    }
   if (debug_tls)
     {
       gnutls_global_set_log_function (my_gnutls_log_func);
