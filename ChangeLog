@@ -1,3 +1,9 @@
+2013-12-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_networking.c (openvas_source_iface_init): Check for
+	ifa_addr value before dereferencing it. One case where this has a null
+	value is the tun interface created by vpnc.
+
 2013-12-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl.c: Add -e option for openvas-nasl to specify the source

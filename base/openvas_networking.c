@@ -64,16 +64,15 @@ openvas_source_iface_init (const char *iface)
   /* Search for the adequate interface/family. */
   for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
     {
-      if (strcmp (iface, ifa->ifa_name) == 0)
+      if (ifa->ifa_addr && strcmp (iface, ifa->ifa_name) == 0)
         {
-          /* Found iface related entry, set the global source information. */
-          ret = 0;
           if (ifa->ifa_addr->sa_family == AF_INET)
             {
               struct in_addr *addr = &((struct sockaddr_in *)
                                        ifa->ifa_addr)->sin_addr;
 
               memcpy (&global_source_addr, addr, sizeof (global_source_addr));
+              ret = 0;
             }
           else if (ifa->ifa_addr->sa_family == AF_INET6)
             {
@@ -82,6 +81,7 @@ openvas_source_iface_init (const char *iface)
               addr = (struct sockaddr_in6 *) ifa->ifa_addr;
               memcpy (&global_source_addr6.s6_addr, &addr->sin6_addr,
                       sizeof (struct in6_addr));
+              ret = 0;
             }
         }
     }
