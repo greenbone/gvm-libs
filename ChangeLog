@@ -1,3 +1,7 @@
+2013-12-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_http (_http_req): Add port value in http host header.
+
 2013-12-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_networking.c (openvas_source_iface_init): Check for
