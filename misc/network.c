@@ -1778,18 +1778,22 @@ int
 nsend (int fd, void *data, int length, int i_opt)
 {
   int n = 0;
+  gsize len;
+
+  /* Convert to UTF-8 before sending to Manager. */
+  data = g_convert (data, length, "UTF-8", "ISO_8859-1", NULL, &len, NULL);
 
   if (OPENVAS_STREAM (fd))
     {
       if (connections[fd - OPENVAS_FD_OFF].fd < 0)
         log_legacy_write ("OpenVAS file descriptor %d closed ?!\n", fd);
       else
-        return write_stream_connection4 (fd, data, length, i_opt);
+        {
+          n = write_stream_connection4 (fd, data, len, i_opt);
+          g_free (data);
+          return n;
+        }
     }
-#if DEBUG_SSL > 1
-  else
-    log_legacy_write ("nsend[%d]: fd=%d\n", getpid (), fd);
-#endif
   /* Trying OS's send() */
   block_socket (fd);            /* ??? */
   do
@@ -1806,7 +1810,7 @@ nsend (int fd, void *data, int length, int i_opt)
       errno = 0;
       e = select (fd + 1, NULL, &wr, NULL, &tv);
       if (e > 0)
-        n = os_send (fd, data, length, i_opt);
+        n = os_send (fd, data, len, i_opt);
       else if (e < 0 && errno == EINTR)
         continue;
       else
@@ -1815,6 +1819,8 @@ nsend (int fd, void *data, int length, int i_opt)
   while (n <= 0 && errno == EINTR);
   if (n < 0)
     log_legacy_write ("[%d] nsend():send %s\n", getpid (), strerror (errno));
+
+  g_free (data);
   return n;
 }
 
@@ -2575,7 +2581,7 @@ internal_send (int soc, char *data, int msg_type)
   if (data == NULL)
     data = "";
 
-  e = os_send (soc, &msg_type, sizeof (len), 0);
+  e = os_send (soc, &msg_type, sizeof (msg_type), 0);
   if (e < 0)
     return -1;
 
