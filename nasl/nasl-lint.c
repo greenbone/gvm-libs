@@ -50,7 +50,7 @@ get_DIS_from_filename (const gchar* filename)
   if (error != NULL) {
     if (fis != NULL)
       g_object_unref (fis);
-    
+
     g_error ("%s\n\n", error->message);
   }
   dis = g_data_input_stream_new (G_INPUT_STREAM(fis));
@@ -85,7 +85,7 @@ process_file (const gchar* filepath, int mode, struct arglist* script_args)
  */
 static int
 process_file_list (const gchar* list_file, int mode,
-		   struct arglist* script_args)
+                   struct arglist* script_args)
 {
   int err = 0;
   GError* error = NULL;
@@ -94,20 +94,20 @@ process_file_list (const gchar* list_file, int mode,
   while(TRUE)
     {
       gchar* line = g_data_input_stream_read_line (nvt_list, NULL, NULL,
-						   &error);
+                                                   &error);
       if (error != NULL)
-	{
-	  if (line != NULL)
-	    g_free (line);
-	  
-	  g_error ("%s\n\n", error->message);
-	  break;
-	}
+        {
+          if (line != NULL)
+            g_free (line);
+
+          g_error ("%s\n\n", error->message);
+          break;
+        }
       if (line == NULL)
-	break;
+        break;
 
       if (process_file(line, mode, script_args))
-	err++;
+        err++;
 
       g_free (line);
     }
@@ -130,7 +130,7 @@ process_files(const gchar** files, int mode, struct arglist* script_args)
   while (files[n])
     {
       if (process_file(files[n], mode, script_args))
-	err++;
+        err++;
       n++;
     }
   return err;
@@ -144,9 +144,9 @@ process_files(const gchar** files, int mode, struct arglist* script_args)
  */
 static void
 custom_log_handler(const gchar *log_domain,
-       GLogLevelFlags log_level,
-       const gchar *message,
-       gpointer user_data )
+                   GLogLevelFlags log_level,
+                   const gchar *message,
+                   gpointer user_data )
 {
   gint log_mask = GPOINTER_TO_INT (user_data);
   if ((log_level & log_mask) != 0)
@@ -191,7 +191,7 @@ main (int argc, char **argv)
   g_option_context_free (option_context);
 
   g_type_init();
-  
+
   mode |= NASL_COMMAND_LINE;
   /* authenticated mode */
   mode |= NASL_ALWAYS_SIGNED;
@@ -209,21 +209,21 @@ main (int argc, char **argv)
 
   if (debug)
     g_log_set_handler (NULL,
-		       G_LOG_LEVEL_MASK,
-		       custom_log_handler,
-		       GINT_TO_POINTER (G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|
-					G_LOG_LEVEL_MESSAGE|
-					G_LOG_LEVEL_WARNING|
-					G_LOG_LEVEL_CRITICAL|
-					G_LOG_LEVEL_ERROR));
+                       G_LOG_LEVEL_MASK,
+                       custom_log_handler,
+                       GINT_TO_POINTER (G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|
+                                        G_LOG_LEVEL_MESSAGE|
+                                        G_LOG_LEVEL_WARNING|
+                                        G_LOG_LEVEL_CRITICAL|
+                                        G_LOG_LEVEL_ERROR));
   else
     g_log_set_handler (NULL,
-		       G_LOG_LEVEL_MASK,
-		       custom_log_handler,
-		       GINT_TO_POINTER (G_LOG_LEVEL_WARNING|
-					G_LOG_LEVEL_CRITICAL|
-					G_LOG_LEVEL_ERROR));
-  
+                       G_LOG_LEVEL_MASK,
+                       custom_log_handler,
+                       GINT_TO_POINTER (G_LOG_LEVEL_WARNING|
+                                        G_LOG_LEVEL_CRITICAL|
+                                        G_LOG_LEVEL_ERROR));
+
   /* Process the files from the list */
   if (nvt_file_list != NULL)
     err += process_file_list(nvt_file_list, mode, script_infos);

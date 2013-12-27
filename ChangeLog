@@ -1,5 +1,10 @@
 2013-12-27  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* nasl/nasl-lint.c: Replace tabs by spaces, and remove trailing
+	  whitespaces
+
+2013-12-27  Benoît Allard  <benoit.allard@greenbone.net>
+
 	Add a standalone NASL-linter
 
 	* nasl/nasl-lint.c: Add
