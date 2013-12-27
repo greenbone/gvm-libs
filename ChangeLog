@@ -1,3 +1,9 @@
+2013-12-27  Benoît Allard  <benoit.allard@greenbone.net>
+
+	Backport r18505
+
+	* nasl/nasl-lint.c, nasl/CMakeLists.txt: Add standalone nasl-linter
+
 2013-12-06  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Backport r18450.

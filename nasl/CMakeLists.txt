@@ -126,9 +126,16 @@ target_link_libraries (openvas-nasl openvas_misc_static openvas_nasl_static
 set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS
                        "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS}")
 
+# Link the openvas-nasl-lint executable
+add_executable (openvas-nasl-lint nasl-lint.c)
+target_link_libraries (openvas-nasl-lint openvas_nasl_static openvas_misc_static
+                       openvas_nasl_static ${GLIB_LDFLAGS} -lm)
+set_target_properties (openvas-nasl-lint PROPERTIES COMPILE_FLAGS
+                       ${GLIB_CFLAGS})
+
 ## Install
 
-install (TARGETS openvas_nasl_static openvas_nasl_shared openvas-nasl
+install (TARGETS openvas_nasl_static openvas_nasl_shared openvas-nasl openvas-nasl-lint
          RUNTIME DESTINATION ${BINDIR}
          LIBRARY DESTINATION ${LIBDIR}
          ARCHIVE DESTINATION ${LIBDIR}
