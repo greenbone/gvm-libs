@@ -1,3 +1,10 @@
+2013-12-27  Benoît Allard  <benoit.allard@greenbone.net>
+
+	Add a standalone NASL-linter
+
+	* nasl/nasl-lint.c: Add
+	* nasl/CMakeLists.txt: Add instructions to build openvas-nasl-lint
+
 2013-12-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (nsend): Convert data to UTF-8 before sending it.

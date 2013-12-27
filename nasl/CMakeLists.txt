@@ -147,16 +147,36 @@ if (BUILD_SHARED)
     "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS}")
 endif (BUILD_SHARED)
 
+# Link the openvas-nasl-lint executable
+if (BUILD_STATIC)
+  add_executable (openvas-nasl-lint nasl-lint.c)
+  target_link_libraries (openvas-nasl-lint openvas_misc_static openvas_nasl_static
+    openvas_base_static ${GLIB_LDFLAGS} -lgcrypt
+    "${GPGME_LDFLAGS}" -lgnutls "${PCAP_LDFLAGS}" -lresolv -lm ${WMI_LIBS}
+    ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS} ${WINCMD_LIBS}) 
+  set_target_properties (openvas-nasl-lint PROPERTIES COMPILE_FLAGS
+    "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS}")
+endif (BUILD_STATIC)
+if (BUILD_SHARED)
+  add_executable (openvas-nasl-lint nasl-lint.c)
+  target_link_libraries (openvas-nasl-lint openvas_misc_shared openvas_nasl_shared
+    openvas_base_shared ${GLIB_LDFLAGS} -lgcrypt
+    "${GPGME_LDFLAGS}" -lgnutls "${PCAP_LDFLAGS}" -lresolv -lm ${WMI_LIBS}
+    ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS} ${WINCMD_LIBS}) 
+  set_target_properties (openvas-nasl-lint PROPERTIES COMPILE_FLAGS
+    "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS}")
+endif (BUILD_SHARED)
+
 ## Install
 
 if (BUILD_STATIC)
-  install (TARGETS openvas_nasl_static openvas-nasl
+  install (TARGETS openvas_nasl_static openvas-nasl openvas-nasl-lint
            RUNTIME DESTINATION ${BINDIR}
            ARCHIVE DESTINATION ${LIBDIR}
            PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/openvas/nasl")
 endif (BUILD_STATIC)
 if (BUILD_SHARED)
-  install (TARGETS openvas_nasl_shared openvas-nasl
+  install (TARGETS openvas_nasl_shared openvas-nasl openvas-nasl-lint
            RUNTIME DESTINATION ${BINDIR}
            LIBRARY DESTINATION ${LIBDIR}
            ARCHIVE DESTINATION ${LIBDIR}
