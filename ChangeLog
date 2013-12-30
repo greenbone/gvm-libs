@@ -1,3 +1,8 @@
+2013-12-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl-lint.c (main): Add glib version check around g_type_init as
+	it is deprecated starting from version 2.35.
+
 2013-12-27  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* nasl/nasl-lint.c: Replace tabs by spaces, and remove trailing
