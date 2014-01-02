@@ -305,8 +305,13 @@ inc: INCLUDE '(' string ')'
 	      efree(&subctx.buffer);
 	      fclose(subctx.fp);
 	      subctx.fp = NULL;
+	      efree(& $3);
 	    }
-	  efree(& $3);
+          else
+            {
+              efree(& $3);
+              return -2;
+            }
 	} ;
 
 /* Function call */
