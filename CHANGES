@@ -1,3 +1,20 @@
+openvas-libraries 7.0+beta4 (2014-??-??)
+
+This release is the fourth beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-7".
+
+This release includes the switch for OTP from latin1 to utf-8 and
+the new helper tool nasl-lint.
+
+Many thanks to everyone who has contributed this release:
+Benoît Allard, Hani Benhabiles, Matthew Mundell, Michael Wiegand.
+
+Main changes compared to 7.0+beta3:
+* Additional tool "nasl-lint" to support NASL developers.
+* Use UTF-8 for OTP.
+* Various small fixes, improvements and code cleanups.
+
+
 openvas-libraries 7.0+beta3 (2013-11-21)
 
 This release is the third beta version of the next major release of
