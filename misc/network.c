@@ -1778,21 +1778,13 @@ int
 nsend (int fd, void *data, int length, int i_opt)
 {
   int n = 0;
-  gsize len;
-
-  /* Convert to UTF-8 before sending to Manager. */
-  data = g_convert (data, length, "UTF-8", "ISO_8859-1", NULL, &len, NULL);
 
   if (OPENVAS_STREAM (fd))
     {
       if (connections[fd - OPENVAS_FD_OFF].fd < 0)
         log_legacy_write ("OpenVAS file descriptor %d closed ?!\n", fd);
       else
-        {
-          n = write_stream_connection4 (fd, data, len, i_opt);
-          g_free (data);
-          return n;
-        }
+        return write_stream_connection4 (fd, data, length, i_opt);
     }
   /* Trying OS's send() */
   block_socket (fd);            /* ??? */
@@ -1810,7 +1802,7 @@ nsend (int fd, void *data, int length, int i_opt)
       errno = 0;
       e = select (fd + 1, NULL, &wr, NULL, &tv);
       if (e > 0)
-        n = os_send (fd, data, len, i_opt);
+        n = os_send (fd, data, length, i_opt);
       else if (e < 0 && errno == EINTR)
         continue;
       else
@@ -1820,7 +1812,6 @@ nsend (int fd, void *data, int length, int i_opt)
   if (n < 0)
     log_legacy_write ("[%d] nsend():send %s\n", getpid (), strerror (errno));
 
-  g_free (data);
   return n;
 }
 
@@ -2365,16 +2356,16 @@ auth_send (struct arglist *globals, char *data)
   int soc = GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
   int confirm = GPOINTER_TO_SIZE (arg_get_value (globals, "confirm"));
   int n = 0;
-  int length;
+  gsize length;
   int sent = 0;
 
   if (soc < 0)
     return;
 
-#ifndef OPENVASNT
+  /* Convert to UTF-8 before sending to Manager. */
+  data = g_convert (data, -1, "UTF-8", "ISO_8859-1", NULL, &length, NULL);
+
   signal (SIGPIPE, _exit);
-#endif
-  length = strlen (data);
   while (sent < length)
     {
       n = nsend (soc, data + sent, length - sent, 0);
@@ -2404,12 +2395,10 @@ auth_send (struct arglist *globals, char *data)
       char n;
       read_stream_connection_min (soc, &n, 1, 1);
     }
+
 out:
-#ifndef OPENVASNT
+  g_free (data);
   signal (SIGPIPE, SIG_IGN);
-#else
-  ;
-#endif
 }
 
 /**
