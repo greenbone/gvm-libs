@@ -1,3 +1,7 @@
+2014-01-09  Benoit Allard  <benoit.allard@greenbone.net>
+
+	* CHANGES: Set date for 7.0+beta4 release
+
 2014-01-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Fix a regression reported by Henri Doreau with authenticated scans.
