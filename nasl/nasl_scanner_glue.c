@@ -706,9 +706,7 @@ get_kb_list (lex_ctxt * lexic)
     }
 
   if (kb == NULL)
-    {
-      return NULL;
-    }
+    return NULL;
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = DYN_ARRAY;

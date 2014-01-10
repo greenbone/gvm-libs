@@ -88,6 +88,7 @@ init (char *hostname, struct in6_addr ip)
   struct arglist *script_infos = g_malloc0 (sizeof (struct arglist));
   struct arglist *prefs = g_malloc0 (sizeof (struct arglist));
   struct in6_addr *pip = g_malloc0 (sizeof (*pip));
+
   memcpy (pip, &ip, sizeof (struct in6_addr));
 
   arg_add_value (script_infos, "standalone", ARG_INT, sizeof (int), (void *) 1);

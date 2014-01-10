@@ -1114,7 +1114,6 @@ scanner_add_port (struct arglist *args, int port, char *proto)
 }
 
 
-
 struct kb_item **
 plug_get_kb (struct arglist *args)
 {
@@ -1146,6 +1145,7 @@ static void
 plug_get_key_sigchld (int sig)
 {
   int status;
+
   wait (&status);
 }
 
@@ -1153,6 +1153,7 @@ static void
 sig_n (int signo, void (*fnc) (int))
 {
   struct sigaction sa;
+
   sa.sa_handler = fnc;
   sa.sa_flags = 0;
   sigemptyset (&sa.sa_mask);
@@ -1193,7 +1194,6 @@ plug_get_key (struct arglist *args, char *name, int *type)
   if (type != NULL)
     *type = -1;
 
-
   if (kb == NULL)
     return NULL;
 
@@ -1227,6 +1227,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
   while (res != NULL)
     {
       pid_t pid;
+
       socketpair (AF_UNIX, SOCK_STREAM, 0, sockpair);
       if ((pid = fork ()) == 0)
         {
@@ -1246,12 +1247,11 @@ plug_get_key (struct arglist *args, char *name, int *type)
           arg_set_value (args, "SOCKET", sizeof (gpointer),
                          GSIZE_TO_POINTER (soc));
 
-          srand48 (getpid () + getppid () + time (NULL));       /* RATS: ignore */
+          srand48 (getpid () + getppid () + time (NULL)); /* RATS: ignore */
 
           sig_term (_exit);
           sig_alarm (_exit);
           alarm (120);
-
 
           if (res->type == KB_TYPE_INT)
             {
@@ -1276,8 +1276,9 @@ plug_get_key (struct arglist *args, char *name, int *type)
       else if (pid < 0)
         {
           fprintf (stderr,
-                   "libopenvas:plugutils.c:plug_get_key(): fork() failed : %s",
-                   strerror (errno));
+                   "libopenvas:%s:%s(): fork() failed (%s)",
+                   __FILE__, __func__, strerror (errno));
+
           return NULL;
         }
       else
