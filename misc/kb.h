@@ -55,6 +55,8 @@ struct kb_item
   struct kb_item *next;  /**< Next item in list.       */
 };
 
+typedef struct kb_item ** kb_t;
+
 struct kb_item **kb_new ();
 struct kb_item *kb_item_get_single (struct kb_item **, char *, int);
 char *kb_item_get_str (struct kb_item **, char *);

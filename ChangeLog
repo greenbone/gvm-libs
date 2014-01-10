@@ -1,5 +1,13 @@
 2014-01-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/kb.h: Add a typedef kb_t for struct kb_item **.
+
+	* misc/plugutils.c, misc/network.c, misc/plugutils.h, misc/www_funcs.c,
+	nasl/nasl_http.c, nasl/nasl_builtin_nmap.c, nasl/nasl_scanner_glue.c,
+	nasl/nasl_ssh.c: Use kb_t.
+
+2014-01-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/plugutils.c, nasl/nasl.c, nasl/nasl_scanner_glue.c:
 	Formatting fixes.
 

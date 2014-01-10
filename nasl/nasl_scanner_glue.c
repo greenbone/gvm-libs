@@ -692,7 +692,7 @@ tree_cell *
 get_kb_list (lex_ctxt * lexic)
 {
   struct arglist *script_infos = lexic->script_infos;
-  struct kb_item **kb = plug_get_kb (script_infos);
+  kb_t kb = plug_get_kb (script_infos);
   char *kb_mask = get_str_var_by_num (lexic, 0);
   tree_cell *retc;
   int num_elems = 0;

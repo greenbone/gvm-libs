@@ -1284,7 +1284,7 @@ nasl_ssh_set_login (lex_ctxt *lexic)
   if (!session_table[tbl_slot].user_set)
     {
       ssh_session session = session_table[tbl_slot].session;
-      struct kb_item **kb;
+      kb_t kb;
       char *username;
 
       username = get_str_local_var_by_name (lexic, "login");
@@ -1373,7 +1373,7 @@ nasl_ssh_userauth (lex_ctxt *lexic)
   const char *privkeystr = NULL;
   const char *privkeypass = NULL;
   int rc;
-  struct kb_item **kb;
+  kb_t kb;
   int retc_val = -1;
   int methods;
   int verbose;

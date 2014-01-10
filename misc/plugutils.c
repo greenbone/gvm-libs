@@ -399,8 +399,8 @@ unscanned_udp_ports_as_closed (struct arglist *prefs)
  * @param proto Protocol (udp/tcp). If NULL, "tcp" will be used.
  */
 int
-kb_get_port_state_proto (struct kb_item **kb, struct arglist *prefs,
-                         int portnum, char *proto)
+kb_get_port_state_proto (kb_t kb, struct arglist *prefs, int portnum,
+                         char *proto)
 {
   char port_s[255];
   unsigned short *range;
@@ -436,7 +436,7 @@ kb_get_port_state_proto (struct kb_item **kb, struct arglist *prefs,
 int
 host_get_port_state_proto (struct arglist *plugdata, int portnum, char *proto)
 {
-  struct kb_item **kb = plug_get_kb (plugdata);
+  kb_t kb = plug_get_kb (plugdata);
   struct arglist *prefs = arg_get_value (plugdata, "preferences");
 
   return kb_get_port_state_proto (kb, prefs, portnum, proto);
@@ -1114,10 +1114,10 @@ scanner_add_port (struct arglist *args, int port, char *proto)
 }
 
 
-struct kb_item **
+kb_t
 plug_get_kb (struct arglist *args)
 {
-  return (struct kb_item **) arg_get_value (args, "key");
+  return (kb_t) arg_get_value (args, "key");
 }
 
 /*
@@ -1183,7 +1183,7 @@ sig_chld (void (*fcn) (int))
 void *
 plug_get_key (struct arglist *args, char *name, int *type)
 {
-  struct kb_item **kb = plug_get_kb (args);
+  kb_t kb = plug_get_kb (args);
   struct kb_item *res = NULL;
   int sockpair[2];
   int upstream = 0;
@@ -1340,7 +1340,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
 unsigned int
 plug_get_host_open_port (struct arglist *desc)
 {
-  struct kb_item **kb = plug_get_kb (desc);
+  kb_t kb = plug_get_kb (desc);
   struct kb_item *res, *k;
   int open21 = 0, open80 = 0;
 #define MAX_CANDIDATES 16

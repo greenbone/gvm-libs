@@ -863,7 +863,7 @@ open_SSL_connection (openvas_connection * fp, int timeout, const char *cert,
 static void
 set_ids_evasion_mode (struct arglist *args, openvas_connection * fp)
 {
-  struct kb_item **kb = plug_get_kb (args);
+  kb_t kb = plug_get_kb (args);
   char *ids_evasion_split = kb_item_get_str (kb, "NIDS/TCP/split");
   char *ids_evasion_inject = kb_item_get_str (kb, "NIDS/TCP/inject");
   char *ids_evasion_short_ttl = kb_item_get_str (kb, "NIDS/TCP/short_ttl");

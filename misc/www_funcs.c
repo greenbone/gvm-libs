@@ -100,7 +100,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
 #define URL_CODE_UTF8BAD	4
   int url_encoding;
   char gizmo[32];
-  struct kb_item **kb = plug_get_kb (data);
+  kb_t kb = plug_get_kb (data);
 
   /* Basically, we need to store the path, a slash, and the name.
    * Encoding will expand this

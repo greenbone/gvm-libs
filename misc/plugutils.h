@@ -29,6 +29,7 @@
 #include "../misc/arglists.h"
 
 #include "../base/nvti.h"
+#include "kb.h"
 
 #define LEGACY_OID "1.3.6.1.4.1.25623.1.0."
 
@@ -102,7 +103,7 @@ char * host_get_port_banner(struct arglist *, int);
 void plug_set_key (struct arglist *, char *, int, void *);
 void plug_replace_key (struct arglist *, char *, int, void *);
 void *plug_get_fresh_key (struct arglist *, char *, int *);
-struct kb_item **plug_get_kb (struct arglist *);
+kb_t plug_get_kb (struct arglist *);
 void *plug_get_key (struct arglist *, char *, int *);
 
 char *openvaslib_version ();

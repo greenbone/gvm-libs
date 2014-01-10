@@ -772,7 +772,7 @@ add_nse_arguments (nmap_t * nmap)
 gchar *
 get_script_list (nmap_t * nmap)
 {
-  struct kb_item **kb = plug_get_kb (nmap->env);
+  kb_t kb = plug_get_kb (nmap->env);
   struct kb_item *top, *res;
   gchar **scriptv, *scriptstr;
   int i = 0;
@@ -814,7 +814,7 @@ get_script_list (nmap_t * nmap)
 gchar *
 get_script_args (nmap_t * nmap)
 {
-  struct kb_item **kb = plug_get_kb (nmap->env);
+  kb_t kb = plug_get_kb (nmap->env);
   struct kb_item *top, *res;
   gchar **argv, *argstr;
   int i = 0;

@@ -75,7 +75,7 @@ _http_req (lex_ctxt * lexic, char *keyword)
   int cl;
   int al;
   char content_l_str[32];
-  struct kb_item **kb;
+  kb_t kb;
   int str_length = 0;
 
 
