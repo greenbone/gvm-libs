@@ -419,36 +419,3 @@ kb_item_rm_all (struct kb_item **kb, char *name)
         }
     }
 }
-
-
-/**
- * Backward compatibilty
- */
-struct arglist *
-plug_get_oldstyle_kb (struct arglist *desc)
-{
-  struct kb_item **kb = arg_get_value (desc, "key");
-  struct arglist *ret;
-  struct kb_item *k;
-  int i;
-  if (kb == NULL)
-    return NULL;
-
-  ret = emalloc (sizeof (struct arglist));
-  for (i = 0; i < HASH_MAX; i++)
-    {
-      k = kb[i];
-      while (k != NULL)
-        {
-          if (k->type == KB_TYPE_INT)
-            arg_add_value (ret, k->name, ARG_INT, -1,
-                           GSIZE_TO_POINTER (k->v.v_int));
-          else if (k->type == KB_TYPE_STR)
-            arg_add_value (ret, k->name, ARG_STRING, strlen (k->v.v_str),
-                           estrdup (k->v.v_str));
-          k = k->next;
-        }
-    }
-
-  return ret;
-}
