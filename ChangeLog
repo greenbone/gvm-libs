@@ -1,3 +1,12 @@
+2014-01-16  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Backport for r18587.
+
+	* base/nvticache.c (nvticache_get): Also return NULL if the file could
+	be read, but is empty. This fixes a segfault when an empty nvti file
+	is encountered when reading the cache. Patch suggested by Sebastien
+	Aucouturier.
+
 2013-12-27  Benoît Allard  <benoit.allard@greenbone.net>
 
 	Backport r18505
