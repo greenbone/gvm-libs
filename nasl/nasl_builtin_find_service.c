@@ -2558,6 +2558,8 @@ plugin_run_find_service (lex_ctxt * lexic)
 	struct arglist *desc = lexic->script_infos;
 
 	struct arglist *h = plug_get_oldstyle_kb(desc);
+	kb_t kb = plug_get_kb (desc);
+        struct kb_item *kbitem;
 
 	struct arglist *ag;
 	struct arglist *sons_args[MAX_SONS];
@@ -2631,15 +2633,15 @@ plugin_run_find_service (lex_ctxt * lexic)
 
 	if (h == NULL)
 		return NULL; // TODO: before it returned "1";
+	if (kb == NULL)
+		return NULL; // TODO: in old days it returned "1";
 
-	ag = h;
-
-	while (ag->next != NULL) {
-		if (strncmp(ag->name, head, strlen(head)) == 0)
-			num_ports++;
-		ag = ag->next;
-	}
-
+        /* count the number of open TCP ports */
+        kbitem =  kb_item_get_pattern (kb, "Ports/tcp/*");
+        while (kbitem != NULL) {
+          num_ports++;
+          kbitem = kbitem->next;
+        }
 
 	ag = h;
 
