@@ -123,7 +123,7 @@ nvticache_get (const nvticache_t * cache, const gchar * filename)
   if (cache_file)
     g_free (cache_file);
 
-  if (!n) return NULL;
+  if (!n || !(nvti_oid (n))) return NULL;
 
   n2 = nvtis_lookup (cache->nvtis, nvti_oid (n));
   if (n2)
