@@ -1,5 +1,15 @@
 2014-01-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Finally removing/resolving last oldstyle kb remains.
+
+	* nasl/nasl_builtin_find_service.c (HASH_MAX, plug_get_oldstyle_kb):
+	Removed.
+	(plugin_run_find_service): Replace the last uses of oldstyle kb
+	by new style kb. This simplifies the loops by one level
+	and removed a count bug.
+
+2014-01-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_builtin_find_service.c (plugin_run_find_service):
 	Addionally to the oldstyle kb, get a newstyle handle of the kb.
 	Replace the while statement using the oldstyle kb to count

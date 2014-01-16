@@ -47,41 +47,6 @@
 #define PREF_PASSWORD "password"
 #define PREF_FILE "file"
 
-#define HASH_MAX 65537
-
-static struct arglist *
-plug_get_oldstyle_kb (struct arglist *desc)
-{
-  kb_t kb = arg_get_value (desc, "key");
-  struct arglist *ret;
-  struct kb_item *k;
-  int i;
-  if (kb == NULL)
-    return NULL;
-
-  /* Build a second list as a copy of the original one
-     but only copy TYPE_INT and TYPE_STR
-     The whole copied structure needs to be free'd again
-     in contrast to using  plug_get_kb
-  */
-  ret = emalloc (sizeof (struct arglist));
-  for (i = 0; i < HASH_MAX; i++)
-    {
-      k = kb[i];
-      while (k != NULL)
-        {
-          if (k->type == KB_TYPE_INT)
-            arg_add_value (ret, k->name, ARG_INT, -1,
-                           GSIZE_TO_POINTER (k->v.v_int));
-          else if (k->type == KB_TYPE_STR)
-            arg_add_value (ret, k->name, ARG_STRING, strlen (k->v.v_str),
-                           estrdup (k->v.v_str));
-          k = k->next;
-        }
-    }
-
-  return ret;
-}
 
 static void
 register_service(desc, port, proto)
@@ -2557,11 +2522,9 @@ plugin_run_find_service (lex_ctxt * lexic)
 {
 	struct arglist *desc = lexic->script_infos;
 
-	struct arglist *h = plug_get_oldstyle_kb(desc);
 	kb_t kb = plug_get_kb (desc);
-        struct kb_item *kbitem;
+        struct kb_item *kbitem, *kbitem_tmp;
 
-	struct arglist *ag;
 	struct arglist *sons_args[MAX_SONS];
 	int             sons_pipe[MAX_SONS][2];
 	int             num_ports = 0;
@@ -2569,7 +2532,6 @@ plugin_run_find_service (lex_ctxt * lexic)
 	int             num_sons = 10;
 	int             port_per_son;
 	int             i;
-	char           *head = "Ports/tcp/";
 	struct arglist *globals = arg_get_value(desc, "globals");
 	int             one_true_pipe = GPOINTER_TO_SIZE(arg_get_value(globals, "global_socket"));
 	int             test_ssl = 1;
@@ -2631,50 +2593,51 @@ plugin_run_find_service (lex_ctxt * lexic)
 		sons_args[i] = NULL;
 	}
 
-	if (h == NULL)
-		return NULL; // TODO: before it returned "1";
 	if (kb == NULL)
-		return NULL; // TODO: in old days it returned "1";
+		return NULL; // TODO: in old days returned "1". Still relevant?
+
+        kbitem =  kb_item_get_pattern (kb, "Ports/tcp/*");
 
         /* count the number of open TCP ports */
-        kbitem =  kb_item_get_pattern (kb, "Ports/tcp/*");
-        while (kbitem != NULL) {
+        kbitem_tmp = kbitem;
+        while (kbitem_tmp != NULL) {
           num_ports++;
-          kbitem = kbitem->next;
+          kbitem_tmp = kbitem_tmp->next;
         }
-
-	ag = h;
 
 	port_per_son = num_ports / num_sons;
 
+        /* The next two loops distribute the ports across a number of 'sons'.
+        */
+
+        kbitem_tmp = kbitem;
 
 	for (i = 0; i < num_sons; i = i + 1) {
-		int             j;
+		int j;
 
-		if (ag->next != NULL) {
-			for (j = 0; j < port_per_son && ag->next != NULL;) {
-				if (strncmp(ag->name, head, strlen(head)) == 0) {
-					if (sons_args[i] == NULL)
-						sons_args[i] = emalloc(sizeof(struct arglist));
-					arg_add_value(sons_args[i], ag->name, ag->type, ag->length, ag->value);
-					j++;
-				}
-				ag = ag->next;
+		if (kbitem_tmp != NULL) {
+			for (j = 0; j < port_per_son && kbitem_tmp != NULL;) {
+				if (sons_args[i] == NULL)
+					sons_args[i] = emalloc(sizeof(struct arglist));
+				arg_add_value(sons_args[i], kbitem_tmp->name, kbitem_tmp->type, -1, NULL);
+				j++;
+				kbitem_tmp = kbitem_tmp->next;
 			}
 		} else
 			break;
 	}
 
 
-	for (i = 0; (i < num_ports % num_sons) && ag->next != NULL;) {
-		if (strncmp(ag->name, head, strlen(head)) == 0) {
-			if (sons_args[i] == NULL)
-				sons_args[i] = emalloc(sizeof(struct arglist));
-			arg_add_value(sons_args[i], ag->name, ag->type, ag->length, ag->value);
-			i++;
-		}
-		ag = ag->next;
+	for (i = 0; (i < num_ports % num_sons) && kbitem_tmp != NULL;) {
+		if (sons_args[i] == NULL)
+			sons_args[i] = emalloc(sizeof(struct arglist));
+		arg_add_value(sons_args[i], kbitem_tmp->name, kbitem_tmp->type, -1, NULL);
+		i++;
+		kbitem_tmp = kbitem_tmp->next;
 	}
+
+        kb_item_get_all_free (kbitem);
+
 
 	for (i = 0; i < num_sons; i++)
 		if (sons_args[i] == NULL)
