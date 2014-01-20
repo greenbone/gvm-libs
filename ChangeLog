@@ -56,7 +56,7 @@
 
 	Post release version bump.
 
-        * CMakeLists.txt: Set version to 7.0+beta5.
+	* CMakeLists.txt: Set version to 7.0+beta5.
 
 2014-01-09  Benoit Allard  <benoit.allard@greenbone.net>
 
