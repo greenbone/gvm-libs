@@ -641,8 +641,8 @@ mark_vtun_server (desc, port, banner, trp)
     }
   else
     snprintf (tmp, sizeof (tmp),
-              "A VTUN server seems to be running on this port%s\nHere is its banner:\n%s\n",
-              get_encaps_through (trp), banner);
+              "A VTUN server seems to be running on this port%s\n"
+              "Here is its banner:\n%s\n", get_encaps_through (trp), banner);
 
 
 
@@ -1361,9 +1361,10 @@ mark_wrapped_svc (desc, port, delta)
 {
   char msg[256];
 
-  snprintf (msg, sizeof (msg), "The service closed the connection after %d seconds without sending any data\n\
-It might be protected by some TCP wrapper\n",
-            delta);
+  snprintf (msg, sizeof (msg),
+            "The service closed the connection after %d seconds "
+            "without sending any data\n"
+            "It might be protected by some TCP wrapper\n", delta);
   post_log (desc, port, msg);
   /* Do NOT use plug_replace_key! */
   plug_set_key (desc, "Services/wrapped", ARG_INT, GSIZE_TO_POINTER (port));
@@ -1466,9 +1467,9 @@ mark_unknown_svc (desc, port, banner, trp)
   *tmp = '\0';
   if (norm != NULL)
     {
-      snprintf (tmp, sizeof (tmp), "An unknown service is running on this port%s.\n\
-It is usually reserved for %s",
-                get_encaps_through (trp), norm);
+      snprintf (tmp, sizeof (tmp),
+                "An unknown service is running on this port%s.\n"
+                "It is usually reserved for %s", get_encaps_through (trp), norm);
     }
   if (*tmp != '\0')
     post_log (desc, port, tmp);
@@ -2040,8 +2041,7 @@ plugin_do_run (desc, h, test_ssl)
                                   len =
                                     read_stream_connection_min (cnx, buffer,
                                                                 1,
-                                                                sizeof
-                                                                (buffer) - 2);
+                                                                sizeof (buffer) - 2);
                                 }
                             }
                           (void) gettimeofday (&tv2, NULL);
