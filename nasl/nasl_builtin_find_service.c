@@ -2832,7 +2832,7 @@ plugin_run_find_service (lex_ctxt * lexic)
   int port_per_son;
   int i;
   struct arglist *globals = arg_get_value (desc, "globals");
-  int one_true_pipe =
+  int unix_sock =
     GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
   int test_ssl = 1;
   char *key = get_plugin_preference (desc, KEY_FILE);
@@ -3031,7 +3031,7 @@ plugin_run_find_service (lex_ctxt * lexic)
               if (sons[i] != 0 && sons_pipe[i][1] >= 0
                   && FD_ISSET (sons_pipe[i][1], &rd) != 0)
                 {
-                  if (fwd_data (sons_pipe[i][1], one_true_pipe, sons[i]) < 0)
+                  if (fwd_data (sons_pipe[i][1], unix_sock, sons[i]) < 0)
                     {
                       close (sons_pipe[i][1]);
                       sons_pipe[i][1] = -1;
@@ -3050,7 +3050,7 @@ plugin_run_find_service (lex_ctxt * lexic)
 
               if (kill (sons[i], 0) < 0)
                 {
-                  fwd_data (sons_pipe[i][1], one_true_pipe, sons[i]);
+                  fwd_data (sons_pipe[i][1], unix_sock, sons[i]);
                   close (sons_pipe[i][1]);
                   sons_pipe[i][1] = -1;
                   sons[i] = 0;

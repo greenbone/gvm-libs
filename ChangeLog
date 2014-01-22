@@ -1,5 +1,11 @@
 2014-01-22  Henri Doreau <henri.doreau@gmail.com>
 
+	* nasl/nasl_builtin_find_service.c (plugin_run_find_service): Renamed
+	variable "one_true_pipe" into "unix_sock", because it's a unix socket,
+	not a pipe.
+
+2014-01-22  Henri Doreau <henri.doreau@gmail.com>
+
 	* nasl/nasl_builtin_find_service.c (plugin_run_find_service): Minor
 	style fix.
 
