@@ -2971,8 +2971,9 @@ plugin_run_find_service (lex_ctxt * lexic)
           sons[i] = fork ();
           if (sons[i] == 0)
             {
-              int soc =
-                GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
+              int soc;
+
+              soc = GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
               close (sons_pipe[i][1]);
               close (soc);
               soc = dup2 (sons_pipe[i][0], 4);
