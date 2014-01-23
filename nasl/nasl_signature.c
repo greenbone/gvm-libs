@@ -210,7 +210,7 @@ char *
 nasl_extract_signature_fprs (const char *filename)
 {
   char *sigfilename = NULL;
-  gpgme_error_t err;
+  gpgme_error_t err = GPG_ERR_NO_ERROR;
   gpgme_ctx_t ctx;
   gpgme_data_t sig = NULL;
   gpgme_data_t text = NULL;
