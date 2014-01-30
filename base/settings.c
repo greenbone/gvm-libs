@@ -220,6 +220,8 @@ settings_save (settings_t * settings)
 
   ret = settings_init_from_file (&file_settings, settings->file_name,
                                  settings->group_name);
+  if (ret)
+    return ret;
 
   new_keys = g_key_file_get_keys (settings->key_file, settings->group_name,
                                   NULL, &error);
