@@ -2137,21 +2137,12 @@ open_sock_tcp_hn (const char *hostname, unsigned int port)
 int
 open_sock_tcp (struct arglist *args, unsigned int port, int timeout)
 {
-  char name[32];
   int ret;
-  int type;
-
-  /* If we timed out against this port in the past, there's no need
-   * to scan it again */
-  snprintf (name, sizeof (name), "/tmp/ConnectTimeout/TCP/%d", port);   /* RATS: ignore */
-  if (plug_get_key (args, name, &type))
-    return -1;
-
 
   errno = 0;
   ret = open_sock_option (args, port, SOCK_STREAM, IPPROTO_TCP, timeout);
   if (ret < 0 && errno == ETIMEDOUT)
-    plug_set_key (args, name, ARG_INT, (void *) 1);
+    log_legacy_write ("open_sock_tcp: Port %d timed-out.\n", port);
 
   return ret;
 }
