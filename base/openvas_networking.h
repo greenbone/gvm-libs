@@ -32,6 +32,8 @@
 #include <ifaddrs.h>
 #include <netdb.h>
 #include <glib.h>
+#include <errno.h>
+#include <ctype.h>
 
 #ifndef _OPENVAS_NETWORKING_H
 #define _OPENVAS_NETWORKING_H
@@ -71,5 +73,8 @@ openvas_resolve (const char *, void *, int);
 
 int
 openvas_resolve_as_addr6 (const char *, struct in6_addr *);
+
+int
+validate_port_range (const char *);
 
 #endif /* not _OPENVAS_NETWORKING_H */

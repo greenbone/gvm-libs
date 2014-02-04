@@ -1,3 +1,9 @@
+2014-02-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_networking.c (validate_port_range): New function.
+
+	* base/openvas_networking.h: Add validate_port_range prototype.
+
 2014-02-04  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* nasl/nasl_grammar.y: Updated to ensure compatibility with bison >=

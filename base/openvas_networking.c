@@ -314,3 +314,133 @@ openvas_resolve_as_addr6 (const char *name, struct in6_addr *ip6)
   return openvas_resolve (name, ip6, AF_UNSPEC);
 }
 
+/**
+ * @brief Validate a port range string.
+ *
+ * Accepts rangs in form of "103,U:200-1024,3000-4000,T:3-4,U:7".
+ *
+ * @param[in]   port_range  A port range.
+ *
+ * @return 0 success, 1 failed.
+ */
+int
+validate_port_range (const char* port_range)
+{
+  gchar **split, **point, *range, *range_start;
+
+  if (!port_range)
+    return 1;
+
+  while (*port_range && isblank (*port_range)) port_range++;
+  if (*port_range == '\0')
+    return 1;
+
+  /* Treat newlines like commas. */
+  range = range_start = g_strdup (port_range);
+  while (*range)
+    {
+      if (*range == '\n') *range = ',';
+      range++;
+    }
+
+  split = g_strsplit (range_start, ",", 0);
+  g_free (range_start);
+  point = split;
+
+  while (*point)
+    {
+      gchar *hyphen, *element;
+
+      /* Strip off any outer whitespace. */
+
+      element = g_strstrip (*point);
+
+      /* Strip off any leading type specifier. */
+
+      if ((strlen (element) >= 2)
+          && ((element[0] == 'T') || (element[0] == 'U'))
+          && (element[1] == ':'))
+        element = element + 2;
+
+      /* Look for a hyphen. */
+
+      hyphen = strchr (element, '-');
+      if (hyphen)
+        {
+          long int number1, number2;
+          const char *first;
+          char *end;
+
+          hyphen++;
+
+          /* Check the first number. */
+
+          first = element;
+          while (*first && isblank (*first)) first++;
+          if (*first == '-')
+            goto fail;
+
+          errno = 0;
+          number1 = strtol (first, &end, 10);
+          while (*end && isblank (*end)) end++;
+          if (errno || (*end != '-'))
+            goto fail;
+          if (number1 == 0)
+            goto fail;
+          if (number1 > 65535)
+            goto fail;
+
+          /* Check the second number. */
+
+          while (*hyphen && isblank (*hyphen)) hyphen++;
+          if (*hyphen == '\0')
+            goto fail;
+
+          errno = 0;
+          number2 = strtol (hyphen, &end, 10);
+          while (*end && isblank (*end)) end++;
+          if (errno || *end)
+            goto fail;
+          if (number2 == 0)
+            goto fail;
+          if (number2 > 65535)
+            goto fail;
+
+          if (number1 > number2)
+            goto fail;
+        }
+      else
+        {
+          long int number;
+          const char *only;
+          char *end;
+
+          /* Check the single number. */
+
+          only = element;
+          while (*only && isblank (*only)) only++;
+          /* Empty ranges are OK. */
+          if (*only)
+            {
+              errno = 0;
+              number = strtol (only, &end, 10);
+              while (*end && isblank (*end)) end++;
+              if (errno || *end)
+                goto fail;
+              if (number == 0)
+                goto fail;
+              if (number > 65535)
+                goto fail;
+            }
+        }
+      point += 1;
+    }
+
+  g_strfreev (split);
+  return 0;
+
+ fail:
+  g_strfreev (split);
+  return 1;
+}
+
