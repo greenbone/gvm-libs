@@ -314,6 +314,8 @@ openvas_resolve_as_addr6 (const char *name, struct in6_addr *ip6)
   return openvas_resolve (name, ip6, AF_UNSPEC);
 }
 
+/* Ports related. */
+
 /**
  * @brief Validate a port range string.
  *
@@ -442,5 +444,103 @@ validate_port_range (const char* port_range)
  fail:
   g_strfreev (split);
   return 1;
+}
+
+/**
+ * @brief Create a range array from a port_range string.
+ *
+ * @param[out]  port_range  Valid port_range string.
+ *
+ * @return Range array.
+ */
+array_t*
+port_range_ranges (const char *port_range)
+{
+  gchar **split, **point, *range_start, *current;
+  array_t *ranges;
+  int tcp;
+
+  ranges = make_array ();
+
+  while (*port_range && isblank (*port_range)) port_range++;
+
+  /* Accepts T: and U: before any of the ranges.  This toggles the remaining
+   * ranges, as in nmap.  Treats a leading naked range as TCP, whereas nmap
+   * treats it as TCP and UDP. */
+
+  /* Treat newlines like commas. */
+  range_start = current = g_strdup (port_range);
+  while (*current)
+    {
+      if (*current == '\n') *current = ',';
+      current++;
+    }
+
+  tcp = 1;
+  split = g_strsplit (range_start, ",", 0);
+  g_free (range_start);
+  point = split;
+
+  while (*point)
+    {
+      gchar *hyphen, *element;
+      range_t *range;
+
+      element = g_strstrip (*point);
+      if (strlen (element) >= 2)
+        {
+          if ((element[0] == 'T') && (element[1] == ':'))
+            {
+              tcp = 1;
+              element = element + 2;
+            }
+          else if ((element[0] == 'U') && (element[1] == ':'))
+            {
+              tcp = 0;
+              element = element + 2;
+            }
+          /* Else tcp stays as it is. */
+        }
+
+      /* Skip any space that followed the type specifier. */
+      while (*element && isblank (*element)) element++;
+
+      hyphen = strchr (element, '-');
+      if (hyphen)
+        {
+          *hyphen = '\0';
+          hyphen++;
+          while (*hyphen && isblank (*hyphen)) hyphen++;
+          assert (*hyphen);  /* Validation checks this. */
+
+          /* A range. */
+
+          range = (range_t*) g_malloc0 (sizeof (range_t));
+
+          range->start = atoi (element);
+          range->end = atoi (hyphen);
+          range->type = tcp ? PORT_PROTOCOL_TCP : PORT_PROTOCOL_UDP;
+          range->exclude = 0;
+
+          array_add (ranges, range);
+        }
+      else if (*element)
+        {
+          /* A single port. */
+
+          range = (range_t*) g_malloc0 (sizeof (range_t));
+
+          range->start = atoi (element);
+          range->end = range->start;
+          range->type = tcp ? PORT_PROTOCOL_TCP : PORT_PROTOCOL_UDP;
+          range->exclude = 0;
+
+          array_add (ranges, range);
+        }
+      /* Else skip over empty range. */
+      point += 1;
+    }
+  g_strfreev (split);
+  return ranges;
 }
 

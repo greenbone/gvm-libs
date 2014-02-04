@@ -1,5 +1,15 @@
 2014-02-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/openvas_networking.c (port_range_ranges): New function from
+	Manager.
+
+	* base/openvas_networking.h: Add includes and function prototypes
+	accordingly.
+	(struct range): New struct.
+	(port_protocol_t): New enum.
+
+2014-02-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/openvas_networking.c (validate_port_range): New function.
 
 	* base/openvas_networking.h: Add validate_port_range prototype.

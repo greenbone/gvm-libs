@@ -34,9 +34,39 @@
 #include <glib.h>
 #include <errno.h>
 #include <ctype.h>
+#include <assert.h>
+
+#include "array.h"
 
 #ifndef _OPENVAS_NETWORKING_H
 #define _OPENVAS_NETWORKING_H
+
+/**
+ * @brief A port range.
+ */
+struct range
+{
+  gchar *comment;       /* Comment. */
+  int end;              /* End port.  0 for single port. */
+  int exclude;          /* Whether to exclude range. */
+  gchar *id;            /* UUID. */
+  int start;            /* Start port. */
+  int type;             /* Port protocol. */
+};
+typedef struct range range_t;
+
+/**
+ * @brief Possible port types.
+ *
+ * Used in Manager database. If any symbol changes then a migrator must be
+ * added to update existing data.
+ */
+typedef enum
+{
+  PORT_PROTOCOL_TCP = 0,
+  PORT_PROTOCOL_UDP = 1,
+  PORT_PROTOCOL_OTHER = 2
+} port_protocol_t;
 
 int
 openvas_source_iface_init (const char *);
@@ -76,5 +106,8 @@ openvas_resolve_as_addr6 (const char *, struct in6_addr *);
 
 int
 validate_port_range (const char *);
+
+array_t*
+port_range_ranges (const char *);
 
 #endif /* not _OPENVAS_NETWORKING_H */
