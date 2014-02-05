@@ -1,3 +1,18 @@
+2014-02-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_networking.c (port_in_port_ranges): New function.
+
+	* base/openvas_networking.h: Add function prototype accordingly.
+
+	* misc/plugutils.c (port_in_ports, unscanned_udp_ports_as_closed):
+	Remove functions as unused anymore.
+	(unscanned_ports_as_closed): Add argument for port protocol.
+	(kb_get_port_state_proto): Use port_range_ranges and
+	port_in_port_ranges before trying to determine port state. Fix usage of
+	unscanned_port_as_closed. Style update.
+
+	* misc/plugutils.h: Add base/openvas_networking.h include.
+
 2014-02-05  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/openvas_networking.c (validate_port_range): Fix typo in

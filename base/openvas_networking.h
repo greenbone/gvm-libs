@@ -110,4 +110,7 @@ validate_port_range (const char *);
 array_t*
 port_range_ranges (const char *);
 
+int
+port_in_port_ranges (int, port_protocol_t, array_t *);
+
 #endif /* not _OPENVAS_NETWORKING_H */
