@@ -319,7 +319,7 @@ openvas_resolve_as_addr6 (const char *name, struct in6_addr *ip6)
 /**
  * @brief Validate a port range string.
  *
- * Accepts rangs in form of "103,U:200-1024,3000-4000,T:3-4,U:7".
+ * Accepts ranges in form of "103,U:200-1024,3000-4000,T:3-4,U:7".
  *
  * @param[in]   port_range  A port range.
  *

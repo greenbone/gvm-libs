@@ -1,3 +1,8 @@
+2014-02-05  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* base/openvas_networking.c (validate_port_range): Fix typo in
+	comment.
+
 2014-02-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_networking.c (port_range_ranges): New function from
