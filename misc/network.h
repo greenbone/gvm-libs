@@ -28,11 +28,45 @@
 
 #include <sys/select.h>         /* at least for fd_set */
 #include <netinet/in.h>         /* struct in_addr, struct in6_addr */
+#include <errno.h>
+#include <ctype.h>
+#include <assert.h>
+
+#include "../base/array.h"
 
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 
 #include "arglists.h"
+
+/* Ports related */
+
+/**
+ * @brief A port range.
+ */
+struct range
+{
+  gchar *comment;       /* Comment. */
+  int end;              /* End port.  0 for single port. */
+  int exclude;          /* Whether to exclude range. */
+  gchar *id;            /* UUID. */
+  int start;            /* Start port. */
+  int type;             /* Port protocol. */
+};
+typedef struct range range_t;
+
+/**
+ * @brief Possible port types.
+ *
+ * Used in Manager database. If any symbol changes then a migrator must be
+ * added to update existing data.
+ */
+typedef enum
+{
+  PORT_PROTOCOL_TCP = 0,
+  PORT_PROTOCOL_UDP = 1,
+  PORT_PROTOCOL_OTHER = 2
+} port_protocol_t;
 
 /* Plugin specific network functions */
 int open_sock_tcp (struct arglist *, unsigned int, int);
@@ -126,5 +160,11 @@ int stream_set_timeout (int, int);
 int stream_set_options (int, int, int);
 
 void convipv4toipv4mappedaddr (struct in_addr, struct in6_addr *);
+
+int
+validate_port_range (const char *);
+
+array_t*
+port_range_ranges (const char *);
 
 #endif

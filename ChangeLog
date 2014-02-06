@@ -1,5 +1,17 @@
 2014-02-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Backport of r18688 and r18691, adjusting relevant parts.
+
+	* base/openvas_networking.c (validate_port_range ,port_range_ranges):
+	New functions from Manager.
+
+	* base/openvas_networking.h: Add includes and function prototypes
+	accordingly.
+	(struct range): New struct from Manager.
+	(port_protocol_t): New enum from Manager.
+
+2014-02-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Backport r18510.
 
 	* nasl/nasl-lint.c (main): Add glib version check around g_type_init as
