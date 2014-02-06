@@ -3104,6 +3104,33 @@ port_range_ranges (const char *port_range)
   return ranges;
 }
 
+/**
+ * @brief Checks if a port num is in port ranges array.
+ *
+ * @param[in]  pnum     Port number.
+ * @param[in]  ptype    Port type.
+ * @param[in]  pranges  Array of port ranges.
+ *
+ * @return 1 if port in port ranges, 0 otherwise.
+ */
+int
+port_in_port_ranges (int pnum, port_protocol_t ptype, array_t *pranges)
+{
+  int i;
+
+  if (pranges == NULL || pnum < 0 || pnum > 65536)
+    return 0;
+
+  for (i = 0; i < pranges->len; i++)
+    {
+      range_t *range = (range_t *) g_ptr_array_index (pranges, i);
+      if (range->type != ptype)
+        continue;
+      if (range->start <= pnum && pnum <= range->end)
+        return 1;
+    }
+  return 0;
+}
 
 /* GnuTLS 2.11.1 changed the semantics of set_lowat and 2.99.0 removed
    that function.  As a quick workaround we set it back to the old

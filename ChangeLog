@@ -1,5 +1,20 @@
 2014-02-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Backport r18695.
+
+	* misc/network.c (port_in_port_ranges): New function.
+
+	* misc/network.h: Add function prototype accordingly.
+
+	* misc/plugutils.c (port_in_ports, unscanned_udp_ports_as_closed):
+	Remove functions as unused anymore.
+	(unscanned_ports_as_closed): Add argument for port protocol.
+	(kb_get_port_state_proto): Use port_range_ranges and
+	port_in_port_ranges before trying to determine port state. Fix usage of
+	unscanned_port_as_closed. Style update.
+
+2014-02-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Backport of r18688 and r18691, adjusting relevant parts.
 
 	* base/openvas_networking.c (validate_port_range ,port_range_ranges):

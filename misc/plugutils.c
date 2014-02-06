@@ -376,51 +376,26 @@ host_add_port_udp (struct arglist *hostdata, int portnum, int state)
   host_add_port_proto (hostdata, portnum, state, "udp");
 }
 
-int
-port_in_ports (u_short port, u_short * ports, int s, int e)
-{
-  int mid = (s + e) / 2;
-  if (s == e)
-    return (port == ports[e]);
-  if (port > ports[mid])
-    return (port_in_ports (port, ports, mid + 1, e));
-  else
-    return (port_in_ports (port, ports, s, mid));
-}
-
 /**
  * @brief Report state of preferences "unscanned_closed".
  *
  * @return 0 if pref is "yes", 1 otherwise.
  */
 static int
-unscanned_ports_as_closed (struct arglist *prefs)
+unscanned_ports_as_closed (struct arglist *prefs, port_protocol_t ptype)
 {
   char *unscanned;
-  unscanned = arg_get_value (prefs, "unscanned_closed");
+
+  if (ptype == PORT_PROTOCOL_UDP)
+    unscanned = arg_get_value (prefs, "unscanned_closed_udp");
+  else
+    unscanned = arg_get_value (prefs, "unscanned_closed");
+
   if (unscanned && !strcmp (unscanned, "yes"))
     return 0;
   else
     return 1;
 }
-
-
-/**
- * @brief Report state of preferences "unscanned_closed_udp".
- *
- * @return 0 if pref is "yes", 1 otherwise.
- */
-static int
-unscanned_udp_ports_as_closed (struct arglist *prefs)
-{
-  char *unscanned;
-  unscanned = arg_get_value (prefs, "unscanned_closed_udp");
-  if (unscanned && !strcmp (unscanned, "yes"))
-    return 0;
-  else
-    return 1;
-}
-
 
 /**
  * @param proto Protocol (udp/tcp). If NULL, "tcp" will be used.
@@ -429,35 +404,37 @@ int
 kb_get_port_state_proto (struct kb_item **kb, struct arglist *prefs,
                          int portnum, char *proto)
 {
-  char port_s[255];
-  unsigned short *range;
+  char port_s[255], *kbstr;
   char *prange = (char *) arg_get_value (prefs, "port_range");
-  int num;
+  port_protocol_t port_type;
+  array_t *port_ranges;
 
-  if (!proto)
-    proto = "tcp";
+  if (proto && !strcmp (proto, "udp"))
+    {
+      port_type = PORT_PROTOCOL_UDP;
+      kbstr = "Host/udp_scanned";
+    }
+  else
+    {
+      port_type = PORT_PROTOCOL_TCP;
+      kbstr = "Host/scanned";
+    }
 
   /* Check that we actually scanned the port */
-  if (!strcmp (proto, "tcp") && kb_item_get_int (kb, "Host/scanned") <= 0)
-    return unscanned_ports_as_closed (prefs);
-  else if (!strcmp (proto, "udp")
-           && kb_item_get_int (kb, "Host/udp_scanned") <= 0)
-    return unscanned_udp_ports_as_closed (prefs);
+  if (kb_item_get_int (kb, kbstr) <= 0)
+    return unscanned_ports_as_closed (prefs, port_type);
 
-  range = (u_short *) getpts (prange, &num);
-
-  if (range == NULL)
-    return (1);
-
-  if (!port_in_ports (portnum, range, 0, num))
-    return unscanned_ports_as_closed (prefs);
+  port_ranges = port_range_ranges (prange);
+  if (!port_in_port_ranges (portnum, port_type, port_ranges))
+    {
+      array_free (port_ranges);
+      return unscanned_ports_as_closed (prefs, port_type);
+    }
+  array_free (port_ranges);
 
   /* Ok, we scanned it. What is its state ? */
-  snprintf (port_s, sizeof (port_s), "Ports/%s/%d", proto, portnum);    /* RATS: ignore */
-  if (kb_item_get_int (kb, port_s) > 0)
-    return 1;
-  else
-    return 0;
+  snprintf (port_s, sizeof (port_s), "Ports/%s/%d", proto, portnum);
+  return !!kb_item_get_int (kb, port_s);
 }
 
 int
