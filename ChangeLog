@@ -1,3 +1,8 @@
+2014-02-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_socket.c (rm_udp_data): Check hash table pointer is valid
+	before removing it.
+
 2014-02-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_networking.c (port_in_port_ranges): New function.

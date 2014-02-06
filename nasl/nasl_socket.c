@@ -161,7 +161,8 @@ rm_udp_data (struct arglist *script_infos, int soc)
 {
   GHashTable * udp_data = arg_get_value (script_infos, "udp_data");
 
-  g_hash_table_remove (udp_data, (gconstpointer)&soc);
+  if (udp_data)
+    g_hash_table_remove (udp_data, (gconstpointer)&soc);
 }
 
 
