@@ -1,3 +1,10 @@
+2014-02-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r18510.
+
+	* nasl/nasl-lint.c (main): Add glib version check around g_type_init as
+	it is deprecated starting from version 2.35.
+
 2014-01-16  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Backport for r18587.
