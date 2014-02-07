@@ -1,3 +1,8 @@
+2014-02-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network (open_sock_tcp): Adequately print target host address
+	when in time-out case.
+
 2014-02-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_socket.c (rm_udp_data): Check hash table pointer is valid
