@@ -1,5 +1,10 @@
 2014-02-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/openvas_hosts.c (cidr_get_ip): Free allocated memory in case of
+	error.
+
+2014-02-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/network (open_stream_connection_ext): Don't return error on
 	OPENVAS_ENCAPS_SSLv2 transport value as it is supported.
 

@@ -165,7 +165,10 @@ cidr_get_ip (const char *str, struct in_addr *addr)
   addr_str = g_strdup (str);
   tmp = strchr (addr_str, '/');
   if (tmp == NULL)
-    return -1;
+    {
+      g_free (addr_str);
+      return -1;
+    }
   *tmp = '\0';
 
   if (inet_pton (AF_INET, addr_str, addr) != 1)
