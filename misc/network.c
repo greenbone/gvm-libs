@@ -939,13 +939,12 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
     case OPENVAS_ENCAPS_TLScustom:
+    case OPENVAS_ENCAPS_SSLv2:
       break;
 
-    case OPENVAS_ENCAPS_SSLv2:
     default:
-      log_legacy_write (
-               "open_stream_connection(): unsupported transport layer %d\n",
-               transport);
+      log_legacy_write ("open_stream_connection_ext(): unsupported transport"
+                        " layer %d\n", transport);
       errno = EINVAL;
       return -1;
     }

@@ -1,5 +1,10 @@
 2014-02-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/network (open_stream_connection_ext): Don't return error on
+	OPENVAS_ENCAPS_SSLv2 transport value as it is supported.
+
+2014-02-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/network (open_sock_tcp): Adequately print target host address
 	when in time-out case.
 
