@@ -649,8 +649,8 @@ nasl_recv_line (lex_ctxt * lexic)
 
   if (len == -1 || soc <= 0)
     {
-      nasl_perror (lexic,
-                   "recv_line: missing or undefined parameter length or soc\n");
+      nasl_perror (lexic, "recv_line: missing or undefined parameter"
+                          " length or socket\n");
       return NULL;
     }
 
