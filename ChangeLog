@@ -1,3 +1,10 @@
+2014-02-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r18731.
+
+	* misc/plugutils.c (kb_get_port_state_proto): Fix kb_item_get_int return
+	value check to match previous style.
+
 2014-02-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r18695.
