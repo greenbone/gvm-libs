@@ -1,3 +1,8 @@
+2014-02-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/plugutils.c (kb_get_port_state_proto): Fix kb_item_get_int return
+	value check to match previous style.
+
 2014-02-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_hosts.c (cidr_get_ip): Free allocated memory in case of

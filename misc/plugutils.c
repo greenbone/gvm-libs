@@ -407,7 +407,7 @@ kb_get_port_state_proto (kb_t kb, struct arglist *prefs, int portnum,
 
   /* Ok, we scanned it. What is its state ? */
   snprintf (port_s, sizeof (port_s), "Ports/%s/%d", proto, portnum);
-  return !!kb_item_get_int (kb, port_s);
+  return kb_item_get_int (kb, port_s) > 0;
 }
 
 int
