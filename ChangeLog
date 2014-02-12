@@ -1,3 +1,11 @@
+2014-02-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_hosts.c (openvas_hosts_new_with_max): New function,
+	allows setting a max number of hosts limit.
+	(openvas_hosts_new): Call openvas_hosts_new_with_max().
+
+	* base/openvas_hosts.h: Add new function prototype accordingly.
+
 2014-02-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/plugutils.c (kb_get_port_state_proto): Fix kb_item_get_int return

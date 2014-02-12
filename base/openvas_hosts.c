@@ -903,18 +903,19 @@ openvas_hosts_deduplicate (openvas_hosts_t *hosts)
  *
  * @param[in] hosts_str The hosts string. A copy will be created of this within
  *                      the returned struct.
+ * @param[in] max_hosts Max number of hosts in hosts_str. 0 means unlimited.
  *
- * @return NULL if error, otherwise, a hosts structure that should be released
- * using @ref openvas_hosts_free.
+ * @return NULL if error or hosts_str contains more than max hosts. otherwise, a
+ * hosts structure that should be released using @ref openvas_hosts_free.
  */
 openvas_hosts_t *
-openvas_hosts_new (const gchar *hosts_str)
+openvas_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
 {
   openvas_hosts_t *hosts;
   gchar **host_element, **split;
   gchar *str;
 
-  if (hosts_str == NULL)
+  if (hosts_str == NULL || max_hosts < 0)
     return NULL;
 
   hosts = g_malloc0 (sizeof (openvas_hosts_t));
@@ -1003,6 +1004,12 @@ openvas_hosts_new (const gchar *hosts_str)
                   host->addr.s_addr = current;
                   hosts->hosts = g_list_prepend (hosts->hosts, host);
                   hosts->count++;
+                  if (max_hosts > 0 && hosts->count > max_hosts)
+                    {
+                      g_strfreev (split);
+                      openvas_hosts_free (hosts);
+                      return NULL;
+                    }
                   /* Next IP address. */
                   current = htonl (ntohl (current) + 1);
                 }
@@ -1043,6 +1050,12 @@ openvas_hosts_new (const gchar *hosts_str)
                   memcpy (host->addr6.s6_addr, current, 16);
                   hosts->hosts = g_list_prepend (hosts->hosts, host);
                   hosts->count++;
+                  if (max_hosts > 0 && hosts->count > max_hosts)
+                    {
+                      g_strfreev (split);
+                      openvas_hosts_free (hosts);
+                      return NULL;
+                    }
                   /* Next IPv6 address. */
                   for (i = 15; i >= 0; --i)
                     if (current[i] < 255)
@@ -1062,6 +1075,12 @@ openvas_hosts_new (const gchar *hosts_str)
             break;
         }
       host_element++; /* move on to next element of splitted list */
+      if (max_hosts > 0 && hosts->count > max_hosts)
+        {
+          g_strfreev (split);
+          openvas_hosts_free (hosts);
+          return NULL;
+        }
     }
 
   /* Reverse list, as we were prepending (for performance) to the list. */
@@ -1075,6 +1094,22 @@ openvas_hosts_new (const gchar *hosts_str)
 
   g_strfreev (split);
   return hosts;
+}
+
+/**
+ * @brief Creates a new openvas_hosts_t structure and the associated hosts
+ * objects from the provided hosts_str.
+ *
+ * @param[in] hosts_str The hosts string. A copy will be created of this within
+ *                      the returned struct.
+ *
+ * @return NULL if error, otherwise, a hosts structure that should be released
+ * using @ref openvas_hosts_free.
+ */
+openvas_hosts_t *
+openvas_hosts_new (const gchar *hosts_str)
+{
+  return openvas_hosts_new_with_max (hosts_str, 0);
 }
 
 /**

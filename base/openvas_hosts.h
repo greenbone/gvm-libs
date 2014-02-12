@@ -104,6 +104,9 @@ struct openvas_hosts
 openvas_hosts_t *
 openvas_hosts_new (const gchar *);
 
+openvas_hosts_t *
+openvas_hosts_new_with_max (const gchar *, unsigned int);
+
 openvas_host_t *
 openvas_hosts_next (openvas_hosts_t *);
 
