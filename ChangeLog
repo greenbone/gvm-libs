@@ -1,3 +1,9 @@
+2014-02-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvti.c (nvti_from_keyfile): Call g_warning instead of g_error
+	which causes the scanner to abort when an erroneous nvti cache file is
+	present.
+
 2014-02-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_hosts.c (openvas_hosts_new_with_max): New function,

@@ -1546,7 +1546,7 @@ nvti_from_keyfile (const gchar * fn)
 
   if (!g_key_file_load_from_file (keyfile, fn, G_KEY_FILE_NONE, &error))
     {
-      g_error ("%s", error->message);
+      g_warning ("%s: %s", fn, error->message);
       return NULL;
     }
 
