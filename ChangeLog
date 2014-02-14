@@ -1,3 +1,11 @@
+2014-02-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r18761.
+
+	* base/nvti.c (nvti_from_keyfile): Call g_warning instead of g_error
+	which causes the scanner to abort when an erroneous nvti cache file is
+	present.
+
 2014-02-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r18731.
