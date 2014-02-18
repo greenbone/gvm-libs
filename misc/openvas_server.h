@@ -43,6 +43,7 @@ extern "C"
 #endif
 
 #include <gnutls/gnutls.h>
+#include <gnutls/abstract.h>
 #ifdef _WIN32
 #include <winsock2.h>
 #else
@@ -52,6 +53,10 @@ extern "C"
 int openvas_server_verify (gnutls_session_t);
 
 int openvas_server_open (gnutls_session_t *, const char *, int);
+
+int
+openvas_server_open_with_cert (gnutls_session_t *, const char *, int,
+                               const char *, const char *, const char *);
 
 int openvas_server_close (int, gnutls_session_t);
 

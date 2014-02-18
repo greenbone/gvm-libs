@@ -57,6 +57,7 @@
 #include <gcrypt.h>
 #include <glib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "openvas_server.h"
 
@@ -81,8 +82,8 @@ struct sockaddr_in address;
 static int server_attach_internal (int, gnutls_session_t *,
                                    const char *, int);
 static int server_new_internal (unsigned int, const char *,
-                                gchar *,
-                                gchar *, gchar *,
+                                const gchar *,
+                                const gchar *, const gchar *,
                                 gnutls_session_t *,
                                 gnutls_certificate_credentials_t *);
 static void my_gnutls_transport_set_lowat_default (gnutls_session_t);
@@ -141,18 +142,99 @@ openvas_server_verify (gnutls_session_t session)
   return 0;
 }
 
-
-/**
- * @brief Connect to the server using a given host and port.
- *
- * @param[in]  session  Pointer to GNUTLS session.
- * @param[in]  host     Host to connect to.
- * @param[in]  port     Port to connect to.
- *
- * @return 0 on success, -1 on error.
- */
+static void
+load_file (const char *file, gnutls_datum_t *loaded_file)
+{
+  FILE *f;
+  unsigned long filelen;
+  void *ptr;
+
+  if (!(f = fopen (file, "r"))
+      || fseek (f, 0, SEEK_END) != 0
+      || (filelen = ftell (f)) < 0
+      || fseek (f, 0, SEEK_SET) != 0
+      || !(ptr = g_malloc0 ((size_t) filelen))
+      || fread (ptr, 1, (size_t) filelen, f) < (size_t) filelen)
+    return;
+
+  loaded_file->data = ptr;
+  loaded_file->size = filelen;
+}
+
+static void
+unload_file(gnutls_datum_t *data)
+{
+  if (data)
+    g_free (data->data);
+}
+
+static char *cert_file = NULL;
+static char *key_file = NULL;
+static gnutls_x509_privkey_t key;
+static gnutls_x509_crt_t crt;
+
+static void
+set_cert_file (const char *filename)
+{
+  if (cert_file)
+    g_free (cert_file);
+  cert_file = g_strdup (filename);
+}
+
+static void
+set_key_file (const char *filename)
+{
+  if (key_file)
+    g_free (key_file);
+  key_file = g_strdup (filename);
+}
+
+static const char *
+get_key_file ()
+{
+  return key_file;
+}
+
+static const char *
+get_cert_file ()
+{
+  return cert_file;
+}
+
+static int
+client_cert_callback (gnutls_session_t session,
+                      const gnutls_datum_t * req_ca_rdn, int nreqs,
+                      const gnutls_pk_algorithm_t * sign_algos,
+                      int sign_algos_length, gnutls_retr2_st * st)
+{
+  int ret;
+  gnutls_datum_t data;
+
+  load_file (get_cert_file (), &data);
+  gnutls_x509_crt_init (&crt);
+  ret = gnutls_x509_crt_import (crt, &data, GNUTLS_X509_FMT_PEM);
+  unload_file (&data);
+  if (ret)
+    return ret;
+  st->cert.x509 = &crt;
+  st->cert_type = GNUTLS_CRT_X509;
+  st->ncerts = 1;
+
+  load_file (get_key_file (), &data);
+  gnutls_x509_privkey_init (&key);
+  ret = gnutls_x509_privkey_import (key, &data, GNUTLS_X509_FMT_PEM);
+  unload_file (&data);
+  if (ret)
+    return ret;
+  st->key.x509 = key;
+  st->key_type = GNUTLS_PRIVKEY_X509;
+  return 0;
+}
+
 int
-openvas_server_open (gnutls_session_t * session, const char *host, int port)
+openvas_server_open_with_cert (gnutls_session_t *session, const char *host,
+                               int port, const char *ca_file,
+                               const char *cert_file, const char *key_file)
 {
   int ret;
   int server_socket;
@@ -173,13 +255,21 @@ openvas_server_open (gnutls_session_t * session, const char *host, int port)
       reuse them.  */
 
   if (server_new_internal (GNUTLS_CLIENT, "NORMAL",
-                           NULL, NULL, NULL,
+                           ca_file, cert_file, key_file,
                            session, &credentials))
     {
       g_warning ("Failed to create client TLS session.");
       return -1;
     }
 
+  if (ca_file && cert_file && key_file)
+    {
+      set_cert_file (cert_file);
+      set_key_file (key_file);
+
+      gnutls_certificate_set_retrieve_function (credentials,
+                                                client_cert_callback);
+    }
 
   /* Create the port string. */
 
@@ -272,6 +362,21 @@ openvas_server_open (gnutls_session_t * session, const char *host, int port)
     }
 
   return server_socket;
+}
+
+/**
+ * @brief Connect to the server using a given host and port.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  host     Host to connect to.
+ * @param[in]  port     Port to connect to.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+openvas_server_open (gnutls_session_t * session, const char *host, int port)
+{
+  return openvas_server_open_with_cert (session, host, port, NULL, NULL, NULL);
 }
 
 /**
@@ -572,8 +677,8 @@ openvas_server_sendf_xml (gnutls_session_t * session, const char *format, ...)
  */
 static int
 server_new_internal (unsigned int end_type, const char *priority,
-                     gchar * ca_cert_file,
-                     gchar * cert_file, gchar * key_file,
+                     const gchar * ca_cert_file,
+                     const gchar * cert_file, const gchar * key_file,
                      gnutls_session_t * server_session,
                      gnutls_certificate_credentials_t * server_credentials)
 {

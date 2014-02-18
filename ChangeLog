@@ -1,3 +1,13 @@
+2014-02-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_server.c (server_new_internal): Constify string arguments.
+	(load_file, unload_file, sert_cert_file, set_key_file, get_key_file,
+	(get_cert_file, client_cert_callback, openvas_server_open_with_cert):
+	New functions.
+	(openvas_server_open): Call openvas_server_open().
+
+	* misc/openvas_server.h: Add include and function prototype.
+
 2014-02-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Post release version bump.
