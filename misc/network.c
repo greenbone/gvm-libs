@@ -53,6 +53,7 @@
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_CTRL */
 #include "support.h"
 #include "openvas_logging.h"
+#include "openvas_server.h"
 
 #include <setjmp.h>
 
@@ -583,47 +584,6 @@ verify_peer_certificate (gnutls_session_t session)
   return 0;
 }
 
-
-/** helper function copied from cli.c from GnuTLS
-    Reads a file into a gnutls_datum_t
- **/
-static gnutls_datum_t
-load_file (const char *file)
-{
-  FILE *f;
-  gnutls_datum_t loaded_file = { NULL, 0 };
-  long filelen;
-  void *ptr;
-
-  if (!(f = fopen (file, "r")))
-    return loaded_file;
-  if (fseek (f, 0, SEEK_END) != 0 || (filelen = ftell (f)) < 0
-      || fseek (f, 0, SEEK_SET) != 0 || !(ptr = emalloc ((size_t) filelen))
-      || fread (ptr, 1, (size_t) filelen, f) < (size_t) filelen)
-    {
-      fclose (f);
-      return loaded_file;
-    }
-
-  loaded_file.data = ptr;
-  loaded_file.size = (unsigned int) filelen;
-  fclose (f);
-  return loaded_file;
-}
-
-/**
- * @brief Helper function copied from cli.c from GnuTLS.
- *
- * Frees the data read by load_file.  It's safe to call this function
- * twice on the same data.
- */
-static void
-unload_file (gnutls_datum_t * data)
-{
-  efree (&(data->data));
-}
-
-
 /**
  * @brief Loads a certificate and the corresponding private key from PEM files.
  *
@@ -638,11 +598,11 @@ load_cert_and_key (gnutls_certificate_credentials_t xcred, const char *cert,
 {
   gnutls_x509_crt_t x509_crt = NULL;
   gnutls_x509_privkey_t x509_key = NULL;
-  gnutls_datum_t data = { NULL, 0 };
+  gnutls_datum_t data;
   int ret;
   int result = 0;
 
-  data = load_file (cert);
+  load_gnutls_file (cert, &data);
   if (data.data == NULL)
     {
       log_legacy_write ("[%d] load_cert_and_key: Error loading cert file %s\n",
@@ -669,9 +629,9 @@ load_cert_and_key (gnutls_certificate_credentials_t xcred, const char *cert,
       goto cleanup;
     }
 
-  unload_file (&data);
+  unload_gnutls_file (&data);
 
-  data = load_file (key);
+  load_gnutls_file (key, &data);
   if (data.data == NULL)
     {
       log_legacy_write ("[%d] load_cert_and_key: Error loading key file %s\n",
@@ -713,8 +673,6 @@ load_cert_and_key (gnutls_certificate_credentials_t xcred, const char *cert,
         }
     }
 
-  unload_file (&data);
-
   ret = gnutls_certificate_set_x509_key (xcred, &x509_crt, 1, x509_key);
   if (ret < 0)
     {
@@ -725,7 +683,7 @@ load_cert_and_key (gnutls_certificate_credentials_t xcred, const char *cert,
 
 cleanup:
 
-  unload_file (&data);
+  unload_gnutls_file (&data);
   if (x509_crt)
     gnutls_x509_crt_deinit (x509_crt);
   if (x509_key)

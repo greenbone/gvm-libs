@@ -142,8 +142,14 @@ openvas_server_verify (gnutls_session_t session)
   return 0;
 }
 
-static void
-load_file (const char *file, gnutls_datum_t *loaded_file)
+/**
+ * @brief Loads a file's data into gnutls_datum_t struct.
+ *
+ * @param[in]   file        File to load.
+ * @param[out]  load_file   Destination to load file into.
+ */
+void
+load_gnutls_file (const char *file, gnutls_datum_t *loaded_file)
 {
   FILE *f;
   unsigned long filelen;
@@ -161,8 +167,13 @@ load_file (const char *file, gnutls_datum_t *loaded_file)
   loaded_file->size = filelen;
 }
 
-static void
-unload_file(gnutls_datum_t *data)
+/**
+ * @brief Unloads a gnutls_datum_t struct's data.
+ *
+ * @param[in]  data     Pointer to gnutls_datum_t struct to be unloaded.
+ */
+void
+unload_gnutls_file(gnutls_datum_t *data)
 {
   if (data)
     g_free (data->data);
@@ -210,20 +221,20 @@ client_cert_callback (gnutls_session_t session,
   int ret;
   gnutls_datum_t data;
 
-  load_file (get_cert_file (), &data);
+  load_gnutls_file (get_cert_file (), &data);
   gnutls_x509_crt_init (&crt);
   ret = gnutls_x509_crt_import (crt, &data, GNUTLS_X509_FMT_PEM);
-  unload_file (&data);
+  unload_gnutls_file (&data);
   if (ret)
     return ret;
   st->cert.x509 = &crt;
   st->cert_type = GNUTLS_CRT_X509;
   st->ncerts = 1;
 
-  load_file (get_key_file (), &data);
+  load_gnutls_file (get_key_file (), &data);
   gnutls_x509_privkey_init (&key);
   ret = gnutls_x509_privkey_import (key, &data, GNUTLS_X509_FMT_PEM);
-  unload_file (&data);
+  unload_gnutls_file (&data);
   if (ret)
     return ret;
   st->key.x509 = key;

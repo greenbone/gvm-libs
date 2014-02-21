@@ -1,3 +1,15 @@
+2014-02-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_server.c (load_file, unload_file): Add function comments.
+	Rename to load_gnutls_file and unload_gnutls_file.
+	(client_cert_callback): Adjust functions calls.
+
+	* misc/openvas_server.h: Add functions headers.
+
+	* misc/network.c (load_file, unload_file): Remove unused functions.
+	(load_cert_and_key): Use functions from misc/openvas_server.c and
+	adjust calls accordingly. Remove double-free call.
+
 2014-02-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/openvas_server.c (server_new_internal): Constify string arguments.
