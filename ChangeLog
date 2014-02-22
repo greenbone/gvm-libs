@@ -1,3 +1,8 @@
+2014-02-22  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* base/openvas_hosts.c (openvas_hosts_new_with_max): Remove useless
+	comparison as an unsigned int will never be < 0.
+
 2014-02-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/openvas_server.c (load_file, unload_file): Add function comments.

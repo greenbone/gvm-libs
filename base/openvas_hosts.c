@@ -915,7 +915,7 @@ openvas_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
   gchar **host_element, **split;
   gchar *str;
 
-  if (hosts_str == NULL || max_hosts < 0)
+  if (hosts_str == NULL)
     return NULL;
 
   hosts = g_malloc0 (sizeof (openvas_hosts_t));
