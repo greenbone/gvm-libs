@@ -1017,11 +1017,15 @@ get_omp_response_503 (gnutls_session_t* session, const gchar* command,
           return -1;
         }
       char first = status[0];
-      if (first == '2') return 0;
+      if (first == '2')
+        {
+          free_entity (*response);
+          return 0;
+        }
       if (strlen (status) == 3 && strcmp (status, "503") == 0)
         {
-          /** @todo evaluate if response has to be freed here */
-          sleep (0.5);
+          free_entity (*response);
+          sleep (1);
           continue;
         }
       free_entity (*response);

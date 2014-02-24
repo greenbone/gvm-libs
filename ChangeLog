@@ -1,3 +1,8 @@
+2013-02-24  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (get_omp_response_503): Always free response.  Use whole
+	number for sleep, because 0.5 will be truncated to zero.
+
 2014-02-22  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/openvas_hosts.c (openvas_hosts_new_with_max): Remove useless
