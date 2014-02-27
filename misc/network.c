@@ -513,78 +513,6 @@ set_gnutls_protocol (gnutls_session_t session, int encaps, const char *priority)
 }
 
 /**
- * Verifies the peer's certificate.  If the certificate is not valid or
- * cannot be verified, the function logs a diagnostics and
- * returns -1.  If the certificate was verified successfully the
- * function returns 0.  If the peer did not send a certificate, the
- * function also returns 0.
- */
-static int
-verify_peer_certificate (gnutls_session_t session)
-{
-  static struct
-  {
-    int flag;
-    const char *message;
-  } messages[] =
-  {
-    {
-    GNUTLS_CERT_NOT_ACTIVATED, "The certificate is not yet valid"},
-    {
-    GNUTLS_CERT_EXPIRED, "The certificate has expired"},
-    {
-    GNUTLS_CERT_REVOKED, "The certificate has been revoked"},
-    {
-    GNUTLS_CERT_SIGNER_NOT_FOUND,
-        "The certificate doesn't have a known issuer"},
-    {
-    GNUTLS_CERT_SIGNER_NOT_CA, "The certificate's issuer is not a CA"},
-    {
-    GNUTLS_CERT_INSECURE_ALGORITHM,
-        "The certificate was signed using an insecure algorithm"},
-    {
-    GNUTLS_CERT_INVALID, "The certificate is invalid"},
-    {
-  0, NULL},};
-  unsigned int status;
-  int ret;
-  int i;
-  int any_error;
-
-  ret = gnutls_certificate_verify_peers2 (session, &status);
-  if (ret == GNUTLS_E_NO_CERTIFICATE_FOUND)
-    /* The peer did not send a certificate.  We treat it as a valid
-     * certificate in this function */
-    return 0;
-  if (ret < 0)
-    {
-      tlserror ("gnutls_certificate_verify_peers2", ret);
-      return -1;
-    }
-
-  for (i = any_error = 0; messages[i].message != NULL; i++)
-    if (status & messages[i].flag)
-      any_error = 1;
-
-  if (any_error)
-    {
-      log_legacy_write ("[%d] failed to verify the peer certificate:\n",
-                        getpid ());
-      for (i = 0; messages[i].message != NULL; i++)
-        {
-          if (status & messages[i].flag)
-            log_legacy_write ("[%d]    %s\n",
-                              getpid (), messages[i].message);
-        }
-    }
-
-  if (status)
-    return -1;
-
-  return 0;
-}
-
-/**
  * @brief Loads a certificate and the corresponding private key from PEM files.
  *
  * The private key may be encrypted, in which case the password to
@@ -1260,7 +1188,7 @@ ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc)
           goto fail;
         }
 
-      if (verify_peer_certificate (fp->tls_session) < 0)
+      if (openvas_server_verify (fp->tls_session))
         {
           goto fail;
         }

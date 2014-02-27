@@ -1,3 +1,9 @@
+2014-02-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network.c (verify_peer_certificate): Remove function.
+	(ovas_scanner_context_attach): Adequately use openvas_server_verify
+	instead of verify_peer_certificate.
+
 2014-02-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_compress.c (openvas_compress, openvas_uncompress): Remove
