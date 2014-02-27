@@ -1,4 +1,9 @@
-2013-02-24  Matthew Mundell <matthew.mundell@greenbone.net>
+2014-02-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_compress.c (openvas_compress, openvas_uncompress): Remove
+	unecessary check for unsigned value.
+
+2014-02-24  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (get_omp_response_503): Always free response.  Use whole
 	number for sleep, because 0.5 will be truncated to zero.

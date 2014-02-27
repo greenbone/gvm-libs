@@ -46,7 +46,7 @@ openvas_compress (const void *src, unsigned long srclen, unsigned long *dstlen)
 {
   unsigned long buflen = srclen * 2;
 
-  if (src == NULL || srclen <= 0 || dstlen == NULL)
+  if (src == NULL || dstlen == NULL)
     return NULL;
 
   if (buflen < 30)
@@ -137,7 +137,7 @@ openvas_uncompress (const void *src, unsigned long srclen,
 {
   unsigned long buflen = srclen * 2;
 
-  if (src == NULL || srclen <= 0 || dstlen == NULL)
+  if (src == NULL || dstlen == NULL)
     return NULL;
 
   while (1)
