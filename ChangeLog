@@ -1,3 +1,7 @@
+2014-02-27  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/CMakeLists.txt: Link against base when doing a static build.
+
 2014-02-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (verify_peer_certificate): Remove function.
