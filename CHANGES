@@ -1,3 +1,22 @@
+openvas-libraries 6.0.2 (2014-02-28)
+
+This is the second maintenance release of the openvas-libraries 6.0 module for
+the Open Vulnerability Assessment System 6 (OpenVAS-6).
+
+It improves the handling of encoding conversions and NVTI cache files and fixes
+an issue with UDP port state detection.
+
+Many thanks to everyone who has contributed to the 6.0.1 release:
+Benoît Allard, Sebastien Aucouturier, Hani Benhabiles, Matthew Mundell and
+Michael Wiegand.
+
+Main changes compared to 6.0.1:
+* Handle ISO/UTF-8 conversion consistently.
+* Add standalone nasl linter.
+* Improve handling of empty or erroneous NVTI cache files.
+* Fix an issue with UDP port state detection due to inconsistent port range parsing.
+
+
 openvas-libraries 6.0.1 (2013-10-20)
 
 This is the first maintenance release of the openvas-libraries 6.0 module for

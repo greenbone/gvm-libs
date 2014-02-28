@@ -1,3 +1,9 @@
+2014-02-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the openvas-libraries 6.0.2 release.
+
+	* CHANGES: Updated.
+
 2014-02-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r18761.
