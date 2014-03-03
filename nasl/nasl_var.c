@@ -1375,13 +1375,6 @@ get_var_type_by_num (lex_ctxt * lexic, int num)
 }
 
 int
-get_var_type_by_name (lex_ctxt * lexic, const char *name)
-{
-  named_nasl_var *v = get_var_ref_by_name (lexic, name, 1);
-  return v == NULL ? VAR2_UNDEF : v->u.var_type;
-}
-
-int
 get_local_var_type_by_name (lex_ctxt * lexic, const char *name)
 {
   named_nasl_var *v = get_var_ref_by_name (lexic, name, 0);

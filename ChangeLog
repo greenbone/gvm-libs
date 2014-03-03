@@ -1,3 +1,32 @@
+2014-03-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* COPYING: Remove lsearch.c license.
+
+	* nasl/lsearch.c: Remove unused file.
+
+	* misc/network.c (ovas_allocate_connection): Rename to
+	openvas_register_connection for consistency.
+	(openvas_register_connection): Remove useless function.
+	(ovas_scanner_context_attach): Adjust function call.
+
+	* nasl/CMakeLists.txt: Don't build lsearch.c
+
+	* nasl/genrand.c (set_rand_reseed_callback_ntlmssp)
+	(set_need_random_reseed_ntlmssp), nasl/hmacmd5.c,
+	(hmac_md5_init_rfc2104), nasl/nasl_builtin_synscan.c (find_rtt),
+	nasl/nasl_crypto2.c (map_file), nasl/nasl_lex_ctxt.c
+	(get_top_level_ctxt), nasl/nasl_var.c (get_var_type_by_name),
+	nasl/smb_crypt.c (D_P16, E_old_pw_hash, cred_hash1, cred_hash2)
+	(cred_hash3, sam_pwd_hash, SMBencrypt_ntlmssp, E_md5hash_ntlmssp),
+	nasl/time.c (convert_timeval_to_timespec_ntlmssp)
+	(convert_timespec_to_time_t_ntlmssp)
+	convert_timespec_to_timeval_ntlmssp): Remove unused functions.
+
+	* nasl/proto.h, nasl/smb_crypt.h, nasl/nasl_lex_ctxt.h: Remove deleted
+	functions' prototypes.
+
+	* nasl/nasl_scanner_glue.c (script_get_preference_file_content): Fix
+	usage of data pointer instead of data size in error checking.
 2014-02-27  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* misc/CMakeLists.txt: Link against base when doing a static build.

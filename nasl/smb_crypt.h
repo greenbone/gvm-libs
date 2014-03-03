@@ -54,13 +54,9 @@ void SMBsesskeygen_ntv1_ntlmssp(const uchar kr[16], const uchar * nt_resp, uint8
 
 void SMBOWFencrypt_ntlmssp(const uchar passwd[16], const uchar *c8, uchar p24[24]);
 
-void SMBencrypt_ntlmssp(const char *passwd, const uchar *c8, uchar p24[24]);
-
 void SMBencrypt_hash_ntlmssp(const uchar lm_hash[16], const uchar *c8, uchar p24[24]);
 
 void SMBNTencrypt_hash_ntlmssp(const uchar nt_hash[16], uchar *c8, uchar *p24);
-
-void E_md5hash_ntlmssp(const uchar salt[16], const uchar nthash[16], uchar hash_out[16]);
 
 bool E_deshash_ntlmssp(const char *passwd, uchar p16[16]);
 

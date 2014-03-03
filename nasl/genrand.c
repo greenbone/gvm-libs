@@ -71,17 +71,6 @@ static void (*reseed_callback_ntlmssp)(int *newseed);
  Copy any user given reseed data.
 *****************************************************************/
 
-void set_rand_reseed_callback_ntlmssp(void (*fn)(int *))
-{
-	reseed_callback_ntlmssp = fn;
-	set_need_random_reseed_ntlmssp();
-}
-
-void set_need_random_reseed_ntlmssp()
-{
-	done_reseed_ntlmssp = False;
-}
-
 static void get_rand_reseed_data_ntlmssp(int *reseed_data)
 {
 	if (reseed_callback_ntlmssp) {

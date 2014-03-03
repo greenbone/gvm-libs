@@ -544,11 +544,10 @@ script_get_preference_file_content (lex_ctxt * lexic)
   if (content == NULL)
     return FAKE_CELL;
   contentsize = get_plugin_preference_file_size (script_infos, value);
-  if (content <= 0)
+  if (contentsize <= 0)
     {
-      nasl_perror (lexic,
-                   "script_get_preference_file_content: could not get size of file from preference %s\n",
-                   pref);
+      nasl_perror (lexic, "script_get_preference_file_content: could not get "
+                          " size of file from preference %s\n", pref);
       return NULL;
     }
 

@@ -1277,39 +1277,3 @@ nasl_bf_cbc_decrypt (lex_ctxt * lexic)
 {
   return nasl_bf_cbc (lexic, 0);
 }
-
-
-/*--------------------------------------------------------------*/
-
-/**
- * Reads the contents of the file given by filename into memory and
- * returns it as a gnutls_datum_t.  If an error occurs the
- * gnutls_datum_t's data field is NULL.
- */
-gnutls_datum_t
-map_file (const char *filename)
-{
-  struct stat st;
-  int fd = -1;
-  char *map;
-  gnutls_datum_t contents = { NULL, 0 };
-
-  fd = open (filename, O_RDONLY);
-  if (fd < 0)
-    goto fail;
-  if (fstat (fd, &st) < 0)
-    goto fail;
-
-  map = mmap (NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-  if (map == NULL || map == MAP_FAILED)
-    goto fail;
-
-  contents.data = (unsigned char *) nasl_strndup (map, st.st_size);
-  contents.size = st.st_size;
-  munmap (map, st.st_size);
-
-fail:
-  if (fd >= 0)
-    close (fd);
-  return contents;
-}

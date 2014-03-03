@@ -53,7 +53,7 @@ add_custom_command (
    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.output)
 
 set (FILES arc4.c capture_packet.c charcnv.c exec.c genrand.c hmacmd5.c
-     iconv.c lint.c lsearch.c md4.c md5.c nasl.c nasl_builtin_find_service.c
+     iconv.c lint.c md4.c md5.c nasl.c nasl_builtin_find_service.c
      nasl_builtin_openvas_tcp_scanner.c nasl_builtin_synscan.c nasl_builtin_nmap.c
      nasl_cmd_exec.c nasl_crypto2.c nasl_ssh.c nasl_cert.c
      nasl_crypto.c nasl_debug.c nasl_func.c nasl_grammar.tab.c nasl_host.c

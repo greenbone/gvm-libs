@@ -85,7 +85,6 @@ nasl/genrand.c: GPLv2+
 nasl/hmacmd5.[c|h]: GPLv2+
 nasl/iconv.[c|h]: GPLv2+
 nasl/lint.c: GPLv2
-nasl/lsearch.c: BSD3
 nasl/md4.[c|h]: GPLv2+
 nasl/md5.[c|h]: Public Domain
 nasl/nasl.[c|h]: GPLv2

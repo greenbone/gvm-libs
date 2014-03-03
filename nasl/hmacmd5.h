@@ -75,7 +75,6 @@ typedef uint16 smb_ucs2_t;
 
 /* turn a 7 bit character into a ucs2 character */
 #define UCS2_CHAR(c) ((c) << UCS2_SHIFT)
-void hmac_md5_init_rfc2104(uchar*  key, int key_len, HMACMD5Context *ctx);
 void hmac_md5_init_limK_to_64(const uchar* key, int key_len, HMACMD5Context *ctx);
 
 void hmac_md5_update(const uchar* text, int text_len, HMACMD5Context *ctx);

@@ -48,7 +48,6 @@ typedef struct struct_lex_ctxt
 
 lex_ctxt *init_empty_lex_ctxt (void);
 void free_lex_ctxt (lex_ctxt *);
-lex_ctxt *get_top_level_ctxt (lex_ctxt *);
 
 void dump_ctxt (lex_ctxt *);
 

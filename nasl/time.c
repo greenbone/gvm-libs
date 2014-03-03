@@ -51,27 +51,6 @@
 
 #define TIME_FIXUP_CONSTANT_INT 11644473600LL
 
-time_t convert_timespec_to_time_t_ntlmssp(struct timespec ts)
-{
-	/* 1 ns == 1,000,000,000 - one thousand millionths of a second.
-	   increment if it's greater than 500 millionth of a second. */
-	if (ts.tv_nsec > 500000000) {
-		return ts.tv_sec + 1;
-	}
-	return ts.tv_sec;
-}
-/****************************************************************************
- *  Convert a normalized timeval to a timespec.
- *  ****************************************************************************/
-
-struct timespec convert_timeval_to_timespec_ntlmssp(const struct timeval tv)
-{
-	struct timespec ts;
-	ts.tv_sec = tv.tv_sec;
-	ts.tv_nsec = tv.tv_usec * 1000;
-	return ts;
-}
-
 /****************************************************************************
  *  Put a 8 byte filetime from a struct timespec. Uses GMT.
  *  ****************************************************************************/
@@ -105,14 +84,6 @@ void unix_timespec_to_nt_time_ntlmssp(NTTIME *nt, struct timespec ts)
 /****************************************************************************
  *  Convert a normalized timespec to a timeval.
  *  ****************************************************************************/
-
-struct timeval convert_timespec_to_timeval_ntlmssp(const struct timespec ts)
-{
-	struct timeval tv;
-	tv.tv_sec = ts.tv_sec;
-	tv.tv_usec = ts.tv_nsec / 1000;
-	return tv;
-}
 
 /***************************************************************************
  A gettimeofday wrapper.

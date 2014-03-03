@@ -276,8 +276,8 @@ release_connection_fd (int fd)
  * @param soc Socket to use.
  */
 int
-ovas_allocate_connection (int soc, void *ssl,
-                          gnutls_certificate_credentials_t certcred)
+openvas_register_connection (int soc, void *ssl,
+                             gnutls_certificate_credentials_t certcred)
 {
   int fd;
   openvas_connection *p;
@@ -297,16 +297,6 @@ ovas_allocate_connection (int soc, void *ssl,
   p->last_err = 0;
 
   return fd;
-}
-
-/**
- * @param soc Socket to use.
- */
-int
-openvas_register_connection (int soc, void *ssl,
-                             gnutls_certificate_credentials_t certcred)
-{
-  return ovas_allocate_connection (soc, ssl, certcred);
 }
 
 int
@@ -1124,11 +1114,11 @@ ovas_scanner_context_free (ovas_scanner_context_t ctx)
 int
 ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc)
 {
-  int fd = -1;
+  int fd;
   openvas_connection *fp = NULL;
   int ret;
 
-  fd = ovas_allocate_connection (soc, GINT_TO_POINTER (ctx->encaps), NULL);
+  fd = openvas_register_connection (soc, GINT_TO_POINTER (ctx->encaps), NULL);
   if (fd < 0)
     return -1;
 

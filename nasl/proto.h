@@ -27,7 +27,6 @@
 #include "smb.h"
 /*implemented in genrand.c*/
 void generate_random_buffer_ntlmssp( unsigned char *out, int len);
-void set_need_random_reseed_ntlmssp();
 /*implemented in time.c*/
 void put_long_date_ntlmssp(char *p, time_t t);
 void GetTimeOfDay_ntlmssp(struct timeval *tval);

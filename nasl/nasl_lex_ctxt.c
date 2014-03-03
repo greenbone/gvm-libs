@@ -59,16 +59,6 @@ free_lex_ctxt (lex_ctxt * c)
   efree (&c);
 }
 
-lex_ctxt *
-get_top_level_ctxt (lex_ctxt * ctxt)
-{
-  lex_ctxt *top = ctxt;
-
-  while (top->up_ctxt != NULL)
-    top = top->up_ctxt;
-  return top;
-}
-
 void
 dump_ctxt (lex_ctxt * c)
 {

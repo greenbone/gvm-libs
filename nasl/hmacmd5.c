@@ -28,44 +28,6 @@
 #include "hmacmd5.h"
 
 /**
- * @brief The rfc 2104 version of hmac_md5 initialisation.
- */
-void hmac_md5_init_rfc2104(uchar*  key, int key_len, HMACMD5Context *ctx)
-{
-        int i;
-
-        /* if key is longer than 64 bytes reset it to key=MD5(key) */
-        if (key_len > 64)
-	{
-		uchar tk[16];
-                struct MD5Context tctx;
-
-                MD5Init(&tctx);
-                MD5Update(&tctx, key, key_len);
-                MD5Final(tk, &tctx);
-
-                key = tk;
-                key_len = 16;
-        }
-
-        /* start out by storing key in pads */
-        ZERO_STRUCT(ctx->k_ipad);
-        ZERO_STRUCT(ctx->k_opad);
-        memcpy( ctx->k_ipad, key, key_len);
-        memcpy( ctx->k_opad, key, key_len);
-
-        /* XOR key with ipad and opad values */
-        for (i=0; i<64; i++)
-	{
-                ctx->k_ipad[i] ^= 0x36;
-                ctx->k_opad[i] ^= 0x5c;
-        }
-
-        MD5Init(&ctx->ctx);
-        MD5Update(&ctx->ctx, ctx->k_ipad, 64);
-}
-
-/**
  * @brief The microsoft version of hmac_md5 initialisation.
  */
 void hmac_md5_init_limK_to_64(const uchar* key, int key_len,

@@ -333,45 +333,6 @@ void E_P24(const uchar *p21, const uchar *c8, uchar *p24)
 	smbhash(p24+16, c8, p21+14, 1);
 }
 
-void D_P16(const uchar *p14, const uchar *in, uchar *out)
-{
-	smbhash(out, in, p14, 0);
-        smbhash(out+8, in+8, p14+7, 0);
-}
-
-void E_old_pw_hash( const uchar *p14, const uchar *in, uchar *out)
-{
-        smbhash(out, in, p14, 1);
-        smbhash(out+8, in+8, p14+7, 1);
-}
-
-void cred_hash1(uchar *out, const uchar *in, const uchar *key)
-{
-	uchar buf[8];
-
-	smbhash(buf, in, key, 1);
-	smbhash(out, buf, key+9, 1);
-}
-
-void cred_hash2(uchar *out,uchar *in,uchar *key)
-{
-	uchar buf[8];
-	static uchar key2[8];
-
-	smbhash(buf, in, key, 1);
-	key2[0] = key[7];
-	smbhash(out, buf, key2, 1);
-}
-
-void cred_hash3(uchar *out, const uchar *in,uchar *key, int forw)
-{
-        static uchar key2[8];
-
-        smbhash(out, in, key, forw);
-        key2[0] = key[7];
-        smbhash(out + 8, in + 8, key2, forw);
-}
-
 void SamOEMhash( uchar *data, const uchar *key, int val)
 {
   uchar hash[256];
@@ -421,18 +382,6 @@ void SamOEMhash( uchar *data, const uchar *key, int val)
   }
 }
 
-void sam_pwd_hash(unsigned int rid, const uchar *in, uchar *out, int forw)
-{
-	uchar s[14];
-
-	s[0] = s[4] = s[8] = s[12] = (uchar)(rid & 0xFF);
-	s[1] = s[5] = s[9] = s[13] = (uchar)((rid >> 8) & 0xFF);
-	s[2] = s[6] = s[10]        = (uchar)((rid >> 16) & 0xFF);
-	s[3] = s[7] = s[11]        = (uchar)((rid >> 24) & 0xFF);
-
-	smbhash(out, in, s, forw);
-	smbhash(out+8, in+8, s+7, forw);
-}
 void SMBsesskeygen_ntv1_ntlmssp(const uchar kr[16],
 			const uchar * nt_resp, uint8 sess_key[16])
 {
@@ -451,14 +400,6 @@ void SMBOWFencrypt_ntlmssp(const uchar passwd[16], const uchar *c8, uchar p24[24
   ZERO_STRUCT(p21);
   memcpy(p21, passwd, 16);
   E_P24(p21, c8, p24);
-}
-
-void SMBencrypt_ntlmssp(const char *passwd, const uchar *c8, uchar p24[24])
-{
-  uchar lm_hash[16];
-
-  E_deshash_ntlmssp(passwd, lm_hash);
-  SMBencrypt_hash_ntlmssp(lm_hash, c8, p24);
 }
 
 void SMBencrypt_hash_ntlmssp(const uchar lm_hash[16], const uchar *c8, uchar p24[24])
@@ -498,19 +439,6 @@ void SMBsesskeygen_lm_sess_key_ntlmssp(const uchar lm_hash[16], const uchar lm_r
  * @param 16 byte NT hash.
  * @param 16 byte return hashed with md5, caller allocated 16 byte buffer
 **/
-
-void E_md5hash_ntlmssp(const uchar salt[16], const uchar nthash[16], uchar hash_out[16])
-{
-  struct MD5Context tctx;
-  uchar array[32];
-
-  memset(hash_out, '\0', 16);
-  memcpy(array, salt, 16);
-  memcpy(&array[16], nthash, 16);
-  MD5Init(&tctx);
-  MD5Update(&tctx, array, 32);
-  MD5Final(hash_out, &tctx);
-}
 
 /**
  * Creates the DES forward-only Hash of the users password in DOS ASCII charset
