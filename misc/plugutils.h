@@ -120,7 +120,6 @@ char *get_plugin_preference (struct arglist *, const char *);
 const char *get_plugin_preference_fname (struct arglist *, const char *);
 char *get_plugin_preference_file_content (struct arglist *, const char *);
 const long get_plugin_preference_file_size (struct arglist *, const char *);
-int plugin_is_newstyle (const nvti_t *nvt);
 
 char *find_in_path (char *, int);
 

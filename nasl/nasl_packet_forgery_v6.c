@@ -830,7 +830,6 @@ struct v6pseudo_udp_hdr
 {
   struct in6_addr s6addr;
   struct in6_addr d6addr;
-  char nothing;
   char proto;
   unsigned short len;
   struct udphdr udpheader;
@@ -1157,7 +1156,6 @@ struct v6pseudo_icmp_hdr
 {
   struct in6_addr s6addr;
   struct in6_addr d6addr;
-  char nothing;
   char proto;
   unsigned short len;
   struct icmp6_hdr icmpheader;

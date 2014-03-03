@@ -502,27 +502,6 @@ mark_post (struct arglist *desc, const char *action, const char *content)
 }
 
 /**
- * @brief Checks if a plugin has all new nvt style tags.
- *
- * @param nvti NVT Information to check in for new style tags.
- *
- * @return 0 if not new style plugin, 1 otherwise.
- */
-int
-plugin_is_newstyle (const nvti_t *nvti)
-{
-  const char* tag = nvti_tag (nvti);
-
-  return (tag
-          && strstr (tag, "summary=")
-          && strstr (tag, "affected=")
-          && strstr (tag, "insight=")
-          && strstr (tag, "vuldetect=")
-          && strstr (tag, "impact=")
-          && strstr (tag, "solution="));
-}
-
-/**
  * @brief Post a security message (e.g. LOG, NOTE, WARNING ...).
  *
  * @param desc  The arglist where to get the nvtichache from and some

@@ -832,7 +832,6 @@ struct pseudo_udp_hdr
 {
   struct in_addr saddr;
   struct in_addr daddr;
-  char nothing;
   char proto;
   unsigned short len;
   struct udphdr udpheader;
