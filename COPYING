@@ -16,10 +16,10 @@ module can be used under the respective licenses.
 GPLv2: See file COPYING.GPLv2
 LGPLv2: See file COPYING.LGPLv2
 BSD2: See file COPYING.BSD2
-BSD3: See file COPYING.BSD3
 
 The following overview was initially collected 20100726 based
-on the header of the respective files and last updated 20131126:
+on the header of the respective files and since then updated
+as changes were applied:
 
 base/array.[c|h]: GPLv2+
 base/certificate.[c|h]: GPLv2+
