@@ -61,19 +61,14 @@ struct name_cache
 char *cache_inc (const char *name);
 void cache_dec (const char *name);
 
-void arg_add_value_at_head (struct arglist *arglst, const char *name, int type,
-                            long length, void *value);
 void arg_add_value (struct arglist *, const char *, int, long, void *);
 int arg_set_value (struct arglist *, const char *, long, void *);
-int arg_set_type (struct arglist *, const char *, int);
 void *arg_get_value (struct arglist *, const char *);
-int arg_get_length (struct arglist *, const char *);
 int arg_get_type (struct arglist *, const char *);
 void arg_dump (struct arglist *, int);
 void arg_dup (struct arglist *, struct arglist *);
 void arg_free (struct arglist *);
 void arg_free_all (struct arglist *);
-void arg_free_name (char *);
 void arg_del_value (struct arglist *, const char *name);
 
 struct arglist * str2arglist (char *str);

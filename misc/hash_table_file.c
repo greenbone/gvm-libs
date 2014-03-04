@@ -50,80 +50,6 @@
 #define GROUP_NONE "GHashTableGKeyFile"
 
 /**
- * @brief Adds a key/value pair of strings to a keyfile.
- *
- * The group for this entry will be GROUP_NONE (defined as GHashTableGKeyFile).
- * This function is of main use within a g_hash_table_foreach.
- *
- * @param key The key to add.
- * @param value The value to add.
- * @param file The Key/value file (userdata).
- */
-static void
-add_to_keyfile (char *key_str, char *value_str, GKeyFile * keyfile)
-{
-  g_key_file_set_string (keyfile, GROUP_NONE, key_str, value_str);
-}
-
-/**
- * @brief  Writes key/value pairs from a g_hash_table into a key/value file.
- *
- * The procedure will only work with string keys and string values.
- * The file format follows freedesktop.org specifications, the group will be
- * GROUP_NONE (define).
- *
- * @param ghashtable The hashtable to read key/value pairs from.
- * @param filename The filename for the key/value file.
- *
- * @return TRUE in case of success, FALSE otherwise.
- *
- * @see hash_table_file_read
- * @see GKeyFile
- */
-gboolean
-hash_table_file_write (GHashTable * ghashtable, const char *filename)
-{
-  int fd;
-  gchar *keyfile_data;
-  gsize data_length;
-  GKeyFile *file;
-
-  // Initialize the key file
-  file = g_key_file_new ();
-  g_key_file_set_comment (file, GROUP_NONE, NULL,
-                          "Automatically generated file - please to not edit",
-                          NULL);
-  // Add the entries of the hashtable to the keyfile (in mem)
-  g_hash_table_foreach (ghashtable, (GHFunc) add_to_keyfile, file);
-
-  // Open a file to write content to.
-  // (with GLIB >= 2.8 we can use file_set_contents)
-  fd = open (filename, O_RDWR | O_CREAT | O_TRUNC, 0600);
-  if (!fd)
-    {
-      g_key_file_free (file);
-      return FALSE;
-    }
-
-  // "Export" data and write it to file.
-  keyfile_data = g_key_file_to_data (file, &data_length, NULL);
-  int written = write (fd, keyfile_data, data_length);
-
-  // Clean up
-  close (fd);
-  g_free (keyfile_data);
-  g_key_file_free (file);
-
-  if (written != data_length)
-    {
-      return FALSE;
-    }
-
-  // Assume that everything went just fine
-  return TRUE;
-}
-
-/**
  * @brief Reads key/value pairs (strings) from a GKeyFile into a GHashtable.
  *
  * Will free the GKeyFile.
@@ -176,8 +102,6 @@ hash_table_from_gkeyfile (GKeyFile * gkeyfile)
  *
  * @return A GHashTable, mirroring the text or NULL in case of an error.
  *
- * @see hash_table_file_read
- * @see hash_table_file_write
  * @see GKeyFile
  */
 GHashTable *
@@ -188,30 +112,6 @@ hash_table_file_read_text (const char *text, gsize length)
   // Load key file from mem
   file = g_key_file_new ();
   g_key_file_load_from_data (file, text, length, G_KEY_FILE_NONE, NULL);
-
-  return hash_table_from_gkeyfile (file);
-}
-
-
-/**
- * @brief Reads key/value pairs (strings) from a file back into a GHashtable.
- *
- * The file has to follow freedesktop.org specifications.
- *
- * @param filename The filename to read from.
- * @return A GHashTable, mirroring the file or NULL in case of an error.
- *
- * @see hash_table_file_write
- * @see GKeyFile
- */
-GHashTable *
-hash_table_file_read (const char *filename)
-{
-  GKeyFile *file = NULL;
-
-  // Load key file into mem
-  file = g_key_file_new ();
-  g_key_file_load_from_file (file, filename, G_KEY_FILE_NONE, NULL);
 
   return hash_table_from_gkeyfile (file);
 }

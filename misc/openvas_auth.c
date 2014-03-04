@@ -885,68 +885,6 @@ can_user_ldap_connect (const gchar * username)
   return TRUE;
 }
 
-/**
- * @brief Authenticate a credential pair.
- *
- * Uses the configurable authenticators list, if available.
- * Defaults to file-based (openvas users directory) authentication otherwise.
- *
- * @param username Username, might not contain %-sign (otherwise -1 is
- *                 returned).
- * @param password Password.
- *
- * @return 0 authentication success, otherwise the result of the last
- *         authentication trial: 1 authentication failure, -1 error.
- */
-int
-openvas_authenticate (const gchar * username, const gchar * password)
-{
-  if (strchr (username, '%') != NULL)
-    return -1;
-
-  if (initialized == FALSE)
-    {
-      g_warning ("Call init function first.");
-      return -1;
-    }
-
-  if (authenticators == NULL)
-    return openvas_authenticate_classic (username, password, NULL);
-
-  // Try each authenticator in the list.
-  int ret = -1;
-  GSList *item = authenticators;
-  while (item)
-    {
-      authenticator_t authent = (authenticator_t) item->data;
-
-      // LDAP_CONNECT is either the only method to try or not tried.
-      if (authent->method == AUTHENTICATION_METHOD_LDAP_CONNECT)
-        {
-          if (can_user_ldap_connect (username) == TRUE)
-            {
-              return authent->authenticate (username, password, authent->data);
-            }
-          else
-            {
-              item = g_slist_next (item);
-              continue;
-            }
-        }
-
-      ret = authent->authenticate (username, password, authent->data);
-      g_debug ("Authentication via '%s' (order %d) returned %d.",
-               authentication_methods[authent->method], authent->order, ret);
-
-      // Return if successfull
-      if (ret == 0)
-        return 0;
-
-      item = g_slist_next (item);
-    }
-  return ret;
-}
-
 #ifndef _WIN32
 /**
  * @brief Authenticate a credential pair and expose the method used.

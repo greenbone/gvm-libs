@@ -160,84 +160,6 @@ ads_auth_info_free (ads_auth_info_t info)
   g_free (info);
 }
 
-/**
- * @brief Find value(s) of an attribute of an object.
- *
- * @param[in] ldap      The ldap handle to use.
- * @param[in] dn        DN of the object to search.
- * @param[in] attribute The attribute whose value to query.
- *
- * @return List of gchar*s, to be freed by caller. NULL for empty list or
- *         error.
- */
-GSList *
-ldap_object_get_attribute_values (LDAP * ldap, const gchar * dn,
-                                  gchar * attribute)
-{
-  char *attrs[] = { attribute, NULL };
-  char *attr_it = NULL;
-  struct berval **attr_vals = NULL;
-  BerElement *ber = NULL;
-  LDAPMessage *result, *result_it;
-  GSList *string_list = NULL;
-
-  int res = ldap_search_ext_s (ldap, dn /* base */ , LDAP_SCOPE_BASE,
-                               NULL /* filter */ , attrs, 0 /* attrsonly */ ,
-                               NULL /* serverctrls */ , NULL /* clientctrls */ ,
-                               LDAP_NO_LIMIT,   /* timeout */
-                               LDAP_NO_LIMIT,   /* sizelimit */
-                               &result);
-  if (res != LDAP_SUCCESS)
-    {
-      g_debug ("LDAP Query in %s failed: %s", __FUNCTION__,
-               ldap_err2string (res));
-      return FALSE;
-    }
-
-  result_it = ldap_first_entry (ldap, result);
-  if (result_it != NULL)
-    {
-      // Get the first (and only) attribute in the entry.
-      attr_it = ldap_first_attribute (ldap, result_it, &ber);
-      if (attr_it != NULL)
-        {
-          /* Get the attribute values. */
-          attr_vals = ldap_get_values_len (ldap, result_it, attr_it);
-          if (attr_vals != NULL)
-            {
-              struct berval **attr_vals_it = attr_vals;
-              while (attr_vals_it && *attr_vals_it)
-                {
-                  string_list =
-                    g_slist_prepend (string_list,
-                                     g_strdup ((*attr_vals_it)->bv_val));
-                  attr_vals_it++;
-                }
-
-              ldap_value_free_len (attr_vals);
-            }
-          else
-            {
-              g_debug ("Empty result of LDAP query for attribute values.");
-            }
-          ldap_memfree (attr_it);
-        }
-      else
-        {
-          g_debug ("LDAP query searched for non-existing attribute.");
-        }
-      if (ber != NULL)
-        {
-          ber_free (ber, 0);
-        }
-    }
-
-  ldap_msgfree (result);
-
-  return string_list;
-}
-
-
 /** @todo refactor/merge with ldap_auth module. */
 
 /**
@@ -275,44 +197,6 @@ ads_auth_bind_query (const gchar * host, const char *domain, const char *dn,
 
   return attribute_values;
 }
-
-
-/**
- * @brief Finds out whether an objects attribute has a certain value.
- *
- * Works for multi-valued attributes.
- *
- * @param[in] ldap      The ldap handle to use.
- * @param[in] dn        DN of the object to search.
- * @param[in] attribute The attribute whose value to query.
- * @param[in] value     The value to match attribute values against.
- *
- * @return TRUE if object with \ref dn has the \ref attribute with the given
- *         \ref value . FALSE otherwise.
- */
-gboolean
-ldap_object_attribute_has_value (LDAP * ldap, const gchar * dn,
-                                 gchar * attribute, const gchar * value)
-{
-  GSList *attr_vals = ldap_object_get_attribute_values (ldap, dn, attribute);
-  GSList *attr_vals_it = attr_vals;
-  gboolean found = FALSE;
-
-  while (attr_vals_it)
-    {
-      if (strcmp (attr_vals_it->data, value) == 0)
-        {
-          found = TRUE;
-          break;
-        }
-
-      attr_vals_it = g_slist_next (attr_vals_it);
-    }
-
-  openvas_string_list_free (attr_vals);
-  return found;
-}
-
 
 /**
  * @brief Queries the DN of an users object.

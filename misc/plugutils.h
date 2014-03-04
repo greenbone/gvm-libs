@@ -57,7 +57,6 @@ void plug_set_ssl_CA_file (struct arglist *, char *);
 
 const char *plug_get_hostname (struct arglist *);
 const char *plug_get_host_fqdn (struct arglist *);
-void plug_add_host (struct arglist *, struct arglist *);
 unsigned int plug_get_host_open_port (struct arglist *desc);
 
 void plug_set_port_transport (struct arglist *, int, int);
@@ -76,20 +75,16 @@ void post_alarm_udp (struct arglist *, int, const char *);
 
 void proto_post_error (struct arglist *, int, const char *, const char *);
 void post_error (struct arglist *, int, const char *);
-void post_error_udp (struct arglist *, int, const char *);
 #define post_error_tcp post_error
 
 void proto_post_log (struct arglist *, int, const char *, const char *);
 void post_log (struct arglist *, int, const char *);
-void post_log_udp (struct arglist *, int, const char *);
 #define post_log_tcp post_log
 
 
 /*
  * Management of the portlists
  */
-void host_add_port (struct arglist *, int, int);
-void host_add_port_udp (struct arglist *, int, int);
 int host_get_port_state (struct arglist *, int);
 int host_get_port_state_udp (struct arglist *, int);
 
@@ -107,8 +102,6 @@ void *plug_get_fresh_key (struct arglist *, char *, int *);
 kb_t plug_get_kb (struct arglist *);
 void *plug_get_key (struct arglist *, char *, int *);
 
-char *openvaslib_version ();
-void openvas_lib_version (int *, int *, int *);
 char *addslashes (char *);
 char *rmslashes (char *);
 

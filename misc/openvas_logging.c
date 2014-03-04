@@ -335,21 +335,6 @@ free_log_configuration (GSList * log_domain_list)
 }
 
 /**
- * @brief Returns immediately.
- *
- * @param log_domain A string containing the message's log domain.
- * @param log_level  Flags defining the message's log level.
- * @param message    A string containing the log message.
- * @param openvas_log_config_list A pointer to the configuration linked list.
- */
-void
-openvas_log_silent (const char *log_domain, GLogLevelFlags log_level,
-                    const char *message, gpointer openvas_log_config_list)
-{
-  return;
-}
-
-/**
  * @brief Creates the formatted string and outputs it to the log destination.
  *
  * @param log_domain A string containing the message's log domain.

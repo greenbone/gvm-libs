@@ -70,8 +70,6 @@ gchar *digest_hex (int, const guchar *);
 
 int openvas_authenticate_method (const gchar *, const gchar *, auth_method_t *);
 
-int openvas_authenticate (const gchar *, const gchar *);
-
 int openvas_authenticate_uuid (const gchar *, const gchar *, gchar ** uuid);
 
 int openvas_user_exists (const char *);

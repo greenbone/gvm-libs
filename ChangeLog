@@ -1,3 +1,32 @@
+2014-03-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* COPYING: Remove license details for share_fd.c, share_fd.h and BSD2.
+
+	* COPYING.BSD2: Remove file.
+
+	* misc/CMakeLists.txt: Don't build and include share_fd.c and share_fd.h
+
+	* misc/share_fd.c, misc/share_fd.h: Remove files.
+
+	* misc/ads_auth.c (ldap_object_get_attribute_values)
+	(ldap_object_attribute_has_value), misc/arglists.c (arg_free_name)
+	(arg_set_type, arg_get_length, init_element, arg_add_value_at_head),
+	misc/hash_table_file.c (add_to_keyfile, hash_table_file_write)
+	(hash_table_file_read), misc/network.c (open_stream_auto_encaps)
+	(stream_get_ssl, stream_set_options, get_encaps, open_sock_tcp_hn)
+	(open_sock_udp, stream_isset, stream_pending),  misc/openvas_auth.c
+	(openvas_authenticate), misc/openvas_logging.c (openvas_log_silent),
+	misc/openvas_ssh_login.c (openvas_ssh_login_prefstring)
+	(add_ssh_login_to_file, openvas_ssh_login_file_write)
+	(openvas_ssh_login_file_read), misc/pcap.c (is_local_ip, get_mac_addr),
+	misc/plugutils.c (openvaslib_version, openvas_lib_version)
+	(plug_add_host, host_add_port, host_add_port_udp, post_log_udp)
+	(post_error_udp): Remove unused functions.
+
+	* misc/arglists.h, misc/hash_table_file.h, misc/network.h,
+	misc/openvas_auth.h, misc/openvas_logging.h, misc/openvas_ssh_login.h,
+	misc/pcap_openvas.h: Delete removed functions prototypes.
+
 2014-03-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/plugutils.c (plugin_is_newstyle): Remove unused function.

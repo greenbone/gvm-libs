@@ -158,12 +158,6 @@ cache_dec (const char *name)
 }
 
 void
-arg_free_name (char *name)
-{
-  cache_dec (name);
-}
-
-void
 arg_add_value (arglst, name, type, length, value)
      struct arglist *arglst;
      const char *name;
@@ -241,24 +235,6 @@ arg_set_value (arglst, name, length, value)
     return -1;
 }
 
-int
-arg_set_type (arglst, name, type)
-     struct arglist *arglst;
-     const char *name;
-     int type;
-{
-  arglst = arg_get (arglst, name);
-  if (arglst == NULL)
-    return -1;
-
-  if (arglst->type == ARG_STRUCT && type != ARG_STRUCT)
-    {
-      efree (&arglst->value);
-    }
-  arglst->type = type;
-  return 0;
-}
-
 void *
 arg_get_value (args, name)
      struct arglist *args;
@@ -274,20 +250,6 @@ arg_get_value (args, name)
   else
     return (args->value);
 }
-
-
-int
-arg_get_length (args, name)
-     struct arglist *args;
-     const char *name;
-{
-  args = arg_get (args, name);
-  if (args != NULL)
-    return (args->length);
-  else
-    return 0;
-}
-
 
 int
 arg_get_type (args, name)
@@ -433,57 +395,6 @@ arg_free_all (arg)
       arg = next;
     }
 }
-
-
-
-static void
-init_element (struct arglist *arglst, const char *name, int type, long length,
-              void *value)
-{
-  int h;
-  if (type == ARG_STRUCT)
-    {
-      void *new_val = emalloc (length);
-      memcpy (new_val, value, length);
-      value = new_val;
-    }
-
-  h = mkhash (name);
-  arglst->name = cache_inc (name);
-  arglst->value = value;
-  arglst->length = length;
-  arglst->type = type;
-  arglst->hash = h;
-}
-
-
-/**
- * Like arg_add_value but inserts the new element near the beginning
- * instead of the end.  This is much faster for long lists but leads to
- * a different order of the elements.
- * @see arg_add_value
- */
-void
-arg_add_value_at_head (struct arglist *arglst, const char *name, int type,
-                       long length, void *value)
-{
-  if (!arglst)
-    return;
-
-  if (arglst->next)
-    {
-      struct arglist *element = emalloc (sizeof (struct arglist));
-      init_element (element, name, type, length, value);
-      element->next = arglst->next;
-      arglst->next = element;
-    }
-  else
-    {
-      arglst->next = emalloc (sizeof (struct arglist));
-      init_element (arglst, name, type, length, value);
-    }
-}
-
 
 void
 arg_del_value (args, name)

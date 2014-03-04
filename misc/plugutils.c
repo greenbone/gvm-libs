@@ -46,7 +46,6 @@
 #include "rand.h"
 #include "plugutils.h"
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_KB */
-#include "share_fd.h"
 #include "system.h"
 #include "scanners_utils.h"
 
@@ -54,31 +53,6 @@
 
 /* Used to allow debugging for openvas-nasl */
 int global_nasl_debug = 0;
-
-/**
- * @brief Returns a static version string.
- * @return Version of openvas-libraries, do not modify nor free.
- */
-char *
-openvaslib_version ()
-{
-  static char vers[255];        /* RATS: ignore, vers is used wisely. */
-  strncpy (vers, OPENVASLIB_VERSION, sizeof (vers) - 1);
-  vers[sizeof (vers) - 1] = '\0';
-  return vers;
-}
-
-/**
- * @brief Sets \ref major \ref minor and \rev to the respective values of the
- *        openvas-libraries version.
- */
-void
-openvas_lib_version (int *major, int *minor, int *rev)
-{
-  *major = OPENVASLIB_VERSION_MAJOR;
-  *minor = OPENVASLIB_VERSION_MINOR;
-  *rev = OPENVASLIB_VERSION_PATCH;
-}
 
 /**
  * @brief Escapes \\n and \\r and \\ in \<in\> properly. The
@@ -247,18 +221,6 @@ plug_get_launch (struct arglist *desc)
 }
 
 void
-plug_add_host (struct arglist *desc, struct arglist *hostname)
-{
-  struct arglist *h;
-
-  h = arg_get_value (desc, "HOSTNAME");
-  if (!h)
-    arg_add_value (desc, "HOSTNAME", ARG_ARGLIST, sizeof (hostname), hostname);
-  else
-    arg_set_value (desc, "HOSTNAME", sizeof (hostname), hostname);
-}
-
-void
 _add_plugin_preference (struct arglist *prefs, const char *p_name,
                         const char *name, const char *type, const char *defaul)
 {
@@ -334,19 +296,6 @@ host_add_port_proto (struct arglist *args, int portnum, int state, char *proto)
   char port_s[255];
   snprintf (port_s, sizeof (port_s), "Ports/%s/%d", proto, portnum);    /* RATS: ignore */
   plug_set_key (args, port_s, ARG_INT, (void *) 1);
-}
-
-
-void
-host_add_port (struct arglist *hostdata, int portnum, int state)
-{
-  host_add_port_proto (hostdata, portnum, state, "tcp");
-}
-
-void
-host_add_port_udp (struct arglist *hostdata, int portnum, int state)
-{
-  host_add_port_proto (hostdata, portnum, state, "udp");
 }
 
 /**
@@ -703,15 +652,6 @@ post_log (struct arglist *desc, int port, const char *action)
   proto_post_log (desc, port, "tcp", action);
 }
 
-/**
- * @brief Post a log message about a udp port.
- */
-void
-post_log_udp (struct arglist *desc, int port, const char *action)
-{
-  proto_post_log (desc, port, "udp", action);
-}
-
 void
 proto_post_error (struct arglist *desc, int port, const char *proto,
                   const char *action)
@@ -725,16 +665,6 @@ post_error (struct arglist *desc, int port, const char *action)
 {
   proto_post_error (desc, port, "tcp", action);
 }
-
-/**
- * @brief Post a debug message about a udp port.
- */
-void
-post_error_udp (struct arglist *desc, int port, const char *action)
-{
-  proto_post_error (desc, port, "udp", action);
-}
-
 
 char *
 get_preference (struct arglist *desc, const char *name)

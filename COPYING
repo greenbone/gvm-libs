@@ -15,7 +15,6 @@ module can be used under the respective licenses.
 
 GPLv2: See file COPYING.GPLv2
 LGPLv2: See file COPYING.LGPLv2
-BSD2: See file COPYING.BSD2
 
 The following overview was initially collected 20100726 based
 on the header of the respective files and since then updated
@@ -66,8 +65,6 @@ misc/proctitle.[c|h]: GPLv2
 misc/rand.[c|h]: LGPLv2+
 misc/resource_request.[c|h]: GPLv2
 misc/scanners_utils.[c|h]: LGPLv2+
-misc/share_fd.c: BSD2
-misc/share_fd.h: LGPLv2+
 misc/support.h: GPLv2+
 misc/system.[c|h]: LGPLv2+
 misc/system_internal.h: LGPLv2+

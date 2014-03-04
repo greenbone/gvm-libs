@@ -158,26 +158,6 @@ v6_is_local_ip (struct in6_addr *addr)
   return 0;
 }
 
-int
-is_local_ip (struct in_addr addr)
-{
-  int ifaces;
-  struct interface_info *ifs;
-  int i;
-
-  if ((ifs = getinterfaces (&ifaces)) == NULL)
-    return -1;
-  for (i = 0; i < ifaces; i++)
-    {
-      bpf_u_int32 net, mask;
-      char errbuf[PCAP_ERRBUF_SIZE];
-      pcap_lookupnet (ifs[i].name, &net, &mask, errbuf);
-      if ((net & mask) == (addr.s_addr & mask))
-        return 1;
-    }
-  return 0;
-}
-
 /**
  * @brief We send an empty UDP packet to the remote host, and read back its mac
  * @brief address.
@@ -326,103 +306,6 @@ v6_get_mac_addr (struct in6_addr *addr, char **mac)
       return 1;
     }
   return 1;                     /* keep the compiler happy */
-}
-
-
-/**
- * @brief We send an empty UDP packet to the remote host, and read back its mac
- * @brief address.
- *
- * (we should first interrogate the kernel's arp cache - we may
- * rely on libdnet in the future to do that)
- *
- * As a bonus, this function works well as a local ping.
- */
-int
-get_mac_addr (struct in_addr addr, char **mac)
-{
-  int soc = socket (AF_INET, SOCK_DGRAM, 0);
-  struct sockaddr_in soca;
-  int bpf;
-  struct in_addr me;
-  char *iface = routethrough (&addr, &me);
-  char filter[255];
-  char *src_host, *dst_host;
-  unsigned char *packet;
-  int len;
-
-  *mac = NULL;
-  if (soc < 0)
-    return -1;
-
-  src_host = estrdup (inet_ntoa (me));
-  dst_host = estrdup (inet_ntoa (addr));
-  snprintf (filter, sizeof (filter), "ip and (src host %s and dst host %s)",
-            src_host, dst_host);
-  efree (&src_host);
-  efree (&dst_host);
-
-
-  bpf = bpf_open_live (iface, filter);
-  if (bpf < 0)
-    {
-      close (soc);
-      return -1;
-    }
-
-  /*
-   * We only deal with ethernet
-   */
-  if (bpf_datalink (bpf) != DLT_EN10MB)
-    {
-      bpf_close (bpf);
-      close (soc);
-      return -1;
-    }
-
-
-  soca.sin_addr.s_addr = addr.s_addr;
-  soca.sin_port = htons (9);    /* or whatever */
-  soca.sin_family = AF_INET;
-  if (sendto (soc, NULL, 0, 0, (struct sockaddr *) &soca, sizeof (soca)) == 0)
-    {
-      packet = (unsigned char *) bpf_next (bpf, &len);
-      if (packet)
-        {
-          if (len >= get_datalink_size (bpf_datalink (bpf)))
-            {
-              int i;
-              for (i = 0; i < 6; i++)
-                if (packet[i] != 0xFF)
-                  break;
-
-              if (i == 6)
-                {
-                  bpf_close (bpf);
-                  close (soc);
-                  return 1;
-                }
-
-              *mac = emalloc (22);
-              snprintf (*mac, 22, "%.2x.%.2x.%.2x.%.2x.%.2x.%.2x",
-                        (unsigned char) packet[0], (unsigned char) packet[1],
-                        (unsigned char) packet[2], (unsigned char) packet[3],
-                        (unsigned char) packet[4], (unsigned char) packet[5]);
-              bpf_close (bpf);
-              close (soc);
-              return 0;
-            }
-        }
-      else
-        {
-          bpf_close (bpf);
-          close (soc);
-          return 1;
-        }
-    }
-  bpf_close (bpf);
-  close (soc);
-  return -1;
 }
 
 

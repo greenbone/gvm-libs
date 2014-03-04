@@ -980,13 +980,6 @@ open_stream_auto_encaps_ext (struct arglist *args, unsigned int port,
  /*NOTREACHED*/
 }
 
-
-int
-open_stream_auto_encaps (struct arglist *args, unsigned int port, int timeout)
-{
-  return open_stream_auto_encaps_ext (args, port, timeout, 0);
-}
-
 /*
  * Scanner socket functions
  */
@@ -1191,22 +1184,6 @@ fail:
   return -1;
 }
 
-
-
-/**
- * TLS: This function is only used in one place,
- * openvas-plugins/plugins/ssl_ciphers/ssl_ciphers.c:145 (function
- * plugin_run).  The code there prints information about the
- * certificates and the server's ciphers if sslv2 is used.  Some of the
- * functionality should perhaps be moved to openvas-libraries.
- */
-void *
-stream_get_ssl (int fd)
-{
-  return NULL;
-}
-
-
 int
 stream_set_timeout (int fd, int timeout)
 {
@@ -1222,22 +1199,6 @@ stream_set_timeout (int fd, int timeout)
   fp->timeout = timeout;
   return old;
 }
-
-int
-stream_set_options (int fd, int reset_opt, int set_opt)
-{
-  openvas_connection *fp;
-  if (!OPENVAS_STREAM (fd))
-    {
-      errno = EINVAL;
-      return -1;
-    }
-  fp = &(connections[fd - OPENVAS_FD_OFF]);
-  fp->options &= ~reset_opt;
-  fp->options |= set_opt;
-  return 0;
-}
-
 
 static int
 read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
@@ -1803,19 +1764,6 @@ close_stream_connection (int fd)
     return release_connection_fd (fd);
 }
 
-
-int
-get_encaps (int fd)
-{
-  if (!OPENVAS_STREAM (fd))
-    {
-      log_legacy_write ("get_encaps() : bad argument\n");
-      return -1;
-    }
-  return connections[fd - OPENVAS_FD_OFF].transport;
-}
-
-
 const char *
 get_encaps_name (int code)
 {
@@ -2001,14 +1949,6 @@ open_sock_opt_hn (const char *hostname, unsigned int port, int type,
 
 }
 
-
-int
-open_sock_tcp_hn (const char *hostname, unsigned int port)
-{
-  return open_sock_opt_hn (hostname, port, SOCK_STREAM, IPPROTO_TCP, TIMEOUT);
-}
-
-
 int
 open_sock_tcp (struct arglist *args, unsigned int port, int timeout)
 {
@@ -2031,12 +1971,6 @@ open_sock_tcp (struct arglist *args, unsigned int port, int timeout)
   return ret;
 }
 
-
-int
-open_sock_udp (struct arglist *args, unsigned int port)
-{
-  return open_sock_option (args, port, SOCK_DGRAM, IPPROTO_UDP, 0);
-}
 
 int
 open_sock_option (struct arglist *args, unsigned int port, int type,
@@ -2314,12 +2248,6 @@ stream_set (int fd, fd_set * set)
 }
 
 int
-stream_isset (int fd, fd_set * set)
-{
-  return FD_ISSET (openvas_get_socket_from_connection (fd), set);
-}
-
-int
 fd_is_stream (int fd)
 {
   return OPENVAS_STREAM (fd);   /* Should probably be smarter... */
@@ -2541,26 +2469,6 @@ error:
   *data_sz = 0;
   return -1;
 }
-
-
-int
-stream_pending (int fd)
-{
-  openvas_connection *fp;
-  if (!OPENVAS_STREAM (fd))
-    {
-      errno = EINVAL;
-      return -1;
-    }
-  fp = &(connections[fd - OPENVAS_FD_OFF]);
-
-  if (fp->bufcnt)
-    return fp->bufcnt;
-  else if (fp->transport != OPENVAS_ENCAPS_IP)
-    return gnutls_record_check_pending (fp->tls_session);
-  return 0;
-}
-
 
 /* This is a helper function for nasl_get_sock_info.  It is used to
    retrieve information about SOCK.  */
