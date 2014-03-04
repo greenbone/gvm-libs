@@ -1,5 +1,10 @@
 2014-03-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/openvas_logging.c, misc/openvas_logging.h: Revert removal of
+	openvas_logging_silent as it is still used in openvas-cli.
+
+2014-03-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* COPYING: Remove license details for share_fd.c, share_fd.h and BSD2.
 
 	* COPYING.BSD2: Remove file.

@@ -35,6 +35,7 @@ void free_log_configuration (GSList *);
 
 gchar *get_time (gchar *);
 
+void openvas_log_silent (const char *, GLogLevelFlags, const char *, gpointer);
 void openvas_log_func (const char *, GLogLevelFlags, const char *, gpointer);
 
 void setup_log_handlers (GSList *);
