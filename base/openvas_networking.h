@@ -87,9 +87,6 @@ void
 openvas_source_addr_as_addr6 (struct in6_addr *);
 
 char *
-openvas_source_iface_str ();
-
-char *
 openvas_source_addr_str ();
 
 char *

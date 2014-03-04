@@ -178,17 +178,6 @@ openvas_source_addr_as_addr6 (struct in6_addr *addr6)
 }
 
 /**
- * @brief Gives the source network interface name in string format.
- *
- * @return Source network interface name. Free with g_free().
- */
-char *
-openvas_source_iface_str ()
-{
-  return g_strdup (global_source_iface);
-}
-
-/**
  * @brief Gives the source IPv4 address in string format.
  *
  * @return Source IPv4 string. Free with g_free().

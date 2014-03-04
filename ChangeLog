@@ -1,5 +1,36 @@
 2014-03-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/certificate.c (certificate_create_full, certificate_trusted)
+	(certificates_size, certificates_find), base/nvti.c
+	(nvti_cvss_base_vector, nvti_cvss, nvti_as_text)
+	(nvti_as_openvas_nvt_cache_entry, nvtis_size), base/openvas_compress.c
+	(openvas_compress_string), base/openvas_file.c
+	(openvas_file_read_b64_encode), base/openvas_networking.c
+	(openvas_source_iface_str), base/openvas_string.c (openvas_isalnumstr)
+	(openvas_isbase64, openvas_string_list_to_xml), base/settings.c
+	(settings_init, settings_set, settings_save, init_settings_iterator)
+	omp/omp.c (omp_authenticate_env, omp_create_task_rc_file,
+	(omp_start_task, omp_abort_task, omp_resume_stopped_task)
+	(get_omp_response_503, omp_get_nvt_all, omp_get_nvt_feed_checksum)
+	(omp_get_dependencies_503, omp_wait_for_task_start)
+	(omp_wait_for_task_end, omp_wait_for_task_stop, omp_wait_for_task_delete)
+	(omp_delete_task, omp_get_status, omp_get_tasks, omp_get_report)
+	(omp_get_report_format, omp_delete_report, omp_get_results)
+	(omp_modify_task, omp_modify_task_file, omp_get_preferences)
+	(omp_get_preferences_503, omp_get_certificates, omp_until_up)
+	(omp_create_target, omp_delete_target, omp_create_config)
+	(omp_create_config_from_rc_file, omp_delete_config)
+	(omp_delete_lsc_credential, omp_create_agent, omp_delete_agent)
+	(omp_get_nvt_details_503), omp/xml.c (add_attribute)
+	(print_entities_to_string, print_entities, print_entities_format):
+	Remove unused functions.
+
+	* base/certificate.h, base/nvti.h, base/openvas_compress.h,
+	base/openvas_file.h, base/openvas_networking.h, base/openvas_string.h,
+	base/settings.h: Delete removed functions prototypes.
+
+2014-03-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/openvas_logging.c, misc/openvas_logging.h: Revert removal of
 	openvas_logging_silent as it is still used in openvas-cli.
 

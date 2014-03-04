@@ -171,46 +171,6 @@ openvas_strip_space (char *string, char *end)
 }
 
 /**
- * @brief Check whether a string contains only alphanumeric characters.
- *
- * @param  string  String to check.
- *
- * @return 1 if all characters are alphanumeric, else 0.
- */
-int
-openvas_isalnumstr (const char *string)
-{
-  while (*string)
-    if (isalnum (*string))
-      string++;
-    else
-      return 0;
-  return 1;
-}
-
-/**
- * @brief Check whether a string contains only base64 characters.
- *
- * @param  string  String to check.
- *
- * @return 1 if all characters are base64 characters, else 0.
- */
-int
-openvas_isbase64 (const char *string)
-{
-  while (*string)
-    if (isprint (*string))
-      string++;
-    else
-      {
-        // FIX
-        //tracef ("   %s: failed on %c\n", __FUNCTION__, *string);
-        return 0;
-      }
-  return 1;
-}
-
-/**
  * @brief Check whether a NULL-terminated string vector contains a string.
  *
  * @param  strv[in]  NULL-terminated string vector.
@@ -275,45 +235,4 @@ openvas_string_list_free (GSList * string_list)
       it = g_slist_next (it);
     }
   g_slist_free (string_list);
-}
-
-/**
- * @brief Explodes list to a (very flat) xml tree.
- *
- * Example: list contains "apple", "banana"
- * call openvas_string_list_to_xml (list, "trees", "kind")
- * results in <trees><kind>apple</kind><kind>banana</kind></trees>
- *
- * @param root Name of root element, assumed to be sane
- * @param child Name of child element(s), assumed to be sane
- * @param string_list GSList containing strings.
- *
- * @return String holding xml representation of list.
- */
-gchar *
-openvas_string_list_to_xml (const GSList * string_list, const gchar * root,
-                            const gchar * child)
-{
-  GString * xml_string;
-  gchar * xml;
-  if (string_list == NULL)
-    {
-      return g_strdup_printf ("<%s/>", root);
-    }
-  xml_string = g_string_new ("");
-  const GSList * it = string_list;
-  while (it)
-    {
-      gchar * escape_buffer = g_markup_printf_escaped ("<%s>%s</%s>",
-	                                               child,
-						       (gchar*) it->data,
-						       child);
-      xml_string = g_string_append (xml_string, escape_buffer);
-      g_free (escape_buffer);
-      it = g_slist_next (it);
-    }
-
-  xml = g_strdup_printf ("<%s>%s</%s>", root, xml_string->str, root);
-  g_string_free (xml_string, TRUE);
-  return xml;
 }

@@ -43,10 +43,7 @@ typedef struct
   GKeyFile *key_file;
 } settings_t;
 
-int settings_init (settings_t *, const gchar *, const gchar *);
 void settings_cleanup (settings_t *);
-void settings_set (settings_t *, const gchar *, const gchar *);
-int settings_save (settings_t *);
 
 typedef struct
 {
@@ -56,8 +53,6 @@ typedef struct
   gchar **last_key;
 } settings_iterator_t;
 
-int init_settings_iterator (settings_iterator_t *, const gchar *,
-                            const gchar *);
 int init_settings_iterator_from_file (settings_iterator_t *, const gchar *,
                                       const gchar *);
 void cleanup_settings_iterator (settings_iterator_t *);

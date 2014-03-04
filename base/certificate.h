@@ -48,16 +48,11 @@ typedef struct
 } certificate_t;
 
 certificate_t *certificate_create (void);
-certificate_t *certificate_create_full (const char *fingerprint,
-                                        const char *owner,
-                                        const char *public_key,
-                                        gboolean trusted);
 void certificate_free (certificate_t *);
 
 const gchar *certificate_fingerprint (const certificate_t *);
 const gchar *certificate_owner (const certificate_t *);
 const gchar *certificate_public_key (const certificate_t *);
-gboolean certificate_trusted (const certificate_t *);
 
 const gchar *certificate_trust_level (const certificate_t *);
 
@@ -83,11 +78,6 @@ typedef struct
 certificates_t *certificates_create ();
 void certificates_free (certificates_t *);
 
-guint certificates_size (certificates_t *);
-
 void certificates_add (certificates_t *, certificate_t *);
-
-certificate_t *certificates_find (certificates_t * certificates,
-                                  gconstpointer data, GCompareFunc function);
 
 #endif /* not _CERTIFICATE_H */

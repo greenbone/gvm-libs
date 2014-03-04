@@ -141,26 +141,6 @@ add_entity (entities_t * entities, const char *name, const char *text)
 }
 
 /**
- * @brief Add an attribute to an XML entity.
- *
- * @param[in]  entity  The entity.
- * @param[in]  name    Name of the attribute.  Copied, copy is freed by
- *                     free_entity.
- * @param[in]  value   Text of the attribute.  Copied, copy is freed by
- *                     free_entity.
- *
- * @return The new entity.
- */
-void
-add_attribute (entity_t entity, const char *name, const char *value)
-{
-  if (entity->attributes == NULL)
-    entity->attributes =
-      g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  g_hash_table_insert (entity->attributes, g_strdup (name), g_strdup (value));
-}
-
-/**
  * @brief Free an entity, recursively.
  *
  * @param[in]  entity  The entity, can be NULL.
@@ -843,18 +823,6 @@ print_entity_to_string (entity_t entity, GString * string)
 }
 
 /**
- * @brief Print an XML entity tree to string.
- *
- * @param[in]  string    The string to which to print.
- * @param[in]  entities  The entities.
- */
-void
-print_entities_to_string (GString * string, entities_t entities)
-{
-  g_slist_foreach (entities, foreach_print_entity_to_string, string);
-}
-
-/**
  * @brief Print an XML entity for g_slist_foreach.
  *
  * @param[in]  entity  The entity, as a gpointer.
@@ -899,18 +867,6 @@ print_entity (FILE * stream, entity_t entity)
   g_slist_foreach (entity->entities, foreach_print_entity, stream);
   fprintf (stream, "</%s>", entity->name);
   fflush (stream);
-}
-
-/**
- * @brief Print an XML entity tree.
- *
- * @param[in]  stream    The stream to which to print.
- * @param[in]  entities  The entities.
- */
-void
-print_entities (FILE * stream, entities_t entities)
-{
-  g_slist_foreach (entities, foreach_print_entity, stream);
 }
 
 /* "Formatted" (indented) output of entity_t */
@@ -969,21 +925,6 @@ print_entity_format (entity_t entity, gpointer indent)
     }
 
   printf ("</%s>\n", entity->name);
-}
-
-/**
- * @brief Pretty print XML entities to stdout, recursively printing children.
- *
- * Does very basic indentation for pretty printing.
- *
- * @param[in]  entity  The entity.
- * @param[in]  indent  Indentation level, indentation width is 2 spaces.
- */
-void
-print_entities_format (entities_t entities, int indent)
-{
-  g_slist_foreach (entities, (GFunc) print_entity_format,
-                   GINT_TO_POINTER (indent));
 }
 
 /**

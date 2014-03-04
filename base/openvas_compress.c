@@ -106,23 +106,6 @@ openvas_compress (const void *src, unsigned long srclen, unsigned long *dstlen)
 }
 
 /**
- * @brief Compresses a null-terminated string.
- *
- * @param[in]   str     Null-terminated string to compress.
- * @param[out]  dstlen  Length of compressed data.
- *
- * @return Pointer to compressed data if success, NULL otherwise.
- */
-void *
-openvas_compress_string (const char *str, unsigned long *dstlen)
-{
-  if (str == NULL || dstlen == NULL)
-    return NULL;
-
-  return openvas_compress (str, strlen (str) + 1, dstlen);
-}
-
-/**
  * @brief Uncompresses data in src buffer.
  *
  * @param[in]   src     Buffer of data to uncompress.

@@ -33,9 +33,6 @@ void *
 openvas_compress (const void *, unsigned long, unsigned long *);
 
 void *
-openvas_compress_string (const char *, unsigned long *);
-
-void *
 openvas_uncompress (const void *, unsigned long, unsigned long *);
 
 #endif /* not _OPENVAS_COMPRESS_H */

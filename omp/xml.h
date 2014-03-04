@@ -58,8 +58,6 @@ entity_t first_entity (entities_t);
 
 entity_t add_entity (entities_t *, const char *, const char *);
 
-void add_attribute (entity_t, const char *, const char *);
-
 int compare_entities (entity_t, entity_t);
 
 entity_t entity_child (entity_t, const char *);
@@ -74,11 +72,7 @@ void free_entity (entity_t);
 
 void print_entity (FILE *, entity_t);
 
-void print_entities (FILE *, entities_t);
-
 void print_entity_format (entity_t, gpointer indentation);
-
-void print_entities_format (entities_t, int indentation);
 
 int try_read_entity_and_string (gnutls_session_t *, int, entity_t *,
                                 GString **);
@@ -96,8 +90,6 @@ int read_string (gnutls_session_t *, GString **);
 int parse_entity (const char *, entity_t *);
 
 void print_entity_to_string (entity_t entity, GString * string);
-
-void print_entities_to_string (GString * string, entities_t entities);
 
 int xml_count_entities (entities_t);
 

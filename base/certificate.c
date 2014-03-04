@@ -54,39 +54,6 @@ certificate_create ()
 }
 
 /**
- * @brief Create a new certificate structure wih all values set.
- *
- * @param fingerprint Fingerprint of the certificate.
- * @param owner       Name of the owner of the certificate.
- * @param public_key  Full public key of the certificate.
- * @param trusted     Whether or not this certificate is trustworthy.
- *
- * @return NULL in case the memory could not be allocated. Else a filled
- *         certificate structure which owns its values and needs to be released
- *         using @ref certificate_free .
- */
-certificate_t *
-certificate_create_full (const char *fingerprint, const char *owner,
-                         const char *public_key, gboolean trusted)
-{
-  certificate_t *cert = certificate_create ();
-
-  if (!cert)
-    return NULL;
-
-  if (fingerprint)
-    cert->fingerprint = g_strdup (fingerprint);
-  if (owner)
-    cert->owner = g_strdup (owner);
-  if (public_key)
-    cert->public_key = g_strdup (public_key);
-
-  cert->trusted = trusted;
-
-  return cert;
-}
-
-/**
  * @brief Free memory of a certificate structure.
  *
  * @param  n  The structure to be freed.
@@ -142,19 +109,6 @@ const gchar *
 certificate_public_key (const certificate_t * certificate)
 {
   return certificate->public_key;
-}
-
-/**
- * @brief Get the trustedness of a certificate.
- *
- * @param  certificate  The certificate.
- *
- * @return TRUE if the key is trusted, else FALSE.
- */
-gboolean
-certificate_trusted (const certificate_t * certificate)
-{
-  return certificate->trusted;
 }
 
 /**
@@ -257,17 +211,6 @@ certificates_free (certificates_t * certificates)
 }
 
 /**
- * @brief Get the size of a collection of certificates.
- *
- * @return The number of entries in the collection.
- */
-guint
-certificates_size (certificates_t * certificates)
-{
-  return g_slist_length (certificates->list);
-}
-
-/**
  * @brief Add a certificate to a collection of certificate
  *
  * @param  certificates  The collection of certificates.
@@ -278,24 +221,4 @@ certificates_add (certificates_t * certificates, certificate_t * certificate)
   if (certificate)
     certificates->list =
       g_slist_prepend (certificates->list, (gpointer) certificate);
-}
-
-/**
- * @brief Search the certificates with a function.
- *
- * @param  certificates  Certificates to search.
- * @param  data          First argument to function.
- * @param  function      Comparison function.
- *
- * @return The first element for which the comparison function \ref function
- *         returns 0.
- */
-certificate_t *
-certificates_find (certificates_t * certificates, gconstpointer data,
-                   GCompareFunc function)
-{
-  GSList *element = g_slist_find_custom (certificates->list, data, function);
-  if (element)
-    return element->data;
-  return NULL;
 }

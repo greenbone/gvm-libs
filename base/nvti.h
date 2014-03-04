@@ -111,9 +111,7 @@ gchar *nvti_cve (const nvti_t *);
 gchar *nvti_bid (const nvti_t *);
 gchar *nvti_xref (const nvti_t *);
 gchar *nvti_tag (const nvti_t *);
-double nvti_cvss (const nvti_t *);
 gchar *nvti_cvss_base (const nvti_t *);
-gchar *nvti_cvss_base_vector (const nvti_t *);
 gchar *nvti_dependencies (const nvti_t *);
 gchar *nvti_required_keys (const nvti_t *);
 gchar *nvti_mandatory_keys (const nvti_t *);
@@ -160,9 +158,6 @@ int nvti_add_required_udp_ports (nvti_t *, const gchar *);
 int nvti_add_sign_key_id (nvti_t *, const gchar *);
 int nvti_add_pref (nvti_t *, nvtpref_t *);
 
-gchar *nvti_as_text (const nvti_t *);
-gchar *nvti_as_openvas_nvt_cache_entry (const nvti_t *);
-
 nvti_t *nvti_from_keyfile (const gchar *);
 int nvti_to_keyfile (const nvti_t *, const gchar *);
 
@@ -178,8 +173,6 @@ typedef GHashTable nvtis_t;
 nvtis_t *nvtis_new ();
 
 void nvtis_free (nvtis_t *);
-
-guint nvtis_size (nvtis_t *);
 
 void nvtis_add (nvtis_t *, nvti_t *);
 

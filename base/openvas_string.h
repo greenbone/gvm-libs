@@ -37,19 +37,11 @@ void openvas_free_string_var (string *);
 
 char *openvas_strip_space (char *, char *);
 
-int openvas_isalnumstr (const char *);
-
-int openvas_isbase64 (const char *);
-
 gboolean openvas_strv_contains_str (gchar ** strv, const gchar * str);
 
 gchar* openvas_string_flatten_string_list (GSList* string_list,
                                            const gchar* separator);
 
 void openvas_string_list_free (GSList* string_list);
-
-gchar *
-openvas_string_list_to_xml (const GSList * string_list, const gchar * root,
-                            const gchar * child);
 
 #endif /* not _OPENVAS_LIBRARIES_STRING_H */
