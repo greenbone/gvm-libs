@@ -1164,7 +1164,6 @@ plug_get_key (struct arglist *args, char *name, int *type)
           fprintf (stderr,
                    "libopenvas:%s:%s(): fork() failed (%s)",
                    __FILE__, __func__, strerror (errno));
-
           return NULL;
         }
       else

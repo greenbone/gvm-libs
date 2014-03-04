@@ -1,3 +1,7 @@
+2014-03-04  Henri Doreau <henri.doreau@gmail.com>
+
+	* misc/plugutils.c (plug_get_key): Minor style fix.
+
 2014-03-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/certificate.c (certificate_create_full, certificate_trusted)
