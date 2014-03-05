@@ -1077,6 +1077,79 @@ omp_get_tasks_ext (gnutls_session_t* session,
 }
 
 /**
+ * @brief Modify a file on a task.
+ *
+ * @param[in]  session      Pointer to GNUTLS session.
+ * @param[in]  id           ID of task.
+ * @param[in]  name         Name of file.
+ * @param[in]  content      New content.  NULL to remove file.
+ * @param[in]  content_len  Length of content.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_modify_task_file (gnutls_session_t* session, const char* id,
+                      const char* name, const void* content,
+                      gsize content_len)
+{
+  if (name == NULL)
+    return -1;
+
+  if (openvas_server_sendf (session, "<modify_task task_id=\"%s\">", id))
+    return -1;
+
+  if (content)
+    {
+      if (openvas_server_sendf (session, "<file name=\"%s\" action=\"update\">",
+                                name))
+        return -1;
+
+      if (content_len)
+        {
+          gchar *base64_rc = g_base64_encode ((guchar*) content,
+                                              content_len);
+          int ret = openvas_server_sendf (session,
+                                          "%s",
+                                          base64_rc);
+          g_free (base64_rc);
+          if (ret) return -1;
+        }
+
+      if (openvas_server_sendf (session, "</file>"))
+        return -1;
+    }
+  else
+    {
+      if (openvas_server_sendf (session,
+                                "<file name=\"%s\" action=\"remove\" />",
+                                name))
+        return -1;
+    }
+
+  if (openvas_server_send (session, "</modify_task>"))
+    return -1;
+
+  return check_response (session);
+}
+
+/**
+ * @brief Delete a task and read the manager response.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  id       ID of task.
+ *
+ * @return 0 on success, OMP response code on failure, -1 on error.
+ */
+int
+omp_delete_task (gnutls_session_t* session, const char* id)
+{
+  if (openvas_server_sendf (session, "<delete_task task_id=\"%s\"/>", id) == -1)
+    return -1;
+
+  return check_response (session);
+}
+
+/**
  * @brief Get a target.
  *
  * @param[in]  session         Pointer to GNUTLS session.
@@ -1206,6 +1279,23 @@ omp_get_report_ext (gnutls_session_t* session,
   free_entity (*response);
   if (errno == ERANGE) return -1;
   return ret;
+}
+
+/**
+ * @brief Remove a report.
+ *
+ * @param[in]  session   Pointer to GNUTLS session.
+ * @param[in]  id        ID of report.
+ *
+ * @return 0 on success, OMP response code on failure, -1 on error.
+ */
+int
+omp_delete_report (gnutls_session_t *session, const char *id)
+{
+  if (openvas_server_sendf (session, "<delete_report report_id=\"%s\"/>", id))
+    return -1;
+
+  return check_response (session);
 }
 
 /**

@@ -1,5 +1,10 @@
 2014-03-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* omp/omp.c, omp/omp.h (omp_modify_task_file, omp_delete_task)
+	(omp_delete_report): Revert removal as still being used.
+
+2014-03-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/openvas_server.h: Include gnutls/x509.h instead of
 	gnutls/abstract.h as it is sufficient for prior client certificates
 	changes and is present in older gnutls releases.
