@@ -1,3 +1,9 @@
+2014-03-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_server.h: Include gnutls/x509.h instead of
+	gnutls/abstract.h as it is sufficient for prior client certificates
+	changes and is present in older gnutls releases.
+
 2014-03-04  Henri Doreau <henri.doreau@gmail.com>
 
 	* misc/plugutils.c (plug_get_key): Minor style fix.

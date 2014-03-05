@@ -43,7 +43,7 @@ extern "C"
 #endif
 
 #include <gnutls/gnutls.h>
-#include <gnutls/abstract.h>
+#include <gnutls/x509.h>
 #ifdef _WIN32
 #include <winsock2.h>
 #else
