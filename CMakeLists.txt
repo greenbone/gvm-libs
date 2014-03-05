@@ -119,6 +119,9 @@ set (CPACK_SOURCE_IGNORE_FILES
 "Doxyfile_full$"
 "VERSION$"
 "libopenvas.pc$"
+"nasl/nasl_grammar.tab.c"
+"nasl/nasl_grammar.tab.h"
+"nasl/nasl_grammar.output"
 )
 
 include (CPack)

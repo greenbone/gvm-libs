@@ -1,3 +1,22 @@
+openvas-libraries 7.0+beta6 (2014-03-05)
+
+This release is the sixth beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-7".
+
+This release removes a large amount of unused code, addresses a number of code
+quality issue and reenables statically linking openvas-libraries when requested.
+
+Many thanks to everyone who has contributed this release:
+Hani Benhabiles, Henri Doreau, Matthew Mundell, Michael Wiegand and Jan-Oliver
+Wagner.
+
+Main changes compared to 7.0+beta5:
+* Removed large amount of unused code.
+* Addressed code quality issues.
+* Fixed an issue which prevent a static build of openvas-libraries from
+  succeeding.
+
+
 openvas-libraries 7.0+beta5 (2014-02-16)
 
 This release is the fifth beta version of the next major release of
