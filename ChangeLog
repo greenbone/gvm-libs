@@ -1,3 +1,15 @@
+2014-03-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* src/openvas_proctitle.c, src/openvas_proctitle.h: New files.
+
+	* misc/proctitle.c, misc/proctitle.h: Remove files.
+
+	* COPYING: Remove misc/proctitle.c and header license entry. Add
+	license entry misc/openvas_proctitle.c and its header.
+
+	* misc/CMakeLists.txt: Build and include new openvas_proctitle files
+	instead of removed implementation.
+
 2014-03-05  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.
