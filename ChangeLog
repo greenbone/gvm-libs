@@ -1,3 +1,9 @@
+2014-03-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network.h: Remove useless include and define.
+
+	* misc/otp.h (OTP_LOADING): New define.
+
 2014-03-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* src/openvas_proctitle.c, src/openvas_proctitle.h: New files.

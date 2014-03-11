@@ -29,4 +29,6 @@
 #define OTP_20 200              /* OTP/2.0 */
 #define OTP_21 210              /* OTP/2.1 */
 
+#define OTP_LOADING "SCANNER_LOADING"
+
 #endif

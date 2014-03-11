@@ -55,16 +55,10 @@
 #include "openvas_logging.h"
 #include "openvas_server.h"
 
-#include <setjmp.h>
-
 #define TIMEOUT 20
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff
-#endif
-
-#ifndef ExtFunc
-#define ExtFunc
 #endif
 
 /*----------------------------------------------------------------*
@@ -2029,7 +2023,7 @@ open_sock_option (struct arglist *args, unsigned int port, int type,
  *
  * @return Number of bytes read, without the trailing '\\0'.
  */
-ExtFunc int
+int
 recv_line (int soc, char *buf, size_t bufsiz)
 {
   int n, ret = 0;
