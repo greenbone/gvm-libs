@@ -1,3 +1,19 @@
+openvas-libraries 7.0+beta7 (2014-03-12)
+
+This release is the seventh beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-7".
+
+This release feature a clean reimplementation of process title handling and a
+small code cleanup.
+
+Many thanks to everyone who has contributed this release:
+Hani Benhabiles and Michael Wiegand.
+
+Main changes compared to 7.0+beta5:
+* Reimplemented proctitle handling.
+* Code cleanup.
+
+
 openvas-libraries 7.0+beta6 (2014-03-05)
 
 This release is the sixth beta version of the next major release of
