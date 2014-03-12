@@ -24,6 +24,7 @@
 /* MODIFICATION: added definitions for implemention NTLMSSP features */
 
 #include <gcrypt.h>
+#include <glib.h>
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -94,7 +95,7 @@ nasl_gcrypt_hash (lex_ctxt * lexic, int algorithm, void *data, size_t datalen,
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
-  retc->x.str_val = nasl_strndup ((char *) gcry_md_read (hd, algorithm), dlen);
+  retc->x.str_val = g_memdup (gcry_md_read (hd, algorithm), dlen + 1);
   retc->size = dlen;
 
   gcry_md_close (hd);
@@ -457,7 +458,7 @@ nasl_lm_owf_gen (lex_ctxt * lexic)
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = 16;
-  retc->x.str_val = nasl_strndup ((char *) p16, 16);
+  retc->x.str_val = g_memdup (p16, 17);
   return retc;
 }
 

@@ -199,7 +199,7 @@ nasl_telnet_init (lex_ctxt * lexic)
     n += n2;
   retc = alloc_typed_cell (CONST_DATA);
   retc->size = n;
-  retc->x.str_val = nasl_strndup ((char *) buffer, n);
+  retc->x.str_val = g_memdup (buffer, n + 1);
 #undef iac
 #undef data
 #undef option

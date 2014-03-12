@@ -17,9 +17,12 @@
  *
  */
 
+#define _GNU_SOURCE
+
 #include <stdlib.h>             /* for srand48 */
 #include <string.h>             /* for strlen */
 #include <unistd.h>             /* for getpid */
+#include <string.h>             /* for memmem */
 
 #include <glib.h>               /* for g_get_current_dir and others */
 #include <glib/gstdio.h>        /* for g_chdir */
@@ -167,7 +170,7 @@ cell2str (lex_ctxt * lexic, tree_cell * c)
       if (c->x.str_val == NULL)
         p = estrdup ("");
       else
-        p = nasl_strndup (c->x.str_val, c->size);
+        p = g_memdup (c->x.str_val, c->size + 1);
       return p;
 
     case REF_ARRAY:
@@ -218,7 +221,7 @@ cell2str_and_size (lex_ctxt * lexic, tree_cell * c, int *sz)
       if (c->x.str_val == NULL)
         p = estrdup ("");
       else
-        p = nasl_strndup (c->x.str_val, c->size);
+        p = g_memdup (c->x.str_val, c->size + 1);
       if (sz != NULL)
         *sz = c->size;
       return p;
@@ -1450,7 +1453,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
             }
 
           if (len2 == 0 || len1 < len2
-              || (p = (char *) nasl_memmem (p1, len1, p2, len2)) == NULL)
+              || (p = memmem (p1, len1, p2, len2)) == NULL)
             {
               s3 = emalloc (len1);
               memcpy (s3, p1, len1);
@@ -1635,7 +1638,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
         }
 
       if (len1 <= len2)
-        flag = ((void *) nasl_memmem (p2, len2, p1, len1) != NULL);
+        flag = (memmem (p2, len2, p1, len1) != NULL);
       else
         flag = 0;
 

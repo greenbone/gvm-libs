@@ -29,7 +29,5 @@
 
 int nasl_verify_signature (const char *filename);
 char *nasl_extract_signature_fprs (const char *filename);
-char *nasl_get_pubkey (gpgme_ctx_t ctx, char *fingerprint);
-GSList *nasl_get_all_certificates ();
 
 #endif

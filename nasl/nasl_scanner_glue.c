@@ -951,7 +951,7 @@ security_something (lex_ctxt * lexic, proto_post_something_t proto_post_func,
       int len = get_local_var_size_by_name (lexic, "data");
       int i;
 
-      dup = nasl_strndup (data, len);
+      dup = g_memdup (data, len + 1);
       for (i = 0; i < len; i++)
         if (dup[i] == 0)
           dup[i] = ' ';

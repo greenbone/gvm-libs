@@ -24,9 +24,14 @@
  * text-related utilities in the NASL functions.
  */
 
+#define _GNU_SOURCE
+
 #include <ctype.h>              /* for isspace */
 #include <string.h>             /* for strlen */
 #include <unistd.h>             /* for getpid */
+#include <string.h>             /* for memmem */
+#include <glib.h>
+
 
 #include "system.h"             /* for erealloc */
 
@@ -403,7 +408,7 @@ nasl_tolower (lex_ctxt * lexic)
   if (str == NULL)
     return NULL;
 
-  str = nasl_strndup (str, str_len);
+  str = g_memdup (str, str_len + 1);
   for (i = 0; i < str_len; i++)
     str[i] = tolower (str[i]);
 
@@ -426,7 +431,7 @@ nasl_toupper (lex_ctxt * lexic)
   if (str == NULL)
     return NULL;
 
-  str = nasl_strndup (str, str_len);
+  str = g_memdup (str, str_len + 1);
   for (i = 0; i < str_len; i++)
     str[i] = toupper (str[i]);
 
@@ -1033,8 +1038,7 @@ nasl_split (lex_ctxt * lexic)
       j = 0;
       for (;;)
         {
-          if ((p =
-               (char *) nasl_memmem (str + i, len - i, sep, sep_len)) == NULL)
+          if ((p = memmem (str + i, len - i, sep, sep_len)) == NULL)
             {
               v.v.v_str.s_siz = len - i;
               v.v.v_str.s_val = (unsigned char *) str + i;
@@ -1208,14 +1212,14 @@ nasl_strstr (lex_ctxt * lexic)
   if (sz_b > sz_a)
     return NULL;
 
-  c = (char *) nasl_memmem (a, sz_a, b, sz_b);
+  c = memmem (a, sz_a, b, sz_b);
   if (c == NULL)
     return FAKE_CELL;
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = sz_a - (c - a);
-  retc->x.str_val = nasl_strndup (c, retc->size);
+  retc->x.str_val = g_memdup (c, retc->size + 1);
   return retc;
 }
 
@@ -1258,7 +1262,7 @@ nasl_stridx (lex_ctxt * lexic)
   if ((sz_a == start) || (sz_b > sz_a + start))
     return retc;
 
-  c = (char *) nasl_memmem (a + start, sz_a - start, b, sz_b);
+  c = memmem (a + start, sz_a - start, b, sz_b);
   if (c != NULL)
     retc->x.i_val = c - a;
   return retc;
@@ -1309,7 +1313,7 @@ nasl_str_replace (lex_ctxt * lexic)
   n = 0;
   for (i1 = i2 = 0; i1 <= sz_a - sz_b;)
     {
-      c = (char *) nasl_memmem (a + i1, sz_a - i1, b, sz_b);
+      c = memmem (a + i1, sz_a - i1, b, sz_b);
       if (c == NULL)
         break;
       l = (c - a) - i1;

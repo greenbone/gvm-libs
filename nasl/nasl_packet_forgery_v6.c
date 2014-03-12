@@ -1435,7 +1435,7 @@ get_icmp_v6_element (lex_ctxt * lexic)
           retc->type = CONST_DATA;
           retc->size = get_var_size_by_name (lexic, "icmp") - 40 - 8;
           if (retc->size > 0)
-            retc->x.str_val = nasl_strndup (&(p[40 + 8]), retc->size);
+            retc->x.str_val = g_memdup (&(p[40 + 8]), retc->size + 1);
           else
             {
               retc->x.str_val = NULL;

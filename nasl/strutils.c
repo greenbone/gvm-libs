@@ -29,14 +29,6 @@
  *       be moved (e.g. to misc).
  */
 
-char *
-nasl_strndup (char *str, int length)
-{
-  char *ret = emalloc (length + 1);
-  bcopy (str, ret, length);
-  return ret;
-}
-
 /** @todo In parts replacable by g_pattern_match function (when not icase) */
 int
 str_match (const char *string, const char *pattern, int icase)
@@ -64,39 +56,4 @@ str_match (const char *string, const char *pattern, int icase)
       string++;
     }
   return *string == '\0';
-}
-
-
-
-/**
- * @brief Slow replacement for memmem.
- */
-void *
-nasl_memmem (const void *haystack, size_t hl_len, const void *needle,
-             size_t n_len)
-{
-  char *hs = (char *) haystack;
-  char *nd = (char *) needle;
-  int i;
-
-  if (hl_len < n_len)
-    return NULL;
-
-  for (i = 0; i <= hl_len - n_len; i++)
-    {
-      if (hs[i] == nd[0])
-        {
-          int flag = 1;
-          int j;
-          for (j = 1; j < n_len; j++)
-            if (hs[i + j] != nd[j])
-              {
-                flag = 0;
-                break;
-              }
-          if (flag != 0)
-            return (hs + i);
-        }
-    }
-  return (NULL);
 }

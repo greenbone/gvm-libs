@@ -1,3 +1,38 @@
+2014-03-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Remove unused misc/rand and base/certificate. Replace nasl_memmem and
+	nasl_strndup.
+
+	* COPYING: Remove misc/rand.[c|h] and base/certificate.[c|h} license.
+
+	* base/CMakeLists.txt: base/certificate.[c|h] from build process.
+
+	* misc/CMakeLists.txt: Remove misc/rand.[c|h] from build process.
+
+	* misc/rand.c, misc/rand.h, base/certificate.c, base/certificate.h:
+	Remove files.
+
+	* misc/plugutils.c: Remove rand.h include.
+
+	* nasl/exec.c (cell2str, cell2str_and_size), nasl/nasl_crypto.c
+	(nasl_gcrypt_hash, nasl_lm_owf_gen), nasl/nasl_misc_funcs.c
+	(nasl_telnet_init), nasl/nasl_packet_forgery.c (get_icmp_element),
+	nasl/nasl_packet_forgery_v6.c (get_icmp_element),
+	nasl/nasl_scanner_glue.c (security_something), nasl/nasl_socket.c
+	(nasl_recv, nasl_recv_line), nasl/nasl_text_utils.c (nasl_tolower)
+	(nasl_toupper, nasl_strstr): Replace nasl_strndup() call with g_memdup.
+	This function's name is misleading as it uses bcopy instead of behaving
+	like strndup and g_strndup.
+
+	* nasl/exec.c (nasl_exec), nasl/nasl_text_utils.c (nasl_split)
+	(nasl_strstr, nasl_stridx, nasl_str_replace): Replace nasl_memmem which
+	is a "slower memmem implementation" with memmem.
+
+	* nasl/strutils.c (nasl_memmem, nasl_strndup), nasl/nasl_signature.c
+	(nasl_get_pubkey, nasl_get_all_certificates): Delete unused functions.
+
+	* nasl/strutils.h, nasl/nasl_signature.h: Remove function prototypes.
+
 2014-03-12  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.

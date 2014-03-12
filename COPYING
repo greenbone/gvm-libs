@@ -21,7 +21,6 @@ on the header of the respective files and since then updated
 as changes were applied:
 
 base/array.[c|h]: GPLv2+
-base/certificate.[c|h]: GPLv2+
 base/CMakeLists.txt: GPLv2+
 base/credentials.[c|h]: GPLv2+
 base/cvss.[c|h]: GPLv2+
@@ -62,7 +61,6 @@ misc/pcap.c: LGPLv2+
 misc/pcap_openvas.h: LGPLv2+
 misc/plugutils.[c|h]: LGPLv2+
 misc/popen.[c|h]: LGPLv2+
-misc/rand.[c|h]: LGPLv2+
 misc/resource_request.[c|h]: GPLv2
 misc/scanners_utils.[c|h]: LGPLv2+
 misc/support.h: GPLv2+
