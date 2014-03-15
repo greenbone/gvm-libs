@@ -76,7 +76,7 @@ else (MINGW)
              system.c www_funcs.c pcap.c)
 
   set (HEADERS arglists.h bpf_share.h ftp_funcs.h hash_table_file.h kb.h
-               network.h otp.h pcap_openvas.h plugutils.h popen.h
+               network.h pcap_openvas.h plugutils.h popen.h
                openvas_proctitle.h openvas_auth.h openvas_logging.h
                openvas_server.h openvas_ssh_login.h openvas_uuid.h
                resource_request.h nvt_categories.h internal_com.h

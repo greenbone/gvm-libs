@@ -1,3 +1,9 @@
+2014-03-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/otp.h: Removed.
+
+	* misc/CMakeLists.txt, COPYING: Removed otp.h accordingly.
+
 2014-03-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Remove unused misc/rand and base/certificate. Replace nasl_memmem and
