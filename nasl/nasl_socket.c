@@ -341,7 +341,7 @@ tryagain:
     }
 
   if (proto == IPPROTO_TCP)
-    sock = openvas_register_connection (sock, NULL, NULL);
+    sock = openvas_register_connection (sock, NULL, NULL, OPENVAS_ENCAPS_TLSv1);
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;

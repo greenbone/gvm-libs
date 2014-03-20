@@ -158,13 +158,6 @@ pid_perror (const char *error)
   return 0;
 }
 
-static void
-pid_notice (const char *text)
-{
-  log_legacy_write ("[%d] %s\n", getpid (), text);
-}
-
-
 int
 stream_get_err (int fd)
 {
@@ -271,7 +264,8 @@ release_connection_fd (int fd)
  */
 int
 openvas_register_connection (int soc, void *ssl,
-                             gnutls_certificate_credentials_t certcred)
+                             gnutls_certificate_credentials_t certcred,
+                             int encaps)
 {
   int fd;
   openvas_connection *p;
@@ -286,7 +280,7 @@ openvas_register_connection (int soc, void *ssl,
   p->timeout = TIMEOUT;         /* default value */
   p->port = 0;                  /* just used for debug */
   p->fd = soc;
-  p->transport = (ssl != NULL) ? OPENVAS_ENCAPS_TLSv1 : OPENVAS_ENCAPS_IP;
+  p->transport = encaps;
   p->priority = NULL;
   p->last_err = 0;
 
@@ -466,11 +460,6 @@ set_gnutls_protocol (gnutls_session_t session, int encaps, const char *priority)
                     ":+RSA:+DHE-RSA:+DHE-DSS:+SHA1:+MD5");
       break;
     case OPENVAS_ENCAPS_TLScustom:
-      if (!priority || !*priority)
-        {
-          pid_notice ("no priority string given for ENCAPS_TLScustom");
-          return -1;
-        }
       priorities = priority;
       break;
 
@@ -681,12 +670,7 @@ open_SSL_connection (openvas_connection * fp, int timeout, const char *cert,
       err = gnutls_handshake (fp->tls_session);
 
       if (err == 0)
-        {
-#ifdef DEBUG_SSL
-          pid_notice ("gnutls_handshake succeeded");
-#endif
-          return 1;
-        }
+        return 1;
 
       if (err != GNUTLS_E_INTERRUPTED && err != GNUTLS_E_AGAIN)
         {
@@ -1099,13 +1083,14 @@ ovas_scanner_context_free (ovas_scanner_context_t ctx)
  * @return The openvas file descriptor on success and -1 on failure.
  */
 int
-ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc)
+ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc,
+                             char *priority)
 {
   int fd;
   openvas_connection *fp = NULL;
   int ret;
 
-  fd = openvas_register_connection (soc, GINT_TO_POINTER (ctx->encaps), NULL);
+  fd = openvas_register_connection (soc, NULL, NULL, ctx->encaps);
   if (fd < 0)
     return -1;
 
@@ -1121,7 +1106,7 @@ ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc)
         }
       my_gnutls_transport_set_lowat_default (fp->tls_session);
 
-      ret = set_gnutls_protocol (fp->tls_session, fp->transport, NULL);
+      ret = set_gnutls_protocol (fp->tls_session, fp->transport, priority);
       if (ret < 0)
         {
           goto fail;
@@ -1299,6 +1284,7 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLScustom:
 # if DEBUG_SSL > 0
       if (getpid () != fp->pid)
         {
@@ -1522,6 +1508,7 @@ write_stream_connection4 (int fd, void *buf0, int n, int i_opt)
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLScustom:
 
       /* i_opt ignored for SSL */
       for (count = 0; count < n;)
@@ -1796,6 +1783,7 @@ get_encaps_through (int code)
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLScustom:
       return " through SSL";
     default:
       snprintf (str, sizeof (str), " through unknown transport layer - code %d (0x%x)", code, code);    /* RATS: ignore */
@@ -1904,9 +1892,6 @@ open_socket (struct sockaddr *paddr, int type, int protocol,
           return -1;
         }
     }
-#if DEBUG_SSL > 2
-  pid_notice ("connect succeeded");
-#endif
   block_socket (soc);
   return soc;
 }

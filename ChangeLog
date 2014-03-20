@@ -1,3 +1,22 @@
+2014-03-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Add ability to specify a gnutls priority for a scanner context.
+
+	* misc/network.c (ovas_scanner_context_attach)
+	(openvas_register_connection): Add priority parameter Set the openvas
+	connection's transport value according to the specified encaps value.
+	Adjust set_gnutls_protocol call.
+	(read_stream_connection_unbuffered, write_stream_connection4)
+	(get_encaps_through): Handle OPENVAS_ENCAPS_TLScustom case.
+	(pid_notice): Remove function.
+	(set_gnutls_protocol, open_SSL_connection, open_socket): Delete calls to
+	removed function.
+
+	* misc/network.h: Adjust ovas_scanner_context_attach prototype.
+
+	* nasl/nasl_socket.c (nasl_open_privileged_socket): Adjust
+	openvas_register_connection.
+
 2014-03-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/otp.h: Removed.
