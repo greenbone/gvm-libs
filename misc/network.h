@@ -84,16 +84,12 @@ int stream_get_err (int);
 struct ovas_scanner_context_s;
 typedef struct ovas_scanner_context_s *ovas_scanner_context_t;
 
-ovas_scanner_context_t ovas_scanner_context_new (int encaps,
-                                                 const char *certfile,
-                                                 const char *keyfile,
-                                                 const char *passwd,
-                                                 const char *cacertfile,
-                                                 int force_pubkey_auth);
+ovas_scanner_context_t
+ovas_scanner_context_new (int, const char *, const char *, const char *, const
+                          char *, int, const char *);
 
 void ovas_scanner_context_free (ovas_scanner_context_t);
-int ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc,
-                                 char *priority);
+int ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc);
 
 int openvas_register_connection (int s, void *ssl,
                                  gnutls_certificate_credentials_t certcred,

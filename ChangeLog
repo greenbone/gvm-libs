@@ -1,3 +1,15 @@
+2014-03-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network.c (struct ovas_scanner_context_s): Add element for
+	gnutls priority string.
+	(ovas_scanner_context_new): Add function parameter for priority string.
+	Adjust allocation.
+	(ovas_scanner_context_attach): Remove priority parameter. Use the value
+	from the context instead.
+	(ovas_scanner_context_free): Adjust to free priority element.
+
+	* misc/network.h: Adjust function prototypes.
+
 2014-03-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Add ability to specify a gnutls priority for a scanner context.

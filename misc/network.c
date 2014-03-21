@@ -972,6 +972,9 @@ struct ovas_scanner_context_s
 
   /** GnuTLS credentials */
   gnutls_certificate_credentials_t tls_cred;
+
+  /** GnuTLS priority string */
+  char *priority;
 };
 
 /**
@@ -993,19 +996,17 @@ struct ovas_scanner_context_s
 ovas_scanner_context_t
 ovas_scanner_context_new (int encaps, const char *certfile, const char *keyfile,
                           const char *passwd, const char *cafile,
-                          int force_pubkey_auth)
+                          int force_pubkey_auth, const char *priority)
 {
   ovas_scanner_context_t ctx = NULL;
 
   if (openvas_SSL_init () < 0)
     return NULL;
 
-  ctx = emalloc (sizeof (struct ovas_scanner_context_s));
-  if (ctx == NULL)
-    return NULL;
-
+  ctx = g_malloc0 (sizeof (ovas_scanner_context_t));
   ctx->encaps = encaps;
   ctx->force_pubkey_auth = force_pubkey_auth;
+  ctx->priority = g_strdup (priority);
 
   if (ctx->encaps != OPENVAS_ENCAPS_IP)
     {
@@ -1061,7 +1062,8 @@ ovas_scanner_context_free (ovas_scanner_context_t ctx)
   if (ctx->tls_cred != NULL)
     gnutls_certificate_free_credentials (ctx->tls_cred);
 
-  efree (&ctx);
+  g_free (ctx->priority);
+  g_free (ctx);
 }
 
 /**
@@ -1083,8 +1085,7 @@ ovas_scanner_context_free (ovas_scanner_context_t ctx)
  * @return The openvas file descriptor on success and -1 on failure.
  */
 int
-ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc,
-                             char *priority)
+ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc)
 {
   int fd;
   openvas_connection *fp = NULL;
@@ -1106,11 +1107,9 @@ ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc,
         }
       my_gnutls_transport_set_lowat_default (fp->tls_session);
 
-      ret = set_gnutls_protocol (fp->tls_session, fp->transport, priority);
+      ret = set_gnutls_protocol (fp->tls_session, fp->transport, ctx->priority);
       if (ret < 0)
-        {
-          goto fail;
-        }
+        goto fail;
 
       if (ctx->tls_cred)
         {
