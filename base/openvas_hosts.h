@@ -95,7 +95,7 @@ struct openvas_hosts
   GList *hosts;             /* Hosts objects list. */
   GList *current;           /* Current host object in iteration. */
   unsigned int count;       /* Number of single host objects in hosts list. */
-  unsigned int removed;     /* Number of duplicate/invalid/excluded values. */
+  unsigned int removed;     /* Number of duplicate/excluded values. */
 };
 
 /* Function prototypes. */

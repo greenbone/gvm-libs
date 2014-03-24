@@ -1,5 +1,13 @@
 2014-03-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/openvas_hosts.c (openvas_hosts_with_max): Return on invalid
+	string.
+	(openvas_hosts_removed): Update documentation.
+
+	* base/openvas_hosts.h (struct openvas_hosts): Update documentation.
+
+2014-03-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/nvti.c, base/nvti.h (nvti_add_sign_key_id): Remove unused
 	function.
 

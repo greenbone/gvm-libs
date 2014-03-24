@@ -1071,8 +1071,9 @@ openvas_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
           case -1:
           default:
             /* Invalid host string. */
-            hosts->removed++;
-            break;
+            g_strfreev (split);
+            openvas_hosts_free (hosts);
+            return NULL;
         }
       host_element++; /* move on to next element of splitted list */
       if (max_hosts > 0 && hosts->count > max_hosts)
@@ -1512,7 +1513,7 @@ openvas_hosts_count (const openvas_hosts_t *hosts)
 
 /**
  * @brief Gets the count of single values in hosts string that were removed
- * (duplicates / invalid.)
+ * (duplicates / excluded.)
  *
  * @param[in] hosts The hosts collection.
  *
