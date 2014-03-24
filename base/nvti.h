@@ -155,7 +155,6 @@ int nvti_add_mandatory_keys (nvti_t *, const gchar *);
 int nvti_add_excluded_keys (nvti_t *, const gchar *);
 int nvti_add_required_ports (nvti_t *, const gchar *);
 int nvti_add_required_udp_ports (nvti_t *, const gchar *);
-int nvti_add_sign_key_id (nvti_t *, const gchar *);
 int nvti_add_pref (nvti_t *, nvtpref_t *);
 
 nvti_t *nvti_from_keyfile (const gchar *);

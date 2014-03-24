@@ -28,6 +28,5 @@
 #include "../base/gpgme_util.h"
 
 int nasl_verify_signature (const char *filename);
-char *nasl_extract_signature_fprs (const char *filename);
 
 #endif

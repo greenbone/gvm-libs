@@ -1270,36 +1270,6 @@ nvti_add_required_udp_ports (nvti_t * n, const gchar * port)
 }
 
 /**
- * @brief Add a single sign key id of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param sign_key_id The sign key id to add. A copy will be created from this.
- *
- * @return 0 for success. 1 if n was NULL. 2 if sign_key_id was NULL.
- */
-int
-nvti_add_sign_key_id (nvti_t * n, const gchar * sign_key_id)
-{
-  gchar * old;
-
-  if (! n) return (1);
-  if (! sign_key_id) return (2);
-
-  old = n->sign_key_ids;
-
-  if (old)
-  {
-    n->sign_key_ids = g_strdup_printf ("%s, %s", old, sign_key_id);
-    g_free (old);
-  }
-  else
-    n->sign_key_ids = g_strdup (sign_key_id);
-
-  return (0);
-}
-
-/**
  * @brief Add a preference to the NVT Info.
  *
  * @param n The NVT Info structure.

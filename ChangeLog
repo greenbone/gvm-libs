@@ -1,3 +1,11 @@
+2014-03-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvti.c, base/nvti.h (nvti_add_sign_key_id): Remove unused
+	function.
+
+	* nasl/nasl_signature.c, nasl/nasl_signature.h
+	(nasl_extract_signature_fprs): Remove unused function.
+
 2014-03-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (struct ovas_scanner_context_s): Add element for
