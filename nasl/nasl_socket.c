@@ -374,7 +374,6 @@ nasl_open_sock_tcp_bufsz (lex_ctxt * lexic, int bufsz)
   int transport = -1;
   const char *priority;
   tree_cell *retc;
-  const char *name;
   int type;
 
   to = get_int_local_var_by_name (lexic, "timeout", lexic->recv_timeout * 2);
@@ -385,17 +384,12 @@ nasl_open_sock_tcp_bufsz (lex_ctxt * lexic, int bufsz)
 
   if (transport == OPENVAS_ENCAPS_TLScustom)
     {
-      name = "priority";
-      priority = get_str_local_var_by_name (lexic, name);
-      if (!priority
-          || !((type = get_local_var_type_by_name (lexic, name)) == VAR2_STRING
-               || type == VAR2_DATA))
-
-        {
-          nasl_perror (lexic,
-                       "error: argument '%s' is not of type string\n", name);
-          return NULL;
-        }
+      priority = get_str_local_var_by_name (lexic, "priority");
+      if (!priority)
+        priority = NULL;
+      type = get_local_var_type_by_name (lexic, "priority");
+      if (type != VAR2_STRING && type != VAR2_DATA)
+        priority = NULL;
     }
   else
     priority = NULL;
