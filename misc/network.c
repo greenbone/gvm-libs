@@ -445,34 +445,23 @@ set_gnutls_protocol (gnutls_session_t session, int encaps, const char *priority)
 
   switch (encaps)
     {
-    case OPENVAS_ENCAPS_SSLv3:
-      priorities = ("NONE:+VERS-SSL3.0:+3DES-CBC:+ARCFOUR-128:+COMP-DEFLATE"
-                    ":+COMP-NULL:+RSA:+DHE-RSA:+DHE-DSS:+SHA1:+MD5");
-      break;
-    case OPENVAS_ENCAPS_TLSv1:
-      priorities = ("NONE:+VERS-TLS1.0:+AES-256-CBC:+AES-128-CBC:+3DES-CBC"
-                    ":+ARCFOUR-128:+COMP-DEFLATE:+COMP-NULL"
-		    ":+RSA:+DHE-RSA:+DHE-DSS:+SHA1:+MD5");
-      break;
-    case OPENVAS_ENCAPS_SSLv23:        /* Compatibility mode */
-      priorities = ("NONE:+VERS-TLS1.0:+VERS-SSL3.0:+AES-256-CBC:+AES-128-CBC"
-                    ":+3DES-CBC:+ARCFOUR-128:+COMP-DEFLATE:+COMP-NULL"
-                    ":+RSA:+DHE-RSA:+DHE-DSS:+SHA1:+MD5");
-      break;
-    case OPENVAS_ENCAPS_TLScustom:
-      priorities = priority;
-      break;
-
-    default:
+      case OPENVAS_ENCAPS_SSLv3:
+        priorities = "NORMAL:-VERS-TLS-ALL:+VERS-SSL3.0";
+        break;
+      case OPENVAS_ENCAPS_TLSv1:
+        priorities = "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.0";
+        break;
+      case OPENVAS_ENCAPS_SSLv23:        /* Compatibility mode */
+        priorities = "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.0:+VERS-SSL3.0";
+        break;
+      default:
 #if DEBUG_SSL > 0
-      log_legacy_write ("*Bug* at %s:%d. Unknown transport %d\n", __FILE__,
-                        __LINE__, encaps);
+        log_legacy_write ("*Bug* at %s:%d. Unknown transport %d\n", __FILE__,
+                          __LINE__, encaps);
 #endif
-      /* Use same priorities as for OPENVAS_ENCAPS_SSLv23 */
-      priorities = ("NONE:+VERS-TLS1.0:+VERS-SSL3.0:+AES-256-CBC:+AES-128-CBC"
-                    ":+3DES-CBC:+ARCFOUR-128:+COMP-DEFLATE:+COMP-NULL"
-                    ":+RSA:+DHE-RSA:+DHE-DSS:+SHA1:+MD5");
-      break;
+      case OPENVAS_ENCAPS_TLScustom:
+        priorities = priority;
+        break;
     }
 
   if ((err = gnutls_priority_set_direct (session, priorities, &errloc)))

@@ -1,5 +1,11 @@
 2014-03-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/network.c (set_gnutls_protocol): Simplify hardcoded priority
+	strings to enable cipher suites as supported by the used version of
+	gnutls library.
+
+2014-03-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_socket.c (nasl_open_sock_tcp_bufsz): Allow using default
 	priority string in OPENVAS_ENCAPS_TLScustom transport case. Update code
 	style.
