@@ -1,3 +1,28 @@
+2014-03-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport small parts of 19061 and 19038 and adjust for 6.0 to allow
+	TLSv1.1 and TLSv1.2 support and improve hardcoded and custom priority
+	strings.
+
+	* misc/network.c (pid_notice): Wrap in DEBUG_SSL define as it is unused
+	otherwise.
+	(ovas_allocate_connection): Use OPENVAS_ENCAPS_TLScustom instead of
+	fixed TLSv1.
+	(set_gnutls_protocol): Simplify hardcoded priority strings to enable
+	cipher suites as supported by the used version of gnutls library. Handle
+	TLSv1.1, TLSv1.2 and TLScustom cases.
+	(open_stream_connection_ext, open_stream_connection_unknown_encaps5)
+	(read_stream_connection_unbuffered, write_stream_connection4)
+	(get_encaps_name, get_encaps_through): Handle OPENVAS_ENCAPS_TLSv11,
+	OPENVAS_ENCAPS_TLSv12 and OPENVAS_ENCAPS_TLScustom cases.
+
+	* misc/network.h (OPENVAS_ENCAPS_TLSv11, OPENVAS_ENCAPS_TLSv12)
+	(OPENVAS_ENCAPS_TLScustom and OPENVAS_ENCAPS_MAX): New defines.
+
+	* nasl/nasl_init.c (libvars): Add ENCAPS_TLSv11, ENCAPS_TLSv12 and
+	ENCAPS_MAX variables.
+
+
 2014-03-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r18680.

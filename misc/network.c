@@ -160,12 +160,13 @@ pid_perror (const char *error)
   return 0;
 }
 
+#ifdef DEBUG_SSL
 static void
 pid_notice (const char *text)
 {
   log_legacy_write ("[%d] %s\n", getpid (), text);
 }
-
+#endif
 
 int
 stream_get_err (int fd)
@@ -288,7 +289,7 @@ ovas_allocate_connection (int soc, void *ssl,
   p->timeout = TIMEOUT;         /* default value */
   p->port = 0;                  /* just used for debug */
   p->fd = soc;
-  p->transport = (ssl != NULL) ? OPENVAS_ENCAPS_TLSv1 : OPENVAS_ENCAPS_IP;
+  p->transport = (ssl != NULL) ? OPENVAS_ENCAPS_TLScustom : OPENVAS_ENCAPS_IP;
   p->priority = NULL;
   p->last_err = 0;
 
@@ -463,39 +464,29 @@ set_gnutls_protocol (gnutls_session_t session, int encaps, const char *priority)
 
   switch (encaps)
     {
-    case OPENVAS_ENCAPS_SSLv3:
-      priorities = ("NONE:+VERS-SSL3.0:+3DES-CBC:+ARCFOUR-128:+COMP-DEFLATE"
-                    ":+COMP-NULL:+RSA:+DHE-RSA:+DHE-DSS:+SHA1:+MD5");
-      break;
-    case OPENVAS_ENCAPS_TLSv1:
-      priorities = ("NONE:+VERS-TLS1.0:+AES-256-CBC:+AES-128-CBC:+3DES-CBC"
-                    ":+ARCFOUR-128:+COMP-DEFLATE:+COMP-NULL"
-		    ":+RSA:+DHE-RSA:+DHE-DSS:+SHA1:+MD5");
-      break;
-    case OPENVAS_ENCAPS_SSLv23:        /* Compatibility mode */
-      priorities = ("NONE:+VERS-TLS1.0:+VERS-SSL3.0:+AES-256-CBC:+AES-128-CBC"
-                    ":+3DES-CBC:+ARCFOUR-128:+COMP-DEFLATE:+COMP-NULL"
-                    ":+RSA:+DHE-RSA:+DHE-DSS:+SHA1:+MD5");
-      break;
-    case OPENVAS_ENCAPS_TLScustom:
-      if (!priority || !*priority)
-        {
-          pid_notice ("no priority string given for ENCAPS_TLScustom");
-          return -1;
-        }
-      priorities = priority;
-      break;
-
-    default:
+      case OPENVAS_ENCAPS_SSLv3:
+        priorities = "NORMAL:-VERS-TLS-ALL:+VERS-SSL3.0";
+        break;
+      case OPENVAS_ENCAPS_TLSv1:
+        priorities = "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.0";
+        break;
+      case OPENVAS_ENCAPS_TLSv11:
+        priorities = "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.1";
+        break;
+      case OPENVAS_ENCAPS_TLSv12:
+        priorities = "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.2";
+        break;
+      case OPENVAS_ENCAPS_SSLv23:        /* Compatibility mode */
+        priorities = "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.0:+VERS-SSL3.0";
+        break;
+      default:
 #if DEBUG_SSL > 0
-      log_legacy_write ("*Bug* at %s:%d. Unknown transport %d\n", __FILE__,
-                        __LINE__, encaps);
+        log_legacy_write ("*Bug* at %s:%d. Unknown transport %d\n", __FILE__,
+                          __LINE__, encaps);
 #endif
-      /* Use same priorities as for OPENVAS_ENCAPS_SSLv23 */
-      priorities = ("NONE:+VERS-TLS1.0:+VERS-SSL3.0:+AES-256-CBC:+AES-128-CBC"
-                    ":+3DES-CBC:+ARCFOUR-128:+COMP-DEFLATE:+COMP-NULL"
-                    ":+RSA:+DHE-RSA:+DHE-DSS:+SHA1:+MD5");
-      break;
+      case OPENVAS_ENCAPS_TLScustom:
+        priorities = priority;
+        break;
     }
 
   if ((err = gnutls_priority_set_direct (session, priorities, &errloc)))
@@ -935,6 +926,8 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLSv11:
+    case OPENVAS_ENCAPS_TLSv12:
     case OPENVAS_ENCAPS_TLScustom:
       break;
 
@@ -977,6 +970,8 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLSv11:
+    case OPENVAS_ENCAPS_TLSv12:
     case OPENVAS_ENCAPS_TLScustom:
       renice_myself ();
       cert = kb_item_get_str (plug_get_kb (args), "SSL/cert");
@@ -1023,6 +1018,8 @@ open_stream_connection_unknown_encaps5 (struct arglist *args, unsigned int port,
   static int encaps[] = {
     OPENVAS_ENCAPS_SSLv2,
     OPENVAS_ENCAPS_TLSv1,
+    OPENVAS_ENCAPS_TLSv11,
+    OPENVAS_ENCAPS_TLSv12,
     OPENVAS_ENCAPS_SSLv3,
     OPENVAS_ENCAPS_IP
   };
@@ -1466,6 +1463,9 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLSv11:
+    case OPENVAS_ENCAPS_TLSv12:
+    case OPENVAS_ENCAPS_TLScustom:
 # if DEBUG_SSL > 0
       if (getpid () != fp->pid)
         {
@@ -1689,6 +1689,9 @@ write_stream_connection4 (int fd, void *buf0, int n, int i_opt)
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLSv11:
+    case OPENVAS_ENCAPS_TLSv12:
+    case OPENVAS_ENCAPS_TLScustom:
 
       /* i_opt ignored for SSL */
       for (count = 0; count < n;)
@@ -1906,6 +1909,10 @@ get_encaps_name (int code)
       return "SSLv3";
     case OPENVAS_ENCAPS_TLSv1:
       return "TLSv1";
+    case OPENVAS_ENCAPS_TLSv11:
+      return "TLSv11";
+    case OPENVAS_ENCAPS_TLSv12:
+      return "TLSv12";
     case OPENVAS_ENCAPS_TLScustom:
       return "TLScustom";
     default:
@@ -1926,6 +1933,9 @@ get_encaps_through (int code)
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLSv11:
+    case OPENVAS_ENCAPS_TLSv12:
+    case OPENVAS_ENCAPS_TLScustom:
       return " through SSL";
     default:
       snprintf (str, sizeof (str), " through unknown transport layer - code %d (0x%x)", code, code);    /* RATS: ignore */

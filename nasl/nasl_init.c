@@ -519,7 +519,13 @@ static struct
   {
   "ENCAPS_TLSv1", OPENVAS_ENCAPS_TLSv1},
   {
+  "ENCAPS_TLSv11", OPENVAS_ENCAPS_TLSv11},
+  {
+  "ENCAPS_TLSv12", OPENVAS_ENCAPS_TLSv11},
+  {
   "ENCAPS_TLScustom", OPENVAS_ENCAPS_TLScustom},
+  {
+  "ENCAPS_MAX", OPENVAS_ENCAPS_MAX},
   {
   "TH_FIN", TH_FIN},
   {
