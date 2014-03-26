@@ -49,7 +49,7 @@
 #include "kb.h"                 /* for kb_item_get_str() */
 
 #include "ids_send.h"
-#include "plugutils.h" /* for OPENVAS_ENCAPS_IP */
+#include "plugutils.h"
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_CTRL */
 #include "support.h"
 #include "openvas_logging.h"
@@ -69,8 +69,11 @@
 typedef struct
 {
   int fd;        /**< socket number, or whatever */
-  int transport; /**< "transport" layer code when stream is encapsultated.
-                   * Negative transport signals a free descriptor */
+  /*
+   * "transport" layer code when stream is encapsultated. Negative transport
+   * signals a free descriptor.
+   */
+  openvas_encaps_t transport;
   char *priority;/**< Malloced "priority" string for certain transports.  */
   int timeout;   /**< timeout, in seconds. Special values: -2 for default */
   int options;   /**< Misc options - see ids_send.h */
@@ -265,7 +268,7 @@ release_connection_fd (int fd)
 int
 openvas_register_connection (int soc, void *ssl,
                              gnutls_certificate_credentials_t certcred,
-                             int encaps)
+                             openvas_encaps_t encaps)
 {
   int fd;
   openvas_connection *p;
@@ -422,13 +425,13 @@ ovas_get_tlssession_from_connection (int fd)
 }
 
 /**
- * Sets the priorities for the GnuTLS session according to encaps, one
- * of the OPENVAS_ENCAPS_* constants.  PRIORITY is used to convey
- * custom priorities; it is only used if ENCAPS is set to
- * OPENVAS_ENCAPS_TLScustom.
+ * Sets the priorities for the GnuTLS session according to encaps.
+ * PRIORITY is used to convey custom priorities; it is only used if ENCAPS is
+ * set to OPENVAS_ENCAPS_TLScustom.
  */
 static int
-set_gnutls_protocol (gnutls_session_t session, int encaps, const char *priority)
+set_gnutls_protocol (gnutls_session_t session, openvas_encaps_t encaps,
+                     const char *priority)
 {
   const char * priorities;
   const char * errloc;
@@ -450,6 +453,12 @@ set_gnutls_protocol (gnutls_session_t session, int encaps, const char *priority)
         break;
       case OPENVAS_ENCAPS_TLSv1:
         priorities = "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.0";
+        break;
+      case OPENVAS_ENCAPS_TLSv11:
+        priorities = "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.1";
+        break;
+      case OPENVAS_ENCAPS_TLSv12:
+        priorities = "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.2";
         break;
       case OPENVAS_ENCAPS_SSLv23:        /* Compatibility mode */
         priorities = "NORMAL:-VERS-TLS-ALL:+VERS-TLS1.0:+VERS-SSL3.0";
@@ -781,6 +790,8 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLSv11:
+    case OPENVAS_ENCAPS_TLSv12:
     case OPENVAS_ENCAPS_TLScustom:
     case OPENVAS_ENCAPS_SSLv2:
       break;
@@ -822,6 +833,8 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLSv11:
+    case OPENVAS_ENCAPS_TLSv12:
     case OPENVAS_ENCAPS_TLScustom:
       renice_myself ();
       cert = kb_item_get_str (plug_get_kb (args), "SSL/cert");
@@ -865,11 +878,13 @@ open_stream_connection_unknown_encaps5 (struct arglist *args, unsigned int port,
   int fd;
   int i;
   struct timeval tv1, tv2;
-  static int encaps[] = {
+  static openvas_encaps_t encaps[] = {
     OPENVAS_ENCAPS_SSLv2,
     OPENVAS_ENCAPS_TLSv1,
+    OPENVAS_ENCAPS_TLSv11,
+    OPENVAS_ENCAPS_TLSv12,
     OPENVAS_ENCAPS_SSLv3,
-    OPENVAS_ENCAPS_IP
+    OPENVAS_ENCAPS_IP,
   };
 
 #if DEBUG_SSL > 2
@@ -954,7 +969,7 @@ open_stream_auto_encaps_ext (struct arglist *args, unsigned int port,
 struct ovas_scanner_context_s
 {
   /** Transport encapsulation to use */
-  int encaps;
+  openvas_encaps_t encaps;
 
   /** Whether to force public key authentication */
   int force_pubkey_auth;
@@ -969,12 +984,10 @@ struct ovas_scanner_context_s
 /**
  * @brief Creates a new ovas_scanner_context_t.
  *
- * The parameter encaps should be
- * one of the OPENVAS_ENCAPS_* constants.  If any of the SSL
- * encapsulations are used, the parameters certfile, keyfile, and cafile
- * should be the filenames of the scanner certificate and corresponding
- * key and the CA certificate.  The optional passwd parameter is used as
- * the password to decrypt the keyfile if it is encrypted.
+ * If any of the SSL encapsulations are used, the parameters certfile, keyfile,
+ * and cafile should be the filenames of the scanner certificate and
+ * corresponding key and the CA certificate.  The optional passwd parameter is
+ * used as the password to decrypt the keyfile if it is encrypted.
  *
  * The force_pubkey_auth parameter is a boolean controlling public key
  * authentication of the client.  If force_pubkey_auth is true, the
@@ -983,9 +996,10 @@ struct ovas_scanner_context_s
  * one.
  */
 ovas_scanner_context_t
-ovas_scanner_context_new (int encaps, const char *certfile, const char *keyfile,
-                          const char *passwd, const char *cafile,
-                          int force_pubkey_auth, const char *priority)
+ovas_scanner_context_new (openvas_encaps_t encaps, const char *certfile,
+                          const char *keyfile, const char *passwd,
+                          const char *cafile, int force_pubkey_auth,
+                          const char *priority)
 {
   ovas_scanner_context_t ctx = NULL;
 
@@ -1272,6 +1286,8 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLSv11:
+    case OPENVAS_ENCAPS_TLSv12:
     case OPENVAS_ENCAPS_TLScustom:
 # if DEBUG_SSL > 0
       if (getpid () != fp->pid)
@@ -1496,6 +1512,8 @@ write_stream_connection4 (int fd, void *buf0, int n, int i_opt)
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLSv11:
+    case OPENVAS_ENCAPS_TLSv12:
     case OPENVAS_ENCAPS_TLScustom:
 
       /* i_opt ignored for SSL */
@@ -1734,7 +1752,7 @@ close_stream_connection (int fd)
 }
 
 const char *
-get_encaps_name (int code)
+get_encaps_name (openvas_encaps_t code)
 {
   static char str[100];
   switch (code)
@@ -1751,6 +1769,10 @@ get_encaps_name (int code)
       return "SSLv3";
     case OPENVAS_ENCAPS_TLSv1:
       return "TLSv1";
+    case OPENVAS_ENCAPS_TLSv11:
+      return "TLSv11";
+    case OPENVAS_ENCAPS_TLSv12:
+      return "TLSv12";
     case OPENVAS_ENCAPS_TLScustom:
       return "TLScustom";
     default:
@@ -1760,7 +1782,7 @@ get_encaps_name (int code)
 }
 
 const char *
-get_encaps_through (int code)
+get_encaps_through (openvas_encaps_t code)
 {
   static char str[100];
   switch (code)
@@ -1771,6 +1793,8 @@ get_encaps_through (int code)
     case OPENVAS_ENCAPS_SSLv23:
     case OPENVAS_ENCAPS_SSLv3:
     case OPENVAS_ENCAPS_TLSv1:
+    case OPENVAS_ENCAPS_TLSv11:
+    case OPENVAS_ENCAPS_TLSv12:
     case OPENVAS_ENCAPS_TLScustom:
       return " through SSL";
     default:

@@ -116,24 +116,4 @@ const long get_plugin_preference_file_size (struct arglist *, const char *);
 
 char *find_in_path (char *, int);
 
-/** @todo Donate modules to these defines, eg. openvas_encaps.h
- * Old comment: In fact, these defines might better be in a separate files.
- * They are inserted here simply because plugutils uses them a lot. */
-
-/*
- * Type of "transport layer", for encapsulated connections
- * Only SSL is supported at this time.
- * (Bad) examples of other layers could be SOCKS, httptunnel, icmptunnel,
- * RMI over HTTP, DCOM over HTTP, TCP over TCP, etc.
- */
-#define OPENVAS_ENCAPS_AUTO 0   /* Request auto detection.  */
-#define OPENVAS_ENCAPS_IP 1
-#define OPENVAS_ENCAPS_SSLv23 2 /* Ask for compatibility options */
-#define OPENVAS_ENCAPS_SSLv2 3
-#define OPENVAS_ENCAPS_SSLv3 4
-#define OPENVAS_ENCAPS_TLSv1 5
-#define OPENVAS_ENCAPS_TLScustom 6 /* SSL/TLS using custom priorities.  */
-
-#define IS_ENCAPS_SSL(x) ((x) >= OPENVAS_ENCAPS_SSLv23 && (x) <= OPENVAS_ENCAPS_TLScustom)
-
 #endif

@@ -24,7 +24,7 @@
 #include <stdlib.h>         /* for getenv.  */
 
 #include "nvt_categories.h" /* for ACT_INIT */
-#include "plugutils.h"      /* for OPENVAS_ENCAPS_IP */
+#include "network.h"      /* for OPENVAS_ENCAPS_* */
 
 #include "nasl.h"
 #include "nasl_tree.h"
@@ -532,7 +532,13 @@ static struct
   {
   "ENCAPS_TLSv1", OPENVAS_ENCAPS_TLSv1},
   {
+  "ENCAPS_TLSv11", OPENVAS_ENCAPS_TLSv11},
+  {
+  "ENCAPS_TLSv12", OPENVAS_ENCAPS_TLSv12},
+  {
   "ENCAPS_TLScustom", OPENVAS_ENCAPS_TLScustom},
+  {
+  "ENCAPS_MAX", OPENVAS_ENCAPS_MAX},
   {
   "TH_FIN", TH_FIN},
   {

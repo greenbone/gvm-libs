@@ -1,3 +1,31 @@
+2014-03-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Add TLSv1.1 and TLSv1.2 support.
+
+	* misc/plugutils.h: Remove OPENVAS_ENCAPS_* defines. Move IS_ENCAPS_SSL
+	to misc/network.h.
+
+	* misc/network.h (openvas_encaps_t): New enum. Add
+	OPENVAS_ENCAPS_TLSv11, OPENVAS_ENCAPS_TLSv12 and OPENVAS_ENCAPS_MAX.
+	Adjust functions prototypes.
+
+	* misc/network.c (openvas_connection): Change transport element type to
+	openvas_encaps_t.
+	(openvas_register_connection, set_gnutls_protocol)
+	(ovas_scanner_context_new): Change encaps argument from int to
+	openvas_encaps_t.
+	(open_stream_connection_ext, open_stream_connection_unknown_encaps5)
+	(open_stream_auto_encaps_ext, read_stream_connection_unbuffered,
+	write_stream_connection4, get_encaps_name, get_encaps_through): Support
+	OPENVAS_ENCAPS_TLSv11 and OPENVAS_ENCAPS_TLSv12 cases.
+
+	* nasl/nasl_init.c (libvars): Expose ENCAPS_TLSv11, ENCAPS_TLSv12 and
+	ENCAPS_MAX variables to nasl interpreter.
+
+	* nasl/nasl_socket.c (nasl_open_privileged_socket): Register connection
+	using OPENVAS_ENCAPS_TLScustom to support different tls versions instead
+	of fixed version with OPENVAS_ENCAPS_TLSv1.
+
 2014-03-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (set_gnutls_protocol): Simplify hardcoded priority

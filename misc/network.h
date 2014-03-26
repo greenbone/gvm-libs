@@ -35,6 +35,27 @@
 #include "arglists.h"
 #include "../base/openvas_networking.h"
 
+/*
+ * Type of "transport layer", for encapsulated connections
+ * Only SSL is supported at this time.
+ * (Bad) examples of other layers could be SOCKS, httptunnel, icmptunnel,
+ * RMI over HTTP, DCOM over HTTP, TCP over TCP, etc.
+ */
+typedef enum openvas_encaps {
+    OPENVAS_ENCAPS_AUTO = 0,   /* Request auto detection.  */
+    OPENVAS_ENCAPS_IP,
+    OPENVAS_ENCAPS_SSLv23, /* Ask for compatibility options */
+    OPENVAS_ENCAPS_SSLv2,
+    OPENVAS_ENCAPS_SSLv3,
+    OPENVAS_ENCAPS_TLSv1,
+    OPENVAS_ENCAPS_TLSv11,
+    OPENVAS_ENCAPS_TLSv12,
+    OPENVAS_ENCAPS_TLScustom, /* SSL/TLS using custom priorities.  */
+    OPENVAS_ENCAPS_MAX,
+} openvas_encaps_t;
+
+#define IS_ENCAPS_SSL(x) ((x) >= OPENVAS_ENCAPS_SSLv23 && (x) <= OPENVAS_ENCAPS_TLScustom)
+
 /* Plugin specific network functions */
 int open_sock_tcp (struct arglist *, unsigned int, int);
 int open_sock_option (struct arglist *, unsigned int, int, int, int);
@@ -60,8 +81,8 @@ int nsend (int, void *, int, int);
 void add_close_stream_connection_hook (int (*)(int));
 int close_stream_connection (int);
 
-const char *get_encaps_name (int);
-const char *get_encaps_through (int);
+const char *get_encaps_name (openvas_encaps_t);
+const char *get_encaps_through (openvas_encaps_t);
 
 /* Additional functions -- should not be used by the plugins */
 int open_sock_opt_hn (const char *, unsigned int, int, int, int);
@@ -85,15 +106,15 @@ struct ovas_scanner_context_s;
 typedef struct ovas_scanner_context_s *ovas_scanner_context_t;
 
 ovas_scanner_context_t
-ovas_scanner_context_new (int, const char *, const char *, const char *, const
-                          char *, int, const char *);
+ovas_scanner_context_new (openvas_encaps_t, const char *, const char *,
+                          const char *, const char *, int, const char *);
 
 void ovas_scanner_context_free (ovas_scanner_context_t);
 int ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc);
 
 int openvas_register_connection (int s, void *ssl,
                                  gnutls_certificate_credentials_t certcred,
-                                 int encaps);
+                                 openvas_encaps_t encaps);
 int openvas_deregister_connection (int);
 int openvas_get_socket_from_connection (int);
 gnutls_session_t *ovas_get_tlssession_from_connection (int);
