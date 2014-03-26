@@ -1,5 +1,11 @@
 2014-03-26  Benoît Allard  <benoit.allard@greenbone.net>
 
+	Post release version bump.
+
+	* CMakeLists.txt: 7.0+beta9
+
+2014-03-26  Benoît Allard  <benoit.allard@greenbone.net>
+
 	Preparing the openvas-libraries 7.0+beta8 release.
 
 	* CHANGES: Updated
