@@ -1,3 +1,20 @@
+openvas-libraries 7.0+beta8 (2014-03-26)
+
+This is the eight beta release of the next major release of openvas-libraries.
+It will be part of the upcoming "OpenVAS-7".
+
+This release adds TLSv1.1 and TLSv2.1 support and cleanup a large amount of
+code.
+
+Many thanks to everyone who contributed to this release:
+Hani Benhabiles and Jan-Oliver Wagner.
+
+Main changes since 7.0+beta7:
+* Add TLSv1.1 and TLSv1.2 support.
+* Add ability to specify a gnutls priority for a scanner context.
+* Code cleanup.
+
+
 openvas-libraries 7.0+beta7 (2014-03-12)
 
 This release is the seventh beta version of the next major release of

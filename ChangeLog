@@ -1,3 +1,9 @@
+2014-03-26  Benoît Allard  <benoit.allard@greenbone.net>
+
+	Preparing the openvas-libraries 7.0+beta8 release.
+
+	* CHANGES: Updated
+
 2014-03-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Add TLSv1.1 and TLSv1.2 support.
