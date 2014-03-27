@@ -84,9 +84,6 @@ typedef struct nvti
   gchar *required_ports;    /**< @brief List of required ports of this NVT */
   gchar *required_udp_ports;/**< @brief List of required UDP ports of this NVT*/
 
-  gchar *sign_key_ids;      /**< @brief List of fingerprints that signed this
-                                        NVT */
-
   gchar *src;               /**< @brief the source of the corresponding script,
                                         can be filename or other URI */
 
@@ -118,7 +115,6 @@ gchar *nvti_mandatory_keys (const nvti_t *);
 gchar *nvti_excluded_keys (const nvti_t *);
 gchar *nvti_required_ports (const nvti_t *);
 gchar *nvti_required_udp_ports (const nvti_t *);
-gchar *nvti_sign_key_ids (const nvti_t *);
 gchar *nvti_src (const nvti_t *);
 gint nvti_timeout (const nvti_t *);
 gint nvti_category (const nvti_t *);
@@ -142,7 +138,6 @@ int nvti_set_mandatory_keys (nvti_t *, const gchar *);
 int nvti_set_excluded_keys (nvti_t *, const gchar *);
 int nvti_set_required_ports (nvti_t *, const gchar *);
 int nvti_set_required_udp_ports (nvti_t *, const gchar *);
-int nvti_set_sign_key_ids (nvti_t *, const gchar *);
 int nvti_set_src (nvti_t *, const gchar *);
 int nvti_set_timeout (nvti_t *, const gint);
 int nvti_set_category (nvti_t *, const gint);

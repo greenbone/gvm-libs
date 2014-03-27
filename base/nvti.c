@@ -197,8 +197,6 @@ nvti_free (nvti_t * n)
     g_free (n->required_ports);
   if (n->required_udp_ports)
     g_free (n->required_udp_ports);
-  if (n->sign_key_ids)
-    g_free (n->sign_key_ids);
   if (n->family)
     g_free (n->family);
   if (n->src)
@@ -255,8 +253,6 @@ nvti_shrink (nvti_t * n)
     g_free (n->required_ports);
   if (n->required_udp_ports)
     g_free (n->required_udp_ports);
-  if (n->sign_key_ids)
-    g_free (n->sign_key_ids);
   if (n->family)
     g_free (n->family);
   if (n->prefs)
@@ -491,20 +487,6 @@ gchar *
 nvti_required_udp_ports (const nvti_t * n)
 {
   return (n ? n->required_udp_ports : NULL);
-}
-
-/**
- * @brief Get the sign key ids (fingerptints) list.
- *
- * @param n The NVT Info structure of which the name should
- *          be returned.
- *
- * @return The sign key ids string. Don't free this.
- */
-gchar *
-nvti_sign_key_ids (const nvti_t * n)
-{
-  return (n ? n->sign_key_ids : NULL);
 }
 
 /**
@@ -956,30 +938,6 @@ nvti_set_required_udp_ports (nvti_t * n, const gchar * required_udp_ports)
 }
 
 /**
- * @brief Set the sign key ids of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param sign_key_ids The sign key ids to set. A copy will be created from this.
- *
- * @return 0 for success. Anything else indicates an error.
- */
-int
-nvti_set_sign_key_ids (nvti_t * n, const gchar * sign_key_ids)
-{
-  if (! n)
-    return (-1);
-
-  if (n->sign_key_ids)
-    g_free (n->sign_key_ids);
-  if (sign_key_ids && sign_key_ids[0])
-    n->sign_key_ids = g_strdup (sign_key_ids);
-  else
-    n->sign_key_ids = NULL;
-  return (0);
-}
-
-/**
  * @brief Set the family of a NVT.
  *
  * @param n The NVT Info structure.
@@ -1353,7 +1311,6 @@ nvti_from_keyfile (const gchar * fn)
   set_from_key (keyfile, "ExcludedKeys", n, nvti_set_excluded_keys);
   set_from_key (keyfile, "RequiredPorts", n, nvti_set_required_ports);
   set_from_key (keyfile, "RequiredUDPPorts", n, nvti_set_required_udp_ports);
-  set_from_key (keyfile, "SignKeyIDs", n, nvti_set_sign_key_ids);
   set_from_key (keyfile, "Family", n, nvti_set_family);
   set_from_key (keyfile, "src", n, nvti_set_src);
   nvti_set_timeout (n,
@@ -1452,7 +1409,6 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
   set_from_nvti (keyfile, "ExcludedKeys", n, n->excluded_keys);
   set_from_nvti (keyfile, "RequiredPorts", n, n->required_ports);
   set_from_nvti (keyfile, "RequiredUDPPorts", n, n->required_udp_ports);
-  set_from_nvti (keyfile, "SignKeyIDs", n, n->sign_key_ids);
   set_from_nvti (keyfile, "Family", n, n->family);
   set_from_nvti (keyfile, "src", n, n->src);
   if (n->timeout > 0)
@@ -1576,7 +1532,6 @@ nvti_clone (const nvti_t * n)
   nvti_set_excluded_keys (new_nvti, nvti_excluded_keys (n));
   nvti_set_required_ports (new_nvti, nvti_required_ports (n));
   nvti_set_required_udp_ports (new_nvti, nvti_required_udp_ports (n));
-  nvti_set_sign_key_ids (new_nvti, nvti_sign_key_ids (n));
   nvti_set_src (new_nvti, nvti_src (n));
   nvti_set_timeout (new_nvti, nvti_timeout (n));
   nvti_set_category (new_nvti, nvti_category (n));
