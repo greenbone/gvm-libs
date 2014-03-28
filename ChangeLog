@@ -1,5 +1,11 @@
 2014-03-28  Benoît Allard  <benoit.allard@greenbone.net>
 
+	Post release version bump.
+
+	* CMakeLists.txt: 7.0+beta10
+
+2014-03-28  Benoît Allard  <benoit.allard@greenbone.net>
+
 	Prepare next release.
 
 	* CHANGES: Updated
