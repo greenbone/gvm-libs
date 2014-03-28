@@ -147,11 +147,13 @@ openvas_server_verify (gnutls_session_t session)
  *
  * @param[in]   file        File to load.
  * @param[out]  load_file   Destination to load file into.
+ *
+ * @return 0 if success, -1 if error.
  */
-void
+int
 load_gnutls_file (const char *file, gnutls_datum_t *loaded_file)
 {
-  FILE *f;
+  FILE *f = NULL;
   unsigned long filelen;
   void *ptr;
 
@@ -161,10 +163,16 @@ load_gnutls_file (const char *file, gnutls_datum_t *loaded_file)
       || fseek (f, 0, SEEK_SET) != 0
       || !(ptr = g_malloc0 ((size_t) filelen))
       || fread (ptr, 1, (size_t) filelen, f) < (size_t) filelen)
-    return;
+    {
+      if (f)
+        fclose (f);
+      return -1;
+    }
 
   loaded_file->data = ptr;
   loaded_file->size = filelen;
+  fclose (f);
+  return 0;
 }
 
 /**
@@ -221,7 +229,8 @@ client_cert_callback (gnutls_session_t session,
   int ret;
   gnutls_datum_t data;
 
-  load_gnutls_file (get_cert_file (), &data);
+  if (load_gnutls_file (get_cert_file (), &data))
+    return -1;
   gnutls_x509_crt_init (&crt);
   ret = gnutls_x509_crt_import (crt, &data, GNUTLS_X509_FMT_PEM);
   unload_gnutls_file (&data);
@@ -231,7 +240,8 @@ client_cert_callback (gnutls_session_t session,
   st->cert_type = GNUTLS_CRT_X509;
   st->ncerts = 1;
 
-  load_gnutls_file (get_key_file (), &data);
+  if (load_gnutls_file (get_key_file (), &data))
+    return -1;
   gnutls_x509_privkey_init (&key);
   ret = gnutls_x509_privkey_import (key, &data, GNUTLS_X509_FMT_PEM);
   unload_gnutls_file (&data);
@@ -806,6 +816,32 @@ openvas_server_new (unsigned int end_type,
   return server_new_internal (end_type, NULL,
                               ca_cert_file, cert_file, key_file,
                               server_session, server_credentials);
+}
+
+/**
+ * @brief Set a gnutls session's  Diffie-Hellman parameters.
+ *
+ * @param[in]   creds           GnuTLS credentials.
+ * @param[in]   dhparams_file   Path to PEM file containing the DH parameters.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+set_gnutls_dhparams (gnutls_certificate_credentials_t creds,
+                     const char *dhparams_file)
+{
+  gnutls_datum_t data;
+  if (!creds || !dhparams_file)
+    return -1;
+
+  if (load_gnutls_file (dhparams_file, &data))
+    return -1;
+  gnutls_dh_params_t params = g_malloc0 (sizeof (gnutls_dh_params_t));
+  if (gnutls_dh_params_import_pkcs3 (params, &data, GNUTLS_X509_FMT_PEM))
+    return -1;
+  else
+    gnutls_certificate_set_dh_params (creds, params);
+  return 0;
 }
 
 /**

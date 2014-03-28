@@ -999,7 +999,7 @@ ovas_scanner_context_t
 ovas_scanner_context_new (openvas_encaps_t encaps, const char *certfile,
                           const char *keyfile, const char *passwd,
                           const char *cafile, int force_pubkey_auth,
-                          const char *priority)
+                          const char *priority, const char *dhparams)
 {
   ovas_scanner_context_t ctx = NULL;
 
@@ -1038,6 +1038,8 @@ ovas_scanner_context_new (openvas_encaps_t encaps, const char *certfile,
               goto fail;
             }
         }
+      if (dhparams && set_gnutls_dhparams (ctx->tls_cred, dhparams))
+        log_legacy_write ("Couldn't set DH parameters from %s\n", dhparams);
     }
 
   return ctx;

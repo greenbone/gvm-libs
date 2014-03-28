@@ -80,11 +80,14 @@ int openvas_server_free (int, gnutls_session_t,
 int openvas_server_session_free (gnutls_session_t,
                                  gnutls_certificate_credentials_t);
 
-void
+int
 load_gnutls_file (const char *, gnutls_datum_t *);
 
 void
 unload_gnutls_file(gnutls_datum_t *);
+
+int
+set_gnutls_dhparams (gnutls_certificate_credentials_t, const char *);
 
 #if 0
 {

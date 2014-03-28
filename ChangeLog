@@ -1,3 +1,19 @@
+2014-03-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	First step for PFS support.
+
+	* misc/openvas_server.c (load_gnutls_file): Return code for success or
+	failure. Close file adequately.
+	(client_cert_callback): Adjust load_gnutls_file() calls.
+	(set_gnutls_dhparams): New function.
+
+	* misc/openvas_server.h: Add new function prototype.
+
+	* misc/network.c (ovas_scanner_context_new): Add function argument to
+	set the Diffie-Hellman parameters.
+
+	* misc/network.h: Adjust function prototype.
+
 2014-03-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/nvti.c (nvti_free, nvti_shrink, nvti_from_keyfile,
