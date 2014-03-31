@@ -107,7 +107,7 @@ typedef struct ovas_scanner_context_s *ovas_scanner_context_t;
 
 ovas_scanner_context_t
 ovas_scanner_context_new (openvas_encaps_t, const char *, const char *,
-                          const char *, const char *, int, const char *,
+                          const char *, const char *, const char *,
                           const char *);
 
 void ovas_scanner_context_free (ovas_scanner_context_t);

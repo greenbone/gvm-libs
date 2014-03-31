@@ -1,3 +1,14 @@
+2014-03-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Remove force_pubkey_auth preference as certificates are always verified.
+
+	* misc/network.c (ovas_scanner_context_new): Remove force_pubkey_auth
+	parameter. Update comments.
+	(ovas_scanner_context_attach): Always use GNUTLS_CERT_REQUIRE. Update
+	comments.
+
+	* misc/network.h: Adjust function prototype.
+
 2014-03-28  Benoît Allard  <benoit.allard@greenbone.net>
 
 	Post release version bump.

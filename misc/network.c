@@ -971,9 +971,6 @@ struct ovas_scanner_context_s
   /** Transport encapsulation to use */
   openvas_encaps_t encaps;
 
-  /** Whether to force public key authentication */
-  int force_pubkey_auth;
-
   /** GnuTLS credentials */
   gnutls_certificate_credentials_t tls_cred;
 
@@ -988,18 +985,12 @@ struct ovas_scanner_context_s
  * and cafile should be the filenames of the scanner certificate and
  * corresponding key and the CA certificate.  The optional passwd parameter is
  * used as the password to decrypt the keyfile if it is encrypted.
- *
- * The force_pubkey_auth parameter is a boolean controlling public key
- * authentication of the client.  If force_pubkey_auth is true, the
- * client must authenticate itself with a certificate.  Otherwise the
- * client will be asked for a certificate but doesn't have to present
- * one.
  */
 ovas_scanner_context_t
 ovas_scanner_context_new (openvas_encaps_t encaps, const char *certfile,
                           const char *keyfile, const char *passwd,
-                          const char *cafile, int force_pubkey_auth,
-                          const char *priority, const char *dhparams)
+                          const char *cafile, const char *priority,
+                          const char *dhparams)
 {
   ovas_scanner_context_t ctx = NULL;
 
@@ -1008,7 +999,6 @@ ovas_scanner_context_new (openvas_encaps_t encaps, const char *certfile,
 
   ctx = g_malloc0 (sizeof (ovas_scanner_context_t));
   ctx->encaps = encaps;
-  ctx->force_pubkey_auth = force_pubkey_auth;
   ctx->priority = g_strdup (priority);
 
   if (ctx->encaps != OPENVAS_ENCAPS_IP)
@@ -1081,12 +1071,6 @@ ovas_scanner_context_free (ovas_scanner_context_t ctx)
  * the context ctx must not be freed until the openvas file descriptor is
  * closed.
  *
- * If the context's force_pubkey_auth member is true (!= 0), the client
- * must provide a certificate.  If force_pubkey_auth is false, the
- * client certificate is optional.  In any case, if the client provides
- * a certificate, the certificate is verified.  If the verification
- * fails, ovas_scanner_context_attach returns -1.
- *
  * @return The openvas file descriptor on success and -1 on failure.
  */
 int
@@ -1135,9 +1119,7 @@ ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc)
 
       /* request client certificate if any. */
       gnutls_certificate_server_set_request (fp->tls_session,
-                                             ctx->force_pubkey_auth ?
-                                             GNUTLS_CERT_REQUIRE :
-                                             GNUTLS_CERT_REQUEST);
+                                             GNUTLS_CERT_REQUIRE);
 
       gnutls_transport_set_ptr (fp->tls_session,
                                 (gnutls_transport_ptr_t)
