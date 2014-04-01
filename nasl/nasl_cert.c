@@ -42,6 +42,7 @@
 
 #include <ksba.h>
 #include <gcrypt.h>
+#include <gnutls/gnutls.h>
 
 #include "system.h"             /* for emalloc */
 #include "nasl_tree.h"
@@ -564,6 +565,84 @@ get_fingerprint (ksba_cert_t cert, int algo)
   return make_hexstring (digest, dlen);
 }
 
+/*
+ * @brief Return algorithm name from its OID.
+ *
+ * param[in]    oid     Algorithm ID.
+ *
+ * @return Algorithm name or "Unknown".
+ */
+static const char *
+get_oid_name (const char *oid)
+{
+  /* Initial list from Wireshark. See epan/dissectors/packet-pkcs1.c */
+  if (!strcmp ("1.2.840.10040.4.1", oid))
+    return "id-dsa";
+  else if (!strcmp ("1.2.840.10046.2.1", oid))
+    return "dhpublicnumber";
+  else if (!strcmp ("2.16.840.1.101.2.1.1.22", oid))
+    return "id-keyExchangeAlgorithm";
+  else if (!strcmp ("1.2.840.10045.2.1", oid))
+    return "id-ecPublicKey";
+  else if (!strcmp ("1.3.132.1.12", oid))
+    return "id-ecDH";
+  else if (!strcmp ("1.2.840.10045.2.13", oid))
+    return "id-ecMQV";
+  else if (!strcmp ("1.2.840.113549.1.1.10", oid))
+    return "id-RSASSA-PSS";
+  else if (!strcmp ("1.2.840.113549.1.1.8", oid))
+    return "id-mgf1";
+  else if (!strcmp ("1.2.840.113549.2.2", oid))
+    return "md2";
+  else if (!strcmp ("1.2.840.113549.2.4", oid))
+    return "md4";
+  else if (!strcmp ("1.2.840.113549.2.5", oid))
+    return "md5";
+  else if (!strcmp ("1.2.840.113549.1.1.1", oid))
+    return "rsaEncryption";
+  else if (!strcmp ("1.2.840.113549.1.1.2", oid))
+    return "md2WithRSAEncryption";
+  else if (!strcmp ("1.2.840.113549.1.1.3", oid))
+    return "md4WithRSAEncryption";
+  else if (!strcmp ("1.2.840.113549.1.1.4", oid))
+    return "md5WithRSAEncryption";
+  else if (!strcmp ("1.2.840.113549.1.1.5", oid))
+    return "sha1WithRSAEncryption";
+  else if (!strcmp ("1.2.840.113549.1.1.6", oid))
+    return "rsaOAEPEncryptionSET";
+  else if (!strcmp ("1.2.840.10045.3.1.1", oid))
+    return "secp192r1";
+  else if (!strcmp ("1.3.132.0.1", oid))
+    return "sect163k1";
+  else if (!strcmp ("1.3.132.0.15", oid))
+    return "sect163r2";
+  else if (!strcmp ("1.3.132.0.33", oid))
+    return "secp224r1";
+  else if (!strcmp ("1.3.132.0.26", oid))
+    return "sect233k1";
+  else if (!strcmp ("1.3.132.0.27", oid))
+    return "sect233r1";
+  else if (!strcmp ("1.2.840.10045.3.1.7", oid))
+    return "secp256r1";
+  else if (!strcmp ("1.3.132.0.16", oid))
+    return "sect283k1";
+  else if (!strcmp ("1.3.132.0.17", oid))
+    return "sect283r1";
+  else if (!strcmp ("1.3.132.0.34", oid))
+    return "secp384r1";
+  else if (!strcmp ("1.3.132.0.36", oid))
+    return "sect409k1";
+  else if (!strcmp ("1.3.132.0.37", oid))
+    return "sect409r1";
+  else if (!strcmp ("1.3.132.0.35", oid))
+    return "sect521r1";
+  else if (!strcmp ("1.3.132.0.38", oid))
+    return "sect571k1";
+  else if (!strcmp ("1.3.132.0.39", oid))
+    return "sect571r1";
+  else
+    return "Unknown";
+}
 
 /**
  * @brief Helper to convert a RFC-2253 string to a tree cell.
@@ -801,6 +880,20 @@ nasl_cert_query (lex_ctxt *lexic)
           retc->size = derlen;
           retc->x.str_val = emalloc (derlen);
           memcpy (retc->x.str_val, der, derlen);
+        }
+    }
+  else if (!strcmp (command, "algorithm-name"))
+    {
+      const char *digest = ksba_cert_get_digest_algo (obj->cert);
+      if (digest)
+        {
+          const char *name = get_oid_name (digest);
+          if (name)
+            {
+              retc = alloc_typed_cell (CONST_STR);
+              retc->x.str_val = estrdup (name);
+              retc->size = strlen (name);
+            }
         }
     }
   else
