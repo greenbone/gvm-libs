@@ -501,15 +501,13 @@ load_cert_and_key (gnutls_certificate_credentials_t xcred, const char *cert,
   int ret;
   int result = 0;
 
-  load_gnutls_file (cert, &data);
-  if (data.data == NULL)
+  if (load_gnutls_file (cert, &data))
     {
       log_legacy_write ("[%d] load_cert_and_key: Error loading cert file %s\n",
                         getpid (), cert);
       result = -1;
       goto cleanup;
     }
-
   ret = gnutls_x509_crt_init (&x509_crt);
   if (ret < 0)
     {
@@ -519,7 +517,6 @@ load_cert_and_key (gnutls_certificate_credentials_t xcred, const char *cert,
       result = -1;
       goto cleanup;
     }
-
   ret = gnutls_x509_crt_import (x509_crt, &data, GNUTLS_X509_FMT_PEM);
   if (ret < 0)
     {
@@ -527,18 +524,15 @@ load_cert_and_key (gnutls_certificate_credentials_t xcred, const char *cert,
       result = -1;
       goto cleanup;
     }
-
   unload_gnutls_file (&data);
 
-  load_gnutls_file (key, &data);
-  if (data.data == NULL)
+  if (load_gnutls_file (key, &data))
     {
       log_legacy_write ("[%d] load_cert_and_key: Error loading key file %s\n",
                         getpid (), key);
       result = -1;
       goto cleanup;
     }
-
   ret = gnutls_x509_privkey_init (&x509_key);
   if (ret < 0)
     {
@@ -548,7 +542,6 @@ load_cert_and_key (gnutls_certificate_credentials_t xcred, const char *cert,
       result = -1;
       goto cleanup;
     }
-
   if (passwd)
     {
       ret =
@@ -571,6 +564,7 @@ load_cert_and_key (gnutls_certificate_credentials_t xcred, const char *cert,
           goto cleanup;
         }
     }
+  unload_gnutls_file (&data);
 
   ret = gnutls_certificate_set_x509_key (xcred, &x509_crt, 1, x509_key);
   if (ret < 0)
@@ -582,7 +576,6 @@ load_cert_and_key (gnutls_certificate_credentials_t xcred, const char *cert,
 
 cleanup:
 
-  unload_gnutls_file (&data);
   if (x509_crt)
     gnutls_x509_crt_deinit (x509_crt);
   if (x509_key)
