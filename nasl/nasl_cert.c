@@ -570,7 +570,7 @@ get_fingerprint (ksba_cert_t cert, int algo)
  *
  * param[in]    oid     Algorithm ID.
  *
- * @return Algorithm name or "Unknown".
+ * @return Algorithm name or NULL.
  */
 static const char *
 get_oid_name (const char *oid)
@@ -641,7 +641,7 @@ get_oid_name (const char *oid)
   else if (!strcmp ("1.3.132.0.39", oid))
     return "sect571r1";
   else
-    return "Unknown";
+    return NULL;
 }
 
 /**
@@ -888,12 +888,11 @@ nasl_cert_query (lex_ctxt *lexic)
       if (digest)
         {
           const char *name = get_oid_name (digest);
-          if (name)
-            {
-              retc = alloc_typed_cell (CONST_STR);
-              retc->x.str_val = estrdup (name);
-              retc->size = strlen (name);
-            }
+          if (!name)
+            name = digest;
+          retc = alloc_typed_cell (CONST_STR);
+          retc->x.str_val = estrdup (name);
+          retc->size = strlen (name);
         }
     }
   else

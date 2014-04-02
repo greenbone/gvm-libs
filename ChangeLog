@@ -1,3 +1,9 @@
+2014-04-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_cert.c (get_oid_name): Return NULL instead of "Unknown".
+	(nasl_cert_query): Use digest's oid as name of algorithm if get_oid_name
+	returned null.
+
 2014-04-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_cert.c (get_oid_name): New function.
