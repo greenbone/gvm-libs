@@ -1,3 +1,21 @@
+2014-04-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Add nasl socket_ssl_negotiate() API for SSL negotiation support for
+	already open sockets.
+
+	* misc/network.c (open_SSL_connection): Remove timeout argument. Use
+	value already present on openvas_connection struct.
+	(socket_negotiate_ssl): New function.
+	(open_stream_connection_ext): Adjust open_SSL_connection() call.
+
+	* misc/network.h: Add socket_negotiate_ssl() prototype.
+
+	* nasl/nasl_init.c (libfuncs): Add socket_ssl_negotiate() nasl function.
+
+	* nasl/nasl_socket.c (nasl_socket_ssl_negotiate): New function.
+
+	* nasl/nasl_socket.h: Add nasl_socket_ssl_negotiate() prototype.
+
 2014-04-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (load_cert_and_key): Handle load_gnutls_file return

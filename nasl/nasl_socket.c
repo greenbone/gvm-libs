@@ -524,6 +524,40 @@ nasl_open_sock_udp (lex_ctxt * lexic)
   return retc;
 }
 
+tree_cell *
+nasl_socket_ssl_negotiate (lex_ctxt * lexic)
+{
+  int soc, transport, ret;
+  tree_cell *retc;
+
+
+  soc = get_int_local_var_by_name (lexic, "socket", -1);
+  transport = get_int_local_var_by_name (lexic, "transport",
+                                         OPENVAS_ENCAPS_TLScustom);
+  if (soc < 0)
+    {
+      nasl_perror (lexic, "socket_ssl_negotiate: Erroneous socket value %d\n",
+                   soc);
+      return NULL;
+    }
+  if (transport == -1)
+    transport = OPENVAS_ENCAPS_TLScustom;
+  else if (!IS_ENCAPS_SSL (transport))
+    {
+      nasl_perror (lexic, "socket_ssl_negotiate: Erroneous transport value %d\n",
+                   transport);
+      return NULL;
+    }
+  ret = socket_negotiate_ssl (soc, transport, lexic->script_infos);
+  if (ret < 0)
+    return NULL;
+
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_INT;
+  retc->x.i_val = ret;
+  return retc;
+}
+
 /*---------------------------------------------------------------------*/
 
 tree_cell *

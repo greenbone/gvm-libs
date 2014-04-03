@@ -585,7 +585,7 @@ cleanup:
 }
 
 static int
-open_SSL_connection (openvas_connection * fp, int timeout, const char *cert,
+open_SSL_connection (openvas_connection * fp, const char *cert,
                      const char *key, const char *passwd, const char *cafile)
 {
   int ret, err, d;
@@ -678,7 +678,7 @@ open_SSL_connection (openvas_connection * fp, int timeout, const char *cert,
 
       do
         {
-          d = tictac + timeout - time (NULL);
+          d = tictac + fp->timeout - time (NULL);
           if (d <= 0)
             {
               fp->last_err = ETIMEDOUT;
@@ -747,6 +747,32 @@ set_ids_evasion_mode (struct arglist *args, openvas_connection * fp)
     }
 }
 
+int
+socket_negotiate_ssl (int fd, openvas_encaps_t transport, struct arglist *args)
+{
+  char *cert = NULL, *key = NULL, *passwd = NULL, *cafile = NULL;
+  openvas_connection *fp = &(connections[fd - OPENVAS_FD_OFF]);
+
+  if (!fd_is_stream (fd))
+    {
+      log_legacy_write ("Socket %d is not stream\n", fd);
+      return -1;
+    }
+  cert = kb_item_get_str (plug_get_kb (args), "SSL/cert");
+  key = kb_item_get_str (plug_get_kb (args), "SSL/key");
+  passwd = kb_item_get_str (plug_get_kb (args), "SSL/password");
+  cafile = kb_item_get_str (plug_get_kb (args), "SSL/CA");
+
+  fp->transport = transport;
+  fp->priority = NULL;
+  if (open_SSL_connection (fp, cert, key, passwd, cafile) <= 0)
+    {
+      log_legacy_write ("socket_negotiate_ssl: SSL connection failed.\n");
+      release_connection_fd (fd);
+      return -1;
+    }
+  return fd;
+}
 
 /* Extended version of open_stream_connection to allow passing a
    priority string.
@@ -840,7 +866,7 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
 
     case OPENVAS_ENCAPS_SSLv2:
       /* We do not need a client certificate in this case */
-      if (open_SSL_connection (fp, timeout, cert, key, passwd, cafile) <= 0)
+      if (open_SSL_connection (fp, cert, key, passwd, cafile) <= 0)
         goto failed;
       break;
     }

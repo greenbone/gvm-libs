@@ -39,7 +39,7 @@ tree_cell *nasl_open_priv_sock_tcp (lex_ctxt *);
 tree_cell *nasl_open_priv_sock_udp (lex_ctxt *);
 
 tree_cell *nasl_send (lex_ctxt *);
-
+tree_cell *nasl_socket_ssl_negotiate (lex_ctxt *);
 tree_cell *nasl_recv (lex_ctxt *);
 tree_cell *nasl_recv_line (lex_ctxt *);
 

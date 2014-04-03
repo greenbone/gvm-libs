@@ -133,4 +133,6 @@ int fd_is_stream (int);
 
 int stream_set_timeout (int, int);
 
+int socket_negotiate_ssl (int, openvas_encaps_t, struct arglist *);
+
 #endif
