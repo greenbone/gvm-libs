@@ -1,5 +1,21 @@
 2014-04-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/network.c (get_connection_fd): Check connection availability with
+	pid element as transport value of 0 is ENCAPS_AUTO and might be valid.
+	(release_connection_fd): Reset pid element value.
+	(open_stream_connection_unknown_encaps5): Use OPENVAS_ENCAPS_TLScustom
+	to automatically negotiate TLS version. Update log messages.
+	(open_stream_connection_unknown_encaps): Remove function.
+	(open_stream_auto_encaps_ext): Improve code style.
+
+	* misc/network.h: Remove function prototype.
+
+	* nasl/nasl_host.c (get_port_transport): Update documentation.
+
+	* nasl/nasl_socket.c (nasl_open_sock_tcp_bufsz): Improve code style.
+
+2014-04-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Add NASL socket_get_cert() API.
 
 	* misc/network.c (ovas_get_tlssession_from_connection): Return

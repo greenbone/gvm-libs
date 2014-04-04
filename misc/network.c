@@ -186,7 +186,7 @@ get_connection_fd ()
 
   for (i = 0; i < OPENVAS_FD_MAX; i++)
     {
-      if (connections[i].transport <= 0)        /* Not used */
+      if (connections[i].pid == 0)        /* Not used */
         {
           bzero (&(connections[i]), sizeof (connections[i]));
           connections[i].pid = getpid ();
@@ -253,6 +253,7 @@ release_connection_fd (int fd)
 
   bzero (p, sizeof (*p));
   p->transport = -1;
+  p->pid = 0;
 
   return 0;
 }
@@ -939,16 +940,12 @@ open_stream_connection_unknown_encaps5 (struct arglist *args, unsigned int port,
   int i;
   struct timeval tv1, tv2;
   static openvas_encaps_t encaps[] = {
-    OPENVAS_ENCAPS_SSLv2,
-    OPENVAS_ENCAPS_TLSv1,
-    OPENVAS_ENCAPS_TLSv11,
-    OPENVAS_ENCAPS_TLSv12,
-    OPENVAS_ENCAPS_SSLv3,
+    OPENVAS_ENCAPS_TLScustom,
     OPENVAS_ENCAPS_IP,
   };
 
 #if DEBUG_SSL > 2
-  log_legacy_write ("[%d] open_stream_connection_unknown_encaps: TCP:%d; %d\n",
+  log_legacy_write ("[%d] open_stream_connection_unknown_encaps5: TCP:%d; %d\n",
                     getpid (), port, timeout);
 #endif
 
@@ -960,7 +957,7 @@ open_stream_connection_unknown_encaps5 (struct arglist *args, unsigned int port,
         {
           *p = encaps[i];
 #if DEBUG_SSL > 2
-          log_lecacy_write ("[%d] open_stream_connection_unknown_encaps: "
+          log_lecacy_write ("[%d] open_stream_connection_unknown_encaps5: "
                             "TCP:%d -> transport=%d\n",
                             getpid (), port, *p);
 #endif
@@ -976,7 +973,7 @@ open_stream_connection_unknown_encaps5 (struct arglist *args, unsigned int port,
       else if (__port_closed)
         {
 #if DEBUG_SSL > 2
-          log_lecacy_write ("[%d] open_stream_connection_unknown_encaps: "
+          log_lecacy_write ("[%d] open_stream_connection_unknown_encaps5: "
                             "TCP:%d -> closed\n",
                             getpid (), port);
 #endif
@@ -986,29 +983,20 @@ open_stream_connection_unknown_encaps5 (struct arglist *args, unsigned int port,
   return -1;
 }
 
-int
-open_stream_connection_unknown_encaps (struct arglist *args, unsigned int port,
-                                       int timeout, int *p)
-{
-  return open_stream_connection_unknown_encaps5 (args, port, timeout, p, NULL);
-}
-
-
 /* Same as open_stream_auto_encaps but allows to force auto detection
    of the protocols if FORCE is true.  */
 int
 open_stream_auto_encaps_ext (struct arglist *args, unsigned int port,
                              int timeout, int force)
 {
-  int trp = force? 0 : plug_get_port_transport (args, port);
-  int fd;
+  int fd, trp;
 
-  if (trp == 0)
+  if (force)
     {
       /* Try to connect while figuring out the used encapsulation mode.  */
       if ((fd =
-           open_stream_connection_unknown_encaps (args, port, timeout,
-                                                  &trp)) < 0)
+           open_stream_connection_unknown_encaps5 (args, port, timeout,
+                                                   &trp, NULL)) < 0)
         return -1;
       /* Store that encapsulation mode in the KB.  */
       plug_set_port_transport (args, port, trp);
@@ -1016,6 +1004,7 @@ open_stream_auto_encaps_ext (struct arglist *args, unsigned int port,
     }
   else
     {
+      trp = plug_get_port_transport (args, port);
       fd = open_stream_connection (args, port, trp, timeout);
       return fd;
     }

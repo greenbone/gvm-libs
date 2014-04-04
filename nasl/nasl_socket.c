@@ -405,8 +405,10 @@ nasl_open_sock_tcp_bufsz (lex_ctxt * lexic, int bufsz)
   /* If "transport" has not been given, use auto detection if enabled
      in the KB. if "transport" has been given with a value of 0 force
      autodetection reagardless of what the KB tells.  */
-  if (transport <= 0)
-    soc = open_stream_auto_encaps_ext (script_infos, port, to, !transport);
+  if (transport < 0)
+    soc = open_stream_auto_encaps_ext (script_infos, port, to, 0);
+  else if (transport == 0)
+    soc = open_stream_auto_encaps_ext (script_infos, port, to, 1);
   else
     soc = open_stream_connection_ext (script_infos, port, transport, to,
                                       priority);
