@@ -525,7 +525,7 @@ nasl_open_sock_udp (lex_ctxt * lexic)
 }
 
 tree_cell *
-nasl_socket_ssl_negotiate (lex_ctxt * lexic)
+nasl_socket_negotiate_ssl (lex_ctxt * lexic)
 {
   int soc, transport, ret;
   tree_cell *retc;
@@ -555,6 +555,30 @@ nasl_socket_ssl_negotiate (lex_ctxt * lexic)
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   retc->x.i_val = ret;
+  return retc;
+}
+
+tree_cell *
+nasl_socket_get_cert (lex_ctxt * lexic)
+{
+  int soc, cert_len = 0;
+  tree_cell *retc;
+  void *cert;
+
+  soc = get_int_local_var_by_name (lexic, "socket", -1);
+  if (soc < 0)
+    {
+      nasl_perror (lexic, "socket_get_cert: Erroneous socket value %d\n",
+                   soc);
+      return NULL;
+    }
+  socket_get_cert (soc, &cert, &cert_len);
+  if (cert_len <= 0)
+    return NULL;
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+  retc->x.str_val = cert;
+  retc->size = cert_len;
   return retc;
 }
 

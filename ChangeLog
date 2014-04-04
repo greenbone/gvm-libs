@@ -1,3 +1,25 @@
+2014-04-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Add NASL socket_get_cert() API.
+
+	* misc/network.c (ovas_get_tlssession_from_connection): Return
+	gnutls_session_t as it is a pointer already.
+	(socket_negotiate_ssl): Use OVAS_CONNECTION_FROM_FD() to get connection
+	pointer. Update documentation.
+	(socket_get_cert): New function.
+
+	* misc/network.h: Add socket_get_cert prototype. Adjust
+	ovas_get_tlssession_from_connection one.
+
+	* nasl/nasl_init.c (libfuncs): Rename socket_ssl_negotiate to
+	socket_negotiate_ssl. Add socket_get_cert.
+
+	* nasl/nasl_socket.c (nasl_socket_ssl_negotiate): Rename to
+	nasl_socket_negotiate_ssl.
+	(nasl_socket_get_cert): New function.
+
+	* nasl/nasl_socket.h: Add and adjust functions prototypes.
+
 2014-04-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Add nasl socket_ssl_negotiate() API for SSL negotiation support for

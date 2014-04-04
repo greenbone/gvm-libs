@@ -412,7 +412,7 @@ openvas_get_socket_from_connection (int fd)
   return fp->fd;
 }
 
-gnutls_session_t *
+gnutls_session_t
 ovas_get_tlssession_from_connection (int fd)
 {
   openvas_connection *fp;
@@ -421,7 +421,7 @@ ovas_get_tlssession_from_connection (int fd)
     return NULL;
 
   fp = connections + (fd - OPENVAS_FD_OFF);
-  return &fp->tls_session;
+  return fp->tls_session;
 }
 
 /**
@@ -747,17 +747,27 @@ set_ids_evasion_mode (struct arglist *args, openvas_connection * fp)
     }
 }
 
+/*
+ * @brief Upgrade an ENCAPS_IP socket to an SSL/TLS encapsulated one.
+ *
+ * @param[in]   fd          Socket file descriptor.
+ * @param[in]   transport   Encapsulation type.
+ * @param[in]   arg         Script args.
+ *
+ * @return -1 if error, socket file descriptor value otherwise.
+ */
 int
 socket_negotiate_ssl (int fd, openvas_encaps_t transport, struct arglist *args)
 {
   char *cert = NULL, *key = NULL, *passwd = NULL, *cafile = NULL;
-  openvas_connection *fp = &(connections[fd - OPENVAS_FD_OFF]);
+  openvas_connection *fp;
 
   if (!fd_is_stream (fd))
     {
       log_legacy_write ("Socket %d is not stream\n", fd);
       return -1;
     }
+  fp = OVAS_CONNECTION_FROM_FD(fd);
   cert = kb_item_get_str (plug_get_kb (args), "SSL/cert");
   key = kb_item_get_str (plug_get_kb (args), "SSL/key");
   passwd = kb_item_get_str (plug_get_kb (args), "SSL/password");
@@ -772,6 +782,37 @@ socket_negotiate_ssl (int fd, openvas_encaps_t transport, struct arglist *args)
       return -1;
     }
   return fd;
+}
+
+/*
+ * @brief Get the peer's certificate from an SSL/TLS encapsulated connection.
+ *
+ * @param[in]   fd          Socket file descriptor.
+ * @param[out]   cert       Memory pointer to fill cert pointer.
+ * @param[out]   certlen    Size of cert.
+ */
+void
+socket_get_cert (int fd, void **cert, int *certlen)
+{
+  gnutls_session_t session;
+  const gnutls_datum_t *cert_list;
+  unsigned int cert_list_len = 0;
+
+  if (!cert || !certlen)
+    return;
+  if (!fd_is_stream (fd))
+    {
+      log_legacy_write ("Socket %d is not stream\n", fd);
+      return;
+    }
+  session = ovas_get_tlssession_from_connection (fd);
+  if (gnutls_certificate_type_get (session) != GNUTLS_CRT_X509)
+    return;
+  cert_list = gnutls_certificate_get_peers (session, &cert_list_len);
+  if (cert_list_len <= 0)
+    return;
+  *certlen = cert_list[0].size;
+  *cert = g_memdup (cert_list[0].data, *certlen);
 }
 
 /* Extended version of open_stream_connection to allow passing a

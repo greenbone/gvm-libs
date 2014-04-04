@@ -118,7 +118,7 @@ int openvas_register_connection (int s, void *ssl,
                                  openvas_encaps_t encaps);
 int openvas_deregister_connection (int);
 int openvas_get_socket_from_connection (int);
-gnutls_session_t *ovas_get_tlssession_from_connection (int);
+gnutls_session_t ovas_get_tlssession_from_connection (int);
 
 int stream_zero (fd_set *);
 int stream_set (int, fd_set *);
@@ -134,5 +134,6 @@ int fd_is_stream (int);
 int stream_set_timeout (int, int);
 
 int socket_negotiate_ssl (int, openvas_encaps_t, struct arglist *);
+void socket_get_cert (int, void **, int *);
 
 #endif
