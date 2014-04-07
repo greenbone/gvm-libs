@@ -1,5 +1,10 @@
 2014-04-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/bpf_share.c, misc/bpf_share.h (bpf_server): Remove unused
+	function.
+
+2014-04-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/network.c (socket_get_cert): Check that used socket is TLS
 	encapsulated.
 

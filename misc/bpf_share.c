@@ -151,10 +151,3 @@ bpf_close (int bpf)
   pcap_close (pcaps[bpf]);
   pcaps[bpf] = NULL;
 }
-
-
-int
-bpf_server ()
-{
-  return 0;
-}
