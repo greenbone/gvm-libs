@@ -807,6 +807,11 @@ socket_get_cert (int fd, void **cert, int *certlen)
       return;
     }
   session = ovas_get_tlssession_from_connection (fd);
+  if (!session)
+    {
+      log_legacy_write ("Socket %d is not SSL/TLS encapsulated\n", fd);
+      return;
+    }
   if (gnutls_certificate_type_get (session) != GNUTLS_CRT_X509)
     return;
   cert_list = gnutls_certificate_get_peers (session, &cert_list_len);
