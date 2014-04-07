@@ -928,84 +928,34 @@ open_stream_connection (struct arglist *args, unsigned int port,
   return open_stream_connection_ext (args, port, transport, timeout, NULL);
 }
 
-
-/**
- * @param delta_t time in micro-seconds
- */
-int
-open_stream_connection_unknown_encaps5 (struct arglist *args, unsigned int port,
-                                        int timeout, int *p, int *delta_t)
-{
-  int fd;
-  int i;
-  struct timeval tv1, tv2;
-  static openvas_encaps_t encaps[] = {
-    OPENVAS_ENCAPS_TLScustom,
-    OPENVAS_ENCAPS_IP,
-  };
-
-#if DEBUG_SSL > 2
-  log_legacy_write ("[%d] open_stream_connection_unknown_encaps5: TCP:%d; %d\n",
-                    getpid (), port, timeout);
-#endif
-
-  for (i = 0; i < sizeof (encaps) / sizeof (*encaps); i++)
-    {
-      if (delta_t != NULL)
-        (void) gettimeofday (&tv1, NULL);
-      if ((fd = open_stream_connection (args, port, encaps[i], timeout)) >= 0)
-        {
-          *p = encaps[i];
-#if DEBUG_SSL > 2
-          log_lecacy_write ("[%d] open_stream_connection_unknown_encaps5: "
-                            "TCP:%d -> transport=%d\n",
-                            getpid (), port, *p);
-#endif
-          if (delta_t != NULL)
-            {
-              (void) gettimeofday (&tv2, NULL);
-              *delta_t =
-                (tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec -
-                                                       tv1.tv_usec);
-            }
-          return fd;
-        }
-      else if (__port_closed)
-        {
-#if DEBUG_SSL > 2
-          log_lecacy_write ("[%d] open_stream_connection_unknown_encaps5: "
-                            "TCP:%d -> closed\n",
-                            getpid (), port);
-#endif
-          return -1;
-        }
-    }
-  return -1;
-}
-
 /* Same as open_stream_auto_encaps but allows to force auto detection
    of the protocols if FORCE is true.  */
 int
 open_stream_auto_encaps_ext (struct arglist *args, unsigned int port,
                              int timeout, int force)
 {
-  int fd, trp;
+  int fd, transport;
 
   if (force)
     {
-      /* Try to connect while figuring out the used encapsulation mode.  */
-      if ((fd =
-           open_stream_connection_unknown_encaps5 (args, port, timeout,
-                                                   &trp, NULL)) < 0)
-        return -1;
+      /* Try SSL/TLS first */
+      transport = OPENVAS_ENCAPS_TLScustom;
+      fd = open_stream_connection (args, port, transport, timeout);
+      if (fd < 0)
+        {
+          transport = OPENVAS_ENCAPS_IP;
+          fd = open_stream_connection (args, port, OPENVAS_ENCAPS_IP, timeout);
+          if (fd < 0)
+            return -1;
+        }
       /* Store that encapsulation mode in the KB.  */
-      plug_set_port_transport (args, port, trp);
+      plug_set_port_transport (args, port, transport);
       return fd;
     }
   else
     {
-      trp = plug_get_port_transport (args, port);
-      fd = open_stream_connection (args, port, trp, timeout);
+      transport = plug_get_port_transport (args, port);
+      fd = open_stream_connection (args, port, transport, timeout);
       return fd;
     }
  /*NOTREACHED*/

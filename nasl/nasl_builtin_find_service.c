@@ -1922,22 +1922,21 @@ plugin_do_run (desc, h, test_ssl)
               if (banner != NULL)
                 efree (&banner);
               banner = NULL;
-              if (test_ssl == 1)
-                {
-                  cnx =
-                    open_stream_connection_unknown_encaps5 (desc, port,
-                                                            cnx_timeout, &trp,
-                                                            &diff_tv);
-                  diff_tv /= 1000;      /* Now in milliseconds */
-                }
+              /* If test_ssl is set, try with TLS first. */
+              if (test_ssl)
+                trp = OPENVAS_ENCAPS_TLScustom;
               else
+                trp = OPENVAS_ENCAPS_IP;
+              gettimeofday (&tv1, NULL);
+              cnx = open_stream_connection (desc, port, trp, cnx_timeout);
+              if (cnx < 0 && test_ssl)
                 {
-                  (void) gettimeofday (&tv1, NULL);
                   trp = OPENVAS_ENCAPS_IP;
+                  gettimeofday (&tv1, NULL);
                   cnx = open_stream_connection (desc, port, trp, cnx_timeout);
-                  (void) gettimeofday (&tv2, NULL);
-                  diff_tv = DIFFTV1000 (tv2, tv1);
                 }
+              gettimeofday (&tv2, NULL);
+              diff_tv = DIFFTV1000 (tv2, tv1);
             }
 
           if (cnx >= 0 || banner_len > 0)

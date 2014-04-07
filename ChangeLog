@@ -1,3 +1,15 @@
+2014-04-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network.c (open_stream_connection_unknown_encaps5): Remove
+	function.
+	(open_stream_auto_encaps_ext): Make tried encapsulations explicit. Fix
+	code style.
+
+	* misc/network.h: Remove function prototype.
+
+	* nasl/nasl_builtin_find_service.c (plugin_do_run): Adjust for removed
+	function. Improve code style.
+
 2014-04-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* README: Rephrased a bit and mention the virtual machine.

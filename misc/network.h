@@ -67,8 +67,6 @@ int get_sock_infos (int sock, int *r_transport, void **r_tls_session);
 int open_stream_connection (struct arglist *, unsigned int, int, int);
 int open_stream_connection_ext (struct arglist *, unsigned int, int, int,
                                 const char *);
-int open_stream_connection_unknown_encaps5 (struct arglist *, unsigned int, int,
-                                            int *, int *);
 int open_stream_auto_encaps_ext (struct arglist *args, unsigned int port,
                                  int timeout, int force);
 
