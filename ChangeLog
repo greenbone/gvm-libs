@@ -1,5 +1,38 @@
 2014-04-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Remove LDAP authentication. Refactor LDAP-CONNECT authentication.
+
+	* misc/CMakeLists.txt: Remove ldap_auth.c from build process.
+
+	* misc/ldap_auth.c, misc/ldap_auth.h: Remove file.
+
+	* COPYING: Remove ldap_auth module entry.
+
+	* misc/ldap_connect_auth.c: Remove deleted header include.
+	(KEY_LDAP_HOST, KEY_LDAP_DN_AUTH, KEY_LDAP_ROLE_ATTRIBUTE)
+	(KEY_LDAP_ROLE_USER_VALUES, KEY_LDAP_ROLE_ADMIN_VALUES)
+	(KEY_LDAP_ROLE_OBSERVER_VALUES, KEY_LDAP_RULE_ATTRIBUTE)
+	(KEY_LDAP_RULETYPE_ATTRIBUTE): Add defines from removed file.
+	(ldap_auth_info_from_key_file, ldap_auth_info_free, ldap_auth_info_new)
+	(ldap_auth_info_auth_dn, ldap_auth_bind, ldap_auth_bind_query)
+	(ldap_auth_dn_is_good, ldap_auth_query): New functions, moved from
+	removed file.
+
+	* misc/ldap_connect_auth.h: Add new functions prototypes. Update style.
+	(struct ldap_auth_info): New struct, moved from removed file.
+
+	* misc/openvas_auth.c: Remove unneeded include. Update documentation.
+	(authentication_methods): Remove ldap method.
+	(add_authenticator): Remove AUTHENTICATION_METHOD_LDAP case handling.
+	(openvas_auth_write_config): Remove ldap method handling.
+
+	* misc/openvas_auth.h (authentication_method): Remove
+	AUTHENTICATION_METHOD_LDAP enum value.
+
+	* misc/resource_request.c: Adjust include.
+
+2014-04-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Remove ADS authentication.
 
 	* misc/ads_auth.c, misc/ads_auth.h: Delete files.

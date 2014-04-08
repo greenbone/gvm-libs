@@ -40,7 +40,6 @@
 #include <glib/gstdio.h>
 
 #ifdef ENABLE_LDAP_AUTH
-#include "ldap_auth.h"
 #include "ldap_connect_auth.h"
 #endif /*ENABLE_LDAP_AUTH */
 
@@ -84,7 +83,7 @@
  * enabled for a user, it is the only method tried (i.e. the password stored for
  * the file-based authentication cannot be used).
  *
- * The configuration file allows to specify details of a remote ldap
+ * The configuration file allows to specify details of a remote ldap-connect
  * authentication and to assign an "order" value to the specified
  * authentication mechanisms. Mechanisms with a lower order will be tried
  * first.
@@ -93,7 +92,7 @@
  *
  * The directory of remotely authenticated users reside under
  * OPENVAS_STATE_DIR/users-remote/[method] , where [method] currently can only
- * be "ldap".
+ * be "ldap_connect".
  *
  * A users directory will contain:
  *
@@ -109,7 +108,6 @@
  */
 /** @warning  Beware to have it in sync with \ref authentication_method. */
 static const gchar *authentication_methods[] = { "file",
-                                                 "ldap",
                                                  "ldap_connect",
                                                  NULL };
 
@@ -161,7 +159,7 @@ gchar* (*user_get_uuid) (const gchar *, auth_method_t) = NULL;
 int (*user_exists) (const gchar *, auth_method_t) = NULL;
 
 /**
- * @brief Return a auth_method_t from string representation (e.g. "ldap").
+ * @brief Return a auth_method_t from string representation eg. "ldap_connect".
  *
  * Keep in sync with \ref authentication_methods and
  * \ref authentication_method .
@@ -271,29 +269,6 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
         authenticators =
           g_slist_insert_sorted (authenticators, authent,
                                  (GCompareFunc) order_compare);
-        break;
-      }
-    case AUTHENTICATION_METHOD_LDAP:
-      {
-#ifdef ENABLE_LDAP_AUTH
-        //int (*authenticate_func) (const gchar* user, const gchar* pass, void* data) = NULL;
-        authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
-        authent->order = order;
-        authent->authenticate = &ldap_authenticate;
-        authent->user_exists = &ldap_user_exists;
-        ldap_auth_info_t info = ldap_auth_info_from_key_file (key_file, group);
-        info->user_set_role = user_set_role;
-        authent->data = info;
-        authent->method = AUTHENTICATION_METHOD_LDAP;
-        authenticators =
-          g_slist_insert_sorted (authenticators, authent,
-                                 (GCompareFunc) order_compare);
-#else
-        g_warning ("LDAP Authentication was configured, but "
-                   "openvas-libraries was not build with "
-                   "ldap-support. The configuration entry will "
-                   "have no effect.");
-#endif /* ENABLE_LDAP_AUTH */
         break;
       }
     case AUTHENTICATION_METHOD_LDAP_CONNECT:
@@ -512,8 +487,8 @@ openvas_auth_tear_down ()
  * @brief Writes the authentication mechanism configuration, merging with
  * @brief defaults and existing configuration.
  *
- * If the passed key-file contains just one of the two groups (method:ldap and
- * method:ldap_connect), do not write the defaults of the other group.
+ * If the passed key-file contains just method:ldap_connect, do not write the
+ * defaults of any other group.
  *
  * @param[in] keyfile The KeyFile to merge and write. Can be NULL, in which
  *                    case just the default will be written.
@@ -545,32 +520,8 @@ openvas_auth_write_config (GKeyFile * key_file)
   g_key_file_set_value (new_conffile, "method:file", "order", "1");
 
   // LDAP configuration.
-  if (key_file == NULL
-      || g_key_file_has_group (key_file, "method:ldap") == TRUE)
-    {
-      g_key_file_set_value (new_conffile, "method:ldap", "enable", "false");
-      g_key_file_set_value (new_conffile, "method:ldap", "order", "2");
-      g_key_file_set_value (new_conffile, "method:ldap", "ldaphost",
-                            "localhost");
-      g_key_file_set_value (new_conffile, "method:ldap", "authdn",
-                            "authdn=uid=%s,cn=users,o=yourserver,c=yournet");
-      g_key_file_set_value (new_conffile, "method:ldap", "role-attribute",
-                            "x-gsm-role");
-      g_key_file_set_value (new_conffile, "method:ldap", "role-user-values",
-                            "user;admin");
-      g_key_file_set_value (new_conffile, "method:ldap", "role-admin-values",
-                            "admin");
-      g_key_file_set_value (new_conffile, "method:ldap", "ruletype-attribute",
-                            "x-gsm-accessruletype");
-      g_key_file_set_value (new_conffile, "method:ldap", "rule-attribute",
-                            "x-gsm-accessrule");
-      g_key_file_set_value (new_conffile, "method:ldap", "allow-plaintext",
-                            "false");
-    }
-
-  // LDAP configuration.
-  if (key_file == NULL
-      || g_key_file_has_group (key_file, "method:ldap_connect") == TRUE)
+  if (key_file == NULL || g_key_file_has_group
+                           (key_file, "method:ldap_connect") == TRUE)
     {
       g_key_file_set_value (new_conffile, "method:ldap_connect", "enable", "false");
       g_key_file_set_value (new_conffile, "method:ldap_connect", "order", "-1");
@@ -633,18 +584,6 @@ openvas_auth_write_config (GKeyFile * key_file)
   // Validate.
   {
     gchar *authdn;
-    authdn = g_key_file_get_value (new_conffile, "method:ldap", "authdn", NULL);
-    if (authdn && (ldap_auth_dn_is_good (authdn) == FALSE))
-      {
-        // Clean up.
-        g_key_file_free (new_conffile);
-        g_free (file_content);
-        g_free (file_path);
-        g_free (authdn);
-
-        return 1;
-      }
-    g_free (authdn);
     authdn = g_key_file_get_value (new_conffile, "method:ldap_connect", "authdn", NULL);
     if (authdn && (ldap_auth_dn_is_good (authdn) == FALSE))
       {

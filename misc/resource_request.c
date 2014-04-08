@@ -36,7 +36,7 @@
 #include "resource_request.h"
 
 #ifdef ENABLE_LDAP_AUTH
-#include "ldap_auth.h"
+#include "ldap_connect_auth.h"
 #endif
 
 #define KEY_ATTRIBUTE   "attribute"
