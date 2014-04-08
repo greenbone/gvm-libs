@@ -36,7 +36,6 @@
 #include "resource_request.h"
 
 #ifdef ENABLE_LDAP_AUTH
-#include "ads_auth.h"
 #include "ldap_auth.h"
 #endif
 
@@ -49,7 +48,6 @@
 #define KEY_USERDN      "userdn"
 
 #define SOURCE_TYPE_LDAP "ldap"
-#define SOURCE_TYPE_ADS  "ads"
 
 #define TARGET_LOCATOR_FILE_NAME "target.locators"
 
@@ -177,32 +175,6 @@ resource_request_resource (const gchar * source, resource_type_t resource_type,
       g_free (userdn);
 #else
       g_warning ("LDAP source cannot be used, this openvas-libraries was "
-                 "not configured to use openldap.");
-#endif /* ENABLE_LDAP_AUTH */
-    }
-  else if (g_ascii_strcasecmp (value, SOURCE_TYPE_ADS) == 0)
-    {
-#ifdef ENABLE_LDAP_AUTH
-      gchar *rootdn = g_key_file_get_string (key_file, source, KEY_ROOTDN,
-                                             NULL);
-      gchar *host = g_key_file_get_string (key_file, source, KEY_HOST,
-                                           NULL);
-      gchar *filter = g_key_file_get_string (key_file, source, KEY_FILTER,
-                                             NULL);
-      gchar *attribute = g_key_file_get_string (key_file, source,
-                                                KEY_ATTRIBUTE, NULL);
-      gchar *domain = g_key_file_get_string (key_file, source, KEY_DOMAIN,
-                                             NULL);
-      resources =
-        ads_auth_bind_query (host, domain, rootdn, username, password, filter,
-                             attribute);
-      g_free (attribute);
-      g_free (domain);
-      g_free (filter);
-      g_free (host);
-      g_free (rootdn);
-#else
-      g_warning ("ADS-LDAP source cannot be used, this openvas-libraries was"
                  "not configured to use openldap.");
 #endif /* ENABLE_LDAP_AUTH */
     }

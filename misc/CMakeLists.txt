@@ -84,7 +84,7 @@ else (MINGW)
 endif (MINGW)
 
 if (BUILD_WITH_LDAP)
-  list (APPEND FILES ldap_auth.c ads_auth.c ldap_connect_auth.c)
+  list (APPEND FILES ldap_auth.c ldap_connect_auth.c)
 endif (BUILD_WITH_LDAP)
 
 link_directories (${CMAKE_CURRENT_BINARY_DIR}/../base)

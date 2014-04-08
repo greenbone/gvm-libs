@@ -36,7 +36,6 @@ base/pwpolicy.[c|h]: GPLv2+
 base/pidfile.[c|h]: GPLv2+
 base/settings.[c|h]: GPLv2+
 
-misc/ads_auth.[c|h]: GPLv2+
 misc/arglists.[c|h]: LGPLv2+
 misc/bpf_share.c: GPLv2
 misc/bpf_share.h: LGPLv2+

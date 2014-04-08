@@ -42,7 +42,6 @@
 #ifdef ENABLE_LDAP_AUTH
 #include "ldap_auth.h"
 #include "ldap_connect_auth.h"
-#include "ads_auth.h"
 #endif /*ENABLE_LDAP_AUTH */
 
 #define AUTH_CONF_FILE "auth.conf"
@@ -69,8 +68,6 @@
  *    authenticate against files (in PREFIX/var/lib/openvas/users).
  *  - remote ldap authentication. To authenticate against a remote ldap
  *    directory server.
- *  - remote ads authentication. To authenticate against a remote ADS (active
- *    directory server).
  *
  * These mechanisms are also used for authorization (role and access management).
  *
@@ -87,7 +84,7 @@
  * enabled for a user, it is the only method tried (i.e. the password stored for
  * the file-based authentication cannot be used).
  *
- * The configuration file allows to specify details of a remote ldap and/or ads
+ * The configuration file allows to specify details of a remote ldap
  * authentication and to assign an "order" value to the specified
  * authentication mechanisms. Mechanisms with a lower order will be tried
  * first.
@@ -96,7 +93,7 @@
  *
  * The directory of remotely authenticated users reside under
  * OPENVAS_STATE_DIR/users-remote/[method] , where [method] currently can only
- * be "ldap" or "ads".
+ * be "ldap".
  *
  * A users directory will contain:
  *
@@ -112,7 +109,6 @@
  */
 /** @warning  Beware to have it in sync with \ref authentication_method. */
 static const gchar *authentication_methods[] = { "file",
-                                                 "ads",
                                                  "ldap",
                                                  "ldap_connect",
                                                  NULL };
@@ -325,27 +321,6 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
 #endif /* ENABLE_LDAP_AUTH */
         break;
       }
-    case AUTHENTICATION_METHOD_ADS:
-      {
-#ifdef ENABLE_LDAP_AUTH
-        authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
-        authent->order = order;
-        authent->authenticate = &ads_authenticate;
-        authent->user_exists = NULL;
-        ads_auth_info_t info = ads_auth_info_from_key_file (key_file, group);
-        authent->data = info;
-        authent->method = AUTHENTICATION_METHOD_ADS;
-        authenticators =
-          g_slist_insert_sorted (authenticators, authent,
-                                 (GCompareFunc) order_compare);
-#else
-        g_warning ("LDAP/ADS Authentication was configured, but "
-                   "openvas-libraries was not build with "
-                   "ldap-support. The configuration entry will "
-                   "have no effect.");
-#endif /* ENABLE_LDAP_AUTH */
-        break;
-      }
     default:
       g_warning ("Unsupported authentication method: %s.", group);
       break;
@@ -538,7 +513,7 @@ openvas_auth_tear_down ()
  * @brief defaults and existing configuration.
  *
  * If the passed key-file contains just one of the two groups (method:ldap and
- * method:ads), do not write the defaults of the other group.
+ * method:ldap_connect), do not write the defaults of the other group.
  *
  * @param[in] keyfile The KeyFile to merge and write. Can be NULL, in which
  *                    case just the default will be written.
@@ -605,27 +580,6 @@ openvas_auth_write_config (GKeyFile * key_file)
                             "authdn=uid=%s,cn=users,o=yourserver,c=yournet");
       g_key_file_set_value (new_conffile, "method:ldap_connect", "allow-plaintext",
                             "false");
-    }
-
-  // ADS Configuration
-  if (key_file == NULL || g_key_file_has_group (key_file, "method:ads") == TRUE)
-    {
-      g_key_file_set_value (new_conffile, "method:ads", "enable", "false");
-      g_key_file_set_value (new_conffile, "method:ads", "order", "3");
-      g_key_file_set_value (new_conffile, "method:ads", "ldaphost",
-                            "localhost");
-      g_key_file_set_value (new_conffile, "method:ads", "authdn", "%s@domain");
-      g_key_file_set_value (new_conffile, "method:ads", "domain", "domain.org");
-      g_key_file_set_value (new_conffile, "method:ads", "role-attribute",
-                            "x-gsm-role");
-      g_key_file_set_value (new_conffile, "method:ads", "role-user-values",
-                            "user;admin");
-      g_key_file_set_value (new_conffile, "method:ads", "role-admin-values",
-                            "admin");
-      g_key_file_set_value (new_conffile, "method:ads", "ruletype-attribute",
-                            "x-gsm-ruletype");
-      g_key_file_set_value (new_conffile, "method:ads", "rule-attribute",
-                            "x-gsm-rule");
     }
 
   // Old, user-provided configuration, if any.

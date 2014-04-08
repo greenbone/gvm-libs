@@ -1,3 +1,29 @@
+2014-04-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Remove ADS authentication.
+
+	* misc/ads_auth.c, misc/ads_auth.h: Delete files.
+
+	* misc/openvas_auth.c: Remove deleted header include. Update
+	documentation.
+	(add_authenticator): Don't handle AUTHENTICATION_METHOD_ADS case.
+	(openvas_auth_write_config): Don't handle "method:ads" key file.
+	(authentication_methods): Remove "ads" value.
+
+	* misc/openvas_auth.h (authentication_method): Remove
+	AUTHENTICATION_METHOD_ADS enum value.
+
+	* misc/resource_request.c: Remove deleted header include.
+	(SOURCE_TYPE_ADS): Remove define.
+	(resource_request_resource): Don't handle "ads" case.
+
+	* COPYING: Remove ads_auth license entry.
+
+	* doc/example.auth.conf, doc/example.target.locators: Update
+	documentation.
+
+	* misc/CMakeLists.txt: Remove deleted file from build.
+
 2014-04-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/bpf_share.c, misc/bpf_share.h (bpf_server): Remove unused
