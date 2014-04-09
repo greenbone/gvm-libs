@@ -37,8 +37,6 @@ void openvas_free_string_var (string *);
 
 char *openvas_strip_space (char *, char *);
 
-gboolean openvas_strv_contains_str (gchar ** strv, const gchar * str);
-
 gchar* openvas_string_flatten_string_list (GSList* string_list,
                                            const gchar* separator);
 

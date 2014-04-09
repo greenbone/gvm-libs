@@ -1,3 +1,8 @@
+2014-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_string.h, base/openvas_string.c
+	(openvas_strv_contains_str): Remove unused function.
+
 2014-04-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Remove LDAP authentication. Refactor LDAP-CONNECT authentication.

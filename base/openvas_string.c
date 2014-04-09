@@ -171,27 +171,6 @@ openvas_strip_space (char *string, char *end)
 }
 
 /**
- * @brief Check whether a NULL-terminated string vector contains a string.
- *
- * @param  strv[in]  NULL-terminated string vector.
- * @param  str[in]   String to search in \ref strv.
- *
- * @return TRUE if str is found in strv, FALSE otherwise.
- */
-gboolean
-openvas_strv_contains_str (gchar ** strv, const gchar * str)
-{
-  gchar **strv_it = strv;
-  while (*strv_it != NULL)
-    {
-      if (strcmp (str, *strv_it) == 0)
-        return TRUE;
-      strv_it++;
-    }
-  return FALSE;
-}
-
-/**
  * @brief Concatenates strings in a GSList, optionally separating these with
  * @brief a defined string.
  *
