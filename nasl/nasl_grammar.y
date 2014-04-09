@@ -599,30 +599,6 @@ nasl_clean_ctx(naslctxt* c)
     }
 }
 
-
-#if 0
-int
-main(int argc,char **argv)
-{
-  naslctxt	ctx;
-
-  ctx.line_nb = 1;
-  ctx.tree = NULL;
-  if (argc != 2)
-    {
-      nasl_perror(NULL, "Usage : nasl <input_file>\n");
-      return 1;
-    }
-  if ((ctx.fp = fopen(argv[1], "r")) == NULL)
-    {
-      perror(argv[1]);
-      return 1;
-    }
-
-  return naslparse((void*) &ctx);
-}
-#endif
-
 enum lex_state {
   ST_START = 0,
   ST_SPACE,

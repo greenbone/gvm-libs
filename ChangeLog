@@ -1,5 +1,12 @@
 2014-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/exec.c (exec_nasl_script): Print parse error line on all types of
+	parsing errors.
+
+	* nasl/nasl_grammar.y: Remove dead code.
+
+2014-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/openvas_string.h, base/openvas_string.c
 	(openvas_strv_contains_str): Remove unused function.
 

@@ -1777,11 +1777,9 @@ exec_nasl_script (struct arglist *script_infos, const char *name, int mode)
 
   if (init_nasl_ctx (&ctx, name) == 0)
     {
-      int ret = naslparse (&ctx);
-      if (ret == -1)
-        fprintf (stderr, "\nParse error at or near line %d\n", ctx.line_nb);
-      if (ret < 0)
+      if (naslparse (&ctx))
         {
+          fprintf (stderr, "\nParse error at or near line %d\n", ctx.line_nb);
           nasl_clean_ctx (&ctx);
           g_chdir (old_dir);
           g_free (old_dir);
