@@ -1,3 +1,58 @@
+openvas-libraries 7.0.0 (2014-04-09)
+
+This is the first release of the openvas-libraries 7.0 module for the Open
+Vulnerability Assessment System 7 (OpenVAS-7). Compared to the previous major
+release it covers a broad set of improvements for the various OpenVAS services
+and applications.
+
+Many thanks to everyone who has contributed to the 7.0.0 release:
+Benoît Allard, Sebastian Aucouturier, Hani Benhabiles, Henri Doreau,
+Dan Fandrich, Andre Heinecke, Werner Koch, Matthew Mundell, Timo Pollmeier,
+Thanga Prakash, Thomas Rotter, Jan-Oliver Wagner, Michael Wiegand and
+Felix Wolfsteller.
+
+Main changes compared to 6.0.x:
+* Add TLSv1.1 and TLSv1.2 support.
+* Add ability to specify a gnutls priority for a scanner context.
+* Add debug info when parameters are missing in script_xref / script_tag calls.
+* Add support for NASL to run commands remotely on Windows when authenticated.
+* Unify LOG, NOTE and INFO message types as ALARM.
+* Support for NVT with new style tags has been added.
+* NVT severity classification now uses the CVSS value of the NVTs instead of
+  separate message types.
+* The authentication system has been converted to support database users.
+* Separate key directories are now used for signature verification and
+  credential encryption.
+* File based user specific rules support has been removed.
+* File based role management has been removed.
+* New OpenVAS Hosts API with cleaner code and documentation and various new
+  features (IPv6 ranges, hosts exclusions and deduplications, reverse lookups
+  only/unify hosts, multiple hosts ordering strategies etc,.)
+* Removal of HG submodule.
+* Improved support for compiling openvas-libraries in MINGW.
+* Add support for initializing libgcrypt before use.
+* Remove handling of .nes dependencies extensions.
+* The required minimum GnuTLS version has increased to 2.8.
+* Default build behaviour has been changed to produce only dynamically linked files.
+* Additional tool "nasl-lint" to support NASL developers.
+* Support for gzip compression has been added to NASL, introducing a new dependency on zlib.
+* Some functions of Manager are moved to libraries.
+* Reimplemented proctitle handling.
+* Fixed an issue which prevent a static build of openvas-libraries from
+  succeeding.
+* The port range option "default" has been removed.
+* Sending of the "SERVER <|> PORT" message of OTP has been removed.
+* Use UTF-8 for OTP.
+* Various small fixes, improvements and code cleanups.
+And additionally changes compared to last beta release 7.0+beta9:
+* Removed force_pubkey_auth preference as certificates are always verified.
+* NASL command cert_query: Added "algorithm-name" command type.
+* New NASL command: socket_ssl_negotiate.
+* New NASL command: socket_get_cert.
+* Cleaned up remote authentication module: Dropped ldap and ads,
+  keep only ldap_connect.
+
+
 openvas-libraries 7.0+beta9 (2014-03-28)
 
 This is the ninht beta release of the next major release of openvas-libraries.

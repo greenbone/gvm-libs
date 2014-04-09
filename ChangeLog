@@ -1,3 +1,11 @@
+2014-04-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Preparing the openvas-libraries 7.0.0 release.
+
+	* CHANGES: Updated.
+
+	* CMakeLists.txt: Set version to 7.0.0.
+
 2014-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/exec.c (exec_nasl_script): Print parse error line on all types of
