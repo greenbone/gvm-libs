@@ -35,6 +35,8 @@
 
 #ifdef HAVE_LIBSSH
 
+#include <libssh/libssh.h>
+
 tree_cell *nasl_ssh_connect (lex_ctxt *lexic);
 tree_cell *nasl_ssh_disconnect (lex_ctxt *lexic);
 tree_cell *nasl_ssh_session_id_from_sock (lex_ctxt *lexic);

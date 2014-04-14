@@ -55,7 +55,6 @@
 #include <gnutls/x509.h>
 #include <gcrypt.h>
 
-#include <libssh/libssh.h>
 #include <libssh/legacy.h>      /* Remove for libssh 0.6.  */
 
 #include "system.h"             /* for emalloc */
@@ -1831,7 +1830,7 @@ nasl_ssh_get_issue_banner (lex_ctxt *lexic)
 }
 
 
-#if 0
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 6, 0)
 /**
  * @brief Get the server banner
  * @naslfn{ssh_get_server_banner}
@@ -1850,11 +1849,9 @@ nasl_ssh_get_issue_banner (lex_ctxt *lexic)
  * @return A string is returned on success.  NULL indicates that the
  *         connection has not yet been established.
  */
-#endif
 tree_cell *
 nasl_ssh_get_server_banner (lex_ctxt *lexic)
 {
-#if 0 /* FIXME: Enable this if we can use LIBSSH 0.6  */
   int tbl_slot;
   ssh_session session;
   char *banner;
@@ -1873,10 +1870,10 @@ nasl_ssh_get_server_banner (lex_ctxt *lexic)
   retc->size = strlen (banner);
   ssh_string_free_char (banner);
   return retc;
-#endif
   (void)lexic;
   return NULL;
 }
+#endif
 
 
 /**

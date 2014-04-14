@@ -390,8 +390,9 @@ static init_func libfuncs[] = {
   {"ssh_request_exec", nasl_ssh_request_exec,
    1, {"cmd", "stderr", "stdout",NULL }},
   {"ssh_get_issue_banner", nasl_ssh_get_issue_banner, 1, {NULL }},
-  /* Enable the next fucntion with LIBSSH 0.6: */
-  /*{"ssh_get_server_banner", nasl_ssh_get_server_banner, 1, {NULL }},*/
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 6, 0)
+  {"ssh_get_server_banner", nasl_ssh_get_server_banner, 1, {NULL }},
+#endif
   {"ssh_get_auth_methods", nasl_ssh_get_auth_methods, 1, {NULL }},
 #endif
 

@@ -1,5 +1,12 @@
 2014-04-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_ssh.c (nasl_ssh_get_server_banner): Enable function if
+	libssh 0.6.0 or higher is available.
+
+	* nasl/nasl_ssh.h: Add libssh include.
+
+2014-04-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/network.c (socket_get_cert): Fix cert_list_len value check as it
 	is never negative.
 
