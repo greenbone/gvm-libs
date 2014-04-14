@@ -815,7 +815,7 @@ socket_get_cert (int fd, void **cert, int *certlen)
   if (gnutls_certificate_type_get (session) != GNUTLS_CRT_X509)
     return;
   cert_list = gnutls_certificate_get_peers (session, &cert_list_len);
-  if (cert_list_len <= 0)
+  if (cert_list_len == 0)
     return;
   *certlen = cert_list[0].size;
   *cert = g_memdup (cert_list[0].data, *certlen);
