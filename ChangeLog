@@ -1,3 +1,7 @@
+2014-04-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* doc/example.auth.conf: Fixed typo in key name.
+
 2014-04-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_ssh.c (nasl_ssh_get_server_banner): Enable function if
