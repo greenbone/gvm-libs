@@ -1,3 +1,9 @@
+2014-04-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_auth_init_funcs,
+	openvas_auth_write_config): To ensure consistency, use the makro
+	AUTH_CONF_FILE that was defined for this purpose.
+
 2014-04-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* CMakeLists.txt: Remove check for zlib. Remove gio from GLIB ldflags.

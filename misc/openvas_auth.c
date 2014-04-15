@@ -401,7 +401,7 @@ openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
   /* Load auth config. */
 
   key_file = g_key_file_new ();
-  config_file = g_build_filename (OPENVAS_STATE_DIR, "auth.conf", NULL);
+  config_file = g_build_filename (OPENVAS_STATE_DIR, AUTH_CONF_FILE, NULL);
 
   if (!g_file_test (config_file, G_FILE_TEST_EXISTS))
     {
@@ -507,7 +507,7 @@ openvas_auth_write_config (GKeyFile * key_file)
   gchar **key = NULL;
   gchar *file_content = NULL;
   gboolean written = FALSE;
-  gchar *file_path = g_build_filename (OPENVAS_STATE_DIR, "auth.conf",
+  gchar *file_path = g_build_filename (OPENVAS_STATE_DIR, AUTH_CONF_FILE,
                                        NULL);
 
   // Instead of clever merging with existing file and the defaults, fill
