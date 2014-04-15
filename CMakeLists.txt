@@ -236,7 +236,7 @@ endif (NOT OPENVAS_OMP_ONLY)
 execute_process (COMMAND pkg-config --cflags glib-2.0
   OUTPUT_VARIABLE GLIB_CFLAGS
   OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process (COMMAND pkg-config --libs glib-2.0 gio-2.0
+execute_process (COMMAND pkg-config --libs glib-2.0
   OUTPUT_VARIABLE GLIB_LDFLAGS
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -282,17 +282,6 @@ if (NOT MINGW)
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   execute_process (COMMAND libgcrypt-config --cflags
     OUTPUT_VARIABLE GCRYPT_CFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-  message (STATUS "Looking for zlib...")
-  find_library (ZLIB z)
-  message (STATUS "Looking for zlib... ${ZLIB}")
-
-  execute_process (COMMAND zlib-config --libs
-    OUTPUT_VARIABLE ZLIB_LDFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process (COMMAND zlib-config --cflags
-    OUTPUT_VARIABLE ZLIB_CFLAGS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
   if (NOT BUILD_WITHOUT_LDAP)

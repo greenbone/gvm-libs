@@ -31,6 +31,23 @@ if (NOT MINGW)
   # FIXME: certain flags should be defined on the global level,
   # because they change the API (e.g. _FILE_OFFSET_BITS).
   set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -D_FILE_OFFSET_BITS=64 -Wall -fPIC")
+
+  message (STATUS "Looking for zlib...")
+  find_library (ZLIB z)
+  message (STATUS "Looking for zlib... ${ZLIB}")
+  if (NOT ZLIB)
+    message (FATAL_ERROR "The zlib library is required.")
+  endif (NOT ZLIB)
+  execute_process (COMMAND pkg-config --cflags zlib
+    OUTPUT_VARIABLE ZLIB_CFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process (COMMAND pkg-config --libs zlib
+    OUTPUT_VARIABLE ZLIB_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  execute_process (COMMAND pkg-config --libs gio-2.0
+    OUTPUT_VARIABLE GIO_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif (NOT MINGW)
 
 if (MINGW)
@@ -50,7 +67,7 @@ endif (MINGW)
 
 if (BUILD_STATIC)
   add_library (openvas_base_static STATIC ${FILES})
-  set_target_properties (openvas_base_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${GPGME_CFLAGS}")
+  set_target_properties (openvas_base_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${ZLIB_CFLAGS}")
   set_target_properties (openvas_base_static PROPERTIES OUTPUT_NAME "openvas_base")
   set_target_properties (openvas_base_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
   set_target_properties (openvas_base_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
@@ -58,7 +75,7 @@ endif (BUILD_STATIC)
 
 if (BUILD_SHARED)
   add_library (openvas_base_shared SHARED ${FILES})
-  set_target_properties (openvas_base_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${GPGME_CFLAGS}")
+  set_target_properties (openvas_base_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${ZLIB_CFLAGS}")
   set_target_properties (openvas_base_shared PROPERTIES OUTPUT_NAME "openvas_base")
   set_target_properties (openvas_base_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
   set_target_properties (openvas_base_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
@@ -71,7 +88,7 @@ if (BUILD_SHARED)
       assuan libgpg-error ole32 ws2_32 ffi z shlwapi dnsapi winmm)
     target_link_libraries (openvas_base_shared ${W32LIBS})
   else (MINGW)
-    target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS} ${GPGME_LDFLAGS})
+    target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS})
   endif (MINGW)
 endif (BUILD_SHARED)
 
