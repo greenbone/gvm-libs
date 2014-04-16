@@ -1,3 +1,8 @@
+2014-04-16  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* tools/openvas-lsc-rpm-creator.sh: Move to openvas-manager. This is
+	  spawn by the manager and nothing in libraries references it.
+
 2014-04-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/openvas_auth.c (openvas_auth_init_funcs,
