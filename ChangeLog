@@ -1,3 +1,8 @@
+2014-04-16  Henri Doreau <henri.doreau@gmail.com>
+
+	* misc/network.c (auth_printf): Replaced a brutal 1MB stack allocation
+	by a variable-length heap one.
+
 2014-04-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* CMakeLists.txt, base/CMakeLists.txt: Move check and linking with libldap

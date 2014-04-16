@@ -2125,16 +2125,14 @@ void
 auth_printf (struct arglist *globals, char *data, ...)
 {
   va_list param;
-  char buffer[1048576];
-
-  bzero (buffer, sizeof (buffer));
+  char *buffer;
 
   va_start (param, data);
-  /* RATS: ignore */
-  vsnprintf (buffer, sizeof (buffer) - 1, data, param);
-
+  buffer = g_strdup_vprintf (data, param);
   va_end (param);
+
   auth_send (globals, buffer);
+  g_free (buffer);
 }
 
 
