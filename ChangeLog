@@ -1,3 +1,8 @@
+2014-04-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* CMakeLists.txt, base/CMakeLists.txt: Move check and linking with libldap
+	and liblber to new base libraries module as it is only needed there.
+
 2014-04-16  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/openvas_auth.c (AUTH_CONF_FILE): Add openvasmd to path.

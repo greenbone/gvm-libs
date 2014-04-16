@@ -284,25 +284,6 @@ if (NOT MINGW)
     OUTPUT_VARIABLE GCRYPT_CFLAGS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-  if (NOT BUILD_WITHOUT_LDAP)
-    message (STATUS "Looking for libldap...")
-
-    find_library (LIBLDAP ldap2)
-    if (NOT LIBLDAP)
-      find_library (LIBLDAP ldap)
-    endif (NOT LIBLDAP)
-    if (NOT LIBLDAP)
-      message (STATUS "  No ldap library found - ldap support disabled")
-    else (NOT LIBLDAP)
-      message (STATUS "  Found ${LIBLDAP} - ldap support enabled")
-      add_definitions (-DENABLE_LDAP_AUTH=1)
-      set (BUILD_WITH_LDAP TRUE)
-      set (LDAP_LDFLAGS "-lldap -llber")
-    endif (NOT LIBLDAP)
-  else (NOT BUILD_WITHOUT_LDAP)
-    message (STATUS "Disabled ldap via configuration option")
-  endif (NOT BUILD_WITHOUT_LDAP)
-
 endif (NOT MINGW)
 
 set (EXTRA_LIBS "${GPGME_LDFLAGS}")
