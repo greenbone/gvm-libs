@@ -1,3 +1,7 @@
+2014-04-16  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_auth.c (AUTH_CONF_FILE): Add openvasmd to path.
+
 2014-04-16  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* CMakeLists.txt: Don't install openvas-lsc-rpm-creator.sh, it

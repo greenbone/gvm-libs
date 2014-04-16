@@ -43,7 +43,7 @@
 #include "ldap_connect_auth.h"
 #endif /*ENABLE_LDAP_AUTH */
 
-#define AUTH_CONF_FILE "auth.conf"
+#define AUTH_CONF_FILE "openvasmd/auth.conf"
 
 #define GROUP_PREFIX_METHOD "method:"
 #define KEY_ORDER "order"
