@@ -141,6 +141,8 @@ static init_func libfuncs[] = {
    {"socket", "transport", NULL}},
   {"socket_get_cert", nasl_socket_get_cert, 0, {"socket", NULL}},
   {"socket_get_ssl_version", nasl_socket_get_ssl_version, 0, {"socket", NULL}},
+  {"socket_get_ssl_ciphersuite", nasl_socket_get_ssl_ciphersuite, 0,
+   {"socket", NULL}},
   {"socket_get_ssl_session_id", nasl_socket_get_ssl_session_id, 0,
    {"socket", NULL}},
   {"socket_get_ssl_compression", nasl_socket_get_ssl_compression, 0,

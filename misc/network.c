@@ -939,6 +939,47 @@ socket_get_ssl_compression (int fd)
     }
 }
 
+/*
+ * @brief Get the cipher suite used by a SSL/TLS connection.
+ *
+ * @param[in]   fd  Socket file descriptor.
+ *
+ * @return Cipher Suite ID, -1 if error.
+ */
+int
+socket_get_ssl_ciphersuite (int fd)
+{
+  gnutls_session_t session;
+  gnutls_kx_algorithm_t kx, kx2;
+  gnutls_cipher_algorithm_t cipher, cipher2;
+  gnutls_mac_algorithm_t mac, mac2;
+  size_t idx = 0;
+  char cs_id[2];
+
+  if (!fd_is_stream (fd))
+    {
+      log_legacy_write ("Socket %d is not stream\n", fd);
+      return -1;
+    }
+  session = ovas_get_tlssession_from_connection (fd);
+  if (!session)
+    {
+      log_legacy_write ("Socket %d is not SSL/TLS encapsulated\n", fd);
+      return -1;
+    }
+
+  kx = gnutls_kx_get (session);
+  cipher = gnutls_cipher_get (session);
+  mac = gnutls_mac_get (session);
+  while (gnutls_cipher_suite_info (idx, cs_id, &kx2, &cipher2, &mac2, NULL))
+    {
+      if (kx == kx2 && cipher == cipher2 && mac == mac2)
+        return cs_id[0] + cs_id[1];
+      idx++;
+    }
+  return -1;
+}
+
 /* Extended version of open_stream_connection to allow passing a
    priority string.
 

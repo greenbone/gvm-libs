@@ -1,5 +1,16 @@
 2014-04-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Add socket_get_ssl_ciphsersuite() nasl API.
+
+	* misc/network.c, misc/network.h (socket_get_ssl_ciphersuite): New function.
+
+	* nasl/nasl_init.c (libfuncs): Export socket_get_ssl_ciphersuite.
+
+	* nasl/nasl_socket.c, nasl/nasl_socket.h
+	(nasl_socket_get_ssl_ciphersuite): New function
+
+2014-04-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Add socket_get_ssl_session_id(), socket_get_ssl_version() and
 	socket_get_ssl_compression nasl APIs.
 

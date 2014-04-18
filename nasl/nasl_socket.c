@@ -645,6 +645,22 @@ nasl_socket_get_ssl_version (lex_ctxt * lexic)
   return retc;
 }
 
+tree_cell *
+nasl_socket_get_ssl_ciphersuite (lex_ctxt * lexic)
+{
+  int soc, result;
+  tree_cell *retc;
+
+  soc = get_int_local_var_by_name (lexic, "socket", -1);
+  result = socket_get_ssl_ciphersuite (soc);
+  if (result < 0)
+    return NULL;
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_INT;
+  retc->x.i_val = result;
+  return retc;
+}
+
 /*---------------------------------------------------------------------*/
 
 tree_cell *

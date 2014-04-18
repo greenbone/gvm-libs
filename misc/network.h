@@ -134,5 +134,6 @@ void socket_get_cert (int, void **, int *);
 openvas_encaps_t socket_get_ssl_version (int);
 void socket_get_ssl_session_id (int, void **, size_t *);
 int socket_get_ssl_compression (int);
+int socket_get_ssl_ciphersuite (int);
 
 #endif
