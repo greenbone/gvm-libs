@@ -788,9 +788,9 @@ socket_negotiate_ssl (int fd, openvas_encaps_t transport, struct arglist *args)
 /*
  * @brief Get the peer's certificate from an SSL/TLS encapsulated connection.
  *
- * @param[in]   fd          Socket file descriptor.
- * @param[out]   cert       Memory pointer to fill cert pointer.
- * @param[out]   certlen    Size of cert.
+ * @param[in]   fd      Socket file descriptor.
+ * @param[out]  cert    Memory pointer to fill cert pointer.
+ * @param[out]  certlen Size of cert.
  */
 void
 socket_get_cert (int fd, void **cert, int *certlen)
@@ -819,6 +819,124 @@ socket_get_cert (int fd, void **cert, int *certlen)
     return;
   *certlen = cert_list[0].size;
   *cert = g_memdup (cert_list[0].data, *certlen);
+}
+
+/*
+ * @brief Get the TLS version of a connection.
+ *
+ * @param[in]   fd  Socket file descriptor.
+ *
+ * @return OPENVAS_ENCAPS value if valid session and success, -1 if error.
+ */
+openvas_encaps_t
+socket_get_ssl_version (int fd)
+{
+  gnutls_session_t session;
+  gnutls_protocol_t version;
+
+  if (!fd_is_stream (fd))
+    {
+      log_legacy_write ("Socket %d is not stream\n", fd);
+      return -1;
+    }
+  session = ovas_get_tlssession_from_connection (fd);
+  if (!session)
+    {
+      log_legacy_write ("Socket %d is not SSL/TLS encapsulated\n", fd);
+      return -1;
+    }
+
+  version = gnutls_protocol_get_version (session);
+  switch (version)
+    {
+      case GNUTLS_SSL3:
+        return OPENVAS_ENCAPS_SSLv3;
+      case GNUTLS_TLS1:
+        return OPENVAS_ENCAPS_TLSv1;
+      case GNUTLS_TLS1_1:
+        return OPENVAS_ENCAPS_TLSv11;
+      case GNUTLS_TLS1_2:
+        return OPENVAS_ENCAPS_TLSv12;
+      default:
+        return -1;
+    }
+}
+
+/*
+ * @brief Get the session ID from an SSL/TLS encapsulated connection.
+ *
+ * @param[in]   fd      Socket file descriptor.
+ * @param[out]  sid     Pointer where to store Session ID pointer.
+ * @param[out]  ssize   Size of session id buffer.
+ */
+void
+socket_get_ssl_session_id (int fd, void **sid, size_t *ssize)
+{
+  gnutls_session_t session;
+  void *tmp;
+  *ssize = GNUTLS_MAX_SESSION_ID;
+  int ret;
+
+  if (!sid)
+    return;
+  if (!fd_is_stream (fd))
+    {
+      log_legacy_write ("Socket %d is not stream\n", fd);
+      return;
+    }
+  session = ovas_get_tlssession_from_connection (fd);
+  if (!session)
+    {
+      log_legacy_write ("Socket %d is not SSL/TLS encapsulated\n", fd);
+      return;
+    }
+  tmp = g_malloc0 (*ssize);
+  ret = gnutls_session_get_id (session, tmp, ssize);
+  if (ret == GNUTLS_E_SUCCESS)
+    *sid = tmp;
+  else
+    {
+      g_free (tmp);
+      ssize = 0;
+      tlserror ("gnutls_session_id", ret);
+    }
+}
+
+/*
+ * @brief Get the compression method of an SSL/TLS connection.
+ *
+ * @param[in]   fd  Socket file descriptor.
+ *
+ * @return 0 if null compression, 1 if deflate, 2 if lzs, -1 if error.
+ */
+int
+socket_get_ssl_compression (int fd)
+{
+  gnutls_session_t session;
+
+  if (!fd_is_stream (fd))
+    {
+      log_legacy_write ("Socket %d is not stream\n", fd);
+      return -1;
+    }
+  session = ovas_get_tlssession_from_connection (fd);
+  if (!session)
+    {
+      log_legacy_write ("Socket %d is not SSL/TLS encapsulated\n", fd);
+      return -1;
+    }
+
+  switch (gnutls_compression_get (session))
+    {
+      case GNUTLS_COMP_NULL:
+        return 0;
+      case GNUTLS_COMP_DEFLATE:
+        return 1;
+      case GNUTLS_COMP_LZO:
+        return 2;
+      default:
+        return -1;
+    }
 }
 
 /* Extended version of open_stream_connection to allow passing a

@@ -584,6 +584,67 @@ nasl_socket_get_cert (lex_ctxt * lexic)
   return retc;
 }
 
+tree_cell *
+nasl_socket_get_ssl_session_id (lex_ctxt * lexic)
+{
+  int soc;
+  size_t sid_len = 0;
+  tree_cell *retc;
+  void *sid;
+
+  soc = get_int_local_var_by_name (lexic, "socket", -1);
+  if (soc < 0)
+    {
+      nasl_perror (lexic, "socket_get_cert: Erroneous socket value %d\n",
+                   soc);
+      return NULL;
+    }
+  socket_get_ssl_session_id (soc, &sid, &sid_len);
+  if (sid == NULL || sid_len == 0)
+    return NULL;
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+  retc->x.str_val = sid;
+  retc->size = sid_len;
+  return retc;
+}
+
+tree_cell *
+nasl_socket_get_ssl_compression (lex_ctxt * lexic)
+{
+  int soc;
+  tree_cell *retc;
+
+  soc = get_int_local_var_by_name (lexic, "socket", -1);
+  if (soc < 0)
+    {
+      nasl_perror (lexic, "socket_get_cert: Erroneous socket value %d\n",
+                   soc);
+      return NULL;
+    }
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_INT;
+  retc->x.i_val = socket_get_ssl_compression (soc);
+  return retc;
+}
+
+tree_cell *
+nasl_socket_get_ssl_version (lex_ctxt * lexic)
+{
+  int soc;
+  openvas_encaps_t version;
+  tree_cell *retc;
+
+  soc = get_int_local_var_by_name (lexic, "socket", -1);
+  version = socket_get_ssl_version (soc);
+  if (version < 0)
+    return NULL;
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_INT;
+  retc->x.i_val = version;
+  return retc;
+}
+
 /*---------------------------------------------------------------------*/
 
 tree_cell *

@@ -131,5 +131,8 @@ int stream_set_timeout (int, int);
 
 int socket_negotiate_ssl (int, openvas_encaps_t, struct arglist *);
 void socket_get_cert (int, void **, int *);
+openvas_encaps_t socket_get_ssl_version (int);
+void socket_get_ssl_session_id (int, void **, size_t *);
+int socket_get_ssl_compression (int);
 
 #endif

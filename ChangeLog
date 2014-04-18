@@ -1,3 +1,22 @@
+2014-04-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Add socket_get_ssl_session_id(), socket_get_ssl_version() and
+	socket_get_ssl_compression nasl APIs.
+
+	* misc/network.c (socket_get_ssl_version, socket_get_ssl_session_id)
+	(socket_get_ssl_compression): New functions.
+	(socket_get_cert): Fix function documentation.
+
+	* misc/network.h: Add new functions prototypes.
+
+	* nasl/nasl_init.c (libfuncs): Export new functions.
+
+	* nasl/nasl_socket.c (nasl_socket_get_ssl_session_id)
+	(nasl_socket_get_ssl_compression, nasl_socket_get_ssl_version): New
+	functions.
+
+	* nasl/nasl_socket.h: Add new functions prototypes.
+
 2014-04-16  Henri Doreau <henri.doreau@gmail.com>
 
 	* misc/network.c (auth_printf): Replaced a brutal 1MB stack allocation
