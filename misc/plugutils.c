@@ -771,10 +771,8 @@ get_plugin_preference_fname (struct arglist *desc, const char *filename)
       return NULL;
     }
   contentsize = get_plugin_preference_file_size (desc, filename);
-  if (content <= 0)
-    {
-      return NULL;
-    }
+  if (contentsize <= 0)
+    return NULL;
 
   tmpfile =
     g_file_open_tmp ("openvassd-file-upload.XXXXXX", &tmpfilename, &error);

@@ -1,3 +1,8 @@
+2014-04-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/plugutils.c (get_plugin_preference_fname): Check content size
+	error properly.
+
 2014-04-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Add socket_get_ssl_ciphsersuite() nasl API.
