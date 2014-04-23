@@ -1,5 +1,11 @@
 2014-04-23  Henri Doreau <henri.doreau@gmail.com>
 
+	* misc/plugutils.c (addslashes/rmslashes): Removed unused functions.
+
+	* misc/plugutils.c: Updated headers accordingly.
+
+2014-04-23  Henri Doreau <henri.doreau@gmail.com>
+
 	Expose a new KB interface to the rest of the application. Implement a
 	redis-based backend. KBs are now global and shared between all processes
 	of a same task. Concurrent tasks transparently share a same redis server

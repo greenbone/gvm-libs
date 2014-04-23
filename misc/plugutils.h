@@ -101,9 +101,6 @@ void plug_replace_key (struct arglist *, char *, int, void *);
 kb_t plug_get_kb (struct arglist *);
 void *plug_get_key (struct arglist *, char *, int *);
 
-char *addslashes (char *);
-char *rmslashes (char *);
-
 struct in6_addr *plug_get_host_ip (struct arglist *);
 char *get_preference (struct arglist *, const char *);
 void add_plugin_preference (struct arglist *, const char *, const char *,
