@@ -1,3 +1,9 @@
+2014-04-23  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Preparing the openvas-libraries 7.0.1 release.
+
+	* CHANGES: Updated.
+
 2014-04-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/plugutils.c (get_plugin_preference_fname): Check content size
