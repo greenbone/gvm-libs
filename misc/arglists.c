@@ -170,13 +170,6 @@ arg_add_value (arglst, name, type, length, value)
   while (arglst->next)
     arglst = arglst->next;
 
-  if (type == ARG_STRUCT)
-    {
-      void *new_val = emalloc (length);
-      memcpy (new_val, value, length);
-      value = new_val;
-    }
-
   arglst->name = cache_inc (name);
   arglst->value = value;
   arglst->length = length;
@@ -219,14 +212,6 @@ arg_set_value (arglst, name, length, value)
 
   if (arglst != NULL)
     {
-      if (arglst->type == ARG_STRUCT)
-        {
-          void *new_val = emalloc (length);
-          if (arglst->value)
-            efree (&arglst->value);
-          memcpy (new_val, value, length);
-          value = new_val;
-        }
       arglst->value = value;
       arglst->length = length;
       return 0;
@@ -291,16 +276,6 @@ arg_dup (dst, src)
               dst->value = estrdup ((char *) src->value);
             }
           break;
-
-        case ARG_STRUCT:
-          if (src->value)
-            {
-              dst->value = emalloc (src->length);
-              memcpy (dst->value, src->value, src->length);
-              dst->length = src->length;
-            }
-          break;
-
 
         case ARG_ARGLIST:
           dst->value = emalloc (sizeof (struct arglist));
@@ -384,9 +359,6 @@ arg_free_all (arg)
           arg_free_all (arg->value);
           break;
         case ARG_STRING:
-          efree (&arg->value);
-          break;
-        case ARG_STRUCT:
           efree (&arg->value);
           break;
         }

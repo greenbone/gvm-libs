@@ -56,7 +56,6 @@ struct name_cache
 #define ARG_PTR     2
 #define ARG_INT     3
 #define ARG_ARGLIST 4
-#define ARG_STRUCT  5
 
 char *cache_inc (const char *name);
 void cache_dec (const char *name);

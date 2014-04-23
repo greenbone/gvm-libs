@@ -1,5 +1,13 @@
 2014-04-23  Henri Doreau <henri.doreau@gmail.com>
 
+	* misc/arglist.h (ARG_STRUCT): Removed arglist type which is never
+	assigned anywhere.
+
+	* misc/arglist.c (arg_add_value, arg_set_value, arg_dup, arg_free_all):
+	removed unused ARG_STRUCT handling cases.
+
+2014-04-23  Henri Doreau <henri.doreau@gmail.com>
+
 	* misc/internal_com.h (INTERNAL_COMM_MSG_TYPE_KB, INTERNAL_COMM_KB_*):
 	removed unused macros.
 
