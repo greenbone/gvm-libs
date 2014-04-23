@@ -1,5 +1,10 @@
 2014-04-23  Henri Doreau <henri.doreau@gmail.com>
 
+	* misc/internal_com.h (INTERNAL_COMM_MSG_TYPE_KB, INTERNAL_COMM_KB_*):
+	removed unused macros.
+
+2014-04-23  Henri Doreau <henri.doreau@gmail.com>
+
 	* misc/plugutils.c (addslashes/rmslashes): Removed unused functions.
 
 	* misc/plugutils.c: Updated headers accordingly.
