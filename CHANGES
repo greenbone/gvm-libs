@@ -6,11 +6,11 @@ the Open Vulnerability Assessment System 7 (OpenVAS-7).
 It contains various smaller fixes and cleanups and adds some NASL
 API functions for ssl.
 
-Many thanks to everyone who has contributed to the 6.0.1 release:
+Many thanks to everyone who has contributed to the 7.0.1 release:
 Benoît Allard, Hani Benhabiles, Henri Doreau, Matthew Mundell,
 Jan-Oliver Wagner and Michael Wiegand.
 
-Main changes compared to 6.0.0:
+Main changes compared to 7.0.0:
 * Added socket_get_ssl_session_id(), socket_get_ssl_version(),
   socket_get_ssl_ciphsersuite and socket_get_ssl_compression() to NASL API.
 * Moved the lsc rpm creator script to module openvas-manager.
