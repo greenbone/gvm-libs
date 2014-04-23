@@ -90,7 +90,7 @@ if (MINGW)
   set (HEADERS openvas_proctitle.h openvas_auth.h openvas_server.h)
 else (MINGW)
   set (FILES arglists.c bpf_share.c ftp_funcs.c hash_table_file.c
-             ids_send.c kb.c network.c openvas_auth.c openvas_logging.c
+             ids_send.c kb_redis.c network.c openvas_auth.c openvas_logging.c
              openvas_server.c openvas_ssh_login.c openvas_uuid.c plugutils.c
              popen.c openvas_proctitle.c resource_request.c scanners_utils.c
              system.c www_funcs.c pcap.c)
@@ -140,7 +140,9 @@ if (BUILD_SHARED)
        gcrypt gpgme assuan libgpg-error ole32 ws2_32 ffi z shlwapi dnsapi winmm)
     target_link_libraries (openvas_misc_shared openvas_base_shared ${W32LIBS})
   else (MINGW)
-    target_link_libraries (openvas_misc_shared ${UUID_LDFLAGS} ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${GNUTLS_LDFLAGS} ${GCRYPT_LDFLAGS} openvas_base_shared ${LDAP_LDFLAGS})
+    target_link_libraries (openvas_misc_shared ${UUID_LDFLAGS} ${GLIB_LDFLAGS}
+                           ${PCAP_LDFLAGS} ${GNUTLS_LDFLAGS} ${GCRYPT_LDFLAGS}
+                           openvas_base_shared ${LDAP_LDFLAGS} ${REDIS_LDFLAGS})
   endif (MINGW)
 endif (BUILD_SHARED)
 
@@ -175,7 +177,6 @@ endif (OPENVAS_DATA_DIR)
 if (OPENVAS_SYSCONF_DIR)
   add_definitions (-DOPENVAS_SYSCONF_DIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
 endif (OPENVAS_SYSCONF_DIR)
-
 
 # install library
 

@@ -44,7 +44,7 @@
 #include "kb.h"
 #include "network.h"
 #include "plugutils.h"
-#include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_KB */
+#include "internal_com.h"
 #include "system.h"
 #include "scanners_utils.h"
 
@@ -865,129 +865,33 @@ get_plugin_preference_file_size (struct arglist *desc, const char *identifier)
   return atol (filesize_str);
 }
 
-
-void *
-plug_get_fresh_key (struct arglist *args, char *name, int *type)
+void
+plug_set_key (struct arglist *args, char *name, int type, void *value)
 {
-  struct arglist *globals = arg_get_value (args, "globals");
-  int soc = GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
-  int e;
-  char *buf = NULL;
-  int bufsz = 0;
-  int msg;
-
-  if (name == NULL || type == NULL)
-    return NULL;
-  *type = -1;
-
-  e =
-    internal_send (soc, name, INTERNAL_COMM_MSG_TYPE_KB | INTERNAL_COMM_KB_GET);
-  if (e < 0)
-    {
-      fprintf (stderr, "[%d] plug_get_fresh_key:internal_send(%d, %s): %s\n",
-               getpid (), soc, name, strerror (errno));
-      goto err;
-    }
-
-  internal_recv (soc, &buf, &bufsz, &msg);
-  if ((msg & INTERNAL_COMM_MSG_TYPE_KB) == 0)
-    {
-      fprintf (stderr,
-               "[%d] plug_get_fresh_key:internal_send(%d): Unexpected message %d",
-               getpid (), soc, msg);
-      goto err;
-    }
-
-  if (msg & INTERNAL_COMM_KB_ERROR)
-    return NULL;
-  if (msg & INTERNAL_COMM_KB_SENDING_STR)
-    {
-      char *ret = estrdup (buf);
-      *type = ARG_STRING;
-      efree (&buf);
-      return ret;
-    }
-  else if (msg & INTERNAL_COMM_KB_SENDING_INT)
-    {
-      int ret;
-      *type = ARG_INT;
-      ret = atoi (buf);
-      efree (&buf);
-      return GSIZE_TO_POINTER (ret);
-    }
-err:
-  if (buf != NULL)
-    efree (&buf);
-  return NULL;
-}
-
-static void
-plug_set_replace_key (struct arglist *args, char *name, int type, void *value,
-                      int replace)
-{
-  struct kb_item **kb = plug_get_kb (args);
-  struct arglist *globals = arg_get_value (args, "globals");
-  int soc = GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
-  char *str = NULL;
-  int msg;
+  kb_t kb = plug_get_kb (args);
 
   if (name == NULL || value == NULL)
     return;
 
-  switch (type)
-    {
-    case ARG_STRING:
-      kb_item_add_str (kb, name, value);
-      value = addslashes (value);
-      str = emalloc (strlen (name) + strlen (value) + 10);
-      // RATS: ignore
-      snprintf (str, strlen (name) + strlen (value) + 10, "%d %s=%s;\n",
-                ARG_STRING, name, (char *) value);
-      if (global_nasl_debug == 1)
-        fprintf (stderr, "set key %s -> %s\n", name, (char *) value);
-      efree (&value);
-      break;
-    case ARG_INT:
-      kb_item_add_int (kb, name, GPOINTER_TO_SIZE (value));
-      str = emalloc (strlen (name) + 20);
-      // RATS: ignore
-      snprintf (str, strlen (name) + 20, "%d %s=%d;\n", ARG_INT, name,
-                (int) GPOINTER_TO_SIZE (value));
-      if (global_nasl_debug == 1)
-        fprintf (stderr, "set key %s -> %d\n", name,
-                 (int) GPOINTER_TO_SIZE (value));
-      break;
-    }
-
-  if (str && soc)
-    {
-      int e;
-      if (replace != 0)
-        msg = INTERNAL_COMM_MSG_TYPE_KB | INTERNAL_COMM_KB_REPLACE;
-      else
-        msg = INTERNAL_COMM_MSG_TYPE_KB;
-
-      e = internal_send (soc, str, msg);
-      if (e < 0)
-        fprintf (stderr, "[%d] plug_set_key:internal_send(%d)['%s']: %s\n",
-                 getpid (), soc, str, strerror (errno));
-    }
-  if (str)
-    efree (&str);
-}
-
-
-void
-plug_set_key (struct arglist *args, char *name, int type, void *value)
-{
-  plug_set_replace_key (args, name, type, value, 0);
+  if (type == ARG_STRING)
+    kb_item_add_str (kb, name, value);
+  else if (type == ARG_INT)
+    kb_item_add_int (kb, name, GPOINTER_TO_SIZE (value));
 }
 
 
 void
 plug_replace_key (struct arglist *args, char *name, int type, void *value)
 {
-  plug_set_replace_key (args, name, type, value, 1);
+  kb_t kb = plug_get_kb (args);
+
+  if (name == NULL || value == NULL)
+    return;
+
+  if (type == ARG_STRING)
+    kb_item_set_str (kb, name, value);
+  else if (type == ARG_INT)
+    kb_item_set_int (kb, name, GPOINTER_TO_SIZE (value));
 }
 
 void
@@ -1091,16 +995,16 @@ plug_get_key (struct arglist *args, char *name, int *type)
       if (res->type == KB_TYPE_INT)
         {
           if (type != NULL)
-            *type = ARG_INT;
-          ret = GSIZE_TO_POINTER (res->v.v_int);
+            *type = KB_TYPE_INT;
+          ret = GSIZE_TO_POINTER (res->v_int);
         }
       else
         {
           if (type != NULL)
-            *type = ARG_STRING;
-          ret = GSIZE_TO_POINTER (res->v.v_str);
+            *type = KB_TYPE_STR;
+          ret = g_strdup (res->v_str);
         }
-      kb_item_get_all_free (res);
+      kb_item_free (res);
       return ret;
     }
 
@@ -1117,6 +1021,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
           int old, soc;
           struct arglist *globals;
 
+          kb_lnk_reset (kb);
           close (sockpair[0]);
           globals = arg_get_value (args, "globals");
           /* FIXME: Potential problem: If "global_socket" is not set
@@ -1138,22 +1043,15 @@ plug_get_key (struct arglist *args, char *name, int *type)
 
           if (res->type == KB_TYPE_INT)
             {
-              int old_value = res->v.v_int;
-              kb_item_rm_all (kb, name);
-              kb_item_add_int (kb, name, old_value);
               if (type != NULL)
-                *type = ARG_INT;
-              return GSIZE_TO_POINTER (old_value);
+                *type = KB_TYPE_INT;
+              return GSIZE_TO_POINTER (res->v_int);
             }
           else
             {
-              char *old_value = estrdup (res->v.v_str);
-              kb_item_rm_all (kb, name);
-              kb_item_add_str (kb, name, old_value);
               if (type != NULL)
-                *type = ARG_STRING;
-              efree (&old_value);
-              return kb_item_get_str (kb, name);
+                *type = KB_TYPE_STR;
+              return strdup (res->v_str);
             }
         }
       else if (pid < 0)
@@ -1256,7 +1154,7 @@ plug_get_host_open_port (struct arglist *desc)
             break;
         }
 
-      kb_item_get_all_free (k);
+      kb_item_free (k);
       if (num_candidates != 0)
         return candidates[lrand48 () % num_candidates]; /* RATS: ignore */
       else if (open21)

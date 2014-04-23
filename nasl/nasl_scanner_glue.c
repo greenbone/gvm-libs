@@ -721,22 +721,22 @@ get_kb_list (lex_ctxt * lexic)
       if (res->type == KB_TYPE_INT)
         {
           v.var_type = VAR2_INT;
-          v.v.v_int = res->v.v_int;
+          v.v.v_int = res->v_int;
           add_var_to_array (a, res->name, &v);
           num_elems++;
         }
       else if (res->type == KB_TYPE_STR)
         {
           v.var_type = VAR2_DATA;
-          v.v.v_str.s_val = (unsigned char *) res->v.v_str;
-          v.v.v_str.s_siz = strlen (res->v.v_str);
+          v.v.v_str.s_val = (unsigned char *) res->v_str;
+          v.v.v_str.s_siz = strlen (res->v_str);
           add_var_to_array (a, res->name, &v);
           num_elems++;
         }
       res = res->next;
     }
 
-  kb_item_get_all_free (top);
+  kb_item_free (top);
 
   if (num_elems == 0)
     {
@@ -792,52 +792,12 @@ get_kb_item (lex_ctxt * lexic)
 }
 
 /**
- * Instead of reading the local copy of the KB, we ask the upstream
- * father the "newest" value of a given KB item. This is especially useful
- * when dealing with shared sockets and SSH.
+ * XXX Deprecated call.
  */
 tree_cell *
 get_kb_fresh_item (lex_ctxt * lexic)
 {
-  struct arglist *script_infos = lexic->script_infos;
-
-  char *kb_entry = get_str_var_by_num (lexic, 0);
-  char *val;
-  tree_cell *retc;
-  int type;
-
-  if (kb_entry == NULL)
-    return NULL;
-
-  val = plug_get_fresh_key (script_infos, kb_entry, &type);
-
-
-  if (val == NULL && type == -1)
-    return NULL;
-
-  retc = alloc_tree_cell (0, NULL);
-  if (type == KB_TYPE_INT)
-    {
-      retc->type = CONST_INT;
-      retc->x.i_val = GPOINTER_TO_SIZE (val);
-      return retc;
-    }
-  else
-    {
-      retc->type = CONST_DATA;
-      if (val != NULL)
-        {
-          retc->size = strlen (val);
-          retc->x.str_val = val;        /* Do NOT estrdup() the value, since plug_get_fresh_key() allocated the memory already */
-        }
-      else
-        {
-          retc->size = 0;
-          retc->x.str_val = NULL;
-        }
-    }
-
-  return retc;
+  return get_kb_item (lexic);
 }
 
 tree_cell *

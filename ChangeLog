@@ -1,3 +1,39 @@
+2014-04-23  Henri Doreau <henri.doreau@gmail.com>
+
+	Expose a new KB interface to the rest of the application. Implement a
+	redis-based backend. KBs are now global and shared between all processes
+	of a same task. Concurrent tasks transparently share a same redis server
+	using multiple namespaces.
+
+	The new KB interface has been slightly modified to reflect the change
+	and allow alternative backends in the least intrusive way.
+
+	* misc/kb.c: Removed.
+
+	* misc/kb.h: Rewritten to expose new interface.
+
+	* misc/kb_redis.c: New. Redis-backend.
+
+	* misc/CMakeLists.txt: Link against hiredis (redis client library).
+
+	* CMakeLists.txt: Look for hiredis (redis client library).
+
+	* misc/plugutils.c (plug_get_fresh_key, plug_set_replace_key): Removed
+	obsolete functions.
+	(plug_set_key, plug_replace_key, plug_get_key, plug_get_host_open_port):
+	Updated to use the new KB interface.
+
+	* misc/plugutils.h (plug_get_fresh_key): Removed prototype.
+
+	* nasl/nasl.c (DEFAULT_KB_LOCATION): new.
+	(init, main): Use the new KB interface.
+
+	* nasl/nasl_builtin_nmap.c (get_script_list, get_script_args): Updated
+	to use the new KB interface and structures.
+
+	* nasl/nasl_scanner_glue.c (get_kb_list, get_kb_fresh_item): Updated to
+	use the new KB interface and structures.
+
 2014-04-23  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Post branch version bump.

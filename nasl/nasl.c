@@ -45,6 +45,9 @@
 #endif
 
 
+#define KB_PATH_DEFAULT "/tmp/redis.sock"
+
+
 extern char *nasl_version ();
 extern int execute_instruction (struct arglist *, char *);
 void exit_nasl (struct arglist *, int);
@@ -83,7 +86,7 @@ my_gnutls_log_func (int level, const char *text)
 }
 
 struct arglist *
-init (char *hostname, struct in6_addr ip)
+init (char *hostname, struct in6_addr ip, kb_t kb)
 {
   struct arglist *script_infos = g_malloc0 (sizeof (struct arglist));
   struct arglist *prefs = g_malloc0 (sizeof (struct arglist));
@@ -94,7 +97,7 @@ init (char *hostname, struct in6_addr ip)
   arg_add_value (script_infos, "standalone", ARG_INT, sizeof (int), (void *) 1);
   arg_add_value (prefs, "checks_read_timeout", ARG_STRING, 4, g_strdup ("5"));
   arg_add_value (script_infos, "preferences", ARG_ARGLIST, -1, prefs);
-  arg_add_value (script_infos, "key", ARG_PTR, -1, kb_new ());
+  arg_add_value (script_infos, "key", ARG_PTR, -1, kb);
 
   if (safe_checks_only != 0)
     arg_add_value (prefs, "safe_checks", ARG_STRING, 3, g_strdup ("yes"));
@@ -284,6 +287,8 @@ main (int argc, char **argv)
     {
       struct in6_addr ip6;
       char *hostname;
+      kb_t kb;
+      int rc;
 
       hostname = openvas_host_value_str (host);
       if (openvas_host_get_addr6 (host, &ip6) == -1)
@@ -293,7 +298,12 @@ main (int argc, char **argv)
           g_free (hostname);
           continue;
         }
-      script_infos = init (hostname, ip6);
+
+      rc = kb_new (&kb, KB_PATH_DEFAULT);
+      if (rc)
+        exit (1);
+
+      script_infos = init (hostname, ip6, kb);
       n = start;
       while (nasl_filenames[n])
         {
@@ -301,6 +311,7 @@ main (int argc, char **argv)
             err++;
           n++;
         }
+      kb_delete (kb);
       g_free (hostname);
     }
 

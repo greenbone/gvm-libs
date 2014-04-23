@@ -233,6 +233,15 @@ if (NOT OPENVAS_OMP_ONLY)
   endif (PCAP_CONFIG)
 endif (NOT OPENVAS_OMP_ONLY)
 
+message (STATUS "Looking for hiredis...")
+find_library (HIREDIS hiredis)
+message (STATUS "Looking for hiredis... ${HIREDIS}")
+if (NOT HIREDIS)
+  message (FATAL_ERROR "The hiredis library is required.")
+endif (NOT HIREDIS)
+
+set (REDIS_LDFLAGS "-lhiredis")
+
 execute_process (COMMAND pkg-config --cflags glib-2.0
   OUTPUT_VARIABLE GLIB_CFLAGS
   OUTPUT_STRIP_TRAILING_WHITESPACE)

@@ -784,14 +784,14 @@ get_script_list (nmap_t * nmap)
   while (res)
     {
       scriptv = (gchar **) g_realloc (scriptv, (i + 1) * sizeof (gchar *));
-      scriptv[i++] = g_strdup (res->v.v_str);
+      scriptv[i++] = g_strdup (res->v_str);
       res = res->next;
     }
 
   scriptv = (gchar **) g_realloc (scriptv, (i + 1) * sizeof (gchar *));
   scriptv[i] = NULL;
 
-  kb_item_get_all_free (top);
+  kb_item_free (top);
 
   scriptstr = g_strjoinv (",", scriptv);
 
@@ -825,14 +825,14 @@ get_script_args (nmap_t * nmap)
   while (res)
     {
       argv = (gchar **) g_realloc (argv, (i + 1) * sizeof (gchar *));
-      argv[i++] = g_strdup (res->v.v_str);
+      argv[i++] = g_strdup (res->v_str);
       res = res->next;
     }
 
   argv = (gchar **) g_realloc (argv, (i + 1) * sizeof (gchar *));
   argv[i] = NULL;
 
-  kb_item_get_all_free (top);
+  kb_item_free (top);
 
   argstr = g_strjoinv (",", argv);
 

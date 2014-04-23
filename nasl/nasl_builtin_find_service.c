@@ -2946,7 +2946,7 @@ plugin_run_find_service (lex_ctxt * lexic)
       kbitem_tmp = kbitem_tmp->next;
     }
 
-  kb_item_get_all_free (kbitem);
+  kb_item_free (kbitem);
 
 
   for (i = 0; i < num_sons; i++)
@@ -2972,6 +2972,7 @@ plugin_run_find_service (lex_ctxt * lexic)
             {
               int soc;
 
+              kb_lnk_reset (kb);
               soc = GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
               close (sons_pipe[i][1]);
               close (soc);
