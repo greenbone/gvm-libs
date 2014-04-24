@@ -813,7 +813,6 @@ plug_get_kb (struct arglist *args)
  * its son in case the process which calls this function is killed
  * itself
  */
-#ifndef OPENVASNT
 static int _plug_get_key_son = 0;
 
 static void
@@ -865,8 +864,6 @@ sig_chld (void (*fcn) (int))
 {
   sig_n (SIGCHLD, fcn);
 }
-#endif
-
 
 void *
 plug_get_key (struct arglist *args, char *name, int *type)
