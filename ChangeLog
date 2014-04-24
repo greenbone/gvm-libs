@@ -1,5 +1,12 @@
 2014-04-24  Henri Doreau <henri.doreau@gmail.com>
 
+	* misc/network.c (socket_get_ssl_compression): Added preprocessor checks
+	to ensure GNUTLS_COMP_LZO is available.
+
+	* misc/network.c (socket_get_ssl_ciphersuite): Fix signedess issue.
+
+2014-04-24  Henri Doreau <henri.doreau@gmail.com>
+
 	* misc/plugutils.c: Removed a useless OPENVASNT definition check.
 
 2014-04-24  Henri Doreau <henri.doreau@gmail.com>

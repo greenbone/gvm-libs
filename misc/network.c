@@ -932,8 +932,11 @@ socket_get_ssl_compression (int fd)
         return 0;
       case GNUTLS_COMP_DEFLATE:
         return 1;
+#ifdef GNUTLS_COMP_LZO
+      /* LZO compression was removed in GnuTLS >= 3.0.0 */
       case GNUTLS_COMP_LZO:
         return 2;
+#endif
       default:
         return -1;
     }
@@ -954,7 +957,7 @@ socket_get_ssl_ciphersuite (int fd)
   gnutls_cipher_algorithm_t cipher, cipher2;
   gnutls_mac_algorithm_t mac, mac2;
   size_t idx = 0;
-  char cs_id[2];
+  unsigned char cs_id[2];
 
   if (!fd_is_stream (fd))
     {
