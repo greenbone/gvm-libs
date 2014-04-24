@@ -158,4 +158,9 @@ openvas_host_resolve (const openvas_host_t *, void *, int);
 int
 openvas_host_get_addr6 (const openvas_host_t *, struct in6_addr *);
 
+/* Miscellaneous functions */
+
+int
+openvas_get_host_type (const gchar *);
+
 #endif /* not _OPENVAS_HOSTS_H */

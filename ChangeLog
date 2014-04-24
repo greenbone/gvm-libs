@@ -1,3 +1,8 @@
+2014-04-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_hosts.c, base/openvas_hosts.h (determine_host_type):
+	Rename to openvas_get_host_type. Export function.
+
 2014-04-23  Henri Doreau <henri.doreau@gmail.com>
 
 	* misc/arglist.h (ARG_STRUCT): Removed arglist type which is never

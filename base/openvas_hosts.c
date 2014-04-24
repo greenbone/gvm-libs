@@ -754,8 +754,8 @@ short_range6_network_ips (const char *str, struct in6_addr *first,
  *
  * @return Host_TYPE_*, -1 if error.
  */
-static int
-determine_host_type (const gchar *str_stripped)
+int
+openvas_get_host_type (const gchar *str_stripped)
 {
   /*
    * We have a single element with no leading or trailing
@@ -949,7 +949,7 @@ openvas_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
 
       /* IPv4, hostname, IPv6, collection (short/long range, cidr block) etc,. ? */
       /* -1 if error. */
-      host_type = determine_host_type (stripped);
+      host_type = openvas_get_host_type (stripped);
 
       switch (host_type)
         {
