@@ -1137,7 +1137,7 @@ nmap_run_and_parse (nmap_t * nmap)
       old_sig_c = signal (SIGCHLD, sig_c);
 
       /* execute nmap and read results from the process output */
-     fproc = openvas_popen4 (nmap->args[0], nmap->args, &pid, 0);
+      fproc = openvas_popen4 (nmap->args[0], nmap->args, &pid, 0);
     }
 
   if (!fproc)
