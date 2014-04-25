@@ -1,3 +1,9 @@
+2014-04-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network.c (socket_get_ssl_ciphersuite): Refix sign issue. API in
+	GnuTLS 2.x takes a char * while it takes an unsigned char * in
+	GnuTLS 3.x. Cast to void pointer to be compatible with both.
+
 2014-04-24  Henri Doreau <henri.doreau@gmail.com>
 
 	* misc/network.c (socket_get_ssl_compression): Added preprocessor checks

@@ -974,7 +974,8 @@ socket_get_ssl_ciphersuite (int fd)
   kx = gnutls_kx_get (session);
   cipher = gnutls_cipher_get (session);
   mac = gnutls_mac_get (session);
-  while (gnutls_cipher_suite_info (idx, cs_id, &kx2, &cipher2, &mac2, NULL))
+  while (gnutls_cipher_suite_info (idx, (void *) cs_id, &kx2, &cipher2, &mac2,
+                                   NULL))
     {
       if (kx == kx2 && cipher == cipher2 && mac == mac2)
         return cs_id[0] + cs_id[1];
