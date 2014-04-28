@@ -1,3 +1,10 @@
+2014-04-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/osp.c, base/osp.h: New files.
+
+	* base/CMakeLists.txt, nasl/CMakeLists.txt: Add new files to build
+	process, and adjust linking accordingly.
+
 2014-04-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (socket_get_ssl_ciphersuite): Refix sign issue. API in

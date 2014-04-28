@@ -109,7 +109,7 @@ if (BUILD_STATIC)
    set_target_properties (openvas_nasl_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
    set_target_properties (openvas_nasl_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
    target_link_libraries (openvas_nasl_static openvas_base_static openvas_misc_static
-                          "${GLIB_LDFLAGS}" gcrypt "${GPGME_LDFLAGS}"
+                          openvas_omp_static "${GLIB_LDFLAGS}" gcrypt "${GPGME_LDFLAGS}"
                           gnutls "${PCAP_LDFLAGS}" "${WMI}" "${WINCMD}" "${LIBSSH_LDFLAGS}" "${KSBA_LDFLAGS}")
 endif (BUILD_STATIC)
 
@@ -123,7 +123,7 @@ if (BUILD_SHARED)
   set_target_properties (openvas_nasl_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 # line bellow is needed so it also works with no-undefined which is e.g. used by Mandriva
   target_link_libraries (openvas_nasl_shared openvas_base_shared openvas_misc_shared
-                         "${GLIB_LDFLAGS}" "${GPGME_LDFLAGS}"
+                         openvas_omp_shared "${GLIB_LDFLAGS}" "${GPGME_LDFLAGS}"
                          gnutls "${PCAP_LDFLAGS}" m ${WMI} ${WINCMD} ${LIBSSH_LDFLAGS} "${KSBA_LDFLAGS}")
 endif (BUILD_SHARED)
 

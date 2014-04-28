@@ -53,15 +53,15 @@ endif (NOT MINGW)
 if (MINGW)
   set  (FILES array.c credentials.c openvas_hosts.c cvss.c nvti.c nvticache.c
         openvas_file.c openvas_string.c pidfile.c settings.c gpgme_util.c
-        pwpolicy.c)
+        pwpolicy.c osp.c)
   set (HEADERS array.h credentials.h openvas_hosts.h cvss.h nvti.h settings.h
-       openvas_file.h openvas_string.h pidfile.h gpgme_util.h pwpolicy.h)
+       openvas_file.h openvas_string.h pidfile.h gpgme_util.h pwpolicy.h osp.h)
 else (MINGW)
   set (FILES array.c credentials.c openvas_hosts.c cvss.c drop_privileges.c
        nvti.c nvticache.c openvas_compress.c openvas_file.c openvas_networking.c
-       openvas_string.c pidfile.c settings.c gpgme_util.c pwpolicy.c)
+       openvas_string.c pidfile.c settings.c gpgme_util.c pwpolicy.c osp.c)
   set (HEADERS array.h credentials.h openvas_hosts.h cvss.h drop_privileges.h
-       nvticache.h nvti.h settings.h openvas_compress.h openvas_file.h
+       nvticache.h nvti.h settings.h openvas_compress.h openvas_file.h osp.h
        openvas_networking.h openvas_string.h pidfile.h gpgme_util.h pwpolicy.h)
 endif (MINGW)
 
@@ -103,7 +103,7 @@ add_custom_indent_targets (${FILES})
 # Link the test-hosts executable
 if (BUILD_SHARED)
   add_executable (test-hosts test-hosts.c)
-  target_link_libraries (test-hosts openvas_base_shared ${GLIB_LDFLAGS} -lgcrypt
+  target_link_libraries (test-hosts openvas_base_shared openvas_omp_shared openvas_misc_shared ${GLIB_LDFLAGS} -lgcrypt
     "${GPGME_LDFLAGS}" -lgnutls "${PCAP_LDFLAGS}" -lresolv -lm ${WMI_LIBS}
     ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS} ${WINCMD_LIBS}) 
   set_target_properties (test-hosts PROPERTIES COMPILE_FLAGS
@@ -111,7 +111,7 @@ if (BUILD_SHARED)
 endif (BUILD_SHARED)
 if (BUILD_STATIC)
   add_executable (test-hosts test-hosts.c)
-  target_link_libraries (test-hosts openvas_base_static ${GLIB_LDFLAGS} -lgcrypt
+  target_link_libraries (test-hosts openvas_base_static openvas_omp_static openvas_misc_static ${GLIB_LDFLAGS} -lgcrypt
     "${GPGME_LDFLAGS}" -lgnutls "${PCAP_LDFLAGS}" -lresolv -lm ${WMI_LIBS}
     ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS} ${WINCMD_LIBS}) 
   set_target_properties (test-hosts PROPERTIES COMPILE_FLAGS
