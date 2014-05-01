@@ -223,7 +223,7 @@ fetch_max_db_index (struct kb_redis *kbr)
   if (rep->elements == 0)
     {
       /* Redis 2.4 compatibility mode. Suboptimal... */
-        rc = fetch_max_db_index_compat (kbr);
+      rc = fetch_max_db_index_compat (kbr);
     }
   else if (rep->elements == 2)
     {

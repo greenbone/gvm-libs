@@ -1,3 +1,7 @@
+2014-05-01  Henri Doreau <henri.doreau@gmail.com>
+
+	* misc/kb_redis.c (fetch_max_db_index): Indentation fix.
+
 2014-04-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/osp.c, base/osp.h: New files.
