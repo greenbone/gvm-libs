@@ -32,6 +32,7 @@ base/openvas_file.[c|h]: GPLv2+
 base/openvas_hosts.[c|h]: GPLv2+
 base/openvas_networking.[c|h]: GPLv2+
 base/openvas_string.[c|h]: GPLv2+
+base/osp.[c|h]: GPLv2+
 base/pwpolicy.[c|h]: GPLv2+
 base/pidfile.[c|h]: GPLv2+
 base/settings.[c|h]: GPLv2+
@@ -44,7 +45,7 @@ misc/ftp_funcs.[c|h]: LGPLv2+
 misc/hash_table_file.[c|h]: GPLv2+
 misc/ids_send.[c|h]: LGPLv2+
 misc/internal_com.h: GPLv2+
-misc/kb.[c|h]: LGPLv2+
+misc/kb.h: GPLv2+
 misc/ldap_connect_auth.[c|h]: GPLv2+
 misc/network.[c|h]: LGPLv2+
 misc/nvt_categories.h: LGPLv2+
@@ -58,7 +59,8 @@ misc/pcap.c: LGPLv2+
 misc/pcap_openvas.h: LGPLv2+
 misc/plugutils.[c|h]: LGPLv2+
 misc/popen.[c|h]: LGPLv2+
-misc/resource_request.[c|h]: GPLv2
+misc/kb_redis.c: GPLv2+
+misc/resource_request.[c|h]: GPLv2+
 misc/scanners_utils.[c|h]: LGPLv2+
 misc/support.h: GPLv2+
 misc/system.[c|h]: LGPLv2+
