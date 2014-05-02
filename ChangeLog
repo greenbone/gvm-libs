@@ -1,3 +1,16 @@
+2014-05-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_ssh_login.c (KEY_SSHLOGIN_PUBKEY_FILE): Remove
+	definition.
+	(openvas_ssh_login_new): Remove pubkey_file argument. Adjust
+	accordingly.
+	(openvas_ssh_login_free): Adjust for public_key_path element removal.
+	(read_from_keyfile): Adjust function call. Don't read pubkey_file key
+	file entry.
+
+	* misc/openvas_ssh_login.h: Adjust function prototype.
+	(openvas_ssh_login): Remove public_key_path element.
+
 2014-05-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* COPYING: Updated according to recent changes and fixed wrong

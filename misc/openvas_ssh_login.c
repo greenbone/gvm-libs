@@ -32,7 +32,6 @@
 
 #define KEY_SSHLOGIN_USERNAME     "username"
 #define KEY_SSHLOGIN_USERPASSWORD "userpassword"
-#define KEY_SSHLOGIN_PUBKEY_FILE  "pubkey_file"
 #define KEY_SSHLOGIN_PRIVKEY_FILE "privkey_file"
 #define KEY_SSHLOGIN_COMMENT      "comment"
 #define KEY_SSHLOGIN_PASSPHRASE   "passphrase"
@@ -77,21 +76,18 @@ file_check_exists (const char *name)
  * @return A fresh openvas_ssh_login.
  */
 openvas_ssh_login *
-openvas_ssh_login_new (char *name, char *pubkey_file, char *privkey_file,
-                       char *passphrase, char *comment, char *uname,
-                       char *upass)
+openvas_ssh_login_new (char *name, char *privkey_file, char *passphrase,
+                       char *comment, char *uname, char *upass)
 {
   openvas_ssh_login *loginfo = g_malloc0 (sizeof (openvas_ssh_login));
   loginfo->name = name;
   loginfo->username = uname;
   loginfo->userpassword = upass;
-  loginfo->public_key_path = pubkey_file;
   loginfo->private_key_path = privkey_file;
   loginfo->ssh_key_passphrase = passphrase;
   loginfo->comment = comment;
 
-  loginfo->valid = (file_check_exists (pubkey_file) == 1
-                    && file_check_exists (privkey_file) == 1);
+  loginfo->valid = (file_check_exists (privkey_file) == 1);
 
   return loginfo;
 }
@@ -113,8 +109,6 @@ openvas_ssh_login_free (openvas_ssh_login * loginfo)
     g_free (loginfo->username);
   if (loginfo->userpassword)
     g_free (loginfo->userpassword);
-  if (loginfo->public_key_path)
-    g_free (loginfo->public_key_path);
   if (loginfo->private_key_path)
     g_free (loginfo->private_key_path);
   if (loginfo->ssh_key_passphrase)
@@ -163,7 +157,6 @@ read_from_keyfile (GKeyFile * key_file, gboolean check_keyfiles)
       char *username = g_key_file_get_string (key_file, names[i],
                                               KEY_SSHLOGIN_USERNAME, &err);
       char *userpass = NULL;
-      char *pubkey = NULL;
       char *privkey = NULL;
       char *comment = NULL;
       char *passphrase = NULL;
@@ -183,10 +176,6 @@ read_from_keyfile (GKeyFile * key_file, gboolean check_keyfiles)
         }
 
       if (err == NULL)
-        pubkey =
-          g_key_file_get_string (key_file, names[i], KEY_SSHLOGIN_PUBKEY_FILE,
-                                 &err);
-      if (err == NULL)
         privkey =
           g_key_file_get_string (key_file, names[i], KEY_SSHLOGIN_PRIVKEY_FILE,
                                  &err);
@@ -199,8 +188,7 @@ read_from_keyfile (GKeyFile * key_file, gboolean check_keyfiles)
           g_key_file_get_string (key_file, names[i], KEY_SSHLOGIN_PASSPHRASE,
                                  &err);
 
-      openvas_ssh_login *loginfo = openvas_ssh_login_new (name,
-                                                          pubkey, privkey,
+      openvas_ssh_login *loginfo = openvas_ssh_login_new (name, privkey,
                                                           passphrase, comment,
                                                           username, userpass);
 
