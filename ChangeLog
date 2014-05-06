@@ -1,3 +1,16 @@
+2014-05-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_ssh_login.c (openvas_ssh_public_from_private): New
+	function.
+	(read_from_keyfile): Fix check for empty string.
+
+	* misc/openvas_ssh_login.h: Add new function prototype.
+
+	* misc/CMakeLists.txt: Link against libssh when found.
+
+	* omp/omp.c (omp_create_lsc_credential_key): Fix string formatting when
+	public_key argument is null.
+
 2014-05-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/openvas_ssh_login.c (KEY_SSHLOGIN_PUBKEY_FILE): Remove

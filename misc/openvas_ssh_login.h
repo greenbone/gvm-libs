@@ -49,6 +49,9 @@ openvas_ssh_login *openvas_ssh_login_new (char *name, char *privkey_file,
 
 void openvas_ssh_login_free (openvas_ssh_login * loginfo);
 
+char *
+openvas_ssh_public_from_private (const char *, const char *);
+
 GHashTable *openvas_ssh_login_file_read_buffer (const char *buffer,
                                                 gsize buffer_size,
                                                 gboolean check);

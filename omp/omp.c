@@ -1544,14 +1544,8 @@ omp_create_lsc_credential_key (gnutls_session_t *session,
                                        "</key>"
                                        "<comment>%s</comment>"
                                        "</create_lsc_credential>",
-                                       name,
-                                       login,
-                                       passphrase
-                                        ? passphrase
-                                        : "",
-                                       public_key,
-                                       private_key,
-                                       comment);
+                                       name, login, passphrase ?: "",
+                                       public_key ?: "", private_key, comment);
   else
     request = g_markup_printf_escaped ("<create_lsc_credential>"
                                        "<name>%s</name>"
@@ -1562,13 +1556,8 @@ omp_create_lsc_credential_key (gnutls_session_t *session,
                                        "<private>%s</private>"
                                        "</key>"
                                        "</create_lsc_credential>",
-                                       name,
-                                       login,
-                                       passphrase
-                                        ? passphrase
-                                        : "",
-                                       public_key,
-                                       private_key);
+                                       name, login, passphrase ?: "",
+                                       public_key ?: "", private_key);
 
   /* Send the request. */
 

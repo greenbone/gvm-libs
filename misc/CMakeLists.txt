@@ -26,6 +26,10 @@
 include_directories (../include)
 include_directories (../base)
 
+if (LIBSSH_FOUND)
+  add_definitions (-DHAVE_LIBSSH)
+endif (LIBSSH_FOUND)
+
 if (MINGW)
   if (CROSS_ENV)
     include_directories (${CROSS_ENV}/include)
@@ -142,7 +146,7 @@ if (BUILD_SHARED)
   else (MINGW)
     target_link_libraries (openvas_misc_shared ${UUID_LDFLAGS} ${GLIB_LDFLAGS}
                            ${PCAP_LDFLAGS} ${GNUTLS_LDFLAGS} ${GCRYPT_LDFLAGS}
-                           openvas_base_shared ${LDAP_LDFLAGS} ${REDIS_LDFLAGS})
+                           ${LIBSSH_LDFLAGS} openvas_base_shared ${LDAP_LDFLAGS} ${REDIS_LDFLAGS})
   endif (MINGW)
 endif (BUILD_SHARED)
 

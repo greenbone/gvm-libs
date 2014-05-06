@@ -27,8 +27,10 @@
 
 #include <fcntl.h>              /* for open */
 #include <unistd.h>             /* for write */
+#include <stdlib.h>
 
 #include "openvas_ssh_login.h"
+#include <libssh/libssh.h>
 
 #define KEY_SSHLOGIN_USERNAME     "username"
 #define KEY_SSHLOGIN_USERPASSWORD "userpassword"
@@ -118,6 +120,60 @@ openvas_ssh_login_free (openvas_ssh_login * loginfo)
   g_free (loginfo);
 }
 
+/**
+ * @brief Exports a base64 encoded public key from a private key and its
+ *        passphrase.
+ *
+ * @param[in]   private_key     Private key to export.
+ * @param[in]   passphrase      Passphrase for the private key.
+ *
+ * @return Allocated base64 encoded public key if success, NULL otherwise.
+ */
+char *
+openvas_ssh_public_from_private (const char *private_key, const char *passphrase)
+{
+#ifdef HAVE_LIBSSH
+  char key_dir[] = "/tmp/openvas_key_XXXXXX", *base64, *data;
+  char filename[1024];
+  ssh_private_key ssh_privkey;
+  ssh_public_key ssh_pubkey;
+  ssh_session session;
+  ssh_string sstring;
+  size_t datalen;
+
+  if (!private_key || !g_mkdtemp_full (key_dir, S_IRUSR|S_IWUSR|S_IXUSR))
+    return NULL;
+  g_snprintf (filename, sizeof (filename), "%s/key.tmp", key_dir);
+  if (!g_file_set_contents (filename, private_key, -1, NULL))
+    {
+      g_rmdir (key_dir);
+      return NULL;
+    }
+  session = ssh_new ();
+  ssh_privkey = privatekey_from_file (session, filename, 0, passphrase);
+  ssh_free (session);
+  g_remove (filename);
+  g_rmdir (key_dir);
+  if (!ssh_privkey)
+    return NULL;
+  /* Return as base64 encoded public key. */
+  ssh_pubkey = publickey_from_privatekey (ssh_privkey);
+  privatekey_free (ssh_privkey);
+  sstring = publickey_to_string (ssh_pubkey);
+  publickey_free (ssh_pubkey);
+  if (!sstring)
+    return NULL;
+  data = ssh_string_to_char (sstring);
+  datalen = ssh_string_len (sstring);
+  base64 = g_base64_encode ((guchar *) data, datalen);
+  ssh_string_free (sstring);
+  free (data);
+  return base64;
+#else /* HAVE_LIBSSH */
+  return NULL;
+#endif /* HAVE_LIBSSH */
+}
+
 // ---------------- File store functions ------------------
 
 /**
@@ -150,7 +206,7 @@ read_from_keyfile (GKeyFile * key_file, gboolean check_keyfiles)
   int i = 0;
   for (i = 0; i < length; i++)
     {
-      if (names[i] == NULL || names[i] == '\0')
+      if (names[i] == NULL || names[i][0] == '\0')
         continue;
       // Init a openvas_ssh_login
       char *name = names[i];
