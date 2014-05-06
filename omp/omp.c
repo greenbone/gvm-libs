@@ -254,12 +254,45 @@ omp_authenticate_info (gnutls_session_t *session,
                        char **severity,
                        char **timezone)
 {
+  omp_authenticate_info_opts_t opts;
+  int ret;
+  char *pw_warning;
+
+  opts.username = username;
+  opts.password = password;
+  opts.role = role;
+  opts.severity = severity;
+  opts.timezone = timezone;
+  opts.pw_warning = &pw_warning;
+
+  ret = omp_authenticate_info_ext (session, opts);
+  g_free (pw_warning);
+  return ret;
+}
+
+/**
+ * @brief Authenticate with the manager.
+ *
+ * @param[in]  session    Pointer to GNUTLS session.
+ * @param[in]  username   Username.
+ * @param[in]  password   Password.
+ * @param[out] role       Role.
+ * @param[out] timezone   Timezone if any, else NULL.
+ * @param[out] pw_warning Password warning, NULL if password is okay.
+ *
+ * @return 0 on success, 1 if manager closed connection, 2 if auth failed,
+ *         -1 on error.
+ */
+int
+omp_authenticate_info_ext (gnutls_session_t *session,
+                           omp_authenticate_info_opts_t opts)
+{
   entity_t entity;
   const char* status;
   char first;
   gchar* msg;
 
-  *timezone = NULL;
+  *(opts.timezone) = NULL;
 
   /* Send the auth request. */
 
@@ -267,8 +300,8 @@ omp_authenticate_info (gnutls_session_t *session,
                                  "<username>%s</username>"
                                  "<password>%s</password>"
                                  "</credentials></authenticate>",
-                                 username,
-                                 password);
+                                 opts.username,
+                                 opts.password);
   int ret = openvas_server_send (session, msg);
   g_free (msg);
   if (ret) return ret;
@@ -294,17 +327,23 @@ omp_authenticate_info (gnutls_session_t *session,
   first = status[0];
   if (first == '2')
     {
-      entity_t timezone_entity, role_entity, severity_entity;
+      entity_t timezone_entity, role_entity, severity_entity, pw_warn_entity;
       /* Get the extra info. */
       timezone_entity = entity_child (entity, "timezone");
       if (timezone_entity)
-        *timezone = g_strdup (entity_text (timezone_entity));
+        *opts.timezone = g_strdup (entity_text (timezone_entity));
       role_entity = entity_child (entity, "role");
       if (role_entity)
-        *role = g_strdup (entity_text (role_entity));
+        *opts.role = g_strdup (entity_text (role_entity));
       severity_entity = entity_child (entity, "severity");
       if (severity_entity)
-        *severity = g_strdup (entity_text (severity_entity));
+        *opts.severity = g_strdup (entity_text (severity_entity));
+      pw_warn_entity = entity_child (entity, "password_warning");
+      if (pw_warn_entity)
+        *(opts.pw_warning) = g_strdup (entity_text (pw_warn_entity));
+      else
+        *(opts.pw_warning) = NULL;
+
       free_entity (entity);
       return 0;
     }

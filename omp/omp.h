@@ -37,6 +37,19 @@ extern "C"
 #endif
 
 /**
+ * @brief Struct holding options for authentication.
+ */
+typedef struct
+{
+  const char *username; ///< Password.
+  const char *password; ///< Username.
+  char **role;          ///< [out] Role.
+  char **severity;      ///< [out] Severity class setting.
+  char **timezone;      ///< [out] Timezone if any, else NULL.
+  char **pw_warning;    ///< [out] Password warning, NULL if password is okay.
+} omp_authenticate_info_opts_t;
+
+/**
  * @brief Struct holding options for omp get_report command.
  *
  * FIXME: This SHOULD contain all valid options from the OMP spec.
@@ -189,6 +202,8 @@ int omp_authenticate (gnutls_session_t * session, const char *username,
 
 int omp_authenticate_info (gnutls_session_t * session, const char *username,
                            const char *, char **, char **, char **);
+
+int omp_authenticate_info_ext (gnutls_session_t*, omp_authenticate_info_opts_t);
 
 int omp_create_task_rc (gnutls_session_t *, const char *, unsigned int,
                         const char *, const char *, char **);
