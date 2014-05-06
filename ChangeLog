@@ -1,3 +1,9 @@
+2014-05-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* omp/omp.c (omp_create_lsc_credential_key): Remove public_key function argument.
+
+	* omp/omp.h: Adjust function prototype.
+
 2014-05-06  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	Add omp_authenticate_info_ext function, which uses a struct for passing
