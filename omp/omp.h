@@ -200,9 +200,6 @@ int omp_ping (gnutls_session_t *, int);
 int omp_authenticate (gnutls_session_t * session, const char *username,
                       const char *password);
 
-int omp_authenticate_info (gnutls_session_t * session, const char *username,
-                           const char *, char **, char **, char **);
-
 int omp_authenticate_info_ext (gnutls_session_t*, omp_authenticate_info_opts_t);
 
 int omp_create_task_rc (gnutls_session_t *, const char *, unsigned int,

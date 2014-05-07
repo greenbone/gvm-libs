@@ -321,30 +321,6 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
  * @return 0 success, -1 error.
  */
 int
-openvas_auth_init ()
-{
-  return openvas_auth_init_funcs (NULL, NULL, NULL, NULL);
-}
-
-/**
- * @brief Initializes the list of authentication methods.
- *
- * Parses PREFIX/var/lib/openvas/auth.conf and adds respective authenticators
- * to the authenticators list.
- *
- * Call once before calls to openvas_authenticate, otherwise the
- * authentication method will default to file-system based authentication.
- *
- * The list should be freed with \ref openvas_auth_tear_down once no further
- * authentication trials will be done.
- *
- * A warning will be issued if \ref openvas_auth_init is called a second time
- * without a call to \ref openvas_auth_tear_down in between. In this case,
- * no reconfiguration will take place.
- *
- * @return 0 success, -1 error.
- */
-int
 openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
                          int (*set_role) (const gchar *, const gchar *,
                                           const gchar *),

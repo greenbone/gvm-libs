@@ -1,3 +1,15 @@
+2014-05-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_auth.c (openvas_auth_init): Remove unused function.
+
+	* nasl/nasl_socket.c (nasl_open_sock_tcp_bufsz, nasl_recv)
+	(nasl_join_multicast_group, nasl_get_sock_info): Reduce variables scopes.
+	(nasl_socket_get_error): Remove macro checks for defined variables.
+
+	* omp/omp.c (omp_authenticate_info): Remove unused function.
+
+	* misc/openvas_auth.h, omp/omp.h: Delete removed functions prototypes.
+
 2014-05-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* omp/omp.c (omp_create_lsc_credential_key): Remove public_key function argument.

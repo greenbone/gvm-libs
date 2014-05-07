@@ -237,42 +237,6 @@ omp_authenticate (gnutls_session_t* session,
 /**
  * @brief Authenticate with the manager.
  *
- * @param[in]  session   Pointer to GNUTLS session.
- * @param[in]  username  Username.
- * @param[in]  password  Password.
- * @param[out] role      Role.
- * @param[out] timezone  Timezone if any, else NULL.
- *
- * @return 0 on success, 1 if manager closed connection, 2 if auth failed,
- *         -1 on error.
- */
-int
-omp_authenticate_info (gnutls_session_t *session,
-                       const char *username,
-                       const char *password,
-                       char **role,
-                       char **severity,
-                       char **timezone)
-{
-  omp_authenticate_info_opts_t opts;
-  int ret;
-  char *pw_warning;
-
-  opts.username = username;
-  opts.password = password;
-  opts.role = role;
-  opts.severity = severity;
-  opts.timezone = timezone;
-  opts.pw_warning = &pw_warning;
-
-  ret = omp_authenticate_info_ext (session, opts);
-  g_free (pw_warning);
-  return ret;
-}
-
-/**
- * @brief Authenticate with the manager.
- *
  * @param[in]  session    Pointer to GNUTLS session.
  * @param[in]  username   Username.
  * @param[in]  password   Password.

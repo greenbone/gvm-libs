@@ -375,7 +375,6 @@ nasl_open_sock_tcp_bufsz (lex_ctxt * lexic, int bufsz)
   int transport = -1;
   const char *priority;
   tree_cell *retc;
-  int type;
 
   to = get_int_local_var_by_name (lexic, "timeout", lexic->recv_timeout * 2);
   if (to < 0)
@@ -385,6 +384,7 @@ nasl_open_sock_tcp_bufsz (lex_ctxt * lexic, int bufsz)
 
   if (transport == OPENVAS_ENCAPS_TLScustom)
     {
+      int type;
       priority = get_str_local_var_by_name (lexic, "priority");
       if (!priority)
         priority = NULL;
@@ -674,7 +674,6 @@ nasl_recv (lex_ctxt * lexic)
   fd_set rd;
   struct timeval tv;
   int new_len = 0;
-  tree_cell *retc;
   int type = -1;
   unsigned int opt_len = sizeof (type);
   int e;
@@ -751,7 +750,7 @@ nasl_recv (lex_ctxt * lexic)
     }
   if (new_len > 0)
     {
-      retc = alloc_tree_cell (0, NULL);
+      tree_cell *retc = alloc_tree_cell (0, NULL);
       retc->type = CONST_DATA;
       retc->x.str_val = g_memdup (data, new_len + 1);
       retc->size = new_len;
@@ -955,7 +954,7 @@ tree_cell *
 nasl_join_multicast_group (lex_ctxt * lexic)
 {
   char *a;
-  int s, i, j;
+  int i, j;
   struct ip_mreq m;
   tree_cell *retc = NULL;
   void *p;
@@ -988,7 +987,7 @@ nasl_join_multicast_group (lex_ctxt * lexic)
 
   if (i >= jmg_max)
     {
-      s = socket (AF_INET, SOCK_DGRAM, 0);
+      int s = socket (AF_INET, SOCK_DGRAM, 0);
       if (s < 0)
         {
           nasl_perror (lexic, "join_multicast_group: socket: %s\n",
@@ -1127,12 +1126,8 @@ nasl_socket_get_error (lex_ctxt * lexic)
       break;
     case EBADF:
     case EPIPE:
-#ifdef ECONNRESET
     case ECONNRESET:
-#endif
-#ifdef ENOTSOCK
     case ENOTSOCK:
-#endif
       retc->x.i_val = NASL_ERR_ECONNRESET;
       break;
 
@@ -1344,7 +1339,6 @@ nasl_get_sock_info (lex_ctxt * lexic)
         {
           const gnutls_datum_t *list;
           unsigned int nlist = 0;
-          int i;
           nasl_array *a;
           anon_nasl_var v;
 
@@ -1353,6 +1347,7 @@ nasl_get_sock_info (lex_ctxt * lexic)
             retc = NULL;  /* No certificate or other error.  */
           else
             {
+              int i;
               retc = alloc_tree_cell (0, NULL);
               retc->type = DYN_ARRAY;
               retc->x.ref_val = a = emalloc (sizeof *a);
