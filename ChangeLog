@@ -1,3 +1,13 @@
+2014-05-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r19452.  Fix build with LibSSH >= 0.6.0. Reported by Daniel
+	Malament. Suggested by Simon Desee.
+
+	* nasl/nasl_ssh.h: Include libssh/legacy.h after libssh/libssh.h
+
+	* nasl/nasl_ssh.c (nasl_ssh_get_banner): Constify banner variable. Remove
+	ssh_string_free_char() call.
+
 2014-04-23  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CHANGES: Fix some revision references.

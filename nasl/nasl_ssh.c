@@ -55,7 +55,6 @@
 #include <gnutls/x509.h>
 #include <gcrypt.h>
 
-#include <libssh/legacy.h>      /* Remove for libssh 0.6.  */
 
 #include "system.h"             /* for emalloc */
 #include "nasl_tree.h"
@@ -1854,7 +1853,7 @@ nasl_ssh_get_server_banner (lex_ctxt *lexic)
 {
   int tbl_slot;
   ssh_session session;
-  char *banner;
+  const char *banner;
   tree_cell *retc;
 
   if (!find_session_id (lexic, "ssh_get_server_banner", &tbl_slot))
@@ -1868,7 +1867,6 @@ nasl_ssh_get_server_banner (lex_ctxt *lexic)
   retc = alloc_typed_cell (CONST_DATA);
   retc->x.str_val = estrdup (banner);
   retc->size = strlen (banner);
-  ssh_string_free_char (banner);
   return retc;
   (void)lexic;
   return NULL;
