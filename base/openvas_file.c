@@ -192,3 +192,26 @@ openvas_file_move (const gchar *source_file, const gchar *dest_file)
   return rc;
 }
 
+/**
+ * @brief Get the content of a file in base64 format.
+ *
+ * @param[in]  path     Path to file.
+ *
+ * @return Allocated nul-terminated string, NULL otherwise.
+ */
+char *
+openvas_file_as_base64 (const char *path)
+{
+  GError *error = NULL;
+  char *content, *encoded;
+  gsize len;
+
+  if (!g_file_get_contents (path, &content, &len, NULL))
+    {
+      g_error_free (error);
+      return NULL;
+    }
+  encoded = g_base64_encode ((guchar *) content, len);
+  g_free (content);
+  return encoded;
+}

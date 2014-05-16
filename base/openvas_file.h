@@ -39,4 +39,6 @@ gboolean openvas_file_copy (const gchar *, const gchar *);
 
 gboolean openvas_file_move (const gchar *, const gchar *);
 
+char *openvas_file_as_base64 (const char *);
+
 #endif /* not _OPENVAS_FILE_H */

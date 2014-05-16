@@ -1,3 +1,13 @@
+2014-05-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/osp.c (osp_get_scanner_version): Adjust for null version
+	argument value.
+	(osp_start_scan, option_concat_as_xml): New function.
+
+	* base/openvas_file.c (openvas_file_as_base64): New function.
+
+	* base/openvas_file.h, base/osp.h: Add new functions prototypes.
+
 2014-05-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Fix build with LibSSH >= 0.6.0. Reported by Daniel Malament. Suggested

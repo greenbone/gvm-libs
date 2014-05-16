@@ -27,8 +27,12 @@
 
 #include "openvas_hosts.h"
 #include "../misc/openvas_server.h"
+#include "../misc/openvas_uuid.h"
 #include "../omp/xml.h"
 
+
+#undef  G_LOG_DOMAIN
+#define G_LOG_DOMAIN "lib  osp"
 
 typedef struct osp_connection {
   gnutls_session_t session;
@@ -125,7 +129,7 @@ osp_get_scanner_version (osp_connection_t *connection, char **version)
 {
   entity_t entity, child;
 
-  if (!connection || !version)
+  if (!connection)
     return 1;
 
   if (osp_send_command (connection, "<get_version/>", &entity))
@@ -138,10 +142,70 @@ osp_get_scanner_version (osp_connection_t *connection, char **version)
   child = entity_child (child, "version");
   if (!child)
     goto out;
-  *version = g_strdup (entity_text (child));
+  if (version)
+    *version = g_strdup (entity_text (child));
   return 0;
 
 out:
   free_entity (entity);
   return 1;
+}
+
+static void
+option_concat_as_xml (gpointer key, gpointer value, gpointer pstr)
+{
+  char *options_str, *tmp, *key_escaped, *value_escaped;
+
+  options_str = *(char **) pstr;
+
+  key_escaped = g_markup_escape_text ((char *) key, -1);
+  value_escaped = g_markup_escape_text ((char *) value, -1);
+  tmp = g_strdup_printf ("%s<%s>%s</%s>", options_str ?: "", key_escaped,
+                         value_escaped, key_escaped);
+
+  g_free (options_str);
+  g_free (key_escaped);
+  g_free (value_escaped);
+  *(char **) pstr = tmp;
+}
+/* return scan id (to be used as report id!), null if otherwise. */
+char *
+osp_start_scan (osp_connection_t *connection, const char *target, void *options)
+{
+  entity_t entity;
+  char *options_str = NULL, *start_scan, *scan_id = NULL;
+  int status;
+
+  if (!target)
+    return NULL;
+
+  /* Construct options string. */
+  if (!options)
+    options_str = g_strdup ("");
+  else
+    g_hash_table_foreach (options, option_concat_as_xml, &options_str);
+  start_scan = g_strdup_printf ("<start_scan target='%s'>%s</start_scan>",
+                                target, options_str ?: "");
+  g_free (options_str);
+
+  if (osp_send_command (connection, start_scan, &entity))
+    return NULL;
+
+  status = atoi (entity_attribute (entity, "status"));
+  if (status == 200)
+    {
+      entity_t child = entity_child (entity, "id");
+      assert (child);
+      assert (entity_text (child));
+      scan_id = g_strdup (entity_text (child));
+    }
+  else
+    {
+      const char *text = entity_attribute (entity, "status_text");
+      assert (text);
+      g_log (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, "start_scan failure: %s\n",
+             text);
+    }
+  free_entity (entity);
+  return scan_id;
 }
