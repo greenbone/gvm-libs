@@ -30,6 +30,15 @@
 #include <assert.h>
 
 /**
+ * @brief Default KB location.
+ *
+ * TODO   This should eventually be expressed as an URI when/if multiple KB
+ *        backends are supported (e.g.: redis:///tmp/redis.sock).
+ */
+#define KB_PATH_DEFAULT "/tmp/redis.sock"
+
+
+/**
  * @brief Possible type of a kb_item.
  */
 enum kb_item_type {

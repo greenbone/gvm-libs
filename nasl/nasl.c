@@ -45,9 +45,6 @@
 #endif
 
 
-#define KB_PATH_DEFAULT "/tmp/redis.sock"
-
-
 extern char *nasl_version ();
 extern int execute_instruction (struct arglist *, char *);
 void exit_nasl (struct arglist *, int);
