@@ -206,7 +206,7 @@ pkg_check_modules (GLIB REQUIRED glib-2.0>=2.16)
 if (NOT OPENVAS_OMP_ONLY)
   pkg_check_modules (WMICLIENT wmiclient>=1.3.14)
   pkg_check_modules (WINCMD wincmd>=0.80)
-  pkg_check_modules (LIBSSH libssh>=0.5.0)
+  pkg_check_modules (LIBSSH REQUIRED libssh>=0.5.0)
 
   message (STATUS "Looking for pcap...")
   find_library (PCAP pcap)
