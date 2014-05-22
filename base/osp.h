@@ -39,6 +39,9 @@ osp_get_scanner_version (osp_connection_t *, char **);
 char *
 osp_start_scan (osp_connection_t *, const char *, void *);
 
+int
+osp_get_scan (osp_connection_t *, const char *, char **);
+
 void
 osp_connection_close (osp_connection_t *);
 #endif

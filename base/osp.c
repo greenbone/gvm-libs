@@ -138,17 +138,51 @@ osp_get_scanner_version (osp_connection_t *connection, char **version)
   /* Extract version. */
   child = entity_child (entity, "scanner");
   if (!child)
-    goto out;
+    {
+      free_entity (entity);
+      return 1;
+    }
   child = entity_child (child, "version");
   if (!child)
-    goto out;
+    {
+      free_entity (entity);
+      return 1;
+    }
   if (version)
     *version = g_strdup (entity_text (child));
-  return 0;
 
-out:
   free_entity (entity);
-  return 1;
+  return 0;
+}
+
+int
+osp_get_scan (osp_connection_t *connection, const char *scan_id,
+              char **report_xml)
+{
+  entity_t entity, child;
+  char command[128];
+  GString *string;
+  int progress;
+
+  if (!connection)
+    return 1;
+
+  snprintf (command, sizeof (command), "<get_scans scan_id='%s'/>", scan_id);
+  if (osp_send_command (connection, command, &entity))
+    return 1;
+
+  child = entity_child (entity, "scan");
+  if (!child)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  progress = atoi (entity_attribute (child, "progress"));
+  string = g_string_new ("");
+  print_entity_to_string (child, string);
+  free_entity (entity);
+  *report_xml = g_string_free (string, FALSE);
+  return progress;
 }
 
 static void

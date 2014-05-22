@@ -1,3 +1,10 @@
+2014-05-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/osp.c (osp_get_scan): New function.
+	(osp_get_scanner_version): Fix memory leak. Code style update.
+
+	* base/osp.h: Add new function's prototype.
+
 2014-05-21  Henri Doreau <henri.doreau@gmail.com>
 
 	* misc/kb.h (KB_PATH_DEFAULT): Define default KB location there.
