@@ -37,6 +37,7 @@
 #include "exec.h"
 #include "../base/gpgme_util.h" /* for gpgme_check_version */
 #include <../base/openvas_hosts.h> /* for openvas_hosts_* and openvas_host_* */
+#include <../base/nvti.h>
 
 #include <glib.h>
 
@@ -106,6 +107,35 @@ init (char *hostname, struct in6_addr ip, kb_t kb)
 }
 
 extern FILE *nasl_trace_fp;
+
+static int
+parse_script_infos (const char *file, struct arglist *script_infos)
+{
+  struct arglist *plugin_args;
+  nvti_t *nvti;
+  char *oid;
+  int mode = NASL_EXEC_DESCR | NASL_ALWAYS_SIGNED;
+
+  nvti = nvti_new ();
+  plugin_args = g_malloc0 (sizeof (*plugin_args));
+  arg_add_value (plugin_args, "NVTI", ARG_PTR, -1, nvti);
+
+  if (exec_nasl_script (plugin_args, file, mode) < 0)
+    {
+      printf ("%s could not be loaded\n", file);
+      arg_set_value (plugin_args, "preferences", -1, NULL);
+      arg_free_all (plugin_args);
+      return 1;
+    }
+
+  oid = g_strdup (nvti_oid (nvti));
+  nvti_free (nvti);
+  arg_free_all (plugin_args);
+  arg_del_value (script_infos, "OID");
+  arg_add_value (script_infos, "OID", ARG_STRING, strlen (oid), oid);
+
+  return 0;
+}
 
 /**
  * @brief Main of the standalone nasl interpretor.
@@ -304,7 +334,8 @@ main (int argc, char **argv)
       n = start;
       while (nasl_filenames[n])
         {
-          if (exec_nasl_script (script_infos, nasl_filenames[n], mode) < 0)
+          if (parse_script_infos (nasl_filenames[n], script_infos)
+              || exec_nasl_script (script_infos, nasl_filenames[n], mode) < 0)
             err++;
           n++;
         }
