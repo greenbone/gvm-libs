@@ -828,7 +828,7 @@ socket_get_cert (int fd, void **cert, int *certlen)
  *
  * @return OPENVAS_ENCAPS value if valid session and success, -1 if error.
  */
-openvas_encaps_t
+int
 socket_get_ssl_version (int fd)
 {
   gnutls_session_t session;
@@ -1518,7 +1518,7 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
       return total;
 
     default:
-      if (fp->transport != -1 || fp->fd != 0)
+      if (fp->transport || fp->fd != 0)
         log_legacy_write ("Severe bug! Unhandled transport layer %d (fd=%d)\n",
                           fp->transport, fd);
       else
@@ -1726,7 +1726,7 @@ write_stream_connection4 (int fd, void *buf0, int n, int i_opt)
       break;
 
     default:
-      if (fp->transport != -1 || fp->fd != 0)
+      if (fp->transport || fp->fd != 0)
         log_legacy_write ("Severe bug! Unhandled transport layer %d (fd=%d)\n",
                           fp->transport, fd);
       else

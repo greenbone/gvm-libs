@@ -154,7 +154,7 @@ int
 load_gnutls_file (const char *file, gnutls_datum_t *loaded_file)
 {
   FILE *f = NULL;
-  unsigned long filelen;
+  int64_t filelen;
   void *ptr;
 
   if (!(f = fopen (file, "r"))

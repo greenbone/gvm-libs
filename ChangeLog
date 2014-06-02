@@ -1,3 +1,42 @@
+2014-05-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Fix errors found when building with Clang 3.4
+
+	* misc/network.c (socket_get_ssl_version): Change return type to int as
+	function returns -1 in errors.
+	(read_stream_connection_unbuffered, write_stream_connection4): Check if
+	enum value is equal to zero instead of -1.
+
+	* misc/network.h: Update function prototype.
+
+	* misc/openvas_auth.c (auth_method_name): Remove useless negative value
+	checking for enum value.
+
+	* misc/openvas_server.c (load_gnutls_file): Adjust filelen variable type
+	as ftell() returns -1 on error.
+
+	* nasl/nasl_builtin_find_service.c (mark_swat_server, mark_vqserver)
+	(mark_mldonkey, mark_http_server, mark_locked_adsubtract_server)
+	(mark_http_proxy, mark_linuxconf): Adjust buffer argument to be unsigned
+	to match style of other functions.
+	(mark_ssh_server, mark_wild_shell): Remove unused function argument.
+	(plugin_do_run): Do not provide too many arguments to function calls.
+
+	* nasl/nasl_crypto2.c (mpi_from_string): Don't check unsigned value for
+	negativeness.
+
+	* nasl/nasl_isotime.c (days_per_month): Style update. Abort instead of
+	g_error().
+
+	* nasl/nasl_packet_forgery.c (set_udp_elements): Cast parameter in
+	function call.
+
+	* nasl/nasl_socket.c (nasl_socket_get_ssl_version): Adjust variable
+	type.
+
+	* nasl/nasl_wmi.c (nasl_wmi_close): Remove superfluous semicolon leading
+	to always return 1.
+
 2014-06-02  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Cleanups that can be done because libssh is now mandatory.

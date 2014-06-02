@@ -632,7 +632,7 @@ tree_cell *
 nasl_socket_get_ssl_version (lex_ctxt * lexic)
 {
   int soc;
-  openvas_encaps_t version;
+  int version;
   tree_cell *retc;
 
   soc = get_int_local_var_by_name (lexic, "socket", -1);

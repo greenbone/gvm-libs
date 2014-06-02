@@ -194,7 +194,7 @@ auth_method_from_string (const char *method)
 const gchar *
 auth_method_name (auth_method_t method)
 {
-  if ((method < 0) || (method >= AUTHENTICATION_METHOD_LAST))
+  if (method >= AUTHENTICATION_METHOD_LAST)
     return "ERROR";
   return authentication_methods[method];
 }

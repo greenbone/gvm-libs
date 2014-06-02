@@ -159,7 +159,7 @@ void
 mark_swat_server (desc, port, buffer)
      struct arglist *desc;
      int port;
-     char *buffer;
+     unsigned char *buffer;
 {
   register_service (desc, port, "swat");
 }
@@ -168,7 +168,7 @@ void
 mark_vqserver (desc, port, buffer)
      struct arglist *desc;
      int port;
-     char *buffer;
+     unsigned char *buffer;
 {
   register_service (desc, port, "vqServer-admin");
 }
@@ -178,7 +178,7 @@ void
 mark_mldonkey (desc, port, buffer)
      struct arglist *desc;
      int port;
-     char *buffer;
+     unsigned char *buffer;
 {
   char ban[512];
   register_service (desc, port, "mldonkey");
@@ -192,7 +192,7 @@ void
 mark_http_server (desc, port, buffer, trp)
      struct arglist *desc;
      int port, trp;
-     char *buffer;
+     unsigned char *buffer;
 {
   char ban[512];
   register_service (desc, port, "www");
@@ -208,7 +208,7 @@ void
 mark_locked_adsubtract_server (desc, port, buffer, trp)
      struct arglist *desc;
      int port, trp;
-     char *buffer;
+     unsigned char *buffer;
 {
   char ban[512];
   register_service (desc, port, "AdSubtract");
@@ -348,11 +348,10 @@ Here is its banner : \n%s",
 }
 
 void
-mark_ssh_server (desc, port, buffer, trp)
+mark_ssh_server (desc, port, buffer)
      struct arglist *desc;
      int port;
      char *buffer;
-     int trp;
 {
   register_service (desc, port, "ssh");
   while ((buffer[strlen (buffer) - 1] == '\n') ||
@@ -365,7 +364,7 @@ void
 mark_http_proxy (desc, port, buffer, trp)
      struct arglist *desc;
      int port, trp;
-     char *buffer;
+     unsigned char *buffer;
 {
   char ban[512];
   /* the banner is in www/banner/port */
@@ -517,9 +516,9 @@ mark_rsyncd (desc, port, buffer, trp)
 
 
 void
-mark_wild_shell (desc, port, buffer, trp)
+mark_wild_shell (desc, port, buffer)
      struct arglist *desc;
-     int port, trp;
+     int port;
      char *buffer;
 {
 
@@ -593,7 +592,7 @@ void
 mark_linuxconf (desc, port, buffer)
      struct arglist *desc;
      int port;
-     char *buffer;
+     unsigned char *buffer;
 {
   char ban[512];
   register_service (desc, port, "linuxconf");
@@ -2236,7 +2235,7 @@ plugin_do_run (desc, h, test_ssl)
                   else if (strncmp (line, "$lock ", strlen ("$lock ")) == 0)
                     mark_direct_connect_hub (desc, port, trp);
                   else if (len > 34 && strstr (&(buffer[34]), "iss ecnra"))
-                    mark_iss_realsecure (desc, port, origline, trp);
+                    mark_iss_realsecure (desc, port);
                   else if (len == 4 && origline[0] == 'Q' && origline[1] == 0
                            && origline[2] == 0 && origline[3] == 0)
                     mark_fw1 (desc, port, origline, trp);
@@ -2280,11 +2279,11 @@ plugin_do_run (desc, h, test_ssl)
                   else if (line[0] != '\0'
                            && (strncmp (line + 1, "host '", 6) == 0)
                            && strstr (line, "mysql") != NULL)
-                    mark_mysql (desc, port, origline, trp);
+                    mark_mysql (desc, port, origline);
                   else if (!strncmp (line, "efatal", 6)
                            || !strncmp (line, "einvalid packet length",
                                         strlen ("einvalid packet length")))
-                    mark_postgresql (desc, port, origline, trp);
+                    mark_postgresql (desc, port, origline);
                   else if (strstr (line, "cvsup server ready") != NULL)
                     mark_cvsupserver (desc, port, origline, trp);
                   else if (!strncmp (line, "cvs [pserver aborted]:", 22) ||
@@ -2420,12 +2419,12 @@ plugin_do_run (desc, h, test_ssl)
                            line_len <= 18 &&    /* full GET request
                                                  * length */
                            strncmp (origline, HTTP_GET, line_len) == 0)
-                    mark_echo_server (desc, port, origline);
+                    mark_echo_server (desc, port);
                   else if (strstr ((char *) banner, "!\"#$%&'()*+,-./")
                            && strstr ((char *) banner, "ABCDEFGHIJ")
                            && strstr ((char *) banner, "abcdefghij")
                            && strstr ((char *) banner, "0123456789"))
-                    mark_chargen_server (desc, port, banner);
+                    mark_chargen_server (desc, port);
                   else if (strstr (line, "vtun server"))
                     mark_vtun_server (desc, port, banner, trp);
                   else if (strcmp (line, "login: password: ") == 0)
@@ -2448,7 +2447,7 @@ plugin_do_run (desc, h, test_ssl)
                         (line, "0 succeeded\n", strlen ("0 succeeded\n")))
                     mark_LISa_server (desc, port, banner, trp);
                   else if (strlen ((char *) banner) == 3 && banner[2] == '\n')
-                    mark_msdtc_server (desc, port, banner, trp);
+                    mark_msdtc_server (desc, port, banner);
                   else
                     if ((!strncmp (line, "220", 3)
                          && strstr (line, "poppassd")))

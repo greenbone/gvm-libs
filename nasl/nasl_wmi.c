@@ -248,11 +248,11 @@ nasl_wmi_close (lex_ctxt * lexic)
 
   retc->type = CONST_INT;
 
-  if (wmi_close (handle) == 0);
-  {
-    retc->x.i_val = 1;
-    return retc;
-  }
+  if (wmi_close (handle) == 0)
+    {
+      retc->x.i_val = 1;
+      return retc;
+    }
   return NULL;
 }
 

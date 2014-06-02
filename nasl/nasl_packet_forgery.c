@@ -1043,7 +1043,7 @@ set_udp_elements (lex_ctxt * lexic)
         {
           ip->ip_len = FIX (sz);
           ip->ip_sum = 0;
-          ip->ip_sum = np_in_cksum (ip, ip->ip_hl * 4);
+          ip->ip_sum = np_in_cksum ((u_short *) ip, ip->ip_hl * 4);
         }
       udp = (struct udphdr *) (pkt + ip->ip_hl * 4);
 

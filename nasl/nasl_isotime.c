@@ -351,19 +351,19 @@ days_per_month (int y, int m)
 
   switch(m)
     {
-    case 1: case 3: case 5: case 7: case 8: case 10: case 12:
-      return 31 ;
-    case 2:
-      s = !(y % 4);
-      if (!(y % 100))
-        if ((y % 400))
-          s = 0;
-      return s? 29 : 28 ;
-    case 4: case 6: case 9: case 11:
-      return 30;
+      case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+        return 31 ;
+      case 2:
+        s = !(y % 4);
+        if (!(y % 100))
+          if ((y % 400))
+            s = 0;
+        return s? 29 : 28 ;
+      case 4: case 6: case 9: case 11:
+        return 30;
+      default:
+        abort ();
     }
-
-  g_error ("bug");
 }
 
 

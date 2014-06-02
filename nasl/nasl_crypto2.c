@@ -96,11 +96,7 @@ mpi_from_string (lex_ctxt * lexic, gcry_mpi_t * dest, void *data, size_t len,
   gcry_error_t err;
   unsigned char *buffer = data;
 
-  if (len < 0)
-    return -1;
-
   err = gcry_mpi_scan (dest, GCRYMPI_FMT_USG, buffer, len, NULL);
-
   if (err)
     {
       nasl_perror (lexic, "%s(): gcry_mpi_scan failed for %s: %s/%s\n",
