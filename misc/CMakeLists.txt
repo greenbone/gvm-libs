@@ -26,10 +26,6 @@
 include_directories (../include)
 include_directories (../base)
 
-if (LIBSSH_FOUND)
-  add_definitions (-DHAVE_LIBSSH)
-endif (LIBSSH_FOUND)
-
 if (MINGW)
   if (CROSS_ENV)
     include_directories (${CROSS_ENV}/include)

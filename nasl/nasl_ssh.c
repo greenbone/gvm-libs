@@ -34,7 +34,6 @@
  * libssh support.
  */
 
-#ifdef HAVE_LIBSSH
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/select.h>
@@ -1934,6 +1933,3 @@ nasl_ssh_get_auth_methods (lex_ctxt *lexic)
   retc->size = strlen (p);
   return retc;
 }
-
-
-#endif /*HAVE_LIBSSH*/

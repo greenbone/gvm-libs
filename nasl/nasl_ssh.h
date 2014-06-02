@@ -33,8 +33,6 @@
  * This file contains the protos for \ref nasl_ssh.c
  */
 
-#ifdef HAVE_LIBSSH
-
 #include <libssh/libssh.h>
 #include <libssh/legacy.h>
 
@@ -51,8 +49,5 @@ tree_cell *nasl_ssh_exec (lex_ctxt *);
 tree_cell *nasl_ssh_get_issue_banner (lex_ctxt *lexic);
 tree_cell *nasl_ssh_get_server_banner (lex_ctxt *lexic);
 tree_cell *nasl_ssh_get_auth_methods (lex_ctxt *lexic);
-
-
-#endif /*HAVE_LIBSSH*/
 
 #endif /*NASL_SSH_H*/

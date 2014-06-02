@@ -132,7 +132,6 @@ openvas_ssh_login_free (openvas_ssh_login * loginfo)
 char *
 openvas_ssh_public_from_private (const char *private_key, const char *passphrase)
 {
-#ifdef HAVE_LIBSSH
   char key_dir[] = "/tmp/openvas_key_XXXXXX", *base64, *data;
   char filename[1024];
   ssh_private_key ssh_privkey;
@@ -169,9 +168,6 @@ openvas_ssh_public_from_private (const char *private_key, const char *passphrase
   ssh_string_free (sstring);
   free (data);
   return base64;
-#else /* HAVE_LIBSSH */
-  return NULL;
-#endif /* HAVE_LIBSSH */
 }
 
 // ---------------- File store functions ------------------

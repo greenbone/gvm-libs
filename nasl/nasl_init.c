@@ -387,7 +387,6 @@ static init_func libfuncs[] = {
   {"gunzip", nasl_gunzip, 0, {"data", "len", NULL}},
   {"gzip", nasl_gzip, 0, {"data", "len", NULL}},
 
-#ifdef HAVE_LIBSSH
   {"ssh_connect", nasl_ssh_connect, 0, {"port", "socket", NULL }},
   {"ssh_disconnect", nasl_ssh_disconnect, 1, {NULL }},
   {"ssh_session_id_from_sock", nasl_ssh_session_id_from_sock, 1, {NULL }},
@@ -401,7 +400,6 @@ static init_func libfuncs[] = {
   {"ssh_get_server_banner", nasl_ssh_get_server_banner, 1, {NULL }},
 #endif
   {"ssh_get_auth_methods", nasl_ssh_get_auth_methods, 1, {NULL }},
-#endif
 
 #ifdef HAVE_LIBKSBA
   {"cert_open", nasl_cert_open, 1, {"errorvar", NULL }},
@@ -667,22 +665,6 @@ init_nasl_library (lex_ctxt * lexic)
         }
       c++;
     }
-
-  /* Add feature test constants.  */
-#ifdef HAVE_LIBSSH
-  {
-    const char *name;
-    name = "_HAVE_LIBSSH";
-    tc.x.i_val = !getenv ("OPENVAS_DISABLE_LIBSSH");
-    if ((v = add_named_var_to_ctxt (lexic, name, &tc)) == NULL)
-      {
-        nasl_perror (lexic, "init_nasl2_library: could not define var '%s'\n",
-                     name);
-      }
-    else
-      c++;
-  }
-#endif /*HAVE_LIBSSH*/
 
   // Initialize constant string terms
   tc.type = CONST_DATA;

@@ -1,3 +1,20 @@
+2014-06-02  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Cleanups that can be done because libssh is now mandatory.
+
+	* nasl/nasl_init.c (libfuncs): Don't protect funcs anymore with HAVE_LIBSSH.
+	(init_nasl_library): Remove adding variables to NASL to disable LIBSSH via
+	environment variable OPENVAS_DISABLE_LIBSSH.
+
+	* nasl/CMakeLists.txt, nasl/nasl.c, nasl/nasl_ssh.c, nasl/nasl_ssh.h,
+	misc/CMakeLists.txt, misc/openvas_ssh_login.c: Don't handle "HAVE_LIBSSH" anymore.
+
+	* nasl/nasl_cert.c: Fix wrong comment.
+
+	* doc/Doxyfile.in,  doc/Doxyfile_full.in: Drop HAVE_LIBSSH.
+
+	* INSTALL: Note libssh as mandatory, not as recommended.
+
 2014-05-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl.c (parse_script_infos): New function.

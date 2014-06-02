@@ -25,9 +25,7 @@
 #include <string.h>             /* for strlen */
 #include <stdlib.h>             /* for exit */
 #include <unistd.h>             /* for geteuid */
-#ifdef HAVE_LIBSSH
-# include <libssh/libssh.h>     /* for ssh_version */
-#endif
+#include <libssh/libssh.h>      /* for ssh_version */
 
 #include "kb.h"                 /* for kb_new */
 #include "network.h"
@@ -220,9 +218,7 @@ main (int argc, char **argv)
       if (debug_tls)
         {
           printf ("gnutls %s\n", gnutls_check_version (NULL));
-#       ifdef HAVE_LIBSSH
           printf ("libssh %s\n", ssh_version (0));
-#       endif
           printf ("gpgme %s\n", gpgme_check_version (NULL));
         }
       else

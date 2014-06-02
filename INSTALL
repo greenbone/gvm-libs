@@ -31,12 +31,10 @@ Prerequisites for building documentation:
 * doxygen
 * xmltoman (optional, for building man page)
 * sqlfairy (optional, for producing database diagram)
+* libssh >= 0.5.0
 
 Recommended to have WMI support:
 * wmiclient library (see doc/wmi-howto.txt)
-
-Recommended to have improved SSH support:
-* libssh >= 0.5.0
 
 Recommended to have improved SSL support:
 * libksba >= 1.0.7

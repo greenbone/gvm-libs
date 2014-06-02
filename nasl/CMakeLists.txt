@@ -80,10 +80,6 @@ else (NOT WINCMD_FOUND)
   set (WINCMD wincmd)
 endif (NOT WINCMD_FOUND)
 
-if (LIBSSH_FOUND)
-  add_definitions (-DHAVE_LIBSSH)
-endif (LIBSSH_FOUND)
-
 if (KSBA)
   add_definitions (-DHAVE_LIBKSBA)
 endif (KSBA)

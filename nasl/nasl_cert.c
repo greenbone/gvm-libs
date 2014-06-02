@@ -904,4 +904,4 @@ nasl_cert_query (lex_ctxt *lexic)
 }
 
 
-#endif /*!HAVE_LIBSSH*/
+#endif /* HAVE_LIBKSBA */
