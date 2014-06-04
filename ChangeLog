@@ -1,3 +1,21 @@
+2014-06-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_packet_forgery.c (insert_ip_options, dump_ip_packet)
+	(set_tcp_elements, dump_tcp_packet, set_udp_elements, dump_udp_packet):
+	Remove never used functions.
+
+	* nsal/nasl_packet_forgery_v6.c (get_ipv6_element, set_ipv6_elements)
+	(dump_ipv6_packet, insert_ipv6_options, forge_tcp_v6_packet)
+	(get_tcp_v6_element, dump_tcp_v6_packet, set_tcp_v6_elements)
+	(dump_tcp_v6_packet, get_icmp_v6_element, dump_udp_v6_packet)
+	(set_udp_v6_elements, forge_igmp_v6_packet): Remove never used
+	functions.
+
+	* nasl/nasl_init (libfuncs): Remove never used functions.
+
+	* nasl/nasl_packet_forgery.h, nasl/nasl_packet_forgery_v6.h: Delete
+	removed functions prototypes.
+
 2014-05-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Fix errors found when building with Clang 3.4
