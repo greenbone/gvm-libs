@@ -250,18 +250,49 @@ static init_func libfuncs[] = {
     "ip6_tc", "ip6_v", NULL}},
 
   {"get_ip_element", get_ip_element, 0, {"element", "ip", NULL}},
+  {"get_ipv6_element", get_ipv6_element, 0, {"element", "ipv6", NULL}},
+
   {"set_ip_elements", set_ip_elements, 0,
    {"ip", "ip_dst", "ip_hl", "ip_id",
     "ip_len", "ip_off", "ip_p", "ip_src",
     "ip_sum", "ip_tos", "ip_ttl", "ip_v", NULL}},
+  {"set_ipv6_elements", set_ipv6_elements, 0,
+   {"ip6", "ip6_dst", "ip6_fl", "ip6_hlim", "ip6_nxt", "ip6_plen",
+    "ip6_src", "ip6_tc", "ip6_v", NULL}},
+
+  {"insert_ip_options", insert_ip_options, 0,
+   {"code", "ip", "length", "value", NULL}},
+  {"insert_ipv6_options", insert_ipv6_options, 0,
+   {"code", "flags", "ip6", "length", "lifetime", "reacheable_time",
+    "retransmit_timer", "value", NULL}},
+  {"dump_ip_packet", dump_ip_packet, 9999, {NULL}},
+  {"dump_ipv6_packet", dump_ipv6_packet, 9999, {NULL}},
 
   {"forge_tcp_packet", forge_tcp_packet, 0,
    {"data", "ip", "th_ack", "th_dport", "th_flags", "th_off", "th_seq",
     "th_sport", "th_sum", "th_urp", "th_win", "th_x2", "update_ip_len", NULL}},
+  {"forge_tcp_v6_packet", forge_tcp_v6_packet, 0,
+   {"data", "ip6", "th_ack", "th_dport", "th_flags", "th_off",
+    "th_seq", "th_sport", "th_sum", "th_urp",
+    "th_win", "th_x2", NULL}},
+
   {"get_tcp_element", get_tcp_element, 0,
    {"element", "tcp", NULL}},
+  {"get_tcp_v6_element", get_tcp_v6_element, 0,
+   {"element", "tcp", NULL}},
 
+  {"set_tcp_elements", set_tcp_elements, 0,
+   {"data", "tcp", "th_ack", "th_dport", "th_flags", "th_off", "th_seq",
+    "th_sport", "th_sum", "th_urp", "th_win", "th_x2", NULL}},
+  {"set_tcp_v6_elements", set_tcp_v6_elements, 0,
+   {"data", "tcp", "th_ack", "th_dport",
+    "th_flags", "th_off", "th_seq", "th_sport",
+    "th_sum", "th_urp", "th_win", "th_x2", NULL}},
+
+  {"dump_tcp_packet", dump_tcp_packet, 999, {NULL}},
+  {"dump_tcp_v6_packet", dump_tcp_v6_packet, 999, {NULL}},
   {"tcp_ping", nasl_tcp_ping, 0, {"port", NULL}},
+  {"tcp_v6_ping", nasl_tcp_v6_ping, 0, {"port", NULL}},
 
   {"forge_udp_packet", forge_udp_packet, 0,
    {"data", "ip", "uh_dport", "uh_sport", "uh_sum", "uh_ulen", "update_ip_len",
@@ -275,6 +306,14 @@ static init_func libfuncs[] = {
   {"get_udp_v6_element", get_udp_v6_element, 0,
    {"element", "udp", NULL}},
 
+  {"set_udp_elements", set_udp_elements, 0,
+   {"data", "udp", "uh_dport", "uh_sport", "uh_sum", "uh_ulen", NULL}},
+  {"set_udp_v6_elements", set_udp_v6_elements, 0,
+   {"data", "udp", "uh_dport", "uh_sport", "uh_sum", "uh_ulen", NULL}},
+
+  {"dump_udp_packet", dump_udp_packet, 999, {NULL}},
+  {"dump_udp_v6_packet", dump_udp_v6_packet, 999, {NULL}},
+
   {"forge_icmp_packet", forge_icmp_packet, 0,
    {"data", "icmp_cksum", "icmp_code", "icmp_id", "icmp_seq", "icmp_type",
     "ip", "update_ip_len", NULL}},
@@ -284,9 +323,13 @@ static init_func libfuncs[] = {
 
   {"get_icmp_element", get_icmp_element, 0,
    {"element", "icmp", NULL}},
+  {"get_icmp_v6_element", get_icmp_v6_element, 0,
+   {"element", "icmp", NULL}},
 
   {"forge_igmp_packet", forge_igmp_packet, 0,
    {"code", "data", "group", "ip", "type", "update_ip_len", NULL}},
+  {"forge_igmp_v6_packet", forge_igmp_v6_packet, 0,
+   {"code", "data", "group", "ip", "type", "update_ip6_len", NULL}},
   {"send_packet", nasl_send_packet, 99,
    {"length", "pcap_active", "pcap_filter", "pcap_timeout", NULL}},
   {"send_v6packet", nasl_send_v6packet, 99,

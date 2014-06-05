@@ -22,13 +22,19 @@
 tree_cell *forge_ip_packet (lex_ctxt *);
 tree_cell *set_ip_elements (lex_ctxt *);
 tree_cell *get_ip_element (lex_ctxt *);
+tree_cell *dump_ip_packet (lex_ctxt *);
+tree_cell *insert_ip_options (lex_ctxt *);
 
 
 tree_cell *forge_tcp_packet (lex_ctxt *);
 tree_cell *get_tcp_element (lex_ctxt *);
+tree_cell *set_tcp_elements (lex_ctxt *);
+tree_cell *dump_tcp_packet (lex_ctxt *);
 
 
 tree_cell *forge_udp_packet (lex_ctxt *);
+tree_cell *set_udp_elements (lex_ctxt *);
+tree_cell *dump_udp_packet (lex_ctxt *);
 tree_cell *get_udp_element (lex_ctxt *);
 
 

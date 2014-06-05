@@ -318,6 +318,135 @@ set_ip_elements (lex_ctxt * lexic)
   return retc;
 }
 
+
+tree_cell *
+insert_ip_options (lex_ctxt * lexic)
+{
+  struct ip *ip = (struct ip *) get_str_local_var_by_name (lexic, "ip");
+  int code = get_int_local_var_by_name (lexic, "code", 0);
+  int len = get_int_local_var_by_name (lexic, "length", 0);
+  char *value = get_str_local_var_by_name (lexic, "value");
+  int value_size = get_var_size_by_name (lexic, "value");
+  tree_cell *retc;
+  struct ip *new_packet;
+  char *p;
+  int size = get_var_size_by_name (lexic, "ip");
+  u_char uc_code, uc_len;
+  int pad_len;
+  char zero = '0';
+  int i;
+  int hl;
+
+
+
+
+  if (ip == NULL)
+    {
+      nasl_perror (lexic,
+                   "Usage : insert_ip_options(ip:<ip>, code:<code>, length:<len>, value:<value>\n");
+      return NULL;
+    }
+
+  pad_len = 4 - ((sizeof (uc_code) + sizeof (uc_len) + value_size) % 4);
+  if (pad_len == 4)
+    pad_len = 0;
+
+  hl = ip->ip_hl * 4 < UNFIX (ip->ip_len) ? ip->ip_hl * 4 : UNFIX (ip->ip_len);
+  new_packet = emalloc (size + 4 + value_size + pad_len);
+  bcopy (ip, new_packet, hl);
+
+  uc_code = (u_char) code;
+  uc_len = (u_char) len;
+
+
+  p = (char *) new_packet;
+  bcopy (&uc_code, p + hl, sizeof (uc_code));
+  bcopy (&uc_len, p + hl + sizeof (uc_code), sizeof (uc_len));
+  bcopy (value, p + hl + sizeof (uc_code) + sizeof (uc_len), value_size);
+
+
+
+  zero = 0;
+  for (i = 0; i < pad_len; i++)
+    {
+      bcopy (&zero,
+             p + hl + sizeof (uc_code) + sizeof (uc_len) + value_size + i, 1);
+    }
+
+
+  p = (char *) ip;
+  bcopy (p + hl,
+         new_packet + (sizeof (uc_code) + sizeof (uc_len) + value_size +
+                       pad_len) + hl, size - hl);
+
+
+  new_packet->ip_hl =
+    (hl + (sizeof (uc_code) + sizeof (uc_len) + value_size + pad_len)) / 4;
+  new_packet->ip_len =
+    FIX (size + sizeof (uc_code) + sizeof (uc_len) + value_size + pad_len);
+  new_packet->ip_sum = 0;
+  new_packet->ip_sum =
+    np_in_cksum ((u_short *) new_packet,
+                 new_packet->ip_hl * 4 >
+                 UNFIX (new_packet->ip_len) ? UNFIX (new_packet->
+                                                     ip_len) : new_packet->
+                 ip_hl * 4);
+
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+  retc->size = size + value_size + sizeof (uc_code) + sizeof (uc_len) + pad_len;
+  retc->x.str_val = (char *) new_packet;
+
+  return retc;
+}
+
+
+
+tree_cell *
+dump_ip_packet (lex_ctxt * lexic)
+{
+  int i;
+
+  for (i = 0;; i++)
+    {
+      struct ip *ip = (struct ip *) get_str_var_by_num (lexic, i);
+      if (ip == NULL)
+        break;
+      else
+        {
+          printf ("------\n");
+          printf ("\tip_hl : %d\n", ip->ip_hl);
+          printf ("\tip_v  : %d\n", ip->ip_v);
+          printf ("\tip_tos: %d\n", ip->ip_tos);
+          printf ("\tip_len: %d\n", UNFIX (ip->ip_len));
+          printf ("\tip_id : %d\n", ntohs (ip->ip_id));
+          printf ("\tip_off: %d\n", UNFIX (ip->ip_off));
+          printf ("\tip_ttl: %d\n", ip->ip_ttl);
+          switch (ip->ip_p)
+            {
+            case IPPROTO_TCP:
+              printf ("\tip_p  : IPPROTO_TCP (%d)\n", ip->ip_p);
+              break;
+            case IPPROTO_UDP:
+              printf ("\tip_p  : IPPROTO_UDP (%d)\n", ip->ip_p);
+              break;
+            case IPPROTO_ICMP:
+              printf ("\tip_p  : IPPROTO_ICMP (%d)\n", ip->ip_p);
+              break;
+            default:
+              printf ("\tip_p  : %d\n", ip->ip_p);
+              break;
+            }
+          printf ("\tip_sum: 0x%x\n", ntohs (ip->ip_sum));
+          printf ("\tip_src: %s\n", inet_ntoa (ip->ip_src));
+          printf ("\tip_dst: %s\n", inet_ntoa (ip->ip_dst));
+          printf ("\n");
+        }
+    }
+
+  return FAKE_CELL;
+}
+
 /*--------------[ 	TCP 	]--------------------------------------------*/
 
 struct pseudohdr
@@ -509,6 +638,195 @@ get_tcp_element (lex_ctxt * lexic)
   return retc;
 }
 
+tree_cell *
+set_tcp_elements (lex_ctxt * lexic)
+{
+  char *pkt = get_str_local_var_by_name (lexic, "tcp");
+  struct ip *ip = (struct ip *) pkt;
+  int pktsz = get_local_var_size_by_name (lexic, "tcp");
+  struct tcphdr *tcp;
+  tree_cell *retc;
+  char *data = get_str_local_var_by_name (lexic, "data");
+  int data_len = get_local_var_size_by_name (lexic, "data");
+  char *npkt;
+
+  if (pkt == NULL)
+    {
+      nasl_perror (lexic,
+                   "set_tcp_elements : Invalid value for the argument 'tcp'\n");
+      return NULL;
+    }
+
+  if (ip->ip_hl * 4 > pktsz)
+    tcp = (struct tcphdr *) (pkt + 20); /* ip->ip_hl is bogus, we work around that */
+  else
+    tcp = (struct tcphdr *) (pkt + ip->ip_hl * 4);
+
+
+  if (pktsz < UNFIX (ip->ip_len))
+    return NULL;
+
+
+  if (data_len == 0)
+    {
+      data_len = UNFIX (ip->ip_len) - (ip->ip_hl * 4) - (tcp->th_off * 4);
+      data = (char *) ((char *) tcp + tcp->th_off * 4);
+    }
+
+  npkt = emalloc (ip->ip_hl * 4 + tcp->th_off * 4 + data_len);
+  bcopy (pkt, npkt, UNFIX (ip->ip_len));
+
+  ip = (struct ip *) (npkt);
+  tcp = (struct tcphdr *) (npkt + ip->ip_hl * 4);
+
+  tcp->th_sport =
+    htons (get_int_local_var_by_name
+           (lexic, "th_sport", ntohs (tcp->th_sport)));
+  tcp->th_dport =
+    htons (get_int_local_var_by_name
+           (lexic, "th_dport", ntohs (tcp->th_dport)));
+  tcp->th_seq =
+    htonl (get_int_local_var_by_name (lexic, "th_seq", ntohl (tcp->th_seq)));
+  tcp->th_ack =
+    htonl (get_int_local_var_by_name (lexic, "th_ack", ntohl (tcp->th_ack)));
+  tcp->th_x2 = get_int_local_var_by_name (lexic, "th_x2", tcp->th_x2);
+  tcp->th_off = get_int_local_var_by_name (lexic, "th_off", tcp->th_off);
+  tcp->th_flags = get_int_local_var_by_name (lexic, "th_flags", tcp->th_flags);
+  tcp->th_win =
+    htons (get_int_local_var_by_name (lexic, "th_win", ntohs (tcp->th_win)));
+  tcp->th_sum = get_int_local_var_by_name (lexic, "th_sum", 0);
+  tcp->th_urp = get_int_local_var_by_name (lexic, "th_urp", tcp->th_urp);
+  bcopy (data, (char *) tcp + tcp->th_off * 4, data_len);
+
+  if (get_int_local_var_by_name (lexic, "update_ip_len", 1) != 0)
+    {
+      ip->ip_len = ip->ip_hl * 4 + tcp->th_off * 4 + data_len;
+      ip->ip_sum = 0;
+      ip->ip_sum = np_in_cksum ((u_short *) pkt, ip->ip_hl * 4);
+    }
+
+  if (tcp->th_sum == 0)
+    {
+      struct pseudohdr pseudoheader;
+      char *tcpsumdata =
+        emalloc (sizeof (struct pseudohdr) + data_len + (data_len % 2));
+      struct in_addr source, dest;
+
+      source.s_addr = ip->ip_src.s_addr;
+      dest.s_addr = ip->ip_dst.s_addr;
+
+      bzero (&pseudoheader, sizeof (pseudoheader));
+      pseudoheader.saddr.s_addr = source.s_addr;
+      pseudoheader.daddr.s_addr = dest.s_addr;
+
+      pseudoheader.protocol = IPPROTO_TCP;
+      pseudoheader.length = htons (sizeof (struct tcphdr) + data_len);
+      bcopy ((char *) tcp, (char *) &pseudoheader.tcpheader,
+             sizeof (struct tcphdr));
+      /* fill tcpsumdata with data to checksum */
+      bcopy ((char *) &pseudoheader, tcpsumdata, sizeof (struct pseudohdr));
+      bcopy ((char *) data, tcpsumdata + sizeof (struct pseudohdr), data_len);
+      tcp->th_sum =
+        np_in_cksum ((unsigned short *) tcpsumdata,
+                     sizeof (pseudoheader) + data_len);
+      efree (&tcpsumdata);
+    }
+
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+  retc->size = (ip->ip_hl * 4) + (tcp->th_off * 4) + data_len;
+  retc->x.str_val = npkt;
+  return retc;
+}
+
+
+
+tree_cell *
+dump_tcp_packet (lex_ctxt * lexic)
+{
+  int i = 0;
+  u_char *pkt;
+  while ((pkt = (u_char *) get_str_var_by_num (lexic, i++)) != NULL)
+    {
+      int a = 0;
+      struct ip *ip = (struct ip *) pkt;
+      struct tcphdr *tcp = (struct tcphdr *) (pkt + ip->ip_hl * 4);
+      int j;
+      int limit;
+      char *c;
+      limit = get_var_size_by_num (lexic, i - 1);
+      printf ("------\n");
+      printf ("\tth_sport : %d\n", ntohs (tcp->th_sport));
+      printf ("\tth_dport : %d\n", ntohs (tcp->th_dport));
+      printf ("\tth_seq   : %u\n", (unsigned int) ntohl (tcp->th_seq));
+      printf ("\tth_ack   : %u\n", (unsigned int) ntohl (tcp->th_ack));
+      printf ("\tth_x2    : %d\n", tcp->th_x2);
+      printf ("\tth_off   : %d\n", tcp->th_off);
+      printf ("\tth_flags : ");
+      if (tcp->th_flags & TH_FIN)
+        {
+          printf ("TH_FIN");
+          a++;
+        }
+      if (tcp->th_flags & TH_SYN)
+        {
+          if (a)
+            printf ("|");
+          printf ("TH_SYN");
+          a++;
+        }
+      if (tcp->th_flags & TH_RST)
+        {
+          if (a)
+            printf ("|");
+          printf ("TH_RST");
+          a++;
+        }
+      if (tcp->th_flags & TH_PUSH)
+        {
+          if (a)
+            printf ("|");
+          printf ("TH_PUSH");
+          a++;
+        }
+      if (tcp->th_flags & TH_ACK)
+        {
+          if (a)
+            printf ("|");
+          printf ("TH_ACK");
+          a++;
+        }
+      if (tcp->th_flags & TH_URG)
+        {
+          if (a)
+            printf ("|");
+          printf ("TH_URG");
+          a++;
+        }
+      if (!a)
+        printf ("0");
+      else
+        printf (" (%d)", tcp->th_flags);
+      printf ("\n");
+      printf ("\tth_win   : %d\n", ntohs (tcp->th_win));
+      printf ("\tth_sum   : 0x%x\n", tcp->th_sum);
+      printf ("\tth_urp   : %d\n", tcp->th_urp);
+      printf ("\tData     : ");
+      c = (char *) ((char *) tcp + sizeof (struct tcphdr));
+      if (UNFIX (ip->ip_len) > (sizeof (struct ip) + sizeof (struct tcphdr)))
+        for (j = 0;
+             j <
+             UNFIX (ip->ip_len) - sizeof (struct ip) - sizeof (struct tcphdr)
+             && j < limit; j++)
+          printf ("%c", isprint (c[j]) ? c[j] : '.');
+      printf ("\n");
+
+      printf ("\n");
+
+    }
+  return NULL;
+}
+
 /*--------------[ 	UDP 	]--------------------------------------------*/
 struct pseudo_udp_hdr
 {
@@ -683,6 +1001,155 @@ get_udp_element (lex_ctxt * lexic)
   retc->type = CONST_INT;
   retc->x.i_val = ret;
   return retc;
+}
+
+
+
+tree_cell *
+set_udp_elements (lex_ctxt * lexic)
+{
+  struct ip *ip = (struct ip *) get_str_local_var_by_name (lexic, "udp");
+  int sz = get_local_var_size_by_name (lexic, "udp");
+  char *data = get_str_local_var_by_name (lexic, "data");
+  int data_len = get_local_var_size_by_name (lexic, "data");
+
+  if (ip != NULL)
+    {
+      char *pkt = emalloc (sz + data_len);
+      struct udphdr *udp;
+      tree_cell *retc;
+      int old_len;
+
+
+      if (ip->ip_hl * 4 + sizeof (struct udphdr) > sz)
+        return NULL;
+
+      if (data != NULL)
+        {
+          sz = ip->ip_hl * 4 + sizeof (struct udphdr) + data_len;
+          pkt = emalloc (sz);
+          bcopy (ip, pkt, ip->ip_hl * 4 + sizeof (struct udphdr));
+        }
+      else
+        {
+          pkt = emalloc (sz);
+          bcopy (ip, pkt, sz);
+        }
+
+
+
+      ip = (struct ip *) pkt;
+      if (data != NULL)
+        {
+          ip->ip_len = FIX (sz);
+          ip->ip_sum = 0;
+          ip->ip_sum = np_in_cksum ((u_short *) ip, ip->ip_hl * 4);
+        }
+      udp = (struct udphdr *) (pkt + ip->ip_hl * 4);
+
+
+      udp->uh_sport =
+        htons (get_int_local_var_by_name
+               (lexic, "uh_sport", ntohs (udp->uh_sport)));
+      udp->uh_dport =
+        htons (get_int_local_var_by_name
+               (lexic, "uh_dport", ntohs (udp->uh_dport)));
+      old_len = ntohs (udp->uh_ulen);
+      udp->uh_ulen =
+        htons (get_int_local_var_by_name
+               (lexic, "uh_ulen", ntohs (udp->uh_ulen)));
+      udp->uh_sum = get_int_local_var_by_name (lexic, "uh_sum", 0);
+
+      if (data != NULL)
+        {
+          bcopy (data, pkt + ip->ip_hl * 4 + sizeof (struct udphdr), data_len);
+          udp->uh_ulen = htons (sizeof (struct udphdr) + data_len);
+        }
+
+      if (udp->uh_sum == 0)
+        {
+          struct pseudo_udp_hdr pseudohdr;
+          struct in_addr source, dest;
+          int len = old_len - sizeof (struct udphdr);
+          char *udpsumdata;
+          char *ptr = NULL;
+
+          if (data != NULL)
+            {
+              len = data_len;
+            }
+
+          if (len > 0)
+            {
+              ptr = (char *) udp + sizeof (struct udphdr);
+            }
+
+
+          udpsumdata =
+            (char *) emalloc (sizeof (struct pseudo_udp_hdr) +
+                              (len % 2 ? len + 1 : len));
+
+          source.s_addr = ip->ip_src.s_addr;
+          dest.s_addr = ip->ip_dst.s_addr;
+
+          bzero (&pseudohdr, sizeof (struct pseudo_udp_hdr));
+          pseudohdr.saddr.s_addr = source.s_addr;
+          pseudohdr.daddr.s_addr = dest.s_addr;
+
+          pseudohdr.proto = IPPROTO_UDP;
+          pseudohdr.len = htons (sizeof (struct udphdr) + len);
+          bcopy ((char *) udp, (char *) &pseudohdr.udpheader,
+                 sizeof (struct udphdr));
+          bcopy ((char *) &pseudohdr, udpsumdata, sizeof (pseudohdr));
+          if (ptr != NULL)
+            {
+              bcopy ((char *) ptr, udpsumdata + sizeof (pseudohdr), len);
+            }
+          udp->uh_sum =
+            np_in_cksum ((unsigned short *) udpsumdata,
+                         12 + sizeof (struct udphdr) + len);
+          efree (&udpsumdata);
+        }
+      retc = alloc_tree_cell (0, NULL);
+      retc->type = CONST_DATA;
+      retc->size = sz;
+      retc->x.str_val = pkt;
+      return retc;
+    }
+  else
+    printf ("Error ! You must supply the 'udp' argument !\n");
+
+  return NULL;
+}
+
+
+tree_cell *
+dump_udp_packet (lex_ctxt * lexic)
+{
+  int i = 0;
+  u_char *pkt;
+  while ((pkt = (u_char *) get_str_var_by_num (lexic, i++)) != NULL)
+    {
+      struct udphdr *udp = (struct udphdr *) (pkt + sizeof (struct ip));
+      int j;
+      char *c;
+      int limit = get_var_size_by_num (lexic, i - 1);
+      printf ("------\n");
+      printf ("\tuh_sport : %d\n", ntohs (udp->uh_sport));
+      printf ("\tuh_dport : %d\n", ntohs (udp->uh_dport));
+      printf ("\tuh_sum   : 0x%x\n", udp->uh_sum);
+      printf ("\tuh_ulen  : %d\n", ntohs (udp->uh_ulen));
+      printf ("\tdata     : ");
+      c = (char *) (udp + sizeof (struct udphdr));
+      if (udp->uh_ulen > sizeof (struct udphdr))
+        for (j = 0;
+             j < (ntohs (udp->uh_ulen) - sizeof (struct udphdr)) && j < limit;
+             j++)
+          printf ("%c", isprint (c[j]) ? c[j] : '.');
+
+      printf ("\n");
+    }
+  return NULL;
 }
 
 /*--------------[  ICMP  ]--------------------------------------------*/

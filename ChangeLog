@@ -1,3 +1,10 @@
+2014-06-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_packet_forgery.c, nasl/nasl_packet_forgery_v6.c,
+	nasl/nasl_init.c, nasl/nasl_packet_forgery.h,
+	nasl/nasl_packet_forgery_v6.h: Revert 19582. Some of the functions might
+	be used in the future.
+
 2014-06-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_packet_forgery.c (insert_ip_options, dump_ip_packet)
@@ -11,7 +18,7 @@
 	(set_udp_v6_elements, forge_igmp_v6_packet): Remove never used
 	functions.
 
-	* nasl/nasl_init (libfuncs): Remove never used functions.
+	* nasl/nasl_init.c (libfuncs): Remove never used functions.
 
 	* nasl/nasl_packet_forgery.h, nasl/nasl_packet_forgery_v6.h: Delete
 	removed functions prototypes.
