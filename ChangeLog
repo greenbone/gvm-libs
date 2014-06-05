@@ -1,3 +1,10 @@
+2014-06-05  Henri Doreau <henri.doreau@gmail.com>
+
+	* misc/kb.h (kb_flush): Operate on currently selected operation set.
+
+	* misc/kb_redis.c (redis_flush_all): Issue FLUSHALL on an initialized kb
+	context.
+
 2014-06-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/kb.h (kb_operations): Add kb_flush element.

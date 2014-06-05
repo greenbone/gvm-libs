@@ -107,10 +107,10 @@ struct kb_operations
   int (*kb_add_int) (kb_t, const char *, int);
   int (*kb_set_int) (kb_t, const char *, int);
   int (*kb_del_items) (kb_t, const char *);
-  int (*kb_lnk_reset) (kb_t);
 
   /* Utils */
-  int (*kb_flush) (const char *);
+  int (*kb_lnk_reset) (kb_t);
+  int (*kb_flush) (kb_t);
 };
 
 /**
@@ -346,16 +346,21 @@ static inline int kb_lnk_reset (kb_t kb)
 }
 
 /**
- * @brief Flush all the KB's content.
- * @param[in] path  KB path.
- * @return 0 on success, -1 on error.
+ * @brief Flush all the KB's content. Delete all namespaces.
+ * @param[in] kb    KB handle.
+ * @return 0 on success, non-null on error.
  */
-static inline int kb_flush (const char *path)
+static inline int kb_flush (kb_t kb)
 {
-  assert (KBDefaultOperations);
-  assert (KBDefaultOperations->kb_new);
+  int rc = 0;
 
-  return KBDefaultOperations->kb_flush (path);
+  assert (kb);
+  assert (kb->kb_ops);
+
+  if (kb->kb_ops->kb_flush != NULL)
+    rc = kb->kb_ops->kb_flush (kb);
+
+  return rc;
 }
 
 #endif
