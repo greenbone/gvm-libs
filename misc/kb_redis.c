@@ -97,6 +97,7 @@ struct redis_tx
 
 static int redis_delete_all (struct kb_redis *);
 static int redis_lnk_reset (kb_t);
+static int redis_flush_all (const char *);
 static redisReply *redis_cmd (struct kb_redis *kbr, const char *fmt, ...)
     __attribute__((__format__(__printf__, 2, 3)));
 
@@ -961,6 +962,31 @@ redis_lnk_reset (kb_t kb)
   return 0;
 }
 
+static int
+redis_flush_all (const char *path)
+{
+  kb_t kb;
+  struct kb_redis *kbr;
+  redisReply *rep;
+  int rc = 0;
+
+  if (redis_new (&kb, path))
+    return -1;
+  kbr = redis_kb (kb);
+
+  g_debug ("%s: Flushing all keyspaces from KB #%u", __func__, kbr->db);
+  rep = redis_cmd (kbr, "FLUSHALL");
+  if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
+    rc = -1;
+
+  if (rep != NULL)
+    freeReplyObject (rep);
+  if (redis_delete (kb))
+    return -1;
+
+  return rc;
+}
+
 int
 redis_delete_all (struct kb_redis *kbr)
 {
@@ -999,6 +1025,7 @@ static const struct kb_operations KBRedisOperations = {
   .kb_set_int      = redis_set_int,
   .kb_del_items    = redis_del_items,
   .kb_lnk_reset    = redis_lnk_reset,
+  .kb_flush        = redis_flush_all,
 };
 
 const struct kb_operations *KBDefaultOperations = &KBRedisOperations;

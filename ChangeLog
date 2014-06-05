@@ -1,5 +1,13 @@
 2014-06-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/kb.h (kb_operations): Add kb_flush element.
+	(kb_flush): New function.
+
+	* misc/kb_redis.c (redis_flush_all): New function.
+	(KBRedisOperations): Set kb_flush element to redis_flush_all.
+
+2014-06-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_packet_forgery.c, nasl/nasl_packet_forgery_v6.c,
 	nasl/nasl_init.c, nasl/nasl_packet_forgery.h,
 	nasl/nasl_packet_forgery_v6.h: Revert 19582. Some of the functions might

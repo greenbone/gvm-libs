@@ -93,8 +93,8 @@ typedef struct kb *kb_t;
 struct kb_operations
 {
   /* ctor/dtor */
-  int (*kb_new)(kb_t *, const char *);
-  int (*kb_delete)(kb_t);
+  int (*kb_new) (kb_t *, const char *);
+  int (*kb_delete) (kb_t);
 
   /* Actual kb operations */
   struct kb_item *(*kb_get_single) (kb_t, const char *, enum kb_item_type);
@@ -108,6 +108,9 @@ struct kb_operations
   int (*kb_set_int) (kb_t, const char *, int);
   int (*kb_del_items) (kb_t, const char *);
   int (*kb_lnk_reset) (kb_t);
+
+  /* Utils */
+  int (*kb_flush) (const char *);
 };
 
 /**
@@ -340,6 +343,19 @@ static inline int kb_lnk_reset (kb_t kb)
     rc = kb->kb_ops->kb_lnk_reset (kb);
 
   return rc;
+}
+
+/**
+ * @brief Flush all the KB's content.
+ * @param[in] path  KB path.
+ * @return 0 on success, -1 on error.
+ */
+static inline int kb_flush (const char *path)
+{
+  assert (KBDefaultOperations);
+  assert (KBDefaultOperations->kb_new);
+
+  return KBDefaultOperations->kb_flush (path);
 }
 
 #endif
