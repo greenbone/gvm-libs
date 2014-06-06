@@ -1,3 +1,7 @@
+2014-06-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/kb_redis.c (redis_flush_all): Issue FLUSHALL instead of FLUSHDB.
+
 2014-06-05  Henri Doreau <henri.doreau@gmail.com>
 
 	* misc/kb.h (kb_flush): Operate on currently selected operation set.

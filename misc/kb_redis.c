@@ -973,7 +973,7 @@ redis_flush_all (kb_t kb)
 
   g_debug ("%s: deleting all DBs at %s", __func__, kbr->path);
 
-  rep = redis_cmd (kbr, "FLUSHDB");
+  rep = redis_cmd (kbr, "FLUSHALL");
   if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
     {
       rc = -1;
