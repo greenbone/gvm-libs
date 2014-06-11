@@ -86,7 +86,7 @@ typedef struct
   const char* actions;   ///< Actions argument.
   /* Boolean flags: */
   int details;           ///< Whether to include overrides in the tasks.
-  int rcfile;            ///< If overrides, whether to include details.
+  int rcfile;            ///< Ignored.  Removed since OMP 6.0.
 } omp_get_tasks_opts_t;
 
 /**
@@ -104,7 +104,7 @@ typedef struct
   const char* task_id;   ///< ID of single task to get.
   /* Boolean flags: */
   int details;           ///< Whether to include overrides in the tasks.
-  int rcfile;            ///< If overrides, whether to include details.
+  int rcfile;            ///< Ignored.  Removed since OMP 6.0.
 } omp_get_task_opts_t;
 
 /**
@@ -201,9 +201,6 @@ int omp_authenticate (gnutls_session_t * session, const char *username,
                       const char *password);
 
 int omp_authenticate_info_ext (gnutls_session_t*, omp_authenticate_info_opts_t);
-
-int omp_create_task_rc (gnutls_session_t *, const char *, unsigned int,
-                        const char *, const char *, char **);
 
 int omp_create_task (gnutls_session_t *, const char *, const char *,
                      const char *, const char *, gchar **);

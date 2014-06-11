@@ -1,3 +1,14 @@
+2014-06-11  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Remove or disable remains of OMP rcfile support.
+
+	* omp/omp.c (omp_create_task_rc): Remove.
+	(omp_get_tasks, omp_get_tasks_ext): Remove rcfile option from OMP.
+	(omp_modify_task_file): Remove rc from variable name for clarity.
+	(omp_get_targets): Add missing arg.
+
+	* omp/omp.h: Update headers accordingly.
+
 2014-06-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/kb_redis.c (redis_flush_all): Issue FLUSHALL instead of FLUSHDB.

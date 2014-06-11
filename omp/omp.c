@@ -454,69 +454,6 @@ omp_create_task (gnutls_session_t* session,
 }
 
 /**
- * @brief Create a task, given the task description as an RC file.
- *
- * @param[in]   session     Pointer to GNUTLS session.
- * @param[in]   config      Task configuration.
- * @param[in]   config_len  Length of config.
- * @param[in]   name        Task name.
- * @param[in]   comment     Task comment.
- * @param[out]  id          Pointer for newly allocated ID of new task.  Only
- *                          set on successful return.
- *
- * @return 0 on success, -1 on error.
- */
-int
-omp_create_task_rc (gnutls_session_t* session,
-                    const char* config,
-                    unsigned int config_len,
-                    const char* name,
-                    const char* comment,
-                    char** id)
-{
-  /* Convert the file contents to base64. */
-
-  gchar* new_task_file = strlen (config)
-                         ? g_base64_encode ((guchar*) config, config_len)
-                         : g_strdup ("");
-
-  /* Create the OMP request. */
-
-  gchar* new_task_request;
-  new_task_request = g_markup_printf_escaped ("<create_task>"
-                                              "<rcfile>%s</rcfile>"
-                                              "<name>%s</name>"
-                                              "<comment>%s</comment>"
-                                              "</create_task>",
-                                              new_task_file,
-                                              name,
-                                              comment);
-  g_free (new_task_file);
-
-  /* Send the request. */
-
-  int ret = openvas_server_send (session, new_task_request);
-  g_free (new_task_request);
-  if (ret) return -1;
-
-  /* Read the response. */
-
-  entity_t entity = NULL;
-  if (read_entity (session, &entity)) return -1;
-
-  /* Get the ID of the new task from the response. */
-
-  entity_t id_entity = entity_child (entity, "task_id");
-  if (id_entity == NULL)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  *id = g_strdup (entity_text (id_entity));
-  return 0;
-}
-
-/**
  * @brief Start a task and read the manager response.
  *
  * @param[in]   session    Pointer to GNUTLS session.
@@ -892,7 +829,7 @@ omp_delete_task_ext (gnutls_session_t* session, const char* id,
  * @param[in]  session         Pointer to GNUTLS session.
  * @param[in]  id              ID of task or NULL for all tasks.
  * @param[in]  details         Whether to request task details.
- * @param[in]  include_rcfile  Request rcfile in status if true.
+ * @param[in]  include_rcfile  Ignored.  Removed since OMP 6.0.
  * @param[out] status          Status return.  On success contains GET_TASKS
  *                             response.
  *
@@ -908,9 +845,8 @@ omp_get_tasks (gnutls_session_t* session, const char* id, int details,
   if (id == NULL)
     {
       if (openvas_server_sendf (session,
-                                "<get_tasks details=\"%i\" rcfile=\"%i\"/>",
-                                details,
-                                include_rcfile)
+                                "<get_tasks details=\"%i\"/>",
+                                details)
           == -1)
         return -1;
     }
@@ -919,11 +855,9 @@ omp_get_tasks (gnutls_session_t* session, const char* id, int details,
       if (openvas_server_sendf (session,
                                 "<get_tasks"
                                 " task_id=\"%s\""
-                                " details=\"%i\""
-                                " rcfile=\"%i\"/>",
+                                " details=\"%i\"/>",
                                 id,
-                                details,
-                                include_rcfile)
+                                details)
           == -1)
         return -1;
     }
@@ -979,20 +913,18 @@ omp_get_task_ext (gnutls_session_t* session,
                                 "<get_tasks"
                                 " task_id=\"%s\""
                                 " actions=\"%s\""
-                                "%s%s/>",
+                                "%s/>",
                                 opts.task_id,
                                 opts.actions,
-                                OMP_FMT_BOOL_ATTRIB (opts, details),
-                                OMP_FMT_BOOL_ATTRIB (opts, rcfile)))
+                                OMP_FMT_BOOL_ATTRIB (opts, details)))
         return -1;
     }
   else if (openvas_server_sendf (session,
                                  "<get_tasks"
                                  " task_id=\"%s\""
-                                 "%s%s/>",
+                                 "%s/>",
                                  opts.task_id,
-                                 OMP_FMT_BOOL_ATTRIB (opts, details),
-                                 OMP_FMT_BOOL_ATTRIB (opts, rcfile)))
+                                 OMP_FMT_BOOL_ATTRIB (opts, details)))
     return -1;
 
   *response = NULL;
@@ -1043,17 +975,15 @@ omp_get_tasks_ext (gnutls_session_t* session,
       if (openvas_server_sendf (session,
                                 "<get_tasks"
                                 " actions=\"%s\""
-                                "%s%s/>",
+                                "%s/>",
                                 opts.actions,
-                                OMP_FMT_BOOL_ATTRIB (opts, details),
-                                OMP_FMT_BOOL_ATTRIB (opts, rcfile)))
+                                OMP_FMT_BOOL_ATTRIB (opts, details)))
         return -1;
     }
   else if (openvas_server_sendf (session,
                                  "<get_tasks"
-                                 "%s%s/>",
-                                 OMP_FMT_BOOL_ATTRIB (opts, details),
-                                 OMP_FMT_BOOL_ATTRIB (opts, rcfile)))
+                                 "%s/>",
+                                 OMP_FMT_BOOL_ATTRIB (opts, details)))
     return -1;
 
   *response = NULL;
@@ -1109,12 +1039,12 @@ omp_modify_task_file (gnutls_session_t* session, const char* id,
 
       if (content_len)
         {
-          gchar *base64_rc = g_base64_encode ((guchar*) content,
-                                              content_len);
+          gchar *base64_content = g_base64_encode ((guchar*) content,
+                                                   content_len);
           int ret = openvas_server_sendf (session,
                                           "%s",
-                                          base64_rc);
-          g_free (base64_rc);
+                                          base64_content);
+          g_free (base64_content);
           if (ret) return -1;
         }
 
@@ -1158,6 +1088,7 @@ omp_delete_task (gnutls_session_t* session, const char* id)
  * @param[in]  session         Pointer to GNUTLS session.
  * @param[in]  id              ID of target or NULL for all targets.
  * @param[in]  tasks           Whether to include tasks that use the target.
+ * @param[in]  include_rcfile  Not used.
  * @param[out] target          Target return.  On success contains GET_TARGETS
  *                             response.
  *
