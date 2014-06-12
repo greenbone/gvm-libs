@@ -121,12 +121,13 @@ parse_script_infos (const char *file, struct arglist *script_infos)
       printf ("%s could not be loaded\n", file);
       return 1;
     }
+  arg_del_value (script_infos, "NVTI");
 
+  arg_del_value (script_infos, "OID");
   oid = g_strdup (nvti_oid (nvti));
   nvti_free (nvti);
-  arg_del_value (script_infos, "NVTI");
-  arg_del_value (script_infos, "OID");
-  arg_add_value (script_infos, "OID", ARG_STRING, strlen (oid), oid);
+  if (oid)
+    arg_add_value (script_infos, "OID", ARG_STRING, strlen (oid), oid);
 
   return 0;
 }

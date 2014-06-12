@@ -1,5 +1,10 @@
 2014-06-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl.c (parse_script_infos): Code style update. Don't try to add
+	nvt OID value if it is not present.
+
+2014-06-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl.c (parse_script_infos): Use script_infos when parsing the
 	plugin description instead of creating a new arglist.
 
