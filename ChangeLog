@@ -1,3 +1,8 @@
+2014-06-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl.c (parse_script_infos): Use script_infos when parsing the
+	plugin description instead of creating a new arglist.
+
 2014-06-11  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Remove or disable remains of OMP rcfile support.

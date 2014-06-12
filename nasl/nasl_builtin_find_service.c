@@ -1805,7 +1805,7 @@ plugin_do_run (desc, h, test_ssl)
   char *cnx_timeout_s = get_plugin_preference (desc, CNX_TIMEOUT_PREF);
   char *wrap_timeout_s = get_plugin_preference (desc, WRAP_TIMEOUT_PREF);
   unsigned char *p;
-  fd_set rfds, wfds, xfds;
+  fd_set rfds, wfds;
   struct timeval tv;
   char k[32];
 #ifdef DEBUG
@@ -2647,9 +2647,7 @@ plugin_do_run (desc, h, test_ssl)
 #endif
                     select_again2:
                       FD_ZERO (&rfds);
-                      FD_ZERO (&xfds);
                       FD_SET (fd, &rfds);
-                      FD_SET (fd, &xfds);
                       tv.tv_sec = wrap_timeout;
                       tv.tv_usec = 0;
 
@@ -2659,7 +2657,7 @@ plugin_do_run (desc, h, test_ssl)
                       signal (SIGALRM, SIG_IGN);
 
                       (void) gettimeofday (&tv1, NULL);
-                      x = select (fd + 1, &rfds, NULL, &xfds, &tv);
+                      x = select (fd + 1, &rfds, NULL, NULL, &tv);
                       (void) gettimeofday (&tv2, NULL);
                       diff_tv2 = DIFFTV1000 (tv2, tv1);
 #ifdef DEBUG
