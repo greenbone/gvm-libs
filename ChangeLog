@@ -1,3 +1,12 @@
+2014-06-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r19327 by Henri Doreau and r19328 by Hani Benhabiles.
+
+	* misc/network.c (socket_get_ssl_compression): Added preprocessor checks
+	to ensure GNUTLS_COMP_LZO is available.
+
+	* misc/network.c (socket_get_ssl_ciphersuite): Fix signedess issue.
+
 2014-05-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r19452.  Fix build with LibSSH >= 0.6.0. Reported by Daniel
