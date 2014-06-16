@@ -1,3 +1,7 @@
+2014-06-16  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* CHANGES: Prepare release of openvas-libraries 7.0.2
+
 2014-06-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r19327 by Henri Doreau and r19328 by Hani Benhabiles.

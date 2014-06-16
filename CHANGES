@@ -1,3 +1,18 @@
+openvas-libraries 7.0.2 (2014-06-16)
+
+This is the second maintenance release of the openvas-libraries 7.0 module for
+the Open Vulnerability Assessment System 7 (OpenVAS-7).
+
+This release addresses some build issues with LibSSH and GnuTLS dependencies.
+
+Many thanks to everyone who contributed to this release:
+Simon Desee, Henri Doreau and Hani Benhabiles.
+
+Main changes since 7.0.1:
+* Fix build with GnuTLS 3.x
+* Fix build with LibSSH >= 0.6.0.
+
+
 openvas-libraries 7.0.1 (2014-04-23)
 
 This is the first maintenance release of the openvas-libraries 7.0 module for
