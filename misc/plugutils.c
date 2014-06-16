@@ -778,6 +778,14 @@ plug_set_key (struct arglist *args, char *name, int type, void *value)
     kb_item_add_str (kb, name, value);
   else if (type == ARG_INT)
     kb_item_add_int (kb, name, GPOINTER_TO_SIZE (value));
+  if (global_nasl_debug == 1)
+    {
+      if (type == ARG_STRING)
+        fprintf (stderr, "set key %s -> %s\n", name, (char *) value);
+      else if (type == ARG_INT)
+        fprintf (stderr, "set key %s -> %d\n", name,
+                 (int) GPOINTER_TO_SIZE (value));
+    }
 }
 
 

@@ -1,3 +1,8 @@
+2014-06-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/plugutils.c (plug_set_key): Add back kb debug information when
+	global_nasl_debug is set.
+
 2014-06-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl.c (parse_script_infos): Code style update. Don't try to add
