@@ -153,6 +153,7 @@ main (int argc, char **argv)
   static gboolean display_version = FALSE;
   static gboolean nasl_debug = FALSE;
   static gboolean description_only = FALSE;
+  static gboolean both_modes = FALSE;
   static gboolean parse_only = FALSE;
   static gboolean do_lint = FALSE;
   static gchar *trace_file = NULL;
@@ -171,6 +172,8 @@ main (int argc, char **argv)
      "Output debug information to stderr.", NULL},
     {"description", 'D', 0, G_OPTION_ARG_NONE, &description_only,
      "Only run the 'description' part of the script", NULL},
+    {"both", 'B', 0, G_OPTION_ARG_NONE, &both_modes,
+     "Run in description mode before running the script.", NULL},
     {"parse", 'p', 0, G_OPTION_ARG_NONE, &parse_only,
      "Only parse the script, don't execute it", NULL},
     {"lint", 'L', 0, G_OPTION_ARG_NONE, &do_lint,
@@ -327,8 +330,10 @@ main (int argc, char **argv)
       n = start;
       while (nasl_filenames[n])
         {
-          if (parse_script_infos (nasl_filenames[n], script_infos)
-              || exec_nasl_script (script_infos, nasl_filenames[n], mode) < 0)
+          if (both_modes && parse_script_infos (nasl_filenames[n],
+                                                script_infos))
+            err++;
+          else if (exec_nasl_script (script_infos, nasl_filenames[n], mode) < 0)
             err++;
           n++;
         }

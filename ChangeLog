@@ -1,3 +1,11 @@
+2014-06-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl (main): Add -B to specify running the script in description
+	mode first, before running in normal mode if no error was found. When
+	unset, use the old behaviour of running only once.
+
+	* doc/openvas-nasl.1: Update documentation.
+
 2014-06-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/plugutils.c (plug_set_key): Add back kb debug information when
