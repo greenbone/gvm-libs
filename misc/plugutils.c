@@ -370,8 +370,8 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   char *prepend_tags;
   char *append_tags;
   GString *action_str;
-  gchar *action_escaped;
-  GString *action_str_escaped;
+  gchar *data;
+  gsize length;
   nvti_t * nvti = nvticache_get_by_oid (arg_get_value (arg_get_value (desc,
     "preferences"), "nvticache"), arg_get_value (desc, "OID"));
   gchar **nvti_tags = NULL;
@@ -474,15 +474,7 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
         }
     }
 
-  action_escaped = g_strescape (action_str->str, NULL);
-
-  action_str_escaped = g_string_new (action_escaped);
-
-  g_free (action_escaped);
-  g_string_free (action_str, TRUE);
-
-  len = action_str_escaped->len;
-
+  len = action_str->len;
   buffer = emalloc (1024 + len);
   char idbuffer[105];
   if (nvti_oid (nvti) == NULL)
@@ -499,24 +491,27 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
       snprintf (buffer, 1024 + len,
                 "SERVER <|> %s <|> %s <|> %d/%s <|> %s %s<|> SERVER\n",
                 what, plug_get_hostname (desc), port, proto,
-                action_str_escaped->str, idbuffer);
+                action_str->str, idbuffer);
     }
   else
     snprintf (buffer, 1024 + len,
               "SERVER <|> %s <|> %s <|> general/%s <|> %s %s<|> SERVER\n", what,
-              plug_get_hostname (desc), proto, action_str_escaped->str,
+              plug_get_hostname (desc), proto, action_str->str,
               idbuffer);
 
   mark_post (desc, what, action);
   soc = GPOINTER_TO_SIZE (arg_get_value (desc, "SOCKET"));
-  internal_send (soc, buffer, INTERNAL_COMM_MSG_TYPE_DATA);
+  /* Convert to UTF-8 before sending to Manager. */
+  data = g_convert (buffer, -1, "UTF-8", "ISO_8859-1", NULL, &length, NULL);
+  internal_send (soc, data, INTERNAL_COMM_MSG_TYPE_DATA);
+  g_free (data);
 
   nvti_free (nvti);
 
   /* Mark in the KB that the plugin was successful */
   mark_successful_plugin (desc);
   efree (&buffer);
-  g_string_free (action_str_escaped, TRUE);
+  g_string_free (action_str, TRUE);
 }
 
 void
