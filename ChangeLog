@@ -1,3 +1,9 @@
+2014-06-24  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_init.c (init_nasl_library): Re-add setting the NASL variable
+	_HAVE_LIBSSH in order to keep compatiblity until OpenVAS-7 expires.
+	Also fix typo about function name.
+
 2014-06-20  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/plugutils.c (proto_post_wrapped): Remove the g_strescape of the

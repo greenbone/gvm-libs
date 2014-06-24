@@ -629,7 +629,7 @@ init_nasl_library (lex_ctxt * lexic)
     {
       if ((pf = insert_nasl_func (lexic, libfuncs[i].name, NULL)) == NULL)
         {
-          nasl_perror (lexic, "init_nasl2_library: could not define fct '%s'\n",
+          nasl_perror (lexic, "init_nasl_library: could not define fct '%s'\n",
                        libfuncs[i].name);
           continue;
         }
@@ -641,7 +641,7 @@ init_nasl_library (lex_ctxt * lexic)
         {
           if (q != NULL && strcmp (q, *p) > 0)
             nasl_perror (lexic,
-                         "init_nasl2_library: unsorted args for function %s: %s > %s\n",
+                         "init_nasl_library: unsorted args for function %s: %s > %s\n",
                          libfuncs[i].name, q, (*p));
           q = (*p);
           p++;
@@ -652,6 +652,18 @@ init_nasl_library (lex_ctxt * lexic)
       c++;
     }
 
+  /* Since OpenVAS-8, libssh is mandatory. To maintain compatibility of
+     the NVT feed with older versions, this variable needs to be set.
+     Once OpenVAS-7 is retired, this setting of the variable can be removed
+     and also any occurances in the NVTs, which should lead to some
+     significant NASL code removals. */
+  if ((v = add_named_var_to_ctxt (lexic, (const char *) "_HAVE_LIBSSH", &tc)) == NULL)
+    {
+      nasl_perror (lexic, "init_nasl_library: could not define var '_HAVE_LIBSSH'\n");
+    }
+  else
+    c++;
+
   // Initialize constant integer terms
   tc.type = CONST_INT;
   for (i = 0; i < sizeof (libivars) / sizeof (libivars[0]) - 1; i++)
@@ -659,7 +671,7 @@ init_nasl_library (lex_ctxt * lexic)
       tc.x.i_val = libivars[i].val;
       if ((v = add_named_var_to_ctxt (lexic, libivars[i].name, &tc)) == NULL)
         {
-          nasl_perror (lexic, "init_nasl2_library: could not define var '%s'\n",
+          nasl_perror (lexic, "init_nasl_library: could not define var '%s'\n",
                        libivars[i].name);
           continue;
         }
@@ -674,7 +686,7 @@ init_nasl_library (lex_ctxt * lexic)
       tc.size = strlen (libsvars[i].val);
       if ((v = add_named_var_to_ctxt (lexic, libsvars[i].name, &tc)) == NULL)
         {
-          nasl_perror (lexic, "init_nasl2_library: could not define var '%s'\n",
+          nasl_perror (lexic, "init_nasl_library: could not define var '%s'\n",
                        libsvars[i].name);
           continue;
         }
@@ -683,7 +695,7 @@ init_nasl_library (lex_ctxt * lexic)
 
   // Add the "NULL" variable
   if (add_named_var_to_ctxt (lexic, "NULL", NULL) == NULL)
-    nasl_perror (lexic, "init_nasl2_library: could not define var 'NULL'\n");
+    nasl_perror (lexic, "init_nasl_library: could not define var 'NULL'\n");
 
   return c;
 }
