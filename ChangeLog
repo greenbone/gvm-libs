@@ -1,3 +1,12 @@
+2014-06-20  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Backport r19718.
+
+	* misc/plugutils.c (proto_post_wrapped): Remove the g_strescape of the
+	result text because it will be converted to UTF-8.  And do the UTF-8
+	conversion here, because it was moved out of nsend in r18531 (because
+	nsend is also used to send internal messages).
+
 2014-06-16  Benoît Allard  <benoit.allard@greenbone.net>
 
 	Post release version bump
