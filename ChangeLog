@@ -1,5 +1,13 @@
 2014-06-24  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	More elegant setting of constant _HAVE_LIBSSH.
+
+	* nasl/nasl_init.c (init_nasl_library): Removed explicit adding
+	of _HAVE_LIBSSH.
+	(libivars): Added _HAVE_LIBSSH to this list.
+
+2014-06-24  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_init.c (init_nasl_library): Re-add setting the NASL variable
 	_HAVE_LIBSSH in order to keep compatiblity until OpenVAS-7 expires.
 	Also fix typo about function name.

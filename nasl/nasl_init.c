@@ -603,6 +603,13 @@ static struct
   {
   "EUNKNOWN", NASL_ERR_EUNKNOWN},
   {
+  /* Since OpenVAS-8, libssh is mandatory. To maintain compatibility of
+     the NVT feed with older versions, this variable needs to be set.
+     Once OpenVAS-7 is retired, this setting of the variable can be removed
+     and also any occurances in the NVTs, which should lead to some
+     significant NASL code removals. */
+  "_HAVE_LIBSSH", 1},
+  {
 NULL, 0},};
 
 /* See also in exec.c:
@@ -651,18 +658,6 @@ init_nasl_library (lex_ctxt * lexic)
 
       c++;
     }
-
-  /* Since OpenVAS-8, libssh is mandatory. To maintain compatibility of
-     the NVT feed with older versions, this variable needs to be set.
-     Once OpenVAS-7 is retired, this setting of the variable can be removed
-     and also any occurances in the NVTs, which should lead to some
-     significant NASL code removals. */
-  if ((v = add_named_var_to_ctxt (lexic, (const char *) "_HAVE_LIBSSH", &tc)) == NULL)
-    {
-      nasl_perror (lexic, "init_nasl_library: could not define var '_HAVE_LIBSSH'\n");
-    }
-  else
-    c++;
 
   // Initialize constant integer terms
   tc.type = CONST_INT;
