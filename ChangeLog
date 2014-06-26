@@ -1,3 +1,7 @@
+2014-06-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/cvss.c (toenum): Also accept "AU" as "Au".
+
 2014-06-24  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	More elegant setting of constant _HAVE_LIBSSH.

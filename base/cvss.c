@@ -180,6 +180,8 @@ toenum (const char * str, enum base_metrics *res)
     *res = C;
   else if (g_strcmp0 (str, "Au") == 0)
     *res = Au;
+  else if (g_strcmp0 (str, "AU") == 0)
+    *res = Au;
   else if (g_strcmp0 (str, "AV") == 0)
     *res = AV;
   else if (g_strcmp0 (str, "AC") == 0)
