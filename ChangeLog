@@ -1,3 +1,9 @@
+2014-06-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Backport r19768.
+
+	* base/cvss.c (toenum): Also accept "AU" as "Au".
+
 2014-03-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport small parts of 19061 and 19038 and adjust for 6.0 to allow

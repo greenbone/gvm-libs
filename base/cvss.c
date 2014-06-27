@@ -178,6 +178,8 @@ toenum (const char * str)
    return C;
  else if (g_strcmp0 (str, "Au") == 0)
    return Au;
+ else if (g_strcmp0 (str, "AU") == 0)
+   return Au;
  else if (g_strcmp0 (str, "AV") == 0)
    return AV;
  else if (g_strcmp0 (str, "AC") == 0)
