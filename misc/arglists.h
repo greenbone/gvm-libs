@@ -29,10 +29,10 @@
 struct arglist
 {
   char *name;
-  int type;
   void *value;
-  long length;
   struct arglist *next;
+  long length;
+  int type;
   int hash;
 };
 
