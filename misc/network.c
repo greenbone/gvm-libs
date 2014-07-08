@@ -172,7 +172,7 @@ stream_get_err (int fd)
       return -1;
     }
 
-  p = &(connections[fd - OPENVAS_FD_OFF]);
+  p = OVAS_CONNECTION_FROM_FD (fd);
   return p->last_err;
 }
 
@@ -211,8 +211,7 @@ release_connection_fd (int fd)
       errno = EINVAL;
       return -1;
     }
-
-  p = &(connections[fd - OPENVAS_FD_OFF]);
+  p = OVAS_CONNECTION_FROM_FD (fd);
 
   efree (&p->buf);
 
@@ -1034,9 +1033,7 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
 
   if ((fd = get_connection_fd ()) < 0)
     return -1;
-
-  fp = &(connections[fd - OPENVAS_FD_OFF]);
-
+  fp = OVAS_CONNECTION_FROM_FD (fd);
 
   fp->transport = transport;
   efree (&fp->priority);
@@ -1326,7 +1323,7 @@ stream_set_timeout (int fd, int timeout)
       errno = EINVAL;
       return 0;
     }
-  fp = &(connections[fd - OPENVAS_FD_OFF]);
+  fp = OVAS_CONNECTION_FROM_FD (fd);
   old = fp->timeout;
   fp->timeout = timeout;
   return old;
@@ -1352,7 +1349,7 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
 
   if (OPENVAS_STREAM (fd))
     {
-      fp = &(connections[fd - OPENVAS_FD_OFF]);
+      fp = OVAS_CONNECTION_FROM_FD (fd);
       trp = fp->transport;
       realfd = fp->fd;
       fp->last_err = 0;
@@ -1538,7 +1535,7 @@ read_stream_connection_min (int fd, void *buf0, int min_len, int max_len)
 
   if (OPENVAS_STREAM (fd))
     {
-      fp = &(connections[fd - OPENVAS_FD_OFF]);
+      fp = OVAS_CONNECTION_FROM_FD (fd);
       if (fp->buf != NULL)
         {
           int l1, l2;
@@ -1620,7 +1617,7 @@ write_stream_connection4 (int fd, void *buf0, int n, int i_opt)
       return -1;
     }
 
-  fp = &(connections[fd - OPENVAS_FD_OFF]);
+  fp = OVAS_CONNECTION_FROM_FD (fd);
   fp->last_err = 0;
 
 #if DEBUG_SSL > 8
@@ -1880,7 +1877,7 @@ close_stream_connection (int fd)
       errno = EINVAL;
       return -1;
     }
-  fp = &(connections[fd - OPENVAS_FD_OFF]);
+  fp = OVAS_CONNECTION_FROM_FD (fd);
   log_legacy_write ("close_stream_connection TCP:%d (fd=%d)\n", fp->port, fd);
 #endif
 
@@ -2400,7 +2397,7 @@ stream_get_buffer_sz (int fd)
   openvas_connection *p;
   if (!OPENVAS_STREAM (fd))
     return -1;
-  p = &(connections[fd - OPENVAS_FD_OFF]);
+  p = OVAS_CONNECTION_FROM_FD (fd);
   return p->bufsz;
 }
 
@@ -2414,7 +2411,7 @@ stream_set_buffer (int fd, int sz)
   if (!OPENVAS_STREAM (fd))
     return -1;
 
-  p = &(connections[fd - OPENVAS_FD_OFF]);
+  p = OVAS_CONNECTION_FROM_FD (fd);
   if (sz < p->bufcnt)
     return -1;                  /* Do not want to lose data */
 
