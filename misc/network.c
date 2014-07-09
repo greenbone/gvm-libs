@@ -356,14 +356,19 @@ block_socket (int soc)
  * default value: 1 according to SVID 3, BSD 4.3, ISO 9899 :-(
  */
 
-
 void
 tlserror (char *txt, int err)
 {
   log_legacy_write ("[%d] %s: %s\n", getpid (), txt, gnutls_strerror (err));
 }
 
-
+#ifdef DEBUG_SSL
+static void
+log_message_gnutls (int level, const char *msg)
+{
+  log_legacy_write ("LEVEL %d: %s\n", level, msg);
+}
+#endif
 
 /**
  * @brief Initializes SSL support.
@@ -375,6 +380,11 @@ openvas_SSL_init ()
 
   if (initialized)
     return 0;
+
+#ifdef DEBUG_SSL
+  gnutls_global_set_log_level (2);
+  gnutls_global_set_log_function (log_message_gnutls);
+#endif
 
   int ret = gnutls_global_init ();
   if (ret < 0)
