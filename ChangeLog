@@ -1,5 +1,13 @@
 2014-07-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/network.c (open_SSL_connection, ovas_scanner_context_new): Don't
+	call openvas_SSL_init anymore because it is already initialized by main
+	process and does not need initialization again.
+	(openvas_SSL_init): Drop the prevention to not execute gnutls_global_init
+	twice because this function is called once only anyway.
+
+2014-07-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/network.c (log_message_gnutls): New callback function for
 	DEBUG_SSL.
 	(openvas_SSL_init): Added gnutls debugging for DEBUG_SSL.

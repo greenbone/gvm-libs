@@ -376,11 +376,6 @@ log_message_gnutls (int level, const char *msg)
 int
 openvas_SSL_init ()
 {
-  static int initialized = 0;
-
-  if (initialized)
-    return 0;
-
 #ifdef DEBUG_SSL
   gnutls_global_set_log_level (2);
   gnutls_global_set_log_function (log_message_gnutls);
@@ -392,8 +387,6 @@ openvas_SSL_init ()
       tlserror ("gnutls_global_init", ret);
       return -1;
     }
-
-  initialized = 1;
 
   return 0;
 }
@@ -602,8 +595,6 @@ open_SSL_connection (openvas_connection * fp, const char *cert,
   time_t tictac;
   fd_set fdw, fdr;
   struct timeval to;
-
-  openvas_SSL_init ();
 
   ret = gnutls_init (&(fp->tls_session), GNUTLS_CLIENT);
   if (ret < 0)
@@ -1167,9 +1158,6 @@ ovas_scanner_context_new (openvas_encaps_t encaps, const char *certfile,
                           const char *dhparams)
 {
   ovas_scanner_context_t ctx = NULL;
-
-  if (openvas_SSL_init () < 0)
-    return NULL;
 
   ctx = g_malloc0 (sizeof (ovas_scanner_context_t));
   ctx->encaps = encaps;
