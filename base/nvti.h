@@ -169,6 +169,7 @@ nvtis_t *nvtis_new ();
 void nvtis_free (nvtis_t *);
 
 void nvtis_add (nvtis_t *, nvti_t *);
+void nvtis_remove (nvtis_t *, nvti_t *);
 
 nvti_t *nvtis_lookup (nvtis_t *, const char *);
 

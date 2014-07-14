@@ -39,6 +39,7 @@
 
 /* for nvticache_t */
 #include "nvticache.h"
+#include "../misc/openvas_logging.h"
 
 #include <string.h> // for strlen
 
@@ -128,18 +129,14 @@ nvticache_get (const nvticache_t * cache, const gchar * filename)
   n2 = nvtis_lookup (cache->nvtis, nvti_oid (n));
   if (n2)
     {
-// TODO: Shouldn't we remove the old one with the same OID now
-// and use the the new one
-// Like: nvtis_remove (cache->nvtis, n2); // <- this function is missing yet
-      return nvti_clone (n2);
+      log_legacy_write ("NVT with duplicate OID %s will be replaced with %s\n",
+                        nvti_oid (n), filename);
+      nvtis_remove (cache->nvtis, n2);
     }
-  else
-    {
-      n2 = nvti_clone (n);
-      nvti_shrink (n);
-      nvtis_add (cache->nvtis, n);
-      return n2;
-    }
+  n2 = nvti_clone (n);
+  nvti_shrink (n);
+  nvtis_add (cache->nvtis, n);
+  return n2;
 }
 
 /**

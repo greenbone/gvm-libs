@@ -1,5 +1,14 @@
 2014-07-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/nvti.c (nvtis_remove): New function.
+
+	* base/nvti.h: Add new function prototype.
+
+	* base/nvticache.c (nvticache_get): Replace the old nvt entry when a
+	duplicate OID is found and output a log message accordingly.
+
+2014-07-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/nvti.c (nvti_shrink): Fix possible use-after free and double-free
 	errors by nullifying the pointers after freeing the allocated memory.
 

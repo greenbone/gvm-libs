@@ -1648,6 +1648,19 @@ nvtis_add (nvtis_t * nvtis, nvti_t * nvti)
 }
 
 /**
+ * @brief Remove an NVT Info from a collection of NVT Infos.
+ *
+ * @param nvtis The collection of NVT Infos.
+ * @param nvti  The NVT Info to remove.
+ */
+void
+nvtis_remove (nvtis_t * nvtis, nvti_t * nvti)
+{
+  if (nvti)
+    g_hash_table_remove (nvtis, (gpointer) nvti_oid (nvti));
+}
+
+/**
  * @brief Add an NVT Info to a collection of NVT Infos.
  *
  * @param nvtis The collection of NVT Infos.
