@@ -224,37 +224,85 @@ nvti_shrink (nvti_t * n)
     return;
 
   if (n->version)
-    g_free (n->version);
+    {
+      g_free (n->version);
+      n->version = NULL;
+    }
   if (n->name)
-    g_free (n->name);
+    {
+      g_free (n->name);
+      n->name = NULL;
+    }
   if (n->summary)
-    g_free (n->summary);
+    {
+      g_free (n->summary);
+      n->summary = NULL;
+    }
   if (n->copyright)
-    g_free (n->copyright);
+    {
+      g_free (n->copyright);
+      n->copyright = NULL;
+    }
   if (n->cve)
-    g_free (n->cve);
+    {
+      g_free (n->cve);
+      n->cve = NULL;
+    }
   if (n->bid)
-    g_free (n->bid);
+    {
+      g_free (n->bid);
+      n->bid = NULL;
+    }
   if (n->xref)
-    g_free (n->xref);
+    {
+      g_free (n->xref);
+      n->xref = NULL;
+    }
   if (n->tag)
-    g_free (n->tag);
+    {
+      g_free (n->tag);
+      n->tag = NULL;
+    }
   if (n->cvss_base)
-    g_free (n->cvss_base);
+    {
+      g_free (n->cvss_base);
+      n->cvss_base = NULL;
+    }
   if (n->dependencies)
-    g_free (n->dependencies);
+    {
+      g_free (n->dependencies);
+      n->dependencies = NULL;
+    }
   if (n->required_keys)
-    g_free (n->required_keys);
+    {
+      g_free (n->required_keys);
+      n->required_keys = NULL;
+    }
   if (n->mandatory_keys)
-    g_free (n->mandatory_keys);
+    {
+      g_free (n->mandatory_keys);
+      n->mandatory_keys = NULL;
+    }
   if (n->excluded_keys)
-    g_free (n->excluded_keys);
+    {
+      g_free (n->excluded_keys);
+      n->excluded_keys = NULL;
+    }
   if (n->required_ports)
-    g_free (n->required_ports);
+    {
+      g_free (n->required_ports);
+      n->required_ports = NULL;
+    }
   if (n->required_udp_ports)
-    g_free (n->required_udp_ports);
+    {
+      g_free (n->required_udp_ports);
+      n->required_udp_ports = NULL;
+    }
   if (n->family)
-    g_free (n->family);
+    {
+      g_free (n->family);
+      n->family = NULL;
+    }
   if (n->prefs)
     {
       guint len = g_slist_length (n->prefs);
@@ -262,6 +310,7 @@ nvti_shrink (nvti_t * n)
       for (i = 0; i < len; i++)
         nvtpref_free (g_slist_nth_data (n->prefs, i));
       g_slist_free (n->prefs);
+      n->prefs = NULL;
     }
 }
 
