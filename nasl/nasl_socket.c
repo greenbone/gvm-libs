@@ -914,8 +914,20 @@ nasl_close_socket (lex_ctxt * lexic)
    * returned 4.  Under which circumstances does it actually do that?  In my brief
    * tests with the stand-alone nasl interpreter the smallest number it returned
    * was 5.
+   *
+   * Update (Hani) 2014-07-14:
+   * 0, 1, 2: Standard streams.
+   * 3: log fd. (dup2() calls in Scanner src/log.c)
+   * 4: thread socket. (dup2() call in Scanner src/nasl_plugins.c)
+   *    Used by the child to send info to the parent. Otherwise close(4) will
+   *    kill the communication with the parent process.
+   * 5: Generally:
+   *  With GnuTLS 2.x: File descriptor open in libgcrypt.
+   *  With GnuTLS 3.x: File descriptor open in libgnutls.
+   *  However, we shouldn't have knowledge or/and make assumptions about external
+   *  libraries.
    */
-  if (soc < 4)
+  if (soc <= 4)
     {
       nasl_perror (lexic, "close(): invalid argument\n");
       return NULL;
