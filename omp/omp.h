@@ -83,6 +83,7 @@ static const omp_get_report_opts_t omp_get_report_opts_defaults =
  */
 typedef struct
 {
+  const char* filter;    ///< Filter argument.
   const char* actions;   ///< Actions argument.
   /* Boolean flags: */
   int details;           ///< Whether to include overrides in the tasks.
@@ -93,7 +94,7 @@ typedef struct
  * @brief Sensible default values for omp_get_tasks_opts_t.
  */
 static const omp_get_tasks_opts_t omp_get_tasks_opts_defaults =
-  { };
+  { "" };
 
 /**
  * @brief Struct holding options for omp get_tasks command.

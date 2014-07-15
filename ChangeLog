@@ -1,3 +1,10 @@
+2014-07-15  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_get_tasks_ext): Add filter option.  Remove actions.
+
+	* omp/omp.h (omp_get_tasks_opts_t): Add "filter" option.
+	(omp_get_tasks_opts_defaults): Init filter.
+
 2014-07-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/nvti.c (nvtis_remove): New function.
