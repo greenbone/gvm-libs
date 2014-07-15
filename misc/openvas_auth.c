@@ -1852,7 +1852,7 @@ openvas_auth_store_user_rules (const gchar * user_dir_name, const gchar * hosts,
   GString *rules = g_string_new (RULES_FILE_HEADER);
   if (hosts && strlen (hosts))
     {
-      gchar **split = g_strsplit (hosts, ",", 0);
+      gchar **split = g_strsplit_set (hosts, ", ", 0);
 
       /** @todo Do better format checking on hosts. */
 
