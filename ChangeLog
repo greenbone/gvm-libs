@@ -1,3 +1,9 @@
+2014-07-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_server.c (openvas_server_open_with_cert)
+	(openvas_server_connect): Call openvas_server_verify() at the end of the
+	function.
+
 2014-07-15  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_get_tasks_ext): Add filter option.  Remove actions.

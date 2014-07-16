@@ -381,6 +381,8 @@ openvas_server_open_with_cert (gnutls_session_t *session, const char *host,
         }
       return -1;
     }
+  if (ca_file && cert_file && key_file && openvas_server_verify (*session))
+    return -1;
 
   return server_socket;
 }
@@ -480,7 +482,10 @@ openvas_server_connect (int server_socket, struct sockaddr_in *server_address,
     }
   g_debug ("   Connected to server on socket %i.\n", server_socket);
 
-  return openvas_server_attach (server_socket, server_session);
+  ret = openvas_server_attach (server_socket, server_session);
+  if (ret < 0)
+    return ret;
+  return openvas_server_verify (*server_session);
 }
 
 /**
