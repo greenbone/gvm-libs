@@ -1,5 +1,12 @@
 2014-07-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/openvas_server.c (openvas_server_connect): Remove interrupted
+	case handling.
+
+	* misc/openvas_server.h: Adjust function prototype.
+
+2014-07-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/openvas_server.c (openvas_server_open_with_cert)
 	(openvas_server_connect): Call openvas_server_verify() at the end of the
 	function.

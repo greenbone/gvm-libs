@@ -60,8 +60,7 @@ openvas_server_open_with_cert (gnutls_session_t *, const char *, int,
 
 int openvas_server_close (int, gnutls_session_t);
 
-int openvas_server_connect (int, struct sockaddr_in *, gnutls_session_t *,
-                            gboolean);
+int openvas_server_connect (int, struct sockaddr_in *, gnutls_session_t *);
 
 int openvas_server_attach (int, gnutls_session_t *);
 

@@ -423,59 +423,18 @@ openvas_server_close (int socket, gnutls_session_t session)
  * @param[in]  server_socket   Socket to connect to server.
  * @param[in]  server_address  Server address.
  * @param[in]  server_session  Session to connect to server.
- * @param[in]  interrupted     0 if first connect attempt, else retrying after
- *                             an interrupted connect.
  *
- * @return 0 on success, -1 on error, -2 on connect interrupt.
+ * @return 0 on success, -1 on error.
  */
 int
 openvas_server_connect (int server_socket, struct sockaddr_in *server_address,
-                        gnutls_session_t * server_session, gboolean interrupted)
+                        gnutls_session_t * server_session)
 {
   int ret;
-  socklen_t ret_len = sizeof (ret);
 
-  if (interrupted)
+  if (connect (server_socket, (struct sockaddr *) server_address,
+               sizeof (struct sockaddr_in)) == -1)
     {
-      if (getsockopt (server_socket, SOL_SOCKET, SO_ERROR, &ret, &ret_len) ==
-          -1)
-        {
-          g_warning ("%s: failed to get socket option: %s\n", __FUNCTION__,
-                     strerror (errno));
-          return -1;
-        }
-      if (ret_len != (socklen_t) sizeof (ret))
-        {
-          g_warning ("%s: weird option length from getsockopt: %i\n",
-                     __FUNCTION__,
-                     /* socklen_t is an int, according to getsockopt(2). */
-                     (int) ret_len);
-          return -1;
-        }
-      if (ret)
-        {
-
-#ifndef _WIN32
-          if (ret == EINPROGRESS)
-            return -2;
-#endif
-
-          g_warning ("%s: failed to connect to server (interrupted): %s\n",
-                     __FUNCTION__, strerror (ret));
-          return -1;
-        }
-    }
-  else
-    if (connect
-        (server_socket, (struct sockaddr *) server_address,
-         sizeof (struct sockaddr_in)) == -1)
-    {
-
-#ifndef _WIN32
-      if (errno == EINPROGRESS)
-        return -2;
-#endif
-
       g_warning ("%s: failed to connect to server: %s\n", __FUNCTION__,
                  strerror (errno));
       return -1;
