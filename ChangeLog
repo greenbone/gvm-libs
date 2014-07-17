@@ -1,3 +1,8 @@
+2014-07-17  Michael Meyer <michael.meyer@greenbone.net>
+
+	* nasl/nasl_http.c (_http_req):
+	Added Cache-Control Header.     
+
 2014-07-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/openvas_server.c (openvas_server_connect): Remove interrupted

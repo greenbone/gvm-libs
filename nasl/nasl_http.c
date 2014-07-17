@@ -149,6 +149,7 @@ _http_req (lex_ctxt * lexic, char *keyword)
 Connection: Close\r\n\
 Host: %s:%d\r\n\
 Pragma: no-cache\r\n\
+Cache-Control: no-cache\r\n\
 User-Agent: %s\r\n\
 Accept: image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, image/png, */*\r\n\
 Accept-Language: en\r\n\
