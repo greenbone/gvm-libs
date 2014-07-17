@@ -646,74 +646,38 @@ openvas_server_sendf_xml (gnutls_session_t * session, const char *format, ...)
   return ret;
 }
 
-/**
- * @brief Make a session for connecting to a server.
- *
- * @param[in]   end_type            Connecton end type (GNUTLS_SERVER or
- *                                  GNUTLS_CLIENT).
- * @param[in]   priority            Custom priority string or NULL.
- * @param[in]   ca_file             Certificate authority file.
- * @param[in]   cert_file           Certificate file.
- * @param[in]   key_file            Key file.
- * @param[out]  server_session      The session with the server.
- * @param[out]  server_credentials  Server credentials.
- *
- * @return 0 on success, -1 on error.
- */
 static int
-server_new_internal (unsigned int end_type, const char *priority,
-                     const gchar * ca_cert_file,
-                     const gchar * cert_file, const gchar * key_file,
-                     gnutls_session_t * server_session,
-                     gnutls_certificate_credentials_t * server_credentials)
+server_new_gnutls_init (gnutls_certificate_credentials_t *server_credentials)
 {
-  int err_gnutls;
-
   /* Turn off use of /dev/random, as this can block. */
-
   gcry_control (GCRYCTL_ENABLE_QUICK_RANDOM, 0);
 
   /* Initialize security library. */
-
   if (gnutls_global_init ())
     {
       g_warning ("Failed to initialize GNUTLS.");
       return -1;
     }
-
   /* Setup server session. */
-
   if (gnutls_certificate_allocate_credentials (server_credentials))
     {
       g_warning ("%s: failed to allocate server credentials\n", __FUNCTION__);
       return -1;
     }
+  return 0;
+}
 
-  if (cert_file && key_file
-      &&
-      (gnutls_certificate_set_x509_key_file
-       (*server_credentials, cert_file, key_file, GNUTLS_X509_FMT_PEM) < 0))
-    {
-      g_warning ("%s: failed to set credentials key file\n", __FUNCTION__);
-      g_warning ("%s:   cert file: %s\n", __FUNCTION__, cert_file);
-      g_warning ("%s:   key file : %s\n", __FUNCTION__, key_file);
-      goto server_free_fail;
-    }
-
-  if (ca_cert_file
-      &&
-      (gnutls_certificate_set_x509_trust_file
-       (*server_credentials, ca_cert_file, GNUTLS_X509_FMT_PEM) < 0))
-    {
-      g_warning ("%s: failed to set credentials trust file: %s\n", __FUNCTION__,
-                 ca_cert_file);
-      goto server_free_fail;
-    }
+static int
+server_new_gnutls_set (unsigned int end_type, const char *priority,
+                       gnutls_session_t *server_session,
+                       gnutls_certificate_credentials_t *server_credentials)
+{
+  int err_gnutls;
 
   if (gnutls_init (server_session, end_type))
     {
       g_warning ("%s: failed to initialise server session\n", __FUNCTION__);
-      goto server_free_fail;
+      return -1;
     }
 
   my_gnutls_transport_set_lowat_default (*server_session);
@@ -732,29 +696,79 @@ server_new_internal (unsigned int end_type, const char *priority,
     {
       g_warning ("%s: failed to set tls priorities: %s\n", __FUNCTION__,
                  gnutls_strerror(err_gnutls));
-      goto server_fail;
+      gnutls_deinit (*server_session);
+      return -1;
     }
 
   if (gnutls_credentials_set
       (*server_session, GNUTLS_CRD_CERTIFICATE, *server_credentials))
     {
       g_warning ("%s: failed to set server credentials\n", __FUNCTION__);
-      goto server_fail;
+      gnutls_deinit (*server_session);
+      return -1;
     }
 
   if (end_type == GNUTLS_SERVER)
     gnutls_certificate_server_set_request (*server_session,
                                            GNUTLS_CERT_REQUEST);
+  return 0;
+}
+
+/**
+ * @brief Make a session for connecting to a server.
+ *
+ * @param[in]   end_type            Connecton end type (GNUTLS_SERVER or
+ *                                  GNUTLS_CLIENT).
+ * @param[in]   priority            Custom priority string or NULL.
+ * @param[in]   ca_file             Certificate authority file.
+ * @param[in]   cert_file           Certificate file.
+ * @param[in]   key_file            Key file.
+ * @param[out]  server_session      The session with the server.
+ * @param[out]  server_credentials  Server credentials.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int
+server_new_internal (unsigned int end_type, const char *priority,
+                     const gchar *ca_cert_file,
+                     const gchar *cert_file, const gchar *key_file,
+                     gnutls_session_t *server_session,
+                     gnutls_certificate_credentials_t *server_credentials)
+{
+  if (server_new_gnutls_init (server_credentials))
+    return -1;
+
+  if (cert_file && key_file
+      &&
+      (gnutls_certificate_set_x509_key_file
+       (*server_credentials, cert_file, key_file, GNUTLS_X509_FMT_PEM) < 0))
+    {
+      g_warning ("%s: failed to set credentials key file\n", __FUNCTION__);
+      g_warning ("%s:   cert file: %s\n", __FUNCTION__, cert_file);
+      g_warning ("%s:   key file : %s\n", __FUNCTION__, key_file);
+      gnutls_certificate_free_credentials (*server_credentials);
+      return -1;
+    }
+
+  if (ca_cert_file
+      &&
+      (gnutls_certificate_set_x509_trust_file
+       (*server_credentials, ca_cert_file, GNUTLS_X509_FMT_PEM) < 0))
+    {
+      g_warning ("%s: failed to set credentials trust file: %s\n", __FUNCTION__,
+                 ca_cert_file);
+      gnutls_certificate_free_credentials (*server_credentials);
+      return -1;
+    }
+
+  if (server_new_gnutls_set (end_type, priority, server_session,
+                             server_credentials))
+    {
+      gnutls_certificate_free_credentials (*server_credentials);
+      return -1;
+    }
 
   return 0;
-
-server_fail:
-  (void) gnutls_deinit (*server_session);
-
-server_free_fail:
-  gnutls_certificate_free_credentials (*server_credentials);
-
-  return -1;
 }
 
 /**
@@ -783,6 +797,68 @@ openvas_server_new (unsigned int end_type,
 }
 
 /**
+ * @brief Make a session for connecting to a server, with certificates stored
+ *        in memory.
+ *
+ * @param[in]   end_type    Connecton end type: GNUTLS_SERVER or GNUTLS_CLIENT.
+ * @param[in]   ca_cert     Certificate authority public key.
+ * @param[in]   pub_key     Public key.
+ * @param[in]   priv_key    Private key.
+ * @param[out]  session     The session with the server.
+ * @param[out]  credentials Server credentials.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+openvas_server_new_mem (unsigned int end_type, gchar *ca_cert, gchar *pub_key,
+                        gchar *priv_key, gnutls_session_t *session,
+                        gnutls_certificate_credentials_t *credentials)
+{
+
+  if (server_new_gnutls_init (credentials))
+    return -1;
+
+  if (pub_key && priv_key)
+    {
+      gnutls_datum_t pub, priv;
+
+      pub.data = (void *) pub_key;
+      pub.size = strlen (pub_key);
+      priv.data = (void *) priv_key;
+      priv.size = strlen (priv_key);
+
+      if (gnutls_certificate_set_x509_key_mem (*credentials, &pub, &priv,
+                                               GNUTLS_X509_FMT_PEM) < 0)
+        {
+          g_warning ("%s: failed to set public/private key.\n", __FUNCTION__);
+          return -1;
+        }
+    }
+
+  if (ca_cert)
+    {
+      gnutls_datum_t data;
+      data.data = (void *) ca_cert;
+      data.size = strlen (ca_cert);
+      if (gnutls_certificate_set_x509_trust_mem (*credentials, &data,
+                                                 GNUTLS_X509_FMT_PEM) < 0)
+        {
+          g_warning ("%s: failed to set CA public key\n", __FUNCTION__);
+          gnutls_certificate_free_credentials (*credentials);
+          return -1;
+        }
+    }
+
+  if (server_new_gnutls_set (end_type, NULL, session, credentials))
+    {
+      gnutls_certificate_free_credentials (*credentials);
+      return -1;
+    }
+
+  return 0;
+}
+
+/**
  * @brief Set a gnutls session's  Diffie-Hellman parameters.
  *
  * @param[in]   creds           GnuTLS credentials.
@@ -794,14 +870,18 @@ int
 set_gnutls_dhparams (gnutls_certificate_credentials_t creds,
                      const char *dhparams_file)
 {
+  int ret;
   gnutls_datum_t data;
+
   if (!creds || !dhparams_file)
     return -1;
 
   if (load_gnutls_file (dhparams_file, &data))
     return -1;
   gnutls_dh_params_t params = g_malloc0 (sizeof (gnutls_dh_params_t));
-  if (gnutls_dh_params_import_pkcs3 (params, &data, GNUTLS_X509_FMT_PEM))
+  ret = gnutls_dh_params_import_pkcs3 (params, &data, GNUTLS_X509_FMT_PEM);
+  unload_gnutls_file (&data);
+  if (ret)
     return -1;
   else
     gnutls_certificate_set_dh_params (creds, params);

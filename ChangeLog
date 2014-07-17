@@ -1,7 +1,16 @@
+2014-07-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_server.c (server_new_gnutls_init, server_new_gnutls_set):
+	New functions.
+	(server_new_internal): Call new functions. Refactor code accordingly.
+	(openvas_server_new_mem): New function.
+	(set_gnutls_dhparams): Fix memory leak.
+
+	* misc/openvas_server.h: Add new function prototype.
+
 2014-07-17  Michael Meyer <michael.meyer@greenbone.net>
 
-	* nasl/nasl_http.c (_http_req):
-	Added Cache-Control Header.     
+	* nasl/nasl_http.c (_http_req): Added Cache-Control Header.
 
 2014-07-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
