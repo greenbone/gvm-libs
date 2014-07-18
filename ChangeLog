@@ -1,3 +1,8 @@
+2014-07-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_server.c (openvas_server_new_mem): Output error strings
+	from gnutls instead of hardcoded ones.
+
 2014-07-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/openvas_server.c (server_new_gnutls_init, server_new_gnutls_set):

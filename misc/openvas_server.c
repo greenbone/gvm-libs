@@ -814,12 +814,12 @@ openvas_server_new_mem (unsigned int end_type, gchar *ca_cert, gchar *pub_key,
                         gchar *priv_key, gnutls_session_t *session,
                         gnutls_certificate_credentials_t *credentials)
 {
-
   if (server_new_gnutls_init (credentials))
     return -1;
 
   if (pub_key && priv_key)
     {
+      int ret;
       gnutls_datum_t pub, priv;
 
       pub.data = (void *) pub_key;
@@ -827,23 +827,27 @@ openvas_server_new_mem (unsigned int end_type, gchar *ca_cert, gchar *pub_key,
       priv.data = (void *) priv_key;
       priv.size = strlen (priv_key);
 
-      if (gnutls_certificate_set_x509_key_mem (*credentials, &pub, &priv,
-                                               GNUTLS_X509_FMT_PEM) < 0)
+      ret = gnutls_certificate_set_x509_key_mem (*credentials, &pub, &priv,
+                                                 GNUTLS_X509_FMT_PEM);
+      if (ret < 0)
         {
-          g_warning ("%s: failed to set public/private key.\n", __FUNCTION__);
+          g_warning ("%s: %s\n", __FUNCTION__, gnutls_strerror (ret));
           return -1;
         }
     }
 
   if (ca_cert)
     {
+      int ret;
       gnutls_datum_t data;
+
       data.data = (void *) ca_cert;
       data.size = strlen (ca_cert);
-      if (gnutls_certificate_set_x509_trust_mem (*credentials, &data,
-                                                 GNUTLS_X509_FMT_PEM) < 0)
+      ret = gnutls_certificate_set_x509_trust_mem (*credentials, &data,
+                                                   GNUTLS_X509_FMT_PEM);
+      if (ret < 0)
         {
-          g_warning ("%s: failed to set CA public key\n", __FUNCTION__);
+          g_warning ("%s: %s\n", __FUNCTION__, gnutls_strerror (ret));
           gnutls_certificate_free_credentials (*credentials);
           return -1;
         }
