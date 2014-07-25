@@ -1,3 +1,8 @@
+2014-07-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_file.c (openvas_file_as_base64): Use error variable
+	adequately.
+
 2014-07-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/openvas_server.c (openvas_server_new_mem): Output error strings

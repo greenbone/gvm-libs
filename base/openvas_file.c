@@ -206,7 +206,7 @@ openvas_file_as_base64 (const char *path)
   char *content, *encoded;
   gsize len;
 
-  if (!g_file_get_contents (path, &content, &len, NULL))
+  if (!g_file_get_contents (path, &content, &len, &error))
     {
       g_error_free (error);
       return NULL;
