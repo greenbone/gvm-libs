@@ -155,6 +155,40 @@ osp_get_scanner_version (osp_connection_t *connection, char **version)
   return 0;
 }
 
+/* @brief Delete a scan from an OSP server.
+ *
+ * @param[in]   connection  Connection to an OSP server.
+ * @param[in]   scan_id     ID of scan to delete.
+ *
+ * @return 0 if success, 1 if error.
+ */
+int
+osp_delete_scan (osp_connection_t *connection, const char *scan_id)
+{
+  entity_t entity;
+  int ret = 0;
+  char *command;
+  const char *status;
+
+  if (!connection)
+    return 1;
+
+  command = g_strdup_printf ("<delete_scan scan_id='%s'/>", scan_id);
+  ret = osp_send_command (connection, command, &entity);
+  g_free (command);
+  if (ret)
+    return 1;
+
+  /* Check response status. */
+  status = entity_attribute (entity, "status");
+  assert (status);
+  if (strcmp (status, "200"))
+    ret = 1;
+
+  free_entity (entity);
+  return ret;
+}
+
 int
 osp_get_scan (osp_connection_t *connection, const char *scan_id,
               char **report_xml)
@@ -202,9 +236,18 @@ option_concat_as_xml (gpointer key, gpointer value, gpointer pstr)
   g_free (value_escaped);
   *(char **) pstr = tmp;
 }
-/* return scan id (to be used as report id!), null if otherwise. */
+
+/* @brief Start an OSP scan against a target.
+ *
+ * @param[in]   connection  Connection to an OSP server.
+ * @param[in]   target      Target host to scan.
+ * @param[in]   options     Table of scan options.
+ *
+ * @return scan_id, null if otherwise. Free with g_free().
+ */
 char *
-osp_start_scan (osp_connection_t *connection, const char *target, void *options)
+osp_start_scan (osp_connection_t *connection, const char *target,
+                GHashTable *options)
 {
   entity_t entity;
   char *options_str = NULL, *start_scan, *scan_id = NULL;
