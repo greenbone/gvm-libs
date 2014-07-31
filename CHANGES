@@ -1,3 +1,21 @@
+openvas-libraries 7.0.3 (2014-07-31)
+
+This is the third maintenance release of the openvas-libraries 7.0 module for
+the Open Vulnerability Assessment System 7 (OpenVAS-7).
+
+This release addresses an issue with the encoding of special characters in the
+result text and another issue which prevented LDAP users from being added to a
+group. It also allows "AU" as a valid metric within the CVSS base vector.
+
+Many thanks to everyone who contributed to this release:
+Matthew Mundell and Jan-Oliver Wagner.
+
+Main changes since 7.0.2:
+* Fix handling of encoding in the result text.
+* Allow "AU" (in place of "Au") in the CVSS base vector.
+* Ensure check for existing users works with LDAP users as well.
+
+
 openvas-libraries 7.0.2 (2014-06-16)
 
 This is the second maintenance release of the openvas-libraries 7.0 module for
