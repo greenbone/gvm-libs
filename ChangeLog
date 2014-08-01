@@ -1,3 +1,8 @@
+2014-08-01  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/openvas_auth.c (ldap_connect_user_exists): Only define when LDAP
+	is enabled.
+
 2014-07-31  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/openvas_auth.c (add_authenticator): Use custom function for
