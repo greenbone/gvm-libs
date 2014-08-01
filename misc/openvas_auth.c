@@ -148,7 +148,9 @@ static int openvas_authenticate_classic (const gchar * usr, const gchar * pas,
 
 static int openvas_user_exists_classic (const gchar *name, void *data);
 
+#ifdef ENABLE_LDAP_AUTH
 static int ldap_connect_user_exists (const gchar *name, void *data);
+#endif
 
 gchar* (*classic_get_hash) (const gchar *) = NULL;
 
@@ -886,6 +888,7 @@ openvas_user_exists_classic (const gchar *name, void *data)
   return user_exists (name, AUTHENTICATION_METHOD_FILE);
 }
 
+#ifdef ENABLE_LDAP_AUTH
 /**
  * @brief Check whether a "LDAP connect" user exists in the database.
  *
@@ -902,6 +905,7 @@ ldap_connect_user_exists (const gchar *name, void *data)
 
   return user_exists (name, AUTHENTICATION_METHOD_LDAP_CONNECT);
 }
+#endif
 
 /**
  * @brief Check whether a user exists.
