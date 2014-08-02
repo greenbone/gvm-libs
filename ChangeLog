@@ -1,3 +1,29 @@
+2014-08-01  Henri Doreau <henri.doreau@gmail.com>
+
+	openvas_server_send API enhancement and cleanup. Added variadic
+	versions of the existing functions to reduce the complexity of
+	the calling code.
+
+	* misc/openvas_server.h (openvas_server_send): Turned into a static
+	inline wrapper for openvas_server_sendf, to be removed eventually.
+	(openvas_server_vsendf): New.
+
+	* misc/openvas_server.c (openvas_server_send); Renamed
+	openvas_server_vsendf. Use variable arguments.
+	(openvas_server_sendf): Call openvas_server_vsendf.
+	(openvas_server_sendf_xml): Call openvas_server_vsendf.
+
+	* base/osp.c (osp_send_command): Set the proper attributes to the
+	function prototype to enable compile-time format string checks.
+	Reorder arguments to make it able to handle formatted commands. Transmit
+	the va_list accordingly to the underlying function.
+	(osp_get_scanner_version, osp_delete_scan, osp_get_scan)
+	(osp_start_scan): Updated calls to osp_send_command accordingly. Removed
+	unneeded string formatting. Removed a non ISO C pattern.
+
+	* omp/omp.c (omp_create_task_ext): Use openvas_server_sendf to pass in
+	formatted commands instead of formatting them in the calling code.
+
 2014-08-01  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/openvas_auth.c (ldap_connect_user_exists): Only define when LDAP

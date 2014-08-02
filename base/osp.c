@@ -41,6 +41,12 @@ typedef struct osp_connection {
   int port;
 } osp_connection_t;
 
+
+static int
+osp_send_command (osp_connection_t *, entity_t *, const char *, ...)
+    __attribute__((__format__(__printf__, 3, 4)));
+
+
 /* @brief Open a new connection to an OSP server.
  *
  * @param[in]   host    Host of OSP server.
@@ -86,20 +92,30 @@ osp_connection_new (const char *host, int port, const char *cacert,
  *
  * @return 0 and response, 1 if error.
  */
-static int
-osp_send_command (osp_connection_t *connection, const char *command,
-                  entity_t *response)
+int
+osp_send_command (osp_connection_t *connection, entity_t *response,
+                  const char *fmt, ...)
 {
- if (!connection || !command || !response)
-   return 1;
+  va_list ap;
+  int rc = 1;
 
- if (openvas_server_send (&connection->session, command) == -1)
-   return 1;
+  va_start (ap, fmt);
 
- if (read_entity (&connection->session, response))
-    return 1;
+  if (!connection || !fmt || !response)
+    goto out;
 
- return 0;
+  if (openvas_server_vsendf (&connection->session, fmt, ap) == -1)
+    goto out;
+
+  if (read_entity (&connection->session, response))
+    goto out;
+
+  rc = 0;
+
+out:
+  va_end(ap);
+
+  return rc;
 }
 
 /* @brief Close a connection to an OSP server.
@@ -132,7 +148,7 @@ osp_get_scanner_version (osp_connection_t *connection, char **version)
   if (!connection)
     return 1;
 
-  if (osp_send_command (connection, "<get_version/>", &entity))
+  if (osp_send_command (connection, &entity, "<get_version/>"))
     return 1;
 
   /* Extract version. */
@@ -167,15 +183,13 @@ osp_delete_scan (osp_connection_t *connection, const char *scan_id)
 {
   entity_t entity;
   int ret = 0;
-  char *command;
   const char *status;
 
   if (!connection)
     return 1;
 
-  command = g_strdup_printf ("<delete_scan scan_id='%s'/>", scan_id);
-  ret = osp_send_command (connection, command, &entity);
-  g_free (command);
+  ret = osp_send_command (connection, &entity, "<delete_scan scan_id='%s'/>",
+                          scan_id);
   if (ret)
     return 1;
 
@@ -194,15 +208,16 @@ osp_get_scan (osp_connection_t *connection, const char *scan_id,
               char **report_xml)
 {
   entity_t entity, child;
-  char command[128];
   GString *string;
   int progress;
+  int rc;
 
   if (!connection)
     return 1;
 
-  snprintf (command, sizeof (command), "<get_scans scan_id='%s'/>", scan_id);
-  if (osp_send_command (connection, command, &entity))
+  rc = osp_send_command (connection, &entity, "<get_scans scan_id='%s'/>",
+                         scan_id);
+  if (rc)
     return 1;
 
   child = entity_child (entity, "scan");
@@ -250,22 +265,22 @@ osp_start_scan (osp_connection_t *connection, const char *target,
                 GHashTable *options)
 {
   entity_t entity;
-  char *options_str = NULL, *start_scan, *scan_id = NULL;
+  char *options_str = NULL, *scan_id = NULL;
   int status;
+  int rc;
 
   if (!target)
     return NULL;
 
   /* Construct options string. */
-  if (!options)
-    options_str = g_strdup ("");
-  else
+  if (options)
     g_hash_table_foreach (options, option_concat_as_xml, &options_str);
-  start_scan = g_strdup_printf ("<start_scan target='%s'>%s</start_scan>",
-                                target, options_str ?: "");
-  g_free (options_str);
 
-  if (osp_send_command (connection, start_scan, &entity))
+  rc = osp_send_command (connection, &entity,
+                         "<start_scan target='%s'>%s</start_scan>",
+                         target, options_str ? options_str : "");
+  g_free (options_str);
+  if (rc)
     return NULL;
 
   status = atoi (entity_attribute (entity, "status"));

@@ -335,7 +335,8 @@ omp_create_task_ext (gnutls_session_t* session,
 {
   /* Create the OMP request. */
 
-  gchar *new, *prefs, *start;
+  gchar *prefs, *start;
+  int ret;
 
   if ((opts.config_id == NULL) || (opts.target_id == NULL))
     return -1;
@@ -386,15 +387,12 @@ omp_create_task_ext (gnutls_session_t* session,
       g_free (hosts);
     }
 
-  new = g_strdup_printf ("%s%s</create_task>", start, prefs);
+  /* Send the request. */
+  ret = openvas_server_sendf (session, "%s%s</create_task>", start, prefs);
   g_free (start);
   g_free (prefs);
-
-  /* Send the request. */
-
-  int ret = openvas_server_send (session, new);
-  g_free (new);
-  if (ret) return -1;
+  if (ret)
+    return -1;
 
   /* Read the response. */
 
@@ -1249,7 +1247,8 @@ omp_create_target_ext (gnutls_session_t* session,
                        omp_create_target_opts_t opts,
                        gchar** id)
 {
-  gchar *new, *comment, *ssh, *smb, *port_range, *start;
+  gchar *comment, *ssh, *smb, *port_range, *start;
+  int ret;
 
   /* Create the OMP request. */
 
@@ -1288,19 +1287,17 @@ omp_create_target_ext (gnutls_session_t* session,
   else
     port_range = NULL;
 
-  new = g_strdup_printf ("%s%s%s%s%s</create_target>", start,
-                         ssh ? ssh : "",
-                         smb ? smb : "",
-                         port_range ? port_range : "",
-                         comment ? comment : "");
+  /* Send the request. */
+  ret = openvas_server_sendf (session, "%s%s%s%s%s</create_target>",
+                              start,
+                              ssh ? ssh : "",
+                              smb ? smb : "",
+                              port_range ? port_range : "",
+                              comment ? comment : "");
   g_free (start);
   g_free (comment);
-
-  /* Send the request. */
-
-  int ret = openvas_server_send (session, new);
-  g_free (new);
-  if (ret) return -1;
+  if (ret)
+    return -1;
 
   /* Read the response. */
 

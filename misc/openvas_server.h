@@ -42,6 +42,7 @@ extern "C"
 #endif
 #endif
 
+#include <stdarg.h>
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 #ifdef _WIN32
@@ -64,9 +65,9 @@ int openvas_server_connect (int, struct sockaddr_in *, gnutls_session_t *);
 
 int openvas_server_attach (int, gnutls_session_t *);
 
-int openvas_server_send (gnutls_session_t *, const char *);
-
 int openvas_server_sendf (gnutls_session_t *, const char *, ...);
+
+int openvas_server_vsendf (gnutls_session_t *, const char *, va_list);
 
 int openvas_server_sendf_xml (gnutls_session_t *, const char *, ...);
 
@@ -91,6 +92,13 @@ unload_gnutls_file(gnutls_datum_t *);
 
 int
 set_gnutls_dhparams (gnutls_certificate_credentials_t, const char *);
+
+
+/* Temporary compatibility macro. */
+static inline int openvas_server_send (gnutls_session_t *tls, const char *str)
+{
+  return openvas_server_sendf (tls, "%s", str);
+}
 
 #if 0
 {

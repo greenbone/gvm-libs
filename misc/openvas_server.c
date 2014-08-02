@@ -34,6 +34,8 @@
 
 /** @todo Ensure that every global init gets a free. */
 
+#define _GNU_SOURCE
+
 #ifdef _WIN32
 
 #define WINVER 0x0501
@@ -538,13 +540,14 @@ openvas_server_attach (int socket, gnutls_session_t * session)
  * @return 0 on success, 1 if server closed connection, -1 on error.
  */
 int
-openvas_server_send (gnutls_session_t * session, const char *string)
+openvas_server_vsendf (gnutls_session_t *session, const char *fmt, va_list ap)
 {
 #ifndef _WIN32
   struct sigaction new_action, original_action;
 #endif
-
-  size_t left = strlen (string);
+  char *sref, *string;
+  size_t left;
+  int rc = 0;
 
 #ifndef _WIN32
   new_action.sa_flags = 0;
@@ -555,9 +558,15 @@ openvas_server_send (gnutls_session_t * session, const char *string)
     return -1;
 #endif
 
-  while (left)
+  left = vasprintf (&string, fmt, ap);
+  if (left == -1)
+    string = NULL;
+
+  sref = string;
+  while (left > 0)
     {
       ssize_t count;
+
       g_debug ("   send %zu from %.*s[...]", left, left < 30 ? (int) left : 30,
                string);
       count = gnutls_record_send (*session, string, left);
@@ -569,7 +578,7 @@ openvas_server_send (gnutls_session_t * session, const char *string)
           if (count == GNUTLS_E_REHANDSHAKE)
             {
               /* \todo Rehandshake. */
-              g_message ("   openvas_server_send rehandshake");
+              g_message ("   %s rehandshake", __FUNCTION__);
               continue;
             }
           g_warning ("Failed to write to server: %s", gnutls_strerror (count));
@@ -578,18 +587,20 @@ openvas_server_send (gnutls_session_t * session, const char *string)
           sigaction (SIGPIPE, &original_action, NULL);
 #endif
 
-          return -1;
+          rc = -1;
+          goto out;
         }
       if (count == 0)
         {
           /* Server closed connection. */
-          g_debug ("=  server closed\n");
+          g_debug ("=  server closed");
 
 #ifndef _WIN32
           sigaction (SIGPIPE, &original_action, NULL);
 #endif
 
-          return 1;
+          rc = 1;
+          goto out;
         }
       g_debug ("=> %.*s", (int) count, string);
       string += count;
@@ -601,7 +612,9 @@ openvas_server_send (gnutls_session_t * session, const char *string)
   sigaction (SIGPIPE, &original_action, NULL);
 #endif
 
-  return 0;
+out:
+  free (sref);
+  return rc;
 }
 
 /**
@@ -615,13 +628,13 @@ openvas_server_send (gnutls_session_t * session, const char *string)
 int
 openvas_server_sendf (gnutls_session_t * session, const char *format, ...)
 {
-  va_list args;
-  va_start (args, format);
-  gchar *msg = g_strdup_vprintf (format, args);
-  int ret = openvas_server_send (session, msg);
-  g_free (msg);
-  va_end (args);
-  return ret;
+  va_list ap;
+  int rc;
+
+  va_start (ap, format);
+  rc = openvas_server_vsendf (session, format, ap);
+  va_end (ap);
+  return rc;
 }
 
 /**
@@ -637,13 +650,16 @@ openvas_server_sendf (gnutls_session_t * session, const char *format, ...)
 int
 openvas_server_sendf_xml (gnutls_session_t * session, const char *format, ...)
 {
-  va_list args;
-  va_start (args, format);
-  gchar *msg = g_markup_vprintf_escaped (format, args);
-  int ret = openvas_server_send (session, msg);
+  va_list ap;
+  gchar *msg;
+  int rc;
+
+  va_start (ap, format);
+  msg = g_markup_vprintf_escaped (format, ap);
+  rc = openvas_server_sendf (session, "%s", msg);
   g_free (msg);
-  va_end (args);
-  return ret;
+  va_end (ap);
+  return rc;
 }
 
 static int
