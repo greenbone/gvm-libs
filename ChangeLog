@@ -1,5 +1,9 @@
 2014-08-06  Henri Doreau <henri.doreau@gmail.com>
 
+	* misc/openvas_server.h (openvas_server_send): Removed unused function.
+
+2014-08-06  Henri Doreau <henri.doreau@gmail.com>
+
 	* omp/omp.c (omp_ping, omp_authenticate, omp_authenticate_info_ext)
 	(omp_create_task, omp_modify_task_file, omp_create_lsc_credential)
 	(omp_create_lsc_credential_key: Replaced last openvas_server_send

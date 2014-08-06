@@ -93,13 +93,6 @@ unload_gnutls_file(gnutls_datum_t *);
 int
 set_gnutls_dhparams (gnutls_certificate_credentials_t, const char *);
 
-
-/* Temporary compatibility macro. */
-static inline int openvas_server_send (gnutls_session_t *tls, const char *str)
-{
-  return openvas_server_sendf (tls, "%s", str);
-}
-
 #if 0
 {
 #endif
