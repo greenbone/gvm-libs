@@ -1,3 +1,11 @@
+2014-08-06  Henri Doreau <henri.doreau@gmail.com>
+
+	* omp/omp.c (omp_ping, omp_authenticate, omp_authenticate_info_ext)
+	(omp_create_task, omp_modify_task_file, omp_create_lsc_credential)
+	(omp_create_lsc_credential_key: Replaced last openvas_server_send
+	statements by openvas_server_sendf or openvas_server_sendf_xml
+	equivalents.
+
 2014-08-01  Henri Doreau <henri.doreau@gmail.com>
 
 	openvas_server_send API enhancement and cleanup. Added variadic

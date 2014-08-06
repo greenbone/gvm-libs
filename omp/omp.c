@@ -142,7 +142,7 @@ omp_ping (gnutls_session_t *session, int timeout)
 
   /* Send a GET_VERSION request. */
 
-  ret = openvas_server_send (session, "<get_version/>");
+  ret = openvas_server_sendf (session, "<get_version/>");
   if (ret)
     return ret;
 
@@ -196,19 +196,18 @@ omp_authenticate (gnutls_session_t* session,
   entity_t entity;
   const char* status;
   char first;
-  gchar* msg;
+  int ret;
 
   /* Send the auth request. */
-
-  msg = g_markup_printf_escaped ("<authenticate><credentials>"
+  ret = openvas_server_sendf_xml(session,
+                                 "<authenticate><credentials>"
                                  "<username>%s</username>"
                                  "<password>%s</password>"
                                  "</credentials></authenticate>",
                                  username,
                                  password);
-  int ret = openvas_server_send (session, msg);
-  g_free (msg);
-  if (ret) return ret;
+  if (ret)
+    return ret;
 
   /* Read the response. */
 
@@ -254,21 +253,21 @@ omp_authenticate_info_ext (gnutls_session_t *session,
   entity_t entity;
   const char* status;
   char first;
-  gchar* msg;
+  int ret;
 
   *(opts.timezone) = NULL;
 
   /* Send the auth request. */
 
-  msg = g_markup_printf_escaped ("<authenticate><credentials>"
-                                 "<username>%s</username>"
-                                 "<password>%s</password>"
-                                 "</credentials></authenticate>",
-                                 opts.username,
-                                 opts.password);
-  int ret = openvas_server_send (session, msg);
-  g_free (msg);
-  if (ret) return ret;
+  ret = openvas_server_sendf_xml (session,
+                                  "<authenticate><credentials>"
+                                  "<username>%s</username>"
+                                  "<password>%s</password>"
+                                  "</credentials></authenticate>",
+                                  opts.username,
+                                  opts.password);
+  if (ret)
+    return ret;
 
   /* Read the response. */
 
@@ -423,25 +422,21 @@ omp_create_task (gnutls_session_t* session,
                  const char* comment,
                  gchar** id)
 {
-  /* Create the OMP request. */
+  int ret;
 
-  gchar* new_task_request;
-  new_task_request = g_markup_printf_escaped ("<create_task>"
-                                              "<config id=\"%s\"/>"
-                                              "<target id=\"%s\"/>"
-                                              "<name>%s</name>"
-                                              "<comment>%s</comment>"
-                                              "</create_task>",
-                                              config,
-                                              target,
-                                              name,
-                                              comment);
-
-  /* Send the request. */
-
-  int ret = openvas_server_send (session, new_task_request);
-  g_free (new_task_request);
-  if (ret) return -1;
+  ret = openvas_server_sendf_xml (session,
+                                  "<create_task>"
+                                  "<config id=\"%s\"/>"
+                                  "<target id=\"%s\"/>"
+                                  "<name>%s</name>"
+                                  "<comment>%s</comment>"
+                                  "</create_task>",
+                                  config,
+                                  target,
+                                  name,
+                                  comment);
+  if (ret)
+    return -1;
 
   /* Read the response. */
 
@@ -1056,7 +1051,7 @@ omp_modify_task_file (gnutls_session_t* session, const char* id,
         return -1;
     }
 
-  if (openvas_server_send (session, "</modify_task>"))
+  if (openvas_server_sendf (session, "</modify_task>"))
     return -1;
 
   return check_response (session);
@@ -1375,57 +1370,54 @@ omp_create_lsc_credential (gnutls_session_t* session,
 {
   int ret;
 
-  /* Create the OMP request. */
-
-  gchar* new_task_request;
   if (password)
     {
       if (comment)
-        new_task_request = g_markup_printf_escaped ("<create_lsc_credential>"
-                                                    "<name>%s</name>"
-                                                    "<login>%s</login>"
-                                                    "<password>%s</password>"
-                                                    "<comment>%s</comment>"
-                                                    "</create_lsc_credential>",
-                                                    name,
-                                                    login,
-                                                    password,
-                                                    comment);
+        ret = openvas_server_sendf_xml (session,
+                                        "<create_lsc_credential>"
+                                        "<name>%s</name>"
+                                        "<login>%s</login>"
+                                        "<password>%s</password>"
+                                        "<comment>%s</comment>"
+                                        "</create_lsc_credential>",
+                                        name,
+                                        login,
+                                        password,
+                                        comment);
       else
-        new_task_request = g_markup_printf_escaped ("<create_lsc_credential>"
-                                                    "<name>%s</name>"
-                                                    "<login>%s</login>"
-                                                    "<password>%s</password>"
-                                                    "</create_lsc_credential>",
-                                                    name,
-                                                    login,
-                                                    password);
+        ret = openvas_server_sendf_xml (session,
+                                        "<create_lsc_credential>"
+                                        "<name>%s</name>"
+                                        "<login>%s</login>"
+                                        "<password>%s</password>"
+                                        "</create_lsc_credential>",
+                                        name,
+                                        login,
+                                        password);
     }
   else
     {
       if (comment)
-        new_task_request = g_markup_printf_escaped ("<create_lsc_credential>"
-                                                    "<name>%s</name>"
-                                                    "<login>%s</login>"
-                                                    "<comment>%s</comment>"
-                                                    "</create_lsc_credential>",
-                                                    name,
-                                                    login,
-                                                    comment);
+        ret = openvas_server_sendf_xml (session,
+                                        "<create_lsc_credential>"
+                                        "<name>%s</name>"
+                                        "<login>%s</login>"
+                                        "<comment>%s</comment>"
+                                        "</create_lsc_credential>",
+                                        name,
+                                        login,
+                                        comment);
       else
-        new_task_request = g_markup_printf_escaped ("<create_lsc_credential>"
-                                                    "<name>%s</name>"
-                                                    "<login>%s</login>"
-                                                    "</create_lsc_credential>",
-                                                    name,
-                                                    login);
+        ret = openvas_server_sendf_xml (session,
+                                        "<create_lsc_credential>"
+                                        "<name>%s</name>"
+                                        "<login>%s</login>"
+                                        "</create_lsc_credential>",
+                                        name,
+                                        login);
     }
-
-  /* Send the request. */
-
-  ret = openvas_server_send (session, new_task_request);
-  g_free (new_task_request);
-  if (ret) return -1;
+  if (ret)
+    return -1;
 
   ret = omp_read_create_response (session, uuid);
   if (ret == 201)
@@ -1458,38 +1450,39 @@ omp_create_lsc_credential_key (gnutls_session_t *session,
 {
   int ret;
 
-  /* Create the OMP request. */
-
-  gchar* request;
   if (comment)
-    request = g_markup_printf_escaped ("<create_lsc_credential>"
-                                       "<name>%s</name>"
-                                       "<login>%s</login>"
-                                       "<key>"
-                                       "<phrase>%s</phrase>"
-                                       "<private>%s</private>"
-                                       "</key>"
-                                       "<comment>%s</comment>"
-                                       "</create_lsc_credential>",
-                                       name, login, passphrase ?: "",
-                                       private_key, comment);
+    ret = openvas_server_sendf_xml (session,
+                                    "<create_lsc_credential>"
+                                    "<name>%s</name>"
+                                    "<login>%s</login>"
+                                    "<key>"
+                                    "<phrase>%s</phrase>"
+                                    "<private>%s</private>"
+                                    "</key>"
+                                    "<comment>%s</comment>"
+                                    "</create_lsc_credential>",
+                                    name,
+                                    login,
+                                    passphrase ? passphrase : "",
+                                    private_key,
+                                    comment);
   else
-    request = g_markup_printf_escaped ("<create_lsc_credential>"
-                                       "<name>%s</name>"
-                                       "<login>%s</login>"
-                                       "<key>"
-                                       "<phrase>%s</phrase>"
-                                       "<private>%s</private>"
-                                       "</key>"
-                                       "</create_lsc_credential>",
-                                       name, login, passphrase ?: "",
-                                       private_key);
+    ret = openvas_server_sendf_xml (session,
+                                    "<create_lsc_credential>"
+                                    "<name>%s</name>"
+                                    "<login>%s</login>"
+                                    "<key>"
+                                    "<phrase>%s</phrase>"
+                                    "<private>%s</private>"
+                                    "</key>"
+                                    "</create_lsc_credential>",
+                                    name,
+                                    login,
+                                    passphrase ? passphrase : "",
+                                    private_key);
 
-  /* Send the request. */
-
-  ret = openvas_server_send (session, request);
-  g_free (request);
-  if (ret) return -1;
+  if (ret)
+    return -1;
 
   ret = omp_read_create_response (session, uuid);
   if (ret == 201)
