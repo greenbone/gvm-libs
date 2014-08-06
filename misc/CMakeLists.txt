@@ -92,14 +92,14 @@ else (MINGW)
   set (FILES arglists.c bpf_share.c ftp_funcs.c hash_table_file.c
              ids_send.c kb_redis.c network.c openvas_auth.c openvas_logging.c
              openvas_server.c openvas_ssh_login.c openvas_uuid.c plugutils.c
-             popen.c openvas_proctitle.c resource_request.c scanners_utils.c
+             popen.c openvas_proctitle.c scanners_utils.c
              system.c www_funcs.c pcap.c)
 
   set (HEADERS arglists.h bpf_share.h ftp_funcs.h hash_table_file.h kb.h
                network.h pcap_openvas.h plugutils.h popen.h
                openvas_proctitle.h openvas_auth.h openvas_logging.h
                openvas_server.h openvas_ssh_login.h openvas_uuid.h
-               resource_request.h nvt_categories.h internal_com.h
+               nvt_categories.h internal_com.h
                scanners_utils.h system.h www_funcs.h)
 endif (MINGW)
 

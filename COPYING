@@ -60,7 +60,6 @@ misc/pcap_openvas.h: LGPLv2+
 misc/plugutils.[c|h]: LGPLv2+
 misc/popen.[c|h]: LGPLv2+
 misc/kb_redis.c: GPLv2+
-misc/resource_request.[c|h]: GPLv2+
 misc/scanners_utils.[c|h]: LGPLv2+
 misc/support.h: GPLv2+
 misc/system.[c|h]: LGPLv2+
