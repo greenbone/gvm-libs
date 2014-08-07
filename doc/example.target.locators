@@ -1,8 +1,0 @@
-[LDAP Hosts]
-sourcetype=ldap
-host=myldap.mydomain
-rootdn=o=mydomain,c=org
-filter=(objectClass=host)
-attribute=dns
-userdn=uid=%s,cn=users,o=mydomain,c=org
-description=Arbitrary LDAP scheme.

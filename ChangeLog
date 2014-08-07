@@ -1,4 +1,9 @@
-2014-08-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+2014-08-07  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* doc/example.target.locators: Removed. This example
+	is not needed anymore as the target locator support was removed.
+
+2014-08-07  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/ldap_connect_auth.c (ldap_auth_bind_query, ldap_auth_query):
 	Removed unused functions.
