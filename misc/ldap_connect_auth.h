@@ -79,14 +79,7 @@ ldap_auth_info_auth_dn (const ldap_auth_info_t, const gchar*);
 LDAP *
 ldap_auth_bind (const gchar *, const gchar *, const gchar *, gboolean);
 
-GSList*
-ldap_auth_bind_query (const gchar*, const gchar*, const gchar*, const gchar*,
-                      const gchar*, const gchar*, const gchar*);
-
 gboolean ldap_auth_dn_is_good (const gchar *);
-
-GSList*
-ldap_auth_query (LDAP*, const gchar*, const gchar*, const gchar* attribute);
 
 #endif /* not LDAP_CONNECT_AUTH_H */
 
