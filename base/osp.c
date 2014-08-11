@@ -277,7 +277,8 @@ osp_start_scan (osp_connection_t *connection, const char *target,
     g_hash_table_foreach (options, option_concat_as_xml, &options_str);
 
   rc = osp_send_command (connection, &entity,
-                         "<start_scan target='%s'>%s</start_scan>",
+                         "<start_scan target='%s'><scanner_params>"
+                         "%s</scanner_params></start_scan>",
                          target, options_str ? options_str : "");
   g_free (options_str);
   if (rc)
