@@ -1,3 +1,8 @@
+2014-08-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* omp/omp.c, omp/omp.h (omp_pause_task, omp_resume_paused_task): Delete
+	functions.
+
 2014-08-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/osp.c (osp_start_scan): Insert scan options in scanner_params xml
