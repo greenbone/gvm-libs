@@ -1,3 +1,8 @@
+2014-08-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_ssh_login.c (openvas_ssh_public_from_private): Fix
+	segfault when an erroneous private key is used.
+
 2014-08-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* omp/omp.c, omp/omp.h (omp_pause_task, omp_resume_paused_task): Delete

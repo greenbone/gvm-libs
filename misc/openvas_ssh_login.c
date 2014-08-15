@@ -158,6 +158,8 @@ openvas_ssh_public_from_private (const char *private_key, const char *passphrase
   /* Return as base64 encoded public key. */
   ssh_pubkey = publickey_from_privatekey (ssh_privkey);
   privatekey_free (ssh_privkey);
+  if (!ssh_pubkey)
+    return NULL;
   sstring = publickey_to_string (ssh_pubkey);
   publickey_free (ssh_pubkey);
   if (!sstring)
