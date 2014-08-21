@@ -1,3 +1,33 @@
+openvas-libraries 8.0+beta1 (2014-08-21)
+
+This release is the first beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-8".
+
+Main new features and other changes of 8.0 compared to 7.0 include the
+new redis-based backend for the Knowldge Base (KB) and support for OpenVAS
+Scanner Protocol (OSP).
+
+Many thanks to everyone who has contributed this release:
+Hani Benhabiles, Henri Doreau, Michael Meyer, Matthew Mundell, Timo Pollmeier,
+Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to 7.0.x:
+* Changed the kowledge base (KB) backend to a redis-based one.
+  This adds the mandatory prerequisite for the library hiredis.
+* Made libssh a mandatory prerequisite.
+* Added support functions for new OpenVAS Scanner Potocol (OSP).
+* Improved password policy warning handling.
+* New option "-B" for command line tool "openvas-nasl" to make the
+  script run in description mode first.
+* Dropped the public key part for SSH credentials as it is redundant.
+* Dropped support for OMP rcfile.
+* Dropped support for target locators.
+* Dropped support for pausing scan tasks.
+* Improved support of server connections including TLS part (GNUTLS). 
+* Various little fixes and extensions.
+* Comprehensive code-cleanups.
+
+
 openvas-libraries 7.0.1 (2014-04-23)
 
 This is the first maintenance release of the openvas-libraries 7.0 module for

@@ -1,3 +1,11 @@
+2014-08-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Preparing the openvas-libraries 8.0+beta1 release.
+
+	* CHANGES: Updated.
+
+	* INSTALL: Added libhiredis and moved libssh to the right place.
+
 2014-08-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/openvas_ssh_login.c (openvas_ssh_public_from_private): Fix
