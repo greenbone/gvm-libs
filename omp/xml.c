@@ -424,7 +424,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
 
   if (time (&last_time) == -1)
     {
-      g_message ("   failed to get current time: %s\n",
+      g_warning ("   failed to get current time: %s\n",
                  strerror (errno));
       return -1;
     }
@@ -475,7 +475,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
       ssize_t count;
       while (1)
         {
-          g_message ("   asking for %i\n", (int) (buffer_end - buffer_start));
+          g_debug ("   asking for %i\n", (int) (buffer_end - buffer_start));
           count =
             gnutls_record_recv (*session, buffer_start,
                                 buffer_end - buffer_start);
@@ -490,7 +490,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
                   if ((timeout - (time (NULL) - last_time))
                       <= 0)
                     {
-                      g_message ("   timeout\n");
+                      g_warning ("   timeout\n");
                       fcntl (socket, F_SETFL, 0L);
                       g_markup_parse_context_free (xml_context);
                       return -4;
@@ -518,7 +518,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
               g_markup_parse_context_end_parse (xml_context, &error);
               if (error)
                 {
-                  g_message ("   End error: %s\n", error->message);
+                  g_warning ("   End error: %s\n", error->message);
                   g_error_free (error);
                 }
               if (context_data.first && context_data.first->data)
@@ -536,7 +536,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
           break;
         }
 
-      g_message ("<= %.*s\n", (int) count, buffer_start);
+      g_debug ("<= %.*s\n", (int) count, buffer_start);
 
       if (string)
         g_string_append_len (string, buffer_start, count);
@@ -562,7 +562,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
           g_markup_parse_context_end_parse (xml_context, &error);
           if (error)
             {
-              g_message ("   End error: %s\n", error->message);
+              g_warning ("   End error: %s\n", error->message);
               g_error_free (error);
               if (context_data.first && context_data.first->data)
                 {
@@ -585,7 +585,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
 
       if ((timeout > 0) && (time (&last_time) == -1))
         {
-          g_message ("   failed to get current time (1): %s\n",
+          g_warning ("   failed to get current time (1): %s\n",
                      strerror (errno));
           fcntl (socket, F_SETFL, 0L);
           g_markup_parse_context_free (xml_context);
@@ -751,7 +751,7 @@ parse_entity (const char *string, entity_t * entity)
       g_markup_parse_context_end_parse (xml_context, &error);
       if (error)
         {
-          g_message ("   End error: %s\n", error->message);
+          g_warning ("   End error: %s\n", error->message);
           g_error_free (error);
           if (context_data.first && context_data.first->data)
             {
@@ -942,7 +942,7 @@ compare_find_attribute (gpointer key, gpointer value, gpointer attributes2)
   gchar *value2 = g_hash_table_lookup (attributes2, key);
   if (value2 && strcmp (value, value2) == 0)
     return FALSE;
-  g_message ("  compare failed attribute: %s\n", (char *) value);
+  g_debug ("  compare failed attribute: %s\n", (char *) value);
   return TRUE;
 }
 
@@ -964,13 +964,13 @@ compare_entities (entity_t entity1, entity_t entity2)
 
   if (strcmp (entity1->name, entity2->name))
     {
-      g_message ("  compare failed name: %s vs %s\n", entity1->name,
+      g_debug ("  compare failed name: %s vs %s\n", entity1->name,
                  entity2->name);
       return 1;
     }
   if (strcmp (entity1->text, entity2->text))
     {
-      g_message ("  compare failed text %s vs %s (%s)\n", entity1->text,
+      g_debug ("  compare failed text %s vs %s (%s)\n", entity1->text,
                  entity2->text, entity1->name);
       return 1;
     }
@@ -988,7 +988,7 @@ compare_entities (entity_t entity1, entity_t entity2)
           (entity1->attributes, compare_find_attribute,
            (gpointer) entity2->attributes))
         {
-          g_message ("  compare failed attributes\n");
+          g_debug ("  compare failed attributes\n");
           return 1;
         }
     }
@@ -1000,7 +1000,7 @@ compare_entities (entity_t entity1, entity_t entity2)
     {
       if (compare_entities (list1->data, list2->data))
         {
-          g_message ("  compare failed subentity\n");
+          g_debug ("  compare failed subentity\n");
           return 1;
         }
       list1 = g_slist_next (list1);
@@ -1009,7 +1009,7 @@ compare_entities (entity_t entity1, entity_t entity2)
   if (list1 == list2)
     return 0;
   /* More entities in one of the two. */
-  g_message ("  compare failed number of entities (%s)\n", entity1->name);
+  g_debug ("  compare failed number of entities (%s)\n", entity1->name);
   return 1;
 }
 

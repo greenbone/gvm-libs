@@ -1,3 +1,12 @@
+2014-08-26  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Backport r20175.
+
+	* omp/xml.c (try_read_entity_and_string, parse_entity)
+	(compare_find_attribute, compare_entities): Make log levels more
+	precise; change g_message to either g_warning or g_debug based on
+	severity.
+
 2014-08-01  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Backport r20006.
