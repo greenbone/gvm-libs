@@ -203,6 +203,7 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 pkg_check_modules (GNUTLS REQUIRED gnutls>=2.8)
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.16)
+pkg_check_modules (REDIS REQUIRED hiredis)
 if (NOT OPENVAS_OMP_ONLY)
   pkg_check_modules (WMICLIENT wmiclient>=1.3.14)
   pkg_check_modules (WINCMD wincmd>=0.80)
@@ -233,14 +234,12 @@ if (NOT OPENVAS_OMP_ONLY)
   endif (PCAP_CONFIG)
 endif (NOT OPENVAS_OMP_ONLY)
 
-message (STATUS "Looking for hiredis...")
-find_library (HIREDIS hiredis)
-message (STATUS "Looking for hiredis... ${HIREDIS}")
-if (NOT HIREDIS)
-  message (FATAL_ERROR "The hiredis library is required.")
-endif (NOT HIREDIS)
-
-set (REDIS_LDFLAGS "-lhiredis")
+execute_process (COMMAND pkg-config --cflags hiredis
+  OUTPUT_VARIABLE REDIS_CFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process (COMMAND pkg-config --libs hiredis
+  OUTPUT_VARIABLE REDIS_LDFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process (COMMAND pkg-config --cflags glib-2.0
   OUTPUT_VARIABLE GLIB_CFLAGS

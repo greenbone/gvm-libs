@@ -1,3 +1,8 @@
+2014-08-27  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* CMakeLists.txt: Use pkg-config to find the hiredis library and to
+	retrieve the appropriate flags.
+
 2014-08-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* omp/xml.c (try_read_entity_and_string, parse_entity)
