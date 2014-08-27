@@ -36,29 +36,10 @@ struct arglist
   int hash;
 };
 
-/**
- * @brief Struct to cache names (keys) of arglist entries.
- *
- * A lot of entries in our arglists have the same name.
- * We use a caching system to avoid to allocate twice the same name
- *
- * This saves about 300Kb of memory, with minimal performance impact
- */
-struct name_cache
-{
-  char *name;
-  int occurences;
-  struct name_cache *next;
-  struct name_cache *prev;
-};
-
 #define ARG_STRING  1
 #define ARG_PTR     2
 #define ARG_INT     3
 #define ARG_ARGLIST 4
-
-char *cache_inc (const char *name);
-void cache_dec (const char *name);
 
 void arg_add_value (struct arglist *, const char *, int, long, void *);
 int arg_set_value (struct arglist *, const char *, long, void *);

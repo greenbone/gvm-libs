@@ -1,5 +1,16 @@
 2014-08-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Encapsulate name_cache into arglist modules as it is not used
+	anywhere else anymore.
+
+	misc/arglist.h: Removed protos for cache_inc and cache_dec.
+	(struct name_cache): Removed.
+
+	misc/arglist.c: Added struct name_cache here.
+	(cache_inc, cache_dec): Made static.
+
+2014-08-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/arglist.c (str2arglist): Removed. It is meanwhile
 	not used anymore anywhere.
 
