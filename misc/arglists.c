@@ -414,29 +414,3 @@ arg_del_value (args, name)
 
   arg_free (element);
 }
-
-struct arglist *
-str2arglist (char *str)
-{
-  struct arglist *ret;
-
-  if (!str || str[0] == '\0')
-    {
-      return NULL;
-    }
-
-  ret = emalloc (sizeof (struct arglist));
-
-  int i = 0;
-  gchar **deparray = g_strsplit (str, ", ", 0);
-
-  while (deparray[i] != NULL)
-    {
-      arg_add_value (ret, g_strdup (deparray[i]), ARG_INT, 0, (void *) 1);
-      i++;
-    }
-
-  g_strfreev (deparray);
-
-  return ret;
-}

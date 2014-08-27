@@ -1,3 +1,10 @@
+2014-08-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/arglist.c (str2arglist): Removed. It is meanwhile
+	not used anymore anywhere.
+
+	* misc/arglist.h: Removed proto accordingly.
+
 2014-08-27  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* CMakeLists.txt: Use pkg-config to find the hiredis library and to
