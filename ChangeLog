@@ -1,3 +1,10 @@
+2014-08-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_string.c (openvas_string_flatten_string_list)
+	(openvas_string_list_free): Remove unused functions.
+
+	* base/openvas_string.h: Remove functions prototypes.
+
 2014-08-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Encapsulate name_cache into arglist modules as it is not used
