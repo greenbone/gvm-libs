@@ -189,37 +189,35 @@ unload_gnutls_file(gnutls_datum_t *data)
     g_free (data->data);
 }
 
-static char *cert_file = NULL;
-static char *key_file = NULL;
-static gnutls_x509_privkey_t key;
-static gnutls_x509_crt_t crt;
+static char *cert_pub_mem = NULL;
+static char *cert_priv_mem = NULL;
 
 static void
-set_cert_file (const char *filename)
+set_cert_pub_mem (const char *data)
 {
-  if (cert_file)
-    g_free (cert_file);
-  cert_file = g_strdup (filename);
+  if (cert_pub_mem)
+    g_free (cert_pub_mem);
+  cert_pub_mem = g_strdup (data);
 }
 
 static void
-set_key_file (const char *filename)
+set_cert_priv_mem (const char *data)
 {
-  if (key_file)
-    g_free (key_file);
-  key_file = g_strdup (filename);
+  if (cert_priv_mem)
+    g_free (cert_priv_mem);
+  cert_priv_mem = g_strdup (data);
 }
 
 static const char *
-get_key_file ()
+get_cert_priv_mem ()
 {
-  return key_file;
+  return cert_priv_mem;
 }
 
 static const char *
-get_cert_file ()
+get_cert_pub_mem ()
 {
-  return cert_file;
+  return cert_pub_mem;
 }
 
 static int
@@ -230,23 +228,25 @@ client_cert_callback (gnutls_session_t session,
 {
   int ret;
   gnutls_datum_t data;
+  static gnutls_x509_crt_t crt;
+  static gnutls_x509_privkey_t key;
 
-  if (load_gnutls_file (get_cert_file (), &data))
-    return -1;
+  data.data = (unsigned char *) g_strdup (get_cert_pub_mem ());
+  data.size = strlen (get_cert_pub_mem ());
   gnutls_x509_crt_init (&crt);
   ret = gnutls_x509_crt_import (crt, &data, GNUTLS_X509_FMT_PEM);
-  unload_gnutls_file (&data);
+  g_free (data.data);
   if (ret)
     return ret;
   st->cert.x509 = &crt;
   st->cert_type = GNUTLS_CRT_X509;
   st->ncerts = 1;
 
-  if (load_gnutls_file (get_key_file (), &data))
-    return -1;
+  data.data = (unsigned char *) g_strdup (get_cert_priv_mem ());
+  data.size = strlen (get_cert_priv_mem ());
   gnutls_x509_privkey_init (&key);
   ret = gnutls_x509_privkey_import (key, &data, GNUTLS_X509_FMT_PEM);
-  unload_gnutls_file (&data);
+  g_free (data.data);
   if (ret)
     return ret;
   st->key.x509 = key;
@@ -256,8 +256,8 @@ client_cert_callback (gnutls_session_t session,
 
 int
 openvas_server_open_with_cert (gnutls_session_t *session, const char *host,
-                               int port, const char *ca_file,
-                               const char *cert_file, const char *key_file)
+                               int port, const char *ca_mem,
+                               const char *pub_mem, const char *priv_mem)
 {
   int ret;
   int server_socket;
@@ -277,18 +277,17 @@ openvas_server_open_with_cert (gnutls_session_t *session, const char *host,
       solution would be to lookup already created credentials and
       reuse them.  */
 
-  if (server_new_internal (GNUTLS_CLIENT, "NORMAL",
-                           ca_file, cert_file, key_file,
-                           session, &credentials))
+  if (openvas_server_new_mem (GNUTLS_CLIENT, ca_mem, pub_mem, priv_mem, session,
+                              &credentials))
     {
       g_warning ("Failed to create client TLS session.");
       return -1;
     }
 
-  if (ca_file && cert_file && key_file)
+  if (ca_mem && pub_mem && priv_mem)
     {
-      set_cert_file (cert_file);
-      set_key_file (key_file);
+      set_cert_pub_mem (pub_mem);
+      set_cert_priv_mem (priv_mem);
 
       gnutls_certificate_set_retrieve_function (credentials,
                                                 client_cert_callback);
@@ -383,7 +382,7 @@ openvas_server_open_with_cert (gnutls_session_t *session, const char *host,
         }
       return -1;
     }
-  if (ca_file && cert_file && key_file && openvas_server_verify (*session))
+  if (ca_mem && pub_mem && priv_mem && openvas_server_verify (*session))
     return -1;
 
   return server_socket;
@@ -826,8 +825,9 @@ openvas_server_new (unsigned int end_type,
  * @return 0 on success, -1 on error.
  */
 int
-openvas_server_new_mem (unsigned int end_type, gchar *ca_cert, gchar *pub_key,
-                        gchar *priv_key, gnutls_session_t *session,
+openvas_server_new_mem (unsigned int end_type, const char *ca_cert,
+                        const char *pub_key, const char *priv_key,
+                        gnutls_session_t *session,
                         gnutls_certificate_credentials_t *credentials)
 {
   if (server_new_gnutls_init (credentials))

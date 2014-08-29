@@ -1,3 +1,23 @@
+2014-08-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_server.c (cert_file, key_file): Rename variables to
+	cert_pub_mem and cert_priv_mem.
+	(key, crt): Move static variables within client_cert_callback().
+	(set_cert_file, set_key_file, get_key_file, get_cert_file): Rename
+	set_cert_pub_mem, set_cert_priv_mem, get_cert_pub_mem, get_cert_priv_mem
+	respectively.
+	(client_cert_callback): Use certs variables as memory pointers instead
+	of file paths.
+	(openvas_server_open_with_cert): Use openvas_server_new_mem(). Rename
+	function arguments for clarity.
+	(openvas_server_new_mem): Constify function arguments.
+
+	* misc/openvas_server.h: Adjust function argument.
+
+	* base/osp.c (osp_connection_new): Update function comments to specify
+	that certs functions arguments are used as memory pointers instead of
+	file paths.
+
 2014-08-29  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* omp/omp.c, omp/omp.h, omp/xml.c, omp/xml.h: Ensure the GPLv2+

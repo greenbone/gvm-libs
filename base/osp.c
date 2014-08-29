@@ -51,9 +51,9 @@ osp_send_command (osp_connection_t *, entity_t *, const char *, ...)
  *
  * @param[in]   host    Host of OSP server.
  * @param[in]   port    Port of OSP server.
- * @param[in]   cacert  CA certificate path.
- * @param[in]   cert    Client certificate path.
- * @param[in]   key     Client private key path.
+ * @param[in]   cacert  CA public key.
+ * @param[in]   cert    Client public key.
+ * @param[in]   key     Client private key.
  *
  * @return New osp connection, NULL if error.
  */
