@@ -1,3 +1,9 @@
+2014-08-29  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* omp/omp.c, omp/omp.h, omp/xml.c, omp/xml.h: Ensure the GPLv2+
+	license notice uses the paragraph suggested by the Free Software
+	Foundation.
+
 2014-08-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_string.c (openvas_string_flatten_string_list)
