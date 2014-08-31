@@ -1,5 +1,9 @@
 2014-08-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/network.c (stream_set_buffer): Add missing assignment.
+
+2014-08-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_crypto2.c: Removed unneeded include's and unneeded
 	macro MAP_FAILED.
 

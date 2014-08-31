@@ -2399,7 +2399,6 @@ stream_get_buffer_sz (int fd)
   return p->bufsz;
 }
 
-
 int
 stream_set_buffer (int fd, int sz)
 {
@@ -2439,6 +2438,7 @@ stream_set_buffer (int fd, int sz)
       b = realloc (p->buf, sz);
       if (b == NULL)
         return -1;
+      p->buf = b;
       p->bufsz = sz;
       return 0;
     }
