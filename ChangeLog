@@ -1,5 +1,10 @@
 2014-08-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_packet_forgery_v6.c (forge_icmp_v6_packet): Added missing
+	free'ing of memory.
+
+2014-08-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/network.c (stream_set_buffer): Add missing assignment.
 
 2014-08-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>

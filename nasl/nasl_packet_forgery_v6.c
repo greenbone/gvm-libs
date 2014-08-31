@@ -1311,6 +1311,7 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
                   {
                     nasl_perror (lexic,
                                  "forge_icmp_v6_packet: missing 'target' parameter required for constructing response to a Neighbor Solicitation\n");
+                    free (ip6_icmp);
                     return NULL;
                   }
               }
