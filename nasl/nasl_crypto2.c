@@ -27,12 +27,7 @@
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 
-#include <fcntl.h>              /* for open */
-#include <sys/stat.h>           /* for stat */
-#include <sys/mman.h>           /* for mmap */
-#include <unistd.h>             /* for close */
 #include "system.h"             /* for emalloc */
-
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -45,11 +40,6 @@
 #include "nasl_debug.h"
 #include "nasl_misc_funcs.h"
 #include "nasl_crypto2.h"
-
-#ifndef MAP_FAILED
-#define MAP_FAILED (void*)(-1)
-#endif
-
 
 #define INTBLOB_LEN	20
 #define SIGBLOB_LEN	(2*INTBLOB_LEN)
