@@ -152,7 +152,6 @@ getpts (char *origexpr, int *len)
     }
 
 
-  exlen = i;
   i = 0;
   while ((p = strchr (expr, ',')))
     {

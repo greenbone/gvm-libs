@@ -1,5 +1,31 @@
 2014-08-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_text_utils.c (nasl_rawstring): Removed dead initialization.
+
+	* nasl/nasl_packet_forgery_v6.c (set_udp_v6_elements): Removed dead
+	initialization and therefore a memory leak.
+	(nasl_tcp_v6_ping): Removed dead assignment.
+
+	* nasl/nasl_packet_forgery.c (set_udp_elements): Removed dead
+	initialization and therefore a memory leak.
+	(nasl_tcp_ping): Removed dead assignment.
+
+	* misc/openvas_auth.c (openvas_auth_write_config): Removed dead
+	initialization and therefore a memory leak.
+
+	* nasl/nasl_builtin_synscan.c (packetdead): Removed dead assignment and
+	dropped unnecessary "else".
+
+	* nasl/nasl_text_utils.c (nasl_rawstring): Removed dead assignment.
+
+	* nasl/nasl_func.c (nasl_func_call): Removed dead assignment.
+
+	* misc/scanner_utils.c (getpts): Removed dead assignments.
+
+	* misc/network.c (auth_send): Removed dead assignment.
+
+2014-08-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_packet_forgery_v6.c (forge_icmp_v6_packet): Added missing
 	free'ing of memory.
 

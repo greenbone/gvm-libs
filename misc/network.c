@@ -2315,16 +2315,12 @@ auth_send (struct arglist *globals, char *data)
       n = nsend (soc, data + sent, length - sent, 0);
       if (n < 0)
         {
-          if ((errno == ENOMEM)
+          if ((errno != ENOMEM)
 #ifdef ENOBUFS
-              || (errno == ENOBUFS)
+              && (errno != ENOBUFS)
 #endif
             )
-            n = 0;
-          else
-            {
               goto out;
-            }
         }
       else
         sent += n;

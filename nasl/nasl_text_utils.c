@@ -172,7 +172,7 @@ nasl_rawstring (lex_ctxt * lexic)
         }
       else
         {
-          int current_len = sz;
+          int current_len;
           char str[RAW_STR_LEN];
 
           s = get_str_var_by_num (lexic, vi);
@@ -213,7 +213,6 @@ nasl_rawstring (lex_ctxt * lexic)
                       else if (s[i + 1] == 'x' && isxdigit (s[i + 2])
                                && isxdigit (s[i + 3]))
                         {
-                          x = 0;
                           if (isdigit (s[i + 2]))
                             x = (s[i + 2] - '0') * 16;
                           else

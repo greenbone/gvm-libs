@@ -1015,7 +1015,7 @@ set_udp_elements (lex_ctxt * lexic)
 
   if (ip != NULL)
     {
-      char *pkt = emalloc (sz + data_len);
+      char *pkt;
       struct udphdr *udp;
       tree_cell *retc;
       int old_len;
@@ -1420,7 +1420,6 @@ nasl_tcp_ping (lex_ctxt * lexic)
 
   for (i = 0; ports[i]; i++)
     num_ports++;
-  i = 0;
 
   soc = socket (AF_INET, SOCK_RAW, IPPROTO_RAW);
   if (soc < 0)

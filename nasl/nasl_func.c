@@ -256,7 +256,6 @@ nasl_func_call (lex_ctxt * lexic, const nasl_func * f, tree_cell * arg_list)
             nasl_trace (lexic, "NASL> %s)\n", trace_buf);
           else
             nasl_trace (lexic, "NASL> %s ...)\n", trace_buf);
-          trace_buf_len = 0;
           efree (&trace_buf);
         }
 

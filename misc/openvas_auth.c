@@ -480,7 +480,7 @@ int
 openvas_auth_write_config (GKeyFile * key_file)
 {
   GKeyFile *new_conffile = g_key_file_new ();
-  GKeyFile *old_conffile = g_key_file_new ();
+  GKeyFile *old_conffile;
   gchar **groups = NULL;
   gchar **group = NULL;
   gchar **keys = NULL;

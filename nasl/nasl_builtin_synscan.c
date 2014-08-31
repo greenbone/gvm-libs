@@ -158,13 +158,12 @@ packetdead (unsigned long then, unsigned long rtt)
 
 	then = ntohl(then);
 	now = ntohl(now);
-	rtt = ntohl(rtt);
 
 	if ((now - then) >= 2 << 28 ) {
 		return 1;
-	} else {
-		return 0;
 	}
+
+	return 0;
 }
 
 
