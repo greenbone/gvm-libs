@@ -1,5 +1,12 @@
 2014-09-01  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* CMakeLists.txt: Re-add parts removed in r20187 as a fallback for
+	finding the hiredis library. Upstream does not (yet) support
+	pkg-config, so pkg-config files may or may not exist depending on the
+	distribution.
+
+2014-09-01  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* CMakeLists.txt, openvas_cmake_macros,
 	nasl/tests/test_script_signing.sh, omp/CMakeLists.txt: Ensure the
 	GPLv2+ license notice uses the paragraph suggested by the Free
