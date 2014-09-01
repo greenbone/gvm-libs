@@ -1,3 +1,18 @@
+2014-09-01  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* base/array.c, base/array.h, base/CMakeLists.txt, base/credentials.c,
+	base/credentials.h, base/cvss.c, base/cvss.h, base/drop_privileges.c,
+	base/drop_privileges.h, base/gpgme_util.c, base/gpgme_util.h,
+	base/nvti.c, base/nvticache.c, base/nvticache.h, base/nvti.h,
+	base/openvas_compress.c, base/openvas_compress.h, base/openvas_file.c,
+	base/openvas_file.h, base/openvas_hosts.c, base/openvas_hosts.h,
+	base/openvas_networking.c, base/openvas_networking.h,
+	base/openvas_string.c, base/openvas_string.h, base/osp.c, base/osp.h,
+	base/pidfile.c, base/pidfile.h, base/pwpolicy.c, base/pwpolicy.h,
+	base/settings.c, base/settings.h, base/test-hosts.c: Ensure the GPLv2+
+	license notice uses the paragraph suggested by the Free Software
+	Foundation.
+
 2014-08-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_text_utils.c (nasl_rawstring): Removed dead initialization.
