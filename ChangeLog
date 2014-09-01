@@ -1,5 +1,14 @@
 2014-09-01  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* misc/hash_table_file.c, misc/hash_table_file.h, misc/kb.h,
+	misc/kb_redis.c, misc/ldap_connect_auth.c, misc/ldap_connect_auth.h,
+	misc/openvas_proctitle.c, misc/openvas_proctitle.h,
+	misc/openvas_ssh_login.c, misc/openvas_ssh_login.h, misc/support.h:
+	Ensure the GPLv2+ license notice uses the paragraph suggested by the
+	Free Software Foundation.
+
+2014-09-01  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/array.c, base/array.h, base/CMakeLists.txt, base/credentials.c,
 	base/credentials.h, base/cvss.c, base/cvss.h, base/drop_privileges.c,
 	base/drop_privileges.h, base/gpgme_util.c, base/gpgme_util.h,
