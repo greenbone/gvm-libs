@@ -838,6 +838,8 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
   nasl_dump_tree (st);          /* See rt.value, rt.type, rt.length */
 #endif
 
+  if (st)
+    lexic->line_nb = st->line_nb;
   /* return */
   if (lexic->ret_val != NULL)
     {

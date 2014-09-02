@@ -38,6 +38,7 @@ typedef struct struct_lex_ctxt
   unsigned always_authenticated:1;
   struct arglist *script_infos;
   int recv_timeout;
+  int line_nb;
   /* Named variables hash set + anonymous variables array */
   nasl_array ctx_vars;
   /* Functions hash set */

@@ -1,3 +1,12 @@
+2014-09-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_lex_ctxt.h (struct_lex_ctxt): Add line_nb element.
+
+	* nasl/nasl_debug (nasl_perror): Print the error's line number after the
+	script name.
+
+	* nasl/exec.c (nasl_exec): Set the lexical context's line number.
+
 2014-09-01  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* CMakeLists.txt: Re-add parts removed in r20187 as a fallback for
