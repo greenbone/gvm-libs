@@ -29,6 +29,15 @@
 
 typedef struct osp_connection osp_connection_t;
 
+typedef struct osp_param osp_param_t;
+
+typedef enum {
+  OSP_PARAM_TYPE_INT = 0,
+  OSP_PARAM_TYPE_STR,
+  OSP_PARAM_TYPE_PASSWORD,
+  OSP_PARAM_TYPE_FILE,
+} osp_param_type_t;
+
 osp_connection_t *
 osp_connection_new (const char *, int, const char *, const char *,
                     const char *);
@@ -44,6 +53,27 @@ osp_get_scan (osp_connection_t *, const char *, char **);
 
 int
 osp_delete_scan (osp_connection_t *, const char *);
+
+GSList *
+osp_get_scanner_params (osp_connection_t *);
+
+osp_param_t *
+osp_param_new ();
+
+osp_param_type_t
+osp_param_type (osp_param_t *);
+
+const char *
+osp_param_id (osp_param_t *);
+
+const char *
+osp_param_name (osp_param_t *);
+
+const char *
+osp_param_desc (osp_param_t *);
+
+void
+osp_param_free (osp_param_t *);
 
 void
 osp_connection_close (osp_connection_t *);

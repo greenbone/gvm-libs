@@ -1,3 +1,13 @@
+2014-09-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/osp.c (struct osp_param): New struct.
+	(osp_param_str_to_type, osp_get_scanner_params, osp_param_new)
+	(osp_param_free, osp_param_id, osp_param_desc, osp_param_name)
+	(osp_param_type): New functions.
+
+	* base/osp.h: Add function prototypes and struct typedef.
+	(osp_param_type_t): New enum.
+
 2014-09-03  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* doc/CMakeLists.txt: Use appropriate text for second paragraph of the

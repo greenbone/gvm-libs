@@ -29,6 +29,7 @@
 #include "../misc/openvas_server.h"
 #include "../misc/openvas_uuid.h"
 #include "../omp/xml.h"
+#include "osp.h"
 
 
 #undef  G_LOG_DOMAIN
@@ -40,6 +41,13 @@ typedef struct osp_connection {
   char *host;
   int port;
 } osp_connection_t;
+
+struct osp_param {
+  char *id;
+  char *name;
+  char *desc;
+  osp_param_type_t type;
+};
 
 
 static int
@@ -301,4 +309,148 @@ osp_start_scan (osp_connection_t *connection, const char *target,
     }
   free_entity (entity);
   return scan_id;
+}
+
+/* @brief Get an OSP parameter's type from its string format.
+ *
+ * @param[in]   str     OSP parameter in string format.
+ *
+ * @return OSP parameter type.
+ */
+static osp_param_type_t
+osp_param_str_to_type (const char *str)
+{
+  assert (str);
+  if (!strcmp (str, "int"))
+    return OSP_PARAM_TYPE_INT;
+  else if (!strcmp (str, "string"))
+    return OSP_PARAM_TYPE_STR;
+  else if (!strcmp (str, "password"))
+    return OSP_PARAM_TYPE_PASSWORD;
+  else if (!strcmp (str, "file"))
+    return OSP_PARAM_TYPE_FILE;
+  assert (0);
+}
+
+/* @brief Get an OSP scanner's parameters.
+ *
+ * @param[in]   connection  Connection to an OSP server.
+ *
+ * @return List of osp_param_t, null if error. Free with g_free().
+ */
+GSList *
+osp_get_scanner_params (osp_connection_t *connection)
+{
+  entity_t entity, child;
+  entities_t entities;
+  GSList *params = NULL;
+
+  assert (connection);
+
+  if (osp_send_command (connection, &entity, "<get_scanner_details/>"))
+    return NULL;
+  child = entity_child (entity, "scanner_params");
+  if (!child)
+    {
+      free_entity (entity);
+      return NULL;
+    }
+  entities = child->entities;
+  while (entities)
+    {
+      osp_param_t *param;
+
+      child = entities->data;
+      param = osp_param_new ();
+      param->id = g_strdup (entity_attribute (child, "id"));
+      param->type = osp_param_str_to_type (entity_attribute (child, "type"));
+      param->name = g_strdup (entity_text (entity_child (child, "name")));
+      param->desc = g_strdup (entity_text (entity_child (child,
+                                                         "description")));
+      params = g_slist_append (params, param);
+      entities = next_entities (entities);
+    }
+  free_entity (entity);
+  return params;
+}
+
+/* @brief Create a new OSP parameter.
+ *
+ * @return New OSP parameter.
+ */
+osp_param_t *
+osp_param_new ()
+{
+  return g_malloc0 (sizeof (osp_param_t));
+}
+
+/* @brief Get an OSP parameter's id.
+ *
+ * @param[in]   param   OSP parameter.
+ *
+ * @return ID of OSP parameter.
+ */
+const char *
+osp_param_id (osp_param_t *param)
+{
+  assert (param);
+
+  return param->id;
+}
+
+/* @brief Get an OSP parameter's name.
+ *
+ * @param[in]   param   OSP parameter.
+ *
+ * @return Name of OSP parameter.
+ */
+const char *
+osp_param_name (osp_param_t *param)
+{
+  assert (param);
+
+  return param->name;
+}
+
+/* @brief Get an OSP parameter's description.
+ *
+ * @param[in]   param   OSP parameter.
+ *
+ * @return Description of OSP parameter.
+ */
+const char *
+osp_param_desc (osp_param_t *param)
+{
+  assert (param);
+
+  return param->desc;
+}
+
+/* @brief Get an OSP parameter's type.
+ *
+ * @param[in]   param   OSP parameter.
+ *
+ * @return Type of OSP parameter.
+ */
+osp_param_type_t
+osp_param_type (osp_param_t *param)
+{
+  assert (param);
+
+  return param->type;
+}
+
+/* @brief Free an OSP parameter.
+ *
+ * @param[in] param OSP parameter to destroy.
+ */
+void
+osp_param_free (osp_param_t *param)
+{
+  if (!param)
+    return;
+  g_free (param->id);
+  g_free (param->name);
+  g_free (param->desc);
+  g_free (param);
 }
