@@ -1,5 +1,12 @@
 2014-09-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/osp.c (osp_param_type_str): New function.
+	(osp_param_str_to_type): Check for integer instead of int.
+
+	* base/osp.h: Add new function prototype.
+
+2014-09-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/osp.c (struct osp_param): New struct.
 	(osp_param_str_to_type, osp_get_scanner_params, osp_param_new)
 	(osp_param_free, osp_param_id, osp_param_desc, osp_param_name)

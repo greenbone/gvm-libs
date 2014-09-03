@@ -72,6 +72,9 @@ osp_param_name (osp_param_t *);
 const char *
 osp_param_desc (osp_param_t *);
 
+const char *
+osp_param_type_str (const osp_param_t *);
+
 void
 osp_param_free (osp_param_t *);
 

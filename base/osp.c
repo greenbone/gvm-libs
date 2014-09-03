@@ -321,7 +321,7 @@ static osp_param_type_t
 osp_param_str_to_type (const char *str)
 {
   assert (str);
-  if (!strcmp (str, "int"))
+  if (!strcmp (str, "integer"))
     return OSP_PARAM_TYPE_INT;
   else if (!strcmp (str, "string"))
     return OSP_PARAM_TYPE_STR;
@@ -329,6 +329,24 @@ osp_param_str_to_type (const char *str)
     return OSP_PARAM_TYPE_PASSWORD;
   else if (!strcmp (str, "file"))
     return OSP_PARAM_TYPE_FILE;
+  assert (0);
+}
+
+const char *
+osp_param_type_str (const osp_param_t *param)
+{
+  osp_param_type_t type;
+
+  assert (param);
+  type = param->type;
+  if (type == OSP_PARAM_TYPE_INT)
+    return "integer";
+  else if (type == OSP_PARAM_TYPE_STR)
+    return "string";
+  else if (type == OSP_PARAM_TYPE_PASSWORD)
+    return "password";
+  else if (type == OSP_PARAM_TYPE_FILE)
+    return "file";
   assert (0);
 }
 
