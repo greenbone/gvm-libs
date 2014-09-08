@@ -1781,7 +1781,8 @@ exec_nasl_script (struct arglist *script_infos, const char *name, int mode)
     {
       if (naslparse (&ctx))
         {
-          fprintf (stderr, "\nParse error at or near line %d\n", ctx.line_nb);
+          fprintf (stderr, "\n%s: Parse error at or near line %d\n",
+                   name, ctx.line_nb);
           nasl_clean_ctx (&ctx);
           g_chdir (old_dir);
           g_free (old_dir);

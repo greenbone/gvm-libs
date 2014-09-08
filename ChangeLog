@@ -1,5 +1,12 @@
 2014-09-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Backport r20300.
+
+	* nasl/exec.c (exec_nasl_script): Print script path too, on parse
+	failure.
+
+2014-09-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Backport r20237.
 
 	* nasl/nasl_lex_ctxt.h (struct_lex_ctxt): Add line_nb element.
