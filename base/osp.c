@@ -46,6 +46,7 @@ struct osp_param {
   char *id;
   char *name;
   char *desc;
+  char *def;
   osp_param_type_t type;
 };
 
@@ -385,6 +386,8 @@ osp_get_scanner_params (osp_connection_t *connection)
       param->name = g_strdup (entity_text (entity_child (child, "name")));
       param->desc = g_strdup (entity_text (entity_child (child,
                                                          "description")));
+      param->def = g_strdup (entity_text (entity_child (child,
+                                                        "default")));
       params = g_slist_append (params, param);
       entities = next_entities (entities);
     }
@@ -444,6 +447,20 @@ osp_param_desc (osp_param_t *param)
   return param->desc;
 }
 
+/* @brief Get an OSP parameter's default value.
+ *
+ * @param[in]   param   OSP parameter.
+ *
+ * @return Default value of OSP parameter.
+ */
+const char *
+osp_param_default (osp_param_t *param)
+{
+  assert (param);
+
+  return param->def;
+}
+
 /* @brief Get an OSP parameter's type.
  *
  * @param[in]   param   OSP parameter.
@@ -470,5 +487,6 @@ osp_param_free (osp_param_t *param)
   g_free (param->id);
   g_free (param->name);
   g_free (param->desc);
+  g_free (param->def);
   g_free (param);
 }

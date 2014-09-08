@@ -1,5 +1,14 @@
 2014-09-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/osp.c (osp_param_t): Add element for default value.
+	(osp_get_scanner_params): Get parameter default value too.
+	(osp_param_default): New function.
+	(osp_param_free): Free default value.
+
+	* base/osp.h: Add new function prototype.
+
+2014-09-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/exec.c (exec_nasl_script): Print script path too, on parse
 	failure.
 
