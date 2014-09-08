@@ -1,3 +1,8 @@
+2014-09-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/exec.c (exec_nasl_script): Print script path too, on parse
+	failure.
+
 2014-09-05  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* nasl/nasl_builtin_find_service.c: Add proper copyright and license
