@@ -1,3 +1,14 @@
+2014-09-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r20237.
+
+	* nasl/nasl_lex_ctxt.h (struct_lex_ctxt): Add line_nb element.
+
+	* nasl/nasl_debug (nasl_perror): Print the error's line number after the
+	script name.
+
+	* nasl/exec.c (nasl_exec): Set the lexical context's line number.
+
 2014-08-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Backport r20175.
