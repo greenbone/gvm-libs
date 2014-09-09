@@ -30,6 +30,7 @@
 #include "system.h"             /* for efree */
 
 #include "regex.h"
+#include "../misc/openvas_logging.h"
 
 #include "nasl.h"
 #include "nasl_tree.h"
@@ -393,14 +394,14 @@ cell_cmp (lex_ctxt * lexic, tree_cell * c1, tree_cell * c2)
 
     case REF_ARRAY:
     case DYN_ARRAY:
-      fprintf (stderr, "cell_cmp: cannot compare arrays yet\n");
+      log_legacy_write ("cell_cmp: cannot compare arrays yet\n");
       deref_cell (c1);
       deref_cell (c2);
       return 0;
 
     default:
-      fprintf (stderr, "cell_cmp: don't known how to compare %s and %s\n",
-               nasl_type_name (typ1), nasl_type_name (typ2));
+      log_legacy_write ("cell_cmp: don't known how to compare %s and %s\n",
+                        nasl_type_name (typ1), nasl_type_name (typ2));
       deref_cell (c1);
       deref_cell (c2);
       return 0;
@@ -1781,8 +1782,8 @@ exec_nasl_script (struct arglist *script_infos, const char *name, int mode)
     {
       if (naslparse (&ctx))
         {
-          fprintf (stderr, "\n%s: Parse error at or near line %d\n",
-                   name, ctx.line_nb);
+          log_legacy_write ("\n%s: Parse error at or near line %d\n",
+                            name, ctx.line_nb);
           nasl_clean_ctx (&ctx);
           g_chdir (old_dir);
           g_free (old_dir);
