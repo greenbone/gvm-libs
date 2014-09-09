@@ -66,6 +66,7 @@
 #include "kb.h"
 #include "nasl_debug.h"
 #include "network.h"            /* for openvas_get_socket_from_connection */
+#include "../misc/openvas_logging.h"
 
 #include "nasl_ssh.h"
 
@@ -316,7 +317,7 @@ mpi_from_gnutls_datum (gnutls_datum_t *datum)
   err = gcry_mpi_scan (&a, GCRYMPI_FMT_USG, datum->data, datum->size, NULL);
   if (err)
     {
-      fprintf (stderr, "gcry_mpi_scan failed: %s\n", gcry_strerror (err));
+      log_legacy_write ("gcry_mpi_scan failed: %s\n", gcry_strerror (err));
       abort ();
     }
 
@@ -337,7 +338,7 @@ mpi_to_gnutls_datum (gnutls_datum_t *datum, gcry_mpi_t a)
   err = gcry_mpi_print (GCRYMPI_FMT_STD, NULL, 0, &buflen, a);
   if (err)
     {
-      fprintf (stderr, "gcry_mpi_print failed: %s\n", gcry_strerror (err));
+      log_legacy_write ("gcry_mpi_print failed: %s\n", gcry_strerror (err));
       abort ();
     }
 
@@ -351,7 +352,7 @@ mpi_to_gnutls_datum (gnutls_datum_t *datum, gcry_mpi_t a)
   err = gcry_mpi_print (GCRYMPI_FMT_STD, buffer, buflen, &buflen, a);
   if (err)
     {
-      fprintf (stderr, "gcry_mpi_print failed (2): %s\n", gcry_strerror (err));
+      log_legacy_write ("gcry_mpi_print failed (2): %s\n", gcry_strerror (err));
       abort ();
     }
   datum->size = buflen;
@@ -379,7 +380,7 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
   rc = gnutls_x509_privkey_init (&key);
   if (rc)
     {
-      fprintf (stderr, "gnutls key init failed: %s\n", gnutls_strerror (rc));
+      log_legacy_write ("gnutls key init failed: %s\n", gnutls_strerror (rc));
       return NULL;
     }
 
@@ -387,7 +388,7 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
   sshkey.data = g_try_malloc (sshkey.size + 1);
   if (!sshkey.data)
     {
-      fprintf (stderr, "malloc failed in %s\n", __FUNCTION__);
+      log_legacy_write ("malloc failed in %s\n", __FUNCTION__);
       gnutls_x509_privkey_deinit (key);
       return NULL;
     }
@@ -398,8 +399,8 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
   g_free (sshkey.data);
   if (rc)
     {
-      fprintf (stderr, "gnutls import pkcs#8 failed: %s\n",
-               gnutls_strerror (rc));
+      log_legacy_write ("gnutls import pkcs#8 failed: %s\n",
+                        gnutls_strerror (rc));
       gnutls_x509_privkey_deinit (key);
       return NULL;
     }
@@ -452,8 +453,8 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
   gnutls_x509_privkey_deinit (key);
   if (rc)
     {
-      fprintf (stderr, "gnutls privkey export raw RSA key failed: %s\n",
-               gnutls_strerror (rc));
+      log_legacy_write ("gnutls privkey export raw RSA key failed: %s\n",
+                        gnutls_strerror (rc));
       return NULL;
     }
 
@@ -481,8 +482,8 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
   derbuf = get_membuf (&dermb, &derlen);
   if (!derbuf)
     {
-      fprintf (stderr, "get_membuf failed in %s: %s\n",
-               __FUNCTION__, strerror (-1));
+      log_legacy_write ("get_membuf failed in %s: %s\n",
+                        __FUNCTION__, strerror (-1));
       return NULL;
     }
   init_membuf (&dermb, 4096);
@@ -491,8 +492,8 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
   derbuf = get_membuf (&dermb, &derlen);
   if (!derbuf)
     {
-      fprintf (stderr, "get_membuf failed in %s (2): %s\n",
-               __FUNCTION__, strerror (-1));
+      log_legacy_write ("get_membuf failed in %s (2): %s\n",
+                        __FUNCTION__, strerror (-1));
       return NULL;
     }
 
@@ -502,8 +503,8 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
   efree (&derbuf);
   if (rc)
     {
-      fprintf (stderr, "gnutls_pem_base64_encode_alloc failed: %s\n",
-               gnutls_strerror (rc));
+      log_legacy_write ("gnutls_pem_base64_encode_alloc failed: %s\n",
+                        gnutls_strerror (rc));
       return NULL;
     }
   return (char*)pem.data;
@@ -517,14 +518,14 @@ remove_and_free_temp_key_file (char *filename)
   char *p;
 
   if (g_remove (filename) && errno != ENOENT)
-    fprintf (stderr, "Failed to remove temporary file '%s': %s\n",
-             filename, strerror (errno));
+    log_legacy_write ("Failed to remove temporary file '%s': %s\n",
+                      filename, strerror (errno));
   p = strrchr (filename, '/');
   g_assert (p);
   *p = 0;
   if (g_rmdir (filename))
-    fprintf (stderr, "Failed to remove temporary directory '%s': %s\n",
-             filename, strerror (errno));
+    log_legacy_write ("Failed to remove temporary directory '%s': %s\n",
+                      filename, strerror (errno));
   g_free (filename);
 }
 
@@ -570,7 +571,7 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
 #endif
       )
     {
-      fprintf (stderr, "%s: g_mkdtemp_full/mkdtemp failed\n", __FUNCTION__);
+      log_legacy_write ("%s: g_mkdtemp_full/mkdtemp failed\n", __FUNCTION__);
       return SSH_AUTH_ERROR;
     }
 
@@ -581,8 +582,8 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
   g_file_set_contents (privkey_filename, b64_key, strlen (b64_key), &error);
   if (error)
     {
-      fprintf (stderr, "Failed to write private key to temporary file: %s\n",
-               error->message);
+      log_legacy_write ("Failed to write private key to temporary file: %s\n",
+                        error->message);
       g_error_free (error);
       remove_and_free_temp_key_file (privkey_filename);
       g_free (pkcs8_buffer);
@@ -595,12 +596,12 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
 
   ssh_privkey = privatekey_from_file (session, privkey_filename, 0, passphrase);
   if (!ssh_privkey && verbose)
-    fprintf (stderr, "Reading private key from '%s' failed: %s\n",
-             privkey_filename, ssh_get_error (session));
+    log_legacy_write ("Reading private key from '%s' failed: %s\n",
+                      privkey_filename, ssh_get_error (session));
   if (!ssh_privkey && !pkcs8_buffer)
     {
       if (verbose)
-        fprintf (stderr, "Converting from PKCS#8 and trying again ...\n");
+        log_legacy_write ("Converting from PKCS#8 and trying again ...\n");
 
       pkcs8_buffer = pkcs8_to_sshprivatekey (b64_key, passphrase);
       if (pkcs8_buffer)
@@ -615,7 +616,7 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
       g_free (pkcs8_buffer);
       pkcs8_buffer = NULL;
       if (verbose)
-        fprintf (stderr, "... this worked.\n");
+        log_legacy_write ("... this worked.\n");
     }
 
   remove_and_free_temp_key_file (privkey_filename);
@@ -628,7 +629,7 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
   if (!pkey)
     {
       privatekey_free (ssh_privkey);
-      fprintf (stderr, "%s: malloc failed\n", __FUNCTION__);
+      log_legacy_write ("%s: malloc failed\n", __FUNCTION__);
       return SSH_AUTH_ERROR;
     }
   pkey->privkey = ssh_privkey;
@@ -637,7 +638,7 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
     {
       my_ssh_key_free (pkey);
       if (verbose)
-        fprintf (stderr, "%s: key type is not known\n", __FUNCTION__);
+        log_legacy_write ("%s: key type is not known\n", __FUNCTION__);
       return SSH_AUTH_ERROR;
     }
 
@@ -647,7 +648,7 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
     {
       my_ssh_key_free (pkey);
       if (verbose)
-        fprintf (stderr, "%s: publickey_from_privatekey failed\n",
+        log_legacy_write ("%s: publickey_from_privatekey failed\n",
                  __FUNCTION__);
       return SSH_AUTH_ERROR;
     }
@@ -657,7 +658,7 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
     {
       my_ssh_key_free (pkey);
       if (verbose)
-        fprintf (stderr, "%s: publickey_to_string failed\n", __FUNCTION__);
+        log_legacy_write ("%s: publickey_to_string failed\n", __FUNCTION__);
       return SSH_AUTH_ERROR;
     }
 
@@ -865,14 +866,14 @@ nasl_ssh_connect (lex_ctxt *lexic)
       /* Note: We want the hostname even if we are working on an open
          socket.  libssh may use it for example to maintain its
          known_hosts file.  */
-      fprintf (stderr, "No hostname available to ssh_connect\n");
+      log_legacy_write ("No hostname available to ssh_connect\n");
       return NULL;
     }
 
   session = ssh_new ();
   if (!session)
     {
-      fprintf (stderr, "Failed to allocate a new SSH session\n");
+      log_legacy_write ("Failed to allocate a new SSH session\n");
       return NULL;
     }
 
@@ -889,8 +890,8 @@ nasl_ssh_connect (lex_ctxt *lexic)
 
   if (ssh_options_set (session, SSH_OPTIONS_HOST, hostname))
     {
-      fprintf (stderr, "Failed to set SSH hostname '%s': %s\n",
-               hostname, ssh_get_error (session));
+      log_legacy_write ("Failed to set SSH hostname '%s': %s\n",
+                        hostname, ssh_get_error (session));
       ssh_free (session);
       return NULL;
     }
@@ -901,8 +902,8 @@ nasl_ssh_connect (lex_ctxt *lexic)
 
       if (ssh_options_set (session, SSH_OPTIONS_PORT, &my_port))
         {
-          fprintf (stderr, "Failed to set SSH port for '%s' to %d: %s\n",
-                   hostname, port, ssh_get_error (session));
+          log_legacy_write ("Failed to set SSH port for '%s' to %d: %s\n",
+                            hostname, port, ssh_get_error (session));
           ssh_free (session);
           return NULL;
         }
@@ -912,13 +913,13 @@ nasl_ssh_connect (lex_ctxt *lexic)
       socket_t my_fd = openvas_get_socket_from_connection (sock);
 
       if (verbose)
-        fprintf (stderr, "Setting SSH fd for '%s' to %d (NASL sock=%d)\n",
-                 hostname, my_fd, sock);
+        log_legacy_write ("Setting SSH fd for '%s' to %d (NASL sock=%d)\n",
+                          hostname, my_fd, sock);
       if (ssh_options_set (session, SSH_OPTIONS_FD, &my_fd))
         {
-          fprintf (stderr,
-                   "Failed to set SSH fd for '%s' to %d (NASL sock=%d): %s\n",
-                   hostname, my_fd, sock, ssh_get_error (session));
+          log_legacy_write
+           ("Failed to set SSH fd for '%s' to %d (NASL sock=%d): %s\n",
+            hostname, my_fd, sock, ssh_get_error (session));
           ssh_free (session);
           return NULL;
         }
@@ -933,7 +934,7 @@ nasl_ssh_connect (lex_ctxt *lexic)
   if (!(tbl_slot < DIM (session_table)))
     {
       if (verbose)
-        fprintf (stderr, "No space left in SSH session table\n");
+        log_legacy_write ("No space left in SSH session table\n");
       ssh_free (session);
       return NULL;
     }
@@ -946,14 +947,14 @@ nasl_ssh_connect (lex_ctxt *lexic)
 
   /* Connect to the host.  */
   if (verbose)
-    fprintf (stderr, "Connecting to SSH server '%s' (port %d, sock %d)\n",
-             hostname, port, sock);
+    log_legacy_write ("Connecting to SSH server '%s' (port %d, sock %d)\n",
+                      hostname, port, sock);
   if (ssh_connect (session))
     {
       if (verbose)
-        fprintf (stderr, "Failed to connect to SSH server '%s'"
-                 " (port %d, sock %d, f=%d): %s\n",
-                 hostname, port, sock, forced_sock, ssh_get_error (session));
+        log_legacy_write ("Failed to connect to SSH server '%s'"
+                          " (port %d, sock %d, f=%d): %s\n", hostname, port,
+                          sock, forced_sock, ssh_get_error (session));
       if (forced_sock != -1)
         {
           /* If the caller passed us a socket we can't call ssh_free
@@ -998,8 +999,8 @@ find_session_id (lex_ctxt *lexic, const char *funcname, int *r_slot)
   if (session_id <= 0)
     {
       if (funcname)
-        fprintf (stderr, "Invalid SSH session id %d passed to %s\n",
-                 session_id, funcname);
+        log_legacy_write ("Invalid SSH session id %d passed to %s\n",
+                          session_id, funcname);
       return 0;
     }
   for (tbl_slot=0; tbl_slot < DIM (session_table); tbl_slot++)
@@ -1008,8 +1009,8 @@ find_session_id (lex_ctxt *lexic, const char *funcname, int *r_slot)
   if (!(tbl_slot < DIM (session_table)))
     {
       if (funcname)
-        fprintf (stderr, "Bad SSH session id %d passed to %s\n",
-                 session_id, funcname);
+        log_legacy_write ("Bad SSH session id %d passed to %s\n",
+                          session_id, funcname);
       return 0;
     }
 
@@ -1083,7 +1084,6 @@ nasl_ssh_close_hook (int sock)
 {
   int tbl_slot, session_id;
 
-  /* fprintf (stderr, "%s: sock=%d ...", __FUNCTION__, sock); */
   if (sock == -1)
     return -1;
 
@@ -1096,7 +1096,6 @@ nasl_ssh_close_hook (int sock)
         break;
       }
     }
-  /* fprintf (stderr, " found %d\n", session_id); */
   if (!session_id)
     return -1;
   do_nasl_ssh_disconnect (tbl_slot);
@@ -1193,9 +1192,8 @@ get_authmethods (int tbl_slot)
   rc = ssh_userauth_none (session, NULL);
   if (rc == SSH_AUTH_SUCCESS)
     {
-      fprintf (stderr,
-               "SSH authentication succeeded using the none method - "
-               "should not happen; very old server?\n");
+      log_legacy_write ("SSH authentication succeeded using the none method - "
+                        "should not happen; very old server?\n");
       retc_val = 0;
       methods = 0;
       goto leave;
@@ -1207,9 +1205,9 @@ get_authmethods (int tbl_slot)
   else
     {
       if (verbose)
-        fprintf (stderr,
-                 "SSH server did not return a list of authentication methods"
-                 " - trying all\n");
+        log_legacy_write
+         ("SSH server did not return a list of authentication methods"
+          " - trying all\n");
       methods = (SSH_AUTH_METHOD_NONE
                  | SSH_AUTH_METHOD_PASSWORD
                  | SSH_AUTH_METHOD_PUBLICKEY
@@ -1292,8 +1290,8 @@ nasl_ssh_set_login (lex_ctxt *lexic)
         }
       if (username && ssh_options_set (session, SSH_OPTIONS_USER, username))
         {
-          fprintf (stderr, "Failed to set SSH username '%s': %s\n",
-                   username, ssh_get_error (session));
+          log_legacy_write ("Failed to set SSH username '%s': %s\n",
+                            username, ssh_get_error (session));
           return NULL; /* Ooops.  */
         }
       /* In any case mark the user has set.  */
@@ -1439,9 +1437,8 @@ nasl_ssh_userauth (lex_ctxt *lexic)
         }
 
       if (verbose)
-        fprintf (stderr,
-                 "SSH password authentication failed for session %d: %s\n",
-                 session_id, ssh_get_error (session));
+        log_legacy_write ("SSH password authentication failed for session"
+                          " %d: %s\n", session_id, ssh_get_error (session));
       /* Keep on trying.  */
     }
 
@@ -1460,18 +1457,18 @@ nasl_ssh_userauth (lex_ctxt *lexic)
             {
               s = ssh_userauth_kbdint_getname (session);
               if (s && *s)
-                fprintf (stderr, "SSH kbdint name='%s'\n", s);
+                log_legacy_write ("SSH kbdint name='%s'\n", s);
               s = ssh_userauth_kbdint_getinstruction (session);
               if (s && *s)
-                fprintf (stderr, "SSH kbdint instruction='%s'\n", s);
+                log_legacy_write ("SSH kbdint instruction='%s'\n", s);
             }
           nprompt = ssh_userauth_kbdint_getnprompts (session);
           for (n=0; n < nprompt; n++)
             {
               s = ssh_userauth_kbdint_getprompt (session, n, &echoflag);
               if (s && *s && verbose)
-                fprintf (stderr, "SSH kbdint prompt='%s'%s\n",
-                         s, echoflag? "":" [hide input]");
+                log_legacy_write ("SSH kbdint prompt='%s'%s\n",
+                                  s, echoflag ? "" : " [hide input]");
               if (s && *s && !echoflag && !found_prompt)
                 {
                   found_prompt = 1;
@@ -1479,10 +1476,10 @@ nasl_ssh_userauth (lex_ctxt *lexic)
                   if (rc != SSH_AUTH_SUCCESS)
                     {
                       if (verbose)
-                        fprintf (stderr,
-                                 "SSH keyboard-interactive authentication "
-                                 "failed at prompt %d for session %d: %s\n",
-                                 n, session_id, ssh_get_error (session));
+                        log_legacy_write
+                         ("SSH keyboard-interactive authentication "
+                          "failed at prompt %d for session %d: %s\n",
+                          n, session_id, ssh_get_error (session));
                     }
                 }
             }
@@ -1495,10 +1492,9 @@ nasl_ssh_userauth (lex_ctxt *lexic)
         }
 
       if (verbose)
-        fprintf (stderr,
-                 "SSH keyboard-interactive authentication failed for session %d"
-                 ": %s\n",
-                 session_id, ssh_get_error (session));
+        log_legacy_write
+         ("SSH keyboard-interactive authentication failed for session %d"
+          ": %s\n", session_id, ssh_get_error (session));
       /* Keep on trying.  */
     }
 
@@ -1513,19 +1509,17 @@ nasl_ssh_userauth (lex_ctxt *lexic)
                                             NULL, NULL, &key))
         {
           if (verbose)
-            fprintf (stderr,
-                     "SSH public key authentication failed for "
-                     "session %d: %s\n",
-                     session_id, "Error converting provided key");
+            log_legacy_write
+             ("SSH public key authentication failed for "
+              "session %d: %s\n", session_id, "Error converting provided key");
         }
       else if (my_ssh_userauth_try_publickey (session, NULL, key)
                != SSH_AUTH_SUCCESS)
         {
           if (verbose)
-            fprintf (stderr,
-                     "SSH public key authentication failed for "
-                     "session %d: %s\n",
-                     session_id, "Server does not want our key");
+            log_legacy_write
+             ("SSH public key authentication failed for "
+              "session %d: %s\n", session_id, "Server does not want our key");
         }
       else if (my_ssh_userauth_publickey (session, NULL, key)
                == SSH_AUTH_SUCCESS)
@@ -1539,8 +1533,8 @@ nasl_ssh_userauth (lex_ctxt *lexic)
     }
 
   if (verbose)
-    fprintf (stderr, "SSH authentication failed for session %d: %s\n",
-             session_id, "No more authentication methods to try");
+    log_legacy_write ("SSH authentication failed for session %d: %s\n",
+                      session_id, "No more authentication methods to try");
  leave:
   {
     tree_cell *retc;
@@ -1632,7 +1626,7 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   cmd = get_str_local_var_by_name (lexic, "cmd");
   if (!cmd || !*cmd)
     {
-      fprintf (stderr, "No command passed to ssh_request_exec\n");
+      log_legacy_write ("No command passed to ssh_request_exec\n");
       return NULL;
     }
 
@@ -1660,7 +1654,8 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   channel = ssh_channel_new (session);
   if (!channel)
     {
-      fprintf (stderr, "ssh_channel_new failed: %s\n", ssh_get_error (session));
+      log_legacy_write ("ssh_channel_new failed: %s\n",
+                        ssh_get_error (session));
       return NULL;
     }
 
@@ -1669,8 +1664,8 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
     {
       /* FIXME: Handle SSH_AGAIN.  */
       if (verbose)
-        fprintf (stderr, "ssh_channel_open_session failed: %s\n",
-                 ssh_get_error (session));
+        log_legacy_write ("ssh_channel_open_session failed: %s\n",
+                          ssh_get_error (session));
       ssh_channel_send_eof (channel);
       ssh_channel_close (channel);
       ssh_channel_free (channel);
@@ -1682,8 +1677,8 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
     {
       /* FIXME: Handle SSH_AGAIN.  */
       if (verbose)
-        fprintf (stderr, "ssh_channel_request_exec failed for '%s': %s\n",
-                 cmd, ssh_get_error (session));
+        log_legacy_write ("ssh_channel_request_exec failed for '%s': %s\n",
+                          cmd, ssh_get_error (session));
       ssh_channel_send_eof (channel);
       ssh_channel_close (channel);
       ssh_channel_free (channel);
@@ -1732,8 +1727,8 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   if (nread == SSH_ERROR)
     {
       if (verbose)
-        fprintf (stderr, "ssh_channel_read failed for session id %d: %s\n",
-                 session_id, ssh_get_error (session));
+        log_legacy_write ("ssh_channel_read failed for session id %d: %s\n",
+                          session_id, ssh_get_error (session));
       ssh_channel_send_eof (channel);
       if (compat_buf_inuse)
         {
@@ -1766,8 +1761,7 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   p = get_membuf (&response, &len);
   if (!p)
     {
-      fprintf (stderr, "ssh_request_exec memory problem: %s\n",
-               strerror (-1));
+      log_legacy_write ("ssh_request_exec memory problem: %s\n", strerror (-1));
       return NULL;
     }
 

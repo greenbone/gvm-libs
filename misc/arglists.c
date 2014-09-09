@@ -33,6 +33,7 @@
 #include "system_internal.h"
 
 #include "system.h"
+#include "openvas_logging.h"
 
 #define HASH_MAX 2713
 
@@ -149,12 +150,7 @@ cache_dec (const char *name)
   h = mkhash (name);
   nc = cache_get_name (name, h);
   if (nc == NULL)
-    {
-      /*
-         fprintf(stderr, "libopenvas_misc: cache_dec(): non-existant name\n");
-       */
-      return;
-    }
+    return;
 
   nc->occurences--;
   if (nc->occurences == 0)
@@ -325,22 +321,22 @@ arg_dump (args, level)
           {
           case ARG_STRING:
 
-            fprintf (stderr, "%sargs->%s : %s\n", spaces + (20 - level),
-                     args->name, (char *) args->value);
+            log_legacy_write ("%sargs->%s : %s\n", spaces + (20 - level),
+                              args->name, (char *) args->value);
             break;
           case ARG_ARGLIST:
 
-            fprintf (stderr, "%sargs->%s :\n", spaces + (20 - level),
-                     args->name);
+            log_legacy_write ("%sargs->%s :\n", spaces + (20 - level),
+                              args->name);
             arg_dump (args->value, level + 1);
             break;
           case ARG_INT:
-            fprintf (stderr, "%sargs->%s : %d\n", spaces + (20 - level),
-                     args->name, (int) GPOINTER_TO_SIZE (args->value));
+            log_legacy_write ("%sargs->%s : %d\n", spaces + (20 - level),
+                              args->name, (int) GPOINTER_TO_SIZE (args->value));
             break;
           default:
-            fprintf (stderr, "%sargs->%s : %d\n", spaces + (20 - level),
-                     args->name, (int) GPOINTER_TO_SIZE (args->value));
+            log_legacy_write ("%sargs->%s : %d\n", spaces + (20 - level),
+                              args->name, (int) GPOINTER_TO_SIZE (args->value));
             break;
           }
         args = args->next;

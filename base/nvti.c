@@ -46,6 +46,7 @@
 
 #include "nvti.h"
 #include "cvss.h"  /* for get_cvss_score_from_base_metrics */
+#include "../misc/openvas_logging.h"
 
 /**
  * @brief Create a new nvtpref structure filled with the given values.
@@ -1493,8 +1494,8 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
   text = g_key_file_to_data (keyfile, NULL, &error);
   if (error != NULL)
     {
-      fprintf (stderr, "Error occured while preparing %s: %s\n", fn,
-               error->message);
+      log_legacy_write ("Error occured while preparing %s: %s\n", fn,
+                        error->message);
       g_error_free (error);
     }
   else
@@ -1505,7 +1506,8 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
           gchar *cache_dir = g_path_get_dirname (fn);
           if ((g_mkdir_with_parents (cache_dir, 0755) < 0) && (errno != EEXIST))
             {
-              fprintf (stderr, "mkdir(%s) : %s\n", cache_dir, strerror (errno));
+              log_legacy_write ("mkdir(%s) : %s\n", cache_dir,
+                                strerror (errno));
               g_free (text);
               g_key_file_free (keyfile);
               return (1);
@@ -1515,7 +1517,7 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
 
       if (!fp)
         {                       // again failed
-          fprintf (stderr, "fopen(%s) : %s\n", fn, strerror (errno));
+          log_legacy_write ("fopen(%s) : %s\n", fn, strerror (errno));
           g_free (text);
           g_key_file_free (keyfile);
           return (2);
@@ -1535,10 +1537,10 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
               src_timestamp.actime = src_stat.st_atime;
               src_timestamp.modtime = src_stat.st_mtime;
               if (utime (fn, &src_timestamp) != 0)
-                fprintf (stderr, "utime(%s) : %s\n", fn, strerror (errno));
+                log_legacy_write ("utime(%s) : %s\n", fn, strerror (errno));
             }
           else
-            fprintf (stderr, "stat(%s) : %s\n", n->src, strerror (errno));
+            log_legacy_write ("stat(%s) : %s\n", n->src, strerror (errno));
         }
 
       g_free (text);

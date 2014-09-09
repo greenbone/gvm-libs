@@ -44,6 +44,7 @@
 #include "pcap_openvas.h"
 #include "plugutils.h"
 #include "system.h"
+#include "openvas_logging.h"
 #include "support.h"
 
 /** @todo: It still needs to be taken care
@@ -711,7 +712,7 @@ ids_open_sock_tcp (args, port, method, timeout)
   dst6 = plug_get_host_ip (args);
   if (!dst6)
     {
-      fprintf (stderr, "Error - no address associated with name\n");
+      log_legacy_write ("Error - no address associated with name\n");
       return -1;
     }
   if (IN6_IS_ADDR_V4MAPPED (dst6))

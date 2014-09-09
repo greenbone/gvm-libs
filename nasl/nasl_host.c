@@ -441,42 +441,21 @@ nasl_same_host (lex_ctxt * lexic)
             }
         }
     }
-#if 0
-  fprintf (stderr, "N1=%d\tN2=%d\n", n[0], n[1]);
-#endif
   flag = 0;
   for (i = 0; i < n[0] && !flag; i++)
     for (j = 0; j < n[1] && !flag; j++)
       if (a[0][i].s_addr == a[1][j].s_addr)
         {
           flag = 1;
-#if 0
-          fprintf (stderr, "%s == ", inet_ntoa (a[0][i]));
-          fprintf (stderr, "%s\n", inet_ntoa (a[1][j]));
-#endif
         }
-#if 0
-      else
-        {
-          fprintf (stderr, "%s != ", inet_ntoa (a[0][i]));
-          fprintf (stderr, "%s\n", inet_ntoa (a[1][j]));
-        }
-#endif
 
   if (cmp_hostname)
     for (i = 0; i < names_nb[0] && !flag; i++)
       for (j = 0; j < names_nb[1] && !flag; j++)
         if (strcmp (names[0][i], names[1][j]) == 0)
           {
-#if 0
-            fprintf (stderr, "%s == %s\n", names[0][i], names[1][j]);
-#endif
             flag = 1;
           }
-#if 0
-        else
-          fprintf (stderr, "%s != %s\n", names[0][i], names[1][j]);
-#endif
 
   retc = alloc_typed_cell (CONST_INT);
   retc->x.i_val = flag;
