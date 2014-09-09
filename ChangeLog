@@ -1,3 +1,10 @@
+2014-09-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r20333.
+
+	* nasl/exec.c (cell_cmp, exec_nasl_script): Use adequate logging
+	function instead of fprintf() to stderr which might be closed.
+
 2014-09-09  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.
