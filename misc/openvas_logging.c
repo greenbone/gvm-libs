@@ -349,6 +349,35 @@ openvas_log_silent (const char *log_domain, GLogLevelFlags log_level,
   return;
 }
 
+static GMutex *logger_mutex = NULL;
+
+static void
+openvas_log_lock_init ()
+{
+#if GLIB_CHECK_VERSION (2, 31, 0)
+  if (logger_mutex == NULL)
+    {
+      logger_mutex = g_malloc (sizeof (*logger_mutex));
+      g_mutex_init (logger_mutex);
+    }
+#else
+  if (logger_mutex == NULL)
+    logger_mutex = g_mutex_new ();
+#endif
+}
+
+static void
+openvas_log_lock ()
+{
+  g_mutex_lock (logger_mutex);
+}
+
+static void
+openvas_log_unlock ()
+{
+  g_mutex_unlock (logger_mutex);
+}
+
 /**
  * @brief Creates the formatted string and outputs it to the log destination.
  *
@@ -390,6 +419,9 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
   channel = NULL;
   gchar *syslog_facility = "local0";
   gchar *syslog_ident = NULL;
+
+  /* Initialize logger lock if not done. */
+  openvas_log_lock_init ();
 
   /* Let's load the default configuration file directives from the
    * linked list. Scanning the link list twice is inefficient but
@@ -586,6 +618,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
                             prepend, log_separator, messagelen, message);
   g_free (prepend);
 
+  openvas_log_lock ();
   /* Output everything to stderr if logfile is "-". */
   if (g_ascii_strcasecmp (log_file, "-") == 0)
     {
@@ -679,6 +712,7 @@ openvas_log_func (const char *log_domain, GLogLevelFlags log_level,
       g_io_channel_flush (channel, NULL);
 
     }
+  openvas_log_unlock ();
   g_free (tmpstr);
   g_free (prepend_buf);
 }
