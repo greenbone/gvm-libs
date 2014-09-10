@@ -40,6 +40,7 @@
 #include "../misc/plugutils.h" /* for scanner_add_port */
 #include "../misc/scanners_utils.h" /* for getpts */
 #include "../misc/system.h" /* for efree */
+#include "../misc/openvas_logging.h"
 
 #include "nasl_lex_ctxt.h"
 
@@ -329,9 +330,9 @@ rm_packet (struct list * l, unsigned short dport)
 	if (p == NULL)
 	{
 #if DEBUG > 1
-		fprintf (stderr, "Odd - no entry for %d - RTT too low ?!\n", dport);
+          log_legacy_write ("Odd - no entry for %d - RTT too low ?!", dport);
 #endif
-		return l;
+          return l;
 	}
 	if (p->next != NULL)
 		p->next->prev = p->prev;
@@ -633,7 +634,7 @@ v6_sendpacket (int soc, int bpf, int skip, struct in6_addr *dst,
     packets = add_packet(packets, dport, ack);
     e = sendto(soc, pkt,sizeof(struct tcphdr), 0, (struct sockaddr *) & soca, sizeof(soca));
     if (e < 0) {
-      fprintf(stderr,"sendto error in v6_sendpacket\n");
+      log_legacy_write ("sendto error in v6_sendpacket");
       perror("sendto ");
       close(soc);
       bpf_close(bpf);

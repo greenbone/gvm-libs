@@ -118,7 +118,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
     sprintf (ret, "%s/%s", path, name);
 
 #ifdef URL_DEBUG
-  fprintf (stderr, "Request => %s\n", ret);
+  log_legacy_write ("Request => %s\n", ret);
 #endif
 
   for (s = ret; *s != '\0'; s++)
@@ -149,7 +149,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
             }
 #ifdef URL_DEBUG
       if (i > 0)
-        fprintf (stderr, "Request =  %s\n", ret);
+        log_legacy_write ("Request =  %s\n", ret);
 #endif
     }
 
@@ -174,7 +174,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
       ret = ret2;
       n_slash *= 2;
 #ifdef URL_DEBUG
-      fprintf (stderr, "Request =  %s\n", ret);
+      log_legacy_write ("Request =  %s\n", ret);
 #endif
     }
 
@@ -204,7 +204,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
       ret = ret2;
       n_slash *= 3;
 #ifdef URL_DEBUG
-      fprintf (stderr, "Request =  %s\n", ret);
+      log_legacy_write ("Request =  %s\n", ret);
 #endif
     }
 
@@ -225,7 +225,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
       efree (&ret);
       ret = ret2;
 #ifdef URL_DEBUG
-      fprintf (stderr, "Request =  %s\n", ret);
+      log_legacy_write ("Request =  %s\n", ret);
 #endif
     }
 
@@ -245,7 +245,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
       efree (&ret);
       ret = ret2;
 #ifdef URL_DEBUG
-      fprintf (stderr, "Request =  %s\n", ret);
+      log_legacy_write ("Request =  %s\n", ret);
 #endif
     }
 
@@ -271,7 +271,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
       ret = ret2;
       n_slash *= 2;
 #ifdef URL_DEBUG
-      fprintf (stderr, "Request =  %s\n", ret);
+      log_legacy_write ("Request =  %s\n", ret);
 #endif
     }
 
@@ -286,7 +286,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
             n_backslash++;
           }
 #ifdef URL_DEBUG
-      fprintf (stderr, "Request =  %s\n", ret);
+      log_legacy_write ("Request =  %s\n", ret);
 #endif
     }
 
@@ -379,7 +379,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
       efree (&ret);
       ret = ret2;
 #ifdef URL_DEBUG
-      fprintf (stderr, "Request =  %s\n", ret);
+      log_legacy_write ("Request =  %s\n", ret);
 #endif
     }
 
@@ -436,10 +436,6 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
           else if (strcmp (abs_URI_host, "random IP") == 0)
             sprintf (h, "%d.%d.%d.%d", rand () % 256, rand () % 256,
                      rand () % 256, rand () % 256);
-#if 0
-          else
-            fprintf (stderr, "Unhandled value %s\n", abs_URI_host);
-#endif
         }
 
       l += strlen (h) + strlen (abs_URI_type) + 3;
@@ -450,7 +446,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
       efree (&ret);
       ret = ret2;
 #ifdef URL_DEBUG
-      fprintf (stderr, "Request =  %s\n", ret);
+      log_legacy_write ("Request =  %s\n", ret);
 #endif
     }
 
@@ -475,12 +471,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
     {
       s = kb_item_get_str (kb, "NIDS/HTTP/protocol_string");
       if (s != NULL && *s != '\0')
-        {
-          httpver = s;
-#if 0
-          fprintf (stderr, "NIDS/HTTP/protocol_string = %s\n", s);
-#endif
-        }
+        httpver = s;
       l += strlen (httpver) + 2;
     }
 
@@ -498,7 +489,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
   ret = ret2;
 
 #ifdef URL_DEBUG
-  fprintf (stderr, "Request <= %s\n", ret);
+  log_legacy_write ("Request <= %s\n", ret);
 #endif
   return ret;
 }

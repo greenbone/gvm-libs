@@ -43,9 +43,9 @@ openvas_popen4 (const char *cmd, char *const args[], pid_t * ppid, int inice)
 
 #if DEBUG
   int i;
-  fprintf (stderr, "openvas_popen4: running %s -", cmd);
+  log_legacy_write ("openvas_popen4: running %s -", cmd);
   for (i = 0; args[i] != NULL; i++)
-    fprintf (stderr, " %s", args[i]);
+    log_legacy_write (" %s", args[i]);
   fputc ('\n', stderr);
 #endif
 

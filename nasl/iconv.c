@@ -66,7 +66,6 @@ size_t smb_iconv_ntlmssp(smb_iconv_t cd,
 		 const char **inbuf, size_t *inbytesleft,
 		 char **outbuf, size_t *outbytesleft)
 {
-	fprintf(stderr, "smb_iconv\n");
 	char cvtbuf[2048];
 	char *bufp = cvtbuf;
 	size_t bufsize;
@@ -158,21 +157,6 @@ smb_iconv_t smb_iconv_open_ntlmssp(const char *tocode, const char *fromcode)
 			ret->push = sys_iconv;
 	}
 #endif
-
-	/* check if there is a module available that can do this conversion */
-	/*if (!ret->pull && NT_STATUS_IS_OK(smb_probe_module("charset", fromcode))) {
-		 if(!(from = find_charset_functions_ntlmssp(fromcode)))
-                        fprintf(stderr,"Module %s doesn't provide charset %s!\n", fromcode, fromcode);
-		else
-                        ret->pull = from->pull;
-	}
-
-	if (!ret->push && NT_STATUS_IS_OK(smb_probe_module("charset", tocode))) {
-		if(!(to = find_charset_functions_ntlmssp(tocode)))
-                        fprintf(stderr, "Module %s doesn't provide charset %s!\n", tocode, tocode);
-		else
-			ret->push = to->push;
-	}*/
 
 	if (!ret->push || !ret->pull) {
 		SAFE_FREE(ret->from_name);

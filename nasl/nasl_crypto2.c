@@ -28,6 +28,7 @@
 #include <gnutls/x509.h>
 
 #include "system.h"             /* for emalloc */
+#include "openvas_logging.h"
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -583,8 +584,8 @@ extract_mpi_from_sexp (gcry_sexp_t sexp, const char *token)
   child = gcry_sexp_find_token (sexp, token, strlen (token));
   if (!child)
     {
-      fprintf (stderr, "set_retc_from_sexp: no subexpression with token <%s>\n",
-               token);
+      log_legacy_write ("set_retc_from_sexp: no subexpression with token <%s>",
+                        token);
     }
   else
     {
