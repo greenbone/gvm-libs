@@ -1,3 +1,8 @@
+2014-09-11  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/system.c (erealloc): Use z in format specifier for size_t, else
+	compiler complains.
+
 2014-09-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/openvas_logging.c (openvas_log_lock_init, openvas_log_lock)
