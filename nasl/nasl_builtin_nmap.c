@@ -65,12 +65,13 @@
 #include "../misc/plugutils.h"
 #include "../misc/popen.h"
 #include "../misc/kb.h"
+#include "../misc/openvas_logging.h"
 
 #include "nasl_lex_ctxt.h"
 
 
 #ifndef NDEBUG
-  #define dbg(...) do { fprintf (stderr, __VA_ARGS__); } while (0)
+  #define dbg(...) do { log_legacy_write (__VA_ARGS__); } while (0)
   #define err(x) do { perror (x); } while (0)
 #else
   #define dbg(...)

@@ -35,6 +35,7 @@
 #include "../misc/plugutils.h" /* for find_in_path */
 #include "../misc/scanners_utils.h" /* for comm_send_status */
 #include "../misc/system.h" /* for efree */
+#include "../misc/openvas_logging.h"
 
 #include "nasl_lex_ctxt.h"
 
@@ -145,11 +146,13 @@ double_check_std_ports(unsigned char* ports_states)
       }
     else if (ports_states[port] == GRAB_PORT_UNKNOWN)
       {
-	fprintf(stderr, "openvas_tcp_scanner: bug in double_check_std_ports! Unknown port %d status\n", port);
+	log_legacy_write ("openvas_tcp_scanner: bug in double_check_std_ports!"
+                          " Unknown port %d status", port);
 	tbd_nb ++;
       }
 #if DEBUG > 0
-  fprintf(stderr, "opanvas_tcp_scanner: double_check_std_ports found %d filtered standard ports\n", tbd_nb);
+  log_legacy_write ("opanvas_tcp_scanner: double_check_std_ports found %d"
+                    " filtered standard ports\n", tbd_nb);
 #endif
   return tbd_nb;
 }
@@ -235,12 +238,13 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
     else if (type == ARG_INT)
       ping_rtt = GPOINTER_TO_SIZE(k);
     else if (type >= 0)
-      fprintf(stderr, "openvas_tcp_scanner: unknown key type %d\n", type);
+      log_legacy_write ("openvas_tcp_scanner: unknown key type %d", type);
     if (ping_rtt < 0 || ping_rtt > MAX_SANE_RTT)
       ping_rtt = 0;
 #if DEBUG > 0
     else
-	fprintf(stderr, "openvas_tcp_scanner(%s): ping_rtt=%g s\n", inet_ntoa(*pia), ping_rtt / 1e6);
+	log_legacy_write ("openvas_tcp_scanner(%s): ping_rtt=%g s",
+                          inet_ntoa(*pia), ping_rtt / 1e6);
 #endif
   }
 
@@ -272,7 +276,8 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	      po2 = strtol(q, &p, 10);
 	      if (q == p)
 		{
-		  fprintf(stderr, "openvas_tcp_scanner: Cannot parse '%s'\n", p);
+		  log_legacy_write ("openvas_tcp_scanner: Cannot parse '%s'",
+                                    p);
 		  return -1;
 		}
 	    }
@@ -281,7 +286,8 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	      po1 = strtol(p, &q, 10);
 	      if (q == p)
 		{
-		  fprintf(stderr, "openvas_tcp_scanner: Cannot parse '%s'\n", p);
+		  log_legacy_write ("openvas_tcp_scanner: Cannot parse '%s'",
+                                    p);
 		  return -1;
 		}
 	      if (*q == ',')
@@ -306,7 +312,8 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 		      po2 = strtol(q+1, &p, 10);
 		      if (q+1 == p)
 			{
-			  fprintf(stderr, "openvas_tcp_scanner: Cannot parse '%s'\n", p);
+			  log_legacy_write
+                           ("openvas_tcp_scanner: Cannot parse '%s'", p);
 			  return -1;
 			}
 		    }
@@ -320,7 +327,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	}
     else
       {
-         fprintf(stderr, "openvas_tcp_scanner: port list empty\n");
+         log_legacy_write ("openvas_tcp_scanner: port list empty");
          return -1;
       }
   }
@@ -345,7 +352,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
       minport = 1;
       start_time_1pass = time(NULL);
 #if DEBUG > 0
-      fprintf(stderr, "openvas_tcp_scanner(%s): pass #%d: open_sock_max=%d\topen_sock_max2=%d\n", inet_ntoa(*pia), pass, open_sock_max, open_sock_max2);
+      log_legacy_write ("openvas_tcp_scanner(%s): pass #%d: open_sock_max=%d\topen_sock_max2=%d\n", inet_ntoa(*pia), pass, open_sock_max, open_sock_max2);
 #endif
 
       FD_ZERO(&rfs); FD_ZERO(&wfs); imax = -1;
@@ -363,7 +370,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	    }
 
 #if DEBUG > 0
-	  fprintf(stderr, "openvas_tcp_scanner(%s): %d / %d = %02d%% - %d ports remaining\n",
+	  log_legacy_write ("openvas_tcp_scanner(%s): %d / %d = %02d%% - %d ports remaining\n",
 		  inet_ntoa(*pia),
 		  unfiltered_ports_nb + filtered_ports_nb,
 		  total_ports_nb,
@@ -381,7 +388,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 
 	      ports_states[port] = GRAB_PORT_TESTING;
 #if DEBUG > 2
-	      fprintf(stderr, "openvas_tcp_scanner: Trying %s:%d\n", inet_ntoa(*pia), port);
+	      log_legacy_write ("openvas_tcp_scanner: Trying %s:%d\n", inet_ntoa(*pia), port);
 #endif
         if(IN6_IS_ADDR_V4MAPPED(pia))
         {
@@ -400,7 +407,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 #if DEBUG > 0
 		      /* DEBUG: otherwise, we print a less frigthtening message */
 		      perror("socket");
-		      fprintf(stderr, "openvas_tcp_scanner(%s): Reducing the number of maximum open connections to %d [ENFILE]\n", inet_ntoa(*pia), open_sock_max);
+		      log_legacy_write ("openvas_tcp_scanner(%s): Reducing the number of maximum open connections to %d [ENFILE]\n", inet_ntoa(*pia), open_sock_max);
 #endif
 		      continue;
 		    }
@@ -413,7 +420,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 #if DEBUG > 0
 		      /* DEBUG: otherwise, we print a less frigthtening message */
 		      perror("socket");
-		      fprintf(stderr, "openvas_tcp_scanner(%s): Reducing the number of maximum open connections to %d [EMFILE]\n", inet_ntoa(*pia), open_sock_max);
+		      log_legacy_write ("openvas_tcp_scanner(%s): Reducing the number of maximum open connections to %d [EMFILE]\n", inet_ntoa(*pia), open_sock_max);
 #endif
 		      continue;
 		    }
@@ -429,7 +436,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 		  open_sock_max --;
 		  open_sock_max2 --;
 #if DEBUG > 0
-		  fprintf(stderr, "openvas_tcp_scanner(%s): socket=%d > FD_SETSIZE=%d - reducing the number of maximum open connections to %d\n", inet_ntoa(*pia), s, FD_SETSIZE, open_sock_max);
+		  log_legacy_write ("openvas_tcp_scanner(%s): socket=%d > FD_SETSIZE=%d - reducing the number of maximum open connections to %d\n", inet_ntoa(*pia), s, FD_SETSIZE, open_sock_max);
 #endif
 		  if (close(s) < 0)
 		    perror("close");
@@ -514,7 +521,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 			open_sock_nb - (x > 0 ? x : 1);
 		      /* If open_sock_max2 < 0, the scanner aborts */
 #if DEBUG > 0
-		      fprintf(stderr, "openvas_tcp_scanner(%s): Reducing the number of maximum open connections to %d [EAGAIN]\n", inet_ntoa(*pia), open_sock_max);
+		      log_legacy_write ("openvas_tcp_scanner(%s): Reducing the number of maximum open connections to %d [EAGAIN]\n", inet_ntoa(*pia), open_sock_max);
 #endif
 		      continue;
 
@@ -570,7 +577,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 		  if (select(imax + 1, NULL, &wfs, NULL, &timeout) > 0)
 		    {
 #if DEBUG > 1
-		      fprintf(stderr, "openvas_tcp_scanner(%s): select! Breaking loop (open_sock_nb=%d / %d)\n", inet_ntoa(*pia), open_sock_nb, open_sock_max);
+		      log_legacy_write ("openvas_tcp_scanner(%s): select! Breaking loop (open_sock_nb=%d / %d)\n", inet_ntoa(*pia), open_sock_nb, open_sock_max);
 #endif
 		      break;
 		    }
@@ -583,7 +590,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	  if (open_sock_nb == 0)
 	    {
 #if DEBUG > 0
-	      fprintf(stderr, "openvas_tcp_scanner(%s): No more open socket\n", inet_ntoa(*pia));
+	      log_legacy_write ("openvas_tcp_scanner(%s): No more open socket\n", inet_ntoa(*pia));
 #endif
 		  goto end;
 	    }
@@ -603,9 +610,6 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 		      FD_SET(sockets[i].fd, &wfs);
 		      break;
 		    default:
-#if 0
-		      fprintf(stderr, "openvas_tcp_scanner(%s): Bad status %d - s=%d\n", inet_ntoa(*pia), sockets[i].state, sockets[i].fd);
-#endif
 		      break;
 		    }
 		  if (sockets[i].fd > imax)
@@ -618,14 +622,14 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	      if (untested_ports_nb > 0)
 		{
 #if DEBUG > 0
-		  fprintf(stderr, "openvas_tcp_scanner(%s): No socket! %d ports remaining\n", inet_ntoa(*pia), untested_ports_nb);
+		  log_legacy_write ("openvas_tcp_scanner(%s): No socket! %d ports remaining\n", inet_ntoa(*pia), untested_ports_nb);
 #endif
 		  return -1;
 		}
 	      else
 		{
 #if DEBUG > 0
-		  fprintf(stderr, "openvas_tcp_scanner(%s): No socket! No port remaining\n", inet_ntoa(*pia));
+		  log_legacy_write ("openvas_tcp_scanner(%s): No socket! No port remaining\n", inet_ntoa(*pia));
 #endif
 		  goto end;
 		}
@@ -648,26 +652,26 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 		  if (em <= moy)
 		    {
 #if DEBUG > 0
-		      fprintf(stderr, "openvas_tcp_scanner: arithmetic overflow: %g -> %d\n", emax, em);
+		      log_legacy_write ("openvas_tcp_scanner: arithmetic overflow: %g -> %d\n", emax, em);
 #endif
 		      em = moy;
 		    }
 		  if (rtt_max[0] > em)
 		    {
 #if DEBUG > 0
-		      fprintf(stderr, "openvas_tcp_scanner(%s): rtt_nb=%d rtt_max = %g > %g (M=%g, SD=%g)\n", inet_ntoa(*pia), rtt_nb[0], (double)rtt_max[0] / 1e6, emax / 1e6, mean / 1e6, sd / 1e6);
+		      log_legacy_write ("openvas_tcp_scanner(%s): rtt_nb=%d rtt_max = %g > %g (M=%g, SD=%g)\n", inet_ntoa(*pia), rtt_nb[0], (double)rtt_max[0] / 1e6, emax / 1e6, mean / 1e6, sd / 1e6);
 #endif
 		      rtt_max[0] = em;
 		    }
 #if DEBUG > 1
 		  else
-		    fprintf(stderr, "openvas_tcp_scanner(%s): rtt_nb=%d rtt_max = %g < %g\n", inet_ntoa(*pia), rtt_nb[0], (double)rtt_max[0] / 1e6, emax / 1e6);
+		    log_legacy_write ("openvas_tcp_scanner(%s): rtt_nb=%d rtt_max = %g < %g\n", inet_ntoa(*pia), rtt_nb[0], (double)rtt_max[0] / 1e6, emax / 1e6);
 #endif
 		}
 	      if (rtt_max[0] < rtt_min[0])
 		{
 #if DEBUG > 0
-		  fprintf(stderr, "openvas_tcp_scanner(%s): absurdly low rtt_max=%g < rtt_min = %g\n", inet_ntoa(*pia), (double)rtt_max[0] / 1e6, (double)rtt_min[0] / 1e6);
+		  log_legacy_write ("openvas_tcp_scanner(%s): absurdly low rtt_max=%g < rtt_min = %g\n", inet_ntoa(*pia), (double)rtt_max[0] / 1e6, (double)rtt_min[0] / 1e6);
 #endif
 		  rtt_max[0] = rtt_min[0];
 		}
@@ -697,7 +701,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 		    x = 3 * x + 20000;
 		    if (x > MAX_SANE_RTT) x = MAX_SANE_RTT;
 #if DEBUG > 1
-		    fprintf(stderr, "openvas_tcp_scanner(%s): basic timeout increased from %g to %g because of \"double check\"\n", inet_ntoa(*pia), y/1e6, x/1e6);
+		    log_legacy_write ("openvas_tcp_scanner(%s): basic timeout increased from %g to %g because of \"double check\"\n", inet_ntoa(*pia), y/1e6, x/1e6);
 #endif
 		  }
 		if (x > 1000000)	/* more that 1 s */
@@ -709,7 +713,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 		timeout.tv_sec = x / 1000000;
 		timeout.tv_usec = x % 1000000;
 #if DEBUG > 2
-		fprintf(stderr, "openvas_tcp_scanner(%s): timeout=%g -> %g\n",
+		log_legacy_write ("openvas_tcp_scanner(%s): timeout=%g -> %g\n",
 			inet_ntoa(*pia), y/1e6, x/1e6);
 #endif
 	      }
@@ -726,9 +730,9 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	    }
 #if DEBUG > 1
 	  if (rtt_max[0] > 0)
-	    fprintf(stderr, "openvas_tcp_scanner(%s): wait_sock_nb=%d - timeout=%u.%06u - RTT=%f/%f/%f/%f\n", inet_ntoa(*pia), wait_sock_nb, timeout.tv_sec, timeout.tv_usec, (double)rtt_min[0] / 1e6, rtt_sum[0] / 1e6 / (rtt_nb[0] > 0 ? rtt_nb[0] : 1), (double)rtt_max[0] / 1e6, (double)cnx_max[0] / 1e6);
+	    log_legacy_write ("openvas_tcp_scanner(%s): wait_sock_nb=%d - timeout=%u.%06u - RTT=%f/%f/%f/%f\n", inet_ntoa(*pia), wait_sock_nb, timeout.tv_sec, timeout.tv_usec, (double)rtt_min[0] / 1e6, rtt_sum[0] / 1e6 / (rtt_nb[0] > 0 ? rtt_nb[0] : 1), (double)rtt_max[0] / 1e6, (double)cnx_max[0] / 1e6);
 	  else
-	    fprintf(stderr, "openvas_tcp_scanner(%s): wait_sock_nb=%d - timeout=%d.%06d\n", inet_ntoa(*pia), wait_sock_nb, timeout.tv_sec, timeout.tv_usec);
+	    log_legacy_write ("openvas_tcp_scanner(%s): wait_sock_nb=%d - timeout=%d.%06d\n", inet_ntoa(*pia), wait_sock_nb, timeout.tv_sec, timeout.tv_usec);
 #endif
 #if DEBUG > 0
 	  gettimeofday(&ti1, NULL);
@@ -739,7 +743,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	      x = select(imax + 1, &rfs, &wfs, NULL, &timeout);
 #if DEBUG > 0
 	      if (errno == EINTR)
-		fprintf(stderr, "openvas_tcp_scanner(%s): select interrupted (i=%d)\n", inet_ntoa(*pia), i);
+		log_legacy_write ("openvas_tcp_scanner(%s): select interrupted (i=%d)\n", inet_ntoa(*pia), i);
 #endif
 	    }
 	  while (i ++ < 10 && x < 0 && errno == EINTR);
@@ -752,7 +756,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	  else if (x == 0)		/* timeout */
 	    {
 #if DEBUG > 1
-	      fprintf(stderr, "openvas_tcp_scanner(%s): select: timeout on all (%d) sockets!\n", inet_ntoa(*pia), imax - 1);
+	      log_legacy_write ("openvas_tcp_scanner(%s): select: timeout on all (%d) sockets!\n", inet_ntoa(*pia), imax - 1);
 #endif
 	      for (i = 0; i < open_sock_nb; i ++)
 		{
@@ -786,7 +790,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	    {
 	      (void) gettimeofday(&ti, NULL);
 #if DEBUG > 1
-	      fprintf(stderr, "openvas_tcp_scanner(%s): select replied in %f s [time=%d.%06d]\n", inet_ntoa(*pia), DIFFTVu(ti, ti1) / 1e6, ti.tv_sec, ti.tv_usec);
+	      log_legacy_write ("openvas_tcp_scanner(%s): select replied in %f s [time=%d.%06d]\n", inet_ntoa(*pia), DIFFTVu(ti, ti1) / 1e6, ti.tv_sec, ti.tv_usec);
 #endif
 	      for (i = 0; i < open_sock_nb; i ++)
 		{
@@ -802,7 +806,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 
 			x = DIFFTVu(ti, sockets[i].tictac);
 #if DEBUG > 2
-			fprintf(stderr, "openvas_tcp_scanner: RTT to %s:%d: %g s\n",
+			log_legacy_write ("openvas_tcp_scanner: RTT to %s:%d: %g s\n",
 				inet_ntoa(*pia), sockets[i].port, x / 1e6);
 #endif
 			if (opt != 0)
@@ -944,7 +948,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	    if (sockets[i].fd >= 0 && DIFFTV(ti, sockets[i].tictac) >= read_timeout)
 	      {
 #if DEBUG > 0
-		fprintf(stderr, "openvas_tcp_scanner(%s): pass #%d: timeout on port %d: %d\n", inet_ntoa(*pia), pass, sockets[i].port, DIFFTV(ti, sockets[i].tictac));
+		log_legacy_write ("openvas_tcp_scanner(%s): pass #%d: timeout on port %d: %d\n", inet_ntoa(*pia), pass, sockets[i].port, DIFFTV(ti, sockets[i].tictac));
 #endif
 		switch(sockets[i].state)
 		  {
@@ -967,7 +971,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 		    untested_ports_nb --;
 		    break;
 		  default:
-		    fprintf(stderr, "openvas_tcp_scanner: Unhandled case %d at %s:%d\n", sockets[i].state, __FILE__, __LINE__);
+		    log_legacy_write ("openvas_tcp_scanner: Unhandled case %d at %s:%d\n", sockets[i].state, __FILE__, __LINE__);
 		    break;
 		  }
 		my_socket_close(sockets[i].fd); sockets[i].fd = -1;
@@ -976,12 +980,12 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 
 	  x = open_sock_max;
 #if DEBUG > 1
-	  fprintf(stderr, "openvas_tcp_scanner(%s): open_sock_max=%d timeout_nb=%d dropped_nb=%d\n", inet_ntoa(*pia), open_sock_max, timeout_nb, dropped_nb);
+	  log_legacy_write ("openvas_tcp_scanner(%s): open_sock_max=%d timeout_nb=%d dropped_nb=%d\n", inet_ntoa(*pia), open_sock_max, timeout_nb, dropped_nb);
 	  done_ports_nb = unfiltered_ports_nb + filtered_ports_nb;
 	  if (done_ports_nb > 0 && total_ports_nb > 0)
 	    {
 	      int	dt = time(NULL) - start_time_1pass;
-	      fprintf(stderr, "openvas_tcp_scanner(%s): pass #%d: time spent so far = %d s - estimated total time = %d s - estimated time remaining = %d s\n",
+	      log_legacy_write ("openvas_tcp_scanner(%s): pass #%d: time spent so far = %d s - estimated total time = %d s - estimated time remaining = %d s\n",
 		      inet_ntoa(*pia),  pass,
 		      dt,
 		      dt * total_ports_nb / done_ports_nb,
@@ -995,7 +999,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	    {
 	      /* firewalled machine? */
 #if DEBUG > 1
-	      fprintf(stderr, "openvas_tcp_scanner(%s): %d connections dropped. Firewall?\n", inet_ntoa(*pia), dropped_nb);
+	      log_legacy_write ("openvas_tcp_scanner(%s): %d connections dropped. Firewall?\n", inet_ntoa(*pia), dropped_nb);
 #endif
 	      open_sock_max += dropped_nb;
 	      if (open_sock_max2 < max_cnx) open_sock_max2 ++;
@@ -1018,7 +1022,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 #endif
 #if DEBUG > 0
 	      if (min_cnx < open_sock_max)
-		fprintf(stderr, "openvas_tcp_scanner(%s): %d connections dropped. Slowing down - min_cnx=%d - open_sock_nb=%d - open_sock_max=%d - open_sock_max2=%d\n", inet_ntoa(*pia), dropped_nb, min_cnx, open_sock_nb, open_sock_max, open_sock_max2);
+		log_legacy_write ("openvas_tcp_scanner(%s): %d connections dropped. Slowing down - min_cnx=%d - open_sock_nb=%d - open_sock_max=%d - open_sock_max2=%d\n", inet_ntoa(*pia), dropped_nb, min_cnx, open_sock_nb, open_sock_max, open_sock_max2);
 #endif
 	    }
 	  else if (dropped_nb == 0 && dropped_flag)
@@ -1033,7 +1037,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	  if (open_sock_max > open_sock_max2)
 	    {
 #if  DEBUG > 2
-	      fprintf(stderr, "openvas_tcp_scanner(%s): open_sock_max=%d > %d\n",
+	      log_legacy_write ("openvas_tcp_scanner(%s): open_sock_max=%d > %d\n",
 		      inet_ntoa(*pia), open_sock_max, open_sock_max2);
 #endif
 	      open_sock_max = open_sock_max2;
@@ -1041,14 +1045,14 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	  if (open_sock_max < min_cnx)
 	    {
 #if  DEBUG > 2
-	      fprintf(stderr, "openvas_tcp_scanner(%s): open_sock_max=%d < %d\n",
+	      log_legacy_write ("openvas_tcp_scanner(%s): open_sock_max=%d < %d\n",
 		      inet_ntoa(*pia), open_sock_max, min_cnx);
 #endif
 	      open_sock_max = min_cnx;
 	    }
 #if DEBUG > 1
 	  if (x != open_sock_max)
-	    fprintf(stderr, "openvas_tcp_scanner(%s): open_sock_max=%d (old value %d)\n", inet_ntoa(*pia), open_sock_max, x);
+	    log_legacy_write ("openvas_tcp_scanner(%s): open_sock_max=%d (old value %d)\n", inet_ntoa(*pia), open_sock_max, x);
 #endif
 	  for (i = 0; i < open_sock_nb; )
 	    if (sockets[i].state == GRAB_SOCKET_UNUSED || sockets[i].fd < 0)
@@ -1070,7 +1074,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
       diff_time1 = end_time - start_time_1pass;
       diff_time = end_time - start_time;
 #if DEBUG > 0
-      fprintf(stderr, "openvas_tcp_scanner(%s): pass #%d ran in %d s - filtered_ports_nb=%d closed_ports_nb=%d open_ports_nb=%d\n", inet_ntoa(*pia), pass, diff_time1, filtered_ports_nb, closed_ports_nb, open_ports_nb);
+      log_legacy_write ("openvas_tcp_scanner(%s): pass #%d ran in %d s - filtered_ports_nb=%d closed_ports_nb=%d open_ports_nb=%d\n", inet_ntoa(*pia), pass, diff_time1, filtered_ports_nb, closed_ports_nb, open_ports_nb);
 #endif
       if (dropped_flag ||
 	  (pass == 1 && filtered_ports_nb > 10 && closed_ports_nb > 10) ||
@@ -1079,7 +1083,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	  if (doublecheck_flag && rst_rate_limit_flag && open_ports_nb == old_opened)
 	    {
 #if DEBUG > 0
-	      fprintf(stderr, "openvas_tcp_scanner(%s): Same number of open ports! Stopping now\n", inet_ntoa(*pia));
+	      log_legacy_write ("openvas_tcp_scanner(%s): Same number of open ports! Stopping now\n", inet_ntoa(*pia));
 #endif
 	      break;
 	    }
@@ -1087,12 +1091,12 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 
 	  doublecheck_flag = 0;
 #if DEBUG > 0
-	  fprintf(stderr, "openvas_tcp_scanner(%s): pass #%d: Suspicious number of filtered ports (%d) or closed ports (%d) - running another time\n", inet_ntoa(*pia), pass, filtered_ports_nb, closed_ports_nb);
+	  log_legacy_write ("openvas_tcp_scanner(%s): pass #%d: Suspicious number of filtered ports (%d) or closed ports (%d) - running another time\n", inet_ntoa(*pia), pass, filtered_ports_nb, closed_ports_nb);
 #endif
 	  if (filtered_ports_nb == old_filtered)
 	    {
 #if DEBUG > 0
-	      fprintf(stderr, "openvas_tcp_scanner(%s): Same number of filtered ports! Stopping now\n", inet_ntoa(*pia));
+	      log_legacy_write ("openvas_tcp_scanner(%s): Same number of filtered ports! Stopping now\n", inet_ntoa(*pia));
 #endif
 	      break;
 	    }
@@ -1119,13 +1123,13 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 		  break_flag = 0;
 		}
 #if DEBUG > 0
-	      fprintf(stderr, "openvas_tcp_scanner(%s): system seems to be limiting RST rate - %s - min_cnx=%d - closed_ports_nb1=%d - diff_time1=%d - closed_ports_nb=%d - diff_time=%d\n", inet_ntoa(*pia), break_flag ? "Stopping immediately" : doublecheck_flag ? "Double checking standard ports" : "Running one last pass", min_cnx, closed_ports_nb1, diff_time1, closed_ports_nb, diff_time);
+	      log_legacy_write ("openvas_tcp_scanner(%s): system seems to be limiting RST rate - %s - min_cnx=%d - closed_ports_nb1=%d - diff_time1=%d - closed_ports_nb=%d - diff_time=%d\n", inet_ntoa(*pia), break_flag ? "Stopping immediately" : doublecheck_flag ? "Double checking standard ports" : "Running one last pass", min_cnx, closed_ports_nb1, diff_time1, closed_ports_nb, diff_time);
 #endif
 	      rst_rate_limit_flag ++ ;
 	      if (break_flag) break;
 	    }
 #if DEBUG > 1
-	  fprintf(stderr, "openvas_tcp_scanner(%s): min_cnx=%d - open_ports_nb1=%d - closed_ports_nb1=%d - diff_time1=%d - closed_ports_nb=%d - diff_time=%d\n", inet_ntoa(*pia), min_cnx, open_ports_nb1, closed_ports_nb1, diff_time1, closed_ports_nb, diff_time);
+	  log_legacy_write ("openvas_tcp_scanner(%s): min_cnx=%d - open_ports_nb1=%d - closed_ports_nb1=%d - diff_time1=%d - closed_ports_nb=%d - diff_time=%d\n", inet_ntoa(*pia), min_cnx, open_ports_nb1, closed_ports_nb1, diff_time1, closed_ports_nb, diff_time);
 #endif
 
 	  /*
@@ -1141,7 +1145,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	      }
 #if DEBUG > 1
 	  if (old_filtered != filtered_ports_nb)
-	    fprintf(stderr, "openvas_tcp_scanner(%s): old_filtered=%d filtered_ports_nb=%d\n", inet_ntoa(*pia), old_filtered, filtered_ports_nb);
+	    log_legacy_write ("openvas_tcp_scanner(%s): old_filtered=%d filtered_ports_nb=%d\n", inet_ntoa(*pia), old_filtered, filtered_ports_nb);
 #endif
 	  untested_ports_nb = old_filtered;
 	  filtered_ports_nb = 0;
@@ -1173,13 +1177,13 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	  if ((tbd_nb = double_check_std_ports(ports_states)) == 0)
 	    {
 #if DEBUG > 0
-	      fprintf(stderr, "openvas_tcp_scanner(%s): pass #%d - No filtered standard ports - stopping\n", inet_ntoa(*pia), pass);
+	      log_legacy_write ("openvas_tcp_scanner(%s): pass #%d - No filtered standard ports - stopping\n", inet_ntoa(*pia), pass);
 #endif
 	      break;
 	    }
 #if DEBUG > 0
 	  else
-	    fprintf(stderr, "openvas_tcp_scanner(%s): pass #%d - Double checking %d standard ports\n", inet_ntoa(*pia), pass, tbd_nb);
+	    log_legacy_write ("openvas_tcp_scanner(%s): pass #%d - Double checking %d standard ports\n", inet_ntoa(*pia), pass, tbd_nb);
 #endif
 	  old_filtered = untested_ports_nb = tbd_nb;
 	  filtered_ports_nb = 0;
@@ -1199,7 +1203,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
   if (pass > MAX_PASS_NB)
     {
       pass --;
-      /*fprintf(stderr, "openvas_tcp_scanner(%s): gave up after %d pass\n",
+      /*log_legacy_write ("openvas_tcp_scanner(%s): gave up after %d pass\n",
 	      inet_ntoa(*pia), pass);*/
       filtered_ports_nb = old_filtered;
     }
@@ -1207,7 +1211,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
   plug_set_key(desc, "TCPScanner/NbPasses", ARG_INT, GSIZE_TO_POINTER(pass));
 
 #if DEBUG > 0
-  fprintf(stderr, "openvas_tcp_scanner(%s): ran in %d pass(es) in %d s - min_cnx=%d max_cnx=%d read_timeout=%d - open_ports_nb=%d closed_ports_nb=%d filtered_ports_nb=%d - rtt_min=%f rtt_max=%f cnx_max=%f\n", inet_ntoa(*pia), pass, diff_time, min_cnx, max_cnx, read_timeout, open_ports_nb, closed_ports_nb, filtered_ports_nb, rtt_min[0] / 1e6, rtt_max[0] / 1e6, cnx_max[0] / 1e6);
+  log_legacy_write ("openvas_tcp_scanner(%s): ran in %d pass(es) in %d s - min_cnx=%d max_cnx=%d read_timeout=%d - open_ports_nb=%d closed_ports_nb=%d filtered_ports_nb=%d - rtt_min=%f rtt_max=%f cnx_max=%f\n", inet_ntoa(*pia), pass, diff_time, min_cnx, max_cnx, read_timeout, open_ports_nb, closed_ports_nb, filtered_ports_nb, rtt_min[0] / 1e6, rtt_max[0] / 1e6, cnx_max[0] / 1e6);
 #endif
 
 #if defined COMPUTE_RTT
@@ -1256,7 +1260,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	  }
 #if DEBUG > 0
 	if (rtt_nb[i] > 0)
-	  fprintf(stderr, "openvas_tcp_scanner: Mean RTT to %s = %g - [%g, %g] - SD = %g - +3SD = %g [%d %s ports]\n",
+	  log_legacy_write ("openvas_tcp_scanner: Mean RTT to %s = %g - [%g, %g] - SD = %g - +3SD = %g [%d %s ports]\n",
 		  inet_ntoa(*pia), mean,
 		  rtt_min[i] / 1e6, cnx_max[i] / 1e6,
 		  sd, emax, rtt_nb[i], rtt_type[i]);
@@ -1294,7 +1298,7 @@ plugin_run_openvas_tcp_scanner (lex_ctxt * lexic)
   if (timeout <= 0)
     timeout = 5;
 #if DEBUG > 0
-  fprintf(stderr, "openvas_tcp_scanner: safe_checks=%d checks_read_timeout=%d\n", safe_checks, timeout);
+  log_legacy_write ("openvas_tcp_scanner: safe_checks=%d checks_read_timeout=%d\n", safe_checks, timeout);
 #endif
 
   {
@@ -1320,7 +1324,7 @@ plugin_run_openvas_tcp_scanner (lex_ctxt * lexic)
       {
 	max_checks = 5; /* bigger values do not make sense */
 #if DEBUG > 0
-	fprintf(stderr, "openvas_tcp_scanner: max_checks forced to %d\n", max_checks);
+	log_legacy_write ("openvas_tcp_scanner: max_checks forced to %d\n", max_checks);
 #endif
       }
 
@@ -1395,14 +1399,14 @@ plugin_run_openvas_tcp_scanner (lex_ctxt * lexic)
 	max_cnx /= (1.0 + maxloadavg);
 #if DEBUG > 0
 	/* Useless, as stderr is temporarily closed */
-	fprintf(stderr, "openvas_tcp_scanner: max_cnx reduced from %d to %d because of maxloadavg=%f\n", x, max_cnx, maxloadavg);
+	log_legacy_write ("openvas_tcp_scanner: max_cnx reduced from %d to %d because of maxloadavg=%f\n", x, max_cnx, maxloadavg);
 #endif
       }
 
 
 
 #if DEBUG > 0
-    fprintf(stderr, "openvas_tcp_scanner: max_sys_fd=%d\n", max_sys_fd);
+    log_legacy_write ("openvas_tcp_scanner: max_sys_fd=%d\n", max_sys_fd);
 #endif
     if (max_sys_fd <= 0) max_sys_fd = 16384; /* reasonable default */
     /* Let's leave at least 1024 FD for other processes */
@@ -1415,7 +1419,7 @@ plugin_run_openvas_tcp_scanner (lex_ctxt * lexic)
       }
     if (max_cnx > x) max_cnx = x;
 #if 0
-    fprintf(stderr, "min_cnx = %d ; max_cnx = %d\n", min_cnx, max_cnx);
+    log_legacy_write ("min_cnx = %d ; max_cnx = %d\n", min_cnx, max_cnx);
 #endif
     if (max_cnx > GRAB_MAX_SOCK) max_cnx = GRAB_MAX_SOCK;
     if (max_cnx < GRAB_MIN_SOCK) max_cnx = GRAB_MIN_SOCK;
@@ -1434,7 +1438,7 @@ plugin_run_openvas_tcp_scanner (lex_ctxt * lexic)
     x = max_cnx / 2;
     if (min_cnx > x) min_cnx = x > 0 ? x : 1;
 #if DEBUG > 0
-    fprintf(stderr, "openvas_tcp_scanner: min_cnx = %d ; max_cnx = %d\n", min_cnx, max_cnx);
+    log_legacy_write ("openvas_tcp_scanner: min_cnx = %d ; max_cnx = %d\n", min_cnx, max_cnx);
 #endif
   }
 

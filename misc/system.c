@@ -52,7 +52,7 @@ emalloc (size)
   /* Just for our personal safety, we increase the size by one */
   if ((int) size < 0)
     {
-      log_legacy_write ("[%d] Won't allocate a pointer of size %ld !\n",
+      log_legacy_write ("[%d] Won't allocate a pointer of size %ld !",
                         getpid (), (long) size);
       exit (1);
     }
@@ -78,7 +78,7 @@ emalloc (size)
 
       if (ptr == NULL)
         {
-          log_legacy_write ("[%d] Could not allocate a pointer of size %ld !\n",
+          log_legacy_write ("[%d] Could not allocate a pointer of size %ld !",
                             getpid (), (long) size);
           exit (1);
         }
@@ -125,15 +125,15 @@ erealloc (void *ptr, size_t size)
 
   if ((int) size < 0)
     {
-      log_legacy_write ("Won't realloc() a pointer of size %ld !\n", size);
+      log_legacy_write ("Won't realloc() a pointer of size %ld !", size);
       exit (1);
     }
 
   ret = realloc (ptr, size);
   if (!ret)
     {
-      fprintf (stderr, "Could not realloc() a pointer of size %ld !\n",
-               (long) size);
+      log_legacy_write ("Could not realloc() a pointer of size %ld !",
+                        (long) size);
       exit (1);
     }
   return ret;

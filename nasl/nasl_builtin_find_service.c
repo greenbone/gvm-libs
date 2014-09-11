@@ -61,9 +61,9 @@ register_service (desc, port, proto)
   if (port < 0 || proto == NULL ||
       (l = strlen (proto)) == 0 || l > sizeof (k) - 10)
     {
-      fprintf (stderr,
-               "find_service->register_service: invalid value - port=%d, proto=%s\n",
-               port, proto == NULL ? "(null)" : proto);
+      log_legacy_write
+       ("find_service->register_service: invalid value - port=%d, proto=%s",
+        port, proto == NULL ? "(null)" : proto);
       return;
     }
 #endif
@@ -1883,9 +1883,9 @@ plugin_do_run (desc, h, test_ssl)
               if (banner_len > 0)
                 banner = (unsigned char *) buffer;
 #ifdef DEBUG
-              fprintf (stderr,
-                       "find_service(%s): found hex banner in KB for port %d. len=%d\n",
-                       inet_ntoa (*p_ip), port, banner_len);
+              log_legacy_write
+               ("find_service(%s): found hex banner in KB for port %d len=%d",
+                inet_ntoa (*p_ip), port, banner_len);
 #endif
             }
           if (banner_len == 0)
@@ -1896,18 +1896,18 @@ plugin_do_run (desc, h, test_ssl)
                 {
                   banner_len = strlen ((char *) banner);
 #ifdef DEBUG
-                  fprintf (stderr,
-                           "find_service(%s): found banner in KB for port %d. len=%d\n",
-                           inet_ntoa (*p_ip), port, banner_len);
+                  log_legacy_write
+                   ("find_service(%s): found banner in KB for port %d len=%d",
+                    inet_ntoa (*p_ip), port, banner_len);
 #endif
                 }
             }
           if (banner_len > 0)
             {
 #ifdef DEBUG
-              fprintf (stderr,
-                       "find_service(%s): banner is known on port %d - will not open a new connection\n",
-                       inet_ntoa (*p_ip), port);
+              log_legacy_write
+               ("find_service(%s): banner is known on port %d -"
+                " will not open a new connection", inet_ntoa (*p_ip), port);
 #endif
               cnx = -1;
               trp = OPENVAS_ENCAPS_IP;
@@ -1915,9 +1915,9 @@ plugin_do_run (desc, h, test_ssl)
           else
             {
 #ifdef DEBUG
-              fprintf (stderr,
-                       "find_service(%s): banner is unknown on port %d - connecting...\n",
-                       inet_ntoa (*p_ip), port);
+              log_legacy_write
+               ("find_service(%s): banner is unknown on port %d"
+                " - connecting...", inet_ntoa (*p_ip), port);
 #endif
               if (banner != NULL)
                 efree (&banner);
@@ -1960,9 +1960,9 @@ plugin_do_run (desc, h, test_ssl)
                                       GSIZE_TO_POINTER (1));
                 }
 #ifdef DEBUG
-              fprintf (stderr,
-                       "find_service(%s): Port %d is open. \"Transport\" is %d\n",
-                       inet_ntoa (*p_ip), port, trp);
+              log_legacy_write
+               ("find_service(%s): Port %d is open. \"Transport\" is %d",
+                inet_ntoa (*p_ip), port, trp);
 #endif
               plug_set_port_transport (desc, port, trp);
               (void) stream_set_timeout (port, rw_timeout);
@@ -2005,9 +2005,9 @@ plugin_do_run (desc, h, test_ssl)
                         no_banner_grabbed = atoi ((char *) p);
                     }
 #ifdef DEBUG
-                  fprintf (stderr,
-                           "find_service(%s): no banner on port %d according to KB\n",
-                           inet_ntoa (*p_ip), port);
+                  log_legacy_write
+                   ("find_service(%s): no banner on port %d according to KB",
+                    inet_ntoa (*p_ip), port);
 #endif
 
                   if (!no_banner_grabbed)
@@ -2051,9 +2051,10 @@ plugin_do_run (desc, h, test_ssl)
                     {           /* No banner was found
                                  * by openvas_tcp_scanner */
 #ifdef DEBUG
-                      fprintf (stderr,
-                               "find_service(%s): no banner was found by openvas_tcp_scanner on port %d - sending GET without waiting\n",
-                               inet_ntoa (*p_ip), port);
+                      log_legacy_write
+                       ("find_service(%s): no banner was found by"
+                        " openvas_tcp_scanner on port %d - sending GET"
+                        " without waiting", inet_ntoa (*p_ip), port);
 #endif
                       len = 0;
                       timeout = 0;
@@ -2064,9 +2065,8 @@ plugin_do_run (desc, h, test_ssl)
                     {
 #ifdef DEBUG
                       if (!no_banner_grabbed)
-                        fprintf (stderr,
-                                 "No banner on port %d - sending GET\n",
-                                 port);
+                        log_legacy_write
+                         ("No banner on port %d - sending GET", port);
 #endif
                       write_stream_connection (cnx, HTTP_GET,
                                                sizeof (HTTP_GET) - 1);
@@ -2600,9 +2600,9 @@ plugin_do_run (desc, h, test_ssl)
               else
                 {
 #ifdef DEBUG
-                  fprintf (stderr,
-                           "find_service(%s): could not read anything from port %d\n",
-                           inet_ntoa (*p_ip), port);
+                  log_legacy_write
+                   ("find_service(%s): could not read anything from port %d",
+                    inet_ntoa (*p_ip), port);
 #endif
                   unindentified_service = 1;
 #define TESTSTRING	"OpenVAS Wrap Test"
@@ -2631,9 +2631,9 @@ plugin_do_run (desc, h, test_ssl)
                   char b;
 
 #ifdef DEBUG
-                  fprintf (stderr,
-                           "find_service(%s): potentially wrapped service on port %d\n",
-                           inet_ntoa (*p_ip), port);
+                  log_legacy_write
+                   ("find_service(%s): potentially wrapped service on port %d",
+                    inet_ntoa (*p_ip), port);
 #endif
                   nfd =
                     open_stream_connection (desc, port, OPENVAS_ENCAPS_IP,
@@ -2641,11 +2641,6 @@ plugin_do_run (desc, h, test_ssl)
                   if (nfd >= 0)
                     {
                       fd = openvas_get_socket_from_connection (nfd);
-#if 0
-                      fprintf (stderr,
-                               "open_stream_connection(port=%d) succeeded\n",
-                               port);
-#endif
                     select_again2:
                       FD_ZERO (&rfds);
                       FD_ZERO (&xfds);
@@ -2664,10 +2659,10 @@ plugin_do_run (desc, h, test_ssl)
                       (void) gettimeofday (&tv2, NULL);
                       diff_tv2 = DIFFTV1000 (tv2, tv1);
 #ifdef DEBUG
-                      fprintf (stderr,
-                               "find_service(%s): select(port=%d)=%d after %d.%03d s on %d\n",
-                               inet_ntoa (*p_ip), port, x, diff_tv2,
-                               diff_tv2 / 1000, wrap_timeout);
+                      log_legacy_write
+                       ("find_service(%s): select(port=%d)=%d after"
+                        " %d.%03d s on %d", inet_ntoa (*p_ip), port, x,
+                        diff_tv2, diff_tv2 / 1000, wrap_timeout);
 #endif
                       if (x < 0)
                         {
@@ -2723,9 +2718,9 @@ plugin_do_run (desc, h, test_ssl)
                             }
 #ifdef DEBUG
                           else
-                            fprintf (stderr, "\
+                            log_legacy_write ("\
 The service on port %s:%d closes the connection in %d.%03d s when we send garbage,\n\
-and in %d.%03d when we just wait. It is  probably not wrapped\n", inet_ntoa (*p_ip), port, diff_tv / 1000, diff_tv % 1000, diff_tv2 / 1000, diff_tv2 % 1000);
+and in %d.%03d when we just wait. It is  probably not wrapped", inet_ntoa (*p_ip), port, diff_tv / 1000, diff_tv % 1000, diff_tv2 / 1000, diff_tv2 % 1000);
 #endif
                         }
                     }
@@ -2750,9 +2745,9 @@ and in %d.%03d when we just wait. It is  probably not wrapped\n", inet_ntoa (*p_
             }
 #ifdef DEBUG
           else
-            fprintf (stderr,
-                     "find_service(%s): could not connect to port %d\n",
-                     inet_ntoa (*p_ip), port);
+            log_legacy_write
+             ("find_service(%s): could not connect to port %d",
+              inet_ntoa (*p_ip), port);
 #endif
 
         }

@@ -29,6 +29,7 @@
 #include "nasl_lex_ctxt.h"
 #include "exec.h"
 #include "plugutils.h"
+#include "openvas_logging.h"
 
 
 extern FILE *nasl_trace_fp;
@@ -55,11 +56,11 @@ nasl_perror (lex_ctxt * lexic, char *msg, ...)
   for (p = debug_message; *p != '\0'; p++)
     ;
   if (p == debug_message || p[-1] != '\n')
-    fprintf (stderr, "[%d](%s:%d) %s\n", getpid (), script_name,
-             lexic ? lexic->line_nb : 0, debug_message);
+    log_legacy_write ("[%d](%s:%d) %s", getpid (), script_name,
+                      lexic ? lexic->line_nb : 0, debug_message);
   else
-    fprintf (stderr, "[%d](%s:%d) %s", getpid (), script_name,
-             lexic ? lexic->line_nb : 0, debug_message);
+    log_legacy_write ("[%d](%s:%d) %s", getpid (), script_name,
+                      lexic ? lexic->line_nb : 0, debug_message);
 
   /** @todo Enable this when the NVTs are ready.  Sends ERRMSG to client. */
 #if 0

@@ -47,6 +47,7 @@
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_KB */
 #include "system.h"
 #include "scanners_utils.h"
+#include "openvas_logging.h"
 
 #include "../base/nvticache.h" /* for nvticache_get_by_oid() */
 
@@ -141,7 +142,7 @@ rmslashes (char *in)
               in++;
               break;
             default:
-              fprintf (stderr, "Unknown escape sequence '\\%c'\n", in[1]);
+              log_legacy_write ("Unknown escape sequence '\\%c'", in[1]);
             }
         }
       else
@@ -773,9 +774,8 @@ get_plugin_preference_fname (struct arglist *desc, const char *filename)
     g_file_open_tmp ("openvassd-file-upload.XXXXXX", &tmpfilename, &error);
   if (tmpfile == -1)
     {
-      fprintf (stderr,
-               "get_plugin_preference_fname: Could not open temporary file for %s: %s\n",
-               filename, error->message);
+      log_legacy_write ("get_plugin_preference_fname: Could not open temporary"
+                        " file for %s: %s", filename, error->message);
       g_error_free (error);
       return NULL;
     }
@@ -783,9 +783,8 @@ get_plugin_preference_fname (struct arglist *desc, const char *filename)
 
   if (!g_file_set_contents (tmpfilename, content, contentsize, &error))
     {
-      fprintf (stderr,
-               "get_plugin_preference_fname: could set contents of temporary file for %s: %s\n",
-               filename, error->message);
+      log_legacy_write ("get_plugin_preference_fname: could set contents of"
+                        " temporary file for %s: %s", filename, error->message);
       g_error_free (error);
       return NULL;
     }
@@ -879,17 +878,16 @@ plug_get_fresh_key (struct arglist *args, char *name, int *type)
     internal_send (soc, name, INTERNAL_COMM_MSG_TYPE_KB | INTERNAL_COMM_KB_GET);
   if (e < 0)
     {
-      fprintf (stderr, "[%d] plug_get_fresh_key:internal_send(%d, %s): %s\n",
-               getpid (), soc, name, strerror (errno));
+      log_legacy_write ("[%d] plug_get_fresh_key:internal_send(%d, %s): %s",
+                        getpid (), soc, name, strerror (errno));
       goto err;
     }
 
   internal_recv (soc, &buf, &bufsz, &msg);
   if ((msg & INTERNAL_COMM_MSG_TYPE_KB) == 0)
     {
-      fprintf (stderr,
-               "[%d] plug_get_fresh_key:internal_send(%d): Unexpected message %d",
-               getpid (), soc, msg);
+      log_legacy_write ("[%d] plug_get_fresh_key:internal_send(%d):"
+                        " Unexpected message %d", getpid (), soc, msg);
       goto err;
     }
 
@@ -939,7 +937,7 @@ plug_set_replace_key (struct arglist *args, char *name, int type, void *value,
       snprintf (str, strlen (name) + strlen (value) + 10, "%d %s=%s;\n",
                 ARG_STRING, name, (char *) value);
       if (global_nasl_debug == 1)
-        fprintf (stderr, "set key %s -> %s\n", name, (char *) value);
+        log_legacy_write ("set key %s -> %s", name, (char *) value);
       efree (&value);
       break;
     case ARG_INT:
@@ -949,8 +947,8 @@ plug_set_replace_key (struct arglist *args, char *name, int type, void *value,
       snprintf (str, strlen (name) + 20, "%d %s=%d;\n", ARG_INT, name,
                 (int) GPOINTER_TO_SIZE (value));
       if (global_nasl_debug == 1)
-        fprintf (stderr, "set key %s -> %d\n", name,
-                 (int) GPOINTER_TO_SIZE (value));
+        log_legacy_write ("set key %s -> %d\n", name,
+                          (int) GPOINTER_TO_SIZE (value));
       break;
     }
 
@@ -964,8 +962,8 @@ plug_set_replace_key (struct arglist *args, char *name, int type, void *value,
 
       e = internal_send (soc, str, msg);
       if (e < 0)
-        fprintf (stderr, "[%d] plug_set_key:internal_send(%d)['%s']: %s\n",
-                 getpid (), soc, str, strerror (errno));
+        log_legacy_write ("[%d] plug_set_key:internal_send(%d)['%s']: %s\n",
+                          getpid (), soc, str, strerror (errno));
     }
   if (str)
     efree (&str);
@@ -1153,9 +1151,8 @@ plug_get_key (struct arglist *args, char *name, int *type)
         }
       else if (pid < 0)
         {
-          fprintf (stderr,
-                   "libopenvas:%s:%s(): fork() failed (%s)",
-                   __FILE__, __func__, strerror (errno));
+          log_legacy_write ("libopenvas:%s:%s(): fork() failed (%s)", __FILE__,
+                            __func__, strerror (errno));
           return NULL;
         }
       else
@@ -1384,15 +1381,9 @@ find_in_path (char *name, int safe)
           else if (S_ISREG (st.st_mode))
             {
               *p2 = '\0';
-#if 0
-              fprintf (stderr, "find_in_path: %s found in %s\n", name, cmd);
-#endif
               return cmd;
             }
         }
-#if 0
-      fprintf (stderr, "find_in_path: No %s\n", cmd);
-#endif
     }
   return NULL;
 }

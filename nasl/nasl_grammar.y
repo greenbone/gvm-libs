@@ -474,6 +474,7 @@ glob: GLOBAL arg_decl
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "openvas_logging.h"
 
 static void
 naslerror(naslctxt *parm, const char *s)
@@ -566,14 +567,15 @@ init_nasl_ctx(naslctxt* pc, const char* name)
   }
 
   if (! pc->fp) {
-    fprintf(stderr, "%s: Not able to open nor to locate it in include paths\n", name);
+    log_legacy_write ("%s: Not able to open nor to locate it in include paths",
+                      name);
     g_free(full_name);
     return -1;
   }
 
   if (! pc->always_authenticated && nasl_verify_signature(full_name) != 0) {
-    fprintf(stderr, "%s: bad or missing signature."
-                    " Will not execute this script\n", full_name);
+    log_legacy_write ("%s: bad or missing signature. Will not execute this"
+                      " script", full_name);
     fclose(pc->fp);
     pc->fp = NULL;
     g_free(full_name);
@@ -928,7 +930,8 @@ mylex(lvalp, parm)
 	      if (c ==  '\n')
 		ctx->line_nb --;
 	      if (! isprint(c)) c = '.';
-	      fprintf(stderr, "lexer error: invalid token >!%c parsed as >!< %c\n", c, c);
+	      log_legacy_write ("lexer error: invalid token >!%c "
+                                "parsed as >!< %c", c, c);
 	      return NOMATCH;
 	    }
 	  break;
@@ -1213,15 +1216,7 @@ mylex(lvalp, parm)
 static int
 nasllex(YYSTYPE * lvalp, void * parm)
 {
-
-  int	x = mylex(lvalp, parm);
-#if 0
-  naslctxt	*ctx = parm;
-  if (isprint(x))
-    fprintf(stderr, "Line %d\t: '%c'\n", ctx->line_nb, x);
-  else
-    fprintf(stderr, "Line %d\t:  %d\n", ctx->line_nb, x);
-#endif
+  int	x = mylex (lvalp, parm);
   return x;
 }
 
