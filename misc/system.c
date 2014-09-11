@@ -34,6 +34,7 @@
 #include <arpa/inet.h>
 
 #include "system_internal.h"
+#include "openvas_logging.h"
 #include <malloc.h>
 
 /**
@@ -51,8 +52,8 @@ emalloc (size)
   /* Just for our personal safety, we increase the size by one */
   if ((int) size < 0)
     {
-      fprintf (stderr, "[%d] Won't allocate a pointer of size %ld !\n",
-               getpid (), (long) size);
+      log_legacy_write ("[%d] Won't allocate a pointer of size %ld !\n",
+                        getpid (), (long) size);
       exit (1);
     }
 
@@ -77,8 +78,8 @@ emalloc (size)
 
       if (ptr == NULL)
         {
-          fprintf (stderr, "[%d] Could not allocate a pointer of size %ld !\n",
-                   getpid (), (long) size);
+          log_legacy_write ("[%d] Could not allocate a pointer of size %ld !\n",
+                            getpid (), (long) size);
           exit (1);
         }
     }
@@ -124,8 +125,7 @@ erealloc (void *ptr, size_t size)
 
   if ((int) size < 0)
     {
-      fprintf (stderr, "Won't realloc() a pointer of size %ld !\n",
-               (long) size);
+      log_legacy_write ("Won't realloc() a pointer of size %ld !\n", size);
       exit (1);
     }
 

@@ -103,7 +103,7 @@ add_custom_indent_targets (${FILES})
 # Link the test-hosts executable
 if (BUILD_SHARED)
   add_executable (test-hosts test-hosts.c)
-  target_link_libraries (test-hosts openvas_base_shared ${GLIB_LDFLAGS} -lgcrypt
+  target_link_libraries (test-hosts openvas_base_shared openvas_misc_shared ${GLIB_LDFLAGS} -lgcrypt
     "${GPGME_LDFLAGS}" -lgnutls "${PCAP_LDFLAGS}" -lresolv -lm ${WMI_LIBS}
     ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS} ${WINCMD_LIBS}) 
   set_target_properties (test-hosts PROPERTIES COMPILE_FLAGS
@@ -111,7 +111,7 @@ if (BUILD_SHARED)
 endif (BUILD_SHARED)
 if (BUILD_STATIC)
   add_executable (test-hosts test-hosts.c)
-  target_link_libraries (test-hosts openvas_base_static ${GLIB_LDFLAGS} -lgcrypt
+  target_link_libraries (test-hosts openvas_base_static openvas_misc_static ${GLIB_LDFLAGS} -lgcrypt
     "${GPGME_LDFLAGS}" -lgnutls "${PCAP_LDFLAGS}" -lresolv -lm ${WMI_LIBS}
     ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS} ${WINCMD_LIBS}) 
   set_target_properties (test-hosts PROPERTIES COMPILE_FLAGS

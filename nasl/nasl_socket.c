@@ -50,6 +50,7 @@
 #include "openvas_networking.h" /* for openvas_source_set_socket */
 #include "plugutils.h"          /* for plug_get_host_ip */
 #include "system.h"             /* for efree */
+#include "../misc/openvas_logging.h"
 
 #include "nasl.h"
 
@@ -315,8 +316,8 @@ tryagain:
 
   if (getsockopt (sock, SOL_SOCKET, SO_ERROR, &opt, &opt_sz) < 0)
     {
-      fprintf (stderr, "[%d] open_priv_sock()->getsockopt() failed : %s\n",
-               getpid (), strerror (errno));
+      log_legacy_write ("[%d] open_priv_sock()->getsockopt() failed : %s\n",
+                        getpid (), strerror (errno));
       close (sock);
       return NULL;
     }
@@ -1142,7 +1143,7 @@ nasl_socket_get_error (lex_ctxt * lexic)
       break;
 
     default:
-      fprintf (stderr, "Unknown error %d %s\n", err, strerror (err));
+      log_legacy_write ("Unknown error %d %s\n", err, strerror (err));
     }
 
   return retc;

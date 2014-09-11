@@ -1,3 +1,13 @@
+2014-09-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r20339.
+
+	* base/nvti.c, misc/arglists.c, misc/ids_send.c, misc/system.c,
+	nasl/nasl_host.c, nasl/nasl_smb.c, nasl/nasl_socket.c, nasl/nasl_ssh.c,
+	nasl/nasl_wmi.c: Use log_legacy_write() instead of fprintf to stderr fd.
+
+	* base/CMakeLists.txt: Link test-hosts against openvas misc library.
+
 2014-09-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r20333.
