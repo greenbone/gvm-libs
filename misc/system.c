@@ -23,68 +23,23 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <time.h>
-#include <string.h>
-#include <strings.h>
-#include <ctype.h>
-#include <arpa/inet.h>
-
-#include "system_internal.h"
-#include "openvas_logging.h"
-#include <malloc.h>
+#include <string.h> /* for strlen */
+#include <glib.h>   /* for g_malloc0 */
 
 /**
- * This method always returns the requested
- * memory size. If anything failed during allocating
- * it, the exit() routine is entered to stop the program.
+ * This method is a wrapper for g_malloc0 unti all calls
+ * replaced by direct calls of g_malloc0.
  */
 void *
-emalloc (size)
-     size_t size;
+emalloc (size_t size)
 {
-  void *ptr;
-  const struct timespec delay = { 0, 5000000 }; /* 5000 mikroseconds = 5000000 nanoseconds */
+  /* Previously this function always added 1 byte. Removing this
+     extra byte significantly improves the memory footprint
+     but also some scan parts do not work like before anymore.
+     So, all single uses of emalloc should be carefully analysed
+     before using g_malloc0 directly. */
 
-  /* Just for our personal safety, we increase the size by one */
-  if ((int) size < 0)
-    {
-      log_legacy_write ("[%d] Won't allocate a pointer of size %ld !",
-                        getpid (), (long) size);
-      exit (1);
-    }
-
-  size++;
-
-  /* If no memory can be allocated, then wait a little.
-   * It's very likely that another openvas scanner child will free
-   * the size of memory we need. So we make 10 attempts,
-   * and if nothing happens, then we exit. */
-  ptr = malloc (size);
-  if (!ptr)
-    {
-#ifndef _WIN32
-      int i;
-      for (i = 0; (i < 5) && ptr == NULL; i++)
-        {
-          waitpid (0, NULL, WNOHANG);
-          nanosleep (&delay, NULL);
-          ptr = malloc (size);
-        }
-#endif
-
-      if (ptr == NULL)
-        {
-          log_legacy_write ("[%d] Could not allocate a pointer of size %ld !",
-                            getpid (), (long) size);
-          exit (1);
-        }
-    }
-  bzero (ptr, size);
-  return (ptr);
+  return g_malloc0 (size + 1);
 }
 
 char *
@@ -113,7 +68,7 @@ efree (void *ptr)
   char **p = ptr;
   if (p && *p)
     {
-      free (*p);
+      g_free (*p);
       *p = NULL;
     }
 }
@@ -121,20 +76,6 @@ efree (void *ptr)
 void *
 erealloc (void *ptr, size_t size)
 {
-  void *ret;
-
-  if ((int) size < 0)
-    {
-      log_legacy_write ("Won't realloc() a pointer of size %zd !", size);
-      exit (1);
-    }
-
-  ret = realloc (ptr, size);
-  if (!ret)
-    {
-      log_legacy_write ("Could not realloc() a pointer of size %zd !", size);
-      exit (1);
-    }
-  return ret;
+  return  g_realloc (ptr, size);
 }
 
