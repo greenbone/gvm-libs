@@ -125,7 +125,8 @@ erealloc (void *ptr, size_t size)
 
   if ((int) size < 0)
     {
-      log_legacy_write ("Won't realloc() a pointer of size %ld !", size);
+      log_legacy_write ("Won't realloc() a pointer of size %ld !",
+                        (long) size);
       exit (1);
     }
 
