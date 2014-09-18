@@ -1,6 +1,10 @@
 2014-09-18  Benoît Allard  <benoit.allard@greenbone.net>
 
-	* misc/system.c: cast size_t to long before using %ld
+	* INSTALL: Remove mention of the (now solved) openSUSE compiler error
+
+2014-09-18  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* misc/system.c (erealloc): cast size_t to long before using %ld
 
 2014-09-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
