@@ -24,7 +24,6 @@
 
 #include "kb.h"
 #include "plugutils.h"
-#include "system.h"
 #include "support.h"
 
 /*
@@ -111,7 +110,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
   l += strlen (name) + (path != NULL);
 
   /** @todo Evaluate if GLib functions for building paths are applicable here */
-  ret = emalloc (l + 1);
+  ret = g_malloc0 (l + 1);
   if (path == NULL)
     strcpy (ret, name);
   else
@@ -158,7 +157,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
   if (self_ref_dir)
     {
       l += 2 * n_slash;
-      ret2 = emalloc (l + 1);
+      ret2 = g_malloc0 (l + 1);
       for (s = ret, s2 = ret2; *s != '\0' && *s != '?'; s++)
         if (*s != '/')
           *s2++ = *s;
@@ -170,7 +169,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
       while (*s != '\0')
         *s2++ = *s++;
       *s2 = '\0';
-      efree (&ret);
+      g_free (ret);
       ret = ret2;
       n_slash *= 2;
 #ifdef URL_DEBUG
@@ -184,7 +183,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
   if (reverse_traversal > 0)
     {
       l += (reverse_traversal + 4) * n_slash;
-      ret2 = emalloc (l + 1);
+      ret2 = g_malloc0 (l + 1);
 
       for (s = ret, s2 = ret2; *s != '\0' && *s != '?'; s++)
         if (*s != '/')
@@ -200,7 +199,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
       while (*s != '\0')
         *s2++ = *s++;
       *s2 = '\0';
-      efree (&ret);
+      g_free (ret);
       ret = ret2;
       n_slash *= 3;
 #ifdef URL_DEBUG
@@ -213,7 +212,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
   if (prem_req_end)
     {
       l += 36;
-      ret2 = emalloc (l + 1);
+      ret2 = g_malloc0 (l + 1);
       n_slash += 4;
 
       s = gizmo;
@@ -222,7 +221,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
         *s++ = lrand48 () % 26 + 'a';   /* RATS: ignore */
       *s++ = '\0';
       snprintf (ret2, l, "/%%20HTTP/1.0%%0d%%0a%s:%%20/../..%s", gizmo, ret);   /* RATS: ignore */
-      efree (&ret);
+      g_free (ret);
       ret = ret2;
 #ifdef URL_DEBUG
       log_legacy_write ("Request =  %s\n", ret);
@@ -234,7 +233,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
   if (param_hiding)
     {
       l += 25;
-      ret2 = emalloc (l + 1);
+      ret2 = g_malloc0 (l + 1);
       n_slash += 2;
 
       s = gizmo;
@@ -242,7 +241,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
         *s++ = lrand48 () % 26 + 'a';   /* RATS: ignore */
       *s++ = '\0';
       snprintf (ret2, l, "/index.htm%%3f%s=/..%s", gizmo, ret); /* RATS: ignore */
-      efree (&ret);
+      g_free (ret);
       ret = ret2;
 #ifdef URL_DEBUG
       log_legacy_write ("Request =  %s\n", ret);
@@ -255,7 +254,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
     {
       l += n_slash;
 
-      ret2 = emalloc (l + 1);
+      ret2 = g_malloc0 (l + 1);
       for (s = ret, s2 = ret2; *s != '\0' && *s != '?'; s++)
         if (*s != '/')
           *s2++ = *s;
@@ -267,7 +266,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
       while (*s != '\0')
         *s2++ = *s++;
       *s2 = '\0';
-      efree (&ret);
+      g_free (ret);
       ret = ret2;
       n_slash *= 2;
 #ifdef URL_DEBUG
@@ -322,7 +321,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
 
   if (url_encoding != URL_CODE_NONE)
     {
-      ret2 = emalloc (l + 1);
+      ret2 = g_malloc0 (l + 1);
 
       for (s = ret, s2 = ret2; *s != '\0'; s++)
         if (*s == '/'
@@ -376,7 +375,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
               n_backslash--;
           }
       *s2 = '\0';
-      efree (&ret);
+      g_free (ret);
       ret = ret2;
 #ifdef URL_DEBUG
       log_legacy_write ("Request =  %s\n", ret);
@@ -415,13 +414,13 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
                       struct in_addr *v4_addr = NULL;
                       v4_addr->s_addr = ptr->s6_addr32[3];
                       asc =
-                        estrdup (inet_ntop (AF_INET, v4_addr, hostname,
-                                            sizeof (hostname)));
+                        g_strdup (inet_ntop (AF_INET, v4_addr, hostname,
+                                             sizeof (hostname)));
                     }
                   else
                     asc =
-                      estrdup (inet_ntop
-                               (AF_INET6, &ptr, hostname, sizeof (hostname)));
+                      g_strdup (inet_ntop
+                                (AF_INET6, &ptr, hostname, sizeof (hostname)));
 
                   strncpy (h, asc, sizeof (h));
                 }
@@ -440,10 +439,10 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
 
       l += strlen (h) + strlen (abs_URI_type) + 3;
       n_slash += 2;
-      ret2 = emalloc (l + 1);
+      ret2 = g_malloc0 (l + 1);
 
       snprintf (ret2, l, "%s://%s%s", abs_URI_type, h, ret);    /* RATS: ignore */
-      efree (&ret);
+      g_free (ret);
       ret = ret2;
 #ifdef URL_DEBUG
       log_legacy_write ("Request =  %s\n", ret);
@@ -456,10 +455,10 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
   if (null_method)
     {
       l += 3;
-      ret2 = emalloc (l + 1);
+      ret2 = g_malloc0 (l + 1);
       strncpy (ret2, "%00", l);
       strncpy (ret2 + 3, ret, (l - 3));
-      efree (&ret);
+      g_free (ret);
       ret = ret2;
     }
 
@@ -480,12 +479,12 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
   tab_sep = (s != NULL && strcmp (s, "yes") == 0);
   sep_c = (tab_sep ? '\t' : ' ');
 
-  ret2 = emalloc (l + 1);
+  ret2 = g_malloc0 (l + 1);
   if (http09)
     snprintf (ret2, l, "%s%c%s", method, sep_c, ret);   /* RATS: ignore */
   else
     snprintf (ret2, l, "%s%c%s%c%s", method, sep_c, ret, sep_c, httpver);       /* RATS: ignore */
-  efree (&ret);
+  g_free (ret);
   ret = ret2;
 
 #ifdef URL_DEBUG

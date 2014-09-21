@@ -28,8 +28,6 @@
 #include <fcntl.h>
 #include <signal.h>
 
-#include "system.h"
-
 #ifndef RLIM_INFINITY
 #define RLIM_INFINITY (1024*1024*1024)
 #endif

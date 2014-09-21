@@ -44,7 +44,6 @@
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 
-#include "system.h"             /* for efree(), erealloc() */
 #include "network.h"            /* for socket_close() */
 #include "kb.h"                 /* for kb_item_get_str() */
 
@@ -213,7 +212,8 @@ release_connection_fd (int fd)
     }
   p = OVAS_CONNECTION_FROM_FD (fd);
 
-  efree (&p->buf);
+  g_free (p->buf);
+  p->buf = 0;
 
   /* TLS FIXME: we should call gnutls_bye somewhere.  OTOH, the OpenSSL
    * equivalent SSL_shutdown wasn't called anywhere in the OpenVAS
@@ -248,7 +248,8 @@ release_connection_fd (int fd)
   if (p->tls_cred != NULL)
     gnutls_certificate_free_credentials (p->tls_cred);
 
-  efree (&p->priority);
+  g_free (p->priority);
+  p->priority = NULL;
 
   bzero (p, sizeof (*p));
   p->transport = -1;
@@ -304,7 +305,8 @@ openvas_deregister_connection (int fd)
   /* Fixme: Code duplicated from release_connection_fd.  Check usage
      of this function make sure that TLS stuff is also released in
      case it is used here.  */
-  efree (&p->priority);
+  g_free (p->priority);
+  p->priority = NULL;
   bzero (p, sizeof (*p));
   p->transport = -1;
   return 0;
@@ -1037,9 +1039,11 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
   fp = OVAS_CONNECTION_FROM_FD (fd);
 
   fp->transport = transport;
-  efree (&fp->priority);
+  g_free (fp->priority);
   if (*priority)
-    fp->priority = estrdup (priority);
+    fp->priority = g_strdup (priority);
+  else
+    fp->priority = NULL;
   fp->timeout = timeout;
   fp->port = port;
   fp->last_err = 0;
@@ -1835,7 +1839,7 @@ add_close_stream_connection_hook (int (*fnc)(int fd))
     if (hook->fnc == fnc)
       return; /* Already added.  */
 
-  hook = emalloc (sizeof *hook);
+  hook = g_malloc0 (sizeof *hook);
   hook->fnc = fnc;
   hook->next = csc_hooks;
   csc_hooks = hook;
@@ -2410,7 +2414,8 @@ stream_set_buffer (int fd, int sz)
 
   if (sz == 0)
     {
-      efree (&p->buf);
+      g_free (p->buf);
+      p->buf = NULL;
       p->bufsz = 0;
       return 0;
     }
@@ -2552,7 +2557,7 @@ internal_recv (int soc, char **data, int *data_sz, int *msg_type)
   if (buf == NULL)
     {
       sz = 65535;
-      buf = emalloc (sz);
+      buf = g_malloc0 (sz+1);
     }
 
 
@@ -2569,7 +2574,7 @@ internal_recv (int soc, char **data, int *data_sz, int *msg_type)
       if (len >= sz)
         {
           sz = len + 1;
-          buf = erealloc (buf, sz);
+          buf = g_realloc (buf, sz);
         }
 
       if (len > 0)
@@ -2595,7 +2600,7 @@ internal_recv (int soc, char **data, int *data_sz, int *msg_type)
 
   return len;
 error:
-  efree (&buf);
+  g_free (buf);
   *data = NULL;
   *data_sz = 0;
   return -1;

@@ -43,7 +43,6 @@
 #include "network.h"
 #include "pcap_openvas.h"
 #include "plugutils.h"
-#include "system.h"
 #include "openvas_logging.h"
 #include "support.h"
 
@@ -266,7 +265,7 @@ tcp_cksum (packet, len)
 {
   struct pseudohdr pseudoheader;
   char *tcpsumdata =
-    (char *) emalloc (sizeof (struct pseudohdr) + (len % 2 ? len + 1 : 0));
+    (char *) g_malloc0 (sizeof (struct pseudohdr) + (len % 2 ? len + 1 : 0));
   struct in_addr source, dest;
   struct ip_packet *ip = (struct ip_packet *) packet;
   struct tcp_packet *tcp = (struct tcp_packet *) (packet + ip->ip_hl * 4);
@@ -289,7 +288,7 @@ tcp_cksum (packet, len)
   tcp->th_sum =
     in_cksum ((unsigned short *) tcpsumdata,
               12 + sizeof (struct tcp_packet) + len);
-  efree (&tcpsumdata);
+  g_free (tcpsumdata);
   return 0;
 }
 
@@ -367,7 +366,7 @@ inject (orig_packet, packet_len, method, flags, data, data_len)
 #endif
 
 
-  packet = emalloc (tot_len);
+  packet = g_malloc0 (tot_len);
 
   /*
    * Copy data, if any
@@ -427,7 +426,7 @@ inject (orig_packet, packet_len, method, flags, data, data_len)
       perror
         ("openvas-libraries : libopenvas : ids_send.c : inject() : sendto() ");
     }
-  efree (&packet);
+  g_free (packet);
   close (soc);
   return 0;
 }
@@ -461,7 +460,7 @@ injectv6 (orig_packet, packet_len, method, flags, data, data_len)
   if (soc < 0)
     return -1;
 
-  packet = emalloc (tot_len);
+  packet = g_malloc0 (tot_len);
 
   /*
    * Copy data, if any
@@ -521,7 +520,7 @@ injectv6 (orig_packet, packet_len, method, flags, data, data_len)
       perror
         ("openvas-libraries : libopenvas : ids_send.c : inject() : sendto() ");
     }
-  efree (&packet);
+  g_free (packet);
   close (soc);
   return 0;
 }
@@ -569,14 +568,14 @@ ids_send (fd, buf0, n, method)
       src.s_addr = 0;
       iface = routethrough (&dst, &src);
 
-      src_host = estrdup (inet_ntoa (src));
-      dst_host = estrdup (inet_ntoa (dst));
+      src_host = g_strdup (inet_ntoa (src));
+      dst_host = g_strdup (inet_ntoa (dst));
 
       snprintf (filter, sizeof (filter),
                 "tcp and (src host %s and dst host %s and src port %d)",
                 dst_host, src_host, port);
-      efree (&src_host);
-      efree (&dst_host);
+      g_free (src_host);
+      g_free (dst_host);
     }
   else
     {
@@ -588,14 +587,14 @@ ids_send (fd, buf0, n, method)
       iface = v6_routethrough (&dst6, &src6);
 
       src_host =
-        estrdup (inet_ntop (AF_INET6, &src6, hostname, sizeof (hostname)));
+        g_strdup (inet_ntop (AF_INET6, &src6, hostname, sizeof (hostname)));
       dst_host =
-        estrdup (inet_ntop (AF_INET6, &dst6, hostname, sizeof (hostname)));
+        g_strdup (inet_ntop (AF_INET6, &dst6, hostname, sizeof (hostname)));
       snprintf (filter, sizeof (filter),
                 "tcp and (src host %s and dst host %s and src port %d)",
                 dst_host, src_host, port);
-      efree (&src_host);
-      efree (&dst_host);
+      g_free (src_host);
+      g_free (dst_host);
     }
 
   bpf = bpf_open_live (iface, filter);
@@ -721,25 +720,25 @@ ids_open_sock_tcp (args, port, method, timeout)
       dst.s_addr = dst6->s6_addr32[3];
       src.s_addr = 0;
       iface = routethrough (&dst, &src);
-      src_host = estrdup (inet_ntoa (src));
-      dst_host = estrdup (inet_ntoa (dst));
+      src_host = g_strdup (inet_ntoa (src));
+      dst_host = g_strdup (inet_ntoa (dst));
     }
   else
     {
       family = AF_INET6;
       iface = v6_routethrough (dst6, &src6);
       src_host =
-        estrdup (inet_ntop (AF_INET6, &src6, hostname, sizeof (hostname)));
+        g_strdup (inet_ntop (AF_INET6, &src6, hostname, sizeof (hostname)));
       dst_host =
-        estrdup (inet_ntop (AF_INET6, dst6, hostname, sizeof (hostname)));
+        g_strdup (inet_ntop (AF_INET6, dst6, hostname, sizeof (hostname)));
     }
 
   snprintf (filter, sizeof (filter),
             "tcp and (src host %s and dst host %s and src port %d)", dst_host,
             src_host, port);
 
-  efree (&src_host);
-  efree (&dst_host);
+  g_free (src_host);
+  g_free (dst_host);
 
 
   bpf = bpf_open_live (iface, filter);

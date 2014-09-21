@@ -32,14 +32,8 @@
  * "GHashTableGKeyFile" (defined in GROUP_NONE).
  */
 
-/* for open() */
-#include <fcntl.h>
-
-/* for close() */
-#include <unistd.h>
-
-/* for estrdup() */
-#include "system.h"
+#include <fcntl.h>  /* for open() */
+#include <unistd.h> /* for close() */
 
 #include "hash_table_file.h"
 
@@ -79,7 +73,7 @@ hash_table_from_gkeyfile (GKeyFile * gkeyfile)
     {
       char *value =
         g_key_file_get_value (gkeyfile, GROUP_NONE, (*keys_it), NULL);
-      g_hash_table_insert (returntable, estrdup (*keys_it), value);
+      g_hash_table_insert (returntable, g_strdup (*keys_it), value);
       ++keys_it;
     }
 

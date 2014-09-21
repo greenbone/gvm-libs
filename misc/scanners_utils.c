@@ -27,7 +27,6 @@
 
 #include "network.h"
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_DATA */
-#include "system.h"
 
 /**
  * @brief Sends the status of an action.
@@ -110,7 +109,7 @@ getpts (char *origexpr, int *len)
   static char *last_expr = NULL;
   static int last_num;
 
-  expr = estrdup (origexpr);
+  expr = g_strdup (origexpr);
   exlen = strlen (origexpr);
   mem = expr;
 
@@ -120,20 +119,22 @@ getpts (char *origexpr, int *len)
         {
           if (len != NULL)
             *len = last_num;
-          efree (&mem);
+          g_free (mem);
           return last_ret;
         }
       else
         {
-          efree (&last_expr);
-          efree (&last_ret);
+          g_free (last_expr);
+          last_expr = NULL;
+          g_free (&last_ret);
+          last_ret = NULL;
         }
     }
 
 
 
 
-  ports = emalloc (65536 * sizeof (short));
+  ports = g_malloc0 (65536 * sizeof (short));
   for (; j < exlen; j++)
     if (expr[j] != ' ')
       expr[i++] = expr[j];
@@ -173,7 +174,7 @@ getpts (char *origexpr, int *len)
         start = 1;
       if (start > end)
         {
-          efree (&mem);
+          g_free (mem);
           return NULL;
         }
       for (j = start; j <= end; j++)
@@ -197,7 +198,7 @@ getpts (char *origexpr, int *len)
     start = 1;
   if (start > end)
     {
-      efree (&mem);
+      g_free (mem);
       return NULL;
     }
   for (j = start; j <= end; j++)
@@ -209,10 +210,10 @@ getpts (char *origexpr, int *len)
   tmp = realloc (ports, i * sizeof (short));
   if (len != NULL)
     *len = i - 1;
-  efree (&mem);
+  g_free (mem);
 
   last_ret = tmp;
-  last_expr = estrdup (origexpr);
+  last_expr = g_strdup (origexpr);
   last_num = i - 1;
   return tmp;
 }

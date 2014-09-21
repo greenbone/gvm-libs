@@ -1,5 +1,36 @@
 2014-09-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Replace more old internal calls for memory management by respective
+	glib functions.
+
+	* misc/ids_send.c (tcp_cksum, injectv6): Replaced emalloc() by
+	g_malloc0() and efree() by g_free().
+	(inject): Replaced efree() by g_free().
+	(ids_send, ids_open_sock_tcp): Replaced estdup() by g_strdup() and
+	efree() by g_free().
+
+	* misc/hash_table_file.c (hash_table_from_gkeyfile): Replaced estrdup()
+	by g_strdup().
+
+	* misc/network.c (release_connection_fd, openvas_deregister_connection):
+	Replaced efree() by g_free().
+	(open_stream_connection_ext): Replaced efree() by g_free() and estrdup()
+	by gstrdup().
+	(add_close_stream_connection_hook): Replaced emalloc() by g_malloc0().
+	(stream_set_buffer): Replaced efree() by g_free().
+	(internal_recv): Replaced erealloc() by g_realloc() and efree() by
+	g_free().
+
+	* misc/popen.c: Removed unneeded include of system.h.
+
+	* misc/www_funcs.c (build_encode_URL): Replaced emalloc() by
+	g_malloc0(), efree() by g_free() and estrdup() by g_strdup().
+
+	* misc/scanners_utils.c (getpts): Replaced estrdup() by g_strdup(),
+	efree() by g_free() and emalloc() by g_malloc0().
+
+2014-09-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Replace old internal calls for memory management by respective
 	glib functions.
 
