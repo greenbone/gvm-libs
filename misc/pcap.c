@@ -32,7 +32,6 @@
 
 #include "bpf_share.h"
 #include "pcap_openvas.h"
-#include "system_internal.h"
 #include "network.h"
 #include "support.h"
 
@@ -191,13 +190,13 @@ v6_get_mac_addr (struct in6_addr *addr, char **mac)
         return -1;
 
       inaddr.s_addr = me.s6_addr32[3];
-      src_host = estrdup (inet_ntoa (inaddr));
+      src_host = g_strdup (inet_ntoa (inaddr));
       inaddr.s_addr = addr->s6_addr32[3];
-      dst_host = estrdup (inet_ntoa (inaddr));
-      snprintf (filter, sizeof (filter), "ip and (src host %s and dst host %s)",
+      dst_host = g_strdup (inet_ntoa (inaddr));
+      snprintf (filter, sizeof (filter)-1, "ip and (src host %s and dst host %s)",
                 src_host, dst_host);
-      efree (&src_host);
-      efree (&dst_host);
+      g_free (src_host);
+      g_free (dst_host);
 
       bpf = bpf_open_live (iface, filter);
       if (bpf < 0)
@@ -235,13 +234,13 @@ v6_get_mac_addr (struct in6_addr *addr, char **mac)
       if (soc < 0)
         return -1;
       src_host =
-        estrdup (inet_ntop (AF_INET6, &me, hostname, sizeof (hostname)));
+        g_strdup (inet_ntop (AF_INET6, &me, hostname, sizeof (hostname)));
       dst_host =
-        estrdup (inet_ntop (AF_INET6, addr, hostname, sizeof (hostname)));
-      snprintf (filter, sizeof (filter),
+        g_strdup (inet_ntop (AF_INET6, addr, hostname, sizeof (hostname)));
+      snprintf (filter, sizeof (filter)-1,
                 "ip6 and (src host %s and dst host %s)", src_host, dst_host);
-      efree (&src_host);
-      efree (&dst_host);
+      g_free (src_host);
+      g_free (dst_host);
 
 
       bpf = bpf_open_live (iface, filter);
@@ -289,7 +288,7 @@ v6_get_mac_addr (struct in6_addr *addr, char **mac)
               return 1;
             }
 
-          *mac = emalloc (22);
+          *mac = g_malloc0 (23);
           snprintf (*mac, 22, "%.2x.%.2x.%.2x.%.2x.%.2x.%.2x",
                     (unsigned char) packet[0], (unsigned char) packet[1],
                     (unsigned char) packet[2], (unsigned char) packet[3],

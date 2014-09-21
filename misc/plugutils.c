@@ -45,7 +45,6 @@
 #include "network.h"
 #include "plugutils.h"
 #include "internal_com.h"
-#include "system.h"
 #include "scanners_utils.h"
 #include "openvas_logging.h"
 
@@ -129,7 +128,7 @@ _add_plugin_preference (struct arglist *prefs, const char *p_name,
   char *cname;
   int len;
 
-  cname = estrdup (name);
+  cname = g_strdup (name);
   len = strlen (cname);
   // Terminate string before last trailing space
   while (cname[len - 1] == ' ')
@@ -139,20 +138,20 @@ _add_plugin_preference (struct arglist *prefs, const char *p_name,
     }
   if (!prefs || !p_name)
     {
-      efree (&cname);
+      g_free (cname);
       return;
     }
 
 
-  pref = emalloc (strlen (p_name) + 10 + strlen (type) + strlen (cname));
+  pref = g_malloc0 (strlen (p_name) + 10 + strlen (type) + strlen (cname) + 1);
   // RATS: ignore
   snprintf (pref, strlen (p_name) + 10 + strlen (type) + strlen (cname),
             "%s[%s]:%s", p_name, type, cname);
   if (arg_get_value (prefs, pref) == NULL)
-    arg_add_value (prefs, pref, ARG_STRING, strlen (defaul), estrdup (defaul));
+    arg_add_value (prefs, pref, ARG_STRING, strlen (defaul), g_strdup (defaul));
 
-  efree (&cname);
-  efree (&pref);
+  g_free (cname);
+  g_free (pref);
 }
 
 /**
@@ -175,7 +174,7 @@ plug_create_from_nvti_and_prefs (nvti_t * nvti, struct arglist *prefs)
   if (!nvti)
     return NULL;
 
-  ret = emalloc (sizeof (struct arglist));
+  ret = g_malloc0 (sizeof (struct arglist));
 
   arg_add_value (ret, "OID", ARG_STRING, strlen (nvti_oid (nvti)),
                  g_strdup (nvti_oid (nvti)));
@@ -341,7 +340,7 @@ static void
 mark_post (struct arglist *desc, const char *action, const char *content)
 {
   char entry_name[255];
-  char *ccontent = estrdup (content);
+  char *ccontent = g_strdup (content);
 
   if (strlen (action) > (sizeof (entry_name) - 20))
     return;
@@ -476,7 +475,7 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
     }
 
   len = action_str->len;
-  buffer = emalloc (1024 + len);
+  buffer = g_malloc0 (1024 + len + 1);
   char idbuffer[105];
   if (nvti_oid (nvti) == NULL)
     {
@@ -511,7 +510,7 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
 
   /* Mark in the KB that the plugin was successful */
   mark_successful_plugin (desc);
-  efree (&buffer);
+  g_free (buffer);
   g_string_free (action_str, TRUE);
 }
 
@@ -597,7 +596,7 @@ get_plugin_preference (struct arglist *desc, const char *name)
   nvti_t * nvti = nvticache_get_by_oid (arg_get_value (prefs, "nvticache"),
                                         arg_get_value (desc, "OID"));
   plug_name = nvti_name (nvti);
-  cname = estrdup (name);
+  cname = g_strdup (name);
 
   len = strlen (cname);
 
@@ -629,7 +628,7 @@ get_plugin_preference (struct arglist *desc, const char *name)
               if (!strcmp (t, plug_name))
                 {
                   a[0] = old;
-                  efree (&cname);
+                  g_free (cname);
                   nvti_free (nvti);
                   return (prefs->value);
                 }
@@ -638,7 +637,7 @@ get_plugin_preference (struct arglist *desc, const char *name)
         }
       prefs = prefs->next;
     }
-  efree (&cname);
+  g_free (cname);
   nvti_free (nvti);
   return (NULL);
 }

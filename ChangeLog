@@ -1,3 +1,33 @@
+2014-09-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Replace old internal calls for memory management by respective
+	glib functions.
+
+	* misc/arglists.c (cache_add_name): Replaced emalloc() by g_malloc0()
+	and estrdup() by g_strdup().
+	(cache_dec): Replaced efree() by g_free().
+	(arg_add_value): Replaced emalloc() by g_malloc0().
+	(arg_dup): Replaced estrdup() by g_strdup() and emalloc() by g_malloc0().
+	(arg_free, arg_free_all): Replace efree() by g_free().
+
+	* misc/plugutils.c (_add_plugin_preference): Replaced estdup() by g_strdup(),
+	efree() by g_free() and emalloc() by g_malloc0().
+	(plug_create_from_nvti_and_prefs): Replaced emalloc() by g_malloc0().
+	(mark_post): Replace estrdup() by g_strdup().
+	(proto_post_wrapped): Replaced emalloc() by g_malloc0() and efree()
+	by g_free().
+	(get_plugin_preference): Replaced estrdup() by g_strdup() and efree()
+	by g_free().
+
+	* misc/pcap.c (v6_get_mac_addr): Replace estrdup() by g_strdup(),
+	efree() by g_free() and emalloc() by g_malloc0().
+
+	* misc/kb_redis.c: Drop unneeded include of system_internal.h.
+
+	* misc/system_internal.h: Removed as it is not used anymore.
+
+	* COPYING: Removed entry about system_internal.h.
+
 2014-09-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	This step prepares to consolidate the memory management to use

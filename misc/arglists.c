@@ -30,9 +30,6 @@
 #include <glib.h>
 
 #include "arglists.h"
-#include "system_internal.h"
-
-#include "system.h"
 #include "openvas_logging.h"
 
 #define HASH_MAX 2713
@@ -111,10 +108,10 @@ cache_add_name (const char *name, int h)
   if (name == NULL)
     return NULL;
 
-  nc = emalloc (sizeof (struct name_cache));
+  nc = g_malloc0 (sizeof (struct name_cache));
   nc->next = cache[h].next;
   nc->prev = NULL;
-  nc->name = estrdup (name);
+  nc->name = g_strdup (name);
   nc->occurences = 1;
   if (cache[h].next != NULL)
     cache[h].next->prev = nc;
@@ -156,7 +153,8 @@ cache_dec (const char *name)
   if (nc->occurences == 0)
     {
       int h = mkhash (name);
-      efree (&nc->name);
+      g_free (nc->name);
+      nc->name = NULL;
       if (nc->next != NULL)
         nc->next->prev = nc->prev;
 
@@ -165,7 +163,7 @@ cache_dec (const char *name)
       else
         cache[h].next = nc->next;
 
-      efree (&nc);
+      g_free (nc);
     }
 }
 
@@ -186,7 +184,7 @@ arg_add_value (arglst, name, type, length, value)
   arglst->value = value;
   arglst->length = length;
   arglst->type = type;
-  arglst->next = emalloc (sizeof (struct arglist));
+  arglst->next = g_malloc0 (sizeof (struct arglist));
   arglst->hash = mkhash (arglst->name);
 }
 
@@ -285,17 +283,17 @@ arg_dup (dst, src)
         case ARG_STRING:
           if (src->value)
             {
-              dst->value = estrdup ((char *) src->value);
+              dst->value = g_strdup ((char *) src->value);
             }
           break;
 
         case ARG_ARGLIST:
-          dst->value = emalloc (sizeof (struct arglist));
+          dst->value = g_malloc0 (sizeof (struct arglist));
           arg_dup ((struct arglist *) dst->value,
                    (struct arglist *) src->value);
           break;
         }
-      dst->next = emalloc (sizeof (struct arglist));
+      dst->next = g_malloc0 (sizeof (struct arglist));
       dst = dst->next;
       src = src->next;
     }
@@ -352,7 +350,7 @@ arg_free (arg)
     {
       struct arglist *next = arg->next;
       cache_dec (arg->name);
-      efree (&arg);
+      g_free (arg);
       arg = next;
     }
 }
@@ -371,11 +369,11 @@ arg_free_all (arg)
           arg_free_all (arg->value);
           break;
         case ARG_STRING:
-          efree (&arg->value);
+          g_free (arg->value);
           break;
         }
       cache_dec (arg->name);
-      efree (&arg);
+      g_free (arg);
       arg = next;
     }
 }

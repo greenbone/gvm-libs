@@ -63,7 +63,6 @@ misc/kb_redis.c: GPLv2+
 misc/scanners_utils.[c|h]: LGPLv2+
 misc/support.h: GPLv2+
 misc/system.[c|h]: LGPLv2+
-misc/system_internal.h: LGPLv2+
 misc/www_funcs.c: GPLv2
 misc/www_funcs.h: LGPLv2+
 
