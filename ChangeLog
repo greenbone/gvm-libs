@@ -1,5 +1,11 @@
 2014-09-22  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Preparing the openvas-libraries 8.0+beta2 release.
+
+	* CHANGES: Updated.
+
+2014-09-22  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Make libhiredis requirements more precise with information taken from
 	the INSTALL file of openvas-scanner.
 
