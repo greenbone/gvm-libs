@@ -1,3 +1,14 @@
+2014-09-22  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Make libhiredis requirements more precise with information taken from
+	the INSTALL file of openvas-scanner.
+
+	* INSTALL: Add required minimum version to libhiredis entry, taken
+	from openvas-scanner/INSTALL.
+
+	* CMakeLists.txt: Add required minimum version to pkg-config check of
+	libhiredis.
+
 2014-09-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Replace more old internal calls for memory management by respective

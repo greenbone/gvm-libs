@@ -203,7 +203,7 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 pkg_check_modules (GNUTLS REQUIRED gnutls>=2.8)
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.16)
-pkg_check_modules (REDIS hiredis)
+pkg_check_modules (REDIS hiredis>=0.10.1)
 if (NOT OPENVAS_OMP_ONLY)
   pkg_check_modules (WMICLIENT wmiclient>=1.3.14)
   pkg_check_modules (WINCMD wincmd>=0.80)
