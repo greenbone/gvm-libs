@@ -66,7 +66,7 @@
 	Two misconcepts now need to be carefully removed from all over
 	the code (by replacing the e* functions with the g_* functions):
 	The overallocation of 1 byte (Scanner shows defects
-        if not adding it in the allocation routine) and the setting
+	if not adding it in the allocation routine) and the setting
 	of pointers to NULL after free'ing.
 
 	* misc/system.c (emalloc): Replaced internal allocation
