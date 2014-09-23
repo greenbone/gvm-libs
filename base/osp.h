@@ -36,6 +36,7 @@ typedef enum {
   OSP_PARAM_TYPE_STR,
   OSP_PARAM_TYPE_PASSWORD,
   OSP_PARAM_TYPE_FILE,
+  OSP_PARAM_TYPE_BOOLEAN,
 } osp_param_type_t;
 
 osp_connection_t *

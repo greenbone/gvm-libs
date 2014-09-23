@@ -330,6 +330,8 @@ osp_param_str_to_type (const char *str)
     return OSP_PARAM_TYPE_PASSWORD;
   else if (!strcmp (str, "file"))
     return OSP_PARAM_TYPE_FILE;
+  else if (!strcmp (str, "boolean"))
+    return OSP_PARAM_TYPE_BOOLEAN;
   assert (0);
 }
 
@@ -348,6 +350,8 @@ osp_param_type_str (const osp_param_t *param)
     return "password";
   else if (type == OSP_PARAM_TYPE_FILE)
     return "file";
+  else if (type == OSP_PARAM_TYPE_BOOLEAN)
+    return "boolean";
   assert (0);
 }
 
