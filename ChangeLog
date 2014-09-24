@@ -1,5 +1,10 @@
 2014-09-24  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/exec.c (cell2str_and_size): Removed. It was deactivated
+	by ifdef and marked deprecated since a very long time.
+
+2014-09-24  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Replace more old internal calls for memory management by respective
 	glib functions.
 

@@ -188,58 +188,6 @@ cell2str (lex_ctxt * lexic, tree_cell * c)
     }
 }
 
-
-#ifdef DEPRECAT_CODE
-char *
-cell2str_and_size (lex_ctxt * lexic, tree_cell * c, int *sz)
-{
-  char *p;
-  tree_cell *c2;
-
-  if (c == NULL || c == FAKE_CELL)
-    {
-#if NASL_DEBUG > 0
-      nasl_perror (lexic, "Cannot convert NULL or FAKE cell to string\n");
-#endif
-      return NULL;
-    }
-
-  switch (c->type)
-    {
-    case CONST_INT:
-      p = malloc (16);
-      if (p == NULL)
-        return NULL;
-      snprintf (p, 16, "%d", c->x.i_val);       /* RATS: ignore */
-      if (sz != NULL)
-        *sz = strlen (p);
-      return p;
-
-    case CONST_STR:
-    case CONST_DATA:
-      if (c->x.str_val == NULL)
-        p = g_strdup ("");
-      else
-        p = g_memdup (c->x.str_val, c->size + 1);
-      if (sz != NULL)
-        *sz = c->size;
-      return p;
-
-    default:
-      c2 = nasl_exec (lexic, c);
-      p = cell2str_and_size (lexic, c2, sz);
-      deref_cell (c2);
-      if (p == NULL)
-        {
-          p = g_strdup ("");
-          if (sz != NULL)
-            *sz = 0;
-        }
-      return p;
-    }
-}
-#endif
-
 /**
  * @return A 'referenced' cell.
  */
