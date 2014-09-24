@@ -1,3 +1,9 @@
+2014-09-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/plugutils.c (sig_alarm): Remove function.
+	(plug_get_key): Don't exit plugin process after 120 seconds as some
+	plugins may run longer and have a higher timeout value.
+
 2014-09-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/osp.c (osp_param_str_to_type, osp_param_type_str): Handle new

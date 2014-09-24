@@ -855,12 +855,6 @@ sig_term (void (*fcn) (int))
 }
 
 static void
-sig_alarm (void (*fcn) (int))
-{
-  sig_n (SIGALRM, fcn);
-}
-
-static void
 sig_chld (void (*fcn) (int))
 {
   sig_n (SIGCHLD, fcn);
@@ -935,10 +929,6 @@ plug_get_key (struct arglist *args, char *name, int *type)
                          GSIZE_TO_POINTER (soc));
 
           srand48 (getpid () + getppid () + time (NULL)); /* RATS: ignore */
-
-          sig_term (_exit);
-          sig_alarm (_exit);
-          alarm (120);
 
           if (res->type == KB_TYPE_INT)
             {
