@@ -318,6 +318,7 @@ nasl_display (lex_ctxt * lexic)
   for (j = 0; j < r->size; j++)
     putchar (isprint (r->x.str_val[j])
              || isspace (r->x.str_val[j]) ? r->x.str_val[j] : '.');
+  fflush (stdout);
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   retc->x.i_val = r->size;

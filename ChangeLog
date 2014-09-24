@@ -1,5 +1,10 @@
 2014-09-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_text_utils.c (nasl_display): Flush stdout after printing the
+	message.
+
+2014-09-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/plugutils.c (sig_alarm): Remove function.
 	(plug_get_key): Don't exit plugin process after 120 seconds as some
 	plugins may run longer and have a higher timeout value.
