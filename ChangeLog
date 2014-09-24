@@ -1,3 +1,13 @@
+2014-09-24  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Replace more old internal calls for memory management by respective
+	glib functions.
+
+	* nasl/exec.c (cell2str, cell2str_and_size): Replaced estrdup() by g_strdup().
+	(cell_cmp): Replaced efree() by g_free().
+	(nasl_exec): Replaced emalloc() by g_malloc0(), estrdup() and g_strdup() and efree() by g_free().
+	(exec_nasl_script): Replaced estrdup() by g_strdup() and efree() by g_free().
+
 2014-09-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_text_utils.c (nasl_display): Flush stdout after printing the

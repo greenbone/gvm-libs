@@ -27,8 +27,6 @@
 #include <glib.h>               /* for g_get_current_dir and others */
 #include <glib/gstdio.h>        /* for g_chdir */
 
-#include "system.h"             /* for efree */
-
 #include "regex.h"
 #include "../misc/openvas_logging.h"
 
@@ -169,7 +167,7 @@ cell2str (lex_ctxt * lexic, tree_cell * c)
     case CONST_STR:
     case CONST_DATA:
       if (c->x.str_val == NULL)
-        p = estrdup ("");
+        p = g_strdup ("");
       else
         p = g_memdup (c->x.str_val, c->size + 1);
       return p;
@@ -178,14 +176,14 @@ cell2str (lex_ctxt * lexic, tree_cell * c)
     case DYN_ARRAY:
       a = c->x.ref_val;
       p = (char *) array2str (a);
-      return estrdup (p);
+      return g_strdup (p);
 
     default:
       c2 = nasl_exec (lexic, c);
       p = cell2str (lexic, c2);
       deref_cell (c2);
       if (p == NULL)
-        p = estrdup ("");
+        p = g_strdup ("");
       return p;
     }
 }
@@ -220,7 +218,7 @@ cell2str_and_size (lex_ctxt * lexic, tree_cell * c, int *sz)
     case CONST_STR:
     case CONST_DATA:
       if (c->x.str_val == NULL)
-        p = estrdup ("");
+        p = g_strdup ("");
       else
         p = g_memdup (c->x.str_val, c->size + 1);
       if (sz != NULL)
@@ -233,7 +231,7 @@ cell2str_and_size (lex_ctxt * lexic, tree_cell * c, int *sz)
       deref_cell (c2);
       if (p == NULL)
         {
-          p = estrdup ("");
+          p = g_strdup ("");
           if (sz != NULL)
             *sz = 0;
         }
@@ -386,8 +384,8 @@ cell_cmp (lex_ctxt * lexic, tree_cell * c1, tree_cell * c2)
       if (flag == 0)
         flag = len_s1 - len_s2;
 
-      efree (&s1);
-      efree (&s2);
+      g_free (s1);
+      g_free (s2);
       deref_cell (c1);
       deref_cell (c2);
       return flag;
@@ -1352,13 +1350,13 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
             }
 
           sz = len1 + len2;
-          s3 = emalloc (sz);
+          s3 = g_malloc0 (sz);
           if (len1 > 0)
             memcpy (s3, s1 != NULL ? s1 : tc1->x.str_val, len1);
           if (len2 > 0)
             memcpy (s3 + len1, s2 != NULL ? s2 : tc2->x.str_val, len2);
-          efree (&s1);
-          efree (&s2);
+          g_free (s1);
+          g_free (s2);
           ret = alloc_tree_cell (0, s3);
           ret->type = flag;
           ret->size = sz;
@@ -1458,7 +1456,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
           if (len2 == 0 || len1 < len2
               || (p = memmem (p1, len1, p2, len2)) == NULL)
             {
-              s3 = emalloc (len1);
+              s3 = g_malloc0 (len1);
               memcpy (s3, p1, len1);
               ret = alloc_tree_cell (0, s3);
               ret->type = flag;
@@ -1470,11 +1468,11 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
               if (sz <= 0)
                 {
                   sz = 0;
-                  s3 = estrdup ("");
+                  s3 = g_strdup ("");
                 }
               else
                 {
-                  s3 = emalloc (sz);
+                  s3 = g_malloc0 (sz);
                   if (p - p1 > 0)
                     memcpy (s3, p1, p - p1);
                   if (sz > p - p1)
@@ -1485,8 +1483,8 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
               ret->type = flag;
             }
 
-          efree (&s1);
-          efree (&s2);
+          g_free (s1);
+          g_free (s2);
           break;
 
         default:
@@ -1645,8 +1643,8 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
       else
         flag = 0;
 
-      efree (&s1);
-      efree (&s2);
+      g_free (s1);
+      g_free (s2);
       deref_cell (tc1);
       deref_cell (tc2);
       if (st->type == COMP_MATCH)
@@ -1756,12 +1754,12 @@ exec_nasl_script (struct arglist *script_infos, const char *name, int mode)
 #endif
   if ((old = arg_get_value (script_infos, "script_name")) == NULL)
     arg_add_value (script_infos, "script_name", ARG_STRING, strlen (name),
-                   estrdup (name));
+                   g_strdup (name));
   else
     {
-      efree (&old);
+      g_free (old);
       arg_set_value (script_infos, "script_name", strlen (name),
-                     estrdup (name));
+                     g_strdup (name));
     }
 
   newdir = g_path_get_dirname (name);
