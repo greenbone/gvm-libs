@@ -365,13 +365,13 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
 
   g_free (ldapuri);
 
-  credential.bv_val = strdup (password);
+  credential.bv_val = g_strdup (password);
   credential.bv_len = strlen (password);
 
   ldap_return =
     ldap_sasl_bind_s (ldap, userdn, LDAP_SASL_SIMPLE, &credential, NULL, NULL,
                       NULL);
-  free (credential.bv_val);
+  g_free (credential.bv_val);
   if (ldap_return != LDAP_SUCCESS)
     {
       g_warning ("LDAP authentication failure: %s",

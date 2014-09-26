@@ -1,3 +1,24 @@
+2014-09-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Replace the libc memory functions by the g_* functions to consolidate
+	the memory management.
+
+	* misc/openvas_server.c (openvas_server_vsendf): Replace free() by g_free().
+
+	* misc/ldap_connect_auth.c (ldap_auth_bind): Replaced strdup() by g_strdup().
+
+	* misc/openvas_ssh_login.c (openvas_ssh_public_from_private): Replace
+	free() by g_free().
+
+	* misc/openvas_uuid.c (openvas_uuid_make): Replace malloc() by g_malloc0().
+
+	* misc/plugutils.c (plug_get_key): Replaced strdup() by g_strdup().
+
+	* misc/network.c (stream_set_buffer): Replace malloc() by g_malloc0()
+	and realloc() by g_realloc().
+
+	* misc/scanners_utils.c (getpts): Replace realloc() by g_realloc().
+
 2014-09-24  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/exec.c (cell2str_and_size): Removed. It was deactivated

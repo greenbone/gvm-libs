@@ -207,7 +207,7 @@ getpts (char *origexpr, int *len)
 
 
   qsort (ports, i, sizeof (u_short), qsort_compar);
-  tmp = realloc (ports, i * sizeof (short));
+  tmp = g_realloc (ports, i * sizeof (short));
   if (len != NULL)
     *len = i - 1;
   g_free (mem);

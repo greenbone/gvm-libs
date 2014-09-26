@@ -2421,7 +2421,7 @@ stream_set_buffer (int fd, int sz)
     }
   else if (p->buf == 0)
     {
-      p->buf = malloc (sz);
+      p->buf = g_malloc0 (sz);
       if (p->buf == NULL)
         return -1;
       p->bufsz = sz;
@@ -2436,7 +2436,7 @@ stream_set_buffer (int fd, int sz)
           memmove (p->buf, p->buf + p->bufptr, p->bufcnt);
           p->bufptr = 0;
         }
-      b = realloc (p->buf, sz);
+      b = g_realloc (p->buf, sz);
       if (b == NULL)
         return -1;
       p->buf = b;

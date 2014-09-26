@@ -54,7 +54,7 @@ openvas_uuid_make ()
     }
 
   /* Allocate mem for string to hold UUID. */
-  id = malloc (sizeof (char) * 37);
+  id = g_malloc0 (sizeof (char) * 37);
   if (id == NULL)
     {
       g_warning ("%s: Cannot export UUID to text: out of memory", __FUNCTION__);

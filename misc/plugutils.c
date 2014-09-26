@@ -940,7 +940,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
             {
               if (type != NULL)
                 *type = KB_TYPE_STR;
-              return strdup (res->v_str);
+              return g_strdup (res->v_str);
             }
         }
       else if (pid < 0)

@@ -612,7 +612,7 @@ openvas_server_vsendf (gnutls_session_t *session, const char *fmt, va_list ap)
 #endif
 
 out:
-  free (sref);
+  g_free (sref);
   return rc;
 }
 
