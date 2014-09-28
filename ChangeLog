@@ -1,3 +1,19 @@
+2014-09-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_var.c (nasl_get_var_by_num, get_var_ref_by_num): Replaced
+	erealloc() by g_realloc() and emalloc() by g_malloc0().
+	(get_var_by_name, get_var_ref_by_name, get_array_elem, dup_named_var,
+	nasl_affect): Replaced emalloc() by g_malloc0() and estrdup() by g_strdup().
+	(get_variable_by_name, create_named_var, nasl_read_var_ref,
+	make_array_from_elems, copy_anon_var, dup_anon_var, copy_array,
+	copy_ref_array, affect_to_anon_var): Replaced emalloc() by g_malloc0().
+	(free_array, free_var_chain, free_anon_var, clear_array,
+	clear_anon_var): Replaced efree() by g_free().
+	(add_numbered_var_to_ctxt, nasl_incr_variable, array2str, add_var_to_list):
+	Replaced erealloc() by g_realloc().
+	(add_var_to_array): Replaced erealloc() by g_realloc(), emalloc() by
+	g_malloc0() and estrdup() by g_strdup().
+
 2014-09-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Replace the libc memory functions by the g_* functions to consolidate

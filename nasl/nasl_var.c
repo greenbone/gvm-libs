@@ -20,13 +20,14 @@
 #include <stdlib.h>             /* for abort */
 #include <string.h>             /* for strlen */
 
+#include <glib.h>               /* for g_free */
+
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
 #include "nasl_func.h"
 #include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
 #include "exec.h"
-#include "system.h"
 #include "nasl_debug.h"
 
 #ifndef NASL_DEBUG
@@ -85,12 +86,12 @@ nasl_get_var_by_num (nasl_array * a, int num, int create)
 
   if (num >= a->max_idx)
     {
-      a->num_elt = erealloc (a->num_elt, sizeof (anon_nasl_var *) * (num + 1));
+      a->num_elt = g_realloc (a->num_elt, sizeof (anon_nasl_var *) * (num + 1));
       bzero (a->num_elt + a->max_idx,
              sizeof (anon_nasl_var *) * (num + 1 - a->max_idx));
       a->max_idx = num + 1;
     }
-  v = emalloc (sizeof (anon_nasl_var));
+  v = g_malloc0 (sizeof (anon_nasl_var));
   v->var_type = VAR2_UNDEF;
 
   a->num_elt[num] = v;
@@ -104,14 +105,14 @@ get_var_by_name (nasl_array * a, const char *s)
   named_nasl_var *v;
 
   if (a->hash_elt == NULL)
-    a->hash_elt = emalloc (VAR_NAME_HASH * sizeof (named_nasl_var *));
+    a->hash_elt = g_malloc0 (VAR_NAME_HASH * sizeof (named_nasl_var *));
 
   for (v = a->hash_elt[h]; v != NULL; v = v->next_var)
     if (v->var_name != NULL && strcmp (s, v->var_name) == 0)
       return v;
 
-  v = emalloc (sizeof (named_nasl_var));
-  v->var_name = estrdup (s);
+  v = g_malloc0 (sizeof (named_nasl_var));
+  v->var_name = g_strdup (s);
   v->u.var_type = VAR2_UNDEF;
   v->next_var = a->hash_elt[h];
 
@@ -148,10 +149,10 @@ get_var_ref_by_name (lex_ctxt * ctxt, const char *name, int climb)
 
   if (ctxt->ctx_vars.hash_elt == NULL)
     ctxt->ctx_vars.hash_elt =
-      emalloc (sizeof (named_nasl_var *) * VAR_NAME_HASH);
+      g_malloc0 (sizeof (named_nasl_var *) * VAR_NAME_HASH);
 
-  v = emalloc (sizeof (named_nasl_var));
-  v->var_name = estrdup (name);
+  v = g_malloc0 (sizeof (named_nasl_var));
+  v->var_name = g_strdup (name);
   v->u.var_type = VAR2_UNDEF;
   v->next_var = ctxt->ctx_vars.hash_elt[h];
   ctxt->ctx_vars.hash_elt[h] = v;
@@ -174,7 +175,7 @@ get_var_ref_by_num (lex_ctxt * ctxt, int num)
   if (ctxt->ctx_vars.max_idx <= num)
     {
       ctxt->ctx_vars.num_elt =
-        erealloc (ctxt->ctx_vars.num_elt, sizeof (anon_nasl_var *) * (num + 1));
+        g_realloc (ctxt->ctx_vars.num_elt, sizeof (anon_nasl_var *) * (num + 1));
       bzero (ctxt->ctx_vars.num_elt + ctxt->ctx_vars.max_idx,
              sizeof (anon_nasl_var *) * (num + 1 - ctxt->ctx_vars.max_idx));
       ctxt->ctx_vars.max_idx = num + 1;
@@ -184,7 +185,7 @@ get_var_ref_by_num (lex_ctxt * ctxt, int num)
   if (v != NULL)
     return v;
 
-  v = emalloc (sizeof (anon_nasl_var));
+  v = g_malloc0 (sizeof (anon_nasl_var));
   v->var_type = VAR2_UNDEF;
   ctxt->ctx_vars.num_elt[num] = v;
   return v;
@@ -209,7 +210,7 @@ get_variable_by_name (lex_ctxt * ctxt, const char *name)
   if (strcmp (name, "_FCT_ANON_ARGS") == 0)
     {
       tree_cell *retc = alloc_typed_cell (DYN_ARRAY);
-      nasl_array *a = retc->x.ref_val = emalloc (sizeof (nasl_array));
+      nasl_array *a = retc->x.ref_val = g_malloc0 (sizeof (nasl_array));
       copy_array (a, &ctxt->ctx_vars, 0);
       return retc;
     }
@@ -313,7 +314,7 @@ get_array_elem (lex_ctxt * ctxt, const char *name, tree_cell * idx)
                            name, idx->x.i_val, l);
               tc = alloc_expr_cell (idx->line_nb, CONST_DATA /*CONST_STR */ ,
                                     NULL, NULL);
-              tc->x.str_val = estrdup ("");
+              tc->x.str_val = g_strdup ("");
               tc->size = 0;
               return tc;
             }
@@ -326,7 +327,7 @@ get_array_elem (lex_ctxt * ctxt, const char *name, tree_cell * idx)
                 }
               tc = alloc_expr_cell (idx->line_nb, CONST_DATA /*CONST_STR */ ,
                                     NULL, NULL);
-              tc->x.str_val = emalloc (2);
+              tc->x.str_val = g_malloc0 (2);
               tc->x.str_val[0] = u->v.v_str.s_val[idx->x.i_val];
               tc->x.str_val[1] = '\0';
               tc->size = 1;
@@ -368,13 +369,15 @@ free_array (nasl_array * a)
     {
       for (i = 0; i < a->max_idx; i++)
         free_anon_var (a->num_elt[i]);
-      efree (&a->num_elt);
+      g_free (a->num_elt);
+      a->num_elt = NULL;
     }
   if (a->hash_elt != NULL)
     {
       for (i = 0; i < VAR_NAME_HASH; i++)
         free_var_chain (a->hash_elt[i]);
-      efree (&a->hash_elt);
+      g_free (a->hash_elt);
+      a->num_elt = NULL;
     }
   return;
 }
@@ -386,18 +389,18 @@ free_var_chain (named_nasl_var * v)
   if (v == NULL)
     return;
   free_var_chain (v->next_var);
-  efree (&v->var_name);
+  g_free (v->var_name);
   switch (v->u.var_type)
     {
     case VAR2_STRING:
     case VAR2_DATA:
-      efree (&v->u.v.v_str.s_val);
+      g_free (v->u.v.v_str.s_val);
       break;
     case VAR2_ARRAY:
       free_array (&v->u.v.v_arr);
       break;
     }
-  efree (&v);
+  g_free (v);
 }
 
 static void
@@ -409,14 +412,13 @@ free_anon_var (anon_nasl_var * v)
     {
     case VAR2_STRING:
     case VAR2_DATA:
-      efree (&v->v.v_str.s_val);
+      g_free (v->v.v_str.s_val);
       break;
     case VAR2_ARRAY:
       free_array (&v->v.v_arr);
       break;
     }
-  efree (&v);
-
+  g_free (v);
 }
 
 static void
@@ -428,14 +430,16 @@ clear_array (nasl_array * a)
     {
       for (i = 0; i < a->max_idx; i++)
         free_anon_var (a->num_elt[i]);
-      efree (&a->num_elt);
+      g_free (a->num_elt);
+      a->num_elt = NULL;
     }
   a->max_idx = 0;
   if (a->hash_elt != NULL)
     {
       for (i = 0; i < VAR_NAME_HASH; i++)
         free_var_chain (a->hash_elt[i]);
-      efree (&a->hash_elt);
+      g_free (a->hash_elt);
+      a->hash_elt = NULL;
     }
 }
 
@@ -453,7 +457,8 @@ clear_anon_var (anon_nasl_var * v)
       break;
     case VAR2_STRING:
     case VAR2_DATA:
-      efree (&v->v.v_str.s_val);
+      g_free (v->v.v_str.s_val);
+      v->v.v_str.s_val = NULL;
       v->v.v_str.s_siz = 0;
       break;
     case VAR2_ARRAY:
@@ -475,7 +480,7 @@ copy_anon_var (anon_nasl_var * v1, const anon_nasl_var * v2)
     case VAR2_DATA:
       if (v2->v.v_str.s_val != NULL)
         {
-          v1->v.v_str.s_val = emalloc (v2->v.v_str.s_siz);
+          v1->v.v_str.s_val = g_malloc0 (v2->v.v_str.s_siz);
           memcpy (v1->v.v_str.s_val, v2->v.v_str.s_val, v2->v.v_str.s_siz);
           v1->v.v_str.s_siz = v2->v.v_str.s_siz;
         }
@@ -511,7 +516,7 @@ dup_anon_var (const anon_nasl_var * v)
   if (v == NULL)
     return NULL;
 
-  v1 = emalloc (sizeof (anon_nasl_var));
+  v1 = g_malloc0 (sizeof (anon_nasl_var));
   copy_anon_var (v1, v);
   return v1;
 }
@@ -524,9 +529,9 @@ dup_named_var (const named_nasl_var * v)
   if (v == NULL)
     return NULL;
 
-  v1 = emalloc (sizeof (named_nasl_var));
+  v1 = g_malloc0 (sizeof (named_nasl_var));
   copy_anon_var (&v1->u, &v->u);
-  v1->var_name = estrdup (v->var_name);
+  v1->var_name = g_strdup (v->var_name);
   return v1;
 }
 
@@ -555,13 +560,13 @@ copy_array (nasl_array * a1, const nasl_array * a2, int copy_named)
   if (a2->num_elt != NULL)
     {
       a1->max_idx = a2->max_idx;
-      a1->num_elt = emalloc (sizeof (anon_nasl_var *) * a2->max_idx);
+      a1->num_elt = g_malloc0 (sizeof (anon_nasl_var *) * a2->max_idx);
       for (i = 0; i < a2->max_idx; i++)
         a1->num_elt[i] = dup_anon_var (a2->num_elt[i]);
     }
   if (copy_named && a2->hash_elt != NULL)
     {
-      a1->hash_elt = emalloc (VAR_NAME_HASH * sizeof (named_nasl_var *));
+      a1->hash_elt = g_malloc0 (VAR_NAME_HASH * sizeof (named_nasl_var *));
       for (i = 0; i < VAR_NAME_HASH; i++)
         {
           v1 = NULL;
@@ -587,7 +592,7 @@ copy_ref_array (const tree_cell * c1)
 
   c2 = alloc_tree_cell (0, NULL);
   c2->type = DYN_ARRAY;
-  c2->x.ref_val = a2 = emalloc (sizeof (nasl_array));
+  c2->x.ref_val = a2 = g_malloc0 (sizeof (nasl_array));
   copy_array (a2, c1->x.ref_val, 1);
   return c2;
 }
@@ -730,7 +735,7 @@ affect_to_anon_var (anon_nasl_var * v1, tree_cell * rval)
           }
         else
           {
-            p = emalloc (rval->size + 1);
+            p = g_malloc0 (rval->size + 1);
             memcpy (p, rval->x.str_val, rval->size + 1);
             v1->v.v_str.s_siz = rval->size;
             v1->v.v_str.s_val = p;
@@ -752,7 +757,7 @@ affect_to_anon_var (anon_nasl_var * v1, tree_cell * rval)
           }
         else
           {
-            p = emalloc (v2->v.v_str.s_siz);
+            p = g_malloc0 (v2->v.v_str.s_siz);
             memcpy (p, v2->v.v_str.s_val, v2->v.v_str.s_siz);
             v1->v.v_str.s_siz = v2->v.v_str.s_siz;
             v1->v.v_str.s_val = p;
@@ -817,11 +822,11 @@ nasl_affect (tree_cell * lval, tree_cell * rval)
 static named_nasl_var *
 create_named_var (const char *name, tree_cell * val)
 {
-  named_nasl_var *v = emalloc (sizeof (named_nasl_var));
+  named_nasl_var *v = g_malloc0 (sizeof (named_nasl_var));
   tree_cell *tc;
 
   if (name != NULL)
-    v->var_name = estrdup (name);
+    v->var_name = g_strdup (name);
 
   if (val == NULL || val == FAKE_CELL)
     {
@@ -843,7 +848,7 @@ create_named_var (const char *name, tree_cell * val)
 static anon_nasl_var *
 create_anon_var (tree_cell * val)
 {
-  anon_nasl_var *v = emalloc (sizeof (anon_nasl_var));
+  anon_nasl_var *v = g_malloc0 (sizeof (anon_nasl_var));
   tree_cell *tc;
 
   if (val == NULL || val == FAKE_CELL)
@@ -909,7 +914,7 @@ add_numbered_var_to_ctxt (lex_ctxt * lexic, int num, tree_cell * val)
     }
   else
     {
-      a->num_elt = erealloc (a->num_elt, (num + 1) * sizeof (anon_nasl_var));
+      a->num_elt = g_realloc (a->num_elt, (num + 1) * sizeof (anon_nasl_var));
       bzero (a->num_elt + a->max_idx,
              sizeof (anon_nasl_var *) * (num + 1 - a->max_idx));
       a->max_idx = num + 1;
@@ -1005,7 +1010,7 @@ nasl_read_var_ref (lex_ctxt * lexic, tree_cell * tc)
         }
       else
         {
-          ret->x.str_val = emalloc (v->v.v_str.s_siz);
+          ret->x.str_val = g_malloc0 (v->v.v_str.s_siz);
           memcpy (ret->x.str_val, v->v.v_str.s_val, v->v.v_str.s_siz);
           ret->size = v->v.v_str.s_siz;
         }
@@ -1146,7 +1151,7 @@ array2str (const nasl_array * a)
   if (len == 0)
     {
       len = 80;
-      s = emalloc (80);
+      s = g_malloc0 (80);
     }
 
   strcpy (s, "[ ");
@@ -1159,7 +1164,7 @@ array2str (const nasl_array * a)
           if (n + 80 >= len)
             {
               len += 80;
-              s = erealloc (s, len);
+              s = g_realloc (s, len);
             }
           if (n1 > 0)
             n += sprintf (s + n, ", ");
@@ -1201,7 +1206,7 @@ array2str (const nasl_array * a)
             if (n + 80 >= len)
               {
                 len += 80 + l;
-                s = erealloc (s, len);
+                s = g_realloc (s, len);
               }
             if (n1 > 0)
               n += sprintf (s + n, ", ");
@@ -1235,7 +1240,7 @@ array2str (const nasl_array * a)
   if (n + 2 >= len)
     {
       len += 80;
-      s = erealloc (s, len);
+      s = g_realloc (s, len);
     }
   strcpy (s + n, " ]");
   return s;
@@ -1469,7 +1474,7 @@ add_var_to_list (nasl_array * a, int i, const anon_nasl_var * v)
 
   if (i >= a->max_idx)
     {
-      a->num_elt = erealloc (a->num_elt, sizeof (anon_nasl_var *) * (i + 1));
+      a->num_elt = g_realloc (a->num_elt, sizeof (anon_nasl_var *) * (i + 1));
       bzero (a->num_elt + a->max_idx,
              sizeof (anon_nasl_var *) * (i + 1 - a->max_idx));
       a->max_idx = i + 1;
@@ -1492,11 +1497,11 @@ add_var_to_array (nasl_array * a, char *name, const anon_nasl_var * v)
 
   if (a->hash_elt == NULL)
     {
-      a->hash_elt = emalloc (VAR_NAME_HASH * sizeof (named_nasl_var *));
+      a->hash_elt = g_malloc0 (VAR_NAME_HASH * sizeof (named_nasl_var *));
     }
 
-  v2 = emalloc (sizeof (named_nasl_var));
-  v2->var_name = estrdup (name);
+  v2 = g_malloc0 (sizeof (named_nasl_var));
+  v2->var_name = g_strdup (name);
   v2->u.var_type = VAR2_UNDEF;
   v2->next_var = a->hash_elt[h];
   a->hash_elt[h] = v2;
@@ -1538,20 +1543,20 @@ make_array_from_elems (tree_cell * el)
   nasl_array *a;
   anon_nasl_var v;
 
-  a = emalloc (sizeof (nasl_array));
+  a = g_malloc0 (sizeof (nasl_array));
   /* Either the elements are all "named", or they are "numbered". No mix! */
   if (el->x.str_val == NULL)    /* numbered */
     {
       for (n = 0, c = el; c != NULL; c = c->link[1])
         n++;
       a->max_idx = n;
-      a->num_elt = emalloc (sizeof (anon_nasl_var *) * n);
+      a->num_elt = g_malloc0 (sizeof (anon_nasl_var *) * n);
       a->hash_elt = NULL;
     }
   else
     {
       a->num_elt = NULL;
-      a->hash_elt = emalloc (VAR_NAME_HASH * sizeof (named_nasl_var *));
+      a->hash_elt = g_malloc0 (VAR_NAME_HASH * sizeof (named_nasl_var *));
     }
 
   for (n = 0, c = el; c != NULL; c = c->link[1])
