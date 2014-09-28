@@ -1,5 +1,9 @@
 2014-09-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_var.c (free_array, clear_anon_var): Removed useless return.
+
+2014-09-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_var.c (nasl_get_var_by_num, get_var_ref_by_num): Replaced
 	erealloc() by g_realloc() and emalloc() by g_malloc0().
 	(get_var_by_name, get_var_ref_by_name, get_array_elem, dup_named_var,

@@ -379,7 +379,6 @@ free_array (nasl_array * a)
       g_free (a->hash_elt);
       a->num_elt = NULL;
     }
-  return;
 }
 
 static void
@@ -466,7 +465,6 @@ clear_anon_var (anon_nasl_var * v)
       break;
     }
   v->var_type = VAR2_UNDEF;
-  return;
 }
 
 static void
