@@ -372,6 +372,7 @@ free_array (nasl_array * a)
       g_free (a->num_elt);
       a->num_elt = NULL;
     }
+  a->max_idx = 0;
   if (a->hash_elt != NULL)
     {
       for (i = 0; i < VAR_NAME_HASH; i++)
@@ -420,28 +421,6 @@ free_anon_var (anon_nasl_var * v)
   g_free (v);
 }
 
-static void
-clear_array (nasl_array * a)
-{
-  int i;
-
-  if (a->num_elt != NULL)
-    {
-      for (i = 0; i < a->max_idx; i++)
-        free_anon_var (a->num_elt[i]);
-      g_free (a->num_elt);
-      a->num_elt = NULL;
-    }
-  a->max_idx = 0;
-  if (a->hash_elt != NULL)
-    {
-      for (i = 0; i < VAR_NAME_HASH; i++)
-        free_var_chain (a->hash_elt[i]);
-      g_free (a->hash_elt);
-      a->hash_elt = NULL;
-    }
-}
-
 void
 clear_anon_var (anon_nasl_var * v)
 {
@@ -461,7 +440,7 @@ clear_anon_var (anon_nasl_var * v)
       v->v.v_str.s_siz = 0;
       break;
     case VAR2_ARRAY:
-      clear_array (&v->v.v_arr);
+      free_array (&v->v.v_arr);
       break;
     }
   v->var_type = VAR2_UNDEF;
@@ -553,7 +532,7 @@ copy_array (nasl_array * a1, const nasl_array * a2, int copy_named)
       abort ();
     }
 
-  clear_array (a1);
+  free_array (a1);
 
   if (a2->num_elt != NULL)
     {

@@ -1,3 +1,15 @@
+2014-09-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Consolidate the two almost identical functions free_array()
+	and clear_array() into a single free_array().
+
+	* nasl/nasl_var.c (free_array): Set counter max_idx to 0
+	after deleting the content just like clear_array() did it.
+	It doesn't hurt in case of free'ing the object.
+	(clear_array): Removed because free_array() is doing the
+	very same thing now.
+	(clear_anon_var, copy_array): Call free_array() instead of clear_array().
+
 2014-09-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_var.c (free_array, clear_anon_var): Removed useless return.
