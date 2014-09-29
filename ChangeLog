@@ -1,5 +1,12 @@
 2014-09-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_tree.c (alloc_RE_cell): Replaced emalloc() by g_malloc0()
+	and efree() by g_free().
+	(dup_cell): Replaced emalloc() by g_malloc0().
+	(free_tree): Replaced free() by g_free().
+
+2014-09-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Consolidate the two almost identical functions free_array()
 	and clear_array() into a single free_array().
 

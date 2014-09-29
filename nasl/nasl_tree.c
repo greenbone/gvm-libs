@@ -19,7 +19,8 @@
 
 #include <stdlib.h>             /* for malloc */
 #include <string.h>             /* for memcpy */
-#include "system.h"             /* for emalloc */
+
+#include <glib.h>
 
 #include "regex.h"
 
@@ -64,7 +65,7 @@ alloc_typed_cell (int typ)
 tree_cell *
 alloc_RE_cell (int lnb, int t, tree_cell * l, char *re_str)
 {
-  regex_t *re = emalloc (sizeof (regex_t));
+  regex_t *re = g_malloc0 (sizeof (regex_t));
   int e;
 
   tree_cell *c = alloc_tree_cell (lnb, NULL);
@@ -80,7 +81,7 @@ alloc_RE_cell (int lnb, int t, tree_cell * l, char *re_str)
       regerror (e, re, errbuf, sizeof (errbuf));
       nasl_perror (NULL, "Line %d: Cannot compile regex: %s (error %d: %s)\n",
                    lnb, re_str, e, errbuf);
-      efree (&re);
+      g_free (re);
     }
   free (re_str);
   return c;
@@ -114,7 +115,7 @@ dup_cell (const tree_cell * tc)
     {
     case CONST_STR:
     case CONST_DATA:
-      r->x.str_val = emalloc (tc->size);
+      r->x.str_val = g_malloc0 (tc->size);
       memcpy (r->x.str_val, tc->x.str_val, tc->size);
       break;
     default:
@@ -150,7 +151,7 @@ free_tree (tree_cell * c)
         if (c->size > 0)
           memset (c->x.str_val, 0xFF, c->size);
 #endif
-        efree (&c->x.str_val);
+        g_free (c->x.str_val);
         break;
 
       case CONST_REGEX:
@@ -159,7 +160,7 @@ free_tree (tree_cell * c)
         if (c->x.ref_val != NULL)
           {
             regfree (c->x.ref_val);
-            efree (&c->x.ref_val);
+            g_free (c->x.ref_val);
           }
         break;
 
@@ -168,7 +169,7 @@ free_tree (tree_cell * c)
         if (a != NULL)
           {
             free_array (a);
-            efree (&c->x.ref_val);
+            g_free (c->x.ref_val);
           }
         break;
 
@@ -179,13 +180,13 @@ free_tree (tree_cell * c)
       case NODE_ARG:
       case NODE_ARRAY_EL:
       case NODE_FOREACH:
-        efree (&c->x.str_val);
+        g_free (c->x.str_val);
         break;
       }
 #ifdef SCRATCH_FREED_MEMORY
   memset (c, 0xFF, sizeof (*c));
 #endif
-  efree (&c);
+  g_free (c);
 }
 
 void
