@@ -2809,7 +2809,7 @@ fwd_data (int in, int out, pid_t sender)
   e = internal_recv (in, &buf, &bufsz, &type);
   if (e <= 0)
     return -1;
-  e = internal_send (out, buf, type);
+  internal_send (out, buf, type);
 
   if (bufsz > 65535)
     {

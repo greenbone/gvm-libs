@@ -1561,7 +1561,6 @@ nasl_tcp_v6_ping (lex_ctxt * lexic)
   int i = 0;
   int bpf;
   char filter[255];
-  u_char *pk = NULL;
   tree_cell *retc;
   int opt = 1;
   struct timeval tv;
@@ -1667,7 +1666,7 @@ nasl_tcp_v6_ping (lex_ctxt * lexic)
                   (struct sockaddr *) &soca, sizeof (struct sockaddr_in6));
           tv.tv_sec = 0;
           tv.tv_usec = 100000;
-          if (bpf >= 0 && (pk = bpf_next_tv (bpf, &len, &tv)))
+          if (bpf >= 0 && bpf_next_tv (bpf, &len, &tv))
             flag++;
         }
     }

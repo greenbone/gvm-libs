@@ -893,7 +893,6 @@ getipv4routes (struct myroute *myroutes, int *numroutes)
             }
           endptr = NULL;
           mask = strtoul (p, &endptr, 16);
-          i = 31;
           ones = 0;
           i = 0;
           while (mask & (1 << i++) && i < 32)

@@ -1345,10 +1345,8 @@ nasl_get_sock_info (lex_ctxt * lexic)
     {
       /* We only support X.509 for now.  GNUTLS also allows for
          OpenPGP, but we are not prepared for that.  */
-      if (!tls_session
-          || gnutls_certificate_type_get (tls_session) != GNUTLS_CRT_X509)
-        s = "n/a";
-      else
+      if (tls_session
+          && gnutls_certificate_type_get (tls_session) == GNUTLS_CRT_X509)
         {
           const gnutls_datum_t *list;
           unsigned int nlist = 0;

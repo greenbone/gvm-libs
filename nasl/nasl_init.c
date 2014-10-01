@@ -679,7 +679,7 @@ init_nasl_library (lex_ctxt * lexic)
     {
       tc.x.str_val = (char *) libsvars[i].val;
       tc.size = strlen (libsvars[i].val);
-      if ((v = add_named_var_to_ctxt (lexic, libsvars[i].name, &tc)) == NULL)
+      if (add_named_var_to_ctxt (lexic, libsvars[i].name, &tc) == NULL)
         {
           nasl_perror (lexic, "init_nasl_library: could not define var '%s'\n",
                        libsvars[i].name);

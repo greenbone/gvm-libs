@@ -288,7 +288,7 @@ parse_pattern_line (char *line, const char *fname, int lineno,
           else
             ret = NULL;
         }
-      else if ((p = is_keyword (line, "username")))
+      else if (is_keyword (line, "username"))
         {
           /* Fixme: The include check is case sensitive and the strcmp
              does only work with ascii.  Changing this required a bit

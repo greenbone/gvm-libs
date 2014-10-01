@@ -101,9 +101,7 @@ static void mdfour64_ntlmssp(uint32 *M)
 
 	A &= 0xFFFFFFFF; B &= 0xFFFFFFFF;
 	C &= 0xFFFFFFFF; D &= 0xFFFFFFFF;
-
-	for (j=0;j<16;j++)
-		X[j] = 0;
+        memset (X, '\0', sizeof (X));
 }
 
 static void copy64_ntlmssp(uint32 *M, const unsigned char *in)
