@@ -457,7 +457,7 @@ copy_anon_var (anon_nasl_var * v1, const anon_nasl_var * v2)
     case VAR2_DATA:
       if (v2->v.v_str.s_val != NULL)
         {
-          v1->v.v_str.s_val = g_malloc0 (v2->v.v_str.s_siz);
+          v1->v.v_str.s_val = g_malloc0 (v2->v.v_str.s_siz + 1);
           memcpy (v1->v.v_str.s_val, v2->v.v_str.s_val, v2->v.v_str.s_siz);
           v1->v.v_str.s_siz = v2->v.v_str.s_siz;
         }
@@ -734,7 +734,7 @@ affect_to_anon_var (anon_nasl_var * v1, tree_cell * rval)
           }
         else
           {
-            p = g_malloc0 (v2->v.v_str.s_siz);
+            p = g_malloc0 (v2->v.v_str.s_siz + 1);
             memcpy (p, v2->v.v_str.s_val, v2->v.v_str.s_siz);
             v1->v.v_str.s_siz = v2->v.v_str.s_siz;
             v1->v.v_str.s_val = p;
@@ -987,7 +987,7 @@ nasl_read_var_ref (lex_ctxt * lexic, tree_cell * tc)
         }
       else
         {
-          ret->x.str_val = g_malloc0 (v->v.v_str.s_siz);
+          ret->x.str_val = g_malloc0 (v->v.v_str.s_siz + 1);
           memcpy (ret->x.str_val, v->v.v_str.s_val, v->v.v_str.s_siz);
           ret->size = v->v.v_str.s_siz;
         }

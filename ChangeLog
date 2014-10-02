@@ -1,5 +1,12 @@
 2014-10-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_var.c (copy_anon_var, affect_to_anon_var)
+	(nasl_read_var_ref): Add extra byte when allocating memory for
+	variables of type VAR2_STRING and VAR2_DATA. Fixes segfaults on rare
+	situations.
+
+2014-10-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/pwpolicy.c (parse_pattern_line): Clarify comparison expression.
 
 	* misc/ids_send.c, misc/network.c, misc/pcap.c, misc/popen.c,
