@@ -77,18 +77,12 @@ openvas_popen4 (const char *cmd, char *const args[], pid_t * ppid, int inice)
         }
       /* Memory usage: unlimited */
       rl.rlim_cur = rl.rlim_max = RLIM_INFINITY;
-#ifdef RLIMIT_DATA
       if (setrlimit (RLIMIT_DATA, &rl) < 0)
         perror ("RLIMIT_DATA");
-#endif
-#ifdef RLIMIT_RSS
       if (setrlimit (RLIMIT_RSS, &rl) < 0)
         perror ("RLIMIT_RSS");
-#endif
-#ifdef RLIMIT_STACK
       if (setrlimit (RLIMIT_STACK, &rl) < 0)
         perror ("RLIMIT_STACK");
-#endif
       /* We could probably limit the CPU time, but to which value? */
 
       if ((fd = open ("/dev/null", O_RDONLY)) < 0)

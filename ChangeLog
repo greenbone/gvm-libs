@@ -1,3 +1,18 @@
+2014-10-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/pwpolicy.c (parse_pattern_line): Clarify comparison expression.
+
+	* misc/ids_send.c, misc/network.c, misc/pcap.c, misc/popen.c,
+	nasl/exec.c, nasl/nasl.c, nasl/nasl_builtin_find_service.c,
+	nasl/nasl_packet_forgery.c, nasl/nasl_packet_forgery_v6.c: Remove
+	useless macro definitions checks as these variables are always present.
+
+	* nasl/nasl_init.c (init_nasl_library): Remove useless variable
+	assignment.
+
+	* misc/network.c (socket_get_ssl_session_id): Set session size
+	correctly.
+
 2014-10-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/pwpolicy.c (parse_pattern_line), misc/pcap.c (getipv4routes),

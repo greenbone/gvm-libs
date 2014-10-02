@@ -778,7 +778,6 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
   int len1, len2;
   nasl_func *pf = NULL;
   int i, n;
-  unsigned long sz;
 
 
 #if 0
@@ -1272,6 +1271,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
 #endif
       switch (flag)
         {
+        long sz;
         case CONST_INT:
           x = tc1->x.i_val;
           y = cell2int (lexic, tc2);
@@ -1412,7 +1412,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
             }
           else
             {
-              sz = len1 - len2;
+              long sz = len1 - len2;
               if (sz <= 0)
                 {
                   sz = 0;

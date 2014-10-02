@@ -1776,31 +1776,6 @@ may_be_time (time_t * rtime)
 }
 
 
-#ifndef MSG_DONTWAIT
-/* From http://www.kegel.com/dkftpbench/nonblocking.html */
-static int
-setNonblocking (int fd)
-{
-  int flags;
-
-  /* If they have O_NONBLOCK, use the Posix way to do it */
-#if defined(O_NONBLOCK)
-  /*
-   * Fixme: O_NONBLOCK is defined but broken on SunOS 4.1.x and AIX
-   * 3.2.5.
-   */
-  if (-1 == (flags = fcntl (fd, F_GETFL, 0)))
-    flags = 0;
-  return fcntl (fd, F_SETFL, flags | O_NONBLOCK);
-#else
-  /* Otherwise, use the old way of doing it */
-  flags = 1;
-  return ioctl (fd, FIONBIO, &flags);
-#endif
-}
-#endif
-
-
 static int
 plugin_do_run (desc, h, test_ssl)
      struct arglist *desc;
@@ -2659,9 +2634,6 @@ plugin_do_run (desc, h, test_ssl)
                       tv.tv_sec = wrap_timeout;
                       tv.tv_usec = 0;
 
-#ifndef MSG_DONTWAIT
-                      setNonblocking (fd);
-#endif
                       signal (SIGALRM, SIG_IGN);
 
                       (void) gettimeofday (&tv1, NULL);
@@ -2683,13 +2655,7 @@ plugin_do_run (desc, h, test_ssl)
                       else if (x > 0)
                         {
                           errno = 0;
-#ifdef MSG_DONTWAIT
                           x = recv (fd, &b, 1, MSG_DONTWAIT);
-#else
-                          x = recv (fd, &b, 1, 0);
-#endif
-
-
                           if (x == 0 || (x < 0 && errno == EPIPE))
                             {
                               /*
@@ -2707,11 +2673,7 @@ plugin_do_run (desc, h, test_ssl)
                            * check
                            */
                           errno = 0;
-#ifdef MSG_DONTWAIT
                           if (send (fd, "Z", 1, MSG_DONTWAIT) < 0)
-#else
-                          if (send (fd, "Z", 1, 0) < 0)
-#endif
                             {
                               perror ("send");
                               if (errno == EPIPE)
@@ -2767,8 +2729,6 @@ and in %d.%03d when we just wait. It is  probably not wrapped", inet_ntoa (*p_ip
 
   return (0);
 }
-
-
 
 #define MAX_SONS 128
 

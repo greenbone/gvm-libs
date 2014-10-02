@@ -250,11 +250,7 @@ main (int argc, char **argv)
               perror (optarg);
               exit (2);
             }
-#ifdef _IOLBF
           setvbuf (fp, NULL, _IOLBF, BUFSIZ);
-#else
-          setlinebuf (fp);
-#endif
           nasl_trace_fp = fp;
         }
     }

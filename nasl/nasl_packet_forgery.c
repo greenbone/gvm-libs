@@ -1423,10 +1423,8 @@ nasl_tcp_ping (lex_ctxt * lexic)
   soc = socket (AF_INET, SOCK_RAW, IPPROTO_RAW);
   if (soc < 0)
     return NULL;
-#ifdef IP_HDRINCL
   if (setsockopt (soc, IPPROTO_IP, IP_HDRINCL, (char *) &opt, sizeof (opt)) < 0)
     perror ("setsockopt ");
-#endif
 
   port = get_int_local_var_by_name (lexic, "port", -1);
   if (port == -1)
@@ -1551,10 +1549,8 @@ nasl_send_packet (lex_ctxt * lexic)
   soc = socket (AF_INET, SOCK_RAW, IPPROTO_RAW);
   if (soc < 0)
     return NULL;
-#ifdef IP_HDRINCL
   if (setsockopt (soc, IPPROTO_IP, IP_HDRINCL, (char *) &i, sizeof (i)) < 0)
     perror ("setsockopt ");
-#endif
 
   while ((ip = get_str_var_by_num (lexic, vi)) != NULL)
     {

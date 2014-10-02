@@ -627,7 +627,6 @@ init_nasl_library (lex_ctxt * lexic)
 {
   int i, j, c;
   nasl_func *pf;
-  named_nasl_var *v;
   tree_cell tc;
   const char **p, *q;
 
@@ -664,7 +663,7 @@ init_nasl_library (lex_ctxt * lexic)
   for (i = 0; i < sizeof (libivars) / sizeof (libivars[0]) - 1; i++)
     {
       tc.x.i_val = libivars[i].val;
-      if ((v = add_named_var_to_ctxt (lexic, libivars[i].name, &tc)) == NULL)
+      if (add_named_var_to_ctxt (lexic, libivars[i].name, &tc) == NULL)
         {
           nasl_perror (lexic, "init_nasl_library: could not define var '%s'\n",
                        libivars[i].name);

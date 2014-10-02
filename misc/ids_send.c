@@ -361,11 +361,7 @@ inject (orig_packet, packet_len, method, flags, data, data_len)
   if (soc < 0)
     return -1;
 
-#ifdef IP_HDRINCL
   setsockopt (soc, IPPROTO_IP, IP_HDRINCL, &one, sizeof (one));
-#endif
-
-
   packet = g_malloc0 (tot_len);
 
   /*

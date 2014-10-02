@@ -899,7 +899,7 @@ getipv4routes (struct myroute *myroutes, int *numroutes)
             ones++;
           myroutes[*numroutes].mask = ones + 96;
 #ifdef TCPIP_DEBUGGING
-          printf ("mask is %d\n", myroutes[*numroutes].mask);
+          printf ("mask is %lu\n", myroutes[*numroutes].mask);
 #endif
           if (!endptr || *endptr)
             {

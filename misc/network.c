@@ -741,11 +741,9 @@ set_ids_evasion_mode (struct arglist *args, openvas_connection * fp)
 
   if (option)
     {
-#ifdef SO_SNDLOWAT
       int n = 1;
       (void) setsockopt (fp->fd, SOL_SOCKET, SO_SNDLOWAT, (void *) &n,
                          sizeof (n));
-#endif
       fp->options |= option;
     }
 }
@@ -899,7 +897,7 @@ socket_get_ssl_session_id (int fd, void **sid, size_t *ssize)
   else
     {
       g_free (tmp);
-      ssize = 0;
+      *ssize = 0;
       tlserror ("gnutls_session_id", ret);
     }
 }
@@ -1377,11 +1375,8 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
 # define INCR_TIMEOUT	1
 #endif
 
-#ifdef MSG_WAITALL
   if (min_len == max_len || timeout <= 0)
     waitall = MSG_WAITALL;
-#endif
-
   if (trp == OPENVAS_ENCAPS_IP)
     {
       for (t = 0; total < max_len && (timeout <= 0 || t < timeout);)
@@ -2319,12 +2314,8 @@ auth_send (struct arglist *globals, char *data)
       n = nsend (soc, data + sent, length - sent, 0);
       if (n < 0)
         {
-          if ((errno != ENOMEM)
-#ifdef ENOBUFS
-              && (errno != ENOBUFS)
-#endif
-            )
-              goto out;
+          if ((errno != ENOMEM) && (errno != ENOBUFS))
+            goto out;
         }
       else
         sent += n;

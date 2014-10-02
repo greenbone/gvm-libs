@@ -329,7 +329,7 @@ parse_pattern_line (char *line, const char *fname, int lineno,
       n = strlen (line);
       if (n && line[n-1] == '/')
         line[n-1] = 0;
-      if ((!g_regex_match_simple (line, password, G_REGEX_CASELESS, 0) ^rev))
+      if (((!g_regex_match_simple (line, password, G_REGEX_CASELESS, 0)) ^ rev))
         ret = NULL;
       else if (*descp)
         ret = g_strdup_printf ("Weak password (%s)", *descp);

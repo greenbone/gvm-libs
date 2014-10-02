@@ -1592,11 +1592,9 @@ nasl_tcp_v6_ping (lex_ctxt * lexic)
   if (soc < 0)
     return NULL;
 
-#ifdef IP_HDRINCL
   if (setsockopt (soc, IPPROTO_IPV6, IP_HDRINCL, (char *) &opt, sizeof (opt)) <
       0)
     perror ("setsockopt");
-#endif
 
   port = get_int_local_var_by_name (lexic, "port", -1);
   if (port == -1)
@@ -1714,11 +1712,9 @@ nasl_send_v6packet (lex_ctxt * lexic)
   if (soc < 0)
     return NULL;
 
-#ifdef IP_HDRINCL
   if (setsockopt
       (soc, IPPROTO_IPV6, IP_HDRINCL, (char *) &offset, sizeof (offset)) < 0)
     perror ("setsockopt");
-#endif
   while ((ip = get_str_var_by_num (lexic, vi)) != NULL)
     {
       int sz = get_var_size_by_num (lexic, vi);
