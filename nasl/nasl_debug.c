@@ -41,7 +41,7 @@ nasl_perror (lex_ctxt * lexic, char *msg, ...)
 {
   va_list param;
   char debug_message[4096];
-  char *script_name = "", *p;
+  char *script_name = "";
 
   va_start (param, msg);
 
@@ -53,14 +53,8 @@ nasl_perror (lex_ctxt * lexic, char *msg, ...)
     }
 
   vsnprintf (debug_message, sizeof (debug_message), msg, param);
-  for (p = debug_message; *p != '\0'; p++)
-    ;
-  if (p == debug_message || p[-1] != '\n')
-    log_legacy_write ("[%d](%s:%d) %s", getpid (), script_name,
-                      lexic ? lexic->line_nb : 0, debug_message);
-  else
-    log_legacy_write ("[%d](%s:%d) %s", getpid (), script_name,
-                      lexic ? lexic->line_nb : 0, debug_message);
+  log_legacy_write ("[%d](%s:%d) %s", getpid (), script_name,
+                    lexic ? lexic->line_nb : 0, debug_message);
 
   /** @todo Enable this when the NVTs are ready.  Sends ERRMSG to client. */
 #if 0

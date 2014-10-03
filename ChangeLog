@@ -1,3 +1,7 @@
+2014-10-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_debug.c (nasl_perror): Remove duplicate if/else branches.
+
 2014-10-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_var.c (copy_anon_var, affect_to_anon_var)
