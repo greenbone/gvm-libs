@@ -17,7 +17,7 @@
  *
  */
 
-#include "system.h"             /* for emalloc */
+#include <glib.h>  /* for g_free() */
 
 #include "nasl_func.h"
 #include "nasl_tree.h"
@@ -28,10 +28,10 @@
 lex_ctxt *
 init_empty_lex_ctxt ()
 {
-  lex_ctxt *c = emalloc (sizeof (lex_ctxt));
+  lex_ctxt *c = g_malloc0 (sizeof (lex_ctxt));
   int i;
 
-  c->ctx_vars.hash_elt = emalloc (sizeof (named_nasl_var) * VAR_NAME_HASH);
+  c->ctx_vars.hash_elt = g_malloc0 (sizeof (named_nasl_var) * VAR_NAME_HASH);
   c->ctx_vars.num_elt = NULL;
   c->ctx_vars.max_idx = 0;
   for (i = 0; i < FUNC_NAME_HASH; i++)
@@ -56,7 +56,7 @@ free_lex_ctxt (lex_ctxt * c)
     {
       free_func_chain (c->functions[i]);
     }
-  efree (&c);
+  g_free (c);
 }
 
 void

@@ -25,7 +25,6 @@
 #include <stdio.h>
 #include <string.h>             /* for strlen */
 #include <locale.h>             /* for LC_CTYPE  */
-#include "system.h"             /* for emalloc */
 
 #include "nasl_signature.h"
 
@@ -148,7 +147,7 @@ nasl_verify_signature (const char *filename)
       goto fail;
     }
 
-  sigfilename = emalloc (strlen (filename) + 4 + 1);
+  sigfilename = g_malloc0 (strlen (filename) + 4 + 1);
   strcpy (sigfilename, filename);       /* Flawfinder: ignore */
   strcat (sigfilename, ".asc");
   nasl_trace (NULL, "nasl_verify_signature: loading signature file '%s'\n",
@@ -185,7 +184,7 @@ fail:
   gpgme_data_release (text);
   if (ctx != NULL)
     gpgme_release (ctx);
-  efree (&sigfilename);
+  g_free (sigfilename);
 
   return retcode;
 }

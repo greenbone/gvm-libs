@@ -23,7 +23,6 @@
 
 #include "kb.h"                 /* for kb_item_get_str */
 #include "plugutils.h"          /* plug_get_host_fqdn */
-#include "system.h"             /* for emalloc */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -143,7 +142,7 @@ _http_req (lex_ctxt * lexic, char *keyword)
       url = build_encode_URL (script_infos, keyword, NULL, item, "HTTP/1.1");
       str_length =
         strlen (url) + strlen (hostname) + al + cl + strlen (ua) + 1024;
-      str = emalloc (str_length);
+      str = g_malloc0 (str_length);
       /* NIDS evasion */
       g_snprintf (str, str_length, "%s\r\n\
 Connection: Close\r\n\
@@ -162,10 +161,10 @@ Accept-Charset: iso-8859-1,*,utf-8\r\n", url, hostname, port, ua);
         build_encode_URL (script_infos, keyword, NULL, item, "HTTP/1.0\r\n");
 
       str_length = strlen (url) + al + cl + 120;
-      str = emalloc (str_length);
+      str = g_malloc0 (str_length);
       g_strlcpy (str, url, str_length);
     }
-  efree (&url);
+  g_free (url);
 
   if (auth != NULL)
     {
@@ -259,7 +258,7 @@ cgibin (lex_ctxt * lexic)
     path = "/cgi-bin:/scripts";
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
-  retc->x.str_val = estrdup (path);
+  retc->x.str_val = g_strdup (path);
   retc->size = strlen (path);
 
   return retc;

@@ -54,8 +54,6 @@
 #include <gnutls/x509.h>
 #include <gcrypt.h>
 
-
-#include "system.h"             /* for emalloc */
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
 #include "nasl_func.h"
@@ -138,7 +136,10 @@ static int nasl_ssh_close_hook (int);
    GnuPG; it was entirely written by me <wk@gnupg.org>.  It is
    licensed under LGPLv3+ or GPLv2+.  We use it here to avoid g_string
    which has the disadvange that we can't use the emalloc functions
-   and thus need to copy the result again. */
+   and thus need to copy the result again.
+   TODO: emalloc is meanwhile replaced by glib memory functions,
+   so this code could be reviewed whether using g_string would
+   simplify the code. */
 
 /* The definition of the structure is private, we only need it here,
    so it can be allocated on the stack. */
@@ -158,9 +159,7 @@ init_membuf (membuf_t *mb, int initiallen)
   mb->len = 0;
   mb->size = initiallen;
   mb->out_of_core = 0;
-  mb->buf = emalloc (initiallen);
-  if (!mb->buf)
-    mb->out_of_core = errno;
+  mb->buf = g_malloc0 (initiallen);
 }
 
 
@@ -172,16 +171,8 @@ put_membuf (membuf_t *mb, const void *buf, size_t len)
 
   if (mb->len + len >= mb->size)
     {
-      char *p;
-
       mb->size += len + 1024;
-      p = erealloc (mb->buf, mb->size);
-      if (!p)
-        {
-          mb->out_of_core = errno ? errno : ENOMEM;
-          return;
-        }
-      mb->buf = p;
+      mb->buf = g_realloc (mb->buf, mb->size);
     }
   memcpy (mb->buf + mb->len, buf, len);
   mb->len += len;
@@ -220,7 +211,8 @@ get_membuf (membuf_t *mb, size_t *len)
     {
       if (mb->buf)
         {
-          efree (&mb->buf);
+          g_free (mb->buf);
+          mb->buf = NULL;
         }
       errno = mb->out_of_core;
       return NULL;
@@ -488,7 +480,7 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
     }
   init_membuf (&dermb, 4096);
   add_tlv (&dermb, 0x30, derbuf, derlen);
-  efree (&derbuf);
+  g_free (derbuf);
   derbuf = get_membuf (&dermb, &derlen);
   if (!derbuf)
     {
@@ -500,7 +492,7 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
   der.data = derbuf;
   der.size = derlen;
   rc = gnutls_pem_base64_encode_alloc ("RSA PRIVATE KEY", &der, &pem);
-  efree (&derbuf);
+  g_free (derbuf);
   if (rc)
     {
       log_legacy_write ("gnutls_pem_base64_encode_alloc failed: %s\n",
@@ -1733,10 +1725,10 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
       if (compat_buf_inuse)
         {
           p = get_membuf (&compat_buf, NULL);
-          efree (&p);
+          g_free (p);
         }
       p = get_membuf (&response, NULL);
-      efree (&p);
+      g_free (p);
       ssh_channel_close (channel);
       ssh_channel_free (channel);
       return NULL;
@@ -1753,7 +1745,7 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
       if (p)
         {
           put_membuf (&response, p, len);
-          efree (&p);
+          g_free (p);
         }
     }
 
@@ -1815,7 +1807,7 @@ nasl_ssh_get_issue_banner (lex_ctxt *lexic)
     return NULL;
 
   retc = alloc_typed_cell (CONST_DATA);
-  retc->x.str_val = estrdup (banner);
+  retc->x.str_val = g_strdup (banner);
   retc->size = strlen (banner);
   ssh_string_free_char (banner);
   return retc;
@@ -1858,7 +1850,7 @@ nasl_ssh_get_server_banner (lex_ctxt *lexic)
     return NULL;
 
   retc = alloc_typed_cell (CONST_DATA);
-  retc->x.str_val = estrdup (banner);
+  retc->x.str_val = g_strdup (banner);
   retc->size = strlen (banner);
   return retc;
   (void)lexic;

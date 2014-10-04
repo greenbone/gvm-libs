@@ -1,5 +1,33 @@
 2014-10-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_http.c (_http_req): Replaced emalloc() by g_malloc0()
+	and efree() by g_free().
+	(cgibin): Replaced estrdup() by g_strdup().
+
+	* nasl/nasl_ssh.c (init_membuf): Replaced emalloc() by g_malloc0().
+	(put_membuf): Replaced erealloc() by g_realloc(). Simplified code
+	because a failing memory alloction will terminate process anyway.
+	(get_membuf, pkcs8_to_sshprivatekey, nasl_ssh_request_exec): Replaced
+	efree() by g_free().
+	(nasl_ssh_get_issue_banner, nasl_ssh_get_server_banner): Replaced
+	estrdup() g_strdup().
+
+	* nasl/nasl_signature.c (nasl_verify_signature): Replaced emalloc() by
+	g_malloc0() and efree() by g_free().
+
+	* nasl/nasl_scanner_glue.c (script_get_preference): Replaced estrdup()
+	by g_strdup().
+	(script_get_preference_file_location, get_kb_list): Replaced emalloc()
+	by g_malloc0().
+	(get_kb_item): Replaced estrdup() by gstrdup().
+	(security_something): Replaced efree() g_free().
+
+	* nasl/nasl_lex_ctxt.c (init_empty_lex_ctxt): Replaced emalloc() by
+	g_malloc0().
+	(free_lex_ctxt): Replced efree() by g_free().
+
+2014-10-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_text_utils.c (nasl_string, nasl_strcat): Replaced emalloc()
 	by g_malloc0() and increased allocated size by 1. Replaced erealloc()
 	by g_realloc().

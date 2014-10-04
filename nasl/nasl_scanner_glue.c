@@ -38,7 +38,6 @@
 #include "kb.h"                 /* for KB_TYPE_INT */
 #include "plugutils.h"          /* for plug_set_id */
 #include "scanners_utils.h"     /* for getpts */
-#include "system.h"             /* for estrdup */
 
 #include "strutils.h"
 
@@ -509,7 +508,7 @@ script_get_preference (lex_ctxt * lexic)
         {
           retc->type = CONST_DATA;
           retc->size = strlen (value);
-          retc->x.str_val = estrdup (value);
+          retc->x.str_val = g_strdup (value);
         }
       return retc;
     }
@@ -591,7 +590,7 @@ script_get_preference_file_location (lex_ctxt * lexic)
   len = strlen (local);
   retc = alloc_typed_cell (CONST_DATA);
   retc->size = len;
-  retc->x.str_val = emalloc (len + 1);
+  retc->x.str_val = g_malloc0 (len + 1);
   memcpy (retc->x.str_val, local, len + 1);
 
   return retc;
@@ -709,7 +708,7 @@ get_kb_list (lex_ctxt * lexic)
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = DYN_ARRAY;
-  retc->x.ref_val = a = emalloc (sizeof (nasl_array));
+  retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
 
   top = res = kb_item_get_pattern (kb, kb_mask);
 
@@ -779,7 +778,7 @@ get_kb_item (lex_ctxt * lexic)
       if (val != NULL)
         {
           retc->size = strlen (val);
-          retc->x.str_val = estrdup (val);
+          retc->x.str_val = g_strdup (val);
         }
       else
         {
@@ -938,7 +937,7 @@ security_something (lex_ctxt * lexic, proto_post_something_t proto_post_func,
       else
         proto_post_func (script_infos, port, proto, dup);
 
-      efree (&dup);
+      g_free (dup);
       return FAKE_CELL;
     }
 
