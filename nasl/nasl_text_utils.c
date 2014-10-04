@@ -32,9 +32,6 @@
 #include <string.h>             /* for memmem */
 #include <glib.h>
 
-
-#include "system.h"             /* for erealloc */
-
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
 #include "nasl_func.h"
@@ -58,11 +55,10 @@ nasl_string (lex_ctxt * lexic)
   const char *s, *p1;
   char *p2;
 
-
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = 0;
-  retc->x.str_val = emalloc (0);
+  retc->x.str_val = g_malloc0 (1);
 
   vn = array_max_index (&lexic->ctx_vars);
   for (vi = 0; vi < vn; vi++)
@@ -75,7 +71,7 @@ nasl_string (lex_ctxt * lexic)
         sz = strlen (s);
 
       newlen = retc->size + sz;
-      retc->x.str_val = erealloc (retc->x.str_val, newlen + 1);
+      retc->x.str_val = g_realloc (retc->x.str_val, newlen + 1);
       p2 = retc->x.str_val + retc->size;
       p1 = s;
       retc->size = newlen;
@@ -152,11 +148,10 @@ nasl_rawstring (lex_ctxt * lexic)
   const char *s;
   int total_len = 0;
 
-
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = 0;
-  retc->x.str_val = emalloc (RAW_STR_LEN);
+  retc->x.str_val = g_malloc0 (RAW_STR_LEN);
 
   vn = array_max_index (&lexic->ctx_vars);
   for (vi = 0; vi < vn && total_len < RAW_STR_LEN - 1; vi++)
@@ -281,11 +276,10 @@ nasl_strcat (lex_ctxt * lexic)
   int vi, vn, newlen;
   int sz;
 
-
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = 0;
-  retc->x.str_val = emalloc (0);
+  retc->x.str_val = g_malloc0 (1);
 
   vn = array_max_index (&lexic->ctx_vars);
   for (vi = 0; vi < vn; vi++)
@@ -298,7 +292,7 @@ nasl_strcat (lex_ctxt * lexic)
         sz = strlen (s);
 
       newlen = retc->size + sz;
-      retc->x.str_val = erealloc (retc->x.str_val, newlen + 1);
+      retc->x.str_val = g_realloc (retc->x.str_val, newlen + 1);
       memcpy (retc->x.str_val + retc->size, s, sz);
       retc->size = newlen;
     }
@@ -342,7 +336,7 @@ nasl_hex (lex_ctxt * lexic)
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_STR;
   retc->size = strlen (ret);
-  retc->x.str_val = estrdup (ret);
+  retc->x.str_val = g_strdup (ret);
 
   return retc;
 }
@@ -362,7 +356,7 @@ nasl_hexstr (lex_ctxt * lexic)
   if (s == NULL)
     return NULL;
 
-  ret = emalloc (len * 2 + 1);
+  ret = g_malloc0 (len * 2 + 1);
   for (i = 0; i < len; i++)
     {
       /* if i < len there are at least three chars left in ret + 2 * i */
@@ -477,7 +471,7 @@ nasl_ereg (lex_ctxt * lexic)
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
-  string = estrdup (string);
+  string = g_strdup (string);
   if (multiline)
     s = NULL;
   else
@@ -494,7 +488,7 @@ nasl_ereg (lex_ctxt * lexic)
   else
     retc->x.i_val = 0;
 
-  efree (&string);
+  g_free (string);
   regfree (&re);
   return retc;
 }
@@ -536,7 +530,7 @@ _regreplace (const char *pattern, const char *replace, const char *string,
   /* start with a buffer that is twice the size of the stringo
      we're doing replacements in */
   buf_len = 2 * string_len + 1;
-  buf = emalloc (buf_len * sizeof (char));
+  buf = g_malloc0 (buf_len * sizeof (char));
 
 
   err = pos = 0;
@@ -580,9 +574,9 @@ _regreplace (const char *pattern, const char *replace, const char *string,
           if (new_l + 1 > buf_len)
             {
               buf_len = 1 + buf_len + 2 * new_l;
-              nbuf = emalloc (buf_len);
+              nbuf = g_malloc0 (buf_len);
               strcpy (nbuf, buf);
-              efree (&buf);
+              g_free (buf);
               buf = nbuf;
             }
           tmp = strlen (buf);
@@ -615,9 +609,9 @@ _regreplace (const char *pattern, const char *replace, const char *string,
               if (new_l + 1 > buf_len)
                 {
                   buf_len = 1 + buf_len + 2 * new_l;
-                  nbuf = emalloc (buf_len * sizeof (char));
+                  nbuf = g_malloc0 (buf_len * sizeof (char));
                   strcpy (nbuf, buf);
-                  efree (&buf);
+                  g_free (buf);
                   buf = nbuf;
                 }
               pos += subs[0].rm_eo + 1;
@@ -635,9 +629,9 @@ _regreplace (const char *pattern, const char *replace, const char *string,
           if (new_l + 1 > buf_len)
             {
               buf_len = new_l + 1;      /* now we know exactly how long it is */
-              nbuf = emalloc (buf_len * sizeof (char));
+              nbuf = g_malloc0 (buf_len * sizeof (char));
               strcpy (nbuf, buf);
-              efree (&buf);
+              g_free (buf);
               buf = nbuf;
             }
           /* stick that last bit of string on our output */
@@ -721,8 +715,8 @@ nasl_egrep (lex_ctxt * lexic)
   else
     copt = 0;
 
-  rets = emalloc (max_size + 1);
-  string = estrdup (string);
+  rets = g_malloc0 (max_size + 1);
+  string = g_strdup (string);
 
 
   s = string;
@@ -782,12 +776,12 @@ nasl_egrep (lex_ctxt * lexic)
 #ifdef I_WANT_MANY_DIRTY_ERROR_MESSAGES
   if (rets[0] == '\0')
     {
-      efree (&rets);
-      efree (&string);
+      g_free (rets);
+      g_free (string);
       return FAKE_CELL;
     }
 #endif
-  efree (&string);
+  g_free (string);
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
@@ -837,7 +831,7 @@ nasl_eregmatch (lex_ctxt * lexic)
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = DYN_ARRAY;
-  retc->x.ref_val = a = emalloc (sizeof (nasl_array));
+  retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
 
   for (i = 0; i < NS; i++)
     if (subs[i].rm_so != -1)
@@ -885,13 +879,13 @@ nasl_substr (lex_ctxt * lexic)
   retc->type = (typ == CONST_STR ? CONST_STR : CONST_DATA);
   if (i1 > i2)
     {
-      retc->x.str_val = emalloc (0);
+      retc->x.str_val = g_malloc0 (1);
       retc->size = 0;
       return retc;
     }
   sz2 = i2 - i1 + 1;
   retc->size = sz2;
-  retc->x.str_val = emalloc (sz2);
+  retc->x.str_val = g_malloc0 (sz2);
   memcpy (retc->x.str_val, s1 + i1, sz2);
   return retc;
 }
@@ -945,7 +939,7 @@ nasl_insstr (lex_ctxt * lexic)
   else
     sz3 = sz1 + i1 - i2 - 1 + sz2;
 
-  s3 = retc->x.str_val = emalloc (sz3);
+  s3 = retc->x.str_val = g_malloc0 (sz3);
   retc->size = sz3;
 
   if (i1 <= sz1)
@@ -1027,7 +1021,7 @@ nasl_split (lex_ctxt * lexic)
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = DYN_ARRAY;
-  retc->x.ref_val = a = emalloc (sizeof (nasl_array));
+  retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
 
   bzero (&v, sizeof (v));
   v.var_type = VAR2_DATA;
@@ -1123,7 +1117,7 @@ nasl_chomp (lex_ctxt * lexic)
   if (p != NULL)
     len = (p - str);
 
-  retc->x.str_val = emalloc (len);
+  retc->x.str_val = g_malloc0 (len);
   retc->size = len;
   memcpy (retc->x.str_val, str, len);
   retc->x.str_val[len] = '\0';
@@ -1169,7 +1163,7 @@ nasl_crap (lex_ctxt * lexic)
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA /*CONST_STR */ ;
-  retc->x.str_val = emalloc (len + 1);
+  retc->x.str_val = g_malloc0 (len + 1);
   retc->size = len;
   if (data == NULL)
     memset (retc->x.str_val, 'X', len);
@@ -1308,7 +1302,7 @@ nasl_str_replace (lex_ctxt * lexic)
     }
 
   retc = alloc_typed_cell (CONST_DATA);
-  s = emalloc (1);
+  s = g_malloc0 (1);
   sz2 = 0;
   n = 0;
   for (i1 = i2 = 0; i1 <= sz_a - sz_b;)
@@ -1318,7 +1312,7 @@ nasl_str_replace (lex_ctxt * lexic)
         break;
       l = (c - a) - i1;
       sz2 += sz_r + l;
-      s = erealloc (s, sz2 + 1);
+      s = g_realloc (s, sz2 + 1);
       s[sz2] = '\0';
       if (c - a > i1)
         {
@@ -1339,7 +1333,7 @@ nasl_str_replace (lex_ctxt * lexic)
   if (i1 < sz_a)
     {
       sz2 += (sz_a - i1);
-      s = erealloc (s, sz2 + 1);
+      s = g_realloc (s, sz2 + 1);
       s[sz2] = '\0';
       memcpy (s + i2, a + i1, sz_a - i1);
     }

@@ -1,3 +1,21 @@
+2014-10-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_text_utils.c (nasl_string, nasl_strcat): Replaced emalloc()
+	by g_malloc0() and increased allocated size by 1. Replaced erealloc()
+	by g_realloc().
+	(nasl_rawstring): Replaced emalloc() by g_malloc0().
+	(nasl_hex): Replaced estrdup() by g_strdup().
+	(nasl_hexstr): Replaced emalloc() by g_malloc0().
+	(nasl_ereg): Replaced estrdup() by g_strdup() and efree() by g_free().
+	(_regreplace): Replaced emalloc() by g_malloc0() and efree() by g_free().
+	(nasl_egrep): Replaced estrdup() by g_strdup(), efree() by g_free()
+	and emalloc() by g_malloc0().
+	(nasl_eregmatch): Replaced emalloc() by g_malloc0().
+	(nasl_substr, nasl_insstr, nasl_split, nasl_chomp, nasl_crap): Replaced emalloc()
+	by g_malloc0().
+	(nasl_str_replace): Replaced emalloc() by g_malloc0() and erelloc() by
+	g_realloc().
+
 2014-10-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_debug.c (nasl_perror): Remove duplicate if/else branches.
