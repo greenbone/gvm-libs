@@ -465,9 +465,11 @@ nasl_same_host (lex_ctxt * lexic)
   if (cmp_hostname)
     {
       for (i = 0; i < 2; i++)
-        for (j = 0; j < names_nb[i]; j++)
-          efree (&names[i][j]);
-      efree (&names[i]);
+        {
+          for (j = 0; j < names_nb[i]; j++)
+            efree (&names[i][j]);
+          efree (&names[i]);
+        }
     }
   return retc;
 }

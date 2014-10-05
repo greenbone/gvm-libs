@@ -1,3 +1,7 @@
+2014-10-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_host.c (nasl_same_host): Fixed memleak.
+ 
 2014-10-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_http.c (_http_req): Replaced emalloc() by g_malloc0()
