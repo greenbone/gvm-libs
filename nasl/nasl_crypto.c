@@ -37,7 +37,6 @@
 #include "smb_crypt.h"
 #include "nasl_debug.h"
 
-#include "system.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include "strutils.h"
@@ -202,8 +201,7 @@ nasl_get_sign (lex_ctxt * lexic)
   uint8_t calc_md5_mac[16];
   simple_packet_signature_ntlmssp ((uint8_t *) mac_key, buf, seq_num, calc_md5_mac);
   memcpy (buf + 18, calc_md5_mac, 8);
-  char *ret = emalloc (buflen);
-  bzero (ret, buflen);
+  char *ret = g_malloc0 (buflen);
   memcpy (ret, buf, buflen);
   tree_cell *retc;
   retc = alloc_tree_cell (0, NULL);
@@ -245,7 +243,7 @@ nasl_ntlmv2_response (lex_ctxt * lexic)
   int lm_response_len = 24;
   int nt_response_len = 16 + 28 + address_list_len;
   int len = lm_response_len + nt_response_len + sizeof (session_key);
-  char *ret = emalloc (len);
+  char *ret = g_malloc0 (len);
   memcpy (ret, lm_response, lm_response_len);
   memcpy (ret + lm_response_len, session_key, sizeof (session_key));
   memcpy (ret + lm_response_len + sizeof (session_key), nt_response,
@@ -280,7 +278,7 @@ nasl_ntlm2_response (lex_ctxt * lexic)
   ntlmssp_genauth_ntlm2 (password, lm_response, nt_response, session_key,
                          cryptkey, nt_hash);
   int len = sizeof (lm_response) + sizeof (nt_response) + sizeof (session_key);
-  char *ret = emalloc (len);
+  char *ret = g_malloc0 (len);
   memcpy (ret, lm_response, sizeof (lm_response));
   memcpy (ret + sizeof (lm_response), nt_response, sizeof (nt_response));
   memcpy (ret + sizeof (lm_response) + sizeof (nt_response), session_key,
@@ -318,7 +316,7 @@ nasl_ntlm_response (lex_ctxt * lexic)
                         cryptkey, nt_hash, neg_flags);
 
   int len = sizeof (lm_response) + sizeof (nt_response) + sizeof (session_key);
-  char *ret = emalloc (len);
+  char *ret = g_malloc0 (len);
   memcpy (ret, lm_response, sizeof (lm_response));
   memcpy (ret + sizeof (lm_response), nt_response, sizeof (nt_response));
   memcpy (ret + sizeof (lm_response) + sizeof (nt_response), session_key,
@@ -351,7 +349,7 @@ nasl_keyexchg (lex_ctxt * lexic)
     ntlmssp_genauth_keyexchg (session_key, cryptkey, nt_hash,
                               (uint8_t *) & new_sess_key);
   int len = 16 + 16;
-  char *ret = emalloc (len);
+  char *ret = g_malloc0 (len);
   memcpy (ret, new_sess_key, 16);
   memcpy (ret + 16, encrypted_session_key, 16);
   retc = alloc_tree_cell (0, NULL);
@@ -380,7 +378,7 @@ nasl_ntlmv1_hash (lex_ctxt * lexic)
   bzero (p21, sizeof (p21));
   memcpy (p21, password, pass_len < 16 ? pass_len : 16);
 
-  ret = emalloc (24);
+  ret = g_malloc0 (24);
 
   E_P24 (p21, cryptkey, ret);
   retc = alloc_tree_cell (0, NULL);
@@ -479,7 +477,7 @@ nasl_insert_hexzeros (lex_ctxt * lexic)
     }
 
   byte_len = sizeof (smb_ucs2_t) * (strlen ((char *) in) + 1);
-  out = emalloc (byte_len);
+  out = g_malloc0 (byte_len);
   dst = out;
   src = (char *) in;
 
@@ -535,7 +533,7 @@ nasl_ntv2_owf_gen (lex_ctxt * lexic)
   assert (owf_in_len == 16);
 
   user_byte_len = sizeof (smb_ucs2_t) * (strlen (user_in) + 1);
-  user = emalloc (user_byte_len);
+  user = g_malloc0 (user_byte_len);
   dst_user = user;
   src_user = user_in;
 
@@ -550,7 +548,7 @@ nasl_ntv2_owf_gen (lex_ctxt * lexic)
     }
 
   domain_byte_len = sizeof (smb_ucs2_t) * (strlen (domain_in) + 1);
-  domain = emalloc (domain_byte_len);
+  domain = g_malloc0 (domain_byte_len);
   dst_domain = domain;
   src_domain = domain_in;
 
@@ -575,15 +573,15 @@ nasl_ntv2_owf_gen (lex_ctxt * lexic)
   user_byte_len = user_byte_len - 2;
   domain_byte_len = domain_byte_len - 2;
 
-  kr_buf = emalloc (16);
+  kr_buf = g_malloc0 (16);
 
   hmac_md5_init_limK_to_64 (owf_in, 16, &ctx);
   hmac_md5_update ((const unsigned char *) user, user_byte_len, &ctx);
   hmac_md5_update ((const unsigned char *) domain, domain_byte_len, &ctx);
   hmac_md5_final (kr_buf, &ctx);
 
-  efree (&user);
-  efree (&domain);
+  g_free (user);
+  g_free (domain);
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
@@ -618,7 +616,7 @@ nasl_ntlmv2_hash (lex_ctxt * lexic)
   /* NTLMv2 */
 
   /* We also get to specify some random data */
-  ntlmv2_client_data = emalloc (client_chal_length);
+  ntlmv2_client_data = g_malloc0 (client_chal_length);
   for (i = 0; i < client_chal_length; i++)
     ntlmv2_client_data[i] = rand () % 256;
 
@@ -630,13 +628,13 @@ nasl_ntlmv2_hash (lex_ctxt * lexic)
                       client_chal_length, ntlmv2_response);
 
   /* put it into nt_response, for the code below to put into the packet */
-  final_response = emalloc (client_chal_length + sizeof (ntlmv2_response));
+  final_response = g_malloc0 (client_chal_length + sizeof (ntlmv2_response));
   memcpy (final_response, ntlmv2_response, sizeof (ntlmv2_response));
   /* after the first 16 bytes is the random data we generated above, so the server can verify us with it */
   memcpy (final_response + sizeof (ntlmv2_response), ntlmv2_client_data,
           client_chal_length);
 
-  efree (&ntlmv2_client_data);
+  g_free (ntlmv2_client_data);
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;

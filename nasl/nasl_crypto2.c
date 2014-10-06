@@ -27,7 +27,6 @@
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 
-#include "system.h"             /* for emalloc */
 #include "openvas_logging.h"
 
 #include "nasl_tree.h"
@@ -153,7 +152,7 @@ set_mpi_retc (tree_cell * retc, gcry_mpi_t mpi)
   if (!buffer)
     return -1;
 
-  retc->x.str_val = emalloc (size);
+  retc->x.str_val = g_malloc0 (size);
   memcpy (retc->x.str_val, buffer, size);
   retc->size = size;
 
@@ -176,7 +175,7 @@ nasl_bn_cmp (lex_ctxt * lexic)
   tree_cell *retc = NULL;
   gcry_mpi_t key1 = NULL, key2 = NULL;
 
-  retc = emalloc (sizeof (tree_cell));
+  retc = g_malloc0 (sizeof (tree_cell));
   retc->ref_count = 1;
   retc->type = CONST_INT;
   retc->x.i_val = 1;
@@ -231,7 +230,7 @@ nasl_bn_random (lex_ctxt * lexic)
 
 fail:
   retc->size = 0;
-  retc->x.str_val = emalloc (0);
+  retc->x.str_val = g_malloc0 (1);
 ret:
   gcry_mpi_release (key);
   return retc;
@@ -373,7 +372,7 @@ nasl_pem_to (lex_ctxt * lexic, int type)
 
 fail:
   retc->size = 0;
-  retc->x.str_val = emalloc (0);
+  retc->x.str_val = g_malloc0 (1);
 ret:
   gcry_mpi_release (key);
   gnutls_x509_privkey_deinit (privkey);
@@ -503,7 +502,7 @@ nasl_dh_generate_key (lex_ctxt * lexic)
     goto ret;
 
 fail:
-  retc->x.str_val = emalloc (0);
+  retc->x.str_val = g_malloc0 (1);
   retc->size = 0;
 ret:
   gcry_mpi_release (p);
@@ -556,7 +555,7 @@ nasl_dh_compute_key (lex_ctxt * lexic)
 
 fail:
   retc->size = 0;
-  retc->x.str_val = emalloc (0);
+  retc->x.str_val = g_malloc0 (1);
 ret:
   gcry_mpi_release (p);
   gcry_mpi_release (g);
@@ -653,9 +652,9 @@ strip_pkcs1_padding (tree_cell * retc)
       if (i <= retc->size)
         {
           int rest = retc->size - i;
-          temp = emalloc (rest);
+          temp = g_malloc0 (rest);
           memcpy (temp, p + i, rest);
-          efree (&(retc->x.str_val));
+          g_free (retc->x.str_val);
           retc->x.str_val = temp;
           retc->size = rest;
         }
@@ -722,7 +721,7 @@ nasl_rsa_public_decrypt (lex_ctxt * lexic)
 
 fail:
   retc->size = 0;
-  retc->x.str_val = emalloc (0);
+  retc->x.str_val = g_malloc0 (1);
 ret:
   gcry_sexp_release (decrypted);
   gcry_sexp_release (key);
@@ -865,7 +864,7 @@ nasl_rsa_sign (lex_ctxt * lexic)
 
 fail:
   retc->size = 0;
-  retc->x.str_val = emalloc (0);
+  retc->x.str_val = g_malloc0 (1);
 ret:
   gcry_sexp_release (ssig);
   gcry_sexp_release (sdata);
@@ -894,7 +893,7 @@ nasl_dsa_do_verify (lex_ctxt * lexic)
   gcry_sexp_t ssig = NULL, skey = NULL, sdata = NULL;
   gcry_error_t err;
 
-  retc = emalloc (sizeof (tree_cell));
+  retc = g_malloc0 (sizeof (tree_cell));
   retc->ref_count = 1;
   retc->type = CONST_INT;
   retc->x.i_val = 0;
@@ -986,7 +985,7 @@ nasl_dsa_do_sign (lex_ctxt * lexic)
   unsigned char *sigblob = NULL;
   gcry_error_t err;
 
-  retc = emalloc (sizeof (tree_cell));
+  retc = g_malloc0 (sizeof (tree_cell));
   retc->ref_count = 1;
   retc->type = CONST_DATA;
   retc->x.i_val = 0;
@@ -1042,7 +1041,7 @@ nasl_dsa_do_sign (lex_ctxt * lexic)
       goto fail;
     }
 
-  sigblob = emalloc (SIGBLOB_LEN);
+  sigblob = g_malloc0 (SIGBLOB_LEN);
   memset (sigblob, 0, SIGBLOB_LEN);
 
   err =
@@ -1080,7 +1079,7 @@ fail:
   gcry_sexp_release (ssig);
   gcry_sexp_release (skey);
   gcry_sexp_release (sdata);
-  efree (&sigblob);
+  g_free (sigblob);
 
   return retc;
 }
@@ -1176,7 +1175,7 @@ nasl_bf_cbc (lex_ctxt * lexic, int enc)
       goto fail;
     }
 
-  out = emalloc (datalen);
+  out = g_malloc0 (datalen);
   if (!out)
     goto fail;
 
@@ -1191,7 +1190,7 @@ nasl_bf_cbc (lex_ctxt * lexic, int enc)
     }
 
   retc->type = DYN_ARRAY;
-  retc->x.ref_val = a = emalloc (sizeof (nasl_array));
+  retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
 
   /* first encrypted */
   v.var_type = VAR2_DATA;
@@ -1213,11 +1212,11 @@ nasl_bf_cbc (lex_ctxt * lexic, int enc)
 
 fail:
   retc->type = CONST_DATA;
-  retc->x.str_val = emalloc (0);
+  retc->x.str_val = g_malloc0 (1);
   retc->size = 0;
 
 ret:
-  efree (&out);
+  g_free (out);
   gcry_cipher_close (hd);
 
   return retc;

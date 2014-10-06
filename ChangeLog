@@ -1,5 +1,30 @@
 2014-10-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/smb_crypt.c (NTLMv2_generate_client_data_ntlmssp): Replaced
+	emalloc() by g_malloc0().
+
+	* nasl/smb_crypt.h: Do not inlude system.h anymore.
+
+	* nasl/nasl_crypto.c (nasl_get_sign): Replaced emalloc() by
+	g_malloc0() and dropped superflous zero'ing of mem.
+	(nasl_ntlmv2_response, nasl_ntlm2_response, nasl_ntlm_response,
+	nasl_keyexchg, nasl_ntlmv1_hash, nasl_insert_hexzeros:
+	Replaced emalloc() by g_malloc0().
+	(nasl_ntv2_owf_gen, nasl_ntlmv2_hash): Replaced emalloc() by
+	g_malloc0() and efree by g_free().
+
+	* nasl/ntlmssp.c (ntlmssp_genauth_keyexchg): Replaced emalloc() by
+	g_malloc0().
+
+	* nasl/nasl_crypto2.c (set_mpi_retc, nasl_bn_cmp, nasl_bn_random,
+	nasl_pem_to, nasl_dh_generate_key, nasl_dh_compute_key,
+	nasl_rsa_public_decrypt, nasl_rsa_sign, nasl_dsa_do_verify): Replaced
+	emalloc() by g_malloc0(). Increased allocated size to 1 if it was 0.
+	(strip_pkcs1_padding, nasl_dsa_do_signnasl_bf_cbc): Replaced
+	emalloc() by g_malloc0() and efree() by g_free.
+
+2014-10-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_host.c (get_hostname, get_host_ip, nasl_this_host,
 	get_port_transport): Replaced estrdup() by g_strdup().
 	(nasl_this_host_name): Replaced emalloc() by g_malloc0().

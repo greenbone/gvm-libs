@@ -24,7 +24,6 @@
 
 #ifndef NASL_SMB_CRYPT_H
 #define NASL_SMB_CRYPT_H
-#include "system.h"
 #include "md5.h"
 #include "md4.h"
 #include "hmacmd5.h"

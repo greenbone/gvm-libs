@@ -53,6 +53,7 @@
        NTLMv2_generate_client_data functions' signatures are modified.
 */
 
+#include <glib.h>  /* for g_malloc0() */
 #include "smb_crypt.h"
 #include "proto.h"
 #define int16 1
@@ -487,7 +488,7 @@ uint8_t * NTLMv2_generate_client_data_ntlmssp(const char *addr_list, int address
    *header-4, reserved-4, date-8, client chal-8, unknown-4, addr_list-size sent in arguments
    */
   uchar client_chal[8];
-  uint8_t *response = emalloc(28 + address_list_len);
+  uint8_t *response = g_malloc0 (28 + address_list_len);
   char long_date[8];
   int header = 0x00000101;
   int zeros  = 0x00000000;

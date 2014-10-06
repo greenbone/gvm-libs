@@ -28,6 +28,8 @@
  * Functions to support Authentication(type3 message) for NTLMSSP (NTLMv2, NTLM2, NTLM, KEY GEN)
  */
 
+#include <glib.h>
+
 #include "ntlmssp.h"
 
 #define NTLMSSP_NEGOTIATE_LM_KEY  0x00000080
@@ -93,7 +95,7 @@ uint8_t * ntlmssp_genauth_keyexchg(uint8_t *session_key, char *challenge_data, u
   /* Encrypt the new session key with the old one */
 
   size_t length = sizeof(client_session_key);
-  uint8_t * encrypted_session_key = emalloc(length);
+  uint8_t * encrypted_session_key = g_malloc0 (length);
 
   memcpy(encrypted_session_key, client_session_key, length);
   SamOEMhash(encrypted_session_key, session_key, length);
