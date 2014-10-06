@@ -36,14 +36,9 @@
 
 #include "nasl_http.h"
 
-#include "strutils.h"
 #include "www_funcs.h"          /* for build_encode_URL */
 
 /*-----------------[ http_* functions ]-------------------------------*/
-
-
-
-
 
 
 tree_cell *

@@ -1,5 +1,12 @@
 2014-10-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/exec.c, nasl/lint.c, nasl/nasl_cmd_exec.c, nasl/nasl_crypto.c,
+	nasl/nasl_http.c, nasl/nasl_misc_funcs.c, nasl/nasl_packet_forgery.c,
+	nasl/nasl_packet_forgery_v6.c, nasl/nasl_scanner_glue.c,
+	nasl/nasl_socket.c: Removed unneeded include of strutil.h.
+ 
+2014-10-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/strutils.c: Removed unneeded includes.
 
 	* nasl/strutils.h: Remove unneeded include.

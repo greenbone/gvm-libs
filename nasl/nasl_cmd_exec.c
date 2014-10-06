@@ -41,7 +41,6 @@
 #include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
 
-#include "strutils.h"
 #include "nasl_cmd_exec.h"
 #include "nasl_debug.h"
 

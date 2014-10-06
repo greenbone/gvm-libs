@@ -42,7 +42,6 @@
 #include "nasl_lex_ctxt.h"
 #include "exec.h"
 
-#include "strutils.h"
 #include "nasl_packet_forgery.h"
 #include "nasl_debug.h"
 #include "nasl_misc_funcs.h"

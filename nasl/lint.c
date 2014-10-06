@@ -26,7 +26,6 @@
 #include "exec.h"
 
 #include "nasl_debug.h"
-#include "strutils.h"
 #include "nasl_init.h"
 
 #ifndef NASL_DEBUG

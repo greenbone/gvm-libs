@@ -63,7 +63,6 @@
 
 #include "nasl_debug.h"
 #include "capture_packet.h"
-#include "strutils.h"
 #include "nasl_packet_forgery_v6.h"
 
 /** @todo: It still needs to be taken care

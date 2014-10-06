@@ -39,7 +39,6 @@
 
 #include <ctype.h>
 #include <stdlib.h>
-#include "strutils.h"
 #include <assert.h>
 #include "smb.h"
 #include "smb_signing.h"

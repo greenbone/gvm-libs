@@ -39,8 +39,6 @@
 #include "plugutils.h"          /* for plug_set_id */
 #include "scanners_utils.h"     /* for getpts */
 
-#include "strutils.h"
-
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
 #include "nasl_func.h"
