@@ -247,21 +247,6 @@ entity_attribute (entity_t entity, const char *name)
 }
 
 /**
- * @brief Buffer for reading from the manager.
- */
-char buffer_start[BUFFER_SIZE];
-
-/**
- * @brief Current position in the manager reading buffer.
- */
-char *buffer_point = buffer_start;
-
-/**
- * @brief End of the manager reading buffer.
- */
-char *buffer_end = buffer_start + BUFFER_SIZE;
-
-/**
  * @brief Add attributes from an XML callback to an entity.
  *
  * @param[in]  entity  The entity.
@@ -419,6 +404,11 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
   GString *string;
   int socket;
   time_t last_time;
+
+  // Buffer for reading from the manager.
+  char buffer_start[BUFFER_SIZE];
+  // End of the manager reading buffer.
+  char *buffer_end = buffer_start + BUFFER_SIZE;
 
   /* Record the start time. */
 

@@ -1,3 +1,12 @@
+2014-10-06  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	Make the manager response buffer a local variable of
+	try_read_entity_and_string to avoid overwriting by concurrent threads.
+
+	* omp/xml.c (buffer_start, buffer_point, buffer_end): Remove.
+	(try_read_entity_and_string): Add buffer_start and buffer_end as local
+	variables.
+
 2014-10-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/smb_crypt.c (NTLMv2_generate_client_data_ntlmssp): Replaced
