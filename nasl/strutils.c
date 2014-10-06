@@ -18,11 +18,6 @@
  */
 
 #include <ctype.h>              /* for tolower */
-#include <string.h>             /* for bcopy */
-
-#include "system.h"             /* for emalloc */
-
-#include "strutils.h"
 
 /**
  * @todo These functions are not necessarily nasl-specific and thus subject to

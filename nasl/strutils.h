@@ -19,8 +19,6 @@
 #ifndef NASL2_STRUTILS_H__
 #define NASL2_STRUTILS_H__
 
-#include <sys/types.h>          /* for size_t */
-
 int str_match (const char *, const char *, int);
 
 #endif

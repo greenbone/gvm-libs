@@ -30,7 +30,8 @@
 #include <string.h>             /* for strlen */
 #include <unistd.h>             /* for getpid */
 #include <string.h>             /* for memmem */
-#include <glib.h>
+#include <glib.h>               /* for g_free */
+#include <regex.h>              /* for regex_t */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -40,7 +41,6 @@
 #include "exec.h"
 
 #include "strutils.h"
-#include "regex.h"
 #include "nasl_debug.h"
 
 #include "nasl_text_utils.h"

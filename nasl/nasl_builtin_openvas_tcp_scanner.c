@@ -34,7 +34,6 @@
 #include "nvt_categories.h" /* for ACT_SCANNER */
 #include "../misc/plugutils.h" /* for find_in_path */
 #include "../misc/scanners_utils.h" /* for comm_send_status */
-#include "../misc/system.h" /* for efree */
 #include "../misc/openvas_logging.h"
 
 #include "nasl_lex_ctxt.h"
