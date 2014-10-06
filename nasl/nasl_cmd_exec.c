@@ -34,7 +34,6 @@
 
 #include "plugutils.h"          /* for find_in_path */
 #include "popen.h"              /* for openvas_popen4 */
-#include "system.h"             /* for erealloc */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -156,12 +155,12 @@ nasl_pread (lex_ctxt * lexic)
   if (av->hash_elt != NULL)
     nasl_perror (lexic, "pread: named elements in 'cmd' are ignored!\n");
   n = av->max_idx;
-  args = emalloc (sizeof (char **) * (n + 2));  /* Last arg is NULL */
+  args = g_malloc0 (sizeof (char **) * (n + 2));  /* Last arg is NULL */
   for (j = 0, i = 0; i < n; i++)
     {
       str = (char *) var2str (av->num_elt[i]);
       if (str != NULL)
-        args[j++] = estrdup (str);
+        args[j++] = g_strdup (str);
     }
   args[j++] = NULL;
 
@@ -172,13 +171,13 @@ nasl_pread (lex_ctxt * lexic)
   fp = openvas_popen4 ((const char *) cmd, args, &pid, nice);
 
   for (i = 0; i < n; i++)
-    efree (&args[i]);
-  efree (&args);
+    g_free (args[i]);
+  g_free (args);
 
   if (fp != NULL)
     {
       sz = 0;
-      str = emalloc (1);
+      str = g_malloc0 (1);
 
       errno = 0;
       while ((n = fread (buf, 1, sizeof (buf), fp)) > 0 || errno == EINTR)      /* && kill(pid, 0) >= 0) */
@@ -189,12 +188,7 @@ nasl_pread (lex_ctxt * lexic)
               continue;
             }
           sz2 = sz + n;
-          str2 = erealloc (str, sz2);
-          if (str2 == NULL)
-            {
-              nasl_perror (lexic, "nasl_pread: erealloc failed\n");
-              break;
-            }
+          str2 = g_realloc (str, sz2);
           str = str2;
           memcpy (str + sz, buf, n);
           sz = sz2;
@@ -317,13 +311,7 @@ nasl_fread (lex_ctxt * lexic)
     }
 
   alen = lstat_info.st_size + 1;
-  buf = emalloc (alen);
-  if (buf == NULL)
-    {
-      nasl_perror (lexic, "fread: cannot malloc %d bytes\n", alen);
-      goto error;
-    }
-
+  buf = g_malloc0 (alen);
   len = 0;
   while ((n = fread (buf + len, 1, alen - len, fp)) > 0)
     {
@@ -331,12 +319,7 @@ nasl_fread (lex_ctxt * lexic)
       if (alen <= len)
         {
           alen += 4096;
-          p = erealloc (buf, alen);
-          if (p == NULL)
-            {
-              nasl_perror (lexic, "fread: cannot realloc %d bytes\n", alen);
-              goto error;
-            }
+          p = g_realloc (buf, alen);
           buf = p;
         }
     }
@@ -344,9 +327,8 @@ nasl_fread (lex_ctxt * lexic)
   buf[len] = '\0';
   if (alen > len + 1)
     {
-      p = erealloc (buf, len + 1);
-      if (p != NULL)
-        buf = p;
+      p = g_realloc (buf, len + 1);
+      buf = p;
     }
 
   retc = alloc_typed_cell (CONST_DATA);
@@ -354,11 +336,6 @@ nasl_fread (lex_ctxt * lexic)
   retc->x.str_val = buf;
   fclose (fp);
   return retc;
-
-error:
-  efree (&buf);
-  fclose (fp);
-  return NULL;
 }
 
 /*
@@ -684,12 +661,7 @@ nasl_file_read (lex_ctxt * lexic)
 
   flength = get_int_local_var_by_name (lexic, "length", 0);
 
-  buf = emalloc (flength + 1);
-  if (buf == NULL)
-    {
-      nasl_perror (lexic, "file_read: cannot malloc %d bytes\n", flength);
-      goto error;
-    }
+  buf = g_malloc0 (flength + 1);
 
   for (n = 0; n < flength;)
     {
@@ -708,9 +680,6 @@ nasl_file_read (lex_ctxt * lexic)
   retc->size = n;
   retc->x.str_val = buf;
   return retc;
-error:
-  efree (&buf);
-  return NULL;
 }
 
 

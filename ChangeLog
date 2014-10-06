@@ -1,3 +1,20 @@
+2014-10-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_host.c (get_hostname, get_host_ip, nasl_this_host,
+	get_port_transport): Replaced estrdup() by g_strdup().
+	(nasl_this_host_name): Replaced emalloc() by g_malloc0().
+	(nasl_same_host): Replavced estrdup() by g_strdup(), emalloc() by
+	g_malloc0() and efree() by g_free().
+
+	* nasl/nasl_cmd_exec.c (nasl_pread): Replaced emalloc() by g_malloc0(),
+	estrdup() by G_strdup and efree() by g_free(). Dropped check
+	for successful alloc because process would terminate if this fails.
+	(nasl_fread): Replaced emalloc() by g_malloc0() and erealloc() by
+	g_realloc(). Dropped check for successful alloc because
+	process would terminate if this fails.
+	(nasl_file_read): Replaced emalloc() by g_malloc0(). Dropped check
+	for successful alloc because process would terminate if this fails.
+
 2014-10-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_host.c (nasl_same_host): Fixed memleak.

@@ -36,7 +36,6 @@
 #include "network.h"
 #include "../base/openvas_networking.h"
 #include "plugutils.h"          /* for plug_get_host_fqdn */
-#include "system.h"             /* for estrdup */
 #include "pcap_openvas.h"       /* for v6_is_local_ip */
 
 #include "nasl_tree.h"
@@ -61,7 +60,7 @@ get_hostname (lex_ctxt * lexic)
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_STR;
   retc->size = strlen (hostname);
-  retc->x.str_val = estrdup (hostname);
+  retc->x.str_val = g_strdup (hostname);
   return retc;
 }
 
@@ -86,11 +85,11 @@ get_host_ip (lex_ctxt * lexic)
   retc->type = CONST_STR;
   if (IN6_IS_ADDR_V4MAPPED (ip))
     {
-      txt_ip = estrdup (inet_ntoa (inaddr));
+      txt_ip = g_strdup (inet_ntoa (inaddr));
     }
   else
     {
-      txt_ip = estrdup (inet_ntop (AF_INET6, ip, name, sizeof (name)));
+      txt_ip = g_strdup (inet_ntop (AF_INET6, ip, name, sizeof (name)));
     }
   retc->x.str_val = txt_ip;
   retc->size = strlen (retc->x.str_val);
@@ -205,13 +204,13 @@ nasl_this_host (lex_ctxt * lexic)
           openvas_source_addr_as_addr6 (&addr);
           inaddr.s_addr = addr.s6_addr32[3];
           retc->x.str_val =
-            estrdup (inet_ntop (AF_INET, &inaddr, hostname, sizeof (hostname)));
+            g_strdup (inet_ntop (AF_INET, &inaddr, hostname, sizeof (hostname)));
         }
       else
         {
           openvas_source_addr6 (&addr);
           retc->x.str_val =
-            estrdup (inet_ntop (AF_INET6, &addr, hostname, sizeof (hostname)));
+            g_strdup (inet_ntop (AF_INET6, &addr, hostname, sizeof (hostname)));
         }
       retc->size = strlen (retc->x.str_val);
       return retc;
@@ -233,12 +232,12 @@ nasl_this_host (lex_ctxt * lexic)
             {
               inaddr.s_addr = src6.s6_addr32[3];
               ret =
-                estrdup (inet_ntop
+                g_strdup (inet_ntop
                          (AF_INET, &inaddr, hostname, sizeof (hostname)));
             }
           else
             ret =
-              estrdup (inet_ntop
+              g_strdup (inet_ntop
                        (AF_INET6, &src6, hostname, sizeof (hostname)));
 
           retc->x.str_val = ret;
@@ -254,11 +253,11 @@ nasl_this_host (lex_ctxt * lexic)
           if (IN6_IS_ADDR_V4MAPPED (&in6addr))
             {
               inaddr.s_addr = in6addr.s6_addr32[3];
-              ret = estrdup (inet_ntop (AF_INET, &inaddr, hostname,
+              ret = g_strdup (inet_ntop (AF_INET, &inaddr, hostname,
                                         sizeof (hostname)));
             }
           else
-            ret = estrdup (inet_ntop (AF_INET6, &in6addr, hostname,
+            ret = g_strdup (inet_ntop (AF_INET6, &in6addr, hostname,
                                       sizeof (hostname)));
           retc->x.str_val = ret;
           retc->size = strlen (ret);
@@ -277,7 +276,7 @@ nasl_this_host_name (lex_ctxt * lexic)
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
 
-  hostname = emalloc (256);
+  hostname = g_malloc0 (256);
   gethostname (hostname, 255);
 
   retc->x.str_val = hostname;
@@ -334,7 +333,7 @@ get_port_transport (lex_ctxt * lexic)
         {
           const char *s = get_encaps_name (trp);
           retc->type = CONST_STR;
-          retc->x.str_val = estrdup (s);
+          retc->x.str_val = g_strdup (s);
           retc->size = strlen (s);
         }
       else
@@ -384,8 +383,8 @@ nasl_same_host (lex_ctxt * lexic)
               if (cmp_hostname)
                 {
                   names_nb[i] = 1;
-                  names[i] = emalloc (sizeof (char *));
-                  names[i][0] = estrdup (hn[i]);
+                  names[i] = g_malloc0 (sizeof (char *));
+                  names[i][0] = g_strdup (hn[i]);
                 }
             }
           else
@@ -394,16 +393,16 @@ nasl_same_host (lex_ctxt * lexic)
                    names_nb[i]++)
                 ;
               names_nb[i]++;
-              names[i] = emalloc (sizeof (char *) * names_nb[i]);
-              names[i][0] = estrdup (h->h_name);
+              names[i] = g_malloc0 (sizeof (char *) * names_nb[i]);
+              names[i][0] = g_strdup (h->h_name);
               for (j = 1; j < names_nb[i]; j++)
-                names[i][j] = estrdup (h->h_aliases[j - 1]);
+                names[i][j] = g_strdup (h->h_aliases[j - 1]);
 
               /* Here, we should check that h_addrtype == AF_INET */
               for (n[i] = 0; ((struct in_addr **) h->h_addr_list)[n[i]] != NULL;
                    n[i]++)
                 ;
-              a[i] = emalloc (h->h_length * n[i]);
+              a[i] = g_malloc0 (h->h_length * n[i]);
               for (j = 0; j < n[i]; j++)
                 a[i][j] = *((struct in_addr **) h->h_addr_list)[j];
             }
@@ -416,7 +415,7 @@ nasl_same_host (lex_ctxt * lexic)
             h = NULL;
           if (h == NULL)
             {
-              a[i] = emalloc (sizeof (struct in_addr));
+              a[i] = g_malloc0 (sizeof (struct in_addr));
               memcpy (a[i], &ia, sizeof (struct in_addr));
               n[i] = 1;
             }
@@ -426,16 +425,16 @@ nasl_same_host (lex_ctxt * lexic)
                    names_nb[i]++)
                 ;
               names_nb[i]++;
-              names[i] = emalloc (sizeof (char *) * names_nb[i]);
-              names[i][0] = estrdup (h->h_name);
+              names[i] = g_malloc0 (sizeof (char *) * names_nb[i]);
+              names[i][0] = g_strdup (h->h_name);
               for (j = 1; j < names_nb[i]; j++)
-                names[i][j] = estrdup (h->h_aliases[j - 1]);
+                names[i][j] = g_strdup (h->h_aliases[j - 1]);
 
               /* Here, we should check that h_addrtype == AF_INET */
               for (n[i] = 0; ((struct in_addr **) h->h_addr_list)[n[i]] != NULL;
                    n[i]++)
                 ;
-              a[i] = emalloc (h->h_length * n[i]);
+              a[i] = g_malloc0 (h->h_length * n[i]);
               for (j = 0; j < n[i]; j++)
                 a[i][j] = *((struct in_addr **) h->h_addr_list)[j];
             }
@@ -461,14 +460,14 @@ nasl_same_host (lex_ctxt * lexic)
   retc->x.i_val = flag;
 
   for (i = 0; i < 2; i++)
-    efree (&a[i]);
+    g_free (a[i]);
   if (cmp_hostname)
     {
       for (i = 0; i < 2; i++)
         {
           for (j = 0; j < names_nb[i]; j++)
-            efree (&names[i][j]);
-          efree (&names[i]);
+            g_free (names[i][j]);
+          g_free (names[i]);
         }
     }
   return retc;
