@@ -39,7 +39,6 @@
 #include "../misc/pcap_openvas.h" /* for get_datalink_size */
 #include "../misc/plugutils.h" /* for scanner_add_port */
 #include "../misc/scanners_utils.h" /* for getpts */
-#include "../misc/system.h" /* for efree */
 #include "../misc/openvas_logging.h"
 
 #include "nasl_lex_ctxt.h"
@@ -307,7 +306,7 @@ add_packet (struct list * l, unsigned short dport, unsigned long ack)
 		ret->when = ack;
 		return l;
 	}
-	ret = emalloc (sizeof (struct list));
+	ret = g_malloc0 (sizeof (struct list));
 
 	ret->next = l;
 	ret->prev = NULL;
@@ -342,7 +341,7 @@ rm_packet (struct list * l, unsigned short dport)
 	else
 		ret = p->next;
 
-	efree(&p);
+	g_free(p);
 	return ret;
 }
 
@@ -373,7 +372,7 @@ rm_dead_packets (struct list * l, unsigned long rtt, int *retry)
 					p->prev->next = p->next;
 				else
 					ret = p->next;
-				efree(&p);
+				g_free(p);
 			}
 		}
 		p = next;
@@ -782,7 +781,7 @@ scan (struct arglist * env, char* hostname, char* portrange,
   close (soc);
   bpf_close (bpf);
   if (ports != NULL)
-    efree (&ports);
+    g_free (ports);
   if (num >= 65535)
     plug_set_key (env, "Host/full_scan", ARG_INT, (void*) 1);
 

@@ -35,7 +35,6 @@
 #include "../misc/network.h"    /* for get_encaps_through */
 #include "nvt_categories.h"     /* for ACT_SCANNER */
 #include "../misc/plugutils.h"  /* for OPENVAS_ENCAPS_IP */
-#include "../misc/system.h"     /* for efree */
 
 #include "nasl_lex_ctxt.h"
 
@@ -289,7 +288,7 @@ mark_smtp_server (desc, port, buffer, trp)
     plug_replace_key (desc, "smtp/postfix", ARG_INT, (void *) 1);
 
   {
-    char *report = emalloc (255 + strlen (buffer));
+    char *report = g_malloc0 (255 + strlen (buffer));
     char *t = strchr (buffer, '\n');
     if (t)
       t[0] = 0;
@@ -297,7 +296,7 @@ mark_smtp_server (desc, port, buffer, trp)
 Here is its banner : \n%s",
               get_encaps_through (trp), buffer);
     post_log (desc, port, report);
-    efree (&report);
+    g_free (report);
   }
 }
 
@@ -312,7 +311,7 @@ mark_snpp_server (desc, port, buffer, trp)
   snprintf (ban, sizeof (ban), "snpp/banner/%d", port);
   plug_replace_key (desc, ban, ARG_STRING, buffer);
 
-  report = emalloc (255 + strlen (buffer));
+  report = g_malloc0 (255 + strlen (buffer));
   t = strchr (buffer, '\n');
   if (t != NULL)
     *t = '\0';
@@ -320,7 +319,7 @@ mark_snpp_server (desc, port, buffer, trp)
             "An SNPP server is running on this port%s\n\
 Here is its banner : \n%s", get_encaps_through (trp), buffer);
   post_log (desc, port, report);
-  efree (&report);
+  g_free (report);
 }
 
 void
@@ -340,7 +339,7 @@ mark_ftp_server (desc, port, buffer, trp)
     }
   if (buffer != NULL)
     {
-      char *report = emalloc (255 + strlen (buffer));
+      char *report = g_malloc0 (255 + strlen (buffer));
       char *t = strchr (buffer, '\n');
       if (t != NULL)
         t[0] = '\0';
@@ -348,7 +347,7 @@ mark_ftp_server (desc, port, buffer, trp)
 Here is its banner : \n%s",
                 get_encaps_through (trp), buffer);
       post_log (desc, port, report);
-      efree (&report);
+      g_free (report);
     }
   else
     {
@@ -399,7 +398,7 @@ mark_pop_server (desc, port, buffer)
   int i;
   if (c)
     c[0] = 0;
-  buffer2 = estrdup (buffer);
+  buffer2 = g_strdup (buffer);
   for (i = 0; i < strlen (buffer2); i++)
     buffer2[i] = tolower (buffer2[i]);
   if (!strcmp (buffer2, "+ok"))
@@ -422,7 +421,7 @@ mark_pop_server (desc, port, buffer)
       plug_replace_key (desc, ban, ARG_STRING, buffer);
       post_log (desc, port, "A pop3 server is running on this port");
     }
-  efree (&buffer2);
+  g_free (buffer2);
 }
 
 void
@@ -1907,8 +1906,10 @@ plugin_do_run (desc, h, test_ssl)
                 " - connecting...", inet_ntoa (*p_ip), port);
 #endif
               if (banner != NULL)
-                efree (&banner);
-              banner = NULL;
+                {
+                  g_free (banner);
+                  banner = NULL;
+                }
               /* If test_ssl is set, try with TLS first. */
               if (test_ssl)
                 trp = OPENVAS_ENCAPS_TLScustom;
@@ -2101,14 +2102,14 @@ plugin_do_run (desc, h, test_ssl)
 
               if (len > 0)
                 {
-                  banner = emalloc (len + 1);
+                  banner = g_malloc0 (len + 1);
                   memcpy (banner, buffer, len);
                   banner[len] = '\0';
 
                   for (i = 0; i < len; i++)
                     buffer[i] = tolower (buffer[i]);
 
-                  line = estrdup (buffer);
+                  line = g_strdup (buffer);
 
                   if (strchr (line, '\n') != NULL)
                     {
@@ -2164,7 +2165,7 @@ plugin_do_run (desc, h, test_ssl)
                       plug_replace_key (desc, kb, ARG_STRING, buf2);
                   }
 
-                  origline = estrdup ((char *) banner);
+                  origline = g_strdup ((char *) banner);
                   if (strchr (origline, '\n') != NULL)
                     {
                       char *t = strchr (origline, '\n');
@@ -2580,8 +2581,8 @@ plugin_do_run (desc, h, test_ssl)
                     mark_socks_proxy (desc, port, 4);
                   else
                     unindentified_service = !flg;
-                  efree (&line);
-                  efree (&origline);
+                  g_free (line);
+                  g_free (origline);
                 }
               /* len >= 0 */
               else
@@ -2713,7 +2714,7 @@ and in %d.%03d when we just wait. It is  probably not wrapped", inet_ntoa (*p_ip
                   if (!three_digits)
                     mark_unknown_svc (desc, port, banner, trp);
                 }
-              efree (&banner);
+              g_free (banner);
             }
 #ifdef DEBUG
           else
@@ -2764,8 +2765,6 @@ fwd_data (int in, int out, pid_t sender)
   static int bufsz = 0;
   int type;
 
-
-
   e = internal_recv (in, &buf, &bufsz, &type);
   if (e <= 0)
     return -1;
@@ -2773,7 +2772,7 @@ fwd_data (int in, int out, pid_t sender)
 
   if (bufsz > 65535)
     {
-      efree (&buf);
+      g_free (buf);
       buf = NULL;
       bufsz = 0;
     }
@@ -2889,7 +2888,7 @@ plugin_run_find_service (lex_ctxt * lexic)
           for (j = 0; j < port_per_son && kbitem_tmp != NULL;)
             {
               if (sons_args[i] == NULL)
-                sons_args[i] = emalloc (sizeof (struct arglist));
+                sons_args[i] = g_malloc0 (sizeof (struct arglist));
               arg_add_value (sons_args[i], kbitem_tmp->name, kbitem_tmp->type,
                              -1, NULL);
               j++;
@@ -2904,7 +2903,7 @@ plugin_run_find_service (lex_ctxt * lexic)
   for (i = 0; (i < num_ports % num_sons) && kbitem_tmp != NULL;)
     {
       if (sons_args[i] == NULL)
-        sons_args[i] = emalloc (sizeof (struct arglist));
+        sons_args[i] = g_malloc0 (sizeof (struct arglist));
       arg_add_value (sons_args[i], kbitem_tmp->name, kbitem_tmp->type, -1,
                      NULL);
       i++;
