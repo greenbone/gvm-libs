@@ -575,7 +575,7 @@ nvti_pref_len (const nvti_t * n)
  *
  * @return The number of preferences. NULL if
  */
-nvtpref_t *
+const nvtpref_t *
 nvti_pref (const nvti_t * n, guint p)
 {
   return (n ? g_slist_nth_data (n->prefs, p) : NULL);
@@ -1469,7 +1469,7 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
   int i;
   for (i = 0; i < nvti_pref_len (n); i++)
     {
-      nvtpref_t *np = nvti_pref (n, i);
+      const nvtpref_t *np = nvti_pref (n, i);
       gchar *lst[3];
       gchar buf[10];
       gsize size;
@@ -1591,7 +1591,7 @@ nvti_clone (const nvti_t * n)
   int i;
   for (i = 0; i < nvti_pref_len (n); i++)
     {
-      nvtpref_t *np = nvti_pref (n, i);
+      const nvtpref_t *np = nvti_pref (n, i);
       nvtpref_t * new_pref = nvtpref_new (nvtpref_name (np),
         nvtpref_type (np), nvtpref_default (np));
       nvti_add_pref (new_nvti, new_pref);

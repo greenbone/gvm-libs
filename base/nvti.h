@@ -120,7 +120,7 @@ gint nvti_timeout (const nvti_t *);
 gint nvti_category (const nvti_t *);
 gchar *nvti_family (const nvti_t *);
 guint nvti_pref_len (const nvti_t *);
-nvtpref_t *nvti_pref (const nvti_t *, guint);
+const nvtpref_t *nvti_pref (const nvti_t *, guint);
 
 int nvti_set_oid (nvti_t *, const gchar *);
 int nvti_set_version (nvti_t *, const gchar *);

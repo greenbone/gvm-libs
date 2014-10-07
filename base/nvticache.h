@@ -54,7 +54,7 @@ typedef struct nvticache
 
 nvticache_t *nvticache_new (const gchar *, const gchar *);
 void nvticache_free (const nvticache_t *);
-nvti_t *nvticache_get (const nvticache_t *, const gchar *);
+const nvti_t *nvticache_get (const nvticache_t *, const gchar *);
 int nvticache_add (const nvticache_t *, nvti_t *, gchar *);
 nvti_t * nvticache_get_by_oid (const nvticache_t *, const gchar *);
 gchar * nvticache_get_src_by_oid (const nvticache_t *, const gchar *);

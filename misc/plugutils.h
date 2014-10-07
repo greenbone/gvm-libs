@@ -63,7 +63,8 @@ void plug_set_port_transport (struct arglist *, int, int);
 
 int plug_get_port_transport (struct arglist *, int);
 
-struct arglist * plug_create_from_nvti_and_prefs (nvti_t *, struct arglist *);
+struct arglist *
+plug_create_from_nvti_and_prefs (const nvti_t *, struct arglist *);
 
 /*
  * Reporting functions

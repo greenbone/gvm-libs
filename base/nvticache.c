@@ -97,10 +97,9 @@ nvticache_free (const nvticache_t * cache)
  *                 "subdir1/subdir2/scriptname2.nasl" )
  *
  * @return NULL in case the data could not be delivered.
- *         Else a nvti structure which needs to be
- *         released using @ref nvti_free .
+ *         Else a nvti structure.
  */
-nvti_t *
+const nvti_t *
 nvticache_get (const nvticache_t * cache, const gchar * filename)
 {
   nvti_t *n = NULL, *n2;
@@ -115,9 +114,7 @@ nvticache_get (const nvticache_t * cache, const gchar * filename)
   if (src_file && cache_file && stat (src_file, &src_stat) >= 0
       && stat (cache_file, &cache_stat) >= 0
       && (cache_stat.st_mtime >= src_stat.st_mtime))
-    {
-      n = nvti_from_keyfile (cache_file);
-    }
+    n = nvti_from_keyfile (cache_file);
 
   if (src_file)
     g_free (src_file);
@@ -126,6 +123,7 @@ nvticache_get (const nvticache_t * cache, const gchar * filename)
 
   if (!n || !(nvti_oid (n))) return NULL;
 
+  /* Check for duplicate OID. */
   n2 = nvtis_lookup (cache->nvtis, nvti_oid (n));
   if (n2)
     {
@@ -133,10 +131,9 @@ nvticache_get (const nvticache_t * cache, const gchar * filename)
                         nvti_oid (n), filename);
       nvtis_remove (cache->nvtis, n2);
     }
-  n2 = nvti_clone (n);
   nvti_shrink (n);
   nvtis_add (cache->nvtis, n);
-  return n2;
+  return n;
 }
 
 /**

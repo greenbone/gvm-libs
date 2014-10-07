@@ -166,7 +166,7 @@ _add_plugin_preference (struct arglist *prefs, const char *p_name,
  * @return Pointer to plugin as arglist or NULL.
  */
 struct arglist *
-plug_create_from_nvti_and_prefs (nvti_t * nvti, struct arglist *prefs)
+plug_create_from_nvti_and_prefs (const nvti_t * nvti, struct arglist *prefs)
 {
   struct arglist *ret;
   int i;
@@ -182,7 +182,7 @@ plug_create_from_nvti_and_prefs (nvti_t * nvti, struct arglist *prefs)
 
   for (i = 0; i < nvti_pref_len (nvti); i++)
     {
-      nvtpref_t *np = nvti_pref (nvti, i);
+      const nvtpref_t *np = nvti_pref (nvti, i);
       _add_plugin_preference (prefs, nvti_name (nvti), nvtpref_name (np),
                               nvtpref_type (np), nvtpref_default (np));
     }
