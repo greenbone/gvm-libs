@@ -1,5 +1,22 @@
 2014-10-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Simplify nvti cache API by moving the cache variable handling to
+	nvticache.c file instead of by the API caller.
+
+	* base/nvticache.c (nvticache): New variable for nvti cache.
+	(nvticache_new): Rename to nvticache_new(), set the nvticache variable
+	and return void.
+	(nvticache_free, nvticache_get, nvticache_add, nvticache_get_by_oid)
+	(nvticache_get_src_by_oid): Use nvticache variable, remove cache
+	function argument.
+
+	* base/nvticache.h: Adjust functions prototypes.
+
+	* misc/plugutils.c (proto_post_wrapped, get_plugin_preference): Adjust
+	nvticache_get_by_oid() calls.
+
+2014-10-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/nvti.c (nvti_pref): Constify return value.
 	(nvti_to_keyfile, nvti_clone): Adjsut nvti_pref() calls.
 

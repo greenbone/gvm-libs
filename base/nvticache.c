@@ -44,52 +44,45 @@
 #include <string.h> // for strlen
 
 /**
- * @brief Create a new nvticache structure initialized with a path.
- *
- * @param path The directory where the cache is to be stored.
- *
- * @return NULL in case the memory could not be allocated.
- *         Else a nvticache structure which needs to be
- *         released using @ref nvticache_free .
+ * @brief nvti cache variable.
  */
-nvticache_t *
-nvticache_new (const gchar * cache_path, const gchar * src_path)
-{
-  nvticache_t *cache = g_malloc0 (sizeof (nvticache_t));
-
-  if (!cache)
-    return NULL;
-
-  if (cache_path)
-    cache->cache_path = g_strdup (cache_path);
-  if (src_path)
-    cache->src_path = g_strdup (src_path);
-
-  cache->nvtis = nvtis_new ();
-
-  return (cache);
-}
+nvticache_t *nvticache = NULL;
 
 /**
- * @brief Free memory of a nvticache structure.
+ * @brief Initializes the nvti cache.
  *
- * @param cache The structure to be freed.
+ * @param cache_path    The directory where the cache is to be stored.
+ * @param src_path      The directory that contains the nvt files.
  */
 void
-nvticache_free (const nvticache_t * cache)
+nvticache_init (const gchar *cache_path, const gchar *src_path)
 {
-  if (cache->cache_path)
-    g_free (cache->cache_path);
-  if (cache->src_path)
-    g_free (cache->src_path);
-  nvtis_free (cache->nvtis);
-  g_free ((nvticache_t *) cache);
+  nvticache = g_malloc0 (sizeof (nvticache_t));
+
+  if (cache_path)
+    nvticache->cache_path = g_strdup (cache_path);
+  if (src_path)
+    nvticache->src_path = g_strdup (src_path);
+
+  nvticache->nvtis = nvtis_new ();
 }
 
 /**
- * @brief Retrieve NVT Information from a cache for the given filename.
- *
- * @param cache    The NVTI Cache to use
+ * @brief Free the nvti cache.
+ */
+void
+nvticache_free ()
+{
+  if (nvticache->cache_path)
+    g_free (nvticache->cache_path);
+  if (nvticache->src_path)
+    g_free (nvticache->src_path);
+  nvtis_free (nvticache->nvtis);
+  g_free (nvticache);
+}
+
+/**
+ * @brief Retrieve NVT Information from the nvt cache for the given filename.
  *
  * @param filename The name of the original NVT without the path
  *                 to the base location of NVTs (e.g.
@@ -100,11 +93,11 @@ nvticache_free (const nvticache_t * cache)
  *         Else a nvti structure.
  */
 const nvti_t *
-nvticache_get (const nvticache_t * cache, const gchar * filename)
+nvticache_get (const gchar *filename)
 {
   nvti_t *n = NULL, *n2;
-  gchar *src_file = g_build_filename (cache->src_path, filename, NULL);
-  gchar *dummy = g_build_filename (cache->cache_path, filename, NULL);
+  gchar *src_file = g_build_filename (nvticache->src_path, filename, NULL);
+  gchar *dummy = g_build_filename (nvticache->cache_path, filename, NULL);
   gchar *cache_file = g_strconcat (dummy, ".nvti", NULL);
   struct stat src_stat;
   struct stat cache_stat;
@@ -124,22 +117,20 @@ nvticache_get (const nvticache_t * cache, const gchar * filename)
   if (!n || !(nvti_oid (n))) return NULL;
 
   /* Check for duplicate OID. */
-  n2 = nvtis_lookup (cache->nvtis, nvti_oid (n));
+  n2 = nvtis_lookup (nvticache->nvtis, nvti_oid (n));
   if (n2)
     {
       log_legacy_write ("NVT with duplicate OID %s will be replaced with %s\n",
                         nvti_oid (n), filename);
-      nvtis_remove (cache->nvtis, n2);
+      nvtis_remove (nvticache->nvtis, n2);
     }
   nvti_shrink (n);
-  nvtis_add (cache->nvtis, n);
+  nvtis_add (nvticache->nvtis, n);
   return n;
 }
 
 /**
  * @brief Add a NVT Information to the cache.
- *
- * @param cache    The NVTI Cache to use
  *
  * @param nvti     The NVT Information to add
  *
@@ -151,9 +142,9 @@ nvticache_get (const nvticache_t * cache, const gchar * filename)
  * @return 0 in case of success, anything else indicates an error.
  */
 int
-nvticache_add (const nvticache_t * cache, nvti_t * nvti, gchar * filename)
+nvticache_add (nvti_t * nvti, gchar * filename)
 {
-  gchar *dummy = g_build_filename (cache->cache_path, filename, NULL);
+  gchar *dummy = g_build_filename (nvticache->cache_path, filename, NULL);
   gchar *cache_file = g_strconcat (dummy, ".nvti", NULL);
   int result = nvti_to_keyfile (nvti, cache_file);
 
@@ -166,29 +157,26 @@ nvticache_add (const nvticache_t * cache, nvti_t * nvti, gchar * filename)
 /**
  * @brief Get a NVT Information from the cache by OID.
  *
- * @param cache    The NVTI Cache to use
- *
  * @param oid      The OID to look up
  *
  * @return A copy of the NVTI object or NULL if not found.
  */
 nvti_t *
-nvticache_get_by_oid (const nvticache_t * cache, const gchar * oid)
+nvticache_get_by_oid (const gchar * oid)
 {
   nvti_t * nvti;
 
-  if (!cache || !cache->nvtis)
+  if (!nvticache || !nvticache->nvtis)
     return NULL;
 
-  nvti = nvtis_lookup (cache->nvtis, oid);
+  nvti = nvtis_lookup (nvticache->nvtis, oid);
   if (! nvti)
     return NULL;
 
   gchar * filename = nvti_src (nvti);
-  int l = strlen (cache->src_path);
-  filename += l;
+  filename += strlen (nvticache->src_path);
 
-  gchar *dummy = g_build_filename (cache->cache_path, filename, NULL);
+  gchar *dummy = g_build_filename (nvticache->cache_path, filename, NULL);
   gchar *cache_file = g_strconcat (dummy, ".nvti", NULL);
 
   g_free (dummy);
@@ -204,17 +192,15 @@ nvticache_get_by_oid (const nvticache_t * cache, const gchar * oid)
  * @brief Get the src element of a NVT Information from the
  * cache by OID.
  *
- * @param cache    The NVTI Cache to use
- *
  * @param oid      The OID to look up
  *
  * @return A copy of the src or NULL if not found. This needs to
  *         to be free'd.
  */
 gchar *
-nvticache_get_src_by_oid (const nvticache_t * cache, const gchar * oid)
+nvticache_get_src_by_oid (const gchar * oid)
 {
-  nvti_t * nvti = nvtis_lookup (cache->nvtis, oid);
+  nvti_t * nvti = nvtis_lookup (nvticache->nvtis, oid);
 
   return g_strdup (nvti_src (nvti));
 }
