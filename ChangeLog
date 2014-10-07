@@ -1,3 +1,14 @@
+2014-10-07  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	Backport r20534.
+
+	Make the manager response buffer a local variable of
+	try_read_entity_and_string to avoid overwriting by concurrent threads.
+
+	* omp/xml.c (buffer_start, buffer_point, buffer_end): Remove.
+	(try_read_entity_and_string): Add buffer_start and buffer_end as local
+	variables.
+
 2014-09-18  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* INSTALL: Remove mention of the (now solved) openSUSE compiler error
