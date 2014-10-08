@@ -58,7 +58,10 @@ settings_init_from_file (settings_t * settings, const gchar * filename,
   gchar *contents = NULL;
 
   if (!g_file_get_contents (filename, &contents, NULL, &error))
-    return -1;
+    {
+      g_error_free (error);
+      return -1;
+    }
 
   if (contents != NULL)
     {

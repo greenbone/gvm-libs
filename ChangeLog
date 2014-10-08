@@ -1,5 +1,9 @@
 2014-10-08  Henri Doreau <henri.doreau@gmail.com>
 
+	* base/settings.c (settings_init_from_file): Fixed memory leak.
+
+2014-10-08  Henri Doreau <henri.doreau@gmail.com>
+
 	* base/nvti.c (nvti_to_keyfile): Fixed memory leak.
 
 2014-10-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
