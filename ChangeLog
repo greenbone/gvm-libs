@@ -1,5 +1,11 @@
 2014-10-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/nvticache.c (nvticache_init, nvticache_free, nvticache_get)
+	(nvticache_add, nvticache_get_by_oid_full, nvticache_get_src_by_oid):
+	Add asserts and fix code style.
+
+2014-10-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/nvti.c (nvti_clone): Remove unused function.
 
 	* base/nvticache.c (nvticache_get_by_oid): Rename to

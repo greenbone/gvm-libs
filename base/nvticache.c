@@ -42,6 +42,7 @@
 #include "../misc/openvas_logging.h"
 
 #include <string.h> // for strlen
+#include <assert.h>
 
 /**
  * @brief nvti cache variable.
@@ -57,6 +58,7 @@ nvticache_t *nvticache = NULL;
 void
 nvticache_init (const gchar *cache_path, const gchar *src_path)
 {
+  assert (!nvticache);
   nvticache = g_malloc0 (sizeof (nvticache_t));
 
   if (cache_path)
@@ -73,12 +75,14 @@ nvticache_init (const gchar *cache_path, const gchar *src_path)
 void
 nvticache_free ()
 {
+  assert (nvticache);
   if (nvticache->cache_path)
     g_free (nvticache->cache_path);
   if (nvticache->src_path)
     g_free (nvticache->src_path);
   nvtis_free (nvticache->nvtis);
   g_free (nvticache);
+  nvticache = NULL;
 }
 
 /**
@@ -96,12 +100,14 @@ const nvti_t *
 nvticache_get (const gchar *filename)
 {
   nvti_t *n = NULL, *n2;
-  gchar *src_file = g_build_filename (nvticache->src_path, filename, NULL);
-  gchar *dummy = g_build_filename (nvticache->cache_path, filename, NULL);
-  gchar *cache_file = g_strconcat (dummy, ".nvti", NULL);
+  char *src_file, *dummy, *cache_file;
   struct stat src_stat;
   struct stat cache_stat;
 
+  assert (nvticache);
+  src_file = g_build_filename (nvticache->src_path, filename, NULL);
+  dummy = g_build_filename (nvticache->cache_path, filename, NULL);
+  cache_file = g_strconcat (dummy, ".nvti", NULL);
   g_free (dummy);
 
   if (src_file && cache_file && stat (src_file, &src_stat) >= 0
@@ -144,10 +150,14 @@ nvticache_get (const gchar *filename)
 int
 nvticache_add (nvti_t * nvti, gchar * filename)
 {
-  gchar *dummy = g_build_filename (nvticache->cache_path, filename, NULL);
-  gchar *cache_file = g_strconcat (dummy, ".nvti", NULL);
-  int result = nvti_to_keyfile (nvti, cache_file);
+  gchar *cache_file, *dummy;
+  int result;
 
+  assert (nvticache);
+
+  dummy = g_build_filename (nvticache->cache_path, filename, NULL);
+  cache_file = g_strconcat (dummy, ".nvti", NULL);
+  result = nvti_to_keyfile (nvti, cache_file);
   g_free (dummy);
   g_free (cache_file);
 
@@ -168,8 +178,7 @@ nvticache_get_by_oid_full (const char * oid)
   nvti_t *cache_nvti;
   char *dummy, *filename, *cache_file;
 
-  if (!nvticache || !nvticache->nvtis)
-    return NULL;
+  assert (nvticache);
 
   if (!(nvti = nvtis_lookup (nvticache->nvtis, oid)))
     return NULL;
@@ -199,7 +208,10 @@ nvticache_get_by_oid_full (const char * oid)
 gchar *
 nvticache_get_src_by_oid (const gchar * oid)
 {
-  nvti_t * nvti = nvtis_lookup (nvticache->nvtis, oid);
+  nvti_t * nvti;
 
+  assert (nvticache);
+
+  nvti = nvtis_lookup (nvticache->nvtis, oid);
   return g_strdup (nvti_src (nvti));
 }
