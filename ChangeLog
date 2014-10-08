@@ -1,3 +1,15 @@
+2014-10-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvti.c (nvti_clone): Remove unused function.
+
+	* base/nvticache.c (nvticache_get_by_oid): Rename to
+	nvticache_get_by_oid_full(). Fix code style.
+
+	* base/nvticache.h, base/nvti.h: Adjust functions prototypes.
+
+	* misc/plugutils.c (proto_post_wrapped, get_plugin_preference): Call
+	nvticache_get_by_oid_full().
+
 2014-10-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Simplify nvti cache API by moving the cache variable handling to

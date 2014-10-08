@@ -155,37 +155,36 @@ nvticache_add (nvti_t * nvti, gchar * filename)
 }
 
 /**
- * @brief Get a NVT Information from the cache by OID.
+ * @brief Get a full NVTI from the cache by OID.
  *
  * @param oid      The OID to look up
  *
- * @return A copy of the NVTI object or NULL if not found.
+ * @return A full copy of the NVTI object or NULL if not found.
  */
 nvti_t *
-nvticache_get_by_oid (const gchar * oid)
+nvticache_get_by_oid_full (const char * oid)
 {
-  nvti_t * nvti;
+  const nvti_t * nvti;
+  nvti_t *cache_nvti;
+  char *dummy, *filename, *cache_file;
 
   if (!nvticache || !nvticache->nvtis)
     return NULL;
 
-  nvti = nvtis_lookup (nvticache->nvtis, oid);
-  if (! nvti)
+  if (!(nvti = nvtis_lookup (nvticache->nvtis, oid)))
     return NULL;
 
-  gchar * filename = nvti_src (nvti);
+  /* Retrieve the full version from the on disk cache. */
+  filename = nvti_src (nvti);
   filename += strlen (nvticache->src_path);
 
-  gchar *dummy = g_build_filename (nvticache->cache_path, filename, NULL);
-  gchar *cache_file = g_strconcat (dummy, ".nvti", NULL);
+  dummy = g_build_filename (nvticache->cache_path, filename, NULL);
+  cache_file = g_strconcat (dummy, ".nvti", NULL);
+  cache_nvti = nvti_from_keyfile (cache_file);
 
   g_free (dummy);
-
-  nvti_t * n = nvti_from_keyfile (cache_file);
-
   g_free (cache_file);
-
-  return n;
+  return cache_nvti;
 }
 
 /**

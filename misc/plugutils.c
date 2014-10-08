@@ -372,7 +372,7 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   GString *action_str;
   gchar *data;
   gsize length;
-  nvti_t * nvti = nvticache_get_by_oid (arg_get_value (desc, "OID"));
+  nvti_t *nvti = nvticache_get_by_oid_full (arg_get_value (desc, "OID"));
   gchar **nvti_tags = NULL;
 
   /* Should not happen, just to avoid trouble stop here if no NVTI found */
@@ -587,12 +587,13 @@ get_plugin_preference (struct arglist *desc, const char *name)
   int len;
   struct arglist *prefs;
   char *plug_name, *cname;
+  nvti_t * nvti;
 
   prefs = arg_get_value (desc, "preferences");
   if (!prefs)
     return NULL;
 
-  nvti_t * nvti = nvticache_get_by_oid (arg_get_value (desc, "OID"));
+  nvti = nvticache_get_by_oid_full (arg_get_value (desc, "OID"));
   plug_name = nvti_name (nvti);
   cname = g_strdup (name);
 

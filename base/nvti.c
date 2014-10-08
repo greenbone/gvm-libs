@@ -1551,56 +1551,6 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
   return (0);
 }
 
-/**
- * @brief Create a full copy of a NVT Info.
- *
- * @param n The NVT Info object to clone.
- *
- * @return A pointer to the cloned NVT Info or NULL in case of an error.
- */
-nvti_t *
-nvti_clone (const nvti_t * n)
-{
-  nvti_t * new_nvti;
-
-  if (! n) return NULL;
-
-  new_nvti = nvti_new ();
-
-  nvti_set_oid (new_nvti, nvti_oid (n));
-  nvti_set_version (new_nvti, nvti_version (n));
-  nvti_set_name (new_nvti, nvti_name (n));
-  nvti_set_summary (new_nvti, nvti_summary (n));
-  nvti_set_copyright (new_nvti, nvti_copyright (n));
-  nvti_set_cve (new_nvti, nvti_cve (n));
-  nvti_set_bid (new_nvti, nvti_bid (n));
-  nvti_set_xref (new_nvti, nvti_xref (n));
-  nvti_set_tag (new_nvti, nvti_tag (n));
-  nvti_set_cvss_base (new_nvti, nvti_cvss_base (n));
-  nvti_set_dependencies (new_nvti, nvti_dependencies (n));
-  nvti_set_required_keys (new_nvti, nvti_required_keys (n));
-  nvti_set_mandatory_keys (new_nvti, nvti_mandatory_keys (n));
-  nvti_set_excluded_keys (new_nvti, nvti_excluded_keys (n));
-  nvti_set_required_ports (new_nvti, nvti_required_ports (n));
-  nvti_set_required_udp_ports (new_nvti, nvti_required_udp_ports (n));
-  nvti_set_src (new_nvti, nvti_src (n));
-  nvti_set_timeout (new_nvti, nvti_timeout (n));
-  nvti_set_category (new_nvti, nvti_category (n));
-  nvti_set_family (new_nvti, nvti_family (n));
-
-  int i;
-  for (i = 0; i < nvti_pref_len (n); i++)
-    {
-      const nvtpref_t *np = nvti_pref (n, i);
-      nvtpref_t * new_pref = nvtpref_new (nvtpref_name (np),
-        nvtpref_type (np), nvtpref_default (np));
-      nvti_add_pref (new_nvti, new_pref);
-    }
-
-  return (new_nvti);
-}
-
-
 /* Collections of nvtis. */
 
 /**

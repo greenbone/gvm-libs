@@ -155,8 +155,6 @@ int nvti_add_pref (nvti_t *, nvtpref_t *);
 nvti_t *nvti_from_keyfile (const gchar *);
 int nvti_to_keyfile (const nvti_t *, const gchar *);
 
-nvti_t * nvti_clone (const nvti_t *);
-
 /* Collections of NVT Infos. */
 
 /**

@@ -65,7 +65,7 @@ int
 nvticache_add (nvti_t *, gchar *);
 
 nvti_t *
-nvticache_get_by_oid (const gchar *);
+nvticache_get_by_oid_full (const char *);
 
 gchar *
 nvticache_get_src_by_oid (const gchar *);
