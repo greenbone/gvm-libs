@@ -1,3 +1,7 @@
+2014-10-08  Henri Doreau <henri.doreau@gmail.com>
+
+	* base/nvti.c (nvti_to_keyfile): Fixed memory leak.
+
 2014-10-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/nvticache.c (nvticache_init, nvticache_free, nvticache_get)

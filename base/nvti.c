@@ -1508,10 +1508,12 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
             {
               log_legacy_write ("mkdir(%s) : %s\n", cache_dir,
                                 strerror (errno));
+              g_free (cache_dir);
               g_free (text);
               g_key_file_free (keyfile);
               return (1);
             }
+          g_free (cache_dir);
           fp = fopen (fn, "w");
         }
 
