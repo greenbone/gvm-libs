@@ -1,3 +1,8 @@
+2014-10-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_isotime.c (nasl_isotime_now, nasl_isotime_scan,
+	nasl_isotime_print, nasl_isotime_add): Replaced estrdup() by g_strdup().
+
 2014-10-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (internal_recv): Don't preallocate buffer memory.

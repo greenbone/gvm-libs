@@ -59,7 +59,6 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include "system.h"             /* for emalloc */
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
 #include "nasl_var.h"
@@ -590,7 +589,7 @@ nasl_isotime_now (lex_ctxt *lexic)
   get_current_isotime (timebuf);
 
   retc = alloc_typed_cell (CONST_STR);
-  retc->x.str_val = estrdup (timebuf);
+  retc->x.str_val = g_strdup (timebuf);
   retc->size = strlen (timebuf);
   return retc;
 }
@@ -696,7 +695,7 @@ nasl_isotime_scan (lex_ctxt *lexic)
     }
 
   retc = alloc_typed_cell (CONST_STR);
-  retc->x.str_val = estrdup (timebuf);
+  retc->x.str_val = g_strdup (timebuf);
   retc->size = strlen (timebuf);
   return retc;
 }
@@ -732,7 +731,7 @@ nasl_isotime_print (lex_ctxt *lexic)
               "%.4s-%.2s-%.2s %.2s:%.2s:%.2s",
               string, string+4, string+6, string+9, string+11, string+13);
   retc = alloc_typed_cell (CONST_STR);
-  retc->x.str_val = estrdup (helpbuf);
+  retc->x.str_val = g_strdup (helpbuf);
   retc->size = strlen (helpbuf);
   return retc;
 }
@@ -800,7 +799,7 @@ nasl_isotime_add (lex_ctxt *lexic)
     return NULL;
 
   retc = alloc_typed_cell (CONST_STR);
-  retc->x.str_val = estrdup (timebuf);
+  retc->x.str_val = g_strdup (timebuf);
   retc->size = strlen (timebuf);
   return retc;
 }
