@@ -56,10 +56,9 @@ nasl_server_recompile (char *, char *);
 /* exec_nasl_script modes */
 #define NASL_EXEC_DESCR			   (1 << 0)
 #define NASL_EXEC_PARSE_ONLY		   (1 << 1)
-#define NASL_EXEC_DONT_CLEANUP  	   (1 << 2)
-#define NASL_ALWAYS_SIGNED		   (1 << 3)
-#define NASL_COMMAND_LINE		   (1 << 4)
-#define NASL_LINT			   (1 << 5)
+#define NASL_ALWAYS_SIGNED		   (1 << 2)
+#define NASL_COMMAND_LINE		   (1 << 3)
+#define NASL_LINT			   (1 << 4)
 
 
 #define NASL_ERR_NOERR		0

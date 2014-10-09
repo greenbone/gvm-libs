@@ -1,3 +1,10 @@
+2014-10-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl.h: Remove NASL_EXEC_DONT_CLEANUP. Adjust values.
+
+	* nasl/exec.c (exec_nasl_script): Don't check for
+	NASL_EXEC_DONT_CLEANUP.
+
 2014-10-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/openvas_compress.c: Added inlude for glib and removed inlude

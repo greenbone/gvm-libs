@@ -1830,8 +1830,6 @@ exec_nasl_script (struct arglist *script_infos, const char *name, int mode)
       return -1;
     }
   g_free (old_dir);
-  if (mode & NASL_EXEC_DONT_CLEANUP)
-    return err;
 
   nasl_clean_ctx (&ctx);
   free_lex_ctxt (lexic);
