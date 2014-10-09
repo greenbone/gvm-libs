@@ -26,9 +26,6 @@
 #ifndef _OPENVAS_COMPRESS_H
 #define _OPENVAS_COMPRESS_H
 
-#include <string.h>
-#include <stdlib.h>
-
 void *
 openvas_compress (const void *, unsigned long, unsigned long *);
 

@@ -28,9 +28,8 @@
 #  define ZLIB_CONST
 #endif
 
-#include <zlib.h>
-#include "openvas_compress.h"
-
+#include <zlib.h>  /* for z_stream */
+#include <glib.h>  /* for gfree() */
 
 /**
  * @brief Compresses data in src buffer.
@@ -72,12 +71,7 @@ openvas_compress (const void *src, unsigned long srclen, unsigned long *dstlen)
       if (deflateInit (&strm, Z_DEFAULT_COMPRESSION) != Z_OK)
         return NULL;
 
-      buffer = calloc (buflen, 1);
-      if (buffer == NULL)
-        {
-          deflateEnd (&strm);
-          return NULL;
-        }
+      buffer = g_malloc0 (buflen);
       strm.avail_out = buflen;
       strm.next_out = buffer;
 
@@ -94,12 +88,12 @@ openvas_compress (const void *src, unsigned long srclen, unsigned long *dstlen)
               }
             /* Fallthrough. */
           case Z_BUF_ERROR:
-            free (buffer);
+            g_free (buffer);
             buflen *= 2;
             break;
 
           default:
-            free (buffer);
+            g_free (buffer);
             return NULL;
         }
     }
@@ -148,12 +142,7 @@ openvas_uncompress (const void *src, unsigned long srclen,
       if (inflateInit2 (&strm, 15 + 32) != Z_OK)
         return NULL;
 
-      buffer = calloc (buflen, 1);
-      if (buffer == NULL)
-        {
-          inflateEnd (&strm);
-          return NULL;
-        }
+      buffer = g_malloc0 (buflen);
       strm.avail_out = buflen;
       strm.next_out = buffer;
 
@@ -170,12 +159,12 @@ openvas_uncompress (const void *src, unsigned long srclen,
               }
             /* Fallthrough. */
           case Z_BUF_ERROR:
-            free (buffer);
+            g_free (buffer);
             buflen *= 2;
             break;
 
           default:
-            free (buffer);
+            g_free (buffer);
             return NULL;
         }
     }
