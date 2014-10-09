@@ -13,6 +13,15 @@
 
 2014-10-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* omp/xml.c (free_entity): Replace free() by g_free().
+
+	* nasl/nasl_tree.c (alloc_RE_cell): Replaced free() by
+	g_free().
+
+	* nasl/exec.c (nasl_exec): Replaced free() by g_free().
+
+2014-10-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* base/openvas_compress.c: Added inlude for glib and removed inlude
 	of own include file.
 	(openvas_compress, openvas_uncompress): Replace calloc() by g_malloc0()

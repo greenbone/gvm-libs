@@ -17,10 +17,10 @@
  *
  */
 
-#include <stdlib.h>             /* for malloc */
+#include <stdlib.h>             /* for abort */
 #include <string.h>             /* for memcpy */
 
-#include <glib.h>
+#include <glib.h>               /* for g_free */
 
 #include "regex.h"
 
@@ -78,7 +78,7 @@ alloc_RE_cell (int lnb, int t, tree_cell * l, char *re_str)
                    lnb, re_str, e, errbuf);
       g_free (re);
     }
-  free (re_str);
+  g_free (re_str);
   return c;
 }
 

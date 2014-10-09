@@ -40,7 +40,6 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <glib.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -150,8 +149,8 @@ free_entity (entity_t entity)
 {
   if (entity)
     {
-      free (entity->name);
-      free (entity->text);
+      g_free (entity->name);
+      g_free (entity->text);
       if (entity->attributes)
         g_hash_table_destroy (entity->attributes);
       if (entity->entities)
@@ -164,7 +163,7 @@ free_entity (entity_t entity)
             }
           g_slist_free (entity->entities);
         }
-      free (entity);
+      g_free (entity);
     }
 }
 
