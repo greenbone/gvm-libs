@@ -36,14 +36,9 @@
 tree_cell *
 alloc_tree_cell (int lnb, char *s)
 {
-  tree_cell *p = malloc (sizeof (tree_cell));
+  tree_cell *p = g_malloc0 (sizeof (tree_cell));
   int i;
 
-  if (p == NULL)
-    {
-      perror ("malloc");
-      abort ();
-    }
   p->type = 0;
   p->size = 0;
   p->line_nb = lnb;

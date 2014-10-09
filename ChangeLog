@@ -1,3 +1,18 @@
+2014-10-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/exec.c (cell2str): Replace malloc() by g_malloc() and
+	drop now useless test for NULL.
+
+	* nasl/nasl_tree.c (alloc_tree_cell): Replace malloc() by
+	g_malloc() and drop now useless test for NULL.
+
+	* nasl/nasl_cert.c (parse_dn_part_for_CN): Replace malloc() by
+	g_malloc() and drop now useless test for NULL.
+
+	* base/openvas_networking.c (openvas_source_addr_str,
+	openvas_source_addr6_str): Replace malloc() by g_malloc() and drop
+	now useless test for NULL.
+
 2014-10-08  Henri Doreau <henri.doreau@gmail.com>
 
 	* base/settings.c (settings_init_from_file): Fixed memory leak.

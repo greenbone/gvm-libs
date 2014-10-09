@@ -330,11 +330,8 @@ parse_dn_part_for_CN (const char *string, char **r_value)
         return NULL; /* No or odd number of digits. */
       n /= 2;
       if (found)
-        {
-          *r_value = p = malloc (n+1);
-          if (!p)
-            return NULL; /* Out of core.  */
-        }
+        *r_value = g_malloc0 (n+1);
+
       for (s1=string; n; s1 += 2, n--, p++)
         {
           if (found)
@@ -377,11 +374,8 @@ parse_dn_part_for_CN (const char *string, char **r_value)
         }
 
       if (found)
-        {
-          *r_value = p = malloc (n+1);
-          if (!p)
-            return NULL;
-        }
+        *r_value = g_malloc0 (n+1);
+
       for (s=string; n; s++, n--)
         {
           if (*s == '\\')

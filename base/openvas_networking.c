@@ -185,10 +185,7 @@ openvas_source_addr_as_addr6 (struct in6_addr *addr6)
 char *
 openvas_source_addr_str ()
 {
-  char *str = malloc (INET_ADDRSTRLEN);
-
-  if (str == NULL)
-    return NULL;
+  char *str = g_malloc0 (INET_ADDRSTRLEN);
 
   inet_ntop (AF_INET, &global_source_addr.s_addr, str, INET_ADDRSTRLEN);
   return str;
@@ -202,10 +199,7 @@ openvas_source_addr_str ()
 char *
 openvas_source_addr6_str ()
 {
-  char *str = malloc (INET6_ADDRSTRLEN);
-
-  if (str == NULL)
-    return NULL;
+  char *str = g_malloc0 (INET6_ADDRSTRLEN);
 
   inet_ntop (AF_INET6, &global_source_addr6, str, INET6_ADDRSTRLEN);
   return str;
