@@ -1,5 +1,11 @@
 2014-10-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/network.c (internal_recv): Don't preallocate buffer memory.
+	This fixes a possible memory leak that led to growing scanner process
+	size over time.
+
+2014-10-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl.h: Remove NASL_EXEC_DONT_CLEANUP. Adjust values.
 
 	* nasl/exec.c (exec_nasl_script): Don't check for

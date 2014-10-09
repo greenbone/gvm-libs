@@ -2538,19 +2538,8 @@ internal_send (int soc, char *data, int msg_type)
 int
 internal_recv (int soc, char **data, int *data_sz, int *msg_type)
 {
-  int len = 0;
-  int e;
+  int len = 0, e, type, ack, sz = *data_sz;
   char *buf = *data;
-  int sz = *data_sz;
-  int type;
-  int ack;
-
-  if (buf == NULL)
-    {
-      sz = 65535;
-      buf = g_malloc0 (sz+1);
-    }
-
 
   e = os_recv (soc, &type, sizeof (type), 0);
   if (e < 0)
@@ -2562,7 +2551,7 @@ internal_recv (int soc, char **data, int *data_sz, int *msg_type)
       if (e < 0)
         goto error;
 
-      if (len >= sz)
+      if (!buf || len >= sz)
         {
           sz = len + 1;
           buf = g_realloc (buf, sz);
