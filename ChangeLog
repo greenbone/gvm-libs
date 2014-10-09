@@ -1,5 +1,22 @@
 2014-10-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_func.c (insert_nasl_func): Replaced emalloc() by
+	g_malloc0() and estrdup() by g_strdup().
+	(nasl_func_call): Replaced emalloc() by g_malloc0() and
+	efree() by g_free().
+	(free_func): Replaced efree() by gfree() and free() by g_free().
+
+	* nasl/nasl_misc_funcs.c (nasl_make_list, nasl_make_array, nasl_keys,
+	nasl_func_named_args, nasl_gettimeofday, nasl_localtime, nasl_dec2str):
+	Replaced emalloc() by g_malloc0().
+
+	* nasl/nasl_cert.c (build_hostname_list, make_hexstring, get_name):
+	Replaced emalloc() by g_malloc0().
+	(get_name, nasl_cert_query): Replaced emalloc() by g_malloc0() and
+	estrdup() by g_strdup().
+
+2014-10-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_isotime.c (nasl_isotime_now, nasl_isotime_scan,
 	nasl_isotime_print, nasl_isotime_add): Replaced estrdup() by g_strdup().
 

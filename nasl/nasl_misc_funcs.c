@@ -32,7 +32,6 @@
 #include "kb.h"                 /* for KB_TYPE_STR */
 #include "network.h"            /* read_stream_connection_min */
 #include "plugutils.h"          /* plug_get_host_open_port */
-#include "system.h"             /* for emalloc */
 #include "openvas_compress.h"
 
 #include "nasl_tree.h"
@@ -387,7 +386,7 @@ nasl_make_list (lex_ctxt * lexic)
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = DYN_ARRAY;
-  retc->x.ref_val = a = emalloc (sizeof (nasl_array));
+  retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
 
   for (i = vi = 0; (v = nasl_get_var_by_num (&lexic->ctx_vars, vi, 0)) != NULL;
        vi++)
@@ -456,7 +455,7 @@ nasl_make_array (lex_ctxt * lexic)
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = DYN_ARRAY;
-  retc->x.ref_val = a = emalloc (sizeof (nasl_array));
+  retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
 
   vi = 0;
   while ((v = nasl_get_var_by_num (&lexic->ctx_vars, vi++, 0)) != NULL)
@@ -507,7 +506,7 @@ nasl_keys (lex_ctxt * lexic)
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = DYN_ARRAY;
-  retc->x.ref_val = a2 = emalloc (sizeof (nasl_array));
+  retc->x.ref_val = a2 = g_malloc0 (sizeof (nasl_array));
 
   bzero (&myvar, sizeof (myvar));
 
@@ -602,7 +601,7 @@ nasl_typeof (lex_ctxt * lexic)
         break;
       }
   retc->size = strlen (s);
-  retc->x.str_val = emalloc (retc->size);
+  retc->x.str_val = g_malloc0 (retc->size);
   strcpy (retc->x.str_val, s);  /* Flawfinder: ignore */
   return retc;
 }
@@ -653,7 +652,7 @@ nasl_func_named_args (lex_ctxt * lexic)
     }
 
   retc = alloc_typed_cell (DYN_ARRAY);
-  retc->x.ref_val = a = emalloc (sizeof (nasl_array));
+  retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
 
   memset (&v, 0, sizeof (v));
   v.var_type = VAR2_STRING;
@@ -811,7 +810,7 @@ nasl_gettimeofday (lex_ctxt * lexic)
   sprintf (str, "%u.%06u", (unsigned int) t.tv_sec, (unsigned int) t.tv_usec);
   retc = alloc_typed_cell (CONST_DATA);
   retc->size = strlen (str);
-  retc->x.str_val = emalloc (retc->size);
+  retc->x.str_val = g_malloc0 (retc->size);
   strcpy (retc->x.str_val, str);        /* Flawfinder: ignore */
   return retc;
 }
@@ -845,7 +844,7 @@ nasl_localtime (lex_ctxt * lexic)
     }
 
   retc = alloc_typed_cell (DYN_ARRAY);
-  retc->x.ref_val = a = emalloc (sizeof (nasl_array));
+  retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
   memset (&v, 0, sizeof (v));
   v.var_type = VAR2_INT;
 
@@ -1013,7 +1012,7 @@ nasl_dec2str (lex_ctxt * lexic)
       nasl_perror (lexic, "Syntax : dec2str(num:<n>)\n");
       return NULL;
     }
-  char *ret = emalloc (sizeof (num));
+  char *ret = g_malloc0 (sizeof (num));
   SIVAL (ret, 0, num);
   tree_cell *retc;
   retc = alloc_tree_cell (0, NULL);

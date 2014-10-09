@@ -21,8 +21,7 @@
 #include <stdlib.h>             /* for free */
 #include <string.h>             /* for strcmp */
 
-
-#include "system.h"             /* for emalloc */
+#include <glib.h>               /* for g_free */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -77,8 +76,8 @@ insert_nasl_func (lex_ctxt * lexic, const char *fname, tree_cell * decl_node)
                    fname);
       return NULL;
     }
-  pf = emalloc (sizeof (nasl_func));
-  pf->func_name = estrdup (fname);
+  pf = g_malloc0 (sizeof (nasl_func));
+  pf->func_name = g_strdup (fname);
 
   if (decl_node != NULL && decl_node != FAKE_CELL)
     {
@@ -88,10 +87,10 @@ insert_nasl_func (lex_ctxt * lexic, const char *fname, tree_cell * decl_node)
         else
           pf->nb_named_args++;
 
-      pf->args_names = emalloc (sizeof (char *) * pf->nb_named_args);
+      pf->args_names = g_malloc0 (sizeof (char *) * pf->nb_named_args);
       for (i = 0, pc = decl_node->link[0]; pc != NULL; pc = pc->link[0])
         if (pc->x.str_val != NULL)
-          pf->args_names[i++] = estrdup (pc->x.str_val);
+          pf->args_names[i++] = g_strdup (pc->x.str_val);
       /* Sort argument names */
       qsort (pf->args_names, pf->nb_named_args, sizeof (pf->args_names[0]),
              (qsortcmp)strcmp);
@@ -169,7 +168,7 @@ nasl_func_call (lex_ctxt * lexic, const nasl_func * f, tree_cell * arg_list)
 
   if (nasl_trace_fp != NULL)
     {
-      trace_buf = emalloc (TRACE_BUF_SZ);
+      trace_buf = g_malloc0 (TRACE_BUF_SZ);
       tn = snprintf (trace_buf, TRACE_BUF_SZ, "Call %s(", f->func_name);        /* RATS: ignore */
       if (tn > 0)
         trace_buf_len += tn;
@@ -256,7 +255,7 @@ nasl_func_call (lex_ctxt * lexic, const nasl_func * f, tree_cell * arg_list)
             nasl_trace (lexic, "NASL> %s)\n", trace_buf);
           else
             nasl_trace (lexic, "NASL> %s ...)\n", trace_buf);
-          efree (&trace_buf);
+          g_free (trace_buf);
         }
 
       /* 4. Chain new context to old (lexic) */
@@ -347,16 +346,17 @@ free_func (nasl_func * f)
 {
   int i;
 
-  efree (&f->func_name);
+  if (! f) return;
+
+  g_free (f->func_name);
+
   if (!(f->flags & FUNC_FLAG_INTERNAL))
     {
       for (i = 0; i < f->nb_named_args; i++)
-        efree (f->args_names + i);
-      efree (&f->func_name);
-      efree (&f->args_names);
+        g_free (f->args_names[i]);
       deref_cell (f->block);
     }
-  free (f);
+  g_free (f);
 }
 
 

@@ -45,7 +45,6 @@
 #include <gnutls/gnutls.h>
 
 #include "openvas_logging.h"
-#include "system.h"             /* for emalloc */
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
 #include "nasl_func.h"
@@ -460,7 +459,7 @@ build_hostname_list (ksba_cert_t cert)
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = DYN_ARRAY;
-  retc->x.ref_val = a = emalloc (sizeof *a);
+  retc->x.ref_val = a = g_malloc0 (sizeof *a);
   arridx = 0;
 
   value = parse_dn_for_CN (name);
@@ -517,7 +516,7 @@ make_hexstring (const void *buffer, size_t length)
 
   retc = alloc_typed_cell (CONST_STR);
   retc->size = length*2;
-  retc->x.str_val = p = emalloc (length*2 + 1);
+  retc->x.str_val = p = g_malloc0 (length*2 + 1);
 
   for (s = buffer; length; length--, s++)
     {
@@ -663,7 +662,7 @@ get_name (const char *string)
         return NULL;  /* Invalid encoding.  */
       len = gcry_sexp_sprint (sexp, GCRYSEXP_FMT_ADVANCED, NULL, 0);
       g_assert (len);
-      buffer = emalloc (len);
+      buffer = g_malloc0 (len);
       len = gcry_sexp_sprint (sexp, GCRYSEXP_FMT_ADVANCED, buffer, len);
       g_assert (len);
       len = strlen (buffer);
@@ -680,7 +679,7 @@ get_name (const char *string)
       /* RFC-2822 style mailboxes or RFC-2253 strings are returned
          verbatim.  */
       retc = alloc_typed_cell (CONST_STR);
-      retc->x.str_val = estrdup (string);
+      retc->x.str_val = g_strdup (string);
       retc->size = strlen (retc->x.str_val);
     }
 
@@ -837,14 +836,14 @@ nasl_cert_query (lex_ctxt *lexic)
     {
       ksba_cert_get_validity (obj->cert, 0, isotime);
       retc = alloc_typed_cell (CONST_STR);
-      retc->x.str_val = estrdup (isotime);
+      retc->x.str_val = g_strdup (isotime);
       retc->size = strlen (isotime);
     }
   else if (!strcmp (command, "not-after"))
     {
       ksba_cert_get_validity (obj->cert, 1, isotime);
       retc = alloc_typed_cell (CONST_STR);
-      retc->x.str_val = estrdup (isotime);
+      retc->x.str_val = g_strdup (isotime);
       retc->size = strlen (isotime);
     }
   else if (!strcmp (command, "fpr-sha-256"))
@@ -873,7 +872,7 @@ nasl_cert_query (lex_ctxt *lexic)
         {
           retc = alloc_typed_cell (CONST_DATA);
           retc->size = derlen;
-          retc->x.str_val = emalloc (derlen);
+          retc->x.str_val = g_malloc0 (derlen);
           memcpy (retc->x.str_val, der, derlen);
         }
     }
@@ -886,7 +885,7 @@ nasl_cert_query (lex_ctxt *lexic)
           if (!name)
             name = digest;
           retc = alloc_typed_cell (CONST_STR);
-          retc->x.str_val = estrdup (name);
+          retc->x.str_val = g_strdup (name);
           retc->size = strlen (name);
         }
     }
