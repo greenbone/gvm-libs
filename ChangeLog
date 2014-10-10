@@ -1,5 +1,14 @@
 2014-10-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/nvti.c, base/nvti.h (nvtis_new, nvtis_free, nvtis_add)
+	(nvtis_lookup, free_nvti_for_hash_table): Restore functions as they are
+	still used in Manager.
+
+	* base/nvticache.c (nvticache_init): Fix hash table initialization to
+	free memory correctly.
+
+2014-10-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Decrease the in-memory nvti cache size, reducing the memory consumption
 	of all scanner processes by ~6m.
 

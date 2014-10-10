@@ -66,7 +66,7 @@ nvticache_init (const gchar *cache_path, const gchar *src_path)
   if (src_path)
     nvticache->src_path = g_strdup (src_path);
 
-  nvticache->nvtis = g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
+  nvticache->nvtis = g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
                                             g_free);
 }
 
