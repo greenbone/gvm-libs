@@ -97,7 +97,6 @@ typedef struct nvti
 
 nvti_t *nvti_new (void);
 void nvti_free (nvti_t *);
-void nvti_shrink (nvti_t *);
 
 gchar *nvti_oid (const nvti_t *);
 gchar *nvti_version (const nvti_t *);
@@ -154,23 +153,5 @@ int nvti_add_pref (nvti_t *, nvtpref_t *);
 
 nvti_t *nvti_from_keyfile (const gchar *);
 int nvti_to_keyfile (const nvti_t *, const gchar *);
-
-/* Collections of NVT Infos. */
-
-/**
- * @brief A collection of information records corresponding to NVTs.
- */
-typedef GHashTable nvtis_t;
-
-nvtis_t *nvtis_new ();
-
-void nvtis_free (nvtis_t *);
-
-void nvtis_add (nvtis_t *, nvti_t *);
-void nvtis_remove (nvtis_t *, nvti_t *);
-
-nvti_t *nvtis_lookup (nvtis_t *, const char *);
-
-#define nvtis_find g_hash_table_find
 
 #endif /* not _NVTI_H */

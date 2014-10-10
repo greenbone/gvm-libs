@@ -66,7 +66,8 @@ nvticache_init (const gchar *cache_path, const gchar *src_path)
   if (src_path)
     nvticache->src_path = g_strdup (src_path);
 
-  nvticache->nvtis = nvtis_new ();
+  nvticache->nvtis = g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
+                                            g_free);
 }
 
 /**
@@ -80,7 +81,7 @@ nvticache_free ()
     g_free (nvticache->cache_path);
   if (nvticache->src_path)
     g_free (nvticache->src_path);
-  nvtis_free (nvticache->nvtis);
+  g_hash_table_destroy (nvticache->nvtis);
   g_free (nvticache);
   nvticache = NULL;
 }
@@ -94,12 +95,12 @@ nvticache_free ()
  *                 "subdir1/subdir2/scriptname2.nasl" )
  *
  * @return NULL in case the data could not be delivered.
- *         Else a nvti structure.
+ *         Else a nvti structure that should be freed with nvti_free().
  */
-const nvti_t *
+nvti_t *
 nvticache_get (const gchar *filename)
 {
-  nvti_t *n = NULL, *n2;
+  nvti_t *n = NULL;
   char *src_file, *dummy, *cache_file;
   struct stat src_stat;
   struct stat cache_stat;
@@ -123,15 +124,14 @@ nvticache_get (const gchar *filename)
   if (!n || !(nvti_oid (n))) return NULL;
 
   /* Check for duplicate OID. */
-  n2 = nvtis_lookup (nvticache->nvtis, nvti_oid (n));
-  if (n2)
+  if (g_hash_table_lookup (nvticache->nvtis, nvti_oid (n)))
     {
       log_legacy_write ("NVT with duplicate OID %s will be replaced with %s\n",
                         nvti_oid (n), filename);
-      nvtis_remove (nvticache->nvtis, n2);
+      g_hash_table_remove (nvticache->nvtis, nvti_oid (n));
     }
-  nvti_shrink (n);
-  nvtis_add (nvticache->nvtis, n);
+  g_hash_table_insert (nvticache->nvtis, g_strdup (nvti_oid (n)),
+                       g_strdup (nvti_src (n)));
   return n;
 }
 
@@ -148,7 +148,7 @@ nvticache_get (const gchar *filename)
  * @return 0 in case of success, anything else indicates an error.
  */
 int
-nvticache_add (nvti_t * nvti, gchar * filename)
+nvticache_add (const nvti_t *nvti, const char *filename)
 {
   gchar *cache_file, *dummy;
   int result;
@@ -174,17 +174,17 @@ nvticache_add (nvti_t * nvti, gchar * filename)
 nvti_t *
 nvticache_get_by_oid_full (const char * oid)
 {
-  const nvti_t * nvti;
   nvti_t *cache_nvti;
-  char *dummy, *filename, *cache_file;
+  char *dummy, *cache_file;
+  const char *filename;
 
   assert (nvticache);
 
-  if (!(nvti = nvtis_lookup (nvticache->nvtis, oid)))
+  filename = g_hash_table_lookup (nvticache->nvtis, oid);
+  if (!filename)
     return NULL;
 
   /* Retrieve the full version from the on disk cache. */
-  filename = nvti_src (nvti);
   filename += strlen (nvticache->src_path);
 
   dummy = g_build_filename (nvticache->cache_path, filename, NULL);
@@ -194,24 +194,4 @@ nvticache_get_by_oid_full (const char * oid)
   g_free (dummy);
   g_free (cache_file);
   return cache_nvti;
-}
-
-/**
- * @brief Get the src element of a NVT Information from the
- * cache by OID.
- *
- * @param oid      The OID to look up
- *
- * @return A copy of the src or NULL if not found. This needs to
- *         to be free'd.
- */
-gchar *
-nvticache_get_src_by_oid (const gchar * oid)
-{
-  nvti_t * nvti;
-
-  assert (nvticache);
-
-  nvti = nvtis_lookup (nvticache->nvtis, oid);
-  return g_strdup (nvti_src (nvti));
 }

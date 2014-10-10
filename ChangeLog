@@ -1,3 +1,25 @@
+2014-10-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Decrease the in-memory nvti cache size, reducing the memory consumption
+	of all scanner processes by ~6m.
+
+	* base/nvticache.c (nvticache_init, nvticache_free): Call glib hash
+	table helpers directly.
+	(nvticache_get): Insert the nvti's src as hash table value instead of
+	the whole nvti struct. Return the nvti directly to the caller, who
+	should free it accordingly.
+	(nvticache_get_by_oid_full): Adjust for the nvti src value being stored
+	directly in the hash table.
+	(nvticache_get_src_by_oid): Remove unused function.
+
+	* base/nvticache.h: Adjust and remove functions prototypes.
+
+	* base/nvti.c (free_nvti_for_hash_table, nvtis_new, nvtis_free)
+	(nvtis_add, nvtis_remove, nvtis_lookup, nvti_shrink): Remove unused
+	functions.
+
+	* base/nvti.h: Remove deleted functions prototypes and nvtis_t typedef.
+
 2014-10-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_func.c (insert_nasl_func): Replaced emalloc() by

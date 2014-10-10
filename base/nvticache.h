@@ -49,7 +49,7 @@ typedef struct nvticache
 {
   gchar *cache_path;    ///< The directory where the cache is located
   gchar *src_path;      ///< The directory where the primary source is located
-  nvtis_t *nvtis;       ///< Collection of NVT Information cached in memory
+  GHashTable *nvtis;    ///< Collection of NVT Information cached in memory
 } nvticache_t;
 
 void
@@ -58,16 +58,13 @@ nvticache_init (const gchar *, const gchar *);
 void
 nvticache_free ();
 
-const nvti_t *
+nvti_t *
 nvticache_get (const gchar *);
 
 int
-nvticache_add (nvti_t *, gchar *);
+nvticache_add (const nvti_t *, const char *);
 
 nvti_t *
 nvticache_get_by_oid_full (const char *);
-
-gchar *
-nvticache_get_src_by_oid (const gchar *);
 
 #endif /* not _NVTICACHE_H */
