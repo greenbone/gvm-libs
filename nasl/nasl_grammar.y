@@ -1104,12 +1104,7 @@ mylex(lvalp, parm)
 	  int	offs = p - ctx->buffer;
 	  char	*buf2;
 	  ctx->maxlen += 80;
-	  buf2 = erealloc(ctx->buffer, ctx->maxlen + 1);
-	  if (buf2 == NULL)
-	    {
-	      perror("realloc");
-	      abort();
-	    }
+	  buf2 = g_realloc(ctx->buffer, ctx->maxlen + 1);
 	  p = buf2 + offs;
 	  ctx->buffer = buf2;
 	}

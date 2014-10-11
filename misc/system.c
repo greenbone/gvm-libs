@@ -52,10 +52,3 @@ efree (void *ptr)
       *p = NULL;
     }
 }
-
-void *
-erealloc (void *ptr, size_t size)
-{
-  return  g_realloc (ptr, size);
-}
-

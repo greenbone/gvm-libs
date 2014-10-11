@@ -29,7 +29,6 @@
 #include <stddef.h>
 
 void *emalloc (size_t);
-void *erealloc (void *, size_t);
 void efree (void *);
 
 #endif

@@ -1,5 +1,14 @@
 2014-10-11  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/system.c (erealloc):  Removed as all uses are eliminated now.
+
+	* misc/system.h: Removed proto accordingly.
+
+	* nasl/nasl_grammar.y (mylex): Replaced erealloc() by g_realloc().
+	Don't check for NULL anymore as this makes no sense anymore.
+
+2014-10-11  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/system.c (estrdup): Removed as all uses are eliminated now.
 
 	* misc/system.h: Removed proto accordingly.
