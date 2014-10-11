@@ -19,10 +19,9 @@
 
 #include <arpa/inet.h>          /* for inet_ntoa */
 #include <string.h>             /* for bcopy */
-
+#include <glib.h>               /* for gfree */
 #include "bpf_share.h"          /* for bpf_datalink */
 #include "pcap_openvas.h"       /* for get_datalink_size */
-#include "system.h"             /* for estrdup */
 
 #include <pcap.h>
 
@@ -30,8 +29,6 @@
 #include <netinet/ip.h>
 
 extern int islocalhost (struct in_addr *);
-
-
 
 
 /**
@@ -49,12 +46,12 @@ init_capture_device (struct in_addr src, struct in_addr dst, char *filter)
   char errbuf[PCAP_ERRBUF_SIZE];
   int free_filter = 0;
 
-  a_src = estrdup (inet_ntoa (src));
-  a_dst = estrdup (inet_ntoa (dst));
+  a_src = g_strdup (inet_ntoa (src));
+  a_dst = g_strdup (inet_ntoa (dst));
 
   if ((filter == NULL) || (filter[0] == '\0') || (filter[0] == '0'))
     {
-      filter = emalloc (256);
+      filter = g_malloc0 (256);
       free_filter = 1;
       if (islocalhost (&src) == 0)
         snprintf (filter, 256, "ip and (src host %s and dst host %s)",  /* RATS: ignore */
@@ -64,14 +61,14 @@ init_capture_device (struct in_addr src, struct in_addr dst, char *filter)
   else
     {
       if (islocalhost (&src) == 0)
-        filter = estrdup (filter);
+        filter = g_strdup (filter);
       else
-        filter = emalloc (1);
+        filter = g_malloc0 (1);
       free_filter = 1;
     }
 
-  efree (&a_dst);
-  efree (&a_src);
+  g_free (a_dst);
+  g_free (a_src);
 
   if ((interface = routethrough (&src, &dst))
       || (interface = pcap_lookupdev (errbuf)))
@@ -79,7 +76,7 @@ init_capture_device (struct in_addr src, struct in_addr dst, char *filter)
 
 
   if (free_filter != 0)
-    efree (&filter);
+    g_free (filter);
 
   return ret;
 }
@@ -134,7 +131,7 @@ capture_next_packet (int bpf, int timeout, int *sz)
       ip->ip_off = ntohs (ip->ip_off);
 #endif
       ip->ip_id = ntohs (ip->ip_id);
-      ret = emalloc (len - dl_len);
+      ret = g_malloc0 (len - dl_len);
       bcopy (ip, ret, len - dl_len);
       if (sz != NULL)
         *sz = len - dl_len;
@@ -153,12 +150,12 @@ init_v6_capture_device (struct in6_addr src, struct in6_addr dst, char *filter)
   char name[INET6_ADDRSTRLEN];
   char errbuf[PCAP_ERRBUF_SIZE];
 
-  a_src = estrdup (inet_ntop (AF_INET6, &src, name, INET6_ADDRSTRLEN));
-  a_dst = estrdup (inet_ntop (AF_INET6, &dst, name, INET6_ADDRSTRLEN));
+  a_src = g_strdup (inet_ntop (AF_INET6, &src, name, INET6_ADDRSTRLEN));
+  a_dst = g_strdup (inet_ntop (AF_INET6, &dst, name, INET6_ADDRSTRLEN));
 
   if ((filter == NULL) || (filter[0] == '\0') || (filter[0] == '0'))
     {
-      filter = emalloc (256);
+      filter = g_malloc0 (256);
       free_filter = 1;
       if (v6_islocalhost (&src) == 0)
         snprintf (filter, 256, "ip and (src host %s and dst host %s", a_src,
@@ -167,21 +164,21 @@ init_v6_capture_device (struct in6_addr src, struct in6_addr dst, char *filter)
   else
     {
       if (v6_islocalhost (&src) == 0)
-        filter = estrdup (filter);
+        filter = g_strdup (filter);
       else
-        filter = emalloc (1);
+        filter = g_malloc0 (1);
       free_filter = 1;
     }
 
-  efree (&a_dst);
-  efree (&a_src);
+  g_free (a_dst);
+  g_free (a_src);
 
   if ((interface = v6_routethrough (&src, &dst))
       || (interface = pcap_lookupdev (errbuf)))
     ret = bpf_open_live (interface, filter);
 
   if (free_filter != 0)
-    efree (&filter);
+    g_free (filter);
 
   return ret;
 }
@@ -236,7 +233,7 @@ capture_next_v6_packet (int bpf, int timeout, int *sz)
 #ifdef BSD_BYTE_ORDERING
       ip6->ip6_plen = ntohs (ip6->ip6_plen);
 #endif
-      ret = emalloc (len - dl_len);
+      ret = g_malloc0 (len - dl_len);
       bcopy (ip6, ret, len - dl_len);
       if (sz != NULL)
         *sz = len - dl_len;

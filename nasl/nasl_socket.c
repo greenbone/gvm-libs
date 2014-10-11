@@ -49,7 +49,6 @@
 #include "network.h"
 #include "openvas_networking.h" /* for openvas_source_set_socket */
 #include "plugutils.h"          /* for plug_get_host_ip */
-#include "system.h"             /* for efree */
 #include "../misc/openvas_logging.h"
 
 #include "nasl.h"
@@ -683,8 +682,7 @@ nasl_recv (lex_ctxt * lexic)
   tv.tv_sec = to;
   tv.tv_usec = 0;
 
-
-  data = emalloc (len);
+  data = g_malloc0 (len);
   if (!fd_is_stream (soc))
     e = getsockopt (soc, SOL_SOCKET, SO_TYPE, &type, &opt_len);
   else
@@ -713,7 +711,7 @@ nasl_recv (lex_ctxt * lexic)
                 {
                   if (!new_len)
                     {
-                      efree (&data);
+                      g_free (data);
                       return NULL;
                     }
                   else
@@ -753,12 +751,12 @@ nasl_recv (lex_ctxt * lexic)
       retc->type = CONST_DATA;
       retc->x.str_val = g_memdup (data, new_len + 1);
       retc->size = new_len;
-      efree (&data);
+      g_free (data);
       return retc;
     }
   else
     {
-      efree (&data);
+      g_free (data);
       return NULL;
     }
 }
@@ -794,7 +792,7 @@ nasl_recv_line (lex_ctxt * lexic)
         stream_set_buffer (soc, len + 1);
     }
 
-  data = emalloc (len + 1);
+  data = g_malloc0 (len + 1);
   for (;;)
     {
       int e = read_stream_connection_min (soc, data + n, 1, 1);
@@ -816,7 +814,7 @@ nasl_recv_line (lex_ctxt * lexic)
 
   if (n <= 0)
     {
-      efree (&data);
+      g_free (data);
       return NULL;
     }
 
@@ -829,7 +827,7 @@ nasl_recv_line (lex_ctxt * lexic)
   retc->size = new_len;
   retc->x.str_val = g_memdup (data, new_len + 1);
 
-  efree (&data);
+  g_free (data);
 
   return retc;
 }
@@ -968,8 +966,6 @@ nasl_join_multicast_group (lex_ctxt * lexic)
   int i, j;
   struct ip_mreq m;
   tree_cell *retc = NULL;
-  void *p;
-
 
   a = get_str_var_by_num (lexic, 0);
   if (a == NULL)
@@ -1017,14 +1013,7 @@ nasl_join_multicast_group (lex_ctxt * lexic)
 
       if (j < 0)
         {
-          p = erealloc (jmg_desc, sizeof (*jmg_desc) * (jmg_max + 1));
-          if (p == NULL)
-            {
-              nasl_perror (lexic, "join_multicast_group: realloc failed\n");
-              close (s);
-              return NULL;
-            }
-          jmg_desc = p;
+          jmg_desc = g_realloc (jmg_desc, sizeof (*jmg_desc) * (jmg_max + 1));
           j = jmg_max++;
         }
       jmg_desc[j].s = s;
@@ -1267,7 +1256,7 @@ nasl_get_sock_info (lex_ctxt * lexic)
   else if (!strcmp (keyword, "encaps"))
     {
       if (as_string)
-        strval = estrdup (get_encaps_name (transport));
+        strval = g_strdup (get_encaps_name (transport));
       else
         intval = transport;
     }
@@ -1278,7 +1267,7 @@ nasl_get_sock_info (lex_ctxt * lexic)
       else
         s = gnutls_protocol_get_name
           (gnutls_protocol_get_version (tls_session));
-      strval = estrdup (s?s:"[?]");
+      strval = g_strdup (s?s:"[?]");
     }
   else if (!strcmp (keyword, "tls-kx"))
     {
@@ -1286,7 +1275,7 @@ nasl_get_sock_info (lex_ctxt * lexic)
         s = "n/a";
       else
         s = gnutls_kx_get_name (gnutls_kx_get (tls_session));
-      strval = estrdup (s?s:"");
+      strval = g_strdup (s?s:"");
     }
   else if (!strcmp (keyword, "tls-certtype"))
     {
@@ -1295,7 +1284,7 @@ nasl_get_sock_info (lex_ctxt * lexic)
       else
         s = gnutls_certificate_type_get_name
           (gnutls_certificate_type_get (tls_session));
-      strval = estrdup (s?s:"");
+      strval = g_strdup (s?s:"");
     }
   else if (!strcmp (keyword, "tls-cipher"))
     {
@@ -1303,7 +1292,7 @@ nasl_get_sock_info (lex_ctxt * lexic)
         s = "n/a";
       else
         s = gnutls_cipher_get_name (gnutls_cipher_get (tls_session));
-      strval = estrdup (s?s:"");
+      strval = g_strdup (s?s:"");
     }
   else if (!strcmp (keyword, "tls-mac"))
     {
@@ -1311,7 +1300,7 @@ nasl_get_sock_info (lex_ctxt * lexic)
         s = "n/a";
       else
         s = gnutls_mac_get_name (gnutls_mac_get (tls_session));
-      strval = estrdup (s?s:"");
+      strval = g_strdup (s?s:"");
     }
   else if (!strcmp (keyword, "tls-comp"))
     {
@@ -1320,7 +1309,7 @@ nasl_get_sock_info (lex_ctxt * lexic)
       else
         s = gnutls_compression_get_name
           (gnutls_compression_get (tls_session));
-      strval = estrdup (s?s:"");
+      strval = g_strdup (s?s:"");
     }
   else if (!strcmp (keyword, "tls-auth"))
     {
@@ -1337,7 +1326,7 @@ nasl_get_sock_info (lex_ctxt * lexic)
             default:                     s = "[?]";  break;
             }
         }
-      strval = estrdup (s?s:"");
+      strval = g_strdup (s?s:"");
     }
   else if (!strcmp (keyword, "tls-cert"))
     {
@@ -1359,7 +1348,7 @@ nasl_get_sock_info (lex_ctxt * lexic)
               int i;
               retc = alloc_tree_cell (0, NULL);
               retc->type = DYN_ARRAY;
-              retc->x.ref_val = a = emalloc (sizeof *a);
+              retc->x.ref_val = a = g_malloc0 (sizeof *a);
 
               for (i=0; i < nlist; i++)
                 {

@@ -1,3 +1,16 @@
+2014-10-11  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_socket.c (nasl_recv, nasl_recv_line): Replaced emalloc() by g_malloc0()
+	and efree() by g_free().
+	(nasl_join_multicast_group): Replaced erealloc() by g_realloc() and removed
+	subsequent and now useless test for NULL.
+	(nasl_get_sock_info): Replaced estrdup() by g_strdup() and emalloc() by g_malloc0().
+
+	* nasl/capture_packet.c (init_capture_device, init_v6_capture_device): Replaced
+	estrdup() by g_strdup(), emalloc() by gmalloc0() and efree() by g_free().
+	(capture_next_packet): Replaced emalloc() by gmalloc0().
+	(capture_next_v6_packet): Replaced emalloc() by g_malloc0().
+
 2014-10-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/nvti.c, base/nvti.h (nvtis_new, nvtis_free, nvtis_add)
