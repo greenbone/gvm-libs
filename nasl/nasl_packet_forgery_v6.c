@@ -270,7 +270,7 @@ get_ipv6_element (lex_ctxt * lexic)
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = strlen (ret_ascii);
-  retc->x.str_val = estrdup (ret_ascii);
+  retc->x.str_val = g_strdup (ret_ascii);
 
   return retc;
 }

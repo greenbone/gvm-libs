@@ -1126,7 +1126,7 @@ mylex(lvalp, parm)
 
     case ST_STRING2:
       r = STRING2;
-      lvalp->str = estrdup(ctx->buffer);
+      lvalp->str = g_strdup(ctx->buffer);
       return r;
 
     case ST_STRING1:
@@ -1170,7 +1170,7 @@ mylex(lvalp, parm)
       else
 	{
 	  r = IDENT;
-	  lvalp->str = estrdup(ctx->buffer);
+	  lvalp->str = g_strdup(ctx->buffer);
 	  return r;
 	}
       return r;

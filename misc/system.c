@@ -42,26 +42,6 @@ emalloc (size_t size)
   return g_malloc0 (size + 1);
 }
 
-char *
-estrdup (const char *str)
-{
-  char *buf;
-  int len;
-
-  if (!str)
-    return NULL;
-  len = strlen (str);           /* Flawfinder: ignore. XXX: there is not
-                                   much to do about it(?) */
-
-  buf = emalloc (len + 1);
-  /* emalloc() is defined to always return sufficient
-   * memory, thus return value is not tested. */
-  memcpy (buf, str, len);       /* Flawfinder: ignore */
-  buf[len] = '\0';
-  return buf;
-}
-
-
 void
 efree (void *ptr)
 {

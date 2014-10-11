@@ -179,11 +179,11 @@ nasl_wmi_connect (lex_ctxt * lexic)
     {
       struct in_addr v4_addr;
       v4_addr.s_addr = host->s6_addr32[3];
-      ip = estrdup (inet_ntoa (v4_addr));
+      ip = g_strdup (inet_ntoa (v4_addr));
     }
   else
     {
-      ip = estrdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
+      ip = g_strdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
     }
 
   if ((strlen (password) == 0) || (strlen (username) == 0)
@@ -348,11 +348,11 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
     {
       struct in_addr v4_addr;
       v4_addr.s_addr = host->s6_addr32[3];
-      ip = estrdup (inet_ntoa (v4_addr));
+      ip = g_strdup (inet_ntoa (v4_addr));
     }
   else
     {
-      ip = estrdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
+      ip = g_strdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
     }
 
   if ((strlen (password) == 0) || (strlen (username) == 0)
@@ -478,11 +478,11 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
     {
       struct in_addr v4_addr;
       v4_addr.s_addr = host->s6_addr32[3];
-      ip = estrdup (inet_ntoa (v4_addr));
+      ip = g_strdup (inet_ntoa (v4_addr));
     }
   else
     {
-      ip = estrdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
+      ip = g_strdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
     }
 
   if ((strlen (password) == 0) || (strlen (username) == 0)
