@@ -534,7 +534,7 @@ forge_tcp_v6_packet (lex_ctxt * lexic)
       tcp->th_sum =
         np_in_cksum ((unsigned short *) tcpsumdata,
                      38 + sizeof (struct tcphdr) + len);
-      efree (&tcpsumdata);
+      g_free (tcpsumdata);
     }
 
   retc->size = ipsz + sizeof (struct tcphdr) + len;
@@ -716,7 +716,7 @@ set_tcp_v6_elements (lex_ctxt * lexic)
       tcp->th_sum =
         np_in_cksum ((unsigned short *) tcpsumdata,
                      38 + sizeof (struct tcphdr) + data_len);
-      efree (&tcpsumdata);
+      g_free (tcpsumdata);
     }
 
   retc = alloc_tree_cell (0, NULL);
@@ -896,7 +896,7 @@ forge_udp_v6_packet (lex_ctxt * lexic)
           udp->uh_sum =
             np_in_cksum ((unsigned short *) udpsumdata,
                          38 + sizeof (struct udphdr) + data_len);
-          efree (&udpsumdata);
+          g_free (udpsumdata);
         }
 
 
@@ -1094,7 +1094,7 @@ set_udp_v6_elements (lex_ctxt * lexic)
             np_in_cksum ((unsigned short *) udpsumdata,
                          38 + sizeof (struct udphdr) + (len % 2 ? len +
                                                         1 : len));
-          efree (&udpsumdata);
+          g_free (udpsumdata);
         }
       retc = alloc_tree_cell (0, NULL);
       retc->type = CONST_DATA;
@@ -1350,7 +1350,7 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
             bcopy ((char *) data, icmpsumdata + sizeof (pseudohdr), len);
           icmp->icmp6_cksum =
             np_in_cksum ((unsigned short *) icmpsumdata, size);
-          efree (&icmpsumdata);
+          g_free (icmpsumdata);
         }
       else
         icmp->icmp6_cksum =
@@ -1769,7 +1769,7 @@ nasl_send_v6packet (lex_ctxt * lexic)
                      &&
                      (!memcmp (answer, (char *) ip, sizeof (struct ip6_hdr))))
                 {
-                  efree (&answer);
+                  g_free (answer);
                   answer =
                     (u_char *) capture_next_v6_packet (bpf, to, &answer_sz);
                 }

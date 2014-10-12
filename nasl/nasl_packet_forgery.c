@@ -546,7 +546,7 @@ forge_tcp_packet (lex_ctxt * lexic)
       tcp->th_sum =
         np_in_cksum ((unsigned short *) tcpsumdata,
                      12 + sizeof (struct tcphdr) + len);
-      efree (&tcpsumdata);
+      g_free (tcpsumdata);
     }
 
 
@@ -728,7 +728,7 @@ set_tcp_elements (lex_ctxt * lexic)
       tcp->th_sum =
         np_in_cksum ((unsigned short *) tcpsumdata,
                      sizeof (pseudoheader) + data_len);
-      efree (&tcpsumdata);
+      g_free (tcpsumdata);
     }
 
   retc = alloc_tree_cell (0, NULL);
@@ -905,7 +905,7 @@ forge_udp_packet (lex_ctxt * lexic)
           udp->uh_sum =
             np_in_cksum ((unsigned short *) udpsumdata,
                          12 + sizeof (struct udphdr) + data_len);
-          efree (&udpsumdata);
+          g_free (udpsumdata);
         }
 
 
@@ -1107,7 +1107,7 @@ set_udp_elements (lex_ctxt * lexic)
           udp->uh_sum =
             np_in_cksum ((unsigned short *) udpsumdata,
                          12 + sizeof (struct udphdr) + len);
-          efree (&udpsumdata);
+          g_free (udpsumdata);
         }
       retc = alloc_tree_cell (0, NULL);
       retc->type = CONST_DATA;
@@ -1610,7 +1610,7 @@ nasl_send_packet (lex_ctxt * lexic)
               while (answer != NULL
                      && (!memcmp (answer, (char *) ip, sizeof (struct ip))))
                 {
-                  efree (&answer);
+                  g_free (answer);
                   answer = (u_char *) capture_next_packet (bpf, to, &answer_sz);
                 }
 
@@ -1828,7 +1828,7 @@ nasl_send_capture (lex_ctxt * lexic)
       struct timeval then, now;
 
       retc = nasl_send (lexic);
-      efree (&retc);
+      g_free (retc);
 
       gettimeofday (&then, NULL);
       for (;;)

@@ -23,7 +23,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <string.h> /* for strlen */
 #include <glib.h>   /* for g_malloc0 */
 
 /**
@@ -40,15 +39,4 @@ emalloc (size_t size)
      before using g_malloc0 directly. */
 
   return g_malloc0 (size + 1);
-}
-
-void
-efree (void *ptr)
-{
-  char **p = ptr;
-  if (p && *p)
-    {
-      g_free (*p);
-      *p = NULL;
-    }
 }

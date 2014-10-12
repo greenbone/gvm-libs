@@ -31,7 +31,7 @@
 #include <string.h> /* for strlen */
 #include <sys/stat.h> /* for stat */
 
-#include "system.h" /* for efree */
+#include "system.h" /* for emalloc */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -304,14 +304,15 @@ inc: INCLUDE '(' string ')'
 	      else
 		nasl_perror(NULL, "%s: Parse error at or near line %d\n",
 			$3, subctx.line_nb);
-	      efree(&subctx.buffer);
+	      g_free(subctx.buffer);
+	      subctx.buffer = NULL;
 	      fclose(subctx.fp);
 	      subctx.fp = NULL;
-	      efree(& $3);
+	      g_free($3);
 	    }
           else
             {
-              efree(& $3);
+              g_free($3);
               return -2;
             }
 	} ;
@@ -593,7 +594,8 @@ nasl_clean_ctx(naslctxt* c)
   nasl_dump_tree(c->tree);
 #endif
   deref_cell(c->tree);
-  efree(&c->buffer);
+  g_free(c->buffer);
+  c->buffer = NULL;
   if (c->fp)
     {
       fclose(c->fp);

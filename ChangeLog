@@ -1,5 +1,22 @@
 2014-10-11  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/system.c (efree):  Removed as all uses are eliminated now.
+
+	* misc/system.h: Removed proto accordingly.
+
+	* nasl/nasl_grammar.y (inc, nasl_clean_ctx): Replaced efree() by
+	g_free().
+
+	* nasl/nasl_packet_forgery.c (forge_tcp_packet, set_tcp_elements,
+	forge_udp_packet, set_udp_elements, nasl_send_packet,
+	nasl_send_capture): Replaced efree() by g_free().
+
+	* nasl/nasl_packet_forgery_v6.c (forge_tcp_v6_packet, set_tcp_v6_elements,
+	forge_udp_v6_packet, set_udp_v6_elements, forge_icmp_v6_packet,
+	nasl_send_v6packet): Replaced efree() by g_free().
+
+2014-10-11  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/system.c (erealloc):  Removed as all uses are eliminated now.
 
 	* misc/system.h: Removed proto accordingly.
