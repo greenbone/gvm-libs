@@ -1,4 +1,9 @@
-2014-10-11  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+2014-10-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* doc/wmi-howto.txt: Updated for an updated patch that
+	does not use emalloc anymore but rather g_malloc0.
+
+2014-10-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/system.c (efree):  Removed as all uses are eliminated now.
 
