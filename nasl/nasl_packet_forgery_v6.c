@@ -1226,7 +1226,7 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
               bcopy (data, &(p[8]), len);
             routersolicit = g_malloc0 (sizeof (struct nd_router_solicit));
             pkt =
-              realloc (pkt, ip6_sz + sizeof (struct nd_router_solicit) + len);
+              g_realloc (pkt, ip6_sz + sizeof (struct nd_router_solicit) + len);
             ip6_icmp = (struct ip6_hdr *) pkt;
             p = (char *) (pkt + ip6_sz);
             struct icmp6_hdr *rs = &routersolicit->nd_rs_hdr;
@@ -1244,7 +1244,7 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
               bcopy (data, &(p[8]), len);
             routeradvert = g_malloc0 (sizeof (struct nd_router_advert));
             /*do we need lifetime?? Not taking lifetime?? */
-            pkt = realloc (pkt, ip6_sz + sizeof (struct nd_router_advert) - 8 + len);   /*not taking lifetime(8 bytes) into consideration */
+            pkt = g_realloc (pkt, ip6_sz + sizeof (struct nd_router_advert) - 8 + len);   /*not taking lifetime(8 bytes) into consideration */
             ip6_icmp = (struct ip6_hdr *) pkt;
             p = (char *) (pkt + ip6_sz);
             struct icmp6_hdr *ra = &routeradvert->nd_ra_hdr;
@@ -1267,7 +1267,7 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
           {
             neighborsolicit = g_malloc0 (sizeof (struct nd_neighbor_solicit));
             pkt =
-              realloc (pkt, ip6_sz + sizeof (struct nd_neighbor_solicit) + len);
+              g_realloc (pkt, ip6_sz + sizeof (struct nd_neighbor_solicit) + len);
             ip6_icmp = (struct ip6_hdr *) pkt;
             p = (char *) (pkt + ip6_sz);
             struct icmp6_hdr *ns = &neighborsolicit->nd_ns_hdr;
@@ -1286,7 +1286,7 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
           {
             neighboradvert = g_malloc0 (sizeof (struct nd_neighbor_advert));
             pkt =
-              realloc (pkt, ip6_sz + sizeof (struct nd_neighbor_advert) + len);
+              g_realloc (pkt, ip6_sz + sizeof (struct nd_neighbor_advert) + len);
             ip6_icmp = (struct ip6_hdr *) pkt;
             p = (char *) (pkt + 40);
             struct icmp6_hdr *na = &neighboradvert->nd_na_hdr;
@@ -1308,7 +1308,7 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
                   {
                     nasl_perror (lexic,
                                  "forge_icmp_v6_packet: missing 'target' parameter required for constructing response to a Neighbor Solicitation\n");
-                    free (ip6_icmp);
+                    g_free (ip6_icmp);
                     return NULL;
                   }
               }

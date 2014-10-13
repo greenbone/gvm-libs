@@ -1,5 +1,13 @@
 2014-10-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_packet_forgery_v6.c (forge_icmp_v6_packet): Replaced
+	realloc() by g_realloc() and free() by g_free().
+
+	* nasl/nasl_cert.c (parse_dn_for_CN, build_hostname_list): Replaced
+	free() by g_free().
+
+2014-10-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_wmi.c (nasl_wmi_connect, nasl_wmi_connect_rsop,
 	nasl_wmi_connect_reg): Replaced emalloc() by g_malloc0().
 

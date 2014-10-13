@@ -436,7 +436,7 @@ parse_dn_for_CN (const char *string)
   return value;
 
  failure:
-  free (value);
+  g_free (value);
   return NULL;
 }
 
@@ -475,7 +475,7 @@ build_hostname_list (ksba_cert_t cert)
       v.v.v_str.s_siz = strlen (value);
       add_var_to_list (a, arridx++, &v);
     }
-  free (value);
+  g_free (value);
   value = NULL;
 
   for (idx=1; (name = ksba_cert_get_subject (cert, idx)); idx++)
