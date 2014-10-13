@@ -26,6 +26,7 @@ base/credentials.[c|h]: GPLv2+
 base/cvss.[c|h]: GPLv2+
 base/drop_privileges.[c|h]: GPLv2+
 base/gpgme_util.[c|h]: GPLv2+
+base/hash_table_file.[c|h]: GPLv2+
 base/nvti.[c|h]: GPLv2+
 base/nvticache.[c|h]: GPLv2+
 base/openvas_file.[c|h]: GPLv2+
@@ -42,7 +43,6 @@ misc/bpf_share.c: GPLv2
 misc/bpf_share.h: LGPLv2+
 misc/CMakeLists.txt: GPLv2
 misc/ftp_funcs.[c|h]: LGPLv2+
-misc/hash_table_file.[c|h]: GPLv2+
 misc/ids_send.[c|h]: LGPLv2+
 misc/internal_com.h: GPLv2+
 misc/kb.h: GPLv2+
