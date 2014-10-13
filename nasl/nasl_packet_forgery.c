@@ -29,7 +29,6 @@
 #include "bpf_share.h"          /* for bpf_open_live */
 #include "pcap_openvas.h"       /* for routethrough */
 #include "plugutils.h"          /* plug_get_host_ip */
-#include "system.h"             /* for emalloc */
 
 #include "nasl_raw.h"
 
@@ -119,7 +118,7 @@ forge_ip_packet (lex_ctxt * lexic)
   retc->type = CONST_DATA;
   retc->size = sizeof (struct ip) + data_len;
 
-  pkt = (struct ip *) emalloc (sizeof (struct ip) + data_len);
+  pkt = (struct ip *) g_malloc0 (sizeof (struct ip) + data_len);
   retc->x.str_val = (char *) pkt;
 
   pkt->ip_hl = get_int_local_var_by_name (lexic, "ip_hl", 5);
@@ -287,7 +286,7 @@ set_ip_elements (lex_ctxt * lexic)
       return NULL;
     }
 
-  pkt = (struct ip *) emalloc (size);
+  pkt = (struct ip *) g_malloc0 (size);
   bcopy (o_pkt, pkt, size);
 
 
@@ -351,7 +350,7 @@ insert_ip_options (lex_ctxt * lexic)
     pad_len = 0;
 
   hl = ip->ip_hl * 4 < UNFIX (ip->ip_len) ? ip->ip_hl * 4 : UNFIX (ip->ip_len);
-  new_packet = emalloc (size + 4 + value_size + pad_len);
+  new_packet = g_malloc0 (size + 4 + value_size + pad_len);
   bcopy (ip, new_packet, hl);
 
   uc_code = (u_char) code;
@@ -488,7 +487,7 @@ forge_tcp_packet (lex_ctxt * lexic)
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
-  tcp_packet = (struct ip *) emalloc (ipsz + sizeof (struct tcphdr) + len);
+  tcp_packet = (struct ip *) g_malloc0 (ipsz + sizeof (struct tcphdr) + len);
   retc->x.str_val = (char *) tcp_packet;
 
   bcopy (ip, tcp_packet, ipsz);
@@ -525,7 +524,7 @@ forge_tcp_packet (lex_ctxt * lexic)
     {
       struct pseudohdr pseudoheader;
       char *tcpsumdata =
-        emalloc (sizeof (struct pseudohdr) + (len % 2 ? len + 1 : len));
+        g_malloc0 (sizeof (struct pseudohdr) + (len % 2 ? len + 1 : len));
       struct in_addr source, dest;
 
       source.s_addr = ip->ip_src.s_addr;
@@ -621,7 +620,7 @@ get_tcp_element (lex_ctxt * lexic)
       retc = alloc_tree_cell (0, NULL);
       retc->type = CONST_DATA;
       retc->size = UNFIX (ip->ip_len) - ntohl (tcp->th_off) * 4;
-      retc->x.str_val = emalloc (retc->size);
+      retc->x.str_val = g_malloc0 (retc->size);
       bcopy (tcp + ntohl (tcp->th_off) * 4, retc->x.str_val, retc->size);
       return retc;
     }
@@ -672,7 +671,7 @@ set_tcp_elements (lex_ctxt * lexic)
       data = (char *) ((char *) tcp + tcp->th_off * 4);
     }
 
-  npkt = emalloc (ip->ip_hl * 4 + tcp->th_off * 4 + data_len);
+  npkt = g_malloc0 (ip->ip_hl * 4 + tcp->th_off * 4 + data_len);
   bcopy (pkt, npkt, UNFIX (ip->ip_len));
 
   ip = (struct ip *) (npkt);
@@ -708,7 +707,7 @@ set_tcp_elements (lex_ctxt * lexic)
     {
       struct pseudohdr pseudoheader;
       char *tcpsumdata =
-        emalloc (sizeof (struct pseudohdr) + data_len + (data_len % 2));
+        g_malloc0 (sizeof (struct pseudohdr) + data_len + (data_len % 2));
       struct in_addr source, dest;
 
       source.s_addr = ip->ip_src.s_addr;
@@ -851,15 +850,8 @@ forge_udp_packet (lex_ctxt * lexic)
       struct ip *udp_packet;
       struct udphdr *udp;
 
-
-
-
-
-
-      pkt =
-        emalloc (sizeof (struct udphdr) + ip->ip_hl * 4 +
-                 sizeof (struct udphdr) + data_len);
-
+      pkt = g_malloc0 (sizeof (struct udphdr) + ip->ip_hl * 4 +
+                       sizeof (struct udphdr) + data_len);
 
       udp_packet = (struct ip *) pkt;
       udp = (struct udphdr *) (pkt + ip->ip_hl * 4);
@@ -883,8 +875,8 @@ forge_udp_packet (lex_ctxt * lexic)
           struct pseudo_udp_hdr pseudohdr;
           struct in_addr source, dest;
           char *udpsumdata =
-            (char *) emalloc (sizeof (struct pseudo_udp_hdr) +
-                              (data_len % 2 ? data_len + 1 : data_len));
+            (char *) g_malloc0 (sizeof (struct pseudo_udp_hdr) +
+                                (data_len % 2 ? data_len + 1 : data_len));
 
           source.s_addr = ip->ip_src.s_addr;
           dest.s_addr = ip->ip_dst.s_addr;
@@ -985,7 +977,7 @@ get_udp_element (lex_ctxt * lexic)
           ipsz)
         sz = ipsz - ip->ip_hl * 4 - sizeof (struct udphdr);
 
-      retc->x.str_val = emalloc (sz);
+      retc->x.str_val = g_malloc0 (sz);
       retc->size = sz;
       bcopy (udp + ip->ip_hl * 4 + sizeof (struct udphdr), retc->x.str_val, sz);
       return retc;
@@ -1026,12 +1018,12 @@ set_udp_elements (lex_ctxt * lexic)
       if (data != NULL)
         {
           sz = ip->ip_hl * 4 + sizeof (struct udphdr) + data_len;
-          pkt = emalloc (sz);
+          pkt = g_malloc0 (sz);
           bcopy (ip, pkt, ip->ip_hl * 4 + sizeof (struct udphdr));
         }
       else
         {
-          pkt = emalloc (sz);
+          pkt = g_malloc0 (sz);
           bcopy (ip, pkt, sz);
         }
 
@@ -1085,8 +1077,8 @@ set_udp_elements (lex_ctxt * lexic)
 
 
           udpsumdata =
-            (char *) emalloc (sizeof (struct pseudo_udp_hdr) +
-                              (len % 2 ? len + 1 : len));
+            (char *) g_malloc0 (sizeof (struct pseudo_udp_hdr) +
+                                (len % 2 ? len + 1 : len));
 
           source.s_addr = ip->ip_src.s_addr;
           dest.s_addr = ip->ip_dst.s_addr;
@@ -1181,9 +1173,8 @@ forge_icmp_packet (lex_ctxt * lexic)
       if (ip->ip_hl * 4 > ip_sz)
         return NULL;
 
-      pkt = emalloc (sizeof (struct icmp) + ip_sz + len);
+      pkt = g_malloc0 (sizeof (struct icmp) + ip_sz + len);
       ip_icmp = (struct ip *) pkt;
-
 
 
       bcopy (ip, ip_icmp, ip_sz);
@@ -1317,7 +1308,7 @@ forge_igmp_packet (lex_ctxt * lexic)
     {
       char *data = get_str_local_var_by_name (lexic, "data");
       int len = data ? get_local_var_size_by_name (lexic, "data") : 0;
-      u_char *pkt = emalloc (sizeof (struct igmp) + ip->ip_hl * 4 + len);
+      u_char *pkt = g_malloc0 (sizeof (struct igmp) + ip->ip_hl * 4 + len);
       struct ip *ip_igmp = (struct ip *) pkt;
       struct igmp *igmp;
       char *p;
@@ -1719,7 +1710,7 @@ nasl_pcap_next (lex_ctxt * lexic)
               struct ip *ip;
               ip = (struct ip *) (packet + dl_len);
               sz = UNFIX (ip->ip_len);
-              ret = emalloc (sz);
+              ret = g_malloc0 (sz);
 
               is_ip = (ip->ip_v == 4);
 
@@ -1738,7 +1729,7 @@ nasl_pcap_next (lex_ctxt * lexic)
               struct ip6_hdr *ip;
               ip = (struct ip6_hdr *) (packet + dl_len);
               sz = UNFIX (ip->ip6_plen);
-              ret6 = emalloc (sz);
+              ret6 = g_malloc0 (sz);
 
               is_ip = ((ip->ip6_flow & 0x3ffff) == 96);
               if (is_ip)
@@ -1853,7 +1844,7 @@ nasl_send_capture (lex_ctxt * lexic)
               struct ip *ip;
               ip = (struct ip *) (packet + dl_len);
               sz = UNFIX (ip->ip_len);
-              ret = emalloc (sz);
+              ret = g_malloc0 (sz);
 
               is_ip = (ip->ip_v == 4);
               if (is_ip)
@@ -1871,7 +1862,7 @@ nasl_send_capture (lex_ctxt * lexic)
               struct ip6_hdr *ip;
               ip = (struct ip6_hdr *) (packet + dl_len);
               sz = UNFIX (ip->ip6_plen);
-              ret6 = emalloc (sz);
+              ret6 = g_malloc0 (sz);
               is_ip = ((ip->ip6_flow & 0x3ffff) == 96);
               if (is_ip)
                 {

@@ -62,7 +62,6 @@ misc/popen.[c|h]: LGPLv2+
 misc/kb_redis.c: GPLv2+
 misc/scanners_utils.[c|h]: LGPLv2+
 misc/support.h: GPLv2+
-misc/system.[c|h]: LGPLv2+
 misc/www_funcs.c: GPLv2
 misc/www_funcs.h: LGPLv2+
 
@@ -120,7 +119,6 @@ nasl/smb.h: GPLv2+
 nasl/smb_interface_stub.c: GPLv2+
 nasl/smb_signing.[c|h]: GPLv2+
 nasl/strutils.[c|h]: GPLv2
-nasl/strutils.c: GPLv2+
 nasl/wmi_interface_stub.c: GPLv2+
 
 nasl/tests/Makefile: GPLv2+

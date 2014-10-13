@@ -1,3 +1,33 @@
+2014-10-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_wmi.c (nasl_wmi_connect, nasl_wmi_connect_rsop,
+	nasl_wmi_connect_reg): Replaced emalloc() by g_malloc0().
+
+	* nasl/nasl_smb.c (nasl_win_cmd_exec): Replaced emalloc() by
+	g_malloc0().
+
+	* nasl/nasl_packet_forgery.c (forge_ip_packet, set_ip_elements,
+	insert_ip_options, forge_tcp_packet, get_tcp_element, set_tcp_elements,
+	forge_udp_packet, get_udp_element, set_udp_elements, forge_icmp_packet,
+	forge_igmp_packet, nasl_pcap_next, nasl_send_capture): Replaced
+	emalloc() by g_malloc0().
+
+	* nasl/nasl_packet_forgery_v6.c (forge_ipv6_packet, set_ipv6_elements,
+	insert_ipv6_options, forge_tcp_v6_packet, get_tcp_v6_element,
+	set_tcp_v6_elements, forge_udp_v6_packet, get_udp_v6_element,
+	set_udp_v6_elements, forge_icmp_v6_packet, forge_igmp_v6_packet):
+	Replaced emalloc() by g_malloc0().
+
+	* nasl/nasl_grammar.y (ipaddr, init_nasl_ctx, mylex): Replaced
+	emalloc() by g_malloc0().
+
+	* misc/CMakeLists.txt: Removed handlung of system.c and system.h.
+
+	* misc/system.c, misc/system.h: Removed.
+
+	* COPYING: Removed module "system". And removed doubled entry
+	for strutils.
+
 2014-10-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* doc/wmi-howto.txt: Updated for an updated patch that

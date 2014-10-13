@@ -51,7 +51,6 @@
 #include "nasl_smb.h"
 #include "openvas_smb_interface.h"
 #include "../misc/plugutils.h"
-#include "../misc/system.h"
 #include "../misc/openvas_logging.h"
 
 #define IMPORT(var) char *var = get_str_local_var_by_name(lexic, #var)
@@ -437,11 +436,11 @@ nasl_win_cmd_exec (lex_ctxt * lexic)
       return NULL;
     }
 
-  argv[0] = (char *) emalloc (strlen (argv1));
-  argv[1] = (char *) emalloc (strlen (argv2));
-  argv[2] = (char *) emalloc (strlen (username) + strlen (password) + 1);
-  argv[3] = (char *) emalloc (strlen (ip) + 2);
-  argv[4] = (char *) emalloc (strlen (cmd));
+  argv[0] = (char *) g_malloc0 (strlen (argv1));
+  argv[1] = (char *) g_malloc0 (strlen (argv2));
+  argv[2] = (char *) g_malloc0 (strlen (username) + strlen (password) + 1);
+  argv[3] = (char *) g_malloc0 (strlen (ip) + 2);
+  argv[4] = (char *) g_malloc0 (strlen (cmd));
 
   // Construct the WinCMD query
   strcpy (argv[0], argv1);

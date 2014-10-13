@@ -31,8 +31,6 @@
 #include <string.h> /* for strlen */
 #include <sys/stat.h> /* for stat */
 
-#include "system.h" /* for emalloc */
-
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
 #include "nasl_func.h"
@@ -448,7 +446,7 @@ var_name: identifier;
 
 ipaddr: INTEGER '.' INTEGER '.' INTEGER '.' INTEGER
 	{
-	  char	*s = emalloc(44);
+	  char	*s = g_malloc0 (44);
 	  snprintf(s, 44, "%d.%d.%d.%d", $1, $3, $5, $7);
 	  $$ = alloc_tree_cell(LNB, s);
 	  $$->type = CONST_STR;
@@ -552,7 +550,7 @@ init_nasl_ctx(naslctxt* pc, const char* name)
 
   pc->line_nb = 1;
   pc->tree = NULL;
-  pc->buffer = emalloc(80);
+  pc->buffer = g_malloc0 (80);
   pc->maxlen = 80;
   pc->fp = NULL;
 
@@ -1128,7 +1126,7 @@ mylex(lvalp, parm)
 
     case ST_STRING1:
       r = STRING1;
-      lvalp->data.val = emalloc(len+2);
+      lvalp->data.val = g_malloc0 (len+2);
       memcpy(lvalp->data.val, ctx->buffer, len+1);
       lvalp->data.len = len;
       return r;

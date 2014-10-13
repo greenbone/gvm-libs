@@ -51,9 +51,8 @@
 #include <arpa/inet.h>
 #include <ctype.h>
 #include <inttypes.h>
-#include "system.h"
-#include "plugutils.h"
 
+#include "plugutils.h"
 #include "nasl_wmi.h"
 #include "openvas_wmi_interface.h"
 #include "../misc/openvas_logging.h"
@@ -193,11 +192,11 @@ nasl_wmi_connect (lex_ctxt * lexic)
       return NULL;
     }
 
-  argv[0] = (char *) emalloc (strlen (argv1));
-  argv[1] = (char *) emalloc (strlen (argv2));
-  argv[2] = (char *) emalloc (strlen (username) + strlen (password) + 1);
-  argv[3] = (char *) emalloc (strlen (ip) + 2);
-  argv[4] = (char *) emalloc (strlen (ns));
+  argv[0] = (char *) g_malloc0 (strlen (argv1));
+  argv[1] = (char *) g_malloc0 (strlen (argv2));
+  argv[2] = (char *) g_malloc0 (strlen (username) + strlen (password) + 1);
+  argv[3] = (char *) g_malloc0 (strlen (ip) + 2);
+  argv[4] = (char *) g_malloc0 (strlen (ns));
 
   // Construct the WMI query
   strcpy (argv[0], argv1);
@@ -362,10 +361,10 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
       return NULL;
     }
 
-  argv[0] = (char *) emalloc (strlen (argv1));
-  argv[1] = (char *) emalloc (strlen (argv2));
-  argv[2] = (char *) emalloc (strlen (username) + strlen (password) + 1);
-  argv[3] = (char *) emalloc (strlen (ip) + 2);
+  argv[0] = (char *) g_malloc0 (strlen (argv1));
+  argv[1] = (char *) g_malloc0 (strlen (argv2));
+  argv[2] = (char *) g_malloc0 (strlen (username) + strlen (password) + 1);
+  argv[3] = (char *) g_malloc0 (strlen (ip) + 2);
 
   // Construct the WMI query
   strcpy (argv[0], argv1);
@@ -492,10 +491,10 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
       return NULL;
     }
 
-  argv[0] = (char *) emalloc (strlen (argv1));
-  argv[1] = (char *) emalloc (strlen (argv2));
-  argv[2] = (char *) emalloc (strlen (username) + strlen (password) + 1);
-  argv[3] = (char *) emalloc (strlen (ip) + 2);
+  argv[0] = (char *) g_malloc0 (strlen (argv1));
+  argv[1] = (char *) g_malloc0 (strlen (argv2));
+  argv[2] = (char *) g_malloc0 (strlen (username) + strlen (password) + 1);
+  argv[3] = (char *) g_malloc0 (strlen (ip) + 2);
 
   // Construct the WMI query
   strcpy (argv[0], argv1);

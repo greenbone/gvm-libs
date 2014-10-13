@@ -1,4 +1,3 @@
-
 /* Nessus Attack Scripting Language
  *
  * Copyright (C) 2002 - 2004 Tenable Network Security
@@ -49,7 +48,6 @@
 #include "bpf_share.h"          /* for bpf_open_live */
 #include "pcap_openvas.h"       /* for routethrough */
 #include "plugutils.h"          /* plug_get_host_ip */
-#include "system.h"             /* for emalloc */
 
 #include "nasl_raw.h"
 
@@ -144,7 +142,7 @@ forge_ipv6_packet (lex_ctxt * lexic)
   retc->type = CONST_DATA;
   retc->size = sizeof (struct ip6_hdr) + data_len;
 
-  pkt = (struct ip6_hdr *) emalloc (sizeof (struct ip6_hdr) + data_len);
+  pkt = (struct ip6_hdr *) g_malloc0 (sizeof (struct ip6_hdr) + data_len);
   retc->x.str_val = (char *) pkt;
 
   version = get_int_local_var_by_name (lexic, "ip6_v", 6);
@@ -298,7 +296,7 @@ set_ipv6_elements (lex_ctxt * lexic)
       return NULL;
     }
 
-  pkt = (struct ip6_hdr *) emalloc (size);
+  pkt = (struct ip6_hdr *) g_malloc0 (size);
   bcopy (o_pkt, pkt, size);
 
   pkt->ip6_plen = get_int_local_var_by_name (lexic, "ip6_plen", pkt->ip6_plen);
@@ -401,7 +399,7 @@ insert_ipv6_options (lex_ctxt * lexic)
     pad_len = 0;
 
   pl = 40 < UNFIX (ip6->ip6_plen) ? 40 : UNFIX (ip6->ip6_plen);
-  new_packet = emalloc (size + 4 + value_size + pad_len);
+  new_packet = g_malloc0 (size + 4 + value_size + pad_len);
   bcopy (ip6, new_packet, pl);
 
   uc_code = (u_char) code;
@@ -490,7 +488,7 @@ forge_tcp_v6_packet (lex_ctxt * lexic)
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
-  tcp_packet = (struct ip6_hdr *) emalloc (ipsz + sizeof (struct tcphdr) + len);
+  tcp_packet = (struct ip6_hdr *) g_malloc0 (ipsz + sizeof (struct tcphdr) + len);
   retc->x.str_val = (char *) tcp_packet;
 
   bcopy (ip6, tcp_packet, ipsz);
@@ -517,7 +515,7 @@ forge_tcp_v6_packet (lex_ctxt * lexic)
     {
       struct v6pseudohdr pseudoheader;
       char *tcpsumdata =
-        emalloc (sizeof (struct v6pseudohdr) + (len % 2 ? len + 1 : len));
+        g_malloc0 (sizeof (struct v6pseudohdr) + (len % 2 ? len + 1 : len));
 
       bzero (&pseudoheader, 38 + sizeof (struct tcphdr));
       memcpy (&pseudoheader.s6addr, &ip6->ip6_src, sizeof (struct in6_addr));
@@ -609,7 +607,7 @@ get_tcp_v6_element (lex_ctxt * lexic)
       retc = alloc_tree_cell (0, NULL);
       retc->type = CONST_DATA;
       retc->size = UNFIX (ip6->ip6_plen) - ntohl (tcp->th_off) * 4;
-      retc->x.str_val = emalloc (retc->size);
+      retc->x.str_val = g_malloc0 (retc->size);
       bcopy (tcp + ntohl (tcp->th_off) * 4, retc->x.str_val, retc->size);
       return retc;
     }
@@ -662,7 +660,7 @@ set_tcp_v6_elements (lex_ctxt * lexic)
       data = (char *) ((char *) tcp + tcp->th_off * 4);
     }
 
-  npkt = emalloc (40 + tcp->th_off * 4 + data_len);
+  npkt = g_malloc0 (40 + tcp->th_off * 4 + data_len);
   bcopy (pkt, npkt, UNFIX (ip6->ip6_plen) + 40);
 
   ip6 = (struct ip6_hdr *) (npkt);
@@ -697,8 +695,8 @@ set_tcp_v6_elements (lex_ctxt * lexic)
     {
       struct v6pseudohdr pseudoheader;
       char *tcpsumdata =
-        emalloc (sizeof (struct v6pseudohdr) +
-                 (data_len % 2 ? data_len + 1 : data_len));
+        g_malloc0 (sizeof (struct v6pseudohdr) +
+                   (data_len % 2 ? data_len + 1 : data_len));
 
       bzero (&pseudoheader, 38 + sizeof (struct tcphdr));
       memcpy (&pseudoheader.s6addr, &ip6->ip6_src, sizeof (struct in6_addr));
@@ -857,7 +855,7 @@ forge_udp_v6_packet (lex_ctxt * lexic)
       struct ip6_hdr *udp_packet;
       struct udphdr *udp;
 
-      pkt = emalloc (sizeof (struct udphdr) + 40 + data_len);
+      pkt = g_malloc0 (sizeof (struct udphdr) + 40 + data_len);
       udp_packet = (struct ip6_hdr *) pkt;
       udp = (struct udphdr *) (pkt + 40);
 
@@ -877,7 +875,7 @@ forge_udp_v6_packet (lex_ctxt * lexic)
         {
           struct v6pseudo_udp_hdr pseudohdr;
           char *udpsumdata =
-            (char *) emalloc (sizeof (struct v6pseudo_udp_hdr) +
+            (char *) g_malloc0 (sizeof (struct v6pseudo_udp_hdr) +
                               (data_len % 2 ? data_len + 1 : data_len));
 
           bzero (&pseudohdr, sizeof (struct v6pseudo_udp_hdr));
@@ -974,7 +972,7 @@ get_udp_v6_element (lex_ctxt * lexic)
       if (ntohs (udphdr->uh_ulen) - 40 - sizeof (struct udphdr) > ipsz)
         sz = ipsz - 40 - sizeof (struct udphdr);
 
-      retc->x.str_val = emalloc (sz);
+      retc->x.str_val = g_malloc0 (sz);
       retc->size = sz;
       bcopy (udp + 40 + sizeof (struct udphdr), retc->x.str_val, sz);
       return retc;
@@ -1022,12 +1020,12 @@ set_udp_v6_elements (lex_ctxt * lexic)
       if (data != NULL)
         {
           sz = 40 + sizeof (struct udphdr) + data_len;
-          pkt = emalloc (sz);
+          pkt = g_malloc0 (sz);
           bcopy (ip6, pkt, 40 + sizeof (struct udphdr));
         }
       else
         {
-          pkt = emalloc (sz);
+          pkt = g_malloc0 (sz);
           bcopy (ip6, pkt, sz);
         }
 
@@ -1075,8 +1073,8 @@ set_udp_v6_elements (lex_ctxt * lexic)
             }
 
           udpsumdata =
-            (char *) emalloc (sizeof (struct v6pseudo_udp_hdr) +
-                              (len % 2 ? len + 1 : len));
+            (char *) g_malloc0 (sizeof (struct v6pseudo_udp_hdr) +
+                                (len % 2 ? len + 1 : len));
           bzero (&pseudohdr, sizeof (struct v6pseudo_udp_hdr));
 
           pseudohdr.proto = IPPROTO_UDP;
@@ -1199,7 +1197,7 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
         return NULL;
 
       /* ICMP header size is 8 */
-      pkt = emalloc (ip6_sz + 8 + len);
+      pkt = g_malloc0 (ip6_sz + 8 + len);
       ip6_icmp = (struct ip6_hdr *) pkt;
 
       bcopy (ip6, ip6_icmp, ip6_sz);
@@ -1226,7 +1224,7 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
           {
             if (data != NULL)
               bcopy (data, &(p[8]), len);
-            routersolicit = emalloc (sizeof (struct nd_router_solicit));
+            routersolicit = g_malloc0 (sizeof (struct nd_router_solicit));
             pkt =
               realloc (pkt, ip6_sz + sizeof (struct nd_router_solicit) + len);
             ip6_icmp = (struct ip6_hdr *) pkt;
@@ -1244,7 +1242,7 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
           {
             if (data != NULL)
               bcopy (data, &(p[8]), len);
-            routeradvert = emalloc (sizeof (struct nd_router_advert));
+            routeradvert = g_malloc0 (sizeof (struct nd_router_advert));
             /*do we need lifetime?? Not taking lifetime?? */
             pkt = realloc (pkt, ip6_sz + sizeof (struct nd_router_advert) - 8 + len);   /*not taking lifetime(8 bytes) into consideration */
             ip6_icmp = (struct ip6_hdr *) pkt;
@@ -1267,7 +1265,7 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
           break;
         case ND_NEIGHBOR_SOLICIT:
           {
-            neighborsolicit = emalloc (sizeof (struct nd_neighbor_solicit));
+            neighborsolicit = g_malloc0 (sizeof (struct nd_neighbor_solicit));
             pkt =
               realloc (pkt, ip6_sz + sizeof (struct nd_neighbor_solicit) + len);
             ip6_icmp = (struct ip6_hdr *) pkt;
@@ -1286,7 +1284,7 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
           break;
         case ND_NEIGHBOR_ADVERT:
           {
-            neighboradvert = emalloc (sizeof (struct nd_neighbor_advert));
+            neighboradvert = g_malloc0 (sizeof (struct nd_neighbor_advert));
             pkt =
               realloc (pkt, ip6_sz + sizeof (struct nd_neighbor_advert) + len);
             ip6_icmp = (struct ip6_hdr *) pkt;
@@ -1335,8 +1333,8 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
         {
           struct v6pseudo_icmp_hdr pseudohdr;
           char *icmpsumdata =
-            (char *) emalloc (sizeof (struct v6pseudo_icmp_hdr) +
-                              (len % 2 ? len + 1 : len));
+            (char *) g_malloc0 (sizeof (struct v6pseudo_icmp_hdr) +
+                                (len % 2 ? len + 1 : len));
 
           bzero (&pseudohdr, sizeof (struct v6pseudo_icmp_hdr));
           memcpy (&pseudohdr.s6addr, &ip6->ip6_src, sizeof (struct in6_addr));
@@ -1487,7 +1485,7 @@ forge_igmp_v6_packet (lex_ctxt * lexic)
     {
       char *data = get_str_local_var_by_name (lexic, "data");
       int len = data ? get_local_var_size_by_name (lexic, "data") : 0;
-      u_char *pkt = emalloc (sizeof (struct igmp6_hdr) + 40 + len);
+      u_char *pkt = g_malloc0 (sizeof (struct igmp6_hdr) + 40 + len);
       struct ip6_hdr *ip6_igmp = (struct ip6_hdr *) pkt;
       struct igmp6_hdr *igmp;
       char *p;
