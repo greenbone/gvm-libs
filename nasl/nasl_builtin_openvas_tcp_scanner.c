@@ -977,8 +977,8 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 		sockets[i].state = GRAB_SOCKET_UNUSED;
 	      }
 
-	  x = open_sock_max;
 #if DEBUG > 1
+	  x = open_sock_max;
 	  log_legacy_write ("openvas_tcp_scanner(%s): open_sock_max=%d timeout_nb=%d dropped_nb=%d\n", inet_ntoa(*pia), open_sock_max, timeout_nb, dropped_nb);
 	  done_ports_nb = unfiltered_ports_nb + filtered_ports_nb;
 	  if (done_ports_nb > 0 && total_ports_nb > 0)

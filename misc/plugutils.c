@@ -980,7 +980,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
                   e = internal_recv (sockpair[0], &buf, &bufsz, &type);
                   if (e < 0 || (type & INTERNAL_COMM_MSG_TYPE_CTRL))
                     {
-                      e = waitpid (pid, &status, WNOHANG);
+                      waitpid (pid, &status, WNOHANG);
                       _plug_get_key_son = 0;
                       close (sockpair[0]);
                       sig_term (_exit);

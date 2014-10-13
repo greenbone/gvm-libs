@@ -549,7 +549,6 @@ ids_send (fd, buf0, n, method)
   char hostname[INET6_ADDRSTRLEN];
   int family;
 
-  bzero (&(su->sockaddr), sizeof (su->sockaddr));
   if (getpeername (fd, &(su->sockaddr), &sz) < 0)
     {
       perror ("getpeername() ");

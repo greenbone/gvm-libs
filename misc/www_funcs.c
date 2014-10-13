@@ -438,7 +438,6 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
         }
 
       l += strlen (h) + strlen (abs_URI_type) + 3;
-      n_slash += 2;
       ret2 = g_malloc0 (l + 1);
 
       snprintf (ret2, l, "%s://%s%s", abs_URI_type, h, ret);    /* RATS: ignore */

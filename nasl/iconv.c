@@ -113,9 +113,6 @@ smb_iconv_t smb_iconv_open_ntlmssp(const char *tocode, const char *fromcode)
 	smb_iconv_t ret;
 	struct charset_functions_ntlmssp *from, *to;
 
-	from = charsets;
-	to = charsets;
-
 	ret = SMB_MALLOC_P(struct _smb_iconv_t);
 	if (!ret) {
 		errno = ENOMEM;

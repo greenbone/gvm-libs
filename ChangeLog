@@ -1,5 +1,27 @@
 2014-10-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Various fixes for issues identified via clang analysis.
+
+	* misc/plugutils.c (plug_get_key): Removed dead assignment.
+
+	* nasl/iconv.c (smb_iconv_open_ntlmssp): Removed dead assignment
+	of variable "from" and "to".
+
+	* nasl/nasl_builtin_openvas_tcp_scanner.c (banner_grab): Moved
+	assignment into DEBUG code.
+
+	* misc/network.c (read_stream_connection_unbuffered): Removed dead
+	assigment of "now".
+
+	* misc/www_funcs.c (build_encode_URL): Removed dead assignment of
+	n_slash.
+
+	* misc/ids_send.c (ids_send): Removed useless bzero of variable su.
+	su is a NULL pointer here.
+
+
+2014-10-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_packet_forgery_v6.c (forge_icmp_v6_packet): Replaced
 	realloc() by g_realloc() and free() by g_free().
 

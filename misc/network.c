@@ -1445,7 +1445,7 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
         }
 # endif
 
-      now = then = time (NULL);
+      then = time (NULL);
       for (t = 0; timeout <= 0 || t < timeout; t = now - then)
         {
           now = time (NULL);
