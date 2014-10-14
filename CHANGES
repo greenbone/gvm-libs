@@ -1,3 +1,24 @@
+openvas-libraries 8.0+beta3 (2014-10-14)
+
+This release is the third beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-8".
+
+This release includes the results of further consolidation of memory management
+and comprehensive code cleanups. It addresses multiple memory leaks and improves
+the stability of concurrent XML parsing.
+
+Many thanks to everyone who has contributed this release:
+Hani Benhabiles, Henri Doreau, Matthew Mundell, Timo Pollmeier and Jan-Oliver
+Wagner.
+
+Main changes compared to 8.0+beta2:
+* Further steps toward a comprehensive consolidation of memory management.
+* Further comprehensive code cleanups in a number of areas.
+* Multiple memory leaks have been identified and addressed.
+* Stability of concurrent XML parsing has been improved.
+* WMI support patch has been updated.
+
+
 openvas-libraries 8.0+beta2 (2014-09-22)
 
 This release is the second beta version of the next major release of
