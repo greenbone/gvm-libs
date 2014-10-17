@@ -1,3 +1,13 @@
+2014-10-17  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	The required minimum version for the GnuTLS library has actually been
+	2.12 since OpenVAS Libraries 7.0.0. Adjust documentation and checks
+	accordingly.
+
+	* INSTALL: Update prerequisites.
+
+	* CMakeLists: Adjust minimum version in gnutls check.
+
 2014-10-07  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	Backport r20534.
