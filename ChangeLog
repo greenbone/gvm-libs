@@ -1,3 +1,12 @@
+2014-07-17  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Backport r19876.
+
+	* omp/omp.c (omp_get_tasks_ext): Add filter option.  Remove actions.
+
+	* omp/omp.h (omp_get_tasks_opts_t): Add "filter" option.
+	(omp_get_tasks_opts_defaults): Init filter.
+
 2014-10-17  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	The required minimum version for the GnuTLS library has actually been

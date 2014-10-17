@@ -1031,27 +1031,25 @@ omp_get_tasks_ext (gnutls_session_t* session,
 {
   int ret;
   const char *status_code;
+  gchar *cmd;
 
   if (response == NULL)
     return -1;
 
-  if (opts.actions)
+  cmd = g_markup_printf_escaped ("<get_tasks"
+                                 " filter=\"%s\"",
+                                 opts.filter);
+
+  if (openvas_server_sendf (session,
+                            "%s%s%s/>",
+                            cmd,
+                            OMP_FMT_BOOL_ATTRIB (opts, details),
+                            OMP_FMT_BOOL_ATTRIB (opts, rcfile)))
     {
-      if (openvas_server_sendf (session,
-                                "<get_tasks"
-                                " actions=\"%s\""
-                                "%s%s/>",
-                                opts.actions,
-                                OMP_FMT_BOOL_ATTRIB (opts, details),
-                                OMP_FMT_BOOL_ATTRIB (opts, rcfile)))
-        return -1;
+      g_free (cmd);
+      return -1;
     }
-  else if (openvas_server_sendf (session,
-                                 "<get_tasks"
-                                 "%s%s/>",
-                                 OMP_FMT_BOOL_ATTRIB (opts, details),
-                                 OMP_FMT_BOOL_ATTRIB (opts, rcfile)))
-    return -1;
+  g_free (cmd);
 
   *response = NULL;
   if (read_entity (session, response)) return -1;
