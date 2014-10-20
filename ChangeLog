@@ -1,3 +1,8 @@
+2014-10-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/exec.c (nasl_exec): Add extra byte when allocating memory for
+	CONST_DATA and CONST_STRING cases, used for null terminator.
+
 2014-10-17  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	The required minimum version for the GnuTLS library has actually been

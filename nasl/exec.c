@@ -1296,7 +1296,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
             }
 
           sz = len1 + len2;
-          s3 = g_malloc0 (sz);
+          s3 = g_malloc0 (sz + 1);
           if (len1 > 0)
             memcpy (s3, s1 != NULL ? s1 : tc1->x.str_val, len1);
           if (len2 > 0)
@@ -1402,7 +1402,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
           if (len2 == 0 || len1 < len2
               || (p = memmem (p1, len1, p2, len2)) == NULL)
             {
-              s3 = g_malloc0 (len1);
+              s3 = g_malloc0 (len1 + 1);
               memcpy (s3, p1, len1);
               ret = alloc_tree_cell (0, s3);
               ret->type = flag;
@@ -1418,7 +1418,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
                 }
               else
                 {
-                  s3 = g_malloc0 (sz);
+                  s3 = g_malloc0 (sz + 1);
                   if (p - p1 > 0)
                     memcpy (s3, p1, p - p1);
                   if (sz > p - p1)
