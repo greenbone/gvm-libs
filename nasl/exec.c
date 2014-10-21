@@ -158,9 +158,7 @@ cell2str (lex_ctxt * lexic, tree_cell * c)
   switch (c->type)
     {
     case CONST_INT:
-      p = g_malloc0 (16);
-      snprintf (p, 16, "%d", c->x.i_val);
-      return p;
+      return g_strdup_printf ("%d", c->x.i_val);
 
     case CONST_STR:
     case CONST_DATA:

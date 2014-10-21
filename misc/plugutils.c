@@ -142,11 +142,7 @@ _add_plugin_preference (struct arglist *prefs, const char *p_name,
       return;
     }
 
-
-  pref = g_malloc0 (strlen (p_name) + 10 + strlen (type) + strlen (cname) + 1);
-  // RATS: ignore
-  snprintf (pref, strlen (p_name) + 10 + strlen (type) + strlen (cname),
-            "%s[%s]:%s", p_name, type, cname);
+  pref = g_strdup_printf ("%s[%s]:%s", p_name, type, cname);
   if (arg_get_value (prefs, pref) == NULL)
     arg_add_value (prefs, pref, ARG_STRING, strlen (defaul), g_strdup (defaul));
 

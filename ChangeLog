@@ -1,5 +1,13 @@
 2014-10-21  Henri Doreau <henri.doreau@gmail.com>
 
+	* misc/plugutils.c (_add_plugin_preference): Replaced g_malloc0() +
+	snprintf() by g_strdup_printf().
+
+	* nasl/exec.c (cell2str): Replaced g_malloc0() + snprintf() by
+	g_strdup_printf().
+
+2014-10-21  Henri Doreau <henri.doreau@gmail.com>
+
 	* nasl/nasl_builtin_find_service.c (fwd_data): Don't pre-allocate a
 	buffer for internal_recv() and systematically free it after use.
 
