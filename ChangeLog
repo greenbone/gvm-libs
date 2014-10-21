@@ -1,4 +1,12 @@
 2014-10-21  Henri Doreau <henri.doreau@gmail.com>
+	* misc/network.c (internal_recv): Reworked the way memory is managed.
+	The function now always allocates memory (how much is needed) and lets
+	the caller responsible for releasing it with g_free eventually.
+
+	* misc/plugutils.c (plug_get_key): Free the internal_recv buffer after
+	use.
+
+2014-10-21  Henri Doreau <henri.doreau@gmail.com>
 
 	* misc/plugutils.c (_add_plugin_preference): Replaced g_malloc0() +
 	snprintf() by g_strdup_printf().

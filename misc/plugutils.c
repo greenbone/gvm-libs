@@ -862,9 +862,6 @@ plug_get_key (struct arglist *args, char *name, int *type)
   struct kb_item *res = NULL;
   int sockpair[2];
   int upstream = 0;
-  char *buf = NULL;
-  int bufsz = 0;
-
 
   if (type != NULL)
     *type = -1;
@@ -961,6 +958,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
               fd_set rd;
               struct timeval tv;
               int type;
+
               do
                 {
                   tv.tv_sec = 0;
@@ -973,6 +971,9 @@ plug_get_key (struct arglist *args, char *name, int *type)
 
               if (e > 0)
                 {
+                  char *buf = NULL;
+                  int bufsz = 0;
+
                   e = internal_recv (sockpair[0], &buf, &bufsz, &type);
                   if (e < 0 || (type & INTERNAL_COMM_MSG_TYPE_CTRL))
                     {
@@ -980,10 +981,13 @@ plug_get_key (struct arglist *args, char *name, int *type)
                       _plug_get_key_son = 0;
                       close (sockpair[0]);
                       sig_term (_exit);
+                      g_free (buf); /* Left NULL on error, harmless */
                       break;
                     }
                   else
                     internal_send (upstream, buf, type);
+
+                  g_free (buf);
                 }
             }
         }

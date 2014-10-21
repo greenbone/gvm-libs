@@ -2534,12 +2534,32 @@ internal_send (int soc, char *data, int msg_type)
  * <length><msg>, with <length> being a long integer. The functions
  * internal_send() and internal_recv() encapsulate and decapsulate
  * the messages themselves.
+ *
+ * @param[in]   soc         The socket from which to receive message.
+ * @param[out]  data        Where to allocate the reception buffer. Has to be
+ *                          set to NULL, and left untouched on failure or
+ *                          zero-length messages.
+ * @param[out]  data_sz     Size of the received message.
+ * @param[out]  msg_type    Type of the message which was received.
+ *
+ * @retval Length of the received message on success (can be zero).
+ * @retval Negative value on error.
  */
 int
 internal_recv (int soc, char **data, int *data_sz, int *msg_type)
 {
-  int len = 0, e, type, ack, sz = *data_sz;
-  char *buf = *data;
+  int len = 0;
+  int e;
+  char *buf = NULL;
+  int sz = 0;
+  int type;
+  int ack;
+
+  if (*data != NULL)
+    {
+      log_legacy_write("%s doesn't support buffer pre-alloc anymore.", __func__);
+      return -1;
+    }
 
   e = os_recv (soc, &type, sizeof (type), 0);
   if (e < 0)
@@ -2548,37 +2568,32 @@ internal_recv (int soc, char **data, int *data_sz, int *msg_type)
   if ((type & INTERNAL_COMM_MSG_TYPE_CTRL) == 0)
     {
       e = os_recv (soc, &len, sizeof (len), 0);
-      if (e < 0)
+      if (e < 0 || len < 0)
         goto error;
 
-      if (!buf || len >= sz)
-        {
-          sz = len + 1;
-          buf = g_realloc (buf, sz);
-        }
-
+      /* length == 0 is perfectly valid though */
       if (len > 0)
         {
+          sz = len + 1;
+          buf = g_malloc0 (sz);
+
           e = os_recv (soc, buf, len, 0);
           if (e < 0)
             goto error;
-          buf[len] = '\0';
         }
-
-      if (data != NULL)
-        *data = buf;
-      if (data_sz != NULL)
-        *data_sz = sz;
     }
 
+  *data     = buf;
+  *data_sz  = sz;
   *msg_type = type;
+
   ack = INTERNAL_COMM_MSG_TYPE_CTRL | INTERNAL_COMM_CTRL_ACK;
   e = os_send (soc, &ack, sizeof (ack), 0);
   if (e < 0)
     goto error;
 
-
   return len;
+
 error:
   g_free (buf);
   *data = NULL;
