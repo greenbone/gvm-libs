@@ -2761,21 +2761,16 @@ static int
 fwd_data (int in, int out, pid_t sender)
 {
   int e;
-  static char *buf = NULL;
-  static int bufsz = 0;
+  char *buf = NULL;
+  int bufsz = 0;
   int type;
 
   e = internal_recv (in, &buf, &bufsz, &type);
   if (e <= 0)
     return -1;
-  internal_send (out, buf, type);
 
-  if (bufsz > 65535)
-    {
-      g_free (buf);
-      buf = NULL;
-      bufsz = 0;
-    }
+  internal_send (out, buf, type);
+  g_free (buf);
   return 0;
 }
 
