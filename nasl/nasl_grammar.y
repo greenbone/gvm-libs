@@ -446,8 +446,7 @@ var_name: identifier;
 
 ipaddr: INTEGER '.' INTEGER '.' INTEGER '.' INTEGER
 	{
-	  char	*s = g_malloc0 (44);
-	  snprintf(s, 44, "%d.%d.%d.%d", $1, $3, $5, $7);
+	  char *s = g_strdup_printf ("%d.%d.%d.%d", $1, $3, $5, $7);
 	  $$ = alloc_tree_cell(LNB, s);
 	  $$->type = CONST_STR;
 	  $$->size = strlen(s);

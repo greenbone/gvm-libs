@@ -713,7 +713,7 @@ affect_to_anon_var (anon_nasl_var * v1, tree_cell * rval)
         else
           {
             p = g_malloc0 (rval->size + 1);
-            memcpy (p, rval->x.str_val, rval->size + 1);
+            memcpy (p, rval->x.str_val, rval->size);
             v1->v.v_str.s_siz = rval->size;
             v1->v.v_str.s_val = p;
           }
@@ -1128,7 +1128,7 @@ array2str (const nasl_array * a)
   if (len == 0)
     {
       len = 80;
-      s = g_malloc0 (80);
+      s = g_malloc0 (80 + 1);
     }
 
   strcpy (s, "[ ");
@@ -1141,7 +1141,7 @@ array2str (const nasl_array * a)
           if (n + 80 >= len)
             {
               len += 80;
-              s = g_realloc (s, len);
+              s = g_realloc (s, len + 1);
             }
           if (n1 > 0)
             n += sprintf (s + n, ", ");
@@ -1183,7 +1183,7 @@ array2str (const nasl_array * a)
             if (n + 80 >= len)
               {
                 len += 80 + l;
-                s = g_realloc (s, len);
+                s = g_realloc (s, len + 1);
               }
             if (n1 > 0)
               n += sprintf (s + n, ", ");
@@ -1217,7 +1217,7 @@ array2str (const nasl_array * a)
   if (n + 2 >= len)
     {
       len += 80;
-      s = g_realloc (s, len);
+      s = g_realloc (s, len + 1);
     }
   strcpy (s + n, " ]");
   return s;

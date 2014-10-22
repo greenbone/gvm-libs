@@ -1,5 +1,14 @@
 2014-10-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_grammar.y (ipaddr): Use g_strdup_printf() instead of
+	g_malloc0() + snprintf().
+
+	* nasl/nasl_tree.c (dup_cell), nasl/nasl_var.c (affect_to_anon_var)
+	(rray2str): Adequately add extra byte for null terminator when
+	allocating memory buffers.
+
+2014-10-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_cert.c (parse_dn_part_for_CN): Set p pointer properly. Fixes
 	scanner segfault introduced by r20560.
 

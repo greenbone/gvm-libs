@@ -110,7 +110,7 @@ dup_cell (const tree_cell * tc)
     {
     case CONST_STR:
     case CONST_DATA:
-      r->x.str_val = g_malloc0 (tc->size);
+      r->x.str_val = g_malloc0 (tc->size + 1);
       memcpy (r->x.str_val, tc->x.str_val, tc->size);
       break;
     default:
