@@ -1,4 +1,10 @@
+2014-10-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_cert.c (parse_dn_part_for_CN): Set p pointer properly. Fixes
+	scanner segfault introduced by r20560.
+
 2014-10-21  Henri Doreau <henri.doreau@gmail.com>
+
 	* misc/network.c (internal_recv): Reworked the way memory is managed.
 	The function now always allocates memory (how much is needed) and lets
 	the caller responsible for releasing it with g_free eventually.

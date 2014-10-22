@@ -329,7 +329,7 @@ parse_dn_part_for_CN (const char *string, char **r_value)
         return NULL; /* No or odd number of digits. */
       n /= 2;
       if (found)
-        *r_value = g_malloc0 (n+1);
+        *r_value = p = g_malloc0 (n + 1);
 
       for (s1=string; n; s1 += 2, n--, p++)
         {
@@ -373,7 +373,7 @@ parse_dn_part_for_CN (const char *string, char **r_value)
         }
 
       if (found)
-        *r_value = g_malloc0 (n+1);
+        *r_value = p = g_malloc0 (n + 1);
 
       for (s=string; n; s++, n--)
         {
