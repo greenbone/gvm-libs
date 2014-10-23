@@ -151,7 +151,7 @@ nasl_rawstring (lex_ctxt * lexic)
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = 0;
-  retc->x.str_val = g_malloc0 (RAW_STR_LEN);
+  retc->x.str_val = g_malloc0 (RAW_STR_LEN + 1);
 
   vn = array_max_index (&lexic->ctx_vars);
   for (vi = 0; vi < vn && total_len < RAW_STR_LEN - 1; vi++)
@@ -939,7 +939,7 @@ nasl_insstr (lex_ctxt * lexic)
   else
     sz3 = sz1 + i1 - i2 - 1 + sz2;
 
-  s3 = retc->x.str_val = g_malloc0 (sz3);
+  s3 = retc->x.str_val = g_malloc0 (sz3 + 1);
   retc->size = sz3;
 
   if (i1 <= sz1)
@@ -1117,10 +1117,9 @@ nasl_chomp (lex_ctxt * lexic)
   if (p != NULL)
     len = (p - str);
 
-  retc->x.str_val = g_malloc0 (len);
+  retc->x.str_val = g_malloc0 (len + 1);
   retc->size = len;
   memcpy (retc->x.str_val, str, len);
-  retc->x.str_val[len] = '\0';
   return retc;
 }
 

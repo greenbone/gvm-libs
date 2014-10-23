@@ -1,3 +1,8 @@
+2014-10-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_text_utils.c (nasl_rawstring, nasl_insstr, nasl_chomp):
+	Adequately add extra byte for null terminator.
+
 2014-10-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_grammar.y (ipaddr): Use g_strdup_printf() instead of
