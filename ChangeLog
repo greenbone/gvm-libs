@@ -1,3 +1,9 @@
+2014-10-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvticache.c (nvticache_get_src): New function.
+
+	* base/nvticache.h: Add new function prototype.
+
 2014-10-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_text_utils.c (nasl_rawstring, nasl_insstr, nasl_chomp):

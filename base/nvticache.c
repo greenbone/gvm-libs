@@ -172,7 +172,7 @@ nvticache_add (const nvti_t *nvti, const char *filename)
  * @return A full copy of the NVTI object or NULL if not found.
  */
 nvti_t *
-nvticache_get_by_oid_full (const char * oid)
+nvticache_get_by_oid_full (const char *oid)
 {
   nvti_t *cache_nvti;
   char *dummy, *cache_file;
@@ -194,4 +194,19 @@ nvticache_get_by_oid_full (const char * oid)
   g_free (dummy);
   g_free (cache_file);
   return cache_nvti;
+}
+
+/**
+ * @brief Get the source filename of an OID.
+ *
+ * @param oid      The OID to look up.
+ *
+ * @return Filename matching OID if found, NULL otherwise.
+ */
+const char *
+nvticache_get_src (const char *oid)
+{
+  assert (nvticache);
+
+  return g_hash_table_lookup (nvticache->nvtis, oid);
 }
