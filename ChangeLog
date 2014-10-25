@@ -1,3 +1,8 @@
+2014-10-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_text_utils.c (_regreplace, nasl_substr): Adequately add
+	extra byte for null terminator.
+
 2014-10-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/nvticache.c (nvticache_get_src): New function.

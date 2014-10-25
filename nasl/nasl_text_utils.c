@@ -529,8 +529,8 @@ _regreplace (const char *pattern, const char *replace, const char *string,
 
   /* start with a buffer that is twice the size of the stringo
      we're doing replacements in */
-  buf_len = 2 * string_len + 1;
-  buf = g_malloc0 (buf_len * sizeof (char));
+  buf_len = 2 * string_len;
+  buf = g_malloc0 (buf_len + 1);
 
 
   err = pos = 0;
@@ -573,9 +573,9 @@ _regreplace (const char *pattern, const char *replace, const char *string,
 
           if (new_l + 1 > buf_len)
             {
-              buf_len = 1 + buf_len + 2 * new_l;
-              nbuf = g_malloc0 (buf_len);
-              strcpy (nbuf, buf);
+              buf_len = buf_len + 2 * new_l;
+              nbuf = g_malloc0 (buf_len + 1);
+              strncpy (nbuf, buf, buf_len);
               g_free (buf);
               buf = nbuf;
             }
@@ -608,9 +608,9 @@ _regreplace (const char *pattern, const char *replace, const char *string,
               new_l = strlen (buf) + 1;
               if (new_l + 1 > buf_len)
                 {
-                  buf_len = 1 + buf_len + 2 * new_l;
-                  nbuf = g_malloc0 (buf_len * sizeof (char));
-                  strcpy (nbuf, buf);
+                  buf_len = buf_len + 2 * new_l;
+                  nbuf = g_malloc0 (buf_len + 1);
+                  strncpy (nbuf, buf, buf_len);
                   g_free (buf);
                   buf = nbuf;
                 }
@@ -628,9 +628,9 @@ _regreplace (const char *pattern, const char *replace, const char *string,
           new_l = strlen (buf) + strlen (&string[pos]);
           if (new_l + 1 > buf_len)
             {
-              buf_len = new_l + 1;      /* now we know exactly how long it is */
-              nbuf = g_malloc0 (buf_len * sizeof (char));
-              strcpy (nbuf, buf);
+              buf_len = new_l;      /* now we know exactly how long it is */
+              nbuf = g_malloc0 (buf_len + 1);
+              strncpy (nbuf, buf, buf_len);
               g_free (buf);
               buf = nbuf;
             }
@@ -885,7 +885,7 @@ nasl_substr (lex_ctxt * lexic)
     }
   sz2 = i2 - i1 + 1;
   retc->size = sz2;
-  retc->x.str_val = g_malloc0 (sz2);
+  retc->x.str_val = g_malloc0 (sz2 + 1);
   memcpy (retc->x.str_val, s1 + i1, sz2);
   return retc;
 }
