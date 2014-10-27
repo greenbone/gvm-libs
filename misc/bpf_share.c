@@ -23,6 +23,8 @@
 
 #include <pcap.h>
 
+#include "openvas_logging.h"
+
 #undef DEBUG
 #undef DEBUG_HIGH
 #define NUM_CLIENTS 128
@@ -48,7 +50,7 @@ bpf_open_live (char *iface, char *filter)
 
   if (pcaps[i])
     {
-      printf ("no free pcap\n");
+      log_legacy_write ("no free pcap");
       return -1;
     }
 
@@ -59,13 +61,13 @@ bpf_open_live (char *iface, char *filter)
   ret = pcap_open_live (iface, 1500, 0, 1, errbuf);
   if (ret == NULL)
     {
-      printf ("%s\n", errbuf);
+      log_legacy_write ("%s", errbuf);
       return -1;
     }
 
   if (pcap_lookupnet (iface, &network, &netmask, 0) < 0)
     {
-      printf ("pcap_lookupnet failed\n");
+      log_legacy_write ("pcap_lookupnet failed");
       pcap_close (ret);
       return -1;
     }
@@ -80,8 +82,9 @@ bpf_open_live (char *iface, char *filter)
   if (pcap_setnonblock (ret, 1, NULL) == -1)
     {
       pcap_perror (ret, "pcap_setnonblock");
-      printf
-        ("call to pcap_setnonblock failed, some plugins/scripts will hang/freeze. Upgrade your version of libcap!\n");
+      log_legacy_write
+       ("call to pcap_setnonblock failed, some plugins/scripts will"
+        " hang/freeze. Upgrade your version of libcap!");
     }
 
   if (pcap_setfilter (ret, &filter_prog) < 0)

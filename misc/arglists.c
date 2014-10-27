@@ -25,7 +25,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 #include <glib.h>
 
@@ -308,7 +307,7 @@ arg_dump (args, level)
   const char *spaces = "--------------------";
   if (!args)
     {
-      printf ("Error ! args == NULL\n");
+      log_legacy_write ("Error ! args == NULL");
       return;
     }
 

@@ -36,6 +36,7 @@
 #include "iconv.h"
 #include "smb.h"
 #include "proto.h"
+#include "openvas_logging.h"
 
 #ifndef SMB_STRDUP
 #define SMB_STRDUP(s) strdup(s)
@@ -263,7 +264,8 @@ void init_iconv_ntlmssp(void)
         }
         conv_handles_ntlmssp[c1][c2] = smb_iconv_open_ntlmssp(n2,n1);
         if (!conv_handles_ntlmssp[c1][c2]) {
-          printf("init_iconv_ntlmssp: conv_handle initialization failed");
+          log_legacy_write ("init_iconv_ntlmssp: conv_handle"
+                            " initialization failed");
         }
       }
     }
@@ -606,13 +608,13 @@ size_t push_ascii_ntlmssp(void *dest, const char *src, size_t dest_len, int flag
 
   /* No longer allow a length of -1. */
   if (dest_len == (size_t)-1) {
-    printf("push_ascii - dest_len == -1");
+    log_legacy_write ("push_ascii - dest_len == -1");
   }
 
   if (flags & STR_UPPER) {
     tmpbuf = SMB_STRDUP(src);
     if (!tmpbuf) {
-      printf("malloc fail");
+      log_legacy_write ("malloc fail");
     }
     strupper_m_ntlmssp(tmpbuf);
     src = tmpbuf;
