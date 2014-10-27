@@ -360,21 +360,19 @@ void
 proto_post_wrapped (struct arglist *desc, int port, const char *proto,
                     const char *action, const char *what)
 {
-  char *buffer;
-  int soc;
-  int len;
-  char *prepend_tags;
-  char *append_tags;
+  int soc, len;
+  char *buffer, *prepend_tags, *append_tags, *data, **nvti_tags = NULL;
   GString *action_str;
-  gchar *data;
   gsize length;
-  nvti_t *nvti = nvticache_get_by_oid_full (arg_get_value (desc, "OID"));
-  gchar **nvti_tags = NULL;
+  nvti_t *nvti;
 
   /* Should not happen, just to avoid trouble stop here if no NVTI found */
-  if (nvti == NULL)
+  if (!nvticache_initialized ())
     return;
 
+  nvti = nvticache_get_by_oid_full (arg_get_value (desc, "OID"));
+  if (!nvti)
+    return;
   if (action == NULL)
     action_str = g_string_new ("");
   else
@@ -586,7 +584,7 @@ get_plugin_preference (struct arglist *desc, const char *name)
   nvti_t * nvti;
 
   prefs = arg_get_value (desc, "preferences");
-  if (!prefs)
+  if (!prefs || !nvticache_initialized ())
     return NULL;
 
   nvti = nvticache_get_by_oid_full (arg_get_value (desc, "OID"));

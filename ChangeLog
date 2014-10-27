@@ -1,3 +1,12 @@
+2014-10-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvticache.c (nvticache_initialized): New function.
+
+	* base/nvticache.h: Add new function prototype.
+
+	* misc/plugutils.c (proto_post_wrapped, get_plugin_preference): Check
+	that nvti cache is initialized.
+
 2014-10-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_text_utils.c (_regreplace, nasl_substr): Adequately add

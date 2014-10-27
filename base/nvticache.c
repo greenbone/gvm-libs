@@ -50,6 +50,17 @@
 nvticache_t *nvticache = NULL;
 
 /**
+ * @brief Return whether the nvt cache is initialized.
+ *
+ * @return 1 if cache is initialized, 0 otherwise.
+ */
+int
+nvticache_initialized ()
+{
+ return !!nvticache;
+}
+
+/**
  * @brief Initializes the nvti cache.
  *
  * @param cache_path    The directory where the cache is to be stored.

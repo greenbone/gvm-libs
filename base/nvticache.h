@@ -55,6 +55,9 @@ typedef struct nvticache
 void
 nvticache_init (const gchar *, const gchar *);
 
+int
+nvticache_initialized ();
+
 void
 nvticache_free ();
 
