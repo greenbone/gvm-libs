@@ -92,7 +92,7 @@ void auth_printf (struct arglist *, char *, ...);
 void auth_send (struct arglist *, char *);
 char *auth_gets (struct arglist *, char *, size_t);
 
-int openvas_SSL_init ();
+int openvas_SSL_init (void);
 
 int stream_set_buffer (int, int);
 int stream_get_buffer_sz (int);

@@ -352,7 +352,7 @@ openvas_log_silent (const char *log_domain, GLogLevelFlags log_level,
 static GMutex *logger_mutex = NULL;
 
 static void
-openvas_log_lock_init ()
+openvas_log_lock_init (void)
 {
 #if GLIB_CHECK_VERSION (2, 31, 0)
   if (logger_mutex == NULL)
@@ -367,13 +367,13 @@ openvas_log_lock_init ()
 }
 
 static void
-openvas_log_lock ()
+openvas_log_lock (void)
 {
   g_mutex_lock (logger_mutex);
 }
 
 static void
-openvas_log_unlock ()
+openvas_log_unlock (void)
 {
   g_mutex_unlock (logger_mutex);
 }

@@ -458,7 +458,7 @@ openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
  * This will have no effect if openvas_auth_init was not called.
  */
 void
-openvas_auth_tear_down ()
+openvas_auth_tear_down (void)
 {
   /** @todo Close memleak, destroy list and content. */
 }

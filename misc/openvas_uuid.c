@@ -40,7 +40,7 @@
  *         caller must free, or NULL on failure.
  */
 char *
-openvas_uuid_make ()
+openvas_uuid_make (void)
 {
   char *id;
   uuid_t uuid;

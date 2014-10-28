@@ -130,7 +130,7 @@ static void my_gnutls_transport_set_lowat_default (gnutls_session_t session);
 #define OVAS_CONNECTION_FROM_FD(fd) (connections + ((fd) - OPENVAS_FD_OFF))
 
 static void
-renice_myself ()
+renice_myself (void)
 {
   static pid_t pid = 0;
   pid_t cpid = getpid ();
@@ -179,7 +179,7 @@ stream_get_err (int fd)
  * @brief Returns a free file descriptor.
  */
 static int
-get_connection_fd ()
+get_connection_fd (void)
 {
   int i;
 
