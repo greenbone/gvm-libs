@@ -56,10 +56,10 @@ void
 nvticache_init (const gchar *, const gchar *);
 
 int
-nvticache_initialized ();
+nvticache_initialized (void);
 
 void
-nvticache_free ();
+nvticache_free (void);
 
 nvti_t *
 nvticache_get (const gchar *);

@@ -95,7 +95,7 @@ openvas_source_iface_init (const char *iface)
 }
 
 int
-openvas_source_iface_is_set ()
+openvas_source_iface_is_set (void)
 {
   return *global_source_iface != '\0';
 }
@@ -183,7 +183,7 @@ openvas_source_addr_as_addr6 (struct in6_addr *addr6)
  * @return Source IPv4 string. Free with g_free().
  */
 char *
-openvas_source_addr_str ()
+openvas_source_addr_str (void)
 {
   char *str = g_malloc0 (INET_ADDRSTRLEN);
 
@@ -197,7 +197,7 @@ openvas_source_addr_str ()
  * @return Source IPv6 string. Free with g_free().
  */
 char *
-openvas_source_addr6_str ()
+openvas_source_addr6_str (void)
 {
   char *str = g_malloc0 (INET6_ADDRSTRLEN);
 

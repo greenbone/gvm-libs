@@ -72,7 +72,7 @@ int
 openvas_source_iface_init (const char *);
 
 int
-openvas_source_iface_is_set ();
+openvas_source_iface_is_set (void);
 
 int
 openvas_source_set_socket (int, int, int);
@@ -87,10 +87,10 @@ void
 openvas_source_addr_as_addr6 (struct in6_addr *);
 
 char *
-openvas_source_addr_str ();
+openvas_source_addr_str (void);
 
 char *
-openvas_source_addr6_str ();
+openvas_source_addr6_str (void);
 
 void
 ipv4_as_ipv6 (const struct in_addr *, struct in6_addr *);

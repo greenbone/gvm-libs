@@ -1,4 +1,11 @@
-2014-10-18  Michael Meyer <michael.meyer@greenbone.net>
+2014-10-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/nvti.c, base/openvas_networking.c, base/nvti.h,
+	base/openvas_networking.h, base/osp.c, base/nvticache.c, base/osp.h,
+	base/nvticache.h: Made any method without parameter explicitly use "void" to
+	inticate this and help compiler to identify wrong usage.
+
+2014-10-28  Michael Meyer <michael.meyer@greenbone.net>
 
 	* misc/plugutils.c (plug_set_key):
 	Added newline to output.

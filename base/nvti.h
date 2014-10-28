@@ -162,7 +162,7 @@ int nvti_to_keyfile (const nvti_t *, const gchar *);
 typedef GHashTable nvtis_t;
 
 nvtis_t *
-nvtis_new ();
+nvtis_new (void);
 
 void
 nvtis_free (nvtis_t *);

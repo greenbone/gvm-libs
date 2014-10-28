@@ -55,7 +55,7 @@ nvticache_t *nvticache = NULL;
  * @return 1 if cache is initialized, 0 otherwise.
  */
 int
-nvticache_initialized ()
+nvticache_initialized (void)
 {
  return !!nvticache;
 }
@@ -85,7 +85,7 @@ nvticache_init (const gchar *cache_path, const gchar *src_path)
  * @brief Free the nvti cache.
  */
 void
-nvticache_free ()
+nvticache_free (void)
 {
   assert (nvticache);
   if (nvticache->cache_path)

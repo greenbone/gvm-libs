@@ -59,7 +59,7 @@ GSList *
 osp_get_scanner_params (osp_connection_t *);
 
 osp_param_t *
-osp_param_new ();
+osp_param_new (void);
 
 osp_param_type_t
 osp_param_type (osp_param_t *);

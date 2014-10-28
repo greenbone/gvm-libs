@@ -404,7 +404,7 @@ osp_get_scanner_params (osp_connection_t *connection)
  * @return New OSP parameter.
  */
 osp_param_t *
-osp_param_new ()
+osp_param_new (void)
 {
   return g_malloc0 (sizeof (osp_param_t));
 }

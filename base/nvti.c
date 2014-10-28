@@ -1468,7 +1468,7 @@ free_nvti_for_hash_table (gpointer nvti)
  * @brief Make a collection of NVT Infos.
  */
 nvtis_t *
-nvtis_new ()
+nvtis_new (void)
 {
   return g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
                                 free_nvti_for_hash_table);
