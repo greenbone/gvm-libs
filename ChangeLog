@@ -1,3 +1,8 @@
+2014-10-18  Michael Meyer <michael.meyer@greenbone.net>
+
+	* misc/plugutils.c (plug_set_key):
+	Added newline to output.
+
 2014-10-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/pcap.c (v6_routethrough): Remove null pointer dereference.

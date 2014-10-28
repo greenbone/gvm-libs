@@ -769,9 +769,9 @@ plug_set_key (struct arglist *args, char *name, int type, void *value)
   if (global_nasl_debug == 1)
     {
       if (type == ARG_STRING)
-        log_legacy_write ("set key %s -> %s", name, (char *) value);
+        log_legacy_write ("set key %s -> %s\n", name, (char *) value);
       else if (type == ARG_INT)
-        log_legacy_write ("set key %s -> %d", name,
+        log_legacy_write ("set key %s -> %d\n", name,
                           (int) GPOINTER_TO_SIZE (value));
     }
 }
