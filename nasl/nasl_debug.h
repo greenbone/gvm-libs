@@ -21,6 +21,6 @@
 
 void nasl_perror (lex_ctxt *, char *, ...);
 void nasl_trace (lex_ctxt *, char *, ...);
-int nasl_trace_enabled ();
+int nasl_trace_enabled (void);
 
 #endif

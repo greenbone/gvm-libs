@@ -38,7 +38,7 @@
 
 typedef int SMB_HANDLE;
 
-char *smb_versioninfo ();
+char *smb_versioninfo (void);
 int smb_connect (const char *, const char *, const char *, const char *,
                  SMB_HANDLE *);
 int smb_close (SMB_HANDLE);

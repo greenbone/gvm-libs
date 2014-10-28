@@ -44,7 +44,7 @@
 #endif
 
 
-extern char *nasl_version ();
+extern char *nasl_version (void);
 extern int execute_instruction (struct arglist *, char *);
 void exit_nasl (struct arglist *, int);
 

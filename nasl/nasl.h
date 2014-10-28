@@ -37,7 +37,7 @@
   anymore, thus likely to be moved to openvas-libraries): */
 int nasl_verify_signature (const char *filename);
 char *nasl_extract_signature_fprs (const char *filename);
-GSList *nasl_get_all_certificates ();
+GSList *nasl_get_all_certificates (void);
 /* End of Signature information extraction */
 
 int add_nasl_inc_dir (const char *);
@@ -47,7 +47,7 @@ exec_nasl_script (struct arglist *, const char *, int);
 int
 execute_preparsed_nasl_script (struct arglist *, char *, char *, int, int);
 char *
-nasl_version ();
+nasl_version (void);
 pid_t
 nasl_server_start (char *, char *);
 void

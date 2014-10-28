@@ -71,7 +71,7 @@ nasl_perror (lex_ctxt * lexic, char *msg, ...)
  * @return 0 if nasl_trace_fp == NULL, 1 otherwise.
  */
 int
-nasl_trace_enabled ()
+nasl_trace_enabled (void)
 {
   if (nasl_trace_fp == NULL)
     return 0;

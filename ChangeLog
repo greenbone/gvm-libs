@@ -1,5 +1,12 @@
 2014-10-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl.c, nasl/nasl.h, nasl/nasl_debug.c, nasl/nasl_debug.h,
+	nasl/openvas_smb_interface.h, nasl/openvas_wmi_interface.h: Made any
+	method without parameter explicitly use "void" to inticate this and
+	help compiler to identify wrong usage.
+
+2014-10-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/openvas_auth.c, misc/openvas_auth.h, misc/openvas_logging.c,
 	misc/openvas_logging.h, misc/network.c, misc/network.h,
 	misc/openvas_uuid.c, misc/openvas_uuid.h: Made any method without

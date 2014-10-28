@@ -40,7 +40,7 @@
 
 typedef int WMI_HANDLE;
 
-char *wmi_versioninfo ();
+char *wmi_versioninfo (void);
 int wmi_connect (int argc, char **argv, WMI_HANDLE * handle);
 int wmi_close (WMI_HANDLE);
 int wmi_query (WMI_HANDLE, const char *, char **);
