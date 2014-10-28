@@ -1,3 +1,10 @@
+2014-10-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/pcap.c (v6_routethrough): Remove null pointer dereference.
+
+	* misc/plugutils.c (kb_get_port_state_proto): Set default proto value to
+	fix possible null pointer dereference.
+
 2014-10-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/arglists.c, misc/bpf_share.c, misc/pcap.c, nasl/charcnv.c: Use

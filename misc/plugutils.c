@@ -227,7 +227,9 @@ kb_get_port_state_proto (kb_t kb, struct arglist *prefs, int portnum,
   port_protocol_t port_type;
   array_t *port_ranges;
 
-  if (proto && !strcmp (proto, "udp"))
+  if (!proto)
+    proto = "tcp";
+  if (!strcmp (proto, "udp"))
     {
       port_type = PORT_PROTOCOL_UDP;
       kbstr = "Host/udp_scanned";

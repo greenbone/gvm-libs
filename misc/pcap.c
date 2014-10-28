@@ -1076,8 +1076,6 @@ v6_routethrough (struct in6_addr *dest, struct in6_addr *source)
 #endif
   struct in6_addr src;
 
-  *source = in6addr_any;
-
   if (!dest)
     log_legacy_write ("ipaddr2devname passed a NULL dest address");
 
