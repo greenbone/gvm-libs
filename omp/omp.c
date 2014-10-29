@@ -199,13 +199,13 @@ omp_authenticate (gnutls_session_t* session,
   int ret;
 
   /* Send the auth request. */
-  ret = openvas_server_sendf_xml(session,
-                                 "<authenticate><credentials>"
-                                 "<username>%s</username>"
-                                 "<password>%s</password>"
-                                 "</credentials></authenticate>",
-                                 username,
-                                 password);
+  ret = openvas_server_sendf_xml_quiet (session,
+                                        "<authenticate><credentials>"
+                                        "<username>%s</username>"
+                                        "<password>%s</password>"
+                                        "</credentials></authenticate>",
+                                        username,
+                                        password);
   if (ret)
     return ret;
 
@@ -259,13 +259,13 @@ omp_authenticate_info_ext (gnutls_session_t *session,
 
   /* Send the auth request. */
 
-  ret = openvas_server_sendf_xml (session,
-                                  "<authenticate><credentials>"
-                                  "<username>%s</username>"
-                                  "<password>%s</password>"
-                                  "</credentials></authenticate>",
-                                  opts.username,
-                                  opts.password);
+  ret = openvas_server_sendf_xml_quiet (session,
+                                        "<authenticate><credentials>"
+                                        "<username>%s</username>"
+                                        "<password>%s</password>"
+                                        "</credentials></authenticate>",
+                                        opts.username,
+                                        opts.password);
   if (ret)
     return ret;
 
@@ -1333,27 +1333,27 @@ omp_create_lsc_credential (gnutls_session_t* session,
   if (password)
     {
       if (comment)
-        ret = openvas_server_sendf_xml (session,
-                                        "<create_lsc_credential>"
-                                        "<name>%s</name>"
-                                        "<login>%s</login>"
-                                        "<password>%s</password>"
-                                        "<comment>%s</comment>"
-                                        "</create_lsc_credential>",
-                                        name,
-                                        login,
-                                        password,
-                                        comment);
+        ret = openvas_server_sendf_xml_quiet (session,
+                                              "<create_lsc_credential>"
+                                              "<name>%s</name>"
+                                              "<login>%s</login>"
+                                              "<password>%s</password>"
+                                              "<comment>%s</comment>"
+                                              "</create_lsc_credential>",
+                                              name,
+                                              login,
+                                              password,
+                                              comment);
       else
-        ret = openvas_server_sendf_xml (session,
-                                        "<create_lsc_credential>"
-                                        "<name>%s</name>"
-                                        "<login>%s</login>"
-                                        "<password>%s</password>"
-                                        "</create_lsc_credential>",
-                                        name,
-                                        login,
-                                        password);
+        ret = openvas_server_sendf_xml_quiet (session,
+                                              "<create_lsc_credential>"
+                                              "<name>%s</name>"
+                                              "<login>%s</login>"
+                                              "<password>%s</password>"
+                                              "</create_lsc_credential>",
+                                              name,
+                                              login,
+                                              password);
     }
   else
     {

@@ -70,6 +70,7 @@ int openvas_server_sendf (gnutls_session_t *, const char *, ...);
 int openvas_server_vsendf (gnutls_session_t *, const char *, va_list);
 
 int openvas_server_sendf_xml (gnutls_session_t *, const char *, ...);
+int openvas_server_sendf_xml_quiet (gnutls_session_t *, const char *, ...);
 
 int openvas_server_new (unsigned int, gchar *, gchar *, gchar *,
                         gnutls_session_t *, gnutls_certificate_credentials_t *);

@@ -1,3 +1,18 @@
+2014-10-29  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Skip OMP library log messages when sending passwords.
+
+	* misc/openvas_server.c (openvas_server_vsendf_internal): New function.
+	Body from openvas_server_vsendf, with quiet arg.
+	(openvas_server_vsendf): Call openvas_server_vsendf_internal.
+	(openvas_server_vsendf_quiet, openvas_server_sendf_quiet)
+	(openvas_server_sendf_xml_quiet): New functions.
+
+	* misc/openvas_server.h: Add header accordingly.
+
+	* omp/omp.c (omp_authenticate, omp_authenticate_info_ext)
+	(omp_create_lsc_credential): Use quiet send function when logging.
+
 2014-10-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl.c, nasl/nasl.h, nasl/nasl_debug.c, nasl/nasl_debug.h,
@@ -438,7 +453,7 @@
 	nasl/nasl_http.c, nasl/nasl_misc_funcs.c, nasl/nasl_packet_forgery.c,
 	nasl/nasl_packet_forgery_v6.c, nasl/nasl_scanner_glue.c,
 	nasl/nasl_socket.c: Removed unneeded include of strutil.h.
- 
+
 2014-10-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/strutils.c: Removed unneeded includes.
@@ -503,7 +518,7 @@
 2014-10-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_host.c (nasl_same_host): Fixed memleak.
- 
+
 2014-10-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_http.c (_http_req): Replaced emalloc() by g_malloc0()
