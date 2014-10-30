@@ -132,6 +132,20 @@ openvas_ssh_login_free (openvas_ssh_login * loginfo)
 char *
 openvas_ssh_public_from_private (const char *private_key, const char *passphrase)
 {
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 6, 0)
+  ssh_key priv;
+  char *pub_key;
+  int ret;
+
+  ret = ssh_pki_import_privkey_base64 (private_key, passphrase, NULL, NULL,
+                                       &priv);
+  if (ret)
+    return NULL;
+  ret = ssh_pki_export_pubkey_base64 (priv, &pub_key);
+  ssh_key_free (priv);
+  return pub_key;
+
+#else
   char key_dir[] = "/tmp/openvas_key_XXXXXX", *base64, *data;
   char filename[1024];
   ssh_private_key ssh_privkey;
@@ -170,6 +184,7 @@ openvas_ssh_public_from_private (const char *private_key, const char *passphrase
   ssh_string_free (sstring);
   g_free (data);
   return base64;
+#endif
 }
 
 // ---------------- File store functions ------------------

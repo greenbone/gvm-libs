@@ -1,3 +1,9 @@
+2014-10-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_ssh_login.c (openvas_ssh_public_from_private): Use newer
+	libssh API when available. This allows supporting ecdsa keys when using
+	libssh 0.6.0 or higher.
+
 2014-10-29  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Skip OMP library log messages when sending passwords.
