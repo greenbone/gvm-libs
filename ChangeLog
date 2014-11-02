@@ -1,3 +1,9 @@
+2014-11-02  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/scanners_utils.c (comm_send_status): Don't consider scanner
+	option "ntp_short_status" anymore. This short syntax of "STATUS"
+	command of OTP is not supported anymore.
+
 2014-10-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/openvas_ssh_login.c (openvas_ssh_public_from_private): Use newer

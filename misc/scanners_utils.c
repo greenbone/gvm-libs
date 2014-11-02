@@ -35,9 +35,6 @@ int
 comm_send_status (struct arglist *globals, char *hostname, char *action,
                   int curr, int max)
 {
-  struct arglist *prefs = arg_get_value (globals, "preferences");
-  char *pref = arg_get_value (prefs, "ntp_short_status");
-  int short_status;
   int soc = GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
   char buffer[2048];
 
@@ -47,20 +44,9 @@ comm_send_status (struct arglist *globals, char *hostname, char *action,
   if (strlen (hostname) > (sizeof (buffer) - 50))
     return -1;
 
-  if (pref && !strcmp (pref, "yes"))
-    short_status = 1;
-  else
-    short_status = 0;
-
-  if (short_status)
-    {
-      snprintf (buffer, sizeof (buffer), "s:%c:%s:%d:%d\n", action[0], hostname,
-                curr, max);
-    }
-  else
-    snprintf (buffer, sizeof (buffer),
-              "SERVER <|> STATUS <|> %s <|> %s <|> %d/%d <|> SERVER\n",
-              hostname, action, curr, max);
+  snprintf (buffer, sizeof (buffer),
+            "SERVER <|> STATUS <|> %s <|> %s <|> %d/%d <|> SERVER\n",
+            hostname, action, curr, max);
 
   internal_send (soc, buffer, INTERNAL_COMM_MSG_TYPE_DATA);
 
