@@ -1,3 +1,10 @@
+2014-11-03  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Backport r20754.
+
+	* nasl/nasl_smb.c (nasl_win_cmd_exec): Make sure "cmd" variable is
+	not empty before attempting query. Patch provided by Thanga Prakash.
+
 2014-07-17  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Backport r19876.

@@ -412,7 +412,7 @@ nasl_win_cmd_exec (lex_ctxt * lexic)
   char *argv1 = "winexe";
   char *argv2 = "-U";
 
-  if ((host == NULL) || (username == NULL) || (password == NULL))
+  if ((host == NULL) || (username == NULL) || (password == NULL) || (cmd == NULL))
     {
       log_legacy_write ("win_cmd_exec: Invalid input arguments\n");
       return NULL;
