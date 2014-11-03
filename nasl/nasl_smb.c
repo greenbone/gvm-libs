@@ -436,11 +436,11 @@ nasl_win_cmd_exec (lex_ctxt * lexic)
       return NULL;
     }
 
-  argv[0] = (char *) g_malloc0 (strlen (argv1));
-  argv[1] = (char *) g_malloc0 (strlen (argv2));
-  argv[2] = (char *) g_malloc0 (strlen (username) + strlen (password) + 1);
-  argv[3] = (char *) g_malloc0 (strlen (ip) + 2);
-  argv[4] = (char *) g_malloc0 (strlen (cmd));
+  argv[0] = (char *) g_malloc0 (strlen (argv1) + 1);
+  argv[1] = (char *) g_malloc0 (strlen (argv2) + 1);
+  argv[2] = (char *) g_malloc0 (strlen (username) + strlen (password) + 1 + 1);
+  argv[3] = (char *) g_malloc0 (strlen (ip) + 2 + 1);
+  argv[4] = (char *) g_malloc0 (strlen (cmd) + 1);
 
   // Construct the WinCMD query
   strcpy (argv[0], argv1);
