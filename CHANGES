@@ -1,3 +1,27 @@
+openvas-libraries 7.0.5 (2014-11-04)
+
+This is the fifth maintenance release of the openvas-libraries 7.0 module for
+the Open Vulnerability Assessment System 7 (OpenVAS-7).
+
+This release improves the stability of concurrent XML parsing. It also takes
+steps towards the consolidation of logging functions and addresses a number of
+smaller issues.
+
+Many thanks to everyone who contributed to this release:
+Benoît Allard, Hani Benhabiles, Matthew Mundell, Timo Pollmeier, Thanga Prakash
+and Michael Wiegand.
+
+Main changes since 7.0.4:
+* Stability of concurrent XML parsing has been improved.
+* An issue which caused segmentation faults in the "wincmd" feature has been
+  addressed.
+* Steps towards consolidation of logging functions.
+* Support for using filters in the omp_get_tasks_ext () function has been added.
+* A compiler warning has been addressed.
+* The required minimum version of the GnuTLS library is now correctly listed as
+  2.12.
+
+
 openvas-libraries 7.0.4 (2014-09-09)
 
 This is the fourth maintenance release of the openvas-libraries 7.0 module for
