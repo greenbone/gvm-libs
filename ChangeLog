@@ -1,3 +1,16 @@
+2014-11-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Move preferences handling from scanner to libraries because
+	we need to access it from some modules here directly while
+	at the same time getting rid of storing preferences pointer
+	in the arglists.
+
+	* misc/prefs.c, misc/prefs.h: New.
+
+	* misc/CMakeLists.txt: Handle module prefs.
+
+	* COPYING: Add module prefs.
+
 2014-11-03  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* nasl/nasl_smb.c (nasl_win_cmd_exec): Allocate extra bytes for all
