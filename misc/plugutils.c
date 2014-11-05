@@ -47,6 +47,7 @@
 #include "internal_com.h"
 #include "scanners_utils.h"
 #include "openvas_logging.h"
+#include "prefs.h"             /* for prefs_get_bool */
 
 #include "../base/nvticache.h" /* for nvticache_get_by_oid() */
 
@@ -200,30 +201,22 @@ host_add_port_proto (struct arglist *args, int portnum, int state, char *proto)
  * @return 0 if pref is "yes", 1 otherwise.
  */
 static int
-unscanned_ports_as_closed (struct arglist *prefs, port_protocol_t ptype)
+unscanned_ports_as_closed (port_protocol_t ptype)
 {
-  char *unscanned;
-
   if (ptype == PORT_PROTOCOL_UDP)
-    unscanned = arg_get_value (prefs, "unscanned_closed_udp");
-  else
-    unscanned = arg_get_value (prefs, "unscanned_closed");
+    return (prefs_get_bool ("unscanned_closed_udp") ? 0 : 1);
 
-  if (unscanned && !strcmp (unscanned, "yes"))
-    return 0;
-  else
-    return 1;
+  return (prefs_get_bool ("unscanned_closed") ? 0 : 1);
 }
 
 /**
  * @param proto Protocol (udp/tcp). If NULL, "tcp" will be used.
  */
 int
-kb_get_port_state_proto (kb_t kb, struct arglist *prefs, int portnum,
-                         char *proto)
+kb_get_port_state_proto (kb_t kb, int portnum, char *proto)
 {
   char port_s[255], *kbstr;
-  char *prange = (char *) arg_get_value (prefs, "port_range");
+  const char *prange = prefs_get ("port_range");
   port_protocol_t port_type;
   array_t *port_ranges;
 
@@ -242,13 +235,13 @@ kb_get_port_state_proto (kb_t kb, struct arglist *prefs, int portnum,
 
   /* Check that we actually scanned the port */
   if (kb_item_get_int (kb, kbstr) <= 0)
-    return unscanned_ports_as_closed (prefs, port_type);
+    return unscanned_ports_as_closed (port_type);
 
   port_ranges = port_range_ranges (prange);
   if (!port_in_port_ranges (portnum, port_type, port_ranges))
     {
       array_free (port_ranges);
-      return unscanned_ports_as_closed (prefs, port_type);
+      return unscanned_ports_as_closed (port_type);
     }
   array_free (port_ranges);
 
@@ -261,9 +254,8 @@ int
 host_get_port_state_proto (struct arglist *plugdata, int portnum, char *proto)
 {
   kb_t kb = plug_get_kb (plugdata);
-  struct arglist *prefs = arg_get_value (plugdata, "preferences");
 
-  return kb_get_port_state_proto (kb, prefs, portnum, proto);
+  return kb_get_port_state_proto (kb, portnum, proto);
 }
 
 int

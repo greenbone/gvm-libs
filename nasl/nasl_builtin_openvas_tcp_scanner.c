@@ -34,6 +34,7 @@
 #include "nvt_categories.h" /* for ACT_SCANNER */
 #include "../misc/plugutils.h" /* for find_in_path */
 #include "../misc/scanners_utils.h" /* for comm_send_status */
+#include "../misc/prefs.h"          /* for prefs_get */
 #include "../misc/openvas_logging.h"
 
 #include "nasl_lex_ctxt.h"
@@ -1282,17 +1283,14 @@ plugin_run_openvas_tcp_scanner (lex_ctxt * lexic)
 {
   struct arglist *desc = lexic->script_infos;
   struct arglist * globals = arg_get_value(desc, "globals");
-  struct arglist * preferences = arg_get_value(desc, "preferences");
   struct arglist * hostinfos = arg_get_value(desc, "HOSTNAME");
-  char * port_range = arg_get_value(preferences, "port_range");
-  char * p;
+  const char * port_range = prefs_get ("port_range");
+  const char * p;
   struct in6_addr *p_addr;
-  int	timeout = 0, max_cnx, min_cnx, safe_checks = 0, x;
+  int	timeout = 0, max_cnx, min_cnx, x;
+  int	safe_checks = prefs_get_bool ("safe_checks");
 
-  p = arg_get_value(preferences, "safe_checks");
-  if (p != NULL && strcmp(p, "yes") == 0) safe_checks = 1;
-
-  p =  arg_get_value(preferences, "checks_read_timeout");
+  p = prefs_get ("checks_read_timeout");
   if (p != NULL) timeout = atoi(p);
   if (timeout <= 0)
     timeout = 5;
@@ -1313,11 +1311,11 @@ plugin_run_openvas_tcp_scanner (lex_ctxt * lexic)
     dup2(devnull_fd, 2);
 #endif
 
-    p = arg_get_value(preferences, "max_hosts");
+    p = prefs_get ("max_hosts");
     if (p != NULL) max_host = atoi(p);
     if (max_host <= 0) max_host = 15;
 
-    p = arg_get_value(preferences, "max_checks");
+    p = prefs_get ("max_checks");
     if (p != NULL) max_checks = atoi(p);
     if (max_checks <= 0 || max_checks > 5)
       {

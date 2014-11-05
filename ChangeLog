@@ -1,5 +1,15 @@
 2014-11-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/plugutils.c (unscanned_ports_as_closed): Use prefs_get_bool
+	directly and thus simplify code and drop argument "preferences".
+	(kb_get_port_state_proto): Use get_prefs() directly and thus drop
+	argument "prefs".
+
+	* nasl/nasl_builtin_openvas_tcp_scanner.c (plugin_run_openvas_tcp_scanner):
+	Use prefs_get directly.
+
+2014-11-05  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Move preferences handling from scanner to libraries because
 	we need to access it from some modules here directly while
 	at the same time getting rid of storing preferences pointer
