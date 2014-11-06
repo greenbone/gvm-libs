@@ -72,4 +72,8 @@ nvticache_get_by_oid_full (const char *);
 
 const char *
 nvticache_get_src (const char *);
+
+void
+nvticache_free (void);
+
 #endif /* not _NVTICACHE_H */
