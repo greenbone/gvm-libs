@@ -1,5 +1,10 @@
 2014-11-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_cmd_exec.c (nasl/nasl_cmd_exec.c (nasl_pread): Dereference
+	tree cell after usage, to fix memory leak.
+
+2014-11-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_func.c (free_func): Free args_names after freeing all the
 	pointers.
 

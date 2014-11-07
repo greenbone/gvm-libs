@@ -83,9 +83,11 @@ nasl_pread (lex_ctxt * lexic)
   cmd = get_str_local_var_by_name (lexic, "cmd");
   if (cmd == NULL || a == NULL || (v = a->x.ref_val) == NULL)
     {
+      deref_cell (a);
       nasl_perror (lexic, "pread() usage: cmd:..., argv:...\n");
       return NULL;
     }
+  deref_cell (a);
 
   nice = get_int_local_var_by_name (lexic, "nice", 0);
 
