@@ -354,6 +354,7 @@ free_func (nasl_func * f)
     {
       for (i = 0; i < f->nb_named_args; i++)
         g_free (f->args_names[i]);
+      g_free (f->args_names);
       deref_cell (f->block);
     }
   g_free (f);
