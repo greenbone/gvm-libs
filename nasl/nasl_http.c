@@ -21,6 +21,8 @@
 #include <ctype.h>              /* for isspace */
 #include <string.h>             /* for strlen */
 
+#include "../misc/prefs.h"      /* for prefs_get */
+
 #include "kb.h"                 /* for kb_item_get_str */
 #include "plugutils.h"          /* plug_get_host_fqdn */
 
@@ -244,9 +246,7 @@ http_put (lex_ctxt * lexic)
 tree_cell *
 cgibin (lex_ctxt * lexic)
 {
-  struct arglist *script_infos = lexic->script_infos;
-  struct arglist *prefs = arg_get_value (script_infos, "preferences");
-  char *path = prefs == NULL ? NULL : arg_get_value (prefs, "cgi_path");
+  const char *path = prefs_get ("cgi_path");
   tree_cell *retc;
 
   if (path == NULL)

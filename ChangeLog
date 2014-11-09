@@ -1,3 +1,43 @@
+2014-11-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Final step of switching to global preference store.
+
+	* misc/plugutils.c (add_plugin_preference): Drop argument "prefs".
+	Use prefs_set instead of setting a arglist.
+	(plug_create_from_nvti_and_prefs): Drop argument "prefs".
+	Do not add anymore a "preferences" arglist to the plugin arglist.
+	(proto_post_wrapped): Use prefs_get() instead of get_preferences().
+	(get_preference): Remnoved.
+	(get_plugin_preference): Do not get the preferences from the "desc"
+	and get it directly via preferences_get instead.
+
+	* misc/plugutils.h: Adjust protos accordingly.
+
+	* nasl/nasl_builtin_synscan.c (plugin_run_synscan): Use prefs_get
+	instead of preferences_get.
+
+	* nasl/nasl_http.c (cgibin): Use prefs_get instead of directly accessing
+	the plugin arglist for "preferences".
+
+	* nasl/nasl_builtin_nmap.c (add_portrange): User prefs_get instead
+	of "preferences" from plugin aglist.
+
+	* nasl/nasl-lint.c (main): Do not set the "preferences" arglist.
+
+	* nasl/nasl_ssh.c (get_ssh_port): Use prefs_get instead of getting
+	"preferences" from the arglist.
+
+	* nasl/nasl_scanner_glue.c (safe_checks): Use prefs_get_bool
+	instead of getting "preferences" from the arglist.
+	(nasl_get_preference, nasl_scanner_get_port): Use prefs_get instead
+	of getting "preferences" from the arglist.
+
+	* nasl/exec.c (exec_nasl_script): Use prefs_get instead of getting
+	"preferences" from the arglist.
+
+	* nasl/nasl.c (init): Use prefs_get instead of getting "preferences"
+	from the arglist.
+
 2014-11-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_cmd_exec.c (nasl/nasl_cmd_exec.c (nasl_pread): Dereference

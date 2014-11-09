@@ -29,6 +29,7 @@
 
 #include "regex.h"
 #include "../misc/openvas_logging.h"
+#include "../misc/prefs.h"           /* for prefs_get */
 
 #include "nasl.h"
 #include "nasl_tree.h"
@@ -1664,8 +1665,7 @@ extern tree_cell *nasl_lint (lex_ctxt *, tree_cell *);
  * bit #0 (1) is "description"
  * Bit #1 (2) is "parse only"
  *
- * @param script_infos The plugin as arglist. Has to be allocated, and at least
- *                     "preferences" sould be set.
+ * @param script_infos The plugin as arglist. Has to be allocated.
  * @param name         Filename.
  * @param mode         Bit field describing launch mode (description, parse
  *                     always signed).
@@ -1685,8 +1685,7 @@ exec_nasl_script (struct arglist *script_infos, const char *name, int mode)
   gchar *newdir;
   char *old;
   tree_cell tc;
-  struct arglist *prefs = arg_get_value (script_infos, "preferences");
-  char *str;
+  const char *str;
   int to;
 
   srand48 (getpid () + getppid () + (long) time (NULL));
@@ -1745,7 +1744,7 @@ exec_nasl_script (struct arglist *script_infos, const char *name, int mode)
   lexic = init_empty_lex_ctxt ();
   lexic->script_infos = script_infos;
 
-  str = arg_get_value (prefs, "checks_read_timeout");
+  str = prefs_get ("checks_read_timeout");
   if (str != NULL)
     to = atoi (str);
   else

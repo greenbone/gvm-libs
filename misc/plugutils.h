@@ -64,7 +64,7 @@ void plug_set_port_transport (struct arglist *, int, int);
 int plug_get_port_transport (struct arglist *, int);
 
 struct arglist *
-plug_create_from_nvti_and_prefs (const nvti_t *, struct arglist *);
+plug_create_from_nvti_and_prefs (const nvti_t *);
 
 /*
  * Reporting functions
@@ -103,7 +103,6 @@ kb_t plug_get_kb (struct arglist *);
 void *plug_get_key (struct arglist *, char *, int *);
 
 struct in6_addr *plug_get_host_ip (struct arglist *);
-char *get_preference (struct arglist *, const char *);
 void add_plugin_preference (struct arglist *, const char *, const char *,
                             const char *);
 char *get_plugin_preference (struct arglist *, const char *);

@@ -122,12 +122,15 @@ plug_get_launch (struct arglist *desc)
 }
 
 void
-_add_plugin_preference (struct arglist *prefs, const char *p_name,
+_add_plugin_preference (const char *p_name,
                         const char *name, const char *type, const char *defaul)
 {
   char *pref;
   char *cname;
   int len;
+
+  if (!p_name)
+    return;
 
   cname = g_strdup (name);
   len = strlen (cname);
@@ -137,15 +140,9 @@ _add_plugin_preference (struct arglist *prefs, const char *p_name,
       cname[len - 1] = '\0';
       len--;
     }
-  if (!prefs || !p_name)
-    {
-      g_free (cname);
-      return;
-    }
 
   pref = g_strdup_printf ("%s[%s]:%s", p_name, type, cname);
-  if (arg_get_value (prefs, pref) == NULL)
-    arg_add_value (prefs, pref, ARG_STRING, strlen (defaul), g_strdup (defaul));
+  prefs_set (pref, defaul);
 
   g_free (cname);
   g_free (pref);
@@ -156,14 +153,10 @@ _add_plugin_preference (struct arglist *prefs, const char *p_name,
  *
  * @param nvti NVT Information to be used for the creation.
  *
- * @param prefs Plugin preference arglist that is added to
- *              new arglist and where all preferences of the NVTI
- *              are copied to as single entries.
- *
  * @return Pointer to plugin as arglist or NULL.
  */
 struct arglist *
-plug_create_from_nvti_and_prefs (const nvti_t * nvti, struct arglist *prefs)
+plug_create_from_nvti_and_prefs (const nvti_t * nvti)
 {
   struct arglist *ret;
   int i;
@@ -175,12 +168,11 @@ plug_create_from_nvti_and_prefs (const nvti_t * nvti, struct arglist *prefs)
 
   arg_add_value (ret, "OID", ARG_STRING, strlen (nvti_oid (nvti)),
                  g_strdup (nvti_oid (nvti)));
-  arg_add_value (ret, "preferences", ARG_ARGLIST, -1, prefs);
 
   for (i = 0; i < nvti_pref_len (nvti); i++)
     {
       const nvtpref_t *np = nvti_pref (nvti, i);
-      _add_plugin_preference (prefs, nvti_name (nvti), nvtpref_name (np),
+      _add_plugin_preference (nvti_name (nvti), nvtpref_name (np),
                               nvtpref_type (np), nvtpref_default (np));
     }
 
@@ -355,7 +347,8 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
                     const char *action, const char *what)
 {
   int soc, len;
-  char *buffer, *prepend_tags, *append_tags, *data, **nvti_tags = NULL;
+  const char *prepend_tags, *append_tags;
+  char *buffer, *data, **nvti_tags = NULL;
   GString *action_str;
   gsize length;
   nvti_t *nvti;
@@ -375,8 +368,8 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
       g_string_append (action_str, "\n");
     }
 
-  prepend_tags = get_preference (desc, "result_prepend_tags");
-  append_tags = get_preference (desc, "result_append_tags");
+  prepend_tags = prefs_get ("result_prepend_tags");
+  append_tags = prefs_get ("result_append_tags");
 
   if (prepend_tags || append_tags)
     {
@@ -548,16 +541,6 @@ post_error (struct arglist *desc, int port, const char *action)
   proto_post_error (desc, port, "tcp", action);
 }
 
-char *
-get_preference (struct arglist *desc, const char *name)
-{
-  struct arglist *prefs;
-  prefs = arg_get_value (desc, "preferences");
-  if (!prefs)
-    return (NULL);
-  return ((char *) arg_get_value (prefs, name));
-}
-
 void
 add_plugin_preference (struct arglist *desc, const char *name, const char *type,
                        const char *defaul)
@@ -577,7 +560,7 @@ get_plugin_preference (struct arglist *desc, const char *name)
   char *plug_name, *cname;
   nvti_t * nvti;
 
-  prefs = arg_get_value (desc, "preferences");
+  prefs = preferences_get ();
   if (!prefs || !nvticache_initialized ())
     return NULL;
 

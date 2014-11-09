@@ -50,6 +50,8 @@
 
 #include "../base/nvticache.h"
 
+#include "../misc/prefs.h" /* for prefs_get */
+
 #ifndef NASL_DEBUG
 #define NASL_DEBUG 0
 #endif
@@ -598,19 +600,10 @@ script_get_preference_file_location (lex_ctxt * lexic)
 tree_cell *
 safe_checks (lex_ctxt * lexic)
 {
-  struct arglist *script_infos = lexic->script_infos;
-  struct arglist *prefs = arg_get_value (script_infos, "preferences");
-  char *value;
   tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
-  value = arg_get_value (prefs, "safe_checks");
-  if ((value && !strcmp (value, "yes")))
-    {
-      retc->x.i_val = 1;
-    }
-  else
-    retc->x.i_val = 0;
+  retc->x.i_val = prefs_get_bool ("safe_checks");
 
   return retc;
 }
@@ -976,24 +969,16 @@ tree_cell *
 nasl_get_preference (lex_ctxt * lexic)
 {
   tree_cell *retc;
-  char *name, *value;
-  struct arglist *script_infos, *prefs;
+  char *name;
+  const char *value;
 
-
-  script_infos = lexic->script_infos;
-  prefs = arg_get_value (script_infos, "preferences");
-  if (prefs == NULL)
-    {
-      nasl_perror (lexic, "get_preference: not preferences\n");
-      return NULL;
-    }
   name = get_str_var_by_num (lexic, 0);
   if (name == NULL)
     {
       nasl_perror (lexic, "get_preference: no name\n");
       return NULL;
     }
-  value = arg_get_value (prefs, name);
+  value = prefs_get (name);
   if (value == NULL)
     return NULL;
 
@@ -1015,9 +1000,7 @@ nasl_scanner_get_port (lex_ctxt * lexic)
 {
   tree_cell *retc;
   int idx = get_int_var_by_num (lexic, 0, -1);
-  struct arglist *script_infos = lexic->script_infos;
-  struct arglist *prefs = arg_get_value (script_infos, "preferences");
-  char *prange = arg_get_value (prefs, "port_range");
+  const char *prange = prefs_get ("port_range");
   static int num = 0;
   static u_short *ports = NULL;
 
@@ -1035,7 +1018,7 @@ nasl_scanner_get_port (lex_ctxt * lexic)
 
   if (ports == NULL)
     {
-      ports = (u_short *) getpts (prange, &num);
+      ports = (u_short *) getpts ((char *)prange, &num);
       if (ports == NULL)
         {
           return NULL;

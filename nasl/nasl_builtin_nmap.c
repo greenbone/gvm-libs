@@ -66,6 +66,7 @@
 #include "../misc/popen.h"
 #include "../misc/kb.h"
 #include "../misc/openvas_logging.h"
+#include "../misc/prefs.h"  /* for prefs_get */
 
 #include "nasl_lex_ctxt.h"
 
@@ -924,17 +925,8 @@ add_timing_arguments (nmap_t * nmap)
 int
 add_portrange (nmap_t * nmap)
 {
-  struct arglist *pref;
-  gchar *portrange;
+  const char *portrange = prefs_get ("port_range");
 
-  pref = arg_get_value (nmap->env, "preferences");
-  if (!pref)
-    {
-      dbg ("Invalid environment: unavailable \"preferences\"\n");
-      return -1;
-    }
-
-  portrange = arg_get_value (pref, "port_range");
   if (!portrange)
     {
       dbg ("Invalid environment: unavailable \"port_range\"\n");

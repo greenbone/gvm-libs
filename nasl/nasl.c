@@ -36,6 +36,7 @@
 #include "../base/gpgme_util.h" /* for gpgme_check_version */
 #include <../base/openvas_hosts.h> /* for openvas_hosts_* and openvas_host_* */
 #include <../base/nvti.h>
+#include <../misc/prefs.h> /* for prefs_get */
 
 #include <glib.h>
 
@@ -85,18 +86,16 @@ struct arglist *
 init (char *hostname, struct in6_addr ip, kb_t kb)
 {
   struct arglist *script_infos = g_malloc0 (sizeof (struct arglist));
-  struct arglist *prefs = g_malloc0 (sizeof (struct arglist));
   struct in6_addr *pip = g_malloc0 (sizeof (*pip));
 
   memcpy (pip, &ip, sizeof (struct in6_addr));
 
   arg_add_value (script_infos, "standalone", ARG_INT, sizeof (int), (void *) 1);
-  arg_add_value (prefs, "checks_read_timeout", ARG_STRING, 4, g_strdup ("5"));
-  arg_add_value (script_infos, "preferences", ARG_ARGLIST, -1, prefs);
+  prefs_set ("checks_read_timeout", "5");
   arg_add_value (script_infos, "key", ARG_PTR, -1, kb);
 
   if (safe_checks_only != 0)
-    arg_add_value (prefs, "safe_checks", ARG_STRING, 3, g_strdup ("yes"));
+    prefs_set ("safe_checks", "yes");
 
   arg_add_value (script_infos, "HOSTNAME", ARG_ARGLIST, -1,
                  init_hostinfos (hostname, pip));

@@ -40,6 +40,7 @@
 #include "../misc/plugutils.h" /* for scanner_add_port */
 #include "../misc/scanners_utils.h" /* for getpts */
 #include "../misc/openvas_logging.h"
+#include "../misc/prefs.h"          /* for prefs_get */
 
 #include "nasl_lex_ctxt.h"
 
@@ -817,8 +818,8 @@ plugin_run_synscan (lex_ctxt * lexic)
 
   struct arglist *hostinfos = arg_get_value (env, "HOSTNAME");
   char           *hostname  = arg_get_value (hostinfos, "NAME");
-  char           *range = get_preference (env, "port_range");
-  scan (env, hostname, range, dst6, rtt);
+  const char     *range = prefs_get ("port_range");
+  scan (env, hostname, (char *)range, dst6, rtt);
   plug_set_key (env, "Host/scanned", ARG_INT, (void *) 1);
   plug_set_key (env, "Host/scanners/synscan", ARG_INT, (void*)1);
   return NULL;

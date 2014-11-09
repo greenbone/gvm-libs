@@ -206,9 +206,6 @@ main (int argc, char **argv)
   if (include_dir != NULL)
     add_nasl_inc_dir (include_dir);
 
-  /* doc says this is the only mandatory one */
-  arg_add_value (script_infos, "preferences", ARG_ARGLIST, -1, NULL);
-
   if (debug)
     g_log_set_handler (NULL,
                        G_LOG_LEVEL_MASK,

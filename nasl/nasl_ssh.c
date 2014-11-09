@@ -65,6 +65,7 @@
 #include "nasl_debug.h"
 #include "network.h"            /* for openvas_get_socket_from_connection */
 #include "../misc/openvas_logging.h"
+#include "../misc/prefs.h"  /* for prefs_get() */
 
 #include "nasl_ssh.h"
 
@@ -777,18 +778,13 @@ next_session_id (void)
 static unsigned short
 get_ssh_port (lex_ctxt *lexic)
 {
-  struct arglist *prefs;
-  void *value;
+  const char *value;
   int type;
   unsigned short port;
 
-  prefs = arg_get_value (lexic->script_infos, "preferences");
-  if (prefs)
-    {
-      value = arg_get_value (prefs, "auth_port_ssh");
-      if (value && (port = (unsigned short)strtoul (value, NULL, 10)) > 0)
-        return port;
-    }
+  value = prefs_get ("auth_port_ssh");
+  if (value && (port = (unsigned short)strtoul (value, NULL, 10)) > 0)
+    return port;
 
   value = plug_get_key (lexic->script_infos, "Services/ssh", &type);
   if (value && type == KB_TYPE_INT && (port = GPOINTER_TO_SIZE (value)) > 0)
