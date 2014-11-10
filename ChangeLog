@@ -1,5 +1,9 @@
 2014-11-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* bse/settings.c (settings_init_from_file): Fix memory leak on error.
+
+2014-11-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/nvti.c (nvti_shrink): Nullify freed nvti elements to prevent
 	double-free errors.
 
