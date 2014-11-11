@@ -232,13 +232,14 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
   {
     char	*k;
     int		type = 0;
-    k = plug_get_key(desc, "/tmp/ping/RTT", &type);
+    k = plug_get_key (desc, "/tmp/ping/RTT", &type);
     if (type == ARG_STRING && k != NULL)
       ping_rtt = atoi(k);
     else if (type == ARG_INT)
       ping_rtt = GPOINTER_TO_SIZE(k);
     else if (type >= 0)
       log_legacy_write ("openvas_tcp_scanner: unknown key type %d", type);
+    g_free (k);
     if (ping_rtt < 0 || ping_rtt > MAX_SANE_RTT)
       ping_rtt = 0;
 #if DEBUG > 0

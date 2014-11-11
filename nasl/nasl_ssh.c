@@ -787,8 +787,13 @@ get_ssh_port (lex_ctxt *lexic)
     return port;
 
   value = plug_get_key (lexic->script_infos, "Services/ssh", &type);
-  if (value && type == KB_TYPE_INT && (port = GPOINTER_TO_SIZE (value)) > 0)
-    return (unsigned short)port;
+  if (value)
+    {
+      port = GPOINTER_TO_SIZE (value);
+      g_free (value);
+      if (type == KB_TYPE_INT && (port = GPOINTER_TO_SIZE (value)) > 0)
+        return port;
+    }
 
   return 22;
 }

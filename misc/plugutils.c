@@ -273,7 +273,7 @@ plug_get_hostname (struct arglist *desc)
     return (NULL);
 }
 
-const char *
+char *
 plug_get_host_fqdn (struct arglist *desc)
 {
   struct arglist *hinfos = arg_get_value (desc, "HOSTNAME");
@@ -284,7 +284,7 @@ plug_get_host_fqdn (struct arglist *desc)
       if (vhosts)
         return vhosts;
       else
-        return ((char *) arg_get_value (hinfos, "FQDN"));
+        return g_strdup (arg_get_value (hinfos, "FQDN"));
     }
   else
     return (NULL);
@@ -856,7 +856,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
         {
           if (type != NULL)
             *type = KB_TYPE_INT;
-          ret = GSIZE_TO_POINTER (res->v_int);
+          ret = g_memdup (&res->v_int, sizeof (res->v_int));
         }
       else
         {
@@ -901,7 +901,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
             {
               if (type != NULL)
                 *type = KB_TYPE_INT;
-              return GSIZE_TO_POINTER (res->v_int);
+              return g_memdup (&res->v_int, sizeof (res->v_int));
             }
           else
             {

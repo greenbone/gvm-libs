@@ -1874,6 +1874,7 @@ plugin_do_run (desc, h, test_ssl)
                 inet_ntoa (*p_ip), port, banner_len);
 #endif
             }
+          g_free (bannerHex);
           if (banner_len == 0)
             {
               snprintf (kb, sizeof (kb), "Banner/%d", port);
@@ -1887,6 +1888,7 @@ plugin_do_run (desc, h, test_ssl)
                     inet_ntoa (*p_ip), port, banner_len);
 #endif
                 }
+              g_free (banner);
             }
           if (banner_len > 0)
             {
@@ -1992,6 +1994,7 @@ plugin_do_run (desc, h, test_ssl)
                       else if (type == ARG_STRING)
                         no_banner_grabbed = atoi ((char *) p);
                     }
+                  g_free (p);
 #ifdef DEBUG
                   log_legacy_write
                    ("find_service(%s): no banner on port %d according to KB",

@@ -121,7 +121,7 @@ _http_req (lex_ctxt * lexic, char *keyword)
     {
       char *hostname, *ua;
 
-      hostname = (char *) plug_get_host_fqdn (script_infos);
+      hostname = plug_get_host_fqdn (script_infos);
       if (hostname == NULL)
         return NULL;
       ua = kb_item_get_str (kb, "http/user-agent");
@@ -150,6 +150,7 @@ User-Agent: %s\r\n\
 Accept: image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, image/png, */*\r\n\
 Accept-Language: en\r\n\
 Accept-Charset: iso-8859-1,*,utf-8\r\n", url, hostname, port, ua);
+      g_free (hostname);
     }
   else
     {

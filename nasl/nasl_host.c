@@ -51,7 +51,7 @@ tree_cell *
 get_hostname (lex_ctxt * lexic)
 {
   struct arglist *script_infos = lexic->script_infos;
-  char *hostname = (char *) plug_get_host_fqdn (script_infos);
+  char *hostname = plug_get_host_fqdn (script_infos);
   tree_cell *retc;
 
   if (hostname == NULL)
@@ -60,7 +60,7 @@ get_hostname (lex_ctxt * lexic)
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_STR;
   retc->size = strlen (hostname);
-  retc->x.str_val = g_strdup (hostname);
+  retc->x.str_val = hostname;
   return retc;
 }
 

@@ -761,6 +761,7 @@ get_kb_item (lex_ctxt * lexic)
     {
       retc->type = CONST_INT;
       retc->x.i_val = GPOINTER_TO_SIZE (val);
+      g_free (val);
       return retc;
     }
   else
@@ -769,7 +770,7 @@ get_kb_item (lex_ctxt * lexic)
       if (val != NULL)
         {
           retc->size = strlen (val);
-          retc->x.str_val = g_strdup (val);
+          retc->x.str_val = val;
         }
       else
         {

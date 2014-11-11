@@ -909,15 +909,10 @@ tree_cell *
 nasl_open_sock_kdc (lex_ctxt * lexic)
 {
   tree_cell *retc;
-  int timeout = 30;
-  int port = 88;
-  char *hostname = NULL;        /* Domain name for windows */
-  int tcp = 0;
-  int ret;
+  int ret, type;
+  int timeout = 30, port = 88, tcp = 0;
+  char *hostname = NULL, *port_str, *tcp_str;   /* Domain name for windows */
   struct arglist *script_infos;
-  int type;
-
-
 
   script_infos = lexic->script_infos;
 
@@ -925,14 +920,16 @@ nasl_open_sock_kdc (lex_ctxt * lexic)
   if (!hostname || type != KB_TYPE_STR)
     return NULL;
 
-  port =
-    GPOINTER_TO_SIZE (plug_get_key (script_infos, "Secret/kdc_port", &type));
+  port_str = plug_get_key (script_infos, "Secret/kdc_port", &type);
+  port = GPOINTER_TO_SIZE (port_str);
+  g_free (port_str);
   if (port <= 0 || type != KB_TYPE_INT)
     return NULL;
 
 
-  tcp =
-    GPOINTER_TO_SIZE (plug_get_key (script_infos, "Secret/kdc_use_tcp", &type));
+  tcp_str = plug_get_key (script_infos, "Secret/kdc_use_tcp", &type);
+  tcp = GPOINTER_TO_SIZE (tcp_str);
+  g_free (tcp_str);
   if (tcp < 0 || type != KB_TYPE_INT)
     tcp = 0;
 
@@ -940,6 +937,7 @@ nasl_open_sock_kdc (lex_ctxt * lexic)
     ret = open_sock_opt_hn (hostname, port, SOCK_DGRAM, IPPROTO_UDP, timeout);
   else
     ret = open_sock_opt_hn (hostname, port, SOCK_STREAM, IPPROTO_TCP, timeout);
+  g_free (hostname);
 
   if (ret < 0)
     return NULL;

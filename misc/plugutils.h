@@ -56,7 +56,7 @@ void plug_set_ssl_CA_file (struct arglist *, char *);
 
 
 const char *plug_get_hostname (struct arglist *);
-const char *plug_get_host_fqdn (struct arglist *);
+char *plug_get_host_fqdn (struct arglist *);
 unsigned int plug_get_host_open_port (struct arglist *desc);
 
 void plug_set_port_transport (struct arglist *, int, int);

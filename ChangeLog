@@ -1,3 +1,20 @@
+2014-11-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Fix memory leak in plug_get_key() call.
+
+	* misc/plugutils.c (plug_get_host_fqdn): Remove const specifier from
+	return value. Duplicate returned FQDN value too.
+	(plug_get_key): Duplicate memory in KB_TYPE_INT case too.
+
+	* misc/plugutils.h: Adjust function prototype.
+
+	* nasl/nasl_builtin_find_service.c (plugin_do_run),
+	nasl/nasl_builtin_openvas_tcp_scanner.c (banner_grab), nasl/nasl_host.c
+	(get_hostname), nasl/nasl_http.c (_http_req), nasl/misc_funcs.c
+	(nasl_open_sock_kdc), nasl/nasl_scanner_glue.c (get_kb_item),
+	nasl/nasl_ssh.c (get_ssh_port):  Adjust to free memory returned by
+	plug_get_key() and plug_get_host_fqdn().
+
 2014-11-11  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* nasl/nasl_builtin_synscan.c, nasl/nasl_raw.h: Define _DEFAULT_SOURCE,
