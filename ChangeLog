@@ -1,3 +1,9 @@
+2014-11-11  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* nasl/nasl_builtin_synscan.c, nasl/nasl_raw.h: Define _DEFAULT_SOURCE,
+	  _BSD_SOURCE is deprecated from glibc-2.20 on and generates warning.
+	  See https://sourceware.org/glibc/wiki/Release/2.20#Packaging_Changes
+
 2014-11-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Final step of switching to global preference store.

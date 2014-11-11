@@ -24,7 +24,10 @@
 *
 */
 
+/* legacy feature macro */
 #define _BSD_SOURCE 1
+/* new feature macros that provides the same plus more */
+#define _DEFAULT_SOURCE 1
 
 #include <unistd.h>      /* for close() */
 #include <stdlib.h>      /* for rand() */
