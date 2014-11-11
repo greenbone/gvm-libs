@@ -2570,8 +2570,9 @@ plugin_do_run (desc, h, test_ssl)
                             p--;
                           c = *p;
                           *p = '\0';
+                          mark_finger_server (desc, port, p ? banner : NULL,
+                                              trp);
                         }
-                      mark_finger_server (desc, port, p ? banner : NULL, trp);
 
                       if (p != NULL)
                         *p = c;

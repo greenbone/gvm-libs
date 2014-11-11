@@ -321,14 +321,14 @@ mark_successful_plugin (struct arglist *desc)
 static void
 mark_post (struct arglist *desc, const char *action, const char *content)
 {
-  char entry_name[255];
-  char *ccontent = g_strdup (content);
+  char entry_name[255], *ccontent;
 
   if (strlen (action) > (sizeof (entry_name) - 20))
     return;
 
   snprintf (entry_name, sizeof (entry_name), "SentData/%s/%s",
             (char *)arg_get_value (desc, "OID"), action);    /* RATS: ignore */
+  ccontent = g_strdup (content);
   plug_set_key (desc, entry_name, ARG_STRING, ccontent);
 }
 

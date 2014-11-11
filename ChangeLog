@@ -1,5 +1,25 @@
 2014-11-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/plugutils.c (mark_post), misc/scanners_utils.c (getpts),
+	misc/www_funcs.c (build_encode_URL), nasl/nasl_builtin_find_service.c
+	(plugin_do_run), nasl/nasl_smb.c (nasl_smb_connect), nasl/nasl_wmi.c
+	(nasl_wmi_connect, nasl_wmi_connect_rsop, nasl_wmi_connect_reg): Fix
+	possible memory leak.
+
+	* nasl/nasl_smb.c (nasl_smb_versioninfo, nasl_smb_close)
+	(nasl_smb_file_SDDL, nasl_smb_file_owner_sid, nasl_smb_file_group_sid)
+	(nasl_smb_file_trustee_rights, nasl_win_cmd_exec), nasl/nasl_wmi.c
+	(nasl_wmi_versioninfo, nasl_wmi_close, nasl_wmi_query)
+	(nasl_wmi_reg_get_sz, nasl_wmi_reg_enum_value, nasl_wmi_reg_enum_key)
+	(nasl_wmi_reg_get_bin_val, nasl_wmi_reg_get_dword_val)
+	(nasl_wmi_reg_get_ex_string_val, nasl_wmi_reg_get_mul_string_val)
+	(nasl_wmi_reg_get_qword_val, nasl_wmi_reg_set_dword_val)
+	(nasl_wmi_reg_set_qword_val, nasl_wmi_reg_set_ex_string_val)
+	(nasl_wmi_reg_set_string_val, nasl_wmi_reg_create_key)
+	(nasl_wmi_reg_delete_key): Remove useless null check.
+
+2014-11-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/plugutils.c (plug_get_key): Free results list.
 
 2014-11-11  Hani Benhabiles <hani.benhabiles@greenbone.net>

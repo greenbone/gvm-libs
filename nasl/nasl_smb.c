@@ -69,9 +69,6 @@ nasl_smb_versioninfo (lex_ctxt * lexic)
   char *version = smb_versioninfo ();
   tree_cell *retc = alloc_tree_cell (0, NULL);
 
-  if (!retc)
-    return NULL;
-
   if (!version)
     {
       return NULL;
@@ -124,23 +121,20 @@ nasl_smb_connect (lex_ctxt * lexic)
      ip = g_strdup (inet_ntoa (v4_addr));
    }
   else
-   {
-      ip = g_strdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
-   }
+    ip = g_strdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
 
   if ((strlen (password) == 0) || (strlen (username) == 0)
       || (strlen (ip) == 0) || (strlen (share) == 0))
     {
       log_legacy_write ("nasl_smb_connect: Invalid input arguments\n");
+      g_free (ip);
       return NULL;
     }
 
   retc = alloc_tree_cell (0, NULL);
-  if (!retc)
-    return NULL;
-
   retc->type = CONST_INT;
   value = smb_connect (ip, share, username, password, &handle);
+  g_free (ip);
 
   if (value == -1)
     {
@@ -172,9 +166,6 @@ nasl_smb_close (lex_ctxt * lexic)
   tree_cell *retc;
 
   retc = alloc_tree_cell (0, NULL);
-  if (!retc)
-    return NULL;
-
   retc->type = CONST_INT;
 
   ret = smb_close (handle);
@@ -226,12 +217,9 @@ nasl_smb_file_SDDL (lex_ctxt * lexic)
     return NULL;
 
   retc = alloc_tree_cell (0, NULL);
-  if (retc)
-    {
-      retc->type = CONST_DATA;
-      retc->size = strlen (buffer);
-      retc->x.str_val = strdup (buffer);
-    }
+  retc->type = CONST_DATA;
+  retc->size = strlen (buffer);
+  retc->x.str_val = strdup (buffer);
   return retc;
 }
 
@@ -274,12 +262,9 @@ nasl_smb_file_owner_sid (lex_ctxt * lexic)
     return NULL;
 
   retc = alloc_tree_cell (0, NULL);
-  if (retc)
-    {
-      retc->type = CONST_DATA;
-      retc->size = strlen (buffer);
-      retc->x.str_val = strdup (buffer);
-    }
+  retc->type = CONST_DATA;
+  retc->size = strlen (buffer);
+  retc->x.str_val = strdup (buffer);
   return retc;
 }
 
@@ -322,12 +307,9 @@ nasl_smb_file_group_sid (lex_ctxt * lexic)
     return NULL;
 
   retc = alloc_tree_cell (0, NULL);
-  if (retc)
-    {
-      retc->type = CONST_DATA;
-      retc->size = strlen (buffer);
-      retc->x.str_val = strdup (buffer);
-    }
+  retc->type = CONST_DATA;
+  retc->size = strlen (buffer);
+  retc->x.str_val = strdup (buffer);
   return retc;
 }
 
@@ -371,12 +353,9 @@ nasl_smb_file_trustee_rights (lex_ctxt * lexic)
     return NULL;
 
   retc = alloc_tree_cell (0, NULL);
-  if (retc)
-    {
-      retc->type = CONST_DATA;
-      retc->size = strlen (buffer);
-      retc->x.str_val = strdup (buffer);
-    }
+  retc->type = CONST_DATA;
+  retc->size = strlen (buffer);
+  retc->x.str_val = strdup (buffer);
   return retc;
 }
 
@@ -453,9 +432,6 @@ nasl_win_cmd_exec (lex_ctxt * lexic)
   strcpy (argv[4], cmd);
 
   tree_cell *retc = alloc_tree_cell (0, NULL);
-  if (!retc)
-    return NULL;
-
   retc->type = CONST_DATA;
   retc->x.str_val = NULL;
   retc->size = 0;

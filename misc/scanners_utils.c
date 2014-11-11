@@ -161,6 +161,7 @@ getpts (char *origexpr, int *len)
       if (start > end)
         {
           g_free (mem);
+          g_free (ports);
           return NULL;
         }
       for (j = start; j <= end; j++)
@@ -185,6 +186,7 @@ getpts (char *origexpr, int *len)
   if (start > end)
     {
       g_free (mem);
+      g_free (ports);
       return NULL;
     }
   for (j = start; j <= end; j++)

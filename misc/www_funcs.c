@@ -423,6 +423,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
                                 (AF_INET6, &ptr, hostname, sizeof (hostname)));
 
                   strncpy (h, asc, sizeof (h));
+                  g_free (asc);
                 }
               h[sizeof (h) - 1] = '\0';
             }
