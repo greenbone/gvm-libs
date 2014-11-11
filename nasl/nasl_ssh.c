@@ -779,6 +779,7 @@ static unsigned short
 get_ssh_port (lex_ctxt *lexic)
 {
   const char *value;
+  char *port_str;
   int type;
   unsigned short port;
 
@@ -786,12 +787,12 @@ get_ssh_port (lex_ctxt *lexic)
   if (value && (port = (unsigned short)strtoul (value, NULL, 10)) > 0)
     return port;
 
-  value = plug_get_key (lexic->script_infos, "Services/ssh", &type);
-  if (value)
+  port_str = plug_get_key (lexic->script_infos, "Services/ssh", &type);
+  if (port_str)
     {
-      port = GPOINTER_TO_SIZE (value);
-      g_free (value);
-      if (type == KB_TYPE_INT && (port = GPOINTER_TO_SIZE (value)) > 0)
+      port = GPOINTER_TO_SIZE (port_str);
+      g_free (port_str);
+      if (type == KB_TYPE_INT && (port = GPOINTER_TO_SIZE (port_str)) > 0)
         return port;
     }
 

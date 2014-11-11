@@ -1,5 +1,12 @@
 2014-11-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/plugutils.c (plug_get_key): Fix memory leak.
+
+	* nasl/nasl_ssh.c (get_ssh_port): Get ssh port key in separate variable
+	as it is not const.
+
+2014-11-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Fix memory leak in plug_get_key() call.
 
 	* misc/plugutils.c (plug_get_host_fqdn): Remove const specifier from

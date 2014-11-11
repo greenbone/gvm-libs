@@ -834,7 +834,7 @@ void *
 plug_get_key (struct arglist *args, char *name, int *type)
 {
   kb_t kb = plug_get_kb (args);
-  struct kb_item *res = NULL;
+  struct kb_item *res = NULL, *res_list;
   int sockpair[2];
   int upstream = 0;
 
@@ -871,6 +871,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
 
   /* More than  one value - we will fork() then */
   sig_chld (plug_get_key_sigchld);
+  res_list = res;
   while (res != NULL)
     {
       pid_t pid;
@@ -880,6 +881,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
         {
           int old, soc;
           struct arglist *globals;
+          void *ret;
 
           kb_lnk_reset (kb);
           close (sockpair[0]);
@@ -901,19 +903,22 @@ plug_get_key (struct arglist *args, char *name, int *type)
             {
               if (type != NULL)
                 *type = KB_TYPE_INT;
-              return g_memdup (&res->v_int, sizeof (res->v_int));
+              ret = g_memdup (&res->v_int, sizeof (res->v_int));
             }
           else
             {
               if (type != NULL)
                 *type = KB_TYPE_STR;
-              return g_strdup (res->v_str);
+              ret = g_strdup (res->v_str);
             }
+          kb_item_free (res_list);
+          return ret;
         }
       else if (pid < 0)
         {
           log_legacy_write ("libopenvas:%s:%s(): fork() failed (%s)", __FILE__,
                             __func__, strerror (errno));
+          kb_item_free (res_list);
           return NULL;
         }
       else
