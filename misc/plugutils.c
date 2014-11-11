@@ -973,6 +973,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
         }
       res = res->next;
     }
+  kb_item_free (res_list);
   internal_send (upstream, NULL,
                  INTERNAL_COMM_MSG_TYPE_CTRL | INTERNAL_COMM_CTRL_FINISHED);
   exit (0);

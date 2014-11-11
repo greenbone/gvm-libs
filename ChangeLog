@@ -1,5 +1,9 @@
 2014-11-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/plugutils.c (plug_get_key): Free results list.
+
+2014-11-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/plugutils.c (plug_get_key): Fix memory leak.
 
 	* nasl/nasl_ssh.c (get_ssh_port): Get ssh port key in separate variable
