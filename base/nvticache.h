@@ -73,6 +73,8 @@ nvticache_get_by_oid_full (const char *);
 const char *
 nvticache_get_src (const char *);
 
+const char * nvticache_get_filename (const char *);
+
 void
 nvticache_free (void);
 

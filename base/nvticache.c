@@ -208,11 +208,11 @@ nvticache_get_by_oid_full (const char *oid)
 }
 
 /**
- * @brief Get the source filename of an OID.
+ * @brief Get the full source filename of an OID.
  *
  * @param oid      The OID to look up.
  *
- * @return Filename matching OID if found, NULL otherwise.
+ * @return Filename with full path matching OID if found, NULL otherwise.
  */
 const char *
 nvticache_get_src (const char *oid)
@@ -220,4 +220,24 @@ nvticache_get_src (const char *oid)
   assert (nvticache);
 
   return g_hash_table_lookup (nvticache->nvtis, oid);
+}
+
+/**
+ * @brief Get the source filename of an OID without the
+ *        NVT main directory path.
+ *
+ * @param oid      The OID to look up.
+ *
+ * @return Filename matching OID if found, NULL otherwise.
+ *         The filename path does not cover the full path
+ *         with the NVT main directory. Just the path below
+ *         the NVT main directory.
+ */
+const char *
+nvticache_get_filename (const char *oid)
+{
+  assert (nvticache);
+
+  /* +1 is avoid the leading "/"  */
+  return g_hash_table_lookup (nvticache->nvtis, oid) + strlen (nvticache->src_path) + 1;
 }

@@ -1,3 +1,10 @@
+2014-11-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/nvticache.c (nvticache_get_filename): New. Get the source
+	filename of an OID without the NVT main directory path.
+
+	* base/nvticache.h: Added proto accordingly.
+
 2014-11-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/plugutils.c (mark_post), misc/scanners_utils.c (getpts),
