@@ -1,3 +1,7 @@
+2014-11-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/internal_com.h (INTERNAL_COMM_CTRL_STOP): New define.
+
 2014-11-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/nvticache.c (nvticache_get_filename): New. Get the source
