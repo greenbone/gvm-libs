@@ -1,5 +1,10 @@
 2014-11-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* nasl/nasl_func.c (nasl_func_call): Copy over oid as well to
+	new context.
+
+2014-11-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_lex_ctxt.h (lex_ctxt): Add element "oid" to struct.
 
 	* nasl/nasl_lex_ctxt.c (init_empty_lex_ctxt): Initialize new

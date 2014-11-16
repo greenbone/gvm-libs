@@ -163,6 +163,7 @@ nasl_func_call (lex_ctxt * lexic, const nasl_func * f, tree_cell * arg_list)
   /* 1. Create a new context */
   lexic2 = init_empty_lex_ctxt ();
   lexic2->script_infos = lexic->script_infos;
+  lexic2->oid = lexic->oid;
   lexic2->recv_timeout = lexic->recv_timeout;
   lexic2->fct_ctxt = 1;
 
