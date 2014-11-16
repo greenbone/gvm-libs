@@ -37,6 +37,7 @@ typedef struct struct_lex_ctxt
   unsigned cont_flag:1;         /* Next iteration in loop */
   unsigned always_authenticated:1;
   struct arglist *script_infos;
+  const char *oid;
   int recv_timeout;
   int line_nb;
   /* Named variables hash set + anonymous variables array */

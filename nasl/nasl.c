@@ -115,7 +115,7 @@ parse_script_infos (const char *file, struct arglist *script_infos)
   nvti = nvti_new ();
   arg_add_value (script_infos, "NVTI", ARG_PTR, -1, nvti);
 
-  if (exec_nasl_script (script_infos, file, mode) < 0)
+  if (exec_nasl_script (script_infos, file, NULL, mode) < 0)
     {
       printf ("%s could not be loaded\n", file);
       return 1;
@@ -328,7 +328,8 @@ main (int argc, char **argv)
           if (both_modes && parse_script_infos (nasl_filenames[n],
                                                 script_infos))
             err++;
-          else if (exec_nasl_script (script_infos, nasl_filenames[n], mode) < 0)
+          else if (exec_nasl_script (script_infos, nasl_filenames[n],
+                                     arg_get_value (script_infos, "OID"), mode) < 0)
             err++;
           n++;
         }

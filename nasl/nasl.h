@@ -43,7 +43,7 @@ GSList *nasl_get_all_certificates (void);
 int add_nasl_inc_dir (const char *);
 
 int
-exec_nasl_script (struct arglist *, const char *, int);
+exec_nasl_script (struct arglist *, const char *, const char *, int);
 int
 execute_preparsed_nasl_script (struct arglist *, char *, char *, int, int);
 char *

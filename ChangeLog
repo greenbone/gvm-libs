@@ -1,3 +1,24 @@
+2014-11-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* nasl/nasl_lex_ctxt.h (lex_ctxt): Add element "oid" to struct.
+
+	* nasl/nasl_lex_ctxt.c (init_empty_lex_ctxt): Initialize new
+	element "oid" with NULL.
+ 
+	* nasl/exec.c (exec_nasl_script): Add new parameter for oid
+	and set the oid to the lexic context.
+
+	* nasl/nasl.h: Adjust proto accordingly.
+
+	* nasl/nasl_scanner_glue.c (get_script_oid): Get the OID from the lexic
+	context instead of from the arglist.
+
+	* nasl/nasl.c (parse_script_infos): Adjust call of exec_nasl_script().
+	(main): Adjust call of exec_nasl_script() with the oid achieved
+	from the description-run before.
+
+	* nasl/nasl-lint.c (process_file): Adjust call of exec_nasl_script().
+
 2014-11-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/internal_com.h (INTERNAL_COMM_CTRL_STOP): New define.

@@ -36,6 +36,7 @@ init_empty_lex_ctxt ()
   c->ctx_vars.max_idx = 0;
   for (i = 0; i < FUNC_NAME_HASH; i++)
     c->functions[i] = NULL;
+  c->oid = NULL;
   c->ret_val = NULL;
   c->fct_ctxt = 0;
   return c;

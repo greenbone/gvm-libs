@@ -1674,7 +1674,8 @@ extern tree_cell *nasl_lint (lex_ctxt *, tree_cell *);
  * error occurred.
  */
 int
-exec_nasl_script (struct arglist *script_infos, const char *name, int mode)
+exec_nasl_script (struct arglist *script_infos, const char *name,
+                  const char *oid, int mode)
 {
   naslctxt ctx;
   nasl_func *pf;
@@ -1743,6 +1744,7 @@ exec_nasl_script (struct arglist *script_infos, const char *name, int mode)
 #endif
   lexic = init_empty_lex_ctxt ();
   lexic->script_infos = script_infos;
+  lexic->oid = oid;
 
   str = prefs_get ("checks_read_timeout");
   if (str != NULL)

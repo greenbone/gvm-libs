@@ -662,7 +662,7 @@ network_targets (lex_ctxt * lexic)
 tree_cell *
 get_script_oid (lex_ctxt * lexic)
 {
-  char *oid = arg_get_value (lexic->script_infos, "OID");
+  const char *oid = lexic->oid;
   tree_cell *retc = NULL;
 
   if (oid)
