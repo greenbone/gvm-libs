@@ -1,0 +1,13 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=@EXEC_PREFIX@
+libdir=@LIBDIR@
+includedir=@INCLUDEDIR@
+
+Name: openvas-libraries-nasl
+Description: OpenVAS nasl libraries
+Version: @LIBOPENVASCONFIG_VERSION@
+Requires: glib-2.0 >= 2.12.0, gnutls >= 2.0
+Cflags: -I${includedir} -I${includedir}/openvas @EXTRA_CFLAGS@
+Libs: -L${libdir} -lopenvas_nasl @EXTRA_LIBS@
+
+

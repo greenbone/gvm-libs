@@ -1,3 +1,13 @@
+2014-11-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* libopenvas_base.pc.in, libopenvas_misc.pc.in, libopenvas_nasl.pc.in,
+	libopenvas_omp.pc.in: New files.
+
+	* libopenvas.pc.in: Remove file.
+
+	* CMakeLists.txt: Configure and install new files instead of
+	libopenvas.pc.in.
+
 2014-11-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_func.c (nasl_func_call): Copy over oid as well to
@@ -9,7 +19,7 @@
 
 	* nasl/nasl_lex_ctxt.c (init_empty_lex_ctxt): Initialize new
 	element "oid" with NULL.
- 
+
 	* nasl/exec.c (exec_nasl_script): Add new parameter for oid
 	and set the oid to the lexic context.
 

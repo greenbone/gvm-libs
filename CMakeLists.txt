@@ -118,7 +118,10 @@ set (CPACK_SOURCE_IGNORE_FILES
 "Doxyfile$"
 "Doxyfile_full$"
 "VERSION$"
-"libopenvas.pc$"
+"libopenvas_omp.pc$"
+"libopenvas_nasl.pc$"
+"libopenvas_base.pc$"
+"libopenvas_misc.pc$"
 "nasl/nasl_grammar.tab.c"
 "nasl/nasl_grammar.tab.h"
 "nasl/nasl_grammar.output"
@@ -325,7 +328,10 @@ endif (BETA_INDICATOR MATCHES "^\\+")
 configure_file (doc/Doxyfile.in ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
 configure_file (doc/Doxyfile_full.in ${CMAKE_BINARY_DIR}/doc/Doxyfile_full @ONLY)
 configure_file (VERSION.in ${CMAKE_BINARY_DIR}/VERSION @ONLY)
-configure_file (libopenvas.pc.in ${CMAKE_BINARY_DIR}/libopenvas.pc @ONLY)
+configure_file (libopenvas_base.pc.in ${CMAKE_BINARY_DIR}/libopenvas_base.pc @ONLY)
+configure_file (libopenvas_omp.pc.in ${CMAKE_BINARY_DIR}/libopenvas_omp.pc @ONLY)
+configure_file (libopenvas_misc.pc.in ${CMAKE_BINARY_DIR}/libopenvas_misc.pc @ONLY)
+configure_file (libopenvas_nasl.pc.in ${CMAKE_BINARY_DIR}/libopenvas_nasl.pc @ONLY)
 
 ## Program
 
@@ -345,7 +351,13 @@ add_subdirectory (doc)
 install (FILES doc/openvas-nasl.1
          DESTINATION ${DATADIR}/man/man1 )
 
-install (FILES ${CMAKE_BINARY_DIR}/libopenvas.pc
+install (FILES ${CMAKE_BINARY_DIR}/libopenvas_base.pc
+         DESTINATION ${LIBDIR}/pkgconfig)
+install (FILES ${CMAKE_BINARY_DIR}/libopenvas_omp.pc
+         DESTINATION ${LIBDIR}/pkgconfig)
+install (FILES ${CMAKE_BINARY_DIR}/libopenvas_misc.pc
+         DESTINATION ${LIBDIR}/pkgconfig)
+install (FILES ${CMAKE_BINARY_DIR}/libopenvas_nasl.pc
          DESTINATION ${LIBDIR}/pkgconfig)
 
 install (DIRECTORY DESTINATION ${OPENVAS_LOG_DIR})
