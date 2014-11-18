@@ -689,7 +689,7 @@ redis_get_single (kb_t kb, const char *name, enum kb_item_type type)
       goto out;
     }
 
-  kbi = redis2kbitem_single (name, rep, 1);
+  kbi = redis2kbitem_single (name, rep, type == KB_TYPE_INT);
 
 out:
   if (rep != NULL)

@@ -1,3 +1,8 @@
+2014-11-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/kb_redis.c (redis_get_single): Force int only for KB_TYPE_INT
+	case, as this function is also called by redis_get_str().
+
 2014-11-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* libopenvas_base.pc.in, libopenvas_misc.pc.in, libopenvas_nasl.pc.in,
