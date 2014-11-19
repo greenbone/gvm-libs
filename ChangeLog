@@ -1,5 +1,10 @@
 2014-11-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/CMakeLists.txt: Link base library against gpgme. Remove
+	redundant test-hosts link against gpgme.
+
+2014-11-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/CMakeLists.txt, misc/CMakeLists.txt, nasl/CMakeLists.txt,
 	omp/CMakeLists.txt: Remove unneeded linking and cleanup code.
 

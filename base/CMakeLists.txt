@@ -88,7 +88,7 @@ if (BUILD_SHARED)
       assuan libgpg-error ole32 ws2_32 ffi z shlwapi dnsapi winmm)
     target_link_libraries (openvas_base_shared openvas_omp_shared ${W32LIBS})
   else (MINGW)
-    target_link_libraries (openvas_base_shared openvas_omp_shared ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${ZLIB_LDFLAGS})
+    target_link_libraries (openvas_base_shared openvas_omp_shared ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${ZLIB_LDFLAGS} ${GPGME_LDFLAGS})
   endif (MINGW)
 endif (BUILD_SHARED)
 
@@ -103,12 +103,10 @@ add_custom_indent_targets (${FILES})
 # Link the test-hosts executable
 add_executable (test-hosts test-hosts.c)
 if (BUILD_SHARED)
-  target_link_libraries (test-hosts openvas_base_shared openvas_misc_shared ${GLIB_LDFLAGS}
-    "${GPGME_LDFLAGS}")
+  target_link_libraries (test-hosts openvas_base_shared openvas_misc_shared ${GLIB_LDFLAGS})
 endif (BUILD_SHARED)
 if (BUILD_STATIC)
-  target_link_libraries (test-hosts openvas_base_static openvas_misc_shared ${GLIB_LDFLAGS}
-    "${GPGME_LDFLAGS}")
+  target_link_libraries (test-hosts openvas_base_static openvas_misc_shared ${GLIB_LDFLAGS})
 endif (BUILD_STATIC)
 set_target_properties (test-hosts PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
 
