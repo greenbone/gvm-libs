@@ -24,9 +24,7 @@
 
 ## Library
 
-set (HARDENING_FLAGS            "-Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector -Wl,-z,relro -Wl,-z,now")
 
-set (CMAKE_C_FLAGS_DEBUG        "${CMAKE_C_FLAGS_DEBUG} -Werror")
 if (NOT MINGW)
   # On windows we are always PIC and stack-protector is replaces by DEP
   # Also stack protection needs a shared library to work

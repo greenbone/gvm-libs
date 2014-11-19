@@ -1,3 +1,11 @@
+2014-11-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/CMakeLists.txt, misc/CMakeLists.txt, base/CMakeLists.txt,
+	omp/CMakeLists.txt: Move variables HARDENING_FLAGS, CMAKE_C_FLAGS_DEBUG
+	to CMakeLists.txt
+
+	* CMakeLists.txt (HARDENING_FLAGS, CMAKE_C_FLAGS_DEBUG): New variables.
+
 2014-11-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/kb_redis.c (redis_get_single): Force int only for KB_TYPE_INT
