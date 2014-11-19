@@ -166,9 +166,6 @@ plug_create_from_nvti_and_prefs (const nvti_t * nvti)
 
   ret = g_malloc0 (sizeof (struct arglist));
 
-  arg_add_value (ret, "OID", ARG_STRING, strlen (nvti_oid (nvti)),
-                 g_strdup (nvti_oid (nvti)));
-
   for (i = 0; i < nvti_pref_len (nvti); i++)
     {
       const nvtpref_t *np = nvti_pref (nvti, i);

@@ -1,5 +1,11 @@
 2014-11-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/plugutils.c (plug_create_from_nvti_and_prefs): Finally drop
+	setting the "OID" element and thus save considerable amount of
+	memory.
+
+2014-11-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Replace more cases of using "OID" from arglists by explicit
 	oid. This requires some extensive changes.
 
