@@ -86,9 +86,9 @@ if (BUILD_SHARED)
     set (GLIB_LDFLAGS -Wl,--start-group ${GLIB_LDFLAGS} gmodule-2.0 -Wl,--end-group)
     set (W32LIBS ${GLIB_LDFLAGS} intl iconv gpgme
       assuan libgpg-error ole32 ws2_32 ffi z shlwapi dnsapi winmm)
-    target_link_libraries (openvas_base_shared ${W32LIBS})
+    target_link_libraries (openvas_base_shared openvas_omp_shared ${W32LIBS})
   else (MINGW)
-    target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS})
+    target_link_libraries (openvas_base_shared openvas_omp_shared ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${ZLIB_LDFLAGS})
   endif (MINGW)
 endif (BUILD_SHARED)
 
@@ -101,22 +101,16 @@ endif (OPENVAS_PID_DIR)
 add_custom_indent_targets (${FILES})
 
 # Link the test-hosts executable
+add_executable (test-hosts test-hosts.c)
 if (BUILD_SHARED)
-  add_executable (test-hosts test-hosts.c)
-  target_link_libraries (test-hosts openvas_base_shared openvas_omp_shared openvas_misc_shared ${GLIB_LDFLAGS} -lgcrypt
-    "${GPGME_LDFLAGS}" -lgnutls "${PCAP_LDFLAGS}" -lresolv -lm ${WMI_LIBS}
-    ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS} ${WINCMD_LIBS}) 
-  set_target_properties (test-hosts PROPERTIES COMPILE_FLAGS
-    "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS}")
+  target_link_libraries (test-hosts openvas_base_shared openvas_misc_shared ${GLIB_LDFLAGS}
+    "${GPGME_LDFLAGS}")
 endif (BUILD_SHARED)
 if (BUILD_STATIC)
-  add_executable (test-hosts test-hosts.c)
-  target_link_libraries (test-hosts openvas_base_static openvas_omp_static openvas_misc_static ${GLIB_LDFLAGS} -lgcrypt
-    "${GPGME_LDFLAGS}" -lgnutls "${PCAP_LDFLAGS}" -lresolv -lm ${WMI_LIBS}
-    ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS} ${WINCMD_LIBS}) 
-  set_target_properties (test-hosts PROPERTIES COMPILE_FLAGS
-    "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS}")
+  target_link_libraries (test-hosts openvas_base_static openvas_misc_shared ${GLIB_LDFLAGS}
+    "${GPGME_LDFLAGS}")
 endif (BUILD_STATIC)
+set_target_properties (test-hosts PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
 
 ## Install
 if (BUILD_STATIC)

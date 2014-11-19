@@ -1,5 +1,10 @@
 2014-11-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/CMakeLists.txt, misc/CMakeLists.txt, nasl/CMakeLists.txt,
+	omp/CMakeLists.txt: Remove unneeded linking and cleanup code.
+
+2014-11-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/CMakeLists.txt, misc/CMakeLists.txt, base/CMakeLists.txt,
 	omp/CMakeLists.txt: Move variables HARDENING_FLAGS, CMAKE_C_FLAGS_DEBUG
 	to CMakeLists.txt
