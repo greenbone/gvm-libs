@@ -308,26 +308,25 @@ plug_get_host_ip (struct arglist *desc)
  * @param desc Plugin-arglist.
  */
 static void
-mark_successful_plugin (struct arglist *desc)
+mark_successful_plugin (const char *oid, struct arglist *desc)
 {
   char data[512];
 
   bzero (data, sizeof (data));
-  snprintf (data, sizeof (data), "Success/%s",
-            (char *)arg_get_value (desc, "OID"));    /* RATS: ignore */
+  snprintf (data, sizeof (data), "Success/%s", oid);
   plug_set_key (desc, data, ARG_INT, (void *) 1);
 }
 
 static void
-mark_post (struct arglist *desc, const char *action, const char *content)
+mark_post (const char *oid, struct arglist *desc, const char *action,
+           const char *content)
 {
   char entry_name[255], *ccontent;
 
   if (strlen (action) > (sizeof (entry_name) - 20))
     return;
 
-  snprintf (entry_name, sizeof (entry_name), "SentData/%s/%s",
-            (char *)arg_get_value (desc, "OID"), action);    /* RATS: ignore */
+  snprintf (entry_name, sizeof (entry_name), "SentData/%s/%s", oid, action);
   ccontent = g_strdup (content);
   plug_set_key (desc, entry_name, ARG_STRING, ccontent);
 }
@@ -335,6 +334,7 @@ mark_post (struct arglist *desc, const char *action, const char *content)
 /**
  * @brief Post a security message (e.g. LOG, NOTE, WARNING ...).
  *
+ * @param oid   The oid of the NVT
  * @param desc  The arglist where to get the nvtichache from and some
  *              other settings and it is used to send the messages
  * @param port  Port number related to the issue.
@@ -343,7 +343,7 @@ mark_post (struct arglist *desc, const char *action, const char *content)
  * @param what   The type, like "LOG".
  */
 void
-proto_post_wrapped (struct arglist *desc, int port, const char *proto,
+proto_post_wrapped (const char *oid, struct arglist *desc, int port, const char *proto,
                     const char *action, const char *what)
 {
   int soc, len;
@@ -357,7 +357,7 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   if (!nvticache_initialized ())
     return;
 
-  nvti = nvticache_get_by_oid_full (arg_get_value (desc, "OID"));
+  nvti = nvticache_get_by_oid_full (oid);
   if (!nvti)
     return;
   if (action == NULL)
@@ -457,13 +457,12 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
   len = action_str->len;
   buffer = g_malloc0 (1024 + len + 1);
   char idbuffer[105];
-  if (nvti_oid (nvti) == NULL)
+  if (oid == NULL)
     {
       *idbuffer = '\0';
     }
   else
     {
-      char *oid = nvti_oid (nvti);
       snprintf (idbuffer, sizeof (idbuffer), "<|> %s ", oid);   /* RATS: ignore */
     }
   if (port > 0)
@@ -479,32 +478,32 @@ proto_post_wrapped (struct arglist *desc, int port, const char *proto,
               plug_get_hostname (desc), proto, action_str->str,
               idbuffer);
 
-  mark_post (desc, what, action);
+  mark_post (oid, desc, what, action);
   soc = GPOINTER_TO_SIZE (arg_get_value (desc, "SOCKET"));
   /* Convert to UTF-8 before sending to Manager. */
   data = g_convert (buffer, -1, "UTF-8", "ISO_8859-1", NULL, &length, NULL);
   internal_send (soc, data, INTERNAL_COMM_MSG_TYPE_DATA);
   g_free (data);
 
-  nvti_free (nvti);
-
   /* Mark in the KB that the plugin was successful */
-  mark_successful_plugin (desc);
+  mark_successful_plugin (oid, desc);
+
+  nvti_free (nvti);
   g_free (buffer);
   g_string_free (action_str, TRUE);
 }
 
 void
-proto_post_alarm (struct arglist *desc, int port, const char *proto,
-                  const char *action)
+proto_post_alarm (const char *oid, struct arglist *desc, int port,
+                  const char *proto, const char *action)
 {
-  proto_post_wrapped (desc, port, proto, action, "ALARM");
+  proto_post_wrapped (oid, desc, port, proto, action, "ALARM");
 }
 
 void
-post_alarm (struct arglist *desc, int port, const char *action)
+post_alarm (const char *oid, struct arglist *desc, int port, const char *action)
 {
-  proto_post_alarm (desc, port, "tcp", action);
+  proto_post_alarm (oid, desc, port, "tcp", action);
 }
 
 
@@ -512,33 +511,33 @@ post_alarm (struct arglist *desc, int port, const char *action)
  * @brief Post a log message
  */
 void
-proto_post_log (struct arglist *desc, int port, const char *proto,
-                const char *action)
+proto_post_log (const char *oid, struct arglist *desc, int port,
+                const char *proto, const char *action)
 {
-  proto_post_wrapped (desc, port, proto, action, "LOG");
+  proto_post_wrapped (oid, desc, port, proto, action, "LOG");
 }
 
 /**
  * @brief Post a log message about a tcp port.
  */
 void
-post_log (struct arglist *desc, int port, const char *action)
+post_log (const char *oid, struct arglist *desc, int port, const char *action)
 {
-  proto_post_log (desc, port, "tcp", action);
+  proto_post_log (oid, desc, port, "tcp", action);
 }
 
 void
-proto_post_error (struct arglist *desc, int port, const char *proto,
-                  const char *action)
+proto_post_error (const char *oid, struct arglist *desc, int port,
+                  const char *proto, const char *action)
 {
-  proto_post_wrapped (desc, port, proto, action, "ERRMSG");
+  proto_post_wrapped (oid, desc, port, proto, action, "ERRMSG");
 }
 
 
 void
-post_error (struct arglist *desc, int port, const char *action)
+post_error (const char *oid, struct arglist *desc, int port, const char *action)
 {
-  proto_post_error (desc, port, "tcp", action);
+  proto_post_error (oid, desc, port, "tcp", action);
 }
 
 void
@@ -553,7 +552,7 @@ add_plugin_preference (struct arglist *desc, const char *name, const char *type,
 
 
 char *
-get_plugin_preference (struct arglist *desc, const char *name)
+get_plugin_preference (const char *oid, const char *name)
 {
   int len;
   struct arglist *prefs;
@@ -564,7 +563,9 @@ get_plugin_preference (struct arglist *desc, const char *name)
   if (!prefs || !nvticache_initialized ())
     return NULL;
 
-  nvti = nvticache_get_by_oid_full (arg_get_value (desc, "OID"));
+  nvti = nvticache_get_by_oid_full (oid);
+  if (!nvti) return NULL;
+
   plug_name = nvti_name (nvti);
   cname = g_strdup (name);
 

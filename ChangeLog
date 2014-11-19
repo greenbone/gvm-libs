@@ -1,3 +1,42 @@
+2014-11-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Replace more cases of using "OID" from arglists by explicit
+	oid. This requires some extensive changes.
+
+	* nasl/nasl_misc_funcs.c (simple_register_host_detail): Get the oid
+	from the lexic context instead of via arglist.
+
+	* misc/plugutils.c (mark_successful_plugin, mark_post,
+	proto_post_wrapped): Add parameter "oid" and use this instead of "OID"
+	from the arglist.
+	(proto_post_alarm, post_alarm, proto_post_log, post_log,
+	proto_post_error, -post_error): Add parameter "oid" and use it for
+	subsequent calls.
+	(get_plugin_preference): Replace arglist parameter by oid.
+ 
+	* misc/plugutils.h: Adjust protos accordingly.
+
+	* nasl/nasl_scanner_glue.c (script_get_preference,
+	script_get_preference_file_content,
+	script_get_preference_file_location): Adjust call of
+	get_plugin_preference.
+	(proto_post_something_t, post_something_t): Adjust to new parameter of
+	post functions.
+	(security_something): Add oid to calls of post functions.
+
+	* nasl/nasl_builtin_find_service.c: Changed function headers to comply
+	with styleguide. Change any call of post_* to apply oid as
+	first parameter.
+	(oid): New. Global variable that contains the OID of this NVT.
+	(plugin_do_run): Adjust call of get_plugin_preference.
+	(plugin_run_find_service): Set the global oid from the lexic context.
+	Adjust call of get_plugin_preference.
+
+	* nasl/nasl_builtin_nmap.c (nmap_t): Add element "oid".
+	(nmap_create): Set the oid and adjust call of get_plugin_preference.
+	(build_cmd_line, add_scantype_arguments, add_timing_arguments): Adjust
+	call of get_plugin_preference.
+	
 2014-11-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/CMakeLists.txt: Link base library against gpgme. Remove

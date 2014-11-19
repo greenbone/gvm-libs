@@ -69,17 +69,17 @@ plug_create_from_nvti_and_prefs (const nvti_t *);
 /*
  * Reporting functions
  */
-void proto_post_alarm (struct arglist *, int, const char *, const char *);
-void post_alarm (struct arglist *, int, const char *);
+void proto_post_alarm (const char *, struct arglist *, int, const char *, const char *);
+void post_alarm (const char *, struct arglist *, int, const char *);
 void post_alarm_udp (struct arglist *, int, const char *);
 #define post_alarm_tcp post_alarm
 
-void proto_post_error (struct arglist *, int, const char *, const char *);
-void post_error (struct arglist *, int, const char *);
+void proto_post_error (const char *, struct arglist *, int, const char *, const char *);
+void post_error (const char *, struct arglist *, int, const char *);
 #define post_error_tcp post_error
 
-void proto_post_log (struct arglist *, int, const char *, const char *);
-void post_log (struct arglist *, int, const char *);
+void proto_post_log (const char *, struct arglist *, int, const char *, const char *);
+void post_log (const char *, struct arglist *, int, const char *);
 #define post_log_tcp post_log
 
 
@@ -105,7 +105,7 @@ void *plug_get_key (struct arglist *, char *, int *);
 struct in6_addr *plug_get_host_ip (struct arglist *);
 void add_plugin_preference (struct arglist *, const char *, const char *,
                             const char *);
-char *get_plugin_preference (struct arglist *, const char *);
+char *get_plugin_preference (const char *, const char *);
 const char *get_plugin_preference_fname (struct arglist *, const char *);
 char *get_plugin_preference_file_content (struct arglist *, const char *);
 const long get_plugin_preference_file_size (struct arglist *, const char *);

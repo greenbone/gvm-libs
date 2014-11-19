@@ -321,6 +321,9 @@ typedef struct
   /* General execution environment */
   struct arglist *env;
 
+  /* OID of this NVT */
+  const char *oid;
+
   /* XML parsing states */
   struct nmap_parser parser;
 
@@ -525,9 +528,10 @@ nmap_create (lex_ctxt * lexic)
   nmap = (nmap_t *) g_malloc0 (sizeof (nmap_t));
 
   nmap->env = lexic->script_infos;
+  nmap->oid = lexic->oid;
 
   /* import results from external file? */
-  pref = get_plugin_preference (nmap->env, PREF_IMPORT_XML_FILE);
+  pref = get_plugin_preference (lexic->oid, PREF_IMPORT_XML_FILE);
   if (!pref || !strlen (pref))
     {
       /* no: build command line to execute */
@@ -647,7 +651,7 @@ build_cmd_line (nmap_t * nmap)
     {
       gchar *optval;
 
-      optval = get_plugin_preference (nmap->env, options[i].optname);
+      optval = get_plugin_preference (nmap->oid, options[i].optname);
       if (!optval)
         continue;
 
@@ -871,7 +875,7 @@ add_scantype_arguments (nmap_t * nmap)
     {NULL, NULL, FALSE}
   };
 
-  scantype = get_plugin_preference (nmap->env, PREF_TCP_SCANNING_TECHNIQUE);
+  scantype = get_plugin_preference (nmap->oid, PREF_TCP_SCANNING_TECHNIQUE);
   if (!scantype)
     return -1;
 
@@ -904,7 +908,7 @@ add_timing_arguments (nmap_t * nmap)
     {NULL, NULL, FALSE}
   };
 
-  timing = get_plugin_preference (nmap->env, PREF_TIMING_POLICY);
+  timing = get_plugin_preference (nmap->oid, PREF_TIMING_POLICY);
   if (!timing)
     return -1;
 

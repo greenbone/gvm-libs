@@ -481,7 +481,6 @@ script_add_preference (lex_ctxt * lexic)
 tree_cell *
 script_get_preference (lex_ctxt * lexic)
 {
-  struct arglist *script_infos = lexic->script_infos;
   tree_cell *retc;
   char *pref = get_str_var_by_num (lexic, 0);
   char *value;
@@ -495,7 +494,7 @@ script_get_preference (lex_ctxt * lexic)
       return FAKE_CELL;
     }
 
-  value = get_plugin_preference (script_infos, pref);
+  value = get_plugin_preference (lexic->oid, pref);
   if (value != NULL)
     {
       retc = alloc_tree_cell (0, NULL);
@@ -535,7 +534,7 @@ script_get_preference_file_content (lex_ctxt * lexic)
       return NULL;
     }
 
-  value = get_plugin_preference (script_infos, pref);
+  value = get_plugin_preference (lexic->oid, pref);
   if (value == NULL)
     return NULL;
 
@@ -575,7 +574,7 @@ script_get_preference_file_location (lex_ctxt * lexic)
       return NULL;
     }
 
-  value = get_plugin_preference (script_infos, pref);
+  value = get_plugin_preference (lexic->oid, pref);
   if (value == NULL)
     {
       nasl_perror (lexic,
@@ -878,12 +877,12 @@ set_kb_item (lex_ctxt * lexic)
 /**
  * Function is used when the script wants to report a problem back to openvassd.
  */
-typedef void (*proto_post_something_t) (struct arglist *, int, const char *,
-                                        const char *);
+typedef void (*proto_post_something_t) (const char *, struct arglist *, int,
+                                        const char *, const char *);
 /**
  * Function is used when the script wants to report a problem back to openvassd.
  */
-typedef void (*post_something_t) (struct arglist *, int, const char *);
+typedef void (*post_something_t) (const char *, struct arglist *, int, const char *);
 
 
 static tree_cell *
@@ -925,18 +924,18 @@ security_something (lex_ctxt * lexic, proto_post_something_t proto_post_func,
   if (dup != NULL)
     {
       if (proto == NULL)
-        post_func (script_infos, port, dup);
+        post_func (lexic->oid, script_infos, port, dup);
       else
-        proto_post_func (script_infos, port, proto, dup);
+        proto_post_func (lexic->oid, script_infos, port, proto, dup);
 
       g_free (dup);
       return FAKE_CELL;
     }
 
   if (proto == NULL)
-    post_func (script_infos, port, NULL);
+    post_func (lexic->oid, script_infos, port, NULL);
   else
-    proto_post_func (script_infos, port, proto, NULL);
+    proto_post_func (lexic->oid, script_infos, port, proto, NULL);
 
   return FAKE_CELL;
 }

@@ -60,11 +60,10 @@
 #define PREF_FILE "file"
 
 
+const char *oid;
+
 static void
-register_service (desc, port, proto)
-     struct arglist *desc;
-     int port;
-     const char *proto;
+register_service (struct arglist *desc, int port, const char *proto)
 {
   char k[96];
 
@@ -101,28 +100,21 @@ register_service (desc, port, proto)
 }
 
 static void
-mark_chargen_server (desc, port)
-     struct arglist *desc;
-     int port;
+mark_chargen_server (struct arglist *desc, int port)
 {
   register_service (desc, port, "chargen");
-  post_log (desc, port, "Chargen is running on this port");
+  post_log (oid, desc, port, "Chargen is running on this port");
 }
 
 void
-mark_echo_server (desc, port)
-     struct arglist *desc;
-     int port;
+mark_echo_server (struct arglist *desc, int port)
 {
   register_service (desc, port, "echo");
-  post_log (desc, port, "An echo server is running on this port");
+  post_log (oid, desc, port, "An echo server is running on this port");
 }
 
 void
-mark_ncacn_http_server (desc, port, buffer)
-     struct arglist *desc;
-     int port;
-     char *buffer;
+mark_ncacn_http_server (struct arglist *desc, int port, char *buffer)
 {
   char ban[256];
   if (port == 593)
@@ -140,10 +132,7 @@ mark_ncacn_http_server (desc, port, buffer)
 }
 
 void
-mark_vnc_server (desc, port, buffer)
-     struct arglist *desc;
-     int port;
-     char *buffer;
+mark_vnc_server (struct arglist *desc, int port, char *buffer)
 {
   char ban[512];
   register_service (desc, port, "vnc");
@@ -152,10 +141,7 @@ mark_vnc_server (desc, port, buffer)
 }
 
 void
-mark_nntp_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_nntp_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
   register_service (desc, port, "nntp");
@@ -163,48 +149,37 @@ mark_nntp_server (desc, port, buffer, trp)
   plug_replace_key (desc, ban, ARG_STRING, buffer);
   snprintf (ban, sizeof (ban), "An NNTP server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 
 void
-mark_swat_server (desc, port, buffer)
-     struct arglist *desc;
-     int port;
-     unsigned char *buffer;
+mark_swat_server (struct arglist *desc, int port, unsigned char *buffer)
 {
   register_service (desc, port, "swat");
 }
 
 void
-mark_vqserver (desc, port, buffer)
-     struct arglist *desc;
-     int port;
-     unsigned char *buffer;
+mark_vqserver (struct arglist *desc, int port, unsigned char *buffer)
 {
   register_service (desc, port, "vqServer-admin");
 }
 
 
 void
-mark_mldonkey (desc, port, buffer)
-     struct arglist *desc;
-     int port;
-     unsigned char *buffer;
+mark_mldonkey (struct arglist *desc, int port, unsigned char *buffer)
 {
   char ban[512];
   register_service (desc, port, "mldonkey");
   snprintf (ban, sizeof (ban), "A mldonkey server is running on this port");
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 
 
 void
-mark_http_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     unsigned char *buffer;
+mark_http_server (struct arglist *desc, int port, unsigned char *buffer,
+                  int trp)
 {
   char ban[512];
   register_service (desc, port, "www");
@@ -212,15 +187,13 @@ mark_http_server (desc, port, buffer, trp)
   plug_replace_key (desc, ban, ARG_STRING, buffer);
   snprintf (ban, sizeof (ban), "A web server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 
 void
-mark_locked_adsubtract_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     unsigned char *buffer;
+mark_locked_adsubtract_server (struct arglist *desc, int port,
+                               unsigned char *buffer, int trp)
 {
   char ban[512];
   register_service (desc, port, "AdSubtract");
@@ -229,22 +202,19 @@ mark_locked_adsubtract_server (desc, port, buffer, trp)
   snprintf (ban, sizeof (ban),
             "A (locked) AdSubtract server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 static void
 mark_gopher_server (struct arglist *desc, int port)
 {
   register_service (desc, port, "gopher");
-  post_log (desc, port, "A gopher server is running on this port");
+  post_log (oid, desc, port, "A gopher server is running on this port");
 }
 
 #if 0
 static void
-mark_gnutella_servent (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_gnutella_servent (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[256];
 
@@ -253,15 +223,12 @@ mark_gnutella_servent (desc, port, buffer, trp)
   plug_replace_key (desc, ban, ARG_STRING, buffer);
   snprintf (ban, sizeof (ban), "A Gnutella servent is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 #endif
 
 void
-mark_rmserver (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_rmserver (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
   register_service (desc, port, "realserver");
@@ -270,14 +237,11 @@ mark_rmserver (desc, port, buffer, trp)
 
   snprintf (ban, sizeof (ban), "A RealMedia server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 void
-mark_smtp_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_smtp_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
   register_service (desc, port, "smtp");
@@ -295,16 +259,13 @@ mark_smtp_server (desc, port, buffer, trp)
     snprintf (report, 255 + strlen (buffer), "An SMTP server is running on this port%s\n\
 Here is its banner : \n%s",
               get_encaps_through (trp), buffer);
-    post_log (desc, port, report);
+    post_log (oid, desc, port, report);
     g_free (report);
   }
 }
 
 void
-mark_snpp_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_snpp_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512], *report, *t;
   register_service (desc, port, "snpp");
@@ -318,15 +279,12 @@ mark_snpp_server (desc, port, buffer, trp)
   snprintf (report, 255 + strlen (buffer),
             "An SNPP server is running on this port%s\n\
 Here is its banner : \n%s", get_encaps_through (trp), buffer);
-  post_log (desc, port, report);
+  post_log (oid, desc, port, report);
   g_free (report);
 }
 
 void
-mark_ftp_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_ftp_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   register_service (desc, port, "ftp");
 
@@ -346,7 +304,7 @@ mark_ftp_server (desc, port, buffer, trp)
       snprintf (report, 255 + strlen (buffer), "An FTP server is running on this port%s.\n\
 Here is its banner : \n%s",
                 get_encaps_through (trp), buffer);
-      post_log (desc, port, report);
+      post_log (oid, desc, port, report);
       g_free (report);
     }
   else
@@ -355,42 +313,33 @@ Here is its banner : \n%s",
       snprintf (report, sizeof (report),
                 "An FTP server is running on this port%s.",
                 get_encaps_through (trp));
-      post_log (desc, port, report);
+      post_log (oid, desc, port, report);
     }
 }
 
 void
-mark_ssh_server (desc, port, buffer)
-     struct arglist *desc;
-     int port;
-     char *buffer;
+mark_ssh_server (struct arglist *desc, int port, char *buffer)
 {
   register_service (desc, port, "ssh");
   while ((buffer[strlen (buffer) - 1] == '\n') ||
          (buffer[strlen (buffer) - 1] == '\r'))
     buffer[strlen (buffer) - 1] = '\0';
-  post_log (desc, port, "An ssh server is running on this port");
+  post_log (oid, desc, port, "An ssh server is running on this port");
 }
 
 void
-mark_http_proxy (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     unsigned char *buffer;
+mark_http_proxy (struct arglist *desc, int port, unsigned char *buffer, int trp)
 {
   char ban[512];
   /* the banner is in www/banner/port */
   register_service (desc, port, "http_proxy");
   snprintf (ban, sizeof (ban), "An HTTP proxy is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 void
-mark_pop_server (desc, port, buffer)
-     struct arglist *desc;
-     int port;
-     char *buffer;
+mark_pop_server (struct arglist *desc, int port, char *buffer)
 {
   char *c = strchr (buffer, '\n');
   char ban[512];
@@ -412,23 +361,20 @@ mark_pop_server (desc, port, buffer)
       register_service (desc, port, "pop2");
       snprintf (ban, sizeof (ban), "pop2/banner/%d", port);
       plug_replace_key (desc, ban, ARG_STRING, buffer);
-      post_log (desc, port, "a pop2 server is running on this port");
+      post_log (oid, desc, port, "a pop2 server is running on this port");
     }
   else
     {
       register_service (desc, port, "pop3");
       snprintf (ban, sizeof (ban), "pop3/banner/%d", port);
       plug_replace_key (desc, ban, ARG_STRING, buffer);
-      post_log (desc, port, "A pop3 server is running on this port");
+      post_log (oid, desc, port, "A pop3 server is running on this port");
     }
   g_free (buffer2);
 }
 
 void
-mark_imap_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_imap_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
   register_service (desc, port, "imap");
@@ -437,18 +383,15 @@ mark_imap_server (desc, port, buffer, trp)
   {
     snprintf (ban, sizeof (ban), "An IMAP server is running on this port%s",
               get_encaps_through (trp));
-    post_log (desc, port, ban);
+    post_log (oid, desc, port, ban);
   }
 }
 
 void
-mark_auth_server (desc, port, buffer)
-     struct arglist *desc;
-     int port;
-     char *buffer;
+mark_auth_server (struct arglist *desc, int port, char *buffer)
 {
   register_service (desc, port, "auth");
-  post_log (desc, port, "An identd server is running on this port");
+  post_log (oid, desc, port, "An identd server is running on this port");
 }
 
 
@@ -457,94 +400,66 @@ mark_auth_server (desc, port, buffer)
  * <vincent@strongholdnet.com>
  */
 void
-mark_postgresql (desc, port, buffer)
-     struct arglist *desc;
-     int port;
-     char *buffer;
+mark_postgresql (struct arglist *desc, int port, char *buffer)
 {
   register_service (desc, port, "postgresql");
   /* if (port != 5432) */
-  post_log (desc, port, "A PostgreSQL server is running on this port");
+  post_log (oid, desc, port, "A PostgreSQL server is running on this port");
 }
 
 void
-mark_mysql (desc, port, buffer)
-     struct arglist *desc;
-     int port;
-     char *buffer;
+mark_mysql (struct arglist *desc, int port, char *buffer)
 {
   register_service (desc, port, "mysql");
   /* if (port != 3306) */
-  post_log (desc, port, "A MySQL server is running on this port");
+  post_log (oid, desc, port, "A MySQL server is running on this port");
 }
 
 void
-mark_cvspserver (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port;
-     char *buffer;
-     int trp;
+mark_cvspserver (struct arglist *desc, int port, char *buffer, int trp)
 {
   register_service (desc, port, "cvspserver");
   /* if (port != 2401) */
-  post_log (desc, port, "A CVS pserver server is running on this port");
+  post_log (oid, desc, port, "A CVS pserver server is running on this port");
 }
 
 
 void
-mark_cvsupserver (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port;
-     char *buffer;
-     int trp;
+mark_cvsupserver (struct arglist *desc, int port, char *buffer, int trp)
 {
   register_service (desc, port, "cvsup");
-  post_log (desc, port, "A CVSup server is running on this port");
+  post_log (oid, desc, port, "A CVSup server is running on this port");
 }
 
 
 void
-mark_cvslockserver (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port;
-     char *buffer;
-     int trp;
+mark_cvslockserver (struct arglist *desc, int port, char *buffer, int trp)
 {
   register_service (desc, port, "cvslockserver");
   /* if (port != 2401) */
-  post_log (desc, port, "A CVSLock server server is running on this port");
+  post_log (oid, desc, port, "A CVSLock server server is running on this port");
 }
 
 void
-mark_rsyncd (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port;
-     char *buffer;
-     int trp;
+mark_rsyncd (struct arglist *desc, int port, char *buffer, int trp)
 {
   register_service (desc, port, "rsyncd");
-  post_log (desc, port, "An rsync server is running on this port");
+  post_log (oid, desc, port, "An rsync server is running on this port");
 }
 
 
 void
-mark_wild_shell (desc, port, buffer)
-     struct arglist *desc;
-     int port;
-     char *buffer;
+mark_wild_shell (struct arglist *desc, int port, char *buffer)
 {
 
   register_service (desc, port, "wild_shell");
 
-  post_alarm (desc, port,
+  post_alarm (oid, desc, port,
               "A shell seems to be running on this port ! (this is a possible backdoor)");
 }
 
 void
-mark_telnet_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_telnet_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "telnet");
@@ -552,15 +467,12 @@ mark_telnet_server (desc, port, buffer, trp)
     snprintf (ban, sizeof (ban),
               "A telnet server seems to be running on this port%s",
               get_encaps_through (trp));
-    post_log (desc, port, ban);
+    post_log (oid, desc, port, ban);
   }
 }
 
 void
-mark_gnome14_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_gnome14_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "gnome14");
@@ -568,15 +480,12 @@ mark_gnome14_server (desc, port, buffer, trp)
     snprintf (ban, sizeof (ban),
               "A Gnome 1.4 server seems to be running on this port%s",
               get_encaps_through (trp));
-    post_log (desc, port, ban);
+    post_log (oid, desc, port, ban);
   }
 }
 
 void
-mark_eggdrop_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_eggdrop_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "eggdrop");
@@ -584,58 +493,46 @@ mark_eggdrop_server (desc, port, buffer, trp)
     snprintf (ban, sizeof (ban),
               "An eggdrop IRC bot seems to be running a control server on this port%s",
               get_encaps_through (trp));
-    post_log (desc, port, ban);
+    post_log (oid, desc, port, ban);
   }
 }
 
 void
-mark_netbus_server (desc, port, buffer)
-     struct arglist *desc;
-     int port;
-     char *buffer;
+mark_netbus_server (struct arglist *desc, int port, char *buffer)
 {
-
   register_service (desc, port, "netbus");
-  post_alarm (desc, port, "NetBus is running on this port");
+  post_alarm (oid, desc, port, "NetBus is running on this port");
 }
 
 
 void
-mark_linuxconf (desc, port, buffer)
-     struct arglist *desc;
-     int port;
-     unsigned char *buffer;
+mark_linuxconf (struct arglist *desc, int port, unsigned char *buffer)
 {
   char ban[512];
   register_service (desc, port, "linuxconf");
   snprintf (ban, sizeof (ban), "linuxconf/banner/%d", port);
   plug_replace_key (desc, ban, ARG_STRING, buffer);
-  post_log (desc, port, "Linuxconf is running on this port");
+  post_log (oid, desc, port, "Linuxconf is running on this port");
 }
 
 static void
-mark_finger_server (desc, port, banner, trp)
-     struct arglist *desc;
-     unsigned char *banner;
-     int port, trp;
+mark_finger_server (struct arglist *desc, int port, unsigned char *banner,
+                    int trp)
 {
   char tmp[256];
-
 
   register_service (desc, port, "finger");
 
   snprintf (tmp, sizeof (tmp),
             "A finger server seems to be running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, tmp);
+  post_log (oid, desc, port, tmp);
 }
 
 
 static void
-mark_vtun_server (desc, port, banner, trp)
-     struct arglist *desc;
-     unsigned char *banner;
-     int port, trp;
+mark_vtun_server (struct arglist *desc, int port, unsigned char *banner,
+                  int trp)
 {
   char tmp[255];
 
@@ -655,16 +552,12 @@ mark_vtun_server (desc, port, banner, trp)
               "A VTUN server seems to be running on this port%s\n"
               "Here is its banner:\n%s\n", get_encaps_through (trp), banner);
 
-
-
-  post_log (desc, port, tmp);
+  post_log (oid, desc, port, tmp);
 }
 
 static void
-mark_uucp_server (desc, port, banner, trp)
-     struct arglist *desc;
-     unsigned char *banner;
-     int port, trp;
+mark_uucp_server (struct arglist *desc, int port, unsigned char *banner,
+                  int trp)
 {
   char tmp[255];
 
@@ -676,16 +569,12 @@ mark_uucp_server (desc, port, banner, trp)
   snprintf (tmp, sizeof (tmp),
             "An UUCP server seems to be running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, tmp);
+  post_log (oid, desc, port, tmp);
 }
 
 
-
 static void
-mark_lpd_server (desc, port, banner, trp)
-     struct arglist *desc;
-     unsigned char *banner;
-     int port, trp;
+mark_lpd_server (struct arglist *desc, int port, unsigned char *banner, int trp)
 {
   char tmp[255];
 
@@ -693,16 +582,14 @@ mark_lpd_server (desc, port, banner, trp)
   snprintf (tmp, sizeof (tmp),
             "A LPD server seems to be running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, tmp);
+  post_log (oid, desc, port, tmp);
 }
 
 
 /* http://www.lysator.liu.se/lyskom/lyskom-server/ */
 static void
-mark_lyskom_server (desc, port, banner, trp)
-     struct arglist *desc;
-     unsigned char *banner;
-     int port, trp;
+mark_lyskom_server (struct arglist *desc, int port, unsigned char *banner,
+                    int trp)
 {
   char tmp[255];
 
@@ -710,15 +597,12 @@ mark_lyskom_server (desc, port, banner, trp)
   snprintf (tmp, sizeof (tmp),
             "A LysKOM server seems to be running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, tmp);
+  post_log (oid, desc, port, tmp);
 }
 
 /* http://www.emailman.com/ph/ */
 static void
-mark_ph_server (desc, port, banner, trp)
-     struct arglist *desc;
-     unsigned char *banner;
-     int port, trp;
+mark_ph_server (struct arglist *desc, int port, unsigned char *banner, int trp)
 {
   char tmp[255];
 
@@ -726,14 +610,11 @@ mark_ph_server (desc, port, banner, trp)
   snprintf (tmp, sizeof (tmp),
             "A PH server seems to be running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, tmp);
+  post_log (oid, desc, port, tmp);
 }
 
 static void
-mark_time_server (desc, port, banner, trp)
-     struct arglist *desc;
-     unsigned char *banner;
-     int port, trp;
+mark_time_server (struct arglist *desc, int port, unsigned char *banner, int trp)
 {
   char tmp[256];
 
@@ -741,15 +622,12 @@ mark_time_server (desc, port, banner, trp)
   snprintf (tmp, sizeof (tmp),
             "A time server seems to be running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, tmp);
+  post_log (oid, desc, port, tmp);
 }
 
 
 static void
-mark_ens_server (desc, port, banner, trp)
-     struct arglist *desc;
-     char *banner;
-     int port, trp;
+mark_ens_server (struct arglist *desc, int port, char *banner, int trp)
 {
   char tmp[255];
   register_service (desc, port, "iPlanetENS");
@@ -757,14 +635,11 @@ mark_ens_server (desc, port, banner, trp)
   snprintf (tmp, sizeof (tmp),
             "An iPlanet ENS (Event Notification Server) seems to be running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, tmp);
+  post_log (oid, desc, port, tmp);
 }
 
 static void
-mark_citrix_server (desc, port, banner, trp)
-     struct arglist *desc;
-     const char *banner;
-     int port, trp;
+mark_citrix_server (struct arglist *desc, int port, const char *banner, int trp)
 {
   char tmp[255];
 
@@ -772,14 +647,11 @@ mark_citrix_server (desc, port, banner, trp)
   snprintf (tmp, sizeof (tmp),
             "a Citrix server seems to be running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, tmp);
+  post_log (oid, desc, port, tmp);
 }
 
 static void
-mark_giop_server (desc, port, banner, trp)
-     struct arglist *desc;
-     const char *banner;
-     int port, trp;
+mark_giop_server (struct arglist *desc, int port, const char *banner, int trp)
 {
   char tmp[255];
 
@@ -788,14 +660,12 @@ mark_giop_server (desc, port, banner, trp)
             "A GIOP-enabled service is running on this port%s",
             get_encaps_through (trp));
 
-  post_log (desc, port, tmp);
+  post_log (oid, desc, port, tmp);
 }
 
 static void
-mark_exchg_routing_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_exchg_routing_server (struct arglist *desc, int port, char *buffer,
+                           int trp)
 {
   char ban[255];
 
@@ -806,16 +676,13 @@ mark_exchg_routing_server (desc, port, buffer, trp)
     snprintf (ban, sizeof (ban),
               "A Microsoft Exchange routing server is running on this port%s",
               get_encaps_through (trp));
-    post_log (desc, port, ban);
+    post_log (oid, desc, port, ban);
   }
 }
 
 
 static void
-mark_tcpmux_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_tcpmux_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char msg[255];
 
@@ -823,15 +690,12 @@ mark_tcpmux_server (desc, port, buffer, trp)
   snprintf (msg, sizeof (msg),
             "A tcpmux server seems to be running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, msg);
+  post_log (oid, desc, port, msg);
 }
 
 
 static void
-mark_BitTorrent_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     unsigned char *buffer;
+mark_BitTorrent_server (struct arglist *desc, int port, unsigned char *buffer, int trp)
 {
   char msg[255];
 
@@ -839,14 +703,12 @@ mark_BitTorrent_server (desc, port, buffer, trp)
   snprintf (msg, sizeof (msg),
             "A BitTorrent server seems to be running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, msg);
+  post_log (oid, desc, port, msg);
 }
 
 static void
-mark_smux_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     unsigned char *buffer;
+mark_smux_server (struct arglist *desc, int port, unsigned char *buffer,
+                  int trp)
 {
   char msg[255];
 
@@ -854,7 +716,7 @@ mark_smux_server (desc, port, buffer, trp)
   snprintf (msg, sizeof (msg),
             "A SNMP Multiplexer (smux) seems to be running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, msg);
+  post_log (oid, desc, port, msg);
 }
 
 
@@ -864,10 +726,8 @@ mark_smux_server (desc, port, buffer, trp)
  * it usually runs on port 7741.
  */
 static void
-mark_LISa_server (desc, port, banner, trp)
-     struct arglist *desc;
-     unsigned char *banner;
-     int port, trp;
+mark_LISa_server (struct arglist *desc, int port, unsigned char *banner,
+                  int trp)
 {
   char tmp[255];
 
@@ -875,7 +735,7 @@ mark_LISa_server (desc, port, banner, trp)
   snprintf (tmp, sizeof (tmp), "A LISa daemon is running on this port%s",
             get_encaps_through (trp));
 
-  post_log (desc, port, tmp);
+  post_log (oid, desc, port, tmp);
 }
 
 
@@ -886,20 +746,14 @@ mark_LISa_server (desc, port, banner, trp)
  *
  */
 static void
-mark_msdtc_server (desc, port, buffer)
-     struct arglist *desc;
-     int port;
-     unsigned char *buffer;
+mark_msdtc_server (struct arglist *desc, int port, unsigned char *buffer)
 {
   register_service (desc, port, "msdtc");
-  post_log (desc, port, "A MSDTC server is running on this port");
+  post_log (oid, desc, port, "A MSDTC server is running on this port");
 }
 
 static void
-mark_pop3pw_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_pop3pw_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
   register_service (desc, port, "pop3pw");
@@ -907,7 +761,7 @@ mark_pop3pw_server (desc, port, buffer, trp)
   plug_replace_key (desc, ban, ARG_STRING, buffer);
   snprintf (ban, sizeof (ban), "A pop3pw server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 /*
@@ -924,10 +778,7 @@ mark_pop3pw_server (desc, port, buffer, trp)
  */
 
 static void
-mark_whois_plus2_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_whois_plus2_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "whois++");
@@ -935,7 +786,7 @@ mark_whois_plus2_server (desc, port, buffer, trp)
   plug_replace_key (desc, ban, ARG_STRING, buffer);
   snprintf (ban, sizeof (ban), "A whois++ server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 /*
@@ -948,10 +799,7 @@ mark_whois_plus2_server (desc, port, buffer, trp)
  * 75 74 65 d not be execute 20: 64 0a d.
  */
 static void
-mark_mon_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_mon_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "mon");
@@ -959,15 +807,12 @@ mark_mon_server (desc, port, buffer, trp)
   plug_replace_key (desc, ban, ARG_STRING, buffer);
   snprintf (ban, sizeof (ban), "A mon server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 
 static void
-mark_fw1 (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_fw1 (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "cpfw1");
@@ -975,7 +820,7 @@ mark_fw1 (desc, port, buffer, trp)
   snprintf (ban, sizeof (ban),
             "A CheckPoint FW1 SecureRemote or FW1 FWModule server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 /*
@@ -989,17 +834,14 @@ mark_fw1 (desc, port, buffer, trp)
  */
 
 static void
-mark_psybnc (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_psybnc (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "psybnc");
   plug_replace_key (desc, ban, ARG_STRING, buffer);
   snprintf (ban, sizeof (ban), "A PsyBNC IRC proxy is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 /*
@@ -1010,17 +852,14 @@ mark_psybnc (desc, port, buffer, trp)
  * 20: 20 73 74 72 65 61 6d 20 72 65 71 75 69 72 65 73 stream requires
  */
 static void
-mark_shoutcast_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_shoutcast_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "shoutcast");
   plug_replace_key (desc, ban, ARG_STRING, buffer);
   snprintf (ban, sizeof (ban), "A shoutcast server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 
@@ -1031,10 +870,7 @@ mark_shoutcast_server (desc, port, buffer, trp)
  */
 
 static void
-mark_adsgone (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_adsgone (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "adsgone");
@@ -1042,7 +878,7 @@ mark_adsgone (desc, port, buffer, trp)
   snprintf (ban, sizeof (ban),
             "An AdsGone (a popup banner blocking server) is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 
@@ -1066,10 +902,7 @@ mark_adsgone (desc, port, buffer, trp)
  * books).
  */
 static void
-mark_acap_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_acap_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "acap");
@@ -1078,7 +911,7 @@ mark_acap_server (desc, port, buffer, trp)
   {
     snprintf (ban, sizeof (ban), "An ACAP server is running on this port%s",
               get_encaps_through (trp));
-    post_log (desc, port, ban);
+    post_log (oid, desc, port, ban);
   }
 }
 
@@ -1098,16 +931,13 @@ mark_acap_server (desc, port, buffer, trp)
  * books).
  */
 static void
-mark_nagiosd_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_nagiosd_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "nagiosd");
   snprintf (ban, sizeof (ban), "A nagiosd server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 
 }
 
@@ -1119,17 +949,14 @@ mark_nagiosd_server (desc, port, buffer, trp)
  * That's Teamspeak2 rc2 Server - http://www.teamspeak.org/
  */
 static void
-mark_teamspeak2_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_teamspeak2_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "teamspeak2");
   snprintf (ban, sizeof (ban),
             "A teamspeak2 server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 
 }
 
@@ -1149,16 +976,13 @@ mark_teamspeak2_server (desc, port, buffer, trp)
  * configured and used with.  (AIX Version 5.1)
  */
 static void
-mark_websm_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_websm_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "websm");
   snprintf (ban, sizeof (ban), "A WEBSM server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 
 }
 
@@ -1167,17 +991,14 @@ mark_websm_server (desc, port, buffer, trp)
  * 00: 43 4e 46 47 41 50 49                               CNFGAPI
  */
 static void
-mark_ofa_express_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_ofa_express_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "ofa_express");
   snprintf (ban, sizeof (ban),
             "An OFA/Express server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 
 }
 
@@ -1190,17 +1011,14 @@ mark_ofa_express_server (desc, port, buffer, trp)
  * 0.78..
  */
 static void
-mark_smppd_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_smppd_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "smppd");
   snprintf (ban, sizeof (ban),
             "A SuSE Meta pppd server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 /*
@@ -1211,17 +1029,14 @@ mark_smppd_server (desc, port, buffer, trp)
  * 20: 43 4f 4d 4d 41 4e 44 0a COMMAND.
  */
 static void
-mark_upsmon_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_upsmon_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "upsmon");
   snprintf (ban, sizeof (ban),
             "An upsd/upsmon server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 /*
@@ -1233,16 +1048,13 @@ mark_upsmon_server (desc, port, buffer, trp)
  * 30: 67 65 6e 64 73 20 32 2e 31                         gends 2.1
  */
 static void
-mark_sub7_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_sub7_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "sub7");
   snprintf (ban, sizeof (ban), "The Sub7 trojan is running on this port%s",
             get_encaps_through (trp));
-  post_alarm (desc, port, ban);
+  post_alarm (oid, desc, port, ban);
 }
 
 
@@ -1254,69 +1066,55 @@ mark_sub7_server (desc, port, buffer, trp)
  *  20: 54 20 2f 20 48 54 54 50 2f 31 2e 30 0d 0d 0a       T /
  */
 static void
-mark_spamd_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_spamd_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "spamd");
   snprintf (ban, sizeof (ban),
             "a spamd server (part of spamassassin) is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 /* Thanks to Mike Blomgren */
 static void
-mark_quicktime_streaming_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_quicktime_streaming_server (struct arglist *desc, int port, char *buffer,
+                                 int trp)
 {
   char ban[255];
   register_service (desc, port, "quicktime-streaming-server");
   snprintf (ban, sizeof (ban),
             "a quicktime streaming server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 /* Thanks to Allan <als@bpal.com> */
 static void
-mark_dameware_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_dameware_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "dameware");
   snprintf (ban, sizeof (ban), "a dameware server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 static void
-mark_stonegate_auth_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_stonegate_auth_server (struct arglist *desc, int port, char *buffer,
+                            int trp)
 {
   char ban[255];
   register_service (desc, port, "SG_ClientAuth");
   snprintf (ban, sizeof (ban),
             "a StoneGate authentication server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 
-
 void
-mark_listserv_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_listserv_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "listserv");
@@ -1324,16 +1122,13 @@ mark_listserv_server (desc, port, buffer, trp)
     snprintf (ban, sizeof (ban),
               "A LISTSERV daemon seems to be running on this port%s",
               get_encaps_through (trp));
-    post_log (desc, port, ban);
+    post_log (oid, desc, port, ban);
   }
 }
 
 
 void
-mark_fssniffer (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_fssniffer (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "FsSniffer");
@@ -1341,15 +1136,12 @@ mark_fssniffer (desc, port, buffer, trp)
     snprintf (ban, sizeof (ban),
               "A FsSniffer backdoor seems to be running on this port%s",
               get_encaps_through (trp));
-    post_alarm (desc, port, ban);
+    post_alarm (oid, desc, port, ban);
   }
 }
 
 void
-mark_remote_nc_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_remote_nc_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "RemoteNC");
@@ -1357,18 +1149,15 @@ mark_remote_nc_server (desc, port, buffer, trp)
     snprintf (ban, sizeof (ban),
               "A RemoteNC backdoor seems to be running on this port%s",
               get_encaps_through (trp));
-    post_log (desc, port, ban);
+    post_log (oid, desc, port, ban);
   }
 }
-
 
 
 /* Do not use register_service for unknown and wrapped services! */
 
 static void
-mark_wrapped_svc (desc, port, delta)
-     struct arglist *desc;
-     int port, delta;
+mark_wrapped_svc (struct arglist *desc, int port, int delta)
 {
   char msg[256];
 
@@ -1376,7 +1165,7 @@ mark_wrapped_svc (desc, port, delta)
             "The service closed the connection after %d seconds "
             "without sending any data\n"
             "It might be protected by some TCP wrapper\n", delta);
-  post_log (desc, port, msg);
+  post_log (oid, desc, port, msg);
   /* Do NOT use plug_replace_key! */
   plug_set_key (desc, "Services/wrapped", ARG_INT, GSIZE_TO_POINTER (port));
 }
@@ -1462,10 +1251,7 @@ port_to_name (int port)
 }
 
 static void
-mark_unknown_svc (desc, port, banner, trp)
-     struct arglist *desc;
-     int port, trp;
-     const unsigned char *banner;
+mark_unknown_svc (struct arglist *desc, int port, const unsigned char *banner, int trp)
 {
   char tmp[1600], *norm = NULL;
 
@@ -1483,50 +1269,38 @@ mark_unknown_svc (desc, port, banner, trp)
                 "It is usually reserved for %s", get_encaps_through (trp), norm);
     }
   if (*tmp != '\0')
-    post_log (desc, port, tmp);
+    post_log (oid, desc, port, tmp);
 }
 
 static void
-mark_gnuserv (desc, port)
-     struct arglist *desc;
-     int port;
+mark_gnuserv (struct arglist *desc, int port)
 {
   register_service (desc, port, "gnuserv");
-  post_log (desc, port, "gnuserv is running on this port");
+  post_log (oid, desc, port, "gnuserv is running on this port");
 }
 
 static void
-mark_iss_realsecure (desc, port)
-     struct arglist *desc;
-     int port;
+mark_iss_realsecure (struct arglist *desc, int port)
 {
   register_service (desc, port, "issrealsecure");
-  post_log (desc, port, "ISS RealSecure is running on this port");
+  post_log (oid, desc, port, "ISS RealSecure is running on this port");
 }
 
 static void
-mark_vmware_auth (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_vmware_auth (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
-
 
   register_service (desc, port, "vmware_auth");
 
   snprintf (ban, sizeof (ban),
             "A VMWare authentication daemon is running on this port%s:\n%s",
             get_encaps_through (trp), buffer);
-  post_log (desc, port, ban);
-
+  post_log (oid, desc, port, ban);
 }
 
 static void
-mark_interscan_viruswall (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_interscan_viruswall (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
 
@@ -1535,14 +1309,11 @@ mark_interscan_viruswall (desc, port, buffer, trp)
   snprintf (ban, sizeof (ban),
             "An interscan viruswall is running on this port%s:\n%s",
             get_encaps_through (trp), buffer);
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 static void
-mark_ppp_daemon (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_ppp_daemon (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
 
@@ -1550,14 +1321,11 @@ mark_ppp_daemon (desc, port, buffer, trp)
 
   snprintf (ban, sizeof (ban), "A PPP daemon is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 static void
-mark_zebra_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_zebra_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
 
@@ -1567,14 +1335,12 @@ mark_zebra_server (desc, port, buffer, trp)
   snprintf (ban, sizeof (ban),
             "A zebra daemon (bgpd or zebrad) is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 static void
-mark_ircxpro_admin_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_ircxpro_admin_server (struct arglist *desc, int port, char *buffer,
+                           int trp)
 {
   char ban[512];
 
@@ -1583,15 +1349,12 @@ mark_ircxpro_admin_server (desc, port, buffer, trp)
   snprintf (ban, sizeof (ban),
             "An IRCXPro administrative server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 
 static void
-mark_gnocatan_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_gnocatan_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
 
@@ -1600,15 +1363,12 @@ mark_gnocatan_server (desc, port, buffer, trp)
   snprintf (ban, sizeof (ban),
             "A gnocatan game server is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 /* Thanks to Owell Crow */
 static void
-mark_pbmaster_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_pbmaster_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
 
@@ -1617,15 +1377,12 @@ mark_pbmaster_server (desc, port, buffer, trp)
   snprintf (ban, sizeof (ban),
             "A PowerBroker master server is running on this port%s:\n%s",
             get_encaps_through (trp), buffer);
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 /* Thanks to Paulo Jorge */
 static void
-mark_dictd_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_dictd_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
 
@@ -1634,16 +1391,13 @@ mark_dictd_server (desc, port, buffer, trp)
   snprintf (ban, sizeof (ban),
             "A dictd server is running on this port%s:\n%s",
             get_encaps_through (trp), buffer);
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 
 /* Thanks to Tony van Lingen */
 static void
-mark_pnsclient (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_pnsclient (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
 
@@ -1652,29 +1406,23 @@ mark_pnsclient (desc, port, buffer, trp)
   snprintf (ban, sizeof (ban),
             "A Netsaint plugin (pNSClient.exe) is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 /* Thanks to Jesus D. Munoz */
 static void
-mark_veritas_backup (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_veritas_backup (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
   register_service (desc, port, "VeritasNetBackup");
 
   snprintf (ban, sizeof (ban), "VeritasNetBackup is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 static void
-mark_pblocald_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_pblocald_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
 
@@ -1683,30 +1431,23 @@ mark_pblocald_server (desc, port, buffer, trp)
   snprintf (ban, sizeof (ban),
             "A PowerBroker locald server is running on this port%s:\n%s",
             get_encaps_through (trp), buffer);
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 static void
-mark_jabber_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_jabber_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[255];
   register_service (desc, port, "jabber");
   snprintf (ban, sizeof (ban),
             "jabber daemon seems to be running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 
-
 static void
-mark_avotus_mm_server (desc, port, buffer, trp)
-     struct arglist *desc;
-     int port, trp;
-     char *buffer;
+mark_avotus_mm_server (struct arglist *desc, int port, char *buffer, int trp)
 {
   char ban[512];
 
@@ -1715,13 +1456,11 @@ mark_avotus_mm_server (desc, port, buffer, trp)
   snprintf (ban, sizeof (ban),
             "An avotus 'mm' server is running on this port%s:\n%s",
             get_encaps_through (trp), buffer);
-  post_log (desc, port, ban);
+  post_log (oid, desc, port, ban);
 }
 
 static void
-mark_socks_proxy (desc, port, ver)
-     struct arglist *desc;
-     int port, ver;
+mark_socks_proxy (struct arglist *desc, int port, int ver)
 {
   char str[256];
 
@@ -1729,13 +1468,11 @@ mark_socks_proxy (desc, port, ver)
   register_service (desc, port, str);
   snprintf (str, sizeof (str), "A SOCKS%d proxy is running on this port. ",
             ver);
-  post_log (desc, port, str);
+  post_log (oid, desc, port, str);
 }
 
 static void
-mark_direct_connect_hub (desc, port, trp)
-     struct arglist *desc;
-     int port, trp;
+mark_direct_connect_hub (struct arglist *desc, int port, int trp)
 {
   char str[256];
 
@@ -1743,7 +1480,7 @@ mark_direct_connect_hub (desc, port, trp)
   snprintf (str, sizeof (str),
             "A Direct Connect Hub is running on this port%s",
             get_encaps_through (trp));
-  post_log (desc, port, str);
+  post_log (oid, desc, port, str);
 }
 
 /*
@@ -1776,10 +1513,7 @@ may_be_time (time_t * rtime)
 
 
 static int
-plugin_do_run (desc, h, test_ssl)
-     struct arglist *desc;
-     struct arglist *h;
-     int test_ssl;
+plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
 {
   char *head = "Ports/tcp/";
   u_short unknown[65535];
@@ -1788,9 +1522,9 @@ plugin_do_run (desc, h, test_ssl)
 
   int rw_timeout = 5, cnx_timeout = 5, wrap_timeout = 3;
   int x, timeout;
-  char *rw_timeout_s = get_plugin_preference (desc, RW_TIMEOUT_PREF);
-  char *cnx_timeout_s = get_plugin_preference (desc, CNX_TIMEOUT_PREF);
-  char *wrap_timeout_s = get_plugin_preference (desc, WRAP_TIMEOUT_PREF);
+  char *rw_timeout_s = get_plugin_preference (oid, RW_TIMEOUT_PREF);
+  char *cnx_timeout_s = get_plugin_preference (oid, CNX_TIMEOUT_PREF);
+  char *wrap_timeout_s = get_plugin_preference (oid, WRAP_TIMEOUT_PREF);
   unsigned char *p;
   fd_set rfds, wfds;
   struct timeval tv;
@@ -1963,7 +1697,7 @@ plugin_do_run (desc, h, test_ssl)
                   snprintf (report, sizeof (report),
                             "A %s server answered on this port\n",
                             get_encaps_name (trp));
-                  post_log (desc, port, report);
+                  post_log (oid, desc, port, report);
                   plug_set_key (desc, "Transport/SSL", ARG_INT,
                                 GSIZE_TO_POINTER (port));
                 }
@@ -2783,13 +2517,15 @@ plugin_run_find_service (lex_ctxt * lexic)
 {
   struct arglist *desc = lexic->script_infos;
 
+  oid = lexic->oid;
+
   kb_t kb = plug_get_kb (desc);
   struct kb_item *kbitem, *kbitem_tmp;
 
   struct arglist *sons_args[MAX_SONS];
   int sons_pipe[MAX_SONS][2];
   int num_ports = 0;
-  char *num_sons_s = get_plugin_preference (desc, NUM_CHILDREN);
+  char *num_sons_s = get_plugin_preference (oid, NUM_CHILDREN);
   int num_sons = 10;
   int port_per_son;
   int i;
@@ -2797,11 +2533,11 @@ plugin_run_find_service (lex_ctxt * lexic)
   int unix_sock =
     GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
   int test_ssl = 1;
-  char *key = get_plugin_preference (desc, KEY_FILE);
-  char *cert = get_plugin_preference (desc, CERT_FILE);
-  char *pempass = get_plugin_preference (desc, PEM_PASS);
-  char *cafile = get_plugin_preference (desc, CA_FILE);
-  char *test_ssl_s = get_plugin_preference (desc, TEST_SSL_PREF);
+  char *key = get_plugin_preference (oid, KEY_FILE);
+  char *cert = get_plugin_preference (oid, CERT_FILE);
+  char *pempass = get_plugin_preference (oid, PEM_PASS);
+  char *cafile = get_plugin_preference (oid, CA_FILE);
+  char *test_ssl_s = get_plugin_preference (oid, TEST_SSL_PREF);
 
   if (key && key[0] != '\0')
     key = (char *) get_plugin_preference_fname (desc, key);
