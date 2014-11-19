@@ -1,5 +1,21 @@
 2014-11-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Save the path to the NVT directory in the cache hash table.
+	This is a considerable memory reduction.
+
+	* base/nvticache.c (nvticache_get): Don't use the full src path
+	anymore for the hash table. Use just the NVT path name
+	without path to NVT directory.
+	(nvticache_get_by_oid_full): No need to drop the NVT directory
+	path anymore.
+	(nvticache_get_src): Don't return a simple pointer to the full
+	patch anymore. Instead build the full filename and then return
+	a newly allocated object.
+
+	* base/nvticache.h: Adjust proto accordingly.
+
+2014-11-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/plugutils.c (plug_create_from_nvti_and_prefs): Finally drop
 	setting the "OID" element and thus save considerable amount of
 	memory.

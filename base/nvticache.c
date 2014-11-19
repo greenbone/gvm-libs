@@ -142,7 +142,7 @@ nvticache_get (const gchar *filename)
       g_hash_table_remove (nvticache->nvtis, nvti_oid (n));
     }
   g_hash_table_insert (nvticache->nvtis, g_strdup (nvti_oid (n)),
-                       g_strdup (nvti_src (n)));
+                       g_strdup (filename));
   return n;
 }
 
@@ -196,8 +196,6 @@ nvticache_get_by_oid_full (const char *oid)
     return NULL;
 
   /* Retrieve the full version from the on disk cache. */
-  filename += strlen (nvticache->src_path);
-
   dummy = g_build_filename (nvticache->cache_path, filename, NULL);
   cache_file = g_strconcat (dummy, ".nvti", NULL);
   cache_nvti = nvti_from_keyfile (cache_file);
@@ -214,12 +212,13 @@ nvticache_get_by_oid_full (const char *oid)
  *
  * @return Filename with full path matching OID if found, NULL otherwise.
  */
-const char *
+char *
 nvticache_get_src (const char *oid)
 {
   assert (nvticache);
 
-  return g_hash_table_lookup (nvticache->nvtis, oid);
+  return g_build_filename (nvticache->src_path,
+                           g_hash_table_lookup (nvticache->nvtis, oid), NULL);
 }
 
 /**
@@ -238,6 +237,5 @@ nvticache_get_filename (const char *oid)
 {
   assert (nvticache);
 
-  /* +1 is avoid the leading "/"  */
-  return g_hash_table_lookup (nvticache->nvtis, oid) + strlen (nvticache->src_path) + 1;
+  return g_hash_table_lookup (nvticache->nvtis, oid);
 }

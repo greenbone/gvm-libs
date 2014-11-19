@@ -70,7 +70,7 @@ nvticache_add (const nvti_t *, const char *);
 nvti_t *
 nvticache_get_by_oid_full (const char *);
 
-const char *
+char *
 nvticache_get_src (const char *);
 
 const char * nvticache_get_filename (const char *);
