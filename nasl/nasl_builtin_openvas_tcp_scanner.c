@@ -364,9 +364,9 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	  scanned_port_nb = unfiltered_ports_nb + filtered_ports_nb;
 	  if (scanned_port_nb > prev_scanned_port_nb + 99)
 	    {
-	      if ( globals != NULL ) comm_send_status(globals, arg_get_value(hostinfos, "NAME"),"portscan",
-			   scanned_port_nb,
-			   total_ports_nb);
+	      if (globals)
+                comm_send_status(globals, arg_get_value(hostinfos, "NAME"),
+                                 scanned_port_nb, total_ports_nb);
 	      prev_scanned_port_nb = scanned_port_nb;
 	    }
 
@@ -1445,7 +1445,7 @@ plugin_run_openvas_tcp_scanner (lex_ctxt * lexic)
     return NULL; // TODO: before it returned "1";
   if (banner_grab(p_addr, port_range, timeout, min_cnx, max_cnx, globals, desc, hostinfos) < 0)
     return NULL; // TODO: before it returned "1";
-  comm_send_status(globals, arg_get_value(hostinfos, "NAME"),"portscan", 65535, 65535);
+  comm_send_status(globals, arg_get_value(hostinfos, "NAME"), 65535, 65535);
   plug_set_key(desc, "Host/scanned", ARG_INT, (void*)1);
   plug_set_key(desc, "Host/scanners/openvas_tcp_scanner", ARG_INT, (void*)1);
   return NULL;

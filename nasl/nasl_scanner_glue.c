@@ -1066,7 +1066,7 @@ nasl_scanner_status (lex_ctxt * lexic)
       struct arglist *globs = arg_get_value (script_infos, "globals");
       if (globs == NULL)
         return NULL;
-      comm_send_status (globs, arg_get_value (hostdata, "NAME"), "portscan",
+      comm_send_status (globs, arg_get_value (hostdata, "NAME"),
                         current, total);
     }
   return FAKE_CELL;

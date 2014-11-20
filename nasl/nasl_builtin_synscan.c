@@ -729,7 +729,7 @@ scan (struct arglist * env, char* hostname, char* portrange,
       printf ("====> Sending packet to (at least) %d\n", ports[i]);
 #endif
       if (i % 100 == 0)
-        comm_send_status (globals, hostname, "portscan", i, num);
+        comm_send_status (globals, hostname, i, num);
 
       if (family == AF_INET)
         packets = sendpacket (soc, bpf, skip, dst, src, ports[i], magic,
@@ -778,7 +778,7 @@ scan (struct arglist * env, char* hostname, char* portrange,
       }
   }
 
-  comm_send_status (globals, hostname, "portscan", num, num);
+  comm_send_status (globals, hostname, num, num);
 #if 0
   plug_set_key (env, "Host/num_ports_scanned", ARG_INT, (void*)num);
 #endif

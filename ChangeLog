@@ -1,5 +1,17 @@
 2014-11-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/scanner_utils.c (comm_send_status): Remove action argument and
+	don't send it as part of the STATUS otp response.
+
+	* misc/scanner_utils.h: Adjust function prototype.
+
+	* nasl/nasl_builtin_opevnas_tcp_scanner.c (banner_grab)
+	(plugin_run_openas_tcp_scanner), nasl/nasl_builtin_synscan.c (scan)
+	nasl/nasl_scanner_glue.c (nasl_scanner_status): Adjust
+	comm_send_status() call.
+
+2014-11-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/CMakeLists.txt: Link against libgcrypt in none mingw case.
 
 2014-11-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>

@@ -29,11 +29,10 @@
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_DATA */
 
 /**
- * @brief Sends the status of an action.
+ * @brief Sends the status of a host's scan.
  */
 int
-comm_send_status (struct arglist *globals, char *hostname, char *action,
-                  int curr, int max)
+comm_send_status (struct arglist *globals, char *hostname, int curr, int max)
 {
   int soc = GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
   char buffer[2048];
@@ -45,8 +44,8 @@ comm_send_status (struct arglist *globals, char *hostname, char *action,
     return -1;
 
   snprintf (buffer, sizeof (buffer),
-            "SERVER <|> STATUS <|> %s <|> %s <|> %d/%d <|> SERVER\n",
-            hostname, action, curr, max);
+            "SERVER <|> STATUS <|> %s <|> %d/%d <|> SERVER\n",
+            hostname, curr, max);
 
   internal_send (soc, buffer, INTERNAL_COMM_MSG_TYPE_DATA);
 
