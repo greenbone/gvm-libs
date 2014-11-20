@@ -1,3 +1,32 @@
+openvas-libraries 8.0+beta4 (2014-11-20)
+
+This release is the fourth beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-8".
+
+This release includes the results of yet another significant
+memory consumption reduction as well as comprehensive code cleanups
+including various memory leaks.
+
+Many thanks to everyone who has contributed this release:
+Benoît Allard, Hani Benhabiles, Henri Doreau, Michael Meyer, Matthew Mundell,
+Thanga Prakash, Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to 8.0+beta3:
+* Raised minimum required version of GnuTLS to 2.12.
+* Significant memory consumption reduction of which primarily OpenVAS
+  benefits from.
+* Drop support for scanner option "ntp_short_status". This was a condensed
+  syntax for OTP "STATUS" command.
+* Removed "action" from the STATUS otp response.
+* Skip OMP library log messages when sending passwords.
+* Added support for using ecdsa keys when libssh 0.6.0 or higher is present.
+* Introduced Benoît Allard lobal preferences store.
+* Split up single pc file for entire module into one pc file per library.
+* Improved logging.
+* Various code quality improvements based on automatic and manual
+  code analysis.
+
+
 openvas-libraries 8.0+beta3 (2014-10-14)
 
 This release is the third beta version of the next major release of
