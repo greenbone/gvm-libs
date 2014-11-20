@@ -1,3 +1,7 @@
+2014-11-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/CMakeLists.txt: Link against libgcrypt in none mingw case.
+
 2014-11-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Save the path to the NVT directory in the cache hash table.
@@ -58,7 +62,7 @@
 	(nmap_create): Set the oid and adjust call of get_plugin_preference.
 	(build_cmd_line, add_scantype_arguments, add_timing_arguments): Adjust
 	call of get_plugin_preference.
-	
+
 2014-11-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/CMakeLists.txt: Link base library against gpgme. Remove
