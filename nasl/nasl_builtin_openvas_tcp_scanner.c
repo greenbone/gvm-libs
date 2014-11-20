@@ -33,7 +33,6 @@
 #include "../misc/arglists.h" /* for struct arglist */
 #include "nvt_categories.h" /* for ACT_SCANNER */
 #include "../misc/plugutils.h" /* for find_in_path */
-#include "../misc/scanners_utils.h" /* for comm_send_status */
 #include "../misc/prefs.h"          /* for prefs_get */
 #include "../misc/openvas_logging.h"
 
@@ -162,7 +161,6 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	    const int read_timeout,
 	    int		min_cnx,
 	    int		max_cnx,
-	    struct arglist *globals,
 	    struct arglist *desc,
 	    struct arglist *hostinfos)
 {
@@ -193,7 +191,6 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 #if DEBUG > 1
   int			done_ports_nb;
 #endif
-  int			scanned_port_nb;
   int			cnx_max[3], rtt_max[3], rtt_min[3], ping_rtt = 0;
 #if defined COMPUTE_RTT
   double		rtt_sum[3], rtt_sum2[3];
@@ -348,7 +345,6 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
     {
       int	open_ports_nb1 = 0, closed_ports_nb1 = 0;
       int	wait_sock_nb = 0;
-      int	prev_scanned_port_nb = 0;
 
       minport = 1;
       start_time_1pass = time(NULL);
@@ -361,15 +357,6 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
       while (scanned_ports < 65535)
 	{
 	  total_ports_nb = unfiltered_ports_nb + filtered_ports_nb + untested_ports_nb;
-	  scanned_port_nb = unfiltered_ports_nb + filtered_ports_nb;
-	  if (scanned_port_nb > prev_scanned_port_nb + 99)
-	    {
-	      if (globals)
-                comm_send_status(globals, arg_get_value(hostinfos, "NAME"),
-                                 scanned_port_nb, total_ports_nb);
-	      prev_scanned_port_nb = scanned_port_nb;
-	    }
-
 #if DEBUG > 0
 	  log_legacy_write ("openvas_tcp_scanner(%s): %d / %d = %02d%% - %d ports remaining\n",
 		  inet_ntoa(*pia),
@@ -1283,7 +1270,6 @@ tree_cell *
 plugin_run_openvas_tcp_scanner (lex_ctxt * lexic)
 {
   struct arglist *desc = lexic->script_infos;
-  struct arglist * globals = arg_get_value(desc, "globals");
   struct arglist * hostinfos = arg_get_value(desc, "HOSTNAME");
   const char * port_range = prefs_get ("port_range");
   const char * p;
@@ -1443,9 +1429,8 @@ plugin_run_openvas_tcp_scanner (lex_ctxt * lexic)
   p_addr = arg_get_value(hostinfos, "IP");
   if( p_addr == NULL )
     return NULL; // TODO: before it returned "1";
-  if (banner_grab(p_addr, port_range, timeout, min_cnx, max_cnx, globals, desc, hostinfos) < 0)
+  if (banner_grab(p_addr, port_range, timeout, min_cnx, max_cnx, desc, hostinfos) < 0)
     return NULL; // TODO: before it returned "1";
-  comm_send_status(globals, arg_get_value(hostinfos, "NAME"), 65535, 65535);
   plug_set_key(desc, "Host/scanned", ARG_INT, (void*)1);
   plug_set_key(desc, "Host/scanners/openvas_tcp_scanner", ARG_INT, (void*)1);
   return NULL;

@@ -1,5 +1,12 @@
 2014-11-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_builtin_openvas_tcp_scanner.c (banner_grab)
+	(plugin_run_openvas_tcp_scanner), nasl/nasl_builtin_synscan.c (scan),
+	nasl/nasl_scanner_glue.c (nasl_scanner_status): Don't call
+	comm_send_status().
+
+2014-11-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/scanner_utils.c (comm_send_status): Remove action argument and
 	don't send it as part of the STATUS otp response.
 

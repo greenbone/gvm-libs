@@ -683,7 +683,6 @@ scan (struct arglist * env, char* hostname, char* portrange,
   int             skip;
   int             i;
   struct list    *packets = NULL;
-  struct arglist *globals = (env) ? arg_get_value (env, "globals") : NULL;
   int             retry;
   unsigned short *ports;
   int family;
@@ -728,9 +727,6 @@ scan (struct arglist * env, char* hostname, char* portrange,
 #ifdef DEBUG
       printf ("====> Sending packet to (at least) %d\n", ports[i]);
 #endif
-      if (i % 100 == 0)
-        comm_send_status (globals, hostname, i, num);
-
       if (family == AF_INET)
         packets = sendpacket (soc, bpf, skip, dst, src, ports[i], magic,
                               packets, &rtt, 0, env);
@@ -778,10 +774,6 @@ scan (struct arglist * env, char* hostname, char* portrange,
       }
   }
 
-  comm_send_status (globals, hostname, num, num);
-#if 0
-  plug_set_key (env, "Host/num_ports_scanned", ARG_INT, (void*)num);
-#endif
   close (soc);
   bpf_close (bpf);
   if (ports != NULL)

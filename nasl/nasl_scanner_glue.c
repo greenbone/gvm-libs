@@ -1056,18 +1056,6 @@ nasl_scanner_add_port (lex_ctxt * lexic)
 tree_cell *
 nasl_scanner_status (lex_ctxt * lexic)
 {
-  int current = get_int_local_var_by_name (lexic, "current", -1);
-  int total = get_int_local_var_by_name (lexic, "total", -1);
-  struct arglist *script_infos = lexic->script_infos;
-  struct arglist *hostdata = arg_get_value (script_infos, "HOSTNAME");
-
-  if (current != -1 && total != -1)
-    {
-      struct arglist *globs = arg_get_value (script_infos, "globals");
-      if (globs == NULL)
-        return NULL;
-      comm_send_status (globs, arg_get_value (hostdata, "NAME"),
-                        current, total);
-    }
+  /* Kept for backward compatiblity. */
   return FAKE_CELL;
 }
