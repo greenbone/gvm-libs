@@ -309,8 +309,6 @@ if (NOT MINGW)
 
 endif (NOT MINGW)
 
-set (EXTRA_LIBS "${GPGME_LDFLAGS}")
-set (EXTRA_CFLAGS "${GPGME_CFLAGS}")
 set (HARDENING_FLAGS "-Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector -Wl,-z,relro -Wl,-z,now")
 set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Werror")
 
