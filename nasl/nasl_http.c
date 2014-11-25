@@ -125,7 +125,7 @@ _http_req (lex_ctxt * lexic, char *keyword)
       if (hostname == NULL)
         return NULL;
       ua = kb_item_get_str (kb, "http/user-agent");
-#define OPENVAS_USER_AGENT	"Mozilla/4.75 [en] (X11, U; OpenVAS)"
+#define OPENVAS_USER_AGENT	"Mozilla/5.0 [en] (X11, U; OpenVAS)"
       if (ua == NULL)
         ua = OPENVAS_USER_AGENT;
       else
