@@ -1,3 +1,11 @@
+2014-11-26  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	* base/openvas_file.c: Add #define _GNU_SOURCE and include <string.h>
+	and <time.h>.
+	(openvas_export_file_name): New function.
+
+	* base/openvas_file.h (openvas_export_file_name): New prototype.
+
 2014-11-25  Michael Meyer <michael.meyer@greenbone.net>
 
 	* nasl/nasl_http.c(_http_req):
