@@ -161,15 +161,17 @@ nvticache_get (const gchar *filename)
 int
 nvticache_add (const nvti_t *nvti, const char *filename)
 {
-  gchar *cache_file, *dummy;
+  gchar *cache_file, *dummy, *src_file;
   int result;
 
   assert (nvticache);
 
+  src_file = g_build_filename (nvticache->src_path, filename, NULL);
   dummy = g_build_filename (nvticache->cache_path, filename, NULL);
   cache_file = g_strconcat (dummy, ".nvti", NULL);
-  result = nvti_to_keyfile (nvti, cache_file);
+  result = nvti_to_keyfile (nvti, src_file, cache_file);
   g_free (dummy);
+  g_free (src_file);
   g_free (cache_file);
 
   return result;

@@ -200,8 +200,6 @@ nvti_free (nvti_t * n)
     g_free (n->required_udp_ports);
   if (n->family)
     g_free (n->family);
-  if (n->src)
-    g_free (n->src);
   if (n->prefs)
     {
       guint len = g_slist_length (n->prefs);
@@ -477,22 +475,6 @@ const nvtpref_t *
 nvti_pref (const nvti_t * n, guint p)
 {
   return (n ? g_slist_nth_data (n->prefs, p) : NULL);
-}
-
-/**
- * @brief Get the source URI of a NVT Info.
- *
- * @param n The NVT Info structure of which the source URI should
- *          be returned.
- *
- * @return The source URI string. This can be NULL if the NVT
- *         Info was created in memory. It can also be a file path.
- *         Don't free this.
- */
-gchar *
-nvti_src (const nvti_t * n)
-{
-  return (n ? n->src : NULL);
 }
 
 /**
@@ -907,27 +889,6 @@ nvti_set_family (nvti_t * n, const gchar * family)
 }
 
 /**
- * @brief Set the source identifier for the acutal NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param src The URI to set. A copy will be created from this.
- *
- * @return 0 for success. Anything else indicates an error.
- */
-int
-nvti_set_src (nvti_t * n, const gchar * src)
-{
-  if (! n)
-    return (-1);
-
-  if (n->src)
-    g_free (n->src);
-  n->src = g_strdup (src);
-  return (0);
-}
-
-/**
  * @brief Set the timout of a NVT Info.
  *
  * @param n The NVT Info structure.
@@ -1260,7 +1221,6 @@ nvti_from_keyfile (const gchar * fn)
   set_from_key (keyfile, "RequiredPorts", n, nvti_set_required_ports);
   set_from_key (keyfile, "RequiredUDPPorts", n, nvti_set_required_udp_ports);
   set_from_key (keyfile, "Family", n, nvti_set_family);
-  set_from_key (keyfile, "src", n, nvti_set_src);
   nvti_set_timeout (n,
                     g_key_file_get_integer (keyfile, "NVT Info", "Timeout",
                                             NULL));
@@ -1336,7 +1296,7 @@ set_from_nvti (GKeyFile *keyfile, const gchar *name, const nvti_t *nvti,
  * @return 0 on success. @todo Anything else indicates an error.
  */
 int
-nvti_to_keyfile (const nvti_t * n, const gchar * fn)
+nvti_to_keyfile (const nvti_t * n, const char *src, const gchar *fn)
 {
   GKeyFile *keyfile = g_key_file_new ();
   gchar *text;
@@ -1358,7 +1318,6 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
   set_from_nvti (keyfile, "RequiredPorts", n, n->required_ports);
   set_from_nvti (keyfile, "RequiredUDPPorts", n, n->required_udp_ports);
   set_from_nvti (keyfile, "Family", n, n->family);
-  set_from_nvti (keyfile, "src", n, n->src);
   if (n->timeout > 0)
     g_key_file_set_integer (keyfile, "NVT Info", "Timeout", n->timeout);
   if (n->category > 0)
@@ -1428,10 +1387,10 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
 
       /* Set timestamp of cache file to the timestamp of the original NVT, if
        * possible */
-      if (n->src)
+      if (src)
         {
           struct stat src_stat;
-          if (stat (n->src, &src_stat) == 0)
+          if (stat (src, &src_stat) == 0)
             {
               struct utimbuf src_timestamp;
               src_timestamp.actime = src_stat.st_atime;
@@ -1440,7 +1399,7 @@ nvti_to_keyfile (const nvti_t * n, const gchar * fn)
                 log_legacy_write ("utime(%s) : %s\n", fn, strerror (errno));
             }
           else
-            log_legacy_write ("stat(%s) : %s\n", n->src, strerror (errno));
+            log_legacy_write ("stat(%s) : %s\n", src, strerror (errno));
         }
 
       g_free (text);

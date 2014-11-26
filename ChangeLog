@@ -5,6 +5,19 @@
 
 2014-11-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/nvticache.c (nvticache_add): Adjust call to nvti_to_keyfile.
+
+	* base/nvti.h: Remove and adjust functions prototypes.
+	(struct nvti): Remove src element.
+
+	* base/nvti.c (nvti_free, nvti_from_keyfile): Adjust for src element
+	removal.
+	(nvti_src, nvti_set_src): Delete functions.
+	(nvti_to_keyfile): Add src function argument. Adjust for src element
+	removal.
+
+2014-11-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* CMakeLists.txt (EXTRA_LIBS, EXTRA_CFLAGS): Delete variables.
 
 	* libopenvas_base.pc.in, libopenvas_misc.pc.in, libopenvas_nasl.pc.in,
