@@ -20,7 +20,7 @@ Main changes compared to 8.0+beta3:
 * Removed "action" from the STATUS otp response.
 * Skip OMP library log messages when sending passwords.
 * Added support for using ecdsa keys when libssh 0.6.0 or higher is present.
-* Introduced Benoît Allard lobal preferences store.
+* Introduced global preferences store.
 * Split up single pc file for entire module into one pc file per library.
 * Improved logging.
 * Various code quality improvements based on automatic and manual
