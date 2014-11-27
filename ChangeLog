@@ -1,3 +1,9 @@
+2014-11-27  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the openvas-libraries 7.0.6 release.
+
+	* CHANGES: Updated.
+
 2014-11-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* bse/settings.c (settings_init_from_file): Fix memory leak on error.
