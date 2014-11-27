@@ -56,15 +56,11 @@ static struct arglist *
 init_hostinfos (char *hostname, struct in6_addr *ip)
 {
   struct arglist *hostinfos;
-  struct arglist *ports;
 
   hostinfos = g_malloc0 (sizeof (struct arglist));
   arg_add_value (hostinfos, "FQDN", ARG_STRING, strlen (hostname), hostname);
   arg_add_value (hostinfos, "NAME", ARG_STRING, strlen (hostname), hostname);
   arg_add_value (hostinfos, "IP", ARG_PTR, sizeof (struct in6_addr), ip);
-  ports = g_malloc0 (sizeof (struct arglist));
-  arg_add_value (hostinfos, "PORTS", ARG_ARGLIST, sizeof (struct arglist),
-                 ports);
   return (hostinfos);
 }
 

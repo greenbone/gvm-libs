@@ -1,3 +1,7 @@
+2014-11-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl.c (init_hostinfos): Don't set useless PORTS value.
+
 2014-11-26  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* base/openvas_file.c: Add #define _GNU_SOURCE and include <string.h>
@@ -9,7 +13,7 @@
 2014-11-25  Michael Meyer <michael.meyer@greenbone.net>
 
 	* nasl/nasl_http.c(_http_req):
-	Updated User-Agent.    
+	Updated User-Agent.
 
 2014-11-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
