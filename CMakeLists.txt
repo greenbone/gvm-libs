@@ -270,6 +270,13 @@ execute_process (COMMAND pkg-config --libs gnutls
   OUTPUT_VARIABLE GNUTLS_LDFLAGS
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+execute_process (COMMAND net-snmp-config --libs
+  OUTPUT_VARIABLE SNMP_LDFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+if (SNMP_LDFLAGS)
+  add_definitions (-DHAVE_NETSNMP)
+endif (SNMP_LDFLAGS)
 
 if (NOT MINGW)
   # TODO: We do not have a library lookup for those modules

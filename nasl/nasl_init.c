@@ -49,6 +49,7 @@
 #include "nasl_packet_forgery_v6.h"
 #include "nasl_builtin_plugins.h"
 #include "nasl_ssh.h"
+#include "nasl_snmp.h"
 #include "nasl_cert.h"
 #include "nasl_isotime.h"
 
@@ -386,6 +387,10 @@ static init_func libfuncs[] = {
    {"data", "g", "p", "priv", "pub", "q", NULL}},
   {"gunzip", nasl_gunzip, 0, {"data", "len", NULL}},
   {"gzip", nasl_gzip, 0, {"data", "len", NULL}},
+
+#ifdef HAVE_NETSNMP
+  {"snmpv1_get", nasl_snmpv1_get, 0, {"community", "oid", "peername", NULL }},
+#endif /* HAVE_NETSNMP */
 
   {"ssh_connect", nasl_ssh_connect, 0, {"port", "socket", NULL }},
   {"ssh_disconnect", nasl_ssh_disconnect, 1, {NULL }},

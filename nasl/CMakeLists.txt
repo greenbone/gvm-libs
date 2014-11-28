@@ -53,7 +53,7 @@ add_custom_command (
 set (FILES arc4.c capture_packet.c charcnv.c exec.c genrand.c hmacmd5.c
      iconv.c lint.c md4.c md5.c nasl.c nasl_builtin_find_service.c
      nasl_builtin_openvas_tcp_scanner.c nasl_builtin_synscan.c nasl_builtin_nmap.c
-     nasl_cmd_exec.c nasl_crypto2.c nasl_ssh.c nasl_cert.c
+     nasl_cmd_exec.c nasl_crypto2.c nasl_snmp.c nasl_ssh.c nasl_cert.c
      nasl_crypto.c nasl_debug.c nasl_func.c nasl_grammar.tab.c nasl_host.c
      nasl_http.c nasl_init.c nasl_lex_ctxt.c nasl_misc_funcs.c nasl_scanner_glue.c
      nasl_packet_forgery.c nasl_packet_forgery_v6.c nasl_signature.c nasl_smb.c
@@ -104,7 +104,7 @@ if (BUILD_STATIC)
    set_target_properties (openvas_nasl_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
    target_link_libraries (openvas_nasl_static openvas_base_static openvas_misc_static
                           openvas_omp_static "${GLIB_LDFLAGS}" gcrypt "${GPGME_LDFLAGS}"
-                          gnutls "${PCAP_LDFLAGS}" "${WMI}" "${WINCMD}" "${LIBSSH_LDFLAGS}" "${KSBA_LDFLAGS}")
+                          gnutls "${PCAP_LDFLAGS}" "${WMI}" "${WINCMD}" "${SNMP_LDFLAGS}" "${LIBSSH_LDFLAGS}" "${KSBA_LDFLAGS}")
 endif (BUILD_STATIC)
 
 if (BUILD_SHARED)
@@ -117,8 +117,8 @@ if (BUILD_SHARED)
   set_target_properties (openvas_nasl_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 # line bellow is needed so it also works with no-undefined which is e.g. used by Mandriva
   target_link_libraries (openvas_nasl_shared openvas_base_shared openvas_misc_shared
-                         "${GLIB_LDFLAGS}" "${GPGME_LDFLAGS}" m ${WMI} ${WINCMD}
-                         "${KSBA_LDFLAGS}")
+                         "${GLIB_LDFLAGS}" "${GLIB_LDFLAGS}" "${GPGME_LDFLAGS}" m ${WMI} ${WINCMD}
+                         "${KSBA_LDFLAGS}" "${SNMP_LDFLAGS}")
 endif (BUILD_SHARED)
 
 # Link the openvas-nasl executable
