@@ -1,5 +1,9 @@
 2014-11-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_snmp.c: Put headers includes within HAVE_NETSNMP check.
+
+2014-11-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_snmp.c, nasl/nasl_snmp.h: New files.
 
 	* CMakeLists.txt: Get netsnmp ld flags.

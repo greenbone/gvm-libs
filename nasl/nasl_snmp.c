@@ -23,6 +23,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifdef HAVE_NETSNMP
+
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
 
@@ -30,7 +32,6 @@
 #include "openvas_logging.h"
 #include "nasl_lex_ctxt.h"
 
-#ifdef HAVE_NETSNMP
 static char *
 snmpv1_get (const char *peername, const char *community, const char *oid_str)
 {
