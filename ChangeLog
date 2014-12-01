@@ -1,3 +1,11 @@
+2014-12-01  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	* base/credentials.h (credentials_t): Add components severity_class and
+	dynamic_severity.
+
+	* base/credentials.c (free_credentials): Free severity_class and set
+	dynamic_severity to 0.
+
 2014-11-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_snmp.c: Put headers includes within HAVE_NETSNMP check.
