@@ -1,3 +1,13 @@
+2014-12-01  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	Backport r21067.
+
+	* base/credentials.h (credentials_t): Add components severity_class and
+	dynamic_severity.
+
+	* base/credentials.c (free_credentials): Free severity_class and set
+	dynamic_severity to 0.
+
 2014-11-27  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.

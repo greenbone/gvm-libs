@@ -52,6 +52,11 @@ free_credentials (credentials_t * credentials)
 
   g_free (credentials->role);
   credentials->role = NULL;
+
+  g_free (credentials->severity_class);
+  credentials->severity_class = NULL;
+
+  credentials->dynamic_severity = 0;
 }
 
 /**
