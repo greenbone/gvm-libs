@@ -1528,11 +1528,14 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
   unsigned char *p;
   fd_set rfds, wfds;
   struct timeval tv;
-  char k[32];
+  char k[32], *http_get;
 #ifdef DEBUG
   struct arglist *hostinfos = arg_get_value (desc, "HOSTNAME");
   struct in_addr *p_ip = arg_get_value (hostinfos, "IP");
 #endif
+
+  http_get = g_strdup_printf ("GET / HTTP/1.0\r\nHost: %s\r\n\r\n",
+                              plug_get_host_fqdn (desc));
 
   if (rw_timeout_s != NULL && (x = atoi (rw_timeout_s)) > 0)
     rw_timeout = x;
@@ -1702,8 +1705,6 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
                                 GSIZE_TO_POINTER (port));
                 }
 
-#define HTTP_GET	"GET / HTTP/1.0\r\n\r\n"
-
               len = 0;
               timeout = 0;
               if (banner_len > 0)
@@ -1793,8 +1794,8 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
                         log_legacy_write
                          ("No banner on port %d - sending GET", port);
 #endif
-                      write_stream_connection (cnx, HTTP_GET,
-                                               sizeof (HTTP_GET) - 1);
+                      write_stream_connection (cnx, http_get,
+                                               strlen (http_get));
                       (void) gettimeofday (&tv1, NULL);
                       get_sent = 1;
                       buffer[sizeof (buffer) - 1] = '\0';
@@ -2144,7 +2145,7 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
                   else if (line_len >= 14 &&    /* no ending \r\n */
                            line_len <= 18 &&    /* full GET request
                                                  * length */
-                           strncmp (origline, HTTP_GET, line_len) == 0)
+                           strncmp (origline, http_get, line_len) == 0)
                     mark_echo_server (desc, port);
                   else if (strstr ((char *) banner, "!\"#$%&'()*+,-./")
                            && strstr ((char *) banner, "ABCDEFGHIJ")
@@ -2465,6 +2466,7 @@ and in %d.%03d when we just wait. It is  probably not wrapped", inet_ntoa (*p_ip
       if (h)
         h = h->next;
     }
+  g_free (http_get);
 
   return (0);
 }
