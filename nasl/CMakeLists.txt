@@ -32,6 +32,10 @@ if (POLICY CMP0015)
 endif (POLICY CMP0015)
 
 ## Library
+if (SNMP)
+  add_definitions (-DHAVE_NETSNMP)
+endif (SNMP)
+
 
 
 # The "-D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1" is necessary for GPGME!

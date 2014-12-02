@@ -1,5 +1,12 @@
 2014-12-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* CMakeLists.txt: Add check for netsnmp-dev.
+
+	* nasl/CMakeLists.txt: Define HAVE_NETSNMP based on netsnmp-dev
+	presence.
+
+2014-12-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_builtin_find_service.c (plugin_do_run): Add Host header to
 	HTTP get request.
 
