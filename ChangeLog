@@ -1,3 +1,8 @@
+2014-12-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/www_funcs.c (build_encode_URL), nasl/nasl_builtin_find_service.c
+	(plugin_do_run): Use HTTP version 1.1 instead of version 1.0.
+
 2014-12-01  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* base/credentials.h (credentials_t): Add components severity_class and

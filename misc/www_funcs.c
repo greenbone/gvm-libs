@@ -220,7 +220,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
       for (i = 1; i < 8; i++)
         *s++ = lrand48 () % 26 + 'a';   /* RATS: ignore */
       *s++ = '\0';
-      snprintf (ret2, l, "/%%20HTTP/1.0%%0d%%0a%s:%%20/../..%s", gizmo, ret);   /* RATS: ignore */
+      snprintf (ret2, l, "/%%20HTTP/1.1%%0d%%0a%s:%%20/../..%s", gizmo, ret);   /* RATS: ignore */
       g_free (ret);
       ret = ret2;
 #ifdef URL_DEBUG

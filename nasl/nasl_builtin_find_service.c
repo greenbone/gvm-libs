@@ -1702,7 +1702,7 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
                                 GSIZE_TO_POINTER (port));
                 }
 
-#define HTTP_GET	"GET / HTTP/1.0\r\n\r\n"
+#define HTTP_GET	"GET / HTTP/1.1\r\n\r\n"
 
               len = 0;
               timeout = 0;
