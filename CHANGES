@@ -1,3 +1,24 @@
+openvas-libraries 6.0.3 (2014-12-04)
+
+This is the third maintenance release of the openvas-libraries 6.0 module for
+the Open Vulnerability Assessment System 6 (OpenVAS-6).
+
+It adds support for TLSv1.1 and TLSv1.2 and improves hard coded and custom TLS
+priority strings. It also improves the handling of TCP connection attempts after
+previous timeout and ensures values for CVSS base vectors and user host access
+fields are handled correctly.
+
+Many thanks to everyone who has contributed to the 6.0.3 release:
+Hani Benhabiles, Matthew Mundell and Jan-Oliver Wagner.
+
+Main changes compared to 6.0.2:
+* Add TLSv1.1 and TLSv1.2 support.
+* When a TCP connection attempt times out, subsequent attempts will go ahead
+  instead of being silently discarded.
+* Allow "AU" (in place of "Au") in the CVSS base vector.
+* Allow space as separator for user host access.
+
+
 openvas-libraries 6.0.2 (2014-02-28)
 
 This is the second maintenance release of the openvas-libraries 6.0 module for
