@@ -1,3 +1,11 @@
+2014-12-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_init.c (libfuncs): Add snmpv3_get() nasl function.
+
+	* nasl/nasl_snmp.c (snmp_get, snmpv3_get, nasl_snmpv3_get): New
+	functions.
+	(snmpv1_get): Refactor code and call snmp_get() accordingly.
+
 2014-12-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_socket.c (nasl_open_privileged_socket): Call

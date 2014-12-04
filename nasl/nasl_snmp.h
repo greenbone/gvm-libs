@@ -28,4 +28,7 @@
 tree_cell *
 nasl_snmpv1_get (lex_ctxt *);
 
+tree_cell *
+nasl_snmpv3_get (lex_ctxt *);
+
 #endif /* HAVE_NETSNMP */
