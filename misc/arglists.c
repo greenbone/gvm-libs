@@ -257,48 +257,6 @@ arg_get_type (args, name)
     return -1;
 }
 
-
-void
-arg_dup (dst, src)
-     struct arglist *dst;
-     struct arglist *src;
-{
-  if (!src)
-    return;
-
-  while (src->next)
-    {
-      dst->name = cache_inc (src->name);
-      dst->type = src->type;
-      dst->length = src->length;
-      dst->hash = src->hash;
-      switch (src->type)
-        {
-        case ARG_INT:
-        case ARG_PTR:
-          dst->value = src->value;
-          break;
-
-        case ARG_STRING:
-          if (src->value)
-            {
-              dst->value = g_strdup ((char *) src->value);
-            }
-          break;
-
-        case ARG_ARGLIST:
-          dst->value = g_malloc0 (sizeof (struct arglist));
-          arg_dup ((struct arglist *) dst->value,
-                   (struct arglist *) src->value);
-          break;
-        }
-      dst->next = g_malloc0 (sizeof (struct arglist));
-      dst = dst->next;
-      src = src->next;
-    }
-}
-
-
 void
 arg_dump (args, level)
      struct arglist *args;

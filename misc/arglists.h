@@ -46,7 +46,6 @@ int arg_set_value (struct arglist *, const char *, long, void *);
 void *arg_get_value (struct arglist *, const char *);
 int arg_get_type (struct arglist *, const char *);
 void arg_dump (struct arglist *, int);
-void arg_dup (struct arglist *, struct arglist *);
 void arg_free (struct arglist *);
 void arg_free_all (struct arglist *);
 void arg_del_value (struct arglist *, const char *name);

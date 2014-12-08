@@ -1,3 +1,9 @@
+2014-12-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/arglists.c (arg_dup): Removed unused method.
+
+	* misc/arglists.h: Removed proto accordingly.
+
 2014-12-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_init.c (libfuncs): Add snmpv3_get() nasl function.
