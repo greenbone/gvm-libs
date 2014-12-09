@@ -31,6 +31,7 @@
 #include <assert.h>
 #include "openvas_logging.h"
 #include "nasl_lex_ctxt.h"
+#include "plugutils.h"
 
 static char *
 snmp_get (struct snmp_session *session, const char *oid_str)
@@ -146,21 +147,44 @@ snmpv1_get (const char *peername, const char *community, const char *oid_str)
   return snmp_get (&session, oid_str);
 }
 
+static int
+proto_is_valid (const char *proto)
+{
+  if (strcmp (proto, "tcp") && strcmp (proto, "udp") && strcmp (proto, "tcp6")
+      && strcmp (proto, "udp6"))
+    return 0;
+  return 1;
+}
+
 tree_cell *
 nasl_snmpv1_get (lex_ctxt *lexic)
 {
-  const char *peername, *community, *oid_str;
-  char *result = NULL;
+  const char *proto, *community, *oid_str;
+  char *result = NULL, peername[2048];
+  int port;
 
-  peername = get_str_var_by_name (lexic, "peername");
+  port = get_int_var_by_name (lexic, "port", -1);
+  proto = get_str_var_by_name (lexic, "protocol");
   community = get_str_var_by_name (lexic, "community");
   oid_str = get_str_var_by_name (lexic, "oid");
-  if (!peername || !community || !oid_str)
+  if (!proto || !community || !oid_str)
     {
       log_legacy_write ("snmpv1_get: Missing function arguments");
       return NULL;
     }
+  if (port < 0 || port > 65535)
+    {
+      log_legacy_write ("snmpv1_get: Invalid port value");
+      return NULL;
+    }
+  if (!proto_is_valid (proto))
+    {
+      log_legacy_write ("snmpv1_get: Invalid protocol value");
+      return NULL;
+    }
 
+  g_snprintf (peername, sizeof (peername), "%s:%s:%d", proto,
+              plug_get_host_ip_str (lexic->script_infos), port);
   result = snmpv1_get (peername, community, oid_str);
   if (result)
     {
@@ -176,19 +200,34 @@ nasl_snmpv1_get (lex_ctxt *lexic)
 tree_cell *
 nasl_snmpv3_get (lex_ctxt *lexic)
 {
-  const char *peername, *username, *password, *algorithm, *oid_str;
-  char *result = NULL;
+  const char *proto, *username, *password, *algorithm, *oid_str;
+  char *result = NULL, peername[2048];
+  int port;
 
-  peername = get_str_var_by_name (lexic, "peername");
+  port = get_int_var_by_name (lexic, "port", -1);
+  proto = get_str_var_by_name (lexic, "protocol");
   username = get_str_var_by_name (lexic, "username");
   password = get_str_var_by_name (lexic, "password");
   oid_str = get_str_var_by_name (lexic, "oid");
   algorithm = get_str_var_by_name (lexic, "algorithm");
-  if (!peername || !username || !password || !oid_str || !algorithm)
+  if (!proto || !username || !password || !oid_str || !algorithm)
     {
       log_legacy_write ("snmpv1_get: Missing function arguments");
       return NULL;
     }
+  if (port < 0 || port > 65535)
+    {
+      log_legacy_write ("snmpv1_get: Invalid port value");
+      return NULL;
+    }
+  if (!proto_is_valid (proto))
+    {
+      log_legacy_write ("snmpv1_get: Invalid protocol value");
+      return NULL;
+    }
+
+  g_snprintf (peername, sizeof (peername), "%s:%s:%d", proto,
+              plug_get_host_ip_str (lexic->script_infos), port);
   if (!strcasecmp (algorithm, "md5"))
     result = snmpv3_get (peername, username, password, oid_str, 0);
   else if (!strcasecmp (algorithm, "sha1"))

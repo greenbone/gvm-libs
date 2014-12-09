@@ -103,6 +103,7 @@ kb_t plug_get_kb (struct arglist *);
 void *plug_get_key (struct arglist *, char *, int *);
 
 struct in6_addr *plug_get_host_ip (struct arglist *);
+char *plug_get_host_ip_str (struct arglist *);
 void add_plugin_preference (struct arglist *, const char *, const char *,
                             const char *);
 char *get_plugin_preference (const char *, const char *);

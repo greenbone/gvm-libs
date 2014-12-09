@@ -1,3 +1,16 @@
+2014-12-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/plugutils.c (plug_get_host_ip_str): New function.
+
+	* misc/plugutils.h: Add new function header.
+
+	* nasl/nasl_init.c (libfuncs): Adjust snmpv1_get() and snmpv3_get()
+	function arguments.
+
+	* nasl/nasl_snmp.c (proto_is_valid): New function.
+	(nasl_snmpv1_get, nasl_snmpv3_get): Take port and protocol as function
+	arguments instead instead of peername. Adjust functions accordingly.
+
 2014-12-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* misc/arglists.c (arg_dup): Removed unused method.
