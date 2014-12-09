@@ -404,24 +404,10 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
           else if (strcmp (abs_URI_host, "host IP") == 0)
             {
               struct in6_addr *ptr;
-              char *asc;
-              char hostname[255];
 
               if ((ptr = plug_get_host_ip (data)) != NULL)
                 {
-                  if (IN6_IS_ADDR_V4MAPPED (ptr))
-                    {
-                      struct in_addr *v4_addr = NULL;
-                      v4_addr->s_addr = ptr->s6_addr32[3];
-                      asc =
-                        g_strdup (inet_ntop (AF_INET, v4_addr, hostname,
-                                             sizeof (hostname)));
-                    }
-                  else
-                    asc =
-                      g_strdup (inet_ntop
-                                (AF_INET6, &ptr, hostname, sizeof (hostname)));
-
+                  char *asc = addr6_as_str (ptr);
                   strncpy (h, asc, sizeof (h));
                   g_free (asc);
                 }

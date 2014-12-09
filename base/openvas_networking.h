@@ -95,6 +95,9 @@ openvas_source_addr6_str (void);
 void
 ipv4_as_ipv6 (const struct in_addr *, struct in6_addr *);
 
+char *
+addr6_as_str (const struct in6_addr *);
+
 int
 openvas_resolve (const char *, void *, int);
 

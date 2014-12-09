@@ -301,23 +301,7 @@ plug_get_host_ip (struct arglist *desc)
 char *
 plug_get_host_ip_str (struct arglist *desc)
 {
-  struct in6_addr *ip = plug_get_host_ip (desc);
-
-  if (!ip)
-    return NULL;
-  if (IN6_IS_ADDR_V4MAPPED (ip))
-    {
-      struct in_addr v4_addr;
-
-      v4_addr.s_addr = ip->s6_addr32[3];
-      return g_strdup (inet_ntoa (v4_addr));
-    }
-  else
-    {
-      char name[INET6_ADDRSTRLEN];
-
-      return g_strdup (inet_ntop (AF_INET6, ip, name, sizeof (name)));
-    }
+  return addr6_as_str (plug_get_host_ip (desc));
 }
 
 /**

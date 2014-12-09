@@ -1,5 +1,18 @@
 2014-12-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/openvas_networking.c (addr6_as_str): New function.
+
+	* base/openvas_networking.h: Add new function prototype.
+
+	* misc/plugutils.c (plug_get_host_ip_str), misc/www_funcs.c
+	(build_encode_URL), nasl/nasl_host.c (nasl_this_host): Refactor code to
+	use addr6_as_str()
+
+	* misc/network.c (open_sock_tcp): Adjust code to use
+	plug_get_host_ip_str().
+
+2014-12-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/plugutils.c (plug_get_host_ip_str): New function.
 
 	* misc/plugutils.h: Add new function header.

@@ -185,7 +185,6 @@ nasl_this_host (lex_ctxt * lexic)
 {
   struct arglist *script_infos = lexic->script_infos;
   tree_cell *retc;
-  struct in6_addr addr;
   char hostname[255];
   char *ret;
   struct in6_addr *ia = plug_get_host_ip (script_infos);
@@ -198,20 +197,14 @@ nasl_this_host (lex_ctxt * lexic)
 
   if (openvas_source_iface_is_set ())
     {
+      struct in6_addr addr;
+
       /* Use source_iface's IP address when available. */
       if (IN6_IS_ADDR_V4MAPPED (ia))
-        {
-          openvas_source_addr_as_addr6 (&addr);
-          inaddr.s_addr = addr.s6_addr32[3];
-          retc->x.str_val =
-            g_strdup (inet_ntop (AF_INET, &inaddr, hostname, sizeof (hostname)));
-        }
+        openvas_source_addr_as_addr6 (&addr);
       else
-        {
-          openvas_source_addr6 (&addr);
-          retc->x.str_val =
-            g_strdup (inet_ntop (AF_INET6, &addr, hostname, sizeof (hostname)));
-        }
+        openvas_source_addr6 (&addr);
+      retc->x.str_val = addr6_as_str (&addr);
       retc->size = strlen (retc->x.str_val);
       return retc;
     }

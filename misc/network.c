@@ -2094,14 +2094,10 @@ open_sock_tcp (struct arglist *args, unsigned int port, int timeout)
   ret = open_sock_option (args, port, SOCK_STREAM, IPPROTO_TCP, timeout);
   if (ret < 0 && errno == ETIMEDOUT)
     {
-      char buf[255];
-      struct in6_addr *t = plug_get_host_ip (args);
+      char *ip_str = plug_get_host_ip_str (args);
 
-      if (IN6_IS_ADDR_V4MAPPED (t))
-        inet_ntop (AF_INET, &t->s6_addr32[3], buf, sizeof (buf));
-      else
-        inet_ntop (AF_INET6, t, buf, sizeof (buf));
-      log_legacy_write ("open_sock_tcp: %s:%d time-out.\n", buf, port);
+      log_legacy_write ("open_sock_tcp: %s:%d time-out.\n", ip_str, port);
+      g_free (ip_str);
     }
 
   return ret;

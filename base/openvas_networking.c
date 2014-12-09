@@ -226,6 +226,21 @@ ipv4_as_ipv6 (const struct in_addr *ip4, struct in6_addr *ip6)
   memcpy (&ip6->s6_addr32[3], ip4, sizeof (struct in_addr));
 }
 
+char *
+addr6_as_str (const struct in6_addr *addr6)
+{
+  char *str;
+
+  if (!addr6)
+    return NULL;
+
+  str = g_malloc0 (INET6_ADDRSTRLEN);
+  if (IN6_IS_ADDR_V4MAPPED (addr6))
+    inet_ntop (AF_INET, &addr6->s6_addr32[3], str, INET6_ADDRSTRLEN);
+  else
+    inet_ntop (AF_INET6, addr6, str, INET6_ADDRSTRLEN);
+  return str;
+}
 
 /**
  * @brief Resolves a hostname to an IPv4 or IPv6 address.
