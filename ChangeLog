@@ -1,3 +1,11 @@
+2014-12-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* omp/omp.c (omp_resume_stopped_task_report): Renamed to
+	omp_resumt_task_report and apply the xml command resume_task
+	instead of resume_stopped_task.
+
+	* omp/omp.h: Adjust proto accordingly.
+
 2014-12-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/osp.h (OSP_PARAM_TYPE_OVALDEF_FILE): New enum value.

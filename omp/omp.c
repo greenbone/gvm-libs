@@ -697,7 +697,7 @@ omp_stop_task (gnutls_session_t* session, const char* id)
 }
 
 /**
- * @brief Resume a stopped task and read the manager response.
+ * @brief Resume a task and read the manager response.
  *
  * @param[in]   session    Pointer to GNUTLS session.
  * @param[in]   task_id    ID of task.
@@ -706,11 +706,11 @@ omp_stop_task (gnutls_session_t* session, const char* id)
  * @return 0 on success, 1 on OMP failure, -1 on error.
  */
 int
-omp_resume_stopped_task_report (gnutls_session_t* session, const char* task_id,
-                                char** report_id)
+omp_resume_task_report (gnutls_session_t* session, const char* task_id,
+                        char** report_id)
 {
   if (openvas_server_sendf (session,
-                            "<resume_stopped_task task_id=\"%s\"/>",
+                            "<resume_task task_id=\"%s\"/>",
                             task_id)
       == -1)
     return -1;

@@ -216,7 +216,7 @@ int omp_resume_or_start_task (gnutls_session_t *, const char *);
 
 int omp_stop_task (gnutls_session_t *, const char *);
 
-int omp_resume_stopped_task_report (gnutls_session_t*, const char*, char**);
+int omp_resume_task_report (gnutls_session_t*, const char*, char**);
 
 int omp_get_tasks (gnutls_session_t *, const char *, int, int, entity_t *);
 
