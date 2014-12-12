@@ -332,6 +332,8 @@ osp_param_str_to_type (const char *str)
     return OSP_PARAM_TYPE_FILE;
   else if (!strcmp (str, "boolean"))
     return OSP_PARAM_TYPE_BOOLEAN;
+  else if (!strcmp (str, "ovaldef_file"))
+    return OSP_PARAM_TYPE_OVALDEF_FILE;
   assert (0);
 }
 
@@ -352,6 +354,8 @@ osp_param_type_str (const osp_param_t *param)
     return "file";
   else if (type == OSP_PARAM_TYPE_BOOLEAN)
     return "boolean";
+  else if (type == OSP_PARAM_TYPE_OVALDEF_FILE)
+    return "ovaldef_file";
   assert (0);
 }
 

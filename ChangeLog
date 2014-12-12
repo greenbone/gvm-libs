@@ -1,3 +1,10 @@
+2014-12-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/osp.h (OSP_PARAM_TYPE_OVALDEF_FILE): New enum value.
+
+	* base/osp.c (osp_param_str_to_type, osp_param_type_str): Handle
+	OSP_PARAM_TYPE_OVALDEF_FILE case accordingly.
+
 2014-12-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_networking.c (addr6_as_str): New function.
