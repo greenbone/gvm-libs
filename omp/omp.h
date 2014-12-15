@@ -210,10 +210,6 @@ int omp_create_task_ext (gnutls_session_t *, omp_create_task_opts_t, gchar **);
 
 int omp_start_task_report (gnutls_session_t *, const char *, char **);
 
-int omp_resume_or_start_task_report (gnutls_session_t *, const char *, char **);
-
-int omp_resume_or_start_task (gnutls_session_t *, const char *);
-
 int omp_stop_task (gnutls_session_t *, const char *);
 
 int omp_resume_task_report (gnutls_session_t*, const char*, char**);
