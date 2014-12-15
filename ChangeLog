@@ -1,3 +1,10 @@
+2014-12-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/osp.h (OSP_PARAM_TYPE_SELECTION): New enum value.
+
+	* base/osp.c (osp_param_str_to_type, osp_param_type_str): Handle
+	OSP_PARAM_TYPE_SELECTION case accordingly.
+
 2014-12-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* omp/omp.c (omp_resume_or_start_task_report,
