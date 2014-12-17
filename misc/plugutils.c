@@ -356,7 +356,7 @@ proto_post_wrapped (const char *oid, struct arglist *desc, int port, const char 
   nvti_t *nvti;
 
   /* Should not happen, just to avoid trouble stop here if no NVTI found */
-  if (!nvticache_initialized ())
+  if (!nvticache_initialized () || !oid)
     return;
 
   nvti = nvticache_get_by_oid_full (oid);
@@ -562,7 +562,7 @@ get_plugin_preference (const char *oid, const char *name)
   nvti_t * nvti;
 
   prefs = preferences_get ();
-  if (!prefs || !nvticache_initialized ())
+  if (!prefs || !nvticache_initialized () || !oid || !name)
     return NULL;
 
   nvti = nvticache_get_by_oid_full (oid);
