@@ -119,7 +119,7 @@ _http_req (lex_ctxt * lexic, char *keyword)
 
   if ((ver <= 0) || (ver == 11))
     {
-      char *hostname, *ua;
+      char *hostname, *ua, *hostheader;
 
       hostname = plug_get_host_fqdn (script_infos);
       if (hostname == NULL)
@@ -136,6 +136,10 @@ _http_req (lex_ctxt * lexic, char *keyword)
             ua = OPENVAS_USER_AGENT;
         }
 
+      if (port == 80)
+        hostheader = g_strdup (hostname);
+      else
+        hostheader = g_strdup_printf ("%s:%d", hostname, port);
       url = build_encode_URL (script_infos, keyword, NULL, item, "HTTP/1.1");
       str_length =
         strlen (url) + strlen (hostname) + al + cl + strlen (ua) + 1024;
@@ -143,14 +147,15 @@ _http_req (lex_ctxt * lexic, char *keyword)
       /* NIDS evasion */
       g_snprintf (str, str_length, "%s\r\n\
 Connection: Close\r\n\
-Host: %s:%d\r\n\
+Host: %s\r\n\
 Pragma: no-cache\r\n\
 Cache-Control: no-cache\r\n\
 User-Agent: %s\r\n\
 Accept: image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, image/png, */*\r\n\
 Accept-Language: en\r\n\
-Accept-Charset: iso-8859-1,*,utf-8\r\n", url, hostname, port, ua);
+Accept-Charset: iso-8859-1,*,utf-8\r\n", url, hostheader, ua);
       g_free (hostname);
+      g_free (hostheader);
     }
   else
     {
