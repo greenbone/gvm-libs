@@ -1,5 +1,10 @@
 2014-12-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_http.c (_http_req): Don't append port number in host header
+	in 443 value case too.
+
+2014-12-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_http.c (_http_req): Don't append port number to http host
 	header when its value is 80.
 

@@ -136,7 +136,7 @@ _http_req (lex_ctxt * lexic, char *keyword)
             ua = OPENVAS_USER_AGENT;
         }
 
-      if (port == 80)
+      if (port == 80 || port == 443)
         hostheader = g_strdup (hostname);
       else
         hostheader = g_strdup_printf ("%s:%d", hostname, port);
