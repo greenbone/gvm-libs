@@ -136,10 +136,18 @@ _http_req (lex_ctxt * lexic, char *keyword)
             ua = OPENVAS_USER_AGENT;
         }
 
+      /* Servers should not have a problem with port 80 or 443 appended.
+       * RFC2616 allows to omit the port in which case the default port for
+       * that service is assumed.
+       * However, some servers like IIS/OWA wrongly respond with a "404"
+       * instead of a "200" in case the port is appended. Because of this,
+       * ports 80 and 443 are not appended.
+       */
       if (port == 80 || port == 443)
         hostheader = g_strdup (hostname);
       else
         hostheader = g_strdup_printf ("%s:%d", hostname, port);
+
       url = build_encode_URL (script_infos, keyword, NULL, item, "HTTP/1.1");
       str_length =
         strlen (url) + strlen (hostname) + al + cl + strlen (ua) + 1024;
