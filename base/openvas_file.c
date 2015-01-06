@@ -230,6 +230,8 @@ openvas_file_as_base64 (const char *path)
  * @param[in]   uuid              UUID of resource.
  * @param[in]   creation_iso_time     Creation time of resource in ISO format.
  * @param[in]   modification_iso_time Modification time of resource (ISO).
+ * @param[in]   name              Name of resource.
+ * @param[in]   format_name       Name of format plugin.
  *
  * @return The file name.
  */
@@ -237,7 +239,8 @@ gchar *
 openvas_export_file_name (const char* fname_format, const char* username,
                           const char* type, const char* uuid,
                           const char* creation_iso_time,
-                          const char* modification_iso_time)
+                          const char* modification_iso_time,
+                          const char* name, const char* format_name)
 {
   time_t now;
   struct tm *now_broken;
@@ -332,6 +335,8 @@ openvas_export_file_name (const char* fname_format, const char* username,
         {
           if (*fname_point == '%')
             format_state = 1;
+          else if (*fname_point == '"')
+            g_string_append (file_name_buf, "\\\"");
           else
             g_string_append_c (file_name_buf, *fname_point);
         }
@@ -348,11 +353,19 @@ openvas_export_file_name (const char* fname_format, const char* username,
               case 'D':
                 g_string_append (file_name_buf, now_date_str);
                 break;
+              case 'F':
+                g_string_append (file_name_buf,
+                                 format_name ? format_name : "XML");
+                break;
               case 'M':
                 g_string_append (file_name_buf, modification_date_str);
                 break;
               case 'm':
                 g_string_append (file_name_buf, modification_time_str);
+                break;
+              case 'N':
+                g_string_append (file_name_buf,
+                                 name ? name : (type ? type : "unnamed"));
                 break;
               case 'T':
                 g_string_append (file_name_buf, type ? type : "resource");
