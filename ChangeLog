@@ -1,3 +1,8 @@
+2015-01-08  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_server.c (server_attach_internal): Sleep between retries
+	of gnutls_handshake.
+
 2015-01-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* INSTALL: Update to mention netsnmp for improved SNMP support.
@@ -269,7 +274,7 @@
 	proto_post_error, -post_error): Add parameter "oid" and use it for
 	subsequent calls.
 	(get_plugin_preference): Replace arglist parameter by oid.
- 
+
 	* misc/plugutils.h: Adjust protos accordingly.
 
 	* nasl/nasl_scanner_glue.c (script_get_preference,
