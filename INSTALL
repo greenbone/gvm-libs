@@ -37,6 +37,9 @@ Prerequisites for building documentation:
 Recommended to have WMI support:
 * wmiclient library (see doc/wmi-howto.txt)
 
+Recommended to have improved SNMP support:
+* netsnmp
+
 Recommended to have improved SSL support:
 * libksba >= 1.0.7
 
@@ -46,7 +49,7 @@ Recommended to have LDAP support:
 
 Install prerequisites on Debian GNU/Linux 'Wheezy' 7:
 # apt-get install pkg-config libssh-dev libgnutls-dev libglib2.0-dev libpcap-dev \
-  libgpgme11-dev uuid-dev bison libksba-dev libhiredis-dev
+  libgpgme11-dev uuid-dev bison libksba-dev libhiredis-dev libsnmp-dev
 
 
 Compiling openvas-libraries
