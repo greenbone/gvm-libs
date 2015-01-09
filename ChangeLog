@@ -1,5 +1,10 @@
 2015-01-08  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* misc/openvas_server.c (server_attach_internal): Use unsigned int for
+	retries, to avoid passing negatives to the sleep function.
+
+2015-01-08  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* misc/openvas_server.c (server_attach_internal): Sleep between retries
 	of gnutls_handshake.
 
