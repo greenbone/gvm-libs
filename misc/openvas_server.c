@@ -498,7 +498,7 @@ static int
 server_attach_internal (int socket, gnutls_session_t * session,
                         const char *host, int port)
 {
-  int retries;
+  unsigned int retries;
 #ifndef _WIN32
   struct sigaction new_action, original_action;
 #endif
@@ -515,7 +515,7 @@ server_attach_internal (int socket, gnutls_session_t * session,
     return -1;
 #endif
 
-  retries = 10;
+  retries = 0;
   while (1)
     {
       int ret = gnutls_handshake (*session);
@@ -523,9 +523,9 @@ server_attach_internal (int socket, gnutls_session_t * session,
         break;
       if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
         {
-          if (retries < 0)
-            usleep (MIN (-retries * 10000, 5000000));
-          retries--;
+          if (retries > 10)
+            usleep (MIN ((retries - 10) * 10000, 5000000));
+          retries++;
           continue;
         }
       if (host)
