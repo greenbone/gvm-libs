@@ -308,12 +308,19 @@ if (NOT MINGW)
     OUTPUT_VARIABLE KSBA_CFLAGS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-  execute_process (COMMAND libgcrypt-config --libs
-    OUTPUT_VARIABLE GCRYPT_LDFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process (COMMAND libgcrypt-config --cflags
-    OUTPUT_VARIABLE GCRYPT_CFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  message (STATUS "Looking for libgcrypt...")
+  find_library (GCRYPT gcrypt)
+  message (STATUS "Looking for libgcrypt... ${GCRYPT}")
+  if (NOT GCRYPT)
+    message (SEND_ERROR "The libgcrypt library is required.")
+  else (NOT GCRYPT)
+    execute_process (COMMAND libgcrypt-config --libs
+      OUTPUT_VARIABLE GCRYPT_LDFLAGS
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process (COMMAND libgcrypt-config --cflags
+      OUTPUT_VARIABLE GCRYPT_CFLAGS
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+  endif (NOT GCRYPT)
 
 endif (NOT MINGW)
 

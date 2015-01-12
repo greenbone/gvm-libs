@@ -1,5 +1,17 @@
 2015-01-12  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Add check for required libgcrypt. It was already expected to be
+	present (see usage of libgcrypt-config), but never checked for.
+	Starting with GnuTLS 3.0, libgcrypt is no longer a dependency of
+	libgnutls, so a separate check is required anyway for the future.
+
+	* CMakeLists.txt: Try to find libgcrypt before calling
+	libgcrypt-config. Raise SEND_ERROR if the library can not be found.
+
+	* INSTALL: Note libgcrypt as prerequisite.
+
+2015-01-12  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* nasl/CMakeLists.txt: Check for bison before attempting to use it.
 
 2015-01-12  Michael Wiegand <michael.wiegand@greenbone.net>
