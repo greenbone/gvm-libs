@@ -1,3 +1,36 @@
+openvas-libraries 8.0+beta5 (2015-01-12)
+
+This release is the fifth beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-8".
+
+This release adds initial support for SNMP requests and makes export file names
+more customizable. It also contains improvements to header used for HTTP(S)
+request along with other improvements and cleanups as well as and updated
+documentation for WMI support.
+
+Many thanks to everyone who has contributed this release:
+Hani Benhabiles, Michael Meyer, Matthew Mundell, Timo Pollmeier and Jan-Oliver
+Wagner.
+
+Main changes compared to 8.0+beta4:
+* SNMP support has been added.
+* Export file names are now more customizable.
+* The User-Agent used for HTTP requests has been updated.
+* The Host header for HTTP(S) requests will no longer include the port number
+  if the port is 80 or 443 respectively.
+* The built-in find_service plugin now sends a Host header with HTTP GET
+  requests.
+* NVTi cache files no longer include the "src" element.
+* Handling of user specific severity values has been improved.
+* Handling of IPv6 IPs has been improved.
+* OSP support has been improved.
+* The strategy for retrying GnuTLS handshakes has been improved.
+* The WMI support documentation has been updated.
+* The build process has been cleaned up.
+* Various code quality improvements based on automatic and manual code
+  analysis.
+
+
 openvas-libraries 8.0+beta4 (2014-11-20)
 
 This release is the fourth beta version of the next major release of
