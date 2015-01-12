@@ -1,5 +1,10 @@
 2015-01-12  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* CMakeLists.txt: Check if pkg-config was found. Abort and log a fatal
+	error if it is not found.
+
+2015-01-12  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Post release version bump.
 
 	* CMakeLists.txt: Set version to 8.0+beta6.
