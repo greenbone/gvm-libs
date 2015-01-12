@@ -45,7 +45,7 @@ if (NOT MINGW)
   find_library (UUID uuid)
   message (STATUS "Looking for uuid... ${UUID}")
   if (NOT UUID)
-    message (FATAL_ERROR "The uuid library is required.")
+    message (SEND_ERROR "The uuid library is required.")
   endif (NOT UUID)
   execute_process (COMMAND pkg-config --cflags uuid
     OUTPUT_VARIABLE UUID_CFLAGS

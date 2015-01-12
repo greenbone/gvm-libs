@@ -204,9 +204,6 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 ## Dependency checks
 ##
 ## TODO Also check for headers where needed.
-## Improve for workflow: First collect list of missing libs, then print the
-## list and throw an error, otherwise long install-cmake-install-cmake cycles
-## might occur.
 
 pkg_check_modules (GNUTLS REQUIRED gnutls>=2.12)
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.16)
@@ -220,7 +217,7 @@ if (NOT OPENVAS_OMP_ONLY)
   find_library (PCAP pcap)
   message (STATUS "Looking for pcap... ${PCAP}")
   if (NOT PCAP)
-    message (FATAL_ERROR "The pcap library is required.")
+    message (SEND_ERROR "The pcap library is required.")
   endif (NOT PCAP)
 
   message (STATUS "Looking for pcap-config...")
@@ -247,7 +244,7 @@ if (NOT REDIS_FOUND)
   find_library (HIREDIS hiredis)
   message (STATUS "Looking for hiredis... ${HIREDIS}")
   if (NOT HIREDIS)
-    message (FATAL_ERROR "The hiredis library is required.")
+    message (SEND_ERROR "The hiredis library is required.")
   endif (NOT HIREDIS)
 
   set (REDIS_LDFLAGS "-lhiredis")
@@ -286,7 +283,7 @@ if (NOT MINGW)
   find_library (GPGME gpgme)
   message (STATUS "Looking for gpgme... ${GPGME}")
   if (NOT GPGME)
-    message (FATAL_ERROR "The gpgme library is required.")
+    message (SEND_ERROR "The gpgme library is required.")
   endif (NOT GPGME)
 
   execute_process (COMMAND gpgme-config --libs

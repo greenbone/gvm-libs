@@ -1,5 +1,14 @@
 2015-01-12  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* CMakeLists.txt, misc/CMakeLists.txt: Make it a SEND_ERROR instead of
+	a FATAL_ERROR if a required library was not found with find_library.
+	This mimics the behavior of pkg_check_modules and makes it possible
+	for the user to gather all required libraries after one CMake run
+	instead of having to step through all dependencies one by one. Remove
+	now obsolete TODO.
+
+2015-01-12  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* CMakeLists.txt: Check if pkg-config was found. Abort and log a fatal
 	error if it is not found.
 
