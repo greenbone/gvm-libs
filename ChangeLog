@@ -1,5 +1,9 @@
 2015-01-12  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* nasl/CMakeLists.txt: Check for bison before attempting to use it.
+
+2015-01-12  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* CMakeLists.txt, misc/CMakeLists.txt: Make it a SEND_ERROR instead of
 	a FATAL_ERROR if a required library was not found with find_library.
 	This mimics the behavior of pkg_check_modules and makes it possible

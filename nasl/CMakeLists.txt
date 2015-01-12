@@ -44,15 +44,22 @@ endif (SNMP)
 set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1 -fno-strict-aliasing")
 
 ## Compile the parser - note that there are (better) CMake macros to achieve
-## that and that the user is not warned if bison is not installed
-add_custom_command (
-   COMMAND bison
-   ARGS -d -v -t -p nasl ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.y
-   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.y
-   OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.tab.c
-   OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.tab.h
-   OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.output)
+## that
+  message (STATUS "Looking for bison...")
+find_program (BISON bison)
+if (NOT BISON)
+  message (SEND_ERROR "bison executable not found!")
+else (NOT BISON)
+  message (STATUS "Looking for bison... ${BISON}")
+  add_custom_command (
+     COMMAND bison
+     ARGS -d -v -t -p nasl ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.y
+     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.y
+     OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.tab.c
+     OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.tab.h
+     OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/nasl_grammar.output)
+endif (NOT BISON)
 
 set (FILES arc4.c capture_packet.c charcnv.c exec.c genrand.c hmacmd5.c
      iconv.c lint.c md4.c md5.c nasl.c nasl_builtin_find_service.c
