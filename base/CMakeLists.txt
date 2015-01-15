@@ -106,7 +106,7 @@ if (BUILD_SHARED)
   target_link_libraries (test-hosts openvas_base_shared openvas_misc_shared ${GLIB_LDFLAGS})
 endif (BUILD_SHARED)
 if (BUILD_STATIC)
-  target_link_libraries (test-hosts openvas_base_static openvas_misc_shared ${GLIB_LDFLAGS})
+  target_link_libraries (test-hosts openvas_base_static openvas_misc_static ${GLIB_LDFLAGS})
 endif (BUILD_STATIC)
 set_target_properties (test-hosts PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
 
