@@ -150,9 +150,11 @@ osp_connection_close (osp_connection_t *connection)
  * @return 0 and version value, 1 if error.
  */
 int
-osp_get_scanner_version (osp_connection_t *connection, char **version)
+osp_get_version (osp_connection_t *connection, char **s_name, char **s_version,
+                 char **d_name, char **d_version, char **p_name,
+                 char **p_version)
 {
-  entity_t entity, child;
+  entity_t entity, child, gchild;
 
   if (!connection)
     return 1;
@@ -160,21 +162,38 @@ osp_get_scanner_version (osp_connection_t *connection, char **version)
   if (osp_send_command (connection, &entity, "<get_version/>"))
     return 1;
 
-  /* Extract version. */
   child = entity_child (entity, "scanner");
-  if (!child)
-    {
-      free_entity (entity);
-      return 1;
-    }
-  child = entity_child (child, "version");
-  if (!child)
-    {
-      free_entity (entity);
-      return 1;
-    }
-  if (version)
-    *version = g_strdup (entity_text (child));
+  assert (child);
+  gchild = entity_child (child, "name");
+  assert (gchild);
+  if (s_name)
+    *s_name = g_strdup (entity_text (gchild));
+  gchild = entity_child (child, "version");
+  assert (gchild);
+  if (s_version)
+    *s_version = g_strdup (entity_text (gchild));
+
+  child = entity_child (entity, "daemon");
+  assert (child);
+  gchild = entity_child (child, "name");
+  assert (gchild);
+  if (d_name)
+    *d_name = g_strdup (entity_text (gchild));
+  gchild = entity_child (child, "version");
+  assert (gchild);
+  if (d_version)
+    *d_version = g_strdup (entity_text (gchild));
+
+  child = entity_child (entity, "protocol");
+  assert (child);
+  gchild = entity_child (child, "name");
+  assert (gchild);
+  if (p_name)
+    *p_name = g_strdup (entity_text (gchild));
+  gchild = entity_child (child, "version");
+  assert (gchild);
+  if (p_version)
+    *p_version = g_strdup (entity_text (gchild));
 
   free_entity (entity);
   return 0;

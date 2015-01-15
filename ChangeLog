@@ -1,3 +1,11 @@
+2015-01-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/osp.c (osp_get_scanner_version): Also extract scanner name,
+	daemon name, daemon version, protocol name and protocol version.
+	Rename function to osp_get_version().
+
+	* base/osp.h: Rename function prototype.
+
 2015-01-15  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* CMakeLists.txt: Remove duplicate cmake_minimum_required.
