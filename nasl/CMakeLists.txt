@@ -75,19 +75,23 @@ set (FILES arc4.c capture_packet.c charcnv.c exec.c genrand.c hmacmd5.c
 
 set (HEADERS nasl.h)
 
-if (NOT WMICLIENT_FOUND)
+if (OPENVAS_WMICLIENT_FOUND)
+  execute_process (COMMAND pkg-config --libs libopenvas_wmiclient
+    OUTPUT_VARIABLE WMI_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set(WMI ${WMI_LDFLAGS})
+else (OPENVAS_WMICLIENT_FOUND)
   set (FILES smb_interface_stub.c wmi_interface_stub.c ${FILES})
-else (NOT WMICLIENT_FOUND)
-  set (WMI_LIBS -lwmiclient)
-  set (WMI wmiclient)
-endif (NOT WMICLIENT_FOUND)
+endif (OPENVAS_WMICLIENT_FOUND)
 
-if (NOT WINCMD_FOUND)
+if (OPENVAS_WINCMD_FOUND)
+  execute_process (COMMAND pkg-config --libs libopenvas_wincmd
+    OUTPUT_VARIABLE WINCMD_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set(WINCMD ${WINCMD_LDFLAGS})
+else (OPENVAS_WINCMD_FOUND)
   set (FILES smb_interface_stub.c ${FILES})
-else (NOT WINCMD_FOUND)
-  set (WINCMD_LIBS -lwincmd)
-  set (WINCMD wincmd)
-endif (NOT WINCMD_FOUND)
+endif (OPENVAS_WINCMD_FOUND)
 
 if (KSBA)
   add_definitions (-DHAVE_LIBKSBA)

@@ -1,3 +1,14 @@
+2015-01-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Switch dependency and build procedure from wmi package to openvas-smb.
+	This is based on a patch by Andre Heinecke. 
+
+	* CMakeLists.txt: Switch dependencies from wmiclient to
+	libopenvas_wmiclient and from wmicmd to libopenvas_wincmd.
+
+	* nasl/CMakeLists.txt: Consider libopenvas_smb methods for
+	variable setting instead wmi methods.
+
 2015-01-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/osp.c (osp_get_scanner_version): Also extract scanner name,

@@ -7,7 +7,7 @@
 # Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 #
 # Copyright:
-# Copyright (C) 2011-2014 Greenbone Networks GmbH
+# Copyright (C) 2011-2015 Greenbone Networks GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -207,8 +207,8 @@ pkg_check_modules (GNUTLS REQUIRED gnutls>=2.12)
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.16)
 pkg_check_modules (REDIS hiredis>=0.10.1)
 if (NOT OPENVAS_OMP_ONLY)
-  pkg_check_modules (WMICLIENT wmiclient>=1.3.14)
-  pkg_check_modules (WINCMD wincmd>=0.80)
+  pkg_check_modules (OPENVAS_WMICLIENT libopenvas_wmiclient>=0.0.1)
+  pkg_check_modules (OPENVAS_WINCMD libopenvas_wincmd>=0.0.1)
   pkg_check_modules (LIBSSH REQUIRED libssh>=0.5.0)
 
   message (STATUS "Looking for pcap...")
