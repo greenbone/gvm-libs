@@ -145,9 +145,14 @@ osp_connection_close (osp_connection_t *connection)
 /* @brief Get the scanner version from an OSP server.
  *
  * @param[in]   connection  Connection to an OSP server.
- * @param[out]  version     Scanner version received.
+ * @param[out]  s_name      Parsed scanner name.
+ * @param[out]  s_version   Parsed scanner version.
+ * @param[out]  d_name      Parsed scanner name.
+ * @param[out]  d_version   Parsed scanner version.
+ * @param[out]  p_name      Parsed scanner name.
+ * @param[out]  p_version   Parsed scanner version.
  *
- * @return 0 and version value, 1 if error.
+ * @return 0 if success, 1 if error.
  */
 int
 osp_get_version (osp_connection_t *connection, char **s_name, char **s_version,
@@ -194,6 +199,33 @@ osp_get_version (osp_connection_t *connection, char **s_name, char **s_version,
   assert (gchild);
   if (p_version)
     *p_version = g_strdup (entity_text (gchild));
+
+  free_entity (entity);
+  return 0;
+}
+
+/* @brief Get the scanner description from an OSP server.
+ *
+ * @param[in]   connection  Connection to an OSP server.
+ * @param[out]  desc        Parsed scanner description.
+ *
+ * @return 0 if success, 1 if error.
+ */
+int
+osp_get_scanner_description (osp_connection_t *connection, char **desc)
+{
+  entity_t entity, child;
+
+  if (!connection)
+    return 1;
+
+  if (osp_send_command (connection, &entity, "<get_scanner_details/>"))
+    return 1;
+
+  child = entity_child (entity, "description");
+  assert (child);
+  if (desc)
+    *desc = g_strdup (entity_text (child));
 
   free_entity (entity);
   return 0;

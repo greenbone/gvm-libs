@@ -1,3 +1,10 @@
+2015-01-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/osp.c (osp_get_version): Update function documentation.
+	(osp_get_scanner_description): New function.
+
+	* base/osp.h: Add new function prototype.
+
 2015-01-19  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* nasl/nasl_smb.ci (nasl_win_cmd_exec): Fix memory leak of 'ip'.

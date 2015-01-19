@@ -49,6 +49,9 @@ int
 osp_get_version (osp_connection_t *, char **, char **, char **, char **,
                  char **, char **);
 
+int
+osp_get_scanner_description (osp_connection_t *, char **);
+
 char *
 osp_start_scan (osp_connection_t *, const char *, GHashTable *);
 
