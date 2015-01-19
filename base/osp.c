@@ -35,12 +35,12 @@
 #undef  G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  osp"
 
-typedef struct osp_connection {
+struct osp_connection {
   gnutls_session_t session;
   int socket;
   char *host;
   int port;
-} osp_connection_t;
+};
 
 struct osp_param {
   char *id;

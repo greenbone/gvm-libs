@@ -1,3 +1,7 @@
+2015-01-19  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* base/osp.c: Fix redefinition of osp_connection_t.
+
 2015-01-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Fix build warnings in Release mode.
