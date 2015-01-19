@@ -1,5 +1,9 @@
 2015-01-19  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* nasl/nasl_smb.ci (nasl_win_cmd_exec): Fix memory leak of 'ip'.
+
+2015-01-19  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* base/osp.c: Fix redefinition of osp_connection_t.
 
 2015-01-19  Hani Benhabiles <hani.benhabiles@greenbone.net>

@@ -412,6 +412,7 @@ nasl_win_cmd_exec (lex_ctxt * lexic)
       || strlen (ip) == 0)
     {
       log_legacy_write ("win_cmd_exec: Invalid input arguments\n");
+      g_free(ip);
       return NULL;
     }
 
@@ -440,10 +441,12 @@ nasl_win_cmd_exec (lex_ctxt * lexic)
   if (value == -1)
     {
       log_legacy_write ("win_cmd_exec: WinCMD Connect failed\n");
+      g_free(ip);
       return NULL;
     }
 
   retc->x.str_val = strdup (res);
   retc->size = strlen (res);
+  g_free(ip);
   return retc;
 }
