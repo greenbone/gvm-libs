@@ -1,7 +1,16 @@
+2015-01-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Fix build warnings in Release mode.
+
+	* base/osp.c (osp_param_str_to_type, osp_param_type_str): Always return
+	values.
+
+	* nasl/nasl_ssh.c (nasl_ssh_request_exec): Zero compat_buf buffer.
+
 2015-01-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Switch dependency and build procedure from wmi package to openvas-smb.
-	This is based on a patch by Andre Heinecke. 
+	This is based on a patch by Andre Heinecke.
 
 	* CMakeLists.txt: Switch dependencies from wmiclient to
 	libopenvas_wmiclient and from wmicmd to libopenvas_wincmd.

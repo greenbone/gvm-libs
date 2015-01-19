@@ -356,6 +356,7 @@ osp_param_str_to_type (const char *str)
   else if (!strcmp (str, "selection"))
     return OSP_PARAM_TYPE_SELECTION;
   assert (0);
+  return 0;
 }
 
 const char *
@@ -380,6 +381,7 @@ osp_param_type_str (const osp_param_t *param)
   else if (type == OSP_PARAM_TYPE_SELECTION)
     return "selection";
   assert (0);
+  return NULL;
 }
 
 /* @brief Get an OSP scanner's parameters.

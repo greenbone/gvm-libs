@@ -1679,6 +1679,7 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
       return NULL;
     }
 
+  memset (&compat_buf, '\0', sizeof (compat_buf));
   /* Allocate some space in advance.  Most commands won't output too
      much and thus 512 bytes (6 standard terminal lines) should often
      be sufficient.  */
