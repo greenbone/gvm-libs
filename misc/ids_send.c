@@ -552,6 +552,7 @@ ids_send (fd, buf0, n, method)
   if (getpeername (fd, &(su->sockaddr), &sz) < 0)
     {
       perror ("getpeername() ");
+      return -1;
     }
   sa = &(su->sockaddr);
   if (sa->sa_family == AF_INET)

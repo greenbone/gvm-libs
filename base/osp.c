@@ -42,15 +42,6 @@ struct osp_connection {
   int port;
 };
 
-struct osp_param {
-  char *id;
-  char *name;
-  char *desc;
-  char *def;
-  osp_param_type_t type;
-};
-
-
 static int
 osp_send_command (osp_connection_t *, entity_t *, const char *, ...)
     __attribute__((__format__(__printf__, 3, 4)));
@@ -199,33 +190,6 @@ osp_get_version (osp_connection_t *connection, char **s_name, char **s_version,
   assert (gchild);
   if (p_version)
     *p_version = g_strdup (entity_text (gchild));
-
-  free_entity (entity);
-  return 0;
-}
-
-/* @brief Get the scanner description from an OSP server.
- *
- * @param[in]   connection  Connection to an OSP server.
- * @param[out]  desc        Parsed scanner description.
- *
- * @return 0 if success, 1 if error.
- */
-int
-osp_get_scanner_description (osp_connection_t *connection, char **desc)
-{
-  entity_t entity, child;
-
-  if (!connection)
-    return 1;
-
-  if (osp_send_command (connection, &entity, "<get_scanner_details/>"))
-    return 1;
-
-  child = entity_child (entity, "description");
-  assert (child);
-  if (desc)
-    *desc = g_strdup (entity_text (child));
 
   free_entity (entity);
   return 0;
@@ -416,48 +380,60 @@ osp_param_type_str (const osp_param_t *param)
   return NULL;
 }
 
-/* @brief Get an OSP scanner's parameters.
+/* @brief Get an OSP scanner's details.
  *
  * @param[in]   connection  Connection to an OSP server.
+ * @param[out]  desc        Scanner's description.
+ * @param[out]  params      Scanner's parameters.
  *
- * @return List of osp_param_t, null if error. Free with g_free().
+ * @return 0 if success, 1 if failure.
  */
-GSList *
-osp_get_scanner_params (osp_connection_t *connection)
+int
+osp_get_scanner_details (osp_connection_t *connection, char **desc,
+                         GSList **params)
 {
   entity_t entity, child;
   entities_t entities;
-  GSList *params = NULL;
 
   assert (connection);
 
   if (osp_send_command (connection, &entity, "<get_scanner_details/>"))
-    return NULL;
-  child = entity_child (entity, "scanner_params");
-  if (!child)
+    return 1;
+  if (params)
     {
-      free_entity (entity);
-      return NULL;
-    }
-  entities = child->entities;
-  while (entities)
-    {
-      osp_param_t *param;
+      child = entity_child (entity, "scanner_params");
+      if (!child)
+        {
+          free_entity (entity);
+          return 1;
+        }
+      entities = child->entities;
+      while (entities)
+        {
+          osp_param_t *param;
 
-      child = entities->data;
-      param = osp_param_new ();
-      param->id = g_strdup (entity_attribute (child, "id"));
-      param->type = osp_param_str_to_type (entity_attribute (child, "type"));
-      param->name = g_strdup (entity_text (entity_child (child, "name")));
-      param->desc = g_strdup (entity_text (entity_child (child,
-                                                         "description")));
-      param->def = g_strdup (entity_text (entity_child (child,
-                                                        "default")));
-      params = g_slist_append (params, param);
-      entities = next_entities (entities);
+          child = entities->data;
+          param = osp_param_new ();
+          param->id = g_strdup (entity_attribute (child, "id"));
+          param->type = osp_param_str_to_type (entity_attribute (child, "type"));
+          param->name = g_strdup (entity_text (entity_child (child, "name")));
+          param->desc = g_strdup (entity_text (entity_child (child,
+                                                             "description")));
+          param->def = g_strdup (entity_text (entity_child (child,
+                                                            "default")));
+          *params = g_slist_append (*params, param);
+          entities = next_entities (entities);
+        }
     }
+  if (desc)
+    {
+      child = entity_child (entity, "description");
+      assert (child);
+      *desc = g_strdup (entity_text (child));
+    }
+
   free_entity (entity);
-  return params;
+  return 0;
 }
 
 /* @brief Create a new OSP parameter.
