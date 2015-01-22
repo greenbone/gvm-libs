@@ -39,14 +39,6 @@ typedef enum {
   OSP_PARAM_TYPE_SELECTION,
 } osp_param_type_t;
 
-struct osp_param {
-  char *id;
-  char *name;
-  char *desc;
-  char *def;
-  osp_param_type_t type;
-};
-
 typedef struct osp_param osp_param_t;
 
 osp_connection_t *

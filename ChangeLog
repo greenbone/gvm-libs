@@ -1,5 +1,10 @@
 2015-01-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/osp.h: Move struct osp_param definition to base/osp.c as as it is
+	not unused elsewhere.
+
+2015-01-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/osp.c (osp_get_scanner_description): Remove function.
 	(osp_get_scanner_params): Rename to osp_get_scanner_details(). Also
 	return the scanner's description.

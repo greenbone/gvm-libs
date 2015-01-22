@@ -42,6 +42,14 @@ struct osp_connection {
   int port;
 };
 
+struct osp_param {
+  char *id;
+  char *name;
+  char *desc;
+  char *def;
+  osp_param_type_t type;
+};
+
 static int
 osp_send_command (osp_connection_t *, entity_t *, const char *, ...)
     __attribute__((__format__(__printf__, 3, 4)));
