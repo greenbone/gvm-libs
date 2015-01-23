@@ -26,6 +26,7 @@
 
 include_directories (../include)
 include_directories (../base)
+include_directories (${GLIB_INCLUDE_DIRS})
 
 if (MINGW)
   if (CROSS_ENV)
@@ -41,18 +42,7 @@ endif (MINGW)
 ## Config
 
 if (NOT MINGW)
-  message (STATUS "Looking for uuid...")
-  find_library (UUID uuid)
-  message (STATUS "Looking for uuid... ${UUID}")
-  if (NOT UUID)
-    message (SEND_ERROR "The uuid library is required.")
-  endif (NOT UUID)
-  execute_process (COMMAND pkg-config --cflags uuid
-    OUTPUT_VARIABLE UUID_CFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process (COMMAND pkg-config --libs uuid
-    OUTPUT_VARIABLE UUID_LDFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  pkg_check_modules (UUID REQUIRED uuid)
 
   if (NOT BUILD_WITHOUT_LDAP)
     message (STATUS "Looking for libldap...")
@@ -116,7 +106,6 @@ link_directories (${CMAKE_CURRENT_BINARY_DIR}/../base)
 if (BUILD_STATIC)
   add_library (openvas_misc_static STATIC ${FILES})
 
-  set_target_properties (openvas_misc_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
   set_target_properties (openvas_misc_static PROPERTIES OUTPUT_NAME "openvas_misc")
   set_target_properties (openvas_misc_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
   set_target_properties (openvas_misc_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
@@ -126,7 +115,6 @@ endif (BUILD_STATIC)
 if (BUILD_SHARED)
   add_library (openvas_misc_shared SHARED ${FILES})
 
-  set_target_properties (openvas_misc_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
   set_target_properties (openvas_misc_shared PROPERTIES OUTPUT_NAME "openvas_misc")
   set_target_properties (openvas_misc_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
   set_target_properties (openvas_misc_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")

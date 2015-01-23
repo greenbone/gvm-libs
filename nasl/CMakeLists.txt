@@ -75,23 +75,13 @@ set (FILES arc4.c capture_packet.c charcnv.c exec.c genrand.c hmacmd5.c
 
 set (HEADERS nasl.h)
 
-if (OPENVAS_WMICLIENT_FOUND)
-  execute_process (COMMAND pkg-config --libs libopenvas_wmiclient
-    OUTPUT_VARIABLE WMI_LDFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  set(WMI ${WMI_LDFLAGS})
-else (OPENVAS_WMICLIENT_FOUND)
+if (NOT OPENVAS_WMICLIENT_FOUND)
   set (FILES smb_interface_stub.c wmi_interface_stub.c ${FILES})
-endif (OPENVAS_WMICLIENT_FOUND)
+endif (NOT OPENVAS_WMICLIENT_FOUND)
 
-if (OPENVAS_WINCMD_FOUND)
-  execute_process (COMMAND pkg-config --libs libopenvas_wincmd
-    OUTPUT_VARIABLE WINCMD_LDFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  set(WINCMD ${WINCMD_LDFLAGS})
-else (OPENVAS_WINCMD_FOUND)
+if (NOT OPENVAS_WINCMD_FOUND)
   set (FILES smb_interface_stub.c ${FILES})
-endif (OPENVAS_WINCMD_FOUND)
+endif (NOT OPENVAS_WINCMD_FOUND)
 
 if (KSBA)
   add_definitions (-DHAVE_LIBKSBA)
@@ -107,24 +97,27 @@ add_definitions (-DOPENVAS_SYSCONF_DIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
 include_directories (../base)
 include_directories (../misc)
 include_directories (../include)
+include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${LIBSSH_INCLUDE_DIRS} ${KSBA_INCLUDE_DIRS})
 
 link_directories (${LIBDIR} ../base ../misc)
 
 if (BUILD_STATIC)
    add_library (openvas_nasl_static STATIC ${FILES})
 
-   set_target_properties (openvas_nasl_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS} ${WINCMD_LIBS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS} ${PCAP_LDFLAGS}")
    set_target_properties (openvas_nasl_static PROPERTIES OUTPUT_NAME "openvas_nasl")
    set_target_properties (openvas_nasl_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
    set_target_properties (openvas_nasl_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
-   target_link_libraries (openvas_nasl_static openvas_base_static openvas_misc_static
-                          openvas_omp_static "${GLIB_LDFLAGS}" gcrypt "${GPGME_LDFLAGS}"
-                          gnutls "${PCAP_LDFLAGS}" "${WMI}" "${WINCMD}" "${SNMP_LDFLAGS}" "${LIBSSH_LDFLAGS}" "${KSBA_LDFLAGS}")
+   target_link_libraries (openvas_nasl_static openvas_base_static
+                          openvas_misc_static openvas_omp_static
+                          ${GLIB_LDFLAGS} ${GCRYPT_LDFLAGS} ${GPGME_LDFLAGS}
+                          ${GNUTLS_LDFLAGS} ${PCAP_LDFLAGS}
+                          ${OPENVAS_WMICLIENT_LDFLAGS}
+                          ${OPENVAS_WINCMD_LDFLAGS} ${SNMP_LDFLAGS}
+                          ${LIBSSH_LDFLAGS} ${KSBA_LDFLAGS})
 endif (BUILD_STATIC)
 
 if (BUILD_SHARED)
   add_library (openvas_nasl_shared SHARED ${FILES})
-  set_target_properties (openvas_nasl_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${WMI_LIBS} ${WINCMD_LIBS} ${GPGME_CFLAGS} ${LIBSSH_CFLAGS} ${KSBA_CFLAGS} ${PCAP_CFLAGS}")
   set_target_properties (openvas_nasl_shared PROPERTIES OUTPUT_NAME "openvas_nasl")
   set_target_properties (openvas_nasl_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
   set_target_properties (openvas_nasl_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
@@ -132,8 +125,9 @@ if (BUILD_SHARED)
   set_target_properties (openvas_nasl_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 # line bellow is needed so it also works with no-undefined which is e.g. used by Mandriva
   target_link_libraries (openvas_nasl_shared openvas_base_shared openvas_misc_shared
-                         "${GLIB_LDFLAGS}" "${GLIB_LDFLAGS}" "${GPGME_LDFLAGS}" m ${WMI} ${WINCMD}
-                         "${KSBA_LDFLAGS}" "${SNMP_LDFLAGS}")
+                         ${GLIB_LDFLAGS} ${GLIB_LDFLAGS} ${GPGME_LDFLAGS} m
+                         ${OPENVAS_WMICLIENT_LDFLAGS} ${OPENVAS_WINCMD_LDFLAGS}
+                         ${KSBA_LDFLAGS} ${SNMP_LDFLAGS})
 endif (BUILD_SHARED)
 
 # Link the openvas-nasl executable
@@ -144,7 +138,6 @@ endif (BUILD_STATIC)
 if (BUILD_SHARED)
   target_link_libraries (openvas-nasl openvas_nasl_shared)
 endif (BUILD_SHARED)
-set_target_properties (openvas-nasl PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
 
 # Link the openvas-nasl-lint executable
 add_executable (openvas-nasl-lint nasl-lint.c)
@@ -154,7 +147,6 @@ endif (BUILD_STATIC)
 if (BUILD_SHARED)
   target_link_libraries (openvas-nasl-lint openvas_nasl_shared)
 endif (BUILD_SHARED)
-set_target_properties (openvas-nasl-lint PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
 
 ## Install
 

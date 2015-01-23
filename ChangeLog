@@ -1,3 +1,30 @@
+2015-01-23  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Simplify handling of library flags in CMakeLists.txt files, thereby
+	removing the need for clumsy workarounds.
+
+	* CMakeLists.txt: Remove redundant queries of library flags which were
+	already retrieved by CMake.
+
+	* base/CMakeLists.txt: Check for libraries with pkg_check_modules. Set
+	include directories with include_directories instead of target
+	properties.
+
+	* misc/CMakeLists.txt: Check for libraries with pkg_check_modules. Set
+	include directories with include_directories instead of target
+	properties.
+
+	* omp/CMakeLists.txt: Set include directories with include_directories
+	instead of target properties. Remove quotes in target_link_libraries
+	so that CMake lists get expanded correctly. Use GNUTLS_LDFLAGS
+	retrieved by pkg_check_modules instead of hardcoding value.
+
+	* nasl/CMakeLists.txt: Check for libraries with pkg_check_modules. Set
+	include directories with include_directories instead of target
+	properties. Remove quotes in target_link_libraries
+	so that CMake lists get expanded correctly. Remove duplication of WMI
+	related flags and variables.
+
 2015-01-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/osp.h: Move struct osp_param definition to base/osp.c as as it is

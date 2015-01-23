@@ -246,28 +246,7 @@ if (NOT REDIS_FOUND)
   endif (NOT HIREDIS)
 
   set (REDIS_LDFLAGS "-lhiredis")
-else (NOT REDIS_FOUND)
-  execute_process (COMMAND pkg-config --cflags hiredis
-    OUTPUT_VARIABLE REDIS_CFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process (COMMAND pkg-config --libs hiredis
-    OUTPUT_VARIABLE REDIS_LDFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif (NOT REDIS_FOUND)
-
-execute_process (COMMAND pkg-config --cflags glib-2.0
-  OUTPUT_VARIABLE GLIB_CFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process (COMMAND pkg-config --libs glib-2.0
-  OUTPUT_VARIABLE GLIB_LDFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-execute_process (COMMAND pkg-config --cflags gnutls
-  OUTPUT_VARIABLE GNUTLS_CFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process (COMMAND pkg-config --libs gnutls
-  OUTPUT_VARIABLE GNUTLS_LDFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process (COMMAND net-snmp-config --libs
   OUTPUT_VARIABLE SNMP_LDFLAGS

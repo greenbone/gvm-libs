@@ -30,23 +30,12 @@ if (NOT MINGW)
   # because they change the API (e.g. _FILE_OFFSET_BITS).
   set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -D_FILE_OFFSET_BITS=64 -Wall -fPIC")
 
-  message (STATUS "Looking for zlib...")
-  find_library (ZLIB z)
-  message (STATUS "Looking for zlib... ${ZLIB}")
-  if (NOT ZLIB)
-    message (FATAL_ERROR "The zlib library is required.")
-  endif (NOT ZLIB)
-  execute_process (COMMAND pkg-config --cflags zlib
-    OUTPUT_VARIABLE ZLIB_CFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process (COMMAND pkg-config --libs zlib
-    OUTPUT_VARIABLE ZLIB_LDFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  pkg_check_modules (ZLIB REQUIRED zlib)
 
-  execute_process (COMMAND pkg-config --libs gio-2.0
-    OUTPUT_VARIABLE GIO_LDFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  pkg_check_modules (GIO REQUIRED gio-2.0)
 endif (NOT MINGW)
+
+include_directories (${GLIB_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
 
 if (MINGW)
   set  (FILES array.c credentials.c openvas_hosts.c cvss.c nvti.c nvticache.c
@@ -67,7 +56,6 @@ endif (MINGW)
 
 if (BUILD_STATIC)
   add_library (openvas_base_static STATIC ${FILES})
-  set_target_properties (openvas_base_static PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${ZLIB_CFLAGS}")
   set_target_properties (openvas_base_static PROPERTIES OUTPUT_NAME "openvas_base")
   set_target_properties (openvas_base_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
   set_target_properties (openvas_base_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
@@ -75,7 +63,6 @@ endif (BUILD_STATIC)
 
 if (BUILD_SHARED)
   add_library (openvas_base_shared SHARED ${FILES})
-  set_target_properties (openvas_base_shared PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS} ${GPGME_CFLAGS} ${ZLIB_CFLAGS}")
   set_target_properties (openvas_base_shared PROPERTIES OUTPUT_NAME "openvas_base")
   set_target_properties (openvas_base_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
   set_target_properties (openvas_base_shared PROPERTIES SOVERSION "${CPACK_PACKAGE_VERSION_MAJOR}")
@@ -108,7 +95,6 @@ endif (BUILD_SHARED)
 if (BUILD_STATIC)
   target_link_libraries (test-hosts openvas_base_static openvas_misc_static ${GLIB_LDFLAGS})
 endif (BUILD_STATIC)
-set_target_properties (test-hosts PROPERTIES COMPILE_FLAGS "${GLIB_CFLAGS}")
 
 ## Install
 if (BUILD_STATIC)
