@@ -1,3 +1,8 @@
+2015-01-27  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* doc/wmi-howto.txt: Document location of latest patch and describe
+	how the patch should be applied.
+
 2015-01-08  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Backport r21301.
