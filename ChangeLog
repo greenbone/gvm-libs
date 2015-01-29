@@ -1,3 +1,9 @@
+2015-01-29  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the openvas-libraries 7.0.7 release.
+
+	* CHANGES: Updated.
+
 2015-01-27  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* doc/wmi-howto.txt: Document location of latest patch and describe

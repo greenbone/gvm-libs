@@ -1,3 +1,23 @@
+openvas-libraries 7.0.7 (2015-01-29)
+
+This is the seventh maintenance release of the openvas-libraries 7.0 module for
+the Open Vulnerability Assessment System 7 (OpenVAS-7).
+
+This release addresses performance issues discovered to originate from
+openvas-libraries and includes an updated documentation for compiling
+openvas-libraries with WMI support.
+
+Many thanks to everyone who contributed to this release:
+Matthew Mundell, Timo Pollmeier and Michael Wiegand.
+
+Main changes since 7.0.6:
+* Improved handling of severity settings, speeding up report retrieval by
+  OpenVAS Manager.
+* Add support for sleeping between retries of GnuTLS handshakes. This should
+  reduce busy wait loops in modules using this functionality.
+* The WMI documentation has been updated.
+
+
 openvas-libraries 7.0.6 (2014-11-27)
 
 This is the sixth maintenance release of the openvas-libraries 7.0 module for
