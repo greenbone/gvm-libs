@@ -1,3 +1,11 @@
+2015-02-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r21575.
+
+	* nasl/nasl_ssh.c (nasl_ssh_userauth): Refactor code. Always try to get
+	the private key and keep support for empty passwords.  Based on patch by
+	Michel Pelletier.
+
 2015-02-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r21562.
