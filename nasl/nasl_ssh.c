@@ -1378,31 +1378,16 @@ nasl_ssh_userauth (lex_ctxt *lexic)
   if (!session_table[tbl_slot].user_set)
     nasl_ssh_set_login (lexic);
 
-  /* First check whether any specific methods have been requested.  If
-     not fall back to the default.  */
-  if ((password = get_str_local_var_by_name (lexic, "password")))
-    ; /* Password provided - do not bother looking for a private key.  */
-  else if ((privkeystr = get_str_local_var_by_name (lexic, "privatekey")))
-    ; /* A private key is available.  */
-  else
-    {
-      /* Nothing supported.  Use the values from the KB.  */
-      kb = plug_get_kb (lexic->script_infos);
-      password      = kb_item_get_str (kb, "Secret/SSH/password");
-      privkeystr    = kb_item_get_str (kb, "Secret/SSH/privatekey");
-    }
-
-  /* If a private key is available get a corresponding passphrase so
-     that we are later able to unprotect that key if needed.  */
-  if (privkeystr)
-    {
-      privkeypass = get_str_local_var_by_name (lexic, "passphrase");
-      if (!privkeypass)
-        {
-          kb = plug_get_kb (lexic->script_infos);
-          privkeypass = kb_item_get_str (kb, "Secret/SSH/passphrase");
-        }
-    }
+  kb = plug_get_kb (lexic->script_infos);
+  password = get_str_local_var_by_name (lexic, "password");
+  if (!password)
+    password = kb_item_get_str (kb, "Secret/SSH/password");
+  privkeystr = get_str_local_var_by_name (lexic, "privatekey");
+  if (!privkeystr)
+    privkeystr = kb_item_get_str (kb, "Secret/SSH/privatekey");
+  privkeypass = get_str_local_var_by_name (lexic, "passphrase");
+  if (!privkeypass)
+    privkeypass = kb_item_get_str (kb, "Secret/SSH/passphrase");
 
   /* Get the authentication methods onlye once per session.  */
   if (!session_table[tbl_slot].authmethods_valid)
