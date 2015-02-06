@@ -1,5 +1,10 @@
 2015-02-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/network.c, misc/openvas_server.c, nasl/nasl_ssh.c: Remove
+	work-arounds for old gnutls versions < 2.12 which are unsupported.
+
+2015-02-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_ssh.c (nasl_ssh_userauth): Refactor code. Always try to get
 	the private key and keep support for empty passwords.  Based on patch by
 	Michel Pelletier.

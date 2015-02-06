@@ -1133,7 +1133,7 @@ openvas_server_free (int server_socket, gnutls_session_t server_session,
 static void
 my_gnutls_transport_set_lowat_default (gnutls_session_t session)
 {
-#if GNUTLS_VERSION_NUMBER >= 0x020b01 && GNUTLS_VERSION_NUMBER < 0x026300
+#if GNUTLS_VERSION_NUMBER < 0x026300
   gnutls_transport_set_lowat (session, 1);
 #endif
 }

@@ -299,61 +299,6 @@ add_tlv (membuf_t *buffer, unsigned int tag, void *value, size_t length)
 }
 
 
-/* Return a new MPI filled with the value from DATUM. */
-#if GNUTLS_VERSION_NUMBER < 0x020b00
-static gcry_mpi_t
-mpi_from_gnutls_datum (gnutls_datum_t *datum)
-{
-  gcry_error_t err;
-  gcry_mpi_t a;
-
-  err = gcry_mpi_scan (&a, GCRYMPI_FMT_USG, datum->data, datum->size, NULL);
-  if (err)
-    {
-      log_legacy_write ("gcry_mpi_scan failed: %s\n", gcry_strerror (err));
-      abort ();
-    }
-
-  return a;
-}
-#endif /*GNUTLS_VERSION_NUMBER < 0x020b00*/
-
-
-/* Allocate a new DATUM and fill it with the value from A. */
-#if GNUTLS_VERSION_NUMBER < 0x020b00
-static void
-mpi_to_gnutls_datum (gnutls_datum_t *datum, gcry_mpi_t a)
-{
-  gcry_error_t err;
-  unsigned char *buffer;
-  size_t buflen;
-
-  err = gcry_mpi_print (GCRYMPI_FMT_STD, NULL, 0, &buflen, a);
-  if (err)
-    {
-      log_legacy_write ("gcry_mpi_print failed: %s\n", gcry_strerror (err));
-      abort ();
-    }
-
-  buffer = gnutls_malloc (buflen);
-  if (!buffer)
-    {
-      perror ("gnutls_malloc");
-      abort ();
-    }
-
-  err = gcry_mpi_print (GCRYMPI_FMT_STD, buffer, buflen, &buflen, a);
-  if (err)
-    {
-      log_legacy_write ("gcry_mpi_print failed (2): %s\n", gcry_strerror (err));
-      abort ();
-    }
-  datum->size = buflen;
-  datum->data = buffer;
-}
-#endif /*GNUTLS_VERSION_NUMBER < 0x020b00*/
-
-
 /* Assume the PEM object in SSHPRIVKEYSTR is a pkcs#8 private RSA key
    and convert it into the standard ssh format without any protection.
    PASSPHRASE is the passphrase for the pkcs#8 object.  Note that we
@@ -398,51 +343,8 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
       return NULL;
     }
 
-#if GNUTLS_VERSION_NUMBER >= 0x020b00  /* ...raw2 added in 2.11.0 */
   rc = gnutls_x509_privkey_export_rsa_raw2 (key, &m, &e, &d, &p, &q, &u,
                                             &dmp1, &dmq1);
-#else
-  rc = gnutls_x509_privkey_export_rsa_raw (key, &m, &e, &d, &p, &q, &u);
-  if (!rc)
-    {
-      gcry_mpi_t p_mpi, q_mpi, u_mpi;
-
-      /* The libgcrypt version of libssh does not use dmp1 and dmq1.
-         Thus we can safely provide dummy values.  */
-      dmp1.size = 4;
-      dmp1.data = gnutls_malloc (4);
-      if (dmp1.data)
-        memcpy (dmp1.data, "\x42\x42\x42\x42", 4);
-      dmq1.size = 4;
-      dmq1.data = gnutls_malloc (4);
-      if (dmq1.data)
-        memcpy (dmq1.data, "\x42\x42\x42\x42", 4);
-
-      /* Some gnutls versions swap p and q; we need P < Q.  We fix
-         that here and, to be on the safe side, always recompute u. */
-
-      p_mpi = mpi_from_gnutls_datum (&p);
-      q_mpi = mpi_from_gnutls_datum (&q);
-
-      if (gcry_mpi_cmp (p_mpi, q_mpi) > 0)
-        gcry_mpi_swap (p_mpi, q_mpi);
-
-      u_mpi = gcry_mpi_new (0);
-      gcry_mpi_invm (u_mpi, p_mpi, q_mpi);
-
-      gnutls_free (u.data);
-      mpi_to_gnutls_datum (&u, u_mpi);
-      gcry_mpi_release (u_mpi);
-
-      gnutls_free (p.data);
-      mpi_to_gnutls_datum (&p, p_mpi);
-      gcry_mpi_release (p_mpi);
-
-      gnutls_free (q.data);
-      mpi_to_gnutls_datum (&q, q_mpi);
-      gcry_mpi_release (q_mpi);
-    }
-#endif
   gnutls_x509_privkey_deinit (key);
   if (rc)
     {
