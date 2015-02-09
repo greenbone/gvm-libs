@@ -1,3 +1,10 @@
+2015-02-09  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_create_target_ext): Add SSH port option.
+
+	* omp/omp.h (omp_create_target_opts_t): Add ssh_credential_port.
+	(omp_create_target_opts_defaults): Init ssh_credential_port.
+
 2015-02-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c, misc/openvas_server.c, nasl/nasl_ssh.c: Remove
