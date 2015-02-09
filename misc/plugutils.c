@@ -45,7 +45,6 @@
 #include "network.h"
 #include "plugutils.h"
 #include "internal_com.h"
-#include "scanners_utils.h"
 #include "openvas_logging.h"
 #include "prefs.h"             /* for prefs_get_bool */
 

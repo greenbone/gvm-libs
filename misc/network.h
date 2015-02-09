@@ -63,6 +63,7 @@ int recv_line (int, char *, size_t);
 int nrecv (int, void *, int, int);
 int socket_close (int);
 int get_sock_infos (int sock, int *r_transport, void **r_tls_session);
+unsigned short *getpts (char *, int *);
 
 int open_stream_connection (struct arglist *, unsigned int, int, int);
 int open_stream_connection_ext (struct arglist *, unsigned int, int, int,

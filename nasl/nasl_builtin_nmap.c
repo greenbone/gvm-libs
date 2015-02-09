@@ -61,7 +61,6 @@
 #include <glib.h>
 
 #include "../misc/arglists.h"
-#include "../misc/scanners_utils.h"
 #include "../misc/plugutils.h"
 #include "../misc/popen.h"
 #include "../misc/kb.h"

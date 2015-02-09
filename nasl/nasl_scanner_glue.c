@@ -37,7 +37,7 @@
 
 #include "kb.h"                 /* for KB_TYPE_INT */
 #include "plugutils.h"          /* for plug_set_id */
-#include "scanners_utils.h"     /* for getpts */
+#include "network.h"            /* for getpts */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"

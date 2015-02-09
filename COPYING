@@ -61,7 +61,6 @@ misc/plugutils.[c|h]: LGPLv2+
 misc/popen.[c|h]: LGPLv2+
 misc/prefs.[c|h]: GPLv2+
 misc/kb_redis.c: GPLv2+
-misc/scanners_utils.[c|h]: LGPLv2+
 misc/support.h: GPLv2+
 misc/www_funcs.c: GPLv2
 misc/www_funcs.h: LGPLv2+

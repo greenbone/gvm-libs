@@ -41,9 +41,9 @@
 #include "nvt_categories.h" /* for ACT_SCANNER */
 #include "../misc/pcap_openvas.h" /* for get_datalink_size */
 #include "../misc/plugutils.h" /* for scanner_add_port */
-#include "../misc/scanners_utils.h" /* for getpts */
 #include "../misc/openvas_logging.h"
 #include "../misc/prefs.h"          /* for prefs_get */
+#include "network.h"    /* for getpts */
 
 #include "nasl_lex_ctxt.h"
 
