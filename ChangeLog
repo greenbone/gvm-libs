@@ -1,3 +1,12 @@
+2015-02-10  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Backport r21582.
+
+	* omp/omp.c (omp_create_target_ext): Add SSH port option.
+
+	* omp/omp.h (omp_create_target_opts_t): Add ssh_credential_port.
+	(omp_create_target_opts_defaults): Init ssh_credential_port.
+
 2015-02-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r21575.

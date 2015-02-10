@@ -127,6 +127,7 @@ static const omp_create_task_opts_t omp_create_task_opts_defaults =
  */
 typedef struct
 {
+  int ssh_credential_port;         ///< Port for SSH access.
   const char* ssh_credential_id;   ///< ID of SSH credential.
   const char* smb_credential_id;   ///< ID of SMB credential.
   const char* port_range;          ///< Port range.
@@ -139,7 +140,7 @@ typedef struct
  * @brief Sensible default values for omp_get_report_opts_t.
  */
 static const omp_create_target_opts_t omp_create_target_opts_defaults =
-  { };
+  { 0 };
 
 /**
  * @brief Struct holding options for omp get_system_reports command.

@@ -1336,8 +1336,17 @@ omp_create_target_ext (gnutls_session_t* session,
     comment = NULL;
 
   if (opts.ssh_credential_id)
-    ssh = g_markup_printf_escaped ("<ssh_lsc_credential id=\"%s\"/>",
-                                   opts.ssh_credential_id);
+    {
+      if (opts.ssh_credential_port)
+        ssh = g_markup_printf_escaped ("<ssh_lsc_credential id=\"%s\">"
+                                       "<port>%i</port>"
+                                       "</ssh_lsc_credential>",
+                                       opts.ssh_credential_id,
+                                       opts.ssh_credential_port);
+      else
+        ssh = g_markup_printf_escaped ("<ssh_lsc_credential id=\"%s\"/>",
+                                       opts.ssh_credential_id);
+    }
   else
     ssh = NULL;
 
