@@ -143,6 +143,7 @@ typedef struct
   int ssh_credential_port;         ///< Port for SSH access.
   const char* ssh_credential_id;   ///< ID of SSH credential.
   const char* smb_credential_id;   ///< ID of SMB credential.
+  const char* esxi_credential_id;  ///< ID of ESXi credential.
   const char* port_range;          ///< Port range.
   const char* name;                ///< Name of target.
   const char* comment;             ///< Comment on target.

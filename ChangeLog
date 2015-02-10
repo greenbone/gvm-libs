@@ -1,5 +1,12 @@
 2015-02-10  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
+	* omp/omp.h (omp_create_target_opts_t): Add field esxi_credential_id.
+
+	* omp/omp.c (omp_create_target_ext): Handle new esxi_credential_id
+	option to select ESXi credentials.
+
+2015-02-10  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
 	* omp/omp.h (omp_create_target_opts_t): Add fields exclude_hosts,
 	alive_tests, reverse_lookup_only, reverse_lookup_unify.
 

@@ -1130,7 +1130,7 @@ omp_create_target_ext (gnutls_session_t* session,
                        omp_create_target_opts_t opts,
                        gchar** id)
 {
-  gchar *comment, *ssh, *smb, *port_range, *start;
+  gchar *comment, *ssh, *smb, *esxi, *port_range, *start;
   gchar *exclude_hosts, *alive_tests;
   int ret;
 
@@ -1190,6 +1190,12 @@ omp_create_target_ext (gnutls_session_t* session,
   else
     smb = NULL;
 
+  if (opts.esxi_credential_id)
+    esxi = g_markup_printf_escaped ("<esxi_lsc_credential id=\"%s\"/>",
+                                    opts.esxi_credential_id);
+  else
+    esxi = NULL;
+
   if (opts.port_range)
     port_range = g_markup_printf_escaped ("<port_range>%s</port_range>",
                                           opts.port_range);
@@ -1198,7 +1204,7 @@ omp_create_target_ext (gnutls_session_t* session,
 
   /* Send the request. */
   ret = openvas_server_sendf (session,
-                              "%s%s%s%s%s%s%s"
+                              "%s%s%s%s%s%s%s%s"
                               "<reverse_lookup_only>%d</reverse_lookup_only>"
                               "<reverse_lookup_unify>%d</reverse_lookup_unify>"
                               "</create_target>",
@@ -1207,6 +1213,7 @@ omp_create_target_ext (gnutls_session_t* session,
                               alive_tests ? alive_tests : "",
                               ssh ? ssh : "",
                               smb ? smb : "",
+                              esxi ? esxi : "",
                               port_range ? port_range : "",
                               comment ? comment : "",
                               opts.reverse_lookup_only,
@@ -1216,6 +1223,7 @@ omp_create_target_ext (gnutls_session_t* session,
   g_free (alive_tests);
   g_free (ssh);
   g_free (smb);
+  g_free (esxi);
   g_free (port_range);
   g_free (comment);
   if (ret)
