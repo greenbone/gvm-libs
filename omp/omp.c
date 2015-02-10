@@ -1131,6 +1131,7 @@ omp_create_target_ext (gnutls_session_t* session,
                        gchar** id)
 {
   gchar *comment, *ssh, *smb, *port_range, *start;
+  gchar *exclude_hosts, *alive_tests;
   int ret;
 
   /* Create the OMP request. */
@@ -1143,6 +1144,22 @@ omp_create_target_ext (gnutls_session_t* session,
                                    "<hosts>%s</hosts>",
                                    opts.name ? opts.name : "unnamed",
                                    opts.hosts);
+
+  if (opts.exclude_hosts)
+    exclude_hosts = g_markup_printf_escaped ("<exclude_hosts>"
+                                             "%s"
+                                             "</exclude_hosts>",
+                                             opts.exclude_hosts);
+  else
+    exclude_hosts = NULL;
+
+  if (opts.alive_tests)
+    alive_tests = g_markup_printf_escaped ("<alive_tests>"
+                                           "%s"
+                                           "</alive_tests>",
+                                           opts.alive_tests);
+  else
+    alive_tests = NULL;
 
   if (opts.comment)
     comment = g_markup_printf_escaped ("<comment>"
@@ -1180,13 +1197,26 @@ omp_create_target_ext (gnutls_session_t* session,
     port_range = NULL;
 
   /* Send the request. */
-  ret = openvas_server_sendf (session, "%s%s%s%s%s</create_target>",
+  ret = openvas_server_sendf (session,
+                              "%s%s%s%s%s%s%s"
+                              "<reverse_lookup_only>%d</reverse_lookup_only>"
+                              "<reverse_lookup_unify>%d</reverse_lookup_unify>"
+                              "</create_target>",
                               start,
+                              exclude_hosts ? exclude_hosts : "",
+                              alive_tests ? alive_tests : "",
                               ssh ? ssh : "",
                               smb ? smb : "",
                               port_range ? port_range : "",
-                              comment ? comment : "");
+                              comment ? comment : "",
+                              opts.reverse_lookup_only,
+                              opts.reverse_lookup_unify);
   g_free (start);
+  g_free (exclude_hosts);
+  g_free (alive_tests);
+  g_free (ssh);
+  g_free (smb);
+  g_free (port_range);
   g_free (comment);
   if (ret)
     return -1;
