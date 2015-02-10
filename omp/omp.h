@@ -172,6 +172,24 @@ static const omp_get_system_reports_opts_t omp_get_system_reports_opts_defaults 
   { };
 
 /**
+ * @brief Struct holding options for omp create_lsc_credential command.
+ */
+typedef struct
+{
+  const char *name;        ///< Name of LSC credential.
+  const char *login;       ///< Login.
+  const char *passphrase;  ///< Passphrase.
+  const char *private_key; ///< Private key.
+  const char *comment;     ///< Comment on LSC credential.
+} omp_create_lsc_credential_opts_t;
+
+/**
+ * @brief Sensible default values for omp_create_lsc_credential_opts_t.
+ */
+static const omp_create_lsc_credential_opts_t omp_create_lsc_credential_opts_defaults =
+  { };
+
+/**
  * @brief Struct holding options for various omp delete_[...] commands.
  */
 typedef struct
@@ -240,6 +258,9 @@ int omp_create_target_ext (gnutls_session_t *, omp_create_target_opts_t,
 int omp_delete_target_ext (gnutls_session_t *, const char *, omp_delete_opts_t);
 
 int omp_delete_config_ext (gnutls_session_t *, const char *, omp_delete_opts_t);
+
+int omp_create_lsc_credential_ext (gnutls_session_t*, omp_create_lsc_credential_opts_t,
+                                   gchar**);
 
 int omp_create_lsc_credential (gnutls_session_t *, const char *, const char *,
                                const char *, const char *, gchar **);

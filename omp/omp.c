@@ -1388,6 +1388,83 @@ omp_create_lsc_credential_key (gnutls_session_t *session,
 }
 
 /**
+ * @brief Create an LSC credential.
+ *
+ * @param[in]  session   Pointer to GNUTLS session.
+ * @param[in]  opts      Struct containing the options to apply.
+ * @param[out] id        Pointer for newly allocated ID of new LSC credential,
+ *                       or NULL.  Only set on successful return.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_create_lsc_credential_ext (gnutls_session_t* session,
+                               omp_create_lsc_credential_opts_t opts,
+                               gchar** id)
+{
+  gchar *comment, *pass, *start;
+  int ret;
+
+  /* Create the OMP request. */
+
+  if (opts.login == NULL)
+    return -1;
+
+  start = g_markup_printf_escaped ("<create_lsc_credential>"
+                                   "<name>%s</name>"
+                                   "<login>%s</login>",
+                                   opts.name ? opts.name : "unnamed",
+                                   opts.login);
+
+  if (opts.comment)
+    comment = g_markup_printf_escaped ("<comment>"
+                                       "%s"
+                                       "</comment>",
+                                      opts.comment);
+  else
+    comment = NULL;
+
+  if (opts.private_key)
+    pass = g_markup_printf_escaped ("<key>"
+                                    "<phrase>%s</phrase>"
+                                    "<private>%s</private>"
+                                    "</key>",
+                                    opts.passphrase ? opts.passphrase : "",
+                                    opts.private_key);
+  else
+    {
+      if (opts.passphrase)
+        pass = g_markup_printf_escaped ("<password>"
+                                        "%s"
+                                        "</password>",
+                                        opts.passphrase);
+      else
+        pass = NULL;
+    }
+
+  /* Send the request. */
+
+  ret = openvas_server_sendf (session,
+                              "%s%s%s</create_lsc_credential>",
+                              start,
+                              comment ? comment : "",
+                              pass ? pass : "");
+
+  g_free (start);
+  g_free (comment);
+  g_free (pass);
+  if (ret)
+    return -1;
+
+  /* Read the response. */
+
+  ret = omp_read_create_response (session, id);
+  if (ret == 201)
+    return 0;
+  return ret;
+}
+
+/**
  * @brief Delete a LSC credential.
  *
  * @param[in]   session     Pointer to GNUTLS session.

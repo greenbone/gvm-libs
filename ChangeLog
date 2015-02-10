@@ -1,3 +1,9 @@
+2015-02-10  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_create_lsc_credential_ext): New function.
+
+	* omp/omp.h: Add headers accordingly.
+
 2015-02-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/scanners_utils.c, misc/scanners_utils.h: Remove files.
