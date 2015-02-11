@@ -1,3 +1,8 @@
+2015-02-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_ssh.c (exec_ssh_cmd): Handle reading response loop using
+	nonblocking interface and passive waiting to handle infinite loop case.
+
 2015-02-11  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.
