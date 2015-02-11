@@ -1,3 +1,31 @@
+openvas-libraries 8.0+beta6 (2015-02-11)
+
+This release is the sixth beta version of the next major release of
+openvas-libraries. It will be part of the upcoming "OpenVAS-8".
+
+This release switches openvas-libraries to using the new openvas-smb module for
+WMI and related functionality. It also fixes an issue with transferring SSH
+settings to scan slaves, improves support for OSP and addresses various issues
+with the configuration and build environment.
+
+Many thanks to everyone who has contributed this release:
+Benoît Allard, Hani Benhabiles, Andre Heinecke, Matthew Mundell, Timo Pollmeier,
+Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to 8.0+beta5:
+* openvas-libraries now uses the openvas-smb module for WMI and related
+  functionality.
+* An issue which caused SSH port setting to not be transferred correctly to scan
+  slaves has been fixed.
+* OSP support has been improved.
+* Library checks during package configuration have been improved and are now
+  more comprehensive and consistent.
+* Handling of linker and compiler flags during package configuration has been
+  improved and simplified.
+* Various code quality improvements based on automatic and manual code
+  analysis.
+
+
 openvas-libraries 8.0+beta5 (2015-01-12)
 
 This release is the fifth beta version of the next major release of
