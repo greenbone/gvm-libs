@@ -1480,8 +1480,7 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
   rc = 1;
   while (rc > 0)
     {
-      if ((rc = ssh_channel_read_timeout
-                 (channel, buffer, sizeof buffer, 1, 15000)) > 0)
+      if ((rc = ssh_channel_read (channel, buffer, sizeof buffer, 1)) > 0)
         {
           if (to_stderr)
             put_membuf (response, buffer, rc);
@@ -1495,8 +1494,7 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
   rc = 1;
   while (rc > 0)
     {
-      if ((rc = ssh_channel_read_timeout
-                 (channel, buffer, sizeof buffer, 0, 15000)) > 0)
+      if ((rc = ssh_channel_read (channel, buffer, sizeof buffer, 0)) > 0)
         {
           compat_mode = 0;
           if (to_stdout)

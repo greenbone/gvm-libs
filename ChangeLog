@@ -1,5 +1,10 @@
 2015-02-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_ssh.c (exec_ssh_cmd): Revert to using ssh_channel_read() as
+	ssh_channel_read_timeout() is a recently added function.
+
+2015-02-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_ssh.c (exec_ssh_command): New function. Set timeout and
 	rework response reading loop to fix infinite loop case.
 	(nasl_ssh_request_exec): Refactor code to use exec_ssh_command()
