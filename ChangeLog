@@ -1,3 +1,10 @@
+2015-02-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_ssh.c (exec_ssh_command): New function. Set timeout and
+	rework response reading loop to fix infinite loop case.
+	(nasl_ssh_request_exec): Refactor code to use exec_ssh_command()
+	accordingly.
+
 2015-02-10  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* omp/omp.h (omp_create_target_opts_t): Add field esxi_credential_id.
