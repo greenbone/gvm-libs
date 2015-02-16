@@ -1904,7 +1904,7 @@ nasl_ssh_shell_open (lex_ctxt *lexic)
  * @return 0 if success, -1 if error.
  */
 static int
-read_ssh_nonblocking (ssh_channel channel, membuf_t *response)
+read_ssh_nonblocking (ssh_channel channel, GString *response)
 {
   int rc;
   char buffer[4096];
@@ -1914,12 +1914,12 @@ read_ssh_nonblocking (ssh_channel channel, membuf_t *response)
 
   if ((rc = ssh_channel_read_nonblocking
              (channel, buffer, sizeof (buffer), 1)) > 0)
-    put_membuf (response, buffer, rc);
+    g_string_append_len (response, buffer, rc);
   if (rc == SSH_ERROR)
     return -1;
   if ((rc = ssh_channel_read_nonblocking
              (channel, buffer, sizeof (buffer), 0)) > 0)
-    put_membuf (response, buffer, rc);
+    g_string_append_len (response, buffer, rc);
   if (rc == SSH_ERROR)
     return -1;
   return 0;
@@ -1945,22 +1945,18 @@ nasl_ssh_shell_read (lex_ctxt *lexic)
   int tbl_slot;
   ssh_channel channel;
   tree_cell *retc;
-  membuf_t response;
-  char *str;
-  size_t len = 0;
+  GString *response;
 
   if (!find_session_id (lexic, "ssh_shell_read", &tbl_slot))
     return NULL;
   channel = session_table[tbl_slot].channel;
 
-  init_membuf (&response, 512);
-  read_ssh_nonblocking (channel, &response);
-  str = get_membuf (&response, &len);
-  if (!str)
+  response = g_string_new (NULL);
+  if (read_ssh_nonblocking (channel, response))
     return NULL;
   retc = alloc_typed_cell (CONST_DATA);
-  retc->size = len;
-  retc->x.str_val = str;
+  retc->size = response->len;
+  retc->x.str_val = g_string_free (response, FALSE);
   return retc;
 }
 

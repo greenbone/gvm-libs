@@ -1,5 +1,10 @@
 2015-02-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_ssh.c (read_ssh_nonblocking, nasl_ssh_shell_read): Adjust to
+	use g_string_* functions instead of membuf.
+
+2015-02-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_init.c (libfuncs): Add ssh_shell_open, ssh_shell_read and
 	ssh_shell_write functions.
 
