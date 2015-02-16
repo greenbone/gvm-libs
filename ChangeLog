@@ -1,3 +1,16 @@
+2015-02-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_init.c (libfuncs): Add ssh_shell_open, ssh_shell_read and
+	ssh_shell_write functions.
+
+	* nasl/nasl_ssh.c (session_table_item_s): Add channel element.
+	(do_nasl_ssh_disconnect): Close channel too.
+	(exec_ssh_cmd): Improve code style.
+	(request_ssh_shell, nasl_ssh_shell_open, read_ssh_nonblocking)
+	(nasl_ssh_shell_read, nasl_ssh_shell_write): New functions.
+
+	* nasl/nasl_ssh.h: Add new functions prototypes.
+
 2015-02-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_ssh.c (exec_ssh_cmd): Handle reading response loop using

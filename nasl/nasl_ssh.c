@@ -111,6 +111,7 @@ struct session_table_item_s
 {
   int session_id;
   ssh_session session;
+  ssh_channel channel;
   int sock;                         /* The associated socket. */
   int authmethods;                  /* Bit fields with available
                                        authentication methods.  */
@@ -919,10 +920,12 @@ find_session_id (lex_ctxt *lexic, const char *funcname, int *r_slot)
 static void
 do_nasl_ssh_disconnect (int tbl_slot)
 {
+  ssh_channel_close (session_table[tbl_slot].channel);
   ssh_disconnect (session_table[tbl_slot].session);
   ssh_free (session_table[tbl_slot].session);
   session_table[tbl_slot].session_id = 0;
   session_table[tbl_slot].session = NULL;
+  session_table[tbl_slot].channel = NULL;
   session_table[tbl_slot].sock = -1;
 }
 
@@ -1447,7 +1450,6 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
               membuf_t *compat_buf)
 {
   int rc, retry = 60;
-  char buffer[1024];
   ssh_channel channel;
 
   if ((channel = ssh_channel_new (session)) == NULL)
@@ -1481,7 +1483,10 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
   while (ssh_channel_is_open (channel) && !ssh_channel_is_eof (channel)
          && retry-- > 0)
     {
-      if ((rc = ssh_channel_read_nonblocking (channel, buffer, sizeof buffer, 1)) > 0)
+      char buffer[4096];
+
+      if ((rc = ssh_channel_read_nonblocking
+                 (channel, buffer, sizeof (buffer), 1)) > 0)
         {
           if (to_stderr)
             put_membuf (response, buffer, rc);
@@ -1490,7 +1495,8 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
         }
       if (rc == SSH_ERROR)
         goto exec_err;
-      if ((rc = ssh_channel_read_nonblocking (channel, buffer, sizeof buffer, 0)) > 0)
+      if ((rc = ssh_channel_read_nonblocking
+                 (channel, buffer, sizeof (buffer), 0)) > 0)
         {
           compat_mode = 0;
           if (to_stdout)
@@ -1816,5 +1822,195 @@ nasl_ssh_get_auth_methods (lex_ctxt *lexic)
   retc = alloc_typed_cell (CONST_DATA);
   retc->x.str_val = p;
   retc->size = strlen (p);
+  return retc;
+}
+
+/**
+ * @brief Open a shell on an ssh channel.
+ *
+ * @param[in]   channel     SSH Channel.
+ *
+ * @return 0 if success, -1 if error.
+ */
+static int
+request_ssh_shell (ssh_channel channel)
+{
+  assert (channel);
+  if (ssh_channel_request_pty (channel))
+    return -1;
+  if (ssh_channel_change_pty_size (channel, 80, 24))
+    return -1;
+  if (ssh_channel_request_shell (channel))
+    return -1;
+  return 0;
+}
+
+/**
+ * @brief Request an ssh shell.
+ * @naslfn{ssh_shell_open}
+ *
+ * @nasluparam
+ *
+ * - An ssh session id.
+ *
+ * @naslret An int on success or NULL on error.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return Session ID on success, NULL on failure.
+ */
+tree_cell *
+nasl_ssh_shell_open (lex_ctxt *lexic)
+{
+  int tbl_slot;
+  ssh_channel channel;
+  ssh_session session;
+  tree_cell *retc;
+
+  if (!find_session_id (lexic, "ssh_shell_open", &tbl_slot))
+    return NULL;
+  session = session_table[tbl_slot].session;
+  channel = ssh_channel_new (session);
+  if (!channel)
+    return NULL;
+  if (ssh_channel_open_session (channel))
+    {
+      log_legacy_write ("ssh_shell_open: Couldn't open ssh shell");
+      ssh_channel_free (channel);
+      return NULL;
+    }
+
+  if (request_ssh_shell (channel))
+    {
+      log_legacy_write ("ssh_shell_open: Couldn't open ssh shell");
+      ssh_channel_free (channel);
+      return NULL;
+    }
+  if (session_table[tbl_slot].channel)
+    ssh_channel_close (session_table[tbl_slot].channel);
+  session_table[tbl_slot].channel = channel;
+
+  retc = alloc_typed_cell (CONST_INT);
+  retc->x.i_val = session_table[tbl_slot].session_id;
+  return retc;
+}
+
+/**
+ * @brief read from an ssh channel without blocking.
+ *
+ * @param[in]   channel     SSH Channel.
+ * @param[out]  response    Buffer to store response in.
+ *
+ * @return 0 if success, -1 if error.
+ */
+static int
+read_ssh_nonblocking (ssh_channel channel, membuf_t *response)
+{
+  int rc;
+  char buffer[4096];
+
+  if (!ssh_channel_is_open (channel) || ssh_channel_is_eof (channel))
+    return -1;
+
+  if ((rc = ssh_channel_read_nonblocking
+             (channel, buffer, sizeof (buffer), 1)) > 0)
+    put_membuf (response, buffer, rc);
+  if (rc == SSH_ERROR)
+    return -1;
+  if ((rc = ssh_channel_read_nonblocking
+             (channel, buffer, sizeof (buffer), 0)) > 0)
+    put_membuf (response, buffer, rc);
+  if (rc == SSH_ERROR)
+    return -1;
+  return 0;
+}
+
+/**
+ * @brief Read the output of an ssh shell.
+ * @naslfn{ssh_shell_read}
+ *
+ * @nasluparam
+ *
+ * - An ssh session id.
+ *
+ * @naslret A string on success or NULL on error.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return Data read from shell on success, NULL on failure.
+ */
+tree_cell *
+nasl_ssh_shell_read (lex_ctxt *lexic)
+{
+  int tbl_slot;
+  ssh_channel channel;
+  tree_cell *retc;
+  membuf_t response;
+  char *str;
+  size_t len = 0;
+
+  if (!find_session_id (lexic, "ssh_shell_read", &tbl_slot))
+    return NULL;
+  channel = session_table[tbl_slot].channel;
+
+  init_membuf (&response, 512);
+  read_ssh_nonblocking (channel, &response);
+  str = get_membuf (&response, &len);
+  if (!str)
+    return NULL;
+  retc = alloc_typed_cell (CONST_DATA);
+  retc->size = len;
+  retc->x.str_val = str;
+  return retc;
+}
+
+/**
+ * @brief Write string to ssh shell.
+ * @naslfn{ssh_shell_write}
+ *
+ * @nasluparam
+ *
+ * - An ssh session id.
+ * - A string to write to shell.
+ *
+ * @naslret An integer: 0 on success, -1 on failure.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return 0 on success, -1 on failure.
+ */
+tree_cell *
+nasl_ssh_shell_write (lex_ctxt *lexic)
+{
+  int tbl_slot, rc = -1, len;
+  ssh_channel channel;
+  tree_cell *retc;
+  char *cmd;
+
+  if (!find_session_id (lexic, "ssh_shell_write", &tbl_slot))
+    goto write_ret;
+  if (!(channel = session_table[tbl_slot].channel))
+    {
+      log_legacy_write ("ssh_shell_write: No shell channel found");
+      goto write_ret;
+    }
+
+  cmd = get_str_local_var_by_name (lexic, "cmd");
+  if (!cmd || !*cmd)
+    {
+      log_legacy_write ("ssh_shell_write: No command passed");
+      goto write_ret;
+    }
+  len = strlen (cmd);
+  if (ssh_channel_write (channel, cmd, len) != len)
+    {
+      log_legacy_write ("ssh_shell_write: Error writing to shell");
+      goto write_ret;
+    }
+  rc = 0;
+
+write_ret:
+  retc = alloc_typed_cell (CONST_INT);
+  retc->x.i_val = rc;
   return retc;
 }

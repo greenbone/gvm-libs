@@ -403,6 +403,9 @@ static init_func libfuncs[] = {
   {"ssh_userauth", nasl_ssh_userauth, 1, {"login", "password", NULL }},
   {"ssh_request_exec", nasl_ssh_request_exec,
    1, {"cmd", "stderr", "stdout",NULL }},
+  {"ssh_shell_open", nasl_ssh_shell_open, 1, { NULL }},
+  {"ssh_shell_read", nasl_ssh_shell_read, 1, { NULL }},
+  {"ssh_shell_write", nasl_ssh_shell_write, 1, { "cmd" }},
   {"ssh_get_issue_banner", nasl_ssh_get_issue_banner, 1, {NULL }},
 #if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 6, 0)
   {"ssh_get_server_banner", nasl_ssh_get_server_banner, 1, {NULL }},
