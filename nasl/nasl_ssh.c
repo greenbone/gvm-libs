@@ -1280,7 +1280,7 @@ nasl_ssh_userauth (lex_ctxt *lexic)
     }
 
   /* If we have a private key, try public key authentication.  */
-  if (privkeystr && (methods & SSH_AUTH_METHOD_PUBLICKEY))
+  if (privkeystr && *privkeystr && (methods & SSH_AUTH_METHOD_PUBLICKEY))
     {
       my_ssh_key key = NULL;
 

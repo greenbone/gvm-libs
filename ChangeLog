@@ -1,5 +1,10 @@
 2015-02-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_ssh.c (nasl_ssh_userauth): Don't attempt to authenticate if
+	provided private key is empty.
+
+2015-02-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Replace custom dynamic buffer implementation with glib's GString.
 
 	* nasl/nasl_ssh.c (membuf_t): Remove struct.
