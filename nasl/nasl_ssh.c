@@ -129,106 +129,14 @@ static struct session_table_item_s session_table[MAX_SSH_SESSIONS];
 /* Local prototypes.  */
 static int nasl_ssh_close_hook (int);
 
-
-/* A simple implementation of a dynamic buffer.  Use init_membuf() to
-   create a buffer, put_membuf to append bytes and get_membuf to
-   release and return the buffer.  Allocation errors are detected but
-   only returned at the final get_membuf(), this helps not to clutter
-   the code with out of core checks.  The code has been lifted from
-   GnuPG; it was entirely written by me <wk@gnupg.org>.  It is
-   licensed under LGPLv3+ or GPLv2+.  We use it here to avoid g_string
-   which has the disadvange that we can't use the emalloc functions
-   and thus need to copy the result again.
-   TODO: emalloc is meanwhile replaced by glib memory functions,
-   so this code could be reviewed whether using g_string would
-   simplify the code. */
-
-/* The definition of the structure is private, we only need it here,
-   so it can be allocated on the stack. */
-struct private_membuf_s
-{
-  size_t len;
-  size_t size;
-  char *buf;
-  int out_of_core;
-};
-
-typedef struct private_membuf_s membuf_t;
-
 static void
-init_membuf (membuf_t *mb, int initiallen)
+g_string_comma_str (GString *gstr, const char *str)
 {
-  mb->len = 0;
-  mb->size = initiallen;
-  mb->out_of_core = 0;
-  mb->buf = g_malloc0 (initiallen);
+  if (gstr->len)
+    g_string_append (gstr, ",");
+  g_string_append (gstr, str);
 }
 
-
-static void
-put_membuf (membuf_t *mb, const void *buf, size_t len)
-{
-  if (mb->out_of_core || !len)
-    return;
-
-  if (mb->len + len >= mb->size)
-    {
-      mb->size += len + 1024;
-      mb->buf = g_realloc (mb->buf, mb->size);
-    }
-  memcpy (mb->buf + mb->len, buf, len);
-  mb->len += len;
-}
-
-
-static void
-put_membuf_str (membuf_t *mb, const char *string)
-{
-  put_membuf (mb, string, strlen (string));
-}
-
-
-static void
-put_membuf_comma_str (membuf_t *mb, const char *string)
-{
-  if (mb->len)
-    put_membuf_str (mb, ",");
-  put_membuf_str (mb, string);
-}
-
-
-static void
-put_membuf_byte (membuf_t *mb, unsigned char c)
-{
-  put_membuf (mb, &c, 1);
-}
-
-
-static void *
-get_membuf (membuf_t *mb, size_t *len)
-{
-  char *p;
-
-  if (mb->out_of_core)
-    {
-      if (mb->buf)
-        {
-          g_free (mb->buf);
-          mb->buf = NULL;
-        }
-      errno = mb->out_of_core;
-      return NULL;
-    }
-
-  p = mb->buf;
-  if (len)
-    *len = mb->len;
-  mb->buf = NULL;
-  mb->out_of_core = ENOMEM; /* Hack to make sure it won't get reused. */
-  return p;
-}
-
-
 /* Wrapper functions to make a future migration to the libssh 0.6 API
    easier.  The idea is that you only need to remove these wrappers
    and s/my_ssh_/ssh_/ on this file.  */
@@ -259,7 +167,7 @@ my_ssh_key_free (my_ssh_key key)
    To cope with a problem in old GNUTLS versions we make sure that
    integer values are always positive. */
 static void
-add_tlv (membuf_t *buffer, unsigned int tag, void *value, size_t length)
+add_tlv (GString *buffer, unsigned int tag, void *value, size_t length)
 {
   int fix_negative = 0;
 
@@ -272,31 +180,31 @@ add_tlv (membuf_t *buffer, unsigned int tag, void *value, size_t length)
     }
 
   if (tag > 0xff)
-    put_membuf_byte (buffer, tag >> 8);
-  put_membuf_byte (buffer, tag);
+    g_string_append_c (buffer, tag >> 8);
+  g_string_append_c (buffer, tag);
   if (length < 128)
-    put_membuf_byte (buffer, length);
+    g_string_append_c (buffer, length);
   else if (length < 256)
     {
-      put_membuf_byte (buffer, 0x81);
-      put_membuf_byte (buffer, length);
+      g_string_append_c (buffer, 0x81);
+      g_string_append_c (buffer, length);
     }
   else
     {
       if (length > 0xffff)
         length = 0xffff;
-      put_membuf_byte (buffer, 0x82);
-      put_membuf_byte (buffer, length >> 8);
-      put_membuf_byte (buffer, length);
+      g_string_append_c (buffer, 0x82);
+      g_string_append_c (buffer, length >> 8);
+      g_string_append_c (buffer, length);
     }
 
   if (fix_negative)
     {
-      put_membuf (buffer, "", 1);  /* Prepend a 0x00.  */
+      g_string_append_c (buffer, 0x00);  /* Append a 0x00.  */
       length--;
     }
   if (value)
-    put_membuf (buffer, value, length);
+    g_string_append_len (buffer, value, length);
 }
 
 
@@ -311,7 +219,7 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
   gnutls_datum_t sshkey;
   gnutls_x509_privkey_t key;
   gnutls_datum_t m, e, d, p, q, u, dmp1, dmq1;
-  membuf_t dermb;
+  GString *dermb;
   void *derbuf;
   size_t derlen = 0;  /* Silence gcc 4.7.1 warning. */
   gnutls_datum_t der, pem;
@@ -355,16 +263,16 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
     }
 
   /* Create a DER object.  */
-  init_membuf (&dermb, 4096);
-  add_tlv (&dermb, 0x02, "", 1);                /* INTEGER: 0 */
-  add_tlv (&dermb, 0x02, m.data, m.size);       /* INTEGER: m */
-  add_tlv (&dermb, 0x02, e.data, e.size);       /* INTEGER: e */
-  add_tlv (&dermb, 0x02, d.data, d.size);       /* INTEGER: d */
-  add_tlv (&dermb, 0x02, q.data, q.size);       /* INTEGER: q */
-  add_tlv (&dermb, 0x02, p.data, p.size);       /* INTEGER: p */
-  add_tlv (&dermb, 0x02, dmq1.data, dmq1.size); /* INTEGER: dmq1 */
-  add_tlv (&dermb, 0x02, dmp1.data, dmp1.size); /* INTEGER: dmp1 */
-  add_tlv (&dermb, 0x02, u.data, u.size);       /* INTEGER: u */
+  dermb = g_string_sized_new (4096);
+  add_tlv (dermb, 0x02, "", 1);                /* INTEGER: 0 */
+  add_tlv (dermb, 0x02, m.data, m.size);       /* INTEGER: m */
+  add_tlv (dermb, 0x02, e.data, e.size);       /* INTEGER: e */
+  add_tlv (dermb, 0x02, d.data, d.size);       /* INTEGER: d */
+  add_tlv (dermb, 0x02, q.data, q.size);       /* INTEGER: q */
+  add_tlv (dermb, 0x02, p.data, p.size);       /* INTEGER: p */
+  add_tlv (dermb, 0x02, dmq1.data, dmq1.size); /* INTEGER: dmq1 */
+  add_tlv (dermb, 0x02, dmp1.data, dmp1.size); /* INTEGER: dmp1 */
+  add_tlv (dermb, 0x02, u.data, u.size);       /* INTEGER: u */
 
   gnutls_free (m.data);
   gnutls_free (e.data);
@@ -375,24 +283,13 @@ pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
   gnutls_free (dmq1.data);
   gnutls_free (u.data);
 
-  derbuf = get_membuf (&dermb, &derlen);
-  if (!derbuf)
-    {
-      log_legacy_write ("get_membuf failed in %s: %s\n",
-                        __FUNCTION__, strerror (-1));
-      return NULL;
-    }
-  init_membuf (&dermb, 4096);
-  add_tlv (&dermb, 0x30, derbuf, derlen);
+  derlen = dermb->len;
+  derbuf = g_string_free (dermb, FALSE);
+  dermb = g_string_sized_new (4096);
+  add_tlv (dermb, 0x30, derbuf, derlen);
   g_free (derbuf);
-  derbuf = get_membuf (&dermb, &derlen);
-  if (!derbuf)
-    {
-      log_legacy_write ("get_membuf failed in %s (2): %s\n",
-                        __FUNCTION__, strerror (-1));
-      return NULL;
-    }
-
+  derlen = dermb->len;
+  derbuf = g_string_free (dermb, FALSE);
   der.data = derbuf;
   der.size = derlen;
   rc = gnutls_pem_base64_encode_alloc ("RSA PRIVATE KEY", &der, &pem);
@@ -1446,8 +1343,8 @@ nasl_ssh_userauth (lex_ctxt *lexic)
  */
 static int
 exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
-              int to_stdout, int to_stderr, membuf_t *response,
-              membuf_t *compat_buf)
+              int to_stdout, int to_stderr, GString *response,
+              GString *compat_buf)
 {
   int rc, retry = 60;
   ssh_channel channel;
@@ -1489,9 +1386,9 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
                  (channel, buffer, sizeof (buffer), 1)) > 0)
         {
           if (to_stderr)
-            put_membuf (response, buffer, rc);
+            g_string_append_len (response, buffer, rc);
           if (compat_mode)
-            put_membuf (compat_buf, buffer, rc);
+            g_string_append_len (compat_buf, buffer, rc);
         }
       if (rc == SSH_ERROR)
         goto exec_err;
@@ -1500,7 +1397,7 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
         {
           compat_mode = 0;
           if (to_stdout)
-            put_membuf (response, buffer, rc);
+            g_string_append_len (response, buffer, rc);
         }
       if (rc == SSH_ERROR)
         goto exec_err;
@@ -1575,7 +1472,7 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   int verbose;
   char *cmd;
   int rc;
-  membuf_t response, compat_buf;
+  GString *response, *compat_buf;
   size_t len = 0;
   tree_cell *retc;
   char *p;
@@ -1620,42 +1517,40 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   /* Allocate some space in advance.  Most commands won't output too
      much and thus 512 bytes (6 standard terminal lines) should often
      be sufficient.  */
-  init_membuf (&response, 512);
+  response = g_string_sized_new (512);
   if (compat_mode)
     {
-      init_membuf (&compat_buf, 512);
+      compat_buf = g_string_sized_new (512);
       compat_buf_inuse = 1;
     }
   else
     compat_buf_inuse = 0;
 
   rc = exec_ssh_cmd (session, cmd, verbose, compat_mode, to_stdout, to_stderr,
-                     &response, &compat_buf);
+                     response, compat_buf);
   if (rc == SSH_ERROR)
     {
       if (compat_buf_inuse)
-        {
-          p = get_membuf (&compat_buf, NULL);
-          g_free (p);
-        }
-      p = get_membuf (&response, NULL);
-      g_free (p);
+        g_string_free (compat_buf, TRUE);
+      g_string_free (response, TRUE);
       return NULL;
     }
 
   /* Append the compatibility buffer to the output.  */
   if (compat_buf_inuse)
     {
-      p = get_membuf (&compat_buf, &len);
+      len = compat_buf->len;
+      p = g_string_free (compat_buf, FALSE);
       if (p)
         {
-          put_membuf (&response, p, len);
+          g_string_append_len (response, p, len);
           g_free (p);
         }
     }
 
   /* Return the the output.  */
-  p = get_membuf (&response, &len);
+  len = response->len;
+  p = g_string_free (response, FALSE);
   if (!p)
     {
       log_legacy_write ("ssh_request_exec memory problem: %s\n", strerror (-1));
@@ -1789,7 +1684,7 @@ nasl_ssh_get_auth_methods (lex_ctxt *lexic)
 {
   int tbl_slot;
   int methods;
-  membuf_t mb;
+  GString *buffer;
   char *p;
   tree_cell *retc;
 
@@ -1803,19 +1698,19 @@ nasl_ssh_get_auth_methods (lex_ctxt *lexic)
 
   methods = session_table[tbl_slot].authmethods;
 
-  init_membuf (&mb, 128);
+  buffer = g_string_sized_new (128);
   if ((methods & SSH_AUTH_METHOD_NONE))
-    put_membuf_comma_str (&mb, "none");
+    g_string_comma_str (buffer, "none");
   if ((methods & SSH_AUTH_METHOD_PASSWORD))
-    put_membuf_comma_str (&mb, "password");
+    g_string_comma_str (buffer, "password");
   if ((methods & SSH_AUTH_METHOD_PUBLICKEY))
-    put_membuf_comma_str (&mb, "publickey");
+    g_string_comma_str (buffer, "publickey");
   if ((methods & SSH_AUTH_METHOD_HOSTBASED))
-    put_membuf_comma_str (&mb, "hostbased");
+    g_string_comma_str (buffer, "hostbased");
   if ((methods & SSH_AUTH_METHOD_INTERACTIVE))
-    put_membuf_comma_str (&mb, "keyboard-interactive");
-  put_membuf (&mb, "", 1);
-  p = get_membuf (&mb, NULL);
+    g_string_comma_str (buffer, "keyboard-interactive");
+  g_string_append_c (buffer, 0x00);
+  p = g_string_free (buffer, FALSE);
   if (!p)
     return NULL;
 

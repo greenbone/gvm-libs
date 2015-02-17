@@ -1,3 +1,14 @@
+2015-02-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Replace custom dynamic buffer implementation with glib's GString.
+
+	* nasl/nasl_ssh.c (membuf_t): Remove struct.
+	(init_membuf, put_membuf, put_membuf_str, put_membuf_comma_str)
+	(put_membuf_byte, get_membuf): Remove functions.
+	(g_string_comma_str): New function.
+	(add_tlv, pkcs8_to_sshprivatekey, exec_ssh_cmd, nasl_ssh_request_exec)
+	(nasl_ssh_get_auth_methods): Adjust to use GString instead of membuf_t.
+
 2015-02-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_ssh.c (read_ssh_nonblocking, nasl_ssh_shell_read): Adjust to
