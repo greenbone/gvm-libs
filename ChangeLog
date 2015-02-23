@@ -1,3 +1,10 @@
+2015-02-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r21674.
+
+	* nasl/nasl_ssh.c (nasl_ssh_userauth): Don't attempt to authenticate if
+	provided private key is empty.
+
 2015-02-10  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Backport r21582.
