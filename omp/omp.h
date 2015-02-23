@@ -52,8 +52,6 @@ typedef struct
 
 /**
  * @brief Struct holding options for omp get_report command.
- *
- * FIXME: This SHOULD contain all valid options from the OMP spec.
  */
 typedef struct
 {
@@ -63,12 +61,30 @@ typedef struct
   const char* levels;      ///< Result levels to include.
   const char* report_id;   ///< ID of single report to get.
   int first_result;        ///< First result to get.
+  int max_results;         ///< Maximum number of results to return.
+  int host_first_result;   ///< Skip over results before this result number.
+  int host_max_results;    ///< Maximum number of results to return.
   int autofp;              ///< Whether to trust vendor security updates. 0 No, 1 full match, 2 partial.
+  char *type;              ///< Type of report.
+  char *host;              ///< Host for asset report.
+  char *pos;               ///< Position of report from end.
+  char *timezone;          ///< Timezone.
+  char *alert_id;          ///< ID of alert.
+  char *delta_report_id;   ///< ID of report to compare single report to.
+  char *delta_states;      ///< Delta states (Changed Gone New Same) to include.
+  char *host_levels;       ///< Letter encoded threat level filter, for hosts.
+  char *search_phrase;     ///< Search phrase result filter.
+  char *host_search_phrase;///< Search phrase result filter.
+  char *min_cvss_base;     ///< Minimum CVSS base filter.
+  char *min_qod;           ///< Minimum QoD filter.
   /* Boolean flags: */
+  int notes;               ///< Whether to include associated notes.
+  int notes_details;       ///< Whether to include details of above.
   int overrides;           ///< Whether to include overrides in the report.
   int override_details;    ///< If overrides, whether to include details.
   int apply_overrides;     ///< Whether overrides are applied.
   int result_hosts_only;   ///< Whether to include only hosts that have results.
+  int ignore_pagination;   ///< Whether to ignore pagination filters.
 } omp_get_report_opts_t;
 
 /**
@@ -76,7 +92,8 @@ typedef struct
  */
 static const omp_get_report_opts_t omp_get_report_opts_defaults =
   {
-    "ROWID", "ascending", "a994b278-1f62-11e1-96ac-406186ea4fc5", "hmlgd"
+    "ROWID", "ascending", "a994b278-1f62-11e1-96ac-406186ea4fc5", "hmlgd",
+    NULL, 1, -1
   };
 
 /**
@@ -180,6 +197,7 @@ typedef struct
 {
   const char* name;                ///< Name of report.
   const char* duration;            ///< Duration.
+  const char* slave_id;            ///< ID of the slave to get report from.
   int brief;                       ///< Brief flag.
 } omp_get_system_reports_opts_t;
 

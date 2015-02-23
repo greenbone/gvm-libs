@@ -59,6 +59,11 @@
 #define OMP_FMT_BOOL_ATTRIB(var, attrib)            \
   (var.attrib == 0 ? " " #attrib "=\"0\"" : " " #attrib "=\"1\"")
 
+#define OMP_FMT_STRING_ATTRIB(var, attrib) \
+  (var.attrib ? " " #attrib "= \"" : ""),  \
+  (var.attrib ? var.attrib : ""),          \
+  (var.attrib ? "\"" : "")
+
 
 /* Local XML interface extension. */
 
@@ -1165,19 +1170,52 @@ omp_get_report_ext (gnutls_session_t* session,
                             " sort_order=\"%s\""
                             " levels=\"%s\""
                             " first_result=\"%i\""
+                            " max_results=\"%i\""
+                            " host_first_result=\"%i\""
+                            " host_max_results=\"%i\""
                             " autofp=\"%i\""
-                            "%s%s%s%s/>",
+                            "%s%s%s"
+                            "%s%s%s"
+                            "%s%s%s"
+                            "%s%s%s"
+                            "%s%s%s"
+                            "%s%s%s"
+                            "%s%s%s"
+                            "%s%s%s"
+                            "%s%s%s"
+                            "%s%s%s"
+                            "%s%s%s"
+                            "%s%s%s"
+                            "%s%s%s%s%s%s%s/>",
                             opts.report_id,
                             opts.format_id,
                             opts.sort_field,
                             opts.sort_order,
                             opts.levels,
                             opts.first_result,
+                            opts.max_results,
+                            opts.host_first_result,
+                            opts.host_max_results,
                             opts.autofp,
+                            OMP_FMT_STRING_ATTRIB (opts, type),
+                            OMP_FMT_STRING_ATTRIB (opts, host),
+                            OMP_FMT_STRING_ATTRIB (opts, pos),
+                            OMP_FMT_STRING_ATTRIB (opts, timezone),
+                            OMP_FMT_STRING_ATTRIB (opts, alert_id),
+                            OMP_FMT_STRING_ATTRIB (opts, delta_report_id),
+                            OMP_FMT_STRING_ATTRIB (opts, delta_states),
+                            OMP_FMT_STRING_ATTRIB (opts, host_levels),
+                            OMP_FMT_STRING_ATTRIB (opts, search_phrase),
+                            OMP_FMT_STRING_ATTRIB (opts, host_search_phrase),
+                            OMP_FMT_STRING_ATTRIB (opts, min_cvss_base),
+                            OMP_FMT_STRING_ATTRIB (opts, min_qod),
+                            OMP_FMT_BOOL_ATTRIB (opts, notes),
+                            OMP_FMT_BOOL_ATTRIB (opts, notes_details),
                             OMP_FMT_BOOL_ATTRIB (opts, overrides),
                             OMP_FMT_BOOL_ATTRIB (opts, override_details),
                             OMP_FMT_BOOL_ATTRIB (opts, apply_overrides),
-                            OMP_FMT_BOOL_ATTRIB (opts, result_hosts_only)))
+                            OMP_FMT_BOOL_ATTRIB (opts, result_hosts_only),
+                            OMP_FMT_BOOL_ATTRIB (opts, ignore_pagination)))
     return -1;
 
   *response = NULL;
@@ -1708,50 +1746,71 @@ omp_get_system_reports_ext (gnutls_session_t* session,
                             entity_t *reports)
 {
   const char* status_code;
+  gchar *slave_id_attrib;
   int ret;
+
+  slave_id_attrib = opts.slave_id ? g_strdup_printf (" slave_id=\"%s\"",
+                                                     opts.slave_id)
+                                  : g_strdup ("");
 
   /* Create the OMP request. */
 
   if (opts.name && opts.duration)
     {
       if (openvas_server_sendf (session,
-                                "<get_system_reports"
+                                "<get_system_reports%s"
                                 " name=\"%s\""
                                 " duration=\"%s\""
                                 " brief=\"%i\"/>",
+                                slave_id_attrib,
                                 opts.name,
                                 opts.duration,
                                 opts.brief)
           == -1)
-        return -1;
+        {
+          g_free (slave_id_attrib);
+          return -1;
+        }
     }
   else if (opts.name)
     {
       if (openvas_server_sendf (session,
-                                "<get_system_reports"
+                                "<get_system_reports%s"
                                 " name=\"%s\""
                                 " brief=\"%i\"/>",
+                                slave_id_attrib,
                                 opts.name,
                                 opts.brief)
           == -1)
-        return -1;
+        {
+          g_free (slave_id_attrib);
+          return -1;
+        }
     }
   else if (opts.duration)
     {
       if (openvas_server_sendf (session,
-                                "<get_system_reports"
+                                "<get_system_reports%s"
                                 " duration=\"%s\""
                                 " brief=\"%i\"/>",
+                                slave_id_attrib,
                                 opts.duration,
                                 opts.brief)
           == -1)
-        return -1;
+        {
+          g_free (slave_id_attrib);
+          return -1;
+        }
     }
   else if (openvas_server_sendf (session,
-                                 "<get_system_reports brief=\"%i\"/>",
+                                 "<get_system_reports%s brief=\"%i\"/>",
+                                 slave_id_attrib,
                                  opts.brief)
            == -1)
-    return -1;
+    {
+      g_free (slave_id_attrib);
+      return -1;
+    }
 
   /* Read the response. */
 
