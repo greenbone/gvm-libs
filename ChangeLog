@@ -1,3 +1,8 @@
+2015-02-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_ssh_login.c (openvas_ssh_public_from_private): Add ssh
+	key type to the exported public key string.
+
 2015-02-23  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* omp/omp.c (OMP_FMT_STRING_ATTRIB): New function-style macro.

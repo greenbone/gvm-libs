@@ -134,7 +134,8 @@ openvas_ssh_public_from_private (const char *private_key, const char *passphrase
 {
 #if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 6, 0)
   ssh_key priv;
-  char *pub_key;
+  char *pub_key, *pub_str;
+  const char *type;
   int ret;
 
   ret = ssh_pki_import_privkey_base64 (private_key, passphrase, NULL, NULL,
@@ -142,8 +143,13 @@ openvas_ssh_public_from_private (const char *private_key, const char *passphrase
   if (ret)
     return NULL;
   ret = ssh_pki_export_pubkey_base64 (priv, &pub_key);
+  type = ssh_key_type_to_char (ssh_key_type (priv));
   ssh_key_free (priv);
-  return pub_key;
+  if (ret)
+    return NULL;
+  pub_str = g_strdup_printf ("%s %s", type, pub_key);
+  g_free (pub_key);
+  return pub_str;
 
 #else
   char key_dir[] = "/tmp/openvas_key_XXXXXX", *base64, *data;
