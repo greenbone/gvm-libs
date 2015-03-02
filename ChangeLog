@@ -1,5 +1,17 @@
 2015-03-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/osp.c, base/osp.h (osp_param_name, osp_param_type),
+	misc/plugutils.c (plug_get_port_transport_name): Remove unused
+	functions.
+
+	* base/hash_table_file.c, base/hash_table_file.h: Remove files
+	containing unused functions.
+
+	* COPYING, base/CMakeLists.txt: Adjust for hash_table_file.{c,h}
+	removal.
+
+2015-03-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/openvas_ssh_login.c (file_check_exists, openvas_ssh_login_new)
 	(openvas_ssh_login_free, read_from_keyfile)
 	(openvas_ssh_login_file_read_buffer): Remove functions.

@@ -1075,12 +1075,6 @@ plug_get_port_transport (struct arglist *args, int port)
                                    of possibly breaking stuff */
 }
 
-const char *
-plug_get_port_transport_name (struct arglist *args, int port)
-{
-  return get_encaps_name (plug_get_port_transport (args, port));
-}
-
 static void
 plug_set_ssl_item (struct arglist *args, char *item, char *itemfname)
 {

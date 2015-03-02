@@ -64,14 +64,8 @@ osp_get_scanner_details (osp_connection_t *, char **, GSList **);
 osp_param_t *
 osp_param_new (void);
 
-osp_param_type_t
-osp_param_type (osp_param_t *);
-
 const char *
 osp_param_id (osp_param_t *);
-
-const char *
-osp_param_name (osp_param_t *);
 
 const char *
 osp_param_desc (osp_param_t *);

@@ -468,20 +468,6 @@ osp_param_id (osp_param_t *param)
   return param->id;
 }
 
-/* @brief Get an OSP parameter's name.
- *
- * @param[in]   param   OSP parameter.
- *
- * @return Name of OSP parameter.
- */
-const char *
-osp_param_name (osp_param_t *param)
-{
-  assert (param);
-
-  return param->name;
-}
-
 /* @brief Get an OSP parameter's description.
  *
  * @param[in]   param   OSP parameter.
@@ -508,20 +494,6 @@ osp_param_default (osp_param_t *param)
   assert (param);
 
   return param->def;
-}
-
-/* @brief Get an OSP parameter's type.
- *
- * @param[in]   param   OSP parameter.
- *
- * @return Type of OSP parameter.
- */
-osp_param_type_t
-osp_param_type (osp_param_t *param)
-{
-  assert (param);
-
-  return param->type;
 }
 
 /* @brief Free an OSP parameter.

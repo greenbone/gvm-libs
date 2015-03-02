@@ -26,7 +26,6 @@ base/credentials.[c|h]: GPLv2+
 base/cvss.[c|h]: GPLv2+
 base/drop_privileges.[c|h]: GPLv2+
 base/gpgme_util.[c|h]: GPLv2+
-base/hash_table_file.[c|h]: GPLv2+
 base/nvti.[c|h]: GPLv2+
 base/nvticache.[c|h]: GPLv2+
 base/openvas_file.[c|h]: GPLv2+
