@@ -1,3 +1,13 @@
+2015-03-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_ssh_login.c (file_check_exists, openvas_ssh_login_new)
+	(openvas_ssh_login_free, read_from_keyfile)
+	(openvas_ssh_login_file_read_buffer): Remove functions.
+	(ssh_pkcs8_to_private): New function.
+	(openvas_ssh_public_from_private): Support PKCS#8 encrypted ssh keys.
+
+	* misc/openvas_ssh_login.h: Remove unused prototypes and definitions.
+
 2015-02-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/openvas_ssh_login.c (openvas_ssh_public_from_private): Add ssh

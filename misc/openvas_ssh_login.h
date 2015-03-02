@@ -26,34 +26,6 @@
 #ifndef _OPENVAS_SSH_LOGIN_H
 #define _OPENVAS_SSH_LOGIN_H
 
-#include <glib.h>
-
-/**
- * SSH Login information struct. (credentials)
- */
-typedef struct
-{
-  char *name;                   /// Name to identify this credentials
-  char *username;               /// Name of the user
-  char *userpassword;           /// Password of the user
-  char *private_key_path;       /// Path to the private key
-  char *ssh_key_passphrase;     /// Passphrase for the key
-  char *comment;                /// Optional comment
-  gboolean valid;           /**< @brief TRUE if all information and key files
-                             *         available, FALSE otherwise.*/
-} openvas_ssh_login;
-
-openvas_ssh_login *openvas_ssh_login_new (char *name, char *privkey_file,
-                                          char *passphrase, char *comment,
-                                          char *uname, char *upass);
-
-void openvas_ssh_login_free (openvas_ssh_login * loginfo);
-
 char *
 openvas_ssh_public_from_private (const char *, const char *);
-
-GHashTable *openvas_ssh_login_file_read_buffer (const char *buffer,
-                                                gsize buffer_size,
-                                                gboolean check);
-
 #endif
