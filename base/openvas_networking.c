@@ -25,6 +25,8 @@
 
 #include "openvas_networking.h"
 
+#include <fcntl.h>
+
 #include <libssh/libssh.h>
 #include <gnutls/x509.h>
 

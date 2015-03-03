@@ -1,5 +1,10 @@
 2015-03-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/openvas_networking.c: Add include to fix build issue on some
+	systems.
+
+2015-03-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/openvas_networking.c (openvas_ssh_pkcs8_decrypt)
 	(openvas_ssh_public_from_private): New. Moved and adjusted from
 	openvas_ssh_login.c.
