@@ -38,7 +38,9 @@ ssh_pkcs8_to_private (const char *private_key, const char *passphrase)
 {
   gnutls_datum_t data;
   gnutls_x509_privkey_t key;
+  char buffer[16 * 2048];
   int rc;
+  size_t size = sizeof (buffer);
 
   rc = gnutls_x509_privkey_init (&key);
   if (rc)
@@ -53,11 +55,11 @@ ssh_pkcs8_to_private (const char *private_key, const char *passphrase)
       return NULL;
     }
   g_free (data.data);
-  rc = gnutls_x509_privkey_export2 (key, GNUTLS_X509_FMT_PEM, &data);
+  rc = gnutls_x509_privkey_export (key, GNUTLS_X509_FMT_PEM, buffer, &size);
   gnutls_x509_privkey_deinit (key);
   if (rc)
     return NULL;
-  return (char *) data.data;
+  return g_strdup (buffer);
 }
 
 /**

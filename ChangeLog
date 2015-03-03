@@ -1,3 +1,9 @@
+2015-03-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_ssh_login.c (ssh_pkcs8_to_private): Replace
+	gnutls_x509_privkey_export2() with gnutls_x509_privkey_export()
+	as it is not available in GnuTLS 2.12.
+
 2015-03-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/osp.c, base/osp.h (osp_param_name, osp_param_type),
