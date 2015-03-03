@@ -657,7 +657,7 @@ openvas_ssh_public_from_private (const char *private_key, const char *passphrase
   if (!private_key || !g_mkdtemp_full (key_dir, S_IRUSR|S_IWUSR|S_IXUSR))
     return NULL;
   g_snprintf (filename, sizeof (filename), "%s/key.tmp", key_dir);
-  decrypted_priv = ssh_pkcs8_to_private (private_key, passphrase);
+  decrypted_priv = openvas_ssh_pkcs8_decrypt (private_key, passphrase);
   if (!g_file_set_contents (filename, decrypted_priv ?: private_key, -1, NULL))
     {
       g_free (decrypted_priv);
