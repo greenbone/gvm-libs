@@ -50,8 +50,6 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <gnutls/gnutls.h>      /* Used to convert pkcs8 to ssh format.  */
-#include <gnutls/x509.h>
 #include <gcrypt.h>
 
 #include "nasl_tree.h"
@@ -160,150 +158,6 @@ my_ssh_key_free (my_ssh_key key)
   g_free (key);
 }
 
-
-/* Create a TLV tag and store it at BUFFER.  A LENGTH greater than
-   65535 is truncated.  If VALUE is NULL only the tag and length
-   values will be written.  This is used to write DER encoded data.
-   To cope with a problem in old GNUTLS versions we make sure that
-   integer values are always positive. */
-static void
-add_tlv (GString *buffer, unsigned int tag, void *value, size_t length)
-{
-  int fix_negative = 0;
-
-  g_assert (tag <= 0xffff);
-
-  if (tag == 0x02 && length && value && (*(unsigned char *)value & 0x80))
-    {
-      fix_negative = 1;
-      length++;
-    }
-
-  if (tag > 0xff)
-    g_string_append_c (buffer, tag >> 8);
-  g_string_append_c (buffer, tag);
-  if (length < 128)
-    g_string_append_c (buffer, length);
-  else if (length < 256)
-    {
-      g_string_append_c (buffer, 0x81);
-      g_string_append_c (buffer, length);
-    }
-  else
-    {
-      if (length > 0xffff)
-        length = 0xffff;
-      g_string_append_c (buffer, 0x82);
-      g_string_append_c (buffer, length >> 8);
-      g_string_append_c (buffer, length);
-    }
-
-  if (fix_negative)
-    {
-      g_string_append_c (buffer, 0x00);  /* Append a 0x00.  */
-      length--;
-    }
-  if (value)
-    g_string_append_len (buffer, value, length);
-}
-
-
-/* Assume the PEM object in SSHPRIVKEYSTR is a pkcs#8 private RSA key
-   and convert it into the standard ssh format without any protection.
-   PASSPHRASE is the passphrase for the pkcs#8 object.  Note that we
-   only support RSA here. */
-static char *
-pkcs8_to_sshprivatekey (const char *sshprivkeystr, const char *passphrase)
-{
-  int rc;
-  gnutls_datum_t sshkey;
-  gnutls_x509_privkey_t key;
-  gnutls_datum_t m, e, d, p, q, u, dmp1, dmq1;
-  GString *dermb;
-  void *derbuf;
-  size_t derlen = 0;  /* Silence gcc 4.7.1 warning. */
-  gnutls_datum_t der, pem;
-
-  rc = gnutls_x509_privkey_init (&key);
-  if (rc)
-    {
-      log_legacy_write ("gnutls key init failed: %s\n", gnutls_strerror (rc));
-      return NULL;
-    }
-
-  sshkey.size = strlen (sshprivkeystr);
-  sshkey.data = g_try_malloc (sshkey.size + 1);
-  if (!sshkey.data)
-    {
-      log_legacy_write ("malloc failed in %s\n", __FUNCTION__);
-      gnutls_x509_privkey_deinit (key);
-      return NULL;
-    }
-  strcpy ((char*)sshkey.data, sshprivkeystr);
-
-  rc = gnutls_x509_privkey_import_pkcs8 (key, &sshkey, GNUTLS_X509_FMT_PEM,
-                                         passphrase?passphrase:"", 0);
-  g_free (sshkey.data);
-  if (rc)
-    {
-      log_legacy_write ("gnutls import pkcs#8 failed: %s\n",
-                        gnutls_strerror (rc));
-      gnutls_x509_privkey_deinit (key);
-      return NULL;
-    }
-
-  rc = gnutls_x509_privkey_export_rsa_raw2 (key, &m, &e, &d, &p, &q, &u,
-                                            &dmp1, &dmq1);
-  gnutls_x509_privkey_deinit (key);
-  if (rc)
-    {
-      log_legacy_write ("gnutls privkey export raw RSA key failed: %s\n",
-                        gnutls_strerror (rc));
-      return NULL;
-    }
-
-  /* Create a DER object.  */
-  dermb = g_string_sized_new (4096);
-  add_tlv (dermb, 0x02, "", 1);                /* INTEGER: 0 */
-  add_tlv (dermb, 0x02, m.data, m.size);       /* INTEGER: m */
-  add_tlv (dermb, 0x02, e.data, e.size);       /* INTEGER: e */
-  add_tlv (dermb, 0x02, d.data, d.size);       /* INTEGER: d */
-  add_tlv (dermb, 0x02, q.data, q.size);       /* INTEGER: q */
-  add_tlv (dermb, 0x02, p.data, p.size);       /* INTEGER: p */
-  add_tlv (dermb, 0x02, dmq1.data, dmq1.size); /* INTEGER: dmq1 */
-  add_tlv (dermb, 0x02, dmp1.data, dmp1.size); /* INTEGER: dmp1 */
-  add_tlv (dermb, 0x02, u.data, u.size);       /* INTEGER: u */
-
-  gnutls_free (m.data);
-  gnutls_free (e.data);
-  gnutls_free (d.data);
-  gnutls_free (p.data);
-  gnutls_free (q.data);
-  gnutls_free (dmp1.data);
-  gnutls_free (dmq1.data);
-  gnutls_free (u.data);
-
-  derlen = dermb->len;
-  derbuf = g_string_free (dermb, FALSE);
-  dermb = g_string_sized_new (4096);
-  add_tlv (dermb, 0x30, derbuf, derlen);
-  g_free (derbuf);
-  derlen = dermb->len;
-  derbuf = g_string_free (dermb, FALSE);
-  der.data = derbuf;
-  der.size = derlen;
-  rc = gnutls_pem_base64_encode_alloc ("RSA PRIVATE KEY", &der, &pem);
-  g_free (derbuf);
-  if (rc)
-    {
-      log_legacy_write ("gnutls_pem_base64_encode_alloc failed: %s\n",
-                        gnutls_strerror (rc));
-      return NULL;
-    }
-  return (char*)pem.data;
-}
-
-
 /* Remove the temporary directory and its key file.  FILENAME is also freed. */
 static void
 remove_and_free_temp_key_file (char *filename)
@@ -396,7 +250,7 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
       if (verbose)
         log_legacy_write ("Converting from PKCS#8 and trying again ...\n");
 
-      pkcs8_buffer = pkcs8_to_sshprivatekey (b64_key, passphrase);
+      pkcs8_buffer = openvas_ssh_pkcs8_decrypt (b64_key, passphrase);
       if (pkcs8_buffer)
         {
           b64_key = pkcs8_buffer;

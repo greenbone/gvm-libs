@@ -52,7 +52,6 @@ misc/openvas_auth.[c|h]: GPLv2+
 misc/openvas_logging.[c|h]: GPLv2+
 misc/openvas_proctitle.[c|h]: GPLv2+
 misc/openvas_server.[c|h]: GPLv2+
-misc/openvas_ssh_login.[c|h]: GPLv2+
 misc/openvas_uuid.[c|h]: GPLv2+
 misc/pcap.c: LGPLv2+
 misc/pcap_openvas.h: LGPLv2+

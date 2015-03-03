@@ -1,5 +1,23 @@
 2015-03-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/openvas_networking.c (openvas_ssh_pkcs8_decrypt)
+	(openvas_ssh_public_from_private): New. Moved and adjusted from
+	openvas_ssh_login.c.
+
+	* base/openvas_networking.h: Add new functions prototypes.
+
+	* misc/openvas_ssh_login.c, misc/openvas_ssh_login.h: Remove files.
+
+	* nasl/nasl_ssh.c (add_tlv, pkcs8_to_sshprivatekey): Remove unused
+	functions.
+	(my_ssh_pki_import_privkey_base64): Call openvas_ssh_pkcs8_decrypt()
+	instead of pkcs8_to_sshprivatekey().
+
+	* COPYING, misc/CMakeLists.txt: Adjust for openvas_ssh_login.{c,h}
+	removal.
+
+2015-03-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/openvas_ssh_login.c (ssh_pkcs8_to_private): Replace
 	gnutls_x509_privkey_export2() with gnutls_x509_privkey_export()
 	as it is not available in GnuTLS 2.12.
