@@ -1,3 +1,22 @@
+openvas-libraries 7.0.8 (2015-03-04)
+
+This is the eighth maintenance release of the openvas-libraries 7.0 module for
+the Open Vulnerability Assessment System 7 (OpenVAS-7).
+
+This release fixes issues with the checksum of forged UDP packets, with SSH key
+authentication and with transferring the SSH port setting to scan slaves.
+
+Many thanks to everyone who contributed to this release:
+Hani Benhabiles and Matthew Mundell.
+
+Main changes since 7.0.7:
+* An issue which caused forged UDP packets to have incorrect checksums under
+  certain circumstances has been fixed.
+* An issue with SSH key authentication has been fixed.
+* An issue which caused the SSH port setting to not be transferred correctly to
+  scan slaves has been fixed.
+
+
 openvas-libraries 7.0.7 (2015-01-29)
 
 This is the seventh maintenance release of the openvas-libraries 7.0 module for
