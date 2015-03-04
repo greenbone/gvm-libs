@@ -1,3 +1,11 @@
+2015-03-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r21778.
+
+	* nasl/nasl_ssh.c (nasl_ssh_userauth): Don't get any of the credentials
+	from the KB if one is already provided as function argument. This fixes
+	KB password taking presedence over argument private keys, for example.
+
 2015-03-04  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.

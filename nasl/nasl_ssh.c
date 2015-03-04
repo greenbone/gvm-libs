@@ -1387,14 +1387,14 @@ nasl_ssh_userauth (lex_ctxt *lexic)
 
   kb = plug_get_kb (lexic->script_infos);
   password = get_str_local_var_by_name (lexic, "password");
-  if (!password)
-    password = kb_item_get_str (kb, "Secret/SSH/password");
   privkeystr = get_str_local_var_by_name (lexic, "privatekey");
-  if (!privkeystr)
-    privkeystr = kb_item_get_str (kb, "Secret/SSH/privatekey");
   privkeypass = get_str_local_var_by_name (lexic, "passphrase");
-  if (!privkeypass)
-    privkeypass = kb_item_get_str (kb, "Secret/SSH/passphrase");
+  if (!password && !privkeystr && !privkeypass)
+    {
+      password = kb_item_get_str (kb, "Secret/SSH/password");
+      privkeystr = kb_item_get_str (kb, "Secret/SSH/privatekey");
+      privkeypass = kb_item_get_str (kb, "Secret/SSH/passphrase");
+    }
 
   /* Get the authentication methods onlye once per session.  */
   if (!session_table[tbl_slot].authmethods_valid)
