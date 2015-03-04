@@ -1,3 +1,9 @@
+2015-03-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_ssh.c (nasl_ssh_userauth): Don't get any of the credentials
+	from the KB if one is already provided as function argument. This fixes
+	KB password taking presedence over argument private keys, for example.
+
 2015-03-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_networking.c: Add include to fix build issue on some
