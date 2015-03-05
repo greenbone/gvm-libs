@@ -1,3 +1,19 @@
+openvas-libraries 7.0.9 (2015-03-05)
+
+This is the ninth maintenance release of the openvas-libraries 7.0 module for
+the Open Vulnerability Assessment System 7 (OpenVAS-7).
+
+This release fixes an issue with SSH key authentication which was introduced
+with the changes in openvas-libraries 7.0.8.
+
+Many thanks to everyone who contributed to this release:
+Hani Benhabiles.
+
+Main changes since 7.0.8:
+* An issue with caused SSH credentials from the knowledge base to incorrectly
+  take precedence over those supplied as function arguments has been fixed.
+
+
 openvas-libraries 7.0.8 (2015-03-04)
 
 This is the eighth maintenance release of the openvas-libraries 7.0 module for
