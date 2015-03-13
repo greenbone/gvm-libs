@@ -580,17 +580,12 @@ get_plugin_preference (const char *oid, const char *name)
 
   while (prefs->next)
     {
-      char *a = NULL, *b = NULL;
-      int c = 0;
+      char *a, *b;
       char *t = prefs->name;
 
       a = strchr (t, '[');
-      if (a)
-        b = strchr (t, ']');
-      if (b)
-        c = (b[1] == ':');
-
-      if (c)
+      b = strchr (t, ']');
+      if (a && b && b[1] == ':')
         {
           b += 2 * sizeof (char);
           if (!strcmp (cname, b))

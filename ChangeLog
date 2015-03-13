@@ -1,3 +1,7 @@
+2015-03-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/plugutils.c (get_plugin_preference): Improve code style.
+
 2015-03-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_ssh.c (nasl_ssh_userauth): Don't get any of the credentials
