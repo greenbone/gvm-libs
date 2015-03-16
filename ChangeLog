@@ -1,3 +1,14 @@
+2015-03-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_snmp.c (snmp_get): Return integer for success or failure,
+	Add function parameter for string result, and adjust function
+	accordingly.
+	(snmpv3_get, snmpv1_get): Adjust for snmp_get() function change.
+	(array_from_snmp_result): New function.
+	(nasl_snmpv3_get, nasl_snmpv1_get): Adjust for called functions changes
+	and use array_from_snmp_result() accordingly.
+	(proto_is_valid): Document function.
+
 2015-03-16  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.
