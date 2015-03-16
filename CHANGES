@@ -1,3 +1,75 @@
+openvas-libraries 8.0.0 (2015-03-16)
+
+This is the first release of the openvas-libraries 8.0 module for the Open
+Vulnerability Assessment System 8 (OpenVAS-8). Compared to the previous major
+release it covers a broad set of improvements for the various OpenVAS services
+and applications.
+
+Many thanks to everyone who contributed to this release:
+Benoît Allard, Hani Benhabiles, Henri Doreau, Andre Heinecke, Michael Meyer,
+Matthew Mundell, Timo Pollmeier, Thanga Prakash, Jan-Oliver Wagner and Michael
+Wiegand.
+
+Main changes compared to the 7.0 series:
+* The minimum required version of GnuTLS has been raised to 2.12.
+* The knowledge base (KB) back end is now based on Redis. This make the hiredis
+  library a mandatory prerequisite.
+* The libssh library is now a mandatory prerequisite.
+* OpenVAS Libraries now uses the openvas-smb module for optional WMI and related
+  functionality.
+* Optional SNMP support has been added, this make Net-SNMP an optional
+  prerequisite.
+* Support for using ECDSA SSH keys has been added. This requires libssh 0.6.0 or
+  newer.
+* Support for PKCS#8 encrypted SSH keys has been added.
+* Support for the new OpenVAS Scanner Protocol (OSP) has been added.
+* New option "-B" for command line tool "openvas-nasl" to make the script run in
+  description mode first.
+* Export file names are now more customizable.
+* The built-in find_service plugin now sends a Host header with HTTP GET
+  requests.
+* The Host header for HTTP(S) requests will no longer include the port number if
+  the port is 80 or 443 respectively.
+* The public key part for SSH credentials is no longer required as it is
+  redundant.
+* Support for the obsolete OMP rcfile element has been removed.
+* Support for the obsolete target locators concept has been removed.
+* Support for pausing scan tasks has been removed.
+* Support for the scanner option "ntp_short_status" has been removed. This was a
+  condensed syntax for OTP "STATUS" command.
+* NVTi cache files no longer include the "src" element.
+* The "action" element is no longer included in the OTP "STATUS" response.
+* Issues which caused some task properties to not be transferred correctly to
+  scan slaves have been fixed.
+* Significant memory consumption reduction of which primarily OpenVAS Scanner
+  benefits from.
+* Library checks during package configuration have been improved and are now
+  more comprehensive and consistent.
+* Handling of linker and compiler flags during package configuration has been
+  improved and simplified.
+* The build process has been cleaned up.
+* The User-Agent used for HTTP requests has been updated.
+* Handling of user specific severity values has been improved.
+* Handling of IPv6 IPs has been improved.
+* The strategy for retrying GnuTLS handshakes has been improved.
+* Improved password policy warning handling.
+* Improved logging.
+* Various code quality improvements based on automatic and manual code
+  analysis.
+
+Main changes compared to 8.0+beta6:
+* An issue which caused some task properties to not be transferred correctly to
+  scan slaves has been fixed.
+* An issue which caused the SSH key type to be missing from exported SSH public
+  keys has been fixed.
+* An issue with caused SSH credentials from the knowledge base to incorrectly
+  take precedence over those supplied as function arguments has been fixed.
+* Support for PKCS#8 encrypted SSH keys has been added.
+* SSH support has been improved.
+* OMP support has been improved.
+* Code cleanups.
+
+
 openvas-libraries 8.0+beta6 (2015-02-11)
 
 This release is the sixth beta version of the next major release of

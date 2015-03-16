@@ -1,3 +1,11 @@
+2015-03-16  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the openvas-libraries 8.0.0 release.
+
+	* CHANGES: Updated.
+
+	* CMakeLists.txt: Switch version scheme.
+
 2015-03-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/plugutils.c (get_plugin_preference): Improve code style.
