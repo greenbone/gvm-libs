@@ -91,24 +91,28 @@ snmp_get (struct snmp_session *session, const char *oid_str, char **result)
  *
  * param[in]    peername    Target host in [protocol:]address[:port] format.
  * param[in]    username    Username value.
- * param[in]    password    Password value.
+ * param[in]    authpass    Authentication password.
+ * param[in]    authproto   Authentication protocol. 0 for md5, 1 for sha1.
+ * param[in]    privpass    Privacy password.
+ * param[in]    privproto   Privacy protocol. 0 for des, 1 for aes.
  * param[in]    oid_str     OID of value to get.
- * param[in]    algorithm   md5 or sha1.
  * param[out]   result      Result of query.
  *
  * @return 0 if success and result value, -1 otherwise.
  */
 static int
-snmpv3_get (const char *peername, const char *username, const char *password,
-            const char *oid_str, int algorithm, char **result)
+snmpv3_get (const char *peername, const char *username, const char *authpass,
+            int authproto, const char *privpass, int privproto,
+            const char *oid_str, char **result)
 {
   struct snmp_session session;
 
   assert (peername);
   assert (username);
-  assert (password);
+  assert (authpass);
+  assert (authproto == 0 || authproto == 1);
   assert (oid_str);
-  assert (algorithm == 0 || algorithm == 1);
+  assert (result);
 
   init_snmp ("openvas");
   snmp_sess_init (&session);
@@ -117,8 +121,11 @@ snmpv3_get (const char *peername, const char *username, const char *password,
   session.securityName = (char *) username;
   session.securityNameLen = strlen (session.securityName);
 
-  session.securityLevel = SNMP_SEC_LEVEL_AUTHNOPRIV;
-  if (algorithm == 0)
+  if (privpass)
+      session.securityLevel = SNMP_SEC_LEVEL_AUTHPRIV;
+  else
+    session.securityLevel = SNMP_SEC_LEVEL_AUTHNOPRIV;
+  if (authproto == 0)
     {
       session.securityAuthProto = usmHMACMD5AuthProtocol;
       session.securityAuthProtoLen = USM_AUTH_PROTO_MD5_LEN;
@@ -130,13 +137,36 @@ snmpv3_get (const char *peername, const char *username, const char *password,
     }
   session.securityAuthKeyLen = USM_AUTH_KU_LEN;
   if (generate_Ku(session.securityAuthProto, session.securityAuthProtoLen,
-                  (u_char *) password, strlen (password),
+                  (u_char *) authpass, strlen (authpass),
                   session.securityAuthKey, &session.securityAuthKeyLen)
       != SNMPERR_SUCCESS)
    {
-     log_legacy_write ("generate_Ku: Error");
+     *result = g_strdup ("generate_Ku: Error");
      return -1;
    }
+  if (privpass)
+    {
+      if (privproto)
+        {
+          session.securityPrivProto = usmAESPrivProtocol;
+          session.securityPrivProtoLen = USM_PRIV_PROTO_AES_LEN;
+        }
+      else
+        {
+          session.securityPrivProto = usmDESPrivProtocol;
+          session.securityPrivProtoLen = USM_PRIV_PROTO_DES_LEN;
+        }
+      session.securityPrivKeyLen = USM_PRIV_KU_LEN;
+      if (generate_Ku
+           (session.securityAuthProto, session.securityAuthProtoLen,
+            (unsigned char *) privpass, strlen(privpass),
+            session.securityPrivKey, &session.securityPrivKeyLen)
+          != SNMPERR_SUCCESS)
+        {
+          *result = g_strdup ("generate_Ku: Error");
+          return -1;
+        }
+    }
 
   return snmp_get (&session, oid_str, result);
 }
@@ -244,31 +274,47 @@ nasl_snmpv1_get (lex_ctxt *lexic)
 tree_cell *
 nasl_snmpv3_get (lex_ctxt *lexic)
 {
-  const char *proto, *username, *password, *algorithm, *oid_str;
+  const char *proto, *username, *authpass, *authproto, *oid_str;
+  const char *privpass, *privproto;
   char *result = NULL, peername[2048];
-  int port, ret;
+  int port, ret, aproto, pproto = 0;
 
   port = get_int_var_by_name (lexic, "port", -1);
   proto = get_str_var_by_name (lexic, "protocol");
   username = get_str_var_by_name (lexic, "username");
-  password = get_str_var_by_name (lexic, "password");
+  authpass = get_str_var_by_name (lexic, "authpass");
   oid_str = get_str_var_by_name (lexic, "oid");
-  algorithm = get_str_var_by_name (lexic, "algorithm");
-  if (!proto || !username || !password || !oid_str || !algorithm)
+  authproto = get_str_var_by_name (lexic, "authproto");
+  privpass = get_str_var_by_name (lexic, "privpass");
+  privproto = get_str_var_by_name (lexic, "privproto");
+  if (!proto || !username || !authpass || !oid_str || !authproto)
     return array_from_snmp_result (-2, "Missing function argument");
   if (port < 0 || port > 65535)
     return array_from_snmp_result (-2, "Invalid port value");
   if (!proto_is_valid (proto))
     return array_from_snmp_result (-2, "Invalid protocol value");
+  if ((privpass && !privproto) || (!privpass && privproto))
+    return array_from_snmp_result (-2, "Missing privproto or privpass");
+  if (!strcasecmp (authproto, "md5"))
+    aproto = 0;
+  else if (!strcasecmp (authproto, "sha1"))
+    aproto = 1;
+  else
+    return array_from_snmp_result (-2, "authproto should be md5 or sha1");
+  if (privproto)
+    {
+      if (!strcasecmp (privproto, "des"))
+        pproto = 0;
+      else if (!strcasecmp (privproto, "aes"))
+        pproto = 1;
+      else
+        return array_from_snmp_result (-2, "privproto should be des or aes");
+    }
+
   g_snprintf (peername, sizeof (peername), "%s:%s:%d", proto,
               plug_get_host_ip_str (lexic->script_infos), port);
-  if (!strcasecmp (algorithm, "md5"))
-    ret = snmpv3_get (peername, username, password, oid_str, 0, &result);
-  else if (!strcasecmp (algorithm, "sha1"))
-    ret = snmpv3_get (peername, username, password, oid_str, 1, &result);
-  else
-    return array_from_snmp_result
-            (-2, "snmpv3_get: algorithm should be md5 or sha1");
+  ret = snmpv3_get (peername, username, authpass, aproto, privpass, pproto,
+                    oid_str, &result);
   return array_from_snmp_result (ret, result);
 }
 

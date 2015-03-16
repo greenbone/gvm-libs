@@ -1,3 +1,13 @@
+2015-03-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_snmp.c (snmpv3_get): Add privacy password and privacy
+	protocol support, rename password and algorithm to authpass and
+	authproto for consistency.
+	(nasl_snmpv3_get): Add privpass and privproto arguments and add adequate
+	values checks. Rename password to authpass and algorithm to authproto.
+
+	* nasl/nasl_init.c (libfuncs): Adjust snmpv3_get() function arguments.
+
 2015-03-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_snmp.c (snmp_get): Return integer for success or failure,
