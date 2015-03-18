@@ -38,7 +38,8 @@
 
 #include <pwd.h>
 #include <unistd.h>
-
+#include <sys/types.h>
+#include <grp.h>
 
 /**
  * @brief Sets an error and return \param errorcode.
@@ -89,14 +90,21 @@ drop_privileges (gchar * username, GError ** error)
     {
       if ((user_pw = getpwnam (username)))
         {
+          if (initgroups (username, user_pw->pw_gid) != 0)
+            return drop_privileges_error
+                    (error,
+                     OPENVAS_DROP_PRIVILEGES_FAIL_SUPPLEMENTARY,
+                     "Failed to drop supplementary groups privileges!\n");
           if (setgid (user_pw->pw_gid) != 0)
-            return drop_privileges_error (error,
-                                          OPENVAS_DROP_PRIVILEGES_FAIL_DROP_GID,
-                                          "Failed to drop group privileges!\n");
+            return drop_privileges_error
+                    (error,
+                     OPENVAS_DROP_PRIVILEGES_FAIL_DROP_GID,
+                     "Failed to drop group privileges!\n");
           if (setuid (user_pw->pw_uid) != 0)
-            return drop_privileges_error (error,
-                                          OPENVAS_DROP_PRIVILEGES_FAIL_DROP_UID,
-                                          "Failed to drop user privileges!\n");
+            return drop_privileges_error
+                    (error,
+                     OPENVAS_DROP_PRIVILEGES_FAIL_DROP_UID,
+                     "Failed to drop user privileges!\n");
         }
       else
         {

@@ -1,3 +1,10 @@
+2015-03-18  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* base/drop_privileges.c (drop_privileges): Drop supplementary groups
+	too.
+
+	* base/drop_privileges.h: Add define accordingly.
+
 2015-03-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_snmp.c (snmpv3_get): Add privacy password and privacy
