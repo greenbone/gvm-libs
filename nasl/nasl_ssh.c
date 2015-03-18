@@ -1551,7 +1551,7 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
               int to_stdout, int to_stderr, membuf_t *response,
               membuf_t *compat_buf)
 {
-  int rc;
+  int rc, retry = 60;
   char buffer[1024];
   ssh_channel channel;
 
@@ -1562,7 +1562,7 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
       return SSH_ERROR;
     }
 
-  if ((rc = ssh_channel_open_session (channel)))
+  if (ssh_channel_open_session (channel))
     {
       /* FIXME: Handle SSH_AGAIN.  */
       if (verbose)
@@ -1572,7 +1572,7 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
       return SSH_ERROR;
     }
 
-  if ((rc = ssh_channel_request_exec (channel, cmd)))
+  if (ssh_channel_request_exec (channel, cmd))
     {
       /* FIXME: Handle SSH_AGAIN.  */
       if (verbose)
@@ -1582,11 +1582,11 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
       ssh_channel_free (channel);
       return SSH_ERROR;
     }
-  rc = 1;
-  while (rc > 0)
+  /* XXX: ssh_channel_read_timeout() is available for LIBSSH > 0.6. */
+  while (ssh_channel_is_open (channel) && !ssh_channel_is_eof (channel)
+         && retry-- > 0)
     {
-      if ((rc = ssh_channel_read_timeout
-                 (channel, buffer, sizeof buffer, 1, 15000)) > 0)
+      if ((rc = ssh_channel_read_nonblocking (channel, buffer, sizeof buffer, 1)) > 0)
         {
           if (to_stderr)
             put_membuf (response, buffer, rc);
@@ -1595,13 +1595,7 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
         }
       if (rc == SSH_ERROR)
         goto exec_err;
-    }
-
-  rc = 1;
-  while (rc > 0)
-    {
-      if ((rc = ssh_channel_read_timeout
-                 (channel, buffer, sizeof buffer, 0, 15000)) > 0)
+      if ((rc = ssh_channel_read_nonblocking (channel, buffer, sizeof buffer, 0)) > 0)
         {
           compat_mode = 0;
           if (to_stdout)
@@ -1609,6 +1603,7 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
         }
       if (rc == SSH_ERROR)
         goto exec_err;
+      usleep (250000);
     }
   rc = SSH_OK;
 

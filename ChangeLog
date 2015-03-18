@@ -1,5 +1,12 @@
 2015-03-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Backport r21613 and r21629.
+
+	* nasl/nasl_ssh.c (exec_ssh_cmd): Handle reading response loop using
+	nonblocking interface and passive waiting to handle infinite loop case.
+
+2015-03-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Backport r21612.
 
 	* nasl/nasl_ssh.c (exec_ssh_command): New function. Set timeout and
