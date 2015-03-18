@@ -1531,7 +1531,93 @@ nasl_ssh_userauth (lex_ctxt *lexic)
   }
 }
 
+/**
+ * @brief Execute an ssh command.
+ *
+ * @param[in]   session     SSH session.
+ * @param[in]   cmd         Command to execute.
+ * @param[in]   verbose     1 for verbose mode, 0 otherwise.
+ * @param[in]   compat_mode 1 for compatibility mode, 0 otherwise.
+ * @param[in]   to_stdout   1 to return command output to stdout.
+ * @param[in]   to_stderr   1 to return command output to stderr.
+ * @param[out]  response    Response buffer.
+ * @param[out]  compat_buf  Compatibility buffer.
+ *
+ *
+ * @return SSH_OK if success, SSH_ERROR otherwise.
+ */
+static int
+exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
+              int to_stdout, int to_stderr, membuf_t *response,
+              membuf_t *compat_buf)
+{
+  int rc;
+  char buffer[1024];
+  ssh_channel channel;
 
+  if ((channel = ssh_channel_new (session)) == NULL)
+    {
+      log_legacy_write ("ssh_channel_new failed: %s\n",
+                        ssh_get_error (session));
+      return SSH_ERROR;
+    }
+
+  if ((rc = ssh_channel_open_session (channel)))
+    {
+      /* FIXME: Handle SSH_AGAIN.  */
+      if (verbose)
+        log_legacy_write ("ssh_channel_open_session failed: %s\n",
+                          ssh_get_error (session));
+      ssh_channel_free (channel);
+      return SSH_ERROR;
+    }
+
+  if ((rc = ssh_channel_request_exec (channel, cmd)))
+    {
+      /* FIXME: Handle SSH_AGAIN.  */
+      if (verbose)
+        log_legacy_write ("ssh_channel_request_exec failed for '%s': %s\n",
+                          cmd, ssh_get_error (session));
+      ssh_channel_close (channel);
+      ssh_channel_free (channel);
+      return SSH_ERROR;
+    }
+  rc = 1;
+  while (rc > 0)
+    {
+      if ((rc = ssh_channel_read_timeout
+                 (channel, buffer, sizeof buffer, 1, 15000)) > 0)
+        {
+          if (to_stderr)
+            put_membuf (response, buffer, rc);
+          if (compat_mode)
+            put_membuf (compat_buf, buffer, rc);
+        }
+      if (rc == SSH_ERROR)
+        goto exec_err;
+    }
+
+  rc = 1;
+  while (rc > 0)
+    {
+      if ((rc = ssh_channel_read_timeout
+                 (channel, buffer, sizeof buffer, 0, 15000)) > 0)
+        {
+          compat_mode = 0;
+          if (to_stdout)
+            put_membuf (response, buffer, rc);
+        }
+      if (rc == SSH_ERROR)
+        goto exec_err;
+    }
+  rc = SSH_OK;
+
+exec_err:
+  ssh_channel_send_eof (channel);
+  ssh_channel_close (channel);
+  ssh_channel_free (channel);
+  return rc;
+}
 
 /**
  * @brief Run a command via ssh.
@@ -1592,11 +1678,8 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   ssh_session session;
   int verbose;
   char *cmd;
-  ssh_channel channel;
   int rc;
-  char buffer[1024];
   membuf_t response, compat_buf;
-  int nread;
   size_t len = 0;
   tree_cell *retc;
   char *p;
@@ -1637,40 +1720,7 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
     to_stderr = 0;
 
 
-  channel = ssh_channel_new (session);
-  if (!channel)
-    {
-      log_legacy_write ("ssh_channel_new failed: %s\n",
-                        ssh_get_error (session));
-      return NULL;
-    }
-
-  rc = ssh_channel_open_session (channel);
-  if (rc)
-    {
-      /* FIXME: Handle SSH_AGAIN.  */
-      if (verbose)
-        log_legacy_write ("ssh_channel_open_session failed: %s\n",
-                          ssh_get_error (session));
-      ssh_channel_send_eof (channel);
-      ssh_channel_close (channel);
-      ssh_channel_free (channel);
-      return NULL;
-    }
-
-  rc = ssh_channel_request_exec (channel, cmd);
-  if (rc)
-    {
-      /* FIXME: Handle SSH_AGAIN.  */
-      if (verbose)
-        log_legacy_write ("ssh_channel_request_exec failed for '%s': %s\n",
-                          cmd, ssh_get_error (session));
-      ssh_channel_send_eof (channel);
-      ssh_channel_close (channel);
-      ssh_channel_free (channel);
-      return NULL;
-    }
-
+  memset (&compat_buf, '\0', sizeof (compat_buf));
   /* Allocate some space in advance.  Most commands won't output too
      much and thus 512 bytes (6 standard terminal lines) should often
      be sufficient.  */
@@ -1683,39 +1733,10 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   else
     compat_buf_inuse = 0;
 
-  do
+  rc = exec_ssh_cmd (session, cmd, verbose, compat_mode, to_stdout, to_stderr,
+                     &response, &compat_buf);
+  if (rc == SSH_ERROR)
     {
-      nread = ssh_channel_poll (channel, 1);
-      if (nread > 0
-          && (nread = ssh_channel_read (channel, buffer, sizeof buffer, 1)) > 0)
-        {
-          if (to_stderr)
-            put_membuf (&response, buffer, nread);
-          if (compat_mode)
-            put_membuf (&compat_buf, buffer, nread);
-        }
-      else if (nread == SSH_ERROR)
-        break;
-
-      nread = ssh_channel_poll (channel, 0);
-      if (nread > 0
-          && (nread = ssh_channel_read (channel, buffer, sizeof buffer, 0)) > 0)
-        {
-          compat_mode = 0;
-          if (to_stdout)
-            put_membuf (&response, buffer, nread);
-        }
-      else if (nread == SSH_ERROR)
-        break;
-    }
-  while (!ssh_channel_is_eof (channel));
-
-  if (nread == SSH_ERROR)
-    {
-      if (verbose)
-        log_legacy_write ("ssh_channel_read failed for session id %d: %s\n",
-                          session_id, ssh_get_error (session));
-      ssh_channel_send_eof (channel);
       if (compat_buf_inuse)
         {
           p = get_membuf (&compat_buf, NULL);
@@ -1723,14 +1744,8 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
         }
       p = get_membuf (&response, NULL);
       efree (&p);
-      ssh_channel_close (channel);
-      ssh_channel_free (channel);
       return NULL;
     }
-
-  ssh_channel_send_eof (channel);
-  ssh_channel_close (channel);
-  ssh_channel_free (channel);
 
   /* Append the compatibility buffer to the output.  */
   if (compat_buf_inuse)

@@ -1,3 +1,12 @@
+2015-03-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r21612.
+
+	* nasl/nasl_ssh.c (exec_ssh_command): New function. Set timeout and
+	rework response reading loop to fix infinite loop case.
+	(nasl_ssh_request_exec): Refactor code to use exec_ssh_command()
+	accordingly.
+
 2015-03-12  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* doc/wmi-howto.txt: Document location of latest patch and describe
