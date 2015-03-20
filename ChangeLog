@@ -1,5 +1,10 @@
 2015-03-20  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* libopenvas_misc.pc.in: Set libgcrypt as "Libs.private" so pkg-config
+	knows it is needed for static linking against libopenvas_misc.
+
+2015-03-20  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/CMakeLists.txt: Build test-hosts only with dynamic linking for
 	the time being due to issue with statically linking the binary. Add
 	TODO.
