@@ -86,13 +86,11 @@ endif (OPENVAS_PID_DIR)
 add_custom_indent_targets (${FILES})
 
 # Link the test-hosts executable
-add_executable (test-hosts test-hosts.c)
+# TODO: This is currently only built for BUILD_SHARED
 if (BUILD_SHARED)
+  add_executable (test-hosts test-hosts.c)
   target_link_libraries (test-hosts openvas_base_shared openvas_misc_shared ${GLIB_LDFLAGS})
 endif (BUILD_SHARED)
-if (BUILD_STATIC)
-  target_link_libraries (test-hosts openvas_base_static openvas_misc_static ${GLIB_LDFLAGS})
-endif (BUILD_STATIC)
 
 ## Install
 if (BUILD_STATIC)

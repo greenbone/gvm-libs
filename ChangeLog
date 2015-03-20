@@ -1,5 +1,11 @@
 2015-03-20  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/CMakeLists.txt: Build test-hosts only with dynamic linking for
+	the time being due to issue with statically linking the binary. Add
+	TODO.
+
+2015-03-20  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* libopenvas_base.pc.in: Make gio dependency visible for pkg-config.
 
 2015-03-18  Matthew Mundell <matthew.mundell@greenbone.net>
