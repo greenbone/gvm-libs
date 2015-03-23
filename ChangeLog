@@ -1,5 +1,13 @@
 2015-03-23  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Fix includes of math.h.
+
+	* nasl/nasl_builtin_openvas_tcp_scanner.c: Add reason for include.
+
+	* nasl/nasl_scanner_glue.c: Remove superfluous include.
+
+2015-03-23  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* nasl/CMakeLists.txt: Remove duplicate flags.
 
 2015-03-23  Michael Wiegand <michael.wiegand@greenbone.net>

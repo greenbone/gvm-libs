@@ -31,7 +31,6 @@
 #include <string.h>             /* for strcmp */
 #include <sys/stat.h>           /* for stat */
 #include <unistd.h>             /* for close */
-#include <math.h>
 
 #include <glib.h>
 

@@ -43,7 +43,7 @@
 #include <netinet/ip.h>
 #endif
 #include <limits.h>
-#include <math.h>
+#include <math.h>         /* for sqrt(), floor() */
 
 #if ! defined FD_SETSIZE || FD_SETSIZE > 1024
 #define GRAB_MAX_SOCK		1024
