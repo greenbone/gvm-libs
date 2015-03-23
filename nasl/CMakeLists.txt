@@ -125,7 +125,7 @@ if (BUILD_SHARED)
   set_target_properties (openvas_nasl_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 # line bellow is needed so it also works with no-undefined which is e.g. used by Mandriva
   target_link_libraries (openvas_nasl_shared openvas_base_shared openvas_misc_shared
-                         ${GLIB_LDFLAGS} ${GLIB_LDFLAGS} ${GPGME_LDFLAGS} m
+                         ${GLIB_LDFLAGS} ${GPGME_LDFLAGS} m
                          ${OPENVAS_WMICLIENT_LDFLAGS} ${OPENVAS_WINCMD_LDFLAGS}
                          ${KSBA_LDFLAGS} ${SNMP_LDFLAGS})
 endif (BUILD_SHARED)

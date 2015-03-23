@@ -1,5 +1,9 @@
 2015-03-23  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* nasl/CMakeLists.txt: Remove duplicate flags.
+
+2015-03-23  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* INSTALL: Document what needs to be done to build a statically linked
 	version of OpenVAS Libaries.
 
