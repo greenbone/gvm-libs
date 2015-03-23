@@ -1,3 +1,8 @@
+2015-03-23  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* INSTALL: Document what needs to be done to build a statically linked
+	version of OpenVAS Libaries.
+
 2015-03-20  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* libopenvas_misc.pc.in: Set libgcrypt as "Libs.private" so pkg-config
