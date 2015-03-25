@@ -1,3 +1,14 @@
+2015-03-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_file.c (openvas_export_file_name): Remove useless
+	variables values setting.
+
+	* nasl/nasl_packet_forgery.c (set_tcp_elements, nasl_send_packets),
+	nasl/nasl_grammar.y (mylex): Fix null pointer checks.
+
+	* misc/internal_com.h (INTERNAL_COMM_CTRL_STOP): Remove inused
+	definition.
+
 2015-03-25  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* base/openvas_file.c (openvas_export_file_name): Check that strings are

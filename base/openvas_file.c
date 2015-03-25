@@ -253,10 +253,8 @@ openvas_export_file_name (const char* fname_format, const char* username,
   int format_state = 0;
   char *ret;
 
-  now_date_str = NULL;
   creation_date_str = NULL;
   modification_date_str = NULL;
-  now_time_str = NULL;
   creation_time_str = NULL;
   modification_time_str = NULL;
 

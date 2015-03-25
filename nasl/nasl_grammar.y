@@ -640,8 +640,8 @@ mylex(lvalp, parm)
   int		c, st = ST_START, len, r;
   int		x, i;
 
-  if ( parm == NULL )
-	return -1;
+  if (!ctx)
+    return -1;
 
   fp = ctx->fp;
   p = ctx->buffer;

@@ -32,6 +32,5 @@
 
 #define INTERNAL_COMM_CTRL_FINISHED (1 << 0)
 #define INTERNAL_COMM_CTRL_ACK      (1 << 1)
-#define INTERNAL_COMM_CTRL_STOP     (1 << 2)
 
 #endif /* not _INTERNAL_COM_H */

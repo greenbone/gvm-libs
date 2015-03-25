@@ -648,7 +648,7 @@ set_tcp_elements (lex_ctxt * lexic)
   int data_len = get_local_var_size_by_name (lexic, "data");
   char *npkt;
 
-  if (pkt == NULL)
+  if (!ip)
     {
       nasl_perror (lexic,
                    "set_tcp_elements : Invalid value for the argument 'tcp'\n");
@@ -1562,7 +1562,7 @@ nasl_send_packet (lex_ctxt * lexic)
       bzero (&sockaddr, sizeof (struct sockaddr_in));
       sockaddr.sin_family = AF_INET;
       sockaddr.sin_addr = sip->ip_dst;
-      if (dstip != NULL && sockaddr.sin_addr.s_addr != inaddr.s_addr)
+      if (sockaddr.sin_addr.s_addr != inaddr.s_addr)
         {
           char txt1[64], txt2[64];
           strncpy (txt1, inet_ntoa (sockaddr.sin_addr), sizeof (txt1));
