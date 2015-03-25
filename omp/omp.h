@@ -279,6 +279,8 @@ int omp_get_targets (gnutls_session_t *, const char *, int, int, entity_t *);
 
 int omp_get_report_ext (gnutls_session_t *, omp_get_report_opts_t, entity_t *);
 
+int omp_delete_port_list_ext (gnutls_session_t *, const char *, omp_delete_opts_t);
+
 int omp_delete_task (gnutls_session_t *, const char *);
 
 int omp_delete_task_ext (gnutls_session_t *, const char *, omp_delete_opts_t);

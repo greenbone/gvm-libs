@@ -1,3 +1,9 @@
+2015-03-25  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_delete_port_list_ext): New function.
+
+	* omp/omp.h: Add header accordingly.
+
 2015-03-23  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Fix includes of math.h.

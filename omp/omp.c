@@ -1242,6 +1242,29 @@ omp_get_report_ext (gnutls_session_t* session,
 }
 
 /**
+ * @brief Delete a port list.
+ *
+ * @param[in]   session     Pointer to GNUTLS session.
+ * @param[in]   id          UUID of port list.
+ * @param[in]   opts        Struct containing the options to apply.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+omp_delete_port_list_ext (gnutls_session_t* session,
+                          const char* id,
+                          omp_delete_opts_t opts)
+{
+  if (openvas_server_sendf (session,
+                            "<delete_port_list port_list_id=\"%s\" ultimate=\"%d\"/>",
+                            id, opts.ultimate)
+      == -1)
+    return -1;
+
+  return check_response (session);
+}
+
+/**
  * @brief Remove a report.
  *
  * @param[in]  session   Pointer to GNUTLS session.
