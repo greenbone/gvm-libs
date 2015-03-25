@@ -1,5 +1,11 @@
 2015-03-25  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* base/openvas_file.c (openvas_export_file_name): Check that strings are
+	long enough beofre g_strndup.  Check if strptime return is NULL before
+	calling strlen on it.  Add missing space.
+
+2015-03-25  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* omp/omp.c (omp_delete_port_list_ext): New function.
 
 	* omp/omp.h: Add header accordingly.

@@ -251,6 +251,7 @@ openvas_export_file_name (const char* fname_format, const char* username,
   gchar *fname_point;
   GString *file_name_buf;
   int format_state = 0;
+  char *ret;
 
   now_date_str = NULL;
   creation_date_str = NULL;
@@ -275,13 +276,15 @@ openvas_export_file_name (const char* fname_format, const char* username,
   creation_date_short = NULL;
   modification_date_short = NULL;
 
-  if (creation_iso_time)
+  if (creation_iso_time && (strlen (creation_iso_time) >= 19))
     creation_date_short = g_strndup (creation_iso_time, 19);
 
   if (creation_date_short
-      && (strlen (strptime (creation_date_short,
-                            "%Y-%m-%dT%H:%M:%S", &creation_time))
-          == 0))
+      && (((ret = strptime (creation_date_short,
+                            "%Y-%m-%dT%H:%M:%S",
+                            &creation_time))
+           == NULL)
+          || (strlen (ret) == 0)))
     {
       creation_date_str
         = g_strdup_printf ("%04d%02d%02d",
@@ -295,13 +298,15 @@ openvas_export_file_name (const char* fname_format, const char* username,
                             creation_time.tm_sec);
     }
 
-  if (modification_iso_time)
+  if (modification_iso_time && (strlen (modification_iso_time) >= 19))
     modification_date_short = g_strndup (modification_iso_time, 19);
 
   if (modification_date_short
-      && (strlen (strptime (modification_date_short,
-                            "%Y-%m-%dT%H:%M:%S", &modification_time))
-          == 0))
+      && (((ret = strptime (modification_date_short,
+                            "%Y-%m-%dT%H:%M:%S",
+                            &modification_time))
+           == NULL)
+          || (strlen (ret) == 0)))
     {
       modification_date_str
         = g_strdup_printf ("%04d%02d%02d",
@@ -327,7 +332,7 @@ openvas_export_file_name (const char* fname_format, const char* username,
 
   file_name_buf = g_string_new ("");
 
-  fname_point = (char*)fname_format;
+  fname_point = (char*) fname_format;
 
   while (format_state >= 0 && *fname_point != '\0')
     {
