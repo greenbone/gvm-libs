@@ -84,15 +84,6 @@ const char *get_encaps_through (openvas_encaps_t);
 /* Additional functions -- should not be used by the plugins */
 int open_sock_opt_hn (const char *, unsigned int, int, int, int);
 
-#ifdef __GNUC__
-void auth_printf (struct arglist *, char *, ...) __attribute__ ((format (printf, 2, 3)));       /* RATS: ignore */
-#else
-void auth_printf (struct arglist *, char *, ...);
-#endif
-
-void auth_send (struct arglist *, char *);
-char *auth_gets (struct arglist *, char *, size_t);
-
 int openvas_SSL_init (void);
 
 int stream_set_buffer (int, int);
