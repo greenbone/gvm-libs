@@ -2532,8 +2532,7 @@ plugin_run_find_service (lex_ctxt * lexic)
   int port_per_son;
   int i;
   struct arglist *globals = arg_get_value (desc, "globals");
-  int unix_sock =
-    GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
+  int unix_sock = arg_get_value_int (globals, "global_socket");
   int test_ssl = 1;
   char *key = get_plugin_preference (oid, KEY_FILE);
   char *cert = get_plugin_preference (oid, CERT_FILE);
@@ -2674,7 +2673,7 @@ plugin_run_find_service (lex_ctxt * lexic)
               int soc;
 
               kb_lnk_reset (kb);
-              soc = GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
+              soc = arg_get_value_int (globals, "global_socket");
               close (sons_pipe[i][1]);
               close (soc);
               soc = dup2 (sons_pipe[i][0], 4);

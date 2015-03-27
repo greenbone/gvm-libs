@@ -229,6 +229,12 @@ arg_set_value (arglst, name, length, value)
     return -1;
 }
 
+int
+arg_get_value_int (struct arglist *args, const char *name)
+{
+  return GPOINTER_TO_SIZE (arg_get_value (args, name));
+}
+
 void *
 arg_get_value (args, name)
      struct arglist *args;

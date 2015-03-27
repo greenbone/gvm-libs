@@ -117,7 +117,7 @@ plug_set_launch (struct arglist *desc, int launch)
 int
 plug_get_launch (struct arglist *desc)
 {
-  return (GPOINTER_TO_SIZE (arg_get_value (desc, "ENABLED")));
+  return arg_get_value_int (desc, "ENABLED");
 }
 
 void
@@ -480,7 +480,7 @@ proto_post_wrapped (const char *oid, struct arglist *desc, int port, const char 
               idbuffer);
 
   mark_post (oid, desc, what, action);
-  soc = GPOINTER_TO_SIZE (arg_get_value (desc, "SOCKET"));
+  soc = arg_get_value_int (desc, "SOCKET");
   /* Convert to UTF-8 before sending to Manager. */
   data = g_convert (buffer, -1, "UTF-8", "ISO_8859-1", NULL, &length, NULL);
   internal_send (soc, data, INTERNAL_COMM_MSG_TYPE_DATA);
@@ -885,7 +885,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
           globals = arg_get_value (args, "globals");
           /* FIXME: Potential problem: If "global_socket" is not set
              we are closing fd 0! */
-          old = GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
+          old = arg_get_value_int (globals, "global_socket");
           close (old);
           soc = dup2 (sockpair[1], 4);
           close (sockpair[1]);
@@ -925,8 +925,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
           struct arglist *globals;
 
           globals = arg_get_value (args, "globals");
-          upstream =
-            GPOINTER_TO_SIZE (arg_get_value (globals, "global_socket"));
+          upstream = arg_get_value_int (globals, "global_socket");
           close (sockpair[1]);
           _plug_get_key_son = pid;
           sig_term (plug_get_key_sighand_term);

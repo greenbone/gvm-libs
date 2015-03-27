@@ -1,5 +1,15 @@
 2015-03-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/arglists.c (arg_get_value_int): New function.
+
+	* misc/arglists.h: Add function prototype.
+
+	* misc/plugutils.c (plug_get_launch, proto_post_wrapped, plug_get_key),
+	nasl/nasl_builtin_find_service.c (plugin_run_find_service),
+	nasl/nasl_misc_funcs.c (nasl_end_denial): Use arg_get_value_int().
+
+2015-03-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_builtin_openvas_tcp_scanner.c (banner_grab): Remove unused
 	hostinfos function argument.
 	(plugin_run_openvas_tcp_scanner): Adjust function call.

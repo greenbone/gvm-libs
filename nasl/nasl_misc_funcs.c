@@ -254,8 +254,7 @@ nasl_start_denial (lex_ctxt * lexic)
 tree_cell *
 nasl_end_denial (lex_ctxt * lexic)
 {
-  int port =
-    GPOINTER_TO_SIZE (arg_get_value (lexic->script_infos, "denial_port"));
+  int port = arg_get_value_int (lexic->script_infos, "denial_port");
   int soc;
   int to = lexic->recv_timeout;
   struct arglist *script_infos = lexic->script_infos;
@@ -268,8 +267,7 @@ nasl_end_denial (lex_ctxt * lexic)
 
   if (!port)
     {
-      int ping =
-        GPOINTER_TO_SIZE (arg_get_value (script_infos, "tcp_ping_result"));
+      int ping = arg_get_value_int (script_infos, "tcp_ping_result");
 
       if (ping)
         return nasl_tcp_ping (lexic);
