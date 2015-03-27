@@ -161,8 +161,7 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	    const int read_timeout,
 	    int		min_cnx,
 	    int		max_cnx,
-	    struct arglist *desc,
-	    struct arglist *hostinfos)
+	    struct arglist *desc)
 {
   char			buf[2048], kb[64];
   int			s, tcpproto, pass;
@@ -1429,7 +1428,7 @@ plugin_run_openvas_tcp_scanner (lex_ctxt * lexic)
   p_addr = arg_get_value(hostinfos, "IP");
   if( p_addr == NULL )
     return NULL; // TODO: before it returned "1";
-  if (banner_grab(p_addr, port_range, timeout, min_cnx, max_cnx, desc, hostinfos) < 0)
+  if (banner_grab(p_addr, port_range, timeout, min_cnx, max_cnx, desc) < 0)
     return NULL; // TODO: before it returned "1";
   plug_set_key(desc, "Host/scanned", ARG_INT, (void*)1);
   plug_set_key(desc, "Host/scanners/openvas_tcp_scanner", ARG_INT, (void*)1);
