@@ -70,28 +70,16 @@ get_host_ip (lex_ctxt * lexic)
 {
   struct arglist *script_infos = lexic->script_infos;
   struct in6_addr *ip = plug_get_host_ip (script_infos);
-  char *txt_ip;
   tree_cell *retc;
-  struct in_addr inaddr;
-  char name[512];
 
   if (ip == NULL)               /* WTF ? */
     {
       return FAKE_CELL;
     }
 
-  inaddr.s_addr = ip->s6_addr32[3];
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_STR;
-  if (IN6_IS_ADDR_V4MAPPED (ip))
-    {
-      txt_ip = g_strdup (inet_ntoa (inaddr));
-    }
-  else
-    {
-      txt_ip = g_strdup (inet_ntop (AF_INET6, ip, name, sizeof (name)));
-    }
-  retc->x.str_val = txt_ip;
+  retc->x.str_val = addr6_as_str (ip);
   retc->size = strlen (retc->x.str_val);
 
   return retc;
@@ -186,10 +174,8 @@ nasl_this_host (lex_ctxt * lexic)
   struct arglist *script_infos = lexic->script_infos;
   tree_cell *retc;
   char hostname[255];
-  char *ret;
   struct in6_addr *ia = plug_get_host_ip (script_infos);
   struct in6_addr in6addr;
-  struct in_addr inaddr;
   struct in6_addr src6;
 
   retc = alloc_tree_cell (0, NULL);
@@ -219,22 +205,8 @@ nasl_this_host (lex_ctxt * lexic)
 
       if (err && !IN6_ARE_ADDR_EQUAL (&src6, &in6addr_any))
         {
-          char *ret;
-
-          if (IN6_IS_ADDR_V4MAPPED (&src6))
-            {
-              inaddr.s_addr = src6.s6_addr32[3];
-              ret =
-                g_strdup (inet_ntop
-                         (AF_INET, &inaddr, hostname, sizeof (hostname)));
-            }
-          else
-            ret =
-              g_strdup (inet_ntop
-                       (AF_INET6, &src6, hostname, sizeof (hostname)));
-
-          retc->x.str_val = ret;
-          retc->size = strlen (ret);
+          retc->x.str_val = addr6_as_str (&src6);
+          retc->size = strlen (retc->x.str_val);
 
           return retc;
         }
@@ -243,17 +215,8 @@ nasl_this_host (lex_ctxt * lexic)
       gethostname (hostname, sizeof (hostname) - 1);
       if (openvas_resolve_as_addr6 (hostname, &in6addr))
         {
-          if (IN6_IS_ADDR_V4MAPPED (&in6addr))
-            {
-              inaddr.s_addr = in6addr.s6_addr32[3];
-              ret = g_strdup (inet_ntop (AF_INET, &inaddr, hostname,
-                                        sizeof (hostname)));
-            }
-          else
-            ret = g_strdup (inet_ntop (AF_INET6, &in6addr, hostname,
-                                      sizeof (hostname)));
-          retc->x.str_val = ret;
-          retc->size = strlen (ret);
+          retc->x.str_val = addr6_as_str (&in6addr);
+          retc->size = strlen (retc->x.str_val);
         }
     }
   return retc;

@@ -99,7 +99,6 @@ nasl_smb_connect (lex_ctxt * lexic)
   struct arglist *script_infos = lexic->script_infos;
   struct in6_addr *host = plug_get_host_ip (script_infos);
   char *ip;
-  char name[512];
   char *username = get_str_local_var_by_name (lexic, "username");
   char *password = get_str_local_var_by_name (lexic, "password");
   char *share = get_str_local_var_by_name (lexic, "share");
@@ -114,15 +113,8 @@ nasl_smb_connect (lex_ctxt * lexic)
       log_legacy_write ("nasl_smb_connect: Invalid input arguments\n");
       return NULL;
     }
-  if (IN6_IS_ADDR_V4MAPPED (host))
-   {
-     struct in_addr v4_addr;
-     v4_addr.s_addr = host->s6_addr32[3];
-     ip = g_strdup (inet_ntoa (v4_addr));
-   }
-  else
-    ip = g_strdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
 
+  ip = addr6_as_str (host);
   if ((strlen (password) == 0) || (strlen (username) == 0)
       || (strlen (ip) == 0) || (strlen (share) == 0))
     {
@@ -379,7 +371,6 @@ nasl_win_cmd_exec (lex_ctxt * lexic)
   struct arglist *script_infos = lexic->script_infos;
   struct in6_addr *host = plug_get_host_ip (script_infos);
   char *ip;
-  char name[512];
   char *res = NULL;
   char *argv[5];
 
@@ -397,17 +388,7 @@ nasl_win_cmd_exec (lex_ctxt * lexic)
       return NULL;
     }
 
-  if (IN6_IS_ADDR_V4MAPPED (host))
-    {
-      struct in_addr v4_addr;
-      v4_addr.s_addr = host->s6_addr32[3];
-      ip = g_strdup (inet_ntoa (v4_addr));
-    }
-  else
-    {
-      ip = g_strdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
-    }
-
+  ip = addr6_as_str (host);
   if ((strlen (password) == 0) || (strlen (username) == 0)
       || strlen (ip) == 0)
     {

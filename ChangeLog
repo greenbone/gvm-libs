@@ -1,3 +1,10 @@
+2015-03-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_host.c (get_host_ip, nasl_this_host), nasl/nasl_smb.c
+	(nasl_smb_connect, nasl_win_cmd_exec), nasl/nasl_wmi.c
+	(nasl_wmi_connect, nasl_wmi_connect_rsop, nasl_wmi_connect_reg): Use
+	addr6_as_str().
+
 2015-03-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/arglists.c (arg_get_value_int): New function.

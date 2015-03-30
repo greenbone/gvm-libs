@@ -150,7 +150,6 @@ nasl_wmi_connect (lex_ctxt * lexic)
   struct arglist *script_infos = lexic->script_infos;
   struct in6_addr *host = plug_get_host_ip (script_infos);
   char *ip;
-  char name[512];
   IMPORT (username);
   IMPORT (password);
   IMPORT(ns);
@@ -171,15 +170,7 @@ nasl_wmi_connect (lex_ctxt * lexic)
       return NULL;
     }
 
-  if (IN6_IS_ADDR_V4MAPPED (host))
-    {
-      struct in_addr v4_addr;
-      v4_addr.s_addr = host->s6_addr32[3];
-      ip = g_strdup (inet_ntoa (v4_addr));
-    }
-  else
-    ip = g_strdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
-
+  ip = addr6_as_str (host);
   if ((strlen (password) == 0) || (strlen (username) == 0)
         || strlen (ip) == 0)
     {
@@ -318,7 +309,6 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
   struct arglist *script_infos = lexic->script_infos;
   struct in6_addr *host = plug_get_host_ip (script_infos);
   char *ip;
-  char name[512];
   IMPORT (username);
   IMPORT (password);
   char *argv[4];
@@ -334,15 +324,7 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
       return NULL;
     }
 
-  if (IN6_IS_ADDR_V4MAPPED (host))
-    {
-      struct in_addr v4_addr;
-      v4_addr.s_addr = host->s6_addr32[3];
-      ip = g_strdup (inet_ntoa (v4_addr));
-    }
-  else
-    ip = g_strdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
-
+  ip = addr6_as_str (host);
   if ((strlen (password) == 0) || (strlen (username) == 0)
       || strlen (ip) == 0)
     {
@@ -444,7 +426,6 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
   struct arglist *script_infos = lexic->script_infos;
   struct in6_addr *host = plug_get_host_ip (script_infos);
   char *ip;
-  char name[512];
   IMPORT (username);
   IMPORT (password);
   char *argv[4];
@@ -460,17 +441,7 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
       return NULL;
     }
 
-  if (IN6_IS_ADDR_V4MAPPED (host))
-    {
-      struct in_addr v4_addr;
-      v4_addr.s_addr = host->s6_addr32[3];
-      ip = g_strdup (inet_ntoa (v4_addr));
-    }
-  else
-    {
-      ip = g_strdup (inet_ntop (AF_INET6, host, name, sizeof (name)));
-    }
-
+  ip = addr6_as_str (host);
   if ((strlen (password) == 0) || (strlen (username) == 0)
       || strlen (ip) == 0)
     {
