@@ -1616,7 +1616,7 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
             {
               snprintf (kb, sizeof (kb), "Banner/%d", port);
               banner = plug_get_key (desc, kb, &type);
-              if (type == ARG_STRING && banner != NULL)
+              if (banner)
                 {
                   banner_len = strlen ((char *) banner);
 #ifdef DEBUG
@@ -1625,7 +1625,6 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
                     inet_ntoa (*p_ip), port, banner_len);
 #endif
                 }
-              g_free (banner);
             }
           if (banner_len > 0)
             {
