@@ -113,11 +113,11 @@ prefs_set (const gchar * key, const gchar * value)
     {
       gchar *old = arg_get_value (global_prefs, key);
       g_free (old);
-      arg_set_value (global_prefs, key, strlen (value), g_strdup (value));
+      arg_set_value (global_prefs, key, g_strdup (value));
       return;
     }
 
-  arg_add_value (global_prefs, key, ARG_STRING, strlen (value), g_strdup (value));
+  arg_add_value (global_prefs, key, ARG_STRING, g_strdup (value));
 }
 
 /**

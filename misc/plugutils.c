@@ -105,12 +105,8 @@ plug_set_dep (struct arglist *desc, const char *depname)
 void
 plug_set_launch (struct arglist *desc, int launch)
 {
-  if (arg_set_value
-      (desc, "ENABLED", sizeof (gpointer), GSIZE_TO_POINTER (launch)))
-    {
-      arg_add_value (desc, "ENABLED", ARG_INT, sizeof (gpointer),
-                     GSIZE_TO_POINTER (launch));
-    }
+  if (arg_set_value (desc, "ENABLED", GSIZE_TO_POINTER (launch)))
+    arg_add_value (desc, "ENABLED", ARG_INT, GSIZE_TO_POINTER (launch));
 }
 
 
@@ -889,10 +885,8 @@ plug_get_key (struct arglist *args, char *name, int *type)
           close (old);
           soc = dup2 (sockpair[1], 4);
           close (sockpair[1]);
-          arg_set_value (globals, "global_socket", sizeof (gpointer),
-                         GSIZE_TO_POINTER (soc));
-          arg_set_value (args, "SOCKET", sizeof (gpointer),
-                         GSIZE_TO_POINTER (soc));
+          arg_set_value (globals, "global_socket", GSIZE_TO_POINTER (soc));
+          arg_set_value (args, "SOCKET", GSIZE_TO_POINTER (soc));
 
           srand48 (getpid () + getppid () + time (NULL)); /* RATS: ignore */
 

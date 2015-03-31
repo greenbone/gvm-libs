@@ -31,7 +31,6 @@ struct arglist
   char *name;
   void *value;
   struct arglist *next;
-  long length;
   int type;
   int hash;
 };
@@ -41,8 +40,8 @@ struct arglist
 #define ARG_INT     3
 #define ARG_ARGLIST 4
 
-void arg_add_value (struct arglist *, const char *, int, long, void *);
-int arg_set_value (struct arglist *, const char *, long, void *);
+void arg_add_value (struct arglist *, const char *, int, void *);
+int arg_set_value (struct arglist *, const char *, void *);
 void *arg_get_value (struct arglist *, const char *);
 int arg_get_value_int (struct arglist *, const char *);
 int arg_get_type (struct arglist *, const char *);

@@ -132,7 +132,7 @@ add_udp_data (struct arglist *script_infos, int soc, char *data, int len)
   if (udp_data == NULL)
     {
       udp_data = g_hash_table_new_full (g_int_hash, g_int_equal, g_free, g_free);
-      arg_add_value (script_infos, "udp_data", ARG_PTR, -1, udp_data);
+      arg_add_value (script_infos, "udp_data", ARG_PTR, udp_data);
     }
 
   g_hash_table_replace (udp_data, (gpointer)key, (gpointer)data_record);

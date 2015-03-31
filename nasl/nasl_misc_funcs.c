@@ -223,11 +223,11 @@ nasl_start_denial (lex_ctxt * lexic)
       if (soc >= 0)
         {
           if (arg_get_value (script_infos, "denial_port") != 0)
-            arg_set_value (script_infos, "denial_port", sizeof (gpointer),
+            arg_set_value (script_infos, "denial_port",
                            GSIZE_TO_POINTER (port));
           else
             arg_add_value (script_infos, "denial_port", ARG_INT,
-                           sizeof (gpointer), GSIZE_TO_POINTER (port));
+                           GSIZE_TO_POINTER (port));
 
           close_stream_connection (soc);
 
@@ -240,10 +240,10 @@ nasl_start_denial (lex_ctxt * lexic)
     alive = p->x.i_val;
 
   if (arg_get_value (script_infos, "tcp_ping_result") != 0)
-    arg_set_value (script_infos, "tcp_ping_result", sizeof (gpointer),
+    arg_set_value (script_infos, "tcp_ping_result",
                    GSIZE_TO_POINTER (alive));
   else
-    arg_add_value (script_infos, "tcp_ping_result", ARG_INT, sizeof (gpointer),
+    arg_add_value (script_infos, "tcp_ping_result", ARG_INT,
                    GSIZE_TO_POINTER (alive));
 
   deref_cell (p);

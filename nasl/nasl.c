@@ -58,9 +58,9 @@ init_hostinfos (char *hostname, struct in6_addr *ip)
   struct arglist *hostinfos;
 
   hostinfos = g_malloc0 (sizeof (struct arglist));
-  arg_add_value (hostinfos, "FQDN", ARG_STRING, strlen (hostname), hostname);
-  arg_add_value (hostinfos, "NAME", ARG_STRING, strlen (hostname), hostname);
-  arg_add_value (hostinfos, "IP", ARG_PTR, sizeof (struct in6_addr), ip);
+  arg_add_value (hostinfos, "FQDN", ARG_STRING, hostname);
+  arg_add_value (hostinfos, "NAME", ARG_STRING, hostname);
+  arg_add_value (hostinfos, "IP", ARG_PTR, ip);
   return (hostinfos);
 }
 
@@ -86,14 +86,14 @@ init (char *hostname, struct in6_addr ip, kb_t kb)
 
   memcpy (pip, &ip, sizeof (struct in6_addr));
 
-  arg_add_value (script_infos, "standalone", ARG_INT, sizeof (int), (void *) 1);
+  arg_add_value (script_infos, "standalone", ARG_INT, (void *) 1);
   prefs_set ("checks_read_timeout", "5");
-  arg_add_value (script_infos, "key", ARG_PTR, -1, kb);
+  arg_add_value (script_infos, "key", ARG_PTR, kb);
 
   if (safe_checks_only != 0)
     prefs_set ("safe_checks", "yes");
 
-  arg_add_value (script_infos, "HOSTNAME", ARG_ARGLIST, -1,
+  arg_add_value (script_infos, "HOSTNAME", ARG_ARGLIST,
                  init_hostinfos (hostname, pip));
 
   return script_infos;
@@ -109,7 +109,7 @@ parse_script_infos (const char *file, struct arglist *script_infos)
   int mode = NASL_EXEC_DESCR | NASL_ALWAYS_SIGNED;
 
   nvti = nvti_new ();
-  arg_add_value (script_infos, "NVTI", ARG_PTR, -1, nvti);
+  arg_add_value (script_infos, "NVTI", ARG_PTR, nvti);
 
   if (exec_nasl_script (script_infos, file, NULL, mode) < 0)
     {
@@ -122,7 +122,7 @@ parse_script_infos (const char *file, struct arglist *script_infos)
   oid = g_strdup (nvti_oid (nvti));
   nvti_free (nvti);
   if (oid)
-    arg_add_value (script_infos, "OID", ARG_STRING, strlen (oid), oid);
+    arg_add_value (script_infos, "OID", ARG_STRING, oid);
 
   return 0;
 }

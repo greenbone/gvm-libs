@@ -2625,7 +2625,7 @@ plugin_run_find_service (lex_ctxt * lexic)
               if (sons_args[i] == NULL)
                 sons_args[i] = g_malloc0 (sizeof (struct arglist));
               arg_add_value (sons_args[i], kbitem_tmp->name, kbitem_tmp->type,
-                             -1, NULL);
+                             NULL);
               j++;
               kbitem_tmp = kbitem_tmp->next;
             }
@@ -2639,8 +2639,7 @@ plugin_run_find_service (lex_ctxt * lexic)
     {
       if (sons_args[i] == NULL)
         sons_args[i] = g_malloc0 (sizeof (struct arglist));
-      arg_add_value (sons_args[i], kbitem_tmp->name, kbitem_tmp->type, -1,
-                     NULL);
+      arg_add_value (sons_args[i], kbitem_tmp->name, kbitem_tmp->type, NULL);
       i++;
       kbitem_tmp = kbitem_tmp->next;
     }
@@ -2677,10 +2676,8 @@ plugin_run_find_service (lex_ctxt * lexic)
               close (soc);
               soc = dup2 (sons_pipe[i][0], 4);
               close (sons_pipe[i][0]);
-              arg_set_value (globals, "global_socket", sizeof (gpointer),
-                             GSIZE_TO_POINTER (soc));
-              arg_set_value (desc, "SOCKET", sizeof (gpointer),
-                             GSIZE_TO_POINTER (soc));
+              arg_set_value (globals, "global_socket", GSIZE_TO_POINTER (soc));
+              arg_set_value (desc, "SOCKET", GSIZE_TO_POINTER (soc));
               signal (SIGTERM, _exit);
               plugin_do_run (desc, sons_args[i], test_ssl);
               exit (0);

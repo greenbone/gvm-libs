@@ -1697,13 +1697,11 @@ exec_nasl_script (struct arglist *script_infos, const char *name,
   nasl_trace_fp = stderr;
 #endif
   if ((old = arg_get_value (script_infos, "script_name")) == NULL)
-    arg_add_value (script_infos, "script_name", ARG_STRING, strlen (name),
-                   g_strdup (name));
+    arg_add_value (script_infos, "script_name", ARG_STRING, g_strdup (name));
   else
     {
       g_free (old);
-      arg_set_value (script_infos, "script_name", strlen (name),
-                     g_strdup (name));
+      arg_set_value (script_infos, "script_name", g_strdup (name));
     }
 
   newdir = g_path_get_dirname (name);

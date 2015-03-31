@@ -167,11 +167,10 @@ cache_dec (const char *name)
 }
 
 void
-arg_add_value (arglst, name, type, length, value)
+arg_add_value (arglst, name, type, value)
      struct arglist *arglst;
      const char *name;
      int type;
-     long length;
      void *value;
 {
   if (!arglst)
@@ -181,7 +180,6 @@ arg_add_value (arglst, name, type, length, value)
 
   arglst->name = cache_inc (name);
   arglst->value = value;
-  arglst->length = length;
   arglst->type = type;
   arglst->next = g_malloc0 (sizeof (struct arglist));
   arglst->hash = mkhash (arglst->name);
@@ -207,10 +205,9 @@ arg_get (struct arglist *arg, const char *name)
 
 
 int
-arg_set_value (arglst, name, length, value)
+arg_set_value (arglst, name, value)
      struct arglist *arglst;
      const char *name;
-     long length;
      void *value;
 {
 
@@ -222,7 +219,6 @@ arg_set_value (arglst, name, length, value)
   if (arglst != NULL)
     {
       arglst->value = value;
-      arglst->length = length;
       return 0;
     }
   else
