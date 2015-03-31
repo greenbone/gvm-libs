@@ -671,7 +671,8 @@ find_session_id (lex_ctxt *lexic, const char *funcname, int *r_slot)
 static void
 do_nasl_ssh_disconnect (int tbl_slot)
 {
-  ssh_channel_close (session_table[tbl_slot].channel);
+  if (session_table[tbl_slot].channel)
+    ssh_channel_close (session_table[tbl_slot].channel);
   ssh_disconnect (session_table[tbl_slot].session);
   ssh_free (session_table[tbl_slot].session);
   session_table[tbl_slot].session_id = 0;
