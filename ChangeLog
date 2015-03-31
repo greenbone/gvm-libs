@@ -1,5 +1,10 @@
 2015-03-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/openvas_networking.c (openvas_ssh_public_from_private): Add key
+	type in LibSSH 0.5 case.
+
+2015-03-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/arglists.c (arg_add_value, arg_set_value): Remove length function
 	parameter.
 

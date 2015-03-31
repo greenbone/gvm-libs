@@ -684,7 +684,9 @@ openvas_ssh_public_from_private (const char *private_key, const char *passphrase
     return NULL;
   data = ssh_string_to_char (sstring);
   datalen = ssh_string_len (sstring);
-  base64 = g_base64_encode ((guchar *) data, datalen);
+  /* LibSSH 0.5 supports ssh-rsa only. */
+  base64 = g_strdup_printf ("ssh-rsa %s",
+                            g_base64_encode ((guchar *) data, datalen));
   ssh_string_free (sstring);
   g_free (data);
   return base64;
