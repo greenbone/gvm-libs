@@ -1,3 +1,23 @@
+openvas-libraries 8.0.1 (2015-04-01)
+
+This is the first maintenance release of the openvas-libraries 8.0 module for
+the Open Vulnerability Assessment System 8 (OpenVAS-8).
+
+It contains some smaller fixes and cleanups, most addressing
+build and dependency issues.
+
+Many thanks to everyone who has contributed to this release:
+ Hani Benhabiles, Matthew Mundell and Michael Wiegand.
+
+Main changes compared to 8.0.0:
+* Small improvements to the configuration and build process
+  to also allow for some static builds.
+* Bugfix to make it work with libssh 0.5 again.
+* Improved SNMP NASL commands.
+* Internal code cleanups and improvements. Among this, removed
+  various unneeded functions and arguments.
+
+
 openvas-libraries 8.0.0 (2015-03-16)
 
 This is the first release of the openvas-libraries 8.0 module for the Open
