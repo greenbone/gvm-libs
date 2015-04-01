@@ -4,7 +4,9 @@
 	(forge_tcp_packet, forge_udp_packet, set_tcp_elements)
 	(set_udp_elements), nasl/nasl_packet_forgery_v6.c (forge_tcp_v6_packet)
 	(set_tcp_v6_elements, forge_udp_v6_packet, set_udp_v6_elements)
-	(forge_icmp_v6_packet): Simplify g_malloc0() calls.
+	(forge_icmp_v6_packet): Simplify g_malloc0() calls for better
+	readability. An extra byte wouldn't hurt and memory allocators do round
+	up to a higher value anyway.
 
 2015-04-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
