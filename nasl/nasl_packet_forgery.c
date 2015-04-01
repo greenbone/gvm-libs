@@ -523,8 +523,7 @@ forge_tcp_packet (lex_ctxt * lexic)
   if (!tcp->th_sum)
     {
       struct pseudohdr pseudoheader;
-      char *tcpsumdata =
-        g_malloc0 (sizeof (struct pseudohdr) + (len % 2 ? len + 1 : len));
+      char *tcpsumdata = g_malloc0 (sizeof (struct pseudohdr) + len + 1);
       struct in_addr source, dest;
 
       source.s_addr = ip->ip_src.s_addr;
@@ -707,7 +706,7 @@ set_tcp_elements (lex_ctxt * lexic)
     {
       struct pseudohdr pseudoheader;
       char *tcpsumdata =
-        g_malloc0 (sizeof (struct pseudohdr) + data_len + (data_len % 2));
+        g_malloc0 (sizeof (struct pseudohdr) + data_len + 1);
       struct in_addr source, dest;
 
       source.s_addr = ip->ip_src.s_addr;
@@ -875,9 +874,8 @@ forge_udp_packet (lex_ctxt * lexic)
         {
           struct pseudo_udp_hdr pseudohdr;
           struct in_addr source, dest;
-          char *udpsumdata =
-            (char *) g_malloc0 (sizeof (struct pseudo_udp_hdr) +
-                                (data_len % 2 ? data_len + 1 : data_len));
+          char *udpsumdata = g_malloc0 (sizeof (struct pseudo_udp_hdr) +
+                                        data_len + 1);
 
           source.s_addr = ip->ip_src.s_addr;
           dest.s_addr = ip->ip_dst.s_addr;
@@ -1077,9 +1075,7 @@ set_udp_elements (lex_ctxt * lexic)
             }
 
 
-          udpsumdata =
-            (char *) g_malloc0 (sizeof (struct pseudo_udp_hdr) +
-                                (len % 2 ? len + 1 : len));
+          udpsumdata = g_malloc0 (sizeof (struct pseudo_udp_hdr) + len + 1);
 
           source.s_addr = ip->ip_src.s_addr;
           dest.s_addr = ip->ip_dst.s_addr;

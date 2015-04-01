@@ -1,3 +1,11 @@
+2015-04-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/ids_send.c (tcp_cksum) nasl/nasl_packet_forgery.c
+	(forge_tcp_packet, forge_udp_packet, set_tcp_elements)
+	(set_udp_elements), nasl/nasl_packet_forgery_v6.c (forge_tcp_v6_packet)
+	(set_tcp_v6_elements, forge_udp_v6_packet, set_udp_v6_elements)
+	(forge_icmp_v6_packet): Simplify g_malloc0() calls.
+
 2015-04-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Post release version bump.

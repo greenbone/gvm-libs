@@ -514,8 +514,7 @@ forge_tcp_v6_packet (lex_ctxt * lexic)
   if (!tcp->th_sum)
     {
       struct v6pseudohdr pseudoheader;
-      char *tcpsumdata =
-        g_malloc0 (sizeof (struct v6pseudohdr) + (len % 2 ? len + 1 : len));
+      char *tcpsumdata = g_malloc0 (sizeof (struct v6pseudohdr) + len + 1);
 
       bzero (&pseudoheader, 38 + sizeof (struct tcphdr));
       memcpy (&pseudoheader.s6addr, &ip6->ip6_src, sizeof (struct in6_addr));
@@ -694,9 +693,7 @@ set_tcp_v6_elements (lex_ctxt * lexic)
   if (tcp->th_sum == 0)
     {
       struct v6pseudohdr pseudoheader;
-      char *tcpsumdata =
-        g_malloc0 (sizeof (struct v6pseudohdr) +
-                   (data_len % 2 ? data_len + 1 : data_len));
+      char *tcpsumdata = g_malloc0 (sizeof (struct v6pseudohdr) + data_len + 1);
 
       bzero (&pseudoheader, 38 + sizeof (struct tcphdr));
       memcpy (&pseudoheader.s6addr, &ip6->ip6_src, sizeof (struct in6_addr));
@@ -874,9 +871,8 @@ forge_udp_v6_packet (lex_ctxt * lexic)
       if (!udp->uh_sum)
         {
           struct v6pseudo_udp_hdr pseudohdr;
-          char *udpsumdata =
-            (char *) g_malloc0 (sizeof (struct v6pseudo_udp_hdr) +
-                              (data_len % 2 ? data_len + 1 : data_len));
+          char *udpsumdata = g_malloc0 (sizeof (struct v6pseudo_udp_hdr)
+                                        + data_len + 1);
 
           bzero (&pseudohdr, sizeof (struct v6pseudo_udp_hdr));
           memcpy (&pseudohdr.s6addr, &ip6->ip6_src, sizeof (struct in6_addr));
@@ -1072,9 +1068,7 @@ set_udp_v6_elements (lex_ctxt * lexic)
               ptr = (char *) udp + sizeof (struct udphdr);
             }
 
-          udpsumdata =
-            (char *) g_malloc0 (sizeof (struct v6pseudo_udp_hdr) +
-                                (len % 2 ? len + 1 : len));
+          udpsumdata = g_malloc0 (sizeof (struct v6pseudo_udp_hdr) + len + 1);
           bzero (&pseudohdr, sizeof (struct v6pseudo_udp_hdr));
 
           pseudohdr.proto = IPPROTO_UDP;
@@ -1090,8 +1084,8 @@ set_udp_v6_elements (lex_ctxt * lexic)
             }
           udp->uh_sum =
             np_in_cksum ((unsigned short *) udpsumdata,
-                         38 + sizeof (struct udphdr) + (len % 2 ? len +
-                                                        1 : len));
+                         38 + sizeof (struct udphdr)
+                         + ((len % 2) ? len + 1 : len));
           g_free (udpsumdata);
         }
       retc = alloc_tree_cell (0, NULL);
@@ -1332,9 +1326,8 @@ forge_icmp_v6_packet (lex_ctxt * lexic)
       if (get_int_local_var_by_name (lexic, "icmp_cksum", -1) == -1)
         {
           struct v6pseudo_icmp_hdr pseudohdr;
-          char *icmpsumdata =
-            (char *) g_malloc0 (sizeof (struct v6pseudo_icmp_hdr) +
-                                (len % 2 ? len + 1 : len));
+          char *icmpsumdata = g_malloc0 (sizeof (struct v6pseudo_icmp_hdr) +
+                                         len + 1);
 
           bzero (&pseudohdr, sizeof (struct v6pseudo_icmp_hdr));
           memcpy (&pseudohdr.s6addr, &ip6->ip6_src, sizeof (struct in6_addr));

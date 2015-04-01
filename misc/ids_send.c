@@ -264,8 +264,7 @@ tcp_cksum (packet, len)
      int len;
 {
   struct pseudohdr pseudoheader;
-  char *tcpsumdata =
-    (char *) g_malloc0 (sizeof (struct pseudohdr) + (len % 2 ? len + 1 : 0));
+  char *tcpsumdata = g_malloc0 (sizeof (struct pseudohdr) + len + 1);
   struct in_addr source, dest;
   struct ip_packet *ip = (struct ip_packet *) packet;
   struct tcp_packet *tcp = (struct tcp_packet *) (packet + ip->ip_hl * 4);
