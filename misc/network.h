@@ -54,6 +54,13 @@ typedef enum openvas_encaps {
     OPENVAS_ENCAPS_MAX,
 } openvas_encaps_t;
 
+struct host_info {
+  char *name;           /* Hostname. */
+  char *fqdn;           /* Fully qualified domain name, e.g. host.domain.net */
+  char *vhosts;         /* Comma separated list of vhosts */
+  struct in6_addr *ip;  /* IP address. */
+};
+
 #define IS_ENCAPS_SSL(x) ((x) >= OPENVAS_ENCAPS_SSLv23 && (x) <= OPENVAS_ENCAPS_TLScustom)
 
 /* Plugin specific network functions */
@@ -83,6 +90,13 @@ const char *get_encaps_through (openvas_encaps_t);
 
 /* Additional functions -- should not be used by the plugins */
 int open_sock_opt_hn (const char *, unsigned int, int, int, int);
+
+struct host_info *
+host_info_init (const char *name, const struct in6_addr *,
+                const char *, const char *);
+
+void
+host_info_free (struct host_info *);
 
 int openvas_SSL_init (void);
 

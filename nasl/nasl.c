@@ -52,18 +52,6 @@ void exit_nasl (struct arglist *, int);
 
 int safe_checks_only = 0;
 
-static struct arglist *
-init_hostinfos (char *hostname, struct in6_addr *ip)
-{
-  struct arglist *hostinfos;
-
-  hostinfos = g_malloc0 (sizeof (struct arglist));
-  arg_add_value (hostinfos, "FQDN", ARG_STRING, hostname);
-  arg_add_value (hostinfos, "NAME", ARG_STRING, hostname);
-  arg_add_value (hostinfos, "IP", ARG_PTR, ip);
-  return (hostinfos);
-}
-
 void
 sighandler (int s)
 {
@@ -79,12 +67,9 @@ my_gnutls_log_func (int level, const char *text)
 }
 
 struct arglist *
-init (char *hostname, struct in6_addr ip, kb_t kb)
+init (char *hostname, struct in6_addr *ip, kb_t kb)
 {
   struct arglist *script_infos = g_malloc0 (sizeof (struct arglist));
-  struct in6_addr *pip = g_malloc0 (sizeof (*pip));
-
-  memcpy (pip, &ip, sizeof (struct in6_addr));
 
   arg_add_value (script_infos, "standalone", ARG_INT, (void *) 1);
   prefs_set ("checks_read_timeout", "5");
@@ -93,8 +78,8 @@ init (char *hostname, struct in6_addr ip, kb_t kb)
   if (safe_checks_only != 0)
     prefs_set ("safe_checks", "yes");
 
-  arg_add_value (script_infos, "HOSTNAME", ARG_ARGLIST,
-                 init_hostinfos (hostname, pip));
+  arg_add_value (script_infos, "HOSTNAME", ARG_PTR,
+                 host_info_init (hostname, ip, NULL, hostname));
 
   return script_infos;
 }
@@ -317,7 +302,7 @@ main (int argc, char **argv)
       if (rc)
         exit (1);
 
-      script_infos = init (hostname, ip6, kb);
+      script_infos = init (hostname, &ip6, kb);
       n = start;
       while (nasl_filenames[n])
         {

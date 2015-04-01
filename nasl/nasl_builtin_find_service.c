@@ -1530,8 +1530,8 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
   struct timeval tv;
   char k[32], *http_get;
 #ifdef DEBUG
-  struct arglist *hostinfos = arg_get_value (desc, "HOSTNAME");
-  struct in_addr *p_ip = arg_get_value (hostinfos, "IP");
+  struct host_info *hostinfo = arg_get_value (desc, "HOSTNAME");
+  struct in_addr *p_ip = hostinfo->ip;
 #endif
 
   http_get = g_strdup_printf ("GET / HTTP/1.0\r\nHost: %s\r\n\r\n",

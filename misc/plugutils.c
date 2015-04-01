@@ -258,9 +258,9 @@ host_get_port_state_udp (struct arglist *plugdata, int portnum)
 const char *
 plug_get_hostname (struct arglist *desc)
 {
-  struct arglist *hinfos = arg_get_value (desc, "HOSTNAME");
-  if (hinfos)
-    return ((char *) arg_get_value (hinfos, "NAME"));
+  struct host_info *hinfo = arg_get_value (desc, "HOSTNAME");
+  if (hinfo)
+    return hinfo->name;
   else
     return (NULL);
 }
@@ -268,7 +268,7 @@ plug_get_hostname (struct arglist *desc)
 char *
 plug_get_host_fqdn (struct arglist *desc)
 {
-  struct arglist *hinfos = arg_get_value (desc, "HOSTNAME");
+  struct host_info *hinfos = arg_get_value (desc, "HOSTNAME");
   if (hinfos)
     {
       int type;
@@ -276,7 +276,7 @@ plug_get_host_fqdn (struct arglist *desc)
       if (vhosts)
         return vhosts;
       else
-        return g_strdup (arg_get_value (hinfos, "FQDN"));
+        return g_strdup (hinfos->fqdn);
     }
   else
     return (NULL);
@@ -286,11 +286,10 @@ plug_get_host_fqdn (struct arglist *desc)
 struct in6_addr *
 plug_get_host_ip (struct arglist *desc)
 {
-  struct arglist *hinfos = arg_get_value (desc, "HOSTNAME");
+  struct host_info *hinfos = arg_get_value (desc, "HOSTNAME");
   if (hinfos)
-    return ((struct in6_addr *) arg_get_value (hinfos, "IP"));
-  else
-    return NULL;
+    return hinfos->ip;
+  return NULL;
 }
 
 char *

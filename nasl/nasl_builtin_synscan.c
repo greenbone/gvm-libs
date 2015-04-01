@@ -811,9 +811,9 @@ plugin_run_synscan (lex_ctxt * lexic)
   printf ("That's %ld seconds and %ld usecs\n", tv.tv_sec, tv.tv_usec);
 #endif
 
-  struct arglist *hostinfos = arg_get_value (env, "HOSTNAME");
-  char           *hostname  = arg_get_value (hostinfos, "NAME");
-  const char     *range = prefs_get ("port_range");
+  struct host_info *hostinfo = arg_get_value (env, "HOSTNAME");
+  char *hostname = hostinfo->name;
+  const char *range = prefs_get ("port_range");
   scan (env, hostname, (char *)range, dst6, rtt);
   plug_set_key (env, "Host/scanned", ARG_INT, (void *) 1);
   plug_set_key (env, "Host/scanners/synscan", ARG_INT, (void*)1);

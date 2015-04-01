@@ -35,6 +35,7 @@
 #include "../misc/plugutils.h" /* for find_in_path */
 #include "../misc/prefs.h"          /* for prefs_get */
 #include "../misc/openvas_logging.h"
+#include "network.h"
 
 #include "nasl_lex_ctxt.h"
 
@@ -1269,7 +1270,7 @@ tree_cell *
 plugin_run_openvas_tcp_scanner (lex_ctxt * lexic)
 {
   struct arglist *desc = lexic->script_infos;
-  struct arglist * hostinfos = arg_get_value(desc, "HOSTNAME");
+  struct host_info *hostinfo = arg_get_value(desc, "HOSTNAME");
   const char * port_range = prefs_get ("port_range");
   const char * p;
   struct in6_addr *p_addr;
@@ -1425,7 +1426,7 @@ plugin_run_openvas_tcp_scanner (lex_ctxt * lexic)
 #endif
   }
 
-  p_addr = arg_get_value(hostinfos, "IP");
+  p_addr = hostinfo->ip;
   if( p_addr == NULL )
     return NULL; // TODO: before it returned "1";
   if (banner_grab(p_addr, port_range, timeout, min_cnx, max_cnx, desc) < 0)

@@ -1,5 +1,24 @@
 2015-04-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Replace hostinfos arglist with struct host_info.
+
+	* misc/network.c (host_info_init, host_info_free): New functions.
+
+	* misc/network.h: Add functions prototypes.
+	(struct host_info): New structure.
+
+	* misc/plugutils.c (plug_get_hostname, plug_get_host_fqdn)
+	(plug_get_host_ip), nasl/nasl_builtin_find_service.c (plugin_do_run),
+	nasl/nasl_builtin_openvas_tcp_scanner.c
+	(plugin_run_openvas_tcp_scanner), nasl/nasl_builtin_synscan.c
+	(plugin_run_synscan): Adjust to get a host_info instead of an arglist.
+
+	* nasl/nasl.c (init_hostinfos): Remove function.
+	(init): Adjust to use host_info_init() instead of init_hostinfos().
+	(main): Adjust init() call.
+
+2015-04-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/ids_send.c (tcp_cksum) nasl/nasl_packet_forgery.c
 	(forge_tcp_packet, forge_udp_packet, set_tcp_elements)
 	(set_udp_elements), nasl/nasl_packet_forgery_v6.c (forge_tcp_v6_packet)
