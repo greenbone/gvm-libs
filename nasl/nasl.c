@@ -67,7 +67,7 @@ my_gnutls_log_func (int level, const char *text)
 }
 
 struct arglist *
-init (char *hostname, struct in6_addr *ip, kb_t kb)
+init (char *hostname, struct in6_addr *ip, char *fqdn, kb_t kb)
 {
   struct arglist *script_infos = g_malloc0 (sizeof (struct arglist));
 
@@ -79,7 +79,7 @@ init (char *hostname, struct in6_addr *ip, kb_t kb)
     prefs_set ("safe_checks", "yes");
 
   arg_add_value (script_infos, "HOSTNAME", ARG_PTR,
-                 host_info_init (hostname, ip, NULL, hostname));
+                 host_info_init (hostname, ip, NULL, fqdn));
 
   return script_infos;
 }
@@ -285,7 +285,7 @@ main (int argc, char **argv)
   while ((host = openvas_hosts_next (hosts)))
     {
       struct in6_addr ip6;
-      char *hostname;
+      char *hostname, *fqdn;
       kb_t kb;
       int rc;
 
@@ -302,7 +302,9 @@ main (int argc, char **argv)
       if (rc)
         exit (1);
 
-      script_infos = init (hostname, &ip6, kb);
+      fqdn = openvas_host_reverse_lookup (host);
+      script_infos = init (hostname, &ip6, fqdn ?: hostname, kb);
+      g_free (fqdn);
       n = start;
       while (nasl_filenames[n])
         {

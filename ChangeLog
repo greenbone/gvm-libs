@@ -1,3 +1,12 @@
+2015-04-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_hosts.c (openvas_host_reverse_lookup): Export function.
+
+	* base/openvas_hosts.h: Add function prototype.
+
+	* nasl/nasl.c (init): Add fqdn function argument.
+	(main): Set the fqdn value as reverse lookup of a host when available.
+
 2015-04-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Replace hostinfos arglist with struct host_info.
