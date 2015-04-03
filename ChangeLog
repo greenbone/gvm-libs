@@ -1,3 +1,13 @@
+2015-04-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvticache.h (nvticache_t): Remove struct.
+
+	* base/nvticache.c (nvticache): Remove variable.
+	(nvtis, cache_path, src_path): New variables.
+	(nvticache_initialized, nvtiache_init, nvticache_free, nvticache_get)
+	(nvticache_add, nvticache_get_by_oid_full, nvticache_get_src)
+	(nvticache_get_filename): Adjust to use new variables.
+
 2015-04-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_hosts.c (openvas_host_reverse_lookup): Export function.

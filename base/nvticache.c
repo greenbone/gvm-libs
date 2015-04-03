@@ -44,10 +44,9 @@
 #include <string.h> // for strlen
 #include <assert.h>
 
-/**
- * @brief nvti cache variable.
- */
-nvticache_t *nvticache = NULL;
+char *cache_path = NULL;    /* The directory of the cache files. */
+char *src_path = NULL;      /* The directory of the source files. */
+GHashTable *nvtis = NULL;
 
 /**
  * @brief Return whether the nvt cache is initialized.
@@ -57,7 +56,7 @@ nvticache_t *nvticache = NULL;
 int
 nvticache_initialized (void)
 {
- return !!nvticache;
+ return !!nvtis;
 }
 
 /**
@@ -67,18 +66,16 @@ nvticache_initialized (void)
  * @param src_path      The directory that contains the nvt files.
  */
 void
-nvticache_init (const gchar *cache_path, const gchar *src_path)
+nvticache_init (const gchar *cache, const gchar *src)
 {
-  assert (!nvticache);
-  nvticache = g_malloc0 (sizeof (nvticache_t));
+  assert (!nvtis);
+  assert (cache);
+  assert (src);
 
-  if (cache_path)
-    nvticache->cache_path = g_strdup (cache_path);
-  if (src_path)
-    nvticache->src_path = g_strdup (src_path);
+  cache_path = g_strdup (cache);
+  src_path = g_strdup (src);
 
-  nvticache->nvtis = g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
-                                            g_free);
+  nvtis = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 }
 
 /**
@@ -87,14 +84,10 @@ nvticache_init (const gchar *cache_path, const gchar *src_path)
 void
 nvticache_free (void)
 {
-  assert (nvticache);
-  if (nvticache->cache_path)
-    g_free (nvticache->cache_path);
-  if (nvticache->src_path)
-    g_free (nvticache->src_path);
-  g_hash_table_destroy (nvticache->nvtis);
-  g_free (nvticache);
-  nvticache = NULL;
+  g_free (cache_path);
+  g_free (src_path);
+  g_hash_table_destroy (nvtis);
+  nvtis = NULL;
 }
 
 /**
@@ -116,9 +109,9 @@ nvticache_get (const gchar *filename)
   struct stat src_stat;
   struct stat cache_stat;
 
-  assert (nvticache);
-  src_file = g_build_filename (nvticache->src_path, filename, NULL);
-  dummy = g_build_filename (nvticache->cache_path, filename, NULL);
+  assert (nvtis);
+  src_file = g_build_filename (src_path, filename, NULL);
+  dummy = g_build_filename (cache_path, filename, NULL);
   cache_file = g_strconcat (dummy, ".nvti", NULL);
   g_free (dummy);
 
@@ -135,14 +128,13 @@ nvticache_get (const gchar *filename)
   if (!n || !(nvti_oid (n))) return NULL;
 
   /* Check for duplicate OID. */
-  if (g_hash_table_lookup (nvticache->nvtis, nvti_oid (n)))
+  if (g_hash_table_lookup (nvtis, nvti_oid (n)))
     {
       log_legacy_write ("NVT with duplicate OID %s will be replaced with %s\n",
                         nvti_oid (n), filename);
-      g_hash_table_remove (nvticache->nvtis, nvti_oid (n));
+      g_hash_table_remove (nvtis, nvti_oid (n));
     }
-  g_hash_table_insert (nvticache->nvtis, g_strdup (nvti_oid (n)),
-                       g_strdup (filename));
+  g_hash_table_insert (nvtis, g_strdup (nvti_oid (n)), g_strdup (filename));
   return n;
 }
 
@@ -164,10 +156,10 @@ nvticache_add (const nvti_t *nvti, const char *filename)
   gchar *cache_file, *dummy, *src_file;
   int result;
 
-  assert (nvticache);
+  assert (nvtis);
 
-  src_file = g_build_filename (nvticache->src_path, filename, NULL);
-  dummy = g_build_filename (nvticache->cache_path, filename, NULL);
+  src_file = g_build_filename (src_path, filename, NULL);
+  dummy = g_build_filename (cache_path, filename, NULL);
   cache_file = g_strconcat (dummy, ".nvti", NULL);
   result = nvti_to_keyfile (nvti, src_file, cache_file);
   g_free (dummy);
@@ -191,14 +183,14 @@ nvticache_get_by_oid_full (const char *oid)
   char *dummy, *cache_file;
   const char *filename;
 
-  assert (nvticache);
+  assert (nvtis);
 
-  filename = g_hash_table_lookup (nvticache->nvtis, oid);
+  filename = g_hash_table_lookup (nvtis, oid);
   if (!filename)
     return NULL;
 
   /* Retrieve the full version from the on disk cache. */
-  dummy = g_build_filename (nvticache->cache_path, filename, NULL);
+  dummy = g_build_filename (cache_path, filename, NULL);
   cache_file = g_strconcat (dummy, ".nvti", NULL);
   cache_nvti = nvti_from_keyfile (cache_file);
 
@@ -217,10 +209,9 @@ nvticache_get_by_oid_full (const char *oid)
 char *
 nvticache_get_src (const char *oid)
 {
-  assert (nvticache);
+  assert (nvtis);
 
-  return g_build_filename (nvticache->src_path,
-                           g_hash_table_lookup (nvticache->nvtis, oid), NULL);
+  return g_build_filename (src_path, g_hash_table_lookup (nvtis, oid), NULL);
 }
 
 /**
@@ -237,7 +228,7 @@ nvticache_get_src (const char *oid)
 const char *
 nvticache_get_filename (const char *oid)
 {
-  assert (nvticache);
+  assert (nvtis);
 
-  return g_hash_table_lookup (nvticache->nvtis, oid);
+  return g_hash_table_lookup (nvtis, oid);
 }

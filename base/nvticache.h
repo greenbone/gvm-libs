@@ -39,19 +39,6 @@
 /* for nvtis_t */
 #include "nvti.h"
 
-/**
- * @brief The structure for a NVTI Cache.
- *
- * The elements of this structure should never be accessed directly.
- * Only the functions corresponding to this module should be used.
- */
-typedef struct nvticache
-{
-  gchar *cache_path;    ///< The directory where the cache is located
-  gchar *src_path;      ///< The directory where the primary source is located
-  GHashTable *nvtis;    ///< Collection of NVT Information cached in memory
-} nvticache_t;
-
 void
 nvticache_init (const gchar *, const gchar *);
 
