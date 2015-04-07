@@ -1,5 +1,9 @@
 2015-04-07  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* base/nvticache.c: Fix include path to make it build.
+
+2015-04-07  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Post branch version bump.
 
 	* CMakeLists.txt: Set version to 8.1.0 and status to beta.
