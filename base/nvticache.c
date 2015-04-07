@@ -109,7 +109,7 @@ nvti_t *
 nvticache_get (const gchar *filename)
 {
   nvti_t *n = NULL;
-  char *src_file, *dummy, *cache_file;
+  char *src_file, *dummy, *cache_file, pattern[2048];
   struct stat src_stat;
   struct stat cache_stat;
 
@@ -132,20 +132,23 @@ nvticache_get (const gchar *filename)
   if (!n || !(nvti_oid (n))) return NULL;
 
   /* Check for duplicate OID. */
-  dummy = kb_item_get_str (cache_kb, nvti_oid (n));
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", nvti_oid (n));
+  dummy = kb_item_get_str (cache_kb, pattern);
   if (dummy)
     {
       log_legacy_write ("NVT %s with duplicate OID %s will be replaced with"
                         " %s\n", dummy, nvti_oid (n), filename);
-      kb_del_items (cache_kb, nvti_oid (n));
+      kb_del_items (cache_kb, pattern);
     }
   g_free (dummy);
-  if (kb_item_add_str (cache_kb, nvti_oid (n), filename))
+  if (kb_item_add_str (cache_kb, pattern, filename))
     {
       nvti_free (n);
       return NULL;
     }
-  if (kb_item_add_str (cache_kb, filename, nvti_oid (n)))
+
+  g_snprintf (pattern, sizeof (pattern), "name:%s:oid", filename);
+  if (kb_item_add_str (cache_kb, pattern, nvti_oid (n)))
     {
       nvti_free (n);
       return NULL;
@@ -205,11 +208,12 @@ nvti_t *
 nvticache_get_by_oid_full (const char *oid)
 {
   nvti_t *cache_nvti;
-  char *dummy, *cache_file, *filename;
+  char *dummy, *cache_file, *filename, pattern[2048];
 
   assert (cache_kb);
 
-  filename = kb_item_get_str (cache_kb, oid);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", oid);
+  filename = kb_item_get_str (cache_kb, pattern);
   if (!filename)
     return NULL;
 
@@ -234,11 +238,12 @@ nvticache_get_by_oid_full (const char *oid)
 char *
 nvticache_get_src (const char *oid)
 {
-  char *filename, *src;
+  char *filename, *src, pattern[2048];
 
   assert (cache_kb);
 
-  filename = kb_item_get_str (cache_kb, oid);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", oid);
+  filename = kb_item_get_str (cache_kb, pattern);
   src = g_build_filename (src_path, filename, NULL);
   g_free (filename);
   return src;
@@ -259,11 +264,13 @@ nvticache_get_oid (const char *filename)
 
   assert (cache_kb);
 
-  ret = kb_item_get_str (cache_kb, filename);
+  g_snprintf (pattern, sizeof (pattern), "name:%s:oid", filename);
+  ret = kb_item_get_str (cache_kb, pattern);
   if (ret)
     return ret;
 
-  g_snprintf (pattern, sizeof (pattern), "*%s", filename);
+  /* NVT filename in subfolder case. */
+  g_snprintf (pattern, sizeof (pattern), "name:%s:oids", filename);
   kbi = kb_item_get_pattern (cache_kb, pattern);
   if (!kbi)
     return NULL;

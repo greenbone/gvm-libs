@@ -1,5 +1,12 @@
 2015-04-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/nvticache.c (nvticache_get): Set oid keys and filename keys
+	under different kb pattern.
+	(nvticache_get_by_oid_full, nvticache_get_src, nvticache_get_oid):
+	Adjust to get values from correct patterns.
+
+2015-04-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Use Redis to for in-memory nvts oid and filename cache instead of a hash
 	table. Reduces memory usage by ~5M per process.
 
