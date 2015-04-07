@@ -39,8 +39,11 @@
 /* for nvtis_t */
 #include "nvti.h"
 
+int
+nvticache_init (const char *, const char *, const char *);
+
 void
-nvticache_init (const gchar *, const gchar *);
+nvticache_reset ();
 
 int
 nvticache_initialized (void);
@@ -60,7 +63,8 @@ nvticache_get_by_oid_full (const char *);
 char *
 nvticache_get_src (const char *);
 
-const char * nvticache_get_filename (const char *);
+char *
+nvticache_get_oid (const char *);
 
 void
 nvticache_free (void);

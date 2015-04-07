@@ -39,6 +39,7 @@
 
 /* for nvticache_t */
 #include "nvticache.h"
+#include <openvas/misc/kb.h>
 #include "../misc/openvas_logging.h"
 
 #include <string.h> // for strlen
@@ -46,7 +47,7 @@
 
 char *cache_path = NULL;    /* The directory of the cache files. */
 char *src_path = NULL;      /* The directory of the source files. */
-GHashTable *nvtis = NULL;
+kb_t cache_kb = NULL;
 
 /**
  * @brief Return whether the nvt cache is initialized.
@@ -56,7 +57,7 @@ GHashTable *nvtis = NULL;
 int
 nvticache_initialized (void)
 {
- return !!nvtis;
+ return !!cache_kb;
 }
 
 /**
@@ -64,18 +65,21 @@ nvticache_initialized (void)
  *
  * @param cache_path    The directory where the cache is to be stored.
  * @param src_path      The directory that contains the nvt files.
+ * @param kb_path       Path to kb socket.
  */
-void
-nvticache_init (const gchar *cache, const gchar *src)
+int
+nvticache_init (const char *cache, const char *src, const char *kb_path)
 {
-  assert (!nvtis);
+  assert (!cache_kb);
   assert (cache);
   assert (src);
 
   cache_path = g_strdup (cache);
   src_path = g_strdup (src);
 
-  nvtis = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  if (kb_new (&cache_kb, kb_path))
+    return -1;
+  return 0;
 }
 
 /**
@@ -86,8 +90,8 @@ nvticache_free (void)
 {
   g_free (cache_path);
   g_free (src_path);
-  g_hash_table_destroy (nvtis);
-  nvtis = NULL;
+  kb_delete (cache_kb);
+  cache_kb = NULL;
 }
 
 /**
@@ -109,7 +113,7 @@ nvticache_get (const gchar *filename)
   struct stat src_stat;
   struct stat cache_stat;
 
-  assert (nvtis);
+  assert (cache_kb);
   src_file = g_build_filename (src_path, filename, NULL);
   dummy = g_build_filename (cache_path, filename, NULL);
   cache_file = g_strconcat (dummy, ".nvti", NULL);
@@ -128,14 +132,35 @@ nvticache_get (const gchar *filename)
   if (!n || !(nvti_oid (n))) return NULL;
 
   /* Check for duplicate OID. */
-  if (g_hash_table_lookup (nvtis, nvti_oid (n)))
+  dummy = kb_item_get_str (cache_kb, nvti_oid (n));
+  if (dummy)
     {
-      log_legacy_write ("NVT with duplicate OID %s will be replaced with %s\n",
-                        nvti_oid (n), filename);
-      g_hash_table_remove (nvtis, nvti_oid (n));
+      log_legacy_write ("NVT %s with duplicate OID %s will be replaced with"
+                        " %s\n", dummy, nvti_oid (n), filename);
+      kb_del_items (cache_kb, nvti_oid (n));
     }
-  g_hash_table_insert (nvtis, g_strdup (nvti_oid (n)), g_strdup (filename));
+  g_free (dummy);
+  if (kb_item_add_str (cache_kb, nvti_oid (n), filename))
+    {
+      nvti_free (n);
+      return NULL;
+    }
+  if (kb_item_add_str (cache_kb, filename, nvti_oid (n)))
+    {
+      nvti_free (n);
+      return NULL;
+    }
   return n;
+}
+
+/**
+ * @brief Reset connection to KB. To be called after a fork().
+ */
+void
+nvticache_reset ()
+{
+  assert (cache_kb);
+  kb_lnk_reset (cache_kb);
 }
 
 /**
@@ -156,7 +181,7 @@ nvticache_add (const nvti_t *nvti, const char *filename)
   gchar *cache_file, *dummy, *src_file;
   int result;
 
-  assert (nvtis);
+  assert (cache_kb);
 
   src_file = g_build_filename (src_path, filename, NULL);
   dummy = g_build_filename (cache_path, filename, NULL);
@@ -180,12 +205,11 @@ nvti_t *
 nvticache_get_by_oid_full (const char *oid)
 {
   nvti_t *cache_nvti;
-  char *dummy, *cache_file;
-  const char *filename;
+  char *dummy, *cache_file, *filename;
 
-  assert (nvtis);
+  assert (cache_kb);
 
-  filename = g_hash_table_lookup (nvtis, oid);
+  filename = kb_item_get_str (cache_kb, oid);
   if (!filename)
     return NULL;
 
@@ -196,6 +220,7 @@ nvticache_get_by_oid_full (const char *oid)
 
   g_free (dummy);
   g_free (cache_file);
+  g_free (filename);
   return cache_nvti;
 }
 
@@ -209,26 +234,41 @@ nvticache_get_by_oid_full (const char *oid)
 char *
 nvticache_get_src (const char *oid)
 {
-  assert (nvtis);
+  char *filename, *src;
 
-  return g_build_filename (src_path, g_hash_table_lookup (nvtis, oid), NULL);
+  assert (cache_kb);
+
+  filename = kb_item_get_str (cache_kb, oid);
+  src = g_build_filename (src_path, filename, NULL);
+  g_free (filename);
+  return src;
 }
 
 /**
- * @brief Get the source filename of an OID without the
- *        NVT main directory path.
+ * @brief Get the OID from a plugin filename.
  *
- * @param oid      The OID to look up.
+ * @param filename      Filename to lookup.
  *
- * @return Filename matching OID if found, NULL otherwise.
- *         The filename path does not cover the full path
- *         with the NVT main directory. Just the path below
- *         the NVT main directory.
+ * @return OID matching filename if found, NULL otherwise.
  */
-const char *
-nvticache_get_filename (const char *oid)
+char *
+nvticache_get_oid (const char *filename)
 {
-  assert (nvtis);
+  char *ret, pattern[2048];
+  struct kb_item *kbi;
 
-  return g_hash_table_lookup (nvtis, oid);
+  assert (cache_kb);
+
+  ret = kb_item_get_str (cache_kb, filename);
+  if (ret)
+    return ret;
+
+  g_snprintf (pattern, sizeof (pattern), "*%s", filename);
+  kbi = kb_item_get_pattern (cache_kb, pattern);
+  if (!kbi)
+    return NULL;
+
+  ret = g_strdup (kbi->v_str);
+  kb_item_free (kbi);
+  return ret;
 }

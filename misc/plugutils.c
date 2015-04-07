@@ -876,6 +876,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
           void *ret;
 
           kb_lnk_reset (kb);
+          nvticache_reset ();
           close (sockpair[0]);
           globals = arg_get_value (args, "globals");
           /* FIXME: Potential problem: If "global_socket" is not set

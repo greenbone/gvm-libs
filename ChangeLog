@@ -1,3 +1,20 @@
+2015-04-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Use Redis to for in-memory nvts oid and filename cache instead of a hash
+	table. Reduces memory usage by ~5M per process.
+
+	* base/nvticache.c (cache_kb): New variable. Replaces nvtis.
+	(nvticache_initialized, nvticache_init, nvticache_free, nvticache_get)
+	(nvticache_add, nvticache_get_by_oid_full, nvticache_get_src): Adjust to
+	use KB instead of glib hashtable.
+	(nvticache_get_oid, nvticache_reset): New functions.
+	(nvticache_get_filename): Remove function.
+
+	* base/nvticache.h: Adjust functions prototypes.
+
+	* misc/plugutils.c (plug_get_key), nasl/nasl_builtin_find_service.c
+	(plugin_run_find_service): Call nvticache_reset() after fork.
+
 2015-04-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/nvticache.h (nvticache_t): Remove struct.

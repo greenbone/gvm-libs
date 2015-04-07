@@ -35,6 +35,7 @@
 #include "../misc/network.h"    /* for get_encaps_through */
 #include "nvt_categories.h"     /* for ACT_SCANNER */
 #include "../misc/plugutils.h"  /* for OPENVAS_ENCAPS_IP */
+#include "nvticache.h"
 
 #include "nasl_lex_ctxt.h"
 
@@ -2671,6 +2672,7 @@ plugin_run_find_service (lex_ctxt * lexic)
               int soc;
 
               kb_lnk_reset (kb);
+              nvticache_reset ();
               soc = arg_get_value_int (globals, "global_socket");
               close (sons_pipe[i][1]);
               close (soc);
