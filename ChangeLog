@@ -1,5 +1,10 @@
 2015-04-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_scanner_glue.c (script_tag): Add log message when tag
+	value contains | separator.
+
+2015-04-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/nvticache.c (nvticache_get_oid): Fix pattern to search for
 	filename when not exact name is not found.
 

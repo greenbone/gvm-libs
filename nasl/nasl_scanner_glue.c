@@ -43,6 +43,7 @@
 #include "nasl_func.h"
 #include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
+#include "openvas_logging.h"
 
 #include "nasl_debug.h"
 #include "nasl_scanner_glue.h"
@@ -239,6 +240,12 @@ script_tag (lex_ctxt * lexic)
       return FAKE_CELL;
     }
 
+  if (strchr (value, '|'))
+    {
+      log_legacy_write
+       ("%s: %s tag contains | separator",
+        (char *) arg_get_value (lexic->script_infos, "script_name"), name);
+    }
   plug_set_tag (script_infos, name, value);
 
   return FAKE_CELL;
