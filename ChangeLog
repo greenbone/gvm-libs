@@ -1,3 +1,8 @@
+2015-04-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvticache.c (nvticache_get_oid): Fix pattern to search for
+	filename when not exact name is not found.
+
 2015-04-07  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/nvticache.c: Fix include path to make it build.

@@ -270,7 +270,7 @@ nvticache_get_oid (const char *filename)
     return ret;
 
   /* NVT filename in subfolder case. */
-  g_snprintf (pattern, sizeof (pattern), "name:%s:oids", filename);
+  g_snprintf (pattern, sizeof (pattern), "name:*/%s:oid", filename);
   kbi = kb_item_get_pattern (cache_kb, pattern);
   if (!kbi)
     return NULL;
