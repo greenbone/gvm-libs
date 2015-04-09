@@ -242,9 +242,8 @@ script_tag (lex_ctxt * lexic)
 
   if (strchr (value, '|'))
     {
-      log_legacy_write
-       ("%s: %s tag contains | separator",
-        (char *) arg_get_value (lexic->script_infos, "script_name"), name);
+      nasl_perror (lexic, "%s tag contains | separator", name);
+      return FAKE_CELL;
     }
   plug_set_tag (script_infos, name, value);
 

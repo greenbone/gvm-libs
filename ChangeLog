@@ -1,5 +1,10 @@
 2015-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_scanner_glue.c (script_tag): Use nasl_perror() to report
+	error, and return directly after that.
+
+2015-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/nvticache.c (nvticache_get): Cache nvt excluded_keys,
 	mandatory_keys, required_keys, required_ports, required_udp_ports,
 	category and timeout.
