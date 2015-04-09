@@ -66,6 +66,27 @@ nvticache_get_src (const char *);
 char *
 nvticache_get_oid (const char *);
 
+char *
+nvticache_get_required_keys (const char *);
+
+char *
+nvticache_get_mandatory_keys (const char *);
+
+char *
+nvticache_get_excluded_keys (const char *);
+
+char *
+nvticache_get_required_ports (const char *);
+
+char *
+nvticache_get_required_udp_ports (const char *);
+
+int
+nvticache_get_category (const char *);
+
+int
+nvticache_get_timeout (const char *);
+
 void
 nvticache_free (void);
 

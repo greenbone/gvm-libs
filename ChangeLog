@@ -1,3 +1,15 @@
+2015-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvticache.c (nvticache_get): Cache nvt excluded_keys,
+	mandatory_keys, required_keys, required_ports, required_udp_ports,
+	category and timeout.
+	(nvticache_get_required_keys, nvticache_get_mandatory_keys)
+	(nvticache_get_excluded_keys, nvticache_get_required_udp_ports)
+	(nvticache_get_required_ports, nvticache_get_category)
+	(nvticache_get_timeout): New functions.
+
+	* base/nvticache.h: Add functions prototypes.
+
 2015-04-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_scanner_glue.c (script_tag): Add log message when tag

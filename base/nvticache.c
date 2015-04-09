@@ -109,7 +109,7 @@ nvti_t *
 nvticache_get (const gchar *filename)
 {
   nvti_t *n = NULL;
-  char *src_file, *dummy, *cache_file, pattern[2048];
+  char *src_file, *dummy, *cache_file, pattern[2048], *oid;
   struct stat src_stat;
   struct stat cache_stat;
 
@@ -132,28 +132,69 @@ nvticache_get (const gchar *filename)
   if (!n || !(nvti_oid (n))) return NULL;
 
   /* Check for duplicate OID. */
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", nvti_oid (n));
+  oid = nvti_oid (n);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", oid);
   dummy = kb_item_get_str (cache_kb, pattern);
   if (dummy)
     {
-      log_legacy_write ("NVT %s with duplicate OID %s will be replaced with"
-                        " %s\n", dummy, nvti_oid (n), filename);
+      log_legacy_write ("NVT %s with duplicate OID %s will be replaced with %s",
+                        dummy, oid, filename);
       kb_del_items (cache_kb, pattern);
     }
   g_free (dummy);
   if (kb_item_add_str (cache_kb, pattern, filename))
+    goto kb_fail;
+
+  if (nvti_required_keys (n))
     {
-      nvti_free (n);
-      return NULL;
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:required_keys", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_required_keys (n)))
+        goto kb_fail;
     }
 
-  g_snprintf (pattern, sizeof (pattern), "name:%s:oid", filename);
-  if (kb_item_add_str (cache_kb, pattern, nvti_oid (n)))
+  if (nvti_mandatory_keys (n))
     {
-      nvti_free (n);
-      return NULL;
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:mandatory_keys", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_mandatory_keys (n)))
+        goto kb_fail;
     }
+
+  if (nvti_excluded_keys (n))
+    {
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:excluded_keys", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_excluded_keys (n)))
+        goto kb_fail;
+    }
+
+  if (nvti_required_udp_ports (n))
+    {
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:required_udp_ports", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_required_udp_ports (n)))
+        goto kb_fail;
+    }
+
+  if (nvti_required_ports (n))
+    {
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:required_ports", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_required_ports (n)))
+        goto kb_fail;
+    }
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:category", oid);
+  if (kb_item_add_int (cache_kb, pattern, nvti_category (n)))
+    goto kb_fail;
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:timeout", oid);
+  if (kb_item_add_int (cache_kb, pattern, nvti_timeout (n)))
+    goto kb_fail;
+
+  g_snprintf (pattern, sizeof (pattern), "name:%s:oid", filename);
+  if (kb_item_add_str (cache_kb, pattern, oid))
+    goto kb_fail;
   return n;
+
+kb_fail:
+  nvti_free (n);
+  return NULL;
 }
 
 /**
@@ -278,4 +319,130 @@ nvticache_get_oid (const char *filename)
   ret = g_strdup (kbi->v_str);
   kb_item_free (kbi);
   return ret;
+}
+
+/**
+ * @brief Get the Required Keys from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Required Keys matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_required_keys (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:required_keys", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the Mandatory Keys from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Mandatory Keys matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_mandatory_keys (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:mandatory_keys", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the Excluded Keys from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Excluded Keys matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_excluded_keys (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:excluded_keys", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the Required udp ports from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Required udp ports matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_required_udp_ports (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:required_udp_ports", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the Required ports from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Required ports matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_required_ports (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:required_ports", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the Category from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Category matching OID, -1 otherwise.
+ */
+int
+nvticache_get_category (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:category", oid);
+  return kb_item_get_int (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the Timeout from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Timeout matching OID, -1 otherwise.
+ */
+int
+nvticache_get_timeout (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:timeout", oid);
+  return kb_item_get_int (cache_kb, pattern);
 }
