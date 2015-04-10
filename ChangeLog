@@ -1,3 +1,10 @@
+2015-04-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/exec.c (exec_nasl_script): Don't set script name in script_infos
+	arglist.
+
+	* nasl/nasl_debug.c (nasl_perror): Get script name from nvticache.
+
 2015-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/nvticache.c (nvticache_get): Cache nvt dependencies.

@@ -20,7 +20,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 
-#include "../misc/arglists.h"
+#include "../base/nvticache.h"
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -41,20 +41,17 @@ nasl_perror (lex_ctxt * lexic, char *msg, ...)
 {
   va_list param;
   char debug_message[4096];
-  char *script_name = "";
+  char *script_name = NULL;
 
   va_start (param, msg);
 
-  if (lexic != NULL)
-    {
-      script_name = arg_get_value (lexic->script_infos, "script_name");
-      if (script_name == NULL)
-        script_name = "";
-    }
+  if (nvticache_initialized ())
+    script_name = nvticache_get_src (lexic->oid);
 
   vsnprintf (debug_message, sizeof (debug_message), msg, param);
-  log_legacy_write ("[%d](%s:%d) %s", getpid (), script_name,
+  log_legacy_write ("[%d](%s:%d) %s", getpid (), script_name ?: "",
                     lexic ? lexic->line_nb : 0, debug_message);
+  g_free (script_name);
 
   /** @todo Enable this when the NVTs are ready.  Sends ERRMSG to client. */
 #if 0
@@ -89,28 +86,25 @@ nasl_trace (lex_ctxt * lexic, char *msg, ...)
 {
   va_list param;
   char debug_message[4096];
-  char *script_name = "", *p;
+  char *script_name = NULL, *p;
 
   if (nasl_trace_fp == NULL)
     return;
   va_start (param, msg);
 
-  if (lexic != NULL)
-    {
-      script_name = arg_get_value (lexic->script_infos, "script_name");
-      if (script_name == NULL)
-        script_name = "";
-    }
+  if (nvticache_initialized ())
+    script_name = nvticache_get_src (lexic->oid);
 
   vsnprintf (debug_message, sizeof (debug_message), msg, param);
   for (p = debug_message; *p != '\0'; p++)
     ;
   if (p == debug_message || p[-1] != '\n')
-    fprintf (nasl_trace_fp, "[%d](%s) %s\n", getpid (), script_name,
+    fprintf (nasl_trace_fp, "[%d](%s) %s\n", getpid (), script_name ?: "",
              debug_message);
   else
-    fprintf (nasl_trace_fp, "[%d](%s) %s", getpid (), script_name,
+    fprintf (nasl_trace_fp, "[%d](%s) %s", getpid (), script_name ?: "",
              debug_message);
+  g_free (script_name);
 
   va_end (param);
 }
