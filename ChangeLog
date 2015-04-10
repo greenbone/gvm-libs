@@ -1,5 +1,12 @@
 2015-04-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/osp.c (osp_start_scan): Take result pointer as function argument.
+	Return int for success or failure.
+
+	* base/osp.h: Adjust function prototype.
+
+2015-04-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/exec.c (exec_nasl_script): Don't set script name in script_infos
 	arglist.
 

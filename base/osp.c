@@ -289,20 +289,21 @@ option_concat_as_xml (gpointer key, gpointer value, gpointer pstr)
  * @param[in]   connection  Connection to an OSP server.
  * @param[in]   target      Target host to scan.
  * @param[in]   options     Table of scan options.
+ * @param[out]  result      scan_id on success, error message otherwise.
  *
- * @return scan_id, null if otherwise. Free with g_free().
+ * @return 0 on success, -1 otherwise.
  */
-char *
+int
 osp_start_scan (osp_connection_t *connection, const char *target,
-                GHashTable *options)
+                GHashTable *options, char **result)
 {
   entity_t entity;
-  char *options_str = NULL, *scan_id = NULL;
+  char *options_str = NULL;
   int status;
   int rc;
 
-  if (!target)
-    return NULL;
+  if (!connection || !target || !result)
+    return -1;
 
   /* Construct options string. */
   if (options)
@@ -311,10 +312,10 @@ osp_start_scan (osp_connection_t *connection, const char *target,
   rc = osp_send_command (connection, &entity,
                          "<start_scan target='%s'><scanner_params>"
                          "%s</scanner_params></start_scan>",
-                         target, options_str ? options_str : "");
+                         target, options_str ?: "");
   g_free (options_str);
   if (rc)
-    return NULL;
+    return -1;
 
   status = atoi (entity_attribute (entity, "status"));
   if (status == 200)
@@ -322,17 +323,19 @@ osp_start_scan (osp_connection_t *connection, const char *target,
       entity_t child = entity_child (entity, "id");
       assert (child);
       assert (entity_text (child));
-      scan_id = g_strdup (entity_text (child));
+      *result = g_strdup (entity_text (child));
+      free_entity (entity);
+      return 0;
     }
   else
     {
       const char *text = entity_attribute (entity, "status_text");
+
       assert (text);
-      g_log (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, "start_scan failure: %s\n",
-             text);
+      *result = g_strdup (text);
+      free_entity (entity);
+      return -1;
     }
-  free_entity (entity);
-  return scan_id;
 }
 
 /* @brief Get an OSP parameter's type from its string format.
