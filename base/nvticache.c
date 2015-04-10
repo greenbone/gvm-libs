@@ -180,6 +180,13 @@ nvticache_get (const gchar *filename)
         goto kb_fail;
     }
 
+  if (nvti_dependencies (n))
+    {
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:dependencies", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_dependencies (n)))
+        goto kb_fail;
+    }
+
   g_snprintf (pattern, sizeof (pattern), "oid:%s:category", oid);
   if (kb_item_add_int (cache_kb, pattern, nvti_category (n)))
     goto kb_fail;
@@ -408,6 +415,24 @@ nvticache_get_required_ports (const char *oid)
   assert (cache_kb);
 
   g_snprintf (pattern, sizeof (pattern), "oid:%s:required_ports", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the Dependencies from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Dependencies matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_dependencies (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:dependencies", oid);
   return kb_item_get_str (cache_kb, pattern);
 }
 

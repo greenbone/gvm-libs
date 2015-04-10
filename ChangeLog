@@ -1,5 +1,12 @@
 2015-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/nvticache.c (nvticache_get): Cache nvt dependencies.
+	(nvticache_get_dependencies): New function.
+
+	* base/nvticache.h: Add function prototype.
+
+2015-04-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_scanner_glue.c (script_tag): Use nasl_perror() to report
 	error, and return directly after that.
 
