@@ -1,3 +1,11 @@
+2015-04-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport parts of r22049.
+
+	* base/openvas_hosts.c (openvas_host_reverse_lookup): Export function.
+
+	* base/openvas_hosts.h: Add function prototype.
+
 2015-04-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Post release version bump.

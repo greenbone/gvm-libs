@@ -1358,7 +1358,7 @@ openvas_hosts_exclude (openvas_hosts_t *hosts, const char *excluded_str,
  * @return Result of look-up or name if host of type name already, NULL
  * otherwise. Free with g_free().
  */
-static gchar *
+char *
 openvas_host_reverse_lookup (openvas_host_t *host)
 {
 
