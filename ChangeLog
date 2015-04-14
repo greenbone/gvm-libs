@@ -1,3 +1,14 @@
+2015-04-14  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	Backport r21600.
+
+	* omp/omp.h (omp_create_target_opts_t): Add fields exclude_hosts,
+	alive_tests, reverse_lookup_only, reverse_lookup_unify.
+
+	* omp/omp.c (omp_create_target_ext): Handle options exclude_hosts,
+	alive_tests, reverse_lookup_only, reverse_lookup_unify. Free all
+	temporary strings at the end.
+
 2015-03-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r21613 and r21629.

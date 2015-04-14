@@ -134,6 +134,11 @@ typedef struct
   const char* name;                ///< Name of target.
   const char* comment;             ///< Comment on target.
   const char* hosts;               ///< Name of target.
+  const char* exclude_hosts;       ///< Hosts to exclude.
+  const char* alive_tests;         ///< Alive tests.
+  /* Boolean flags: */
+  int reverse_lookup_only;         ///< Scanner pref reverse_lookup_only.
+  int reverse_lookup_unify;        ///< Scanner pref reverse_lookup_unify.
 } omp_create_target_opts_t;
 
 /**
