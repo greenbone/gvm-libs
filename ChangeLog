@@ -1,3 +1,8 @@
+2015-04-15  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	* omp/omp.c (omp_create_task_ext): Check and insert correct id for
+	schedules.
+
 2015-04-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/osp.c (osp_start_scan): Take result pointer as function argument.

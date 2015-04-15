@@ -370,10 +370,10 @@ omp_create_task_ext (gnutls_session_t* session,
   else
     scanner = NULL;
 
-  if (opts.scanner_id)
+  if (opts.schedule_id)
     schedule = g_strdup_printf ("<schedule id=\"%s\"/>"
                                 "<schedule_periods>%d</schedule_periods>",
-                                opts.scanner_id,
+                                opts.schedule_id,
                                 opts.schedule_periods);
   else
     schedule = NULL;
