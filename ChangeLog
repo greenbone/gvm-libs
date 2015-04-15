@@ -1,3 +1,15 @@
+2015-04-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Revert r22092 as nasl_perror() could be called before nvticache
+	initialization.
+
+	* nasl/exec.c (exec_nasl_script): Don't set script name in script_infos
+	arglist.
+
+	* nasl/nasl_debug.c (nasl_perror): Get script name from nvticache.
+
+	* base/nvticache.c (nvticache_get_src): Add null check.
+
 2015-04-15  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* omp/omp.c (omp_create_task_ext): Check and insert correct id for

@@ -292,6 +292,8 @@ nvticache_get_src (const char *oid)
 
   g_snprintf (pattern, sizeof (pattern), "oid:%s:name", oid);
   filename = kb_item_get_str (cache_kb, pattern);
+  if (!filename)
+    return NULL;
   src = g_build_filename (src_path, filename, NULL);
   g_free (filename);
   return src;
