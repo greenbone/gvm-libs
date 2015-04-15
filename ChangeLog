@@ -1,5 +1,17 @@
 2015-04-14  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
+	Backport r21686, not including the options scanner and schedule_periods
+	not supported by OpenVAS-7. Also check and insert schedule_id properly.
+
+	* omp/omp.c (omp_create_task_ext): Add options alterable,
+	hosts_ordering, schedule, slave_id, in_assets, source_iface, alerts,
+	observers, observer_groups.
+
+	* omp/omp.h: Add #include "../base/array.h".
+	(omp_create_task_opts_t): Add new options listed above.
+
+2015-04-14  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
 	Backport r21600.
 
 	* omp/omp.h (omp_create_target_opts_t): Add fields exclude_hosts,

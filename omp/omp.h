@@ -26,6 +26,7 @@
 #ifndef _OPENVAS_LIBRARIES_OMP_H
 #define _OPENVAS_LIBRARIES_OMP_H
 
+#include "../base/array.h"
 #include "xml.h"
 
 #ifdef __cplusplus
@@ -103,17 +104,26 @@ static const omp_get_task_opts_t omp_get_task_opts_defaults =
 
 /**
  * @brief Struct holding options for omp create_task command.
- *
- * FIXME: This SHOULD contain all valid options from the OMP spec.
  */
 typedef struct
 {
-  const char* config_id;   ///< ID of config.
-  const char* target_id;   ///< ID of target.
-  const char* name;        ///< Name of task.
-  const char* comment;     ///< Comment on task.
-  const char* max_hosts;   ///< Max hosts preference.
-  const char* max_checks;  ///< Max checks preference.
+  array_t*    alert_ids;      ///< Array of alert IDs.
+  const char* config_id;      ///< ID of config.
+  const char* schedule_id;    ///< ID of task schedule.
+  const char* slave_id;       ///< ID of task schedule.
+  const char* target_id;      ///< ID of target.
+  const char* name;           ///< Name of task.
+  const char* comment;        ///< Comment on task.
+  const char* hosts_ordering; ///< Order for scanning target hosts.
+  const char* observers;      ///< Comma-separated string of observer users.
+  array_t*    observer_groups;///< IDs of observer groups.
+  /* Preferences */
+  const char* in_assets;      ///< In assets preference.
+  const char* max_hosts;      ///< Max hosts preference.
+  const char* max_checks;     ///< Max checks preference.
+  const char* source_iface;   ///< Source iface preference.
+  /* Boolean flags: */
+  int alterable;              ///< Whether the task is alterable.
 } omp_create_task_opts_t;
 
 /**

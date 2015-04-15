@@ -332,7 +332,8 @@ omp_create_task_ext (gnutls_session_t* session,
 {
   /* Create the OMP request. */
 
-  gchar *new, *prefs, *start;
+  gchar *new, *prefs, *start, *hosts_ordering, *schedule, *slave;
+  GString *alerts, *observers;
 
   if ((opts.config_id == NULL) || (opts.target_id == NULL))
     return -1;
@@ -342,17 +343,48 @@ omp_create_task_ext (gnutls_session_t* session,
                                    "<config id=\"%s\"/>"
                                    "<target id=\"%s\"/>"
                                    "<name>%s</name>"
-                                   "<comment>%s</comment>",
+                                   "<comment>%s</comment>"
+                                   "<alterable>%d</alterable>",
                                    opts.config_id,
                                    opts.target_id,
                                    opts.name ? opts.name : "unnamed",
-                                   opts.comment ? opts.comment : "");
+                                   opts.comment ? opts.comment : "",
+                                   opts.alterable ? 1 : 0);
 
-  if (opts.max_checks || opts.max_hosts)
+  if (opts.hosts_ordering)
+    hosts_ordering = g_strdup_printf ("<hosts_ordering>%s</hosts_ordering>",
+                                      opts.hosts_ordering);
+  else
+    hosts_ordering = NULL;
+
+  if (opts.schedule_id)
+    schedule = g_strdup_printf ("<schedule id=\"%s\"/>",
+                                opts.schedule_id);
+  else
+    schedule = NULL;
+
+  if (opts.slave_id)
+    slave = g_strdup_printf ("<slave id=\"%s\"/>",
+                             opts.slave_id);
+  else
+    slave = NULL;
+
+  if (opts.max_checks || opts.max_hosts || opts.in_assets || opts.source_iface)
     {
-      gchar *checks, *hosts;
+      gchar *in_assets, *checks, *hosts, *source_iface;
 
-      checks = hosts = NULL;
+      in_assets = checks = hosts = source_iface = NULL;
+
+      if (opts.in_assets)
+        in_assets = g_markup_printf_escaped ("<preference>"
+                                             "<scanner_name>"
+                                             "in_assets"
+                                             "</scanner_name>"
+                                             "<value>"
+                                             "%s"
+                                             "</value>"
+                                             "</preference>",
+                                             opts.in_assets);
 
       if (opts.max_checks)
         checks = g_markup_printf_escaped ("<preference>"
@@ -376,16 +408,82 @@ omp_create_task_ext (gnutls_session_t* session,
                                          "</preference>",
                                          opts.max_checks);
 
-      prefs = g_strdup_printf ("<preferences>%s%s</preferences>",
+      if (opts.source_iface)
+        source_iface = g_markup_printf_escaped ("<preference>"
+                                                "<scanner_name>"
+                                                "source_iface"
+                                                "</scanner_name>"
+                                                "<value>"
+                                                "%s"
+                                                "</value>"
+                                                "</preference>",
+                                                opts.source_iface);
+
+      prefs = g_strdup_printf ("<preferences>%s%s%s%s</preferences>",
+                               in_assets ? in_assets : "",
                                checks ? checks : "",
-                               hosts ? hosts : "");
+                               hosts ? hosts : "",
+                               source_iface ? source_iface : "");
+      g_free (in_assets);
       g_free (checks);
       g_free (hosts);
+      g_free (source_iface);
     }
 
-  new = g_strdup_printf ("%s%s</create_task>", start, prefs);
+  if (opts.alert_ids)
+    {
+      int i;
+      alerts = g_string_new ("");
+      for (i = 0; i < opts.alert_ids->len; i++)
+        {
+          char *alert = (char*)g_ptr_array_index (opts.alert_ids, i);
+          g_string_append_printf (alerts,
+                                  "<alert id=\"%s\"/>",
+                                  alert);
+        }
+    }
+  else
+    alerts = g_string_new ("");
+
+
+  if (opts.observers || opts.observer_groups)
+    {
+      observers = g_string_new ("<observers>");
+
+      if (opts.observers)
+        g_string_append (observers, opts.observers);
+
+      if (opts.observer_groups)
+        {
+          int i;
+          for (i = 0; i < opts.observer_groups->len; i++)
+            {
+              char *group = (char*) g_ptr_array_index (opts.observer_groups, i);
+              g_string_append_printf (observers,
+                                      "<group id=\"%s\"/>",
+                                      group);
+            }
+        }
+      g_string_append (observers, "</observers>");
+    }
+  else
+    observers = g_string_new ("");
+
+  new = g_strdup_printf ("%s%s%s%s%s%s%s</create_task>",
+                         start,
+                         prefs ? prefs : "",
+                         hosts_ordering ? hosts_ordering : "",
+                         schedule ? schedule : "",
+                         slave ? slave : "",
+                         alerts ? alerts->str : "",
+                         observers ? observers->str : "");
   g_free (start);
   g_free (prefs);
+  g_free (hosts_ordering);
+  g_free (schedule);
+  g_free (slave);
+  g_string_free (alerts, TRUE);
+  g_string_free (observers, TRUE);
 
   /* Send the request. */
 
