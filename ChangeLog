@@ -1,7 +1,7 @@
 2015-04-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_text_utils.c (nasl_egrep): Allocate extra byte as a \n is
-	prepended when regex matches.
+	appended when regex matches.
 
 2015-04-17  Michael Wiegand <michael.wiegand@greenbone.net>
 
