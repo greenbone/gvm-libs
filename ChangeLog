@@ -1,3 +1,9 @@
+2015-03-04  Sven Haardiek <sven.haardiek@greenbone.net>
+
+	Preparing the openvas-libraries 7.0.10 release.
+
+	* CHANGES: Updated.
+
 2015-04-15  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	Backport r21696, excluding unsupported options "min_qod" and
