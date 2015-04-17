@@ -715,7 +715,7 @@ nasl_egrep (lex_ctxt * lexic)
   else
     copt = 0;
 
-  rets = g_malloc0 (max_size + 1);
+  rets = g_malloc0 (max_size + 2);
   string = g_strdup (string);
 
 

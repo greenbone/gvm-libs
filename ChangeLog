@@ -1,3 +1,10 @@
+2015-04-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r22146.
+
+	* nasl/nasl_text_utils.c (nasl_egrep): Allocate extra byte as a \n is
+	appended when regex matches.
+
 2015-04-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport parts of r22049.
