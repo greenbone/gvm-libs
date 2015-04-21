@@ -1625,14 +1625,15 @@ nasl_ssh_shell_open (lex_ctxt *lexic)
     return NULL;
   if (ssh_channel_open_session (channel))
     {
-      log_legacy_write ("ssh_shell_open: Couldn't open ssh shell");
+      log_legacy_write ("ssh_channel_open_session: %s",
+                        ssh_get_error (session));
       ssh_channel_free (channel);
       return NULL;
     }
 
   if (request_ssh_shell (channel))
     {
-      log_legacy_write ("ssh_shell_open: Couldn't open ssh shell");
+      log_legacy_write ("request_ssh_shell: %s", ssh_get_error (session));
       ssh_channel_free (channel);
       return NULL;
     }
@@ -1750,7 +1751,8 @@ nasl_ssh_shell_write (lex_ctxt *lexic)
   len = strlen (cmd);
   if (ssh_channel_write (channel, cmd, len) != len)
     {
-      log_legacy_write ("ssh_shell_write: Error writing to shell");
+      log_legacy_write ("ssh_shell_write: %s",
+                        ssh_get_error (session_table[tbl_slot].session));
       goto write_ret;
     }
   rc = 0;

@@ -1,3 +1,8 @@
+2015-04-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_ssh.c (nasl_ssh_shell_open, nasl_ssh_shell_write): Improve
+	error messages.
+
 2015-04-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_text_utils.c (nasl_egrep): Allocate extra byte as a \n is
