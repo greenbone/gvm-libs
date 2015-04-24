@@ -1,3 +1,11 @@
+2015-04-24  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Backport r22134.
+
+	* CMakeLists.txt: Retrieve SNMP_LDFLAGS only when the libsnmp
+	development libraries were found as net-snmp-config may be present
+	without them.
+
 2015-04-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r22146.

@@ -248,10 +248,6 @@ if (NOT REDIS_FOUND)
   set (REDIS_LDFLAGS "-lhiredis")
 endif (NOT REDIS_FOUND)
 
-execute_process (COMMAND net-snmp-config --libs
-  OUTPUT_VARIABLE SNMP_LDFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-
 if (NOT MINGW)
   # TODO: We do not have a library lookup for those modules
   # which also works when cross compiling. Library names
@@ -277,6 +273,11 @@ if (NOT MINGW)
   message (STATUS "Looking for netsnmp...")
   find_library (SNMP snmp)
   message (STATUS "Looking for netsnmp... ${SNMP}")
+  if (SNMP)
+    execute_process (COMMAND net-snmp-config --libs
+      OUTPUT_VARIABLE SNMP_LDFLAGS
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+  endif (SNMP)
 
   execute_process (COMMAND ksba-config --libs
     OUTPUT_VARIABLE KSBA_LDFLAGS
