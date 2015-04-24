@@ -1,3 +1,10 @@
+2015-04-24  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* libopenvas_base.pc.in, libopenvas_misc.pc.in, libopenvas_omp.pc.in,
+	libopenvas_nasl.pc.in: Move dependencies from "Requires" to
+	"Requires.private" to prevent overlinking when libopenvas_* is linked
+	against. Update minimum versions to match CMakeLists.txt and INSTALL.
+
 2015-04-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_ssh.c (nasl_ssh_shell_open, nasl_ssh_shell_write): Improve
