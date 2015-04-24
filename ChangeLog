@@ -1,5 +1,14 @@
 2015-04-24  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Backport r22202.
+
+	* libopenvas_base.pc.in, libopenvas_misc.pc.in, libopenvas_omp.pc.in,
+	libopenvas_nasl.pc.in: Move dependencies from "Requires" to
+	"Requires.private" to prevent overlinking when libopenvas_* is linked
+	against. Update minimum versions to match CMakeLists.txt and INSTALL.
+
+2015-04-24  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Backport r22134.
 
 	* CMakeLists.txt: Retrieve SNMP_LDFLAGS only when the libsnmp
