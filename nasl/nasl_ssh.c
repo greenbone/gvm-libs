@@ -1638,7 +1638,11 @@ nasl_ssh_shell_open (lex_ctxt *lexic)
       return NULL;
     }
   if (session_table[tbl_slot].channel)
-    ssh_channel_close (session_table[tbl_slot].channel);
+    {
+      ssh_channel_send_eof (session_table[tbl_slot].channel);
+      ssh_channel_close (session_table[tbl_slot].channel);
+      ssh_channel_free (session_table[tbl_slot].channel);
+    }
   session_table[tbl_slot].channel = channel;
 
   retc = alloc_typed_cell (CONST_INT);
