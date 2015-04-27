@@ -326,6 +326,7 @@ configure_file (libopenvas_base.pc.in ${CMAKE_BINARY_DIR}/libopenvas_base.pc @ON
 configure_file (libopenvas_omp.pc.in ${CMAKE_BINARY_DIR}/libopenvas_omp.pc @ONLY)
 configure_file (libopenvas_misc.pc.in ${CMAKE_BINARY_DIR}/libopenvas_misc.pc @ONLY)
 configure_file (libopenvas_nasl.pc.in ${CMAKE_BINARY_DIR}/libopenvas_nasl.pc @ONLY)
+configure_file (libopenvas_osp.pc.in ${CMAKE_BINARY_DIR}/libopenvas_osp.pc @ONLY)
 
 ## Program
 
@@ -335,6 +336,7 @@ if (NOT OPENVAS_OMP_ONLY)
   add_subdirectory (nasl)
 endif (NOT OPENVAS_OMP_ONLY)
 add_subdirectory (omp)
+add_subdirectory (osp)
 
 ## Documentation
 
@@ -352,6 +354,8 @@ install (FILES ${CMAKE_BINARY_DIR}/libopenvas_omp.pc
 install (FILES ${CMAKE_BINARY_DIR}/libopenvas_misc.pc
          DESTINATION ${LIBDIR}/pkgconfig)
 install (FILES ${CMAKE_BINARY_DIR}/libopenvas_nasl.pc
+         DESTINATION ${LIBDIR}/pkgconfig)
+install (FILES ${CMAKE_BINARY_DIR}/libopenvas_osp.pc
          DESTINATION ${LIBDIR}/pkgconfig)
 
 install (DIRECTORY DESTINATION ${OPENVAS_LOG_DIR})

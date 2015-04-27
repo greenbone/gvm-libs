@@ -1,3 +1,30 @@
+2015-04-27  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Move OSP related code into new submodule "osp". This removes the
+	cyclic dependency between "base" and "omp" introduced in r19335. The
+	new submodule currently has dependencies on "base", "misc" and "omp".
+
+	* CMakeLists.txt: Add handling of "osp/" subdirectory and of
+	pkg-config file for libopenvas_osp.
+
+	* libopenvas_osp.pc.in: New pkg-config file for libopenvas_osp.
+
+	* osp/: New. Contains "osp" submodule.
+
+	* osp/CMakeLists.txt: New. CMakeLists for "osp" submodule.
+
+	* osp/osp.c: New. Moved here from "base/osp.c", minor adjustments for
+	new location.
+
+	* osp/osp.h: New. Moved here from "base/osp.h", adjust module name in
+	header for consistency.
+
+	* base/osp.c: Removed. Moved to "osp/osp.c".
+
+	* base/osp.h: Removed. Moved to "osp/osp.h".
+
+	* base/CMakeLists.txt: Remove handling of osp.h and osp.c.
+
 2015-04-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_ssh.c (nasl_ssh_shell_open): Free ssh channel after closing

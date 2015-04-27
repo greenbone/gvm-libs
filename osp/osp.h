@@ -1,4 +1,4 @@
-/* openvas-libraries/base
+/* openvas-libraries/osp
  * $Id$
  * Description: API for OSP communication.
  *

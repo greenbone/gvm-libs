@@ -1,0 +1,11 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=@EXEC_PREFIX@
+libdir=@LIBDIR@
+includedir=@INCLUDEDIR@
+
+Name: openvas-libraries-osp
+Description: OpenVAS osp libraries
+Version: @LIBOPENVASCONFIG_VERSION@
+Requires.private: glib-2.0 >= 2.16.0
+Cflags: -I${includedir} -I${includedir}/openvas
+Libs: -L${libdir} -lopenvas_osp
