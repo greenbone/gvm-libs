@@ -1,3 +1,7 @@
+2015-04-27  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* base/CMakeLists.txt: Link against libssh since base uses it.
+
 2015-04-24  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* libopenvas_base.pc.in, libopenvas_misc.pc.in, libopenvas_omp.pc.in,

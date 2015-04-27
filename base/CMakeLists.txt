@@ -73,7 +73,7 @@ if (BUILD_SHARED)
       assuan libgpg-error ole32 ws2_32 ffi z shlwapi dnsapi winmm)
     target_link_libraries (openvas_base_shared openvas_omp_shared ${W32LIBS})
   else (MINGW)
-    target_link_libraries (openvas_base_shared openvas_omp_shared ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${ZLIB_LDFLAGS} ${GPGME_LDFLAGS})
+    target_link_libraries (openvas_base_shared openvas_omp_shared ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${ZLIB_LDFLAGS} ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS})
   endif (MINGW)
 endif (BUILD_SHARED)
 
