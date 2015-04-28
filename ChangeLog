@@ -1,3 +1,12 @@
+2015-04-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Backport r22220.
+
+	* base/openvas_networking.c (openvas_ssh_public_from_private): Ensure
+	openvas-libraries builds with GLib =< 2.30 by wrapping g_mkdtemp_full ()
+	in an ifdef and falling back to mkdtemp () when using older GLib
+	versions. Based on patch suggested by Miguel Angel Cabrera Moya.
+
 2015-04-24  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Backport r22202.
