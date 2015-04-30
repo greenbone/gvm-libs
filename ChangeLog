@@ -1,3 +1,14 @@
+2015-04-30  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Explicitly link against used libraries.
+
+	* omp/CMakeLists.txt: libopenvas_omp uses libopenvas_misc, so link
+	against it.
+
+	* base/CMakeLists.txt: libopenvas_base no longer depends on
+	libopenvas_omp, stop linking against it. libopenvas_base uses
+	libgnutls, so link against it.
+
 2015-04-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (open_sock_tcp): Wrap time-out log message in NDEBUG

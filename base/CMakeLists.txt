@@ -71,9 +71,9 @@ if (BUILD_SHARED)
     set (GLIB_LDFLAGS -Wl,--start-group ${GLIB_LDFLAGS} gmodule-2.0 -Wl,--end-group)
     set (W32LIBS ${GLIB_LDFLAGS} intl iconv gpgme
       assuan libgpg-error ole32 ws2_32 ffi z shlwapi dnsapi winmm)
-    target_link_libraries (openvas_base_shared openvas_omp_shared ${W32LIBS})
+    target_link_libraries (openvas_base_shared ${W32LIBS})
   else (MINGW)
-    target_link_libraries (openvas_base_shared openvas_omp_shared ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${ZLIB_LDFLAGS} ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS})
+    target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${ZLIB_LDFLAGS} ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS})
   endif (MINGW)
 endif (BUILD_SHARED)
 
