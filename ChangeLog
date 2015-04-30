@@ -1,3 +1,9 @@
+2015-04-29  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the openvas-libraries 8.0.2 release.
+
+	* CHANGES: Updated.
+
 2015-04-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Backport r22220.

@@ -1,3 +1,27 @@
+openvas-libraries 8.0.2 (2015-04-30)
+
+This is the second maintenance release of the openvas-libraries 8.0 module for
+the Open Vulnerability Assessment System 8 (OpenVAS-8).
+
+This release adds support for retrieving the target hostname via a reverse DNS
+lookup and fixes a segmentation fault when using regular expressions as well as
+addressing several build issues.
+
+Many thanks to everyone who has contributed to this release:
+Hani Benhabiles, Miguel Angel Cabrera Moya and Michael Wiegand.
+
+Main changes compared to 8.0.1:
+* Support for retrieving the target hostname through a reverse DNS lookup has
+  been added.
+* A memory issue which caused segmentation faults when using regular expression
+  in certain circumstances has been fixed.
+* A build issue with determining linker flags for libsnmp has been addressed.
+* Superfluous linker flags reported by openvas-libraries through pkg-config have
+  been removed to avoid overlinking.
+* An issue which prevented openvas-libraries from building with GLib =< 2.30 has
+  been addressed.
+
+
 openvas-libraries 8.0.1 (2015-04-01)
 
 This is the first maintenance release of the openvas-libraries 8.0 module for
