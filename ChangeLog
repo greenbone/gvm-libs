@@ -1,5 +1,11 @@
 2015-04-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Backport r22270.
+
+	* misc/network.c (open_sock_tcp): Fix NDEBUG value check.
+
+2015-04-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Backport r22266.
 
 	* misc/network.c (open_sock_tcp): Wrap time-out log message in NDEBUG
