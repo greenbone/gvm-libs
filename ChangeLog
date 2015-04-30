@@ -1,3 +1,8 @@
+2015-04-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network.c (open_sock_tcp): Wrap time-out log message in NDEBUG
+	definition test.
+
 2015-04-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/openvas_networking.c (openvas_ssh_public_from_private): Ensure
