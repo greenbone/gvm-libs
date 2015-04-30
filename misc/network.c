@@ -2088,7 +2088,7 @@ open_sock_tcp (struct arglist *args, unsigned int port, int timeout)
 
   errno = 0;
   ret = open_sock_option (args, port, SOCK_STREAM, IPPROTO_TCP, timeout);
-#ifdef NDEBUG
+#ifndef NDEBUG
   if (ret < 0 && errno == ETIMEDOUT)
     {
       char *ip_str = plug_get_host_ip_str (args);

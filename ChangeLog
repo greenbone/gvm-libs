@@ -1,3 +1,7 @@
+2015-04-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network.c (open_sock_tcp): Fix NDEBUG value check.
+
 2015-04-30  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Explicitly link against used libraries.
