@@ -1,3 +1,18 @@
+openvas-libraries 8.0.3 (2015-05-11)
+
+This is the third maintenance release of the openvas-libraries 8.0 module for
+the Open Vulnerability Assessment System 8 (OpenVAS-8).
+
+This release improves the test for excluded hosts.
+
+Many thanks to everyone who has contributed to this release:
+Hani Benhabiles.
+
+Main changes compared to 8.0.2:
+* The test for excluded hosts now checks the targets resolved IP address as well
+  when in resolve mode.
+
+
 openvas-libraries 8.0.2 (2015-04-30)
 
 This is the second maintenance release of the openvas-libraries 8.0 module for
