@@ -1274,8 +1274,7 @@ openvas_hosts_resolve (openvas_hosts_t *hosts)
  *
  * @param[in] hosts         The hosts collection from which to exclude.
  * @param[in] excluded_str  String of hosts to exclude.
- * @param[in] resolve       Boolean. Whether to resolve the hostnames in
- *                          excluded_str before excluding.
+ * @param[in] resolve       Boolean. Whether to also resolve hostnames when excluding.
  *
  * @return Number of excluded hosts, -1 if error.
  */
@@ -1324,21 +1323,40 @@ openvas_hosts_exclude (openvas_hosts_t *hosts, const char *excluded_str,
   while (element)
     {
       gchar *name;
+      struct in_addr addr;
+      openvas_host_t *host = element->data;
 
-      if ((name = openvas_host_value_str (element->data)))
+      if ((name = openvas_host_value_str (host)))
         {
           if (g_hash_table_lookup (name_table, name))
             {
               element = openvas_hosts_remove_element (hosts, element);
               excluded++;
+              g_free (name);
+              continue;
             }
-          else
-            element = element->next;
-
           g_free (name);
         }
-      else
-        element = element->next;
+
+      /* If hostname, try to resolve it and check if IP is excluded. */
+      if (resolve && host->type == HOST_TYPE_NAME
+          && openvas_host_resolve (host, &addr, AF_INET) == 0)
+        {
+          struct in6_addr addr6;
+
+          ipv4_as_ipv6 (&addr, &addr6);
+          name = addr6_as_str (&addr6);
+          if (g_hash_table_lookup (name_table, name))
+            {
+              element = openvas_hosts_remove_element (hosts, element);
+              excluded++;
+              g_free (name);
+              continue;
+            }
+          g_free (name);
+        }
+
+      element = element->next;
     }
 
   /* Cleanup. */
@@ -1652,11 +1670,6 @@ openvas_host_value_str (const openvas_host_t *host)
             }
 
           str = g_malloc0 (size);
-          if (str == NULL)
-            {
-              perror ("g_malloc0");
-              return NULL;
-            }
           if (inet_ntop (family, srcaddr, str, size) == NULL)
             {
               perror ("inet_ntop");

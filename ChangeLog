@@ -1,3 +1,14 @@
+2015-05-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r22328.
+
+	* base/openvas_hosts.c (openvas_hosts_exclude): When in resolve mode,
+	also check whether a hostname's resolved IP address is excluded.
+	(openvas_host_value_str): Remove g_malloc0() return value check.
+
+	* base/test-hosts.c (main): Add test for excluded hosts with 2nd cli
+	argument.
+
 2015-04-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r22270.
