@@ -1,5 +1,11 @@
 2015-05-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Backport r22332.
+
+	* misc/network.c (open_sock_tcp): Always log time-out message.
+
+2015-05-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Backport r22328.
 
 	* base/openvas_hosts.c (openvas_hosts_exclude): When in resolve mode,

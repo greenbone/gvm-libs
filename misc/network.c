@@ -2088,7 +2088,6 @@ open_sock_tcp (struct arglist *args, unsigned int port, int timeout)
 
   errno = 0;
   ret = open_sock_option (args, port, SOCK_STREAM, IPPROTO_TCP, timeout);
-#ifndef NDEBUG
   if (ret < 0 && errno == ETIMEDOUT)
     {
       char *ip_str = plug_get_host_ip_str (args);
@@ -2096,7 +2095,6 @@ open_sock_tcp (struct arglist *args, unsigned int port, int timeout)
       log_legacy_write ("open_sock_tcp: %s:%d time-out.\n", ip_str, port);
       g_free (ip_str);
     }
-#endif
 
   return ret;
 }
