@@ -1,5 +1,9 @@
 2015-05-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/network.c (open_sock_tcp): Always log time-out message.
+
+2015-05-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/openvas_hosts.c (openvas_hosts_exclude): When in resolve mode,
 	also check whether a hostname's resolved IP address is excluded.
 	(openvas_host_value_str): Remove g_malloc0() return value check.
