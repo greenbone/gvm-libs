@@ -45,6 +45,11 @@ main (int argc, char **argv)
   hosts = openvas_hosts_new (argv[1]);
   if (hosts == NULL)
     return 1;
+  if (argv[2])
+    {
+      if (openvas_hosts_exclude (hosts, argv[2], 1) == -1)
+        return 2;
+    }
 
   printf ("Count: %d\n", openvas_hosts_count (hosts));
   printf ("Removed: %d\n", openvas_hosts_removed (hosts));
