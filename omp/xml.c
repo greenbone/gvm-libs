@@ -587,8 +587,6 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
  * @brief Try read an XML entity tree from the manager.
  *
  * @param[in]   session   Pointer to GNUTLS session.
- * @param[in]   timeout   Seconds or server idle time before giving up.  0 to
- *                        wait forever.
  * @param[out]  entity    Pointer to an entity tree.
  * @param[out]  string    An optional return location for the text read
  *                        from the session.  If NULL then it simply
@@ -597,7 +595,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
  *                        Otherwise it points to an existing GString onto
  *                        which the text is appended.
  *
- * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
+ * @return 0 success, -1 read error, -2 parse error, -3 end of file.
  */
 int
 read_entity_and_string (gnutls_session_t * session, entity_t * entity,

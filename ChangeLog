@@ -1,3 +1,10 @@
+2015-05-18  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* omp/xml.c (read_entity_and_string): Fix misleading comment.
+	read_entity_and_string () has no timeout parameter and calls
+	try_read_entity_and_string () with timeout set to 0, so it cannot
+	return -4.
+
 2015-05-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (open_sock_tcp): Always log time-out message.
