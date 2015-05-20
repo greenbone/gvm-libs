@@ -27,6 +27,7 @@
 
 #include "ldap_connect_auth.h"
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -45,12 +46,6 @@
 
 #define KEY_LDAP_HOST "ldaphost"
 #define KEY_LDAP_DN_AUTH "authdn"
-#define KEY_LDAP_ROLE_ATTRIBUTE "role-attribute"
-#define KEY_LDAP_ROLE_USER_VALUES "role-user-values"
-#define KEY_LDAP_ROLE_ADMIN_VALUES "role-admin-values"
-#define KEY_LDAP_ROLE_OBSERVER_VALUES "role-observer-values"
-#define KEY_LDAP_RULE_ATTRIBUTE "rule-attribute"
-#define KEY_LDAP_RULETYPE_ATTRIBUTE "ruletype-attribute"
 
 /**
  * @file ldap_connect_auth.c
@@ -116,22 +111,6 @@ ldap_auth_info_from_key_file (GKeyFile * key_file, const gchar * group)
                                           KEY_LDAP_DN_AUTH, NULL);
   gchar *ldap_host = g_key_file_get_string (key_file, group,
                                             KEY_LDAP_HOST, NULL);
-  gchar *role_attr = g_key_file_get_string (key_file, group,
-                                            KEY_LDAP_ROLE_ATTRIBUTE, NULL);
-  gchar **role_usrv = g_key_file_get_string_list (key_file, group,
-                                                  KEY_LDAP_ROLE_USER_VALUES,
-                                                  NULL, NULL);
-  gchar **role_admv = g_key_file_get_string_list (key_file, group,
-                                                  KEY_LDAP_ROLE_ADMIN_VALUES,
-                                                  NULL, NULL);
-  gchar **role_obsv = g_key_file_get_string_list (key_file, group,
-                                                  KEY_LDAP_ROLE_OBSERVER_VALUES,
-                                                  NULL, NULL);
-  gchar *ruletype_attr = g_key_file_get_string (key_file, group,
-                                                KEY_LDAP_RULETYPE_ATTRIBUTE,
-                                                NULL);
-  gchar *rule_attr = g_key_file_get_string (key_file, group,
-                                            KEY_LDAP_RULE_ATTRIBUTE, NULL);
 
   gchar *plaintext_ok = g_key_file_get_value (key_file, group,
                                               "allow-plaintext", NULL);
@@ -145,23 +124,11 @@ ldap_auth_info_from_key_file (GKeyFile * key_file, const gchar * group)
     is_connect = TRUE;
 
   ldap_auth_info_t info = ldap_auth_info_new (ldap_host, auth_dn,
-                                              role_attr,
-                                              role_usrv,
-                                              role_admv,
-                                              role_obsv,
-                                              ruletype_attr,
-                                              rule_attr,
                                               allow_plaintext,
                                               is_connect);
 
   g_free (auth_dn);
   g_free (ldap_host);
-  g_free (role_attr);
-  g_free (role_usrv);
-  g_free (role_admv);
-  g_free (role_obsv);
-  g_free (ruletype_attr);
-  g_free (rule_attr);
 
   return info;
 }
@@ -174,17 +141,6 @@ ldap_auth_info_from_key_file (GKeyFile * key_file, const gchar * group)
  * @param auth_dn           DN where the actual user name is to be inserted at
  *                          "%s", e.g. uid=%s,cn=users. Might not be NULL,
  *                          but empty, has to contain a single %s.
- * @param role_attribute    Attribute that qualifies a role. Might not be NULL,
- *                          but empty.
- * @param role_user_values  Comma-separated list of values for
- *                          \ref role_attribute that qualify as a user.
- *                          Might not be NULL, but empty.
- * @param role_admin_values Comma-separated list of values
- *                          for \ref role_attribute that qualify as an admin.
- *                          Might not be NULL, but empty.
- * @param role_observer_values   Comma-separated list of values
- *                               for \ref role_attribute that qualify as an
- *                               observer.  Might not be NULL, but empty.
  * @param allow_plaintext   If FALSE, require StartTLS initialization to
  *                          succeed.
  * @param is_connect        If TRUE, certain parameters are not needed.
@@ -194,11 +150,10 @@ ldap_auth_info_from_key_file (GKeyFile * key_file, const gchar * group)
  */
 ldap_auth_info_t
 ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
-                    const gchar * role_attribute, gchar ** role_user_values,
-                    gchar ** role_admin_values, gchar ** role_observer_values,
-                    const gchar * ruletype_attr, const gchar * rule_attr,
                     gboolean allow_plaintext, gboolean is_connect)
 {
+  assert (is_connect);
+
   // Certain parameters might not be NULL.
   if (!ldap_host || !auth_dn)
     return NULL;
@@ -206,21 +161,9 @@ ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
   if (ldap_auth_dn_is_good (auth_dn) == FALSE)
     return NULL;
 
-  if (!is_connect)
-    {
-      if (!ruletype_attr || !rule_attr)
-        return NULL;
-    }
-
   ldap_auth_info_t info = g_malloc0 (sizeof (struct ldap_auth_info));
   info->ldap_host = g_strdup (ldap_host);
   info->auth_dn = g_strdup (auth_dn);
-  info->role_attribute = g_strdup (role_attribute);
-  info->role_user_values = g_strdupv (role_user_values);
-  info->role_admin_values = g_strdupv (role_admin_values);
-  info->role_observer_values = g_strdupv (role_observer_values);
-  info->ruletype_attribute = g_strdup (ruletype_attr);
-  info->rule_attribute = g_strdup (rule_attr);
   info->allow_plaintext = allow_plaintext;
 
   return info;
@@ -239,12 +182,6 @@ ldap_auth_info_free (ldap_auth_info_t info)
 
   g_free (info->ldap_host);
   g_free (info->auth_dn);
-  g_free (info->role_attribute);
-  g_strfreev (info->role_admin_values);
-  g_strfreev (info->role_observer_values);
-  g_strfreev (info->role_user_values);
-  g_free (info->rule_attribute);
-  g_free (info->ruletype_attribute);
 
   g_free (info);
 }

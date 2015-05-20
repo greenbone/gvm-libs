@@ -156,8 +156,6 @@ gchar* (*classic_get_hash) (const gchar *) = NULL;
 
 int (*user_uuid_method) (const char *method) = NULL;
 
-int (*user_set_role) (const gchar *, const gchar *, const gchar *) = NULL;
-
 gchar* (*user_get_uuid) (const gchar *, auth_method_t) = NULL;
 
 int (*user_exists) (const gchar *, auth_method_t) = NULL;
@@ -326,8 +324,6 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
  */
 int
 openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
-                         int (*set_role) (const gchar *, const gchar *,
-                                          const gchar *),
                          int (*user_exists_arg) (const gchar *, auth_method_t),
                          gchar * (*get_uuid) (const gchar *, auth_method_t))
 {
@@ -343,7 +339,6 @@ openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
   user_exists = user_exists_arg;
   classic_get_hash = get_hash;
   user_get_uuid = get_uuid;
-  user_set_role = set_role;
 
   /* Init Libgcrypt. */
 

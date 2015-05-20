@@ -1,3 +1,22 @@
+2015-05-20  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Remove unused LDAP elements.
+
+	* misc/ldap_connect_auth.c (KEY_LDAP_ROLE_ATTRIBUTE,
+	(KEY_LDAP_ROLE_USER_VALUES, KEY_LDAP_ROLE_ADMIN_VALUES)
+	(KEY_LDAP_ROLE_OBSERVER_VALUES, KEY_LDAP_RULE_ATTRIBUTE)
+	(KEY_LDAP_RULETYPE_ATTRIBUTE): Remove.  No longer used.
+	(ldap_auth_info_from_key_file, ldap_auth_info_new): Remove role and
+	rule fields.
+
+	* misc/ldap_connect_auth.h: Update header accordingly.
+	(struct ldap_auth_info): Remove role and rule fields.
+
+	* misc/openvas_auth.c (user_set_role): Remove.  No longer used.
+	(openvas_auth_init_funcs): Remove set_role.  No longer used.
+
+	* misc/openvas_auth.h: Update header accordingly.
+
 2015-05-18  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* omp/xml.c (read_entity_and_string): Fix misleading comment.
