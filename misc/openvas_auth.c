@@ -133,8 +133,6 @@ struct authenticator
 typedef struct authenticator *authenticator_t;
 
 
-gchar* (*classic_get_hash) (const gchar *) = NULL;
-
 int (*get_ldap_info) (gchar **, gchar **, int *) = NULL;
 
 /**
@@ -229,8 +227,7 @@ classic_authenticator_new (int order)
  * @return 0 success, -1 error.
  */
 int
-openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
-                         int (*get_ldap_information) (gchar **,
+openvas_auth_init_funcs (int (*get_ldap_information) (gchar **,
                                                       gchar **,
                                                       int *))
 {
@@ -240,7 +237,6 @@ openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
       return -1;
     }
 
-  classic_get_hash = get_hash;
   get_ldap_info = get_ldap_information;
 
   /* Init Libgcrypt. */
@@ -414,15 +410,15 @@ get_password_hashes (int digest_algorithm, const gchar * password)
 /**
  * @brief Authenticate a credential pair against openvas user file contents.
  *
- * @param username Username.
- * @param password Password.
- * @param data     Ignored.
+ * @param username  Username.
+ * @param password  Password.
+ * @param hash_arg  Hash.
  *
  * @return 0 authentication success, 1 authentication failure, -1 error.
  */
 int
-openvas_authenticate_classic (const gchar * username, const gchar * password,
-                              void *data)
+openvas_authenticate_classic (const gchar *username, const gchar *password,
+                              const gchar *hash_arg)
 {
   int gcrypt_algorithm = GCRY_MD_MD5;   // FIX whatever configer used
   int ret;
@@ -430,12 +426,9 @@ openvas_authenticate_classic (const gchar * username, const gchar * password,
   guchar *hash;
   gchar *hash_hex, **seed_hex, **split;
 
-  if (classic_get_hash == NULL)
-    return -1;
-
-  actual = classic_get_hash (username);
-  if (actual == NULL)
+  if (hash_arg == NULL)
     return 1;
+  actual = g_strdup (hash_arg);
 
   split = g_strsplit_set (g_strchomp (actual), " ", 2);
   seed_hex = split + 1;

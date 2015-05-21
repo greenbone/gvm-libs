@@ -1,5 +1,14 @@
 2015-05-21  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* misc/openvas_auth.c (classic_get_hash): Remove.  No longer used.
+	(openvas_auth_init_funcs): Remove get_hash arg.
+	(openvas_authenticate_classic): Replace unused data arg with hash arg.
+	Use hash arg instead of calling function.
+
+	* misc/openvas_auth.h: Update headers accordingly.
+
+2015-05-21  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	Remove the mechanism for multiple configurable authentication methods,
 	and associated functions.  Expose the basics of classic and LDAP auth so
 	that Manager can call these.

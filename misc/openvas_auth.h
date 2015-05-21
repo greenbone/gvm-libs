@@ -50,13 +50,12 @@ typedef enum authentication_method auth_method_t;
 
 const gchar *auth_method_name (auth_method_t);
 
-int openvas_auth_init_funcs (gchar * (*) (const gchar *),
-                             int (*) (gchar **, gchar **, int *));
+int openvas_auth_init_funcs (int (*) (gchar **, gchar **, int *));
 
 void openvas_auth_tear_down (void);
 
 int
-openvas_authenticate_classic (const gchar *, const gchar *, void *);
+openvas_authenticate_classic (const gchar *, const gchar *, const gchar *);
 
 gchar *get_password_hashes (int, const gchar *);
 
