@@ -1,5 +1,29 @@
 2015-05-21  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	Remove the mechanism for multiple configurable authentication methods,
+	and associated functions.  Expose the basics of classic and LDAP auth so
+	that Manager can call these.
+
+	* src/CMakeLists.txt (FILES, HEADERS): Add ldap_connect_auth files.
+
+	* misc/ldap_connect_auth.h: Expose some headers even when LDAP is not
+	compiled, so that Manager can refer to them.
+
+	* misc/openvas_auth.c: (struct authenticator): Remove fields.  No
+	longer used.
+	(openvas_auth_ldap_enabled): New function.
+	(classic_authenticator_new): Remove fields.
+	(openvas_auth_init_funcs): Remove callback args.  No longer used.
+	(openvas_authenticate_classic): Export for Manager.
+	(can_user_ldap_connect, openvas_authenticate_method)
+	(openvas_user_uuid_method, openvas_user_exists_classic)
+	(ldap_connect_user_exists, openvas_user_exists)
+	(openvas_user_uuid): Remove.
+
+	* misc/openvas_auth.h: Update headers accordingly.
+
+2015-05-21  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	Remove usage of auth.conf.  Get LDAP settings from manager callback
 	instead.
 

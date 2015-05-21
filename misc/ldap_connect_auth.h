@@ -23,15 +23,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef ENABLE_LDAP_AUTH
-// Handle cases where openldap is not available.
-#else
-
 #ifndef LDAP_CONNECT_AUTH_H
 #define LDAP_CONNECT_AUTH_H
 
 #include <glib.h>
-#include <ldap.h>
 
 /** @brief Authentication schema and adress type. */
 typedef struct ldap_auth_info *ldap_auth_info_t;
@@ -57,6 +52,10 @@ int ldap_connect_authenticate (const gchar *, const gchar *,
 
 void ldap_auth_info_free (ldap_auth_info_t);
 
+#ifdef ENABLE_LDAP_AUTH
+
+#include <ldap.h>
+
 ldap_auth_info_t
 ldap_auth_info_new (const gchar *, const gchar *, gboolean);
 
@@ -68,6 +67,6 @@ ldap_auth_bind (const gchar *, const gchar *, const gchar *, gboolean);
 
 gboolean ldap_auth_dn_is_good (const gchar *);
 
-#endif /* not LDAP_CONNECT_AUTH_H */
-
 #endif /* ENABLE_LDAP_AUTH */
+
+#endif /* not LDAP_CONNECT_AUTH_H */

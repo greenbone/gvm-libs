@@ -125,10 +125,6 @@ struct authenticator
   auth_method_t method;
   /** @brief The order. Authenticators with lower order will be tried first. */
   int order;
-  /** @brief Authentication callback function. */
-  int (*authenticate) (const gchar * user, const gchar * pass, void *data);
-  /** @brief Existence predicate callback function. */
-  int (*user_exists) (const gchar * user, void *data);
   /** @brief Optional data to be passed to callback functions. */
   void *data;
 };
@@ -137,25 +133,24 @@ struct authenticator
 typedef struct authenticator *authenticator_t;
 
 
-// forward decl.
-static int openvas_authenticate_classic (const gchar * usr, const gchar * pas,
-                                         void *dat);
-
-static int openvas_user_exists_classic (const gchar *name, void *data);
-
-#ifdef ENABLE_LDAP_AUTH
-static int ldap_connect_user_exists (const gchar *name, void *data);
-#endif
-
 gchar* (*classic_get_hash) (const gchar *) = NULL;
 
-int (*user_uuid_method) (const char *method) = NULL;
-
-gchar* (*user_get_uuid) (const gchar *, auth_method_t) = NULL;
-
-int (*user_exists) (const gchar *, auth_method_t) = NULL;
-
 int (*get_ldap_info) (gchar **, gchar **, int *) = NULL;
+
+/**
+ * @brief Return whether libraries has been compiled with LDAP support.
+ *
+ * @return 1 if enabled, else 0.
+ */
+int
+openvas_auth_ldap_enabled ()
+{
+#ifdef ENABLE_LDAP_AUTH
+  return 1;
+#else
+  return 0;
+#endif /* ENABLE_LDAP_AUTH */
+}
 
 /**
  * @brief Return name of auth_method_t.
@@ -210,9 +205,7 @@ classic_authenticator_new (int order)
 {
   authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
   authent->order = order;
-  authent->authenticate = &openvas_authenticate_classic;
   authent->data = (void *) NULL;
-  authent->user_exists = &openvas_user_exists_classic;
   authent->method = AUTHENTICATION_METHOD_FILE;
   return authent;
 }
@@ -237,8 +230,6 @@ classic_authenticator_new (int order)
  */
 int
 openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
-                         int (*user_exists_arg) (const gchar *, auth_method_t),
-                         gchar * (*get_uuid) (const gchar *, auth_method_t),
                          int (*get_ldap_information) (gchar **,
                                                       gchar **,
                                                       int *))
@@ -249,9 +240,7 @@ openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
       return -1;
     }
 
-  user_exists = user_exists_arg;
   classic_get_hash = get_hash;
-  user_get_uuid = get_uuid;
   get_ldap_info = get_ldap_information;
 
   /* Init Libgcrypt. */
@@ -306,8 +295,6 @@ openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
         // TODO: The order is ignored in this case (oder_compare does sort
         //       LDAP_CONNECT differently), make order optional.
         authent->order = 1;
-        authent->authenticate = &ldap_connect_authenticate;
-        authent->user_exists = &ldap_connect_user_exists;
         authent->data = info;
         authent->method = AUTHENTICATION_METHOD_LDAP_CONNECT;
         authenticators =
@@ -433,7 +420,7 @@ get_password_hashes (int digest_algorithm, const gchar * password)
  *
  * @return 0 authentication success, 1 authentication failure, -1 error.
  */
-static int
+int
 openvas_authenticate_classic (const gchar * username, const gchar * password,
                               void *data)
 {
@@ -477,225 +464,3 @@ openvas_authenticate_classic (const gchar * username, const gchar * password,
   g_free (actual);
   return ret;
 }
-
-/**
- * @brief Check for existence of ldap_connect file in user auth/methods directory.
- *
- * If ldap_connect authentication is disabled, return FALSE.
- *
- * @param[in] username Username for which to check the existence of file.
- *
- * @return TRUE if the user is allowed to authenticate exclusively with an
- *         configured ldap_connect method, FALSE otherwise.
- */
-static gboolean
-can_user_ldap_connect (const gchar * username)
-{
-  // If ldap_connect is not globally enabled, no need to check locally.
-  if (ldap_connect_configured == FALSE)
-    return FALSE;
-
-  if (user_exists (username, AUTHENTICATION_METHOD_LDAP_CONNECT) == 0)
-    return FALSE;
-
-  return TRUE;
-}
-
-#ifndef _WIN32
-/**
- * @brief Authenticate a credential pair and expose the method used.
- *
- * Uses the configurable authenticators list, if available.
- * Defaults to file-based (openvas users directory) authentication otherwise.
- *
- * @param username Username.
- * @param password Password.
- * @param method[out] Return location for the method that was used to
- *                    authenticate the credential pair.
- *
- * @return 0 authentication success, otherwise the result of the last
- *         authentication trial: 1 authentication failure, -1 error.
- */
-int
-openvas_authenticate_method (const gchar * username, const gchar * password,
-                             auth_method_t * method)
-{
-  *method = AUTHENTICATION_METHOD_FILE;
-
-  if (initialized == FALSE)
-    {
-      g_warning ("Call init function first.");
-      return -1;
-    }
-
-  if (authenticators == NULL)
-    return openvas_authenticate_classic (username, password, NULL);
-
-  // Try each authenticator in the list.
-  int ret = -1;
-  GSList *item = authenticators;
-  while (item)
-    {
-      authenticator_t authent = (authenticator_t) item->data;
-
-      // LDAP_CONNECT is either the only method to try or not tried.
-      if (authent->method == AUTHENTICATION_METHOD_LDAP_CONNECT)
-        {
-          if (can_user_ldap_connect (username) == TRUE)
-            {
-              *method = AUTHENTICATION_METHOD_LDAP_CONNECT;
-              return authent->authenticate (username, password, authent->data);
-            }
-          else
-            {
-              item = g_slist_next (item);
-              continue;
-            }
-        }
-
-      ret = authent->authenticate (username, password, authent->data);
-      g_debug ("Authentication trial, order %d, method %s -> %d. (w/method)",
-               authent->order, authentication_methods[authent->method], ret);
-
-      // Return if successfull
-      if (ret == 0)
-        {
-          *method = authent->method;
-          return 0;
-        }
-
-      item = g_slist_next (item);
-    }
-
-  return ret;
-}
-
-
-/**
- * @brief Return the UUID of a user from the OpenVAS user UUID file.
- *
- * If the user exists, ensure that the user has a UUID (create that file).
- *
- * @param[in]  name   User name.
- *
- * @return UUID of given user if user exists, else NULL.
- */
-static gchar *
-openvas_user_uuid_method (const char *name, const auth_method_t method)
-{
-  if (user_get_uuid == NULL)
-    return NULL;
-
-  return user_get_uuid (name, method);
-}
-
-
-/**
- * @brief Check whether a local user exists.
- *
- * @param[in]  name   User name.
- * @param[in]  data   Dummy arg.
- *
- * @return 1 yes, 0 no, -1 error.
- */
-static int
-openvas_user_exists_classic (const gchar *name, void *data)
-{
-  if (user_exists == NULL)
-    return -1;
-
-  return user_exists (name, AUTHENTICATION_METHOD_FILE);
-}
-
-#ifdef ENABLE_LDAP_AUTH
-/**
- * @brief Check whether a "LDAP connect" user exists in the database.
- *
- * @param[in]  name   User name.
- * @param[in]  data   Dummy arg.
- *
- * @return 1 yes, 0 no, -1 error.
- */
-static int
-ldap_connect_user_exists (const gchar *name, void *data)
-{
-  if (user_exists == NULL)
-    return -1;
-
-  return user_exists (name, AUTHENTICATION_METHOD_LDAP_CONNECT);
-}
-#endif
-
-/**
- * @brief Check whether a user exists.
- *
- * @param[in]  name   User name.
- *
- * @return 1 yes, 0 no, -1 error.
- */
-int
-openvas_user_exists (const char *name)
-{
-  GSList *item;
-
-  if (initialized == FALSE || authenticators == NULL)
-    return openvas_user_exists_classic (name, NULL);
-
-  // Try each authenticator in the list.
-  item = authenticators;
-  while (item)
-    {
-      authenticator_t authent;
-
-      authent = (authenticator_t) item->data;
-      if (authent->user_exists)
-        {
-          int ret;
-          ret = authent->user_exists (name, authent->data);
-          if (ret)
-            return ret;
-        }
-      item = g_slist_next (item);
-    }
-  return 0;
-}
-
-/**
- * @brief Return the UUID of a user from the OpenVAS user UUID file.
- *
- * If the user exists, ensure that the user has a UUID (create that file).
- *
- * @param[in]  name   User name.
- *
- * @return UUID of given user if (locally authenticated) user exists,
- *         else NULL.
- */
-gchar *
-openvas_user_uuid (const char *name)
-{
-  GSList *item;
-
-  if (initialized == FALSE || authenticators == NULL)
-    return openvas_user_uuid_method (name, AUTHENTICATION_METHOD_FILE);
-
-  // Try each authenticator in the list.
-  item = authenticators;
-  while (item)
-    {
-      authenticator_t authent;
-
-      authent = (authenticator_t) item->data;
-      if (authent->user_exists)
-        {
-          int ret;
-          ret = authent->user_exists (name, authent->data);
-          if (ret == 1)
-            return openvas_user_uuid_method (name, authent->method);
-          if (ret)
-            return NULL;
-        }
-      item = g_slist_next (item);
-    }
-  return 0;
-}
-#endif // not _WIN32
