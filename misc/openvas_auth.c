@@ -39,63 +39,11 @@
 #include <gcrypt.h>
 #include <glib/gstdio.h>
 
-#ifdef ENABLE_LDAP_AUTH
-#include "ldap_connect_auth.h"
-#endif /*ENABLE_LDAP_AUTH */
-
 #undef G_LOG_DOMAIN
 /**
  * @brief GLib logging domain.
  */
 #define G_LOG_DOMAIN "lib  auth"
-
-/**
- * @file misc/openvas_auth.c
- *
- * @brief Authentication mechanisms used by openvas-manager and
- * openvas-administrator.
- *
- * @section authentication_mechanisms Authentication Mechanisms
- *
- * Three authentication mechanisms are supported:
- *  - local file authentication. The classical authentication mechanism to
- *    authenticate against files (in PREFIX/var/lib/openvas/users).
- *  - remote ldap authentication. To authenticate against a remote ldap
- *    directory server.
- *
- * These mechanisms are also used for authorization (role and access management).
- *
- * Also a mixture can be used. To do so, a configuration file
- * (PREFIX/var/lib/openvas/auth.conf) has to be used and the authentication
- * system has to be initialised with a call to \ref openvas_auth_init and can
- * be freed with \ref openvas_auth_tear_down .
- *
- * In addition, there is an authentication mechanism that can be enabled per user
- * and does not do authorization (role and access management).
- *  - 'simple ldap authentication' against remote ldap directory server
- *    (ldap-connect).
- * As an exception, this method ignores any priority settings: If ldap-connect is
- * enabled for a user, it is the only method tried (i.e. the password stored for
- * the file-based authentication cannot be used).
- *
- * The configuration file allows to specify details of a remote ldap-connect
- * authentication and to assign an "order" value to the specified
- * authentication mechanisms. Mechanisms with a lower order will be tried
- * first.
- *
- * @section user_directories User Directories
- *
- * The directory of remotely authenticated users reside under
- * OPENVAS_STATE_DIR/users-remote/[method] , where [method] currently can only
- * be "ldap_connect".
- *
- * A users directory will contain:
- *
- *  - uuid : File containing the users uuid.
- *  - auth/hash : (only for locally authenticated users) hash of the users
- *                password
- */
-
 
 /**
  * @brief Array of string representations of the supported authentication
@@ -108,32 +56,6 @@ static const gchar *authentication_methods[] = { "file",
 
 /** @brief Flag whether the config file was read. */
 static gboolean initialized = FALSE;
-
-/** @brief List of configured authentication methods. */
-static GSList *authenticators = NULL;
-
-/**
- * @brief Whether or not an exclusive per-user ldap authentication method is
- * @brief configured.
- */
-static gboolean ldap_connect_configured = FALSE;
-
-/** @brief Representation of an abstract authentication mechanism. */
-struct authenticator
-{
-  /** @brief The method of this authenticator. */
-  auth_method_t method;
-  /** @brief The order. Authenticators with lower order will be tried first. */
-  int order;
-  /** @brief Optional data to be passed to callback functions. */
-  void *data;
-};
-
-/** @brief Authenticator type. */
-typedef struct authenticator *authenticator_t;
-
-
-int (*get_ldap_info) (gchar **, gchar **, int *) = NULL;
 
 /**
  * @brief Return whether libraries has been compiled with LDAP support.
@@ -169,75 +91,18 @@ auth_method_name (auth_method_t method)
 }
 
 /**
- * @brief Implements a (GCompareFunc) to add authenticators to the
- * @brief authenticator list, sorted by the order.
- *
- * One exception is that LDAP_CONNECT always comes first.
- *
- * @param first_auth  First authenticator to be compared.
- * @param second_auth Second authenticator to be compared.
- *
- * @return >0 If the first authenticator should come after the second.
- */
-static gint
-order_compare (authenticator_t first_auth, authenticator_t second_auth)
-{
-  if (first_auth->method == AUTHENTICATION_METHOD_LDAP_CONNECT)
-    return -1;
-  else if (second_auth->method == AUTHENTICATION_METHOD_LDAP_CONNECT)
-    return 1;
-
-  return (first_auth->order - second_auth->order);
-}
-
-
-/**
- * @brief Create a fresh authenticator to authenticate against a file.
- *
- * @param order Order of the authenticator.
- *
- * @return A fresh authenticator to authenticate against a file.
- */
-static authenticator_t
-classic_authenticator_new (int order)
-{
-  authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
-  authent->order = order;
-  authent->data = (void *) NULL;
-  authent->method = AUTHENTICATION_METHOD_FILE;
-  return authent;
-}
-
-/**
- * @brief Initializes the list of authentication methods.
- *
- * Parses PREFIX/var/lib/openvas/auth.conf and adds respective authenticators
- * to the authenticators list.
- *
- * Call once before calls to openvas_authenticate, otherwise the
- * authentication method will default to file-system based authentication.
- *
- * The list should be freed with \ref openvas_auth_tear_down once no further
- * authentication trials will be done.
- *
- * A warning will be issued if \ref openvas_auth_init is called a second time
- * without a call to \ref openvas_auth_tear_down in between. In this case,
- * no reconfiguration will take place.
+ * @brief Initializes Gcrypt.
  *
  * @return 0 success, -1 error.
  */
 int
-openvas_auth_init_funcs (int (*get_ldap_information) (gchar **,
-                                                      gchar **,
-                                                      int *))
+openvas_auth_init ()
 {
   if (initialized == TRUE)
     {
       g_warning ("openvas_auth_init called a second time.");
       return -1;
     }
-
-  get_ldap_info = get_ldap_information;
 
   /* Init Libgcrypt. */
 
@@ -271,35 +136,6 @@ openvas_auth_init_funcs (int (*get_ldap_information) (gchar **,
 
   /* Tell Libgcrypt that initialization has completed. */
   gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
-
-  /* Setup "file" auth config. */
-
-  authenticators = g_slist_insert_sorted (authenticators,
-                                          classic_authenticator_new (1),
-                                          (GCompareFunc) order_compare);
-
-  /* Setup "ldap_connect" auth config. */
-
-#ifdef ENABLE_LDAP_AUTH
-  {
-    ldap_auth_info_t info;
-
-    info = ldap_auth_info_from_function (get_ldap_info);
-    if (info)
-      {
-        authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
-        // TODO: The order is ignored in this case (oder_compare does sort
-        //       LDAP_CONNECT differently), make order optional.
-        authent->order = 1;
-        authent->data = info;
-        authent->method = AUTHENTICATION_METHOD_LDAP_CONNECT;
-        authenticators =
-          g_slist_insert_sorted (authenticators, authent,
-                                 (GCompareFunc) order_compare);
-        ldap_connect_configured = TRUE;
-     }
-  }
-#endif /* ENABLE_LDAP_AUTH */
 
   initialized = TRUE;
 

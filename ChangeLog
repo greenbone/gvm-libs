@@ -1,5 +1,19 @@
 2015-05-21  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	Remove remaining unused parts of auth.
+
+	* misc/openvas_auth.c: Remove file doc which is out of date.
+	(authenticators, ldap_connect_configured, struct authenticator)
+	(authenticator_t, get_ldap_info, order_compare)
+	(classic_authenticator_new): Remove.  No longer used.
+	(openvas_auth_init_funcs): Remove.  Now openvas_auth_init.
+	(openvas_auth_init): New function.  Was openvas_auth_init_funcs.  Remove
+	ldap arg.
+
+	* misc/openvas_auth.h: Update headers accordingly.
+
+2015-05-21  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* misc/openvas_auth.c (classic_get_hash): Remove.  No longer used.
 	(openvas_auth_init_funcs): Remove get_hash arg.
 	(openvas_authenticate_classic): Replace unused data arg with hash arg.
