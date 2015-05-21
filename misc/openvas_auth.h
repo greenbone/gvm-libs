@@ -52,11 +52,10 @@ const gchar *auth_method_name (auth_method_t);
 
 int openvas_auth_init_funcs (gchar * (*) (const gchar *),
                              int (*) (const gchar *, auth_method_t),
-                             gchar * (*) (const gchar *, auth_method_t));
+                             gchar * (*) (const gchar *, auth_method_t),
+                             int (*) (gchar **, gchar **, int *));
 
 void openvas_auth_tear_down (void);
-
-int openvas_auth_write_config (GKeyFile * keyfile);
 
 gchar *get_password_hashes (int, const gchar *);
 

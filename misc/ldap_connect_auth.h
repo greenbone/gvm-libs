@@ -50,7 +50,7 @@ struct ldap_auth_info
 };
 
 ldap_auth_info_t
-ldap_auth_info_from_key_file (GKeyFile *, const gchar *);
+ldap_auth_info_from_function (int (*) (gchar **, gchar **, int *));
 
 int ldap_connect_authenticate (const gchar *, const gchar *,
                        /*ldap_auth_info_t */ void *);
@@ -58,7 +58,7 @@ int ldap_connect_authenticate (const gchar *, const gchar *,
 void ldap_auth_info_free (ldap_auth_info_t);
 
 ldap_auth_info_t
-ldap_auth_info_new (const gchar *, const gchar *, gboolean, gboolean);
+ldap_auth_info_new (const gchar *, const gchar *, gboolean);
 
 gchar*
 ldap_auth_info_auth_dn (const ldap_auth_info_t, const gchar*);

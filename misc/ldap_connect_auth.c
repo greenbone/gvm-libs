@@ -91,44 +91,28 @@ ldap_connect_authenticate (const gchar * username, const gchar * password,
 }
 
 /**
- * @brief Reads in a schema and info from key file.
+ * @brief Create LDAP info from info provided by function.
  *
- * @param key_file Key file to read schema and info from.
- * @param group    In \ref key_file , group of interest.
+ * @param get_info  Function to get info.
  *
  * @return Fresh ldap_auth_info, or NULL in case of errors.
  */
 ldap_auth_info_t
-ldap_auth_info_from_key_file (GKeyFile * key_file, const gchar * group)
+ldap_auth_info_from_function (int (*get_info) (gchar **, gchar **, int *))
 {
-  if (key_file == NULL || group == NULL)
+  int allow_plaintext;
+  gchar *auth_dn, *ldap_host;
+  ldap_auth_info_t info;
+
+  assert (get_info);
+
+  if (get_info (&ldap_host, &auth_dn, &allow_plaintext))
     return NULL;
-  gboolean allow_plaintext = FALSE;
-  gboolean is_connect = FALSE;
 
-  /** @todo Errors to be checked here, get string lists for the role values. */
-  gchar *auth_dn = g_key_file_get_string (key_file, group,
-                                          KEY_LDAP_DN_AUTH, NULL);
-  gchar *ldap_host = g_key_file_get_string (key_file, group,
-                                            KEY_LDAP_HOST, NULL);
+  info = ldap_auth_info_new (ldap_host, auth_dn, allow_plaintext);
 
-  gchar *plaintext_ok = g_key_file_get_value (key_file, group,
-                                              "allow-plaintext", NULL);
-  if (plaintext_ok && strcmp (plaintext_ok, "true") == 0)
-    {
-      allow_plaintext = TRUE;
-    }
-  g_free (plaintext_ok);
-
-  if (strcmp (group, "method:ldap_connect") == 0)
-    is_connect = TRUE;
-
-  ldap_auth_info_t info = ldap_auth_info_new (ldap_host, auth_dn,
-                                              allow_plaintext,
-                                              is_connect);
-
-  g_free (auth_dn);
   g_free (ldap_host);
+  g_free (auth_dn);
 
   return info;
 }
@@ -143,17 +127,14 @@ ldap_auth_info_from_key_file (GKeyFile * key_file, const gchar * group)
  *                          but empty, has to contain a single %s.
  * @param allow_plaintext   If FALSE, require StartTLS initialization to
  *                          succeed.
- * @param is_connect        If TRUE, certain parameters are not needed.
  *
- * @return Fresh ldap_auth_info_t, or NULL if one of the last five parameters
- *         is NULL. Free with ldap_auth_info_free.
+ * @return Fresh ldap_auth_info_t, or NULL on error.  Free with
+ *         ldap_auth_info_free.
  */
 ldap_auth_info_t
 ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
-                    gboolean allow_plaintext, gboolean is_connect)
+                    gboolean allow_plaintext)
 {
-  assert (is_connect);
-
   // Certain parameters might not be NULL.
   if (!ldap_host || !auth_dn)
     return NULL;

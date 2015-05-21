@@ -1,3 +1,24 @@
+2015-05-21  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Remove usage of auth.conf.  Get LDAP settings from manager callback
+	instead.
+
+	* misc/ldap_connect_auth.c (ldap_auth_info_from_key_file): Remove.
+	No longer used.
+	(ldap_auth_info_from_function): New function.
+	(ldap_auth_info_new): Remove is_connnect arg.
+
+	* misc/ldap_connect_auth.h: Update headers accordingly.
+
+	* misc/openvas_auth.c (AUTH_CONF_FILE, GROUP_PREFIX_METHOD)
+	(KEY_ORDER, auth_method_from_string, add_authenticator): Remove.  No
+	longer used.
+	(openvas_auth_init_funcs): Add get_ldap_information arg.  Add only two
+	authenticators, file and ldap_connect.  And add them by hand.
+	(openvas_auth_write_config): Remove.  No longer used.
+
+	* misc/openvas_auth.h: Update headers accordingly.
+
 2015-05-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/plugutils.c (plug_get_key), nasl/nasl_builtin_find_service.c
