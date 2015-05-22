@@ -872,21 +872,18 @@ plug_get_key (struct arglist *args, char *name, int *type)
       socketpair (AF_UNIX, SOCK_STREAM, 0, sockpair);
       if ((pid = fork ()) == 0)
         {
-          int old, soc;
+          int old;
           struct arglist *globals;
           void *ret;
 
           kb_lnk_reset (kb);
           close (sockpair[0]);
           globals = arg_get_value (args, "globals");
-          /* FIXME: Potential problem: If "global_socket" is not set
-             we are closing fd 0! */
           old = arg_get_value_int (globals, "global_socket");
-          close (old);
-          soc = dup2 (sockpair[1], 4);
-          close (sockpair[1]);
-          arg_set_value (globals, "global_socket", GSIZE_TO_POINTER (soc));
-          arg_set_value (args, "SOCKET", GSIZE_TO_POINTER (soc));
+          if (old > 0)
+            close (old);
+          arg_set_value (globals, "global_socket", GSIZE_TO_POINTER (sockpair[1]));
+          arg_set_value (args, "SOCKET", GSIZE_TO_POINTER (sockpair[1]));
 
           srand48 (getpid () + getppid () + time (NULL)); /* RATS: ignore */
 
