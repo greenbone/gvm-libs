@@ -23,9 +23,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifdef ENABLE_LDAP_AUTH
-
 #include "ldap_connect_auth.h"
+
+#ifdef ENABLE_LDAP_AUTH
 
 #include <assert.h>
 #include <stdio.h>
@@ -349,6 +349,47 @@ ldap_auth_dn_is_good (const gchar * authdn)
   ldap_memfree (dn);
 
   return TRUE;
+}
+
+#else
+
+/**
+ * @brief Dummy function for Manager.
+ *
+ * @param get_info  Function to get info.
+ *
+ * @return NULL.
+ */
+ldap_auth_info_t
+ldap_auth_info_from_function (int (*get_info) (gchar **, gchar **, int *))
+{
+  return NULL;
+}
+
+/**
+ * @brief Dummy function for Manager.
+ *
+ * @param info      Schema and adress to use.
+ * @param username  Username to authenticate.
+ * @param password  Password to use.
+ *
+ * @return -1.
+ */
+int
+ldap_connect_authenticate (const gchar * username, const gchar * password,
+                   /*const *//*ldap_auth_info_t */ void *ldap_auth_info)
+{
+  return -1;
+}
+
+/**
+ * @brief Dummy function for Manager.
+ *
+ * @param info ldap_auth_schema_t to free, can be NULL.
+ */
+void
+ldap_auth_info_free (ldap_auth_info_t info)
+{
 }
 
 #endif /* ENABLE_LDAP_AUTH */
