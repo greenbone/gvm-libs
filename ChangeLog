@@ -1,5 +1,13 @@
 2015-05-22  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* misc/ldap_connect_auth.c (ldap_auth_info_from_function): Remove.  No
+	longer used.
+	(ldap_auth_info_new): Define dummy version.
+
+	* misc/ldap_connect_auth.h: Update headers accordingly.
+
+2015-05-22  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* misc/ldap_connect_auth.c: Define dummy functions when ENABLE_LDAP_AUTH
 	is not defined.
 

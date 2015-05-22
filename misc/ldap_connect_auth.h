@@ -44,20 +44,17 @@ struct ldap_auth_info
   gboolean allow_plaintext;     ///< !Whether or not StartTLS is required.
 };
 
-ldap_auth_info_t
-ldap_auth_info_from_function (int (*) (gchar **, gchar **, int *));
-
 int ldap_connect_authenticate (const gchar *, const gchar *,
                        /*ldap_auth_info_t */ void *);
 
 void ldap_auth_info_free (ldap_auth_info_t);
 
+ldap_auth_info_t
+ldap_auth_info_new (const gchar *, const gchar *, gboolean);
+
 #ifdef ENABLE_LDAP_AUTH
 
 #include <ldap.h>
-
-ldap_auth_info_t
-ldap_auth_info_new (const gchar *, const gchar *, gboolean);
 
 gchar*
 ldap_auth_info_auth_dn (const ldap_auth_info_t, const gchar*);

@@ -91,33 +91,6 @@ ldap_connect_authenticate (const gchar * username, const gchar * password,
 }
 
 /**
- * @brief Create LDAP info from info provided by function.
- *
- * @param get_info  Function to get info.
- *
- * @return Fresh ldap_auth_info, or NULL in case of errors.
- */
-ldap_auth_info_t
-ldap_auth_info_from_function (int (*get_info) (gchar **, gchar **, int *))
-{
-  int allow_plaintext;
-  gchar *auth_dn, *ldap_host;
-  ldap_auth_info_t info;
-
-  assert (get_info);
-
-  if (get_info (&ldap_host, &auth_dn, &allow_plaintext))
-    return NULL;
-
-  info = ldap_auth_info_new (ldap_host, auth_dn, allow_plaintext);
-
-  g_free (ldap_host);
-  g_free (auth_dn);
-
-  return info;
-}
-
-/**
  * @brief Create a new ldap authentication schema and info.
  *
  * @param ldap_host         Host to authenticate against. Might not be NULL,
@@ -354,14 +327,21 @@ ldap_auth_dn_is_good (const gchar * authdn)
 #else
 
 /**
- * @brief Dummy function for Manager.
+ * @brief Dummy function for manager.
  *
- * @param get_info  Function to get info.
+ * @param ldap_host         Host to authenticate against. Might not be NULL,
+ *                          but empty.
+ * @param auth_dn           DN where the actual user name is to be inserted at
+ *                          "%s", e.g. uid=%s,cn=users. Might not be NULL,
+ *                          but empty, has to contain a single %s.
+ * @param allow_plaintext   If FALSE, require StartTLS initialization to
+ *                          succeed.
  *
  * @return NULL.
  */
 ldap_auth_info_t
-ldap_auth_info_from_function (int (*get_info) (gchar **, gchar **, int *))
+ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
+                    gboolean allow_plaintext)
 {
   return NULL;
 }
