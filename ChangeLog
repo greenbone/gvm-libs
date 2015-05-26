@@ -1,3 +1,7 @@
+2015-05-26  Sven Haardiek <sven.haardiek@greenbone.net>
+
+	* doc/openvas-nasl.1: Replaced minus-sign with hyphen
+
 2015-05-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_init.c (libfuncs): Add snmpv2c_get().
