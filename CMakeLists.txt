@@ -346,6 +346,8 @@ add_subdirectory (doc)
 
 install (FILES doc/openvas-nasl.1
          DESTINATION ${DATADIR}/man/man1 )
+install (FILES doc/openvas-nasl-lint.1
+         DESTINATION ${DATADIR}/man/man1 )
 
 install (FILES ${CMAKE_BINARY_DIR}/libopenvas_base.pc
          DESTINATION ${LIBDIR}/pkgconfig)

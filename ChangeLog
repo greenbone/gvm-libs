@@ -1,5 +1,10 @@
 2015-05-26  Sven Haardiek <sven.haardiek@greenbone.net>
 
+	* doc/openvas-nasl-lint.1: Added this manpage for openvas-nasl-lint
+	* CMakeLists.txt: Install manpage for openvas-nasl-lint
+
+2015-05-26  Sven Haardiek <sven.haardiek@greenbone.net>
+
 	* doc/openvas-nasl.1: Replaced minus-sign with hyphen
 
 2015-05-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
