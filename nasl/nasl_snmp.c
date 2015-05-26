@@ -172,27 +172,29 @@ snmpv3_get (const char *peername, const char *username, const char *authpass,
 }
 
 /*
- * @brief SNMPv1 Get query value.
+ * @brief SNMP v1 or v2c Get query value.
  *
  * param[in]    peername    Target host in [protocol:]address[:port] format.
  * param[in]    community   SNMP community string.
  * param[in]    oid_str     OID string of value to get.
+ * param[in]    version     SNMP_VERSION_1 or SNMP_VERSION_2c.
  * param[out]   result      Result of query.
  *
  * @return 0 if success and result value, -1 otherwise.
  */
 static int
-snmpv1_get (const char *peername, const char *community, const char *oid_str,
-            char **result)
+snmpv1v2c_get (const char *peername, const char *community, const char *oid_str,
+               int version,  char **result)
 {
   struct snmp_session session;
 
   assert (peername);
   assert (community);
   assert (oid_str);
+  assert (version == SNMP_VERSION_1 || version == SNMP_VERSION_2c);
 
   snmp_sess_init (&session);
-  session.version = SNMP_VERSION_1;
+  session.version = version;
   session.peername = (char *) peername;
   session.community = (u_char *) community;
   session.community_len = strlen (community);
@@ -248,7 +250,7 @@ array_from_snmp_result (int ret, char *result)
 }
 
 tree_cell *
-nasl_snmpv1_get (lex_ctxt *lexic)
+nasl_snmpv1v2c_get (lex_ctxt *lexic, int version)
 {
   const char *proto, *community, *oid_str;
   char *result = NULL, peername[2048];
@@ -267,8 +269,20 @@ nasl_snmpv1_get (lex_ctxt *lexic)
 
   g_snprintf (peername, sizeof (peername), "%s:%s:%d", proto,
               plug_get_host_ip_str (lexic->script_infos), port);
-  ret = snmpv1_get (peername, community, oid_str, &result);
+  ret = snmpv1v2c_get (peername, community, oid_str, version, &result);
   return array_from_snmp_result (ret, result);
+}
+
+tree_cell *
+nasl_snmpv1_get (lex_ctxt *lexic)
+{
+  return nasl_snmpv1v2c_get (lexic, SNMP_VERSION_1);
+}
+
+tree_cell *
+nasl_snmpv2c_get (lex_ctxt *lexic)
+{
+  return nasl_snmpv1v2c_get (lexic, SNMP_VERSION_2c);
 }
 
 tree_cell *

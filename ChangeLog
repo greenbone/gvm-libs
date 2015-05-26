@@ -1,3 +1,14 @@
+2015-05-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_init.c (libfuncs): Add snmpv2c_get().
+
+	* nasl/nasl_snmp.c (snmpv1_get): Add version parameter. Rename to
+	snmpv1v2c_get().
+	(nasl_snmpv2c_get, nasl_snmpv1v2c_get): New functions.
+	(nasl_snmpv1_get): Adjust to call new function.
+
+	* nasl/nasl_snmp.h: Add function prototype.
+
 2015-05-22  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/ldap_connect_auth.c (ldap_auth_info_from_function): Remove.  No
