@@ -1,3 +1,14 @@
+2015-05-27  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Improve handling of GnuTLS flags to ensure that the GnuTLS library
+	found by pkg-config correctly takes precedence over other instances.
+
+	* misc/CMakeLists.txt: Add GNUTLS_INCLUDE_DIRS to include_directories,
+	uses GNUTLS_LDFLAGS when linking.
+
+	* base/CMakeLists.txt: Add GNUTLS_INCLUDE_DIRS to include_directories,
+	use GNUTLS_LDFLAGS (at the correct position) when linking.
+
 2015-05-26  Sven Haardiek <sven.haardiek@greenbone.net>
 
 	* doc/openvas-nasl-lint.1: Added this manpage for openvas-nasl-lint
