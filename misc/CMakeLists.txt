@@ -27,6 +27,7 @@
 include_directories (../include)
 include_directories (../base)
 include_directories (${GLIB_INCLUDE_DIRS})
+include_directories (${GNUTLS_INCLUDE_DIRS})
 
 if (MINGW)
   if (CROSS_ENV)
@@ -123,7 +124,7 @@ if (BUILD_SHARED)
        gcrypt gpgme assuan libgpg-error ole32 ws2_32 ffi z shlwapi dnsapi winmm)
     target_link_libraries (openvas_misc_shared openvas_base_shared ${W32LIBS})
   else (MINGW)
-    target_link_libraries (openvas_misc_shared openvas_base_shared ${UUID_LDFLAGS}
+    target_link_libraries (openvas_misc_shared ${GNUTLS_LDFLAGS} openvas_base_shared ${UUID_LDFLAGS}
                            ${PCAP_LDFLAGS} ${LIBSSH_LDFLAGS} ${LDAP_LDFLAGS}
                            ${REDIS_LDFLAGS} ${GCRYPT_LDFLAGS})
   endif (MINGW)

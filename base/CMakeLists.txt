@@ -35,7 +35,7 @@ if (NOT MINGW)
   pkg_check_modules (GIO REQUIRED gio-2.0)
 endif (NOT MINGW)
 
-include_directories (${GLIB_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
+include_directories (${GLIB_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS} ${GNUTLS_INCLUDE_DIRS})
 
 if (MINGW)
   set  (FILES array.c credentials.c openvas_hosts.c cvss.c nvti.c nvticache.c
@@ -73,7 +73,7 @@ if (BUILD_SHARED)
       assuan libgpg-error ole32 ws2_32 ffi z shlwapi dnsapi winmm)
     target_link_libraries (openvas_base_shared openvas_omp_shared ${W32LIBS})
   else (MINGW)
-    target_link_libraries (openvas_base_shared openvas_omp_shared ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${ZLIB_LDFLAGS} ${GPGME_LDFLAGS})
+    target_link_libraries (openvas_base_shared openvas_omp_shared ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GNUTLS_LDFLAGS} ${ZLIB_LDFLAGS} ${GPGME_LDFLAGS})
   endif (MINGW)
 endif (BUILD_SHARED)
 
@@ -89,7 +89,7 @@ add_custom_indent_targets (${FILES})
 # TODO: This is currently only built for BUILD_SHARED
 if (BUILD_SHARED)
   add_executable (test-hosts test-hosts.c)
-  target_link_libraries (test-hosts openvas_base_shared openvas_misc_shared ${GLIB_LDFLAGS})
+  target_link_libraries (test-hosts openvas_base_shared ${GNUTLS_LDFLAGS} openvas_misc_shared ${GLIB_LDFLAGS})
 endif (BUILD_SHARED)
 
 ## Install
