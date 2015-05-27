@@ -1,5 +1,16 @@
 2015-05-27  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Improve handling of library flags to allow static build for "misc" and
+	"nasl" as well.
+
+	* misc/CMakeLists.txt: Link against redis for static linking.
+
+	* nasl/CMakeLists.txt: Link against libm for static linking as well.
+	Check for gio as openvas-nasl-lint uses it. Properly link
+	openvas-nasl-lint against glib and gio.
+
+2015-05-27  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Improve handling of GnuTLS flags to ensure that the GnuTLS library
 	found by pkg-config correctly takes precedence over other instances.
 

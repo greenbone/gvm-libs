@@ -107,7 +107,7 @@ if (BUILD_STATIC)
   set_target_properties (openvas_misc_static PROPERTIES OUTPUT_NAME "openvas_misc")
   set_target_properties (openvas_misc_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
   set_target_properties (openvas_misc_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
-  target_link_libraries (openvas_misc_static openvas_base_static)
+  target_link_libraries (openvas_misc_static openvas_base_static ${REDIS_LDFLAGS})
 endif (BUILD_STATIC)
 
 if (BUILD_SHARED)
