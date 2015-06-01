@@ -1,3 +1,22 @@
+2015-06-01  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Backport r22508.
+
+	Add support for handling timeout options to omp_get_tasks_ext () and
+	omp_get_report_ext ().
+
+	* omp/omp.c (omp_get_tasks_ext, omp_get_report_ext): Use
+	try_read_entity () instead of read_entity () to allow for timeouts.
+	Adjust function description to include new return value.
+
+	* omp/omp.h (omp_get_report_opts_t, omp_get_tasks_opts_t): Add timeout
+	value to options.
+	(omp_get_report_opts_defaults, omp_get_tasks_opts_defaults):
+	Initialize timeout option to 0 for backward compatibility.
+
+	* omp/xml.c (try_read_entity): Note possible timeout return value in
+	comment.
+
 2015-05-27  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Backport r22464.
