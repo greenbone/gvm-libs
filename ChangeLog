@@ -1,3 +1,8 @@
+2015-06-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network.c (open_sock_tcp): Limit timeout log messages to 3 times
+	per port.
+
 2015-06-01  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* nasl/nasl_tree.c (nasl_type_name): Fix a condition operator.
