@@ -648,7 +648,10 @@ redis_cmd (struct kb_redis *kbr, const char *fmt, ...)
 
       ctx = get_redis_ctx (kbr);
       if (ctx == NULL)
-        return NULL;
+        {
+          va_end (ap);
+          return NULL;
+        }
 
       va_copy (aq, ap);
       rep = redisvCommand (ctx, fmt, aq);

@@ -374,8 +374,11 @@ nasl_ntlmv1_hash (lex_ctxt * lexic)
       return NULL;
     }
 
+  if (pass_len < 16)
+    pass_len = 16;
+
   bzero (p21, sizeof (p21));
-  memcpy (p21, password, pass_len < 16 ? pass_len : 16);
+  memcpy (p21, password, pass_len);
 
   ret = g_malloc0 (24);
 
