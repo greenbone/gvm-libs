@@ -51,8 +51,8 @@ main (int argc, char **argv)
         return 2;
     }
 
-  printf ("Count: %d\n", openvas_hosts_count (hosts));
-  printf ("Removed: %d\n", openvas_hosts_removed (hosts));
+  printf ("Count: %u\n", openvas_hosts_count (hosts));
+  printf ("Removed: %u\n", openvas_hosts_removed (hosts));
 
   i = 1;
   while ((host = openvas_hosts_next (hosts)))

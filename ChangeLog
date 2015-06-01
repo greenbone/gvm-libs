@@ -1,5 +1,9 @@
 2015-06-01  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* base/test-hosts.c (main): Fix the format string for unsigned ints.
+
+2015-06-01  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* misc/kb_redis.c (redis_cmd), nasl/nasl_crypto.c (nasl_ntlmv1_hash):
 	  Fix two cppcheck errors.
 
