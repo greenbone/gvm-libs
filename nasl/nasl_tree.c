@@ -427,7 +427,7 @@ nasl_type_name (int t)
     i = 0;
   txt = txt4[i];
 
-  if (t >= 0 || t < sizeof (node_names) / sizeof (node_names[0]))
+  if (t >= 0 && t < sizeof (node_names) / sizeof (node_names[0]))
     snprintf (txt, 32, "%s (%d)", node_names[t], t);    /* RATS: ignore */
   else
     snprintf (txt, 32, "*UNKNOWN* (%d)", t);    /* RATS: ignore */

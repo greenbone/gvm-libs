@@ -1,5 +1,9 @@
 2015-06-01  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* nasl/nasl_tree.c (nasl_type_name): Fix a condition operator.
+
+2015-06-01  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* base/test-hosts.c (main): Fix the format string for unsigned ints.
 
 2015-06-01  Benoît Allard  <benoit.allard@greenbone.net>
