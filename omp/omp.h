@@ -62,6 +62,7 @@ typedef struct
   const char* report_id;   ///< ID of single report to get.
   int first_result;        ///< First result to get.
   int max_results;         ///< Maximum number of results to return.
+  int timeout;             ///< Timeout for OMP response.
   int host_first_result;   ///< Skip over results before this result number.
   int host_max_results;    ///< Maximum number of results to return.
   int autofp;              ///< Whether to trust vendor security updates. 0 No, 1 full match, 2 partial.
@@ -93,7 +94,7 @@ typedef struct
 static const omp_get_report_opts_t omp_get_report_opts_defaults =
   {
     "ROWID", "ascending", "a994b278-1f62-11e1-96ac-406186ea4fc5", "hmlgd",
-    NULL, 1, -1
+    NULL, 1, -1, 0
   };
 
 /**
@@ -102,6 +103,7 @@ static const omp_get_report_opts_t omp_get_report_opts_defaults =
 typedef struct
 {
   const char* filter;    ///< Filter argument.
+  int timeout;           ///< Timeout for OMP response.
   const char* actions;   ///< Actions argument.
   /* Boolean flags: */
   int details;           ///< Whether to include overrides in the tasks.
@@ -112,7 +114,7 @@ typedef struct
  * @brief Sensible default values for omp_get_tasks_opts_t.
  */
 static const omp_get_tasks_opts_t omp_get_tasks_opts_defaults =
-  { "" };
+  { "", 0 };
 
 /**
  * @brief Struct holding options for omp get_tasks command.

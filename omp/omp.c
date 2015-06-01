@@ -951,7 +951,7 @@ omp_get_task_ext (gnutls_session_t* session,
  * @param[in]  opts      Struct containing the options to apply.
  * @param[out] response  Tasks.  On success contains GET_TASKS response.
  *
- * @return 0 on success, -1 or OMP response code on error.
+ * @return 0 on success, 2 on timeout, -1 or OMP response code on error.
  */
 int
 omp_get_tasks_ext (gnutls_session_t* session,
@@ -980,7 +980,15 @@ omp_get_tasks_ext (gnutls_session_t* session,
   g_free (cmd);
 
   *response = NULL;
-  if (read_entity (session, response)) return -1;
+  switch (try_read_entity (session, opts.timeout, response))
+    {
+      case 0:
+        break;
+      case -4:
+        return 2;
+      default:
+        return -1;
+    }
 
   /* Check the response. */
 
@@ -1149,7 +1157,7 @@ omp_get_targets (gnutls_session_t* session, const char* id, int tasks,
  * @param[in]  opts      Struct containing the options to apply.
  * @param[out] response  Report.  On success contains GET_REPORT response.
  *
- * @return 0 on success, -1 or OMP response code on error.
+ * @return 0 on success, 2 on timeout, -1 or OMP response code on error.
  */
 int
 omp_get_report_ext (gnutls_session_t* session,
@@ -1219,7 +1227,15 @@ omp_get_report_ext (gnutls_session_t* session,
     return -1;
 
   *response = NULL;
-  if (read_entity (session, response)) return -1;
+  switch (try_read_entity (session, opts.timeout, response))
+    {
+      case 0:
+        break;
+      case -4:
+        return 2;
+      default:
+        return -1;
+    }
 
   /* Check the response. */
 

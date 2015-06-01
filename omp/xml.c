@@ -665,7 +665,7 @@ read_string (gnutls_session_t * session, GString ** string)
  *                        wait forever.
  * @param[out]  entity    Pointer to an entity tree.
  *
- * @return 0 success, -1 read error, -2 parse error, -3 end of file.
+ * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
  */
 int
 try_read_entity (gnutls_session_t * session, int timeout, entity_t * entity)
