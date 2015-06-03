@@ -177,6 +177,10 @@ if (NOT DATADIR)
   set (DATADIR "${CMAKE_INSTALL_PREFIX}/share")
 endif (NOT DATADIR)
 
+if (NOT OPENVAS_PID_DIR)
+  set (OPENVAS_PID_DIR "${LOCALSTATEDIR}/run")
+endif (NOT OPENVAS_PID_DIR)
+
 #if (NOT SYSCONFDIR)
 #  set (SYSCONFDIR "${CMAKE_INSTALL_PREFIX}/etc")
 #endif (NOT SYSCONFDIR)
@@ -185,7 +189,6 @@ set (OPENVAS_DATA_DIR    "${DATADIR}/openvas")
 set (OPENVAS_STATE_DIR   "${LOCALSTATEDIR}/lib/openvas")
 set (OPENVAS_LOG_DIR     "${LOCALSTATEDIR}/log/openvas")
 set (OPENVAS_CACHE_DIR   "${LOCALSTATEDIR}/cache/openvas")
-set (OPENVAS_PID_DIR     "${LOCALSTATEDIR}/run")
 set (OPENVAS_SYSCONF_DIR "${SYSCONFDIR}/openvas")
 
 set (OPENVAS_NVT_DIR     "${OPENVAS_STATE_DIR}/plugins")
