@@ -242,14 +242,12 @@ omp_authenticate (gnutls_session_t* session,
  * @brief Authenticate with the manager.
  *
  * @param[in]  session    Pointer to GNUTLS session.
- * @param[in]  username   Username.
- * @param[in]  password   Password.
- * @param[out] role       Role.
- * @param[out] timezone   Timezone if any, else NULL.
- * @param[out] pw_warning Password warning, NULL if password is okay.
+ * @param[in]  opts       Struct containing the options to apply.
+ * @param[out] opts       Additional account information if authentication
+ *                        was successful.
  *
  * @return 0 on success, 1 if manager closed connection, 2 if auth failed,
- *         -1 on error.
+ *         3 on timeout, -1 on error.
  */
 int
 omp_authenticate_info_ext (gnutls_session_t *session,
@@ -277,7 +275,15 @@ omp_authenticate_info_ext (gnutls_session_t *session,
   /* Read the response. */
 
   entity = NULL;
-  if (read_entity (session, &entity)) return -1;
+  switch (try_read_entity (session, opts.timeout, &entity))
+    {
+      case 0:
+        break;
+      case -4:
+        return 3;
+      default:
+        return -1;
+    }
 
   /* Check the response. */
 

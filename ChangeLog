@@ -1,3 +1,18 @@
+2015-06-03  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Backport r22552.
+
+	Add support for handling timeout option to omp_authenticate_info_ext ().
+
+	* omp/omp.c (omp_authenticate_info_ext): Use try_read_entity ()
+	instead of read_entity () to allow for timeouts. Make function
+	description more accurate.
+
+	* omp/omp.h (omp_authenticate_info_opts_t): Add timeout value to
+	options.
+	(omp_authenticate_info_opts_defaults): New function to initialize
+	timeout option to 0 for backward compatibility.
+
 2015-06-01  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Backport r22508.
