@@ -42,6 +42,7 @@ extern "C"
  */
 typedef struct
 {
+  int timeout;          ///< Timeout for authentication.
   const char *username; ///< Password.
   const char *password; ///< Username.
   char **role;          ///< [out] Role.
@@ -49,6 +50,14 @@ typedef struct
   char **timezone;      ///< [out] Timezone if any, else NULL.
   char **pw_warning;    ///< [out] Password warning, NULL if password is okay.
 } omp_authenticate_info_opts_t;
+
+/**
+ * @brief Sensible default values for omp_authenticate_info_opts_t
+ */
+static const omp_authenticate_info_opts_t omp_authenticate_info_opts_defaults =
+  {
+    0
+  };
 
 /**
  * @brief Struct holding options for omp get_report command.
