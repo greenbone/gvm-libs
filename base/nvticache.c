@@ -473,3 +473,29 @@ nvticache_get_timeout (const char *oid)
   g_snprintf (pattern, sizeof (pattern), "oid:%s:timeout", oid);
   return kb_item_get_int (cache_kb, pattern);
 }
+
+/**
+ * @brief Get the list of nvti oids.
+ *
+ * @return OIDs list.
+ */
+GSList *
+nvticache_get_oids ()
+{
+  struct kb_item *kbi, *item;
+  GSList *list = NULL;
+
+  assert (cache_kb);
+
+  kbi = item = kb_item_get_pattern (cache_kb, "name:*:oid");
+  if (!kbi)
+    return NULL;
+
+  while (item)
+    {
+      list = g_slist_prepend (list, g_strdup (item->v_str));
+      item = item->next;
+    }
+  kb_item_free (kbi);
+  return list;
+}

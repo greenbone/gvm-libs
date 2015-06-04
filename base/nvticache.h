@@ -93,4 +93,7 @@ nvticache_get_dependencies (const char *);
 void
 nvticache_free (void);
 
+GSList *
+nvticache_get_oids (void);
+
 #endif /* not _NVTICACHE_H */
