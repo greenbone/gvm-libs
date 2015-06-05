@@ -33,12 +33,6 @@ typedef unsigned int bool;
 
 static size_t iconv_copy_ntlmssp(void *,const char **, size_t *, char **, size_t *);
 
-static const struct charset_functions_ntlmssp builtin_functions_ntlmssp[] = {
-        /* windows is closest to UTF-16 */
-        {"UCS-2LE",  iconv_copy_ntlmssp, iconv_copy_ntlmssp},
-        {"UTF-16LE",  iconv_copy_ntlmssp, iconv_copy_ntlmssp},
-};
-
 static struct charset_functions_ntlmssp *charsets = NULL;
 
 static struct charset_functions_ntlmssp *find_charset_functions_ntlmssp(const char *name)
