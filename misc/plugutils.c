@@ -475,7 +475,7 @@ proto_post_wrapped (const char *oid, struct arglist *desc, int port, const char 
               idbuffer);
 
   mark_post (oid, desc, what, action);
-  soc = arg_get_value_int (desc, "SOCKET");
+  soc = arg_get_value_int (arg_get_value (desc, "globals"), "global_socket");
   /* Convert to UTF-8 before sending to Manager. */
   data = g_convert (buffer, -1, "UTF-8", "ISO_8859-1", NULL, &length, NULL);
   internal_send (soc, data, INTERNAL_COMM_MSG_TYPE_DATA);
@@ -883,7 +883,6 @@ plug_get_key (struct arglist *args, char *name, int *type)
           if (old > 0)
             close (old);
           arg_set_value (globals, "global_socket", GSIZE_TO_POINTER (sockpair[1]));
-          arg_set_value (args, "SOCKET", GSIZE_TO_POINTER (sockpair[1]));
 
           srand48 (getpid () + getppid () + time (NULL)); /* RATS: ignore */
 

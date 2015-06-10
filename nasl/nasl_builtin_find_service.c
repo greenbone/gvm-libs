@@ -2678,7 +2678,6 @@ plugin_run_find_service (lex_ctxt * lexic)
               close (soc);
               soc = sons_pipe[i][0];
               arg_set_value (globals, "global_socket", GSIZE_TO_POINTER (soc));
-              arg_set_value (desc, "SOCKET", GSIZE_TO_POINTER (soc));
               signal (SIGTERM, _exit);
               plugin_do_run (desc, sons_args[i], test_ssl);
               exit (0);
