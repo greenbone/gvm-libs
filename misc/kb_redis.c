@@ -102,6 +102,59 @@ static redisReply *redis_cmd (struct kb_redis *kbr, const char *fmt, ...)
 
 
 /**
+ * @brief Run a formatted command, given format args in an array.
+ *
+ * @param[in]  ctx     Context.
+ * @param[in]  format  Format string.
+ * @param[in]  args    Arguments for format string.
+ *
+ * @return Result of XSL transformation.
+ */
+static redisReply *
+redis_vcommand (redisContext *ctx, const char *format, va_list args)
+{
+  while (1)
+    {
+      redisReply *rep;
+      va_list command_args;
+
+      va_copy (command_args, args);
+      rep = redisvCommand (ctx, format, command_args);
+      va_end (command_args);
+      if (rep == NULL
+          && ctx->err == REDIS_ERR_IO
+          && errno == EINTR)
+        {
+          if (rep != NULL)
+            freeReplyObject (rep);
+          continue;
+        }
+      return rep;
+    }
+}
+
+/**
+ * @brief Run a formatted command.
+ *
+ * @param[in]  ctx     Context.
+ * @param[in]  format  Format string.
+ * @param[in]  ...     Arguments for format string.
+ *
+ * @return Result of XSL transformation.
+ */
+static redisReply *
+redis_command (redisContext *ctx, const char *format, ...)
+{
+  va_list args;
+  redisReply *rep;
+
+  va_start (args, format);
+  rep = redis_vcommand (ctx, format, args);
+  va_end (args);
+  return rep;
+}
+
+/**
  * Attempt to atomically acquire ownership of a database.
  */
 static int
@@ -111,7 +164,7 @@ try_database_index (struct kb_redis *kbr, int index)
   redisReply *rep;
   int rc = 0;
 
-  rep = redisCommand (ctx, "HSETNX %s %d 1", GLOBAL_DBINDEX_NAME, index);
+  rep = redis_command (ctx, "HSETNX %s %d 1", GLOBAL_DBINDEX_NAME, index);
   if (rep == NULL)
     return -ENOMEM;
 
@@ -152,7 +205,7 @@ fetch_max_db_index_compat (struct kb_redis *kbr)
 
       current = min + ((max - min) / 2);
 
-      rep = redisCommand (ctx, "SELECT %d", current);
+      rep = redis_command (ctx, "SELECT %d", current);
       if (rep == NULL)
         {
           g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
@@ -182,7 +235,7 @@ fetch_max_db_index_compat (struct kb_redis *kbr)
   kbr->max_db = min;
 
   /* Go back to DB #0 */
-  rep = redisCommand (ctx, "SELECT 0");
+  rep = redis_command (ctx, "SELECT 0");
   if (rep == NULL)
     {
       g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
@@ -203,7 +256,7 @@ fetch_max_db_index (struct kb_redis *kbr)
   redisContext *ctx = kbr->rctx;
   redisReply *rep = NULL;
 
-  rep = redisCommand (ctx, "CONFIG GET databases");
+  rep = redis_command (ctx, "CONFIG GET databases");
   if (rep == NULL)
     {
       g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
@@ -277,7 +330,7 @@ select_database (struct kb_redis *kbr)
       goto err_cleanup;
     }
 
-  rep = redisCommand (ctx, "SELECT %u", kbr->db);
+  rep = redis_command (ctx, "SELECT %u", kbr->db);
   if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
     {
       rc = -1;
@@ -303,7 +356,7 @@ redis_release_db (struct kb_redis *kbr)
   if (ctx == NULL)
     return -EINVAL;
 
-  rep = redisCommand (ctx, "SELECT 0"); /* Management database*/
+  rep = redis_command (ctx, "SELECT 0"); /* Management database*/
   if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
     {
       rc = -1;
@@ -311,7 +364,7 @@ redis_release_db (struct kb_redis *kbr)
     }
   freeReplyObject (rep);
 
-  rep = redisCommand (ctx, "HDEL %s %d", GLOBAL_DBINDEX_NAME, kbr->db);
+  rep = redis_command (ctx, "HDEL %s %d", GLOBAL_DBINDEX_NAME, kbr->db);
   if (rep == NULL || rep->type != REDIS_REPLY_INTEGER)
     {
       rc = -1;
@@ -472,7 +525,7 @@ redis_transaction_new (struct kb_redis *kbr, struct redis_tx *rtx)
   if (ctx == NULL)
     return -1;
 
-  rep = redisCommand (ctx, "MULTI");
+  rep = redis_command (ctx, "MULTI");
   if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
     {
       rc = -1;
@@ -500,7 +553,7 @@ redis_transaction_cmd (struct redis_tx *rtx, const char *fmt, ...)
 
   va_start (ap, fmt);
 
-  rep = redisvCommand (rtx->kbr->rctx, fmt, ap);
+  rep = redis_vcommand (rtx->kbr->rctx, fmt, ap);
   if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
     {
       rc = -1;
@@ -530,7 +583,7 @@ redis_transaction_end (struct redis_tx *rtx, redisReply **rep)
   if (!rtx->valid)
     return -1;
 
-  preply = redisCommand (rtx->kbr->rctx, "EXEC");
+  preply = redis_command (rtx->kbr->rctx, "EXEC");
   if (preply == NULL || preply->type == REDIS_REPLY_ERROR)
     {
       rc = -1;
@@ -654,7 +707,7 @@ redis_cmd (struct kb_redis *kbr, const char *fmt, ...)
         }
 
       va_copy (aq, ap);
-      rep = redisvCommand (ctx, fmt, aq);
+      rep = redis_vcommand (ctx, fmt, aq);
       va_end (aq);
 
       if (ctx->err)

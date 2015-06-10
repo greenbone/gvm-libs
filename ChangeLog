@@ -1,3 +1,12 @@
+2015-06-10  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/kb_redis.c (redis_vcommand, redis_command): New functions.
+	Same as redisCommand and redisvCommand, but will retry after EINTR.
+	(try_database_index, fetch_max_db_index_compat, fetch_max_db_index)
+	(select_database, redis_release_db, redis_transaction_new)
+	(redis_transaction_cmd, redis_transaction_end, redis_cmd): Use retry
+	versions of command functions.
+
 2015-06-05  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* nasl/iconv.c: Remove unused const variable.
