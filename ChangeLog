@@ -1,5 +1,13 @@
 2015-06-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/arglists.c (arg_prepend_value): New function.
+
+	* misc/arglists.h: Add function prototype.
+
+	* misc/prefs.c (prefs_set): Use new function.
+
+2015-06-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/plugutils.c (_add_plugin_preference)
 	(plug_create_from_nvti_and_prefs): Remove functions.
 	(get_plugin_preference): Use g_strchomp().

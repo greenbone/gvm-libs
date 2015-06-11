@@ -185,6 +185,23 @@ arg_add_value (arglst, name, type, value)
   arglst->hash = mkhash (arglst->name);
 }
 
+void
+arg_prepend_value (struct arglist **list, const char *name, int type,
+                   void *value)
+{
+  struct arglist *new;
+
+  if (!list || !*list)
+    return;
+
+  new = g_malloc0 (sizeof (struct arglist));
+  new->name = cache_inc (name);
+  new->value = value;
+  new->type = type;
+  new->next = *list;
+  new->hash = mkhash (new->name);
+  *list = new;
+}
 
 static struct arglist *
 arg_get (struct arglist *arg, const char *name)

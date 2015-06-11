@@ -41,6 +41,8 @@ struct arglist
 #define ARG_ARGLIST 4
 
 void arg_add_value (struct arglist *, const char *, int, void *);
+void
+arg_prepend_value (struct arglist **, const char *, int, void *);
 int arg_set_value (struct arglist *, const char *, void *);
 void *arg_get_value (struct arglist *, const char *);
 int arg_get_value_int (struct arglist *, const char *);
