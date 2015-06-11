@@ -117,61 +117,6 @@ plug_get_launch (struct arglist *desc)
 }
 
 void
-_add_plugin_preference (const char *p_name,
-                        const char *name, const char *type, const char *defaul)
-{
-  char *pref;
-  char *cname;
-  int len;
-
-  if (!p_name)
-    return;
-
-  cname = g_strdup (name);
-  len = strlen (cname);
-  // Terminate string before last trailing space
-  while (cname[len - 1] == ' ')
-    {
-      cname[len - 1] = '\0';
-      len--;
-    }
-
-  pref = g_strdup_printf ("%s[%s]:%s", p_name, type, cname);
-  prefs_set (pref, defaul);
-
-  g_free (cname);
-  g_free (pref);
-}
-
-/**
- * @brief Returns a (plugin) arglist assembled from the nvti.
- *
- * @param nvti NVT Information to be used for the creation.
- *
- * @return Pointer to plugin as arglist or NULL.
- */
-struct arglist *
-plug_create_from_nvti_and_prefs (const nvti_t * nvti)
-{
-  struct arglist *ret;
-  int i;
-
-  if (!nvti)
-    return NULL;
-
-  ret = g_malloc0 (sizeof (struct arglist));
-
-  for (i = 0; i < nvti_pref_len (nvti); i++)
-    {
-      const nvtpref_t *np = nvti_pref (nvti, i);
-      _add_plugin_preference (nvti_name (nvti), nvtpref_name (np),
-                              nvtpref_type (np), nvtpref_default (np));
-    }
-
-  return ret;
-}
-
-void
 host_add_port_proto (struct arglist *args, int portnum, int state, char *proto)
 {
   char port_s[255];
@@ -550,7 +495,6 @@ add_plugin_preference (struct arglist *desc, const char *name, const char *type,
 char *
 get_plugin_preference (const char *oid, const char *name)
 {
-  int len;
   struct arglist *prefs;
   char *plug_name, *cname;
   nvti_t * nvti;
@@ -565,14 +509,7 @@ get_plugin_preference (const char *oid, const char *name)
   plug_name = nvti_name (nvti);
   cname = g_strdup (name);
 
-  len = strlen (cname);
-
-  while (cname[len - 1] == ' ')
-    {
-      cname[len - 1] = '\0';
-      len--;
-    }
-
+  g_strchomp (cname);
   while (prefs->next)
     {
       char *a, *b;

@@ -1,3 +1,9 @@
+2015-06-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/plugutils.c (_add_plugin_preference)
+	(plug_create_from_nvti_and_prefs): Remove functions.
+	(get_plugin_preference): Use g_strchomp().
+
 2015-06-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/plugutils.c (proto_post_wrapped, plug_get_key),
