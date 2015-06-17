@@ -40,8 +40,6 @@ void scanner_add_port (struct arglist *, int, char *);
 /*
  * Arglist management at plugin-level
  */
-void plug_set_launch (struct arglist *, int);
-int plug_get_launch (struct arglist *);
 
 void plug_set_dep (struct arglist *, const char *);
 

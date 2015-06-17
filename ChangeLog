@@ -1,3 +1,8 @@
+2015-06-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/plugutils.h, misc/plugutils.c (plug_set_launch, plug_get_launch):
+	Remove unused functions.
+
 2015-06-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/arglists.c (arg_prepend_value): New function.

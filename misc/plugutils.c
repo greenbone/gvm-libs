@@ -103,20 +103,6 @@ plug_set_dep (struct arglist *desc, const char *depname)
 }
 
 void
-plug_set_launch (struct arglist *desc, int launch)
-{
-  if (arg_set_value (desc, "ENABLED", GSIZE_TO_POINTER (launch)))
-    arg_add_value (desc, "ENABLED", ARG_INT, GSIZE_TO_POINTER (launch));
-}
-
-
-int
-plug_get_launch (struct arglist *desc)
-{
-  return arg_get_value_int (desc, "ENABLED");
-}
-
-void
 host_add_port_proto (struct arglist *args, int portnum, int state, char *proto)
 {
   char port_s[255];
