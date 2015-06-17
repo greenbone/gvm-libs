@@ -1,3 +1,10 @@
+2015-06-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r22648.
+
+	* nasl/nasl_ssh.c (exec_ssh_cmd): Zero buffer, reset retry counter on
+	read success.
+
 2015-06-10  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Backport r22625.

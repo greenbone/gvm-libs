@@ -1237,6 +1237,7 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
     {
       char buffer[4096];
 
+      memset (buffer, '\0', sizeof (buffer));
       if ((rc = ssh_channel_read_nonblocking
                  (channel, buffer, sizeof (buffer), 1)) > 0)
         {
@@ -1256,7 +1257,10 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
         }
       if (rc == SSH_ERROR)
         goto exec_err;
-      usleep (250000);
+      if (*buffer)
+        retry = 60;
+      else
+        usleep (250000);
     }
   rc = SSH_OK;
 
