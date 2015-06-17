@@ -1,3 +1,8 @@
+2015-06-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_ssh.c (exec_ssh_cmd): Zero buffer, reset retry counter on
+	read success.
+
 2015-06-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/plugutils.h, misc/plugutils.c (plug_set_launch, plug_get_launch):
