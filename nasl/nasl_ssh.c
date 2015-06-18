@@ -939,7 +939,8 @@ nasl_ssh_set_login (lex_ctxt *lexic)
           kb = plug_get_kb (lexic->script_infos);
           username = kb_item_get_str (kb, "Secret/SSH/login");
         }
-      if (username && ssh_options_set (session, SSH_OPTIONS_USER, username))
+      if (username && *username &&
+          ssh_options_set (session, SSH_OPTIONS_USER, username))
         {
           log_legacy_write ("Failed to set SSH username '%s': %s\n",
                             username, ssh_get_error (session));
@@ -1032,8 +1033,8 @@ nasl_ssh_userauth (lex_ctxt *lexic)
 
   /* Check if we need to set the user.  This is done only once per
      session.  */
-  if (!session_table[tbl_slot].user_set)
-    nasl_ssh_set_login (lexic);
+  if (!session_table[tbl_slot].user_set && !nasl_ssh_set_login (lexic))
+    return NULL;
 
   kb = plug_get_kb (lexic->script_infos);
   password = get_str_local_var_by_name (lexic, "password");
@@ -1456,8 +1457,8 @@ nasl_ssh_get_issue_banner (lex_ctxt *lexic)
 
   /* We need to make sure that we got the auth methods so that libssh
      has the banner.  */
-  if (!session_table[tbl_slot].user_set)
-    nasl_ssh_set_login (lexic);
+  if (!session_table[tbl_slot].user_set && !nasl_ssh_set_login (lexic))
+    return NULL;
   if (!session_table[tbl_slot].authmethods_valid)
     get_authmethods (tbl_slot);
 
@@ -1550,8 +1551,8 @@ nasl_ssh_get_auth_methods (lex_ctxt *lexic)
   if (!find_session_id (lexic, "ssh_get_auth_methods", &tbl_slot))
     return NULL;
 
-  if (!session_table[tbl_slot].user_set)
-    nasl_ssh_set_login (lexic);
+  if (!session_table[tbl_slot].user_set && !nasl_ssh_set_login (lexic))
+    return NULL;
   if (!session_table[tbl_slot].authmethods_valid)
     get_authmethods (tbl_slot);
 

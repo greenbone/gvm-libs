@@ -1,3 +1,11 @@
+2015-06-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r22656.
+
+	* nasl/nasl_ssh.c (nasl_ssh_set_login): Check that username is not
+	empty.
+	(nasl_ssh_userauth): Return on nasl_ssh_set_login() error.
+
 2015-06-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r22648.
