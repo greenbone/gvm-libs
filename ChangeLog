@@ -1,5 +1,14 @@
 2015-06-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/nvticache.c (nvticache_get_by_name_full, nvticache_get_names):
+	New functions.
+	(nvticache_get_by_oid_full): Use new function.
+	(nvticache_get_oids): Remove function.
+
+	* base/nvticache.h: Add prototypes.
+
+2015-06-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_ssh.c (nasl_ssh_set_login): Check that username is not
 	empty.
 	(nasl_ssh_userauth): Return on nasl_ssh_set_login() error.

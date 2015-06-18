@@ -246,6 +246,31 @@ nvticache_add (const nvti_t *nvti, const char *filename)
 }
 
 /**
+ * @brief Get a full NVTI from the cache file by filename.
+ *
+ * @param filename  Filename of nvti to lookup
+ *
+ * @return A full copy of the NVTI object or NULL if not found.
+ */
+nvti_t *
+nvticache_get_by_name_full (const char *filename)
+{
+  char *dummy, *cache_file;
+  nvti_t *cache_nvti;
+
+  if (!filename)
+    return NULL;
+
+  dummy = g_build_filename (cache_path, filename, NULL);
+  cache_file = g_strconcat (dummy, ".nvti", NULL);
+  cache_nvti = nvti_from_keyfile (cache_file);
+
+  g_free (dummy);
+  g_free (cache_file);
+  return cache_nvti;
+}
+
+/**
  * @brief Get a full NVTI from the cache by OID.
  *
  * @param oid      The OID to look up
@@ -256,7 +281,7 @@ nvti_t *
 nvticache_get_by_oid_full (const char *oid)
 {
   nvti_t *cache_nvti;
-  char *dummy, *cache_file, *filename, pattern[2048];
+  char *filename, pattern[2048];
 
   assert (cache_kb);
 
@@ -264,14 +289,8 @@ nvticache_get_by_oid_full (const char *oid)
   filename = kb_item_get_str (cache_kb, pattern);
   if (!filename)
     return NULL;
+  cache_nvti = nvticache_get_by_name_full (filename);
 
-  /* Retrieve the full version from the on disk cache. */
-  dummy = g_build_filename (cache_path, filename, NULL);
-  cache_file = g_strconcat (dummy, ".nvti", NULL);
-  cache_nvti = nvti_from_keyfile (cache_file);
-
-  g_free (dummy);
-  g_free (cache_file);
   g_free (filename);
   return cache_nvti;
 }
@@ -475,19 +494,19 @@ nvticache_get_timeout (const char *oid)
 }
 
 /**
- * @brief Get the list of nvti oids.
+ * @brief Get the list of nvti filenames.
  *
- * @return OIDs list.
+ * @return Filenames list.
  */
 GSList *
-nvticache_get_oids ()
+nvticache_get_names ()
 {
   struct kb_item *kbi, *item;
   GSList *list = NULL;
 
   assert (cache_kb);
 
-  kbi = item = kb_item_get_pattern (cache_kb, "name:*:oid");
+  kbi = item = kb_item_get_pattern (cache_kb, "oid:*:name");
   if (!kbi)
     return NULL;
 
