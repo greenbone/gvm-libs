@@ -99,4 +99,7 @@ nvticache_free (void);
 GSList *
 nvticache_get_names (void);
 
+GSList *
+nvticache_get_oids (void);
+
 #endif /* not _NVTICACHE_H */
