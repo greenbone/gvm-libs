@@ -1,3 +1,13 @@
+2015-07-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Revert r22625.
+
+	* misc/kb_redis.c (redis_vcommand, redis_command): Remove functions.
+	(try_database_index, fetch_max_db_index_compat, fetch_max_db_index)
+	(select_database, redis_release_db, redis_transaction_new)
+	(redis_transaction_cmd, redis_transaction_end, redis_cmd): Use
+	redisCommand() and redisvCommand().
+
 2015-06-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/nvticache.c (nvticache_get_oids): New function.
