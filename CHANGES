@@ -1,3 +1,24 @@
+openvas-libraries 8.0.4 (2015-07-09)
+
+This is the fourth maintenance release of the openvas-libraries 8.0 module for
+the Open Vulnerability Assessment System 8 (OpenVAS-8).
+
+This release improves the stability of redis commands and fixes an issue which
+could cause the output of SSH commands to be truncated prematurely. It also adds
+support for timeout options to a number of OMP library commands and improves the
+detection of the GnuTLS library.
+
+Many thanks to everyone who has contributed to this release:
+Hani Benhabiles, Matthew Mundell and Michael Wiegand.
+
+Main changes compared to 8.0.3:
+* Detection of the GnuTLS library during configuration time has been improved.
+* Support for handling timeout options has been added to a number of OMP library
+  functions.
+* An issue which caused the output of SSH commands to be truncated prematurely
+  in certain circumstances has been fixed.
+
+
 openvas-libraries 8.0.3 (2015-05-11)
 
 This is the third maintenance release of the openvas-libraries 8.0 module for
