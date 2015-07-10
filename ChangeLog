@@ -1,5 +1,11 @@
 2015-07-10  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* doc/Doxyfile.in, doc/Doxyfile_full.in: Updated directory list,
+	harmonized settings with Doxygen configurations of other OpenVAS
+	modules.
+
+2015-07-10  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* doc/Doxyfile.in, doc/Doxyfile_full.in: Updated Doxygen configuration
 	files with Doxygen 1.8.8.
 
