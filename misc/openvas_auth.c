@@ -196,7 +196,7 @@ digest_hex (int gcrypt_algorithm, const guchar * digest)
  * The current implementation was taken from the openvas-adduser shell script
  * provided with openvas-server.
  *
- * @param gcrypt_algorithm The libgcrypt message digest algorithm used to
+ * @param digest_algorithm The libgcrypt message digest algorithm used to
  * create the digest (e.g. GCRY_MD_MD5; see the enum gcry_md_algos in
  * gcrypt.h)
  * @param password The password in plaintext.

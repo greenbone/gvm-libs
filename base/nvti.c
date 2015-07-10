@@ -82,7 +82,7 @@ nvtpref_new (gchar * name, gchar * type, gchar * dflt)
 /**
  * @brief Free memory of a nvtpref structure.
  *
- * @param n The structure to be freed.
+ * @param np The structure to be freed.
  */
 void
 nvtpref_free (nvtpref_t * np)
@@ -704,7 +704,7 @@ nvti_set_tag (nvti_t * n, const gchar * tag)
  *
  * @param n The NVT Info structure.
  *
- * @param tag The CVSS base to set. A copy will be created from this.
+ * @param cvss_base The CVSS base to set. A copy will be created from this.
  *
  * @return 0 for success. Anything else indicates an error.
  */
@@ -893,7 +893,7 @@ nvti_set_family (nvti_t * n, const gchar * family)
  *
  * @param n The NVT Info structure.
  *
- * @param timout The timeout to set. Values <= 0 will indicate it is not set.
+ * @param timeout The timeout to set. Values <= 0 will indicate it is not set.
  *
  * @return 0 for success. Anything else indicates an error.
  */
@@ -961,7 +961,7 @@ nvti_add_cve (nvti_t * n, const gchar * cve_id)
  *
  * @param n The NVT Info structure.
  *
- * @param cve_id The BID ID to add. A copy will be created from this.
+ * @param bid_id The BID ID to add. A copy will be created from this.
  *
  * @return 0 for success. 1 if n was NULL. 2 if bid_id was NULL.
  */

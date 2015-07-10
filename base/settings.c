@@ -92,7 +92,7 @@ settings_init_from_file (settings_t * settings, const gchar * filename,
 /**
  * @brief Cleanup a settings structure.
  *
- * @param[in]  iterator  Settings iterator.
+ * @param[in]  settings  Settings structure.
  */
 void
 settings_cleanup (settings_t * settings)

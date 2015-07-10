@@ -120,7 +120,7 @@ static void my_gnutls_transport_set_lowat_default (gnutls_session_t session);
 
 
 /**
- * OPENVAS_STREAM(x) is TRUE if <x> is a OpenVAS-ified fd
+ * OPENVAS_STREAM(x) is TRUE if \<x\> is a OpenVAS-ified fd
  */
 #define OPENVAS_STREAM(x) (((x - OPENVAS_FD_OFF) < OPENVAS_FD_MAX) && ((x - OPENVAS_FD_OFF) >=0))
 
@@ -2455,7 +2455,7 @@ internal_send (int soc, char *data, int msg_type)
  * internal_send() / internal_recv() :
  *
  * When processes are passing messages to each other, the format is
- * <length><msg>, with <length> being a long integer. The functions
+ * \<length\>\<msg\>, with \<length\> being a long integer. The functions
  * internal_send() and internal_recv() encapsulate and decapsulate
  * the messages themselves.
  *

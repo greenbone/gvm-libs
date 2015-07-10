@@ -1427,8 +1427,6 @@ xml_start_element (GMarkupParseContext * context, const gchar * element_name,
  *
  * @param[in] context  The XML parser.
  * @param[in] element_name  The name of the current tag.
- * @param[in] attribute_names  NULL terminated list of attributes names.
- * @param[in] attribute_values  NULL terminated list of attributes values.
  * @param[in] user_data  A pointer to the current nmap_t structure.
  * @param[in] error  Return location of a GError.
  */

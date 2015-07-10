@@ -246,7 +246,7 @@ kb_item_get_pattern (kb_t kb, const char *pattern)
  * @brief Insert (append) a new entry under a given name.
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
- * @maram[in] str  Item value.
+ * @param[in] str  Item value.
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -263,7 +263,7 @@ kb_item_add_str (kb_t kb, const char *name, const char *str)
  * @brief Set (replace) a new entry under a given name.
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
- * @maram[in] str  Item value.
+ * @param[in] str  Item value.
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -280,7 +280,7 @@ kb_item_set_str (kb_t kb, const char *name, const char *str)
  * @brief Insert (append) a new entry under a given name.
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
- * @maram[in] val  Item value.
+ * @param[in] val  Item value.
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -297,7 +297,7 @@ kb_item_add_int (kb_t kb, const char *name, int val)
  * @brief Set (replace) a new entry under a given name.
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
- * @maram[in] val  Item value.
+ * @param[in] val  Item value.
  * @return 0 on success, non-null on error.
  */
 static inline int

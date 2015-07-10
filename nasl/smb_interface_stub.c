@@ -61,7 +61,7 @@ smb_versioninfo ()
  *
  * @param[in] password - The password that corresponds to username
  *
- * @param[out] handle - A connection handle in case of success.
+ * @param[out] con - A connection handle in case of success.
  *
  * @return, 0 on success, -1 on failure
  */

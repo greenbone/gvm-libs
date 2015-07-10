@@ -53,14 +53,6 @@ wmi_versioninfo ()
 /**
  * @brief Establish connection to a WMI service.
  *
- * @param[in] username - The username for getting access to WMI service
- *
- * @param[in] password - The password that corresponds to username
- *
- * @param[in] host - The host system to connect to
- *
- * @param[in] namespace - The WMI namespace of the service.
- *
  * @param[out] handle - A connection handle in case of success.
  *
  * @return, 0 on success, -1 on failure
@@ -104,12 +96,6 @@ wmi_query (WMI_HANDLE handle, const char *query, char **result)
 /**
  * @brief Establish connection to a WMI RSOP service.
  *
- * @param[in] username - The username for getting access to WMI service
- *
- * @param[in] password - The password that corresponds to username
- *
- * @param[in] host - The host system to connect to
- *
  * @param[out] handle - A connection handle in case of success.
  *
  * @return, 0 on success, -1 on failure
@@ -127,7 +113,7 @@ wmi_connect_rsop (int argc, char **argv, WMI_HANDLE * handle)
  *
  * @param[in] query - WQL RSOP query
  *
- * @param[in] val_name - Registry value to be queried
+ * @param[in] res - Registry value to be queried
  *
  * @return, 0 on success, -1 on failure
  */
@@ -139,12 +125,6 @@ wmi_query_rsop (WMI_HANDLE handle, const char *query, char **res)
 
 /**
  * @brief Establish connection to a WMI Registry service.
- *
- * @param[in] username - The username for getting access to WMI service
- *
- * @param[in] password - The password that corresponds to username
- *
- * @param[in] host - The host system to connect to
  *
  * @param[out] handle - A connection handle in case of success.
  *

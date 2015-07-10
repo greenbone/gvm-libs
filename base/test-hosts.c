@@ -24,7 +24,7 @@
  */
 
 /**
- * @file tests-hosts.c
+ * @file test-hosts.c
  * @brief Stand-alone tool to test module "openvas_hosts".
  *
  * This file offers a command line interface to test the functionalities

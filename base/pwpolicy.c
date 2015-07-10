@@ -234,6 +234,7 @@ search_file (const char *fname, const char *password)
  * @param descp    Pointer to a variable holding the current description
  *                 string or NULL for no description.
  * @param password The password to check.
+ * @param username The username to check.
  *
  * @return NULL on success or a malloced string with an error
  *         description.

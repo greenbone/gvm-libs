@@ -25,7 +25,7 @@
  */
 
 /**
- * @file hosts.c
+ * @file openvas_hosts.c
  * @brief Implementation of an API to handle Hosts objects
  *
  * This file contains all methods to handle Hosts collections (openvas_hosts_t)
@@ -475,7 +475,7 @@ cidr6_get_block (const char *str, unsigned int *block)
  * eg. For "192.168.1.10/24" it is "192.168.1.10".
  *
  * @param[in]   str     String containing CIDR-expressed block.
- * @param[out]  addr    Variable to store the IPv4 address value.
+ * @param[out]  addr6   Variable to store the IPv4 address value.
  *
  * @return -1 if error, 0 otherwise.
  */
@@ -699,8 +699,8 @@ is_short_range6_network (const char *str)
 
 /**
  * @brief Gets the first and last IPv6 addresses from a short range-expressed
- * network. eg. "::ffee:1:1001-1005" would give ::ffee:1:1001 as first and
- * ::ffee:1:1005 as last.
+ * network. eg. "\::ffee:1:1001-1005" would give \::ffee:1:1001 as first and
+ * \::ffee:1:1005 as last.
  *
  * @param[in]   str     String containing short IPv6 range-expressed network.
  * @param[out]  first   First IPv6 address in range.
@@ -749,8 +749,8 @@ short_range6_network_ips (const char *str, struct in6_addr *first,
 /**
  * @brief Determines the host type in a buffer.
  *
- * @param[in] str   Buffer that contains host definition, could a be hostname,
- *                  single IPv4 or IPv6, CIDR-expressed block etc,.
+ * @param[in] str_stripped   Buffer that contains host definition, could a be hostname,
+ *                           single IPv4 or IPv6, CIDR-expressed block etc,.
  *
  * @return Host_TYPE_*, -1 if error.
  */
@@ -1706,7 +1706,7 @@ openvas_host_resolve (const openvas_host_t *host, void *dst, int family)
 /**
  * @brief Gives a host object's value as an IPv6 address.
  * If the host type is hostname, it resolves the IPv4 address then gives an
- * IPv4-mapped IPv6 address (eg. ::ffff:192.168.1.1 .)
+ * IPv4-mapped IPv6 address (eg. \::ffff:192.168.1.1 .)
  * If the host type is IPv4, it gives an IPv4-mapped IPv6 address.
  * If the host's type is IPv6, it gives the value directly.
  *

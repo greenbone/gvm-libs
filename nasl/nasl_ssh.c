@@ -726,7 +726,7 @@ nasl_ssh_disconnect (lex_ctxt *lexic)
  * (libssh takes ownership of the socket if set via SSH_OPTIONS_FD).
  * This function implements the hook for checking and closing.
  *
- * @param[in] A socket
+ * @param[in] sock A socket
  *
  * @return Zero if the socket was closed (disconnected).
  */

@@ -310,7 +310,7 @@ __get_cvss_score (struct cvss *cvss)
 /**
  * @brief Calculate CVSS Score.
  *
- * @param base_metrics Base vector string from which to compute score.
+ * @param cvss_str Base vector string from which to compute score.
  *
  * @return The resulting score. -1 upon error during parsing.
  */

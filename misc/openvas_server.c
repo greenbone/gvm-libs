@@ -147,8 +147,8 @@ openvas_server_verify (gnutls_session_t session)
 /**
  * @brief Loads a file's data into gnutls_datum_t struct.
  *
- * @param[in]   file        File to load.
- * @param[out]  load_file   Destination to load file into.
+ * @param[in]   file          File to load.
+ * @param[out]  loaded_file   Destination to load file into.
  *
  * @return 0 if success, -1 if error.
  */
@@ -639,8 +639,6 @@ out:
  * @param[in]  session  Pointer to GNUTLS session.
  * @param[in]  fmt      Format of string to send.
  * @param[in]  ap       Args for fmt.
- * @param[in]  quiet    Whether to log debug and info messages.  Useful for
- *                      hiding passwords.
  *
  * @return 0 on success, 1 if server closed connection, -1 on error.
  */
@@ -656,8 +654,6 @@ openvas_server_vsendf (gnutls_session_t *session, const char *fmt, va_list ap)
  * @param[in]  session  Pointer to GNUTLS session.
  * @param[in]  fmt      Format of string to send.
  * @param[in]  ap       Args for fmt.
- * @param[in]  quiet    Whether to log debug and info messages.  Useful for
- *                      hiding passwords.
  *
  * @return 0 on success, 1 if server closed connection, -1 on error.
  */
@@ -835,7 +831,7 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
  * @param[in]   end_type            Connecton end type (GNUTLS_SERVER or
  *                                  GNUTLS_CLIENT).
  * @param[in]   priority            Custom priority string or NULL.
- * @param[in]   ca_file             Certificate authority file.
+ * @param[in]   ca_cert_file        Certificate authority file.
  * @param[in]   cert_file           Certificate file.
  * @param[in]   key_file            Key file.
  * @param[out]  server_session      The session with the server.
@@ -891,7 +887,7 @@ server_new_internal (unsigned int end_type, const char *priority,
  *
  * @param[in]   end_type            Connecton end type (GNUTLS_SERVER or
  *                                  GNUTLS_CLIENT).
- * @param[in]   ca_file             Certificate authority file.
+ * @param[in]   ca_cert_file        Certificate authority file.
  * @param[in]   cert_file           Certificate file.
  * @param[in]   key_file            Key file.
  * @param[out]  server_session      The session with the server.

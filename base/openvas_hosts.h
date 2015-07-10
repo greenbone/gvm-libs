@@ -25,7 +25,7 @@
  */
 
 /**
- * @file hosts.h
+ * @file openvas_hosts.h
  * @brief Protos and data structures for Hosts collections and single hosts
  * objects.
  *

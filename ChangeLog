@@ -1,3 +1,14 @@
+2015-07-10  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* base/drop_privileges.c, base/test-hosts.c, base/cvss.c, base/nvti.c,
+	base/openvas_networking.c, base/openvas_hosts.c, base/settings.c,
+	base/openvas_hosts.h, base/nvticache.c, base/pwpolicy.c, omp/omp.c,
+	omp/xml.c, misc/openvas_server.c, misc/network.c, misc/kb.h,
+	misc/ldap_connect_auth.c, misc/openvas_auth.c,
+	nasl/nasl_builtin_nmap.c, nasl/wmi_interface_stub.c,
+	nasl/smb_interface_stub.c, nasl/smb_crypt.c, nasl/nasl_ssh.c: Fix
+	documentation issues found with Doxygen.
+
 2015-07-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Revert r22625.

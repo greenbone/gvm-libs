@@ -349,9 +349,9 @@ ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
 /**
  * @brief Dummy function for Manager.
  *
- * @param info      Schema and adress to use.
- * @param username  Username to authenticate.
- * @param password  Password to use.
+ * @param ldap_auth_info      Schema and adress to use.
+ * @param username            Username to authenticate.
+ * @param password            Password to use.
  *
  * @return -1.
  */

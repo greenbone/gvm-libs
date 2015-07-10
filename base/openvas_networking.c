@@ -176,7 +176,7 @@ openvas_source_addr6 (void *addr6)
 
 /**
  * @brief Gives the source IPv4 mapped as an IPv6 address.
- * eg. 192.168.20.10 would map to ::ffff:192.168.20.10.
+ * eg. 192.168.20.10 would map to \::ffff:192.168.20.10.
  *
  * @param[out]  addr6  Buffer of at least 16 bytes.
  */
@@ -219,7 +219,7 @@ openvas_source_addr6_str (void)
 
 /**
  * @brief Maps an IPv4 address as an IPv6 address.
- * eg. 192.168.10.20 would map to ::ffff:192.168.10.20.
+ * eg. 192.168.10.20 would map to \::ffff:192.168.10.20.
  *
  * @param[in]  ip4  IPv4 address to map.
  * @param[out] ip6  Buffer to store the IPv6 address.

@@ -1697,7 +1697,7 @@ omp_create_lsc_credential_ext (gnutls_session_t* session,
  * @brief Delete a LSC credential.
  *
  * @param[in]   session     Pointer to GNUTLS session.
- * @param[in]   uuid        UUID of LSC credential.
+ * @param[in]   id          UUID of LSC credential.
  * @param[in]   opts        Struct containing the options to apply.
  *
  * @return 0 on success, -1 or OMP response code on error.

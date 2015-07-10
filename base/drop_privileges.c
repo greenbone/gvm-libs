@@ -42,7 +42,7 @@
 #include <grp.h>
 
 /**
- * @brief Sets an error and return \param errorcode.
+ * @brief Sets an error and return \param errorcode
  *
  * @param error     Error to set.
  * @param errorcode Errorcode (possible values defined in drop_privileges.h),

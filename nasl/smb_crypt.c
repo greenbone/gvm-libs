@@ -435,13 +435,6 @@ void SMBsesskeygen_lm_sess_key_ntlmssp(const uchar lm_hash[16], const uchar lm_r
 }
 
 /**
- * Creates the MD5 Hash of a combination of 16 byte salt and 16 byte NT hash.
- * @param 16 byte salt.
- * @param 16 byte NT hash.
- * @param 16 byte return hashed with md5, caller allocated 16 byte buffer
-**/
-
-/**
  * Creates the DES forward-only Hash of the users password in DOS ASCII charset
  * @param passwd password in 'unix' charset.
  * @param p16 return password hashed with DES, caller allocated 16 byte buffer
