@@ -1,5 +1,10 @@
 2015-07-10  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* doc/Doxyfile.in, doc/Doxyfile_full.in: Updated Doxygen configuration
+	files with Doxygen 1.8.8.
+
+2015-07-10  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/drop_privileges.c, base/test-hosts.c, base/cvss.c, base/nvti.c,
 	base/openvas_networking.c, base/openvas_hosts.c, base/settings.c,
 	base/openvas_hosts.h, base/nvticache.c, base/pwpolicy.c, omp/omp.c,
