@@ -167,40 +167,66 @@ osp_get_version (osp_connection_t *connection, char **s_name, char **s_version,
     return 1;
 
   child = entity_child (entity, "scanner");
-  assert (child);
+  if (!child)
+    goto err_get_version;
   gchild = entity_child (child, "name");
-  assert (gchild);
+  if (!gchild)
+    goto err_get_version;
   if (s_name)
     *s_name = g_strdup (entity_text (gchild));
   gchild = entity_child (child, "version");
-  assert (gchild);
+  if (!gchild)
+    goto err_get_version;
   if (s_version)
     *s_version = g_strdup (entity_text (gchild));
 
   child = entity_child (entity, "daemon");
-  assert (child);
+  if (!child)
+    goto err_get_version;
   gchild = entity_child (child, "name");
-  assert (gchild);
+  if (!gchild)
+    goto err_get_version;
   if (d_name)
     *d_name = g_strdup (entity_text (gchild));
   gchild = entity_child (child, "version");
-  assert (gchild);
+  if (!gchild)
+    goto err_get_version;
   if (d_version)
     *d_version = g_strdup (entity_text (gchild));
 
   child = entity_child (entity, "protocol");
-  assert (child);
+  if (!child)
+    goto err_get_version;
   gchild = entity_child (child, "name");
-  assert (gchild);
+  if (!gchild)
+    goto err_get_version;
   if (p_name)
     *p_name = g_strdup (entity_text (gchild));
   gchild = entity_child (child, "version");
-  assert (gchild);
+  if (!gchild)
+    goto err_get_version;
   if (p_version)
     *p_version = g_strdup (entity_text (gchild));
 
   free_entity (entity);
   return 0;
+
+err_get_version:
+  g_warning ("Erroneous OSP <get_version/> response.");
+  if (s_name)
+    g_free (*s_name);
+  if (s_version)
+    g_free (*s_version);
+  if (d_name)
+    g_free (*d_name);
+  if (d_version)
+    g_free (*d_version);
+  if (p_name)
+    g_free (*p_name);
+  if (p_version)
+    g_free (*p_version);
+  free_entity (entity);
+  return 1;
 }
 
 /* @brief Delete a scan from an OSP server.
