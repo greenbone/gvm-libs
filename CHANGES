@@ -1,3 +1,35 @@
+openvas-libraries 8.1+beta1 (2015-07-17)
+
+This release is the first beta version of the upcoming 8.1 of
+openvas-libraries. It will be part of the upcoming "OpenVAS-9".
+
+Main new features and other changes of 8.1 compared to 8.0 include reduced
+memory usage and other internal improvements. Starting with this release, the
+authentication configuration is expected to be provided through a callback
+instead of an "auth.conf" file.
+
+Many thanks to everyone who has contributed this release:
+Benoît Allard, Hani Benhabiles, Sven Haardiek, Matthew Mundell, Timo Pollmeier,
+Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to 8.0.x:
+* Memory usage has been reduced by using Redis for in-memory NVT OID and file
+  name caches.
+* Authentication code has been reworked. A manager callback is now used in place
+  of the "auth.conf" file.
+* Internal data structures have been optimized.
+* Caching strategies have been improved.
+* The handling of malformed script_tags has been improved.
+* OSP related code has been move to a new "osp" submodule to resolve a cyclic
+  dependency between the "base" and "omp" submodules.
+* Library detection and linking has been improved.
+* Documentation has been updated.
+* Support for SNMPv2c has been added.
+* A number of issues discovered through static code analysis have been
+  addressed.
+* Obsolete code has been removed.
+
+
 openvas-libraries 8.0.1 (2015-04-01)
 
 This is the first maintenance release of the openvas-libraries 8.0 module for
