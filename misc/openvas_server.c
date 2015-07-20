@@ -798,7 +798,7 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
      "NONE:+VERS-TLS1.0:+CIPHER-ALL:+COMP-ALL:+RSA:+DHE-RSA:+DHE-DSS:+MAC-ALL"
      But in fact this function is only for OpenVAS internal
      purposes, not for scanning abilities. So, the conservative "SECURE"
-     is choosen.
+     is chosen.
   */
 
   if ((err_gnutls = gnutls_priority_set_direct (*server_session,
@@ -828,7 +828,7 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
 /**
  * @brief Make a session for connecting to a server.
  *
- * @param[in]   end_type            Connecton end type (GNUTLS_SERVER or
+ * @param[in]   end_type            Connection end type (GNUTLS_SERVER or
  *                                  GNUTLS_CLIENT).
  * @param[in]   priority            Custom priority string or NULL.
  * @param[in]   ca_cert_file        Certificate authority file.
@@ -885,7 +885,7 @@ server_new_internal (unsigned int end_type, const char *priority,
 /**
  * @brief Make a session for connecting to a server.
  *
- * @param[in]   end_type            Connecton end type (GNUTLS_SERVER or
+ * @param[in]   end_type            Connection end type (GNUTLS_SERVER or
  *                                  GNUTLS_CLIENT).
  * @param[in]   ca_cert_file        Certificate authority file.
  * @param[in]   cert_file           Certificate file.
