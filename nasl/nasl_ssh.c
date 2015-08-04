@@ -1522,7 +1522,7 @@ nasl_ssh_get_server_banner (lex_ctxt *lexic)
  * @brief Get the host key
  * @naslfn{ssh_get_host_key}
  *
- * The function returns a string with the host key. *
+ * The function returns a string with the MD5 host key. *
  *
  * @nasluparam
  *
@@ -1549,10 +1549,17 @@ nasl_ssh_get_host_key (lex_ctxt *lexic)
     return NULL;
   session = session_table[tbl_slot].session;
 
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 6, 0)
   if (ssh_get_publickey (session, &key))
     return NULL;
-  if (ssh_get_publickey_hash (key, SSH_PUBLICKEY_HASH_SHA1, &hash, &hlen))
+  if (ssh_get_publickey_hash (key, SSH_PUBLICKEY_HASH_MD5, &hash, &hlen))
     return NULL;
+  ssh_key_free (key);
+#else
+  (void) key;
+  if ((hlen = ssh_get_pubkey_hash (session, &hash)) < 0)
+    return NULL;
+#endif
 
   retc = alloc_typed_cell (CONST_DATA);
   retc->x.str_val = (void *) hash;

@@ -1,3 +1,8 @@
+2015-08-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_ssh.c (nasl_ssh_get_host_key): Support pre 0.6.0 Libssh.
+	Get MD5 key to behave similarly for both cases. Free allocated memory.
+
 2015-07-30  Sven Haardiek <sven.haardiek@greenbone.net>
 
 	* CMakeLists.txt: Change non release version style to fit better to debian
