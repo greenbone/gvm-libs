@@ -623,7 +623,7 @@ get_plugin_preference_file_content (struct arglist *desc,
  * @return Size of the file identified by \ref identifier, -1 if not found or
  *         setup broken.
  */
-const long
+long
 get_plugin_preference_file_size (struct arglist *desc, const char *identifier)
 {
   struct arglist *globals = arg_get_value (desc, "globals");

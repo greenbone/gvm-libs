@@ -1,3 +1,8 @@
+2015-08-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/plugutils.c, misc/plugutils.h (get_plugin_preference_file_size):
+	Remove superfluous const qualifier as return value is long.
+
 2015-08-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_ssh.c (nasl_ssh_get_host_key): Support pre 0.6.0 Libssh.

@@ -107,7 +107,7 @@ void add_plugin_preference (struct arglist *, const char *, const char *,
 char *get_plugin_preference (const char *, const char *);
 const char *get_plugin_preference_fname (struct arglist *, const char *);
 char *get_plugin_preference_file_content (struct arglist *, const char *);
-const long get_plugin_preference_file_size (struct arglist *, const char *);
+long get_plugin_preference_file_size (struct arglist *, const char *);
 
 char *find_in_path (char *, int);
 
