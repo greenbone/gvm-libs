@@ -68,6 +68,9 @@ const char *
 osp_param_id (osp_param_t *);
 
 const char *
+osp_param_name (osp_param_t *);
+
+const char *
 osp_param_desc (osp_param_t *);
 
 const char *

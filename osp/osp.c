@@ -497,6 +497,20 @@ osp_param_id (osp_param_t *param)
   return param->id;
 }
 
+/* @brief Get an OSP parameter's name.
+ *
+ * @param[in]   param   OSP parameter.
+ *
+ * @return Name of OSP parameter.
+ */
+const char *
+osp_param_name (osp_param_t *param)
+{
+  assert (param);
+
+  return param->name;
+}
+
 /* @brief Get an OSP parameter's description.
  *
  * @param[in]   param   OSP parameter.
