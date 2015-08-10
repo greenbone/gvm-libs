@@ -202,8 +202,7 @@ nvti_free (nvti_t * n)
     g_free (n->family);
   if (n->prefs)
     {
-      guint len = g_slist_length (n->prefs);
-      int i;
+      int i, len = g_slist_length (n->prefs);
       for (i = 0; i < len; i++)
         nvtpref_free (g_slist_nth_data (n->prefs, i));
       g_slist_free (n->prefs);
@@ -1264,16 +1263,14 @@ nvti_from_keyfile (const gchar * fn)
 }
 
 /**
- * @brief Read NVT Info from a keyfile.
+ * @brief Set value in keyfile.
  *
  * @param keyfile Keyfile.
  * @param name    Key name.
- * @param nvti    NVTI.
  * @param value   Value.
  */
 static void
-set_from_nvti (GKeyFile *keyfile, const gchar *name, const nvti_t *nvti,
-               const gchar *value)
+set_keyfile_info (GKeyFile *keyfile, const gchar *name, const gchar *value)
 {
   if (value)
     {
@@ -1301,29 +1298,29 @@ nvti_to_keyfile (const nvti_t * n, const char *src, const gchar *fn)
   GKeyFile *keyfile = g_key_file_new ();
   gchar *text;
   GError *error = NULL;
+  unsigned int i;
 
-  set_from_nvti (keyfile, "OID", n, n->oid);
-  set_from_nvti (keyfile, "Version", n, n->version);
-  set_from_nvti (keyfile, "Name", n, n->name);
-  set_from_nvti (keyfile, "Summary", n, n->summary);
-  set_from_nvti (keyfile, "Copyright", n, n->copyright);
-  set_from_nvti (keyfile, "CVEs", n, n->cve);
-  set_from_nvti (keyfile, "BIDs", n, n->bid);
-  set_from_nvti (keyfile, "XREFs", n, n->xref);
-  set_from_nvti (keyfile, "Tags", n, n->tag);
-  set_from_nvti (keyfile, "Dependencies", n, n->dependencies);
-  set_from_nvti (keyfile, "RequiredKeys", n, n->required_keys);
-  set_from_nvti (keyfile, "MandatoryKeys", n, n->mandatory_keys);
-  set_from_nvti (keyfile, "ExcludedKeys", n, n->excluded_keys);
-  set_from_nvti (keyfile, "RequiredPorts", n, n->required_ports);
-  set_from_nvti (keyfile, "RequiredUDPPorts", n, n->required_udp_ports);
-  set_from_nvti (keyfile, "Family", n, n->family);
+  set_keyfile_info (keyfile, "OID", n->oid);
+  set_keyfile_info (keyfile, "Version", n->version);
+  set_keyfile_info (keyfile, "Name", n->name);
+  set_keyfile_info (keyfile, "Summary", n->summary);
+  set_keyfile_info (keyfile, "Copyright", n->copyright);
+  set_keyfile_info (keyfile, "CVEs", n->cve);
+  set_keyfile_info (keyfile, "BIDs", n->bid);
+  set_keyfile_info (keyfile, "XREFs", n->xref);
+  set_keyfile_info (keyfile, "Tags", n->tag);
+  set_keyfile_info (keyfile, "Dependencies", n->dependencies);
+  set_keyfile_info (keyfile, "RequiredKeys", n->required_keys);
+  set_keyfile_info (keyfile, "MandatoryKeys", n->mandatory_keys);
+  set_keyfile_info (keyfile, "ExcludedKeys", n->excluded_keys);
+  set_keyfile_info (keyfile, "RequiredPorts", n->required_ports);
+  set_keyfile_info (keyfile, "RequiredUDPPorts", n->required_udp_ports);
+  set_keyfile_info (keyfile, "Family", n->family);
   if (n->timeout > 0)
     g_key_file_set_integer (keyfile, "NVT Info", "Timeout", n->timeout);
   if (n->category > 0)
     g_key_file_set_integer (keyfile, "NVT Info", "Category", n->category);
 
-  int i;
   for (i = 0; i < nvti_pref_len (n); i++)
     {
       const nvtpref_t *np = nvti_pref (n, i);
@@ -1338,7 +1335,7 @@ nvti_to_keyfile (const nvti_t * n, const char *src, const gchar *fn)
       lst[2] = g_convert (((nvtpref_t *) np)->dflt, -1, "UTF-8", "ISO_8859-1",
                           NULL, &size, NULL);
 
-      g_snprintf (buf, 10, "P%d", i);
+      g_snprintf (buf, 10, "P%u", i);
       g_key_file_set_string_list ((GKeyFile *) keyfile, "NVT Prefs", buf,
                                   (const gchar **) lst, 3);
 //    g_key_file_set_string_list((GKeyFile *)keyfile, "NVT Prefs", (gchar *)lst[0], (const gchar **)lst, 3);

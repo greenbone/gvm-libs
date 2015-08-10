@@ -1607,10 +1607,11 @@ openvas_host_in_hosts (const openvas_host_t *host, const struct in6_addr *addr,
  *
  * @return Host type.
  */
-int
+enum host_type
 openvas_host_type (const openvas_host_t *host)
 {
-  return host ? host->type : -1;
+  assert (host);
+  return host->type;
 }
 
 /**

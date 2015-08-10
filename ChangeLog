@@ -1,3 +1,20 @@
+2015-08-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/CMakeLists.txt: Add -Wextra.
+
+	* base/nvti.c (nvti_free), base/openvas_hosts.c (openvas_host_type),
+	base/openvas_networking.c (port_in_port_ranges): Fix signedness issue.
+	(set_from_nvti): Rename to set_keyfile_info, don't take nvti parameter.
+	(nvti_to_keyfile): Adjust set_keyfile_info() calls.
+
+	* base/openvas_networking.h: Move down range_t definition.
+
+	* base/openvas_hosts.h: Adjust function prototype.
+
+	* base/test-hosts.c (main): Check argc.
+
+	* osp/CMakeLists.txt: Add -Wextra.
+
 2015-08-07  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* osp/osp.c (osp_param_name): New function.

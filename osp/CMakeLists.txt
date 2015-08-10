@@ -25,7 +25,7 @@
 
 ## Library
 
-set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -fPIC")
+set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -Wextra -fPIC")
 
 set (FILES osp.c)
 

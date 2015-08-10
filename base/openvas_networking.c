@@ -564,7 +564,7 @@ port_range_ranges (const char *port_range)
 int
 port_in_port_ranges (int pnum, port_protocol_t ptype, array_t *pranges)
 {
-  int i;
+  unsigned int i;
 
   if (pranges == NULL || pnum < 0 || pnum > 65536)
     return 0;

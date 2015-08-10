@@ -42,20 +42,6 @@
 #define _OPENVAS_NETWORKING_H
 
 /**
- * @brief A port range.
- */
-struct range
-{
-  gchar *comment;       /* Comment. */
-  int end;              /* End port.  0 for single port. */
-  int exclude;          /* Whether to exclude range. */
-  gchar *id;            /* UUID. */
-  int start;            /* Start port. */
-  int type;             /* Port protocol. */
-};
-typedef struct range range_t;
-
-/**
  * @brief Possible port types.
  *
  * Used in Manager database. If any symbol changes then a migrator must be
@@ -67,6 +53,20 @@ typedef enum
   PORT_PROTOCOL_UDP = 1,
   PORT_PROTOCOL_OTHER = 2
 } port_protocol_t;
+
+/**
+ * @brief A port range.
+ */
+struct range
+{
+  gchar *comment;       /* Comment. */
+  gchar *id;            /* UUID. */
+  int end;              /* End port.  0 for single port. */
+  int exclude;          /* Whether to exclude range. */
+  int start;            /* Start port. */
+  port_protocol_t type; /* Port protocol. */
+};
+typedef struct range range_t;
 
 int
 openvas_source_iface_init (const char *);

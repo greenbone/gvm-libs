@@ -149,7 +149,7 @@ openvas_host_in_hosts (const openvas_host_t *, const struct in6_addr *,
 gchar *
 openvas_host_type_str (const openvas_host_t *);
 
-int
+enum host_type
 openvas_host_type (const openvas_host_t *);
 
 gchar *

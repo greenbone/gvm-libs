@@ -42,6 +42,8 @@ main (int argc, char **argv)
   openvas_host_t *host;
   int i;
 
+  if (argc < 2)
+    return 1;
   hosts = openvas_hosts_new (argv[1]);
   if (hosts == NULL)
     return 1;
