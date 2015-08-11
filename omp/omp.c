@@ -453,7 +453,7 @@ omp_create_task_ext (gnutls_session_t* session,
 
   if (opts.alert_ids)
     {
-      int i;
+      unsigned int i;
       alerts = g_string_new ("");
       for (i = 0; i < opts.alert_ids->len; i++)
         {
@@ -476,7 +476,7 @@ omp_create_task_ext (gnutls_session_t* session,
 
       if (opts.observer_groups)
         {
-          int i;
+          unsigned int i;
           for (i = 0; i < opts.observer_groups->len; i++)
             {
               char *group = (char*) g_ptr_array_index (opts.observer_groups, i);

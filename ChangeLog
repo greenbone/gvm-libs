@@ -1,3 +1,12 @@
+2015-08-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* omp/omp.c (omp_create_task_ext): Fix different signedness issue.
+
+	* omp/omp.h (omp_get_report_opts_defaults, omp_get_tasks_opts_defaults)
+	(omp_get_task_opts_defaults, omp_create_task_opts_defaults)
+	(omp_get_system_reports_opts_defaults)
+	(omp_create_lsc_credential_opts_defaults): Initialize appropriately.
+
 2015-08-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/CMakeLists.txt: Add -Wextra.
