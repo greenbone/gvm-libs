@@ -289,6 +289,9 @@ handle_start_element (GMarkupParseContext * context, const gchar * element_name,
 {
   entity_t entity;
   context_data_t *data = (context_data_t *) user_data;
+
+  (void) context;
+  (void) error;
   if (data->current)
     {
       entity_t current = (entity_t) data->current->data;
@@ -319,6 +322,9 @@ handle_end_element (GMarkupParseContext * context, const gchar * element_name,
                     gpointer user_data, GError ** error)
 {
   context_data_t *data = (context_data_t *) user_data;
+
+  (void) context;
+  (void) error;
   assert (data->current && data->first);
   if (data->current == data->first)
     {
@@ -353,6 +359,10 @@ handle_text (GMarkupParseContext * context, const gchar * text, gsize text_len,
              gpointer user_data, GError ** error)
 {
   context_data_t *data = (context_data_t *) user_data;
+
+  (void) context;
+  (void) text_len;
+  (void) error;
   entity_t current = (entity_t) data->current->data;
   if (current->text)
     {
@@ -374,6 +384,8 @@ handle_text (GMarkupParseContext * context, const gchar * text, gsize text_len,
 void
 handle_error (GMarkupParseContext * context, GError * error, gpointer user_data)
 {
+  (void) context;
+  (void) user_data;
   g_message ("   Error: %s\n", error->message);
 }
 
@@ -868,6 +880,7 @@ print_entity (FILE * stream, entity_t entity)
 static void
 foreach_print_attribute_format (gpointer name, gpointer value, gpointer none)
 {
+  (void) none;
   printf (" %s=\"%s\"", (char *) name, (char *) value);
 }
 

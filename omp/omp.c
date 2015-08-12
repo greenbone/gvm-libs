@@ -842,6 +842,7 @@ omp_get_tasks (gnutls_session_t* session, const char* id, int details,
   const char* status_code;
   int ret;
 
+  (void) include_rcfile;
   if (id == NULL)
     {
       if (openvas_server_sendf (session,
@@ -1108,6 +1109,7 @@ omp_get_targets (gnutls_session_t* session, const char* id, int tasks,
   const char* status_code;
   int ret;
 
+  (void) include_rcfile;
   if (id == NULL)
     {
       if (openvas_server_sendf (session,

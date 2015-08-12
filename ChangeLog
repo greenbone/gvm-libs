@@ -1,3 +1,12 @@
+2015-08-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* omp/CMakeLists.txt: Add -Wextra flag.
+
+	* omp/omp.c (omp_get_tasks, omp_get_targets), omp/xml.c
+	(handle_start_element, handle_end_element, handle_text, handle_error)
+	(foreach_print_attribute_format): Fix unused function parameters
+	warning.
+
 2015-08-12  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* base/credentials.h (credentials_t): Add field default_severity.

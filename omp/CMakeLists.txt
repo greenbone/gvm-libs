@@ -28,7 +28,7 @@
 if (NOT MINGW)
   # On windows we are always PIC and stack-protector is replaces by DEP
   # Also stack protection needs a shared library to work
-  set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -fPIC")
+  set (CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${HARDENING_FLAGS} -Wall -Wextra -fPIC")
 endif (NOT MINGW)
 
 set (FILES xml.c omp.c)
