@@ -103,7 +103,7 @@ plug_set_dep (struct arglist *desc, const char *depname)
 }
 
 void
-host_add_port_proto (struct arglist *args, int portnum, int state, char *proto)
+host_add_port_proto (struct arglist *args, int portnum, char *proto)
 {
   char port_s[255];
   snprintf (port_s, sizeof (port_s), "Ports/%s/%d", proto, portnum);    /* RATS: ignore */
@@ -684,7 +684,7 @@ plug_replace_key (struct arglist *args, char *name, int type, void *value)
 void
 scanner_add_port (struct arglist *args, int port, char *proto)
 {
-  host_add_port_proto (args, port, 1, proto);
+  host_add_port_proto (args, port, proto);
 }
 
 
@@ -702,7 +702,7 @@ plug_get_kb (struct arglist *args)
 static int _plug_get_key_son = 0;
 
 static void
-plug_get_key_sighand_term (int sig)
+plug_get_key_sighand_term ()
 {
   int son = _plug_get_key_son;
 
@@ -715,7 +715,7 @@ plug_get_key_sighand_term (int sig)
 }
 
 static void
-plug_get_key_sigchld (int sig)
+plug_get_key_sigchld ()
 {
   int status;
 
@@ -734,13 +734,13 @@ sig_n (int signo, void (*fnc) (int))
 }
 
 static void
-sig_term (void (*fcn) (int))
+sig_term (void (*fcn) ())
 {
   sig_n (SIGTERM, fcn);
 }
 
 static void
-sig_chld (void (*fcn) (int))
+sig_chld (void (*fcn) ())
 {
   sig_n (SIGCHLD, fcn);
 }

@@ -1,5 +1,20 @@
 2015-08-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/CMakeLists.txt: Add -Wextra flag.
+
+	* misc/ids_send.c (inject, injectv6), misc/kb_redis.c (select_database)
+	(redis2kbitem, redis_get_pattern), misc/network.c (recv_line)
+	(my_gnutls_transport_set_lowat_default), misc/openvas_auth.c
+	(digest_hex, openvas_authenticate_classic), misc/openvas_logging.c
+	(openvas_log_silent), misc/openvas_server.c (client_cert_callback)
+	(openvas_server_vsendf_internal, my_gnutls_transport_set_lowat_default),
+	misc/pcap.c (get_random_bytes), misc/plugutils.c (host_add_port_proto)
+	(scanner_add_port, plug_get_key_sighand_term, plug_get_key_sigchld)
+	(sig_term, sig_chld): Fix signedness and unused function parameters
+	issues.
+
+2015-08-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* omp/CMakeLists.txt: Add -Wextra flag.
 
 	* omp/omp.c (omp_get_tasks, omp_get_targets), omp/xml.c

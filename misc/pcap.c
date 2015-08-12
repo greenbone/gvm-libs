@@ -488,7 +488,6 @@ get_random_bytes (void *buf, int numbytes)
   int tmp;
   struct timeval tv;
   FILE *fp = NULL;
-  int i;
   short *iptr;
 
   if (numbytes < 0 || numbytes > 0xFFFF)
@@ -511,6 +510,8 @@ get_random_bytes (void *buf, int numbytes)
         }
       if (!fp)
         {
+          unsigned int i;
+
           if (badrandomwarning == 0)
             {
               badrandomwarning++;

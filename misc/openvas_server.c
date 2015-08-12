@@ -231,6 +231,11 @@ client_cert_callback (gnutls_session_t session,
   static gnutls_x509_crt_t crt;
   static gnutls_x509_privkey_t key;
 
+  (void) session;
+  (void) req_ca_rdn;
+  (void) nreqs;
+  (void) sign_algos;
+  (void) sign_algos_length;
   data.data = (unsigned char *) g_strdup (get_cert_pub_mem ());
   data.size = strlen (get_cert_pub_mem ());
   gnutls_x509_crt_init (&crt);
@@ -556,8 +561,7 @@ openvas_server_vsendf_internal (gnutls_session_t *session, const char *fmt,
   struct sigaction new_action, original_action;
 #endif
   char *sref, *string;
-  size_t left;
-  int rc = 0;
+  int rc = 0, left;
 
 #ifndef _WIN32
   new_action.sa_flags = 0;
@@ -578,9 +582,8 @@ openvas_server_vsendf_internal (gnutls_session_t *session, const char *fmt,
       ssize_t count;
 
       if (quiet == 0)
-        g_debug ("   send %zu from %.*s[...]",
-                 left, left < 30 ? (int) left : 30,
-                 string);
+        g_debug ("   send %d from %.*s[...]",
+                 left, left < 30 ? left : 30, string);
       count = gnutls_record_send (*session, string, left);
       if (count < 0)
         {
@@ -1131,5 +1134,7 @@ my_gnutls_transport_set_lowat_default (gnutls_session_t session)
 {
 #if GNUTLS_VERSION_NUMBER < 0x026300
   gnutls_transport_set_lowat (session, 1);
+#else
+  (void) session;
 #endif
 }

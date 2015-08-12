@@ -167,6 +167,9 @@ openvas_auth_tear_down (void)
 gchar *
 digest_hex (int gcrypt_algorithm, const guchar * digest)
 {
+  unsigned int i;
+  gchar *hex;
+
   gcry_error_t err = gcry_md_test_algo (gcrypt_algorithm);
   if (err != 0)
     {
@@ -174,9 +177,7 @@ digest_hex (int gcrypt_algorithm, const guchar * digest)
       return NULL;
     }
 
-  gchar *hex = g_malloc0 (gcry_md_get_algo_dlen (gcrypt_algorithm) * 2 + 1);
-  int i;
-
+  hex = g_malloc0 (gcry_md_get_algo_dlen (gcrypt_algorithm) * 2 + 1);
   for (i = 0; i < gcry_md_get_algo_dlen (gcrypt_algorithm); i++)
     {
       g_snprintf (hex + i * 2, 3, "%02x", digest[i]);
@@ -262,6 +263,7 @@ openvas_authenticate_classic (const gchar *username, const gchar *password,
   guchar *hash;
   gchar *hash_hex, **seed_hex, **split;
 
+  (void) username;
   if (hash_arg == NULL)
     return 1;
   actual = g_strdup (hash_arg);

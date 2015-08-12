@@ -327,7 +327,7 @@ tcp_cksum (packet, len)
 static int
 inject (orig_packet, packet_len, method, flags, data, data_len)
      char *orig_packet;
-     int packet_len;
+     unsigned int packet_len;
      int method;
      int flags;
      char *data;
@@ -430,7 +430,7 @@ inject (orig_packet, packet_len, method, flags, data, data_len)
 static int
 injectv6 (orig_packet, packet_len, method, flags, data, data_len)
      char *orig_packet;
-     int packet_len;
+     unsigned int packet_len;
      int method;
      int flags;
      char *data;

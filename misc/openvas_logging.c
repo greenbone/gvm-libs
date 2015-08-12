@@ -346,6 +346,10 @@ void
 openvas_log_silent (const char *log_domain, GLogLevelFlags log_level,
                     const char *message, gpointer openvas_log_config_list)
 {
+  (void) log_domain;
+  (void) log_level;
+  (void) message;
+  (void) openvas_log_config_list;
   return;
 }
 

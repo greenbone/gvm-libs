@@ -2170,11 +2170,13 @@ open_sock_option (struct arglist *args, unsigned int port, int type,
 int
 recv_line (int soc, char *buf, size_t bufsiz)
 {
-  int n, ret = 0;
+  int n;
+  unsigned int ret = 0;
 
   /* Dirty SSL hack */
   if (OPENVAS_STREAM (soc))
     {
+      unsigned int ret = 0;
       buf[0] = '\0';
 
       do
@@ -2695,6 +2697,8 @@ my_gnutls_transport_set_lowat_default (gnutls_session_t session)
 {
 #if GNUTLS_VERSION_NUMBER < 0x026300
   gnutls_transport_set_lowat (session, 1);
+#else
+  (void) session;
 #endif
 }
 

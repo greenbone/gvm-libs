@@ -253,12 +253,14 @@ err_cleanup:
 static int
 select_database (struct kb_redis *kbr)
 {
-  int rc, i;
+  int rc;
   redisContext *ctx = kbr->rctx;
   redisReply *rep = NULL;
 
   if (kbr->db == 0)
     {
+      unsigned i;
+
       if (kbr->max_db == 0)
         fetch_max_db_index (kbr);
 
@@ -591,13 +593,14 @@ redis2kbitem_single (const char *name, const redisReply *elt, int force_int)
 static struct kb_item *
 redis2kbitem (const char *name, const redisReply *rep)
 {
-  int i;
   struct kb_item *kbi;
 
   kbi = NULL;
 
   switch (rep->type)
     {
+      unsigned int i;
+
       case REDIS_REPLY_STRING:
       case REDIS_REPLY_INTEGER:
         kbi = redis2kbitem_single (name, rep, 0);
@@ -762,7 +765,7 @@ redis_get_pattern (kb_t kb, const char *pattern)
   struct kb_redis *kbr;
   struct kb_item *kbi;
   redisReply *rep;
-  int i;
+  unsigned int i;
 
   kbr = redis_kb (kb);
   kbi = NULL;
