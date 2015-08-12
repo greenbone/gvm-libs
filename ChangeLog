@@ -1,3 +1,7 @@
+2015-08-12  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	* base/credentials.h (credentials_t): Add field default_severity.
+
 2015-08-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* omp/omp.c (omp_create_task_ext): Fix different signedness issue.
