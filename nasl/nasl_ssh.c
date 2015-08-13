@@ -1540,30 +1540,21 @@ nasl_ssh_get_host_key (lex_ctxt *lexic)
 {
   int tbl_slot;
   ssh_session session;
-  ssh_key key;
-  unsigned char *hash;
-  size_t hlen;
+  ssh_string sstring;
   tree_cell *retc;
 
   if (!find_session_id (lexic, "ssh_get_host_key", &tbl_slot))
     return NULL;
   session = session_table[tbl_slot].session;
 
-#if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 6, 0)
-  if (ssh_get_publickey (session, &key))
+  sstring = ssh_get_pubkey (session);
+  if (!sstring)
     return NULL;
-  if (ssh_get_publickey_hash (key, SSH_PUBLICKEY_HASH_MD5, &hash, &hlen))
-    return NULL;
-  ssh_key_free (key);
-#else
-  (void) key;
-  if ((hlen = ssh_get_pubkey_hash (session, &hash)) < 0)
-    return NULL;
-#endif
 
   retc = alloc_typed_cell (CONST_DATA);
-  retc->x.str_val = (void *) hash;
-  retc->size = hlen;
+  retc->x.str_val = ssh_string_to_char (sstring);
+  retc->size = ssh_string_len (sstring);
+  ssh_string_free (sstring);
   return retc;
 }
 
