@@ -60,6 +60,9 @@ wmi_versioninfo ()
 int
 wmi_connect (int argc, char **argv, WMI_HANDLE * handle)
 {
+  (void) argc;
+  (void) argv;
+  (void) handle;
   return -1;
 }
 
@@ -73,6 +76,7 @@ wmi_connect (int argc, char **argv, WMI_HANDLE * handle)
 int
 wmi_close (WMI_HANDLE handle)
 {
+  (void) handle;
   return -1;
 }
 
@@ -90,6 +94,9 @@ wmi_close (WMI_HANDLE handle)
 int
 wmi_query (WMI_HANDLE handle, const char *query, char **result)
 {
+  (void) handle;
+  (void) query;
+  (void) result;
   return -1;
 }
 
@@ -103,6 +110,9 @@ wmi_query (WMI_HANDLE handle, const char *query, char **result)
 int
 wmi_connect_rsop (int argc, char **argv, WMI_HANDLE * handle)
 {
+  (void) argc;
+  (void) argv;
+  (void) handle;
   return -1;
 }
 
@@ -120,6 +130,9 @@ wmi_connect_rsop (int argc, char **argv, WMI_HANDLE * handle)
 int
 wmi_query_rsop (WMI_HANDLE handle, const char *query, char **res)
 {
+  (void) handle;
+  (void) query;
+  (void) res;
   return -1;
 }
 
@@ -133,6 +146,9 @@ wmi_query_rsop (WMI_HANDLE handle, const char *query, char **res)
 int
 wmi_connect_reg (int argc, char **argv, WMI_HANDLE * handle)
 {
+  (void) argc;
+  (void) argv;
+  (void) handle;
   return -1;
 }
 
@@ -155,6 +171,11 @@ int
 wmi_reg_get_sz (WMI_HANDLE handle, unsigned int hive, const char *key,
                 const char *key_name, char **res)
 {
+  (void) handle;
+  (void) hive;
+  (void) key;
+  (void) key_name;
+  (void) res;
   return -1;
 }
 
@@ -176,6 +197,10 @@ int
 wmi_reg_enum_value (WMI_HANDLE handle, unsigned int hive, const char *key,
                     char **res)
 {
+  (void) handle;
+  (void) hive;
+  (void) key;
+  (void) res;
   return -1;
 }
 
@@ -197,6 +222,10 @@ int
 wmi_reg_enum_key (WMI_HANDLE handle, unsigned int hive, const char *key,
                   char **res)
 {
+  (void) handle;
+  (void) hive;
+  (void) key;
+  (void) res;
   return -1;
 }
 
@@ -219,6 +248,11 @@ int
 wmi_reg_get_bin_val (WMI_HANDLE handle, unsigned int hive, const char *key,
                      const char *val_name, char **res)
 {
+  (void) handle;
+  (void) hive;
+  (void) key;
+  (void) val_name;
+  (void) res;
   return -1;
 }
 
@@ -241,6 +275,11 @@ int
 wmi_reg_get_dword_val (WMI_HANDLE handle, unsigned int hive, const char *key,
                        const char *val_name, char **res)
 {
+  (void) handle;
+  (void) hive;
+  (void) key;
+  (void) val_name;
+  (void) res;
   return -1;
 }
 
@@ -263,6 +302,11 @@ int
 wmi_reg_get_ex_string_val (WMI_HANDLE handle, unsigned int hive,
                            const char *key, const char *val_name, char **res)
 {
+  (void) handle;
+  (void) hive;
+  (void) key;
+  (void) val_name;
+  (void) res;
   return -1;
 }
 
@@ -285,6 +329,11 @@ int
 wmi_reg_get_mul_string_val (WMI_HANDLE handle, unsigned int hive,
                             const char *key, const char *val_name, char **res)
 {
+  (void) handle;
+  (void) hive;
+  (void) key;
+  (void) val_name;
+  (void) res;
   return -1;
 }
 
@@ -307,6 +356,11 @@ int
 wmi_reg_get_qword_val (WMI_HANDLE handle, unsigned int hive, const char *key,
                        const char *val_name, char **res)
 {
+  (void) handle;
+  (void) hive;
+  (void) key;
+  (void) val_name;
+  (void) res;
   return -1;
 }
 
@@ -322,10 +376,14 @@ wmi_reg_get_qword_val (WMI_HANDLE handle, unsigned int hive, const char *key,
  *
  * @return, 0 on success, -1 on failure
  */
-int 
-wmi_reg_set_dword_val(WMI_HANDLE handle, const char *key, const char *val_name, 
+int
+wmi_reg_set_dword_val(WMI_HANDLE handle, const char *key, const char *val_name,
 						uint32_t val)
 {
+  (void) handle;
+  (void) key;
+  (void) val_name;
+  (void) val;
   return -1;
 }
 
@@ -340,10 +398,14 @@ wmi_reg_set_dword_val(WMI_HANDLE handle, const char *key, const char *val_name,
  *
  * @return, 0 on success, -1 on failure
  */
-int 
-wmi_reg_set_qword_val(WMI_HANDLE handle, const char *key, const char *val_name, 
+int
+wmi_reg_set_qword_val(WMI_HANDLE handle, const char *key, const char *val_name,
 						uint64_t val)
 {
+  (void) handle;
+  (void) key;
+  (void) val_name;
+  (void) val;
   return -1;
 }
 
@@ -358,10 +420,14 @@ wmi_reg_set_qword_val(WMI_HANDLE handle, const char *key, const char *val_name,
  *
  * @return, 0 on success, -1 on failure
  */
-int 
+int
 wmi_reg_set_ex_string_val(WMI_HANDLE handle, const char *key,
 				 const char *val_name, const char *val)
 {
+  (void) handle;
+  (void) key;
+  (void) val_name;
+  (void) val;
   return -1;
 }
 
@@ -376,10 +442,14 @@ wmi_reg_set_ex_string_val(WMI_HANDLE handle, const char *key,
  *
  * @return, 0 on success, -1 on failure
  */
-int 
+int
 wmi_reg_set_string_val(WMI_HANDLE handle, const char *key,
 				 const char *val_name, const char *val)
 {
+  (void) handle;
+  (void) key;
+  (void) val_name;
+  (void) val;
   return -1;
 }
 
@@ -392,9 +462,11 @@ wmi_reg_set_string_val(WMI_HANDLE handle, const char *key,
  *
  * @return, 0 on success, -1 on failure
  */
-int 
+int
 wmi_reg_create_key(WMI_HANDLE handle, const char *key)
 {
+  (void) handle;
+  (void) key;
   return -1;
 }
 
@@ -407,8 +479,10 @@ wmi_reg_create_key(WMI_HANDLE handle, const char *key)
  *
  * @return, 0 on success, -1 on failure
  */
-int 
+int
 wmi_reg_delete_key(WMI_HANDLE handle, const char *key)
 {
+  (void) handle;
+  (void) key;
   return -1;
 }

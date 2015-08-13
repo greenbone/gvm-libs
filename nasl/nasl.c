@@ -53,7 +53,7 @@ void exit_nasl (struct arglist *, int);
 int safe_checks_only = 0;
 
 void
-sighandler (int s)
+sighandler ()
 {
   exit (0);
 }

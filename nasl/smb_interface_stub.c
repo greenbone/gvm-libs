@@ -69,6 +69,11 @@ int smb_connect(const char *server, const char *share,
                 const char *username, const char *password,
                 SMB_HANDLE *con)
 {
+  (void) server;
+  (void) share;
+  (void) username;
+  (void) password;
+  (void) con;
   return -1;
 }
 
@@ -81,6 +86,7 @@ int smb_connect(const char *server, const char *share,
  */
 int smb_close(SMB_HANDLE handle)
 {
+  (void) handle;
   return -1;
 }
 
@@ -95,6 +101,8 @@ int smb_close(SMB_HANDLE handle)
  */
 char *smb_file_SDDL(SMB_HANDLE handle, const char *filename)
 {
+  (void) handle;
+  (void) filename;
   return NULL;
 }
 
@@ -109,6 +117,8 @@ char *smb_file_SDDL(SMB_HANDLE handle, const char *filename)
  */
 char *smb_file_OwnerSID(SMB_HANDLE handle, const char *filename)
 {
+  (void) handle;
+  (void) filename;
   return NULL;
 }
 
@@ -124,6 +134,8 @@ char *smb_file_OwnerSID(SMB_HANDLE handle, const char *filename)
  */
 char *smb_file_GroupSID(SMB_HANDLE handle, const char *filename)
 {
+  (void) handle;
+  (void) filename;
   return NULL;
 }
 
@@ -138,6 +150,8 @@ char *smb_file_GroupSID(SMB_HANDLE handle, const char *filename)
  */
 char *smb_file_TrusteeRights(SMB_HANDLE handle, const char *filename)
 {
+  (void) handle;
+  (void) filename;
   return NULL;
 }
 
@@ -153,5 +167,8 @@ char *smb_file_TrusteeRights(SMB_HANDLE handle, const char *filename)
 int
 wincmd(int argc, char *argv[], char **res)
 {
+  (void) argc;
+  (void) argv;
+  (void) res;
   return -1;
 }
