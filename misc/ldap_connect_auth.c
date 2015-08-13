@@ -343,6 +343,9 @@ ldap_auth_info_t
 ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
                     gboolean allow_plaintext)
 {
+  (void) ldap_host;
+  (void) auth_dn;
+  (void) allow_plaintext;
   return NULL;
 }
 
@@ -359,6 +362,9 @@ int
 ldap_connect_authenticate (const gchar * username, const gchar * password,
                    /*const *//*ldap_auth_info_t */ void *ldap_auth_info)
 {
+  (void) username;
+  (void) password;
+  (void) ldap_auth_info;
   return -1;
 }
 
@@ -370,6 +376,7 @@ ldap_connect_authenticate (const gchar * username, const gchar * password,
 void
 ldap_auth_info_free (ldap_auth_info_t info)
 {
+  (void) info;
 }
 
 #endif /* ENABLE_LDAP_AUTH */
