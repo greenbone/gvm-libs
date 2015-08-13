@@ -325,6 +325,7 @@ handle_end_element (GMarkupParseContext * context, const gchar * element_name,
 
   (void) context;
   (void) error;
+  (void) element_name;
   assert (data->current && data->first);
   if (data->current == data->first)
     {

@@ -1,5 +1,9 @@
 2015-08-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* omp/xml.c (handle_end_element): Fix unused function parameter warning.
+
+2015-08-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* osp/osp.c (osp_get_scan): Add scan details parameter.
 
 	* osp/osp.h: Adjust function prototype.
