@@ -1,5 +1,11 @@
 2015-08-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* osp/osp.c (osp_get_scan): Add scan details parameter.
+
+	* osp/osp.h: Adjust function prototype.
+
+2015-08-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl.c, nasl/smb_interface_stub.c, nasl/wmi_interface_stub.c: Fix
 	unused function parameter warnings.
 
