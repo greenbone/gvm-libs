@@ -1,3 +1,10 @@
+2015-08-14  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Backport r23049.
+
+	* base/drop_privileges.c (drop_privileges): Check effective user ID
+	instead of user ID when deciding if privileges need to be dropped.
+
 2015-08-07  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	Backport r22992.

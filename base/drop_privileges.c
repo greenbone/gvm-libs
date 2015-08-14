@@ -86,7 +86,7 @@ drop_privileges (gchar * username, GError ** error)
   if (username == NULL)
     username = "nobody";
 
-  if (getuid () == 0)
+  if (geteuid () == 0)
     {
       if ((user_pw = getpwnam (username)))
         {
