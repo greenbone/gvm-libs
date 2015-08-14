@@ -1,3 +1,8 @@
+2015-08-14  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* base/drop_privileges.c (drop_privileges): Check effective user ID
+	instead of user ID when deciding if privileges need to be dropped.
+
 2015-08-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_ssh.c (nasl_ssh_connect): Set SSH_OPTIONS_HOSTKEYS value
