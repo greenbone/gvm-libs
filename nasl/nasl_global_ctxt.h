@@ -21,15 +21,17 @@
 
 /* for FILE */
 #include <stdio.h>
+#include <../misc/kb.h>
 
 typedef struct
 {
   int line_nb;
+  int always_authenticated;
+  int maxlen;
   FILE *fp;
   tree_cell *tree;
   char *buffer;
-  int always_authenticated;
-  int maxlen;
+  kb_t kb;
 } naslctxt;
 
 int init_nasl_ctx (naslctxt *, const char *);
