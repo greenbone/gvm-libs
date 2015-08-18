@@ -290,7 +290,8 @@ inc: INCLUDE '(' string ')'
 	  naslctxt	subctx;
 	  int		x;
 
- 	  subctx.always_authenticated = ((naslctxt*)parm)->always_authenticated;
+          subctx.always_authenticated = ((naslctxt*)parm)->always_authenticated;
+          subctx.kb = ((naslctxt *) parm)->kb;
 	  x = init_nasl_ctx(&subctx, $3);
 	  $$ = NULL;
 	  if (x >= 0)
@@ -541,8 +542,9 @@ add_nasl_inc_dir (const char * dir)
 int
 init_nasl_ctx(naslctxt* pc, const char* name)
 {
-  gchar * full_name = NULL;
+  char *full_name = NULL, key_path[2048];
   GSList * inc_dir = inc_dirs; // iterator for include directories
+  int check;
 
   // initialize if not yet done (for openvas-server < 2.0.1)
   if (! inc_dirs) add_nasl_inc_dir("");
@@ -571,14 +573,44 @@ init_nasl_ctx(naslctxt* pc, const char* name)
     return -1;
   }
 
-  if (! pc->always_authenticated && nasl_verify_signature(full_name) != 0) {
-    log_legacy_write ("%s: bad or missing signature. Will not execute this"
-                      " script", full_name);
-    fclose(pc->fp);
-    pc->fp = NULL;
-    g_free(full_name);
-    return -1;
-  }
+  if (pc->always_authenticated)
+    {
+      g_free(full_name);
+      return 0;
+    }
+  /* Cache the result of signature checking, so that commonly included files are
+   * not checked multiple times per scan. */
+  if (pc->kb)
+    {
+      snprintf (key_path, sizeof (key_path), "SignatureCheck/%s", full_name);
+      check = kb_item_get_int (pc->kb, key_path);
+      if (check == 1)
+        {
+          g_free (full_name);
+          return -1;
+        }
+      else if (check == 0)
+        {
+          g_free (full_name);
+          return 0;
+        }
+      else if (check != -1)
+        abort ();
+    }
+
+  if (nasl_verify_signature(full_name) != 0)
+    {
+      log_legacy_write ("%s: Will not execute. Bad or missing signature",
+                        full_name);
+      if (pc->kb)
+        kb_item_add_int (pc->kb, key_path, 1);
+      fclose(pc->fp);
+      pc->fp = NULL;
+      g_free(full_name);
+      return -1;
+    }
+  if (pc->kb)
+    kb_item_add_int (pc->kb, key_path, 0);
 
   g_free(full_name);
   return 0;

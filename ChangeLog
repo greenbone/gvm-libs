@@ -1,3 +1,15 @@
+2015-08-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r23079.
+
+	* nasl/nasl_global_ctxt.h (naslctxt): Add kb element.
+
+	* nasl/exec.c (exec_nasl_script): Set context kb.
+
+	* nasl/nasl_grammar.y (INCLUDE): Set context kb.
+	(init_nasl_ctx): Cache the signature checking result in kb, to prevent
+	checking the same nasl script or include file multiple times.
+
 2015-08-14  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Backport r23049.
