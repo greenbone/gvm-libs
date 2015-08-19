@@ -52,5 +52,6 @@ tree_cell *nasl_ssh_exec (lex_ctxt *);
 tree_cell *nasl_ssh_get_issue_banner (lex_ctxt *lexic);
 tree_cell *nasl_ssh_get_server_banner (lex_ctxt *lexic);
 tree_cell *nasl_ssh_get_auth_methods (lex_ctxt *lexic);
+tree_cell *nasl_ssh_get_host_key (lex_ctxt *lexic);
 
 #endif /*NASL_SSH_H*/

@@ -1,3 +1,13 @@
+2015-08-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r22926, r22958 and r23042.
+
+	* nasl/nasl_ssh.c (nasl_ssh_get_host_key): New function.
+
+	* nasl/nasl_ssh.h: Add function prototype.
+
+	* nasl/nasl_init.c (libfuncs): Add nasl_ssh_get_host_keys().
+
 2015-08-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r23079.

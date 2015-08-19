@@ -1518,6 +1518,45 @@ nasl_ssh_get_server_banner (lex_ctxt *lexic)
 }
 #endif
 
+/**
+ * @brief Get the host key
+ * @naslfn{ssh_get_host_key}
+ *
+ * The function returns a string with the MD5 host key. *
+ *
+ * @nasluparam
+ *
+ * - An ssh session id.
+ *
+ * @naslret A data block on success or NULL on error.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ *
+ * @return A string is returned on success.  NULL indicates that the
+ *         connection has not yet been established.
+ */
+tree_cell *
+nasl_ssh_get_host_key (lex_ctxt *lexic)
+{
+  int tbl_slot;
+  ssh_session session;
+  ssh_string sstring;
+  tree_cell *retc;
+
+  if (!find_session_id (lexic, "ssh_get_host_key", &tbl_slot))
+    return NULL;
+  session = session_table[tbl_slot].session;
+
+  sstring = ssh_get_pubkey (session);
+  if (!sstring)
+    return NULL;
+
+  retc = alloc_typed_cell (CONST_DATA);
+  retc->x.str_val = ssh_string_to_char (sstring);
+  retc->size = ssh_string_len (sstring);
+  ssh_string_free (sstring);
+  return retc;
+}
 
 /**
  * @brief Get the list of authmethods

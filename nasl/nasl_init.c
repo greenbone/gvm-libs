@@ -412,6 +412,7 @@ static init_func libfuncs[] = {
   {"ssh_get_server_banner", nasl_ssh_get_server_banner, 1, {NULL }},
 #endif
   {"ssh_get_auth_methods", nasl_ssh_get_auth_methods, 1, {NULL }},
+  {"ssh_get_host_key", nasl_ssh_get_host_key, 1, {NULL }},
 
 #ifdef HAVE_LIBKSBA
   {"cert_open", nasl_cert_open, 1, {"errorvar", NULL }},
