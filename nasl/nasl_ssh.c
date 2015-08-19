@@ -491,7 +491,7 @@ nasl_ssh_connect (lex_ctxt *lexic)
 {
   ssh_session session;
   tree_cell *retc;
-  const char *hostname;
+  const char *hostname, *key_type;
   int port, sock;
   int tbl_slot;
   const char *s;
@@ -543,6 +543,24 @@ nasl_ssh_connect (lex_ctxt *lexic)
       ssh_free (session);
       return NULL;
     }
+
+  key_type = get_str_local_var_by_name (lexic, "keytype");
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 6, 0)
+  if (key_type && ssh_options_set (session, SSH_OPTIONS_HOSTKEYS, key_type))
+    {
+      log_legacy_write ("Failed to set SSH key type '%s': %s",
+                        key_type, ssh_get_error (session));
+      ssh_free (session);
+      return NULL;
+    }
+#else
+  if (key_type)
+    {
+      log_legacy_write ("SSH_OPTIONS_HOSTKEYS not supported");
+      ssh_free (session);
+      return NULL;
+    }
+#endif
 
   if (port)
     {

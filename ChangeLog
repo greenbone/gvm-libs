@@ -1,5 +1,12 @@
 2015-08-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Backport r23046 and r23051.
+
+	* nasl/nasl_ssh.c (nasl_ssh_connect): Set SSH_OPTIONS_HOSTKEYS value
+	when keytype argument is provided.
+
+2015-08-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Backport r22926, r22958 and r23042.
 
 	* nasl/nasl_ssh.c (nasl_ssh_get_host_key): New function.
