@@ -474,6 +474,7 @@ glob: GLOBAL arg_decl
 #include <stdio.h>
 #include <stdlib.h>
 #include "openvas_logging.h"
+#include "openvas_file.h"
 
 static void
 naslerror(naslctxt *parm, const char *s)
@@ -544,7 +545,6 @@ init_nasl_ctx(naslctxt* pc, const char* name)
 {
   char *full_name = NULL, key_path[2048];
   GSList * inc_dir = inc_dirs; // iterator for include directories
-  int check;
 
   // initialize if not yet done (for openvas-server < 2.0.1)
   if (! inc_dirs) add_nasl_inc_dir("");
@@ -578,24 +578,34 @@ init_nasl_ctx(naslctxt* pc, const char* name)
       g_free(full_name);
       return 0;
     }
-  /* Cache the result of signature checking, so that commonly included files are
-   * not checked multiple times per scan. */
+  /* Cache the md5sum of signature verified files, so that commonly included
+   * files are not verified multiple times per scan. */
   if (pc->kb)
     {
+      char *check, *md5sum;
+
       snprintf (key_path, sizeof (key_path), "SignatureCheck/%s", full_name);
-      check = kb_item_get_int (pc->kb, key_path);
-      if (check == 1)
+      check = kb_item_get_str (pc->kb, key_path);
+      if (!check)
+        ;
+      else if (!strcmp (check, "0"))
         {
           g_free (full_name);
           return -1;
         }
-      else if (check == 0)
+      else
         {
-          g_free (full_name);
-          return 0;
+          md5sum = openvas_file_md5sum (full_name);
+          if (!strcmp (check, md5sum))
+            {
+              /* md5sum of file matches. No need to reverify. */
+              g_free (full_name);
+              g_free (md5sum);
+              return 0;
+            }
+          /* Different md5sum. Reverify. */
+          g_free (md5sum);
         }
-      else if (check != -1)
-        abort ();
     }
 
   if (nasl_verify_signature(full_name) != 0)
@@ -603,14 +613,18 @@ init_nasl_ctx(naslctxt* pc, const char* name)
       log_legacy_write ("%s: Will not execute. Bad or missing signature",
                         full_name);
       if (pc->kb)
-        kb_item_add_int (pc->kb, key_path, 1);
+        kb_item_add_str (pc->kb, key_path, "0");
       fclose(pc->fp);
       pc->fp = NULL;
       g_free(full_name);
       return -1;
     }
   if (pc->kb)
-    kb_item_add_int (pc->kb, key_path, 0);
+    {
+      char *md5sum = openvas_file_md5sum (full_name);
+      kb_item_add_str (pc->kb, key_path, md5sum);
+      g_free (md5sum);
+    }
 
   g_free(full_name);
   return 0;

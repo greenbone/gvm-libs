@@ -50,8 +50,6 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <gcrypt.h>
-
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
 #include "nasl_func.h"
