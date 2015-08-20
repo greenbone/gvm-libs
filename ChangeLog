@@ -1,3 +1,12 @@
+2015-08-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_file.c (openvas_file_md5sum): New function.
+
+	* base/openvas_file.h: Add function prototype.
+
+	* nasl/nasl_grammar.y (init_nasl_ctx): Cache the md5sum of the verified
+	file to check that it wasn't changed on later checks.
+
 2015-08-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_global_ctxt.h (naslctxt): Add kb element.

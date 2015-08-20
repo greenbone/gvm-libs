@@ -41,6 +41,7 @@
 #include <sys/stat.h>
 
 #include <glib/gstdio.h>        /* for g_remove */
+#include <gcrypt.h>
 
 /**
  * @brief Checks whether a file is a directory or not.
@@ -406,4 +407,29 @@ openvas_export_file_name (const char* fname_format, const char* username,
   g_free (creation_date_str);
   g_free (modification_date_str);
   return g_string_free (file_name_buf, FALSE);
+}
+
+/**
+ * @brief Get the md5sum of a file.
+ *
+ * @param[in]  filename     Path to file.
+ *
+ * @return md5sum string, NULL otherwise.
+ */
+char *
+openvas_file_md5sum (const char *filename)
+{
+  char *content = NULL, digest[16], *result;
+  size_t len = 0, i;
+
+  if (!filename || !g_file_get_contents (filename, &content, &len, NULL))
+    return NULL;
+
+  gcry_md_hash_buffer (GCRY_MD_MD5, digest, content, len);
+  result = g_malloc0 (33);
+  for (i = 0; i < 16; i++)
+    snprintf (result + 2 * i, 3, "%02x", (unsigned char) digest[i]);
+  g_free (content);
+
+  return result;
 }

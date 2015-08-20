@@ -45,4 +45,7 @@ gchar *openvas_export_file_name (const char*, const char*, const char*,
                                  const char*, const char*, const char*,
                                  const char*, const char*);
 
+char *
+openvas_file_md5sum (const char *);
+
 #endif /* not _OPENVAS_FILE_H */
