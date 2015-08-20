@@ -391,6 +391,8 @@ static init_func libfuncs[] = {
 #ifdef HAVE_NETSNMP
   {"snmpv1_get", nasl_snmpv1_get, 0, {"community", "oid", "port", "protocol",
                                       NULL }},
+  {"snmpv2c_get", nasl_snmpv2c_get, 0, {"community", "oid", "port", "protocol",
+                                        NULL }},
   {"snmpv3_get", nasl_snmpv3_get, 0, {"authpass", "authproto", "oid", "port",
                                       "privpass", "privproto", "username",
                                       NULL }},

@@ -1,3 +1,16 @@
+2015-08-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r22452.
+
+	* nasl/nasl_init.c (libfuncs): Add snmpv2c_get().
+
+	* nasl/nasl_snmp.c (snmpv1_get): Add version parameter. Rename to
+	snmpv1v2c_get().
+	(nasl_snmpv2c_get, nasl_snmpv1v2c_get): New functions.
+	(nasl_snmpv1_get): Adjust to call new function.
+
+	* nasl/nasl_snmp.h: Add function prototype.
+
 2015-08-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r23046 and r23051.
