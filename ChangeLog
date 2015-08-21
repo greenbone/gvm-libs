@@ -1,3 +1,11 @@
+2015-08-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_crypto.c (nasl_cipher, nasl_cipher_des): New functions.
+
+	* nasl/nasl_crypto.h: Add function prototype.
+
+	* nasl/nasl_init.c (libfuncs): Add nasl DES() function.
+
 2015-08-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_file.c (openvas_file_md5sum): New function.

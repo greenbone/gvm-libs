@@ -387,6 +387,7 @@ static init_func libfuncs[] = {
    {"data", "g", "p", "priv", "pub", "q", NULL}},
   {"gunzip", nasl_gunzip, 0, {"data", "len", NULL}},
   {"gzip", nasl_gzip, 0, {"data", "len", NULL}},
+  {"DES", nasl_cipher_des, 0, {"data", "key", NULL}},
 
 #ifdef HAVE_NETSNMP
   {"snmpv1_get", nasl_snmpv1_get, 0, {"community", "oid", "port", "protocol",

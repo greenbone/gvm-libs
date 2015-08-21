@@ -36,6 +36,7 @@
 #include "hmacmd5.h"
 #include "smb_crypt.h"
 #include "nasl_debug.h"
+#include "openvas_logging.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -141,8 +142,51 @@ nasl_ripemd160 (lex_ctxt * lexic)
   return nasl_hash (lexic, GCRY_MD_RMD160);
 }
 
+static tree_cell *
+nasl_cipher (int algorithm, void *data, size_t dlen, void *key, size_t klen)
+{
+  gcry_cipher_hd_t hd;
+  gcry_error_t error;
+  tree_cell *retc;
+  char *result;
 
+  if ((error = gcry_cipher_open (&hd, algorithm, GCRY_CIPHER_MODE_ECB, 0)))
+    {
+      log_legacy_write ("gcry_cipher_open: %s", gcry_strerror (error));
+      return NULL;
+    }
+  if ((error = gcry_cipher_setkey (hd, key, klen)))
+    {
+      log_legacy_write ("gcry_cipher_setkey: %s", gcry_strerror (error));
+      return NULL;
+    }
+  result = g_malloc0 (dlen);
+  if ((error = gcry_cipher_encrypt (hd, result, dlen, data, dlen)))
+    {
+      log_legacy_write ("gcry_cipher_encrypt: %s", gcry_strerror (error));
+      return NULL;
+    }
+  gcry_cipher_close (hd);
 
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+  retc->x.str_val = result;
+  retc->size = dlen;
+  return retc;
+}
+
+tree_cell *
+nasl_cipher_des (lex_ctxt *lexic)
+{
+  char *data, *key;
+  size_t dlen, klen;
+
+  data = get_str_var_by_num (lexic, 0);
+  dlen = get_var_size_by_num (lexic, 0);
+  key = get_str_var_by_num (lexic, 1);
+  klen = get_var_size_by_num (lexic, 1);
+  return nasl_cipher (GCRY_CIPHER_DES, data, dlen, key, klen);
+}
 
 /*-------------------[  HMAC ]-------------------------------------*/
 
