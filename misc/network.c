@@ -2090,9 +2090,19 @@ open_sock_tcp (struct arglist *args, unsigned int port, int timeout)
   ret = open_sock_option (args, port, SOCK_STREAM, IPPROTO_TCP, timeout);
   if (ret < 0 && errno == ETIMEDOUT)
     {
-      char *ip_str = plug_get_host_ip_str (args);
+      int log_count;
+      char *ip_str = plug_get_host_ip_str (args), buffer[1024];
+      kb_t kb = plug_get_kb (args);
 
-      log_legacy_write ("open_sock_tcp: %s:%d time-out.\n", ip_str, port);
+      g_snprintf (buffer, sizeof (buffer), "ConnectTimeout/%s/%d", ip_str,
+                  port);
+      log_count = kb_item_get_int (kb, buffer);
+      if (log_count == -1)
+        log_count = 0;
+      if (log_count < 3)
+        log_legacy_write ("open_sock_tcp: %s:%d time-out.", ip_str, port);
+      log_count++;
+      kb_item_set_int (kb, buffer, log_count);
       g_free (ip_str);
     }
 

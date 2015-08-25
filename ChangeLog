@@ -1,5 +1,12 @@
 2015-08-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Backport r22521.
+
+	* misc/network.c (open_sock_tcp): Limit timeout log messages to 3 times
+	per port.
+
+2015-08-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Backport r23143.
 
 	* base/openvas_file.c, base/openvas_file.h (openvas_file_md5sum): Remove
