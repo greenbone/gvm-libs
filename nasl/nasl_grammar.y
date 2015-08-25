@@ -475,6 +475,7 @@ glob: GLOBAL arg_decl
 #include <stdlib.h>
 #include "openvas_logging.h"
 #include "openvas_file.h"
+#include <gcrypt.h>
 
 static void
 naslerror(naslctxt *parm, const char *s)
@@ -522,6 +523,31 @@ add_nasl_inc_dir (const char * dir)
     }
   else
     return -2;
+}
+
+/**
+ * @brief Get the md5sum of a file.
+ *
+ * @param[in]  filename     Path to file.
+ *
+ * @return md5sum string, NULL otherwise.
+ */
+static char *
+file_md5sum (const char *filename)
+{
+  char *content = NULL, digest[16], *result;
+  size_t len = 0, i;
+
+  if (!filename || !g_file_get_contents (filename, &content, &len, NULL))
+    return NULL;
+
+  gcry_md_hash_buffer (GCRY_MD_MD5, digest, content, len);
+  result = g_malloc0 (33);
+  for (i = 0; i < 16; i++)
+    snprintf (result + 2 * i, 3, "%02x", (unsigned char) digest[i]);
+  g_free (content);
+
+  return result;
 }
 
 /**
@@ -595,7 +621,7 @@ init_nasl_ctx(naslctxt* pc, const char* name)
         }
       else
         {
-          md5sum = openvas_file_md5sum (full_name);
+          md5sum = file_md5sum (full_name);
           if (!strcmp (check, md5sum))
             {
               /* md5sum of file matches. No need to reverify. */
@@ -621,7 +647,7 @@ init_nasl_ctx(naslctxt* pc, const char* name)
     }
   if (pc->kb)
     {
-      char *md5sum = openvas_file_md5sum (full_name);
+      char *md5sum = file_md5sum (full_name);
       kb_item_add_str (pc->kb, key_path, md5sum);
       g_free (md5sum);
     }
