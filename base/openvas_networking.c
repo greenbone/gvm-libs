@@ -253,6 +253,34 @@ addr6_as_str (const struct in6_addr *addr6)
 }
 
 /**
+ * @brief Convert an IP address to string format.
+ *
+ * @param[in]   addr    Address to convert.
+ * @param[out]  str     Buffer of INET6_ADDRSTRLEN size.
+ */
+void
+sockaddr_as_str (const struct sockaddr_storage *addr, char *str)
+{
+  if (!addr || !str)
+    return;
+
+  if (addr->ss_family == AF_INET)
+    {
+      struct sockaddr_in *saddr = (struct sockaddr_in *) addr;
+      inet_ntop (AF_INET,  &saddr->sin_addr, str, INET6_ADDRSTRLEN);
+    }
+  else
+    {
+      struct sockaddr_in6 *s6addr = (struct sockaddr_in6 *) addr;
+      if (IN6_IS_ADDR_V4MAPPED (&s6addr->sin6_addr))
+        inet_ntop (AF_INET, &s6addr->sin6_addr.s6_addr[12],
+                   str, INET6_ADDRSTRLEN);
+      else
+        inet_ntop (AF_INET6, &s6addr->sin6_addr, str, INET6_ADDRSTRLEN);
+    }
+}
+
+/**
  * @brief Resolves a hostname to an IPv4 or IPv6 address.
  *
  * @param[in]   name    Hostname to resolve.
