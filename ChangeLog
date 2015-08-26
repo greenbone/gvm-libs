@@ -1,3 +1,11 @@
+2015-08-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r23161.
+
+	* base/openvas_networking.c (sockaddr_as_str): New function.
+
+	* base/openvas_networking.h: Add function prototype.
+
 2015-08-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r22521.

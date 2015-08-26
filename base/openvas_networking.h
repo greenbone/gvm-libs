@@ -98,6 +98,9 @@ ipv4_as_ipv6 (const struct in_addr *, struct in6_addr *);
 char *
 addr6_as_str (const struct in6_addr *);
 
+void
+sockaddr_as_str (const struct sockaddr_storage *, char *);
+
 int
 openvas_resolve (const char *, void *, int);
 
