@@ -1,3 +1,13 @@
+2015-08-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvti.c (nvti_category_is_safe): New function.
+
+	* base/nvti.h: Add function prototype.
+
+	* nasl/nasl.c (init): Don't set safe check preference.
+	(parse_script_infos): Return nvti entry.
+	(main): Check if script is safe in -s mode.
+
 2015-08-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_networking.c (sockaddr_as_str): New function.

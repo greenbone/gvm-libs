@@ -47,6 +47,7 @@
 #include "nvti.h"
 #include "cvss.h"  /* for get_cvss_score_from_base_metrics */
 #include "../misc/openvas_logging.h"
+#include "../misc/nvt_categories.h"
 
 /**
  * @brief Create a new nvtpref structure filled with the given values.
@@ -1467,4 +1468,20 @@ nvti_t *
 nvtis_lookup (nvtis_t * nvtis, const char *oid)
 {
   return g_hash_table_lookup (nvtis, oid);
+}
+
+/**
+ * @brief Checks that an NVT category is safe.
+ *
+ * @param category  Category to check.
+ *
+ * @return 0 if category is unsafe, 1 otherwise.
+ */
+int
+nvti_category_is_safe (int category)
+{
+  if (category == ACT_DESTRUCTIVE_ATTACK || category == ACT_KILL_HOST
+      || category == ACT_FLOOD || category == ACT_DENIAL)
+    return 0;
+  return 1;
 }

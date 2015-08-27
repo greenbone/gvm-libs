@@ -50,8 +50,6 @@ extern int execute_instruction (struct arglist *, char *);
 void exit_nasl (struct arglist *, int);
 
 
-int safe_checks_only = 0;
-
 void
 sighandler ()
 {
@@ -75,9 +73,6 @@ init (char *hostname, struct in6_addr *ip, char *fqdn, kb_t kb)
   prefs_set ("checks_read_timeout", "5");
   arg_add_value (script_infos, "key", ARG_PTR, kb);
 
-  if (safe_checks_only != 0)
-    prefs_set ("safe_checks", "yes");
-
   arg_add_value (script_infos, "HOSTNAME", ARG_PTR,
                  host_info_init (hostname, ip, NULL, fqdn));
 
@@ -86,7 +81,7 @@ init (char *hostname, struct in6_addr *ip, char *fqdn, kb_t kb)
 
 extern FILE *nasl_trace_fp;
 
-static int
+static nvti_t *
 parse_script_infos (const char *file, struct arglist *script_infos)
 {
   nvti_t *nvti;
@@ -99,17 +94,16 @@ parse_script_infos (const char *file, struct arglist *script_infos)
   if (exec_nasl_script (script_infos, file, NULL, mode) < 0)
     {
       printf ("%s could not be loaded\n", file);
-      return 1;
+      return NULL;
     }
   arg_del_value (script_infos, "NVTI");
 
   arg_del_value (script_infos, "OID");
   oid = g_strdup (nvti_oid (nvti));
-  nvti_free (nvti);
   if (oid)
     arg_add_value (script_infos, "OID", ARG_STRING, oid);
 
-  return 0;
+  return nvti;
 }
 
 /**
@@ -125,9 +119,7 @@ main (int argc, char **argv)
   openvas_host_t *host;
   static gchar *target = NULL;
   gchar *default_target = "127.0.0.1";
-  int start, n;
-  int mode = 0;
-  int err = 0;
+  int mode = 0, n = 0, err = 0;
   extern int global_nasl_debug;
 
   static gboolean display_version = FALSE;
@@ -235,7 +227,7 @@ main (int argc, char **argv)
         }
     }
   if (with_safe_checks)
-    safe_checks_only++;
+    prefs_set ("safe_checks", "yes");
 
   openvas_SSL_init ();
   if (!nasl_filenames)
@@ -270,8 +262,6 @@ main (int argc, char **argv)
   if (!target)
     target = g_strdup (default_target);
 
-  start = 0;
-
   hosts = openvas_hosts_new (target);
   g_free (target);
 
@@ -305,14 +295,31 @@ main (int argc, char **argv)
       fqdn = openvas_host_reverse_lookup (host);
       script_infos = init (hostname, &ip6, fqdn ?: hostname, kb);
       g_free (fqdn);
-      n = start;
       while (nasl_filenames[n])
         {
-          if (both_modes && parse_script_infos (nasl_filenames[n],
-                                                script_infos))
-            err++;
-          else if (exec_nasl_script (script_infos, nasl_filenames[n],
-                                     arg_get_value (script_infos, "OID"), mode) < 0)
+          if (both_modes || with_safe_checks)
+            {
+              nvti_t *nvti = parse_script_infos (nasl_filenames[n],
+                                                 script_infos);
+              if (!nvti)
+                {
+                  err++;
+                  n++;
+                  continue;
+                }
+              else if (with_safe_checks
+                       && !nvti_category_is_safe (nvti_category (nvti)))
+                {
+                  printf ("%s isn't safe\n", nasl_filenames[n]);
+                  nvti_free (nvti);
+                  err++;
+                  n++;
+                  continue;
+                }
+              nvti_free (nvti);
+            }
+          if (exec_nasl_script (script_infos, nasl_filenames[n],
+                                arg_get_value (script_infos, "OID"), mode) < 0)
             err++;
           n++;
         }
