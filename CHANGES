@@ -1,3 +1,25 @@
+openvas-libraries 8.0.5 (2015-XX-XX)
+
+This is the fifth maintenance release of the openvas-libraries 8.0 module for
+the Open Vulnerability Assessment System 8 (OpenVAS-8).
+
+This release improves OSP support and adds support for SNMPv2c requests,
+retrieving SSH host keys and signature checking and improves the handling of
+timeout log messages and privilege drop checks.
+
+Many thanks to everyone who has contributed to this release:
+Hani Benhabiles, Timo Pollmeier and Michael Wiegand.
+
+Main changes compared to 8.0.4:
+* OSP error handling has been improved.
+* OSP parameter handling has been improved.
+* Conditions triggering a privilege drop are checked more precisely.
+* Support for caching signature checking results has been added.
+* Support for retrieving the SSH host key has been added.
+* Support for SNMPv2c has been added.
+* Timeout log messages are now logged only three times per port.
+
+
 openvas-libraries 8.0.4 (2015-07-09)
 
 This is the fourth maintenance release of the openvas-libraries 8.0 module for
