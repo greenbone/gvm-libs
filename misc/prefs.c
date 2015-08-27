@@ -47,12 +47,29 @@
 static struct arglist *global_prefs = NULL;
 
 /**
+ * @brief Initializes the preferences structure. If it was
+ *        already initialized, remove old settings and start
+ *        from scratch.
+ */
+static void
+prefs_init (void)
+{
+  if (global_prefs)
+    arg_free (global_prefs);
+
+  global_prefs = g_malloc0 (sizeof (struct arglist));
+}
+
+/**
  * @brief Get the pointer to the global preferences structure.
  *        Eventually this function should not be used anywhere.
  */
 struct arglist *
 preferences_get (void)
 {
+  if (!global_prefs)
+    prefs_init ();
+
   return global_prefs;
 }
 
@@ -68,6 +85,9 @@ preferences_get (void)
 const gchar *
 prefs_get (const gchar * key)
 {
+  if (!global_prefs)
+    prefs_init ();
+
   if (arg_get_type (global_prefs, key) != ARG_STRING)
     return NULL;
 
@@ -88,6 +108,9 @@ prefs_get (const gchar * key)
 int
 prefs_get_bool (const gchar * key)
 {
+  if (!global_prefs)
+    prefs_init ();
+
   if (arg_get_type (global_prefs, key) == ARG_STRING)
     {
       gchar *str = arg_get_value (global_prefs, key);
@@ -109,6 +132,9 @@ prefs_get_bool (const gchar * key)
 void
 prefs_set (const gchar * key, const gchar * value)
 {
+  if (!global_prefs)
+    prefs_init ();
+
   if (arg_get_value (global_prefs, key))
     {
       gchar *old = arg_get_value (global_prefs, key);
@@ -118,20 +144,6 @@ prefs_set (const gchar * key, const gchar * value)
     }
 
   arg_add_value (global_prefs, key, ARG_STRING, g_strdup (value));
-}
-
-/**
- * @brief Initializes the preferences structure. If it was
- *        already initialized, remove old settings and start
- *        from scratch.
- */
-void
-prefs_init (void)
-{
-  if (global_prefs)
-    arg_free (global_prefs);
-
-  global_prefs = g_malloc0 (sizeof (struct arglist));
 }
 
 /**

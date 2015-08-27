@@ -1,5 +1,15 @@
 2015-08-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* doc/openvas-nasl.1: Update documentation.
+
+	* misc/prefs.c (prefs_init): Move up, make function static.
+	(preferences_get, prefs_get, prefs_get_bool, prefs_set): Initialize
+	preferences if not done already.
+
+	* misc/prefs.h: Remove function prototype.
+
+2015-08-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* base/nvti.c (nvti_category_is_safe): New function.
 
 	* base/nvti.h: Add function prototype.
