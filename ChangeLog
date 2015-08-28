@@ -1,3 +1,16 @@
+2015-08-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_networking.c (openvas_ssh_pkcs8_decrypt)
+	(openvas_ssh_public_from_private): Move functions to misc/openvas_ssh.c
+
+	* base/openvas_networking.h: Remove functions prototypes.
+
+	* misc/CMakeLists.txt: Add openvas_ssh.h and openvas_ssh.c.
+
+	* nasl/nasl_ssh.c: Add include.
+
+	* misc/openvas_ssh.c, misc/openvas_ssh.h: New files.
+
 2015-08-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* doc/openvas-nasl.1: Update documentation.

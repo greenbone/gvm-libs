@@ -115,10 +115,4 @@ port_range_ranges (const char *);
 
 int
 port_in_port_ranges (int, port_protocol_t, array_t *);
-
-char *
-openvas_ssh_public_from_private (const char *, const char *);
-
-char *
-openvas_ssh_pkcs8_decrypt (const char *, const char *);
 #endif /* not _OPENVAS_NETWORKING_H */
