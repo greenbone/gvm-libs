@@ -1,3 +1,8 @@
+2015-08-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_socket.c (get_udp_data): Create udp_data hash table if not
+	found.
+
 2015-08-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_networking.c (openvas_ssh_pkcs8_decrypt)

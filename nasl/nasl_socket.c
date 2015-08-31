@@ -144,8 +144,16 @@ add_udp_data (struct arglist *script_infos, int soc, char *data, int len)
 static char *
 get_udp_data (struct arglist *script_infos, int soc, int *len)
 {
-  GHashTable * udp_data = arg_get_value (script_infos, "udp_data");
-  struct udp_record * data_record = g_hash_table_lookup (udp_data, (gconstpointer)&soc);
+  GHashTable *udp_data;
+  struct udp_record *data_record;
+
+  if ((udp_data = arg_get_value (script_infos, "udp_data")) == NULL)
+    {
+      udp_data = g_hash_table_new_full (g_int_hash, g_int_equal, g_free, g_free);
+      arg_add_value (script_infos, "udp_data", ARG_PTR, udp_data);
+      return NULL;
+    }
+  data_record = g_hash_table_lookup (udp_data, (gconstpointer)&soc);
 
   if (!data_record) return NULL;
 
