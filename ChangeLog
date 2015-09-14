@@ -1,3 +1,8 @@
+2015-09-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvticache.c (nvticache_reset): Null check cache_kb instead of
+	asserting, as this function may be called from openvas-nasl.
+
 2015-08-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_socket.c (get_udp_data): Create udp_data hash table if not

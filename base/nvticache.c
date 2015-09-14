@@ -210,8 +210,8 @@ kb_fail:
 void
 nvticache_reset ()
 {
-  assert (cache_kb);
-  kb_lnk_reset (cache_kb);
+  if (cache_kb)
+    kb_lnk_reset (cache_kb);
 }
 
 /**
