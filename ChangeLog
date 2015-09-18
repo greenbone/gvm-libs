@@ -1,3 +1,10 @@
+2015-09-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r23402.
+
+	* nasl/exec.c (exec_nasl_script): Exit forked processes instead of
+	returning.
+
 2015-08-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r23204.
