@@ -1680,7 +1680,7 @@ exec_nasl_script (struct arglist *script_infos, const char *name,
 {
   naslctxt ctx;
   nasl_func *pf;
-  int err = 0;
+  int err = 0, to, process_id;
   tree_cell *ret;
   lex_ctxt *lexic;
   gchar *old_dir;
@@ -1688,7 +1688,6 @@ exec_nasl_script (struct arglist *script_infos, const char *name,
   char *old;
   tree_cell tc;
   const char *str;
-  int to;
 
   srand48 (getpid () + getppid () + (long) time (NULL));
 
@@ -1763,6 +1762,7 @@ exec_nasl_script (struct arglist *script_infos, const char *name,
   *        of which copies are made when needed. */
   init_nasl_library (lexic);
 
+  process_id = getpid ();
   if (mode & NASL_LINT)
     {
       if (nasl_lint (lexic, ctx.tree) == NULL)
@@ -1832,6 +1832,8 @@ exec_nasl_script (struct arglist *script_infos, const char *name,
 
   nasl_clean_ctx (&ctx);
   free_lex_ctxt (lexic);
+  if (process_id != getpid ())
+    exit (0);
 
   return err;
 }

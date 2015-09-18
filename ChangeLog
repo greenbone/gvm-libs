@@ -1,3 +1,8 @@
+2015-09-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/exec.c (exec_nasl_script): Exit forked processes instead of
+	returning.
+
 2015-09-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/nvticache.c (nvticache_reset): Null check cache_kb instead of
