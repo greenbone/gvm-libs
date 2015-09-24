@@ -53,7 +53,7 @@ char *
 osp_start_scan (osp_connection_t *, const char *, GHashTable *);
 
 int
-osp_get_scan (osp_connection_t *, const char *, char **);
+osp_get_scan (osp_connection_t *, const char *, char **, int);
 
 int
 osp_delete_scan (osp_connection_t *, const char *);

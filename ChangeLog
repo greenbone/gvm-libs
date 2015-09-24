@@ -1,3 +1,11 @@
+2015-09-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r23036.
+
+	* osp/osp.c (osp_get_scan): Add scan details parameter.
+
+	* osp/osp.h: Adjust function prototype.
+
 2015-09-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r23402.

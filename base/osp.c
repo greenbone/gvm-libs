@@ -263,7 +263,7 @@ osp_delete_scan (osp_connection_t *connection, const char *scan_id)
 
 int
 osp_get_scan (osp_connection_t *connection, const char *scan_id,
-              char **report_xml)
+              char **report_xml, int details)
 {
   entity_t entity, child;
   GString *string;
@@ -273,8 +273,9 @@ osp_get_scan (osp_connection_t *connection, const char *scan_id,
   if (!connection)
     return 1;
 
-  rc = osp_send_command (connection, &entity, "<get_scans scan_id='%s'/>",
-                         scan_id);
+  rc = osp_send_command
+        (connection, &entity, "<get_scans scan_id='%s' details='%d'/>",
+         scan_id, details ? 1 : 0);
   if (rc)
     return 1;
 
