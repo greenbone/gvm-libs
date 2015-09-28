@@ -1,4 +1,4 @@
-openvas-libraries 8.0.5 (2015-XX-XX)
+openvas-libraries 8.0.5 (2015-09-28)
 
 This is the fifth maintenance release of the openvas-libraries 8.0 module for
 the Open Vulnerability Assessment System 8 (OpenVAS-8).
@@ -13,11 +13,14 @@ Hani Benhabiles, Timo Pollmeier and Michael Wiegand.
 Main changes compared to 8.0.4:
 * OSP error handling has been improved.
 * OSP parameter handling has been improved.
+* Support for OSP scan details has been added.
 * Conditions triggering a privilege drop are checked more precisely.
 * Support for caching signature checking results has been added.
 * Support for retrieving the SSH host key has been added.
 * Support for SNMPv2c has been added.
 * Timeout log messages are now logged only three times per port.
+* An issue with the handling of multiple ports in the standalone NASL
+  interpreter has been fixed.
 
 
 openvas-libraries 8.0.4 (2015-07-09)
