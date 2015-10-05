@@ -1,3 +1,10 @@
+2015-10-05  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	* omp/omp.c (omp_create_lsc_credential, omp_create_lsc_credential_key)
+	(omp_create_lsc_credential_ext, omp_delete_lsc_credential_ext): Change
+	OMP commands "create_lsc_credential" and "delete_lsc_credential"
+	to "create_credential" and "delete_credential".
+
 2015-09-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/exec.c (exec_nasl_script): Exit forked processes instead of

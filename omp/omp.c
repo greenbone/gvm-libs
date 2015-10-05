@@ -1502,23 +1502,23 @@ omp_create_lsc_credential (gnutls_session_t* session,
     {
       if (comment)
         ret = openvas_server_sendf_xml_quiet (session,
-                                              "<create_lsc_credential>"
+                                              "<create_credential>"
                                               "<name>%s</name>"
                                               "<login>%s</login>"
                                               "<password>%s</password>"
                                               "<comment>%s</comment>"
-                                              "</create_lsc_credential>",
+                                              "</create_credential>",
                                               name,
                                               login,
                                               password,
                                               comment);
       else
         ret = openvas_server_sendf_xml_quiet (session,
-                                              "<create_lsc_credential>"
+                                              "<create_credential>"
                                               "<name>%s</name>"
                                               "<login>%s</login>"
                                               "<password>%s</password>"
-                                              "</create_lsc_credential>",
+                                              "</create_credential>",
                                               name,
                                               login,
                                               password);
@@ -1527,20 +1527,20 @@ omp_create_lsc_credential (gnutls_session_t* session,
     {
       if (comment)
         ret = openvas_server_sendf_xml (session,
-                                        "<create_lsc_credential>"
+                                        "<create_credential>"
                                         "<name>%s</name>"
                                         "<login>%s</login>"
                                         "<comment>%s</comment>"
-                                        "</create_lsc_credential>",
+                                        "</create_credential>",
                                         name,
                                         login,
                                         comment);
       else
         ret = openvas_server_sendf_xml (session,
-                                        "<create_lsc_credential>"
+                                        "<create_credential>"
                                         "<name>%s</name>"
                                         "<login>%s</login>"
-                                        "</create_lsc_credential>",
+                                        "</create_credential>",
                                         name,
                                         login);
     }
@@ -1580,7 +1580,7 @@ omp_create_lsc_credential_key (gnutls_session_t *session,
 
   if (comment)
     ret = openvas_server_sendf_xml (session,
-                                    "<create_lsc_credential>"
+                                    "<create_credential>"
                                     "<name>%s</name>"
                                     "<login>%s</login>"
                                     "<key>"
@@ -1588,7 +1588,7 @@ omp_create_lsc_credential_key (gnutls_session_t *session,
                                     "<private>%s</private>"
                                     "</key>"
                                     "<comment>%s</comment>"
-                                    "</create_lsc_credential>",
+                                    "</create_credential>",
                                     name,
                                     login,
                                     passphrase ? passphrase : "",
@@ -1596,14 +1596,14 @@ omp_create_lsc_credential_key (gnutls_session_t *session,
                                     comment);
   else
     ret = openvas_server_sendf_xml (session,
-                                    "<create_lsc_credential>"
+                                    "<create_credential>"
                                     "<name>%s</name>"
                                     "<login>%s</login>"
                                     "<key>"
                                     "<phrase>%s</phrase>"
                                     "<private>%s</private>"
                                     "</key>"
-                                    "</create_lsc_credential>",
+                                    "</create_credential>",
                                     name,
                                     login,
                                     passphrase ? passphrase : "",
@@ -1641,7 +1641,7 @@ omp_create_lsc_credential_ext (gnutls_session_t* session,
   if (opts.login == NULL)
     return -1;
 
-  start = g_markup_printf_escaped ("<create_lsc_credential>"
+  start = g_markup_printf_escaped ("<create_credential>"
                                    "<name>%s</name>"
                                    "<login>%s</login>",
                                    opts.name ? opts.name : "unnamed",
@@ -1676,7 +1676,7 @@ omp_create_lsc_credential_ext (gnutls_session_t* session,
   /* Send the request. */
 
   ret = openvas_server_sendf (session,
-                              "%s%s%s</create_lsc_credential>",
+                              "%s%s%s</create_credential>",
                               start,
                               comment ? comment : "",
                               pass ? pass : "");
@@ -1710,7 +1710,7 @@ omp_delete_lsc_credential_ext (gnutls_session_t* session,
                                omp_delete_opts_t opts)
 {
   if (openvas_server_sendf (session,
-                            "<delete_lsc_credential lsc_credential_id=\"%s\""
+                            "<delete_credential credential_id=\"%s\""
                             " ultimate=\"%d\"/>",
                             id, opts.ultimate)
       == -1)
