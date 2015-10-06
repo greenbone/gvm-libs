@@ -1,5 +1,11 @@
 2015-10-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/openvas_networking.c (ipv6_is_enabled): New function.
+
+	* base/openvas_networking.h: Add function prototype.
+
+2015-10-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* osp/osp.c (osp_get_scan): Fix return values. Add function
 	documentation.
 	(osp_stop_scan): New function.

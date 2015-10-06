@@ -26,6 +26,7 @@
 #include "openvas_networking.h"
 
 #include <fcntl.h>
+#include <unistd.h>
 #include <glib/gstdio.h>
 
 #if GLIB_CHECK_VERSION (2, 30, 0)
@@ -603,4 +604,20 @@ port_in_port_ranges (int pnum, port_protocol_t ptype, array_t *pranges)
         return 1;
     }
   return 0;
+}
+
+/**
+ * @brief Checks if IPv6 support is enabled.
+ *
+ * @return 1 if IPv6 is enabled, 0 if disabled.
+ */
+int
+ipv6_is_enabled ()
+{
+  int sock = socket (PF_INET6, SOCK_STREAM, 0);
+
+  if (sock == -1 && errno == EAFNOSUPPORT)
+    return 0;
+  close (sock);
+  return 1;
 }

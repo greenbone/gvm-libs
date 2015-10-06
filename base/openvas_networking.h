@@ -115,4 +115,8 @@ port_range_ranges (const char *);
 
 int
 port_in_port_ranges (int, port_protocol_t, array_t *);
+
+int
+ipv6_is_enabled ();
+
 #endif /* not _OPENVAS_NETWORKING_H */
