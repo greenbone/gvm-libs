@@ -1,3 +1,12 @@
+2015-10-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* osp/osp.c (osp_get_scan): Fix return values. Add function
+	documentation.
+	(osp_stop_scan): New function.
+	(osp_start_scan): Add scan_id parameter. Remove result parameter.
+
+	* osp/osp.h: Add and modify function prototypes.
+
 2015-10-05  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* omp/omp.c (omp_create_lsc_credential, omp_create_lsc_credential_key)

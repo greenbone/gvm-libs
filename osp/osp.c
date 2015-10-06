@@ -261,6 +261,15 @@ osp_delete_scan (osp_connection_t *connection, const char *scan_id)
   return ret;
 }
 
+/* @brief Get a scan from an OSP server.
+ *
+ * @param[in]   connection  Connection to an OSP server.
+ * @param[in]   scan_id     ID of scan to get.
+ * @param[out]  report_xml  Scans report.
+ * @param[in]   details     0 for no scan details, 1 otherwise.
+ *
+ * @return Scan progress if success, -1 if error.
+ */
 int
 osp_get_scan (osp_connection_t *connection, const char *scan_id,
               char **report_xml, int details)
@@ -271,13 +280,13 @@ osp_get_scan (osp_connection_t *connection, const char *scan_id,
   int rc;
 
   if (!connection)
-    return 1;
+    return -1;
 
   rc = osp_send_command
         (connection, &entity, "<get_scans scan_id='%s' details='%d'/>",
          scan_id, details ? 1 : 0);
   if (rc)
-    return 1;
+    return -1;
 
   child = entity_child (entity, "scan");
   if (!child)
@@ -291,6 +300,45 @@ osp_get_scan (osp_connection_t *connection, const char *scan_id,
   free_entity (entity);
   *report_xml = g_string_free (string, FALSE);
   return progress;
+}
+
+/* @brief Stop a scan on an OSP server.
+ *
+ * @param[in]   connection  Connection to an OSP server.
+ * @param[in]   scan_id     ID of scan to delete.
+ *
+ * @return Scan progress if success, -1 if error.
+ */
+int
+osp_stop_scan (osp_connection_t *connection, const char *scan_id, char **error)
+{
+  entity_t entity;
+  int rc;
+
+  if (!connection)
+    return 1;
+
+  rc = osp_send_command
+        (connection, &entity, "<stop_scan scan_id='%s'/>", scan_id);
+  if (rc)
+    return 1;
+
+  rc = atoi (entity_attribute (entity, "status"));
+  if (rc == 200)
+    {
+      free_entity (entity);
+      return 0;
+    }
+  else
+    {
+      const char *text = entity_attribute (entity, "status_text");
+
+      assert (text);
+      if (error)
+        *error = g_strdup (text);
+      free_entity (entity);
+      return -1;
+    }
 }
 
 static void
@@ -316,20 +364,20 @@ option_concat_as_xml (gpointer key, gpointer value, gpointer pstr)
  * @param[in]   connection  Connection to an OSP server.
  * @param[in]   target      Target host to scan.
  * @param[in]   options     Table of scan options.
- * @param[out]  result      scan_id on success, error message otherwise.
+ * @param[in]   scan_id     uuid to set for scan, null otherwise.
  *
  * @return 0 on success, -1 otherwise.
  */
 int
 osp_start_scan (osp_connection_t *connection, const char *target,
-                GHashTable *options, char **result)
+                GHashTable *options, const char *scan_id)
 {
   entity_t entity;
   char *options_str = NULL;
   int status;
   int rc;
 
-  if (!connection || !target || !result)
+  if (!connection || !target)
     return -1;
 
   /* Construct options string. */
@@ -337,9 +385,9 @@ osp_start_scan (osp_connection_t *connection, const char *target,
     g_hash_table_foreach (options, option_concat_as_xml, &options_str);
 
   rc = osp_send_command (connection, &entity,
-                         "<start_scan target='%s'><scanner_params>"
-                         "%s</scanner_params></start_scan>",
-                         target, options_str ?: "");
+                         "<start_scan target='%s' scan_id='%s'>"
+                         "<scanner_params>%s</scanner_params></start_scan>",
+                         target, scan_id ?: "", options_str ?: "");
   g_free (options_str);
   if (rc)
     return -1;
@@ -350,7 +398,6 @@ osp_start_scan (osp_connection_t *connection, const char *target,
       entity_t child = entity_child (entity, "id");
       assert (child);
       assert (entity_text (child));
-      *result = g_strdup (entity_text (child));
       free_entity (entity);
       return 0;
     }
@@ -359,7 +406,6 @@ osp_start_scan (osp_connection_t *connection, const char *target,
       const char *text = entity_attribute (entity, "status_text");
 
       assert (text);
-      *result = g_strdup (text);
       free_entity (entity);
       return -1;
     }

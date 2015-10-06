@@ -50,13 +50,16 @@ osp_get_version (osp_connection_t *, char **, char **, char **, char **,
                  char **, char **);
 
 int
-osp_start_scan (osp_connection_t *, const char *, GHashTable *, char **);
+osp_start_scan (osp_connection_t *, const char *, GHashTable *, const char *);
 
 int
 osp_get_scan (osp_connection_t *, const char *, char **, int);
 
 int
 osp_delete_scan (osp_connection_t *, const char *);
+
+int
+osp_stop_scan (osp_connection_t *, const char *, char **);
 
 int
 osp_get_scanner_details (osp_connection_t *, char **, GSList **);
