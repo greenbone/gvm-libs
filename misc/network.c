@@ -1463,12 +1463,10 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
               if (ret > 0)
                 {
                   total += ret;
+                  if (total >= max_len)
+                    return total;
                 }
-
-              if (total >= max_len)
-                return total;
-
-              if (ret != GNUTLS_E_INTERRUPTED && ret != GNUTLS_E_AGAIN)
+              else if (ret != GNUTLS_E_INTERRUPTED && ret != GNUTLS_E_AGAIN)
                 {
                   /* This branch also handles the case where ret == 0,
                    * i.e. that the connection has been closed.  This is
@@ -1492,15 +1490,7 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
                 }
             }
 
-          if (min_len <= 0)
-            {
-              /* Be smart */
-              if (total > 0 && flag)
-                return total;
-              else
-                flag++;
-            }
-          else if (total >= min_len)
+          if (min_len > 0 && total >= min_len)
             return total;
         }
       if (t >= timeout)
