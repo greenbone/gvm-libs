@@ -1490,15 +1490,7 @@ read_stream_connection_unbuffered (int fd, void *buf0, int min_len, int max_len)
                 }
             }
 
-          if (min_len <= 0)
-            {
-              /* Be smart */
-              if (total > 0 && flag)
-                return total;
-              else
-                flag++;
-            }
-          else if (total >= min_len)
+          if (min_len > 0 && total >= min_len)
             return total;
         }
       if (t >= timeout)

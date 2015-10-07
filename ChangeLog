@@ -1,5 +1,10 @@
 2015-10-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* misc/network.c (read_stream_connection_unbuffered): Don't return early
+	when minimal length is not set.
+
+2015-10-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/network.c (read_stream_connection_unbuffered): Fix erroneous
 	gnutls_record_recv() return value handling, which caused early return
 	even when not all data was received.
