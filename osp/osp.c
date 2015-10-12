@@ -393,22 +393,11 @@ osp_start_scan (osp_connection_t *connection, const char *target,
     return -1;
 
   status = atoi (entity_attribute (entity, "status"));
+  free_entity (entity);
   if (status == 200)
-    {
-      entity_t child = entity_child (entity, "id");
-      assert (child);
-      assert (entity_text (child));
-      free_entity (entity);
-      return 0;
-    }
+    return 0;
   else
-    {
-      const char *text = entity_attribute (entity, "status_text");
-
-      assert (text);
-      free_entity (entity);
-      return -1;
-    }
+    return -1;
 }
 
 /* @brief Get an OSP parameter's type from its string format.
