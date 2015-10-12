@@ -1,5 +1,11 @@
 2015-10-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* osp/osp.c (osp_start_scan): Add ports parameter.
+
+	* osp/osp.h: Adjust function prototype.
+
+2015-10-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* osp/osp.c (osp_start_scan): Fix build in release mode.
 
 2015-10-07  Hani Benhabiles <hani.benhabiles@greenbone.net>

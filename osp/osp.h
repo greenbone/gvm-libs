@@ -50,7 +50,8 @@ osp_get_version (osp_connection_t *, char **, char **, char **, char **,
                  char **, char **);
 
 int
-osp_start_scan (osp_connection_t *, const char *, GHashTable *, const char *);
+osp_start_scan (osp_connection_t *, const char *, const char *, GHashTable *,
+                const char *);
 
 int
 osp_get_scan (osp_connection_t *, const char *, char **, int);
