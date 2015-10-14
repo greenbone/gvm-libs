@@ -272,33 +272,44 @@ osp_delete_scan (osp_connection_t *connection, const char *scan_id)
  */
 int
 osp_get_scan (osp_connection_t *connection, const char *scan_id,
-              char **report_xml, int details)
+              char **report_xml, int details, char **error)
 {
   entity_t entity, child;
   GString *string;
   int progress;
   int rc;
 
-  if (!connection)
-    return -1;
-
+  assert (connection);
+  assert (scan_id);
   rc = osp_send_command
         (connection, &entity, "<get_scans scan_id='%s' details='%d'/>",
          scan_id, details ? 1 : 0);
   if (rc)
-    return -1;
+    {
+      if (error)
+        *error = g_strdup ("Couldn't send get_scans command to scanner");
+      return -1;
+    }
 
   child = entity_child (entity, "scan");
   if (!child)
     {
+      const char *text = entity_attribute (entity, "status_text");
+
+      assert (text);
+      if (error)
+        *error = g_strdup (text);
       free_entity (entity);
       return -1;
     }
   progress = atoi (entity_attribute (child, "progress"));
-  string = g_string_new ("");
-  print_entity_to_string (child, string);
+  if (report_xml)
+    {
+      string = g_string_new ("");
+      print_entity_to_string (child, string);
+      *report_xml = g_string_free (string, FALSE);
+    }
   free_entity (entity);
-  *report_xml = g_string_free (string, FALSE);
   return progress;
 }
 
@@ -315,13 +326,16 @@ osp_stop_scan (osp_connection_t *connection, const char *scan_id, char **error)
   entity_t entity;
   int rc;
 
-  if (!connection)
-    return 1;
-
+  assert (connection);
+  assert (scan_id);
   rc = osp_send_command
         (connection, &entity, "<stop_scan scan_id='%s'/>", scan_id);
   if (rc)
-    return 1;
+    {
+      if (error)
+        *error = g_strdup ("Couldn't send stop_scan command to scanner");
+      return -1;
+    }
 
   rc = atoi (entity_attribute (entity, "status"));
   if (rc == 200)
@@ -370,16 +384,16 @@ option_concat_as_xml (gpointer key, gpointer value, gpointer pstr)
  */
 int
 osp_start_scan (osp_connection_t *connection, const char *target,
-                const char *ports, GHashTable *options, const char *scan_id)
+                const char *ports, GHashTable *options, const char *scan_id,
+                char **error)
 {
   entity_t entity;
   char *options_str = NULL;
   int status;
   int rc;
 
-  if (!connection || !target)
-    return -1;
-
+  assert (connection);
+  assert (target);
   /* Construct options string. */
   if (options)
     g_hash_table_foreach (options, option_concat_as_xml, &options_str);
@@ -390,14 +404,28 @@ osp_start_scan (osp_connection_t *connection, const char *target,
                          target, ports ?: "", scan_id ?: "", options_str ?: "");
   g_free (options_str);
   if (rc)
-    return -1;
+    {
+      if (error)
+        *error = g_strdup ("Couldn't send start_scan command to scanner");
+      return -1;
+    }
 
   status = atoi (entity_attribute (entity, "status"));
-  free_entity (entity);
   if (status == 200)
-    return 0;
+    {
+      free_entity (entity);
+      return 0;
+    }
   else
-    return -1;
+    {
+      const char *text = entity_attribute (entity, "status_text");
+
+      assert (text);
+      if (error)
+        *error = g_strdup (text);
+      free_entity (entity);
+      return -1;
+    }
 }
 
 /* @brief Get an OSP parameter's type from its string format.
