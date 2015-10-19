@@ -48,6 +48,7 @@ struct osp_param {
   char *desc;
   char *def;
   osp_param_type_t type;
+  int mandatory;
 };
 
 static int
@@ -522,6 +523,9 @@ osp_get_scanner_details (osp_connection_t *connection, char **desc,
                                                              "description")));
           param->def = g_strdup (entity_text (entity_child (child,
                                                             "default")));
+          if (entity_child (child, "mandatory"))
+            param->mandatory = atoi (entity_text
+                                      (entity_child (child, "mandatory")));
           *params = g_slist_append (*params, param);
           entities = next_entities (entities);
         }
@@ -554,7 +558,7 @@ osp_param_new (void)
  * @return ID of OSP parameter.
  */
 const char *
-osp_param_id (osp_param_t *param)
+osp_param_id (const osp_param_t *param)
 {
   assert (param);
 
@@ -568,7 +572,7 @@ osp_param_id (osp_param_t *param)
  * @return Name of OSP parameter.
  */
 const char *
-osp_param_name (osp_param_t *param)
+osp_param_name (const osp_param_t *param)
 {
   assert (param);
 
@@ -582,7 +586,7 @@ osp_param_name (osp_param_t *param)
  * @return Description of OSP parameter.
  */
 const char *
-osp_param_desc (osp_param_t *param)
+osp_param_desc (const osp_param_t *param)
 {
   assert (param);
 
@@ -596,11 +600,25 @@ osp_param_desc (osp_param_t *param)
  * @return Default value of OSP parameter.
  */
 const char *
-osp_param_default (osp_param_t *param)
+osp_param_default (const osp_param_t *param)
 {
   assert (param);
 
   return param->def;
+}
+
+/* @brief Get an OSP parameter's mandatory value.
+ *
+ * @param[in]   param   OSP parameter.
+ *
+ * @return Mandatory value of OSP parameter.
+ */
+int
+osp_param_mandatory (const osp_param_t *param)
+{
+  assert (param);
+
+  return param->mandatory;
 }
 
 /* @brief Free an OSP parameter.

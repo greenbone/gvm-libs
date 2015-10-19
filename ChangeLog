@@ -1,3 +1,13 @@
+2015-10-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* osp/osp.c (osp_param): Add mandatory element.
+	(osp_get_scanner_details): Get the parameter's mandatory field.
+	(osp_param_id, osp_param_name, osp_param_desc, osp_param_default):
+	Constify parameter.
+	(osp_parameter_mandatory): New function.
+
+	* osp/osp.h: Add and adjust functions prototypes.
+
 2015-10-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* osp/osp.c (osp_get_scan): Make report_xml parameter optional. Add

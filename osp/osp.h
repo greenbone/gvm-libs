@@ -69,19 +69,22 @@ osp_param_t *
 osp_param_new (void);
 
 const char *
-osp_param_id (osp_param_t *);
+osp_param_id (const osp_param_t *);
 
 const char *
-osp_param_name (osp_param_t *);
+osp_param_name (const osp_param_t *);
 
 const char *
-osp_param_desc (osp_param_t *);
+osp_param_desc (const osp_param_t *);
 
 const char *
-osp_param_default (osp_param_t *);
+osp_param_default (const osp_param_t *);
 
 const char *
 osp_param_type_str (const osp_param_t *);
+
+int
+osp_param_mandatory (const osp_param_t *);
 
 void
 osp_param_free (osp_param_t *);
