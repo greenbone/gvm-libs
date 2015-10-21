@@ -1,3 +1,22 @@
+openvas-libraries 8.1+beta2 (2015-10-XX)
+
+This release is the second beta version of the upcoming 8.1 of
+openvas-libraries. It will be part of the upcoming "OpenVAS-9".
+
+Noteworthy changes since last release are support of first OSP 1.1
+features as well as several build and code improvements.
+
+Many thanks to everyone who has contributed this release:
+Hani Benhabiles, Sven Haardiek, Timo Pollmeier and Michael Wiegand.
+
+Main changes compared to 8.1beta1:
+* New NASL functions "ssh_get_host_key" and "DES".
+* Improved support for pre 0.6.0 versions of libssh.
+* Extended support for OSP clients, including support of OSP 1.1 features.
+* Extend build instructions with -Wextra.
+* Various minor fixes code improvements.
+
+
 openvas-libraries 8.1+beta1 (2015-07-17)
 
 This release is the first beta version of the upcoming 8.1 of
