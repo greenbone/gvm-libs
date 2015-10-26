@@ -1,3 +1,14 @@
+2015-10-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r23693.
+
+	* nasl/nasl.c (main): Add --config-file parameter. Load preferences from
+	config, and use the correct kb path.
+
+	* CMakeLists.txt: Define OPENVASSD_CONF.
+
+	* doc/openvas-nasl.1: Update documentation.
+
 2015-10-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (read_stream_connection_unbuffered): Fix erroneous
