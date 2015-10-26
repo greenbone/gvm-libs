@@ -199,6 +199,7 @@ set (OPENVAS_HEADER_INSTALL_DIR "${INCLUDEDIR}")
 set (OPENVAS_SERVER_CERTIFICATE "${OPENVAS_STATE_DIR}/CA/servercert.pem")
 set (OPENVAS_SERVER_KEY         "${OPENVAS_STATE_DIR}/private/CA/serverkey.pem")
 set (OPENVAS_CA_CERTIFICATE     "${OPENVAS_STATE_DIR}/CA/cacert.pem")
+add_definitions (-DOPENVASSD_CONF=\\\"${OPENVAS_SYSCONF_DIR}/openvassd.conf\\\")
 
 message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 

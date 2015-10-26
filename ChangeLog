@@ -1,3 +1,12 @@
+2015-10-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl.c (main): Add --config-file parameter. Load preferences from
+	config, and use the correct kb path.
+
+	* CMakeLists.txt: Define OPENVASSD_CONF.
+
+	* doc/openvas-nasl.1: Update documentation.
+
 2015-10-21  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.

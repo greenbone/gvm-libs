@@ -129,6 +129,7 @@ main (int argc, char **argv)
   static gboolean parse_only = FALSE;
   static gboolean do_lint = FALSE;
   static gchar *trace_file = NULL;
+  static gchar *config_file = NULL;
   static gchar *source_iface = NULL;
   static gboolean with_safe_checks = FALSE;
   static gboolean authenticated_mode = FALSE;
@@ -154,6 +155,8 @@ main (int argc, char **argv)
      "Execute the scripts against <target>", "<target>"},
     {"trace", 'T', 0, G_OPTION_ARG_FILENAME, &trace_file,
      "Log actions to <file> (or '-' for stderr)", "<file>"},
+    {"config-file", 'c', 0, G_OPTION_ARG_FILENAME, &config_file,
+     "Configuration file", "<filenmae>"},
     {"source-iface", 'e', 0, G_OPTION_ARG_STRING, &source_iface,
      "Source network interface for established connections.",
      "<iface_name>"},
@@ -272,6 +275,7 @@ main (int argc, char **argv)
       add_nasl_inc_dir (include_dir);
     }
 
+  prefs_config (config_file ?: OPENVASSD_CONF);
   while ((host = openvas_hosts_next (hosts)))
     {
       struct in6_addr ip6;
@@ -288,7 +292,7 @@ main (int argc, char **argv)
           continue;
         }
 
-      rc = kb_new (&kb, KB_PATH_DEFAULT);
+      rc = kb_new (&kb, prefs_get ("kb_location") ?: KB_PATH_DEFAULT);
       if (rc)
         exit (1);
 
