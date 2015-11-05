@@ -1735,10 +1735,11 @@ openvas_host_get_addr6 (const openvas_host_t *host, struct in6_addr *ip6)
         {
           struct in_addr ip4;
 
-          if (openvas_host_resolve (host, &ip4, AF_INET) == -1)
+          /* Fail if IPv4 and IPv6 both don't resolve. */
+          if (openvas_host_resolve (host, &ip4, AF_INET) == 0)
+            ipv4_as_ipv6 (&ip4, ip6);
+          else if (openvas_host_resolve (host, ip6, AF_INET6) == -1)
             return -1;
-
-          ipv4_as_ipv6 (&ip4, ip6);
           return 0;
         }
 
