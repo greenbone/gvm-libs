@@ -1,3 +1,9 @@
+2015-11-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/openvas_hosts.c (openvavs_host_get_addr6): For HOST_TYPE_NAME
+	hosts, attempt to resolve the hostname's IPv6 address when IPv4 address
+	resolution fails.
+
 2015-10-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl.c (main): Add --config-file parameter. Load preferences from
