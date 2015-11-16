@@ -1,3 +1,10 @@
+2015-11-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/CMakeLists.txt: Build with freeradius-client library support when
+	BUILD_WITH_RADIUS is set. Add ldflags and radius.c and radius.h files.
+
+	* misc/radius.c, misc/radius.h: New files.
+
 2015-11-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_hosts.c (openvavs_host_get_addr6): For HOST_TYPE_NAME

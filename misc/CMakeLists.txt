@@ -45,6 +45,18 @@ endif (MINGW)
 if (NOT MINGW)
   pkg_check_modules (UUID REQUIRED uuid)
 
+  if (BUILD_WITH_RADIUS)
+    message (STATUS "Looking for freeradius-client...")
+    find_library (LIBRADIUS freeradius-client)
+    if (NOT LIBRADIUS)
+      message (STATUS "  No freeradius-client found - radius support disabled")
+    else (NOT LIBRADIUS)
+      message (STATUS "  Found ${LIBRADIUS} - radius support enabled")
+      set (RADIUS_LDFLAGS "-lfreeradius-client")
+      add_definitions (-DENABLE_RADIUS_AUTH=1)
+    endif (NOT LIBRADIUS)
+  endif (BUILD_WITH_RADIUS)
+
   if (NOT BUILD_WITHOUT_LDAP)
     message (STATUS "Looking for libldap...")
 
@@ -81,13 +93,14 @@ if (MINGW)
 else (MINGW)
   set (FILES arglists.c bpf_share.c ftp_funcs.c ids_send.c ldap_connect_auth.c
              kb_redis.c network.c openvas_ssh.c openvas_auth.c openvas_logging.c
-             openvas_server.c openvas_uuid.c plugutils.c popen.c
+             openvas_server.c openvas_uuid.c plugutils.c popen.c radius.c
              openvas_proctitle.c prefs.c www_funcs.c pcap.c)
 
   set (HEADERS arglists.h bpf_share.h ftp_funcs.h kb.h ldap_connect_auth.h
                network.h pcap_openvas.h plugutils.h popen.h openvas_proctitle.h
                openvas_auth.h openvas_logging.h openvas_server.h openvas_uuid.h
-               openvas_ssh.h prefs.h nvt_categories.h internal_com.h www_funcs.h)
+               openvas_ssh.h prefs.h nvt_categories.h internal_com.h www_funcs.h
+               radius.h)
 endif (MINGW)
 
 if (BUILD_WITH_LDAP)
@@ -127,7 +140,7 @@ if (BUILD_SHARED)
   else (MINGW)
     target_link_libraries (openvas_misc_shared ${GNUTLS_LDFLAGS} openvas_base_shared ${UUID_LDFLAGS}
                            ${PCAP_LDFLAGS} ${LIBSSH_LDFLAGS} ${LDAP_LDFLAGS}
-                           ${REDIS_LDFLAGS} ${GCRYPT_LDFLAGS})
+                           ${REDIS_LDFLAGS} ${GCRYPT_LDFLAGS} ${RADIUS_LDFLAGS})
   endif (MINGW)
 endif (BUILD_SHARED)
 
