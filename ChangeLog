@@ -1,3 +1,11 @@
+2015-11-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* INSTALL: Add note on RADIUS support.
+
+	* misc/openvas_auth.c (openvas_auth_radius_enabled): New function.
+
+	* misc/openvas_auth.h: Add new function prototype.
+
 2015-11-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/CMakeLists.txt: Build with freeradius-client library support when

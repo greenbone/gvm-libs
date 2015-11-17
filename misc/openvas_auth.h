@@ -63,4 +63,6 @@ gchar *digest_hex (int, const guchar *);
 
 int openvas_auth_ldap_enabled ();
 
+int
+openvas_auth_radius_enabled ();
 #endif /* not _OPENVAS_AUTH_H */

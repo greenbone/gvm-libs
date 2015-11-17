@@ -73,6 +73,21 @@ openvas_auth_ldap_enabled ()
 }
 
 /**
+ * @brief Return whether libraries has been compiled with RADIUS support.
+ *
+ * @return 1 if enabled, else 0.
+ */
+int
+openvas_auth_radius_enabled ()
+{
+#ifdef ENABLE_RADIUS_AUTH
+  return 1;
+#else
+  return 0;
+#endif /* ENABLE_RADIUS_AUTH */
+}
+
+/**
  * @brief Return name of auth_method_t.
  *
  * Keep in sync with \ref authentication_methods and
