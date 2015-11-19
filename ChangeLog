@@ -1,3 +1,12 @@
+2015-11-19  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	* omp/omp.c (omp_create_target_ext): Add SNMP credential.
+	(omp_create_lsc_credential_ext): Add SNMP elements.
+
+	* omp/omp.h (omp_create_target_opts_t): Add field snmp_credential_id.
+	(omp_create_lsc_credential_opts_t): Add fields community,
+	auth_algorithm, privacy_password and privacy_algorithm.
+
 2015-11-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* INSTALL: Add note on RADIUS support.

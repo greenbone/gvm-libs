@@ -1323,7 +1323,7 @@ omp_create_target_ext (gnutls_session_t* session,
                        omp_create_target_opts_t opts,
                        gchar** id)
 {
-  gchar *comment, *ssh, *smb, *esxi, *port_range, *start;
+  gchar *comment, *ssh, *smb, *esxi, *snmp, *port_range, *start;
   gchar *exclude_hosts, *alive_tests;
   int ret;
 
@@ -1389,6 +1389,12 @@ omp_create_target_ext (gnutls_session_t* session,
   else
     esxi = NULL;
 
+  if (opts.snmp_credential_id)
+    snmp = g_markup_printf_escaped ("<snmp_credential id=\"%s\"/>",
+                                    opts.snmp_credential_id);
+  else
+    snmp = NULL;
+
   if (opts.port_range)
     port_range = g_markup_printf_escaped ("<port_range>%s</port_range>",
                                           opts.port_range);
@@ -1397,7 +1403,7 @@ omp_create_target_ext (gnutls_session_t* session,
 
   /* Send the request. */
   ret = openvas_server_sendf (session,
-                              "%s%s%s%s%s%s%s%s"
+                              "%s%s%s%s%s%s%s%s%s"
                               "<reverse_lookup_only>%d</reverse_lookup_only>"
                               "<reverse_lookup_unify>%d</reverse_lookup_unify>"
                               "</create_target>",
@@ -1407,6 +1413,7 @@ omp_create_target_ext (gnutls_session_t* session,
                               ssh ? ssh : "",
                               smb ? smb : "",
                               esxi ? esxi : "",
+                              snmp ? snmp : "",
                               port_range ? port_range : "",
                               comment ? comment : "",
                               opts.reverse_lookup_only,
@@ -1633,7 +1640,7 @@ omp_create_lsc_credential_ext (gnutls_session_t* session,
                                omp_create_lsc_credential_opts_t opts,
                                gchar** id)
 {
-  gchar *comment, *pass, *start;
+  gchar *comment, *pass, *start, *snmp_elems;
   int ret;
 
   /* Create the OMP request. */
@@ -1673,13 +1680,35 @@ omp_create_lsc_credential_ext (gnutls_session_t* session,
         pass = NULL;
     }
 
+  if (opts.community && opts.auth_algorithm && opts.privacy_password
+      && opts.privacy_algorithm)
+    snmp_elems = g_markup_printf_escaped ("<community>"
+                                          "%s"
+                                          "</community>"
+                                          "<auth_algorithm>"
+                                          "%s"
+                                          "</auth_algorithm>"
+                                          "<privacy>"
+                                          "<password>%s</password>"
+                                          "<algorithm>%s</algorithm>"
+                                          "</privacy>",
+                                          opts.community,
+                                          opts.auth_algorithm,
+                                          opts.privacy_password,
+                                          opts.privacy_algorithm);
+  else
+    snmp_elems = NULL;
+
+g_message ("!TEST! snmp_elems=%s", snmp_elems);
+
   /* Send the request. */
 
   ret = openvas_server_sendf (session,
-                              "%s%s%s</create_credential>",
+                              "%s%s%s%s</create_credential>",
                               start,
                               comment ? comment : "",
-                              pass ? pass : "");
+                              pass ? pass : "",
+                              snmp_elems ? snmp_elems : "");
 
   g_free (start);
   g_free (comment);

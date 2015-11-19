@@ -185,6 +185,7 @@ typedef struct
   const char* ssh_credential_id;   ///< ID of SSH credential.
   const char* smb_credential_id;   ///< ID of SMB credential.
   const char* esxi_credential_id;  ///< ID of ESXi credential.
+  const char* snmp_credential_id;  ///< ID of SNMP credential.
   const char* port_range;          ///< Port range.
   const char* name;                ///< Name of target.
   const char* comment;             ///< Comment on target.
@@ -225,9 +226,13 @@ static const omp_get_system_reports_opts_t omp_get_system_reports_opts_defaults 
 typedef struct
 {
   const char *name;        ///< Name of LSC credential.
+  const char *community;   ///< SNMP community.
   const char *login;       ///< Login.
   const char *passphrase;  ///< Passphrase.
   const char *private_key; ///< Private key.
+  const char *auth_algorithm;    ///< SNMP authentication algorithm.
+  const char *privacy_password;  ///< SNMP privacy password.
+  const char *privacy_algorithm; ///< SNMP privacy algorithm.
   const char *comment;     ///< Comment on LSC credential.
 } omp_create_lsc_credential_opts_t;
 
