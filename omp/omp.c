@@ -1699,8 +1699,6 @@ omp_create_lsc_credential_ext (gnutls_session_t* session,
   else
     snmp_elems = NULL;
 
-g_message ("!TEST! snmp_elems=%s", snmp_elems);
-
   /* Send the request. */
 
   ret = openvas_server_sendf (session,
