@@ -1,3 +1,8 @@
+2015-11-20  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/CMakeLists.txt: Fail if BUILD_WITH_RADIUS was requested and the
+	freeradius-client library was not found.
+
 2015-11-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/openvas_auth.c (authentication_methods): Add radius_connect
