@@ -1,3 +1,10 @@
+2015-11-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_auth.c (authentication_methods): Add radius_connect
+	method.
+
+	* misc/openvas_auth.h: Add AUTHENTICATION_METHOD_RADIUS_CONNECT method.
+
 2015-11-19  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* omp/omp.c (omp_create_lsc_credential_ext): Remove test output.

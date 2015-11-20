@@ -52,6 +52,7 @@
 /** @warning  Beware to have it in sync with \ref authentication_method. */
 static const gchar *authentication_methods[] = { "file",
                                                  "ldap_connect",
+                                                 "radius_connect",
                                                  NULL };
 
 /** @brief Flag whether the config file was read. */
