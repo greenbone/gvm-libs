@@ -1,5 +1,9 @@
 2015-11-20  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* misc/radius.c: Fix include path.
+
+2015-11-20  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/CMakeLists.txt: Fail if BUILD_WITH_RADIUS was requested and the
 	freeradius-client library was not found.
 
