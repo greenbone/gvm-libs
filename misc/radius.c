@@ -181,4 +181,28 @@ authenticate_leave:
   return rc;
 }
 
+#else  /* ENABLE_RADIUS_AUTH */
+
+/**
+ * @brief Dummy function for manager.
+ *
+ * @param[in]   hostname    Server hostname.
+ * @param[in]   secret      Radius secret key.
+ * @param[in]   username    Username to authenticate.
+ * @param[in]   password    Password to use with username.
+ *
+ * @return -1.
+ */
+int
+radius_authenticate (const char *hostname, const char *secret,
+                     const char *username, const char *password)
+{
+  (void) hostname;
+  (void) secret;
+  (void) username;
+  (void) password;
+
+  return -1;
+}
+
 #endif /* ENABLE_RADIUS_AUTH */
