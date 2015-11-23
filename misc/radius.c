@@ -50,10 +50,11 @@ radius_init (const char *hostname, const char *secret)
 {
   rc_handle *rh;
   char authserver[4096];
+  struct sockaddr_in6 ip6;
 
   if ((rh = rc_new ()) == NULL)
     {
-      g_warning("radius_init: Couldn't allocate memory");
+      g_warning ("radius_init: Couldn't allocate memory");
       return NULL;
     }
   if (!rc_config_init (rh))
@@ -98,16 +99,20 @@ radius_init (const char *hostname, const char *secret)
       g_warning("radius_init: Couldn't set radius_deadtime");
       goto radius_init_fail;
     }
-  snprintf (authserver, sizeof (authserver), "%s::%s", hostname, secret);
+
+  if (inet_pton (AF_INET6, hostname, &(ip6.sin6_addr)) == 1)
+    snprintf (authserver, sizeof (authserver), "[%s]::%s", hostname, secret);
+  else
+    snprintf (authserver, sizeof (authserver), "%s::%s", hostname, secret);
   if (rc_add_config (rh, "authserver", authserver, "config", 0) != 0)
     {
-      g_warning("radius_init: Couldn't set authserver %s", authserver);
+      g_warning ("radius_init: Couldn't set authserver %s", authserver);
       goto radius_init_fail;
     }
   if (rc_read_dictionary (rh, RC_DICTIONARY_FILE) != 0)
     {
-      g_warning("radius_init: Couldn't read the dictionnary file %s",
-                RC_DICTIONARY_FILE);
+      g_warning ("radius_init: Couldn't read the dictionnary file %s",
+                 RC_DICTIONARY_FILE);
       goto radius_init_fail;
     }
   return rh;
@@ -137,34 +142,31 @@ radius_authenticate (const char *hostname, const char *secret,
   rc_handle *rh;
   int rc = -1;
   struct sockaddr_in ip4;
+  struct sockaddr_in6 ip6;
 
   rh = radius_init (hostname, secret);
   if (!rh)
     return -1;
   if (rc_avpair_add (rh, &send, PW_USER_NAME, (char *) username, -1, 0) == NULL)
     {
-      g_warning("radius_authenticate: Couldn't set the username");
+      g_warning ("radius_authenticate: Couldn't set the username");
       goto authenticate_leave;
     }
   if (rc_avpair_add (rh, &send, PW_USER_PASSWORD, (char *) password, -1, 0)
       == NULL)
     {
-      g_warning("radius_authenticate: Couldn't set the password");
+      g_warning ("radius_authenticate: Couldn't set the password");
       goto authenticate_leave;
     }
   if (rc_avpair_add (rh, &send, PW_SERVICE_TYPE, &service, -1, 0) == NULL)
     {
-      g_warning("radius_authenticate: Couldn't set the service type");
+      g_warning ("radius_authenticate: Couldn't set the service type");
       goto authenticate_leave;
     }
-  if (openvas_resolve (hostname, &ip4, AF_INET))
+  if (openvas_resolve (hostname, &ip4, AF_INET)
+      && openvas_resolve (hostname, &ip6, AF_INET6))
     {
       g_warning ("radius_authenticate: Couldn't resolve %s", hostname);
-      goto authenticate_leave;
-    }
-  if (rc_avpair_add (rh, &send, PW_NAS_IP_ADDRESS, &ip4, -1, 0) == NULL)
-    {
-      g_warning("radius_authenticate: Couldn't set NAS IP address");
       goto authenticate_leave;
     }
 

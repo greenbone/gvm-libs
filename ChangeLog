@@ -1,3 +1,7 @@
+2015-11-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/radius.c (radius_init, radius_authenticate): Add IPv6 support.
+
 2015-11-20  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* misc/radius.c (radius_authenticate): Add dummy version of this
