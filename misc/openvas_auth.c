@@ -109,6 +109,7 @@
 /** @warning  Beware to have it in sync with \ref authentication_method. */
 static const gchar *authentication_methods[] = { "file",
                                                  "ldap_connect",
+                                                 "radius_connect",
                                                  NULL };
 
 /** @brief Flag whether the config file was read. */
@@ -183,6 +184,21 @@ auth_method_from_string (const char *method)
     if (!strcmp (method, authentication_methods[i]))
       return i;
   return -1;
+}
+
+/**
+ * @brief Return whether libraries has been compiled with RADIUS support.
+ *
+ * @return 1 if enabled, else 0.
+ */
+int
+openvas_auth_radius_enabled ()
+{
+#ifdef ENABLE_RADIUS_AUTH
+  return 1;
+#else
+  return 0;
+#endif /* ENABLE_RADIUS_AUTH */
 }
 
 /**

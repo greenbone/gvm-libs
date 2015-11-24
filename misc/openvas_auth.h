@@ -41,6 +41,7 @@ enum authentication_method
 {
   AUTHENTICATION_METHOD_FILE = 0,
   AUTHENTICATION_METHOD_LDAP_CONNECT,
+  AUTHENTICATION_METHOD_RADIUS_CONNECT,
   AUTHENTICATION_METHOD_LAST
 };
 
@@ -72,4 +73,6 @@ int openvas_user_exists (const char *);
 
 gchar *openvas_user_uuid (const char *name);
 
+int
+openvas_auth_radius_enabled ();
 #endif /* not _OPENVAS_AUTH_H */

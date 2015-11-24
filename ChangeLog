@@ -1,3 +1,23 @@
+2015-11-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r23805, r23808, r23826, r23827, r23828, r23836, r23847.
+
+	* misc/radius.c, misc/radius.h: New files.
+
+	* misc/CMakeLists.txt: Build with freeradius-client library support when
+	BUILD_WITH_RADIUS is set. Add ldflags and radius.c and radius.h files.
+	Fail if BUILD_WITH_RADIUS was requested and the freeradius-client
+	library was not found.
+
+	* misc/openvas_auth.c (authentication_methods): Add radius_connect
+	method.
+	(openvas_auth_radius_enabled): New function.
+
+	* misc/openvas_auth.h: Add AUTHENTICATION_METHOD_RADIUS_CONNECT method.
+	Add new function prototype.
+
+	* INSTALL: Add note on RADIUS support.
+
 2015-11-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r23756.

@@ -48,6 +48,10 @@ Recommended to have LDAP support:
 * libldap >= 2.4.11
   (LDAP can be disabled with -DBUILD_WITHOUT_LDAP=1)
 
+Recommended to have RADIUS support:
+* libfreeradius-client >= 1.1.6
+  (RADIUS can be enabled with -DBUILD_WITH_RADIUS=1)
+
 Install prerequisites on Debian GNU/Linux 'Wheezy' 7:
 # apt-get install pkg-config libssh-dev libgnutls-dev libglib2.0-dev libpcap-dev \
   libgpgme11-dev uuid-dev bison libksba-dev libhiredis-dev libsnmp-dev
