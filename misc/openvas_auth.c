@@ -43,6 +43,10 @@
 #include "ldap_connect_auth.h"
 #endif /*ENABLE_LDAP_AUTH */
 
+#ifdef ENABLE_RADIUS_AUTH
+#include "radius.h"
+#endif /*ENABLE_RADIUS_AUTH */
+
 #define AUTH_CONF_FILE "openvasmd/auth.conf"
 
 #define GROUP_PREFIX_METHOD "method:"
@@ -67,6 +71,8 @@
  *    authenticate against files (in PREFIX/var/lib/openvas/users).
  *  - remote ldap authentication. To authenticate against a remote ldap
  *    directory server.
+ *  - remote radius authentication. To authenticate against a remote radius
+ *    server.
  *
  * These mechanisms are also used for authorization (role and access management).
  *
@@ -79,20 +85,22 @@
  * and does not do authorization (role and access management).
  *  - 'simple ldap authentication' against remote ldap directory server
  *    (ldap-connect).
- * As an exception, this method ignores any priority settings: If ldap-connect is
- * enabled for a user, it is the only method tried (i.e. the password stored for
- * the file-based authentication cannot be used).
+ *  - 'radius authentication' against remote radius server
+ * As an exception, this method ignores any priority settings: If ldap-connect
+ * or radius-connect is enabled for a user, it is the only method tried (i.e.
+ * the password stored for the file-based authentication or the other connect
+ * method cannot be used).
  *
  * The configuration file allows to specify details of a remote ldap-connect
- * authentication and to assign an "order" value to the specified
- * authentication mechanisms. Mechanisms with a lower order will be tried
- * first.
+ * or radius-connect authentication and to assign an "order" value to the
+ * specified authentication mechanisms. Mechanisms with a lower order will be
+ * tried first.
  *
  * @section user_directories User Directories
  *
  * The directory of remotely authenticated users reside under
  * OPENVAS_STATE_DIR/users-remote/[method] , where [method] currently can only
- * be "ldap_connect".
+ * be "ldap_connect" or "radius_connect".
  *
  * A users directory will contain:
  *
@@ -124,6 +132,12 @@ static GSList *authenticators = NULL;
  */
 static gboolean ldap_connect_configured = FALSE;
 
+/**
+ * @brief Whether or not an exclusive per-user radius authentication method is
+ * @brief configured.
+ */
+static gboolean radius_connect_configured = FALSE;
+
 /** @brief Representation of an abstract authentication mechanism. */
 struct authenticator
 {
@@ -151,6 +165,10 @@ static int openvas_user_exists_classic (const gchar *name, void *data);
 
 #ifdef ENABLE_LDAP_AUTH
 static int ldap_connect_user_exists (const gchar *name, void *data);
+#endif
+
+#ifdef ENABLE_RADIUS_AUTH
+static int radius_connect_user_exists (const gchar *name, void *data);
 #endif
 
 gchar* (*classic_get_hash) (const gchar *) = NULL;
@@ -223,7 +241,8 @@ auth_method_name (auth_method_t method)
  * @brief Implements a (GCompareFunc) to add authenticators to the
  * @brief authenticator list, sorted by the order.
  *
- * One exception is that LDAP_CONNECT always comes first.
+ * One exception is that LDAP_CONNECT always comes first, then comes
+ * RADIUS_CONNECT.
  *
  * @param first_auth  First authenticator to be compared.
  * @param second_auth Second authenticator to be compared.
@@ -236,6 +255,10 @@ order_compare (authenticator_t first_auth, authenticator_t second_auth)
   if (first_auth->method == AUTHENTICATION_METHOD_LDAP_CONNECT)
     return -1;
   else if (second_auth->method == AUTHENTICATION_METHOD_LDAP_CONNECT)
+    return 1;
+  else if (first_auth->method == AUTHENTICATION_METHOD_RADIUS_CONNECT)
+    return -1;
+  else if (second_auth->method == AUTHENTICATION_METHOD_RADIUS_CONNECT)
     return 1;
 
   return (first_auth->order - second_auth->order);
@@ -314,6 +337,28 @@ add_authenticator (GKeyFile * key_file, const gchar * group)
                    "ldap-support. The configuration entry will "
                    "have no effect.");
 #endif /* ENABLE_LDAP_AUTH */
+        break;
+      }
+    case AUTHENTICATION_METHOD_RADIUS_CONNECT:
+      {
+#ifdef ENABLE_RADIUS_AUTH
+        authenticator_t authent = g_malloc0 (sizeof (struct authenticator));
+        // TODO: The order is ignored in this case, make order optional.
+        authent->order = order;
+        authent->authenticate = &radius_authenticate;
+        authent->user_exists = &radius_connect_user_exists;
+        radius_auth_info_t info = radius_auth_info_from_key_file (key_file, group);
+        authent->data = info;
+        authent->method = AUTHENTICATION_METHOD_RADIUS_CONNECT;
+        authenticators =
+          g_slist_insert_sorted (authenticators, authent,
+                                 (GCompareFunc) order_compare);
+#else
+        g_warning ("RADIUS-connect Authentication was configured, but "
+                   "openvas-libraries was not build with "
+                   "radius-support. The configuration entry will "
+                   "have no effect.");
+#endif /* ENABLE_RADIUS_AUTH */
         break;
       }
     default:
@@ -456,6 +501,8 @@ openvas_auth_init_funcs (gchar * (*get_hash) (const gchar *),
                 {
                   ldap_connect_configured = TRUE;
                 }
+              if (!strcmp (*group, "method:radius_connect"))
+                radius_connect_configured = TRUE;
             }
         }
       group++;
@@ -528,6 +575,20 @@ openvas_auth_write_config (GKeyFile * key_file)
       g_key_file_set_value (new_conffile, "method:ldap_connect", "allow-plaintext",
                             "false");
     }
+  // RADIUS configuration
+  if (key_file == NULL || g_key_file_has_group
+                           (key_file, "method:radius_connect") == TRUE)
+    {
+      g_key_file_set_value (new_conffile, "method:radius_connect", "enable",
+                            "false");
+      g_key_file_set_value (new_conffile, "method:radius_connect", "order",
+                            "-1");
+      g_key_file_set_value (new_conffile, "method:radius_connect", "radiushost",
+                            "localhost");
+      g_key_file_set_value (new_conffile, "method:radius_connect", "radiuskey",
+                            "testing123");
+    }
+
 
   // Old, user-provided configuration, if any.
   /** @todo Preserve comments in file. */
@@ -774,6 +835,30 @@ can_user_ldap_connect (const gchar * username)
   return TRUE;
 }
 
+/**
+ * @brief Check for existence of radius_connect file in user auth/methods
+ *        directory.
+ *
+ * If radius_connect authentication is disabled, return FALSE.
+ *
+ * @param[in] username Username for which to check the existence of file.
+ *
+ * @return TRUE if the user is allowed to authenticate exclusively with a
+ *         configured radius_connect method, FALSE otherwise.
+ */
+static gboolean
+can_user_radius_connect (const char *username)
+{
+  // If radius_connect is not globally enabled, no need to check locally.
+  if (radius_connect_configured == FALSE)
+    return FALSE;
+
+  if (user_exists (username, AUTHENTICATION_METHOD_RADIUS_CONNECT) == 0)
+    return FALSE;
+
+  return TRUE;
+}
+
 #ifndef _WIN32
 /**
  * @brief Authenticate a credential pair and expose the method used.
@@ -817,6 +902,20 @@ openvas_authenticate_method (const gchar * username, const gchar * password,
           if (can_user_ldap_connect (username) == TRUE)
             {
               *method = AUTHENTICATION_METHOD_LDAP_CONNECT;
+              return authent->authenticate (username, password, authent->data);
+            }
+          else
+            {
+              item = g_slist_next (item);
+              continue;
+            }
+        }
+      // RADIUS_CONNECT is either the only method to try or not tried.
+      if (authent->method == AUTHENTICATION_METHOD_RADIUS_CONNECT)
+        {
+          if (can_user_radius_connect (username) == TRUE)
+            {
+              *method = AUTHENTICATION_METHOD_RADIUS_CONNECT;
               return authent->authenticate (username, password, authent->data);
             }
           else
@@ -896,6 +995,25 @@ ldap_connect_user_exists (const gchar *name, void *data)
     return -1;
 
   return user_exists (name, AUTHENTICATION_METHOD_LDAP_CONNECT);
+}
+#endif
+
+#ifdef ENABLE_RADIUS_AUTH
+/**
+ * @brief Check whether a "RADIUS connect" user exists in the database.
+ *
+ * @param[in]  name   User name.
+ * @param[in]  data   Dummy arg.
+ *
+ * @return 1 yes, 0 no, -1 error.
+ */
+static int
+radius_connect_user_exists (const gchar *name, void *data)
+{
+  if (user_exists == NULL)
+    return -1;
+
+  return user_exists (name, AUTHENTICATION_METHOD_RADIUS_CONNECT);
 }
 #endif
 

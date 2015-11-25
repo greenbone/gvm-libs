@@ -1,3 +1,25 @@
+2015-11-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* doc/example.auth.conf: Add RADIUS authentication examples.
+
+	* misc/openvas_auth.c: Update documentation.
+	(radius_connect_configured): New variable.
+	(order_compare): Prioritise RADIUS authentication too.
+	(add_authenticator): Handle AUTHENTICATION_METHOD_RADIUS_CONNECT case.
+	(openvas_auth_init_funcs): Remember radius_connect method when used.
+	(openvas_auth_write_config): Add default RADIUS configuration.
+	(can_user_radius_connect): New function.
+	(openvas_authenticate_method): Handle
+	AUTHENTICATION_METHOD_RADIUS_CONNECT case.
+	(radius_connect_user_exists): New function.
+
+	* misc/radius.c (radius_authenticate): Adapt for openvas authenticator
+	prototype.
+	(radius_auth_info_from_key_file): New function.
+
+	* misc/radius.h: Add and adjust functions prototypes.
+	(struct radius_auth_info): New structure.
+
 2015-11-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r23805, r23808, r23826, r23827, r23828, r23836, r23847.

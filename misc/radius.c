@@ -27,6 +27,7 @@
 
 #include <freeradius-client.h>
 #include "../base/openvas_networking.h"
+#include "radius.h"
 #include <glib.h>
 
 #ifndef PW_MAX_MSG_SIZE
@@ -133,8 +134,8 @@ radius_init_fail:
  * @return 0 authentication success, 1 authentication failure, -1 error.
  */
 int
-radius_authenticate (const char *hostname, const char *secret,
-                     const char *username, const char *password)
+radius_authenticate (const char *username, const char *password,
+                     void *info)
 {
   uint32_t service = PW_AUTHENTICATE_ONLY;
   char msg[PW_MAX_MSG_SIZE];
@@ -143,7 +144,10 @@ radius_authenticate (const char *hostname, const char *secret,
   int rc = -1;
   struct sockaddr_in ip4;
   struct sockaddr_in6 ip6;
+  const char *hostname, *secret;
 
+  hostname = ((radius_auth_info_t) info)->radiushost;
+  secret = ((radius_auth_info_t) info)->radiuskey;
   rh = radius_init (hostname, secret);
   if (!rh)
     return -1;
@@ -183,6 +187,30 @@ authenticate_leave:
   return rc;
 }
 
+/**
+ * @brief Reads in a schema and info from key file.
+ *
+ * @param key_file Key file to read schema and info from.
+ * @param group    In \ref key_file , group of interest.
+ *
+ * @return Fresh radius_auth_info, or NULL in case of errors.
+ */
+radius_auth_info_t
+radius_auth_info_from_key_file (GKeyFile *key_file, const char *group)
+{
+  radius_auth_info_t info;
+
+  if (!key_file || !group)
+    return NULL;
+
+  info = g_malloc0 (sizeof (struct radius_auth_info));
+  info->radiushost = g_key_file_get_string (key_file, group, "radiushost",
+                                            NULL);
+  info->radiuskey = g_key_file_get_string (key_file, group, "radiuskey", NULL);
+
+  return info;
+}
+
 #else  /* ENABLE_RADIUS_AUTH */
 
 /**
@@ -196,13 +224,12 @@ authenticate_leave:
  * @return -1.
  */
 int
-radius_authenticate (const char *hostname, const char *secret,
-                     const char *username, const char *password)
+radius_authenticate (const char *username, const char *password,
+                     radius_auth_info_t info)
 {
-  (void) hostname;
-  (void) secret;
   (void) username;
   (void) password;
+  (void) info;
 
   return -1;
 }

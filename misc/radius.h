@@ -26,8 +26,22 @@
 #ifndef RADIUS_CONNECT_AUTH_H
 #define RADIUS_CONNECT_AUTH_H
 
+typedef struct radius_auth_info *radius_auth_info_t;
+
+/**
+ * @brief Info to use for a basic radius authentication.
+ */
+struct radius_auth_info
+{
+  char *radiushost;     ///< Adress of the radius server.
+  char *radiuskey;      ///< DN to authenticate with.
+};
+
 int
-radius_authenticate (const char *, const char *, const char *, const char *);
+radius_authenticate (const char *, const char *, void *);
+
+radius_auth_info_t
+radius_auth_info_from_key_file (GKeyFile *, const char *);
 
 #endif /* not RADIUS_CONNECT_AUTH_H */
 
