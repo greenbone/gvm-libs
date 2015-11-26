@@ -1,3 +1,7 @@
+2015-11-26  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* nasl/nasl_global_ctxt.h: Replace <angled> include with "quoted" one.
+
 2015-11-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/radius.c (radius_init, radius_authenticate): Add IPv6 support.
