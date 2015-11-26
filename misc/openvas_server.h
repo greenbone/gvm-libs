@@ -42,6 +42,7 @@ extern "C"
 #endif
 #endif
 
+#include <glib.h>
 #include <stdarg.h>
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
