@@ -1,3 +1,17 @@
+2015-11-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r23890.
+
+	Fix left-over file descriptors in the connections table with ssh
+	sockets. Reported by Sebastien Aucouturier.
+
+	* misc/network.c (release_connection_fd): Add parameter to specify
+	whether socket was already closed.
+	(socket_negotiate_ssl, open_stream_connection_ext)
+	(ovas_scanner_context_attach): Adjust release_connection_fd() call.
+	(close_stream_connection): Adjust to always call
+	release_connection_fd() when releasing an openvas fd.
+
 2015-11-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* doc/example.auth.conf: Add RADIUS authentication examples.

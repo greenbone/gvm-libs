@@ -201,7 +201,7 @@ get_connection_fd (void)
 
 
 static int
-release_connection_fd (int fd)
+release_connection_fd (int fd, int already_closed)
 {
   openvas_connection *p;
 
@@ -239,7 +239,7 @@ release_connection_fd (int fd)
           pid_perror ("release_connection_fd: shutdown()");
 #endif
         }
-      if (socket_close (p->fd) < 0)
+      if (!already_closed && socket_close (p->fd) < 0)
         pid_perror ("release_connection_fd: close()");
     }
 
@@ -775,7 +775,7 @@ socket_negotiate_ssl (int fd, openvas_encaps_t transport, struct arglist *args)
   if (open_SSL_connection (fp, cert, key, passwd, cafile) <= 0)
     {
       log_legacy_write ("socket_negotiate_ssl: SSL connection failed.\n");
-      release_connection_fd (fd);
+      release_connection_fd (fd, 0);
       return -1;
     }
   return fd;
@@ -1080,7 +1080,7 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
   return fd;
 
 failed:
-  release_connection_fd (fd);
+  release_connection_fd (fd, 0);
   return -1;
 }
 
@@ -1305,7 +1305,7 @@ ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc)
   return fd;
 
 fail:
-  release_connection_fd (fd);
+  release_connection_fd (fd, 0);
   return -1;
 }
 
@@ -1864,11 +1864,7 @@ close_stream_connection (int fd)
   log_legacy_write ("close_stream_connection TCP:%d (fd=%d)\n", fp->port, fd);
 #endif
 
-  if (0)
-    ;
-  else if (!run_csc_hooks (fd))
-    return 0; /* A hook already closed the fd.  */
-  else if (!OPENVAS_STREAM (fd))     /* Will never happen if debug is on! */
+  if (!OPENVAS_STREAM (fd))     /* Will never happen if debug is on! */
     {
       if (fd < 0 || fd > 1024)
         {
@@ -1878,8 +1874,10 @@ close_stream_connection (int fd)
       shutdown (fd, 2);
       return socket_close (fd);
     }
+  if (!run_csc_hooks (fd))
+    return release_connection_fd (fd, 1);
   else
-    return release_connection_fd (fd);
+    return release_connection_fd (fd, 0);
 }
 
 const char *
