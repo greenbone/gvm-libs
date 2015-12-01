@@ -1,3 +1,13 @@
+2015-12-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_ssh.c (find_session_id): Rename to verify_session_id. Take
+	session_id as parameter instead of lex_ctxt.
+	(nasl_ssh_get_sock, nasl_ssh_set_login, nasl_ssh_userauth)
+	(nasl_ssh_request_exec, nasl_ssh_get_issue_banner)
+	(nasl_ssh_get_server_banner, nasl_ssh_get_host_key)
+	(nasl_ssh_get_auth_methods, nasl_ssh_shell_open, nasl_ssh_shell_read)
+	(nasl_ssh_shell_write): Adjust modified function call.
+
 2015-11-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Fix left-over file descriptors in the connections table with ssh
