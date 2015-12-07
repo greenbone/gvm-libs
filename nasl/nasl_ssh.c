@@ -1198,6 +1198,12 @@ nasl_ssh_userauth (lex_ctxt *lexic)
   }
 }
 
+static void
+exec_ssh_cmd_alarm (int signal)
+{
+  log_legacy_write ("exec_ssh_cmd: Timeout");
+}
+
 /**
  * @brief Execute an ssh command.
  *
@@ -1221,6 +1227,9 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
   int rc, retry = 60;
   ssh_channel channel;
 
+  /* Work-around for LibSSH calling poll() with an infinite timeout. */
+  signal (SIGALRM, exec_ssh_cmd_alarm);
+  alarm (30);
   if ((channel = ssh_channel_new (session)) == NULL)
     {
       log_legacy_write ("ssh_channel_new failed: %s\n",
@@ -1248,6 +1257,8 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
       ssh_channel_free (channel);
       return SSH_ERROR;
     }
+  alarm (0);
+  signal (SIGALRM, _exit);
   /* XXX: ssh_channel_read_timeout() is available for LIBSSH > 0.6. */
   while (ssh_channel_is_open (channel) && !ssh_channel_is_eof (channel)
          && retry-- > 0)
@@ -1638,6 +1649,12 @@ nasl_ssh_get_auth_methods (lex_ctxt *lexic)
   return retc;
 }
 
+static void
+request_ssh_shell_alarm (int signal)
+{
+  log_legacy_write ("request_ssh_shell: Timeout");
+}
+
 /**
  * @brief Open a shell on an ssh channel.
  *
@@ -1649,12 +1666,19 @@ static int
 request_ssh_shell (ssh_channel channel)
 {
   assert (channel);
+
+  /* Work-around for LibSSH calling poll() with an infinite timeout. */
+  signal (SIGALRM, request_ssh_shell_alarm);
+  alarm (30);
   if (ssh_channel_request_pty (channel))
     return -1;
   if (ssh_channel_change_pty_size (channel, 80, 24))
     return -1;
   if (ssh_channel_request_shell (channel))
     return -1;
+  alarm (0);
+  signal (SIGALRM, _exit);
+
   return 0;
 }
 
