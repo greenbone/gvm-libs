@@ -156,7 +156,7 @@ main (int argc, char **argv)
     {"trace", 'T', 0, G_OPTION_ARG_FILENAME, &trace_file,
      "Log actions to <file> (or '-' for stderr)", "<file>"},
     {"config-file", 'c', 0, G_OPTION_ARG_FILENAME, &config_file,
-     "Configuration file", "<filenmae>"},
+     "Configuration file", "<filename>"},
     {"source-iface", 'e', 0, G_OPTION_ARG_STRING, &source_iface,
      "Source network interface for established connections.",
      "<iface_name>"},
