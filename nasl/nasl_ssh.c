@@ -686,7 +686,7 @@ static void
 do_nasl_ssh_disconnect (int tbl_slot)
 {
   if (session_table[tbl_slot].channel)
-    ssh_channel_close (session_table[tbl_slot].channel);
+    ssh_channel_free (session_table[tbl_slot].channel);
   ssh_disconnect (session_table[tbl_slot].session);
   ssh_free (session_table[tbl_slot].session);
   session_table[tbl_slot].session_id = 0;
@@ -1253,7 +1253,6 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
       if (verbose)
         log_legacy_write ("ssh_channel_request_exec failed for '%s': %s\n",
                           cmd, ssh_get_error (session));
-      ssh_channel_close (channel);
       ssh_channel_free (channel);
       return SSH_ERROR;
     }
@@ -1293,8 +1292,6 @@ exec_ssh_cmd (ssh_session session, char *cmd, int verbose, int compat_mode,
   rc = SSH_OK;
 
 exec_err:
-  ssh_channel_send_eof (channel);
-  ssh_channel_close (channel);
   ssh_channel_free (channel);
   return rc;
 }
@@ -1726,11 +1723,7 @@ nasl_ssh_shell_open (lex_ctxt *lexic)
       return NULL;
     }
   if (session_table[tbl_slot].channel)
-    {
-      ssh_channel_send_eof (session_table[tbl_slot].channel);
-      ssh_channel_close (session_table[tbl_slot].channel);
-      ssh_channel_free (session_table[tbl_slot].channel);
-    }
+    ssh_channel_free (session_table[tbl_slot].channel);
   session_table[tbl_slot].channel = channel;
 
   retc = alloc_typed_cell (CONST_INT);
@@ -1856,3 +1849,31 @@ write_ret:
   retc->x.i_val = rc;
   return retc;
 }
+
+/**
+ * @brief Close an ssh shell.
+ * @naslfn{ssh_shell_close}
+ *
+ * @nasluparam
+ *
+ * - An ssh session id.
+ *
+ * @param[in] lexic Lexical context of NASL interpreter.
+ */
+tree_cell *
+nasl_ssh_shell_close (lex_ctxt *lexic)
+{
+  int tbl_slot, session_id;
+
+  session_id = get_int_var_by_num (lexic, 0, -1);
+  if (!verify_session_id (session_id, "ssh_shell_close", &tbl_slot))
+    return NULL;
+  if (session_table[tbl_slot].channel)
+    {
+      ssh_channel_free (session_table[tbl_slot].channel);
+      session_table[tbl_slot].channel = NULL;
+    }
+
+  return NULL;
+}
+
