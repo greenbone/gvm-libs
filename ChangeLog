@@ -1,3 +1,8 @@
+2015-12-21  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* misc/radius.c (radius_authenticate): Use correct parameter type when
+	building without RADIUS support.
+
 2015-11-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r23890.

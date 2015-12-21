@@ -225,7 +225,7 @@ radius_auth_info_from_key_file (GKeyFile *key_file, const char *group)
  */
 int
 radius_authenticate (const char *username, const char *password,
-                     radius_auth_info_t info)
+                     void *info)
 {
   (void) username;
   (void) password;
