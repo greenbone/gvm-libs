@@ -1,5 +1,11 @@
 2015-12-21  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Preparing the openvas-libraries 8.0.6 release.
+
+	* CHANGES: Updated.
+
+2015-12-21  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/radius.c (radius_authenticate): Use correct parameter type when
 	building without RADIUS support.
 

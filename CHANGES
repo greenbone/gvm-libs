@@ -1,3 +1,25 @@
+openvas-libraries 8.0.6 (2015-12-21)
+
+This is the sixth maintenance release of the openvas-libraries 8.0 module for
+the Open Vulnerability Assessment System 8 (OpenVAS-8).
+
+This release adds support for RADIUS authentication and addresses a number of
+smaller issues listed below.
+
+Many thanks to everyone who has contributed to this release:
+Sebastien Aucouturier and Hani Benhabiles.
+
+Main changes compared to 8.0.5:
+* Support for RADIUS authentication has been added.
+* An issue which cause the "min" parameter of a recv () statement to be ignored
+  has been fixed.
+* The stand alone NASL interpreter now supports using an openvassd
+  configuration file, e.g. for setting the KB location.
+* Support for attempting to resolve the hostname's IPv6 address when IPv4
+  address resolution fails has been added.
+* Handling of closed SSH connections has been improved.
+
+
 openvas-libraries 8.0.5 (2015-09-28)
 
 This is the fifth maintenance release of the openvas-libraries 8.0 module for
