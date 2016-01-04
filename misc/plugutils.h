@@ -30,7 +30,7 @@
 
 #include "../base/nvti.h"
 #include "../base/openvas_networking.h"
-#include "kb.h"
+#include "../base/kb.h"
 
 #define LEGACY_OID "1.3.6.1.4.1.25623.1.0."
 

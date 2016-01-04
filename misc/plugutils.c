@@ -41,7 +41,6 @@
 #include <glib.h>
 
 #include "arglists.h"
-#include "kb.h"
 #include "network.h"
 #include "plugutils.h"
 #include "internal_com.h"
@@ -49,6 +48,7 @@
 #include "prefs.h"             /* for prefs_get_bool */
 
 #include "../base/nvticache.h" /* for nvticache_get_by_oid() */
+#include "../base/kb.h"
 
 /* Used to allow debugging for openvas-nasl */
 int global_nasl_debug = 0;

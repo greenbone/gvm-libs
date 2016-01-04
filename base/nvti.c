@@ -49,6 +49,9 @@
 #include "../misc/openvas_logging.h"
 #include "../misc/nvt_categories.h"
 
+#undef  G_LOG_DOMAIN
+#define G_LOG_DOMAIN "lib  nvti"
+
 /**
  * @brief Create a new nvtpref structure filled with the given values.
  *
@@ -1349,8 +1352,7 @@ nvti_to_keyfile (const nvti_t * n, const char *src, const gchar *fn)
   text = g_key_file_to_data (keyfile, NULL, &error);
   if (error != NULL)
     {
-      log_legacy_write ("Error occured while preparing %s: %s\n", fn,
-                        error->message);
+      g_warning ("Error occured while preparing %s: %s\n", fn, error->message);
       g_error_free (error);
     }
   else
@@ -1361,8 +1363,7 @@ nvti_to_keyfile (const nvti_t * n, const char *src, const gchar *fn)
           gchar *cache_dir = g_path_get_dirname (fn);
           if ((g_mkdir_with_parents (cache_dir, 0755) < 0) && (errno != EEXIST))
             {
-              log_legacy_write ("mkdir(%s) : %s\n", cache_dir,
-                                strerror (errno));
+              g_warning ("mkdir(%s) : %s\n", cache_dir, strerror (errno));
               g_free (cache_dir);
               g_free (text);
               g_key_file_free (keyfile);
@@ -1374,7 +1375,7 @@ nvti_to_keyfile (const nvti_t * n, const char *src, const gchar *fn)
 
       if (!fp)
         {                       // again failed
-          log_legacy_write ("fopen(%s) : %s\n", fn, strerror (errno));
+          g_warning ("fopen(%s) : %s\n", fn, strerror (errno));
           g_free (text);
           g_key_file_free (keyfile);
           return (2);
@@ -1394,10 +1395,10 @@ nvti_to_keyfile (const nvti_t * n, const char *src, const gchar *fn)
               src_timestamp.actime = src_stat.st_atime;
               src_timestamp.modtime = src_stat.st_mtime;
               if (utime (fn, &src_timestamp) != 0)
-                log_legacy_write ("utime(%s) : %s\n", fn, strerror (errno));
+                g_warning ("utime(%s) : %s\n", fn, strerror (errno));
             }
           else
-            log_legacy_write ("stat(%s) : %s\n", src, strerror (errno));
+            g_warning ("stat(%s) : %s\n", src, strerror (errno));
         }
 
       g_free (text);

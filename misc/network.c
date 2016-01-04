@@ -45,7 +45,7 @@
 #include <gnutls/x509.h>
 
 #include "network.h"            /* for socket_close() */
-#include "kb.h"                 /* for kb_item_get_str() */
+#include "../base/kb.h"         /* for kb_item_get_str() */
 
 #include "ids_send.h"
 #include "plugutils.h"

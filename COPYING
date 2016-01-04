@@ -36,6 +36,8 @@ base/osp.[c|h]: GPLv2+
 base/pwpolicy.[c|h]: GPLv2+
 base/pidfile.[c|h]: GPLv2+
 base/settings.[c|h]: GPLv2+
+base/kb.h: GPLv2+
+base/kb_redis.c: GPLv2+
 
 misc/arglists.[c|h]: LGPLv2+
 misc/bpf_share.c: GPLv2
@@ -44,7 +46,6 @@ misc/CMakeLists.txt: GPLv2
 misc/ftp_funcs.[c|h]: LGPLv2+
 misc/ids_send.[c|h]: LGPLv2+
 misc/internal_com.h: GPLv2+
-misc/kb.h: GPLv2+
 misc/ldap_connect_auth.[c|h]: GPLv2+
 misc/network.[c|h]: LGPLv2+
 misc/nvt_categories.h: LGPLv2+
@@ -58,7 +59,6 @@ misc/pcap_openvas.h: LGPLv2+
 misc/plugutils.[c|h]: LGPLv2+
 misc/popen.[c|h]: LGPLv2+
 misc/prefs.[c|h]: GPLv2+
-misc/kb_redis.c: GPLv2+
 misc/support.h: GPLv2+
 misc/www_funcs.c: GPLv2
 misc/www_funcs.h: LGPLv2+

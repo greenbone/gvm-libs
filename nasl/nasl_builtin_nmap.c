@@ -63,9 +63,9 @@
 #include "../misc/arglists.h"
 #include "../misc/plugutils.h"
 #include "../misc/popen.h"
-#include "../misc/kb.h"
 #include "../misc/openvas_logging.h"
 #include "../misc/prefs.h"  /* for prefs_get */
+#include "../base/kb.h"
 
 #include "nasl_lex_ctxt.h"
 

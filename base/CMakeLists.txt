@@ -46,9 +46,9 @@ if (MINGW)
 else (MINGW)
   set (FILES array.c credentials.c openvas_hosts.c cvss.c drop_privileges.c
        nvti.c nvticache.c openvas_compress.c openvas_file.c openvas_networking.c
-       openvas_string.c pidfile.c settings.c gpgme_util.c pwpolicy.c)
+       kb_redis.c openvas_string.c pidfile.c settings.c gpgme_util.c pwpolicy.c)
   set (HEADERS array.h credentials.h openvas_hosts.h cvss.h drop_privileges.h
-       nvticache.h nvti.h settings.h openvas_compress.h openvas_file.h
+       kb.h nvticache.h nvti.h settings.h openvas_compress.h openvas_file.h
        openvas_networking.h openvas_string.h pidfile.h gpgme_util.h pwpolicy.h)
 endif (MINGW)
 

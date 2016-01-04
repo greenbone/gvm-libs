@@ -39,11 +39,14 @@
 
 /* for nvticache_t */
 #include "nvticache.h"
-#include "../misc/kb.h"
+#include "kb.h"
 #include "../misc/openvas_logging.h"
 
 #include <string.h> // for strlen
 #include <assert.h>
+
+#undef  G_LOG_DOMAIN
+#define G_LOG_DOMAIN "lib  nvticache"
 
 char *cache_path = NULL;    /* The directory of the cache files. */
 char *src_path = NULL;      /* The directory of the source files. */
@@ -137,8 +140,8 @@ nvticache_get (const gchar *filename)
   dummy = kb_item_get_str (cache_kb, pattern);
   if (dummy)
     {
-      log_legacy_write ("NVT %s with duplicate OID %s will be replaced with %s",
-                        dummy, oid, filename);
+      g_warning ("NVT %s with duplicate OID %s will be replaced with %s",
+                 dummy, oid, filename);
       kb_del_items (cache_kb, pattern);
     }
   g_free (dummy);

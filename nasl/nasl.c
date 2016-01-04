@@ -27,16 +27,16 @@
 #include <unistd.h>             /* for geteuid */
 #include <libssh/libssh.h>      /* for ssh_version */
 
-#include "kb.h"                 /* for kb_new */
 #include "network.h"
 
 #include "nasl.h"
 #include "nasl_lex_ctxt.h"
 #include "exec.h"
 #include "../base/gpgme_util.h" /* for gpgme_check_version */
-#include <../base/openvas_hosts.h> /* for openvas_hosts_* and openvas_host_* */
-#include <../base/nvti.h>
-#include <../misc/prefs.h> /* for prefs_get */
+#include "../base/kb.h"                 /* for kb_new */
+#include "../base/openvas_hosts.h" /* for openvas_hosts_* and openvas_host_* */
+#include "../base/nvti.h"
+#include "../misc/prefs.h" /* for prefs_get */
 
 #include <glib.h>
 
