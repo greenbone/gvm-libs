@@ -1,5 +1,13 @@
 2016-01-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* osp/osp.h (osp_param_type_t): Add OSP_PARAM_TYPE_CRD_U and
+	OSP_PARAM_TYPE_CRD_P.
+
+	* osp/osp.c (osp_param_str_to_type, osp_param_type_str): Handle new
+	types.
+
+2016-01-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Remove circular dependency between base and misc. Fixes build with some
 	environments.
 
