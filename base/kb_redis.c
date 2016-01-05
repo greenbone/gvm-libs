@@ -41,7 +41,6 @@
 #include <glib.h>
 
 #include "kb.h"
-#include "../misc/arglists.h"
 
 #undef  G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  kb_redis"

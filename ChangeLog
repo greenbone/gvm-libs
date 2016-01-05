@@ -1,3 +1,7 @@
+2016-01-05  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* base/kb_redis.c: Remove superfluous include of misc/arglists.h.
+
 2016-01-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* osp/osp.h (osp_param_type_t): Add OSP_PARAM_TYPE_CRD_U and
