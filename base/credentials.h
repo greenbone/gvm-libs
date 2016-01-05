@@ -28,8 +28,6 @@
 #ifndef _OPENVAS_LIBRARIES_BASE_CREDENTIALS_H
 #define _OPENVAS_LIBRARIES_BASE_CREDENTIALS_H
 
-#include "credentials.h"
-
 #include <glib.h>
 
 /**

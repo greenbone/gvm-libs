@@ -27,7 +27,6 @@
 
 #include "../base/openvas_hosts.h"
 #include "../misc/openvas_server.h"
-#include "../misc/openvas_uuid.h"
 #include "../omp/xml.h"
 #include "osp.h"
 

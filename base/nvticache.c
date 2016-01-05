@@ -40,7 +40,6 @@
 /* for nvticache_t */
 #include "nvticache.h"
 #include "kb.h"
-#include "../misc/openvas_logging.h"
 
 #include <string.h> // for strlen
 #include <assert.h>

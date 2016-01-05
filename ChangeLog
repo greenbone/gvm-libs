@@ -1,5 +1,10 @@
 2016-01-05  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/credentials.h, base/cvss.c, base/nvti.c, base/nvticache.c,
+	osp/osp.c: Removed more superfluous includes.
+
+2016-01-05  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/kb_redis.c: Remove superfluous include of misc/arglists.h.
 
 2016-01-04  Hani Benhabiles <hani.benhabiles@greenbone.net>

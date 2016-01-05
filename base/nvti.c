@@ -36,17 +36,12 @@
  */
 
 #include <string.h>
-#include <stdlib.h>     /* for strtod   */
-#include <math.h>       /* for HUGE_VAL */
 #include <stdio.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <utime.h>
 
 #include "nvti.h"
-#include "cvss.h"  /* for get_cvss_score_from_base_metrics */
-#include "../misc/openvas_logging.h"
 #include "../misc/nvt_categories.h"
 
 #undef  G_LOG_DOMAIN
