@@ -33,9 +33,24 @@ if (NOT MINGW)
   pkg_check_modules (ZLIB REQUIRED zlib)
 
   pkg_check_modules (GIO REQUIRED gio-2.0)
+
+  pkg_check_modules (REDIS hiredis>=0.10.1)
+
+  if (NOT REDIS_FOUND)
+    # Make a second attempt to find hiredis without pkg-config
+    message (STATUS "Looking for hiredis...")
+    find_library (HIREDIS hiredis)
+    message (STATUS "Looking for hiredis... ${HIREDIS}")
+    if (NOT HIREDIS)
+      message (SEND_ERROR "The hiredis library is required.")
+    endif (NOT HIREDIS)
+
+    set (REDIS_LDFLAGS "-lhiredis")
+  endif (NOT REDIS_FOUND)
+
 endif (NOT MINGW)
 
-include_directories (${GLIB_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS} ${GNUTLS_INCLUDE_DIRS})
+include_directories (${GLIB_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS} ${REDIS_INCLUDE_DIRS})
 
 if (MINGW)
   set  (FILES array.c credentials.c openvas_hosts.c cvss.c nvti.c nvticache.c
@@ -73,7 +88,7 @@ if (BUILD_SHARED)
       assuan libgpg-error ole32 ws2_32 ffi z shlwapi dnsapi winmm)
     target_link_libraries (openvas_base_shared ${W32LIBS})
   else (MINGW)
-    target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GNUTLS_LDFLAGS} ${ZLIB_LDFLAGS} ${GPGME_LDFLAGS} ${LIBSSH_LDFLAGS})
+    target_link_libraries (openvas_base_shared ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${ZLIB_LDFLAGS} ${GPGME_LDFLAGS} ${REDIS_LDFLAGS})
   endif (MINGW)
 endif (BUILD_SHARED)
 
@@ -89,7 +104,7 @@ add_custom_indent_targets (${FILES})
 # TODO: This is currently only built for BUILD_SHARED
 if (BUILD_SHARED)
   add_executable (test-hosts test-hosts.c)
-  target_link_libraries (test-hosts openvas_base_shared ${GNUTLS_LDFLAGS} openvas_misc_shared ${GLIB_LDFLAGS})
+  target_link_libraries (test-hosts openvas_base_shared ${GLIB_LDFLAGS} ${REDIS_LDFLAGS})
 endif (BUILD_SHARED)
 
 ## Install

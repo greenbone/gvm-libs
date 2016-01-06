@@ -209,7 +209,6 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 pkg_check_modules (GNUTLS REQUIRED gnutls>=2.12)
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.16)
-pkg_check_modules (REDIS hiredis>=0.10.1)
 if (NOT OPENVAS_OMP_ONLY)
   pkg_check_modules (OPENVAS_WMICLIENT libopenvas_wmiclient>=0.0.1)
   pkg_check_modules (OPENVAS_WINCMD libopenvas_wincmd>=0.0.1)
@@ -239,18 +238,6 @@ if (NOT OPENVAS_OMP_ONLY)
     set (PCAP_CFLAGS "-I/usr/include")
   endif (PCAP_CONFIG)
 endif (NOT OPENVAS_OMP_ONLY)
-
-if (NOT REDIS_FOUND)
-  # Make a second attempt to find hiredis without pkg-config
-  message (STATUS "Looking for hiredis...")
-  find_library (HIREDIS hiredis)
-  message (STATUS "Looking for hiredis... ${HIREDIS}")
-  if (NOT HIREDIS)
-    message (SEND_ERROR "The hiredis library is required.")
-  endif (NOT HIREDIS)
-
-  set (REDIS_LDFLAGS "-lhiredis")
-endif (NOT REDIS_FOUND)
 
 if (NOT MINGW)
   # TODO: We do not have a library lookup for those modules

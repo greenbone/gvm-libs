@@ -120,7 +120,7 @@ if (BUILD_STATIC)
   set_target_properties (openvas_misc_static PROPERTIES OUTPUT_NAME "openvas_misc")
   set_target_properties (openvas_misc_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
   set_target_properties (openvas_misc_static PROPERTIES PUBLIC_HEADER "${HEADERS}")
-  target_link_libraries (openvas_misc_static openvas_base_static ${REDIS_LDFLAGS})
+  target_link_libraries (openvas_misc_static openvas_base_static)
 endif (BUILD_STATIC)
 
 if (BUILD_SHARED)
@@ -140,7 +140,7 @@ if (BUILD_SHARED)
   else (MINGW)
     target_link_libraries (openvas_misc_shared ${GNUTLS_LDFLAGS} openvas_base_shared ${UUID_LDFLAGS}
                            ${PCAP_LDFLAGS} ${LIBSSH_LDFLAGS} ${LDAP_LDFLAGS}
-                           ${REDIS_LDFLAGS} ${GCRYPT_LDFLAGS} ${RADIUS_LDFLAGS})
+                           ${GCRYPT_LDFLAGS} ${RADIUS_LDFLAGS})
   endif (MINGW)
 endif (BUILD_SHARED)
 

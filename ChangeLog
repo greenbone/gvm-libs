@@ -1,3 +1,18 @@
+2016-01-06  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Adapt build environment now that the redis dependency has moved from
+	misc to base. Weed out a few superfluous linkings.
+
+	* CMakeLists.txt: Don't check for hiredis here, it is only needed by
+	base and will be checked for there.
+
+	* base/CMakeLists.txt: Add check for hiredis from top-level
+	CMakeLists.txt. Remove GnuTLS include dirs and linker flags since base
+	does not use GnuTLS. Add include dirs and linker flags for hiredis.
+	Remove superfluous linking against LibSSH and openvas_misc_shared.
+
+	* misc/CMakeLists.txt: Remove superfluous linking against hiredis.
+
 2016-01-05  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/credentials.h, base/cvss.c, base/nvti.c, base/nvticache.c,
