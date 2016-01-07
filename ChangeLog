@@ -1,5 +1,10 @@
 2016-01-07  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* nasl/nasl.c: Properly include gnutls.h instead of relying on it
+	being already included.
+
+2016-01-07  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Handle include search path more strictly to encourage stronger
 	separation of individual submodules and to make dependencies between
 	them more visible.

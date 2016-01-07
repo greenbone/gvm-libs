@@ -26,6 +26,7 @@
 #include <stdlib.h>             /* for exit */
 #include <unistd.h>             /* for geteuid */
 #include <libssh/libssh.h>      /* for ssh_version */
+#include <gnutls/gnutls.h>      /* for gnutls_check_version */
 
 #include "../misc/network.h"
 
