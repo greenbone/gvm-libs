@@ -38,6 +38,11 @@ endif (SNMP)
 
 pkg_check_modules (GIO REQUIRED gio-2.0)
 
+if (BUILD_STATIC)
+  pkg_check_modules (ZLIB REQUIRED zlib)
+  pkg_check_modules (REDIS REQUIRED hiredis>=0.10.1)
+endif (BUILD_STATIC)
+
 # The "-D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1" is necessary for GPGME!
 # The "-fno-strict-aliasing" silences warnings caused by macros defined in byteorder.h.
 # Once the warnings have been addressed this flag should be removed.
@@ -130,16 +135,16 @@ endif (BUILD_SHARED)
 # Link the openvas-nasl executable
 add_executable (openvas-nasl nasl.c)
 if (BUILD_STATIC)
-  target_link_libraries (openvas-nasl openvas_nasl_static)
+  target_link_libraries (openvas-nasl openvas_nasl_static ${ZLIB_STATIC_LDFLAGS} ${REDIS_STATIC_LDFLAGS} ${GNUTLS_STATIC_LDFLAGS})
 endif (BUILD_STATIC)
 if (BUILD_SHARED)
-  target_link_libraries (openvas-nasl openvas_nasl_shared)
+  target_link_libraries (openvas-nasl openvas_base_shared openvas_misc_shared openvas_nasl_shared ${GNUTLS_LDFLAGS} ${LIBSSH_LDFLAGS})
 endif (BUILD_SHARED)
 
 # Link the openvas-nasl-lint executable
 add_executable (openvas-nasl-lint nasl-lint.c)
 if (BUILD_STATIC)
-  target_link_libraries (openvas-nasl-lint openvas_nasl_static ${GLIB_LDFLAGS} ${GIO_LDFLAGS})
+  target_link_libraries (openvas-nasl-lint openvas_nasl_static ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${ZLIB_STATIC_LDFLAGS} ${REDIS_STATIC_LDFLAGS} ${GNUTLS_STATIC_LDFLAGS})
 endif (BUILD_STATIC)
 if (BUILD_SHARED)
   target_link_libraries (openvas-nasl-lint openvas_nasl_shared ${GLIB_LDFLAGS} ${GIO_LDFLAGS})
