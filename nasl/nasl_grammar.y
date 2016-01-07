@@ -473,8 +473,8 @@ glob: GLOBAL arg_decl
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "openvas_logging.h"
-#include "openvas_file.h"
+#include "../misc/openvas_logging.h"
+#include "../base/openvas_file.h"
 #include <gcrypt.h>
 
 static void

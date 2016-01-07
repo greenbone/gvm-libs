@@ -35,7 +35,7 @@
 #include <unistd.h>
 #include "byteorder.h"
 #include "smb.h"
-#include "time.h"
+#include <time.h>
 #include "md4.h"
 #include "proto.h"
 #ifndef HAVE_UCBINCLUDE

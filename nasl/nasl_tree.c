@@ -22,7 +22,7 @@
 
 #include <glib.h>               /* for g_free */
 
-#include "regex.h"
+#include <regex.h>
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"

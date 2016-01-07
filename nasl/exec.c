@@ -27,7 +27,7 @@
 #include <glib.h>               /* for g_get_current_dir and others */
 #include <glib/gstdio.h>        /* for g_chdir */
 
-#include "regex.h"
+#include <regex.h>
 #include "../misc/openvas_logging.h"
 #include "../misc/prefs.h"           /* for prefs_get */
 #include "../misc/plugutils.h"

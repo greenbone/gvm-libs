@@ -1,5 +1,18 @@
 2016-01-07  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	More include statement adjustments.
+
+	* misc/ldap_connect_auth.c: Use correct path for openvas_string.h.
+
+	* nasl/nasl_grammar.y: Use correct paths for openvas_logging.h and
+	openvas_file.h.
+
+	* nasl/exec.c, nasl/genrand.c, nasl/nasl_tree.c: Adjust include
+	statements to refer to the system header file and not a non-existing
+	local file.
+
+2016-01-07  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/CMakeLists.txt, misc/CMakeLists.txt, omp/CMakeLists.txt:
 	Specify link dependencies in target_link_libraries as private to not
 	expose them to the internal link interface and thus prevent internal
