@@ -20,8 +20,8 @@
 #include <arpa/inet.h>          /* for inet_ntoa */
 #include <string.h>             /* for bcopy */
 #include <glib.h>               /* for gfree */
-#include "bpf_share.h"          /* for bpf_datalink */
-#include "pcap_openvas.h"       /* for get_datalink_size */
+#include "../misc/bpf_share.h"          /* for bpf_datalink */
+#include "../misc/pcap_openvas.h"       /* for get_datalink_size */
 
 #include <pcap.h>
 

@@ -34,16 +34,16 @@
 
 #include <glib.h>
 
-#include "kb.h"                 /* for KB_TYPE_INT */
-#include "plugutils.h"          /* for plug_set_id */
-#include "network.h"            /* for getpts */
+#include "../base/kb.h"                 /* for KB_TYPE_INT */
+#include "../misc/plugutils.h"          /* for plug_set_id */
+#include "../misc/network.h"            /* for getpts */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
 #include "nasl_func.h"
 #include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
-#include "openvas_logging.h"
+#include "../misc/openvas_logging.h"
 
 #include "nasl_debug.h"
 #include "nasl_scanner_glue.h"

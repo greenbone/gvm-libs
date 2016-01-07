@@ -28,11 +28,11 @@
 #include <sys/time.h>           /* for gettimeofday */
 #include <unistd.h>             /* for usleep */
 
-#include "ftp_funcs.h"          /* for ftp_log_in */
-#include "kb.h"                 /* for KB_TYPE_STR */
-#include "network.h"            /* read_stream_connection_min */
-#include "plugutils.h"          /* plug_get_host_open_port */
-#include "openvas_compress.h"
+#include "../misc/ftp_funcs.h"          /* for ftp_log_in */
+#include "../base/kb.h"                 /* for KB_TYPE_STR */
+#include "../misc/network.h"            /* read_stream_connection_min */
+#include "../misc/plugutils.h"          /* plug_get_host_open_port */
+#include "../base/openvas_compress.h"
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"

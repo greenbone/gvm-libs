@@ -46,9 +46,9 @@
 
 #include <gnutls/gnutls.h>
 
-#include "network.h"
-#include "openvas_networking.h" /* for openvas_source_set_socket */
-#include "plugutils.h"          /* for plug_get_host_ip */
+#include "../misc/network.h"
+#include "../base/openvas_networking.h" /* for openvas_source_set_socket */
+#include "../misc/plugutils.h"          /* for plug_get_host_ip */
 #include "../misc/openvas_logging.h"
 
 #include "nasl.h"

@@ -44,7 +44,7 @@
 #include <gcrypt.h>
 #include <gnutls/gnutls.h>
 
-#include "openvas_logging.h"
+#include "../misc/openvas_logging.h"
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
 #include "nasl_func.h"

@@ -94,9 +94,6 @@ add_definitions (-DOPENVAS_STATE_DIR=\\\"${OPENVAS_STATE_DIR}\\\")
 add_definitions (-DOPENVASLIB_VERSION=\\\"${OPENVASLIB_VERSION}\\\")
 add_definitions (-DOPENVAS_SYSCONF_DIR=\\\"${OPENVAS_SYSCONF_DIR}\\\")
 
-include_directories (../base)
-include_directories (../misc)
-include_directories (../include)
 include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${LIBSSH_INCLUDE_DIRS} ${KSBA_INCLUDE_DIRS})
 
 link_directories (${LIBDIR} ../base ../misc)

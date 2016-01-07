@@ -28,8 +28,8 @@
 #include "nasl_var.h"
 #include "nasl_lex_ctxt.h"
 #include "exec.h"
-#include "plugutils.h"
-#include "openvas_logging.h"
+#include "../misc/plugutils.h"
+#include "../misc/openvas_logging.h"
 
 
 extern FILE *nasl_trace_fp;

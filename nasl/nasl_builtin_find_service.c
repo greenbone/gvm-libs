@@ -33,9 +33,9 @@
 
 #include "../misc/arglists.h"   /* for struct arglist */
 #include "../misc/network.h"    /* for get_encaps_through */
-#include "nvt_categories.h"     /* for ACT_SCANNER */
+#include "../misc/nvt_categories.h"     /* for ACT_SCANNER */
 #include "../misc/plugutils.h"  /* for OPENVAS_ENCAPS_IP */
-#include "nvticache.h"
+#include "../base/nvticache.h"
 
 #include "nasl_lex_ctxt.h"
 

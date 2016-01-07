@@ -27,7 +27,7 @@
 #include <unistd.h>             /* for geteuid */
 #include <libssh/libssh.h>      /* for ssh_version */
 
-#include "network.h"
+#include "../misc/network.h"
 
 #include "nasl.h"
 #include "nasl_lex_ctxt.h"

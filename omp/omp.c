@@ -48,7 +48,7 @@
 
 #include "omp.h"
 #include "xml.h"
-#include "openvas_server.h"
+#include "../misc/openvas_server.h"
 
 #undef G_LOG_DOMAIN
 /**

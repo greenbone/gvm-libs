@@ -35,7 +35,6 @@ set (FILES xml.c omp.c)
 
 set (HEADERS xml.h omp.h)
 
-include_directories (../misc)
 include_directories (${GLIB_INCLUDE_DIRS})
 link_directories( ${CMAKE_CURRENT_BINARY_DIR}/../misc )
 

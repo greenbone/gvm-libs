@@ -33,10 +33,10 @@
 #include <string.h>             /* for strlen */
 #include <unistd.h>             /* for gethostname */
 
-#include "network.h"
+#include "../misc/network.h"
 #include "../base/openvas_networking.h"
-#include "plugutils.h"          /* for plug_get_host_fqdn */
-#include "pcap_openvas.h"       /* for v6_is_local_ip */
+#include "../misc/plugutils.h"          /* for plug_get_host_fqdn */
+#include "../misc/pcap_openvas.h"       /* for v6_is_local_ip */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"

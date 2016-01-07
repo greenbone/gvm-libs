@@ -24,8 +24,6 @@
 
 ## Pass-throughs
 
-include_directories (../include)
-include_directories (../base)
 include_directories (${GLIB_INCLUDE_DIRS})
 include_directories (${GNUTLS_INCLUDE_DIRS})
 

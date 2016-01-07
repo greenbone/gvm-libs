@@ -36,7 +36,7 @@
 #include "iconv.h"
 #include "smb.h"
 #include "proto.h"
-#include "openvas_logging.h"
+#include "../misc/openvas_logging.h"
 
 #ifndef SMB_STRDUP
 #define SMB_STRDUP(s) strdup(s)

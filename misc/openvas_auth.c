@@ -32,8 +32,8 @@
 #include "openvas_uuid.h"
 #endif
 
-#include "openvas_file.h"
-#include "array.h"
+#include "../base/openvas_file.h"
+#include "../base/array.h"
 
 #include <errno.h>
 #include <gcrypt.h>

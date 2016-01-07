@@ -29,9 +29,9 @@
 #include <net-snmp/net-snmp-includes.h>
 
 #include <assert.h>
-#include "openvas_logging.h"
+#include "../misc/openvas_logging.h"
 #include "nasl_lex_ctxt.h"
-#include "plugutils.h"
+#include "../misc/plugutils.h"
 
 /*
  * @brief SNMP Get query value.

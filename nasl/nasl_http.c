@@ -23,8 +23,8 @@
 
 #include "../misc/prefs.h"      /* for prefs_get */
 
-#include "kb.h"                 /* for kb_item_get_str */
-#include "plugutils.h"          /* plug_get_host_fqdn */
+#include "../base/kb.h"                 /* for kb_item_get_str */
+#include "../misc/plugutils.h"          /* plug_get_host_fqdn */
 
 #include "nasl_tree.h"
 #include "nasl_global_ctxt.h"
@@ -38,7 +38,7 @@
 
 #include "nasl_http.h"
 
-#include "www_funcs.h"          /* for build_encode_URL */
+#include "../misc/www_funcs.h"          /* for build_encode_URL */
 
 /*-----------------[ http_* functions ]-------------------------------*/
 

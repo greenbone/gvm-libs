@@ -52,7 +52,7 @@
 #include <ctype.h>
 #include <inttypes.h>
 
-#include "plugutils.h"
+#include "../misc/plugutils.h"
 #include "nasl_wmi.h"
 #include "openvas_wmi_interface.h"
 #include "../misc/openvas_logging.h"

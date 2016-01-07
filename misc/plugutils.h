@@ -26,7 +26,7 @@
 #ifndef OPENVAS_PLUGUTILS_H
 #define OPENVAS_PLUGUTILS_H
 
-#include "../misc/arglists.h"
+#include "arglists.h"
 
 #include "../base/nvti.h"
 #include "../base/openvas_networking.h"

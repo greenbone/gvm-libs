@@ -36,7 +36,7 @@
 #include "hmacmd5.h"
 #include "smb_crypt.h"
 #include "nasl_debug.h"
-#include "openvas_logging.h"
+#include "../misc/openvas_logging.h"
 
 #include <ctype.h>
 #include <stdlib.h>
