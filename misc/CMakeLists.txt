@@ -136,7 +136,7 @@ if (BUILD_SHARED)
        gcrypt gpgme assuan libgpg-error ole32 ws2_32 ffi z shlwapi dnsapi winmm)
     target_link_libraries (openvas_misc_shared openvas_base_shared ${W32LIBS})
   else (MINGW)
-    target_link_libraries (openvas_misc_shared ${GNUTLS_LDFLAGS} openvas_base_shared ${UUID_LDFLAGS}
+    target_link_libraries (openvas_misc_shared PRIVATE ${GNUTLS_LDFLAGS} openvas_base_shared ${UUID_LDFLAGS}
                            ${PCAP_LDFLAGS} ${LIBSSH_LDFLAGS} ${LDAP_LDFLAGS}
                            ${GCRYPT_LDFLAGS} ${RADIUS_LDFLAGS})
   endif (MINGW)

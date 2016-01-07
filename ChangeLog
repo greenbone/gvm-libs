@@ -1,5 +1,12 @@
 2016-01-07  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/CMakeLists.txt, misc/CMakeLists.txt, omp/CMakeLists.txt:
+	Specify link dependencies in target_link_libraries as private to not
+	expose them to the internal link interface and thus prevent internal
+	overlinking when linking between submodules.
+
+2016-01-07  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* nasl/CMakeLists.txt: Set linker flags explicitly when building
 	binaries.
 
