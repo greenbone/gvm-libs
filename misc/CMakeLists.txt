@@ -137,7 +137,7 @@ if (BUILD_SHARED)
     target_link_libraries (openvas_misc_shared openvas_base_shared ${W32LIBS})
   else (MINGW)
     target_link_libraries (openvas_misc_shared LINK_PRIVATE ${GNUTLS_LDFLAGS} openvas_base_shared ${UUID_LDFLAGS}
-                           ${PCAP_LDFLAGS} ${LIBSSH_LDFLAGS} ${LDAP_LDFLAGS}
+                           ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${LIBSSH_LDFLAGS} ${LDAP_LDFLAGS}
                            ${GCRYPT_LDFLAGS} ${RADIUS_LDFLAGS})
   endif (MINGW)
 endif (BUILD_SHARED)

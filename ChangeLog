@@ -1,5 +1,11 @@
 2016-01-08  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* misc/CMakeLists.txt, nasl/CMakeLists.txt: Explicitly link against
+	more libraries used in the submodules instead of relying on them being
+	already in the link interface of other submodules.
+
+2016-01-08  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/CMakeLists.txt, misc/CMakeLists.txt, omp/CMakeLists.txt: Use
 	LINK_PRIVATE signature instead of PRIVATE for compatibility with CMake
 	< 3.0.
