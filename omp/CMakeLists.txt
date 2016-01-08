@@ -58,7 +58,7 @@ if (BUILD_SHARED)
                            -lgcrypt -lgpg-error -lintl -lws2_32 -liconv -lole32
                            -lz -lkernel32)
   else (MINGW)
-    target_link_libraries (openvas_omp_shared PRIVATE openvas_misc_shared ${GLIB_LDFLAGS} ${GNUTLS_LDFLAGS})
+    target_link_libraries (openvas_omp_shared LINK_PRIVATE openvas_misc_shared ${GLIB_LDFLAGS} ${GNUTLS_LDFLAGS})
   endif (MINGW)
 endif (BUILD_SHARED)
 
