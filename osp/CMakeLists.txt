@@ -48,7 +48,7 @@ if (BUILD_SHARED)
   set_target_properties (openvas_osp_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
   set_target_properties (openvas_osp_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-  target_link_libraries (openvas_osp_shared openvas_base_shared openvas_misc_shared openvas_omp_shared ${GLIB_LDFLAGS})
+  target_link_libraries (openvas_osp_shared openvas_base_shared openvas_misc_shared openvas_omp_shared ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
 
 ## Install

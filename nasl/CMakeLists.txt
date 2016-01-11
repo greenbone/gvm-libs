@@ -130,7 +130,8 @@ if (BUILD_SHARED)
                          ${GLIB_LDFLAGS} ${GCRYPT_LDFLAGS} ${GPGME_LDFLAGS} m
                          ${OPENVAS_WMICLIENT_LDFLAGS} ${OPENVAS_WINCMD_LDFLAGS}
                          ${GNUTLS_LDFLAGS} ${PCAP_LDFLAGS} ${LIBSSH_LDFLAGS}
-                         ${KSBA_LDFLAGS} ${SNMP_LDFLAGS})
+                         ${KSBA_LDFLAGS} ${SNMP_LDFLAGS}
+                         ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
 
 # Link the openvas-nasl executable
