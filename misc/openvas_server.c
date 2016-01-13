@@ -800,12 +800,12 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
      possible. At least from 3.0 this is an option:
      "NONE:+VERS-TLS1.0:+CIPHER-ALL:+COMP-ALL:+RSA:+DHE-RSA:+DHE-DSS:+MAC-ALL"
      But in fact this function is only for OpenVAS internal
-     purposes, not for scanning abilities. So, the conservative "SECURE"
+     purposes, not for scanning abilities. So, the conservative "NORMAL"
      is chosen.
   */
 
   if ((err_gnutls = gnutls_priority_set_direct (*server_session,
-                                                priority? priority : "SECURE",
+                                                priority? priority : "NORMAL",
                                                 NULL)))
     {
       g_warning ("%s: failed to set tls priorities: %s\n", __FUNCTION__,

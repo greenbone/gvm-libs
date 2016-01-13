@@ -1,3 +1,10 @@
+2016-01-13  Benoît Allard  <benoit.allard@greenbone.net>
+
+	Patch originally from Guillaume Castagnino.
+
+	* misc/openvas_server.c: Replace non-existent 'SECURE' cipher suite
+	  with 'NORMAL'.
+
 2016-01-11  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Make a better distinction between hardening flags for compiling and
