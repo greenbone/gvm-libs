@@ -1,3 +1,8 @@
+2016-01-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* doc/example.auth.conf: Fix path hint for auth.conf. Reported
+	by Chris Fischer.
+
 2016-01-13  Benoît Allard  <benoit.allard@greenbone.net>
 
 	Backport r24104 (Patch originally from Guillaume Castagnino)
