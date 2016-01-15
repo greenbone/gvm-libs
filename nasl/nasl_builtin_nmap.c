@@ -1158,7 +1158,7 @@ nmap_run_and_parse (nmap_t * nmap)
 
               /* display the problematic chunk */
               chunk[len] = '\0';
-              dbg ("Error occured while parsing: %s\n", chunk);
+              dbg ("Error occurred while parsing: %s\n", chunk);
 
               ret = -1;
             }

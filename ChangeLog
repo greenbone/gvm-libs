@@ -1,5 +1,14 @@
 2016-01-15  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/nvti.c, misc/ldap_connect_auth.c, misc/ldap_connect_auth.h,
+	misc/openvas_logging.c, misc/www_funcs.c, nasl/exec.c,
+	nasl/nasl_builtin_nmap.c, nasl/nasl_builtin_openvas_tcp_scanner.c,
+	nasl/nasl_builtin_synscan.c, nasl/nasl_grammar.y, nasl/nasl_init.c,
+	nasl/nasl_scanner_glue.c: Fixed a number of misspellings in comments
+	and messages.
+
+2016-01-15  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* misc/CMakeLists.txt: Remove superfluous linking against liblber when
 	building with LDAP support.
 

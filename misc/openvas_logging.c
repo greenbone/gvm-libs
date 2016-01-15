@@ -811,7 +811,7 @@ setup_log_handlers (GSList * openvas_log_config_list)
  * @brief Sets up a simple logging function
  *
  * The openvas-scanner has not yet been changed to use the new logging
- * facility.  However, it uses libary functions and those should use a
+ * facility.  However, it uses library functions and those should use a
  * proper log function instead of writing to stderr.  This function
  * can be used to register an existing log handler which will then be
  * used by @ref log_legacy_write.

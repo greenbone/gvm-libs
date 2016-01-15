@@ -559,7 +559,7 @@ file_md5sum (const char *filename)
  *
  * @return    0  in case of success. Then, pc->fp is set with
  *               the respective file descriptor
- *            -1 if either the filename was not found/accessable
+ *            -1 if either the filename was not found/accessible
  *               or the signature verification failed (provided
  *               signature checking is enabled.
  *               Also, the pc->fp is set to NULL.

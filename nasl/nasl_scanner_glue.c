@@ -1061,6 +1061,6 @@ nasl_scanner_add_port (lex_ctxt * lexic)
 tree_cell *
 nasl_scanner_status (lex_ctxt * lexic)
 {
-  /* Kept for backward compatiblity. */
+  /* Kept for backward compatibility. */
   return FAKE_CELL;
 }

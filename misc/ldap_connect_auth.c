@@ -57,7 +57,7 @@
 /**
  * @brief Authenticate against an ldap directory server.
  *
- * @param info      Schema and adress to use.
+ * @param info      Schema and address to use.
  * @param username  Username to authenticate.
  * @param password  Password to use.
  *
@@ -169,7 +169,7 @@ ldap_auth_info_auth_dn (const ldap_auth_info_t info, const gchar * username)
  * @param[in] force_encryption  Whether or not to abort if connection
  *                              encryption via StartTLS or ldaps failed.
  *
- * @return LDAP Handle or NULL if an error occured, authentication failed etc.
+ * @return LDAP Handle or NULL if an error occurred, authentication failed etc.
  */
 LDAP *
 ldap_auth_bind (const gchar * host, const gchar * userdn,
@@ -203,7 +203,7 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
       return NULL;
     }
 
-  /* Fail if server doesnt talk LDAPv3 or StartTLS initialization fails. */
+  /* Fail if server doesn't talk LDAPv3 or StartTLS initialization fails. */
   ldap_return = ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
   if (ldap_return != LDAP_SUCCESS)
     {
@@ -352,7 +352,7 @@ ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
 /**
  * @brief Dummy function for Manager.
  *
- * @param ldap_auth_info      Schema and adress to use.
+ * @param ldap_auth_info      Schema and address to use.
  * @param username            Username to authenticate.
  * @param password            Password to use.
  *

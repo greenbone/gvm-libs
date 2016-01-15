@@ -65,7 +65,7 @@ made a carriage return after the HTTP/1.0 and printed the rest of the log
 over the Ip Address field.
 We can also make it look like the request came from another Ip address, and
 this is preferable because like this the SysAdmin will see no apparent
-strange behaviour in the logfile. Just be carefull with the timestamp !!
+strange behaviour in the logfile. Just be careful with the timestamp !!
 So the request should be :
 
 GET / HTTP/1.0 \r10.0.0.1 - - [24/Oct/2001:19:00:32 +0100] "GET /

@@ -1348,8 +1348,8 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
         }
 
       /*
-       * Anything substracted from a string is converted to a string
-       * Otherwise anything substracted from integer is converted into an
+       * Anything subtracted from a string is converted to a string
+       * Otherwise anything subtracted from integer is converted into an
        * integer
        */
       if (tc1->type == CONST_DATA || tc2->type == CONST_DATA)

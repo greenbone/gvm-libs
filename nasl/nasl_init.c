@@ -623,7 +623,7 @@ static struct
   /* Since OpenVAS-8, libssh is mandatory. To maintain compatibility of
      the NVT feed with older versions, this variable needs to be set.
      Once OpenVAS-7 is retired, this setting of the variable can be removed
-     and also any occurances in the NVTs, which should lead to some
+     and also any occurrences in the NVTs, which should lead to some
      significant NASL code removals. */
   "_HAVE_LIBSSH", 1},
   {

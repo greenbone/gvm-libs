@@ -1347,7 +1347,7 @@ nvti_to_keyfile (const nvti_t * n, const char *src, const gchar *fn)
   text = g_key_file_to_data (keyfile, NULL, &error);
   if (error != NULL)
     {
-      g_warning ("Error occured while preparing %s: %s\n", fn, error->message);
+      g_warning ("Error occurred while preparing %s: %s\n", fn, error->message);
       g_error_free (error);
     }
   else

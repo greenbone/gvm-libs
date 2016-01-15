@@ -28,7 +28,7 @@
 
 #include <glib.h>
 
-/** @brief Authentication schema and adress type. */
+/** @brief Authentication schema and address type. */
 typedef struct ldap_auth_info *ldap_auth_info_t;
 
 /**
@@ -39,7 +39,7 @@ typedef struct ldap_auth_info *ldap_auth_info_t;
  */
 struct ldap_auth_info
 {
-  gchar *ldap_host;             ///< Adress of the ldap server, might include port.
+  gchar *ldap_host;             ///< Address of the ldap server, might include port.
   gchar *auth_dn;               ///< DN to authenticate with.
   gboolean allow_plaintext;     ///< !Whether or not StartTLS is required.
 };

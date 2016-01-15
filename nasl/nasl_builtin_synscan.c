@@ -233,7 +233,7 @@ openbpf (struct in_addr dst, struct in_addr * src, int magic)
 
 	iface = routethrough (&dst, src);
 #ifdef DEBUG
-        printf ("Source adress found via routethrough: %s\n", inet_ntoa (*src));
+        printf ("Source address found via routethrough: %s\n", inet_ntoa (*src));
 #endif
         snprintf (filter, sizeof (filter), "tcp and src host %s and dst port %d", inet_ntoa (dst), magic);
 #ifdef DEBUG
