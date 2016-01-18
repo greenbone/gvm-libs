@@ -230,16 +230,6 @@ script_tag (lex_ctxt * lexic)
       return FAKE_CELL;
     }
 
-  /* Special treatment until OpenVAS-5 is retired and risk_factor
-     settings via script_tag() have been removed in all NVTs.
-     The risk_factor is meanwhile computed from CVSS.
-     Dopping it here reduces overhead.
-   */
-  if (!strcmp (name, "risk_factor"))
-    {
-      return FAKE_CELL;
-    }
-
   if (strchr (value, '|'))
     {
       nasl_perror (lexic, "%s tag contains | separator", name);
