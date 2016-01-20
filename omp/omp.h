@@ -55,9 +55,7 @@ typedef struct
  * @brief Sensible default values for omp_authenticate_info_opts_t
  */
 static const omp_authenticate_info_opts_t omp_authenticate_info_opts_defaults =
-  {
-    0
-  };
+  { 0, "", "", NULL, NULL, NULL, NULL };
 
 /**
  * @brief Struct holding options for omp get_report command.
@@ -142,7 +140,7 @@ typedef struct
  * @brief Sensible default values for omp_get_tasks_opts_t.
  */
 static const omp_get_task_opts_t omp_get_task_opts_defaults =
-  { 0 };
+  { "", "", 0, 0 };
 
 /**
  * @brief Struct holding options for omp create_task command.
@@ -174,7 +172,7 @@ typedef struct
  * @brief Sensible default values for omp_get_report_opts_t.
  */
 static const omp_create_task_opts_t omp_create_task_opts_defaults =
-  { 0 };
+  { NULL, "", "", "", "", "", "", "", "", "", NULL, 0, "", "", "", "", 0 };
 
 /**
  * @brief Struct holding options for omp create_target command.
@@ -201,7 +199,7 @@ typedef struct
  * @brief Sensible default values for omp_get_report_opts_t.
  */
 static const omp_create_target_opts_t omp_create_target_opts_defaults =
-  { 0 };
+  { 0, "", "", "", "", "", "", "", "", "", "", 0, 0 };
 
 /**
  * @brief Struct holding options for omp get_system_reports command.
@@ -218,7 +216,7 @@ typedef struct
  * @brief Sensible default values for omp_get_report_opts_t.
  */
 static const omp_get_system_reports_opts_t omp_get_system_reports_opts_defaults =
-  { 0 };
+  { "", "", "", 0 };
 
 /**
  * @brief Struct holding options for omp create_lsc_credential command.
@@ -240,7 +238,7 @@ typedef struct
  * @brief Sensible default values for omp_create_lsc_credential_opts_t.
  */
 static const omp_create_lsc_credential_opts_t omp_create_lsc_credential_opts_defaults =
-  { 0 };
+  { "", "", "", "", "", "", "", "", "" };
 
 /**
  * @brief Struct holding options for various omp delete_[...] commands.

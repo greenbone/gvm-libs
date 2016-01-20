@@ -1,3 +1,7 @@
+2016-01-20  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* omp/omp.h: Fully initialize the structs.
+
 2016-01-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_scanner_glue.c (script_tag): Finally now that
