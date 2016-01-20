@@ -113,16 +113,6 @@ static init_func libfuncs[] = {
   {"security_message", security_message, 1,
    {"data", "port", "proto", "protocol", NULL}},
 
-  /* Once OpenVAS-5 is retired and the function calls are replaced
-     in all NASL scripts by security_message, these functions can removed
-     from the NASL API */
-  {"security_warning", security_message, 1,
-   {"data", "port", "proto", "protocol", NULL}},
-  {"security_note", security_message, 1,
-   {"data", "port", "proto", "protocol", NULL}},
-  {"security_hole", security_message, 1,
-   {"data", "port", "proto", "protocol", NULL}},
-
   {"log_message", log_message, 1, {"data", "port", "proto", "protocol", NULL}},
   {"error_message", error_message, 1,
    {"data", "port", "proto", "protocol", NULL}},

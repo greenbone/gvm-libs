@@ -411,4 +411,4 @@ if (soc)
   result = result + "result: " + r + '\n';
 }
 
-security_note(data: result);
+security_message(data: result);
