@@ -1,3 +1,8 @@
+2016-02-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/plugutils.c (plug_replace_key): Add debug information similar to
+	set_kb_item().
+
 2016-01-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* nasl/nasl_init.c (libfuncs): Remove NASL functions

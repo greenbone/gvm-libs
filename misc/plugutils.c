@@ -679,6 +679,14 @@ plug_replace_key (struct arglist *args, char *name, int type, void *value)
     kb_item_set_str (kb, name, value);
   else if (type == ARG_INT)
     kb_item_set_int (kb, name, GPOINTER_TO_SIZE (value));
+  if (global_nasl_debug == 1)
+    {
+      if (type == ARG_STRING)
+        log_legacy_write ("replace key %s -> %s\n", name, (char *) value);
+      else if (type == ARG_INT)
+        log_legacy_write ("replace key %s -> %d\n", name,
+                          (int) GPOINTER_TO_SIZE (value));
+    }
 }
 
 void
