@@ -1,5 +1,17 @@
 2016-02-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Remove usage of the depricated Glib Trash Stack.
+
+	* nasl/nasl_builtin_nmap.c (nmap_t): Remove free_ports and free_scripts.
+	(nmap_destroy): Adjust for nmap_t changes.
+	(port_destroy): Free the port.
+	(nse_script_destroy): Free the script.
+	(nmap_get_free_port, nmap_get_free_nse_script): Remove unused functions.
+	(tmphost_add_port, tmphost_add_nse_script): Use g_malloc0() to allocate
+	memory.
+
+2016-02-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl.c (main): Add --kb option to set a KB key.
 
 	* doc/openvas-nasl.1: Update documentation.
