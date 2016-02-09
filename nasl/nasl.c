@@ -136,6 +136,7 @@ main (int argc, char **argv)
   static gboolean authenticated_mode = FALSE;
   static gchar *include_dir = NULL;
   static gchar **nasl_filenames = NULL;
+  static gchar **kb_values = NULL;
   static int debug_tls = 0;
   GError *error = NULL;
   GOptionContext *option_context;
@@ -170,6 +171,8 @@ main (int argc, char **argv)
      "Search for includes in <dir>", "<dir>"},
     {"debug-tls", 0, 0, G_OPTION_ARG_INT, &debug_tls,
      "Enable TLS debugging at <level>", "<level>"},
+    {"kb", 'k', 0, G_OPTION_ARG_STRING_ARRAY, &kb_values,
+     "Set KB key to vaue. Can be used multiple times", "<key=value>"},
     {G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &nasl_filenames,
      "Absolute path to one or more nasl scripts", "NASL_FILE..."},
     {NULL}
@@ -322,6 +325,21 @@ main (int argc, char **argv)
                   continue;
                 }
               nvti_free (nvti);
+            }
+          if (kb_values)
+            {
+              while (*kb_values)
+                {
+                  gchar **splits = g_strsplit (*kb_values, "=", -1);
+                  if (splits[2] || !splits[1])
+                    {
+                      fprintf (stderr, "Erroneous --kb entry %s\n", *kb_values);
+                      exit (1);
+                    }
+                  kb_item_add_str (kb, splits[0], splits[1]);
+                  kb_values++;
+                  g_strfreev (splits);
+                }
             }
           if (exec_nasl_script (script_infos, nasl_filenames[n],
                                 arg_get_value (script_infos, "OID"), mode) < 0)
