@@ -1,3 +1,10 @@
+2016-02-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r24350.
+
+	* nasl/time.c (TIME_T_MAX): Fix define to compile correctly with clang
+	version 3.7.
+
 2016-02-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r24344.

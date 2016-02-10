@@ -44,7 +44,7 @@
 		    : ~ (time_t) 0 << (sizeof (time_t) * CHAR_BIT - 1))
 #endif
 #ifndef TIME_T_MAX
-#define TIME_T_MAX (~ (time_t) 0 - TIME_T_MIN)
+#define TIME_T_MAX LONG_MAX
 #endif
 
 #define NTTIME_INFINITY (NTTIME)0x8000000000000000LL
