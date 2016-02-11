@@ -1,5 +1,10 @@
 2016-02-11  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* nasl/nasl_builtin_openvas_tcp_scanner.c, nasl/nasl_builtin_synscan.c:
+	  The formatting for 'unsigned int' is '%u'.
+
+2016-02-11  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* nasl/charcnv.c (convert_string_internal_ntlmssp): Fix an obvious
 	  mistake in the condition checking.
 

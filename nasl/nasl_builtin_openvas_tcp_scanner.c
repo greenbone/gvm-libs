@@ -868,9 +868,9 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 			    ports_states[sockets[i].port] = GRAB_PORT_OPEN;
 			    scanner_add_port(desc, sockets[i].port, "tcp");
 			    wait_sock_nb ++;
-			    snprintf(kb, sizeof(kb), "TCPScanner/CnxTime1000/%d", sockets[i].port);
+			    snprintf(kb, sizeof(kb), "TCPScanner/CnxTime1000/%u", sockets[i].port);
 			    plug_set_key(desc, kb, ARG_INT, GSIZE_TO_POINTER(x/1000));
-			    snprintf(kb, sizeof(kb), "TCPScanner/CnxTime/%d", sockets[i].port);
+			    snprintf(kb, sizeof(kb), "TCPScanner/CnxTime/%u", sockets[i].port);
 			    plug_set_key(desc, kb, ARG_INT, GSIZE_TO_POINTER((x + 500000) / 1000000));
 			    sockets[i].tictac = ti;
 			  }
@@ -902,20 +902,20 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 			    buf2[2 * x - 1] = '\0';
 			    if (flag)
 			      {
-				snprintf(kb, sizeof(kb),  "BannerHex/%d", sockets[i].port);
+				snprintf(kb, sizeof(kb),  "BannerHex/%u", sockets[i].port);
 				plug_set_key(desc, kb, ARG_STRING, buf2);
 			      }
 
 			    buf[x] = '\0';
-			    snprintf(kb, sizeof(kb), "Banner/%d", sockets[i].port);
+			    snprintf(kb, sizeof(kb), "Banner/%u", sockets[i].port);
 			    plug_set_key(desc, kb, ARG_STRING, buf);
 #ifdef DISPLAY
-			    printf("Banner for port %d: %s\n", sockets[i].port, buf);
+			    printf("Banner for port %u: %s\n", sockets[i].port, buf);
 #endif
 			    x = DIFFTVu(ti, sockets[i].tictac) / 1000;
-			    snprintf(kb, sizeof(kb), "TCPScanner/RwTime1000/%d", sockets[i].port);
+			    snprintf(kb, sizeof(kb), "TCPScanner/RwTime1000/%u", sockets[i].port);
 			    plug_set_key(desc, kb, ARG_INT, GSIZE_TO_POINTER(x));
-			    snprintf(kb, sizeof(kb), "TCPScanner/RwTime/%d", sockets[i].port);
+			    snprintf(kb, sizeof(kb), "TCPScanner/RwTime/%u", sockets[i].port);
 			    plug_set_key(desc, kb, ARG_INT, GSIZE_TO_POINTER((x + 500) / 1000));
 			  }
 #if DEBUG > 0
@@ -936,17 +936,17 @@ banner_grab(const struct in6_addr *pia, const char* portrange,
 	    if (sockets[i].fd >= 0 && DIFFTV(ti, sockets[i].tictac) >= read_timeout)
 	      {
 #if DEBUG > 0
-		log_legacy_write ("openvas_tcp_scanner(%s): pass #%d: timeout on port %d: %d\n", inet_ntoa(*pia), pass, sockets[i].port, DIFFTV(ti, sockets[i].tictac));
+		log_legacy_write ("openvas_tcp_scanner(%s): pass #%d: timeout on port %u: %d\n", inet_ntoa(*pia), pass, sockets[i].port, DIFFTV(ti, sockets[i].tictac));
 #endif
 		switch(sockets[i].state)
 		  {
 		  case GRAB_SOCKET_OPEN:
 #ifdef DISPLAY
-		    printf(">> %d: NO BANNER\n", sockets[i].port);
+		    printf(">> %u: NO BANNER\n", sockets[i].port);
 #endif
 		    timeout_nb ++;
 		    wait_sock_nb --;
-		    snprintf(kb, sizeof(kb), "/tmp/NoBanner/%d", sockets[i].port);
+		    snprintf(kb, sizeof(kb), "/tmp/NoBanner/%u", sockets[i].port);
 		    plug_set_key(desc, kb, ARG_INT, (void *) 1);
 		    break;
 		  case GRAB_SOCKET_OPENING:

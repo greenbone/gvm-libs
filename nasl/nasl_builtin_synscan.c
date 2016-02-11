@@ -725,7 +725,7 @@ scan (struct arglist * env, char* hostname, char* portrange,
   for (i = 0; i < num ; i += 2)
     {
 #ifdef DEBUG
-      printf ("====> Sending packet to (at least) %d\n", ports[i]);
+      printf ("====> Sending packet to (at least) %u\n", ports[i]);
 #endif
       if (family == AF_INET)
         packets = sendpacket (soc, bpf, skip, dst, src, ports[i], magic,
@@ -736,7 +736,7 @@ scan (struct arglist * env, char* hostname, char* portrange,
       if (i + 1 < num)
         {
 #ifdef DEBUG
-          printf ("=====>> Sniffing %d\n", ports[i+1]);
+          printf ("=====>> Sniffing %u\n", ports[i+1]);
 #endif
           if (family == AF_INET)
             packets = sendpacket (soc, bpf, skip, dst, src, ports[i + 1],
