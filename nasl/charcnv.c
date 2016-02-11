@@ -368,7 +368,7 @@ static size_t convert_string_internal_ntlmssp(charset_t from, charset_t to,
       return destlen - o_len;
 
     if (((from == CH_UTF16LE)||(from == CH_UTF16BE)) &&
-    ((to != CH_UTF16LE)||(to != CH_UTF16BE))) {
+    ((to != CH_UTF16LE)&&(to != CH_UTF16BE))) {
     /* Can't convert from utf16 any endian to multibyte.
        Replace with the default fail char.
      */

@@ -1,3 +1,8 @@
+2016-02-11  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* nasl/charcnv.c (convert_string_internal_ntlmssp): Fix an obvious
+	  mistake in the condition checking.
+
 2016-02-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/time.c (TIME_T_MAX): Fix define to compile correctly with clang
