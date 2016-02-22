@@ -37,8 +37,7 @@ typedef enum {
   OSP_PARAM_TYPE_BOOLEAN,
   OSP_PARAM_TYPE_OVALDEF_FILE,
   OSP_PARAM_TYPE_SELECTION,
-  OSP_PARAM_TYPE_CRD_U,
-  OSP_PARAM_TYPE_CRD_P,
+  OSP_PARAM_TYPE_CRD_UP,
 } osp_param_type_t;
 
 typedef struct osp_param osp_param_t;

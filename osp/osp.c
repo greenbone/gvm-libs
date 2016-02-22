@@ -452,10 +452,8 @@ osp_param_str_to_type (const char *str)
     return OSP_PARAM_TYPE_OVALDEF_FILE;
   else if (!strcmp (str, "selection"))
     return OSP_PARAM_TYPE_SELECTION;
-  else if (!strcmp (str, "credential_username"))
-    return OSP_PARAM_TYPE_CRD_U;
-  else if (!strcmp (str, "credential_password"))
-    return OSP_PARAM_TYPE_CRD_P;
+  else if (!strcmp (str, "credential_up"))
+    return OSP_PARAM_TYPE_CRD_UP;
   assert (0);
   return 0;
 }
@@ -481,10 +479,8 @@ osp_param_type_str (const osp_param_t *param)
     return "ovaldef_file";
   else if (type == OSP_PARAM_TYPE_SELECTION)
     return "selection";
-  else if (type == OSP_PARAM_TYPE_CRD_U)
-    return "credential_username";
-  else if (type == OSP_PARAM_TYPE_CRD_P)
-    return "credential_password";
+  else if (type == OSP_PARAM_TYPE_CRD_UP)
+    return "credential_up";
   assert (0);
   return NULL;
 }
