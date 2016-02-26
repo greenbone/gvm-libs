@@ -1,3 +1,27 @@
+openvas-libraries 8.0.7 (2016-02-26)
+
+This is the seventh maintenance release of the openvas-libraries 8.0 module for
+the Open Vulnerability Assessment System 8 (OpenVAS-8).
+
+This release changes the default fallback cipher suite to address issues with
+the communication between OpenVAS modules after an update of the GnuTLS
+library. It also adds support for generating SHA256 check sums to the NASL
+language and addresses other minor issues.
+
+Many thanks to everyone who has contributed to this release:
+Benoît Allard, Hani Benhabiles, Guillaume Castagnino, Christian Fischer and
+Jan-Oliver Wagner.
+
+Main changes compared to 8.0.6:
+* The default fallback cipher suite has been changed from 'SECURE' to 'NORMAL'
+  to be consistent with the (documented) behaviour of the GnuTLS library. This
+  solves an issue where OpenVAS modules were unable to communicate after an
+  update of the GnuTLS library.
+* Support for generating SHA256 check sums in NASL has been added.
+* A number of compiler warnings have been addressed.
+* Documentation has been updated.
+
+
 openvas-libraries 8.0.6 (2015-12-21)
 
 This is the sixth maintenance release of the openvas-libraries 8.0 module for
