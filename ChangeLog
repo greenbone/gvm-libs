@@ -1,3 +1,11 @@
+2016-02-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_crypto.c (nasl_sha256): New function.
+
+	* nasl/nasl_crypto.h: Add new function header.
+
+	* nasl/nasl_init.c (libfuncs): Add SHA256() function.
+
 2016-02-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* osp/osp.h (osp_param_type_t): Add OSP_PARAM_TYPE_CRD_UP, remove

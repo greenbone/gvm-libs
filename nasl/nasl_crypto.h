@@ -27,6 +27,7 @@ tree_cell *nasl_md4 (lex_ctxt *);
 tree_cell *nasl_md5 (lex_ctxt *);
 tree_cell *nasl_sha (lex_ctxt *);
 tree_cell *nasl_sha1 (lex_ctxt *);
+tree_cell *nasl_sha256 (lex_ctxt *);
 tree_cell *nasl_ripemd160 (lex_ctxt *);
 tree_cell *nasl_hmac_md2 (lex_ctxt *);
 tree_cell *nasl_hmac_md5 (lex_ctxt *);
