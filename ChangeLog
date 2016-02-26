@@ -1,3 +1,13 @@
+2016-02-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r24509.
+
+	* nasl/nasl_crypto.c (nasl_sha256): New function.
+
+	* nasl/nasl_crypto.h: Add new function header.
+
+	* nasl/nasl_init.c (libfuncs): Add SHA256() function.
+
 2016-02-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r24350.

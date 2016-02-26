@@ -134,6 +134,11 @@ nasl_sha1 (lex_ctxt * lexic)
   return nasl_hash (lexic, GCRY_MD_SHA1);
 }
 
+tree_cell *
+nasl_sha256 (lex_ctxt * lexic)
+{
+  return nasl_hash (lexic, GCRY_MD_SHA256);
+}
 
 tree_cell *
 nasl_ripemd160 (lex_ctxt * lexic)
