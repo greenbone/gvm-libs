@@ -490,7 +490,7 @@ nasl_ssh_connect (lex_ctxt *lexic)
 {
   ssh_session session;
   tree_cell *retc;
-  const char *hostname, *key_type;
+  const char *hostname, *key_type, *csciphers, *scciphers;
   int port, sock;
   int tbl_slot;
   const char *s;
@@ -560,6 +560,23 @@ nasl_ssh_connect (lex_ctxt *lexic)
       return NULL;
     }
 #endif
+
+  csciphers = get_str_local_var_by_name (lexic, "csciphers");
+  if (csciphers && ssh_options_set (session, SSH_OPTIONS_CIPHERS_C_S, csciphers))
+    {
+      log_legacy_write ("Failed to set SSH client to server ciphers '%s': %s",
+                        csciphers, ssh_get_error (session));
+      ssh_free (session);
+      return NULL;
+    }
+  scciphers = get_str_local_var_by_name (lexic, "scciphers");
+  if (scciphers && ssh_options_set (session, SSH_OPTIONS_CIPHERS_S_C, scciphers))
+    {
+      log_legacy_write ("Failed to set SSH server to client ciphers '%s': %s",
+                        scciphers, ssh_get_error (session));
+      ssh_free (session);
+      return NULL;
+    }
 
   if (port)
     {
