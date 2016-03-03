@@ -137,6 +137,7 @@ g_string_comma_str (GString *gstr, const char *str)
    easier.  The idea is that you only need to remove these wrappers
    and s/my_ssh_/ssh_/ on this file.  */
 
+#if LIBSSH_VERSION_INT < SSH_VERSION_INT (0, 6, 0)
 struct my_ssh_key_s
 {
   ssh_private_key privkey;
@@ -385,6 +386,7 @@ my_ssh_userauth_publickey(ssh_session session,
   rc = ssh_userauth_pubkey (session, NULL, key->pubkey_string, key->privkey);
   return rc;
 }
+#endif
 
 
 
@@ -1154,6 +1156,35 @@ nasl_ssh_userauth (lex_ctxt *lexic)
   /* If we have a private key, try public key authentication.  */
   if (privkeystr && *privkeystr && (methods & SSH_AUTH_METHOD_PUBLICKEY))
     {
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 6, 0)
+      ssh_key key = NULL;
+
+      if (ssh_pki_import_privkey_base64 (privkeystr, privkeypass, NULL, NULL,
+                                         &key))
+        {
+          if (verbose)
+            log_legacy_write
+             ("SSH public key authentication failed for "
+              "session %d: %s\n", session_id, "Error converting provided key");
+        }
+      else if (ssh_userauth_try_publickey (session, NULL, key)
+               != SSH_AUTH_SUCCESS)
+        {
+          if (verbose)
+            log_legacy_write
+             ("SSH public key authentication failed for "
+              "session %d: %s\n", session_id, "Server does not want our key");
+        }
+      else if (ssh_userauth_publickey (session, NULL, key) == SSH_AUTH_SUCCESS)
+        {
+          retc_val = 0;
+          ssh_key_free (key);
+          goto leave;
+        }
+      ssh_key_free (key);
+
+#else
+
       my_ssh_key key = NULL;
 
       /* SESSION is only used by our emulation - FIXME: remove it for 0.6.  */
@@ -1182,6 +1213,7 @@ nasl_ssh_userauth (lex_ctxt *lexic)
           goto leave;
         }
       my_ssh_key_free (key);
+#endif
       /* Keep on trying.  */
     }
 

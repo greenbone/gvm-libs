@@ -1,3 +1,13 @@
+2016-03-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r24591.
+
+	* nasl/nasl_ssh.c (my_ssh_key_s, my_ssh_key, my_ssh_key_free)
+	(my_ssh_pki_import_privkey_base64, remove_and_free_temp_key_file)
+	(my_ssh_userauth_try_publickey, my_ssh_userauth_publickey): Define only
+	when using LibSSH version older than 0.6.
+	(nasl_ssh_userauth): Use functions from libssh 0.6 when available.
+
 2016-02-26  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.
