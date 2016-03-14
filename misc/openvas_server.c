@@ -341,7 +341,10 @@ openvas_server_open_with_cert (gnutls_session_t *session, const char *host,
     {
       /* Make server socket. */
 
-      server_socket = socket (PF_INET, SOCK_STREAM, 0);
+      if (address->ai_family == AF_INET6)
+        server_socket = socket (PF_INET6, SOCK_STREAM, 0);
+      else
+        server_socket = socket (PF_INET, SOCK_STREAM, 0);
       if (server_socket == -1)
         {
           g_warning ("Failed to create server socket");

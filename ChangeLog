@@ -1,3 +1,8 @@
+2016-03-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_server.c (openvas_server_open_with_cert): Support IPv6
+	too.
+
 2016-03-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_ssh.c (my_ssh_key_s, my_ssh_key, my_ssh_key_free)
