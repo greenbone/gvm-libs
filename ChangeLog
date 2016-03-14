@@ -1,3 +1,10 @@
+2016-03-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r24640.
+
+	* misc/openvas_server.c (openvas_server_open_with_cert): Support IPv6
+	too.
+
 2016-03-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r24591.
