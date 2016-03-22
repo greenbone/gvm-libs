@@ -1,3 +1,9 @@
+2016-03-22  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	Backport r23020.
+
+	* base/credentials.h (credentials_t): Add field default_severity.
+
 2016-03-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r24640.

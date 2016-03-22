@@ -45,6 +45,8 @@ typedef struct
   ///< UUID of user.
   /*@null@ */ gchar *timezone;
   ///< Timezone of user.  Set in OpenVAS Manager.
+  /*@null@ */ double default_severity;
+  ///< Default Severity setting of user.  Set in OpenVAS Manager.
   /*@null@ */ gchar *severity_class;
   ///< Severity Class setting of user.  Set in OpenVAS Manager.
   /*@null@ */ int dynamic_severity;
