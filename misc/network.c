@@ -48,6 +48,7 @@
 #include "../base/kb.h"         /* for kb_item_get_str() */
 
 #include "ids_send.h"
+#include "prefs.h"
 #include "plugutils.h"
 #include "internal_com.h" /* for INTERNAL_COMM_MSG_TYPE_CTRL */
 #include "support.h"
@@ -2072,10 +2073,23 @@ open_sock_opt_hn (const char *hostname, unsigned int port, int type,
 int
 open_sock_tcp (struct arglist *args, unsigned int port, int timeout)
 {
-  int ret;
+  int ret, retry = 0;
+  const char *timeout_retry;
 
-  errno = 0;
-  ret = open_sock_option (args, port, SOCK_STREAM, IPPROTO_TCP, timeout);
+  timeout_retry = prefs_get ("timeout_retry");
+  if (timeout_retry)
+    retry = atoi (timeout_retry);
+  if (retry < 0)
+    retry = 0;
+
+  while (retry >= 0)
+    {
+      errno = 0;
+      ret = open_sock_option (args, port, SOCK_STREAM, IPPROTO_TCP, timeout);
+      if (ret >= 0 || errno != ETIMEDOUT)
+        break;
+      retry--;
+    }
   if (ret < 0 && errno == ETIMEDOUT)
     {
       int log_count;
