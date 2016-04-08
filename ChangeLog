@@ -1,3 +1,8 @@
+2016-04-08  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* INSTALL: Update apt-get line for Debian 7 and add apt-get line for
+	Debian 8 as suggested by Christian Fischer.
+
 2016-03-22  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	Backport r23020.
