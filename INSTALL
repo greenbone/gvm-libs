@@ -53,8 +53,9 @@ Recommended to have RADIUS support:
   (RADIUS can be enabled with -DBUILD_WITH_RADIUS=1)
 
 Install prerequisites on Debian GNU/Linux 'Jessie' 8:
-# apt-get install pkg-config libssh-dev libgnutls-dev libglib2.0-dev libpcap-dev \
-  libgpgme11-dev uuid-dev bison libksba-dev libhiredis-dev libsnmp-dev
+# apt-get install dpkg-dev pkg-config libssh-dev libgnutls28-dev libglib2.0-dev \
+  libpcap-dev libgpgme11-dev uuid-dev bison libksba-dev libhiredis-dev \
+  libsnmp-dev libgcrypt20-dev libldap2-dev
 
 
 Compiling openvas-libraries
