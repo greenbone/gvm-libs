@@ -1,3 +1,30 @@
+openvas-libraries 8.1+beta3 (2016-04-14)
+
+This release is the third beta version of the upcoming version 8.1 of
+openvas-libraries. It will be part of the upcoming "OpenVAS-9".
+
+Noteworthy changes since last release are the support for radius
+as well as numerous build and code improvements.
+
+Many thanks to everyone who has contributed this release:
+Sebastien Aucouturier, Benoît Allard, Hani Benhabiles, Guillaume Castagnino,
+Timo Pollmeier, Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to 8.1beta1:
+* Added support for radius as authentication service.
+* Added --config-file parameter to nasl command to load preferences.
+* Added --kb option to nasl command to set a KB key.
+* Added credentials type for SNMP.
+* Added support for OSP parameter credential type.
+* Added NASL API function SHA256().
+* Special treatment of tag "risk_factor" removed.
+* NASL API calls security_note, security_warning and security_hole removed.
+* Improved hostname resolving via IPv6.
+* Remove usage of the deprecated Glib Trash Stack.
+* Various minor fixes and code improvements.
+* Various build improvements.
+
+
 openvas-libraries 8.1+beta2 (2015-10-21)
 
 This release is the second beta version of the upcoming 8.1 of
@@ -15,6 +42,7 @@ Main changes compared to 8.1beta1:
 * Extended support for OSP clients, including support of OSP 1.1
   features.
 * Extend build instructions with -Wextra.
+* Fix left-over file descriptors in the connections table with ssh sockets.
 * Various minor fixes code improvements.
 
 
