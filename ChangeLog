@@ -1,3 +1,8 @@
+2016-04-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_ssh.c (openvas_ssh_public_from_private): Use
+	ssh_pki_key_ecdsa_name() when available.
+
 2016-04-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Post release version bump.
