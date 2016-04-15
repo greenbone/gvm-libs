@@ -1,3 +1,10 @@
+2016-04-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r24977.
+
+	* base/openvas_networking.c (openvas_ssh_public_from_private): Use
+	ssh_pki_key_ecdsa_name() when available.
+
 2016-04-08  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* INSTALL: Update apt-get line for Debian 7 and add apt-get line for

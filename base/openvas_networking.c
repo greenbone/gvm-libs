@@ -671,6 +671,10 @@ openvas_ssh_public_from_private (const char *private_key, const char *passphrase
     return NULL;
   ret = ssh_pki_export_pubkey_base64 (priv, &pub_key);
   type = ssh_key_type_to_char (ssh_key_type (priv));
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 6, 4)
+  if (!strcmp (type, "ssh-ecdsa"))
+    type = ssh_pki_key_ecdsa_name (priv);
+#endif
   ssh_key_free (priv);
   if (ret)
     return NULL;
