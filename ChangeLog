@@ -1,3 +1,8 @@
+2016-04-18  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* CMakeLists.txt: Simplify CPACK_SOURCE_IGNORE_FILES by ignoring the
+	entire build directory.
+
 2016-04-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/openvas_ssh.c (openvas_ssh_public_from_private): Use
