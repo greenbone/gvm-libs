@@ -1,3 +1,11 @@
+2016-04-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_crypto.c (hmac_sha256, nasl_hmac_sha256): New functions.
+
+	* nasl/nasl_crypto.h: Add new function prototype.
+
+	* nasl/nasl_init.c (libfuncs): Add hmac_sha256() function.
+
 2016-04-18  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* CMakeLists.txt: Simplify CPACK_SOURCE_IGNORE_FILES by ignoring the
