@@ -1182,14 +1182,10 @@ omp_get_report_ext (gnutls_session_t* session,
                             "<get_reports"
                             " report_id=\"%s\""
                             " format_id=\"%s\""
-                            " sort_field=\"%s\""
-                            " sort_order=\"%s\""
-                            " levels=\"%s\""
-                            " first_result=\"%i\""
-                            " max_results=\"%i\""
                             " host_first_result=\"%i\""
                             " host_max_results=\"%i\""
-                            " autofp=\"%i\""
+                            "%s%s%s"
+                            "%s%s%s"
                             "%s%s%s"
                             "%s%s%s"
                             "%s%s%s"
@@ -1205,15 +1201,10 @@ omp_get_report_ext (gnutls_session_t* session,
                             "%s%s%s%s%s%s%s/>",
                             opts.report_id,
                             opts.format_id,
-                            opts.sort_field,
-                            opts.sort_order,
-                            opts.levels,
-                            opts.first_result,
-                            opts.max_results,
                             opts.host_first_result,
                             opts.host_max_results,
-                            opts.autofp,
-                            OMP_FMT_STRING_ATTRIB (opts, type),
+                            OMP_FMT_STRING_ATTRIB (opts, filter),
+                            OMP_FMT_STRING_ATTRIB (opts, filt_id),
                             OMP_FMT_STRING_ATTRIB (opts, host),
                             OMP_FMT_STRING_ATTRIB (opts, pos),
                             OMP_FMT_STRING_ATTRIB (opts, timezone),

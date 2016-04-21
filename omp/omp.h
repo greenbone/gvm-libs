@@ -74,6 +74,8 @@ typedef struct
   int host_max_results;    ///< Maximum number of results to return.
   int autofp;              ///< Whether to trust vendor security updates. 0 No, 1 full match, 2 partial.
   char *type;              ///< Type of report.
+  char *filter;            ///< Term to filter results.
+  char *filt_id;           ///< ID of filter, to filter results.
   char *host;              ///< Host for asset report.
   char *pos;               ///< Position of report from end.
   char *timezone;          ///< Timezone.
@@ -102,7 +104,7 @@ static const omp_get_report_opts_t omp_get_report_opts_defaults =
   {
     "ROWID", "ascending", "a994b278-1f62-11e1-96ac-406186ea4fc5", "hmlgd",
     NULL, 1, -1, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0
+    NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0
   };
 
 /**

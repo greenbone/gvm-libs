@@ -1,3 +1,11 @@
+2016-02-21  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_get_report_ext): Remove GET_REPORTS attributes that
+	don't exist anymore, and add the new filter attributes.
+
+	* omp/omp.h (omp_get_report_opts_t, omp_get_report_opts_defaults): Add
+	filter fields.
+
 2016-04-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_crypto.c (hmac_sha256, nasl_hmac_sha256): New functions.
