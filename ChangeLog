@@ -1,3 +1,10 @@
+2016-04-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r24813.
+
+	* misc/network.c (open_sock_tcp): Use timeout_retry preference to
+	specify the number of retries when a timeout occurs.
+
 2016-04-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r24977.
