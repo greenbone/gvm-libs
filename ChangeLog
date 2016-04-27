@@ -1,3 +1,11 @@
+2016-04-27  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.h (omp_authenticate_info_opts_defaults): Change ""
+	initialisations from Benoit's patch on 2016-01-20 to NULL, because
+	before the patch it was "{ 0 }" which meant that all fields would be
+	zero'd.  This was preventing slaves with credentials from starting,
+	for instance.
+
 2016-04-26  Sven Haardiek <sven.haardiek@greenbone.net>
 
 	* CMakeLists.txt: Remove unused variables and remove the NVT directory
