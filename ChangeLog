@@ -1,3 +1,11 @@
+2016-05-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_crypto.c (nasl_get_smb2_sign): New function.
+
+	* nasl/nasl_crypto.h: Add new function prototype.
+
+	* nasl/nasl_init.c (libfuncs): Add get_smb2_signature().
+
 2016-04-27  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.h (omp_authenticate_info_opts_defaults): Change ""
