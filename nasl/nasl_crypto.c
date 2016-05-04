@@ -308,12 +308,12 @@ nasl_get_smb2_sign (lex_ctxt * lexic)
 
   key = get_str_var_by_name (lexic, "key");
   buf = get_str_var_by_name (lexic, "buf");
-  keylen = get_int_var_by_name (lexic, "keylen", -1);
-  buflen = get_int_var_by_name (lexic, "buflen", -1);
+  keylen = get_var_size_by_name (lexic, "key");
+  buflen = get_var_size_by_name (lexic, "buf");
   if (!key || !buf || keylen <= 0)
     {
       nasl_perror (lexic,
-                   "Syntax : get_smb2_sign(buf:<b>, buflen:<bl>, key:<k>, keylen:<kl>)");
+                   "Syntax : get_smb2_sign(buf:<b>, key:<k>)");
       return NULL;
     }
   if (buflen < 64)

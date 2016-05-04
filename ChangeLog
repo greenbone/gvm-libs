@@ -1,3 +1,10 @@
+2016-05-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_crypto.c (nasl_get_smb2_sign): Remove buflen and keylen
+	parameters. Use buf and key size values.
+
+	* nasl/nasl_init.c (libfuncs): Adjust get_smb2_signature() parameters.
+
 2016-05-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_crypto.c (nasl_get_smb2_sign): New function.
