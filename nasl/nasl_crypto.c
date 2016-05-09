@@ -338,6 +338,109 @@ nasl_get_smb2_sign (lex_ctxt * lexic)
   return retc;
 }
 
+static int
+md4_data (lex_ctxt * lexic, void *data, size_t datalen, void *result)
+{
+  gcry_md_hd_t hd;
+  gcry_error_t err;
+
+  err = gcry_md_open (&hd, GCRY_MD_MD4, 0);
+  if (err)
+    {
+      nasl_perror (lexic, "gcry_md_open failed: %s/%s",
+                   gcry_strsource (err), gcry_strerror (err));
+      return -1;
+    }
+  gcry_md_write (hd, data, datalen);
+  memcpy (result, gcry_md_read (hd, GCRY_MD_MD4), 16);
+
+  gcry_md_close (hd);
+  return 0;
+}
+
+static int
+rc4_data (lex_ctxt *lexic, void *data, size_t datalen, void *key, size_t keylen,
+          void *result)
+{
+  gcry_cipher_hd_t hd;
+  gcry_error_t error;
+
+  if ((error = gcry_cipher_open (&hd, GCRY_CIPHER_ARCFOUR,
+                                 GCRY_CIPHER_MODE_STREAM, 0)))
+    {
+      nasl_perror (lexic, "gcry_cipher_open: %s", gcry_strerror (error));
+      gcry_cipher_close (hd);
+      return -1;
+    }
+  if ((error = gcry_cipher_setkey (hd, key, keylen)))
+    {
+      nasl_perror (lexic, "gcry_cipher_setkey: %s", gcry_strerror (error));
+      gcry_cipher_close (hd);
+      return -1;
+    }
+  if ((error = gcry_cipher_encrypt (hd, result, 16, data, datalen)))
+    {
+      log_legacy_write ("gcry_cipher_encrypt: %s", gcry_strerror (error));
+      gcry_cipher_close (hd);
+      return -1;
+    }
+
+  gcry_cipher_close (hd);
+  return 0;
+}
+
+tree_cell *
+nasl_get_smb2_sign_key (lex_ctxt * lexic)
+{
+  tree_cell *retc;
+  char *pass, *chal, *lmresp, *sesskey, ntowfv1[16], session_base_key[16];
+  char key_exchange_key[16], concat[16], signing_key[16];
+  glong passlen, ulen, challen, lmresplen, sesskeylen;
+  gunichar2 *upass;
+
+  pass = get_str_var_by_name (lexic, "pass");
+  passlen = get_var_size_by_name (lexic, "pass");
+  chal = get_str_var_by_name (lexic, "challenge");
+  challen = get_var_size_by_name (lexic, "challenge");
+  lmresp = get_str_var_by_name (lexic, "lmresponse");
+  lmresplen = get_var_size_by_name (lexic, "lmresponse");
+  sesskey = get_str_var_by_name (lexic, "sesskey");
+  sesskeylen = get_var_size_by_name (lexic, "sesskey");
+
+  if (!pass || passlen <= 0 || !chal || challen < 8 || !lmresp || lmresplen < 8
+      || !sesskey || sesskeylen <= 0)
+    {
+      nasl_perror (lexic, "Syntax : get_smb2_sign_key(pass:<p>, challenge:<c>, lmresponse:<l>, sesskey:<s>)");
+      return NULL;
+    }
+  /* Convert password to UTF-16 */
+  upass = g_utf8_to_utf16 (pass, passlen, NULL, &ulen, NULL);
+  ulen *= 2;
+
+  /* Calculate NTOFWv1, then Session Base Key */
+  if (md4_data (lexic, upass, ulen, ntowfv1))
+    return NULL;
+  g_free (upass);
+  if (md4_data (lexic, ntowfv1, 16, session_base_key))
+    return NULL;
+
+  /* Calculate Key Exchange Key */
+  memcpy (concat, chal, 8);
+  memcpy (concat + 8, lmresp, 8);
+  hmac_md5 ((uchar *) session_base_key, (uchar *) concat, 16,
+            (uchar *) key_exchange_key);
+
+  /* Calculate Exported Session Key ==> Signing Key */
+  if (rc4_data (lexic, sesskey, 16, key_exchange_key, 16, signing_key))
+    return NULL;
+
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+  retc->size = 16;
+  retc->x.str_val = g_strdup (signing_key);
+  return retc;
+}
+
 tree_cell *
 nasl_ntlmv2_response (lex_ctxt * lexic)
 {
