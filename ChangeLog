@@ -1,3 +1,11 @@
+2016-05-13  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* nasl/nasl_builtin_synscan.c (plugin_run_synscan): Fix identation to
+	make it clear that the statement is not supposed to be guarded by the
+	preceding 'if' clause. The 'if' clause was split into two lines in
+	r6439 (then openvas-scanner/cnvts/synscan/synscan.c), so it is assumed
+	that it was never intended to guard the statement.
+
 2016-05-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_crypto.c (md4_data, rc4_data, nasl_get_smb2_sign_key): New
