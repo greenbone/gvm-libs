@@ -601,7 +601,7 @@ nasl_typeof (lex_ctxt * lexic)
       }
   retc->size = strlen (s);
   retc->x.str_val = g_malloc0 (retc->size);
-  strcpy (retc->x.str_val, s);  /* Flawfinder: ignore */
+  strcpy (retc->x.str_val, s);
   return retc;
 }
 
@@ -810,7 +810,7 @@ nasl_gettimeofday (lex_ctxt * lexic)
   retc = alloc_typed_cell (CONST_DATA);
   retc->size = strlen (str);
   retc->x.str_val = g_malloc0 (retc->size);
-  strcpy (retc->x.str_val, str);        /* Flawfinder: ignore */
+  strcpy (retc->x.str_val, str);
   return retc;
 }
 

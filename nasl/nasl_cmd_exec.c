@@ -109,9 +109,7 @@ nasl_pread (lex_ctxt * lexic)
 
       if (cmd[0] == '/')
         {
-          strncpy (newdir, cmd, sizeof (newdir) - 1);   /* Flawfinder: ignore
-                                                           (\0-termination taken
-                                                           care of) */
+          strncpy (newdir, cmd, sizeof (newdir) - 1);
           p = strrchr (newdir, '/');
           if (p != newdir)
             *p = '\0';
@@ -120,9 +118,7 @@ nasl_pread (lex_ctxt * lexic)
         {
           p = find_in_path (cmd, 0);
           if (p != NULL)
-            strncpy (newdir, p, sizeof (newdir) - 1);   /* Flawfinder: ignore
-                                                           (\0-termination taken
-                                                           care of) */
+            strncpy (newdir, p, sizeof (newdir) - 1);
           else
             {
               nasl_perror (lexic, "pread: '%s' not found in $PATH\n", cmd);
@@ -145,10 +141,8 @@ nasl_pread (lex_ctxt * lexic)
         }
       if (cmd[0] != '/' && strlen (newdir) + strlen (cmd) + 1 < sizeof (newdir))
         {
-          strcat (newdir, "/"); /* Flawfinder: ignore (if-command above checks
-                                   for size) */
-          strcat (newdir, cmd); /* Flawfinder: ignore (if-command above checks
-                                   for size) */
+          strcat (newdir, "/");
+          strcat (newdir, cmd);
           cmd = newdir;
         }
     }

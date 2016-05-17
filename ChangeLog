@@ -1,5 +1,17 @@
 2016-05-17  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
+	* nasl/nasl_cmd_exec.c (nasl_pread): Remove Flawfinder annotations.
+
+	* nasl/nasl_init.c (nasl_version): Remove Flawfinder annotation.
+
+	* nasl/nasl_misc_funcs.c (nasl_typeof, nasl_gettimeofday): Remove
+	Flawfinder annotations.
+
+	* nasl/nasl_signature.c (nasl_verify_signature): Remove Flawfinder
+	annotation.
+
+2016-05-17  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
 	* misc/ftp_funcs.c (ftp_log_in, ftp_get_pasv_address): Remove RATS
 	annotations.
 

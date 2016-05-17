@@ -148,7 +148,7 @@ nasl_verify_signature (const char *filename)
     }
 
   sigfilename = g_malloc0 (strlen (filename) + 4 + 1);
-  strcpy (sigfilename, filename);       /* Flawfinder: ignore */
+  strcpy (sigfilename, filename);
   strcat (sigfilename, ".asc");
   nasl_trace (NULL, "nasl_verify_signature: loading signature file '%s'\n",
               sigfilename);

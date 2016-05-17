@@ -713,8 +713,7 @@ char *
 nasl_version ()
 {
   static char vers[sizeof (OPENVASLIB_VERSION) + 1];
-  strncpy (vers, OPENVASLIB_VERSION, sizeof (vers) - 1);   /* Flawfinder: ignore
-                                                   (\0-termination taken care of) */
+  strncpy (vers, OPENVASLIB_VERSION, sizeof (vers) - 1);
   vers[sizeof (vers) - 1] = '\0';
   return vers;
 }
