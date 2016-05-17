@@ -170,7 +170,7 @@ nasl_func_call (lex_ctxt * lexic, const nasl_func * f, tree_cell * arg_list)
   if (nasl_trace_fp != NULL)
     {
       trace_buf = g_malloc0 (TRACE_BUF_SZ);
-      tn = snprintf (trace_buf, TRACE_BUF_SZ, "Call %s(", f->func_name);        /* RATS: ignore */
+      tn = snprintf (trace_buf, TRACE_BUF_SZ, "Call %s(", f->func_name);
       if (tn > 0)
         trace_buf_len += tn;
     }
@@ -222,7 +222,7 @@ nasl_func_call (lex_ctxt * lexic, const nasl_func * f, tree_cell * arg_list)
               nb_u++;
               if (nasl_trace_fp != NULL && trace_buf_len < TRACE_BUF_SZ)
                 {
-                  tn = snprintf (trace_buf + trace_buf_len,     /* RATS: ignore */
+                  tn = snprintf (trace_buf + trace_buf_len,
                                  TRACE_BUF_SZ - trace_buf_len, "%s%d: %s",
                                  nb_a > 0 ? ", " : "", nb_u,
                                  dump_cell_val (pc2));
@@ -238,7 +238,7 @@ nasl_func_call (lex_ctxt * lexic, const nasl_func * f, tree_cell * arg_list)
                 goto error;
               if (nasl_trace_fp != NULL && trace_buf_len < TRACE_BUF_SZ)
                 {
-                  tn = snprintf (trace_buf + trace_buf_len,     /* RATS: ignore */
+                  tn = snprintf (trace_buf + trace_buf_len,
                                  TRACE_BUF_SZ - trace_buf_len, "%s%s: %s",
                                  nb_a > 0 ? ", " : "", pc->x.str_val,
                                  dump_cell_val (pc2));

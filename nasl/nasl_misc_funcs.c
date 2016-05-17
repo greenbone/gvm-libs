@@ -58,7 +58,7 @@ nasl_rand (lex_ctxt * lexic)
   tree_cell *retc;
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
-  retc->x.i_val = lrand48 ();   /* RATS: ignore */
+  retc->x.i_val = lrand48 ();
   return retc;
 }
 

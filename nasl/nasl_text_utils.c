@@ -332,7 +332,7 @@ nasl_hex (lex_ctxt * lexic)
   if (v == -1)
     return NULL;
 
-  snprintf (ret, sizeof (ret), "0x%02x", (unsigned char) v);    /* RATS: ignore */
+  snprintf (ret, sizeof (ret), "0x%02x", (unsigned char) v);
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_STR;
   retc->size = strlen (ret);
@@ -360,7 +360,7 @@ nasl_hexstr (lex_ctxt * lexic)
   for (i = 0; i < len; i++)
     {
       /* if i < len there are at least three chars left in ret + 2 * i */
-      snprintf (ret + 2 * i, 3, "%02x", (unsigned char) s[i]);  /* RATS: ignore */
+      snprintf (ret + 2 * i, 3, "%02x", (unsigned char) s[i]);
     }
 
   retc = alloc_tree_cell (0, NULL);
@@ -581,7 +581,7 @@ _regreplace (const char *pattern, const char *replace, const char *string,
             }
           tmp = strlen (buf);
           /* copy the part of the string before the match */
-          strncat (buf, &string[pos], subs[0].rm_so);   /* RATS: ignore */
+          strncat (buf, &string[pos], subs[0].rm_so);
 
           /* copy replacement and backrefs */
           walkbuf = &buf[tmp + subs[0].rm_so];

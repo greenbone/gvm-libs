@@ -1906,7 +1906,7 @@ get_encaps_name (openvas_encaps_t code)
     case OPENVAS_ENCAPS_TLScustom:
       return "TLScustom";
     default:
-      snprintf (str, sizeof (str), "[unknown transport layer - code %d (0x%x)]", code, code);   /* RATS: ignore */
+      snprintf (str, sizeof (str), "[unknown transport layer - code %d (0x%x)]", code, code);
       return str;
     }
 }
@@ -1928,7 +1928,7 @@ get_encaps_through (openvas_encaps_t code)
     case OPENVAS_ENCAPS_TLScustom:
       return " through SSL";
     default:
-      snprintf (str, sizeof (str), " through unknown transport layer - code %d (0x%x)", code, code);    /* RATS: ignore */
+      snprintf (str, sizeof (str), " through unknown transport layer - code %d (0x%x)", code, code);
       return str;
     }
 }

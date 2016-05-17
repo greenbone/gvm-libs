@@ -54,7 +54,7 @@ init_capture_device (struct in_addr src, struct in_addr dst, char *filter)
       filter = g_malloc0 (256);
       free_filter = 1;
       if (islocalhost (&src) == 0)
-        snprintf (filter, 256, "ip and (src host %s and dst host %s)",  /* RATS: ignore */
+        snprintf (filter, 256, "ip and (src host %s and dst host %s)",
                   a_src, a_dst);
 
     }

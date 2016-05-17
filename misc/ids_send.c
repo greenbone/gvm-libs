@@ -206,7 +206,6 @@ which_ttl (method, old_ttl)
            * hardcoded since we will read at most sizeof(rd)-1 bytes into rd.
            *   -mwiegand, 20090205
            */
-          /* RATS: ignore */
           read (f, rd, sizeof (rd) - 1);
           close (f);
           ttl = atoi (rd);

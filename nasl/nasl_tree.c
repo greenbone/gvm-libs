@@ -310,20 +310,20 @@ dump_cell_val (const tree_cell * c)
     switch (c->type)
       {
       case CONST_INT:
-        snprintf (txt, sizeof (txt), "%d", c->x.i_val); /* RATS: ignore */
+        snprintf (txt, sizeof (txt), "%d", c->x.i_val);
         break;
       case CONST_STR:
       case CONST_DATA:         /* Beurk */
         if (c->size >= sizeof (txt) + 2)
           {
-            snprintf (txt, sizeof (txt), "\"%s", c->x.str_val); /* RATS: ignore */
+            snprintf (txt, sizeof (txt), "\"%s", c->x.str_val);
             strcpy (txt + (sizeof (txt) - 5), "...\"");
           }
         else
-          snprintf (txt, sizeof (txt), "\"%s\"", c->x.str_val); /* RATS: ignore */
+          snprintf (txt, sizeof (txt), "\"%s\"", c->x.str_val);
         break;
       default:
-        snprintf (txt, sizeof (txt), "???? (%s)", nasl_type_name (c->type));    /* RATS: ignore */
+        snprintf (txt, sizeof (txt), "???? (%s)", nasl_type_name (c->type));
         break;
       }
   return txt;
@@ -428,9 +428,9 @@ nasl_type_name (int t)
   txt = txt4[i];
 
   if (t >= 0 && t < sizeof (node_names) / sizeof (node_names[0]))
-    snprintf (txt, 32, "%s (%d)", node_names[t], t);    /* RATS: ignore */
+    snprintf (txt, 32, "%s (%d)", node_names[t], t);
   else
-    snprintf (txt, 32, "*UNKNOWN* (%d)", t);    /* RATS: ignore */
+    snprintf (txt, 32, "*UNKNOWN* (%d)", t);
   return txt;
 }
 
@@ -454,7 +454,7 @@ get_line_nb (const tree_cell * c)
   static char txt[32];
   if (c == NULL || c == FAKE_CELL || c->line_nb <= 0)
     return "";
-  snprintf (txt, sizeof (txt), " at or near line %d ", c->line_nb);     /* RATS: ignore */
+  snprintf (txt, sizeof (txt), " at or near line %d ", c->line_nb);
   return txt;
 }
 

@@ -106,7 +106,7 @@ void
 host_add_port_proto (struct arglist *args, int portnum, char *proto)
 {
   char port_s[255];
-  snprintf (port_s, sizeof (port_s), "Ports/%s/%d", proto, portnum);    /* RATS: ignore */
+  snprintf (port_s, sizeof (port_s), "Ports/%s/%d", proto, portnum);
   plug_set_key (args, port_s, ARG_INT, (void *) 1);
 }
 
@@ -390,7 +390,7 @@ proto_post_wrapped (const char *oid, struct arglist *desc, int port, const char 
     }
   else
     {
-      snprintf (idbuffer, sizeof (idbuffer), "<|> %s ", oid);   /* RATS: ignore */
+      snprintf (idbuffer, sizeof (idbuffer), "<|> %s ", oid);
     }
   if (port > 0)
     {
@@ -815,7 +815,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
             close (old);
           arg_set_value (globals, "global_socket", GSIZE_TO_POINTER (sockpair[1]));
 
-          srand48 (getpid () + getppid () + time (NULL)); /* RATS: ignore */
+          srand48 (getpid () + getppid () + time (NULL));
 
           if (res->type == KB_TYPE_INT)
             {
@@ -941,7 +941,7 @@ plug_get_host_open_port (struct arglist *desc)
 
       kb_item_free (k);
       if (num_candidates != 0)
-        return candidates[lrand48 () % num_candidates]; /* RATS: ignore */
+        return candidates[lrand48 () % num_candidates];
       else if (open21)
         return 21;
       else if (open80)
@@ -966,7 +966,7 @@ plug_set_port_transport (struct arglist *args, int port, int tr)
 {
   char s[256];
 
-  snprintf (s, sizeof (s), "Transports/TCP/%d", port);  /* RATS: ignore */
+  snprintf (s, sizeof (s), "Transports/TCP/%d", port);
   plug_set_key (args, s, ARG_INT, GSIZE_TO_POINTER (tr));
 }
 
@@ -981,7 +981,7 @@ plug_get_port_transport (struct arglist *args, int port)
   char s[256];
   int trp;
 
-  snprintf (s, sizeof (s), "Transports/TCP/%d", port);  /* RATS: ignore */
+  snprintf (s, sizeof (s), "Transports/TCP/%d", port);
   trp = kb_item_get_int (plug_get_kb (args), s);
   if (trp >= 0)
     return trp;
@@ -994,7 +994,7 @@ static void
 plug_set_ssl_item (struct arglist *args, char *item, char *itemfname)
 {
   char s[256];
-  snprintf (s, sizeof (s), "SSL/%s", item);     /* RATS: ignore */
+  snprintf (s, sizeof (s), "SSL/%s", item);
   plug_set_key (args, s, ARG_STRING, itemfname);
 }
 
@@ -1057,7 +1057,7 @@ find_in_path (char *name, int safe)
         /* path too long: cannot be reached */
         continue;
 
-      snprintf (p2, MAXPATHLEN, "/%s", name);   /* RATS: ignore */
+      snprintf (p2, MAXPATHLEN, "/%s", name);
       if (access (cmd, X_OK) == 0)
         {
           struct stat st;

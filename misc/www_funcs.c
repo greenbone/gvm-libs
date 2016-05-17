@@ -192,7 +192,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
           {
             *s2++ = '/';
             for (i = reverse_traversal; i > 0; i--)
-              *s2++ = lrand48 () % 26 + 'a';    /* RATS: ignore */
+              *s2++ = lrand48 () % 26 + 'a';
             strncpy (s2, "/../", l);
             s2 += 4;
           }
@@ -216,11 +216,11 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
       n_slash += 4;
 
       s = gizmo;
-      *s++ = lrand48 () % 26 + 'A';     /* RATS: ignore */
+      *s++ = lrand48 () % 26 + 'A';
       for (i = 1; i < 8; i++)
-        *s++ = lrand48 () % 26 + 'a';   /* RATS: ignore */
+        *s++ = lrand48 () % 26 + 'a';
       *s++ = '\0';
-      snprintf (ret2, l, "/%%20HTTP/1.0%%0d%%0a%s:%%20/../..%s", gizmo, ret);   /* RATS: ignore */
+      snprintf (ret2, l, "/%%20HTTP/1.0%%0d%%0a%s:%%20/../..%s", gizmo, ret);
       g_free (ret);
       ret = ret2;
 #ifdef URL_DEBUG
@@ -238,9 +238,9 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
 
       s = gizmo;
       for (i = 0; i < 8; i++)
-        *s++ = lrand48 () % 26 + 'a';   /* RATS: ignore */
+        *s++ = lrand48 () % 26 + 'a';
       *s++ = '\0';
-      snprintf (ret2, l, "/index.htm%%3f%s=/..%s", gizmo, ret); /* RATS: ignore */
+      snprintf (ret2, l, "/index.htm%%3f%s=/..%s", gizmo, ret);
       g_free (ret);
       ret = ret2;
 #ifdef URL_DEBUG
@@ -416,7 +416,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
           else if (strcmp (abs_URI_host, "random name") == 0)
             {
               for (s2 = h, i = 0; i < 16; i++)
-                *s2++ = lrand48 () % 26 + 'a';  /* RATS: ignore */
+                *s2++ = lrand48 () % 26 + 'a';
               *s2++ = '\0';
             }
           else if (strcmp (abs_URI_host, "random IP") == 0)
@@ -427,7 +427,7 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
       l += strlen (h) + strlen (abs_URI_type) + 3;
       ret2 = g_malloc0 (l + 1);
 
-      snprintf (ret2, l, "%s://%s%s", abs_URI_type, h, ret);    /* RATS: ignore */
+      snprintf (ret2, l, "%s://%s%s", abs_URI_type, h, ret);
       g_free (ret);
       ret = ret2;
 #ifdef URL_DEBUG
@@ -467,9 +467,9 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
 
   ret2 = g_malloc0 (l + 1);
   if (http09)
-    snprintf (ret2, l, "%s%c%s", method, sep_c, ret);   /* RATS: ignore */
+    snprintf (ret2, l, "%s%c%s", method, sep_c, ret);
   else
-    snprintf (ret2, l, "%s%c%s%c%s", method, sep_c, ret, sep_c, httpver);       /* RATS: ignore */
+    snprintf (ret2, l, "%s%c%s%c%s", method, sep_c, ret, sep_c, httpver);
   g_free (ret);
   ret = ret2;
 

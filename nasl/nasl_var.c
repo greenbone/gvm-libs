@@ -229,7 +229,7 @@ get_var_name (anon_nasl_var * v)
   if (v->av_name != NULL)
     return v->av_name;
 #endif
-  snprintf (str, sizeof (str), "[%p]", v);      /* RATS: ignore */
+  snprintf (str, sizeof (str), "[%p]", v);
   return str;
 }
 
@@ -1149,25 +1149,25 @@ array2str (const nasl_array * a)
           switch (u->var_type)
             {
             case VAR2_INT:
-              snprintf (s + n, len - n, "%d: %d", i, u->v.v_int);       /* RATS: ignore */
+              snprintf (s + n, len - n, "%d: %d", i, u->v.v_int);
               n += strlen (s + n);
               break;
             case VAR2_STRING:
             case VAR2_DATA:
               if (u->v.v_str.s_siz < 64)
                 {
-                  snprintf (s + n, len - n, "%d: '%s'", i, u->v.v_str.s_val);   /* RATS: ignore */
+                  snprintf (s + n, len - n, "%d: '%s'", i, u->v.v_str.s_val);
                   n += strlen (s + n);
                 }
               else
                 {
-                  snprintf (s + n, 70, "%d: '%s", i, u->v.v_str.s_val); /* RATS: ignore */
+                  snprintf (s + n, 70, "%d: '%s", i, u->v.v_str.s_val);
                   n += strlen (s + n);
                   n += sprintf (s + n, "'...");
                 }
               break;
             default:
-              snprintf (s + n, len - n, "%d: ????", i); /* RATS: ignore */
+              snprintf (s + n, len - n, "%d: ????", i);
               n += strlen (s + n);
               break;
             }
@@ -1191,24 +1191,24 @@ array2str (const nasl_array * a)
             switch (u->var_type)
               {
               case VAR2_INT:
-                n += snprintf (s + n, len - n, "%s: %d", v->var_name, u->v.v_int);      /* RATS: ignore */
+                n += snprintf (s + n, len - n, "%s: %d", v->var_name, u->v.v_int);
                 break;
               case VAR2_STRING:
               case VAR2_DATA:
                 if (u->v.v_str.s_siz < 64)
                   {
-                    snprintf (s + n, len - n, "%s: '%s'", v->var_name, u->v.v_str.s_val);       /* RATS: ignore */
+                    snprintf (s + n, len - n, "%s: '%s'", v->var_name, u->v.v_str.s_val);
                     n += strlen (s + n);
                   }
                 else
                   {
-                    snprintf (s + n, 70 + l, "%s: '%s", v->var_name, u->v.v_str.s_val); /* RATS: ignore */
+                    snprintf (s + n, 70 + l, "%s: '%s", v->var_name, u->v.v_str.s_val);
                     n += strlen (s + n);
                     n += sprintf (s + n, "'...");
                   }
                 break;
               default:
-                snprintf (s + n, len - n, "%s: ????", v->var_name);     /* RATS: ignore */
+                snprintf (s + n, len - n, "%s: ????", v->var_name);
                 n += strlen (s + n);
                 break;
               }
@@ -1234,7 +1234,7 @@ var2str (const anon_nasl_var * v)
   switch (v->var_type)
     {
     case VAR2_INT:
-      snprintf (s1, sizeof (s1), "%d", v->v.v_int);     /* RATS: ignore */
+      snprintf (s1, sizeof (s1), "%d", v->v.v_int);
       return s1;                /* buggy if called twice in a row */
 
     case VAR2_STRING:

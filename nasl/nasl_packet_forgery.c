@@ -246,12 +246,12 @@ get_ip_element (lex_ctxt * lexic)
     {
       snprintf (ret_ascii, sizeof (ret_ascii), "%s", inet_ntoa (ip->ip_src));
       flag++;
-    }                           /* RATS: ignore */
+    }
   else if (!strcmp (element, "ip_dst"))
     {
       snprintf (ret_ascii, sizeof (ret_ascii), "%s", inet_ntoa (ip->ip_dst));
       flag++;
-    }                           /* RATS: ignore */
+    }
 
 
   if (flag == 0)
@@ -1425,7 +1425,7 @@ nasl_tcp_ping (lex_ctxt * lexic)
       routethrough (&inaddr, &src);
     }
 
-  snprintf (filter, sizeof (filter), "ip and src host %s", inet_ntoa (inaddr)); /* RATS: ignore */
+  snprintf (filter, sizeof (filter), "ip and src host %s", inet_ntoa (inaddr));
   bpf = init_capture_device (inaddr, src, filter);
 
 

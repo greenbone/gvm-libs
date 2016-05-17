@@ -69,7 +69,7 @@ isalldigit (char *str, int len)
         return 0;
     }
 
-  snprintf (buf, sizeof (buf), "%d", atoi (str));       /* RATS: ignore */
+  snprintf (buf, sizeof (buf), "%d", atoi (str));
   if (strcmp (buf, str) != 0)
     return 0;
   else

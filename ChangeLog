@@ -1,3 +1,47 @@
+2016-05-17  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	* misc/ftp_funcs.c (ftp_log_in, ftp_get_pasv_address): Remove RATS
+	annotations.
+
+	* misc/ids_send.c (which_ttl): Remove RATS annotation.
+	
+	* misc/network.c (get_encaps_name, get_encaps_through): Remove RATS
+	annotations.
+
+	* misc/openvas_auth.c (get_password_hashes): Remove RATS annotation.
+
+	* misc/pcap.c (get_random_bytes): Remove RATS annotation.
+
+	* misc/plugutils.c (host_add_port_proto, proto_post_wrapped)
+	(plug_get_key, plug_get_host_open_port, plug_set_port_transport)
+	(plug_get_port_transport, plug_set_ssl_item, find_in_path): Remove RATS
+	annotations.
+
+	* misc/www_funcs.c (build_encode_URL): Remove RATS annotations.
+
+	* nasl/capture_packet.c (init_capture_device): Remove RATS annotation.
+
+	* nasl/nasl_func.c (nasl_func_call): Remove RATS annotations.
+
+	* nasl/nasl_misc_funcs.c (nasl_rand): Remove RATS annotation.
+
+	* nasl/nasl_packet_forgery.c (get_ip_element, nasl_tcp_ping): Remove
+	RATS annotations.
+
+	* nasl/nasl_packet_forgery_v6.c (nasl_tcp_v6_ping): Remove RATS
+	annotation.
+
+	* nasl/nasl_scanner_glue.c (isalldigit): Remove RATS annotation.
+
+	* nasl/nasl_text_utils.c (nasl_hex, nasl_hexstr, _regreplace): Remove
+	RATS annotations.
+
+	* nasl/nasl_tree.c (dump_cell_val, nasl_type_name, get_line_nb): Remove
+	RATS annotations.
+
+	* nasl/nasl_var.c (get_var_name, array2str, var2str): Remove RATS
+	annotations.
+
 2016-05-13  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* nasl/nasl_builtin_synscan.c (plugin_run_synscan): Fix identation to

@@ -518,7 +518,7 @@ get_random_bytes (void *buf, int numbytes)
             }
           /* Seed our random generator */
           gettimeofday (&tv, NULL);
-          srand ((tv.tv_sec ^ tv.tv_usec) ^ getpid ()); /* RATS: ignore */
+          srand ((tv.tv_sec ^ tv.tv_usec) ^ getpid ());
 
           for (i = 0; i < sizeof (bytebuf) / sizeof (short); i++)
             {
