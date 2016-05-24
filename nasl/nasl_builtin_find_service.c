@@ -1845,7 +1845,7 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
                   banner[len] = '\0';
 
                   for (i = 0; i < len; i++)
-                    buffer[i] = tolower (buffer[i]);
+                    buffer[i] = ( buffer[i] == '\0' ) ? 'x' : tolower (buffer[i]);
 
                   line = g_strdup (buffer);
 
@@ -2003,10 +2003,8 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
                   else if (strncmp (line, "421", 3) == 0
                            && strstr (line, "smtp ") != NULL)
                     mark_smtp_server (desc, port, origline, trp);
-                  else if (line[0] != '\0'
-                           && (strncmp (line + 1, "host '", 6) == 0)
-                           && strstr (line, "mysql") != NULL)
-                    mark_mysql (desc, port, origline);
+                  else if ( line[0] != '\0' && ( ( strncmp (buffer + 1,"host '", 6) == 0) || ( strstr (buffer, "mysql") != NULL || strstr (buffer,"mariadb") != NULL ) ) )
+                     mark_mysql (desc, port, origline);
                   else if (!strncmp (line, "efatal", 6)
                            || !strncmp (line, "einvalid packet length",
                                         strlen ("einvalid packet length")))
