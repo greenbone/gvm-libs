@@ -363,8 +363,6 @@ static init_func libfuncs[] = {
    {"buf", "buflen", "key", "seq_number", NULL}},
   {"get_smb2_signature", nasl_get_smb2_sign, 0,
    {"buf", "key", NULL}},
-  {"get_smb2_sign_key", nasl_get_smb2_sign_key, 0,
-   {NULL}},
   {"hmac_sha256", nasl_hmac_sha256, 0,
    {"buf", "buflen", "key", "keylen", NULL}},
   {"dh_generate_key", nasl_dh_generate_key, 0, {"g", "p", "priv", NULL}},

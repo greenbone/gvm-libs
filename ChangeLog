@@ -1,3 +1,12 @@
+2016-05-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_crypto.c (md4_data, rc4_data, nasl_get_smb2_sign_key):
+	Remove functions.
+
+	* nasl/nasl_crypto.h: Remove function header.
+
+	* nasl/nasl_init.c (libfuncs): Remove get_smb2_sign_key().
+
 2016-05-17  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* nasl/nasl_cmd_exec.c (nasl_pread): Remove Flawfinder annotations.
@@ -16,7 +25,7 @@
 	annotations.
 
 	* misc/ids_send.c (which_ttl): Remove RATS annotation.
-	
+
 	* misc/network.c (get_encaps_name, get_encaps_through): Remove RATS
 	annotations.
 
