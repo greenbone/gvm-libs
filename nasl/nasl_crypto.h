@@ -46,4 +46,5 @@ tree_cell *nasl_keyexchg (lex_ctxt * lexic);
 tree_cell *nasl_insert_hexzeros (lex_ctxt * lexic);
 tree_cell *nasl_get_password (lex_ctxt * lexic);
 tree_cell *nasl_get_sign (lex_ctxt * lexic);
+tree_cell *nasl_hmac_sha256 (lex_ctxt * lexic);
 #endif

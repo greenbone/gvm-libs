@@ -1,3 +1,13 @@
+2016-04-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r25022.
+
+	* nasl/nasl_crypto.c (hmac_sha256, nasl_hmac_sha256): New functions.
+
+	* nasl/nasl_crypto.h: Add new function prototype.
+
+	* nasl/nasl_init.c (libfuncs): Add hmac_sha256() function.
+
 2016-04-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r24813.
