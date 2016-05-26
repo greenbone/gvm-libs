@@ -1,3 +1,8 @@
+2016-05-26  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* base/kb_redis.c (get_redis_ctx): Connect inside the retry loop, in
+	case the connection is lost between retries.
+
 2016-05-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (ovas_scanner_context_new): Fix allocated memory size.
