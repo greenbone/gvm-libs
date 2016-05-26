@@ -1,3 +1,10 @@
+2016-05-26  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Backport r25392.
+
+	* base/kb_redis.c (get_redis_ctx): Connect inside the retry loop, in
+	case the connection is lost between retries.
+
 2016-04-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r25022.

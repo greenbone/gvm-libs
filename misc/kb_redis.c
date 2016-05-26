@@ -335,25 +335,27 @@ get_redis_ctx (struct kb_redis *kbr)
   if (kbr->rctx != NULL)
     return kbr->rctx;
 
-  kbr->rctx = redisConnectUnix (kbr->path);
-  if (kbr->rctx == NULL || kbr->rctx->err)
-    {
-      g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-             "%s: redis connection error: %s", __func__,
-             kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
-      redisFree (kbr->rctx);
-      kbr->rctx = NULL;
-      return NULL;
-    }
-
   do
     {
+      kbr->rctx = redisConnectUnix (kbr->path);
+      if (kbr->rctx == NULL || kbr->rctx->err)
+        {
+          g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+                 "%s: redis connection error: %s", __func__,
+                 kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
+          redisFree (kbr->rctx);
+          kbr->rctx = NULL;
+          return NULL;
+        }
+
       rc = select_database (kbr);
       if (rc)
         {
           g_debug ("%s: No redis DB available, retrying in %ds...", __func__,
                    KB_RETRY_DELAY);
           sleep (KB_RETRY_DELAY);
+          redisFree (kbr->rctx);
+          kbr->rctx = NULL;
         }
     }
   while (rc != 0);
