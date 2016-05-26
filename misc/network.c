@@ -1158,7 +1158,7 @@ ovas_scanner_context_new (openvas_encaps_t encaps, const char *certfile,
 {
   ovas_scanner_context_t ctx = NULL;
 
-  ctx = g_malloc0 (sizeof (ovas_scanner_context_t));
+  ctx = g_malloc0 (sizeof (*ctx));
   ctx->encaps = encaps;
   ctx->priority = g_strdup (priority);
 
