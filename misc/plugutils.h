@@ -95,7 +95,7 @@ char * host_get_port_banner(struct arglist *, int);
 /*
  * Inter Plugins Communication functions
  */
-void plug_set_key (struct arglist *, char *, int, void *);
+void plug_set_key (struct arglist *, char *, int, const void *);
 void plug_replace_key (struct arglist *, char *, int, void *);
 kb_t plug_get_kb (struct arglist *);
 void *plug_get_key (struct arglist *, char *, int *);

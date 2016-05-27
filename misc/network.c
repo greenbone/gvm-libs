@@ -1150,7 +1150,10 @@ struct ovas_scanner_context_s
 
   /** GnuTLS priority string */
   char *priority;
+
+  gnutls_session_t tls_session;
 };
+
 
 /**
  * @brief Creates a new ovas_scanner_context_t.
@@ -1265,6 +1268,7 @@ ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc)
           tlserror ("gnutls_init", ret);
           goto fail;
         }
+      ctx->tls_session = fp->tls_session;
       my_gnutls_transport_set_lowat_default (fp->tls_session);
 
       ret = set_gnutls_protocol (fp->tls_session, fp->transport, ctx->priority);

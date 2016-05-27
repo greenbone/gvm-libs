@@ -248,14 +248,13 @@ static void
 mark_post (const char *oid, struct arglist *desc, const char *action,
            const char *content)
 {
-  char entry_name[255], *ccontent;
+  char entry_name[255];
 
   if (strlen (action) > (sizeof (entry_name) - 20))
     return;
 
   snprintf (entry_name, sizeof (entry_name), "SentData/%s/%s", oid, action);
-  ccontent = g_strdup (content);
-  plug_set_key (desc, entry_name, ARG_STRING, ccontent);
+  plug_set_key (desc, entry_name, ARG_STRING, content);
 }
 
 /**
@@ -645,7 +644,7 @@ get_plugin_preference_file_size (struct arglist *desc, const char *identifier)
 }
 
 void
-plug_set_key (struct arglist *args, char *name, int type, void *value)
+plug_set_key (struct arglist *args, char *name, int type, const void *value)
 {
   kb_t kb = plug_get_kb (args);
 

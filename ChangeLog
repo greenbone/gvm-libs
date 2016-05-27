@@ -1,3 +1,15 @@
+2016-05-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/bpf_share.c (bpf_open_live), misc/plugutils.c (mark_post),
+	nasl/nasl_builtin_find_service.c (plugin_do_run): Fix memory leaks.
+
+	* imsc/plugutils.h: Constify function parameter.
+
+	* misc/network.c (ovas_scanner_context_s): Add tls_session element.
+	(ovas_scanner_context_attach): Save context tls session.
+
+	* nasl/nasl_socket.c (nasl_recv): Fix off-by-one memory write.
+
 2016-05-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (set_ids_evasion_mode, open_stream_connection_ext),

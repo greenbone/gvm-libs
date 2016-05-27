@@ -756,7 +756,7 @@ nasl_recv (lex_ctxt * lexic)
     {
       tree_cell *retc = alloc_tree_cell (0, NULL);
       retc->type = CONST_DATA;
-      retc->x.str_val = g_memdup (data, new_len + 1);
+      retc->x.str_val = g_memdup (data, new_len);
       retc->size = new_len;
       g_free (data);
       return retc;
