@@ -1,3 +1,11 @@
+2016-05-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network.c (set_ids_evasion_mode, open_stream_connection_ext),
+	nasl/nasl_http.c (_http_req): Fix memory leak.
+
+	* nasl/nasl_misc_funcs.c (nasl_typeof): Fix smaller-by-one memory
+	allocation.
+
 2016-05-26  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* base/kb_redis.c (get_redis_ctx): Connect inside the retry loop, in

@@ -743,6 +743,10 @@ set_ids_evasion_mode (struct arglist *args, openvas_connection * fp)
                          sizeof (n));
       fp->options |= option;
     }
+  g_free (ids_evasion_split);
+  g_free (ids_evasion_inject);
+  g_free (ids_evasion_short_ttl);
+  g_free (ids_evasion_fake_rst);
 }
 
 /*
@@ -1054,6 +1058,7 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
 
   switch (transport)
     {
+    int ret;
     case OPENVAS_ENCAPS_IP:
       break;
     case OPENVAS_ENCAPS_SSLv23:
@@ -1073,7 +1078,12 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
 
     case OPENVAS_ENCAPS_SSLv2:
       /* We do not need a client certificate in this case */
-      if (open_SSL_connection (fp, cert, key, passwd, cafile) <= 0)
+      ret = open_SSL_connection (fp, cert, key, passwd, cafile);
+      g_free (cert);
+      g_free (key);
+      g_free (passwd);
+      g_free (cafile);
+      if (ret <= 0)
         goto failed;
       break;
     }
