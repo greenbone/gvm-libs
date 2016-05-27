@@ -73,11 +73,6 @@ static init_func libfuncs[] = {
   {"script_name", script_name, 1, {NULL}},
   {"script_version", script_version, 1, {NULL}},
   {"script_timeout", script_timeout, 1, {NULL}},
-
-  /* Can be removed once OpenVA-6 is retired and the command is
-     removed from any NVT */
-  {"script_description", script_description, 999, {NULL}},
-
   {"script_copyright", script_copyright, 999, {NULL}},
   {"script_summary", script_summary, 999, {NULL}},
   {"script_category", script_category, 1, {NULL}},

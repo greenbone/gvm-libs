@@ -268,15 +268,6 @@ script_version (lex_ctxt * lexic)
   return FAKE_CELL;
 }
 
-/* Can be removed once OpenVA-6 is retired _and_ the command is
-   removed from any NVT */
-tree_cell *
-script_description (lex_ctxt * lexic)
-{
-  /* Does nothing. Kept for backward compatibility. */
-  return FAKE_CELL;
-}
-
 tree_cell *
 script_copyright (lex_ctxt * lexic)
 {

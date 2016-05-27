@@ -1,3 +1,14 @@
+2016-05-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	The NASL command "script_description" is not used anymore by any
+	NVT. It is superceeded by the tag "summary".
+
+	* nasl/nasl_init.c (libfuncs):  Removed "script_description".
+
+	* nasl/nasl_scanner_glue.c (script_description): Removed.
+
+	* nasl/nasl_scanner_glue.h: Removed proto accordingly.
+
 2016-05-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/bpf_share.c (bpf_open_live), misc/plugutils.c (mark_post),
