@@ -600,8 +600,7 @@ nasl_typeof (lex_ctxt * lexic)
         break;
       }
   retc->size = strlen (s);
-  retc->x.str_val = g_malloc0 (retc->size);
-  strcpy (retc->x.str_val, s);  /* Flawfinder: ignore */
+  retc->x.str_val = g_strdup (s);
   return retc;
 }
 

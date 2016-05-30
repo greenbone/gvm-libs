@@ -94,6 +94,7 @@ bpf_open_live (char *iface, char *filter)
       return -1;
     }
   pcaps[i] = ret;
+  pcap_freecode (&filter_prog);
   return i;
 }
 

@@ -127,13 +127,16 @@ _http_req (lex_ctxt * lexic, char *keyword)
       ua = kb_item_get_str (kb, "http/user-agent");
 #define OPENVAS_USER_AGENT	"Mozilla/5.0 [en] (X11, U; OpenVAS)"
       if (ua == NULL)
-        ua = OPENVAS_USER_AGENT;
+        ua = g_strdup (OPENVAS_USER_AGENT);
       else
         {
           while (isspace (*ua))
             ua++;
           if (*ua == '\0')
-            ua = OPENVAS_USER_AGENT;
+            {
+              g_free (ua);
+              ua = g_strdup (OPENVAS_USER_AGENT);
+            }
         }
 
       /* Servers should not have a problem with port 80 or 443 appended.
@@ -164,6 +167,7 @@ Accept-Language: en\r\n\
 Accept-Charset: iso-8859-1,*,utf-8\r\n", url, hostheader, ua);
       g_free (hostname);
       g_free (hostheader);
+      g_free (ua);
     }
   else
     {

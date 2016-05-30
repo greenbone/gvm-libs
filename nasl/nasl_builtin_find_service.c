@@ -1515,7 +1515,7 @@ may_be_time (time_t * rtime)
 static int
 plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
 {
-  char *head = "Ports/tcp/";
+  char *head = "Ports/tcp/", *host_fqdn;
   u_short unknown[65535];
   int num_unknown = 0;
   int len_head = strlen (head);
@@ -1534,8 +1534,10 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
   struct in_addr *p_ip = arg_get_value (hostinfos, "IP");
 #endif
 
+  host_fqdn = plug_get_host_fqdn (desc);
   http_get = g_strdup_printf ("GET / HTTP/1.0\r\nHost: %s\r\n\r\n",
-                              plug_get_host_fqdn (desc));
+                              host_fqdn);
+  g_free (host_fqdn);
 
   if (rw_timeout_s != NULL && (x = atoi (rw_timeout_s)) > 0)
     rw_timeout = x;

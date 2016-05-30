@@ -743,6 +743,10 @@ set_ids_evasion_mode (struct arglist *args, openvas_connection * fp)
                          sizeof (n));
       fp->options |= option;
     }
+  g_free (ids_evasion_split);
+  g_free (ids_evasion_inject);
+  g_free (ids_evasion_short_ttl);
+  g_free (ids_evasion_fake_rst);
 }
 
 /*
@@ -1054,6 +1058,7 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
 
   switch (transport)
     {
+    int ret;
     case OPENVAS_ENCAPS_IP:
       break;
     case OPENVAS_ENCAPS_SSLv23:
@@ -1073,7 +1078,12 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
 
     case OPENVAS_ENCAPS_SSLv2:
       /* We do not need a client certificate in this case */
-      if (open_SSL_connection (fp, cert, key, passwd, cafile) <= 0)
+      ret = open_SSL_connection (fp, cert, key, passwd, cafile);
+      g_free (cert);
+      g_free (key);
+      g_free (passwd);
+      g_free (cafile);
+      if (ret <= 0)
         goto failed;
       break;
     }
@@ -1140,7 +1150,10 @@ struct ovas_scanner_context_s
 
   /** GnuTLS priority string */
   char *priority;
+
+  gnutls_session_t tls_session;
 };
+
 
 /**
  * @brief Creates a new ovas_scanner_context_t.
@@ -1158,7 +1171,7 @@ ovas_scanner_context_new (openvas_encaps_t encaps, const char *certfile,
 {
   ovas_scanner_context_t ctx = NULL;
 
-  ctx = g_malloc0 (sizeof (ovas_scanner_context_t));
+  ctx = g_malloc0 (sizeof (*ctx));
   ctx->encaps = encaps;
   ctx->priority = g_strdup (priority);
 
@@ -1255,6 +1268,7 @@ ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc)
           tlserror ("gnutls_init", ret);
           goto fail;
         }
+      ctx->tls_session = fp->tls_session;
       my_gnutls_transport_set_lowat_default (fp->tls_session);
 
       ret = set_gnutls_protocol (fp->tls_session, fp->transport, ctx->priority);
