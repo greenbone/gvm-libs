@@ -1,5 +1,14 @@
 2016-05-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Backport r25409, r25413 and r25415.
+
+	* misc/openvas_proctitle.c (proctitle_init): Fix memory leak.
+
+	* nasl/nasl_builtin_find_service.c (plugin_run_find_service): Fix memory
+	leak.
+
+2016-05-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Backport r25381, r25395 and r25398.
 
 	* misc/network.c (ovas_scanner_context_new): Fix allocated memory size.
