@@ -1,3 +1,7 @@
+2016-05-30  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* CHANGES, ChangeLog: Fix some version identifiers.
+
 2016-05-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_func.c (nasl_func_call), nasl/nasl_lex_ctxt.h,
@@ -207,7 +211,7 @@
 
 	Post release version bump.
 
-	* CMakeLists.txt: Set version to 8.0+beta4.
+	* CMakeLists.txt: Set version to 8.1+beta4.
 
 2016-04-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
@@ -589,7 +593,7 @@
 
 	Post release version bump.
 
-	* CMakeLists.txt: Set version to 8.0+beta3.
+	* CMakeLists.txt: Set version to 8.1+beta3.
 
 2015-10-21  Michael Wiegand <michael.wiegand@greenbone.net>
 
@@ -884,7 +888,7 @@
 
 	Post release version bump.
 
-	* CMakeLists.txt: Set version to 8.0+beta2.
+	* CMakeLists.txt: Set version to 8.1+beta2.
 
 2015-07-17  Michael Wiegand <michael.wiegand@greenbone.net>
 

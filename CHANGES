@@ -10,7 +10,7 @@ Many thanks to everyone who has contributed this release:
 Sebastien Aucouturier, Benoît Allard, Hani Benhabiles, Guillaume Castagnino,
 Timo Pollmeier, Jan-Oliver Wagner and Michael Wiegand.
 
-Main changes compared to 8.1beta1:
+Main changes compared to 8.1beta2:
 * Added support for radius as authentication service.
 * Added --config-file parameter to nasl command to load preferences.
 * Added --kb option to nasl command to set a KB key.
