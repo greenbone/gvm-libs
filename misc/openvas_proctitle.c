@@ -32,6 +32,7 @@
 static int argv_len;
 static char **old_argv;
 extern char **environ;
+void *current_environ = NULL;
 
 /**
  * @brief Initializes the process setting variables.
@@ -50,6 +51,9 @@ proctitle_init (int argc, char **argv)
   /* Move environ to new memory, to be able to reuse older one. */
   while (envp[i]) i++;
   environ = g_malloc0 (sizeof(char *) * (i + 1));
+  if (current_environ)
+    g_free (current_environ);
+  current_environ = environ;
   for (i = 0; envp[i]; i++)
     environ[i] = g_strdup (envp[i]);
   environ[i] = NULL;

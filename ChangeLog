@@ -1,3 +1,7 @@
+2016-05-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openvas_proctitle.c (proctitle_init): Fix memory leak.
+
 2016-05-30  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* base/kb_redis.c (select_database): Add missing space.
