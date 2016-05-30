@@ -265,7 +265,7 @@ select_database (struct kb_redis *kbr)
 
       for (i = 1; i < kbr->max_db; i++)
         {
-          rc = try_database_index(kbr, i);
+          rc = try_database_index (kbr, i);
           if (rc == 0)
             break;
         }

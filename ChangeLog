@@ -1,3 +1,7 @@
+2016-05-30  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* base/kb_redis.c (get_redis_ctx): Connect inside the retry loop, in
+
 2016-05-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	The NASL command "script_description" is not used anymore by any
