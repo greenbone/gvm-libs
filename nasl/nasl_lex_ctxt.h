@@ -62,6 +62,7 @@ tree_cell *get_variable_by_name (lex_ctxt *, const char *);
 tree_cell *get_array_elem (lex_ctxt *, const char * /*array name */ ,
                            tree_cell *);
 anon_nasl_var *add_numbered_var_to_ctxt (lex_ctxt *, int, tree_cell *);
+void free_anon_var (anon_nasl_var *);
 named_nasl_var *add_named_var_to_ctxt (lex_ctxt *, const char *, tree_cell *);
 tree_cell *nasl_read_var_ref (lex_ctxt *, tree_cell *);
 tree_cell *nasl_incr_variable (lex_ctxt *, tree_cell *, int, int);

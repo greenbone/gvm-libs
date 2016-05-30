@@ -1,5 +1,16 @@
 2016-05-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_builtin_find_service.c (plugin_run_find_service): Fix memory
+	leak.
+
+	* nasl/nasl_func.c (nasl_func_call): Fix memory leak.
+
+	* nasl/nasl_lex_ctxt.h: Add function prototype.
+
+	* nasl/nasl_var.c (free_anon_var): Remove static modifier.
+
+2016-05-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/openvas_proctitle.c (proctitle_init): Fix memory leak.
 
 2016-05-30  Matthew Mundell <matthew.mundell@greenbone.net>
