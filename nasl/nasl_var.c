@@ -352,6 +352,7 @@ get_array_elem (lex_ctxt * ctxt, const char *name, tree_cell * idx)
 }
 
 static void free_var_chain (named_nasl_var *);
+static void free_anon_var (anon_nasl_var *);
 
 /**
  * Note: the function does not free the nasl_array structure.
@@ -402,7 +403,7 @@ free_var_chain (named_nasl_var * v)
   g_free (v);
 }
 
-void
+static void
 free_anon_var (anon_nasl_var * v)
 {
   if (v == NULL)

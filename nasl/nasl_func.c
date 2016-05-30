@@ -217,10 +217,8 @@ nasl_func_call (lex_ctxt * lexic, const nasl_func * f, tree_cell * arg_list)
           if (pc->x.str_val == NULL)
             {
               /* 2. Add unnamed (numbered) variables for unnamed args */
-              anon_nasl_var *v = add_numbered_var_to_ctxt (lexic2, nb_u, pc2);
-              if (!v)
+              if (add_numbered_var_to_ctxt (lexic2, nb_u, pc2) == NULL)
                 goto error;
-              free_anon_var (v);
               nb_u++;
               if (nasl_trace_fp != NULL && trace_buf_len < TRACE_BUF_SZ)
                 {
