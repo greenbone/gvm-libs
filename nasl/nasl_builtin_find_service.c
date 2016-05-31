@@ -2689,7 +2689,7 @@ plugin_run_find_service (lex_ctxt * lexic)
               if (sons[i] < 0)
                 sons[i] = 0;    /* Fork failed */
             }
-          g_free (sons_args[i]);
+          arg_free (sons_args[i]);
         }
     }
 

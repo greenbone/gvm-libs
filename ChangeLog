@@ -1,3 +1,10 @@
+2016-05-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r25434.
+
+	* nasl/nasl_builtin_find_service.c (plugin_run_find_service): Fix memory
+	leak.
+
 2016-05-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r25409, r25413 and r25415.
