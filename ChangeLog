@@ -1,3 +1,11 @@
+2016-05-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Increase version for the next official release from 8.1 to
+	9.0 because the number of changes is more comprehensive than originally
+	assumed.
+
+	* CMakeLists.txt: Set version to 9.0+beta1.
+
 2016-05-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_builtin_find_service.c (plugin_run_find_service): Fix memory
