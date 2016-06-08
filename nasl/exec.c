@@ -167,7 +167,10 @@ cell2str (lex_ctxt * lexic, tree_cell * c)
       if (c->x.str_val == NULL)
         p = g_strdup ("");
       else
-        p = g_memdup (c->x.str_val, c->size + 1);
+        {
+          p = g_malloc0 (c->size + 1);
+          strncpy (p, c->x.str_val, c->size);
+        }
       return p;
 
     case REF_ARRAY:
