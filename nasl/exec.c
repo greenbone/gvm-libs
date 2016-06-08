@@ -47,6 +47,11 @@
 #define NASL_DEBUG 0
 #endif
 
+#if NASL_DEBUG > 2
+#include <sys/time.h>
+#include <sys/resource.h>
+#endif
+
 extern int naslparse (naslctxt *);
 
 static int

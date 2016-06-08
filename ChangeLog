@@ -1,3 +1,7 @@
+2016-06-08  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* nasl/exec.c: Add included for NASL_DEBUG 2.
+
 2016-05-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Increase version for the next official release from 8.1 to
