@@ -1,6 +1,12 @@
 2016-06-08  Matthew Mundell <matthew.mundell@greenbone.net>
 
-	* nasl/exec.c: Add included for NASL_DEBUG 2.
+	* nasl/exec.c (cell2str): In the STR and DATA case, copy only size
+	bytes from c->x.str_val instead of size +1 , because str_val may not
+	have the extra byte for the trailing NULL when type is DATA.
+
+2016-06-08  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* nasl/exec.c: Add includes for NASL_DEBUG > 2.
 
 2016-05-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
