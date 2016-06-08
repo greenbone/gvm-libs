@@ -169,7 +169,7 @@ cell2str (lex_ctxt * lexic, tree_cell * c)
       else
         {
           p = g_malloc0 (c->size + 1);
-          strncpy (p, c->x.str_val, c->size);
+          memcpy (p, c->x.str_val, c->size);
         }
       return p;
 

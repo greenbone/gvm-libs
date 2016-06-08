@@ -1,9 +1,16 @@
 2016-06-08  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	Backport r25463.
+
+	* nasl/exec.c (cell2str): Use memcpy instead of strncpy, in case it is
+	not a string when type is DATA.
+
+2016-06-08  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	Backport r25462.
 
 	* nasl/exec.c (cell2str): In the STR and DATA case, copy only size
-	bytes from c->x.str_val instead of size +1 , because str_val may not
+	bytes from c->x.str_val instead of size + 1, because str_val may not
 	have the extra byte for the trailing NULL when type is DATA.
 
 2016-05-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
