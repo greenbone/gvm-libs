@@ -1,3 +1,10 @@
+2016-06-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r25478.
+
+	* nasl/nasl_snmp.c (snmpv3_get, snmpv1v2c_get): Set MIBS environment
+	variable to "".
+
 2016-06-08  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Backport r25463.
