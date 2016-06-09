@@ -313,7 +313,7 @@ dump_cell_val (const tree_cell * c)
         snprintf (txt, sizeof (txt), "%d", c->x.i_val);
         break;
       case CONST_STR:
-      case CONST_DATA:         /* Beurk */
+      case CONST_DATA:         /* Beurk (English: Yuck) */
         if (c->size >= sizeof (txt) + 2)
           {
             snprintf (txt, sizeof (txt), "\"%s", c->x.str_val);

@@ -1,3 +1,7 @@
+2016-06-09  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* nasl/nasl_tree.c (dump_cell_val): Add translation.
+
 2016-06-08  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* nasl/exec.c (cell2str): Use memcpy instead of strncpy, in case it is
