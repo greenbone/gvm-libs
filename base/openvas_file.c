@@ -404,6 +404,7 @@ openvas_export_file_name (const char* fname_format, const char* username,
 
   g_free (now_date_str);
   g_free (creation_date_str);
+  g_free (creation_time_str);
   g_free (modification_date_str);
   return g_string_free (file_name_buf, FALSE);
 }

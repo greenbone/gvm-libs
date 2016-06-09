@@ -1,5 +1,10 @@
 2016-06-09  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* base/openvas_file.c (openvas_export_file_name): Free
+	creation_time_str.
+
+2016-06-09  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* nasl/nasl_tree.c (dump_cell_val): Add translation.
 
 2016-06-08  Matthew Mundell <matthew.mundell@greenbone.net>
