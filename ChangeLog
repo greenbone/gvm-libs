@@ -1,3 +1,7 @@
+2016-06-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_crypto.c (nasl_lm_owf_gen): Fix off-by-one memdup.
+
 2016-06-09  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* base/openvas_file.c (openvas_export_file_name): Free

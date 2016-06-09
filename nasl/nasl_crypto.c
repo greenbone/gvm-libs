@@ -586,7 +586,7 @@ nasl_lm_owf_gen (lex_ctxt * lexic)
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = 16;
-  retc->x.str_val = g_memdup (p16, 17);
+  retc->x.str_val = g_memdup (p16, 16);
   return retc;
 }
 
