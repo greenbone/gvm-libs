@@ -114,6 +114,7 @@ snmpv3_get (const char *peername, const char *username, const char *authpass,
   assert (oid_str);
   assert (result);
 
+  setenv ("MIBS", "", 1);
   init_snmp ("openvas");
   snmp_sess_init (&session);
   session.version = SNMP_VERSION_3;
@@ -193,6 +194,7 @@ snmpv1v2c_get (const char *peername, const char *community, const char *oid_str,
   assert (oid_str);
   assert (version == SNMP_VERSION_1 || version == SNMP_VERSION_2c);
 
+  setenv ("MIBS", "", 1);
   snmp_sess_init (&session);
   session.version = version;
   session.peername = (char *) peername;

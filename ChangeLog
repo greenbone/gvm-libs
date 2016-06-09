@@ -1,5 +1,10 @@
 2016-06-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_snmp.c (snmpv3_get, snmpv1v2c_get): Set MIBS environment
+	variable to "".
+
+2016-06-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_crypto.c (nasl_lm_owf_gen): Fix off-by-one memdup.
 
 2016-06-09  Matthew Mundell <matthew.mundell@greenbone.net>
