@@ -187,7 +187,7 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 ##
 ## TODO Also check for headers where needed.
 
-pkg_check_modules (GNUTLS REQUIRED gnutls>=2.12)
+pkg_check_modules (GNUTLS REQUIRED gnutls>=3.2.15)
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.16)
 if (NOT OPENVAS_OMP_ONLY)
   pkg_check_modules (OPENVAS_WMICLIENT libopenvas_wmiclient>=0.0.1)

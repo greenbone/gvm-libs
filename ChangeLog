@@ -1,3 +1,9 @@
+2016-06-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* CMakeLists.txt: Imcrease dependency for gnutls from 2.12 to
+	3.2.15 in order to enforce the presence of newer (more secure)
+	TLS and ciphers.
+
 2016-06-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_snmp.c (snmpv3_get, snmpv1v2c_get): Set MIBS environment
