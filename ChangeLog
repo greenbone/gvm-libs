@@ -1,3 +1,8 @@
+2016-06-17  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* INSTALL: Match version requirement update in CMakeLists.txt in
+	documentation as well.
+
 2016-06-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CMakeLists.txt: Imcrease dependency for gnutls from 2.12 to
