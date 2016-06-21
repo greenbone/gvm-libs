@@ -1,5 +1,10 @@
 2016-06-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* base/openvas_networking.c: Remove a left-over include
+	directive for stdlib.h that has no effect anymore.
+
+2016-06-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* misc/openvas_logging.c (openvas_log_lock_init): Drop
 	code patch for Glib version < 2.31 because we can
 	rely on presence of at least 2.32.

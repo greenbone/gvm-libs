@@ -29,10 +29,6 @@
 #include <unistd.h>
 #include <glib/gstdio.h>
 
-#if GLIB_CHECK_VERSION (2, 30, 0)
-#include <stdlib.h>  /* for mkdtemp () */
-#endif
-
  /* Global variables */
 
 /* Source interface name eg. eth1. */
