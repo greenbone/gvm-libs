@@ -30,8 +30,10 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <glib.h>
+#include <glib/gstdio.h>
 
 #include <ldap.h>
 
@@ -57,15 +59,17 @@
 /**
  * @brief Authenticate against an ldap directory server.
  *
- * @param info      Schema and address to use.
- * @param username  Username to authenticate.
- * @param password  Password to use.
+ * @param[in] info      Schema and address to use.
+ * @param[in] username  Username to authenticate.
+ * @param[in] password  Password to use.
+ * @param[in] cacert    CA Certificate for LDAP_OPT_X_TLS_CACERTFILE, or NULL.
  *
  * @return 0 authentication success, 1 authentication failure, -1 error.
  */
 int
 ldap_connect_authenticate (const gchar * username, const gchar * password,
-                   /*const *//*ldap_auth_info_t */ void *ldap_auth_info)
+                           /*const *//*ldap_auth_info_t */ void *ldap_auth_info,
+                           const gchar *cacert)
 {
   ldap_auth_info_t info = (ldap_auth_info_t) ldap_auth_info;
   LDAP *ldap = NULL;
@@ -78,7 +82,8 @@ ldap_connect_authenticate (const gchar * username, const gchar * password,
 
   dn = ldap_auth_info_auth_dn (info, username);
 
-  ldap = ldap_auth_bind (info->ldap_host, dn, password, !info->allow_plaintext);
+  ldap = ldap_auth_bind (info->ldap_host, dn, password, !info->allow_plaintext,
+                         cacert);
 
   if (ldap == NULL) {
     g_debug("Could not bind to ldap host %s", info->ldap_host);
@@ -168,18 +173,23 @@ ldap_auth_info_auth_dn (const ldap_auth_info_t info, const gchar * username)
  * @param[in] password          Password for userdn.
  * @param[in] force_encryption  Whether or not to abort if connection
  *                              encryption via StartTLS or ldaps failed.
+ * @param[in] cacert            CA Certificate for LDAP_OPT_X_TLS_CACERTFILE,
+ *                              or NULL.
  *
  * @return LDAP Handle or NULL if an error occurred, authentication failed etc.
  */
 LDAP *
-ldap_auth_bind (const gchar * host, const gchar * userdn,
-                const gchar * password, gboolean force_encryption)
+ldap_auth_bind (const gchar *host, const gchar *userdn,
+                const gchar *password, gboolean force_encryption,
+                const gchar *cacert)
 {
   LDAP *ldap = NULL;
   int ldap_return = 0;
   int ldapv3 = LDAP_VERSION3;
   gchar *ldapuri = NULL;
   struct berval credential;
+  gchar *name;
+  gint fd;
 
   if (host == NULL || userdn == NULL || password == NULL)
     return NULL;
@@ -192,6 +202,41 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
   if (force_encryption == FALSE)
     g_warning ("Allowed plaintext LDAP authentication.");
 
+  if (cacert)
+    {
+      GError *error;
+
+      error = NULL;
+      fd = g_file_open_tmp (NULL, &name, &error);
+      if (fd == -1)
+        {
+          g_warning ("Could not open temp file for LDAP CACERTFILE: %s",
+                     error->message);
+          g_error_free (error);
+        }
+      else
+        {
+          if (g_chmod (name, 0600))
+            g_warning ("Could not chmod for LDAP CACERTFILE");
+
+          g_file_set_contents (name, cacert, strlen (cacert), &error);
+          if (error)
+            {
+              g_warning ("Could not write LDAP CACERTFILE: %s",
+                         error->message);
+              g_error_free (error);
+            }
+          else
+            {
+              if (ldap_set_option (NULL, LDAP_OPT_X_TLS_CACERTFILE, name)
+                  != LDAP_OPT_SUCCESS)
+                g_warning ("Could not set LDAP CACERTFILE option.");
+            }
+        }
+    }
+  else
+    fd = -1;
+
   ldapuri = g_strconcat ("ldap://", host, NULL);
 
   ldap_return = ldap_initialize (&ldap, ldapuri);
@@ -200,7 +245,7 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
     {
       g_warning ("Could not open LDAP connection for authentication.");
       g_free (ldapuri);
-      return NULL;
+      goto fail;
     }
 
   /* Fail if server doesn't talk LDAPv3 or StartTLS initialization fails. */
@@ -210,7 +255,7 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
       g_warning ("Aborting, could not set ldap protocol version to 3: %s.",
                  ldap_err2string (ldap_return));
       g_free (ldapuri);
-      return NULL;
+      goto fail;
     }
 
   ldap_return = ldap_start_tls_s (ldap, NULL, NULL);
@@ -230,7 +275,7 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
                 ("Aborting ldap authentication: Could not init LDAP StartTLS nor ldaps: %s.",
                  ldap_err2string (ldap_return));
               g_free (ldapuri);
-              return NULL;
+              goto fail;
             }
           else
             {
@@ -246,7 +291,7 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
                 {
                   g_warning ("Could not reopen LDAP connection for authentication.");
                   g_free (ldapuri);
-                  return NULL;
+                  goto fail;
                 }
             }
         }
@@ -267,10 +312,25 @@ ldap_auth_bind (const gchar * host, const gchar * userdn,
     {
       g_warning ("LDAP authentication failure: %s",
                  ldap_err2string (ldap_return));
-      return NULL;
+      goto fail;
     }
 
+  if (fd > -1)
+    {
+      g_unlink (name);
+      close (fd);
+      g_free (name);
+    }
   return ldap;
+
+ fail:
+  if (fd > -1)
+    {
+      g_unlink (name);
+      close (fd);
+      g_free (name);
+    }
+  return NULL;
 }
 
 /**

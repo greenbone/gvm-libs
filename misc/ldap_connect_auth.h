@@ -60,7 +60,8 @@ gchar*
 ldap_auth_info_auth_dn (const ldap_auth_info_t, const gchar*);
 
 LDAP *
-ldap_auth_bind (const gchar *, const gchar *, const gchar *, gboolean);
+ldap_auth_bind (const gchar *, const gchar *, const gchar *, gboolean,
+                const gchar *);
 
 gboolean ldap_auth_dn_is_good (const gchar *);
 
