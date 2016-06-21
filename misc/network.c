@@ -929,11 +929,6 @@ socket_get_ssl_compression (int fd)
         return 0;
       case GNUTLS_COMP_DEFLATE:
         return 1;
-#ifdef GNUTLS_COMP_LZO
-      /* LZO compression was removed in GnuTLS >= 3.0.0 */
-      case GNUTLS_COMP_LZO:
-        return 2;
-#endif
       default:
         return -1;
     }

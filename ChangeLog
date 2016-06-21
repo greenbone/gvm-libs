@@ -1,5 +1,11 @@
 2016-06-21  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* misc/network.c (socket_get_ssl_compression): Drop handling
+	of GNUTLS_COMP_LZO which does not exist anymore since
+	GnuTLS version 3.0.
+
+2016-06-21  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* misc/ldap_connect_auth.c (ldap_connect_authenticate): Make braces
 	consistent.
 
