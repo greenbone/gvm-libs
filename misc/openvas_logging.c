@@ -358,16 +358,11 @@ static GMutex *logger_mutex = NULL;
 static void
 openvas_log_lock_init (void)
 {
-#if GLIB_CHECK_VERSION (2, 31, 0)
   if (logger_mutex == NULL)
     {
       logger_mutex = g_malloc (sizeof (*logger_mutex));
       g_mutex_init (logger_mutex);
     }
-#else
-  if (logger_mutex == NULL)
-    logger_mutex = g_mutex_new ();
-#endif
 }
 
 static void

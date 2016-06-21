@@ -1,5 +1,11 @@
 2016-06-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* misc/openvas_logging.c (openvas_log_lock_init): Drop
+	code patch for Glib version < 2.31 because we can
+	rely on presence of at least 2.32.
+
+2016-06-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* nasl/nasl_ssh.c (my_ssh_pki_import_privkey_base64),
 	misc/openvas_ssh.c (openvas_ssh_public_from_private):
 	Now that we can rely on minimum of 2.32 of glib, we can
