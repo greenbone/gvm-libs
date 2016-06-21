@@ -20,7 +20,7 @@ General build environment:
 * pkg-config
 
 Specific development libraries:
-* libglib >= 2.16
+* libglib >= 2.32
 * libgnutls >= 3.2.15
 * libgcrypt
 * zlib
