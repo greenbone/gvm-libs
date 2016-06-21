@@ -88,7 +88,6 @@ static int server_new_internal (unsigned int, const char *,
                                 const gchar *, const gchar *,
                                 gnutls_session_t *,
                                 gnutls_certificate_credentials_t *);
-static void my_gnutls_transport_set_lowat_default (gnutls_session_t);
 
 
 
@@ -797,8 +796,6 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
       return -1;
     }
 
-  my_gnutls_transport_set_lowat_default (*server_session);
-
   /* Depending on gnutls version different priority strings are
      possible. At least from 3.0 this is an option:
      "NONE:+VERS-TLS1.0:+CIPHER-ALL:+COMP-ALL:+RSA:+DHE-RSA:+DHE-DSS:+MAC-ALL"
@@ -1124,20 +1121,4 @@ openvas_server_free (int server_socket, gnutls_session_t server_session,
   gnutls_global_deinit ();
 
   return 0;
-}
-
-
-/* GnuTLS 2.11.1 changed the semantics of set_lowat and 2.99.0 removed
-   that function.  As a quick workaround we set it back to the old
-   default.  gcc 4.4 has no diagnostic push pragma, thus we better put
-   this function at the end of the file.  */
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-static void
-my_gnutls_transport_set_lowat_default (gnutls_session_t session)
-{
-#if GNUTLS_VERSION_NUMBER < 0x026300
-  gnutls_transport_set_lowat (session, 1);
-#else
-  (void) session;
-#endif
 }

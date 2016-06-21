@@ -1,3 +1,15 @@
+2016-06-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* misc/network.c (my_gnutls_transport_set_lowat_default): Removed
+	this workaround function for GnuTLS < 3.0.
+	(ovas_scanner_context_attach): Removed the call of
+	my_gnutls_transport_set_lowat_default().
+
+	* misc/openvas_server.c (my_gnutls_transport_set_lowat_default):
+	Removed this workaround function for GnuTLS < 3.0.
+	(server_new_gnutls_set): Removed the call of
+	my_gnutls_transport_set_lowat_default().
+
 2016-06-17  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* INSTALL: Match version requirement update in CMakeLists.txt in

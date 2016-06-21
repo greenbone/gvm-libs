@@ -116,10 +116,6 @@ struct csc_hook_s
 static struct csc_hook_s *csc_hooks;
 
 
-static void my_gnutls_transport_set_lowat_default (gnutls_session_t session);
-
-
-
 /**
  * OPENVAS_STREAM(x) is TRUE if \<x\> is a OpenVAS-ified fd
  */
@@ -1269,7 +1265,6 @@ ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc)
           goto fail;
         }
       ctx->tls_session = fp->tls_session;
-      my_gnutls_transport_set_lowat_default (fp->tls_session);
 
       ret = set_gnutls_protocol (fp->tls_session, fp->transport, ctx->priority);
       if (ret < 0)
@@ -2701,21 +2696,6 @@ getpts (char *origexpr, int *len)
   last_expr = g_strdup (origexpr);
   last_num = i - 1;
   return tmp;
-}
-
-/* GnuTLS 2.11.1 changed the semantics of set_lowat and 2.99.0 removed
-   that function.  As a quick workaround we set it back to the old
-   default.  gcc 4.4 has no diagnostic push pragma, thus we better put
-   this function at the end of the file.  */
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-static void
-my_gnutls_transport_set_lowat_default (gnutls_session_t session)
-{
-#if GNUTLS_VERSION_NUMBER < 0x026300
-  gnutls_transport_set_lowat (session, 1);
-#else
-  (void) session;
-#endif
 }
 
 /**
