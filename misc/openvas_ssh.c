@@ -111,11 +111,7 @@ openvas_ssh_public_from_private (const char *private_key, const char *passphrase
   ssh_string sstring;
   size_t datalen;
 
-#if GLIB_CHECK_VERSION (2, 30, 0)
   if (!private_key || !g_mkdtemp_full (key_dir, S_IRUSR|S_IWUSR|S_IXUSR))
-#else
-  if (!private_key || !mkdtemp (key_dir))
-#endif
     return NULL;
   g_snprintf (filename, sizeof (filename), "%s/key.tmp", key_dir);
   decrypted_priv = openvas_ssh_pkcs8_decrypt (private_key, passphrase);

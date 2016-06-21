@@ -210,13 +210,7 @@ my_ssh_pki_import_privkey_base64(ssh_session session,
   char *pkcs8_buffer = NULL;
 
   /* Write the private key to a file in a temporary directory.  */
-  if (
-#if GLIB_CHECK_VERSION (2,30,0)
-      !g_mkdtemp_full (key_dir, S_IRUSR|S_IWUSR|S_IXUSR)
-#else
-      !mkdtemp (key_dir)
-#endif
-      )
+  if (!g_mkdtemp_full (key_dir, S_IRUSR|S_IWUSR|S_IXUSR))
     {
       log_legacy_write ("%s: g_mkdtemp_full/mkdtemp failed\n", __FUNCTION__);
       return SSH_AUTH_ERROR;
