@@ -75,20 +75,22 @@ ldap_connect_authenticate (const gchar * username, const gchar * password,
   LDAP *ldap = NULL;
   gchar *dn = NULL;
 
-  if (info == NULL || username == NULL || password == NULL || !info->ldap_host) {
-    g_debug("Not attempting ldap_connect: missing parameter.");
-    return -1;
-  }
+  if (info == NULL || username == NULL || password == NULL || !info->ldap_host)
+    {
+      g_debug ("Not attempting ldap_connect: missing parameter.");
+      return -1;
+    }
 
   dn = ldap_auth_info_auth_dn (info, username);
 
   ldap = ldap_auth_bind (info->ldap_host, dn, password, !info->allow_plaintext,
                          cacert);
 
-  if (ldap == NULL) {
-    g_debug("Could not bind to ldap host %s", info->ldap_host);
-    return -1;
-  }
+  if (ldap == NULL)
+    {
+      g_debug ("Could not bind to ldap host %s", info->ldap_host);
+      return -1;
+    }
 
   ldap_unbind_ext_s (ldap, NULL, NULL);
 

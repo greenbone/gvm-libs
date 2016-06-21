@@ -1,5 +1,12 @@
 2016-06-21  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* misc/ldap_connect_auth.c (ldap_connect_authenticate): Make braces
+	consistent.
+
+	* misc/ldap_connect_auth.h: Neaten indent.
+
+2016-06-21  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* misc/ldap_connect_auth.c (ldap_connect_authenticate): Add cacert arg.
 	Pass to ldap_auth_bind.
 	(ldap_auth_bind): Add cacert arg.  Use for LDAP_OPT_X_TLS_CACERTFILE if

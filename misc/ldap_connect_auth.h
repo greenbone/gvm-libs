@@ -45,7 +45,7 @@ struct ldap_auth_info
 };
 
 int ldap_connect_authenticate (const gchar *, const gchar *,
-                       /*ldap_auth_info_t */ void *);
+                               /*ldap_auth_info_t */ void *, const gchar *);
 
 void ldap_auth_info_free (ldap_auth_info_t);
 
