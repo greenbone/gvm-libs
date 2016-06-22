@@ -417,16 +417,19 @@ ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
  * @param ldap_auth_info      Schema and address to use.
  * @param username            Username to authenticate.
  * @param password            Password to use.
+ * @param cacert         CA Certificate for LDAP_OPT_X_TLS_CACERTFILE, or NULL.
  *
  * @return -1.
  */
 int
 ldap_connect_authenticate (const gchar * username, const gchar * password,
-                   /*const *//*ldap_auth_info_t */ void *ldap_auth_info)
+                   /*const *//*ldap_auth_info_t */ void *ldap_auth_info,
+                           const gchar *cacert)
 {
   (void) username;
   (void) password;
   (void) ldap_auth_info;
+  (void) cacert;
   return -1;
 }
 
