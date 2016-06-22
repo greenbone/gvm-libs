@@ -1,3 +1,9 @@
+2016-06-22  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/openvas_hosts.c (openvas_hosts_free): Use
+	g_list_free_full (available since glib 2.28) instead of
+	a foreach/free combination.
+
 2016-06-22  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* misc/ldap_connect_auth.c (ldap_connect_authenticate): Add cacert

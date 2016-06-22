@@ -1150,9 +1150,7 @@ openvas_hosts_free (openvas_hosts_t *hosts)
   if (hosts->orig_str)
     g_free (hosts->orig_str);
 
-  // Free list in two steps for glib < 2.28 compatibility.
-  g_list_foreach (hosts->hosts, (GFunc) openvas_host_free, NULL);
-  g_list_free (hosts->hosts);
+  g_list_free_full (hosts->hosts, openvas_host_free);
 
   g_free (hosts);
 }
