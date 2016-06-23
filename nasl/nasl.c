@@ -38,6 +38,7 @@
 #include "../base/openvas_hosts.h" /* for openvas_hosts_* and openvas_host_* */
 #include "../base/nvti.h"
 #include "../misc/prefs.h" /* for prefs_get */
+#include "../misc/nvt_categories.h"
 
 #include <glib.h>
 
@@ -105,6 +106,23 @@ parse_script_infos (const char *file, struct arglist *script_infos)
     arg_add_value (script_infos, "OID", ARG_STRING, oid);
 
   return nvti;
+}
+
+
+/**
+ * @brief Checks that an NVT category is safe.
+ *
+ * @param category  Category to check.
+ *
+ * @return 0 if category is unsafe, 1 otherwise.
+ */
+static int
+nvti_category_is_safe (int category)
+{
+  if (category == ACT_DESTRUCTIVE_ATTACK || category == ACT_KILL_HOST
+      || category == ACT_FLOOD || category == ACT_DENIAL)
+    return 0;
+  return 1;
 }
 
 /**

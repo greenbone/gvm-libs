@@ -168,7 +168,4 @@ nvtis_add (nvtis_t *, nvti_t *);
 nvti_t *
 nvtis_lookup (nvtis_t *, const char *);
 
-int
-nvti_category_is_safe (int);
-
 #endif /* not _NVTI_H */
