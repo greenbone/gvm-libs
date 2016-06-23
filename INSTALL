@@ -16,7 +16,7 @@ General build environment:
 * a C compiler (e.g. gcc)
 * bison
 * flex
-* cmake
+* cmake >= 2.8
 * pkg-config
 
 Specific development libraries:

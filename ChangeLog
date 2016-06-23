@@ -1,5 +1,13 @@
 2016-06-23  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* CMakeLists.txt: Increase required cmake version from 2.6
+	to 2.8 because 2.8 is the minimum version we are sure it
+	works with.
+
+	* INSTALL: Update accordingly.
+
+2016-06-23  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* CMakeLists.txt, INSTALL: Increase dependency for libopenvas_wmiclient
 	and libopenvas_wincmd from 0.0.1 to 1.0.1. 0.0.1 was a initial start,
 	but meanwhile openvas-smb was release in a stable version.
