@@ -1,3 +1,9 @@
+2016-06-23  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* CMakeLists.txt, INSTALL: Increase dependency for libopenvas_wmiclient
+	and libopenvas_wincmd from 0.0.1 to 1.0.1. 0.0.1 was a initial start,
+	but meanwhile openvas-smb was release in a stable version.
+	
 2016-06-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/nvti.c (nvti_category_is_safe): Move function to nasl/nasl.c.
@@ -38,7 +44,7 @@
 
 2016-06-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
-	* CMakeLists.txt, INSTALL: Imcrease dependency for glib from 2.16 to
+	* CMakeLists.txt, INSTALL: Increase dependency for glib from 2.16 to
 	2.32 in order to allow the use of newer API elements. Also,
 	prior to 2.32 there is subject to the (disputed) CVE-2012-0039.
 
@@ -83,7 +89,7 @@
 
 2016-06-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
-	* CMakeLists.txt: Imcrease dependency for gnutls from 2.12 to
+	* CMakeLists.txt: Increase dependency for gnutls from 2.12 to
 	3.2.15 in order to enforce the presence of newer (more secure)
 	TLS and ciphers.
 

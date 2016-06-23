@@ -36,7 +36,7 @@ Prerequisites for building documentation:
 * sqlfairy (optional, for producing database diagram)
 
 Recommended to have WMI support:
-* openvas-smb
+* openvas-smb >= 1.0.1
 
 Recommended to have improved SNMP support:
 * netsnmp
