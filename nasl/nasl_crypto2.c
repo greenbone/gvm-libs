@@ -668,6 +668,70 @@ strip_pkcs1_padding (tree_cell * retc)
 /**
  * nasl function
  *
+ *   rsa_public_encrypt(data:data, e:mpi_e, n:mpi_n)
+ *
+ * Encrypt the provided data  with the public RSA key given by its parameters e
+ * and n. The return value is the encrypted data.
+ */
+tree_cell *
+nasl_rsa_public_encrypt (lex_ctxt * lexic)
+{
+  tree_cell *retc = NULL;
+  gcry_mpi_t e = NULL, n = NULL, dt = NULL;
+  gcry_sexp_t key = NULL, data = NULL, encrypted = NULL;
+  gcry_error_t err;
+
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+
+  if (mpi_from_named_parameter (lexic, &dt, "data", "nasl_rsa_public_encrypt") <
+      0)
+    goto fail;
+  if (mpi_from_named_parameter (lexic, &e, "e", "nasl_rsa_public_encrypt") < 0)
+    goto fail;
+  if (mpi_from_named_parameter (lexic, &n, "n", "nasl_rsa_public_encrypt") < 0)
+    goto fail;
+
+  err = gcry_sexp_build (&key, NULL, "(public-key (rsa (n %m) (e %m)))", n, e);
+  if (err)
+    {
+      print_gcrypt_error (lexic, "gcry_sexp_build pubkey", err);
+      goto fail;
+    }
+  err = gcry_sexp_build (&data, NULL, "(data (flags pkcs1) (value %m))", dt);
+  if (err)
+    {
+      print_gcrypt_error (lexic, "gcry_sexp_build data", err);
+      goto fail;
+    }
+
+  err = gcry_pk_encrypt (&encrypted, data, key);
+  if (err)
+    {
+      print_gcrypt_error (lexic, "gcry_pk_encrypt", err);
+      goto fail;
+    }
+
+  if (set_retc_from_sexp (retc, encrypted, "a") >= 0
+      && strip_pkcs1_padding (retc) >= 0)
+    goto ret;
+
+fail:
+  retc->size = 0;
+  retc->x.str_val = g_malloc0 (1);
+ret:
+  gcry_sexp_release (encrypted);
+  gcry_sexp_release (key);
+  gcry_sexp_release (data);
+  gcry_mpi_release (dt);
+  gcry_mpi_release (e);
+  gcry_mpi_release (n);
+  return retc;
+}
+
+/**
+ * nasl function
+ *
  *   rsa_public_decrypt(sig:signature, e:mpi_e, n:mpi_n)
  *
  * Decrypt the data in signature (usually an rsa-encrypted hash) with
