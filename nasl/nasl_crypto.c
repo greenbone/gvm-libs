@@ -227,6 +227,12 @@ nasl_hmac_sha1 (lex_ctxt * lexic)
 }
 
 tree_cell *
+nasl_hmac_sha384 (lex_ctxt * lexic)
+{
+  return nasl_hmac (lexic, GCRY_MD_SHA384);
+}
+
+tree_cell *
 nasl_hmac_ripemd160 (lex_ctxt * lexic)
 {
   return nasl_hmac (lexic, GCRY_MD_RMD160);
@@ -299,44 +305,10 @@ nasl_hmac_sha256 (lex_ctxt * lexic)
   return retc;
 }
 
-static void *
-hmac_sha512 (void *key, int keylen, void *buf, int buflen)
-{
-  void *signature = g_malloc0 (64);
-  gsize signlen = 64;
-  GHmac *hmac;
-
-  hmac = g_hmac_new (G_CHECKSUM_SHA512, key, keylen);
-  g_hmac_update (hmac, buf, buflen);
-  g_hmac_get_digest (hmac, signature, &signlen);
-  g_hmac_unref (hmac);
-  return signature;
-}
-
 tree_cell *
 nasl_hmac_sha512 (lex_ctxt * lexic)
 {
-  void *key, *data, *signature;
-  int keylen, datalen;
-  tree_cell *retc;
-
-  key = get_str_var_by_name (lexic, "key");
-  data = get_str_var_by_name (lexic, "data");
-  datalen = get_local_var_size_by_name (lexic, "data");
-  keylen = get_local_var_size_by_name (lexic, "key");
-  if (!key || !data || keylen <= 0 || datalen <= 0)
-    {
-      nasl_perror (lexic,
-                   "Syntax : hmac_sha512(data:<b>, key:<k>)\n");
-      return NULL;
-    }
-  signature = hmac_sha512 (key, keylen, data, datalen);
-
-  retc = alloc_tree_cell (0, NULL);
-  retc->type = CONST_DATA;
-  retc->size = 64;
-  retc->x.str_val = (char *) signature;
-  return retc;
+  return nasl_hmac (lexic, GCRY_MD_SHA512);
 }
 
 tree_cell *
