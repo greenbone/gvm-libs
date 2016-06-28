@@ -1,3 +1,14 @@
+2016-06-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_crypto.c (nasl_hmac_sha256): Take only data and key
+	parameters.
+	(hmac_sha512, nasl_hmac_sha512): New functions.
+
+	* nasl/nasl_crypto.h: Add new function prototype.
+
+	* nasl/nasl_init.c (libfuncs): Add HMAC_SHA512(). Capitalize
+	hmac_sha256() for consistency.
+
 2016-06-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_crypto2.c (nasl_rsa_public_encrypt): New function.

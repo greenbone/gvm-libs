@@ -276,25 +276,65 @@ hmac_sha256 (void *key, int keylen, void *buf, int buflen)
 tree_cell *
 nasl_hmac_sha256 (lex_ctxt * lexic)
 {
-  void *key, *buf, *signature;
-  int keylen, buflen;
+  void *key, *data, *signature;
+  int keylen, datalen;
   tree_cell *retc;
 
   key = get_str_var_by_name (lexic, "key");
-  buf = get_str_var_by_name (lexic, "buf");
-  keylen = get_int_var_by_name (lexic, "keylen", -1);
-  buflen = get_int_var_by_name (lexic, "buflen", -1);
-  if (!key || !buf || keylen <= 0 || buflen <= 0)
+  data = get_str_var_by_name (lexic, "data");
+  datalen = get_local_var_size_by_name (lexic, "data");
+  keylen = get_local_var_size_by_name (lexic, "key");
+  if (!key || !data || keylen <= 0 || datalen <= 0)
     {
       nasl_perror (lexic,
-                   "Syntax : hmac_sha256(buf:<b>, buflen:<bl>, key:<k>, keylen:<kl>)\n");
+                   "Syntax : hmac_sha256(data:<b>, key:<k>)\n");
       return NULL;
     }
-  signature = hmac_sha256 (key, keylen, buf, buflen);
+  signature = hmac_sha256 (key, keylen, data, datalen);
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = 32;
+  retc->x.str_val = (char *) signature;
+  return retc;
+}
+
+static void *
+hmac_sha512 (void *key, int keylen, void *buf, int buflen)
+{
+  void *signature = g_malloc0 (64);
+  gsize signlen = 64;
+  GHmac *hmac;
+
+  hmac = g_hmac_new (G_CHECKSUM_SHA512, key, keylen);
+  g_hmac_update (hmac, buf, buflen);
+  g_hmac_get_digest (hmac, signature, &signlen);
+  g_hmac_unref (hmac);
+  return signature;
+}
+
+tree_cell *
+nasl_hmac_sha512 (lex_ctxt * lexic)
+{
+  void *key, *data, *signature;
+  int keylen, datalen;
+  tree_cell *retc;
+
+  key = get_str_var_by_name (lexic, "key");
+  data = get_str_var_by_name (lexic, "data");
+  datalen = get_local_var_size_by_name (lexic, "data");
+  keylen = get_local_var_size_by_name (lexic, "key");
+  if (!key || !data || keylen <= 0 || datalen <= 0)
+    {
+      nasl_perror (lexic,
+                   "Syntax : hmac_sha512(data:<b>, key:<k>)\n");
+      return NULL;
+    }
+  signature = hmac_sha512 (key, keylen, data, datalen);
+
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+  retc->size = 64;
   retc->x.str_val = (char *) signature;
   return retc;
 }
