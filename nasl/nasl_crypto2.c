@@ -251,7 +251,7 @@ nasl_load_privkey_param (lex_ctxt * lexic, const char *priv_name,
                          const char *passphrase_name)
 {
   char *priv = NULL, *passphrase = NULL;
-  long privlen, passphraselen;
+  long privlen;
   gnutls_x509_privkey_t privkey = NULL;
   gnutls_datum_t pem;
   int err;
@@ -262,8 +262,6 @@ nasl_load_privkey_param (lex_ctxt * lexic, const char *priv_name,
 
   /* passphrase */
   passphrase = get_str_local_var_by_name (lexic, passphrase_name);
-  passphraselen = get_var_size_by_name (lexic, passphrase_name);
-
   pem.data = (unsigned char *) priv;
   pem.size = privlen;
 
@@ -274,28 +272,16 @@ nasl_load_privkey_param (lex_ctxt * lexic, const char *priv_name,
       goto fail;
     }
 
-  if (passphraselen == 0 || passphrase[0] == 0)
+  if (passphrase && !*passphrase)
+    passphrase = NULL;
+  err = gnutls_x509_privkey_import2
+         (privkey, &pem, GNUTLS_X509_FMT_PEM, passphrase,
+          passphrase ? 0 : GNUTLS_PKCS_PLAIN);
+  if (err)
     {
-      err = gnutls_x509_privkey_import (privkey, &pem, GNUTLS_X509_FMT_PEM);
-      if (err)
-        {
-          print_tls_error (lexic, "gnutls_x509_privkey_import", err);
-          goto fail;
-        }
+      print_tls_error (lexic, "gnutls_x509_privkey_import_pkcs8", err);
+      goto fail;
     }
-  else
-    {
-      err =
-        gnutls_x509_privkey_import_pkcs8 (privkey, &pem, GNUTLS_X509_FMT_PEM,
-                                          passphrase, 0);
-      if (err)
-        {
-          print_tls_error (lexic, "gnutls_x509_privkey_import_pkcs8", err);
-          goto fail;
-        }
-    }
-
-
   return privkey;
 
 fail:
@@ -793,6 +779,72 @@ ret:
   gcry_mpi_release (s);
   gcry_mpi_release (e);
   gcry_mpi_release (n);
+  return retc;
+}
+
+/**
+ * @brief Get the modulus from a RSA private key.
+ */
+tree_cell *
+nasl_rsa_get_modulus (lex_ctxt * lexic)
+{
+  tree_cell *retc = NULL;
+  gnutls_x509_privkey_t privkey = NULL;
+  gnutls_datum_t m;
+  int err;
+
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+  privkey = nasl_load_privkey_param (lexic, "priv", "passphrase");
+  if (!privkey)
+    goto fail;
+
+  err =
+    gnutls_x509_privkey_export_rsa_raw (privkey, &m, NULL, NULL, NULL, NULL, NULL);
+  if (err)
+    {
+      print_tls_error (lexic, "gnutls_x509_privkey_export_rsa_raw", err);
+      goto fail;
+    }
+  retc->size = m.size;
+  retc->x.str_val = g_memdup (m.data, m.size);
+  gnutls_free (m.data);
+
+fail:
+  gnutls_x509_privkey_deinit (privkey);
+  return retc;
+}
+
+/**
+ * @brief Get the public exponent from a RSA private key.
+ */
+tree_cell *
+nasl_rsa_get_pubexp (lex_ctxt * lexic)
+{
+  tree_cell *retc = NULL;
+  gnutls_x509_privkey_t privkey = NULL;
+  gnutls_datum_t e;
+  int err;
+
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+  privkey = nasl_load_privkey_param (lexic, "priv", "passphrase");
+  if (!privkey)
+    goto fail;
+
+  err =
+    gnutls_x509_privkey_export_rsa_raw (privkey, NULL, &e, NULL, NULL, NULL, NULL);
+  if (err)
+    {
+      print_tls_error (lexic, "gnutls_x509_privkey_export_rsa_raw", err);
+      goto fail;
+    }
+  retc->size = e.size;
+  retc->x.str_val = g_memdup (e.data, e.size);
+  gnutls_free (e.data);
+
+fail:
+  gnutls_x509_privkey_deinit (privkey);
   return retc;
 }
 

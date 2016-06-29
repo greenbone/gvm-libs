@@ -1,5 +1,16 @@
 2016-06-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_crypto2.c (nasl_load_privkey_param): Use
+	gnutls_x509_privkey_import2().
+	(nasl_rsa_get_modulus, nasl_rsa_get_exponent): New functions.
+
+	* nasl/nasl_crypto.h: Add new functions prototypes.
+
+	* nasl/nasl_init.c (libfuncs): Add rsa_get_modulus() and
+	rsa_get_exponent().
+
+2016-06-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_crypto.c (nasl_hmac_sha384): New function.
 	(hmac_sha512): Remove function.
 	(nasl_hmac_sha512): Use nasl_hmac().
