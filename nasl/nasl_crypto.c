@@ -266,7 +266,7 @@ nasl_get_sign (lex_ctxt * lexic)
 }
 
 static void *
-hmac_sha256 (void *key, int keylen, void *buf, int buflen)
+hmac_sha256 (const void *key, int keylen, const void *buf, int buflen)
 {
   void *signature = g_malloc0 (32);
   gsize signlen = 32;
@@ -302,6 +302,87 @@ nasl_hmac_sha256 (lex_ctxt * lexic)
   retc->type = CONST_DATA;
   retc->size = 32;
   retc->x.str_val = (char *) signature;
+  return retc;
+}
+
+/* @brief PRF function from RFC 2246 chapter 5. */
+static void *
+prf_sha256 (const void *secret, size_t secret_len, const void *seed,
+            size_t seed_len, const void *label, size_t outlen)
+{
+  char *result = NULL;
+  size_t pos = 0, lslen;
+  void *Ai;
+  void *lseed;
+
+  /*
+   * A0 = seed
+   * Ai = HMAC(secret, A(i - 1))
+   * lseed = label + seed
+   */
+  Ai = hmac_sha256 (secret, secret_len, seed, seed_len);
+  lslen = strlen (label) + seed_len;
+  lseed = g_malloc0 (lslen);
+  memcpy (lseed, label, strlen (label));
+  memcpy (lseed + strlen (label), seed, seed_len);
+
+  result = g_malloc0 (outlen);
+  while (pos < outlen)
+    {
+        void *tmp, *tmp2;
+        size_t clen;
+
+        /* HMAC_hash(secret, Ai + lseed) */
+        tmp = g_malloc0 (32 + lslen);
+        memcpy (tmp, Ai, 32);
+        memcpy (tmp + 32, lseed, lslen);
+        tmp2 = hmac_sha256 (secret, secret_len, tmp, 32);
+        g_free (tmp);
+        /* concat to result */
+        clen = outlen - pos;
+        if (clen > 32)
+          clen = 32;
+        memcpy (result + pos, tmp2, clen);
+        pos += clen;
+        g_free (tmp2);
+
+        /* A(i+1) */
+        tmp = hmac_sha256 (secret, secret_len, Ai, 32);
+        g_free (Ai);
+        Ai = tmp;
+    }
+  return result;
+}
+
+tree_cell *
+nasl_prf_sha256 (lex_ctxt * lexic)
+{
+  void *secret, *seed, *label, *result;
+  int secret_len, seed_len, label_len, outlen;
+  tree_cell *retc;
+
+  secret = get_str_var_by_name (lexic, "secret");
+  seed = get_str_var_by_name (lexic, "seed");
+  label = get_str_var_by_name (lexic, "label");
+  outlen = get_int_var_by_name (lexic, "outlen", -1);
+  seed_len = get_local_var_size_by_name (lexic, "seed");
+  secret_len = get_local_var_size_by_name (lexic, "secret");
+  label_len = get_local_var_size_by_name (lexic, "label");
+  if (!secret || !seed || secret_len <= 0 || seed_len <= 0 || !label
+      || label_len <= 0 || outlen <= 0)
+    {
+      nasl_perror (lexic,
+                   "Syntax : hmac_sha256(secret, seed, label, outlen)\n");
+      return NULL;
+    }
+  result = prf_sha256 (secret, secret_len, seed, seed_len, label, outlen);
+  if (!result)
+    return NULL;
+
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+  retc->size = outlen;
+  retc->x.str_val = (char *) result;
   return retc;
 }
 

@@ -1,5 +1,14 @@
 2016-06-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_crypto.c (hmac_sha256): Constify parameters.
+	(prf_sha256, nasl_prf_sha256): New functions
+
+	* nasl/nasl_crypto.h: Add new function prototype.
+
+	* nasl/nasl_init.c (libfuncs): Add prf_sha256() function.
+
+2016-06-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_crypto2.c (nasl_load_privkey_param): Use
 	gnutls_x509_privkey_import2().
 	(nasl_rsa_get_modulus, nasl_rsa_get_exponent): New functions.
