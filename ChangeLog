@@ -1,3 +1,7 @@
+2016-06-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_crypto.c (prf_sha256): Fix memory leak.
+
 2016-06-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_crypto.c (hmac_sha256): Constify parameters.

@@ -351,6 +351,9 @@ prf_sha256 (const void *secret, size_t secret_len, const void *seed,
         g_free (Ai);
         Ai = tmp;
     }
+
+  g_free (Ai);
+  g_free (lseed);
   return result;
 }
 
