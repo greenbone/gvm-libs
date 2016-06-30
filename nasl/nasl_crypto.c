@@ -336,7 +336,7 @@ prf_sha256 (const void *secret, size_t secret_len, const void *seed,
         tmp = g_malloc0 (32 + lslen);
         memcpy (tmp, Ai, 32);
         memcpy (tmp + 32, lseed, lslen);
-        tmp2 = hmac_sha256 (secret, secret_len, tmp, 32);
+        tmp2 = hmac_sha256 (secret, secret_len, tmp, 32 + lslen);
         g_free (tmp);
         /* concat to result */
         clen = outlen - pos;
