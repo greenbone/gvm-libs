@@ -369,8 +369,6 @@ static init_func libfuncs[] = {
    {"dh_server_pub", "g", "p", "priv_key", "pub_key", NULL}},
   {"rsa_public_encrypt", nasl_rsa_public_encrypt, 0, {"d", "data", "e", "n", "p", "q", NULL}},
   {"rsa_public_decrypt", nasl_rsa_public_decrypt, 0, {"e", "n", "sig", NULL}},
-  {"rsa_get_modulus", nasl_rsa_get_modulus, 0, {"passphrase", "priv", NULL}},
-  {"rsa_get_pubexp", nasl_rsa_get_pubexp, 0, {"passphrase", "priv", NULL}},
   {"bf_cbc_encrypt", nasl_bf_cbc_encrypt, 0, {"data", "iv", "key", NULL}},
   {"bf_cbc_decrypt", nasl_bf_cbc_decrypt, 0, {"data", "iv", "key", NULL}},
   {"dsa_do_verify", nasl_dsa_do_verify, 0,

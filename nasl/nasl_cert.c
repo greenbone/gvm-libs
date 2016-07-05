@@ -43,6 +43,7 @@
 #include <ksba.h>
 #include <gcrypt.h>
 #include <gnutls/gnutls.h>
+#include <gnutls/x509.h>
 
 #include "../misc/openvas_logging.h"
 #include "nasl_tree.h"
@@ -888,6 +889,54 @@ nasl_cert_query (lex_ctxt *lexic)
           retc->x.str_val = g_strdup (name);
           retc->size = strlen (name);
         }
+    }
+  else if (!strcmp (command, "modulus"))
+    {
+      gnutls_datum_t datum, m, e;
+      gnutls_x509_crt_t cert = NULL;
+
+      datum.data = (void *) ksba_cert_get_image (obj->cert, (size_t *)
+                                                 &datum.size);
+      if (!datum.data)
+        return NULL;
+      if (gnutls_x509_crt_init (&cert) != GNUTLS_E_SUCCESS)
+        return NULL;
+      if (gnutls_x509_crt_import (cert, &datum, GNUTLS_X509_FMT_DER)
+          != GNUTLS_E_SUCCESS)
+        return NULL;
+      if (gnutls_x509_crt_get_pk_rsa_raw (cert, &m, &e) != GNUTLS_E_SUCCESS)
+        return NULL;
+
+      retc = alloc_typed_cell (CONST_DATA);
+      retc->size = m.size;
+      retc->x.str_val = g_memdup (m.data, m.size);
+      gnutls_free (m.data);
+      gnutls_free (e.data);
+      gnutls_x509_crt_deinit (cert);
+    }
+  else if (!strcmp (command, "exponent"))
+    {
+      gnutls_datum_t datum, m, e;
+      gnutls_x509_crt_t cert = NULL;
+
+      datum.data = (void *) ksba_cert_get_image (obj->cert, (size_t *)
+                                                 &datum.size);
+      if (!datum.data)
+        return NULL;
+      if (gnutls_x509_crt_init (&cert) != GNUTLS_E_SUCCESS)
+        return NULL;
+      if (gnutls_x509_crt_import (cert, &datum, GNUTLS_X509_FMT_DER)
+          != GNUTLS_E_SUCCESS)
+        return NULL;
+      if (gnutls_x509_crt_get_pk_rsa_raw (cert, &m, &e) != GNUTLS_E_SUCCESS)
+        return NULL;
+
+      retc = alloc_typed_cell (CONST_DATA);
+      retc->size = e.size;
+      retc->x.str_val = g_memdup (e.data, e.size);
+      gnutls_free (m.data);
+      gnutls_free (e.data);
+      gnutls_x509_crt_deinit (cert);
     }
   else
     {

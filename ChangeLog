@@ -1,3 +1,15 @@
+2016-07-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_cert.c (nasl_cert_query): Add modulus and exponent commands.
+
+	* nasl/nasl_crypto2.c (nasl_rsa_get_modulus, nasl_rsa_get_exponent):
+	Remove functions.
+
+	* nasl/nasl_crypto2.h: Remove function headers.
+
+	* nasl/nasl_init.c (libfuncs): Remove rsa_get_modulus() and
+	rsa_get_exponent().
+
 2016-06-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_crypto.c (prf_sha256): Use correct buffer length.
