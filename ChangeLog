@@ -1,3 +1,10 @@
+2016-07-08  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* base/gpgme_util.c (determine_gpghome, openvas_init_gpgme_ctx): Add
+	subdir arg.
+
+	* base/gpgme_util.h: Adjust header accordingly.
+
 2016-07-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_cert.c (nasl_cert_query): Add modulus and exponent commands.

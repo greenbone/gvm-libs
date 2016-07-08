@@ -92,17 +92,21 @@ log_gpgme (GLogLevelFlags level, gpg_error_t err, const char *fmt, ...)
  * configure (usually $prefix/var/lib/openvas/gnupg).  The return
  * value must be released with g_free.
  *
+ * @param subdir  Directory to use in OPENVAS_STATE_DIR for gpghome, if
+ *                environment OPENVAS_GPGHOME is not set.
+ *
  * @return Custom name of the GnuPG home directory for general use.
  */
 static char *
-determine_gpghome (void)
+determine_gpghome (const gchar *subdir)
 {
   char *envdir = getenv ("OPENVAS_GPGHOME");
 
   if (envdir)
     return g_strdup (envdir);
-  else
-    return g_build_filename (OPENVAS_STATE_DIR, "gnupg", NULL);
+  if (subdir)
+    return g_build_filename (OPENVAS_STATE_DIR, subdir, "gnupg", NULL);
+  return g_build_filename (OPENVAS_STATE_DIR, "gnupg", NULL);
 }
 
 /**
@@ -114,10 +118,13 @@ determine_gpghome (void)
  * is called.  It is advisable to call this function as early as
  * possible to notice a bad installation (e.g. an too old gpg version).
  *
+ * @param subdir  Directory to use in OPENVAS_STATE_DIR for gpghome, if
+ *                environment OPENVAS_GPGHOME is not set.
+ *
  * @return The gpgme_ctx_t to the context or NULL if an error occurred.
  */
 gpgme_ctx_t
-openvas_init_gpgme_ctx (void)
+openvas_init_gpgme_ctx (const gchar *subdir)
 {
   static int initialized;
   gpgme_error_t err;
@@ -144,7 +151,7 @@ openvas_init_gpgme_ctx (void)
       gpgme_set_locale (NULL, LC_MESSAGES, setlocale (LC_MESSAGES, NULL));
 #   endif
 
-      gpghome = determine_gpghome ();
+      gpghome = determine_gpghome (subdir);
 #ifndef NDEBUG
       g_message ("Setting GnuPG homedir to '%s'", gpghome);
 #endif
@@ -224,7 +231,7 @@ openvas_init_gpgme_sysconf_ctx (void)
   gpg_error_t err;
   gpgme_ctx_t ctx;
 
-  ctx = openvas_init_gpgme_ctx ();
+  ctx = openvas_init_gpgme_ctx (NULL);
   if (!ctx)
     return NULL;
 
@@ -233,7 +240,7 @@ openvas_init_gpgme_sysconf_ctx (void)
       info_shown = 1;
 #ifndef NDEBUG
       g_message ("Setting GnuPG sysconf homedir to '%s'",
-                 get_sysconf_gpghome());
+                 get_sysconf_gpghome ());
 #endif
     }
   if (access (get_sysconf_gpghome (), F_OK))

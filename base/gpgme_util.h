@@ -35,7 +35,7 @@
 
 #include <gpgme.h>
 
-gpgme_ctx_t openvas_init_gpgme_ctx (void);
+gpgme_ctx_t openvas_init_gpgme_ctx (const gchar *);
 gpgme_ctx_t openvas_init_gpgme_sysconf_ctx (void);
 
 
