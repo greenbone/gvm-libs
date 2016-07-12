@@ -1,3 +1,13 @@
+2016-07-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r25147 and r25166.
+
+	* nasl/nasl_crypto.c (nasl_get_smb2_sign): New function.
+
+	* nasl/nasl_crypto.h: Add new function prototype.
+
+	* nasl/nasl_init.c (libfuncs): Add get_smb2_signature().
+
 2016-06-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r25478.

@@ -256,6 +256,45 @@ nasl_hmac_sha256 (lex_ctxt * lexic)
 }
 
 tree_cell *
+nasl_get_smb2_sign (lex_ctxt * lexic)
+{
+  void *key, *buf, *signature, *ret;
+  int keylen, buflen;
+  tree_cell *retc;
+
+  key = get_str_var_by_name (lexic, "key");
+  buf = get_str_var_by_name (lexic, "buf");
+  keylen = get_var_size_by_name (lexic, "key");
+  buflen = get_var_size_by_name (lexic, "buf");
+  if (!key || !buf || keylen <= 0)
+    {
+      nasl_perror (lexic,
+                   "Syntax : get_smb2_sign(buf:<b>, key:<k>)");
+      return NULL;
+    }
+  if (buflen < 64)
+    {
+      nasl_perror (lexic, "get_smb2_sign: Buffer length < 64");
+      return NULL;
+    }
+
+  /* Zero the SMB2 signature field, then calculate signature */
+  memset(buf + 48, 0, 16);
+  signature = hmac_sha256 (key, keylen, buf, buflen);
+
+  /* Return the header with signature included. */
+  ret = g_malloc0 (buflen);
+  memcpy (ret, buf, buflen);
+  memcpy (ret + 48, signature, 16);
+  g_free (signature);
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+  retc->size = buflen;
+  retc->x.str_val = (char *) ret;
+  return retc;
+}
+
+tree_cell *
 nasl_ntlmv2_response (lex_ctxt * lexic)
 {
   char *cryptkey = (char *) get_str_var_by_name (lexic, "cryptkey");
