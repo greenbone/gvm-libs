@@ -1,3 +1,7 @@
+2016-07-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* naslnasl_crypto.c (nasl_prf_sha256): Fix error message.
+
 2016-07-08  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* base/gpgme_util.c (determine_gpghome, openvas_init_gpgme_ctx): Add

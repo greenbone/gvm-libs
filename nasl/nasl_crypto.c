@@ -375,7 +375,7 @@ nasl_prf_sha256 (lex_ctxt * lexic)
       || label_len <= 0 || outlen <= 0)
     {
       nasl_perror (lexic,
-                   "Syntax : hmac_sha256(secret, seed, label, outlen)\n");
+                   "Syntax : prf_sha256(secret, seed, label, outlen)\n");
       return NULL;
     }
   result = prf_sha256 (secret, secret_len, seed, seed_len, label, outlen);
