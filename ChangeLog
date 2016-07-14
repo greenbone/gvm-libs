@@ -1,6 +1,17 @@
+2016-07-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvti.c (nvti_free, nvti_from_keyfile, nvti_to_keyfile): Adjust
+	for summary element removal.
+	(nvti_summary, nvti_set_summary): Remove functions.
+
+	* base/nvti.h: Remove functions headers.
+	(struct nvti): Remove summary element.
+
+	* nasl/nasl_scanner_glue.c (script_summary): Don't set summary.
+
 2016-07-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
-	* naslnasl_crypto.c (nasl_prf_sha256): Fix error message.
+	* nasl/nasl_crypto.c (nasl_prf_sha256): Fix error message.
 
 2016-07-08  Matthew Mundell <matthew.mundell@greenbone.net>
 

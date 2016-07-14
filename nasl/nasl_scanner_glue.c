@@ -279,8 +279,7 @@ script_copyright (lex_ctxt * lexic)
 tree_cell *
 script_summary (lex_ctxt * lexic)
 {
-  nvti_set_summary (arg_get_value (lexic->script_infos, "NVTI"),
-                    get_str_var_by_num (lexic, 0));
+  /* XXX: For backward compatibility. */
   return FAKE_CELL;
 }
 

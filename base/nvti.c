@@ -170,8 +170,6 @@ nvti_free (nvti_t * n)
     g_free (n->version);
   if (n->name)
     g_free (n->name);
-  if (n->summary)
-    g_free (n->summary);
   if (n->copyright)
     g_free (n->copyright);
   if (n->cve)
@@ -248,20 +246,6 @@ gchar *
 nvti_name (const nvti_t * n)
 {
   return (n ? n->name : NULL);
-}
-
-/**
- * @brief Get the summary.
- *
- * @param n The NVT Info structure of which the name should
- *          be returned.
- *
- * @return The summary string. Don't free this.
- */
-gchar *
-nvti_summary (const nvti_t * n)
-{
-  return (n ? n->summary : NULL);
 }
 
 /**
@@ -561,27 +545,6 @@ nvti_set_name (nvti_t * n, const gchar * name)
   if (n->name)
     g_free (n->name);
   n->name = g_strdup (name);
-  return (0);
-}
-
-/**
- * @brief Set the summary of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param summary The summary to set. A copy will be created from this.
- *
- * @return 0 for success. Anything else indicates an error.
- */
-int
-nvti_set_summary (nvti_t * n, const gchar * summary)
-{
-  if (! n)
-    return (-1);
-
-  if (n->summary)
-    g_free (n->summary);
-  n->summary = g_strdup (summary);
   return (0);
 }
 
@@ -1205,7 +1168,6 @@ nvti_from_keyfile (const gchar * fn)
   set_from_key (keyfile, "OID", n, nvti_set_oid);
   set_from_key (keyfile, "Version", n, nvti_set_version);
   set_from_key (keyfile, "Name", n, nvti_set_name);
-  set_from_key (keyfile, "Summary", n, nvti_set_summary);
   set_from_key (keyfile, "Copyright", n, nvti_set_copyright);
   set_from_key (keyfile, "CVEs", n, nvti_set_cve);
   set_from_key (keyfile, "BIDs", n, nvti_set_bid);
@@ -1301,7 +1263,6 @@ nvti_to_keyfile (const nvti_t * n, const char *src, const gchar *fn)
   set_keyfile_info (keyfile, "OID", n->oid);
   set_keyfile_info (keyfile, "Version", n->version);
   set_keyfile_info (keyfile, "Name", n->name);
-  set_keyfile_info (keyfile, "Summary", n->summary);
   set_keyfile_info (keyfile, "Copyright", n->copyright);
   set_keyfile_info (keyfile, "CVEs", n->cve);
   set_keyfile_info (keyfile, "BIDs", n->bid);
