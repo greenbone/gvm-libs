@@ -1,3 +1,8 @@
+2016-07-19  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_authenticate): Check username and password before
+	printing them.
+
 2016-07-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/nvti.c (nvti_free, nvti_from_keyfile, nvti_to_keyfile): Adjust

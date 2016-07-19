@@ -209,8 +209,8 @@ omp_authenticate (gnutls_session_t* session,
                                         "<username>%s</username>"
                                         "<password>%s</password>"
                                         "</credentials></authenticate>",
-                                        username,
-                                        password);
+                                        username ? username : "",
+                                        password ? password : "");
   if (ret)
     return ret;
 
