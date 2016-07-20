@@ -1,5 +1,9 @@
 2016-07-20  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* omp/omp.c (proctitle_init): Add missing spaces.
+
+2016-07-20  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* omp/omp.c (proctitle_init): Init __progname and _progname_full because
 	something in this function is nuking them, and they're used by the syslog
 	functions.
