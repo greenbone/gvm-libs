@@ -35,6 +35,8 @@
 #include <stdlib.h>
 #include <locale.h>             /* for LC_CTYPE  */
 #include <unistd.h>             /* for F_OK */
+#include <sys/stat.h>           /* for mkdir */
+#include <errno.h>              /* for ENOENT */
 
 #include "gpgme_util.h"
 
@@ -155,10 +157,25 @@ openvas_init_gpgme_ctx (const gchar *subdir)
 #ifndef NDEBUG
       g_message ("Setting GnuPG homedir to '%s'", gpghome);
 #endif
+      err = 0;
       if (access (gpghome, F_OK))
-        err = gpg_error_from_syserror ();
-      else
+        {
+          err = gpg_error_from_syserror ();
+
+          if (errno == ENOENT)
+            /* directory does not exists. try to create it */
+            if (mkdir (gpghome, 0700) == 0)
+              {
+#ifndef NDEBUG
+                g_message ("Created GnuPG homedir '%s'", gpghome);
+#endif
+                err = 0;
+              }
+        }
+
+      if (!err)
         err = gpgme_set_engine_info (GPGME_PROTOCOL_OpenPGP, NULL, gpghome);
+
       g_free (gpghome);
       if (err)
         {
