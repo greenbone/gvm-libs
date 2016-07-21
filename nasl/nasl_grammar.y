@@ -860,8 +860,10 @@ mylex(lvalp, parm)
 
 		default:
 		  nasl_perror(NULL, "Unknown escape sequence \\%c\n", c);
-		  *p++ = c; len ++;
-		  break;
+		  ungetc(c, fp);
+		  if (c == '\n')
+		    ctx->line_nb --;
+		  goto exit_loop;
 		}
 	    }
 	  else
