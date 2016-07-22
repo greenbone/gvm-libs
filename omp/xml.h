@@ -52,6 +52,16 @@ struct entity_s
 };
 typedef struct entity_s *entity_t;
 
+/**
+ * @brief Data for xml search functions.
+ */
+typedef struct {
+  int found;
+  int done;
+  gchar *find_element;
+  GHashTable *find_attributes;
+} xml_search_data_t;
+
 entities_t next_entities (entities_t);
 
 entity_t first_entity (entities_t);
@@ -94,6 +104,10 @@ void print_entity_to_string (entity_t entity, GString * string);
 int xml_count_entities (entities_t);
 
 void xml_string_append (GString *, const char *, ...);
+
+/* XML file utilities */
+
+int find_element_in_xml_file (gchar *, gchar *, GHashTable*);
 
 #if 0
 {

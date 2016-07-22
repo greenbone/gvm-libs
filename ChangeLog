@@ -1,3 +1,14 @@
+2016-07-22  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	Add function to search for an XML element with given name and
+	attributes in a file.
+
+	* omp/xml.c (xml_search_handle_start_element, find_elem_in_xml_file):
+	New functions.
+
+	* omp/xml.h (xml_search_data_t): New typedef.
+	(find_elem_in_xml_file): New function prototype.
+
 2016-07-21  Björn Ricks <bjoern.ricks@greenbone.net>
 
 	* base/gpgme_util.c (openvas_init_gpgme_ctx): Try to create gnupg directory if

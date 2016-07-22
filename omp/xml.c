@@ -1054,3 +1054,138 @@ xml_string_append (GString *xml, const char *format, ...)
   g_string_append (xml, piece);
   g_free (piece);
 }
+
+/* XML file utilities */
+
+/**
+ * @brief Handle the opening tag of an element in an XML search.
+ *
+ * @param[in]   ctx               The parse context.
+ * @param[in]   element_name      The name of the element.
+ * @param[in]   attribute_names   NULL-terminated array of attribute names.
+ * @param[in]   attribute_values  NULL-terminated array of attribute values.
+ * @param[in]   data              The search data struct.
+ * @param[out]  error             Pointer to error output location.
+ */
+static void
+xml_search_handle_start_element (GMarkupParseContext *ctx,
+                                 const gchar *element_name,
+                                 const gchar **attribute_names,
+                                 const gchar **attribute_values,
+                                 gpointer data,
+                                 GError **error)
+{
+  (void) ctx;
+  (void) error;
+
+  xml_search_data_t *search_data = ((xml_search_data_t*) data);
+
+  if (strcmp (element_name, search_data->find_element) == 0
+      && search_data->found == 0)
+    {
+      g_debug ("%s: Found element <%s>", __FUNCTION__, element_name);
+
+      if (search_data->find_attributes
+          && g_hash_table_size (search_data->find_attributes))
+        {
+          int index;
+          GHashTable *found_attributes;
+          found_attributes = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                                    NULL, NULL);
+          index = 0;
+          while (attribute_names[index])
+            {
+              gchar *searched_value;
+              searched_value 
+                = g_hash_table_lookup (search_data->find_attributes,
+                                       attribute_names[index]);
+              if (searched_value
+                  && strcmp (searched_value, attribute_values[index]) == 0)
+                {
+                  g_debug ("%s: Found attribute %s=\"%s\"",
+                           __FUNCTION__,
+                           attribute_names[index], searched_value);
+                  g_hash_table_add (found_attributes, searched_value);
+                }
+              index ++;
+            }
+          g_debug ("%s: Found %d of %d attributes",
+                   __FUNCTION__,
+                   g_hash_table_size (found_attributes),
+                   g_hash_table_size (search_data->find_attributes));
+
+          if (g_hash_table_size (found_attributes)
+              == g_hash_table_size (search_data->find_attributes))
+            {
+              search_data->found = 1;
+            }
+
+          g_hash_table_destroy (found_attributes);
+        }
+      else
+        {
+          search_data->found = 1;
+        }
+    }
+}
+
+#define XML_FILE_BUFFER_SIZE 1048576
+int
+/**
+ * @brief Tests if an XML file contains an element with given attributes.
+ *
+ * @param[in]   file_path         Path of the XML file.
+ * @param[in]   find_element      Name of the element to find.
+ * @param[in]   find_attributes   GHashTable of attributes to find.
+ *
+ * @return  1 if element was found, 0 if not.
+ */
+find_element_in_xml_file (gchar *file_path, gchar *find_element,
+                          GHashTable* find_attributes)
+{
+  gchar buffer[XML_FILE_BUFFER_SIZE];
+  FILE *file;
+  int read_len;
+  GMarkupParser xml_parser;
+  GMarkupParseContext *xml_context;
+  xml_search_data_t search_data;
+  GError *error = NULL;
+
+  search_data.find_element = find_element;
+  search_data.find_attributes = find_attributes;
+  search_data.found = 0;
+
+  /* Create the XML parser. */
+  xml_parser.start_element = xml_search_handle_start_element;
+  xml_parser.end_element = NULL;
+  xml_parser.text = NULL;
+  xml_parser.passthrough = NULL;
+  xml_parser.error = NULL;
+  xml_context = g_markup_parse_context_new
+                 (&xml_parser,
+                  0,
+                  &search_data,
+                  NULL);
+
+  file = fopen (file_path, "r");
+  if (file == NULL)
+    {
+      g_markup_parse_context_free (xml_context);
+      g_warning ("%s: Failed to open '%s':", __FUNCTION__, strerror (errno));
+      return 0;
+    }
+
+  while ((read_len = fread (&buffer, sizeof(char), XML_FILE_BUFFER_SIZE, file))
+         && g_markup_parse_context_parse
+              (xml_context, buffer, read_len, &error)
+         && error == NULL)
+    {
+    }
+  g_markup_parse_context_end_parse (xml_context, &error);
+
+  fclose (file);
+
+  g_markup_parse_context_free (xml_context);
+  return search_data.found;
+}
+#undef XML_FILE_BUFFER_SIZE
