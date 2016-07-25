@@ -1,3 +1,8 @@
+2016-07-21  Björn Ricks <bjoern.ricks@greenbone.net>
+
+	* base/gpgme_util.c (openvas_init_gpgme_sysconf_ctx): Try to create sysconfig
+	gnupg directory if directory does not exist yet.
+
 2016-07-22  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	Add function to search for an XML element with given name and

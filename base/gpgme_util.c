@@ -260,9 +260,24 @@ openvas_init_gpgme_sysconf_ctx (void)
                  get_sysconf_gpghome ());
 #endif
     }
+
+  err = 0;
   if (access (get_sysconf_gpghome (), F_OK))
-    err = gpg_error_from_syserror ();
-  else
+    {
+      err = gpg_error_from_syserror ();
+
+      if (errno == ENOENT)
+        /* directory does not exists. try to create it */
+        if (mkdir (get_sysconf_gpghome (), 0700) == 0)
+          {
+#ifndef NDEBUG
+            g_message ("Created GnuPG sysconf homedir '%s'",
+                get_sysconf_gpghome ());
+#endif
+            err = 0;
+          }
+    }
+  if (!err)
     err = gpgme_ctx_set_engine_info (ctx, GPGME_PROTOCOL_OpenPGP,
                                      NULL, get_sysconf_gpghome ());
   if (err)
