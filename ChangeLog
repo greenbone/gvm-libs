@@ -1,5 +1,12 @@
 2016-07-21  Björn Ricks <bjoern.ricks@greenbone.net>
 
+	* base/gpgme_util.c (openvas_init_gpgme_sysconf_ctx, openvas_init_gpgme_ctx):
+	Refactor initialization of the gpg context into an own function and don't call
+	openvas_init_gpgme_ctx in openvas_init_gpgme_sysconf_ctx to avoid creating an
+	unnecessary directory.
+
+2016-07-21  Björn Ricks <bjoern.ricks@greenbone.net>
+
 	* base/gpgme_util.c (openvas_init_gpgme_sysconf_ctx): Try to create sysconfig
 	gnupg directory if directory does not exist yet.
 

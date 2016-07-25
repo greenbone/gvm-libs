@@ -85,6 +85,99 @@ log_gpgme (GLogLevelFlags level, gpg_error_t err, const char *fmt, ...)
 }
 
 /**
+ * @brief Returns a new gpgme context.
+ *
+ * Inits a gpgme context with the custom gpg directory, protocol
+ * version etc. Returns the context or NULL if an error occurred.
+ * This function also does an gpgme initialization the first time it
+ * is called.
+ *
+ * @param dir  Directory to use for gpg
+ *
+ * @return The gpgme_ctx_t to the context or NULL if an error occurred.
+ */
+gpgme_ctx_t
+openvas_init_gpgme_ctx_from_dir (const gchar *dir)
+{
+  static int initialized;
+  gpgme_error_t err;
+  gpgme_ctx_t ctx;
+
+  /* Initialize GPGME the first time we are called.  This is a
+     failsafe mode; it would be better to initialize GPGME early at
+     process startup instead of this on-the-fly method; however in
+     this non-threaded system; this is an easier way for a library.
+     We allow to initialize until a valid gpgme or a gpg backend has
+     been found.  */
+  if (!initialized)
+    {
+      gpgme_engine_info_t info;
+
+      if (!gpgme_check_version (NULL))
+        {
+          g_critical ("gpgme library could not be initialized.");
+          return NULL;
+        }
+      gpgme_set_locale (NULL, LC_CTYPE, setlocale (LC_CTYPE, NULL));
+#   ifdef LC_MESSAGES
+      gpgme_set_locale (NULL, LC_MESSAGES, setlocale (LC_MESSAGES, NULL));
+#   endif
+
+#ifndef NDEBUG
+      g_message ("Setting GnuPG dir to '%s'", dir);
+#endif
+      err = 0;
+      if (access (dir, F_OK))
+        {
+          err = gpg_error_from_syserror ();
+
+          if (errno == ENOENT)
+            /* directory does not exists. try to create it */
+            if (mkdir (dir, 0700) == 0)
+              {
+#ifndef NDEBUG
+                g_message ("Created GnuPG dir '%s'", dir);
+#endif
+                err = 0;
+              }
+        }
+
+      if (!err)
+        err = gpgme_set_engine_info (GPGME_PROTOCOL_OpenPGP, NULL, dir);
+
+      if (err)
+        {
+          log_gpgme (G_LOG_LEVEL_WARNING, err, "Setting GnuPG dir failed");
+          return NULL;
+        }
+
+      /* Show the OpenPGP engine version.  */
+      if (!gpgme_get_engine_info (&info))
+        {
+          while (info && info->protocol != GPGME_PROTOCOL_OpenPGP)
+            info = info->next;
+        }
+      else
+        info = NULL;
+#ifndef NDEBUG
+      g_message ("Using OpenPGP engine version '%s'",
+                 info && info->version? info->version: "[?]");
+#endif
+
+      /* Everything is fine.  */
+      initialized = 1;
+    }
+
+  /* Allocate the context.  */
+  ctx = NULL;
+  err = gpgme_new (&ctx);
+  if (err)
+    log_gpgme (G_LOG_LEVEL_WARNING, err, "Creating GPGME context failed");
+
+  return ctx;
+}
+
+/**
  * @brief Return the name of the writable GnuPG home directory
  *
  * Returns the name of the GnuPG home directory to use when checking
@@ -128,85 +221,9 @@ determine_gpghome (const gchar *subdir)
 gpgme_ctx_t
 openvas_init_gpgme_ctx (const gchar *subdir)
 {
-  static int initialized;
-  gpgme_error_t err;
-  gpgme_ctx_t ctx;
-
-  /* Initialize GPGME the first time we are called.  This is a
-     failsafe mode; it would be better to initialize GPGME early at
-     process startup instead of this on-the-fly method; however in
-     this non-threaded system; this is an easier way for a library.
-     We allow to initialize until a valid gpgme or a gpg backend has
-     been found.  */
-  if (!initialized)
-    {
-      char *gpghome;
-      gpgme_engine_info_t info;
-
-      if (!gpgme_check_version (NULL))
-        {
-          g_critical ("gpgme library could not be initialized.");
-          return NULL;
-        }
-      gpgme_set_locale (NULL, LC_CTYPE, setlocale (LC_CTYPE, NULL));
-#   ifdef LC_MESSAGES
-      gpgme_set_locale (NULL, LC_MESSAGES, setlocale (LC_MESSAGES, NULL));
-#   endif
-
-      gpghome = determine_gpghome (subdir);
-#ifndef NDEBUG
-      g_message ("Setting GnuPG homedir to '%s'", gpghome);
-#endif
-      err = 0;
-      if (access (gpghome, F_OK))
-        {
-          err = gpg_error_from_syserror ();
-
-          if (errno == ENOENT)
-            /* directory does not exists. try to create it */
-            if (mkdir (gpghome, 0700) == 0)
-              {
-#ifndef NDEBUG
-                g_message ("Created GnuPG homedir '%s'", gpghome);
-#endif
-                err = 0;
-              }
-        }
-
-      if (!err)
-        err = gpgme_set_engine_info (GPGME_PROTOCOL_OpenPGP, NULL, gpghome);
-
-      g_free (gpghome);
-      if (err)
-        {
-          log_gpgme (G_LOG_LEVEL_WARNING, err, "Setting GnuPG homedir failed");
-          return NULL;
-        }
-
-      /* Show the OpenPGP engine version.  */
-      if (!gpgme_get_engine_info (&info))
-        {
-          while (info && info->protocol != GPGME_PROTOCOL_OpenPGP)
-            info = info->next;
-        }
-      else
-        info = NULL;
-#ifndef NDEBUG
-      g_message ("Using OpenPGP engine version '%s'",
-                 info && info->version? info->version: "[?]");
-#endif
-
-      /* Everything is fine.  */
-      initialized = 1;
-    }
-
-  /* Allocate the context.  */
-  ctx = NULL;
-  err = gpgme_new (&ctx);
-  if (err)
-    log_gpgme (G_LOG_LEVEL_WARNING, err, "Creating GPGME context failed");
-
-  return ctx;
+  char *gpghome;
+  gpghome = determine_gpghome (subdir);
+  return openvas_init_gpgme_ctx_from_dir (gpghome);
 }
 
 /**
@@ -244,50 +261,5 @@ get_sysconf_gpghome (void)
 gpgme_ctx_t
 openvas_init_gpgme_sysconf_ctx (void)
 {
-  static int info_shown;
-  gpg_error_t err;
-  gpgme_ctx_t ctx;
-
-  ctx = openvas_init_gpgme_ctx (NULL);
-  if (!ctx)
-    return NULL;
-
-  if (!info_shown)
-    {
-      info_shown = 1;
-#ifndef NDEBUG
-      g_message ("Setting GnuPG sysconf homedir to '%s'",
-                 get_sysconf_gpghome ());
-#endif
-    }
-
-  err = 0;
-  if (access (get_sysconf_gpghome (), F_OK))
-    {
-      err = gpg_error_from_syserror ();
-
-      if (errno == ENOENT)
-        /* directory does not exists. try to create it */
-        if (mkdir (get_sysconf_gpghome (), 0700) == 0)
-          {
-#ifndef NDEBUG
-            g_message ("Created GnuPG sysconf homedir '%s'",
-                get_sysconf_gpghome ());
-#endif
-            err = 0;
-          }
-    }
-  if (!err)
-    err = gpgme_ctx_set_engine_info (ctx, GPGME_PROTOCOL_OpenPGP,
-                                     NULL, get_sysconf_gpghome ());
-  if (err)
-    {
-      log_gpgme (G_LOG_LEVEL_WARNING, err,
-                 "Setting GnuPG sysconf homedir to '%s' failed",
-                 get_sysconf_gpghome());
-      gpgme_release (ctx);
-      ctx = NULL;
-    }
-
-  return ctx;
+  return openvas_init_gpgme_ctx_from_dir (get_sysconf_gpghome ());
 }
