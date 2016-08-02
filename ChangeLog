@@ -1,3 +1,8 @@
+2016-08-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_var.c (free_aray): Nullify hash_elt after free. Fixes
+	use-after-free.
+
 2016-07-21  Björn Ricks <bjoern.ricks@greenbone.net>
 
 	* base/gpgme_util.c (openvas_init_gpgme_sysconf_ctx, openvas_init_gpgme_ctx):
