@@ -1,3 +1,10 @@
+2016-08-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r25900.
+
+	* nasl/nasl_var.c (free_aray): Nullify hash_elt after free. Fixes
+	use-after-free.
+
 2016-07-21  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Backport r25809 by Hani Benhabiles.

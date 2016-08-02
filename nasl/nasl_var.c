@@ -378,6 +378,7 @@ free_array (nasl_array * a)
       for (i = 0; i < VAR_NAME_HASH; i++)
         free_var_chain (a->hash_elt[i]);
       g_free (a->hash_elt);
+      a->hash_elt = NULL;
       a->num_elt = NULL;
     }
 }
