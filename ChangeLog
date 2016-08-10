@@ -1,3 +1,10 @@
+2016-08-10  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Backport r25976.
+
+	* omp/omp.c (omp_create_target_ext): Use a separate return for
+	connection error.
+
 2016-08-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r25900.
