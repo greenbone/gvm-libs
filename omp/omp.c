@@ -1307,7 +1307,8 @@ omp_delete_report (gnutls_session_t *session, const char *id)
  * @param[out] id        Pointer for newly allocated ID of new target, or NULL.
  *                       Only set on successful return.
  *
- * @return 0 on success, -1 or OMP response code on error.
+ * @return 0 on success (OMP 201), -2 on connection error, OMP response code on
+ *         OMP error, -1 other error.
  */
 int
 omp_create_target_ext (gnutls_session_t* session,
@@ -1418,7 +1419,7 @@ omp_create_target_ext (gnutls_session_t* session,
   g_free (port_range);
   g_free (comment);
   if (ret)
-    return -1;
+    return -2;
 
   /* Read the response. */
 

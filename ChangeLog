@@ -1,3 +1,8 @@
+2016-08-10  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* omp/omp.c (omp_create_target_ext): Use a separate return for
+	connection error.
+
 2016-08-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_var.c (free_aray): Nullify hash_elt after free. Fixes
