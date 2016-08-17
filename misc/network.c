@@ -2235,6 +2235,8 @@ recv_line (int soc, char *buf, size_t bufsiz)
           tv.tv_sec = 5;
           tv.tv_usec = 0;
           e = select (soc + 1, &rd, NULL, NULL, &tv);
+          if (e == 0 && !FD_ISSET (soc, &rd))
+            return -1;
           if (e < 0 && errno == EINTR)
             goto again;
           if (e > 0)

@@ -1,3 +1,8 @@
+2016-08-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network.c (recv_line): Check if the socket was closed by the
+	sender.
+
 2016-08-10  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_create_target_ext): Use a separate return for
