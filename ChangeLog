@@ -1,3 +1,10 @@
+2016-08-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r26027.
+
+	* misc/network.c (recv_line): Check if the socket was closed by the
+	sender.
+
 2016-08-10  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Backport r25976.
