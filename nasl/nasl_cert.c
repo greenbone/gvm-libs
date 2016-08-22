@@ -585,6 +585,14 @@ get_oid_name (const char *oid)
     return "id-ecMQV";
   else if (!strcmp ("1.2.840.113549.1.1.10", oid))
     return "id-RSASSA-PSS";
+  else if (!strcmp ("1.2.840.113549.1.1.11", oid))
+    return "sha256WithRSAEncryption";
+  else if (!strcmp ("1.2.840.113549.1.1.12", oid))
+    return "sha384WithRSAEncryption";
+  else if (!strcmp ("1.2.840.113549.1.1.13", oid))
+    return "sha512WithRSAEncryption";
+  else if (!strcmp ("1.2.840.113549.1.1.14", oid))
+    return "sha224WithRSAEncryption";
   else if (!strcmp ("1.2.840.113549.1.1.8", oid))
     return "id-mgf1";
   else if (!strcmp ("1.2.840.113549.2.2", oid))
