@@ -1,3 +1,9 @@
+2016-08-24  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* nasl/nasl_var.c (free_array): Remove superfluous assignment of
+	num_elt. It was wrongly introduced in SVN r20496, num_elt is already
+	NULL at this point.
+
 2016-08-22  Michael Meyer <michael.meyer@greenbone.net>
 
 	* nasl/nasl_cert.c (get_oid_name):
