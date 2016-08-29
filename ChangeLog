@@ -1,3 +1,8 @@
+2016-08-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_cert.c (nasl_cert_query): Add key-size command to get the
+	public key size in bits.
+
 2016-08-24  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* nasl/nasl_var.c (free_array): Remove superfluous assignment of
