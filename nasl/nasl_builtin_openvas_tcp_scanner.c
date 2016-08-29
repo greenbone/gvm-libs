@@ -31,7 +31,6 @@
 #include <glib.h>
 
 #include "../misc/arglists.h" /* for struct arglist */
-#include "../misc/nvt_categories.h" /* for ACT_SCANNER */
 #include "../misc/plugutils.h" /* for find_in_path */
 #include "../misc/prefs.h"          /* for prefs_get */
 #include "../misc/openvas_logging.h"

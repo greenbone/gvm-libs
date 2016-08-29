@@ -33,7 +33,6 @@
 
 #include "../misc/arglists.h"   /* for struct arglist */
 #include "../misc/network.h"    /* for get_encaps_through */
-#include "../misc/nvt_categories.h"     /* for ACT_SCANNER */
 #include "../misc/plugutils.h"  /* for OPENVAS_ENCAPS_IP */
 #include "../base/nvticache.h"
 
