@@ -889,6 +889,28 @@ nasl_cert_query (lex_ctxt *lexic)
           retc->size = strlen (name);
         }
     }
+  else if (!strcmp (command, "key-size"))
+    {
+      gnutls_datum_t datum;
+      gnutls_x509_crt_t cert = NULL;
+      unsigned int bits = 0;
+
+      datum.data = (void *) ksba_cert_get_image (obj->cert, (size_t *)
+                                                 &datum.size);
+      if (!datum.data)
+        return NULL;
+      if (gnutls_x509_crt_init (&cert) != GNUTLS_E_SUCCESS)
+        return NULL;
+      if (gnutls_x509_crt_import (cert, &datum, GNUTLS_X509_FMT_DER)
+          != GNUTLS_E_SUCCESS)
+        return NULL;
+      gnutls_x509_crt_get_pk_algorithm (cert, &bits);
+      gnutls_free (datum.data);
+      gnutls_x509_crt_deinit (cert);
+
+      retc = alloc_typed_cell (CONST_INT);
+      retc->x.i_val = bits;
+    }
   else
     {
       log_legacy_write ("Unknown command '%s' passed to cert_query", command);

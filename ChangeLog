@@ -1,3 +1,10 @@
+2016-08-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r26123.
+
+	* nasl/nasl_cert.c (nasl_cert_query): Add key-size command to get the
+	public key size in bits.
+
 2016-08-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r26027.
