@@ -52,14 +52,6 @@
 
 #define NUM_CHILDREN		"Number of connections done in parallel : "
 
-/* Plugin preference types (influence gui in client) */
-#define PREF_CHECKBOX "checkbox"
-#define PREF_ENTRY "entry"
-#define PREF_RADIO "radio"
-#define PREF_PASSWORD "password"
-#define PREF_FILE "file"
-
-
 const char *oid;
 
 static void
