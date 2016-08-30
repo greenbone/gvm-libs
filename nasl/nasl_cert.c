@@ -43,6 +43,7 @@
 #include <ksba.h>
 #include <gcrypt.h>
 #include <gnutls/gnutls.h>
+#include <gnutls/x509.h>
 
 #include "openvas_logging.h"
 #include "nasl_tree.h"
