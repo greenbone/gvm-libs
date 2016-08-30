@@ -1,3 +1,37 @@
+openvas-libraries 8.0.8 (2016-08-30)
+
+This is the eighth maintenance release of the openvas-libraries 8.0 module for
+the Open Vulnerability Assessment System 8 (OpenVAS-8).
+
+This release adds support for the 'timeout_retry' preference, addresses a
+number of memory leaks and similar errors and includes a number of smaller
+fixes and improvements.
+
+Many thanks to everyone who has contributed to this release:
+Hani Benhabiles, Christian Fischer, Matthew Mundell, Timo Pollmeier and Michael
+Wiegand.
+
+Main changes compared to 8.0.7:
+* Support for the 'timeout_retry' preference has been added, which can be used
+  to limit the number of retries after a connection to a socket has timed out.
+* A number of memory leaks have been fixed.
+* A bug which caused NASL arrays to be freed improperly causing memory
+  corruption under certain circumstances has been fixed.
+* Compatibility with the LibSSH library has been improved.
+* IPv6 support has been improved.
+* Handling of unknown severity scores has been improved.
+* Documentation has been updated.
+* ECDSA public SSH keys are now handled correctly during export.
+* Support for the SHA256 HMAC algorithm has been added.
+* Support for SMBv2 signatures has been added.
+* Support for getting the key size of a certificate public key has been added.
+* Handling of attempts to connect to the redis KB has been improved.
+* SNMP MIB handling has been improved.
+* Handling of unknown escape sequences in NASL has been improved.
+* Handling of slave connection errors has been improved.
+* Network connection handling has been improved.
+
+
 openvas-libraries 8.0.7 (2016-02-26)
 
 This is the seventh maintenance release of the openvas-libraries 8.0 module for

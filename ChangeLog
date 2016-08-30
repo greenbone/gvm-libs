@@ -1,5 +1,11 @@
 2016-08-30  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	Preparing the openvas-libraries 8.0.8 release.
+
+	* CHANGES: Updated.
+
+2016-08-30  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* nasl/nasl_cert.c: Add missing include.
 
 2016-08-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
