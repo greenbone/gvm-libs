@@ -501,13 +501,13 @@ server_attach_internal (int socket, gnutls_session_t * session,
           continue;
         }
       if (host)
-        g_warning ("Failed to shake hands with server '%s' port %d: %s",
-                   host, port, gnutls_strerror (ret));
+        g_debug ("Failed to shake hands with server '%s' port %d: %s",
+                 host, port, gnutls_strerror (ret));
       else
-        g_warning ("Failed to shake hands with peer: %s",
-                   gnutls_strerror (ret));
+        g_debug ("Failed to shake hands with peer: %s",
+                 gnutls_strerror (ret));
       if (shutdown (socket, SHUT_RDWR) == -1)
-        g_warning ("Failed to shutdown server socket");
+        g_debug ("Failed to shutdown server socket");
 #ifndef _WIN32
       sigaction (SIGPIPE, &original_action, NULL);
 #endif
@@ -1068,8 +1068,8 @@ openvas_server_free (int server_socket, gnutls_session_t server_session,
         }
       if (ret)
         {
-          g_warning ("   Failed to gnutls_bye: %s\n",
-                     gnutls_strerror ((int) ret));
+          g_debug ("   Failed to gnutls_bye: %s\n",
+                   gnutls_strerror ((int) ret));
           /* Carry on successfully anyway, as this often fails, perhaps
            * because the server is closing the connection first. */
           break;
