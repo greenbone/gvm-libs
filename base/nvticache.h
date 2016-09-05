@@ -70,6 +70,9 @@ char *
 nvticache_get_oid (const char *);
 
 char *
+nvticache_get_name (const char *);
+
+char *
 nvticache_get_required_keys (const char *);
 
 char *

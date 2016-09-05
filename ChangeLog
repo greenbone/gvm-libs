@@ -1,3 +1,9 @@
+2016-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/nvticache.c (nvticache_get_name): New function.
+
+	* base/nvticache.h: Add new function header.
+
 2016-09-02  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/openvas_server.c (server_attach_internal): Downgrade warnings

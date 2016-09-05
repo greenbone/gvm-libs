@@ -352,6 +352,24 @@ nvticache_get_oid (const char *filename)
 }
 
 /**
+ * @brief Get the name from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Name matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_name (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
  * @brief Get the Required Keys from a plugin OID.
  *
  * @param[in]   oid     OID to match.
