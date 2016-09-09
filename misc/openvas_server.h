@@ -66,7 +66,8 @@ int openvas_server_connect (int, struct sockaddr_in *, gnutls_session_t *);
 
 int openvas_server_attach (int, gnutls_session_t *);
 
-int openvas_server_sendf (gnutls_session_t *, const char *, ...);
+int openvas_server_sendf (gnutls_session_t *, const char *, ...)
+    __attribute__ ((format (printf, 2, 3)));
 
 int openvas_server_vsendf (gnutls_session_t *, const char *, va_list);
 

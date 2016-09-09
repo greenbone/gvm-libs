@@ -1,3 +1,11 @@
+2016-09-09  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_server.h: Add format attribute so that format args are
+	checked.
+
+	* omp/omp.c (omp_get_report_ext): Add arg accidentally removed in r25040
+	on 2016-04-21.
+
 2016-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/nvticache.c (nvticache_get_name): New function.
@@ -522,7 +530,7 @@
 	* CMakeLists.txt: Remove unused variables and remove the NVT directory
 	creation
 
-2016-02-21  Matthew Mundell <matthew.mundell@greenbone.net>
+2016-04-21  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* omp/omp.c (omp_get_report_ext): Remove GET_REPORTS attributes that
 	don't exist anymore, and add the new filter attributes.
