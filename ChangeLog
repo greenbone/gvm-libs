@@ -1,3 +1,10 @@
+2016-09-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r26219.
+
+	* base/openvas_networking.c (port_range_ranges): Check if parameter is
+	null.
+
 2016-08-30  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.

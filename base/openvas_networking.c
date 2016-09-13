@@ -496,6 +496,9 @@ port_range_ranges (const char *port_range)
   array_t *ranges;
   int tcp;
 
+  if (!port_range)
+    return NULL;
+
   ranges = make_array ();
 
   while (*port_range && isblank (*port_range)) port_range++;
