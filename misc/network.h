@@ -104,17 +104,6 @@ int stream_set_buffer (int, int);
 int stream_get_buffer_sz (int);
 int stream_get_err (int);
 
-struct ovas_scanner_context_s;
-typedef struct ovas_scanner_context_s *ovas_scanner_context_t;
-
-ovas_scanner_context_t
-ovas_scanner_context_new (openvas_encaps_t, const char *, const char *,
-                          const char *, const char *, const char *,
-                          const char *);
-
-void ovas_scanner_context_free (ovas_scanner_context_t);
-int ovas_scanner_context_attach (ovas_scanner_context_t ctx, int soc);
-
 int openvas_register_connection (int s, void *ssl,
                                  gnutls_certificate_credentials_t certcred,
                                  openvas_encaps_t encaps);

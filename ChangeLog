@@ -1,3 +1,11 @@
+2016-09-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network.c (ovas_scanner_context_s): Remove unused struct.
+	(ovas_scanner_context_new, ovas_scanner_context_free)
+	(ovas_scanner_context_attach): Remove unused functions.
+
+	* misc/network.h: Remove unused declarations.
+
 2016-09-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/openvas_networking.c (port_range_ranges): Check if parameter is
