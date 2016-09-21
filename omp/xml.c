@@ -488,7 +488,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
                 continue;
               if ((timeout > 0) && (count == GNUTLS_E_AGAIN))
                 {
-                  /* Server still busy, either timeout and try read again. */
+                  /* Server still busy, either timeout or try read again. */
                   if ((timeout - (time (NULL) - last_time))
                       <= 0)
                     {
@@ -1403,7 +1403,7 @@ xml_search_handle_start_element (GMarkupParseContext *ctx,
           while (attribute_names[index])
             {
               gchar *searched_value;
-              searched_value 
+              searched_value
                 = g_hash_table_lookup (search_data->find_attributes,
                                        attribute_names[index]);
               if (searched_value

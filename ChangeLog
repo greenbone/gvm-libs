@@ -1,5 +1,10 @@
 2016-09-21  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* omp/xml.c (try_read_entity_and_string): Correct comment.
+	(xml_search_handle_start_element): Flush space.
+
+2016-09-21  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	* misc/openvas_server.c (server_new_gnutls_set): Add spaces.
 
 2016-09-21  Matthew Mundell <matthew.mundell@greenbone.net>
