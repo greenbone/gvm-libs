@@ -326,6 +326,98 @@ omp_authenticate_info_ext (gnutls_session_t *session,
 }
 
 /**
+ * @brief Authenticate with the manager.
+ *
+ * @param[in]  connection  Connection
+ * @param[in]  opts        Struct containing the options to apply.
+ *
+ * @return 0 on success, 1 if manager closed connection, 2 if auth failed,
+ *         3 on timeout, -1 on error.
+ */
+int
+omp_authenticate_info_ext_c (openvas_connection_t *connection,
+                             omp_authenticate_info_opts_t opts)
+{
+  entity_t entity;
+  const char* status;
+  char first;
+  int ret;
+
+  if (opts.timezone)
+    *(opts.timezone) = NULL;
+
+  /* Send the auth request. */
+
+  ret = openvas_connection_sendf_xml_quiet (connection,
+                                            "<authenticate>"
+                                            "<credentials>"
+                                            "<username>%s</username>"
+                                            "<password>%s</password>"
+                                            "</credentials>"
+                                            "</authenticate>",
+                                            opts.username,
+                                            opts.password);
+  if (ret)
+    return ret;
+
+  /* Read the response. */
+
+  entity = NULL;
+  switch (try_read_entity_c (connection, opts.timeout, &entity))
+    {
+      case 0:
+        break;
+      case -4:
+        return 3;
+      default:
+        return -1;
+    }
+
+  /* Check the response. */
+
+  status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  first = status[0];
+  if (first == '2')
+    {
+      entity_t timezone_entity, role_entity, severity_entity;
+      /* Get the extra info. */
+      timezone_entity = entity_child (entity, "timezone");
+      if (timezone_entity && opts.timezone)
+        *opts.timezone = g_strdup (entity_text (timezone_entity));
+      role_entity = entity_child (entity, "role");
+      if (role_entity && opts.role)
+        *opts.role = g_strdup (entity_text (role_entity));
+      severity_entity = entity_child (entity, "severity");
+      if (severity_entity && opts.severity)
+        *opts.severity = g_strdup (entity_text (severity_entity));
+      if (opts.pw_warning)
+        {
+          entity_t pw_warn_entity;
+          pw_warn_entity = entity_child (entity, "password_warning");
+          if (pw_warn_entity)
+            *(opts.pw_warning) = g_strdup (entity_text (pw_warn_entity));
+          else
+            *(opts.pw_warning) = NULL;
+        }
+
+      free_entity (entity);
+      return 0;
+    }
+  free_entity (entity);
+  return 2;
+}
+
+/**
  * @brief Create a task.
  *
  * FIXME: Using the according opts it should be possible to generate
@@ -623,6 +715,68 @@ omp_start_task_report (gnutls_session_t* session, const char* task_id,
   return 1;
 }
 
+/**
+ * @brief Start a task and read the manager response.
+ *
+ * @param[in]   connection  Connection.
+ * @param[in]   task_id     ID of task.
+ * @param[out]  report_id   ID of report.
+ *
+ * @return 0 on success, 1 on failure, -1 on error.
+ */
+int
+omp_start_task_report_c (openvas_connection_t *connection, const char *task_id,
+                         char **report_id)
+{
+  entity_t entity;
+  const char *status;
+  char first;
+
+  if (openvas_connection_sendf (connection,
+                                "<start_task task_id=\"%s\"/>",
+                                task_id)
+      == -1)
+    return -1;
+
+  /* Read the response. */
+
+  entity = NULL;
+  if (read_entity_c (connection, &entity)) return -1;
+
+  /* Check the response. */
+
+  status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  first = status[0];
+  if (first == '2')
+    {
+      if (report_id)
+        {
+          entity_t report_id_xml = entity_child (entity, "report_id");
+          if (report_id_xml)
+            *report_id = g_strdup (entity_text (report_id_xml));
+          else
+            {
+              free_entity (entity);
+              return -1;
+            }
+        }
+      free_entity (entity);
+      return 0;
+    }
+  free_entity (entity);
+  return 1;
+}
+
 /** @todo Use this in the other functions. */
 /**
  * @brief Read response and convert status of response to a return value.
@@ -642,6 +796,49 @@ check_response (gnutls_session_t* session)
 
   entity = NULL;
   if (read_entity (session, &entity)) return -1;
+
+  /* Check the response. */
+
+  status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (status[0] == '2')
+    {
+      free_entity (entity);
+      return 0;
+    }
+  ret = (int) strtol (status, NULL, 10);
+  free_entity (entity);
+  if (errno == ERANGE) return -1;
+  return ret;
+}
+
+/**
+ * @brief Read response and convert status of response to a return value.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ *
+ * @return 0 on success, -1 or OMP response code on error.
+ */
+int
+check_response_c (openvas_connection_t *connection)
+{
+  int ret;
+  const char* status;
+  entity_t entity;
+
+  /* Read the response. */
+
+  entity = NULL;
+  if (read_entity_c (connection, &entity)) return -1;
 
   /* Check the response. */
 
@@ -744,6 +941,26 @@ omp_stop_task (gnutls_session_t* session, const char* id)
 }
 
 /**
+ * @brief Stop a task and read the manager response.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  id       ID of task.
+ *
+ * @return 0 on success, OMP response code on failure, -1 on error.
+ */
+int
+omp_stop_task_c (openvas_connection_t *connection, const char* id)
+{
+  if (openvas_connection_sendf (connection,
+                                "<stop_task task_id=\"%s\"/>",
+                                id)
+      == -1)
+    return -1;
+
+  return check_response_c (connection);
+}
+
+/**
  * @brief Resume a task and read the manager response.
  *
  * @param[in]   session    Pointer to GNUTLS session.
@@ -766,6 +983,64 @@ omp_resume_task_report (gnutls_session_t* session, const char* task_id,
 
   entity_t entity = NULL;
   if (read_entity (session, &entity)) return -1;
+
+  /* Check the response. */
+
+  const char* status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  char first = status[0];
+  if (first == '2')
+    {
+      if (report_id)
+        {
+          entity_t report_id_xml = entity_child (entity, "report_id");
+          if (report_id_xml)
+            *report_id = g_strdup (entity_text (report_id_xml));
+          else
+            {
+              free_entity (entity);
+              return -1;
+            }
+        }
+      free_entity (entity);
+      return 0;
+    }
+  free_entity (entity);
+  return 1;
+}
+
+/**
+ * @brief Resume a task and read the manager response.
+ *
+ * @param[in]   connection  Connection.
+ * @param[in]   task_id     ID of task.
+ * @param[out]  report_id   ID of report.
+ *
+ * @return 0 on success, 1 on OMP failure, -1 on error.
+ */
+int
+omp_resume_task_report_c (openvas_connection_t *connection, const char* task_id,
+                          char** report_id)
+{
+  if (openvas_connection_sendf (connection,
+                                "<resume_task task_id=\"%s\"/>",
+                                task_id)
+      == -1)
+    return -1;
+
+  /* Read the response. */
+
+  entity_t entity = NULL;
+  if (read_entity_c (connection, &entity)) return -1;
 
   /* Check the response. */
 

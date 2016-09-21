@@ -91,6 +91,62 @@ static int server_new_internal (unsigned int, const char *,
 
 
 
+/* Connections. */
+
+/**
+ * @brief Close UNIX socket connection.
+ *
+ * @param[in]  client_connection  Client connection.
+ *
+ * @return 0 success, -1 error.
+ */
+static int
+close_unix (openvas_connection_t *client_connection)
+{
+  /* Turn off blocking. */
+  if (fcntl (client_connection->socket, F_SETFL, O_NONBLOCK) == -1)
+    {
+      g_warning ("%s: failed to set server socket flag: %s\n", __FUNCTION__,
+                 strerror (errno));
+      return -1;
+    }
+
+  if (shutdown (client_connection->socket, SHUT_RDWR) == -1)
+    {
+      if (errno == ENOTCONN)
+        return 0;
+      g_warning ("%s: failed to shutdown server socket: %s\n", __FUNCTION__,
+                 strerror (errno));
+      return -1;
+    }
+
+  if (close (client_connection->socket) == -1)
+    {
+      g_warning ("%s: failed to close server socket: %s\n", __FUNCTION__,
+                 strerror (errno));
+      return -1;
+    }
+
+  return 0;
+}
+
+/**
+ * @brief Free connection.
+ *
+ * @param[in]  client_connection  Connection.
+ */
+void
+openvas_connection_free (openvas_connection_t *client_connection)
+{
+  if (client_connection->tls)
+    openvas_server_free (client_connection->socket,
+                         client_connection->session,
+                         client_connection->credentials);
+  else
+    close_unix (client_connection);
+}
+
+
 /* Certificate verification. */
 
 /**
@@ -424,6 +480,18 @@ openvas_server_close (int socket, gnutls_session_t session)
   return openvas_server_free (socket, session, NULL);
 }
 
+/**
+ * @brief Close a server connection and its socket.
+ *
+ * @param[in]  connection  Connection.
+ *
+ * @return 0 on success, -1 on error.
+ */
+void
+openvas_connection_close (openvas_connection_t *connection)
+{
+  openvas_connection_free (connection);
+}
 
 /**
  * @brief Connect to a server.
@@ -641,6 +709,101 @@ out:
 /**
  * @brief Send a string to the server.
  *
+ * @param[in]  socket   Socket.
+ * @param[in]  fmt      Format of string to send.
+ * @param[in]  ap       Args for fmt.
+ * @param[in]  quiet    Whether to log debug and info messages.  Useful for
+ *                      hiding passwords.
+ *
+ * @return 0 on success, 1 if server closed connection, -1 on error.
+ */
+static int
+unix_vsendf_internal (int socket, const char *fmt, va_list ap, int quiet)
+{
+#ifndef _WIN32
+  struct sigaction new_action, original_action;
+#endif
+  char *string_start, *string;
+  int rc = 0, left;
+
+#ifndef _WIN32
+  new_action.sa_flags = 0;
+  if (sigemptyset (&new_action.sa_mask))
+    // FIX warning
+    return -1;
+  new_action.sa_handler = SIG_IGN;
+  if (sigaction (SIGPIPE, &new_action, &original_action))
+    // FIX warning
+    return -1;
+#endif
+
+  left = vasprintf (&string, fmt, ap);
+  if (left == -1)
+    string = NULL;
+
+  string_start = string;
+  while (left > 0)
+    {
+      ssize_t count;
+
+      if (quiet == 0)
+        g_debug ("   send %d from %.*s[...]",
+                 left, left < 30 ? left : 30, string);
+      count = write (socket, string, left);
+      if (count < 0)
+        {
+          if (errno == EINTR || errno == EAGAIN)
+            continue;
+          g_warning ("Failed to write to server: %s", strerror (errno));
+
+#ifndef _WIN32
+          sigaction (SIGPIPE, &original_action, NULL);
+#endif
+
+          rc = -1;
+          goto out;
+        }
+      if (quiet == 0)
+        g_debug ("=> %.*s", (int) count, string);
+
+      string += count;
+      left -= count;
+    }
+  if (quiet == 0)
+    g_debug ("=> done");
+
+#ifndef _WIN32
+  sigaction (SIGPIPE, &original_action, NULL);
+#endif
+
+out:
+  g_free (string_start);
+  return rc;
+}
+
+/**
+ * @brief Send a string to the connection.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  fmt      Format of string to send.
+ * @param[in]  ap       Args for fmt.
+ * @param[in]  quiet    Whether to log debug and info messages.  Useful for
+ *                      hiding passwords.
+ *
+ * @return 0 on success, 1 if server closed connection, -1 on error.
+ */
+static int
+openvas_connection_vsendf_internal (openvas_connection_t *connection,
+                                    const char *fmt, va_list ap, int quiet)
+{
+  if (connection->tls)
+    return openvas_server_vsendf_internal (&connection->session, fmt, ap, quiet);
+  return unix_vsendf_internal (connection->socket, fmt, ap, quiet);
+}
+
+/**
+ * @brief Send a string to the server.
+ *
  * @param[in]  session  Pointer to GNUTLS session.
  * @param[in]  fmt      Format of string to send.
  * @param[in]  ap       Args for fmt.
@@ -651,6 +814,22 @@ int
 openvas_server_vsendf (gnutls_session_t *session, const char *fmt, va_list ap)
 {
   return openvas_server_vsendf_internal (session, fmt, ap, 0);
+}
+
+/**
+ * @brief Send a string to the server.
+ *
+ * @param[in]  connection  Connection.
+ * @param[in]  fmt         Format of string to send.
+ * @param[in]  ap          Args for fmt.
+ *
+ * @return 0 on success, 1 if server closed connection, -1 on error.
+ */
+int
+openvas_connection_vsendf (openvas_connection_t *connection, const char *fmt,
+                           va_list ap)
+{
+  return openvas_connection_vsendf_internal (connection, fmt, ap, 0);
 }
 
 /**
@@ -667,6 +846,23 @@ openvas_server_vsendf_quiet (gnutls_session_t *session, const char *fmt,
                              va_list ap)
 {
   return openvas_server_vsendf_internal (session, fmt, ap, 1);
+}
+
+/**
+ * @brief Send a string to the server, refraining from logging besides warnings.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  fmt      Format of string to send.
+ * @param[in]  ap       Args for fmt.
+ *
+ * @return 0 on success, 1 if server closed connection, -1 on error.
+ */
+int
+openvas_connection_vsendf_quiet (openvas_connection_t *connection,
+                                 const char *fmt,
+                                 va_list ap)
+{
+  return openvas_connection_vsendf_internal (connection, fmt, ap, 1);
 }
 
 /**
@@ -698,6 +894,28 @@ openvas_server_sendf (gnutls_session_t * session, const char *format, ...)
  * @return 0 on success, -1 on error.
  */
 int
+openvas_connection_sendf (openvas_connection_t *connection,
+                          const char *format,
+                          ...)
+{
+  va_list ap;
+  int rc;
+
+  va_start (ap, format);
+  rc = openvas_connection_vsendf (connection, format, ap);
+  va_end (ap);
+  return rc;
+}
+
+/**
+ * @brief Format and send a string to the server.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  format   printf-style format string for message.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
 openvas_server_sendf_quiet (gnutls_session_t * session, const char *format, ...)
 {
   va_list ap;
@@ -705,6 +923,28 @@ openvas_server_sendf_quiet (gnutls_session_t * session, const char *format, ...)
 
   va_start (ap, format);
   rc = openvas_server_vsendf_quiet (session, format, ap);
+  va_end (ap);
+  return rc;
+}
+
+/**
+ * @brief Format and send a string to the server.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  format   printf-style format string for message.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+openvas_connection_sendf_quiet (openvas_connection_t *connection,
+                                const char *format,
+                                ...)
+{
+  va_list ap;
+  int rc;
+
+  va_start (ap, format);
+  rc = openvas_connection_vsendf_quiet (connection, format, ap);
   va_end (ap);
   return rc;
 }
@@ -739,6 +979,32 @@ openvas_server_sendf_xml (gnutls_session_t * session, const char *format, ...)
  *
  * Escape XML in string and character args.
  *
+ * @param[in]  connection  Connection.
+ * @param[in]  format      printf-style format string for message.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+openvas_connection_sendf_xml (openvas_connection_t *connection,
+                              const char *format, ...)
+{
+  va_list ap;
+  gchar *msg;
+  int rc;
+
+  va_start (ap, format);
+  msg = g_markup_vprintf_escaped (format, ap);
+  rc = openvas_connection_sendf (connection, "%s", msg);
+  g_free (msg);
+  va_end (ap);
+  return rc;
+}
+
+/**
+ * @brief Format and send an XML string to the server.
+ *
+ * Escape XML in string and character args.
+ *
  * Quiet version, only logs warnings.
  *
  * @param[in]  session  Pointer to GNUTLS session.
@@ -757,6 +1023,35 @@ openvas_server_sendf_xml_quiet (gnutls_session_t * session,
   va_start (ap, format);
   msg = g_markup_vprintf_escaped (format, ap);
   rc = openvas_server_sendf_quiet (session, "%s", msg);
+  g_free (msg);
+  va_end (ap);
+  return rc;
+}
+
+/**
+ * @brief Format and send an XML string to the server.
+ *
+ * Escape XML in string and character args.
+ *
+ * Quiet version, only logs warnings.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  format   printf-style format string for message.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+openvas_connection_sendf_xml_quiet (openvas_connection_t *connection,
+                                    const char *format,
+                                    ...)
+{
+  va_list ap;
+  gchar *msg;
+  int rc;
+
+  va_start (ap, format);
+  msg = g_markup_vprintf_escaped (format, ap);
+  rc = openvas_connection_sendf_quiet (connection, "%s", msg);
   g_free (msg);
   va_end (ap);
   return rc;

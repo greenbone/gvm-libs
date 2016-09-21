@@ -52,6 +52,21 @@ extern "C"
 #include <netinet/ip.h>
 #endif
 
+/**
+ * @brief Connection.
+ */
+typedef struct
+{
+  int tls;                     ///< Whether uses TCP-TLS (vs UNIX socket).
+  int socket;                  ///< Socket.
+  gnutls_session_t session;                      ///< Session.
+  gnutls_certificate_credentials_t credentials;  ///< Credentials.
+} openvas_connection_t;
+
+void openvas_connection_free (openvas_connection_t *);
+
+void openvas_connection_close (openvas_connection_t *);
+
 int openvas_server_verify (gnutls_session_t);
 
 int openvas_server_open (gnutls_session_t *, const char *, int);
@@ -73,6 +88,12 @@ int openvas_server_vsendf (gnutls_session_t *, const char *, va_list);
 
 int openvas_server_sendf_xml (gnutls_session_t *, const char *, ...);
 int openvas_server_sendf_xml_quiet (gnutls_session_t *, const char *, ...);
+
+int openvas_connection_sendf_xml (openvas_connection_t *, const char *, ...);
+int openvas_connection_sendf_xml_quiet (openvas_connection_t *, const char *,
+                                        ...);
+
+int openvas_connection_sendf (openvas_connection_t *, const char *, ...);
 
 int openvas_server_new (unsigned int, gchar *, gchar *, gchar *,
                         gnutls_session_t *, gnutls_certificate_credentials_t *);

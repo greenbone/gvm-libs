@@ -1,3 +1,31 @@
+2016-09-21  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Add support for working with a connection, like the openvas_server_*
+	functions, but where the connection can be either over TLS-TCP or a UNIX
+	socket.
+
+	* misc/openvas_server.h: Export connection functions.
+	(openvas_connection_t): New type.
+
+	* misc/openvas_server.c (close_unix, openvas_connection_free)
+	(openvas_connection_close, unix_vsendf_internal)
+	(openvas_connection_vsendf_internal, openvas_connection_vsendf)
+	(openvas_connection_vsendf_quiet, openvas_connection_sendf)
+	(openvas_connection_sendf_quiet, openvas_connection_sendf_xml)
+	(openvas_connection_sendf_xml_quiet): New functions.
+
+	* omp/omp.c (omp_authenticate_info_ext_c, omp_start_task_report_c)
+	(check_response_c, omp_stop_task_c, omp_resume_task_report_c): New
+	functions.
+
+	* omp/omp.h: Add headers accordingly.
+
+	* omp/xml.c (try_read_entity_and_string_c, read_entity_and_string_c)
+	(read_entity_and_text_c, read_string_c, try_read_entity_c)
+	(read_entity_c): New function.
+
+	* omp/xml.h: Add headers accordingly.
+
 2016-09-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (ovas_scanner_context_s): Remove unused struct.

@@ -599,6 +599,210 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
 /**
  * @brief Try read an XML entity tree from the manager.
  *
+ * @param[in]   connection  Connection.
+ * @param[in]   timeout   Server idle time before giving up, in seconds.  0 to
+ *                        wait forever.
+ * @param[out]  entity    Pointer to an entity tree.
+ * @param[out]  string    An optional return location for the text read
+ *                        from the session.  If NULL then it simply
+ *                        remains NULL.  If a pointer to NULL then it points
+ *                        to a freshly allocated GString on successful return.
+ *                        Otherwise it points to an existing GString onto
+ *                        which the text is appended.
+ *
+ * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
+ */
+int
+try_read_entity_and_string_c (openvas_connection_t *connection, int timeout,
+                              entity_t * entity, GString ** string_return)
+{
+  GMarkupParser xml_parser;
+  GError *error = NULL;
+  GMarkupParseContext *xml_context;
+  GString *string;
+  time_t last_time;
+  /* Buffer for reading from the manager. */
+  char buffer_start[BUFFER_SIZE];
+  /* End of the manager reading buffer. */
+  char *buffer_end = buffer_start + BUFFER_SIZE;
+
+  if (connection->tls)
+    return try_read_entity_and_string (&connection->session, timeout, entity,
+                                       string_return);
+
+  /* Record the start time. */
+
+  if (time (&last_time) == -1)
+    {
+      g_warning ("   failed to get current time: %s\n",
+                 strerror (errno));
+      return -1;
+    }
+
+  if (timeout > 0)
+    {
+      /* Turn off blocking. */
+
+      if (fcntl (connection->socket, F_SETFL, O_NONBLOCK) == -1)
+        return -1;
+    }
+
+  /* Setup return arg. */
+
+  if (string_return == NULL)
+    string = NULL;
+  else if (*string_return == NULL)
+    string = g_string_new ("");
+  else
+    string = *string_return;
+
+  /* Create the XML parser. */
+
+  xml_parser.start_element = handle_start_element;
+  xml_parser.end_element = handle_end_element;
+  xml_parser.text = handle_text;
+  xml_parser.passthrough = NULL;
+  xml_parser.error = handle_error;
+
+  context_data_t context_data;
+  context_data.done = FALSE;
+  context_data.first = NULL;
+  context_data.current = NULL;
+
+  /* Setup the XML context. */
+
+  xml_context =
+    g_markup_parse_context_new (&xml_parser, 0, &context_data, NULL);
+
+  /* Read and parse, until encountering end of file or error. */
+
+  while (1)
+    {
+      int count;
+      while (1)
+        {
+          g_debug ("   asking for %i\n", (int) (buffer_end - buffer_start));
+          count = read (connection->socket, buffer_start,
+                        buffer_end - buffer_start);
+          if (count < 0)
+            {
+              if (errno == EINTR)
+                /* Interrupted, try read again. */
+                continue;
+              if (timeout > 0)
+                {
+                  if ((errno == EAGAIN) || (errno == EAGAIN))
+                    {
+                      /* Server still busy, either timeout or try read again. */
+                      if ((timeout - (time (NULL) - last_time))
+                          <= 0)
+                        {
+                          g_warning ("   timeout\n");
+                          fcntl (connection->socket, F_SETFL, 0L);
+                          g_markup_parse_context_free (xml_context);
+                          return -4;
+                        }
+                    }
+                  continue;
+                }
+              if (context_data.first && context_data.first->data)
+                {
+                  free_entity (context_data.first->data);
+                  g_slist_free_1 (context_data.first);
+                }
+              if (string && *string_return == NULL)
+                g_string_free (string, TRUE);
+              if (timeout > 0)
+                fcntl (connection->socket, F_SETFL, 0L);
+              g_markup_parse_context_free (xml_context);
+              return -1;
+            }
+          if (count == 0)
+            {
+              /* End of file. */
+              g_markup_parse_context_end_parse (xml_context, &error);
+              if (error)
+                {
+                  g_warning ("   End error: %s\n", error->message);
+                  g_error_free (error);
+                }
+              if (context_data.first && context_data.first->data)
+                {
+                  free_entity (context_data.first->data);
+                  g_slist_free_1 (context_data.first);
+                }
+              if (string && *string_return == NULL)
+                g_string_free (string, TRUE);
+              if (timeout > 0)
+                fcntl (connection->socket, F_SETFL, 0L);
+              g_markup_parse_context_free (xml_context);
+              return -3;
+            }
+          break;
+        }
+
+      g_debug ("<= %.*s\n", (int) count, buffer_start);
+
+      if (string)
+        g_string_append_len (string, buffer_start, count);
+
+      g_markup_parse_context_parse (xml_context, buffer_start, count, &error);
+      if (error)
+        {
+          g_error_free (error);
+          // FIX there may be multiple entries in list
+          if (context_data.first && context_data.first->data)
+            {
+              free_entity (context_data.first->data);
+              g_slist_free_1 (context_data.first);
+            }
+          if (string && *string_return == NULL)
+            g_string_free (string, TRUE);
+          if (timeout > 0)
+            fcntl (connection->socket, F_SETFL, 0L);
+          g_markup_parse_context_free (xml_context);
+          return -2;
+        }
+      if (context_data.done)
+        {
+          g_markup_parse_context_end_parse (xml_context, &error);
+          if (error)
+            {
+              g_warning ("   End error: %s\n", error->message);
+              g_error_free (error);
+              if (context_data.first && context_data.first->data)
+                {
+                  free_entity (context_data.first->data);
+                  g_slist_free_1 (context_data.first);
+                }
+              if (timeout > 0)
+                fcntl (connection->socket, F_SETFL, 0L);
+              g_markup_parse_context_free (xml_context);
+              return -2;
+            }
+          *entity = (entity_t) context_data.first->data;
+          if (string)
+            *string_return = string;
+          if (timeout > 0)
+            fcntl (connection->socket, F_SETFL, 0L);
+          g_markup_parse_context_free (xml_context);
+          return 0;
+        }
+
+      if ((timeout > 0) && (time (&last_time) == -1))
+        {
+          g_warning ("   failed to get current time (1): %s\n",
+                     strerror (errno));
+          fcntl (connection->socket, F_SETFL, 0L);
+          g_markup_parse_context_free (xml_context);
+          return -1;
+        }
+    }
+}
+
+/**
+ * @brief Try read an XML entity tree from the manager.
+ *
  * @param[in]   session          Pointer to GNUTLS session.
  * @param[out]  entity           Pointer to an entity tree.
  * @param[out]  string_return    An optional return location for the text read
@@ -615,6 +819,27 @@ read_entity_and_string (gnutls_session_t * session, entity_t * entity,
                         GString ** string_return)
 {
   return try_read_entity_and_string (session, 0, entity, string_return);
+}
+
+/**
+ * @brief Try read an XML entity tree from the manager.
+ *
+ * @param[in]   connection       Connection.
+ * @param[out]  entity           Pointer to an entity tree.
+ * @param[out]  string_return    An optional return location for the text read
+ *                               from the session.  If NULL then it simply
+ *                               remains NULL.  If a pointer to NULL then it points
+ *                               to a freshly allocated GString on successful return.
+ *                               Otherwise it points to an existing GString onto
+ *                               which the text is appended.
+ *
+ * @return 0 success, -1 read error, -2 parse error, -3 end of file.
+ */
+int
+read_entity_and_string_c (openvas_connection_t *connection, entity_t * entity,
+                          GString ** string_return)
+{
+  return try_read_entity_and_string_c (connection, 0, entity, string_return);
 }
 
 /**
@@ -649,6 +874,37 @@ read_entity_and_text (gnutls_session_t * session, entity_t * entity,
   return read_entity_and_string (session, entity, NULL);
 }
 
+/**
+ * @brief Read an XML entity tree from the manager.
+ *
+ * @param[in]   connection  Connection.
+ * @param[out]  entity      Entity tree.
+ * @param[out]  text      A pointer to a pointer, at which to store the
+ *                        address of a newly allocated string holding the
+ *                        text read from the session, if the text is required,
+ *                        else NULL.
+ *
+ * @return 0 success, -1 read error, -2 parse error, -3 end of file.
+ */
+int
+read_entity_and_text_c (openvas_connection_t *connection, entity_t *entity,
+                        char **text)
+{
+  if (text)
+    {
+      GString *string = NULL;
+      int ret = read_entity_and_string_c (connection, entity, &string);
+      if (ret)
+        {
+          if (string)
+            g_string_free (string, TRUE);
+          return ret;
+        }
+      *text = g_string_free (string, FALSE);
+      return 0;
+    }
+  return read_entity_and_string_c (connection, entity, NULL);
+}
 
 /**
  * @brief Read entity and text. Free the entity immediately.
@@ -671,6 +927,26 @@ read_string (gnutls_session_t * session, GString ** string)
 }
 
 /**
+ * @brief Read entity and text. Free the entity immediately.
+ *
+ * @param[in]   connection  Connection.
+ * @param[out]  string      Return location for the string.
+ *
+ * @return 0 success, -1 read error, -2 parse error, -3 end of file.
+ */
+int
+read_string_c (openvas_connection_t *connection, GString **string)
+{
+  int ret = 0;
+  entity_t entity;
+
+  if (!(ret = read_entity_and_string_c (connection, &entity, string)))
+    free_entity (entity);
+
+  return ret;
+}
+
+/**
  * @brief Try read an XML entity tree from the manager.
  *
  * @param[in]   session   Pointer to GNUTLS session.
@@ -687,6 +963,23 @@ try_read_entity (gnutls_session_t * session, int timeout, entity_t * entity)
 }
 
 /**
+ * @brief Try read an XML entity tree from the manager.
+ *
+ * @param[in]   connection  Connection.
+ * @param[in]   timeout     Server idle time before giving up, in seconds.  0 to
+ *                          wait forever.
+ * @param[out]  entity      Pointer to an entity tree.
+ *
+ * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
+ */
+int
+try_read_entity_c (openvas_connection_t *connection, int timeout,
+                   entity_t * entity)
+{
+  return try_read_entity_and_string_c (connection, timeout, entity, NULL);
+}
+
+/**
  * @brief Read an XML entity tree from the manager.
  *
  * @param[in]   session   Pointer to GNUTLS session.
@@ -698,6 +991,20 @@ int
 read_entity (gnutls_session_t * session, entity_t * entity)
 {
   return try_read_entity (session, 0, entity);
+}
+
+/**
+ * @brief Read an XML entity tree from the manager.
+ *
+ * @param[in]   session   Pointer to GNUTLS session.
+ * @param[out]  entity    Pointer to an entity tree.
+ *
+ * @return 0 success, -1 read error, -2 parse error, -3 end of file.
+ */
+int
+read_entity_c (openvas_connection_t *connection, entity_t *entity)
+{
+  return try_read_entity_c (connection, 0, entity);
 }
 
 /**
