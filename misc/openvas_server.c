@@ -1100,11 +1100,11 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
   */
 
   if ((err_gnutls = gnutls_priority_set_direct (*server_session,
-                                                priority? priority : "NORMAL",
+                                                priority ? priority : "NORMAL",
                                                 NULL)))
     {
       g_warning ("%s: failed to set tls priorities: %s\n", __FUNCTION__,
-                 gnutls_strerror(err_gnutls));
+                 gnutls_strerror (err_gnutls));
       gnutls_deinit (*server_session);
       return -1;
     }

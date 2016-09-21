@@ -1,5 +1,9 @@
 2016-09-21  Matthew Mundell <matthew.mundell@greenbone.net>
 
+	* misc/openvas_server.c (server_new_gnutls_set): Add spaces.
+
+2016-09-21  Matthew Mundell <matthew.mundell@greenbone.net>
+
 	Add support for working with a connection, like the openvas_server_*
 	functions, but where the connection can be either over TLS-TCP or a UNIX
 	socket.
