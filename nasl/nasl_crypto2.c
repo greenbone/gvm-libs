@@ -1313,3 +1313,68 @@ nasl_bf_cbc_decrypt (lex_ctxt * lexic)
 {
   return nasl_bf_cbc (lexic, 0);
 }
+
+static tree_cell *
+encrypt_data (lex_ctxt *lexic, int cipher, int mode)
+{
+  gcry_cipher_hd_t hd;
+  gcry_error_t error;
+  void *result, *data, *key;
+  size_t resultlen, datalen, keylen;
+  tree_cell *retc;
+
+  data = get_str_var_by_name (lexic, "data");
+  datalen = get_var_size_by_name (lexic, "data");
+  key = get_str_var_by_name (lexic, "key");
+  keylen = get_var_size_by_name (lexic, "key");
+
+  if (!data || datalen <= 0 || !key || keylen <= 0)
+    {
+      nasl_perror (lexic, "Syntax: encrypt_data: Missing data or key argument");
+      return NULL;
+    }
+
+  if ((error = gcry_cipher_open (&hd, cipher, mode, 0)))
+    {
+      nasl_perror (lexic, "gcry_cipher_open: %s", gcry_strerror (error));
+      gcry_cipher_close (hd);
+      return NULL;
+    }
+  if ((error = gcry_cipher_setkey (hd, key, keylen)))
+    {
+      nasl_perror (lexic, "gcry_cipher_setkey: %s", gcry_strerror (error));
+      gcry_cipher_close (hd);
+      return NULL;
+    }
+
+  if (cipher == GCRY_CIPHER_ARCFOUR)
+    resultlen = datalen;
+  else
+    {
+      nasl_perror (lexic, "encrypt_data: Unknown cipher %d", cipher);
+      gcry_cipher_close (hd);
+      return NULL;
+    }
+  result = g_malloc0 (resultlen);
+  if ((error = gcry_cipher_encrypt (hd, result, resultlen, data, datalen)))
+    {
+      log_legacy_write ("gcry_cipher_encrypt: %s", gcry_strerror (error));
+      gcry_cipher_close (hd);
+      g_free (result);
+      return NULL;
+    }
+
+  gcry_cipher_close (hd);
+  retc = alloc_tree_cell (0, NULL);
+  retc->type = CONST_DATA;
+  retc->x.str_val = result;
+  retc->size = resultlen;
+  return retc;
+}
+
+tree_cell *
+nasl_rc4_encrypt (lex_ctxt * lexic)
+{
+  return encrypt_data (lexic, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM);
+}
+

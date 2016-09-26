@@ -32,6 +32,7 @@ tree_cell *nasl_pem_to_rsa (lex_ctxt * lexic);
 tree_cell *nasl_pem_to_dsa (lex_ctxt * lexic);
 tree_cell *nasl_rsa_sign (lex_ctxt * lexic);
 tree_cell *nasl_dsa_do_sign (lex_ctxt * lexic);
+tree_cell *nasl_rc4_encrypt (lex_ctxt * lexic);
 
 
 int generate_script_signature (char *);
