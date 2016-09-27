@@ -1319,14 +1319,16 @@ encrypt_data (lex_ctxt *lexic, int cipher, int mode)
 {
   gcry_cipher_hd_t hd;
   gcry_error_t error;
-  void *result, *data, *key;
-  size_t resultlen, datalen, keylen;
+  void *result, *data, *key, *tmp, *iv;
+  size_t resultlen, datalen, keylen, tmplen, ivlen;
   tree_cell *retc;
 
   data = get_str_var_by_name (lexic, "data");
   datalen = get_var_size_by_name (lexic, "data");
   key = get_str_var_by_name (lexic, "key");
   keylen = get_var_size_by_name (lexic, "key");
+  iv = get_str_var_by_name (lexic, "iv");
+  ivlen = get_var_size_by_name (lexic, "iv");
 
   if (!data || datalen <= 0 || !key || keylen <= 0)
     {
@@ -1348,22 +1350,49 @@ encrypt_data (lex_ctxt *lexic, int cipher, int mode)
     }
 
   if (cipher == GCRY_CIPHER_ARCFOUR)
-    resultlen = datalen;
+    {
+      resultlen = datalen;
+      tmp = g_memdup (data, datalen);
+      tmplen = datalen;
+    }
+  else if (cipher == GCRY_CIPHER_AES128)
+    {
+      if (datalen % 16 == 0)
+        resultlen = datalen;
+      else
+        resultlen = ((datalen / 16) + 1) * 16;
+      tmp = g_malloc0 (resultlen);
+      tmplen = resultlen;
+      memcpy (tmp, data, datalen);
+    }
   else
     {
       nasl_perror (lexic, "encrypt_data: Unknown cipher %d", cipher);
       gcry_cipher_close (hd);
       return NULL;
     }
+
+  if (iv && ivlen)
+    {
+      if ((error = gcry_cipher_setiv (hd, iv, ivlen)))
+        {
+          nasl_perror (lexic, "gcry_cipher_setiv: %s", gcry_strerror (error));
+          return NULL;
+        }
+    }
+
   result = g_malloc0 (resultlen);
   if ((error = gcry_cipher_encrypt (hd, result, resultlen, data, datalen)))
     {
       log_legacy_write ("gcry_cipher_encrypt: %s", gcry_strerror (error));
       gcry_cipher_close (hd);
       g_free (result);
+      g_free (tmp);
       return NULL;
     }
+  datalen = tmplen;
 
+  g_free (tmp);
   gcry_cipher_close (hd);
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
@@ -1376,5 +1405,11 @@ tree_cell *
 nasl_rc4_encrypt (lex_ctxt * lexic)
 {
   return encrypt_data (lexic, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM);
+}
+
+tree_cell *
+nasl_aes128_cbc_encrypt (lex_ctxt * lexic)
+{
+  return encrypt_data (lexic, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC);
 }
 
