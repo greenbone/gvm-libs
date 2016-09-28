@@ -1,3 +1,7 @@
+2016-09-28  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_server.h (openvas_connection_t): Add more fields.
+
 2016-09-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_crypto2.c (encrypt_data): Handle GCRY_CIPHER_AES128 case.

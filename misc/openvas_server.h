@@ -61,6 +61,11 @@ typedef struct
   int socket;                  ///< Socket.
   gnutls_session_t session;                      ///< Session.
   gnutls_certificate_credentials_t credentials;  ///< Credentials.
+  gchar *username;              ///< Username with which to connect.
+  gchar *password;              ///< Password for user with which to connect.
+  gchar *host_string;           ///< Server host string.
+  gchar *port_string;           ///< Server port string.
+  gint port;                    ///< Port of server.
 } openvas_connection_t;
 
 void openvas_connection_free (openvas_connection_t *);
