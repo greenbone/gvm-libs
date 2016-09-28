@@ -373,6 +373,7 @@ static init_func libfuncs[] = {
   {"bf_cbc_decrypt", nasl_bf_cbc_decrypt, 0, {"data", "iv", "key", NULL}},
   {"rc4_encrypt", nasl_rc4_encrypt, 0, {"data", "key", NULL}},
   {"aes128_cbc_encrypt", nasl_aes128_cbc_encrypt, 0, {"data", "key", NULL}},
+  {"aes256_cbc_encrypt", nasl_aes256_cbc_encrypt, 0, {"data", "key", NULL}},
   {"dsa_do_verify", nasl_dsa_do_verify, 0,
    {"data", "g", "p", "pub", "q", "r", "s", NULL}},
   {"pem_to_rsa", nasl_pem_to_rsa, 0, {"passphrase", "priv", NULL}},

@@ -1365,6 +1365,16 @@ encrypt_data (lex_ctxt *lexic, int cipher, int mode)
       tmplen = resultlen;
       memcpy (tmp, data, datalen);
     }
+  else if (cipher == GCRY_CIPHER_AES256)
+    {
+      if (datalen % 32 == 0)
+        resultlen = datalen;
+      else
+        resultlen = ((datalen / 32) + 1) * 32;
+      tmp = g_malloc0 (resultlen);
+      tmplen = resultlen;
+      memcpy (tmp, data, datalen);
+    }
   else
     {
       nasl_perror (lexic, "encrypt_data: Unknown cipher %d", cipher);
@@ -1382,7 +1392,7 @@ encrypt_data (lex_ctxt *lexic, int cipher, int mode)
     }
 
   result = g_malloc0 (resultlen);
-  if ((error = gcry_cipher_encrypt (hd, result, resultlen, data, datalen)))
+  if ((error = gcry_cipher_encrypt (hd, result, resultlen, tmp, tmplen)))
     {
       log_legacy_write ("gcry_cipher_encrypt: %s", gcry_strerror (error));
       gcry_cipher_close (hd);
@@ -1390,7 +1400,6 @@ encrypt_data (lex_ctxt *lexic, int cipher, int mode)
       g_free (tmp);
       return NULL;
     }
-  datalen = tmplen;
 
   g_free (tmp);
   gcry_cipher_close (hd);
@@ -1413,3 +1422,8 @@ nasl_aes128_cbc_encrypt (lex_ctxt * lexic)
   return encrypt_data (lexic, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC);
 }
 
+tree_cell *
+nasl_aes256_cbc_encrypt (lex_ctxt * lexic)
+{
+  return encrypt_data (lexic, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC);
+}
