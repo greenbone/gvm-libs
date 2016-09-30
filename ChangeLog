@@ -1,3 +1,13 @@
+2016-09-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_crypto2.c (encrypt_data): Handle GCRY_CIPHER_3DES case.
+	Fix used variable for data.
+	(nasl_des_ede_cbc_encrypt): New function.
+
+	* nasl/nasl_crypto2.h: Add new function header.
+
+	* nasl/nasl_init.c (libfuncs): Add des_ede_cbc_encrypt().
+
 2016-09-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_crypto2.c (encrypt_data): Handle GCRY_CIPHER_AES256 case.
@@ -6,7 +16,7 @@
 
 	* nasl/nasl_crypto2.h: Add new function header.
 
-	* nasl/nasl_init.c (libfuncs): Add aes128_cbc_encrypt().
+	* nasl/nasl_init.c (libfuncs): Add aes256_cbc_encrypt().
 
 2016-09-28  Matthew Mundell <matthew.mundell@greenbone.net>
 

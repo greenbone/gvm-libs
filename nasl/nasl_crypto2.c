@@ -1355,6 +1355,16 @@ encrypt_data (lex_ctxt *lexic, int cipher, int mode)
       tmp = g_memdup (data, datalen);
       tmplen = datalen;
     }
+  else if (cipher == GCRY_CIPHER_3DES)
+    {
+      if (datalen % 8 == 0)
+        resultlen = datalen;
+      else
+        resultlen = ((datalen / 8) + 1) * 8;
+      tmp = g_malloc0 (resultlen);
+      tmplen = resultlen;
+      memcpy (tmp, data, datalen);
+    }
   else if (cipher == GCRY_CIPHER_AES128)
     {
       if (datalen % 16 == 0)
@@ -1426,4 +1436,10 @@ tree_cell *
 nasl_aes256_cbc_encrypt (lex_ctxt * lexic)
 {
   return encrypt_data (lexic, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC);
+}
+
+tree_cell *
+nasl_des_ede_cbc_encrypt (lex_ctxt * lexic)
+{
+  return encrypt_data (lexic, GCRY_CIPHER_3DES, GCRY_CIPHER_MODE_CBC);
 }
