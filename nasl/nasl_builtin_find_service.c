@@ -433,10 +433,10 @@ mark_cvslockserver (struct arglist *desc, int port, char *buffer, int trp)
 }
 
 void
-mark_rsyncd (struct arglist *desc, int port, char *buffer, int trp)
+mark_rsync (struct arglist *desc, int port, char *buffer, int trp)
 {
-  register_service (desc, port, "rsyncd");
-  post_log (oid, desc, port, "An rsync server is running on this port");
+  register_service (desc, port, "rsync");
+  post_log (oid, desc, port, "A rsync server is running on this port");
 }
 
 
@@ -2010,7 +2010,7 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
                   else if (!strncmp (line, "cvslock ", 8))
                     mark_cvslockserver (desc, port, origline, trp);
                   else if (!strncmp (line, "@rsyncd", 7))
-                    mark_rsyncd (desc, port, origline, trp);
+                    mark_rsync (desc, port, origline, trp);
                   else if ((len == 4) && may_be_time ((time_t *) banner))
                     mark_time_server (desc, port, banner, trp);
                   else if (strstr (buffer, "rmserver")

@@ -1,3 +1,9 @@
+2016-10-04  Christian Fischer <christian.fischer@greenbone.net>
+
+	* nasl/nasl_builtin_find_service.c:
+	Corrected registration of rsync service to match
+	the service name defined by IANA.
+
 2016-09-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_crypto2.c (encrypt_data): Handle GCRY_CIPHER_3DES case.
