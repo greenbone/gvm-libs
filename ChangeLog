@@ -1,3 +1,11 @@
+2016-10-04  Christian Fischer <christian.fischer@greenbone.net>
+
+	Backport r26327.
+
+	* nasl/nasl_builtin_find_service.c:
+	Corrected registration of rsync service to match
+	the service name defined by IANA.
+
 2016-09-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r26219.
