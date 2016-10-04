@@ -341,6 +341,7 @@ static init_func libfuncs[] = {
   {"HMAC_SHA512", nasl_hmac_sha512, 0, {"data", "key", NULL}},
   {"HMAC_RIPEMD160", nasl_hmac_ripemd160, 0, {"data", "key", NULL}},
   {"prf_sha256", nasl_prf_sha256, 0, {"label", "outlen", "secret", "seed", NULL}},
+  {"prf_sha384", nasl_prf_sha384, 0, {"label", "outlen", "secret", "seed", NULL}},
   {"ntlmv2_response", nasl_ntlmv2_response, 0,
    {"address_list", "address_list_len", "crypt_key", "domain", "ntlmv2_hash",
     "user", NULL}},

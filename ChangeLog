@@ -1,3 +1,14 @@
+2016-10-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_crypto.c (hmac_sha384, nasl_prf, nasl_prf_sha384): New
+	functions.
+	(prf_sha256): Rename to tls_prf(). Add hmac parameter.
+	(nasl_prf_sha256): Call nasl_prf().
+
+	* nasl/nasl_crypto.h: Add function header.
+
+	* nasl/nasl_init.c (libfuncs): Add prf_sha384().
+
 2016-10-04  Christian Fischer <christian.fischer@greenbone.net>
 
 	* nasl/nasl_builtin_find_service.c:
