@@ -1,3 +1,8 @@
+2016-10-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/gpgme_util.c (get_sysconf_gpghome): Take OPENVAS_GPGHOME
+	environment variable into consideration. Patch by Jan-Oliver Wagner.
+
 2016-10-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_crypto.c (hmac_sha384, nasl_prf, nasl_prf_sha384): New

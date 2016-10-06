@@ -239,8 +239,14 @@ static const char *
 get_sysconf_gpghome (void)
 {
   static char *name;
+  char *envdir = NULL;
 
   if (!name)
+    envdir = getenv ("OPENVAS_GPGHOME");
+
+  if (envdir)
+    name = g_strdup (envdir);
+  else
     name = g_build_filename (OPENVAS_SYSCONF_DIR, "gnupg", NULL);
 
   return name;
