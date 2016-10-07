@@ -1,3 +1,12 @@
+2016-10-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* base/gpgme_util.c (openvas_init_gpgme_ctx): Fix memory leak.
+	(set_gpghome): New function.
+	(get_sysconf_gpghome): Adjust to use value set by set_gpghome() call.
+	(openvas_init_gpgme_sysconf_ctx): Fix memory leak.
+
+	* base/gpgme_util.h: Add function header.
+
 2016-10-06  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/gpgme_util.c (get_sysconf_gpghome): Take OPENVAS_GPGHOME

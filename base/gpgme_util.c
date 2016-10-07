@@ -46,6 +46,8 @@
  */
 #define G_LOG_DOMAIN "base gpgme"
 
+static char *gpghome = NULL;
+
 /**
  * @brief Log function with extra gpg-error style output
  *
@@ -221,9 +223,19 @@ determine_gpghome (const gchar *subdir)
 gpgme_ctx_t
 openvas_init_gpgme_ctx (const gchar *subdir)
 {
-  char *gpghome;
-  gpghome = determine_gpghome (subdir);
-  return openvas_init_gpgme_ctx_from_dir (gpghome);
+  char *path;
+  gpgme_ctx_t ctx;
+
+  path = determine_gpghome (subdir);
+  ctx = openvas_init_gpgme_ctx_from_dir (path);
+  g_free (path);
+  return ctx;
+}
+
+void
+set_gpghome (const char *path)
+{
+  gpghome = g_strdup (path);
 }
 
 /**
@@ -235,21 +247,18 @@ openvas_init_gpgme_ctx (const gchar *subdir)
  *
  * @return Static name of the Sysconf GnuPG home directory.
  */
-static const char *
+static char *
 get_sysconf_gpghome (void)
 {
-  static char *name;
   char *envdir = NULL;
 
-  if (!name)
-    envdir = getenv ("OPENVAS_GPGHOME");
-
-  if (envdir)
-    name = g_strdup (envdir);
+  envdir = getenv ("OPENVAS_GPGHOME");
+  if (gpghome)
+    return g_strdup (gpghome);
+  else if (envdir)
+    return g_strdup (envdir);
   else
-    name = g_build_filename (OPENVAS_SYSCONF_DIR, "gnupg", NULL);
-
-  return name;
+    return g_build_filename (OPENVAS_SYSCONF_DIR, "gnupg", NULL);
 }
 
 /**
@@ -267,5 +276,11 @@ get_sysconf_gpghome (void)
 gpgme_ctx_t
 openvas_init_gpgme_sysconf_ctx (void)
 {
-  return openvas_init_gpgme_ctx_from_dir (get_sysconf_gpghome ());
+  gpgme_ctx_t ctx;
+  char *path;
+
+  path = get_sysconf_gpghome ();
+  ctx = openvas_init_gpgme_ctx_from_dir (path);
+  g_free (path);
+  return ctx;
 }
