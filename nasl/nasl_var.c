@@ -68,14 +68,14 @@ hash_str (const char *s)
 }
 
 anon_nasl_var *
-nasl_get_var_by_num (nasl_array * a, int num, int create)
+nasl_get_var_by_num (void *ctxt, nasl_array *a, int num, int create)
 {
   anon_nasl_var *v = NULL;
 
   if (num < 0)
     {
       /* TBD: implement a min_index field, just like $[ in Perl */
-      nasl_perror (NULL, "Negative integer index are not supported yet!\n");
+      nasl_perror (ctxt, "Negative integer index are not supported yet!\n");
       return NULL;
     }
 
@@ -280,7 +280,7 @@ get_array_elem (lex_ctxt * ctxt, const char *name, tree_cell * idx)
       switch (idx->type)
         {
         case CONST_INT:
-          av = nasl_get_var_by_num (&u->v.v_arr, idx->x.i_val,
+          av = nasl_get_var_by_num (ctxt, &u->v.v_arr, idx->x.i_val,
                                     /* avoid dangling pointers */
                                     strcmp (name, "_FCT_ANON_ARGS"));
           return var2cell (av);

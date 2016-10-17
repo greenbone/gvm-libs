@@ -1,3 +1,15 @@
+2016-10-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/nasl_var.c (nasl_get_var_by_num): Add lexic context to
+	nasl_perror() call.
+	(get_array_elem): Adjust nasl_get_var_by_num() call.
+
+	* nasl/nasl_var.h: Adjust function header.
+
+	* nasl/nasl_misc_funcs.c (nasl_make_list, nasl_make_array, nasl_keys)
+	(nasl_make_index, nasl_typeof): Adjust nasl_get_var_by_num() call.
+
+
 2016-10-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* base/gpgme_util.c (openvas_init_gpgme_ctx): Fix memory leak.

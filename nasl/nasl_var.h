@@ -87,7 +87,7 @@ tree_cell *nasl_affect (tree_cell *, tree_cell *);
 void clear_unnamed_var (anon_nasl_var *);
 const char *var2str (const anon_nasl_var *);
 
-anon_nasl_var *nasl_get_var_by_num (nasl_array *, int, int);
+anon_nasl_var *nasl_get_var_by_num (void *, nasl_array *, int, int);
 
 nasl_iterator nasl_array_iterator (tree_cell *);
 tree_cell *nasl_iterate_array (nasl_iterator *);

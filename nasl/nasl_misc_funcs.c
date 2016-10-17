@@ -387,7 +387,7 @@ nasl_make_list (lex_ctxt * lexic)
   retc->type = DYN_ARRAY;
   retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
 
-  for (i = vi = 0; (v = nasl_get_var_by_num (&lexic->ctx_vars, vi, 0)) != NULL;
+  for (i = vi = 0; (v = nasl_get_var_by_num (lexic, &lexic->ctx_vars, vi, 0)) != NULL;
        vi++)
     {
       switch (v->var_type)
@@ -457,9 +457,9 @@ nasl_make_array (lex_ctxt * lexic)
   retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
 
   vi = 0;
-  while ((v = nasl_get_var_by_num (&lexic->ctx_vars, vi++, 0)) != NULL)
+  while ((v = nasl_get_var_by_num (lexic, &lexic->ctx_vars, vi++, 0)) != NULL)
     {
-      v2 = nasl_get_var_by_num (&lexic->ctx_vars, vi++, 0);
+      v2 = nasl_get_var_by_num (lexic, &lexic->ctx_vars, vi++, 0);
       if (v2 == NULL)
         {
           nasl_perror (lexic, "make_array: odd number (%d) of argument?\n", vi);
@@ -509,7 +509,7 @@ nasl_keys (lex_ctxt * lexic)
 
   bzero (&myvar, sizeof (myvar));
 
-  for (i = vi = 0; (v = nasl_get_var_by_num (&lexic->ctx_vars, vi, 0)) != NULL;
+  for (i = vi = 0; (v = nasl_get_var_by_num (lexic, &lexic->ctx_vars, vi, 0)) != NULL;
        vi++)
     {
       if (v->var_type == VAR2_ARRAY)
@@ -549,7 +549,7 @@ nasl_max_index (lex_ctxt * lexic)
   anon_nasl_var *v;
   nasl_array *a;
 
-  v = nasl_get_var_by_num (&lexic->ctx_vars, 0, 0);
+  v = nasl_get_var_by_num (lexic, &lexic->ctx_vars, 0, 0);
   if (v == NULL)
     return NULL;
   if (v->var_type != VAR2_ARRAY)
@@ -573,7 +573,7 @@ nasl_typeof (lex_ctxt * lexic)
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
-  u = nasl_get_var_by_num (&lexic->ctx_vars, 0, 0);
+  u = nasl_get_var_by_num (lexic, &lexic->ctx_vars, 0, 0);
 
   if (u == NULL)
     s = "null";
