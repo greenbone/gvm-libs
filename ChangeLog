@@ -1,3 +1,15 @@
+2016-10-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Removed NASL function "get_kb_fresh_item". It is not used by
+	any NVT, not in libraries or scanner.
+	It was simply calling get_kb_item() anyway.
+
+	* nasl/nasl_init.c (libfuncs): Remove entry for get_kb_fresh_item.
+
+	* nasl/nasl_scanner_glue.c (get_kb_fresh_item): Removed.
+
+	* nasl/nasl_scanner_glue.h: Removed proto accordingly.
+
 2016-10-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_var.c (nasl_get_var_by_num): Add lexic context to

@@ -103,7 +103,6 @@ static init_func libfuncs[] = {
   {"replace_kb_item", replace_kb_item, 0, {"name", "value", NULL}},
   {"set_kb_item", set_kb_item, 0, {"name", "value", NULL}},
   {"get_kb_item", get_kb_item, 1, {NULL}},
-  {"get_kb_fresh_item", get_kb_fresh_item, 1, {NULL}},
   {"get_kb_list", get_kb_list, 1, {NULL}},
   {"security_message", security_message, 1,
    {"data", "port", "proto", "protocol", NULL}},

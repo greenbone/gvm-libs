@@ -766,15 +766,6 @@ get_kb_item (lex_ctxt * lexic)
   return retc;
 }
 
-/**
- * XXX Deprecated call.
- */
-tree_cell *
-get_kb_fresh_item (lex_ctxt * lexic)
-{
-  return get_kb_item (lexic);
-}
-
 tree_cell *
 replace_kb_item (lex_ctxt * lexic)
 {

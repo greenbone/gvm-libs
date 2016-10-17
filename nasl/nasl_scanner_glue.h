@@ -47,7 +47,6 @@ tree_cell *scan_phase (lex_ctxt *);
 tree_cell *network_targets (lex_ctxt *);
 tree_cell *get_script_oid (lex_ctxt *);
 tree_cell *get_kb_item (lex_ctxt *);
-tree_cell *get_kb_fresh_item (lex_ctxt *);
 tree_cell *get_kb_list (lex_ctxt *);
 tree_cell *set_kb_item (lex_ctxt *);
 tree_cell *replace_kb_item (lex_ctxt *);
