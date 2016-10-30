@@ -1,3 +1,8 @@
+2016-10-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network.c (recv_line): Increase timeout from 5 seconds to 30
+	seconds.
+
 2016-10-17  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Removed NASL function "get_kb_fresh_item". It is not used by
