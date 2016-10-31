@@ -314,10 +314,24 @@ client_cert_callback (gnutls_session_t session,
   return 0;
 }
 
+/**
+ * @brief Connect to the server using a given host, port and cert.
+ *
+ * @param[in]  session   Pointer to GNUTLS session.
+ * @param[in]  host      Host to connect to.
+ * @param[in]  port      Port to connect to.
+ * @param[in]  ca_mem    CA cert.
+ * @param[in]  pub_mem   Public key.
+ * @param[in]  priv_mem  Private key.
+ * @param[in]  verify    Whether to verify.
+ *
+ * @return 0 on success, -1 on error.
+ */
 int
-openvas_server_open_with_cert (gnutls_session_t *session, const char *host,
-                               int port, const char *ca_mem,
-                               const char *pub_mem, const char *priv_mem)
+openvas_server_open_verify (gnutls_session_t *session, const char *host,
+                            int port, const char *ca_mem,
+                            const char *pub_mem, const char *priv_mem,
+                            int verify)
 {
   int ret;
   int server_socket;
@@ -445,10 +459,33 @@ openvas_server_open_with_cert (gnutls_session_t *session, const char *host,
         }
       return -1;
     }
-  if (ca_mem && pub_mem && priv_mem && openvas_server_verify (*session))
+  if (verify && openvas_server_verify (*session))
     return -1;
 
   return server_socket;
+}
+
+/**
+ * @brief Connect to the server using a given host, port and cert.
+ *
+ * Verify if all cert args are given.
+ *
+ * @param[in]  session   Pointer to GNUTLS session.
+ * @param[in]  host      Host to connect to.
+ * @param[in]  port      Port to connect to.
+ * @param[in]  ca_mem    CA cert.
+ * @param[in]  pub_mem   Public key.
+ * @param[in]  priv_mem  Private key.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+openvas_server_open_with_cert (gnutls_session_t *session, const char *host,
+                               int port, const char *ca_mem,
+                               const char *pub_mem, const char *priv_mem)
+{
+  return openvas_server_open_verify (session, host, port, ca_mem, pub_mem,
+                                     priv_mem, ca_mem && pub_mem && priv_mem);
 }
 
 /**

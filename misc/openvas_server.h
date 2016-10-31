@@ -66,6 +66,10 @@ typedef struct
   gchar *host_string;           ///< Server host string.
   gchar *port_string;           ///< Server port string.
   gint port;                    ///< Port of server.
+  gboolean use_certs;           ///< Whether to use certs.
+  gchar *ca_cert;               ///< CA certificate.
+  gchar *pub_key;               ///< The public key.
+  gchar *priv_key;              ///< The private key.
 } openvas_connection_t;
 
 void openvas_connection_free (openvas_connection_t *);
@@ -76,9 +80,12 @@ int openvas_server_verify (gnutls_session_t);
 
 int openvas_server_open (gnutls_session_t *, const char *, int);
 
-int
-openvas_server_open_with_cert (gnutls_session_t *, const char *, int,
-                               const char *, const char *, const char *);
+int openvas_server_open_verify (gnutls_session_t *, const char *, int,
+                                const char *, const char *, const char *,
+                                int);
+
+int openvas_server_open_with_cert (gnutls_session_t *, const char *, int,
+                                   const char *, const char *, const char *);
 
 int openvas_server_close (int, gnutls_session_t);
 

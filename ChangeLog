@@ -1,3 +1,12 @@
+2016-10-31  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* misc/openvas_server.c (openvas_server_open_verify): New function.
+	Like openvas_server_open_with_cert, but with "verify" arg.
+	(openvas_server_open_with_cert): Use new function.
+
+	* misc/openvas_server.h (openvas_connection_t): Add cert fields.
+	(openvas_server_open_verify): New header.
+
 2016-10-31  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Make libksba a mandatory dependency of openvas-libraries/nasl. Move
@@ -5354,7 +5363,7 @@
 2014-02-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/openvas_server.c (server_new_internal): Constify string arguments.
-	(load_file, unload_file, sert_cert_file, set_key_file, get_key_file,
+	(load_file, unload_file, sert_cert_file, set_key_file, get_key_file)
 	(get_cert_file, client_cert_callback, openvas_server_open_with_cert):
 	New functions.
 	(openvas_server_open): Call openvas_server_open().
