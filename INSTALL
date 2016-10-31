@@ -29,6 +29,7 @@ Specific development libraries:
 * uuid-dev (from e2fsprogs)
 * libssh >= 0.5.0
 * libhiredis >= 0.10.1
+* libksba >= 1.0.7
 
 Prerequisites for building documentation:
 * doxygen
@@ -40,9 +41,6 @@ Recommended to have WMI support:
 
 Recommended to have improved SNMP support:
 * netsnmp
-
-Recommended to have improved SSL support:
-* libksba >= 1.0.7
 
 Recommended to have LDAP support:
 * libldap >= 2.4.11

@@ -43,6 +43,29 @@ if (BUILD_STATIC)
   pkg_check_modules (REDIS REQUIRED hiredis>=0.10.1)
 endif (BUILD_STATIC)
 
+set (KSBA_MIN_VERSION "1.0.7")
+message (STATUS "Looking for ksba >= ${KSBA_MIN_VERSION}...")
+find_library (KSBA ksba)
+message (STATUS "Looking for ksba >= ${KSBA_MIN_VERSION}... ${KSBA}")
+if (NOT KSBA)
+  message (SEND_ERROR "The ksba library is required.")
+else (NOT KSBA)
+  execute_process (COMMAND ksba-config --version
+    OUTPUT_VARIABLE KSBA_VERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  message (STATUS "Found ksba ${KSBA_VERSION}...")
+  if (${KSBA_VERSION} VERSION_LESS ${KSBA_MIN_VERSION})
+    message (SEND_ERROR "The ksba library >= ${KSBA_MIN_VERSION} is required.")
+  else (${KSBA_VERSION} VERSION_LESS ${KSBA_MIN_VERSION})
+    execute_process (COMMAND ksba-config --libs
+      OUTPUT_VARIABLE KSBA_LDFLAGS
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process (COMMAND ksba-config --cflags
+      OUTPUT_VARIABLE KSBA_CFLAGS
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+  endif (${KSBA_VERSION} VERSION_LESS ${KSBA_MIN_VERSION})
+endif (NOT KSBA)
+
 # The "-D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1" is necessary for GPGME!
 # The "-fno-strict-aliasing" silences warnings caused by macros defined in byteorder.h.
 # Once the warnings have been addressed this flag should be removed.

@@ -1,3 +1,20 @@
+2016-10-31  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Make libksba a mandatory dependency of openvas-libraries/nasl. Move
+	and improve dependency check.
+
+	* CMakeLists.txt: Remove check for libksba. It is only used in
+	"nasl/", so it should be checked there.
+
+	* INSTALL: Move libksba from the "Recommended" to the general
+	dependencies section.
+
+	* nasl/CMakeLists.txt: Move dependency check here from top-level
+	CMakeLists.txt. Add version check with version mentioned in INSTALL.
+	Consider it an error if libksba is not found in the required version.
+	Do not make useless calls to ksba-config if ksba was not found or not
+	at the required version.
+
 2016-10-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (recv_line): Increase timeout from 5 seconds to 30
