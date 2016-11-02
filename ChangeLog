@@ -1,3 +1,10 @@
+2016-11-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/network.c (open_SSL_connection): Add hostname parameter. Set TLS
+	SNI accordingly.
+	(socket_negotiate_ssl, open_stream_connection_ext): Adjust
+	open_SSL_connection() call.
+
 2016-10-31  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* misc/openvas_server.c (openvas_server_open_verify): New function.

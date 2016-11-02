@@ -588,7 +588,8 @@ cleanup:
 
 static int
 open_SSL_connection (openvas_connection * fp, const char *cert,
-                     const char *key, const char *passwd, const char *cafile)
+                     const char *key, const char *passwd, const char *cafile,
+                     const char *hostname)
 {
   int ret, err, d;
   time_t tictac;
@@ -611,6 +612,10 @@ open_SSL_connection (openvas_connection * fp, const char *cert,
    */
   if (set_gnutls_protocol (fp->tls_session, fp->transport, fp->priority) < 0)
     return -1;
+
+  if (hostname)
+    gnutls_server_name_set (fp->tls_session, GNUTLS_NAME_DNS, hostname,
+                            strlen (hostname));
 
   ret = gnutls_certificate_allocate_credentials (&(fp->tls_cred));
   if (ret < 0)
@@ -757,7 +762,7 @@ set_ids_evasion_mode (struct arglist *args, openvas_connection * fp)
 int
 socket_negotiate_ssl (int fd, openvas_encaps_t transport, struct arglist *args)
 {
-  char *cert = NULL, *key = NULL, *passwd = NULL, *cafile = NULL;
+  char *cert = NULL, *key = NULL, *passwd = NULL, *cafile = NULL, *hostname;
   openvas_connection *fp;
 
   if (!fd_is_stream (fd))
@@ -770,10 +775,11 @@ socket_negotiate_ssl (int fd, openvas_encaps_t transport, struct arglist *args)
   key = kb_item_get_str (plug_get_kb (args), "SSL/key");
   passwd = kb_item_get_str (plug_get_kb (args), "SSL/password");
   cafile = kb_item_get_str (plug_get_kb (args), "SSL/CA");
+  hostname = plug_get_host_fqdn (args);
 
   fp->transport = transport;
   fp->priority = NULL;
-  if (open_SSL_connection (fp, cert, key, passwd, cafile) <= 0)
+  if (open_SSL_connection (fp, cert, key, passwd, cafile, hostname) <= 0)
     {
       log_legacy_write ("socket_negotiate_ssl: SSL connection failed.\n");
       release_connection_fd (fd, 0);
@@ -990,6 +996,7 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
   char *key = NULL;
   char *passwd = NULL;
   char *cafile = NULL;
+  char *hostname = NULL;
 
   if (!priority)
     priority = ""; /* To us an empty string is equivalent to NULL.  */
@@ -1064,12 +1071,13 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
       passwd = kb_item_get_str (plug_get_kb (args), "SSL/password");
 
       cafile = kb_item_get_str (plug_get_kb (args), "SSL/CA");
+      hostname = plug_get_host_fqdn (args);
 
       /* fall through */
 
     case OPENVAS_ENCAPS_SSLv2:
       /* We do not need a client certificate in this case */
-      ret = open_SSL_connection (fp, cert, key, passwd, cafile);
+      ret = open_SSL_connection (fp, cert, key, passwd, cafile, hostname);
       g_free (cert);
       g_free (key);
       g_free (passwd);
