@@ -37,7 +37,7 @@
 
 gpgme_ctx_t openvas_init_gpgme_ctx (const gchar *);
 gpgme_ctx_t openvas_init_gpgme_sysconf_ctx (void);
-void set_gpghome ();
+void set_gpghome (const char *);
 
 
 #endif /*_OPENVAS_LIBRARIES_GPGME_UTIL_H*/

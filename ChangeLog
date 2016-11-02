@@ -1,5 +1,9 @@
 2016-11-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* base/gpgme_util.h: Fix function prototype.
+
+2016-11-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* misc/network.c (open_SSL_connection): Add hostname parameter. Set TLS
 	SNI accordingly.
 	(socket_negotiate_ssl, open_stream_connection_ext): Adjust
