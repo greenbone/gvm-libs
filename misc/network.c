@@ -1071,12 +1071,12 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
       passwd = kb_item_get_str (plug_get_kb (args), "SSL/password");
 
       cafile = kb_item_get_str (plug_get_kb (args), "SSL/CA");
-      hostname = plug_get_host_fqdn (args);
 
       /* fall through */
 
     case OPENVAS_ENCAPS_SSLv2:
       /* We do not need a client certificate in this case */
+      hostname = plug_get_host_fqdn (args);
       ret = open_SSL_connection (fp, cert, key, passwd, cafile, hostname);
       g_free (cert);
       g_free (key);
