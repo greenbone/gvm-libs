@@ -2088,71 +2088,36 @@ omp_get_system_reports_ext (gnutls_session_t* session,
                             entity_t *reports)
 {
   const char* status_code;
-  gchar *slave_id_attrib;
+  GString *request;
   int ret;
 
-  slave_id_attrib = opts.slave_id ? g_strdup_printf (" slave_id=\"%s\"",
-                                                     opts.slave_id)
-                                  : g_strdup ("");
+  request = g_string_new ("<get_system_reports");
+
+  if (opts.slave_id)
+    xml_string_append (request, " slave_id=\"%s\"", opts.slave_id);
+
+  if (opts.name)
+    xml_string_append (request, " name=\"%s\"", opts.name);
+
+  if (opts.duration)
+    xml_string_append (request, " duration=\"%s\"", opts.duration);
+
+  if (opts.start_time)
+    xml_string_append (request, " start_time=\"%s\"", opts.start_time);
+
+  if (opts.end_time)
+    xml_string_append (request, " end_time=\"%s\"", opts.end_time);
+
+  g_string_append (request, "/>");
 
   /* Create the OMP request. */
 
-  if (opts.name && opts.duration)
+  if (openvas_server_sendf (session, "%s", request->str) == -1)
     {
-      if (openvas_server_sendf (session,
-                                "<get_system_reports%s"
-                                " name=\"%s\""
-                                " duration=\"%s\""
-                                " brief=\"%i\"/>",
-                                slave_id_attrib,
-                                opts.name,
-                                opts.duration,
-                                opts.brief)
-          == -1)
-        {
-          g_free (slave_id_attrib);
-          return -1;
-        }
-    }
-  else if (opts.name)
-    {
-      if (openvas_server_sendf (session,
-                                "<get_system_reports%s"
-                                " name=\"%s\""
-                                " brief=\"%i\"/>",
-                                slave_id_attrib,
-                                opts.name,
-                                opts.brief)
-          == -1)
-        {
-          g_free (slave_id_attrib);
-          return -1;
-        }
-    }
-  else if (opts.duration)
-    {
-      if (openvas_server_sendf (session,
-                                "<get_system_reports%s"
-                                " duration=\"%s\""
-                                " brief=\"%i\"/>",
-                                slave_id_attrib,
-                                opts.duration,
-                                opts.brief)
-          == -1)
-        {
-          g_free (slave_id_attrib);
-          return -1;
-        }
-    }
-  else if (openvas_server_sendf (session,
-                                 "<get_system_reports%s brief=\"%i\"/>",
-                                 slave_id_attrib,
-                                 opts.brief)
-           == -1)
-    {
-      g_free (slave_id_attrib);
+      g_string_free (request, 1);
       return -1;
     }
+  g_string_free (request, 1);
 
   /* Read the response. */
 

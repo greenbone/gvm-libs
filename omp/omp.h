@@ -213,6 +213,8 @@ typedef struct
 {
   const char* name;                ///< Name of report.
   const char* duration;            ///< Duration.
+  const char* start_time;          ///< Time of first data point.
+  const char* end_time;            ///< Time of last data point.
   const char* slave_id;            ///< ID of the slave to get report from.
   int brief;                       ///< Brief flag.
 } omp_get_system_reports_opts_t;
@@ -221,7 +223,7 @@ typedef struct
  * @brief Sensible default values for omp_get_report_opts_t.
  */
 static const omp_get_system_reports_opts_t omp_get_system_reports_opts_defaults =
-  { NULL, NULL, NULL, 0 };
+  { NULL, NULL, NULL, NULL, NULL, 0 };
 
 /**
  * @brief Struct holding options for omp create_lsc_credential command.

@@ -1,3 +1,12 @@
+2016-11-04  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	* omp/omp.c (omp_get_system_reports_ext): Add new OMP command
+	attributes start_time and end_time.
+
+	* omp/omp.h (omp_get_system_reports_opts_t): Add new fields start_time
+	and end_time.
+	(omp_get_system_reports_opts_defaults): Add new fields.
+
 2016-11-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* misc/network.c (open_stream_connection_ext): Set hostname in SSLv2
