@@ -89,11 +89,11 @@ cell2bool (lex_ctxt * lexic, tree_cell * c)
     }
 }
 
-static int
+static long int
 cell2int3 (lex_ctxt * lexic, tree_cell * c, int warn)
 {
   tree_cell *c2 = NULL;
-  int x;
+  long int x;
   char *p = NULL;
 
   if (c == NULL || c == FAKE_CELL)      /*  Do not SEGV on undefined variables */
@@ -121,20 +121,20 @@ cell2int3 (lex_ctxt * lexic, tree_cell * c, int warn)
     }
 }
 
-static int
+static long int
 cell2int (lex_ctxt * lexic, tree_cell * c)
 {
   return cell2int3 (lexic, c, 0);
 }
 
-static int
+static long int
 cell2intW (lex_ctxt * lexic, tree_cell * c)
 {
   return cell2int3 (lexic, c, 1);
 }
 
 static tree_cell *
-int2cell (int x)
+int2cell (long int x)
 {
   tree_cell *c = alloc_expr_cell (0, CONST_INT, NULL, NULL);
   c->x.i_val = x;
@@ -165,7 +165,7 @@ cell2str (lex_ctxt * lexic, tree_cell * c)
   switch (c->type)
     {
     case CONST_INT:
-      return g_strdup_printf ("%d", c->x.i_val);
+      return g_strdup_printf ("%ld", c->x.i_val);
 
     case CONST_STR:
     case CONST_DATA:
@@ -224,7 +224,8 @@ cell2atom (lex_ctxt * lexic, tree_cell * c1)
 int
 cell_cmp (lex_ctxt * lexic, tree_cell * c1, tree_cell * c2)
 {
-  int flag, x1, x2, typ, typ1, typ2;
+  int flag, typ, typ1, typ2;
+  long int x1, x2;
   char *s1, *s2;
   int len_s1, len_s2, len_min;
 
@@ -568,7 +569,7 @@ nasl_dump_expr (FILE * fp, const tree_cell * c)
         nasl_dump_expr (fp, c->link[1]);
         break;
       case CONST_INT:
-        fprintf (fp, "%d", c->x.i_val);
+        fprintf (fp, "%ld", c->x.i_val);
         break;
       case CONST_STR:
       case CONST_DATA:
@@ -778,12 +779,13 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
 {
   tree_cell *ret = NULL, *ret2 = NULL, *tc1 = NULL, *tc2 = NULL, *tc3 =
     NULL, *idx = NULL, *args;
-  int flag, x, y, z;
+  int flag, z;
   char *s1 = NULL, *s2 = NULL, *s3 = NULL, *p = NULL;
   char *p1, *p2;
   int len1, len2;
   nasl_func *pf = NULL;
-  int i, n;
+  int i;
+  long int x, y, n;
 
 
 #if 0

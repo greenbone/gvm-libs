@@ -111,7 +111,7 @@ typedef struct TC
   union
   {
     char *str_val;
-    int i_val;
+    long int i_val;
     void *ref_val;              /* internal reference */
   } x;
   struct TC *link[4];

@@ -1149,7 +1149,7 @@ array2str (const nasl_array * a)
           switch (u->var_type)
             {
             case VAR2_INT:
-              snprintf (s + n, len - n, "%d: %d", i, u->v.v_int);
+              snprintf (s + n, len - n, "%d: %ld", i, u->v.v_int);
               n += strlen (s + n);
               break;
             case VAR2_STRING:
@@ -1191,7 +1191,7 @@ array2str (const nasl_array * a)
             switch (u->var_type)
               {
               case VAR2_INT:
-                n += snprintf (s + n, len - n, "%s: %d", v->var_name, u->v.v_int);
+                n += snprintf (s + n, len - n, "%s: %ld", v->var_name, u->v.v_int);
                 break;
               case VAR2_STRING:
               case VAR2_DATA:
@@ -1234,7 +1234,7 @@ var2str (const anon_nasl_var * v)
   switch (v->var_type)
     {
     case VAR2_INT:
-      snprintf (s1, sizeof (s1), "%d", v->v.v_int);
+      snprintf (s1, sizeof (s1), "%ld", v->v.v_int);
       return s1;                /* buggy if called twice in a row */
 
     case VAR2_STRING:

@@ -58,7 +58,7 @@ typedef struct st_a_nasl_var
   union
   {
     nasl_string_t v_str;        /* character string / data */
-    int v_int;                  /* integer */
+    long int v_int;             /* integer */
     nasl_array v_arr;           /* array */
   } v;
 } anon_nasl_var;

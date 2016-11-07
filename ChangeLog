@@ -1,3 +1,19 @@
+2016-11-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* nasl/exec.c (cell2int3, cell2int, cell2intW, int2cell): Change
+	returned variable from int to long int.
+	(cell_cmp, nasl_exec): Use long int instead of int for nasl integer variables.
+
+	* nasl/nasl_grammar.y (YYSTYPE): Change num type to long int.
+
+	* nasl/nasl_tree.h (tree_cell): Change i_val type to long int.
+
+	* nasl/nasl_tree.c (dump_cell_val): Adjust for i_val type change.
+
+	* nasl/nasl_var.h (anon_nasl_var): Change v_int type to long int.
+
+	* nasl/nasl_var.c (array2str, var2str): Adjust for v_int type change.
+
 2016-11-04  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* omp/omp.c (omp_get_system_reports_ext): Add new OMP command

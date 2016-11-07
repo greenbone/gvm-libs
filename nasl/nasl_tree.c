@@ -310,7 +310,7 @@ dump_cell_val (const tree_cell * c)
     switch (c->type)
       {
       case CONST_INT:
-        snprintf (txt, sizeof (txt), "%d", c->x.i_val);
+        snprintf (txt, sizeof (txt), "%ld", c->x.i_val);
         break;
       case CONST_STR:
       case CONST_DATA:         /* Beurk (English: Yuck) */
@@ -374,7 +374,7 @@ dump_tree (const tree_cell * c, int n, int idx)
     {
     case CONST_INT:
       prefix (n, 0);
-      printf ("Val=%d\n", c->x.i_val);
+      printf ("Val=%ld\n", c->x.i_val);
       break;
 
     case CONST_STR:
