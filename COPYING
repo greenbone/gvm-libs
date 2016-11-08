@@ -32,7 +32,6 @@ base/openvas_file.[c|h]: GPLv2+
 base/openvas_hosts.[c|h]: GPLv2+
 base/openvas_networking.[c|h]: GPLv2+
 base/openvas_string.[c|h]: GPLv2+
-base/osp.[c|h]: GPLv2+
 base/pwpolicy.[c|h]: GPLv2+
 base/pidfile.[c|h]: GPLv2+
 base/settings.[c|h]: GPLv2+
@@ -138,3 +137,6 @@ nasl/tests/testsuitesummary.nasl: GPLv2+
 omp/CMakeLists.txt: GPLv2+
 omp/omp.[c|h]: GPLv2+
 omp/xml.[c|h]: GPLv2+
+
+osp/CMakeLists.txt: GPLv2+
+osp/osp.[c|h]: GPLv2+

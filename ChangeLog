@@ -1,3 +1,7 @@
+2016-11-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* COPYING: Update. It was missing the separation of the osp module.
+
 2016-11-08  Christian Fischer <christian.fischer@greenbone.net>
 
 	* nasl/nasl_var.c (nasl_array_iterator): Add lexic context to
