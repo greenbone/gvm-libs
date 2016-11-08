@@ -1,3 +1,12 @@
+2016-11-08  Christian Fischer <christian.fischer@greenbone.net>
+
+	* nasl/nasl_var.c (nasl_array_iterator): Add lexic context to
+	nasl_perror() call.
+
+	* nasl/nasl_var.h: Adjust function header.
+
+	* nasl/exec.c (nasl_exec): Adjust nasl_array_iterator call.
+
 2016-11-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* nasl/exec.c (cell2int3, cell2int, cell2intW, int2cell): Change
@@ -92,7 +101,6 @@
 
 	* nasl/nasl_misc_funcs.c (nasl_make_list, nasl_make_array, nasl_keys)
 	(nasl_make_index, nasl_typeof): Adjust nasl_get_var_by_num() call.
-
 
 2016-10-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 

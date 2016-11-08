@@ -1364,7 +1364,7 @@ get_local_var_type_by_name (lex_ctxt * lexic, const char *name)
 }
 
 nasl_iterator
-nasl_array_iterator (tree_cell * c)
+nasl_array_iterator (void *ctxt, tree_cell * c)
 {
   nasl_iterator it;
   anon_nasl_var *v;
@@ -1390,7 +1390,7 @@ nasl_array_iterator (tree_cell * c)
     }
   else
     {
-      nasl_perror (NULL, "nasl_array_iterator: unhandled type %d (0x%x)\n",
+      nasl_perror (ctxt, "nasl_array_iterator: unhandled type %d (0x%x)\n",
                    c->type, c->type);
     }
 

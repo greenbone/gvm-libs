@@ -983,7 +983,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
         if (v == NULL)
           return NULL;          /* We cannot go on if we have no variable to iterate */
         a = nasl_exec (lexic, st->link[0]);
-        ai = nasl_array_iterator (a);
+        ai = nasl_array_iterator (lexic, a);
         while ((val = nasl_iterate_array (&ai)) != NULL)
           {
             tc1 = nasl_affect (v, val);
