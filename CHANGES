@@ -1,3 +1,63 @@
+openvas-libraries 9.0.0 (2016-11-09)
+
+This is the first release of the openvas-libraries 9.0 module for the Open
+Vulnerability Assessment System 9 (OpenVAS-9). Compared to the previous major
+release it covers various improvements for the OpenVAS services and applications.
+Noteworthy are the support for unix domain sockets, the osp module and shifting
+the auth.conf file into the OpenVAS Manager database.
+
+Many thanks to everyone who contributed to this release:
+Sebastien Aucouturier, Benoît Allard, Hani Benhabiles, Guillaume Castagnino,
+Sven Haardiek, Matthew Mundell, Timo Pollmeier, Jan-Oliver Wagner and
+Michael Wiegand.
+
+Main changes compared to the 8.0 series:
+* "auth.conf" moved from filesystem into the OpenVAS Manager database.
+* Improved stand-alone "nasl" tool for testing single NVTs.
+* New "osp" submodule and support for OSP 1.1.
+* Added support for handling unix domain sockets.
+* Extensive code and performance improvements.
+* Removed NASL commands: script_description and get_kb_fresh_item.
+* libksba is now a mandatory dependency.
+* Minimum required version of gnutls raised to 3.2.15.
+* Minimum required version of glib raised to 2.32.
+* Minimum required version of cmake build environment raised to 2.8.
+
+Main changes compared to 8.1+beta3:
+* ECDSA public SSH keys are now handled correctly during export.
+* Support for the SHA256, SHA384 and SHA512 HMAC algorithms has been added.
+* Support for the RSA, RC4, DES-EDE-CBC, AES128-CBC and AES256-CBC encryption
+  algorithms has been added.
+* Support for the SHA256 PRF algorithm has been added.
+* Handling of attempts to connect to the redis KB has been improved.
+* Support for SMBv2 signatures has been added.
+* The built-in 'find_service' plugin has been improved.
+* Support for the NASL command 'script_description' has been removed.
+* Support for the NASL command 'get_kb_fresh_item' has been removed.
+* The minimum required version of the GnuTLS library has been raised to 3.2.15
+  in order to enforce the presence of newer (more secure) TLS and ciphers.
+* Support for using an LDAP CA certificate passed via function parameter instead
+  of a file has been added.
+* The minimum required version of the GLib library has been raised to 2.32 in
+  order to allow the use of newer API elements.
+* The minimum required version of the openvas_wmiclient and openvas_wincmd
+  libraries has been raised to 1.0.1.
+* The minimum required version of the CMake build framework has been raised to
+  2.8.
+* The libksba library has been made a mandatory dependency. It was initially an
+  optional dependency, but the functionality it provides has since then become
+  an integral part of NASL.
+* Support for verifying a server certificate when a connection is opened has
+  been added.
+* Error messages from the NASL interpreter have been improved.
+* Support for connections via Unix domains sockets has been added.
+* Handling of connection failures has been improved.
+* A number of memory leaks have been fixed.
+* The build process has been improved.
+* Comprehensive code cleanups.
+* Various minor fixes and code improvements.
+
+
 openvas-libraries 8.1+beta3 (2016-04-14)
 
 This release is the third beta version of the upcoming version 8.1 of
