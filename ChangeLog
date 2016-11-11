@@ -1,3 +1,10 @@
+2016-11-11  Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+	Backport r26628.
+
+	* base/openvas_file.c (openvas_export_file_name): Move format_state = 0
+	assignment so it doesn't overwrite values set in the switch case block.
+
 2016-11-09  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post release version bump.

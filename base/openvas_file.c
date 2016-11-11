@@ -345,6 +345,7 @@ openvas_export_file_name (const char* fname_format, const char* username,
         }
       else if (format_state == 1)
         {
+          format_state = 0;
           switch (*fname_point)
             {
               case 'C':
@@ -390,7 +391,6 @@ openvas_export_file_name (const char* fname_format, const char* username,
                            __FUNCTION__, *fname_point);
                 format_state = -1;
             }
-          format_state = 0;
         }
       fname_point += sizeof (char);
     }
