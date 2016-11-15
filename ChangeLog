@@ -1,3 +1,10 @@
+2016-11-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r26648.
+
+	* misc/network.c (is_ip_address): New function.
+	(open_SSL_connection): Don't use hostname if it is an IP address.
+
 2016-11-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r26513 and r26527.

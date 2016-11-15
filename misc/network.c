@@ -591,6 +591,18 @@ cleanup:
 }
 
 static int
+is_ip_address (const char *str)
+{
+  struct sockaddr_in sa;
+  struct sockaddr_in6 sa6;
+
+  if (inet_pton (AF_INET, str, &(sa.sin_addr)) == 1)
+    return 1;
+
+  return inet_pton (AF_INET6, str, &(sa6.sin6_addr)) == 1;
+}
+
+static int
 open_SSL_connection (openvas_connection * fp, const char *cert,
                      const char *key, const char *passwd, const char *cafile,
                      const char *hostname)
@@ -617,7 +629,7 @@ open_SSL_connection (openvas_connection * fp, const char *cert,
   if (set_gnutls_protocol (fp->tls_session, fp->transport, fp->priority) < 0)
     return -1;
 
-  if (hostname)
+  if (hostname && !is_ip_address (hostname))
     gnutls_server_name_set (fp->tls_session, GNUTLS_NAME_DNS, hostname,
                             strlen (hostname));
 
