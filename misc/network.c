@@ -676,7 +676,8 @@ open_SSL_connection (openvas_connection * fp, const char *cert,
       if (err == 0)
         return 1;
 
-      if (err != GNUTLS_E_INTERRUPTED && err != GNUTLS_E_AGAIN)
+      if (err != GNUTLS_E_INTERRUPTED && err != GNUTLS_E_AGAIN
+          && err != GNUTLS_E_WARNING_ALERT_RECEIVED)
         {
 #ifdef DEBUG_SSL
           tlserror ("gnutls_handshake", err);
