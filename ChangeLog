@@ -1,3 +1,10 @@
+2016-11-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r26704 and r26707.
+
+	* misc/network.c (socket_negotiate_ssl, open_stream_connection_ext):
+	Check Host/SNI/$Port/force_disable before setting the SNI.
+
 2016-11-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r26683.
