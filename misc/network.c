@@ -779,8 +779,11 @@ set_ids_evasion_mode (struct arglist *args, openvas_connection * fp)
 int
 socket_negotiate_ssl (int fd, openvas_encaps_t transport, struct arglist *args)
 {
-  char *cert = NULL, *key = NULL, *passwd = NULL, *cafile = NULL, *hostname;
+  char *cert = NULL, *key = NULL, *passwd = NULL, *cafile = NULL;
+  char *hostname = NULL;
   openvas_connection *fp;
+  kb_t kb;
+  char buf[1024];
 
   if (!fd_is_stream (fd))
     {
@@ -788,11 +791,14 @@ socket_negotiate_ssl (int fd, openvas_encaps_t transport, struct arglist *args)
       return -1;
     }
   fp = OVAS_CONNECTION_FROM_FD(fd);
-  cert = kb_item_get_str (plug_get_kb (args), "SSL/cert");
-  key = kb_item_get_str (plug_get_kb (args), "SSL/key");
-  passwd = kb_item_get_str (plug_get_kb (args), "SSL/password");
-  cafile = kb_item_get_str (plug_get_kb (args), "SSL/CA");
-  hostname = plug_get_host_fqdn (args);
+  kb = plug_get_kb (args);
+  cert = kb_item_get_str (kb, "SSL/cert");
+  key = kb_item_get_str (kb, "SSL/key");
+  passwd = kb_item_get_str (kb, "SSL/password");
+  cafile = kb_item_get_str (kb, "SSL/CA");
+  snprintf (buf, sizeof (buf), "Host/SNI/%d/force_disable", fp->port);
+  if (kb_item_get_int (kb, buf) <= 0)
+    hostname = plug_get_host_fqdn (args);
 
   fp->transport = transport;
   fp->priority = NULL;
@@ -1076,9 +1082,11 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
   if (fp->fd < 0)
     goto failed;
 
+  kb_t kb = plug_get_kb (args);
   switch (transport)
     {
     int ret;
+    char buf[1024];
     case OPENVAS_ENCAPS_IP:
       break;
     case OPENVAS_ENCAPS_SSLv23:
@@ -1088,17 +1096,19 @@ open_stream_connection_ext (struct arglist *args, unsigned int port,
     case OPENVAS_ENCAPS_TLSv12:
     case OPENVAS_ENCAPS_TLScustom:
       renice_myself ();
-      cert = kb_item_get_str (plug_get_kb (args), "SSL/cert");
-      key = kb_item_get_str (plug_get_kb (args), "SSL/key");
-      passwd = kb_item_get_str (plug_get_kb (args), "SSL/password");
+      cert = kb_item_get_str (kb, "SSL/cert");
+      key = kb_item_get_str (kb, "SSL/key");
+      passwd = kb_item_get_str (kb, "SSL/password");
 
-      cafile = kb_item_get_str (plug_get_kb (args), "SSL/CA");
+      cafile = kb_item_get_str (kb, "SSL/CA");
 
       /* fall through */
 
     case OPENVAS_ENCAPS_SSLv2:
       /* We do not need a client certificate in this case */
-      hostname = plug_get_host_fqdn (args);
+      snprintf (buf, sizeof (buf), "Host/SNI/%d/force_disable", fp->port);
+      if (kb_item_get_int (kb, buf) <= 0)
+        hostname = plug_get_host_fqdn (args);
       ret = open_SSL_connection (fp, cert, key, passwd, cafile, hostname);
       g_free (cert);
       g_free (key);
