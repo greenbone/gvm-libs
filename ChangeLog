@@ -1,0 +1,9 @@
+2016-12-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Starting module "gvm-libs".
+
+	* doc/Doxyfile.in, doc/Doxyfile_full.in, doc/CMakeLists.txt,
+	base/CMakeLists.txt, base/array.c, base/array.h, base/cvss.c,
+	base/cvss.h, base/pidfile.c, base/pidfile.h, gvm_cmake_macros,
+	README, INSTALL, CMakeLists.txt, VERSION.in, libgvm_base.pc.in,
+	ChangeLog, COPYING: New.
