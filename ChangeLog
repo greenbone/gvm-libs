@@ -1,7 +1,7 @@
 2016-12-05  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/cvss.h: Remove declaration of cvss_as_str as it was removed
-	from cvss.h in r14975.
+	from cvss.c in r14975.
 
 2016-12-05  Michael Wiegand <michael.wiegand@greenbone.net>
 
