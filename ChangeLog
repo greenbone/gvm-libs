@@ -1,5 +1,10 @@
 2016-12-05  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/cvss.c: Format according to coding style. Command was 'indent
+	--no-tabs --ignore-newlines -l 80'.
+
+2016-12-05  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Minor documentation fixes.
 
 	* INSTALL: Refer to more sensible packages in 'apt-get' line.

@@ -99,7 +99,8 @@
 #define A_COMPLETE 0.660
 
 
-enum base_metrics { A, I, C, Au, AC, AV };
+enum base_metrics
+{ A, I, C, Au, AC, AV };
 
 /**
  * @brief Describe a CVSS impact element.
@@ -125,36 +126,36 @@ struct cvss
 
 
 static const struct impact_item impact_map[][3] = {
-   [A] = {
-       {"N", A_NONE},
-       {"P", A_PARTIAL},
-       {"C", A_COMPLETE},
-   },
-   [I] = {
-       {"N", I_NONE},
-       {"P", I_PARTIAL},
-       {"C", I_COMPLETE},
-   },
-   [C] = {
-       {"N", C_NONE},
-       {"P", C_PARTIAL},
-       {"C", C_COMPLETE},
-   },
-   [Au] = {
-       {"N", Au_NONE},
-       {"M", Au_MULTIPLE_INSTANCES},
-       {"S", Au_SINGLE_INSTANCE},
-   },
-   [AV] = {
-       {"N", AV_NETWORK},
-       {"A", AV_ADJACENT_NETWORK},
-       {"L", AV_LOCAL},
-   },
-   [AC] = {
-       {"L", AC_LOW},
-       {"M", AC_MEDIUM},
-       {"H", AC_HIGH},
-   },
+  [A] = {
+         {"N", A_NONE},
+         {"P", A_PARTIAL},
+         {"C", A_COMPLETE},
+         },
+  [I] = {
+         {"N", I_NONE},
+         {"P", I_PARTIAL},
+         {"C", I_COMPLETE},
+         },
+  [C] = {
+         {"N", C_NONE},
+         {"P", C_PARTIAL},
+         {"C", C_COMPLETE},
+         },
+  [Au] = {
+          {"N", Au_NONE},
+          {"M", Au_MULTIPLE_INSTANCES},
+          {"S", Au_SINGLE_INSTANCE},
+          },
+  [AV] = {
+          {"N", AV_NETWORK},
+          {"A", AV_ADJACENT_NETWORK},
+          {"L", AV_LOCAL},
+          },
+  [AC] = {
+          {"L", AC_LOW},
+          {"M", AC_MEDIUM},
+          {"H", AC_HIGH},
+          },
 };
 
 /**
@@ -166,9 +167,9 @@ static const struct impact_item impact_map[][3] = {
  * @return 0 on success, -1 on error.
  */
 static int
-toenum (const char * str, enum base_metrics *res)
+toenum (const char *str, enum base_metrics *res)
 {
-  int rc = 0; /* let's be optimistic */
+  int rc = 0;                   /* let's be optimistic */
 
   if (g_strcmp0 (str, "A") == 0)
     *res = A;
@@ -183,11 +184,11 @@ toenum (const char * str, enum base_metrics *res)
   else if (g_strcmp0 (str, "AV") == 0)
     *res = AV;
   else if (g_strcmp0 (str, "AC") == 0)
-   *res = AC;
+    *res = AC;
   else
     rc = -1;
 
- return rc;
+  return rc;
 }
 
 /**
@@ -218,8 +219,8 @@ get_impact_subscore (const struct cvss *cvss)
 static double
 get_exploitability_subscore (const struct cvss *cvss)
 {
-  return (20 * cvss->access_vector *
-          cvss->access_complexity * cvss->authentication);
+  return (20 * cvss->access_vector * cvss->access_complexity *
+          cvss->authentication);
 }
 
 /**
@@ -247,32 +248,32 @@ set_impact_from_str (const char *value, enum base_metrics metric,
         {
           switch (metric)
             {
-              case A:
-                cvss->avail_impact = impact->nvalue;
-                break;
+            case A:
+              cvss->avail_impact = impact->nvalue;
+              break;
 
-              case I:
-                cvss->integ_impact = impact->nvalue;
-                break;
+            case I:
+              cvss->integ_impact = impact->nvalue;
+              break;
 
-              case C:
-                cvss->conf_impact = impact->nvalue;
-                break;
+            case C:
+              cvss->conf_impact = impact->nvalue;
+              break;
 
-              case Au:
-                cvss->authentication = impact->nvalue;
-                break;
+            case Au:
+              cvss->authentication = impact->nvalue;
+              break;
 
-              case AV:
-                cvss->access_vector = impact->nvalue;
-                break;
+            case AV:
+              cvss->access_vector = impact->nvalue;
+              break;
 
-              case AC:
-                cvss->access_complexity = impact->nvalue;
-                break;
+            case AC:
+              cvss->access_complexity = impact->nvalue;
+              break;
 
-              default:
-                return -1;
+            default:
+              return -1;
             }
           return 0;
         }
@@ -318,7 +319,7 @@ get_cvss_score_from_base_metrics (const char *cvss_str)
   struct cvss cvss;
   char *token, *base_str, *base_metrics;
 
-  memset(&cvss, 0x00, sizeof(struct cvss));
+  memset (&cvss, 0x00, sizeof (struct cvss));
 
   if (cvss_str == NULL)
     return -1.0;
@@ -330,7 +331,7 @@ get_cvss_score_from_base_metrics (const char *cvss_str)
       char *token2 = strtok (base_metrics, ":");
       char *metric_name = token2;
       char *metric_value;
-      enum base_metrics  mval;
+      enum base_metrics mval;
       int rc;
 
       *token++ = '\0';
@@ -358,5 +359,5 @@ get_cvss_score_from_base_metrics (const char *cvss_str)
 
 ret_err:
   g_free (base_str);
-  return (double)-1;
+  return (double) -1;
 }
