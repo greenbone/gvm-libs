@@ -1,5 +1,10 @@
 2016-12-05  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/cvss.h: Remove declaration of cvss_as_str as it was removed
+	from cvss.h in r14975.
+
+2016-12-05  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/cvss.c: Format according to coding style. Command was 'indent
 	--no-tabs --ignore-newlines -l 80'.
 
