@@ -1,4 +1,4 @@
-# Greenbone Vulerability Management
+# Greenbone Vulnerability Management
 # $Id$
 # Description: CMakefile for the gvm-libs documentation
 #

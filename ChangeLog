@@ -1,3 +1,7 @@
+2016-12-05  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* CMakeLists.txt, doc/CMakeLists.txt: Fix typos.
+
 2016-12-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/cvss.c: Rename unneeded include.

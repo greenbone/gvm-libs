@@ -1,4 +1,4 @@
-# Greenbone Vulerability Management
+# Greenbone Vulnerability Management
 # $Id$
 # Description: Top-level cmake control for the Greenbone Vulnerability Management Libraries.
 #
