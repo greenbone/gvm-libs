@@ -26,8 +26,8 @@
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES array.c cvss.c pidfile.c)
-set (HEADERS array.h cvss.h pidfile.h)
+set (FILES array.c cvss.c fileutils.c pidfile.c)
+set (HEADERS array.h cvss.h fileutils.h pidfile.h)
 
 if (BUILD_STATIC)
   add_library (gvm_base_static STATIC ${FILES})
