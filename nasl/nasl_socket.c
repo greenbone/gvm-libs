@@ -933,7 +933,7 @@ nasl_close_socket (lex_ctxt * lexic)
    */
   if (soc <= 4)
     {
-      nasl_perror (lexic, "close(): invalid argument\n");
+      nasl_perror (lexic, "close(%d): Invalid socket value\n", soc);
       return NULL;
     }
 
@@ -952,7 +952,7 @@ nasl_close_socket (lex_ctxt * lexic)
       return FAKE_CELL;
     }
   else
-    nasl_perror (lexic, "close(): invalid argument\n");
+    nasl_perror (lexic, "close(%d): %s\n", soc, strerror (errno));
 
   return NULL;
 }

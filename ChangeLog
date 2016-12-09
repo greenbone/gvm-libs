@@ -1,3 +1,9 @@
+2016-12-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r26877.
+
+	* nasl/nasl_socket.c (nasl_close_socket): Improve close() error logging.
+
 2016-11-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r26704 and r26707.
