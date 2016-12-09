@@ -145,8 +145,8 @@ gvm_file_copy (const gchar *source_file, const gchar *dest_file)
   dfile = g_file_new_for_path (dest_file);
   error = NULL;
 
-  rc = g_file_copy (sfile, dfile, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL,
-                    &error);
+  rc =
+    g_file_copy (sfile, dfile, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
   if (!rc)
     {
       g_warning ("%s: g_file_copy(%s, %s) failed - %s\n", __FUNCTION__,
@@ -183,8 +183,8 @@ gvm_file_move (const gchar *source_file, const gchar *dest_file)
   dfile = g_file_new_for_path (dest_file);
   error = NULL;
 
-  rc = g_file_move (sfile, dfile, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL,
-                    &error);
+  rc =
+    g_file_move (sfile, dfile, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
   if (!rc)
     {
       g_warning ("%s: g_file_move(%s, %s) failed - %s\n", __FUNCTION__,
@@ -236,11 +236,11 @@ gvm_file_as_base64 (const char *path)
  * @return The file name.
  */
 gchar *
-gvm_export_file_name (const char* fname_format, const char* username,
-                      const char* type, const char* uuid,
-                      const char* creation_iso_time,
-                      const char* modification_iso_time,
-                      const char* name, const char* format_name)
+gvm_export_file_name (const char *fname_format, const char *username,
+                      const char *type, const char *uuid,
+                      const char *creation_iso_time,
+                      const char *modification_iso_time, const char *name,
+                      const char *format_name)
 {
   time_t now;
   struct tm *now_broken;
@@ -330,7 +330,7 @@ gvm_export_file_name (const char* fname_format, const char* username,
 
   file_name_buf = g_string_new ("");
 
-  fname_point = (char*) fname_format;
+  fname_point = (char *) fname_format;
 
   while (format_state >= 0 && *fname_point != '\0')
     {
@@ -348,48 +348,48 @@ gvm_export_file_name (const char* fname_format, const char* username,
           format_state = 0;
           switch (*fname_point)
             {
-              case 'C':
-                g_string_append (file_name_buf, creation_date_str);
-                break;
-              case 'c':
-                g_string_append (file_name_buf, creation_time_str);
-                break;
-              case 'D':
-                g_string_append (file_name_buf, now_date_str);
-                break;
-              case 'F':
-                g_string_append (file_name_buf,
-                                 format_name ? format_name : "XML");
-                break;
-              case 'M':
-                g_string_append (file_name_buf, modification_date_str);
-                break;
-              case 'm':
-                g_string_append (file_name_buf, modification_time_str);
-                break;
-              case 'N':
-                g_string_append (file_name_buf,
-                                 name ? name : (type ? type : "unnamed"));
-                break;
-              case 'T':
-                g_string_append (file_name_buf, type ? type : "resource");
-                break;
-              case 't':
-                g_string_append (file_name_buf, now_time_str);
-                break;
-              case 'U':
-                g_string_append (file_name_buf, uuid ? uuid : "list");
-                break;
-              case 'u':
-                g_string_append (file_name_buf, username ? username : "");
-                break;
-              case '%':
-                g_string_append_c (file_name_buf, '%');
-                break;
-              default:
-                g_warning ("%s : Unknown file name format placeholder: %%%c.",
-                           __FUNCTION__, *fname_point);
-                format_state = -1;
+            case 'C':
+              g_string_append (file_name_buf, creation_date_str);
+              break;
+            case 'c':
+              g_string_append (file_name_buf, creation_time_str);
+              break;
+            case 'D':
+              g_string_append (file_name_buf, now_date_str);
+              break;
+            case 'F':
+              g_string_append (file_name_buf,
+                               format_name ? format_name : "XML");
+              break;
+            case 'M':
+              g_string_append (file_name_buf, modification_date_str);
+              break;
+            case 'm':
+              g_string_append (file_name_buf, modification_time_str);
+              break;
+            case 'N':
+              g_string_append (file_name_buf,
+                               name ? name : (type ? type : "unnamed"));
+              break;
+            case 'T':
+              g_string_append (file_name_buf, type ? type : "resource");
+              break;
+            case 't':
+              g_string_append (file_name_buf, now_time_str);
+              break;
+            case 'U':
+              g_string_append (file_name_buf, uuid ? uuid : "list");
+              break;
+            case 'u':
+              g_string_append (file_name_buf, username ? username : "");
+              break;
+            case '%':
+              g_string_append_c (file_name_buf, '%');
+              break;
+            default:
+              g_warning ("%s : Unknown file name format placeholder: %%%c.",
+                         __FUNCTION__, *fname_point);
+              format_state = -1;
             }
         }
       fname_point += sizeof (char);

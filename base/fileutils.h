@@ -48,8 +48,8 @@ gboolean gvm_file_move (const gchar *, const gchar *);
 
 char *gvm_file_as_base64 (const char *);
 
-gchar *gvm_export_file_name (const char*, const char*, const char*,
-                             const char*, const char*, const char*,
-                             const char*, const char*);
+gchar *gvm_export_file_name (const char *, const char *, const char *,
+                             const char *, const char *, const char *,
+                             const char *, const char *);
 
 #endif /* not _GVM_FILEUTILS_H */
