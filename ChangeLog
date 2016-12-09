@@ -1,5 +1,9 @@
 2016-12-09  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/fileutils.h: Fix filename in Doxygen reference.
+
+2016-12-09  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/fileutils.c, base/fileutils.h: Make formatting more consistent.
 
 2016-12-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>

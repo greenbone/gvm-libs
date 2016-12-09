@@ -29,7 +29,7 @@
  * @file fileutils.h
  * @brief Protos for file utility functions.
  *
- * This file contains the protos for \ref fileutil.c
+ * This file contains the protos for \ref fileutils.c
  */
 
 #ifndef _GVM_FILEUTILS_H
