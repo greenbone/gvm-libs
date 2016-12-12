@@ -1,3 +1,9 @@
+2016-12-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/settings.c, base/settings.h: New. Moved here from openvas-libraries.
+
+	* base/CMakeLists.txt: Handle new module "settings".
+
 2016-12-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/nvti.c, base/nvti.h: New. Moved here from openvas-libraries.
