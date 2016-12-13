@@ -36,7 +36,6 @@
 #define _GVM_FILEUTILS_H
 
 #include <glib.h>
-#include <gio/gio.h>
 
 int gvm_file_check_is_dir (const char *name);
 

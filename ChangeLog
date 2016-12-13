@@ -1,3 +1,8 @@
+2016-12-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/fileutils.c, base/fileutils.h: Move include of gio/gio.h
+	from the header file (where it is not used) to the implementation.
+
 2016-12-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/settings.c, base/settings.h: New. Moved here from openvas-libraries.

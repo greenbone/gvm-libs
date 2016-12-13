@@ -33,14 +33,15 @@
 /* time.h in glibc2 needs this for strptime. */
 #define _GNU_SOURCE
 
-#include "fileutils.h"
-
 #include <string.h>
 #include <time.h>
 #include <errno.h>
 #include <sys/stat.h>
 
 #include <glib/gstdio.h>        /* for g_remove */
+#include <gio/gio.h>            /* for GFile */
+
+#include "fileutils.h"
 
 /**
  * @brief Checks whether a file is a directory or not.
