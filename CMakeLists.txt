@@ -204,10 +204,12 @@ configure_file (doc/Doxyfile.in ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
 configure_file (doc/Doxyfile_full.in ${CMAKE_BINARY_DIR}/doc/Doxyfile_full @ONLY)
 configure_file (VERSION.in ${CMAKE_BINARY_DIR}/VERSION @ONLY)
 configure_file (libgvm_base.pc.in ${CMAKE_BINARY_DIR}/libgvm_base.pc @ONLY)
+configure_file (libgvm_util.pc.in ${CMAKE_BINARY_DIR}/libgvm_util.pc @ONLY)
 
 ## Program
 
 add_subdirectory (base)
+add_subdirectory (util)
 
 ## Documentation
 
@@ -218,6 +220,9 @@ add_subdirectory (doc)
 install (DIRECTORY DESTINATION ${GVM_PID_DIR})
 
 install (FILES ${CMAKE_BINARY_DIR}/libgvm_base.pc
+         DESTINATION ${LIBDIR}/pkgconfig)
+
+install (FILES ${CMAKE_BINARY_DIR}/libgvm_util.pc
          DESTINATION ${LIBDIR}/pkgconfig)
 
 ## Tests

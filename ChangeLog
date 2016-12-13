@@ -1,5 +1,23 @@
 2016-12-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Add library "util" where to place all modules that have more dependencies
+	than just glib.
+
+	* util/compressutils.c, util/compressutils.h: New. Moved here from openvas-libraries
+	where it was base/openvas_compress.
+
+	* util/CMakeLists.txt: New. Handle library "util".
+
+	* libgvm_util.pc.in: New.
+
+	* CMakeLists.txt: Add handling of "util".
+
+	* doc/Doxyfile.in, doc/Doxyfile_full.in: Also consider "util".
+
+	* README: Mention the libraries and their intention.
+
+2016-12-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* base/fileutils.c, base/fileutils.h: Move include of gio/gio.h
 	from the header file (where it is not used) to the implementation.
 

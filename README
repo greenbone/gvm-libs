@@ -4,6 +4,12 @@ gvm-libs
 This is the libraries module for the Greenbone Vulnerability Management Solution.
 It is used for the Open Vulnerability Assessment System (OpenVAS).
 
+It covers the following libraries:
+
+base: All basic modules that only require glib as a dependency.
+
+util: All modules that require more than just glib as dependency.
+
 For more information, please refer to http://www.greenbone.net or
 to http://www.openvas.org.
 
