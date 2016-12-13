@@ -24,6 +24,20 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+//  One of the files of gvm-libs needs to specify the meta data
+//  for the doxygen documentation.
+
+/**
+ * @mainpage
+ *
+ * @section installation Overview
+ * @verbinclude README
+ *
+ * @section copying License Information
+ * @verbinclude COPYING
+ */
+
+
 /**
  * @file nvti.c
  * @brief Implementation of API to handle NVT Info datasets

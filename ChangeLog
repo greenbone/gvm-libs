@@ -1,5 +1,9 @@
 2016-12-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* base/nvti.c: Add mainpage and sections for Doxygen.
+
+2016-12-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Add library "util" where to place all modules that have more dependencies
 	than just glib.
 
