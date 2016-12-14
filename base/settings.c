@@ -32,8 +32,6 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <errno.h>
-#include <sys/stat.h>
 
 #include "settings.h"
 

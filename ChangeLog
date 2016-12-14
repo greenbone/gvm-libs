@@ -1,3 +1,7 @@
+2016-12-14  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* base/settings.c: Remove superflous includes.
+
 2016-12-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/nvti.c: Add mainpage and sections for Doxygen.
