@@ -1,3 +1,7 @@
+2016-12-16  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	* CMakeLists.txt: Add -Wall and -Wextra in debug flags.
+
 2016-12-14  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* base/settings.c: Remove superflous includes.
