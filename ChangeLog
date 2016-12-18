@@ -1,3 +1,15 @@
+2016-12-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/fileutils.c, base/fileutils.h: Moved to util/.
+
+        * util/fileutils.h, util/fileutils.c: Moved the files
+	here.
+
+	* base/CMakeLists.txt: Removed handling of fileutils.
+
+	* util/CMakeLists.txt: Added handling of fileutils. Added
+	gio requirement.
+
 2016-12-16  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	* CMakeLists.txt: Add -Wall and -Wextra in debug flags.

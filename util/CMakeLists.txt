@@ -28,11 +28,14 @@
 # for compressutils.c we need zlib
 pkg_check_modules (ZLIB REQUIRED zlib)
 
+# for fileutils.c we need giolib
+pkg_check_modules (GIO REQUIRED gio-2.0)
+
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES compressutils.c)
+set (FILES compressutils.c fileutils.c)
 
-set (HEADERS compressutils.h)
+set (HEADERS compressutils.h fileutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})
