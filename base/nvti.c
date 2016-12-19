@@ -1262,9 +1262,14 @@ set_keyfile_info (GKeyFile *keyfile, const gchar *name, const gchar *value)
  *
  * @param n The NVT Info object to store.
  *
+ * @param src Filename of the original NVT, or NULL. If set, the atime and mtime
+ * timestamps of the keyfile will be set to the the appropriate values of the
+ * file containing the original NVT.
+ *
  * @param fn The filename to write to.
  *
- * @return 0 on success. @todo Anything else indicates an error.
+ * @return 0 on success, 1 if creation of cache directory failed, 2 if \p fn
+ * could not be opened for writing.
  */
 int
 nvti_to_keyfile (const nvti_t * n, const char *src, const gchar *fn)
