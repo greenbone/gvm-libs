@@ -1,5 +1,9 @@
 2016-12-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/cvss.c, base/nvti.c: Fix typos in comments.
+
+2016-12-19  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/nvti.c (set_keyfile_info): Document missing parameter and
 	missing return values.
 

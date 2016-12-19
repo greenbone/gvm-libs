@@ -226,7 +226,7 @@ get_exploitability_subscore (const struct cvss *cvss)
 /**
  * @brief  Set impact score from string representation.
  *
- * @param[in] value  The litteral value associated to the metric.
+ * @param[in] value  The literal value associated to the metric.
  * @param[in] metric The enumeration constant identifying the metric.
  * @param[out] cvss  The structure to update with the score.
  *

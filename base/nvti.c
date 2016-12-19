@@ -159,7 +159,7 @@ nvtpref_default (const nvtpref_t * np)
  * @return NULL in case the memory could not be allocated.
  *         Else an empty nvti structure which needs to be
  *         released using @ref nvti_free .
- *         The whole struct is initalized with 0's.
+ *         The whole struct is initialized with 0's.
  */
 nvti_t *
 nvti_new (void)
@@ -863,7 +863,7 @@ nvti_set_family (nvti_t * n, const gchar * family)
 }
 
 /**
- * @brief Set the timout of a NVT Info.
+ * @brief Set the timeout of a NVT Info.
  *
  * @param n The NVT Info structure.
  *
@@ -1263,8 +1263,8 @@ set_keyfile_info (GKeyFile *keyfile, const gchar *name, const gchar *value)
  * @param n The NVT Info object to store.
  *
  * @param src Filename of the original NVT, or NULL. If set, the atime and mtime
- * timestamps of the keyfile will be set to the the appropriate values of the
- * file containing the original NVT.
+ * timestamps of the keyfile will be set to the appropriate values of the file
+ * containing the original NVT.
  *
  * @param fn The filename to write to.
  *
