@@ -1,3 +1,9 @@
+2016-12-20  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	* CMakeLists.txt: Check for Glib's GIO library.
+
+	* util/CMakeLists.txt: Link against Glib's GIO.
+
 2016-12-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/cvss.c, base/nvti.c: Fix typos in comments.

@@ -52,7 +52,7 @@ if (BUILD_SHARED)
   set_target_properties (gvm_util_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
   set_target_properties (gvm_util_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-  target_link_libraries (gvm_util_shared LINK_PRIVATE ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+  target_link_libraries (gvm_util_shared LINK_PRIVATE ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
 
 
