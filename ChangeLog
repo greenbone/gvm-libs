@@ -1,5 +1,11 @@
 2016-12-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* CMakeLists.txt, INSTALL, libgvm_base.pc.in, libgvm_util.pc.in:
+	Consolidate dependencies for glib/gio and zlib and raise
+	to 2.42 and 1.2.8 respectively.
+
+2016-12-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* README, base/nvti.c: Make doxygen main information
 	consistent with gsa.
 

@@ -18,7 +18,9 @@ General build environment:
 * pkg-config
 
 Specific development libraries:
-* libglib >= 2.32
+* libglib >= 2.42 (all)
+* libgio >= 2.42 (util)
+* zlib >= 1.2.8 (util)
 
 Prerequisites for building documentation:
 * doxygen

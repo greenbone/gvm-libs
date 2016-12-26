@@ -181,8 +181,9 @@ message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 ##
 ## TODO Also check for headers where needed.
 
-pkg_check_modules (GLIB REQUIRED glib-2.0>=2.32)
-pkg_check_modules (GIO REQUIRED gio-2.0)
+pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
+pkg_check_modules (GIO REQUIRED gio-2.0>=2.42)
+pkg_check_modules (ZLIB REQUIRED zlib>=1.2.8)
 
 set (HARDENING_FLAGS "-Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector")
 set (LINKER_HARDENING_FLAGS "-Wl,-z,relro -Wl,-z,now")
