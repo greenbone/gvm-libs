@@ -1,3 +1,8 @@
+2016-12-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* README, base/nvti.c: Make doxygen main information
+	consistent with gsa.
+
 2016-12-21  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/networking.c, base/networking.h: New. Moved here from

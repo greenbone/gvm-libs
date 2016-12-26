@@ -28,13 +28,16 @@
 //  for the doxygen documentation.
 
 /**
- * @mainpage
+ * \mainpage
  *
- * @section installation Overview
- * @verbinclude README
+ * \section Introduction
+ * \verbinclude README
  *
- * @section copying License Information
- * @verbinclude COPYING
+ * \section Installation
+ * \verbinclude INSTALL
+ *
+ * \section copying License
+ * \verbinclude COPYING
  */
 
 
