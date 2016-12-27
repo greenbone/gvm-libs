@@ -1,3 +1,9 @@
+2016-12-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/strings.c, base/strings.h: New. Moved here from openvas-libraries.
+
+	* base/CMakeLists.txt: Handle new module "strings".
+
 2016-12-26  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CMakeLists.txt, INSTALL, libgvm_base.pc.in, libgvm_util.pc.in:
