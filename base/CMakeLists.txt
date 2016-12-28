@@ -24,6 +24,16 @@
 
 ## Library
 
+include (FindPkgConfig)
+
+if (NOT PKG_CONFIG_FOUND)
+  message(FATAL_ERROR "pkg-config executable not found. Aborting.")
+endif (NOT PKG_CONFIG_FOUND)
+
+## Dependency checks
+
+pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
+
 include_directories (${GLIB_INCLUDE_DIRS})
 
 set (FILES array.c cvss.c networking.c nvti.c pidfile.c settings.c strings.c)
@@ -54,6 +64,13 @@ endif (GVM_PID_DIR)
 add_custom_indent_targets (${FILES})
 
 ## Install
+configure_file (libgvm_base.pc.in ${CMAKE_BINARY_DIR}/libgvm_base.pc @ONLY)
+
+install (DIRECTORY DESTINATION ${GVM_PID_DIR})
+
+install (FILES ${CMAKE_BINARY_DIR}/libgvm_base.pc
+         DESTINATION ${LIBDIR}/pkgconfig)
+
 if (BUILD_STATIC)
   install (TARGETS gvm_base_static
     RUNTIME DESTINATION ${BINDIR}

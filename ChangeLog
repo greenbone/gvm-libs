@@ -1,3 +1,28 @@
+2016-12-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Move dependency checks and relevant configuration and installation
+	steps into individual submodules.
+
+	* CMakeLists.txt: Remove checks for pkg-config, dependency checks,
+	configuration and installation of .pc files and pid directory
+	creation.
+
+	* base/CMakeLists.txt: Add check for pkg-config and for glib-2.0.
+	Configure and install .pc file from here. Create pid directory from
+	here.
+
+	* util/CMakeLists.txt: Add check for pkg-config and for glib-2.0.
+	Merge checks for zlib and gio-2.0 with those from top-level, making
+	them more precise. Configure and install .pc file from here.
+
+	* base/libgvm_base.pc.in: New. Moved here from top-level.
+
+	* util/libgvm_util.pc.in: New. Moved here from top-level.
+
+	* libgvm_base.pc.in: Removed. Moved to 'base/' directory.
+
+	* libgvm_util.pc.in: Removed. Moved to 'util/' directory.
+
 2016-12-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/strings.c, base/strings.h: New. Moved here from openvas-libraries.

@@ -37,12 +37,6 @@ if (POLICY CMP0005)
   cmake_policy (SET CMP0005 OLD)
 endif (POLICY CMP0005)
 
-include (FindPkgConfig)
-
-if (NOT PKG_CONFIG_FOUND)
-  message(FATAL_ERROR "pkg-config executable not found. Aborting.")
-endif (NOT PKG_CONFIG_FOUND)
-
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Debug)
 endif (NOT CMAKE_BUILD_TYPE)
@@ -177,14 +171,6 @@ endif (NOT GVM_PID_DIR)
 
 message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
-## Dependency checks
-##
-## TODO Also check for headers where needed.
-
-pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
-pkg_check_modules (GIO REQUIRED gio-2.0>=2.42)
-pkg_check_modules (ZLIB REQUIRED zlib>=1.2.8)
-
 set (HARDENING_FLAGS "-Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector")
 set (LINKER_HARDENING_FLAGS "-Wl,-z,relro -Wl,-z,now")
 set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -Wextra -Werror")
@@ -205,8 +191,6 @@ set (GVMLIB_VERSION "${LIBGVMCONFIG_VERSION}")
 configure_file (doc/Doxyfile.in ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
 configure_file (doc/Doxyfile_full.in ${CMAKE_BINARY_DIR}/doc/Doxyfile_full @ONLY)
 configure_file (VERSION.in ${CMAKE_BINARY_DIR}/VERSION @ONLY)
-configure_file (libgvm_base.pc.in ${CMAKE_BINARY_DIR}/libgvm_base.pc @ONLY)
-configure_file (libgvm_util.pc.in ${CMAKE_BINARY_DIR}/libgvm_util.pc @ONLY)
 
 ## Program
 
@@ -216,16 +200,6 @@ add_subdirectory (util)
 ## Documentation
 
 add_subdirectory (doc)
-
-## Install
-
-install (DIRECTORY DESTINATION ${GVM_PID_DIR})
-
-install (FILES ${CMAKE_BINARY_DIR}/libgvm_base.pc
-         DESTINATION ${LIBDIR}/pkgconfig)
-
-install (FILES ${CMAKE_BINARY_DIR}/libgvm_util.pc
-         DESTINATION ${LIBDIR}/pkgconfig)
 
 ## Tests
 

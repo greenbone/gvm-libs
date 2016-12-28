@@ -25,11 +25,21 @@
 
 ## Library
 
+include (FindPkgConfig)
+
+if (NOT PKG_CONFIG_FOUND)
+  message(FATAL_ERROR "pkg-config executable not found. Aborting.")
+endif (NOT PKG_CONFIG_FOUND)
+
+## Dependency checks
+
+pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
+
 # for compressutils.c we need zlib
-pkg_check_modules (ZLIB REQUIRED zlib)
+pkg_check_modules (ZLIB REQUIRED zlib>=1.2.8)
 
 # for fileutils.c we need giolib
-pkg_check_modules (GIO REQUIRED gio-2.0)
+pkg_check_modules (GIO REQUIRED gio-2.0>=2.42)
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
@@ -57,6 +67,10 @@ endif (BUILD_SHARED)
 
 
 ## Install
+configure_file (libgvm_util.pc.in ${CMAKE_BINARY_DIR}/libgvm_util.pc @ONLY)
+
+install (FILES ${CMAKE_BINARY_DIR}/libgvm_util.pc
+         DESTINATION ${LIBDIR}/pkgconfig)
 
 if (BUILD_STATIC)
   install (TARGETS gvm_util_static
