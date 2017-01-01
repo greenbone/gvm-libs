@@ -1,3 +1,10 @@
+2017-01-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/drop_privileges.c, base/drop_privileges.h: New. Moved here from
+	openvas-libraries.
+
+	* base/CMakeLists.txt: Handle new module "drop_privileges".
+
 2016-12-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Move dependency checks and relevant configuration and installation

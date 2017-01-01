@@ -36,8 +36,11 @@ pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES array.c cvss.c networking.c nvti.c pidfile.c settings.c strings.c)
-set (HEADERS array.h cvss.h networking.h nvti.h pidfile.h settings.h strings.h)
+set (FILES array.c cvss.c drop_privileges.c networking.c nvti.c pidfile.c
+           settings.c strings.c)
+
+set (HEADERS array.h cvss.h drop_privileges.h networking.h nvti.h pidfile.h
+             settings.h strings.h)
 
 if (BUILD_STATIC)
   add_library (gvm_base_static STATIC ${FILES})
