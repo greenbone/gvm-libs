@@ -74,8 +74,6 @@ drop_privileges_error (GError ** error, gint errorcode, const gchar * message)
 int
 drop_privileges (gchar * username, GError ** error)
 {
-  struct passwd *user_pw = NULL;
-
   g_return_val_if_fail (*error == NULL,
                         GVM_DROP_PRIVILEGES_ERROR_ALREADY_SET);
 
@@ -84,6 +82,8 @@ drop_privileges (gchar * username, GError ** error)
 
   if (geteuid () == 0)
     {
+      struct passwd *user_pw = NULL;
+
       if ((user_pw = getpwnam (username)))
         {
           if (initgroups (username, user_pw->pw_gid) != 0)
