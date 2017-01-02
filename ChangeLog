@@ -1,5 +1,9 @@
 2017-01-02  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* base/nvti.c (nvti_from_keyfile): Reduce scope of keys and i.
+
+2017-01-02  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	* base/drop_privileges.c (drop_privileges): Reduce scope of user_pw.
 
 2017-01-02  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>

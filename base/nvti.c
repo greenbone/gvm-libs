@@ -1172,8 +1172,6 @@ nvti_from_keyfile (const gchar * fn)
   GKeyFile *keyfile = g_key_file_new ();
   nvti_t *n;
   GError *error = NULL;
-  gchar **keys;
-  int i;
 
   if (!g_key_file_load_from_file (keyfile, fn, G_KEY_FILE_NONE, &error))
     {
@@ -1206,6 +1204,9 @@ nvti_from_keyfile (const gchar * fn)
 
   if (g_key_file_has_group (keyfile, "NVT Prefs"))
     {
+      gchar **keys;
+      int i;
+
       keys = g_key_file_get_keys (keyfile, "NVT Prefs", NULL, NULL);
       for (i = 0; keys[i]; i++)
         {
