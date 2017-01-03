@@ -169,6 +169,10 @@ if (NOT GVM_PID_DIR)
   set (GVM_PID_DIR "${LOCALSTATEDIR}/run")
 endif (NOT GVM_PID_DIR)
 
+if (NOT GVM_SYSCONF_DIR)
+  set (GVM_SYSCONF_DIR "${SYSCONFDIR}/gvm")
+endif (NOT GVM_SYSCONF_DIR)
+
 message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 set (HARDENING_FLAGS "-Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector")

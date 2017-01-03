@@ -64,7 +64,9 @@ if (GVM_PID_DIR)
   add_definitions (-DGVM_PID_DIR=\\\"${GVM_PID_DIR}\\\")
 endif (GVM_PID_DIR)
 
-add_definitions (-DGVM_SYSCONF_DIR=\\\"${SYSCONFDIR}\\\")
+if (GVM_SYSCONF_DIR)
+  add_definitions (-DGVM_SYSCONF_DIR=\\\"${GVM_SYSCONF_DIR}\\\")
+endif (GVM_PID_DIR)
 
 add_custom_indent_targets (${FILES})
 
