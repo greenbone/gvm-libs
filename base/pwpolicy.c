@@ -182,7 +182,6 @@ search_file (const char *fname, const char *password)
 {
   FILE *fp;
   int c;
-  size_t len;
   char line[256];
 
   fp = fopen (fname, "r");
@@ -191,6 +190,8 @@ search_file (const char *fname, const char *password)
 
   while (fgets (line, DIM(line)-1, fp))
     {
+      size_t len;
+
       len = strlen (line);
       if (!len || line[len-1] != '\n')
         {
