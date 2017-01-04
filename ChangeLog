@@ -1,3 +1,7 @@
+2017-01-04  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* base/CMakeLists.txt: Fix broken conditional for GVM_SYSCONF_DIR.
+
 2017-01-03  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* CMakeLists.txt: Set GVM_SYSCONF_DIR.
