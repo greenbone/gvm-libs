@@ -1,3 +1,10 @@
+2017-01-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/hosts.c, base/hosts.h: New. Moved here from
+	openvas-libraries.
+
+	* base/CMakeLists.txt: Handle new module "hosts".
+
 2017-01-04  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/CMakeLists.txt: Fix broken conditional for GVM_SYSCONF_DIR.
@@ -18,7 +25,7 @@
 	openvas-libraries.
 
 	* base/CMakeLists.txt: Handle new module "pwpolicy". Add
-	definition for VM_SYSCONF_DIR.
+	definition for GVM_SYSCONF_DIR.
 
 2017-01-02  Michael Wiegand <michael.wiegand@greenbone.net>
 
