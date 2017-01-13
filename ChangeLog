@@ -1,3 +1,13 @@
+2017-01-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* util/gpgmeutils.c, util/gpgmeutils.h: New. Moved here from
+	openvas-libraries. Reduced to only offer gvm_init_gpgme_ctx_from_dir().
+
+	* util/CMakeLists.txt: Handle new module "gpgmeutils". Check for
+	gpgme library.
+
+	* INSTALL: Add gpgme library as dependency.
+
 2017-01-06  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/hosts.c, base/hosts.h: New. Moved here from

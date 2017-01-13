@@ -21,6 +21,7 @@ Specific development libraries:
 * libglib >= 2.42 (all)
 * libgio >= 2.42 (util)
 * zlib >= 1.2.8 (util)
+* libgpgme >= 1.1.2 (util)
 
 Prerequisites for building documentation:
 * doxygen
@@ -28,7 +29,7 @@ Prerequisites for building documentation:
 * sqlfairy (optional, for producing database diagram)
 
 Install prerequisites on Debian GNU/Linux 'Jessie' 8:
-# apt-get install c-compiler cmake pkg-config libglib2.0-dev
+# apt-get install c-compiler cmake pkg-config libglib2.0-dev libgpgme11-dev
 
 
 Compiling gvm-libs

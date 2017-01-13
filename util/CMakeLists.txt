@@ -33,6 +33,7 @@ endif (NOT PKG_CONFIG_FOUND)
 
 ## Dependency checks
 
+# for all modules we need glib
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
 
 # for compressutils.c we need zlib
@@ -41,11 +42,27 @@ pkg_check_modules (ZLIB REQUIRED zlib>=1.2.8)
 # for fileutils.c we need giolib
 pkg_check_modules (GIO REQUIRED gio-2.0>=2.42)
 
+#for gpgmeutils we need libgpgme
+message (STATUS "Looking for gpgme...")
+find_library (GPGME gpgme)
+message (STATUS "Looking for gpgme... ${GPGME}")
+if (NOT GPGME)
+  message (SEND_ERROR "The gpgme library is required.")
+endif (NOT GPGME)
+
+execute_process (COMMAND gpgme-config --libs
+  OUTPUT_VARIABLE GPGME_LDFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process (COMMAND gpgme-config --cflags
+  OUTPUT_VARIABLE GPGME_CFLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES compressutils.c fileutils.c)
+set (FILES compressutils.c fileutils.c gpgmeutils.c)
 
-set (HEADERS compressutils.h fileutils.h)
+set (HEADERS compressutils.h fileutils.h gpgmeutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})
@@ -62,9 +79,10 @@ if (BUILD_SHARED)
   set_target_properties (gvm_util_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
   set_target_properties (gvm_util_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-  target_link_libraries (gvm_util_shared LINK_PRIVATE ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+  target_link_libraries (gvm_util_shared LINK_PRIVATE ${GLIB_LDFLAGS}
+                         ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
+                         ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
-
 
 ## Install
 configure_file (libgvm_util.pc.in ${CMAKE_BINARY_DIR}/libgvm_util.pc @ONLY)
