@@ -581,6 +581,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
             *string_return = string;
           if (timeout > 0)
             fcntl (socket, F_SETFL, 0L);
+          g_slist_free (context_data.first);
           g_markup_parse_context_free (xml_context);
           return 0;
         }
