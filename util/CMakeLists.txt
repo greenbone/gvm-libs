@@ -43,19 +43,27 @@ pkg_check_modules (ZLIB REQUIRED zlib>=1.2.8)
 pkg_check_modules (GIO REQUIRED gio-2.0>=2.42)
 
 #for gpgmeutils we need libgpgme
+set (GPGME_MIN_VERSION "1.1.2")
 message (STATUS "Looking for gpgme...")
 find_library (GPGME gpgme)
-message (STATUS "Looking for gpgme... ${GPGME}")
 if (NOT GPGME)
   message (SEND_ERROR "The gpgme library is required.")
+else (NOT GPGME)
+  execute_process (COMMAND gpgme-config --version
+    OUTPUT_VARIABLE GPGME_VERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  message (STATUS "Found gpgme: ${GPGME}, version ${GPGME_VERSION}")
+  if (GPGME_VERSION VERSION_LESS GPGME_MIN_VERSION)
+    message (SEND_ERROR "The gpgme library >= ${GPGME_MIN_VERSION} is required.")
+  else (GPGME_VERSION VERSION_LESS GPGME_MIN_VERSION)
+    execute_process (COMMAND gpgme-config --libs
+      OUTPUT_VARIABLE GPGME_LDFLAGS
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process (COMMAND gpgme-config --cflags
+      OUTPUT_VARIABLE GPGME_CFLAGS
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+  endif (GPGME_VERSION VERSION_LESS GPGME_MIN_VERSION)
 endif (NOT GPGME)
-
-execute_process (COMMAND gpgme-config --libs
-  OUTPUT_VARIABLE GPGME_LDFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process (COMMAND gpgme-config --cflags
-  OUTPUT_VARIABLE GPGME_CFLAGS
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 
 include_directories (${GLIB_INCLUDE_DIRS})

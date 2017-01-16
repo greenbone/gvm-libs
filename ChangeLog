@@ -1,3 +1,10 @@
+2017-01-16  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* util/CMakeLists.txt: Improve check for gpgme library. Make it
+	possible to set a minimum required version. Make sure version
+	requirements are satisfied. Make output more usable and consistent. Do
+	not try to determine flags for gpgme if it was not found.
+
 2017-01-13  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* util/gpgmeutils.c, util/gpgmeutils.h: New. Moved here from
