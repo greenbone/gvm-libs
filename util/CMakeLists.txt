@@ -36,13 +36,13 @@ endif (NOT PKG_CONFIG_FOUND)
 # for all modules we need glib
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
 
-# for compressutils.c we need zlib
+# for compressutils we need zlib
 pkg_check_modules (ZLIB REQUIRED zlib>=1.2.8)
 
-# for fileutils.c we need giolib
+# for fileutils we need giolib
 pkg_check_modules (GIO REQUIRED gio-2.0>=2.42)
 
-# for serverutils.c we need gnutls
+# for serverutils and xmlutils we need gnutls
 pkg_check_modules (GNUTLS REQUIRED gnutls>=3.2.15)
 
 #for gpgmeutils we need libgpgme
@@ -71,9 +71,9 @@ endif (NOT GPGME)
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES compressutils.c fileutils.c gpgmeutils.c serverutils.c)
+set (FILES compressutils.c fileutils.c gpgmeutils.c serverutils.c xmlutils.c)
 
-set (HEADERS compressutils.h fileutils.h gpgmeutils.h serverutils.h)
+set (HEADERS compressutils.h fileutils.h gpgmeutils.h serverutils.h xmlutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})
