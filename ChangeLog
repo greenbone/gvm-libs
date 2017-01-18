@@ -1,3 +1,13 @@
+2017-01-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* util/serverutils.c, util/serverutils.h: New. Moved here from
+	openvas-libraries.
+
+	* util/CMakeLists.txt: Handle new module "serverutils". Check for
+	gnutls library.
+
+	* INSTALL: Add gnutls library as dependency.
+
 2017-01-16  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* util/CMakeLists.txt: Improve check for gpgme library. Make it

@@ -22,6 +22,7 @@ Specific development libraries:
 * libgio >= 2.42 (util)
 * zlib >= 1.2.8 (util)
 * libgpgme >= 1.1.2 (util)
+* libgnutls >= 3.2.15 (util)
 
 Prerequisites for building documentation:
 * doxygen
