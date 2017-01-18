@@ -1,4 +1,4 @@
-/* gvm-libs/base
+/* gvm-libs/util
  * $Id$
  * Description: GnuTLS based functions for server communication - headers.
  * Copyright (C) 2009  Greenbone Networks GmbH

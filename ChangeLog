@@ -1,5 +1,13 @@
 2017-01-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* util/serverutils.c, util/serverutils.h, util/compressutils.c,
+	util/compressutils.h, util/fileutils.c, util/fileutils.h: Fixed
+	library name.
+
+	* util/libgvm_util.pc.in: Added gnutls and gpgme.
+
+2017-01-18  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* util/serverutils.c, util/serverutils.h: New. Moved here from
 	openvas-libraries.
 

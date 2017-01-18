@@ -1,4 +1,4 @@
-/* gvm-libs/base
+/* gvm-libs/util
  * $Id$
  * Description: Functions related to data compression (gzip format.)
  *
