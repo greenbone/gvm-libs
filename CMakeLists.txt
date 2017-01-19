@@ -200,6 +200,7 @@ configure_file (VERSION.in ${CMAKE_BINARY_DIR}/VERSION @ONLY)
 
 add_subdirectory (base)
 add_subdirectory (util)
+add_subdirectory (osp)
 
 ## Documentation
 
