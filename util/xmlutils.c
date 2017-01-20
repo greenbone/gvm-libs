@@ -24,7 +24,7 @@
  */
 
 /**
- * @file xml.c
+ * @file xmlutils.c
  * @brief Simple XML reader.
  *
  * This is a generic XML interface.  The key function is \ref read_entity.

@@ -1,3 +1,7 @@
+2017-01-20  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* util/xmlutils.c: Update filename in documentation as well.
+
 2017-01-19  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* osp/osp.c, osp/osp.h, osp/CMakeLists.txt, osp/libgvm_osp.pc.in: New.
