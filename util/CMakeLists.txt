@@ -45,6 +45,9 @@ pkg_check_modules (GIO REQUIRED gio-2.0>=2.42)
 # for serverutils and xmlutils we need gnutls
 pkg_check_modules (GNUTLS REQUIRED gnutls>=3.2.15)
 
+# for uuidutils we need uuidlib
+pkg_check_modules (UUID REQUIRED uuid>=2.25.0)
+
 #for gpgmeutils we need libgpgme
 set (GPGME_MIN_VERSION "1.1.2")
 message (STATUS "Looking for gpgme...")
@@ -71,9 +74,11 @@ endif (NOT GPGME)
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES compressutils.c fileutils.c gpgmeutils.c serverutils.c xmlutils.c)
+set (FILES compressutils.c fileutils.c gpgmeutils.c serverutils.c uuidutils.c
+           xmlutils.c)
 
-set (HEADERS compressutils.h fileutils.h gpgmeutils.h serverutils.h xmlutils.h)
+set (HEADERS compressutils.h fileutils.h gpgmeutils.h serverutils.h uuidutils.h
+             xmlutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})

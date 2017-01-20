@@ -23,6 +23,7 @@ Specific development libraries:
 * zlib >= 1.2.8 (util)
 * libgpgme >= 1.1.2 (util)
 * libgnutls >= 3.2.15 (util)
+* libuuid >= 2.25.0 (util)
 
 Prerequisites for building documentation:
 * doxygen

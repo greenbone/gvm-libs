@@ -1,3 +1,12 @@
+2017-01-20  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* util/uuidutils.c, util/uuidutils.h: New. Moved here from
+	openvas-libraries.
+
+	* util/CMakeLists.txt: Handle new module "uuidutils".
+
+	* util/libgvm_util.pc.in, INSTALL: Add uuid library as dependency.
+
 2017-01-20  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* util/xmlutils.c: Update filename in documentation as well.
