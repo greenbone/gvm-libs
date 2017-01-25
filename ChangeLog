@@ -1,3 +1,10 @@
+2017-01-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* gmp/, gmp/gmp.c, gmp/gmp.h, gmp/CMakeLists.txt, gmp/libgvm_gmp.pc.in:
+	New.  Moved here from openvas-libraries (omp).
+
+	* CMakeLists.txt: Consider new library "gmp".
+
 2017-01-23  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/logging.c (log_func_for_gnutls): Remove superfluous Doxygen
