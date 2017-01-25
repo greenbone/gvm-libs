@@ -1,5 +1,9 @@
 2017-01-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* util/libgvm_util.pc.in: Add missing dependency "uuid".
+
+2017-01-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* gmp/, gmp/gmp.c, gmp/gmp.h, gmp/CMakeLists.txt, gmp/libgvm_gmp.pc.in:
 	New.  Moved here from openvas-libraries (omp).
 
