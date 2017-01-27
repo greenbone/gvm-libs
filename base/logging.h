@@ -42,7 +42,6 @@ void log_func_for_gnutls (int, const char *);
 
 void setup_log_handlers (GSList *);
 
-void setup_legacy_log_handler (void (*)(const char *, va_list));
 void log_legacy_write (const char *, ...) G_GNUC_PRINTF (1, 2);
 void log_legacy_fflush (void);
 

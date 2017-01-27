@@ -66,16 +66,6 @@ typedef struct
 
 
 /**
- * @brief Handler for log output from legacy functions
- *
- * If set by @ref setup_legacy_log_handler, @ref log_legacy_write uses
- * this function to output log messages.  The legacy log facility
- * should eventually be removed.
- */
-static void (*legacy_log_handler)(const char *format, va_list args);
-
-
-/**
  * @brief Returns time as specified in time_fmt strftime format.
  *
  * @param time_fmt ptr to the string format to use. The strftime
@@ -787,24 +777,6 @@ setup_log_handlers (GSList * gvm_log_config_list)
 
 
 /**
- * @brief Sets up a simple logging function
- *
- * The scanner has not yet been changed to use the new logging
- * facility.  However, it uses library functions and those should use a
- * proper log function instead of writing to stderr.  This function
- * can be used to register an existing log handler which will then be
- * used by @ref log_legacy_write.
- *
- * @param handler  A printf style log handler or NULL to use stderr.
- */
-void
-setup_legacy_log_handler (void (*handler)(const char *, va_list))
-{
-  legacy_log_handler = handler;
-}
-
-
-/**
  * @brief Legacy function to write a log message
  *
  * This function shall be used instead of fprintf in legacy code.  It
@@ -818,10 +790,7 @@ log_legacy_write (const char *format, ...)
   va_list arg_ptr;
 
   va_start (arg_ptr, format);
-  if (legacy_log_handler)
-    legacy_log_handler (format, arg_ptr);
-  else
-    vfprintf (stderr, format, arg_ptr);
+  vfprintf (stderr, format, arg_ptr);
   va_end (arg_ptr);
 }
 
@@ -834,6 +803,5 @@ log_legacy_write (const char *format, ...)
 void
 log_legacy_fflush (void)
 {
-  if (!legacy_log_handler)
-    fflush (stderr);
+  fflush (stderr);
 }

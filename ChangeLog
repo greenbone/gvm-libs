@@ -1,3 +1,15 @@
+2017-01-27  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
+	Legacy log functions are no longer required.
+
+	* base/logging.h (setup_legacy_log_handler) Function declaration
+	removed.
+
+	* base/logging.c (setup_legacy_log_handler): Function removed.
+	(legacy_log_handler): Function removed.
+	(log_legacy_write, log_legacy_fflush): Do not check if
+	legacy_log_handler is set.
+
 2017-01-27  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* util/libgvm_util.pc.in (Libs): Leave note that having '-luuid' in
