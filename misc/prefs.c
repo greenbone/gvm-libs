@@ -112,8 +112,8 @@ prefs_set (const gchar * key, const gchar * value)
   if (arg_get_value (global_prefs, key))
     {
       gchar *old = arg_get_value (global_prefs, key);
-      g_free (old);
       arg_set_value (global_prefs, key, g_strdup (value));
+      g_free (old);
       return;
     }
 

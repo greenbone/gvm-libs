@@ -1,3 +1,10 @@
+2017-01-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r27373.
+
+	* misc/prefs.c (prefs_set): Fix possible use-after-free when old and
+	value point to the same data.
+
 2016-11-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r26704 and r26707.
