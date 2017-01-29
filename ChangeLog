@@ -1,3 +1,11 @@
+2017-01-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* util/libgvm_util.pc.in: Add missing dependency "gcrypt".
+	Also added the note that it should not be necessary.
+	However, I checked forth and back and found no way in cmake
+	to get the upcoming change to openvas-cli to build without
+	this change.
+
 2017-01-27  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
 	Legacy log functions are no longer required.
