@@ -1,3 +1,10 @@
+2017-01-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r26904.
+
+	* nasl/nasl_cert.c (build_hostname_list): Remove restriction on adding
+	CN values without a dot.
+
 2017-01-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r27373.
