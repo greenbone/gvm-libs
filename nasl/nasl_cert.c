@@ -466,9 +466,8 @@ build_hostname_list (ksba_cert_t cert)
   value = parse_dn_for_CN (name);
   ksba_free (name);
 
-  /* Add the CN to the array but only if it looks like a hostname.  We
-     assume a hostname if at least one dot is in the name.  */
-  if (value && strchr (value, '.'))
+  /* Add the CN to the array even if it doesn't look like a hostname. */
+  if (value)
     {
       memset (&v, 0, sizeof v);
       v.var_type = VAR2_DATA;
