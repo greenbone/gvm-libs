@@ -1,3 +1,12 @@
+2017-01-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* util/radiusutils.c, util/radiusutils.h: New. Moved here from
+	openvas-libraries.
+
+	* util/CMakeLists.txt: Handle new module "radiusutils".
+
+	* INSTALL: Add libfreeradius-client as optional requirement.
+
 2017-01-29  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* util/libgvm_util.pc.in: Add missing dependency "gcrypt".

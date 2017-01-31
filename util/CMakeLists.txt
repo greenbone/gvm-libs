@@ -72,13 +72,25 @@ else (NOT GPGME)
 endif (NOT GPGME)
 
 
+#for radiusutils we need freerdius-client library
+message (STATUS "Looking for freeradius-client library...")
+find_library (LIBRADIUS freeradius-client)
+if (NOT LIBRADIUS)
+  message (STATUS "  not found - radius support disabled")
+else (NOT LIBRADIUS)
+  message (STATUS "  Found ${LIBRADIUS} - radius support enabled")
+  set (RADIUS_LDFLAGS "-lfreeradius-client")
+  add_definitions (-DENABLE_RADIUS_AUTH=1)
+endif (NOT LIBRADIUS)
+
+
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES compressutils.c fileutils.c gpgmeutils.c serverutils.c uuidutils.c
-           xmlutils.c)
+set (FILES compressutils.c fileutils.c gpgmeutils.c radiusutils.c serverutils.c
+           uuidutils.c xmlutils.c)
 
-set (HEADERS compressutils.h fileutils.h gpgmeutils.h serverutils.h uuidutils.h
-             xmlutils.h)
+set (HEADERS compressutils.h fileutils.h gpgmeutils.h radiusutils.h serverutils.h
+             uuidutils.h xmlutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})
@@ -97,7 +109,7 @@ if (BUILD_SHARED)
 
   target_link_libraries (gvm_util_shared LINK_PRIVATE ${GLIB_LDFLAGS}
                          ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
-                         ${LINKER_HARDENING_FLAGS})
+                         ${RADIUS_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
 
 ## Install

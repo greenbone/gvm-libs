@@ -25,6 +25,9 @@ Specific development libraries:
 * libgnutls >= 3.2.15 (util)
 * libuuid >= 2.25.0 (util)
 
+Optional development libraries:
+* libfreeradius-client >= 1.1.6 (util)
+
 Prerequisites for building documentation:
 * doxygen
 * xmltoman (optional, for building man page)
