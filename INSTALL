@@ -24,6 +24,7 @@ Specific development libraries:
 * libgpgme >= 1.1.2 (util)
 * libgnutls >= 3.2.15 (util)
 * libuuid >= 2.25.0 (util)
+* libssh >= 0.6.0 (util)
 
 Optional development libraries:
 * libfreeradius-client >= 1.1.6 (util)

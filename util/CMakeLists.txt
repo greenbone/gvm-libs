@@ -42,11 +42,14 @@ pkg_check_modules (ZLIB REQUIRED zlib>=1.2.8)
 # for fileutils we need giolib
 pkg_check_modules (GIO REQUIRED gio-2.0>=2.42)
 
-# for serverutils and xmlutils we need gnutls
+# for serverutils, sshutils and xmlutils we need gnutls
 pkg_check_modules (GNUTLS REQUIRED gnutls>=3.2.15)
 
 # for uuidutils we need uuidlib
 pkg_check_modules (UUID REQUIRED uuid>=2.25.0)
+
+# for sshutils
+pkg_check_modules (LIBSSH REQUIRED libssh>=0.6.0)
 
 #for gpgmeutils we need libgpgme
 set (GPGME_MIN_VERSION "1.1.2")
@@ -87,10 +90,10 @@ endif (NOT LIBRADIUS)
 include_directories (${GLIB_INCLUDE_DIRS})
 
 set (FILES compressutils.c fileutils.c gpgmeutils.c radiusutils.c serverutils.c
-           uuidutils.c xmlutils.c)
+           sshutils.c uuidutils.c xmlutils.c)
 
 set (HEADERS compressutils.h fileutils.h gpgmeutils.h radiusutils.h serverutils.h
-             uuidutils.h xmlutils.h)
+             sshutils.h uuidutils.h xmlutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})
@@ -109,7 +112,8 @@ if (BUILD_SHARED)
 
   target_link_libraries (gvm_util_shared LINK_PRIVATE ${GLIB_LDFLAGS}
                          ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
-                         ${RADIUS_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+                         ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS}
+                         ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
 
 ## Install
