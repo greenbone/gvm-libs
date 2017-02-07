@@ -158,9 +158,6 @@ typedef struct authenticator *authenticator_t;
 
 
 // forward decl.
-static int openvas_authenticate_classic (const gchar * usr, const gchar * pas,
-                                         void *dat);
-
 static int openvas_user_exists_classic (const gchar *name, void *data);
 
 #ifdef ENABLE_LDAP_AUTH
@@ -767,7 +764,7 @@ get_password_hashes (int digest_algorithm, const gchar * password)
  *
  * @return 0 authentication success, 1 authentication failure, -1 error.
  */
-static int
+int
 openvas_authenticate_classic (const gchar * username, const gchar * password,
                               void *data)
 {

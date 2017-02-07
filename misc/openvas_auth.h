@@ -61,6 +61,9 @@ void openvas_auth_tear_down (void);
 
 int openvas_auth_write_config (GKeyFile * keyfile);
 
+int
+openvas_authenticate_classic (const gchar *, const gchar *, void *);
+
 gchar *get_password_hashes (int, const gchar *);
 
 gchar *digest_hex (int, const guchar *);

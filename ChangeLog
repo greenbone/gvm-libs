@@ -1,3 +1,9 @@
+2017-02-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* misc/openavas_auth.c (openvas_auth_classic): Remove static modifier.
+
+	* misc/openvas_auth.h: Add openvas_auth_classic() header.
+
 2017-01-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r26904.
