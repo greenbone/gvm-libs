@@ -89,11 +89,11 @@ endif (NOT LIBRADIUS)
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES compressutils.c fileutils.c gpgmeutils.c radiusutils.c serverutils.c
-           sshutils.c uuidutils.c xmlutils.c)
+set (FILES authutils.c compressutils.c fileutils.c gpgmeutils.c radiusutils.c
+	   serverutils.c sshutils.c uuidutils.c xmlutils.c)
 
-set (HEADERS compressutils.h fileutils.h gpgmeutils.h radiusutils.h serverutils.h
-             sshutils.h uuidutils.h xmlutils.h)
+set (HEADERS authutils.h compressutils.h fileutils.h gpgmeutils.h radiusutils.h
+	     serverutils.h sshutils.h uuidutils.h xmlutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})

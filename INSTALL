@@ -37,6 +37,10 @@ Prerequisites for building documentation:
 Install prerequisites on Debian GNU/Linux 'Jessie' 8:
 # apt-get install c-compiler cmake pkg-config libglib2.0-dev libgpgme11-dev
 
+Install prerequisites on Debian GNU/Linux 'Stretch' 9:
+# apt-get install cmake pkg-config libglib2.0-dev libgpgme11-dev \
+  libgnutls28-dev uuid-dev libssh-gcrypt-dev
+
 
 Compiling gvm-libs
 ------------------
