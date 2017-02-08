@@ -1,3 +1,11 @@
+2017-02-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Backport r27489.
+
+	* nasl/nasl.c (main): Fork before executing each plugin. This fixes
+	early exit of the main openvas-nasl process when running plug_get_key()
+	on a key with multiple values.
+
 2017-01-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	Backport r26904.

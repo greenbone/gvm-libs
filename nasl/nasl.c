@@ -27,6 +27,7 @@
 #include <unistd.h>             /* for geteuid */
 #include <libssh/libssh.h>      /* for ssh_version */
 #include <gnutls/gnutls.h>      /* for gnutls_check_version */
+#include <sys/wait.h>
 
 #include "../misc/network.h"
 
@@ -323,6 +324,8 @@ main (int argc, char **argv)
       g_free (fqdn);
       while (nasl_filenames[n])
         {
+          pid_t pid;
+
           if (both_modes || with_safe_checks)
             {
               nvti_t *nvti = parse_script_infos (nasl_filenames[n],
@@ -359,9 +362,27 @@ main (int argc, char **argv)
                   g_strfreev (splits);
                 }
             }
-          if (exec_nasl_script (script_infos, nasl_filenames[n],
-                                arg_get_value (script_infos, "OID"), mode) < 0)
-            err++;
+
+          if ((pid = fork ()) == 0)
+            {
+              if (exec_nasl_script (script_infos, nasl_filenames[n],
+                                    arg_get_value (script_infos, "OID"), mode) < 0)
+                exit (1);
+              else
+                exit (0);
+            }
+          else if (pid < 0)
+            {
+              fprintf (stderr, "fork(): %s\n", strerror (errno));
+              exit (1);
+            }
+          else
+            {
+              int status;
+              waitpid (pid, &status, 0);
+              if (status)
+                err++;
+            }
           n++;
         }
       kb_delete (kb);
