@@ -42,7 +42,4 @@ void log_func_for_gnutls (int, const char *);
 
 void setup_log_handlers (GSList *);
 
-void log_legacy_write (const char *, ...) G_GNUC_PRINTF (1, 2);
-void log_legacy_fflush (void);
-
 #endif /* not _GVM_LOGGING_H */

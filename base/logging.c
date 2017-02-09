@@ -774,34 +774,3 @@ setup_log_handlers (GSList * gvm_log_config_list)
                                        G_LOG_FLAG_RECURSION),
                      (GLogFunc) gvm_log_func, gvm_log_config_list);
 }
-
-
-/**
- * @brief Legacy function to write a log message
- *
- * This function shall be used instead of fprintf in legacy code.  It
- * will eventually be replaced by glib log functions.
- *
- * @param format   printf style format string
- */
-void
-log_legacy_write (const char *format, ...)
-{
-  va_list arg_ptr;
-
-  va_start (arg_ptr, format);
-  vfprintf (stderr, format, arg_ptr);
-  va_end (arg_ptr);
-}
-
-/**
- * @brief Legacy function to flush a log message
- *
- * This function shall be used instead of fflush for log messages via
- * fprintf.  It will eventually be removed.
- */
-void
-log_legacy_fflush (void)
-{
-  fflush (stderr);
-}
