@@ -74,6 +74,19 @@ else (NOT GPGME)
   endif (GPGME_VERSION VERSION_LESS GPGME_MIN_VERSION)
 endif (NOT GPGME)
 
+message (STATUS "Looking for libgcrypt...")
+find_library (GCRYPT gcrypt)
+message (STATUS "Looking for libgcrypt... ${GCRYPT}")
+if (NOT GCRYPT)
+message (SEND_ERROR "The libgcrypt library is required.")
+else (NOT GCRYPT)
+execute_process (COMMAND libgcrypt-config --libs
+    OUTPUT_VARIABLE GCRYPT_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process (COMMAND libgcrypt-config --cflags
+    OUTPUT_VARIABLE GCRYPT_CFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif (NOT GCRYPT)
 
 #for radiusutils we need freerdius-client library
 message (STATUS "Looking for freeradius-client library...")
@@ -90,10 +103,10 @@ endif (NOT LIBRADIUS)
 include_directories (${GLIB_INCLUDE_DIRS})
 
 set (FILES authutils.c compressutils.c fileutils.c gpgmeutils.c radiusutils.c
-	   serverutils.c sshutils.c uuidutils.c xmlutils.c)
+    serverutils.c sshutils.c uuidutils.c xmlutils.c)
 
 set (HEADERS authutils.h compressutils.h fileutils.h gpgmeutils.h radiusutils.h
-	     serverutils.h sshutils.h uuidutils.h xmlutils.h)
+    serverutils.h sshutils.h uuidutils.h xmlutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})
@@ -113,6 +126,7 @@ if (BUILD_SHARED)
   target_link_libraries (gvm_util_shared LINK_PRIVATE ${GLIB_LDFLAGS}
                          ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
                          ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS}
+                         ${GCRYPT_LDFLAGS}
                          ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
 
