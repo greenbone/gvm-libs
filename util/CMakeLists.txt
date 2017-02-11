@@ -99,14 +99,28 @@ else (NOT LIBRADIUS)
   add_definitions (-DENABLE_RADIUS_AUTH=1)
 endif (NOT LIBRADIUS)
 
+#for ldaputils we need ldap library
+message (STATUS "Looking for libldap...")
+find_library (LIBLDAP ldap2)
+if (NOT LIBLDAP)
+  find_library (LIBLDAP ldap)
+endif (NOT LIBLDAP)
+if (NOT LIBLDAP)
+  message (STATUS "  No ldap library found - ldap support disabled")
+else (NOT LIBLDAP)
+  message (STATUS "  Found ${LIBLDAP} - ldap support enabled")
+  add_definitions (-DENABLE_LDAP_AUTH=1)
+  set (BUILD_WITH_LDAP TRUE)
+  set (LDAP_LDFLAGS "-lldap")
+endif (NOT LIBLDAP)
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES authutils.c compressutils.c fileutils.c gpgmeutils.c radiusutils.c
-    serverutils.c sshutils.c uuidutils.c xmlutils.c)
+set (FILES authutils.c compressutils.c fileutils.c gpgmeutils.c ldaputils.c
+           radiusutils.c serverutils.c sshutils.c uuidutils.c xmlutils.c)
 
-set (HEADERS authutils.h compressutils.h fileutils.h gpgmeutils.h radiusutils.h
-    serverutils.h sshutils.h uuidutils.h xmlutils.h)
+set (HEADERS authutils.h compressutils.h fileutils.h gpgmeutils.h ldaputils.h
+             radiusutils.h serverutils.h sshutils.h uuidutils.h xmlutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})
@@ -126,7 +140,7 @@ if (BUILD_SHARED)
   target_link_libraries (gvm_util_shared LINK_PRIVATE ${GLIB_LDFLAGS}
                          ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
                          ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS}
-                         ${GCRYPT_LDFLAGS}
+                         ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS}
                          ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
 
