@@ -1,3 +1,10 @@
+2017-02-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* base/prefs.c, base/prefs.h: New. Moved here from
+	openvas-libraries.
+
+	* base/CMakeLists.txt: Handle new module "prefs".
+
 2017-02-11  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* util/ldaputils.c, util/ldaputils.h: New. Moved here from
