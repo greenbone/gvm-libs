@@ -1,3 +1,8 @@
+2017-02-13  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	* base/prefs.c (prefs_init): Use g_hash_table_new_full() to free
+	duplicated memory on destruction.
+
 2017-02-12  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* base/prefs.c, base/prefs.h: New. Moved here from

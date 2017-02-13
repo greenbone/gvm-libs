@@ -52,7 +52,8 @@ prefs_init (void)
   if (global_prefs)
     g_hash_table_destroy (global_prefs);
 
-  global_prefs = g_hash_table_new (g_str_hash, g_str_equal);
+  global_prefs = g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
+                                        g_free);
 }
 
 /**
