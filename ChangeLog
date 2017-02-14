@@ -1,3 +1,7 @@
+2017-02-14  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* base/proctitle.h: Define correct macro to match header guard.
+
 2017-02-13  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	* base/prefs.c (prefs_init): Use g_hash_table_new_full() to free

@@ -24,7 +24,7 @@
  */
 
 #ifndef _GVM_PROCTITLE_H
-#define _GVM__PROCTITLE_H
+#define _GVM_PROCTITLE_H
 
 void
 proctitle_init (int, char **);
