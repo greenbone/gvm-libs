@@ -48,8 +48,11 @@ pkg_check_modules (GNUTLS REQUIRED gnutls>=3.2.15)
 # for uuidutils we need uuidlib
 pkg_check_modules (UUID REQUIRED uuid>=2.25.0)
 
-# for sshutils
+# for sshutils we need libssh
 pkg_check_modules (LIBSSH REQUIRED libssh>=0.6.0)
+
+# for kb we need libhiredis
+pkg_check_modules (REDIS hiredis>=0.10.1)
 
 #for gpgmeutils we need libgpgme
 set (GPGME_MIN_VERSION "1.1.2")
@@ -116,11 +119,12 @@ endif (NOT LIBLDAP)
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES authutils.c compressutils.c fileutils.c gpgmeutils.c ldaputils.c
+set (FILES authutils.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
            radiusutils.c serverutils.c sshutils.c uuidutils.c xmlutils.c)
 
-set (HEADERS authutils.h compressutils.h fileutils.h gpgmeutils.h ldaputils.h
-             radiusutils.h serverutils.h sshutils.h uuidutils.h xmlutils.h)
+set (HEADERS authutils.h compressutils.h fileutils.h gpgmeutils.h kb.h
+             ldaputils.h radiusutils.h serverutils.h sshutils.h uuidutils.h
+             xmlutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})
@@ -140,7 +144,7 @@ if (BUILD_SHARED)
   target_link_libraries (gvm_util_shared LINK_PRIVATE ${GLIB_LDFLAGS}
                          ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
                          ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS}
-                         ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS}
+                         ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
                          ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
 

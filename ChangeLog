@@ -1,3 +1,12 @@
+2017-02-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* util/kb.c, util/kb.h: New. Moved here from openvas-libraries.
+
+	* util/CMakeLists.txt: Handle new module "kb" and
+	check for hiredis library.
+
+	* INSTALL: Added hiredis as requirement.
+
 2017-02-14  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/proctitle.h: Define correct macro to match header guard.
