@@ -120,11 +120,12 @@ endif (NOT LIBLDAP)
 include_directories (${GLIB_INCLUDE_DIRS})
 
 set (FILES authutils.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
-           radiusutils.c serverutils.c sshutils.c uuidutils.c xmlutils.c)
+           nvticache.c radiusutils.c serverutils.c sshutils.c uuidutils.c
+           xmlutils.c)
 
 set (HEADERS authutils.h compressutils.h fileutils.h gpgmeutils.h kb.h
-             ldaputils.h radiusutils.h serverutils.h sshutils.h uuidutils.h
-             xmlutils.h)
+             ldaputils.h nvticache.h radiusutils.h serverutils.h sshutils.h
+             uuidutils.h xmlutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})

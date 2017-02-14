@@ -1,5 +1,13 @@
 2017-02-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* util/nvticache.c, util/nvticache.h: New. Moved here from
+	openvas-libraries.
+
+	* util/CMakeLists.txt: Handle new module "nvticache" and
+	check for hiredis library.
+
+2017-02-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* util/kb.c, util/kb.h: New. Moved here from openvas-libraries.
 
 	* util/CMakeLists.txt: Handle new module "kb" and
