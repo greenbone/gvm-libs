@@ -1,3 +1,7 @@
+2017-02-15  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* util/kb.c: Fix file name in Doxygen @file command.
+
 2017-02-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* util/nvticache.c, util/nvticache.h: New. Moved here from

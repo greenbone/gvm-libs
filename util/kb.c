@@ -45,7 +45,7 @@
 #define G_LOG_DOMAIN "lib  kb"
 
 /**
- * @file kb_redis.c
+ * @file kb.c
  *
  * @brief Contains specialized structures and functions to use redis as a KB
  *        server.
