@@ -1,6 +1,13 @@
+2017-02-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* tests/, tests/CMakeLists.txt, tests/test-hosts.c: New.
+	Moved here from openvas-libraries/base.
+
+	* CMakeLists.txt: Consider directory tests.
+
 2017-02-15  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
-	* bas/proctitle.c (proctitle_set_args): Use strncpy() instead of
+	* base/proctitle.c (proctitle_set_args): Use strncpy() instead of
 	strcpy().
 
 2017-02-15  Michael Wiegand <michael.wiegand@greenbone.net>

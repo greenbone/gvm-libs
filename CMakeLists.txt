@@ -209,6 +209,8 @@ add_subdirectory (doc)
 
 ## Tests
 
+add_subdirectory (tests)
+
 enable_testing ()
 
 ## End
