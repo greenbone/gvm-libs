@@ -1,3 +1,8 @@
+2017-02-15  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	* bas/proctitle.c (proctitle_set_args): Use strncpy() instead of
+	strcpy().
+
 2017-02-15  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* util/kb.c: Fix file name in Doxygen @file command.
