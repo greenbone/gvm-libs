@@ -1,3 +1,7 @@
+2017-02-16  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	* base/nvti.h (struct scan_globals): New struct.
+
 2017-02-16  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* base/logging.c, base/logging.h: Ensure the GPLv2+ license notice
