@@ -36,15 +36,6 @@
 
 #include <glib.h>
 
-struct scan_globals {
-  char *network_targets;
-  char *network_scan_status;
-  GHashTable *files_translation;
-  GHashTable *files_size_translation;
-  int global_socket;
-  int parent_socket;
-};
-
 /**
  * @brief The structure for a preference of a NVT.
  *
