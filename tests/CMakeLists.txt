@@ -27,12 +27,16 @@
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (LIBGVM_BASE_LDFLAGS  "-lgvm_base -L ../base")
+if (BUILD_STATIC)
+  set (LIBGVM_BASE_NAME gvm_base_static)
+else (BUILD_STATIC)
+  set (LIBGVM_BASE_NAME gvm_base_shared)
+endif (BUILD_STATIC)
 
 if (BUILD_SHARED)
   add_executable (test-hosts test-hosts.c)
   set_target_properties (test-hosts PROPERTIES LINKER_LANGUAGE C)
-  target_link_libraries (test-hosts ${GLIB_LDFLAGS} ${LIBGVM_BASE_LDFLAGS})
+  target_link_libraries (test-hosts ${LIBGVM_BASE_NAME} ${GLIB_LDFLAGS})
 endif (BUILD_SHARED)
 
 ## End

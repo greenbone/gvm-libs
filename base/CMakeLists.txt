@@ -38,13 +38,14 @@ include_directories (${GLIB_INCLUDE_DIRS})
 
 set (FILES array.c credentials.c cvss.c drop_privileges.c hosts.c logging.c
            networking.c nvti.c pidfile.c prefs.c proctitle.c pwpolicy.c
-	   settings.c strings.c)
+           settings.c strings.c)
 
 set (HEADERS array.h credentials.h cvss.h drop_privileges.h hosts.h logging.h
              networking.h nvti.h pidfile.h prefs.h proctitle.h pwpolicy.h
-	     settings.h strings.h)
+             settings.h strings.h)
 
 if (BUILD_STATIC)
+  set (LIBGVM_BASE_NAME gvm_base_static)
   add_library (gvm_base_static STATIC ${FILES})
   set_target_properties (gvm_base_static PROPERTIES OUTPUT_NAME "gvm_base")
   set_target_properties (gvm_base_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
@@ -52,6 +53,7 @@ if (BUILD_STATIC)
 endif (BUILD_STATIC)
 
 if (BUILD_SHARED)
+  set (LIBGVM_BASE_NAME gvm_base_shared)
   add_library (gvm_base_shared SHARED ${FILES})
   set_target_properties (gvm_base_shared PROPERTIES OUTPUT_NAME "gvm_base")
   set_target_properties (gvm_base_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
@@ -61,6 +63,10 @@ if (BUILD_SHARED)
 
   target_link_libraries (gvm_base_shared LINK_PRIVATE ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
+
+set (LIBGVM_BASE_NAME
+     ${LIBGVM_BASE_NAME}
+     PARENT_SCOPE)
 
 if (GVM_PID_DIR)
   add_definitions (-DGVM_PID_DIR=\\\"${GVM_PID_DIR}\\\")
