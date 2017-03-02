@@ -27,12 +27,6 @@
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
-if (BUILD_STATIC)
-  set (LIBGVM_BASE_NAME gvm_base_static)
-else (BUILD_STATIC)
-  set (LIBGVM_BASE_NAME gvm_base_shared)
-endif (BUILD_STATIC)
-
 if (BUILD_SHARED)
   add_executable (test-hosts test-hosts.c)
   set_target_properties (test-hosts PROPERTIES LINKER_LANGUAGE C)
