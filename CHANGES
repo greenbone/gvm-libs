@@ -1,3 +1,22 @@
+openvas-libraries 9.0.1 (2017-03-07)
+
+This is the first maintenance release of the openvas-libraries 9.0
+module for the Open Vulnerability Assessment System 9 (OpenVAS-9).
+
+Many thanks to everyone who contributed to this release:
+Hani Benhabiles and Timo Pollmeier.
+
+Main changes compared to 9.0.0:
+* Support for virtual hosts using TLS SNI has been added.
+* SSL handshake handling has been improved.
+* Error logging has been improved.
+* Several memory management issues have been addressed.
+* Support for hostnames without public domain in TLS certificates has
+  been added.
+* Support for running NVTs with keys with multiple values has been added
+  to openvas-nasl.
+
+
 openvas-libraries 9.0.0 (2016-11-09)
 
 This is the first release of the openvas-libraries 9.0 module for the Open
