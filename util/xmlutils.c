@@ -414,9 +414,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
   time_t last_time;
 
   // Buffer for reading from the manager.
-  char buffer_start[BUFFER_SIZE];
-  // End of the manager reading buffer.
-  char *buffer_end = buffer_start + BUFFER_SIZE;
+  char *buffer;
 
   /* Record the start time. */
 
@@ -438,6 +436,8 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
   else
     /* Quiet compiler. */
     socket = 0;
+
+  buffer = g_malloc0 (BUFFER_SIZE);
 
   /* Setup return arg. */
 
@@ -473,10 +473,9 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
       ssize_t count;
       while (1)
         {
-          g_debug ("   asking for %i\n", (int) (buffer_end - buffer_start));
+          g_debug ("   asking for %i\n", BUFFER_SIZE);
           count =
-            gnutls_record_recv (*session, buffer_start,
-                                buffer_end - buffer_start);
+            gnutls_record_recv (*session, buffer, BUFFER_SIZE);
           if (count < 0)
             {
               if (count == GNUTLS_E_INTERRUPTED)
@@ -491,6 +490,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
                       g_warning ("   timeout\n");
                       fcntl (socket, F_SETFL, 0L);
                       g_markup_parse_context_free (xml_context);
+                      g_free (buffer);
                       return -4;
                     }
                   continue;
@@ -508,6 +508,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
               if (timeout > 0)
                 fcntl (socket, F_SETFL, 0L);
               g_markup_parse_context_free (xml_context);
+              g_free (buffer);
               return -1;
             }
           if (count == 0)
@@ -529,17 +530,18 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
               if (timeout > 0)
                 fcntl (socket, F_SETFL, 0L);
               g_markup_parse_context_free (xml_context);
+              g_free (buffer);
               return -3;
             }
           break;
         }
 
-      g_debug ("<= %.*s\n", (int) count, buffer_start);
+      g_debug ("<= %.*s\n", (int) count, buffer);
 
       if (string)
-        g_string_append_len (string, buffer_start, count);
+        g_string_append_len (string, buffer, count);
 
-      g_markup_parse_context_parse (xml_context, buffer_start, count, &error);
+      g_markup_parse_context_parse (xml_context, buffer, count, &error);
       if (error)
         {
           g_error_free (error);
@@ -553,6 +555,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
           if (timeout > 0)
             fcntl (socket, F_SETFL, 0L);
           g_markup_parse_context_free (xml_context);
+          g_free (buffer);
           return -2;
         }
       if (context_data.done)
@@ -570,6 +573,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
               if (timeout > 0)
                 fcntl (socket, F_SETFL, 0L);
               g_markup_parse_context_free (xml_context);
+              g_free (buffer);
               return -2;
             }
           *entity = (entity_t) context_data.first->data;
@@ -578,6 +582,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
           if (timeout > 0)
             fcntl (socket, F_SETFL, 0L);
           g_markup_parse_context_free (xml_context);
+          g_free (buffer);
           return 0;
         }
 
@@ -587,6 +592,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
                      strerror (errno));
           fcntl (socket, F_SETFL, 0L);
           g_markup_parse_context_free (xml_context);
+          g_free (buffer);
           return -1;
         }
     }
@@ -618,9 +624,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
   GString *string;
   time_t last_time;
   /* Buffer for reading from the socket. */
-  char buffer_start[BUFFER_SIZE];
-  /* End of the manager reading buffer. */
-  char *buffer_end = buffer_start + BUFFER_SIZE;
+  char *buffer;
 
   /* Record the start time. */
 
@@ -638,6 +642,8 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
       if (fcntl (socket, F_SETFL, O_NONBLOCK) == -1)
         return -1;
     }
+
+  buffer = g_malloc0 (BUFFER_SIZE);
 
   /* Setup return arg. */
 
@@ -673,8 +679,8 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
       int count;
       while (1)
         {
-          g_debug ("   asking for %i\n", (int) (buffer_end - buffer_start));
-          count = read (socket, buffer_start, buffer_end - buffer_start);
+          g_debug ("   asking for %i\n", BUFFER_SIZE);
+          count = read (socket, buffer, BUFFER_SIZE);
           if (count < 0)
             {
               if (errno == EINTR)
@@ -691,6 +697,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                           g_warning ("   timeout\n");
                           fcntl (socket, F_SETFL, 0L);
                           g_markup_parse_context_free (xml_context);
+                          g_free (buffer);
                           return -4;
                         }
                     }
@@ -706,6 +713,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
               if (timeout > 0)
                 fcntl (socket, F_SETFL, 0L);
               g_markup_parse_context_free (xml_context);
+              g_free (buffer);
               return -1;
             }
           if (count == 0)
@@ -727,17 +735,18 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
               if (timeout > 0)
                 fcntl (socket, F_SETFL, 0L);
               g_markup_parse_context_free (xml_context);
+              g_free (buffer);
               return -3;
             }
           break;
         }
 
-      g_debug ("<= %.*s\n", (int) count, buffer_start);
+      g_debug ("<= %.*s\n", (int) count, buffer);
 
       if (string)
-        g_string_append_len (string, buffer_start, count);
+        g_string_append_len (string, buffer, count);
 
-      g_markup_parse_context_parse (xml_context, buffer_start, count, &error);
+      g_markup_parse_context_parse (xml_context, buffer, count, &error);
       if (error)
         {
           g_error_free (error);
@@ -752,6 +761,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
           if (timeout > 0)
             fcntl (socket, F_SETFL, 0L);
           g_markup_parse_context_free (xml_context);
+          g_free (buffer);
           return -2;
         }
       if (context_data.done)
@@ -769,6 +779,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
               if (timeout > 0)
                 fcntl (socket, F_SETFL, 0L);
               g_markup_parse_context_free (xml_context);
+              g_free (buffer);
               return -2;
             }
           *entity = (entity_t) context_data.first->data;
@@ -778,6 +789,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
             fcntl (socket, F_SETFL, 0L);
           g_slist_free (context_data.first);
           g_markup_parse_context_free (xml_context);
+          g_free (buffer);
           return 0;
         }
 
@@ -787,6 +799,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                      strerror (errno));
           fcntl (socket, F_SETFL, 0L);
           g_markup_parse_context_free (xml_context);
+          g_free (buffer);
           return -1;
         }
     }
