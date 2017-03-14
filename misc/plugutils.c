@@ -883,6 +883,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
           struct arglist *globals;
           void *ret;
 
+          sig_term (_exit);
           kb_lnk_reset (kb);
           close (sockpair[0]);
           globals = arg_get_value (args, "globals");

@@ -1,3 +1,10 @@
+2017-03-14  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	Backport r27986.
+
+	* misc/plugutils.c (plug_get_key): Set the SIGTERM handler to _exit in
+	forked child case.
+
 2017-02-15  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	Backport r27650.
