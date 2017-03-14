@@ -805,6 +805,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
           struct arglist *globals;
           void *ret;
 
+          sig_term (_exit);
           kb_lnk_reset (kb);
           nvticache_reset ();
           close (sockpair[0]);
