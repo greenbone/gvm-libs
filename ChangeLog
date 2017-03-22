@@ -1,3 +1,36 @@
+2017-03-21  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	Move full nvticache from .nvti files to Redis.
+
+	* base/nvti.c (set_from_key, nvti_from_keyfile, set_keyfile_info)
+	(nvti_to_keyfile): Remove functions.
+
+	* base/nvti.h: Remove functions headers.
+
+	* util/kb.c (redis_find): New function.
+	(redis_flush_all): Add except parameter.
+
+	* util/kb.h (struct kb_operations): Add kb_find function call. Adjust
+	kb_flush prototype.
+	(kb_find): New function.
+	(kb_flush): Add except parameter.
+
+	* util/nvticache.c (nvticache_init): Find an existing nvticache first.
+	(nvticache_check): New function to check if nvt is already in Redis cache.
+	(nvticache_get): Remove function.
+	(nvticache_add): Add nvt tag, cve, bid, xref, family, copyright, name,
+	version and timestamp.
+	(nvticache_get_by_name_full): Use kb cache instead of file cache.
+	(nvticache_get_by_oid_full, nvticache_get_names, nvticache_get_oids):
+	Adjust for filename key name change.
+	(nvticache_get_filename, nvticache_get_version, nvticache_get_copyright)
+	(nvticache_get_cves, nvticache_get_bids, nvticache_get_xrefs)
+	(nvticache_get_family, nvticache_get_tags, nvticache_get_prefs): New
+	functions.
+	(nvticache_get_name): Get nvt name instead of filename.
+
+	* util/nvticache.h: Adjust functions headers.
+
 2017-03-09  Björn Ricks <bjoern.ricks@greenbone.net>
 
 	* util/xmlutils.c (try_read_entity_and_string_c, try_read_entity_and_string):

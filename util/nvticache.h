@@ -38,7 +38,7 @@
 #include "../base/nvti.h"  /* for nvti_t */
 
 int
-nvticache_init (const char *, const char *, const char *);
+nvticache_init (const char *, const char *);
 
 void
 nvticache_reset ();
@@ -49,8 +49,8 @@ nvticache_initialized (void);
 void
 nvticache_free (void);
 
-nvti_t *
-nvticache_get (const gchar *);
+int
+nvticache_check (const gchar *);
 
 int
 nvticache_add (const nvti_t *, const char *);
@@ -69,6 +69,33 @@ nvticache_get_oid (const char *);
 
 char *
 nvticache_get_name (const char *);
+
+char *
+nvticache_get_tags (const char *);
+
+GSList *
+nvticache_get_prefs (const char *);
+
+char *
+nvticache_get_version (const char *);
+
+char *
+nvticache_get_copyright (const char *);
+
+char *
+nvticache_get_cves (const char *);
+
+char *
+nvticache_get_bids (const char *);
+
+char *
+nvticache_get_xrefs (const char *);
+
+char *
+nvticache_get_family (const char *);
+
+char *
+nvticache_get_filename (const char *);
 
 char *
 nvticache_get_required_keys (const char *);

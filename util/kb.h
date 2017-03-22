@@ -95,6 +95,7 @@ struct kb_operations
   /* ctor/dtor */
   int (*kb_new) (kb_t *, const char *);
   int (*kb_delete) (kb_t);
+  kb_t (*kb_find) (const char *, const char *);
 
   /* Actual kb operations */
   struct kb_item *(*kb_get_single) (kb_t, const char *, enum kb_item_type);
@@ -110,7 +111,7 @@ struct kb_operations
 
   /* Utils */
   int (*kb_lnk_reset) (kb_t);
-  int (*kb_flush) (kb_t);
+  int (*kb_flush) (kb_t, const char *);
 };
 
 /**
@@ -140,6 +141,20 @@ static inline int kb_new (kb_t *kb, const char *kb_path)
   *kb = NULL;
 
   return KBDefaultOperations->kb_new (kb, kb_path);
+}
+
+/**
+ * @brief Find an existing Knowledge Base object with key.
+ * @param[in] kb_path   Path to KB.
+ * @param[in] key       Marker key to search for in KB objects.
+ * @return Knowledge Base object, NULL otherwise.
+ */
+static inline kb_t kb_find (const char *kb_path, const char *key)
+{
+  assert (KBDefaultOperations);
+  assert (KBDefaultOperations->kb_find);
+
+  return KBDefaultOperations->kb_find (kb_path, key);
 }
 
 /**
@@ -349,10 +364,11 @@ static inline int kb_lnk_reset (kb_t kb)
 
 /**
  * @brief Flush all the KB's content. Delete all namespaces.
- * @param[in] kb    KB handle.
+ * @param[in] kb        KB handle.
+ * @param[in] except    Don't flush DB with except key.
  * @return 0 on success, non-null on error.
  */
-static inline int kb_flush (kb_t kb)
+static inline int kb_flush (kb_t kb, const char *except)
 {
   int rc = 0;
 
@@ -360,7 +376,7 @@ static inline int kb_flush (kb_t kb)
   assert (kb->kb_ops);
 
   if (kb->kb_ops->kb_flush != NULL)
-    rc = kb->kb_ops->kb_flush (kb);
+    rc = kb->kb_ops->kb_flush (kb, except);
 
   return rc;
 }

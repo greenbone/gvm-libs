@@ -94,7 +94,7 @@ struct redis_tx
 
 static int redis_delete_all (struct kb_redis *);
 static int redis_lnk_reset (kb_t);
-static int redis_flush_all (kb_t);
+static int redis_flush_all (kb_t, const char *);
 static redisReply *redis_cmd (struct kb_redis *kbr, const char *fmt, ...)
     __attribute__((__format__(__printf__, 2, 3)));
 
@@ -440,6 +440,59 @@ redis_new (kb_t *kb, const char *kb_path)
   *kb = (kb_t)kbr;
 
   return rc;
+}
+
+static kb_t
+redis_find (const char *kb_path, const char *key)
+{
+  struct kb_redis *kbr;
+  unsigned int i = 1;
+  redisReply *rep;
+
+  kbr = g_malloc0 (sizeof (struct kb_redis) + strlen (kb_path) + 1);
+  kbr->kb.kb_ops = &KBRedisOperations;
+  strncpy (kbr->path, kb_path, strlen (kb_path));
+
+  do
+    {
+      kbr->rctx = redisConnectUnix (kbr->path);
+      if (kbr->rctx == NULL || kbr->rctx->err)
+        {
+          g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+                 "%s: redis connection error: %s", __func__,
+                 kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
+          redisFree (kbr->rctx);
+          g_free (kbr);
+          return NULL;
+        }
+
+      kbr->db = i;
+      rep = redisCommand (kbr->rctx, "HEXISTS %s %d", GLOBAL_DBINDEX_NAME, i);
+      if (rep == NULL || rep->type != REDIS_REPLY_INTEGER || rep->integer != 1)
+        {
+          freeReplyObject (rep);
+          i++;
+          continue;
+        }
+      freeReplyObject (rep);
+      rep = redisCommand (kbr->rctx, "SELECT %u", i);
+      if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
+        {
+          sleep (KB_RETRY_DELAY);
+          kbr->rctx = NULL;
+        }
+      else
+        {
+          freeReplyObject (rep);
+          if (key && kb_item_get_int (&kbr->kb, key) > 0)
+            return (kb_t) kbr;
+        }
+      redisFree (kbr->rctx);
+      i++;
+    }
+  while (i < kbr->max_db);
+
+  return NULL;
 }
 
 void
@@ -980,30 +1033,68 @@ redis_lnk_reset (kb_t kb)
 }
 
 static int
-redis_flush_all (kb_t kb)
+redis_flush_all (kb_t kb, const char *except)
 {
-  int rc;
+  unsigned int i = 1;
   struct kb_redis *kbr;
   redisReply *rep;
 
   kbr = redis_kb (kb);
+  if (kbr->rctx)
+    redisFree (kbr->rctx);
 
-  g_debug ("%s: deleting all DBs at %s", __func__, kbr->path);
-
-  rep = redis_cmd (kbr, "FLUSHALL");
-  if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
+  g_debug ("%s: deleting all DBs at %s except %s", __func__, kbr->path, except);
+  do
     {
-      rc = -1;
-      goto err_cleanup;
+      kbr->rctx = redisConnectUnix (kbr->path);
+      if (kbr->rctx == NULL || kbr->rctx->err)
+        {
+          g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+                 "%s: redis connection error: %s", __func__,
+                 kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
+          redisFree (kbr->rctx);
+          kbr->rctx = NULL;
+          return -1;
+        }
+
+      kbr->db = i;
+      rep = redisCommand (kbr->rctx, "HEXISTS %s %d", GLOBAL_DBINDEX_NAME, i);
+      if (rep == NULL || rep->type != REDIS_REPLY_INTEGER || rep->integer != 1)
+        {
+          freeReplyObject (rep);
+          redisFree (kbr->rctx);
+          i++;
+          continue;
+        }
+      freeReplyObject (rep);
+      rep = redisCommand (kbr->rctx, "SELECT %u", i);
+      if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
+        {
+          freeReplyObject (rep);
+          sleep (KB_RETRY_DELAY);
+          redisFree (kbr->rctx);
+          kbr->rctx = NULL;
+        }
+      else
+        {
+          freeReplyObject (rep);
+          /* Don't remove DB if it has "except" key. */
+          if (except && kb_item_get_int (kb, except) > 0)
+            {
+              i++;
+              redisFree (kbr->rctx);
+              continue;
+            }
+          redis_delete_all (kbr);
+          redis_release_db (kbr);
+          redisFree (kbr->rctx);
+        }
+      i++;
     }
+  while (i < kbr->max_db);
 
-  rc = 0;
-
-err_cleanup:
-  if (rep != NULL)
-    freeReplyObject (rep);
-
-  return rc;
+  g_free (kb);
+  return 0;
 }
 
 int
@@ -1032,6 +1123,7 @@ err_cleanup:
 
 static const struct kb_operations KBRedisOperations = {
   .kb_new          = redis_new,
+  .kb_find         = redis_find,
   .kb_delete       = redis_delete,
   .kb_get_single   = redis_get_single,
   .kb_get_str      = redis_get_str,
