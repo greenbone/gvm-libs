@@ -95,8 +95,7 @@ struct redis_tx
 static int redis_delete_all (struct kb_redis *);
 static int redis_lnk_reset (kb_t);
 static int redis_flush_all (kb_t, const char *);
-static redisReply *redis_cmd (struct kb_redis *kbr, const char *fmt, ...)
-    __attribute__((__format__(__printf__, 2, 3)));
+static redisReply *redis_cmd (struct kb_redis *kbr, const char *fmt, ...);
 
 
 /**
@@ -897,21 +896,16 @@ static int
 redis_add_str (kb_t kb, const char *name, const char *str, size_t len)
 {
   struct kb_redis *kbr;
-  struct redis_tx rtx;
   redisReply *rep = NULL;
   int rc = 0;
 
   kbr = redis_kb (kb);
 
-  rc = redis_transaction_new (kbr, &rtx);
-  if (rc)
-    return -1;
   if (len == 0)
-    redis_transaction_cmd (&rtx, "SADD %s %s", name, str);
+    rep = redis_cmd (kbr, "SADD %s %s", name, str);
   else
-    redis_transaction_cmd (&rtx, "SADD %s %b", name, str, len);
-  rc = redis_transaction_end (&rtx, &rep);
-  if (rc || rep == NULL || rep->type == REDIS_REPLY_ERROR)
+    rep = redis_cmd (kbr, "SADD %s %b", name, str, len);
+  if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
     rc = -1;
 
   if (rep != NULL)

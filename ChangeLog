@@ -1,3 +1,10 @@
+2017-03-22  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	* util/kb.c (redis_add_str): Use redis_cmd() instead of a full
+	transaction.
+	(redis_cmd): Remove format attribute from prototype to handle %b
+	specifier case.
+
 2017-03-21  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	Move full nvticache from .nvti files to Redis.
