@@ -1,3 +1,8 @@
+2017-03-23  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* util/nvticache.c (nvticache_init): Adjust documentation to recent
+	API change.
+
 2017-03-22  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	* util/kb.c (redis_add_str): Use redis_cmd() instead of a full

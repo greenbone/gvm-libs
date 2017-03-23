@@ -64,7 +64,6 @@ nvticache_initialized (void)
 /**
  * @brief Initializes the nvti cache.
  *
- * @param cache         The directory where the cache is to be stored.
  * @param src           The directory that contains the nvt files.
  * @param kb_path       Path to kb socket.
  */
