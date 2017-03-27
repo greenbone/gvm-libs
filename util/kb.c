@@ -1092,6 +1092,31 @@ redis_flush_all (kb_t kb, const char *except)
 }
 
 int
+redis_save (kb_t kb)
+{
+  int rc;
+  redisReply *rep;
+  struct kb_redis *kbr;
+
+  kbr = redis_kb (kb);
+  g_debug ("%s: saving all elements from KB #%u", __func__, kbr->db);
+  rep = redis_cmd (kbr, "SAVE");
+  if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
+    {
+      rc = -1;
+      goto err_cleanup;
+    }
+
+  rc = 0;
+
+err_cleanup:
+  if (rep != NULL)
+    freeReplyObject (rep);
+
+  return rc;
+}
+
+int
 redis_delete_all (struct kb_redis *kbr)
 {
   int rc;
@@ -1130,6 +1155,7 @@ static const struct kb_operations KBRedisOperations = {
   .kb_set_int      = redis_set_int,
   .kb_del_items    = redis_del_items,
   .kb_lnk_reset    = redis_lnk_reset,
+  .kb_save         = redis_save,
   .kb_flush        = redis_flush_all,
 };
 

@@ -1,3 +1,17 @@
+2017-03-27  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	* util/kb.c (redis_save): New function.
+	(KBOperations): Set kb_save to redis_save.
+
+	* util/kb.h (struct kb_operations): Add kb_save operation.
+	(kb_save): New function.
+
+	* util/nvticache.c (nvticache_save): New function.
+	(nvticache_add): Set cache_saved to 0 when adding a new nvti to the
+	cache.
+
+	* util/nvticache.h: Add new function prototype.
+
 2017-03-23  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* util/nvticache.c (nvticache_init): Adjust documentation to recent

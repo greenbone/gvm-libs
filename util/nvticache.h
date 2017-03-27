@@ -43,6 +43,9 @@ nvticache_init (const char *, const char *);
 void
 nvticache_reset ();
 
+void
+nvticache_save ();
+
 int
 nvticache_initialized (void);
 

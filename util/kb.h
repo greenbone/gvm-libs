@@ -110,6 +110,7 @@ struct kb_operations
   int (*kb_del_items) (kb_t, const char *);
 
   /* Utils */
+  int (*kb_save) (kb_t);
   int (*kb_lnk_reset) (kb_t);
   int (*kb_flush) (kb_t, const char *);
 };
@@ -341,6 +342,24 @@ kb_del_items (kb_t kb, const char *name)
   assert (kb->kb_ops->kb_del_items);
 
   return kb->kb_ops->kb_del_items (kb, name);
+}
+
+/**
+ * @brief Save all the KB's content.
+ * @param[in] kb        KB handle.
+ * @return 0 on success, non-null on error.
+ */
+static inline int kb_save (kb_t kb)
+{
+  int rc = 0;
+
+  assert (kb);
+  assert (kb->kb_ops);
+
+  if (kb->kb_ops->kb_save != NULL)
+    rc = kb->kb_ops->kb_save (kb);
+
+  return rc;
 }
 
 /**

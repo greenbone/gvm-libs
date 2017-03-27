@@ -49,6 +49,7 @@
 
 char *src_path = NULL;      /* The directory of the source files. */
 kb_t cache_kb = NULL;
+int cache_saved = 1;
 
 /**
  * @brief Return whether the nvt cache is initialized.
@@ -133,6 +134,19 @@ nvticache_reset ()
 {
   if (cache_kb)
     kb_lnk_reset (cache_kb);
+}
+
+/**
+ * @brief Save the nvticache to disk.
+ */
+void
+nvticache_save ()
+{
+  if (cache_kb && !cache_saved)
+    {
+      kb_save (cache_kb);
+      cache_saved = 1;
+    }
 }
 
 /**
@@ -265,6 +279,7 @@ nvticache_add (const nvti_t *nvti, const char *filename)
   g_snprintf (pattern, sizeof (pattern), "filename:%s:timestamp", filename);
   if (kb_item_set_int (cache_kb, pattern, time (NULL)))
     goto kb_fail;
+  cache_saved = 0;
 
   return 0;
 kb_fail:
