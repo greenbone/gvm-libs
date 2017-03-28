@@ -1,3 +1,10 @@
+2017-03-28  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	* util/nvticache.c (nvticache_get_by_name_full)
+	(nvticache_get_by_oid_full, nvticache_get_names)
+
+	* util/nvticache.h: Remove functions prototypes.
+
 2017-03-27  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	* util/kb.c (redis_save): New function.

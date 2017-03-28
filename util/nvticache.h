@@ -58,12 +58,6 @@ nvticache_check (const gchar *);
 int
 nvticache_add (const nvti_t *, const char *);
 
-nvti_t *
-nvticache_get_by_oid_full (const char *);
-
-nvti_t *
-nvticache_get_by_name_full (const char *);
-
 char *
 nvticache_get_src (const char *);
 
@@ -126,9 +120,6 @@ nvticache_get_dependencies (const char *);
 
 void
 nvticache_free (void);
-
-GSList *
-nvticache_get_names (void);
 
 GSList *
 nvticache_get_oids (void);

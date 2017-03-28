@@ -287,69 +287,6 @@ kb_fail:
 }
 
 /**
- * @brief Get a full NVTI from the cache file by filename.
- *
- * @param filename  Filename of nvti to lookup
- *
- * @return A full copy of the NVTI object or NULL if not found.
- */
-nvti_t *
-nvticache_get_by_name_full (const char *filename)
-{
-  nvti_t *nvti;
-
-  if (!filename)
-    return NULL;
-
-  nvti = nvti_new ();
-  nvti->oid = nvticache_get_oid (filename);
-  nvti->category = nvticache_get_category (nvti->oid);
-  nvti->timeout = nvticache_get_timeout (nvti->oid);
-  nvti->version = nvticache_get_version (nvti->oid);
-  nvti->name = nvticache_get_name (nvti->oid);
-  nvti->copyright = nvticache_get_copyright (nvti->oid);
-  nvti->cve = nvticache_get_cves (nvti->oid);
-  nvti->bid = nvticache_get_bids (nvti->oid);
-  nvti->xref = nvticache_get_xrefs (nvti->oid);
-  nvti->tag = nvticache_get_tags (nvti->oid);
-  nvti->dependencies = nvticache_get_dependencies (nvti->oid);
-  nvti->required_keys = nvticache_get_required_keys (nvti->oid);
-  nvti->mandatory_keys = nvticache_get_mandatory_keys (nvti->oid);
-  nvti->excluded_keys = nvticache_get_excluded_keys (nvti->oid);
-  nvti->required_ports = nvticache_get_required_ports (nvti->oid);
-  nvti->required_udp_ports = nvticache_get_required_udp_ports (nvti->oid);
-  nvti->family = nvticache_get_family (nvti->oid);
-  nvti->prefs = nvticache_get_prefs (nvti->oid);
-
-  return nvti;
-}
-
-/**
- * @brief Get a full NVTI from the cache by OID.
- *
- * @param oid      The OID to look up
- *
- * @return A full copy of the NVTI object or NULL if not found.
- */
-nvti_t *
-nvticache_get_by_oid_full (const char *oid)
-{
-  nvti_t *cache_nvti;
-  char *filename, pattern[2048];
-
-  assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:filename", oid);
-  filename = kb_item_get_str (cache_kb, pattern);
-  if (!filename)
-    return NULL;
-  cache_nvti = nvticache_get_by_name_full (filename);
-
-  g_free (filename);
-  return cache_nvti;
-}
-
-/**
  * @brief Get the full source filename of an OID.
  *
  * @param oid      The OID to look up.
@@ -743,32 +680,6 @@ nvticache_get_prefs (const char *oid)
   }
   kb_item_free (prefs);
 
-  return list;
-}
-
-/**
- * @brief Get the list of nvti filenames.
- *
- * @return Filenames list.
- */
-GSList *
-nvticache_get_names ()
-{
-  struct kb_item *kbi, *item;
-  GSList *list = NULL;
-
-  assert (cache_kb);
-
-  kbi = item = kb_item_get_pattern (cache_kb, "oid:*:filename");
-  if (!kbi)
-    return NULL;
-
-  while (item)
-    {
-      list = g_slist_prepend (list, g_strdup (item->v_str));
-      item = item->next;
-    }
-  kb_item_free (kbi);
   return list;
 }
 
