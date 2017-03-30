@@ -1,3 +1,10 @@
+2017-03-30  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* util/CMakeLists.txt: Enable largefile support when building with
+	GPGME since GPGME is compiled with largefile support by default and
+	requires applications using the library to be compiled with the same
+	file size mode.
+
 2017-03-28  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	* util/nvticache.c (nvticache_get_by_name_full)
