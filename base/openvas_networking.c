@@ -263,7 +263,7 @@ sockaddr_as_str (const struct sockaddr_storage *addr, char *str)
       struct sockaddr_in *saddr = (struct sockaddr_in *) addr;
       inet_ntop (AF_INET,  &saddr->sin_addr, str, INET6_ADDRSTRLEN);
     }
-  else
+  else if (addr->ss_family == AF_INET6)
     {
       struct sockaddr_in6 *s6addr = (struct sockaddr_in6 *) addr;
       if (IN6_IS_ADDR_V4MAPPED (&s6addr->sin6_addr))
@@ -271,6 +271,19 @@ sockaddr_as_str (const struct sockaddr_storage *addr, char *str)
                    str, INET6_ADDRSTRLEN);
       else
         inet_ntop (AF_INET6, &s6addr->sin6_addr, str, INET6_ADDRSTRLEN);
+    }
+  else if (addr->ss_family == AF_UNIX)
+    {
+      g_snprintf (str, INET6_ADDRSTRLEN, "unix_socket");
+    }
+  else if (addr->ss_family == AF_UNSPEC)
+    {
+      g_snprintf (str, INET6_ADDRSTRLEN, "unknown_socket");
+    }
+  else
+    {
+      g_snprintf (str, INET6_ADDRSTRLEN,
+                  "type_%d_socket", addr->ss_family);
     }
 }
 
