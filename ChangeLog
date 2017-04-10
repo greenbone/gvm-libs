@@ -1,3 +1,15 @@
+2017-04-10  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
+	Backport r28191, r28192.
+
+	* nasl/nasl_init.c (libfuncs): Add ssh_login_interactive()
+	and ssh_login_interactive_pass().
+
+	* nasl/nasl_ssh.c (nasl_ssh_login_interactive)
+	(nasl_ssh_login_interactive_pass): New functions.
+
+	* nasl/nasl_ssh.h Add new functions prototypes.
+
 2017-04-04  Timo Pollmeier <timo.pollmeier@greenbone.net>
 
 	* base/openvas_networking.c (sockaddr_as_str): Add cases for UNIX,
