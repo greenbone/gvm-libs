@@ -315,7 +315,7 @@ nvticache_add (const nvti_t *nvti, const char *filename)
   if (kb_item_add_str (cache_kb, pattern, nvti_version (nvti), 0))
     goto kb_fail;
   g_snprintf (pattern, sizeof (pattern), "filename:%s:oid", filename);
-  if (kb_item_set_str (cache_kb, pattern, oid, 0))
+  if (kb_item_add_str (cache_kb, pattern, oid, 0))
     goto kb_fail;
   element = nvti->prefs;
   while (element)
@@ -331,7 +331,7 @@ nvticache_add (const nvti_t *nvti, const char *filename)
       element = element->next;
     }
   g_snprintf (pattern, sizeof (pattern), "filename:%s:timestamp", filename);
-  if (kb_item_set_int (cache_kb, pattern, time (NULL)))
+  if (kb_item_add_int (cache_kb, pattern, time (NULL)))
     goto kb_fail;
   cache_saved = 0;
 

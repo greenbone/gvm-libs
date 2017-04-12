@@ -1,5 +1,10 @@
 2017-04-12  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
+	* util/nvticache.c (nvticache_add): Use kb_item_add_*() instead of
+	kb_item_set_*() as values are already deleted.
+
+2017-04-12  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
 	* util/nvticache.c (nvticache_remove): New function.
 	(nvticache_add): Use new function to remove duplicate nvt entries.
 
