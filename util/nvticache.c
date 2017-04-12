@@ -150,6 +150,60 @@ nvticache_save ()
 }
 
 /**
+ * @brief Remove an NVT from the cache.
+ *
+ * @param oid       OID of the NVT to remove.
+ *
+ * @param filename  Filename of NVT to remove.
+ */
+static void
+nvticache_remove (const char *oid, const char *filename)
+{
+  char pattern[2048];
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:filename", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:required_keys", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:mandatory_keys", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:excluded_keys", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:required_udp_ports", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:required_ports", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:dependencies", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:tags", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:cves", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:bids", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:xrefs", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:category", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:timeout", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:family", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:copyright", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:version", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:prefs", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "filename:%s:oid", filename);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "filename:%s:timestamp", filename);
+  kb_del_items (cache_kb, pattern);
+}
+
+/**
  * @brief Add a NVT Information to the cache.
  *
  * @param nvti     The NVT Information to add
@@ -175,9 +229,9 @@ nvticache_add (const nvti_t *nvti, const char *filename)
   if (dummy && strcmp (filename, dummy))
     g_warning ("NVT %s with duplicate OID %s will be replaced with %s",
                dummy, oid, filename);
+  if (dummy)
+    nvticache_remove (oid, dummy);
   g_free (dummy);
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:*", oid);
-  kb_del_items (cache_kb, pattern);
 
   g_snprintf (pattern, sizeof (pattern), "oid:%s:filename", oid);
   if (kb_item_add_str (cache_kb, pattern, filename, 0))
