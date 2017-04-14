@@ -275,6 +275,8 @@ const char *gmp_task_status (entity_t status_response);
 
 int gmp_ping (gnutls_session_t *, int);
 
+int gmp_ping_c (gvm_connection_t *, int, gchar **);
+
 int gmp_authenticate (gnutls_session_t * session, const char *username,
                       const char *password);
 
