@@ -1,3 +1,7 @@
+2017-04-15  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* gmp/gmp.c (gmp_ping_c): Correct check.
+
 2017-04-14  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* gmp/gmp.c (gmp_ping_c): New function.
