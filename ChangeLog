@@ -1,3 +1,8 @@
+2017-04-24  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	* misc/network.c (open_socket), nasl/nasl_isotime.c (ISOTIME_SIZE): Fix
+	compilation with GCC 7.
+
 2017-04-10  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	Backport r28204.
