@@ -1,3 +1,10 @@
+2017-04-28  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	Backport r28291.
+
+	* misc/network.c (recv_line): Don't set timeout for select() call, as
+	client closing connection case is correctly handled.
+
 2017-04-10  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	Backport r28204.
