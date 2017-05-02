@@ -546,6 +546,7 @@ nasl_ntlm2_response (lex_ctxt * lexic)
 {
   char *cryptkey = (char *) get_str_var_by_name (lexic, "cryptkey");
   char *password = get_str_var_by_name (lexic, "password");
+  uint8_t pass_len = get_var_size_by_name (lexic, "password");
   void *nt_hash = get_str_var_by_name (lexic, "nt_hash");
   int hash_len = get_var_size_by_name (lexic, "nt_hash");
 
@@ -561,7 +562,7 @@ nasl_ntlm2_response (lex_ctxt * lexic)
   uint8_t session_key[16];
 
   tree_cell *retc;
-  ntlmssp_genauth_ntlm2 (password, lm_response, nt_response, session_key,
+  ntlmssp_genauth_ntlm2 (password, pass_len, lm_response, nt_response, session_key,
                          cryptkey, nt_hash);
   int len = sizeof (lm_response) + sizeof (nt_response) + sizeof (session_key);
   char *ret = g_malloc0 (len);
@@ -581,6 +582,7 @@ nasl_ntlm_response (lex_ctxt * lexic)
 {
   char *cryptkey = (char *) get_str_var_by_name (lexic, "cryptkey");
   char *password = get_str_var_by_name (lexic, "password");
+  uint8_t pass_len = (uint8_t) get_var_size_by_name (lexic, "password");
   void *nt_hash = get_str_var_by_name (lexic, "nt_hash");
   int hash_len = get_var_size_by_name (lexic, "nt_hash");
   int neg_flags = get_int_var_by_name (lexic, "neg_flags", -1);
@@ -598,7 +600,7 @@ nasl_ntlm_response (lex_ctxt * lexic)
 
   tree_cell *retc;
 
-  ntlmssp_genauth_ntlm (password, lm_response, nt_response, session_key,
+  ntlmssp_genauth_ntlm (password, pass_len, lm_response, nt_response, session_key,
                         cryptkey, nt_hash, neg_flags);
 
   int len = sizeof (lm_response) + sizeof (nt_response) + sizeof (session_key);
