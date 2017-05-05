@@ -1,3 +1,30 @@
+openvas-libraries 8.0.9 (2016-05-05)
+
+This is the ninth maintenance release of the openvas-libraries 8.0 module for
+the Open Vulnerability Assessment System 8 (OpenVAS-8).
+
+This release improves TLS/SSL support and addresses several memory management
+issues along with a number of minor improvements.
+
+Many thanks to everyone who has contributed to this release:
+Hani Benhabiles, Christian Fischer, Juan Jose Nicola and Michael Wiegand.
+
+Main changes compared to 8.0.8:
+* An issue which caused a segmentation fault in the NASL command
+  'get_port_state' under certain circumstances has been addressed.
+* An issue which caused incorrect NTLMSSP hashes under certain circumstances has
+  been addressed.
+* Support for virtual hosts using TLS SNI has been added.
+* SSL handshake handling has been improved.
+* Several memory management issues have been addressed.
+* Support for hostnames without public domain in TLS certificates has
+  been added.
+* Child process signal handling has been improved.
+* Handling of connections closed by the client has been improved.
+* The default connection timeout when detecting services has been increased.
+* The rsync service registration now matches the service name defined by IANA.
+
+
 openvas-libraries 8.0.8 (2016-08-30)
 
 This is the eighth maintenance release of the openvas-libraries 8.0 module for
