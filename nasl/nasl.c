@@ -38,6 +38,7 @@
 #include <../base/nvti.h>
 #include <../misc/prefs.h> /* for prefs_get */
 
+#include <gcrypt.h>             /* for gcry_control */
 #include <glib.h>
 
 #ifndef MAP_FAILED
@@ -125,6 +126,21 @@ parse_script_infos (const char *file, struct arglist *script_infos)
     arg_add_value (script_infos, "OID", ARG_STRING, oid);
 
   return 0;
+}
+
+/**
+ * @brief Initialize Gcrypt.
+ */
+static void
+gcrypt_init ()
+{
+  if (gcry_control (GCRYCTL_ANY_INITIALIZATION_P))
+    return;
+  gcry_check_version (NULL);
+  gcry_control (GCRYCTL_SUSPEND_SECMEM_WARN);
+  gcry_control (GCRYCTL_INIT_SECMEM, 16384, 0);
+  gcry_control (GCRYCTL_RESUME_SECMEM_WARN);
+  gcry_control (GCRYCTL_INITIALIZATION_FINISHED);
 }
 
 /**
@@ -255,6 +271,7 @@ main (int argc, char **argv)
   if (with_safe_checks)
     safe_checks_only++;
 
+  gcrypt_init();
   openvas_SSL_init ();
   if (!nasl_filenames)
     {
