@@ -1,3 +1,68 @@
+2017-05-10  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
+	Backport r25570, r25578, r25579, r25651, r25652, r25703, r25704
+	r25731, r26270, r26296,r26305, r26322, r26330, r26944, r27843, r27854
+	r27928, r28000, r28029, r28093, r27651, r28187. With adjustments due to
+	code changes.
+	Add SSL/TLS cryptography implementations.
+
+	* nasl/nals.c (gcrypt_init): New function to initilalize libgcrypt.
+	(main): Calls gcrypt_init().
+
+	* nasl/nasl_crypto.c (nasl_hmac_sha256): Take only data and key
+	parameters.Constify parameters.
+	(nasl_prf_sha256): New functions. Call nasl_prf().
+	(prf_sha256): New functions. Fix memory leak. Use correct buffer length.
+	Rename to tls_prf(). Add hmac parameter.
+	(hmac_sha512, nasl_hmac_sha512): New functions.
+	nasl_hmac_sha384): New function.
+	(hmac_sha512): Remove function.
+	(nasl_hmac_sha512): Use nasl_hmac().
+	(hmac_sha384, nasl_prf, nasl_prf_sha384): New functions.
+	(hmac_md5_for_prf, hmac_sha1, nasl_tls1_prf): New functions.
+	(nasl_prf): Add support por for tls1_prf.
+	(tls_prf): Add option 2 and 3 for MD5 and SHA1 respectively. Replace
+	the seed with the concatenation of the label and the seed.
+	(tls1_prf): New function. Remove useless memory allocation
+	and improve code style. Free allocated memory in case that md5 or sha1
+	result is NULL before leaving the function.
+
+	* nasl/nasl_crypto.h: Add new function prototypes.
+
+	* nasl/nasl_crypto2.c (nasl_rsa_public_encrypt): New function.
+	Add no padding functionality.
+	(nasl_load_privkey_param): Use gnutls_x509_privkey_import2().
+	(nasl_rsa_get_modulus, nasl_rsa_get_exponent): Added, but then removed
+	functions.
+	(nasl_rc4_encrypt): New functions.
+	(encrypt_data): New functions. Handle GCRY_CIPHER_AES128 case.
+	Add IV parameter. Handle GCRY_CIPHER_AES256 case.
+	Fix used variable for data. Handle GCRY_CIPHER_3DES case.
+	Fix used variable for data.
+	(nasl_aes128_cbc_encrypt, nasl_aes256_cbc_encrypt): New function.
+	(nasl_aes128_ctr_encrypt, nasl_aes256_ctr_encrypt): New functions.
+	(nasl_aes128_gcm_encrypt, nasl_aes256_gcm_encrypt): New functions.
+	(nasl_rsa_private_decrypt): New function.
+	* nasl/nasl_crypto2.h: Add new function header. Remove function headers.
+
+	* nasl/nasl_init.c (libfuncs): Add rsa_get_modulus() and
+	rsa_get_exponent(). Add rsa_public_encrypt.
+	Add HMAC_SHA512(). Capitalize hmac_sha256() for consistency.
+	Add HMAC_SHA384(). Add prf_sha256() function.
+	Remove rsa_get_modulus() and rsa_get_exponent(). Add rc4_encrypt().
+	Add aes128_cbc_encrypt(). Add aes128_cbc_encrypt().
+	Add des_ede_cbc_encrypt(). Add prf_sha384().
+	Add aes128_ctr_encrypt() and aes256_ctr_encrypt().
+	Add aes128_gcm_encrypt(), aes256_gcm_encrypt() and tls1_prf().
+	Add argument to rsa_public_encrypt to set no padding.
+	Add rsa_private_decrypt().
+
+	* nasl/nasl_cert.c (nasl_cert_query): Add modulus and exponent commands.
+
+	* nasl/nasl_text_utils.c (nasl_int): Define r variable as long int
+	instead of int to support bigger numbers.
+
+
 2017-05-02  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	Backport r28307.

@@ -41,6 +41,7 @@
 #include "../misc/prefs.h" /* for prefs_get */
 #include "../misc/nvt_categories.h"
 
+#include <gcrypt.h>             /* for gcry_control */
 #include <glib.h>
 
 #ifndef MAP_FAILED
@@ -124,6 +125,21 @@ nvti_category_is_safe (int category)
       || category == ACT_FLOOD || category == ACT_DENIAL)
     return 0;
   return 1;
+}
+
+/**
+ * @brief Initialize Gcrypt.
+ */
+static void
+gcrypt_init ()
+{
+  if (gcry_control (GCRYCTL_ANY_INITIALIZATION_P))
+    return;
+  gcry_check_version (NULL);
+  gcry_control (GCRYCTL_SUSPEND_SECMEM_WARN);
+  gcry_control (GCRYCTL_INIT_SECMEM, 16384, 0);
+  gcry_control (GCRYCTL_RESUME_SECMEM_WARN);
+  gcry_control (GCRYCTL_INITIALIZATION_FINISHED);
 }
 
 /**
@@ -255,6 +271,7 @@ main (int argc, char **argv)
   if (with_safe_checks)
     prefs_set ("safe_checks", "yes");
 
+  gcrypt_init();
   openvas_SSL_init ();
   if (!nasl_filenames)
     {

@@ -24,6 +24,7 @@ tree_cell *nasl_dh_generate_key (lex_ctxt *);
 tree_cell *nasl_bn_cmp (lex_ctxt *);
 tree_cell *nasl_dh_compute_key (lex_ctxt *);
 tree_cell *nasl_rsa_public_encrypt (lex_ctxt *);
+tree_cell *nasl_rsa_private_decrypt (lex_ctxt *);
 tree_cell *nasl_rsa_public_decrypt (lex_ctxt *);
 tree_cell *nasl_bf_cbc_encrypt (lex_ctxt *);
 tree_cell *nasl_bf_cbc_decrypt (lex_ctxt *);
@@ -35,7 +36,11 @@ tree_cell *nasl_dsa_do_sign (lex_ctxt * lexic);
 tree_cell *nasl_rc4_encrypt (lex_ctxt * lexic);
 tree_cell *nasl_aes128_cbc_encrypt (lex_ctxt * lexic);
 tree_cell *nasl_aes256_cbc_encrypt (lex_ctxt * lexic);
+tree_cell *nasl_aes128_ctr_encrypt (lex_ctxt * lexic);
+tree_cell *nasl_aes256_ctr_encrypt (lex_ctxt * lexic);
 tree_cell *nasl_des_ede_cbc_encrypt (lex_ctxt * lexic);
+tree_cell *nasl_aes128_gcm_encrypt (lex_ctxt * lexic);
+tree_cell *nasl_aes256_gcm_encrypt (lex_ctxt * lexic);
 
 
 int generate_script_signature (char *);
