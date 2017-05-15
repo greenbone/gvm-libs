@@ -1,3 +1,10 @@
+2017-05-15  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	Backport r28378.
+
+	* nasl/nasl_builtin_find_service.c (plugin_do_run): Increase rw_timeout
+	and wrap_timeout to match cnx_timeout.
+
 2017-05-10  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
 	Backport r25570, r25578, r25579, r25651, r25652, r25703, r25704
