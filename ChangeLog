@@ -1,3 +1,11 @@
+2017-05-16  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	* base/hosts.c (gvm_hosts_exclude_with_max): New function.  Body from
+	gvm_hosts_exclude.
+	(gvm_hosts_exclude): Use gvm_hosts_exclude_with_max.
+
+	* base/hosts.h: Add header accordingly.
+
 2017-04-15  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* gmp/gmp.c (gmp_ping_c): Correct check.

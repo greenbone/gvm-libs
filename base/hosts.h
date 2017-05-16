@@ -125,6 +125,9 @@ gvm_hosts_resolve (gvm_hosts_t *);
 int
 gvm_hosts_exclude (gvm_hosts_t *, const gchar *, int);
 
+int
+gvm_hosts_exclude_with_max (gvm_hosts_t *, const gchar *, int, unsigned int);
+
 char *
 gvm_host_reverse_lookup (gvm_host_t *);
 

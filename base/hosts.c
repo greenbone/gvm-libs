@@ -1276,11 +1276,13 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
  * @param[in] hosts         The hosts collection from which to exclude.
  * @param[in] excluded_str  String of hosts to exclude.
  * @param[in] resolve       Boolean. Whether to also resolve hostnames when excluding.
+ * @param[in] max_hosts     Max number of hosts in hosts_str. 0 means unlimited.
  *
  * @return Number of excluded hosts, -1 if error.
  */
 int
-gvm_hosts_exclude (gvm_hosts_t *hosts, const char *excluded_str, int resolve)
+gvm_hosts_exclude_with_max (gvm_hosts_t *hosts, const char *excluded_str,
+                            int resolve, unsigned int max_hosts)
 {
   /**
    * Uses a hash table in order to exclude hosts in O(N+M) time.
@@ -1293,7 +1295,7 @@ gvm_hosts_exclude (gvm_hosts_t *hosts, const char *excluded_str, int resolve)
   if (hosts == NULL || excluded_str == NULL)
     return -1;
 
-  excluded_hosts = gvm_hosts_new (excluded_str);
+  excluded_hosts = gvm_hosts_new_with_max (excluded_str, max_hosts);
   if (excluded_hosts == NULL)
     return -1;
 
@@ -1366,6 +1368,23 @@ gvm_hosts_exclude (gvm_hosts_t *hosts, const char *excluded_str, int resolve)
   g_hash_table_destroy (name_table);
   gvm_hosts_free (excluded_hosts);
   return excluded;
+}
+
+/**
+ * @brief Excludes a set of hosts provided as a string from a hosts collection.
+ * Not to be used while iterating over the single hosts as it resets the
+ * iterator.
+ *
+ * @param[in] hosts         The hosts collection from which to exclude.
+ * @param[in] excluded_str  String of hosts to exclude.
+ * @param[in] resolve       Boolean. Whether to also resolve hostnames when excluding.
+ *
+ * @return Number of excluded hosts, -1 if error.
+ */
+int
+gvm_hosts_exclude (gvm_hosts_t *hosts, const char *excluded_str, int resolve)
+{
+  return gvm_hosts_exclude_with_max (hosts, excluded_str, resolve, 0);
 }
 
 /**
