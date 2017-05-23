@@ -1,3 +1,9 @@
+2017-05-23  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	* util/nvticache.c (nvticache_get_kb): New function.
+
+	* util/nvticache.h: Add function prototype.
+
 2017-05-16  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	* base/hosts.c (gvm_hosts_exclude_with_max): New function.  Body from

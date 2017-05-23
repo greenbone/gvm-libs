@@ -36,12 +36,16 @@
 #include <glib.h>          /* for gchar */
 
 #include "../base/nvti.h"  /* for nvti_t */
+#include "kb.h"            /* for kb_t */
 
 int
 nvticache_init (const char *, const char *);
 
 void
 nvticache_reset ();
+
+kb_t
+nvticache_get_kb ();
 
 void
 nvticache_save ();

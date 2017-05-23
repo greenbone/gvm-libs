@@ -96,6 +96,18 @@ nvticache_free (void)
 }
 
 /**
+ * @brief Return the nvticache kb.
+ *
+ * @return Cache kb.
+ */
+kb_t
+nvticache_get_kb (void)
+{
+  assert (cache_kb);
+  return cache_kb;
+}
+
+/**
  * @brief Check if the nvt for the given filename exists in cache.
  *
  * @param filename The name of the original NVT without the path
