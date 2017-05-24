@@ -38,9 +38,13 @@
 
 /* for nvtis_t */
 #include "nvti.h"
+#include "kb.h"
 
 int
 nvticache_init (const char *, const char *, const char *);
+
+kb_t
+nvticache_get_kb ();
 
 void
 nvticache_reset ();

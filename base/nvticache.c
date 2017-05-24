@@ -85,6 +85,18 @@ nvticache_init (const char *cache, const char *src, const char *kb_path)
 }
 
 /**
+ * @brief Return the nvticache kb.
+ *
+ * @return Cache kb.
+ */
+kb_t
+nvticache_get_kb (void)
+{
+  assert (cache_kb);
+  return cache_kb;
+}
+
+/**
  * @brief Free the nvti cache.
  */
 void

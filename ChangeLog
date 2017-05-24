@@ -1,3 +1,14 @@
+2017-05-24  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	Backport r28454, r28481 and r28482.
+
+	* util/nvticache.c (nvticache_get_kb): New function.
+
+	* util/nvticache.h: Add function prototype.
+
+	* nasl/exec.c (exec_nasl_script): Use nvticache kb for nasl context, to
+	use signature checks from load-up phase.
+
 2017-05-19  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	Backport r28438.
