@@ -1,3 +1,13 @@
+2017-06-13  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	Backport r28581 and r28600.
+
+	* misc/network.c (set_ids_evasion_mode): Check if NIDS/TCP/enabled key
+	is set before checking other NIDS/TCP/* keys.
+
+	* misc/www_funcs.c (build_encode_URL): Check if NIDS/HTTP/enabled key
+	is set before checking other NIDS/HTTP/* keys.
+
 2017-05-17  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
 	Backport r28407. With adjustments due to code changes.
