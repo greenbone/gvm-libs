@@ -126,6 +126,13 @@ build_encode_URL (struct arglist *data, char *method, char *path, char *name,
     else if (*s == '\\')
       n_backslash++;
 
+  if (kb_item_get_int (kb, "NIDS/HTTP/enabled") != 1)
+    {
+      ret2 = g_strdup_printf ("%s %s %s", method, ret, httpver);
+      g_free (ret);
+      return ret2;
+    }
+
   start_with_slash = (*ret == '/');
 
   s = kb_item_get_str (kb, "NIDS/HTTP/CGIpm_param");
