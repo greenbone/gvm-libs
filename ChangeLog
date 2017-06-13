@@ -1,5 +1,12 @@
 2017-06-13  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
+	Backport r28613 and r28629.
+
+	* misc/plugutils.c (plug_get_host_fqdn): Don't fetch vhosts values from
+	kb if not present in prefs.
+
+2017-06-13  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
 	Backport r28581 and r28600.
 
 	* misc/network.c (set_ids_evasion_mode): Check if NIDS/TCP/enabled key
