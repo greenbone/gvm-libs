@@ -1,3 +1,7 @@
+2017-06-19  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* gmp/gmp.c (gmp_task_status): Fix typo.
+
 2017-05-23  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	* util/nvticache.c (nvticache_get_kb): New function.

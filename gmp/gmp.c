@@ -108,7 +108,7 @@
 /* GMP. */
 
 /**
- * @brief Get the task status from an GMP GET_TASKS response.
+ * @brief Get the task status from a GMP GET_TASKS response.
  *
  * @param[in]  response   GET_TASKS response.
  *
