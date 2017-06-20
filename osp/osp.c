@@ -312,7 +312,6 @@ osp_get_scan (osp_connection_t *connection, const char *scan_id,
               char **report_xml, int details, char **error)
 {
   entity_t entity, child;
-  GString *string;
   int progress;
   int rc;
 
@@ -342,6 +341,8 @@ osp_get_scan (osp_connection_t *connection, const char *scan_id,
   progress = atoi (entity_attribute (child, "progress"));
   if (report_xml)
     {
+      GString *string;
+
       string = g_string_new ("");
       print_entity_to_string (child, string);
       *report_xml = g_string_free (string, FALSE);

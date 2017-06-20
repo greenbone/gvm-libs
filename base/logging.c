@@ -171,8 +171,6 @@ load_log_configuration (gchar * config_file)
   /* Temp variable to iterate over groups. */
   gchar **group;
 
-  /* Structure to hold per group settings. */
-  gvm_logging_t *log_domain_entry;
   /* The link list for the structure above and it's tmp helper */
   GSList *log_domain_list = NULL;
 
@@ -194,6 +192,8 @@ load_log_configuration (gchar * config_file)
   /* Iterate till we get to the end of the array. */
   while (*group != NULL)
     {
+      /* Structure to hold per group settings. */
+      gvm_logging_t *log_domain_entry;
       /* Create the struct. */
       log_domain_entry = g_malloc (sizeof (gvm_logging_t));
       /* Set the logdomain. */
@@ -282,7 +282,6 @@ void
 free_log_configuration (GSList * log_domain_list)
 {
   GSList *log_domain_list_tmp;
-  gvm_logging_t *log_domain_entry;
 
   /* Free the struct fields then the struct and then go the next
    * item in the link list.
@@ -292,6 +291,8 @@ free_log_configuration (GSList * log_domain_list)
   log_domain_list_tmp = log_domain_list;
   while (log_domain_list_tmp != NULL)
     {
+      gvm_logging_t *log_domain_entry;
+
       /* Get the list data which is an gvm_logging_t struct. */
       log_domain_entry = log_domain_list_tmp->data;
 
@@ -726,7 +727,6 @@ void
 setup_log_handlers (GSList * gvm_log_config_list)
 {
   GSList *log_domain_list_tmp;
-  gvm_logging_t *log_domain_entry;
   if (gvm_log_config_list != NULL)
     {
       /* Go to the head of the list. */
@@ -734,6 +734,8 @@ setup_log_handlers (GSList * gvm_log_config_list)
 
       while (log_domain_list_tmp != NULL)
         {
+          gvm_logging_t *log_domain_entry;
+
           /* Get the list data which is an gvm_logging_t struct. */
           log_domain_entry = log_domain_list_tmp->data;
 

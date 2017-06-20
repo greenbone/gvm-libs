@@ -1,3 +1,18 @@
+2017-06-20  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Reduce scopes for a number of variables.
+
+	* base/logging.c (load_log_configuration, free_log_configuration,
+	setup_log_handlers): Reduce scope of log_domain_entry.
+
+	* base/pwpolicy.c (gvm_validate_password): Reduce scope of len.
+
+	* gmp/gmp.c (gmp_read_create_response): Reduce scope of id.
+
+	* osp/osp.c (osp_get_scan): Reduce scope of string.
+
+	* util/kb.c (redis_find, redis_flush_all): Reduce scope of rep.
+
 2017-06-19  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* gmp/gmp.c (gmp_task_status): Fix typo.

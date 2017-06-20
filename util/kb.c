@@ -446,7 +446,6 @@ redis_find (const char *kb_path, const char *key)
 {
   struct kb_redis *kbr;
   unsigned int i = 1;
-  redisReply *rep;
 
   kbr = g_malloc0 (sizeof (struct kb_redis) + strlen (kb_path) + 1);
   kbr->kb.kb_ops = &KBRedisOperations;
@@ -454,6 +453,8 @@ redis_find (const char *kb_path, const char *key)
 
   do
     {
+      redisReply *rep;
+
       kbr->rctx = redisConnectUnix (kbr->path);
       if (kbr->rctx == NULL || kbr->rctx->err)
         {
@@ -1031,7 +1032,6 @@ redis_flush_all (kb_t kb, const char *except)
 {
   unsigned int i = 1;
   struct kb_redis *kbr;
-  redisReply *rep;
 
   kbr = redis_kb (kb);
   if (kbr->rctx)
@@ -1040,6 +1040,8 @@ redis_flush_all (kb_t kb, const char *except)
   g_debug ("%s: deleting all DBs at %s except %s", __func__, kbr->path, except);
   do
     {
+      redisReply *rep;
+
       kbr->rctx = redisConnectUnix (kbr->path);
       if (kbr->rctx == NULL || kbr->rctx->err)
         {

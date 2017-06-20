@@ -951,7 +951,7 @@ int
 gmp_read_create_response (gnutls_session_t* session, gchar **uuid)
 {
   int ret;
-  const char *status, *id;
+  const char *status;
   entity_t entity;
 
   /* Read the response. */
@@ -975,6 +975,8 @@ gmp_read_create_response (gnutls_session_t* session, gchar **uuid)
 
   if (uuid)
     {
+      const char *id;
+
       id = entity_attribute (entity, "id");
       if (id == NULL)
         {

@@ -371,7 +371,6 @@ gvm_validate_password (const char *password, const char *username)
   char *ret;
   FILE *fp;
   int lineno;
-  size_t len;
   char line[256];
   char *desc = NULL;
 
@@ -391,6 +390,8 @@ gvm_validate_password (const char *password, const char *username)
   ret = NULL;
   while (fgets (line, DIM(line)-1, fp))
     {
+      size_t len;
+
       lineno++;
       len = strlen (line);
       if (!len || line[len-1] != '\n')
