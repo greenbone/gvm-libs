@@ -688,7 +688,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                 continue;
               if (timeout > 0)
                 {
-                  if ((errno == EAGAIN) || (errno == EAGAIN))
+                  if (errno == EAGAIN)
                     {
                       /* Server still busy, either timeout or try read again. */
                       if ((timeout - (time (NULL) - last_time))

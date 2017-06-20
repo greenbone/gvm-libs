@@ -1,5 +1,10 @@
 2017-06-20  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* util/xmlutils.c (try_read_entity_and_string_s): Simplify
+	conditional.
+
+2017-06-20  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Reduce scopes for a number of variables.
 
 	* base/logging.c (load_log_configuration, free_log_configuration,
