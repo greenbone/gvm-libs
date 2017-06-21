@@ -1567,7 +1567,7 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
           bzero (buffer, sizeof (buffer));
           banner_len = 0;
           snprintf (kb, sizeof (kb), "BannerHex/%d", port);
-          bannerHex = plug_get_key (desc, kb, &type);
+          bannerHex = plug_get_key (desc, kb, &type, 0);
           if (type == ARG_STRING && bannerHex != NULL && bannerHex[0] != '\0')
             {
               int i, c1, c2;
@@ -1609,7 +1609,7 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
           if (banner_len == 0)
             {
               snprintf (kb, sizeof (kb), "Banner/%d", port);
-              banner = plug_get_key (desc, kb, &type);
+              banner = plug_get_key (desc, kb, &type, 0);
               if (banner)
                 {
                   banner_len = strlen ((char *) banner);
@@ -1714,7 +1714,7 @@ plugin_do_run (struct arglist *desc, struct arglist *h, int test_ssl)
               else
                 {
                   snprintf (kb, sizeof (kb), "/tmp/NoBanner/%d", port);
-                  p = plug_get_key (desc, kb, &type);
+                  p = plug_get_key (desc, kb, &type, 0);
                   if (p != NULL)
                     {
                       if (type == ARG_INT)

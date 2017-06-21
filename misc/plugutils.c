@@ -205,7 +205,7 @@ plug_get_host_fqdn (struct arglist *desc)
 
   if (!prefs_get ("vhosts_ip") || !strlen (prefs_get ("vhosts_ip")))
     return g_strdup (hinfos->fqdn);
-  vhosts = plug_get_key (desc, "hostinfos/vhosts", &type);
+  vhosts = plug_get_key (desc, "hostinfos/vhosts", &type, 0);
   if (!vhosts)
     return g_strdup (hinfos->fqdn);
   return vhosts;
@@ -751,7 +751,7 @@ sig_chld (void (*fcn) ())
 }
 
 void *
-plug_get_key (struct arglist *args, char *name, int *type)
+plug_get_key (struct arglist *args, char *name, int *type, int single)
 {
   kb_t kb = plug_get_kb (args);
   struct kb_item *res = NULL, *res_list;
@@ -769,7 +769,7 @@ plug_get_key (struct arglist *args, char *name, int *type)
   if (res == NULL)
     return NULL;
 
-  if (res->next == NULL)        /* No fork - good */
+  if (res->next == NULL || single)        /* No fork - good */
     {
       void *ret;
       if (res->type == KB_TYPE_INT)

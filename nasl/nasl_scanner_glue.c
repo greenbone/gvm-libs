@@ -728,12 +728,12 @@ get_kb_item (lex_ctxt * lexic)
   char *kb_entry = get_str_var_by_num (lexic, 0);
   char *val;
   tree_cell *retc;
-  int type;
+  int type, single = get_int_var_by_num (lexic, 1, 0);
 
   if (kb_entry == NULL)
     return NULL;
 
-  val = plug_get_key (script_infos, kb_entry, &type);
+  val = plug_get_key (script_infos, kb_entry, &type, single);
 
 
   if (val == NULL && type == -1)

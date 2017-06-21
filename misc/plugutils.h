@@ -98,7 +98,7 @@ char * host_get_port_banner(struct arglist *, int);
 void plug_set_key (struct arglist *, char *, int, const void *);
 void plug_replace_key (struct arglist *, char *, int, void *);
 kb_t plug_get_kb (struct arglist *);
-void *plug_get_key (struct arglist *, char *, int *);
+void *plug_get_key (struct arglist *, char *, int *, int);
 
 struct in6_addr *plug_get_host_ip (struct arglist *);
 char *plug_get_host_ip_str (struct arglist *);
