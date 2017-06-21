@@ -1,3 +1,15 @@
+2017-06-21  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
+	Backport r28765. With adjustments due to code changes.
+
+	* nasl/nasl_signature.c (examine_signatures): Add argument.
+	Remove while loop because analyze only one signature.
+	Remove not needed variables. Update documentation.
+	(nasl_verify_signature): Add variables. Load file contents into
+	buffers. Use gpgme_data_new_from_mem() instead of
+	gpgme_data_new_from_file(). Search manually the signature inside the
+	file. Update documentation.
+
 2017-06-13  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	Backport r28613 and r28629.
