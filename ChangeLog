@@ -1,3 +1,11 @@
+2017-06-22  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
+	Backport r28771. With adjustments due to code changes.
+
+	* nasl/nasl_signature.c (nasl_verify_signature): Adjust to handle
+	case where the signature could not be parsed correctly. Initialize
+	variables.
+
 2017-06-21  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
 	Backport r28765. With adjustments due to code changes.
