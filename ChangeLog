@@ -1,3 +1,20 @@
+2017-06-27  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Fix documentation issues.
+
+	* base/array.c (array_terminate): Document missing parameter.
+
+	* base/logging.c: Fix struct name in Doxygen command.
+	(log_func_for_gnutls): Document missing parameters.
+
+	* base/nvti.c (nvtis_new): Document return.
+
+	* base/prefs.c (preferences_get): Document return.
+
+	* util/kb.h (kb_item_free): Document missing parameter.
+
+	* util/nvticache.c (nvticache_init): Document return.
+
 2017-06-20  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* util/xmlutils.c (try_read_entity_and_string_s): Simplify

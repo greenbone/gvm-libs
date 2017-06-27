@@ -59,6 +59,8 @@ prefs_init (void)
 /**
  * @brief Get the pointer to the global preferences structure.
  *        Eventually this function should not be used anywhere.
+ *
+ * @return Pointer to the global preferences structure.
  */
 GHashTable *
 preferences_get (void)

@@ -48,7 +48,7 @@
 
 
 /**
- * @struct gvm_logging
+ * @struct gvm_logging_t
  * @brief Logging stores the parameters loaded from a log configuration
  * @brief file, to be used internally by the gvm_logging module only.
  */
@@ -704,6 +704,10 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
 
 /**
  * @brief This function logs debug messages from gnutls.
+ *
+ * @param level GnuTLS log level (integer from 0 to 99 acoording to GnuTLS
+ * documentation.
+ * @param message GnuTLS log message.
  *
  * To enable GNUTLS debug messages, the environment variable @c
  * OPENVAS_GNUTLS_DEBUG is to be set to the desired log level as

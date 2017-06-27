@@ -87,6 +87,8 @@ array_add (array_t * array, gpointer pointer)
 
 /**
  * @brief Terminate an array.
+ *
+ * @param[in]  array    Array.
  */
 void
 array_terminate (array_t * array)

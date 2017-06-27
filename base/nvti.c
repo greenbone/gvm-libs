@@ -1147,6 +1147,8 @@ free_nvti_for_hash_table (gpointer nvti)
 
 /**
  * @brief Make a collection of NVT Infos.
+ *
+ * @return An empty collection of NVT Infos.
  */
 nvtis_t *
 nvtis_new (void)

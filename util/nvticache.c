@@ -67,6 +67,8 @@ nvticache_initialized (void)
  *
  * @param src           The directory that contains the nvt files.
  * @param kb_path       Path to kb socket.
+ *
+ * @return 0 in case of success, anything else indicates an error.
  */
 int
 nvticache_init (const char *src, const char *kb_path)
