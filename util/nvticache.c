@@ -47,7 +47,7 @@
 #undef  G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  nvticache"
 
-char *src_path = NULL;      /* The directory of the source files. */
+char *src_path = NULL;      /**< The directory of the source files. */
 kb_t cache_kb = NULL;
 int cache_saved = 1;
 

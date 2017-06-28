@@ -76,11 +76,11 @@ typedef struct gvm_hosts gvm_hosts_t;
 struct gvm_host
 {
   union {
-    gchar *name;            /* Hostname. */
-    struct in_addr addr;    /* IPv4 address */
-    struct in6_addr addr6;  /* IPv6 address */
+    gchar *name;            /**< Hostname. */
+    struct in_addr addr;    /**< IPv4 address */
+    struct in6_addr addr6;  /**< IPv6 address */
   };
-  enum host_type type;  /* HOST_TYPE_NAME, HOST_TYPE_IPV4 or HOST_TYPE_IPV6. */
+  enum host_type type;  /**< HOST_TYPE_NAME, HOST_TYPE_IPV4 or HOST_TYPE_IPV6. */
 };
 
 /**
@@ -91,11 +91,11 @@ struct gvm_host
  */
 struct gvm_hosts
 {
-  gchar *orig_str;          /* Original hosts definition string. */
-  GList *hosts;             /* Hosts objects list. */
-  GList *current;           /* Current host object in iteration. */
-  unsigned int count;       /* Number of single host objects in hosts list. */
-  unsigned int removed;     /* Number of duplicate/excluded values. */
+  gchar *orig_str;          /**< Original hosts definition string. */
+  GList *hosts;             /**< Hosts objects list. */
+  GList *current;           /**< Current host object in iteration. */
+  unsigned int count;       /**< Number of single host objects in hosts list. */
+  unsigned int removed;     /**< Number of duplicate/excluded values. */
 };
 
 /* Function prototypes. */
@@ -123,10 +123,10 @@ void
 gvm_hosts_resolve (gvm_hosts_t *);
 
 int
-gvm_hosts_exclude (gvm_hosts_t *, const gchar *, int);
+gvm_hosts_exclude (gvm_hosts_t *, const char *, int);
 
 int
-gvm_hosts_exclude_with_max (gvm_hosts_t *, const gchar *, int, unsigned int);
+gvm_hosts_exclude_with_max (gvm_hosts_t *, const char *, int, unsigned int);
 
 char *
 gvm_host_reverse_lookup (gvm_host_t *);

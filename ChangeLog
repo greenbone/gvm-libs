@@ -1,3 +1,18 @@
+2017-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Fix more documentation issues.
+
+	* base/hosts.h: Use correct comment style for struct and union member
+	documentation so it gets picked up by Doxygen.
+	(gvm_hosts_exclude, gvm_hosts_exclude_with_max): Make prototype match
+	implementation exactly.
+
+	* base/networking.h: Use correct comment style for struct member
+	documentation so it gets picked up by Doxygen.
+
+	* util/nvticache.c: Use correct comment style for variable
+	documentation so it gets picked up by Doxygen.
+
 2017-06-27  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Fix documentation issues.
