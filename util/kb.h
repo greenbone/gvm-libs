@@ -124,8 +124,6 @@ extern const struct kb_operations *KBDefaultOperations;
 
 /**
  * @brief Release a KB item (or a list).
- *
- * @param[in] kb_item The kb_item struct to release.
  */
 void kb_item_free (struct kb_item *);
 

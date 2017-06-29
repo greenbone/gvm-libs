@@ -1,3 +1,9 @@
+2017-06-29  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* util/kb.h (kb_item_free): Remove parameter documentation again,
+	Doxygen handles an undocumented parameter better than a documented
+	unnamed parameter.
+
 2017-06-28  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Fix more documentation issues.
