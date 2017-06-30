@@ -239,7 +239,7 @@ omp_ping_c (openvas_connection_t *connection, int timeout, gchar **version)
     }
   if (status[0] == '2')
     {
-      if (*version)
+      if (version)
         {
           entity_t omp_version;
           omp_version = entity_child (entity, "version");

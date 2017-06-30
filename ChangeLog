@@ -1,3 +1,9 @@
+2017-04-30  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Backport r28250.
+
+	* omp/omp.c (omp_ping_c): Correct check.
+
 2017-06-30  Matthew Mundell <matthew.mundell@greenbone.net>
 
 	Backport r28248.
