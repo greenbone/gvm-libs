@@ -1,3 +1,11 @@
+2017-06-30  Matthew Mundell <matthew.mundell@greenbone.net>
+
+	Backport r28248.
+
+	* omp/omp.c (omp_ping_c): New function.
+
+	* omp/omp.h: Add header accordingly.
+
 2017-06-22  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
 	Backport r28781.

@@ -184,6 +184,80 @@ omp_ping (gnutls_session_t *session, int timeout)
 }
 
 /**
+ * @brief "Ping" the manager.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  timeout  Server idle time before giving up, in milliseconds.  0
+ *                      to wait forever.
+ * @param[out] version  Return location for freshly allocated version if
+ *                      required, else NULL.
+ *
+ * @return 0 on success, 1 if manager closed connection, 2 on timeout,
+ *         -1 on error.
+ */
+int
+omp_ping_c (openvas_connection_t *connection, int timeout, gchar **version)
+{
+  entity_t entity;
+  const char* status;
+  int ret;
+
+  if (*version)
+    *version = NULL;
+
+  /* Send a GET_VERSION request. */
+
+  ret = openvas_connection_sendf (connection, "<get_version/>");
+  if (ret)
+    return ret;
+
+  /* Read the response, with a timeout. */
+
+  entity = NULL;
+  switch (try_read_entity_c (connection, timeout, &entity))
+    {
+      case 0:
+        break;
+      case -4:
+        return 2;
+      default:
+        return -1;
+    }
+
+  /* Check the response. */
+
+  status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (status[0] == '2')
+    {
+      if (*version)
+        {
+          entity_t omp_version;
+          omp_version = entity_child (entity, "version");
+          if (omp_version == NULL)
+            {
+              free_entity (entity);
+              return -1;
+            }
+          *version = strdup (entity_text (omp_version));
+        }
+      free_entity (entity);
+      return 0;
+    }
+  free_entity (entity);
+  return -1;
+}
+
+/**
  * @brief Authenticate with the manager.
  *
  * @param[in]  session   Pointer to GNUTLS session.

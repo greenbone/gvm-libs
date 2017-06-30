@@ -275,6 +275,8 @@ const char *omp_task_status (entity_t status_response);
 
 int omp_ping (gnutls_session_t *, int);
 
+int omp_ping_c (openvas_connection_t *, int, gchar **);
+
 int omp_authenticate (gnutls_session_t * session, const char *username,
                       const char *password);
 
