@@ -147,7 +147,7 @@ if (BUILD_SHARED)
                          ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
                          ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS}
                          ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
-                         ${LINKER_HARDENING_FLAGS})
+                         ${UUID_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
 
 ## Install
