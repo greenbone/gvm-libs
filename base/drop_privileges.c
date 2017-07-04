@@ -30,12 +30,12 @@
  * Basic support to drop privileges.
  */
 
-#include <pwd.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <grp.h>
-
 #include "drop_privileges.h"
+
+#include <grp.h> /* for initgroups */
+#include <pwd.h> /* for passwd, getpwnam */
+#include <sys/types.h>
+#include <unistd.h> /* for geteuid, setgid, setuid */
 
 /**
  * @brief Sets an error and return \param errorcode

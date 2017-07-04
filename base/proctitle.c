@@ -23,13 +23,13 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <glib.h>
-#include <string.h>
+#include "proctitle.h"
+
+#include <glib.h>   /* for g_free, g_malloc0, g_strdup */
 #include <stdio.h>
+#include <string.h> /* for strlen, strdup, bzero, strncpy */
 
 #include <sys/param.h>
-
-#include "proctitle.h"
 
 extern const char *__progname;
 #ifndef __FreeBSD__

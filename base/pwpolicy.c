@@ -31,14 +31,13 @@
  * file.
  */
 
-#include <glib.h>
-#include <glib/gstdio.h>
+#include <errno.h> /* for errno */
+#include <glib.h>  /* for g_strdup_printf, g_ascii_strcasecmp, g_free, ... */
+#include <stdio.h> /* for fclose, fgets, fopen, FILE, ferror, EOF, getc */
 #include <stdlib.h>
-#include <string.h>
-#include <errno.h>
+#include <string.h> /* for strstr, strlen, strncmp */
 
 #include "pwpolicy.h"
-
 
 #ifndef DIM
 # define DIM(v)		     (sizeof(v)/sizeof((v)[0]))

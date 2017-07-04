@@ -34,10 +34,19 @@
  * The module consequently uses glib datatypes.
  */
 
-#include <assert.h>
-#include <netdb.h>
-
 #include "hosts.h"
+
+#include <arpa/inet.h>  /* for inet_pton, inet_ntop */
+#include <assert.h>     /* for assert */
+#include <ctype.h>      /* for isdigit */
+#include <netdb.h>      /* for getnameinfo, NI_NAMEREQD */
+#include <stdint.h>     /* for uint8_t, uint32_t */
+#include <stdio.h>      /* for sscanf, perror */
+#include <stdlib.h>     /* for strtol, atoi */
+#include <string.h>     /* for strchr, memcpy, memcmp, bzero, strcasecmp */
+#include <sys/socket.h> /* for AF_INET, AF_INET6, sockaddr */
+
+#include "networking.h" /* for ipv4_as_ipv6, addr6_as_str, gvm_resolve */
 
 /* Static variables */
 

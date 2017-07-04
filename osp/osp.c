@@ -23,9 +23,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <assert.h>            /* for assert */
+#include <stdlib.h>            /* for atoi */
 #include <sys/un.h>            /* for struct sockaddr_un */
 #include <unistd.h>            /* for close */
-#include <assert.h>            /* for assert */
 
 #include "../base/hosts.h"     /* for gvm_get_host_type */
 #include "../util/xmlutils.h"  /* for entity_t */

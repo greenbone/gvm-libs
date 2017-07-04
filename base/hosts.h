@@ -35,16 +35,8 @@
 #ifndef _GVM_HOSTS_H
 #define _GVM_HOSTS_H
 
-#include <glib.h>
-#include <ctype.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-
-#include "networking.h"
+#include <glib.h>       /* for gchar, GList */
+#include <netinet/in.h> /* for in6_addr, in_addr */
 
 /* Static values */
 

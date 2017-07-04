@@ -31,6 +31,7 @@
  * of the hosts object.
  */
 
+#include <arpa/inet.h>      /* for inet_ntop */
 #include <stdio.h>
 
 #include "../base/hosts.h"

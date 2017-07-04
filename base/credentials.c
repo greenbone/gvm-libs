@@ -25,9 +25,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "strings.h"
 #include "credentials.h"
 
+#include "strings.h" /* for gvm_append_text */
 
 /**
  * @brief Free credentials.

@@ -33,19 +33,18 @@
  * The module reuses glib datatypes and api for memory management and logging.
  */
 
-#include <stdio.h>              /* for fprintf */
-#include <string.h>             /* for strlen */
-#include <stdlib.h>             /* for atoi */
-#define SYSLOG_NAMES
-#include <syslog.h>             /* for syslog */
-#undef SYSLOG_NAMES
-#include <unistd.h>             /* for getpid */
-#include <stdarg.h>
-#include <libgen.h>
-#include <errno.h>
-
 #include "logging.h"
 
+#include <errno.h>  /* for errno */
+#include <libgen.h> /* for dirname */
+#include <stdio.h>  /* for fflush, fprintf, stderr */
+#include <stdlib.h> /* for atoi */
+#include <string.h> /* for strcasecmp, strlen, strerror */
+#define SYSLOG_NAMES
+#include <syslog.h> /* for LOG_INFO, facilitynames, closelog, openlog */
+#undef SYSLOG_NAMES
+#include <time.h>   /* for localtime, time, time_t */
+#include <unistd.h> /* for getpid */
 
 /**
  * @struct gvm_logging_t

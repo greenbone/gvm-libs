@@ -1,3 +1,41 @@
+2017-07-04  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Streamline and document includes, with help from 'iwyu'.
+
+	* base/credentials.c: Sort includes, add reason.
+
+	* base/drop_privileges.c: Sort includes, add reasons.
+
+	* base/hosts.c, base/hosts.h: Move includes to the file where they are
+	used. Remove superfluous include of errno.h. Sort includes, add
+	reasons.
+
+	* base/logging.c, base/logging.h: Move includes to the file where they
+	are used. Sort includes, add more reasons and format them
+	consistently.
+
+	* base/networking.c: Sort includes, add reasons.
+
+	* base/nvti.c: Removed superfluous includes of errno.h, string.h,
+	sys/stat.h and utime.h.
+
+	* base/pidfile.c: Sort includes, add reasons.
+
+	* base/proctitle.c: Sort includes, add reasons.
+
+	* base/pwpolicy.c: Remove superfluous include of glib/gstdio.h. Sort
+	includes, add reasons.
+
+	* base/settings.c: Sort includes, add reasons.
+
+	* base/strings.c: Add reasons.
+
+	* osp/osp.c: Include stdlib.h directly since 'atoi ()' is used and no
+	longer included via base/hosts.h. Sort includes.
+
+	* tests/test-hosts.c: Include arpa/inet.h directly since 'inet_ntop ()'
+	is used and no longer included via base/hosts.h.
+
 2017-07-03  Juan Nicola  <juan.nicola@greenbone.net>
 
 	* utils/CMakeLists.txt: Add UUID_LDFLAGS to target_link_libraries.

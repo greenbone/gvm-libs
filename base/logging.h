@@ -26,8 +26,7 @@
 #ifndef _GVM_LOGGING_H
 #define _GVM_LOGGING_H
 
-#include <glib.h>
-#include <time.h>
+#include <glib.h> /* for GSList, gchar, GLogLevelFlags, gpointer */
 
 GSList *load_log_configuration (gchar *);
 

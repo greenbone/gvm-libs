@@ -28,16 +28,15 @@
  * @brief PID-file management.
  */
 
-#include <glib.h>
-#include <glib/gstdio.h>        /* for g_fopen */
-
-#include <stdio.h>              /* for FILE */
-#include <stdlib.h>
-#include <string.h>             /* for strerror */
-#include <errno.h>              /* for errno */
-#include <unistd.h>             /* for getpid */
-
 #include "pidfile.h"
+
+#include <errno.h>       /* for errno */
+#include <glib.h>        /* for g_free, gchar, g_build_filename, g_strconcat */
+#include <glib/gstdio.h> /* for g_unlink, g_fopen */
+#include <stdio.h>       /* for fclose, FILE */
+#include <stdlib.h>      /* for atoi */
+#include <string.h>      /* for strerror */
+#include <unistd.h>      /* for getpid */
 
 /**
  * @brief GLib log domain.

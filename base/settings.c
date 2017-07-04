@@ -30,10 +30,10 @@
  *
  */
 
-#include <string.h>
-#include <stdio.h>
-
 #include "settings.h"
+
+#include <stdio.h>
+#include <string.h> /* for strlen */
 
 /**
  * @brief Initialise a settings struct from a file.

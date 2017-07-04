@@ -28,10 +28,10 @@
  * @brief String utilities.
  */
 
-#include <assert.h>
-#include <glib.h>
-
 #include "strings.h"
+
+#include <assert.h> /* for assert */
+#include <glib.h>   /* for g_free, g_strconcat, gchar, g_strdup, g_strndup */
 
 /**
  * @brief Append a string to a string variable.

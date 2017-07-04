@@ -23,26 +23,25 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
-#include <ctype.h>
-#include <assert.h>
-#include <errno.h>
-#include <ifaddrs.h>
-#include <netdb.h>
-#include <net/if.h>
-#include <arpa/inet.h>
+#include "networking.h"
 
+#include <arpa/inet.h> /* for inet_ntop */
+#include <assert.h>    /* for assert */
+#include <ctype.h>     /* for isblank */
+#include <errno.h>     /* for errno, EAFNOSUPPORT */
 #include <glib/gstdio.h>
+#include <ifaddrs.h>    /* for ifaddrs, freeifaddrs, getifaddrs */
+#include <net/if.h>     /* for IFNAMSIZ */
+#include <stdint.h>     /* for uint32_t, uint8_t */
+#include <stdlib.h>     /* for atoi, strtol */
+#include <string.h>     /* for memcpy, bzero, strchr, strlen, strcmp, strncpy */
+#include <sys/socket.h> /* for AF_INET, AF_INET6, AF_UNSPEC, sockaddr_storage */
+#include <unistd.h>     /* for close */
 
 #ifdef __FreeBSD__
 #include <netinet/in.h>
 #define s6_addr32 __u6_addr.__u6_addr32
 #endif
-
-#include "networking.h"
 
  /* Global variables */
 
