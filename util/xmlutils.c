@@ -32,14 +32,16 @@
  * There are examples of using this interface in omp.c.
  */
 
-#include <assert.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <glib.h>
-#include <string.h>
-#include <unistd.h>
-
 #include "xmlutils.h"
+
+#include <assert.h>      /* for assert */
+#include <errno.h>       /* for errno, EAGAIN, EINTR */
+#include <fcntl.h>       /* for fcntl, F_SETFL, O_NONBLOCK */
+#include <glib.h>        /* for g_free, GSList, g_markup_parse_context_free */
+#include <glib/gtypes.h> /* for GPOINTER_TO_INT, GINT_TO_POINTER, gsize */
+#include <string.h>      /* for strcmp, strerror, strlen */
+#include <time.h>        /* for time, time_t */
+#include <unistd.h>      /* for ssize_t */
 
 #undef G_LOG_DOMAIN
 /**

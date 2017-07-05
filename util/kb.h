@@ -27,6 +27,8 @@
 #define _GVM_KB_H
 
 #include <assert.h>
+#include <stddef.h>    /* for NULL */
+#include <sys/types.h> /* for size_t */
 
 /**
  * @brief Default KB location.

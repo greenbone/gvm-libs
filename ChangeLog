@@ -1,3 +1,45 @@
+2017-07-05  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Streamline and document includes, with help from 'iwyu'.
+
+	* util/authutils.c: Remove superfluous includes of errno.h,
+	glib/gstdio.h and base/array.h. Add include string.h for 'strcmp ()'.
+	Sort includes, add reasons.
+
+	* util/compressutils.c: Include own header. Sort includes, expand
+	reasons.
+
+	* util/fileutils.c: Include glib/gtypes.h explictly. Sort includes,
+	add and expand reasons.
+
+	* util/gpgmeutils.c: Explicitly include gpg-error.h. Sort includes,
+	expand reasons.
+
+	* util/kb.c: Remove superfluous includes of ctype.h, sys/types.h and
+	sys/stat.h. Sort includes, add reasons.
+
+	* util/kb.h: Explicitly include stddef.h and sys/types.h instead of
+	relying on them being already included by the time kb.h is included.
+
+	* util/ldaputils.c: Explicitly include lber.h and string.h. Remove
+	superfluous includes of assert.h and stdlib.h. Sort includes, add
+	reasons.
+
+	* util/nvticache.c: Sort includes, expand reasons and format them
+	consistently.
+
+	* util/serverutils.c: Explicitly include gnutls/x509.h. Sort includes,
+	add reasons.
+
+	* util/serverutils.h: Removed superfluous include of gnutls/x509.h.
+	Sort includes, add reasons.
+
+	* util/sshutils.c: Include own header. Explicitly include glib.h and
+	gnutls/gnutls.h. Sort includes, add reasons.
+
+	* util/xmlutils.c: Explicitly include glib/gtypes.h and time.h. Sort
+	includes, add reasons.
+
 2017-07-04  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Streamline and document includes, with help from 'iwyu'.

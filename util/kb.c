@@ -24,22 +24,17 @@
  */
 
 #define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-
-#include <errno.h>
-#include <ctype.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
-#include <hiredis/hiredis.h>
-#include <glib.h>
 
 #include "kb.h"
+
+#include <errno.h>            /* for ENOMEM, EINVAL, EPROTO, EALREADY, ECONN... */
+#include <glib.h>             /* for g_log, g_free */
+#include <hiredis/hiredis.h>  /* for redisReply, freeReplyObject, redisCommand */
+#include <stdbool.h>          /* for bool, true, false */
+#include <stdio.h>
+#include <stdlib.h>           /* for atoi */
+#include <string.h>           /* for strlen, strerror, strncpy, memset */
+#include <unistd.h>           /* for sleep */
 
 #undef  G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  kb"

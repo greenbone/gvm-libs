@@ -27,15 +27,13 @@
 
 #ifdef ENABLE_LDAP_AUTH
 
-#include <assert.h>
+#include <glib.h>         /* for g_free, gchar, g_warning, g_strdup */
+#include <glib/gstdio.h>  /* for g_unlink, g_chmod */
+#include <lber.h>         /* for berval */
+#include <ldap.h>         /* for ldap_err2string, LDAP_SUCCESS, ldap_initialize */
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-#include <glib.h>
-#include <glib/gstdio.h>
-
-#include <ldap.h>
+#include <string.h>       /* for strlen, strchr, strstr */
+#include <unistd.h>       /* for close */
 
 #undef G_LOG_DOMAIN
 /**

@@ -28,8 +28,10 @@
 #  define ZLIB_CONST
 #endif
 
-#include <zlib.h>  /* for z_stream */
-#include <glib.h>  /* for gfree() */
+#include "compressutils.h"
+
+#include <glib.h> /* for g_free, g_malloc0 */
+#include <zlib.h> /* for z_stream, Z_NULL, Z_OK, Z_BUF_ERROR, Z_STREAM_END */
 
 /**
  * @brief Compresses data in src buffer.

@@ -42,10 +42,9 @@ extern "C"
 #endif
 #endif
 
-#include <glib.h>
-#include <stdarg.h>
-#include <gnutls/gnutls.h>
-#include <gnutls/x509.h>
+#include <glib.h>          /* for gchar, gboolean, gint */
+#include <gnutls/gnutls.h> /* for gnutls_session_t, gnutls_certificate_cred... */
+#include <stdarg.h>        /* for va_list */
 #ifdef _WIN32
 #include <winsock2.h>
 #else

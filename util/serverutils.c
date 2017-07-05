@@ -37,6 +37,8 @@
 
 #define _GNU_SOURCE
 
+#include "serverutils.h"
+
 #ifdef _WIN32
 
 #define WINVER 0x0501
@@ -47,22 +49,21 @@
 #else
 
 #include <arpa/inet.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <netdb.h>
-#include <signal.h>
+#include <errno.h>      /* for errno, ENOTCONN, EAGAIN */
+#include <fcntl.h>      /* for fcntl, F_SETFL, O_NONBLOCK */
+#include <netdb.h>      /* for addrinfo, freeaddrinfo, gai_strerror, getad... */
+#include <signal.h>     /* for sigaction, SIGPIPE, sigemptyset, SIG_IGN */
+#include <sys/socket.h> /* for shutdown, connect, socket, SHUT_RDWR, SOCK_... */
 #include <sys/types.h>
-#include <sys/socket.h>
 
 #endif
 
-#include <unistd.h>
-#include <gcrypt.h>
-#include <glib.h>
-#include <string.h>
-#include <stdio.h>
-
-#include "serverutils.h"
+#include <gcrypt.h> /* for gcry_control */
+#include <glib.h>   /* for g_warning, g_free, g_debug, gchar, g_markup... */
+#include <gnutls/x509.h> /* for gnutls_x509_crt_..., gnutls_x509_privkey_... */
+#include <stdio.h>  /* for fclose, FILE, SEEK_END, SEEK_SET */
+#include <string.h> /* for strerror, strlen, memset */
+#include <unistd.h> /* for close, ssize_t, usleep */
 
 #undef G_LOG_DOMAIN
 /**

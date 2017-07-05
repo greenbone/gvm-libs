@@ -34,15 +34,14 @@
  * management etc.
  */
 
-/* for struct stat */
-#include <sys/stat.h>
-
-/* for nvticache_t */
 #include "nvticache.h"
-#include "kb.h"
 
-#include <string.h> // for strlen
-#include <assert.h>
+#include <assert.h>   /* for assert */
+#include <string.h>   /* for strcmp */
+#include <sys/stat.h> /* for stat, st_mtime */
+#include <time.h>     /* for time, time_t */
+
+#include "kb.h" /* for kb_del_items, kb_item_get_str, kb_item_add_int */
 
 #undef  G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  nvticache"

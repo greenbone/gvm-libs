@@ -26,14 +26,10 @@
  * USA.
  */
 
-
-#include <errno.h>
-#include <gcrypt.h>
-#include <glib/gstdio.h>
-
 #include "authutils.h"
 
-#include "../base/array.h"
+#include <gcrypt.h> /* for gcry_md_get_algo_dlen, gcry_control, gcry_md_alg... */
+#include <string.h> /* for strcmp */
 
 #undef G_LOG_DOMAIN
 /**

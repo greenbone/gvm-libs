@@ -23,10 +23,13 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <string.h>
-#include <libssh/libssh.h>
-#include <gnutls/x509.h>
-#include <glib/gstdio.h>
+#include "sshutils.h"
+
+#include <glib.h>          /* for g_free, g_strdup, g_strdup_printf */
+#include <gnutls/gnutls.h> /* for gnutls_datum_t */
+#include <gnutls/x509.h> /* for gnutls_x509_privkey_deinit, gnutls_x509_p... */
+#include <libssh/libssh.h> /* for ssh_key_free, ssh_key_type, ssh_key_type_... */
+#include <string.h>        /* for strcmp, strlen */
 
 /**
  * @brief Decrypts a base64 encrypted ssh private key.

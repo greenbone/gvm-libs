@@ -29,12 +29,13 @@
  * @brief GPGME utilities.
  */
 
-#include <locale.h>             /* for LC_CTYPE  */
-#include <unistd.h>             /* for F_OK */
-#include <sys/stat.h>           /* for mkdir */
-#include <errno.h>              /* for ENOENT */
-
 #include "gpgmeutils.h"
+
+#include <errno.h>     /* for ENOENT, errno */
+#include <gpg-error.h> /* for gpg_err_source, gpg_strerror, gpg_error_from_... */
+#include <locale.h>    /* for setlocale, LC_MESSAGES, LC_CTYPE */
+#include <sys/stat.h>  /* for mkdir */
+#include <unistd.h>    /* for access, F_OK */
 
 #undef G_LOG_DOMAIN
 /**
