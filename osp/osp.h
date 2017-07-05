@@ -26,6 +26,8 @@
 #ifndef _GVM_OSP_H
 #define _GVM_OSP_H
 
+#include <glib.h> /* for GHashTable, GSList */
+
 typedef struct osp_connection osp_connection_t;
 
 typedef enum {

@@ -35,20 +35,18 @@
  * There are examples of using this interface in the gvm tests.
  */
 
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include "gmp.h"
 
 #ifdef _WIN32
 #include <winsock2.h>
 #define sleep Sleep
 #endif
 
-#include <errno.h>
+#include <errno.h>               /* for ERANGE, errno */
+#include <stdlib.h>              /* for NULL, strtol, atoi */
+#include <string.h>              /* for strlen, strdup */
 
-#include "../util/serverutils.h"
-
-#include "gmp.h"
+#include "../util/serverutils.h" /* for gvm_server_sendf, gvm_server_sendf_xml */
 
 #undef G_LOG_DOMAIN
 /**

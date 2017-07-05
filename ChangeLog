@@ -2,6 +2,26 @@
 
 	Streamline and document includes, with help from 'iwyu'.
 
+	* gmp/gmp.c: Remove superfluous include of unistd.h. Sort includes,
+	add reasons.
+
+	* gmp/gmp.h: Explicitly include glib.h, glib/gtypes.h,
+	gnutls/gnutls.h, stddef.h and util/serverutils.h. Sort includes, add
+	reasons.
+
+	* osp/osp.c: Explicitly include gnutls/gnutls.h, stdarg.h, string.h,
+	sys/socket.h and util/serverutils.h. Sort includes, add and expand
+	reasons.
+
+	* osp/osp.h: Explicitly include glib.h.
+
+	* tests/test-hosts.c: Explicitly include glib.h, netinet/in.h and
+	sys/socket.h. Add and expand reasons.
+
+2017-07-05  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Streamline and document includes, with help from 'iwyu'.
+
 	* util/authutils.c: Remove superfluous includes of errno.h,
 	glib/gstdio.h and base/array.h. Add include string.h for 'strcmp ()'.
 	Sort includes, add reasons.

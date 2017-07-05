@@ -26,8 +26,14 @@
 #ifndef _GVM_GMP_H
 #define _GVM_GMP_H
 
-#include "../base/array.h"
-#include "../util/xmlutils.h"
+#include <glib.h>                /* for gchar */
+#include <glib/gtypes.h>         /* for gsize */
+#include <gnutls/gnutls.h>       /* for gnutls_session_t */
+#include <stddef.h>              /* for NULL */
+
+#include "../base/array.h"       /* for array_t */
+#include "../util/serverutils.h" /* for gvm_connection_t */
+#include "../util/xmlutils.h"    /* for entity_t */
 
 #ifdef __cplusplus
 extern "C"

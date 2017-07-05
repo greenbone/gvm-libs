@@ -31,10 +31,13 @@
  * of the hosts object.
  */
 
-#include <arpa/inet.h>      /* for inet_ntop */
-#include <stdio.h>
+#include <arpa/inet.h>     /* for inet_ntop */
+#include <glib.h>          /* for g_free */
+#include <netinet/in.h>    /* for INET6_ADDRSTRLEN, INET_ADDRSTRLEN, in6_addr */
+#include <stdio.h>         /* for printf, fprintf, NULL, stderr */
+#include <sys/socket.h>    /* for AF_INET, AF_INET6 */
 
-#include "../base/hosts.h"
+#include "../base/hosts.h" /* for gvm_host_type_str, gvm_host_resolve, gvm_... */
 
 int
 main (int argc, char **argv)

@@ -23,16 +23,20 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <assert.h>            /* for assert */
-#include <stdlib.h>            /* for atoi */
-#include <sys/un.h>            /* for struct sockaddr_un */
-#include <unistd.h>            /* for close */
-
-#include "../base/hosts.h"     /* for gvm_get_host_type */
-#include "../util/xmlutils.h"  /* for entity_t */
-
 #include "osp.h"
 
+#include <assert.h>              /* for assert */
+#include <gnutls/gnutls.h>       /* for gnutls_session_int, gnutls_session_t */
+#include <stdarg.h>              /* for va_list */
+#include <stdlib.h>              /* for NULL, atoi */
+#include <string.h>              /* for strcmp, strlen, strncpy */
+#include <sys/socket.h>          /* for AF_UNIX, connect, socket, SOCK_STREAM */
+#include <sys/un.h>              /* for sockaddr_un, sa_family_t */
+#include <unistd.h>              /* for close */
+
+#include "../base/hosts.h"       /* for gvm_get_host_type */
+#include "../util/serverutils.h" /* for gvm_server_close, gvm_server_open_w... */
+#include "../util/xmlutils.h"    /* for entity_child, entity_text, free_entity */
 
 #undef  G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  osp"
