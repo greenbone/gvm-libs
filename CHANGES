@@ -1,3 +1,29 @@
+openvas-libraries 9.0.2 (2017-07-XX)
+
+This is the second maintenance release of the openvas-libraries 9.0
+module for the Open Vulnerability Assessment System 9 (OpenVAS-9).
+
+Many thanks to everyone who contributed to this release:
+Hani Benhabiles, Francesco Colista, Juan Jose Nicola, Timo Pollmeier and Björn
+Ricks.
+
+Main changes compared to 9.0.1:
+* Several memory management issues have been addressed.
+* NASL cryptography support has been updated.
+* Signature handling has been improved.
+* Child process signal handling has been improved.
+* Support for retrieving the prompt during keyboard-interactive SSH
+  authentication has been added.
+* An issue which caused a segmentation fault in the NASL command
+  'get_port_state' under certain circumstances has been addressed.
+* An issue which caused incorrect NTLMSSP hashes under certain circumstances has
+  been addressed.
+* Handling of connections closed by the client has been improved.
+* The default connection timeout when detecting services has been increased.
+* The handling of a number of frequently requested knowledge base keys has been
+  improved.
+
+
 openvas-libraries 9.0.1 (2017-03-07)
 
 This is the first maintenance release of the openvas-libraries 9.0
