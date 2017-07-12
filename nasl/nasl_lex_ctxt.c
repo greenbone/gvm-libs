@@ -25,6 +25,8 @@
 #include "nasl_global_ctxt.h"
 #include "nasl_lex_ctxt.h"
 
+void init_nasl_library (lex_ctxt *);
+
 lex_ctxt *
 init_empty_lex_ctxt ()
 {
@@ -38,6 +40,13 @@ init_empty_lex_ctxt ()
   c->oid = NULL;
   c->ret_val = NULL;
   c->fct_ctxt = 0;
+
+  /** @todo Initialization of the library seems intuitively be necessary only
+   * once (involves "linking" the nasl functions to c code).  Consider a
+   * "prototype" context that has to be created only once and of which copies
+   * are made when needed. */
+  init_nasl_library (c);
+
   return c;
 }
 
