@@ -317,6 +317,7 @@ inc: INCLUDE '(' string ')'
 
           subctx.always_authenticated = ((naslctxt*)parm)->always_authenticated;
           subctx.kb = ((naslctxt *) parm)->kb;
+          subctx.index = 0;
           $$ = NULL;
           if (init_nasl_ctx(&subctx, $3) >= 0)
             {
@@ -342,8 +343,7 @@ inc: INCLUDE '(' string ')'
                                subctx.line_nb);
                   g_free ($3);
                 }
-	      fclose(subctx.fp);
-	      subctx.fp = NULL;
+              g_free (subctx.buffer);
 	    }
           else
             {
@@ -579,12 +579,10 @@ add_nasl_inc_dir (const char * dir)
  *
  * @param name The filename of the NASL script.
  *
- * @return    0  in case of success. Then, pc->fp is set with
- *               the respective file descriptor
- *            -1 if either the filename was not found/accessible
- *               or the signature verification failed (provided
- *               signature checking is enabled.
- *               Also, the pc->fp is set to NULL.
+ * @return    0  in case of success. Then, file content is set in pc->buffer.
+ *            -1 if either the filename was not found/accessible or the
+ *            signature verification failed (provided signature checking is
+ *            enabled.
  *            In any case, various elements of pc are modified
  *            (initialized);
  */
@@ -593,13 +591,13 @@ init_nasl_ctx(naslctxt* pc, const char* name)
 {
   char *full_name = NULL, key_path[2048];
   GSList * inc_dir = inc_dirs; // iterator for include directories
+  size_t flen = 0;
 
   // initialize if not yet done (for openvas-server < 2.0.1)
   if (! inc_dirs) add_nasl_inc_dir("");
 
   pc->line_nb = 1;
   pc->tree = NULL;
-  pc->fp = NULL;
   if (!parse_len)
     {
       parse_len = 9092;
@@ -614,13 +612,13 @@ init_nasl_ctx(naslctxt* pc, const char* name)
       g_free (full_name);
     full_name = g_build_filename(inc_dir->data, name, NULL);
 
-    if ((pc->fp = fopen(full_name, "r")) != NULL)
+    if ((g_file_get_contents (full_name, &pc->buffer, &flen, NULL)))
       break;
 
     inc_dir = g_slist_next(inc_dir);
   }
 
-  if (! pc->fp) {
+  if (!pc->buffer) {
     log_legacy_write ("%s: Not able to open nor to locate it in include paths",
                       name);
     g_free(full_name);
@@ -659,14 +657,14 @@ init_nasl_ctx(naslctxt* pc, const char* name)
         }
     }
 
-  if (nasl_verify_signature(full_name) != 0)
+  if (nasl_verify_signature (full_name, pc->buffer, flen) != 0)
     {
       log_legacy_write ("%s: Will not execute. Bad or missing signature",
                         full_name);
       if (pc->kb)
         kb_item_add_str (pc->kb, key_path, "0");
-      fclose(pc->fp);
-      pc->fp = NULL;
+      g_free (pc->buffer);
+      pc->buffer = NULL;
       g_free(full_name);
       return -1;
     }
@@ -684,11 +682,7 @@ nasl_clean_ctx(naslctxt* c)
   nasl_dump_tree(c->tree);
 #endif
   deref_cell(c->tree);
-  if (c->fp)
-    {
-      fclose(c->fp);
-      c->fp = NULL;
-    }
+  g_free (c->buffer);
 }
 
 void
@@ -728,25 +722,24 @@ enum lex_state {
   ST_OR };
 
 static int
-mylex(lvalp, parm)
-     YYSTYPE *lvalp;
-     void	*parm;
+mylex (YYSTYPE *lvalp, void *parm)
 {
   char		*p;
   naslctxt	*ctx = parm;
-  FILE		*fp;
-  int		c, st = ST_START, len, r;
+  int c, st = ST_START, len, r;
   long int      x, i;
 
   if (!ctx)
     return -1;
 
-  fp = ctx->fp;
   p = parse_buffer;
   len = 0;
 
-  while ((c = getc(fp)) != EOF)
+  while (1)
     {
+      c = ctx->buffer[ctx->index++];
+      if (c == '\0')
+        break;
       if (c ==  '\n')
 	ctx->line_nb ++;
 
@@ -815,13 +808,14 @@ mylex(lvalp, parm)
 	    goto exit_loop;
 	  else if (c == '\\')
 	    {
-	      c = getc(fp);
+              c = ctx->buffer[ctx->index++];
+              if (c == '\0')
+                {
+                  nasl_perror(NULL, "Unfinished string\n");
+                  goto exit_loop; /* parse error? */
+                }
 	      switch (c)
 		{
-		case EOF:
-		  nasl_perror(NULL, "Unfinished string\n");
-		  goto exit_loop; /* parse error? */
-
 		case '\n':	/* escaped end of line */
 		  ctx->line_nb ++;
 		  break;
@@ -858,8 +852,8 @@ mylex(lvalp, parm)
 		  x = 0;
 		  for (i = 0; i < 2; i ++)
 		    {
-		      c = getc(fp);
-		      if (c == EOF)
+                      c = ctx->buffer[ctx->index++];
+                      if (c == '\0')
 			{
 			  nasl_perror(NULL, "Unfinished \\x escape sequence (EOF)\n");
 			  goto exit_loop;
@@ -875,7 +869,7 @@ mylex(lvalp, parm)
 		      else
 			{
 			  nasl_perror(NULL, "Unfinished \\x escape sequence\n");
-			  ungetc(c, fp);
+                          ctx->index--;
 			  if (c == '\n')
 			    ctx->line_nb --;
 			  break;
@@ -886,7 +880,7 @@ mylex(lvalp, parm)
 
 		default:
 		  nasl_perror(NULL, "Unknown escape sequence \\%c\n", c);
-		  ungetc(c, fp);
+                  ctx->index--;
 		  if (c == '\n')
 		    ctx->line_nb --;
 		  goto exit_loop;
@@ -908,7 +902,7 @@ mylex(lvalp, parm)
 	    }
 	  else
 	    {
-	      ungetc(c, fp);
+              ctx->index--;
 	      if (c == '\n')
 		ctx->line_nb --;
 	      goto exit_loop;
@@ -929,7 +923,7 @@ mylex(lvalp, parm)
 	    }
 	  else
 	    {
-	      ungetc(c, fp);
+              ctx->index--;
 	      if (c == '\n')
 		ctx->line_nb --;
 	      goto exit_loop;
@@ -946,7 +940,7 @@ mylex(lvalp, parm)
 	  else
 	    {
 	      /* This should be a parse error */
-	      ungetc(c, fp);
+              ctx->index--;
 	      if (c ==  '\n')
 		ctx->line_nb --;
 	      goto exit_loop;
@@ -970,7 +964,7 @@ mylex(lvalp, parm)
 		break;
 	      }
 	    }
-	  ungetc(c, fp);
+          ctx->index--;
 	  if (c ==  '\n')
 	    ctx->line_nb --;
 	  goto exit_loop;
@@ -983,7 +977,7 @@ mylex(lvalp, parm)
 	    }
 	  else
 	    {
-	      ungetc(c, fp);
+              ctx->index--;
 	      if (c ==  '\n')
 		ctx->line_nb --;
 	      goto exit_loop;
@@ -998,7 +992,7 @@ mylex(lvalp, parm)
 	    }
 	  else
 	    {
-	      ungetc(c, fp);
+              ctx->index--;
 	      if (c ==  '\n')
 		ctx->line_nb --;
 	      goto exit_loop;
@@ -1008,7 +1002,7 @@ mylex(lvalp, parm)
 	case ST_SPACE:
 	  if (! isspace(c))
 	    {
-	      ungetc(c, fp);
+              ctx->index--;
 	      if (c ==  '\n')
 		ctx->line_nb --;
 	      st = ST_START;
@@ -1025,7 +1019,7 @@ mylex(lvalp, parm)
 	    return NOMATCH;
 	  else
 	    {
-	      ungetc(c, fp);
+              ctx->index--;
 	      if (c ==  '\n')
 		ctx->line_nb --;
 	      if (! isprint(c)) c = '.';
@@ -1046,7 +1040,7 @@ mylex(lvalp, parm)
 	    st = ST_SUP_EXCL;
 	  else
 	    {
-	      ungetc(c, fp);
+              ctx->index--;
 	      if (c ==  '\n')
 		ctx->line_nb --;
 	      return '>';
@@ -1060,7 +1054,7 @@ mylex(lvalp, parm)
 	    st = ST_L_SHIFT;
 	  else
 	    {
-	      ungetc(c, fp);
+              ctx->index--;
 	      if (c ==  '\n')
 		ctx->line_nb --;
 	      return '<';
@@ -1074,7 +1068,7 @@ mylex(lvalp, parm)
 	    st = ST_R_USHIFT;
 	  else
 	    {
-	      ungetc(c, fp);
+              ctx->index--;
 	      if (c ==  '\n')
 		ctx->line_nb --;
 	      return R_SHIFT;
@@ -1087,7 +1081,7 @@ mylex(lvalp, parm)
 	    return R_USHIFT_EQ;
 	  else
 	    {
-	      ungetc(c, fp);
+              ctx->index--;
 	      if (c ==  '\n')
 		ctx->line_nb --;
 	      return R_USHIFT;
@@ -1100,7 +1094,7 @@ mylex(lvalp, parm)
 	    return L_SHIFT_EQ;
 	  else
 	    {
-	      ungetc(c, fp);
+              ctx->index--;
 	      if (c ==  '\n')
 		ctx->line_nb --;
 	      return L_SHIFT;
@@ -1111,7 +1105,7 @@ mylex(lvalp, parm)
 	case ST_AND:
 	  if (c == '&')
 	    return AND;
-	  ungetc(c, fp);
+          ctx->index--;
 	  if (c ==  '\n')
 	    ctx->line_nb --;
 	  return '&';
@@ -1119,7 +1113,7 @@ mylex(lvalp, parm)
 	case ST_OR:
 	  if (c == '|')
 	    return OR;
-	  ungetc(c, fp);
+          ctx->index--;
 	  if (c ==  '\n')
 	    ctx->line_nb --;
 	  return '|';
@@ -1129,7 +1123,7 @@ mylex(lvalp, parm)
 	    return NEQ;
 	  else if (c == '~')
 	    return RE_NOMATCH;
-	  ungetc(c, fp);
+          ctx->index--;
 	  if (c ==  '\n')
 	    ctx->line_nb --;
 	  return '!';
@@ -1141,7 +1135,7 @@ mylex(lvalp, parm)
 	    return RE_MATCH;
 	  else if (c == '>')
 	    return ARROW;
-	  ungetc(c, fp);
+          ctx->index--;
 	  if (c ==  '\n')
 	    ctx->line_nb --;
 	  return '=';
@@ -1152,7 +1146,7 @@ mylex(lvalp, parm)
 	  else if (c == '=')
 	    return PLUS_EQ;
 
-	  ungetc(c, fp);
+          ctx->index--;
 	  if (c ==  '\n')
 	    ctx->line_nb --;
 	  return '+';
@@ -1163,7 +1157,7 @@ mylex(lvalp, parm)
 	  else if (c == '=')
 	    return MINUS_EQ;
 
-	  ungetc(c, fp);
+          ctx->index--;
 	  if (c ==  '\n')
 	    ctx->line_nb --;
 	  return '-';
@@ -1173,7 +1167,7 @@ mylex(lvalp, parm)
 	    return MULT_EQ;
 	  else if (c == '*')
 	    return EXPO;
-	  ungetc(c, fp);
+          ctx->index--;
 	  if (c ==  '\n')
 	    ctx->line_nb --;
 	  return '*';
@@ -1182,7 +1176,7 @@ mylex(lvalp, parm)
 	  if (c == '=')
 	    return DIV_EQ;
 
-	  ungetc(c, fp);
+          ctx->index--;
 	  if (c ==  '\n')
 	    ctx->line_nb --;
 	  return '/';
@@ -1191,7 +1185,7 @@ mylex(lvalp, parm)
 	  if (c == '=')
 	    return MODULO_EQ;
 
-	  ungetc(c, fp);
+          ctx->index--;
 	  if (c ==  '\n')
 	    ctx->line_nb --;
 	  return '%';
