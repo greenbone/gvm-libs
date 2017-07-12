@@ -1,3 +1,13 @@
+2017-07-12  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	Bacport r28888.
+
+	* nasl/nasl_grammar.y (nasl_clean_inc): New function.
+	(INCLUDE): Save parsed tree cells of included files for later re-usage.
+	Significantly improves load-up performance.
+
+	* nasl/nasl.h: Add function prototype.
+
 2017-06-29  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	Backport r28865.
