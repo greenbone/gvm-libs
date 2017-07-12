@@ -145,13 +145,15 @@ tiptop: instr_decl_list
 
 instr_decl_list: instr_decl
 	{
-	  $$ = alloc_tree_cell(LNB, NULL);
+          $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type = NODE_INSTR_L;
 	  $$->link[0] = $1;
 	}
 	| instr_decl instr_decl_list
 	{
-	  $$ = alloc_tree_cell(LNB, NULL);
+          $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type = NODE_INSTR_L;
 	  $$->link[0] = $1;
 	  $$->link[1] = $2;
@@ -161,17 +163,21 @@ instr_decl: instr | func_decl;
 /* Function declaration */
 func_decl: FUNCTION identifier '(' arg_decl ')' block
 	{
-	  $$ = alloc_tree_cell(LNB, $2);
+          $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
+          $$->x.str_val = $2;
 	  $$->type = NODE_FUN_DEF;
 	  $$->link[0] = $4;
 	  $$->link[1] = $6;
 	};
 
 arg_decl: { $$ = NULL; } | arg_decl_1 { $$ = $1; };
-arg_decl_1: identifier { $$ = alloc_tree_cell(LNB, $1); $$->type = NODE_DECL; }
+arg_decl_1: identifier { $$ = alloc_tree_cell(); $$->line_nb = LNB; $$->x.str_val = $1; $$->type = NODE_DECL; }
 	| identifier ',' arg_decl_1
 	{
-	  $$ = alloc_tree_cell(LNB, $1);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
+          $$->x.str_val = $1;
 	  $$->type = NODE_DECL;
 	  $$->link[0] = $3;
 	};
@@ -185,7 +191,8 @@ instr_list: instr
 	    $$ = $2;
 	  else
 	    {
-	      $$ = alloc_tree_cell(LNB, NULL);
+	      $$ = alloc_tree_cell();
+              $$->line_nb = LNB;
 	      $$->type = NODE_INSTR_L;
 	      $$->link[0] = $1;
 	      $$->link[1] = $2;
@@ -199,11 +206,13 @@ instr: simple_instr ';' { $$ = $1; } | block | if_block | loop ;
 simple_instr : aff | post_pre_incr | rep
 	| func_call | ret | inc | loc | glob
 	| BREAK {
-	  $$ = alloc_tree_cell(LNB, NULL);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type =  NODE_BREAK;
 	}
 	| CONTINUE {
-	  $$ = alloc_tree_cell(LNB, NULL);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type =  NODE_CONTINUE;
 	}
 	| /* nop */ { $$ = NULL; };
@@ -211,26 +220,30 @@ simple_instr : aff | post_pre_incr | rep
 /* return */
 ret: RETURN expr
 	{
-	  $$ = alloc_tree_cell(LNB, NULL);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type =  NODE_RETURN;
 	  $$->link[0] = $2;
 	} |
 	RETURN
 	{
-	  $$ = alloc_tree_cell(LNB, NULL);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type =  NODE_RETURN;
 	} ;
 
 /* If block */
 if_block: IF '(' expr ')' instr
 	{
-	  $$ = alloc_tree_cell(LNB, NULL);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type = NODE_IF_ELSE;
 	  $$->link[0] = $3; $$->link[1] = $5;
 	}
 	| IF '(' expr ')' instr ELSE instr
 	{
-	  $$ = alloc_tree_cell(LNB, NULL);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type = NODE_IF_ELSE;
 	  $$->link[0] = $3; $$->link[1] = $5; $$->link[2] = $7;
 	};
@@ -239,7 +252,8 @@ if_block: IF '(' expr ')' instr
 loop : for_loop | while_loop | repeat_loop | foreach_loop ;
 for_loop : FOR '(' aff_func ';' expr ';' aff_func ')' instr
 	{
-	  $$ = alloc_tree_cell(LNB, NULL);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type = NODE_FOR;
 	  $$->link[0] = $3;
 	  $$->link[1] = $5;
@@ -249,14 +263,16 @@ for_loop : FOR '(' aff_func ';' expr ';' aff_func ')' instr
 
 while_loop : WHILE '(' expr ')' instr
 	{
-	  $$ = alloc_tree_cell(LNB, NULL);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type = NODE_WHILE;
 	  $$->link[0] = $3;
 	  $$->link[1] = $5;
 	} ;
 repeat_loop : REPEAT instr UNTIL expr ';'
 	{
-	  $$ = alloc_tree_cell(LNB, NULL);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type = NODE_REPEAT_UNTIL;
 	  $$->link[0] = $2;
 	  $$->link[1] = $4;
@@ -264,7 +280,9 @@ repeat_loop : REPEAT instr UNTIL expr ';'
 
 foreach_loop : FOREACH identifier '(' expr ')'  instr
 	{
-	  $$ = alloc_tree_cell(LNB, $2);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
+          $$->x.str_val = $2;
 	  $$->type = NODE_FOREACH;
 	  $$->link[0] = $4;
 	  $$->link[1] = $6;
@@ -276,7 +294,8 @@ aff_func: aff | post_pre_incr | func_call | /*nop */ { $$ = NULL; };
 /* repetition */
 rep: func_call REP expr
 	{
-	  $$ = alloc_tree_cell(LNB, NULL);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type = NODE_REPEATED;
 	  $$->link[0] = $1;
 	  $$->link[1] = $3;
@@ -319,7 +338,9 @@ inc: INCLUDE '(' string ')'
 /* Function call */
 func_call: identifier '(' arg_list ')'
 	{
-	  $$ = alloc_tree_cell(LNB, $1);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
+          $$->x.str_val = $1;
 	  $$->type = NODE_FUN_CALL;
 	  $$->link[0] = $3;
 	};
@@ -333,13 +354,16 @@ arg_list_1: arg | arg ',' arg_list_1
 
 arg : expr
 	{
-	  $$ = alloc_tree_cell(LNB, NULL);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type = NODE_ARG;
 	  $$->link[0] = $1;
 	}
 	| identifier ':' expr
 	{
-	  $$ = alloc_tree_cell(LNB, $1);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
+          $$->x.str_val = $1;
 	  $$->type = NODE_ARG;
 	  $$->link[0] = $3;
 	} ;
@@ -359,13 +383,15 @@ aff:	lvalue '=' expr
 	| lvalue L_SHIFT_EQ expr { $$ = alloc_expr_cell(LNB, NODE_L_SHIFT_EQ, $1, $3); }
 	;
 
-lvalue:	identifier { $$ = alloc_tree_cell(LNB, $1); $$->type = NODE_VAR; } | array_elem ;
+lvalue:	identifier { $$ = alloc_tree_cell(); $$->line_nb = LNB; $$->x.str_val = $1; $$->type = NODE_VAR; } | array_elem ;
 
 identifier:	IDENT | REP { $$ = strdup("x"); } ; /* => For "x" */
 
 array_elem: identifier '[' array_index ']'
 	{
-	  $$ = alloc_tree_cell(LNB, $1);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
+          $$->x.str_val = $1;
 	  $$->type = NODE_ARRAY_EL;
 	  $$->link[0] = $3;
 	} ;
@@ -440,7 +466,7 @@ atom:	INTEGER {  $$ = alloc_typed_cell(CONST_INT); $$->x.i_val = $1; }
 
 simple_array_data: atom;
 
-var:	var_name { $$ = alloc_tree_cell(LNB, $1); $$->type = NODE_VAR; }
+var:	var_name { $$ = alloc_tree_cell(); $$->line_nb = LNB; $$->x.str_val = $1; $$->type = NODE_VAR; }
 	| array_elem | func_call;
 
 var_name: identifier;
@@ -448,7 +474,9 @@ var_name: identifier;
 ipaddr: INTEGER '.' INTEGER '.' INTEGER '.' INTEGER
 	{
 	  char *s = g_strdup_printf ("%ld.%ld.%ld.%ld", $1, $3, $5, $7);
-	  $$ = alloc_tree_cell(LNB, s);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
+          $$->x.str_val = s;
 	  $$->type = CONST_STR;
 	  $$->size = strlen(s);
 	};
@@ -456,7 +484,8 @@ ipaddr: INTEGER '.' INTEGER '.' INTEGER '.' INTEGER
 /* Local variable declaration */
 loc: LOCAL arg_decl
 	{
-	  $$ = alloc_tree_cell(LNB, NULL);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type = NODE_LOCAL;
 	  $$->link[0] = $2;
 	};
@@ -464,7 +493,8 @@ loc: LOCAL arg_decl
 /* Global variable declaration */
 glob: GLOBAL arg_decl
 	{
-	  $$ = alloc_tree_cell(LNB, NULL);
+	  $$ = alloc_tree_cell();
+          $$->line_nb = LNB;
 	  $$->type = NODE_GLOBAL;
 	  $$->link[0] = $2;
 	};

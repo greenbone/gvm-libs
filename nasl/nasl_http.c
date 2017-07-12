@@ -197,7 +197,7 @@ Accept-Charset: iso-8859-1,*,utf-8\r\n", url, hostheader, ua);
       g_strlcat (str, data, str_length);
     }
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_DATA;
   retc->size = strlen (str);
   retc->x.str_val = str;
@@ -269,7 +269,7 @@ cgibin (lex_ctxt * lexic)
 
   if (path == NULL)
     path = "/cgi-bin:/scripts";
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_DATA;
   retc->x.str_val = g_strdup (path);
   retc->size = strlen (path);

@@ -55,7 +55,7 @@ nasl_string (lex_ctxt * lexic)
   const char *s, *p1;
   char *p2;
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_DATA;
   retc->size = 0;
   retc->x.str_val = g_malloc0 (1);
@@ -148,7 +148,7 @@ nasl_rawstring (lex_ctxt * lexic)
   const char *s;
   int total_len = 0;
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_DATA;
   retc->size = 0;
   retc->x.str_val = g_malloc0 (RAW_STR_LEN + 1);
@@ -260,7 +260,7 @@ nasl_strlen (lex_ctxt * lexic)
   int len = get_var_size_by_num (lexic, 0);
   tree_cell *retc;
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->ref_count = 1;
   retc->type = CONST_INT;
   retc->x.i_val = len;
@@ -276,7 +276,7 @@ nasl_strcat (lex_ctxt * lexic)
   int vi, vn, newlen;
   int sz;
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_DATA;
   retc->size = 0;
   retc->x.str_val = g_malloc0 (1);
@@ -313,7 +313,7 @@ nasl_display (lex_ctxt * lexic)
     putchar (isprint (r->x.str_val[j])
              || isspace (r->x.str_val[j]) ? r->x.str_val[j] : '.');
   fflush (stdout);
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_INT;
   retc->x.i_val = r->size;
   deref_cell (r);
@@ -333,7 +333,7 @@ nasl_hex (lex_ctxt * lexic)
     return NULL;
 
   snprintf (ret, sizeof (ret), "0x%02x", (unsigned char) v);
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_STR;
   retc->size = strlen (ret);
   retc->x.str_val = g_strdup (ret);
@@ -363,7 +363,7 @@ nasl_hexstr (lex_ctxt * lexic)
       snprintf (ret + 2 * i, 3, "%02x", (unsigned char) s[i]);
     }
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_STR;
   retc->size = strlen (ret);
   retc->x.str_val = ret;
@@ -384,7 +384,7 @@ nasl_ord (lex_ctxt * lexic)
       return NULL;
     }
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_INT;
   retc->x.i_val = val[0];
   return retc;
@@ -406,7 +406,7 @@ nasl_tolower (lex_ctxt * lexic)
   for (i = 0; i < str_len; i++)
     str[i] = tolower (str[i]);
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_DATA;
   retc->size = str_len;
   retc->x.str_val = str;
@@ -429,7 +429,7 @@ nasl_toupper (lex_ctxt * lexic)
   for (i = 0; i < str_len; i++)
     str[i] = toupper (str[i]);
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_DATA;
   retc->size = str_len;
   retc->x.str_val = str;
@@ -469,7 +469,7 @@ nasl_ereg (lex_ctxt * lexic)
       return NULL;
     }
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_INT;
   string = g_strdup (string);
   if (multiline)
@@ -675,7 +675,7 @@ nasl_ereg_replace (lex_ctxt * lexic)
   if (r == NULL)
     return FAKE_CELL;
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_DATA;
   retc->size = strlen (r);
   retc->x.str_val = r;
@@ -783,7 +783,7 @@ nasl_egrep (lex_ctxt * lexic)
 #endif
   g_free (string);
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_DATA;
   retc->size = strlen (rets);
   retc->x.str_val = rets;
@@ -829,7 +829,7 @@ nasl_eregmatch (lex_ctxt * lexic)
       return NULL;
     }
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = DYN_ARRAY;
   retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
 
@@ -875,7 +875,7 @@ nasl_substr (lex_ctxt * lexic)
       return NULL;
     }
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = (typ == CONST_STR ? CONST_STR : CONST_DATA);
   if (i1 > i2)
     {
@@ -926,7 +926,7 @@ nasl_insstr (lex_ctxt * lexic)
       return NULL;
     }
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_DATA;
 
   if (i1 > i2)
@@ -975,7 +975,7 @@ nasl_match (lex_ctxt * lexic)
       return NULL;
     }
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_INT;
   retc->x.i_val = str_match (string, pattern, icase);
   return retc;
@@ -1019,7 +1019,7 @@ nasl_split (lex_ctxt * lexic)
 
   keep = get_int_local_var_by_name (lexic, "keep", 1);
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = DYN_ARRAY;
   retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
 
@@ -1101,7 +1101,7 @@ nasl_chomp (lex_ctxt * lexic)
     return NULL;
   len = get_var_size_by_num (lexic, 0);
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_DATA;
 
   for (i = 0; i < len; i++)
@@ -1160,7 +1160,7 @@ nasl_crap (lex_ctxt * lexic)
         }
     }
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_DATA /*CONST_STR */ ;
   retc->x.str_val = g_malloc0 (len + 1);
   retc->size = len;
@@ -1209,7 +1209,7 @@ nasl_strstr (lex_ctxt * lexic)
   if (c == NULL)
     return FAKE_CELL;
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_DATA;
   retc->size = sz_a - (c - a);
   retc->x.str_val = g_memdup (c, retc->size + 1);
@@ -1349,7 +1349,7 @@ nasl_int (lex_ctxt * lexic)
   long int r = get_int_var_by_num (lexic, 0, 0);
   tree_cell *retc;
 
-  retc = alloc_tree_cell (0, NULL);
+  retc = alloc_tree_cell ();
   retc->type = CONST_INT;
   retc->x.i_val = r;
 
