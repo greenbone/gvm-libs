@@ -1,5 +1,24 @@
 2017-07-11  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
+	Backport r28778.
+
+	* nasl/nasl_lex_ctxt.h (lex_ctxt): Change functions element type to
+	GHashTable.
+
+	* nasl/nasl_func.h: Add function prototype.
+	(nasl_func): Remove next_func element.
+
+	* nasl/nasl_func.c (hash_str, free_func_chain): Remove unused functions.
+	(get_func, insert_nasl_func): Adjust for functions element change.
+	(get_func_ref_by_name): Adjust get_func() call.
+	(free_func): Remove static modifier.
+
+	* nasl/nasl_lex_ctxt.c (init_empty_lex_ctxt, free_lex_ctxt): Adjust for
+	functions element change.
+	(dump_ctxt): Remove dumping of functions.
+
+2017-07-11  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
 	Backport r28779.
 
 	* nasl/nasl_func.h (nasl_func): Remove nb_named_args element.
