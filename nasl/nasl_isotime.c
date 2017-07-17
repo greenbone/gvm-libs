@@ -628,10 +628,10 @@ nasl_isotime_is_valid (lex_ctxt *lexic)
         {
         case VAR2_DATA:
           datalen = get_var_size_by_num (lexic, 0);
-          if (datalen < ISOTIME_SIZE - 1)
+          if (datalen < 15)
             break; /* Too short */
-          memcpy (timebuf, string, ISOTIME_SIZE - 1);
-          timebuf[ISOTIME_SIZE -1] = 0;
+          memcpy (timebuf, string, 15);
+          timebuf[15] = 0;
           string = timebuf;
           /* FALLTHRU */
         case VAR2_STRING:
@@ -680,10 +680,10 @@ nasl_isotime_scan (lex_ctxt *lexic)
     {
     case VAR2_DATA:
       datalen = get_var_size_by_num (lexic, 0);
-      if (datalen < ISOTIME_SIZE - 1)
+      if (datalen < 15)
         return NULL; /* Too short */
-      memcpy (timebuf, string, ISOTIME_SIZE - 1);
-      timebuf[ISOTIME_SIZE - 1] = 0;
+      memcpy (timebuf, string, 15);
+      timebuf[15] = 0;
       string = timebuf;
       /* FALLTHRU */
     case VAR2_STRING:
@@ -778,11 +778,11 @@ nasl_isotime_add (lex_ctxt *lexic)
 
   string = get_str_var_by_num (lexic, 0);
   if (!string
-      || get_var_size_by_num (lexic, 0) < ISOTIME_SIZE -1
+      || get_var_size_by_num (lexic, 0) < 15
       || check_isotime (string))
     return NULL;
-  memcpy (timebuf, string, ISOTIME_SIZE -1);
-  timebuf[ISOTIME_SIZE - 1] = 0;
+  memcpy (timebuf, string, 15);
+  timebuf[15] = 0;
 
   nyears = get_int_local_var_by_name (lexic, "years", 0);
   ndays = get_int_local_var_by_name (lexic, "days", 0);
