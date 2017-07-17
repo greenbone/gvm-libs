@@ -91,7 +91,7 @@ cell2bool (lex_ctxt * lexic, tree_cell * c)
 }
 
 static long int
-cell2int3 (lex_ctxt * lexic, tree_cell * c, int warn)
+cell2int3 (lex_ctxt * lexic, tree_cell * c, int warn, named_nasl_var *v)
 {
   tree_cell *c2 = NULL;
   long int x;
@@ -110,13 +110,28 @@ cell2int3 (lex_ctxt * lexic, tree_cell * c, int warn)
       x = strtol (c->x.str_val, &p, 0);
       if (*p != '\0' && warn)
         if (warn)
-          nasl_perror (lexic,
-                       "Converting a non numeric string to integer does not make sense in this context");
+          {
+            if (v)
+              nasl_perror (lexic,
+                           "Converting the non numeric string '%s' in variable "
+                           "'%s' to integer does not make sense in this "
+                           "context", c->x.str_val,
+                           v->var_name != NULL ? v->var_name : "(null)");
+            else
+              nasl_perror (lexic,
+                           "Converting the non numeric string '%s' to "
+                           "integer does not make sense in this context",
+                           c->x.str_val);
+          }
       return x;
+
+    case REF_VAR:
+      v = c->x.ref_val;
+      /* fallthrough */
 
     default:
       c2 = nasl_exec (lexic, c);
-      x = cell2int3 (lexic, c2, warn);
+      x = cell2int3 (lexic, c2, warn, v);
       deref_cell (c2);
       return x;
     }
@@ -125,13 +140,13 @@ cell2int3 (lex_ctxt * lexic, tree_cell * c, int warn)
 static long int
 cell2int (lex_ctxt * lexic, tree_cell * c)
 {
-  return cell2int3 (lexic, c, 0);
+  return cell2int3 (lexic, c, 0, NULL);
 }
 
 static long int
 cell2intW (lex_ctxt * lexic, tree_cell * c)
 {
-  return cell2int3 (lexic, c, 1);
+  return cell2int3 (lexic, c, 1, NULL);
 }
 
 static tree_cell *
@@ -229,7 +244,8 @@ cell_cmp (lex_ctxt * lexic, tree_cell * c1, tree_cell * c2)
   long int x1, x2;
   char *s1, *s2;
   int len_s1, len_s2, len_min;
-
+  gchar *n1 = c1->x.str_val;
+  gchar *n2 = c2->x.str_val;
 
 #if NASL_DEBUG >= 0
   if (c1 == NULL || c1 == FAKE_CELL)
@@ -238,7 +254,7 @@ cell_cmp (lex_ctxt * lexic, tree_cell * c1, tree_cell * c2)
     nasl_perror (lexic, "cell_cmp: c2 == NULL !\n");
 #endif
 
-  /* We first convert the cell to atomic types */
+  /* We first convert the cell to atomic types. */
   c1 = cell2atom (lexic, c1);
   c2 = cell2atom (lexic, c2);
 
@@ -298,8 +314,9 @@ cell_cmp (lex_ctxt * lexic, tree_cell * c1, tree_cell * c2)
       }
   else
     {
-      nasl_perror (lexic, "cell_cmp: comparing %s and %s does not make sense\n",
-                   nasl_type_name (typ1), nasl_type_name (typ2));
+      nasl_perror (lexic, "cell_cmp: comparing '%s' of type %s and '%s' of "
+                   "type %s does not make sense\n",
+                   n1, nasl_type_name (typ1), n2, nasl_type_name (typ2));
       deref_cell (c1);
       deref_cell (c2);
       return 0;
@@ -794,7 +811,8 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
 #endif
 
   if (st)
-    lexic->line_nb = st->line_nb;
+    if (st->line_nb != 0)
+      lexic->line_nb = st->line_nb;
   /* return */
   if (lexic->ret_val != NULL)
     {
@@ -1762,6 +1780,7 @@ exec_nasl_script (struct arglist *script_infos, const char *name,
   lexic = init_empty_lex_ctxt ();
   lexic->script_infos = script_infos;
   lexic->oid = oid;
+  nasl_set_filename (name);
 
   str = prefs_get ("checks_read_timeout");
   if (str != NULL)

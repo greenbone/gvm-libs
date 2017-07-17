@@ -49,6 +49,7 @@ nasl_lint (lex_ctxt * lexic, tree_cell * st)
       pf = get_func_ref_by_name (lexic, st->x.str_val);
       if (pf == NULL)
         {
+          lexic->line_nb = st->line_nb;
           nasl_perror (lexic, "Undefined function '%s'\n", st->x.str_val);
           return NULL;
         }

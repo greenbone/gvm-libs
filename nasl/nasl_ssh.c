@@ -668,13 +668,14 @@ nasl_ssh_connect (lex_ctxt *lexic)
    returned, on success the session id and in this case the slot number
    from the table is stored at R_SLOT.  */
 static int
-verify_session_id (int session_id, const char *funcname, int *r_slot)
+verify_session_id (int session_id, const char *funcname,
+                   int *r_slot, lex_ctxt *lexic)
 {
   int tbl_slot;
   if (session_id <= 0)
     {
       if (funcname)
-        log_legacy_write ("Invalid SSH session id %d passed to %s\n",
+        nasl_perror (lexic, "Bad SSH session id %d passed to %s\n",
                           session_id, funcname);
       return 0;
     }
@@ -684,7 +685,7 @@ verify_session_id (int session_id, const char *funcname, int *r_slot)
   if (!(tbl_slot < DIM (session_table)))
     {
       if (funcname)
-        log_legacy_write ("Bad SSH session id %d passed to %s\n",
+        nasl_perror (lexic, "Bad SSH session id %d passed to %s\n",
                           session_id, funcname);
       return 0;
     }
@@ -736,7 +737,7 @@ nasl_ssh_disconnect (lex_ctxt *lexic)
   int session_id;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, NULL, &tbl_slot))
+  if (!verify_session_id (session_id, NULL, &tbl_slot, lexic))
     return FAKE_CELL;
   do_nasl_ssh_disconnect (tbl_slot);
   return FAKE_CELL;
@@ -843,7 +844,7 @@ nasl_ssh_get_sock (lex_ctxt *lexic)
   tree_cell *retc;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, "ssh_get_sock", &tbl_slot))
+  if (!verify_session_id (session_id, "ssh_get_sock", &tbl_slot, lexic))
     sock = -1;
   else
     sock = session_table[tbl_slot].sock;
@@ -954,7 +955,7 @@ nasl_ssh_set_login (lex_ctxt *lexic)
   int tbl_slot, session_id;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, "ssh_set_login", &tbl_slot))
+  if (!verify_session_id (session_id, "ssh_set_login", &tbl_slot, lexic))
     return NULL;  /* Ooops.  */
   if (!session_table[tbl_slot].user_set)
     {
@@ -1055,7 +1056,7 @@ nasl_ssh_userauth (lex_ctxt *lexic)
   int verbose;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, "ssh_userauth", &tbl_slot))
+  if (!verify_session_id (session_id, "ssh_userauth", &tbl_slot, lexic))
     return NULL;  /* Ooops.  */
   session = session_table[tbl_slot].session;
   verbose = session_table[tbl_slot].verbose;
@@ -1279,7 +1280,8 @@ nasl_ssh_login_interactive (lex_ctxt *lexic)
   int verbose;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, "ssh_login_interactive", &tbl_slot))
+  if (!verify_session_id (session_id, "ssh_login_interactive",
+                          &tbl_slot, lexic))
     return NULL;  /* Ooops.  */
   session = session_table[tbl_slot].session;
   verbose = session_table[tbl_slot].verbose;
@@ -1390,7 +1392,8 @@ nasl_ssh_login_interactive_pass (lex_ctxt *lexic)
   int verbose;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, "ssh_login_interactive_pass", &tbl_slot))
+  if (!verify_session_id (session_id, "ssh_login_interactive_pass",
+                          &tbl_slot, lexic))
     return NULL;  /* Ooops.  */
   session = session_table[tbl_slot].session;
   verbose = session_table[tbl_slot].verbose;
@@ -1606,7 +1609,7 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
   int to_stdout, to_stderr, compat_mode, compat_buf_inuse;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, "ssh_request_exec", &tbl_slot))
+  if (!verify_session_id (session_id, "ssh_request_exec", &tbl_slot, lexic))
     return NULL;
   session = session_table[tbl_slot].session;
 
@@ -1719,7 +1722,7 @@ nasl_ssh_get_issue_banner (lex_ctxt *lexic)
   tree_cell *retc;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, "ssh_get_issue_banner", &tbl_slot))
+  if (!verify_session_id (session_id, "ssh_get_issue_banner", &tbl_slot, lexic))
     return NULL;
   session = session_table[tbl_slot].session;
 
@@ -1770,7 +1773,8 @@ nasl_ssh_get_server_banner (lex_ctxt *lexic)
   tree_cell *retc;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, "ssh_get_server_banner", &tbl_slot))
+  if (!verify_session_id (session_id, "ssh_get_server_banner",
+                          &tbl_slot, lexic))
     return NULL;
   session = session_table[tbl_slot].session;
 
@@ -1813,7 +1817,7 @@ nasl_ssh_get_host_key (lex_ctxt *lexic)
   tree_cell *retc;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, "ssh_get_host_key", &tbl_slot))
+  if (!verify_session_id (session_id, "ssh_get_host_key", &tbl_slot, lexic))
     return NULL;
   session = session_table[tbl_slot].session;
 
@@ -1857,7 +1861,7 @@ nasl_ssh_get_auth_methods (lex_ctxt *lexic)
   tree_cell *retc;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, "ssh_get_auth_methods", &tbl_slot))
+  if (!verify_session_id (session_id, "ssh_get_auth_methods", &tbl_slot, lexic))
     return NULL;
 
   if (!session_table[tbl_slot].user_set && !nasl_ssh_set_login (lexic))
@@ -1945,7 +1949,7 @@ nasl_ssh_shell_open (lex_ctxt *lexic)
   tree_cell *retc;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, "ssh_shell_open", &tbl_slot))
+  if (!verify_session_id (session_id, "ssh_shell_open", &tbl_slot, lexic))
     return NULL;
   session = session_table[tbl_slot].session;
   channel = ssh_channel_new (session);
@@ -2027,7 +2031,7 @@ nasl_ssh_shell_read (lex_ctxt *lexic)
   GString *response;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, "ssh_shell_read", &tbl_slot))
+  if (!verify_session_id (session_id, "ssh_shell_read", &tbl_slot, lexic))
     return NULL;
   channel = session_table[tbl_slot].channel;
 
@@ -2064,7 +2068,7 @@ nasl_ssh_shell_write (lex_ctxt *lexic)
   char *cmd;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, "ssh_shell_write", &tbl_slot))
+  if (!verify_session_id (session_id, "ssh_shell_write", &tbl_slot, lexic))
     goto write_ret;
   if (!(channel = session_table[tbl_slot].channel))
     {
@@ -2109,7 +2113,7 @@ nasl_ssh_shell_close (lex_ctxt *lexic)
   int tbl_slot, session_id;
 
   session_id = get_int_var_by_num (lexic, 0, -1);
-  if (!verify_session_id (session_id, "ssh_shell_close", &tbl_slot))
+  if (!verify_session_id (session_id, "ssh_shell_close", &tbl_slot, lexic))
     return NULL;
   if (session_table[tbl_slot].channel)
     {
@@ -2119,4 +2123,3 @@ nasl_ssh_shell_close (lex_ctxt *lexic)
 
   return NULL;
 }
-

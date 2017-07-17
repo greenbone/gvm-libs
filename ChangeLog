@@ -1,3 +1,57 @@
+2017-07-17  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
+	Backport r28568, r28788, r28859, r28978, r28999, r29013, r29038,
+	r29046, r29070. With adjustments due to code changes.
+
+	* nasl/nasl_debug.c (nasl_set_filename, nasl_get_filename)
+	(nasl_set_function_filename, nasl_set_function_name)
+	(nasl_get_function_name): New function.
+	(nasl_perror): Climb up in the context to find	a line number to
+	be printed in the error message. Use value set by new function.
+	Add the function name to the message.
+
+	* nasl/nasl_debug.h: Add new function prototype.
+
+	* nasl/nasl_grammar.y (init_nasl_ctxt): Call nasl_set_filename().
+	(FUNCTION, INCLUDE): Use new functions to set
+	matching filename for defined functions.
+	(nasl_clean_inc): Check for null value
+
+	* nasl/nasl_func.c (nasl_func_call): Set correct filename for executed
+	function. Set the function name.
+
+	* nasl/nasl_var.c (nasl_get_var_by_num, get_array_elem): Add info
+	to the error message.
+
+	* nasl/nasl_text_utils.c (nasl_substr): Show a more specific error
+	message for nasl_substr() errors.
+	(nasl_string): Add the string in the error message for the case
+	"unknow scape sequence".
+
+	* nasl/lint.c (nasl_lint_call): Add the line number to the context
+	to be showed in case of error.
+
+	* nasl/exec.c (nasl_exec): Call nasl_set_filename(). Set line_nb only
+	if it is differente to zero.
+	(exec_nasl_script): Call nasl_set_filename().
+	(cell2int3): Receive a new argument with variable
+	value and name to give more information in a error message.
+	Handle REF_VAR case to take variable value and name.
+	(cell2intW, cell2int): Add parameter in call to cell2int3().
+	(cell_cmp): Add the variable name or its content to
+	the error message passed to nasl_perror.
+
+	* nasl/nasl_ssh.c (verify_session_id): Receive lexic as new parameter.
+	Used nasl_perror() instead of log_legacy_write() to be able to show the
+	NVT name in case of bad/invalid SSH session_id.
+	(nasl_ssh_disconnect, nasl_ssh_get_sock, nasl_ssh_set_login)
+	(nasl_ssh_userauth, nasl_ssh_login_interactive)
+	(nasl_ssh_login_interactive_pass, nasl_ssh_request_exec)
+	(nasl_ssh_get_issue_banner, nasl_ssh_get_server_banner)
+	(nasl_ssh_get_auth_methods, nasl_ssh_shell_open, nasl_ssh_shell_read)
+	(nasl_ssh_shell_write, nasl_ssh_shell_close): Pass lexic as argument
+	when it calls verify_session_id().
+
 2017-07-17  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_isotime.c (nasl_isotime_is_valid, nasl_isotime_scan)

@@ -23,4 +23,18 @@ void nasl_perror (lex_ctxt *, char *, ...);
 void nasl_trace (lex_ctxt *, char *, ...);
 int nasl_trace_enabled (void);
 
+void
+nasl_set_filename (const char *);
+
+void
+nasl_set_function_filename (const char *);
+
+const char *
+nasl_get_filename (const char *);
+
+void
+nasl_set_function_name (const char *);
+
+const char *
+nasl_get_function_name (void);
 #endif
