@@ -675,7 +675,7 @@ verify_session_id (int session_id, const char *funcname,
   if (session_id <= 0)
     {
       if (funcname)
-        nasl_perror (lexic, "Bad SSH session id %d passed to %s\n",
+        nasl_perror (lexic, "Invalid SSH session id %d passed to %s\n",
                           session_id, funcname);
       return 0;
     }

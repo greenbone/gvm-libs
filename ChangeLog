@@ -1,3 +1,8 @@
+2017-07-18  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
+	* nasl/nasl_ssh.c (verify_session_id): Correct error message for
+	Invalid session id.
+
 2017-07-17  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
 	Backport r28568, r28788, r28859, r28978, r28999, r29013, r29038,
