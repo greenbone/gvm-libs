@@ -1,3 +1,10 @@
+2017-07-24  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
+	Backport r29164.
+
+	* nasl/exec.c (cell_cmp): Use cell2str() to copy the cell's values
+	since it checks if the cell is NULL and	then they are freed conveniently.
+
 2017-07-18  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
 	* nasl/nasl_ssh.c (verify_session_id): Correct error message for

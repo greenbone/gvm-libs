@@ -244,8 +244,7 @@ cell_cmp (lex_ctxt * lexic, tree_cell * c1, tree_cell * c2)
   long int x1, x2;
   char *s1, *s2;
   int len_s1, len_s2, len_min;
-  gchar *n1 = c1->x.str_val;
-  gchar *n2 = c2->x.str_val;
+  gchar *n1, *n2;
 
 #if NASL_DEBUG >= 0
   if (c1 == NULL || c1 == FAKE_CELL)
@@ -254,6 +253,9 @@ cell_cmp (lex_ctxt * lexic, tree_cell * c1, tree_cell * c2)
     nasl_perror (lexic, "cell_cmp: c2 == NULL !\n");
 #endif
 
+  n1 = cell2str (lexic, c1);
+  n2 = cell2str (lexic, c2);
+  
   /* We first convert the cell to atomic types. */
   c1 = cell2atom (lexic, c1);
   c2 = cell2atom (lexic, c2);
@@ -277,6 +279,8 @@ cell_cmp (lex_ctxt * lexic, tree_cell * c1, tree_cell * c2)
     {
       deref_cell (c1);
       deref_cell (c2);
+      g_free (n1);
+      g_free (n2);
       return 0;
     }
 
@@ -301,6 +305,8 @@ cell_cmp (lex_ctxt * lexic, tree_cell * c1, tree_cell * c2)
       {
         deref_cell (c1);
         deref_cell (c2);
+        g_free (n1);
+        g_free (n2);
         return -1;              /* NULL is smaller than anything else */
       }
   else if (typ2 == 0)           /* 2nd argument is null */
@@ -310,6 +316,8 @@ cell_cmp (lex_ctxt * lexic, tree_cell * c1, tree_cell * c2)
       {
         deref_cell (c1);
         deref_cell (c2);
+        g_free (n1);
+        g_free (n2);
         return 1;               /* Anything else is greater than NULL  */
       }
   else
@@ -319,8 +327,13 @@ cell_cmp (lex_ctxt * lexic, tree_cell * c1, tree_cell * c2)
                    n1, nasl_type_name (typ1), n2, nasl_type_name (typ2));
       deref_cell (c1);
       deref_cell (c2);
+      g_free (n1);
+      g_free (n2);
       return 0;
     }
+  g_free (n1);
+  g_free (n2);
+
 
   switch (typ)
     {
