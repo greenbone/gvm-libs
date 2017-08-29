@@ -198,10 +198,12 @@ configure_file (VERSION.in ${CMAKE_BINARY_DIR}/VERSION @ONLY)
 
 ## Program
 
-add_subdirectory (base)
-add_subdirectory (util)
-add_subdirectory (osp)
-add_subdirectory (gmp)
+if (NOT SKIP_SRC)
+  add_subdirectory (base)
+  add_subdirectory (util)
+  add_subdirectory (osp)
+  add_subdirectory (gmp)
+endif (NOT SKIP_SRC)
 
 ## Documentation
 

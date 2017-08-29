@@ -1,3 +1,12 @@
+2017-08-29  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Make it possible skip dependency checks during configuration. This
+	makes it possible to generate documentation and source tarballs in
+	environments where said dependencies are not present.
+
+	* CMakeLists.txt: Do not consider subdirectories containing code and
+	dependency checks when SKIP_SRC is defined.
+
 2017-08-04  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Switch to NEW behavior for CMake policy CMP0005. The policy was
