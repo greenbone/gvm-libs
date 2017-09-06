@@ -75,7 +75,7 @@
 
 /* The type used to represent the time here is a string with a fixed
    length.  */
-#define ISOTIME_SIZE 32
+#define ISOTIME_SIZE 16
 typedef char my_isotime_t[ISOTIME_SIZE];
 
 /* Correction used to map to real Julian days. */
@@ -628,10 +628,10 @@ nasl_isotime_is_valid (lex_ctxt *lexic)
         {
         case VAR2_DATA:
           datalen = get_var_size_by_num (lexic, 0);
-          if (datalen < 15)
+          if (datalen < ISOTIME_SIZE - 1)
             break; /* Too short */
-          memcpy (timebuf, string, 15);
-          timebuf[15] = 0;
+          memcpy (timebuf, string, ISOTIME_SIZE - 1);
+          timebuf[ISOTIME_SIZE -1] = 0;
           string = timebuf;
           /* FALLTHRU */
         case VAR2_STRING:
@@ -680,10 +680,10 @@ nasl_isotime_scan (lex_ctxt *lexic)
     {
     case VAR2_DATA:
       datalen = get_var_size_by_num (lexic, 0);
-      if (datalen < 15)
+      if (datalen < ISOTIME_SIZE - 1)
         return NULL; /* Too short */
-      memcpy (timebuf, string, 15);
-      timebuf[15] = 0;
+      memcpy (timebuf, string, ISOTIME_SIZE - 1);
+      timebuf[ISOTIME_SIZE - 1] = 0;
       string = timebuf;
       /* FALLTHRU */
     case VAR2_STRING:
@@ -778,11 +778,11 @@ nasl_isotime_add (lex_ctxt *lexic)
 
   string = get_str_var_by_num (lexic, 0);
   if (!string
-      || get_var_size_by_num (lexic, 0) < 15
+      || get_var_size_by_num (lexic, 0) < ISOTIME_SIZE -1
       || check_isotime (string))
     return NULL;
-  memcpy (timebuf, string, 15);
-  timebuf[15] = 0;
+  memcpy (timebuf, string, ISOTIME_SIZE -1);
+  timebuf[ISOTIME_SIZE - 1] = 0;
 
   nyears = get_int_local_var_by_name (lexic, "years", 0);
   ndays = get_int_local_var_by_name (lexic, "days", 0);
