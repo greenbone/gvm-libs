@@ -92,13 +92,13 @@ else (MINGW)
   set (FILES arglists.c bpf_share.c ftp_funcs.c ids_send.c ldap_connect_auth.c
              network.c openvas_ssh.c openvas_auth.c openvas_logging.c
              openvas_server.c openvas_uuid.c plugutils.c popen.c radius.c
-             openvas_proctitle.c prefs.c www_funcs.c pcap.c)
+             openvas_proctitle.c prefs.c www_funcs.c pcap.c vendorversion.c)
 
   set (HEADERS arglists.h bpf_share.h ftp_funcs.h ldap_connect_auth.h
                network.h pcap_openvas.h plugutils.h popen.h openvas_proctitle.h
                openvas_auth.h openvas_logging.h openvas_server.h openvas_uuid.h
                openvas_ssh.h prefs.h nvt_categories.h internal_com.h www_funcs.h
-               radius.h)
+               radius.h vendorversion.h)
 endif (MINGW)
 
 if (BUILD_WITH_LDAP)

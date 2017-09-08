@@ -30,6 +30,7 @@
 #include <sys/wait.h>
 
 #include "../misc/network.h"
+#include "../misc/vendorversion.h"
 
 #include "nasl.h"
 #include "nasl_lex_ctxt.h"
@@ -167,6 +168,7 @@ main (int argc, char **argv)
   static gchar *trace_file = NULL;
   static gchar *config_file = NULL;
   static gchar *source_iface = NULL;
+  static gchar *vendor_version_string = NULL;
   static gboolean with_safe_checks = FALSE;
   static gboolean authenticated_mode = FALSE;
   static gchar *include_dir = NULL;
@@ -197,6 +199,8 @@ main (int argc, char **argv)
     {"source-iface", 'e', 0, G_OPTION_ARG_STRING, &source_iface,
      "Source network interface for established connections.",
      "<iface_name>"},
+    {"vendor-version", '\0', 0, G_OPTION_ARG_STRING, &vendor_version_string,
+     "Use <string> as vendor version.", "<string>"},
     {"safe", 's', 0, G_OPTION_ARG_NONE, &with_safe_checks,
      "Specifies that the script should be run with 'safe checks' enabled",
      NULL},
@@ -278,6 +282,9 @@ main (int argc, char **argv)
       fprintf (stderr, "Error. No input file(s) specified !\n");
       exit (1);
     }
+
+  if (vendor_version_string)
+    vendor_version_set (vendor_version_string);
 
 #ifndef _CYGWIN_
   if (!(mode & (NASL_EXEC_PARSE_ONLY | NASL_LINT)) && geteuid ())

@@ -1,3 +1,24 @@
+2017-09-08  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
+	Backport r29523 and r29532 with adjustments due to code changes.
+
+	* misc/CMakeLists.txt: Set new file vendorversion.c.
+
+	* misc/vendorversion.c: New file with functions to set and to get
+	the vendor version.
+
+	* misc/vendorversion.h: New file with functions prototypes.
+
+	* nasl/nasl.c: Include ../misc/vendorversion.h.
+	(main) Add new command line option vendor-version.
+
+	* nasl/init.c (libfuncs): Add vendor_version().
+
+	* nasl/nasl_scanner_glue.c: Include ../misc/vendorversion.h.
+	(nasl_vendor_version): New function.
+
+	* nasl/nasl_scanner_glue.h: Add function prototype.
+
 2017-09-06  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_isotime.c: Revert changes in r29097 and 28274.
