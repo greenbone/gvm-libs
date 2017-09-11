@@ -1,3 +1,15 @@
+2017-09-11  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Reverting the backports made in r28359 from 2017-05-10. The changes
+	are too comprehensive for the old stable branch and would have
+	increased the minimum required libgcrypt version, causing builds to
+	fail in previously supported platforms.
+
+	* nasl/nasl.c, nasl/nasl_cert.c, nasl/nasl_crypto.c,
+	nasl/nasl_crypto.h, nasl/nasl_crypto2.c, nasl/nasl_crypto2.h,
+	nasl/nasl_init.c, nasl/nasl_text_utils.c: Revert changes made in
+	r28359.
+
 2017-06-22  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
 	Backport r28771. With adjustments due to code changes.

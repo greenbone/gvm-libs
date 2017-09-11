@@ -251,7 +251,7 @@ nasl_load_privkey_param (lex_ctxt * lexic, const char *priv_name,
                          const char *passphrase_name)
 {
   char *priv = NULL, *passphrase = NULL;
-  long privlen;
+  long privlen, passphraselen;
   gnutls_x509_privkey_t privkey = NULL;
   gnutls_datum_t pem;
   int err;
@@ -262,6 +262,8 @@ nasl_load_privkey_param (lex_ctxt * lexic, const char *priv_name,
 
   /* passphrase */
   passphrase = get_str_local_var_by_name (lexic, passphrase_name);
+  passphraselen = get_var_size_by_name (lexic, passphrase_name);
+
   pem.data = (unsigned char *) priv;
   pem.size = privlen;
 
@@ -272,16 +274,28 @@ nasl_load_privkey_param (lex_ctxt * lexic, const char *priv_name,
       goto fail;
     }
 
-  if (passphrase && !*passphrase)
-    passphrase = NULL;
-  err = gnutls_x509_privkey_import2
-         (privkey, &pem, GNUTLS_X509_FMT_PEM, passphrase,
-          passphrase ? 0 : GNUTLS_PKCS_PLAIN);
-  if (err)
+  if (passphraselen == 0 || passphrase[0] == 0)
     {
-      print_tls_error (lexic, "gnutls_x509_privkey_import_pkcs8", err);
-      goto fail;
+      err = gnutls_x509_privkey_import (privkey, &pem, GNUTLS_X509_FMT_PEM);
+      if (err)
+        {
+          print_tls_error (lexic, "gnutls_x509_privkey_import", err);
+          goto fail;
+        }
     }
+  else
+    {
+      err =
+        gnutls_x509_privkey_import_pkcs8 (privkey, &pem, GNUTLS_X509_FMT_PEM,
+                                          passphrase, 0);
+      if (err)
+        {
+          print_tls_error (lexic, "gnutls_x509_privkey_import_pkcs8", err);
+          goto fail;
+        }
+    }
+
+
   return privkey;
 
 fail:
@@ -649,180 +663,6 @@ strip_pkcs1_padding (tree_cell * retc)
     }
 
   return 0;
-}
-
-/**
- * nasl function
- *
- *  rsa_public_encrypt(data:data, e:mpi_e, n:mpi_n, padd:<TRUE:FALSE>)
- *
- * Encrypt the provided data  with the public RSA key given by its parameters e
- * and n. The return value is the encrypted data.
- */
-tree_cell *
-nasl_rsa_public_encrypt (lex_ctxt * lexic)
-{
-  tree_cell *retc = NULL;
-  gcry_mpi_t e = NULL, n = NULL, dt = NULL;
-  gcry_sexp_t key = NULL, data = NULL, encrypted = NULL;
-  gcry_error_t err;
-  char *pad = (char *) get_str_var_by_name (lexic, "pad");
-
-  if (pad == NULL)
-    {
-      nasl_perror (lexic,
-                   "Syntax : rsa_public_encrypt(data:<d>,"
-                   "n:<n>, e:<e>, pad:<pad>)");
-      return NULL;
-    }
-  retc = alloc_tree_cell (0, NULL);
-  retc->type = CONST_DATA;
-
-  if (mpi_from_named_parameter (lexic, &dt, "data", "nasl_rsa_public_encrypt") <
-      0)
-    goto fail;
-  if (mpi_from_named_parameter (lexic, &e, "e", "nasl_rsa_public_encrypt") < 0)
-    goto fail;
-  if (mpi_from_named_parameter (lexic, &n, "n", "nasl_rsa_public_encrypt") < 0)
-    goto fail;
-
-  err = gcry_sexp_build (&key, NULL, "(public-key (rsa (n %m) (e %m)))", n, e);
-  if (err)
-    {
-      print_gcrypt_error (lexic, "gcry_sexp_build pubkey", err);
-      goto fail;
-    }
-
-  if (strcmp (pad,"TRUE") == 0)
-    err = gcry_sexp_build (&data, NULL, "(data (flags pkcs1) (value %m))", dt);
-  else
-    err = gcry_sexp_build (&data, NULL, "(data (flags raw) (value %m))", dt);
-  if (err)
-    {
-      print_gcrypt_error (lexic, "gcry_sexp_build data", err);
-      goto fail;
-    }
-
-  err = gcry_pk_encrypt (&encrypted, data, key);
-  if (err)
-    {
-      print_gcrypt_error (lexic, "gcry_pk_encrypt", err);
-      goto fail;
-    }
-
-  if (strcmp (pad,"TRUE") == 0)
-    {
-      if (set_retc_from_sexp (retc, encrypted, "a") >= 0 &&
-        strip_pkcs1_padding (retc) >= 0)
-      goto ret;
-    }
-  else
-    {
-      if (set_retc_from_sexp (retc, encrypted, "a") >= 0)
-        goto ret;
-    }
-
-fail:
-  retc->size = 0;
-  retc->x.str_val = g_malloc0 (1);
-ret:
-  gcry_sexp_release (encrypted);
-  gcry_sexp_release (key);
-  gcry_sexp_release (data);
-  gcry_mpi_release (dt);
-  gcry_mpi_release (e);
-  gcry_mpi_release (n);
-  return retc;
-}
-
-/**
- * nasl function
- *
- *  rsa_private_decrypt(data:data, d:mpi_d, e:mpi_e, n:mpi_n, padd:<TRUE:FALSE>)
- *
- * Decrypt the provided data with the private RSA key given by its parameters
- * d, e and n. The return value is the decrypted data in plantext format.
- */
-tree_cell *
-nasl_rsa_private_decrypt (lex_ctxt * lexic)
-{
-  tree_cell *retc = NULL;
-  gcry_mpi_t e = NULL, n = NULL, d = NULL, dt = NULL;
-  gcry_sexp_t key = NULL, data = NULL, decrypted = NULL;
-  gcry_error_t err;
-  char *pad = (char *) get_str_var_by_name (lexic, "pad");
-
-  if (pad == NULL)
-  {
-    nasl_perror (lexic,
-                 "Syntax : rsa_public_encrypt(data:<d>,"
-                 "n:<n>, d:<d>, e:<e>, pad:<pad>)");
-    return NULL;
-  }
-  retc = alloc_tree_cell (0, NULL);
-  retc->type = CONST_DATA;
-
-  if (mpi_from_named_parameter (lexic, &dt, "data",
-                                "nasl_rsa_private_decrypt") < 0)
-    goto fail;
-  if (mpi_from_named_parameter (lexic, &e, "e", "nasl_rsa_private_decrypt") < 0)
-    goto fail;
-  if (mpi_from_named_parameter (lexic, &n, "n", "nasl_rsa_private_decrypt") < 0)
-    goto fail;
-  if (mpi_from_named_parameter (lexic, &d, "d", "nasl_rsa_private_decrypt") < 0)
-    goto fail;
-
-  err = gcry_sexp_build (&key, NULL, "(private-key (rsa (n %m) (e %m) (d %m)))",
-                         n, e, d);
-  if (err)
-    {
-      print_gcrypt_error (lexic, "gcry_sexp_build privkey", err);
-      goto fail;
-    }
-
-  if (strcmp (pad,"TRUE") == 0)
-    err = gcry_sexp_build (&data, NULL, "(enc-val (flags pkcs1) (rsa (a %m)))",
-                           dt);
-  else
-    err = gcry_sexp_build (&data, NULL, "(enc-val (flags raw) (rsa (a %m)))",
-                           dt);
-  if (err)
-    {
-      print_gcrypt_error (lexic, "gcry_sexp_build data", err);
-      goto fail;
-    }
-
-  err = gcry_pk_decrypt (&decrypted, data, key);
-  if (err)
-    {
-      print_gcrypt_error (lexic, "gcry_pk_decrypt", err);
-      goto fail;
-    }
-
-  if (strcmp (pad,"TRUE") == 0)
-    {
-      if (set_retc_from_sexp (retc, decrypted, "value") >= 0 &&
-          strip_pkcs1_padding (retc) >= 0)
-        goto ret;
-    }
-  else
-    {
-      if (set_retc_from_sexp (retc, decrypted, "value") >= 0)
-        goto ret;
-    }
-
-fail:
-  retc->size = 0;
-  retc->x.str_val = g_malloc0 (1);
-ret:
-  gcry_sexp_release (decrypted);
-  gcry_sexp_release (key);
-  gcry_sexp_release (data);
-  gcry_mpi_release (dt);
-  gcry_mpi_release (e);
-  gcry_mpi_release (n);
-  gcry_mpi_release (d);
-  return retc;
 }
 
 /**
@@ -1422,158 +1262,4 @@ tree_cell *
 nasl_bf_cbc_decrypt (lex_ctxt * lexic)
 {
   return nasl_bf_cbc (lexic, 0);
-}
-
-static tree_cell *
-encrypt_data (lex_ctxt *lexic, int cipher, int mode)
-{
-  gcry_cipher_hd_t hd;
-  gcry_error_t error;
-  void *result, *data, *key, *tmp, *iv;
-  size_t resultlen, datalen, keylen, tmplen, ivlen;
-  tree_cell *retc;
-
-  data = get_str_var_by_name (lexic, "data");
-  datalen = get_var_size_by_name (lexic, "data");
-  key = get_str_var_by_name (lexic, "key");
-  keylen = get_var_size_by_name (lexic, "key");
-  iv = get_str_var_by_name (lexic, "iv");
-  ivlen = get_var_size_by_name (lexic, "iv");
-
-  if (!data || datalen <= 0 || !key || keylen <= 0)
-    {
-      nasl_perror (lexic, "Syntax: encrypt_data: Missing data or key argument");
-      return NULL;
-    }
-
-  if ((error = gcry_cipher_open (&hd, cipher, mode, 0)))
-    {
-      nasl_perror (lexic, "gcry_cipher_open: %s", gcry_strerror (error));
-      gcry_cipher_close (hd);
-      return NULL;
-    }
-  if ((error = gcry_cipher_setkey (hd, key, keylen)))
-    {
-      nasl_perror (lexic, "gcry_cipher_setkey: %s", gcry_strerror (error));
-      gcry_cipher_close (hd);
-      return NULL;
-    }
-
-  if (cipher == GCRY_CIPHER_ARCFOUR)
-    {
-      resultlen = datalen;
-      tmp = g_memdup (data, datalen);
-      tmplen = datalen;
-    }
-  else if (cipher == GCRY_CIPHER_3DES)
-    {
-      if (datalen % 8 == 0)
-        resultlen = datalen;
-      else
-        resultlen = ((datalen / 8) + 1) * 8;
-      tmp = g_malloc0 (resultlen);
-      tmplen = resultlen;
-      memcpy (tmp, data, datalen);
-    }
-  else if (cipher == GCRY_CIPHER_AES128)
-    {
-      if (datalen % 16 == 0)
-        resultlen = datalen;
-      else
-        resultlen = ((datalen / 16) + 1) * 16;
-      tmp = g_malloc0 (resultlen);
-      tmplen = resultlen;
-      memcpy (tmp, data, datalen);
-    }
-  else if (cipher == GCRY_CIPHER_AES256)
-    {
-      if (datalen % 32 == 0)
-        resultlen = datalen;
-      else
-        resultlen = ((datalen / 32) + 1) * 32;
-      tmp = g_malloc0 (resultlen);
-      tmplen = resultlen;
-      memcpy (tmp, data, datalen);
-    }
-  else
-    {
-      nasl_perror (lexic, "encrypt_data: Unknown cipher %d", cipher);
-      gcry_cipher_close (hd);
-      return NULL;
-    }
-
-  if (iv && ivlen)
-    {
-      if ((error = gcry_cipher_setiv (hd, iv, ivlen)))
-        {
-          nasl_perror (lexic, "gcry_cipher_setiv: %s", gcry_strerror (error));
-          return NULL;
-        }
-    }
-
-  result = g_malloc0 (resultlen);
-  if ((error = gcry_cipher_encrypt (hd, result, resultlen, tmp, tmplen)))
-    {
-      log_legacy_write ("gcry_cipher_encrypt: %s", gcry_strerror (error));
-      gcry_cipher_close (hd);
-      g_free (result);
-      g_free (tmp);
-      return NULL;
-    }
-
-  g_free (tmp);
-  gcry_cipher_close (hd);
-  retc = alloc_tree_cell (0, NULL);
-  retc->type = CONST_DATA;
-  retc->x.str_val = result;
-  retc->size = resultlen;
-  return retc;
-}
-
-tree_cell *
-nasl_rc4_encrypt (lex_ctxt * lexic)
-{
-  return encrypt_data (lexic, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM);
-}
-
-tree_cell *
-nasl_aes128_cbc_encrypt (lex_ctxt * lexic)
-{
-  return encrypt_data (lexic, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC);
-}
-
-tree_cell *
-nasl_aes256_cbc_encrypt (lex_ctxt * lexic)
-{
-  return encrypt_data (lexic, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC);
-}
-
-tree_cell *
-nasl_aes128_ctr_encrypt (lex_ctxt * lexic)
-{
-  return encrypt_data (lexic, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR);
-}
-
-tree_cell *
-nasl_aes256_ctr_encrypt (lex_ctxt * lexic)
-{
-  return encrypt_data (lexic, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR);
-}
-
-tree_cell *
-nasl_des_ede_cbc_encrypt (lex_ctxt * lexic)
-{
-  return encrypt_data (lexic, GCRY_CIPHER_3DES, GCRY_CIPHER_MODE_CBC);
-}
-
-tree_cell *
-nasl_aes128_gcm_encrypt (lex_ctxt * lexic)
-{
-  return encrypt_data (lexic, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM);
-}
-
-tree_cell *
-nasl_aes256_gcm_encrypt (lex_ctxt * lexic)
-{
-  return encrypt_data (lexic, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_GCM);
 }
