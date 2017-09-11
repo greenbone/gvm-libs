@@ -27,6 +27,6 @@
 #include <glib.h>
 #include "../base/gpgme_util.h"
 
-int nasl_verify_signature (const char *, const char *, size_t);
+int nasl_verify_signature (const char *filename);
 
 #endif
