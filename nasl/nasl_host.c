@@ -57,7 +57,7 @@ get_hostname (lex_ctxt * lexic)
   if (hostname == NULL)
     return NULL;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_STR;
   retc->size = strlen (hostname);
   retc->x.str_val = hostname;
@@ -77,7 +77,7 @@ get_host_ip (lex_ctxt * lexic)
       return FAKE_CELL;
     }
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_STR;
   retc->x.str_val = addr6_as_str (ip);
   retc->size = strlen (retc->x.str_val);
@@ -93,7 +93,7 @@ get_host_open_port (lex_ctxt * lexic)
   unsigned int port = plug_get_host_open_port (script_infos);
   tree_cell *retc;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   retc->x.i_val = port;
 
@@ -113,7 +113,7 @@ get_port_state (lex_ctxt * lexic)
   if (port < 0)
     return FAKE_CELL;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   open = host_get_port_state (script_infos, port);
   retc->x.i_val = open;
@@ -132,7 +132,7 @@ get_udp_port_state (lex_ctxt * lexic)
   if (port < 0)
     return FAKE_CELL;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   open = host_get_port_state_udp (script_infos, port);
   retc->x.i_val = open;
@@ -147,7 +147,7 @@ nasl_islocalhost (lex_ctxt * lexic)
   struct in6_addr *dst = plug_get_host_ip (script_infos);
   tree_cell *retc;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   retc->x.i_val = v6_islocalhost (dst);
   return retc;
@@ -161,7 +161,7 @@ nasl_islocalnet (lex_ctxt * lexic)
   struct in6_addr *ip = plug_get_host_ip (script_infos);
   tree_cell *retc;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   retc->x.i_val = v6_is_local_ip (ip);
   return retc;
@@ -178,7 +178,7 @@ nasl_this_host (lex_ctxt * lexic)
   struct in6_addr in6addr;
   struct in6_addr src6;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
 
   if (openvas_source_iface_is_set ())
@@ -229,7 +229,7 @@ nasl_this_host_name (lex_ctxt * lexic)
   char *hostname;
   tree_cell *retc;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
 
   hostname = g_malloc0 (256);
@@ -284,7 +284,7 @@ get_port_transport (lex_ctxt * lexic)
     {
       int trp = plug_get_port_transport (script_infos, port);
 
-      retc = alloc_tree_cell ();
+      retc = alloc_tree_cell (0, NULL);
       if (get_int_local_var_by_name (lexic, "asstring", 0))
         {
           const char *s = get_encaps_name (trp);
@@ -437,7 +437,7 @@ nasl_target_is_ipv6 (lex_ctxt * lexic)
   struct in6_addr *addr;
 
   addr = plug_get_host_ip (script_infos);
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
 
   if (addr == NULL)

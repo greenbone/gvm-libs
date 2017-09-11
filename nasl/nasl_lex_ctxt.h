@@ -19,8 +19,6 @@
 #ifndef _NASL_LEX_CTXT_H
 #define _NASL_LEX_CTXT_H
 
-#include <glib.h>
-
 /* for tree_cell */
 #include "nasl_tree.h"
 
@@ -44,8 +42,8 @@ typedef struct struct_lex_ctxt
   int line_nb;
   /* Named variables hash set + anonymous variables array */
   nasl_array ctx_vars;
-  /* Functions hash table */
-  GHashTable *functions;
+  /* Functions hash set */
+  nasl_func *functions[FUNC_NAME_HASH];
 } lex_ctxt;
 
 #define NASL_COMPAT_LEX_CTXT	"NASL compat lex context"

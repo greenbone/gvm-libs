@@ -112,7 +112,7 @@ tree_cell *
 nasl_wmi_versioninfo (lex_ctxt * lexic)
 {
   char *version = wmi_versioninfo ();
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   if (!version)
     {
@@ -196,7 +196,7 @@ nasl_wmi_connect (lex_ctxt * lexic)
   strcpy (argv[4], ns);
   g_free (ip);
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
   value = wmi_connect (argc, argv, &handle);
@@ -229,7 +229,7 @@ nasl_wmi_close (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
 
@@ -265,7 +265,7 @@ nasl_wmi_query (lex_ctxt * lexic)
   if (!handle)
     return NULL;
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_DATA;
   retc->x.str_val = NULL;
@@ -348,7 +348,7 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
   strcat (argv[3], ip);
   g_free (ip);
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
   value = wmi_connect_rsop (argc, argv, &handle);
@@ -384,7 +384,7 @@ nasl_wmi_query_rsop (lex_ctxt * lexic)
   char *query = get_str_local_var_by_name (lexic, "query");     // WQL query
   char *res = NULL;
   int value;
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_DATA;
   retc->x.str_val = NULL;
@@ -465,7 +465,7 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
   strcat (argv[3], ip);
   g_free (ip);
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
   value = wmi_connect_reg (argc, argv, &handle);
@@ -506,7 +506,7 @@ nasl_wmi_reg_get_sz (lex_ctxt * lexic)
 
   char *res = NULL;
   int value;
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_DATA;
   retc->x.str_val = NULL;
@@ -552,7 +552,7 @@ nasl_wmi_reg_enum_value (lex_ctxt * lexic)
 
   char *res = NULL;
   int value;
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_DATA;
   retc->x.str_val = NULL;
@@ -598,7 +598,7 @@ nasl_wmi_reg_enum_key (lex_ctxt * lexic)
 
   char *res = NULL;
   int value;
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_DATA;
   retc->x.str_val = NULL;
@@ -646,7 +646,7 @@ nasl_wmi_reg_get_bin_val (lex_ctxt * lexic)
   char *res = NULL;
   int value;
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_DATA;
   retc->x.str_val = NULL;
@@ -693,7 +693,7 @@ nasl_wmi_reg_get_dword_val (lex_ctxt * lexic)
   char *res = NULL;
   int value;
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_DATA;
   retc->x.str_val = NULL;
@@ -743,7 +743,7 @@ nasl_wmi_reg_get_ex_string_val (lex_ctxt * lexic)
   char *res = NULL;
   int value;
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_DATA;
   retc->x.str_val = NULL;
@@ -790,7 +790,7 @@ nasl_wmi_reg_get_mul_string_val (lex_ctxt * lexic)
   char *res = NULL;
   int value;
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_DATA;
   retc->x.str_val = NULL;
@@ -837,7 +837,7 @@ nasl_wmi_reg_get_qword_val (lex_ctxt * lexic)
   char *res = NULL;
   int value;
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_DATA;
   retc->x.str_val = NULL;
@@ -892,7 +892,7 @@ nasl_wmi_reg_set_dword_val (lex_ctxt * lexic)
   // Convert string to proper 64 bit integer
   val1 = stoi_uint32_t(val);
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
   retc->x.i_val = 1;
@@ -944,7 +944,7 @@ nasl_wmi_reg_set_qword_val (lex_ctxt * lexic)
   // Convert string to proper integer
   val1 = stoi_uint64_t(val);
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
   retc->x.i_val = 1;
@@ -988,7 +988,7 @@ nasl_wmi_reg_set_ex_string_val (lex_ctxt * lexic)
 
   int value;
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
   retc->x.i_val = 1;
@@ -1031,7 +1031,7 @@ nasl_wmi_reg_set_string_val (lex_ctxt * lexic)
 
   int value;
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
   retc->x.i_val = 1;
@@ -1071,7 +1071,7 @@ nasl_wmi_reg_create_key (lex_ctxt * lexic)
 
   int value;
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
   retc->x.i_val = 1;
@@ -1113,7 +1113,7 @@ nasl_wmi_reg_delete_key (lex_ctxt * lexic)
 
   int value;
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
   retc->x.i_val = 1;

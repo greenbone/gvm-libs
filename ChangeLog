@@ -1,5 +1,16 @@
 2017-09-11  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_tree.c, nasl/nasl_tree.h, nasl/exec.c, nasl/nasl_cert.c,
+	nasl/nasl_crypto.c, nasl/nasl_crypto2.c, nasl/nasl_grammar.y,
+	nasl/nasl_http.c, nasl/nasl_misc_funcs.c, nasl/nasl_packet_forgery.c,
+	nasl/nasl_packet_forgery_v6.c, nasl/nasl_scanner_glue.c,
+	nasl/nasl_smb.c, nasl/nasl_socket.c, nasl/nasl_text_utils.c,
+	nasl/nasl_var.c, nasl/nasl_wmi.c, nasl/nasl_func.c, nasl/nasl_func.h,
+	nasl/nasl_init.c, nasl/nasl_init.h, nasl/nasl_lex_ctxt.h,
+	nasl/nasl_misc_funcs.h: Revert r29039, r29040, r29041 and r29042.
+
+2017-09-11  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_grammar.y, nasl/nasl.h, nasl/nasl_global_ctxt.h: Revert
 	r29043 and r29044.
 

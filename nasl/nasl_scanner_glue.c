@@ -483,7 +483,7 @@ script_get_preference (lex_ctxt * lexic)
   value = get_plugin_preference (lexic->oid, pref);
   if (value != NULL)
     {
-      retc = alloc_tree_cell ();
+      retc = alloc_tree_cell (0, NULL);
       if (isalldigit (value, strlen (value)))
         {
           retc->type = CONST_INT;
@@ -535,7 +535,7 @@ script_get_preference_file_content (lex_ctxt * lexic)
       return NULL;
     }
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = contentsize;
   retc->x.str_val = content;
@@ -585,7 +585,7 @@ script_get_preference_file_location (lex_ctxt * lexic)
 tree_cell *
 safe_checks (lex_ctxt * lexic)
 {
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
   retc->x.i_val = prefs_get_bool ("safe_checks");
@@ -599,7 +599,7 @@ scan_phase (lex_ctxt * lexic)
   struct arglist *script_infos = lexic->script_infos;
   struct arglist *globals = arg_get_value (script_infos, "globals");
   char *value;
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
   value = arg_get_value (globals, "network_scan_status");
@@ -682,7 +682,7 @@ get_kb_list (lex_ctxt * lexic)
   if (kb == NULL)
     return NULL;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = DYN_ARRAY;
   retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
 
@@ -741,7 +741,7 @@ get_kb_item (lex_ctxt * lexic)
     return NULL;
 
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   if (type == KB_TYPE_INT)
     {
       retc->type = CONST_INT;
@@ -1021,7 +1021,7 @@ nasl_scanner_get_port (lex_ctxt * lexic)
       return NULL;
     }
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   retc->x.i_val = ports[idx];
   return retc;

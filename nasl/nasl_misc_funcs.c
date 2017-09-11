@@ -56,7 +56,7 @@ tree_cell *
 nasl_rand (lex_ctxt * lexic)
 {
   tree_cell *retc;
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   retc->x.i_val = lrand48 ();
   return retc;
@@ -104,7 +104,7 @@ nasl_ftp_log_in (lex_ctxt * lexic)
 
   res = ftp_log_in (soc, u, p) == 0;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   retc->x.i_val = res;
 
@@ -125,7 +125,7 @@ nasl_ftp_get_pasv_address (lex_ctxt * lexic)
   bzero (&addr, sizeof (addr));
   ftp_get_pasv_address (soc, &addr);
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   retc->x.i_val = ntohs (addr.sin_port);
   return retc;
@@ -273,7 +273,7 @@ nasl_end_denial (lex_ctxt * lexic)
         return nasl_tcp_ping (lexic);
       else
         {
-          retc = alloc_tree_cell ();
+          retc = alloc_tree_cell (0, NULL);
           retc->type = CONST_INT;
           retc->x.i_val = 1;
           return retc;
@@ -281,7 +281,7 @@ nasl_end_denial (lex_ctxt * lexic)
     }
   else
     {
-      retc = alloc_tree_cell ();
+      retc = alloc_tree_cell (0, NULL);
       retc->type = CONST_INT;
 
       soc = open_stream_connection (script_infos, port, OPENVAS_ENCAPS_IP, to);
@@ -331,7 +331,7 @@ tree_cell *
 nasl_do_exit (lex_ctxt * lexic)
 {
   int retcode = get_int_var_by_num (lexic, 0, 0);
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
   retc->x.i_val = retcode;
@@ -362,7 +362,7 @@ nasl_isnull (lex_ctxt * lexic)
   tree_cell *retc;
 
   t = get_var_type_by_num (lexic, 0);
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   retc->x.i_val = (t == VAR2_UNDEF);
   return retc;
@@ -383,7 +383,7 @@ nasl_make_list (lex_ctxt * lexic)
   nasl_array *a, *a2;
 
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = DYN_ARRAY;
   retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
 
@@ -452,7 +452,7 @@ nasl_make_array (lex_ctxt * lexic)
   nasl_array *a;
 
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = DYN_ARRAY;
   retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
 
@@ -503,7 +503,7 @@ nasl_keys (lex_ctxt * lexic)
   nasl_array *a, *a2;
   int i, j, vi;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = DYN_ARRAY;
   retc->x.ref_val = a2 = g_malloc0 (sizeof (nasl_array));
 
@@ -557,7 +557,7 @@ nasl_max_index (lex_ctxt * lexic)
 
   a = &v->v.v_arr;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   retc->x.i_val = array_max_index (a);
 
@@ -571,7 +571,7 @@ nasl_typeof (lex_ctxt * lexic)
   anon_nasl_var *u;
   const char *s;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   u = nasl_get_var_by_num (lexic, &lexic->ctx_vars, 0, 0);
 
@@ -619,11 +619,132 @@ nasl_defined_func (lex_ctxt * lexic)
     }
 
   f = get_func_ref_by_name (lexic, s);
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   retc->x.i_val = (f != NULL);
   return retc;
 }
+
+tree_cell *
+nasl_func_named_args (lex_ctxt * lexic)
+{
+  nasl_func *f;
+  char *s;
+  int i;
+  tree_cell *retc;
+  nasl_array *a;
+  anon_nasl_var v;
+
+  s = get_str_var_by_num (lexic, 0);
+  if (s == NULL)
+    {
+      nasl_perror (lexic, "func_named_args: missing parameter\n");
+      return NULL;
+    }
+
+  f = get_func_ref_by_name (lexic, s);
+  if (f == NULL)
+    {
+      nasl_perror (lexic, "func_named_args: unknown function \"%s\"\n", s);
+      return NULL;
+    }
+
+  retc = alloc_typed_cell (DYN_ARRAY);
+  retc->x.ref_val = a = g_malloc0 (sizeof (nasl_array));
+
+  memset (&v, 0, sizeof (v));
+  v.var_type = VAR2_STRING;
+
+  for (i = 0; i < f->nb_named_args; i++)
+    {
+      v.v.v_str.s_val = (unsigned char *) f->args_names[i];
+      v.v.v_str.s_siz = strlen (f->args_names[i]);
+      if (add_var_to_list (a, i, &v) < 0)
+        nasl_perror (lexic,
+                     "func_named_args: add_var_to_list failed (internal error)\n");
+    }
+
+  return retc;
+}
+
+tree_cell *
+nasl_func_unnamed_args (lex_ctxt * lexic)
+{
+  nasl_func *f;
+  char *s;
+  tree_cell *retc;
+
+  s = get_str_var_by_num (lexic, 0);
+  if (s == NULL)
+    {
+      nasl_perror (lexic, "func_unnamed_args: missing parameter\n");
+      return NULL;
+    }
+
+  f = get_func_ref_by_name (lexic, s);
+  if (f == NULL)
+    {
+      nasl_perror (lexic, "func_unnamed_args: unknown function \"%s\"\n", s);
+      return NULL;
+    }
+
+  retc = alloc_typed_cell (CONST_INT);
+  retc->x.i_val = f->nb_unnamed_args;
+  return retc;
+}
+
+
+tree_cell *
+nasl_func_has_arg (lex_ctxt * lexic)
+{
+  nasl_func *f;
+  char *s;
+  int vt, i, flag = 0;
+  tree_cell *retc;
+
+
+  s = get_str_var_by_num (lexic, 0);
+  if (s == NULL)
+    {
+      nasl_perror (lexic, "func_has_arg: missing parameter\n");
+      return NULL;
+    }
+
+  f = get_func_ref_by_name (lexic, s);
+  if (f == NULL)
+    {
+      nasl_perror (lexic, "func_args: unknown function \"%s\"\n", s);
+      return NULL;
+    }
+
+  vt = get_var_type_by_num (lexic, 1);
+  switch (vt)
+    {
+    case VAR2_INT:
+      i = get_int_var_by_num (lexic, 1, -1);
+      if (i >= 0 && i < f->nb_unnamed_args)
+        flag = 1;
+      break;
+
+    case VAR2_STRING:
+    case VAR2_DATA:
+      s = get_str_var_by_num (lexic, 1);
+      for (i = 0; i < f->nb_named_args && !flag; i++)
+        if (strcmp (s, f->args_names[i]) == 0)
+          flag = 1;
+      break;
+
+    default:
+      nasl_perror (lexic,
+                   "func_has_arg: string or integer expected as 2nd parameter\n");
+      return NULL;
+    }
+
+  retc = alloc_typed_cell (CONST_INT);
+  retc->x.i_val = flag;
+  return retc;
+}
+
 
 /* Sorts an array */
 
@@ -842,7 +963,7 @@ nasl_gunzip (lex_ctxt * lexic)
   if (uncompressed == NULL)
     return NULL;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = uncomplen;
   retc->x.str_val = uncompressed;
@@ -868,7 +989,7 @@ nasl_gzip (lex_ctxt * lexic)
   if (compressed == NULL)
     return NULL;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = complen;
   retc->x.str_val = compressed;
@@ -890,7 +1011,7 @@ nasl_dec2str (lex_ctxt * lexic)
   char *ret = g_malloc0 (sizeof (num));
   SIVAL (ret, 0, num);
   tree_cell *retc;
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = sizeof (num);
   retc->x.str_val = ret;

@@ -1345,8 +1345,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
             memcpy (s3 + len1, s2 != NULL ? s2 : tc2->x.str_val, len2);
           g_free (s1);
           g_free (s2);
-          ret = alloc_tree_cell ();
-          ret->x.str_val = s3;
+          ret = alloc_tree_cell (0, s3);
           ret->type = flag;
           ret->size = sz;
           break;
@@ -1447,8 +1446,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
             {
               s3 = g_malloc0 (len1 + 1);
               memcpy (s3, p1, len1);
-              ret = alloc_tree_cell ();
-              ret->x.str_val = s3;
+              ret = alloc_tree_cell (0, s3);
               ret->type = flag;
               ret->size = len1;
             }
@@ -1468,8 +1466,7 @@ nasl_exec (lex_ctxt * lexic, tree_cell * st)
                   if (sz > p - p1)
                     memcpy (s3 + (p - p1), p + len2, sz - (p - p1));
                 }
-              ret = alloc_tree_cell ();
-              ret->x.str_val = s3;
+              ret = alloc_tree_cell (0, s3);
               ret->size = sz;
               ret->type = flag;
             }
@@ -1805,6 +1802,12 @@ exec_nasl_script (struct arglist *script_infos, const char *name,
     to = 5;
 
   lexic->recv_timeout = to;
+
+ /** @todo Initialization of the library seems intuitively be necessary only
+  *        once (involves "linking" the nasl functions to c code).
+  *        Consider a "prototype" context that has to be created only once and
+  *        of which copies are made when needed. */
+  init_nasl_library (lexic);
 
   process_id = getpid ();
   if (mode & NASL_LINT)

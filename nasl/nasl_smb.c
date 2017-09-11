@@ -67,7 +67,7 @@ tree_cell *
 nasl_smb_versioninfo (lex_ctxt * lexic)
 {
   char *version = smb_versioninfo ();
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
 
   if (!version)
     {
@@ -123,7 +123,7 @@ nasl_smb_connect (lex_ctxt * lexic)
       return NULL;
     }
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
   value = smb_connect (ip, share, username, password, &handle);
   g_free (ip);
@@ -157,7 +157,7 @@ nasl_smb_close (lex_ctxt * lexic)
   int ret;
   tree_cell *retc;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_INT;
 
   ret = smb_close (handle);
@@ -208,7 +208,7 @@ nasl_smb_file_SDDL (lex_ctxt * lexic)
   if (buffer == NULL)
     return NULL;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = strlen (buffer);
   retc->x.str_val = strdup (buffer);
@@ -253,7 +253,7 @@ nasl_smb_file_owner_sid (lex_ctxt * lexic)
   if (buffer == NULL)
     return NULL;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = strlen (buffer);
   retc->x.str_val = strdup (buffer);
@@ -298,7 +298,7 @@ nasl_smb_file_group_sid (lex_ctxt * lexic)
   if (buffer == NULL)
     return NULL;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = strlen (buffer);
   retc->x.str_val = strdup (buffer);
@@ -344,7 +344,7 @@ nasl_smb_file_trustee_rights (lex_ctxt * lexic)
   if (buffer == NULL)
     return NULL;
 
-  retc = alloc_tree_cell ();
+  retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->size = strlen (buffer);
   retc->x.str_val = strdup (buffer);
@@ -413,7 +413,7 @@ nasl_win_cmd_exec (lex_ctxt * lexic)
   strcat (argv[3], ip);
   strcpy (argv[4], cmd);
 
-  tree_cell *retc = alloc_tree_cell ();
+  tree_cell *retc = alloc_tree_cell (0, NULL);
   retc->type = CONST_DATA;
   retc->x.str_val = NULL;
   retc->size = 0;
