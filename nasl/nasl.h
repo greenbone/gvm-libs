@@ -42,9 +42,6 @@ GSList *nasl_get_all_certificates (void);
 
 int add_nasl_inc_dir (const char *);
 
-void
-nasl_clean_inc (void);
-
 int
 exec_nasl_script (struct arglist *, const char *, const char *, int);
 int

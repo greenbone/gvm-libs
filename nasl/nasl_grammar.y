@@ -39,14 +39,7 @@
 #include "nasl_debug.h"
 #include "nasl_signature.h"
 
-static char *parse_buffer = NULL;
-
-static int parse_len = 0;
-
 static void naslerror(naslctxt *, const char *);
-
-GHashTable *includes_hash = NULL;
-
 #define YYERROR_VERBOSE
 %}
 
@@ -316,38 +309,28 @@ inc: INCLUDE '(' string ')'
 	{
           char *tmp;
 	  naslctxt	subctx;
+	  int		x;
 
           subctx.always_authenticated = ((naslctxt*)parm)->always_authenticated;
           subctx.kb = ((naslctxt *) parm)->kb;
+          x = init_nasl_ctx(&subctx, $3);
           $$ = NULL;
           tmp = g_strdup (nasl_get_filename (NULL));
           nasl_set_filename ($3);
-          if (init_nasl_ctx(&subctx, $3) >= 0)
+          if (x >= 0)
             {
-              if (!includes_hash)
-                includes_hash = g_hash_table_new_full
-                                 (g_str_hash, g_str_equal, g_free,
-                                  (GDestroyNotify) deref_cell);
-              if ((subctx.tree = g_hash_table_lookup (includes_hash, $3)))
+              if (! naslparse(&subctx))
                 {
                   $$ = subctx.tree;
-                  ref_cell ($$);
-                  g_free ($3);
-                }
-              else if (!naslparse (&subctx))
-                {
-                  $$ = subctx.tree;
-                  g_hash_table_insert (includes_hash, $3, $$);
-                  ref_cell ($$);
                 }
               else
-                {
-                  nasl_perror (NULL, "%s: Parse error at or near line %d\n", $3,
-                               subctx.line_nb);
-                  g_free ($3);
-                }
+                nasl_perror(NULL, "%s: Parse error at or near line %d\n",
+                        $3, subctx.line_nb);
+	      g_free(subctx.buffer);
+	      subctx.buffer = NULL;
 	      fclose(subctx.fp);
 	      subctx.fp = NULL;
+	      g_free($3);
 	    }
           else
             {
@@ -631,15 +614,9 @@ init_nasl_ctx(naslctxt* pc, const char* name)
 
   pc->line_nb = 1;
   pc->tree = NULL;
+  pc->buffer = g_malloc0 (80);
+  pc->maxlen = 80;
   pc->fp = NULL;
-  if (!parse_len)
-    {
-      parse_len = 9092;
-      parse_buffer = g_malloc0 (parse_len);
-    }
-  else
-    parse_buffer[0] = '\0';
-
   nasl_set_filename (name);
   while (inc_dir != NULL) {
     if (full_name)
@@ -723,20 +700,13 @@ nasl_clean_ctx(naslctxt* c)
   nasl_dump_tree(c->tree);
 #endif
   deref_cell(c->tree);
+  g_free(c->buffer);
+  c->buffer = NULL;
   if (c->fp)
     {
       fclose(c->fp);
       c->fp = NULL;
     }
-}
-
-void
-nasl_clean_inc (void)
-{
- if (!includes_hash)
-   return;
- g_hash_table_destroy (includes_hash);
- includes_hash = NULL;
 }
 
 enum lex_state {
@@ -783,7 +753,7 @@ mylex(lvalp, parm)
     return -1;
 
   fp = ctx->fp;
-  p = parse_buffer;
+  p = ctx->buffer;
   len = 0;
 
   while ((c = getc(fp)) != EOF)
@@ -1239,17 +1209,19 @@ mylex(lvalp, parm)
 
 	}
 
-      if (len >= parse_len)
-        {
-          int offs = p - parse_buffer;
-          parse_len += 9092;
-          parse_buffer = g_realloc (parse_buffer, parse_len);
-          p = parse_buffer + offs;
-        }
+      if (len >= ctx->maxlen)
+	{
+	  int	offs = p - ctx->buffer;
+	  char	*buf2;
+	  ctx->maxlen += 80;
+	  buf2 = g_realloc(ctx->buffer, ctx->maxlen + 1);
+	  p = buf2 + offs;
+	  ctx->buffer = buf2;
+	}
     }
 
  exit_loop:
-  parse_buffer[len] = '\0';
+  ctx->buffer[len] = '\0';
   switch (st)
     {
     case ST_START:
@@ -1259,51 +1231,51 @@ mylex(lvalp, parm)
 
     case ST_STRING2:
       r = STRING2;
-      lvalp->str = g_strdup(parse_buffer);
+      lvalp->str = g_strdup(ctx->buffer);
       return r;
 
     case ST_STRING1:
       r = STRING1;
       lvalp->data.val = g_malloc0 (len+2);
-      memcpy(lvalp->data.val, parse_buffer, len+1);
+      memcpy(lvalp->data.val, ctx->buffer, len+1);
       lvalp->data.len = len;
       return r;
 
     case ST_IDENT:
-      if (strcmp(parse_buffer, "if") == 0)
+      if (strcmp(ctx->buffer, "if") == 0)
 	r = IF;
-      else if (strcmp(parse_buffer, "else") == 0)
+      else if (strcmp(ctx->buffer, "else") == 0)
 	r = ELSE;
-      else if (strcmp(parse_buffer, "for") == 0)
+      else if (strcmp(ctx->buffer, "for") == 0)
 	r = FOR;
-      else if (strcmp(parse_buffer, "while") == 0)
+      else if (strcmp(ctx->buffer, "while") == 0)
 	r = WHILE;
-      else if (strcmp(parse_buffer, "repeat") == 0)
+      else if (strcmp(ctx->buffer, "repeat") == 0)
 	r = REPEAT;
-      else if (strcmp(parse_buffer, "until") == 0)
+      else if (strcmp(ctx->buffer, "until") == 0)
 	r = UNTIL;
-      else if (strcmp(parse_buffer, "foreach") == 0)
+      else if (strcmp(ctx->buffer, "foreach") == 0)
 	r = FOREACH;
-      else if (strcmp(parse_buffer, "function") == 0)
+      else if (strcmp(ctx->buffer, "function") == 0)
 	r = FUNCTION;
-      else if (strcmp(parse_buffer, "return") == 0)
+      else if (strcmp(ctx->buffer, "return") == 0)
 	r = RETURN;
-      else if (strcmp(parse_buffer, "x") == 0)
+      else if (strcmp(ctx->buffer, "x") == 0)
 	r = REP;
-      else if (strcmp(parse_buffer, "include") == 0)
+      else if (strcmp(ctx->buffer, "include") == 0)
 	r = INCLUDE;
-      else if (strcmp(parse_buffer, "break") == 0)
+      else if (strcmp(ctx->buffer, "break") == 0)
 	r = BREAK;
-      else if (strcmp(parse_buffer, "continue") == 0)
+      else if (strcmp(ctx->buffer, "continue") == 0)
 	r = CONTINUE;
-      else if (strcmp(parse_buffer, "local_var") == 0)
+      else if (strcmp(ctx->buffer, "local_var") == 0)
 	r = LOCAL;
-      else if (strcmp(parse_buffer, "global_var") == 0)
+      else if (strcmp(ctx->buffer, "global_var") == 0)
 	r = GLOBAL;
       else
 	{
 	  r = IDENT;
-	  lvalp->str = g_strdup(parse_buffer);
+	  lvalp->str = g_strdup(ctx->buffer);
 	  return r;
 	}
       return r;
@@ -1312,26 +1284,26 @@ mylex(lvalp, parm)
       /* -123 is parsed as "-" and "123" so that we can write "4-2" without
        * inserting a white space after the minus operator
        * Note that strtoul would also work on negative integers */
-      lvalp->num = x = strtoul (parse_buffer, NULL, 10);
+      lvalp->num = x = strtoul(ctx->buffer, NULL, 10);
 #if NASL_DEBUG > 1 && defined(ULONG_MAX) && defined(ERANGE)
       if (x == ULONG_MAX && errno == ERANGE)
-	nasl_perror(NULL, "Integer overflow while converting %s at or near line %d\n", parse_buffer, ctx->line_nb);
+	nasl_perror(NULL, "Integer overflow while converting %s at or near line %d\n", ctx->buffer, ctx->line_nb);
 #endif
       return INTEGER;
 
     case ST_OCT:
-      lvalp->num = x = strtoul (parse_buffer, NULL, 8);
+      lvalp->num = x = strtoul(ctx->buffer, NULL, 8);
 #if NASL_DEBUG > 1 && defined(ULONG_MAX) && defined(ERANGE)
       if (x == ULONG_MAX && errno == ERANGE)
-	nasl_perror(NULL, "Integer overflow while converting %s at or near line %d\n", parse_buffer, ctx->line_nb);
+	nasl_perror(NULL, "Integer overflow while converting %s at or near line %d\n", ctx->buffer, ctx->line_nb);
 #endif
       return INTEGER;
 
     case ST_HEX:
-      lvalp->num = x = strtoul (parse_buffer, NULL, 16);
+      lvalp->num = x = strtoul(ctx->buffer, NULL, 16);
 #if NASL_DEBUG > 1 && defined(ULONG_MAX)
       if (x == ULONG_MAX)
-	nasl_perror(NULL, "Possible integer overflow while converting %s at or near line %d\n", parse_buffer, ctx->line_nb);
+	nasl_perror(NULL, "Possible integer overflow while converting %s at or near line %d\n", ctx->buffer, ctx->line_nb);
 #endif
       return INTEGER;
 

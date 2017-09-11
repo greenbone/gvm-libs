@@ -1,5 +1,10 @@
 2017-09-11  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
+	* nasl/nasl_grammar.y, nasl/nasl.h, nasl/nasl_global_ctxt.h: Revert
+	r29043 and r29044.
+
+2017-09-11  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
 	* nasl/nasl_global_ctxt.h, nasl/nasl_grammar.y, nasl/nasl_signature.c,
 	nasl/nasl_signature.h: Revert r29048 and r29067.
 
