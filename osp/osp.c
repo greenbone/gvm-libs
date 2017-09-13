@@ -407,8 +407,8 @@ option_concat_as_xml (gpointer key, gpointer value, gpointer pstr)
 
   key_escaped = g_markup_escape_text ((char *) key, -1);
   value_escaped = g_markup_escape_text ((char *) value, -1);
-  tmp = g_strdup_printf ("%s<%s>%s</%s>", options_str ?: "", key_escaped,
-                         value_escaped, key_escaped);
+  tmp = g_strdup_printf ("%s<%s>%s</%s>", options_str ? options_str : "",
+                         key_escaped, value_escaped, key_escaped);
 
   g_free (options_str);
   g_free (key_escaped);
@@ -444,7 +444,8 @@ osp_start_scan (osp_connection_t *connection, const char *target,
   rc = osp_send_command (connection, &entity,
                          "<start_scan target='%s' ports='%s' scan_id='%s'>"
                          "<scanner_params>%s</scanner_params></start_scan>",
-                         target, ports ?: "", scan_id ?: "", options_str ?: "");
+                         target, ports ? ports : "", scan_id ? scan_id : "",
+                         options_str ? options_str : "");
   g_free (options_str);
   if (rc)
     {

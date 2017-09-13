@@ -1,3 +1,15 @@
+2017-09-13  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Improve code readability by expanding the second operand of the
+	ternary operator.
+
+	* osp/osp.c (option_concat_as_xml, osp_start_scan): Expand "?:".
+
+	* util/sshutils.c (gvm_ssh_pkcs8_decrypt, gvm_ssh_pkcs8_decrypt):
+	Expand "?:".
+
+	* util/xmlutils.c (make_entity): Expand "?:".
+
 2017-08-29  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* INSTALL: Rework 'Configuration Options' section, remove reference to
