@@ -81,7 +81,7 @@ make_entity (const char *name, const char *text)
   entity_t entity;
   entity = g_malloc (sizeof (*entity));
   entity->name = g_strdup (name ? name : "");
-  entity->text = g_strdup (text ? name : "");
+  entity->text = g_strdup (text ? text : "");
   entity->entities = NULL;
   entity->attributes = NULL;
   return entity;

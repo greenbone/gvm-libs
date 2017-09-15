@@ -1,3 +1,8 @@
+2017-09-15  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* util/xmlutils.c (make_entity): Fix flawed expansion from last
+	commit.
+
 2017-09-13  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Improve code readability by expanding the second operand of the
