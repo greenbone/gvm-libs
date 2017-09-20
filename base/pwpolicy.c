@@ -140,7 +140,7 @@ policy_checking_failed (void)
  * @param keyword  The keyword
  *
  * @return NULL if the keyword is not found.  If found a pointer into
- *         @ref line to the value of the keyword with removed leading
+ *         \p string to the value of the keyword with removed leading
  *         spaces is returned.
  */
 static char *

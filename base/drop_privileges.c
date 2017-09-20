@@ -38,14 +38,14 @@
 #include <unistd.h> /* for geteuid, setgid, setuid */
 
 /**
- * @brief Sets an error and return \param errorcode
+ * @brief Sets an error and return \p errorcode
  *
  * @param error     Error to set.
  * @param errorcode Errorcode (possible values defined in drop_privileges.h),
  *                  will be returned.
  * @param message   Message to attach to the error.
  *
- * @return \param errorcode.
+ * @return \p errorcode
  */
 static gint
 drop_privileges_error (GError ** error, gint errorcode, const gchar * message)
@@ -58,7 +58,7 @@ drop_privileges_error (GError ** error, gint errorcode, const gchar * message)
 /**
  * @brief Drop privileges.
  *
- * We try to drop our (root) privileges and setuid to \param username to
+ * We try to drop our (root) privileges and setuid to \p username to
  * minimize the risk of privilege escalation.
  * The current implementation is linux-specific and may not work on other
  * platforms.
@@ -68,7 +68,7 @@ drop_privileges_error (GError ** error, gint errorcode, const gchar * message)
  * @param[out] error    Return location for errors or NULL if not interested
  *                      in errors.
  *
- * @return GVM_DROP_PRIVILEGES_OK in case of success. Sets \param error
+ * @return GVM_DROP_PRIVILEGES_OK in case of success. Sets \p error
  *         otherwise and returns the error code.
  */
 int

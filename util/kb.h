@@ -133,6 +133,7 @@ void kb_item_free (struct kb_item *);
 /**
  * @brief Initialize a new Knowledge Base object.
  * @param[in] kb  Reference to a kb_t to initialize.
+ * @param[in] kb_path   Path to KB.
  * @return 0 on success, non-null on error.
  */
 static inline int kb_new (kb_t *kb, const char *kb_path)

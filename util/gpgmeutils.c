@@ -46,7 +46,7 @@
 /**
  * @brief Log function with extra gpg-error style output
  *
- * If @ref err is not 0, the appropriate error string is appended to
+ * If \p err is not 0, the appropriate error string is appended to
  * the output.  It takes care to only add the error source string if
  * it makes sense.
  *

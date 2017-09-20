@@ -1,3 +1,18 @@
+2017-09-20  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Fix minor documentation issues.
+
+	* base/drop_privileges.c (drop_privileges_error): Fix parameter name,
+	use correct Doxygen command to mark parameters.
+
+	* base/pwpolicy.c (is_keyword): Mark parameter properly instead of
+	using an incorrect reference.
+
+	* util/gpgmeutils.c (log_gpgme): Mark parameter properly instead of
+	using a non-existing reference.
+
+	* util/kb.h (kb_new): Add missing parameter.
+
 2017-09-15  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* util/xmlutils.c (make_entity): Fix flawed expansion from last
