@@ -1,3 +1,11 @@
+2017-09-22  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
+	Add vendor_version(), which should have been added with r29533.
+
+	* nasl/nasl_init.c (libfuncs): Add vendor_version().
+
+	* Changelog: Correct the log entry of 2017-09-08.
+
 2017-09-11  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	* nasl/nasl_tree.c, nasl/nasl_tree.h, nasl/exec.c, nasl/nasl_cert.c,
@@ -37,8 +45,6 @@
 
 	* nasl/nasl.c: Include ../misc/vendorversion.h.
 	(main) Add new command line option vendor-version.
-
-	* nasl/init.c (libfuncs): Add vendor_version().
 
 	* nasl/nasl_scanner_glue.c: Include ../misc/vendorversion.h.
 	(nasl_vendor_version): New function.
