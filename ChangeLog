@@ -1,3 +1,8 @@
+2017-09-26  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	* util/kb.c (redis_delete_all): Ignore SIGPIPE from hiredis in case of a
+	socket disconnect.
+
 2017-09-25  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* doc/Doxyfile.in, doc/Doxyfile_full.in: Set EXTRACT_PRIVATE and
