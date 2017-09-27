@@ -443,6 +443,50 @@ redis_new (kb_t *kb, const char *kb_path)
   return rc;
 }
 
+static int
+redis_no_empty (const char *kb_path)
+{
+  struct kb_redis *kbr;
+  unsigned int i = 1;
+  int rc = 0;
+
+  kbr = g_malloc0 (sizeof (struct kb_redis) + strlen (kb_path) + 1);
+  kbr->kb.kb_ops = &KBRedisOperations;
+  strncpy (kbr->path, kb_path, strlen (kb_path));
+
+  do
+    {
+      redisReply *rep;
+
+      kbr->rctx = redisConnectUnix (kbr->path);
+      if (kbr->rctx == NULL || kbr->rctx->err)
+        {
+          g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+                 "%s: redis connection error: %s", __func__,
+                 kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
+          redisFree (kbr->rctx);
+          g_free (kbr);
+          return -1;
+        }
+
+      kbr->db = i;
+      rep = redisCommand (kbr->rctx, "HEXISTS %s %d", GLOBAL_DBINDEX_NAME, i);
+      if (rep == NULL || rep->type != REDIS_REPLY_INTEGER || rep->integer != 1)
+        {
+          freeReplyObject (rep);
+          i++;
+          continue;
+        }
+      freeReplyObject (rep);
+      redisFree (kbr->rctx);
+      rc = 1;
+      break;      
+    }
+  while (i < kbr->max_db);
+
+  return rc;
+}
+
 void
 kb_item_free (struct kb_item *item)
 {
@@ -1032,6 +1076,7 @@ err_cleanup:
 
 static const struct kb_operations KBRedisOperations = {
   .kb_new          = redis_new,
+  .kb_no_empty     = redis_no_empty,
   .kb_delete       = redis_delete,
   .kb_get_single   = redis_get_single,
   .kb_get_str      = redis_get_str,

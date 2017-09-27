@@ -1,9 +1,17 @@
 2017-09-27  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
+	* base/kb.h (kb_operations): Add kb_no_empty.
+	(kb_no_empty): New inline function.
+
+	* base/kb_redis.c (redis_no_empty): New function.
+	(KBRedisOperations): Add kb_no_empty.
+
+2017-09-27  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
 	Backport r29677 with adjustments due to code changes.
 
-	* util/kb.c (redis_delete_all): Ignore SIGPIPE from hiredis in case
-	of a socket disconnect.
+	* base/kb_redis.c (redis_delete_all): Ignore SIGPIPE from hiredis in
+	case of a socket disconnect.
 
 2017-09-22  Juan Jose Nicola  <juan.nicola@greenbone.net>
 

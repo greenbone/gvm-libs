@@ -95,6 +95,7 @@ struct kb_operations
   /* ctor/dtor */
   int (*kb_new) (kb_t *, const char *);
   int (*kb_delete) (kb_t);
+  int (*kb_no_empty) (const char *);
 
   /* Actual kb operations */
   struct kb_item *(*kb_get_single) (kb_t, const char *, enum kb_item_type);
@@ -140,6 +141,19 @@ static inline int kb_new (kb_t *kb, const char *kb_path)
   *kb = NULL;
 
   return KBDefaultOperations->kb_new (kb, kb_path);
+}
+
+/**
+ * @brief Check if KB redis is empty.
+ * @param[in] kb_path   Path to KB.
+ * @return 1 success, 0 otherwise.
+ */
+static inline int kb_no_empty (const char *kb_path)
+{
+  assert (KBDefaultOperations);
+  assert (KBDefaultOperations->kb_no_empty);
+
+  return KBDefaultOperations->kb_no_empty (kb_path);
 }
 
 /**
