@@ -1,3 +1,10 @@
+2017-09-27  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
+	Backport r29677 with adjustments due to code changes.
+
+	* util/kb.c (redis_delete_all): Ignore SIGPIPE from hiredis in case
+	of a socket disconnect.
+
 2017-09-22  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
 	Add vendor_version(), which should have been added with r29533.

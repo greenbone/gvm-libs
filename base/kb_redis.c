@@ -1000,6 +1000,15 @@ redis_delete_all (struct kb_redis *kbr)
 {
   int rc;
   redisReply *rep;
+  struct sigaction new_action, original_action;
+
+  /* Ignore SIGPIPE, in case of a lost connection. */
+  new_action.sa_flags = 0;
+  if (sigemptyset (&new_action.sa_mask))
+    return -1;
+  new_action.sa_handler = SIG_IGN;
+  if (sigaction (SIGPIPE, &new_action, &original_action))
+    return -1;
 
   g_debug ("%s: deleting all elements from KB #%u", __func__, kbr->db);
   rep = redis_cmd (kbr, "FLUSHDB");
@@ -1012,6 +1021,8 @@ redis_delete_all (struct kb_redis *kbr)
   rc = 0;
 
 err_cleanup:
+  if (sigaction (SIGPIPE, &original_action, NULL))
+    return -1;
   if (rep != NULL)
     freeReplyObject (rep);
 
