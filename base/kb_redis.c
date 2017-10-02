@@ -443,6 +443,10 @@ redis_new (kb_t *kb, const char *kb_path)
   return rc;
 }
 
+/* The function redis_no_empty() have been written in openvas-libraries-9
+ * and it is used only in this branch for openvas-scanner-5.1. In the Trunk 
+ * version a new function kb_find() is used instead of this.
+ */
 static int
 redis_no_empty (const char *kb_path)
 {

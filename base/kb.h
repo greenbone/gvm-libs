@@ -95,6 +95,11 @@ struct kb_operations
   /* ctor/dtor */
   int (*kb_new) (kb_t *, const char *);
   int (*kb_delete) (kb_t);
+
+  /* The function kb_no_empty() have been written in openvas-libraries-9
+   * and it is used only in this branch for openvas-scanner-5.1. In the Trunk 
+   * version a new function kb_find() is used instead of this.
+   */
   int (*kb_no_empty) (const char *);
 
   /* Actual kb operations */

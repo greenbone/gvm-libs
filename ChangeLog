@@ -1,3 +1,12 @@
+2017-10-02  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
+	* base/kb.h (kb_operations): Add a function comment about why
+	it was written and where it is called from.
+
+	* base/kb_redis.c (redis_no_empty): Add a function comment about why
+	it was written and where it is called from.
+
+
 2017-09-27  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
 	* base/kb.h (kb_operations): Add kb_no_empty.
