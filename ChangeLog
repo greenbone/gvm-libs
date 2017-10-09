@@ -1,3 +1,9 @@
+2017-10-09  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
+ 	* base/kb_redis.c (redis_no_empty): Check ret before to free it to
+	avoid SIGSEGV.
+
+
 2017-10-02  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
 	* base/kb.h (kb_operations): Add a function comment about why
