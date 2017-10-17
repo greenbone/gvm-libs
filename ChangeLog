@@ -1,3 +1,9 @@
+2017-10-17  Juan Jose Nicola  <juan.nicola@greenbone.net>
+
+	* util/ldaputils.c (ldap_auth_bind): Perform an anonymous bind to
+	search a DN using the recieved uid as filter. Otherwise use the
+	received DN.
+
 2017-09-26  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	* util/kb.c (redis_delete_all): Ignore SIGPIPE from hiredis in case of a
