@@ -1,3 +1,8 @@
+2017-10-22  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	* base/hosts.c (gvm_host_reverse_lookup): Retry on getnameinfo()
+	returning EAI_AGAIN.
+
 2017-10-17  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
 	* util/ldaputils.c (ldap_auth_bind): Perform an anonymous bind to
