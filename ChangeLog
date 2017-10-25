@@ -1,5 +1,12 @@
 2017-10-25  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
+	Backport r29883.
+
+	* base/hosts.c (gvm_host_reverse_lookup): Retry on getnameinfo()
+	returning EAI_AGAIN.
+
+2017-10-25  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
 	Backport r29916.
 
 	* nasl/nasl_socket.c (nasl_open_privileged_socket): Set lowest_socket

@@ -1386,17 +1386,22 @@ openvas_host_reverse_lookup (openvas_host_t *host)
   else if (host->type == HOST_TYPE_IPV4)
     {
       struct sockaddr_in sa;
+      int retry = 2;
       gchar hostname[1000];
 
       bzero (&sa, sizeof (struct sockaddr));
       sa.sin_addr = host->addr;
       sa.sin_family = AF_INET;
-
-      if (getnameinfo ((struct sockaddr *) &sa, sizeof (sa), hostname,
-                       sizeof (hostname), NULL, 0, NI_NAMEREQD))
-        return NULL;
-      else
-        return g_strdup (hostname);
+      while (retry--)
+        {
+          int ret = getnameinfo ((struct sockaddr *) &sa, sizeof (sa), hostname,
+                                 sizeof (hostname), NULL, 0, NI_NAMEREQD);
+          if (!ret)
+            return g_strdup (hostname);
+          if (ret != EAI_AGAIN)
+            break;
+        }
+      return NULL;
     }
   else if (host->type == HOST_TYPE_IPV6)
     {
