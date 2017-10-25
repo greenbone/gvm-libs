@@ -1,8 +1,14 @@
+2017-10-25  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	Backport r29916.
+
+	* nasl/nasl_socket.c (nasl_open_privileged_socket): Set lowest_socket
+	variable, to fix close() error message.
+
 2017-10-09  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
- 	* base/kb_redis.c (redis_no_empty): Check ret before to free it to
+	* base/kb_redis.c (redis_no_empty): Check ret before to free it to
 	avoid SIGSEGV.
-
 
 2017-10-02  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
