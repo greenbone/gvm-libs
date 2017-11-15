@@ -30,6 +30,9 @@ void *
 gvm_compress (const void *, unsigned long, unsigned long *);
 
 void *
+gvm_compress_gzipheader (const void *, unsigned long, unsigned long *);
+
+void *
 gvm_uncompress (const void *, unsigned long, unsigned long *);
 
 #endif /* not _GVM_COMPRESSUTILS_H */
