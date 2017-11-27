@@ -1,3 +1,11 @@
+2017-11-23  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	Backport r29981.
+
+	* nasl/nasl_ssh.c (exec_ssh_cmd): Attach session to a pseudo-terminal
+	before executing the command. This ensures that long-running commands
+	are properly terminated by the host on session disconnect.
+
 2017-10-25  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	Backport r29883.
