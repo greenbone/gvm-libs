@@ -1,3 +1,10 @@
+2017-12-06  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	* base/networking.c (addr6_to_str): New function.
+	(addr6_as_str): Use new function.
+
+	* base/networking.h: Add new function header.
+
 2017-11-15  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
 	* util/compressutils.c (gvm_compress_gzipheader): New function.
