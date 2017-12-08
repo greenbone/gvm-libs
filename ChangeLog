@@ -1,5 +1,10 @@
 2017-12-08  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
+	* tests/test-hosts.c (print_vhosts): Cast void* to char* to fix compiler
+	warning.
+
+2017-12-08  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
 	Attach a list of vhosts to each host.
 
 	* base/hosts.h (gvm_host_t): Add vhosts list.

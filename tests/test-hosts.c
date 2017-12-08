@@ -45,7 +45,7 @@ print_vhosts (gvm_host_t *host)
   GSList *tmp = host->vhosts;
   while (tmp)
     {
-      printf (" %s", tmp->data);
+      printf (" %s", (char *) tmp->data);
       tmp = tmp->next;
     }
   if (host->vhosts)
