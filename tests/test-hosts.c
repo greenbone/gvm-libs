@@ -39,6 +39,18 @@
 
 #include "../base/hosts.h" /* for gvm_host_type_str, gvm_host_resolve, gvm_... */
 
+static void
+print_vhosts (gvm_host_t *host)
+{
+  GSList *tmp = host->vhosts;
+  while (tmp)
+    {
+      printf (" %s", tmp->data);
+      tmp = tmp->next;
+    }
+  if (host->vhosts)
+    printf ("\n");
+}
 int
 main (int argc, char **argv)
 {
@@ -56,6 +68,7 @@ main (int argc, char **argv)
       if (gvm_hosts_exclude (hosts, argv[2], 1) == -1)
         return 2;
     }
+  gvm_hosts_resolve (hosts);
 
   printf ("Count: %u\n", gvm_hosts_count (hosts));
   printf ("Removed: %u\n", gvm_hosts_removed (hosts));
@@ -108,6 +121,7 @@ main (int argc, char **argv)
         }
       else
         printf ("#%d %s %s\n", i, gvm_host_type_str (host), str);
+      print_vhosts (host);
 
       i++;
       g_free (str);

@@ -73,6 +73,7 @@ struct gvm_host
     struct in6_addr addr6;  /**< IPv6 address */
   };
   enum host_type type;  /**< HOST_TYPE_NAME, HOST_TYPE_IPV4 or HOST_TYPE_IPV6. */
+  GSList *vhosts;
 };
 
 /**

@@ -851,6 +851,7 @@ gvm_host_free (gpointer host)
   if (h->type == HOST_TYPE_NAME)
     g_free (h->name);
 
+  g_slist_free_full (h->vhosts, g_free);
   g_free (h);
 }
 
@@ -881,21 +882,27 @@ gvm_hosts_deduplicate (gvm_hosts_t *hosts)
 
       if ((name = gvm_host_value_str (element->data)))
         {
-          if (g_hash_table_lookup (name_table, name))
+          gvm_host_t *host;
+          host = g_hash_table_lookup (name_table, name);
+          if (host)
             {
               GList *tmp;
+              gvm_host_t *removed;
 
+              /* Remove duplicate host. Add its vhosts to the original host. */
               tmp = element;
               element = element->next;
-              gvm_host_free (tmp->data);
+              removed = tmp->data;
+              host->vhosts = g_slist_concat (host->vhosts, removed->vhosts);
+              removed->vhosts = NULL;
+              gvm_host_free (removed);
               hosts->hosts = g_list_delete_link (hosts->hosts, tmp);
               duplicates++;
               g_free (name);
             }
           else
             {
-              /* Insert in hash table. Value not important, but not NULL. */
-              g_hash_table_insert (name_table, name, hosts);
+              g_hash_table_insert (name_table, name, element->data);
               element = element->next;
             }
         }
@@ -1266,15 +1273,15 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
       if (host->type != HOST_TYPE_NAME)
         continue;
 
+      /* XXX: Handle IPv6 + -a cases. */
       if (gvm_host_resolve (host, &addr, AF_INET) == 0)
         {
-          g_free (host->name);
+          host->vhosts = g_slist_prepend (host->vhosts, host->name);
           host->type = HOST_TYPE_IPV4;
           memcpy (&host->addr, &addr, sizeof (host->addr));
         }
     }
-
-  hosts->current = hosts->hosts;
+  gvm_hosts_deduplicate (hosts);
 }
 
 /**

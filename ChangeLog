@@ -1,3 +1,18 @@
+2017-12-08  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	Attach a list of vhosts to each host.
+
+	* base/hosts.h (gvm_host_t): Add vhosts list.
+
+	* base/hosts.c (gvm_hosts_free): Free vhosts list.
+	(gvm_hosts_deduplicate): Add vhosts of duplicate hosts to the unique
+	host before removing them.
+	(gvm_hosts_resolve): Add resolved hostname to the vhosts list.
+	Deduplicate the hosts afterwards.
+
+	* tests/test-hosts.c (print_vhosts): New function.
+	(main): Resolve the hostnames. Print the vhosts list of each host.
+
 2017-12-06  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	* base/networking.c (addr6_to_str): New function.
