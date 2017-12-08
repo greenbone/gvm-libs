@@ -485,10 +485,11 @@ redis_no_empty (const char *kb_path)
       freeReplyObject (rep);
       redisFree (kbr->rctx);
       rc = 1;
-      break;      
+      break;
     }
   while (i < kbr->max_db);
 
+  g_free (kbr);
   return rc;
 }
 
