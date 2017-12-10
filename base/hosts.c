@@ -1408,8 +1408,7 @@ gvm_hosts_exclude (gvm_hosts_t *hosts, const char *excluded_str, int resolve)
  *
  * @param[in] host The host to reverse-lookup.
  *
- * @return Result of look-up or name if host of type name already, NULL
- * otherwise. Free with g_free().
+ * @return Result of look-up, NULL otherwise.
  */
 char *
 gvm_host_reverse_lookup (gvm_host_t *host)
@@ -1419,7 +1418,7 @@ gvm_host_reverse_lookup (gvm_host_t *host)
     return NULL;
 
   if (host->type == HOST_TYPE_NAME)
-    return g_strdup (host->name);
+    return NULL;
   else if (host->type == HOST_TYPE_IPV4)
     {
       struct sockaddr_in sa;
@@ -1457,6 +1456,37 @@ gvm_host_reverse_lookup (gvm_host_t *host)
     }
   else
     return NULL;
+}
+
+/**
+ * @brief Add a host's reverse-lookup name to the vhosts list.
+ *
+ * @param[in] host  The host to which we add the vhost.
+ */
+void
+gvm_host_add_reverse_lookup (gvm_host_t *host)
+{
+  GSList *vhosts;
+  char *vhost;
+
+  if (!host || host->type == HOST_TYPE_NAME)
+    return;
+
+  vhost = gvm_host_reverse_lookup (host);
+  if (!vhost)
+    return;
+  vhosts = host->vhosts;
+  /* Don't add vhost, if already in the list. */
+  while (vhosts)
+    {
+      if (!strcmp (vhosts->data, vhost))
+        {
+          g_free (vhost);
+          return;
+        }
+      vhosts = vhosts->next;
+    }
+  host->vhosts = g_slist_prepend (host->vhosts, vhost);
 }
 
 /**

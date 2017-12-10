@@ -1,3 +1,12 @@
+2017-12-09  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	* base/hosts.c (gvm_host_reverse_lookup): Return NULL in HOST_TYPE_NAME
+	case.
+	(gvm_host_add_reverse_lookup): New function.
+
+	* tests/test-hosts.c (main): Add reverse-lookup name to the host's
+	vhosts list.
+
 2017-12-08  Hani Benhabiles  <hani.benhabiles@greenbone.net>
 
 	* tests/test-hosts.c (print_vhosts): Cast void* to char* to fix compiler

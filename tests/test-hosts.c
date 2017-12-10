@@ -78,6 +78,7 @@ main (int argc, char **argv)
     {
       char *str;
 
+      gvm_host_add_reverse_lookup (host);
       str = gvm_host_value_str (host);
       if (gvm_host_type (host) == HOST_TYPE_NAME)
         {
