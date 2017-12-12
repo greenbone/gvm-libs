@@ -316,6 +316,53 @@ sockaddr_as_str (const struct sockaddr_storage *addr, char *str)
 }
 
 /**
+ * @brief Returns a list of addresses that a hostname resolves to.
+ *
+ * @param[in]   name    Hostname to resolve.
+ *
+ * @return List of addresses, NULL otherwise.
+ */
+GSList *
+gvm_resolve_list (const char *name)
+{
+  struct addrinfo hints, *info, *p;
+  GSList *list = NULL;
+
+  if (name == NULL)
+    return NULL;
+
+  bzero (&hints, sizeof (hints));
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = 0;
+  if ((getaddrinfo (name, NULL, &hints, &info)) != 0)
+    return NULL;
+
+  p = info;
+  while (p)
+    {
+      struct in6_addr dst;
+
+      if (p->ai_family == AF_INET)
+        {
+          struct sockaddr_in *addrin = (struct sockaddr_in *) p->ai_addr;
+          ipv4_as_ipv6 (&(addrin->sin_addr), &dst);
+          list = g_slist_prepend (list, g_memdup (&dst, sizeof (dst)));
+        }
+      else if (p->ai_family == AF_INET6)
+        {
+          struct sockaddr_in6 *addrin = (struct sockaddr_in6 *) p->ai_addr;
+          memcpy (&dst, &(addrin->sin6_addr), sizeof (struct in6_addr));
+          list = g_slist_prepend (list, g_memdup (&dst, sizeof (dst)));
+        }
+      p = p->ai_next;
+    }
+
+  freeaddrinfo (info);
+  return list;
+}
+
+/**
  * @brief Resolves a hostname to an IPv4 or IPv6 address.
  *
  * @param[in]   name    Hostname to resolve.

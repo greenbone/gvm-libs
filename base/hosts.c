@@ -1268,18 +1268,46 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
 
   while ((host = gvm_hosts_next (hosts)))
     {
-      struct in_addr addr;
+      GSList *list, *tmp;
 
       if (host->type != HOST_TYPE_NAME)
         continue;
 
-      /* XXX: Handle IPv6 + -a cases. */
-      if (gvm_host_resolve (host, &addr, AF_INET) == 0)
+      list = tmp = gvm_resolve_list (host->name);
+      while (tmp)
         {
-          host->vhosts = g_slist_prepend (host->vhosts, host->name);
-          host->type = HOST_TYPE_IPV4;
-          memcpy (&host->addr, &addr, sizeof (host->addr));
+          /* Create a new host for each IP address. */
+          char *name = NULL;
+          struct in6_addr *ip6 = tmp->data;
+          gvm_host_t *new;
+          name = g_strdup (host->name);
+          new = gvm_host_new ();
+          if (ip6->s6_addr32[0] != 0 || ip6->s6_addr32[1] != 0
+              || ip6->s6_addr32[2] != htonl (0xffff))
+            {
+               new->type = HOST_TYPE_IPV6;
+               memcpy (&new->addr6, ip6, sizeof (new->addr));
+            }
+          else
+            {
+               new->type = HOST_TYPE_IPV4;
+               memcpy (&new->addr6, &ip6->s6_addr32[3], sizeof (new->addr));
+            }
+          new->vhosts = g_slist_prepend (new->vhosts, name);
+          hosts->hosts = g_list_prepend (hosts->hosts, new);
+          hosts->count++;
+          tmp = tmp->next;
         }
+      if (list)
+        {
+          /* Remove ancient host. */
+          hosts->hosts = g_list_delete_link
+                          (hosts->hosts, g_list_find (hosts->hosts, host));
+          gvm_host_free (host);
+          hosts->count--;
+          hosts->removed++;
+        }
+      g_slist_free_full (list, g_free);
     }
   gvm_hosts_deduplicate (hosts);
 }
