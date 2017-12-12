@@ -96,6 +96,9 @@ sockaddr_as_str (const struct sockaddr_storage *, char *);
 int
 gvm_resolve (const char *, void *, int);
 
+GSList *
+gvm_resolve_list (const char *);
+
 int
 gvm_resolve_as_addr6 (const char *, struct in6_addr *);
 
