@@ -13,4 +13,4 @@ compiler:
   - gcc
 
 script:
-  - mkdir build && cd build/ && cmake -DCMAKE_BUILD_TYPE=Release .. && make install ; cd ..
+  - mkdir build && cd build/ && cmake -DCMAKE_BUILD_TYPE=Release .. && sudo make install
