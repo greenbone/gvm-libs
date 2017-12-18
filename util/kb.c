@@ -788,6 +788,26 @@ redis_get_int (kb_t kb, const char *name)
   return -1;
 }
 
+static char *
+redis_get_nvt (kb_t kb, const char *oid, enum kb_nvt_pos position)
+{
+  struct kb_redis *kbr;
+  redisReply *rep;
+  char *res = NULL;
+
+  kbr = redis_kb (kb);
+  rep = redis_cmd (kbr, "LINDEX nvt:%s %d", oid, position);
+  if (!rep)
+    return NULL;
+  if (rep->type == REDIS_REPLY_INTEGER)
+    res = g_strdup_printf ("%lld", rep->integer);
+  else if (rep->type == REDIS_REPLY_STRING)
+    res = g_strdup (rep->str);
+  freeReplyObject (rep);
+
+  return res;
+}
+
 static struct kb_item *
 redis_get_all (kb_t kb, const char *name)
 {
@@ -1007,6 +1027,44 @@ out:
 }
 
 static int
+redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
+{
+  struct kb_redis *kbr;
+  redisReply *rep = NULL;
+  int rc = 0;
+
+  if (!nvt || !filename)
+    return -1;
+
+  kbr = redis_kb (kb);
+  rep = redis_cmd (kbr,
+                   "RPUSH nvt:%s %s %s %s %s %s %s %s %s %s %s %s %d %d %s %s"
+                   " %s %s",
+                   nvti_oid (nvt), filename, nvti_required_keys (nvt) ?: "",
+                   nvti_mandatory_keys (nvt) ?: "",
+                   nvti_excluded_keys (nvt) ?: "",
+                   nvti_required_udp_ports (nvt) ?: "",
+                   nvti_required_keys (nvt) ?: "",
+                   nvti_dependencies (nvt) ?: "", nvti_tag (nvt) ?: "",
+                   nvti_cve (nvt) ?: "", nvti_bid (nvt) ?: "",
+                   nvti_xref (nvt) ?: "", nvti_category (nvt),
+                   nvti_timeout (nvt), nvti_family (nvt), nvti_copyright (nvt),
+                   nvti_name (nvt), nvti_version (nvt));
+  if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
+    rc = -1;
+  if (rep != NULL)
+    freeReplyObject (rep);
+
+  rep = redis_cmd (kbr, "SADD filename:%s:oid %s", filename, nvti_oid (nvt));
+  if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
+    rc = -1;
+  if (rep != NULL)
+    freeReplyObject (rep);
+
+  return rc;
+}
+
+static int
 redis_lnk_reset (kb_t kb)
 {
   struct kb_redis *kbr;
@@ -1155,12 +1213,14 @@ static const struct kb_operations KBRedisOperations = {
   .kb_get_single   = redis_get_single,
   .kb_get_str      = redis_get_str,
   .kb_get_int      = redis_get_int,
+  .kb_get_nvt      = redis_get_nvt,
   .kb_get_all      = redis_get_all,
   .kb_get_pattern  = redis_get_pattern,
   .kb_add_str      = redis_add_str,
   .kb_set_str      = redis_set_str,
   .kb_add_int      = redis_add_int,
   .kb_set_int      = redis_set_int,
+  .kb_add_nvt      = redis_add_nvt,
   .kb_del_items    = redis_del_items,
   .kb_lnk_reset    = redis_lnk_reset,
   .kb_save         = redis_save,

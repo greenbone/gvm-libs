@@ -30,6 +30,8 @@
 #include <stddef.h>    /* for NULL */
 #include <sys/types.h> /* for size_t */
 
+#include "../base/nvti.h" /* for nvti_t */
+
 /**
  * @brief Default KB location.
  *
@@ -48,6 +50,29 @@ enum kb_item_type {
   KB_TYPE_STR,      /**< The kb_items v should then be interpreted as char*. */
   /* -- */
   KB_TYPE_CNT,
+};
+
+/**
+ * @brief Possible positions of nvt values in cache list.
+ */
+enum kb_nvt_pos {
+    NVT_FILENAME_POS,
+    NVT_REQUIRED_KEYS_POS,
+    NVT_MANDATORY_KEYS_POS,
+    NVT_EXCLUDED_KEYS_POS,
+    NVT_REQUIRED_UDP_PORTS_POS,
+    NVT_REQUIRED_PORTS_POS,
+    NVT_DEPENDENCIES_POS,
+    NVT_TAGS_POS,
+    NVT_CVES_POS,
+    NVT_BIDS_POS,
+    NVT_XREFS_POS,
+    NVT_CATEGORY_POS,
+    NVT_TIMEOUT_POS,
+    NVT_FAMILY_POS,
+    NVT_COPYRIGHT_POS,
+    NVT_NAME_POS,
+    NVT_VERSION_POS,
 };
 
 /**
@@ -103,12 +128,14 @@ struct kb_operations
   struct kb_item *(*kb_get_single) (kb_t, const char *, enum kb_item_type);
   char *(*kb_get_str) (kb_t, const char *);
   int (*kb_get_int) (kb_t, const char *);
+  char *(*kb_get_nvt) (kb_t, const char *, enum kb_nvt_pos);
   struct kb_item * (*kb_get_all) (kb_t, const char *);
   struct kb_item * (*kb_get_pattern) (kb_t, const char *);
   int (*kb_add_str) (kb_t, const char *, const char *, size_t);
   int (*kb_set_str) (kb_t, const char *, const char *, size_t);
   int (*kb_add_int) (kb_t, const char *, int);
   int (*kb_set_int) (kb_t, const char *, int);
+  int (*kb_add_nvt) (kb_t, const nvti_t *, const char *);
   int (*kb_del_items) (kb_t, const char *);
 
   /* Utils */
@@ -329,6 +356,40 @@ kb_item_set_int (kb_t kb, const char *name, int val)
   assert (kb->kb_ops->kb_set_int);
 
   return kb->kb_ops->kb_set_int (kb, name, val);
+}
+
+/**
+ * @brief Insert a new nvt.
+ * @param[in] kb        KB handle where to store the nvt.
+ * @param[in] nvt       nvt to store.
+ * @param[in] filename  Path to nvt to store.
+ * @return 0 on success, non-null on error.
+ */
+static inline int
+kb_nvt_add (kb_t kb, const nvti_t *nvt, const char *filename)
+{
+  assert (kb);
+  assert (kb->kb_ops);
+  assert (kb->kb_ops->kb_add_nvt);
+
+  return kb->kb_ops->kb_add_nvt (kb, nvt, filename);
+}
+
+/**
+ * @brief Get field of a NVT.
+ * @param[in] kb        KB handle where to store the nvt.
+ * @param[in] oid       OID of NVT to get from.
+ * @param[in] field     Name of field to get.
+ * @return Value of field, NULL otherwise.
+ */
+static inline char *
+kb_nvt_get (kb_t kb, const char *oid, enum kb_nvt_pos position)
+{
+  assert (kb);
+  assert (kb->kb_ops);
+  assert (kb->kb_ops->kb_add_nvt);
+
+  return kb->kb_ops->kb_get_nvt (kb, oid, position);
 }
 
 /**
