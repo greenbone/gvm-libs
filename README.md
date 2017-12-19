@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/greenbone/gvm-libs.svg?branch=master)](https://travis-ci.org/greenbone/gvm-libs)
+[![CircleCI](https://circleci.com/gh/greenbone/gvm-libs/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/gvm-libs/tree/master)
 
 gvm-libs
 ========
