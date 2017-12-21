@@ -379,7 +379,7 @@ kb_nvt_add (kb_t kb, const nvti_t *nvt, const char *filename)
  * @brief Get field of a NVT.
  * @param[in] kb        KB handle where to store the nvt.
  * @param[in] oid       OID of NVT to get from.
- * @param[in] field     Name of field to get.
+ * @param[in] position  Position of field to get.
  * @return Value of field, NULL otherwise.
  */
 static inline char *
