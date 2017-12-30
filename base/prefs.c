@@ -166,10 +166,13 @@ prefs_dump (void)
   void *name, *value;
   GHashTableIter iter;
 
-  g_hash_table_iter_init (&iter, global_prefs);
-  while (g_hash_table_iter_next (&iter, &name, &value))
+  if (global_prefs)
     {
-      printf ("%s = %s\n", (char *) name, (char *) value);
+      g_hash_table_iter_init (&iter, global_prefs);
+      while (g_hash_table_iter_next (&iter, &name, &value))
+        {
+          printf ("%s = %s\n", (char *) name, (char *) value);
+        }
     }
 }
 
