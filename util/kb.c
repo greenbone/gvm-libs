@@ -487,6 +487,7 @@ redis_find (const char *kb_path, const char *key)
     }
   while (i < kbr->max_db);
 
+  g_free (kbr);
   return NULL;
 }
 
