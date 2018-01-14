@@ -303,27 +303,101 @@ ldap_auth_bind (const gchar *host, const gchar *userdn,
 
   g_free (ldapuri);
 
-  credential.bv_val = g_strdup (password);
-  credential.bv_len = strlen (password);
+  int do_search = 0;
+  LDAPDN dn = NULL;
+  gchar *use_dn = NULL;
+  gchar **uid = NULL;
 
-  ldap_return =
-    ldap_sasl_bind_s (ldap, userdn, LDAP_SASL_SIMPLE, &credential, NULL, NULL,
-                      NULL);
-  g_free (credential.bv_val);
-  if (ldap_return != LDAP_SUCCESS)
+  /* Validate the DN with the LDAP library. */
+  if (ldap_str2dn (userdn, &dn, LDAP_DN_FORMAT_LDAPV3) == LDAP_SUCCESS)
     {
-      g_warning ("LDAP authentication failure: %s",
-                 ldap_err2string (ldap_return));
-      goto fail;
+      gchar **use_uid = NULL;
+      ldap_memfree (dn);
+      dn = NULL;
+      uid = g_strsplit (userdn,",",2);
+      use_uid = g_strsplit (uid[0],"=", 2);
+
+      if (!g_strcmp0 (use_uid[0], "uid"))
+        do_search = 1;
+      else
+        {
+          g_strfreev (uid);
+          uid = NULL;
+        }
+      g_strfreev (use_uid);
+      use_uid = NULL;
     }
 
-  if (fd > -1)
+  /* The uid attribute was given, so a search is performed. */
+  if (do_search)
     {
-      g_unlink (name);
-      close (fd);
-      g_free (name);
+      /* Perform anonymous bind to search. */
+      credential.bv_val = NULL;
+      credential.bv_len = 0U;
+      ldap_return = ldap_sasl_bind_s (ldap, NULL, LDAP_SASL_SIMPLE,
+                                      &credential, NULL, NULL, NULL);
+      if (ldap_return != LDAP_SUCCESS)
+        {
+          g_warning ("LDAP anonymous authentication failure: %s",
+                     ldap_err2string (ldap_return));
+          goto fail;
+        }
+      else
+        {
+          char *attrs[2] = { "dn", NULL };
+          LDAPMessage *result = NULL;
+          gchar **base = g_strsplit (userdn, ",", 2);
+
+          /* search for the DN and unbind */
+          ldap_return =
+            ldap_search_ext_s (ldap, base[1], LDAP_SCOPE_SUBTREE, uid[0], attrs,
+                               0, NULL, NULL, NULL, 1, &result);
+          g_strfreev (base);
+          base = NULL;
+          g_strfreev (uid);
+          uid = NULL;
+          if (ldap_return != LDAP_SUCCESS)
+            use_dn = g_strdup (userdn);
+          else
+            {
+              gchar *found_dn;
+              found_dn = ldap_get_dn (ldap, result);
+              if ((found_dn == NULL) || (strlen (found_dn) == 0U))
+                use_dn = g_strdup (userdn);
+              else
+                use_dn = g_strdup (found_dn);
+              ldap_memfree (found_dn);
+            }
+          ldap_msgfree (result);
+        }
     }
-  return ldap;
+  else
+    use_dn = g_strdup (userdn);
+
+  if (use_dn != NULL)
+    {
+      credential.bv_val = g_strdup (password);
+      credential.bv_len = strlen (password);
+      ldap_return = ldap_sasl_bind_s (ldap, use_dn, LDAP_SASL_SIMPLE,
+                                      &credential, NULL, NULL, NULL);
+      g_free (credential.bv_val);
+      g_free (use_dn);
+      if (ldap_return != LDAP_SUCCESS)
+        {
+          g_warning ("LDAP authentication failure: %s.",
+                     ldap_err2string (ldap_return));
+          goto fail;
+
+        }
+
+      if (fd > -1)
+        {
+          g_unlink (name);
+          close (fd);
+          g_free (name);
+        }
+      return ldap;
+    }
 
  fail:
   if (fd > -1)
