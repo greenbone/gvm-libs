@@ -278,6 +278,7 @@ nasl_func_call (lex_ctxt * lexic, const nasl_func * f, tree_cell * arg_list)
           deref_cell (retc);
           retc = FAKE_CELL;
           nasl_set_function_name (temp_funname);
+          g_free (temp_funname);
         }
 
       nasl_set_filename (tmp_filename);
