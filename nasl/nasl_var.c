@@ -1115,7 +1115,7 @@ var2int (anon_nasl_var * v, int defval)
     }
  /*NOTREACHED*/}
 
-const char *
+char *
 array2str (const nasl_array * a)
 {
   GString *str;
@@ -1124,7 +1124,7 @@ array2str (const nasl_array * a)
   named_nasl_var *v;
 
   if (a == NULL)
-    return "";
+    return NULL;
 
   str = g_string_new ("[ ");
   if (a->num_elt != NULL)
