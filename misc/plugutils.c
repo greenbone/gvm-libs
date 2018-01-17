@@ -510,7 +510,6 @@ get_plugin_preference (const char *oid, const char *name)
               if (!strcmp (t, plug_name))
                 {
                   a[0] = old;
-                  g_free (plug_name);
                   g_free (cname);
                   nvti_free (nvti);
                   return (prefs->value);
@@ -520,7 +519,6 @@ get_plugin_preference (const char *oid, const char *name)
         }
       prefs = prefs->next;
     }
-  g_free (plug_name);
   g_free (cname);
   nvti_free (nvti);
   return (NULL);
