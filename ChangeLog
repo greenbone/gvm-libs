@@ -1,3 +1,10 @@
+2018-01-17  Hani Benhabiles  <hani.benhabiles@greenbone.net>
+
+	Backport misc/ part of r29656.
+
+	* misc/plugutils.c (get_plugin_preference): When no value is found in
+	memory preferences, use the default one from nvticache.
+
 2017-12-08  Juan Jose Nicola  <juan.nicola@greenbone.net>
 
 	* base/kb_redis.c (redis_no_empty): Free kbr before return in

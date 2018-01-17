@@ -479,7 +479,7 @@ char *
 get_plugin_preference (const char *oid, const char *name)
 {
   struct arglist *prefs;
-  char *plug_name, *cname;
+  char *plug_name, *cname, *retval = NULL;
   nvti_t * nvti;
 
   prefs = preferences_get ();
@@ -510,18 +510,34 @@ get_plugin_preference (const char *oid, const char *name)
               if (!strcmp (t, plug_name))
                 {
                   a[0] = old;
-                  g_free (cname);
-                  nvti_free (nvti);
-                  return (prefs->value);
+                  retval = g_strdup (prefs->value);
+                  break;
                 }
               a[0] = old;
             }
         }
       prefs = prefs->next;
     }
+
+  /* If no value set by the user, get the default one. */
+  if (!retval)
+    {
+       unsigned int i;
+
+       for (i = 0; i < nvti_pref_len (nvti); i++)
+         {
+           const nvtpref_t *nvtpref = nvti_pref (nvti, i);
+           if (!strcmp (cname, nvtpref_name (nvtpref)))
+              {
+                retval = g_strdup (nvtpref_default (nvtpref));
+                break;
+              }
+         }
+    }
+
   g_free (cname);
   nvti_free (nvti);
-  return (NULL);
+  return retval;
 }
 
 /**
