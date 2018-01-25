@@ -624,6 +624,7 @@ init_nasl_ctx(naslctxt* pc, const char* name)
       else if (!strcmp (check, "0"))
         {
           g_free (full_name);
+          g_free (check);
           return -1;
         }
       else
@@ -634,9 +635,11 @@ init_nasl_ctx(naslctxt* pc, const char* name)
               /* md5sum of file matches. No need to reverify. */
               g_free (full_name);
               g_free (md5sum);
+              g_free (check);
               return 0;
             }
           /* Different md5sum. Reverify. */
+          g_free (check);
           g_free (md5sum);
         }
     }
