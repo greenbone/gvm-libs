@@ -481,7 +481,9 @@ glob: GLOBAL arg_decl
 #include <stdio.h>
 #include <stdlib.h>
 #include "../misc/openvas_logging.h"
+#include "../misc/prefs.h"
 #include "../base/openvas_file.h"
+#include <libgen.h>
 #include <gcrypt.h>
 
 static void
@@ -557,6 +559,65 @@ file_md5sum (const char *filename)
   return result;
 }
 
+static void
+load_signatures (kb_t kb)
+{
+  static int loaded = 0;
+  const char *base;
+  char filename[2048], *fbuffer;
+  FILE *file;
+  size_t flen;
+
+  if (loaded)
+    return;
+  loaded = 1;
+  base = prefs_get ("plugins_folder");
+  snprintf (filename, sizeof (filename), "%s/md5sums", base);
+  if (!g_file_get_contents (filename, &fbuffer, &flen, NULL))
+    return;
+  /* Verify md5sums.asc */
+  if (nasl_verify_signature (filename) != 0)
+    {
+      g_message ("%s: Missing or erroneous md5sums.asc", __FUNCTION__);
+      g_free (fbuffer);
+      //XXX return;
+    }
+  //XXX g_free (fbuffer);
+
+  /* Insert content into KB */
+  file = fopen (filename, "r");
+  if (!file)
+    {
+      log_legacy_write ("%s: Couldn't read file %s", __FUNCTION__, filename);
+      return;
+    }
+  kb_del_items (kb, "md5sums:*");
+  while (1)
+    {
+      char buffer[2048], **splits;
+      if (!fgets (buffer, sizeof (buffer), file))
+        break;
+      if (strstr (buffer, ".asc")
+          || (!strstr (buffer, ".inc") && !strstr (buffer, ".nasl")))
+        continue;
+      splits = g_strsplit (buffer, "  ", -1);
+      if (g_strv_length (splits) != 2)
+        {
+          g_warning ("%s: Erroneous md5sums entry %s", __FUNCTION__, buffer);
+          g_strfreev (splits);
+          break;
+        }
+      splits[1][strlen (splits[1]) - 1] = '\0';
+      if (strstr (splits[1], ".inc"))
+        g_snprintf (buffer, sizeof (buffer), "md5sums:%s", basename (splits[1]));
+      else
+        g_snprintf (buffer, sizeof (buffer), "md5sums:%s/%s", base, splits[1]);
+      kb_item_add_str (kb, buffer, splits[0]);
+      g_strfreev (splits);
+    }
+  fclose (file);
+}
+
 /**
  * @brief Initialize a NASL context for a NASL file.
  *
@@ -576,7 +637,7 @@ file_md5sum (const char *filename)
 int
 init_nasl_ctx(naslctxt* pc, const char* name)
 {
-  char *full_name = NULL, key_path[2048];
+  char *full_name = NULL, key_path[2048], *md5sum;
   GSList * inc_dir = inc_dirs; // iterator for include directories
 
   // initialize if not yet done (for openvas-server < 2.0.1)
@@ -613,57 +674,31 @@ init_nasl_ctx(naslctxt* pc, const char* name)
     }
   /* Cache the md5sum of signature verified files, so that commonly included
    * files are not verified multiple times per scan. */
-  if (pc->kb)
-    {
-      char *check, *md5sum;
 
-      snprintf (key_path, sizeof (key_path), "SignatureCheck/%s", full_name);
-      check = kb_item_get_str (pc->kb, key_path);
-      if (!check)
-        ;
-      else if (!strcmp (check, "0"))
-        {
-          g_free (full_name);
-          g_free (check);
-          return -1;
-        }
-      else
-        {
-          md5sum = file_md5sum (full_name);
-          if (!strcmp (check, md5sum))
-            {
-              /* md5sum of file matches. No need to reverify. */
-              g_free (full_name);
-              g_free (md5sum);
-              g_free (check);
-              return 0;
-            }
-          /* Different md5sum. Reverify. */
-          g_free (check);
-          g_free (md5sum);
-        }
-    }
-
-  if (nasl_verify_signature(full_name) != 0)
+  load_signatures (pc->kb);
+  if (strstr (full_name, ".inc"))
+    snprintf (key_path, sizeof (key_path), "md5sums:%s", basename (full_name));
+  else
+    snprintf (key_path, sizeof (key_path), "md5sums:%s", full_name);
+  md5sum = kb_item_get_str (pc->kb, key_path);
+  if (!md5sum)
     {
-      log_legacy_write ("%s: Will not execute. Bad or missing signature",
-                        full_name);
-      if (pc->kb)
-        kb_item_add_str (pc->kb, key_path, "0");
-      fclose(pc->fp);
-      pc->fp = NULL;
-      g_free(full_name);
+      log_legacy_write ("No md5sum for %s", full_name);
+      g_free (full_name);
       return -1;
     }
-  if (pc->kb)
+  else
     {
-      char *md5sum = file_md5sum (full_name);
-      kb_item_add_str (pc->kb, key_path, md5sum);
+      int ret;
+      char *check = file_md5sum (full_name);
+      ret = strcmp (check, md5sum);
+      if (ret)
+        log_legacy_write ("md5sum for %s not matching", full_name);
+      g_free (full_name);
       g_free (md5sum);
+      g_free (check);
+      return ret;
     }
-
-  g_free(full_name);
-  return 0;
 }
 
 void
