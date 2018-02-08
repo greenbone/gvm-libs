@@ -128,4 +128,10 @@ nvticache_free (void);
 GSList *
 nvticache_get_oids (void);
 
+size_t
+nvticache_count (void);
+
+void
+nvticache_delete (const char *);
+
 #endif /* not _GVM_NVTICACHE_H */

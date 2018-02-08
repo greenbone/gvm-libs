@@ -175,6 +175,9 @@ free_entity (entity_t entity)
 char *
 entity_text (entity_t entity)
 {
+  if (!entity)
+    return NULL;
+
   return entity->text;
 }
 
@@ -188,6 +191,9 @@ entity_text (entity_t entity)
 char *
 entity_name (entity_t entity)
 {
+  if (!entity)
+    return NULL;
+
   return entity->name;
 }
 
@@ -217,6 +223,9 @@ compare_entity_with_name (gconstpointer entity, gconstpointer name)
 entity_t
 entity_child (entity_t entity, const char *name)
 {
+  if (!entity)
+    return NULL;
+
   if (entity->entities)
     {
       entities_t match = g_slist_find_custom (entity->entities,
@@ -238,6 +247,9 @@ entity_child (entity_t entity, const char *name)
 const char *
 entity_attribute (entity_t entity, const char *name)
 {
+  if (!entity)
+    return NULL;
+
   if (entity->attributes)
     return (const char *) g_hash_table_lookup (entity->attributes, name);
   return NULL;
