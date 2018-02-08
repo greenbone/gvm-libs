@@ -560,7 +560,7 @@ file_md5sum (const char *filename)
 }
 
 static void
-load_signatures (kb_t kb)
+load_checksums (kb_t kb)
 {
   static int loaded = 0;
   const char *base;
@@ -675,11 +675,11 @@ init_nasl_ctx(naslctxt* pc, const char* name)
   /* Cache the md5sum of signature verified files, so that commonly included
    * files are not verified multiple times per scan. */
 
-  load_signatures (pc->kb);
   if (strstr (full_name, ".inc"))
     snprintf (key_path, sizeof (key_path), "md5sums:%s", basename (full_name));
   else
     snprintf (key_path, sizeof (key_path), "md5sums:%s", full_name);
+  load_checksums (pc->kb);
   md5sum = kb_item_get_str (pc->kb, key_path);
   if (!md5sum)
     {
