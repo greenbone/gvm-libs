@@ -548,21 +548,13 @@ file_checksum (const char *filename, int algorithm)
   char *content = NULL, digest[128], *result;
   size_t len = 0, i, alglen;
 
-  assert (algorithm == 1 || algorithm == 2);
+  assert (algorithm == GCRY_MD_MD5 || algorithm == GCRY_MD_SHA256);
   if (!filename || !g_file_get_contents (filename, &content, &len, NULL))
     return NULL;
 
-  result = g_malloc0 (128);
-  if (algorithm == 1)
-    {
-      gcry_md_hash_buffer (GCRY_MD_MD5, digest, content, len);
-      alglen = 16;
-    }
-  else
-    {
-      gcry_md_hash_buffer (GCRY_MD_SHA256, digest, content, len);
-      alglen = 32;
-    }
+  gcry_md_hash_buffer (algorithm, digest, content, len);
+  alglen = gcry_md_get_algo_dlen (algorithm);
+  result = g_malloc0 (alglen * 2 + 1);
   for (i = 0; i < alglen; i++)
     snprintf (result + 2 * i, 3, "%02x", (unsigned char) digest[i]);
   g_free (content);
@@ -570,7 +562,7 @@ file_checksum (const char *filename, int algorithm)
   return result;
 }
 
-static int checksum_algorithm = 0;
+static int checksum_algorithm = GCRY_MD_NONE;
 
 static void
 load_checksums (kb_t kb)
@@ -587,14 +579,14 @@ load_checksums (kb_t kb)
   base = prefs_get ("plugins_folder");
   snprintf (filename, sizeof (filename), "%s/sha256sums", base);
   if (g_file_get_contents (filename, &fbuffer, &flen, NULL))
-    checksum_algorithm = 2;
+    checksum_algorithm = GCRY_MD_SHA256;
   else
     {
       snprintf (filename, sizeof (filename), "%s/md5sums", base);
       if (g_file_get_contents (filename, &fbuffer, &flen, NULL))
-        checksum_algorithm = 1;
+        checksum_algorithm = GCRY_MD_MD5;
     }
-  if (!checksum_algorithm)
+  if (checksum_algorithm == GCRY_MD_NONE)
     {
       log_legacy_write ("No plugins checksums file");
       return;
@@ -616,7 +608,7 @@ load_checksums (kb_t kb)
       log_legacy_write ("%s: Couldn't read file %s", __FUNCTION__, filename);
       return;
     }
-  if (checksum_algorithm == 1)
+  if (checksum_algorithm == GCRY_MD_MD5)
     {
       kb_del_items (kb, "md5sums:*");
       prefix = "md5sums";
@@ -716,11 +708,11 @@ init_nasl_ctx(naslctxt* pc, const char* name)
   if (strstr (full_name, ".inc"))
     filename = basename (full_name);
   load_checksums (pc->kb);
-  if (!checksum_algorithm)
+  if (checksum_algorithm == GCRY_MD_NONE)
     return -1;
-  else if (checksum_algorithm == 1)
+  else if (checksum_algorithm == GCRY_MD_MD5)
     snprintf (key_path, sizeof (key_path), "md5sums:%s", filename);
-  else if (checksum_algorithm == 2)
+  else if (checksum_algorithm == GCRY_MD_SHA256)
     snprintf (key_path, sizeof (key_path), "sha256sums:%s", filename);
   else
     abort ();
