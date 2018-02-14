@@ -93,6 +93,7 @@ void
 nvticache_free (void)
 {
   g_free (src_path);
+  src_path = NULL;
   kb_delete (cache_kb);
   cache_kb = NULL;
 }
