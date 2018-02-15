@@ -564,48 +564,53 @@ file_checksum (const char *filename, int algorithm)
 
 static int checksum_algorithm = GCRY_MD_NONE;
 
-static void
-load_checksums (kb_t kb)
-{
-  static int loaded = 0;
-  const char *base, *prefix;
-  char filename[2048], *fbuffer;
-  FILE *file;
-  size_t flen;
+static char checksum_file[2048];
 
-  if (loaded)
+static void
+init_checksum_algorithm (void)
+{
+  const char *base = prefs_get ("plugins_folder");
+
+  checksum_algorithm = GCRY_MD_SHA256;
+  snprintf (checksum_file, sizeof (checksum_file), "%s/sha256sums", base);
+  if (g_file_test (checksum_file, G_FILE_TEST_EXISTS))
     return;
-  loaded = 1;
-  base = prefs_get ("plugins_folder");
-  snprintf (filename, sizeof (filename), "%s/sha256sums", base);
-  if (g_file_get_contents (filename, &fbuffer, &flen, NULL))
-    checksum_algorithm = GCRY_MD_SHA256;
-  else
-    {
-      snprintf (filename, sizeof (filename), "%s/md5sums", base);
-      if (g_file_get_contents (filename, &fbuffer, &flen, NULL))
-        checksum_algorithm = GCRY_MD_MD5;
-    }
+  checksum_algorithm = GCRY_MD_MD5;
+  snprintf (checksum_file, sizeof (checksum_file), "%s/md5sums", base);
+  if (g_file_test (checksum_file, G_FILE_TEST_EXISTS))
+    return;
   if (checksum_algorithm == GCRY_MD_NONE)
     {
       log_legacy_write ("No plugins checksums file");
       return;
     }
+}
+
+static void
+load_checksums (kb_t kb)
+{
+  static int loaded = 0;
+  const char *base, *prefix;
+  FILE *file;
+
+  if (loaded)
+    return;
+  loaded = 1;
   /* Verify checksum */
-  if (nasl_verify_signature (filename) != 0)
+  base = prefs_get ("plugins_folder");
+  if (nasl_verify_signature (checksum_file) != 0)
     {
       log_legacy_write ("Erroneous or missing signature for checksums file %s",
-                        filename);
-      g_free (fbuffer);
+                        checksum_file);
       return;
     }
-  g_free (fbuffer);
 
   /* Insert content into KB */
-  file = fopen (filename, "r");
+  file = fopen (checksum_file, "r");
   if (!file)
     {
-      log_legacy_write ("%s: Couldn't read file %s", __FUNCTION__, filename);
+      log_legacy_write ("%s: Couldn't read file %s", __FUNCTION__,
+                        checksum_file);
       return;
     }
   if (checksum_algorithm == GCRY_MD_MD5)
@@ -707,7 +712,7 @@ init_nasl_ctx(naslctxt* pc, const char* name)
   filename = full_name;
   if (strstr (full_name, ".inc"))
     filename = basename (full_name);
-  load_checksums (pc->kb);
+  init_checksum_algorithm ();
   if (checksum_algorithm == GCRY_MD_NONE)
     return -1;
   else if (checksum_algorithm == GCRY_MD_MD5)
@@ -716,6 +721,9 @@ init_nasl_ctx(naslctxt* pc, const char* name)
     snprintf (key_path, sizeof (key_path), "sha256sums:%s", filename);
   else
     abort ();
+  checksum = kb_item_get_str (pc->kb, key_path);
+  if (!checksum)
+    load_checksums (pc->kb);
   checksum = kb_item_get_str (pc->kb, key_path);
   if (!checksum)
     {
