@@ -47,7 +47,6 @@
 #undef  G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  nvticache"
 
-char *cache_path = NULL;    /* The directory of the cache files. */
 char *src_path = NULL;      /* The directory of the source files. */
 kb_t cache_kb = NULL;
 
@@ -70,16 +69,17 @@ nvticache_initialized (void)
  * @param kb_path       Path to kb socket.
  */
 int
-nvticache_init (const char *cache, const char *src, const char *kb_path)
+nvticache_init (const char *src, const char *kb_path)
 {
   assert (!cache_kb);
-  assert (cache);
   assert (src);
 
-  cache_path = g_strdup (cache);
   src_path = g_strdup (src);
+  cache_kb = kb_find (kb_path, "nvticache");
+  if (cache_kb)
+    return 0;
 
-  if (kb_new (&cache_kb, kb_path))
+  if (kb_new (&cache_kb, kb_path) || kb_item_set_int (cache_kb, "nvticache", 1))
     return -1;
   return 0;
 }
@@ -102,120 +102,40 @@ nvticache_get_kb (void)
 void
 nvticache_free (void)
 {
-  g_free (cache_path);
   g_free (src_path);
   kb_delete (cache_kb);
   cache_kb = NULL;
 }
 
 /**
- * @brief Retrieve NVT Information from the nvt cache for the given filename.
+ * @brief Check if the nvt for the given filename exists in cache.
  *
  * @param filename The name of the original NVT without the path
  *                 to the base location of NVTs (e.g.
  *                 "scriptname1.nasl" or even
  *                 "subdir1/subdir2/scriptname2.nasl" )
  *
- * @return NULL in case the data could not be delivered.
- *         Else a nvti structure that should be freed with nvti_free().
+ * @return 1 if nvt is in cache and up to date, 0 otherwise.
  */
-nvti_t *
-nvticache_get (const gchar *filename)
+int
+nvticache_check (const gchar *filename)
 {
-  nvti_t *n = NULL;
-  char *src_file, *dummy, *cache_file, pattern[2048], *oid;
-  struct stat src_stat;
-  struct stat cache_stat;
-
   assert (cache_kb);
+  char pattern[2048], *src_file;
+  time_t timestamp;
+  struct stat src_stat;
+
   src_file = g_build_filename (src_path, filename, NULL);
-  dummy = g_build_filename (cache_path, filename, NULL);
-  cache_file = g_strconcat (dummy, ".nvti", NULL);
-  g_free (dummy);
-
-  if (src_file && cache_file && stat (src_file, &src_stat) >= 0
-      && stat (cache_file, &cache_stat) >= 0
-      && (cache_stat.st_mtime >= src_stat.st_mtime))
-    n = nvti_from_keyfile (cache_file);
-
-  if (src_file)
-    g_free (src_file);
-  if (cache_file)
-    g_free (cache_file);
-
-  if (!n || !(nvti_oid (n))) return NULL;
-
-  /* Check for duplicate OID. */
-  oid = nvti_oid (n);
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", oid);
-  dummy = kb_item_get_str (cache_kb, pattern);
-  if (dummy)
+  g_snprintf (pattern, sizeof (pattern), "filename:%s:timestamp", filename);
+  timestamp = kb_item_get_int (cache_kb, pattern);
+  if (timestamp && src_file && stat (src_file, &src_stat) >= 0
+      && timestamp > src_stat.st_mtime)
     {
-      g_warning ("NVT %s with duplicate OID %s will be replaced with %s",
-                 dummy, oid, filename);
-      kb_del_items (cache_kb, pattern);
+      g_free (src_file);
+      return 1;
     }
-  g_free (dummy);
-  if (kb_item_add_str (cache_kb, pattern, filename))
-    goto kb_fail;
-
-  if (nvti_required_keys (n))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:required_keys", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_required_keys (n)))
-        goto kb_fail;
-    }
-
-  if (nvti_mandatory_keys (n))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:mandatory_keys", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_mandatory_keys (n)))
-        goto kb_fail;
-    }
-
-  if (nvti_excluded_keys (n))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:excluded_keys", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_excluded_keys (n)))
-        goto kb_fail;
-    }
-
-  if (nvti_required_udp_ports (n))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:required_udp_ports", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_required_udp_ports (n)))
-        goto kb_fail;
-    }
-
-  if (nvti_required_ports (n))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:required_ports", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_required_ports (n)))
-        goto kb_fail;
-    }
-
-  if (nvti_dependencies (n))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:dependencies", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_dependencies (n)))
-        goto kb_fail;
-    }
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:category", oid);
-  if (kb_item_add_int (cache_kb, pattern, nvti_category (n)))
-    goto kb_fail;
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:timeout", oid);
-  if (kb_item_add_int (cache_kb, pattern, nvti_timeout (n)))
-    goto kb_fail;
-
-  g_snprintf (pattern, sizeof (pattern), "name:%s:oid", filename);
-  if (kb_item_add_str (cache_kb, pattern, oid))
-    goto kb_fail;
-  return n;
-
-kb_fail:
-  nvti_free (n);
-  return NULL;
+  g_free (src_file);
+  return 0;
 }
 
 /**
@@ -243,20 +163,128 @@ nvticache_reset ()
 int
 nvticache_add (const nvti_t *nvti, const char *filename)
 {
-  gchar *cache_file, *dummy, *src_file;
-  int result;
+  char *oid, pattern[2048], *dummy;
+  GSList *element;
 
   assert (cache_kb);
 
-  src_file = g_build_filename (src_path, filename, NULL);
-  dummy = g_build_filename (cache_path, filename, NULL);
-  cache_file = g_strconcat (dummy, ".nvti", NULL);
-  result = nvti_to_keyfile (nvti, src_file, cache_file);
+  /* Check for duplicate OID. */
+  oid = nvti_oid (nvti);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:filename", oid);
+  dummy = kb_item_get_str (cache_kb, pattern);
+  if (dummy && strcmp (filename, dummy))
+    g_warning ("NVT %s with duplicate OID %s will be replaced with %s",
+               dummy, oid, filename);
   g_free (dummy);
-  g_free (src_file);
-  g_free (cache_file);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:*", oid);
+  kb_del_items (cache_kb, pattern);
 
-  return result;
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:filename", oid);
+  if (kb_item_add_str (cache_kb, pattern, filename))
+    goto kb_fail;
+  if (nvti_required_keys (nvti))
+    {
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:required_keys", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_required_keys (nvti)))
+        goto kb_fail;
+    }
+  if (nvti_mandatory_keys (nvti))
+    {
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:mandatory_keys", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_mandatory_keys (nvti)))
+        goto kb_fail;
+    }
+  if (nvti_excluded_keys (nvti))
+    {
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:excluded_keys", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_excluded_keys (nvti)))
+        goto kb_fail;
+    }
+  if (nvti_required_udp_ports (nvti))
+    {
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:required_udp_ports", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_required_udp_ports (nvti)))
+        goto kb_fail;
+    }
+  if (nvti_required_ports (nvti))
+    {
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:required_ports", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_required_ports (nvti)))
+        goto kb_fail;
+    }
+  if (nvti_dependencies (nvti))
+    {
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:dependencies", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_dependencies (nvti)))
+        goto kb_fail;
+    }
+  if (nvti_tag (nvti))
+    {
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:tags", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_tag (nvti)))
+        goto kb_fail;
+    }
+  if (nvti_cve (nvti))
+    {
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:cves", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_cve (nvti)))
+        goto kb_fail;
+    }
+  if (nvti_bid (nvti))
+    {
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:bids", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_bid (nvti)))
+        goto kb_fail;
+    }
+  if (nvti_xref (nvti))
+    {
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:xrefs", oid);
+      if (kb_item_add_str (cache_kb, pattern, nvti_xref (nvti)))
+        goto kb_fail;
+    }
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:category", oid);
+  if (kb_item_add_int (cache_kb, pattern, nvti_category (nvti)))
+    goto kb_fail;
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:timeout", oid);
+  if (kb_item_add_int (cache_kb, pattern, nvti_timeout (nvti)))
+    goto kb_fail;
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:family", oid);
+  if (kb_item_add_str (cache_kb, pattern, nvti_family (nvti)))
+    goto kb_fail;
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:copyright", oid);
+  if (kb_item_add_str (cache_kb, pattern, nvti_copyright (nvti)))
+    goto kb_fail;
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", oid);
+  if (kb_item_add_str (cache_kb, pattern, nvti_name (nvti)))
+    goto kb_fail;
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:version", oid);
+  if (kb_item_add_str (cache_kb, pattern, nvti_version (nvti)))
+    goto kb_fail;
+  g_snprintf (pattern, sizeof (pattern), "filename:%s:oid", filename);
+  if (kb_item_set_str (cache_kb, pattern, oid))
+    goto kb_fail;
+  element = nvti->prefs;
+  while (element)
+    {
+      char value[4096];
+      nvtpref_t *pref = element->data;
+
+      g_snprintf (pattern, sizeof (pattern), "oid:%s:prefs", oid);
+      g_snprintf (value, sizeof (value), "%s|||%s|||%s", pref->name, pref->type,
+                  pref->dflt);
+      if (kb_item_add_str (cache_kb, pattern, value))
+        goto kb_fail;
+      element = element->next;
+    }
+  g_snprintf (pattern, sizeof (pattern), "filename:%s:timestamp", filename);
+  if (kb_item_set_int (cache_kb, pattern, time (NULL)))
+    goto kb_fail;
+
+  return 0;
+
+kb_fail:
+  return -1;
 }
 
 /**
@@ -269,19 +297,32 @@ nvticache_add (const nvti_t *nvti, const char *filename)
 nvti_t *
 nvticache_get_by_name_full (const char *filename)
 {
-  char *dummy, *cache_file;
-  nvti_t *cache_nvti;
+  nvti_t *nvti;
 
   if (!filename)
     return NULL;
 
-  dummy = g_build_filename (cache_path, filename, NULL);
-  cache_file = g_strconcat (dummy, ".nvti", NULL);
-  cache_nvti = nvti_from_keyfile (cache_file);
+  nvti = nvti_new ();
+  nvti->oid = nvticache_get_oid (filename);
+  nvti->category = nvticache_get_category (nvti->oid);
+  nvti->timeout = nvticache_get_timeout (nvti->oid);
+  nvti->version = nvticache_get_version (nvti->oid);
+  nvti->name = nvticache_get_name (nvti->oid);
+  nvti->copyright = nvticache_get_copyright (nvti->oid);
+  nvti->cve = nvticache_get_cves (nvti->oid);
+  nvti->bid = nvticache_get_bids (nvti->oid);
+  nvti->xref = nvticache_get_xrefs (nvti->oid);
+  nvti->tag = nvticache_get_tags (nvti->oid);
+  nvti->dependencies = nvticache_get_dependencies (nvti->oid);
+  nvti->required_keys = nvticache_get_required_keys (nvti->oid);
+  nvti->mandatory_keys = nvticache_get_mandatory_keys (nvti->oid);
+  nvti->excluded_keys = nvticache_get_excluded_keys (nvti->oid);
+  nvti->required_ports = nvticache_get_required_ports (nvti->oid);
+  nvti->required_udp_ports = nvticache_get_required_udp_ports (nvti->oid);
+  nvti->family = nvticache_get_family (nvti->oid);
+  nvti->prefs = nvticache_get_prefs (nvti->oid);
 
-  g_free (dummy);
-  g_free (cache_file);
-  return cache_nvti;
+  return nvti;
 }
 
 /**
@@ -299,7 +340,7 @@ nvticache_get_by_oid_full (const char *oid)
 
   assert (cache_kb);
 
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", oid);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:filename", oid);
   filename = kb_item_get_str (cache_kb, pattern);
   if (!filename)
     return NULL;
@@ -323,7 +364,7 @@ nvticache_get_src (const char *oid)
 
   assert (cache_kb);
 
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", oid);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:filename", oid);
   filename = kb_item_get_str (cache_kb, pattern);
   if (!filename)
     return NULL;
@@ -347,13 +388,13 @@ nvticache_get_oid (const char *filename)
 
   assert (cache_kb);
 
-  g_snprintf (pattern, sizeof (pattern), "name:%s:oid", filename);
+  g_snprintf (pattern, sizeof (pattern), "filename:%s:oid", filename);
   ret = kb_item_get_str (cache_kb, pattern);
   if (ret)
     return ret;
 
   /* NVT filename in subfolder case. */
-  g_snprintf (pattern, sizeof (pattern), "name:*/%s:oid", filename);
+  g_snprintf (pattern, sizeof (pattern), "filename:*/%s:oid", filename);
   kbi = kb_item_get_pattern (cache_kb, pattern);
   if (!kbi)
     return NULL;
@@ -364,20 +405,20 @@ nvticache_get_oid (const char *filename)
 }
 
 /**
- * @brief Get the name from a plugin OID.
+ * @brief Get the filename from a plugin OID.
  *
  * @param[in]   oid     OID to match.
  *
- * @return Name matching OID, NULL otherwise.
+ * @return Filanem matching OID, NULL otherwise.
  */
 char *
-nvticache_get_name (const char *oid)
+nvticache_get_filename (const char *oid)
 {
   char pattern[2048];
 
   assert (cache_kb);
 
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", oid);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:filename", oid);
   return kb_item_get_str (cache_kb, pattern);
 }
 
@@ -526,6 +567,187 @@ nvticache_get_timeout (const char *oid)
 }
 
 /**
+ * @brief Get the name from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Name matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_name (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the version from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Version matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_version (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:version", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the copyright from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Copyright matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_copyright (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:copyright", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the cves from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return CVEs matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_cves (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:cves", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the bids from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return BIDs matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_bids (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:bids", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the xrefs from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return XREFs matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_xrefs (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:xrefs", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the family from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Family matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_family (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:family", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the tags from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Tags matching OID, NULL otherwise.
+ */
+char *
+nvticache_get_tags (const char *oid)
+{
+  char pattern[2048];
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:tags", oid);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
+ * @brief Get the prefs from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Prefs matching OID, NULL otherwise.
+ */
+GSList *
+nvticache_get_prefs (const char *oid)
+{
+  char pattern[4096];
+  struct kb_item *prefs, *element;
+  GSList *list = NULL;
+
+  assert (cache_kb);
+
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:prefs", oid);
+  prefs = element = kb_item_get_all (cache_kb, pattern);
+  while (element)
+  {
+    nvtpref_t *np;
+    char **array = g_strsplit (element->v_str, "|||", -1);
+
+    assert (array[2]);
+    assert (!array[3]);
+    np = g_malloc0 (sizeof (nvtpref_t));
+    np->name = array[0];
+    np->type = array[1];
+    np->dflt = array[2];
+    list = g_slist_append (list, np);
+    element = element->next;
+  }
+  kb_item_free (prefs);
+
+  return list;
+}
+
+/**
  * @brief Get the list of nvti filenames.
  *
  * @return Filenames list.
@@ -538,7 +760,7 @@ nvticache_get_names ()
 
   assert (cache_kb);
 
-  kbi = item = kb_item_get_pattern (cache_kb, "oid:*:name");
+  kbi = item = kb_item_get_pattern (cache_kb, "oid:*:filename");
   if (!kbi)
     return NULL;
 
@@ -564,7 +786,7 @@ nvticache_get_oids ()
 
   assert (cache_kb);
 
-  kbi = item = kb_item_get_pattern (cache_kb, "name:*:oid");
+  kbi = item = kb_item_get_pattern (cache_kb, "filename:*:oid");
   if (!kbi)
     return NULL;
 
