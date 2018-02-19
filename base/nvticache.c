@@ -43,6 +43,7 @@
 
 #include <string.h> // for strlen
 #include <assert.h>
+#include <stdlib.h>     /* for atoi */
 
 #undef  G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  nvticache"
@@ -163,106 +164,25 @@ nvticache_reset ()
 int
 nvticache_add (const nvti_t *nvti, const char *filename)
 {
-  char *oid, pattern[2048], *dummy;
+  char *oid, *dummy, pattern[4096];
   GSList *element;
 
   assert (cache_kb);
 
   /* Check for duplicate OID. */
   oid = nvti_oid (nvti);
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:filename", oid);
-  dummy = kb_item_get_str (cache_kb, pattern);
+  dummy = nvticache_get_filename (oid);
   if (dummy && strcmp (filename, dummy))
     g_warning ("NVT %s with duplicate OID %s will be replaced with %s",
                dummy, oid, filename);
+  if (dummy)
+    {
+      g_snprintf (pattern, sizeof (pattern), "nvt:%s", oid);
+      kb_del_items (cache_kb, pattern);
+    }
+
   g_free (dummy);
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:*", oid);
-  kb_del_items (cache_kb, pattern);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:filename", oid);
-  if (kb_item_add_str (cache_kb, pattern, filename))
-    goto kb_fail;
-  if (nvti_required_keys (nvti))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:required_keys", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_required_keys (nvti)))
-        goto kb_fail;
-    }
-  if (nvti_mandatory_keys (nvti))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:mandatory_keys", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_mandatory_keys (nvti)))
-        goto kb_fail;
-    }
-  if (nvti_excluded_keys (nvti))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:excluded_keys", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_excluded_keys (nvti)))
-        goto kb_fail;
-    }
-  if (nvti_required_udp_ports (nvti))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:required_udp_ports", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_required_udp_ports (nvti)))
-        goto kb_fail;
-    }
-  if (nvti_required_ports (nvti))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:required_ports", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_required_ports (nvti)))
-        goto kb_fail;
-    }
-  if (nvti_dependencies (nvti))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:dependencies", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_dependencies (nvti)))
-        goto kb_fail;
-    }
-  if (nvti_tag (nvti))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:tags", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_tag (nvti)))
-        goto kb_fail;
-    }
-  if (nvti_cve (nvti))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:cves", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_cve (nvti)))
-        goto kb_fail;
-    }
-  if (nvti_bid (nvti))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:bids", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_bid (nvti)))
-        goto kb_fail;
-    }
-  if (nvti_xref (nvti))
-    {
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:xrefs", oid);
-      if (kb_item_add_str (cache_kb, pattern, nvti_xref (nvti)))
-        goto kb_fail;
-    }
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:category", oid);
-  if (kb_item_add_int (cache_kb, pattern, nvti_category (nvti)))
-    goto kb_fail;
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:timeout", oid);
-  if (kb_item_add_int (cache_kb, pattern, nvti_timeout (nvti)))
-    goto kb_fail;
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:family", oid);
-  if (kb_item_add_str (cache_kb, pattern, nvti_family (nvti)))
-    goto kb_fail;
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:copyright", oid);
-  if (kb_item_add_str (cache_kb, pattern, nvti_copyright (nvti)))
-    goto kb_fail;
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", oid);
-  if (kb_item_add_str (cache_kb, pattern, nvti_name (nvti)))
-    goto kb_fail;
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:version", oid);
-  if (kb_item_add_str (cache_kb, pattern, nvti_version (nvti)))
-    goto kb_fail;
-  g_snprintf (pattern, sizeof (pattern), "filename:%s:oid", filename);
-  if (kb_item_set_str (cache_kb, pattern, oid))
+  if (kb_nvt_add (cache_kb, nvti, filename))
     goto kb_fail;
   element = nvti->prefs;
   while (element)
@@ -360,12 +280,11 @@ nvticache_get_by_oid_full (const char *oid)
 char *
 nvticache_get_src (const char *oid)
 {
-  char *filename, *src, pattern[2048];
+  char *filename, *src;
 
   assert (cache_kb);
 
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:filename", oid);
-  filename = kb_item_get_str (cache_kb, pattern);
+  filename = kb_nvt_get (cache_kb, oid, NVT_FILENAME_POS);
   if (!filename)
     return NULL;
   src = g_build_filename (src_path, filename, NULL);
@@ -414,12 +333,8 @@ nvticache_get_oid (const char *filename)
 char *
 nvticache_get_filename (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:filename", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_FILENAME_POS);
 }
 
 /**
@@ -432,12 +347,8 @@ nvticache_get_filename (const char *oid)
 char *
 nvticache_get_required_keys (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:required_keys", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_REQUIRED_KEYS_POS);
 }
 
 /**
@@ -450,12 +361,8 @@ nvticache_get_required_keys (const char *oid)
 char *
 nvticache_get_mandatory_keys (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:mandatory_keys", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_MANDATORY_KEYS_POS);
 }
 
 /**
@@ -468,12 +375,8 @@ nvticache_get_mandatory_keys (const char *oid)
 char *
 nvticache_get_excluded_keys (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:excluded_keys", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_EXCLUDED_KEYS_POS);
 }
 
 /**
@@ -486,12 +389,8 @@ nvticache_get_excluded_keys (const char *oid)
 char *
 nvticache_get_required_udp_ports (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:required_udp_ports", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_REQUIRED_UDP_PORTS_POS);
 }
 
 /**
@@ -504,12 +403,8 @@ nvticache_get_required_udp_ports (const char *oid)
 char *
 nvticache_get_required_ports (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:required_ports", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_REQUIRED_PORTS_POS);
 }
 
 /**
@@ -522,12 +417,8 @@ nvticache_get_required_ports (const char *oid)
 char *
 nvticache_get_dependencies (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:dependencies", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_DEPENDENCIES_POS);
 }
 
 /**
@@ -540,12 +431,14 @@ nvticache_get_dependencies (const char *oid)
 int
 nvticache_get_category (const char *oid)
 {
-  char pattern[2048];
+  int category;
+  char *category_s;
 
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:category", oid);
-  return kb_item_get_int (cache_kb, pattern);
+  category_s = kb_nvt_get (cache_kb, oid, NVT_CATEGORY_POS);
+  category = atoi (category_s);
+  g_free (category_s);
+  return category;
 }
 
 /**
@@ -558,12 +451,14 @@ nvticache_get_category (const char *oid)
 int
 nvticache_get_timeout (const char *oid)
 {
-  char pattern[2048];
+  int timeout;
+  char *timeout_s;
 
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:timeout", oid);
-  return kb_item_get_int (cache_kb, pattern);
+  timeout_s = kb_nvt_get (cache_kb, oid, NVT_TIMEOUT_POS);
+  timeout = atoi (timeout_s);
+  g_free (timeout_s);
+  return timeout;
 }
 
 /**
@@ -576,12 +471,8 @@ nvticache_get_timeout (const char *oid)
 char *
 nvticache_get_name (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:name", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_NAME_POS);
 }
 
 /**
@@ -594,12 +485,8 @@ nvticache_get_name (const char *oid)
 char *
 nvticache_get_version (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:version", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_VERSION_POS);
 }
 
 /**
@@ -612,12 +499,8 @@ nvticache_get_version (const char *oid)
 char *
 nvticache_get_copyright (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:copyright", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_COPYRIGHT_POS);
 }
 
 /**
@@ -630,12 +513,8 @@ nvticache_get_copyright (const char *oid)
 char *
 nvticache_get_cves (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:cves", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_CVES_POS);
 }
 
 /**
@@ -648,12 +527,8 @@ nvticache_get_cves (const char *oid)
 char *
 nvticache_get_bids (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:bids", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_BIDS_POS);
 }
 
 /**
@@ -666,12 +541,8 @@ nvticache_get_bids (const char *oid)
 char *
 nvticache_get_xrefs (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:xrefs", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_XREFS_POS);
 }
 
 /**
@@ -684,12 +555,8 @@ nvticache_get_xrefs (const char *oid)
 char *
 nvticache_get_family (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:family", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_FAMILY_POS);
 }
 
 /**
@@ -702,12 +569,8 @@ nvticache_get_family (const char *oid)
 char *
 nvticache_get_tags (const char *oid)
 {
-  char pattern[2048];
-
   assert (cache_kb);
-
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:tags", oid);
-  return kb_item_get_str (cache_kb, pattern);
+  return kb_nvt_get (cache_kb, oid, NVT_TAGS_POS);
 }
 
 /**
