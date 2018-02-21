@@ -25,7 +25,12 @@
 
 #ifdef ENABLE_RADIUS_AUTH
 
+#if defined(RADIUS_AUTH_FREERADIUS)
 #include <freeradius-client.h>
+#elif defined(RADIUS_AUTH_RADCLI)
+#include <radcli/radcli.h>
+#endif
+
 #include "../base/openvas_networking.h"
 #include <glib.h>
 
