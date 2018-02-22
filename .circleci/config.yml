@@ -1,0 +1,10 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: wiegandm/openvas-libraries-9.0-core-debian-jessie
+    steps:
+      - checkout
+      - run:
+          name: Configure and Compile
+          command: mkdir build && cd build/ && cmake -DCMAKE_BUILD_TYPE=Release .. && make install
