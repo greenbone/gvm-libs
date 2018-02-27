@@ -27,7 +27,12 @@
 
 #include <arpa/inet.h>          /* for inet_pton */
 
-#include <freeradius-client.h>  /* for rc_handle */
+#if defined(RADIUS_AUTH_FREERADIUS)
+#include <freeradius-client.h>
+#elif defined(RADIUS_AUTH_RADCLI)
+#include <radcli/radcli.h>
+#endif
+            
 #include <glib.h>               /* for g_warning */
 
 #include "../base/networking.h" /* for gvm_resolve */
