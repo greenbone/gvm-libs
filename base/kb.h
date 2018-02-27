@@ -29,6 +29,8 @@
 
 #include <assert.h>
 
+#include "../base/nvti.h" /* for nvti_t */
+
 /**
  * @brief Default KB location.
  *
@@ -47,6 +49,29 @@ enum kb_item_type {
   KB_TYPE_STR,      /**< The kb_items v should then be interpreted as char*. */
   /* -- */
   KB_TYPE_CNT,
+};
+
+/**
+ * @brief Possible positions of nvt values in cache list.
+ */
+enum kb_nvt_pos {
+    NVT_FILENAME_POS,
+    NVT_REQUIRED_KEYS_POS,
+    NVT_MANDATORY_KEYS_POS,
+    NVT_EXCLUDED_KEYS_POS,
+    NVT_REQUIRED_UDP_PORTS_POS,
+    NVT_REQUIRED_PORTS_POS,
+    NVT_DEPENDENCIES_POS,
+    NVT_TAGS_POS,
+    NVT_CVES_POS,
+    NVT_BIDS_POS,
+    NVT_XREFS_POS,
+    NVT_CATEGORY_POS,
+    NVT_TIMEOUT_POS,
+    NVT_FAMILY_POS,
+    NVT_COPYRIGHT_POS,
+    NVT_NAME_POS,
+    NVT_VERSION_POS,
 };
 
 /**
@@ -95,6 +120,7 @@ struct kb_operations
   /* ctor/dtor */
   int (*kb_new) (kb_t *, const char *);
   int (*kb_delete) (kb_t);
+  kb_t (*kb_find) (const char *, const char *);
 
   /* The function kb_no_empty() have been written in openvas-libraries-9
    * and it is used only in this branch for openvas-scanner-5.1. In the Trunk 
@@ -106,17 +132,19 @@ struct kb_operations
   struct kb_item *(*kb_get_single) (kb_t, const char *, enum kb_item_type);
   char *(*kb_get_str) (kb_t, const char *);
   int (*kb_get_int) (kb_t, const char *);
+  char *(*kb_get_nvt) (kb_t, const char *, enum kb_nvt_pos);
   struct kb_item * (*kb_get_all) (kb_t, const char *);
   struct kb_item * (*kb_get_pattern) (kb_t, const char *);
   int (*kb_add_str) (kb_t, const char *, const char *);
   int (*kb_set_str) (kb_t, const char *, const char *);
   int (*kb_add_int) (kb_t, const char *, int);
   int (*kb_set_int) (kb_t, const char *, int);
+  int (*kb_add_nvt) (kb_t, const nvti_t *, const char *);
   int (*kb_del_items) (kb_t, const char *);
 
   /* Utils */
   int (*kb_lnk_reset) (kb_t);
-  int (*kb_flush) (kb_t);
+  int (*kb_flush) (kb_t, const char *);
 };
 
 /**
@@ -149,6 +177,20 @@ static inline int kb_new (kb_t *kb, const char *kb_path)
 }
 
 /**
+ * @brief Find an existing Knowledge Base object with key.
+ * @param[in] kb_path   Path to KB.
+ * @param[in] key       Marker key to search for in KB objects.
+ * @return Knowledge Base object, NULL otherwise.
+ */
+static inline kb_t kb_find (const char *kb_path, const char *key)
+{
+  assert (KBDefaultOperations);
+  assert (KBDefaultOperations->kb_find);
+
+  return KBDefaultOperations->kb_find (kb_path, key);
+}
+
+/**
  * @brief Check if KB redis is empty.
  * @param[in] kb_path   Path to KB.
  * @return 1 success, 0 otherwise.
@@ -159,6 +201,40 @@ static inline int kb_no_empty (const char *kb_path)
   assert (KBDefaultOperations->kb_no_empty);
 
   return KBDefaultOperations->kb_no_empty (kb_path);
+}
+
+/**
+ * @brief Insert a new nvt.
+ * @param[in] kb        KB handle where to store the nvt.
+ * @param[in] nvt       nvt to store.
+ * @param[in] filename  Path to nvt to store.
+ * @return 0 on success, non-null on error.
+ */
+static inline int
+kb_nvt_add (kb_t kb, const nvti_t *nvt, const char *filename)
+{
+  assert (kb);
+  assert (kb->kb_ops);
+  assert (kb->kb_ops->kb_add_nvt);
+
+  return kb->kb_ops->kb_add_nvt (kb, nvt, filename);
+}
+
+/**
+ * @brief Get field of a NVT.
+ * @param[in] kb        KB handle where to store the nvt.
+ * @param[in] oid       OID of NVT to get from.
+ * @param[in] field     Name of field to get.
+ * @return Value of field, NULL otherwise.
+ */
+static inline char *
+kb_nvt_get (kb_t kb, const char *oid, enum kb_nvt_pos position)
+{
+  assert (kb);
+  assert (kb->kb_ops);
+  assert (kb->kb_ops->kb_add_nvt);
+
+  return kb->kb_ops->kb_get_nvt (kb, oid, position);
 }
 
 /**
@@ -366,10 +442,11 @@ static inline int kb_lnk_reset (kb_t kb)
 
 /**
  * @brief Flush all the KB's content. Delete all namespaces.
- * @param[in] kb    KB handle.
+ * @param[in] kb        KB handle.
+ * @param[in] except    Don't flush DB with except key.
  * @return 0 on success, non-null on error.
  */
-static inline int kb_flush (kb_t kb)
+static inline int kb_flush (kb_t kb, const char *except)
 {
   int rc = 0;
 
@@ -377,7 +454,7 @@ static inline int kb_flush (kb_t kb)
   assert (kb->kb_ops);
 
   if (kb->kb_ops->kb_flush != NULL)
-    rc = kb->kb_ops->kb_flush (kb);
+    rc = kb->kb_ops->kb_flush (kb, except);
 
   return rc;
 }
