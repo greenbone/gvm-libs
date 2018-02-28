@@ -52,9 +52,6 @@ nvticache_reset ();
 int
 nvticache_initialized (void);
 
-void
-nvticache_free (void);
-
 int
 nvticache_check (const gchar *);
 
