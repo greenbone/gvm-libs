@@ -72,10 +72,13 @@ nvticache_initialized (void)
 int
 nvticache_init (const char *src, const char *kb_path)
 {
-  assert (!cache_kb);
   assert (src);
 
+  if (src_path)
+    g_free (src_path);
   src_path = g_strdup (src);
+  if (cache_kb)
+    kb_lnk_reset (cache_kb);
   cache_kb = kb_find (kb_path, "nvticache");
   if (cache_kb)
     return 0;
@@ -95,17 +98,6 @@ nvticache_get_kb (void)
 {
   assert (cache_kb);
   return cache_kb;
-}
-
-/**
- * @brief Free the nvti cache.
- */
-void
-nvticache_free (void)
-{
-  g_free (src_path);
-  kb_delete (cache_kb);
-  cache_kb = NULL;
 }
 
 /**
