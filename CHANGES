@@ -1,11 +1,11 @@
-openvas-libraries 9.0.2 (2017-07-XX)
+openvas-libraries 9.0.2 (2018-03-XX)
 
 This is the second maintenance release of the openvas-libraries 9.0
 module for the Open Vulnerability Assessment System 9 (OpenVAS-9).
 
 Many thanks to everyone who contributed to this release:
 Hani Benhabiles, Francesco Colista, Juan Jose Nicola, Timo Pollmeier and Björn
-Ricks.
+Ricks, Michael Wiegand, Jan-Oliver Wagner, Matt Mundell and Albrecht Dreß.
 
 Main changes compared to 9.0.1:
 * Several memory management issues have been addressed.
@@ -22,6 +22,21 @@ Main changes compared to 9.0.1:
 * The default connection timeout when detecting services has been increased.
 * The handling of a number of frequently requested knowledge base keys has been
   improved.
+* More context to NVT/NASL related log messages has been added.
+* An issue which caused an error during close() call on UDP sockets from a NASL
+  script has been addressed.
+* Support for retrieving vendor version information through a NASL command has
+  been added.
+* Handling of SIGPIPE from hiredis in case of a socket disconnect has been added.
+* Handling of Redis connection error has been improved.
+* An issue which caused several running processes on scanned host under
+  certain circumstances has been addressed.
+* Support for ldap search during the authentication process has been added.
+* Simplify scanner signatures verification. NVT's detached signatures were
+  replaced with a digitally signed file with the hash list of the NVTs.
+* Full nvticache has been moved from .nvti files to Redis
+* Support for radcli library has been added.
+* Cleanup and handle of the kb content has been improved.
 
 
 openvas-libraries 9.0.1 (2017-03-07)
