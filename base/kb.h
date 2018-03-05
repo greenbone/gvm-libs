@@ -122,12 +122,6 @@ struct kb_operations
   int (*kb_delete) (kb_t);
   kb_t (*kb_find) (const char *, const char *);
 
-  /* The function kb_no_empty() have been written in openvas-libraries-9
-   * and it is used only in this branch for openvas-scanner-5.1. In the Trunk 
-   * version a new function kb_find() is used instead of this.
-   */
-  int (*kb_no_empty) (const char *);
-
   /* Actual kb operations */
   struct kb_item *(*kb_get_single) (kb_t, const char *, enum kb_item_type);
   char *(*kb_get_str) (kb_t, const char *);
@@ -188,19 +182,6 @@ static inline kb_t kb_find (const char *kb_path, const char *key)
   assert (KBDefaultOperations->kb_find);
 
   return KBDefaultOperations->kb_find (kb_path, key);
-}
-
-/**
- * @brief Check if KB redis is empty.
- * @param[in] kb_path   Path to KB.
- * @return 1 success, 0 otherwise.
- */
-static inline int kb_no_empty (const char *kb_path)
-{
-  assert (KBDefaultOperations);
-  assert (KBDefaultOperations->kb_no_empty);
-
-  return KBDefaultOperations->kb_no_empty (kb_path);
 }
 
 /**
