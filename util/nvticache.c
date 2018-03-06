@@ -41,11 +41,14 @@
 #include <sys/stat.h> /* for stat, st_mtime */
 #include <time.h>     /* for time, time_t */
 #include <stdlib.h>     /* for atoi */
+#include <stdio.h>     /* for fopen */
 
 #include "kb.h" /* for kb_del_items, kb_item_get_str, kb_item_add_int */
 
 #undef  G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  nvticache"
+
+#define NVTICACHE_STR "nvticache10"
 
 char *src_path = NULL;      /**< The directory of the source files. */
 kb_t cache_kb = NULL;
@@ -80,11 +83,12 @@ nvticache_init (const char *src, const char *kb_path)
   src_path = g_strdup (src);
   if (cache_kb)
     kb_lnk_reset (cache_kb);
-  cache_kb = kb_find (kb_path, "nvticache");
+  cache_kb = kb_find (kb_path, NVTICACHE_STR);
   if (cache_kb)
     return 0;
 
-  if (kb_new (&cache_kb, kb_path) || kb_item_set_int (cache_kb, "nvticache", 1))
+  if (kb_new (&cache_kb, kb_path)
+      || kb_item_set_str (cache_kb, NVTICACHE_STR, "1", 0))
     return -1;
   return 0;
 }
@@ -143,16 +147,51 @@ nvticache_reset ()
 }
 
 /**
+ * @brief Determine the version of the NVT feed.
+ * @param[out] feed_version Buffer to contain feed_version.
+ * @param[in]  feed_size    Size of feed_version buffer.
+ *
+ * @return Feed version. Free on caller.
+ */
+static int
+nvt_feed_version (char *feed_version, int feed_size)
+{
+  FILE *foutput;
+  gchar *command, *info_file;
+  info_file = g_build_filename (src_path, "plugin_feed_info.inc", NULL);
+  command = g_strdup_printf ("grep PLUGIN_SET %s | sed -e 's/[^0-9]//g'",
+                             info_file);
+
+  foutput = popen (command, "r");
+  if (fgets (feed_version, feed_size, foutput) == NULL)
+    {
+      pclose (foutput);
+      g_free (info_file);
+      g_free (command);
+      return 1;
+    }
+
+  feed_version[strlen (feed_version) - 1] = '\0';
+  pclose (foutput);
+  g_free (info_file);
+  g_free (command);
+  return 0;
+}
+
+/**
  * @brief Save the nvticache to disk.
  */
 void
 nvticache_save ()
 {
+  char feed_version[48];
   if (cache_kb && !cache_saved)
     {
       kb_save (cache_kb);
       cache_saved = 1;
     }
+  if (!nvt_feed_version (feed_version, sizeof (feed_version)))
+    kb_item_set_str (cache_kb, NVTICACHE_STR, feed_version, 0);
 }
 
 /**
@@ -612,4 +651,15 @@ nvticache_delete (const char *oid)
       kb_del_items (cache_kb, pattern);
     }
   g_free (filename);
+}
+
+/**
+ * @brief Get the NVT feed version.
+ *
+ * @return Feed version.
+ */
+char *
+nvticache_feed_version (void)
+{
+  return kb_item_get_str (cache_kb, NVTICACHE_STR);
 }

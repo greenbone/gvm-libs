@@ -479,8 +479,15 @@ redis_find (const char *kb_path, const char *key)
       else
         {
           freeReplyObject (rep);
-          if (key && kb_item_get_int (&kbr->kb, key) > 0)
-            return (kb_t) kbr;
+          if (key)
+            {
+              char *tmp = kb_item_get_str (&kbr->kb, key);
+              if (tmp)
+                {
+                  g_free (tmp);
+                  return (kb_t) kbr;
+                }
+            }
         }
       redisFree (kbr->rctx);
       i++;
@@ -1153,11 +1160,16 @@ redis_flush_all (kb_t kb, const char *except)
         {
           freeReplyObject (rep);
           /* Don't remove DB if it has "except" key. */
-          if (except && kb_item_get_int (kb, except) > 0)
+          if (except)
             {
-              i++;
-              redisFree (kbr->rctx);
-              continue;
+              char *tmp = kb_item_get_str (kb, except);
+              if (tmp)
+               {
+                 g_free (tmp);
+                 i++;
+                 redisFree (kbr->rctx);
+                 continue;
+               }
             }
           redis_delete_all (kbr);
           redis_release_db (kbr);
