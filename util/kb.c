@@ -465,7 +465,8 @@ redis_find (const char *kb_path, const char *key)
       rep = redisCommand (kbr->rctx, "HEXISTS %s %d", GLOBAL_DBINDEX_NAME, i);
       if (rep == NULL || rep->type != REDIS_REPLY_INTEGER || rep->integer != 1)
         {
-          freeReplyObject (rep);
+          if (rep != NULL)
+            freeReplyObject (rep);
           i++;
           continue;
         }
