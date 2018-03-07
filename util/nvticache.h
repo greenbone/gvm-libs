@@ -38,6 +38,8 @@
 #include "../base/nvti.h"  /* for nvti_t */
 #include "kb.h"            /* for kb_t */
 
+#define NVTICACHE_STR "nvticache10"
+
 int
 nvticache_init (const char *, const char *);
 
@@ -127,5 +129,8 @@ nvticache_count (void);
 
 void
 nvticache_delete (const char *);
+
+char *
+nvticache_feed_version (void);
 
 #endif /* not _GVM_NVTICACHE_H */
