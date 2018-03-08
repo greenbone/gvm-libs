@@ -671,7 +671,7 @@ load_checksums (kb_t kb)
 int
 init_nasl_ctx(naslctxt* pc, const char* name)
 {
-  char *full_name = NULL, key_path[2048], *checksum, *filename;
+  char *full_name = NULL, key_path[2048], *checksum, *filename, *check = NULL;
   GSList * inc_dir = inc_dirs; // iterator for include directories
 
   // initialize if not yet done (for openvas-server < 2.0.1)
@@ -715,15 +715,33 @@ init_nasl_ctx(naslctxt* pc, const char* name)
   init_checksum_algorithm ();
   if (checksum_algorithm == GCRY_MD_NONE)
     return -1;
-  else if (checksum_algorithm == GCRY_MD_MD5)
+
+  snprintf (key_path, sizeof (key_path), "checksum:%s", filename);
+  checksum = kb_item_get_str (pc->kb, key_path);
+  if (checksum)
+    {
+      int ret;
+      check = file_checksum (full_name, checksum_algorithm);
+      ret = strcmp (check, checksum);
+      if (!ret)
+        {
+          /* Already checked. No need to check again. */
+          g_free (full_name);
+          g_free (checksum);
+          g_free (check);
+          return 0;
+        }
+      g_free (checksum);
+      g_free (check);
+    }
+
+  load_checksums (pc->kb);
+  if (checksum_algorithm == GCRY_MD_MD5)
     snprintf (key_path, sizeof (key_path), "md5sums:%s", filename);
   else if (checksum_algorithm == GCRY_MD_SHA256)
     snprintf (key_path, sizeof (key_path), "sha256sums:%s", filename);
   else
     abort ();
-  checksum = kb_item_get_str (pc->kb, key_path);
-  if (!checksum)
-    load_checksums (pc->kb);
   checksum = kb_item_get_str (pc->kb, key_path);
   if (!checksum)
     {
@@ -734,10 +752,16 @@ init_nasl_ctx(naslctxt* pc, const char* name)
   else
     {
       int ret;
-      char *check = file_checksum (full_name, checksum_algorithm);
+
+      check = file_checksum (full_name, checksum_algorithm);
       ret = strcmp (check, checksum);
       if (ret)
         log_legacy_write ("checksum for %s not matching", full_name);
+      else
+        {
+          snprintf (key_path, sizeof (key_path), "checksum:%s", filename);
+          kb_item_set_str (pc->kb, key_path, check);
+        }
       g_free (full_name);
       g_free (checksum);
       g_free (check);
