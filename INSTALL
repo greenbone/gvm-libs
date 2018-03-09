@@ -22,7 +22,7 @@ General build environment:
 Specific development libraries:
 * libglib >= 2.32
 * libgnutls >= 3.2.15
-* libgcrypt
+* libgcrypt >= 1.6
 * zlib
 * libpcap
 * libgpgme >= 1.1.2
