@@ -40,6 +40,9 @@
 #include "nasl_signature.h"
 
 static void naslerror(naslctxt *, const char *);
+
+GHashTable *includes_hash = NULL;
+
 #define YYERROR_VERBOSE
 %}
 
@@ -290,28 +293,43 @@ inc: INCLUDE '(' string ')'
 	{
           char *tmp;
 	  naslctxt	subctx;
-	  int		x;
 
+          bzero (&subctx, sizeof (subctx));
           subctx.always_authenticated = ((naslctxt*)parm)->always_authenticated;
           subctx.kb = ((naslctxt *) parm)->kb;
-          x = init_nasl_ctx(&subctx, $3);
+          subctx.tree = ((naslctxt *) parm)->tree;
           $$ = NULL;
           tmp = g_strdup (nasl_get_filename (NULL));
           nasl_set_filename ($3);
-          if (x >= 0)
+          if (!includes_hash)
+            includes_hash = g_hash_table_new_full
+                             (g_str_hash, g_str_equal, g_free,
+                              (GDestroyNotify) deref_cell);
+
+          if ((subctx.tree = g_hash_table_lookup (includes_hash, $3)))
             {
-              if (! naslparse(&subctx))
+              $$ = subctx.tree;
+              ref_cell ($$);
+              g_free ($3);
+            }
+          else if (init_nasl_ctx (&subctx, $3) >= 0)
+            {
+              if (!naslparse (&subctx))
                 {
                   $$ = subctx.tree;
+                  g_hash_table_insert (includes_hash, $3, $$);
+                  ref_cell ($$);
                 }
               else
-                nasl_perror(NULL, "%s: Parse error at or near line %d\n",
-                        $3, subctx.line_nb);
+                {
+                  nasl_perror (NULL, "%s: Parse error at or near line %d\n",
+                               $3, subctx.line_nb);
+                  g_free ($3);
+                }
 	      g_free(subctx.buffer);
 	      subctx.buffer = NULL;
 	      fclose(subctx.fp);
 	      subctx.fp = NULL;
-	      g_free($3);
 	    }
           else
             {
@@ -783,6 +801,15 @@ nasl_clean_ctx(naslctxt* c)
       fclose(c->fp);
       c->fp = NULL;
     }
+}
+
+void
+nasl_clean_inc (void)
+{
+  if (!includes_hash)
+    return;
+  g_hash_table_destroy (includes_hash);
+  includes_hash = NULL;
 }
 
 enum lex_state {
