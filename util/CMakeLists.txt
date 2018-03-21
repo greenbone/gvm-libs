@@ -75,6 +75,7 @@ else (NOT GPGME)
       OUTPUT_VARIABLE GPGME_CFLAGS
       OUTPUT_STRIP_TRAILING_WHITESPACE)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1")
+    string(REPLACE "-I" "" GPGME_INCLUDE_DIRS ${GPGME_CFLAGS})
   endif (GPGME_VERSION VERSION_LESS GPGME_MIN_VERSION)
 endif (NOT GPGME)
 
@@ -90,6 +91,7 @@ execute_process (COMMAND libgcrypt-config --libs
 execute_process (COMMAND libgcrypt-config --cflags
     OUTPUT_VARIABLE GCRYPT_CFLAGS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
+string(REPLACE "-I" "" GCRYPT_INCLUDE_DIRS ${GCRYPT_CFLAGS})
 endif (NOT GCRYPT)
 
 if (BUILD_WITH_RADIUS)
@@ -128,7 +130,7 @@ else (NOT LIBLDAP)
   set (LDAP_LDFLAGS "-lldap")
 endif (NOT LIBLDAP)
 
-include_directories (${GLIB_INCLUDE_DIRS})
+include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS})
 
 set (FILES authutils.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
            nvticache.c radiusutils.c serverutils.c sshutils.c uuidutils.c
