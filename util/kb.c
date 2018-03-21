@@ -817,6 +817,50 @@ redis_get_nvt (kb_t kb, const char *oid, enum kb_nvt_pos position)
   return res;
 }
 
+static nvti_t *
+redis_get_nvt_all (kb_t kb, const char *oid)
+{
+  struct kb_redis *kbr;
+  redisReply *rep;
+
+  kbr = redis_kb (kb);
+  rep = redis_cmd (kbr, "LRANGE nvt:%s %d %d", oid, NVT_FILENAME_POS,
+                   NVT_VERSION_POS);
+  if (!rep)
+    return NULL;
+  if (rep->type != REDIS_REPLY_ARRAY || rep->elements != NVT_VERSION_POS + 1)
+    {
+      freeReplyObject (rep);
+      return NULL;
+    }
+  else
+    {
+      nvti_t *nvti = nvti_new ();
+
+      nvti_set_oid (nvti, oid);
+      nvti_set_required_keys (nvti, rep->element[NVT_REQUIRED_KEYS_POS]->str);
+      nvti_set_mandatory_keys (nvti, rep->element[NVT_MANDATORY_KEYS_POS]->str);
+      nvti_set_excluded_keys (nvti, rep->element[NVT_EXCLUDED_KEYS_POS]->str);
+      nvti_set_required_udp_ports
+       (nvti, rep->element[NVT_REQUIRED_UDP_PORTS_POS]->str);
+      nvti_set_required_ports (nvti, rep->element[NVT_REQUIRED_PORTS_POS]->str);
+      nvti_set_dependencies (nvti, rep->element[NVT_DEPENDENCIES_POS]->str);
+      nvti_set_tag (nvti, rep->element[NVT_TAGS_POS]->str);
+      nvti_set_cve (nvti, rep->element[NVT_CVES_POS]->str);
+      nvti_set_bid (nvti, rep->element[NVT_BIDS_POS]->str);
+      nvti_set_xref (nvti, rep->element[NVT_XREFS_POS]->str);
+      nvti_set_category (nvti, atoi (rep->element[NVT_CATEGORY_POS]->str));
+      nvti_set_timeout (nvti, atoi (rep->element[NVT_TIMEOUT_POS]->str));
+      nvti_set_family (nvti, rep->element[NVT_FAMILY_POS]->str);
+      nvti_set_copyright (nvti, rep->element[NVT_COPYRIGHT_POS]->str);
+      nvti_set_name (nvti, rep->element[NVT_NAME_POS]->str);
+      nvti_set_version (nvti, rep->element[NVT_VERSION_POS]->str);
+
+      freeReplyObject (rep);
+      return nvti;
+    }
+}
+
 static struct kb_item *
 redis_get_all (kb_t kb, const char *name)
 {
@@ -1252,6 +1296,7 @@ static const struct kb_operations KBRedisOperations = {
   .kb_get_str      = redis_get_str,
   .kb_get_int      = redis_get_int,
   .kb_get_nvt      = redis_get_nvt,
+  .kb_get_nvt_all  = redis_get_nvt_all,
   .kb_get_all      = redis_get_all,
   .kb_get_pattern  = redis_get_pattern,
   .kb_count        = redis_count,

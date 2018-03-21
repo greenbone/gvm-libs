@@ -551,6 +551,20 @@ nvticache_get_tags (const char *oid)
 }
 
 /**
+ * @brief Get the nvti from a plugin OID.
+ *
+ * @param[in]   oid     OID to match.
+ *
+ * @return Full nvti matching OID, NULL otherwise.
+ */
+nvti_t *
+nvticache_get_nvt (const char *oid)
+{
+  assert (cache_kb);
+  return kb_nvt_get_all (cache_kb, oid);
+}
+
+/**
  * @brief Get the prefs from a plugin OID.
  *
  * @param[in]   oid     OID to match.

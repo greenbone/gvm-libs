@@ -121,6 +121,9 @@ nvticache_get_timeout (const char *);
 char *
 nvticache_get_dependencies (const char *);
 
+nvti_t *
+nvticache_get_nvt (const char *);
+
 GSList *
 nvticache_get_oids (void);
 

@@ -129,6 +129,7 @@ struct kb_operations
   char *(*kb_get_str) (kb_t, const char *);
   int (*kb_get_int) (kb_t, const char *);
   char *(*kb_get_nvt) (kb_t, const char *, enum kb_nvt_pos);
+  nvti_t *(*kb_get_nvt_all) (kb_t, const char *);
   struct kb_item * (*kb_get_all) (kb_t, const char *);
   struct kb_item * (*kb_get_pattern) (kb_t, const char *);
   size_t (*kb_count) (kb_t, const char *);
@@ -406,9 +407,25 @@ kb_nvt_get (kb_t kb, const char *oid, enum kb_nvt_pos position)
 {
   assert (kb);
   assert (kb->kb_ops);
-  assert (kb->kb_ops->kb_add_nvt);
+  assert (kb->kb_ops->kb_get_nvt);
 
   return kb->kb_ops->kb_get_nvt (kb, oid, position);
+}
+
+/**
+ * @brief Get a full NVT.
+ * @param[in] kb        KB handle where to store the nvt.
+ * @param[in] oid       OID of NVT to get.
+ * @return nvti_t of NVT, NULL otherwise.
+ */
+static inline nvti_t *
+kb_nvt_get_all (kb_t kb, const char *oid)
+{
+  assert (kb);
+  assert (kb->kb_ops);
+  assert (kb->kb_ops->kb_get_nvt_all);
+
+  return kb->kb_ops->kb_get_nvt_all (kb, oid);
 }
 
 /**
