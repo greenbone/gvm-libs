@@ -91,7 +91,7 @@ execute_process (COMMAND libgcrypt-config --libs
 execute_process (COMMAND libgcrypt-config --cflags
     OUTPUT_VARIABLE GCRYPT_CFLAGS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-string(REPLACE "-I" "" GCRYPT_INCLUDE_DIRS ${GCRYPT_CFLAGS})
+string(REPLACE "-I" "" GCRYPT_INCLUDE_DIRS "${GCRYPT_CFLAGS}")
 endif (NOT GCRYPT)
 
 if (BUILD_WITH_RADIUS)
