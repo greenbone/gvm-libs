@@ -1121,7 +1121,7 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
                    nvti_mandatory_keys (nvt) ?: "",
                    nvti_excluded_keys (nvt) ?: "",
                    nvti_required_udp_ports (nvt) ?: "",
-                   nvti_required_keys (nvt) ?: "",
+                   nvti_required_ports (nvt) ?: "",
                    nvti_dependencies (nvt) ?: "", nvti_tag (nvt) ?: "",
                    nvti_cve (nvt) ?: "", nvti_bid (nvt) ?: "",
                    nvti_xref (nvt) ?: "", nvti_category (nvt),
