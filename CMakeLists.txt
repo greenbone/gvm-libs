@@ -50,7 +50,7 @@ else (NOT BUILD_STATIC)
 endif (NOT BUILD_STATIC)
 
 ## Retrieve git revision (at configure time)
-find_program (GIT_EXECUTABLE git DOC "git command line client")
+find_package (Git)
 
 macro (Git_GET_REVISION dir variable)
   execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
@@ -66,12 +66,12 @@ endmacro (Git_GET_REVISION)
 
 if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
   if (EXISTS "${CMAKE_SOURCE_DIR}/.git/")
-    if (GIT_EXECUTABLE)
+    if (GIT_FOUND)
       Git_GET_REVISION(. ProjectRevision)
       set (GIT_REVISION "~git-${ProjectRevision}")
-    else (GIT_EXECUTABLE)
+    else (GIT_FOUND)
       set (GIT_REVISION "~git")
-    endif (GIT_EXECUTABLE)
+    endif (GIT_FOUND)
   endif (EXISTS "${CMAKE_SOURCE_DIR}/.git/")
 endif (NOT CMAKE_BUILD_TYPE MATCHES "Release")
 
