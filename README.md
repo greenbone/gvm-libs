@@ -13,6 +13,10 @@ base: All basic modules that only require glib as a dependency.
 
 util: All modules that require more than just glib as dependency.
 
+gmp: API support for Greebone Management Protocol (GMP).
+
+osp: API support for Open Scanner Protocol (OSP).
+
 For more information, please refer to http://www.greenbone.net or
 to http://www.openvas.org.
 

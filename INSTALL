@@ -2,9 +2,8 @@ INSTALLATION INSTRUCTIONS FOR GVM-LIBS
 ======================================
 
 Please note: The reference system used by most of the developers is Debian
-GNU/Linux 'Jessie' 8. The build might fail on any other system. Also it is
+GNU/Linux 'Stretch' 9. The build might fail on any other system. Also it is
 necessary to install dependent development packages.
-
 
 Prerequisites for gvm-libs
 --------------------------
@@ -35,9 +34,6 @@ Prerequisites for building documentation:
 * doxygen
 * xmltoman (optional, for building man page)
 * sqlfairy (optional, for producing database diagram)
-
-Install prerequisites on Debian GNU/Linux 'Jessie' 8:
-# apt-get install c-compiler cmake pkg-config libglib2.0-dev libgpgme11-dev
 
 Install prerequisites on Debian GNU/Linux 'Stretch' 9:
 # apt-get install cmake pkg-config libglib2.0-dev libgpgme11-dev \
