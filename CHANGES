@@ -1,0 +1,24 @@
+SUMMARY OF RELEASE CHANGES FOR GVM-LIBS
+=======================================
+
+For detailed code changes, please visit
+ https://github.com/greenbone/gvm-libs/commits/master
+or get the entire source code repository and view log history:
+$ git clone https://github.com/greenbone/gvm-libs.git
+$ cd gvm-libs && git log
+
+
+gvm-libs 1.0+beta1 (2018-XX-XX)
+
+This is the first beta release of the gvm-libs module 1.0 for the Greenbone
+Vulnerability Management (GVM) framework.
+
+It derives from the former openvas-libraries module. Any elements of the
+old module that were used by OpenVAS Scanner only, were moved into the
+module openvas-scanner.
+ 
+Apart from this, the module covers a number of significant advances
+and clean-ups compared to the previous openvas-libraries module.
+
+Many thanks to everyone who has contributed to this release:
+TODO
