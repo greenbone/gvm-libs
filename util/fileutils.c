@@ -139,9 +139,6 @@ gvm_file_copy (const gchar *source_file, const gchar *dest_file)
   GFile *sfile, *dfile;
   GError *error;
 
-#if !GLIB_CHECK_VERSION(2, 35, 0)
-  g_type_init ();
-#endif
   sfile = g_file_new_for_path (source_file);
   dfile = g_file_new_for_path (dest_file);
   error = NULL;
