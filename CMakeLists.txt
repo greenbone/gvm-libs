@@ -25,8 +25,6 @@
 
 cmake_minimum_required(VERSION 3.0)
 
-include (gvm_cmake_macros)
-
 message ("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
 project (gvm-libs
