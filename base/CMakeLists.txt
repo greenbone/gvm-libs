@@ -22,13 +22,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-## Library
 
 include (FindPkgConfig)
 
 if (NOT PKG_CONFIG_FOUND)
   message(FATAL_ERROR "pkg-config executable not found. Aborting.")
 endif (NOT PKG_CONFIG_FOUND)
+
 
 ## Dependency checks
 
@@ -76,9 +76,9 @@ if (GVM_SYSCONF_DIR)
   add_definitions (-DGVM_SYSCONF_DIR="${GVM_SYSCONF_DIR}")
 endif (GVM_SYSCONF_DIR)
 
-add_custom_indent_targets (${FILES})
 
 ## Install
+
 configure_file (libgvm_base.pc.in ${CMAKE_BINARY_DIR}/libgvm_base.pc @ONLY)
 
 install (DIRECTORY DESTINATION ${GVM_PID_DIR})
@@ -92,6 +92,7 @@ if (BUILD_STATIC)
     ARCHIVE DESTINATION ${LIBDIR}
     PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/gvm/base")
 endif (BUILD_STATIC)
+
 if (BUILD_SHARED)
   install (TARGETS gvm_base_shared
     RUNTIME DESTINATION ${BINDIR}
