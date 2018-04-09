@@ -112,6 +112,11 @@ gvm_source_iface_init (const char *iface)
   return ret;
 }
 
+/**
+ * @brief Check if global_source @ref global_source_iface is set.
+ *
+ * @return 1 if set, 0 otherwise.
+ */
 int
 gvm_source_iface_is_set (void)
 {
@@ -261,6 +266,13 @@ addr6_to_str (const struct in6_addr *addr6, char *str)
     inet_ntop (AF_INET6, addr6, str, INET6_ADDRSTRLEN);
 }
 
+/**
+ * @brief Stringifies an IP address.
+ *
+ * @param[in]   addr6   IP address.
+ *
+ * @return      IP as string. NULL otherwise.
+ */
 char *
 addr6_as_str (const struct in6_addr *addr6)
 {

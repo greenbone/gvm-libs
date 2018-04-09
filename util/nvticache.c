@@ -640,6 +640,10 @@ nvticache_count ()
   return kb_item_count (cache_kb, "nvt:*");
 }
 
+/**
+ * @brief Delete NVT from the cache.
+ * @param[in] oid OID to match.
+ */
 void
 nvticache_delete (const char *oid)
 {
