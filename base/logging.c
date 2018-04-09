@@ -339,6 +339,9 @@ gvm_log_silent (const char *log_domain, GLogLevelFlags log_level,
 
 static GMutex *logger_mutex = NULL;
 
+/**
+ * @brief Initialize logger_mutex mutex if it was not done before.
+ */
 static void
 gvm_log_lock_init (void)
 {
@@ -349,12 +352,18 @@ gvm_log_lock_init (void)
     }
 }
 
+/**
+ * @brief Try to lock logger_mutex.
+ */
 static void
 gvm_log_lock (void)
 {
   g_mutex_lock (logger_mutex);
 }
 
+/**
+ * @brief Unlock logger_mutex.
+ */
 static void
 gvm_log_unlock (void)
 {

@@ -94,7 +94,8 @@ static redisReply *redis_cmd (struct kb_redis *kbr, const char *fmt, ...);
 
 
 /**
- * Attempt to atomically acquire ownership of a database.
+ * @brief Attempt to atomically acquire ownership of a database.
+ * @return 0 on success, negative integer otherwise.
  */
 static int
 try_database_index (struct kb_redis *kbr, int index)
@@ -125,8 +126,17 @@ try_database_index (struct kb_redis *kbr, int index)
  * configured. We can find it empirically by attempting to select a given
  * DB and seeing whether we get an error or not.
  */
+/**
+ * @brief Max number of configured DB.
+ */
 #define MAX_DB_INDEX__24    1000
 
+/**
+ * @brief Set the number of databases have been configured
+ *        into kbr struct. (For Redis 2.4.* compatibility).
+ * @param[in] kbr Subclass of struct kb where to save the max db index founded.
+ * @return 0 on success, -1 on error.
+ */
 static int
 fetch_max_db_index_compat (struct kb_redis *kbr)
 {
@@ -188,6 +198,12 @@ fetch_max_db_index_compat (struct kb_redis *kbr)
   return rc;
 }
 
+/**
+ * @brief Set the number of databases have been configured
+ *        into kbr struct.
+ * @param[in] kbr Subclass of struct kb where to save the max db index founded.
+ * @return 0 on success, -1 on error.
+ */
 static int
 fetch_max_db_index (struct kb_redis *kbr)
 {
@@ -239,6 +255,10 @@ err_cleanup:
 }
 
 /**
+ * @brief Select DB.
+ * @param[in] kbr Subclass of struct kb where to save the db index.
+ * @return 0 on success, -1 on error.
+ *
  * WARNING: do not call redis_cmd in here, since our context is not fully
  * acquired yet!
  */
@@ -287,6 +307,12 @@ err_cleanup:
   return rc;
 }
 
+/**
+ * @brief Release DB.
+ * @param[in] kbr Subclass of struct kb.
+ *
+ * @return 0 on success, -1 on error.
+ */
 static int
 redis_release_db (struct kb_redis *kbr)
 {
@@ -321,6 +347,13 @@ err_cleanup:
   return rc;
 }
 
+/**
+ * @brief Get redis context if it is already connected or do a
+ *        a connection.
+ * @param[in] kbr Subclass of struct kb where to fetch the context.
+ *                or where it is saved in case of a new connection.
+ * @return Redis context on success, NULL otherwise.
+ */
 static redisContext *
 get_redis_ctx (struct kb_redis *kbr)
 {
@@ -358,6 +391,11 @@ get_redis_ctx (struct kb_redis *kbr)
   return kbr->rctx;
 }
 
+/**
+ * @brief Test redis connection.
+ * @param[in] kbr Subclass of struct kb to test.
+ * @return 0 on success, negative integer on error.
+ */
 static int
 redis_test_connection (struct kb_redis *kbr)
 {
@@ -392,6 +430,11 @@ out:
   return rc;
 }
 
+/**
+ * @brief Delete all entries and release ownership on the namespace.
+ * @param[in] kb KB handle to release.
+ * @return 0 on success, non-null on error.
+ */
 static int
 redis_delete (kb_t kb)
 {
@@ -412,6 +455,13 @@ redis_delete (kb_t kb)
   return 0;
 }
 
+
+/**
+ * @brief Initialize a new Knowledge Base object.
+ * @param[in] kb  Reference to a kb_t to initialize.
+ * @param[in] kb_path   Path to KB.
+ * @return 0 on success, non-null on error.
+ */
 static int
 redis_new (kb_t *kb, const char *kb_path)
 {
@@ -436,6 +486,12 @@ redis_new (kb_t *kb, const char *kb_path)
   return rc;
 }
 
+/**
+ * @brief Find an existing Knowledge Base object with key.
+ * @param[in] kb_path   Path to KB.
+ * @param[in] key       Marker key to search for in KB objects.
+ * @return Knowledge Base object, NULL otherwise.
+ */
 static kb_t
 redis_find (const char *kb_path, const char *key)
 {
@@ -499,6 +555,10 @@ redis_find (const char *kb_path, const char *key)
   return NULL;
 }
 
+/**
+ * @brief Release a KB item (or a list).
+ * @param[in] item Item or list to be release
+ */
 void
 kb_item_free (struct kb_item *item)
 {
@@ -514,6 +574,12 @@ kb_item_free (struct kb_item *item)
     }
 }
 
+/**
+ * @brief Get a redis transaction handle.
+ * @param[in] kbr Subclass of struct kb.
+ * @param[out] rtx Redis transaction handle struct.
+ * @return 0 on success, -1 otherwise.
+ */
 static int
 redis_transaction_new (struct kb_redis *kbr, struct redis_tx *rtx)
 {
@@ -547,6 +613,12 @@ err_cleanup:
   return rc;
 }
 
+/**
+ * @brief Execute a redis command.
+ * @param[in] rtx Redis transaction handler.
+ * @param[in] fmt Formated variable argument list with the cmd to be executed.
+ * @return 0 on success, -1 otherwise.
+ */
 static int
 redis_transaction_cmd (struct redis_tx *rtx, const char *fmt, ...)
 {
@@ -578,6 +650,12 @@ err_cleanup:
   return rc;
 }
 
+/**
+ * @brief End redis redis transaction.
+ * @param[in] rtx Redis transaction handler.
+ * @param[out] rep A redisReply element with the retrieve data or NULL.
+ * @return 0 on success, -1 otherwise.
+ */
 static int
 redis_transaction_end (struct redis_tx *rtx, redisReply **rep)
 {
@@ -612,6 +690,14 @@ err_cleanup:
   return rc;
 }
 
+
+/**
+ * @brief Give a single KB item.
+ * @param[in] name Name of the item.
+ * @param[in] elt A redisReply element where to fetch the item.
+ * @param[in] force_int To force string to integer conversion.
+ * @return Single retrieve kb_item on success, NULL otherwise.
+ */
 static struct kb_item *
 redis2kbitem_single (const char *name, const redisReply *elt, int force_int)
 {
@@ -648,6 +734,12 @@ redis2kbitem_single (const char *name, const redisReply *elt, int force_int)
   return item;
 }
 
+/**
+ * @brief Fetch a KB item or list from a redis Reply.
+ * @param[in] name Name of the item.
+ * @param[in] rep A redisReply element where to fetch the item.
+ * @return kb_item or list on success, NULL otherwise.
+ */
 static struct kb_item *
 redis2kbitem (const char *name, const redisReply *rep)
 {
@@ -693,6 +785,12 @@ redis2kbitem (const char *name, const redisReply *rep)
   return kbi;
 }
 
+/**
+ * @brief Execute a redis command and get a redis reply.
+ * @param[in] kbr Subclass of struct kb to connect to.
+ * @param[in] fmt Formated variable argument list with the cmd to be executed.
+ * @return Redis reply on success, NULL otherwise.
+ */
 static redisReply *
 redis_cmd (struct kb_redis *kbr, const char *fmt, ...)
 {
@@ -736,6 +834,15 @@ redis_cmd (struct kb_redis *kbr, const char *fmt, ...)
   return rep;
 }
 
+
+/**
+ * @brief Get a single KB element.
+ * @param[in] kb KB handle where to fetch the item.
+ * @param[in] name  Name of the element to retrieve.
+ * @param[in] type Desired element type.
+ * @return A struct kb_item to be freed with kb_item_free() or NULL if no
+ *         element was found or on error.
+ */
 static struct kb_item *
 redis_get_single (kb_t kb, const char *name, enum kb_item_type type)
 {
@@ -762,6 +869,13 @@ out:
   return kbi;
 }
 
+/**
+ * @brief Get a single KB string item.
+ * @param[in] kb  KB handle where to fetch the item.
+ * @param[in] name  Name of the element to retrieve.
+ * @return A struct kb_item to be freed with kb_item_free() or NULL if no
+ *         element was found or on error.
+ */
 static char *
 redis_get_str (kb_t kb, const char *name)
 {
@@ -780,6 +894,13 @@ redis_get_str (kb_t kb, const char *name)
   return NULL;
 }
 
+/**
+ * @brief Get a single KB integer item.
+ * @param[in] kb  KB handle where to fetch the item.
+ * @param[in] name  Name of the element to retrieve.
+ * @return A struct kb_item to be freed with kb_item_free() or NULL if no
+ *         element was found or on error.
+ */
 static int
 redis_get_int (kb_t kb, const char *name)
 {
@@ -797,6 +918,13 @@ redis_get_int (kb_t kb, const char *name)
   return -1;
 }
 
+/**
+ * @brief Get field of a NVT.
+ * @param[in] kb        KB handle where to store the nvt.
+ * @param[in] oid       OID of NVT to get from.
+ * @param[in] position  Position of field to get.
+ * @return Value of field, NULL otherwise.
+ */
 static char *
 redis_get_nvt (kb_t kb, const char *oid, enum kb_nvt_pos position)
 {
@@ -817,6 +945,12 @@ redis_get_nvt (kb_t kb, const char *oid, enum kb_nvt_pos position)
   return res;
 }
 
+/**
+ * @brief Get a full NVT.
+ * @param[in] kb        KB handle where to store the nvt.
+ * @param[in] oid       OID of NVT to get.
+ * @return nvti_t of NVT, NULL otherwise.
+ */
 static nvti_t *
 redis_get_nvt_all (kb_t kb, const char *oid)
 {
@@ -861,6 +995,13 @@ redis_get_nvt_all (kb_t kb, const char *oid)
     }
 }
 
+/**
+ * @brief Get all items stored under a given name.
+ * @param[in] kb  KB handle where to fetch the items.
+ * @param[in] name  Name of the elements to retrieve.
+ * @return Linked struct kb_item instances to be freed with kb_item_free() or
+ *         NULL if no element was found or on error.
+ */
 static struct kb_item *
 redis_get_all (kb_t kb, const char *name)
 {
@@ -881,6 +1022,13 @@ redis_get_all (kb_t kb, const char *name)
   return kbi;
 }
 
+/**
+ * @brief Get all items stored under a given pattern.
+ * @param[in] kb  KB handle where to fetch the items.
+ * @param[in] pattern  '*' pattern of the elements to retrieve.
+ * @return Linked struct kb_item instances to be freed with kb_item_free() or
+ *         NULL if no element was found or on error.
+ */
 static struct kb_item *
 redis_get_pattern (kb_t kb, const char *pattern)
 {
@@ -942,6 +1090,14 @@ next:
   return kbi;
 }
 
+/**
+ * @brief Count all items stored under a given pattern.
+ *
+ * @param[in] kb  KB handle where to count the items.
+ * @param[in] pattern  '*' pattern of the elements to count.
+ *
+ * @return Count of items.
+ */
 static size_t
 redis_count (kb_t kb, const char *pattern)
 {
@@ -966,6 +1122,12 @@ redis_count (kb_t kb, const char *pattern)
   return count;
 }
 
+/**
+ * @brief Delete all entries under a given name.
+ * @param[in] kb  KB handle where to store the item.
+ * @param[in] name  Item name.
+ * @return 0 on success, non-null on error.
+ */
 static int
 redis_del_items (kb_t kb, const char *name)
 {
@@ -985,6 +1147,14 @@ redis_del_items (kb_t kb, const char *name)
   return rc;
 }
 
+/**
+ * @brief Insert (append) a new entry under a given name.
+ * @param[in] kb  KB handle where to store the item.
+ * @param[in] name  Item name.
+ * @param[in] str  Item value.
+ * @param[in] len  Value length. Used for blobs.
+ * @return 0 on success, non-null on error.
+ */
 static int
 redis_add_str (kb_t kb, const char *name, const char *str, size_t len)
 {
@@ -1007,6 +1177,14 @@ redis_add_str (kb_t kb, const char *name, const char *str, size_t len)
   return rc;
 }
 
+/**
+ * @brief Set (replace) a new entry under a given name.
+ * @param[in] kb  KB handle where to store the item.
+ * @param[in] name  Item name.
+ * @param[in] str  Item value.
+ * @param[in] len  Value length. Used for blobs.
+ * @return 0 on success, non-null on error.
+ */
 static int
 redis_set_str (kb_t kb, const char *name, const char *val, size_t len)
 {
@@ -1045,6 +1223,13 @@ out:
   return rc;
 }
 
+/**
+ * @brief Insert (append) a new entry under a given name.
+ * @param[in] kb  KB handle where to store the item.
+ * @param[in] name  Item name.
+ * @param[in] val  Item value.
+ * @return 0 on success, non-null on error.
+ */
 static int
 redis_add_int (kb_t kb, const char *name, int val)
 {
@@ -1068,6 +1253,13 @@ out:
   return rc;
 }
 
+/**
+ * @brief Set (replace) a new entry under a given name.
+ * @param[in] kb  KB handle where to store the item.
+ * @param[in] name  Item name.
+ * @param[in] val  Item value.
+ * @return 0 on success, non-null on error.
+ */
 static int
 redis_set_int (kb_t kb, const char *name, int val)
 {
@@ -1103,6 +1295,13 @@ out:
   return rc;
 }
 
+/**
+ * @brief Insert a new nvt.
+ * @param[in] kb        KB handle where to store the nvt.
+ * @param[in] nvt       nvt to store.
+ * @param[in] filename  Path to nvt to store.
+ * @return 0 on success, non-null on error.
+ */
 static int
 redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
 {
@@ -1141,6 +1340,12 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
   return rc;
 }
 
+/**
+ * @brief Reset connection to the KB. This is called after each fork() to make
+ *        sure connections aren't shared between concurrent processes.
+ * @param[in] kb KB handle.
+ * @return 0 on success, non-null on error.
+ */
 static int
 redis_lnk_reset (kb_t kb)
 {
@@ -1157,6 +1362,12 @@ redis_lnk_reset (kb_t kb)
   return 0;
 }
 
+/**
+ * @brief Flush all the KB's content. Delete all namespaces.
+ * @param[in] kb        KB handle.
+ * @param[in] except    Don't flush DB with except key.
+ * @return 0 on success, non-null on error.
+ */
 static int
 redis_flush_all (kb_t kb, const char *except)
 {
@@ -1228,6 +1439,11 @@ redis_flush_all (kb_t kb, const char *except)
   return 0;
 }
 
+/**
+ * @brief Save all the elements from the KB.
+ * @param[in] kb        KB handle.
+ * @return 0 on success, -1 on error.
+ */
 int
 redis_save (kb_t kb)
 {
@@ -1253,6 +1469,11 @@ err_cleanup:
   return rc;
 }
 
+/**
+ * @brief Delete all the KB's content.
+ * @param[in] kbr Subclass of struct kb.
+ * @return 0 on success, non-null on error.
+ */
 int
 redis_delete_all (struct kb_redis *kbr)
 {
@@ -1287,7 +1508,11 @@ err_cleanup:
   return rc;
 }
 
-
+/**
+ * @brief Default KB operations.
+ *        No selection mechanism is provided yet since there's only one
+ *        implementation (redis-based).
+ */
 static const struct kb_operations KBRedisOperations = {
   .kb_new          = redis_new,
   .kb_find         = redis_find,

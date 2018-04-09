@@ -62,7 +62,8 @@ osp_send_command (osp_connection_t *, entity_t *, const char *, ...)
     __attribute__((__format__(__printf__, 3, 4)));
 
 
-/* @brief Open a new connection to an OSP server.
+/**
+ * @brief Open a new connection to an OSP server.
  *
  * @param[in]   host    Host of OSP server.
  * @param[in]   port    Port of OSP server.
@@ -121,7 +122,8 @@ osp_connection_new (const char *host, int port, const char *cacert,
   return connection;
 }
 
-/* @brief Send a command to an OSP server.
+/**
+ * @brief Send a command to an OSP server.
  *
  * @param[in]   connection  Connection to OSP server.
  * @param[in]   command     OSP Command to send.
@@ -165,7 +167,8 @@ out:
   return rc;
 }
 
-/* @brief Close a connection to an OSP server.
+/**
+ * @brief Close a connection to an OSP server.
  *
  * @param[in]   connection  Connection to OSP server to close.
  */
@@ -183,7 +186,8 @@ osp_connection_close (osp_connection_t *connection)
   g_free (connection);
 }
 
-/* @brief Get the scanner version from an OSP server.
+/**
+ * @brief Get the scanner version from an OSP server.
  *
  * @param[in]   connection  Connection to an OSP server.
  * @param[out]  s_name      Parsed scanner name.
@@ -271,7 +275,8 @@ err_get_version:
   return 1;
 }
 
-/* @brief Delete a scan from an OSP server.
+/**
+ * @brief Delete a scan from an OSP server.
  *
  * @param[in]   connection  Connection to an OSP server.
  * @param[in]   scan_id     ID of scan to delete.
@@ -303,7 +308,8 @@ osp_delete_scan (osp_connection_t *connection, const char *scan_id)
   return ret;
 }
 
-/* @brief Get a scan from an OSP server.
+/**
+ * @brief Get a scan from an OSP server.
  *
  * @param[in]   connection  Connection to an OSP server.
  * @param[in]   scan_id     ID of scan to get.
@@ -356,7 +362,8 @@ osp_get_scan (osp_connection_t *connection, const char *scan_id,
   return progress;
 }
 
-/* @brief Stop a scan on an OSP server.
+/**
+ * @brief Stop a scan on an OSP server.
  *
  * @param[in]   connection  Connection to an OSP server.
  * @param[in]   scan_id     ID of scan to delete.
@@ -416,7 +423,8 @@ option_concat_as_xml (gpointer key, gpointer value, gpointer pstr)
   *(char **) pstr = tmp;
 }
 
-/* @brief Start an OSP scan against a target.
+/**
+ * @brief Start an OSP scan against a target.
  *
  * @param[in]   connection  Connection to an OSP server.
  * @param[in]   target      Target host to scan.
@@ -472,7 +480,8 @@ osp_start_scan (osp_connection_t *connection, const char *target,
     }
 }
 
-/* @brief Get an OSP parameter's type from its string format.
+/**
+ * @brief Get an OSP parameter's type from its string format.
  *
  * @param[in]   str     OSP parameter in string format.
  *
@@ -502,6 +511,13 @@ osp_param_str_to_type (const char *str)
   return 0;
 }
 
+/**
+ * @brief Get an OSP parameter in string format form its type.
+ *
+ * @param[in]   param     OSP parameter.
+ *
+ * @return OSP parameter in string format.
+ */
 const char *
 osp_param_type_str (const osp_param_t *param)
 {
@@ -529,7 +545,8 @@ osp_param_type_str (const osp_param_t *param)
   return NULL;
 }
 
-/* @brief Get an OSP scanner's details.
+/**
+ * @brief Get an OSP scanner's details.
  *
  * @param[in]   connection  Connection to an OSP server.
  * @param[out]  desc        Scanner's description.
@@ -588,7 +605,8 @@ osp_get_scanner_details (osp_connection_t *connection, char **desc,
   return 0;
 }
 
-/* @brief Create a new OSP parameter.
+/**
+ * @brief Create a new OSP parameter.
  *
  * @return New OSP parameter.
  */
@@ -598,7 +616,8 @@ osp_param_new (void)
   return g_malloc0 (sizeof (osp_param_t));
 }
 
-/* @brief Get an OSP parameter's id.
+/**
+ * @brief Get an OSP parameter's id.
  *
  * @param[in]   param   OSP parameter.
  *
@@ -612,7 +631,8 @@ osp_param_id (const osp_param_t *param)
   return param->id;
 }
 
-/* @brief Get an OSP parameter's name.
+/**
+ * @brief Get an OSP parameter's name.
  *
  * @param[in]   param   OSP parameter.
  *
@@ -626,7 +646,8 @@ osp_param_name (const osp_param_t *param)
   return param->name;
 }
 
-/* @brief Get an OSP parameter's description.
+/**
+ * @brief Get an OSP parameter's description.
  *
  * @param[in]   param   OSP parameter.
  *
@@ -640,7 +661,8 @@ osp_param_desc (const osp_param_t *param)
   return param->desc;
 }
 
-/* @brief Get an OSP parameter's default value.
+/**
+ * @brief Get an OSP parameter's default value.
  *
  * @param[in]   param   OSP parameter.
  *
@@ -654,7 +676,8 @@ osp_param_default (const osp_param_t *param)
   return param->def;
 }
 
-/* @brief Get an OSP parameter's mandatory value.
+/**
+ * @brief Get an OSP parameter's mandatory value.
  *
  * @param[in]   param   OSP parameter.
  *
@@ -668,7 +691,8 @@ osp_param_mandatory (const osp_param_t *param)
   return param->mandatory;
 }
 
-/* @brief Free an OSP parameter.
+/**
+ * @brief Free an OSP parameter.
  *
  * @param[in] param OSP parameter to destroy.
  */

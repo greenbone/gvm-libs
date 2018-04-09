@@ -224,9 +224,9 @@ search_file (const char *fname, const char *password)
 
 
 /**
- * @brief parse one line of a pettern file
+ * @brief Parse one line of a pettern file
  *
- * @param line     A nul terminated buffer with the content of the line.
+ * @param line     A null terminated buffer with the content of the line.
  *                 The line terminator has already been stripped. It may
  *                 be modified after return.
  * @param fname    The name of the pattern file for error reporting

@@ -47,7 +47,9 @@ static const gchar *authentication_methods[] = { "file",
                                                  "radius_connect",
                                                  NULL };
 
-/** @brief Flag whether the config file was read. */
+/**
+ * @brief Flag whether the config file was read.
+ */
 static gboolean initialized = FALSE;
 
 /**
