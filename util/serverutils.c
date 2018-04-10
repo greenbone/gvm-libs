@@ -64,7 +64,7 @@
 #include <stdio.h>  /* for fclose, FILE, SEEK_END, SEEK_SET */
 #include <string.h> /* for strerror, strlen, memset */
 #include <unistd.h> /* for close, ssize_t, usleep */
-#include "../base/nvti.h" /* for is_hostname, is_ipv4_address, is_ipv6_add.. */
+#include "../base/hosts.h" /* for is_hostname, is_ipv4_address, is_ipv6_add.. */
 
 #undef G_LOG_DOMAIN
 /**
@@ -365,6 +365,7 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host,
   struct addrinfo address_hints;
   struct addrinfo *addresses, *address;
   gchar *port_string;
+  int host_type;
 #ifdef _WIN32
   WSADATA wsaData;
 #endif
@@ -378,16 +379,17 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host,
                  "Invalid port %d", port);
       return -1;
     }
-  if (!is_ipv4_address (host) && !is_ipv6_address (host) && !is_hostname(host))
+  host_type = gvm_get_host_type (host);
+  if ( !(host_type == HOST_TYPE_NAME ||
+         host_type == HOST_TYPE_IPV4 ||
+         host_type == HOST_TYPE_IPV6))
     {
       g_warning ("Failed to create client TLS session. Invalid host %s", host);
       return -1;
     }
 
-  /** @todo On success we are leaking the credentials.  We can't free
-      them because the session only makes a shallow copy.  A
-      solution would be to lookup already created credentials and
-      reuse them.  */
+  /** @warning On success we are leaking the credentials. We can't free
+      them because the session only makes a shallow copy. */
 
   if (gvm_server_new_mem (GNUTLS_CLIENT, ca_mem, pub_mem, priv_mem, session,
                               &credentials))
