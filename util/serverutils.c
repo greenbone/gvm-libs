@@ -64,6 +64,7 @@
 #include <stdio.h>  /* for fclose, FILE, SEEK_END, SEEK_SET */
 #include <string.h> /* for strerror, strlen, memset */
 #include <unistd.h> /* for close, ssize_t, usleep */
+#include "../base/nvti.h" /* for is_hostname, is_ipv4_address, is_ipv6_add.. */
 
 #undef G_LOG_DOMAIN
 /**
@@ -370,7 +371,19 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host,
 
   gnutls_certificate_credentials_t credentials;
 
-  /** @todo Ensure that host and port have sane values. */
+  /* Ensure that host and port have sane values. */
+  if (port < 1 || port > 65535)
+    {
+      g_warning ("Failed to create client TLS session. "
+                 "Invalid port %d", port);
+      return -1;
+    }
+  if (!is_ipv4_address (host) && !is_ipv6_address (host) && !is_hostname(host))
+    {
+      g_warning ("Failed to create client TLS session. Invalid host %s", host);
+      return -1;
+    }
+
   /** @todo On success we are leaking the credentials.  We can't free
       them because the session only makes a shallow copy.  A
       solution would be to lookup already created credentials and
