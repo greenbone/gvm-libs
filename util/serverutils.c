@@ -371,7 +371,6 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host,
   gnutls_certificate_credentials_t credentials;
 
   /** @todo Ensure that host and port have sane values. */
-  /** @todo Improve logging. */
   /** @todo On success we are leaking the credentials.  We can't free
       them because the session only makes a shallow copy.  A
       solution would be to lookup already created credentials and
