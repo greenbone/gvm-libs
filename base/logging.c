@@ -61,6 +61,7 @@ typedef struct
   GIOChannel *log_channel;      ///< Gio Channel - FD holder for logfile.
   gchar *syslog_facility;       ///< Syslog facility to use for syslog logging.
   gchar *syslog_ident;          ///< Syslog ident to use for syslog logging.
+  gchar *prepend_separator;     ///< If prependstring has %s, used this symbol as separator.
 } gvm_logging_t;
 
 
@@ -205,6 +206,7 @@ load_log_configuration (gchar * config_file)
       log_domain_entry->log_channel = NULL;
       log_domain_entry->syslog_facility = NULL;
       log_domain_entry->syslog_ident = NULL;
+      log_domain_entry->prepend_separator = NULL;
 
 
       /* Look for the prepend string. */
@@ -212,6 +214,13 @@ load_log_configuration (gchar * config_file)
         {
           log_domain_entry->prepend_string =
             g_key_file_get_value (key_file, *group, "prepend", &error);
+        }
+
+      /* Look for the log_separator string. */
+      if (g_key_file_has_key (key_file, *group, "separator", &error))
+        {
+          log_domain_entry->prepend_separator =
+            g_key_file_get_value (key_file, *group, "separator", &error);
         }
 
       /* Look for the prepend time format string. */
@@ -302,6 +311,7 @@ free_log_configuration (GSList * log_domain_list)
       g_free (log_domain_entry->log_file);
       g_free (log_domain_entry->default_level);
       g_free (log_domain_entry->syslog_ident);
+      g_free (log_domain_entry->prepend_separator);
 
       /* Drop the reference to the GIOChannel. */
       if (log_domain_entry->log_channel)
@@ -401,10 +411,8 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
   /* The default parameters to be used. The group '*' will override
    * these defaults if it's found.
    */
-  gchar *prepend_format = "%p %t - ";
+  gchar *prepend_format = "%t %s %p - ";
   gchar *time_format = "%Y-%m-%d %Hh%M.%S %Z";
-
-  /** @todo Move log_separator to the conf file too. */
   gchar *log_separator = ":";
   gchar *log_file = "-";
   GLogLevelFlags default_level = G_LOG_LEVEL_DEBUG;
@@ -450,6 +458,8 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
                 channel = log_domain_entry->log_channel;
               if (log_domain_entry->syslog_facility)
                 syslog_facility = log_domain_entry->syslog_facility;
+              if (log_domain_entry->prepend_separator)
+                log_separator = log_domain_entry->prepend_separator;
               break;
             }
 
@@ -488,6 +498,8 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
               channel = log_domain_entry->log_channel;
               syslog_facility = log_domain_entry->syslog_facility;
               syslog_ident = log_domain_entry->syslog_ident;
+              if (log_domain_entry->prepend_separator)
+                log_separator = log_domain_entry->prepend_separator;
               break;
             }
 
@@ -518,7 +530,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
           /* Use g_strdup, a new string returned. Store it in a tmp var until
            * we free the old one. */
           prepend_tmp =
-            g_strdup_printf ("%s%s%d", prepend_buf, log_separator,
+            g_strdup_printf ("%s%d", prepend_buf,
                              (int) getpid ());
           /* Free the old string. */
           g_free (prepend_buf);
@@ -537,7 +549,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
            * we free the old one.
            */
           prepend_tmp =
-            g_strdup_printf ("%s%s%s", prepend_buf, log_separator,
+            g_strdup_printf ("%s%s", prepend_buf,
                              prepend_tmp1);
           /* Free the time tmp var. */
           g_free (prepend_tmp1);
@@ -546,6 +558,21 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
           /* Point the buf ptr to the new string. */
           prepend_buf = prepend_tmp;
           /* Skip over the two chars we've processed '%t.' */
+          tmp += 2;
+        }
+      else if ((*tmp == '%') && (*(tmp + 1) == 's'))
+        {
+          /* Use g_strdup. New string returned. Store it in a tmp var until
+           * we free the old one.
+           */
+          prepend_tmp =
+            g_strdup_printf ("%s%s", prepend_buf,
+                             log_separator);
+          /* Free the old string. */
+          g_free (prepend_buf);
+          /* Point the buf ptr to the new string. */
+          prepend_buf = prepend_tmp;
+          /* Skip over the two chars we've processed '%s.' */
           tmp += 2;
         }
       else
@@ -561,39 +588,39 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
   switch (log_level)
     {
     case G_LOG_FLAG_RECURSION:
-      prepend = g_strdup_printf ("RECURSION%s", prepend_buf);
+      prepend = g_strdup_printf ("RECURSION%s%s", log_separator, prepend_buf);
       break;
 
     case G_LOG_FLAG_FATAL:
-      prepend = g_strdup_printf ("FATAL%s", prepend_buf);
+      prepend = g_strdup_printf ("FATAL%s%s", log_separator, prepend_buf);
       break;
 
     case G_LOG_LEVEL_ERROR:
-      prepend = g_strdup_printf ("ERROR%s", prepend_buf);
+      prepend = g_strdup_printf ("ERROR%s%s", log_separator, prepend_buf);
       break;
 
     case G_LOG_LEVEL_CRITICAL:
-      prepend = g_strdup_printf ("CRITICAL%s", prepend_buf);
+      prepend = g_strdup_printf ("CRITICAL%s%s", log_separator, prepend_buf);
       break;
 
     case G_LOG_LEVEL_WARNING:
-      prepend = g_strdup_printf ("WARNING%s", prepend_buf);
+      prepend = g_strdup_printf ("WARNING%s%s", log_separator, prepend_buf);
       break;
 
     case G_LOG_LEVEL_MESSAGE:
-      prepend = g_strdup_printf ("MESSAGE%s", prepend_buf);
+      prepend = g_strdup_printf ("MESSAGE%s%s", log_separator, prepend_buf);
       break;
 
     case G_LOG_LEVEL_INFO:
-      prepend = g_strdup_printf ("   INFO%s", prepend_buf);
+      prepend = g_strdup_printf ("   INFO%s%s", log_separator, prepend_buf);
       break;
 
     case G_LOG_LEVEL_DEBUG:
-      prepend = g_strdup_printf ("  DEBUG%s", prepend_buf);
+      prepend = g_strdup_printf ("  DEBUG%s%s", log_separator, prepend_buf);
       break;
 
     default:
-      prepend = g_strdup_printf ("UNKNOWN%s", prepend_buf);
+      prepend = g_strdup_printf ("UNKNOWN%s%s", log_separator, prepend_buf);
       break;
     }
 
