@@ -91,8 +91,6 @@ int gvm_server_open_with_cert (gnutls_session_t *, const char *, int,
 
 int gvm_server_close (int, gnutls_session_t);
 
-int gvm_server_connect (int, struct sockaddr_in *, gnutls_session_t *);
-
 int gvm_server_attach (int, gnutls_session_t *);
 
 int gvm_server_sendf (gnutls_session_t *, const char *, ...)

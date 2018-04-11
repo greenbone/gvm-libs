@@ -33,8 +33,6 @@
  * with a server over GnuTLS.
  */
 
-/** @todo Ensure that every global init gets a free. */
-
 #define _GNU_SOURCE
 
 #include "serverutils.h"
@@ -463,8 +461,6 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host,
           return -1;
         }
 
-      /** @todo Use gvm_server_connect. */
-
       /* Connect to server. */
 
       if (connect (server_socket, address->ai_addr, address->ai_addrlen) == -1)
@@ -568,36 +564,6 @@ void
 gvm_connection_close (gvm_connection_t *connection)
 {
   gvm_connection_free (connection);
-}
-
-/**
- * @brief Connect to a server.
- *
- * @param[in]  server_socket   Socket to connect to server.
- * @param[in]  server_address  Server address.
- * @param[in]  server_session  Session to connect to server.
- *
- * @return 0 on success, -1 on error.
- */
-int
-gvm_server_connect (int server_socket, struct sockaddr_in *server_address,
-                    gnutls_session_t * server_session)
-{
-  int ret;
-
-  if (connect (server_socket, (struct sockaddr *) server_address,
-               sizeof (struct sockaddr_in)) == -1)
-    {
-      g_warning ("%s: failed to connect to server: %s\n", __FUNCTION__,
-                 strerror (errno));
-      return -1;
-    }
-  g_debug ("   Connected to server on socket %i.\n", server_socket);
-
-  ret = gvm_server_attach (server_socket, server_session);
-  if (ret < 0)
-    return ret;
-  return gvm_server_verify (*server_session);
 }
 
 /**
