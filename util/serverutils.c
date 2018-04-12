@@ -33,8 +33,6 @@
  * with a server over GnuTLS.
  */
 
-/** @todo Ensure that every global init gets a free. */
-
 #define _GNU_SOURCE
 
 #include "serverutils.h"
@@ -64,6 +62,7 @@
 #include <stdio.h>  /* for fclose, FILE, SEEK_END, SEEK_SET */
 #include <string.h> /* for strerror, strlen, memset */
 #include <unistd.h> /* for close, ssize_t, usleep */
+#include "../base/hosts.h" /* for is_hostname, is_ipv4_address, is_ipv6_add.. */
 
 #undef G_LOG_DOMAIN
 /**
@@ -364,18 +363,31 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host,
   struct addrinfo address_hints;
   struct addrinfo *addresses, *address;
   gchar *port_string;
+  int host_type;
 #ifdef _WIN32
   WSADATA wsaData;
 #endif
 
   gnutls_certificate_credentials_t credentials;
 
-  /** @todo Ensure that host and port have sane values. */
-  /** @todo Improve logging. */
-  /** @todo On success we are leaking the credentials.  We can't free
-      them because the session only makes a shallow copy.  A
-      solution would be to lookup already created credentials and
-      reuse them.  */
+  /* Ensure that host and port have sane values. */
+  if (port < 1 || port > 65535)
+    {
+      g_warning ("Failed to create client TLS session. "
+                 "Invalid port %d", port);
+      return -1;
+    }
+  host_type = gvm_get_host_type (host);
+  if ( !(host_type == HOST_TYPE_NAME ||
+         host_type == HOST_TYPE_IPV4 ||
+         host_type == HOST_TYPE_IPV6))
+    {
+      g_warning ("Failed to create client TLS session. Invalid host %s", host);
+      return -1;
+    }
+
+  /** @warning On success we are leaking the credentials. We can't free
+      them because the session only makes a shallow copy. */
 
   if (gvm_server_new_mem (GNUTLS_CLIENT, ca_mem, pub_mem, priv_mem, session,
                               &credentials))
@@ -448,8 +460,6 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host,
           gnutls_certificate_free_credentials (credentials);
           return -1;
         }
-
-      /** @todo Use gvm_server_connect. */
 
       /* Connect to server. */
 
@@ -554,36 +564,6 @@ void
 gvm_connection_close (gvm_connection_t *connection)
 {
   gvm_connection_free (connection);
-}
-
-/**
- * @brief Connect to a server.
- *
- * @param[in]  server_socket   Socket to connect to server.
- * @param[in]  server_address  Server address.
- * @param[in]  server_session  Session to connect to server.
- *
- * @return 0 on success, -1 on error.
- */
-int
-gvm_server_connect (int server_socket, struct sockaddr_in *server_address,
-                    gnutls_session_t * server_session)
-{
-  int ret;
-
-  if (connect (server_socket, (struct sockaddr *) server_address,
-               sizeof (struct sockaddr_in)) == -1)
-    {
-      g_warning ("%s: failed to connect to server: %s\n", __FUNCTION__,
-                 strerror (errno));
-      return -1;
-    }
-  g_debug ("   Connected to server on socket %i.\n", server_socket);
-
-  ret = gvm_server_attach (server_socket, server_session);
-  if (ret < 0)
-    return ret;
-  return gvm_server_verify (*server_session);
 }
 
 /**
