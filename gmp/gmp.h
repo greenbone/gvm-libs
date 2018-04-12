@@ -273,8 +273,6 @@ static const gmp_delete_opts_t gmp_delete_opts_defaults =
 static const gmp_delete_opts_t gmp_delete_opts_ultimate_defaults =
   { 1 };
 
-int check_response (gnutls_session_t *);
-
 int gmp_read_create_response (gnutls_session_t*, gchar **);
 
 const char *gmp_task_status (entity_t status_response);

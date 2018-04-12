@@ -23,8 +23,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/** @todo Name functions consistently (perhaps gmp_*). */
-
 /**
  * @file gmp.c
  * @brief GMP client interface.
@@ -858,7 +856,7 @@ gmp_start_task_report_c (gvm_connection_t *connection, const char *task_id,
  * @return 0 on success, -1 or GMP response code on error.
  */
 int
-check_response (gnutls_session_t* session)
+gmp_check_response (gnutls_session_t* session)
 {
   int ret;
   const char* status;
@@ -901,7 +899,7 @@ check_response (gnutls_session_t* session)
  * @return 0 on success, -1 or GMP response code on error.
  */
 int
-check_response_c (gvm_connection_t *connection)
+gmp_check_response_c (gvm_connection_t *connection)
 {
   int ret;
   const char* status;
@@ -1011,7 +1009,7 @@ gmp_stop_task (gnutls_session_t* session, const char* id)
       == -1)
     return -1;
 
-  return check_response (session);
+  return gmp_check_response (session);
 }
 
 /**
@@ -1031,7 +1029,7 @@ gmp_stop_task_c (gvm_connection_t *connection, const char* id)
       == -1)
     return -1;
 
-  return check_response_c (connection);
+  return gmp_check_response_c (connection);
 }
 
 /**
@@ -1169,7 +1167,7 @@ gmp_delete_task_ext (gnutls_session_t* session, const char* id,
       == -1)
     return -1;
 
-  return check_response (session);
+  return gmp_check_response (session);
 }
 
 /**
@@ -1419,7 +1417,7 @@ gmp_modify_task_file (gnutls_session_t* session, const char* id,
   if (gvm_server_sendf (session, "</modify_task>"))
     return -1;
 
-  return check_response (session);
+  return gmp_check_response (session);
 }
 
 /**
@@ -1436,7 +1434,7 @@ gmp_delete_task (gnutls_session_t* session, const char* id)
   if (gvm_server_sendf (session, "<delete_task task_id=\"%s\"/>", id) == -1)
     return -1;
 
-  return check_response (session);
+  return gmp_check_response (session);
 }
 
 /**
@@ -1626,7 +1624,7 @@ gmp_delete_port_list_ext (gnutls_session_t* session,
       == -1)
     return -1;
 
-  return check_response (session);
+  return gmp_check_response (session);
 }
 
 /**
@@ -1643,7 +1641,7 @@ gmp_delete_report (gnutls_session_t *session, const char *id)
   if (gvm_server_sendf (session, "<delete_report report_id=\"%s\"/>", id))
     return -1;
 
-  return check_response (session);
+  return gmp_check_response (session);
 }
 
 /**
@@ -1799,7 +1797,7 @@ gmp_delete_target_ext (gnutls_session_t* session,
       == -1)
     return -1;
 
-  return check_response (session);
+  return gmp_check_response (session);
 }
 
 /**
@@ -1822,7 +1820,7 @@ gmp_delete_config_ext (gnutls_session_t* session,
       == -1)
     return -1;
 
-  return check_response (session);
+  return gmp_check_response (session);
 }
 
 /**
@@ -2085,7 +2083,7 @@ gmp_delete_lsc_credential_ext (gnutls_session_t* session,
       == -1)
     return -1;
 
-  return check_response (session);
+  return gmp_check_response (session);
 }
 
 /**
