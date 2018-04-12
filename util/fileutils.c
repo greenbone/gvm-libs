@@ -80,13 +80,10 @@ gvm_file_check_is_dir (const char *name)
  * @param[in]  pathname  The name of the file to be deleted from the filesystem.
  *
  * @return 0 if the name was successfully deleted, -1 if an error occurred.
- *         Please note that errno is currently not guaranteed to contain the correct
- *         value if -1 is returned.
  */
 int
 gvm_file_remove_recurse (const gchar * pathname)
 {
-  /** @todo Set errno when we return -1 to maintain remove() compatibility. */
   if (gvm_file_check_is_dir (pathname) == 1)
     {
       GError *error = NULL;
