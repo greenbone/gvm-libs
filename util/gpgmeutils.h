@@ -36,6 +36,7 @@
 #include <glib.h>  /* for gchar */
 #include <gpgme.h> /* for gpgme_ctx_t */
 
+void log_gpgme (GLogLevelFlags, gpg_error_t, const char *, ...);
 gpgme_ctx_t gvm_init_gpgme_ctx_from_dir (const gchar *);
 
 #endif /*_GVM_GPGMEUTILS_H*/
