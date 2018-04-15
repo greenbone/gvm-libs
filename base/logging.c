@@ -697,7 +697,13 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
               gchar *log = g_strdup (log_file);
               gchar *dir = dirname (log);
 
-              /** @todo Check what error this is. */
+              /* Check error. In case of the directory does not exist, it will
+               * be handle below. In other case a message is printed to the
+               * stderr since the channel is still not created/accessible.
+               */
+              if (error->code != G_FILE_ERROR_NOENT)
+                fprintf (stderr, "Can not open '%s' logfile: %s\n", log_file,
+                         error->message);
               g_error_free (error);
 
               /* Ensure directory exists. */
