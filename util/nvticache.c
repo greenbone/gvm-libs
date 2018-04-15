@@ -149,7 +149,7 @@ nvticache_reset ()
  * @param[out] feed_version Buffer to contain feed_version.
  * @param[in]  feed_size    Size of feed_version buffer.
  *
- * @return Feed version. Free on caller.
+ * @return 0 if success, 1 if error.
  */
 static int
 nvt_feed_version (char *feed_version, int feed_size)
@@ -678,4 +678,23 @@ char *
 nvticache_feed_version (void)
 {
   return kb_item_get_str (cache_kb, NVTICACHE_STR);
+}
+
+/**
+ * @brief Check if the plugins feed was newer than cached feed.
+ *
+ * @return 1 if new feed, 0 if matching feeds or error.
+ */
+int
+nvticache_check_feed (void)
+{
+  char *cached, current[48];
+  int ret;
+
+  if (nvt_feed_version (current, sizeof (current)))
+    return 0;
+  cached = kb_item_get_str (cache_kb, NVTICACHE_STR);
+  ret = strcmp (cached, current);
+  g_free (cached);
+  return ret;
 }

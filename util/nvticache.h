@@ -136,4 +136,7 @@ nvticache_delete (const char *);
 char *
 nvticache_feed_version (void);
 
+int
+nvticache_check_feed (void);
+
 #endif /* not _GVM_NVTICACHE_H */
