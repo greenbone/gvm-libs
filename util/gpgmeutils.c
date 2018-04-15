@@ -30,12 +30,11 @@
  */
 
 #include "gpgmeutils.h"
-
 #include <errno.h>     /* for ENOENT, errno */
-#include <gpg-error.h> /* for gpg_err_source, gpg_strerror, gpg_error_from_... */
 #include <locale.h>    /* for setlocale, LC_MESSAGES, LC_CTYPE */
 #include <sys/stat.h>  /* for mkdir */
 #include <unistd.h>    /* for access, F_OK */
+#include <gpg-error.h> /* for gpg_err_source, gpg_strerror, gpg_error_from... */
 
 #undef G_LOG_DOMAIN
 /**
@@ -50,16 +49,13 @@
  * the output.  It takes care to only add the error source string if
  * it makes sense.
  *
- * @todo: Make this a global function.  There is already a copy in the
- *        manager
- *
  * @param level  The GLib style log level
  * @param err    An gpg-error value or 0
  * @param fmt    The printf style format string, followed by its
  *                arguments.
  *
  */
-static void
+void
 log_gpgme (GLogLevelFlags level, gpg_error_t err, const char *fmt, ...)
 {
   va_list arg_ptr;
