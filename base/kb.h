@@ -129,6 +129,7 @@ struct kb_operations
   char *(*kb_get_nvt) (kb_t, const char *, enum kb_nvt_pos);
   struct kb_item * (*kb_get_all) (kb_t, const char *);
   struct kb_item * (*kb_get_pattern) (kb_t, const char *);
+  size_t (*kb_count) (kb_t, const char *);
   int (*kb_add_str) (kb_t, const char *, const char *);
   int (*kb_set_str) (kb_t, const char *, const char *);
   int (*kb_add_int) (kb_t, const char *, int);
@@ -316,6 +317,24 @@ kb_item_get_pattern (kb_t kb, const char *pattern)
   assert (kb->kb_ops->kb_get_pattern);
 
   return kb->kb_ops->kb_get_pattern (kb, pattern);
+}
+
+/**
+ * @brief Count all items stored under a given pattern.
+ *
+ * @param[in] kb  KB handle where to count the items.
+ * @param[in] pattern  '*' pattern of the elements to count.
+ *
+ * @return Count of items.
+ */
+static inline size_t
+kb_item_count (kb_t kb, const char *pattern)
+{
+  assert (kb);
+  assert (kb->kb_ops);
+  assert (kb->kb_ops->kb_count);
+
+  return kb->kb_ops->kb_count (kb, pattern);
 }
 
 /**
