@@ -8,17 +8,57 @@ $ git clone https://github.com/greenbone/gvm-libs.git
 $ cd gvm-libs && git log
 
 
-gvm-libs 1.0+beta1 (2018-XX-XX)
+gvm-libs 1.0+beta1 (2018-04-17)
 
 This is the first beta release of the gvm-libs module 1.0 for the Greenbone
 Vulnerability Management (GVM) framework.
 
 It derives from the former openvas-libraries module. Any elements of the
 old module that were used by OpenVAS Scanner only, were moved into the
-module openvas-scanner.
- 
+module openvas-scanner. Also the protocol OMP was renamed to GMP.
+
 Apart from this, the module covers a number of significant advances
 and clean-ups compared to the previous openvas-libraries module.
 
 Many thanks to everyone who has contributed to this release:
-TODO
+Hani Benhabiles, Francesco Colista, Albrecht Dress, Christian Fischer, Matt
+Mundell, Juan Jose Nicola, Timo Pollmeier, Bjoern Ricks, Jan-Oliver Wagner
+and Michael Wiegand.
+
+Main changes compared to openvas-libraries 9.0:
+* Many files have been moved to this new module from openvas-libraries
+  and other files have been renamed to match the new terminology (libgvm_*).
+  Also the default installation paths switched from "openvas" to "gvm"
+  and thus any include directive needs to be adapted in depdending source codes.
+* Additionally OMP (OpenVAS Management Protocol) has been renamed to GMP
+  (Greenbone Management Protocol), including library names, include files
+  and data types.
+* Function to handle IP connections has been removed since the scanner does
+  only unix socket connections.
+* Handling of vhosts and multiple domain names to one single IP have
+  been added.
+* Handling of hostnames that resolve to multiple IPs has been added.
+* Handling of Unix and unknown socket types have been added to
+  "sockaddr_as_str".
+* Several function to handle the kb content have been added.
+* A function to ping gvm has been added.
+* New compress function with support for gzip header has been added.
+* Access to XML entity properties has been improved.
+* Host, IP address and port in gvm_server_open_verify are verified for sane
+  values.
+* Large file support when building with GPGME has been enabled.
+* The symbol separator in a log message is now configurable.
+* As all modules use the same log functions, legacy log functions have
+  been removed.
+* Old TODOs have been resolved.
+* Documentation has been updated.
+* Code readability has been improved by completing coverage of doc-strings.
+* The CMake building process was improved.
+* An issue template has been added.
+* Several memory management issues have been addressed.
+* Cmake macro file for code indentation has been removed.
+* Minimum required version of glib/gio have been raised to 2.42.
+* Minimum required version of zlib has been raised to 1.2.8.
+* Minimum required version of cmake has been raised to 3.0.
+* Minimum required version of libssh has been raised to 0.6.0.
+* Minimum required version of libldap has been raised to 2.4.44.
