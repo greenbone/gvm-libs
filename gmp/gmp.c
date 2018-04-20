@@ -83,6 +83,48 @@ gmp_task_status (entity_t response)
   return NULL;
 }
 
+/** @todo Use this in the other functions. */
+/**
+ * @brief Read response and convert status of response to a return value.
+ *
+ * @param[in]  session  Pointer to GNUTLS session.
+ *
+ * @return 0 on success, -1 or GMP response code on error.
+ */
+int
+gmp_check_response (gnutls_session_t* session, entity_t entity)
+{
+  int ret;
+  const char* status;
+
+  /* Read the response. */
+
+  entity = NULL;
+  if (read_entity (session, &entity)) return -1;
+
+  /* Check the response. */
+
+  status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (status[0] == '2')
+    {
+      return 0;
+    }
+  ret = (int) strtol (status, NULL, 10);
+  free_entity (entity);
+  if (errno == ERANGE) return -1;
+  return ret;
+}
+
 /**
  * @brief "Ping" the manager.
  *
@@ -229,8 +271,6 @@ gmp_authenticate (gnutls_session_t* session,
                   const char* password)
 {
   entity_t entity;
-  const char* status;
-  char first;
   int ret;
 
   /* Send the auth request. */
@@ -247,24 +287,14 @@ gmp_authenticate (gnutls_session_t* session,
   /* Read the response. */
 
   entity = NULL;
-  if (read_entity (session, &entity)) return -1;
-
-  /* Check the response. */
-
-  status = entity_attribute (entity, "status");
-  if (status == NULL)
+  ret = gmp_check_response (session, entity);
+  if (ret == 0)
     {
       free_entity (entity);
-      return -1;
+      return ret;
     }
-  if (strlen (status) == 0)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  first = status[0];
-  free_entity (entity);
-  if (first == '2') return 0;
+  else if (ret == -1)
+    return ret;
   return 2;
 }
 
@@ -805,48 +835,6 @@ gmp_start_task_report_c (gvm_connection_t *connection, const char *task_id,
     }
   free_entity (entity);
   return 1;
-}
-
-/** @todo Use this in the other functions. */
-/**
- * @brief Read response and convert status of response to a return value.
- *
- * @param[in]  session  Pointer to GNUTLS session.
- *
- * @return 0 on success, -1 or GMP response code on error.
- */
-int
-gmp_check_response (gnutls_session_t* session, entity_t entity)
-{
-  int ret;
-  const char* status;
-
-  /* Read the response. */
-
-  entity = NULL;
-  if (read_entity (session, &entity)) return -1;
-
-  /* Check the response. */
-
-  status = entity_attribute (entity, "status");
-  if (status == NULL)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  if (strlen (status) == 0)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  if (status[0] == '2')
-    {
-      return 0;
-    }
-  ret = (int) strtol (status, NULL, 10);
-  free_entity (entity);
-  if (errno == ERANGE) return -1;
-  return ret;
 }
 
 /**
