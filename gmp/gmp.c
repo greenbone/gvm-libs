@@ -816,11 +816,10 @@ gmp_start_task_report_c (gvm_connection_t *connection, const char *task_id,
  * @return 0 on success, -1 or GMP response code on error.
  */
 int
-gmp_check_response (gnutls_session_t* session)
+gmp_check_response (gnutls_session_t* session, entity_t entity)
 {
   int ret;
   const char* status;
-  entity_t entity;
 
   /* Read the response. */
 
@@ -842,7 +841,6 @@ gmp_check_response (gnutls_session_t* session)
     }
   if (status[0] == '2')
     {
-      free_entity (entity);
       return 0;
     }
   ret = (int) strtol (status, NULL, 10);
@@ -969,7 +967,10 @@ gmp_stop_task (gnutls_session_t* session, const char* id)
       == -1)
     return -1;
 
-  return gmp_check_response (session);
+  entity_t entity = NULL;
+  int ret = gmp_check_response (session, entity);
+  free_entity(entity);
+  return ret;
 }
 
 /**
@@ -1127,7 +1128,10 @@ gmp_delete_task_ext (gnutls_session_t* session, const char* id,
       == -1)
     return -1;
 
-  return gmp_check_response (session);
+  entity_t entity = NULL;
+  int ret = gmp_check_response (session, entity);
+  free_entity(entity);
+  return ret;
 }
 
 /**
@@ -1377,7 +1381,10 @@ gmp_modify_task_file (gnutls_session_t* session, const char* id,
   if (gvm_server_sendf (session, "</modify_task>"))
     return -1;
 
-  return gmp_check_response (session);
+  entity_t entity = NULL;
+  int ret = gmp_check_response (session, entity);
+  free_entity(entity);
+  return ret;
 }
 
 /**
@@ -1394,7 +1401,10 @@ gmp_delete_task (gnutls_session_t* session, const char* id)
   if (gvm_server_sendf (session, "<delete_task task_id=\"%s\"/>", id) == -1)
     return -1;
 
-  return gmp_check_response (session);
+  entity_t entity = NULL;
+  int ret = gmp_check_response (session, entity);
+  free_entity(entity);
+  return ret;
 }
 
 /**
@@ -1584,7 +1594,10 @@ gmp_delete_port_list_ext (gnutls_session_t* session,
       == -1)
     return -1;
 
-  return gmp_check_response (session);
+  entity_t entity = NULL;
+  int ret = gmp_check_response (session, entity);
+  free_entity(entity);
+  return ret;
 }
 
 /**
@@ -1601,7 +1614,10 @@ gmp_delete_report (gnutls_session_t *session, const char *id)
   if (gvm_server_sendf (session, "<delete_report report_id=\"%s\"/>", id))
     return -1;
 
-  return gmp_check_response (session);
+  entity_t entity = NULL;
+  int ret = gmp_check_response (session, entity);
+  free_entity(entity);
+  return ret;
 }
 
 /**
@@ -1757,7 +1773,10 @@ gmp_delete_target_ext (gnutls_session_t* session,
       == -1)
     return -1;
 
-  return gmp_check_response (session);
+  entity_t entity = NULL;
+  int ret = gmp_check_response (session, entity);
+  free_entity(entity);
+  return ret;
 }
 
 /**
@@ -1780,7 +1799,10 @@ gmp_delete_config_ext (gnutls_session_t* session,
       == -1)
     return -1;
 
-  return gmp_check_response (session);
+  entity_t entity = NULL;
+  int ret = gmp_check_response (session, entity);
+  free_entity(entity);
+  return ret;
 }
 
 /**
@@ -2043,7 +2065,11 @@ gmp_delete_lsc_credential_ext (gnutls_session_t* session,
       == -1)
     return -1;
 
-  return gmp_check_response (session);
+  
+  entity_t entity = NULL;
+  int ret = gmp_check_response (session, entity);
+  free_entity(entity);
+  return ret;
 }
 
 /**
