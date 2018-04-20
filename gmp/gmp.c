@@ -2087,9 +2087,6 @@ int
 gmp_get_system_reports (gnutls_session_t* session, const char* name, int brief,
                         entity_t *reports)
 {
-  int ret;
-  const char *status_code;
-
   if (name)
     {
       if (gvm_server_sendf (session,
@@ -2105,29 +2102,8 @@ gmp_get_system_reports (gnutls_session_t* session, const char* name, int brief,
            == -1)
     return -1;
 
-  /* Read the response. */
-
-  *reports = NULL;
-  if (read_entity (session, reports)) return -1;
-
-  /* Check the response. */
-
-  status_code = entity_attribute (*reports, "status");
-  if (status_code == NULL)
-    {
-      free_entity (*reports);
-      return -1;
-    }
-  if (strlen (status_code) == 0)
-    {
-      free_entity (*reports);
-      return -1;
-    }
-  if (status_code[0] == '2') return 0;
-  ret = (int) strtol (status_code, NULL, 10);
-  free_entity (*reports);
-  if (errno == ERANGE) return -1;
-  return ret;
+  /* Read and check the response. */
+  return gmp_check_response (session, *reports);
 }
 
 /**
@@ -2145,9 +2121,7 @@ gmp_get_system_reports_ext (gnutls_session_t* session,
                             gmp_get_system_reports_opts_t opts,
                             entity_t *reports)
 {
-  const char* status_code;
   GString *request;
-  int ret;
 
   request = g_string_new ("<get_system_reports");
 
@@ -2177,27 +2151,6 @@ gmp_get_system_reports_ext (gnutls_session_t* session,
     }
   g_string_free (request, 1);
 
-  /* Read the response. */
-
-  *reports = NULL;
-  if (read_entity (session, reports)) return -1;
-
-  /* Check the response. */
-
-  status_code = entity_attribute (*reports, "status");
-  if (status_code == NULL)
-    {
-      free_entity (*reports);
-      return -1;
-    }
-  if (strlen (status_code) == 0)
-    {
-      free_entity (*reports);
-      return -1;
-    }
-  if (status_code[0] == '2') return 0;
-  ret = (int) strtol (status_code, NULL, 10);
-  free_entity (*reports);
-  if (errno == ERANGE) return -1;
-  return ret;
+  /* Read and check the response. */
+  return gmp_check_response (session, *reports);
 }
