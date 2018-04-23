@@ -730,6 +730,7 @@ int
 gmp_start_task_report (gnutls_session_t* session, const char* task_id,
                        char** report_id)
 {
+  int ret;
   if (gvm_server_sendf (session,
                         "<start_task task_id=\"%s\"/>",
                         task_id)
@@ -739,23 +740,9 @@ gmp_start_task_report (gnutls_session_t* session, const char* task_id,
   /* Read the response. */
 
   entity_t entity = NULL;
-  if (read_entity (session, &entity)) return -1;
+  ret = gmp_check_response (session, entity);
 
-  /* Check the response. */
-
-  const char* status = entity_attribute (entity, "status");
-  if (status == NULL)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  if (strlen (status) == 0)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  char first = status[0];
-  if (first == '2')
+  if (ret == 0)
     {
       if (report_id)
         {
@@ -769,9 +756,11 @@ gmp_start_task_report (gnutls_session_t* session, const char* task_id,
             }
         }
       free_entity (entity);
-      return 0;
+      return ret;
     }
-  free_entity (entity);
+  else if (ret == -1)
+    return ret;
+
   return 1;
 }
 
