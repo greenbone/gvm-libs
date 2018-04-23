@@ -83,7 +83,6 @@ gmp_task_status (entity_t response)
   return NULL;
 }
 
-/** @todo Use this in the other functions. */
 /**
  * @brief Read response and convert status of response to a return value.
  *
@@ -731,6 +730,7 @@ gmp_start_task_report (gnutls_session_t* session, const char* task_id,
                        char** report_id)
 {
   int ret;
+  entity_t entity;
   if (gvm_server_sendf (session,
                         "<start_task task_id=\"%s\"/>",
                         task_id)
@@ -739,7 +739,7 @@ gmp_start_task_report (gnutls_session_t* session, const char* task_id,
 
   /* Read the response. */
 
-  entity_t entity = NULL;
+  entity = NULL;
   ret = gmp_check_response (session, entity);
 
   if (ret == 0)
@@ -938,15 +938,18 @@ gmp_read_create_response (gnutls_session_t* session, gchar **uuid)
 int
 gmp_stop_task (gnutls_session_t* session, const char* id)
 {
+  entity_t entity;
+  int ret;
+
   if (gvm_server_sendf (session,
                         "<stop_task task_id=\"%s\"/>",
                         id)
       == -1)
     return -1;
 
-  entity_t entity = NULL;
-  int ret = gmp_check_response (session, entity);
-  free_entity(entity);
+  entity = NULL;
+  ret = gmp_check_response (session, entity);
+  free_entity (entity);
   return ret;
 }
 
@@ -984,6 +987,7 @@ gmp_resume_task_report (gnutls_session_t* session, const char* task_id,
                         char** report_id)
 {
   int ret;
+  entity_t entity;
   if (gvm_server_sendf (session,
                         "<resume_task task_id=\"%s\"/>",
                         task_id)
@@ -992,7 +996,7 @@ gmp_resume_task_report (gnutls_session_t* session, const char* task_id,
 
   /* Read the response. */
 
-  entity_t entity = NULL;
+  entity = NULL;
   ret = gmp_check_response (session, entity);
 
   if (ret == 0)
@@ -1087,15 +1091,18 @@ int
 gmp_delete_task_ext (gnutls_session_t* session, const char* id,
                      gmp_delete_opts_t opts)
 {
+  entity_t entity;
+  int ret;
+
   if (gvm_server_sendf (session,
                         "<delete_task task_id=\"%s\" ultimate=\"%d\"/>",
                         id, opts.ultimate)
       == -1)
     return -1;
 
-  entity_t entity = NULL;
-  int ret = gmp_check_response (session, entity);
-  free_entity(entity);
+  entity = NULL;
+  ret = gmp_check_response (session, entity);
+  free_entity (entity);
   return ret;
 }
 
@@ -1263,6 +1270,9 @@ gmp_modify_task_file (gnutls_session_t* session, const char* id,
                       const char* name, const void* content,
                       gsize content_len)
 {
+  entity_t entity;
+  int ret;
+
   if (name == NULL)
     return -1;
 
@@ -1300,9 +1310,9 @@ gmp_modify_task_file (gnutls_session_t* session, const char* id,
   if (gvm_server_sendf (session, "</modify_task>"))
     return -1;
 
-  entity_t entity = NULL;
-  int ret = gmp_check_response (session, entity);
-  free_entity(entity);
+  entity = NULL;
+  ret = gmp_check_response (session, entity);
+  free_entity (entity);
   return ret;
 }
 
@@ -1317,12 +1327,15 @@ gmp_modify_task_file (gnutls_session_t* session, const char* id,
 int
 gmp_delete_task (gnutls_session_t* session, const char* id)
 {
+  entity_t entity;
+  int ret;
+
   if (gvm_server_sendf (session, "<delete_task task_id=\"%s\"/>", id) == -1)
     return -1;
 
-  entity_t entity = NULL;
-  int ret = gmp_check_response (session, entity);
-  free_entity(entity);
+  entity = NULL;
+  ret = gmp_check_response (session, entity);
+  free_entity (entity);
   return ret;
 }
 
@@ -1483,15 +1496,18 @@ gmp_delete_port_list_ext (gnutls_session_t* session,
                           const char* id,
                           gmp_delete_opts_t opts)
 {
+  entity_t entity;
+  int ret;
+
   if (gvm_server_sendf (session,
                         "<delete_port_list port_list_id=\"%s\" ultimate=\"%d\"/>",
                         id, opts.ultimate)
       == -1)
     return -1;
 
-  entity_t entity = NULL;
-  int ret = gmp_check_response (session, entity);
-  free_entity(entity);
+  entity = NULL;
+  ret = gmp_check_response (session, entity);
+  free_entity (entity);
   return ret;
 }
 
@@ -1506,12 +1522,15 @@ gmp_delete_port_list_ext (gnutls_session_t* session,
 int
 gmp_delete_report (gnutls_session_t *session, const char *id)
 {
+  entity_t entity;
+  int ret;
+
   if (gvm_server_sendf (session, "<delete_report report_id=\"%s\"/>", id))
     return -1;
 
-  entity_t entity = NULL;
-  int ret = gmp_check_response (session, entity);
-  free_entity(entity);
+  entity = NULL;
+  ret = gmp_check_response (session, entity);
+  free_entity (entity);
   return ret;
 }
 
@@ -1662,15 +1681,18 @@ gmp_delete_target_ext (gnutls_session_t* session,
                        const char* id,
                        gmp_delete_opts_t opts)
 {
+  entity_t entity;
+  int ret;
+
   if (gvm_server_sendf (session,
                         "<delete_target target_id=\"%s\" ultimate=\"%d\"/>",
                         id, opts.ultimate)
       == -1)
     return -1;
 
-  entity_t entity = NULL;
-  int ret = gmp_check_response (session, entity);
-  free_entity(entity);
+  entity = NULL;
+  ret = gmp_check_response (session, entity);
+  free_entity (entity);
   return ret;
 }
 
@@ -1688,15 +1710,18 @@ gmp_delete_config_ext (gnutls_session_t* session,
                        const char* id,
                        gmp_delete_opts_t opts)
 {
+  entity_t entity;
+  int ret;
+
   if (gvm_server_sendf (session,
                         "<delete_config config_id=\"%s\" ultimate=\"%d\"/>",
                         id, opts.ultimate)
       == -1)
     return -1;
 
-  entity_t entity = NULL;
-  int ret = gmp_check_response (session, entity);
-  free_entity(entity);
+  entity = NULL;
+  ret = gmp_check_response (session, entity);
+  free_entity (entity);
   return ret;
 }
 
@@ -1953,6 +1978,9 @@ gmp_delete_lsc_credential_ext (gnutls_session_t* session,
                                const char* id,
                                gmp_delete_opts_t opts)
 {
+  entity_t entity;
+  int ret;
+
   if (gvm_server_sendf (session,
                         "<delete_credential credential_id=\"%s\""
                         " ultimate=\"%d\"/>",
@@ -1960,9 +1988,9 @@ gmp_delete_lsc_credential_ext (gnutls_session_t* session,
       == -1)
     return -1;
 
-  entity_t entity = NULL;
-  int ret = gmp_check_response (session, entity);
-  free_entity(entity);
+  entity = NULL;
+  ret = gmp_check_response (session, entity);
+  free_entity (entity);
   return ret;
 }
 
