@@ -983,6 +983,7 @@ int
 gmp_resume_task_report (gnutls_session_t* session, const char* task_id,
                         char** report_id)
 {
+  int ret;
   if (gvm_server_sendf (session,
                         "<resume_task task_id=\"%s\"/>",
                         task_id)
@@ -992,23 +993,9 @@ gmp_resume_task_report (gnutls_session_t* session, const char* task_id,
   /* Read the response. */
 
   entity_t entity = NULL;
-  if (read_entity (session, &entity)) return -1;
+  ret = gmp_check_response (session, entity);
 
-  /* Check the response. */
-
-  const char* status = entity_attribute (entity, "status");
-  if (status == NULL)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  if (strlen (status) == 0)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  char first = status[0];
-  if (first == '2')
+  if (ret == 0)
     {
       if (report_id)
         {
@@ -1024,7 +1011,8 @@ gmp_resume_task_report (gnutls_session_t* session, const char* task_id,
       free_entity (entity);
       return 0;
     }
-  free_entity (entity);
+  else if (ret == -1)
+    return ret;
   return 1;
 }
 
@@ -1127,9 +1115,6 @@ int
 gmp_get_tasks (gnutls_session_t* session, const char* id, int details,
                int include_rcfile, entity_t* status)
 {
-  const char* status_code;
-  int ret;
-
   (void) include_rcfile;
   if (id == NULL)
     {
@@ -1152,28 +1137,8 @@ gmp_get_tasks (gnutls_session_t* session, const char* id, int details,
     }
 
   /* Read the response. */
+  return gmp_check_response (session, *status);
 
-  *status = NULL;
-  if (read_entity (session, status)) return -1;
-
-  /* Check the response. */
-
-  status_code = entity_attribute (*status, "status");
-  if (status_code == NULL)
-    {
-      free_entity (*status);
-      return -1;
-    }
-  if (strlen (status_code) == 0)
-    {
-      free_entity (*status);
-      return -1;
-    }
-  if (status_code[0] == '2') return 0;
-  ret = (int) strtol (status_code, NULL, 10);
-  free_entity (*status);
-  if (errno == ERANGE) return -1;
-  return ret;
 }
 
 /**
@@ -1190,9 +1155,6 @@ gmp_get_task_ext (gnutls_session_t* session,
                   gmp_get_task_opts_t opts,
                   entity_t* response)
 {
-  int ret;
-  const char *status_code;
-
   if ((response == NULL) || (opts.task_id == NULL))
     return -1;
 
@@ -1216,27 +1178,7 @@ gmp_get_task_ext (gnutls_session_t* session,
                              GMP_FMT_BOOL_ATTRIB (opts, details)))
     return -1;
 
-  *response = NULL;
-  if (read_entity (session, response)) return -1;
-
-  /* Check the response. */
-
-  status_code = entity_attribute (*response, "status");
-  if (status_code == NULL)
-    {
-      free_entity (*response);
-      return -1;
-    }
-  if (strlen (status_code) == 0)
-    {
-      free_entity (*response);
-      return -1;
-    }
-  if (status_code[0] == '2') return 0;
-  ret = (int) strtol (status_code, NULL, 10);
-  free_entity (*response);
-  if (errno == ERANGE) return -1;
-  return ret;
+  return gmp_check_response (session, *response);
 }
 
 /**
@@ -1400,9 +1342,6 @@ int
 gmp_get_targets (gnutls_session_t* session, const char* id, int tasks,
                  int include_rcfile, entity_t* target)
 {
-  const char* status_code;
-  int ret;
-
   (void) include_rcfile;
   if (id == NULL)
     {
@@ -1425,28 +1364,7 @@ gmp_get_targets (gnutls_session_t* session, const char* id, int tasks,
     }
 
   /* Read the response. */
-
-  *target = NULL;
-  if (read_entity (session, target)) return -1;
-
-  /* Check the response. */
-
-  status_code = entity_attribute (*target, "status");
-  if (status_code == NULL)
-    {
-      free_entity (*target);
-      return -1;
-    }
-  if (strlen (status_code) == 0)
-    {
-      free_entity (*target);
-      return -1;
-    }
-  if (status_code[0] == '2') return 0;
-  ret = (int) strtol (status_code, NULL, 10);
-  free_entity (*target);
-  if (errno == ERANGE) return -1;
-  return ret;
+  return gmp_check_response (session, *target);
 }
 
 /**
@@ -2042,7 +1960,6 @@ gmp_delete_lsc_credential_ext (gnutls_session_t* session,
       == -1)
     return -1;
 
-  
   entity_t entity = NULL;
   int ret = gmp_check_response (session, entity);
   free_entity(entity);
