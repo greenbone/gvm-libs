@@ -130,6 +130,8 @@ struct kb_operations
   int (*kb_get_int) (kb_t, const char *);
   char *(*kb_get_nvt) (kb_t, const char *, enum kb_nvt_pos);
   nvti_t *(*kb_get_nvt_all) (kb_t, const char *);
+  int (*kb_push_str) (kb_t, const char *, const char *);
+  char *(*kb_pop_str) (kb_t, const char *);
   struct kb_item * (*kb_get_all) (kb_t, const char *);
   struct kb_item * (*kb_get_pattern) (kb_t, const char *);
   size_t (*kb_count) (kb_t, const char *);
@@ -288,6 +290,40 @@ kb_item_get_pattern (kb_t kb, const char *pattern)
   assert (kb->kb_ops->kb_get_pattern);
 
   return kb->kb_ops->kb_get_pattern (kb, pattern);
+}
+
+/**
+ * @brief Push a new value under a given key.
+ * @param[in] kb    KB handle where to store the item.
+ * @param[in] name  Key to push to.
+ * @param[in] value Value to push.
+ * @return 0 on success, non-null on error.
+ */
+static inline int
+kb_item_push_str (kb_t kb, const char *name, const char *value)
+{
+  assert (kb);
+  assert (kb->kb_ops);
+  assert (kb->kb_ops->kb_push_str);
+
+  return kb->kb_ops->kb_push_str (kb, name, value);
+}
+
+/**
+ * @brief Pop a single KB string item.
+ * @param[in] kb  KB handle where to fetch the item.
+ * @param[in] name  Name of the element to retrieve.
+ * @return A struct kb_item to be freed with kb_item_free() or NULL if no
+ *         element was found or on error.
+ */
+static inline char *
+kb_item_pop_str (kb_t kb, const char *name)
+{
+  assert (kb);
+  assert (kb->kb_ops);
+  assert (kb->kb_ops->kb_pop_str);
+
+  return kb->kb_ops->kb_pop_str (kb, name);
 }
 
 /**

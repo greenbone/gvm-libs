@@ -895,6 +895,55 @@ redis_get_str (kb_t kb, const char *name)
 }
 
 /**
+ * @brief Push a new entry under a given key.
+ * @param[in] kb  KB handle where to store the item.
+ * @param[in] name  Key to push to.
+ * @param[in] value Value to push.
+ * @return 0 on success, non-null on error.
+ */
+static int
+redis_push_str (kb_t kb, const char *name, const char *value)
+{
+  struct kb_redis *kbr;
+  redisReply *rep = NULL;
+  int rc = 0;
+
+  kbr = redis_kb (kb);
+  rep = redis_cmd (kbr, "LPUSH %s %s", name, value);
+  if (!rep || rep->type == REDIS_REPLY_ERROR)
+    rc = -1;
+
+  if (rep)
+    freeReplyObject (rep);
+
+  return rc;
+}
+
+/**
+ * @brief Pops a single KB string item.
+ * @param[in] kb  KB handle where to fetch the item.
+ * @param[in] name  Name of the key from where to retrieve.
+ * @return A string to be freed or NULL if list is empty or on error.
+ */
+static char *
+redis_pop_str (kb_t kb, const char *name)
+{
+  struct kb_redis *kbr;
+  redisReply *rep;
+  char *value = NULL;
+
+  kbr = redis_kb (kb);
+  rep = redis_cmd (kbr, "RPOP %s", name);
+  if (rep || rep->type == REDIS_REPLY_STRING)
+    value = g_strdup (rep->str);
+
+  if (rep)
+    freeReplyObject (rep);
+
+  return value;
+}
+
+/**
  * @brief Get a single KB integer item.
  * @param[in] kb  KB handle where to fetch the item.
  * @param[in] name  Name of the element to retrieve.
@@ -1522,6 +1571,8 @@ static const struct kb_operations KBRedisOperations = {
   .kb_get_int      = redis_get_int,
   .kb_get_nvt      = redis_get_nvt,
   .kb_get_nvt_all  = redis_get_nvt_all,
+  .kb_push_str     = redis_push_str,
+  .kb_pop_str      = redis_pop_str,
   .kb_get_all      = redis_get_all,
   .kb_get_pattern  = redis_get_pattern,
   .kb_count        = redis_count,
