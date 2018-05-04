@@ -893,9 +893,12 @@ gvm_hosts_deduplicate (gvm_hosts_t *hosts)
               tmp = element;
               element = element->next;
               removed = tmp->data;
-              host->vhosts = g_slist_concat (host->vhosts, removed->vhosts);
-              removed->vhosts = NULL;
-              gvm_host_free (removed);
+              if (removed)
+                {
+                  host->vhosts = g_slist_concat (host->vhosts, removed->vhosts);
+                  removed->vhosts = NULL;
+                  gvm_host_free (removed);
+                }
               hosts->hosts = g_list_delete_link (hosts->hosts, tmp);
               duplicates++;
               g_free (name);
