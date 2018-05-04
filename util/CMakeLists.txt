@@ -46,7 +46,7 @@ pkg_check_modules (GIO REQUIRED gio-2.0>=2.42)
 pkg_check_modules (GNUTLS REQUIRED gnutls>=3.2.15)
 
 # for uuidutils we need uuidlib
-pkg_check_modules (UUID REQUIRED uuid>=2.25.0)
+pkg_check_modules (UUID REQUIRED uuid>=2.23.0)
 
 # for sshutils we need libssh
 pkg_check_modules (LIBSSH REQUIRED libssh>=0.6.0)
