@@ -195,6 +195,7 @@ set (GVMLIB_VERSION "${LIBGVMCONFIG_VERSION}")
 # Configure Doxyfile with version number
 configure_file (doc/Doxyfile.in ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
 configure_file (doc/Doxyfile_full.in ${CMAKE_BINARY_DIR}/doc/Doxyfile_full @ONLY)
+configure_file (doc/Doxyfile_xml.in ${CMAKE_BINARY_DIR}/doc/Doxyfile_xml @ONLY)
 configure_file (VERSION.in ${CMAKE_BINARY_DIR}/VERSION @ONLY)
 
 ## Program
