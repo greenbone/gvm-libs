@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: wiegandm/gvm-libs-core-debian-stretch
+      - image: greenbone/build-env-gvm-libs-master-debian-stretch-gcc-core
     steps:
       - checkout
       - run:
