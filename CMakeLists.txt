@@ -40,6 +40,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif (NOT CMAKE_BUILD_TYPE)
 
 OPTION(BUILD_STATIC "Build static versions of the libraries" OFF)
+OPTION(ENABLE_COVERAGE "Enable support for coverage analysis" OFF)
 
 if (NOT BUILD_STATIC)
   set (BUILD_SHARED ON)
@@ -177,9 +178,13 @@ endif (NOT GVM_SYSCONF_DIR)
 
 message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
+if (ENABLE_COVERAGE)
+  set (COVERAGE_FLAGS "--coverage")
+endif (ENABLE_COVERAGE)
+
 set (HARDENING_FLAGS "-Wformat -Wformat-security -D_FORTIFY_SOURCE=2 -fstack-protector")
 set (LINKER_HARDENING_FLAGS "-Wl,-z,relro -Wl,-z,now")
-set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -Wextra -Werror")
+set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -Wextra -Werror ${COVERAGE_FLAGS}")
 set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${HARDENING_FLAGS}")
 
 
