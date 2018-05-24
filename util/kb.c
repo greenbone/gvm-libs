@@ -517,6 +517,9 @@ redis_find (const char *kb_path, const char *key)
           return NULL;
         }
 
+      if (kbr->max_db == 0)
+        fetch_max_db_index (kbr);
+
       kbr->db = i;
       rep = redisCommand (kbr->rctx, "HEXISTS %s %d", GLOBAL_DBINDEX_NAME, i);
       if (rep == NULL || rep->type != REDIS_REPLY_INTEGER || rep->integer != 1)
