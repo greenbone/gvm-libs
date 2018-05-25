@@ -48,6 +48,12 @@
 
 #include "networking.h" /* for ipv4_as_ipv6, addr6_as_str, gvm_resolve */
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "base hosts"
+
 /* Static variables */
 
 gchar *host_type_str[HOST_TYPE_MAX] = {
@@ -1301,15 +1307,15 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
           hosts->count++;
           tmp = tmp->next;
         }
-      if (list)
-        {
-          /* Remove ancient host. */
-          hosts->hosts = g_list_delete_link
-                          (hosts->hosts, g_list_find (hosts->hosts, host));
-          gvm_host_free (host);
-          hosts->count--;
-          hosts->removed++;
-        }
+      if (!list)
+        g_warning ("Couldn't resolve hostname %s", host->name);
+      /* Remove hostname from list, as it was either replaced by IPs, or
+       * is unresolvable. */
+      hosts->hosts = g_list_delete_link
+                      (hosts->hosts, g_list_find (hosts->hosts, host));
+      gvm_host_free (host);
+      hosts->count--;
+      hosts->removed++;
       g_slist_free_full (list, g_free);
     }
   gvm_hosts_deduplicate (hosts);
