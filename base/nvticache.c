@@ -165,8 +165,16 @@ nvticache_add (const nvti_t *nvti, const char *filename)
   oid = nvti_oid (nvti);
   dummy = nvticache_get_filename (oid);
   if (dummy && strcmp (filename, dummy))
-    g_warning ("NVT %s with duplicate OID %s will be replaced with %s",
-               dummy, oid, filename);
+    {
+      struct stat src_stat;
+      char *src_file = g_build_filename (src_path, dummy, NULL);
+
+      /* If .nasl file was duplicated, not moved. */
+      if (src_file && stat (src_file, &src_stat) >= 0)
+        g_warning ("NVT %s with duplicate OID %s will be replaced with %s",
+                   src_file, oid, filename);
+      g_free (src_file);
+    }
   if (dummy)
     nvticache_delete (oid);
 
