@@ -895,6 +895,30 @@ next:
   return kbi;
 }
 
+static size_t
+redis_count (kb_t kb, const char *pattern)
+{
+  struct kb_redis *kbr;
+  redisReply *rep;
+  size_t count;
+
+  kbr = redis_kb (kb);
+
+  rep = redis_cmd (kbr, "KEYS %s", pattern);
+  if (rep == NULL)
+    return 0;
+
+  if (rep->type != REDIS_REPLY_ARRAY)
+    {
+      freeReplyObject (rep);
+      return 0;
+    }
+
+  count = rep->elements;
+  freeReplyObject (rep);
+  return count;
+}
+
 static int
 redis_del_items (kb_t kb, const char *name)
 {
@@ -1190,6 +1214,7 @@ static const struct kb_operations KBRedisOperations = {
   .kb_get_nvt      = redis_get_nvt,
   .kb_get_all      = redis_get_all,
   .kb_get_pattern  = redis_get_pattern,
+  .kb_count        = redis_count,
   .kb_add_str      = redis_add_str,
   .kb_set_str      = redis_set_str,
   .kb_add_int      = redis_add_int,

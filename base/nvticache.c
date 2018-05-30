@@ -176,10 +176,7 @@ nvticache_add (const nvti_t *nvti, const char *filename)
       g_free (src_file);
     }
   if (dummy)
-    {
-      g_snprintf (pattern, sizeof (pattern), "nvt:%s", oid);
-      kb_del_items (cache_kb, pattern);
-    }
+    nvticache_delete (oid);
 
   g_free (dummy);
   if (kb_nvt_add (cache_kb, nvti, filename))
@@ -571,4 +568,42 @@ nvticache_get_oids ()
     }
   kb_item_free (kbi);
   return list;
+}
+
+/**
+ * @brief Get the number of nvt's in the cache.
+ *
+ * @return Number of nvt's.
+ */
+size_t
+nvticache_count ()
+{
+  assert (cache_kb);
+
+  return kb_item_count (cache_kb, "nvt:*");
+}
+
+void
+nvticache_delete (const char *oid)
+{
+  char pattern[4096];
+  char *filename;
+
+  assert (cache_kb);
+  assert (oid);
+
+  filename = nvticache_get_filename (oid);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:prefs", oid);
+  kb_del_items (cache_kb, pattern);
+  g_snprintf (pattern, sizeof (pattern), "nvt:%s", oid);
+  kb_del_items (cache_kb, pattern);
+
+  if (filename)
+    {
+      g_snprintf (pattern, sizeof (pattern), "filename:%s:timestamp", filename);
+      kb_del_items (cache_kb, pattern);
+      g_snprintf (pattern, sizeof (pattern), "filename:%s:oid", filename);
+      kb_del_items (cache_kb, pattern);
+    }
+  g_free (filename);
 }

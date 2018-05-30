@@ -133,4 +133,10 @@ nvticache_get_names (void);
 GSList *
 nvticache_get_oids (void);
 
+size_t
+nvticache_count (void);
+
+void
+nvticache_delete (const char *);
+
 #endif /* not _NVTICACHE_H */
