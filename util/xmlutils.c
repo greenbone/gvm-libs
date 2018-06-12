@@ -133,7 +133,7 @@ add_entity (entities_t * entities, const char *name, const char *text)
 {
   entity_t entity = make_entity (name, text);
   if (entities)
-    *entities = g_slist_append (entities ? *entities : NULL, entity);
+    *entities = g_slist_append (*entities, entity);
   return entity;
 }
 
