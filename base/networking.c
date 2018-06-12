@@ -717,8 +717,13 @@ ipv6_is_enabled ()
 {
   int sock = socket (PF_INET6, SOCK_STREAM, 0);
 
-  if (sock == -1 && errno == EAFNOSUPPORT)
-    return 0;
-  close (sock);
+  if (sock < 0)
+    {
+      if (errno == EAFNOSUPPORT)
+        return 0;
+    }
+  else
+    close (sock);
+
   return 1;
 }
