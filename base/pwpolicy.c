@@ -408,6 +408,8 @@ gvm_validate_password (const char *password, const char *username)
                                 password, username);
       if (ret)
         break;
+
+      bzero (line, sizeof (line));
     }
 
   fclose (fp);
