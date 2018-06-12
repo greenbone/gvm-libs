@@ -106,7 +106,7 @@ gvm_source_iface_init (const char *iface)
 
   /* At least one address for the interface was found. */
   if (ret == 0)
-    strncpy (global_source_iface, iface, sizeof (global_source_iface));
+    strncpy (global_source_iface, iface, sizeof (global_source_iface) - 1);
 
   freeifaddrs (ifaddr);
   return ret;
