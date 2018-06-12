@@ -90,7 +90,7 @@ osp_connection_new (const char *host, int port, const char *cacert,
         return NULL;
 
       addr.sun_family = AF_UNIX;
-      strncpy (addr.sun_path, host, 108);
+      strncpy (addr.sun_path, host, sizeof (addr.sun_path) - 1);
       len = strlen (addr.sun_path) + sizeof (addr.sun_family);
       if (connect (connection->socket, (struct sockaddr *) &addr, len) == -1)
         {
