@@ -709,7 +709,9 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                           <= 0)
                         {
                           g_warning ("   timeout\n");
-                          fcntl (socket, F_SETFL, 0L);
+                          if (fcntl (socket, F_SETFL, 0L) < 0)
+                            g_warning ("%s :failed to set socket flag: %s",
+                                       __FUNCTION__, strerror (errno));
                           g_markup_parse_context_free (xml_context);
                           g_free (buffer);
                           return -4;
@@ -747,7 +749,11 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
               if (string && *string_return == NULL)
                 g_string_free (string, TRUE);
               if (timeout > 0)
-                fcntl (socket, F_SETFL, 0L);
+                {
+                  if (fcntl (socket, F_SETFL, 0L) < 0)
+                    g_warning ("%s :failed to set socket flag: %s",
+                               __FUNCTION__, strerror (errno));
+                }
               g_markup_parse_context_free (xml_context);
               g_free (buffer);
               return -3;
@@ -773,7 +779,11 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
           if (string && *string_return == NULL)
             g_string_free (string, TRUE);
           if (timeout > 0)
-            fcntl (socket, F_SETFL, 0L);
+            {
+              if (fcntl (socket, F_SETFL, 0L) < 0)
+                g_warning ("%s :failed to set socket flag: %s",
+                           __FUNCTION__, strerror (errno));
+            }
           g_markup_parse_context_free (xml_context);
           g_free (buffer);
           return -2;
@@ -811,7 +821,9 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
         {
           g_warning ("   failed to get current time (1): %s\n",
                      strerror (errno));
-          fcntl (socket, F_SETFL, 0L);
+          if (fcntl (socket, F_SETFL, 0L) < 0)
+            g_warning ("%s :failed to set server socket flag: %s",
+                       __FUNCTION__, strerror (errno));
           g_markup_parse_context_free (xml_context);
           g_free (buffer);
           return -1;
