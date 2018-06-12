@@ -139,6 +139,7 @@ gvm_source_set_socket (int socket, int port, int family)
     {
       struct sockaddr_in addr;
 
+      bzero (&addr, sizeof (addr));
       gvm_source_addr (&addr.sin_addr);
       addr.sin_port = htons (port);
       addr.sin_family = AF_INET;
@@ -150,6 +151,7 @@ gvm_source_set_socket (int socket, int port, int family)
     {
       struct sockaddr_in6 addr6;
 
+      bzero (&addr6, sizeof (addr6));
       gvm_source_addr6 (&addr6.sin6_addr);
       addr6.sin6_port = htons (port);
       addr6.sin6_family = AF_INET6;
