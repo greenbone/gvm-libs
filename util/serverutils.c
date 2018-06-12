@@ -493,10 +493,14 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host,
           gnutls_deinit (*session);
           gnutls_certificate_free_credentials (credentials);
         }
+      close (server_socket);
       return -1;
     }
   if (verify && gvm_server_verify (*session))
-    return -1;
+    {
+      close (server_socket);
+      return -1;
+    }
 
   return server_socket;
 }
