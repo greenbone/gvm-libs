@@ -106,7 +106,7 @@ gvm_source_iface_init (const char *iface)
 
   /* At least one address for the interface was found. */
   if (ret == 0)
-    strncpy (global_source_iface, iface, sizeof (global_source_iface));
+    strncpy (global_source_iface, iface, sizeof (global_source_iface) - 1);
 
   freeifaddrs (ifaddr);
   return ret;
@@ -139,6 +139,7 @@ gvm_source_set_socket (int socket, int port, int family)
     {
       struct sockaddr_in addr;
 
+      bzero (&addr, sizeof (addr));
       gvm_source_addr (&addr.sin_addr);
       addr.sin_port = htons (port);
       addr.sin_family = AF_INET;
@@ -150,6 +151,7 @@ gvm_source_set_socket (int socket, int port, int family)
     {
       struct sockaddr_in6 addr6;
 
+      bzero (&addr6, sizeof (addr6));
       gvm_source_addr6 (&addr6.sin6_addr);
       addr6.sin6_port = htons (port);
       addr6.sin6_family = AF_INET6;
@@ -715,8 +717,13 @@ ipv6_is_enabled ()
 {
   int sock = socket (PF_INET6, SOCK_STREAM, 0);
 
-  if (sock == -1 && errno == EAFNOSUPPORT)
-    return 0;
-  close (sock);
+  if (sock < 0)
+    {
+      if (errno == EAFNOSUPPORT)
+        return 0;
+    }
+  else
+    close (sock);
+
   return 1;
 }

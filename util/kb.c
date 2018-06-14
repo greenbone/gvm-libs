@@ -937,11 +937,12 @@ redis_pop_str (kb_t kb, const char *name)
 
   kbr = redis_kb (kb);
   rep = redis_cmd (kbr, "RPOP %s", name);
-  if (rep || rep->type == REDIS_REPLY_STRING)
-    value = g_strdup (rep->str);
+  if (!rep)
+    return NULL;
 
-  if (rep)
-    freeReplyObject (rep);
+  if (rep->type == REDIS_REPLY_STRING)
+    value = g_strdup (rep->str);
+  freeReplyObject (rep);
 
   return value;
 }

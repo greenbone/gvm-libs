@@ -991,9 +991,15 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
               if (host_type == HOST_TYPE_NAME)
                 host->name = g_strdup (stripped);
               else if (host_type == HOST_TYPE_IPV4)
-                inet_pton (AF_INET, stripped, &host->addr);
+                {
+                  if (inet_pton (AF_INET, stripped, &host->addr) != 1)
+                    break;
+                }
               else if (host_type == HOST_TYPE_IPV6)
-                inet_pton (AF_INET6, stripped, &host->addr6);
+                {
+                  if (inet_pton (AF_INET6, stripped, &host->addr6) != 1)
+                    break;
+                }
               /* Prepend to list of hosts. */
               hosts->hosts = g_list_prepend (hosts->hosts, host);
               hosts->count++;
@@ -1011,10 +1017,8 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
                 ips_func = cidr_block_ips;
               else if (host_type == HOST_TYPE_RANGE_SHORT)
                 ips_func = short_range_network_ips;
-              else if (host_type == HOST_TYPE_RANGE_LONG)
-                ips_func = long_range_network_ips;
               else
-                break;
+                ips_func = long_range_network_ips;
 
               if (ips_func (stripped, &first, &last) == -1)
                 break;
@@ -1055,10 +1059,8 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
                 ips_func = cidr6_block_ips;
               else if (host_type == HOST_TYPE_RANGE6_SHORT)
                 ips_func = short_range6_network_ips;
-              else if (host_type == HOST_TYPE_RANGE6_LONG)
-                ips_func = long_range6_network_ips;
               else
-                continue;
+                ips_func = long_range6_network_ips;
 
               if (ips_func (stripped, &first, &last) == -1)
                 break;
