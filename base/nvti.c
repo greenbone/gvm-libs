@@ -179,8 +179,6 @@ nvti_free (nvti_t * n)
 
   if (n->oid)
     g_free (n->oid);
-  if (n->version)
-    g_free (n->version);
   if (n->name)
     g_free (n->name);
   if (n->copyright)
@@ -231,20 +229,6 @@ gchar *
 nvti_oid (const nvti_t * n)
 {
   return (n ? n->oid : NULL);
-}
-
-/**
- * @brief Get the version.
- *
- * @param n The NVT Info structure of which the OID should
- *          be returned.
- *
- * @return The version string. Don't free this.
- */
-gchar *
-nvti_version (const nvti_t * n)
-{
-  return (n ? n->version : NULL);
 }
 
 /**
@@ -516,27 +500,6 @@ nvti_set_oid (nvti_t * n, const gchar * oid)
   if (n->oid)
     g_free (n->oid);
   n->oid = g_strdup (oid);
-  return (0);
-}
-
-/**
- * @brief Set the version of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param version The version to set. A copy will be created from this.
- *
- * @return 0 for success. Anything else indicates an error.
- */
-int
-nvti_set_version (nvti_t * n, const gchar * version)
-{
-  if (! n)
-    return (-1);
-
-  if (n->version)
-    g_free (n->version);
-  n->version = g_strdup (version);
   return (0);
 }
 
