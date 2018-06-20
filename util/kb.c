@@ -1012,10 +1012,10 @@ redis_get_nvt_all (kb_t kb, const char *oid)
 
   kbr = redis_kb (kb);
   rep = redis_cmd (kbr, "LRANGE nvt:%s %d %d", oid, NVT_FILENAME_POS,
-                   NVT_VERSION_POS);
+                   NVT_NAME_POS);
   if (!rep)
     return NULL;
-  if (rep->type != REDIS_REPLY_ARRAY || rep->elements != NVT_VERSION_POS + 1)
+  if (rep->type != REDIS_REPLY_ARRAY || rep->elements != NVT_NAME_POS + 1)
     {
       freeReplyObject (rep);
       return NULL;
@@ -1041,7 +1041,6 @@ redis_get_nvt_all (kb_t kb, const char *oid)
       nvti_set_family (nvti, rep->element[NVT_FAMILY_POS]->str);
       nvti_set_copyright (nvti, rep->element[NVT_COPYRIGHT_POS]->str);
       nvti_set_name (nvti, rep->element[NVT_NAME_POS]->str);
-      nvti_set_version (nvti, rep->element[NVT_VERSION_POS]->str);
 
       freeReplyObject (rep);
       return nvti;
@@ -1368,7 +1367,7 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
   kbr = redis_kb (kb);
   rep = redis_cmd (kbr,
                    "RPUSH nvt:%s %s %s %s %s %s %s %s %s %s %s %s %d %d %s %s"
-                   " %s %s",
+                   " %s",
                    nvti_oid (nvt), filename, nvti_required_keys (nvt) ?: "",
                    nvti_mandatory_keys (nvt) ?: "",
                    nvti_excluded_keys (nvt) ?: "",
@@ -1378,7 +1377,7 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
                    nvti_cve (nvt) ?: "", nvti_bid (nvt) ?: "",
                    nvti_xref (nvt) ?: "", nvti_category (nvt),
                    nvti_timeout (nvt), nvti_family (nvt), nvti_copyright (nvt),
-                   nvti_name (nvt), nvti_version (nvt));
+                   nvti_name (nvt));
   if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
     rc = -1;
   if (rep != NULL)
