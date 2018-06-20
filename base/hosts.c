@@ -1297,7 +1297,7 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
               || ip6->s6_addr32[2] != htonl (0xffff))
             {
                new->type = HOST_TYPE_IPV6;
-               memcpy (&new->addr6, ip6, sizeof (new->addr));
+               memcpy (&new->addr6, ip6, sizeof (new->addr6));
             }
           else
             {
