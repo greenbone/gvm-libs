@@ -55,6 +55,7 @@ enum host_type {
 
 /* Typedefs */
 typedef struct gvm_host gvm_host_t;
+typedef struct gvm_vhost gvm_vhost_t;
 typedef struct gvm_hosts gvm_hosts_t;
 
 /* Data structures. */
@@ -73,7 +74,16 @@ struct gvm_host
     struct in6_addr addr6;  /**< IPv6 address */
   };
   enum host_type type;  /**< HOST_TYPE_NAME, HOST_TYPE_IPV4 or HOST_TYPE_IPV6. */
-  GSList *vhosts;
+  GSList *vhosts;       /**< List of hostnames/vhosts attached to this host. */
+};
+
+/**
+ * @brief The structure for a single vhost object.
+ */
+struct gvm_vhost
+{
+  char *value;      /**< Hostname string. */
+  char *source;     /**< Source of the value eg. DNS-Resolution. */
 };
 
 /**
