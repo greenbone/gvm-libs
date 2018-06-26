@@ -236,7 +236,7 @@ cell2atom (lex_ctxt * lexic, tree_cell * c1)
     }
 }
 
-int
+long int
 cell_cmp (lex_ctxt * lexic, tree_cell * c1, tree_cell * c2)
 {
   int flag, typ, typ1, typ2;
