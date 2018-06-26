@@ -160,7 +160,7 @@ nasl_wmi_connect (lex_ctxt * lexic)
   char *argv[max];
 
   WMI_HANDLE handle;
-  int argc = 5, value;
+  int argc = 5;
   char *argv1 = "wmic";
   char *argv2 = "-U";
 
@@ -199,14 +199,14 @@ nasl_wmi_connect (lex_ctxt * lexic)
   tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
-  value = wmi_connect (argc, argv, &handle);
-  if (value == -1)
+  handle = wmi_connect (argc, argv);
+  if (!handle)
     {
       log_legacy_write ("nasl_wmi_connect: WMI Connect failed\n");
       return NULL;
     }
 
-  retc->x.i_val = (int) handle;
+  retc->x.ref_val = handle;
   return retc;
 }
 
@@ -314,7 +314,7 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
   char *argv[4];
 
   WMI_HANDLE handle;
-  int argc = 4, value;
+  int argc = 4;
   char *argv1 = "wmic";
   char *argv2 = "-U";
 
@@ -351,14 +351,14 @@ nasl_wmi_connect_rsop (lex_ctxt * lexic)
   tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
-  value = wmi_connect_rsop (argc, argv, &handle);
-  if (value == -1)
+  handle = wmi_connect_rsop (argc, argv);
+  if (!handle)
     {
       log_legacy_write ("nasl_wmi_connect_rsop: WMI Connect failed\n");
       return NULL;
     }
 
-  retc->x.i_val = (int) handle;
+  retc->x.ref_val = handle;
   return retc;
 }
 
@@ -431,7 +431,7 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
   char *argv[4];
 
   WMI_HANDLE handle;
-  int argc = 4, value;
+  int argc = 4;
   char *argv1 = "wmic";
   char *argv2 = "-U";
 
@@ -468,14 +468,14 @@ nasl_wmi_connect_reg (lex_ctxt * lexic)
   tree_cell *retc = alloc_tree_cell (0, NULL);
 
   retc->type = CONST_INT;
-  value = wmi_connect_reg (argc, argv, &handle);
-  if (value == -1)
+  handle = wmi_connect_reg (argc, argv);
+  if (!handle)
     {
       log_legacy_write ("nasl_wmi_connect_reg: WMI Connect failed\n");
       return NULL;
     }
 
-  retc->x.i_val = (int) handle;
+  retc->x.ref_val = handle;
   return retc;
 }
 
