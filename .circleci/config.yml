@@ -18,7 +18,7 @@ jobs:
           command: mkdir build && cd build/ && scan-build cmake -DCMAKE_BUILD_TYPE=Debug .. && scan-build -o ~/scan-build-report make
       - store_artifacts:
           path: ~/scan-build-report
-  doc_coverage:
+  gen_xml_doc:
     docker:
       - image: greenbone/code-metrics-doxy-coverage-debian-stretch
     steps:
@@ -26,17 +26,46 @@ jobs:
       - run:
           name: Generate documentation (XML)
           command: mkdir build && cd build/ && cmake -DSKIP_SRC=1 .. && make doc-xml 2> ~/doxygen-stderr.txt
-      - run:
-          name: Establish coverage
-          command: ~/doxy-coverage/doxy-coverage.py ~/project/build/doc/generated/xml/ > ~/documentation-coverage.txt
       - store_artifacts:
           path: ~/doxygen-stderr.txt
-      - store_artifacts:
-          path: ~/documentation-coverage.txt
+      - persist_to_workspace:
+          root: ~/project/build/doc/generated/
+          paths:
+            - xml
+  doc_coverage:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run:
+          name: Install coverxygen and codecov
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install coverxygen codecov
+      - run:
+          name: Establish documentation coverage
+          command: |
+            . venv/bin/activate
+            python -m coverxygen --src-dir /root/project --xml-dir /tmp/workspace/xml --output lcov.info
+      - run:
+          name: Fix negative coverage counts
+          command: sed -i -e 's/,-1$/,0/g' lcov.info
+      - run:
+          name: Upload coverage to Codecov
+          command: |
+            . venv/bin/activate
+            codecov -F documentation -X gcov -f lcov.info
+
 workflows:
   version: 2
   build_and_test:
     jobs:
       - build_gcc_core
       - scan_build
-      - doc_coverage
+      - gen_xml_doc
+      - doc_coverage:
+          requires:
+            - gen_xml_doc
