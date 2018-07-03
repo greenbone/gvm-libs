@@ -199,7 +199,7 @@ gmp_ping_c (gvm_connection_t *connection, int timeout, gchar **version)
   const char* status;
   int ret;
 
-  if (*version)
+  if (version && *version)
     *version = NULL;
 
   /* Send a GET_VERSION request. */
