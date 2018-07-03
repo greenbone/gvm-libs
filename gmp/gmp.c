@@ -199,7 +199,7 @@ gmp_ping_c (gvm_connection_t *connection, int timeout, gchar **version)
   const char* status;
   int ret;
 
-  if (*version)
+  if (version && *version)
     *version = NULL;
 
   /* Send a GET_VERSION request. */
@@ -558,8 +558,8 @@ gmp_create_task_ext (gnutls_session_t* session,
                                              "</preference>",
                                              opts.in_assets);
 
-      if (opts.max_checks)
-        checks = g_markup_printf_escaped ("<preference>"
+      if (opts.max_hosts)
+        hosts = g_markup_printf_escaped ("<preference>"
                                           "<scanner_name>"
                                           "max_hosts"
                                           "</scanner_name>"
@@ -570,7 +570,7 @@ gmp_create_task_ext (gnutls_session_t* session,
                                           opts.max_hosts);
 
       if (opts.max_checks)
-        hosts = g_markup_printf_escaped ("<preference>"
+        checks = g_markup_printf_escaped ("<preference>"
                                          "<scanner_name>"
                                          "max_checks"
                                          "</scanner_name>"
