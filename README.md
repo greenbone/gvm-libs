@@ -1,5 +1,7 @@
 [![CircleCI](https://circleci.com/gh/greenbone/gvm-libs/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/gvm-libs/tree/master)
 
+[![Code Documentation Coverage](https://codecov.io/gh/greenbone/gvm-libs/branch/master/graphs/badge.svg?flag=documentation)](https://codecov.io/gh/greenbone/gvm-libs)
+
 gvm-libs
 ========
 
