@@ -827,6 +827,42 @@ gvm_get_host_type (const gchar *str_stripped)
 }
 
 /**
+ * @brief Creates a new gvm_vhost_t object.
+ *
+ * @param[in] value     Vhost value.
+ * @param[in] source    Source of hostname.
+ *
+ * @return Pointer to new vhost object.
+ */
+gvm_vhost_t *
+gvm_vhost_new (char *value, char *source)
+{
+  gvm_vhost_t *vhost;
+
+  vhost = g_malloc0 (sizeof (gvm_vhost_t));
+  vhost->value = value;
+  vhost->source = source;
+
+  return vhost;
+}
+
+/**
+ * @brief Frees the memory occupied by an gvm_vhost_t object.
+ *
+ * @param[in] vhost Vhost to free.
+ */
+static void
+gvm_vhost_free (gpointer vhost)
+{
+  if (vhost)
+    {
+      g_free (((gvm_vhost_t *) vhost)->value);
+      g_free (((gvm_vhost_t *) vhost)->source);
+    }
+  g_free (vhost);
+}
+
+/**
  * @brief Creates a new gvm_host_t object.
  *
  * @return Pointer to new host object, NULL if creation fails.
@@ -839,19 +875,6 @@ gvm_host_new ()
   host = g_malloc0 (sizeof (gvm_host_t));
 
   return host;
-}
-
-/**
- * @brief Frees the memory occupied by an gvm_vhost_t object.
- *
- * @param[in] vhost Vhost to free.
- */
-static void
-gvm_vhost_free (gpointer vhost)
-{
-  if (vhost)
-    g_free (((gvm_vhost_t *) vhost)->value);
-  g_free (vhost);
 }
 
 /**
@@ -1303,10 +1326,8 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
           /* Create a new host for each IP address. */
           gvm_host_t *new;
           struct in6_addr *ip6 = tmp->data;
-          gvm_vhost_t *vhost = g_malloc0 (sizeof (*vhost));
+          gvm_vhost_t *vhost;
 
-          vhost->value = g_strdup (host->name);
-          vhost->source = "Forward-DNS";
           new = gvm_host_new ();
           if (ip6->s6_addr32[0] != 0 || ip6->s6_addr32[1] != 0
               || ip6->s6_addr32[2] != htonl (0xffff))
@@ -1319,6 +1340,8 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
                new->type = HOST_TYPE_IPV4;
                memcpy (&new->addr6, &ip6->s6_addr32[3], sizeof (new->addr));
             }
+          vhost = gvm_vhost_new (g_strdup (host->name),
+                                 g_strdup ("Forward-DNS"));
           new->vhosts = g_slist_prepend (new->vhosts, vhost);
           hosts->hosts = g_list_prepend (hosts->hosts, new);
           hosts->count++;
@@ -1541,9 +1564,7 @@ gvm_host_add_reverse_lookup (gvm_host_t *host)
         }
       vhosts = vhosts->next;
     }
-  vhost = g_malloc0 (sizeof (*vhost));
-  vhost->value = value;
-  vhost->source = "Reverse-DNS";
+  vhost = gvm_vhost_new (value, g_strdup ("Reverse-DNS"));
   host->vhosts = g_slist_prepend (host->vhosts, vhost);
 }
 
