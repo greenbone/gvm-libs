@@ -172,6 +172,9 @@ gvm_host_add_reverse_lookup (gvm_host_t *);
 
 /* Miscellaneous functions */
 
+gvm_vhost_t *
+gvm_vhost_new (char *, char *);
+
 int
 gvm_get_host_type (const gchar *);
 
