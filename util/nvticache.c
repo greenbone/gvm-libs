@@ -117,21 +117,18 @@ int
 nvticache_check (const gchar *filename)
 {
   assert (cache_kb);
-  char pattern[2048], *src_file;
-  time_t timestamp;
+  char *src_file, *time_s;
   struct stat src_stat;
+  int ret = 0;
 
   src_file = g_build_filename (src_path, filename, NULL);
-  g_snprintf (pattern, sizeof (pattern), "filename:%s:timestamp", filename);
-  timestamp = kb_item_get_int (cache_kb, pattern);
-  if (timestamp && src_file && stat (src_file, &src_stat) >= 0
-      && timestamp > src_stat.st_mtime)
-    {
-      g_free (src_file);
-      return 1;
-    }
+  time_s = kb_nvt_get (cache_kb, filename, NVT_TIMESTAMP_POS);
+  if (time_s && src_file && stat (src_file, &src_stat) >= 0
+      && atoi (time_s) > src_stat.st_mtime)
+    ret = 1;
+  g_free (time_s);
   g_free (src_file);
-  return 0;
+  return ret;
 }
 
 /**
@@ -207,8 +204,7 @@ nvticache_save ()
 int
 nvticache_add (const nvti_t *nvti, const char *filename)
 {
-  char *oid, *dummy, pattern[4096];
-  GSList *element;
+  char *oid, *dummy;
 
   assert (cache_kb);
   /* Check for duplicate OID. */
@@ -231,22 +227,6 @@ nvticache_add (const nvti_t *nvti, const char *filename)
   g_free (dummy);
 
   if (kb_nvt_add (cache_kb, nvti, filename))
-    goto kb_fail;
-  element = nvti->prefs;
-  while (element)
-    {
-      char value[4096];
-      nvtpref_t *pref = element->data;
-
-      g_snprintf (pattern, sizeof (pattern), "oid:%s:prefs", oid);
-      g_snprintf (value, sizeof (value), "%s|||%s|||%s", pref->name, pref->type,
-                  pref->dflt);
-      if (kb_item_add_str (cache_kb, pattern, value, 0))
-        goto kb_fail;
-      element = element->next;
-    }
-  g_snprintf (pattern, sizeof (pattern), "filename:%s:timestamp", filename);
-  if (kb_item_add_int (cache_kb, pattern, time (NULL)))
     goto kb_fail;
   cache_saved = 0;
 
@@ -287,25 +267,9 @@ nvticache_get_src (const char *oid)
 char *
 nvticache_get_oid (const char *filename)
 {
-  char *ret, pattern[2048];
-  struct kb_item *kbi;
-
   assert (cache_kb);
 
-  g_snprintf (pattern, sizeof (pattern), "filename:%s:oid", filename);
-  ret = kb_item_get_str (cache_kb, pattern);
-  if (ret)
-    return ret;
-
-  /* NVT filename in subfolder case. */
-  g_snprintf (pattern, sizeof (pattern), "filename:*/%s:oid", filename);
-  kbi = kb_item_get_pattern (cache_kb, pattern);
-  if (!kbi)
-    return NULL;
-
-  ret = g_strdup (kbi->v_str);
-  kb_item_free (kbi);
-  return ret;
+  return kb_nvt_get (cache_kb, filename, NVT_OID_POS);
 }
 
 /**
@@ -635,16 +599,14 @@ nvticache_delete (const char *oid)
   assert (oid);
 
   filename = nvticache_get_filename (oid);
-  g_snprintf (pattern, sizeof (pattern), "oid:%s:prefs", oid);
+  g_snprintf (pattern, sizeof (pattern), "prefs:%s", oid);
   kb_del_items (cache_kb, pattern);
   g_snprintf (pattern, sizeof (pattern), "nvt:%s", oid);
   kb_del_items (cache_kb, pattern);
 
   if (filename)
     {
-      g_snprintf (pattern, sizeof (pattern), "filename:%s:timestamp", filename);
-      kb_del_items (cache_kb, pattern);
-      g_snprintf (pattern, sizeof (pattern), "filename:%s:oid", filename);
+      g_snprintf (pattern, sizeof (pattern), "filename:%s", filename);
       kb_del_items (cache_kb, pattern);
     }
   g_free (filename);

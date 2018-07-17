@@ -72,6 +72,8 @@ enum kb_nvt_pos {
     NVT_FAMILY_POS,
     NVT_COPYRIGHT_POS,
     NVT_NAME_POS,
+    NVT_TIMESTAMP_POS,
+    NVT_OID_POS,
 };
 
 /**

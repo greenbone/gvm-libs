@@ -986,7 +986,11 @@ redis_get_nvt (kb_t kb, const char *oid, enum kb_nvt_pos position)
   char *res = NULL;
 
   kbr = redis_kb (kb);
-  rep = redis_cmd (kbr, "LINDEX nvt:%s %d", oid, position);
+  if (position >= NVT_TIMESTAMP_POS)
+    rep = redis_cmd (kbr, "LINDEX filename:%s %d", oid,
+                     position - NVT_TIMESTAMP_POS);
+  else
+    rep = redis_cmd (kbr, "LINDEX nvt:%s %d", oid, position);
   if (!rep)
     return NULL;
   if (rep->type == REDIS_REPLY_INTEGER)
@@ -1392,6 +1396,7 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
   struct kb_redis *kbr;
   redisReply *rep = NULL;
   int rc = 0;
+  GSList *element;
 
   if (!nvt || !filename)
     return -1;
@@ -1415,12 +1420,25 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
   if (rep != NULL)
     freeReplyObject (rep);
 
-  rep = redis_cmd (kbr, "SADD filename:%s:oid %s", filename, nvti_oid (nvt));
-  if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
-    rc = -1;
-  if (rep != NULL)
-    freeReplyObject (rep);
+  element = nvt->prefs;
+  while (element)
+    {
+      nvtpref_t *pref = element->data;
 
+      rep = redis_cmd (kbr, "SADD oid:%s:prefs '%s|||%s|||%s'", nvti_oid (nvt),
+                       pref->name, pref->type, pref->dflt);
+      if (!rep || rep->type == REDIS_REPLY_ERROR)
+        rc = -1;
+      if (rep)
+        freeReplyObject (rep);
+      element = element->next;
+    }
+  rep = redis_cmd (kbr, "RPUSH filename:%s %lu %s",
+                   filename, time (NULL), nvti_oid (nvt));
+  if (!rep || rep->type == REDIS_REPLY_ERROR)
+    rc = -1;
+  if (rep)
+    freeReplyObject (rep);
   return rc;
 }
 
