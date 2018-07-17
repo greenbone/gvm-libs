@@ -603,22 +603,9 @@ nvticache_get_prefs (const char *oid)
 GSList *
 nvticache_get_oids ()
 {
-  struct kb_item *kbi, *item;
-  GSList *list = NULL;
-
   assert (cache_kb);
 
-  kbi = item = kb_item_get_pattern (cache_kb, "filename:*:oid");
-  if (!kbi)
-    return NULL;
-
-  while (item)
-    {
-      list = g_slist_prepend (list, g_strdup (item->v_str));
-      item = item->next;
-    }
-  kb_item_free (kbi);
-  return list;
+  return kb_nvt_get_oids (cache_kb);
 }
 
 /**

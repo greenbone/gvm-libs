@@ -1143,6 +1143,38 @@ next:
 }
 
 /**
+ * @brief Get all NVT OIDs.
+ * @param[in] kb  KB handle where to fetch the items.
+ * @return Linked list of all OIDs or NULL.
+ */
+static GSList *
+redis_get_oids (kb_t kb)
+{
+  struct kb_redis *kbr;
+  redisReply *rep;
+  GSList *list = NULL;
+  size_t i;
+
+  kbr = redis_kb (kb);
+  rep = redis_cmd (kbr, "KEYS nvt:*");
+  if (!rep)
+    return NULL;
+
+  if (rep->type != REDIS_REPLY_ARRAY)
+    {
+      freeReplyObject (rep);
+      return NULL;
+    }
+
+  /* Fetch OID values from key names nvt:OID. */
+  for (i = 0; i < rep->elements; i++)
+    list = g_slist_prepend (list, g_strdup (rep->element[i]->str + 4));
+  freeReplyObject (rep);
+
+  return list;
+}
+
+/**
  * @brief Count all items stored under a given pattern.
  *
  * @param[in] kb  KB handle where to count the items.
@@ -1574,6 +1606,7 @@ static const struct kb_operations KBRedisOperations = {
   .kb_get_int      = redis_get_int,
   .kb_get_nvt      = redis_get_nvt,
   .kb_get_nvt_all  = redis_get_nvt_all,
+  .kb_get_nvt_oids = redis_get_oids,
   .kb_push_str     = redis_push_str,
   .kb_pop_str      = redis_pop_str,
   .kb_get_all      = redis_get_all,
