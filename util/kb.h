@@ -72,6 +72,8 @@ enum kb_nvt_pos {
     NVT_FAMILY_POS,
     NVT_COPYRIGHT_POS,
     NVT_NAME_POS,
+    NVT_TIMESTAMP_POS,
+    NVT_OID_POS,
 };
 
 /**
@@ -129,6 +131,7 @@ struct kb_operations
   int (*kb_get_int) (kb_t, const char *);
   char *(*kb_get_nvt) (kb_t, const char *, enum kb_nvt_pos);
   nvti_t *(*kb_get_nvt_all) (kb_t, const char *);
+  GSList *(*kb_get_nvt_oids) (kb_t);   /**< Get list of OIDs. */
   int (*kb_push_str) (kb_t, const char *, const char *);
   char *(*kb_pop_str) (kb_t, const char *);
   struct kb_item * (*kb_get_all) (kb_t, const char *);
@@ -462,6 +465,22 @@ kb_nvt_get_all (kb_t kb, const char *oid)
 
   return kb->kb_ops->kb_get_nvt_all (kb, oid);
 }
+
+/**
+ * @brief Get list of NVT OIDs.
+ * @param[in] kb        KB handle where NVTs are stored.
+ * @return Linked-list of OIDs, NULL otherwise.
+ */
+static inline GSList *
+kb_nvt_get_oids (kb_t kb)
+{
+  assert (kb);
+  assert (kb->kb_ops);
+  assert (kb->kb_ops->kb_get_nvt_oids);
+
+  return kb->kb_ops->kb_get_nvt_oids (kb);
+}
+
 
 /**
  * @brief Delete all entries under a given name.
