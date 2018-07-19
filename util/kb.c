@@ -986,7 +986,11 @@ redis_get_nvt (kb_t kb, const char *oid, enum kb_nvt_pos position)
   char *res = NULL;
 
   kbr = redis_kb (kb);
-  rep = redis_cmd (kbr, "LINDEX nvt:%s %d", oid, position);
+  if (position >= NVT_TIMESTAMP_POS)
+    rep = redis_cmd (kbr, "LINDEX filename:%s %d", oid,
+                     position - NVT_TIMESTAMP_POS);
+  else
+    rep = redis_cmd (kbr, "LINDEX nvt:%s %d", oid, position);
   if (!rep)
     return NULL;
   if (rep->type == REDIS_REPLY_INTEGER)
@@ -1140,6 +1144,38 @@ next:
   freeReplyObject (rep);
 
   return kbi;
+}
+
+/**
+ * @brief Get all NVT OIDs.
+ * @param[in] kb  KB handle where to fetch the items.
+ * @return Linked list of all OIDs or NULL.
+ */
+static GSList *
+redis_get_oids (kb_t kb)
+{
+  struct kb_redis *kbr;
+  redisReply *rep;
+  GSList *list = NULL;
+  size_t i;
+
+  kbr = redis_kb (kb);
+  rep = redis_cmd (kbr, "KEYS nvt:*");
+  if (!rep)
+    return NULL;
+
+  if (rep->type != REDIS_REPLY_ARRAY)
+    {
+      freeReplyObject (rep);
+      return NULL;
+    }
+
+  /* Fetch OID values from key names nvt:OID. */
+  for (i = 0; i < rep->elements; i++)
+    list = g_slist_prepend (list, g_strdup (rep->element[i]->str + 4));
+  freeReplyObject (rep);
+
+  return list;
 }
 
 /**
@@ -1360,6 +1396,7 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
   struct kb_redis *kbr;
   redisReply *rep = NULL;
   int rc = 0;
+  GSList *element;
 
   if (!nvt || !filename)
     return -1;
@@ -1383,12 +1420,25 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
   if (rep != NULL)
     freeReplyObject (rep);
 
-  rep = redis_cmd (kbr, "SADD filename:%s:oid %s", filename, nvti_oid (nvt));
-  if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
-    rc = -1;
-  if (rep != NULL)
-    freeReplyObject (rep);
+  element = nvt->prefs;
+  while (element)
+    {
+      nvtpref_t *pref = element->data;
 
+      rep = redis_cmd (kbr, "SADD oid:%s:prefs '%s|||%s|||%s'", nvti_oid (nvt),
+                       pref->name, pref->type, pref->dflt);
+      if (!rep || rep->type == REDIS_REPLY_ERROR)
+        rc = -1;
+      if (rep)
+        freeReplyObject (rep);
+      element = element->next;
+    }
+  rep = redis_cmd (kbr, "RPUSH filename:%s %lu %s",
+                   filename, time (NULL), nvti_oid (nvt));
+  if (!rep || rep->type == REDIS_REPLY_ERROR)
+    rc = -1;
+  if (rep)
+    freeReplyObject (rep);
   return rc;
 }
 
@@ -1574,6 +1624,7 @@ static const struct kb_operations KBRedisOperations = {
   .kb_get_int      = redis_get_int,
   .kb_get_nvt      = redis_get_nvt,
   .kb_get_nvt_all  = redis_get_nvt_all,
+  .kb_get_nvt_oids = redis_get_oids,
   .kb_push_str     = redis_push_str,
   .kb_pop_str      = redis_pop_str,
   .kb_get_all      = redis_get_all,
