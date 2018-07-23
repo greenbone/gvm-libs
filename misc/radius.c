@@ -116,7 +116,7 @@ radius_init (const char *hostname, const char *secret)
     }
   if (rc_read_dictionary (rh, RC_DICTIONARY_FILE) != 0)
     {
-      g_warning ("radius_init: Couldn't read the dictionnary file %s",
+      g_warning ("radius_init: Couldn't read the dictionary file %s",
                  RC_DICTIONARY_FILE);
       goto radius_init_fail;
     }
