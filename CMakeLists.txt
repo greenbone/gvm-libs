@@ -96,7 +96,7 @@ set (CPACK_PACKAGE_VERSION_MAJOR "9")
 set (CPACK_PACKAGE_VERSION_MINOR "0")
 
 # Use this scheme for stable releases:
-set (CPACK_PACKAGE_VERSION_PATCH "2${SVN_REVISION}")
+set (CPACK_PACKAGE_VERSION_PATCH "3${SVN_REVISION}")
 set (CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 # Use this scheme for +betaN and +rcN releases:
 #set (CPACK_PACKAGE_VERSION_PATCH "+beta1${SVN_REVISION}")
@@ -258,6 +258,13 @@ if (NOT MINGW)
     execute_process (COMMAND libgcrypt-config --cflags
       OUTPUT_VARIABLE GCRYPT_CFLAGS
       OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process (COMMAND libgcrypt-config --version
+      OUTPUT_VARIABLE GCRYPT_VERSION
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    message (STATUS "  found libgcrypt, version ${GCRYPT_VERSION}")
+    if (GCRYPT_VERSION VERSION_LESS "1.6")
+      message (SEND_ERROR "libgcrypt 1.6 or greater is required")
+    endif (GCRYPT_VERSION VERSION_LESS "1.6")
   endif (NOT GCRYPT)
 
 endif (NOT MINGW)

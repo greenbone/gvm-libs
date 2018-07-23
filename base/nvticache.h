@@ -41,7 +41,7 @@
 #include "kb.h"
 
 int
-nvticache_init (const char *, const char *, const char *);
+nvticache_init (const char *, const char *);
 
 kb_t
 nvticache_get_kb ();
@@ -52,11 +52,8 @@ nvticache_reset ();
 int
 nvticache_initialized (void);
 
-void
-nvticache_free (void);
-
-nvti_t *
-nvticache_get (const gchar *);
+int
+nvticache_check (const gchar *);
 
 int
 nvticache_add (const nvti_t *, const char *);
@@ -75,6 +72,33 @@ nvticache_get_oid (const char *);
 
 char *
 nvticache_get_name (const char *);
+
+char *
+nvticache_get_tags (const char *);
+
+GSList *
+nvticache_get_prefs (const char *);
+
+char *
+nvticache_get_version (const char *);
+
+char *
+nvticache_get_copyright (const char *);
+
+char *
+nvticache_get_cves (const char *);
+
+char *
+nvticache_get_bids (const char *);
+
+char *
+nvticache_get_xrefs (const char *);
+
+char *
+nvticache_get_family (const char *);
+
+char *
+nvticache_get_filename (const char *);
 
 char *
 nvticache_get_required_keys (const char *);
@@ -108,5 +132,11 @@ nvticache_get_names (void);
 
 GSList *
 nvticache_get_oids (void);
+
+size_t
+nvticache_count (void);
+
+void
+nvticache_delete (const char *);
 
 #endif /* not _NVTICACHE_H */
