@@ -153,9 +153,6 @@ gvm_host_in_hosts (const gvm_host_t *, const struct in6_addr *,
                    const gvm_hosts_t *);
 
 int
-gvm_host_in_hosts_str (const gvm_host_t *host, const char *hosts_str);
-
-int
 gvm_hosts_str_contains (const char *hosts_str, const char *find_host_str);
 
 gchar *

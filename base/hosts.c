@@ -908,50 +908,14 @@ gvm_host_free (gpointer host)
 static gvm_host_t *
 gvm_host_from_str (const char *host_str)
 {
-  gchar *stripped_host_str;
   gvm_host_t *host;
-
-  stripped_host_str = g_strstrip (g_strdup (host_str));
-  host = gvm_host_new ();
-  host->type = gvm_get_host_type (stripped_host_str);
-
-  switch (host->type)
-    {
-      case HOST_TYPE_NAME:
-        {
-          host->name = g_strdup (stripped_host_str);
-          break;
-        }
-      case HOST_TYPE_IPV4:
-        {
-          if (inet_pton (AF_INET, stripped_host_str, &host->addr) != 1)
-            {
-              gvm_host_free (host);
-              g_free (stripped_host_str);
-              return NULL;
-            }
-          break;
-        }
-      case HOST_TYPE_IPV6:
-        {
-          if (inet_pton (AF_INET6, stripped_host_str, &host->addr6) != 1)
-            {
-              gvm_host_free (host);
-              g_free (stripped_host_str);
-              return NULL;
-            }
-          break;
-        }
-      default:
-        {
-          gvm_host_free (host);
-          g_free (stripped_host_str);
-          return NULL;
-        }
-    }
-
-  g_free (stripped_host_str);
-
+  gvm_hosts_t *hosts = gvm_hosts_new (host_str);
+  if (gvm_hosts_count (hosts) != 1)
+    return NULL;
+  host = hosts->hosts->data;
+  g_free (hosts->orig_str);
+  g_list_free (hosts->hosts);
+  g_free (hosts);
   return host;
 }
 
@@ -1817,7 +1781,7 @@ gvm_host_in_hosts (const gvm_host_t *host, const struct in6_addr *addr,
  *
  * @return 1 if host has equal in hosts_str, 0 otherwise.
  */
-int
+static int
 gvm_host_in_hosts_str (const gvm_host_t *host, const char *hosts_str)
 {
   gchar *normalized_str, *str;
