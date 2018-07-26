@@ -1425,7 +1425,7 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
     {
       nvtpref_t *pref = element->data;
 
-      rep = redis_cmd (kbr, "SADD oid:%s:prefs '%s|||%s|||%s'", nvti_oid (nvt),
+      rep = redis_cmd (kbr, "SADD oid:%s:prefs %s|||%s|||%s", nvti_oid (nvt),
                        pref->name, pref->type, pref->dflt);
       if (!rep || rep->type == REDIS_REPLY_ERROR)
         rc = -1;
