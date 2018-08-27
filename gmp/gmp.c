@@ -91,27 +91,27 @@ gmp_task_status (entity_t response)
  * @return 0 on success, -1 or GMP response code on error.
  */
 int
-gmp_check_response (gnutls_session_t* session, entity_t entity)
+gmp_check_response (gnutls_session_t* session, entity_t *entity)
 {
   int ret;
   const char* status;
 
   /* Read the response. */
 
-  entity = NULL;
-  if (read_entity (session, &entity)) return -1;
+  *entity = NULL;
+  if (read_entity (session, entity)) return -1;
 
   /* Check the response. */
 
-  status = entity_attribute (entity, "status");
+  status = entity_attribute (*entity, "status");
   if (status == NULL)
     {
-      free_entity (entity);
+      free_entity (*entity);
       return -1;
     }
   if (strlen (status) == 0)
     {
-      free_entity (entity);
+      free_entity (*entity);
       return -1;
     }
   if (status[0] == '2')
@@ -119,7 +119,7 @@ gmp_check_response (gnutls_session_t* session, entity_t entity)
       return 0;
     }
   ret = (int) strtol (status, NULL, 10);
-  free_entity (entity);
+  free_entity (*entity);
   if (errno == ERANGE) return -1;
   return ret;
 }
@@ -286,7 +286,7 @@ gmp_authenticate (gnutls_session_t* session,
   /* Read the response. */
 
   entity = NULL;
-  ret = gmp_check_response (session, entity);
+  ret = gmp_check_response (session, &entity);
   if (ret == 0)
     {
       free_entity (entity);
@@ -740,7 +740,7 @@ gmp_start_task_report (gnutls_session_t* session, const char* task_id,
   /* Read the response. */
 
   entity = NULL;
-  ret = gmp_check_response (session, entity);
+  ret = gmp_check_response (session, &entity);
 
   if (ret == 0)
     {
@@ -948,7 +948,7 @@ gmp_stop_task (gnutls_session_t* session, const char* id)
     return -1;
 
   entity = NULL;
-  ret = gmp_check_response (session, entity);
+  ret = gmp_check_response (session, &entity);
   free_entity (entity);
   return ret;
 }
@@ -997,7 +997,7 @@ gmp_resume_task_report (gnutls_session_t* session, const char* task_id,
   /* Read the response. */
 
   entity = NULL;
-  ret = gmp_check_response (session, entity);
+  ret = gmp_check_response (session, &entity);
 
   if (ret == 0)
     {
@@ -1101,7 +1101,7 @@ gmp_delete_task_ext (gnutls_session_t* session, const char* id,
     return -1;
 
   entity = NULL;
-  ret = gmp_check_response (session, entity);
+  ret = gmp_check_response (session, &entity);
   free_entity (entity);
   return ret;
 }
@@ -1144,7 +1144,7 @@ gmp_get_tasks (gnutls_session_t* session, const char* id, int details,
     }
 
   /* Read the response. */
-  return gmp_check_response (session, *status);
+  return gmp_check_response (session, status);
 
 }
 
@@ -1185,7 +1185,7 @@ gmp_get_task_ext (gnutls_session_t* session,
                              GMP_FMT_BOOL_ATTRIB (opts, details)))
     return -1;
 
-  return gmp_check_response (session, *response);
+  return gmp_check_response (session, response);
 }
 
 /**
@@ -1311,7 +1311,7 @@ gmp_modify_task_file (gnutls_session_t* session, const char* id,
     return -1;
 
   entity = NULL;
-  ret = gmp_check_response (session, entity);
+  ret = gmp_check_response (session, &entity);
   free_entity (entity);
   return ret;
 }
@@ -1334,7 +1334,7 @@ gmp_delete_task (gnutls_session_t* session, const char* id)
     return -1;
 
   entity = NULL;
-  ret = gmp_check_response (session, entity);
+  ret = gmp_check_response (session, &entity);
   free_entity (entity);
   return ret;
 }
@@ -1377,7 +1377,7 @@ gmp_get_targets (gnutls_session_t* session, const char* id, int tasks,
     }
 
   /* Read the response. */
-  return gmp_check_response (session, *target);
+  return gmp_check_response (session, target);
 }
 
 /**
@@ -1506,7 +1506,7 @@ gmp_delete_port_list_ext (gnutls_session_t* session,
     return -1;
 
   entity = NULL;
-  ret = gmp_check_response (session, entity);
+  ret = gmp_check_response (session, &entity);
   free_entity (entity);
   return ret;
 }
@@ -1529,7 +1529,7 @@ gmp_delete_report (gnutls_session_t *session, const char *id)
     return -1;
 
   entity = NULL;
-  ret = gmp_check_response (session, entity);
+  ret = gmp_check_response (session, &entity);
   free_entity (entity);
   return ret;
 }
@@ -1691,7 +1691,7 @@ gmp_delete_target_ext (gnutls_session_t* session,
     return -1;
 
   entity = NULL;
-  ret = gmp_check_response (session, entity);
+  ret = gmp_check_response (session, &entity);
   free_entity (entity);
   return ret;
 }
@@ -1720,7 +1720,7 @@ gmp_delete_config_ext (gnutls_session_t* session,
     return -1;
 
   entity = NULL;
-  ret = gmp_check_response (session, entity);
+  ret = gmp_check_response (session, &entity);
   free_entity (entity);
   return ret;
 }
@@ -1989,7 +1989,7 @@ gmp_delete_lsc_credential_ext (gnutls_session_t* session,
     return -1;
 
   entity = NULL;
-  ret = gmp_check_response (session, entity);
+  ret = gmp_check_response (session, &entity);
   free_entity (entity);
   return ret;
 }
@@ -2025,7 +2025,7 @@ gmp_get_system_reports (gnutls_session_t* session, const char* name, int brief,
     return -1;
 
   /* Read and check the response. */
-  return gmp_check_response (session, *reports);
+  return gmp_check_response (session, reports);
 }
 
 /**
@@ -2074,5 +2074,5 @@ gmp_get_system_reports_ext (gnutls_session_t* session,
   g_string_free (request, 1);
 
   /* Read and check the response. */
-  return gmp_check_response (session, *reports);
+  return gmp_check_response (session, reports);
 }
