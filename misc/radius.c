@@ -27,9 +27,15 @@
 
 #if defined(RADIUS_AUTH_FREERADIUS)
 #include <freeradius-client.h>
+#ifndef RC_CONFIG_FILE
+#define RC_DICTIONARY_FILE "/etc/radiusclient/dictionary"
+#endif
 #elif defined(RADIUS_AUTH_RADCLI)
 #include <unistd.h>
 #include <radcli/radcli.h>
+#ifndef RC_CONFIG_FILE
+#define RC_DICTIONARY_FILE "/etc/radcli/dictionary"
+#endif
 #endif
 
 #include "../base/openvas_networking.h"
@@ -37,10 +43,6 @@
 
 #ifndef PW_MAX_MSG_SIZE
 #define PW_MAX_MSG_SIZE 4096
-#endif
-
-#ifndef RC_CONFIG_FILE
-#define RC_DICTIONARY_FILE "/etc/radiusclient/dictionary"
 #endif
 
 /**
