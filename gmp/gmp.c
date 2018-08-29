@@ -949,7 +949,8 @@ gmp_stop_task (gnutls_session_t* session, const char* id)
 
   entity = NULL;
   ret = gmp_check_response (session, &entity);
-  free_entity (entity);
+  if (ret == 0)
+    free_entity (entity);
   return ret;
 }
 
@@ -1102,7 +1103,8 @@ gmp_delete_task_ext (gnutls_session_t* session, const char* id,
 
   entity = NULL;
   ret = gmp_check_response (session, &entity);
-  free_entity (entity);
+  if (ret == 0)
+    free_entity (entity);
   return ret;
 }
 
@@ -1312,7 +1314,8 @@ gmp_modify_task_file (gnutls_session_t* session, const char* id,
 
   entity = NULL;
   ret = gmp_check_response (session, &entity);
-  free_entity (entity);
+  if (ret == 0)
+    free_entity (entity);
   return ret;
 }
 
@@ -1335,7 +1338,8 @@ gmp_delete_task (gnutls_session_t* session, const char* id)
 
   entity = NULL;
   ret = gmp_check_response (session, &entity);
-  free_entity (entity);
+  if (ret == 0)
+    free_entity (entity);
   return ret;
 }
 
@@ -1507,7 +1511,8 @@ gmp_delete_port_list_ext (gnutls_session_t* session,
 
   entity = NULL;
   ret = gmp_check_response (session, &entity);
-  free_entity (entity);
+  if (ret == 0)
+    free_entity (entity);
   return ret;
 }
 
@@ -1530,7 +1535,8 @@ gmp_delete_report (gnutls_session_t *session, const char *id)
 
   entity = NULL;
   ret = gmp_check_response (session, &entity);
-  free_entity (entity);
+  if (ret == 0)
+    free_entity (entity);
   return ret;
 }
 
@@ -1692,7 +1698,8 @@ gmp_delete_target_ext (gnutls_session_t* session,
 
   entity = NULL;
   ret = gmp_check_response (session, &entity);
-  free_entity (entity);
+  if (ret == 0)
+    free_entity (entity);
   return ret;
 }
 
@@ -1721,7 +1728,8 @@ gmp_delete_config_ext (gnutls_session_t* session,
 
   entity = NULL;
   ret = gmp_check_response (session, &entity);
-  free_entity (entity);
+  if (ret == 0)
+    free_entity (entity);
   return ret;
 }
 
@@ -1990,7 +1998,8 @@ gmp_delete_lsc_credential_ext (gnutls_session_t* session,
 
   entity = NULL;
   ret = gmp_check_response (session, &entity);
-  free_entity (entity);
+  if (ret == 0)
+    free_entity (entity);
   return ret;
 }
 
