@@ -31,6 +31,7 @@
 #define RC_DICTIONARY_FILE "/etc/radiusclient/dictionary"
 #endif
 #elif defined(RADIUS_AUTH_RADCLI)
+#include <unistd.h>
 #include <radcli/radcli.h>
 #ifndef RC_CONFIG_FILE
 #define RC_DICTIONARY_FILE "/etc/radcli/dictionary"
@@ -59,6 +60,67 @@ radius_init (const char *hostname, const char *secret)
   char authserver[4096];
   struct sockaddr_in6 ip6;
 
+  rh = NULL;
+
+  if (inet_pton (AF_INET6, hostname, &(ip6.sin6_addr)) == 1)
+    snprintf (authserver, sizeof (authserver), "[%s]::%s", hostname, secret);
+  else
+    snprintf (authserver, sizeof (authserver), "%s::%s", hostname, secret);
+
+#if defined(RADIUS_AUTH_RADCLI)
+  // Create config from file for older radcli versions
+  FILE *config_file = NULL;
+  char config_filename[35] = "/tmp/openvas_radius_conf_XXXXXX";
+  int config_fd = mkstemp (config_filename);
+
+  if (config_fd == -1)
+    {
+      g_warning ("%s: Couldn't create temp radius config file: %s\n",
+                 __FUNCTION__, strerror (errno));
+      goto radius_init_fail;
+    }
+
+  config_file = fdopen (config_fd, "w");
+  if (config_file == NULL)
+    {
+      close (config_fd);
+      g_warning ("%s: Couldn't open temp radius config file %s: %s\n",
+                 __FUNCTION__, config_filename, strerror (errno));
+      goto radius_init_fail;
+    }
+
+  if (fprintf (config_file,
+               "auth_order  radius\n"
+               "login_tries  4\n"
+               "dictionary  %s\n"
+               "seqfile  /var/run/radius.seq\n"
+               "radius_retries  3\n"
+               "radius_timeout  5\n"
+               "radius_deadtime  0\n"
+               "authserver  %s\n"
+               "acctserver  %s\n",
+               RC_DICTIONARY_FILE,
+               authserver,
+               authserver) < 0)
+    {
+      fclose (config_file);
+      g_warning ("%s: Couldn't write to temp radius config file %s:%s\n",
+                 __FUNCTION__, config_filename, strerror (errno));
+      unlink (config_filename);
+      goto radius_init_fail;
+    }
+  fclose (config_file);
+
+  rh = rc_read_config (config_filename);
+  if (rh == NULL)
+    {
+      g_warning ("%s: Couldn't read temp radius config file %s\n",
+                 __FUNCTION__, config_filename);
+      unlink (config_filename);
+      goto radius_init_fail;
+    }
+  unlink (config_filename);
+#else // defined(RADIUS_AUTH_RADCLI)
   if ((rh = rc_new ()) == NULL)
     {
       g_warning ("radius_init: Couldn't allocate memory");
@@ -106,11 +168,6 @@ radius_init (const char *hostname, const char *secret)
       g_warning("radius_init: Couldn't set radius_deadtime");
       goto radius_init_fail;
     }
-
-  if (inet_pton (AF_INET6, hostname, &(ip6.sin6_addr)) == 1)
-    snprintf (authserver, sizeof (authserver), "[%s]::%s", hostname, secret);
-  else
-    snprintf (authserver, sizeof (authserver), "%s::%s", hostname, secret);
   if (rc_add_config (rh, "authserver", authserver, "config", 0) != 0)
     {
       g_warning ("radius_init: Couldn't set authserver %s", authserver);
@@ -122,6 +179,8 @@ radius_init (const char *hostname, const char *secret)
                  RC_DICTIONARY_FILE);
       goto radius_init_fail;
     }
+#endif // defined(RADIUS_AUTH_RADCLI)
+
   return rh;
 
 radius_init_fail:
