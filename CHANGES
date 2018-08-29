@@ -1,3 +1,31 @@
+SUMMARY OF RELEASE CHANGES FOR OPENVAS-LIBRARIES 9.0
+====================================================
+
+For detailed code changes, please visit
+ https://github.com/greenbone/gvm-libs/commits/openvas-libraries-9.0
+or get the entire source code repository and view log history:
+$ git clone https://github.com/greenbone/gvm-libs.git
+$ cd gvm-libs && git checkout openvas-libraries-9.0 && git log
+
+
+openvas-libraries 9.0.3 (2018-08-29)
+
+This is the third maintenance release of the openvas-libraries 9.0
+module for the Open Vulnerability Assessment System 9 (OpenVAS-9).
+
+Many thanks to everyone who contributed to this release:
+Hani Benhabiles, Christian Fischer, Matt Mundell, Juan Jose Nicola,
+Timo Pollmeier and Michael Wiegand.
+
+Main changes compared to 9.0.2:
+* Minimum required openvas-smb version to have WMI support has been raised
+  to 1.0.4.
+* An issue related to a value inserted in nvticache has been addressed.
+* Support to specify a regex-based mandatory key has been added.
+* Nvticache cleanup has been improved.
+* Handling of duplicate nvt warning has been improved.
+* An issue related to the support for radcli library has been addressed.
+
 openvas-libraries 9.0.2 (2018-03-07)
 
 This is the second maintenance release of the openvas-libraries 9.0
