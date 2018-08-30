@@ -898,6 +898,28 @@ gvm_host_free (gpointer host)
 }
 
 /**
+ * @brief Creates a gvm_host_t object from a host string.
+ * Strings for multiple hosts like lists or ranges will give NULL.
+ *
+ * @param[in]  host_str   The host string to convert.
+ *
+ * @return  The converted host or NULL.
+ */
+static gvm_host_t *
+gvm_host_from_str (const char *host_str)
+{
+  gvm_host_t *host;
+  gvm_hosts_t *hosts = gvm_hosts_new (host_str);
+  if (gvm_hosts_count (hosts) != 1)
+    return NULL;
+  host = hosts->hosts->data;
+  g_free (hosts->orig_str);
+  g_list_free (hosts->hosts);
+  g_free (hosts);
+  return host;
+}
+
+/**
  * @brief Removes duplicate hosts values from an gvm_hosts_t structure.
  * Also resets the iterator current position.
  *
@@ -1747,6 +1769,193 @@ gvm_host_in_hosts (const gvm_host_t *host, const struct in6_addr *addr,
 
   g_free (host_str);
   return 0;
+}
+
+/**
+ * @brief Returns whether a host has an equal host in a hosts string.
+ * eg. 192.168.10.1 has an equal in a hosts string
+ * "192.168.10.1-5, 192.168.10.10-20" string while 192.168.10.7 doesn't.
+ *
+ * @param[in] host        The host object to find.
+ * @param[in] hosts_str   Hosts string to check.
+ *
+ * @return 1 if host has equal in hosts_str, 0 otherwise.
+ */
+static int
+gvm_host_in_hosts_str (const gvm_host_t *host, const char *hosts_str)
+{
+  gchar *normalized_str, *str;
+  gchar **host_element, **split;
+  int found;
+
+  /* Normalize separator: Transform newlines into commas. */
+  normalized_str = g_strdup(hosts_str);
+  str = normalized_str;
+  while (*str)
+    {
+      if (*str == '\n') *str = ',';
+      str++;
+    }
+
+  /* Split comma-separated list into single host-specifications */
+  split = g_strsplit (normalized_str, ",", 0);
+  g_free (normalized_str);
+
+  /* first element of the splitted list */
+  found = 0;
+  host_element = split;
+  while (*host_element && !(found))
+    {
+      unsigned int host_type;
+      gchar *stripped = g_strstrip (*host_element);
+
+      if (stripped == NULL || *stripped == '\0')
+        {
+          host_element++;
+          continue;
+        }
+
+      /* IPv4, hostname, IPv6, collection (short/long range, cidr block) etc,. ? */
+      /* -1 if error. */
+      host_type = gvm_get_host_type (stripped);
+
+      switch (host_type)
+        {
+          case HOST_TYPE_NAME:
+            {
+              if (host->type != HOST_TYPE_NAME)
+                break;
+
+              if (strcmp (host->name, stripped) == 0)
+                found = 1;
+              break;
+            }
+          case HOST_TYPE_IPV4:
+            {
+              struct in_addr addr;
+              if (host->type != HOST_TYPE_IPV4
+                  || inet_pton (AF_INET, stripped, &addr) != 1)
+                break;
+
+              if (addr.s_addr == host->addr.s_addr)
+                found = 1;
+              break;
+            }
+          case HOST_TYPE_IPV6:
+            {
+              struct in6_addr addr6;
+              if (host->type != HOST_TYPE_IPV6
+                  || inet_pton (AF_INET6, stripped, &addr6) != 1)
+                break;
+
+              if (memcmp (&host->addr6, addr6.s6_addr, 16) == 0)
+                found = 1;
+              break;
+            }
+          case HOST_TYPE_CIDR_BLOCK:
+          case HOST_TYPE_RANGE_SHORT:
+          case HOST_TYPE_RANGE_LONG:
+            {
+              struct in_addr first, last;
+              int (*ips_func) (const char *, struct in_addr *, struct in_addr *);
+
+              if (host->type != HOST_TYPE_IPV4)
+                break;
+
+              if (host_type == HOST_TYPE_CIDR_BLOCK)
+                ips_func = cidr_block_ips;
+              else if (host_type == HOST_TYPE_RANGE_SHORT)
+                ips_func = short_range_network_ips;
+              else
+                ips_func = long_range_network_ips;
+
+              if (ips_func (stripped, &first, &last) == -1)
+                break;
+
+              /* Make sure that first actually comes before last */
+              if (ntohl (first.s_addr) > ntohl (last.s_addr))
+                break;
+
+              /* Check addresses */
+              if (ntohl (first.s_addr) <= ntohl (host->addr.s_addr)
+                  && ntohl (last.s_addr) >= ntohl (host->addr.s_addr))
+                found = 1;
+              break;
+            }
+          case HOST_TYPE_CIDR6_BLOCK:
+          case HOST_TYPE_RANGE6_LONG:
+          case HOST_TYPE_RANGE6_SHORT:
+            {
+              struct in6_addr first, last;
+              int (*ips_func) (const char *,
+                               struct in6_addr *, struct in6_addr *);
+
+              if (host->type != HOST_TYPE_IPV6)
+                break;
+
+              if (host_type == HOST_TYPE_CIDR6_BLOCK)
+                ips_func = cidr6_block_ips;
+              else if (host_type == HOST_TYPE_RANGE6_SHORT)
+                ips_func = short_range6_network_ips;
+              else
+                ips_func = long_range6_network_ips;
+
+              if (ips_func (stripped, &first, &last) == -1)
+                break;
+
+              /* Make sure the first comes before the last. */
+              if (memcmp (&first.s6_addr, &last.s6_addr, 16) > 0)
+                break;
+
+              /* Check addresses */
+              if (memcmp (&first.s6_addr,
+                          &(host->addr6).s6_addr, 16) <= 0
+                  && memcmp (&last.s6_addr,
+                             &host->addr6.s6_addr, 16) >= 0)
+                found = 1;
+
+              break;
+            }
+          case -1:
+          default:
+            {
+              /* Invalid host string. */
+              g_strfreev (split);
+              return FALSE;
+            }
+        }
+
+      host_element++;
+    }
+  g_strfreev (split);
+  return found;
+}
+
+/**
+ * @brief Returns whether a host has an equal host in a hosts string.
+ * eg. 192.168.10.1 has an equal in a hosts string
+ * "192.168.10.1-5, 192.168.10.10-20" string while 192.168.10.7 doesn't.
+ *
+ * @param[in] hosts_str       Hosts string to check.
+ * @param[in] find_host_str   The host string to find.
+ *
+ * @return 1 if host has equal in hosts_str, 0 otherwise.
+ */
+int
+gvm_hosts_str_contains (const char *hosts_str, const char *find_host_str)
+{
+  int ret;
+  gvm_host_t *host;
+
+  host = gvm_host_from_str (find_host_str);
+
+  if (host == NULL)
+    return 0;
+
+  ret = gvm_host_in_hosts_str (host, hosts_str);
+  gvm_host_free (host);
+
+  return ret;
 }
 
 /**
