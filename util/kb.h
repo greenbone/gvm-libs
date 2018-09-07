@@ -124,6 +124,7 @@ struct kb_operations
   int (*kb_new) (kb_t *, const char *);
   int (*kb_delete) (kb_t);
   kb_t (*kb_find) (const char *, const char *);
+  kb_t (*kb_direct_conn) (const char *, const int);
 
   /* Actual kb operations */
   struct kb_item *(*kb_get_single) (kb_t, const char *, enum kb_item_type);
@@ -148,6 +149,7 @@ struct kb_operations
   int (*kb_save) (kb_t);
   int (*kb_lnk_reset) (kb_t);
   int (*kb_flush) (kb_t, const char *);
+  int (*kb_get_kb_index) (kb_t);
 };
 
 /**
@@ -178,6 +180,20 @@ static inline int kb_new (kb_t *kb, const char *kb_path)
   *kb = NULL;
 
   return KBDefaultOperations->kb_new (kb, kb_path);
+}
+
+/**
+ * @brief Connect to a Knowledge Base object which has the given kb_index.
+ * @param[in] kb_path   Path to KB.
+ * @param[in] kb_index       DB index
+ * @return Knowledge Base object, NULL otherwise.
+ */
+static inline kb_t kb_direct_conn (const char *kb_path, const int kb_index)
+{
+  assert (KBDefaultOperations);
+  assert (KBDefaultOperations->kb_direct_conn);
+
+  return KBDefaultOperations->kb_direct_conn (kb_path, kb_index);
 }
 
 /**
@@ -552,6 +568,20 @@ static inline int kb_flush (kb_t kb, const char *except)
     rc = kb->kb_ops->kb_flush (kb, except);
 
   return rc;
+}
+
+/**
+ * @brief Retrun the kb index
+ * @param[in] kb KB handle.
+ * @return kb_index on success, null on error.
+ */
+static inline int kb_get_kb_index (kb_t kb)
+{
+  assert (kb);
+  assert (kb->kb_ops);
+  assert (kb->kb_ops->kb_get_kb_index);
+
+  return kb->kb_ops->kb_get_kb_index (kb);
 }
 
 #endif

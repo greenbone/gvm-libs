@@ -455,6 +455,20 @@ redis_delete (kb_t kb)
   return 0;
 }
 
+/**
+ * @brief Retrun the kb index
+ * @param[in] kb KB handle.
+ * @return kb_index on success, null on error.
+ */
+static int
+redis_get_kb_index (kb_t kb)
+{
+  int i;
+  i = ((struct kb_redis *) kb)->db;
+  if (i > 0)
+    return i;
+  return -1;
+}
 
 /**
  * @brief Initialize a new Knowledge Base object.
@@ -484,6 +498,46 @@ redis_new (kb_t *kb, const char *kb_path)
   *kb = (kb_t)kbr;
 
   return rc;
+}
+
+/**
+ * @brief Connect to a Knowledge Base object with the given kb_index.
+ * @param[in] kb_path   Path to KB.
+ * @param[in] kb_index       DB index
+ * @return Knowledge Base object, NULL otherwise.
+ */
+static kb_t
+redis_direct_conn (const char *kb_path, const int kb_index)
+{
+  struct kb_redis *kbr;
+  redisReply *rep;
+
+  kbr = g_malloc0 (sizeof (struct kb_redis) + strlen (kb_path) + 1);
+  kbr->kb.kb_ops = &KBRedisOperations;
+  strncpy (kbr->path, kb_path, strlen (kb_path));
+
+  kbr->rctx = redisConnectUnix (kbr->path);
+  if (kbr->rctx == NULL || kbr->rctx->err)
+    {
+      g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+             "%s: redis connection error: %s", __func__,
+             kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
+      redisFree (kbr->rctx);
+      g_free (kbr);
+      return NULL;
+    }
+  kbr->db = kb_index;
+  rep = redisCommand (kbr->rctx, "SELECT %d", kb_index);
+  if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
+    {
+      if (rep != NULL)
+        freeReplyObject (rep);
+      redisFree (kbr->rctx);
+      kbr->rctx = NULL;
+      return NULL;
+    }
+  freeReplyObject (rep);
+  return (kb_t) kbr;
 }
 
 /**
@@ -1639,6 +1693,8 @@ static const struct kb_operations KBRedisOperations = {
   .kb_lnk_reset    = redis_lnk_reset,
   .kb_save         = redis_save,
   .kb_flush        = redis_flush_all,
+  .kb_direct_conn  = redis_direct_conn,
+  .kb_get_kb_index = redis_get_kb_index,
 };
 
 const struct kb_operations *KBDefaultOperations = &KBRedisOperations;
