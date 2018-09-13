@@ -37,7 +37,10 @@
 #include "support.h"
 
 #define MAXROUTES 1024
-
+/* MAXHOSTNAMELEN doesn't exist on some architectures like hurd i386 */
+#ifndef MAXHOSTNAMELEN
+#define MAXHOSTNAMELEN 64
+#endif
 
 struct interface_info
 {
