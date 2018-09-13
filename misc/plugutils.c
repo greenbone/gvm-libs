@@ -50,6 +50,11 @@
 #include "../base/nvticache.h" /* for nvticache_get_by_oid() */
 #include "../base/kb.h"
 
+/* MAXPATHLEN doesn't exist on some architectures like hurd i386 */
+#ifndef MAXPATHLEN
+#define MAXPATHLEN 4096
+#endif
+
 /* Used to allow debugging for openvas-nasl */
 int global_nasl_debug = 0;
 
