@@ -73,10 +73,10 @@ tree_cell *decl_global_variables (lex_ctxt *, tree_cell *);
 tree_cell *cell2atom (lex_ctxt *, tree_cell *);
 
 
-int get_int_var_by_num (lex_ctxt *, int, int);
+long int get_int_var_by_num (lex_ctxt *, int, int);
 char *get_str_var_by_num (lex_ctxt *, int);
-int get_int_var_by_name (lex_ctxt *, const char *, int);
-int get_int_local_var_by_name (lex_ctxt *, const char *, int);
+long int get_int_var_by_name (lex_ctxt *, const char *, int);
+long int get_int_local_var_by_name (lex_ctxt *, const char *, int);
 char *get_str_var_by_name (lex_ctxt *, const char *);
 char *get_str_local_var_by_name (lex_ctxt *, const char *);
 

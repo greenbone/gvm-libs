@@ -275,15 +275,11 @@ proto_post_wrapped (const char *oid, struct arglist *desc, int port, const char 
   char *buffer, *data, **nvti_tags = NULL;
   GString *action_str;
   gsize length;
-  nvti_t *nvti;
 
   /* Should not happen, just to avoid trouble stop here if no NVTI found */
   if (!nvticache_initialized () || !oid)
     return;
 
-  nvti = nvticache_get_by_oid_full (oid);
-  if (!nvti)
-    return;
   if (action == NULL)
     action_str = g_string_new ("");
   else
@@ -297,7 +293,9 @@ proto_post_wrapped (const char *oid, struct arglist *desc, int port, const char 
 
   if (prepend_tags || append_tags)
     {
-      nvti_tags = g_strsplit (nvti_tag (nvti), "|", 0);
+      char *tags = nvticache_get_tags (oid);
+      nvti_tags = g_strsplit (tags, "|", 0);
+      g_free (tags);
     }
 
   /* This is convenience functionality in preparation for the breaking up of the
@@ -412,7 +410,6 @@ proto_post_wrapped (const char *oid, struct arglist *desc, int port, const char 
   /* Mark in the KB that the plugin was successful */
   mark_successful_plugin (oid, desc);
 
-  nvti_free (nvti);
   g_free (buffer);
   g_string_free (action_str, TRUE);
 }
@@ -480,16 +477,14 @@ get_plugin_preference (const char *oid, const char *name)
 {
   struct arglist *prefs;
   char *plug_name, *cname, *retval = NULL;
-  nvti_t * nvti;
 
   prefs = preferences_get ();
   if (!prefs || !nvticache_initialized () || !oid || !name)
     return NULL;
 
-  nvti = nvticache_get_by_oid_full (oid);
-  if (!nvti) return NULL;
-
-  plug_name = nvti_name (nvti);
+  plug_name = nvticache_get_name (oid);
+  if (!plug_name)
+    return NULL;
   cname = g_strdup (name);
 
   g_strchomp (cname);
@@ -522,21 +517,23 @@ get_plugin_preference (const char *oid, const char *name)
   /* If no value set by the user, get the default one. */
   if (!retval)
     {
-       unsigned int i;
+       GSList *tmp, *nprefs;
 
-       for (i = 0; i < nvti_pref_len (nvti); i++)
+       tmp = nprefs = nvticache_get_prefs (oid);
+       while (tmp)
          {
-           const nvtpref_t *nvtpref = nvti_pref (nvti, i);
+           const nvtpref_t *nvtpref = tmp->data;
            if (!strcmp (cname, nvtpref_name (nvtpref)))
               {
                 retval = g_strdup (nvtpref_default (nvtpref));
                 break;
               }
+           tmp = tmp->next;
          }
+       g_slist_free_full (nprefs, (void (*) (void *)) nvtpref_free);
     }
 
   g_free (cname);
-  nvti_free (nvti);
   return retval;
 }
 

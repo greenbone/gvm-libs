@@ -40,6 +40,9 @@
 #include "nasl_signature.h"
 
 static void naslerror(naslctxt *, const char *);
+
+GHashTable *includes_hash = NULL;
+
 #define YYERROR_VERBOSE
 %}
 
@@ -290,28 +293,43 @@ inc: INCLUDE '(' string ')'
 	{
           char *tmp;
 	  naslctxt	subctx;
-	  int		x;
 
+          bzero (&subctx, sizeof (subctx));
           subctx.always_authenticated = ((naslctxt*)parm)->always_authenticated;
           subctx.kb = ((naslctxt *) parm)->kb;
-          x = init_nasl_ctx(&subctx, $3);
+          subctx.tree = ((naslctxt *) parm)->tree;
           $$ = NULL;
           tmp = g_strdup (nasl_get_filename (NULL));
           nasl_set_filename ($3);
-          if (x >= 0)
+          if (!includes_hash)
+            includes_hash = g_hash_table_new_full
+                             (g_str_hash, g_str_equal, g_free,
+                              (GDestroyNotify) deref_cell);
+
+          if ((subctx.tree = g_hash_table_lookup (includes_hash, $3)))
             {
-              if (! naslparse(&subctx))
+              $$ = subctx.tree;
+              ref_cell ($$);
+              g_free ($3);
+            }
+          else if (init_nasl_ctx (&subctx, $3) >= 0)
+            {
+              if (!naslparse (&subctx))
                 {
                   $$ = subctx.tree;
+                  g_hash_table_insert (includes_hash, $3, $$);
+                  ref_cell ($$);
                 }
               else
-                nasl_perror(NULL, "%s: Parse error at or near line %d\n",
-                        $3, subctx.line_nb);
+                {
+                  nasl_perror (NULL, "%s: Parse error at or near line %d\n",
+                               $3, subctx.line_nb);
+                  g_free ($3);
+                }
 	      g_free(subctx.buffer);
 	      subctx.buffer = NULL;
 	      fclose(subctx.fp);
 	      subctx.fp = NULL;
-	      g_free($3);
 	    }
           else
             {
@@ -481,7 +499,9 @@ glob: GLOBAL arg_decl
 #include <stdio.h>
 #include <stdlib.h>
 #include "../misc/openvas_logging.h"
+#include "../misc/prefs.h"
 #include "../base/openvas_file.h"
+#include <libgen.h>
 #include <gcrypt.h>
 
 static void
@@ -533,28 +553,121 @@ add_nasl_inc_dir (const char * dir)
 }
 
 /**
- * @brief Get the md5sum of a file.
+ * @brief Get the checksum of a file.
  *
  * @param[in]  filename     Path to file.
+ * @param[in]  algorithm    1 for md5, 2 for sha256.
  *
- * @return md5sum string, NULL otherwise.
+ * @return checksum string, NULL otherwise.
  */
 static char *
-file_md5sum (const char *filename)
+file_checksum (const char *filename, int algorithm)
 {
-  char *content = NULL, digest[16], *result;
-  size_t len = 0, i;
+  char *content = NULL, digest[128], *result;
+  size_t len = 0, i, alglen;
 
+  assert (algorithm == GCRY_MD_MD5 || algorithm == GCRY_MD_SHA256);
   if (!filename || !g_file_get_contents (filename, &content, &len, NULL))
     return NULL;
 
-  gcry_md_hash_buffer (GCRY_MD_MD5, digest, content, len);
-  result = g_malloc0 (33);
-  for (i = 0; i < 16; i++)
+  gcry_md_hash_buffer (algorithm, digest, content, len);
+  alglen = gcry_md_get_algo_dlen (algorithm);
+  result = g_malloc0 (alglen * 2 + 1);
+  for (i = 0; i < alglen; i++)
     snprintf (result + 2 * i, 3, "%02x", (unsigned char) digest[i]);
   g_free (content);
 
   return result;
+}
+
+static int checksum_algorithm = GCRY_MD_NONE;
+
+static char checksum_file[2048];
+
+static void
+init_checksum_algorithm (void)
+{
+  const char *base = prefs_get ("plugins_folder");
+
+  checksum_algorithm = GCRY_MD_SHA256;
+  snprintf (checksum_file, sizeof (checksum_file), "%s/sha256sums", base);
+  if (g_file_test (checksum_file, G_FILE_TEST_EXISTS))
+    return;
+  checksum_algorithm = GCRY_MD_MD5;
+  snprintf (checksum_file, sizeof (checksum_file), "%s/md5sums", base);
+  if (g_file_test (checksum_file, G_FILE_TEST_EXISTS))
+    return;
+  if (checksum_algorithm == GCRY_MD_NONE)
+    {
+      log_legacy_write ("No plugins checksums file");
+      return;
+    }
+}
+
+static void
+load_checksums (kb_t kb)
+{
+  static int loaded = 0;
+  const char *base, *prefix;
+  FILE *file;
+
+  if (loaded)
+    return;
+  loaded = 1;
+  /* Verify checksum */
+  base = prefs_get ("plugins_folder");
+  if (nasl_verify_signature (checksum_file) != 0)
+    {
+      log_legacy_write ("Erroneous or missing signature for checksums file %s",
+                        checksum_file);
+      return;
+    }
+
+  /* Insert content into KB */
+  file = fopen (checksum_file, "r");
+  if (!file)
+    {
+      log_legacy_write ("%s: Couldn't read file %s", __FUNCTION__,
+                        checksum_file);
+      return;
+    }
+  if (checksum_algorithm == GCRY_MD_MD5)
+    {
+      kb_del_items (kb, "md5sums:*");
+      prefix = "md5sums";
+    }
+  else
+    {
+      kb_del_items (kb, "sha256sums:*");
+      prefix = "sha256sums";
+    }
+  while (1)
+    {
+      char buffer[2048], **splits;
+      if (!fgets (buffer, sizeof (buffer), file))
+        break;
+      if (strstr (buffer, ".asc")
+          || (!strstr (buffer, ".inc") && !strstr (buffer, ".nasl")))
+        continue;
+      splits = g_strsplit (buffer, "  ", -1);
+      if (g_strv_length (splits) != 2)
+        {
+          log_legacy_write ("%s: Erroneous checksum entry %s", __FUNCTION__,
+                            buffer);
+          g_strfreev (splits);
+          break;
+        }
+      splits[1][strlen (splits[1]) - 1] = '\0';
+      if (strstr (splits[1], ".inc"))
+        g_snprintf (buffer, sizeof (buffer), "%s:%s", prefix,
+                    basename (splits[1]));
+      else
+        g_snprintf (buffer, sizeof (buffer), "%s:%s/%s", prefix, base,
+                    splits[1]);
+      kb_item_set_str (kb, buffer, splits[0]);
+      g_strfreev (splits);
+    }
+  fclose (file);
 }
 
 /**
@@ -576,7 +689,7 @@ file_md5sum (const char *filename)
 int
 init_nasl_ctx(naslctxt* pc, const char* name)
 {
-  char *full_name = NULL, key_path[2048];
+  char *full_name = NULL, key_path[2048], *checksum, *filename, *check = NULL;
   GSList * inc_dir = inc_dirs; // iterator for include directories
 
   // initialize if not yet done (for openvas-server < 2.0.1)
@@ -611,59 +724,67 @@ init_nasl_ctx(naslctxt* pc, const char* name)
       g_free(full_name);
       return 0;
     }
-  /* Cache the md5sum of signature verified files, so that commonly included
+  /* Cache the checksum of signature verified files, so that commonly included
    * files are not verified multiple times per scan. */
-  if (pc->kb)
-    {
-      char *check, *md5sum;
 
-      snprintf (key_path, sizeof (key_path), "SignatureCheck/%s", full_name);
-      check = kb_item_get_str (pc->kb, key_path);
-      if (!check)
-        ;
-      else if (!strcmp (check, "0"))
+  filename = full_name;
+  if (strstr (full_name, ".inc"))
+    filename = basename (full_name);
+  init_checksum_algorithm ();
+  if (checksum_algorithm == GCRY_MD_NONE)
+    return -1;
+
+  snprintf (key_path, sizeof (key_path), "checksum:%s", filename);
+  checksum = kb_item_get_str (pc->kb, key_path);
+  if (checksum)
+    {
+      int ret;
+      check = file_checksum (full_name, checksum_algorithm);
+      ret = strcmp (check, checksum);
+      if (!ret)
         {
+          /* Already checked. No need to check again. */
           g_free (full_name);
+          g_free (checksum);
           g_free (check);
-          return -1;
+          return 0;
         }
-      else
-        {
-          md5sum = file_md5sum (full_name);
-          if (!strcmp (check, md5sum))
-            {
-              /* md5sum of file matches. No need to reverify. */
-              g_free (full_name);
-              g_free (md5sum);
-              g_free (check);
-              return 0;
-            }
-          /* Different md5sum. Reverify. */
-          g_free (check);
-          g_free (md5sum);
-        }
+      g_free (checksum);
+      g_free (check);
     }
 
-  if (nasl_verify_signature(full_name) != 0)
+  load_checksums (pc->kb);
+  if (checksum_algorithm == GCRY_MD_MD5)
+    snprintf (key_path, sizeof (key_path), "md5sums:%s", filename);
+  else if (checksum_algorithm == GCRY_MD_SHA256)
+    snprintf (key_path, sizeof (key_path), "sha256sums:%s", filename);
+  else
+    abort ();
+  checksum = kb_item_get_str (pc->kb, key_path);
+  if (!checksum)
     {
-      log_legacy_write ("%s: Will not execute. Bad or missing signature",
-                        full_name);
-      if (pc->kb)
-        kb_item_add_str (pc->kb, key_path, "0");
-      fclose(pc->fp);
-      pc->fp = NULL;
-      g_free(full_name);
+      log_legacy_write ("No checksum for %s", full_name);
+      g_free (full_name);
       return -1;
     }
-  if (pc->kb)
+  else
     {
-      char *md5sum = file_md5sum (full_name);
-      kb_item_add_str (pc->kb, key_path, md5sum);
-      g_free (md5sum);
-    }
+      int ret;
 
-  g_free(full_name);
-  return 0;
+      check = file_checksum (full_name, checksum_algorithm);
+      ret = strcmp (check, checksum);
+      if (ret)
+        log_legacy_write ("checksum for %s not matching", full_name);
+      else
+        {
+          snprintf (key_path, sizeof (key_path), "checksum:%s", filename);
+          kb_item_set_str (pc->kb, key_path, check);
+        }
+      g_free (full_name);
+      g_free (checksum);
+      g_free (check);
+      return ret;
+    }
 }
 
 void
@@ -680,6 +801,15 @@ nasl_clean_ctx(naslctxt* c)
       fclose(c->fp);
       c->fp = NULL;
     }
+}
+
+void
+nasl_clean_inc (void)
+{
+  if (!includes_hash)
+    return;
+  g_hash_table_destroy (includes_hash);
+  includes_hash = NULL;
 }
 
 enum lex_state {

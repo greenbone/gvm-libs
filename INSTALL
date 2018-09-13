@@ -22,7 +22,7 @@ General build environment:
 Specific development libraries:
 * libglib >= 2.32
 * libgnutls >= 3.2.15
-* libgcrypt
+* libgcrypt >= 1.6
 * zlib
 * libpcap
 * libgpgme >= 1.1.2
@@ -37,7 +37,7 @@ Prerequisites for building documentation:
 * sqlfairy (optional, for producing database diagram)
 
 Recommended to have WMI support:
-* openvas-smb >= 1.0.1
+* openvas-smb >= 1.0.4
 
 Recommended to have improved SNMP support:
 * netsnmp

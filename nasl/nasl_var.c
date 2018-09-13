@@ -1089,7 +1089,7 @@ nasl_incr_variable (lex_ctxt * lexic, tree_cell * tc, int pre, int val)
 }
 
 
-static int
+static long int
 var2int (anon_nasl_var * v, int defval)
 {
   if (v == NULL)
@@ -1222,21 +1222,21 @@ var2str (const anon_nasl_var * v)
     }
 }
 
-int
+long int
 get_int_var_by_num (lex_ctxt * lexic, int num, int defval)
 {
   anon_nasl_var *v = get_var_ref_by_num (lexic, num);
   return var2int (v, defval);
 }
 
-int
+long int
 get_int_var_by_name (lex_ctxt * lexic, const char *name, int defval)
 {
   named_nasl_var *v = get_var_ref_by_name (lexic, name, 1);
   return var2int (&v->u, defval);
 }
 
-int
+long int
 get_int_local_var_by_name (lex_ctxt * lexic, const char *name, int defval)
 {
   named_nasl_var *v = get_var_ref_by_name (lexic, name, 0);
