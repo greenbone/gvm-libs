@@ -35,6 +35,10 @@
 #include <sys/stat.h>  /* for mkdir */
 #include <unistd.h>    /* for access, F_OK */
 #include <gpg-error.h> /* for gpg_err_source, gpg_strerror, gpg_error_from... */
+#include <string.h>    /* for strlen */
+#include <stdlib.h>    /* for mkdtemp */
+
+#include "fileutils.h"
 
 #undef G_LOG_DOMAIN
 /**
@@ -168,4 +172,141 @@ gvm_init_gpgme_ctx_from_dir (const gchar *dir)
     log_gpgme (G_LOG_LEVEL_WARNING, err, "Creating GPGME context failed");
 
   return ctx;
+}
+
+/**
+ * @brief Import a key or certificate given by a string.
+ *
+ * @param[in]  ctx      The GPGME context to import the key / certificate into.
+ * @param[in]  key_str  Key or certificate string.
+ * @param[in]  key_len  Length of key/certificate string or -1 to use strlen.
+ * @param[in]  key_type The expected key type.
+ * 
+ * @return 0 success, 1 invalid key data, 2 unexpected key data, -1 error.
+ */
+int
+gvm_gpg_import_from_string (gpgme_ctx_t ctx,
+                            const char *key_str, ssize_t key_len,
+                            gpgme_data_type_t key_type)
+{
+  gpgme_data_t key_data;
+  gpgme_error_t err;
+
+  gpgme_data_new_from_mem (&key_data, key_str,
+                           (key_len >= 0 ? key_len 
+                                         : (ssize_t) strlen(key_str)),
+                           0);
+
+  if (gpgme_data_identify (key_data, 0) != key_type)
+    {
+      int ret;
+      gpgme_data_type_t given_key_type = gpgme_data_identify (key_data, 0);
+      if (given_key_type == GPGME_DATA_TYPE_INVALID)
+        {
+          ret = 1;
+          g_warning ("%s: key_str is invalid", __FUNCTION__);
+        }
+      else
+        {
+          ret = 2;
+          g_warning ("%s: key_str is not the expected type: "
+                     " expected: %d, got %d", __FUNCTION__,
+                     key_type, given_key_type);
+        }
+      gpgme_data_release (key_data);
+      return ret;
+    }
+
+  err = gpgme_op_import (ctx, key_data);
+  gpgme_data_release (key_data);
+  if (err)
+    {
+      g_warning ("%s: Import failed: %s",
+                 __FUNCTION__, gpgme_strerror (err));
+      return -1;
+    }
+
+  return 0;
+}
+
+/**
+ * @brief Encrypt a stream for a PGP public key, writing to another stream.
+ *
+ * The output will use ASCII armor mode and no compression.
+ *
+ * @param[in]  plain_file       Stream / FILE* providing the plain text.
+ * @param[in]  encrypted_file   Stream to write the encrypted text to.
+ * @param[in]  public_key_str   String containing the public key.
+ * @param[in]  public_key_len   Length of public key or -1 to use strlen.
+ */
+int
+gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
+                               const char *public_key_str,
+                               ssize_t public_key_len)
+{
+  char gpg_temp_dir[] = "/tmp/gvmd-gpg-XXXXXX";
+  gpgme_ctx_t ctx;
+  gpgme_data_t plain_data, encrypted_data;
+  gpgme_key_t public_key;
+  gpgme_key_t keys[2] = { NULL, NULL };
+  gpgme_error_t err;
+  gpgme_encrypt_flags_t encrypt_flags;
+
+  // Create temporary GPG home directory, set up context and encryption flags
+  if (mkdtemp (gpg_temp_dir) == NULL)
+    {
+      g_warning ("%s: mkdtemp failed\n", __FUNCTION__);
+      return -1;
+    }
+
+  gpgme_new (&ctx);
+  gpgme_ctx_set_engine_info (ctx, GPGME_PROTOCOL_OpenPGP, NULL, gpg_temp_dir);
+  gpgme_set_armor (ctx, 1);
+  encrypt_flags = GPGME_ENCRYPT_ALWAYS_TRUST | GPGME_ENCRYPT_NO_COMPRESS;
+
+  // Import public key into context
+  err = gvm_gpg_import_from_string (ctx, public_key_str, public_key_len,
+                                    GPGME_DATA_TYPE_PGP_KEY);
+  if (err)
+    {
+      g_warning ("%s: Import of public key failed: %s",
+                 __FUNCTION__, gpgme_strerror (err));
+      gpgme_release (ctx);
+      gvm_file_remove_recurse (gpg_temp_dir);
+      return -1;
+    }
+
+  // Get imported public key
+  gpgme_op_keylist_start (ctx, NULL, 0);
+  err = gpgme_op_keylist_next (ctx, &public_key);
+  if (err)
+    {
+      g_warning ("%s: Could not get imported public key: %s",
+                 __FUNCTION__, gpgme_strerror (err));
+      gpgme_release (ctx);
+      gvm_file_remove_recurse (gpg_temp_dir);
+      return -1;
+    }
+  keys[0] = public_key;
+
+  // Set up data objects for input and output streams
+  gpgme_data_new_from_stream (&plain_data, plain_file);
+  gpgme_data_new_from_stream (&encrypted_data, encrypted_file);
+
+  // Encrypt data
+  err = gpgme_op_encrypt (ctx, keys, encrypt_flags,
+                          plain_data, encrypted_data);
+
+  if (err)
+    {
+      g_warning ("%s: Encryption failed: %s",
+                 __FUNCTION__, gpgme_strerror (err));
+      gpgme_data_release (plain_data);
+      gpgme_data_release (encrypted_data);
+      gpgme_release (ctx);
+      gvm_file_remove_recurse (gpg_temp_dir);
+      return -1;
+    }
+
+  return 0;
 }
