@@ -494,12 +494,12 @@ nasl_ssh_connect (lex_ctxt *lexic)
   int verbose = 0;
   int forced_sock = -1;
 
-  sock = get_int_local_var_by_name (lexic, "socket", 0);
+  sock = get_int_var_by_name (lexic, "socket", 0);
   if (sock)
     port = 0; /* The port is ignored if "socket" is given.  */
   else
     {
-      port = get_int_local_var_by_name (lexic, "port", 0);
+      port = get_int_var_by_name (lexic, "port", 0);
       if (port <= 0)
         port = get_ssh_port (lexic);
     }
@@ -540,7 +540,7 @@ nasl_ssh_connect (lex_ctxt *lexic)
       return NULL;
     }
 
-  key_type = get_str_local_var_by_name (lexic, "keytype");
+  key_type = get_str_var_by_name (lexic, "keytype");
 #if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 6, 0)
   if (key_type && ssh_options_set (session, SSH_OPTIONS_HOSTKEYS, key_type))
     {
@@ -558,7 +558,7 @@ nasl_ssh_connect (lex_ctxt *lexic)
     }
 #endif
 
-  csciphers = get_str_local_var_by_name (lexic, "csciphers");
+  csciphers = get_str_var_by_name (lexic, "csciphers");
   if (csciphers && ssh_options_set (session, SSH_OPTIONS_CIPHERS_C_S, csciphers))
     {
       log_legacy_write ("Failed to set SSH client to server ciphers '%s': %s",
@@ -566,7 +566,7 @@ nasl_ssh_connect (lex_ctxt *lexic)
       ssh_free (session);
       return NULL;
     }
-  scciphers = get_str_local_var_by_name (lexic, "scciphers");
+  scciphers = get_str_var_by_name (lexic, "scciphers");
   if (scciphers && ssh_options_set (session, SSH_OPTIONS_CIPHERS_S_C, scciphers))
     {
       log_legacy_write ("Failed to set SSH server to client ciphers '%s': %s",
@@ -966,7 +966,7 @@ nasl_ssh_set_login (lex_ctxt *lexic)
       kb_t kb;
       char *username;
 
-      username = get_str_local_var_by_name (lexic, "login");
+      username = get_str_var_by_name (lexic, "login");
       if (!username)
         {
           kb = plug_get_kb (lexic->script_infos);
@@ -1070,9 +1070,9 @@ nasl_ssh_userauth (lex_ctxt *lexic)
     return NULL;
 
   kb = plug_get_kb (lexic->script_infos);
-  password = get_str_local_var_by_name (lexic, "password");
-  privkeystr = get_str_local_var_by_name (lexic, "privatekey");
-  privkeypass = get_str_local_var_by_name (lexic, "passphrase");
+  password = get_str_var_by_name (lexic, "password");
+  privkeystr = get_str_var_by_name (lexic, "privatekey");
+  privkeypass = get_str_var_by_name (lexic, "passphrase");
   if (!password && !privkeystr && !privkeypass)
     {
       password = kb_item_get_str (kb, "Secret/SSH/password");
@@ -1402,7 +1402,7 @@ nasl_ssh_login_interactive_pass (lex_ctxt *lexic)
   verbose = session_table[tbl_slot].verbose;
 
   /* A prompt is waiting for the password. */
-  if ((password = get_str_local_var_by_name (lexic, "password")) == NULL)
+  if ((password = get_str_var_by_name (lexic, "password")) == NULL)
     return NULL;
 
   rc = ssh_userauth_kbdint_setanswer (session, 0, password);
@@ -1621,15 +1621,15 @@ nasl_ssh_request_exec (lex_ctxt *lexic)
 
   verbose = session_table[tbl_slot].verbose;
 
-  cmd = get_str_local_var_by_name (lexic, "cmd");
+  cmd = get_str_var_by_name (lexic, "cmd");
   if (!cmd || !*cmd)
     {
       log_legacy_write ("No command passed to ssh_request_exec\n");
       return NULL;
     }
 
-  to_stdout = get_int_local_var_by_name (lexic, "stdout", -1);
-  to_stderr = get_int_local_var_by_name (lexic, "stderr", -1);
+  to_stdout = get_int_var_by_name (lexic, "stdout", -1);
+  to_stderr = get_int_var_by_name (lexic, "stderr", -1);
   compat_mode = 0;
   if (to_stdout == -1 && to_stderr == -1)
     {
@@ -2082,7 +2082,7 @@ nasl_ssh_shell_write (lex_ctxt *lexic)
       goto write_ret;
     }
 
-  cmd = get_str_local_var_by_name (lexic, "cmd");
+  cmd = get_str_var_by_name (lexic, "cmd");
   if (!cmd || !*cmd)
     {
       log_legacy_write ("ssh_shell_write: No command passed");

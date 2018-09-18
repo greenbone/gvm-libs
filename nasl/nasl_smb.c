@@ -53,7 +53,7 @@
 #include "../misc/plugutils.h"
 #include "../misc/openvas_logging.h"
 
-#define IMPORT(var) char *var = get_str_local_var_by_name(lexic, #var)
+#define IMPORT(var) char *var = get_str_var_by_name(lexic, #var)
 
 /**
  * @brief Get a version string of the SMB implementation.
@@ -99,9 +99,9 @@ nasl_smb_connect (lex_ctxt * lexic)
   struct arglist *script_infos = lexic->script_infos;
   struct in6_addr *host = plug_get_host_ip (script_infos);
   char *ip;
-  char *username = get_str_local_var_by_name (lexic, "username");
-  char *password = get_str_local_var_by_name (lexic, "password");
-  char *share = get_str_local_var_by_name (lexic, "share");
+  char *username = get_str_var_by_name (lexic, "username");
+  char *password = get_str_var_by_name (lexic, "password");
+  char *share = get_str_var_by_name (lexic, "share");
 
   tree_cell *retc;
   SMB_HANDLE handle;
@@ -153,7 +153,7 @@ tree_cell *
 nasl_smb_close (lex_ctxt * lexic)
 {
   SMB_HANDLE handle =
-    (SMB_HANDLE) get_int_local_var_by_name (lexic, "smb_handle", 0);
+    (SMB_HANDLE) get_int_var_by_name (lexic, "smb_handle", 0);
   int ret;
   tree_cell *retc;
 
@@ -185,8 +185,8 @@ tree_cell *
 nasl_smb_file_SDDL (lex_ctxt * lexic)
 {
   SMB_HANDLE handle =
-    (SMB_HANDLE) get_int_local_var_by_name (lexic, "smb_handle", 0);
-  char *filename = get_str_local_var_by_name (lexic, "filename");
+    (SMB_HANDLE) get_int_var_by_name (lexic, "smb_handle", 0);
+  char *filename = get_str_var_by_name (lexic, "filename");
 
   if (!filename)
     {
@@ -230,8 +230,8 @@ tree_cell *
 nasl_smb_file_owner_sid (lex_ctxt * lexic)
 {
   SMB_HANDLE handle =
-    (SMB_HANDLE) get_int_local_var_by_name (lexic, "smb_handle", 0);
-  char *filename = get_str_local_var_by_name (lexic, "filename");
+    (SMB_HANDLE) get_int_var_by_name (lexic, "smb_handle", 0);
+  char *filename = get_str_var_by_name (lexic, "filename");
 
   if (!filename)
     {
@@ -275,8 +275,8 @@ tree_cell *
 nasl_smb_file_group_sid (lex_ctxt * lexic)
 {
   SMB_HANDLE handle =
-    (SMB_HANDLE) get_int_local_var_by_name (lexic, "smb_handle", 0);
-  char *filename = get_str_local_var_by_name (lexic, "filename");
+    (SMB_HANDLE) get_int_var_by_name (lexic, "smb_handle", 0);
+  char *filename = get_str_var_by_name (lexic, "filename");
 
   if (!filename)
     {
@@ -321,8 +321,8 @@ tree_cell *
 nasl_smb_file_trustee_rights (lex_ctxt * lexic)
 {
   SMB_HANDLE handle =
-    (SMB_HANDLE) get_int_local_var_by_name (lexic, "smb_handle", 0);
-  char *filename = get_str_local_var_by_name (lexic, "filename");
+    (SMB_HANDLE) get_int_var_by_name (lexic, "smb_handle", 0);
+  char *filename = get_str_var_by_name (lexic, "filename");
 
   if (!filename)
     {
