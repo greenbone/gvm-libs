@@ -38,7 +38,9 @@
 #include "../base/nvti.h"  /* for nvti_t */
 #include "kb.h"            /* for kb_t */
 
+#ifndef NVTICACHE_STR
 #define NVTICACHE_STR "nvticache10"
+#endif
 
 int
 nvticache_init (const char *, const char *);
