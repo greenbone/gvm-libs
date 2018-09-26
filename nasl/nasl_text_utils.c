@@ -450,10 +450,10 @@ nasl_toupper (lex_ctxt * lexic)
 tree_cell *
 nasl_ereg (lex_ctxt * lexic)
 {
-  char *pattern = get_str_local_var_by_name (lexic, "pattern");
-  char *string = get_str_local_var_by_name (lexic, "string");
-  int icase = get_int_local_var_by_name (lexic, "icase", 0);
-  int multiline = get_int_local_var_by_name (lexic, "multiline", 0);
+  char *pattern = get_str_var_by_name (lexic, "pattern");
+  char *string = get_str_var_by_name (lexic, "string");
+  int icase = get_int_var_by_name (lexic, "icase", 0);
+  int multiline = get_int_var_by_name (lexic, "multiline", 0);
   char *s;
   int copt = 0;
   tree_cell *retc;
@@ -652,10 +652,10 @@ _regreplace (const char *pattern, const char *replace, const char *string,
 tree_cell *
 nasl_ereg_replace (lex_ctxt * lexic)
 {
-  char *pattern = get_str_local_var_by_name (lexic, "pattern");
-  char *replace = get_str_local_var_by_name (lexic, "replace");
-  char *string = get_str_local_var_by_name (lexic, "string");
-  int icase = get_int_local_var_by_name (lexic, "icase", 0);
+  char *pattern = get_str_var_by_name (lexic, "pattern");
+  char *replace = get_str_var_by_name (lexic, "replace");
+  char *string = get_str_var_by_name (lexic, "string");
+  int icase = get_int_var_by_name (lexic, "icase", 0);
   char *r;
   tree_cell *retc;
 
@@ -695,9 +695,9 @@ nasl_ereg_replace (lex_ctxt * lexic)
 tree_cell *
 nasl_egrep (lex_ctxt * lexic)
 {
-  char *pattern = get_str_local_var_by_name (lexic, "pattern");
-  char *string = get_str_local_var_by_name (lexic, "string");
-  int icase = get_int_local_var_by_name (lexic, "icase", 0);
+  char *pattern = get_str_var_by_name (lexic, "pattern");
+  char *string = get_str_var_by_name (lexic, "string");
+  int icase = get_int_var_by_name (lexic, "icase", 0);
   tree_cell *retc;
   regex_t re;
   regmatch_t subs[NS];
@@ -803,9 +803,9 @@ nasl_egrep (lex_ctxt * lexic)
 tree_cell *
 nasl_eregmatch (lex_ctxt * lexic)
 {
-  char *pattern = get_str_local_var_by_name (lexic, "pattern");
-  char *string = get_str_local_var_by_name (lexic, "string");
-  int icase = get_int_local_var_by_name (lexic, "icase", 0);
+  char *pattern = get_str_var_by_name (lexic, "pattern");
+  char *string = get_str_var_by_name (lexic, "string");
+  int icase = get_int_var_by_name (lexic, "icase", 0);
   int copt = 0, i;
   tree_cell *retc;
   regex_t re;
@@ -969,9 +969,9 @@ nasl_insstr (lex_ctxt * lexic)
 tree_cell *
 nasl_match (lex_ctxt * lexic)
 {
-  char *pattern = get_str_local_var_by_name (lexic, "pattern");
-  char *string = get_str_local_var_by_name (lexic, "string");
-  int icase = get_int_local_var_by_name (lexic, "icase", 0);
+  char *pattern = get_str_var_by_name (lexic, "pattern");
+  char *string = get_str_var_by_name (lexic, "string");
+  int icase = get_int_var_by_name (lexic, "icase", 0);
   tree_cell *retc;
 
   if (pattern == NULL)
@@ -1014,7 +1014,7 @@ nasl_split (lex_ctxt * lexic)
   if (len <= 0)
     return NULL;
 
-  sep = get_str_local_var_by_name (lexic, "sep");
+  sep = get_str_var_by_name (lexic, "sep");
   if (sep != NULL)
     {
       sep_len = get_var_size_by_name (lexic, "sep");
@@ -1027,7 +1027,7 @@ nasl_split (lex_ctxt * lexic)
         }
     }
 
-  keep = get_int_local_var_by_name (lexic, "keep", 1);
+  keep = get_int_var_by_name (lexic, "keep", 1);
 
   retc = alloc_tree_cell (0, NULL);
   retc->type = DYN_ARRAY;
@@ -1139,9 +1139,9 @@ tree_cell *
 nasl_crap (lex_ctxt * lexic)
 {
   tree_cell *retc;
-  char *data = get_str_local_var_by_name (lexic, "data");
+  char *data = get_str_var_by_name (lexic, "data");
   int data_len = -1;
-  int len = get_int_local_var_by_name (lexic, "length", -1);
+  int len = get_int_var_by_name (lexic, "length", -1);
   int len2 = get_int_var_by_num (lexic, 0, -1);
 
   if (len < 0 && len2 < 0)
@@ -1283,13 +1283,13 @@ nasl_str_replace (lex_ctxt * lexic)
   tree_cell *retc = NULL;
 
 
-  a = get_str_local_var_by_name (lexic, "string");
-  b = get_str_local_var_by_name (lexic, "find");
-  r = get_str_local_var_by_name (lexic, "replace");
-  sz_a = get_local_var_size_by_name (lexic, "string");
-  sz_b = get_local_var_size_by_name (lexic, "find");
-  sz_r = get_local_var_size_by_name (lexic, "replace");
-  count = get_int_local_var_by_name (lexic, "count", 0);
+  a = get_str_var_by_name (lexic, "string");
+  b = get_str_var_by_name (lexic, "find");
+  r = get_str_var_by_name (lexic, "replace");
+  sz_a = get_var_size_by_name (lexic, "string");
+  sz_b = get_var_size_by_name (lexic, "find");
+  sz_r = get_var_size_by_name (lexic, "replace");
+  count = get_int_var_by_name (lexic, "count", 0);
 
   if (a == NULL || b == NULL)
     {
