@@ -57,7 +57,7 @@
 #include "openvas_wmi_interface.h"
 #include "../misc/openvas_logging.h"
 
-#define IMPORT(var) char *var = get_str_local_var_by_name(lexic, #var)
+#define IMPORT(var) char *var = get_str_var_by_name(lexic, #var)
 #define max 5
 
 /**
@@ -225,7 +225,7 @@ tree_cell *
 nasl_wmi_close (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
   if (!handle)
     return NULL;
 
@@ -257,8 +257,8 @@ tree_cell *
 nasl_wmi_query (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
-  char *query = get_str_local_var_by_name (lexic, "query");
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
+  char *query = get_str_var_by_name (lexic, "query");
   char *res = NULL;
   int value;
 
@@ -377,11 +377,11 @@ tree_cell *
 nasl_wmi_query_rsop (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
   if (!handle)
     return NULL;
 
-  char *query = get_str_local_var_by_name (lexic, "query");     // WQL query
+  char *query = get_str_var_by_name (lexic, "query");     // WQL query
   char *res = NULL;
   int value;
   tree_cell *retc = alloc_tree_cell (0, NULL);
@@ -495,14 +495,14 @@ tree_cell *
 nasl_wmi_reg_get_sz (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
 
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
-  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
-  char *key_name = get_str_local_var_by_name (lexic, "key_name");       // REGISTRY value name
+  unsigned int hive = get_int_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
+  char *key = get_str_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *key_name = get_str_var_by_name (lexic, "key_name");       // REGISTRY value name
 
   char *res = NULL;
   int value;
@@ -542,13 +542,13 @@ tree_cell *
 nasl_wmi_reg_enum_value (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
 
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
-  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
+  unsigned int hive = get_int_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
+  char *key = get_str_var_by_name (lexic, "key"); // REGISTRY KEY
 
   char *res = NULL;
   int value;
@@ -588,13 +588,13 @@ tree_cell *
 nasl_wmi_reg_enum_key (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
 
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
-  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
+  unsigned int hive = get_int_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
+  char *key = get_str_var_by_name (lexic, "key"); // REGISTRY KEY
 
   char *res = NULL;
   int value;
@@ -634,14 +634,14 @@ tree_cell *
 nasl_wmi_reg_get_bin_val (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
 
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
-  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
-  char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
+  unsigned int hive = get_int_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
+  char *key = get_str_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *val_name = get_str_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
   char *res = NULL;
   int value;
@@ -681,14 +681,14 @@ tree_cell *
 nasl_wmi_reg_get_dword_val (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
 
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
-  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
-  char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
+  unsigned int hive = get_int_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
+  char *key = get_str_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *val_name = get_str_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
   char *res = NULL;
   int value;
@@ -731,14 +731,14 @@ tree_cell *
 nasl_wmi_reg_get_ex_string_val (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
 
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
-  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
-  char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
+  unsigned int hive = get_int_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
+  char *key = get_str_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *val_name = get_str_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
   char *res = NULL;
   int value;
@@ -778,14 +778,14 @@ tree_cell *
 nasl_wmi_reg_get_mul_string_val (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
 
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
-  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
-  char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
+  unsigned int hive = get_int_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
+  char *key = get_str_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *val_name = get_str_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
   char *res = NULL;
   int value;
@@ -825,14 +825,14 @@ tree_cell *
 nasl_wmi_reg_get_qword_val (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
 
   if (!handle)
     return NULL;
 
-  unsigned int hive = get_int_local_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
-  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
-  char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
+  unsigned int hive = get_int_var_by_name (lexic, "hive", 0);     // REGISTRY Hive
+  char *key = get_str_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *val_name = get_str_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
 
   char *res = NULL;
   int value;
@@ -873,14 +873,14 @@ tree_cell *
 nasl_wmi_reg_set_dword_val (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
 
   if (!handle)
     return NULL;
 
-  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
-  char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
-  char *val = get_str_local_var_by_name (lexic, "val");  //REGISTERY VALUE TO SET
+  char *key = get_str_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *val_name = get_str_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
+  char *val = get_str_var_by_name (lexic, "val");  //REGISTERY VALUE TO SET
 
   uint32_t val1;
   int value;
@@ -925,14 +925,14 @@ tree_cell *
 nasl_wmi_reg_set_qword_val (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
 
   if (!handle)
     return NULL;
 
-  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
-  char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
-  char *val = get_str_local_var_by_name (lexic, "val");  //REGISTERY VALUE TO SET
+  char *key = get_str_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *val_name = get_str_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
+  char *val = get_str_var_by_name (lexic, "val");  //REGISTERY VALUE TO SET
 
   uint64_t val1;
   int value;
@@ -977,14 +977,14 @@ tree_cell *
 nasl_wmi_reg_set_ex_string_val (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
 
   if (!handle)
     return NULL;
 
-  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
-  char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
-  char *val = get_str_local_var_by_name (lexic, "val");  //REGISTERY VALUE TO SET
+  char *key = get_str_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *val_name = get_str_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
+  char *val = get_str_var_by_name (lexic, "val");  //REGISTERY VALUE TO SET
 
   int value;
 
@@ -1020,14 +1020,14 @@ tree_cell *
 nasl_wmi_reg_set_string_val (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
 
   if (!handle)
     return NULL;
 
-  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
-  char *val_name = get_str_local_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
-  char *val = get_str_local_var_by_name (lexic, "val");  //REGISTERY VALUE TO SET
+  char *key = get_str_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *val_name = get_str_var_by_name (lexic, "val_name");       // REGISTRY VALUE NAME
+  char *val = get_str_var_by_name (lexic, "val");  //REGISTERY VALUE TO SET
 
   int value;
 
@@ -1062,12 +1062,12 @@ tree_cell *
 nasl_wmi_reg_create_key (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
 
   if (!handle)
     return NULL;
 
-  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *key = get_str_var_by_name (lexic, "key"); // REGISTRY KEY
 
   int value;
 
@@ -1104,12 +1104,12 @@ tree_cell *
 nasl_wmi_reg_delete_key (lex_ctxt * lexic)
 {
   WMI_HANDLE handle =
-    (WMI_HANDLE) get_int_local_var_by_name (lexic, "wmi_handle", 0);
+    (WMI_HANDLE) get_int_var_by_name (lexic, "wmi_handle", 0);
 
   if (!handle)
     return NULL;
 
-  char *key = get_str_local_var_by_name (lexic, "key"); // REGISTRY KEY
+  char *key = get_str_var_by_name (lexic, "key"); // REGISTRY KEY
 
   int value;
 
