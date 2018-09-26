@@ -42,6 +42,7 @@
 #include <time.h>     /* for time, time_t */
 #include <stdlib.h>     /* for atoi */
 #include <stdio.h>     /* for fopen */
+#include <errno.h>
 
 #include "kb.h" /* for kb_del_items, kb_item_get_str, kb_item_add_int */
 
@@ -152,24 +153,25 @@ static int
 nvt_feed_version (char *feed_version, int feed_size)
 {
   FILE *foutput;
-  gchar *command, *info_file;
-  info_file = g_build_filename (src_path, "plugin_feed_info.inc", NULL);
-  command = g_strdup_printf ("grep PLUGIN_SET %s | sed -e 's/[^0-9]//g'",
-                             info_file);
+  char command[2048];
+  g_snprintf (command, sizeof (command),
+              "grep PLUGIN_SET %s/plugin_feed_info.inc | sed -e 's/[^0-9]//g'",
+              src_path);
 
   foutput = popen (command, "r");
+  if (!foutput)
+    {
+      g_warning ("popen: %s", strerror (errno));
+      return 1;
+    }
   if (fgets (feed_version, feed_size, foutput) == NULL)
     {
       pclose (foutput);
-      g_free (info_file);
-      g_free (command);
       return 1;
     }
 
   feed_version[strlen (feed_version) - 1] = '\0';
   pclose (foutput);
-  g_free (info_file);
-  g_free (command);
   return 0;
 }
 
