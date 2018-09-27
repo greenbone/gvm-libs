@@ -480,8 +480,9 @@ add_seconds_to_isotime (my_isotime_t atime, int nseconds)
       || year < 0 || month < 1 || day < 1)
     return 1;
 
-  snprintf (atime, ISOTIME_SIZE, "%04d%02d%02dT%02d%02d%02d",
-            year, month, day, hour, minute, sec);
+  if (snprintf (atime, ISOTIME_SIZE, "%04d%02d%02dT%02d%02d%02d",
+              year, month, day, hour, minute, sec) < 0)
+    return 1;
   return 0;
 }
 
@@ -519,8 +520,9 @@ add_days_to_isotime (my_isotime_t atime, int ndays)
       || year < 0 || month < 1 || day < 1)
     return 1;
 
-  snprintf (atime, ISOTIME_SIZE, "%04d%02d%02dT%02d%02d%02d",
-            year, month, day, hour, minute, sec);
+  if (snprintf (atime, ISOTIME_SIZE, "%04d%02d%02dT%02d%02d%02d",
+            year, month, day, hour, minute, sec) < 0)
+    return 1;
   return 0;
 }
 
@@ -558,8 +560,9 @@ add_years_to_isotime (my_isotime_t atime, int nyears)
       || year < 0 || month < 1 || day < 1)
     return 1;
 
-  snprintf (atime, ISOTIME_SIZE, "%04d%02d%02dT%02d%02d%02d",
-            year, month, day, hour, minute, sec);
+  if (snprintf (atime, ISOTIME_SIZE, "%04d%02d%02dT%02d%02d%02d",
+                year, month, day, hour, minute, sec) < 0)
+    return 1;
   return 0;
 }
 
