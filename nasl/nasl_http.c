@@ -61,9 +61,9 @@ _http_req (lex_ctxt * lexic, char *keyword)
 {
   tree_cell *retc;
   char *str;
-  char *item = get_str_local_var_by_name (lexic, "item");
-  char *data = get_str_local_var_by_name (lexic, "data");
-  int port = get_int_local_var_by_name (lexic, "port", -1);
+  char *item = get_str_var_by_name (lexic, "item");
+  char *data = get_str_var_by_name (lexic, "data");
+  int port = get_int_var_by_name (lexic, "port", -1);
   char *url = NULL;
   struct arglist *script_infos = lexic->script_infos;
   char *auth, tmp[32];
