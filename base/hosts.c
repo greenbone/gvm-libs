@@ -1362,6 +1362,50 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
 }
 
 /**
+ * @brief Exclude a list of vhosts from a host's vhosts list.
+ *
+ * @param[in] host  The host whose vhosts are to be excluded from.
+ */
+void
+gvm_vhosts_exclude (gvm_host_t *host, const char *excluded_str)
+{
+  GSList *vhost;
+  char **excluded;
+
+  if (!host || !excluded_str)
+    return;
+
+  vhost = host->vhosts;
+  excluded = g_strsplit (excluded_str, ",", 0);
+  if (!excluded)
+    return;
+  while (vhost)
+    {
+      char **tmp = excluded;
+      char *value = ((gvm_vhost_t *) vhost->data)->value;
+
+      while (*tmp)
+        {
+          if (!strcmp (value, g_strstrip (*tmp)))
+            {
+              gvm_vhost_free (vhost->data);
+              host->vhosts = vhost = g_slist_delete_link (host->vhosts, vhost);
+              break;
+            }
+          tmp++;
+          if (!*tmp)
+            {
+              vhost = vhost->next;
+              break;
+            }
+        }
+    }
+  g_strfreev (excluded);
+
+  return;
+}
+
+/**
  * @brief Excludes a set of hosts provided as a string from a hosts collection.
  * Not to be used while iterating over the single hosts as it resets the
  * iterator.
