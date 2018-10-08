@@ -66,7 +66,7 @@ main (int argc, char **argv)
     return 1;
   if (argv[2])
     {
-      if (gvm_hosts_exclude (hosts, argv[2], 1) == -1)
+      if (gvm_hosts_exclude (hosts, argv[2]) == -1)
         return 2;
     }
   gvm_hosts_resolve (hosts);
