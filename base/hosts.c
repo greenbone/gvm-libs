@@ -1555,6 +1555,41 @@ gvm_host_reverse_lookup (gvm_host_t *host)
 }
 
 /**
+ * @brief Verifies that hostname value resolves to a host's IP.
+ *
+ * @param[in] host  The host whose IP is to be checked against.
+ * @param[in] value Hostname value to verify.
+ *
+ * @return 0 if hostname resolves to host's IP, -1 otherwise.
+ */
+static int
+host_name_verify (gvm_host_t *host, const char *value)
+{
+  GSList *list, *tmp;
+  char *host_str;
+  int ret = -1;
+
+  assert (host);
+  assert (value);
+  host_str = gvm_host_value_str (host);
+  list = tmp = gvm_resolve_list (value);
+  while (tmp)
+    {
+      char buffer[INET6_ADDRSTRLEN];
+      addr6_to_str (tmp->data, buffer);
+      if (!strcmp (host_str, buffer))
+        {
+          ret = 0;
+          break;
+        }
+      tmp = tmp->next;
+    }
+  g_free (host_str);
+  g_slist_free_full (list, g_free);
+  return ret;
+}
+
+/**
  * @brief Add a host's reverse-lookup name to the vhosts list.
  *
  * @param[in] host  The host to which we add the vhost.
@@ -1572,6 +1607,11 @@ gvm_host_add_reverse_lookup (gvm_host_t *host)
   value = gvm_host_reverse_lookup (host);
   if (!value)
     return;
+  if (host_name_verify (host, value))
+    {
+      g_free (value);
+      return;
+    }
   /* Don't add vhost, if already in the list. */
   vhosts = host->vhosts;
   while (vhosts)
