@@ -41,6 +41,9 @@
 
 static GHashTable *global_prefs = NULL;
 
+void
+prefs_set (const gchar *, const gchar *);
+
 /**
  * @brief Initializes the preferences structure. If it was
  *        already initialized, remove old settings and start
@@ -54,6 +57,16 @@ prefs_init (void)
 
   global_prefs = g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
                                         g_free);
+  prefs_set ("cgi_path", "/cgi-bin:/scripts");
+  prefs_set ("checks_read_timeout", "5");
+  prefs_set ("unscanned_closed", "yes");
+  prefs_set ("unscanned_closed_udp", "yes");
+  prefs_set ("timeout_retry", "3");
+  prefs_set ("expand_vhosts", "yes");
+  prefs_set ("test_empty_vhost", "no");
+  prefs_set ("open_sock_max_attempts", "5");
+  prefs_set ("time_between_request", "0");
+  prefs_set ("nasl_no_signature_check", "yes");
 }
 
 /**
