@@ -20,7 +20,7 @@ jobs:
           path: ~/scan-build-report
   gen_xml_doc:
     docker:
-      - image: greenbone/code-metrics-doxy-coverage-debian-stretch
+      - image: greenbone/code-metrics-doxygen-debian-stretch
     steps:
       - checkout
       - run:

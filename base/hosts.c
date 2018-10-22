@@ -1362,20 +1362,63 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
 }
 
 /**
+ * @brief Exclude a list of vhosts from a host's vhosts list.
+ *
+ * @param[in] host  The host whose vhosts are to be excluded from.
+ */
+void
+gvm_vhosts_exclude (gvm_host_t *host, const char *excluded_str)
+{
+  GSList *vhost;
+  char **excluded;
+
+  if (!host || !excluded_str)
+    return;
+
+  vhost = host->vhosts;
+  excluded = g_strsplit (excluded_str, ",", 0);
+  if (!excluded || !*excluded)
+    return;
+  while (vhost)
+    {
+      char **tmp = excluded;
+      char *value = ((gvm_vhost_t *) vhost->data)->value;
+
+      while (*tmp)
+        {
+          if (!strcmp (value, g_strstrip (*tmp)))
+            {
+              gvm_vhost_free (vhost->data);
+              host->vhosts = vhost = g_slist_delete_link (host->vhosts, vhost);
+              break;
+            }
+          tmp++;
+          if (!*tmp)
+            {
+              vhost = vhost->next;
+              break;
+            }
+        }
+    }
+  g_strfreev (excluded);
+
+  return;
+}
+
+/**
  * @brief Excludes a set of hosts provided as a string from a hosts collection.
  * Not to be used while iterating over the single hosts as it resets the
  * iterator.
  *
  * @param[in] hosts         The hosts collection from which to exclude.
  * @param[in] excluded_str  String of hosts to exclude.
- * @param[in] resolve       Boolean. Whether to also resolve hostnames when excluding.
  * @param[in] max_hosts     Max number of hosts in hosts_str. 0 means unlimited.
  *
  * @return Number of excluded hosts, -1 if error.
  */
 int
 gvm_hosts_exclude_with_max (gvm_hosts_t *hosts, const char *excluded_str,
-                            int resolve, unsigned int max_hosts)
+                            unsigned int max_hosts)
 {
   /**
    * Uses a hash table in order to exclude hosts in O(N+M) time.
@@ -1391,9 +1434,6 @@ gvm_hosts_exclude_with_max (gvm_hosts_t *hosts, const char *excluded_str,
   excluded_hosts = gvm_hosts_new_with_max (excluded_str, max_hosts);
   if (excluded_hosts == NULL)
     return -1;
-
-  if (resolve)
-    gvm_hosts_resolve (excluded_hosts);
 
   if (gvm_hosts_count (excluded_hosts) == 0)
     {
@@ -1418,7 +1458,6 @@ gvm_hosts_exclude_with_max (gvm_hosts_t *hosts, const char *excluded_str,
   while (element)
     {
       gchar *name;
-      struct in_addr addr;
       gvm_host_t *host = element->data;
 
       if ((name = gvm_host_value_str (host)))
@@ -1432,25 +1471,6 @@ gvm_hosts_exclude_with_max (gvm_hosts_t *hosts, const char *excluded_str,
             }
           g_free (name);
         }
-
-      /* If hostname, try to resolve it and check if IP is excluded. */
-      if (resolve && host->type == HOST_TYPE_NAME
-          && gvm_host_resolve (host, &addr, AF_INET) == 0)
-        {
-          struct in6_addr addr6;
-
-          ipv4_as_ipv6 (&addr, &addr6);
-          name = addr6_as_str (&addr6);
-          if (g_hash_table_lookup (name_table, name))
-            {
-              element = gvm_hosts_remove_element (hosts, element);
-              excluded++;
-              g_free (name);
-              continue;
-            }
-          g_free (name);
-        }
-
       element = element->next;
     }
 
@@ -1470,14 +1490,13 @@ gvm_hosts_exclude_with_max (gvm_hosts_t *hosts, const char *excluded_str,
  *
  * @param[in] hosts         The hosts collection from which to exclude.
  * @param[in] excluded_str  String of hosts to exclude.
- * @param[in] resolve       Boolean. Whether to also resolve hostnames when excluding.
  *
  * @return Number of excluded hosts, -1 if error.
  */
 int
-gvm_hosts_exclude (gvm_hosts_t *hosts, const char *excluded_str, int resolve)
+gvm_hosts_exclude (gvm_hosts_t *hosts, const char *excluded_str)
 {
-  return gvm_hosts_exclude_with_max (hosts, excluded_str, resolve, 0);
+  return gvm_hosts_exclude_with_max (hosts, excluded_str, 0);
 }
 
 /**
@@ -1536,6 +1555,41 @@ gvm_host_reverse_lookup (gvm_host_t *host)
 }
 
 /**
+ * @brief Verifies that hostname value resolves to a host's IP.
+ *
+ * @param[in] host  The host whose IP is to be checked against.
+ * @param[in] value Hostname value to verify.
+ *
+ * @return 0 if hostname resolves to host's IP, -1 otherwise.
+ */
+static int
+host_name_verify (gvm_host_t *host, const char *value)
+{
+  GSList *list, *tmp;
+  char *host_str;
+  int ret = -1;
+
+  assert (host);
+  assert (value);
+  host_str = gvm_host_value_str (host);
+  list = tmp = gvm_resolve_list (value);
+  while (tmp)
+    {
+      char buffer[INET6_ADDRSTRLEN];
+      addr6_to_str (tmp->data, buffer);
+      if (!strcmp (host_str, buffer))
+        {
+          ret = 0;
+          break;
+        }
+      tmp = tmp->next;
+    }
+  g_free (host_str);
+  g_slist_free_full (list, g_free);
+  return ret;
+}
+
+/**
  * @brief Add a host's reverse-lookup name to the vhosts list.
  *
  * @param[in] host  The host to which we add the vhost.
@@ -1553,6 +1607,11 @@ gvm_host_add_reverse_lookup (gvm_host_t *host)
   value = gvm_host_reverse_lookup (host);
   if (!value)
     return;
+  if (host_name_verify (host, value))
+    {
+      g_free (value);
+      return;
+    }
   /* Don't add vhost, if already in the list. */
   vhosts = host->vhosts;
   while (vhosts)

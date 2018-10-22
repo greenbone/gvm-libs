@@ -54,6 +54,10 @@ pkg_check_modules (LIBSSH REQUIRED libssh>=0.6.0)
 # for kb we need libhiredis
 pkg_check_modules (REDIS hiredis>=0.10.1)
 
+# Set NVTICACHE name with the version
+set (NVTICACHE_STR "nvticache${PROJECT_VERSION}")
+add_definitions (-DNVTICACHE_STR="${NVTICACHE_STR}")
+
 #for gpgmeutils we need libgpgme
 set (GPGME_MIN_VERSION "1.1.2")
 message (STATUS "Looking for gpgme...")
