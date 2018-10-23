@@ -308,5 +308,10 @@ gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
       return -1;
     }
 
+  gpgme_data_release (plain_data);
+  gpgme_data_release (encrypted_data);
+  gpgme_release (ctx);
+  gvm_file_remove_recurse (gpg_temp_dir);
+
   return 0;
 }
