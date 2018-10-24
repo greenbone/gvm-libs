@@ -128,7 +128,7 @@ gvm_hosts_resolve (gvm_hosts_t *);
 int
 gvm_hosts_exclude (gvm_hosts_t *, const char *);
 
-void
+int
 gvm_vhosts_exclude (gvm_host_t *, const char *);
 
 int
