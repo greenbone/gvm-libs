@@ -238,6 +238,45 @@ kb_fail:
 }
 
 /**
+ * @brief Add a file's content to the cache.
+ *
+ * @param content   The content to add.
+ *
+ * @param filename  The file's name.
+ *
+ * @return 0 in case of success, -1 for error.
+ */
+int
+nvticache_add_file (const char *content, const char *filename)
+{
+  char pattern[4096];
+
+  assert (content);
+  assert (filename);
+  g_snprintf (pattern, sizeof (pattern), "file:%s", filename);
+  if (kb_item_set_str (cache_kb, pattern, content, 0))
+    return -1;
+  return 0;
+}
+
+/**
+ * @brief Get a file's content from the cache.
+ *
+ * @param filename  The file's name.
+ *
+ * @return Content of the file, NULL otherwise.
+ */
+char *
+nvticache_get_file (const char *filename)
+{
+  char pattern[4096];
+
+  assert (filename);
+  g_snprintf (pattern, sizeof (pattern), "file:%s", filename);
+  return kb_item_get_str (cache_kb, pattern);
+}
+
+/**
  * @brief Get the full source filename of an OID.
  *
  * @param oid      The OID to look up.
@@ -609,6 +648,8 @@ nvticache_delete (const char *oid)
   if (filename)
     {
       g_snprintf (pattern, sizeof (pattern), "filename:%s", filename);
+      kb_del_items (cache_kb, pattern);
+      g_snprintf (pattern, sizeof (pattern), "file:%s", filename);
       kb_del_items (cache_kb, pattern);
     }
   g_free (filename);

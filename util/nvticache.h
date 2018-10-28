@@ -63,6 +63,12 @@ nvticache_check (const gchar *);
 int
 nvticache_add (const nvti_t *, const char *);
 
+int
+nvticache_add_file (const char *, const char *);
+
+char *
+nvticache_get_file (const char *);
+
 char *
 nvticache_get_src (const char *);
 
