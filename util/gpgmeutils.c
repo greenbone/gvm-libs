@@ -181,8 +181,9 @@ gvm_init_gpgme_ctx_from_dir (const gchar *dir)
  * @param[in]  key_str  Key or certificate string.
  * @param[in]  key_len  Length of key/certificate string or -1 to use strlen.
  * @param[in]  key_type The expected key type.
- * 
- * @return 0 success, 1 invalid key data, 2 unexpected key data, -1 error.
+ *
+ * @return 0 success, 1 invalid key data, 2 unexpected key data,
+ *  3 error importing key/certificate, -1 error.
  */
 int
 gvm_gpg_import_from_string (gpgme_ctx_t ctx,
@@ -191,16 +192,18 @@ gvm_gpg_import_from_string (gpgme_ctx_t ctx,
 {
   gpgme_data_t key_data;
   gpgme_error_t err;
+  gpgme_data_type_t given_key_type;
+  gpgme_import_result_t import_result;
 
   gpgme_data_new_from_mem (&key_data, key_str,
-                           (key_len >= 0 ? key_len 
+                           (key_len >= 0 ? key_len
                                          : (ssize_t) strlen(key_str)),
                            0);
 
-  if (gpgme_data_identify (key_data, 0) != key_type)
+  given_key_type = gpgme_data_identify (key_data, 0);
+  if (given_key_type != key_type)
     {
       int ret;
-      gpgme_data_type_t given_key_type = gpgme_data_identify (key_data, 0);
       if (given_key_type == GPGME_DATA_TYPE_INVALID)
         {
           ret = 1;
@@ -223,8 +226,31 @@ gvm_gpg_import_from_string (gpgme_ctx_t ctx,
     {
       g_warning ("%s: Import failed: %s",
                  __FUNCTION__, gpgme_strerror (err));
-      return -1;
+      return 3;
     }
+
+  import_result = gpgme_op_import_result (ctx);
+  g_debug ("%s: %d imported, %d not imported",
+             __FUNCTION__,
+             import_result->imported, import_result->not_imported);
+
+  gpgme_import_status_t status;
+  status = import_result->imports;
+  while (status)
+    {
+      if (status->result != GPG_ERR_NO_ERROR)
+        g_warning ("%s: '%s' could not be imported: %s",
+                   __FUNCTION__, status->fpr,
+                   gpgme_strerror (status->result));
+      else
+        g_debug ("%s: Imported '%s'",
+                 __FUNCTION__, status->fpr);
+
+      status = status->next;
+    };
+
+  if (import_result->not_imported)
+    return 3;
 
   return 0;
 }
