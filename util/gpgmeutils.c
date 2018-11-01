@@ -260,23 +260,32 @@ gvm_gpg_import_from_string (gpgme_ctx_t ctx,
  *
  * The output will use ASCII armor mode and no compression.
  *
- * @param[in]  plain_file       Stream / FILE* providing the plain text.
- * @param[in]  encrypted_file   Stream to write the encrypted text to.
- * @param[in]  public_key_str   String containing the public key.
- * @param[in]  public_key_len   Length of public key or -1 to use strlen.
+ * @param[in]  plain_file     Stream / FILE* providing the plain text.
+ * @param[in]  encrypted_file Stream to write the encrypted text to.
+ * @param[in]  key_str        String containing the public key or certificate.
+ * @param[in]  key_len        Length of key / certificate, -1 to use strlen.
+ * @param[in]  protocol       The protocol to use, e.g. OpenPGP or CMS.
+ * @param[in]  data_type      The expected GPGME buffered data type.
  */
-int
-gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
-                               const char *public_key_str,
-                               ssize_t public_key_len)
+static int
+encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
+                         const char *key_str, ssize_t key_len,
+                         gpgme_protocol_t protocol,
+                         gpgme_data_type_t data_type)
 {
   char gpg_temp_dir[] = "/tmp/gvmd-gpg-XXXXXX";
   gpgme_ctx_t ctx;
   gpgme_data_t plain_data, encrypted_data;
-  gpgme_key_t public_key;
+  gpgme_key_t key;
   gpgme_key_t keys[2] = { NULL, NULL };
   gpgme_error_t err;
   gpgme_encrypt_flags_t encrypt_flags;
+  const char *key_type_str;
+
+  if (protocol == GPGME_PROTOCOL_CMS)
+    key_type_str = "certificate";
+  else
+    key_type_str = "public key";
 
   // Create temporary GPG home directory, set up context and encryption flags
   if (mkdtemp (gpg_temp_dir) == NULL)
@@ -286,17 +295,15 @@ gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
     }
 
   gpgme_new (&ctx);
-  gpgme_ctx_set_engine_info (ctx, GPGME_PROTOCOL_OpenPGP, NULL, gpg_temp_dir);
+  gpgme_ctx_set_engine_info (ctx, protocol, NULL, gpg_temp_dir);
   gpgme_set_armor (ctx, 1);
   encrypt_flags = GPGME_ENCRYPT_ALWAYS_TRUST | GPGME_ENCRYPT_NO_COMPRESS;
 
   // Import public key into context
-  err = gvm_gpg_import_from_string (ctx, public_key_str, public_key_len,
-                                    GPGME_DATA_TYPE_PGP_KEY);
-  if (err)
+  if (gvm_gpg_import_from_string (ctx, key_str, key_len, data_type))
     {
-      g_warning ("%s: Import of public key failed: %s",
-                 __FUNCTION__, gpgme_strerror (err));
+      g_warning ("%s: Import of %s failed",
+                 __FUNCTION__, key_type_str);
       gpgme_release (ctx);
       gvm_file_remove_recurse (gpg_temp_dir);
       return -1;
@@ -304,7 +311,7 @@ gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
 
   // Get imported public key
   gpgme_op_keylist_start (ctx, NULL, 0);
-  err = gpgme_op_keylist_next (ctx, &public_key);
+  err = gpgme_op_keylist_next (ctx, &key);
   if (err)
     {
       g_warning ("%s: Could not get imported public key: %s",
@@ -313,7 +320,7 @@ gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
       gvm_file_remove_recurse (gpg_temp_dir);
       return -1;
     }
-  keys[0] = public_key;
+  keys[0] = key;
 
   // Set up data objects for input and output streams
   gpgme_data_new_from_stream (&plain_data, plain_file);
@@ -340,4 +347,25 @@ gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
   gvm_file_remove_recurse (gpg_temp_dir);
 
   return 0;
+}
+
+/**
+ * @brief Encrypt a stream for a PGP public key, writing to another stream.
+ *
+ * The output will use ASCII armor mode and no compression.
+ *
+ * @param[in]  plain_file       Stream / FILE* providing the plain text.
+ * @param[in]  encrypted_file   Stream to write the encrypted text to.
+ * @param[in]  public_key_str   String containing the public key.
+ * @param[in]  public_key_len   Length of public key or -1 to use strlen.
+ */
+int
+gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
+                               const char *public_key_str,
+                               ssize_t public_key_len)
+{
+  return encrypt_stream_internal (plain_file, encrypted_file,
+                                  public_key_str, public_key_len,
+                                  GPGME_PROTOCOL_OpenPGP,
+                                  GPGME_DATA_TYPE_PGP_KEY);
 }
