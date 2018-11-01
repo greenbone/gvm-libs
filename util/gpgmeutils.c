@@ -297,6 +297,7 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   gpgme_new (&ctx);
   gpgme_ctx_set_engine_info (ctx, protocol, NULL, gpg_temp_dir);
   gpgme_set_armor (ctx, 1);
+  gpgme_set_protocol (ctx, protocol);
   encrypt_flags = GPGME_ENCRYPT_ALWAYS_TRUST | GPGME_ENCRYPT_NO_COMPRESS;
 
   // Import public key into context
@@ -368,4 +369,24 @@ gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
                                   public_key_str, public_key_len,
                                   GPGME_PROTOCOL_OpenPGP,
                                   GPGME_DATA_TYPE_PGP_KEY);
+}
+
+/**
+ * @brief Encrypt a stream for a S/MIME certificate, writing to another stream.
+ *
+ * The output will use ASCII armor mode and no compression.
+ *
+ * @param[in]  plain_file       Stream / FILE* providing the plain text.
+ * @param[in]  encrypted_file   Stream to write the encrypted text to.
+ * @param[in]  certificate_str  String containing the public key.
+ * @param[in]  certificate_len  Length of public key or -1 to use strlen.
+ */
+int
+gvm_smime_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
+                          const char *certificate_str, ssize_t certificate_len)
+{
+  return encrypt_stream_internal (plain_file, encrypted_file,
+                                  certificate_str, certificate_len,
+                                  GPGME_PROTOCOL_CMS,
+                                  GPGME_DATA_TYPE_CMS_OTHER);
 }
