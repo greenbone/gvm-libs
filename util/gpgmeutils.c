@@ -256,6 +256,72 @@ gvm_gpg_import_from_string (gpgme_ctx_t ctx,
 }
 
 /**
+ * @brief Find a key that can be used to encrypt for an email recipient.
+ *
+ * @param[in]  ctx        The GPGME context.
+ * @param[in]  protocol   The cryptography engine used.
+ * @param[in]  uid_email  The recipient email address to look for.
+ */
+static gpgme_key_t
+find_email_encryption_key (gpgme_ctx_t ctx,
+                           const char *uid_email)
+{
+  gchar *bracket_email;
+  gpgme_key_t key;
+  gboolean recipient_found = FALSE;
+
+  if (uid_email == NULL)
+    return NULL;
+
+  bracket_email = g_strdup_printf ("<%s>", uid_email);
+
+  gpgme_op_keylist_start (ctx, NULL, 0);
+  gpgme_op_keylist_next (ctx, &key);
+  while (key && recipient_found == FALSE)
+    {
+      if (key->can_encrypt)
+        {
+          g_debug ("%s: key '%s' OK for encryption",
+                   __FUNCTION__, key->subkeys->fpr);
+
+          gpgme_user_id_t uid;
+          uid = key->uids;
+          while (uid && recipient_found == FALSE)
+            {
+              g_debug ("%s: UID email: %s",
+                         __FUNCTION__, uid->email);
+
+              if (strcmp (uid->email, uid_email) == 0
+                  || strstr (uid->email, bracket_email))
+                {
+                  g_message ("%s: Found matching UID for %s",
+                             __FUNCTION__, uid_email);
+                  recipient_found = TRUE;
+                }
+              uid = uid->next;
+            }
+        }
+      else
+        {
+          g_debug ("%s: key '%s' cannot be used for encryption",
+                   __FUNCTION__, key->subkeys->fpr);
+        }
+
+      if (recipient_found == FALSE)
+        gpgme_op_keylist_next (ctx, &key);
+    }
+
+  if (recipient_found)
+    return key;
+  else
+    {
+      g_warning ("%s: No suitable key found for %s",
+                 __FUNCTION__, uid_email);
+      return NULL;
+    }
+}
+
+/**
  * @brief Encrypt a stream for a PGP public key, writing to another stream.
  *
  * The output will use ASCII armor mode and no compression.
@@ -264,12 +330,14 @@ gvm_gpg_import_from_string (gpgme_ctx_t ctx,
  * @param[in]  encrypted_file Stream to write the encrypted text to.
  * @param[in]  key_str        String containing the public key or certificate.
  * @param[in]  key_len        Length of key / certificate, -1 to use strlen.
+ * @param[in]  uid_email      Email address of key / certificate to use.
  * @param[in]  protocol       The protocol to use, e.g. OpenPGP or CMS.
  * @param[in]  data_type      The expected GPGME buffered data type.
  */
 static int
 encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
                          const char *key_str, ssize_t key_len,
+                         const char *uid_email,
                          gpgme_protocol_t protocol,
                          gpgme_data_type_t data_type)
 {
@@ -281,6 +349,13 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   gpgme_error_t err;
   gpgme_encrypt_flags_t encrypt_flags;
   const char *key_type_str;
+
+  if (uid_email == NULL || strcmp (uid_email, "") == 0)
+    {
+      g_warning ("%s: No email address for user identification given",
+                 __FUNCTION__);
+      return -1;
+    }
 
   if (protocol == GPGME_PROTOCOL_CMS)
     key_type_str = "certificate";
@@ -311,12 +386,11 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
     }
 
   // Get imported public key
-  gpgme_op_keylist_start (ctx, NULL, 0);
-  err = gpgme_op_keylist_next (ctx, &key);
-  if (err)
+  key = find_email_encryption_key (ctx, uid_email);
+  if (key == NULL)
     {
-      g_warning ("%s: Could not get imported public key: %s",
-                 __FUNCTION__, gpgme_strerror (err));
+      g_warning ("%s: Could not find %s for encryption",
+                 __FUNCTION__, key_type_str);
       gpgme_release (ctx);
       gvm_file_remove_recurse (gpg_temp_dir);
       return -1;
@@ -357,16 +431,19 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
  *
  * @param[in]  plain_file       Stream / FILE* providing the plain text.
  * @param[in]  encrypted_file   Stream to write the encrypted text to.
+ * @param[in]  uid_email        Email address of public key to use.
  * @param[in]  public_key_str   String containing the public key.
  * @param[in]  public_key_len   Length of public key or -1 to use strlen.
  */
 int
 gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
+                               const char *uid_email,
                                const char *public_key_str,
                                ssize_t public_key_len)
 {
   return encrypt_stream_internal (plain_file, encrypted_file,
                                   public_key_str, public_key_len,
+                                  uid_email,
                                   GPGME_PROTOCOL_OpenPGP,
                                   GPGME_DATA_TYPE_PGP_KEY);
 }
@@ -378,15 +455,18 @@ gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
  *
  * @param[in]  plain_file       Stream / FILE* providing the plain text.
  * @param[in]  encrypted_file   Stream to write the encrypted text to.
+ * @param[in]  uid_email        Email address of certificate to use.
  * @param[in]  certificate_str  String containing the public key.
  * @param[in]  certificate_len  Length of public key or -1 to use strlen.
  */
 int
 gvm_smime_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
+                          const char *uid_email,
                           const char *certificate_str, ssize_t certificate_len)
 {
   return encrypt_stream_internal (plain_file, encrypted_file,
                                   certificate_str, certificate_len,
+                                  uid_email,
                                   GPGME_PROTOCOL_CMS,
                                   GPGME_DATA_TYPE_CMS_OTHER);
 }

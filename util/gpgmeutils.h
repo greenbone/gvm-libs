@@ -45,9 +45,11 @@ gvm_gpg_import_from_string (gpgme_ctx_t, const char *, ssize_t,
                             gpgme_data_type_t);
 
 int
-gvm_pgp_pubkey_encrypt_stream (FILE *, FILE *, const char *, ssize_t);
+gvm_pgp_pubkey_encrypt_stream (FILE *, FILE *, const char *,
+                               const char *, ssize_t);
 
 int
-gvm_smime_encrypt_stream (FILE *, FILE *, const char *, ssize_t);
+gvm_smime_encrypt_stream (FILE *, FILE *, const char *,
+                          const char *, ssize_t);
 
 #endif /*_GVM_GPGMEUTILS_H*/
