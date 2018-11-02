@@ -370,8 +370,13 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
     }
 
   gpgme_new (&ctx);
+
+  if (protocol == GPGME_PROTOCOL_CMS)
+    gpgme_set_armor (ctx, 0);
+  else
+    gpgme_set_armor (ctx, 1);
+
   gpgme_ctx_set_engine_info (ctx, protocol, NULL, gpg_temp_dir);
-  gpgme_set_armor (ctx, 1);
   gpgme_set_protocol (ctx, protocol);
   encrypt_flags = GPGME_ENCRYPT_ALWAYS_TRUST | GPGME_ENCRYPT_NO_COMPRESS;
 
@@ -400,6 +405,9 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   // Set up data objects for input and output streams
   gpgme_data_new_from_stream (&plain_data, plain_file);
   gpgme_data_new_from_stream (&encrypted_data, encrypted_file);
+
+  if (protocol == GPGME_PROTOCOL_CMS)
+    gpgme_data_set_encoding (encrypted_data, GPGME_DATA_ENCODING_BASE64);
 
   // Encrypt data
   err = gpgme_op_encrypt (ctx, keys, encrypt_flags,
