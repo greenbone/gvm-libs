@@ -1260,7 +1260,7 @@ foreach_print_attribute_format (gpointer name, gpointer value, gpointer none)
 }
 
 /**
- * @brief Print an XML entity to stdout, recusively printing its children.
+ * @brief Print an XML entity to stdout, recursively printing its children.
  * @brief Does very basic indentation for pretty printing.
  *
  * This function is used as the (callback) GFunc in g_slist_foreach.

@@ -746,7 +746,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
 /**
  * @brief This function logs debug messages from gnutls.
  *
- * @param level GnuTLS log level (integer from 0 to 99 acoording to GnuTLS
+ * @param level GnuTLS log level (integer from 0 to 99 according to GnuTLS
  * documentation.
  * @param message GnuTLS log message.
  *
