@@ -456,7 +456,7 @@ redis_delete (kb_t kb)
 }
 
 /**
- * @brief Retrun the kb index
+ * @brief Return the kb index
  * @param[in] kb KB handle.
  * @return kb_index on success, null on error.
  */
@@ -673,7 +673,7 @@ err_cleanup:
 /**
  * @brief Execute a redis command.
  * @param[in] rtx Redis transaction handler.
- * @param[in] fmt Formated variable argument list with the cmd to be executed.
+ * @param[in] fmt Formatted variable argument list with the cmd to be executed.
  * @return 0 on success, -1 otherwise.
  */
 static int
@@ -845,7 +845,7 @@ redis2kbitem (const char *name, const redisReply *rep)
 /**
  * @brief Execute a redis command and get a redis reply.
  * @param[in] kbr Subclass of struct kb to connect to.
- * @param[in] fmt Formated variable argument list with the cmd to be executed.
+ * @param[in] fmt Formatted variable argument list with the cmd to be executed.
  * @return Redis reply on success, NULL otherwise.
  */
 static redisReply *
