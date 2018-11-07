@@ -29,11 +29,9 @@
 
 #include <glib.h>
 
-typedef gchar *string;
-
-void gvm_append_string (string *, const gchar *);
-void gvm_append_text (string *, const gchar *, gsize);
-void gvm_free_string_var (string *);
+void gvm_append_string (gchar **, const gchar *);
+void gvm_append_text (gchar **, const gchar *, gsize);
+void gvm_free_string_var (gchar **);
 
 char *gvm_strip_space (char *, char *);
 
