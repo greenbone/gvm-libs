@@ -98,7 +98,7 @@ gvm_append_text (gchar ** var, const gchar * string, gsize length)
  *                  a string.
  */
 void
-gvm_free_string_var (string * var)
+gvm_free_string_var (gchar ** var)
 {
   g_free (*var);
   *var = NULL;
