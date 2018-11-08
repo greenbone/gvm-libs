@@ -332,7 +332,7 @@ is_short_range_network (const char *str)
       return 0;
     }
 
-  /* Separate the addreses. */
+  /* Separate the addresses. */
   *end_str = '\0';
   end_str++;
 
@@ -618,7 +618,7 @@ is_long_range6_network (const char *str)
       return 0;
     }
 
-  /* Separate the addreses. */
+  /* Separate the addresses. */
   *second_str = '\0';
   second_str++;
 
@@ -998,7 +998,7 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
   /* Split comma-separated list into single host-specifications */
   split = g_strsplit (hosts->orig_str, ",", 0);
 
-  /* first element of the splitted list */
+  /* first element of the split list */
   host_element = split;
   while (*host_element)
     {
@@ -1141,7 +1141,7 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
             gvm_hosts_free (hosts);
             return NULL;
         }
-      host_element++; /* move on to next element of splitted list */
+      host_element++; /* move on to next element of split list */
       if (max_hosts > 0 && hosts->count > max_hosts)
         {
           g_strfreev (split);

@@ -117,7 +117,7 @@ gvm_auth_init ()
   /* Init Libgcrypt. */
 
   /* Version check should be the very first call because it makes sure that
-   * important subsystems are intialized.
+   * important subsystems are initialized.
    * We pass NULL to gcry_check_version to disable the internal version mismatch
    * test. */
   if (!gcry_check_version (NULL))
@@ -132,7 +132,7 @@ gvm_auth_init ()
 
   /* ... If required, other initialization goes here.  Note that the process
    * might still be running with increased privileges and that the secure
-   * memory has not been intialized. */
+   * memory has not been initialized. */
 
   /* Allocate a pool of 16k secure memory.  This make the secure memory
    * available and also drops privileges where needed. */
@@ -253,7 +253,7 @@ int
 gvm_authenticate_classic (const gchar *username, const gchar *password,
                           const gchar *hash_arg)
 {
-  int gcrypt_algorithm = GCRY_MD_MD5;   // FIX whatever configer used
+  int gcrypt_algorithm = GCRY_MD_MD5;   // FIX whatever configure used
   int ret;
   gchar *actual, *expect, *seed_pass;
   guchar *hash;

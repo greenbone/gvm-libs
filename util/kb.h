@@ -571,7 +571,7 @@ static inline int kb_flush (kb_t kb, const char *except)
 }
 
 /**
- * @brief Retrun the kb index
+ * @brief Return the kb index
  * @param[in] kb KB handle.
  * @return kb_index on success, null on error.
  */
