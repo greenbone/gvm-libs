@@ -181,8 +181,6 @@ nvti_free (nvti_t * n)
     g_free (n->oid);
   if (n->name)
     g_free (n->name);
-  if (n->copyright)
-    g_free (n->copyright);
   if (n->cve)
     g_free (n->cve);
   if (n->bid)
@@ -243,20 +241,6 @@ gchar *
 nvti_name (const nvti_t * n)
 {
   return (n ? n->name : NULL);
-}
-
-/**
- * @brief Get the copyright notice.
- *
- * @param n The NVT Info structure of which the name should
- *          be returned.
- *
- * @return The copyright string. Don't free this.
- */
-gchar *
-nvti_copyright (const nvti_t * n)
-{
-  return (n ? n->copyright : NULL);
 }
 
 /**
@@ -521,27 +505,6 @@ nvti_set_name (nvti_t * n, const gchar * name)
   if (n->name)
     g_free (n->name);
   n->name = g_strdup (name);
-  return (0);
-}
-
-/**
- * @brief Set the copyright of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param copyright The copyright to set. A copy will be created from this.
- *
- * @return 0 for success. Anything else indicates an error.
- */
-int
-nvti_set_copyright (nvti_t * n, const gchar * copyright)
-{
-  if (! n)
-    return (-1);
-
-  if (n->copyright)
-    g_free (n->copyright);
-  n->copyright = g_strdup (copyright);
   return (0);
 }
 
