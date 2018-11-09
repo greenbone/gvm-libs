@@ -19,7 +19,7 @@ This module can be configured, built and installed with following commands:
     make install
 
 For detailed installation requirements and instructions, please see the file
-[INSTALL](INSTALL).
+[INSTALL.md](INSTALL.md).
 
 If you are not familiar or comfortable building from source code, we recommend
 that you use the Greenbone Community Edition, a prepared virtual machine with a
