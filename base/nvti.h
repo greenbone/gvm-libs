@@ -65,7 +65,6 @@ typedef struct nvti
 {
   gchar *oid;                /**< @brief Object ID */
   gchar *name;               /**< @brief The name */
-  gchar *copyright;          /**< @brief Copyright for the NVT */
 
   gchar *cve;               /**< @brief List of CVEs, this NVT corresponds to */
   gchar *bid;               /**< @brief List of Bugtraq IDs, this NVT
@@ -95,7 +94,6 @@ void nvti_free (nvti_t *);
 
 gchar *nvti_oid (const nvti_t *);
 gchar *nvti_name (const nvti_t *);
-gchar *nvti_copyright (const nvti_t *);
 gchar *nvti_cve (const nvti_t *);
 gchar *nvti_bid (const nvti_t *);
 gchar *nvti_xref (const nvti_t *);
@@ -115,7 +113,6 @@ const nvtpref_t *nvti_pref (const nvti_t *, guint);
 
 int nvti_set_oid (nvti_t *, const gchar *);
 int nvti_set_name (nvti_t *, const gchar *);
-int nvti_set_copyright (nvti_t *, const gchar *);
 int nvti_set_cve (nvti_t *, const gchar *);
 int nvti_set_bid (nvti_t *, const gchar *);
 int nvti_set_xref (nvti_t *, const gchar *);

@@ -2,7 +2,7 @@ INSTALLATION INSTRUCTIONS FOR GVM-LIBS
 ======================================
 
 Please note: The reference system used by most of the developers is Debian
-GNU/Linux 'Stretch' 9. The build might fail on any other system. Also it is
+GNU/Linux 'Stretch' 9. The build might fail on any other system. Also, it is
 necessary to install dependent development packages.
 
 Prerequisites for gvm-libs
@@ -36,46 +36,47 @@ Prerequisites for building documentation:
 * sqlfairy (optional, for producing database diagram)
 
 Install prerequisites on Debian GNU/Linux 'Stretch' 9:
-# apt-get install cmake pkg-config libglib2.0-dev libgpgme11-dev \
-  libgnutls28-dev uuid-dev libssh-gcrypt-dev libhiredis-dev
+
+    apt-get install cmake pkg-config libglib2.0-dev libgpgme11-dev \
+    libgnutls28-dev uuid-dev libssh-gcrypt-dev libhiredis-dev
 
 
 Compiling gvm-libs
 ------------------
 
 If you have installed required libraries to a non-standard location, remember to
-set the PKG_CONFIG_PATH environment variable to the location of your pkg-config
+set the `PKG_CONFIG_PATH` environment variable to the location of your pkg-config
 files before configuring:
 
-    $ export PKG_CONFIG_PATH=/your/location/lib/pkgconfig:$PKG_CONFIG_PATH
+    export PKG_CONFIG_PATH=/your/location/lib/pkgconfig:$PKG_CONFIG_PATH
 
 Create a build directory and change into it with
 
-    $ mkdir build
-    $ cd build
+    mkdir build
+    cd build
 
 Configure the build with
 
-    $ cmake -DCMAKE_INSTALL_PREFIX=/path/to/your/installation ..
+    cmake -DCMAKE_INSTALL_PREFIX=/path/to/your/installation ..
 
 or (if you want to use the default installation path /usr/local)
 
-    $ cmake ..
+    cmake ..
 
 This only needs to be done once.
 
 Thereafter, the following commands are useful.
 
-    $ make                # build the libraries
-    $ make doc            # build the documentation
-    $ make doc-full       # build more developer-oriented documentation
-    $ make install        # install the build
-    $ make rebuild_cache  # rebuild the cmake cache
+    make                # build the libraries
+    make doc            # build the documentation
+    make doc-full       # build more developer-oriented documentation
+    make install        # install the build
+    make rebuild_cache  # rebuild the cmake cache
 
-Please note that you may have to execute "make install" as root, especially if
+Please note that you may have to execute `make install` as root, especially if
 you have specified a prefix for which your user does not have full permissions.
 
-To clean up the build environment, simply remove the contents of the "build"
+To clean up the build environment, simply remove the contents of the `build`
 directory you created above.
 
 
@@ -87,14 +88,14 @@ enable very strict error checking and asks the compiler to abort should it detec
 any errors in the code. This is to ensure a maximum of code quality and
 security.
 
-Some (especially newer) compilers can be more strict than others when it comes
+Some (especially newer) compilers can be stricter than others when it comes
 to error checking. While this is a good thing and the developers aim to address
 all compiler warnings, it may lead the build process to abort on your system.
 
-Should you notice error messages causing your build process to abort,
-do not hesitate to contact the developers using the mailing lists or IRC
-chat. Don't forget to include the name and version of your compiler and
-distribution in your message.
+Should you notice error messages causing your build process to abort, do not
+hesitate to contact the developers using the [Greenbone Community
+Portal](https://community.greenbone.net/c/gse). Don't forget to include the
+name and version of your compiler and distribution in your message.
 
 
 Building GVM Libraries statically linked
@@ -105,26 +106,26 @@ build a statically linked program using this library -- you need statically
 linked versions of the prerequisite libraries as well.
 
 This can be a problem with current versions of the GnuTLS library. In most
-distributions GnuTLS is built with p11-kit support, which makes linking
+distributions GnuTLS is built with `p11-kit` support, which makes linking
 statically against the GnuTLS library impossible. To work around this, you can
-build the GnuTLS yourself after configuring it without support for p11-kit. This
+build the GnuTLS yourself after configuring it without support for `p11-kit`. This
 can be done with the following parameters:
 
-    $ ./configure --disable-shared --enable-static --without-p11-kit
+    ./configure --disable-shared --enable-static --without-p11-kit
 
 Note that you will most likely want to add additional parameters to configure
 the GnuTLS library based on your distributions policy and/or your personal
 needs, e.g. the correct prefix so the statically linked version will be found.
-The "make install" command will then build the GnuTLS library and install it
+The `make install` command will then build the GnuTLS library and install it
 into the path you configured.
 
-Once you have build and installed the GnuTLS library, configure this module
+Once you have built and installed the GnuTLS library, configure this module
 with the following parameters to request statically linked versions of
 the single library modules:
 
-   $ cmake -DBUILD_STATIC=1 -DBUILD_SHARED=0 ..
+    cmake -DBUILD_STATIC=1 -DBUILD_SHARED=0 ..
 
-Once again, the "make install" command will build and install the requested
+Once again, the `make install` command will build and install the requested
 modules.
 
 
@@ -132,20 +133,13 @@ Static code analysis with the Clang Static Analyzer
 ---------------------------------------------------
 
 If you want to use the Clang Static Analyzer (http://clang-analyzer.llvm.org/)
-to do a static code analysis, you can do so by adding the following parameter
-when configuring the build:
+to do a static code analysis, you can do so by prefixing the configuration and
+build commands with `scan-build`:
 
-  -DCMAKE_C_COMPILER=/usr/share/clang/scan-build/ccc-analyzer
-
-Note that the example above uses the default location of ccc-analyzer in Debian
-GNU/Linux and may be different in other environments.
-
-To have the analysis results aggregated into a set of HTML files, use the
-following command:
-
-    $ scan-build make
+    scan-build cmake ..
+    scan-build make
 
 The tool will provide a hint on how to launch a web browser with the results.
 
 It is recommended to do this analysis in a separate, empty build directory and
-to empty the build directory before "scan-build" call.
+to empty the build directory before `scan-build` call.
