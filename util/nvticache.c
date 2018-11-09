@@ -427,20 +427,6 @@ nvticache_get_name (const char *oid)
 }
 
 /**
- * @brief Get the copyright from a plugin OID.
- *
- * @param[in]   oid     OID to match.
- *
- * @return Copyright matching OID, NULL otherwise.
- */
-char *
-nvticache_get_copyright (const char *oid)
-{
-  assert (cache_kb);
-  return kb_nvt_get (cache_kb, oid, NVT_COPYRIGHT_POS);
-}
-
-/**
  * @brief Get the cves from a plugin OID.
  *
  * @param[in]   oid     OID to match.

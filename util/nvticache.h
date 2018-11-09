@@ -79,9 +79,6 @@ GSList *
 nvticache_get_prefs (const char *);
 
 char *
-nvticache_get_copyright (const char *);
-
-char *
 nvticache_get_cves (const char *);
 
 char *
