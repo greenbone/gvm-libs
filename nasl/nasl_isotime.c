@@ -102,9 +102,13 @@ epoch2isotime (my_isotime_t timebuf, time_t atime)
       struct tm *tp;
 
       tp = gmtime (&atime);
-      snprintf (timebuf, ISOTIME_SIZE, "%04d%02d%02dT%02d%02d%02d",
+      if (snprintf (timebuf, ISOTIME_SIZE, "%04d%02d%02dT%02d%02d%02d",
                 1900 + tp->tm_year, tp->tm_mon+1, tp->tm_mday,
-                tp->tm_hour, tp->tm_min, tp->tm_sec);
+                tp->tm_hour, tp->tm_min, tp->tm_sec) < 0)
+        {
+          *timebuf = '\0';
+          return;
+        }
     }
 }
 
