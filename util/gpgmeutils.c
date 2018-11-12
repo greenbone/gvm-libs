@@ -231,8 +231,8 @@ gvm_gpg_import_from_string (gpgme_ctx_t ctx,
 
   import_result = gpgme_op_import_result (ctx);
   g_debug ("%s: %d imported, %d not imported",
-             __FUNCTION__,
-             import_result->imported, import_result->not_imported);
+           __FUNCTION__,
+           import_result->imported, import_result->not_imported);
 
   gpgme_import_status_t status;
   status = import_result->imports;
@@ -259,8 +259,9 @@ gvm_gpg_import_from_string (gpgme_ctx_t ctx,
  * @brief Find a key that can be used to encrypt for an email recipient.
  *
  * @param[in]  ctx        The GPGME context.
- * @param[in]  protocol   The cryptography engine used.
  * @param[in]  uid_email  The recipient email address to look for.
+ *
+ * @return  The key as a gpgme_key_t.
  */
 static gpgme_key_t
 find_email_encryption_key (gpgme_ctx_t ctx,
@@ -333,6 +334,8 @@ find_email_encryption_key (gpgme_ctx_t ctx,
  * @param[in]  uid_email      Email address of key / certificate to use.
  * @param[in]  protocol       The protocol to use, e.g. OpenPGP or CMS.
  * @param[in]  data_type      The expected GPGME buffered data type.
+ *
+ * @return 0 success, -1 error.
  */
 static int
 encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
@@ -442,6 +445,8 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
  * @param[in]  uid_email        Email address of public key to use.
  * @param[in]  public_key_str   String containing the public key.
  * @param[in]  public_key_len   Length of public key or -1 to use strlen.
+ *
+ * @return 0 success, -1 error.
  */
 int
 gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
@@ -466,6 +471,8 @@ gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
  * @param[in]  uid_email        Email address of certificate to use.
  * @param[in]  certificate_str  String containing the public key.
  * @param[in]  certificate_len  Length of public key or -1 to use strlen.
+ *
+ * @return 0 success, -1 error.
  */
 int
 gvm_smime_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
