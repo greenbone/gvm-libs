@@ -370,6 +370,8 @@ nvticache_get_category (const char *oid)
 
   assert (cache_kb);
   category_s = kb_nvt_get (cache_kb, oid, NVT_CATEGORY_POS);
+  if (category_s == NULL)
+    return -1;
   category = atoi (category_s);
   g_free (category_s);
   return category;
