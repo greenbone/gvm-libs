@@ -1,12 +1,6 @@
-/* gvm-libs/gmp
- * $Id$
- * Description: GMP client interface.
+/* Copyright (C) 2009-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Matthew Mundell <matthew.mundell@greenbone.net>
- *
- * Copyright:
- * Copyright (C) 2009 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,8 +18,8 @@
  */
 
 /**
- * @file gmp.c
- * @brief GMP client interface.
+ * @file
+ * @brief API for Greenbone Management Protocol communication.
  *
  * This provides higher level, GMP-aware, facilities for working with with
  * the Greenbone Vulnerability Manager.
