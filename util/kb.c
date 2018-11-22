@@ -1304,10 +1304,24 @@ redis_add_str (kb_t kb, const char *name, const char *str, size_t len)
 
   kbr = redis_kb (kb);
 
+  /* Some VTs still rely on values being unique (ie. a value inserted multiple
+   * times, will only be present once.)
+   * Once these are fixed, the LREM becomes redundant and should be removed.
+   */
   if (len == 0)
-    rep = redis_cmd (kbr, "RPUSH %s %s", name, str);
+    {
+      rep = redis_cmd (kbr, "LREM %s 1 %s", name, str);
+      if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
+        g_warning ("Key '%s' already contained value '%s'", name, str);
+      rep = redis_cmd (kbr, "RPUSH %s %s", name, str);
+    }
   else
-    rep = redis_cmd (kbr, "RPUSH %s %b", name, str, len);
+    {
+      rep = redis_cmd (kbr, "LREM %s 1 %b", name, str);
+      if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
+        g_warning ("Key '%s' already contained value '%s'", name, str);
+      rep = redis_cmd (kbr, "RPUSH %s %b", name, str, len);
+    }
   if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
     rc = -1;
 
