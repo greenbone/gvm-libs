@@ -1,12 +1,6 @@
-/* gvm-libs/util
- * $Id$
- * Description: Headers of an API for Radius authentication.
+/* Copyright (C) 2015-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Hani Benhabiles <hani.benhabiles@greenbone.net>
- *
- * Copyright:
- * Copyright (C) 2015 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,6 +17,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ * @brief Headers of an API for Radius authentication.
+ */
+
 #ifndef _GVM_RADIUSUTILS_H
 #define _GVM_RADIUSUTILS_H
 
@@ -30,4 +29,3 @@ int
 radius_authenticate (const char *, const char *, const char *, const char *);
 
 #endif /* not _GVM_RADIUSUTILS_H */
-

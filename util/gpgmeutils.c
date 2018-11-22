@@ -1,13 +1,6 @@
-/* gvm-libs/util
- * $Id$
- * Description: GPGME utilities.
+/* Copyright (C) 2009-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Bernhard Herzog <bernhard.herzog@intevation.de>
- * Werner Koch <wk@gnupg.org>
- *
- * Copyright:
- * Copyright (C) 2009,2013 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,7 +18,7 @@
  */
 
 /**
- * @file gpgmeutils.c
+ * @file
  * @brief GPGME utilities.
  */
 
