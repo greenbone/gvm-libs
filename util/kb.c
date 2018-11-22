@@ -910,7 +910,7 @@ redis_get_single (kb_t kb, const char *name, enum kb_item_type type)
   kbr = redis_kb (kb);
   kbi = NULL;
 
-  rep = redis_cmd (kbr, "SRANDMEMBER %s", name);
+  rep = redis_cmd (kbr, "LINDEX %s 0", name);
   if (rep == NULL || rep->type != REDIS_REPLY_STRING)
     {
       kbi = NULL;
@@ -1120,7 +1120,7 @@ redis_get_all (kb_t kb, const char *name)
 
   kbr = redis_kb (kb);
 
-  rep = redis_cmd (kbr, "SMEMBERS %s", name);
+  rep = redis_cmd (kbr, "LRANGE %s 0 -1", name);
   if (rep == NULL)
     return NULL;
 
@@ -1167,7 +1167,7 @@ redis_get_pattern (kb_t kb, const char *pattern)
 
       key = rep->element[i]->str;
 
-      rep_range = redis_cmd (kbr, "SMEMBERS %s", key);
+      rep_range = redis_cmd (kbr, "LRANGE %s 0 -1", key);
       if (rep_range == NULL)
         continue;
 
@@ -1306,9 +1306,9 @@ redis_add_str (kb_t kb, const char *name, const char *str, size_t len)
   kbr = redis_kb (kb);
 
   if (len == 0)
-    rep = redis_cmd (kbr, "SADD %s %s", name, str);
+    rep = redis_cmd (kbr, "RPUSH %s %s", name, str);
   else
-    rep = redis_cmd (kbr, "SADD %s %b", name, str, len);
+    rep = redis_cmd (kbr, "RPUSH %s %b", name, str, len);
   if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
     rc = -1;
 
@@ -1346,9 +1346,9 @@ redis_set_str (kb_t kb, const char *name, const char *val, size_t len)
 
   redis_transaction_cmd (&rtx, "DEL %s", name);
   if (len == 0)
-    redis_transaction_cmd (&rtx, "SADD %s %s", name, val);
+    redis_transaction_cmd (&rtx, "RPUSH %s %s", name, val);
   else
-    redis_transaction_cmd (&rtx, "SADD %s %b", name, val, len);
+    redis_transaction_cmd (&rtx, "RPUSH %s %b", name, val, len);
 
   rc = redis_transaction_end (&rtx, &rep);
   if (rc || rep == NULL || rep->type == REDIS_REPLY_ERROR)
@@ -1380,7 +1380,7 @@ redis_add_int (kb_t kb, const char *name, int val)
 
   kbr = redis_kb (kb);
 
-  rep = redis_cmd (kbr, "SADD %s %d", name, val);
+  rep = redis_cmd (kbr, "RPUSH %s %d", name, val);
   if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
     {
       rc = -1;
@@ -1420,7 +1420,7 @@ redis_set_int (kb_t kb, const char *name, int val)
     }
 
   redis_transaction_cmd (&rtx, "DEL %s", name);
-  redis_transaction_cmd (&rtx, "SADD %s %d", name, val);
+  redis_transaction_cmd (&rtx, "RPUSH %s %d", name, val);
 
   rc = redis_transaction_end (&rtx, &rep);
   if (rc || rep == NULL || rep->type == REDIS_REPLY_ERROR)
@@ -1476,7 +1476,7 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
     {
       nvtpref_t *pref = element->data;
 
-      rep = redis_cmd (kbr, "SADD oid:%s:prefs %s|||%s|||%s", nvti_oid (nvt),
+      rep = redis_cmd (kbr, "RPUSH oid:%s:prefs %s|||%s|||%s", nvti_oid (nvt),
                        pref->name, pref->type, pref->dflt);
       if (!rep || rep->type == REDIS_REPLY_ERROR)
         rc = -1;
