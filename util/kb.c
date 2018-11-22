@@ -1,10 +1,6 @@
-/* gvm-libs/util
+/* Copyright (C) 2014-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Henri Doreau <henri.doreau@greenbone.net>
- *
- * Copyright:
- * Copyright (C) 2014 Greenbone Networks GmbH.
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,8 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Knowledge base management API - Redis backend.
+ */
+
+/**
+ * @file
+ * @brief Knowledge base management API - Redis backend.
  */
 
 #define _GNU_SOURCE

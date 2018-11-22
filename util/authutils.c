@@ -1,14 +1,6 @@
-/* gvm-libs/util
- * $Id$
- * Description: Authentication mechanism(s).
+/* Copyright (C) 2009-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Matthew Mundell <matthew.mundell@greenbone.net>
- * Michael Wiegand <michael.wiegand@greenbone.net>
- * Felix Wolfsteller <felix.wolfsteller@greenbone.net>
- *
- * Copyright:
- * Copyright (C) 2009,2010 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,8 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/**
+ * @file
+ * @brief Authentication mechanism(s).
  */
 
 #include "authutils.h"
