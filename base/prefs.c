@@ -1,12 +1,6 @@
-/* gvm-libs/base
- * $Id$
- * Description: Implementation of API to handle globally stored preferences
+/* Copyright (C) 2014-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
- *
- * Copyright:
- * Copyright (C) 2014 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,7 +18,7 @@
  */
 
 /**
- * @file prefs.c
+ * @file
  * @brief Implementation of API to handle globally stored preferences.
  *
  * A global store of preferences to scanner and NVTs is handled by this

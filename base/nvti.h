@@ -1,13 +1,6 @@
-/* gvm-libs/base
- * $Id$
- * Description: API (structs and protos) for NVT Info datasets
+/* Copyright (C) 2009-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
- * Matthew Mundell <matthew.mundell@greenbone.net>
- *
- * Copyright:
- * Copyright (C) 2009, 2011 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,7 +18,7 @@
  */
 
 /**
- * @file nvti.h
+ * @file
  * @brief Protos and data structures for NVT Information data sets.
  *
  * This file contains the protos for \ref nvti.c

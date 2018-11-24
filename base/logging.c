@@ -1,12 +1,6 @@
-/* gvm-libs/base
- * $Id$
- * Description: Implementation of logging methods.
+/* Copyright (C) 2017-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Laban Mwangi <lmwangi@penguinlabs.co.ke>
- *
- * Copyright:
- * Copyright (C) 2017 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,7 +18,7 @@
  */
 
 /**
- * @file logging.c
+ * @file
  * @brief Implementation of logging methods.
  *
  * This file contains all methods needed for logging. To enable logging,

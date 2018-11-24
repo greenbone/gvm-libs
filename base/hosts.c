@@ -1,13 +1,6 @@
-/* gvm-libs/base
- * $Id$
- * Description: Implementation of API to handle Hosts objects
+/* Copyright (C) 2013-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Hani Benhabiles <hani.benhabiles@greenbone.net>
- * Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
- *
- * Copyright:
- * Copyright (C) 2013 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,7 +18,7 @@
  */
 
 /**
- * @file hosts.c
+ * @file
  * @brief Implementation of an API to handle Hosts objects
  *
  * This file contains all methods to handle Hosts collections (gvm_hosts_t)
