@@ -1,12 +1,6 @@
-/* gvm-libs/tests
- * $Id$
- * Description: Stand-alone tool to test module "hosts".
+/* Copyright (C) 2013-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Hani Benhabiles <hani.benhabiles@greenbone.net>
- *
- * Copyright:
- * Copyright (C) 2013 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,7 +18,7 @@
  */
 
 /**
- * @file test-hosts.c
+ * @file
  * @brief Stand-alone tool to test module "hosts".
  *
  * This file offers a command line interface to test the functionalities
