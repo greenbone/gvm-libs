@@ -1,13 +1,6 @@
-/* gvm-lib/base
- * $Id$
- * Description: API (structs and protos) for Hosts objects
+/* Copyright (C) 2013-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Hani Benhabiles <hani.benhabiles@greenbone.net>
- * Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
- *
- * Copyright:
- * Copyright (C) 2013 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,7 +18,7 @@
  */
 
 /**
- * @file hosts.h
+ * @file
  * @brief Protos and data structures for Hosts collections and single hosts
  * objects.
  *

@@ -1,13 +1,6 @@
-/* gvm-libs/base
- * $Id$
- * Description: Implementation of API to handle configuration file management
+/* Copyright (C) 2010-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Matthew Mundell <matthew.mundell@greenbone.net>
- * Michael Wiegand <michael.wiegand@greenbone.net>
- *
- * Copyright:
- * Copyright (C) 2010 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,7 +20,6 @@
 /**
  * @file settings.c
  * @brief Implementation of API to handle configuration file management
- *
  */
 
 #include "settings.h"

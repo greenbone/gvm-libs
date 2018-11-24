@@ -1,12 +1,6 @@
-/* gvm-libs/base
- * $Id$
- * Description: CVSS utility functions
+/* Copyright (C) 2012-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Preeti Subramanian
- *
- * Copyright:
- * Copyright (C) 2012 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,7 +18,7 @@
  */
 
 /**
- * @file cvss.c
+ * @file
  * @brief CVSS utility functions
  *
  * This file contains utility functions for handling CVSS.
