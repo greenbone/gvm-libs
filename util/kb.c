@@ -1399,10 +1399,17 @@ redis_add_int (kb_t kb, const char *name, int val)
   struct kb_redis *kbr;
   redisReply *rep;
   int rc = 0;
+  redisContext *ctx;
 
   kbr = redis_kb (kb);
-
-  rep = redis_cmd (kbr, "RPUSH %s %d", name, val);
+  ctx = get_redis_ctx (kbr);
+  redisAppendCommand (ctx, "LREM %s 1 %d", name, val);
+  redisAppendCommand (ctx, "RPUSH %s %d", name, val);
+  redisGetReply (ctx, (void **) &rep);
+  if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
+    g_warning ("Key '%s' already contained integer '%d'", name, val);
+  freeReplyObject (rep);
+  redisGetReply (ctx, (void **) &rep);
   if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
     {
       rc = -1;
