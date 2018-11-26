@@ -1,12 +1,6 @@
-/* gvm-libs/base
- * $Id$
- * Description: Check a password policy
+/* Copyright (C) 2013-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Werner Koch <wk@gnupg.org>
- *
- * Copyright:
- * Copyright (C) 2013 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,7 +18,7 @@
  */
 
 /**
- * @file  pwpolicy.c
+ * @file
  * @brief Check passwords against a list of pattern
  *
  * See \ref PWPOLICY_FILE_NAME for a syntax description of the pattern

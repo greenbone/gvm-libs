@@ -1,12 +1,6 @@
-/* gvm-libs/util
- * $Id$
- * Description: Implementation of API to handle NVT Info Cache
+/* Copyright (C) 2009-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
- *
- * Copyright:
- * Copyright (C) 2009 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,7 +18,7 @@
  */
 
 /**
- * @file nvticache.c
+ * @file
  * @brief Implementation of API to handle NVT Info Cache
  *
  * This file contains all methods to handle NVT Information Cache
@@ -144,35 +138,34 @@ nvticache_reset ()
 
 /**
  * @brief Determine the version of the NVT feed.
- * @param[out] feed_version Buffer to contain feed_version.
- * @param[in]  feed_size    Size of feed_version buffer.
  *
- * @return 0 if success, 1 if error.
+ * @return Feed version string if success, NULL otherwise.
  */
-static int
-nvt_feed_version (char *feed_version, int feed_size)
+static char *
+nvt_feed_version ()
 {
-  FILE *foutput;
-  char command[2048];
-  g_snprintf (command, sizeof (command),
-              "grep PLUGIN_SET %s/plugin_feed_info.inc | sed -e 's/[^0-9]//g'",
-              src_path);
+  char filename[2048], *fcontent = NULL, *plugin_set;
+  GError *error = NULL;
 
-  foutput = popen (command, "r");
-  if (!foutput)
+  g_snprintf (filename, sizeof (filename), "%s/plugin_feed_info.inc", src_path);
+  if (!g_file_get_contents (filename, &fcontent, NULL, &error))
     {
-      g_warning ("popen: %s", strerror (errno));
-      return 1;
+      if (error)
+        g_warning ("nvt_feed_version: %s", error->message);
+      g_error_free (error);
+      return NULL;
     }
-  if (fgets (feed_version, feed_size, foutput) == NULL)
+  plugin_set = g_strrstr (fcontent, "PLUGIN_SET = ");
+  if (!plugin_set)
     {
-      pclose (foutput);
-      return 1;
+      g_warning ("nvt_feed_version: Erroneous %s format", filename);
+      g_free (fcontent);
+      return NULL;
     }
 
-  feed_version[strlen (feed_version) - 1] = '\0';
-  pclose (foutput);
-  return 0;
+  plugin_set = g_strndup (plugin_set + 14, 12);
+  g_free (fcontent);
+  return plugin_set;
 }
 
 /**
@@ -181,13 +174,13 @@ nvt_feed_version (char *feed_version, int feed_size)
 void
 nvticache_save ()
 {
-  char feed_version[48];
+  char *feed_version;
   if (cache_kb && !cache_saved)
     {
       kb_save (cache_kb);
       cache_saved = 1;
     }
-  if (!nvt_feed_version (feed_version, sizeof (feed_version)))
+  if ((feed_version = nvt_feed_version ()))
     kb_item_set_str (cache_kb, NVTICACHE_STR, feed_version, 0);
 }
 
@@ -619,10 +612,10 @@ nvticache_feed_version (void)
 int
 nvticache_check_feed (void)
 {
-  char *cached, current[48];
+  char *cached, *current;
   int ret;
 
-  if (nvt_feed_version (current, sizeof (current)))
+  if (!(current = nvt_feed_version ()))
     return 0;
   cached = kb_item_get_str (cache_kb, NVTICACHE_STR);
   ret = strcmp (cached, current);

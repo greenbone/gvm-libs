@@ -1,13 +1,6 @@
-/* gvm-libs/base
- * $Id$
- * Description: API (structs and protos) for configuration file management
+/* Copyright (C) 2010-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Matthew Mundell <matthew.mundell@greenbone.net>
- * Michael Wiegand <michael.wiegand@greenbone.net>
- *
- * Copyright:
- * Copyright (C) 2010 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,7 +18,7 @@
  */
 
 /**
- * @file settings.h
+ * @file
  * @brief Protos and data structures for configuration file management
  *
  * This file contains the protos for \ref settings.c

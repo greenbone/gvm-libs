@@ -1,12 +1,6 @@
-/* gvm-libs/base
- * $Id$
- * Description: String utilities.
+/* Copyright (C) 2009-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Matthew Mundell <matthew.mundell@greenbone.net>
- *
- * Copyright:
- * Copyright (C) 2009,2010 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,7 +18,7 @@
  */
 
 /**
- * @file strings.c
+ * @file
  * @brief String utilities.
  */
 

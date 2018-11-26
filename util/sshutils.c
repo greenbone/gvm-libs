@@ -1,12 +1,6 @@
-/* gvm-libs/util
- * $Id$
- * Description: Implementation of SSH related API.
+/* Copyright (C) 2015-2018 Greenbone Networks GmbH
  *
- * Authors:
- * Hani Benhabiles <hani.benhabiles@greenbone.net>
- *
- * Copyright:
- * Copyright (C) 2015 Greenbone Networks GmbH
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,11 +17,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ * @brief Implementation of SSH related API.
+ */
+
 #include "sshutils.h"
 
 #include <glib.h>          /* for g_free, g_strdup, g_strdup_printf */
 #include <gnutls/gnutls.h> /* for gnutls_datum_t */
-#include <gnutls/x509.h> /* for gnutls_x509_privkey_deinit, gnutls_x509_p... */
+#include <gnutls/x509.h>   /* for gnutls_x509_privkey_deinit, gnutls_x509_p... */
 #include <libssh/libssh.h> /* for ssh_key_free, ssh_key_type, ssh_key_type_... */
 #include <string.h>        /* for strcmp, strlen */
 

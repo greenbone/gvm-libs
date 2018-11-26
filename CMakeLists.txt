@@ -1,13 +1,6 @@
-# Greenbone Vulnerability Management
-# $Id$
-# Description: Top-level cmake control for the Greenbone Vulnerability Management Libraries.
+# Copyright (C) 2011-2018 Greenbone Networks GmbH
 #
-# Authors:
-# Matthew Mundell <matthew.mundell@greenbone.net>
-# Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2011-2016 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
