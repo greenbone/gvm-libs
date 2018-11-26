@@ -1301,8 +1301,10 @@ redis_add_str (kb_t kb, const char *name, const char *str, size_t len)
   struct kb_redis *kbr;
   redisReply *rep = NULL;
   int rc = 0;
+  redisContext *ctx;
 
   kbr = redis_kb (kb);
+  ctx = get_redis_ctx (kbr);
 
   /* Some VTs still rely on values being unique (ie. a value inserted multiple
    * times, will only be present once.)
@@ -1310,17 +1312,23 @@ redis_add_str (kb_t kb, const char *name, const char *str, size_t len)
    */
   if (len == 0)
     {
-      rep = redis_cmd (kbr, "LREM %s 1 %s", name, str);
+      redisAppendCommand (ctx, "LREM %s 1 %s", name, str);
+      redisAppendCommand (ctx, "RPUSH %s %s", name, str);
+      redisGetReply (ctx, (void **) &rep);
       if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
         g_warning ("Key '%s' already contained value '%s'", name, str);
-      rep = redis_cmd (kbr, "RPUSH %s %s", name, str);
+      freeReplyObject (rep);
+      redisGetReply (ctx, (void **) &rep);
     }
   else
     {
-      rep = redis_cmd (kbr, "LREM %s 1 %b", name, str);
+      redisAppendCommand (ctx, "LREM %s 1 %b", name, str, len);
+      redisAppendCommand (ctx, "RPUSH %s %b", name, str, len);
+      redisGetReply (ctx, (void **) &rep);
       if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
-        g_warning ("Key '%s' already contained value '%s'", name, str);
-      rep = redis_cmd (kbr, "RPUSH %s %b", name, str, len);
+        g_warning ("Key '%s' already contained string '%s'", name, str);
+      freeReplyObject (rep);
+      redisGetReply (ctx, (void **) &rep);
     }
   if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
     rc = -1;
