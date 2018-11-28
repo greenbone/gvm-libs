@@ -909,7 +909,7 @@ redis_get_single (kb_t kb, const char *name, enum kb_item_type type)
   kbr = redis_kb (kb);
   kbi = NULL;
 
-  rep = redis_cmd (kbr, "LINDEX %s 0", name);
+  rep = redis_cmd (kbr, "LINDEX %s -1", name);
   if (rep == NULL || rep->type != REDIS_REPLY_STRING)
     {
       kbi = NULL;
