@@ -1351,36 +1351,27 @@ static int
 redis_set_str (kb_t kb, const char *name, const char *val, size_t len)
 {
   struct kb_redis *kbr;
-  struct redis_tx rtx;
-  redisReply *rep;
-  int rc;
+  redisReply *rep = NULL;
+  redisContext *ctx;
+  int rc = 0, i = 4;
 
   kbr = redis_kb (kb);
-  rep = NULL;
-
-  rc = redis_transaction_new (kbr, &rtx);
-  if (rc)
-    {
-      rc = -1;
-      goto out;
-    }
-
-  redis_transaction_cmd (&rtx, "DEL %s", name);
+  ctx = get_redis_ctx (kbr);
+  redisAppendCommand (ctx, "MULTI");
+  redisAppendCommand (ctx, "DEL %s", name);
   if (len == 0)
-    redis_transaction_cmd (&rtx, "RPUSH %s %s", name, val);
+    redisAppendCommand (ctx, "RPUSH %s %s", name, val);
   else
-    redis_transaction_cmd (&rtx, "RPUSH %s %b", name, val, len);
-
-  rc = redis_transaction_end (&rtx, &rep);
-  if (rc || rep == NULL || rep->type == REDIS_REPLY_ERROR)
+    redisAppendCommand (ctx, "RPUSH %s %b", name, val, len);
+  redisAppendCommand (ctx, "EXEC");
+  while (i--)
     {
-      rc = -1;
-      goto out;
+      redisGetReply (ctx, (void **) &rep);
+      if (!rep || rep->type == REDIS_REPLY_ERROR)
+        rc = -1;
+      if (rep)
+        freeReplyObject (rep);
     }
-
-out:
-  if (rep != NULL)
-    freeReplyObject (rep);
 
   return rc;
 }
