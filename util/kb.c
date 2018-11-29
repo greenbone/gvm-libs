@@ -76,16 +76,6 @@ struct kb_redis
 };
 #define redis_kb(__kb) ((struct kb_redis *)(__kb))
 
-/**
- * @brief Redis transaction handle.
- */
-struct redis_tx
-{
-  struct kb_redis *kbr; /**< Redis KB handle. */
-  bool valid;           /**< Whether the transaction is still valid. */
-};
-
-
 static int redis_delete_all (struct kb_redis *);
 static int redis_lnk_reset (kb_t);
 static int redis_flush_all (kb_t, const char *);
@@ -629,123 +619,6 @@ kb_item_free (struct kb_item *item)
       item = next;
     }
 }
-
-/**
- * @brief Get a redis transaction handle.
- * @param[in] kbr Subclass of struct kb.
- * @param[out] rtx Redis transaction handle struct.
- * @return 0 on success, -1 otherwise.
- */
-static int
-redis_transaction_new (struct kb_redis *kbr, struct redis_tx *rtx)
-{
-  int rc = 0;
-  redisContext *ctx;
-  redisReply *rep = NULL;
-
-  rtx->kbr = kbr;
-  rtx->valid = false;
-
-  /* That is the quick, dirty & easy way to guarantee a fresh connection */
-  redis_lnk_reset ((kb_t)kbr);
-
-  ctx = get_redis_ctx (kbr);
-  if (ctx == NULL)
-    return -1;
-
-  rep = redisCommand (ctx, "MULTI");
-  if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
-    {
-      rc = -1;
-      goto err_cleanup;
-    }
-
-  rtx->valid = true;
-
-err_cleanup:
-  if (rep != NULL)
-    freeReplyObject (rep);
-
-  return rc;
-}
-
-/**
- * @brief Execute a redis command.
- * @param[in] rtx Redis transaction handler.
- * @param[in] fmt Formatted variable argument list with the cmd to be executed.
- * @return 0 on success, -1 otherwise.
- */
-static int
-redis_transaction_cmd (struct redis_tx *rtx, const char *fmt, ...)
-{
-  int rc = 0;
-  va_list ap;
-  redisReply *rep;
-
-  if (!rtx->valid)
-    return -1;
-
-  va_start (ap, fmt);
-
-  rep = redisvCommand (rtx->kbr->rctx, fmt, ap);
-  if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
-    {
-      rc = -1;
-      goto err_cleanup;
-    }
-
-err_cleanup:
-  va_end (ap);
-
-  if (rc)
-    rtx->valid = false;
-
-  if (rep != NULL)
-    freeReplyObject (rep);
-
-  return rc;
-}
-
-/**
- * @brief End redis redis transaction.
- * @param[in] rtx Redis transaction handler.
- * @param[out] rep A redisReply element with the retrieve data or NULL.
- * @return 0 on success, -1 otherwise.
- */
-static int
-redis_transaction_end (struct redis_tx *rtx, redisReply **rep)
-{
-  int rc;
-  redisReply *preply;
-
-  preply = NULL;
-
-  if (!rtx->valid)
-    return -1;
-
-  preply = redisCommand (rtx->kbr->rctx, "EXEC");
-  if (preply == NULL || preply->type == REDIS_REPLY_ERROR)
-    {
-      rc = -1;
-      goto err_cleanup;
-    }
-
-  *rep = preply;
-  rc = 0;
-
-err_cleanup:
-
-  if (rc)
-    {
-      freeReplyObject (preply);
-      *rep = NULL;
-    }
-
-  memset (rtx, 0, sizeof (struct redis_tx));
-
-  return rc;
-}
-
 
 /**
  * @brief Give a single KB item.
@@ -1423,34 +1296,23 @@ out:
 static int
 redis_set_int (kb_t kb, const char *name, int val)
 {
-  struct kb_redis *kbr;
-  struct redis_tx rtx;
-  redisReply *rep;
-  int rc;
+  redisReply *rep = NULL;
+  redisContext *ctx;
+  int rc = 0, i = 4;
 
-  kbr = redis_kb (kb);
-  rep = NULL;
-
-  rc = redis_transaction_new (kbr, &rtx);
-  if (rc)
+  ctx = get_redis_ctx (redis_kb (kb));
+  redisAppendCommand (ctx, "MULTI");
+  redisAppendCommand (ctx, "DEL %s", name);
+  redisAppendCommand (ctx, "RPUSH %s %d", name, val);
+  redisAppendCommand (ctx, "EXEC");
+  while (i--)
     {
-      rc = -1;
-      goto out;
+      redisGetReply (ctx, (void **) &rep);
+      if (!rep || rep->type == REDIS_REPLY_ERROR)
+        rc = -1;
+      if (rep)
+        freeReplyObject (rep);
     }
-
-  redis_transaction_cmd (&rtx, "DEL %s", name);
-  redis_transaction_cmd (&rtx, "RPUSH %s %d", name, val);
-
-  rc = redis_transaction_end (&rtx, &rep);
-  if (rc || rep == NULL || rep->type == REDIS_REPLY_ERROR)
-    {
-      rc = -1;
-      goto out;
-    }
-
-out:
-  if (rep != NULL)
-    freeReplyObject (rep);
 
   return rc;
 }
