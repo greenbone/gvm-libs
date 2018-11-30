@@ -909,7 +909,7 @@ redis_get_single (kb_t kb, const char *name, enum kb_item_type type)
   kbr = redis_kb (kb);
   kbi = NULL;
 
-  rep = redis_cmd (kbr, "SRANDMEMBER %s", name);
+  rep = redis_cmd (kbr, "LINDEX %s -1", name);
   if (rep == NULL || rep->type != REDIS_REPLY_STRING)
     {
       kbi = NULL;
@@ -1119,7 +1119,7 @@ redis_get_all (kb_t kb, const char *name)
 
   kbr = redis_kb (kb);
 
-  rep = redis_cmd (kbr, "SMEMBERS %s", name);
+  rep = redis_cmd (kbr, "LRANGE %s 0 -1", name);
   if (rep == NULL)
     return NULL;
 
@@ -1166,7 +1166,7 @@ redis_get_pattern (kb_t kb, const char *pattern)
 
       key = rep->element[i]->str;
 
-      rep_range = redis_cmd (kbr, "SMEMBERS %s", key);
+      rep_range = redis_cmd (kbr, "LRANGE %s 0 -1", key);
       if (rep_range == NULL)
         continue;
 
@@ -1301,13 +1301,35 @@ redis_add_str (kb_t kb, const char *name, const char *str, size_t len)
   struct kb_redis *kbr;
   redisReply *rep = NULL;
   int rc = 0;
+  redisContext *ctx;
 
   kbr = redis_kb (kb);
+  ctx = get_redis_ctx (kbr);
 
+  /* Some VTs still rely on values being unique (ie. a value inserted multiple
+   * times, will only be present once.)
+   * Once these are fixed, the LREM becomes redundant and should be removed.
+   */
   if (len == 0)
-    rep = redis_cmd (kbr, "SADD %s %s", name, str);
+    {
+      redisAppendCommand (ctx, "LREM %s 1 %s", name, str);
+      redisAppendCommand (ctx, "RPUSH %s %s", name, str);
+      redisGetReply (ctx, (void **) &rep);
+      if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
+        g_warning ("Key '%s' already contained value '%s'", name, str);
+      freeReplyObject (rep);
+      redisGetReply (ctx, (void **) &rep);
+    }
   else
-    rep = redis_cmd (kbr, "SADD %s %b", name, str, len);
+    {
+      redisAppendCommand (ctx, "LREM %s 1 %b", name, str, len);
+      redisAppendCommand (ctx, "RPUSH %s %b", name, str, len);
+      redisGetReply (ctx, (void **) &rep);
+      if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
+        g_warning ("Key '%s' already contained string '%s'", name, str);
+      freeReplyObject (rep);
+      redisGetReply (ctx, (void **) &rep);
+    }
   if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
     rc = -1;
 
@@ -1345,9 +1367,9 @@ redis_set_str (kb_t kb, const char *name, const char *val, size_t len)
 
   redis_transaction_cmd (&rtx, "DEL %s", name);
   if (len == 0)
-    redis_transaction_cmd (&rtx, "SADD %s %s", name, val);
+    redis_transaction_cmd (&rtx, "RPUSH %s %s", name, val);
   else
-    redis_transaction_cmd (&rtx, "SADD %s %b", name, val, len);
+    redis_transaction_cmd (&rtx, "RPUSH %s %b", name, val, len);
 
   rc = redis_transaction_end (&rtx, &rep);
   if (rc || rep == NULL || rep->type == REDIS_REPLY_ERROR)
@@ -1376,10 +1398,17 @@ redis_add_int (kb_t kb, const char *name, int val)
   struct kb_redis *kbr;
   redisReply *rep;
   int rc = 0;
+  redisContext *ctx;
 
   kbr = redis_kb (kb);
-
-  rep = redis_cmd (kbr, "SADD %s %d", name, val);
+  ctx = get_redis_ctx (kbr);
+  redisAppendCommand (ctx, "LREM %s 1 %d", name, val);
+  redisAppendCommand (ctx, "RPUSH %s %d", name, val);
+  redisGetReply (ctx, (void **) &rep);
+  if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
+    g_warning ("Key '%s' already contained integer '%d'", name, val);
+  freeReplyObject (rep);
+  redisGetReply (ctx, (void **) &rep);
   if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
     {
       rc = -1;
@@ -1419,7 +1448,7 @@ redis_set_int (kb_t kb, const char *name, int val)
     }
 
   redis_transaction_cmd (&rtx, "DEL %s", name);
-  redis_transaction_cmd (&rtx, "SADD %s %d", name, val);
+  redis_transaction_cmd (&rtx, "RPUSH %s %d", name, val);
 
   rc = redis_transaction_end (&rtx, &rep);
   if (rc || rep == NULL || rep->type == REDIS_REPLY_ERROR)
@@ -1475,7 +1504,7 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
     {
       nvtpref_t *pref = element->data;
 
-      rep = redis_cmd (kbr, "SADD oid:%s:prefs %s|||%s|||%s", nvti_oid (nvt),
+      rep = redis_cmd (kbr, "RPUSH oid:%s:prefs %s|||%s|||%s", nvti_oid (nvt),
                        pref->name, pref->type, pref->dflt);
       if (!rep || rep->type == REDIS_REPLY_ERROR)
         rc = -1;
