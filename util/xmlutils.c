@@ -49,19 +49,6 @@
 #define BUFFER_SIZE 1048576
 
 /**
- * @brief XML context.
- *
- * This structure is used to pass data between XML event handlers and the
- * caller of the XML parser.
- */
-typedef struct
-{
-  GSList *first;                ///< The name of the very first entity.
-  GSList *current;              ///< The element currently being parsed.
-  gboolean done;                ///< Flag which is true when the first element is closed.
-} context_data_t;
-
-/**
  * @brief Create an entity.
  *
  * @param[in]  name  Name of the entity.  Copied, freed by free_entity.
@@ -285,7 +272,7 @@ add_attributes (entity_t entity, const gchar ** names, const gchar ** values)
  * @param[in]  user_data         Dummy parameter.
  * @param[in]  error             Error parameter.
  */
-void
+static void
 handle_start_element (GMarkupParseContext * context, const gchar * element_name,
                       const gchar ** attribute_names,
                       const gchar ** attribute_values, gpointer user_data,
@@ -314,6 +301,23 @@ handle_start_element (GMarkupParseContext * context, const gchar * element_name,
 }
 
 /**
+ * @brief Handle the start of an OMP XML element.
+ *
+ * @param[in]  context           Parser context.
+ * @param[in]  element_name      XML element name.
+ * @param[in]  attribute_names   XML attribute name.
+ * @param[in]  attribute_values  XML attribute values.
+ */
+void
+xml_handle_start_element (context_data_t *context, const gchar *element_name,
+                          const gchar **attribute_names,
+                          const gchar **attribute_values)
+{
+  return handle_start_element (NULL, element_name, attribute_names,
+                               attribute_values, context, NULL);
+}
+
+/**
  * @brief Handle the end of an XML element.
  *
  * @param[in]  context           Parser context.
@@ -321,7 +325,7 @@ handle_start_element (GMarkupParseContext * context, const gchar * element_name,
  * @param[in]  user_data         Dummy parameter.
  * @param[in]  error             Error parameter.
  */
-void
+static void
 handle_end_element (GMarkupParseContext * context, const gchar * element_name,
                     gpointer user_data, GError ** error)
 {
@@ -351,6 +355,18 @@ handle_end_element (GMarkupParseContext * context, const gchar * element_name,
 }
 
 /**
+ * @brief Handle the end of an XML element.
+ *
+ * @param[in]  context           Parser context.
+ * @param[in]  element_name      XML element name.
+ */
+void
+xml_handle_end_element (context_data_t *context, const gchar *element_name)
+{
+  handle_end_element (NULL, element_name, context, NULL);
+}
+
+/**
  * @brief Handle additional text of an XML element.
  *
  * @param[in]  context           Parser context.
@@ -359,7 +375,7 @@ handle_end_element (GMarkupParseContext * context, const gchar * element_name,
  * @param[in]  user_data         Dummy parameter.
  * @param[in]  error             Error parameter.
  */
-void
+static void
 handle_text (GMarkupParseContext * context, const gchar * text, gsize text_len,
              gpointer user_data, GError ** error)
 {
@@ -377,6 +393,19 @@ handle_text (GMarkupParseContext * context, const gchar * text, gsize text_len,
     }
   else
     current->text = g_strdup (text);
+}
+
+/**
+ * @brief Handle additional text of an XML element.
+ *
+ * @param[in]  context           Parser context.
+ * @param[in]  text              The text.
+ * @param[in]  text_len          Length of the text.
+ */
+void
+xml_handle_text (context_data_t *context, const gchar *text, gsize text_len)
+{
+  handle_text (NULL, text, text_len, context, NULL);
 }
 
 /**
