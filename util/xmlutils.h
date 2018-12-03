@@ -39,6 +39,29 @@ extern "C"
 #endif
 #endif
 
+/**
+ * @brief XML context.
+ *
+ * This structure is used to pass data between XML event handlers and the
+ * caller of the XML parser.
+ */
+typedef struct
+{
+  GSList *first;                ///< The very first entity.
+  GSList *current;              ///< The element currently being parsed.
+  gboolean done;                ///< Flag which is true when the first element is closed.
+} context_data_t;
+
+void
+xml_handle_start_element (context_data_t *, const gchar *, const gchar **,
+                          const gchar **);
+
+void
+xml_handle_end_element (context_data_t *, const gchar *);
+
+void
+xml_handle_text (context_data_t *, const gchar *, gsize);
+
 typedef GSList *entities_t;
 
 /**
