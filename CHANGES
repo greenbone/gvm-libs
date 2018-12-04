@@ -7,6 +7,35 @@ or get the entire source code repository and view log history:
 $ git clone https://github.com/greenbone/gvm-libs.git
 $ cd gvm-libs && git log
 
+gvm-libs 1.0+beta2 (2018-12-04)
+
+This is the second beta release of the gvm-libs module 1.0 for the Greenbone
+Vulnerability Management (GVM) framework.
+
+Many thanks to everyone who has contributed to this release:
+Hani Benhabiles, Christian Fischer, Matt Mundell, Juan Jose Nicola,
+Timo Pollmeier, Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes compared to gvm-libs 1.0+beta1:
+* KB backend has been switched to use Redis lists instead of unsorted sets.
+* Functions to handle XML elements have been added.
+* Functions for GPG(ME)-based email encryption have been added.
+* The gvm-libs release version is used as nvticache's name.
+* Creation of Radius config from file when using radcli as been added.
+* Functions to handle the kb content have been added and improved.
+* Nvticache timestamp and OID are stored in a single list key.
+* Handling of vhosts and multiple domain names has been improved.
+* Parsing of Script Version has been removed.
+* Parsing of Script Copyright has been removed.
+* Warning about duplicated NVTs has been improved.
+* An issue in CMake building process which resulted in build failures has
+  been addressed.
+* Memory management issues have been addressed.
+* Error handling has been improved.
+* Several code improvements have been done.
+* Documentation has been improved.
+* The file headers have been updated to a new standard.
+
 
 gvm-libs 1.0+beta1 (2018-04-17)
 
