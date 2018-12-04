@@ -1014,60 +1014,56 @@ static struct kb_item *
 redis_get_pattern (kb_t kb, const char *pattern)
 {
   struct kb_redis *kbr;
-  struct kb_item *kbi;
+  struct kb_item *kbi = NULL;
   redisReply *rep;
   unsigned int i;
+  redisContext *ctx;
 
   kbr = redis_kb (kb);
-  kbi = NULL;
-
   rep = redis_cmd (kbr, "KEYS %s", pattern);
-  if (rep == NULL)
+  if (!rep)
     return NULL;
-
   if (rep->type != REDIS_REPLY_ARRAY)
     {
       freeReplyObject (rep);
       return NULL;
     }
 
+  ctx = get_redis_ctx (kbr);
+  for (i = 0; i < rep->elements; i++)
+    redisAppendCommand (ctx, "LRANGE %s 0 -1", rep->element[i]->str);
+
   for (i = 0; i < rep->elements; i++)
     {
-      const char *key;
       struct kb_item *tmp;
       redisReply *rep_range;
 
-      key = rep->element[i]->str;
-
-      rep_range = redis_cmd (kbr, "LRANGE %s 0 -1", key);
-      if (rep_range == NULL)
+      redisGetReply (ctx, (void **) &rep_range);
+      if (!rep)
         continue;
+      tmp = redis2kbitem (rep->element[i]->str, rep_range);
+      if (!tmp)
+        {
+          freeReplyObject (rep_range);
+          continue;
+        }
 
-      tmp = redis2kbitem (key, rep_range);
-      if (tmp == NULL)
-        goto next; /* race condition, bah... */
-
-      if (kbi != NULL)
+      if (kbi)
         {
           struct kb_item *tmp2;
 
           tmp2 = tmp;
-          while (tmp->next != NULL)
+          while (tmp->next)
             tmp = tmp->next;
-
           tmp->next = kbi;
           kbi = tmp2;
         }
       else
         kbi = tmp;
-
-next:
-      if (rep_range != NULL)
-        freeReplyObject (rep_range);
+      freeReplyObject (rep_range);
     }
 
   freeReplyObject (rep);
-
   return kbi;
 }
 
