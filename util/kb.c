@@ -1161,7 +1161,7 @@ redis_del_items (kb_t kb, const char *name)
 }
 
 /**
- * @brief Insert (append) a new entry under a given name.
+ * @brief Insert (append) a new unique entry under a given name.
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
  * @param[in] str  Item value.
@@ -1169,7 +1169,7 @@ redis_del_items (kb_t kb, const char *name)
  * @return 0 on success, non-null on error.
  */
 static int
-redis_add_str (kb_t kb, const char *name, const char *str, size_t len)
+redis_add_str_unique (kb_t kb, const char *name, const char *str, size_t len)
 {
   struct kb_redis *kbr;
   redisReply *rep = NULL;
@@ -1213,6 +1213,34 @@ redis_add_str (kb_t kb, const char *name, const char *str, size_t len)
 }
 
 /**
+ * @brief Insert (append) a new entry under a given name.
+ * @param[in] kb  KB handle where to store the item.
+ * @param[in] name  Item name.
+ * @param[in] str  Item value.
+ * @param[in] len  Value length. Used for blobs.
+ * @return 0 on success, non-null on error.
+ */
+static int
+redis_add_str (kb_t kb, const char *name, const char *str, size_t len)
+{
+  struct kb_redis *kbr;
+  redisReply *rep;
+  int rc = 0;
+
+  kbr = redis_kb (kb);
+  if (len == 0)
+    rep = redis_cmd (kbr, "RPUSH %s %s", name, str);
+  else
+    rep = redis_cmd (kbr, "RPUSH %s %b", name, str, len);
+  if (!rep || rep->type == REDIS_REPLY_ERROR)
+    rc = -1;
+
+  if (rep)
+    freeReplyObject (rep);
+  return rc;
+}
+
+/**
  * @brief Set (replace) a new entry under a given name.
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
@@ -1250,14 +1278,14 @@ redis_set_str (kb_t kb, const char *name, const char *val, size_t len)
 }
 
 /**
- * @brief Insert (append) a new entry under a given name.
+ * @brief Insert (append) a new unique entry under a given name.
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
  * @param[in] val  Item value.
  * @return 0 on success, non-null on error.
  */
 static int
-redis_add_int (kb_t kb, const char *name, int val)
+redis_add_int_unique (kb_t kb, const char *name, int val)
 {
   struct kb_redis *kbr;
   redisReply *rep;
@@ -1281,6 +1309,28 @@ redis_add_int (kb_t kb, const char *name, int val)
 
 out:
   if (rep != NULL)
+    freeReplyObject (rep);
+
+  return rc;
+}
+
+/**
+ * @brief Insert (append) a new entry under a given name.
+ * @param[in] kb  KB handle where to store the item.
+ * @param[in] name  Item name.
+ * @param[in] val  Item value.
+ * @return 0 on success, non-null on error.
+ */
+static int
+redis_add_int (kb_t kb, const char *name, int val)
+{
+  redisReply *rep;
+  int rc = 0;
+
+  rep = redis_cmd (redis_kb (kb), "RPUSH %s %d", name, val);
+  if (!rep || rep->type == REDIS_REPLY_ERROR)
+    rc = -1;
+  if (rep)
     freeReplyObject (rep);
 
   return rc;
@@ -1563,8 +1613,10 @@ static const struct kb_operations KBRedisOperations = {
   .kb_get_pattern  = redis_get_pattern,
   .kb_count        = redis_count,
   .kb_add_str      = redis_add_str,
+  .kb_add_str_unique    = redis_add_str_unique,
   .kb_set_str      = redis_set_str,
   .kb_add_int      = redis_add_int,
+  .kb_add_int_unique    = redis_add_int_unique,
   .kb_set_int      = redis_set_int,
   .kb_add_nvt      = redis_add_nvt,
   .kb_del_items    = redis_del_items,

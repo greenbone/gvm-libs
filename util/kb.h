@@ -137,8 +137,10 @@ struct kb_operations
   struct kb_item * (*kb_get_pattern) (kb_t, const char *);
   size_t (*kb_count) (kb_t, const char *);
   int (*kb_add_str) (kb_t, const char *, const char *, size_t);
+  int (*kb_add_str_unique) (kb_t, const char *, const char *, size_t);
   int (*kb_set_str) (kb_t, const char *, const char *, size_t);
   int (*kb_add_int) (kb_t, const char *, int);
+  int (*kb_add_int_unique) (kb_t, const char *, int);
   int (*kb_set_int) (kb_t, const char *, int);
   int (*kb_add_nvt) (kb_t, const nvti_t *, const char *);
   int (*kb_del_items) (kb_t, const char *);
@@ -379,6 +381,24 @@ kb_item_add_str (kb_t kb, const char *name, const char *str, size_t len)
 }
 
 /**
+ * @brief Insert (append) a new unique entry under a given name.
+ * @param[in] kb  KB handle where to store the item.
+ * @param[in] name  Item name.
+ * @param[in] str  Item value.
+ * @param[in] len  Value length. Used for blobs.
+ * @return 0 on success, non-null on error.
+ */
+static inline int
+kb_item_add_str_unique (kb_t kb, const char *name, const char *str, size_t len)
+{
+  assert (kb);
+  assert (kb->kb_ops);
+  assert (kb->kb_ops->kb_add_str_unique);
+
+  return kb->kb_ops->kb_add_str_unique (kb, name, str, len);
+}
+
+/**
  * @brief Set (replace) a new entry under a given name.
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
@@ -411,6 +431,23 @@ kb_item_add_int (kb_t kb, const char *name, int val)
   assert (kb->kb_ops->kb_add_int);
 
   return kb->kb_ops->kb_add_int (kb, name, val);
+}
+
+/**
+ * @brief Insert (append) a new unique entry under a given name.
+ * @param[in] kb  KB handle where to store the item.
+ * @param[in] name  Item name.
+ * @param[in] val  Item value.
+ * @return 0 on success, non-null on error.
+ */
+static inline int
+kb_item_add_int_unique (kb_t kb, const char *name, int val)
+{
+  assert (kb);
+  assert (kb->kb_ops);
+  assert (kb->kb_ops->kb_add_int_unique);
+
+  return kb->kb_ops->kb_add_int_unique (kb, name, val);
 }
 
 /**
