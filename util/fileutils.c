@@ -400,6 +400,14 @@ gvm_export_file_name (const char *fname_format, const char *username,
       return NULL;
     }
 
+  fname_point = file_name_buf->str;
+  while (*fname_point != '\0')
+    {
+      if (*fname_point <= ' ')
+        *fname_point = '_';
+      fname_point ++;
+    }
+
   g_free (now_date_str);
   g_free (creation_date_str);
   g_free (creation_time_str);
