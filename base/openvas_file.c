@@ -340,6 +340,8 @@ openvas_export_file_name (const char* fname_format, const char* username,
             format_state = 1;
           else if (*fname_point == '"')
             g_string_append (file_name_buf, "\\\"");
+          else if (*fname_point <= ' ')
+            g_string_append_c (file_name_buf, '_');
           else
             g_string_append_c (file_name_buf, *fname_point);
         }
