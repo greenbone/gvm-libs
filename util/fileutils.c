@@ -338,6 +338,10 @@ gvm_export_file_name (const char *fname_format, const char *username,
             case 'c':
               g_string_append (file_name_buf, creation_time_str);
               break;
+              case 'd':
+                g_string_append_printf (file_name_buf, "%02d",
+                                        modification_time.tm_mday);
+                break;
             case 'D':
               g_string_append (file_name_buf, now_date_str);
               break;
@@ -355,6 +359,10 @@ gvm_export_file_name (const char *fname_format, const char *username,
               g_string_append (file_name_buf,
                                name ? name : (type ? type : "unnamed"));
               break;
+              case 'o':
+                g_string_append_printf (file_name_buf, "%02d",
+                                        modification_time.tm_mon + 1);
+                break;
             case 'T':
               g_string_append (file_name_buf, type ? type : "resource");
               break;
@@ -366,6 +374,10 @@ gvm_export_file_name (const char *fname_format, const char *username,
               break;
             case 'u':
               g_string_append (file_name_buf, username ? username : "");
+                break;
+              case 'Y':
+                g_string_append_printf (file_name_buf, "%04d",
+                                        modification_time.tm_year + 1900);
               break;
             case '%':
               g_string_append_c (file_name_buf, '%');
