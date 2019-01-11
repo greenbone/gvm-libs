@@ -112,6 +112,13 @@ gvm_auth_init ()
 
   /* Init Libgcrypt. */
 
+  /* Check if libgcrypt is already initialized */
+  if (gcry_control (GCRYCTL_ANY_INITIALIZATION_P))
+    {
+      initialized = TRUE;
+      return 0;
+    }
+
   /* Version check should be the very first call because it makes sure that
    * important subsystems are initialized.
    * We pass NULL to gcry_check_version to disable the internal version mismatch
