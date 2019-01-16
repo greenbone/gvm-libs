@@ -41,11 +41,14 @@
 #include "kb.h" /* for kb_del_items, kb_item_get_str, kb_item_add_int */
 
 #undef  G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
 #define G_LOG_DOMAIN "lib  nvticache"
 
 char *src_path = NULL;      /**< The directory of the source files. */
-kb_t cache_kb = NULL;
-int cache_saved = 1;
+kb_t cache_kb = NULL;       /**< Cache KB handler. */
+int cache_saved = 1;        /**< If cache was saved. */
 
 /**
  * @brief Return whether the nvt cache is initialized.

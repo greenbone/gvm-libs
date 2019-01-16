@@ -38,22 +38,31 @@
 #include "../util/xmlutils.h"    /* for entity_child, entity_text, free_entity */
 
 #undef  G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
 #define G_LOG_DOMAIN "lib  osp"
 
+/**
+ * @brief Struct holding options for OSP connection.
+ */
 struct osp_connection {
-  gnutls_session_t session;
-  int socket;
-  char *host;
-  int port;
+  gnutls_session_t session; /**< Pointer to GNUTLS Session. */
+  int socket;               /**< Socket. */
+  char *host;               /**< Host. */
+  int port;                 /**< Port. */
 };
 
+/**
+ * @brief Struct holding options for OSP paramters.
+ */
 struct osp_param {
-  char *id;
-  char *name;
-  char *desc;
-  char *def;
-  osp_param_type_t type;
-  int mandatory;
+  char *id;                 /**< Parameter id. */
+  char *name;               /**< Parameter name. */
+  char *desc;               /**< Parameter description. */
+  char *def;                /**< Default value. */
+  osp_param_type_t type;    /**< Parameter type. */
+  int mandatory;            /**< If mandatory or not. */
 };
 
 static int
@@ -404,6 +413,14 @@ osp_stop_scan (osp_connection_t *connection, const char *scan_id, char **error)
     }
 }
 
+/**
+ * @brief Concatenate options as xml.
+ *
+ * @param[in]     key      Tag name for xml element.
+ * @param[in]     value    Text for xml element.
+ * @param[in,out] pstr     Parameters as xml concatenated xml elements.
+ *
+ */
 static void
 option_concat_as_xml (gpointer key, gpointer value, gpointer pstr)
 {

@@ -29,21 +29,28 @@
 
 #include <glib.h>
 
+/**
+ * @brief Struct holding options for settings taken from a key-value
+ *        config file.
+ */
 typedef struct
 {
-  gchar *file_name;
-  gchar *group_name;
-  GKeyFile *key_file;
+  gchar *file_name;   /**< Filename containing key-value pairs. */
+  gchar *group_name;  /**< Name of the group containing key-value pairs. */
+  GKeyFile *key_file; /**< GKeyFile object where the file is load. */
 } settings_t;
 
 void settings_cleanup (settings_t *);
 
+/**
+ * @brief Struct holding options to iterate over a GKeyFile.
+ */
 typedef struct
 {
-  gchar **keys;
-  settings_t settings;
-  gchar **current_key;
-  gchar **last_key;
+  gchar **keys;         /**< Keys. */
+  settings_t settings;  /**< Settings structure. */
+  gchar **current_key;  /**< Pointer to the current key. */
+  gchar **last_key;     /**< Pointer to the last keys. */
 } settings_iterator_t;
 
 int init_settings_iterator_from_file (settings_iterator_t *, const gchar *,

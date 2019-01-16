@@ -79,10 +79,10 @@ struct kb_item
 {
   enum kb_item_type type;   /**< One of KB_TYPE_INT or KB_TYPE_STR. */
 
-  union
+  union                 /**< Store a char or an int. */
   {
-    char *v_str;
-    int v_int;
+    char *v_str;        /**< Hold an str value for this kb item. */
+    int v_int;          /**< Hold an int value for this kb item. */
   };                    /**< Value of this knowledge base item. */
 
   size_t len;           /**< Length of string. */
@@ -116,37 +116,105 @@ typedef struct kb *kb_t;
 struct kb_operations
 {
   /* ctor/dtor */
-  int (*kb_new) (kb_t *, const char *);
-  int (*kb_delete) (kb_t);
-  kb_t (*kb_find) (const char *, const char *);
-  kb_t (*kb_direct_conn) (const char *, const int);
+  int (*kb_new) (kb_t *, const char *);             /**< New KB. */
+  int (*kb_delete) (kb_t);                          /**< Delete KB. */
+  kb_t (*kb_find) (const char *, const char *);     /**< Find KB. */
+  kb_t (*kb_direct_conn) (const char *, const int); /**< Connect to a KB. */
 
   /* Actual kb operations */
+  /**
+   * Function provided by an implementation to get a single kb element.
+   */
   struct kb_item *(*kb_get_single) (kb_t, const char *, enum kb_item_type);
+  /**
+   * Function provided by an implementation to get single kb str item.
+   */
   char *(*kb_get_str) (kb_t, const char *);
+  /**
+   * Function provided by an implementation to get single kb int item.
+   */
   int (*kb_get_int) (kb_t, const char *);
+  /**
+   * Function provided by an implementation to get field of NVT.
+   */
   char *(*kb_get_nvt) (kb_t, const char *, enum kb_nvt_pos);
+  /**
+   * Function provided by an implementation to get a full NVT.
+   */
   nvti_t *(*kb_get_nvt_all) (kb_t, const char *);
-  GSList *(*kb_get_nvt_oids) (kb_t);   /**< Get list of OIDs. */
+  /**
+   * Function provided by an implementation to get list of OIDs.
+   */
+  GSList *(*kb_get_nvt_oids) (kb_t);
+  /**
+   * Function provided by an implementation to push a new value under a key.
+   */
   int (*kb_push_str) (kb_t, const char *, const char *);
+  /**
+   * Function provided by an implementation to pop a str under a key.
+   */
   char *(*kb_pop_str) (kb_t, const char *);
+  /**
+   * Function provided by an implementation to get all items stored
+   * under a given name.
+   */
   struct kb_item * (*kb_get_all) (kb_t, const char *);
+  /**
+   * Function provided by an implementation to get all items stored
+   * under a given pattern.
+   */
   struct kb_item * (*kb_get_pattern) (kb_t, const char *);
+  /**
+   * Function provided by an implementation to count all items stored
+   * under a given pattern.
+   */
   size_t (*kb_count) (kb_t, const char *);
+  /**
+   * Function provided by an implementation to insert (append) a new entry
+   * under a given name.
+   */
   int (*kb_add_str) (kb_t, const char *, const char *, size_t);
+  /**
+   * Function provided by an implementation to insert (append) a new
+   * unique entry under a given name.
+   */
   int (*kb_add_str_unique) (kb_t, const char *, const char *, size_t);
+  /**
+   * Function provided by an implementation to get (replace) a new entry
+   * under a given name.
+   */
   int (*kb_set_str) (kb_t, const char *, const char *, size_t);
+  /**
+   * Function provided by an implementation to insert (append) a new entry
+   * under a given name.
+   */
   int (*kb_add_int) (kb_t, const char *, int);
+  /**
+   * Function provided by an implementation to insert (append) a new
+   * unique entry under a given name.
+   */
   int (*kb_add_int_unique) (kb_t, const char *, int);
+  /**
+   * Function provided by an implementation to get (replace) a new entry
+   * under a given name.
+   */
   int (*kb_set_int) (kb_t, const char *, int);
+  /**
+   * Function provided by an implementation to
+   * insert a new nvt.
+   */
   int (*kb_add_nvt) (kb_t, const nvti_t *, const char *);
+  /**
+   * Function provided by an implementation to delete all entries
+   * under a given name.
+   */
   int (*kb_del_items) (kb_t, const char *);
 
   /* Utils */
-  int (*kb_save) (kb_t);
-  int (*kb_lnk_reset) (kb_t);
-  int (*kb_flush) (kb_t, const char *);
-  int (*kb_get_kb_index) (kb_t);
+  int (*kb_save) (kb_t);                /**< Save all kb content. */
+  int (*kb_lnk_reset) (kb_t);           /**< Reset connection to KB. */
+  int (*kb_flush) (kb_t, const char *); /**< Flush redis DB. */
+  int (*kb_get_kb_index) (kb_t);        /**< Get kb index. */
 };
 
 /**

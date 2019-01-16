@@ -62,6 +62,9 @@ xml_handle_end_element (context_data_t *, const gchar *);
 void
 xml_handle_text (context_data_t *, const gchar *, gsize);
 
+/**
+ * @brief Entities.
+ */
 typedef GSList *entities_t;
 
 /**
@@ -80,10 +83,10 @@ typedef struct entity_s *entity_t;
  * @brief Data for xml search functions.
  */
 typedef struct {
-  int found;
-  int done;
-  gchar *find_element;
-  GHashTable *find_attributes;
+  int found;                    /**< Founded.*/
+  int done;                     /**< Done. */
+  gchar *find_element;          /**< Element to be find. */
+  GHashTable *find_attributes;  /**< Attributes to find. */
 } xml_search_data_t;
 
 entities_t next_entities (entities_t);
