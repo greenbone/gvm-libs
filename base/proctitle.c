@@ -30,6 +30,9 @@
 
 #include <sys/param.h>
 
+/**
+ * @brief Access to the executable's name.
+ */
 extern const char *__progname;
 #ifndef __FreeBSD__
 extern const char *__progname_full;

@@ -22,7 +22,9 @@
  * @brief Functions related to data compression (gzip format.)
  */
 
-/* For z_const to be defined as const. */
+/**
+ * @brief For z_const to be defined as const.
+ */
 #if !defined(ZLIB_CONST)
 #  define ZLIB_CONST
 #endif

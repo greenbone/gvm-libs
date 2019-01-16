@@ -29,15 +29,18 @@
 
 typedef struct osp_connection osp_connection_t;
 
+/**
+ * @brief OSP parameter types.
+ */
 typedef enum {
-  OSP_PARAM_TYPE_INT = 0,
-  OSP_PARAM_TYPE_STR,
-  OSP_PARAM_TYPE_PASSWORD,
-  OSP_PARAM_TYPE_FILE,
-  OSP_PARAM_TYPE_BOOLEAN,
-  OSP_PARAM_TYPE_OVALDEF_FILE,
-  OSP_PARAM_TYPE_SELECTION,
-  OSP_PARAM_TYPE_CRD_UP,
+  OSP_PARAM_TYPE_INT = 0,      /**< Integer type. */
+  OSP_PARAM_TYPE_STR,          /**< String type. */
+  OSP_PARAM_TYPE_PASSWORD,     /**< Password type. */
+  OSP_PARAM_TYPE_FILE,         /**< File type. */
+  OSP_PARAM_TYPE_BOOLEAN,      /**< Boolean type. */
+  OSP_PARAM_TYPE_OVALDEF_FILE, /**< Oval definition type. */
+  OSP_PARAM_TYPE_SELECTION,    /**< Selection type. */
+  OSP_PARAM_TYPE_CRD_UP,       /**< Credential user/pass type. */
 } osp_param_type_t;
 
 typedef struct osp_param osp_param_t;
