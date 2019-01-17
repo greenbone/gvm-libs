@@ -1185,7 +1185,7 @@ redis_add_str_unique (kb_t kb, const char *name, const char *str, size_t len)
       redisAppendCommand (ctx, "RPUSH %s %s", name, str);
       redisGetReply (ctx, (void **) &rep);
       if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
-        g_warning ("Key '%s' already contained value '%s'", name, str);
+        g_debug ("Key '%s' already contained value '%s'", name, str);
       freeReplyObject (rep);
       redisGetReply (ctx, (void **) &rep);
     }
@@ -1195,7 +1195,7 @@ redis_add_str_unique (kb_t kb, const char *name, const char *str, size_t len)
       redisAppendCommand (ctx, "RPUSH %s %b", name, str, len);
       redisGetReply (ctx, (void **) &rep);
       if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
-        g_warning ("Key '%s' already contained string '%s'", name, str);
+        g_debug ("Key '%s' already contained string '%s'", name, str);
       freeReplyObject (rep);
       redisGetReply (ctx, (void **) &rep);
     }
@@ -1294,7 +1294,7 @@ redis_add_int_unique (kb_t kb, const char *name, int val)
   redisAppendCommand (ctx, "RPUSH %s %d", name, val);
   redisGetReply (ctx, (void **) &rep);
   if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
-    g_warning ("Key '%s' already contained integer '%d'", name, val);
+    g_debug ("Key '%s' already contained integer '%d'", name, val);
   freeReplyObject (rep);
   redisGetReply (ctx, (void **) &rep);
   if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
