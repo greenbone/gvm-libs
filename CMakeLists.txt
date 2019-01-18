@@ -213,6 +213,7 @@ add_subdirectory (doc)
 ## Tests
 
 add_subdirectory (tests)
+add_test (NAME testhosts COMMAND test-hosts localhost)
 
 enable_testing ()
 
