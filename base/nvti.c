@@ -27,7 +27,7 @@
  * \verbinclude README.md
  *
  * \section Installation
- * \verbinclude INSTALL
+ * \verbinclude INSTALL.md
  *
  * \section copying License
  * \verbinclude COPYING
