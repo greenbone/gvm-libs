@@ -815,7 +815,6 @@ gvm_get_host_type (const gchar *str_stripped)
   if (is_hostname (str_stripped))
     return HOST_TYPE_NAME;
 
-  /* @todo: If everything else fails, fallback to hostname ? */
   return -1;
 }
 
