@@ -54,7 +54,7 @@ struct osp_connection {
 };
 
 /**
- * @brief Struct holding options for OSP paramters.
+ * @brief Struct holding options for OSP parameters.
  */
 struct osp_param {
   char *id;                 /**< Parameter id. */
