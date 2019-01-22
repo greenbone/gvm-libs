@@ -42,7 +42,8 @@ free_credentials (credentials_t * credentials)
   g_free (credentials->password);
   credentials->password = NULL;
 
-  /** @todo Check whether uuid has to be freed, too. */
+  g_free (credentials->uuid);
+  credentials->uuid = NULL;
 
   g_free (credentials->timezone);
   credentials->timezone = NULL;
