@@ -156,17 +156,6 @@ gvm_auth_init ()
 }
 
 /**
- * @brief Free memory associated to authentication configuration.
- *
- * This will have no effect if gvm_auth_init was not called.
- */
-void
-gvm_auth_tear_down (void)
-{
-  /** @todo Close memleak, destroy list and content. */
-}
-
-/**
  * @brief Generate a hexadecimal representation of a message digest.
  *
  * @param gcrypt_algorithm The libgcrypt message digest algorithm used to

@@ -48,8 +48,6 @@ const gchar *auth_method_name (auth_method_t);
 
 int gvm_auth_init ();
 
-void gvm_auth_tear_down (void);
-
 int
 gvm_authenticate_classic (const gchar *, const gchar *, const gchar *);
 
