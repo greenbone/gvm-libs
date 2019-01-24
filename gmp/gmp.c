@@ -29,11 +29,6 @@
 
 #include "gmp.h"
 
-#ifdef _WIN32
-#include <winsock2.h>
-#define sleep Sleep
-#endif
-
 #include <errno.h>               /* for ERANGE, errno */
 #include <stdlib.h>              /* for NULL, strtol, atoi */
 #include <string.h>              /* for strlen, strdup */
