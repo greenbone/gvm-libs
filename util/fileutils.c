@@ -377,10 +377,10 @@ gvm_export_file_name (const char *fname_format, const char *username,
             case 'u':
               g_string_append (file_name_buf, username ? username : "");
                 break;
-              case 'Y':
-                g_string_append_printf (file_name_buf, "%04d",
-                                        modification_time.tm_year + 1900);
-              break;
+            case 'Y':
+              g_string_append_printf (file_name_buf, "%04d",
+                                      modification_time.tm_year + 1900);
+            break;
             case '%':
               g_string_append_c (file_name_buf, '%');
               break;
