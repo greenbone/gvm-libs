@@ -34,14 +34,6 @@
 #include "../util/serverutils.h" /* for gvm_connection_t */
 #include "../util/xmlutils.h"    /* for entity_t */
 
-#ifdef __cplusplus
-extern "C"
-{
-#if 0
-}
-#endif
-#endif
-
 /**
  * @brief Struct holding options for authentication.
  */
@@ -351,12 +343,5 @@ int gmp_get_system_reports (gnutls_session_t *, const char *, int, entity_t *);
 int gmp_get_system_reports_ext (gnutls_session_t *,
                                 gmp_get_system_reports_opts_t,
                                 entity_t *);
-
-#if 0
-{
-#endif
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* not _GVM_GMP_H */
