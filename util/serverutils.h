@@ -28,26 +28,14 @@
 #ifndef _GVM_SERVERUTILS_H
 #define _GVM_SERVERUTILS_H
 
-#ifdef __cplusplus
-extern "C"
-{
-#if 0
-}
-#endif
-#endif
-
 #include <glib.h>          /* for gchar, gboolean, gint */
 #include <gnutls/gnutls.h> /* for gnutls_session_t, gnutls_certificate_cred... */
 #include <stdarg.h>        /* for va_list */
-#ifdef _WIN32
-#include <winsock2.h>
-#else
 #include <sys/param.h>
 #ifdef __FreeBSD__
 #include <netinet/in.h>
 #endif
 #include <netinet/ip.h>
-#endif
 
 /**
  * @brief Connection.
@@ -122,12 +110,5 @@ unload_gnutls_file(gnutls_datum_t *);
 
 int
 set_gnutls_dhparams (gnutls_certificate_credentials_t, const char *);
-
-#if 0
-{
-#endif
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* not _GVM_SERVERUTILS_H */

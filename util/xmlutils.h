@@ -31,14 +31,6 @@
 
 #include "serverutils.h"
 
-#ifdef __cplusplus
-extern "C"
-{
-#if 0
-}
-#endif
-#endif
-
 /**
  * @brief XML context.
  *
@@ -147,12 +139,5 @@ void xml_string_append (GString *, const char *, ...);
 /* XML file utilities */
 
 int find_element_in_xml_file (gchar *, gchar *, GHashTable*);
-
-#if 0
-{
-#endif
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* not _GVM_XMLUTILS_H */

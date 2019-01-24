@@ -29,15 +29,6 @@
 
 #include "serverutils.h"
 
-#ifdef _WIN32
-
-#define WINVER 0x0501
-#define SHUT_RDWR 2
-#include <winsock2.h>
-#include <winsock.h>
-
-#else
-
 #include <arpa/inet.h>
 #include <errno.h>      /* for errno, ENOTCONN, EAGAIN */
 #include <fcntl.h>      /* for fcntl, F_SETFL, O_NONBLOCK */
@@ -45,8 +36,6 @@
 #include <signal.h>     /* for sigaction, SIGPIPE, sigemptyset, SIG_IGN */
 #include <sys/socket.h> /* for shutdown, connect, socket, SHUT_RDWR, SOCK_... */
 #include <sys/types.h>
-
-#endif
 
 #include <gcrypt.h> /* for gcry_control */
 #include <glib.h>   /* for g_warning, g_free, g_debug, gchar, g_markup... */
@@ -356,9 +345,6 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host,
   struct addrinfo *addresses, *address;
   gchar *port_string;
   int host_type;
-#ifdef _WIN32
-  WSADATA wsaData;
-#endif
 
   gnutls_certificate_credentials_t credentials;
 
@@ -401,26 +387,11 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host,
 
   port_string = g_strdup_printf ("%i", port);
 
-  /* WSA Start for win32 */
-#ifdef _WIN32
-  if (WSAStartup (MAKEWORD (2, 2), &wsaData))
-    {
-      g_warning ("WSAStartup failed");
-      gnutls_deinit (*session);
-      gnutls_certificate_free_credentials (credentials);
-      g_free (port_string);
-      return -1;
-    }
-#endif
-
   /* Get all possible addresses. */
 
   memset (&address_hints, 0, sizeof (address_hints));
   address_hints.ai_family = AF_UNSPEC;  /* IPv4 or IPv6. */
   address_hints.ai_socktype = SOCK_STREAM;
-#ifndef _WIN32
-  address_hints.ai_flags = AI_NUMERICSERV;
-#endif
   address_hints.ai_protocol = 0;
 
   if (getaddrinfo (host, port_string, &address_hints, &addresses))
@@ -578,21 +549,9 @@ server_attach_internal (int socket, gnutls_session_t * session,
                         const char *host, int port)
 {
   unsigned int retries;
-#ifndef _WIN32
-  struct sigaction new_action, original_action;
-#endif
 
   gnutls_transport_set_ptr (*session,
                             (gnutls_transport_ptr_t) GSIZE_TO_POINTER (socket));
-
-#ifndef _WIN32
-  new_action.sa_flags = 0;
-  if (sigemptyset (&new_action.sa_mask))
-    return -1;
-  new_action.sa_handler = SIG_IGN;
-  if (sigaction (SIGPIPE, &new_action, &original_action))
-    return -1;
-#endif
 
   retries = 0;
   while (1)
@@ -615,20 +574,12 @@ server_attach_internal (int socket, gnutls_session_t * session,
                  gnutls_strerror (ret));
       if (shutdown (socket, SHUT_RDWR) == -1)
         g_debug ("Failed to shutdown server socket");
-#ifndef _WIN32
-      sigaction (SIGPIPE, &original_action, NULL);
-#endif
       return -2;
     }
   if (host)
     g_debug ("   Shook hands with server '%s' port %d.", host, port);
   else
     g_debug ("   Shook hands with peer.");
-
-#ifndef _WIN32
-  if (sigaction (SIGPIPE, &original_action, NULL))
-    return -1;
-#endif
 
   return 0;
 }
@@ -666,20 +617,8 @@ static int
 gvm_server_vsendf_internal (gnutls_session_t *session, const char *fmt,
                             va_list ap, int quiet)
 {
-#ifndef _WIN32
-  struct sigaction new_action, original_action;
-#endif
   char *sref, *string;
   int rc = 0, left;
-
-#ifndef _WIN32
-  new_action.sa_flags = 0;
-  if (sigemptyset (&new_action.sa_mask))
-    return -1;
-  new_action.sa_handler = SIG_IGN;
-  if (sigaction (SIGPIPE, &new_action, &original_action))
-    return -1;
-#endif
 
   left = vasprintf (&string, fmt, ap);
   if (left == -1)
@@ -707,11 +646,6 @@ gvm_server_vsendf_internal (gnutls_session_t *session, const char *fmt,
               continue;
             }
           g_warning ("Failed to write to server: %s", gnutls_strerror (count));
-
-#ifndef _WIN32
-          sigaction (SIGPIPE, &original_action, NULL);
-#endif
-
           rc = -1;
           goto out;
         }
@@ -720,11 +654,6 @@ gvm_server_vsendf_internal (gnutls_session_t *session, const char *fmt,
           /* Server closed connection. */
           if (quiet == 0)
             g_debug ("=  server closed");
-
-#ifndef _WIN32
-          sigaction (SIGPIPE, &original_action, NULL);
-#endif
-
           rc = 1;
           goto out;
         }
@@ -735,10 +664,6 @@ gvm_server_vsendf_internal (gnutls_session_t *session, const char *fmt,
     }
   if (quiet == 0)
     g_debug ("=> done");
-
-#ifndef _WIN32
-  sigaction (SIGPIPE, &original_action, NULL);
-#endif
 
 out:
   g_free (sref);
@@ -759,22 +684,8 @@ out:
 static int
 unix_vsendf_internal (int socket, const char *fmt, va_list ap, int quiet)
 {
-#ifndef _WIN32
-  struct sigaction new_action, original_action;
-#endif
   char *string_start, *string;
   int rc = 0, left;
-
-#ifndef _WIN32
-  new_action.sa_flags = 0;
-  if (sigemptyset (&new_action.sa_mask))
-    // FIX warning
-    return -1;
-  new_action.sa_handler = SIG_IGN;
-  if (sigaction (SIGPIPE, &new_action, &original_action))
-    // FIX warning
-    return -1;
-#endif
 
   left = vasprintf (&string, fmt, ap);
   if (left == -1)
@@ -794,11 +705,6 @@ unix_vsendf_internal (int socket, const char *fmt, va_list ap, int quiet)
           if (errno == EINTR || errno == EAGAIN)
             continue;
           g_warning ("Failed to write to server: %s", strerror (errno));
-
-#ifndef _WIN32
-          sigaction (SIGPIPE, &original_action, NULL);
-#endif
-
           rc = -1;
           goto out;
         }
@@ -810,10 +716,6 @@ unix_vsendf_internal (int socket, const char *fmt, va_list ap, int quiet)
     }
   if (quiet == 0)
     g_debug ("=> done");
-
-#ifndef _WIN32
-  sigaction (SIGPIPE, &original_action, NULL);
-#endif
 
 out:
   g_free (string_start);
@@ -1398,41 +1300,14 @@ int
 gvm_server_free (int server_socket, gnutls_session_t server_session,
                  gnutls_certificate_credentials_t server_credentials)
 {
-#ifndef _WIN32
-  struct sigaction new_action, original_action;
-#endif
-
-#if 0
-  /* Turn on blocking. */
-  // FIX get flags first
-  if (fcntl (server_socket, F_SETFL, 0L) == -1)
-    {
-      g_warning ("%s: failed to set server socket flag: %s\n", __FUNCTION__,
-                 strerror (errno));
-      return -1;
-    }
-#endif
-#if 1
   /* Turn off blocking. */
   // FIX get flags first
-#ifndef _WIN32
   if (fcntl (server_socket, F_SETFL, O_NONBLOCK) == -1)
     {
       g_warning ("%s: failed to set server socket flag: %s\n", __FUNCTION__,
                  strerror (errno));
       return -1;
     }
-#endif
-#endif
-
-#ifndef _WIN32
-  new_action.sa_flags = 0;
-  if (sigemptyset (&new_action.sa_mask))
-    return -1;
-  new_action.sa_handler = SIG_IGN;
-  if (sigaction (SIGPIPE, &new_action, &original_action))
-    return -1;
-#endif
 
   while (1)
     {
@@ -1460,20 +1335,6 @@ gvm_server_free (int server_socket, gnutls_session_t server_session,
      modes by the existence of server_credentials.  */
   if (server_credentials)
     {
-#ifndef _WIN32
-      if (sigaction (SIGPIPE, &original_action, NULL))
-        return -1;
-
-      if (shutdown (server_socket, SHUT_RDWR) == -1)
-        {
-          if (errno == ENOTCONN)
-            return 0;
-          g_warning ("%s: failed to shutdown server socket: %s\n", __FUNCTION__,
-                     strerror (errno));
-          return -1;
-        }
-#endif
-
       if (close (server_socket) == -1)
         {
           g_warning ("%s: failed to close server socket: %s\n", __FUNCTION__,
@@ -1486,10 +1347,6 @@ gvm_server_free (int server_socket, gnutls_session_t server_session,
   else
     {
       gnutls_deinit (server_session);
-#ifndef _WIN32
-      if (sigaction (SIGPIPE, &original_action, NULL))
-        return -1;
-#endif
       close (server_socket);
     }
 
