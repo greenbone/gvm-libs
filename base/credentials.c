@@ -26,6 +26,9 @@
 
 #include "strings.h" /* for gvm_append_text */
 
+#include <string.h>
+
+
 /**
  * @brief Free credentials.
  *
@@ -37,24 +40,12 @@ void
 free_credentials (credentials_t * credentials)
 {
   g_free (credentials->username);
-  credentials->username = NULL;
-
   g_free (credentials->password);
-  credentials->password = NULL;
-
   g_free (credentials->uuid);
-  credentials->uuid = NULL;
-
   g_free (credentials->timezone);
-  credentials->timezone = NULL;
-
   g_free (credentials->role);
-  credentials->role = NULL;
-
   g_free (credentials->severity_class);
-  credentials->severity_class = NULL;
-
-  credentials->dynamic_severity = 0;
+  memset (credentials, '\0', sizeof (*credentials));
 }
 
 /**
