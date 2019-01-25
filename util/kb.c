@@ -1240,7 +1240,7 @@ redis_add_str (kb_t kb, const char *name, const char *str, size_t len)
  * @brief Set (replace) a new entry under a given name.
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
- * @param[in] str  Item value.
+ * @param[in] val  Item value.
  * @param[in] len  Value length. Used for blobs.
  * @return 0 on success, non-null on error.
  */

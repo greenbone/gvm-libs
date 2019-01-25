@@ -134,8 +134,8 @@ osp_connection_new (const char *host, int port, const char *cacert,
  * @brief Send a command to an OSP server.
  *
  * @param[in]   connection  Connection to OSP server.
- * @param[in]   command     OSP Command to send.
  * @param[out]  response    Response from OSP server.
+ * @param[in]   fmt         OSP Command to send.
  *
  * @return 0 and response, 1 if error.
  */
@@ -323,6 +323,7 @@ osp_delete_scan (osp_connection_t *connection, const char *scan_id)
  * @param[in]   scan_id     ID of scan to get.
  * @param[out]  report_xml  Scans report.
  * @param[in]   details     0 for no scan details, 1 otherwise.
+ * @param[out]  error       Pointer to error, if any.
  *
  * @return Scan progress if success, -1 if error.
  */
@@ -375,6 +376,7 @@ osp_get_scan (osp_connection_t *connection, const char *scan_id,
  *
  * @param[in]   connection  Connection to an OSP server.
  * @param[in]   scan_id     ID of scan to delete.
+ * @param[out]  error       Pointer to error, if any.
  *
  * @return Scan progress if success, -1 if error.
  */
@@ -444,8 +446,10 @@ option_concat_as_xml (gpointer key, gpointer value, gpointer pstr)
  *
  * @param[in]   connection  Connection to an OSP server.
  * @param[in]   target      Target host to scan.
+ * @param[in]   ports       List of ports to scan.
  * @param[in]   options     Table of scan options.
  * @param[in]   scan_id     uuid to set for scan, null otherwise.
+ * @param[out]  error       Pointer to error, if any.
  *
  * @return 0 on success, -1 otherwise.
  */

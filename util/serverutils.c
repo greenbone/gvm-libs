@@ -1044,7 +1044,7 @@ server_new_gnutls_init (gnutls_certificate_credentials_t *server_credentials)
  * @param[in]  end_type Connection end type.
  * @param[in]  priority TLS priority to be set. If no one is given, NORMAL is
  *             default.
- * @param[in]  server_credentials GNUTLS session.
+ * @param[in]  server_session GNUTLS session.
  * @param[in]  server_credentials Credentials to be set.
  * @return 0 on success, -1 on error.
  */
