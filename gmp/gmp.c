@@ -76,6 +76,7 @@ gmp_task_status (entity_t response)
  * @brief Read response and convert status of response to a return value.
  *
  * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  entity   Entity containing response.
  *
  * @return 0 on success, -1 or GMP response code on error.
  */
@@ -172,7 +173,7 @@ gmp_ping (gnutls_session_t *session, int timeout)
 /**
  * @brief "Ping" the manager.
  *
- * @param[in]  session  Pointer to GNUTLS session.
+ * @param[in]  connection  Pointer to GNUTLS session.
  * @param[in]  timeout  Server idle time before giving up, in milliseconds.  0
  *                      to wait forever.
  * @param[out] version  Return location for freshly allocated version if

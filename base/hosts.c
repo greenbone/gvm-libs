@@ -1357,6 +1357,7 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
  * @brief Exclude a list of vhosts from a host's vhosts list.
  *
  * @param[in] host  The host whose vhosts are to be excluded from.
+ * @param[in] excluded_str  String of hosts to exclude.
  *
  * @return Number of excluded vhosts.
  */
