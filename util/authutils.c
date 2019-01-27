@@ -38,10 +38,8 @@
  *        methods.
  */
 /** @warning  Beware to have it in sync with \ref authentication_method. */
-static const gchar *authentication_methods[] = { "file",
-                                                 "ldap_connect",
-                                                 "radius_connect",
-                                                 NULL };
+static const gchar *authentication_methods[] = {"file", "ldap_connect",
+                                                "radius_connect", NULL};
 
 /**
  * @brief Flag whether the config file was read.
@@ -167,7 +165,7 @@ gvm_auth_init ()
  * or NULL if an unavailable message digest algorithm was selected.
  */
 gchar *
-digest_hex (int gcrypt_algorithm, const guchar * digest)
+digest_hex (int gcrypt_algorithm, const guchar *digest)
 {
   unsigned int i;
   gchar *hex;
@@ -245,7 +243,7 @@ int
 gvm_authenticate_classic (const gchar *username, const gchar *password,
                           const gchar *hash_arg)
 {
-  int gcrypt_algorithm = GCRY_MD_MD5;   // FIX whatever configure used
+  int gcrypt_algorithm = GCRY_MD_MD5; // FIX whatever configure used
   int ret;
   gchar *actual, *expect, *seed_pass;
   guchar *hash;

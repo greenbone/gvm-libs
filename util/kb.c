@@ -26,16 +26,16 @@
 
 #include "kb.h"
 
-#include <errno.h>            /* for ENOMEM, EINVAL, EPROTO, EALREADY, ECONN... */
-#include <glib.h>             /* for g_log, g_free */
-#include <hiredis/hiredis.h>  /* for redisReply, freeReplyObject, redisCommand */
-#include <stdbool.h>          /* for bool, true, false */
+#include <errno.h> /* for ENOMEM, EINVAL, EPROTO, EALREADY, ECONN... */
+#include <glib.h>  /* for g_log, g_free */
+#include <hiredis/hiredis.h> /* for redisReply, freeReplyObject, redisCommand */
+#include <stdbool.h>         /* for bool, true, false */
 #include <stdio.h>
-#include <stdlib.h>           /* for atoi */
-#include <string.h>           /* for strlen, strerror, strncpy, memset */
-#include <unistd.h>           /* for sleep */
+#include <stdlib.h> /* for atoi */
+#include <string.h> /* for strlen, strerror, strncpy, memset */
+#include <unistd.h> /* for sleep */
 
-#undef  G_LOG_DOMAIN
+#undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  kb"
 
 /**
@@ -44,7 +44,6 @@
  * @brief Contains specialized structures and functions to use redis as a KB
  *        server.
  */
-
 
 /**
  * @brief Name of the namespace usage bitmap in redis.
@@ -55,11 +54,9 @@
  * @brief Number of seconds to wait for between two attempts to acquire a KB
  *        namespace.
  */
-#define KB_RETRY_DELAY      60
-
+#define KB_RETRY_DELAY 60
 
 static const struct kb_operations KBRedisOperations;
-
 
 /**
  * @brief Subclass of struct kb, it contains the redis-specific fields, such as
@@ -68,19 +65,21 @@ static const struct kb_operations KBRedisOperations;
  */
 struct kb_redis
 {
-  struct kb kb;         /**< Parent KB handle. */
-  unsigned int max_db;  /**< Max # of databases. */
-  unsigned int db;      /**< Namespace ID number, 0 if uninitialized. */
-  redisContext *rctx;   /**< Redis client context. */
-  char path[0];         /**< Path to the server socket. */
+  struct kb kb;        /**< Parent KB handle. */
+  unsigned int max_db; /**< Max # of databases. */
+  unsigned int db;     /**< Namespace ID number, 0 if uninitialized. */
+  redisContext *rctx;  /**< Redis client context. */
+  char path[0];        /**< Path to the server socket. */
 };
-#define redis_kb(__kb) ((struct kb_redis *)(__kb))
+#define redis_kb(__kb) ((struct kb_redis *) (__kb))
 
-static int redis_delete_all (struct kb_redis *);
+static int
+redis_delete_all (struct kb_redis *);
 static int redis_lnk_reset (kb_t);
-static int redis_flush_all (kb_t, const char *);
-static redisReply *redis_cmd (struct kb_redis *kbr, const char *fmt, ...);
-
+static int
+redis_flush_all (kb_t, const char *);
+static redisReply *
+redis_cmd (struct kb_redis *kbr, const char *fmt, ...);
 
 /**
  * @brief Attempt to atomically acquire ownership of a database.
@@ -118,7 +117,7 @@ try_database_index (struct kb_redis *kbr, int index)
 /**
  * @brief Max number of configured DB.
  */
-#define MAX_DB_INDEX__24    1000
+#define MAX_DB_INDEX__24 1000
 
 /**
  * @brief Set the number of databases have been configured
@@ -153,19 +152,19 @@ fetch_max_db_index_compat (struct kb_redis *kbr)
 
       switch (rep->type)
         {
-          case REDIS_REPLY_ERROR:
-            max = current;
-            break;
+        case REDIS_REPLY_ERROR:
+          max = current;
+          break;
 
-          case REDIS_REPLY_STATUS:
-            min = current + 1;
-            break;
+        case REDIS_REPLY_STATUS:
+          min = current + 1;
+          break;
 
-          default:
-            g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-                   "%s: unexpected reply of type %d", __func__, rep->type);
-            freeReplyObject (rep);
-            return -1;
+        default:
+          g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+                 "%s: unexpected reply of type %d", __func__, rep->type);
+          freeReplyObject (rep);
+          return -1;
         }
       freeReplyObject (rep);
     }
@@ -224,7 +223,7 @@ fetch_max_db_index (struct kb_redis *kbr)
     }
   else if (rep->elements == 2)
     {
-      kbr->max_db = (unsigned)atoi(rep->element[1]->str);
+      kbr->max_db = (unsigned) atoi (rep->element[1]->str);
     }
   else
     {
@@ -479,12 +478,12 @@ redis_new (kb_t *kb, const char *kb_path)
   if (rc)
     {
       g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-             "%s: cannot access redis at '%s'", __func__,  kb_path);
-      redis_delete ((kb_t)kbr);
+             "%s: cannot access redis at '%s'", __func__, kb_path);
+      redis_delete ((kb_t) kbr);
       kbr = NULL;
     }
 
-  *kb = (kb_t)kbr;
+  *kb = (kb_t) kbr;
 
   return rc;
 }
@@ -641,22 +640,22 @@ redis2kbitem_single (const char *name, const redisReply *elt, int force_int)
   item = g_malloc0 (sizeof (struct kb_item) + namelen);
   if (elt->type == REDIS_REPLY_INTEGER)
     {
-      item->type  = KB_TYPE_INT;
+      item->type = KB_TYPE_INT;
       item->v_int = elt->integer;
     }
   else if (force_int)
     {
-      item->type  = KB_TYPE_INT;
+      item->type = KB_TYPE_INT;
       item->v_int = atoi (elt->str);
     }
   else
     {
-      item->type  = KB_TYPE_STR;
+      item->type = KB_TYPE_STR;
       item->v_str = g_memdup (elt->str, elt->len + 1);
       item->len = elt->len;
     }
 
-  item->next    = NULL;
+  item->next = NULL;
   item->namelen = namelen;
   strncpy (item->name, name, namelen);
 
@@ -680,35 +679,35 @@ redis2kbitem (const char *name, const redisReply *rep)
     {
       unsigned int i;
 
-      case REDIS_REPLY_STRING:
-      case REDIS_REPLY_INTEGER:
-        kbi = redis2kbitem_single (name, rep, 0);
-        break;
+    case REDIS_REPLY_STRING:
+    case REDIS_REPLY_INTEGER:
+      kbi = redis2kbitem_single (name, rep, 0);
+      break;
 
-      case REDIS_REPLY_ARRAY:
-        for (i = 0; i < rep->elements; i++)
-          {
-            struct kb_item *tmpitem;
+    case REDIS_REPLY_ARRAY:
+      for (i = 0; i < rep->elements; i++)
+        {
+          struct kb_item *tmpitem;
 
-            tmpitem = redis2kbitem_single (name, rep->element[i], 0);
-            if (tmpitem == NULL)
-              break;
+          tmpitem = redis2kbitem_single (name, rep->element[i], 0);
+          if (tmpitem == NULL)
+            break;
 
-            if (kbi != NULL)
-              {
-                tmpitem->next = kbi;
-                kbi = tmpitem;
-              }
-            else
+          if (kbi != NULL)
+            {
+              tmpitem->next = kbi;
               kbi = tmpitem;
-          }
-        break;
+            }
+          else
+            kbi = tmpitem;
+        }
+      break;
 
-      case REDIS_REPLY_NIL:
-      case REDIS_REPLY_STATUS:
-      case REDIS_REPLY_ERROR:
-      default:
-        break;
+    case REDIS_REPLY_NIL:
+    case REDIS_REPLY_STATUS:
+    case REDIS_REPLY_ERROR:
+    default:
+      break;
     }
 
   return kbi;
@@ -750,7 +749,7 @@ redis_cmd (struct kb_redis *kbr, const char *fmt, ...)
           if (rep != NULL)
             freeReplyObject (rep);
 
-          redis_lnk_reset ((kb_t)kbr);
+          redis_lnk_reset ((kb_t) kbr);
           retry = !retry;
         }
       else
@@ -762,7 +761,6 @@ redis_cmd (struct kb_redis *kbr, const char *fmt, ...)
 
   return rep;
 }
-
 
 /**
  * @brief Get a single KB element.
@@ -941,8 +939,8 @@ redis_get_nvt_all (kb_t kb, const char *oid)
   redisReply *rep;
 
   kbr = redis_kb (kb);
-  rep = redis_cmd (kbr, "LRANGE nvt:%s %d %d", oid, NVT_FILENAME_POS,
-                   NVT_NAME_POS);
+  rep =
+    redis_cmd (kbr, "LRANGE nvt:%s %d %d", oid, NVT_FILENAME_POS, NVT_NAME_POS);
   if (!rep)
     return NULL;
   if (rep->type != REDIS_REPLY_ARRAY || rep->elements != NVT_NAME_POS + 1)
@@ -958,8 +956,8 @@ redis_get_nvt_all (kb_t kb, const char *oid)
       nvti_set_required_keys (nvti, rep->element[NVT_REQUIRED_KEYS_POS]->str);
       nvti_set_mandatory_keys (nvti, rep->element[NVT_MANDATORY_KEYS_POS]->str);
       nvti_set_excluded_keys (nvti, rep->element[NVT_EXCLUDED_KEYS_POS]->str);
-      nvti_set_required_udp_ports
-       (nvti, rep->element[NVT_REQUIRED_UDP_PORTS_POS]->str);
+      nvti_set_required_udp_ports (
+        nvti, rep->element[NVT_REQUIRED_UDP_PORTS_POS]->str);
       nvti_set_required_ports (nvti, rep->element[NVT_REQUIRED_PORTS_POS]->str);
       nvti_set_dependencies (nvti, rep->element[NVT_DEPENDENCIES_POS]->str);
       nvti_set_tag (nvti, rep->element[NVT_TAGS_POS]->str);
@@ -1382,17 +1380,14 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
     return -1;
 
   kbr = redis_kb (kb);
-  rep = redis_cmd (kbr,
-                   "RPUSH nvt:%s %s %s %s %s %s %s %s %s %s %s %s %d %d %s %s",
-                   nvti_oid (nvt), filename, nvti_required_keys (nvt) ?: "",
-                   nvti_mandatory_keys (nvt) ?: "",
-                   nvti_excluded_keys (nvt) ?: "",
-                   nvti_required_udp_ports (nvt) ?: "",
-                   nvti_required_ports (nvt) ?: "",
-                   nvti_dependencies (nvt) ?: "", nvti_tag (nvt) ?: "",
-                   nvti_cve (nvt) ?: "", nvti_bid (nvt) ?: "",
-                   nvti_xref (nvt) ?: "", nvti_category (nvt),
-                   nvti_timeout (nvt), nvti_family (nvt), nvti_name (nvt));
+  rep = redis_cmd (
+    kbr, "RPUSH nvt:%s %s %s %s %s %s %s %s %s %s %s %s %d %d %s %s",
+    nvti_oid (nvt), filename, nvti_required_keys (nvt) ?: "",
+    nvti_mandatory_keys (nvt) ?: "", nvti_excluded_keys (nvt) ?: "",
+    nvti_required_udp_ports (nvt) ?: "", nvti_required_ports (nvt) ?: "",
+    nvti_dependencies (nvt) ?: "", nvti_tag (nvt) ?: "", nvti_cve (nvt) ?: "",
+    nvti_bid (nvt) ?: "", nvti_xref (nvt) ?: "", nvti_category (nvt),
+    nvti_timeout (nvt), nvti_family (nvt), nvti_name (nvt));
   if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
     rc = -1;
   if (rep != NULL)
@@ -1411,8 +1406,8 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
         freeReplyObject (rep);
       element = element->next;
     }
-  rep = redis_cmd (kbr, "RPUSH filename:%s %lu %s",
-                   filename, time (NULL), nvti_oid (nvt));
+  rep = redis_cmd (kbr, "RPUSH filename:%s %lu %s", filename, time (NULL),
+                   nvti_oid (nvt));
   if (!rep || rep->type == REDIS_REPLY_ERROR)
     rc = -1;
   if (rep)
@@ -1500,12 +1495,12 @@ redis_flush_all (kb_t kb, const char *except)
             {
               char *tmp = kb_item_get_str (kb, except);
               if (tmp)
-               {
-                 g_free (tmp);
-                 i++;
-                 redisFree (kbr->rctx);
-                 continue;
-               }
+                {
+                  g_free (tmp);
+                  i++;
+                  redisFree (kbr->rctx);
+                  continue;
+                }
             }
           redis_delete_all (kbr);
           redis_release_db (kbr);
@@ -1594,32 +1589,32 @@ err_cleanup:
  *        implementation (redis-based).
  */
 static const struct kb_operations KBRedisOperations = {
-  .kb_new          = redis_new,
-  .kb_find         = redis_find,
-  .kb_delete       = redis_delete,
-  .kb_get_single   = redis_get_single,
-  .kb_get_str      = redis_get_str,
-  .kb_get_int      = redis_get_int,
-  .kb_get_nvt      = redis_get_nvt,
-  .kb_get_nvt_all  = redis_get_nvt_all,
+  .kb_new = redis_new,
+  .kb_find = redis_find,
+  .kb_delete = redis_delete,
+  .kb_get_single = redis_get_single,
+  .kb_get_str = redis_get_str,
+  .kb_get_int = redis_get_int,
+  .kb_get_nvt = redis_get_nvt,
+  .kb_get_nvt_all = redis_get_nvt_all,
   .kb_get_nvt_oids = redis_get_oids,
-  .kb_push_str     = redis_push_str,
-  .kb_pop_str      = redis_pop_str,
-  .kb_get_all      = redis_get_all,
-  .kb_get_pattern  = redis_get_pattern,
-  .kb_count        = redis_count,
-  .kb_add_str      = redis_add_str,
-  .kb_add_str_unique    = redis_add_str_unique,
-  .kb_set_str      = redis_set_str,
-  .kb_add_int      = redis_add_int,
-  .kb_add_int_unique    = redis_add_int_unique,
-  .kb_set_int      = redis_set_int,
-  .kb_add_nvt      = redis_add_nvt,
-  .kb_del_items    = redis_del_items,
-  .kb_lnk_reset    = redis_lnk_reset,
-  .kb_save         = redis_save,
-  .kb_flush        = redis_flush_all,
-  .kb_direct_conn  = redis_direct_conn,
+  .kb_push_str = redis_push_str,
+  .kb_pop_str = redis_pop_str,
+  .kb_get_all = redis_get_all,
+  .kb_get_pattern = redis_get_pattern,
+  .kb_count = redis_count,
+  .kb_add_str = redis_add_str,
+  .kb_add_str_unique = redis_add_str_unique,
+  .kb_set_str = redis_set_str,
+  .kb_add_int = redis_add_int,
+  .kb_add_int_unique = redis_add_int_unique,
+  .kb_set_int = redis_set_int,
+  .kb_add_nvt = redis_add_nvt,
+  .kb_del_items = redis_del_items,
+  .kb_lnk_reset = redis_lnk_reset,
+  .kb_save = redis_save,
+  .kb_flush = redis_flush_all,
+  .kb_direct_conn = redis_direct_conn,
   .kb_get_kb_index = redis_get_kb_index,
 };
 

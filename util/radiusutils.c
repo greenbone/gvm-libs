@@ -24,7 +24,7 @@
 
 #ifdef ENABLE_RADIUS_AUTH
 
-#include <arpa/inet.h>          /* for inet_pton */
+#include <arpa/inet.h> /* for inet_pton */
 
 #if defined(RADIUS_AUTH_FREERADIUS)
 #include <freeradius-client.h>
@@ -33,22 +33,22 @@
 #endif
 #elif defined(RADIUS_AUTH_RADCLI)
 #include <errno.h>
-#include <unistd.h>
-#include <stdlib.h>             /* for mkstemp */
-#include <string.h>             /* for strerror */
 #include <radcli/radcli.h>
+#include <stdlib.h> /* for mkstemp */
+#include <string.h> /* for strerror */
+#include <unistd.h>
 #ifndef RC_CONFIG_FILE
 #define RC_DICTIONARY_FILE "/etc/radcli/dictionary"
 #endif
 #endif
 
-#include <glib.h>               /* for g_warning */
 #include "../base/networking.h" /* for gvm_resolve */
+
+#include <glib.h> /* for g_warning */
 
 #ifndef PW_MAX_MSG_SIZE
 #define PW_MAX_MSG_SIZE 4096
 #endif
-
 
 /**
  * Initialize the Radius client configuration.
@@ -104,9 +104,8 @@ radius_init (const char *hostname, const char *secret)
                "radius_deadtime  0\n"
                "authserver  %s\n"
                "acctserver  %s\n",
-               RC_DICTIONARY_FILE,
-               authserver,
-               authserver) < 0)
+               RC_DICTIONARY_FILE, authserver, authserver)
+      < 0)
     {
       fclose (config_file);
       g_warning ("%s: Couldn't write to temp radius config file %s:%s\n",
@@ -119,13 +118,13 @@ radius_init (const char *hostname, const char *secret)
   rh = rc_read_config (config_filename);
   if (rh == NULL)
     {
-      g_warning ("%s: Couldn't read temp radius config file %s\n",
-                 __FUNCTION__, config_filename);
+      g_warning ("%s: Couldn't read temp radius config file %s\n", __FUNCTION__,
+                 config_filename);
       unlink (config_filename);
       goto radius_init_fail;
     }
   unlink (config_filename);
-#else // defined(RADIUS_AUTH_RADCLI)
+#else  // defined(RADIUS_AUTH_RADCLI)
   if ((rh = rc_new ()) == NULL)
     {
       g_warning ("radius_init: Couldn't allocate memory");
@@ -133,44 +132,44 @@ radius_init (const char *hostname, const char *secret)
     }
   if (!rc_config_init (rh))
     {
-      g_warning("radius_init: Couldn't initialize the config");
+      g_warning ("radius_init: Couldn't initialize the config");
       return NULL;
     }
 
   /* Set the basic configuration options. */
   if (rc_add_config (rh, "auth_order", "radius", "config", 0))
     {
-      g_warning("radius_init: Couldn't set auth_order");
+      g_warning ("radius_init: Couldn't set auth_order");
       goto radius_init_fail;
     }
   if (rc_add_config (rh, "login_tries", "4", "config", 0))
     {
-      g_warning("radius_init: Couldn't set login_tries");
+      g_warning ("radius_init: Couldn't set login_tries");
       goto radius_init_fail;
     }
   if (rc_add_config (rh, "dictionary", RC_DICTIONARY_FILE, "config", 0))
     {
-      g_warning("radius_init: Couldn't set dictionary");
+      g_warning ("radius_init: Couldn't set dictionary");
       goto radius_init_fail;
     }
   if (rc_add_config (rh, "seqfile", "/var/run/radius.seq", "config", 0))
     {
-      g_warning("radius_init: Couldn't set seqfile");
+      g_warning ("radius_init: Couldn't set seqfile");
       goto radius_init_fail;
     }
   if (rc_add_config (rh, "radius_retries", "3", "config", 0))
     {
-      g_warning("radius_init: Couldn't set radius_retries");
+      g_warning ("radius_init: Couldn't set radius_retries");
       goto radius_init_fail;
     }
   if (rc_add_config (rh, "radius_timeout", "5", "config", 0))
     {
-      g_warning("radius_init: Couldn't set radius_timeout");
+      g_warning ("radius_init: Couldn't set radius_timeout");
       goto radius_init_fail;
     }
   if (rc_add_config (rh, "radius_deadtime", "0", "config", 0))
     {
-      g_warning("radius_init: Couldn't set radius_deadtime");
+      g_warning ("radius_init: Couldn't set radius_deadtime");
       goto radius_init_fail;
     }
   if (rc_add_config (rh, "authserver", authserver, "config", 0) != 0)
@@ -254,7 +253,7 @@ authenticate_leave:
   return rc;
 }
 
-#else  /* ENABLE_RADIUS_AUTH */
+#else /* ENABLE_RADIUS_AUTH */
 
 /**
  * @brief Dummy function for manager.

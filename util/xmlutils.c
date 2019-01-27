@@ -110,7 +110,7 @@ first_entity (entities_t entities)
  * @return The new entity.
  */
 entity_t
-add_entity (entities_t * entities, const char *name, const char *text)
+add_entity (entities_t *entities, const char *name, const char *text)
 {
   entity_t entity = make_entity (name, text);
   if (entities)
@@ -209,9 +209,8 @@ entity_child (entity_t entity, const char *name)
 
   if (entity->entities)
     {
-      entities_t match = g_slist_find_custom (entity->entities,
-                                              name,
-                                              compare_entity_with_name);
+      entities_t match =
+        g_slist_find_custom (entity->entities, name, compare_entity_with_name);
       return match ? (entity_t) match->data : NULL;
     }
   return NULL;
@@ -244,7 +243,7 @@ entity_attribute (entity_t entity, const char *name)
  * @param[in]  values  List of attribute values.
  */
 void
-add_attributes (entity_t entity, const gchar ** names, const gchar ** values)
+add_attributes (entity_t entity, const gchar **names, const gchar **values)
 {
   if (*names && *values)
     {
@@ -273,10 +272,10 @@ add_attributes (entity_t entity, const gchar ** names, const gchar ** values)
  * @param[in]  error             Error parameter.
  */
 static void
-handle_start_element (GMarkupParseContext * context, const gchar * element_name,
-                      const gchar ** attribute_names,
-                      const gchar ** attribute_values, gpointer user_data,
-                      GError ** error)
+handle_start_element (GMarkupParseContext *context, const gchar *element_name,
+                      const gchar **attribute_names,
+                      const gchar **attribute_values, gpointer user_data,
+                      GError **error)
 {
   entity_t entity;
   context_data_t *data = (context_data_t *) user_data;
@@ -326,8 +325,8 @@ xml_handle_start_element (context_data_t *context, const gchar *element_name,
  * @param[in]  error             Error parameter.
  */
 static void
-handle_end_element (GMarkupParseContext * context, const gchar * element_name,
-                    gpointer user_data, GError ** error)
+handle_end_element (GMarkupParseContext *context, const gchar *element_name,
+                    gpointer user_data, GError **error)
 {
   context_data_t *data = (context_data_t *) user_data;
 
@@ -339,7 +338,8 @@ handle_end_element (GMarkupParseContext * context, const gchar * element_name,
     {
       assert (strcmp (element_name,
                       /* The name of the very first entity. */
-                      ((entity_t) (data->first->data))->name) == 0);
+                      ((entity_t) (data->first->data))->name)
+              == 0);
       data->done = TRUE;
       /* "Pop" the element. */
       data->current = g_slist_next (data->current);
@@ -376,8 +376,8 @@ xml_handle_end_element (context_data_t *context, const gchar *element_name)
  * @param[in]  error             Error parameter.
  */
 static void
-handle_text (GMarkupParseContext * context, const gchar * text, gsize text_len,
-             gpointer user_data, GError ** error)
+handle_text (GMarkupParseContext *context, const gchar *text, gsize text_len,
+             gpointer user_data, GError **error)
 {
   context_data_t *data = (context_data_t *) user_data;
 
@@ -416,7 +416,7 @@ xml_handle_text (context_data_t *context, const gchar *text, gsize text_len)
  * @param[in]  user_data         Dummy parameter.
  */
 void
-handle_error (GMarkupParseContext * context, GError * error, gpointer user_data)
+handle_error (GMarkupParseContext *context, GError *error, gpointer user_data)
 {
   (void) context;
   (void) user_data;
@@ -427,21 +427,20 @@ handle_error (GMarkupParseContext * context, GError * error, gpointer user_data)
  * @brief Try read an XML entity tree from the manager.
  *
  * @param[in]   session        Pointer to GNUTLS session.
- * @param[in]   timeout        Server idle time before giving up, in seconds.  0 to
- *                             wait forever.
+ * @param[in]   timeout        Server idle time before giving up, in seconds.  0
+ * to wait forever.
  * @param[out]  entity         Pointer to an entity tree.
  * @param[out]  string_return  An optional return location for the text read
  *                             from the session.  If NULL then it simply
- *                             remains NULL.  If a pointer to NULL then it points
- *                             to a freshly allocated GString on successful return.
- *                             Otherwise it points to an existing GString onto
- *                             which the text is appended.
+ *                             remains NULL.  If a pointer to NULL then it
+ * points to a freshly allocated GString on successful return. Otherwise it
+ * points to an existing GString onto which the text is appended.
  *
  * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
  */
 int
-try_read_entity_and_string (gnutls_session_t * session, int timeout,
-                            entity_t * entity, GString ** string_return)
+try_read_entity_and_string (gnutls_session_t *session, int timeout,
+                            entity_t *entity, GString **string_return)
 {
   GMarkupParser xml_parser;
   GError *error = NULL;
@@ -457,8 +456,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
 
   if (time (&last_time) == -1)
     {
-      g_warning ("   failed to get current time: %s\n",
-                 strerror (errno));
+      g_warning ("   failed to get current time: %s\n", strerror (errno));
       return -1;
     }
 
@@ -511,8 +509,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
       while (1)
         {
           g_debug ("   asking for %i\n", BUFFER_SIZE);
-          count =
-            gnutls_record_recv (*session, buffer, BUFFER_SIZE);
+          count = gnutls_record_recv (*session, buffer, BUFFER_SIZE);
           if (count < 0)
             {
               if (count == GNUTLS_E_INTERRUPTED)
@@ -521,8 +518,7 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
               if ((timeout > 0) && (count == GNUTLS_E_AGAIN))
                 {
                   /* Server still busy, either timeout or try read again. */
-                  if ((timeout - (time (NULL) - last_time))
-                      <= 0)
+                  if ((timeout - (time (NULL) - last_time)) <= 0)
                     {
                       g_warning ("   timeout\n");
                       if (fcntl (socket, F_SETFL, 0L) < 0)
@@ -602,8 +598,8 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
           if (timeout > 0)
             {
               if (fcntl (socket, F_SETFL, 0L) < 0)
-                g_warning ("%s :failed to set socket flag: %s",
-                           __FUNCTION__, strerror (errno));
+                g_warning ("%s :failed to set socket flag: %s", __FUNCTION__,
+                           strerror (errno));
             }
           g_markup_parse_context_free (xml_context);
           g_free (buffer);
@@ -655,15 +651,14 @@ try_read_entity_and_string (gnutls_session_t * session, int timeout,
  * @brief Try read an XML entity tree from the socket.
  *
  * @param[in]   socket         Socket to read from.
- * @param[in]   timeout        Server idle time before giving up, in seconds.  0 to
- *                             wait forever.
+ * @param[in]   timeout        Server idle time before giving up, in seconds.  0
+ * to wait forever.
  * @param[out]  entity         Pointer to an entity tree.
  * @param[out]  string_return  An optional return location for the text read
  *                             from the session.  If NULL then it simply
- *                             remains NULL.  If a pointer to NULL then it points
- *                             to a freshly allocated GString on successful return.
- *                             Otherwise it points to an existing GString onto
- *                             which the text is appended.
+ *                             remains NULL.  If a pointer to NULL then it
+ * points to a freshly allocated GString on successful return. Otherwise it
+ * points to an existing GString onto which the text is appended.
  *
  * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
  */
@@ -683,8 +678,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
 
   if (time (&last_time) == -1)
     {
-      g_warning ("   failed to get current time: %s\n",
-                 strerror (errno));
+      g_warning ("   failed to get current time: %s\n", strerror (errno));
       return -1;
     }
 
@@ -744,8 +738,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                   if (errno == EAGAIN)
                     {
                       /* Server still busy, either timeout or try read again. */
-                      if ((timeout - (time (NULL) - last_time))
-                          <= 0)
+                      if ((timeout - (time (NULL) - last_time)) <= 0)
                         {
                           g_warning ("   timeout\n");
                           if (fcntl (socket, F_SETFL, 0L) < 0)
@@ -820,8 +813,8 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
           if (timeout > 0)
             {
               if (fcntl (socket, F_SETFL, 0L) < 0)
-                g_warning ("%s :failed to set socket flag: %s",
-                           __FUNCTION__, strerror (errno));
+                g_warning ("%s :failed to set socket flag: %s", __FUNCTION__,
+                           strerror (errno));
             }
           g_markup_parse_context_free (xml_context);
           g_free (buffer);
@@ -861,8 +854,8 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
           g_warning ("   failed to get current time (1): %s\n",
                      strerror (errno));
           if (fcntl (socket, F_SETFL, 0L) < 0)
-            g_warning ("%s :failed to set server socket flag: %s",
-                       __FUNCTION__, strerror (errno));
+            g_warning ("%s :failed to set server socket flag: %s", __FUNCTION__,
+                       strerror (errno));
           g_markup_parse_context_free (xml_context);
           g_free (buffer);
           return -1;
@@ -877,16 +870,15 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
  * @param[out]  entity           Pointer to an entity tree.
  * @param[out]  string_return    An optional return location for the text read
  *                               from the session.  If NULL then it simply
- *                               remains NULL.  If a pointer to NULL then it points
- *                               to a freshly allocated GString on successful return.
- *                               Otherwise it points to an existing GString onto
- *                               which the text is appended.
+ *                               remains NULL.  If a pointer to NULL then it
+ * points to a freshly allocated GString on successful return. Otherwise it
+ * points to an existing GString onto which the text is appended.
  *
  * @return 0 success, -1 read error, -2 parse error, -3 end of file.
  */
 int
-read_entity_and_string (gnutls_session_t * session, entity_t * entity,
-                        GString ** string_return)
+read_entity_and_string (gnutls_session_t *session, entity_t *entity,
+                        GString **string_return)
 {
   return try_read_entity_and_string (session, 0, entity, string_return);
 }
@@ -898,16 +890,15 @@ read_entity_and_string (gnutls_session_t * session, entity_t * entity,
  * @param[out]  entity           Pointer to an entity tree.
  * @param[out]  string_return    An optional return location for the text read
  *                               from the session.  If NULL then it simply
- *                               remains NULL.  If a pointer to NULL then it points
- *                               to a freshly allocated GString on successful return.
- *                               Otherwise it points to an existing GString onto
- *                               which the text is appended.
+ *                               remains NULL.  If a pointer to NULL then it
+ * points to a freshly allocated GString on successful return. Otherwise it
+ * points to an existing GString onto which the text is appended.
  *
  * @return 0 success, -1 read error, -2 parse error, -3 end of file.
  */
 int
-read_entity_and_string_c (gvm_connection_t *connection, entity_t * entity,
-                          GString ** string_return)
+read_entity_and_string_c (gvm_connection_t *connection, entity_t *entity,
+                          GString **string_return)
 {
   if (connection->tls)
     return try_read_entity_and_string (&connection->session, 0, entity,
@@ -929,8 +920,7 @@ read_entity_and_string_c (gvm_connection_t *connection, entity_t * entity,
  * @return 0 success, -1 read error, -2 parse error, -3 end of file.
  */
 int
-read_entity_and_text (gnutls_session_t * session, entity_t * entity,
-                      char **text)
+read_entity_and_text (gnutls_session_t *session, entity_t *entity, char **text)
 {
   if (text)
     {
@@ -989,7 +979,7 @@ read_entity_and_text_c (gvm_connection_t *connection, entity_t *entity,
  * @return 0 success, -1 read error, -2 parse error, -3 end of file.
  */
 int
-read_string (gnutls_session_t * session, GString ** string)
+read_string (gnutls_session_t *session, GString **string)
 {
   int ret = 0;
   entity_t entity;
@@ -1031,7 +1021,7 @@ read_string_c (gvm_connection_t *connection, GString **string)
  * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
  */
 int
-try_read_entity (gnutls_session_t * session, int timeout, entity_t * entity)
+try_read_entity (gnutls_session_t *session, int timeout, entity_t *entity)
 {
   return try_read_entity_and_string (session, timeout, entity, NULL);
 }
@@ -1047,12 +1037,12 @@ try_read_entity (gnutls_session_t * session, int timeout, entity_t * entity)
  * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
  */
 int
-try_read_entity_c (gvm_connection_t *connection, int timeout,
-                   entity_t * entity)
+try_read_entity_c (gvm_connection_t *connection, int timeout, entity_t *entity)
 {
   if (connection->tls)
     return try_read_entity_and_string (&connection->session, 0, entity, NULL);
-  return try_read_entity_and_string_s (connection->socket, timeout, entity, NULL);
+  return try_read_entity_and_string_s (connection->socket, timeout, entity,
+                                       NULL);
 }
 
 /**
@@ -1064,7 +1054,7 @@ try_read_entity_c (gvm_connection_t *connection, int timeout,
  * @return 0 success, -1 read error, -2 parse error, -3 end of file.
  */
 int
-read_entity (gnutls_session_t * session, entity_t * entity)
+read_entity (gnutls_session_t *session, entity_t *entity)
 {
   return try_read_entity (session, 0, entity);
 }
@@ -1078,7 +1068,7 @@ read_entity (gnutls_session_t * session, entity_t * entity)
  * @return 0 success, -1 read error, -2 parse error, -3 end of file.
  */
 int
-read_entity_s (int socket, entity_t * entity)
+read_entity_s (int socket, entity_t *entity)
 {
   return try_read_entity_and_string_s (socket, 0, entity, NULL);
 }
@@ -1106,7 +1096,7 @@ read_entity_c (gvm_connection_t *connection, entity_t *entity)
  * @return 0 success, -1 read error, -2 parse error, -3 XML ended prematurely.
  */
 int
-parse_entity (const char *string, entity_t * entity)
+parse_entity (const char *string, entity_t *entity)
 {
   GMarkupParser xml_parser;
   GError *error = NULL;
@@ -1204,7 +1194,7 @@ foreach_print_attribute_to_string (gpointer name, gpointer value,
  * @param[in,out]  string  String to write to (will be created if NULL).
  */
 void
-print_entity_to_string (entity_t entity, GString * string)
+print_entity_to_string (entity_t entity, GString *string)
 {
   gchar *text_escaped = NULL;
   g_string_append_printf (string, "<%s", entity->name);
@@ -1251,7 +1241,7 @@ foreach_print_attribute (gpointer name, gpointer value, gpointer stream)
  * @param[in]  stream  The stream to which to print.
  */
 void
-print_entity (FILE * stream, entity_t entity)
+print_entity (FILE *stream, entity_t entity)
 {
   gchar *text_escaped = NULL;
   fprintf (stream, "<%s", entity->name);
@@ -1363,13 +1353,13 @@ compare_entities (entity_t entity1, entity_t entity2)
   if (strcmp (entity1->name, entity2->name))
     {
       g_debug ("  compare failed name: %s vs %s\n", entity1->name,
-                 entity2->name);
+               entity2->name);
       return 1;
     }
   if (strcmp (entity1->text, entity2->text))
     {
       g_debug ("  compare failed text %s vs %s (%s)\n", entity1->text,
-                 entity2->text, entity1->name);
+               entity2->text, entity1->name);
       return 1;
     }
 
@@ -1382,9 +1372,8 @@ compare_entities (entity_t entity1, entity_t entity2)
     {
       if (entity2->attributes == NULL)
         return 1;
-      if (g_hash_table_find
-          (entity1->attributes, compare_find_attribute,
-           (gpointer) entity2->attributes))
+      if (g_hash_table_find (entity1->attributes, compare_find_attribute,
+                             (gpointer) entity2->attributes))
         {
           g_debug ("  compare failed attributes\n");
           return 1;
@@ -1468,14 +1457,13 @@ static void
 xml_search_handle_start_element (GMarkupParseContext *ctx,
                                  const gchar *element_name,
                                  const gchar **attribute_names,
-                                 const gchar **attribute_values,
-                                 gpointer data,
+                                 const gchar **attribute_values, gpointer data,
                                  GError **error)
 {
   (void) ctx;
   (void) error;
 
-  xml_search_data_t *search_data = ((xml_search_data_t*) data);
+  xml_search_data_t *search_data = ((xml_search_data_t *) data);
 
   if (strcmp (element_name, search_data->find_element) == 0
       && search_data->found == 0)
@@ -1487,27 +1475,24 @@ xml_search_handle_start_element (GMarkupParseContext *ctx,
         {
           int index;
           GHashTable *found_attributes;
-          found_attributes = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                                    NULL, NULL);
+          found_attributes =
+            g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
           index = 0;
           while (attribute_names[index])
             {
               gchar *searched_value;
-              searched_value
-                = g_hash_table_lookup (search_data->find_attributes,
-                                       attribute_names[index]);
+              searched_value = g_hash_table_lookup (
+                search_data->find_attributes, attribute_names[index]);
               if (searched_value
                   && strcmp (searched_value, attribute_values[index]) == 0)
                 {
-                  g_debug ("%s: Found attribute %s=\"%s\"",
-                           __FUNCTION__,
+                  g_debug ("%s: Found attribute %s=\"%s\"", __FUNCTION__,
                            attribute_names[index], searched_value);
                   g_hash_table_add (found_attributes, searched_value);
                 }
-              index ++;
+              index++;
             }
-          g_debug ("%s: Found %d of %d attributes",
-                   __FUNCTION__,
+          g_debug ("%s: Found %d of %d attributes", __FUNCTION__,
                    g_hash_table_size (found_attributes),
                    g_hash_table_size (search_data->find_attributes));
 
@@ -1538,7 +1523,7 @@ int
  * @return  1 if element was found, 0 if not.
  */
 find_element_in_xml_file (gchar *file_path, gchar *find_element,
-                          GHashTable* find_attributes)
+                          GHashTable *find_attributes)
 {
   gchar buffer[XML_FILE_BUFFER_SIZE];
   FILE *file;
@@ -1558,11 +1543,7 @@ find_element_in_xml_file (gchar *file_path, gchar *find_element,
   xml_parser.text = NULL;
   xml_parser.passthrough = NULL;
   xml_parser.error = NULL;
-  xml_context = g_markup_parse_context_new
-                 (&xml_parser,
-                  0,
-                  &search_data,
-                  NULL);
+  xml_context = g_markup_parse_context_new (&xml_parser, 0, &search_data, NULL);
 
   file = fopen (file_path, "r");
   if (file == NULL)
@@ -1572,9 +1553,8 @@ find_element_in_xml_file (gchar *file_path, gchar *find_element,
       return 0;
     }
 
-  while ((read_len = fread (&buffer, sizeof(char), XML_FILE_BUFFER_SIZE, file))
-         && g_markup_parse_context_parse
-              (xml_context, buffer, read_len, &error)
+  while ((read_len = fread (&buffer, sizeof (char), XML_FILE_BUFFER_SIZE, file))
+         && g_markup_parse_context_parse (xml_context, buffer, read_len, &error)
          && error == NULL)
     {
     }

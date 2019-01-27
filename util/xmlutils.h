@@ -25,11 +25,11 @@
 #ifndef _GVM_XMLUTILS_H
 #define _GVM_XMLUTILS_H
 
+#include "serverutils.h"
+
 #include <glib.h>
 #include <gnutls/gnutls.h>
 #include <stdio.h>
-
-#include "serverutils.h"
 
 /**
  * @brief XML context.
@@ -39,9 +39,9 @@
  */
 typedef struct
 {
-  GSList *first;                ///< The very first entity.
-  GSList *current;              ///< The element currently being parsed.
-  gboolean done;                ///< Flag which is true when the first element is closed.
+  GSList *first;   ///< The very first entity.
+  GSList *current; ///< The element currently being parsed.
+  gboolean done;   ///< Flag which is true when the first element is closed.
 } context_data_t;
 
 void
@@ -64,80 +64,103 @@ typedef GSList *entities_t;
  */
 struct entity_s
 {
-  char *name;                   ///< Name.
-  char *text;                   ///< Text.
-  GHashTable *attributes;       ///< Attributes.
-  entities_t entities;          ///< Children.
+  char *name;             ///< Name.
+  char *text;             ///< Text.
+  GHashTable *attributes; ///< Attributes.
+  entities_t entities;    ///< Children.
 };
 typedef struct entity_s *entity_t;
 
 /**
  * @brief Data for xml search functions.
  */
-typedef struct {
-  int found;                    /**< Founded.*/
-  int done;                     /**< Done. */
-  gchar *find_element;          /**< Element to be find. */
-  GHashTable *find_attributes;  /**< Attributes to find. */
+typedef struct
+{
+  int found;                   /**< Founded.*/
+  int done;                    /**< Done. */
+  gchar *find_element;         /**< Element to be find. */
+  GHashTable *find_attributes; /**< Attributes to find. */
 } xml_search_data_t;
 
 entities_t next_entities (entities_t);
 
 entity_t first_entity (entities_t);
 
-entity_t add_entity (entities_t *, const char *, const char *);
+entity_t
+add_entity (entities_t *, const char *, const char *);
 
 int compare_entities (entity_t, entity_t);
 
-entity_t entity_child (entity_t, const char *);
+entity_t
+entity_child (entity_t, const char *);
 
-const char *entity_attribute (entity_t, const char *);
+const char *
+entity_attribute (entity_t, const char *);
 
-char *entity_name (entity_t entity);
+char *
+entity_name (entity_t entity);
 
-char *entity_text (entity_t entity);
+char *
+entity_text (entity_t entity);
 
 void free_entity (entity_t);
 
-void print_entity (FILE *, entity_t);
+void
+print_entity (FILE *, entity_t);
 
-void print_entity_format (entity_t, gpointer indentation);
+void
+print_entity_format (entity_t, gpointer indentation);
 
-int try_read_entity_and_string (gnutls_session_t *, int, entity_t *,
-                                GString **);
+int
+try_read_entity_and_string (gnutls_session_t *, int, entity_t *, GString **);
 
-int read_entity_and_string (gnutls_session_t *, entity_t *, GString **);
+int
+read_entity_and_string (gnutls_session_t *, entity_t *, GString **);
 
-int read_entity_and_string_c (gvm_connection_t *, entity_t *, GString **);
+int
+read_entity_and_string_c (gvm_connection_t *, entity_t *, GString **);
 
-int read_entity_and_text (gnutls_session_t *, entity_t *, char **);
+int
+read_entity_and_text (gnutls_session_t *, entity_t *, char **);
 
-int read_entity_and_text_c (gvm_connection_t *, entity_t *, char **);
+int
+read_entity_and_text_c (gvm_connection_t *, entity_t *, char **);
 
-int try_read_entity (gnutls_session_t *, int, entity_t *);
+int
+try_read_entity (gnutls_session_t *, int, entity_t *);
 
-int try_read_entity_c (gvm_connection_t *, int, entity_t *);
+int
+try_read_entity_c (gvm_connection_t *, int, entity_t *);
 
-int read_entity (gnutls_session_t *, entity_t *);
+int
+read_entity (gnutls_session_t *, entity_t *);
 
-int read_entity_s (int, entity_t *);
+int
+read_entity_s (int, entity_t *);
 
-int read_entity_c (gvm_connection_t *, entity_t *);
+int
+read_entity_c (gvm_connection_t *, entity_t *);
 
-int read_string (gnutls_session_t *, GString **);
+int
+read_string (gnutls_session_t *, GString **);
 
-int read_string_c (gvm_connection_t *, GString **);
+int
+read_string_c (gvm_connection_t *, GString **);
 
-int parse_entity (const char *, entity_t *);
+int
+parse_entity (const char *, entity_t *);
 
-void print_entity_to_string (entity_t entity, GString * string);
+void
+print_entity_to_string (entity_t entity, GString *string);
 
 int xml_count_entities (entities_t);
 
-void xml_string_append (GString *, const char *, ...);
+void
+xml_string_append (GString *, const char *, ...);
 
 /* XML file utilities */
 
-int find_element_in_xml_file (gchar *, gchar *, GHashTable*);
+int
+find_element_in_xml_file (gchar *, gchar *, GHashTable *);
 
 #endif /* not _GVM_XMLUTILS_H */

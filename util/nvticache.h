@@ -27,10 +27,10 @@
 #ifndef _GVM_NVTICACHE_H
 #define _GVM_NVTICACHE_H
 
-#include <glib.h>          /* for gchar */
+#include "../base/nvti.h" /* for nvti_t */
+#include "kb.h"           /* for kb_t */
 
-#include "../base/nvti.h"  /* for nvti_t */
-#include "kb.h"            /* for kb_t */
+#include <glib.h> /* for gchar */
 
 #ifndef NVTICACHE_STR
 #define NVTICACHE_STR "nvticache10"

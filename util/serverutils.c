@@ -29,21 +29,21 @@
 
 #include "serverutils.h"
 
-#include <arpa/inet.h>
-#include <errno.h>      /* for errno, ENOTCONN, EAGAIN */
-#include <fcntl.h>      /* for fcntl, F_SETFL, O_NONBLOCK */
-#include <netdb.h>      /* for addrinfo, freeaddrinfo, gai_strerror, getad... */
-#include <signal.h>     /* for sigaction, SIGPIPE, sigemptyset, SIG_IGN */
-#include <sys/socket.h> /* for shutdown, connect, socket, SHUT_RDWR, SOCK_... */
-#include <sys/types.h>
+#include "../base/hosts.h" /* for is_hostname, is_ipv4_address, is_ipv6_add.. */
 
+#include <arpa/inet.h>
+#include <errno.h>  /* for errno, ENOTCONN, EAGAIN */
+#include <fcntl.h>  /* for fcntl, F_SETFL, O_NONBLOCK */
 #include <gcrypt.h> /* for gcry_control */
 #include <glib.h>   /* for g_warning, g_free, g_debug, gchar, g_markup... */
 #include <gnutls/x509.h> /* for gnutls_x509_crt_..., gnutls_x509_privkey_... */
-#include <stdio.h>  /* for fclose, FILE, SEEK_END, SEEK_SET */
-#include <string.h> /* for strerror, strlen, memset */
+#include <netdb.h>      /* for addrinfo, freeaddrinfo, gai_strerror, getad... */
+#include <signal.h>     /* for sigaction, SIGPIPE, sigemptyset, SIG_IGN */
+#include <stdio.h>      /* for fclose, FILE, SEEK_END, SEEK_SET */
+#include <string.h>     /* for strerror, strlen, memset */
+#include <sys/socket.h> /* for shutdown, connect, socket, SHUT_RDWR, SOCK_... */
+#include <sys/types.h>
 #include <unistd.h> /* for close, ssize_t, usleep */
-#include "../base/hosts.h" /* for is_hostname, is_ipv4_address, is_ipv6_add.. */
 
 #undef G_LOG_DOMAIN
 /**
@@ -56,18 +56,13 @@
  */
 struct sockaddr_in address;
 
+static int
+server_attach_internal (int, gnutls_session_t *, const char *, int);
+static int
+server_new_internal (unsigned int, const char *, const gchar *, const gchar *,
+                     const gchar *, gnutls_session_t *,
+                     gnutls_certificate_credentials_t *);
 
-
-static int server_attach_internal (int, gnutls_session_t *,
-                                   const char *, int);
-static int server_new_internal (unsigned int, const char *,
-                                const gchar *,
-                                const gchar *, const gchar *,
-                                gnutls_session_t *,
-                                gnutls_certificate_credentials_t *);
-
-
-
 /* Connections. */
 
 /**
@@ -116,14 +111,12 @@ void
 gvm_connection_free (gvm_connection_t *client_connection)
 {
   if (client_connection->tls)
-    gvm_server_free (client_connection->socket,
-                     client_connection->session,
+    gvm_server_free (client_connection->socket, client_connection->session,
                      client_connection->credentials);
   else
     close_unix (client_connection);
 }
 
-
 /* Certificate verification. */
 
 /**
@@ -142,8 +135,7 @@ gvm_server_verify (gnutls_session_t session)
   ret = gnutls_certificate_verify_peers2 (session, &status);
   if (ret < 0)
     {
-      g_warning ("%s: failed to verify peers: %s",
-                 __FUNCTION__,
+      g_warning ("%s: failed to verify peers: %s", __FUNCTION__,
                  gnutls_strerror (ret));
       return -1;
     }
@@ -191,10 +183,8 @@ load_gnutls_file (const char *file, gnutls_datum_t *loaded_file)
   int64_t filelen;
   void *ptr;
 
-  if (!(f = fopen (file, "r"))
-      || fseek (f, 0, SEEK_END) != 0
-      || (filelen = ftell (f)) < 0
-      || fseek (f, 0, SEEK_SET) != 0
+  if (!(f = fopen (file, "r")) || fseek (f, 0, SEEK_END) != 0
+      || (filelen = ftell (f)) < 0 || fseek (f, 0, SEEK_SET) != 0
       || !(ptr = g_malloc0 ((size_t) filelen))
       || fread (ptr, 1, (size_t) filelen, f) < (size_t) filelen)
     {
@@ -215,7 +205,7 @@ load_gnutls_file (const char *file, gnutls_datum_t *loaded_file)
  * @param[in]  data     Pointer to gnutls_datum_t struct to be unloaded.
  */
 void
-unload_gnutls_file(gnutls_datum_t *data)
+unload_gnutls_file (gnutls_datum_t *data)
 {
   if (data)
     g_free (data->data);
@@ -283,9 +273,9 @@ get_cert_pub_mem ()
  */
 static int
 client_cert_callback (gnutls_session_t session,
-                      const gnutls_datum_t * req_ca_rdn, int nreqs,
-                      const gnutls_pk_algorithm_t * sign_algos,
-                      int sign_algos_length, gnutls_retr2_st * st)
+                      const gnutls_datum_t *req_ca_rdn, int nreqs,
+                      const gnutls_pk_algorithm_t *sign_algos,
+                      int sign_algos_length, gnutls_retr2_st *st)
 {
   int ret;
   gnutls_datum_t data;
@@ -334,10 +324,9 @@ client_cert_callback (gnutls_session_t session,
  * @return 0 on success, -1 on error.
  */
 int
-gvm_server_open_verify (gnutls_session_t *session, const char *host,
-                        int port, const char *ca_mem,
-                        const char *pub_mem, const char *priv_mem,
-                        int verify)
+gvm_server_open_verify (gnutls_session_t *session, const char *host, int port,
+                        const char *ca_mem, const char *pub_mem,
+                        const char *priv_mem, int verify)
 {
   int ret;
   int server_socket;
@@ -352,13 +341,13 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host,
   if (port < 1 || port > 65535)
     {
       g_warning ("Failed to create client TLS session. "
-                 "Invalid port %d", port);
+                 "Invalid port %d",
+                 port);
       return -1;
     }
   host_type = gvm_get_host_type (host);
-  if ( !(host_type == HOST_TYPE_NAME ||
-         host_type == HOST_TYPE_IPV4 ||
-         host_type == HOST_TYPE_IPV6))
+  if (!(host_type == HOST_TYPE_NAME || host_type == HOST_TYPE_IPV4
+        || host_type == HOST_TYPE_IPV6))
     {
       g_warning ("Failed to create client TLS session. Invalid host %s", host);
       return -1;
@@ -368,7 +357,7 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host,
       them because the session only makes a shallow copy. */
 
   if (gvm_server_new_mem (GNUTLS_CLIENT, ca_mem, pub_mem, priv_mem, session,
-                              &credentials))
+                          &credentials))
     {
       g_warning ("Failed to create client TLS session.");
       return -1;
@@ -390,7 +379,7 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host,
   /* Get all possible addresses. */
 
   memset (&address_hints, 0, sizeof (address_hints));
-  address_hints.ai_family = AF_UNSPEC;  /* IPv4 or IPv6. */
+  address_hints.ai_family = AF_UNSPEC; /* IPv4 or IPv6. */
   address_hints.ai_socktype = SOCK_STREAM;
   address_hints.ai_protocol = 0;
 
@@ -484,11 +473,11 @@ gvm_server_open_verify (gnutls_session_t *session, const char *host,
  */
 int
 gvm_server_open_with_cert (gnutls_session_t *session, const char *host,
-                           int port, const char *ca_mem,
-                           const char *pub_mem, const char *priv_mem)
+                           int port, const char *ca_mem, const char *pub_mem,
+                           const char *priv_mem)
 {
-  return gvm_server_open_verify (session, host, port, ca_mem, pub_mem,
-                                 priv_mem, ca_mem && pub_mem && priv_mem);
+  return gvm_server_open_verify (session, host, port, ca_mem, pub_mem, priv_mem,
+                                 ca_mem && pub_mem && priv_mem);
 }
 
 /**
@@ -501,7 +490,7 @@ gvm_server_open_with_cert (gnutls_session_t *session, const char *host,
  * @return 0 on success, -1 on error.
  */
 int
-gvm_server_open (gnutls_session_t * session, const char *host, int port)
+gvm_server_open (gnutls_session_t *session, const char *host, int port)
 {
   return gvm_server_open_with_cert (session, host, port, NULL, NULL, NULL);
 }
@@ -545,8 +534,8 @@ gvm_connection_close (gvm_connection_t *connection)
  * @return 0 on success, -1 on general error, -2 if the TLS handshake failed.
  */
 static int
-server_attach_internal (int socket, gnutls_session_t * session,
-                        const char *host, int port)
+server_attach_internal (int socket, gnutls_session_t *session, const char *host,
+                        int port)
 {
   unsigned int retries;
 
@@ -567,11 +556,10 @@ server_attach_internal (int socket, gnutls_session_t * session,
           continue;
         }
       if (host)
-        g_debug ("Failed to shake hands with server '%s' port %d: %s",
-                 host, port, gnutls_strerror (ret));
+        g_debug ("Failed to shake hands with server '%s' port %d: %s", host,
+                 port, gnutls_strerror (ret));
       else
-        g_debug ("Failed to shake hands with peer: %s",
-                 gnutls_strerror (ret));
+        g_debug ("Failed to shake hands with peer: %s", gnutls_strerror (ret));
       if (shutdown (socket, SHUT_RDWR) == -1)
         g_debug ("Failed to shutdown server socket");
       return -2;
@@ -594,12 +582,12 @@ server_attach_internal (int socket, gnutls_session_t * session,
  * @return 0 on success, -1 on error.
  */
 int
-gvm_server_attach (int socket, gnutls_session_t * session)
+gvm_server_attach (int socket, gnutls_session_t *session)
 {
   int ret;
 
   ret = server_attach_internal (socket, session, NULL, 0);
-  return ret? -1 : 0;
+  return ret ? -1 : 0;
 }
 
 /**
@@ -630,8 +618,8 @@ gvm_server_vsendf_internal (gnutls_session_t *session, const char *fmt,
       ssize_t count;
 
       if (quiet == 0)
-        g_debug ("   send %d from %.*s[...]",
-                 left, left < 30 ? left : 30, string);
+        g_debug ("   send %d from %.*s[...]", left, left < 30 ? left : 30,
+                 string);
       count = gnutls_record_send (*session, string, left);
       if (count < 0)
         {
@@ -697,8 +685,8 @@ unix_vsendf_internal (int socket, const char *fmt, va_list ap, int quiet)
       ssize_t count;
 
       if (quiet == 0)
-        g_debug ("   send %d from %.*s[...]",
-                 left, left < 30 ? left : 30, string);
+        g_debug ("   send %d from %.*s[...]", left, left < 30 ? left : 30,
+                 string);
       count = write (socket, string, left);
       if (count < 0)
         {
@@ -734,8 +722,8 @@ out:
  * @return 0 on success, 1 if server closed connection, -1 on error.
  */
 static int
-gvm_connection_vsendf_internal (gvm_connection_t *connection,
-                                const char *fmt, va_list ap, int quiet)
+gvm_connection_vsendf_internal (gvm_connection_t *connection, const char *fmt,
+                                va_list ap, int quiet)
 {
   if (connection->tls)
     return gvm_server_vsendf_internal (&connection->session, fmt, ap, quiet);
@@ -798,8 +786,7 @@ gvm_connection_vsendf (gvm_connection_t *connection, const char *fmt,
  * @return 0 on success, 1 if server closed connection, -1 on error.
  */
 int
-gvm_server_vsendf_quiet (gnutls_session_t *session, const char *fmt,
-                         va_list ap)
+gvm_server_vsendf_quiet (gnutls_session_t *session, const char *fmt, va_list ap)
 {
   return gvm_server_vsendf_internal (session, fmt, ap, 1);
 }
@@ -814,8 +801,7 @@ gvm_server_vsendf_quiet (gnutls_session_t *session, const char *fmt,
  * @return 0 on success, 1 if server closed connection, -1 on error.
  */
 int
-gvm_connection_vsendf_quiet (gvm_connection_t *connection,
-                             const char *fmt,
+gvm_connection_vsendf_quiet (gvm_connection_t *connection, const char *fmt,
                              va_list ap)
 {
   return gvm_connection_vsendf_internal (connection, fmt, ap, 1);
@@ -830,7 +816,7 @@ gvm_connection_vsendf_quiet (gvm_connection_t *connection,
  * @return 0 on success, -1 on error.
  */
 int
-gvm_server_sendf (gnutls_session_t * session, const char *format, ...)
+gvm_server_sendf (gnutls_session_t *session, const char *format, ...)
 {
   va_list ap;
   int rc;
@@ -850,9 +836,7 @@ gvm_server_sendf (gnutls_session_t * session, const char *format, ...)
  * @return 0 on success, -1 on error.
  */
 int
-gvm_connection_sendf (gvm_connection_t *connection,
-                      const char *format,
-                      ...)
+gvm_connection_sendf (gvm_connection_t *connection, const char *format, ...)
 {
   va_list ap;
   int rc;
@@ -872,7 +856,7 @@ gvm_connection_sendf (gvm_connection_t *connection,
  * @return 0 on success, -1 on error.
  */
 int
-gvm_server_sendf_quiet (gnutls_session_t * session, const char *format, ...)
+gvm_server_sendf_quiet (gnutls_session_t *session, const char *format, ...)
 {
   va_list ap;
   int rc;
@@ -892,8 +876,7 @@ gvm_server_sendf_quiet (gnutls_session_t * session, const char *format, ...)
  * @return 0 on success, -1 on error.
  */
 int
-gvm_connection_sendf_quiet (gvm_connection_t *connection,
-                            const char *format,
+gvm_connection_sendf_quiet (gvm_connection_t *connection, const char *format,
                             ...)
 {
   va_list ap;
@@ -916,7 +899,7 @@ gvm_connection_sendf_quiet (gvm_connection_t *connection,
  * @return 0 on success, -1 on error.
  */
 int
-gvm_server_sendf_xml (gnutls_session_t * session, const char *format, ...)
+gvm_server_sendf_xml (gnutls_session_t *session, const char *format, ...)
 {
   va_list ap;
   gchar *msg;
@@ -941,8 +924,7 @@ gvm_server_sendf_xml (gnutls_session_t * session, const char *format, ...)
  * @return 0 on success, -1 on error.
  */
 int
-gvm_connection_sendf_xml (gvm_connection_t *connection,
-                          const char *format, ...)
+gvm_connection_sendf_xml (gvm_connection_t *connection, const char *format, ...)
 {
   va_list ap;
   gchar *msg;
@@ -969,8 +951,7 @@ gvm_connection_sendf_xml (gvm_connection_t *connection,
  * @return 0 on success, -1 on error.
  */
 int
-gvm_server_sendf_xml_quiet (gnutls_session_t * session,
-                            const char *format, ...)
+gvm_server_sendf_xml_quiet (gnutls_session_t *session, const char *format, ...)
 {
   va_list ap;
   gchar *msg;
@@ -998,8 +979,7 @@ gvm_server_sendf_xml_quiet (gnutls_session_t * session,
  */
 int
 gvm_connection_sendf_xml_quiet (gvm_connection_t *connection,
-                                const char *format,
-                                ...)
+                                const char *format, ...)
 {
   va_list ap;
   gchar *msg;
@@ -1069,9 +1049,8 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
      is chosen.
   */
 
-  if ((err_gnutls = gnutls_priority_set_direct (*server_session,
-                                                priority ? priority : "NORMAL",
-                                                NULL)))
+  if ((err_gnutls = gnutls_priority_set_direct (
+         *server_session, priority ? priority : "NORMAL", NULL)))
     {
       g_warning ("%s: failed to set tls priorities: %s\n", __FUNCTION__,
                  gnutls_strerror (err_gnutls));
@@ -1079,8 +1058,8 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
       return -1;
     }
 
-  if (gnutls_credentials_set
-      (*server_session, GNUTLS_CRD_CERTIFICATE, *server_credentials))
+  if (gnutls_credentials_set (*server_session, GNUTLS_CRD_CERTIFICATE,
+                              *server_credentials))
     {
       g_warning ("%s: failed to set server credentials\n", __FUNCTION__);
       gnutls_deinit (*server_session);
@@ -1109,9 +1088,8 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
  */
 static int
 server_new_internal (unsigned int end_type, const char *priority,
-                     const gchar *ca_cert_file,
-                     const gchar *cert_file, const gchar *key_file,
-                     gnutls_session_t *server_session,
+                     const gchar *ca_cert_file, const gchar *cert_file,
+                     const gchar *key_file, gnutls_session_t *server_session,
                      gnutls_certificate_credentials_t *server_credentials)
 {
   if (server_new_gnutls_init (server_credentials))
@@ -1121,31 +1099,29 @@ server_new_internal (unsigned int end_type, const char *priority,
     {
       int ret;
 
-      ret = gnutls_certificate_set_x509_key_file
-             (*server_credentials, cert_file, key_file, GNUTLS_X509_FMT_PEM);
+      ret = gnutls_certificate_set_x509_key_file (
+        *server_credentials, cert_file, key_file, GNUTLS_X509_FMT_PEM);
       if (ret < 0)
-       {
-         g_warning ("%s: failed to set credentials key file: %s\n",
-                    __FUNCTION__,
-                    gnutls_strerror (ret));
-         g_warning ("%s:   cert file: %s\n", __FUNCTION__, cert_file);
-         g_warning ("%s:   key file : %s\n", __FUNCTION__, key_file);
-         gnutls_certificate_free_credentials (*server_credentials);
-         return -1;
-       }
+        {
+          g_warning ("%s: failed to set credentials key file: %s\n",
+                     __FUNCTION__, gnutls_strerror (ret));
+          g_warning ("%s:   cert file: %s\n", __FUNCTION__, cert_file);
+          g_warning ("%s:   key file : %s\n", __FUNCTION__, key_file);
+          gnutls_certificate_free_credentials (*server_credentials);
+          return -1;
+        }
     }
 
   if (ca_cert_file)
     {
       int ret;
 
-      ret = gnutls_certificate_set_x509_trust_file
-             (*server_credentials, ca_cert_file, GNUTLS_X509_FMT_PEM);
+      ret = gnutls_certificate_set_x509_trust_file (
+        *server_credentials, ca_cert_file, GNUTLS_X509_FMT_PEM);
       if (ret < 0)
         {
           g_warning ("%s: failed to set credentials trust file: %s\n",
-                     __FUNCTION__,
-                     gnutls_strerror (ret));
+                     __FUNCTION__, gnutls_strerror (ret));
           g_warning ("%s: trust file: %s\n", __FUNCTION__, ca_cert_file);
           gnutls_certificate_free_credentials (*server_credentials);
           return -1;
@@ -1176,14 +1152,11 @@ server_new_internal (unsigned int end_type, const char *priority,
  * @return 0 on success, -1 on error.
  */
 int
-gvm_server_new (unsigned int end_type,
-                gchar * ca_cert_file,
-                gchar * cert_file, gchar * key_file,
-                gnutls_session_t * server_session,
-                gnutls_certificate_credentials_t * server_credentials)
+gvm_server_new (unsigned int end_type, gchar *ca_cert_file, gchar *cert_file,
+                gchar *key_file, gnutls_session_t *server_session,
+                gnutls_certificate_credentials_t *server_credentials)
 {
-  return server_new_internal (end_type, NULL,
-                              ca_cert_file, cert_file, key_file,
+  return server_new_internal (end_type, NULL, ca_cert_file, cert_file, key_file,
                               server_session, server_credentials);
 }
 

@@ -25,6 +25,7 @@
 #ifndef _GVM_UUIDUTILS_H
 #define _GVM_UUIDUTILS_H
 
-char *gvm_uuid_make (void);
+char *
+gvm_uuid_make (void);
 
 #endif /* not _GVM_UUIDUTILS_H */

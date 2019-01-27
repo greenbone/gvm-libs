@@ -26,7 +26,7 @@
 
 #include <glib.h>          /* for g_free, g_strdup, g_strdup_printf */
 #include <gnutls/gnutls.h> /* for gnutls_datum_t */
-#include <gnutls/x509.h>   /* for gnutls_x509_privkey_deinit, gnutls_x509_p... */
+#include <gnutls/x509.h> /* for gnutls_x509_privkey_deinit, gnutls_x509_p... */
 #include <libssh/libssh.h> /* for ssh_key_free, ssh_key_type, ssh_key_type_... */
 #include <string.h>        /* for strcmp, strlen */
 
@@ -85,15 +85,15 @@ gvm_ssh_public_from_private (const char *private_key, const char *passphrase)
   int ret;
 
   decrypted_priv = gvm_ssh_pkcs8_decrypt (private_key, passphrase);
-  ret = ssh_pki_import_privkey_base64
-         (decrypted_priv ? decrypted_priv : private_key, passphrase,
-          NULL, NULL, &priv);
+  ret = ssh_pki_import_privkey_base64 (decrypted_priv ? decrypted_priv
+                                                      : private_key,
+                                       passphrase, NULL, NULL, &priv);
   g_free (decrypted_priv);
   if (ret)
     return NULL;
   ret = ssh_pki_export_pubkey_base64 (priv, &pub_key);
   type = ssh_key_type_to_char (ssh_key_type (priv));
-#if LIBSSH_VERSION_INT >= SSH_VERSION_INT (0, 6, 4)
+#if LIBSSH_VERSION_INT >= SSH_VERSION_INT(0, 6, 4)
   if (!strcmp (type, "ssh-ecdsa"))
     type = ssh_pki_key_ecdsa_name (priv);
 #endif
