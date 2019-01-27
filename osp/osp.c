@@ -24,20 +24,20 @@
 
 #include "osp.h"
 
-#include <assert.h>              /* for assert */
-#include <gnutls/gnutls.h>       /* for gnutls_session_int, gnutls_session_t */
-#include <stdarg.h>              /* for va_list */
-#include <stdlib.h>              /* for NULL, atoi */
-#include <string.h>              /* for strcmp, strlen, strncpy */
-#include <sys/socket.h>          /* for AF_UNIX, connect, socket, SOCK_STREAM */
-#include <sys/un.h>              /* for sockaddr_un, sa_family_t */
-#include <unistd.h>              /* for close */
-
 #include "../base/hosts.h"       /* for gvm_get_host_type */
 #include "../util/serverutils.h" /* for gvm_server_close, gvm_server_open_w... */
-#include "../util/xmlutils.h"    /* for entity_child, entity_text, free_entity */
+#include "../util/xmlutils.h" /* for entity_child, entity_text, free_entity */
 
-#undef  G_LOG_DOMAIN
+#include <assert.h>        /* for assert */
+#include <gnutls/gnutls.h> /* for gnutls_session_int, gnutls_session_t */
+#include <stdarg.h>        /* for va_list */
+#include <stdlib.h>        /* for NULL, atoi */
+#include <string.h>        /* for strcmp, strlen, strncpy */
+#include <sys/socket.h>    /* for AF_UNIX, connect, socket, SOCK_STREAM */
+#include <sys/un.h>        /* for sockaddr_un, sa_family_t */
+#include <unistd.h>        /* for close */
+
+#undef G_LOG_DOMAIN
 /**
  * @brief GLib log domain.
  */
@@ -46,7 +46,8 @@
 /**
  * @brief Struct holding options for OSP connection.
  */
-struct osp_connection {
+struct osp_connection
+{
   gnutls_session_t session; /**< Pointer to GNUTLS Session. */
   int socket;               /**< Socket. */
   char *host;               /**< Host. */
@@ -56,19 +57,19 @@ struct osp_connection {
 /**
  * @brief Struct holding options for OSP parameters.
  */
-struct osp_param {
-  char *id;                 /**< Parameter id. */
-  char *name;               /**< Parameter name. */
-  char *desc;               /**< Parameter description. */
-  char *def;                /**< Default value. */
-  osp_param_type_t type;    /**< Parameter type. */
-  int mandatory;            /**< If mandatory or not. */
+struct osp_param
+{
+  char *id;              /**< Parameter id. */
+  char *name;            /**< Parameter name. */
+  char *desc;            /**< Parameter description. */
+  char *def;             /**< Default value. */
+  osp_param_type_t type; /**< Parameter type. */
+  int mandatory;         /**< If mandatory or not. */
 };
 
 static int
 osp_send_command (osp_connection_t *, entity_t *, const char *, ...)
-    __attribute__((__format__(__printf__, 3, 4)));
-
+  __attribute__ ((__format__ (__printf__, 3, 4)));
 
 /**
  * @brief Open a new connection to an OSP server.
@@ -116,8 +117,8 @@ osp_connection_new (const char *host, int port, const char *cacert,
         return NULL;
 
       connection = g_malloc0 (sizeof (*connection));
-      connection->socket = gvm_server_open_with_cert
-                            (&connection->session, host, port, cacert, cert, key);
+      connection->socket = gvm_server_open_with_cert (
+        &connection->session, host, port, cacert, cert, key);
     }
   if (connection->socket == -1)
     {
@@ -166,11 +167,10 @@ osp_send_command (osp_connection_t *connection, entity_t *response,
         goto out;
     }
 
-
   rc = 0;
 
 out:
-  va_end(ap);
+  va_end (ap);
 
   return rc;
 }
@@ -337,9 +337,9 @@ osp_get_scan (osp_connection_t *connection, const char *scan_id,
 
   assert (connection);
   assert (scan_id);
-  rc = osp_send_command
-        (connection, &entity, "<get_scans scan_id='%s' details='%d'/>",
-         scan_id, details ? 1 : 0);
+  rc = osp_send_command (connection, &entity,
+                         "<get_scans scan_id='%s' details='%d'/>", scan_id,
+                         details ? 1 : 0);
   if (rc)
     {
       if (error)
@@ -388,8 +388,8 @@ osp_stop_scan (osp_connection_t *connection, const char *scan_id, char **error)
 
   assert (connection);
   assert (scan_id);
-  rc = osp_send_command
-        (connection, &entity, "<stop_scan scan_id='%s'/>", scan_id);
+  rc = osp_send_command (connection, &entity, "<stop_scan scan_id='%s'/>",
+                         scan_id);
   if (rc)
     {
       if (error)
@@ -601,15 +601,15 @@ osp_get_scanner_details (osp_connection_t *connection, char **desc,
           child = entities->data;
           param = osp_param_new ();
           param->id = g_strdup (entity_attribute (child, "id"));
-          param->type = osp_param_str_to_type (entity_attribute (child, "type"));
+          param->type =
+            osp_param_str_to_type (entity_attribute (child, "type"));
           param->name = g_strdup (entity_text (entity_child (child, "name")));
-          param->desc = g_strdup (entity_text (entity_child (child,
-                                                             "description")));
-          param->def = g_strdup (entity_text (entity_child (child,
-                                                            "default")));
+          param->desc =
+            g_strdup (entity_text (entity_child (child, "description")));
+          param->def = g_strdup (entity_text (entity_child (child, "default")));
           if (entity_child (child, "mandatory"))
-            param->mandatory = atoi (entity_text
-                                      (entity_child (child, "mandatory")));
+            param->mandatory =
+              atoi (entity_text (entity_child (child, "mandatory")));
           *params = g_slist_append (*params, param);
           entities = next_entities (entities);
         }

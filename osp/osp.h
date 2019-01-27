@@ -32,7 +32,8 @@ typedef struct osp_connection osp_connection_t;
 /**
  * @brief OSP parameter types.
  */
-typedef enum {
+typedef enum
+{
   OSP_PARAM_TYPE_INT = 0,      /**< Integer type. */
   OSP_PARAM_TYPE_STR,          /**< String type. */
   OSP_PARAM_TYPE_PASSWORD,     /**< Password type. */
