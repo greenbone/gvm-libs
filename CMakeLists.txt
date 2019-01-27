@@ -44,6 +44,20 @@ endif (NOT BUILD_STATIC)
 ## Retrieve git revision (at configure time)
 find_package (Git)
 
+## make format
+message (STATUS "Looking for clang-format...")
+find_program (CLANG_FORMAT clang-format)
+
+if (CLANG_FORMAT)
+  message (STATUS "Looking for clang-format... ${CLANG_FORMAT}")
+  add_custom_target(format COMMAND ${CLANG_FORMAT} "-i" "./base/*.c" "./gmp/*.c"
+                    "./osp/*.c" "./util/*.c" "./base/*.h" "./gmp/*.h" "./osp/*.h"
+                    "./util/*.h" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+else (CLANG_FORMAT)
+  message (STATUS "clang-format not found...")
+endif (CLANG_FORMAT)
+
+
 macro (Git_GET_REVISION dir variable)
   execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
                   WORKING_DIRECTORY ${dir}
