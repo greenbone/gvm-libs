@@ -33,17 +33,18 @@
 
 /* Static values */
 
-enum host_type {
-  HOST_TYPE_NAME = 0,       /* Hostname eg. foo */
-  HOST_TYPE_IPV4,           /* eg. 192.168.1.1 */
-  HOST_TYPE_CIDR_BLOCK,     /* eg. 192.168.15.0/24 */
-  HOST_TYPE_RANGE_SHORT,    /* eg. 192.168.15.10-20 */
-  HOST_TYPE_RANGE_LONG,     /* eg. 192.168.15.10-192.168.18.3 */
-  HOST_TYPE_IPV6,           /* eg. ::1 */
-  HOST_TYPE_CIDR6_BLOCK,    /* eg. ::ffee/120 */
-  HOST_TYPE_RANGE6_LONG,    /* eg. ::1:200:7-::1:205:500 */
-  HOST_TYPE_RANGE6_SHORT,   /* eg. ::1-fe10 */
-  HOST_TYPE_MAX             /* Boundary checking. */
+enum host_type
+{
+  HOST_TYPE_NAME = 0,     /* Hostname eg. foo */
+  HOST_TYPE_IPV4,         /* eg. 192.168.1.1 */
+  HOST_TYPE_CIDR_BLOCK,   /* eg. 192.168.15.0/24 */
+  HOST_TYPE_RANGE_SHORT,  /* eg. 192.168.15.10-20 */
+  HOST_TYPE_RANGE_LONG,   /* eg. 192.168.15.10-192.168.18.3 */
+  HOST_TYPE_IPV6,         /* eg. ::1 */
+  HOST_TYPE_CIDR6_BLOCK,  /* eg. ::ffee/120 */
+  HOST_TYPE_RANGE6_LONG,  /* eg. ::1:200:7-::1:205:500 */
+  HOST_TYPE_RANGE6_SHORT, /* eg. ::1-fe10 */
+  HOST_TYPE_MAX           /* Boundary checking. */
 };
 
 /* Typedefs */
@@ -61,13 +62,14 @@ typedef struct gvm_hosts gvm_hosts_t;
  */
 struct gvm_host
 {
-  union {
-    gchar *name;            /**< Hostname. */
-    struct in_addr addr;    /**< IPv4 address */
-    struct in6_addr addr6;  /**< IPv6 address */
+  union
+  {
+    gchar *name;           /**< Hostname. */
+    struct in_addr addr;   /**< IPv4 address */
+    struct in6_addr addr6; /**< IPv6 address */
   };
-  enum host_type type;  /**< HOST_TYPE_NAME, HOST_TYPE_IPV4 or HOST_TYPE_IPV6. */
-  GSList *vhosts;       /**< List of hostnames/vhosts attached to this host. */
+  enum host_type type; /**< HOST_TYPE_NAME, HOST_TYPE_IPV4 or HOST_TYPE_IPV6. */
+  GSList *vhosts;      /**< List of hostnames/vhosts attached to this host. */
 };
 
 /**
@@ -75,8 +77,8 @@ struct gvm_host
  */
 struct gvm_vhost
 {
-  char *value;      /**< Hostname string. */
-  char *source;     /**< Source of the value eg. DNS-Resolution. */
+  char *value;  /**< Hostname string. */
+  char *source; /**< Source of the value eg. DNS-Resolution. */
 };
 
 /**
@@ -87,16 +89,16 @@ struct gvm_vhost
  */
 struct gvm_hosts
 {
-  gchar *orig_str;          /**< Original hosts definition string. */
-  GList *hosts;             /**< Hosts objects list. */
-  GList *current;           /**< Current host object in iteration. */
-  unsigned int count;       /**< Number of single host objects in hosts list. */
-  unsigned int removed;     /**< Number of duplicate/excluded values. */
+  gchar *orig_str;      /**< Original hosts definition string. */
+  GList *hosts;         /**< Hosts objects list. */
+  GList *current;       /**< Current host object in iteration. */
+  unsigned int count;   /**< Number of single host objects in hosts list. */
+  unsigned int removed; /**< Number of duplicate/excluded values. */
 };
 
 /* Function prototypes. */
 
- /* gvm_hosts_t related */
+/* gvm_hosts_t related */
 gvm_hosts_t *
 gvm_hosts_new (const gchar *);
 
@@ -142,7 +144,7 @@ gvm_hosts_count (const gvm_hosts_t *);
 unsigned int
 gvm_hosts_removed (const gvm_hosts_t *);
 
- /* gvm_host_t related */
+/* gvm_host_t related */
 
 int
 gvm_host_in_hosts (const gvm_host_t *, const struct in6_addr *,

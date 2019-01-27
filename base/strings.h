@@ -27,10 +27,14 @@
 
 #include <glib.h>
 
-void gvm_append_string (gchar **, const gchar *);
-void gvm_append_text (gchar **, const gchar *, gsize);
-void gvm_free_string_var (gchar **);
+void
+gvm_append_string (gchar **, const gchar *);
+void
+gvm_append_text (gchar **, const gchar *, gsize);
+void
+gvm_free_string_var (gchar **);
 
-char *gvm_strip_space (char *, char *);
+char *
+gvm_strip_space (char *, char *);
 
 #endif /* not _GVM_STRINGS_H */

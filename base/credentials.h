@@ -50,12 +50,15 @@ typedef struct
   ///< Role of user.
 } credentials_t;
 
-void free_credentials (credentials_t * credentials);
+void
+free_credentials (credentials_t *credentials);
 
-void append_to_credentials_username (credentials_t * credentials,
-                                     const char *text, gsize length);
+void
+append_to_credentials_username (credentials_t *credentials, const char *text,
+                                gsize length);
 
-void append_to_credentials_password (credentials_t * credentials,
-                                     const char *text, gsize length);
+void
+append_to_credentials_password (credentials_t *credentials, const char *text,
+                                gsize length);
 
 #endif /* _GVM_CREDENTIALS_H */

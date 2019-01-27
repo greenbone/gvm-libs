@@ -26,9 +26,14 @@
  * vector.
  *
  * The base equation is the foundation of CVSS scoring. The base equation is:
- * BaseScore6 = round_to_1_decimal(((0.6*Impact)+(0.4*Exploitability)–1.5)*f(Impact))
- * Impact = 10.41*(1-(1-ConfImpact)*(1-IntegImpact)*(1-AvailImpact))
- * Exploitability = 20* AccessVector*AccessComplexity*Authentication
+ * BaseScore6
+ *   = round_to_1_decimal(((0.6*Impact)+(0.4*Exploitability)–1.5)*f(Impact))
+ *
+ * Impact
+ *   = 10.41*(1-(1-ConfImpact)*(1-IntegImpact)*(1-AvailImpact))
+ *
+ * Exploitability
+ *   = 20* AccessVector*AccessComplexity*Authentication
  *
  * f(impact)= 0 if Impact=0, 1.176 otherwise
  * AccessVector     = case AccessVector of
@@ -57,10 +62,8 @@
  *                       complete:          0.660
  */
 
-#include <string.h>
-
 #include <glib.h>
-
+#include <string.h>
 
 // clang-format off
 /**
@@ -111,12 +114,12 @@
  */
 enum base_metrics
 {
-  A,   /**< Availability Impact. */
-  I,   /**< Integrity Impact. */
-  C,   /**< Confidentiality Impact. */
-  Au,  /**< Authentication. */
-  AC,  /**< Access Complexity. */
-  AV   /**< Access Vector. */
+  A,  /**< Availability Impact. */
+  I,  /**< Integrity Impact. */
+  C,  /**< Confidentiality Impact. */
+  Au, /**< Authentication. */
+  AC, /**< Access Complexity. */
+  AV  /**< Access Vector. */
 };
 
 /**
@@ -141,38 +144,43 @@ struct cvss
   double authentication;    /**< Authentication. */
 };
 
-
 static const struct impact_item impact_map[][3] = {
-  [A] = {
-         {"N", A_NONE},
-         {"P", A_PARTIAL},
-         {"C", A_COMPLETE},
-         },
-  [I] = {
-         {"N", I_NONE},
-         {"P", I_PARTIAL},
-         {"C", I_COMPLETE},
-         },
-  [C] = {
-         {"N", C_NONE},
-         {"P", C_PARTIAL},
-         {"C", C_COMPLETE},
-         },
-  [Au] = {
-          {"N", Au_NONE},
-          {"M", Au_MULTIPLE_INSTANCES},
-          {"S", Au_SINGLE_INSTANCE},
-          },
-  [AV] = {
-          {"N", AV_NETWORK},
-          {"A", AV_ADJACENT_NETWORK},
-          {"L", AV_LOCAL},
-          },
-  [AC] = {
-          {"L", AC_LOW},
-          {"M", AC_MEDIUM},
-          {"H", AC_HIGH},
-          },
+  [A] =
+    {
+      {"N", A_NONE},
+      {"P", A_PARTIAL},
+      {"C", A_COMPLETE},
+    },
+  [I] =
+    {
+      {"N", I_NONE},
+      {"P", I_PARTIAL},
+      {"C", I_COMPLETE},
+    },
+  [C] =
+    {
+      {"N", C_NONE},
+      {"P", C_PARTIAL},
+      {"C", C_COMPLETE},
+    },
+  [Au] =
+    {
+      {"N", Au_NONE},
+      {"M", Au_MULTIPLE_INSTANCES},
+      {"S", Au_SINGLE_INSTANCE},
+    },
+  [AV] =
+    {
+      {"N", AV_NETWORK},
+      {"A", AV_ADJACENT_NETWORK},
+      {"L", AV_LOCAL},
+    },
+  [AC] =
+    {
+      {"L", AC_LOW},
+      {"M", AC_MEDIUM},
+      {"H", AC_HIGH},
+    },
 };
 
 /**
@@ -186,7 +194,7 @@ static const struct impact_item impact_map[][3] = {
 static int
 toenum (const char *str, enum base_metrics *res)
 {
-  int rc = 0;                   /* let's be optimistic */
+  int rc = 0; /* let's be optimistic */
 
   if (g_strcmp0 (str, "A") == 0)
     *res = A;
@@ -219,10 +227,10 @@ toenum (const char *str, enum base_metrics *res)
 static double
 get_impact_subscore (const struct cvss *cvss)
 {
-  return (10.41 * (1 -
-                   (1 - cvss->conf_impact) *
-                   (1 - cvss->integ_impact) *
-                   (1 - cvss->avail_impact)));
+  return (10.41
+          * (1
+             - (1 - cvss->conf_impact) * (1 - cvss->integ_impact)
+                 * (1 - cvss->avail_impact)));
 }
 
 /**
@@ -236,8 +244,8 @@ get_impact_subscore (const struct cvss *cvss)
 static double
 get_exploitability_subscore (const struct cvss *cvss)
 {
-  return (20 * cvss->access_vector * cvss->access_complexity *
-          cvss->authentication);
+  return (20 * cvss->access_vector * cvss->access_complexity
+          * cvss->authentication);
 }
 
 /**

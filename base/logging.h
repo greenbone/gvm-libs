@@ -27,17 +27,24 @@
 
 #include <glib.h> /* for GSList, gchar, GLogLevelFlags, gpointer */
 
-GSList *load_log_configuration (gchar *);
+GSList *
+load_log_configuration (gchar *);
 
-void free_log_configuration (GSList *);
+void
+free_log_configuration (GSList *);
 
-gchar *get_time (gchar *);
+gchar *
+get_time (gchar *);
 
-void gvm_log_silent (const char *, GLogLevelFlags, const char *, gpointer);
-void gvm_log_func (const char *, GLogLevelFlags, const char *, gpointer);
+void
+gvm_log_silent (const char *, GLogLevelFlags, const char *, gpointer);
+void
+gvm_log_func (const char *, GLogLevelFlags, const char *, gpointer);
 
-void log_func_for_gnutls (int, const char *);
+void
+log_func_for_gnutls (int, const char *);
 
-void setup_log_handlers (GSList *);
+void
+setup_log_handlers (GSList *);
 
 #endif /* not _GVM_LOGGING_H */

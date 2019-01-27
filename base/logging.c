@@ -47,17 +47,17 @@
  */
 typedef struct
 {
-  gchar *log_domain;            ///< Affected logdomain e.g libnasl.
-  gchar *prepend_string;        ///< Prepend this string before every message.
-  gchar *prepend_time_format;   ///< If prependstring has %t, format for strftime.
-  gchar *log_file;              ///< Where to log to.
-  GLogLevelFlags *default_level;        ///< What severity level to use as default.
-  GIOChannel *log_channel;      ///< Gio Channel - FD holder for logfile.
-  gchar *syslog_facility;       ///< Syslog facility to use for syslog logging.
-  gchar *syslog_ident;          ///< Syslog ident to use for syslog logging.
-  gchar *prepend_separator;     ///< If prependstring has %s, used this symbol as separator.
+  gchar *log_domain;          ///< Affected logdomain e.g libnasl.
+  gchar *prepend_string;      ///< Prepend this string before every message.
+  gchar *prepend_time_format; ///< If prependstring has %t, format for strftime.
+  gchar *log_file;            ///< Where to log to.
+  GLogLevelFlags *default_level; ///< What severity level to use as default.
+  GIOChannel *log_channel;       ///< Gio Channel - FD holder for logfile.
+  gchar *syslog_facility;        ///< Syslog facility to use for syslog logging.
+  gchar *syslog_ident;           ///< Syslog ident to use for syslog logging.
+  gchar *prepend_separator; ///< If prependstring has %s, used this symbol as
+                            ///< separator.
 } gvm_logging_t;
-
 
 /**
  * @brief Returns time as specified in time_fmt strftime format.
@@ -71,7 +71,7 @@ typedef struct
  *         This value must be freed using glib's g_free.
  */
 gchar *
-get_time (gchar * time_fmt)
+get_time (gchar *time_fmt)
 {
   time_t now;
   struct tm *ts;
@@ -95,7 +95,7 @@ get_time (gchar * time_fmt)
  * @return Log level integer if level matches a level name, else 0.
  */
 static gint
-level_int_from_string (const gchar * level)
+level_int_from_string (const gchar *level)
 {
   if (level && strlen (level) > 0)
     {
@@ -122,10 +122,11 @@ level_int_from_string (const gchar * level)
  *
  * @param facility Facility name.
  *
- * @return Facility integer if facility matches a facility name, else LOG_LOCAL0.
+ * @return Facility integer if facility matches a facility name, else
+ * LOG_LOCAL0.
  */
 static gint
-facility_int_from_string (const gchar * facility)
+facility_int_from_string (const gchar *facility)
 {
   if (facility && strlen (facility) > 0)
     {
@@ -151,7 +152,7 @@ facility_int_from_string (const gchar * facility)
  *         is returned.
  */
 GSList *
-load_log_configuration (gchar * config_file)
+load_log_configuration (gchar *config_file)
 {
   GKeyFile *key_file;
   GKeyFileFlags flags;
@@ -202,7 +203,6 @@ load_log_configuration (gchar * config_file)
       log_domain_entry->syslog_ident = NULL;
       log_domain_entry->prepend_separator = NULL;
 
-
       /* Look for the prepend string. */
       if (g_key_file_has_key (key_file, *group, "prepend", &error))
         {
@@ -220,9 +220,8 @@ load_log_configuration (gchar * config_file)
       /* Look for the prepend time format string. */
       if (g_key_file_has_key (key_file, *group, "prepend_time_format", &error))
         {
-          log_domain_entry->prepend_time_format =
-            g_key_file_get_value (key_file, *group, "prepend_time_format",
-                                  &error);
+          log_domain_entry->prepend_time_format = g_key_file_get_value (
+            key_file, *group, "prepend_time_format", &error);
         }
 
       /* Look for the log file string. */
@@ -260,7 +259,7 @@ load_log_configuration (gchar * config_file)
             g_key_file_get_value (key_file, *group, "syslog_ident", &error);
         }
       else
-        log_domain_entry->syslog_ident =  g_strdup (*group);
+        log_domain_entry->syslog_ident = g_strdup (*group);
 
       /* Attach the struct to the list. */
       log_domain_list = g_slist_prepend (log_domain_list, log_domain_entry);
@@ -281,7 +280,7 @@ load_log_configuration (gchar * config_file)
  * @param log_domain_list Head of the link list.
  */
 void
-free_log_configuration (GSList * log_domain_list)
+free_log_configuration (GSList *log_domain_list)
 {
   GSList *log_domain_list_tmp;
 
@@ -316,7 +315,6 @@ free_log_configuration (GSList * log_domain_list)
 
       /* Go to the next item. */
       log_domain_list_tmp = g_slist_next (log_domain_list_tmp);
-
     }
   /* Free the link list. */
   g_slist_free (log_domain_list);
@@ -332,7 +330,7 @@ free_log_configuration (GSList * log_domain_list)
  */
 void
 gvm_log_silent (const char *log_domain, GLogLevelFlags log_level,
-                    const char *message, gpointer gvm_log_config_list)
+                const char *message, gpointer gvm_log_config_list)
 {
   (void) log_domain;
   (void) log_level;
@@ -423,7 +421,6 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
    */
   if (gvm_log_config_list != NULL && log_domain != NULL)
     {
-
       /* Go to the head of the list. */
       log_domain_list_tmp = (GSList *) gvm_log_config_list;
 
@@ -467,7 +464,6 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
    */
   if (gvm_log_config_list != NULL && log_domain != NULL)
     {
-
       /* Go to the head of the list. */
       log_domain_list_tmp = (GSList *) gvm_log_config_list;
 
@@ -508,10 +504,8 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
   if (default_level < log_level)
     return;
 
-
   /* Prepend buf is a newly allocated empty string. Makes life easier. */
   prepend_buf = g_strdup ("");
-
 
   /* Make the tmp pointer (for iteration) point to the format string. */
   tmp = prepend_format;
@@ -523,9 +517,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
         {
           /* Use g_strdup, a new string returned. Store it in a tmp var until
            * we free the old one. */
-          prepend_tmp =
-            g_strdup_printf ("%s%d", prepend_buf,
-                             (int) getpid ());
+          prepend_tmp = g_strdup_printf ("%s%d", prepend_buf, (int) getpid ());
           /* Free the old string. */
           g_free (prepend_buf);
           /* Point the buf ptr to the new string. */
@@ -542,9 +534,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
           /* Use g_strdup. New string returned. Store it in a tmp var until
            * we free the old one.
            */
-          prepend_tmp =
-            g_strdup_printf ("%s%s", prepend_buf,
-                             prepend_tmp1);
+          prepend_tmp = g_strdup_printf ("%s%s", prepend_buf, prepend_tmp1);
           /* Free the time tmp var. */
           g_free (prepend_tmp1);
           /* Free the old string. */
@@ -559,9 +549,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
           /* Use g_strdup. New string returned. Store it in a tmp var until
            * we free the old one.
            */
-          prepend_tmp =
-            g_strdup_printf ("%s%s", prepend_buf,
-                             log_separator);
+          prepend_tmp = g_strdup_printf ("%s%s", prepend_buf, log_separator);
           /* Free the old string. */
           g_free (prepend_buf);
           /* Point the buf ptr to the new string. */
@@ -623,12 +611,12 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
    * LF and there is not only the LF, remove the LF to avoid empty
    * lines in the log.
    */
-  messagelen = message? strlen (message) : 0;
-  if (messagelen > 1 && message[messagelen-1] == '\n')
+  messagelen = message ? strlen (message) : 0;
+  if (messagelen > 1 && message[messagelen - 1] == '\n')
     messagelen--;
-  tmpstr = g_strdup_printf ("%s%s%s%s %.*s\n",
-                            log_domain ? log_domain : "", log_separator,
-                            prepend, log_separator, messagelen, message);
+  tmpstr = g_strdup_printf ("%s%s%s%s %.*s\n", log_domain ? log_domain : "",
+                            log_separator, prepend, log_separator, messagelen,
+                            message);
   g_free (prepend);
 
   gvm_log_lock ();
@@ -701,7 +689,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
               g_error_free (error);
 
               /* Ensure directory exists. */
-              if (g_mkdir_with_parents (dir, 0755))     /* "rwxr-xr-x" */
+              if (g_mkdir_with_parents (dir, 0755)) /* "rwxr-xr-x" */
                 {
                   g_warning ("Failed to create log file directory %s: %s", dir,
                              strerror (errno));
@@ -729,13 +717,11 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
       g_io_channel_write_chars (channel, (const gchar *) tmpstr, -1, NULL,
                                 &error);
       g_io_channel_flush (channel, NULL);
-
     }
   gvm_log_unlock ();
   g_free (tmpstr);
   g_free (prepend_buf);
 }
-
 
 /**
  * @brief This function logs debug messages from gnutls.
@@ -754,7 +740,6 @@ log_func_for_gnutls (int level, const char *message)
   g_log ("x  gnutls", G_LOG_LEVEL_INFO, "tls(%d): %s", level, message);
 }
 
-
 /**
  * @brief Sets up routing of logdomains to log handlers.
  *
@@ -763,7 +748,7 @@ log_func_for_gnutls (int level, const char *message)
  * @param gvm_log_config_list A pointer to the configuration linked list.
  */
 void
-setup_log_handlers (GSList * gvm_log_config_list)
+setup_log_handlers (GSList *gvm_log_config_list)
 {
   GSList *log_domain_list_tmp;
   if (gvm_log_config_list != NULL)
@@ -786,16 +771,13 @@ setup_log_handlers (GSList * gvm_log_config_list)
 
           if (g_ascii_strcasecmp (log_domain_entry->log_domain, "*"))
             {
-              g_log_set_handler (log_domain_entry->log_domain,
-                                 (GLogLevelFlags) (G_LOG_LEVEL_DEBUG |
-                                                   G_LOG_LEVEL_INFO |
-                                                   G_LOG_LEVEL_MESSAGE |
-                                                   G_LOG_LEVEL_WARNING |
-                                                   G_LOG_LEVEL_CRITICAL |
-                                                   G_LOG_LEVEL_ERROR |
-                                                   G_LOG_FLAG_FATAL |
-                                                   G_LOG_FLAG_RECURSION),
-                                 (GLogFunc) logfunc, gvm_log_config_list);
+              g_log_set_handler (
+                log_domain_entry->log_domain,
+                (GLogLevelFlags) (G_LOG_LEVEL_DEBUG | G_LOG_LEVEL_INFO
+                                  | G_LOG_LEVEL_MESSAGE | G_LOG_LEVEL_WARNING
+                                  | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR
+                                  | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION),
+                (GLogFunc) logfunc, gvm_log_config_list);
             }
           else
             {
@@ -807,11 +789,11 @@ setup_log_handlers (GSList * gvm_log_config_list)
           log_domain_list_tmp = g_slist_next (log_domain_list_tmp);
         }
     }
-  g_log_set_handler ("",
-                     (GLogLevelFlags) (G_LOG_LEVEL_DEBUG | G_LOG_LEVEL_INFO |
-                                       G_LOG_LEVEL_MESSAGE | G_LOG_LEVEL_WARNING
-                                       | G_LOG_LEVEL_CRITICAL |
-                                       G_LOG_LEVEL_ERROR | G_LOG_FLAG_FATAL |
-                                       G_LOG_FLAG_RECURSION),
-                     (GLogFunc) gvm_log_func, gvm_log_config_list);
+  g_log_set_handler (
+    "",
+    (GLogLevelFlags) (G_LOG_LEVEL_DEBUG | G_LOG_LEVEL_INFO | G_LOG_LEVEL_MESSAGE
+                      | G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL
+                      | G_LOG_LEVEL_ERROR | G_LOG_FLAG_FATAL
+                      | G_LOG_FLAG_RECURSION),
+    (GLogFunc) gvm_log_func, gvm_log_config_list);
 }

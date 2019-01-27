@@ -30,7 +30,8 @@
 /**
  * @brief The GQuark for privilege dropping errors.
  */
-#define GVM_DROP_PRIVILEGES g_quark_from_static_string ("gvm-drop-privileges-error-quark")
+#define GVM_DROP_PRIVILEGES \
+  g_quark_from_static_string ("gvm-drop-privileges-error-quark")
 
 /**
  * @brief Definition of the return code ERROR_ALREADY_SET.
@@ -67,6 +68,7 @@
  */
 #define GVM_DROP_PRIVILEGES_FAIL_SUPPLEMENTARY 5
 
-int drop_privileges (gchar * username, GError ** error);
+int
+drop_privileges (gchar *username, GError **error);
 
 #endif

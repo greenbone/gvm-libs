@@ -42,18 +42,18 @@
 #define s6_addr32 __u6_addr.__u6_addr32
 #endif
 
- /* Global variables */
+/* Global variables */
 
 /* Source interface name eg. eth1. */
-char global_source_iface[IFNAMSIZ] = { '\0' };
+char global_source_iface[IFNAMSIZ] = {'\0'};
 
 /* Source IPv4 address. */
-struct in_addr global_source_addr = { .s_addr = 0 };
+struct in_addr global_source_addr = {.s_addr = 0};
 
 /* Source IPv6 address. */
-struct in6_addr global_source_addr6 = { .s6_addr32 = { 0, 0, 0, 0 } };
+struct in6_addr global_source_addr6 = {.s6_addr32 = {0, 0, 0, 0}};
 
- /* Source Interface/Address related functions. */
+/* Source Interface/Address related functions. */
 
 /**
  * @brief Initializes the source network interface name and related information.
@@ -85,8 +85,8 @@ gvm_source_iface_init (const char *iface)
         {
           if (ifa->ifa_addr->sa_family == AF_INET)
             {
-              struct in_addr *addr = &((struct sockaddr_in *)
-                                       ifa->ifa_addr)->sin_addr;
+              struct in_addr *addr =
+                &((struct sockaddr_in *) ifa->ifa_addr)->sin_addr;
 
               memcpy (&global_source_addr, addr, sizeof (global_source_addr));
               ret = 0;
@@ -229,7 +229,7 @@ gvm_source_addr6_str (void)
   return str;
 }
 
- /* Miscellaneous functions. */
+/* Miscellaneous functions. */
 
 /**
  * @brief Maps an IPv4 address as an IPv6 address.
@@ -302,14 +302,14 @@ sockaddr_as_str (const struct sockaddr_storage *addr, char *str)
   if (addr->ss_family == AF_INET)
     {
       struct sockaddr_in *saddr = (struct sockaddr_in *) addr;
-      inet_ntop (AF_INET,  &saddr->sin_addr, str, INET6_ADDRSTRLEN);
+      inet_ntop (AF_INET, &saddr->sin_addr, str, INET6_ADDRSTRLEN);
     }
   else if (addr->ss_family == AF_INET6)
     {
       struct sockaddr_in6 *s6addr = (struct sockaddr_in6 *) addr;
       if (IN6_IS_ADDR_V4MAPPED (&s6addr->sin6_addr))
-        inet_ntop (AF_INET, &s6addr->sin6_addr.s6_addr[12],
-                   str, INET6_ADDRSTRLEN);
+        inet_ntop (AF_INET, &s6addr->sin6_addr.s6_addr[12], str,
+                   INET6_ADDRSTRLEN);
       else
         inet_ntop (AF_INET6, &s6addr->sin6_addr, str, INET6_ADDRSTRLEN);
     }
@@ -323,8 +323,7 @@ sockaddr_as_str (const struct sockaddr_storage *addr, char *str)
     }
   else
     {
-      g_snprintf (str, INET6_ADDRSTRLEN,
-                  "type_%d_socket", addr->ss_family);
+      g_snprintf (str, INET6_ADDRSTRLEN, "type_%d_socket", addr->ss_family);
     }
 }
 
@@ -457,14 +456,15 @@ gvm_resolve_as_addr6 (const char *name, struct in6_addr *ip6)
  * @return 0 success, 1 failed.
  */
 int
-validate_port_range (const char* port_range)
+validate_port_range (const char *port_range)
 {
   gchar **split, **point, *range, *range_start;
 
   if (!port_range)
     return 1;
 
-  while (*port_range && isblank (*port_range)) port_range++;
+  while (*port_range && isblank (*port_range))
+    port_range++;
   if (*port_range == '\0')
     return 1;
 
@@ -472,7 +472,8 @@ validate_port_range (const char* port_range)
   range = range_start = g_strdup (port_range);
   while (*range)
     {
-      if (*range == '\n') *range = ',';
+      if (*range == '\n')
+        *range = ',';
       range++;
     }
 
@@ -509,13 +510,15 @@ validate_port_range (const char* port_range)
           /* Check the first number. */
 
           first = element;
-          while (*first && isblank (*first)) first++;
+          while (*first && isblank (*first))
+            first++;
           if (*first == '-')
             goto fail;
 
           errno = 0;
           number1 = strtol (first, &end, 10);
-          while (*end && isblank (*end)) end++;
+          while (*end && isblank (*end))
+            end++;
           if (errno || (*end != '-'))
             goto fail;
           if (number1 == 0)
@@ -525,13 +528,15 @@ validate_port_range (const char* port_range)
 
           /* Check the second number. */
 
-          while (*hyphen && isblank (*hyphen)) hyphen++;
+          while (*hyphen && isblank (*hyphen))
+            hyphen++;
           if (*hyphen == '\0')
             goto fail;
 
           errno = 0;
           number2 = strtol (hyphen, &end, 10);
-          while (*end && isblank (*end)) end++;
+          while (*end && isblank (*end))
+            end++;
           if (errno || *end)
             goto fail;
           if (number2 == 0)
@@ -551,13 +556,15 @@ validate_port_range (const char* port_range)
           /* Check the single number. */
 
           only = element;
-          while (*only && isblank (*only)) only++;
+          while (*only && isblank (*only))
+            only++;
           /* Empty ranges are OK. */
           if (*only)
             {
               errno = 0;
               number = strtol (only, &end, 10);
-              while (*end && isblank (*end)) end++;
+              while (*end && isblank (*end))
+                end++;
               if (errno || *end)
                 goto fail;
               if (number == 0)
@@ -572,7 +579,7 @@ validate_port_range (const char* port_range)
   g_strfreev (split);
   return 0;
 
- fail:
+fail:
   g_strfreev (split);
   return 1;
 }
@@ -584,7 +591,7 @@ validate_port_range (const char* port_range)
  *
  * @return Range array.
  */
-array_t*
+array_t *
 port_range_ranges (const char *port_range)
 {
   gchar **split, **point, *range_start, *current;
@@ -596,7 +603,8 @@ port_range_ranges (const char *port_range)
 
   ranges = make_array ();
 
-  while (*port_range && isblank (*port_range)) port_range++;
+  while (*port_range && isblank (*port_range))
+    port_range++;
 
   /* Accepts T: and U: before any of the ranges.  This toggles the remaining
    * ranges, as in nmap.  Treats a leading naked range as TCP, whereas nmap
@@ -606,7 +614,8 @@ port_range_ranges (const char *port_range)
   range_start = current = g_strdup (port_range);
   while (*current)
     {
-      if (*current == '\n') *current = ',';
+      if (*current == '\n')
+        *current = ',';
       current++;
     }
 
@@ -637,19 +646,21 @@ port_range_ranges (const char *port_range)
         }
 
       /* Skip any space that followed the type specifier. */
-      while (*element && isblank (*element)) element++;
+      while (*element && isblank (*element))
+        element++;
 
       hyphen = strchr (element, '-');
       if (hyphen)
         {
           *hyphen = '\0';
           hyphen++;
-          while (*hyphen && isblank (*hyphen)) hyphen++;
-          assert (*hyphen);  /* Validation checks this. */
+          while (*hyphen && isblank (*hyphen))
+            hyphen++;
+          assert (*hyphen); /* Validation checks this. */
 
           /* A range. */
 
-          range = (range_t*) g_malloc0 (sizeof (range_t));
+          range = (range_t *) g_malloc0 (sizeof (range_t));
 
           range->start = atoi (element);
           range->end = atoi (hyphen);
@@ -662,7 +673,7 @@ port_range_ranges (const char *port_range)
         {
           /* A single port. */
 
-          range = (range_t*) g_malloc0 (sizeof (range_t));
+          range = (range_t *) g_malloc0 (sizeof (range_t));
 
           range->start = atoi (element);
           range->end = range->start;

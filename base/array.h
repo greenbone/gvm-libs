@@ -29,14 +29,19 @@
 
 typedef GPtrArray array_t;
 
-GPtrArray *make_array ();
+GPtrArray *
+make_array ();
 
-void array_reset (array_t ** array);
+void
+array_reset (array_t **array);
 
-void array_free (GPtrArray * array);
+void
+array_free (GPtrArray *array);
 
-void array_add (array_t * array, gpointer pointer);
+void
+array_add (array_t *array, gpointer pointer);
 
-void array_terminate (array_t * array);
+void
+array_terminate (array_t *array);
 
 #endif /* not _GVM_ARRAY_H */

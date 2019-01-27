@@ -49,7 +49,7 @@
  * @return 0 for success, anything else indicates an error.
  */
 int
-pidfile_create (gchar * daemon_name)
+pidfile_create (gchar *daemon_name)
 {
   gchar *name_pid = g_strconcat (daemon_name, ".pid", NULL);
   gchar *pidfile_name = g_build_filename (GVM_PID_DIR, name_pid, NULL);
@@ -78,7 +78,7 @@ pidfile_create (gchar * daemon_name)
  * @param[in]  daemon_name The name of the daemon
  */
 void
-pidfile_remove (gchar * daemon_name)
+pidfile_remove (gchar *daemon_name)
 {
   gchar *name_pid = g_strconcat (daemon_name, ".pid", NULL);
   gchar *pidfile_name = g_build_filename (GVM_PID_DIR, name_pid, NULL);

@@ -25,13 +25,12 @@
  * module.
  */
 
-#include <string.h> /* for strlen() */
-#include <stdlib.h> /* for atoi() */
-#include <stdio.h>  /* for printf() */
-#include <glib.h>   /* for gchar */
-
 #include "settings.h" /* for init_settings_iterator_from_file */
 
+#include <glib.h>   /* for gchar */
+#include <stdio.h>  /* for printf() */
+#include <stdlib.h> /* for atoi() */
+#include <string.h> /* for strlen() */
 
 static GHashTable *global_prefs = NULL;
 
@@ -49,8 +48,8 @@ prefs_init (void)
   if (global_prefs)
     g_hash_table_destroy (global_prefs);
 
-  global_prefs = g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
-                                        g_free);
+  global_prefs =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
   prefs_set ("cgi_path", "/cgi-bin:/scripts");
   prefs_set ("checks_read_timeout", "5");
   prefs_set ("unscanned_closed", "yes");
@@ -88,7 +87,7 @@ preferences_get (void)
  *         preference is not of type string.
  */
 const gchar *
-prefs_get (const gchar * key)
+prefs_get (const gchar *key)
 {
   if (!global_prefs)
     prefs_init ();
@@ -108,7 +107,7 @@ prefs_get (const gchar * key)
  *         Any other type or non-existing key is false.
  */
 int
-prefs_get_bool (const gchar * key)
+prefs_get_bool (const gchar *key)
 {
   gchar *str;
 
@@ -128,10 +127,10 @@ prefs_get_bool (const gchar * key)
  * @param key    The identifier for the preference. A copy of this will
  *               be created if necessary.
  *
- * @param value  The value to set. A copy of this will be created. 
+ * @param value  The value to set. A copy of this will be created.
  */
 void
-prefs_set (const gchar * key, const gchar * value)
+prefs_set (const gchar *key, const gchar *value)
 {
   if (!global_prefs)
     prefs_init ();
@@ -157,8 +156,8 @@ prefs_config (const char *config)
   if (!init_settings_iterator_from_file (&settings, buffer, "Misc"))
     {
       while (settings_iterator_next (&settings))
-          prefs_set (settings_iterator_name (&settings),
-                     settings_iterator_value (&settings));
+        prefs_set (settings_iterator_name (&settings),
+                   settings_iterator_value (&settings));
 
       cleanup_settings_iterator (&settings);
     }
@@ -197,7 +196,7 @@ int
 prefs_nvt_timeout (const char *oid)
 {
   char *pref_name = g_strdup_printf ("timeout.%s", oid);
-  const char * val = prefs_get (pref_name);
+  const char *val = prefs_get (pref_name);
   int timeout = (val ? atoi (val) : 0);
 
   g_free (pref_name);

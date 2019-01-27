@@ -41,7 +41,7 @@
  * @param[in]  string  The string to append to the string in the variable.
  */
 void
-gvm_append_string (gchar ** var, const gchar * string)
+gvm_append_string (gchar **var, const gchar *string)
 {
   if (*var)
     {
@@ -71,7 +71,7 @@ gvm_append_string (gchar ** var, const gchar * string)
  * @param[in]  length  The length of string.
  */
 void
-gvm_append_text (gchar ** var, const gchar * string, gsize length)
+gvm_append_text (gchar **var, const gchar *string, gsize length)
 {
   if (*var)
     {
@@ -92,7 +92,7 @@ gvm_append_text (gchar ** var, const gchar * string, gsize length)
  *                  a string.
  */
 void
-gvm_free_string_var (gchar ** var)
+gvm_free_string_var (gchar **var)
 {
   g_free (*var);
   *var = NULL;

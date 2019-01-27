@@ -25,17 +25,17 @@
  * file.
  */
 
+#include "pwpolicy.h"
+
 #include <errno.h> /* for errno */
 #include <glib.h>  /* for g_strdup_printf, g_ascii_strcasecmp, g_free, ... */
 #include <stdio.h> /* for fclose, fgets, fopen, FILE, ferror, EOF, getc */
 #include <stdlib.h>
 #include <string.h> /* for strstr, strlen, strncmp */
 
-#include "pwpolicy.h"
-
 #ifndef DIM
-# define DIM(v)		     (sizeof(v)/sizeof((v)[0]))
-# define DIMof(type,member)   DIM(((type *)0)->member)
+#define DIM(v) (sizeof (v) / sizeof ((v)[0]))
+#define DIMof(type, member) DIM (((type *) 0)->member)
 #endif
 
 #undef G_LOG_DOMAIN
@@ -112,8 +112,6 @@
  */
 static gboolean disable_password_policy;
 
-
-
 /**
  * @return A malloced string to be returned on read and configuration
  * errors.
@@ -123,7 +121,6 @@ policy_checking_failed (void)
 {
   return g_strdup ("Password policy checking failed (internal error)");
 }
-
 
 /**
  * @brief Check whether a string starts with a keyword
@@ -157,7 +154,6 @@ is_keyword (char *string, const char *keyword)
   return NULL;
 }
 
-
 /**
  * @brief Search a file for a matching line
  *
@@ -181,21 +177,21 @@ search_file (const char *fname, const char *password)
   if (!fp)
     return -1;
 
-  while (fgets (line, DIM(line)-1, fp))
+  while (fgets (line, DIM (line) - 1, fp))
     {
       size_t len;
 
       len = strlen (line);
-      if (!len || line[len-1] != '\n')
+      if (!len || line[len - 1] != '\n')
         {
           /* Incomplete last line or line too long.  Eat until end of
              line. */
-          while ( (c=getc (fp)) != EOF && c != '\n')
+          while ((c = getc (fp)) != EOF && c != '\n')
             ;
           continue;
         }
       line[--len] = 0; /* Chop the LF. */
-      if (len && line[len-1] == '\r')
+      if (len && line[len - 1] == '\r')
         line[--len] = 0; /* Chop an optional CR. */
       if (!len)
         continue; /* Empty */
@@ -216,7 +212,6 @@ search_file (const char *fname, const char *password)
   return 0; /* Not found.  */
 }
 
-
 /**
  * @brief Parse one line of a pettern file
  *
@@ -234,8 +229,8 @@ search_file (const char *fname, const char *password)
  *         description.
  */
 static char *
-parse_pattern_line (char *line, const char *fname, int lineno,
-                    char **descp, const char *password, const char *username)
+parse_pattern_line (char *line, const char *fname, int lineno, char **descp,
+                    const char *password, const char *username)
 {
   char *ret = NULL;
   char *p;
@@ -272,8 +267,8 @@ parse_pattern_line (char *line, const char *fname, int lineno,
           sret = search_file (p, password);
           if (sret == -1)
             {
-              g_warning ("error searching '%s' (requested at line %d): %s",
-                         p, lineno, g_strerror (errno));
+              g_warning ("error searching '%s' (requested at line %d): %s", p,
+                         lineno, g_strerror (errno));
               ret = policy_checking_failed ();
             }
           else if (sret && *descp)
@@ -305,8 +300,8 @@ parse_pattern_line (char *line, const char *fname, int lineno,
         }
       else
         {
-          g_warning ("error reading '%s', line %d: %s",
-                     fname, lineno, "unknown processing instruction");
+          g_warning ("error reading '%s', line %d: %s", fname, lineno,
+                     "unknown processing instruction");
           ret = policy_checking_failed ();
         }
     }
@@ -322,15 +317,15 @@ parse_pattern_line (char *line, const char *fname, int lineno,
         line++;
       line++;
       n = strlen (line);
-      if (n && line[n-1] == '/')
-        line[n-1] = 0;
+      if (n && line[n - 1] == '/')
+        line[n - 1] = 0;
       if (((!g_regex_match_simple (line, password, G_REGEX_CASELESS, 0)) ^ rev))
         ret = NULL;
       else if (*descp)
         ret = g_strdup_printf ("Weak password (%s)", *descp);
       else
-        ret = g_strdup_printf ("Weak password (see '%s' line %d)",
-                               fname, lineno);
+        ret =
+          g_strdup_printf ("Weak password (see '%s' line %d)", fname, lineno);
     }
   else /* Simple string.  */
     {
@@ -339,13 +334,12 @@ parse_pattern_line (char *line, const char *fname, int lineno,
       else if (*descp)
         ret = g_strdup_printf ("Weak password (%s)", *descp);
       else
-        ret = g_strdup_printf ("Weak password (see '%s' line %d)",
-                               fname, lineno);
+        ret =
+          g_strdup_printf ("Weak password (see '%s' line %d)", fname, lineno);
     }
 
   return ret;
 }
-
 
 /**
  * @brief Validate a password against the pattern file
@@ -381,25 +375,24 @@ gvm_validate_password (const char *password, const char *username)
     }
   lineno = 0;
   ret = NULL;
-  while (fgets (line, DIM(line)-1, fp))
+  while (fgets (line, DIM (line) - 1, fp))
     {
       size_t len;
 
       lineno++;
       len = strlen (line);
-      if (!len || line[len-1] != '\n')
+      if (!len || line[len - 1] != '\n')
         {
-          g_warning ("error reading '%s', line %d: %s",
-                     patternfile, lineno,
-                     len? "line too long":"line without a LF");
+          g_warning ("error reading '%s', line %d: %s", patternfile, lineno,
+                     len ? "line too long" : "line without a LF");
           ret = policy_checking_failed ();
           break;
         }
       line[--len] = 0; /* Chop the LF. */
-      if (len && line[len-1] == '\r')
+      if (len && line[len - 1] == '\r')
         line[--len] = 0; /* Chop an optional CR. */
-      ret = parse_pattern_line (line, patternfile, lineno, &desc,
-                                password, username);
+      ret = parse_pattern_line (line, patternfile, lineno, &desc, password,
+                                username);
       if (ret)
         break;
 
@@ -410,7 +403,6 @@ gvm_validate_password (const char *password, const char *username)
   g_free (desc);
   return ret;
 }
-
 
 /**
  * @brief Disable all password policy checking
