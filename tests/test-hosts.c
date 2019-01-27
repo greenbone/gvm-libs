@@ -25,13 +25,13 @@
  * of the hosts object.
  */
 
-#include <arpa/inet.h>     /* for inet_ntop */
-#include <glib.h>          /* for g_free */
-#include <netinet/in.h>    /* for INET6_ADDRSTRLEN, INET_ADDRSTRLEN, in6_addr */
-#include <stdio.h>         /* for printf, fprintf, NULL, stderr */
-#include <sys/socket.h>    /* for AF_INET, AF_INET6 */
-
 #include "../base/hosts.h" /* for gvm_host_type_str, gvm_host_resolve, gvm_... */
+
+#include <arpa/inet.h>  /* for inet_ntop */
+#include <glib.h>       /* for g_free */
+#include <netinet/in.h> /* for INET6_ADDRSTRLEN, INET_ADDRSTRLEN, in6_addr */
+#include <stdio.h>      /* for printf, fprintf, NULL, stderr */
+#include <sys/socket.h> /* for AF_INET, AF_INET6 */
 
 static void
 print_vhosts (gvm_host_t *host)
@@ -92,24 +92,24 @@ main (int argc, char **argv)
             }
           if (inet_ntop (AF_INET, &addr, name, sizeof (name)) == NULL)
             {
-                printf ("inet_ntop() error.\n");
-                break;
+              printf ("inet_ntop() error.\n");
+              break;
             }
 
           if (gvm_host_resolve (host, &addr6, AF_INET6) == -1)
             {
               fprintf (stderr, "ERROR - %s: Couldn't resolve IPv6 address.\n",
                        host->name);
-              printf ("#%d %s %s (%s)\n", i, gvm_host_type_str (host),
-                      str, name);
+              printf ("#%d %s %s (%s)\n", i, gvm_host_type_str (host), str,
+                      name);
               i++;
               g_free (str);
               continue;
             }
           if (inet_ntop (AF_INET6, &addr6, name6, sizeof (name6)) == NULL)
             {
-                printf ("inet_ntop() error.\n");
-                break;
+              printf ("inet_ntop() error.\n");
+              break;
             }
 
           printf ("#%d %s %s (%s / %s)\n", i, gvm_host_type_str (host), str,
