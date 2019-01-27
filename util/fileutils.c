@@ -74,7 +74,7 @@ gvm_file_check_is_dir (const char *name)
  * @return 0 if the name was successfully deleted, -1 if an error occurred.
  */
 int
-gvm_file_remove_recurse (const gchar * pathname)
+gvm_file_remove_recurse (const gchar *pathname)
 {
   if (gvm_file_check_is_dir (pathname) == 1)
     {
@@ -244,14 +244,11 @@ gvm_export_file_name (const char *fname_format, const char *username,
 
   now = time (NULL);
   now_broken = localtime (&now);
-  now_date_str = g_strdup_printf ("%04d%02d%02d",
-                                  (now_broken->tm_year + 1900),
-                                  (now_broken->tm_mon + 1),
-                                  now_broken->tm_mday);
-  now_time_str = g_strdup_printf ("%02d%02d%02d",
-                                  now_broken->tm_hour,
-                                  now_broken->tm_min,
-                                  now_broken->tm_sec);
+  now_date_str =
+    g_strdup_printf ("%04d%02d%02d", (now_broken->tm_year + 1900),
+                     (now_broken->tm_mon + 1), now_broken->tm_mday);
+  now_time_str = g_strdup_printf ("%02d%02d%02d", now_broken->tm_hour,
+                                  now_broken->tm_min, now_broken->tm_sec);
 
   memset (&creation_time, 0, sizeof (struct tm));
   memset (&modification_time, 0, sizeof (struct tm));
@@ -262,45 +259,35 @@ gvm_export_file_name (const char *fname_format, const char *username,
     creation_date_short = g_strndup (creation_iso_time, 19);
 
   if (creation_date_short
-      && (((ret = strptime (creation_date_short,
-                            "%Y-%m-%dT%H:%M:%S",
+      && (((ret = strptime (creation_date_short, "%Y-%m-%dT%H:%M:%S",
                             &creation_time))
            == NULL)
           || (strlen (ret) == 0)))
     {
-      creation_date_str
-        = g_strdup_printf ("%04d%02d%02d",
-                            (creation_time.tm_year + 1900),
-                            (creation_time.tm_mon + 1),
-                            creation_time.tm_mday);
-      creation_time_str
-        = g_strdup_printf ("%02d%02d%02d",
-                            creation_time.tm_hour,
-                            creation_time.tm_min,
-                            creation_time.tm_sec);
+      creation_date_str =
+        g_strdup_printf ("%04d%02d%02d", (creation_time.tm_year + 1900),
+                         (creation_time.tm_mon + 1), creation_time.tm_mday);
+      creation_time_str =
+        g_strdup_printf ("%02d%02d%02d", creation_time.tm_hour,
+                         creation_time.tm_min, creation_time.tm_sec);
     }
 
   if (modification_iso_time && (strlen (modification_iso_time) >= 19))
     modification_date_short = g_strndup (modification_iso_time, 19);
 
   if (modification_date_short
-      && (((ret = strptime (modification_date_short,
-                            "%Y-%m-%dT%H:%M:%S",
+      && (((ret = strptime (modification_date_short, "%Y-%m-%dT%H:%M:%S",
                             &modification_time))
            == NULL)
           || (strlen (ret) == 0)))
     {
-      modification_date_str
-        = g_strdup_printf ("%04d%02d%02d",
-                            (modification_time.tm_year + 1900),
-                            (modification_time.tm_mon + 1),
-                            modification_time.tm_mday);
+      modification_date_str = g_strdup_printf (
+        "%04d%02d%02d", (modification_time.tm_year + 1900),
+        (modification_time.tm_mon + 1), modification_time.tm_mday);
 
-      modification_time_str
-        = g_strdup_printf ("%02d%02d%02d",
-                            modification_time.tm_hour,
-                            modification_time.tm_min,
-                            modification_time.tm_sec);
+      modification_time_str =
+        g_strdup_printf ("%02d%02d%02d", modification_time.tm_hour,
+                         modification_time.tm_min, modification_time.tm_sec);
     }
 
   if (creation_date_str == NULL)
@@ -376,11 +363,11 @@ gvm_export_file_name (const char *fname_format, const char *username,
               break;
             case 'u':
               g_string_append (file_name_buf, username ? username : "");
-                break;
+              break;
             case 'Y':
               g_string_append_printf (file_name_buf, "%04d",
                                       modification_time.tm_year + 1900);
-            break;
+              break;
             case '%':
               g_string_append_c (file_name_buf, '%');
               break;
@@ -405,7 +392,7 @@ gvm_export_file_name (const char *fname_format, const char *username,
     {
       if (*fname_point <= ' ')
         *fname_point = '_';
-      fname_point ++;
+      fname_point++;
     }
 
   g_free (now_date_str);

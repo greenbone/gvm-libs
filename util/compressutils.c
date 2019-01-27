@@ -26,7 +26,7 @@
  * @brief For z_const to be defined as const.
  */
 #if !defined(ZLIB_CONST)
-#  define ZLIB_CONST
+#define ZLIB_CONST
 #endif
 
 #include "compressutils.h"
@@ -82,22 +82,22 @@ gvm_compress (const void *src, unsigned long srclen, unsigned long *dstlen)
       deflateEnd (&strm);
       switch (err)
         {
-          case Z_OK:
-          case Z_STREAM_END:
-            if (strm.avail_out != 0)
-              {
-                *dstlen = strm.total_out;
-                return buffer;
-              }
-            /* Fallthrough. */
-          case Z_BUF_ERROR:
-            g_free (buffer);
-            buflen *= 2;
-            break;
+        case Z_OK:
+        case Z_STREAM_END:
+          if (strm.avail_out != 0)
+            {
+              *dstlen = strm.total_out;
+              return buffer;
+            }
+          /* Fallthrough. */
+        case Z_BUF_ERROR:
+          g_free (buffer);
+          buflen *= 2;
+          break;
 
-          default:
-            g_free (buffer);
-            return NULL;
+        default:
+          g_free (buffer);
+          return NULL;
         }
     }
 }
@@ -112,8 +112,7 @@ gvm_compress (const void *src, unsigned long srclen, unsigned long *dstlen)
  * @return Pointer to uncompressed data if success, NULL otherwise.
  */
 void *
-gvm_uncompress (const void *src, unsigned long srclen,
-                unsigned long *dstlen)
+gvm_uncompress (const void *src, unsigned long srclen, unsigned long *dstlen)
 {
   unsigned long buflen = srclen * 2;
 
@@ -139,8 +138,8 @@ gvm_uncompress (const void *src, unsigned long srclen,
 #endif
       /*
        * From: http://www.zlib.net/manual.html
-       * Add 32 to windowBits to enable zlib and gzip decoding with automatic header
-       * detection.
+       * Add 32 to windowBits to enable zlib and gzip decoding with automatic
+       * header detection.
        */
       if (inflateInit2 (&strm, 15 + 32) != Z_OK)
         return NULL;
@@ -153,22 +152,22 @@ gvm_uncompress (const void *src, unsigned long srclen,
       inflateEnd (&strm);
       switch (err)
         {
-          case Z_OK:
-          case Z_STREAM_END:
-            if (strm.avail_out != 0)
-              {
-                *dstlen = strm.total_out;
-                return buffer;
-              }
-            /* Fallthrough. */
-          case Z_BUF_ERROR:
-            g_free (buffer);
-            buflen *= 2;
-            break;
+        case Z_OK:
+        case Z_STREAM_END:
+          if (strm.avail_out != 0)
+            {
+              *dstlen = strm.total_out;
+              return buffer;
+            }
+          /* Fallthrough. */
+        case Z_BUF_ERROR:
+          g_free (buffer);
+          buflen *= 2;
+          break;
 
-          default:
-            g_free (buffer);
-            return NULL;
+        default:
+          g_free (buffer);
+          return NULL;
         }
     }
 }
@@ -215,8 +214,8 @@ gvm_compress_gzipheader (const void *src, unsigned long srclen,
 #endif
 
       if (deflateInit2 (&strm, Z_DEFAULT_COMPRESSION, Z_DEFLATED,
-                        windowsBits | GZIP_ENCODING, 8,
-                        Z_DEFAULT_STRATEGY) != Z_OK)
+                        windowsBits | GZIP_ENCODING, 8, Z_DEFAULT_STRATEGY)
+          != Z_OK)
         return NULL;
 
       buffer = g_malloc0 (buflen);
@@ -227,22 +226,22 @@ gvm_compress_gzipheader (const void *src, unsigned long srclen,
       deflateEnd (&strm);
       switch (err)
         {
-          case Z_OK:
-          case Z_STREAM_END:
-            if (strm.avail_out != 0)
-              {
-                *dstlen = strm.total_out;
-                return buffer;
-              }
-            /* Fallthrough. */
-          case Z_BUF_ERROR:
-            g_free (buffer);
-            buflen *= 2;
-            break;
+        case Z_OK:
+        case Z_STREAM_END:
+          if (strm.avail_out != 0)
+            {
+              *dstlen = strm.total_out;
+              return buffer;
+            }
+          /* Fallthrough. */
+        case Z_BUF_ERROR:
+          g_free (buffer);
+          buflen *= 2;
+          break;
 
-          default:
-            g_free (buffer);
-            return NULL;
+        default:
+          g_free (buffer);
+          return NULL;
         }
     }
 }

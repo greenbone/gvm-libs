@@ -30,25 +30,25 @@
 
 #include "nvticache.h"
 
-#include <assert.h>   /* for assert */
+#include "kb.h" /* for kb_del_items, kb_item_get_str, kb_item_add_int */
+
+#include <assert.h> /* for assert */
+#include <errno.h>
+#include <stdio.h>    /* for fopen */
+#include <stdlib.h>   /* for atoi */
 #include <string.h>   /* for strcmp */
 #include <sys/stat.h> /* for stat, st_mtime */
 #include <time.h>     /* for time, time_t */
-#include <stdlib.h>     /* for atoi */
-#include <stdio.h>     /* for fopen */
-#include <errno.h>
 
-#include "kb.h" /* for kb_del_items, kb_item_get_str, kb_item_add_int */
-
-#undef  G_LOG_DOMAIN
+#undef G_LOG_DOMAIN
 /**
  * @brief GLib log domain.
  */
 #define G_LOG_DOMAIN "lib  nvticache"
 
-char *src_path = NULL;      /**< The directory of the source files. */
-kb_t cache_kb = NULL;       /**< Cache KB handler. */
-int cache_saved = 1;        /**< If cache was saved. */
+char *src_path = NULL; /**< The directory of the source files. */
+kb_t cache_kb = NULL;  /**< Cache KB handler. */
+int cache_saved = 1;   /**< If cache was saved. */
 
 /**
  * @brief Return whether the nvt cache is initialized.
@@ -58,7 +58,7 @@ int cache_saved = 1;        /**< If cache was saved. */
 int
 nvticache_initialized (void)
 {
- return !!cache_kb;
+  return !!cache_kb;
 }
 
 /**
@@ -525,19 +525,19 @@ nvticache_get_prefs (const char *oid)
   g_snprintf (pattern, sizeof (pattern), "oid:%s:prefs", oid);
   prefs = element = kb_item_get_all (cache_kb, pattern);
   while (element)
-  {
-    nvtpref_t *np;
-    char **array = g_strsplit (element->v_str, "|||", -1);
+    {
+      nvtpref_t *np;
+      char **array = g_strsplit (element->v_str, "|||", -1);
 
-    assert (array[2]);
-    assert (!array[3]);
-    np = g_malloc0 (sizeof (nvtpref_t));
-    np->name = array[0];
-    np->type = array[1];
-    np->dflt = array[2];
-    list = g_slist_append (list, np);
-    element = element->next;
-  }
+      assert (array[2]);
+      assert (!array[3]);
+      np = g_malloc0 (sizeof (nvtpref_t));
+      np->name = array[0];
+      np->type = array[1];
+      np->dflt = array[2];
+      list = g_slist_append (list, np);
+      element = element->next;
+    }
   kb_item_free (prefs);
 
   return list;

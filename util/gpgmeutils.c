@@ -23,15 +23,16 @@
  */
 
 #include "gpgmeutils.h"
-#include <errno.h>     /* for ENOENT, errno */
-#include <locale.h>    /* for setlocale, LC_MESSAGES, LC_CTYPE */
-#include <sys/stat.h>  /* for mkdir */
-#include <unistd.h>    /* for access, F_OK */
-#include <gpg-error.h> /* for gpg_err_source, gpg_strerror, gpg_error_from... */
-#include <string.h>    /* for strlen */
-#include <stdlib.h>    /* for mkdtemp */
 
 #include "fileutils.h"
+
+#include <errno.h>     /* for ENOENT, errno */
+#include <gpg-error.h> /* for gpg_err_source, gpg_strerror, gpg_error_from... */
+#include <locale.h>    /* for setlocale, LC_MESSAGES, LC_CTYPE */
+#include <stdlib.h>    /* for mkdtemp */
+#include <string.h>    /* for strlen */
+#include <sys/stat.h>  /* for mkdir */
+#include <unistd.h>    /* for access, F_OK */
 
 #undef G_LOG_DOMAIN
 /**
@@ -61,16 +62,13 @@ log_gpgme (GLogLevelFlags level, gpg_error_t err, const char *fmt, ...)
   va_start (arg_ptr, fmt);
   msg = g_strdup_vprintf (fmt, arg_ptr);
   va_end (arg_ptr);
-  if (err && gpg_err_source (err) != GPG_ERR_SOURCE_ANY
-          && gpg_err_source (err))
-    g_log (G_LOG_DOMAIN, level, "%s: %s <%s>",
-           msg, gpg_strerror (err), gpg_strsource (err));
+  if (err && gpg_err_source (err) != GPG_ERR_SOURCE_ANY && gpg_err_source (err))
+    g_log (G_LOG_DOMAIN, level, "%s: %s <%s>", msg, gpg_strerror (err),
+           gpg_strsource (err));
   else if (err)
-    g_log (G_LOG_DOMAIN, level, "%s: %s",
-           msg, gpg_strerror (err));
+    g_log (G_LOG_DOMAIN, level, "%s: %s", msg, gpg_strerror (err));
   else
-    g_log (G_LOG_DOMAIN, level, "%s",
-           msg);
+    g_log (G_LOG_DOMAIN, level, "%s", msg);
   g_free (msg);
 }
 
@@ -109,9 +107,9 @@ gvm_init_gpgme_ctx_from_dir (const gchar *dir)
           return NULL;
         }
       gpgme_set_locale (NULL, LC_CTYPE, setlocale (LC_CTYPE, NULL));
-#   ifdef LC_MESSAGES
+#ifdef LC_MESSAGES
       gpgme_set_locale (NULL, LC_MESSAGES, setlocale (LC_MESSAGES, NULL));
-#   endif
+#endif
 
 #ifndef NDEBUG
       g_message ("Setting GnuPG dir to '%s'", dir);
@@ -151,7 +149,7 @@ gvm_init_gpgme_ctx_from_dir (const gchar *dir)
         info = NULL;
 #ifndef NDEBUG
       g_message ("Using OpenPGP engine version '%s'",
-                 info && info->version? info->version: "[?]");
+                 info && info->version ? info->version : "[?]");
 #endif
 
       /* Everything is fine.  */
@@ -179,19 +177,17 @@ gvm_init_gpgme_ctx_from_dir (const gchar *dir)
  *  3 error importing key/certificate, -1 error.
  */
 int
-gvm_gpg_import_from_string (gpgme_ctx_t ctx,
-                            const char *key_str, ssize_t key_len,
-                            gpgme_data_type_t key_type)
+gvm_gpg_import_from_string (gpgme_ctx_t ctx, const char *key_str,
+                            ssize_t key_len, gpgme_data_type_t key_type)
 {
   gpgme_data_t key_data;
   gpgme_error_t err;
   gpgme_data_type_t given_key_type;
   gpgme_import_result_t import_result;
 
-  gpgme_data_new_from_mem (&key_data, key_str,
-                           (key_len >= 0 ? key_len
-                                         : (ssize_t) strlen(key_str)),
-                           0);
+  gpgme_data_new_from_mem (
+    &key_data, key_str, (key_len >= 0 ? key_len : (ssize_t) strlen (key_str)),
+    0);
 
   given_key_type = gpgme_data_identify (key_data, 0);
   if (given_key_type != key_type)
@@ -206,8 +202,8 @@ gvm_gpg_import_from_string (gpgme_ctx_t ctx,
         {
           ret = 2;
           g_warning ("%s: key_str is not the expected type: "
-                     " expected: %d, got %d", __FUNCTION__,
-                     key_type, given_key_type);
+                     " expected: %d, got %d",
+                     __FUNCTION__, key_type, given_key_type);
         }
       gpgme_data_release (key_data);
       return ret;
@@ -217,14 +213,12 @@ gvm_gpg_import_from_string (gpgme_ctx_t ctx,
   gpgme_data_release (key_data);
   if (err)
     {
-      g_warning ("%s: Import failed: %s",
-                 __FUNCTION__, gpgme_strerror (err));
+      g_warning ("%s: Import failed: %s", __FUNCTION__, gpgme_strerror (err));
       return 3;
     }
 
   import_result = gpgme_op_import_result (ctx);
-  g_debug ("%s: %d imported, %d not imported",
-           __FUNCTION__,
+  g_debug ("%s: %d imported, %d not imported", __FUNCTION__,
            import_result->imported, import_result->not_imported);
 
   gpgme_import_status_t status;
@@ -232,12 +226,10 @@ gvm_gpg_import_from_string (gpgme_ctx_t ctx,
   while (status)
     {
       if (status->result != GPG_ERR_NO_ERROR)
-        g_warning ("%s: '%s' could not be imported: %s",
-                   __FUNCTION__, status->fpr,
-                   gpgme_strerror (status->result));
+        g_warning ("%s: '%s' could not be imported: %s", __FUNCTION__,
+                   status->fpr, gpgme_strerror (status->result));
       else
-        g_debug ("%s: Imported '%s'",
-                 __FUNCTION__, status->fpr);
+        g_debug ("%s: Imported '%s'", __FUNCTION__, status->fpr);
 
       status = status->next;
     };
@@ -257,8 +249,7 @@ gvm_gpg_import_from_string (gpgme_ctx_t ctx,
  * @return  The key as a gpgme_key_t.
  */
 static gpgme_key_t
-find_email_encryption_key (gpgme_ctx_t ctx,
-                           const char *uid_email)
+find_email_encryption_key (gpgme_ctx_t ctx, const char *uid_email)
 {
   gchar *bracket_email;
   gpgme_key_t key;
@@ -275,21 +266,20 @@ find_email_encryption_key (gpgme_ctx_t ctx,
     {
       if (key->can_encrypt)
         {
-          g_debug ("%s: key '%s' OK for encryption",
-                   __FUNCTION__, key->subkeys->fpr);
+          g_debug ("%s: key '%s' OK for encryption", __FUNCTION__,
+                   key->subkeys->fpr);
 
           gpgme_user_id_t uid;
           uid = key->uids;
           while (uid && recipient_found == FALSE)
             {
-              g_debug ("%s: UID email: %s",
-                         __FUNCTION__, uid->email);
+              g_debug ("%s: UID email: %s", __FUNCTION__, uid->email);
 
               if (strcmp (uid->email, uid_email) == 0
                   || strstr (uid->email, bracket_email))
                 {
-                  g_message ("%s: Found matching UID for %s",
-                             __FUNCTION__, uid_email);
+                  g_message ("%s: Found matching UID for %s", __FUNCTION__,
+                             uid_email);
                   recipient_found = TRUE;
                 }
               uid = uid->next;
@@ -297,8 +287,8 @@ find_email_encryption_key (gpgme_ctx_t ctx,
         }
       else
         {
-          g_debug ("%s: key '%s' cannot be used for encryption",
-                   __FUNCTION__, key->subkeys->fpr);
+          g_debug ("%s: key '%s' cannot be used for encryption", __FUNCTION__,
+                   key->subkeys->fpr);
         }
 
       if (recipient_found == FALSE)
@@ -309,8 +299,7 @@ find_email_encryption_key (gpgme_ctx_t ctx,
     return key;
   else
     {
-      g_warning ("%s: No suitable key found for %s",
-                 __FUNCTION__, uid_email);
+      g_warning ("%s: No suitable key found for %s", __FUNCTION__, uid_email);
       return NULL;
     }
 }
@@ -333,15 +322,14 @@ find_email_encryption_key (gpgme_ctx_t ctx,
 static int
 encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
                          const char *key_str, ssize_t key_len,
-                         const char *uid_email,
-                         gpgme_protocol_t protocol,
+                         const char *uid_email, gpgme_protocol_t protocol,
                          gpgme_data_type_t data_type)
 {
   char gpg_temp_dir[] = "/tmp/gvmd-gpg-XXXXXX";
   gpgme_ctx_t ctx;
   gpgme_data_t plain_data, encrypted_data;
   gpgme_key_t key;
-  gpgme_key_t keys[2] = { NULL, NULL };
+  gpgme_key_t keys[2] = {NULL, NULL};
   gpgme_error_t err;
   gpgme_encrypt_flags_t encrypt_flags;
   const char *key_type_str;
@@ -379,8 +367,7 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   // Import public key into context
   if (gvm_gpg_import_from_string (ctx, key_str, key_len, data_type))
     {
-      g_warning ("%s: Import of %s failed",
-                 __FUNCTION__, key_type_str);
+      g_warning ("%s: Import of %s failed", __FUNCTION__, key_type_str);
       gpgme_release (ctx);
       gvm_file_remove_recurse (gpg_temp_dir);
       return -1;
@@ -390,8 +377,8 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   key = find_email_encryption_key (ctx, uid_email);
   if (key == NULL)
     {
-      g_warning ("%s: Could not find %s for encryption",
-                 __FUNCTION__, key_type_str);
+      g_warning ("%s: Could not find %s for encryption", __FUNCTION__,
+                 key_type_str);
       gpgme_release (ctx);
       gvm_file_remove_recurse (gpg_temp_dir);
       return -1;
@@ -406,13 +393,12 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
     gpgme_data_set_encoding (encrypted_data, GPGME_DATA_ENCODING_BASE64);
 
   // Encrypt data
-  err = gpgme_op_encrypt (ctx, keys, encrypt_flags,
-                          plain_data, encrypted_data);
+  err = gpgme_op_encrypt (ctx, keys, encrypt_flags, plain_data, encrypted_data);
 
   if (err)
     {
-      g_warning ("%s: Encryption failed: %s",
-                 __FUNCTION__, gpgme_strerror (err));
+      g_warning ("%s: Encryption failed: %s", __FUNCTION__,
+                 gpgme_strerror (err));
       gpgme_data_release (plain_data);
       gpgme_data_release (encrypted_data);
       gpgme_release (ctx);
@@ -447,11 +433,9 @@ gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
                                const char *public_key_str,
                                ssize_t public_key_len)
 {
-  return encrypt_stream_internal (plain_file, encrypted_file,
-                                  public_key_str, public_key_len,
-                                  uid_email,
-                                  GPGME_PROTOCOL_OpenPGP,
-                                  GPGME_DATA_TYPE_PGP_KEY);
+  return encrypt_stream_internal (
+    plain_file, encrypted_file, public_key_str, public_key_len, uid_email,
+    GPGME_PROTOCOL_OpenPGP, GPGME_DATA_TYPE_PGP_KEY);
 }
 
 /**
@@ -469,12 +453,10 @@ gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
  */
 int
 gvm_smime_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
-                          const char *uid_email,
-                          const char *certificate_str, ssize_t certificate_len)
+                          const char *uid_email, const char *certificate_str,
+                          ssize_t certificate_len)
 {
-  return encrypt_stream_internal (plain_file, encrypted_file,
-                                  certificate_str, certificate_len,
-                                  uid_email,
-                                  GPGME_PROTOCOL_CMS,
-                                  GPGME_DATA_TYPE_CMS_OTHER);
+  return encrypt_stream_internal (
+    plain_file, encrypted_file, certificate_str, certificate_len, uid_email,
+    GPGME_PROTOCOL_CMS, GPGME_DATA_TYPE_CMS_OTHER);
 }

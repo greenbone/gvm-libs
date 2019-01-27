@@ -38,13 +38,14 @@ typedef struct ldap_auth_info *ldap_auth_info_t;
  */
 struct ldap_auth_info
 {
-  gchar *ldap_host;             ///< Address of the ldap server, might include port.
-  gchar *auth_dn;               ///< DN to authenticate with.
-  gboolean allow_plaintext;     ///< !Whether or not StartTLS is required.
+  gchar *ldap_host;         ///< Address of the ldap server, might include port.
+  gchar *auth_dn;           ///< DN to authenticate with.
+  gboolean allow_plaintext; ///< !Whether or not StartTLS is required.
 };
 
-int ldap_connect_authenticate (const gchar *, const gchar *,
-                               /* ldap_auth_info_t */ void *, const gchar *);
+int
+ldap_connect_authenticate (const gchar *, const gchar *,
+                           /* ldap_auth_info_t */ void *, const gchar *);
 
 void ldap_auth_info_free (ldap_auth_info_t);
 
@@ -55,14 +56,15 @@ ldap_auth_info_new (const gchar *, const gchar *, gboolean);
 
 #include <ldap.h>
 
-gchar*
-ldap_auth_info_auth_dn (const ldap_auth_info_t, const gchar*);
+gchar *
+ldap_auth_info_auth_dn (const ldap_auth_info_t, const gchar *);
 
 LDAP *
 ldap_auth_bind (const gchar *, const gchar *, const gchar *, gboolean,
                 const gchar *);
 
-gboolean ldap_auth_dn_is_good (const gchar *);
+gboolean
+ldap_auth_dn_is_good (const gchar *);
 
 #endif /* ENABLE_LDAP_AUTH */
 

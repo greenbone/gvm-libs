@@ -26,13 +26,13 @@
 
 #ifdef ENABLE_LDAP_AUTH
 
-#include <glib.h>         /* for g_free, gchar, g_warning, g_strdup */
-#include <glib/gstdio.h>  /* for g_unlink, g_chmod */
-#include <lber.h>         /* for berval */
-#include <ldap.h>         /* for ldap_err2string, LDAP_SUCCESS, ldap_initialize */
+#include <glib.h>        /* for g_free, gchar, g_warning, g_strdup */
+#include <glib/gstdio.h> /* for g_unlink, g_chmod */
+#include <lber.h>        /* for berval */
+#include <ldap.h> /* for ldap_err2string, LDAP_SUCCESS, ldap_initialize */
 #include <stdio.h>
-#include <string.h>       /* for strlen, strchr, strstr */
-#include <unistd.h>       /* for close */
+#include <string.h> /* for strlen, strchr, strstr */
+#include <unistd.h> /* for close */
 
 #undef G_LOG_DOMAIN
 /**
@@ -45,10 +45,10 @@
 
 /**
  * @file ldap_connect_auth.c
- * Contains structs and functions to use for basic authentication (unmanaged, meaning that
- * authorization like role management is file-based) against an LDAP directory server.
+ * Contains structs and functions to use for basic authentication (unmanaged,
+ * meaning that authorization like role management is file-based) against an
+ * LDAP directory server.
  */
-
 
 /**
  * @brief Authenticate against an ldap directory server.
@@ -61,9 +61,9 @@
  * @return 0 authentication success, 1 authentication failure, -1 error.
  */
 int
-ldap_connect_authenticate (const gchar * username, const gchar * password,
-                           /*const *//*ldap_auth_info_t */ void *ldap_auth_info,
-                           const gchar *cacert)
+ldap_connect_authenticate (
+  const gchar *username, const gchar *password,
+  /*const */ /*ldap_auth_info_t */ void *ldap_auth_info, const gchar *cacert)
 {
   ldap_auth_info_t info = (ldap_auth_info_t) ldap_auth_info;
   LDAP *ldap = NULL;
@@ -106,7 +106,7 @@ ldap_connect_authenticate (const gchar * username, const gchar * password,
  *         ldap_auth_info_free.
  */
 ldap_auth_info_t
-ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
+ldap_auth_info_new (const gchar *ldap_host, const gchar *auth_dn,
                     gboolean allow_plaintext)
 {
   // Certain parameters might not be NULL.
@@ -151,7 +151,7 @@ ldap_auth_info_free (ldap_auth_info_t info)
  *         with g_free.
  */
 gchar *
-ldap_auth_info_auth_dn (const ldap_auth_info_t info, const gchar * username)
+ldap_auth_info_auth_dn (const ldap_auth_info_t info, const gchar *username)
 {
   if (info == NULL || username == NULL)
     return NULL;
@@ -175,9 +175,8 @@ ldap_auth_info_auth_dn (const ldap_auth_info_t info, const gchar * username)
  * @return LDAP Handle or NULL if an error occurred, authentication failed etc.
  */
 LDAP *
-ldap_auth_bind (const gchar *host, const gchar *userdn,
-                const gchar *password, gboolean force_encryption,
-                const gchar *cacert)
+ldap_auth_bind (const gchar *host, const gchar *userdn, const gchar *password,
+                gboolean force_encryption, const gchar *cacert)
 {
   LDAP *ldap = NULL;
   int ldap_return = 0;
@@ -192,7 +191,7 @@ ldap_auth_bind (const gchar *host, const gchar *userdn,
 
   // Prevent empty password, bind against ADS will succeed with
   // empty password by default.
-  if (strlen(password) == 0)
+  if (strlen (password) == 0)
     return NULL;
 
   if (force_encryption == FALSE)
@@ -218,8 +217,7 @@ ldap_auth_bind (const gchar *host, const gchar *userdn,
           g_file_set_contents (name, cacert, strlen (cacert), &error);
           if (error)
             {
-              g_warning ("Could not write LDAP CACERTFILE: %s",
-                         error->message);
+              g_warning ("Could not write LDAP CACERTFILE: %s", error->message);
               g_error_free (error);
             }
           else
@@ -267,9 +265,9 @@ ldap_auth_bind (const gchar *host, const gchar *userdn,
         {
           if (force_encryption == TRUE)
             {
-              g_warning
-                ("Aborting ldap authentication: Could not init LDAP StartTLS nor ldaps: %s.",
-                 ldap_err2string (ldap_return));
+              g_warning ("Aborting ldap authentication: Could not init LDAP "
+                         "StartTLS nor ldaps: %s.",
+                         ldap_err2string (ldap_return));
               g_free (ldapuri);
               goto fail;
             }
@@ -277,7 +275,8 @@ ldap_auth_bind (const gchar *host, const gchar *userdn,
             {
               g_warning ("Could not init LDAP StartTLS, nor ldaps: %s.",
                          ldap_err2string (ldap_return));
-              g_warning ("Reinit LDAP connection to do plaintext authentication");
+              g_warning (
+                "Reinit LDAP connection to do plaintext authentication");
               ldap_unbind_ext_s (ldap, NULL, NULL);
 
               // Note that for connections to default ADS, a failed
@@ -285,7 +284,8 @@ ldap_auth_bind (const gchar *host, const gchar *userdn,
               ldap_return = ldap_initialize (&ldap, ldapuri);
               if (ldap == NULL || ldap_return != LDAP_SUCCESS)
                 {
-                  g_warning ("Could not reopen LDAP connection for authentication.");
+                  g_warning (
+                    "Could not reopen LDAP connection for authentication.");
                   g_free (ldapuri);
                   goto fail;
                 }
@@ -308,8 +308,8 @@ ldap_auth_bind (const gchar *host, const gchar *userdn,
       gchar **use_uid = NULL;
       ldap_memfree (dn);
       dn = NULL;
-      uid = g_strsplit (userdn,",",2);
-      use_uid = g_strsplit (uid[0],"=", 2);
+      uid = g_strsplit (userdn, ",", 2);
+      use_uid = g_strsplit (uid[0], "=", 2);
 
       if (!g_strcmp0 (use_uid[0], "uid"))
         do_search = 1;
@@ -328,8 +328,8 @@ ldap_auth_bind (const gchar *host, const gchar *userdn,
       /* Perform anonymous bind to search. */
       credential.bv_val = NULL;
       credential.bv_len = 0U;
-      ldap_return = ldap_sasl_bind_s (ldap, NULL, LDAP_SASL_SIMPLE,
-                                      &credential, NULL, NULL, NULL);
+      ldap_return = ldap_sasl_bind_s (ldap, NULL, LDAP_SASL_SIMPLE, &credential,
+                                      NULL, NULL, NULL);
       if (ldap_return != LDAP_SUCCESS)
         {
           g_warning ("LDAP anonymous authentication failure: %s",
@@ -338,7 +338,7 @@ ldap_auth_bind (const gchar *host, const gchar *userdn,
         }
       else
         {
-          char *attrs[2] = { "dn", NULL };
+          char *attrs[2] = {"dn", NULL};
           LDAPMessage *result = NULL;
           gchar **base = g_strsplit (userdn, ",", 2);
 
@@ -392,7 +392,7 @@ ldap_auth_bind (const gchar *host, const gchar *userdn,
       return ldap;
     }
 
- fail:
+fail:
   if (fd > -1)
     {
       g_unlink (name);
@@ -410,7 +410,7 @@ ldap_auth_bind (const gchar *host, const gchar *userdn,
  * @return TRUE if authdn is considered safe enough to be sprintf'ed into.
  */
 gboolean
-ldap_auth_dn_is_good (const gchar * authdn)
+ldap_auth_dn_is_good (const gchar *authdn)
 {
   gchar *eg;
   LDAPDN dn;
@@ -432,7 +432,7 @@ ldap_auth_dn_is_good (const gchar * authdn)
   ln = strlen (authdn);
 
   // As a special exception allow ADS-style domain\user - pairs.
-  if (strchr (authdn, '\\') && authdn[ln-2] == '%' && authdn[ln-1] == 's')
+  if (strchr (authdn, '\\') && authdn[ln - 2] == '%' && authdn[ln - 1] == 's')
     return TRUE;
 
   // Also allow user@domain - pairs.
@@ -469,7 +469,7 @@ ldap_auth_dn_is_good (const gchar * authdn)
  * @return NULL.
  */
 ldap_auth_info_t
-ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
+ldap_auth_info_new (const gchar *ldap_host, const gchar *auth_dn,
                     gboolean allow_plaintext)
 {
   (void) ldap_host;
@@ -489,9 +489,9 @@ ldap_auth_info_new (const gchar * ldap_host, const gchar * auth_dn,
  * @return -1.
  */
 int
-ldap_connect_authenticate (const gchar * username, const gchar * password,
-                   /*const *//*ldap_auth_info_t */ void *ldap_auth_info,
-                           const gchar *cacert)
+ldap_connect_authenticate (
+  const gchar *username, const gchar *password,
+  /*const */ /*ldap_auth_info_t */ void *ldap_auth_info, const gchar *cacert)
 {
   (void) username;
   (void) password;

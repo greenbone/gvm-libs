@@ -46,7 +46,8 @@ typedef enum authentication_method auth_method_t;
 
 const gchar *auth_method_name (auth_method_t);
 
-int gvm_auth_init ();
+int
+gvm_auth_init ();
 
 int
 gvm_authenticate_classic (const gchar *, const gchar *, const gchar *);
@@ -54,9 +55,11 @@ gvm_authenticate_classic (const gchar *, const gchar *, const gchar *);
 gchar *
 get_password_hashes (const gchar *);
 
-gchar *digest_hex (int, const guchar *);
+gchar *
+digest_hex (int, const guchar *);
 
-int gvm_auth_ldap_enabled ();
+int
+gvm_auth_ldap_enabled ();
 
 int
 gvm_auth_radius_enabled ();
