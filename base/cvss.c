@@ -62,47 +62,49 @@
 #include <glib.h>
 
 
+// clang-format off
 /**
  * @brief AccessVector (AV) Constants.
  */
-#define AV_NETWORK          1.0    /**< Access Vector Network. */
-#define AV_ADJACENT_NETWORK 0.646  /**< Access Vector Adjacent Network. */
-#define AV_LOCAL            0.395  /**< Access Vector Local. */
+#define AV_NETWORK          1.0   /**< Access Vector Network. */
+#define AV_ADJACENT_NETWORK 0.646 /**< Access Vector Adjacent Network. */
+#define AV_LOCAL            0.395 /**< Access Vector Local. */
 
 /**
  * @brief AccessComplexity (AC) Constants.
  */
-#define AC_LOW    0.71  /**< Access Complexity Low. */
-#define AC_MEDIUM 0.61  /**< Access Complexity Medium. */
-#define AC_HIGH   0.35  /**< Access Complexity High. */
+#define AC_LOW    0.71 /**< Access Complexity Low. */
+#define AC_MEDIUM 0.61 /**< Access Complexity Medium. */
+#define AC_HIGH   0.35 /**< Access Complexity High. */
 
 /**
  * @brief Authentication (Au) Constants.
  */
-#define Au_MULTIPLE_INSTANCES 0.45   /**< Authentication multiple instances. */
-#define Au_SINGLE_INSTANCE    0.56   /**< Authentication single instances. */
-#define Au_NONE               0.704  /**< No Authentication. */
+#define Au_MULTIPLE_INSTANCES 0.45  /**< Authentication multiple instances. */
+#define Au_SINGLE_INSTANCE    0.56  /**< Authentication single instances. */
+#define Au_NONE               0.704 /**< No Authentication. */
 
 /**
  * @brief ConfidentialityImpact (C) Constants.
  */
-#define C_NONE     0.0    /**< No Confidentiality Impact. */
-#define C_PARTIAL  0.275  /**< Partial Confidentiality Impact. */
-#define C_COMPLETE 0.660  /**< Complete Confidentiality Impact. */
+#define C_NONE     0.0   /**< No Confidentiality Impact. */
+#define C_PARTIAL  0.275 /**< Partial Confidentiality Impact. */
+#define C_COMPLETE 0.660 /**< Complete Confidentiality Impact. */
 
 /**
  * @brief IntegrityImpact (I) Constants.
  */
-#define I_NONE     0.0    /**< No Integrity Impact. */
-#define I_PARTIAL  0.275  /**< Partial Integrity Impact. */
-#define I_COMPLETE 0.660  /**< Complete Integrity Impact. */
+#define I_NONE     0.0   /**< No Integrity Impact. */
+#define I_PARTIAL  0.275 /**< Partial Integrity Impact. */
+#define I_COMPLETE 0.660 /**< Complete Integrity Impact. */
 
 /**
  * @brief AvailabilityImpact (A) Constants.
  */
-#define A_NONE     0.0    /**< No Availability Impact. */
-#define A_PARTIAL  0.275  /**< Partial Availability Impact. */
-#define A_COMPLETE 0.660  /**< Complete Availability Impact. */
+#define A_NONE     0.0   /**< No Availability Impact. */
+#define A_PARTIAL  0.275 /**< Partial Availability Impact. */
+#define A_COMPLETE 0.660 /**< Complete Availability Impact. */
+// clang-format on
 
 /**
  * @brief Base metrics.
