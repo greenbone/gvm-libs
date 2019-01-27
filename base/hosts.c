@@ -29,6 +29,8 @@
 
 #include "hosts.h"
 
+#include "networking.h" /* for ipv4_as_ipv6, addr6_as_str, gvm_resolve */
+
 #include <arpa/inet.h>  /* for inet_pton, inet_ntop */
 #include <assert.h>     /* for assert */
 #include <ctype.h>      /* for isdigit */
@@ -38,8 +40,6 @@
 #include <stdlib.h>     /* for strtol, atoi */
 #include <string.h>     /* for strchr, memcpy, memcmp, bzero, strcasecmp */
 #include <sys/socket.h> /* for AF_INET, AF_INET6, sockaddr */
-
-#include "networking.h" /* for ipv4_as_ipv6, addr6_as_str, gvm_resolve */
 
 #undef G_LOG_DOMAIN
 /**
@@ -55,8 +55,7 @@ gchar *host_type_str[HOST_TYPE_MAX] = {
   [HOST_TYPE_IPV6] = "IPv6",
   [HOST_TYPE_CIDR_BLOCK] = "IPv4 CIDR block",
   [HOST_TYPE_RANGE_SHORT] = "IPv4 short range",
-  [HOST_TYPE_RANGE_LONG] = "IPv4 long range"
-};
+  [HOST_TYPE_RANGE_LONG] = "IPv4 long range"};
 
 /* Function definitions */
 
@@ -73,7 +72,7 @@ is_ipv4_address (const char *str)
 {
   struct sockaddr_in sa;
 
-  return inet_pton(AF_INET, str, &(sa.sin_addr)) == 1;
+  return inet_pton (AF_INET, str, &(sa.sin_addr)) == 1;
 }
 
 /**
@@ -89,7 +88,7 @@ is_ipv6_address (const char *str)
 {
   struct sockaddr_in6 sa6;
 
-  return inet_pton(AF_INET6, str, &(sa6.sin6_addr)) == 1;
+  return inet_pton (AF_INET6, str, &(sa6.sin6_addr)) == 1;
 }
 
 /**
@@ -149,8 +148,7 @@ cidr_get_block (const char *str, unsigned int *block)
   if (str == NULL || block == NULL)
     return -1;
 
-  if (sscanf (str, "%*[0-9.]/%2u", block)
-      != 1)
+  if (sscanf (str, "%*[0-9.]/%2u", block) != 1)
     return -1;
 
   return 0;
@@ -294,10 +292,10 @@ long_range_network_ips (const char *str, struct in_addr *first,
 
   if (inet_pton (AF_INET, first_str, first) != 1
       || inet_pton (AF_INET, last_str, last) != 1)
-  {
-    g_free (first_str);
-    return -1;
-  }
+    {
+      g_free (first_str);
+      return -1;
+    }
 
   g_free (first_str);
   return 0;
@@ -381,10 +379,10 @@ short_range_network_ips (const char *str, struct in_addr *first,
 
   /* Get the first IP */
   if (inet_pton (AF_INET, first_str, first) != 1)
-  {
-    g_free (first_str);
-    return -1;
-  }
+    {
+      g_free (first_str);
+      return -1;
+    }
 
   /* Get the last IP */
   last->s_addr = htonl ((ntohl (first->s_addr) & 0xffffff00) + end);
@@ -474,8 +472,7 @@ cidr6_get_block (const char *str, unsigned int *block)
   if (str == NULL || block == NULL)
     return -1;
 
-  if (sscanf (str, "%*[0-9a-fA-F.:]/%3u", block)
-      != 1)
+  if (sscanf (str, "%*[0-9a-fA-F.:]/%3u", block) != 1)
     return -1;
 
   return 0;
@@ -697,7 +694,8 @@ is_short_range6_network (const char *str)
 
   p = end_str;
   /* Check that the 2nd part is at most 4 hexadecimal characters. */
-  while (isxdigit (*p) && p++);
+  while (isxdigit (*p) && p++)
+    ;
   if (*p || p - end_str > 4)
     {
       g_free (ip_str);
@@ -760,8 +758,8 @@ short_range6_network_ips (const char *str, struct in6_addr *first,
 /**
  * @brief Determines the host type in a buffer.
  *
- * @param[in] str_stripped   Buffer that contains host definition, could a be hostname,
- *                           single IPv4 or IPv6, CIDR-expressed block etc,.
+ * @param[in] str_stripped   Buffer that contains host definition, could a be
+ * hostname, single IPv4 or IPv6, CIDR-expressed block etc,.
  *
  * @return Host_TYPE_*, -1 if error.
  */
@@ -983,7 +981,8 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
   str = hosts->orig_str;
   while (*str)
     {
-      if (*str == '\n') *str = ',';
+      if (*str == '\n')
+        *str = ',';
       str++;
     }
 
@@ -1003,135 +1002,137 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
           continue;
         }
 
-      /* IPv4, hostname, IPv6, collection (short/long range, cidr block) etc,. ? */
+      /* IPv4, hostname, IPv6, collection (short/long range, cidr block) etc,. ?
+       */
       /* -1 if error. */
       host_type = gvm_get_host_type (stripped);
 
       switch (host_type)
         {
-          case HOST_TYPE_NAME:
-          case HOST_TYPE_IPV4:
-          case HOST_TYPE_IPV6:
-            {
-              /* New host. */
-              gvm_host_t *host = gvm_host_new ();
-              host->type = host_type;
-              if (host_type == HOST_TYPE_NAME)
-                host->name = g_strdup (stripped);
-              else if (host_type == HOST_TYPE_IPV4)
-                {
-                  if (inet_pton (AF_INET, stripped, &host->addr) != 1)
-                    break;
-                }
-              else if (host_type == HOST_TYPE_IPV6)
-                {
-                  if (inet_pton (AF_INET6, stripped, &host->addr6) != 1)
-                    break;
-                }
-              /* Prepend to list of hosts. */
-              hosts->hosts = g_list_prepend (hosts->hosts, host);
-              hosts->count++;
+        case HOST_TYPE_NAME:
+        case HOST_TYPE_IPV4:
+        case HOST_TYPE_IPV6:
+          {
+            /* New host. */
+            gvm_host_t *host = gvm_host_new ();
+            host->type = host_type;
+            if (host_type == HOST_TYPE_NAME)
+              host->name = g_strdup (stripped);
+            else if (host_type == HOST_TYPE_IPV4)
+              {
+                if (inet_pton (AF_INET, stripped, &host->addr) != 1)
+                  break;
+              }
+            else if (host_type == HOST_TYPE_IPV6)
+              {
+                if (inet_pton (AF_INET6, stripped, &host->addr6) != 1)
+                  break;
+              }
+            /* Prepend to list of hosts. */
+            hosts->hosts = g_list_prepend (hosts->hosts, host);
+            hosts->count++;
+            break;
+          }
+        case HOST_TYPE_CIDR_BLOCK:
+        case HOST_TYPE_RANGE_SHORT:
+        case HOST_TYPE_RANGE_LONG:
+          {
+            struct in_addr first, last;
+            uint32_t current;
+            int (*ips_func) (const char *, struct in_addr *, struct in_addr *);
+
+            if (host_type == HOST_TYPE_CIDR_BLOCK)
+              ips_func = cidr_block_ips;
+            else if (host_type == HOST_TYPE_RANGE_SHORT)
+              ips_func = short_range_network_ips;
+            else
+              ips_func = long_range_network_ips;
+
+            if (ips_func (stripped, &first, &last) == -1)
               break;
-            }
-          case HOST_TYPE_CIDR_BLOCK:
-          case HOST_TYPE_RANGE_SHORT:
-          case HOST_TYPE_RANGE_LONG:
-            {
-              struct in_addr first, last;
-              uint32_t current;
-              int (*ips_func) (const char *, struct in_addr *, struct in_addr *);
 
-              if (host_type == HOST_TYPE_CIDR_BLOCK)
-                ips_func = cidr_block_ips;
-              else if (host_type == HOST_TYPE_RANGE_SHORT)
-                ips_func = short_range_network_ips;
-              else
-                ips_func = long_range_network_ips;
+            /* Make sure that first actually comes before last */
+            if (ntohl (first.s_addr) > ntohl (last.s_addr))
+              break;
 
-              if (ips_func (stripped, &first, &last) == -1)
-                break;
+            /* Add addresses from first to last as single hosts. */
+            current = first.s_addr;
+            while (ntohl (current) <= ntohl (last.s_addr))
+              {
+                gvm_host_t *host = gvm_host_new ();
+                host->type = HOST_TYPE_IPV4;
+                host->addr.s_addr = current;
+                hosts->hosts = g_list_prepend (hosts->hosts, host);
+                hosts->count++;
+                if (max_hosts > 0 && hosts->count > max_hosts)
+                  {
+                    g_strfreev (split);
+                    gvm_hosts_free (hosts);
+                    return NULL;
+                  }
+                /* Next IP address. */
+                current = htonl (ntohl (current) + 1);
+              }
+            break;
+          }
+        case HOST_TYPE_CIDR6_BLOCK:
+        case HOST_TYPE_RANGE6_LONG:
+        case HOST_TYPE_RANGE6_SHORT:
+          {
+            struct in6_addr first, last;
+            unsigned char current[16];
+            int (*ips_func) (const char *, struct in6_addr *,
+                             struct in6_addr *);
 
-              /* Make sure that first actually comes before last */
-              if (ntohl (first.s_addr) > ntohl (last.s_addr))
-                break;
+            if (host_type == HOST_TYPE_CIDR6_BLOCK)
+              ips_func = cidr6_block_ips;
+            else if (host_type == HOST_TYPE_RANGE6_SHORT)
+              ips_func = short_range6_network_ips;
+            else
+              ips_func = long_range6_network_ips;
 
-              /* Add addresses from first to last as single hosts. */
-              current = first.s_addr;
-              while (ntohl (current) <= ntohl (last.s_addr))
-                {
-                  gvm_host_t *host = gvm_host_new ();
-                  host->type = HOST_TYPE_IPV4;
-                  host->addr.s_addr = current;
-                  hosts->hosts = g_list_prepend (hosts->hosts, host);
-                  hosts->count++;
-                  if (max_hosts > 0 && hosts->count > max_hosts)
+            if (ips_func (stripped, &first, &last) == -1)
+              break;
+
+            /* Make sure the first comes before the last. */
+            if (memcmp (&first.s6_addr, &last.s6_addr, 16) > 0)
+              break;
+
+            /* Add addresses from first to last as single hosts. */
+            memcpy (current, &first.s6_addr, 16);
+            while (memcmp (current, &last.s6_addr, 16) <= 0)
+              {
+                int i;
+
+                gvm_host_t *host = gvm_host_new ();
+                host->type = HOST_TYPE_IPV6;
+                memcpy (host->addr6.s6_addr, current, 16);
+                hosts->hosts = g_list_prepend (hosts->hosts, host);
+                hosts->count++;
+                if (max_hosts > 0 && hosts->count > max_hosts)
+                  {
+                    g_strfreev (split);
+                    gvm_hosts_free (hosts);
+                    return NULL;
+                  }
+                /* Next IPv6 address. */
+                for (i = 15; i >= 0; --i)
+                  if (current[i] < 255)
                     {
-                      g_strfreev (split);
-                      gvm_hosts_free (hosts);
-                      return NULL;
+                      current[i]++;
+                      break;
                     }
-                  /* Next IP address. */
-                  current = htonl (ntohl (current) + 1);
-                }
-              break;
-            }
-          case HOST_TYPE_CIDR6_BLOCK:
-          case HOST_TYPE_RANGE6_LONG:
-          case HOST_TYPE_RANGE6_SHORT:
-            {
-              struct in6_addr first, last;
-              unsigned char current[16];
-              int (*ips_func) (const char *, struct in6_addr *, struct in6_addr *);
-
-              if (host_type == HOST_TYPE_CIDR6_BLOCK)
-                ips_func = cidr6_block_ips;
-              else if (host_type == HOST_TYPE_RANGE6_SHORT)
-                ips_func = short_range6_network_ips;
-              else
-                ips_func = long_range6_network_ips;
-
-              if (ips_func (stripped, &first, &last) == -1)
-                break;
-
-              /* Make sure the first comes before the last. */
-              if (memcmp (&first.s6_addr, &last.s6_addr, 16) > 0)
-                break;
-
-              /* Add addresses from first to last as single hosts. */
-              memcpy (current, &first.s6_addr, 16);
-              while (memcmp (current, &last.s6_addr, 16) <= 0)
-                {
-                  int i;
-
-                  gvm_host_t *host = gvm_host_new ();
-                  host->type = HOST_TYPE_IPV6;
-                  memcpy (host->addr6.s6_addr, current, 16);
-                  hosts->hosts = g_list_prepend (hosts->hosts, host);
-                  hosts->count++;
-                  if (max_hosts > 0 && hosts->count > max_hosts)
-                    {
-                      g_strfreev (split);
-                      gvm_hosts_free (hosts);
-                      return NULL;
-                    }
-                  /* Next IPv6 address. */
-                  for (i = 15; i >= 0; --i)
-                    if (current[i] < 255)
-                      {
-                        current[i]++;
-                        break;
-                      }
-                    else
-                      current[i] = 0;
-                 }
-              break;
-            }
-          case -1:
-          default:
-            /* Invalid host string. */
-            g_strfreev (split);
-            gvm_hosts_free (hosts);
-            return NULL;
+                  else
+                    current[i] = 0;
+              }
+            break;
+          }
+        case -1:
+        default:
+          /* Invalid host string. */
+          g_strfreev (split);
+          gvm_hosts_free (hosts);
+          return NULL;
         }
       host_element++; /* move on to next element of split list */
       if (max_hosts > 0 && hosts->count > max_hosts)
@@ -1324,16 +1325,16 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
           if (ip6->s6_addr32[0] != 0 || ip6->s6_addr32[1] != 0
               || ip6->s6_addr32[2] != htonl (0xffff))
             {
-               new->type = HOST_TYPE_IPV6;
-               memcpy (&new->addr6, ip6, sizeof (new->addr6));
+              new->type = HOST_TYPE_IPV6;
+              memcpy (&new->addr6, ip6, sizeof (new->addr6));
             }
           else
             {
-               new->type = HOST_TYPE_IPV4;
-               memcpy (&new->addr6, &ip6->s6_addr32[3], sizeof (new->addr));
+              new->type = HOST_TYPE_IPV4;
+              memcpy (&new->addr6, &ip6->s6_addr32[3], sizeof (new->addr));
             }
-          vhost = gvm_vhost_new (g_strdup (host->name),
-                                 g_strdup ("Forward-DNS"));
+          vhost =
+            gvm_vhost_new (g_strdup (host->name), g_strdup ("Forward-DNS"));
           new->vhosts = g_slist_prepend (new->vhosts, vhost);
           hosts->hosts = g_list_prepend (hosts->hosts, new);
           hosts->count++;
@@ -1343,8 +1344,8 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
         g_warning ("Couldn't resolve hostname %s", host->name);
       /* Remove hostname from list, as it was either replaced by IPs, or
        * is unresolvable. */
-      hosts->hosts = g_list_delete_link
-                      (hosts->hosts, g_list_find (hosts->hosts, host));
+      hosts->hosts =
+        g_list_delete_link (hosts->hosts, g_list_find (hosts->hosts, host));
       gvm_host_free (host);
       hosts->count--;
       hosts->removed++;
@@ -1506,7 +1507,6 @@ gvm_hosts_exclude (gvm_hosts_t *hosts, const char *excluded_str)
 char *
 gvm_host_reverse_lookup (gvm_host_t *host)
 {
-
   if (host == NULL)
     return NULL;
 
@@ -1745,7 +1745,7 @@ gvm_hosts_count (const gvm_hosts_t *hosts)
 unsigned int
 gvm_hosts_removed (const gvm_hosts_t *hosts)
 {
-    return hosts ? hosts->removed : 0;
+  return hosts ? hosts->removed : 0;
 }
 
 /**
@@ -1796,7 +1796,6 @@ gvm_host_in_hosts (const gvm_host_t *host, const struct in6_addr *addr,
               g_free (host_str);
               return 1;
             }
-
         }
       element = element->next;
     }
@@ -1851,41 +1850,41 @@ gvm_host_value_str (const gvm_host_t *host)
 
   switch (host->type)
     {
-      case HOST_TYPE_NAME:
-        return g_strdup (host->name);
-        break;
-      case HOST_TYPE_IPV4:
-      case HOST_TYPE_IPV6:
-        /* Handle both cases using inet_ntop(). */
-        {
-          int family, size;
-          gchar *str;
-          const void *srcaddr;
+    case HOST_TYPE_NAME:
+      return g_strdup (host->name);
+      break;
+    case HOST_TYPE_IPV4:
+    case HOST_TYPE_IPV6:
+      /* Handle both cases using inet_ntop(). */
+      {
+        int family, size;
+        gchar *str;
+        const void *srcaddr;
 
-          if (host->type == HOST_TYPE_IPV4)
-            {
-              family = AF_INET;
-              size = INET_ADDRSTRLEN;
-              srcaddr = &host->addr;
-            }
-          else
-            {
-              family = AF_INET6;
-              size = INET6_ADDRSTRLEN;
-              srcaddr = &host->addr6;
-            }
+        if (host->type == HOST_TYPE_IPV4)
+          {
+            family = AF_INET;
+            size = INET_ADDRSTRLEN;
+            srcaddr = &host->addr;
+          }
+        else
+          {
+            family = AF_INET6;
+            size = INET6_ADDRSTRLEN;
+            srcaddr = &host->addr6;
+          }
 
-          str = g_malloc0 (size);
-          if (inet_ntop (family, srcaddr, str, size) == NULL)
-            {
-              perror ("inet_ntop");
-              g_free (str);
-              return NULL;
-            }
-          return str;
-        }
-      default:
-       return g_strdup ("Erroneous host type: Should be Hostname/IPv4/IPv6.");
+        str = g_malloc0 (size);
+        if (inet_ntop (family, srcaddr, str, size) == NULL)
+          {
+            perror ("inet_ntop");
+            g_free (str);
+            return NULL;
+          }
+        return str;
+      }
+    default:
+      return g_strdup ("Erroneous host type: Should be Hostname/IPv4/IPv6.");
     }
 }
 
@@ -1929,28 +1928,27 @@ gvm_host_get_addr6 (const gvm_host_t *host, struct in6_addr *ip6)
 
   switch (gvm_host_type (host))
     {
-      case HOST_TYPE_IPV6:
-        memcpy (ip6, &host->addr6, sizeof (struct in6_addr));
+    case HOST_TYPE_IPV6:
+      memcpy (ip6, &host->addr6, sizeof (struct in6_addr));
+      return 0;
+
+    case HOST_TYPE_IPV4:
+      ipv4_as_ipv6 (&host->addr, ip6);
+      return 0;
+
+    case HOST_TYPE_NAME:
+      {
+        struct in_addr ip4;
+
+        /* Fail if IPv4 and IPv6 both don't resolve. */
+        if (gvm_host_resolve (host, &ip4, AF_INET) == 0)
+          ipv4_as_ipv6 (&ip4, ip6);
+        else if (gvm_host_resolve (host, ip6, AF_INET6) == -1)
+          return -1;
         return 0;
+      }
 
-      case HOST_TYPE_IPV4:
-        ipv4_as_ipv6 (&host->addr, ip6);
-        return 0;
-
-      case HOST_TYPE_NAME:
-        {
-          struct in_addr ip4;
-
-          /* Fail if IPv4 and IPv6 both don't resolve. */
-          if (gvm_host_resolve (host, &ip4, AF_INET) == 0)
-            ipv4_as_ipv6 (&ip4, ip6);
-          else if (gvm_host_resolve (host, ip6, AF_INET6) == -1)
-            return -1;
-          return 0;
-        }
-
-      default:
-        return -1;
+    default:
+      return -1;
     }
 }
-

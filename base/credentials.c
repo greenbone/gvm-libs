@@ -28,7 +28,6 @@
 
 #include <string.h>
 
-
 /**
  * @brief Free credentials.
  *
@@ -37,7 +36,7 @@
  * @param[in]  credentials  Pointer to the credentials.
  */
 void
-free_credentials (credentials_t * credentials)
+free_credentials (credentials_t *credentials)
 {
   g_free (credentials->username);
   g_free (credentials->password);
@@ -56,7 +55,7 @@ free_credentials (credentials_t * credentials)
  * @param[in]  length       Length of the text.
  */
 void
-append_to_credentials_username (credentials_t * credentials, const char *text,
+append_to_credentials_username (credentials_t *credentials, const char *text,
                                 gsize length)
 {
   gvm_append_text (&credentials->username, text, length);
@@ -70,7 +69,7 @@ append_to_credentials_username (credentials_t * credentials, const char *text,
  * @param[in]  length       Length of the text.
  */
 void
-append_to_credentials_password (credentials_t * credentials, const char *text,
+append_to_credentials_password (credentials_t *credentials, const char *text,
                                 gsize length)
 {
   gvm_append_text (&credentials->password, text, length);

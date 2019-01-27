@@ -32,4 +32,3 @@ void
 proctitle_set (const char *, ...);
 
 #endif /* not _GVM_PROCTITLE_H */
-

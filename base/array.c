@@ -41,7 +41,7 @@ make_array ()
  * @param[in]  array  Pointer to array.
  */
 void
-array_reset (array_t ** array)
+array_reset (array_t **array)
 {
   array_free (*array);
   *array = make_array ();
@@ -55,7 +55,7 @@ array_reset (array_t ** array)
  * @param[in]  array  Pointer to array.
  */
 void
-array_free (GPtrArray * array)
+array_free (GPtrArray *array)
 {
   if (array)
     {
@@ -73,7 +73,7 @@ array_free (GPtrArray * array)
  * @param[in]  pointer  Pointer.
  */
 void
-array_add (array_t * array, gpointer pointer)
+array_add (array_t *array, gpointer pointer)
 {
   if (array)
     g_ptr_array_add (array, pointer);
@@ -85,7 +85,7 @@ array_add (array_t * array, gpointer pointer)
  * @param[in]  array    Array.
  */
 void
-array_terminate (array_t * array)
+array_terminate (array_t *array)
 {
   if (array)
     g_ptr_array_add (array, NULL);

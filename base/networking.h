@@ -25,9 +25,9 @@
 #ifndef _GVM_NETWORKING_H
 #define _GVM_NETWORKING_H
 
-#include <netdb.h>           /* for struct in6_addr */
+#include "array.h" /* for array_t */
 
-#include "array.h"           /* for array_t */
+#include <netdb.h> /* for struct in6_addr */
 
 /**
  * @brief Possible port types.
@@ -104,7 +104,7 @@ gvm_resolve_as_addr6 (const char *, struct in6_addr *);
 int
 validate_port_range (const char *);
 
-array_t*
+array_t *
 port_range_ranges (const char *);
 
 int

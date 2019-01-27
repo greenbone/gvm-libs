@@ -24,10 +24,9 @@
 
 #include "proctitle.h"
 
-#include <glib.h>   /* for g_free, g_malloc0, g_strdup */
+#include <glib.h> /* for g_free, g_malloc0, g_strdup */
 #include <stdio.h>
 #include <string.h> /* for strlen, strdup, bzero, strncpy */
-
 #include <sys/param.h>
 
 /**
@@ -68,7 +67,8 @@ proctitle_init (int argc, char **argv)
 #endif
 
   /* Move environ to new memory, to be able to reuse older one. */
-  while (envp[i]) i++;
+  while (envp[i])
+    i++;
   environ = g_malloc0 (sizeof (char *) * (i + 1));
   if (current_environ)
     g_free (current_environ);
@@ -79,9 +79,9 @@ proctitle_init (int argc, char **argv)
 
   old_argv = argv;
   if (i > 0)
-    argv_len = envp[i-1] + strlen (envp[i-1]) - old_argv[0];
+    argv_len = envp[i - 1] + strlen (envp[i - 1]) - old_argv[0];
   else
-    argv_len = old_argv[argc-1] + strlen (old_argv[argc-1]) - old_argv[0];
+    argv_len = old_argv[argc - 1] + strlen (old_argv[argc - 1]) - old_argv[0];
 
   /* Seems like these are in the moved environment, so reset them.  Idea from
    * proctitle.cpp in KDE libs.  */

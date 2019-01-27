@@ -33,7 +33,6 @@
  * \verbinclude COPYING
  */
 
-
 /**
  * @file
  * @brief Implementation of API to handle NVT Info datasets
@@ -45,11 +44,11 @@
  * management etc.
  */
 
-#include <stdio.h>
-
 #include "nvti.h"
 
-#undef  G_LOG_DOMAIN
+#include <stdio.h>
+
+#undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  nvti"
 
 /**
@@ -66,7 +65,7 @@
  *         released using @ref nvtpref_free .
  */
 nvtpref_t *
-nvtpref_new (gchar * name, gchar * type, gchar * dflt)
+nvtpref_new (gchar *name, gchar *type, gchar *dflt)
 {
   nvtpref_t *np = g_malloc0 (sizeof (nvtpref_t));
 
@@ -89,7 +88,7 @@ nvtpref_new (gchar * name, gchar * type, gchar * dflt)
  * @param np The structure to be freed.
  */
 void
-nvtpref_free (nvtpref_t * np)
+nvtpref_free (nvtpref_t *np)
 {
   if (!np)
     return;
@@ -112,7 +111,7 @@ nvtpref_free (nvtpref_t * np)
  * @return The name string. Don't free this.
  */
 gchar *
-nvtpref_name (const nvtpref_t * np)
+nvtpref_name (const nvtpref_t *np)
 {
   return (np ? np->name : NULL);
 }
@@ -126,7 +125,7 @@ nvtpref_name (const nvtpref_t * np)
  * @return The type string. Don't free this.
  */
 gchar *
-nvtpref_type (const nvtpref_t * np)
+nvtpref_type (const nvtpref_t *np)
 {
   return (np ? np->type : NULL);
 }
@@ -140,7 +139,7 @@ nvtpref_type (const nvtpref_t * np)
  * @return The default string. Don't free this.
  */
 gchar *
-nvtpref_default (const nvtpref_t * np)
+nvtpref_default (const nvtpref_t *np)
 {
   return (np ? np->dflt : NULL);
 }
@@ -165,7 +164,7 @@ nvti_new (void)
  * @param n The structure to be freed.
  */
 void
-nvti_free (nvti_t * n)
+nvti_free (nvti_t *n)
 {
   if (!n)
     return;
@@ -217,7 +216,7 @@ nvti_free (nvti_t * n)
  * @return The OID string. Don't free this.
  */
 gchar *
-nvti_oid (const nvti_t * n)
+nvti_oid (const nvti_t *n)
 {
   return (n ? n->oid : NULL);
 }
@@ -231,7 +230,7 @@ nvti_oid (const nvti_t * n)
  * @return The name string. Don't free this.
  */
 gchar *
-nvti_name (const nvti_t * n)
+nvti_name (const nvti_t *n)
 {
   return (n ? n->name : NULL);
 }
@@ -245,7 +244,7 @@ nvti_name (const nvti_t * n)
  * @return The CVE list as string. Don't free this.
  */
 gchar *
-nvti_cve (const nvti_t * n)
+nvti_cve (const nvti_t *n)
 {
   return (n ? n->cve : NULL);
 }
@@ -259,7 +258,7 @@ nvti_cve (const nvti_t * n)
  * @return The bid list as string. Don't free this.
  */
 gchar *
-nvti_bid (const nvti_t * n)
+nvti_bid (const nvti_t *n)
 {
   return (n ? n->bid : NULL);
 }
@@ -273,7 +272,7 @@ nvti_bid (const nvti_t * n)
  * @return The xref string. Don't free this.
  */
 gchar *
-nvti_xref (const nvti_t * n)
+nvti_xref (const nvti_t *n)
 {
   return (n ? n->xref : NULL);
 }
@@ -287,7 +286,7 @@ nvti_xref (const nvti_t * n)
  * @return The tags string. Don't free this.
  */
 gchar *
-nvti_tag (const nvti_t * n)
+nvti_tag (const nvti_t *n)
 {
   return (n ? n->tag : NULL);
 }
@@ -301,7 +300,7 @@ nvti_tag (const nvti_t * n)
  * @return The cvss_base string. Don't free this.
  */
 gchar *
-nvti_cvss_base (const nvti_t * n)
+nvti_cvss_base (const nvti_t *n)
 {
   return (n ? n->cvss_base : NULL);
 }
@@ -315,7 +314,7 @@ nvti_cvss_base (const nvti_t * n)
  * @return The dependencies string. Don't free this.
  */
 gchar *
-nvti_dependencies (const nvti_t * n)
+nvti_dependencies (const nvti_t *n)
 {
   return (n ? n->dependencies : NULL);
 }
@@ -329,7 +328,7 @@ nvti_dependencies (const nvti_t * n)
  * @return The required keys string. Don't free this.
  */
 gchar *
-nvti_required_keys (const nvti_t * n)
+nvti_required_keys (const nvti_t *n)
 {
   return (n ? n->required_keys : NULL);
 }
@@ -343,7 +342,7 @@ nvti_required_keys (const nvti_t * n)
  * @return The mandatory keys string. Don't free this.
  */
 gchar *
-nvti_mandatory_keys (const nvti_t * n)
+nvti_mandatory_keys (const nvti_t *n)
 {
   return (n ? n->mandatory_keys : NULL);
 }
@@ -357,7 +356,7 @@ nvti_mandatory_keys (const nvti_t * n)
  * @return The excluded keys string. Don't free this.
  */
 gchar *
-nvti_excluded_keys (const nvti_t * n)
+nvti_excluded_keys (const nvti_t *n)
 {
   return (n ? n->excluded_keys : NULL);
 }
@@ -371,7 +370,7 @@ nvti_excluded_keys (const nvti_t * n)
  * @return The required ports string. Don't free this.
  */
 gchar *
-nvti_required_ports (const nvti_t * n)
+nvti_required_ports (const nvti_t *n)
 {
   return (n ? n->required_ports : NULL);
 }
@@ -385,7 +384,7 @@ nvti_required_ports (const nvti_t * n)
  * @return The required udp ports string. Don't free this.
  */
 gchar *
-nvti_required_udp_ports (const nvti_t * n)
+nvti_required_udp_ports (const nvti_t *n)
 {
   return (n ? n->required_udp_ports : NULL);
 }
@@ -399,7 +398,7 @@ nvti_required_udp_ports (const nvti_t * n)
  * @return The family name string. Don't free this.
  */
 gchar *
-nvti_family (const nvti_t * n)
+nvti_family (const nvti_t *n)
 {
   return (n ? n->family : NULL);
 }
@@ -412,7 +411,7 @@ nvti_family (const nvti_t * n)
  * @return The number of preferences.
  */
 guint
-nvti_pref_len (const nvti_t * n)
+nvti_pref_len (const nvti_t *n)
 {
   return (n ? g_slist_length (n->prefs) : 0);
 }
@@ -427,7 +426,7 @@ nvti_pref_len (const nvti_t * n)
  * @return The number of preferences. NULL if
  */
 const nvtpref_t *
-nvti_pref (const nvti_t * n, guint p)
+nvti_pref (const nvti_t *n, guint p)
 {
   return (n ? g_slist_nth_data (n->prefs, p) : NULL);
 }
@@ -441,7 +440,7 @@ nvti_pref (const nvti_t * n, guint p)
  * @return The timeout integer number. A value <= 0 indicates it is not set.
  */
 gint
-nvti_timeout (const nvti_t * n)
+nvti_timeout (const nvti_t *n)
 {
   return (n ? n->timeout : -1);
 }
@@ -454,7 +453,7 @@ nvti_timeout (const nvti_t * n)
  * @return The category integer code. A value <= 0 indicates it is not set.
  */
 gint
-nvti_category (const nvti_t * n)
+nvti_category (const nvti_t *n)
 {
   return (n ? n->category : -1);
 }
@@ -469,9 +468,9 @@ nvti_category (const nvti_t * n)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_oid (nvti_t * n, const gchar * oid)
+nvti_set_oid (nvti_t *n, const gchar *oid)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   if (n->oid)
@@ -490,9 +489,9 @@ nvti_set_oid (nvti_t * n, const gchar * oid)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_name (nvti_t * n, const gchar * name)
+nvti_set_name (nvti_t *n, const gchar *name)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   if (n->name)
@@ -511,9 +510,9 @@ nvti_set_name (nvti_t * n, const gchar * name)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_cve (nvti_t * n, const gchar * cve)
+nvti_set_cve (nvti_t *n, const gchar *cve)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   if (n->cve)
@@ -532,9 +531,9 @@ nvti_set_cve (nvti_t * n, const gchar * cve)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_bid (nvti_t * n, const gchar * bid)
+nvti_set_bid (nvti_t *n, const gchar *bid)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   if (n->bid)
@@ -553,9 +552,9 @@ nvti_set_bid (nvti_t * n, const gchar * bid)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_xref (nvti_t * n, const gchar * xref)
+nvti_set_xref (nvti_t *n, const gchar *xref)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   if (n->xref)
@@ -577,9 +576,9 @@ nvti_set_xref (nvti_t * n, const gchar * xref)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_tag (nvti_t * n, const gchar * tag)
+nvti_set_tag (nvti_t *n, const gchar *tag)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   if (n->tag)
@@ -601,9 +600,9 @@ nvti_set_tag (nvti_t * n, const gchar * tag)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_cvss_base (nvti_t * n, const gchar * cvss_base)
+nvti_set_cvss_base (nvti_t *n, const gchar *cvss_base)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   if (n->cvss_base)
@@ -620,14 +619,15 @@ nvti_set_cvss_base (nvti_t * n, const gchar * cvss_base)
  *
  * @param n The NVT Info structure.
  *
- * @param dependencies The dependencies to set. A copy will be created from this.
+ * @param dependencies The dependencies to set. A copy will be created from
+ * this.
  *
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_dependencies (nvti_t * n, const gchar * dependencies)
+nvti_set_dependencies (nvti_t *n, const gchar *dependencies)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   if (n->dependencies)
@@ -644,14 +644,15 @@ nvti_set_dependencies (nvti_t * n, const gchar * dependencies)
  *
  * @param n The NVT Info structure.
  *
- * @param required_keys The required keys to set. A copy will be created from this.
+ * @param required_keys The required keys to set. A copy will be created from
+ * this.
  *
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_required_keys (nvti_t * n, const gchar * required_keys)
+nvti_set_required_keys (nvti_t *n, const gchar *required_keys)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   if (n->required_keys)
@@ -668,14 +669,15 @@ nvti_set_required_keys (nvti_t * n, const gchar * required_keys)
  *
  * @param n The NVT Info structure.
  *
- * @param mandatory_keys The mandatory keys to set. A copy will be created from this.
+ * @param mandatory_keys The mandatory keys to set. A copy will be created from
+ * this.
  *
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_mandatory_keys (nvti_t * n, const gchar * mandatory_keys)
+nvti_set_mandatory_keys (nvti_t *n, const gchar *mandatory_keys)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   if (n->mandatory_keys)
@@ -692,14 +694,15 @@ nvti_set_mandatory_keys (nvti_t * n, const gchar * mandatory_keys)
  *
  * @param n The NVT Info structure.
  *
- * @param excluded_keys The excluded keys to set. A copy will be created from this.
+ * @param excluded_keys The excluded keys to set. A copy will be created from
+ * this.
  *
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_excluded_keys (nvti_t * n, const gchar * excluded_keys)
+nvti_set_excluded_keys (nvti_t *n, const gchar *excluded_keys)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   if (n->excluded_keys)
@@ -716,14 +719,15 @@ nvti_set_excluded_keys (nvti_t * n, const gchar * excluded_keys)
  *
  * @param n The NVT Info structure.
  *
- * @param required_ports The required ports to set. A copy will be created from this.
+ * @param required_ports The required ports to set. A copy will be created from
+ * this.
  *
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_required_ports (nvti_t * n, const gchar * required_ports)
+nvti_set_required_ports (nvti_t *n, const gchar *required_ports)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   if (n->required_ports)
@@ -740,14 +744,15 @@ nvti_set_required_ports (nvti_t * n, const gchar * required_ports)
  *
  * @param n The NVT Info structure.
  *
- * @param required_udp_ports The required udp ports to set. A copy will be created from this.
+ * @param required_udp_ports The required udp ports to set. A copy will be
+ * created from this.
  *
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_required_udp_ports (nvti_t * n, const gchar * required_udp_ports)
+nvti_set_required_udp_ports (nvti_t *n, const gchar *required_udp_ports)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   if (n->required_udp_ports)
@@ -769,9 +774,9 @@ nvti_set_required_udp_ports (nvti_t * n, const gchar * required_udp_ports)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_family (nvti_t * n, const gchar * family)
+nvti_set_family (nvti_t *n, const gchar *family)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   if (n->family)
@@ -790,9 +795,9 @@ nvti_set_family (nvti_t * n, const gchar * family)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_timeout (nvti_t * n, const gint timeout)
+nvti_set_timeout (nvti_t *n, const gint timeout)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   n->timeout = timeout;
@@ -809,9 +814,9 @@ nvti_set_timeout (nvti_t * n, const gint timeout)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_category (nvti_t * n, const gint category)
+nvti_set_category (nvti_t *n, const gint category)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   n->category = category;
@@ -828,20 +833,22 @@ nvti_set_category (nvti_t * n, const gint category)
  * @return 0 for success. 1 if n was NULL, 2 if cve_id was NULL.
  */
 int
-nvti_add_cve (nvti_t * n, const gchar * cve_id)
+nvti_add_cve (nvti_t *n, const gchar *cve_id)
 {
-  gchar * old;
+  gchar *old;
 
-  if (! n) return (1);
-  if (! cve_id) return (2);
+  if (!n)
+    return (1);
+  if (!cve_id)
+    return (2);
 
   old = n->cve;
 
   if (old)
-  {
-    n->cve = g_strdup_printf ("%s, %s", old, cve_id);
-    g_free (old);
-  }
+    {
+      n->cve = g_strdup_printf ("%s, %s", old, cve_id);
+      g_free (old);
+    }
   else
     n->cve = g_strdup (cve_id);
 
@@ -858,20 +865,22 @@ nvti_add_cve (nvti_t * n, const gchar * cve_id)
  * @return 0 for success. 1 if n was NULL. 2 if bid_id was NULL.
  */
 int
-nvti_add_bid (nvti_t * n, const gchar * bid_id)
+nvti_add_bid (nvti_t *n, const gchar *bid_id)
 {
-  gchar * old;
+  gchar *old;
 
-  if (! n) return (1);
-  if (! bid_id) return (2);
+  if (!n)
+    return (1);
+  if (!bid_id)
+    return (2);
 
   old = n->bid;
 
   if (old)
-  {
-    n->bid = g_strdup_printf ("%s, %s", old, bid_id);
-    g_free (old);
-  }
+    {
+      n->bid = g_strdup_printf ("%s, %s", old, bid_id);
+      g_free (old);
+    }
   else
     n->bid = g_strdup (bid_id);
 
@@ -888,20 +897,22 @@ nvti_add_bid (nvti_t * n, const gchar * bid_id)
  * @return 0 for success. 1 if n was NULL. 2 if key was NULL.
  */
 int
-nvti_add_required_keys (nvti_t * n, const gchar * key)
+nvti_add_required_keys (nvti_t *n, const gchar *key)
 {
-  gchar * old;
+  gchar *old;
 
-  if (! n) return (1);
-  if (! key) return (2);
+  if (!n)
+    return (1);
+  if (!key)
+    return (2);
 
   old = n->required_keys;
 
   if (old)
-  {
-    n->required_keys = g_strdup_printf ("%s, %s", old, key);
-    g_free (old);
-  }
+    {
+      n->required_keys = g_strdup_printf ("%s, %s", old, key);
+      g_free (old);
+    }
   else
     n->required_keys = g_strdup (key);
 
@@ -918,20 +929,22 @@ nvti_add_required_keys (nvti_t * n, const gchar * key)
  * @return 0 for success. 1 if n was NULL. 2 if key was NULL.
  */
 int
-nvti_add_mandatory_keys (nvti_t * n, const gchar * key)
+nvti_add_mandatory_keys (nvti_t *n, const gchar *key)
 {
-  gchar * old;
+  gchar *old;
 
-  if (! n) return (1);
-  if (! key) return (2);
+  if (!n)
+    return (1);
+  if (!key)
+    return (2);
 
   old = n->mandatory_keys;
 
   if (old)
-  {
-    n->mandatory_keys = g_strdup_printf ("%s, %s", old, key);
-    g_free (old);
-  }
+    {
+      n->mandatory_keys = g_strdup_printf ("%s, %s", old, key);
+      g_free (old);
+    }
   else
     n->mandatory_keys = g_strdup (key);
 
@@ -948,20 +961,22 @@ nvti_add_mandatory_keys (nvti_t * n, const gchar * key)
  * @return 0 for success. 1 if n was NULL. 2 if key was NULL.
  */
 int
-nvti_add_excluded_keys (nvti_t * n, const gchar * key)
+nvti_add_excluded_keys (nvti_t *n, const gchar *key)
 {
-  gchar * old;
+  gchar *old;
 
-  if (! n) return (1);
-  if (! key) return (2);
+  if (!n)
+    return (1);
+  if (!key)
+    return (2);
 
   old = n->excluded_keys;
 
   if (old)
-  {
-    n->excluded_keys = g_strdup_printf ("%s, %s", old, key);
-    g_free (old);
-  }
+    {
+      n->excluded_keys = g_strdup_printf ("%s, %s", old, key);
+      g_free (old);
+    }
   else
     n->excluded_keys = g_strdup (key);
 
@@ -978,20 +993,22 @@ nvti_add_excluded_keys (nvti_t * n, const gchar * key)
  * @return 0 for success. 1 if n was NULL. 2 if port was NULL.
  */
 int
-nvti_add_required_ports (nvti_t * n, const gchar * port)
+nvti_add_required_ports (nvti_t *n, const gchar *port)
 {
-  gchar * old;
+  gchar *old;
 
-  if (! n) return (1);
-  if (! port) return (2);
+  if (!n)
+    return (1);
+  if (!port)
+    return (2);
 
   old = n->required_ports;
 
   if (old)
-  {
-    n->required_ports = g_strdup_printf ("%s, %s", old, port);
-    g_free (old);
-  }
+    {
+      n->required_ports = g_strdup_printf ("%s, %s", old, port);
+      g_free (old);
+    }
   else
     n->required_ports = g_strdup (port);
 
@@ -1008,20 +1025,22 @@ nvti_add_required_ports (nvti_t * n, const gchar * port)
  * @return 0 for success. 1 if n was NULL. 2 if port was NULL.
  */
 int
-nvti_add_required_udp_ports (nvti_t * n, const gchar * port)
+nvti_add_required_udp_ports (nvti_t *n, const gchar *port)
 {
-  gchar * old;
+  gchar *old;
 
-  if (! n) return (1);
-  if (! port) return (2);
+  if (!n)
+    return (1);
+  if (!port)
+    return (2);
 
   old = n->required_udp_ports;
 
   if (old)
-  {
-    n->required_udp_ports = g_strdup_printf ("%s, %s", old, port);
-    g_free (old);
-  }
+    {
+      n->required_udp_ports = g_strdup_printf ("%s, %s", old, port);
+      g_free (old);
+    }
   else
     n->required_udp_ports = g_strdup (port);
 
@@ -1038,9 +1057,9 @@ nvti_add_required_udp_ports (nvti_t * n, const gchar * port)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_add_pref (nvti_t * n, nvtpref_t * np)
+nvti_add_pref (nvti_t *n, nvtpref_t *np)
 {
-  if (! n)
+  if (!n)
     return (-1);
 
   n->prefs = g_slist_append (n->prefs, np);
@@ -1078,7 +1097,7 @@ nvtis_new (void)
  * @param nvtis The collection of NVT Infos.
  */
 void
-nvtis_free (nvtis_t * nvtis)
+nvtis_free (nvtis_t *nvtis)
 {
   if (nvtis)
     g_hash_table_destroy (nvtis);
@@ -1091,7 +1110,7 @@ nvtis_free (nvtis_t * nvtis)
  * @param nvti  The NVT Info to add.
  */
 void
-nvtis_add (nvtis_t * nvtis, nvti_t * nvti)
+nvtis_add (nvtis_t *nvtis, nvti_t *nvti)
 {
   if (nvti)
     g_hash_table_insert (nvtis, (gpointer) nvti_oid (nvti), (gpointer) nvti);
@@ -1106,7 +1125,7 @@ nvtis_add (nvtis_t * nvtis, nvti_t * nvti)
  * @return The NVT Info, if found, else NULL.
  */
 nvti_t *
-nvtis_lookup (nvtis_t * nvtis, const char *oid)
+nvtis_lookup (nvtis_t *nvtis, const char *oid)
 {
   return g_hash_table_lookup (nvtis, oid);
 }

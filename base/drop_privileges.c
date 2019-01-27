@@ -40,12 +40,11 @@
  * @return \p errorcode
  */
 static gint
-drop_privileges_error (GError ** error, gint errorcode, const gchar * message)
+drop_privileges_error (GError **error, gint errorcode, const gchar *message)
 {
   g_set_error (error, GVM_DROP_PRIVILEGES, errorcode, "%s", message);
   return errorcode;
 }
-
 
 /**
  * @brief Drop privileges.
@@ -64,10 +63,9 @@ drop_privileges_error (GError ** error, gint errorcode, const gchar * message)
  *         otherwise and returns the error code.
  */
 int
-drop_privileges (gchar * username, GError ** error)
+drop_privileges (gchar *username, GError **error)
 {
-  g_return_val_if_fail (*error == NULL,
-                        GVM_DROP_PRIVILEGES_ERROR_ALREADY_SET);
+  g_return_val_if_fail (*error == NULL, GVM_DROP_PRIVILEGES_ERROR_ALREADY_SET);
 
   if (username == NULL)
     username = "nobody";
@@ -79,20 +77,17 @@ drop_privileges (gchar * username, GError ** error)
       if ((user_pw = getpwnam (username)))
         {
           if (initgroups (username, user_pw->pw_gid) != 0)
-            return drop_privileges_error
-                    (error,
-                     GVM_DROP_PRIVILEGES_FAIL_SUPPLEMENTARY,
-                     "Failed to drop supplementary groups privileges!\n");
+            return drop_privileges_error (
+              error, GVM_DROP_PRIVILEGES_FAIL_SUPPLEMENTARY,
+              "Failed to drop supplementary groups privileges!\n");
           if (setgid (user_pw->pw_gid) != 0)
-            return drop_privileges_error
-                    (error,
-                     GVM_DROP_PRIVILEGES_FAIL_DROP_GID,
-                     "Failed to drop group privileges!\n");
+            return drop_privileges_error (error,
+                                          GVM_DROP_PRIVILEGES_FAIL_DROP_GID,
+                                          "Failed to drop group privileges!\n");
           if (setuid (user_pw->pw_uid) != 0)
-            return drop_privileges_error
-                    (error,
-                     GVM_DROP_PRIVILEGES_FAIL_DROP_UID,
-                     "Failed to drop user privileges!\n");
+            return drop_privileges_error (error,
+                                          GVM_DROP_PRIVILEGES_FAIL_DROP_UID,
+                                          "Failed to drop user privileges!\n");
         }
       else
         {
@@ -105,8 +100,7 @@ drop_privileges (gchar * username, GError ** error)
     }
   else
     {
-      return drop_privileges_error (error,
-                                    GVM_DROP_PRIVILEGES_FAIL_NOT_ROOT,
+      return drop_privileges_error (error, GVM_DROP_PRIVILEGES_FAIL_NOT_ROOT,
                                     "Only root can drop its privileges.");
     }
 }

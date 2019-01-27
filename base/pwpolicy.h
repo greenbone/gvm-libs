@@ -27,7 +27,9 @@
 #ifndef _GVM_PWPOLICY_H
 #define _GVM_PWPOLICY_H
 
-char *gvm_validate_password (const char *, const char *);
-void gvm_disable_password_policy (void);
+char *
+gvm_validate_password (const char *, const char *);
+void
+gvm_disable_password_policy (void);
 
 #endif /*_GVM_PWPOLICY_H*/
