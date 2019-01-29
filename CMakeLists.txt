@@ -82,10 +82,6 @@ if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
   endif (EXISTS "${CMAKE_SOURCE_DIR}/.git/")
 endif (NOT CMAKE_BUILD_TYPE MATCHES "Release")
 
-# Set beta version if this is a beta release series,
-# unset if this is a stable release series.
-set (PROJECT_BETA_RELEASE 3)
-
 if (GIT_REVISION)
   set (PROJECT_VERSION_GIT "${GIT_REVISION}")
 endif (GIT_REVISION)
