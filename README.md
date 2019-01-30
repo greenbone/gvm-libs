@@ -60,6 +60,29 @@ request](https://github.com/greenbone/gvm-libs/pulls) on GitHub. Bigger changes
 need to be discussed with the development team via the [issues section at
 github](https://github.com/greenbone/gvm-libs/issues) first.
 
+### Code style and formatting
+
+Before creating a pull request, it is recommended to run the following command:
+
+    make format
+
+This reformats the new code to ensure that it follows the code style and
+formatting guidelines.
+
+### Static code analysis with the Clang Static Analyzer
+
+If you want to use the Clang Static Analyzer (http://clang-analyzer.llvm.org/)
+to do a static code analysis, you can do so by prefixing the configuration and
+build commands with `scan-build`:
+
+    scan-build cmake ..
+    scan-build make
+
+The tool will provide a hint on how to launch a web browser with the results.
+
+It is recommended to do this analysis in a separate, empty build directory and
+to empty the build directory before `scan-build` call.
+
 ## License
 
 Copyright (C) 2009-2019 [Greenbone Networks GmbH](https://www.greenbone.net/)
