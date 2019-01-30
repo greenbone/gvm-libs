@@ -72,6 +72,7 @@ Thereafter, the following commands are useful.
     make doc-full       # build more developer-oriented documentation
     make install        # install the build
     make rebuild_cache  # rebuild the cmake cache
+    make format         # code style and formatting
 
 Please note that you may have to execute `make install` as root, especially if
 you have specified a prefix for which your user does not have full permissions.
@@ -127,19 +128,3 @@ the single library modules:
 
 Once again, the `make install` command will build and install the requested
 modules.
-
-
-Static code analysis with the Clang Static Analyzer
----------------------------------------------------
-
-If you want to use the Clang Static Analyzer (http://clang-analyzer.llvm.org/)
-to do a static code analysis, you can do so by prefixing the configuration and
-build commands with `scan-build`:
-
-    scan-build cmake ..
-    scan-build make
-
-The tool will provide a hint on how to launch a web browser with the results.
-
-It is recommended to do this analysis in a separate, empty build directory and
-to empty the build directory before `scan-build` call.
