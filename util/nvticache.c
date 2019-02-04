@@ -185,6 +185,7 @@ nvticache_save ()
     }
   if ((feed_version = nvt_feed_version ()))
     kb_item_set_str (cache_kb, NVTICACHE_STR, feed_version, 0);
+  g_free (feed_version);
 }
 
 /**
@@ -624,5 +625,6 @@ nvticache_check_feed (void)
   cached = kb_item_get_str (cache_kb, NVTICACHE_STR);
   ret = strcmp (cached, current);
   g_free (cached);
+  g_free (current);
   return ret;
 }

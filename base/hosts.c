@@ -1375,7 +1375,10 @@ gvm_vhosts_exclude (gvm_host_t *host, const char *excluded_str)
   vhost = host->vhosts;
   excluded = g_strsplit (excluded_str, ",", 0);
   if (!excluded || !*excluded)
-    return ret;
+    {
+      g_strfreev (excluded);
+      return ret;
+    }
   while (vhost)
     {
       char **tmp = excluded;
