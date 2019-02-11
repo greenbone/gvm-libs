@@ -26,6 +26,7 @@
 #define _GVM_OSP_H
 
 #include <glib.h> /* for GHashTable, GSList */
+#include "../util/xmlutils.h"
 
 typedef struct osp_connection osp_connection_t;
 
@@ -53,6 +54,12 @@ osp_connection_new (const char *, int, const char *, const char *,
 int
 osp_get_version (osp_connection_t *, char **, char **, char **, char **,
                  char **, char **);
+
+int
+osp_get_vts_version (osp_connection_t *, char **);
+
+int
+osp_get_vts (osp_connection_t *, entity_t *);
 
 int
 osp_start_scan (osp_connection_t *, const char *, const char *, GHashTable *,
