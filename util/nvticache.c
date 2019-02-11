@@ -185,6 +185,7 @@ nvticache_save ()
     }
   if ((feed_version = nvt_feed_version ()))
     kb_item_set_str (cache_kb, NVTICACHE_STR, feed_version, 0);
+  g_free (feed_version);
 }
 
 /**
