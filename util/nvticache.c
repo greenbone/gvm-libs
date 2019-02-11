@@ -536,6 +536,7 @@ nvticache_get_prefs (const char *oid)
       np->name = array[0];
       np->type = array[1];
       np->dflt = array[2];
+      g_free (array);
       list = g_slist_append (list, np);
       element = element->next;
     }
