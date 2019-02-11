@@ -624,5 +624,6 @@ nvticache_check_feed (void)
   cached = kb_item_get_str (cache_kb, NVTICACHE_STR);
   ret = strcmp (cached, current);
   g_free (cached);
+  g_free (current);
   return ret;
 }
