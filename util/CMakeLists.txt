@@ -45,7 +45,7 @@ pkg_check_modules (UUID REQUIRED uuid>=2.25.0)
 pkg_check_modules (LIBSSH REQUIRED libssh>=0.6.0)
 
 # for kb we need libhiredis
-pkg_check_modules (REDIS hiredis>=0.10.1)
+pkg_check_modules (REDIS REQUIRED hiredis>=0.10.1)
 
 # Set NVTICACHE name with the version
 set (NVTICACHE_STR "nvticache${PROJECT_VERSION}")
