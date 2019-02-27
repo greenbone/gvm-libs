@@ -65,13 +65,14 @@
  *         released using @ref nvtpref_free .
  */
 nvtpref_t *
-nvtpref_new (gchar *name, gchar *type, gchar *dflt)
+nvtpref_new (int id, gchar *name, gchar *type, gchar *dflt)
 {
   nvtpref_t *np = g_malloc0 (sizeof (nvtpref_t));
 
   if (!np)
     return NULL;
 
+  np->id = id;
   if (name)
     np->name = g_strdup (name);
   if (type)
@@ -100,6 +101,20 @@ nvtpref_free (nvtpref_t *np)
   if (np->dflt)
     g_free (np->dflt);
   g_free (np);
+}
+
+/**
+ * @brief Get the ID of a NVT Preference.
+ *
+ * @param np The NVT Pref structure of which the Name should
+ *           be returned.
+ *
+ * @return The ID value.
+ */
+int
+nvtpref_id (const nvtpref_t *np)
+{
+  return np ? np->id : -1;
 }
 
 /**

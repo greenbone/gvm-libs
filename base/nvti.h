@@ -37,21 +37,29 @@
  */
 typedef struct nvtpref
 {
+  int id;      ///< Preference ID
   gchar *type; ///< Preference type
   gchar *name; ///< Name of the preference
   gchar *dflt; ///< Default value of the preference
 } nvtpref_t;
 
 nvtpref_t *
-nvtpref_new (gchar *, gchar *, gchar *);
+nvtpref_new (int, gchar *, gchar *, gchar *);
+
 void
 nvtpref_free (nvtpref_t *);
+
 gchar *
 nvtpref_name (const nvtpref_t *);
+
 gchar *
 nvtpref_type (const nvtpref_t *);
+
 gchar *
 nvtpref_default (const nvtpref_t *);
+
+int
+nvtpref_id (const nvtpref_t *);
 
 /**
  * @brief The structure of a information record that corresponds to a NVT.

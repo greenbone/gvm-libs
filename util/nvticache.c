@@ -530,12 +530,13 @@ nvticache_get_prefs (const char *oid)
       nvtpref_t *np;
       char **array = g_strsplit (element->v_str, "|||", -1);
 
-      assert (array[2]);
-      assert (!array[3]);
+      assert (array[3]);
+      assert (!array[4]);
       np = g_malloc0 (sizeof (nvtpref_t));
-      np->name = array[0];
-      np->type = array[1];
-      np->dflt = array[2];
+      np->id = atoi (array[0]);
+      np->name = array[1];
+      np->type = array[2];
+      np->dflt = array[3];
       g_free (array);
       list = g_slist_append (list, np);
       element = element->next;
