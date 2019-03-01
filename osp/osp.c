@@ -26,7 +26,6 @@
 
 #include "../base/hosts.h"       /* for gvm_get_host_type */
 #include "../util/serverutils.h" /* for gvm_server_close, gvm_server_open_w... */
-#include "../util/xmlutils.h" /* for entity_child, entity_text, free_entity */
 
 #include <assert.h>        /* for assert */
 #include <gnutls/gnutls.h> /* for gnutls_session_int, gnutls_session_t */
@@ -281,6 +280,71 @@ err_get_version:
     g_free (*p_version);
   free_entity (entity);
   return 1;
+}
+
+/**
+ * @brief Get the VTs version from an OSP server.
+ *
+ * @param[in]   connection    Connection to an OSP server.
+ * @param[out]  vts_version   Parsed scanner version.
+ *
+ * @return 0 if success, 1 if error.
+ */
+int
+osp_get_vts_version (osp_connection_t *connection, char **vts_version)
+{
+  entity_t entity, vts, version;
+
+  if (!connection)
+    return 1;
+
+  if (osp_send_command (connection, &entity, "<get_version/>"))
+    return 1;
+
+  vts = entity_child (entity, "vts");
+  if (!vts)
+    {
+      g_warning ("%s: element VTS missing.", __FUNCTION__);
+      free_entity (entity);
+      return 1;
+    }
+
+  version = entity_child (vts, "version");
+  if (!version)
+    {
+      g_warning ("%s: element VERSION missing.", __FUNCTION__);
+      free_entity (entity);
+      return 1;
+    }
+
+  if (vts_version)
+    *vts_version = g_strdup (entity_text (version));
+
+  free_entity (entity);
+  return 0;
+}
+
+/**
+ * @brief Get the VTs version from an OSP server.
+ *
+ * @param[in]   connection    Connection to an OSP server.
+ * @param[out]  vtss          VTs.
+ *
+ * @return 0 if success, 1 if error.
+ */
+int
+osp_get_vts (osp_connection_t *connection, entity_t *vts)
+{
+  if (!connection)
+    return 1;
+
+  if (vts == NULL)
+    return 1;
+
+  if (osp_send_command (connection, vts, "<get_vts/>"))
+    return 1;
+
+  return 0;
 }
 
 /**
