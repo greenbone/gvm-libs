@@ -1119,7 +1119,14 @@ osp_credential_free (osp_credential_t *credential)
   g_free (credential);
 }
 
-
+/**
+ * @brief Create a new OSP target.
+ *
+ * @param[in]  hosts  The hostnames of the target.
+ * @param[in]  ports  The ports of the target.
+ *
+ * @return The newly allocated osp_target_t.
+ */
 osp_target_t *
 osp_target_new (const char *hosts, const char *ports)
 {
@@ -1132,6 +1139,11 @@ osp_target_new (const char *hosts, const char *ports)
   return new_target;
 }
 
+/**
+ * @brief Free an OSP target, including all added credentials.
+ *
+ * @param[in]  target  The OSP target to free.
+ */
 void
 osp_target_free (osp_target_t *target)
 {
@@ -1145,6 +1157,12 @@ osp_target_free (osp_target_t *target)
   g_free (target);
 }
 
+/**
+ * @brief Add a credential to an OSP target.
+ *
+ * @param[in]  target       The OSP target to add the credential to.
+ * @param[in]  credential   The credential to add. Will be freed with target.
+ */
 void
 osp_target_add_credential(osp_target_t *target, osp_credential_t *credential)
 {
@@ -1154,6 +1172,13 @@ osp_target_add_credential(osp_target_t *target, osp_credential_t *credential)
   target->credentials = g_slist_prepend (target->credentials, credential);
 }
 
+/**
+ * @brief Create a new OSP VT group.
+ *
+ * @param[in]  filter  The filter string for the VT group.
+ *
+ * @return  The newly allocated VT group.
+ */
 osp_vt_group_t *
 osp_vt_group_new (const char *filter)
 {
@@ -1165,6 +1190,11 @@ osp_vt_group_new (const char *filter)
   return new_vt_group;
 }
 
+/**
+ * @brief Free a OSP VT group.
+ *
+ * @param[in]  vt_group  The VT group to free.
+ */
 void
 osp_vt_group_free (osp_vt_group_t *vt_group)
 {
@@ -1175,6 +1205,13 @@ osp_vt_group_free (osp_vt_group_t *vt_group)
   g_free (vt_group);
 }
 
+/**
+ * @brief Create a new single OSP VT.
+ *
+ * @param[in]  vt_id  The id of the VT.
+ *
+ * @return  The newly allocated single VT.
+ */
 osp_vt_single_t *
 osp_vt_single_new (const char *vt_id)
 {
@@ -1188,6 +1225,11 @@ osp_vt_single_new (const char *vt_id)
   return new_vt_single;
 }
 
+/**
+ * @brief Free a single OSP VT, including all preference values.
+ *
+ * @param[in]  vt_single  The OSP VT to free.
+ */
 void
 osp_vt_single_free (osp_vt_single_t *vt_single)
 {
@@ -1200,6 +1242,14 @@ osp_vt_single_free (osp_vt_single_t *vt_single)
   g_free (vt_single);
 }
 
+/**
+ * @brief Add a preference value to an OSP VT.
+ * This creates a copy of the name and value.
+ *
+ * @param[in]  vt_single  The VT to add the preference to.
+ * @param[in]  name       The name / identifier of the preference.
+ * @param[in]  value      The value of the preference.
+ */
 void
 osp_vt_single_add_value(osp_vt_single_t *vt_single,
                         const char *name, const char *value)
