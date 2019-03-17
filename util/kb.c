@@ -108,84 +108,6 @@ try_database_index (struct kb_redis *kbr, int index)
   return rc;
 }
 
-/* Redis 2.4.* compatibility mode.
- *
- * Before 2.6.* redis won't tell its clients how many databases have been
- * configured. We can find it empirically by attempting to select a given
- * DB and seeing whether we get an error or not.
- */
-/**
- * @brief Max number of configured DB.
- */
-#define MAX_DB_INDEX__24 1000
-
-/**
- * @brief Set the number of databases have been configured
- *        into kbr struct. (For Redis 2.4.* compatibility).
- * @param[in] kbr Subclass of struct kb where to save the max db index founded.
- * @return 0 on success, -1 on error.
- */
-static int
-fetch_max_db_index_compat (struct kb_redis *kbr)
-{
-  redisContext *ctx = kbr->rctx;
-  redisReply *rep;
-  int min, max;
-  int rc = 0;
-
-  min = 1;
-  max = MAX_DB_INDEX__24;
-
-  while (min < max)
-    {
-      int current;
-
-      current = min + ((max - min) / 2);
-
-      rep = redisCommand (ctx, "SELECT %d", current);
-      if (rep == NULL)
-        {
-          g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-                 "%s: redis command failed with '%s'", __func__, ctx->errstr);
-          return -1;
-        }
-
-      switch (rep->type)
-        {
-        case REDIS_REPLY_ERROR:
-          max = current;
-          break;
-
-        case REDIS_REPLY_STATUS:
-          min = current + 1;
-          break;
-
-        default:
-          g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-                 "%s: unexpected reply of type %d", __func__, rep->type);
-          freeReplyObject (rep);
-          return -1;
-        }
-      freeReplyObject (rep);
-    }
-
-  kbr->max_db = min;
-
-  /* Go back to DB #0 */
-  rep = redisCommand (ctx, "SELECT 0");
-  if (rep == NULL)
-    {
-      g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-             "%s: DB selection failed with '%s'", __func__, ctx->errstr);
-      rc = -1;
-    }
-
-  if (rep)
-    freeReplyObject (rep);
-
-  return rc;
-}
-
 /**
  * @brief Set the number of databases have been configured
  *        into kbr struct.
@@ -216,12 +138,7 @@ fetch_max_db_index (struct kb_redis *kbr)
       goto err_cleanup;
     }
 
-  if (rep->elements == 0)
-    {
-      /* Redis 2.4 compatibility mode. Suboptimal... */
-      rc = fetch_max_db_index_compat (kbr);
-    }
-  else if (rep->elements == 2)
+  if (rep->elements == 2)
     {
       kbr->max_db = (unsigned) atoi (rep->element[1]->str);
     }
