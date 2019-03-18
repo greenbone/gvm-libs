@@ -84,7 +84,7 @@ nvticache_init (const char *src, const char *kb_path)
     return 0;
 
   if (kb_new (&cache_kb, kb_path)
-      || kb_item_set_str (cache_kb, NVTICACHE_STR, "1", 0))
+      || kb_item_set_str (cache_kb, NVTICACHE_STR, "0", 0))
     return -1;
   return 0;
 }
@@ -177,14 +177,21 @@ nvt_feed_version ()
 void
 nvticache_save ()
 {
-  char *feed_version;
+  char *feed_version, *old_version;
   if (cache_kb && !cache_saved)
     {
       kb_save (cache_kb);
       cache_saved = 1;
     }
-  if ((feed_version = nvt_feed_version ()))
-    kb_item_set_str (cache_kb, NVTICACHE_STR, feed_version, 0);
+  old_version = nvticache_feed_version ();
+  feed_version = nvt_feed_version ();
+  if (g_strcmp0 (old_version, feed_version))
+    {
+      kb_item_set_str (cache_kb, NVTICACHE_STR, feed_version, 0);
+      g_message ("Updated NVT cache from version %s to %s", old_version,
+                 feed_version);
+    }
+  g_free (old_version);
   g_free (feed_version);
 }
 
