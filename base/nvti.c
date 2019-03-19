@@ -65,13 +65,14 @@
  *         released using @ref nvtpref_free .
  */
 nvtpref_t *
-nvtpref_new (gchar *name, gchar *type, gchar *dflt)
+nvtpref_new (int id, gchar *name, gchar *type, gchar *dflt)
 {
   nvtpref_t *np = g_malloc0 (sizeof (nvtpref_t));
 
   if (!np)
     return NULL;
 
+  np->id = id;
   if (name)
     np->name = g_strdup (name);
   if (type)
@@ -93,13 +94,24 @@ nvtpref_free (nvtpref_t *np)
   if (!np)
     return;
 
-  if (np->name)
-    g_free (np->name);
-  if (np->type)
-    g_free (np->type);
-  if (np->dflt)
-    g_free (np->dflt);
+  g_free (np->name);
+  g_free (np->type);
+  g_free (np->dflt);
   g_free (np);
+}
+
+/**
+ * @brief Get the ID of a NVT Preference.
+ *
+ * @param np The NVT Pref structure of which the Name should
+ *           be returned.
+ *
+ * @return The ID value.
+ */
+int
+nvtpref_id (const nvtpref_t *np)
+{
+  return np ? np->id : -1;
 }
 
 /**
@@ -169,41 +181,21 @@ nvti_free (nvti_t *n)
   if (!n)
     return;
 
-  if (n->oid)
-    g_free (n->oid);
-  if (n->name)
-    g_free (n->name);
-  if (n->cve)
-    g_free (n->cve);
-  if (n->bid)
-    g_free (n->bid);
-  if (n->xref)
-    g_free (n->xref);
-  if (n->tag)
-    g_free (n->tag);
-  if (n->cvss_base)
-    g_free (n->cvss_base);
-  if (n->dependencies)
-    g_free (n->dependencies);
-  if (n->required_keys)
-    g_free (n->required_keys);
-  if (n->mandatory_keys)
-    g_free (n->mandatory_keys);
-  if (n->excluded_keys)
-    g_free (n->excluded_keys);
-  if (n->required_ports)
-    g_free (n->required_ports);
-  if (n->required_udp_ports)
-    g_free (n->required_udp_ports);
-  if (n->family)
-    g_free (n->family);
-  if (n->prefs)
-    {
-      int i, len = g_slist_length (n->prefs);
-      for (i = 0; i < len; i++)
-        nvtpref_free (g_slist_nth_data (n->prefs, i));
-      g_slist_free (n->prefs);
-    }
+  g_free (n->oid);
+  g_free (n->name);
+  g_free (n->cve);
+  g_free (n->bid);
+  g_free (n->xref);
+  g_free (n->tag);
+  g_free (n->cvss_base);
+  g_free (n->dependencies);
+  g_free (n->required_keys);
+  g_free (n->mandatory_keys);
+  g_free (n->excluded_keys);
+  g_free (n->required_ports);
+  g_free (n->required_udp_ports);
+  g_free (n->family);
+  g_slist_free_full (n->prefs, (void (*) (void *)) nvtpref_free);
   g_free (n);
 }
 
