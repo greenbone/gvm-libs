@@ -1165,34 +1165,46 @@ openvas_hosts_free (openvas_hosts_t *hosts)
 void
 openvas_hosts_shuffle (openvas_hosts_t *hosts)
 {
-  int count;
-  GList *new_list;
+  size_t i = 0;
   GRand *rand;
+  GList *element;
+  void **shuffle_array;
 
   if (hosts == NULL)
     return;
 
-  count = openvas_hosts_count (hosts);
-  new_list = NULL;
-
-  rand = g_rand_new ();
-
-  while (count)
+  /* Store all host pointers in an array. */
+  shuffle_array = g_malloc0 (hosts->count * sizeof (openvas_host_t *));
+  element = hosts->hosts;
+  while (element)
     {
-      GList *element;
-
-      /* Get element from random position [0, count[. */
-      element = g_list_nth (hosts->hosts, g_rand_int_range (rand, 0, count));
-      /* Remove it. */
-      hosts->hosts = g_list_remove_link (hosts->hosts, element);
-      /* Insert it in new list */
-      new_list = g_list_concat (element, new_list);
-      count--;
+      shuffle_array[i] = element->data;
+      element = element->next;
+      i++;
     }
-  hosts->hosts = new_list;
-  hosts->current = hosts->hosts;
+  /* Shuffle the array. */
+  rand = g_rand_new ();
+  for (i = 0; i < hosts->count; i++)
+    {
+      void *tmp;
+      int j = g_rand_int_range (rand, 0, hosts->count);
 
+      tmp = shuffle_array[i];
+      shuffle_array[i] = shuffle_array[j];
+      shuffle_array[j] = tmp;
+    }
+  /* Insert shuffled hosts in the list. */
+  element = hosts->hosts;
+  for (i = 0; i < hosts->count; i++)
+    {
+      element->data = shuffle_array[i];
+      element = element->next;
+    }
+
+  hosts->current = hosts->hosts;
   g_rand_free (rand);
+  g_free (shuffle_array);
+
 }
 
 /**
