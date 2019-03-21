@@ -1314,6 +1314,7 @@ void
 gvm_hosts_resolve (gvm_hosts_t *hosts)
 {
   gvm_host_t *host;
+  int new_entries = 0;
 
   hosts->current = hosts->hosts;
 
@@ -1350,6 +1351,7 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
           hosts->hosts = g_list_prepend (hosts->hosts, new);
           hosts->count++;
           tmp = tmp->next;
+          new_entries = 1;
         }
       if (!list)
         g_warning ("Couldn't resolve hostname %s", host->name);
@@ -1362,7 +1364,8 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
       hosts->removed++;
       g_slist_free_full (list, g_free);
     }
-  gvm_hosts_deduplicate (hosts);
+  if (new_entries)
+    gvm_hosts_deduplicate (hosts);
 }
 
 /**
