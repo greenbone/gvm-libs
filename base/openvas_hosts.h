@@ -39,6 +39,7 @@
 
 #include <glib.h>
 #include <ctype.h>
+#include <malloc.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

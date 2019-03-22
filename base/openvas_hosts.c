@@ -895,6 +895,7 @@ openvas_hosts_deduplicate (openvas_hosts_t *hosts)
   hosts->count -= duplicates;
   hosts->removed += duplicates;
   hosts->current = hosts->hosts;
+  malloc_trim (0);
 }
 
 /**
@@ -1097,6 +1098,7 @@ openvas_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
   hosts->current = hosts->hosts;
 
   g_strfreev (split);
+  malloc_trim (0);
   return hosts;
 }
 
