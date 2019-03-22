@@ -1146,8 +1146,10 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
   /* Reverse list, as we were prepending (for performance) to the list. */
   hosts->hosts = g_list_reverse (hosts->hosts);
 
-  /* Remove duplicated values. */
-  gvm_hosts_deduplicate (hosts);
+  /* No need to check for duplicates when a hosts string contains a
+   * single (IP/Hostname/Range/Subnetwork) entry. */
+  if (g_strv_length (split) > 1)
+    gvm_hosts_deduplicate (hosts);
 
   /* Set current to start of hosts list. */
   hosts->current = hosts->hosts;
