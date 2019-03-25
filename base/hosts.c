@@ -1371,6 +1371,7 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
     }
   if (new_entries)
     gvm_hosts_deduplicate (hosts);
+  hosts->current = hosts->hosts;
 }
 
 /**
