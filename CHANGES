@@ -5,7 +5,30 @@ For detailed code changes, please visit
  https://github.com/greenbone/gvm-libs/commits/master
 or get the entire source code repository and view log history:
 $ git clone https://github.com/greenbone/gvm-libs.git
-$ cd gvm-libs && git checkout gvm-libs-1.0 && git log
+$ cd gvm-libs && git checkout gvm-libs-10.0 && git log
+
+gvm-libs 10.0.0 (2019-04-05)
+
+This is the first release of the gvm-libs module 10.0 for the Greenbone
+Vulnerability Management 10 (GVM-10) framework.
+
+It derives from the former openvas-libraries module. Any elements of the
+old module that were used by OpenVAS Scanner only, were moved into the
+module openvas-scanner. Also the protocol OMP was renamed to GMP.
+
+Compared to the previous gvm-libs major release, it covers
+various improvements for the GVM services and applications, as well as a
+number of significant advances and clean-ups.
+
+Main changes compared to gvm-libs 1.0:
+* Performance fixes related to handling large sets of hosts have been done.
+* An issue which caused duplicated or removed values in the nvticache as
+  addressed.
+* The function gvm_hosts_shuffle has been improved.
+* Performance fixes related to handling large sets of hosts have been done.
+* Several code improvements and clean-ups have been done.
+* Memory management issues have been addressed.
+
 
 gvm-libs 1.0.0 (2019-01-31)
 
