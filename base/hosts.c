@@ -1329,11 +1329,14 @@ gvm_hosts_reverse (gvm_hosts_t *hosts)
  * iterator.
  *
  * @param[in] hosts         The hosts collection from which to exclude.
+ *
+ * @return List of unresolved hostnames.
  */
-void
+GSList *
 gvm_hosts_resolve (gvm_hosts_t *hosts)
 {
   size_t i, new_entries = 0;
+  GSList *unresolved = NULL;
 
   for (i = 0; i < hosts->count; i++)
     {
@@ -1372,19 +1375,20 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
         }
       /* Remove hostname from list, as it was either replaced by IPs, or
        * is unresolvable. */
-      gvm_host_free (host);
       hosts->hosts[i] = NULL;
       hosts->count--;
       hosts->removed++;
       if (!list)
-        g_warning ("Couldn't resolve hostname %s", host->name);
+        unresolved = g_slist_prepend (unresolved, g_strdup (host->name));
       else
         gvm_hosts_fill_gaps (hosts);
+      gvm_host_free (host);
       g_slist_free_full (list, g_free);
     }
   if (new_entries)
     gvm_hosts_deduplicate (hosts);
   hosts->current = 0;
+  return unresolved;
 }
 
 /**
