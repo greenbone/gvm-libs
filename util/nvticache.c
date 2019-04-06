@@ -585,7 +585,7 @@ nvticache_delete (const char *oid)
   assert (oid);
 
   filename = nvticache_get_filename (oid);
-  g_snprintf (pattern, sizeof (pattern), "prefs:%s", oid);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:prefs", oid);
   kb_del_items (cache_kb, pattern);
   g_snprintf (pattern, sizeof (pattern), "nvt:%s", oid);
   kb_del_items (cache_kb, pattern);
