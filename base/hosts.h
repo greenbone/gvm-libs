@@ -118,7 +118,7 @@ gvm_hosts_shuffle (gvm_hosts_t *);
 void
 gvm_hosts_reverse (gvm_hosts_t *);
 
-void
+GSList *
 gvm_hosts_resolve (gvm_hosts_t *);
 
 int
