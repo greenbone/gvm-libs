@@ -569,6 +569,8 @@ redis_find (const char *kb_path, const char *key)
           if (rep != NULL)
             freeReplyObject (rep);
           i++;
+          redisFree (kbr->rctx);
+          kbr->rctx = NULL;
           continue;
         }
       freeReplyObject (rep);
