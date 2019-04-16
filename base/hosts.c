@@ -1078,7 +1078,7 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
             gvm_host_t *host = gvm_host_new ();
             host->type = host_type;
             if (host_type == HOST_TYPE_NAME)
-              host->name = g_strdup (stripped);
+              host->name = g_ascii_strdown (stripped, -1);
             else if (host_type == HOST_TYPE_IPV4)
               {
                 if (inet_pton (AF_INET, stripped, &host->addr) != 1)
@@ -1419,7 +1419,7 @@ gvm_vhosts_exclude (gvm_host_t *host, const char *excluded_str)
 
       while (*tmp)
         {
-          if (!strcmp (value, g_strstrip (*tmp)))
+          if (!strcasecmp (value, g_strstrip (*tmp)))
             {
               gvm_vhost_free (vhost->data);
               host->vhosts = vhost = g_slist_delete_link (host->vhosts, vhost);
@@ -1559,7 +1559,7 @@ gvm_host_reverse_lookup (gvm_host_t *host)
           int ret = getnameinfo ((struct sockaddr *) &sa, sizeof (sa), hostname,
                                  sizeof (hostname), NULL, 0, NI_NAMEREQD);
           if (!ret)
-            return g_strdup (hostname);
+            return g_ascii_strdown (hostname, -1);
           if (ret != EAI_AGAIN)
             break;
         }
@@ -1578,7 +1578,7 @@ gvm_host_reverse_lookup (gvm_host_t *host)
                        sizeof (hostname), NULL, 0, NI_NAMEREQD))
         return NULL;
       else
-        return g_strdup (hostname);
+        return g_ascii_strdown (hostname, -1);
     }
   else
     return NULL;
@@ -1607,7 +1607,7 @@ host_name_verify (gvm_host_t *host, const char *value)
     {
       char buffer[INET6_ADDRSTRLEN];
       addr6_to_str (tmp->data, buffer);
-      if (!strcmp (host_str, buffer))
+      if (!strcasecmp (host_str, buffer))
         {
           ret = 0;
           break;
@@ -1646,7 +1646,7 @@ gvm_host_add_reverse_lookup (gvm_host_t *host)
   vhosts = host->vhosts;
   while (vhosts)
     {
-      if (!strcmp (((gvm_vhost_t *) vhosts->data)->value, value))
+      if (!strcasecmp (((gvm_vhost_t *) vhosts->data)->value, value))
         {
           g_free (value);
           return;
