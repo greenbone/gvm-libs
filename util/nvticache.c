@@ -149,12 +149,16 @@ nvt_feed_version ()
 {
   char filename[2048], *fcontent = NULL, *plugin_set;
   GError *error = NULL;
+  static int msg_shown = 0;
 
   g_snprintf (filename, sizeof (filename), "%s/plugin_feed_info.inc", src_path);
   if (!g_file_get_contents (filename, &fcontent, NULL, &error))
     {
-      if (error)
-        g_warning ("nvt_feed_version: %s", error->message);
+      if (error && msg_shown == 0)
+	{
+	  g_warning ("nvt_feed_version: %s", error->message);
+	  msg_shown = 1;
+	}
       g_error_free (error);
       return NULL;
     }
@@ -165,7 +169,7 @@ nvt_feed_version ()
       g_free (fcontent);
       return NULL;
     }
-
+  msg_shown = 0;
   plugin_set = g_strndup (plugin_set + 14, 12);
   g_free (fcontent);
   return plugin_set;
