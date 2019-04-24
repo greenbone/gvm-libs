@@ -352,7 +352,8 @@ get_redis_ctx (struct kb_redis *kbr)
       rc = select_database (kbr);
       if (rc)
         {
-          g_debug ("%s: No redis DB available, retrying in %ds...", __func__,
+          g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+                 "%s: No redis DB available, retrying in %ds...", __func__,
                    KB_RETRY_DELAY);
           sleep (KB_RETRY_DELAY);
           redisFree (kbr->rctx);
