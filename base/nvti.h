@@ -62,6 +62,19 @@ int
 nvtpref_id (const nvtpref_t *);
 
 /**
+ * @brief The structure for a cross reference of a VT.
+ *
+ * The elements of this structure should never be accessed directly.
+ * Only the functions corresponding to this module should be used.
+ */
+typedef struct vtref
+{
+  gchar *type;     ///< Reference type ("cve", "bid", ...)
+  gchar *ref_id;   ///< The actual reference ID ("CVE-2018-1234", "https://example.org")
+  gchar *ref_text; ///< Optional additional text
+} vtref_t;
+
+/**
  * @brief The structure of a information record that corresponds to a NVT.
  *
  * The elements of this structure should never be accessed directly.
@@ -75,8 +88,6 @@ typedef struct nvti
   gchar *cve;       /**< @brief List of CVEs, this NVT corresponds to */
   gchar *bid;       /**< @brief List of Bugtraq IDs, this NVT
                                 corresponds to */
-  gchar *xref;      /**< @brief List of Cross-references, this NVT
-                                corresponds to */
   gchar *tag;       /**< @brief List of tags attached to this NVT */
   gchar *cvss_base; /**< @brief CVSS base score for this NVT. */
 
@@ -88,6 +99,7 @@ typedef struct nvti
   gchar
     *required_udp_ports; /**< @brief List of required UDP ports of this NVT*/
 
+  GSList *refs;  /**< @brief Collection of VT references */
   GSList *prefs; /**< @brief Collection of NVT preferences */
 
   // The following are not settled yet.

@@ -47,9 +47,81 @@
 #include "nvti.h"
 
 #include <stdio.h>
+#include <string.h> // for strcmp
 
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  nvti"
+
+/* VT references */
+
+/**
+ * @brief Create a new vtref structure filled with the given values.
+ *
+ * @param type The type to be set. A copy will created of this.
+ *
+ * @param ref_id The actual reference to be set. A copy will created of this.
+ *
+ * @param ref_text The optional text accompanying a reference. A copy will created of this.
+ *
+ * @return NULL in case the memory could not be allocated.
+ *         Else a vtref structure which needs to be
+ *         released using @ref vtref_free .
+ */
+vtref_t *
+vtref_new (gchar *type, gchar *ref_id, gchar *ref_text)
+{
+  vtref_t *ref = g_malloc0 (sizeof (vtref_t));
+
+  if (!ref)
+    return NULL;
+
+  if (type)
+    ref->type = g_strdup (type);
+  if (ref_id)
+    ref->ref_id = g_strdup (ref_id);
+  if (ref_text)
+    ref->ref_text = g_strdup (ref_text);
+
+  return (ref);
+}
+
+/**
+ * @brief Free memory of a vtref structure.
+ *
+ * @param np The structure to be freed.
+ */
+void
+vtref_free (vtref_t *ref)
+{
+  if (!ref)
+    return;
+
+  g_free (ref->type);
+  g_free (ref->ref_id);
+  g_free (ref->ref_text);
+  g_free (ref);
+}
+
+/**
+ * @brief Add a reference to the VT Info.
+ *
+ * @param vt  The VT Info structure.
+ *
+ * @param ref The VT reference to add.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_add_ref (nvti_t *vt, vtref_t *ref)
+{
+  if (!vt)
+    return (-1);
+
+  vt->refs = g_slist_append (vt->refs, ref);
+  return (0);
+}
+
+/* VT preferences */
 
 /**
  * @brief Create a new nvtpref structure filled with the given values.
@@ -185,7 +257,6 @@ nvti_free (nvti_t *n)
   g_free (n->name);
   g_free (n->cve);
   g_free (n->bid);
-  g_free (n->xref);
   g_free (n->tag);
   g_free (n->cvss_base);
   g_free (n->dependencies);
@@ -195,6 +266,7 @@ nvti_free (nvti_t *n)
   g_free (n->required_ports);
   g_free (n->required_udp_ports);
   g_free (n->family);
+  g_slist_free_full (n->refs, (void (*) (void *)) vtref_free);
   g_slist_free_full (n->prefs, (void (*) (void *)) nvtpref_free);
   g_free (n);
 }
@@ -266,7 +338,28 @@ nvti_bid (const nvti_t *n)
 gchar *
 nvti_xref (const nvti_t *n)
 {
-  return (n ? n->xref : NULL);
+  gchar *xrefs, *xrefs2;
+  vtref_t * ref;
+  guint i;
+
+  if (! n) return (NULL);
+
+  for (i = 0; i < g_slist_length (n->refs); i ++)
+    {
+      ref = g_slist_nth_data (n->refs, i);
+      if ((strcmp (ref->type, "cve") != 0) &&
+          (strcmp (ref->type, "bid") != 0))
+        { // if it is neither cve nor bid, then it is some xref
+          if (xrefs)
+            xrefs2 = g_strdup_printf ("%s,%s:%s", xrefs, ref->type, ref->ref_id);
+	  else
+            xrefs2 = g_strdup_printf ("%s:%s", ref->type, ref->ref_id);
+	  g_free (xrefs);
+	  xrefs = xrefs2;
+        }
+    }
+
+  return (xrefs);
 }
 
 /**
@@ -546,15 +639,32 @@ nvti_set_bid (nvti_t *n, const gchar *bid)
 int
 nvti_set_xref (nvti_t *n, const gchar *xref)
 {
-  if (!n)
-    return (-1);
+  gchar **split, **item;
 
-  if (n->xref)
-    g_free (n->xref);
-  if (xref && xref[0])
-    n->xref = g_strdup (xref);
-  else
-    n->xref = NULL;
+  split = g_strsplit (xref, ",", 0);
+  item = split;
+  while (*item)
+    {
+      gchar *type_and_id;
+      gchar **split2;
+
+      type_and_id = *item;
+      g_strstrip (type_and_id);
+
+      if ((strcmp (type_and_id, "") == 0) || (strcmp (type_and_id, "NOXREF")) == 0)
+        {
+          item++;
+          continue;
+        }
+
+      split2 = g_strsplit (type_and_id, ":", 2);
+      if (split2[0] && split2[1])
+        n->refs =
+          g_slist_append (n->refs, vtref_new (split2[0], split2[1], ""));
+
+      item++;
+    }
+  g_strfreev (split);
   return (0);
 }
 
