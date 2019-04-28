@@ -255,7 +255,6 @@ nvti_free (nvti_t *n)
 
   g_free (n->oid);
   g_free (n->name);
-  g_free (n->cve);
   g_free (n->tag);
   g_free (n->cvss_base);
   g_free (n->dependencies);
@@ -309,7 +308,28 @@ nvti_name (const nvti_t *n)
 gchar *
 nvti_cve (const nvti_t *n)
 {
-  return (n ? n->cve : NULL);
+  // @todo: actually, the returned string now needs to be free'd
+  gchar *cves, *cves2;
+  vtref_t * ref;
+  guint i;
+
+  if (! n) return (NULL);
+
+  for (i = 0; i < g_slist_length (n->refs); i ++)
+    {
+      ref = g_slist_nth_data (n->refs, i);
+      if (strcmp (ref->type, "cve") == 0)
+        {
+          if (cves)
+            cves2 = g_strdup_printf ("%s,%s", cves, ref->ref_id);
+	  else
+            cves2 = g_strdup_printf ("%s", ref->ref_id);
+	  g_free (cves);
+	  cves = cves2;
+        }
+    }
+
+  return (cves);
 }
 
 /**
@@ -616,13 +636,8 @@ nvti_set_name (nvti_t *n, const gchar *name)
 int
 nvti_set_cve (nvti_t *n, const gchar *cve)
 {
-  if (!n)
-    return (-1);
-
-  if (n->cve)
-    g_free (n->cve);
-  n->cve = g_strdup (cve);
-  return (0);
+  // @todo: Is this method expected to delete previous cve entries?
+  return (nvti_add_cve (n, cve));
 }
 
 /**
@@ -946,29 +961,40 @@ nvti_set_category (nvti_t *n, const gint category)
  *
  * @param n The NVT Info structure.
  *
- * @param cve_id The CVE ID to add. A copy will be created from this.
+ * @param cve The CVE ID to add. A copy will be created from this.
  *
  * @return 0 for success. 1 if n was NULL, 2 if cve_id was NULL.
  */
 int
-nvti_add_cve (nvti_t *n, const gchar *cve_id)
+nvti_add_cve (nvti_t *n, const gchar *cve)
 {
-  gchar *old;
+  gchar **split, **item;
 
   if (!n)
     return (1);
-  if (!cve_id)
+  if (!cve)
     return (2);
 
-  old = n->cve;
-
-  if (old)
+  split = g_strsplit (cve, ",", 0);
+  item = split;
+  while (*item)
     {
-      n->cve = g_strdup_printf ("%s, %s", old, cve_id);
-      g_free (old);
+      gchar *id;
+
+      id = *item;
+      g_strstrip (id);
+
+      if ((strcmp (id, "") == 0) || (strcmp (id, "NOCVE")) == 0)
+        {
+          item++;
+          continue;
+        }
+
+      nvti_add_ref (n, vtref_new ("cve", id, ""));
+
+      item++;
     }
-  else
-    n->cve = g_strdup (cve_id);
+  g_strfreev (split);
 
   return (0);
 }
@@ -978,7 +1004,7 @@ nvti_add_cve (nvti_t *n, const gchar *cve_id)
  *
  * @param n The NVT Info structure.
  *
- * @param bid_id The BID ID to add. A copy will be created from this.
+ * @param bid The BID ID to add. A copy will be created from this.
  *
  * @return 0 for success. 1 if n was NULL. 2 if bid_id was NULL.
  */
@@ -988,7 +1014,9 @@ nvti_add_bid (nvti_t *n, const gchar *bid)
   gchar **split, **item;
 
   if (!n)
-    return (-1);
+    return (1);
+  if (!bid)
+    return (2);
 
   split = g_strsplit (bid, ",", 0);
   item = split;

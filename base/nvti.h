@@ -85,7 +85,6 @@ typedef struct nvti
   gchar *oid;  /**< @brief Object ID */
   gchar *name; /**< @brief The name */
 
-  gchar *cve;       /**< @brief List of CVEs, this NVT corresponds to */
   gchar *tag;       /**< @brief List of tags attached to this NVT */
   gchar *cvss_base; /**< @brief CVSS base score for this NVT. */
 
