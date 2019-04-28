@@ -256,7 +256,6 @@ nvti_free (nvti_t *n)
   g_free (n->oid);
   g_free (n->name);
   g_free (n->cve);
-  g_free (n->bid);
   g_free (n->tag);
   g_free (n->cvss_base);
   g_free (n->dependencies);
@@ -324,7 +323,27 @@ nvti_cve (const nvti_t *n)
 gchar *
 nvti_bid (const nvti_t *n)
 {
-  return (n ? n->bid : NULL);
+  gchar *bids, *bids2;
+  vtref_t * ref;
+  guint i;
+
+  if (! n) return (NULL);
+
+  for (i = 0; i < g_slist_length (n->refs); i ++)
+    {
+      ref = g_slist_nth_data (n->refs, i);
+      if (strcmp (ref->type, "bid") == 0)
+        {
+          if (bids)
+            bids2 = g_strdup_printf ("%s,%s", bids, ref->ref_id);
+	  else
+            bids2 = g_strdup_printf ("%s", ref->ref_id);
+	  g_free (bids);
+	  bids = bids2;
+        }
+    }
+
+  return (bids);
 }
 
 /**
@@ -618,13 +637,8 @@ nvti_set_cve (nvti_t *n, const gchar *cve)
 int
 nvti_set_bid (nvti_t *n, const gchar *bid)
 {
-  if (!n)
-    return (-1);
-
-  if (n->bid)
-    g_free (n->bid);
-  n->bid = g_strdup (bid);
-  return (0);
+  // @todo: Is this method expected to delete previous bid entries?
+  return (nvti_add_bid (n, bid));
 }
 
 /**
@@ -640,6 +654,9 @@ int
 nvti_set_xref (nvti_t *n, const gchar *xref)
 {
   gchar **split, **item;
+
+  if (!n)
+    return (-1);
 
   split = g_strsplit (xref, ",", 0);
   item = split;
@@ -659,8 +676,7 @@ nvti_set_xref (nvti_t *n, const gchar *xref)
 
       split2 = g_strsplit (type_and_id, ":", 2);
       if (split2[0] && split2[1])
-        n->refs =
-          g_slist_append (n->refs, vtref_new (split2[0], split2[1], ""));
+        nvti_add_ref (n, vtref_new (split2[0], split2[1], ""));
 
       item++;
     }
@@ -967,24 +983,33 @@ nvti_add_cve (nvti_t *n, const gchar *cve_id)
  * @return 0 for success. 1 if n was NULL. 2 if bid_id was NULL.
  */
 int
-nvti_add_bid (nvti_t *n, const gchar *bid_id)
+nvti_add_bid (nvti_t *n, const gchar *bid)
 {
-  gchar *old;
+  gchar **split, **item;
 
   if (!n)
-    return (1);
-  if (!bid_id)
-    return (2);
+    return (-1);
 
-  old = n->bid;
-
-  if (old)
+  split = g_strsplit (bid, ",", 0);
+  item = split;
+  while (*item)
     {
-      n->bid = g_strdup_printf ("%s, %s", old, bid_id);
-      g_free (old);
+      gchar *id;
+
+      id = *item;
+      g_strstrip (id);
+
+      if ((strcmp (id, "") == 0) || (strcmp (id, "NOBID")) == 0)
+        {
+          item++;
+          continue;
+        }
+
+      nvti_add_ref (n, vtref_new ("bid", id, ""));
+
+      item++;
     }
-  else
-    n->bid = g_strdup (bid_id);
+  g_strfreev (split);
 
   return (0);
 }
