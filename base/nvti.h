@@ -105,6 +105,14 @@ typedef struct nvti
   gchar *family; /**< @brief Family the NVT belongs to */
 } nvti_t;
 
+
+vtref_t *
+vtref_new (gchar *, gchar *, gchar *);
+void
+vtref_free (vtref_t *);
+int
+nvti_add_ref (nvti_t *, vtref_t *);
+
 nvti_t *
 nvti_new (void);
 void
