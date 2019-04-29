@@ -118,6 +118,7 @@ struct kb_operations
 {
   /* ctor/dtor */
   int (*kb_new) (kb_t *, const char *);             /**< New KB. */
+  int (*kb_new_no_lock) (kb_t *, const char *);     /**< New KB without retry. */
   int (*kb_delete) (kb_t);                          /**< Delete KB. */
   kb_t (*kb_find) (const char *, const char *);     /**< Find KB. */
   kb_t (*kb_direct_conn) (const char *, const int); /**< Connect to a KB. */
@@ -247,6 +248,24 @@ kb_new (kb_t *kb, const char *kb_path)
   *kb = NULL;
 
   return KBDefaultOperations->kb_new (kb, kb_path);
+}
+
+/**
+ * @brief Initialize a new Knowledge Base object. If it fails, it does not retry.
+ * @param[in] kb  Reference to a kb_t to initialize.
+ * @param[in] kb_path   Path to KB.
+ * @return 0 on success, non-null on error.
+ */
+static inline int
+kb_new_no_lock (kb_t *kb, const char *kb_path)
+{
+  assert (kb);
+  assert (KBDefaultOperations);
+  assert (KBDefaultOperations->kb_new_no_lock);
+
+  *kb = NULL;
+
+  return KBDefaultOperations->kb_new_no_lock (kb, kb_path);
 }
 
 /**

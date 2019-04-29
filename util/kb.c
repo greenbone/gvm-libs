@@ -56,6 +56,16 @@
  */
 #define KB_RETRY_DELAY 60
 
+/**
+ * @brief Keep waiting for a free db.
+ */
+#define KB_LOCK 0
+
+/**
+ * @brief It does not wait for free db.
+ */
+#define KB_NO_LOCK 1
+
 static const struct kb_operations KBRedisOperations;
 
 /**
@@ -340,15 +350,21 @@ err_cleanup:
  *        a connection.
  * @param[in] kbr Subclass of struct kb where to fetch the context.
  *                or where it is saved in case of a new connection.
+ * @param[out] kb Reference to a redis context to initialize.
+ * @param[in] kb_no_lock If wait for an available db and retry, or not
  * @return Redis context on success, NULL otherwise.
  */
-static redisContext *
-get_redis_ctx (struct kb_redis *kbr)
+static int
+get_redis_ctx (struct kb_redis *kbr, redisContext **ctx, int kb_no_lock)
 {
   int rc;
+  static int log_flag = 1;
 
   if (kbr->rctx != NULL)
-    return kbr->rctx;
+    {
+      *ctx = kbr->rctx;
+      return 0;
+    }
 
   do
     {
@@ -360,11 +376,25 @@ get_redis_ctx (struct kb_redis *kbr)
                  kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
           redisFree (kbr->rctx);
           kbr->rctx = NULL;
-          return NULL;
+          *ctx = NULL;
+          return -1;
         }
 
       rc = select_database (kbr);
-      if (rc)
+      if (rc && kb_no_lock)
+        {
+          if (log_flag == 1)
+            {
+              g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+                     "%s: No redis DB available", __func__);
+              log_flag = 0;
+            }
+          redisFree (kbr->rctx);
+          kbr->rctx = NULL;
+          *ctx = NULL;
+          return -2;
+        }
+      else if (rc)
         {
           g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
                  "%s: No redis DB available, retrying in %ds...", __func__,
@@ -377,21 +407,59 @@ get_redis_ctx (struct kb_redis *kbr)
   while (rc != 0);
 
   g_debug ("%s: connected to redis://%s/%d", __func__, kbr->path, kbr->db);
-  return kbr->rctx;
+  *ctx = kbr->rctx;
+  return 0;
 }
+
+
+/**
+ * @brief Execute a redis command and get a redis reply.
+ * @param[in] kbr Subclass of struct kb to connect to.
+ * @param[out] rep References to a redis reply.
+ * @param[in] kb_no_lock If it wait for an available db and retry  or not.
+ * @return Redis reply on success, NULL otherwise.
+ */
+static int
+redis_ping (struct kb_redis *kbr, redisReply **rep, int kb_no_lock)
+{
+  redisContext *ctx = NULL;
+  int err = 0;
+  err = get_redis_ctx (kbr, &ctx, kb_no_lock);
+  if (ctx == NULL && (err == -1 || err == -2))
+      return err;
+
+  *rep = redisCommand (ctx, "PING");
+
+  if (ctx->err)
+    {
+      if (*rep != NULL)
+        freeReplyObject (*rep);
+      redis_lnk_reset ((kb_t) kbr);
+    }
+
+  return err;
+}
+
 
 /**
  * @brief Test redis connection.
  * @param[in] kbr Subclass of struct kb to test.
+ * @param[in] kb_no_lock If it wait for an available db and retry, or not.
  * @return 0 on success, negative integer on error.
  */
 static int
-redis_test_connection (struct kb_redis *kbr)
+redis_test_connection (struct kb_redis *kbr, int kb_no_lock)
 {
   int rc = 0;
-  redisReply *rep;
+  redisReply *rep = NULL;
+  int err = 0;
+  err = redis_ping (kbr, &rep, kb_no_lock);
+  if (err == -2)
+    {
+      rc = -ENOLCK;
+      goto out;
+    }
 
-  rep = redis_cmd (kbr, "PING");
   if (rep == NULL)
     {
       /* not 100% relevant but hiredis doesn't provide us with proper error
@@ -463,30 +531,58 @@ redis_get_kb_index (kb_t kb)
  * @brief Initialize a new Knowledge Base object.
  * @param[in] kb  Reference to a kb_t to initialize.
  * @param[in] kb_path   Path to KB.
+ * @param[in] kb_no_lock If it wait for an available db and retry, or not
  * @return 0 on success, non-null on error.
  */
 static int
-redis_new (kb_t *kb, const char *kb_path)
+__redis_new (kb_t *kb, const char *kb_path, int kb_no_lock)
 {
   struct kb_redis *kbr;
   int rc = 0;
-
+  static int log_flag = 1;
   kbr = g_malloc0 (sizeof (struct kb_redis) + strlen (kb_path) + 1);
   kbr->kb.kb_ops = &KBRedisOperations;
   strncpy (kbr->path, kb_path, strlen (kb_path));
 
-  rc = redis_test_connection (kbr);
+  rc = redis_test_connection (kbr, kb_no_lock);
   if (rc)
     {
-      g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-             "%s: cannot access redis at '%s'", __func__, kb_path);
+      if (log_flag == 1)
+        {
+          g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+                 "%s: cannot access redis at '%s'", __func__, kb_path);
+          log_flag = 0;
+        }
       redis_delete ((kb_t) kbr);
       kbr = NULL;
     }
 
   *kb = (kb_t) kbr;
-
   return rc;
+}
+
+/**
+ * @brief Initialize a new Knowledge Base object. It waits for free db.
+ * @param[in] kb Reference to a kb_t to initialize.
+ * @param[in] kb_path   Path to KB.
+ * @return 0 on success, non-null on error.
+ */
+static int
+redis_new (kb_t *kb, const char *kb_path)
+{
+  return __redis_new (kb, kb_path, KB_LOCK);
+}
+
+/**
+ * @brief Initialize a new Knowledge Base object. It does not wait for free db.
+ * @param[in] kb Reference to a kb_t to initialize.
+ * @param[in] kb_path   Path to KB.
+ * @return 0 on success, non-null on error.
+ */
+static int
+redis_new_no_lock (kb_t *kb, const char *kb_path)
+{
+  return __redis_new (kb, kb_path, KB_NO_LOCK);
 }
 
 /**
@@ -728,16 +824,16 @@ redis_cmd (struct kb_redis *kbr, const char *fmt, ...)
   redisReply *rep;
   va_list ap, aq;
   int retry = 0;
-
+  int rc = 0;
   va_start (ap, fmt);
   do
     {
-      redisContext *ctx;
+      redisContext *ctx = NULL;
 
       rep = NULL;
 
-      ctx = get_redis_ctx (kbr);
-      if (ctx == NULL)
+      rc = get_redis_ctx (kbr, &ctx, KB_LOCK);
+      if (ctx == NULL || rc == -ENOLCK )
         {
           va_end (ap);
           return NULL;
@@ -1018,7 +1114,7 @@ redis_get_pattern (kb_t kb, const char *pattern)
   struct kb_item *kbi = NULL;
   redisReply *rep;
   unsigned int i;
-  redisContext *ctx;
+  redisContext *ctx = NULL;
 
   kbr = redis_kb (kb);
   rep = redis_cmd (kbr, "KEYS %s", pattern);
@@ -1030,7 +1126,7 @@ redis_get_pattern (kb_t kb, const char *pattern)
       return NULL;
     }
 
-  ctx = get_redis_ctx (kbr);
+  get_redis_ctx (kbr, &ctx, KB_LOCK);
   for (i = 0; i < rep->elements; i++)
     redisAppendCommand (ctx, "LRANGE %s 0 -1", rep->element[i]->str);
 
@@ -1171,10 +1267,10 @@ redis_add_str_unique (kb_t kb, const char *name, const char *str, size_t len)
   struct kb_redis *kbr;
   redisReply *rep = NULL;
   int rc = 0;
-  redisContext *ctx;
+  redisContext *ctx = NULL;
 
   kbr = redis_kb (kb);
-  ctx = get_redis_ctx (kbr);
+  get_redis_ctx (kbr, &ctx, KB_LOCK);
 
   /* Some VTs still rely on values being unique (ie. a value inserted multiple
    * times, will only be present once.)
@@ -1250,11 +1346,11 @@ redis_set_str (kb_t kb, const char *name, const char *val, size_t len)
 {
   struct kb_redis *kbr;
   redisReply *rep = NULL;
-  redisContext *ctx;
+  redisContext *ctx = NULL;
   int rc = 0, i = 4;
 
   kbr = redis_kb (kb);
-  ctx = get_redis_ctx (kbr);
+  get_redis_ctx (kbr, &ctx, KB_LOCK);
   redisAppendCommand (ctx, "MULTI");
   redisAppendCommand (ctx, "DEL %s", name);
   if (len == 0)
@@ -1287,10 +1383,10 @@ redis_add_int_unique (kb_t kb, const char *name, int val)
   struct kb_redis *kbr;
   redisReply *rep;
   int rc = 0;
-  redisContext *ctx;
+  redisContext *ctx = NULL;
 
   kbr = redis_kb (kb);
-  ctx = get_redis_ctx (kbr);
+  get_redis_ctx (kbr, &ctx, KB_LOCK);
   redisAppendCommand (ctx, "LREM %s 1 %d", name, val);
   redisAppendCommand (ctx, "RPUSH %s %d", name, val);
   redisGetReply (ctx, (void **) &rep);
@@ -1344,10 +1440,9 @@ static int
 redis_set_int (kb_t kb, const char *name, int val)
 {
   redisReply *rep = NULL;
-  redisContext *ctx;
+  redisContext *ctx = NULL;
   int rc = 0, i = 4;
-
-  ctx = get_redis_ctx (redis_kb (kb));
+  get_redis_ctx (redis_kb (kb), &ctx, KB_LOCK);
   redisAppendCommand (ctx, "MULTI");
   redisAppendCommand (ctx, "DEL %s", name);
   redisAppendCommand (ctx, "RPUSH %s %d", name, val);
@@ -1510,7 +1605,8 @@ redis_flush_all (kb_t kb, const char *except)
             }
           redis_delete_all (kbr);
           redis_release_db (kbr);
-          redisFree (kbr->rctx);
+          if (kbr->rctx != NULL)
+            redisFree (kbr->rctx);
         }
       i++;
     }
@@ -1571,7 +1667,14 @@ redis_delete_all (struct kb_redis *kbr)
     return -1;
 
   g_debug ("%s: deleting all elements from KB #%u", __func__, kbr->db);
-  rep = redis_cmd (kbr, "FLUSHDB");
+  if (kbr->rctx != NULL)
+    rep = redis_cmd (kbr, "FLUSHDB");
+  else
+    {
+      rc = 0;
+      goto err_cleanup;
+    }
+
   if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
     {
       rc = -1;
@@ -1596,6 +1699,7 @@ err_cleanup:
  */
 static const struct kb_operations KBRedisOperations = {
   .kb_new = redis_new,
+  .kb_new_no_lock = redis_new_no_lock,
   .kb_find = redis_find,
   .kb_delete = redis_delete,
   .kb_get_single = redis_get_single,
