@@ -57,11 +57,11 @@
 /**
  * @brief Create a new vtref structure filled with the given values.
  *
- * @param type The type to be set. A copy will created of this.
+ * @param type The type to be set. A copy is created of this.
  *
- * @param ref_id The actual reference to be set. A copy will created of this.
+ * @param ref_id The actual reference to be set. A copy is created of this.
  *
- * @param ref_text The optional text accompanying a reference. A copy will created of this.
+ * @param ref_text The optional text accompanying a reference. A copy is created of this.
  *
  * @return NULL in case the memory could not be allocated.
  *         Else a vtref structure which needs to be
@@ -84,6 +84,7 @@ vtref_new (gchar *type, gchar *ref_id, gchar *ref_text)
 
   return (ref);
 }
+
 
 /**
  * @brief Free memory of a vtref structure.
@@ -953,6 +954,53 @@ nvti_set_category (nvti_t *n, const gint category)
     return (-1);
 
   n->category = category;
+  return (0);
+}
+
+/**
+ * @brief Add many new vtref from a comma-separated list.
+ *
+ * @param n The NVTI where to add the references.
+ *
+ * @param type The type for all references. A copy is created of this.
+ *
+ * @param ref_ids A CSV of reference to be added. A copy is of this.
+ *
+ * @param ref_text The optional text accompanying all references. A copy is created of this.
+ *
+ * @return 0 for success. 1 if n was NULL. 2 if type was NULL.
+ */
+int
+nvti_add_refs_from_csv (nvti_t *n, gchar *type, gchar *ref_ids, gchar *ref_text)
+{
+  gchar **split, **item;
+
+  if (!n)
+    return (1);
+  if (!type)
+    return (2);
+
+  split = g_strsplit (ref_ids, ",", 0);
+  item = split;
+  while (*item)
+    {
+      gchar *id;
+
+      id = *item;
+      g_strstrip (id);
+
+      if (strcmp (id, "") == 0)
+        {
+          item++;
+          continue;
+        }
+
+      nvti_add_ref (n, vtref_new (type, id, ref_text));
+
+      item++;
+    }
+  g_strfreev (split);
+
   return (0);
 }
 

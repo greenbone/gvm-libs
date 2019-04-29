@@ -189,6 +189,8 @@ int
 nvti_set_family (nvti_t *, const gchar *);
 
 int
+nvti_add_refs_from_csv (nvti_t *, gchar *, gchar *, gchar *);
+int
 nvti_add_cve (nvti_t *, const gchar *);
 int
 nvti_add_bid (nvti_t *, const gchar *);
