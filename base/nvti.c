@@ -684,7 +684,7 @@ nvti_set_xref (nvti_t *n, const gchar *xref)
       type_and_id = *item;
       g_strstrip (type_and_id);
 
-      if ((strcmp (type_and_id, "") == 0) || (strcmp (type_and_id, "NOXREF")) == 0)
+      if (strcmp (type_and_id, "") == 0)
         {
           item++;
           continue;
@@ -1032,7 +1032,7 @@ nvti_add_cve (nvti_t *n, const gchar *cve)
       id = *item;
       g_strstrip (id);
 
-      if ((strcmp (id, "") == 0) || (strcmp (id, "NOCVE")) == 0)
+      if (strcmp (id, "") == 0)
         {
           item++;
           continue;
@@ -1075,7 +1075,7 @@ nvti_add_bid (nvti_t *n, const gchar *bid)
       id = *item;
       g_strstrip (id);
 
-      if ((strcmp (id, "") == 0) || (strcmp (id, "NOBID")) == 0)
+      if (strcmp (id, "") == 0)
         {
           item++;
           continue;
