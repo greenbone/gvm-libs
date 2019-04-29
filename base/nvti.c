@@ -68,7 +68,7 @@
  *         released using @ref vtref_free .
  */
 vtref_t *
-vtref_new (gchar *type, gchar *ref_id, gchar *ref_text)
+vtref_new (const gchar *type, const gchar *ref_id, const gchar *ref_text)
 {
   vtref_t *ref = g_malloc0 (sizeof (vtref_t));
 
@@ -971,7 +971,8 @@ nvti_set_category (nvti_t *n, const gint category)
  * @return 0 for success. 1 if n was NULL. 2 if type was NULL.
  */
 int
-nvti_add_refs_from_csv (nvti_t *n, gchar *type, gchar *ref_ids, gchar *ref_text)
+nvti_add_refs_from_csv (nvti_t *n, const gchar *type, const gchar *ref_ids,
+                        const gchar *ref_text)
 {
   gchar **split, **item;
 
@@ -1016,35 +1017,7 @@ nvti_add_refs_from_csv (nvti_t *n, gchar *type, gchar *ref_ids, gchar *ref_text)
 int
 nvti_add_cve (nvti_t *n, const gchar *cve)
 {
-  gchar **split, **item;
-
-  if (!n)
-    return (1);
-  if (!cve)
-    return (2);
-
-  split = g_strsplit (cve, ",", 0);
-  item = split;
-  while (*item)
-    {
-      gchar *id;
-
-      id = *item;
-      g_strstrip (id);
-
-      if (strcmp (id, "") == 0)
-        {
-          item++;
-          continue;
-        }
-
-      nvti_add_ref (n, vtref_new ("cve", id, ""));
-
-      item++;
-    }
-  g_strfreev (split);
-
-  return (0);
+  return (nvti_add_refs_from_csv (n, "cve", cve, ""));
 }
 
 /**
@@ -1059,35 +1032,7 @@ nvti_add_cve (nvti_t *n, const gchar *cve)
 int
 nvti_add_bid (nvti_t *n, const gchar *bid)
 {
-  gchar **split, **item;
-
-  if (!n)
-    return (1);
-  if (!bid)
-    return (2);
-
-  split = g_strsplit (bid, ",", 0);
-  item = split;
-  while (*item)
-    {
-      gchar *id;
-
-      id = *item;
-      g_strstrip (id);
-
-      if (strcmp (id, "") == 0)
-        {
-          item++;
-          continue;
-        }
-
-      nvti_add_ref (n, vtref_new ("bid", id, ""));
-
-      item++;
-    }
-  g_strfreev (split);
-
-  return (0);
+  return (nvti_add_refs_from_csv (n, "bid", bid, ""));
 }
 
 /**

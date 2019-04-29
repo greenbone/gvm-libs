@@ -107,7 +107,7 @@ typedef struct nvti
 
 
 vtref_t *
-vtref_new (gchar *, gchar *, gchar *);
+vtref_new (const gchar *, const gchar *, const gchar *);
 void
 vtref_free (vtref_t *);
 int
@@ -189,7 +189,7 @@ int
 nvti_set_family (nvti_t *, const gchar *);
 
 int
-nvti_add_refs_from_csv (nvti_t *, gchar *, gchar *, gchar *);
+nvti_add_refs_from_csv (nvti_t *, const gchar *, const gchar *, const gchar *);
 int
 nvti_add_cve (nvti_t *, const gchar *);
 int
