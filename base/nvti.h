@@ -160,10 +160,6 @@ nvti_set_oid (nvti_t *, const gchar *);
 int
 nvti_set_name (nvti_t *, const gchar *);
 int
-nvti_set_cve (nvti_t *, const gchar *);
-int
-nvti_set_bid (nvti_t *, const gchar *);
-int
 nvti_set_xref (nvti_t *, const gchar *);
 int
 nvti_set_tag (nvti_t *, const gchar *);
@@ -190,10 +186,6 @@ nvti_set_family (nvti_t *, const gchar *);
 
 int
 nvti_add_refs_from_csv (nvti_t *, const gchar *, const gchar *, const gchar *);
-int
-nvti_add_cve (nvti_t *, const gchar *);
-int
-nvti_add_bid (nvti_t *, const gchar *);
 int
 nvti_add_required_keys (nvti_t *, const gchar *);
 int

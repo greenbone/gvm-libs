@@ -626,38 +626,6 @@ nvti_set_name (nvti_t *n, const gchar *name)
 }
 
 /**
- * @brief Set the CVE references of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param cve The cve list to set. A copy will be created from this.
- *
- * @return 0 for success. Anything else indicates an error.
- */
-int
-nvti_set_cve (nvti_t *n, const gchar *cve)
-{
-  // @todo: Is this method expected to delete previous cve entries?
-  return (nvti_add_cve (n, cve));
-}
-
-/**
- * @brief Set the bid references of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param bid The bid to set. A copy will be created from this.
- *
- * @return 0 for success. Anything else indicates an error.
- */
-int
-nvti_set_bid (nvti_t *n, const gchar *bid)
-{
-  // @todo: Is this method expected to delete previous bid entries?
-  return (nvti_add_bid (n, bid));
-}
-
-/**
  * @brief Set the xrefs of a NVT.
  *
  * @param n The NVT Info structure.
@@ -1003,36 +971,6 @@ nvti_add_refs_from_csv (nvti_t *n, const gchar *type, const gchar *ref_ids,
   g_strfreev (split);
 
   return (0);
-}
-
-/**
- * @brief Add a single CVE ID of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param cve The CVE ID to add. A copy will be created from this.
- *
- * @return 0 for success. 1 if n was NULL, 2 if cve_id was NULL.
- */
-int
-nvti_add_cve (nvti_t *n, const gchar *cve)
-{
-  return (nvti_add_refs_from_csv (n, "cve", cve, ""));
-}
-
-/**
- * @brief Add a single BID ID of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param bid The BID ID to add. A copy will be created from this.
- *
- * @return 0 for success. 1 if n was NULL. 2 if bid_id was NULL.
- */
-int
-nvti_add_bid (nvti_t *n, const gchar *bid)
-{
-  return (nvti_add_refs_from_csv (n, "bid", bid, ""));
 }
 
 /**
