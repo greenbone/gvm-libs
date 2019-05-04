@@ -299,18 +299,25 @@ nvti_name (const nvti_t *n)
 }
 
 /**
- * @brief Get the CVE references.
+ * @brief Get references as string.
  *
- * @param n The NVT Info structure of which the name should
+ * @param n The NVT Info structure of which the references should
  *          be returned.
  *
- * @return The CVE list as string. Don't free this.
+ * @param type Optional type to collect. If NULL, all types are collected.
+ *
+ * @return The references as string. This needs to be free'd.
+ *         The format of the string is a comma-separated list
+ *         of the references. If type is given, then it is a simple list
+ *         of references of the same type.
+ *         If no type is given each reference is a colon separated
+ *         type:id tupel.
+ *         NULL in case n is NULL.
  */
 gchar *
-nvti_cve (const nvti_t *n)
+nvti_refs (const nvti_t *n, const gchar *type)
 {
-  // @todo: actually, the returned string now needs to be free'd
-  gchar *cves, *cves2;
+  gchar *refs, *refs2;
   vtref_t * ref;
   guint i;
 
@@ -319,52 +326,18 @@ nvti_cve (const nvti_t *n)
   for (i = 0; i < g_slist_length (n->refs); i ++)
     {
       ref = g_slist_nth_data (n->refs, i);
-      if (strcmp (ref->type, "cve") == 0)
-        {
-          if (cves)
-            cves2 = g_strdup_printf ("%s,%s", cves, ref->ref_id);
-	  else
-            cves2 = g_strdup_printf ("%s", ref->ref_id);
-	  g_free (cves);
-	  cves = cves2;
-        }
+      if (type && strcmp (ref->type, type) != 0)
+        continue;
+
+      if (refs)
+        refs2 = g_strdup_printf ("%s,%s:%s", refs, ref->type, ref->ref_id);
+      else
+        refs2 = g_strdup_printf ("%s:%s", ref->type, ref->ref_id);
+      g_free (refs);
+      refs = refs2;
     }
 
-  return (cves);
-}
-
-/**
- * @brief Get the bid references.
- *
- * @param n The NVT Info structure of which the name should
- *          be returned.
- *
- * @return The bid list as string. Don't free this.
- */
-gchar *
-nvti_bid (const nvti_t *n)
-{
-  gchar *bids, *bids2;
-  vtref_t * ref;
-  guint i;
-
-  if (! n) return (NULL);
-
-  for (i = 0; i < g_slist_length (n->refs); i ++)
-    {
-      ref = g_slist_nth_data (n->refs, i);
-      if (strcmp (ref->type, "bid") == 0)
-        {
-          if (bids)
-            bids2 = g_strdup_printf ("%s,%s", bids, ref->ref_id);
-	  else
-            bids2 = g_strdup_printf ("%s", ref->ref_id);
-	  g_free (bids);
-	  bids = bids2;
-        }
-    }
-
-  return (bids);
+  return (refs);
 }
 
 /**
