@@ -866,7 +866,7 @@ redis_get_nvt_all (kb_t kb, const char *oid)
       nvti_set_tag (nvti, rep->element[NVT_TAGS_POS]->str);
       nvti_add_refs_from_csv (nvti, "cve", rep->element[NVT_CVES_POS]->str, "");
       nvti_add_refs_from_csv (nvti, "bid", rep->element[NVT_BIDS_POS]->str, "");
-      nvti_set_xref (nvti, rep->element[NVT_XREFS_POS]->str);
+      nvti_add_refs_from_csv (nvti, NULL, rep->element[NVT_XREFS_POS]->str, "");
       nvti_set_category (nvti, atoi (rep->element[NVT_CATEGORY_POS]->str));
       nvti_set_timeout (nvti, atoi (rep->element[NVT_TIMEOUT_POS]->str));
       nvti_set_family (nvti, rep->element[NVT_FAMILY_POS]->str);

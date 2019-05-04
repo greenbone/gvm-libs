@@ -156,8 +156,6 @@ nvti_set_oid (nvti_t *, const gchar *);
 int
 nvti_set_name (nvti_t *, const gchar *);
 int
-nvti_set_xref (nvti_t *, const gchar *);
-int
 nvti_set_tag (nvti_t *, const gchar *);
 int
 nvti_set_cvss_base (nvti_t *, const gchar *);

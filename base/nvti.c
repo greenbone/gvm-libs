@@ -356,7 +356,7 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint
               else
                 refs2 = g_strdup_printf ("%s:%s", ref->type, ref->ref_id);
             }
-	  else
+          else
             {
               if (refs)
                 refs2 = g_strdup_printf ("%s,%s", refs, ref->ref_id);
@@ -592,49 +592,6 @@ nvti_set_name (nvti_t *n, const gchar *name)
   if (n->name)
     g_free (n->name);
   n->name = g_strdup (name);
-  return (0);
-}
-
-/**
- * @brief Set the xrefs of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param xref The xrefs to set. A copy will be created from this.
- *
- * @return 0 for success. Anything else indicates an error.
- */
-int
-nvti_set_xref (nvti_t *n, const gchar *xref)
-{
-  gchar **split, **item;
-
-  if (!n)
-    return (-1);
-
-  split = g_strsplit (xref, ",", 0);
-  item = split;
-  while (*item)
-    {
-      gchar *type_and_id;
-      gchar **split2;
-
-      type_and_id = *item;
-      g_strstrip (type_and_id);
-
-      if (strcmp (type_and_id, "") == 0)
-        {
-          item++;
-          continue;
-        }
-
-      split2 = g_strsplit (type_and_id, ":", 2);
-      if (split2[0] && split2[1])
-        nvti_add_ref (n, vtref_new (split2[0], split2[1], ""));
-
-      item++;
-    }
-  g_strfreev (split);
   return (0);
 }
 
@@ -900,13 +857,15 @@ nvti_set_category (nvti_t *n, const gint category)
  *
  * @param n The NVTI where to add the references.
  *
- * @param type The type for all references. A copy is created of this.
+ * @param type The type for all references. If NULL, then for ref_ids
+ *             a syntax is expected that includes the type like
+ *             "type:id,type:id". A copy of type is created.
  *
  * @param ref_ids A CSV of reference to be added. A copy is of this.
  *
  * @param ref_text The optional text accompanying all references. A copy is created of this.
  *
- * @return 0 for success. 1 if n was NULL. 2 if type was NULL.
+ * @return 0 for success. 1 if n was NULL.
  */
 int
 nvti_add_refs_from_csv (nvti_t *n, const gchar *type, const gchar *ref_ids,
@@ -916,14 +875,13 @@ nvti_add_refs_from_csv (nvti_t *n, const gchar *type, const gchar *ref_ids,
 
   if (!n)
     return (1);
-  if (!type)
-    return (2);
 
   split = g_strsplit (ref_ids, ",", 0);
   item = split;
   while (*item)
     {
       gchar *id;
+      gchar **split2;
 
       id = *item;
       g_strstrip (id);
@@ -934,7 +892,16 @@ nvti_add_refs_from_csv (nvti_t *n, const gchar *type, const gchar *ref_ids,
           continue;
         }
 
-      nvti_add_ref (n, vtref_new (type, id, ref_text));
+      if (type)
+        {
+          nvti_add_ref (n, vtref_new (type, id, ref_text));
+        }
+      else
+        {
+          split2 = g_strsplit (id, ":", 2);
+          if (split2[0] && split2[1])
+            nvti_add_ref (n, vtref_new (split2[0], split2[1], ""));
+        }
 
       item++;
     }
