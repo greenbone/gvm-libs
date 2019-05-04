@@ -179,7 +179,7 @@ int
 nvti_set_family (nvti_t *, const gchar *);
 
 int
-nvti_add_refs_from_csv (nvti_t *, const gchar *, const gchar *, const gchar *);
+nvti_add_refs (nvti_t *, const gchar *, const gchar *, const gchar *);
 int
 nvti_add_required_keys (nvti_t *, const gchar *);
 int

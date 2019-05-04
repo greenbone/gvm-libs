@@ -868,8 +868,8 @@ nvti_set_category (nvti_t *n, const gint category)
  * @return 0 for success. 1 if n was NULL.
  */
 int
-nvti_add_refs_from_csv (nvti_t *n, const gchar *type, const gchar *ref_ids,
-                        const gchar *ref_text)
+nvti_add_refs (nvti_t *n, const gchar *type, const gchar *ref_ids,
+               const gchar *ref_text)
 {
   gchar **split, **item;
 
