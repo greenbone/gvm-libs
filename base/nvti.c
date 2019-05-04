@@ -306,20 +306,26 @@ nvti_name (const nvti_t *n)
  *
  * @param type Optional type to collect. If NULL, all types are collected.
  *
+ * @param exclude_type Optional CSC list of types to exclude from collection.
+ *                     If NULL, no types are excluded.
+ *
+ * @param use_types If 0, then a simple comma separated list will be returned.
+ *                  If not 0, then for each reference the syntax "type:id" is
+ *                  applied.
+ *
  * @return The references as string. This needs to be free'd.
- *         The format of the string is a comma-separated list
- *         of the references. If type is given, then it is a simple list
- *         of references of the same type.
- *         If no type is given each reference is a colon separated
- *         type:id tupel.
- *         NULL in case n is NULL.
+ *         The format of the string depends on the "use_types" parameter.
+ *         Either it is a comma-separated list "id,id,id" or additionally
+ *         using the type like "type:id,type:id,type:id".
+ *         NULL is returned in case n is NULL.
  */
 gchar *
-nvti_refs (const nvti_t *n, const gchar *type)
+nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint use_types)
 {
-  gchar *refs, *refs2;
+  gchar *refs, *refs2, **exclude_item;
   vtref_t * ref;
-  guint i;
+  guint i, exclude;
+  gchar **exclude_split = g_strsplit (exclude_types, ",", 0);
 
   if (! n) return (NULL);
 
@@ -329,50 +335,41 @@ nvti_refs (const nvti_t *n, const gchar *type)
       if (type && strcmp (ref->type, type) != 0)
         continue;
 
-      if (refs)
-        refs2 = g_strdup_printf ("%s,%s:%s", refs, ref->type, ref->ref_id);
-      else
-        refs2 = g_strdup_printf ("%s:%s", ref->type, ref->ref_id);
+      exclude_item = exclude_split;
+      exclude = 0;
+      while (*exclude_item)
+        {
+          if (strcmp (g_strstrip (*exclude_item), ref->type) == 0)
+            {
+              exclude = 1;
+              break; 
+            }
+          exclude_item ++;
+        }
+
+      if (! exclude)
+        {
+          if (use_types)
+            {
+              if (refs)
+                refs2 = g_strdup_printf ("%s,%s:%s", refs, ref->type, ref->ref_id);
+              else
+                refs2 = g_strdup_printf ("%s:%s", ref->type, ref->ref_id);
+            }
+	  else
+            {
+              if (refs)
+                refs2 = g_strdup_printf ("%s,%s", refs, ref->ref_id);
+              else
+                refs2 = g_strdup_printf ("%s", ref->ref_id);
+            }
+        }
+
       g_free (refs);
       refs = refs2;
     }
 
   return (refs);
-}
-
-/**
- * @brief Get the xref's.
- *
- * @param n The NVT Info structure of which the name should
- *          be returned.
- *
- * @return The xref string. Don't free this.
- */
-gchar *
-nvti_xref (const nvti_t *n)
-{
-  gchar *xrefs, *xrefs2;
-  vtref_t * ref;
-  guint i;
-
-  if (! n) return (NULL);
-
-  for (i = 0; i < g_slist_length (n->refs); i ++)
-    {
-      ref = g_slist_nth_data (n->refs, i);
-      if ((strcmp (ref->type, "cve") != 0) &&
-          (strcmp (ref->type, "bid") != 0))
-        { // if it is neither cve nor bid, then it is some xref
-          if (xrefs)
-            xrefs2 = g_strdup_printf ("%s,%s:%s", xrefs, ref->type, ref->ref_id);
-	  else
-            xrefs2 = g_strdup_printf ("%s:%s", ref->type, ref->ref_id);
-	  g_free (xrefs);
-	  xrefs = xrefs2;
-        }
-    }
-
-  return (xrefs);
 }
 
 /**

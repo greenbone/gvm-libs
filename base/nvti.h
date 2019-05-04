@@ -123,9 +123,7 @@ nvti_oid (const nvti_t *);
 gchar *
 nvti_name (const nvti_t *);
 gchar *
-nvti_refs (const nvti_t *, const gchar *);
-gchar *
-nvti_xref (const nvti_t *);
+nvti_refs (const nvti_t *, const gchar *, const char *, guint);
 gchar *
 nvti_tag (const nvti_t *);
 gchar *
