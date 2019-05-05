@@ -315,8 +315,8 @@ nvti_name (const nvti_t *n)
  *
  * @return The references as string. This needs to be free'd.
  *         The format of the string depends on the "use_types" parameter.
- *         Either it is a comma-separated list "id,id,id" or additionally
- *         using the type like "type:id,type:id,type:id".
+ *         Either it is a comma-separated list "id, id, id" or additionally
+ *         using the type like "type:id, type:id, type:id".
  *         NULL is returned in case n is NULL.
  */
 gchar *
@@ -332,7 +332,6 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint
   for (i = 0; i < g_slist_length (n->refs); i ++)
     {
       ref = g_slist_nth_data (n->refs, i);
-
       if (type && type[0] && strcmp (ref->type, type) != 0)
         continue;
 
@@ -357,14 +356,14 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint
           if (use_types)
             {
               if (refs)
-                refs2 = g_strdup_printf ("%s,%s:%s", refs, ref->type, ref->ref_id);
+                refs2 = g_strdup_printf ("%s, %s:%s", refs, ref->type, ref->ref_id);
               else
                 refs2 = g_strdup_printf ("%s:%s", ref->type, ref->ref_id);
             }
           else
             {
               if (refs)
-                refs2 = g_strdup_printf ("%s,%s", refs, ref->ref_id);
+                refs2 = g_strdup_printf ("%s, %s", refs, ref->ref_id);
               else
                 refs2 = g_strdup_printf ("%s", ref->ref_id);
             }
