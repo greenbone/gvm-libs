@@ -31,9 +31,10 @@
 
 #include "networking.h" /* for ipv4_as_ipv6, addr6_as_str, gvm_resolve */
 
-#include <arpa/inet.h>  /* for inet_pton, inet_ntop */
-#include <assert.h>     /* for assert */
-#include <ctype.h>      /* for isdigit */
+#include <arpa/inet.h> /* for inet_pton, inet_ntop */
+#include <assert.h>    /* for assert */
+#include <ctype.h>     /* for isdigit */
+#include <malloc.h>
 #include <netdb.h>      /* for getnameinfo, NI_NAMEREQD */
 #include <stdint.h>     /* for uint8_t, uint32_t */
 #include <stdio.h>      /* for sscanf, perror */
@@ -888,6 +889,82 @@ gvm_host_free (gpointer host)
 }
 
 /**
+ * @brief Inserts a host object at the end of a hosts collection.
+ *
+ * @param[in] hosts Hosts in which to insert the host.
+ * @param[in] host  Host to insert.
+ */
+static void
+gvm_hosts_add (gvm_hosts_t *hosts, gvm_host_t *host)
+{
+  if (hosts->count == hosts->max_size)
+    {
+      hosts->max_size *= 4;
+      hosts->hosts =
+        g_realloc_n (hosts->hosts, hosts->max_size, sizeof (*hosts->hosts));
+    }
+  hosts->hosts[hosts->count] = host;
+  hosts->count++;
+}
+
+/**
+ * @brief Creates a hosts collection from a hosts string.
+ *
+ * @param[in] hosts_str String of hosts.
+ *
+ * @return Hosts collection.
+ */
+static gvm_hosts_t *
+gvm_hosts_init (const char *hosts_str)
+{
+  gvm_hosts_t *hosts;
+
+  hosts = g_malloc0 (sizeof (gvm_hosts_t));
+  hosts->max_size = 1024;
+  hosts->hosts = g_malloc0_n (hosts->max_size, sizeof (gvm_host_t *));
+  hosts->orig_str = g_strdup (hosts_str);
+  return hosts;
+}
+
+/**
+ * @brief Fill the gaps in the array of a hosts collection, which are caused by
+ * the removal of host entries.
+ *
+ * @param[in] hosts Hosts collection to fill gaps in.
+ */
+static void
+gvm_hosts_fill_gaps (gvm_hosts_t *hosts)
+{
+  size_t i;
+  if (!hosts)
+    return;
+
+  for (i = 0; i < hosts->max_size; i++)
+    {
+      if (!hosts->hosts[i])
+        {
+          size_t j;
+
+          /* Fill the gap with the closest host entry, in order to keep the
+           * sequential ordering. */
+          for (j = i + 1; j < hosts->max_size; j++)
+            {
+              if (hosts->hosts[j])
+                {
+                  hosts->hosts[i] = hosts->hosts[j];
+                  hosts->hosts[j] = NULL;
+                  break;
+                }
+            }
+          /* No more entries left, ie. the empty space between count and
+           * max_size. */
+          if (!hosts->hosts[i])
+            return;
+        }
+    }
+}
+
+/**
  * @brief Removes duplicate hosts values from an gvm_hosts_t structure.
  * Also resets the iterator current position.
  *
@@ -899,56 +976,44 @@ gvm_hosts_deduplicate (gvm_hosts_t *hosts)
   /**
    * Uses a hash table in order to deduplicate the hosts list in O(N) time.
    */
-  GList *element;
   GHashTable *name_table;
-  int duplicates = 0;
+  size_t i, duplicates = 0;
 
   if (hosts == NULL)
     return;
-  element = hosts->hosts;
   name_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-  while (element)
+  for (i = 0; i < hosts->count; i++)
     {
       gchar *name;
 
-      if ((name = gvm_host_value_str (element->data)))
+      if ((name = gvm_host_value_str (hosts->hosts[i])))
         {
-          gvm_host_t *host;
+          gvm_host_t *host, *removed = hosts->hosts[i];
+
           host = g_hash_table_lookup (name_table, name);
           if (host)
             {
-              GList *tmp;
-              gvm_host_t *removed;
-
               /* Remove duplicate host. Add its vhosts to the original host. */
-              tmp = element;
-              element = element->next;
-              removed = tmp->data;
-              if (removed)
-                {
-                  host->vhosts = g_slist_concat (host->vhosts, removed->vhosts);
-                  removed->vhosts = NULL;
-                  gvm_host_free (removed);
-                }
-              hosts->hosts = g_list_delete_link (hosts->hosts, tmp);
+              host->vhosts = g_slist_concat (host->vhosts, removed->vhosts);
+              removed->vhosts = NULL;
+              gvm_host_free (removed);
+              hosts->hosts[i] = NULL;
               duplicates++;
               g_free (name);
             }
           else
-            {
-              g_hash_table_insert (name_table, name, element->data);
-              element = element->next;
-            }
+            g_hash_table_insert (name_table, name, hosts->hosts[i]);
         }
-      else
-        element = element->next;
     }
 
+  if (duplicates)
+    gvm_hosts_fill_gaps (hosts);
   g_hash_table_destroy (name_table);
   hosts->count -= duplicates;
   hosts->removed += duplicates;
-  hosts->current = hosts->hosts;
+  hosts->current = 0;
+  malloc_trim (0);
 }
 
 /**
@@ -972,12 +1037,8 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
   if (hosts_str == NULL)
     return NULL;
 
-  hosts = g_malloc0 (sizeof (gvm_hosts_t));
-  if (hosts == NULL)
-    return NULL;
-
-  hosts->orig_str = g_strdup (hosts_str);
   /* Normalize separator: Transform newlines into commas. */
+  hosts = gvm_hosts_init (hosts_str);
   str = hosts->orig_str;
   while (*str)
     {
@@ -1017,7 +1078,7 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
             gvm_host_t *host = gvm_host_new ();
             host->type = host_type;
             if (host_type == HOST_TYPE_NAME)
-              host->name = g_strdup (stripped);
+              host->name = g_ascii_strdown (stripped, -1);
             else if (host_type == HOST_TYPE_IPV4)
               {
                 if (inet_pton (AF_INET, stripped, &host->addr) != 1)
@@ -1028,9 +1089,7 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
                 if (inet_pton (AF_INET6, stripped, &host->addr6) != 1)
                   break;
               }
-            /* Prepend to list of hosts. */
-            hosts->hosts = g_list_prepend (hosts->hosts, host);
-            hosts->count++;
+            gvm_hosts_add (hosts, host);
             break;
           }
         case HOST_TYPE_CIDR_BLOCK:
@@ -1059,17 +1118,17 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
             current = first.s_addr;
             while (ntohl (current) <= ntohl (last.s_addr))
               {
-                gvm_host_t *host = gvm_host_new ();
-                host->type = HOST_TYPE_IPV4;
-                host->addr.s_addr = current;
-                hosts->hosts = g_list_prepend (hosts->hosts, host);
-                hosts->count++;
+                gvm_host_t *host;
                 if (max_hosts > 0 && hosts->count > max_hosts)
                   {
                     g_strfreev (split);
                     gvm_hosts_free (hosts);
                     return NULL;
                   }
+                host = gvm_host_new ();
+                host->type = HOST_TYPE_IPV4;
+                host->addr.s_addr = current;
+                gvm_hosts_add (hosts, host);
                 /* Next IP address. */
                 current = htonl (ntohl (current) + 1);
               }
@@ -1103,18 +1162,18 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
             while (memcmp (current, &last.s6_addr, 16) <= 0)
               {
                 int i;
+                gvm_host_t *host;
 
-                gvm_host_t *host = gvm_host_new ();
-                host->type = HOST_TYPE_IPV6;
-                memcpy (host->addr6.s6_addr, current, 16);
-                hosts->hosts = g_list_prepend (hosts->hosts, host);
-                hosts->count++;
                 if (max_hosts > 0 && hosts->count > max_hosts)
                   {
                     g_strfreev (split);
                     gvm_hosts_free (hosts);
                     return NULL;
                   }
+                host = gvm_host_new ();
+                host->type = HOST_TYPE_IPV6;
+                memcpy (host->addr6.s6_addr, current, 16);
+                gvm_hosts_add (hosts, host);
                 /* Next IPv6 address. */
                 for (i = 15; i >= 0; --i)
                   if (current[i] < 255)
@@ -1143,16 +1202,13 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
         }
     }
 
-  /* Reverse list, as we were prepending (for performance) to the list. */
-  hosts->hosts = g_list_reverse (hosts->hosts);
-
-  /* Remove duplicated values. */
-  gvm_hosts_deduplicate (hosts);
-
-  /* Set current to start of hosts list. */
-  hosts->current = hosts->hosts;
+  /* No need to check for duplicates when a hosts string contains a
+   * single (IP/Hostname/Range/Subnetwork) entry. */
+  if (g_strv_length (split) > 1)
+    gvm_hosts_deduplicate (hosts);
 
   g_strfreev (split);
+  malloc_trim (0);
   return hosts;
 }
 
@@ -1183,15 +1239,10 @@ gvm_hosts_new (const gchar *hosts_str)
 gvm_host_t *
 gvm_hosts_next (gvm_hosts_t *hosts)
 {
-  gvm_host_t *next;
-
-  if (hosts == NULL || hosts->current == NULL)
+  if (!hosts || hosts->current == hosts->count)
     return NULL;
 
-  next = hosts->current->data;
-  hosts->current = g_list_next (hosts->current);
-
-  return next;
+  return hosts->hosts[hosts->current++];
 }
 
 /**
@@ -1203,14 +1254,16 @@ gvm_hosts_next (gvm_hosts_t *hosts)
 void
 gvm_hosts_free (gvm_hosts_t *hosts)
 {
+  size_t i;
+
   if (hosts == NULL)
     return;
 
   if (hosts->orig_str)
     g_free (hosts->orig_str);
-
-  g_list_free_full (hosts->hosts, gvm_host_free);
-
+  for (i = 0; i < hosts->count; i++)
+    gvm_host_free (hosts->hosts[i]);
+  g_free (hosts->hosts);
   g_free (hosts);
 }
 
@@ -1224,33 +1277,25 @@ gvm_hosts_free (gvm_hosts_t *hosts)
 void
 gvm_hosts_shuffle (gvm_hosts_t *hosts)
 {
-  int count;
-  GList *new_list;
+  size_t i = 0;
   GRand *rand;
 
   if (hosts == NULL)
     return;
 
-  count = gvm_hosts_count (hosts);
-  new_list = NULL;
-
+  /* Shuffle the array. */
   rand = g_rand_new ();
-
-  while (count)
+  for (i = 0; i < hosts->count; i++)
     {
-      GList *element;
+      void *tmp;
+      int j = g_rand_int_range (rand, 0, hosts->count);
 
-      /* Get element from random position [0, count[. */
-      element = g_list_nth (hosts->hosts, g_rand_int_range (rand, 0, count));
-      /* Remove it. */
-      hosts->hosts = g_list_remove_link (hosts->hosts, element);
-      /* Insert it in new list */
-      new_list = g_list_concat (element, new_list);
-      count--;
+      tmp = hosts->hosts[i];
+      hosts->hosts[i] = hosts->hosts[j];
+      hosts->hosts[j] = tmp;
     }
-  hosts->hosts = new_list;
-  hosts->current = hosts->hosts;
 
+  hosts->current = 0;
   g_rand_free (rand);
 }
 
@@ -1264,31 +1309,17 @@ gvm_hosts_shuffle (gvm_hosts_t *hosts)
 void
 gvm_hosts_reverse (gvm_hosts_t *hosts)
 {
-  if (hosts == NULL || hosts->hosts == NULL)
+  size_t i, j;
+  if (hosts == NULL)
     return;
 
-  hosts->hosts = g_list_reverse (hosts->hosts);
-  hosts->current = hosts->hosts;
-}
-
-/**
- * @brief Removes an element from the hosts list and frees the host object.
- *
- * @param[in] hosts     The hosts collection from which to remove.
- * @param[in] element   Element to remove from the list.
- *
- * @return Next element value.
- */
-static GList *
-gvm_hosts_remove_element (gvm_hosts_t *hosts, GList *element)
-{
-  GList *tmp;
-
-  tmp = element;
-  element = element->next;
-  gvm_host_free (tmp->data);
-  hosts->hosts = g_list_delete_link (hosts->hosts, tmp);
-  return element;
+  for (i = 0, j = hosts->count - 1; i < j; i++, j--)
+    {
+      gvm_host_t *tmp = hosts->hosts[i];
+      hosts->hosts[i] = hosts->hosts[j];
+      hosts->hosts[j] = tmp;
+    }
+  hosts->current = 0;
 }
 
 /**
@@ -1298,17 +1329,19 @@ gvm_hosts_remove_element (gvm_hosts_t *hosts, GList *element)
  * iterator.
  *
  * @param[in] hosts         The hosts collection from which to exclude.
+ *
+ * @return List of unresolved hostnames.
  */
-void
+GSList *
 gvm_hosts_resolve (gvm_hosts_t *hosts)
 {
-  gvm_host_t *host;
+  size_t i, new_entries = 0;
+  GSList *unresolved = NULL;
 
-  hosts->current = hosts->hosts;
-
-  while ((host = gvm_hosts_next (hosts)))
+  for (i = 0; i < hosts->count; i++)
     {
       GSList *list, *tmp;
+      gvm_host_t *host = hosts->hosts[i];
 
       if (host->type != HOST_TYPE_NAME)
         continue;
@@ -1336,22 +1369,26 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
           vhost =
             gvm_vhost_new (g_strdup (host->name), g_strdup ("Forward-DNS"));
           new->vhosts = g_slist_prepend (new->vhosts, vhost);
-          hosts->hosts = g_list_prepend (hosts->hosts, new);
-          hosts->count++;
+          gvm_hosts_add (hosts, new);
           tmp = tmp->next;
+          new_entries = 1;
         }
-      if (!list)
-        g_warning ("Couldn't resolve hostname %s", host->name);
       /* Remove hostname from list, as it was either replaced by IPs, or
        * is unresolvable. */
-      hosts->hosts =
-        g_list_delete_link (hosts->hosts, g_list_find (hosts->hosts, host));
-      gvm_host_free (host);
+      hosts->hosts[i] = NULL;
       hosts->count--;
       hosts->removed++;
+      if (!list)
+        unresolved = g_slist_prepend (unresolved, g_strdup (host->name));
+      else
+        gvm_hosts_fill_gaps (hosts);
+      gvm_host_free (host);
       g_slist_free_full (list, g_free);
     }
-  gvm_hosts_deduplicate (hosts);
+  if (new_entries)
+    gvm_hosts_deduplicate (hosts);
+  hosts->current = 0;
+  return unresolved;
 }
 
 /**
@@ -1386,7 +1423,7 @@ gvm_vhosts_exclude (gvm_host_t *host, const char *excluded_str)
 
       while (*tmp)
         {
-          if (!strcmp (value, g_strstrip (*tmp)))
+          if (!strcasecmp (value, g_strstrip (*tmp)))
             {
               gvm_vhost_free (vhost->data);
               host->vhosts = vhost = g_slist_delete_link (host->vhosts, vhost);
@@ -1425,9 +1462,8 @@ gvm_hosts_exclude_with_max (gvm_hosts_t *hosts, const char *excluded_str,
    * Uses a hash table in order to exclude hosts in O(N+M) time.
    */
   gvm_hosts_t *excluded_hosts;
-  GList *element;
   GHashTable *name_table;
-  int excluded = 0;
+  size_t excluded = 0, i;
 
   if (hosts == NULL || excluded_str == NULL)
     return -1;
@@ -1443,42 +1479,40 @@ gvm_hosts_exclude_with_max (gvm_hosts_t *hosts, const char *excluded_str,
     }
 
   /* Hash host values from excluded hosts list. */
-  element = excluded_hosts->hosts;
   name_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-  while (element)
+  for (i = 0; i < excluded_hosts->count; i++)
     {
       gchar *name;
 
-      if ((name = gvm_host_value_str (element->data)))
+      if ((name = gvm_host_value_str (excluded_hosts->hosts[i])))
         g_hash_table_insert (name_table, name, hosts);
-      element = element->next;
     }
 
   /* Check for hosts values in hash table. */
-  element = hosts->hosts;
-  while (element)
+  for (i = 0; i < hosts->count; i++)
     {
       gchar *name;
-      gvm_host_t *host = element->data;
 
-      if ((name = gvm_host_value_str (host)))
+      if ((name = gvm_host_value_str (hosts->hosts[i])))
         {
           if (g_hash_table_lookup (name_table, name))
             {
-              element = gvm_hosts_remove_element (hosts, element);
+              gvm_host_free (hosts->hosts[i]);
+              hosts->hosts[i] = NULL;
               excluded++;
               g_free (name);
               continue;
             }
           g_free (name);
         }
-      element = element->next;
     }
 
   /* Cleanup. */
+  if (excluded)
+    gvm_hosts_fill_gaps (hosts);
   hosts->count -= excluded;
   hosts->removed += excluded;
-  hosts->current = hosts->hosts;
+  hosts->current = 0;
   g_hash_table_destroy (name_table);
   gvm_hosts_free (excluded_hosts);
   return excluded;
@@ -1529,7 +1563,7 @@ gvm_host_reverse_lookup (gvm_host_t *host)
           int ret = getnameinfo ((struct sockaddr *) &sa, sizeof (sa), hostname,
                                  sizeof (hostname), NULL, 0, NI_NAMEREQD);
           if (!ret)
-            return g_strdup (hostname);
+            return g_ascii_strdown (hostname, -1);
           if (ret != EAI_AGAIN)
             break;
         }
@@ -1548,7 +1582,7 @@ gvm_host_reverse_lookup (gvm_host_t *host)
                        sizeof (hostname), NULL, 0, NI_NAMEREQD))
         return NULL;
       else
-        return g_strdup (hostname);
+        return g_ascii_strdown (hostname, -1);
     }
   else
     return NULL;
@@ -1577,7 +1611,7 @@ host_name_verify (gvm_host_t *host, const char *value)
     {
       char buffer[INET6_ADDRSTRLEN];
       addr6_to_str (tmp->data, buffer);
-      if (!strcmp (host_str, buffer))
+      if (!strcasecmp (host_str, buffer))
         {
           ret = 0;
           break;
@@ -1616,7 +1650,7 @@ gvm_host_add_reverse_lookup (gvm_host_t *host)
   vhosts = host->vhosts;
   while (vhosts)
     {
-      if (!strcmp (((gvm_vhost_t *) vhosts->data)->value, value))
+      if (!strcasecmp (((gvm_vhost_t *) vhosts->data)->value, value))
         {
           g_free (value);
           return;
@@ -1639,33 +1673,30 @@ gvm_host_add_reverse_lookup (gvm_host_t *host)
 int
 gvm_hosts_reverse_lookup_only (gvm_hosts_t *hosts)
 {
-  int count;
-  GList *element;
+  size_t i, count = 0;
 
   if (hosts == NULL)
     return -1;
 
-  count = 0;
-  element = hosts->hosts;
-  while (element)
+  for (i = 0; i < hosts->count; i++)
     {
-      gchar *name = gvm_host_reverse_lookup (element->data);
+      gchar *name = gvm_host_reverse_lookup (hosts->hosts[i]);
 
       if (name == NULL)
         {
-          element = gvm_hosts_remove_element (hosts, element);
+          gvm_host_free (hosts->hosts[i]);
+          hosts->hosts[i] = NULL;
           count++;
         }
       else
-        {
-          g_free (name);
-          element = element->next;
-        }
+        g_free (name);
     }
 
+  if (count)
+    gvm_hosts_fill_gaps (hosts);
   hosts->count -= count;
   hosts->removed += count;
-  hosts->current = hosts->hosts;
+  hosts->current = 0;
   return count;
 }
 
@@ -1684,25 +1715,23 @@ gvm_hosts_reverse_lookup_unify (gvm_hosts_t *hosts)
   /**
    * Uses a hash table in order to unify the hosts list in O(N) time.
    */
-  int count;
-  GList *element;
+  size_t i, count = 0;
   GHashTable *name_table;
 
   if (hosts == NULL)
     return -1;
 
   name_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-  count = 0;
-  element = hosts->hosts;
-  while (element)
+  for (i = 0; i < hosts->count; i++)
     {
       gchar *name;
 
-      if ((name = gvm_host_reverse_lookup (element->data)))
+      if ((name = gvm_host_reverse_lookup (hosts->hosts[i])))
         {
           if (g_hash_table_lookup (name_table, name))
             {
-              element = gvm_hosts_remove_element (hosts, element);
+              gvm_host_free (hosts->hosts[i]);
+              hosts->hosts[i] = NULL;
               count++;
               g_free (name);
             }
@@ -1710,17 +1739,16 @@ gvm_hosts_reverse_lookup_unify (gvm_hosts_t *hosts)
             {
               /* Insert in the hash table. Value not important. */
               g_hash_table_insert (name_table, name, hosts);
-              element = element->next;
             }
         }
-      else
-        element = element->next;
     }
 
+  if (count)
+    gvm_hosts_fill_gaps (hosts);
   g_hash_table_destroy (name_table);
   hosts->removed += count;
   hosts->count -= count;
-  hosts->current = hosts->hosts;
+  hosts->current = 0;
   return count;
 }
 
@@ -1768,17 +1796,17 @@ gvm_host_in_hosts (const gvm_host_t *host, const struct in6_addr *addr,
                    const gvm_hosts_t *hosts)
 {
   char *host_str;
-  GList *element;
+  size_t i;
 
   if (host == NULL || hosts == NULL)
     return 0;
 
   host_str = gvm_host_value_str (host);
 
-  element = hosts->hosts;
-  while (element)
+  for (i = 0; i < hosts->count; i++)
     {
-      char *tmp = gvm_host_value_str (element->data);
+      gvm_host_t *current_host = hosts->hosts[i];
+      char *tmp = gvm_host_value_str (current_host);
 
       if (strcasecmp (host_str, tmp) == 0)
         {
@@ -1789,10 +1817,10 @@ gvm_host_in_hosts (const gvm_host_t *host, const struct in6_addr *addr,
       g_free (tmp);
 
       /* Hostnames in hosts list shouldn't be resolved. */
-      if (addr && gvm_host_type (element->data) != HOST_TYPE_NAME)
+      if (addr && gvm_host_type (current_host) != HOST_TYPE_NAME)
         {
           struct in6_addr tmpaddr;
-          gvm_host_get_addr6 (element->data, &tmpaddr);
+          gvm_host_get_addr6 (current_host, &tmpaddr);
 
           if (memcmp (addr->s6_addr, &tmpaddr.s6_addr, 16) == 0)
             {
@@ -1800,7 +1828,6 @@ gvm_host_in_hosts (const gvm_host_t *host, const struct in6_addr *addr,
               return 1;
             }
         }
-      element = element->next;
     }
 
   g_free (host_str);

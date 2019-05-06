@@ -283,8 +283,9 @@ get_redis_ctx (struct kb_redis *kbr)
       rc = select_database (kbr);
       if (rc)
         {
-          g_debug ("%s: No redis DB available, retrying in %ds...", __func__,
-                   KB_RETRY_DELAY);
+          g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+                 "%s: No redis DB available, retrying in %ds...", __func__,
+                 KB_RETRY_DELAY);
           sleep (KB_RETRY_DELAY);
           redisFree (kbr->rctx);
           kbr->rctx = NULL;
@@ -486,6 +487,8 @@ redis_find (const char *kb_path, const char *key)
           if (rep != NULL)
             freeReplyObject (rep);
           i++;
+          redisFree (kbr->rctx);
+          kbr->rctx = NULL;
           continue;
         }
       freeReplyObject (rep);
@@ -1317,8 +1320,9 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
     {
       nvtpref_t *pref = element->data;
 
-      rep = redis_cmd (kbr, "RPUSH oid:%s:prefs %s|||%s|||%s", nvti_oid (nvt),
-                       pref->name, pref->type, pref->dflt);
+      rep = redis_cmd (kbr, "RPUSH oid:%s:prefs %d|||%s|||%s|||%s",
+                       nvti_oid (nvt), pref->id, pref->name, pref->type,
+                       pref->dflt);
       if (!rep || rep->type == REDIS_REPLY_ERROR)
         rc = -1;
       if (rep)

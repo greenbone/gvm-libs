@@ -89,11 +89,12 @@ struct gvm_vhost
  */
 struct gvm_hosts
 {
-  gchar *orig_str;      /**< Original hosts definition string. */
-  GList *hosts;         /**< Hosts objects list. */
-  GList *current;       /**< Current host object in iteration. */
-  unsigned int count;   /**< Number of single host objects in hosts list. */
-  unsigned int removed; /**< Number of duplicate/excluded values. */
+  gchar *orig_str;    /**< Original hosts definition string. */
+  gvm_host_t **hosts; /**< Hosts objects list. */
+  size_t max_size;    /**< Current max size of hosts array entries. */
+  size_t current;     /**< Current host index in iteration. */
+  size_t count;       /**< Number of single host objects in hosts list. */
+  size_t removed;     /**< Number of duplicate/excluded values. */
 };
 
 /* Function prototypes. */
@@ -117,7 +118,7 @@ gvm_hosts_shuffle (gvm_hosts_t *);
 void
 gvm_hosts_reverse (gvm_hosts_t *);
 
-void
+GSList *
 gvm_hosts_resolve (gvm_hosts_t *);
 
 int

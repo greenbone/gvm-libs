@@ -149,12 +149,16 @@ nvt_feed_version ()
 {
   char filename[2048], *fcontent = NULL, *plugin_set;
   GError *error = NULL;
+  static int msg_shown = 0;
 
   g_snprintf (filename, sizeof (filename), "%s/plugin_feed_info.inc", src_path);
   if (!g_file_get_contents (filename, &fcontent, NULL, &error))
     {
-      if (error)
-        g_warning ("nvt_feed_version: %s", error->message);
+      if (error && msg_shown == 0)
+	{
+	  g_warning ("nvt_feed_version: %s", error->message);
+	  msg_shown = 1;
+	}
       g_error_free (error);
       return NULL;
     }
@@ -165,7 +169,7 @@ nvt_feed_version ()
       g_free (fcontent);
       return NULL;
     }
-
+  msg_shown = 0;
   plugin_set = g_strndup (plugin_set + 14, 12);
   g_free (fcontent);
   return plugin_set;
@@ -537,12 +541,13 @@ nvticache_get_prefs (const char *oid)
       nvtpref_t *np;
       char **array = g_strsplit (element->v_str, "|||", -1);
 
-      assert (array[2]);
-      assert (!array[3]);
+      assert (array[3]);
+      assert (!array[4]);
       np = g_malloc0 (sizeof (nvtpref_t));
-      np->name = array[0];
-      np->type = array[1];
-      np->dflt = array[2];
+      np->id = atoi (array[0]);
+      np->name = array[1];
+      np->type = array[2];
+      np->dflt = array[3];
       g_free (array);
       list = g_slist_append (list, np);
       element = element->next;
@@ -592,7 +597,7 @@ nvticache_delete (const char *oid)
   assert (oid);
 
   filename = nvticache_get_filename (oid);
-  g_snprintf (pattern, sizeof (pattern), "prefs:%s", oid);
+  g_snprintf (pattern, sizeof (pattern), "oid:%s:prefs", oid);
   kb_del_items (cache_kb, pattern);
   g_snprintf (pattern, sizeof (pattern), "nvt:%s", oid);
   kb_del_items (cache_kb, pattern);

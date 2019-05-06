@@ -21,7 +21,7 @@ cmake_minimum_required(VERSION 3.0)
 message ("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
 project (gvm-libs
-  VERSION 1.0.0
+  VERSION 11.0.0
   LANGUAGES C)
 
 if (POLICY CMP0005)
@@ -84,7 +84,7 @@ endif (NOT CMAKE_BUILD_TYPE MATCHES "Release")
 
 # Set beta version if this is a beta release series,
 # unset if this is a stable release series.
-set (PROJECT_BETA_RELEASE 3)
+set (PROJECT_BETA_RELEASE 1)
 
 if (GIT_REVISION)
   set (PROJECT_VERSION_GIT "${GIT_REVISION}")
