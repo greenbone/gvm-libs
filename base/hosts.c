@@ -1372,11 +1372,11 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
         }
       /* Remove hostname from list, as it was either replaced by IPs, or
        * is unresolvable. */
-      gvm_host_free (host);
       hosts->hosts[i] = NULL;
       resolved++;
       if (!list)
         g_warning ("Couldn't resolve hostname %s", host->name);
+      gvm_host_free (host);
       g_slist_free_full (list, g_free);
     }
   if (resolved)
