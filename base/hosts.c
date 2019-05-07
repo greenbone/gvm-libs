@@ -1333,7 +1333,7 @@ gvm_hosts_reverse (gvm_hosts_t *hosts)
 void
 gvm_hosts_resolve (gvm_hosts_t *hosts)
 {
-  size_t i, new_entries = 0;
+  size_t i, new_entries = 0 , resolved = 0;
 
   for (i = 0; i < hosts->count; i++)
     {
@@ -1374,14 +1374,15 @@ gvm_hosts_resolve (gvm_hosts_t *hosts)
        * is unresolvable. */
       gvm_host_free (host);
       hosts->hosts[i] = NULL;
-      hosts->count--;
-      hosts->removed++;
+      resolved++;
       if (!list)
         g_warning ("Couldn't resolve hostname %s", host->name);
-      else
-        gvm_hosts_fill_gaps (hosts);
       g_slist_free_full (list, g_free);
     }
+  if (resolved)
+    gvm_hosts_fill_gaps (hosts);
+  hosts->count -= resolved;
+  hosts->removed += resolved;
   if (new_entries)
     gvm_hosts_deduplicate (hosts);
   hosts->current = 0;
