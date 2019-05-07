@@ -104,6 +104,34 @@ vtref_free (vtref_t *ref)
 }
 
 /**
+ * @brief Get the type of a reference.
+ *
+ * @param r The VT Reference structure of which the type should
+ *          be returned.
+ *
+ * @return The type string. Don't free this.
+ */
+gchar *
+vtref_type (const vtref_t *r)
+{
+  return (r ? r->type : NULL);
+}
+
+/**
+ * @brief Get the id of a reference.
+ *
+ * @param r The VT Reference structure of which the id should
+ *          be returned.
+ *
+ * @return The id string. Don't free this.
+ */
+gchar *
+vtref_id (const vtref_t *r)
+{
+  return (r ? r->ref_id : NULL);
+}
+
+/**
  * @brief Add a reference to the VT Info.
  *
  * @param vt  The VT Info structure.
@@ -296,6 +324,34 @@ gchar *
 nvti_name (const nvti_t *n)
 {
   return (n ? n->name : NULL);
+}
+
+/**
+ * @brief Get the number of references of the NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @return The number of references.
+ */
+guint
+nvti_ref_len (const nvti_t *n)
+{
+  return (n ? g_slist_length (n->refs) : 0);
+}
+
+/**
+ * @brief Get the n'th reference of the NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param p The position of the reference to return.
+ *
+ * @return The reference. NULL on error.
+ */
+vtref_t *
+nvti_ref (const nvti_t *n, guint p)
+{
+  return (n ? g_slist_nth_data (n->refs, p) : NULL);
 }
 
 /**
@@ -521,7 +577,7 @@ nvti_pref_len (const nvti_t *n)
  *
  * @param p The position of the preference to return.
  *
- * @return The number of preferences. NULL if
+ * @return The preference. NULL on error.
  */
 const nvtpref_t *
 nvti_pref (const nvti_t *n, guint p)
