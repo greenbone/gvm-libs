@@ -1545,48 +1545,45 @@ gvm_hosts_exclude (gvm_hosts_t *hosts, const char *excluded_str)
 char *
 gvm_host_reverse_lookup (gvm_host_t *host)
 {
-  if (host == NULL)
+  int retry = 2;
+  gchar hostname[NI_MAXHOST];
+  void *addr;
+  size_t addrlen;
+  struct sockaddr_in sa;
+  struct sockaddr_in6 sa6;
+
+  if (!host)
     return NULL;
 
-  if (host->type == HOST_TYPE_NAME)
-    return NULL;
-  else if (host->type == HOST_TYPE_IPV4)
+  if (host->type == HOST_TYPE_IPV4)
     {
-      struct sockaddr_in sa;
-      int retry = 2;
-      gchar hostname[1000];
-
-      bzero (&sa, sizeof (struct sockaddr));
+      addr = &sa;
+      addrlen = sizeof (sa);
+      memset (addr, '\0', addrlen);
       sa.sin_addr = host->addr;
       sa.sin_family = AF_INET;
-      while (retry--)
-        {
-          int ret = getnameinfo ((struct sockaddr *) &sa, sizeof (sa), hostname,
-                                 sizeof (hostname), NULL, 0, NI_NAMEREQD);
-          if (!ret)
-            return g_ascii_strdown (hostname, -1);
-          if (ret != EAI_AGAIN)
-            break;
-        }
-      return NULL;
     }
   else if (host->type == HOST_TYPE_IPV6)
     {
-      struct sockaddr_in6 sa;
-      char hostname[1000];
-
-      bzero (&sa, sizeof (struct sockaddr));
-      memcpy (&sa.sin6_addr, &host->addr6, 16);
-      sa.sin6_family = AF_INET6;
-
-      if (getnameinfo ((struct sockaddr *) &sa, sizeof (sa), hostname,
-                       sizeof (hostname), NULL, 0, NI_NAMEREQD))
-        return NULL;
-      else
-        return g_ascii_strdown (hostname, -1);
+      addr = &sa6;
+      addrlen = sizeof (sa6);
+      memset (&sa6, '\0', addrlen);
+      memcpy (&sa6.sin6_addr, &host->addr6, 16);
+      sa6.sin6_family = AF_INET6;
     }
   else
     return NULL;
+
+  while (retry--)
+    {
+      int ret = getnameinfo (addr, addrlen, hostname, sizeof (hostname), NULL,
+                             0, NI_NAMEREQD);
+      if (!ret)
+        return g_ascii_strdown (hostname, -1);
+      if (ret != EAI_AGAIN)
+        break;
+    }
+  return NULL;
 }
 
 /**
