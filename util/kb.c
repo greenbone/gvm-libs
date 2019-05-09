@@ -267,31 +267,25 @@ get_redis_ctx (struct kb_redis *kbr)
   if (kbr->rctx != NULL)
     return kbr->rctx;
 
-  do
+  kbr->rctx = redisConnectUnix (kbr->path);
+  if (kbr->rctx == NULL || kbr->rctx->err)
     {
-      kbr->rctx = redisConnectUnix (kbr->path);
-      if (kbr->rctx == NULL || kbr->rctx->err)
-        {
-          g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-                 "%s: redis connection error: %s", __func__,
-                 kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
-          redisFree (kbr->rctx);
-          kbr->rctx = NULL;
-          return NULL;
-        }
-
-      rc = select_database (kbr);
-      if (rc)
-        {
-          g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-                 "%s: No redis DB available, retrying in %ds...", __func__,
-                 KB_RETRY_DELAY);
-          sleep (KB_RETRY_DELAY);
-          redisFree (kbr->rctx);
-          kbr->rctx = NULL;
-        }
+      g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+             "%s: redis connection error: %s", __func__,
+             kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
+      redisFree (kbr->rctx);
+      kbr->rctx = NULL;
+      return NULL;
     }
-  while (rc != 0);
+
+  rc = select_database (kbr);
+  if (rc)
+    {
+      g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL, "No redis DB available");
+      redisFree (kbr->rctx);
+      kbr->rctx = NULL;
+      return NULL;
+    }
 
   g_debug ("%s: connected to redis://%s/%d", __func__, kbr->path, kbr->db);
   return kbr->rctx;
