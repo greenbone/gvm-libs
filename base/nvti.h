@@ -110,9 +110,9 @@ vtref_id (const vtref_t *);
 int
 nvti_add_vtref (nvti_t *, vtref_t *);
 guint
-nvti_ref_len (const nvti_t *);
+nvti_vtref_len (const nvti_t *);
 vtref_t *
-nvti_ref (const nvti_t *, guint);
+nvti_vtref (const nvti_t *, guint);
 
 nvti_t *
 nvti_new (void);

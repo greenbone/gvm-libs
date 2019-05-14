@@ -341,7 +341,7 @@ nvti_name (const nvti_t *n)
  * @return The number of references.
  */
 guint
-nvti_ref_len (const nvti_t *n)
+nvti_vtref_len (const nvti_t *n)
 {
   return (n ? g_slist_length (n->refs) : 0);
 }
@@ -356,7 +356,7 @@ nvti_ref_len (const nvti_t *n)
  * @return The reference. NULL on error.
  */
 vtref_t *
-nvti_ref (const nvti_t *n, guint p)
+nvti_vtref (const nvti_t *n, guint p)
 {
   return (n ? g_slist_nth_data (n->refs, p) : NULL);
 }
