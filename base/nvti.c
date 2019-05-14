@@ -394,17 +394,16 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint
       if (exclude_types && exclude_types[0])
         {
           exclude_split = g_strsplit (exclude_types, ",", 0);
-          exclude_item = exclude_split;
           exclude = 0;
-          while (*exclude_item)
+          for (exclude_item = exclude_split; *exclude_item; exclude_item ++)
             {
               if (strcmp (g_strstrip (*exclude_item), ref->type) == 0)
                 {
                   exclude = 1;
                   break; 
                 }
-              exclude_item ++;
             }
+          g_strfreev (exclude_split);
         }
 
       if (! exclude)
@@ -937,7 +936,7 @@ nvti_add_refs (nvti_t *n, const gchar *type, const gchar *ref_ids,
 
   split = g_strsplit (ref_ids, ",", 0);
   item = split;
-  while (*item)
+  for (item = split; *item; item++)
     {
       gchar *id;
       gchar **split2;
@@ -946,10 +945,7 @@ nvti_add_refs (nvti_t *n, const gchar *type, const gchar *ref_ids,
       g_strstrip (id);
 
       if (strcmp (id, "") == 0)
-        {
-          item++;
-          continue;
-        }
+        continue;
 
       if (type)
         {
@@ -960,9 +956,8 @@ nvti_add_refs (nvti_t *n, const gchar *type, const gchar *ref_ids,
           split2 = g_strsplit (id, ":", 2);
           if (split2[0] && split2[1])
             nvti_add_ref (n, vtref_new (split2[0], split2[1], ""));
+          g_strfreev (split2);
         }
-
-      item++;
     }
   g_strfreev (split);
 
