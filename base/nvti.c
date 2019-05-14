@@ -121,7 +121,7 @@ vtref_free (vtref_t *ref)
  *
  * @return The type string. Don't free this.
  */
-gchar *
+const gchar *
 vtref_type (const vtref_t *r)
 {
   return (r ? r->type : NULL);
@@ -135,7 +135,7 @@ vtref_type (const vtref_t *r)
  *
  * @return The id string. Don't free this.
  */
-gchar *
+const gchar *
 vtref_id (const vtref_t *r)
 {
   return (r ? r->ref_id : NULL);
@@ -151,7 +151,7 @@ vtref_id (const vtref_t *r)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_add_ref (nvti_t *vt, vtref_t *ref)
+nvti_add_vtref (nvti_t *vt, vtref_t *ref)
 {
   if (!vt)
     return (-1);
@@ -966,7 +966,7 @@ nvti_add_refs (nvti_t *n, const gchar *type, const gchar *ref_ids,
 
       if (type)
         {
-          nvti_add_ref (n, vtref_new (type, id, ref_text));
+          nvti_add_vtref (n, vtref_new (type, id, ref_text));
         }
       else
         {
@@ -974,7 +974,7 @@ nvti_add_refs (nvti_t *n, const gchar *type, const gchar *ref_ids,
 
           split2 = g_strsplit (id, ":", 2);
           if (split2[0] && split2[1])
-            nvti_add_ref (n, vtref_new (split2[0], split2[1], ""));
+            nvti_add_vtref (n, vtref_new (split2[0], split2[1], ""));
           g_strfreev (split2);
         }
     }
@@ -1153,7 +1153,7 @@ nvti_add_required_udp_ports (nvti_t *n, const gchar *port)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_add_vtpref (nvti_t *n, nvtpref_t *np)
+nvti_add_pref (nvti_t *n, nvtpref_t *np)
 {
   if (!n)
     return (-1);

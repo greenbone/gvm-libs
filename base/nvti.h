@@ -102,13 +102,13 @@ vtref_t *
 vtref_new (const gchar *, const gchar *, const gchar *);
 void
 vtref_free (vtref_t *);
-gchar *
+const gchar *
 vtref_type (const vtref_t *);
-gchar *
+const gchar *
 vtref_id (const vtref_t *);
 
 int
-nvti_add_ref (nvti_t *, vtref_t *);
+nvti_add_vtref (nvti_t *, vtref_t *);
 guint
 nvti_ref_len (const nvti_t *);
 vtref_t *
@@ -192,7 +192,7 @@ nvti_add_required_ports (nvti_t *, const gchar *);
 int
 nvti_add_required_udp_ports (nvti_t *, const gchar *);
 int
-nvti_add_vtpref (nvti_t *, nvtpref_t *);
+nvti_add_pref (nvti_t *, nvtpref_t *);
 
 /* Collections of NVT Infos. */
 
