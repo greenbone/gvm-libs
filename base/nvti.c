@@ -398,15 +398,19 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint
   refs2 = NULL;
   exclude = 0;
 
+  if (exclude_types && exclude_types[0])
+      exclude_split = g_strsplit (exclude_types, ",", 0);
+  else
+      exclude_split = NULL;
+
   for (i = 0; i < g_slist_length (n->refs); i ++)
     {
       ref = g_slist_nth_data (n->refs, i);
       if (type && strcasecmp (ref->type, type) != 0)
         continue;
 
-      if (exclude_types && exclude_types[0])
+      if (exclude_split)
         {
-          exclude_split = g_strsplit (exclude_types, ",", 0);
           exclude = 0;
           for (exclude_item = exclude_split; *exclude_item; exclude_item ++)
             {
@@ -416,7 +420,6 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint
                   break;
                 }
             }
-          g_strfreev (exclude_split);
         }
 
       if (! exclude)
@@ -439,6 +442,8 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint
           refs = refs2;
         }
     }
+
+  g_strfreev (exclude_split);
 
   return (refs);
 }
