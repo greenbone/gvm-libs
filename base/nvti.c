@@ -55,6 +55,19 @@
 /* VT references */
 
 /**
+ * @brief The structure for a cross reference of a VT.
+ *
+ * The elements of this structure should only be accessed by the
+ * respective functions.
+ */
+typedef struct vtref
+{
+  gchar *type;     ///< Reference type ("cve", "bid", ...)
+  gchar *ref_id;   ///< The actual reference ID ("CVE-2018-1234", "https://example.org")
+  gchar *ref_text; ///< Optional additional text
+} vtref_t;
+
+/**
  * @brief Create a new vtref structure filled with the given values.
  *
  * @param type The type to be set. A copy is created of this.

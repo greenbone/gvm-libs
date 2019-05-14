@@ -63,16 +63,8 @@ nvtpref_id (const nvtpref_t *);
 
 /**
  * @brief The structure for a cross reference of a VT.
- *
- * The elements of this structure should never be accessed directly.
- * Only the functions corresponding to this module should be used.
  */
-typedef struct vtref
-{
-  gchar *type;     ///< Reference type ("cve", "bid", ...)
-  gchar *ref_id;   ///< The actual reference ID ("CVE-2018-1234", "https://example.org")
-  gchar *ref_text; ///< Optional additional text
-} vtref_t;
+typedef struct vtref vtref_t;
 
 /**
  * @brief The structure of a information record that corresponds to a NVT.
