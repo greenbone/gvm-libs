@@ -70,11 +70,11 @@ typedef struct vtref
 /**
  * @brief Create a new vtref structure filled with the given values.
  *
- * @param type The type to be set. A copy is created of this.
+ * @param type The type to be set.
  *
- * @param ref_id The actual reference to be set. A copy is created of this.
+ * @param ref_id The actual reference to be set.
  *
- * @param ref_text The optional text accompanying a reference. A copy is created of this.
+ * @param ref_text The optional text accompanying a reference.
  *
  * @return NULL in case the memory could not be allocated.
  *         Else a vtref structure which needs to be
