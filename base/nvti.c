@@ -1147,7 +1147,7 @@ nvti_add_required_udp_ports (nvti_t *n, const gchar *port)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_add_pref (nvti_t *n, nvtpref_t *np)
+nvti_add_vtpref (nvti_t *n, nvtpref_t *np)
 {
   if (!n)
     return (-1);

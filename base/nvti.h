@@ -192,7 +192,7 @@ nvti_add_required_ports (nvti_t *, const gchar *);
 int
 nvti_add_required_udp_ports (nvti_t *, const gchar *);
 int
-nvti_add_pref (nvti_t *, nvtpref_t *);
+nvti_add_vtpref (nvti_t *, nvtpref_t *);
 
 /* Collections of NVT Infos. */
 
