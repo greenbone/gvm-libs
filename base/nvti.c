@@ -387,12 +387,16 @@ nvti_ref (const nvti_t *n, guint p)
 gchar *
 nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint use_types)
 {
-  gchar *refs = NULL, *refs2 = NULL, **exclude_item;
+  gchar *refs, *refs2, **exclude_item;
   vtref_t * ref;
-  guint i, exclude = 0;
+  guint i, exclude;
   gchar **exclude_split;
 
   if (! n) return (NULL);
+
+  refs = NULL;
+  refs2 = NULL;
+  exclude = 0;
 
   for (i = 0; i < g_slist_length (n->refs); i ++)
     {
