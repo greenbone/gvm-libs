@@ -85,9 +85,6 @@ vtref_new (const gchar *type, const gchar *ref_id, const gchar *ref_text)
 {
   vtref_t *ref = g_malloc0 (sizeof (vtref_t));
 
-  if (!ref)
-    return NULL;
-
   if (type)
     ref->type = g_strdup (type);
   if (ref_id)
@@ -182,9 +179,6 @@ nvtpref_t *
 nvtpref_new (int id, gchar *name, gchar *type, gchar *dflt)
 {
   nvtpref_t *np = g_malloc0 (sizeof (nvtpref_t));
-
-  if (!np)
-    return NULL;
 
   np->id = id;
   if (name)
