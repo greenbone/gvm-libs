@@ -401,7 +401,7 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint
   for (i = 0; i < g_slist_length (n->refs); i ++)
     {
       ref = g_slist_nth_data (n->refs, i);
-      if (type && type[0] && strcasecmp (ref->type, type) != 0)
+      if (type && strcasecmp (ref->type, type) != 0)
         continue;
 
       if (exclude_types && exclude_types[0])
