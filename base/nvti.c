@@ -378,8 +378,10 @@ nvti_ref (const nvti_t *n, guint p)
  *
  * @return The references as string. This needs to be free'd.
  *         The format of the string depends on the "use_types" parameter.
- *         Either it is a comma-separated list "id, id, id" or additionally
- *         using the type like "type:id, type:id, type:id".
+ *         If use_types is 0 it is a comma-separated list "id, id, id"
+ *         is returned.
+ *         If use_types is not 0 a comma-separated list like
+ *         "type:id, type:id, type:id" is returned.
  *         NULL is returned in case n is NULL.
  */
 gchar *
