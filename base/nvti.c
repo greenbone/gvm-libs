@@ -407,7 +407,7 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint
               if (strcasecmp (g_strstrip (*exclude_item), ref->type) == 0)
                 {
                   exclude = 1;
-                  break; 
+                  break;
                 }
             }
           g_strfreev (exclude_split);
