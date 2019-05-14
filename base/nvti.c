@@ -948,7 +948,6 @@ nvti_add_refs (nvti_t *n, const gchar *type, const gchar *ref_ids,
   for (item = split; *item; item++)
     {
       gchar *id;
-      gchar **split2;
 
       id = *item;
       g_strstrip (id);
@@ -962,6 +961,8 @@ nvti_add_refs (nvti_t *n, const gchar *type, const gchar *ref_ids,
         }
       else
         {
+          gchar **split2;
+
           split2 = g_strsplit (id, ":", 2);
           if (split2[0] && split2[1])
             nvti_add_ref (n, vtref_new (split2[0], split2[1], ""));
