@@ -953,7 +953,7 @@ nvti_add_refs (nvti_t *n, const gchar *type, const gchar *ref_ids,
     return (1);
 
   split = g_strsplit (ref_ids, ",", 0);
-  item = split;
+
   for (item = split; *item; item++)
     {
       gchar *id;
