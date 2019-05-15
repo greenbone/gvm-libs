@@ -392,7 +392,7 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint
   guint i, exclude;
   gchar **exclude_split;
 
-  if (! n) return (NULL);
+  if (!n) return (NULL);
 
   refs = NULL;
   refs2 = NULL;
@@ -403,7 +403,7 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint
   else
       exclude_split = NULL;
 
-  for (i = 0; i < g_slist_length (n->refs); i ++)
+  for (i = 0; i < g_slist_length (n->refs); i++)
     {
       ref = g_slist_nth_data (n->refs, i);
       if (type && strcasecmp (ref->type, type) != 0)
@@ -412,7 +412,7 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint
       if (exclude_split)
         {
           exclude = 0;
-          for (exclude_item = exclude_split; *exclude_item; exclude_item ++)
+          for (exclude_item = exclude_split; *exclude_item; exclude_item++)
             {
               if (strcasecmp (g_strstrip (*exclude_item), ref->type) == 0)
                 {
@@ -422,7 +422,7 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint
             }
         }
 
-      if (! exclude)
+      if (!exclude)
         {
           if (use_types)
             {
