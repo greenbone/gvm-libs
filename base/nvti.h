@@ -62,6 +62,11 @@ int
 nvtpref_id (const nvtpref_t *);
 
 /**
+ * @brief The structure for a cross reference of a VT.
+ */
+typedef struct vtref vtref_t;
+
+/**
  * @brief The structure of a information record that corresponds to a NVT.
  *
  * The elements of this structure should never be accessed directly.
@@ -72,11 +77,6 @@ typedef struct nvti
   gchar *oid;  /**< @brief Object ID */
   gchar *name; /**< @brief The name */
 
-  gchar *cve;       /**< @brief List of CVEs, this NVT corresponds to */
-  gchar *bid;       /**< @brief List of Bugtraq IDs, this NVT
-                                corresponds to */
-  gchar *xref;      /**< @brief List of Cross-references, this NVT
-                                corresponds to */
   gchar *tag;       /**< @brief List of tags attached to this NVT */
   gchar *cvss_base; /**< @brief CVSS base score for this NVT. */
 
@@ -88,6 +88,7 @@ typedef struct nvti
   gchar
     *required_udp_ports; /**< @brief List of required UDP ports of this NVT*/
 
+  GSList *refs;  /**< @brief Collection of VT references */
   GSList *prefs; /**< @brief Collection of NVT preferences */
 
   // The following are not settled yet.
@@ -95,6 +96,23 @@ typedef struct nvti
   gint category; /**< @brief The category, this NVT belongs to */
   gchar *family; /**< @brief Family the NVT belongs to */
 } nvti_t;
+
+
+vtref_t *
+vtref_new (const gchar *, const gchar *, const gchar *);
+void
+vtref_free (vtref_t *);
+const gchar *
+vtref_type (const vtref_t *);
+const gchar *
+vtref_id (const vtref_t *);
+
+int
+nvti_add_vtref (nvti_t *, vtref_t *);
+guint
+nvti_vtref_len (const nvti_t *);
+vtref_t *
+nvti_vtref (const nvti_t *, guint);
 
 nvti_t *
 nvti_new (void);
@@ -106,11 +124,7 @@ nvti_oid (const nvti_t *);
 gchar *
 nvti_name (const nvti_t *);
 gchar *
-nvti_cve (const nvti_t *);
-gchar *
-nvti_bid (const nvti_t *);
-gchar *
-nvti_xref (const nvti_t *);
+nvti_refs (const nvti_t *, const gchar *, const char *, guint);
 gchar *
 nvti_tag (const nvti_t *);
 gchar *
@@ -143,12 +157,6 @@ nvti_set_oid (nvti_t *, const gchar *);
 int
 nvti_set_name (nvti_t *, const gchar *);
 int
-nvti_set_cve (nvti_t *, const gchar *);
-int
-nvti_set_bid (nvti_t *, const gchar *);
-int
-nvti_set_xref (nvti_t *, const gchar *);
-int
 nvti_set_tag (nvti_t *, const gchar *);
 int
 nvti_set_cvss_base (nvti_t *, const gchar *);
@@ -172,9 +180,7 @@ int
 nvti_set_family (nvti_t *, const gchar *);
 
 int
-nvti_add_cve (nvti_t *, const gchar *);
-int
-nvti_add_bid (nvti_t *, const gchar *);
+nvti_add_refs (nvti_t *, const gchar *, const gchar *, const gchar *);
 int
 nvti_add_required_keys (nvti_t *, const gchar *);
 int

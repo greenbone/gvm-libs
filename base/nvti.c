@@ -47,9 +47,120 @@
 #include "nvti.h"
 
 #include <stdio.h>
+#include <string.h> // for strcmp
 
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  nvti"
+
+/* VT references */
+
+/**
+ * @brief The structure for a cross reference of a VT.
+ *
+ * The elements of this structure should only be accessed by the
+ * respective functions.
+ */
+typedef struct vtref
+{
+  gchar *type;     ///< Reference type ("cve", "bid", ...)
+  gchar *ref_id;   ///< The actual reference ID ("CVE-2018-1234", "https://example.org")
+  gchar *ref_text; ///< Optional additional text
+} vtref_t;
+
+/**
+ * @brief Create a new vtref structure filled with the given values.
+ *
+ * @param type The type to be set.
+ *
+ * @param ref_id The actual reference to be set.
+ *
+ * @param ref_text The optional text accompanying a reference.
+ *
+ * @return NULL in case the memory could not be allocated.
+ *         Else a vtref structure which needs to be
+ *         released using @ref vtref_free .
+ */
+vtref_t *
+vtref_new (const gchar *type, const gchar *ref_id, const gchar *ref_text)
+{
+  vtref_t *ref = g_malloc0 (sizeof (vtref_t));
+
+  if (type)
+    ref->type = g_strdup (type);
+  if (ref_id)
+    ref->ref_id = g_strdup (ref_id);
+  if (ref_text)
+    ref->ref_text = g_strdup (ref_text);
+
+  return (ref);
+}
+
+
+/**
+ * @brief Free memory of a vtref structure.
+ *
+ * @param np The structure to be freed.
+ */
+void
+vtref_free (vtref_t *ref)
+{
+  if (!ref)
+    return;
+
+  g_free (ref->type);
+  g_free (ref->ref_id);
+  g_free (ref->ref_text);
+  g_free (ref);
+}
+
+/**
+ * @brief Get the type of a reference.
+ *
+ * @param r The VT Reference structure of which the type should
+ *          be returned.
+ *
+ * @return The type string. Don't free this.
+ */
+const gchar *
+vtref_type (const vtref_t *r)
+{
+  return (r ? r->type : NULL);
+}
+
+/**
+ * @brief Get the id of a reference.
+ *
+ * @param r The VT Reference structure of which the id should
+ *          be returned.
+ *
+ * @return The id string. Don't free this.
+ */
+const gchar *
+vtref_id (const vtref_t *r)
+{
+  return (r ? r->ref_id : NULL);
+}
+
+/**
+ * @brief Add a reference to the VT Info.
+ *
+ * @param vt  The VT Info structure.
+ *
+ * @param ref The VT reference to add.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_add_vtref (nvti_t *vt, vtref_t *ref)
+{
+  if (!vt)
+    return (-1);
+
+  vt->refs = g_slist_append (vt->refs, ref);
+  return (0);
+}
+
+/* VT preferences */
 
 /**
  * @brief Create a new nvtpref structure filled with the given values.
@@ -68,9 +179,6 @@ nvtpref_t *
 nvtpref_new (int id, gchar *name, gchar *type, gchar *dflt)
 {
   nvtpref_t *np = g_malloc0 (sizeof (nvtpref_t));
-
-  if (!np)
-    return NULL;
 
   np->id = id;
   if (name)
@@ -183,9 +291,6 @@ nvti_free (nvti_t *n)
 
   g_free (n->oid);
   g_free (n->name);
-  g_free (n->cve);
-  g_free (n->bid);
-  g_free (n->xref);
   g_free (n->tag);
   g_free (n->cvss_base);
   g_free (n->dependencies);
@@ -195,6 +300,7 @@ nvti_free (nvti_t *n)
   g_free (n->required_ports);
   g_free (n->required_udp_ports);
   g_free (n->family);
+  g_slist_free_full (n->refs, (void (*) (void *)) vtref_free);
   g_slist_free_full (n->prefs, (void (*) (void *)) nvtpref_free);
   g_free (n);
 }
@@ -228,45 +334,118 @@ nvti_name (const nvti_t *n)
 }
 
 /**
- * @brief Get the CVE references.
+ * @brief Get the number of references of the NVT.
  *
- * @param n The NVT Info structure of which the name should
- *          be returned.
+ * @param n The NVT Info structure.
  *
- * @return The CVE list as string. Don't free this.
+ * @return The number of references.
  */
-gchar *
-nvti_cve (const nvti_t *n)
+guint
+nvti_vtref_len (const nvti_t *n)
 {
-  return (n ? n->cve : NULL);
+  return (n ? g_slist_length (n->refs) : 0);
 }
 
 /**
- * @brief Get the bid references.
+ * @brief Get the n'th reference of the NVT.
  *
- * @param n The NVT Info structure of which the name should
- *          be returned.
+ * @param n The NVT Info structure.
  *
- * @return The bid list as string. Don't free this.
+ * @param p The position of the reference to return.
+ *
+ * @return The reference. NULL on error.
  */
-gchar *
-nvti_bid (const nvti_t *n)
+vtref_t *
+nvti_vtref (const nvti_t *n, guint p)
 {
-  return (n ? n->bid : NULL);
+  return (n ? g_slist_nth_data (n->refs, p) : NULL);
 }
 
 /**
- * @brief Get the xref's.
+ * @brief Get references as string.
  *
- * @param n The NVT Info structure of which the name should
+ * @param n The NVT Info structure of which the references should
  *          be returned.
  *
- * @return The xref string. Don't free this.
+ * @param type Optional type to collect. If NULL, all types are collected.
+ *
+ * @param exclude_type Optional CSC list of types to exclude from collection.
+ *                     If NULL, no types are excluded.
+ *
+ * @param use_types If 0, then a simple comma separated list will be returned.
+ *                  If not 0, then for each reference the syntax "type:id" is
+ *                  applied.
+ *
+ * @return The references as string. This needs to be free'd.
+ *         The format of the string depends on the "use_types" parameter.
+ *         If use_types is 0 it is a comma-separated list "id, id, id"
+ *         is returned.
+ *         If use_types is not 0 a comma-separated list like
+ *         "type:id, type:id, type:id" is returned.
+ *         NULL is returned in case n is NULL.
  */
 gchar *
-nvti_xref (const nvti_t *n)
+nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint use_types)
 {
-  return (n ? n->xref : NULL);
+  gchar *refs, *refs2, **exclude_item;
+  vtref_t * ref;
+  guint i, exclude;
+  gchar **exclude_split;
+
+  if (!n) return (NULL);
+
+  refs = NULL;
+  refs2 = NULL;
+  exclude = 0;
+
+  if (exclude_types && exclude_types[0])
+      exclude_split = g_strsplit (exclude_types, ",", 0);
+  else
+      exclude_split = NULL;
+
+  for (i = 0; i < g_slist_length (n->refs); i++)
+    {
+      ref = g_slist_nth_data (n->refs, i);
+      if (type && strcasecmp (ref->type, type) != 0)
+        continue;
+
+      if (exclude_split)
+        {
+          exclude = 0;
+          for (exclude_item = exclude_split; *exclude_item; exclude_item++)
+            {
+              if (strcasecmp (g_strstrip (*exclude_item), ref->type) == 0)
+                {
+                  exclude = 1;
+                  break;
+                }
+            }
+        }
+
+      if (!exclude)
+        {
+          if (use_types)
+            {
+              if (refs)
+                refs2 = g_strdup_printf ("%s, %s:%s", refs, ref->type, ref->ref_id);
+              else
+                refs2 = g_strdup_printf ("%s:%s", ref->type, ref->ref_id);
+            }
+          else
+            {
+              if (refs)
+                refs2 = g_strdup_printf ("%s, %s", refs, ref->ref_id);
+              else
+                refs2 = g_strdup_printf ("%s", ref->ref_id);
+            }
+          g_free (refs);
+          refs = refs2;
+        }
+    }
+
+  g_strfreev (exclude_split);
+
+  return (refs);
 }
 
 /**
@@ -415,7 +594,7 @@ nvti_pref_len (const nvti_t *n)
  *
  * @param p The position of the preference to return.
  *
- * @return The number of preferences. NULL if
+ * @return The preference. NULL on error.
  */
 const nvtpref_t *
 nvti_pref (const nvti_t *n, guint p)
@@ -489,72 +668,6 @@ nvti_set_name (nvti_t *n, const gchar *name)
   if (n->name)
     g_free (n->name);
   n->name = g_strdup (name);
-  return (0);
-}
-
-/**
- * @brief Set the CVE references of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param cve The cve list to set. A copy will be created from this.
- *
- * @return 0 for success. Anything else indicates an error.
- */
-int
-nvti_set_cve (nvti_t *n, const gchar *cve)
-{
-  if (!n)
-    return (-1);
-
-  if (n->cve)
-    g_free (n->cve);
-  n->cve = g_strdup (cve);
-  return (0);
-}
-
-/**
- * @brief Set the bid references of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param bid The bid to set. A copy will be created from this.
- *
- * @return 0 for success. Anything else indicates an error.
- */
-int
-nvti_set_bid (nvti_t *n, const gchar *bid)
-{
-  if (!n)
-    return (-1);
-
-  if (n->bid)
-    g_free (n->bid);
-  n->bid = g_strdup (bid);
-  return (0);
-}
-
-/**
- * @brief Set the xrefs of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param xref The xrefs to set. A copy will be created from this.
- *
- * @return 0 for success. Anything else indicates an error.
- */
-int
-nvti_set_xref (nvti_t *n, const gchar *xref)
-{
-  if (!n)
-    return (-1);
-
-  if (n->xref)
-    g_free (n->xref);
-  if (xref && xref[0])
-    n->xref = g_strdup (xref);
-  else
-    n->xref = NULL;
   return (0);
 }
 
@@ -816,65 +929,56 @@ nvti_set_category (nvti_t *n, const gint category)
 }
 
 /**
- * @brief Add a single CVE ID of a NVT.
+ * @brief Add many new vtref from a comma-separated list.
  *
- * @param n The NVT Info structure.
+ * @param n The NVTI where to add the references.
  *
- * @param cve_id The CVE ID to add. A copy will be created from this.
+ * @param type The type for all references. If NULL, then for ref_ids
+ *             a syntax is expected that includes the type like
+ *             "type:id,type:id". A copy of type is created.
  *
- * @return 0 for success. 1 if n was NULL, 2 if cve_id was NULL.
+ * @param ref_ids A CSV of reference to be added. A copy is of this.
+ *
+ * @param ref_text The optional text accompanying all references. A copy is created of this.
+ *
+ * @return 0 for success. 1 if n was NULL.
  */
 int
-nvti_add_cve (nvti_t *n, const gchar *cve_id)
+nvti_add_refs (nvti_t *n, const gchar *type, const gchar *ref_ids,
+               const gchar *ref_text)
 {
-  gchar *old;
+  gchar **split, **item;
 
   if (!n)
     return (1);
-  if (!cve_id)
-    return (2);
 
-  old = n->cve;
+  split = g_strsplit (ref_ids, ",", 0);
 
-  if (old)
+  for (item = split; *item; item++)
     {
-      n->cve = g_strdup_printf ("%s, %s", old, cve_id);
-      g_free (old);
+      gchar *id;
+
+      id = *item;
+      g_strstrip (id);
+
+      if (strcmp (id, "") == 0)
+        continue;
+
+      if (type)
+        {
+          nvti_add_vtref (n, vtref_new (type, id, ref_text));
+        }
+      else
+        {
+          gchar **split2;
+
+          split2 = g_strsplit (id, ":", 2);
+          if (split2[0] && split2[1])
+            nvti_add_vtref (n, vtref_new (split2[0], split2[1], ""));
+          g_strfreev (split2);
+        }
     }
-  else
-    n->cve = g_strdup (cve_id);
-
-  return (0);
-}
-
-/**
- * @brief Add a single BID ID of a NVT.
- *
- * @param n The NVT Info structure.
- *
- * @param bid_id The BID ID to add. A copy will be created from this.
- *
- * @return 0 for success. 1 if n was NULL. 2 if bid_id was NULL.
- */
-int
-nvti_add_bid (nvti_t *n, const gchar *bid_id)
-{
-  gchar *old;
-
-  if (!n)
-    return (1);
-  if (!bid_id)
-    return (2);
-
-  old = n->bid;
-
-  if (old)
-    {
-      n->bid = g_strdup_printf ("%s, %s", old, bid_id);
-      g_free (old);
-    }
-  else
-    n->bid = g_strdup (bid_id);
+  g_strfreev (split);
 
   return (0);
 }

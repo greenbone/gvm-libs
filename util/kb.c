@@ -864,9 +864,9 @@ redis_get_nvt_all (kb_t kb, const char *oid)
       nvti_set_required_ports (nvti, rep->element[NVT_REQUIRED_PORTS_POS]->str);
       nvti_set_dependencies (nvti, rep->element[NVT_DEPENDENCIES_POS]->str);
       nvti_set_tag (nvti, rep->element[NVT_TAGS_POS]->str);
-      nvti_set_cve (nvti, rep->element[NVT_CVES_POS]->str);
-      nvti_set_bid (nvti, rep->element[NVT_BIDS_POS]->str);
-      nvti_set_xref (nvti, rep->element[NVT_XREFS_POS]->str);
+      nvti_add_refs (nvti, "cve", rep->element[NVT_CVES_POS]->str, "");
+      nvti_add_refs (nvti, "bid", rep->element[NVT_BIDS_POS]->str, "");
+      nvti_add_refs (nvti, NULL, rep->element[NVT_XREFS_POS]->str, "");
       nvti_set_category (nvti, atoi (rep->element[NVT_CATEGORY_POS]->str));
       nvti_set_timeout (nvti, atoi (rep->element[NVT_TIMEOUT_POS]->str));
       nvti_set_family (nvti, rep->element[NVT_FAMILY_POS]->str);
@@ -1288,9 +1288,14 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
   redisReply *rep = NULL;
   int rc = 0;
   GSList *element;
+  gchar *cves, *bids, *xrefs;
 
   if (!nvt || !filename)
     return -1;
+
+  cves = nvti_refs (nvt, "cve", "", 0);
+  bids = nvti_refs (nvt, "bid", "", 0);
+  xrefs = nvti_refs (nvt, NULL, "cve,bid", 1);
 
   kbr = redis_kb (kb);
   rep = redis_cmd (
@@ -1298,9 +1303,12 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
     nvti_oid (nvt), filename, nvti_required_keys (nvt) ?: "",
     nvti_mandatory_keys (nvt) ?: "", nvti_excluded_keys (nvt) ?: "",
     nvti_required_udp_ports (nvt) ?: "", nvti_required_ports (nvt) ?: "",
-    nvti_dependencies (nvt) ?: "", nvti_tag (nvt) ?: "", nvti_cve (nvt) ?: "",
-    nvti_bid (nvt) ?: "", nvti_xref (nvt) ?: "", nvti_category (nvt),
+    nvti_dependencies (nvt) ?: "", nvti_tag (nvt) ?: "", cves ?: "",
+    bids ?: "", xrefs ?: "", nvti_category (nvt),
     nvti_timeout (nvt), nvti_family (nvt), nvti_name (nvt));
+  g_free (cves);
+  g_free (bids);
+  g_free (xrefs);
   if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
     rc = -1;
   if (rep != NULL)
