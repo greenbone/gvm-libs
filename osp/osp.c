@@ -421,19 +421,21 @@ osp_delete_scan (osp_connection_t *connection, const char *scan_id)
 }
 
 /**
- * @brief Get a scan from an OSP server.
+ * @brief Get a scan from an OSP server, optionally removing the results.
  *
  * @param[in]   connection  Connection to an OSP server.
  * @param[in]   scan_id     ID of scan to get.
  * @param[out]  report_xml  Scans report.
  * @param[in]   details     0 for no scan details, 1 otherwise.
+ * @param[in]   pop_results 0 to leave results, 1 to pop results from scanner.
  * @param[out]  error       Pointer to error, if any.
  *
  * @return Scan progress if success, -1 if error.
  */
 int
-osp_get_scan (osp_connection_t *connection, const char *scan_id,
-              char **report_xml, int details, char **error)
+osp_get_scan_pop (osp_connection_t *connection, const char *scan_id,
+                  char **report_xml, int details, int pop_results,
+                  char **error)
 {
   entity_t entity, child;
   int progress;
@@ -442,7 +444,11 @@ osp_get_scan (osp_connection_t *connection, const char *scan_id,
   assert (connection);
   assert (scan_id);
   rc = osp_send_command (connection, &entity,
-                         "<get_scans scan_id='%s' details='%d'/>", scan_id,
+                         "<get_scans scan_id='%s'"
+                         " details='%d'"
+                         " pop_results='%d'/>",
+                         scan_id,
+                         pop_results ? 1 : 0,
                          details ? 1 : 0);
   if (rc)
     {
@@ -473,6 +479,24 @@ osp_get_scan (osp_connection_t *connection, const char *scan_id,
     }
   free_entity (entity);
   return progress;
+}
+
+/**
+ * @brief Get a scan from an OSP server.
+ *
+ * @param[in]   connection  Connection to an OSP server.
+ * @param[in]   scan_id     ID of scan to get.
+ * @param[out]  report_xml  Scans report.
+ * @param[in]   details     0 for no scan details, 1 otherwise.
+ * @param[out]  error       Pointer to error, if any.
+ *
+ * @return Scan progress if success, -1 if error.
+ */
+int
+osp_get_scan (osp_connection_t *connection, const char *scan_id,
+              char **report_xml, int details, char **error)
+{
+  return osp_get_scan_pop (connection, scan_id, report_xml, details, 0, error);
 }
 
 /**
