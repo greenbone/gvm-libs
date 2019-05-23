@@ -134,11 +134,17 @@ osp_param_free (osp_param_t *);
 /* OSP credential handling */
 
 osp_credential_t *
-osp_credential_new (const char *, const char *, const char *, const char *,
-                    const char *);
+osp_credential_new (const char *, const char *, const char *);
 
 void
 osp_credential_free (osp_credential_t *);
+
+const gchar*
+osp_credential_get_auth_data (osp_credential_t *, const char*);
+
+void
+osp_credential_set_auth_data (osp_credential_t *, const char*, const char*);
+
 
 /* OSP targets handling */
 

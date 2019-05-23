@@ -72,11 +72,10 @@ struct osp_param
  */
 struct osp_credential
 {
-  gchar *type;      /**< Credential type */
-  gchar *service;   /**< Service the credential is for */
-  gchar *port;      /**< Port the credential is for */
-  gchar *username;  /**< Username of the credential */
-  gchar *password;  /**< Password of the credential */
+  gchar *type;            /**< Credential type */
+  gchar *service;         /**< Service the credential is for */
+  gchar *port;            /**< Port the credential is for */
+  GHashTable *auth_data;  /**< Authentication data (username, password, etc.)*/
 };
 
 /**
@@ -640,24 +639,25 @@ credential_append_as_xml (osp_credential_t *credential,
                           GString *xml_string)
 
 {
+  GHashTableIter auth_data_iter;
+  gchar *auth_data_name, *auth_data_value;
+
   xml_string_append (xml_string,
                      "<credential type=\"%s\" service=\"%s\" port=\"%s\">",
                      credential->type ? credential->type : "",
                      credential->service ? credential->service : "",
                      credential->port ? credential->port : "");
 
-  if (credential->username)
+  g_hash_table_iter_init (&auth_data_iter, credential->auth_data);
+  while (g_hash_table_iter_next (&auth_data_iter,
+                                 (gpointer*)&auth_data_name,
+                                 (gpointer*)&auth_data_value))
     {
       xml_string_append (xml_string,
-                         "<username>%s</username>",
-                         credential->username);
-    }
-
-  if (credential->password)
-    {
-      xml_string_append (xml_string,
-                         "<password>%s</password>",
-                         credential->password);
+                         "<%s>%s</%s>",
+                         auth_data_name,
+                         auth_data_value,
+                         auth_data_name);
     }
 
   xml_string_append (xml_string, "</credential>");
@@ -1108,8 +1108,7 @@ osp_param_free (osp_param_t *param)
  * @return New osp credential.
  */
 osp_credential_t *
-osp_credential_new (const char *type, const char *service, const char *port,
-                    const char *username, const char *password)
+osp_credential_new (const char *type, const char *service, const char *port)
 {
   osp_credential_t *new_credential;
 
@@ -1118,8 +1117,10 @@ osp_credential_new (const char *type, const char *service, const char *port,
   new_credential->type = type ? g_strdup (type) : NULL;
   new_credential->service = service ? g_strdup (service) : NULL;
   new_credential->port = port ? g_strdup (port) : NULL;
-  new_credential->username = username ? g_strdup (username) : NULL;
-  new_credential->password = password ? g_strdup (password) : NULL;
+  new_credential->auth_data = g_hash_table_new_full (g_str_hash,
+                                                     g_str_equal,
+                                                     g_free,
+                                                     g_free);
 
   return new_credential;
 }
@@ -1138,9 +1139,56 @@ osp_credential_free (osp_credential_t *credential)
   g_free (credential->type);
   g_free (credential->service);
   g_free (credential->port);
-  g_free (credential->username);
-  g_free (credential->password);
+  g_hash_table_destroy (credential->auth_data);
   g_free (credential);
+}
+
+/**
+ * @brief Get authentication data from an OSP credential.
+ *
+ * @param[in]  credential  The credential to get the data from.
+ * @param[in]  name        The name of the data item to get.
+ *
+ * @return The requested authentication data or NULL if not available.
+ */
+const gchar *
+osp_credential_get_auth_data (osp_credential_t *credential,
+                              const char *name)
+{
+  if (credential == NULL || name == NULL)
+    return NULL;
+  return g_hash_table_lookup (credential->auth_data, name);
+}
+
+/**
+ * @brief Get authentication data from an OSP credential.
+ *
+ * @param[in]  credential  The credential to get the data from.
+ * @param[in]  name        The name of the data item to get.
+ * @param[in]  value       The authentication data or NULL to unset.
+ */
+void
+osp_credential_set_auth_data (osp_credential_t *credential,
+                              const char *name,
+                              const char *value)
+{
+  if (credential == NULL || name == NULL)
+    return;
+
+  if (g_regex_match_simple ("^[[:alpha:]][[:alnum:]_]*$", name, 0, 0))
+    {
+      if (value)
+        g_hash_table_replace (credential->auth_data,
+                              g_strdup (name),
+                              g_strdup (value));
+      else
+        g_hash_table_remove (credential->auth_data,
+                             value);
+    }
+  else
+    {
+      g_warning ("%s: Invalid auth data name: %s", __FUNCTION__, name);
+    }
 }
 
 /**
