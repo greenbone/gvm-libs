@@ -2,12 +2,12 @@ version: 2
 jobs:
   check_format:
     docker:
-      - image: greenbone/build-env-gvm-libs-master-debian-stretch-clang-core
+      - image: greenbone/build-env-gvm-libs-master-debian-buster-clang-core
     steps:
       - checkout
       - run:
           name: Check Source Format
-          command: clang-format-6.0 -i -style=file base/*.{c,h} && git diff | grep -qv ^
+          command: clang-format -i -style=file base/*.{c,h} && git diff | grep -qv ^
   build_gcc_core:
     docker:
       - image: greenbone/build-env-gvm-libs-master-debian-stretch-gcc-core
