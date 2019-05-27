@@ -141,6 +141,20 @@ vtref_id (const vtref_t *r)
 }
 
 /**
+ * @brief Get the text of a reference.
+ *
+ * @param r The VT Reference structure of which the id should
+ *          be returned.
+ *
+ * @return The id string. Don't free this.
+ */
+const gchar *
+vtref_text (const vtref_t *r)
+{
+  return (r ? r->ref_text : NULL);
+}
+
+/**
  * @brief Add a reference to the VT Info.
  *
  * @param vt  The VT Info structure.
