@@ -7,7 +7,7 @@ jobs:
       - checkout
       - run:
           name: Check Source Format
-          command: clang-format -i -style=file base/*.{c,h} && git diff | grep -qv ^
+          command: clang-format -i -style=file base/*.{c,h} && git diff --exit-code
   build_gcc_core:
     docker:
       - image: greenbone/build-env-gvm-libs-master-debian-stretch-gcc-core
