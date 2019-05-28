@@ -149,7 +149,7 @@ osp_credential_set_auth_data (osp_credential_t *, const char*, const char*);
 /* OSP targets handling */
 
 osp_target_t *
-osp_target_new (const char *, const char *);
+osp_target_new (const char *, const char *, const char *);
 
 void
 osp_target_free (osp_target_t *);

@@ -83,9 +83,10 @@ struct osp_credential
  */
 struct osp_target
 {
+  GSList *credentials;  /** Credentials to use in the scan */
+  gchar *exclude_hosts; /** String defining one or many hosts to exclude */
   gchar *hosts;         /** String defining one or many hosts to scan */
   gchar *ports;         /** String defining the ports to scan */
-  GSList *credentials;  /** Credentials to use in the scan */
 };
 
 /**
@@ -1194,17 +1195,21 @@ osp_credential_set_auth_data (osp_credential_t *credential,
 /**
  * @brief Create a new OSP target.
  *
- * @param[in]  hosts  The hostnames of the target.
- * @param[in]  ports  The ports of the target.
+ * @param[in]  hosts          The hostnames of the target.
+ * @param[in]  ports          The ports of the target.
+ * @param[in]  exclude_hosts  The excluded hosts of the target.
  *
  * @return The newly allocated osp_target_t.
  */
 osp_target_t *
-osp_target_new (const char *hosts, const char *ports)
+osp_target_new (const char *hosts,
+                const char *ports,
+                const char *exclude_hosts)
 {
   osp_target_t *new_target;
   new_target = g_malloc0 (sizeof (osp_target_t));
 
+  new_target->exclude_hosts = exclude_hosts ? g_strdup (exclude_hosts) : NULL;
   new_target->hosts = hosts ? g_strdup (hosts) : NULL;
   new_target->ports = ports ? g_strdup (ports) : NULL;
 
@@ -1224,6 +1229,7 @@ osp_target_free (osp_target_t *target)
 
   g_slist_free_full (target->credentials,
                      (GDestroyNotify) osp_credential_free);
+  g_free (target->exclude_hosts);
   g_free (target->hosts);
   g_free (target->ports);
   g_free (target);
