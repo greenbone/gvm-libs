@@ -204,7 +204,7 @@ gvm_gpg_import_many_types_from_string (gpgme_ctx_t ctx,
       unsigned int index;
       for (index = 0; index < key_types->len; index++)
         {
-          if (g_array_index(key_types, gpgme_data_type_t, index)
+          if (g_array_index (key_types, gpgme_data_type_t, index)
                 == given_key_type)
             break;
         }
@@ -219,7 +219,7 @@ gvm_gpg_import_many_types_from_string (gpgme_ctx_t ctx,
                 g_string_append (expected_buffer, " or ");
               g_string_append_printf (expected_buffer,
                                       "%d",
-                                      g_array_index(key_types,
+                                      g_array_index (key_types,
                                                     gpgme_data_type_t,
                                                     index));
             }
