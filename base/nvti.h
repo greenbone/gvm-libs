@@ -97,7 +97,6 @@ typedef struct nvti
   gchar *family; /**< @brief Family the NVT belongs to */
 } nvti_t;
 
-
 vtref_t *
 vtref_new (const gchar *, const gchar *, const gchar *);
 void
@@ -106,6 +105,8 @@ const gchar *
 vtref_type (const vtref_t *);
 const gchar *
 vtref_id (const vtref_t *);
+const gchar *
+vtref_text (const vtref_t *);
 
 int
 nvti_add_vtref (nvti_t *, vtref_t *);

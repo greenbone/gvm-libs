@@ -63,7 +63,7 @@
 typedef struct vtref
 {
   gchar *type;     ///< Reference type ("cve", "bid", ...)
-  gchar *ref_id;   ///< The actual reference ID ("CVE-2018-1234", "https://example.org")
+  gchar *ref_id;   ///< Actual reference ID ("CVE-2018-1234", etc)
   gchar *ref_text; ///< Optional additional text
 } vtref_t;
 
@@ -94,7 +94,6 @@ vtref_new (const gchar *type, const gchar *ref_id, const gchar *ref_text)
 
   return (ref);
 }
-
 
 /**
  * @brief Free memory of a vtref structure.
@@ -139,6 +138,20 @@ const gchar *
 vtref_id (const vtref_t *r)
 {
   return (r ? r->ref_id : NULL);
+}
+
+/**
+ * @brief Get the text of a reference.
+ *
+ * @param r The VT Reference structure of which the id should
+ *          be returned.
+ *
+ * @return The id string. Don't free this.
+ */
+const gchar *
+vtref_text (const vtref_t *r)
+{
+  return (r ? r->ref_text : NULL);
 }
 
 /**
@@ -385,23 +398,25 @@ nvti_vtref (const nvti_t *n, guint p)
  *         NULL is returned in case n is NULL.
  */
 gchar *
-nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint use_types)
+nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types,
+           guint use_types)
 {
   gchar *refs, *refs2, **exclude_item;
-  vtref_t * ref;
+  vtref_t *ref;
   guint i, exclude;
   gchar **exclude_split;
 
-  if (!n) return (NULL);
+  if (!n)
+    return (NULL);
 
   refs = NULL;
   refs2 = NULL;
   exclude = 0;
 
   if (exclude_types && exclude_types[0])
-      exclude_split = g_strsplit (exclude_types, ",", 0);
+    exclude_split = g_strsplit (exclude_types, ",", 0);
   else
-      exclude_split = NULL;
+    exclude_split = NULL;
 
   for (i = 0; i < g_slist_length (n->refs); i++)
     {
@@ -427,7 +442,8 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types, guint
           if (use_types)
             {
               if (refs)
-                refs2 = g_strdup_printf ("%s, %s:%s", refs, ref->type, ref->ref_id);
+                refs2 =
+                  g_strdup_printf ("%s, %s:%s", refs, ref->type, ref->ref_id);
               else
                 refs2 = g_strdup_printf ("%s:%s", ref->type, ref->ref_id);
             }
@@ -935,11 +951,11 @@ nvti_set_category (nvti_t *n, const gint category)
  *
  * @param type The type for all references. If NULL, then for ref_ids
  *             a syntax is expected that includes the type like
- *             "type:id,type:id". A copy of type is created.
+ *             "type:id,type:id".
  *
- * @param ref_ids A CSV of reference to be added. A copy is of this.
+ * @param ref_ids A CSV of reference to be added.
  *
- * @param ref_text The optional text accompanying all references. A copy is created of this.
+ * @param ref_text The optional text accompanying all references.
  *
  * @return 0 for success. 1 if n was NULL.
  */
