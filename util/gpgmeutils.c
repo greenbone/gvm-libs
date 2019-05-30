@@ -171,40 +171,67 @@ gvm_init_gpgme_ctx_from_dir (const gchar *dir)
  * @param[in]  ctx      The GPGME context to import the key / certificate into.
  * @param[in]  key_str  Key or certificate string.
  * @param[in]  key_len  Length of key/certificate string or -1 to use strlen.
- * @param[in]  key_type The expected key type.
+ * @param[in]  key_types   GArray of expected key types.
  *
  * @return 0 success, 1 invalid key data, 2 unexpected key data,
  *  3 error importing key/certificate, -1 error.
  */
 int
-gvm_gpg_import_from_string (gpgme_ctx_t ctx, const char *key_str,
-                            ssize_t key_len, gpgme_data_type_t key_type)
+gvm_gpg_import_many_types_from_string (gpgme_ctx_t ctx,
+                                       const char *key_str,
+                                       ssize_t key_len,
+                                       GArray* key_types)
 {
   gpgme_data_t key_data;
   gpgme_error_t err;
   gpgme_data_type_t given_key_type;
   gpgme_import_result_t import_result;
+  int ret;
 
   gpgme_data_new_from_mem (
     &key_data, key_str, (key_len >= 0 ? key_len : (ssize_t) strlen (key_str)),
     0);
 
   given_key_type = gpgme_data_identify (key_data, 0);
-  if (given_key_type != key_type)
+  ret = 0;
+  if (given_key_type == GPGME_DATA_TYPE_INVALID)
     {
-      int ret;
-      if (given_key_type == GPGME_DATA_TYPE_INVALID)
+      ret = 1;
+      g_warning ("%s: key_str is invalid", __FUNCTION__);
+    }
+  else
+    {
+      unsigned int index;
+      for (index = 0; index < key_types->len; index++)
         {
-          ret = 1;
-          g_warning ("%s: key_str is invalid", __FUNCTION__);
+          if (g_array_index (key_types, gpgme_data_type_t, index)
+                == given_key_type)
+            break;
         }
-      else
+
+      if (index >= key_types->len)
         {
           ret = 2;
+          GString *expected_buffer = g_string_new ("");
+          for (index = 0; index < key_types->len; index++)
+            {
+              if (index)
+                g_string_append (expected_buffer, " or ");
+              g_string_append_printf (expected_buffer,
+                                      "%d",
+                                      g_array_index (key_types,
+                                                    gpgme_data_type_t,
+                                                    index));
+            }
           g_warning ("%s: key_str is not the expected type: "
-                     " expected: %d, got %d",
-                     __FUNCTION__, key_type, given_key_type);
+                     " expected: %s, got %d",
+                     __FUNCTION__, expected_buffer->str, given_key_type);
+          g_string_free (expected_buffer, TRUE);
         }
+    }
+
+  if (ret)
+    {
       gpgme_data_release (key_data);
       return ret;
     }
@@ -238,6 +265,33 @@ gvm_gpg_import_from_string (gpgme_ctx_t ctx, const char *key_str,
     return 3;
 
   return 0;
+}
+
+/**
+ * @brief Import a key or certificate given by a string.
+ *
+ * @param[in]  ctx      The GPGME context to import the key / certificate into.
+ * @param[in]  key_str  Key or certificate string.
+ * @param[in]  key_len  Length of key/certificate string or -1 to use strlen.
+ * @param[in]  key_type The expected key type.
+ *
+ * @return 0 success, 1 invalid key data, 2 unexpected key data,
+ *  3 error importing key/certificate, -1 error.
+ */
+int
+gvm_gpg_import_from_string (gpgme_ctx_t ctx, const char *key_str,
+                            ssize_t key_len, gpgme_data_type_t key_type)
+{
+  int ret;
+  GArray *key_types = g_array_sized_new (FALSE,
+                                         FALSE,
+                                         sizeof (gpgme_data_type_t),
+                                         1);
+  g_array_insert_val (key_types, 0, key_type);
+  ret = gvm_gpg_import_many_types_from_string (ctx, key_str, key_len,
+                                               key_types);
+  g_array_free (key_types, TRUE);
+  return ret;
 }
 
 /**
@@ -315,7 +369,7 @@ find_email_encryption_key (gpgme_ctx_t ctx, const char *uid_email)
  * @param[in]  key_len        Length of key / certificate, -1 to use strlen.
  * @param[in]  uid_email      Email address of key / certificate to use.
  * @param[in]  protocol       The protocol to use, e.g. OpenPGP or CMS.
- * @param[in]  data_type      The expected GPGME buffered data type.
+ * @param[in]  data_types     The expected GPGME buffered data types.
  *
  * @return 0 success, -1 error.
  */
@@ -323,7 +377,7 @@ static int
 encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
                          const char *key_str, ssize_t key_len,
                          const char *uid_email, gpgme_protocol_t protocol,
-                         gpgme_data_type_t data_type)
+                         GArray* key_types)
 {
   char gpg_temp_dir[] = "/tmp/gvmd-gpg-XXXXXX";
   gpgme_ctx_t ctx;
@@ -365,7 +419,7 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   encrypt_flags = GPGME_ENCRYPT_ALWAYS_TRUST | GPGME_ENCRYPT_NO_COMPRESS;
 
   // Import public key into context
-  if (gvm_gpg_import_from_string (ctx, key_str, key_len, data_type))
+  if (gvm_gpg_import_many_types_from_string (ctx, key_str, key_len, key_types))
     {
       g_warning ("%s: Import of %s failed", __FUNCTION__, key_type_str);
       gpgme_release (ctx);
@@ -433,9 +487,17 @@ gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
                                const char *public_key_str,
                                ssize_t public_key_len)
 {
-  return encrypt_stream_internal (
+  int ret;
+  const gpgme_data_type_t types_ptr[1] = {GPGME_DATA_TYPE_PGP_KEY};
+  GArray *key_types = g_array_new (FALSE, FALSE, sizeof (gpgme_data_type_t));
+
+  g_array_append_vals (key_types, types_ptr, 1);
+  ret = encrypt_stream_internal (
     plain_file, encrypted_file, public_key_str, public_key_len, uid_email,
-    GPGME_PROTOCOL_OpenPGP, GPGME_DATA_TYPE_PGP_KEY);
+    GPGME_PROTOCOL_OpenPGP, key_types);
+  g_array_free (key_types, TRUE);
+
+  return ret;
 }
 
 /**
@@ -456,7 +518,16 @@ gvm_smime_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
                           const char *uid_email, const char *certificate_str,
                           ssize_t certificate_len)
 {
-  return encrypt_stream_internal (
+  int ret;
+  const gpgme_data_type_t types_ptr[2] = {GPGME_DATA_TYPE_X509_CERT,
+                                          GPGME_DATA_TYPE_CMS_OTHER};
+  GArray *key_types = g_array_new (FALSE, FALSE, sizeof (gpgme_data_type_t));
+
+  g_array_append_vals (key_types, types_ptr, 2);
+  ret = encrypt_stream_internal (
     plain_file, encrypted_file, certificate_str, certificate_len, uid_email,
-    GPGME_PROTOCOL_CMS, GPGME_DATA_TYPE_CMS_OTHER);
+    GPGME_PROTOCOL_CMS, key_types);
+  g_array_free (key_types, TRUE);
+
+  return ret;
 }

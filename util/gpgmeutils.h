@@ -37,6 +37,12 @@ gpgme_ctx_t
 gvm_init_gpgme_ctx_from_dir (const gchar *);
 
 int
+gvm_gpg_import_many_types_from_string (gpgme_ctx_t,
+                                       const char *,
+                                       ssize_t,
+                                       GArray*);
+
+int
 gvm_gpg_import_from_string (gpgme_ctx_t, const char *, ssize_t,
                             gpgme_data_type_t);
 
