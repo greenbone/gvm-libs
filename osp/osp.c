@@ -1242,7 +1242,7 @@ osp_target_free (osp_target_t *target)
  * @param[in]  credential   The credential to add. Will be freed with target.
  */
 void
-osp_target_add_credential(osp_target_t *target, osp_credential_t *credential)
+osp_target_add_credential (osp_target_t *target, osp_credential_t *credential)
 {
   if (!target || !credential)
     return;
@@ -1329,8 +1329,8 @@ osp_vt_single_free (osp_vt_single_t *vt_single)
  * @param[in]  value      The value of the preference.
  */
 void
-osp_vt_single_add_value(osp_vt_single_t *vt_single,
-                        const char *name, const char *value)
+osp_vt_single_add_value (osp_vt_single_t *vt_single,
+                         const char *name, const char *value)
 {
   g_hash_table_replace (vt_single->vt_values,
                         g_strdup (name),
