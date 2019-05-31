@@ -677,8 +677,10 @@ target_append_as_xml (osp_target_t *target, GString *xml_string)
   xml_string_append (xml_string,
                      "<target>"
                      "<hosts>%s</hosts>"
+                     "<exclude_hosts>%s</exclude_hosts>"
                      "<ports>%s</ports>",
                      target->hosts ? target->hosts : "",
+                     target->exclude_hosts ? target->exclude_hosts : "",
                      target->ports ? target->ports : "");
 
   if (target->credentials)
