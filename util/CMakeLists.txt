@@ -91,6 +91,9 @@ execute_process (COMMAND libgcrypt-config --cflags
 string(REPLACE "-I" "" GCRYPT_INCLUDE_DIRS "${GCRYPT_CFLAGS}")
 endif (NOT GCRYPT)
 
+option (BUILD_WITH_RADIUS "Try to build with Radius support" ON)
+option (BUILD_WITH_LDAP "Try to build with LDAP support" ON)
+
 if (BUILD_WITH_RADIUS)
   #for radiusutils we need freerdius-client library
   message (STATUS "Looking for freeradius-client library...")
@@ -112,20 +115,21 @@ if (BUILD_WITH_RADIUS)
   endif (NOT LIBFREERADIUS AND NOT LIBRADCLI)
 endif (BUILD_WITH_RADIUS)
 
-#for ldaputils we need ldap library
-message (STATUS "Looking for libldap...")
-find_library (LIBLDAP ldap2)
-if (NOT LIBLDAP)
-  find_library (LIBLDAP ldap)
-endif (NOT LIBLDAP)
-if (NOT LIBLDAP)
-  message (STATUS "  No ldap library found - ldap support disabled")
-else (NOT LIBLDAP)
-  message (STATUS "  Found ${LIBLDAP} - ldap support enabled")
-  add_definitions (-DENABLE_LDAP_AUTH=1)
-  set (BUILD_WITH_LDAP TRUE)
-  set (LDAP_LDFLAGS "-lldap")
-endif (NOT LIBLDAP)
+if (BUILD_WITH_LDAP)
+  #for ldaputils we need ldap library
+  message (STATUS "Looking for libldap...")
+  find_library (LIBLDAP ldap2)
+  if (NOT LIBLDAP)
+    find_library (LIBLDAP ldap)
+  endif (NOT LIBLDAP)
+  if (NOT LIBLDAP)
+    message (STATUS "  No ldap library found - ldap support disabled")
+  else (NOT LIBLDAP)
+    message (STATUS "  Found ${LIBLDAP} - ldap support enabled")
+    add_definitions (-DENABLE_LDAP_AUTH=1)
+    set (LDAP_LDFLAGS "-lldap")
+  endif (NOT LIBLDAP)
+endif (BUILD_WITH_LDAP)
 
 include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS})
 
