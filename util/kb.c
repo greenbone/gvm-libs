@@ -33,7 +33,6 @@
 #include <stdio.h>
 #include <stdlib.h> /* for atoi */
 #include <string.h> /* for strlen, strerror, strncpy, memset */
-#include <unistd.h> /* for sleep */
 
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  kb"
@@ -49,12 +48,6 @@
  * @brief Name of the namespace usage bitmap in redis.
  */
 #define GLOBAL_DBINDEX_NAME "GVM.__GlobalDBIndex"
-
-/**
- * @brief Number of seconds to wait for between two attempts to acquire a KB
- *        namespace.
- */
-#define KB_RETRY_DELAY 60
 
 static const struct kb_operations KBRedisOperations;
 
@@ -573,7 +566,7 @@ redis_find (const char *kb_path, const char *key)
       rep = redisCommand (kbr->rctx, "SELECT %u", i);
       if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
         {
-          sleep (KB_RETRY_DELAY);
+          redisFree (kbr->rctx);
           kbr->rctx = NULL;
         }
       else
@@ -588,8 +581,8 @@ redis_find (const char *kb_path, const char *key)
                   return (kb_t) kbr;
                 }
             }
+          redisFree (kbr->rctx);
         }
-      redisFree (kbr->rctx);
       i++;
     }
   while (i < kbr->max_db);
@@ -1488,7 +1481,6 @@ redis_flush_all (kb_t kb, const char *except)
       if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
         {
           freeReplyObject (rep);
-          sleep (KB_RETRY_DELAY);
           redisFree (kbr->rctx);
           kbr->rctx = NULL;
         }
