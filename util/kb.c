@@ -340,15 +340,15 @@ err_cleanup:
  *        a connection.
  * @param[in] kbr Subclass of struct kb where to fetch the context.
  *                or where it is saved in case of a new connection.
- * @return Redis context on success, NULL otherwise.
+ * @return 0 on success, -1 on connection error, -2 on unavailable DB slot.
  */
-static redisContext *
+static int
 get_redis_ctx (struct kb_redis *kbr)
 {
   int rc;
 
   if (kbr->rctx != NULL)
-    return kbr->rctx;
+    return 0;
 
   kbr->rctx = redisConnectUnix (kbr->path);
   if (kbr->rctx == NULL || kbr->rctx->err)
@@ -358,7 +358,7 @@ get_redis_ctx (struct kb_redis *kbr)
              kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
       redisFree (kbr->rctx);
       kbr->rctx = NULL;
-      return NULL;
+      return -1;
     }
 
   rc = select_database (kbr);
@@ -367,11 +367,11 @@ get_redis_ctx (struct kb_redis *kbr)
       g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL, "No redis DB available");
       redisFree (kbr->rctx);
       kbr->rctx = NULL;
-      return NULL;
+      return -2;
     }
 
   g_debug ("%s: connected to redis://%s/%d", __func__, kbr->path, kbr->db);
-  return kbr->rctx;
+  return 0;
 }
 
 /**
@@ -457,7 +457,7 @@ redis_get_kb_index (kb_t kb)
  * @brief Initialize a new Knowledge Base object.
  * @param[in] kb  Reference to a kb_t to initialize.
  * @param[in] kb_path   Path to KB.
- * @return 0 on success, non-null on error.
+ * @return 0 on success, -1 on connection error, -2 when no DB is available.
  */
 static int
 redis_new (kb_t *kb, const char *kb_path)
@@ -469,17 +469,18 @@ redis_new (kb_t *kb, const char *kb_path)
   kbr->kb.kb_ops = &KBRedisOperations;
   strncpy (kbr->path, kb_path, strlen (kb_path));
 
-  rc = redis_test_connection (kbr);
-  if (rc)
+  if ((rc = get_redis_ctx (kbr)) < 0)
+    return rc;
+  if (redis_test_connection (kbr))
     {
       g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
              "%s: cannot access redis at '%s'", __func__, kb_path);
       redis_delete ((kb_t) kbr);
       kbr = NULL;
+      rc = -1;
     }
 
   *kb = (kb_t) kbr;
-
   return rc;
 }
 
@@ -726,22 +727,17 @@ redis_cmd (struct kb_redis *kbr, const char *fmt, ...)
   va_start (ap, fmt);
   do
     {
-      redisContext *ctx;
-
-      rep = NULL;
-
-      ctx = get_redis_ctx (kbr);
-      if (ctx == NULL)
+      if (get_redis_ctx (kbr) < 0)
         {
           va_end (ap);
           return NULL;
         }
 
       va_copy (aq, ap);
-      rep = redisvCommand (ctx, fmt, aq);
+      rep = redisvCommand (kbr->rctx, fmt, aq);
       va_end (aq);
 
-      if (ctx->err)
+      if (kbr->rctx->err)
         {
           if (rep != NULL)
             freeReplyObject (rep);
@@ -1012,7 +1008,6 @@ redis_get_pattern (kb_t kb, const char *pattern)
   struct kb_item *kbi = NULL;
   redisReply *rep;
   unsigned int i;
-  redisContext *ctx;
 
   kbr = redis_kb (kb);
   rep = redis_cmd (kbr, "KEYS %s", pattern);
@@ -1024,16 +1019,17 @@ redis_get_pattern (kb_t kb, const char *pattern)
       return NULL;
     }
 
-  ctx = get_redis_ctx (kbr);
+  if (get_redis_ctx (kbr) < 0)
+    return NULL;
   for (i = 0; i < rep->elements; i++)
-    redisAppendCommand (ctx, "LRANGE %s 0 -1", rep->element[i]->str);
+    redisAppendCommand (kbr->rctx, "LRANGE %s 0 -1", rep->element[i]->str);
 
   for (i = 0; i < rep->elements; i++)
     {
       struct kb_item *tmp;
       redisReply *rep_range;
 
-      redisGetReply (ctx, (void **) &rep_range);
+      redisGetReply (kbr->rctx, (void **) &rep_range);
       if (!rep)
         continue;
       tmp = redis2kbitem (rep->element[i]->str, rep_range);
@@ -1168,7 +1164,9 @@ redis_add_str_unique (kb_t kb, const char *name, const char *str, size_t len)
   redisContext *ctx;
 
   kbr = redis_kb (kb);
-  ctx = get_redis_ctx (kbr);
+  if (get_redis_ctx (kbr) < 0)
+    return -1;
+  ctx = kbr->rctx;
 
   /* Some VTs still rely on values being unique (ie. a value inserted multiple
    * times, will only be present once.)
@@ -1248,7 +1246,9 @@ redis_set_str (kb_t kb, const char *name, const char *val, size_t len)
   int rc = 0, i = 4;
 
   kbr = redis_kb (kb);
-  ctx = get_redis_ctx (kbr);
+  if (get_redis_ctx (kbr) < 0)
+    return -1;
+  ctx = kbr->rctx;
   redisAppendCommand (ctx, "MULTI");
   redisAppendCommand (ctx, "DEL %s", name);
   if (len == 0)
@@ -1284,7 +1284,9 @@ redis_add_int_unique (kb_t kb, const char *name, int val)
   redisContext *ctx;
 
   kbr = redis_kb (kb);
-  ctx = get_redis_ctx (kbr);
+  if (get_redis_ctx (kbr) < 0)
+    return -1;
+  ctx = kbr->rctx;
   redisAppendCommand (ctx, "LREM %s 1 %d", name, val);
   redisAppendCommand (ctx, "RPUSH %s %d", name, val);
   redisGetReply (ctx, (void **) &rep);
@@ -1337,11 +1339,15 @@ redis_add_int (kb_t kb, const char *name, int val)
 static int
 redis_set_int (kb_t kb, const char *name, int val)
 {
+  struct kb_redis *kbr;
   redisReply *rep = NULL;
   redisContext *ctx;
   int rc = 0, i = 4;
 
-  ctx = get_redis_ctx (redis_kb (kb));
+  kbr = redis_kb (kb);
+  if (get_redis_ctx (redis_kb (kb)) < 0)
+    return -1;
+  ctx = kbr->rctx;
   redisAppendCommand (ctx, "MULTI");
   redisAppendCommand (ctx, "DEL %s", name);
   redisAppendCommand (ctx, "RPUSH %s %d", name, val);
