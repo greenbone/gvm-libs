@@ -81,9 +81,17 @@ int
 osp_start_scan (osp_connection_t *, const char *, const char *, GHashTable *,
                 const char *, char **);
 
+typedef struct {
+  GSList *targets;              ///< Target hosts to scan.
+  GSList *vt_groups;            ///< VT groups to use for the scan.
+  GSList *vts;                  ///< Single VTs to use for the scan.
+  GHashTable *scanner_params;   ///< Table of scanner parameters.
+  int parallel;                 ///< Number of parallel scans.
+  const char *scan_id;          ///< UUID to set for scan, null otherwise.
+} osp_start_scan_opts_t;
+
 int
-osp_start_scan_ext (osp_connection_t *, GSList *, GSList *, GSList *,
-                    GHashTable *, int, const char *, char **);
+osp_start_scan_ext (osp_connection_t *, osp_start_scan_opts_t, char **);
 
 int
 osp_get_scan (osp_connection_t *, const char *, char **, int, char **);

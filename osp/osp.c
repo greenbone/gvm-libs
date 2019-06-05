@@ -748,21 +748,16 @@ static void vt_single_append_as_xml (osp_vt_single_t *vt_single,
 /**
  * @brief Start an OSP scan against a target.
  *
- * @param[in]   connection      Connection to an OSP server.
- * @param[in]   targets         Target hosts to scan.
- * @param[in]   vt_groups       VT groups to use for the scan.
- * @param[in]   vts             Single VTs to use for the scan.
- * @param[in]   scanner_params  Table of scanner parameters.
- * @param[in]   parallel        Number of parallel scans.
- * @param[in]   scan_id         uuid to set for scan, null otherwise.
- * @param[out]  error           Pointer to error, if any.
+ * @param[in]   connection  Connection to an OSP server.
+ * @param[in]   opts        Struct containing the options to apply.
+ * @param[out]  error       Pointer to error, if any.
  *
  * @return 0 on success, -1 otherwise.
  */
 int
-osp_start_scan_ext (osp_connection_t *connection, GSList *targets,
-                    GSList *vt_groups, GSList *vts, GHashTable *scanner_params,
-                    int parallel, const char *scan_id, char **error)
+osp_start_scan_ext (osp_connection_t *connection,
+                    osp_start_scan_opts_t opts,
+                    char **error)
 {
   gchar *scanner_params_xml = NULL;
   GString *xml;
@@ -779,18 +774,20 @@ osp_start_scan_ext (osp_connection_t *connection, GSList *targets,
 
   xml = g_string_sized_new (10240);
   g_string_append (xml, "<start_scan");
-  if (parallel)
-    xml_string_append (xml, " parallel=\"%d\"", parallel);
-  xml_string_append (xml, " scan_id=\"%s\">", scan_id ? scan_id : "");
+  if (opts.parallel)
+    xml_string_append (xml, " parallel=\"%d\"", opts.parallel);
+  xml_string_append (xml,
+                     " scan_id=\"%s\">",
+                     opts.scan_id ? opts.scan_id : "");
 
   g_string_append (xml, "<targets>");
-  g_slist_foreach (targets, (GFunc) target_append_as_xml, xml);
+  g_slist_foreach (opts.targets, (GFunc) target_append_as_xml, xml);
   g_string_append (xml, "</targets>");
 
   g_string_append (xml, "<scanner_params>");
-  if (scanner_params)
+  if (opts.scanner_params)
     {
-      g_hash_table_foreach (scanner_params,
+      g_hash_table_foreach (opts.scanner_params,
                             (GHFunc) option_concat_as_xml,
                             &scanner_params_xml);
       g_string_append (xml, scanner_params_xml);
@@ -799,14 +796,14 @@ osp_start_scan_ext (osp_connection_t *connection, GSList *targets,
   g_string_append (xml, "</scanner_params>");
 
   g_string_append (xml, "<vt_selection>");
-  g_slist_foreach (vt_groups, (GFunc)vt_group_append_as_xml, xml);
+  g_slist_foreach (opts.vt_groups, (GFunc)vt_group_append_as_xml, xml);
 
   fprintf (file, "%s", xml->str);
 
   g_string_free (xml, TRUE);
 
   xml = g_string_new ("");
-  list_item = vts;
+  list_item = opts.vts;
   list_count = 0;
   while (list_item)
     {
