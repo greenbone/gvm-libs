@@ -957,7 +957,7 @@ nvti_set_category (nvti_t *n, const gint category)
  *
  * @param ref_text The optional text accompanying all references.
  *
- * @return 0 for success. 1 if n was NULL.
+ * @return 0 for success. 1 if n was NULL, 2 if ref_ids was NULL.
  */
 int
 nvti_add_refs (nvti_t *n, const gchar *type, const gchar *ref_ids,
@@ -967,6 +967,9 @@ nvti_add_refs (nvti_t *n, const gchar *type, const gchar *ref_ids,
 
   if (!n)
     return (1);
+
+  if (!ref_ids)
+    return (2);
 
   split = g_strsplit (ref_ids, ",", 0);
 
