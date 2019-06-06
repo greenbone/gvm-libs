@@ -28,7 +28,17 @@
 #include <glib.h> /* for GHashTable, GSList */
 #include "../util/xmlutils.h"
 
+/* Type definitions */
+
 typedef struct osp_connection osp_connection_t;
+
+typedef struct osp_credential osp_credential_t;
+
+typedef struct osp_target osp_target_t;
+
+typedef struct osp_vt_group osp_vt_group_t;
+
+typedef struct osp_vt_single osp_vt_single_t;
 
 /**
  * @brief OSP parameter types.
@@ -47,10 +57,16 @@ typedef enum
 
 typedef struct osp_param osp_param_t;
 
+/* OSP Connection handling */
+
 osp_connection_t *
 osp_connection_new (const char *, int, const char *, const char *,
                     const char *);
 
+void
+osp_connection_close (osp_connection_t *);
+
+/* OSP commands */
 int
 osp_get_version (osp_connection_t *, char **, char **, char **, char **,
                  char **, char **);
@@ -65,8 +81,28 @@ int
 osp_start_scan (osp_connection_t *, const char *, const char *, GHashTable *,
                 const char *, char **);
 
+typedef struct {
+  GSList *targets;              ///< Target hosts to scan.
+  GSList *vt_groups;            ///< VT groups to use for the scan.
+  GSList *vts;                  ///< Single VTs to use for the scan.
+  GHashTable *scanner_params;   ///< Table of scanner parameters.
+  int parallel;                 ///< Number of parallel scans.
+  const char *scan_id;          ///< UUID to set for scan, null otherwise.
+} osp_start_scan_opts_t;
+
+int
+osp_start_scan_ext (osp_connection_t *, osp_start_scan_opts_t, char **);
+
 int
 osp_get_scan (osp_connection_t *, const char *, char **, int, char **);
+
+int
+osp_get_scan_pop (osp_connection_t *,
+                  const char *,
+                  char **,
+                  int,
+                  int,
+                  char **);
 
 int
 osp_delete_scan (osp_connection_t *, const char *);
@@ -76,6 +112,8 @@ osp_stop_scan (osp_connection_t *, const char *, char **);
 
 int
 osp_get_scanner_details (osp_connection_t *, char **, GSList **);
+
+/* OSP scanner parameters handling */
 
 osp_param_t *
 osp_param_new (void);
@@ -101,7 +139,49 @@ osp_param_mandatory (const osp_param_t *);
 void
 osp_param_free (osp_param_t *);
 
+/* OSP credential handling */
+
+osp_credential_t *
+osp_credential_new (const char *, const char *, const char *);
+
 void
-osp_connection_close (osp_connection_t *);
+osp_credential_free (osp_credential_t *);
+
+const gchar*
+osp_credential_get_auth_data (osp_credential_t *, const char*);
+
+void
+osp_credential_set_auth_data (osp_credential_t *, const char*, const char*);
+
+
+/* OSP targets handling */
+
+osp_target_t *
+osp_target_new (const char *, const char *, const char *);
+
+void
+osp_target_free (osp_target_t *);
+
+void
+osp_target_add_credential (osp_target_t *, osp_credential_t *);
+
+/* OSP VT group handling */
+
+osp_vt_group_t *
+osp_vt_group_new (const char *);
+
+void
+osp_vt_group_free (osp_vt_group_t *);
+
+/* OSP single VT handling */
+
+osp_vt_single_t *
+osp_vt_single_new (const char *);
+
+void
+osp_vt_single_free (osp_vt_single_t *);
+
+void
+osp_vt_single_add_value (osp_vt_single_t *, const char*, const char*);
 
 #endif
