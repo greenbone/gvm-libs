@@ -31,6 +31,7 @@
 #include <gnutls/gnutls.h> /* for gnutls_session_int, gnutls_session_t */
 #include <stdarg.h>        /* for va_list */
 #include <stdlib.h>        /* for NULL, atoi */
+#include <stdio.h>         /* for FILE, fprintf and related functions */
 #include <string.h>        /* for strcmp, strlen, strncpy */
 #include <sys/socket.h>    /* for AF_UNIX, connect, socket, SOCK_STREAM */
 #include <sys/un.h>        /* for sockaddr_un, sa_family_t */
@@ -64,6 +65,45 @@ struct osp_param
   char *def;             /**< Default value. */
   osp_param_type_t type; /**< Parameter type. */
   int mandatory;         /**< If mandatory or not. */
+};
+
+/**
+ * @brief Struct credential information for OSP.
+ */
+struct osp_credential
+{
+  gchar *type;            /**< Credential type */
+  gchar *service;         /**< Service the credential is for */
+  gchar *port;            /**< Port the credential is for */
+  GHashTable *auth_data;  /**< Authentication data (username, password, etc.)*/
+};
+
+/**
+ * @brief Struct holding target information.
+ */
+struct osp_target
+{
+  GSList *credentials;  /** Credentials to use in the scan */
+  gchar *exclude_hosts; /** String defining one or many hosts to exclude */
+  gchar *hosts;         /** String defining one or many hosts to scan */
+  gchar *ports;         /** String defining the ports to scan */
+};
+
+/**
+ * @brief Struct holding vt_group information
+ */
+struct osp_vt_group
+{
+  gchar *filter;
+};
+
+/**
+ * @brief Struct holding vt_group information
+ */
+struct osp_vt_single
+{
+  gchar *vt_id;
+  GHashTable *vt_values;
 };
 
 static int
@@ -381,19 +421,21 @@ osp_delete_scan (osp_connection_t *connection, const char *scan_id)
 }
 
 /**
- * @brief Get a scan from an OSP server.
+ * @brief Get a scan from an OSP server, optionally removing the results.
  *
  * @param[in]   connection  Connection to an OSP server.
  * @param[in]   scan_id     ID of scan to get.
  * @param[out]  report_xml  Scans report.
  * @param[in]   details     0 for no scan details, 1 otherwise.
+ * @param[in]   pop_results 0 to leave results, 1 to pop results from scanner.
  * @param[out]  error       Pointer to error, if any.
  *
  * @return Scan progress if success, -1 if error.
  */
 int
-osp_get_scan (osp_connection_t *connection, const char *scan_id,
-              char **report_xml, int details, char **error)
+osp_get_scan_pop (osp_connection_t *connection, const char *scan_id,
+                  char **report_xml, int details, int pop_results,
+                  char **error)
 {
   entity_t entity, child;
   int progress;
@@ -402,7 +444,11 @@ osp_get_scan (osp_connection_t *connection, const char *scan_id,
   assert (connection);
   assert (scan_id);
   rc = osp_send_command (connection, &entity,
-                         "<get_scans scan_id='%s' details='%d'/>", scan_id,
+                         "<get_scans scan_id='%s'"
+                         " details='%d'"
+                         " pop_results='%d'/>",
+                         scan_id,
+                         pop_results ? 1 : 0,
                          details ? 1 : 0);
   if (rc)
     {
@@ -433,6 +479,24 @@ osp_get_scan (osp_connection_t *connection, const char *scan_id,
     }
   free_entity (entity);
   return progress;
+}
+
+/**
+ * @brief Get a scan from an OSP server.
+ *
+ * @param[in]   connection  Connection to an OSP server.
+ * @param[in]   scan_id     ID of scan to get.
+ * @param[out]  report_xml  Scans report.
+ * @param[in]   details     0 for no scan details, 1 otherwise.
+ * @param[out]  error       Pointer to error, if any.
+ *
+ * @return Scan progress if success, -1 if error.
+ */
+int
+osp_get_scan (osp_connection_t *connection, const char *scan_id,
+              char **report_xml, int details, char **error)
+{
+  return osp_get_scan_pop (connection, scan_id, report_xml, details, 0, error);
 }
 
 /**
@@ -562,6 +626,245 @@ osp_start_scan (osp_connection_t *connection, const char *target,
       free_entity (entity);
       return -1;
     }
+}
+
+/**
+ * @brief Concatenate a credential as XML.
+ *
+ * @param[in]     credential  Credential data.
+ * @param[in,out] xml_string  XML string buffer to append to.
+ *
+ */
+static void
+credential_append_as_xml (osp_credential_t *credential,
+                          GString *xml_string)
+
+{
+  GHashTableIter auth_data_iter;
+  gchar *auth_data_name, *auth_data_value;
+
+  xml_string_append (xml_string,
+                     "<credential type=\"%s\" service=\"%s\" port=\"%s\">",
+                     credential->type ? credential->type : "",
+                     credential->service ? credential->service : "",
+                     credential->port ? credential->port : "");
+
+  g_hash_table_iter_init (&auth_data_iter, credential->auth_data);
+  while (g_hash_table_iter_next (&auth_data_iter,
+                                 (gpointer*)&auth_data_name,
+                                 (gpointer*)&auth_data_value))
+    {
+      xml_string_append (xml_string,
+                         "<%s>%s</%s>",
+                         auth_data_name,
+                         auth_data_value,
+                         auth_data_name);
+    }
+
+  xml_string_append (xml_string, "</credential>");
+}
+
+/**
+ * @brief Concatenate a target as XML.
+ *
+ * @param[in]     target      Target data.
+ * @param[in,out] xml_string  XML string buffer to append to.
+ *
+ */
+static void
+target_append_as_xml (osp_target_t *target, GString *xml_string)
+{
+  xml_string_append (xml_string,
+                     "<target>"
+                     "<hosts>%s</hosts>"
+                     "<exclude_hosts>%s</exclude_hosts>"
+                     "<ports>%s</ports>",
+                     target->hosts ? target->hosts : "",
+                     target->exclude_hosts ? target->exclude_hosts : "",
+                     target->ports ? target->ports : "");
+
+  if (target->credentials)
+    {
+      g_string_append (xml_string, "<credentials>");
+      g_slist_foreach (target->credentials,
+                       (GFunc) credential_append_as_xml,
+                       xml_string);
+      g_string_append (xml_string, "</credentials>");
+    }
+  xml_string_append (xml_string,
+                     "</target>");
+}
+
+/**
+ * @brief Append VT groups as XML to a string buffer.
+ *
+ * @param[in]     vt_group    VT group data.
+ * @param[in,out] xml_string  XML string buffer to append to.
+ */
+static void vt_group_append_as_xml (osp_vt_group_t *vt_group,
+                                    GString *xml_string)
+{
+  xml_string_append (xml_string,
+                     "<vt_group filter=\"%s\"/>",
+                     vt_group->filter);
+}
+
+/**
+ * @brief Append VT values as XML to a string buffer.
+ *
+ * @param[in]     id          Identifier of the vt_value.
+ * @param[in]     value       The value of the vt_value.
+ * @param[in,out] xml_string  XML string buffer to append to.
+ *
+ */
+static void
+vt_value_append_as_xml (gpointer id, gchar *value, GString *xml_string)
+{
+  xml_string_append (xml_string,
+                     "<vt_value id=\"%s\">%s</vt_value>",
+                     id ? id : "",
+                     value ? value : "");
+}
+
+/**
+ * @brief Append single VTs as XML to a string buffer.
+ *
+ * @param[in]     vt_single   Single VT data.
+ * @param[in,out] xml_string  XML string buffer to append to.
+ */
+static void vt_single_append_as_xml (osp_vt_single_t *vt_single,
+                                    GString *xml_string)
+{
+  xml_string_append (xml_string,
+                     "<vt_single id=\"%s\">",
+                     vt_single->vt_id);
+  g_hash_table_foreach (vt_single->vt_values,
+                        (GHFunc) vt_value_append_as_xml,
+                        xml_string);
+  xml_string_append (xml_string, "</vt_single>");
+}
+
+
+/**
+ * @brief Start an OSP scan against a target.
+ *
+ * @param[in]   connection  Connection to an OSP server.
+ * @param[in]   opts        Struct containing the options to apply.
+ * @param[out]  error       Pointer to error, if any.
+ *
+ * @return 0 on success, -1 otherwise.
+ */
+int
+osp_start_scan_ext (osp_connection_t *connection,
+                    osp_start_scan_opts_t opts,
+                    char **error)
+{
+  gchar *scanner_params_xml = NULL;
+  GString *xml;
+  GSList *list_item;
+  int list_count;
+  int rc, status;
+  entity_t entity;
+  gchar *cmd;
+  char filename[] = "/tmp/osp-cmd-XXXXXX";
+  int fd;
+
+  fd = mkstemp (filename);
+  FILE *file = fdopen (fd, "w");
+
+  xml = g_string_sized_new (10240);
+  g_string_append (xml, "<start_scan");
+  if (opts.parallel)
+    xml_string_append (xml, " parallel=\"%d\"", opts.parallel);
+  xml_string_append (xml,
+                     " scan_id=\"%s\">",
+                     opts.scan_id ? opts.scan_id : "");
+
+  g_string_append (xml, "<targets>");
+  g_slist_foreach (opts.targets, (GFunc) target_append_as_xml, xml);
+  g_string_append (xml, "</targets>");
+
+  g_string_append (xml, "<scanner_params>");
+  if (opts.scanner_params)
+    {
+      g_hash_table_foreach (opts.scanner_params,
+                            (GHFunc) option_concat_as_xml,
+                            &scanner_params_xml);
+      g_string_append (xml, scanner_params_xml);
+      g_free (scanner_params_xml);
+    }
+  g_string_append (xml, "</scanner_params>");
+
+  g_string_append (xml, "<vt_selection>");
+  g_slist_foreach (opts.vt_groups, (GFunc)vt_group_append_as_xml, xml);
+
+  fprintf (file, "%s", xml->str);
+
+  g_string_free (xml, TRUE);
+
+  xml = g_string_new ("");
+  list_item = opts.vts;
+  list_count = 0;
+  while (list_item)
+    {
+      list_count ++;
+        vt_single_append_as_xml (list_item->data, xml);
+
+      list_item = list_item->next;
+
+      if (list_count == 1000)
+        {
+          fprintf (file, "%s", xml->str);
+
+          g_string_free (xml, TRUE);
+          xml = g_string_new ("");
+          list_count = 0;
+        }
+    }
+
+  g_string_append (xml, "</vt_selection>");
+  g_string_append (xml, "</start_scan>");
+
+  fprintf (file, "%s", xml->str);
+  fflush (file);
+  fclose (file);
+  g_string_free (xml, TRUE);
+
+  g_file_get_contents (filename, &cmd, NULL, NULL);
+
+  rc = osp_send_command (connection, &entity, "%s", cmd);
+
+  g_free (cmd);
+  unlink (filename);
+
+  if (rc)
+    {
+      if (error)
+        *error = g_strdup ("Could not send start_scan command to scanner");
+      return -1;
+    }
+
+  status = atoi (entity_attribute (entity, "status"));
+  if (status == 200)
+    {
+      free_entity (entity);
+      return 0;
+    }
+  else
+    {
+      const char *text = entity_attribute (entity, "status_text");
+
+      assert (text);
+      if (error)
+        *error = g_strdup (text);
+      free_entity (entity);
+      return -1;
+    }
+
+  if (error)
+    *error = NULL;
+  free_entity (entity);
+  return 0;
 }
 
 /**
@@ -791,3 +1094,245 @@ osp_param_free (osp_param_t *param)
   g_free (param->def);
   g_free (param);
 }
+
+
+/**
+ * @brief Allocate and initialize a new OSP credential.
+ *
+ * @param[in]   type      The credential type.
+ * @param[in]   service   The service the credential is for.
+ * @param[in]   port      CA public key.
+ * @param[in]   username  Credential username.
+ * @param[in]   password  Credential password.
+ *
+ * @return New osp credential.
+ */
+osp_credential_t *
+osp_credential_new (const char *type, const char *service, const char *port)
+{
+  osp_credential_t *new_credential;
+
+  new_credential = g_malloc0 (sizeof (osp_credential_t));
+
+  new_credential->type = type ? g_strdup (type) : NULL;
+  new_credential->service = service ? g_strdup (service) : NULL;
+  new_credential->port = port ? g_strdup (port) : NULL;
+  new_credential->auth_data = g_hash_table_new_full (g_str_hash,
+                                                     g_str_equal,
+                                                     g_free,
+                                                     g_free);
+
+  return new_credential;
+}
+
+/**
+ * @brief Free an OSP credential.
+ *
+ * @param[in]   credential  The credential to free.
+ */
+void
+osp_credential_free (osp_credential_t *credential)
+{
+  if (!credential)
+    return;
+
+  g_free (credential->type);
+  g_free (credential->service);
+  g_free (credential->port);
+  g_hash_table_destroy (credential->auth_data);
+  g_free (credential);
+}
+
+/**
+ * @brief Get authentication data from an OSP credential.
+ *
+ * @param[in]  credential  The credential to get the data from.
+ * @param[in]  name        The name of the data item to get.
+ *
+ * @return The requested authentication data or NULL if not available.
+ */
+const gchar *
+osp_credential_get_auth_data (osp_credential_t *credential,
+                              const char *name)
+{
+  if (credential == NULL || name == NULL)
+    return NULL;
+  return g_hash_table_lookup (credential->auth_data, name);
+}
+
+/**
+ * @brief Get authentication data from an OSP credential.
+ *
+ * @param[in]  credential  The credential to get the data from.
+ * @param[in]  name        The name of the data item to get.
+ * @param[in]  value       The authentication data or NULL to unset.
+ */
+void
+osp_credential_set_auth_data (osp_credential_t *credential,
+                              const char *name,
+                              const char *value)
+{
+  if (credential == NULL || name == NULL)
+    return;
+
+  if (g_regex_match_simple ("^[[:alpha:]][[:alnum:]_]*$", name, 0, 0))
+    {
+      if (value)
+        g_hash_table_replace (credential->auth_data,
+                              g_strdup (name),
+                              g_strdup (value));
+      else
+        g_hash_table_remove (credential->auth_data,
+                             value);
+    }
+  else
+    {
+      g_warning ("%s: Invalid auth data name: %s", __FUNCTION__, name);
+    }
+}
+
+/**
+ * @brief Create a new OSP target.
+ *
+ * @param[in]  hosts          The hostnames of the target.
+ * @param[in]  ports          The ports of the target.
+ * @param[in]  exclude_hosts  The excluded hosts of the target.
+ *
+ * @return The newly allocated osp_target_t.
+ */
+osp_target_t *
+osp_target_new (const char *hosts,
+                const char *ports,
+                const char *exclude_hosts)
+{
+  osp_target_t *new_target;
+  new_target = g_malloc0 (sizeof (osp_target_t));
+
+  new_target->exclude_hosts = exclude_hosts ? g_strdup (exclude_hosts) : NULL;
+  new_target->hosts = hosts ? g_strdup (hosts) : NULL;
+  new_target->ports = ports ? g_strdup (ports) : NULL;
+
+  return new_target;
+}
+
+/**
+ * @brief Free an OSP target, including all added credentials.
+ *
+ * @param[in]  target  The OSP target to free.
+ */
+void
+osp_target_free (osp_target_t *target)
+{
+  if (!target)
+    return;
+
+  g_slist_free_full (target->credentials,
+                     (GDestroyNotify) osp_credential_free);
+  g_free (target->exclude_hosts);
+  g_free (target->hosts);
+  g_free (target->ports);
+  g_free (target);
+}
+
+/**
+ * @brief Add a credential to an OSP target.
+ *
+ * @param[in]  target       The OSP target to add the credential to.
+ * @param[in]  credential   The credential to add. Will be freed with target.
+ */
+void
+osp_target_add_credential (osp_target_t *target, osp_credential_t *credential)
+{
+  if (!target || !credential)
+    return;
+
+  target->credentials = g_slist_prepend (target->credentials, credential);
+}
+
+/**
+ * @brief Create a new OSP VT group.
+ *
+ * @param[in]  filter  The filter string for the VT group.
+ *
+ * @return  The newly allocated VT group.
+ */
+osp_vt_group_t *
+osp_vt_group_new (const char *filter)
+{
+  osp_vt_group_t *new_vt_group;
+  new_vt_group = g_malloc0 (sizeof (osp_vt_group_t));
+
+  new_vt_group->filter = filter ? g_strdup (filter) : NULL;
+
+  return new_vt_group;
+}
+
+/**
+ * @brief Free a OSP VT group.
+ *
+ * @param[in]  vt_group  The VT group to free.
+ */
+void
+osp_vt_group_free (osp_vt_group_t *vt_group)
+{
+  if (!vt_group)
+    return;
+
+  g_free (vt_group->filter);
+  g_free (vt_group);
+}
+
+/**
+ * @brief Create a new single OSP VT.
+ *
+ * @param[in]  vt_id  The id of the VT.
+ *
+ * @return  The newly allocated single VT.
+ */
+osp_vt_single_t *
+osp_vt_single_new (const char *vt_id)
+{
+  osp_vt_single_t *new_vt_single;
+  new_vt_single = g_malloc0 (sizeof (osp_vt_single_t));
+
+  new_vt_single->vt_id = vt_id ? g_strdup (vt_id) : NULL;
+  new_vt_single->vt_values = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                                    g_free, g_free);
+
+  return new_vt_single;
+}
+
+/**
+ * @brief Free a single OSP VT, including all preference values.
+ *
+ * @param[in]  vt_single  The OSP VT to free.
+ */
+void
+osp_vt_single_free (osp_vt_single_t *vt_single)
+{
+  if (!vt_single)
+    return;
+
+  g_hash_table_destroy (vt_single->vt_values);
+
+  g_free (vt_single->vt_id);
+  g_free (vt_single);
+}
+
+/**
+ * @brief Add a preference value to an OSP VT.
+ * This creates a copy of the name and value.
+ *
+ * @param[in]  vt_single  The VT to add the preference to.
+ * @param[in]  name       The name / identifier of the preference.
+ * @param[in]  value      The value of the preference.
+ */
+void
+osp_vt_single_add_value (osp_vt_single_t *vt_single,
+                         const char *name, const char *value)
+{
+  g_hash_table_replace (vt_single->vt_values,
+                        g_strdup (name),
+                        g_strdup (value));
+}
+
