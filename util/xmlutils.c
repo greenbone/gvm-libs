@@ -245,7 +245,7 @@ entity_attribute (entity_t entity, const char *name)
 void
 add_attributes (entity_t entity, const gchar **names, const gchar **values)
 {
-  if (*names && *values)
+  if (names && values && *names && *values)
     {
       if (entity->attributes == NULL)
         entity->attributes =
