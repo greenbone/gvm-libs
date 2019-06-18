@@ -14,12 +14,8 @@ jobs:
     steps:
       - checkout
       - run:
-          working_directory: ~/gvm-libs
-          name: Configure and compile gvm-libs (Release)
-          command: pushd gvm-libs && mkdir build && cd build/ && cmake -DCMAKE_BUILD_TYPE=Release .. && make install && popd
-      - run:
           name: Configure and run unit tests
-          command: mkdir build && cd build/ && make tests && CTEST_OUTPUT_ON_FAILURE=1 make test
+          command: mkdir build && cd build/ && cmake -DCMAKE_BUILD_TYPE=Release .. && make install && make tests && CTEST_OUTPUT_ON_FAILURE=1 make test
   build_gcc_core:
     docker:
       - image: greenbone/build-env-gvm-libs-master-debian-stretch-gcc-core
