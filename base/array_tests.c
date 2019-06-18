@@ -23,8 +23,12 @@
 #include <cgreen/mocks.h>
 
 Describe (array);
-BeforeEach (array) {}
-AfterEach (array) {}
+BeforeEach (array)
+{
+}
+AfterEach (array)
+{
+}
 
 /* make_array */
 
