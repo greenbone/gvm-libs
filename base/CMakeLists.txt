@@ -70,6 +70,20 @@ if (GVM_SYSCONF_DIR)
 endif (GVM_SYSCONF_DIR)
 
 
+## Tests
+
+add_executable (array-test
+                EXCLUDE_FROM_ALL
+                array_tests.c)
+
+add_test (array-test array-test)
+
+target_link_libraries (array-test cgreen ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+
+add_custom_target (tests
+                   DEPENDS array-test)
+
+
 ## Install
 
 configure_file (libgvm_base.pc.in ${CMAKE_BINARY_DIR}/libgvm_base.pc @ONLY)
