@@ -98,7 +98,7 @@ vtref_new (const gchar *type, const gchar *ref_id, const gchar *ref_text)
 /**
  * @brief Free memory of a vtref structure.
  *
- * @param np The structure to be freed.
+ * @param ref The structure to be freed.
  */
 void
 vtref_free (vtref_t *ref)
@@ -177,6 +177,8 @@ nvti_add_vtref (nvti_t *vt, vtref_t *ref)
 
 /**
  * @brief Create a new nvtpref structure filled with the given values.
+ *
+ * @param id The ID to be set.
  *
  * @param name The name to be set. A copy will created of this.
  *
@@ -382,8 +384,8 @@ nvti_vtref (const nvti_t *n, guint p)
  *
  * @param type Optional type to collect. If NULL, all types are collected.
  *
- * @param exclude_type Optional CSC list of types to exclude from collection.
- *                     If NULL, no types are excluded.
+ * @param exclude_types Optional CSC list of types to exclude from collection.
+ *                      If NULL, no types are excluded.
  *
  * @param use_types If 0, then a simple comma separated list will be returned.
  *                  If not 0, then for each reference the syntax "type:id" is
