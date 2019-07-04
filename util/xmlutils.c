@@ -1191,7 +1191,7 @@ foreach_print_attribute_to_string (gpointer name, gpointer value,
  * @brief empty.
  *
  * @param[in]      entity  Entity tree to print to string.
- * @param[in,out]  string  String to write to (will be created if NULL).
+ * @param[in,out]  string  String to write to.
  */
 void
 print_entity_to_string (entity_t entity, GString *string)

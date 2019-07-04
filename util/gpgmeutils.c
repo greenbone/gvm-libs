@@ -369,7 +369,7 @@ find_email_encryption_key (gpgme_ctx_t ctx, const char *uid_email)
  * @param[in]  key_len        Length of key / certificate, -1 to use strlen.
  * @param[in]  uid_email      Email address of key / certificate to use.
  * @param[in]  protocol       The protocol to use, e.g. OpenPGP or CMS.
- * @param[in]  data_types     The expected GPGME buffered data types.
+ * @param[in]  key_types      The expected GPGME buffered data types.
  *
  * @return 0 success, -1 error.
  */

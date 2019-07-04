@@ -368,7 +368,7 @@ osp_get_vts_version (osp_connection_t *connection, char **vts_version)
  * @brief Get the VTs version from an OSP server.
  *
  * @param[in]   connection    Connection to an OSP server.
- * @param[out]  vtss          VTs.
+ * @param[out]  vts           VTs.
  *
  * @return 0 if success, 1 if error.
  */
@@ -1103,9 +1103,7 @@ osp_param_free (osp_param_t *param)
  *
  * @param[in]   type      The credential type.
  * @param[in]   service   The service the credential is for.
- * @param[in]   port      CA public key.
- * @param[in]   username  Credential username.
- * @param[in]   password  Credential password.
+ * @param[in]   port      The port.
  *
  * @return New osp credential.
  */
