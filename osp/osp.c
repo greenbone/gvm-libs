@@ -787,10 +787,12 @@ osp_start_scan_ext (osp_connection_t *connection,
   g_string_append (xml, "<scanner_params>");
   if (opts.scanner_params)
     {
+      scanner_params_xml = NULL;
       g_hash_table_foreach (opts.scanner_params,
                             (GHFunc) option_concat_as_xml,
                             &scanner_params_xml);
-      g_string_append (xml, scanner_params_xml);
+      if (scanner_params_xml)
+        g_string_append (xml, scanner_params_xml);
       g_free (scanner_params_xml);
     }
   g_string_append (xml, "</scanner_params>");
