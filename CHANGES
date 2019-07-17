@@ -7,6 +7,26 @@ or get the entire source code repository and view log history:
 $ git clone https://github.com/greenbone/gvm-libs.git
 $ cd gvm-libs && git checkout gvm-libs-10.0 && git log
 
+gvm-libs 10.0.1 (2019-07-17)
+
+This is the first patch release of the gvm-libs module 10.0 for the
+Greenbone Vulnerability Management 10 (GVM-10) framework.
+
+Main changes compared to gvm-libs 10.0.0:
+* An issue which caused values in the nvticache not being removed as
+  addressed.
+* An issue during kb search which caused to reach the limit of open
+  file descriptors has been addressed.
+* Hostnames and vhosts are added always in lower-case format.
+* The error message when the plugin feed version file is not found is shown
+  only once.
+* An issue caused when a hostname entry is removed as been addressed.
+* Multiple certificate formats for S/MIME are allowed. The S/MIME email
+  encryption accepts the more common PEM X.509 certificate format in
+  addition to PEM-encoded PKCS#7.
+* The CMake building process was improved.
+* Delays in kb routines have been removed.
+
 gvm-libs 10.0.0 (2019-04-05)
 
 This is the first release of the gvm-libs module 10.0 for the Greenbone
