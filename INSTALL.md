@@ -37,8 +37,16 @@ Prerequisites for building documentation:
 
 Install prerequisites on Debian GNU/Linux 'Stretch' 9:
 
-    apt-get install cmake pkg-config libglib2.0-dev libgpgme11-dev \
-    libgnutls28-dev uuid-dev libssh-gcrypt-dev libhiredis-dev
+    apt-get install \
+    cmake \
+    pkg-config \
+    libglib2.0-dev \
+    libgpgme11-dev \
+    libgnutls28-dev \
+    uuid-dev \
+    libssh-gcrypt-dev \
+    libldap2-dev \
+    libhiredis-dev
 
 
 Compiling gvm-libs
