@@ -78,6 +78,9 @@ int
 osp_get_vts (osp_connection_t *, entity_t *);
 
 int
+osp_get_vts_filtered (osp_connection_t *, const gchar *, entity_t *);
+
+int
 osp_start_scan (osp_connection_t *, const char *, const char *, GHashTable *,
                 const char *, char **);
 
