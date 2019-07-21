@@ -88,6 +88,8 @@ typedef struct nvti
   gchar
     *required_udp_ports; /**< @brief List of required UDP ports of this NVT*/
 
+  gchar *qod_type; /**< @brief Quality of detection type */
+
   GSList *refs;  /**< @brief Collection of VT references */
   GSList *prefs; /**< @brief Collection of NVT preferences */
 
@@ -142,6 +144,8 @@ gchar *
 nvti_required_ports (const nvti_t *);
 gchar *
 nvti_required_udp_ports (const nvti_t *);
+gchar *
+nvti_qod_type (const nvti_t *);
 gint
 nvti_timeout (const nvti_t *);
 gint
@@ -173,6 +177,8 @@ int
 nvti_set_required_ports (nvti_t *, const gchar *);
 int
 nvti_set_required_udp_ports (nvti_t *, const gchar *);
+int
+nvti_set_qod_type (nvti_t *, const gchar *);
 int
 nvti_set_timeout (nvti_t *, const gint);
 int
