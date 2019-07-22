@@ -390,13 +390,14 @@ osp_get_vts (osp_connection_t *connection, entity_t *vts)
 /**
  * @brief Get filtered set of VTs from an OSP server.
  *
- * @param[in]   connection    Connection to an OSP server.
- * @param[out]  vts           VTs.
+ * @param[in]   connection  Connection to an OSP server.
+ * @param[in]   opts        Struct containing the options to apply.
+ * @param[out]  vts         VTs.
  *
  * @return 0 if success, 1 if error.
  */
 int
-osp_get_vts_filtered (osp_connection_t *connection, const gchar *filter, entity_t *vts)
+osp_get_vts_ext (osp_connection_t *connection, osp_get_vts_opts_t opts, entity_t *vts)
 {
   if (!connection)
     return 1;
@@ -404,7 +405,7 @@ osp_get_vts_filtered (osp_connection_t *connection, const gchar *filter, entity_
   if (vts == NULL)
     return 1;
 
-  if (osp_send_command (connection, vts, "<get_vts filter='%s'/>", filter))
+  if (osp_send_command (connection, vts, "<get_vts filter='%s'/>", opts.filter))
     return 1;
 
   return 0;
