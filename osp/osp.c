@@ -365,7 +365,7 @@ osp_get_vts_version (osp_connection_t *connection, char **vts_version)
 }
 
 /**
- * @brief Get the VTs version from an OSP server.
+ * @brief Get all VTs from an OSP server.
  *
  * @param[in]   connection    Connection to an OSP server.
  * @param[out]  vts           VTs.
@@ -382,6 +382,30 @@ osp_get_vts (osp_connection_t *connection, entity_t *vts)
     return 1;
 
   if (osp_send_command (connection, vts, "<get_vts/>"))
+    return 1;
+
+  return 0;
+}
+
+/**
+ * @brief Get filtered set of VTs from an OSP server.
+ *
+ * @param[in]   connection  Connection to an OSP server.
+ * @param[in]   opts        Struct containing the options to apply.
+ * @param[out]  vts         VTs.
+ *
+ * @return 0 if success, 1 if error.
+ */
+int
+osp_get_vts_ext (osp_connection_t *connection, osp_get_vts_opts_t opts, entity_t *vts)
+{
+  if (!connection)
+    return 1;
+
+  if (vts == NULL)
+    return 1;
+
+  if (osp_send_command (connection, vts, "<get_vts filter='%s'/>", opts.filter))
     return 1;
 
   return 0;

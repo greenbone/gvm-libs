@@ -77,6 +77,13 @@ osp_get_vts_version (osp_connection_t *, char **);
 int
 osp_get_vts (osp_connection_t *, entity_t *);
 
+typedef struct {
+  char *filter; ///< the filter to apply for a vt sub-selection.
+} osp_get_vts_opts_t;
+
+int
+osp_get_vts_ext (osp_connection_t *, osp_get_vts_opts_t, entity_t *);
+
 int
 osp_start_scan (osp_connection_t *, const char *, const char *, GHashTable *,
                 const char *, char **);
