@@ -1287,7 +1287,7 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
   struct kb_redis *kbr;
   redisReply *rep = NULL;
   int rc = 0;
-  GSList *element;
+  unsigned int i;
   gchar *cves, *bids, *xrefs;
 
   if (!nvt || !filename)
@@ -1314,21 +1314,19 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
   if (rep != NULL)
     freeReplyObject (rep);
 
-  element = nvt->prefs;
-  if (g_slist_length (element))
+  if (nvti_pref_len (nvt))
     rep = redis_cmd (kbr, "DEL oid:%s:prefs", nvti_oid (nvt));
-  while (element)
+  for (i = 0; i < nvti_pref_len (nvt); i ++)
     {
-      nvtpref_t *pref = element->data;
+      const nvtpref_t *pref = nvti_pref (nvt, i);
 
       rep = redis_cmd (kbr, "RPUSH oid:%s:prefs %d|||%s|||%s|||%s",
-                       nvti_oid (nvt), pref->id, pref->name, pref->type,
-                       pref->dflt);
+                       nvti_oid (nvt), nvtpref_id (pref), nvtpref_name (pref),
+		       nvtpref_type (pref), nvtpref_default(pref));
       if (!rep || rep->type == REDIS_REPLY_ERROR)
         rc = -1;
       if (rep)
         freeReplyObject (rep);
-      element = element->next;
     }
   rep = redis_cmd (kbr, "RPUSH filename:%s %lu %s", filename, time (NULL),
                    nvti_oid (nvt));
