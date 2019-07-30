@@ -1316,13 +1316,13 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
 
   if (nvti_pref_len (nvt))
     rep = redis_cmd (kbr, "DEL oid:%s:prefs", nvti_oid (nvt));
-  for (i = 0; i < nvti_pref_len (nvt); i ++)
+  for (i = 0; i < nvti_pref_len (nvt); i++)
     {
       const nvtpref_t *pref = nvti_pref (nvt, i);
 
       rep = redis_cmd (kbr, "RPUSH oid:%s:prefs %d|||%s|||%s|||%s",
                        nvti_oid (nvt), nvtpref_id (pref), nvtpref_name (pref),
-		       nvtpref_type (pref), nvtpref_default(pref));
+                       nvtpref_type (pref), nvtpref_default (pref));
       if (!rep || rep->type == REDIS_REPLY_ERROR)
         rc = -1;
       if (rep)
