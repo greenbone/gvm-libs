@@ -154,6 +154,38 @@ vtref_text (const vtref_t *r)
   return (r ? r->ref_text : NULL);
 }
 
+/* VT Information */
+
+/**
+ * @brief The structure of a information record that corresponds to a NVT.
+ */
+typedef struct nvti
+{
+  gchar *oid;  /**< @brief Object ID */
+  gchar *name; /**< @brief The name */
+
+  gchar *tag;       /**< @brief List of tags attached to this NVT */
+  gchar *cvss_base; /**< @brief CVSS base score for this NVT. */
+
+  gchar *dependencies;   /**< @brief List of dependencies of this NVT */
+  gchar *required_keys;  /**< @brief List of required KB keys of this NVT */
+  gchar *mandatory_keys; /**< @brief List of mandatory KB keys of this NVT */
+  gchar *excluded_keys;  /**< @brief List of excluded KB keys of this NVT */
+  gchar *required_ports; /**< @brief List of required ports of this NVT */
+  gchar
+    *required_udp_ports; /**< @brief List of required UDP ports of this NVT*/
+
+  gchar *qod_type; /**< @brief Quality of detection type */
+
+  GSList *refs;  /**< @brief Collection of VT references */
+  GSList *prefs; /**< @brief Collection of NVT preferences */
+
+  // The following are not settled yet.
+  gint timeout;  /**< @brief Default timeout time for this NVT */
+  gint category; /**< @brief The category, this NVT belongs to */
+  gchar *family; /**< @brief Family the NVT belongs to */
+} nvti_t;
+
 /**
  * @brief Add a reference to the VT Info.
  *
