@@ -1315,7 +1315,7 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
     freeReplyObject (rep);
 
   if (nvti_pref_len (nvt))
-    rep = redis_cmd (kbr, "DEL oid:%s:prefs", nvti_oid (nvt));
+    redis_cmd (kbr, "DEL oid:%s:prefs", nvti_oid (nvt));
   for (i = 0; i < nvti_pref_len (nvt); i++)
     {
       const nvtpref_t *pref = nvti_pref (nvt, i);
