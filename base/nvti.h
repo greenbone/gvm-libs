@@ -68,34 +68,8 @@ typedef struct vtref vtref_t;
 
 /**
  * @brief The structure of a information record that corresponds to a NVT.
- *
- * The elements of this structure should never be accessed directly.
- * Only the functions corresponding to this module should be used.
  */
-typedef struct nvti
-{
-  gchar *oid;  /**< @brief Object ID */
-  gchar *name; /**< @brief The name */
-
-  gchar *tag;       /**< @brief List of tags attached to this NVT */
-  gchar *cvss_base; /**< @brief CVSS base score for this NVT. */
-
-  gchar *dependencies;   /**< @brief List of dependencies of this NVT */
-  gchar *required_keys;  /**< @brief List of required KB keys of this NVT */
-  gchar *mandatory_keys; /**< @brief List of mandatory KB keys of this NVT */
-  gchar *excluded_keys;  /**< @brief List of excluded KB keys of this NVT */
-  gchar *required_ports; /**< @brief List of required ports of this NVT */
-  gchar
-    *required_udp_ports; /**< @brief List of required UDP ports of this NVT*/
-
-  GSList *refs;  /**< @brief Collection of VT references */
-  GSList *prefs; /**< @brief Collection of NVT preferences */
-
-  // The following are not settled yet.
-  gint timeout;  /**< @brief Default timeout time for this NVT */
-  gint category; /**< @brief The category, this NVT belongs to */
-  gchar *family; /**< @brief Family the NVT belongs to */
-} nvti_t;
+typedef struct nvti nvti_t;
 
 vtref_t *
 vtref_new (const gchar *, const gchar *, const gchar *);
@@ -142,6 +116,8 @@ gchar *
 nvti_required_ports (const nvti_t *);
 gchar *
 nvti_required_udp_ports (const nvti_t *);
+gchar *
+nvti_qod_type (const nvti_t *);
 gint
 nvti_timeout (const nvti_t *);
 gint
@@ -173,6 +149,8 @@ int
 nvti_set_required_ports (nvti_t *, const gchar *);
 int
 nvti_set_required_udp_ports (nvti_t *, const gchar *);
+int
+nvti_set_qod_type (nvti_t *, const gchar *);
 int
 nvti_set_timeout (nvti_t *, const gint);
 int

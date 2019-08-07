@@ -154,6 +154,38 @@ vtref_text (const vtref_t *r)
   return (r ? r->ref_text : NULL);
 }
 
+/* VT Information */
+
+/**
+ * @brief The structure of a information record that corresponds to a NVT.
+ */
+typedef struct nvti
+{
+  gchar *oid;  /**< @brief Object ID */
+  gchar *name; /**< @brief The name */
+
+  gchar *tag;       /**< @brief List of tags attached to this NVT */
+  gchar *cvss_base; /**< @brief CVSS base score for this NVT. */
+
+  gchar *dependencies;   /**< @brief List of dependencies of this NVT */
+  gchar *required_keys;  /**< @brief List of required KB keys of this NVT */
+  gchar *mandatory_keys; /**< @brief List of mandatory KB keys of this NVT */
+  gchar *excluded_keys;  /**< @brief List of excluded KB keys of this NVT */
+  gchar *required_ports; /**< @brief List of required ports of this NVT */
+  gchar
+    *required_udp_ports; /**< @brief List of required UDP ports of this NVT*/
+
+  gchar *qod_type; /**< @brief Quality of detection type */
+
+  GSList *refs;  /**< @brief Collection of VT references */
+  GSList *prefs; /**< @brief Collection of NVT preferences */
+
+  // The following are not settled yet.
+  gint timeout;  /**< @brief Default timeout time for this NVT */
+  gint category; /**< @brief The category, this NVT belongs to */
+  gchar *family; /**< @brief Family the NVT belongs to */
+} nvti_t;
+
 /**
  * @brief Add a reference to the VT Info.
  *
@@ -314,6 +346,7 @@ nvti_free (nvti_t *n)
   g_free (n->excluded_keys);
   g_free (n->required_ports);
   g_free (n->required_udp_ports);
+  g_free (n->qod_type);
   g_free (n->family);
   g_slist_free_full (n->refs, (void (*) (void *)) vtref_free);
   g_slist_free_full (n->prefs, (void (*) (void *)) nvtpref_free);
@@ -576,6 +609,20 @@ gchar *
 nvti_required_udp_ports (const nvti_t *n)
 {
   return (n ? n->required_udp_ports : NULL);
+}
+
+/**
+ * @brief Get the QoD type.
+ *
+ * @param n The NVT Info structure of which the QoD type should
+ *          be returned.
+ *
+ * @return The QoD type as string. Don't free this.
+ */
+gchar *
+nvti_qod_type (const nvti_t *n)
+{
+  return (n ? n->qod_type : NULL);
 }
 
 /**
@@ -884,6 +931,31 @@ nvti_set_required_udp_ports (nvti_t *n, const gchar *required_udp_ports)
     n->required_udp_ports = g_strdup (required_udp_ports);
   else
     n->required_udp_ports = NULL;
+  return (0);
+}
+
+/**
+ * @brief Set the QoD type of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param qod_type The QoD type to set. A copy will be created from this.
+ *                 The string is not checked, any string is accepted as type.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_qod_type (nvti_t *n, const gchar *qod_type)
+{
+  if (!n)
+    return (-1);
+
+  if (n->qod_type)
+    g_free (n->qod_type);
+  if (qod_type && qod_type[0])
+    n->qod_type = g_strdup (qod_type);
+  else
+    n->qod_type = NULL;
   return (0);
 }
 
