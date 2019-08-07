@@ -813,6 +813,51 @@ nvti_set_solution_type (nvti_t *n, const gchar *solution_type)
 }
 
 /**
+ * @brief Add a tag to the tags of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param tag The tag to add. A copy will be created from this.
+ *            Some known tags are not added to the tags list
+ *            but rather stored separately.
+ *            The known tags are: solution and solution_type.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_add_tag (nvti_t *n, const gchar *tag_name, const gchar *tag_value)
+{
+  gchar * new_tags;
+
+  if (!n)
+    return (-1);
+
+  if (!(tag_name && tag_name[0]))
+    return (-2);
+
+  if (!(tag_value && tag_value[0]))
+    return (-3);
+
+  /* store known tags directly */ 
+  if (!strcmp (tag_name, "solution"))
+    return nvti_set_solution (n, tag_value);
+  if (!strcmp (tag_name, "solution_type"))
+    return nvti_set_solution_type (n, tag_value);
+
+  /* append unknown tags to the tags list */
+  if (n->tag)
+    {
+      new_tags = g_strconcat (n->tag, "|", tag_name, "=", tag_value, NULL);
+      g_free (n->tag);
+      n->tag = new_tags;
+    }
+  else
+    n->tag = g_strconcat (tag_name, "=", tag_value, NULL);
+
+  return (0);
+}
+
+/**
  * @brief Set the tags of a NVT.
  *
  * @param n The NVT Info structure.
