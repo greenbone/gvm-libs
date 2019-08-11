@@ -164,6 +164,9 @@ typedef struct nvti
   gchar *oid;  /**< @brief Object ID */
   gchar *name; /**< @brief The name */
 
+  gchar *solution;      /**< @brief The solution */
+  gchar *solution_type; /**< @brief The solution type */
+
   gchar *tag;       /**< @brief List of tags attached to this NVT */
   gchar *cvss_base; /**< @brief CVSS base score for this NVT. */
 
@@ -338,6 +341,8 @@ nvti_free (nvti_t *n)
 
   g_free (n->oid);
   g_free (n->name);
+  g_free (n->solution);
+  g_free (n->solution_type);
   g_free (n->tag);
   g_free (n->cvss_base);
   g_free (n->dependencies);
@@ -500,9 +505,37 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types,
 }
 
 /**
- * @brief Get the tag.
+ * @brief Get the solution.
  *
- * @param n The NVT Info structure of which the name should
+ * @param n The NVT Info structure of which the solution should
+ *          be returned.
+ *
+ * @return The solution string. Don't free this.
+ */
+gchar *
+nvti_solution (const nvti_t *n)
+{
+  return (n ? n->solution : NULL);
+}
+
+/**
+ * @brief Get the solution type.
+ *
+ * @param n The NVT Info structure of which the solution type should
+ *          be returned.
+ *
+ * @return The solution type string. Don't free this.
+ */
+gchar *
+nvti_solution_type (const nvti_t *n)
+{
+  return (n ? n->solution_type : NULL);
+}
+
+/**
+ * @brief Get the tags.
+ *
+ * @param n The NVT Info structure of which the tags should
  *          be returned.
  *
  * @return The tags string. Don't free this.
@@ -733,6 +766,49 @@ nvti_set_name (nvti_t *n, const gchar *name)
   if (n->name)
     g_free (n->name);
   n->name = g_strdup (name);
+  return (0);
+}
+
+/**
+ * @brief Set the solution of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param solution The solution to set. A copy will be created from this.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_solution (nvti_t *n, const gchar *solution)
+{
+  if (!n)
+    return (-1);
+
+  if (n->solution)
+    g_free (n->solution);
+  n->solution = g_strdup (solution);
+  return (0);
+}
+
+/**
+ * @brief Set the solution type of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param solution_type The solution type to set. A copy will be created
+ *                      from this.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_solution_type (nvti_t *n, const gchar *solution_type)
+{
+  if (!n)
+    return (-1);
+
+  if (n->solution_type)
+    g_free (n->solution_type);
+  n->solution_type = g_strdup (solution_type);
   return (0);
 }
 
