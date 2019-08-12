@@ -101,6 +101,10 @@ nvti_name (const nvti_t *);
 gchar *
 nvti_refs (const nvti_t *, const gchar *, const char *, guint);
 gchar *
+nvti_solution (const nvti_t *);
+gchar *
+nvti_solution_type (const nvti_t *);
+gchar *
 nvti_tag (const nvti_t *);
 gchar *
 nvti_cvss_base (const nvti_t *);
@@ -133,6 +137,10 @@ int
 nvti_set_oid (nvti_t *, const gchar *);
 int
 nvti_set_name (nvti_t *, const gchar *);
+int
+nvti_set_solution (nvti_t *, const gchar *);
+int
+nvti_set_solution_type (nvti_t *, const gchar *);
 int
 nvti_set_tag (nvti_t *, const gchar *);
 int
