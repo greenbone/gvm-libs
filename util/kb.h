@@ -34,7 +34,11 @@
 /**
  * @brief Default KB location.
  */
-#define KB_PATH_DEFAULT "/tmp/redis.sock"
+#ifdef REDIS_SOCKET_PATH
+#define KB_PATH_DEFAULT REDIS_SOCKET_PATH
+#else
+#define KB_PATH_DEFAULT "/run/redis/redis.sock"
+#endif
 
 /**
  * @brief Possible type of a kb_item.

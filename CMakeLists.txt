@@ -183,6 +183,14 @@ if (NOT GVM_SYSCONF_DIR)
   set (GVM_SYSCONF_DIR "${SYSCONFDIR}/gvm")
 endif (NOT GVM_SYSCONF_DIR)
 
+
+if (NOT REDIS_SOCKET_PATH)
+  set (REDIS_SOCKET_PATH "/run/redis/redis.sock")
+endif ()
+
+add_definitions (-DREDIS_SOCKET_PATH="${REDIS_SOCKET_PATH}")
+message ("-- Using redis socket ${REDIS_SOCKET_PATH}")
+
 message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 if (ENABLE_COVERAGE)
