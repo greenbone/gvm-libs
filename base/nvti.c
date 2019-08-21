@@ -164,6 +164,10 @@ typedef struct nvti
   gchar *oid;  /**< @brief Object ID */
   gchar *name; /**< @brief The name */
 
+  gchar *summary;  /**< @brief The summary */
+  gchar *insight;  /**< @brief The insight */
+  gchar *affected; /**< @brief Affected systems */
+
   gchar *solution;      /**< @brief The solution */
   gchar *solution_type; /**< @brief The solution type */
 
@@ -178,7 +182,8 @@ typedef struct nvti
   gchar
     *required_udp_ports; /**< @brief List of required UDP ports of this NVT*/
 
-  gchar *qod_type; /**< @brief Quality of detection type */
+  gchar *detection; /**< @brief Detection description */
+  gchar *qod_type;  /**< @brief Quality of detection type */
 
   GSList *refs;  /**< @brief Collection of VT references */
   GSList *prefs; /**< @brief Collection of NVT preferences */
@@ -341,6 +346,9 @@ nvti_free (nvti_t *n)
 
   g_free (n->oid);
   g_free (n->name);
+  g_free (n->summary);
+  g_free (n->insight);
+  g_free (n->affected);
   g_free (n->solution);
   g_free (n->solution_type);
   g_free (n->tag);
@@ -351,6 +359,7 @@ nvti_free (nvti_t *n)
   g_free (n->excluded_keys);
   g_free (n->required_ports);
   g_free (n->required_udp_ports);
+  g_free (n->detection);
   g_free (n->qod_type);
   g_free (n->family);
   g_slist_free_full (n->refs, (void (*) (void *)) vtref_free);
@@ -384,6 +393,48 @@ gchar *
 nvti_name (const nvti_t *n)
 {
   return (n ? n->name : NULL);
+}
+
+/**
+ * @brief Get the summary.
+ *
+ * @param n The NVT Info structure of which the summary should
+ *          be returned.
+ *
+ * @return The summary string. Don't free this.
+ */
+gchar *
+nvti_summary (const nvti_t *n)
+{
+  return (n ? n->summary : NULL);
+}
+
+/**
+ * @brief Get the text about insight.
+ *
+ * @param n The NVT Info structure of which the insight description should
+ *          be returned.
+ *
+ * @return The insight string. Don't free this.
+ */
+gchar *
+nvti_insight (const nvti_t *n)
+{
+  return (n ? n->insight : NULL);
+}
+
+/**
+ * @brief Get the text about affected systems.
+ *
+ * @param n The NVT Info structure of which the affected description should
+ *          be returned.
+ *
+ * @return The affected string. Don't free this.
+ */
+gchar *
+nvti_affected (const nvti_t *n)
+{
+  return (n ? n->affected : NULL);
 }
 
 /**
@@ -645,6 +696,20 @@ nvti_required_udp_ports (const nvti_t *n)
 }
 
 /**
+ * @brief Get the text about detection.
+ *
+ * @param n The NVT Info structure of which the detection should
+ *          be returned.
+ *
+ * @return The detection string. Don't free this.
+ */
+gchar *
+nvti_detection (const nvti_t *n)
+{
+  return (n ? n->detection : NULL);
+}
+
+/**
  * @brief Get the QoD type.
  *
  * @param n The NVT Info structure of which the QoD type should
@@ -766,6 +831,69 @@ nvti_set_name (nvti_t *n, const gchar *name)
   if (n->name)
     g_free (n->name);
   n->name = g_strdup (name);
+  return (0);
+}
+
+/**
+ * @brief Set the summary of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param solution The summary to set. A copy will be created from this.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_summary (nvti_t *n, const gchar *summary)
+{
+  if (!n)
+    return (-1);
+
+  if (n->summary)
+    g_free (n->summary);
+  n->summary = g_strdup (summary);
+  return (0);
+}
+
+/**
+ * @brief Set the insight text of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param insight The insight text to set. A copy will be created from this.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_insight (nvti_t *n, const gchar *insight)
+{
+  if (!n)
+    return (-1);
+
+  if (n->insight)
+    g_free (n->insight);
+  n->insight = g_strdup (insight);
+  return (0);
+}
+
+/**
+ * @brief Set the affected text of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param affected The affected text to set. A copy will be created from this.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_affected (nvti_t *n, const gchar *affected)
+{
+  if (!n)
+    return (-1);
+
+  if (n->affected)
+    g_free (n->affected);
+  n->affected = g_strdup (affected);
   return (0);
 }
 
@@ -1007,6 +1135,27 @@ nvti_set_required_udp_ports (nvti_t *n, const gchar *required_udp_ports)
     n->required_udp_ports = g_strdup (required_udp_ports);
   else
     n->required_udp_ports = NULL;
+  return (0);
+}
+
+/**
+ * @brief Set the detection text of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param detection The detection text to set. A copy will be created from this.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_detection (nvti_t *n, const gchar *detection)
+{
+  if (!n)
+    return (-1);
+
+  if (n->detection)
+    g_free (n->detection);
+  n->detection = g_strdup (detection);
   return (0);
 }
 
