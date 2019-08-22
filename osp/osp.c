@@ -444,6 +444,56 @@ osp_delete_scan (osp_connection_t *connection, const char *scan_id)
   return ret;
 }
 
+
+/**
+ * @brief Get a scan status from an OSP server
+ *
+ * @param[in]   connection  Connection to an OSP server.
+ * @param[in]   scan_id     ID of scan to get.
+ * @param[out]  status      Pointer to status.
+ * @param[out]  error       Pointer to error, if any.
+ *
+ * @return 0 on success, -1 if error.
+ */
+int
+osp_get_scan_status (osp_connection_t *connection, const char *scan_id,
+                     char **status, char **error)
+{
+  entity_t entity, child;
+  int rc;
+
+  assert (connection);
+  assert (scan_id);
+  rc = osp_send_command (connection, &entity,
+                         "<get_scans scan_id='%s'"
+                         " details='0'"
+                         " pop_results='0'/>",
+                         scan_id);
+
+  if (rc)
+    {
+      if (error)
+        *error = g_strdup ("Couldn't send get_scans command to scanner");
+      return -1;
+    }
+
+  child = entity_child (entity, "scan");
+  if (!child)
+    {
+      const char *text = entity_attribute (entity, "status_text");
+
+      assert (text);
+      if (error)
+        *error = g_strdup (text);
+      free_entity (entity);
+      return -1;
+    }
+  if (status)
+    *status = g_strdup (entity_attribute (child, "status"));
+  free_entity (entity);
+  return 0;
+}
+
 /**
  * @brief Get a scan from an OSP server, optionally removing the results.
  *

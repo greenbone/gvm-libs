@@ -112,6 +112,9 @@ osp_get_scan_pop (osp_connection_t *,
                   char **);
 
 int
+osp_get_scan_status (osp_connection_t *, const char *, char **, char **);
+
+int
 osp_delete_scan (osp_connection_t *, const char *);
 
 int
