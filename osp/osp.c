@@ -450,17 +450,17 @@ osp_delete_scan (osp_connection_t *connection, const char *scan_id)
  *
  * @param[in]   connection  Connection to an OSP server.
  * @param[in]   scan_id     ID of scan to get.
- * @param[out]  status      Pointer to status.
  * @param[out]  error       Pointer to error, if any.
  *
- * @return 0 on success, -1 if error.
+ * @return Osp scan status
  */
-int
+osp_scan_status_t
 osp_get_scan_status (osp_connection_t *connection, const char *scan_id,
-                     char **status, char **error)
+                     char **error)
 {
   entity_t entity, child;
   int rc;
+  osp_scan_status_t status = OSP_SCAN_STATUS_ERROR;
 
   assert (connection);
   assert (scan_id);
@@ -474,7 +474,7 @@ osp_get_scan_status (osp_connection_t *connection, const char *scan_id,
     {
       if (error)
         *error = g_strdup ("Couldn't send get_scans command to scanner");
-      return -1;
+      return status;
     }
 
   child = entity_child (entity, "scan");
@@ -486,12 +486,20 @@ osp_get_scan_status (osp_connection_t *connection, const char *scan_id,
       if (error)
         *error = g_strdup (text);
       free_entity (entity);
-      return -1;
+      return status;
     }
-  if (status)
-    *status = g_strdup (entity_attribute (child, "status"));
+
+  if (!strcmp (entity_attribute (child, "status"), "init"))
+    status = OSP_SCAN_STATUS_INIT;
+  else if (!strcmp (entity_attribute (child, "status"), "running"))
+    status = OSP_SCAN_STATUS_RUNNING;
+  else if (!strcmp (entity_attribute (child, "status"), "stopped"))
+    status = OSP_SCAN_STATUS_STOPPED;
+  else if (!strcmp (entity_attribute (child, "status"), "finished"))
+    status = OSP_SCAN_STATUS_FINISHED;
+
   free_entity (entity);
-  return 0;
+  return status;
 }
 
 /**

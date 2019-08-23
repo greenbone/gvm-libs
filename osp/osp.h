@@ -123,8 +123,8 @@ osp_get_scan_pop (osp_connection_t *,
                   int,
                   char **);
 
-int
-osp_get_scan_status (osp_connection_t *, const char *, char **, char **);
+osp_scan_status_t
+osp_get_scan_status (osp_connection_t *, const char *, char **);
 
 int
 osp_delete_scan (osp_connection_t *, const char *);
