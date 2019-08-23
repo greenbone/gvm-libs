@@ -60,11 +60,11 @@ typedef enum
  */
 typedef enum
 {
-  OSP_SCAN_STATUS_ERROR = -1,
-  OSP_SCAN_STATUS_INIT,
-  OSP_SCAN_STATUS_RUNNING,
-  OSP_SCAN_STATUS_STOPPED,
-  OSP_SCAN_STATUS_FINISHED,
+  OSP_SCAN_STATUS_ERROR = -1, /**< Erros status. */
+  OSP_SCAN_STATUS_INIT,       /**< Init status. */
+  OSP_SCAN_STATUS_RUNNING,    /**< Running status. */
+  OSP_SCAN_STATUS_STOPPED,    /**< Stopped status. */
+  OSP_SCAN_STATUS_FINISHED,   /**< Finished status. */
 } osp_scan_status_t;
 
 typedef struct osp_param osp_param_t;
