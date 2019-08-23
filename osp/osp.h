@@ -55,6 +55,18 @@ typedef enum
   OSP_PARAM_TYPE_CRD_UP,       /**< Credential user/pass type. */
 } osp_param_type_t;
 
+/**
+ * @brief OSP scan status.
+ */
+typedef enum
+{
+  OSP_SCAN_STATUS_ERROR = -1,
+  OSP_SCAN_STATUS_INIT,
+  OSP_SCAN_STATUS_RUNNING,
+  OSP_SCAN_STATUS_STOPPED,
+  OSP_SCAN_STATUS_FINISHED,
+} osp_scan_status_t;
+
 typedef struct osp_param osp_param_t;
 
 /* OSP Connection handling */
