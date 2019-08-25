@@ -167,6 +167,7 @@ typedef struct nvti
   gchar *summary;  /**< @brief The summary */
   gchar *insight;  /**< @brief The insight */
   gchar *affected; /**< @brief Affected systems */
+  gchar *impact;   /**< @brief Impact of vulnerability */
 
   gchar *solution;      /**< @brief The solution */
   gchar *solution_type; /**< @brief The solution type */
@@ -349,6 +350,7 @@ nvti_free (nvti_t *n)
   g_free (n->summary);
   g_free (n->insight);
   g_free (n->affected);
+  g_free (n->impact);
   g_free (n->solution);
   g_free (n->solution_type);
   g_free (n->tag);
@@ -435,6 +437,20 @@ gchar *
 nvti_affected (const nvti_t *n)
 {
   return (n ? n->affected : NULL);
+}
+
+/**
+ * @brief Get the text about impact.
+ *
+ * @param n The NVT Info structure of which the impact description should
+ *          be returned.
+ *
+ * @return The impact string. Don't free this.
+ */
+gchar *
+nvti_impact (const nvti_t *n)
+{
+  return (n ? n->impact : NULL);
 }
 
 /**
@@ -894,6 +910,27 @@ nvti_set_affected (nvti_t *n, const gchar *affected)
   if (n->affected)
     g_free (n->affected);
   n->affected = g_strdup (affected);
+  return (0);
+}
+
+/**
+ * @brief Set the impact text of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param affected The impact text to set. A copy will be created from this.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_impact (nvti_t *n, const gchar *impact)
+{
+  if (!n)
+    return (-1);
+
+  if (n->impact)
+    g_free (n->impact);
+  n->impact = g_strdup (impact);
   return (0);
 }
 

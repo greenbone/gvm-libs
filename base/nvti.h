@@ -103,6 +103,8 @@ nvti_summary (const nvti_t *);
 gchar *
 nvti_affected (const nvti_t *);
 gchar *
+nvti_impact (const nvti_t *);
+gchar *
 nvti_insight (const nvti_t *);
 gchar *
 nvti_refs (const nvti_t *, const gchar *, const char *, guint);
@@ -151,6 +153,8 @@ int
 nvti_set_insight (nvti_t *, const gchar *);
 int
 nvti_set_affected (nvti_t *, const gchar *);
+int
+nvti_set_impact (nvti_t *, const gchar *);
 int
 nvti_set_solution (nvti_t *, const gchar *);
 int
