@@ -60,7 +60,7 @@ typedef enum
  */
 typedef enum
 {
-  OSP_SCAN_STATUS_ERROR = -1, /**< Erros status. */
+  OSP_SCAN_STATUS_ERROR = -1, /**< Error status. */
   OSP_SCAN_STATUS_INIT,       /**< Init status. */
   OSP_SCAN_STATUS_RUNNING,    /**< Running status. */
   OSP_SCAN_STATUS_STOPPED,    /**< Stopped status. */
