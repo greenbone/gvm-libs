@@ -99,6 +99,14 @@ nvti_oid (const nvti_t *);
 gchar *
 nvti_name (const nvti_t *);
 gchar *
+nvti_summary (const nvti_t *);
+gchar *
+nvti_affected (const nvti_t *);
+gchar *
+nvti_impact (const nvti_t *);
+gchar *
+nvti_insight (const nvti_t *);
+gchar *
 nvti_refs (const nvti_t *, const gchar *, const char *, guint);
 gchar *
 nvti_solution (const nvti_t *);
@@ -121,6 +129,8 @@ nvti_required_ports (const nvti_t *);
 gchar *
 nvti_required_udp_ports (const nvti_t *);
 gchar *
+nvti_detection (const nvti_t *);
+gchar *
 nvti_qod_type (const nvti_t *);
 gint
 nvti_timeout (const nvti_t *);
@@ -137,6 +147,14 @@ int
 nvti_set_oid (nvti_t *, const gchar *);
 int
 nvti_set_name (nvti_t *, const gchar *);
+int
+nvti_set_summary (nvti_t *, const gchar *);
+int
+nvti_set_insight (nvti_t *, const gchar *);
+int
+nvti_set_affected (nvti_t *, const gchar *);
+int
+nvti_set_impact (nvti_t *, const gchar *);
 int
 nvti_set_solution (nvti_t *, const gchar *);
 int
@@ -157,6 +175,8 @@ int
 nvti_set_required_ports (nvti_t *, const gchar *);
 int
 nvti_set_required_udp_ports (nvti_t *, const gchar *);
+int
+nvti_set_detection (nvti_t *, const gchar *);
 int
 nvti_set_qod_type (nvti_t *, const gchar *);
 int
