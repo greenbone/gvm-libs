@@ -123,8 +123,14 @@ osp_get_scan_pop (osp_connection_t *,
                   int,
                   char **);
 
+typedef struct {
+  const char *scan_id; ///< UUID of the scan which get the status from.
+} osp_get_scan_status_opts_t;
+
 osp_scan_status_t
-osp_get_scan_status (osp_connection_t *, const char *, char **);
+osp_get_scan_status_ext (osp_connection_t *,
+                         osp_get_scan_status_opts_t,
+                         char **);
 
 int
 osp_delete_scan (osp_connection_t *, const char *);

@@ -455,20 +455,20 @@ osp_delete_scan (osp_connection_t *connection, const char *scan_id)
  * @return Osp scan status
  */
 osp_scan_status_t
-osp_get_scan_status (osp_connection_t *connection, const char *scan_id,
-                     char **error)
+osp_get_scan_status_ext (osp_connection_t *connection,
+                         osp_get_scan_status_opts_t opts, char **error)
 {
   entity_t entity, child;
   int rc;
   osp_scan_status_t status = OSP_SCAN_STATUS_ERROR;
 
   assert (connection);
-  assert (scan_id);
+  assert (opts.scan_id);
   rc = osp_send_command (connection, &entity,
                          "<get_scans scan_id='%s'"
                          " details='0'"
                          " pop_results='0'/>",
-                         scan_id);
+                         opts.scan_id);
 
   if (rc)
     {
