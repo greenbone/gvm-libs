@@ -55,6 +55,18 @@ typedef enum
   OSP_PARAM_TYPE_CRD_UP,       /**< Credential user/pass type. */
 } osp_param_type_t;
 
+/**
+ * @brief OSP scan status.
+ */
+typedef enum
+{
+  OSP_SCAN_STATUS_ERROR = -1, /**< Error status. */
+  OSP_SCAN_STATUS_INIT,       /**< Init status. */
+  OSP_SCAN_STATUS_RUNNING,    /**< Running status. */
+  OSP_SCAN_STATUS_STOPPED,    /**< Stopped status. */
+  OSP_SCAN_STATUS_FINISHED,   /**< Finished status. */
+} osp_scan_status_t;
+
 typedef struct osp_param osp_param_t;
 
 /* OSP Connection handling */
@@ -110,6 +122,15 @@ osp_get_scan_pop (osp_connection_t *,
                   int,
                   int,
                   char **);
+
+typedef struct {
+  const char *scan_id; ///< UUID of the scan which get the status from.
+} osp_get_scan_status_opts_t;
+
+osp_scan_status_t
+osp_get_scan_status_ext (osp_connection_t *,
+                         osp_get_scan_status_opts_t,
+                         char **);
 
 int
 osp_delete_scan (osp_connection_t *, const char *);
