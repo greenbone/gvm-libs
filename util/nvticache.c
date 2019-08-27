@@ -543,12 +543,8 @@ nvticache_get_prefs (const char *oid)
 
       assert (array[3]);
       assert (!array[4]);
-      np = g_malloc0 (sizeof (nvtpref_t));
-      np->id = atoi (array[0]);
-      np->name = array[1];
-      np->type = array[2];
-      np->dflt = array[3];
-      g_free (array);
+      np = nvtpref_new (atoi (array[0]), array[1], array[2], array[3]);
+      g_strfreev (array);
       list = g_slist_append (list, np);
       element = element->next;
     }
