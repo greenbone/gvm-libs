@@ -29,19 +29,7 @@
 
 #include <glib.h>
 
-/**
- * @brief The structure for a preference of a NVT.
- *
- * The elements of this structure should never be accessed directly.
- * Only the functions corresponding to this module should be used.
- */
-typedef struct nvtpref
-{
-  int id;      ///< Preference ID
-  gchar *type; ///< Preference type
-  gchar *name; ///< Name of the preference
-  gchar *dflt; ///< Default value of the preference
-} nvtpref_t;
+typedef struct nvtpref nvtpref_t;
 
 nvtpref_t *
 nvtpref_new (int, gchar *, gchar *, gchar *);
