@@ -169,6 +169,9 @@ typedef struct nvti
   gchar *affected; /**< @brief Affected systems */
   gchar *impact;   /**< @brief Impact of vulnerability */
 
+  gint creation_time;     /**< @brief Time of creation, seconds since epoche */
+  gint modification_time; /**< @brief Time of last change, sec. since epoche */
+
   gchar *solution;      /**< @brief The solution */
   gchar *solution_type; /**< @brief The solution type */
 
@@ -462,6 +465,34 @@ gchar *
 nvti_impact (const nvti_t *n)
 {
   return (n ? n->impact : NULL);
+}
+
+/**
+ * @brief Get the creation time.
+ *
+ * @param n The NVT Info structure of which the creation time should
+ *          be returned.
+ *
+ * @return The creation time in seconds since epoche.
+ */
+gint
+nvti_creation_time (const nvti_t *n)
+{
+  return (n ? n->creation_time : 0);
+}
+
+/**
+ * @brief Get the modification time.
+ *
+ * @param n The NVT Info structure of which the modification time should
+ *          be returned.
+ *
+ * @return The modification time in seconds since epoche.
+ */
+gint
+nvti_modification_time (const nvti_t *n)
+{
+  return (n ? n->modification_time : 0);
 }
 
 /**
@@ -942,6 +973,44 @@ nvti_set_impact (nvti_t *n, const gchar *impact)
   if (n->impact)
     g_free (n->impact);
   n->impact = g_strdup (impact);
+  return (0);
+}
+
+/**
+ * @brief Set the creation time of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param creation_time The creation time to set.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_creation_time (nvti_t *n, const gint creation_time)
+{
+  if (!n)
+    return (-1);
+
+  n->creation_time = creation_time;
+  return (0);
+}
+
+/**
+ * @brief Set the modification time of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param modification_time The modification time to set.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_modification_time (nvti_t *n, const gint modification_time)
+{
+  if (!n)
+    return (-1);
+
+  n->modification_time = modification_time;
   return (0);
 }
 
