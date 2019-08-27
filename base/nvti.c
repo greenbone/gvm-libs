@@ -217,6 +217,17 @@ nvti_add_vtref (nvti_t *vt, vtref_t *ref)
 /* VT preferences */
 
 /**
+ * @brief The structure for a preference of a NVT.
+ */
+typedef struct nvtpref
+{
+  int id;      ///< Preference ID
+  gchar *type; ///< Preference type
+  gchar *name; ///< Name of the preference
+  gchar *dflt; ///< Default value of the preference
+} nvtpref_t;
+
+/**
  * @brief Create a new nvtpref structure filled with the given values.
  *
  * @param id The ID to be set.
