@@ -67,6 +67,17 @@ typedef enum
   OSP_SCAN_STATUS_FINISHED,   /**< Finished status. */
 } osp_scan_status_t;
 
+
+typedef struct {
+  const char *scan_id; ///< UUID of the scan which get the status from.
+} osp_get_scan_status_opts_t;
+
+typedef struct {
+  int start;    /**< Start interval. */
+  int end;      /**< End interval. */
+  char *titles; /**< Graph title. */
+} osp_get_performance_opts_t;
+
 typedef struct osp_param osp_param_t;
 
 /* OSP Connection handling */
@@ -123,10 +134,6 @@ osp_get_scan_pop (osp_connection_t *,
                   int,
                   char **);
 
-typedef struct {
-  const char *scan_id; ///< UUID of the scan which get the status from.
-} osp_get_scan_status_opts_t;
-
 osp_scan_status_t
 osp_get_scan_status_ext (osp_connection_t *,
                          osp_get_scan_status_opts_t,
@@ -140,6 +147,13 @@ osp_stop_scan (osp_connection_t *, const char *, char **);
 
 int
 osp_get_scanner_details (osp_connection_t *, char **, GSList **);
+
+
+int
+osp_get_performance_ext (osp_connection_t *,
+                         osp_get_performance_opts_t,
+                         char **,
+                         char **);
 
 /* OSP scanner parameters handling */
 

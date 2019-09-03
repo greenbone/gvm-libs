@@ -444,6 +444,53 @@ osp_delete_scan (osp_connection_t *connection, const char *scan_id)
   return ret;
 }
 
+/**
+ * @brief Get performance graphics from an OSP server.
+ *
+ * @param[in]   connection  Connection to an OSP server.
+ * @param[in]   opts        Struct containing the options to apply.
+ * @param[out]  graph       Graphic base64 encoded.
+ * @param[out]  error       Pointer to error, if any.
+ *
+ * @return 0 if success, 1 if error.
+ */
+int
+osp_get_performance_ext (osp_connection_t *connection,
+                         osp_get_performance_opts_t opts,
+                         char **graph, char **error)
+{
+  entity_t entity;
+  int rc;
+
+  assert (connection);
+  rc = osp_send_command (connection, &entity,
+                         "<get_performance start='%d' "
+                         "end='%d' titles='%s'/>",
+                         opts.start, opts.end, opts.titles);
+
+  if (rc)
+    {
+      if (error)
+        *error = g_strdup ("Couldn't send get_performance command to scanner");
+      return 1;
+    }
+
+  if (graph && entity_text (entity) && strcmp (entity_text (entity), "\0"))
+      *graph = g_strdup (entity_text (entity));
+  else
+    {
+      const char *text = entity_attribute (entity, "status_text");
+
+      assert (text);
+      if (error)
+        *error = g_strdup (text);
+      free_entity (entity);
+      return 1;
+    }
+
+  free_entity (entity);
+  return 0;
+}
 
 /**
  * @brief Get a scan status from an OSP server
