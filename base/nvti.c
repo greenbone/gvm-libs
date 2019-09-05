@@ -169,8 +169,8 @@ typedef struct nvti
   gchar *affected; /**< @brief Affected systems */
   gchar *impact;   /**< @brief Impact of vulnerability */
 
-  gint creation_time;     /**< @brief Time of creation, seconds since epoche */
-  gint modification_time; /**< @brief Time of last change, sec. since epoche */
+  gint creation_time;     /**< @brief Time of creation, seconds since epoch */
+  gint modification_time; /**< @brief Time of last change, sec. since epoch */
 
   gchar *solution;      /**< @brief The solution */
   gchar *solution_type; /**< @brief The solution type */
@@ -473,7 +473,7 @@ nvti_impact (const nvti_t *n)
  * @param n The NVT Info structure of which the creation time should
  *          be returned.
  *
- * @return The creation time in seconds since epoche.
+ * @return The creation time in seconds since epoch.
  */
 gint
 nvti_creation_time (const nvti_t *n)
@@ -487,7 +487,7 @@ nvti_creation_time (const nvti_t *n)
  * @param n The NVT Info structure of which the modification time should
  *          be returned.
  *
- * @return The modification time in seconds since epoche.
+ * @return The modification time in seconds since epoch.
  */
 gint
 nvti_modification_time (const nvti_t *n)
