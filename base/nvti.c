@@ -169,8 +169,8 @@ typedef struct nvti
   gchar *affected; /**< @brief Affected systems */
   gchar *impact;   /**< @brief Impact of vulnerability */
 
-  gint creation_time;     /**< @brief Time of creation, seconds since epoch */
-  gint modification_time; /**< @brief Time of last change, sec. since epoch */
+  time_t creation_time;     /**< @brief Time of creation, seconds since epoch */
+  time_t modification_time; /**< @brief Time of last change, sec. since epoch */
 
   gchar *solution;      /**< @brief The solution */
   gchar *solution_type; /**< @brief The solution type */
@@ -475,7 +475,7 @@ nvti_impact (const nvti_t *n)
  *
  * @return The creation time in seconds since epoch.
  */
-gint
+time_t
 nvti_creation_time (const nvti_t *n)
 {
   return (n ? n->creation_time : 0);
@@ -489,7 +489,7 @@ nvti_creation_time (const nvti_t *n)
  *
  * @return The modification time in seconds since epoch.
  */
-gint
+time_t
 nvti_modification_time (const nvti_t *n)
 {
   return (n ? n->modification_time : 0);
@@ -986,7 +986,7 @@ nvti_set_impact (nvti_t *n, const gchar *impact)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_creation_time (nvti_t *n, const gint creation_time)
+nvti_set_creation_time (nvti_t *n, const time_t creation_time)
 {
   if (!n)
     return (-1);
@@ -1005,7 +1005,7 @@ nvti_set_creation_time (nvti_t *n, const gint creation_time)
  * @return 0 for success. Anything else indicates an error.
  */
 int
-nvti_set_modification_time (nvti_t *n, const gint modification_time)
+nvti_set_modification_time (nvti_t *n, const time_t modification_time)
 {
   if (!n)
     return (-1);
