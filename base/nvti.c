@@ -1070,7 +1070,7 @@ nvti_set_solution_type (nvti_t *n, const gchar *solution_type)
 int
 nvti_add_tag (nvti_t *n, const gchar *name, const gchar *value)
 {
-  char *new;
+  char *newtag;
 
   if (!n)
     return (-1);
@@ -1083,14 +1083,14 @@ nvti_add_tag (nvti_t *n, const gchar *name, const gchar *value)
 
   if (n->tag)
     {
-      new = g_strconcat (n->tag, "|", name, "=", value, NULL);
+      newtag = g_strconcat (n->tag, "|", name, "=", value, NULL);
       g_free (n->tag);
     }
   else
-    new = g_strconcat (name, "=", value, NULL);
+    newtag = g_strconcat (name, "=", value, NULL);
 
-  if (new && new[0])
-    n->tag = new;
+  if (newtag && newtag[0])
+    n->tag = newtag;
   else
     n->tag = NULL;
 
