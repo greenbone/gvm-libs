@@ -264,7 +264,7 @@ get_redis_ctx (struct kb_redis *kbr)
   if (kbr->rctx == NULL || kbr->rctx->err)
     {
       g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-             "%s: redis connection error: %s", __func__,
+             "%s: redis connection error to %s: %s", __func__, kbr->path,
              kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
       redisFree (kbr->rctx);
       kbr->rctx = NULL;
@@ -414,7 +414,7 @@ redis_direct_conn (const char *kb_path, const int kb_index)
   if (kbr->rctx == NULL || kbr->rctx->err)
     {
       g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-             "%s: redis connection error: %s", __func__,
+             "%s: redis connection error to %s: %s", __func__, kbr->path,
              kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
       redisFree (kbr->rctx);
       g_free (kbr);
@@ -458,7 +458,7 @@ redis_find (const char *kb_path, const char *key)
       if (kbr->rctx == NULL || kbr->rctx->err)
         {
           g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-                 "%s: redis connection error: %s", __func__,
+                 "%s: redis connection error to %s: %s", __func__, kbr->path,
                  kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
           redisFree (kbr->rctx);
           g_free (kbr);
@@ -1384,7 +1384,7 @@ redis_flush_all (kb_t kb, const char *except)
       if (kbr->rctx == NULL || kbr->rctx->err)
         {
           g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-                 "%s: redis connection error: %s", __func__,
+                 "%s: redis connection error to %s: %s", __func__, kbr->path,
                  kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
           redisFree (kbr->rctx);
           kbr->rctx = NULL;
