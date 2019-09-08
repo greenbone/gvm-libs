@@ -1061,7 +1061,9 @@ nvti_set_solution_type (nvti_t *n, const gchar *solution_type)
  * @brief Add a tag to the NVT tags.
  *
  * @param n     The NVT Info structure.
+ *
  * @param name  The tag name. A copy will be created from this.
+ *
  * @param value The tag value. A copy will be created from this.
  *
  * @return 0 for success. Anything else indicates an error.
@@ -1069,8 +1071,6 @@ nvti_set_solution_type (nvti_t *n, const gchar *solution_type)
 int
 nvti_add_tag (nvti_t *n, const gchar *name, const gchar *value)
 {
-  gchar *newtag;
-
   if (!n)
     return (-1);
 
@@ -1082,6 +1082,8 @@ nvti_add_tag (nvti_t *n, const gchar *name, const gchar *value)
 
   if (n->tag)
     {
+      gchar *newtag;
+
       newtag = g_strconcat (n->tag, "|", name, "=", value, NULL);
       g_free (n->tag);
       n->tag = newtag;
