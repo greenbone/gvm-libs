@@ -405,9 +405,15 @@ osp_get_vts_ext (osp_connection_t *connection, osp_get_vts_opts_t opts, entity_t
   if (vts == NULL)
     return 1;
 
-  if (osp_send_command (connection, vts, "<get_vts filter='%s'/>", opts.filter))
-    return 1;
+  if (opts.filter)
+    {
+      if (osp_send_command (connection, vts, "<get_vts filter='%s'/>", opts.filter))
+        return 1;
+      return 0;
+    }
 
+  if (osp_send_command (connection, vts, "<get_vts/>"))
+    return 1;
   return 0;
 }
 
