@@ -1167,6 +1167,10 @@ nvti_set_solution_type (nvti_t *n, const gchar *solution_type)
 
 /**
  * @brief Add a tag to the NVT tags.
+ *        The tag names "last_modification" and "creation_date" are
+ *        treated special: The value is expected to be a timestamp
+ *        and it is being converted to seconds since epoch before
+ *        added as a tag value.
  *
  * @param n     The NVT Info structure.
  *
@@ -1179,6 +1183,8 @@ nvti_set_solution_type (nvti_t *n, const gchar *solution_type)
 int
 nvti_add_tag (nvti_t *n, const gchar *name, const gchar *value)
 {
+  gchar *newvalue = NULL;
+
   if (!n)
     return (-1);
 
@@ -1188,16 +1194,31 @@ nvti_add_tag (nvti_t *n, const gchar *name, const gchar *value)
   if (!value || !value[0])
     return (-3);
 
+  if (! strcmp (name, "last_modification"))
+    {
+      nvti_set_modification_time (n, parse_nvt_timestamp (value));
+      newvalue = g_strdup_printf ("%i", (int)nvti_modification_time (n));
+    }
+  else if (! strcmp (name, "creation_date"))
+    {
+      nvti_set_creation_time (n, parse_nvt_timestamp (value));
+      newvalue = g_strdup_printf ("%i", (int)nvti_creation_time (n));
+    }
+
   if (n->tag)
     {
       gchar *newtag;
 
-      newtag = g_strconcat (n->tag, "|", name, "=", value, NULL);
+      newtag = g_strconcat (n->tag, "|", name, "=",
+                            newvalue ? newvalue : value, NULL);
       g_free (n->tag);
       n->tag = newtag;
     }
   else
-    n->tag = g_strconcat (name, "=", value, NULL);
+    n->tag = g_strconcat (name, "=", newvalue ? newvalue : value, NULL);
+
+  if (newvalue)
+    g_free (newvalue);
 
   return (0);
 }
