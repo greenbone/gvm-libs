@@ -47,13 +47,12 @@
 /* For strptime in time.h. */
 #undef _XOPEN_SOURCE
 #define _XOPEN_SOURCE
-#include <time.h>   // for strptime
-
 #include "nvti.h"
 
 #include <stdio.h>   // for sscanf
 #include <string.h>  // for strcmp
 #include <strings.h> // for strcasecmp
+#include <time.h>    // for strptime
 
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  nvti"
@@ -176,12 +175,12 @@ parse_nvt_timestamp (const gchar *str_time)
   int epoch_time, offset;
   struct tm tm;
 
-  if ((strcmp ((char*) str_time, "") == 0)
-      || (strcmp ((char*) str_time, "$Date: $") == 0)
-      || (strcmp ((char*) str_time, "$Date$") == 0)
-      || (strcmp ((char*) str_time, "$Date:$") == 0)
-      || (strcmp ((char*) str_time, "$Date") == 0)
-      || (strcmp ((char*) str_time, "$$") == 0))
+  if ((strcmp ((char *) str_time, "") == 0)
+      || (strcmp ((char *) str_time, "$Date: $") == 0)
+      || (strcmp ((char *) str_time, "$Date$") == 0)
+      || (strcmp ((char *) str_time, "$Date:$") == 0)
+      || (strcmp ((char *) str_time, "$Date") == 0)
+      || (strcmp ((char *) str_time, "$$") == 0))
     {
       return 0;
     }
@@ -192,24 +191,25 @@ parse_nvt_timestamp (const gchar *str_time)
   /* $Date: 2012-02-17 16:05:26 +0100 (Fr, 17. Feb 2012) $ */
   /* $Date: Fri, 11 Nov 2011 14:42:28 +0100 $ */
   memset (&tm, 0, sizeof (struct tm));
-  if (strptime ((char*) str_time, "%F %T %z", &tm) == NULL)
+  if (strptime ((char *) str_time, "%F %T %z", &tm) == NULL)
     {
       memset (&tm, 0, sizeof (struct tm));
-      if (strptime ((char*) str_time, "$Date: %F %T %z", &tm) == NULL)
+      if (strptime ((char *) str_time, "$Date: %F %T %z", &tm) == NULL)
         {
           memset (&tm, 0, sizeof (struct tm));
-          if (strptime ((char*) str_time, "%a %b %d %T %Y %z", &tm) == NULL)
+          if (strptime ((char *) str_time, "%a %b %d %T %Y %z", &tm) == NULL)
             {
               memset (&tm, 0, sizeof (struct tm));
-              if (strptime ((char*) str_time, "$Date: %a, %d %b %Y %T %z", &tm)
+              if (strptime ((char *) str_time, "$Date: %a, %d %b %Y %T %z", &tm)
                   == NULL)
                 {
                   memset (&tm, 0, sizeof (struct tm));
-                  if (strptime ((char*) str_time, "$Date: %a %b %d %T %Y %z", &tm)
+                  if (strptime ((char *) str_time, "$Date: %a %b %d %T %Y %z",
+                                &tm)
                       == NULL)
                     {
-                      g_warning ("%s: Failed to parse time: %s",
-                                 __FUNCTION__, str_time);
+                      g_warning ("%s: Failed to parse time: %s", __FUNCTION__,
+                                 str_time);
                       return 0;
                     }
                 }
@@ -225,20 +225,19 @@ parse_nvt_timestamp (const gchar *str_time)
 
   /* Get the timezone offset from the str_time. */
 
-  if ((sscanf ((char*) str_time, "%*u-%*u-%*u %*u:%*u:%*u %d%*[^]]", &offset)
-               != 1)
-      && (sscanf ((char*) str_time, "$Date: %*u-%*u-%*u %*u:%*u:%*u %d%*[^]]",
+  if ((sscanf ((char *) str_time, "%*u-%*u-%*u %*u:%*u:%*u %d%*[^]]", &offset)
+       != 1)
+      && (sscanf ((char *) str_time, "$Date: %*u-%*u-%*u %*u:%*u:%*u %d%*[^]]",
                   &offset)
           != 1)
-      && (sscanf ((char*) str_time, "%*s %*s %*s %*u:%*u:%*u %*u %d%*[^]]",
+      && (sscanf ((char *) str_time, "%*s %*s %*s %*u:%*u:%*u %*u %d%*[^]]",
                   &offset)
           != 1)
-      && (sscanf ((char*) str_time,
-                  "$Date: %*s %*s %*s %*u %*u:%*u:%*u %d%*[^]]",
-                  &offset)
+      && (sscanf ((char *) str_time,
+                  "$Date: %*s %*s %*s %*u %*u:%*u:%*u %d%*[^]]", &offset)
           != 1)
-      && (sscanf ((char*) str_time, "$Date: %*s %*s %*s %*u:%*u:%*u %*u %d%*[^]]",
-                  &offset)
+      && (sscanf ((char *) str_time,
+                  "$Date: %*s %*s %*s %*u:%*u:%*u %*u %d%*[^]]", &offset)
           != 1))
     {
       g_warning ("%s: Failed to parse timezone offset: %s", __FUNCTION__,
@@ -1194,23 +1193,23 @@ nvti_add_tag (nvti_t *n, const gchar *name, const gchar *value)
   if (!value || !value[0])
     return (-3);
 
-  if (! strcmp (name, "last_modification"))
+  if (!strcmp (name, "last_modification"))
     {
       nvti_set_modification_time (n, parse_nvt_timestamp (value));
-      newvalue = g_strdup_printf ("%i", (int)nvti_modification_time (n));
+      newvalue = g_strdup_printf ("%i", (int) nvti_modification_time (n));
     }
-  else if (! strcmp (name, "creation_date"))
+  else if (!strcmp (name, "creation_date"))
     {
       nvti_set_creation_time (n, parse_nvt_timestamp (value));
-      newvalue = g_strdup_printf ("%i", (int)nvti_creation_time (n));
+      newvalue = g_strdup_printf ("%i", (int) nvti_creation_time (n));
     }
 
   if (n->tag)
     {
       gchar *newtag;
 
-      newtag = g_strconcat (n->tag, "|", name, "=",
-                            newvalue ? newvalue : value, NULL);
+      newtag =
+        g_strconcat (n->tag, "|", name, "=", newvalue ? newvalue : value, NULL);
       g_free (n->tag);
       n->tag = newtag;
     }
