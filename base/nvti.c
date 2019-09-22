@@ -169,7 +169,7 @@ vtref_text (const vtref_t *r)
  *
  * @return Time as seconds since the epoch.
  */
-int
+static int
 parse_nvt_timestamp (const gchar *str_time)
 {
   int epoch_time, offset;
