@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Handle EAI_AGAIN in gvm_host_reverse_lookup() IPv6 case and function refactor. [#229](https://github.com/greenbone/gvm-libs/pull/229)
 - Prevent g_strsplit to be called with NULL. [#238](https://github.com/greenbone/gvm-libs/pull/238)
 - Timestamps for NVTI modification date and creation date now internally handled as seconds since epoch. [#265](https://github.com/greenbone/gvm-libs/pull/265)
+- The tag cvss_base is not added to redis anymore. [#267](https://github.com/greenbone/gvm-libs/pull/267)
 
 ### Fixed
 - Prevent g_strsplit to be called with NULL. [#238](https://github.com/greenbone/gvm-libs/pull/238)
