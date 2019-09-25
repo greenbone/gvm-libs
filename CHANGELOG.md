@@ -12,11 +12,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - A function to get an osp scan status and a enum type for the different status [#259](https://github.com/greenbone/gvm-libs/pull/259)
 - API functions for NVTI to handle timestamps [#261](https://github.com/greenbone/gvm-libs/pull/261)
 - API function for NVTI to add a single tag [#263](https://github.com/greenbone/gvm-libs/pull/263)
+- Add osp_get_performance() function. [#262](https://github.com/greenbone/gvm-libs/pull/262)
+
 ### Changed
 - Change the default path to the redis socket to /run/redis/redis.sock [#256](https://github.com/greenbone/gvm-libs/pull/256)
 - Handle EAI_AGAIN in gvm_host_reverse_lookup() IPv6 case and function refactor. [#229](https://github.com/greenbone/gvm-libs/pull/229)
 - Prevent g_strsplit to be called with NULL. [#238](https://github.com/greenbone/gvm-libs/pull/238)
-- Add osp_get_performance() function. [#262](https://github.com/greenbone/gvm-libs/pull/262)
+- Timestamps for NVTI modification date and creation date now internally handled as seconds since epoch. [#265](https://github.com/greenbone/gvm-libs/pull/265)
 
 ### Fixed
 - Prevent g_strsplit to be called with NULL. [#238](https://github.com/greenbone/gvm-libs/pull/238)
