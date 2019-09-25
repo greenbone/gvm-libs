@@ -1171,6 +1171,7 @@ nvti_set_solution_type (nvti_t *n, const gchar *solution_type)
  *        treated special: The value is expected to be a timestamp
  *        and it is being converted to seconds since epoch before
  *        added as a tag value.
+ *        The tag name "cvss_base" will be ignored and not added.
  *
  * @param n     The NVT Info structure.
  *
@@ -1203,6 +1204,17 @@ nvti_add_tag (nvti_t *n, const gchar *name, const gchar *value)
     {
       nvti_set_creation_time (n, parse_nvt_timestamp (value));
       newvalue = g_strdup_printf ("%i", (int) nvti_creation_time (n));
+    }
+  else if (!strcmp (name, "cvss_base"))
+    {
+      /* Ignore this tag because it is not being used.
+       * It is redundant with the tag cvss_base_vector from which
+       * it is computed.
+       * Once GOS 6 and GVM 11 are retired, all set_tag commands
+       * in the NASL scripts can be removed that set "cvss_base".
+       * Once this happened this exception can be removed from the code.
+       */
+      return (0);
     }
 
   if (n->tag)
