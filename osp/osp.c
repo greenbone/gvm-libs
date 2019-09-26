@@ -458,7 +458,7 @@ osp_delete_scan (osp_connection_t *connection, const char *scan_id)
  * @param[out]  graph       Graphic base64 encoded.
  * @param[out]  error       Pointer to error, if any.
  *
- * @return 0 if success, 1 if error.
+ * @return 0 if success, -1 if error.
  */
 int
 osp_get_performance_ext (osp_connection_t *connection,
@@ -470,7 +470,12 @@ osp_get_performance_ext (osp_connection_t *connection,
   time_t now;
 
   if (!connection)
-    return 1;
+    {
+      if (error)
+        *error = g_strdup ("Couldn't send get_performance command "
+                           "to scanner. Not valid connection");
+      return -1;
+    }
 
   time (&now);
 
@@ -480,7 +485,7 @@ osp_get_performance_ext (osp_connection_t *connection,
       if (error)
         *error = g_strdup ("Couldn't send get_performance command "
                            "to scanner. Bad or missing parameters.");
-      return 1;
+      return -1;
     }
 
   rc = osp_send_command (connection, &entity,
@@ -492,7 +497,7 @@ osp_get_performance_ext (osp_connection_t *connection,
     {
       if (error)
         *error = g_strdup ("Couldn't send get_performance command to scanner");
-      return 1;
+      return -1;
     }
 
   if (graph && entity_text (entity) && strcmp (entity_text (entity), "\0"))
@@ -505,7 +510,7 @@ osp_get_performance_ext (osp_connection_t *connection,
       if (error)
         *error = g_strdup (text);
       free_entity (entity);
-      return 1;
+      return -1;
     }
 
   free_entity (entity);
@@ -529,7 +534,15 @@ osp_get_scan_status_ext (osp_connection_t *connection,
   int rc;
   osp_scan_status_t status = OSP_SCAN_STATUS_ERROR;
 
-  assert (connection);
+
+  if (!connection)
+    {
+      if (error)
+        *error = g_strdup ("Couldn't send get_scans command "
+                           "to scanner. Not valid connection");
+      return status;
+    }
+
   assert (opts.scan_id);
   rc = osp_send_command (connection, &entity,
                          "<get_scans scan_id='%s'"
@@ -590,7 +603,13 @@ osp_get_scan_pop (osp_connection_t *connection, const char *scan_id,
   int progress;
   int rc;
 
-  assert (connection);
+  if (!connection)
+    {
+      if (error)
+        *error = g_strdup ("Couldn't send get_scan command "
+                           "to scanner. Not valid connection");
+      return -1;
+    }
   assert (scan_id);
   rc = osp_send_command (connection, &entity,
                          "<get_scans scan_id='%s'"
@@ -663,7 +682,13 @@ osp_stop_scan (osp_connection_t *connection, const char *scan_id, char **error)
   entity_t entity;
   int rc;
 
-  assert (connection);
+  if (!connection)
+    {
+      if (error)
+        *error = g_strdup ("Couldn't send stop_scan command "
+                           "to scanner. Not valid connection");
+      return -1;
+    }
   assert (scan_id);
   rc = osp_send_command (connection, &entity, "<stop_scan scan_id='%s'/>",
                          scan_id);
@@ -740,7 +765,14 @@ osp_start_scan (osp_connection_t *connection, const char *target,
   int status;
   int rc;
 
-  assert (connection);
+  if (!connection)
+    {
+      if (error)
+        *error = g_strdup ("Couldn't send start_scan command "
+                           "to scanner. Not valid connection");
+      return -1;
+    }
+
   assert (target);
   /* Construct options string. */
   if (options)
@@ -917,6 +949,14 @@ osp_start_scan_ext (osp_connection_t *connection,
   gchar *cmd;
   char filename[] = "/tmp/osp-cmd-XXXXXX";
   int fd;
+
+  if (!connection)
+    {
+      if (error)
+        *error = g_strdup ("Couldn't send start_scan command "
+                           "to scanner. Not valid connection");
+      return -1;
+    }
 
   fd = mkstemp (filename);
   FILE *file = fdopen (fd, "w");
