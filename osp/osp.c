@@ -462,13 +462,27 @@ osp_delete_scan (osp_connection_t *connection, const char *scan_id)
  */
 int
 osp_get_performance_ext (osp_connection_t *connection,
-                         osp_get_performance_opts_t opts,
-                         char **graph, char **error)
+                         osp_get_performance_opts_t opts, char **graph,
+                         char **error)
 {
   entity_t entity;
   int rc;
+  time_t now;
 
-  assert (connection);
+  if (!connection)
+    return 1;
+
+  time (&now);
+
+  if (!opts.titles || !strcmp (opts.titles, "") || opts.start < 0
+      || opts.start > now || opts.end < 0 || opts.end > now)
+    {
+      if (error)
+        *error = g_strdup ("Couldn't send get_performance command "
+                           "to scanner. Bad or missing parameters.");
+      return 1;
+    }
+
   rc = osp_send_command (connection, &entity,
                          "<get_performance start='%d' "
                          "end='%d' titles='%s'/>",
@@ -482,7 +496,7 @@ osp_get_performance_ext (osp_connection_t *connection,
     }
 
   if (graph && entity_text (entity) && strcmp (entity_text (entity), "\0"))
-      *graph = g_strdup (entity_text (entity));
+    *graph = g_strdup (entity_text (entity));
   else
     {
       const char *text = entity_attribute (entity, "status_text");
