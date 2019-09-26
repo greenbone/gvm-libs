@@ -534,7 +534,6 @@ osp_get_scan_status_ext (osp_connection_t *connection,
   int rc;
   osp_scan_status_t status = OSP_SCAN_STATUS_ERROR;
 
-
   if (!connection)
     {
       if (error)
