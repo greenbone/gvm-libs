@@ -24,7 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Timestamps for NVTI modification date and creation date now internally handled as seconds since epoch. [#265](https://github.com/greenbone/gvm-libs/pull/265)
 - The tag cvss_base is not added to redis anymore. [#267](https://github.com/greenbone/gvm-libs/pull/267)
 - Functions in osp.c with error as argument, will set the error if the connection is missing. [#268](https://github.com/greenbone/gvm-libs/pull/268)
-- Make QoD Type an explicit element of stuct nvti. [#250](https://github.com/greenbone/gvm-libs/pull/250)
+- Make QoD Type an explicit element of struct nvti. [#250](https://github.com/greenbone/gvm-libs/pull/250)
 - Use API to access nvti information. [#252](https://github.com/greenbone/gvm-libs/pull/252)
 - Make the nvti struct internal. [#253](https://github.com/greenbone/gvm-libs/pull/253)
 - Make solution and solution_type explicit for nvti. [#255](https://github.com/greenbone/gvm-libs/pull/255)
