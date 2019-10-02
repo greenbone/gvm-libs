@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [11.0.0] (unreleased)
+
 ### Added
 - Allow to configure the path to the redis socket via CMake [#256](https://github.com/greenbone/gvm-libs/pull/256)
 - A new data model for unified handling of cross references in the NVT meta data as been added. All previous API elements to handle cve, bid, xref werehas been removed. [#225](https://github.com/greenbone/gvm-libs/pull/225) [#232](https://github.com/greenbone/gvm-libs/pull/232).
@@ -38,7 +40,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove inconsistent delays in kb routines. [#230](https://github.com/greenbone/gvm-libs/pull/230)
 
-[Unreleased]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-10.0...master
+[11.0.0]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-10.0...master
 
 ## [10.0.1] (2019-07-17)
 
