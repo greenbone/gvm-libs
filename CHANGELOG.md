@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [11.0.0] (2019-10-11)
 
 ### Added
 - Allow to configure the path to the redis socket via CMake [#256](https://github.com/greenbone/gvm-libs/pull/256)
@@ -38,7 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove inconsistent delays in kb routines. [#230](https://github.com/greenbone/gvm-libs/pull/230)
 
-[Unreleased]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-10.0...master
+[11.0.0]: https://github.com/greenbone/gvm-libs/compare/v10.0.1...v11.0.0
 
 ## [10.0.1] (2019-07-17)
 
