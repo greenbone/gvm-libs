@@ -4,11 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [11.0.1] (unreleased)
+
+### Fixed
+- Fix sigsegv when no plugin_feed_info.inc file present. [#278](https://github.com/greenbone/gvm-libs/pull/278)
+
+[11.0.1]: https://github.com/greenbone/gvm-libs/compare/v11.0.0...gvm-libs-11.0
+
 ## [11.0.0] (2019-10-11)
 
 ### Added
 - Allow to configure the path to the redis socket via CMake [#256](https://github.com/greenbone/gvm-libs/pull/256)
-- A new data model for unified handling of cross references in the NVT meta data as been added. All previous API elements to handle cve, bid, xref werehas been removed. [#225](https://github.com/greenbone/gvm-libs/pull/225) [#232](https://github.com/greenbone/gvm-libs/pull/232).
+- A new data model for unified handling of cross references in the NVT meta data as been added. All previous API elements to handle cve, bid, xref have been removed. [#225](https://github.com/greenbone/gvm-libs/pull/225) [#232](https://github.com/greenbone/gvm-libs/pull/232).
 - Add function to get an osp scan status and a enum type for the different status [#259](https://github.com/greenbone/gvm-libs/pull/259)
 - API functions for NVTI to handle timestamps [#261](https://github.com/greenbone/gvm-libs/pull/261)
 - API function for NVTI to add a single tag [#263](https://github.com/greenbone/gvm-libs/pull/263)
