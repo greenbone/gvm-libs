@@ -105,6 +105,8 @@ nvti_solution (const nvti_t *);
 gchar *
 nvti_solution_type (const nvti_t *);
 gchar *
+nvti_solution_method (const nvti_t *);
+gchar *
 nvti_tag (const nvti_t *);
 gchar *
 nvti_get_tag (const nvti_t *, const gchar *);
@@ -157,6 +159,8 @@ int
 nvti_set_solution (nvti_t *, const gchar *);
 int
 nvti_set_solution_type (nvti_t *, const gchar *);
+int
+nvti_set_solution_method (nvti_t *, const gchar *);
 int
 nvti_add_tag (nvti_t *, const gchar *, const gchar *);
 int
