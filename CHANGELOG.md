@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [20.4] (unreleased)
 
-[11.0.1]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-11.0...master
+[20.4]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-11.0...master
 
 ## [11.0.1] (unreleased)
 
