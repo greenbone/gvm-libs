@@ -4,9 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [20.4] (unreleased)
 
-## [11.0.0] (unreleased)
+[20.4]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-11.0...master
+
+## [11.0.1] (unreleased)
+
+### Fixed
+- Fix sigsegv when no plugin_feed_info.inc file present. [#278](https://github.com/greenbone/gvm-libs/pull/278)
+
+[11.0.1]: https://github.com/greenbone/gvm-libs/compare/v11.0.0...gvm-libs-11.0
+
+## [11.0.0] (2019-10-11)
 
 ### Added
 - Allow to configure the path to the redis socket via CMake [#256](https://github.com/greenbone/gvm-libs/pull/256)
