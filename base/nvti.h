@@ -107,6 +107,8 @@ nvti_solution_type (const nvti_t *);
 gchar *
 nvti_tag (const nvti_t *);
 gchar *
+nvti_get_tag (const nvti_t *, const gchar *);
+gchar *
 nvti_cvss_base (const nvti_t *);
 gchar *
 nvti_dependencies (const nvti_t *);
