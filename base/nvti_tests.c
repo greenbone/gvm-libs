@@ -37,6 +37,32 @@ Ensure (nvti, nvti_new_never_returns_null)
   assert_that (nvti_new (), is_not_null);
 }
 
+Ensure (nvti, nvtis_add_does_not_use_oid_as_key)
+{
+  nvtis_t *nvtis;
+  nvti_t *nvti;
+  gchar *oid;
+
+  nvtis = nvtis_new ();
+
+  nvti = nvti_new ();
+  nvti_set_oid (nvti, "1");
+
+  oid = nvti_oid (nvti);
+
+  /* This should not use the pointer nvti->oid as the key, because nvti_set_oid
+   * could free nvti->oid. */
+  nvtis_add (nvtis, nvti);
+
+  /* Change the first character of the OID. */
+  *oid = '2';
+
+  /* To check that the key is not the same pointer as nvti->oid, check
+   * that changing the first character of nvti->oid did not affect the key. */
+  assert_that (nvtis_lookup (nvtis, "1"), is_not_null);
+  assert_that (nvtis_lookup (nvtis, "2"), is_null);
+}
+
 /* Test suite. */
 
 int
@@ -47,6 +73,8 @@ main (int argc, char **argv)
   suite = create_test_suite ();
 
   add_test_with_context (suite, nvti, nvti_new_never_returns_null);
+
+  add_test_with_context (suite, nvti, nvtis_add_does_not_use_oid_as_key);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
