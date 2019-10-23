@@ -1796,7 +1796,7 @@ free_nvti_for_hash_table (gpointer nvti)
 nvtis_t *
 nvtis_new (void)
 {
-  return g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
+  return g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
                                 free_nvti_for_hash_table);
 }
 
@@ -1822,7 +1822,11 @@ void
 nvtis_add (nvtis_t *nvtis, nvti_t *nvti)
 {
   if (nvti)
-    g_hash_table_insert (nvtis, (gpointer) nvti_oid (nvti), (gpointer) nvti);
+    g_hash_table_insert (nvtis,
+                         (gpointer) (nvti_oid (nvti)
+                                      ? g_strdup (nvti_oid (nvti))
+                                      : NULL),
+                         (gpointer) nvti);
 }
 
 /**
