@@ -80,8 +80,16 @@ add_test (array-test array-test)
 
 target_link_libraries (array-test cgreen ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 
+add_executable (nvti-test
+                EXCLUDE_FROM_ALL
+                nvti_tests.c)
+
+add_test (nvti-test nvti-test)
+
+target_link_libraries (nvti-test cgreen ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+
 add_custom_target (tests
-                   DEPENDS array-test)
+                   DEPENDS array-test nvti-test)
 
 
 ## Install
