@@ -1822,11 +1822,9 @@ void
 nvtis_add (nvtis_t *nvtis, nvti_t *nvti)
 {
   if (nvti)
-    g_hash_table_insert (nvtis,
-                         (gpointer) (nvti_oid (nvti)
-                                      ? g_strdup (nvti_oid (nvti))
-                                      : NULL),
-                         (gpointer) nvti);
+    g_hash_table_insert (
+      nvtis, (gpointer) (nvti_oid (nvti) ? g_strdup (nvti_oid (nvti)) : NULL),
+      (gpointer) nvti);
 }
 
 /**
