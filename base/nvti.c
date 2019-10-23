@@ -779,7 +779,7 @@ nvti_get_tag (const nvti_t *n, const gchar *name)
   gchar **split, **point;
 
   if (n->tag == NULL)
-    return NULL;
+    return (NULL);
 
   split = g_strsplit (n->tag, "|", 0);
   point = split;
@@ -793,7 +793,7 @@ nvti_get_tag (const nvti_t *n, const gchar *name)
           gchar *ret;
           ret = g_strdup (*point + strlen (name) + 1);
           g_strfreev (split);
-          return ret;
+          return (ret);
         }
       point++;
     }
