@@ -37,6 +37,15 @@ Ensure (nvti, nvti_new_never_returns_null)
   assert_that (nvti_new (), is_not_null);
 }
 
+/* nvti_get_tag */
+
+Ensure (nvti, nvti_get_tag_handles_null_nvti)
+{
+  assert_that (nvti_get_tag (NULL, "example"), is_null);
+}
+
+/* nvtis_add */
+
 Ensure (nvti, nvtis_add_does_not_use_oid_as_key)
 {
   nvtis_t *nvtis;
@@ -73,6 +82,8 @@ main (int argc, char **argv)
   suite = create_test_suite ();
 
   add_test_with_context (suite, nvti, nvti_new_never_returns_null);
+
+  add_test_with_context (suite, nvti, nvti_get_tag_handles_null_nvti);
 
   add_test_with_context (suite, nvti, nvtis_add_does_not_use_oid_as_key);
 
