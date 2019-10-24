@@ -39,6 +39,47 @@ Ensure (nvti, nvti_new_never_returns_null)
 
 /* nvti_get_tag */
 
+Ensure (nvti, nvti_get_tag_gets_correct_value_one_tag)
+{
+  nvti_t *nvti;
+  gchar *tag;
+
+  nvti = nvti_new ();
+  nvti_set_tag (nvti, "a=1");
+  tag = nvti_get_tag (nvti, "a");
+
+  assert_that (tag, is_equal_to_string ("1"));
+
+  g_free (tag);
+  nvti_free (nvti);
+}
+
+Ensure (nvti, nvti_get_tag_gets_correct_value_many_tags)
+{
+  nvti_t *nvti;
+  gchar *tag;
+
+  nvti = nvti_new ();
+  nvti_set_tag (nvti, "a=1|b=2|c=3");
+  tag = nvti_get_tag (nvti, "b");
+
+  assert_that (tag, is_equal_to_string ("2"));
+
+  g_free (tag);
+  nvti_free (nvti);
+}
+
+Ensure (nvti, nvti_get_tag_handles_empty_tag)
+{
+  nvti_t *nvti;
+
+  nvti = nvti_new ();
+
+  assert_that (nvti_get_tag (nvti, "b"), is_null);
+
+  nvti_free (nvti);
+}
+
 Ensure (nvti, nvti_get_tag_handles_null_nvti)
 {
   assert_that (nvti_get_tag (NULL, "example"), is_null);
@@ -95,6 +136,9 @@ main (int argc, char **argv)
 
   add_test_with_context (suite, nvti, nvti_new_never_returns_null);
 
+  add_test_with_context (suite, nvti, nvti_get_tag_gets_correct_value_one_tag);
+  add_test_with_context (suite, nvti, nvti_get_tag_gets_correct_value_many_tags);
+  add_test_with_context (suite, nvti, nvti_get_tag_handles_empty_tag);
   add_test_with_context (suite, nvti, nvti_get_tag_handles_null_nvti);
   add_test_with_context (suite, nvti, nvti_get_tag_handles_null_name);
 
