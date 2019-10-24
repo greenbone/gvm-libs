@@ -44,6 +44,18 @@ Ensure (nvti, nvti_get_tag_handles_null_nvti)
   assert_that (nvti_get_tag (NULL, "example"), is_null);
 }
 
+Ensure (nvti, nvti_get_tag_handles_null_name)
+{
+  nvti_t *nvti;
+
+  nvti = nvti_new ();
+  nvti_set_tag (nvti, "example=1");
+
+  assert_that (nvti_get_tag (nvti, NULL), is_null);
+
+  nvti_free (nvti);
+}
+
 /* nvtis_add */
 
 Ensure (nvti, nvtis_add_does_not_use_oid_as_key)
@@ -84,6 +96,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, nvti, nvti_new_never_returns_null);
 
   add_test_with_context (suite, nvti, nvti_get_tag_handles_null_nvti);
+  add_test_with_context (suite, nvti, nvti_get_tag_handles_null_name);
 
   add_test_with_context (suite, nvti, nvtis_add_does_not_use_oid_as_key);
 
