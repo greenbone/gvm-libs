@@ -236,11 +236,8 @@ endif (NOT SKIP_SRC)
 
 add_subdirectory (doc)
 
-## Tests
+## Test tools
 
 add_subdirectory (tests)
-add_test (NAME testhosts COMMAND test-hosts localhost)
-
-enable_testing ()
 
 ## End
