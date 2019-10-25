@@ -764,6 +764,44 @@ nvti_tag (const nvti_t *n)
 }
 
 /**
+ * @brief Get a tag value by a tag name.
+ *
+ * @param n The NVT Info structure from where to search for the tag name.
+ *
+ * @param name The name of the tag for which to return the value.
+ *
+ * @return The tag value string as a copy or NULL if not found.
+ *         Needs to be free'd.
+ */
+gchar *
+nvti_get_tag (const nvti_t *n, const gchar *name)
+{
+  gchar **split, **point;
+
+  if (!n || n->tag == NULL || !name)
+    return (NULL);
+
+  split = g_strsplit (n->tag, "|", 0);
+  point = split;
+
+  while (*point)
+    {
+      if ((strlen (*point) > strlen (name))
+          && (strncmp (*point, name, strlen (name)) == 0)
+          && ((*point)[strlen (name)] == '='))
+        {
+          gchar *ret;
+          ret = g_strdup (*point + strlen (name) + 1);
+          g_strfreev (split);
+          return (ret);
+        }
+      point++;
+    }
+  g_strfreev (split);
+  return (NULL);
+}
+
+/**
  * @brief Get the CVSS base.
  *
  * @param n The NVT Info structure of which the CVSS base should
