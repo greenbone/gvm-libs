@@ -65,7 +65,7 @@ make_entity (const char *name, const char *text)
   entity->text = g_strdup (text ? text : "");
   entity->entities = NULL;
   entity->attributes = NULL;
-  return entity;
+  return (entity);
 }
 
 /**
@@ -79,8 +79,8 @@ entities_t
 next_entities (entities_t entities)
 {
   if (entities)
-    return (entities_t) entities->next;
-  return NULL;
+    return ((entities_t) entities->next);
+  return (NULL);
 }
 
 /**
@@ -95,7 +95,7 @@ first_entity (entities_t entities)
 {
   if (entities)
     return (entity_t) entities->data;
-  return NULL;
+  return (NULL);
 }
 
 /**
@@ -115,7 +115,7 @@ add_entity (entities_t *entities, const char *name, const char *text)
   entity_t entity = make_entity (name, text);
   if (entities)
     *entities = g_slist_append (*entities, entity);
-  return entity;
+  return (entity);
 }
 
 /**
@@ -157,9 +157,9 @@ char *
 entity_text (entity_t entity)
 {
   if (!entity)
-    return NULL;
+    return (NULL);
 
-  return entity->text;
+  return (entity->text);
 }
 
 /**
@@ -173,9 +173,9 @@ char *
 entity_name (entity_t entity)
 {
   if (!entity)
-    return NULL;
+    return (NULL);
 
-  return entity->name;
+  return (entity->name);
 }
 
 /**
@@ -190,7 +190,7 @@ entity_name (entity_t entity)
 int
 compare_entity_with_name (gconstpointer entity, gconstpointer name)
 {
-  return strcmp (entity_name ((entity_t) entity), (char *) name);
+  return (strcmp (entity_name ((entity_t) entity), (char *) name));
 }
 
 /**
@@ -205,15 +205,15 @@ entity_t
 entity_child (entity_t entity, const char *name)
 {
   if (!entity)
-    return NULL;
+    return (NULL);
 
   if (entity->entities)
     {
       entities_t match =
         g_slist_find_custom (entity->entities, name, compare_entity_with_name);
-      return match ? (entity_t) match->data : NULL;
+      return (match ? (entity_t) match->data : NULL);
     }
-  return NULL;
+  return (NULL);
 }
 
 /**
@@ -228,11 +228,11 @@ const char *
 entity_attribute (entity_t entity, const char *name)
 {
   if (!entity)
-    return NULL;
+    return (NULL);
 
   if (entity->attributes)
     return (const char *) g_hash_table_lookup (entity->attributes, name);
-  return NULL;
+  return (NULL);
 }
 
 /**
@@ -312,8 +312,8 @@ xml_handle_start_element (context_data_t *context, const gchar *element_name,
                           const gchar **attribute_names,
                           const gchar **attribute_values)
 {
-  return handle_start_element (NULL, element_name, attribute_names,
-                               attribute_values, context, NULL);
+  return (handle_start_element (NULL, element_name, attribute_names,
+                                attribute_values, context, NULL));
 }
 
 /**
@@ -457,7 +457,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
   if (time (&last_time) == -1)
     {
       g_warning ("   failed to get current time: %s\n", strerror (errno));
-      return -1;
+      return (-1);
     }
 
   if (timeout > 0)
@@ -466,7 +466,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
 
       socket = GPOINTER_TO_INT (gnutls_transport_get_ptr (*session));
       if (fcntl (socket, F_SETFL, O_NONBLOCK) == -1)
-        return -1;
+        return (-1);
     }
   else
     /* Quiet compiler. */
@@ -526,7 +526,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
                                    __FUNCTION__, strerror (errno));
                       g_markup_parse_context_free (xml_context);
                       g_free (buffer);
-                      return -4;
+                      return (-4);
                     }
                   continue;
                 }
@@ -548,7 +548,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
                 }
               g_markup_parse_context_free (xml_context);
               g_free (buffer);
-              return -1;
+              return (-1);
             }
           if (count == 0)
             {
@@ -574,7 +574,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
                 }
               g_markup_parse_context_free (xml_context);
               g_free (buffer);
-              return -3;
+              return (-3);
             }
           break;
         }
@@ -603,7 +603,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
             }
           g_markup_parse_context_free (xml_context);
           g_free (buffer);
-          return -2;
+          return (-2);
         }
       if (context_data.done)
         {
@@ -621,7 +621,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
                 fcntl (socket, F_SETFL, 0L);
               g_markup_parse_context_free (xml_context);
               g_free (buffer);
-              return -2;
+              return (-2);
             }
           *entity = (entity_t) context_data.first->data;
           if (string)
@@ -630,7 +630,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
             fcntl (socket, F_SETFL, 0L);
           g_markup_parse_context_free (xml_context);
           g_free (buffer);
-          return 0;
+          return (0);
         }
 
       if ((timeout > 0) && (time (&last_time) == -1))
@@ -642,7 +642,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
                        strerror (errno));
           g_markup_parse_context_free (xml_context);
           g_free (buffer);
-          return -1;
+          return (-1);
         }
     }
 }
@@ -679,7 +679,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
   if (time (&last_time) == -1)
     {
       g_warning ("   failed to get current time: %s\n", strerror (errno));
-      return -1;
+      return (-1);
     }
 
   if (timeout > 0)
@@ -687,7 +687,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
       /* Turn off blocking. */
 
       if (fcntl (socket, F_SETFL, O_NONBLOCK) == -1)
-        return -1;
+        return (-1);
     }
 
   buffer = g_malloc0 (BUFFER_SIZE);
@@ -746,7 +746,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                                        __FUNCTION__, strerror (errno));
                           g_markup_parse_context_free (xml_context);
                           g_free (buffer);
-                          return -4;
+                          return (-4);
                         }
                     }
                   continue;
@@ -762,7 +762,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                 fcntl (socket, F_SETFL, 0L);
               g_markup_parse_context_free (xml_context);
               g_free (buffer);
-              return -1;
+              return (-1);
             }
           if (count == 0)
             {
@@ -788,7 +788,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                 }
               g_markup_parse_context_free (xml_context);
               g_free (buffer);
-              return -3;
+              return (-3);
             }
           break;
         }
@@ -818,7 +818,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
             }
           g_markup_parse_context_free (xml_context);
           g_free (buffer);
-          return -2;
+          return (-2);
         }
       if (context_data.done)
         {
@@ -836,7 +836,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                 fcntl (socket, F_SETFL, 0L);
               g_markup_parse_context_free (xml_context);
               g_free (buffer);
-              return -2;
+              return (-2);
             }
           *entity = (entity_t) context_data.first->data;
           if (string)
@@ -846,7 +846,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
           g_slist_free (context_data.first);
           g_markup_parse_context_free (xml_context);
           g_free (buffer);
-          return 0;
+          return (0);
         }
 
       if ((timeout > 0) && (time (&last_time) == -1))
@@ -858,7 +858,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                        strerror (errno));
           g_markup_parse_context_free (xml_context);
           g_free (buffer);
-          return -1;
+          return (-1);
         }
     }
 }
@@ -880,7 +880,7 @@ int
 read_entity_and_string (gnutls_session_t *session, entity_t *entity,
                         GString **string_return)
 {
-  return try_read_entity_and_string (session, 0, entity, string_return);
+  return (try_read_entity_and_string (session, 0, entity, string_return));
 }
 
 /**
@@ -901,10 +901,10 @@ read_entity_and_string_c (gvm_connection_t *connection, entity_t *entity,
                           GString **string_return)
 {
   if (connection->tls)
-    return try_read_entity_and_string (&connection->session, 0, entity,
-                                       string_return);
-  return try_read_entity_and_string_s (connection->socket, 0, entity,
-                                       string_return);
+    return (try_read_entity_and_string (&connection->session, 0, entity,
+                                        string_return));
+  return (try_read_entity_and_string_s (connection->socket, 0, entity,
+                                        string_return));
 }
 
 /**
@@ -930,12 +930,12 @@ read_entity_and_text (gnutls_session_t *session, entity_t *entity, char **text)
         {
           if (string)
             g_string_free (string, TRUE);
-          return ret;
+          return (ret);
         }
       *text = g_string_free (string, FALSE);
-      return 0;
+      return (0);
     }
-  return read_entity_and_string (session, entity, NULL);
+  return (read_entity_and_string (session, entity, NULL));
 }
 
 /**
@@ -962,12 +962,12 @@ read_entity_and_text_c (gvm_connection_t *connection, entity_t *entity,
         {
           if (string)
             g_string_free (string, TRUE);
-          return ret;
+          return (ret);
         }
       *text = g_string_free (string, FALSE);
-      return 0;
+      return (0);
     }
-  return read_entity_and_string_c (connection, entity, NULL);
+  return (read_entity_and_string_c (connection, entity, NULL));
 }
 
 /**
@@ -987,7 +987,7 @@ read_string (gnutls_session_t *session, GString **string)
   if (!(ret = read_entity_and_string (session, &entity, string)))
     free_entity (entity);
 
-  return ret;
+  return (ret);
 }
 
 /**
@@ -1007,7 +1007,7 @@ read_string_c (gvm_connection_t *connection, GString **string)
   if (!(ret = read_entity_and_string_c (connection, &entity, string)))
     free_entity (entity);
 
-  return ret;
+  return (ret);
 }
 
 /**
@@ -1023,7 +1023,7 @@ read_string_c (gvm_connection_t *connection, GString **string)
 int
 try_read_entity (gnutls_session_t *session, int timeout, entity_t *entity)
 {
-  return try_read_entity_and_string (session, timeout, entity, NULL);
+  return (try_read_entity_and_string (session, timeout, entity, NULL));
 }
 
 /**
@@ -1040,9 +1040,9 @@ int
 try_read_entity_c (gvm_connection_t *connection, int timeout, entity_t *entity)
 {
   if (connection->tls)
-    return try_read_entity_and_string (&connection->session, 0, entity, NULL);
-  return try_read_entity_and_string_s (connection->socket, timeout, entity,
-                                       NULL);
+    return (try_read_entity_and_string (&connection->session, 0, entity, NULL));
+  return (try_read_entity_and_string_s (connection->socket, timeout, entity,
+                                        NULL));
 }
 
 /**
@@ -1056,7 +1056,7 @@ try_read_entity_c (gvm_connection_t *connection, int timeout, entity_t *entity)
 int
 read_entity (gnutls_session_t *session, entity_t *entity)
 {
-  return try_read_entity (session, 0, entity);
+  return (try_read_entity (session, 0, entity));
 }
 
 /**
@@ -1070,7 +1070,7 @@ read_entity (gnutls_session_t *session, entity_t *entity)
 int
 read_entity_s (int socket, entity_t *entity)
 {
-  return try_read_entity_and_string_s (socket, 0, entity, NULL);
+  return (try_read_entity_and_string_s (socket, 0, entity, NULL));
 }
 
 /**
@@ -1084,7 +1084,7 @@ read_entity_s (int socket, entity_t *entity)
 int
 read_entity_c (gvm_connection_t *connection, entity_t *entity)
 {
-  return try_read_entity_c (connection, 0, entity);
+  return (try_read_entity_c (connection, 0, entity));
 }
 
 /**
@@ -1131,7 +1131,7 @@ parse_entity (const char *string, entity_t *entity)
           free_entity (context_data.first->data);
           g_slist_free_1 (context_data.first);
         }
-      return -2;
+      return (-2);
     }
   if (context_data.done)
     {
@@ -1145,18 +1145,18 @@ parse_entity (const char *string, entity_t *entity)
               free_entity (context_data.first->data);
               g_slist_free_1 (context_data.first);
             }
-          return -2;
+          return (-2);
         }
       *entity = (entity_t) context_data.first->data;
       g_slist_free_1 (context_data.first);
-      return 0;
+      return (0);
     }
   if (context_data.first && context_data.first->data)
     {
       free_entity (context_data.first->data);
       g_slist_free_1 (context_data.first);
     }
-  return -3;
+  return (-3);
 }
 
 /**
@@ -1329,9 +1329,9 @@ compare_find_attribute (gpointer key, gpointer value, gpointer attributes2)
 {
   gchar *value2 = g_hash_table_lookup (attributes2, key);
   if (value2 && strcmp (value, value2) == 0)
-    return FALSE;
+    return (FALSE);
   g_debug ("  compare failed attribute: %s\n", (char *) value);
-  return TRUE;
+  return (TRUE);
 }
 
 /**
@@ -1346,37 +1346,37 @@ int
 compare_entities (entity_t entity1, entity_t entity2)
 {
   if (entity1 == NULL)
-    return entity2 == NULL ? 0 : 1;
+    return (entity2 == NULL ? 0 : 1);
   if (entity2 == NULL)
-    return 1;
+    return (1);
 
   if (strcmp (entity1->name, entity2->name))
     {
       g_debug ("  compare failed name: %s vs %s\n", entity1->name,
                entity2->name);
-      return 1;
+      return (1);
     }
   if (strcmp (entity1->text, entity2->text))
     {
       g_debug ("  compare failed text %s vs %s (%s)\n", entity1->text,
                entity2->text, entity1->name);
-      return 1;
+      return (1);
     }
 
   if (entity1->attributes == NULL)
     {
       if (entity2->attributes)
-        return 1;
+        return (1);
     }
   else
     {
       if (entity2->attributes == NULL)
-        return 1;
+        return (1);
       if (g_hash_table_find (entity1->attributes, compare_find_attribute,
                              (gpointer) entity2->attributes))
         {
           g_debug ("  compare failed attributes\n");
-          return 1;
+          return (1);
         }
     }
 
@@ -1388,16 +1388,16 @@ compare_entities (entity_t entity1, entity_t entity2)
       if (compare_entities (list1->data, list2->data))
         {
           g_debug ("  compare failed subentity\n");
-          return 1;
+          return (1);
         }
       list1 = g_slist_next (list1);
       list2 = g_slist_next (list2);
     }
   if (list1 == list2)
-    return 0;
+    return (0);
   /* More entities in one of the two. */
   g_debug ("  compare failed number of entities (%s)\n", entity1->name);
-  return 1;
+  return (1);
 }
 
 /**
@@ -1416,7 +1416,7 @@ xml_count_entities (entities_t entities)
       entities = next_entities (entities);
       count++;
     }
-  return count;
+  return (count);
 }
 
 /**
@@ -1550,7 +1550,7 @@ find_element_in_xml_file (gchar *file_path, gchar *find_element,
     {
       g_markup_parse_context_free (xml_context);
       g_warning ("%s: Failed to open '%s':", __FUNCTION__, strerror (errno));
-      return 0;
+      return (0);
     }
 
   while ((read_len = fread (&buffer, sizeof (char), XML_FILE_BUFFER_SIZE, file))
@@ -1563,6 +1563,6 @@ find_element_in_xml_file (gchar *file_path, gchar *find_element,
   fclose (file);
 
   g_markup_parse_context_free (xml_context);
-  return search_data.found;
+  return (search_data.found);
 }
 #undef XML_FILE_BUFFER_SIZE
