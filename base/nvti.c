@@ -778,7 +778,7 @@ nvti_get_tag (const nvti_t *n, const gchar *name)
 {
   gchar **split, **point;
 
-  if (!n || n->tag == NULL)
+  if (!n || n->tag == NULL || !name)
     return (NULL);
 
   split = g_strsplit (n->tag, "|", 0);
