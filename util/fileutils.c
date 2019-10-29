@@ -60,7 +60,7 @@ gvm_file_check_is_dir (const char *name)
       return -1;
     }
 
-  return (S_ISDIR (sb.st_mode));
+  return S_ISDIR (sb.st_mode);
 }
 
 /**
