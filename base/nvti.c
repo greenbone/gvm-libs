@@ -1226,8 +1226,7 @@ nvti_set_solution_method (nvti_t *n, const gchar *solution_method)
   if (!n)
     return -1;
 
-  if (n->solution_method)
-    g_free (n->solution_method);
+  g_free (n->solution_method);
   n->solution_method = g_strdup (solution_method);
   return 0;
 }
