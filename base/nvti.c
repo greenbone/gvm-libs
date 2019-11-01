@@ -1011,8 +1011,7 @@ nvti_set_oid (nvti_t *n, const gchar *oid)
   if (!n)
     return -1;
 
-  if (n->oid)
-    g_free (n->oid);
+  g_free (n->oid);
   n->oid = g_strdup (oid);
   return 0;
 }
@@ -1032,8 +1031,7 @@ nvti_set_name (nvti_t *n, const gchar *name)
   if (!n)
     return -1;
 
-  if (n->name)
-    g_free (n->name);
+  g_free (n->name);
   n->name = g_strdup (name);
   return 0;
 }
@@ -1053,8 +1051,7 @@ nvti_set_summary (nvti_t *n, const gchar *summary)
   if (!n)
     return -1;
 
-  if (n->summary)
-    g_free (n->summary);
+  g_free (n->summary);
   n->summary = g_strdup (summary);
   return 0;
 }
@@ -1074,8 +1071,7 @@ nvti_set_insight (nvti_t *n, const gchar *insight)
   if (!n)
     return -1;
 
-  if (n->insight)
-    g_free (n->insight);
+  g_free (n->insight);
   n->insight = g_strdup (insight);
   return 0;
 }
@@ -1095,8 +1091,7 @@ nvti_set_affected (nvti_t *n, const gchar *affected)
   if (!n)
     return -1;
 
-  if (n->affected)
-    g_free (n->affected);
+  g_free (n->affected);
   n->affected = g_strdup (affected);
   return 0;
 }
@@ -1116,8 +1111,7 @@ nvti_set_impact (nvti_t *n, const gchar *impact)
   if (!n)
     return -1;
 
-  if (n->impact)
-    g_free (n->impact);
+  g_free (n->impact);
   n->impact = g_strdup (impact);
   return 0;
 }
@@ -1175,8 +1169,7 @@ nvti_set_solution (nvti_t *n, const gchar *solution)
   if (!n)
     return -1;
 
-  if (n->solution)
-    g_free (n->solution);
+  g_free (n->solution);
   n->solution = g_strdup (solution);
   return 0;
 }
@@ -1197,8 +1190,7 @@ nvti_set_solution_type (nvti_t *n, const gchar *solution_type)
   if (!n)
     return -1;
 
-  if (n->solution_type)
-    g_free (n->solution_type);
+  g_free (n->solution_type);
   n->solution_type = g_strdup (solution_type);
   return 0;
 }
@@ -1267,8 +1259,7 @@ nvti_add_tag (nvti_t *n, const gchar *name, const gchar *value)
   else
     n->tag = g_strconcat (name, "=", newvalue ? newvalue : value, NULL);
 
-  if (newvalue)
-    g_free (newvalue);
+  g_free (newvalue);
 
   return 0;
 }
@@ -1288,8 +1279,7 @@ nvti_set_tag (nvti_t *n, const gchar *tag)
   if (!n)
     return -1;
 
-  if (n->tag)
-    g_free (n->tag);
+  g_free (n->tag);
   if (tag && tag[0])
     n->tag = g_strdup (tag);
   else
@@ -1312,8 +1302,7 @@ nvti_set_cvss_base (nvti_t *n, const gchar *cvss_base)
   if (!n)
     return -1;
 
-  if (n->cvss_base)
-    g_free (n->cvss_base);
+  g_free (n->cvss_base);
   if (cvss_base && cvss_base[0])
     n->cvss_base = g_strdup (cvss_base);
   else
@@ -1337,8 +1326,7 @@ nvti_set_dependencies (nvti_t *n, const gchar *dependencies)
   if (!n)
     return -1;
 
-  if (n->dependencies)
-    g_free (n->dependencies);
+  g_free (n->dependencies);
   if (dependencies && dependencies[0])
     n->dependencies = g_strdup (dependencies);
   else
@@ -1362,8 +1350,7 @@ nvti_set_required_keys (nvti_t *n, const gchar *required_keys)
   if (!n)
     return -1;
 
-  if (n->required_keys)
-    g_free (n->required_keys);
+  g_free (n->required_keys);
   if (required_keys && required_keys[0])
     n->required_keys = g_strdup (required_keys);
   else
@@ -1387,8 +1374,7 @@ nvti_set_mandatory_keys (nvti_t *n, const gchar *mandatory_keys)
   if (!n)
     return -1;
 
-  if (n->mandatory_keys)
-    g_free (n->mandatory_keys);
+  g_free (n->mandatory_keys);
   if (mandatory_keys && mandatory_keys[0])
     n->mandatory_keys = g_strdup (mandatory_keys);
   else
@@ -1412,8 +1398,7 @@ nvti_set_excluded_keys (nvti_t *n, const gchar *excluded_keys)
   if (!n)
     return -1;
 
-  if (n->excluded_keys)
-    g_free (n->excluded_keys);
+  g_free (n->excluded_keys);
   if (excluded_keys && excluded_keys[0])
     n->excluded_keys = g_strdup (excluded_keys);
   else
@@ -1437,8 +1422,7 @@ nvti_set_required_ports (nvti_t *n, const gchar *required_ports)
   if (!n)
     return -1;
 
-  if (n->required_ports)
-    g_free (n->required_ports);
+  g_free (n->required_ports);
   if (required_ports && required_ports[0])
     n->required_ports = g_strdup (required_ports);
   else
@@ -1462,8 +1446,7 @@ nvti_set_required_udp_ports (nvti_t *n, const gchar *required_udp_ports)
   if (!n)
     return -1;
 
-  if (n->required_udp_ports)
-    g_free (n->required_udp_ports);
+  g_free (n->required_udp_ports);
   if (required_udp_ports && required_udp_ports[0])
     n->required_udp_ports = g_strdup (required_udp_ports);
   else
@@ -1486,8 +1469,7 @@ nvti_set_detection (nvti_t *n, const gchar *detection)
   if (!n)
     return -1;
 
-  if (n->detection)
-    g_free (n->detection);
+  g_free (n->detection);
   n->detection = g_strdup (detection);
   return 0;
 }
@@ -1508,8 +1490,7 @@ nvti_set_qod_type (nvti_t *n, const gchar *qod_type)
   if (!n)
     return -1;
 
-  if (n->qod_type)
-    g_free (n->qod_type);
+  g_free (n->qod_type);
   if (qod_type && qod_type[0])
     n->qod_type = g_strdup (qod_type);
   else
@@ -1532,8 +1513,7 @@ nvti_set_family (nvti_t *n, const gchar *family)
   if (!n)
     return -1;
 
-  if (n->family)
-    g_free (n->family);
+  g_free (n->family);
   n->family = g_strdup (family);
   return 0;
 }
