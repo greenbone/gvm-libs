@@ -344,7 +344,7 @@ osp_get_vts_version (osp_connection_t *connection, char **vts_version)
   vts = entity_child (entity, "vts");
   if (!vts)
     {
-      g_warning ("%s: element VTS missing.", __FUNCTION__);
+      g_warning ("%s: element VTS missing.", __func__);
       free_entity (entity);
       return 1;
     }
@@ -352,7 +352,7 @@ osp_get_vts_version (osp_connection_t *connection, char **vts_version)
   version = entity_child (vts, "version");
   if (!version)
     {
-      g_warning ("%s: element VERSION missing.", __FUNCTION__);
+      g_warning ("%s: element VERSION missing.", __func__);
       free_entity (entity);
       return 1;
     }
@@ -1375,7 +1375,7 @@ osp_credential_set_auth_data (osp_credential_t *credential,
     }
   else
     {
-      g_warning ("%s: Invalid auth data name: %s", __FUNCTION__, name);
+      g_warning ("%s: Invalid auth data name: %s", __func__, name);
     }
 }
 

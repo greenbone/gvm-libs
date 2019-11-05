@@ -44,7 +44,7 @@ gvm_uuid_make (void)
   uuid_generate (uuid);
   if (uuid_is_null (uuid) == 1)
     {
-      g_warning ("%s: failed to generate UUID", __FUNCTION__);
+      g_warning ("%s: failed to generate UUID", __func__);
       return NULL;
     }
 
@@ -52,7 +52,7 @@ gvm_uuid_make (void)
   id = g_malloc0 (sizeof (char) * 37);
   if (id == NULL)
     {
-      g_warning ("%s: Cannot export UUID to text: out of memory", __FUNCTION__);
+      g_warning ("%s: Cannot export UUID to text: out of memory", __func__);
       return NULL;
     }
 
