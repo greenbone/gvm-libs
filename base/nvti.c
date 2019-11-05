@@ -209,7 +209,7 @@ parse_nvt_timestamp (const gchar *str_time)
                                 &tm)
                       == NULL)
                     {
-                      g_warning ("%s: Failed to parse time: %s", __FUNCTION__,
+                      g_warning ("%s: Failed to parse time: %s", __func__,
                                  str_time);
                       return 0;
                     }
@@ -220,7 +220,7 @@ parse_nvt_timestamp (const gchar *str_time)
   epoch_time = mktime (&tm);
   if (epoch_time == -1)
     {
-      g_warning ("%s: Failed to make time: %s", __FUNCTION__, str_time);
+      g_warning ("%s: Failed to make time: %s", __func__, str_time);
       return 0;
     }
 
@@ -241,7 +241,7 @@ parse_nvt_timestamp (const gchar *str_time)
                   "$Date: %*s %*s %*s %*u:%*u:%*u %*u %d%*[^]]", &offset)
           != 1))
     {
-      g_warning ("%s: Failed to parse timezone offset: %s", __FUNCTION__,
+      g_warning ("%s: Failed to parse timezone offset: %s", __func__,
                  str_time);
       return 0;
     }
