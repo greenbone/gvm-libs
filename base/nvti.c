@@ -241,8 +241,7 @@ parse_nvt_timestamp (const gchar *str_time)
                   "$Date: %*s %*s %*s %*u:%*u:%*u %*u %d%*[^]]", &offset)
           != 1))
     {
-      g_warning ("%s: Failed to parse timezone offset: %s", __func__,
-                 str_time);
+      g_warning ("%s: Failed to parse timezone offset: %s", __func__, str_time);
       return 0;
     }
 
