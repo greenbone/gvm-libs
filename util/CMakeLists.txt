@@ -158,7 +158,7 @@ if (BUILD_SHARED)
 
   target_link_libraries (gvm_util_shared LINK_PRIVATE ${GLIB_LDFLAGS}
                          ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
-                         ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS}
+                         ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
                          ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
                          ${UUID_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)

@@ -97,7 +97,7 @@ vtref_new (const gchar *type, const gchar *ref_id, const gchar *ref_text)
   if (ref_text)
     ref->ref_text = g_strdup (ref_text);
 
-  return (ref);
+  return ref;
 }
 
 /**
@@ -128,7 +128,7 @@ vtref_free (vtref_t *ref)
 const gchar *
 vtref_type (const vtref_t *r)
 {
-  return (r ? r->type : NULL);
+  return r ? r->type : NULL;
 }
 
 /**
@@ -142,7 +142,7 @@ vtref_type (const vtref_t *r)
 const gchar *
 vtref_id (const vtref_t *r)
 {
-  return (r ? r->ref_id : NULL);
+  return r ? r->ref_id : NULL;
 }
 
 /**
@@ -156,7 +156,7 @@ vtref_id (const vtref_t *r)
 const gchar *
 vtref_text (const vtref_t *r)
 {
-  return (r ? r->ref_text : NULL);
+  return r ? r->ref_text : NULL;
 }
 
 /* Support function for timestamps */
@@ -319,10 +319,10 @@ int
 nvti_add_vtref (nvti_t *vt, vtref_t *ref)
 {
   if (!vt)
-    return (-1);
+    return -1;
 
   vt->refs = g_slist_append (vt->refs, ref);
-  return (0);
+  return 0;
 }
 
 /* VT preferences */
@@ -366,7 +366,7 @@ nvtpref_new (int id, gchar *name, gchar *type, gchar *dflt)
   if (dflt)
     np->dflt = g_strdup (dflt);
 
-  return (np);
+  return np;
 }
 
 /**
@@ -411,7 +411,7 @@ nvtpref_id (const nvtpref_t *np)
 gchar *
 nvtpref_name (const nvtpref_t *np)
 {
-  return (np ? np->name : NULL);
+  return np ? np->name : NULL;
 }
 
 /**
@@ -425,7 +425,7 @@ nvtpref_name (const nvtpref_t *np)
 gchar *
 nvtpref_type (const nvtpref_t *np)
 {
-  return (np ? np->type : NULL);
+  return np ? np->type : NULL;
 }
 
 /**
@@ -439,7 +439,7 @@ nvtpref_type (const nvtpref_t *np)
 gchar *
 nvtpref_default (const nvtpref_t *np)
 {
-  return (np ? np->dflt : NULL);
+  return np ? np->dflt : NULL;
 }
 
 /**
@@ -453,7 +453,7 @@ nvtpref_default (const nvtpref_t *np)
 nvti_t *
 nvti_new (void)
 {
-  return ((nvti_t *) g_malloc0 (sizeof (nvti_t)));
+  return (nvti_t *) g_malloc0 (sizeof (nvti_t));
 }
 
 /**
@@ -502,7 +502,7 @@ nvti_free (nvti_t *n)
 gchar *
 nvti_oid (const nvti_t *n)
 {
-  return (n ? n->oid : NULL);
+  return n ? n->oid : NULL;
 }
 
 /**
@@ -516,7 +516,7 @@ nvti_oid (const nvti_t *n)
 gchar *
 nvti_name (const nvti_t *n)
 {
-  return (n ? n->name : NULL);
+  return n ? n->name : NULL;
 }
 
 /**
@@ -530,7 +530,7 @@ nvti_name (const nvti_t *n)
 gchar *
 nvti_summary (const nvti_t *n)
 {
-  return (n ? n->summary : NULL);
+  return n ? n->summary : NULL;
 }
 
 /**
@@ -544,7 +544,7 @@ nvti_summary (const nvti_t *n)
 gchar *
 nvti_insight (const nvti_t *n)
 {
-  return (n ? n->insight : NULL);
+  return n ? n->insight : NULL;
 }
 
 /**
@@ -558,7 +558,7 @@ nvti_insight (const nvti_t *n)
 gchar *
 nvti_affected (const nvti_t *n)
 {
-  return (n ? n->affected : NULL);
+  return n ? n->affected : NULL;
 }
 
 /**
@@ -572,7 +572,7 @@ nvti_affected (const nvti_t *n)
 gchar *
 nvti_impact (const nvti_t *n)
 {
-  return (n ? n->impact : NULL);
+  return n ? n->impact : NULL;
 }
 
 /**
@@ -586,7 +586,7 @@ nvti_impact (const nvti_t *n)
 time_t
 nvti_creation_time (const nvti_t *n)
 {
-  return (n ? n->creation_time : 0);
+  return n ? n->creation_time : 0;
 }
 
 /**
@@ -600,7 +600,7 @@ nvti_creation_time (const nvti_t *n)
 time_t
 nvti_modification_time (const nvti_t *n)
 {
-  return (n ? n->modification_time : 0);
+  return n ? n->modification_time : 0;
 }
 
 /**
@@ -613,7 +613,7 @@ nvti_modification_time (const nvti_t *n)
 guint
 nvti_vtref_len (const nvti_t *n)
 {
-  return (n ? g_slist_length (n->refs) : 0);
+  return n ? g_slist_length (n->refs) : 0;
 }
 
 /**
@@ -628,7 +628,7 @@ nvti_vtref_len (const nvti_t *n)
 vtref_t *
 nvti_vtref (const nvti_t *n, guint p)
 {
-  return (n ? g_slist_nth_data (n->refs, p) : NULL);
+  return n ? g_slist_nth_data (n->refs, p) : NULL;
 }
 
 /**
@@ -664,7 +664,7 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types,
   gchar **exclude_split;
 
   if (!n)
-    return (NULL);
+    return NULL;
 
   refs = NULL;
   refs2 = NULL;
@@ -718,7 +718,7 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types,
 
   g_strfreev (exclude_split);
 
-  return (refs);
+  return refs;
 }
 
 /**
@@ -732,7 +732,7 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types,
 gchar *
 nvti_solution (const nvti_t *n)
 {
-  return (n ? n->solution : NULL);
+  return n ? n->solution : NULL;
 }
 
 /**
@@ -746,7 +746,7 @@ nvti_solution (const nvti_t *n)
 gchar *
 nvti_solution_type (const nvti_t *n)
 {
-  return (n ? n->solution_type : NULL);
+  return n ? n->solution_type : NULL;
 }
 
 /**
@@ -760,7 +760,7 @@ nvti_solution_type (const nvti_t *n)
 gchar *
 nvti_tag (const nvti_t *n)
 {
-  return (n ? n->tag : NULL);
+  return n ? n->tag : NULL;
 }
 
 /**
@@ -779,7 +779,7 @@ nvti_get_tag (const nvti_t *n, const gchar *name)
   gchar **split, **point;
 
   if (!n || n->tag == NULL || !name)
-    return (NULL);
+    return NULL;
 
   split = g_strsplit (n->tag, "|", 0);
   point = split;
@@ -793,12 +793,12 @@ nvti_get_tag (const nvti_t *n, const gchar *name)
           gchar *ret;
           ret = g_strdup (*point + strlen (name) + 1);
           g_strfreev (split);
-          return (ret);
+          return ret;
         }
       point++;
     }
   g_strfreev (split);
-  return (NULL);
+  return NULL;
 }
 
 /**
@@ -812,7 +812,7 @@ nvti_get_tag (const nvti_t *n, const gchar *name)
 gchar *
 nvti_cvss_base (const nvti_t *n)
 {
-  return (n ? n->cvss_base : NULL);
+  return n ? n->cvss_base : NULL;
 }
 
 /**
@@ -826,7 +826,7 @@ nvti_cvss_base (const nvti_t *n)
 gchar *
 nvti_dependencies (const nvti_t *n)
 {
-  return (n ? n->dependencies : NULL);
+  return n ? n->dependencies : NULL;
 }
 
 /**
@@ -840,7 +840,7 @@ nvti_dependencies (const nvti_t *n)
 gchar *
 nvti_required_keys (const nvti_t *n)
 {
-  return (n ? n->required_keys : NULL);
+  return n ? n->required_keys : NULL;
 }
 
 /**
@@ -854,7 +854,7 @@ nvti_required_keys (const nvti_t *n)
 gchar *
 nvti_mandatory_keys (const nvti_t *n)
 {
-  return (n ? n->mandatory_keys : NULL);
+  return n ? n->mandatory_keys : NULL;
 }
 
 /**
@@ -868,7 +868,7 @@ nvti_mandatory_keys (const nvti_t *n)
 gchar *
 nvti_excluded_keys (const nvti_t *n)
 {
-  return (n ? n->excluded_keys : NULL);
+  return n ? n->excluded_keys : NULL;
 }
 
 /**
@@ -882,7 +882,7 @@ nvti_excluded_keys (const nvti_t *n)
 gchar *
 nvti_required_ports (const nvti_t *n)
 {
-  return (n ? n->required_ports : NULL);
+  return n ? n->required_ports : NULL;
 }
 
 /**
@@ -896,7 +896,7 @@ nvti_required_ports (const nvti_t *n)
 gchar *
 nvti_required_udp_ports (const nvti_t *n)
 {
-  return (n ? n->required_udp_ports : NULL);
+  return n ? n->required_udp_ports : NULL;
 }
 
 /**
@@ -910,7 +910,7 @@ nvti_required_udp_ports (const nvti_t *n)
 gchar *
 nvti_detection (const nvti_t *n)
 {
-  return (n ? n->detection : NULL);
+  return n ? n->detection : NULL;
 }
 
 /**
@@ -924,7 +924,7 @@ nvti_detection (const nvti_t *n)
 gchar *
 nvti_qod_type (const nvti_t *n)
 {
-  return (n ? n->qod_type : NULL);
+  return n ? n->qod_type : NULL;
 }
 
 /**
@@ -938,7 +938,7 @@ nvti_qod_type (const nvti_t *n)
 gchar *
 nvti_family (const nvti_t *n)
 {
-  return (n ? n->family : NULL);
+  return n ? n->family : NULL;
 }
 
 /**
@@ -951,7 +951,7 @@ nvti_family (const nvti_t *n)
 guint
 nvti_pref_len (const nvti_t *n)
 {
-  return (n ? g_slist_length (n->prefs) : 0);
+  return n ? g_slist_length (n->prefs) : 0;
 }
 
 /**
@@ -966,7 +966,7 @@ nvti_pref_len (const nvti_t *n)
 const nvtpref_t *
 nvti_pref (const nvti_t *n, guint p)
 {
-  return (n ? g_slist_nth_data (n->prefs, p) : NULL);
+  return n ? g_slist_nth_data (n->prefs, p) : NULL;
 }
 
 /**
@@ -980,7 +980,7 @@ nvti_pref (const nvti_t *n, guint p)
 gint
 nvti_timeout (const nvti_t *n)
 {
-  return (n ? n->timeout : -1);
+  return n ? n->timeout : -1;
 }
 
 /**
@@ -993,7 +993,7 @@ nvti_timeout (const nvti_t *n)
 gint
 nvti_category (const nvti_t *n)
 {
-  return (n ? n->category : -1);
+  return n ? n->category : -1;
 }
 
 /**
@@ -1009,12 +1009,11 @@ int
 nvti_set_oid (nvti_t *n, const gchar *oid)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->oid)
-    g_free (n->oid);
+  g_free (n->oid);
   n->oid = g_strdup (oid);
-  return (0);
+  return 0;
 }
 
 /**
@@ -1030,12 +1029,11 @@ int
 nvti_set_name (nvti_t *n, const gchar *name)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->name)
-    g_free (n->name);
+  g_free (n->name);
   n->name = g_strdup (name);
-  return (0);
+  return 0;
 }
 
 /**
@@ -1051,12 +1049,11 @@ int
 nvti_set_summary (nvti_t *n, const gchar *summary)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->summary)
-    g_free (n->summary);
+  g_free (n->summary);
   n->summary = g_strdup (summary);
-  return (0);
+  return 0;
 }
 
 /**
@@ -1072,12 +1069,11 @@ int
 nvti_set_insight (nvti_t *n, const gchar *insight)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->insight)
-    g_free (n->insight);
+  g_free (n->insight);
   n->insight = g_strdup (insight);
-  return (0);
+  return 0;
 }
 
 /**
@@ -1093,12 +1089,11 @@ int
 nvti_set_affected (nvti_t *n, const gchar *affected)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->affected)
-    g_free (n->affected);
+  g_free (n->affected);
   n->affected = g_strdup (affected);
-  return (0);
+  return 0;
 }
 
 /**
@@ -1114,12 +1109,11 @@ int
 nvti_set_impact (nvti_t *n, const gchar *impact)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->impact)
-    g_free (n->impact);
+  g_free (n->impact);
   n->impact = g_strdup (impact);
-  return (0);
+  return 0;
 }
 
 /**
@@ -1135,10 +1129,10 @@ int
 nvti_set_creation_time (nvti_t *n, const time_t creation_time)
 {
   if (!n)
-    return (-1);
+    return -1;
 
   n->creation_time = creation_time;
-  return (0);
+  return 0;
 }
 
 /**
@@ -1154,10 +1148,10 @@ int
 nvti_set_modification_time (nvti_t *n, const time_t modification_time)
 {
   if (!n)
-    return (-1);
+    return -1;
 
   n->modification_time = modification_time;
-  return (0);
+  return 0;
 }
 
 /**
@@ -1173,12 +1167,11 @@ int
 nvti_set_solution (nvti_t *n, const gchar *solution)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->solution)
-    g_free (n->solution);
+  g_free (n->solution);
   n->solution = g_strdup (solution);
-  return (0);
+  return 0;
 }
 
 /**
@@ -1195,12 +1188,11 @@ int
 nvti_set_solution_type (nvti_t *n, const gchar *solution_type)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->solution_type)
-    g_free (n->solution_type);
+  g_free (n->solution_type);
   n->solution_type = g_strdup (solution_type);
-  return (0);
+  return 0;
 }
 
 /**
@@ -1225,13 +1217,13 @@ nvti_add_tag (nvti_t *n, const gchar *name, const gchar *value)
   gchar *newvalue = NULL;
 
   if (!n)
-    return (-1);
+    return -1;
 
   if (!name || !name[0])
-    return (-2);
+    return -2;
 
   if (!value || !value[0])
-    return (-3);
+    return -3;
 
   if (!strcmp (name, "last_modification"))
     {
@@ -1252,7 +1244,7 @@ nvti_add_tag (nvti_t *n, const gchar *name, const gchar *value)
        * in the NASL scripts can be removed that set "cvss_base".
        * Once this happened this exception can be removed from the code.
        */
-      return (0);
+      return 0;
     }
 
   if (n->tag)
@@ -1267,10 +1259,9 @@ nvti_add_tag (nvti_t *n, const gchar *name, const gchar *value)
   else
     n->tag = g_strconcat (name, "=", newvalue ? newvalue : value, NULL);
 
-  if (newvalue)
-    g_free (newvalue);
+  g_free (newvalue);
 
-  return (0);
+  return 0;
 }
 
 /**
@@ -1286,15 +1277,14 @@ int
 nvti_set_tag (nvti_t *n, const gchar *tag)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->tag)
-    g_free (n->tag);
+  g_free (n->tag);
   if (tag && tag[0])
     n->tag = g_strdup (tag);
   else
     n->tag = NULL;
-  return (0);
+  return 0;
 }
 
 /**
@@ -1310,15 +1300,14 @@ int
 nvti_set_cvss_base (nvti_t *n, const gchar *cvss_base)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->cvss_base)
-    g_free (n->cvss_base);
+  g_free (n->cvss_base);
   if (cvss_base && cvss_base[0])
     n->cvss_base = g_strdup (cvss_base);
   else
     n->cvss_base = NULL;
-  return (0);
+  return 0;
 }
 
 /**
@@ -1335,15 +1324,14 @@ int
 nvti_set_dependencies (nvti_t *n, const gchar *dependencies)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->dependencies)
-    g_free (n->dependencies);
+  g_free (n->dependencies);
   if (dependencies && dependencies[0])
     n->dependencies = g_strdup (dependencies);
   else
     n->dependencies = NULL;
-  return (0);
+  return 0;
 }
 
 /**
@@ -1360,15 +1348,14 @@ int
 nvti_set_required_keys (nvti_t *n, const gchar *required_keys)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->required_keys)
-    g_free (n->required_keys);
+  g_free (n->required_keys);
   if (required_keys && required_keys[0])
     n->required_keys = g_strdup (required_keys);
   else
     n->required_keys = NULL;
-  return (0);
+  return 0;
 }
 
 /**
@@ -1385,15 +1372,14 @@ int
 nvti_set_mandatory_keys (nvti_t *n, const gchar *mandatory_keys)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->mandatory_keys)
-    g_free (n->mandatory_keys);
+  g_free (n->mandatory_keys);
   if (mandatory_keys && mandatory_keys[0])
     n->mandatory_keys = g_strdup (mandatory_keys);
   else
     n->mandatory_keys = NULL;
-  return (0);
+  return 0;
 }
 
 /**
@@ -1410,15 +1396,14 @@ int
 nvti_set_excluded_keys (nvti_t *n, const gchar *excluded_keys)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->excluded_keys)
-    g_free (n->excluded_keys);
+  g_free (n->excluded_keys);
   if (excluded_keys && excluded_keys[0])
     n->excluded_keys = g_strdup (excluded_keys);
   else
     n->excluded_keys = NULL;
-  return (0);
+  return 0;
 }
 
 /**
@@ -1435,15 +1420,14 @@ int
 nvti_set_required_ports (nvti_t *n, const gchar *required_ports)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->required_ports)
-    g_free (n->required_ports);
+  g_free (n->required_ports);
   if (required_ports && required_ports[0])
     n->required_ports = g_strdup (required_ports);
   else
     n->required_ports = NULL;
-  return (0);
+  return 0;
 }
 
 /**
@@ -1460,15 +1444,14 @@ int
 nvti_set_required_udp_ports (nvti_t *n, const gchar *required_udp_ports)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->required_udp_ports)
-    g_free (n->required_udp_ports);
+  g_free (n->required_udp_ports);
   if (required_udp_ports && required_udp_ports[0])
     n->required_udp_ports = g_strdup (required_udp_ports);
   else
     n->required_udp_ports = NULL;
-  return (0);
+  return 0;
 }
 
 /**
@@ -1484,12 +1467,11 @@ int
 nvti_set_detection (nvti_t *n, const gchar *detection)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->detection)
-    g_free (n->detection);
+  g_free (n->detection);
   n->detection = g_strdup (detection);
-  return (0);
+  return 0;
 }
 
 /**
@@ -1506,15 +1488,14 @@ int
 nvti_set_qod_type (nvti_t *n, const gchar *qod_type)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->qod_type)
-    g_free (n->qod_type);
+  g_free (n->qod_type);
   if (qod_type && qod_type[0])
     n->qod_type = g_strdup (qod_type);
   else
     n->qod_type = NULL;
-  return (0);
+  return 0;
 }
 
 /**
@@ -1530,12 +1511,11 @@ int
 nvti_set_family (nvti_t *n, const gchar *family)
 {
   if (!n)
-    return (-1);
+    return -1;
 
-  if (n->family)
-    g_free (n->family);
+  g_free (n->family);
   n->family = g_strdup (family);
-  return (0);
+  return 0;
 }
 
 /**
@@ -1551,10 +1531,10 @@ int
 nvti_set_timeout (nvti_t *n, const gint timeout)
 {
   if (!n)
-    return (-1);
+    return -1;
 
   n->timeout = timeout;
-  return (0);
+  return 0;
 }
 
 /**
@@ -1570,10 +1550,10 @@ int
 nvti_set_category (nvti_t *n, const gint category)
 {
   if (!n)
-    return (-1);
+    return -1;
 
   n->category = category;
-  return (0);
+  return 0;
 }
 
 /**
@@ -1598,10 +1578,10 @@ nvti_add_refs (nvti_t *n, const gchar *type, const gchar *ref_ids,
   gchar **split, **item;
 
   if (!n)
-    return (1);
+    return 1;
 
   if (!ref_ids)
-    return (2);
+    return 2;
 
   split = g_strsplit (ref_ids, ",", 0);
 
@@ -1631,7 +1611,7 @@ nvti_add_refs (nvti_t *n, const gchar *type, const gchar *ref_ids,
     }
   g_strfreev (split);
 
-  return (0);
+  return 0;
 }
 
 /**
@@ -1649,9 +1629,9 @@ nvti_add_required_keys (nvti_t *n, const gchar *key)
   gchar *old;
 
   if (!n)
-    return (1);
+    return 1;
   if (!key)
-    return (2);
+    return 2;
 
   old = n->required_keys;
 
@@ -1663,7 +1643,7 @@ nvti_add_required_keys (nvti_t *n, const gchar *key)
   else
     n->required_keys = g_strdup (key);
 
-  return (0);
+  return 0;
 }
 
 /**
@@ -1681,9 +1661,9 @@ nvti_add_mandatory_keys (nvti_t *n, const gchar *key)
   gchar *old;
 
   if (!n)
-    return (1);
+    return 1;
   if (!key)
-    return (2);
+    return 2;
 
   old = n->mandatory_keys;
 
@@ -1695,7 +1675,7 @@ nvti_add_mandatory_keys (nvti_t *n, const gchar *key)
   else
     n->mandatory_keys = g_strdup (key);
 
-  return (0);
+  return 0;
 }
 
 /**
@@ -1713,9 +1693,9 @@ nvti_add_excluded_keys (nvti_t *n, const gchar *key)
   gchar *old;
 
   if (!n)
-    return (1);
+    return 1;
   if (!key)
-    return (2);
+    return 2;
 
   old = n->excluded_keys;
 
@@ -1727,7 +1707,7 @@ nvti_add_excluded_keys (nvti_t *n, const gchar *key)
   else
     n->excluded_keys = g_strdup (key);
 
-  return (0);
+  return 0;
 }
 
 /**
@@ -1745,9 +1725,9 @@ nvti_add_required_ports (nvti_t *n, const gchar *port)
   gchar *old;
 
   if (!n)
-    return (1);
+    return 1;
   if (!port)
-    return (2);
+    return 2;
 
   old = n->required_ports;
 
@@ -1759,7 +1739,7 @@ nvti_add_required_ports (nvti_t *n, const gchar *port)
   else
     n->required_ports = g_strdup (port);
 
-  return (0);
+  return 0;
 }
 
 /**
@@ -1777,9 +1757,9 @@ nvti_add_required_udp_ports (nvti_t *n, const gchar *port)
   gchar *old;
 
   if (!n)
-    return (1);
+    return 1;
   if (!port)
-    return (2);
+    return 2;
 
   old = n->required_udp_ports;
 
@@ -1791,7 +1771,7 @@ nvti_add_required_udp_ports (nvti_t *n, const gchar *port)
   else
     n->required_udp_ports = g_strdup (port);
 
-  return (0);
+  return 0;
 }
 
 /**
@@ -1807,10 +1787,10 @@ int
 nvti_add_pref (nvti_t *n, nvtpref_t *np)
 {
   if (!n)
-    return (-1);
+    return -1;
 
   n->prefs = g_slist_append (n->prefs, np);
-  return (0);
+  return 0;
 }
 
 /* Collections of nvtis. */
