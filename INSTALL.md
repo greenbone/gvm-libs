@@ -33,7 +33,6 @@ Optional development libraries:
 Prerequisites for building documentation:
 * doxygen
 * xmltoman (optional, for building man page)
-* sqlfairy (optional, for producing database diagram)
 
 Prerequisites for building tests:
 * Cgreen (optional, for building tests)
