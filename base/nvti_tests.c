@@ -37,6 +37,22 @@ Ensure (nvti, nvti_new_never_returns_null)
   assert_that (nvti_new (), is_not_null);
 }
 
+/* nvti solution_method */
+
+Ensure (nvti, nvti_set_solution_method_correct)
+{
+  nvti_t *nvti;
+  gchar *solution_method;
+
+  nvti = nvti_new ();
+  nvti_set_solution_method (nvti, "DebianAPTUpgrade");
+  solution_method = nvti_solution_method (nvti);
+
+  assert_that (solution_method, is_equal_to_string ("DebianAPTUpgrade"));
+
+  nvti_free (nvti);
+}
+
 /* nvti_get_tag */
 
 Ensure (nvti, nvti_get_tag_gets_correct_value_one_tag)
@@ -137,6 +153,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, nvti, nvti_new_never_returns_null);
 
   add_test_with_context (suite, nvti, nvti_get_tag_gets_correct_value_one_tag);
+  add_test_with_context (suite, nvti, nvti_set_solution_method_correct);
   add_test_with_context (suite, nvti,
                          nvti_get_tag_gets_correct_value_many_tags);
   add_test_with_context (suite, nvti, nvti_get_tag_handles_empty_tag);
