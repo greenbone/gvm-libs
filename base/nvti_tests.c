@@ -153,12 +153,13 @@ main (int argc, char **argv)
   add_test_with_context (suite, nvti, nvti_new_never_returns_null);
 
   add_test_with_context (suite, nvti, nvti_get_tag_gets_correct_value_one_tag);
-  add_test_with_context (suite, nvti, nvti_set_solution_method_correct);
   add_test_with_context (suite, nvti,
                          nvti_get_tag_gets_correct_value_many_tags);
   add_test_with_context (suite, nvti, nvti_get_tag_handles_empty_tag);
   add_test_with_context (suite, nvti, nvti_get_tag_handles_null_nvti);
   add_test_with_context (suite, nvti, nvti_get_tag_handles_null_name);
+
+  add_test_with_context (suite, nvti, nvti_set_solution_method_correct);
 
   add_test_with_context (suite, nvti, nvtis_add_does_not_use_oid_as_key);
 
