@@ -279,8 +279,9 @@ typedef struct nvti
   time_t creation_time;     /**< @brief Time of creation, seconds since epoch */
   time_t modification_time; /**< @brief Time of last change, sec. since epoch */
 
-  gchar *solution;      /**< @brief The solution */
-  gchar *solution_type; /**< @brief The solution type */
+  gchar *solution;        /**< @brief The solution */
+  gchar *solution_type;   /**< @brief The solution type */
+  gchar *solution_method; /**< @brief The solution method */
 
   gchar *tag;       /**< @brief List of tags attached to this NVT */
   gchar *cvss_base; /**< @brief CVSS base score for this NVT. */
@@ -474,6 +475,7 @@ nvti_free (nvti_t *n)
   g_free (n->impact);
   g_free (n->solution);
   g_free (n->solution_type);
+  g_free (n->solution_method);
   g_free (n->tag);
   g_free (n->cvss_base);
   g_free (n->dependencies);
@@ -746,6 +748,20 @@ gchar *
 nvti_solution_type (const nvti_t *n)
 {
   return n ? n->solution_type : NULL;
+}
+
+/**
+ * @brief Get the solution method.
+ *
+ * @param n The NVT Info structure of which the solution method should
+ *          be returned.
+ *
+ * @return The solution method string. Don't free this.
+ */
+gchar *
+nvti_solution_method (const nvti_t *n)
+{
+  return n ? n->solution_method : NULL;
 }
 
 /**
@@ -1191,6 +1207,27 @@ nvti_set_solution_type (nvti_t *n, const gchar *solution_type)
 
   g_free (n->solution_type);
   n->solution_type = g_strdup (solution_type);
+  return 0;
+}
+
+/**
+ * @brief Set the solution method of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param solution_method The solution method to set. A copy will be created
+ *                        from this.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_solution_method (nvti_t *n, const gchar *solution_method)
+{
+  if (!n)
+    return -1;
+
+  g_free (n->solution_method);
+  n->solution_method = g_strdup (solution_method);
   return 0;
 }
 
