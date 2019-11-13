@@ -1088,6 +1088,165 @@ read_entity_c (gvm_connection_t *connection, entity_t *entity)
 }
 
 /**
+ * @brief Get the name an entity.
+ *
+ * @param[in]  entity  Entity.
+ *
+ * @return Entity name, which is freed by free_entity2.
+ */
+void
+xml_doc_free (xml_doc_t doc)
+{
+  xmlFreeDoc (doc);
+}
+
+/**
+ * @brief Read an XML entity tree from a string.
+ *
+ * @param[in]   string  Input string.
+ * @param[out]  entity  Pointer to an entity tree.
+ *
+ * @return 0 success, -1 read error, -2 parse error, -3 XML ended prematurely.
+ */
+int
+parse_entity2 (const char *string, xml_doc_t *xml_doc, entity2_t *entity)
+{
+  LIBXML_TEST_VERSION
+
+  *xml_doc = xmlReadMemory (string, strlen (string), "noname.xml", NULL, 0);
+  if (*xml_doc == NULL)
+    return -2;
+  //xmlFreeDoc(doc);
+
+  *entity = xmlDocGetRootElement (*xml_doc);
+  return 0;
+}
+
+/**
+ * @brief Get the name an entity.
+ *
+ * @param[in]  entity  Entity.
+ *
+ * @return Entity name, which is freed by free_entity2.
+ */
+const char *
+entity2_name (entity2_t entity)
+{
+  if (entity
+      && (entity->type == XML_ELEMENT_NODE))
+    return (const char *) entity->name;
+
+  // FIX because we have text nodes now too
+  // FIX maybe should skip over in entity2_children and entity2_next
+  return "";
+}
+
+/**
+ * @brief Get children of an entity.
+ *
+ * @param[in]  entity  Entity.
+ *
+ * @return Children if found, else NULL.
+ */
+entities2_t
+entity2_children (entity2_t entity)
+{
+  if (!entity)
+    return NULL;
+  return entity->children;
+}
+
+/**
+ * @brief Get a child of an entity.
+ *
+ * @param[in]  entity  Entity.
+ * @param[in]  name    Name of the child.
+ *
+ * @return Entity if found, else NULL.
+ */
+entity2_t
+entity2_child (entity2_t entity, const char *name)
+{
+  if (!entity)
+    return NULL;
+
+  for (xmlNode *node = entity->children; node; node = node->next)
+    if (xmlStrcmp (node->name, (const xmlChar *) name) == 0)
+      return node;
+
+  return NULL;
+}
+
+/**
+ * @brief Get a child of an entity.
+ *
+ * @param[in]  entity  Entity.
+ * @param[in]  name    Name of the child.
+ *
+ * @return Entity if found, else NULL.
+ */
+char *
+entity2_text (xml_doc_t doc, entity2_t entity)
+{
+  if (!entity)
+    return NULL;
+
+  return (char *) xmlNodeListGetString (doc, entity->xmlChildrenNode, 1);
+}
+
+/**
+ * @brief Get a child of an entity.
+ *
+ * @param[in]  entity  Entity.
+ * @param[in]  name    Name of the child.
+ *
+ * @return Entity if found, else NULL.
+ */
+char *
+entity2_attribute (entity2_t entity, const char *name)
+{
+  if (!entity)
+    return NULL;
+
+  return (char *) xmlGetProp (entity, (const xmlChar *) name);
+}
+
+void
+xml_string_free (xml_string_t string)
+{
+  if (string)
+    xmlFree (string);
+}
+
+/**
+ * @brief Get the name an entity.
+ *
+ * @param[in]  entity  Entity.
+ *
+ * @return Entity name, which is freed by free_entity2.
+ */
+entities2_t
+first_entity2 (entities2_t entities)
+{
+  return entities;
+}
+
+/**
+ * @brief Get the name an entity.
+ *
+ * @param[in]  entity  Entity.
+ *
+ * @return Entity name, which is freed by free_entity2.
+ */
+entities2_t
+next_entities2 (entities2_t entities)
+{
+  if (entities)
+    return entities->children;
+  return NULL;
+}
+
+/**
  * @brief Read an XML entity tree from a string.
  *
  * @param[in]   string  Input string.

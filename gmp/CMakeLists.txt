@@ -27,8 +27,9 @@ endif (NOT PKG_CONFIG_FOUND)
 ## Dependency checks
 
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
+pkg_check_modules (LIBXML2 REQUIRED libxml-2.0>=2.0)
 
-include_directories (${GLIB_INCLUDE_DIRS})
+include_directories (${GLIB_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIRS})
 
 set (FILES gmp.c)
 

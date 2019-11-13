@@ -29,6 +29,9 @@
 
 #include <glib.h>
 #include <gnutls/gnutls.h>
+// FIX should be in .c only
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 #include <stdio.h>
 
 /**
@@ -53,6 +56,51 @@ xml_handle_end_element (context_data_t *, const gchar *);
 
 void
 xml_handle_text (context_data_t *, const gchar *, gsize);
+
+/**
+ * @brief XML doc.
+ */
+typedef xmlDoc *xml_doc_t;
+
+typedef xmlNode *entities2_t;
+/* equivalent now, kept for compat. */
+typedef xmlNode *entity2_t;
+
+typedef xmlChar *xml_string_t;
+typedef const xmlChar *const_xml_string_t;
+
+void
+xml_doc_free (xml_doc_t);
+
+int
+parse_entity2 (const char *, xml_doc_t *, entity2_t *);
+
+void
+xml_string_free (xml_string_t);
+
+entities2_t
+xml_doc_root (xml_doc_t);
+
+const char *
+entity2_name (entities2_t);
+
+char *
+entity2_attribute (entity2_t, const char *);
+
+char *
+entity2_text (xml_doc_t, entities2_t);
+
+entity2_t
+entity2_child (entity2_t, const char *);
+
+entities2_t
+entity2_children (entities2_t);
+
+entities2_t
+first_entity2 (entities2_t);
+
+entities2_t
+next_entities2 (entities2_t);
 
 /**
  * @brief Entities.

@@ -24,6 +24,8 @@ if (NOT PKG_CONFIG_FOUND)
   message(FATAL_ERROR "pkg-config executable not found. Aborting.")
 endif (NOT PKG_CONFIG_FOUND)
 
+set (CMAKE_VERBOSE_MAKEFILE     ON)
+
 ## Dependency checks
 
 # for all modules we need glib
@@ -46,6 +48,9 @@ pkg_check_modules (LIBSSH REQUIRED libssh>=0.6.0)
 
 # for kb we need libhiredis
 pkg_check_modules (REDIS REQUIRED hiredis>=0.10.1)
+
+# for fast XML we need libxml2
+pkg_check_modules (LIBXML2 REQUIRED libxml-2.0>=2.0)
 
 # Set NVTICACHE name with the version
 set (NVTICACHE_STR "nvticache${PROJECT_VERSION}")
@@ -131,7 +136,7 @@ if (BUILD_WITH_LDAP)
   endif (NOT LIBLDAP)
 endif (BUILD_WITH_LDAP)
 
-include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS})
+include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIRS})
 
 set (FILES authutils.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
            nvticache.c radiusutils.c serverutils.c sshutils.c uuidutils.c
@@ -160,7 +165,8 @@ if (BUILD_SHARED)
                          ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
                          ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
                          ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
-                         ${UUID_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+                         ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+                         ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
 
 ## Install
