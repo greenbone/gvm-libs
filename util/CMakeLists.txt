@@ -169,6 +169,26 @@ if (BUILD_SHARED)
                          ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
 
+
+## Tests
+
+add_executable (xmlutils-test
+                EXCLUDE_FROM_ALL
+                xmlutils_tests.c)
+
+add_test (xmlutils-test xmlutils-test)
+
+target_link_libraries (xmlutils-test cgreen
+                       ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
+					   ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+					   ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+					   ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+					   ${LINKER_HARDENING_FLAGS})
+
+add_custom_target (tests-xmlutils
+                   DEPENDS xmlutils-test)
+
+
 ## Install
 configure_file (libgvm_util.pc.in ${CMAKE_BINARY_DIR}/libgvm_util.pc @ONLY)
 

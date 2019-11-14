@@ -1137,7 +1137,7 @@ entity2_name (entity2_t entity)
     return (const char *) entity->name;
 
   // FIX because we have text nodes now too
-  // FIX maybe should skip over in entity2_children and entity2_next
+  // FIX maybe should skip over in entity2_children and next_entities2
   return "";
 }
 
@@ -1156,24 +1156,12 @@ entity2_children (entity2_t entity)
   return entity->children;
 }
 
-/**
- * @brief Get a child of an entity.
- *
- * @param[in]  entity  Entity.
- * @param[in]  name    Name of the child.
- *
- * @return Entity if found, else NULL.
- */
-entity2_t
-entity2_child (entity2_t entity, const char *name)
+static entity2_t
+find_child (entity2_t entity, const char *name)
 {
-  if (!entity)
-    return NULL;
-
   for (xmlNode *node = entity->children; node; node = node->next)
     if (xmlStrcmp (node->name, (const xmlChar *) name) == 0)
       return node;
-
   return NULL;
 }
 
@@ -1185,13 +1173,70 @@ entity2_child (entity2_t entity, const char *name)
  *
  * @return Entity if found, else NULL.
  */
-char *
-entity2_text (xml_doc_t doc, entity2_t entity)
+entity2_t
+entity2_child (entity2_t entity, const char *name)
 {
+  const char *stripped_name;
+
   if (!entity)
     return NULL;
 
-  return (char *) xmlNodeListGetString (doc, entity->xmlChildrenNode, 1);
+  stripped_name = strchr (name, ':');
+  if (stripped_name)
+    {
+       entity2_t child;
+
+       /* There was a namespace in the name.
+        *
+        * First try without the namespace, because libxml2 doesn't consider the
+        * namespace in the name when the namespace is defined. */
+
+      stripped_name++;
+
+      if (*stripped_name == '\0')
+        /* Don't search for child with empty stripped name, because we'll
+         * find text nodes.  But search with just the namespace for glib
+         * compatibility. */
+        return find_child (entity, name);
+
+      child = find_child (entity, stripped_name);
+      if (child)
+       return child;
+
+      /* Didn't find anything. */
+    }
+
+  /* There was no namespace, or we didn't find anything without the namespace.
+   *
+   * Try with the full name. */
+
+  return find_child (entity, name);
+}
+
+/**
+ * @brief Get text of an entity.
+ *
+ * If entity is not NULL then the return is guaranteed to be a string.
+ * So if the caller has NULL checked entity then there is no need for
+ * the caller to NULL check the return.
+ *
+ * @param[in]  doc     XML doc.
+ * @param[in]  entity  Entity.
+ *
+ * @return NULL if entity is NULL, else the text.
+ */
+char *
+entity2_text (xml_doc_t doc, entity2_t entity)
+{
+  char *string;
+
+  if (!entity)
+    return NULL;
+
+  string = (char *) xmlNodeListGetString (doc, entity->xmlChildrenNode, 1);
+  if (string)
+    return string;
+  return "";
 }
 
 /**
@@ -1207,6 +1252,37 @@ entity2_attribute (entity2_t entity, const char *name)
 {
   if (!entity)
     return NULL;
+
+  const char *stripped_name;
+
+  stripped_name = strchr (name, ':');
+  if (stripped_name)
+    {
+       char *attribute;
+
+       /* There was a namespace in the name.
+        *
+        * First try without the namespace, because libxml2 doesn't consider the
+        * namespace in the name when the namespace is defined. */
+
+      stripped_name++;
+
+      if (*stripped_name == '\0')
+        /* Don't search for child with empty stripped name, because we'll
+         * find text nodes.  But search with just the namespace for glib
+         * compatibility. */
+        return (char *) xmlGetProp (entity, (const xmlChar *) name);
+
+      attribute = (char *) xmlGetProp (entity, (const xmlChar *) stripped_name);
+      if (attribute)
+       return attribute;
+
+      /* Didn't find anything. */
+    }
+
+  /* There was no namespace, or we didn't find anything without the namespace.
+   *
+   * Try with the full name. */
 
   return (char *) xmlGetProp (entity, (const xmlChar *) name);
 }
@@ -1242,7 +1318,7 @@ entities2_t
 next_entities2 (entities2_t entities)
 {
   if (entities)
-    return entities->children;
+    return entities->next;
   return NULL;
 }
 
