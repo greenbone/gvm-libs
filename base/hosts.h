@@ -100,6 +100,9 @@ struct gvm_hosts
 /* Function prototypes. */
 
 /* gvm_hosts_t related */
+void
+gvm_hosts_add (gvm_hosts_t *, gvm_host_t *);
+
 gvm_hosts_t *
 gvm_hosts_new (const gchar *);
 
@@ -146,6 +149,9 @@ unsigned int
 gvm_hosts_removed (const gvm_hosts_t *);
 
 /* gvm_host_t related */
+
+gvm_host_t *
+gvm_host_from_str (const gchar *hosts_str);
 
 int
 gvm_host_in_hosts (const gvm_host_t *, const struct in6_addr *,
