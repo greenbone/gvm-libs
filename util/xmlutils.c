@@ -1113,7 +1113,10 @@ parse_entity2 (const char *string, xml_doc_t *xml_doc, entity2_t *entity)
 {
   LIBXML_TEST_VERSION
 
-  *xml_doc = xmlReadMemory (string, strlen (string), "noname.xml", NULL, 0);
+  /* XML_PARSE_NOCDATA makes this skip CDATA to match our glib parser, but
+   * it makes this extremely slow, so instead I stripped the CDATA out of the
+   * XML in my feed (for now, so that I can compare the resulting scap dbs). */
+  *xml_doc = xmlReadMemory (string, strlen (string), "noname.xml", NULL, /* XML_PARSE_NOCDATA */ 0);
   if (*xml_doc == NULL)
     return -2;
   //xmlFreeDoc(doc);

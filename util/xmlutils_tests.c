@@ -308,6 +308,18 @@ Ensure (xmlutils, parse_entity2_item_metadata_with_namespace)
   //assert_that (entity2_name (meta), is_equal_to_string ("meta:item-metadata"));
 }
 
+Ensure (xmlutils, parse_entity2_item_handles_cdata)
+{
+  xml_doc_t doc;
+  entity2_t entity;
+
+  const gchar *xml = "<description><![CDATA[Several vulnerabilities were discovered in the Chromium browser. The Common Vulnerabilities and Exposures project identifies the following problems: CVE-2011-1108 Google Chrome before 9.0.597.107 does not properly implement JavaScript dialogs, which allows remote attackers to cause a denial of service or possibly have unspecified other impact via a crafted HTML document. CVE-2011-1109 Google Chrome before 9.0.597.107 does not properly process nodes in Cascading Style Sheets stylesheets, which allows remote attackers to cause a denial of service or possibly have unspecified other impact via unknown vectors that lead to a &quot;stale pointer.&quot; CVE-2011-1113 Google Chrome before 9.0.597.107 on 64-bit Linux platforms does not properly perform pickle deserialization, which allows remote attackers to cause a denial of service via unspecified vectors. CVE-2011-1114 Google Chrome before 9.0.597.107 does not properly handle tables, which allows remote attackers to cause a denial of service or possibly have unspecified other impact via unknown vectors that lead to a &quot;stale node.&quot; CVE-2011-1115 Google Chrome before 9.0.597.107 does not properly render tables, which allows remote attackers to cause a denial of service or possibly have unspecified other impact via unknown vectors that lead to a &quot;stale pointer.&quot; CVE-2011-1121 Integer overflow in Google Chrome before 9.0.597.107 allows remote attackers to cause a denial of service or possibly have unspecified other impact via vectors involving a TEXTAREA element. CVE-2011-1122 The WebGL implementation in Google Chrome before 9.0.597.107 allows remote attackers to cause a denial of service via unspecified vectors, aka Issue 71960. In addition, this upload fixes the following issues : Out-of-bounds read in text searching [69640] Memory corruption in SVG fonts. [72134] Memory corruption with counter nodes. [69628] Stale node in box layout. [70027] Cross-origin error message leak with workers. [70336] Stale pointer in table painting. [72028] Stale pointer with SVG cursors. [73746]]]></description>";
+
+  assert_that (parse_entity2 (xml, &doc, &entity), is_equal_to (0));
+  assert_that (entity2_name (entity), is_equal_to_string ("description"));
+  assert_that (entity2_text (doc, entity), is_equal_to_string ("123"));
+}
+
 /* next_entities2. */
 
 Ensure (xmlutils, next_entities2_handles_multiple_children)
@@ -367,6 +379,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, xmlutils, parse_entity2_oval_timestamp);
   add_test_with_context (suite, xmlutils, parse_entity2_item_metadata);
   add_test_with_context (suite, xmlutils, parse_entity2_item_metadata_with_namespace);
+  add_test_with_context (suite, xmlutils, parse_entity2_item_handles_cdata);
 
   add_test_with_context (suite, xmlutils, next_entities2_handles_multiple_children);
 
