@@ -83,10 +83,11 @@ struct osp_credential
  */
 struct osp_target
 {
-  GSList *credentials;  /** Credentials to use in the scan */
-  gchar *exclude_hosts; /** String defining one or many hosts to exclude */
-  gchar *hosts;         /** String defining one or many hosts to scan */
-  gchar *ports;         /** String defining the ports to scan */
+  GSList *credentials;    /** Credentials to use in the scan */
+  gchar *exclude_hosts;   /** String defining one or many hosts to exclude */
+  gchar *hosts;           /** String defining one or many hosts to scan */
+  gchar *ports;           /** String defining the ports to scan */
+  gchar *finished_hosts;  /** String defining hosts to exclude as finished */
 };
 
 /**
@@ -858,9 +859,11 @@ target_append_as_xml (osp_target_t *target, GString *xml_string)
                      "<target>"
                      "<hosts>%s</hosts>"
                      "<exclude_hosts>%s</exclude_hosts>"
+                     "<finished_hosts>%s</finished_hosts>"
                      "<ports>%s</ports>",
                      target->hosts ? target->hosts : "",
                      target->exclude_hosts ? target->exclude_hosts : "",
+                     target->finished_hosts ? target->finished_hosts : "",
                      target->ports ? target->ports : "");
 
   if (target->credentials)
@@ -1399,8 +1402,23 @@ osp_target_new (const char *hosts,
   new_target->exclude_hosts = exclude_hosts ? g_strdup (exclude_hosts) : NULL;
   new_target->hosts = hosts ? g_strdup (hosts) : NULL;
   new_target->ports = ports ? g_strdup (ports) : NULL;
+  new_target->finished_hosts = NULL;
 
   return new_target;
+}
+
+/**
+ * @brief Set the finished hosts of an OSP target.
+ *
+ * @param[in]  target         The OSP target to modify.
+ * @param[in]  finished_hosts The hostnames to consider finished.
+ */
+void
+osp_target_set_finished_hosts (osp_target_t *target,
+                               const char *finished_hosts)
+{
+  g_free (target->finished_hosts);
+  target->finished_hosts = finished_hosts ? g_strdup (finished_hosts) : NULL;
 }
 
 /**
