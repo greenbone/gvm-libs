@@ -90,6 +90,9 @@ entity2_attribute (entity2_t, const char *);
 char *
 entity2_text (xml_doc_t, entities2_t);
 
+void
+entity2_text_free (char *);
+
 entity2_t
 entity2_child (entity2_t, const char *);
 

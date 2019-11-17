@@ -1242,6 +1242,11 @@ entity2_text (xml_doc_t doc, entity2_t entity)
   return "";
 }
 
+void
+entity2_text_free (char *text)
+{
+  xmlFree (text);
+}
 /**
  * @brief Get a child of an entity.
  *
