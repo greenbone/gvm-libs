@@ -1239,7 +1239,9 @@ entity2_text (xml_doc_t doc, entity2_t entity)
   string = (char *) xmlNodeListGetString (doc, entity->xmlChildrenNode, 1);
   if (string)
     return string;
-  return "";
+  string = xmlMalloc (1);
+  string[0] = '\0';
+  return string;
 }
 
 void
