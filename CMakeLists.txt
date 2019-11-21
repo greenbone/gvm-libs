@@ -223,6 +223,9 @@ configure_file (VERSION.in ${CMAKE_BINARY_DIR}/VERSION @ONLY)
 
 enable_testing ()
 
+add_custom_target (tests
+                   DEPENDS array-test xmlutils-test)
+
 ## Program
 
 if (NOT SKIP_SRC)
