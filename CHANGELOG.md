@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Add option to set finished hosts in OSP targets [#298](https://github.com/greenbone/gvm-libs/pull/298)
+- Add a fast memory-only XML parser [#299](https://github.com/greenbone/gvm-libs/pull/299)
 
 ### Fixed
 - Fix sigsegv when no plugin_feed_info.inc file present. [#278](https://github.com/greenbone/gvm-libs/pull/278)
