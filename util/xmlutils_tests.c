@@ -321,9 +321,9 @@ Ensure (xmlutils, parse_element_item_handles_cdata)
   assert_that (element_text (element), is_equal_to_string ("Several vulnerabilities were discovered in the Chromium browser. The Common Vulnerabilities and Exposures project identifies the following problems: CVE-2011-1108 Google Chrome before 9.0.597.107 does not properly implement JavaScript dialogs, which allows remote attackers to cause a denial of service or possibly have unspecified other impact via a crafted HTML document. CVE-2011-1109 Google Chrome before 9.0.597.107 does not properly process nodes in Cascading Style Sheets stylesheets, which allows remote attackers to cause a denial of service or possibly have unspecified other impact via unknown vectors that lead to a &quot;stale pointer.&quot; CVE-2011-1113 Google Chrome before 9.0.597.107 on 64-bit Linux platforms does not properly perform pickle deserialization, which allows remote attackers to cause a denial of service via unspecified vectors. CVE-2011-1114 Google Chrome before 9.0.597.107 does not properly handle tables, which allows remote attackers to cause a denial of service or possibly have unspecified other impact via unknown vectors that lead to a &quot;stale node.&quot; CVE-2011-1115 Google Chrome before 9.0.597.107 does not properly render tables, which allows remote attackers to cause a denial of service or possibly have unspecified other impact via unknown vectors that lead to a &quot;stale pointer.&quot; CVE-2011-1121 Integer overflow in Google Chrome before 9.0.597.107 allows remote attackers to cause a denial of service or possibly have unspecified other impact via vectors involving a TEXTAREA element. CVE-2011-1122 The WebGL implementation in Google Chrome before 9.0.597.107 allows remote attackers to cause a denial of service via unspecified vectors, aka Issue 71960. In addition, this upload fixes the following issues : Out-of-bounds read in text searching [69640] Memory corruption in SVG fonts. [72134] Memory corruption with counter nodes. [69628] Stale node in box layout. [70027] Cross-origin error message leak with workers. [70336] Stale pointer in table painting. [72028] Stale pointer with SVG cursors. [73746]"));
 }
 
-/* next_element. */
+/* element_next. */
 
-Ensure (xmlutils, next_element_handles_multiple_children)
+Ensure (xmlutils, element_next_handles_multiple_children)
 {
   element_t element, child;
   const gchar *xml;
@@ -393,7 +393,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, xmlutils, parse_element_item_handles_cdata);
   add_test_with_context (suite, xmlutils, parse_element_free_using_child);
 
-  add_test_with_context (suite, xmlutils, next_element_handles_multiple_children);
+  add_test_with_context (suite, xmlutils, element_next_handles_multiple_children);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
