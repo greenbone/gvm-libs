@@ -80,9 +80,6 @@ add_test (array-test array-test)
 
 target_link_libraries (array-test cgreen ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 
-add_custom_target (tests
-                   DEPENDS array-test)
-
 
 ## Install
 
