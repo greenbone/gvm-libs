@@ -31,11 +31,11 @@ include_directories (${GLIB_INCLUDE_DIRS})
 
 set (FILES array.c credentials.c cvss.c drop_privileges.c hosts.c logging.c
            networking.c nvti.c pidfile.c prefs.c proctitle.c pwpolicy.c
-           settings.c strings.c)
+           settings.c strings.c version.c)
 
 set (HEADERS array.h credentials.h cvss.h drop_privileges.h hosts.h logging.h
              networking.h nvti.h pidfile.h prefs.h proctitle.h pwpolicy.h
-             settings.h strings.h)
+             settings.h strings.h version.h)
 
 if (BUILD_STATIC)
   set (LIBGVM_BASE_NAME gvm_base_static)

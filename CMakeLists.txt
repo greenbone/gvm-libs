@@ -211,7 +211,7 @@ else (PROJECT_BETA_RELEASE)
   set (LIBGVMCONFIG_VERSION "${PROJECT_VERSION_STRING}")
 endif (PROJECT_BETA_RELEASE)
 
-set (GVMLIB_VERSION "${LIBGVMCONFIG_VERSION}")
+add_definitions(-DGVM_LIBS_VERSION="${LIBGVMCONFIG_VERSION}")
 
 # Configure Doxyfile with version number
 configure_file (doc/Doxyfile.in ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
