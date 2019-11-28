@@ -15,7 +15,7 @@ jobs:
       - checkout
       - run:
           name: Configure and run unit tests
-          command: mkdir build && cd build/ && cmake -DCMAKE_BUILD_TYPE=Release .. && make install && make tests && CTEST_OUTPUT_ON_FAILURE=1 make test
+          command: mkdir build && cd build/ && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=1 .. && make install && make tests && CTEST_OUTPUT_ON_FAILURE=1 make test
   build_gcc_core:
     docker:
       - image: greenbone/build-env-gvm-libs-master-debian-stretch-gcc-core
