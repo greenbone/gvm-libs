@@ -177,7 +177,9 @@ add_executable (xmlutils-test
 
 add_test (xmlutils-test xmlutils-test)
 
-target_link_libraries (xmlutils-test cgreen
+target_include_directories (xmlutils-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+target_link_libraries (xmlutils-test ${CGREEN_LIBRARIES}
                        ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
 					   ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
 					   ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}

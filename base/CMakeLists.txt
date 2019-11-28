@@ -78,7 +78,10 @@ add_executable (array-test
 
 add_test (array-test array-test)
 
-target_link_libraries (array-test cgreen ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+target_include_directories (array-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+target_link_libraries (array-test ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+
 
 
 ## Install
