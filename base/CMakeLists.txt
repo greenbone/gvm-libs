@@ -82,6 +82,15 @@ target_include_directories (array-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 
 target_link_libraries (array-test ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 
+add_executable (version-test
+                EXCLUDE_FROM_ALL
+                version_tests.c)
+
+add_test (version-test version-test)
+
+target_include_directories (version-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+target_link_libraries (version-test ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 
 
 ## Install

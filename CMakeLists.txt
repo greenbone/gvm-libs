@@ -226,7 +226,7 @@ enable_testing ()
 find_package (cgreen REQUIRED)
 
 add_custom_target (tests
-                   DEPENDS array-test xmlutils-test)
+                   DEPENDS array-test xmlutils-test version-test)
 
 ## Program
 
