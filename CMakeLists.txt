@@ -34,6 +34,7 @@ endif (NOT CMAKE_BUILD_TYPE)
 
 OPTION(BUILD_STATIC "Build static versions of the libraries" OFF)
 OPTION(ENABLE_COVERAGE "Enable support for coverage analysis" OFF)
+OPTION(BUILD_TESTS "Build tests for the libraries" OFF)
 
 if (NOT BUILD_STATIC)
   set (BUILD_SHARED ON)
@@ -221,12 +222,15 @@ configure_file (VERSION.in ${CMAKE_BINARY_DIR}/VERSION @ONLY)
 
 ## Testing
 
-enable_testing ()
+if (BUILD_TESTS AND NOT SKIP_SRC)
+  enable_testing ()
 
-find_package (cgreen REQUIRED)
+  find_package (cgreen REQUIRED)
 
-add_custom_target (tests
-                   DEPENDS array-test xmlutils-test version-test)
+  add_custom_target (tests
+                    DEPENDS array-test xmlutils-test version-test)
+
+endif (BUILD_TESTS AND NOT SKIP_SRC)
 
 ## Program
 
@@ -241,11 +245,9 @@ endif (NOT SKIP_SRC)
 
 add_subdirectory (doc)
 
-## Tests
-
-add_subdirectory (tests)
-add_test (NAME testhosts COMMAND test-hosts localhost)
-
-enable_testing ()
+if (BUILD_TESTS AND NOT SKIP_SRC)
+  add_subdirectory (tests)
+  add_test (NAME testhosts COMMAND test-hosts localhost)
+endif (BUILD_TESTS AND NOT SKIP_SRC)
 
 ## End
