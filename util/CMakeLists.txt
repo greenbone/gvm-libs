@@ -47,6 +47,9 @@ pkg_check_modules (LIBSSH REQUIRED libssh>=0.6.0)
 # for kb we need libhiredis
 pkg_check_modules (REDIS REQUIRED hiredis>=0.10.1)
 
+# for fast XML we need libxml2
+pkg_check_modules (LIBXML2 REQUIRED libxml-2.0>=2.0)
+
 # Set NVTICACHE name with the version
 set (NVTICACHE_STR "nvticache${PROJECT_VERSION}")
 add_definitions (-DNVTICACHE_STR="${NVTICACHE_STR}")
@@ -131,7 +134,8 @@ if (BUILD_WITH_LDAP)
   endif (NOT LIBLDAP)
 endif (BUILD_WITH_LDAP)
 
-include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS})
+include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS}
+                     ${LIBXML2_INCLUDE_DIRS})
 
 set (FILES authutils.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
            nvticache.c radiusutils.c serverutils.c sshutils.c uuidutils.c
@@ -160,8 +164,33 @@ if (BUILD_SHARED)
                          ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
                          ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
                          ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
-                         ${UUID_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+                         ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+                         ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
+
+
+## Tests
+
+if (BUILD_TESTS)
+  add_executable (xmlutils-test
+                  EXCLUDE_FROM_ALL
+                  xmlutils_tests.c)
+
+  add_test (xmlutils-test xmlutils-test)
+
+  target_include_directories (xmlutils-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (xmlutils-test ${CGREEN_LIBRARIES}
+                        ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
+              ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+              ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+              ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+              ${LINKER_HARDENING_FLAGS})
+
+  add_custom_target (tests-xmlutils
+                    DEPENDS xmlutils-test)
+
+endif (BUILD_TESTS)
 
 ## Install
 configure_file (libgvm_util.pc.in ${CMAKE_BINARY_DIR}/libgvm_util.pc @ONLY)

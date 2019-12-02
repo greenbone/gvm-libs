@@ -202,6 +202,9 @@ osp_target_t *
 osp_target_new (const char *, const char *, const char *);
 
 void
+osp_target_set_finished_hosts (osp_target_t *, const char *);
+
+void
 osp_target_free (osp_target_t *);
 
 void
