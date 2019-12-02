@@ -14,6 +14,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [11.0.1] (unreleased)
 
+### Added
+- Add option to set finished hosts in OSP targets [#298](https://github.com/greenbone/gvm-libs/pull/298)
+- Add a fast memory-only XML parser [#299](https://github.com/greenbone/gvm-libs/pull/299)
+- Add new function gvm_libs_version [#301](https://github.com/greenbone/gvm-libs/pull/301)
+
 ### Fixed
 - Fix sigsegv when no plugin_feed_info.inc file present. [#278](https://github.com/greenbone/gvm-libs/pull/278)
 - Fix missing linking to libgnutls in util/CMakeLists.txt. [#291](https://github.com/greenbone/gvm-libs/pull/291)
@@ -55,7 +60,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove inconsistent delays in kb routines. [#230](https://github.com/greenbone/gvm-libs/pull/230)
 
-[11.0.0]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-10.0...master
+[11.0.0]: https://github.com/greenbone/gvm-libs/compare/v10.0.1...v11.0.0
 
 ## [10.0.1] (2019-07-17)
 

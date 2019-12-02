@@ -31,11 +31,11 @@ include_directories (${GLIB_INCLUDE_DIRS})
 
 set (FILES array.c credentials.c cvss.c drop_privileges.c hosts.c logging.c
            networking.c nvti.c pidfile.c prefs.c proctitle.c pwpolicy.c
-           settings.c strings.c)
+           settings.c strings.c version.c)
 
 set (HEADERS array.h credentials.h cvss.h drop_privileges.h hosts.h logging.h
              networking.h nvti.h pidfile.h prefs.h proctitle.h pwpolicy.h
-             settings.h strings.h)
+             settings.h strings.h version.h)
 
 if (BUILD_STATIC)
   set (LIBGVM_BASE_NAME gvm_base_static)
@@ -72,24 +72,27 @@ endif (GVM_SYSCONF_DIR)
 
 ## Tests
 
-add_executable (array-test
-                EXCLUDE_FROM_ALL
-                array_tests.c)
+if (BUILD_TESTS)
+  add_executable (array-test
+                  EXCLUDE_FROM_ALL
+                  array_tests.c)
 
-add_test (array-test array-test)
+  add_test (array-test array-test)
 
-target_link_libraries (array-test cgreen ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+  target_include_directories (array-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 
-add_executable (nvti-test
-                EXCLUDE_FROM_ALL
-                nvti_tests.c)
+  target_link_libraries (array-test ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 
-add_test (nvti-test nvti-test)
+  add_executable (version-test
+                  EXCLUDE_FROM_ALL
+                  version_tests.c)
 
-target_link_libraries (nvti-test cgreen ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+  add_test (version-test version-test)
 
-add_custom_target (tests
-                   DEPENDS array-test nvti-test)
+  target_include_directories (version-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (version-test ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+endif (BUILD_TESTS)
 
 
 ## Install

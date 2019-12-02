@@ -158,9 +158,39 @@ int xml_count_entities (entities_t);
 void
 xml_string_append (GString *, const char *, ...);
 
+
 /* XML file utilities */
 
 int
 find_element_in_xml_file (gchar *, gchar *, GHashTable *);
+
+
+/* The new faster parser that uses libxml2. */
+
+typedef struct _xmlNode *element_t;
+
+int
+parse_element (const gchar *, element_t *);
+
+void
+element_free (element_t);
+
+const gchar *
+element_name (element_t);
+
+gchar *
+element_attribute (element_t, const gchar *);
+
+gchar *
+element_text (element_t);
+
+element_t
+element_child (element_t, const gchar *);
+
+element_t
+element_first_child (element_t);
+
+element_t
+element_next (element_t);
 
 #endif /* not _GVM_XMLUTILS_H */
