@@ -272,6 +272,33 @@ add_attributes (entity_t entity, const gchar **names, const gchar **values)
  * @param[in]  error             Error parameter.
  */
 static void
+ignore_start_element (GMarkupParseContext *context, const gchar *element_name,
+                      const gchar **attribute_names,
+                      const gchar **attribute_values, gpointer user_data,
+                      GError **error)
+{
+  context_data_t *data = (context_data_t *) user_data;
+
+  (void) context;
+  (void) element_name;
+  (void) attribute_names;
+  (void) attribute_values;
+  (void) error;
+
+  data->current = GINT_TO_POINTER (GPOINTER_TO_INT (data->current) + 1);
+}
+
+/**
+ * @brief Handle the start of an OMP XML element.
+ *
+ * @param[in]  context           Parser context.
+ * @param[in]  element_name      XML element name.
+ * @param[in]  attribute_names   XML attribute name.
+ * @param[in]  attribute_values  XML attribute values.
+ * @param[in]  user_data         Dummy parameter.
+ * @param[in]  error             Error parameter.
+ */
+static void
 handle_start_element (GMarkupParseContext *context, const gchar *element_name,
                       const gchar **attribute_names,
                       const gchar **attribute_values, gpointer user_data,
@@ -325,6 +352,29 @@ xml_handle_start_element (context_data_t *context, const gchar *element_name,
  * @param[in]  error             Error parameter.
  */
 static void
+ignore_end_element (GMarkupParseContext *context, const gchar *element_name,
+                    gpointer user_data, GError **error)
+{
+  context_data_t *data = (context_data_t *) user_data;
+
+  (void) context;
+  (void) element_name;
+  (void) error;
+
+  data->current = GINT_TO_POINTER (GPOINTER_TO_INT (data->current) - 1);
+  if (data->current == NULL)
+    data->done = TRUE;
+}
+
+/**
+ * @brief Handle the end of an XML element.
+ *
+ * @param[in]  context           Parser context.
+ * @param[in]  element_name      XML element name.
+ * @param[in]  user_data         Dummy parameter.
+ * @param[in]  error             Error parameter.
+ */
+static void
 handle_end_element (GMarkupParseContext *context, const gchar *element_name,
                     gpointer user_data, GError **error)
 {
@@ -364,6 +414,26 @@ void
 xml_handle_end_element (context_data_t *context, const gchar *element_name)
 {
   handle_end_element (NULL, element_name, context, NULL);
+}
+
+/**
+ * @brief Handle additional text of an XML element.
+ *
+ * @param[in]  context           Parser context.
+ * @param[in]  text              The text.
+ * @param[in]  text_len          Length of the text.
+ * @param[in]  user_data         Dummy parameter.
+ * @param[in]  error             Error parameter.
+ */
+static void
+ignore_text (GMarkupParseContext *context, const gchar *text, gsize text_len,
+             gpointer user_data, GError **error)
+{
+  (void) context;
+  (void) text;
+  (void) text_len;
+  (void) user_data;
+  (void) error;
 }
 
 /**
@@ -703,9 +773,18 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
 
   /* Create the XML parser. */
 
-  xml_parser.start_element = handle_start_element;
-  xml_parser.end_element = handle_end_element;
-  xml_parser.text = handle_text;
+  if (entity)
+    {
+      xml_parser.start_element = handle_start_element;
+      xml_parser.end_element = handle_end_element;
+      xml_parser.text = handle_text;
+    }
+  else
+    {
+      xml_parser.start_element = ignore_start_element;
+      xml_parser.end_element = ignore_end_element;
+      xml_parser.text = ignore_text;
+    }
   xml_parser.passthrough = NULL;
   xml_parser.error = handle_error;
 
@@ -838,7 +917,8 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
               g_free (buffer);
               return -2;
             }
-          *entity = (entity_t) context_data.first->data;
+          if (entity)
+            *entity = (entity_t) context_data.first->data;
           if (string)
             *string_return = string;
           if (timeout > 0)
@@ -1001,13 +1081,7 @@ read_string (gnutls_session_t *session, GString **string)
 int
 read_string_c (gvm_connection_t *connection, GString **string)
 {
-  int ret = 0;
-  entity_t entity;
-
-  if (!(ret = read_entity_and_string_c (connection, &entity, string)))
-    free_entity (entity);
-
-  return ret;
+  return read_entity_and_string_c (connection, NULL, string);
 }
 
 /**
