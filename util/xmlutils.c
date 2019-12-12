@@ -557,9 +557,18 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
 
   /* Create the XML parser. */
 
-  xml_parser.start_element = handle_start_element;
-  xml_parser.end_element = handle_end_element;
-  xml_parser.text = handle_text;
+  if (entity)
+    {
+      xml_parser.start_element = handle_start_element;
+      xml_parser.end_element = handle_end_element;
+      xml_parser.text = handle_text;
+    }
+  else
+    {
+      xml_parser.start_element = ignore_start_element;
+      xml_parser.end_element = ignore_end_element;
+      xml_parser.text = ignore_text;
+    }
   xml_parser.passthrough = NULL;
   xml_parser.error = handle_error;
 
@@ -695,7 +704,8 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
               g_free (buffer);
               return -2;
             }
-          *entity = (entity_t) context_data.first->data;
+          if (entity)
+            *entity = (entity_t) context_data.first->data;
           if (string)
             *string_return = string;
           if (timeout > 0)
