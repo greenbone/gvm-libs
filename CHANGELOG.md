@@ -43,6 +43,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Make solution and solution_type explicit for nvti. [#255](https://github.com/greenbone/gvm-libs/pull/255)
 - Internalize struct nvtpref_t. [#260](https://github.com/greenbone/gvm-libs/pull/260)
 - Extend redis connection error msg with actual path. [#264](https://github.com/greenbone/gvm-libs/pull/264)
+- Don't create an entity tree during read_string_c. [#305](https://github.com/greenbone/gvm-libs/pull/305)
 
 ### Fixed
 - Prevent g_strsplit to be called with NULL. [#238](https://github.com/greenbone/gvm-libs/pull/238)
