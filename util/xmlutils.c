@@ -837,6 +837,8 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                                        __FUNCTION__, strerror (errno));
                           g_markup_parse_context_free (xml_context);
                           g_free (buffer);
+                          if (string && *string_return == NULL)
+                            g_string_free (string, TRUE);
                           return -4;
                         }
                     }
@@ -927,6 +929,8 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                 fcntl (socket, F_SETFL, 0L);
               g_markup_parse_context_free (xml_context);
               g_free (buffer);
+              if (string && *string_return == NULL)
+                g_string_free (string, TRUE);
               return -2;
             }
           if (entity)
@@ -950,6 +954,8 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                        strerror (errno));
           g_markup_parse_context_free (xml_context);
           g_free (buffer);
+          if (string && *string_return == NULL)
+            g_string_free (string, TRUE);
           return -1;
         }
     }
