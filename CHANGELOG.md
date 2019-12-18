@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [20.4] (unreleased)
+
+### Added
+- Add nvti_get_tag() [#285](https://github.com/greenbone/gvm-libs/pull/285)
+- Add nvti_solution_method() and nvti_set_solution_method() [#283](https://github.com/greenbone/gvm-libs/pull/283)
+
+[20.4]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-11.0...master
+
 ## [11.0.1] (unreleased)
 
 ### Added
@@ -43,6 +51,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Make solution and solution_type explicit for nvti. [#255](https://github.com/greenbone/gvm-libs/pull/255)
 - Internalize struct nvtpref_t. [#260](https://github.com/greenbone/gvm-libs/pull/260)
 - Extend redis connection error msg with actual path. [#264](https://github.com/greenbone/gvm-libs/pull/264)
+- Disable testhosts test as it's not really a test. [#287](https://github.com/greenbone/gvm-libs/pull/287)
 
 ### Fixed
 - Prevent g_strsplit to be called with NULL. [#238](https://github.com/greenbone/gvm-libs/pull/238)

@@ -78,7 +78,7 @@ close_unix (gvm_connection_t *client_connection)
   /* Turn off blocking. */
   if (fcntl (client_connection->socket, F_SETFL, O_NONBLOCK) == -1)
     {
-      g_warning ("%s: failed to set server socket flag: %s\n", __FUNCTION__,
+      g_warning ("%s: failed to set server socket flag: %s\n", __func__,
                  strerror (errno));
       return -1;
     }
@@ -87,14 +87,14 @@ close_unix (gvm_connection_t *client_connection)
     {
       if (errno == ENOTCONN)
         return 0;
-      g_warning ("%s: failed to shutdown server socket: %s\n", __FUNCTION__,
+      g_warning ("%s: failed to shutdown server socket: %s\n", __func__,
                  strerror (errno));
       return -1;
     }
 
   if (close (client_connection->socket) == -1)
     {
-      g_warning ("%s: failed to close server socket: %s\n", __FUNCTION__,
+      g_warning ("%s: failed to close server socket: %s\n", __func__,
                  strerror (errno));
       return -1;
     }
@@ -135,32 +135,32 @@ gvm_server_verify (gnutls_session_t session)
   ret = gnutls_certificate_verify_peers2 (session, &status);
   if (ret < 0)
     {
-      g_warning ("%s: failed to verify peers: %s", __FUNCTION__,
+      g_warning ("%s: failed to verify peers: %s", __func__,
                  gnutls_strerror (ret));
       return -1;
     }
 
   if (status & GNUTLS_CERT_INVALID)
-    g_warning ("%s: the certificate is not trusted", __FUNCTION__);
+    g_warning ("%s: the certificate is not trusted", __func__);
 
   if (status & GNUTLS_CERT_SIGNER_NOT_CA)
-    g_warning ("%s: the certificate's issuer is not a CA", __FUNCTION__);
+    g_warning ("%s: the certificate's issuer is not a CA", __func__);
 
   if (status & GNUTLS_CERT_INSECURE_ALGORITHM)
     g_warning ("%s: the certificate was signed using an insecure algorithm",
-               __FUNCTION__);
+               __func__);
 
   if (status & GNUTLS_CERT_SIGNER_NOT_FOUND)
-    g_warning ("%s: the certificate hasn't got a known issuer", __FUNCTION__);
+    g_warning ("%s: the certificate hasn't got a known issuer", __func__);
 
   if (status & GNUTLS_CERT_REVOKED)
-    g_warning ("%s: the certificate has been revoked", __FUNCTION__);
+    g_warning ("%s: the certificate has been revoked", __func__);
 
   if (status & GNUTLS_CERT_EXPIRED)
-    g_warning ("%s: the certificate has expired", __FUNCTION__);
+    g_warning ("%s: the certificate has expired", __func__);
 
   if (status & GNUTLS_CERT_NOT_ACTIVATED)
-    g_warning ("%s: the certificate is not yet activated", __FUNCTION__);
+    g_warning ("%s: the certificate is not yet activated", __func__);
 
   if (status)
     return 1;
@@ -630,7 +630,7 @@ gvm_server_vsendf_internal (gnutls_session_t *session, const char *fmt,
             {
               /* \todo Rehandshake. */
               if (quiet == 0)
-                g_message ("   %s rehandshake", __FUNCTION__);
+                g_message ("   %s rehandshake", __func__);
               continue;
             }
           g_warning ("Failed to write to server: %s", gnutls_strerror (count));
@@ -1013,7 +1013,7 @@ server_new_gnutls_init (gnutls_certificate_credentials_t *server_credentials)
   /* Setup server session. */
   if (gnutls_certificate_allocate_credentials (server_credentials))
     {
-      g_warning ("%s: failed to allocate server credentials\n", __FUNCTION__);
+      g_warning ("%s: failed to allocate server credentials\n", __func__);
       return -1;
     }
   return 0;
@@ -1037,7 +1037,7 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
 
   if (gnutls_init (server_session, end_type))
     {
-      g_warning ("%s: failed to initialise server session\n", __FUNCTION__);
+      g_warning ("%s: failed to initialise server session\n", __func__);
       return -1;
     }
 
@@ -1052,7 +1052,7 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
   if ((err_gnutls = gnutls_priority_set_direct (
          *server_session, priority ? priority : "NORMAL", NULL)))
     {
-      g_warning ("%s: failed to set tls priorities: %s\n", __FUNCTION__,
+      g_warning ("%s: failed to set tls priorities: %s\n", __func__,
                  gnutls_strerror (err_gnutls));
       gnutls_deinit (*server_session);
       return -1;
@@ -1061,7 +1061,7 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
   if (gnutls_credentials_set (*server_session, GNUTLS_CRD_CERTIFICATE,
                               *server_credentials))
     {
-      g_warning ("%s: failed to set server credentials\n", __FUNCTION__);
+      g_warning ("%s: failed to set server credentials\n", __func__);
       gnutls_deinit (*server_session);
       return -1;
     }
@@ -1104,9 +1104,9 @@ server_new_internal (unsigned int end_type, const char *priority,
       if (ret < 0)
         {
           g_warning ("%s: failed to set credentials key file: %s\n",
-                     __FUNCTION__, gnutls_strerror (ret));
-          g_warning ("%s:   cert file: %s\n", __FUNCTION__, cert_file);
-          g_warning ("%s:   key file : %s\n", __FUNCTION__, key_file);
+                     __func__, gnutls_strerror (ret));
+          g_warning ("%s:   cert file: %s\n", __func__, cert_file);
+          g_warning ("%s:   key file : %s\n", __func__, key_file);
           gnutls_certificate_free_credentials (*server_credentials);
           return -1;
         }
@@ -1121,8 +1121,8 @@ server_new_internal (unsigned int end_type, const char *priority,
       if (ret < 0)
         {
           g_warning ("%s: failed to set credentials trust file: %s\n",
-                     __FUNCTION__, gnutls_strerror (ret));
-          g_warning ("%s: trust file: %s\n", __FUNCTION__, ca_cert_file);
+                     __func__, gnutls_strerror (ret));
+          g_warning ("%s: trust file: %s\n", __func__, ca_cert_file);
           gnutls_certificate_free_credentials (*server_credentials);
           return -1;
         }
@@ -1196,7 +1196,7 @@ gvm_server_new_mem (unsigned int end_type, const char *ca_cert,
                                                  GNUTLS_X509_FMT_PEM);
       if (ret < 0)
         {
-          g_warning ("%s: %s\n", __FUNCTION__, gnutls_strerror (ret));
+          g_warning ("%s: %s\n", __func__, gnutls_strerror (ret));
           return -1;
         }
     }
@@ -1212,7 +1212,7 @@ gvm_server_new_mem (unsigned int end_type, const char *ca_cert,
                                                    GNUTLS_X509_FMT_PEM);
       if (ret < 0)
         {
-          g_warning ("%s: %s\n", __FUNCTION__, gnutls_strerror (ret));
+          g_warning ("%s: %s\n", __func__, gnutls_strerror (ret));
           gnutls_certificate_free_credentials (*credentials);
           return -1;
         }
@@ -1277,7 +1277,7 @@ gvm_server_free (int server_socket, gnutls_session_t server_session,
   // FIX get flags first
   if (fcntl (server_socket, F_SETFL, O_NONBLOCK) == -1)
     {
-      g_warning ("%s: failed to set server socket flag: %s\n", __FUNCTION__,
+      g_warning ("%s: failed to set server socket flag: %s\n", __func__,
                  strerror (errno));
       return -1;
     }
@@ -1310,7 +1310,7 @@ gvm_server_free (int server_socket, gnutls_session_t server_session,
     {
       if (close (server_socket) == -1)
         {
-          g_warning ("%s: failed to close server socket: %s\n", __FUNCTION__,
+          g_warning ("%s: failed to close server socket: %s\n", __func__,
                      strerror (errno));
           return -1;
         }

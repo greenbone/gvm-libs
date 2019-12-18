@@ -123,7 +123,7 @@ gvm_auth_init ()
    * test. */
   if (!gcry_check_version (NULL))
     {
-      g_critical ("%s: libgcrypt version check failed\n", __FUNCTION__);
+      g_critical ("%s: libgcrypt version check failed\n", __func__);
       return -1;
     }
 
