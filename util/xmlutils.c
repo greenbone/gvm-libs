@@ -525,7 +525,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
                       g_warning ("   timeout\n");
                       if (fcntl (socket, F_SETFL, 0L) < 0)
                         g_warning ("%s :failed to set socket flag: %s",
-                                   __FUNCTION__, strerror (errno));
+                                   __func__, strerror (errno));
                       g_markup_parse_context_free (xml_context);
                       g_free (buffer);
                       return -4;
@@ -546,7 +546,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
                 {
                   if (fcntl (socket, F_SETFL, 0L) < 0)
                     g_warning ("%s :failed to set socket flag: %s",
-                               __FUNCTION__, strerror (errno));
+                               __func__, strerror (errno));
                 }
               g_markup_parse_context_free (xml_context);
               g_free (buffer);
@@ -572,7 +572,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
                 {
                   if (fcntl (socket, F_SETFL, 0L) < 0)
                     g_warning ("%s :failed to set socket flag: %s",
-                               __FUNCTION__, strerror (errno));
+                               __func__, strerror (errno));
                 }
               g_markup_parse_context_free (xml_context);
               g_free (buffer);
@@ -600,7 +600,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
           if (timeout > 0)
             {
               if (fcntl (socket, F_SETFL, 0L) < 0)
-                g_warning ("%s :failed to set socket flag: %s", __FUNCTION__,
+                g_warning ("%s :failed to set socket flag: %s", __func__,
                            strerror (errno));
             }
           g_markup_parse_context_free (xml_context);
@@ -640,7 +640,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
           g_warning ("   failed to get current time (1): %s\n",
                      strerror (errno));
           if (fcntl (socket, F_SETFL, 0L) < 0)
-            g_warning ("%s :failed to set socket flag: %s", __FUNCTION__,
+            g_warning ("%s :failed to set socket flag: %s", __func__,
                        strerror (errno));
           g_markup_parse_context_free (xml_context);
           g_free (buffer);
@@ -745,7 +745,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                           g_warning ("   timeout\n");
                           if (fcntl (socket, F_SETFL, 0L) < 0)
                             g_warning ("%s :failed to set socket flag: %s",
-                                       __FUNCTION__, strerror (errno));
+                                       __func__, strerror (errno));
                           g_markup_parse_context_free (xml_context);
                           g_free (buffer);
                           return -4;
@@ -786,7 +786,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                 {
                   if (fcntl (socket, F_SETFL, 0L) < 0)
                     g_warning ("%s :failed to set socket flag: %s",
-                               __FUNCTION__, strerror (errno));
+                               __func__, strerror (errno));
                 }
               g_markup_parse_context_free (xml_context);
               g_free (buffer);
@@ -815,7 +815,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
           if (timeout > 0)
             {
               if (fcntl (socket, F_SETFL, 0L) < 0)
-                g_warning ("%s :failed to set socket flag: %s", __FUNCTION__,
+                g_warning ("%s :failed to set socket flag: %s", __func__,
                            strerror (errno));
             }
           g_markup_parse_context_free (xml_context);
@@ -856,7 +856,7 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
           g_warning ("   failed to get current time (1): %s\n",
                      strerror (errno));
           if (fcntl (socket, F_SETFL, 0L) < 0)
-            g_warning ("%s :failed to set server socket flag: %s", __FUNCTION__,
+            g_warning ("%s :failed to set server socket flag: %s", __func__,
                        strerror (errno));
           g_markup_parse_context_free (xml_context);
           g_free (buffer);
@@ -1470,7 +1470,7 @@ xml_search_handle_start_element (GMarkupParseContext *ctx,
   if (strcmp (element_name, search_data->find_element) == 0
       && search_data->found == 0)
     {
-      g_debug ("%s: Found element <%s>", __FUNCTION__, element_name);
+      g_debug ("%s: Found element <%s>", __func__, element_name);
 
       if (search_data->find_attributes
           && g_hash_table_size (search_data->find_attributes))
@@ -1488,13 +1488,13 @@ xml_search_handle_start_element (GMarkupParseContext *ctx,
               if (searched_value
                   && strcmp (searched_value, attribute_values[index]) == 0)
                 {
-                  g_debug ("%s: Found attribute %s=\"%s\"", __FUNCTION__,
+                  g_debug ("%s: Found attribute %s=\"%s\"", __func__,
                            attribute_names[index], searched_value);
                   g_hash_table_add (found_attributes, searched_value);
                 }
               index++;
             }
-          g_debug ("%s: Found %d of %d attributes", __FUNCTION__,
+          g_debug ("%s: Found %d of %d attributes", __func__,
                    g_hash_table_size (found_attributes),
                    g_hash_table_size (search_data->find_attributes));
 
@@ -1551,7 +1551,7 @@ find_element_in_xml_file (gchar *file_path, gchar *find_element,
   if (file == NULL)
     {
       g_markup_parse_context_free (xml_context);
-      g_warning ("%s: Failed to open '%s':", __FUNCTION__, strerror (errno));
+      g_warning ("%s: Failed to open '%s':", __func__, strerror (errno));
       return 0;
     }
 

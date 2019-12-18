@@ -60,7 +60,7 @@ gvm_file_check_is_dir (const char *name)
       return -1;
     }
 
-  return (S_ISDIR (sb.st_mode));
+  return S_ISDIR (sb.st_mode);
 }
 
 /**
@@ -136,7 +136,7 @@ gvm_file_copy (const gchar *source_file, const gchar *dest_file)
     g_file_copy (sfile, dfile, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
   if (!rc)
     {
-      g_warning ("%s: g_file_copy(%s, %s) failed - %s\n", __FUNCTION__,
+      g_warning ("%s: g_file_copy(%s, %s) failed - %s\n", __func__,
                  source_file, dest_file, error->message);
       g_error_free (error);
     }
@@ -171,7 +171,7 @@ gvm_file_move (const gchar *source_file, const gchar *dest_file)
     g_file_move (sfile, dfile, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
   if (!rc)
     {
-      g_warning ("%s: g_file_move(%s, %s) failed - %s\n", __FUNCTION__,
+      g_warning ("%s: g_file_move(%s, %s) failed - %s\n", __func__,
                  source_file, dest_file, error->message);
       g_error_free (error);
     }
@@ -373,7 +373,7 @@ gvm_export_file_name (const char *fname_format, const char *username,
               break;
             default:
               g_warning ("%s : Unknown file name format placeholder: %%%c.",
-                         __FUNCTION__, *fname_point);
+                         __func__, *fname_point);
               format_state = -1;
             }
         }
@@ -382,7 +382,7 @@ gvm_export_file_name (const char *fname_format, const char *username,
 
   if (format_state || strcmp (file_name_buf->str, "") == 0)
     {
-      g_warning ("%s : Invalid file name format", __FUNCTION__);
+      g_warning ("%s : Invalid file name format", __func__);
       g_string_free (file_name_buf, TRUE);
       return NULL;
     }

@@ -2,7 +2,7 @@ INSTALLATION INSTRUCTIONS FOR GVM-LIBS
 ======================================
 
 Please note: The reference system used by most of the developers is Debian
-GNU/Linux 'Stretch' 9. The build might fail on any other system. Also, it is
+GNU/Linux 'Buster' 10. The build might fail on any other system. Also, it is
 necessary to install dependent development packages.
 
 Prerequisites for gvm-libs
@@ -26,27 +26,32 @@ Specific development libraries:
 * libssh >= 0.6.0 (util)
 * libldap2 >= 2.4.44 (util)
 * libhiredis >= 0.10.1 (util)
+* libxml2 >= 2.0 (util)
 
 Optional development libraries:
-* libfreeradius-client >= 1.1.6 (util)
+* libradcli-dev >= 1.2.6 (util)
 
 Prerequisites for building documentation:
 * doxygen
 * xmltoman (optional, for building man page)
-* sqlfairy (optional, for producing database diagram)
 
-Install prerequisites on Debian GNU/Linux 'Stretch' 9:
+Prerequisites for building tests:
+* Cgreen (optional, for building tests)
+
+Install prerequisites on Debian GNU/Linux 'Buster' 10:
 
     apt-get install \
     cmake \
     pkg-config \
     libglib2.0-dev \
-    libgpgme11-dev \
+    libgpgme-dev \
     libgnutls28-dev \
     uuid-dev \
     libssh-gcrypt-dev \
     libldap2-dev \
-    libhiredis-dev
+    libhiredis-dev \
+    libxml2-dev \
+    libradcli-dev
 
 
 Compiling gvm-libs
@@ -78,6 +83,7 @@ Thereafter, the following commands are useful.
     make                # build the libraries
     make doc            # build the documentation
     make doc-full       # build more developer-oriented documentation
+    make tests          # build tests
     make install        # install the build
     make rebuild_cache  # rebuild the cmake cache
     make format         # code style and formatting

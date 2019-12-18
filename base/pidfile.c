@@ -59,7 +59,7 @@ pidfile_create (gchar *daemon_name)
 
   if (pidfile == NULL)
     {
-      g_critical ("%s: failed to open pidfile: %s\n", __FUNCTION__,
+      g_critical ("%s: failed to open pidfile: %s\n", __func__,
                   strerror (errno));
       return 1;
     }
