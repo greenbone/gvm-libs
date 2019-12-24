@@ -445,7 +445,8 @@ create_all_certificates_trustlist (gpgme_ctx_t ctx, const char *homedir)
   GString *trustlist_content;
   GError *g_err;
 
-  g_err = NULL;  gpgme_set_pinentry_mode (ctx, GPGME_PINENTRY_MODE_CANCEL);
+  g_err = NULL;
+  gpgme_set_pinentry_mode (ctx, GPGME_PINENTRY_MODE_CANCEL);
 
   trustlist_filename = g_build_filename (homedir,
                                          "trustlist.txt",
