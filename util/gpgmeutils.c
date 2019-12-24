@@ -416,8 +416,7 @@ gvm_gpgme_data_new_from_stream (gpgme_data_t *new_data, FILE *file)
 {
   struct gpgme_data_cbs *callbacks;
 
-  callbacks = malloc (sizeof (struct gpgme_data_cbs));
-  memset (callbacks, 0, sizeof (struct gpgme_data_cbs));
+  callbacks = g_malloc0 (sizeof (struct gpgme_data_cbs));
   callbacks->read = gvm_gpgme_fread;
   callbacks->write = gvm_gpgme_fwrite;
 
