@@ -401,29 +401,6 @@ gvm_gpgme_fwrite (void *handle, const void *buffer, size_t size)
 }
 
 /**
- * @brief Create a GPGME data buffer with custom read and write functions.
- *
- * This is neccessary as gpgme_data_new_from_stream may cause problems
- *  when trying to write to the stream after some operations.
- *
- * @param[out]  new_data  The new GPGME data buffer.
- * @param[in]   file      The stream to read from and write to.
- *
- * @return The return value from gpgme_data_new_from_cbs.
- */
-static gpgme_error_t
-gvm_gpgme_data_new_from_stream (gpgme_data_t *new_data, FILE *file)
-{
-  struct gpgme_data_cbs *callbacks;
-
-  callbacks = g_malloc0 (sizeof (struct gpgme_data_cbs));
-  callbacks->read = gvm_gpgme_fread;
-  callbacks->write = gvm_gpgme_fwrite;
-
-  return gpgme_data_new_from_cbs (new_data, callbacks, file);
-}
-
-/**
  * @brief  Adds a trust list of all current certificates to a GPG homedir.
  *
  * This will overwrite the existing trustlist, so it should only be used for
@@ -508,6 +485,7 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   gpgme_error_t err;
   gpgme_encrypt_flags_t encrypt_flags;
   const char *key_type_str;
+  struct gpgme_data_cbs callbacks;
 
   if (uid_email == NULL || strcmp (uid_email, "") == 0)
     {
@@ -562,7 +540,15 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
 
   // Set up data objects for input and output streams
   gpgme_data_new_from_stream (&plain_data, plain_file);
-  gvm_gpgme_data_new_from_stream (&encrypted_data, encrypted_file);
+
+  /* Create a GPGME data buffer with custom read and write functions.
+   *
+   * This is neccessary as gpgme_data_new_from_stream may cause problems
+   * when trying to write to the stream after some operations. */
+  memset (&callbacks, 0, sizeof (callbacks));
+  callbacks.read = gvm_gpgme_fread;
+  callbacks.write = gvm_gpgme_fwrite;
+  gpgme_data_new_from_cbs (&encrypted_data, &callbacks, encrypted_file);
 
   if (protocol == GPGME_PROTOCOL_CMS)
     {
