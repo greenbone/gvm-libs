@@ -581,6 +581,7 @@ nvticache_count ()
 
 /**
  * @brief Delete NVT from the cache.
+ *
  * @param[in] oid OID to match.
  */
 void

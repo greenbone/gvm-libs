@@ -216,6 +216,7 @@ static char *cert_priv_mem = NULL;
 
 /**
  * @brief  Save cert_pub_mem with public certificate.
+ *
  * @param[in] data The DER or PEM encoded certificate.
  */
 static void
@@ -228,6 +229,7 @@ set_cert_pub_mem (const char *data)
 
 /**
  * @brief Save cert_priv_mem with private certificate.
+ *
  * @param[in] data The DER or PEM encoded certificate.
  */
 static void
@@ -240,6 +242,7 @@ set_cert_priv_mem (const char *data)
 
 /**
  * @brief Get private certificate from @ref cert_priv_mem.
+ *
  * @return The DER or PEM encoded certificate.
  */
 static const char *
@@ -250,6 +253,7 @@ get_cert_priv_mem ()
 
 /**
  * @brief Get public certificate from @ref cert_pub_mem.
+ *
  * @return The DER or PEM encoded certificate.
  */
 static const char *
@@ -260,7 +264,8 @@ get_cert_pub_mem ()
 
 /**
  * @brief Callback function to be called in order to retrieve the
-          certificate to be used in the handshake.
+ *        certificate to be used in the handshake.
+ *
  * @param[in] session Pointer to GNUTLS session. Not in used. Can be NULL.
  * @param[in] req_ca_rdn Contains a list with the CA names that
  *            the server considers trusted. Not in used. Can be NULL.
@@ -269,6 +274,7 @@ get_cert_pub_mem ()
  *            algorithms. Not in used. Can be NULL.
  * @param[in] sign_algos_length Algos list length. Not in used. Can be NULL.
  * @param[out] st Should contain the certificates and private keys
+ *
  * @return 0 on success, non-null otherwise.
  */
 static int
@@ -995,7 +1001,9 @@ gvm_connection_sendf_xml_quiet (gvm_connection_t *connection,
 
 /**
  * @brief Initialize a server session.
+ *
  * @param[in]  server_credentials  Credentials to be allocated.
+ *
  * @return 0 on success, -1 on error.
  */
 static int
@@ -1021,11 +1029,13 @@ server_new_gnutls_init (gnutls_certificate_credentials_t *server_credentials)
 
 /**
  * @brief Set the server credencials.
+ *
  * @param[in]  end_type Connection end type.
  * @param[in]  priority TLS priority to be set. If no one is given, NORMAL is
  *             default.
  * @param[in]  server_session GNUTLS session.
  * @param[in]  server_credentials Credentials to be set.
+ *
  * @return 0 on success, -1 on error.
  */
 static int
