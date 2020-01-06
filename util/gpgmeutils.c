@@ -359,6 +359,104 @@ find_email_encryption_key (gpgme_ctx_t ctx, const char *uid_email)
 }
 
 /**
+ * @brief Wrapper for fread for use as a GPGME callback.
+ *
+ * @param[in]  handle   The file handle.
+ * @param[out] buffer   The data buffer to read data into.
+ * @param[in]  size     The size of the buffer.
+ *
+ * @return The number of bytes read or -1 on error.
+ */
+static ssize_t
+gvm_gpgme_fread (void *handle, void *buffer, size_t size)
+{
+  int ret;
+  FILE *file = (FILE *)handle;
+
+  ret = fread (buffer, 1, size, file);
+  if (ferror (file))
+    return -1;
+  return ret;
+}
+
+/**
+ * @brief Wrapper for fread for use as a GPGME callback.
+ *
+ * @param[in]  handle   The file handle.
+ * @param[in]  buffer   The data buffer to read data into.
+ * @param[in]  size     The amount of buffered data.
+ *
+ * @return The number of bytes written or -1 on error.
+ */
+static ssize_t
+gvm_gpgme_fwrite (void *handle, const void *buffer, size_t size)
+{
+  int ret;
+  FILE *file = (FILE *)handle;
+
+  ret = fwrite (buffer, 1, size, file);
+  if (ferror (file))
+    return -1;
+  return ret;
+}
+
+/**
+ * @brief  Adds a trust list of all current certificates to a GPG homedir.
+ *
+ * This will overwrite the existing trustlist, so it should only be used for
+ *  temporary, automatically generated GPG home directories.
+ *
+ * TODO: This should use or be replaced by a trust model inside GVM.
+ *
+ * @param[in]  ctx      The GPGME context to get the keys from.
+ * @param[in]  homedir  The directory to write the trust list file to.
+ *
+ * @return 0 success, -1 error.
+ */
+static int
+create_all_certificates_trustlist (gpgme_ctx_t ctx, const char *homedir)
+{
+  gpgme_key_t key;
+  gchar *trustlist_filename;
+  GString *trustlist_content;
+  GError *g_err;
+
+  g_err = NULL;
+  gpgme_set_pinentry_mode (ctx, GPGME_PINENTRY_MODE_CANCEL);
+
+  trustlist_filename = g_build_filename (homedir,
+                                         "trustlist.txt",
+                                         NULL);
+
+  trustlist_content = g_string_new ("");
+
+  gpgme_op_keylist_start (ctx, NULL, 0);
+  gpgme_op_keylist_next (ctx, &key);
+  while (key)
+    {
+      g_string_append_printf (trustlist_content, "%s S\n", key->fpr);
+      gpgme_op_keylist_next (ctx, &key);
+    }
+
+  if (g_file_set_contents (trustlist_filename,
+                           trustlist_content->str,
+                           trustlist_content->len,
+                           &g_err) == FALSE)
+    {
+      g_warning ("%s: Could not write trust list: %s",
+                 __func__, g_err->message);
+      g_free (trustlist_filename);
+      g_string_free (trustlist_content, TRUE);
+      return -1;
+    }
+
+  g_free (trustlist_filename);
+  g_string_free (trustlist_content, TRUE);
+
+  return 0;
+}
+
+/**
  * @brief Encrypt a stream for a PGP public key, writing to another stream.
  *
  * The output will use ASCII armor mode and no compression.
@@ -387,6 +485,7 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   gpgme_error_t err;
   gpgme_encrypt_flags_t encrypt_flags;
   const char *key_type_str;
+  struct gpgme_data_cbs callbacks;
 
   if (uid_email == NULL || strcmp (uid_email, "") == 0)
     {
@@ -441,10 +540,29 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
 
   // Set up data objects for input and output streams
   gpgme_data_new_from_stream (&plain_data, plain_file);
-  gpgme_data_new_from_stream (&encrypted_data, encrypted_file);
+
+  /* Create a GPGME data buffer with custom read and write functions.
+   *
+   * This is neccessary as gpgme_data_new_from_stream may cause problems
+   * when trying to write to the stream after some operations. */
+  memset (&callbacks, 0, sizeof (callbacks));
+  callbacks.read = gvm_gpgme_fread;
+  callbacks.write = gvm_gpgme_fwrite;
+  gpgme_data_new_from_cbs (&encrypted_data, &callbacks, encrypted_file);
 
   if (protocol == GPGME_PROTOCOL_CMS)
-    gpgme_data_set_encoding (encrypted_data, GPGME_DATA_ENCODING_BASE64);
+    {
+      gpgme_data_set_encoding (encrypted_data, GPGME_DATA_ENCODING_BASE64);
+
+      if (create_all_certificates_trustlist (ctx, gpg_temp_dir))
+        {
+          gpgme_data_release (plain_data);
+          gpgme_data_release (encrypted_data);
+          gpgme_release (ctx);
+          gvm_file_remove_recurse (gpg_temp_dir);
+          return -1;
+        }
+    }
 
   // Encrypt data
   err = gpgme_op_encrypt (ctx, keys, encrypt_flags, plain_data, encrypted_data);
