@@ -1394,6 +1394,7 @@ osp_credential_set_auth_data (osp_credential_t *credential,
  * @param[in]  hosts          The hostnames of the target.
  * @param[in]  ports          The ports of the target.
  * @param[in]  exclude_hosts  The excluded hosts of the target.
+ * @param[in]  alive_test     The alive test method of the target.
  *
  * @return The newly allocated osp_target_t.
  */
