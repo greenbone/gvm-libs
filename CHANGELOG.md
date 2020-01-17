@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Add nvti_get_tag() [#285](https://github.com/greenbone/gvm-libs/pull/285)
 - Add nvti_solution_method() and nvti_set_solution_method() [#283](https://github.com/greenbone/gvm-libs/pull/283)
+- Extend osp with target's alive test option.[#312](https://github.com/greenbone/gvm-libs/pull/312)
 
 [20.4]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-11.0...master
 
