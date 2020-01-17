@@ -88,6 +88,7 @@ struct osp_target
   gchar *hosts;           /** String defining one or many hosts to scan */
   gchar *ports;           /** String defining the ports to scan */
   gchar *finished_hosts;  /** String defining hosts to exclude as finished */
+  int alive_test;         /** Value defining an alive test method */
 };
 
 /**
@@ -866,6 +867,11 @@ target_append_as_xml (osp_target_t *target, GString *xml_string)
                      target->finished_hosts ? target->finished_hosts : "",
                      target->ports ? target->ports : "");
 
+  if (target->alive_test > 0)
+    xml_string_append (xml_string,
+                       "<alive_test>%d</alive_test>",
+                       target->alive_test);
+
   if (target->credentials)
     {
       g_string_append (xml_string, "<credentials>");
@@ -1394,7 +1400,8 @@ osp_credential_set_auth_data (osp_credential_t *credential,
 osp_target_t *
 osp_target_new (const char *hosts,
                 const char *ports,
-                const char *exclude_hosts)
+                const char *exclude_hosts,
+                int alive_test)
 {
   osp_target_t *new_target;
   new_target = g_malloc0 (sizeof (osp_target_t));
@@ -1403,6 +1410,7 @@ osp_target_new (const char *hosts,
   new_target->hosts = hosts ? g_strdup (hosts) : NULL;
   new_target->ports = ports ? g_strdup (ports) : NULL;
   new_target->finished_hosts = NULL;
+  new_target->alive_test = alive_test ? alive_test : 0;
 
   return new_target;
 }
