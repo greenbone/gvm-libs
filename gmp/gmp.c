@@ -1355,6 +1355,7 @@ gmp_get_report_ext (gnutls_session_t *session, gmp_get_report_opts_t opts,
   if (gvm_server_sendf (
         session,
         "<get_reports"
+        " details=\"1\""
         " report_id=\"%s\""
         " format_id=\"%s\""
         " host_first_result=\"%i\""
