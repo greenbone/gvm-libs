@@ -17,10 +17,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "osp.c"
+
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
-
-#include "osp.c"
 
 Describe (osp);
 BeforeEach (osp)
@@ -38,19 +38,17 @@ Ensure (osp, osp_new_target_never_returns_null)
 Ensure (osp, osp_new_conn_ret_null)
 {
   assert_that (osp_connection_new ("/my/socket", 0, NULL, NULL, NULL), is_null);
-
 }
 
 Ensure (osp, osp_get_vts_no_vts_ret_error)
 {
   osp_connection_t *conn = g_malloc0 (sizeof (*conn));
   assert_that (osp_get_vts (conn, NULL), is_equal_to (1));
-
 }
 
 Ensure (osp, osp_get_vts_no_conn_ret_error)
 {
-  assert_that (osp_get_vts (NULL, NULL), is_equal_to(1));
+  assert_that (osp_get_vts (NULL, NULL), is_equal_to (1));
 }
 /* Test suite. */
 
