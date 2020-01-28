@@ -199,7 +199,7 @@ osp_credential_set_auth_data (osp_credential_t *, const char*, const char*);
 /* OSP targets handling */
 
 osp_target_t *
-osp_target_new (const char *, const char *, const char *, int);
+osp_target_new (const char *, const char *, const char *, int, int, int);
 
 void
 osp_target_set_finished_hosts (osp_target_t *, const char *);
