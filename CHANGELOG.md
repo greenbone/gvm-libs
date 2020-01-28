@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add nvti_solution_method() and nvti_set_solution_method() [#283](https://github.com/greenbone/gvm-libs/pull/283)
 - Extend osp with target's alive test option.[#312](https://github.com/greenbone/gvm-libs/pull/312)
 - Extend osp with target's reverse_lookup_* options.[#314](https://github.com/greenbone/gvm-libs/pull/314)
+- Add unit tests for osp. [#315](https://github.com/greenbone/gvm-libs/pull/315)
 
 [20.4]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-11.0...master
 
