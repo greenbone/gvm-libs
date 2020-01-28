@@ -56,9 +56,6 @@ endif (BUILD_SHARED)
 ## Tests
 
 if (BUILD_TESTS)
-  pkg_check_modules (LIBGVM_UTIL REQUIRED libgvm_util>="${VERSION}")
-  pkg_check_modules (LIBGVM_BASE REQUIRED libgvm_base>="${VERSION}")
-
   add_executable (osp-test
     EXCLUDE_FROM_ALL
     osp_tests.c)
@@ -66,12 +63,11 @@ if (BUILD_TESTS)
   add_test (osp-test osp-test)
 
   target_include_directories (osp-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-  target_include_directories (osp-test PUBLIC ${INCLUDEDIR}/gvm/osp)
 
-  target_link_libraries (osp-test ${CGREEN_LIBRARIES}
-    ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS}
-    ${LIBGVM_UTIL_LDFLAGS} ${LIBGVM_BASE_LDFLAGS}
+  target_link_libraries (osp-test gvm_base_shared gvm_util_shared
+    ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS}
     )
+
   add_custom_target (tests-osp
     DEPENDS osp-test)
 
