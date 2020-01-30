@@ -223,12 +223,13 @@ configure_file (VERSION.in ${CMAKE_BINARY_DIR}/VERSION @ONLY)
 ## Testing
 
 if (BUILD_TESTS AND NOT SKIP_SRC)
+  message ("-- Tests enabled.")
   enable_testing ()
 
   find_package (cgreen REQUIRED)
 
   add_custom_target (tests
-                    DEPENDS array-test xmlutils-test version-test)
+    DEPENDS array-test xmlutils-test version-test osp-test nvti-test)
 
 endif (BUILD_TESTS AND NOT SKIP_SRC)
 
