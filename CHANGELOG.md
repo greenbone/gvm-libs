@@ -25,6 +25,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Fix sigsegv when no plugin_feed_info.inc file present. [#278](https://github.com/greenbone/gvm-libs/pull/278)
 - Fix missing linking to libgnutls in util/CMakeLists.txt. [#291](https://github.com/greenbone/gvm-libs/pull/291)
+- Fix trust and file handling for S/MIME [#309](https://github.com/greenbone/gvm-libs/pull/309)
+- Get details with get_reports in gmp_get_report_ext [#313](https://github.com/greenbone/gvm-libs/pull/313)
 
 [11.0.1]: https://github.com/greenbone/gvm-libs/compare/v11.0.0...gvm-libs-11.0
 
@@ -55,6 +57,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Internalize struct nvtpref_t. [#260](https://github.com/greenbone/gvm-libs/pull/260)
 - Extend redis connection error msg with actual path. [#264](https://github.com/greenbone/gvm-libs/pull/264)
 - Disable testhosts test as it's not really a test. [#287](https://github.com/greenbone/gvm-libs/pull/287)
+- Don't create an entity tree during read_string_c. [#305](https://github.com/greenbone/gvm-libs/pull/305)
 
 ### Fixed
 - Prevent g_strsplit to be called with NULL. [#238](https://github.com/greenbone/gvm-libs/pull/238)
