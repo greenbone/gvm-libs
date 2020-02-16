@@ -159,6 +159,141 @@ vtref_text (const vtref_t *r)
   return r ? r->ref_text : NULL;
 }
 
+/* VT severities */
+
+/**
+ * @brief The structure for a severity of a VT.
+ *
+ * VTs can have one or several severities.
+ */
+typedef struct vtseverity
+{
+  gchar *type;     ///< Severity type ("cvss_base_v2", ...)
+  gchar *origin;   ///< Optional: Where does the severity come from ("CVE-2018-1234", "Greenbone Research")
+  int date; ///< Timestamp in seconds since epoch, defaults to VT creation date.
+  int score; ///< The score derived from the value in range [0-100]
+  gchar *value;   ///< The value which corresponds to the type.
+} vtseverity_t;
+
+/**
+ * @brief Create a new vtseverity structure filled with the given values.
+ *
+ * @param type The severity type to be set.
+ *
+ * @param origin The origin reference to be set, can be NULL.
+ *
+ * @param value The value corresponding to the type.
+ *
+ * @return NULL in case the memory could not be allocated.
+ *         Else a vtref structure which needs to be
+ *         released using @ref vtref_free .
+ */
+vtseverity_t *
+vtseverity_new (const gchar *type, const gchar *origin, int date, int score,
+                const gchar *value)
+{
+  vtseverity_t *s = g_malloc0 (sizeof (vtseverity_t));
+
+  if (type)
+    s->type = g_strdup (type);
+  if (origin)
+    s->origin = g_strdup (origin);
+  s->date = date;
+  s->score = score;
+  if (value)
+    s->value = g_strdup (value);
+
+  return s;
+}
+
+/**
+ * @brief Free memory of a vtseverity structure.
+ *
+ * @param s The structure to be freed.
+ */
+void
+vtseverity_free (vtseverity_t *s)
+{
+  if (!s)
+    return;
+
+  g_free (s->type);
+  g_free (s->origin);
+  g_free (s->value);
+  g_free (s);
+}
+
+/**
+ * @brief Get the type of a severity.
+ *
+ * @param s The VT Severity structure of which the type should
+ *          be returned.
+ *
+ * @return The type string. Don't free this.
+ */
+const gchar *
+vtseverity_type (const vtseverity_t *s)
+{
+  return s ? s->type : NULL;
+}
+
+/**
+ * @brief Get the origin of a severity.
+ *
+ * @param s The VT Severity structure of which the origin should
+ *          be returned.
+ *
+ * @return The origin string. Don't free this.
+ */
+const gchar *
+vtseverity_origin (const vtseverity_t *s)
+{
+  return s ? s->origin : NULL;
+}
+
+/**
+ * @brief Get the value of a severity.
+ *
+ * @param s The VT Severity structure of which the value should
+ *          be returned.
+ *
+ * @return The value string. Don't free this.
+ */
+const gchar *
+vtseverity_value (const vtseverity_t *s)
+{
+  return s ? s->value : NULL;
+}
+
+/**
+ * @brief Get the date of a severity.
+ *
+ * @param s The VT Severity structure of which the date should
+ *          be returned.
+ *
+ * @return The date.
+ */
+int
+vtseverity_date (const vtseverity_t *s)
+{
+  return s->date;
+}
+
+/**
+ * @brief Get the score of a severity.
+ *
+ * @param s The VT Severity structure of which the score should
+ *          be returned.
+ *
+ * @return The score.
+ */
+int
+vtseverity_score (const vtseverity_t *s)
+{
+  return s->score;
+}
+
+
 /* Support function for timestamps */
 
 /**
@@ -298,8 +433,9 @@ typedef struct nvti
   gchar *qod_type;  /**< @brief Quality of detection type */
   gchar *qod;       /**< @brief Quality of detection */
 
-  GSList *refs;  /**< @brief Collection of VT references */
-  GSList *prefs; /**< @brief Collection of NVT preferences */
+  GSList *refs;       /**< @brief Collection of VT references */
+  GSList *severities; /**< @brief Collection of VT severities */
+  GSList *prefs;      /**< @brief Collection of NVT preferences */
 
   // The following are not settled yet.
   gint timeout;  /**< @brief Default timeout time for this NVT */
@@ -323,6 +459,25 @@ nvti_add_vtref (nvti_t *vt, vtref_t *ref)
     return -1;
 
   vt->refs = g_slist_append (vt->refs, ref);
+  return 0;
+}
+
+/**
+ * @brief Add a severity to the VT Info.
+ *
+ * @param vt  The VT Info structure.
+ *
+ * @param ref The VT severity to add.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_add_vtseverity (nvti_t *vt, vtseverity_t *s)
+{
+  if (!vt)
+    return -1;
+
+  vt->severities = g_slist_append (vt->severities, s);
   return 0;
 }
 
@@ -490,6 +645,7 @@ nvti_free (nvti_t *n)
   g_free (n->qod);
   g_free (n->family);
   g_slist_free_full (n->refs, (void (*) (void *)) vtref_free);
+  g_slist_free_full (n->severities, (void (*) (void *)) vtseverity_free);
   g_slist_free_full (n->prefs, (void (*) (void *)) nvtpref_free);
   g_free (n);
 }
@@ -722,6 +878,34 @@ nvti_refs (const nvti_t *n, const gchar *type, const gchar *exclude_types,
   g_strfreev (exclude_split);
 
   return refs;
+}
+
+/**
+ * @brief Get the number of severities of the NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @return The number of severities.
+ */
+guint
+nvti_vtseverities_len (const nvti_t *n)
+{
+  return n ? g_slist_length (n->severities) : 0;
+}
+
+/**
+ * @brief Get the n'th reference of the NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param p The position of the reference to return.
+ *
+ * @return The reference. NULL on error.
+ */
+vtseverity_t *
+nvti_vtseverity (const nvti_t *n, guint p)
+{
+  return n ? g_slist_nth_data (n->severities, p) : NULL;
 }
 
 /**
