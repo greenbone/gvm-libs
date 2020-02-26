@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix missing linking to libgnutls in util/CMakeLists.txt. [#291](https://github.com/greenbone/gvm-libs/pull/291)
 - Fix trust and file handling for S/MIME [#309](https://github.com/greenbone/gvm-libs/pull/309)
 - Get details with get_reports in gmp_get_report_ext [#313](https://github.com/greenbone/gvm-libs/pull/313)
+- Fix escaping entity attributes in print_entity_to_string [#318](https://github.com/greenbone/gvm-libs/pull/318)
 
 [11.0.1]: https://github.com/greenbone/gvm-libs/compare/v11.0.0...gvm-libs-11.0
 
