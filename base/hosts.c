@@ -1537,10 +1537,10 @@ gvm_hosts_exclude (gvm_hosts_t *hosts, const char *excluded_str)
 
 /**
  * @brief Creates a new gvm_host_t from the provided host_str. host_str can
- * consist of hostnam, IPv4 address or IPv6 address.
+ * consist of hostname, IPv4 address or IPv6 address.
  *
- * @param[in] host_str The host string. A copy will be created of this within
- *                      the returned struct.
+ * @param[in] host_str The host string. A copy will be created for the returned
+ * struct.
  *
  * @return NULL if error. Otherwise, a single host structure that should be put
  * into a gvm_hosts_t structure for freeing with @ref gvm_hosts_free or
