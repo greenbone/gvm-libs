@@ -197,7 +197,7 @@ gvm_gpg_import_many_types_from_string (gpgme_ctx_t ctx,
   if (given_key_type == GPGME_DATA_TYPE_INVALID)
     {
       ret = 1;
-      g_warning ("%s: key_str is invalid", __FUNCTION__);
+      g_warning ("%s: key_str is invalid", __func__);
     }
   else
     {
@@ -225,7 +225,7 @@ gvm_gpg_import_many_types_from_string (gpgme_ctx_t ctx,
             }
           g_warning ("%s: key_str is not the expected type: "
                      " expected: %s, got %d",
-                     __FUNCTION__, expected_buffer->str, given_key_type);
+                     __func__, expected_buffer->str, given_key_type);
           g_string_free (expected_buffer, TRUE);
         }
     }
@@ -240,12 +240,12 @@ gvm_gpg_import_many_types_from_string (gpgme_ctx_t ctx,
   gpgme_data_release (key_data);
   if (err)
     {
-      g_warning ("%s: Import failed: %s", __FUNCTION__, gpgme_strerror (err));
+      g_warning ("%s: Import failed: %s", __func__, gpgme_strerror (err));
       return 3;
     }
 
   import_result = gpgme_op_import_result (ctx);
-  g_debug ("%s: %d imported, %d not imported", __FUNCTION__,
+  g_debug ("%s: %d imported, %d not imported", __func__,
            import_result->imported, import_result->not_imported);
 
   gpgme_import_status_t status;
@@ -253,10 +253,10 @@ gvm_gpg_import_many_types_from_string (gpgme_ctx_t ctx,
   while (status)
     {
       if (status->result != GPG_ERR_NO_ERROR)
-        g_warning ("%s: '%s' could not be imported: %s", __FUNCTION__,
+        g_warning ("%s: '%s' could not be imported: %s", __func__,
                    status->fpr, gpgme_strerror (status->result));
       else
-        g_debug ("%s: Imported '%s'", __FUNCTION__, status->fpr);
+        g_debug ("%s: Imported '%s'", __func__, status->fpr);
 
       status = status->next;
     };
@@ -320,19 +320,19 @@ find_email_encryption_key (gpgme_ctx_t ctx, const char *uid_email)
     {
       if (key->can_encrypt)
         {
-          g_debug ("%s: key '%s' OK for encryption", __FUNCTION__,
+          g_debug ("%s: key '%s' OK for encryption", __func__,
                    key->subkeys->fpr);
 
           gpgme_user_id_t uid;
           uid = key->uids;
           while (uid && recipient_found == FALSE)
             {
-              g_debug ("%s: UID email: %s", __FUNCTION__, uid->email);
+              g_debug ("%s: UID email: %s", __func__, uid->email);
 
               if (strcmp (uid->email, uid_email) == 0
                   || strstr (uid->email, bracket_email))
                 {
-                  g_message ("%s: Found matching UID for %s", __FUNCTION__,
+                  g_message ("%s: Found matching UID for %s", __func__,
                              uid_email);
                   recipient_found = TRUE;
                 }
@@ -341,7 +341,7 @@ find_email_encryption_key (gpgme_ctx_t ctx, const char *uid_email)
         }
       else
         {
-          g_debug ("%s: key '%s' cannot be used for encryption", __FUNCTION__,
+          g_debug ("%s: key '%s' cannot be used for encryption", __func__,
                    key->subkeys->fpr);
         }
 
@@ -353,7 +353,7 @@ find_email_encryption_key (gpgme_ctx_t ctx, const char *uid_email)
     return key;
   else
     {
-      g_warning ("%s: No suitable key found for %s", __FUNCTION__, uid_email);
+      g_warning ("%s: No suitable key found for %s", __func__, uid_email);
       return NULL;
     }
 }
@@ -490,7 +490,7 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   if (uid_email == NULL || strcmp (uid_email, "") == 0)
     {
       g_warning ("%s: No email address for user identification given",
-                 __FUNCTION__);
+                 __func__);
       return -1;
     }
 
@@ -502,7 +502,7 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   // Create temporary GPG home directory, set up context and encryption flags
   if (mkdtemp (gpg_temp_dir) == NULL)
     {
-      g_warning ("%s: mkdtemp failed\n", __FUNCTION__);
+      g_warning ("%s: mkdtemp failed\n", __func__);
       return -1;
     }
 
@@ -520,7 +520,7 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   // Import public key into context
   if (gvm_gpg_import_many_types_from_string (ctx, key_str, key_len, key_types))
     {
-      g_warning ("%s: Import of %s failed", __FUNCTION__, key_type_str);
+      g_warning ("%s: Import of %s failed", __func__, key_type_str);
       gpgme_release (ctx);
       gvm_file_remove_recurse (gpg_temp_dir);
       return -1;
@@ -530,7 +530,7 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   key = find_email_encryption_key (ctx, uid_email);
   if (key == NULL)
     {
-      g_warning ("%s: Could not find %s for encryption", __FUNCTION__,
+      g_warning ("%s: Could not find %s for encryption", __func__,
                  key_type_str);
       gpgme_release (ctx);
       gvm_file_remove_recurse (gpg_temp_dir);
@@ -569,7 +569,7 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
 
   if (err)
     {
-      g_warning ("%s: Encryption failed: %s", __FUNCTION__,
+      g_warning ("%s: Encryption failed: %s", __func__,
                  gpgme_strerror (err));
       gpgme_data_release (plain_data);
       gpgme_data_release (encrypted_data);

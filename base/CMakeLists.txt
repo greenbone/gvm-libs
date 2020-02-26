@@ -91,7 +91,20 @@ if (BUILD_TESTS)
 
   target_include_directories (version-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 
-  target_link_libraries (version-test ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+  target_link_libraries (version-test ${CGREEN_LIBRARIES}
+    ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+
+  add_executable (nvti-test
+                  EXCLUDE_FROM_ALL
+                  nvti_tests.c)
+
+  add_test (nvti-test nvti-test)
+
+  target_include_directories (nvti-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (nvti-test ${CGREEN_LIBRARIES}
+    ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+
 endif (BUILD_TESTS)
 
 

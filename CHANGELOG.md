@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [20.4] (unreleased)
+
+### Added
+- Add nvti_get_tag() [#285](https://github.com/greenbone/gvm-libs/pull/285)
+- Add nvti_solution_method() and nvti_set_solution_method() [#283](https://github.com/greenbone/gvm-libs/pull/283)
+- Extend osp with target's alive test option.[#312](https://github.com/greenbone/gvm-libs/pull/312)
+- Extend osp with target's reverse_lookup_* options.[#314](https://github.com/greenbone/gvm-libs/pull/314)
+- Add unit tests for osp. [#315](https://github.com/greenbone/gvm-libs/pull/315)
+
+[20.4]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-11.0...master
+
 ## [11.0.1] (unreleased)
 
 ### Added
@@ -46,6 +57,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Make solution and solution_type explicit for nvti. [#255](https://github.com/greenbone/gvm-libs/pull/255)
 - Internalize struct nvtpref_t. [#260](https://github.com/greenbone/gvm-libs/pull/260)
 - Extend redis connection error msg with actual path. [#264](https://github.com/greenbone/gvm-libs/pull/264)
+- Disable testhosts test as it's not really a test. [#287](https://github.com/greenbone/gvm-libs/pull/287)
 - Don't create an entity tree during read_string_c. [#305](https://github.com/greenbone/gvm-libs/pull/305)
 
 ### Fixed

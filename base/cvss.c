@@ -227,10 +227,10 @@ toenum (const char *str, enum base_metrics *res)
 static double
 get_impact_subscore (const struct cvss *cvss)
 {
-  return (10.41
-          * (1
-             - (1 - cvss->conf_impact) * (1 - cvss->integ_impact)
-                 * (1 - cvss->avail_impact)));
+  return 10.41
+         * (1
+            - (1 - cvss->conf_impact) * (1 - cvss->integ_impact)
+                * (1 - cvss->avail_impact));
 }
 
 /**
@@ -244,8 +244,8 @@ get_impact_subscore (const struct cvss *cvss)
 static double
 get_exploitability_subscore (const struct cvss *cvss)
 {
-  return (20 * cvss->access_vector * cvss->access_complexity
-          * cvss->authentication);
+  return 20 * cvss->access_vector * cvss->access_complexity
+         * cvss->authentication;
 }
 
 /**

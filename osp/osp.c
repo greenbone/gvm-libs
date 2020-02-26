@@ -83,11 +83,14 @@ struct osp_credential
  */
 struct osp_target
 {
-  GSList *credentials;    /** Credentials to use in the scan */
-  gchar *exclude_hosts;   /** String defining one or many hosts to exclude */
-  gchar *hosts;           /** String defining one or many hosts to scan */
-  gchar *ports;           /** String defining the ports to scan */
-  gchar *finished_hosts;  /** String defining hosts to exclude as finished */
+  GSList *credentials;      /** Credentials to use in the scan */
+  gchar *exclude_hosts;     /** String defining one or many hosts to exclude */
+  gchar *hosts;             /** String defining one or many hosts to scan */
+  gchar *ports;             /** String defining the ports to scan */
+  gchar *finished_hosts;    /** String defining hosts to exclude as finished */
+  int alive_test;           /** Value defining an alive test method */
+  int reverse_lookup_unify; /** Value defining reverse_lookup_unify opt */
+  int reverse_lookup_only;  /** Value defining reverse_lookup_only opt */
 };
 
 /**
@@ -345,7 +348,7 @@ osp_get_vts_version (osp_connection_t *connection, char **vts_version)
   vts = entity_child (entity, "vts");
   if (!vts)
     {
-      g_warning ("%s: element VTS missing.", __FUNCTION__);
+      g_warning ("%s: element VTS missing.", __func__);
       free_entity (entity);
       return 1;
     }
@@ -353,7 +356,7 @@ osp_get_vts_version (osp_connection_t *connection, char **vts_version)
   version = entity_child (vts, "version");
   if (!version)
     {
-      g_warning ("%s: element VERSION missing.", __FUNCTION__);
+      g_warning ("%s: element VERSION missing.", __func__);
       free_entity (entity);
       return 1;
     }
@@ -865,6 +868,19 @@ target_append_as_xml (osp_target_t *target, GString *xml_string)
                      target->exclude_hosts ? target->exclude_hosts : "",
                      target->finished_hosts ? target->finished_hosts : "",
                      target->ports ? target->ports : "");
+
+  if (target->alive_test > 0)
+    xml_string_append (xml_string,
+                       "<alive_test>%d</alive_test>",
+                       target->alive_test);
+  if (target->reverse_lookup_unify == 1)
+    xml_string_append (xml_string,
+                       "<reverse_lookup_unify>%d</reverse_lookup_unify>",
+                       target->reverse_lookup_unify);
+  if (target->reverse_lookup_only == 1)
+    xml_string_append (xml_string,
+                       "<reverse_lookup_only>%d</reverse_lookup_only>",
+                       target->reverse_lookup_only);
 
   if (target->credentials)
     {
@@ -1378,7 +1394,7 @@ osp_credential_set_auth_data (osp_credential_t *credential,
     }
   else
     {
-      g_warning ("%s: Invalid auth data name: %s", __FUNCTION__, name);
+      g_warning ("%s: Invalid auth data name: %s", __func__, name);
     }
 }
 
@@ -1388,13 +1404,17 @@ osp_credential_set_auth_data (osp_credential_t *credential,
  * @param[in]  hosts          The hostnames of the target.
  * @param[in]  ports          The ports of the target.
  * @param[in]  exclude_hosts  The excluded hosts of the target.
+ * @param[in]  alive_test     The alive test method of the target.
  *
  * @return The newly allocated osp_target_t.
  */
 osp_target_t *
 osp_target_new (const char *hosts,
                 const char *ports,
-                const char *exclude_hosts)
+                const char *exclude_hosts,
+                int alive_test,
+                int reverse_lookup_unify,
+                int reverse_lookup_only)
 {
   osp_target_t *new_target;
   new_target = g_malloc0 (sizeof (osp_target_t));
@@ -1403,6 +1423,11 @@ osp_target_new (const char *hosts,
   new_target->hosts = hosts ? g_strdup (hosts) : NULL;
   new_target->ports = ports ? g_strdup (ports) : NULL;
   new_target->finished_hosts = NULL;
+  new_target->alive_test = alive_test ? alive_test : 0;
+  new_target->reverse_lookup_unify =
+    reverse_lookup_unify ? reverse_lookup_unify : 0;
+  new_target->reverse_lookup_only =
+    reverse_lookup_only ? reverse_lookup_only : 0;
 
   return new_target;
 }
