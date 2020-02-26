@@ -1274,8 +1274,11 @@ static void
 foreach_print_attribute_to_string (gpointer name, gpointer value,
                                    gpointer string)
 {
+  gchar *text_escaped;
+  text_escaped = g_markup_escape_text ((gchar *) value, -1);
   g_string_append_printf ((GString *) string, " %s=\"%s\"", (char *) name,
-                          (char *) value);
+                          text_escaped);
+  g_free (text_escaped);
 }
 
 /**
