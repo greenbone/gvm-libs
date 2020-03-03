@@ -894,7 +894,7 @@ gvm_host_free (gpointer host)
  * @param[in] hosts Hosts in which to insert the host.
  * @param[in] host  Host to insert.
  */
-static void
+void
 gvm_hosts_add (gvm_hosts_t *hosts, gvm_host_t *host)
 {
   if (hosts->count == hosts->max_size)
@@ -1533,6 +1533,58 @@ int
 gvm_hosts_exclude (gvm_hosts_t *hosts, const char *excluded_str)
 {
   return gvm_hosts_exclude_with_max (hosts, excluded_str, 0);
+}
+
+/**
+ * @brief Creates a new gvm_host_t from a host string.
+ *
+ * @param[in] host_str The host string can consist of a hostname, IPv4 address
+ * or IPv6 address.
+ *
+ * @return NULL if error. Otherwise, a single host structure that should be put
+ * into a gvm_hosts_t structure for freeing with @ref gvm_hosts_free or
+ * freed directly via @ref gvm_host_free.
+ */
+gvm_host_t *
+gvm_host_from_str (const gchar *host_str)
+{
+  int host_type;
+
+  if (host_str == NULL)
+    return NULL;
+
+  /* IPv4, hostname, IPv6 */
+  /* -1 if error. */
+  host_type = gvm_get_host_type (host_str);
+
+  switch (host_type)
+    {
+    case HOST_TYPE_NAME:
+    case HOST_TYPE_IPV4:
+    case HOST_TYPE_IPV6:
+      {
+        /* New host. */
+        gvm_host_t *host = gvm_host_new ();
+        host->type = host_type;
+        if (host_type == HOST_TYPE_NAME)
+          host->name = g_ascii_strdown (host_str, -1);
+        else if (host_type == HOST_TYPE_IPV4)
+          {
+            if (inet_pton (AF_INET, host_str, &host->addr) != 1)
+              break;
+          }
+        else if (host_type == HOST_TYPE_IPV6)
+          {
+            if (inet_pton (AF_INET6, host_str, &host->addr6) != 1)
+              break;
+          }
+        return host;
+      }
+    case -1:
+    default:
+      return NULL;
+    }
+  return NULL;
 }
 
 /**
