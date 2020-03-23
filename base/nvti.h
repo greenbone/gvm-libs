@@ -128,6 +128,8 @@ gchar *
 nvti_detection (const nvti_t *);
 gchar *
 nvti_qod_type (const nvti_t *);
+gchar *
+nvti_qod (const nvti_t *);
 gint
 nvti_timeout (const nvti_t *);
 gint
@@ -183,6 +185,8 @@ int
 nvti_set_detection (nvti_t *, const gchar *);
 int
 nvti_set_qod_type (nvti_t *, const gchar *);
+int
+nvti_set_qod (nvti_t *, const gchar *);
 int
 nvti_set_timeout (nvti_t *, const gint);
 int
