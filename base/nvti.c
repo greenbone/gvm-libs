@@ -296,7 +296,7 @@ typedef struct nvti
 
   gchar *detection; /**< @brief Detection description */
   gchar *qod_type;  /**< @brief Quality of detection type */
-  gchar *qod;  /**< @brief Quality of detection */
+  gchar *qod;       /**< @brief Quality of detection */
 
   GSList *refs;  /**< @brief Collection of VT references */
   GSList *prefs; /**< @brief Collection of NVT preferences */
