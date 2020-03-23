@@ -296,6 +296,7 @@ typedef struct nvti
 
   gchar *detection; /**< @brief Detection description */
   gchar *qod_type;  /**< @brief Quality of detection type */
+  gchar *qod;       /**< @brief Quality of detection */
 
   GSList *refs;  /**< @brief Collection of VT references */
   GSList *prefs; /**< @brief Collection of NVT preferences */
@@ -486,6 +487,7 @@ nvti_free (nvti_t *n)
   g_free (n->required_udp_ports);
   g_free (n->detection);
   g_free (n->qod_type);
+  g_free (n->qod);
   g_free (n->family);
   g_slist_free_full (n->refs, (void (*) (void *)) vtref_free);
   g_slist_free_full (n->prefs, (void (*) (void *)) nvtpref_free);
@@ -940,6 +942,20 @@ gchar *
 nvti_qod_type (const nvti_t *n)
 {
   return n ? n->qod_type : NULL;
+}
+
+/**
+ * @brief Get the QoD.
+ *
+ * @param n The NVT Info structure of which the QoD should
+ *          be returned.
+ *
+ * @return The QoD as string. Don't free this.
+ */
+gchar *
+nvti_qod (const nvti_t *n)
+{
+  return n ? n->qod : NULL;
 }
 
 /**
@@ -1531,6 +1547,30 @@ nvti_set_qod_type (nvti_t *n, const gchar *qod_type)
     n->qod_type = g_strdup (qod_type);
   else
     n->qod_type = NULL;
+  return 0;
+}
+
+/**
+ * @brief Set the QoD of a NVT.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param qod The QoD to set. A copy will be created from this.
+ *                 The string is not checked, any string is accepted as type.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_set_qod (nvti_t *n, const gchar *qod)
+{
+  if (!n)
+    return -1;
+
+  g_free (n->qod);
+  if (qod && qod[0])
+    n->qod = g_strdup (qod);
+  else
+    n->qod = NULL;
   return 0;
 }
 
