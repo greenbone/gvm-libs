@@ -15,6 +15,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add support for test_alive_hosts_only feature of openvas. [#320](https://github.com/greenbone/gvm-libs/pull/320)
 - Add function to set and get the NVT QoD. [#321](https://github.com/greenbone/gvm-libs/pull/321)
 
+### Fixed
+- Fix is_cidr_block(). [#322](https://github.com/greenbone/gvm-libs/pull/322)
+
 [20.4]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-11.0...master
 
 ## [11.0.1] (unreleased)

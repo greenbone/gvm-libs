@@ -126,11 +126,14 @@ is_cidr_block (const char *str)
 
   p = NULL;
   block = strtol (block_str, &p, 10);
-  g_free (addr_str);
 
   if (*p || block <= 0 || block > 30)
-    return 0;
+    {
+      g_free (addr_str);
+      return 0;
+    }
 
+  g_free (addr_str);
   return 1;
 }
 
