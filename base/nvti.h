@@ -103,6 +103,8 @@ guint
 nvti_vtseverities_len (const nvti_t *);
 vtseverity_t *
 nvti_vtseverity (const nvti_t *, guint);
+int
+nvti_severity_score (const nvti_t *);
 
 nvti_t *
 nvti_new (void);

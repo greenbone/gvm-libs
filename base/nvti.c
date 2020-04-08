@@ -909,6 +909,31 @@ nvti_vtseverity (const nvti_t *n, guint p)
 }
 
 /**
+ * @brief Get the maximum severity score
+ *
+ * @param n The NVT Info structure.
+ *
+ * @return The severity score, -1 indicates an error.
+ */
+int
+nvti_severity_score (const nvti_t *n)
+{
+  unsigned int i;
+  int score = -1;
+
+  for (i = 0; i < nvti_vtseverities_len (n); i++)
+    {
+      vtseverity_t *severity;
+
+      severity = nvti_vtseverity (n, i);
+      if (vtseverity_score (severity) > score)
+        score = vtseverity_score (severity);
+    }
+
+  return score;
+}
+
+/**
  * @brief Get the solution.
  *
  * @param n The NVT Info structure of which the solution should
