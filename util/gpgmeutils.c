@@ -543,7 +543,7 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
 
   /* Create a GPGME data buffer with custom read and write functions.
    *
-   * This is neccessary as gpgme_data_new_from_stream may cause problems
+   * This is necessary as gpgme_data_new_from_stream may cause problems
    * when trying to write to the stream after some operations. */
   memset (&callbacks, 0, sizeof (callbacks));
   callbacks.read = gvm_gpgme_fread;
