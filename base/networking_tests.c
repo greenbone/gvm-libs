@@ -831,47 +831,55 @@ Ensure (networking, validate_port_range)
 
 Ensure (networking, port_range_ranges)
 {
+  const gchar *valid_portrange1;
+  array_t *valid_portrange1_ranges;
+  range_t *valid_portrange1_range1;
+  range_t *valid_portrange1_range2;
+  range_t *valid_portrange1_range3;
+  range_t *valid_portrange1_range4;
+  range_t *valid_portrange1_range5;
+
   /* Valid port ranges. U:,T: are empty ranges which are ignored. */
-  const gchar *valid_portrange1 = "1,10-13,10-10,T:1-2,U:10-12,U:,T:";
+  valid_portrange1 = "1,10-13,10-10,T  :1-2,U : 10-12,U:,T:";
   assert_that (validate_port_range (valid_portrange1), is_equal_to (0));
 
   assert_that (port_range_ranges (NULL), is_null);
   assert_that (port_range_ranges (valid_portrange1), is_not_null);
 
-  array_t *valid_portrange1_ranges = port_range_ranges (valid_portrange1);
+  valid_portrange1_ranges = port_range_ranges (valid_portrange1);
   assert_that (valid_portrange1_ranges, is_not_null);
   assert_that (valid_portrange1_ranges->len, is_equal_to (5));
 
   assert_that (valid_portrange1_ranges->len, is_equal_to (5));
-  range_t *valid_portrange1_range1 =
+  valid_portrange1_range1 =
     (range_t *) g_ptr_array_index (valid_portrange1_ranges, 0);
   assert_that (valid_portrange1_range1->start, is_equal_to (1));
   assert_that (valid_portrange1_range1->end, is_equal_to (1));
   assert_that (valid_portrange1_range1->exclude, is_equal_to (0));
   assert_that (valid_portrange1_range1->type, is_equal_to (PORT_PROTOCOL_TCP));
 
-  range_t *valid_portrange1_range2 =
+  valid_portrange1_range2 =
     (range_t *) g_ptr_array_index (valid_portrange1_ranges, 1);
   assert_that (valid_portrange1_range2->start, is_equal_to (10));
   assert_that (valid_portrange1_range2->end, is_equal_to (13));
   assert_that (valid_portrange1_range2->exclude, is_equal_to (0));
   assert_that (valid_portrange1_range2->type, is_equal_to (PORT_PROTOCOL_TCP));
 
-  range_t *valid_portrange1_range3 =
+  valid_portrange1_range3 =
     (range_t *) g_ptr_array_index (valid_portrange1_ranges, 2);
   assert_that (valid_portrange1_range3->start, is_equal_to (10));
   assert_that (valid_portrange1_range3->end, is_equal_to (10));
   assert_that (valid_portrange1_range3->exclude, is_equal_to (0));
   assert_that (valid_portrange1_range3->type, is_equal_to (PORT_PROTOCOL_TCP));
 
-  range_t *valid_portrange1_range4 =
+  valid_portrange1_range4 =
     (range_t *) g_ptr_array_index (valid_portrange1_ranges, 3);
   assert_that (valid_portrange1_range4->start, is_equal_to (1));
   assert_that (valid_portrange1_range4->end, is_equal_to (2));
   assert_that (valid_portrange1_range4->exclude, is_equal_to (0));
   assert_that (valid_portrange1_range4->type, is_equal_to (PORT_PROTOCOL_TCP));
 
-  range_t *valid_portrange1_range5 =
+  valid_portrange1_range5 =
     (range_t *) g_ptr_array_index (valid_portrange1_ranges, 4);
   assert_that (valid_portrange1_range5->start, is_equal_to (10));
   assert_that (valid_portrange1_range5->end, is_equal_to (12));
@@ -881,11 +889,14 @@ Ensure (networking, port_range_ranges)
 
 Ensure (networking, port_in_port_ranges)
 {
+  const gchar *portrange;
+  array_t *portrange_ranges;
+
   /* Valid port ranges. U:,T: are empty ranges which are ignored. */
-  const gchar *portrange = "1,10-12,10-10,T:1-2,U:10-14,U:,T:";
+  portrange = "1,10-12,10-10,T:1-2,U:10-14,U:,T:";
   assert_that (validate_port_range (portrange), is_equal_to (0));
 
-  array_t *portrange_ranges = port_range_ranges (portrange);
+  portrange_ranges = port_range_ranges (portrange);
   assert_that (portrange_ranges, is_not_null);
   assert_that (portrange_ranges->len, is_equal_to (5));
 

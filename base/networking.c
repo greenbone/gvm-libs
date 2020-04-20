@@ -594,7 +594,7 @@ fail:
  *
  * @param[in]   port_range  Valid port_range string.
  *
- * @return Range array.
+ * @return Range array or NULL if port_range invalid or NULL.
  */
 array_t *
 port_range_ranges (const char *port_range)
@@ -608,11 +608,8 @@ port_range_ranges (const char *port_range)
 
   /* port_range needs to be a valid port_range string. */
   err = validate_port_range (port_range);
-  assert (!err);
   if (err)
-    g_warning ("%s: Invalid port_range string supplied. range_t may be filled "
-               "with incorrect values.",
-               __func__);
+    return NULL;
 
   ranges = make_array ();
 
