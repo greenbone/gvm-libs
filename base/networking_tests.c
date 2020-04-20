@@ -105,6 +105,56 @@ Ensure (networking, validate_port_range)
   assert_that (validate_port_range ("   T  : 1"), is_equal_to (0));
 }
 
+Ensure (networking, port_range_ranges)
+{
+  /* Valid port ranges. U:,T: are empty ranges which are ignored. */
+  const gchar *valid_portrange1 = "1,10-13,10-10,T:1-2,U:10-12,U:,T:";
+  assert_that (validate_port_range (valid_portrange1), is_equal_to (0));
+
+  assert_that (port_range_ranges (NULL), is_null);
+  assert_that (port_range_ranges (valid_portrange1), is_not_null);
+
+  array_t *valid_portrange1_ranges = port_range_ranges (valid_portrange1);
+  assert_that (valid_portrange1_ranges, is_not_null);
+  assert_that (valid_portrange1_ranges->len, is_equal_to (5));
+
+  assert_that (valid_portrange1_ranges->len, is_equal_to (5));
+  range_t *valid_portrange1_range1 =
+    (range_t *) g_ptr_array_index (valid_portrange1_ranges, 0);
+  assert_that (valid_portrange1_range1->start, is_equal_to (1));
+  assert_that (valid_portrange1_range1->end, is_equal_to (1));
+  assert_that (valid_portrange1_range1->exclude, is_equal_to (0));
+  assert_that (valid_portrange1_range1->type, is_equal_to (PORT_PROTOCOL_TCP));
+
+  range_t *valid_portrange1_range2 =
+    (range_t *) g_ptr_array_index (valid_portrange1_ranges, 1);
+  assert_that (valid_portrange1_range2->start, is_equal_to (10));
+  assert_that (valid_portrange1_range2->end, is_equal_to (13));
+  assert_that (valid_portrange1_range2->exclude, is_equal_to (0));
+  assert_that (valid_portrange1_range2->type, is_equal_to (PORT_PROTOCOL_TCP));
+
+  range_t *valid_portrange1_range3 =
+    (range_t *) g_ptr_array_index (valid_portrange1_ranges, 2);
+  assert_that (valid_portrange1_range3->start, is_equal_to (10));
+  assert_that (valid_portrange1_range3->end, is_equal_to (10));
+  assert_that (valid_portrange1_range3->exclude, is_equal_to (0));
+  assert_that (valid_portrange1_range3->type, is_equal_to (PORT_PROTOCOL_TCP));
+
+  range_t *valid_portrange1_range4 =
+    (range_t *) g_ptr_array_index (valid_portrange1_ranges, 3);
+  assert_that (valid_portrange1_range4->start, is_equal_to (1));
+  assert_that (valid_portrange1_range4->end, is_equal_to (2));
+  assert_that (valid_portrange1_range4->exclude, is_equal_to (0));
+  assert_that (valid_portrange1_range4->type, is_equal_to (PORT_PROTOCOL_TCP));
+
+  range_t *valid_portrange1_range5 =
+    (range_t *) g_ptr_array_index (valid_portrange1_ranges, 4);
+  assert_that (valid_portrange1_range5->start, is_equal_to (10));
+  assert_that (valid_portrange1_range5->end, is_equal_to (12));
+  assert_that (valid_portrange1_range5->exclude, is_equal_to (0));
+  assert_that (valid_portrange1_range5->type, is_equal_to (PORT_PROTOCOL_UDP));
+}
+
 /* Test suite. */
 
 int
@@ -115,6 +165,7 @@ main (int argc, char **argv)
   suite = create_test_suite ();
 
   add_test_with_context (suite, networking, validate_port_range);
+  add_test_with_context (suite, networking, port_range_ranges);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());

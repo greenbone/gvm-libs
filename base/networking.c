@@ -601,10 +601,18 @@ port_range_ranges (const char *port_range)
 {
   gchar **split, **point, *range_start, *current;
   array_t *ranges;
-  int tcp;
+  int tcp, err;
 
   if (!port_range)
     return NULL;
+
+  /* port_range needs to be a valid port_range string. */
+  err = validate_port_range (port_range);
+  assert (!err);
+  if (err)
+    g_warning ("%s: Invalid port_range string supplied. range_t may be filled "
+               "with incorrect values.",
+               __func__);
 
   ranges = make_array ();
 
@@ -633,19 +641,34 @@ port_range_ranges (const char *port_range)
     {
       gchar *hyphen, *element;
       range_t *range;
+      int element_strlen;
 
       element = g_strstrip (*point);
-      if (strlen (element) >= 2)
+      element_strlen = strlen (element);
+
+      if (element_strlen >= 2)
         {
-          if ((element[0] == 'T') && (element[1] == ':'))
+          if ((element[0] == 'T'))
             {
-              tcp = 1;
-              element = element + 2;
+              element++;
+              while (*element && isblank (*element))
+                element++;
+              if (*element == ':')
+                {
+                  element++;
+                  tcp = 1;
+                }
             }
-          else if ((element[0] == 'U') && (element[1] == ':'))
+          else if ((element[0] == 'U'))
             {
-              tcp = 0;
-              element = element + 2;
+              element++;
+              while (*element && isblank (*element))
+                element++;
+              if (*element == ':')
+                {
+                  element++;
+                  tcp = 0;
+                }
             }
           /* Else tcp stays as it is. */
         }
