@@ -83,6 +83,13 @@ if (BUILD_TESTS)
 
   target_link_libraries (array-test ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 
+  add_executable (networking-test
+                  EXCLUDE_FROM_ALL
+                  networking_tests.c)
+  add_test (networking-test networking-test)
+  target_include_directories (networking-test PRIVATE ${CGREEN_INCLUDE_DIRS} )
+  target_link_libraries (networking-test gvm_base_shared ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+
   add_executable (version-test
                   EXCLUDE_FROM_ALL
                   version_tests.c)

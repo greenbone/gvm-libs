@@ -489,12 +489,17 @@ validate_port_range (const char *port_range)
 
       element = g_strstrip (*point);
 
-      /* Strip off any leading type specifier. */
+      /* Strip off any leading type specifier and following whitespace. */
 
       if ((strlen (element) >= 2)
-          && ((element[0] == 'T') || (element[0] == 'U'))
-          && (element[1] == ':'))
-        element = element + 2;
+          && ((element[0] == 'T') || (element[0] == 'U')))
+        {
+          element++;
+          while (*element && isblank (*element))
+            element++;
+          if (*element == ':')
+            element++;
+        }
 
       /* Look for a hyphen. */
 
