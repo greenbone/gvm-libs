@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add unit tests for osp. [#315](https://github.com/greenbone/gvm-libs/pull/315)
 - Add support for test_alive_hosts_only feature of openvas. [#320](https://github.com/greenbone/gvm-libs/pull/320)
 - Add function to set and get the NVT QoD. [#321](https://github.com/greenbone/gvm-libs/pull/321)
+- Add unit tests for networking.c port list functions. [#325](https://github.com/greenbone/gvm-libs/pull/325)
 
 ### Fixed
 - Fix is_cidr_block(). [#322](https://github.com/greenbone/gvm-libs/pull/322)
