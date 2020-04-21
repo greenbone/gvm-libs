@@ -489,12 +489,17 @@ validate_port_range (const char *port_range)
 
       element = g_strstrip (*point);
 
-      /* Strip off any leading type specifier. */
+      /* Strip off any leading type specifier and following whitespace. */
 
       if ((strlen (element) >= 2)
-          && ((element[0] == 'T') || (element[0] == 'U'))
-          && (element[1] == ':'))
-        element = element + 2;
+          && ((element[0] == 'T') || (element[0] == 'U')))
+        {
+          element++;
+          while (*element && isblank (*element))
+            element++;
+          if (*element == ':')
+            element++;
+        }
 
       /* Look for a hyphen. */
 
@@ -589,16 +594,21 @@ fail:
  *
  * @param[in]   port_range  Valid port_range string.
  *
- * @return Range array.
+ * @return Range array or NULL if port_range invalid or NULL.
  */
 array_t *
 port_range_ranges (const char *port_range)
 {
   gchar **split, **point, *range_start, *current;
   array_t *ranges;
-  int tcp;
+  int tcp, err;
 
   if (!port_range)
+    return NULL;
+
+  /* port_range needs to be a valid port_range string. */
+  err = validate_port_range (port_range);
+  if (err)
     return NULL;
 
   ranges = make_array ();
@@ -628,19 +638,34 @@ port_range_ranges (const char *port_range)
     {
       gchar *hyphen, *element;
       range_t *range;
+      int element_strlen;
 
       element = g_strstrip (*point);
-      if (strlen (element) >= 2)
+      element_strlen = strlen (element);
+
+      if (element_strlen >= 2)
         {
-          if ((element[0] == 'T') && (element[1] == ':'))
+          if ((element[0] == 'T'))
             {
-              tcp = 1;
-              element = element + 2;
+              element++;
+              while (*element && isblank (*element))
+                element++;
+              if (*element == ':')
+                {
+                  element++;
+                  tcp = 1;
+                }
             }
-          else if ((element[0] == 'U') && (element[1] == ':'))
+          else if ((element[0] == 'U'))
             {
-              tcp = 0;
-              element = element + 2;
+              element++;
+              while (*element && isblank (*element))
+                element++;
+              if (*element == ':')
+                {
+                  element++;
+                  tcp = 0;
+                }
             }
           /* Else tcp stays as it is. */
         }

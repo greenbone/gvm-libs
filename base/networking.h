@@ -49,7 +49,7 @@ struct range
 {
   gchar *comment;       /**< Comment. */
   gchar *id;            /**< UUID. */
-  int end;              /**< End port.  0 for single port. */
+  int end;              /**< End port. For single port end == start. */
   int exclude;          /**< Whether to exclude range. */
   int start;            /**< Start port. */
   port_protocol_t type; /**< Port protocol. */
