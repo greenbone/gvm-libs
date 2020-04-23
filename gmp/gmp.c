@@ -116,6 +116,78 @@ gmp_check_response (gnutls_session_t *session, entity_t *entity)
 }
 
 /**
+ * @brief Read response and convert status of response to a return value.
+ *
+ * @param[in]  connection   Connection.
+ * @param[in]  convert_99   If true, return will be 99 if response was 400 with
+ *                          status_text "Permission Denied".
+ *
+ * @return 0 on success, 99 if convert_99 and permission denied, -1 or GMP
+ *         response code on error.
+ */
+static int
+check_response_c (gvm_connection_t *connection, int convert_99)
+{
+  int ret;
+  const char *status;
+  entity_t entity;
+
+  /* Read the response. */
+
+  entity = NULL;
+  if (read_entity_c (connection, &entity))
+    return -1;
+
+  /* Check the response. */
+
+  status = entity_attribute (entity, "status");
+  if (status == NULL)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (strlen (status) == 0)
+    {
+      free_entity (entity);
+      return -1;
+    }
+  if (status[0] == '2')
+    {
+      free_entity (entity);
+      return 0;
+    }
+  ret = (int) strtol (status, NULL, 10);
+  if (errno == ERANGE)
+    {
+      free_entity (entity);
+      return -1;
+    }
+
+  if (convert_99
+      && entity_attribute (entity, "status_text")
+      && strcasecmp (entity_attribute (entity, "status_text"),
+                     "Permission denied")
+         == 0)
+    ret = 99;
+
+  free_entity (entity);
+  return ret;
+}
+
+/**
+ * @brief Read response and convert status of response to a return value.
+ *
+ * @param[in]  connection  Connection.
+ *
+ * @return 0 on success, -1 or GMP response code on error.
+ */
+int
+gmp_check_response_c (gvm_connection_t *connection)
+{
+  return check_response_c (connection, 0);
+}
+
+/**
  * @brief "Ping" the manager.
  *
  * @param[in]  session   Pointer to GNUTLS session.
@@ -791,48 +863,33 @@ gmp_start_task_report_c (gvm_connection_t *connection, const char *task_id,
 }
 
 /**
- * @brief Read response and convert status of response to a return value.
+ * @brief Start a task and read the manager response.
  *
  * @param[in]  connection  Connection.
+ * @param[in]  opts        Options to apply.
  *
- * @return 0 on success, -1 or GMP response code on error.
+ * @return 0 on success, 99 permission denied, -1 or GMP response code on error.
  */
 int
-gmp_check_response_c (gvm_connection_t *connection)
+gmp_start_task_ext_c (gvm_connection_t *connection, gmp_start_task_opts_t opts)
 {
   int ret;
-  const char *status;
-  entity_t entity;
 
-  /* Read the response. */
+  /* Check args. */
 
-  entity = NULL;
-  if (read_entity_c (connection, &entity))
+  if (opts.task_id == NULL)
     return -1;
 
-  /* Check the response. */
+  /* Send request. */
 
-  status = entity_attribute (entity, "status");
-  if (status == NULL)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  if (strlen (status) == 0)
-    {
-      free_entity (entity);
-      return -1;
-    }
-  if (status[0] == '2')
-    {
-      free_entity (entity);
-      return 0;
-    }
-  ret = (int) strtol (status, NULL, 10);
-  free_entity (entity);
-  if (errno == ERANGE)
+  ret = gvm_connection_sendf (connection, "<start_task task_id=\"%s\"/>",
+                              opts.task_id);
+  if (ret)
     return -1;
-  return ret;
+
+  /* Read response. */
+
+  return check_response_c (connection, 1);
 }
 
 /**
