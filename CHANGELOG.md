@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [20.4] (unreleased)
+## [20.8] (unreleased)
 
 ### Added
 - Add nvti_get_tag() [#285](https://github.com/greenbone/gvm-libs/pull/285)
@@ -16,11 +16,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add function to set and get the NVT QoD. [#321](https://github.com/greenbone/gvm-libs/pull/321)
 - Add unit tests for networking.c port list functions. [#325](https://github.com/greenbone/gvm-libs/pull/325)
 - Add gmp_start_task_ext_c. [#327](https://github.com/greenbone/gvm-libs/pull/327)
+- Make log mutex visible. [#328](https://github.com/greenbone/gvm-libs/pull/328)
 
 ### Fixed
 - Fix is_cidr_block(). [#322](https://github.com/greenbone/gvm-libs/pull/322)
 
-[20.4]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-11.0...master
+[20.8]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-11.0...master
 
 ## [11.0.1] (unreleased)
 
