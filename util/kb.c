@@ -815,8 +815,7 @@ redis_pop_str (kb_t kb, const char *name)
  * @param[in] kb  KB handle where to fetch the item.
  * @param[in] name  Name of the element to retrieve.
  *
- * @return A struct kb_item to be freed with kb_item_free() or NULL if no
- *         element was found or on error.
+ * @return An integer.
  */
 static int
 redis_get_int (kb_t kb, const char *name)

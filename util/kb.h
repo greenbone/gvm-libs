@@ -320,8 +320,7 @@ kb_item_get_single (kb_t kb, const char *name, enum kb_item_type type)
  * @brief Get a single KB string item.
  * @param[in] kb  KB handle where to fetch the item.
  * @param[in] name  Name of the element to retrieve.
- * @return A struct kb_item to be freed with kb_item_free() or NULL if no
- *         element was found or on error.
+ * @return A string to be freed or NULL if list is empty or on error.
  */
 static inline char *
 kb_item_get_str (kb_t kb, const char *name)
@@ -337,8 +336,7 @@ kb_item_get_str (kb_t kb, const char *name)
  * @brief Get a single KB integer item.
  * @param[in] kb  KB handle where to fetch the item.
  * @param[in] name  Name of the element to retrieve.
- * @return A struct kb_item to be freed with kb_item_free() or NULL if no
- *         element was found or on error.
+ * @return An integer.
  */
 static inline int
 kb_item_get_int (kb_t kb, const char *name)
