@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [11.0.2] (2020-05-12)
+## [11.0.1] (2020-05-12)
 
 ### Added
 - Add option to set finished hosts in OSP targets [#298](https://github.com/greenbone/gvm-libs/pull/298)
@@ -23,7 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix escaping entity attributes in print_entity_to_string [#318](https://github.com/greenbone/gvm-libs/pull/318)
 - Fix is_cidr_block() [#323][https://github.com/greenbone/gvm-libs/pull/323]
 
-[11.0.1]: https://github.com/greenbone/gvm-libs/compare/v11.0.1...v11.0.2
+[11.0.1]: https://github.com/greenbone/gvm-libs/compare/v11.0.0...v11.0.1
 
 ## [11.0.0] (2019-10-11)
 
