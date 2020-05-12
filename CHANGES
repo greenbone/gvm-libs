@@ -7,6 +7,17 @@ or get the entire source code repository and view log history:
 $ git clone https://github.com/greenbone/gvm-libs.git
 $ cd gvm-libs && git checkout gvm-libs-10.0 && git log
 
+gvm-libs 10.0.2 (2020-05-12)
+
+This is the second patch release of the gvm-libs module 10.0 for the
+Greenbone Vulnerability Management 10 (GVM-10) framework.
+
+Main changes compared to gvm-libs 10.0.1:
+
+* Fix trust and file handling for S/MIME
+* Don't create an entity tree during read_string_c
+
+
 gvm-libs 10.0.1 (2019-07-17)
 
 This is the first patch release of the gvm-libs module 10.0 for the
