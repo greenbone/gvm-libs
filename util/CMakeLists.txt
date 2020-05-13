@@ -134,6 +134,10 @@ if (BUILD_WITH_LDAP)
   endif (NOT LIBLDAP)
 endif (BUILD_WITH_LDAP)
 
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+  add_compile_options(-std=c99)
+endif()
+
 include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS}
                      ${LIBXML2_INCLUDE_DIRS})
 
