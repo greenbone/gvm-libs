@@ -135,7 +135,7 @@ if (BUILD_WITH_LDAP)
 endif (BUILD_WITH_LDAP)
 
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-  add_compile_options(-std=c99)
+  add_compile_options(-std=gnu99)
 endif()
 
 include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS}
