@@ -135,6 +135,7 @@ if (BUILD_WITH_LDAP)
 endif (BUILD_WITH_LDAP)
 
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+# set C standard for older GNU compilers (GCC >= 6.3.0)
   if (CMAKE_C_COMPILER_VERSION VERSION_LESS 6.3)
     add_compile_options(-std=gnu99)
   endif()
