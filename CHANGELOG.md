@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add unit tests for networking.c port list functions. [#325](https://github.com/greenbone/gvm-libs/pull/325)
 - Add gmp_start_task_ext_c. [#327](https://github.com/greenbone/gvm-libs/pull/327)
 - Make log mutex visible. [#328](https://github.com/greenbone/gvm-libs/pull/328)
+- Add new scan status PENDING. [#336](https://github.com/greenbone/gvm-libs/pull/336)
 
 ### Fixed
 - Fix is_cidr_block(). [#322](https://github.com/greenbone/gvm-libs/pull/322)

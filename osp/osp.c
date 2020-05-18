@@ -572,7 +572,9 @@ osp_get_scan_status_ext (osp_connection_t *connection,
       return status;
     }
 
-  if (!strcmp (entity_attribute (child, "status"), "init"))
+  if (!strcmp (entity_attribute (child, "status"), "pending"))
+    status = OSP_SCAN_STATUS_PENDING;
+  else if (!strcmp (entity_attribute (child, "status"), "init"))
     status = OSP_SCAN_STATUS_INIT;
   else if (!strcmp (entity_attribute (child, "status"), "running"))
     status = OSP_SCAN_STATUS_RUNNING;
