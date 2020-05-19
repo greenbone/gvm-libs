@@ -65,6 +65,7 @@ typedef enum
   OSP_SCAN_STATUS_RUNNING,    /**< Running status. */
   OSP_SCAN_STATUS_STOPPED,    /**< Stopped status. */
   OSP_SCAN_STATUS_FINISHED,   /**< Finished status. */
+  OSP_SCAN_STATUS_PENDING,    /**< Init pending. */
 } osp_scan_status_t;
 
 
