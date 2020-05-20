@@ -935,12 +935,99 @@ Ensure (networking, port_in_port_ranges)
 
 /* Test suite. */
 
+Ensure (networking, ip_islocalhost)
+{
+  cgreen_mocks_are (loose_mocks);
+
+  /* IPv4 */
+  struct in_addr addr;
+  struct sockaddr_storage storage;
+  struct sockaddr_in sin;
+  memset (&sin, 0, sizeof (struct sockaddr_in));
+  sin.sin_family = AF_INET;
+
+  inet_pton (AF_INET, "127.0.0.1", &(addr.s_addr));
+  sin.sin_addr.s_addr = addr.s_addr;
+  memcpy (&storage, &sin, sizeof (sin));
+  assert_that (ip_islocalhost (&storage), is_true);
+
+  inet_pton (AF_INET, "0.0.0.0", &(addr.s_addr));
+  sin.sin_addr.s_addr = addr.s_addr;
+  memcpy (&storage, &sin, sizeof (sin));
+  assert_that (ip_islocalhost (&storage), is_true);
+
+  inet_pton (AF_INET, "127.100.5.99", &(addr.s_addr));
+  sin.sin_addr.s_addr = addr.s_addr;
+  memcpy (&storage, &sin, sizeof (sin));
+  assert_that (ip_islocalhost (&storage), is_true);
+
+  //!! local interface address
+  // inet_pton (AF_INET, <some local interface address>, &(addr.s_addr));
+  // sin.sin_addr.s_addr = addr.s_addr;
+  // memcpy (&storage, &sin, sizeof (sin));
+  // assert_that (ip_islocalhost (&storage), is_true);
+
+  /* example.com */
+  inet_pton (AF_INET, "93.184.216.34", &(addr.s_addr));
+  sin.sin_addr.s_addr = addr.s_addr;
+  memcpy (&storage, &sin, sizeof (sin));
+  assert_that (ip_islocalhost (&storage), is_false);
+
+  /* IPv6 */
+  struct in6_addr addr_6;
+  struct sockaddr_in6 sin6;
+  memset (&sin, 0, sizeof (struct sockaddr_in6));
+  sin6.sin6_family = AF_INET6;
+
+  inet_pton (AF_INET6, "::FFFF:127.0.0.1", &(addr_6));
+  sin6.sin6_addr = addr_6;
+  memcpy (&storage, &sin6, sizeof (sin6));
+  assert_that (ip_islocalhost (&storage), is_true);
+
+  inet_pton (AF_INET6, "::FFFF:0.0.0.0", &(addr_6));
+  sin6.sin6_addr = addr_6;
+  memcpy (&storage, &sin6, sizeof (sin6));
+  assert_that (ip_islocalhost (&storage), is_true);
+
+  inet_pton (AF_INET6, "::FFFF:127.100.5.99", &(addr_6));
+  sin6.sin6_addr = addr_6;
+  memcpy (&storage, &sin6, sizeof (sin6));
+  assert_that (ip_islocalhost (&storage), is_true);
+
+  /* loopback address */
+  inet_pton (AF_INET6, "0:0:0:0:0:0:0:1", &(addr_6));
+  sin6.sin6_addr = addr_6;
+  memcpy (&storage, &sin6, sizeof (sin6));
+  assert_that (ip_islocalhost (&storage), is_true);
+
+  /* dependent on local environment */
+  // inet_pton (AF_INET6, <some local interface address>, &(addr_6));
+  // sin6.sin6_addr = addr_6;
+  // memcpy (&storage, &sin6, sizeof (sin6));
+  // assert_that (ip_islocalhost (&storage), is_true);
+
+  /* example.com */
+  inet_pton (AF_INET6, "2606:2800:220:1:248:1893:25c8:1946", &(addr_6));
+  sin6.sin6_addr = addr_6;
+  memcpy (&storage, &sin6, sizeof (sin6));
+  assert_that (ip_islocalhost (&storage), is_false);
+}
+
+TestSuite *
+gvm_routethough ()
+{
+  TestSuite *suite = create_test_suite ();
+  add_test_with_context (suite, networking, ip_islocalhost);
+  return suite;
+}
+
 int
 main (int argc, char **argv)
 {
   TestSuite *suite;
 
   suite = create_test_suite ();
+  add_suite (suite, gvm_routethough ());
 
   add_test_with_context (suite, networking, validate_port_range);
   add_test_with_context (suite, networking, port_range_ranges);
