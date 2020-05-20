@@ -762,3 +762,87 @@ ipv6_is_enabled ()
 
   return 1;
 }
+
+gboolean
+ip_islocalhost (struct sockaddr_storage *storage)
+{
+  struct in_addr addr;
+  struct in_addr *addr_p = &addr;
+  struct in6_addr addr6;
+  struct in6_addr *addr6_p = &addr6;
+  struct sockaddr_in *sin_p;
+  struct sockaddr_in6 *sin6_p;
+  struct ifaddrs *ifaddr = NULL;
+  struct ifaddrs *ifa = NULL;
+  int family;
+
+  family = storage->ss_family;
+
+  if (family == AF_INET)
+    {
+      sin_p = (struct sockaddr_in *) storage;
+      addr = sin_p->sin_addr;
+
+      if (addr_p == NULL)
+        return FALSE;
+      /* addr is 0.0.0.0 */
+      if ((addr_p)->s_addr == 0)
+        return TRUE;
+      /* addr starts with 127.0.0.1 */
+      if (((addr_p)->s_addr & htonl (0xFF000000)) == htonl (0x7F000000))
+        return TRUE;
+    }
+  if (family == AF_INET6)
+    {
+      sin6_p = (struct sockaddr_in6 *) storage;
+      addr6 = sin6_p->sin6_addr;
+
+      if (IN6_IS_ADDR_V4MAPPED (&addr6))
+        {
+          /* addr is 0.0.0.0 */
+          if (addr6_p->s6_addr32[3] == 0)
+            return 1;
+
+          /* addr starts with 127.0.0.1 */
+          if ((addr6_p->s6_addr32[3] & htonl (0xFF000000))
+              == htonl (0x7F000000))
+            return 1;
+        }
+      if (IN6_IS_ADDR_LOOPBACK (addr6_p))
+        return 1;
+    }
+
+  if (getifaddrs (&ifaddr) == -1)
+    {
+      g_debug ("%s: getifaddr failed: %s", __func__, strerror (errno));
+      return FALSE;
+    }
+  else
+    {
+      struct sockaddr_in *sin;
+      struct sockaddr_in6 *sin6;
+      for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+        {
+          if (ifa->ifa_addr == NULL)
+            continue;
+          if (ifa->ifa_addr->sa_family == AF_INET)
+            {
+              sin = (struct sockaddr_in *) (ifa->ifa_addr);
+              /* Check if same address as local interface. */
+              if (addr_p->s_addr == sin->sin_addr.s_addr)
+                return TRUE;
+            }
+          if (ifa->ifa_addr->sa_family == AF_INET6)
+            {
+              sin6 = (struct sockaddr_in6 *) (ifa->ifa_addr);
+              /* Check if same address as local interface. */
+              if (IN6_ARE_ADDR_EQUAL (&(sin6->sin6_addr), addr6_p))
+                return TRUE;
+            }
+        }
+      freeifaddrs (ifaddr);
+    }
+
+  return FALSE;
+}
+
