@@ -848,13 +848,13 @@ ip_islocalhost (struct sockaddr_storage *storage)
   return FALSE;
 }
 
-
 struct proc_entry
 {
   gchar *interface;
   unsigned long mask;
   unsigned long dest;
 };
+
 static GSList *
 get_routes (void)
 {

@@ -87,8 +87,11 @@ if (BUILD_TESTS)
                   EXCLUDE_FROM_ALL
                   networking_tests.c)
   add_test (networking-test networking-test)
+  set (NETWORKING_TEST_LINKER_WRAP_OPTIONS
+      "-Wl,-wrap,g_io_channel_new_file,-wrap,g_io_channel_shutdown")
   target_include_directories (networking-test PRIVATE ${CGREEN_INCLUDE_DIRS} )
-  target_link_libraries (networking-test gvm_base_shared ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+  target_link_libraries (networking-test gvm_base_shared ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS}
+                       ${NETWORKING_TEST_LINKER_WRAP_OPTIONS})
 
   add_executable (version-test
                   EXCLUDE_FROM_ALL

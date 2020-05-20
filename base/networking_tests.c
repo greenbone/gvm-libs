@@ -1028,6 +1028,20 @@ __wrap_g_io_channel_new_file (const char *filename, const char *mode,
   return (GIOChannel *) mock (filename, mode, error);
 }
 
+__attribute__ ((weak)) GIOStatus
+__real_g_io_channel_shutdown (GIOChannel *channel, gboolean flush,
+                              GError **err);
+
+gboolean g_g_io_channel_shutdown_use_real = TRUE;
+GIOStatus
+__wrap_g_io_channel_shutdown (GIOChannel *channel, gboolean flush, GError **err)
+{
+  if (g_g_io_channel_shutdown_use_real)
+    return __real_g_io_channel_shutdown (channel, flush, err);
+
+  return (GIOStatus) mock (channel, flush, err);
+}
+
 Ensure (networking, get_routes)
 {
   int status;
@@ -1059,14 +1073,17 @@ Ensure (networking, get_routes)
 
   /* Test get_routes with mocked "/proc/net/route". */
   g_g_io_channel_new_file_use_real = false;
+  g_g_io_channel_shutdown_use_real = false;
   expect (__wrap_g_io_channel_new_file,
           when (filename, is_equal_to_string ("/proc/net/route")),
           will_return (file_channel));
+  expect (__wrap_g_io_channel_shutdown, will_return (G_IO_STATUS_NORMAL));
   list = get_routes ();
   list_len = g_slist_length (list);
   assert_that (list, is_not_null);
   assert_that (list_len, is_equal_to (3));
   g_g_io_channel_new_file_use_real = true;
+  g_g_io_channel_shutdown_use_real = true;
 
   /* Close channel and delete mock file. */
   status = g_io_channel_shutdown (file_channel, TRUE, &err);
@@ -1076,12 +1093,113 @@ Ensure (networking, get_routes)
   if (0 != ret)
     g_warning ("%s: Could not delete file \"./myfile\");", __func__);
 }
+
+Ensure (networking, my_routethrough_v4)
+{
+  struct in_addr dst;
+  struct sockaddr_storage storage_src;
+  struct sockaddr_storage storage_dst;
+  struct sockaddr_in sin_src;
+  struct sockaddr_in sin_dst;
+  struct sockaddr_in sin_always_empty;
+  memset (&sin_src, 0, sizeof (struct sockaddr_in));
+  memset (&sin_dst, 0, sizeof (struct sockaddr_in));
+  memset (&sin_always_empty, 0, sizeof (struct sockaddr_in));
+  sin_src.sin_family = AF_INET;
+  sin_dst.sin_family = AF_INET;
+
+  /* TODO: finish attempt to mock file "/proc/net/route". */
+  // GIOChannel *file_channel;
+  // int status, ret;
+  // GError *err = NULL;
+  // /* Content for mocked file. */
+  // gchar *procnetroute_testfile =
+  //   "\nIface\tDestination\tGateway "
+  //   "\tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT " " "
+  //   "\nenp0s9\t00000000\t01B2A8C0\t0003\t0\t0\t100\t00000000\t0\t0\t0 " " "
+  //   "\nenp0s8\t0038A8C0\t00000000\t0001\t0\t0\t0\t00FFFFFF\t0\t0\t0 " " "
+  //   "\nenp0s9\t00B2A8C0\t00000000\t0001\t0\t0\t100\t00FFFFFF\t0\t0\t0 " "
+  //   \n";
+  // /* Create mock file. */
+  // file_channel =
+  //   g_io_channel_new_file ("./my_routethrough_v4_test", "w+", NULL);
+  // if (!file_channel)
+  //   g_warning ("Not my channel");
+  // g_io_channel_write_chars (file_channel, procnetroute_testfile, -1, NULL,
+  //                           NULL);
+  // g_io_channel_seek_position (file_channel, 0, G_SEEK_SET, NULL);
+  // /* Test get_routes with mocked "/proc/net/route". */
+  // g_g_io_channel_new_file_use_real = false;
+  // g_g_io_channel_shutdown_use_real = false;
+  // always_expect (__wrap_g_io_channel_new_file,
+  //                when (filename, is_equal_to_string ("/proc/net/route")),
+  //                will_return (file_channel));
+  // expect (__wrap_g_io_channel_shutdown, will_return
+  // (G_IO_STATUS_NORMAL),times(8));
+
+  /* No destination address. */
+  assert_that (my_routethrough (NULL, &storage_src), is_null);
+
+  /* Destination address localhost and no source address. */
+  inet_pton (AF_INET, "127.0.0.1", &(dst.s_addr));
+  sin_dst.sin_addr.s_addr = dst.s_addr;
+  memcpy (&storage_dst, &sin_dst, sizeof (sin_dst));
+  assert_that (my_routethrough (&storage_dst, NULL), is_not_null);
+  // AA only working if on all environments if mocked
+  assert_that (my_routethrough (&storage_dst, NULL), is_equal_to_string ("lo"));
+
+  /* Destination address not localhost and no source address. */
+  inet_pton (AF_INET, "93.184.216.34", &(dst.s_addr)); // example.com
+  sin_dst.sin_addr.s_addr = dst.s_addr;
+  memcpy (&storage_dst, &sin_dst, sizeof (sin_dst));
+  assert_that (my_routethrough (&storage_dst, NULL), is_not_null);
+  /* Dependent on local environment. */
+  assert_that (my_routethrough (&storage_dst, NULL),
+               is_equal_to_string ("enp0s9"));
+
+  /* Destination address localhost and source address */
+  inet_pton (AF_INET, "127.0.0.1", &(dst.s_addr));
+  sin_dst.sin_addr.s_addr = dst.s_addr;
+  memcpy (&storage_dst, &sin_dst, sizeof (sin_dst));
+  assert_that (my_routethrough (&storage_dst, &storage_src), is_not_null);
+  assert_that (((struct sockaddr_in *) (&storage_src))->sin_addr.s_addr
+               == htonl (0x7F000001));
+  /* Dependent on local environment. */
+  assert_that (my_routethrough (&storage_dst, NULL), is_equal_to_string ("lo"));
+
+  /* Dst address not localhost and src address */
+  inet_pton (AF_INET, "93.184.216.34", &(dst.s_addr));
+  sin_dst.sin_addr.s_addr = dst.s_addr;
+  memcpy (&storage_dst, &sin_dst, sizeof (sin_dst));
+  memcpy (&storage_src, &sin_always_empty, sizeof (struct sockaddr_in));
+  assert_that (my_routethrough (&storage_dst, &storage_src), is_not_null);
+  assert_that (((struct sockaddr_in *) (&storage_src))->sin_addr.s_addr
+               != htonl (0x7F000001));
+
+  assert_that (((struct sockaddr_in *) (&storage_src))->sin_addr.s_addr != 0);
+  /* Dependent on local environment. */
+  assert_that (my_routethrough (&storage_dst, NULL),
+               is_equal_to_string ("enp0s9"));
+
+  // g_g_io_channel_new_file_use_real = true;
+  // g_g_io_channel_shutdown_use_real = true;
+  // /* Close channel and delete mock file. */
+  // status = g_io_channel_shutdown (file_channel, TRUE, &err);
+  // if ((G_IO_STATUS_NORMAL != status) || err)
+  //   g_warning ("%s: Could not shutdown channel.", __func__);
+  // ret = unlink ("./myfile");
+  // if (0 != ret)
+  //   g_warning ("%s: Could not delete file \"./myfile\");", __func__);
+}
+
 TestSuite *
 gvm_routethough ()
 {
   TestSuite *suite = create_test_suite ();
   add_test_with_context (suite, networking, ip_islocalhost);
   add_test_with_context (suite, networking, get_routes);
+  add_test_with_context (suite, networking, my_routethrough_v4);
+
   return suite;
 }
 
