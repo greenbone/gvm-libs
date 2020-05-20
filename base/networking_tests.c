@@ -1013,11 +1013,75 @@ Ensure (networking, ip_islocalhost)
   assert_that (ip_islocalhost (&storage), is_false);
 }
 
+__attribute__ ((weak)) GIOChannel *
+__real_g_io_channel_new_file (const char *filename, const char *mode,
+                              GError **error);
+
+gboolean g_g_io_channel_new_file_use_real = TRUE;
+GIOChannel *
+__wrap_g_io_channel_new_file (const char *filename, const char *mode,
+                              GError **error)
+{
+  if (g_g_io_channel_new_file_use_real)
+    return __real_g_io_channel_new_file (filename, mode, error);
+
+  return (GIOChannel *) mock (filename, mode, error);
+}
+
+Ensure (networking, get_routes)
+{
+  int status;
+  int ret;
+  GError *err = NULL;
+  GIOChannel *file_channel;
+  GSList *list = NULL;
+  int list_len;
+
+  /* Content for mocked file. */
+  gchar *procnetroute_testfile =
+    "\nIface\tDestination\tGateway "
+    "\tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                   "
+    "                                    "
+    "\nenp0s9\t00000000\t01B2A8C0\t0003\t0\t0\t100\t00000000\t0\t0\t0          "
+    "                                                                 "
+    "\nenp0s8\t0038A8C0\t00000000\t0001\t0\t0\t0\t00FFFFFF\t0\t0\t0            "
+    "                                                                 "
+    "\nenp0s9\t00B2A8C0\t00000000\t0001\t0\t0\t100\t00FFFFFF\t0\t0\t0          "
+    "                                                                 \n";
+
+  /* Create mock file. */
+  file_channel = g_io_channel_new_file ("./myfile", "w+", NULL);
+  if (!file_channel)
+    g_warning ("Not my channel");
+  g_io_channel_write_chars (file_channel, procnetroute_testfile, -1, NULL,
+                            NULL);
+  g_io_channel_seek_position (file_channel, 0, G_SEEK_SET, NULL);
+
+  /* Test get_routes with mocked "/proc/net/route". */
+  g_g_io_channel_new_file_use_real = false;
+  expect (__wrap_g_io_channel_new_file,
+          when (filename, is_equal_to_string ("/proc/net/route")),
+          will_return (file_channel));
+  list = get_routes ();
+  list_len = g_slist_length (list);
+  assert_that (list, is_not_null);
+  assert_that (list_len, is_equal_to (3));
+  g_g_io_channel_new_file_use_real = true;
+
+  /* Close channel and delete mock file. */
+  status = g_io_channel_shutdown (file_channel, TRUE, &err);
+  if ((G_IO_STATUS_NORMAL != status) || err)
+    g_warning ("%s: Could not shutdown channel.", __func__);
+  ret = unlink ("./myfile");
+  if (0 != ret)
+    g_warning ("%s: Could not delete file \"./myfile\");", __func__);
+}
 TestSuite *
 gvm_routethough ()
 {
   TestSuite *suite = create_test_suite ();
   add_test_with_context (suite, networking, ip_islocalhost);
+  add_test_with_context (suite, networking, get_routes);
   return suite;
 }
 
