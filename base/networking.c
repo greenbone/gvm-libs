@@ -846,3 +846,108 @@ ip_islocalhost (struct sockaddr_storage *storage)
   return FALSE;
 }
 
+
+struct proc_entry
+{
+  gchar *interface;
+  unsigned long mask;
+  unsigned long dest;
+};
+static GSList *
+get_routes (void)
+{
+  GSList *proc_routes = NULL;
+  GError *err = NULL;
+  GIOChannel *mychannel;
+  gchar *line;
+  gchar **items_in_line;
+  int status;
+  struct proc_entry *entry;
+
+  /* Open "/proc/net/route". */
+  mychannel = g_io_channel_new_file ("/proc/net/route", "r", &err);
+  if (mychannel == NULL)
+    {
+      g_warning ("%s: %s. ", __func__,
+                 err ? err->message : "Error opening /proc/net/ipv6_route");
+      err = NULL;
+      return NULL;
+    }
+
+  /* Skip first first line of file. */
+  status = g_io_channel_read_line (mychannel, &line, NULL, NULL, &err);
+  if (status != G_IO_STATUS_NORMAL || !line || err)
+    {
+      g_warning ("%s: %s", __func__,
+                 err ? err->message
+                     : "g_io_channel_read_line() status != G_IO_STATUS_NORMAL");
+      if (line)
+        g_free (line);
+      err = NULL;
+    }
+
+  /* Until EOF or err we go through lines of file and extract Iface, Mask and
+   * Destination and but it into the to be returned list of routes.*/
+  while (1)
+    {
+      gchar *interface;
+      unsigned long mask;
+      unsigned long dest;
+      gchar *char_p;
+      int count = 0;
+
+      /* get new line */
+      status = g_io_channel_read_line (mychannel, &line, NULL, NULL, &err);
+      if ((status != G_IO_STATUS_NORMAL) || !line || err)
+        {
+          g_warning (
+            "%s: %s", __func__,
+            err ? err->message
+                : "g_io_channel_read_line() status != G_IO_STATUS_NORMAL");
+          err = NULL;
+          if (line)
+            g_free (line);
+          break;
+        }
+
+      /* Get items in line. */
+      items_in_line = g_strsplit (line, "\t", -1);
+      /* Check for missing entries in line of "/proc/net/route". */
+      for (; items_in_line[count]; count++)
+        ;
+      if (11 != count)
+        {
+          g_strfreev (items_in_line);
+          g_free (line);
+          continue;
+        }
+
+      interface = g_strndup (items_in_line[0], 64);
+      /* Cut interface str after ":" if IP aliasing is used. */
+      if ((char_p = strchr (interface, ':')))
+        {
+          *char_p = '\0';
+        }
+      dest = strtoul (items_in_line[1], NULL, 16);
+      mask = strtoul (items_in_line[7], NULL, 16);
+
+      /* Fill GSList entry. */
+      entry = g_malloc0 (sizeof (struct proc_entry));
+      entry->interface = interface;
+      entry->dest = dest;
+      entry->mask = mask;
+      proc_routes = g_slist_append (proc_routes, entry);
+
+      g_strfreev (items_in_line);
+      if (line)
+        g_free (line);
+    }
+
+  status = g_io_channel_shutdown (mychannel, TRUE, &err);
+  if ((G_IO_STATUS_NORMAL != status) || err)
+    g_warning ("%s: %s", __func__,
+               err ? err->message
+                   : "g_io_channel_shutdown() was not successfull");
+
+  return proc_routes;
+}
