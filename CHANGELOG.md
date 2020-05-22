@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Get details with get_reports in gmp_get_report_ext [#313](https://github.com/greenbone/gvm-libs/pull/313)
 - Fix escaping entity attributes in print_entity_to_string [#318](https://github.com/greenbone/gvm-libs/pull/318)
 - Fix is_cidr_block() [#323][https://github.com/greenbone/gvm-libs/pull/323]
+- Fix is_cidr6_block() and is_short_range_network(). [#338][https://github.com/greenbone/gvm-libs/pull/338]
 
 [11.0.1]: https://github.com/greenbone/gvm-libs/compare/v11.0.0...v11.0.1
 
