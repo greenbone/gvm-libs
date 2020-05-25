@@ -955,8 +955,8 @@ get_routes (void)
 }
 
 __attribute__ ((unused)) static gchar *
-my_routethrough (struct sockaddr_storage *storage_dest,
-                 struct sockaddr_storage *storage_source)
+gvm_routethrough (struct sockaddr_storage *storage_dest,
+                  struct sockaddr_storage *storage_source)
 {
   if (!storage_dest)
     return NULL;
