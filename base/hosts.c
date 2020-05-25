@@ -463,6 +463,7 @@ is_cidr6_block (const char *str)
       return 0;
     }
 
+  g_free (addr6_str);
   return 1;
 }
 
