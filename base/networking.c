@@ -954,7 +954,7 @@ get_routes (void)
   return proc_routes;
 }
 
-__attribute__ ((unused)) static gchar *
+gchar *
 gvm_routethrough (struct sockaddr_storage *storage_dest,
                   struct sockaddr_storage *storage_source)
 {

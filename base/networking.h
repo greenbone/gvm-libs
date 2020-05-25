@@ -113,4 +113,8 @@ port_in_port_ranges (int, port_protocol_t, array_t *);
 int
 ipv6_is_enabled ();
 
+gchar *
+gvm_routethrough (struct sockaddr_storage *storage_dest,
+                  struct sockaddr_storage *storage_source);
+
 #endif /* not _GVM_NETWORKING_H */
