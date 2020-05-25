@@ -937,8 +937,6 @@ Ensure (networking, port_in_port_ranges)
 
 Ensure (networking, ip_islocalhost)
 {
-  cgreen_mocks_are (loose_mocks);
-
   /* IPv4 */
   struct in_addr addr;
   struct sockaddr_storage storage;
@@ -976,7 +974,7 @@ Ensure (networking, ip_islocalhost)
   /* IPv6 */
   struct in6_addr addr_6;
   struct sockaddr_in6 sin6;
-  memset (&sin, 0, sizeof (struct sockaddr_in6));
+  memset (&sin6, 0, sizeof (struct sockaddr_in6));
   sin6.sin6_family = AF_INET6;
 
   inet_pton (AF_INET6, "::FFFF:127.0.0.1", &(addr_6));
