@@ -765,6 +765,11 @@ ipv6_is_enabled ()
 
 /* Functions used by alive detection module (Boreas). */
 
+/**
+ * @brief Determine if IP is localhost.
+ *
+ * @return True if IP is localhost, else false.
+ */
 gboolean
 ip_islocalhost (struct sockaddr_storage *storage)
 {
@@ -848,27 +853,33 @@ ip_islocalhost (struct sockaddr_storage *storage)
   return FALSE;
 }
 
-struct proc_entry
+/** Entry of routing table /proc/net/route */
+struct route_entry
 {
   gchar *interface;
   unsigned long mask;
   unsigned long dest;
 };
 
+/**
+ * @brief Get the entries of /proc/net/route as list of route_entry structs.
+ *
+ * @return  GSList of route_entry structs.
+ */
 static GSList *
 get_routes (void)
 {
-  GSList *proc_routes = NULL;
+  GSList *routes = NULL;
   GError *err = NULL;
-  GIOChannel *mychannel;
+  GIOChannel *file_channel;
   gchar *line;
   gchar **items_in_line;
   int status;
-  struct proc_entry *entry;
+  struct route_entry *entry;
 
   /* Open "/proc/net/route". */
-  mychannel = g_io_channel_new_file ("/proc/net/route", "r", &err);
-  if (mychannel == NULL)
+  file_channel = g_io_channel_new_file ("/proc/net/route", "r", &err);
+  if (file_channel == NULL)
     {
       g_warning ("%s: %s. ", __func__,
                  err ? err->message : "Error opening /proc/net/ipv6_route");
@@ -877,7 +888,7 @@ get_routes (void)
     }
 
   /* Skip first first line of file. */
-  status = g_io_channel_read_line (mychannel, &line, NULL, NULL, &err);
+  status = g_io_channel_read_line (file_channel, &line, NULL, NULL, &err);
   if (status != G_IO_STATUS_NORMAL || !line || err)
     {
       g_warning ("%s: %s", __func__,
@@ -898,8 +909,8 @@ get_routes (void)
       gchar *char_p;
       int count = 0;
 
-      /* get new line */
-      status = g_io_channel_read_line (mychannel, &line, NULL, NULL, &err);
+      /* Get new line. */
+      status = g_io_channel_read_line (file_channel, &line, NULL, NULL, &err);
       if ((status != G_IO_STATUS_NORMAL) || !line || err)
         {
           g_warning (
@@ -934,26 +945,40 @@ get_routes (void)
       mask = strtoul (items_in_line[7], NULL, 16);
 
       /* Fill GSList entry. */
-      entry = g_malloc0 (sizeof (struct proc_entry));
+      entry = g_malloc0 (sizeof (struct route_entry));
       entry->interface = interface;
       entry->dest = dest;
       entry->mask = mask;
-      proc_routes = g_slist_append (proc_routes, entry);
+      routes = g_slist_append (routes, entry);
 
       g_strfreev (items_in_line);
       if (line)
         g_free (line);
     }
 
-  status = g_io_channel_shutdown (mychannel, TRUE, &err);
+  status = g_io_channel_shutdown (file_channel, TRUE, &err);
   if ((G_IO_STATUS_NORMAL != status) || err)
     g_warning ("%s: %s", __func__,
                err ? err->message
                    : "g_io_channel_shutdown() was not successfull");
 
-  return proc_routes;
+  return routes;
 }
 
+/**
+ * @brief Get Interface which should be used for routing to destination addr.
+ *
+ * This function should be used sparingly as it parses /proc/net/route for
+ * every call.
+ *
+ * @param[in]   storage_dest    Destination address.
+ * @param[out]  storage_source  Source address. Is set to either address of the
+ * interface we use or global source address if set. Only gets filled if
+ * storage_source != NULL.
+ *
+ * @return Interface name of interface used for routing to destination address.
+ * NULL if no interface found or Error.
+ */
 gchar *
 gvm_routethrough (struct sockaddr_storage *storage_dest,
                   struct sockaddr_storage *storage_source)
@@ -974,9 +999,9 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
   /* IPv4. */
   if (storage_dest->ss_family == AF_INET)
     {
-      GSList *proc_routes = NULL;
-      GSList *proc_routes_p = NULL;
-      proc_routes = get_routes ();
+      GSList *routes = NULL;
+      GSList *routes_p = NULL;
+      routes = get_routes ();
 
       /* Set storage_source to localhost if storage_source was supplied and
        * return name of loopback interface. */
@@ -1013,22 +1038,20 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
           sin_src_p = (struct sockaddr_in *) storage_source;
           /* Check routes for matching address. Get interface name and set
            * storage_source*/
-          for (proc_routes_p = proc_routes; proc_routes_p;
-               proc_routes_p = proc_routes_p->next)
+          for (routes_p = routes; routes_p; routes_p = routes_p->next)
             {
               if (((sin_dest_p->sin_addr.s_addr
-                    & ((struct proc_entry *) (proc_routes_p->data))->mask)
-                   == ((struct proc_entry *) (proc_routes_p->data))->dest)
-                  && (((struct proc_entry *) (proc_routes_p->data))->mask
+                    & ((struct route_entry *) (routes_p->data))->mask)
+                   == ((struct route_entry *) (routes_p->data))->dest)
+                  && (((struct route_entry *) (routes_p->data))->mask
                       >= best_match))
                 {
                   /* Interface of matching route.*/
                   if (interface_out)
                     g_free (interface_out);
                   interface_out = g_strdup (
-                    ((struct proc_entry *) (proc_routes_p->data))->interface);
-                  best_match =
-                    ((struct proc_entry *) (proc_routes_p->data))->mask;
+                    ((struct route_entry *) (routes_p->data))->interface);
+                  best_match = ((struct route_entry *) (routes_p->data))->mask;
 
                   if (!storage_source)
                     continue;
@@ -1058,16 +1081,14 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
             }
         }
       /* Free GSList. */
-      if (proc_routes)
+      if (routes)
         {
-          for (proc_routes_p = proc_routes; proc_routes_p;
-               proc_routes_p = proc_routes_p->next)
+          for (routes_p = routes; routes_p; routes_p = routes_p->next)
             {
-              if (((struct proc_entry *) (proc_routes_p->data))->interface)
-                g_free (
-                  ((struct proc_entry *) (proc_routes_p->data))->interface);
+              if (((struct route_entry *) (routes_p->data))->interface)
+                g_free (((struct route_entry *) (routes_p->data))->interface);
             }
-          g_slist_free (proc_routes);
+          g_slist_free (routes);
         }
     }
   else if (storage_dest->ss_family == AF_INET6)
