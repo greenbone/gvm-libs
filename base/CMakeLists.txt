@@ -91,7 +91,20 @@ if (BUILD_TESTS)
 
   target_include_directories (version-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 
-  target_link_libraries (version-test ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+  target_link_libraries (version-test ${CGREEN_LIBRARIES}
+    ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+
+  add_executable (hosts-test
+                  EXCLUDE_FROM_ALL
+                  hosts_tests.c)
+
+  add_test (hosts-test hosts-test)
+
+  target_include_directories (hosts-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (hosts-test  gvm_base_shared gvm_util_shared
+    ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+
 endif (BUILD_TESTS)
 
 
