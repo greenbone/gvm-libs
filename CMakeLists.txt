@@ -229,7 +229,7 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
   find_package (cgreen REQUIRED)
 
   add_custom_target (tests
-    DEPENDS array-test networking-test xmlutils-test version-test osp-test nvti-test)
+    DEPENDS array-test networking-test xmlutils-test version-test osp-test nvti-test hosts-test)
 
 endif (BUILD_TESTS AND NOT SKIP_SRC)
 

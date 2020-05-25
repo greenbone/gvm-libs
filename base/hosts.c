@@ -339,11 +339,14 @@ is_short_range_network (const char *str)
 
   p = NULL;
   end = strtol (end_str, &p, 10);
-  g_free (ip_str);
 
   if (*p || end < 0 || end > 255)
-    return 0;
+    {
+      g_free (ip_str);
+      return 0;
+    }
 
+  g_free (ip_str);
   return 1;
 }
 
@@ -453,11 +456,14 @@ is_cidr6_block (const char *str)
 
   p = NULL;
   block = strtol (block_str, &p, 10);
-  g_free (addr6_str);
 
   if (*p || block <= 0 || block > 128)
-    return 0;
+    {
+      g_free (addr6_str);
+      return 0;
+    }
 
+  g_free (addr6_str);
   return 1;
 }
 
