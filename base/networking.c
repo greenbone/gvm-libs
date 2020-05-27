@@ -774,16 +774,17 @@ gboolean
 ip_islocalhost (struct sockaddr_storage *storage)
 {
   struct in_addr addr;
-  struct in_addr *addr_p = &addr;
+  struct in_addr *addr_p;
   struct in6_addr addr6;
-  struct in6_addr *addr6_p = &addr6;
+  struct in6_addr *addr6_p;
   struct sockaddr_in *sin_p;
   struct sockaddr_in6 *sin6_p;
-  struct ifaddrs *ifaddr = NULL;
-  struct ifaddrs *ifa = NULL;
+  struct ifaddrs *ifaddr, *ifa;
   int family;
 
   family = storage->ss_family;
+  addr6_p = &addr6;
+  addr_p = &addr;
 
   if (family == AF_INET)
     {
@@ -828,6 +829,7 @@ ip_islocalhost (struct sockaddr_storage *storage)
     {
       struct sockaddr_in *sin;
       struct sockaddr_in6 *sin6;
+
       for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
         {
           if (ifa->ifa_addr == NULL)
@@ -853,6 +855,8 @@ ip_islocalhost (struct sockaddr_storage *storage)
   return FALSE;
 }
 
+typedef struct route_entry route_entry_t;
+
 /** Entry of routing table /proc/net/route */
 struct route_entry
 {
@@ -864,18 +868,22 @@ struct route_entry
 /**
  * @brief Get the entries of /proc/net/route as list of route_entry structs.
  *
- * @return  GSList of route_entry structs.
+ * @return  GSList of route_entry structs. NULL if no routes found or Error.
  */
 static GSList *
 get_routes (void)
 {
-  GSList *routes = NULL;
-  GError *err = NULL;
+  GSList *routes;
+  GError *err;
   GIOChannel *file_channel;
   gchar *line;
   gchar **items_in_line;
   int status;
-  struct route_entry *entry;
+  route_entry_t *entry;
+
+  err = NULL;
+  routes = NULL;
+  line = NULL;
 
   /* Open "/proc/net/route". */
   file_channel = g_io_channel_new_file ("/proc/net/route", "r", &err);
@@ -894,22 +902,20 @@ get_routes (void)
       g_warning ("%s: %s", __func__,
                  err ? err->message
                      : "g_io_channel_read_line() status != G_IO_STATUS_NORMAL");
-      if (line)
-        g_free (line);
       err = NULL;
     }
+  g_free (line);
 
   /* Until EOF or err we go through lines of file and extract Iface, Mask and
-   * Destination and but it into the to be returned list of routes.*/
+   * Destination and put it into the to be returned list of routes.*/
   while (1)
     {
-      gchar *interface;
-      unsigned long mask;
-      unsigned long dest;
-      gchar *char_p;
-      int count = 0;
+      gchar *interface, *char_p;
+      unsigned long mask, dest;
+      int count;
 
       /* Get new line. */
+      line = NULL;
       status = g_io_channel_read_line (file_channel, &line, NULL, NULL, &err);
       if ((status != G_IO_STATUS_NORMAL) || !line || err)
         {
@@ -918,15 +924,14 @@ get_routes (void)
             err ? err->message
                 : "g_io_channel_read_line() status != G_IO_STATUS_NORMAL");
           err = NULL;
-          if (line)
-            g_free (line);
+          g_free (line);
           break;
         }
 
       /* Get items in line. */
       items_in_line = g_strsplit (line, "\t", -1);
       /* Check for missing entries in line of "/proc/net/route". */
-      for (; items_in_line[count]; count++)
+      for (count = 0; items_in_line[count]; count++)
         ;
       if (11 != count)
         {
@@ -945,15 +950,14 @@ get_routes (void)
       mask = strtoul (items_in_line[7], NULL, 16);
 
       /* Fill GSList entry. */
-      entry = g_malloc0 (sizeof (struct route_entry));
+      entry = g_malloc0 (sizeof (route_entry_t));
       entry->interface = interface;
       entry->dest = dest;
       entry->mask = mask;
       routes = g_slist_append (routes, entry);
 
       g_strfreev (items_in_line);
-      if (line)
-        g_free (line);
+      g_free (line);
     }
 
   status = g_io_channel_shutdown (file_channel, TRUE, &err);
@@ -983,12 +987,13 @@ gchar *
 gvm_routethrough (struct sockaddr_storage *storage_dest,
                   struct sockaddr_storage *storage_source)
 {
+  struct ifaddrs *ifaddr, *ifa;
+  gchar *interface_out;
+
+  interface_out = NULL;
+
   if (!storage_dest)
     return NULL;
-
-  struct ifaddrs *ifaddr = NULL;
-  struct ifaddrs *ifa = NULL;
-  gchar *interface_out = NULL;
 
   if (getifaddrs (&ifaddr) == -1)
     {
@@ -999,8 +1004,9 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
   /* IPv4. */
   if (storage_dest->ss_family == AF_INET)
     {
-      GSList *routes = NULL;
-      GSList *routes_p = NULL;
+      GSList *routes;
+      GSList *routes_p;
+
       routes = get_routes ();
 
       /* Set storage_source to localhost if storage_source was supplied and
@@ -1026,10 +1032,9 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
         }
       else
         {
-          struct sockaddr_in *sin_dest_p = NULL;
-          struct sockaddr_in *sin_src_p = NULL;
-          unsigned long best_match = 0;
+          struct sockaddr_in *sin_dest_p, *sin_src_p;
           struct in_addr global_src;
+          unsigned long best_match;
 
           /* Check if global_source_addr in use. */
           gvm_source_addr (&global_src);
@@ -1038,20 +1043,19 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
           sin_src_p = (struct sockaddr_in *) storage_source;
           /* Check routes for matching address. Get interface name and set
            * storage_source*/
-          for (routes_p = routes; routes_p; routes_p = routes_p->next)
+          for (best_match = 0, routes_p = routes; routes_p;
+               routes_p = routes_p->next)
             {
               if (((sin_dest_p->sin_addr.s_addr
-                    & ((struct route_entry *) (routes_p->data))->mask)
-                   == ((struct route_entry *) (routes_p->data))->dest)
-                  && (((struct route_entry *) (routes_p->data))->mask
-                      >= best_match))
+                    & ((route_entry_t *) (routes_p->data))->mask)
+                   == ((route_entry_t *) (routes_p->data))->dest)
+                  && (((route_entry_t *) (routes_p->data))->mask >= best_match))
                 {
                   /* Interface of matching route.*/
-                  if (interface_out)
-                    g_free (interface_out);
-                  interface_out = g_strdup (
-                    ((struct route_entry *) (routes_p->data))->interface);
-                  best_match = ((struct route_entry *) (routes_p->data))->mask;
+                  g_free (interface_out);
+                  interface_out =
+                    g_strdup (((route_entry_t *) (routes_p->data))->interface);
+                  best_match = ((route_entry_t *) (routes_p->data))->mask;
 
                   if (!storage_source)
                     continue;
@@ -1085,8 +1089,8 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
         {
           for (routes_p = routes; routes_p; routes_p = routes_p->next)
             {
-              if (((struct route_entry *) (routes_p->data))->interface)
-                g_free (((struct route_entry *) (routes_p->data))->interface);
+              if (((route_entry_t *) (routes_p->data))->interface)
+                g_free (((route_entry_t *) (routes_p->data))->interface);
             }
           g_slist_free (routes);
         }

@@ -114,7 +114,6 @@ int
 ipv6_is_enabled ();
 
 gchar *
-gvm_routethrough (struct sockaddr_storage *storage_dest,
-                  struct sockaddr_storage *storage_source);
+gvm_routethrough (struct sockaddr_storage *, struct sockaddr_storage *);
 
 #endif /* not _GVM_NETWORKING_H */
