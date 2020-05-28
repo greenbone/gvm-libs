@@ -762,3 +762,345 @@ ipv6_is_enabled ()
 
   return 1;
 }
+
+/* Functions used by alive detection module (Boreas). */
+
+/**
+ * @brief Determine if IP is localhost.
+ *
+ * @return True if IP is localhost, else false.
+ */
+gboolean
+ip_islocalhost (struct sockaddr_storage *storage)
+{
+  struct in_addr addr;
+  struct in_addr *addr_p;
+  struct in6_addr addr6;
+  struct in6_addr *addr6_p;
+  struct sockaddr_in *sin_p;
+  struct sockaddr_in6 *sin6_p;
+  struct ifaddrs *ifaddr, *ifa;
+  int family;
+
+  family = storage->ss_family;
+  addr6_p = &addr6;
+  addr_p = &addr;
+
+  if (family == AF_INET)
+    {
+      sin_p = (struct sockaddr_in *) storage;
+      addr = sin_p->sin_addr;
+
+      if (addr_p == NULL)
+        return FALSE;
+      /* addr is 0.0.0.0 */
+      if ((addr_p)->s_addr == 0)
+        return TRUE;
+      /* addr starts with 127.0.0.1 */
+      if (((addr_p)->s_addr & htonl (0xFF000000)) == htonl (0x7F000000))
+        return TRUE;
+    }
+  if (family == AF_INET6)
+    {
+      sin6_p = (struct sockaddr_in6 *) storage;
+      addr6 = sin6_p->sin6_addr;
+
+      if (IN6_IS_ADDR_V4MAPPED (&addr6))
+        {
+          /* addr is 0.0.0.0 */
+          if (addr6_p->s6_addr32[3] == 0)
+            return 1;
+
+          /* addr starts with 127.0.0.1 */
+          if ((addr6_p->s6_addr32[3] & htonl (0xFF000000))
+              == htonl (0x7F000000))
+            return 1;
+        }
+      if (IN6_IS_ADDR_LOOPBACK (addr6_p))
+        return 1;
+    }
+
+  if (getifaddrs (&ifaddr) == -1)
+    {
+      g_debug ("%s: getifaddr failed: %s", __func__, strerror (errno));
+      return FALSE;
+    }
+  else
+    {
+      struct sockaddr_in *sin;
+      struct sockaddr_in6 *sin6;
+
+      for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+        {
+          if (ifa->ifa_addr == NULL)
+            continue;
+          if (ifa->ifa_addr->sa_family == AF_INET)
+            {
+              sin = (struct sockaddr_in *) (ifa->ifa_addr);
+              /* Check if same address as local interface. */
+              if (addr_p->s_addr == sin->sin_addr.s_addr)
+                return TRUE;
+            }
+          if (ifa->ifa_addr->sa_family == AF_INET6)
+            {
+              sin6 = (struct sockaddr_in6 *) (ifa->ifa_addr);
+              /* Check if same address as local interface. */
+              if (IN6_ARE_ADDR_EQUAL (&(sin6->sin6_addr), addr6_p))
+                return TRUE;
+            }
+        }
+      freeifaddrs (ifaddr);
+    }
+
+  return FALSE;
+}
+
+typedef struct route_entry route_entry_t;
+
+/** Entry of routing table /proc/net/route */
+struct route_entry
+{
+  gchar *interface;
+  unsigned long mask;
+  unsigned long dest;
+};
+
+/**
+ * @brief Get the entries of /proc/net/route as list of route_entry structs.
+ *
+ * @return  GSList of route_entry structs. NULL if no routes found or Error.
+ */
+static GSList *
+get_routes (void)
+{
+  GSList *routes;
+  GError *err;
+  GIOChannel *file_channel;
+  gchar *line;
+  gchar **items_in_line;
+  int status;
+  route_entry_t *entry;
+
+  err = NULL;
+  routes = NULL;
+  line = NULL;
+
+  /* Open "/proc/net/route". */
+  file_channel = g_io_channel_new_file ("/proc/net/route", "r", &err);
+  if (file_channel == NULL)
+    {
+      g_warning ("%s: %s. ", __func__,
+                 err ? err->message : "Error opening /proc/net/ipv6_route");
+      err = NULL;
+      return NULL;
+    }
+
+  /* Skip first first line of file. */
+  status = g_io_channel_read_line (file_channel, &line, NULL, NULL, &err);
+  if (status != G_IO_STATUS_NORMAL || !line || err)
+    {
+      g_warning ("%s: %s", __func__,
+                 err ? err->message
+                     : "g_io_channel_read_line() status != G_IO_STATUS_NORMAL");
+      err = NULL;
+    }
+  g_free (line);
+
+  /* Until EOF or err we go through lines of file and extract Iface, Mask and
+   * Destination and put it into the to be returned list of routes.*/
+  while (1)
+    {
+      gchar *interface, *char_p;
+      unsigned long mask, dest;
+      int count;
+
+      /* Get new line. */
+      line = NULL;
+      status = g_io_channel_read_line (file_channel, &line, NULL, NULL, &err);
+      if ((status != G_IO_STATUS_NORMAL) || !line || err)
+        {
+          g_warning (
+            "%s: %s", __func__,
+            err ? err->message
+                : "g_io_channel_read_line() status != G_IO_STATUS_NORMAL");
+          err = NULL;
+          g_free (line);
+          break;
+        }
+
+      /* Get items in line. */
+      items_in_line = g_strsplit (line, "\t", -1);
+      /* Check for missing entries in line of "/proc/net/route". */
+      for (count = 0; items_in_line[count]; count++)
+        ;
+      if (11 != count)
+        {
+          g_strfreev (items_in_line);
+          g_free (line);
+          continue;
+        }
+
+      interface = g_strndup (items_in_line[0], 64);
+      /* Cut interface str after ":" if IP aliasing is used. */
+      if ((char_p = strchr (interface, ':')))
+        {
+          *char_p = '\0';
+        }
+      dest = strtoul (items_in_line[1], NULL, 16);
+      mask = strtoul (items_in_line[7], NULL, 16);
+
+      /* Fill GSList entry. */
+      entry = g_malloc0 (sizeof (route_entry_t));
+      entry->interface = interface;
+      entry->dest = dest;
+      entry->mask = mask;
+      routes = g_slist_append (routes, entry);
+
+      g_strfreev (items_in_line);
+      g_free (line);
+    }
+
+  status = g_io_channel_shutdown (file_channel, TRUE, &err);
+  if ((G_IO_STATUS_NORMAL != status) || err)
+    g_warning ("%s: %s", __func__,
+               err ? err->message
+                   : "g_io_channel_shutdown() was not successfull");
+
+  return routes;
+}
+
+/**
+ * @brief Get Interface which should be used for routing to destination addr.
+ *
+ * This function should be used sparingly as it parses /proc/net/route for
+ * every call.
+ *
+ * @param[in]   storage_dest    Destination address.
+ * @param[out]  storage_source  Source address. Is set to either address of the
+ * interface we use or global source address if set. Only gets filled if
+ * storage_source != NULL.
+ *
+ * @return Interface name of interface used for routing to destination address.
+ * NULL if no interface found or Error.
+ */
+gchar *
+gvm_routethrough (struct sockaddr_storage *storage_dest,
+                  struct sockaddr_storage *storage_source)
+{
+  struct ifaddrs *ifaddr, *ifa;
+  gchar *interface_out;
+
+  interface_out = NULL;
+
+  if (!storage_dest)
+    return NULL;
+
+  if (getifaddrs (&ifaddr) == -1)
+    {
+      g_debug ("%s: getifaddr failed: %s", __func__, strerror (errno));
+      return NULL;
+    }
+
+  /* IPv4. */
+  if (storage_dest->ss_family == AF_INET)
+    {
+      GSList *routes;
+      GSList *routes_p;
+
+      routes = get_routes ();
+
+      /* Set storage_source to localhost if storage_source was supplied and
+       * return name of loopback interface. */
+      if (ip_islocalhost (storage_dest))
+        {
+          // TODO: check for (storage_source->ss_family == AF_INET)
+          if (storage_source)
+            {
+              struct sockaddr_in *sin_p = (struct sockaddr_in *) storage_source;
+              sin_p->sin_addr.s_addr = htonl (0x7F000001);
+            }
+
+          for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+            {
+              if ((ifa->ifa_addr->sa_family == AF_INET)
+                  && (ifa->ifa_flags & (IFF_LOOPBACK)))
+                {
+                  interface_out = g_strdup (ifa->ifa_name);
+                  break;
+                }
+            }
+        }
+      else
+        {
+          struct sockaddr_in *sin_dest_p, *sin_src_p;
+          struct in_addr global_src;
+          unsigned long best_match;
+
+          /* Check if global_source_addr in use. */
+          gvm_source_addr (&global_src);
+
+          sin_dest_p = (struct sockaddr_in *) storage_dest;
+          sin_src_p = (struct sockaddr_in *) storage_source;
+          /* Check routes for matching address. Get interface name and set
+           * storage_source*/
+          for (best_match = 0, routes_p = routes; routes_p;
+               routes_p = routes_p->next)
+            {
+              if (((sin_dest_p->sin_addr.s_addr
+                    & ((route_entry_t *) (routes_p->data))->mask)
+                   == ((route_entry_t *) (routes_p->data))->dest)
+                  && (((route_entry_t *) (routes_p->data))->mask >= best_match))
+                {
+                  /* Interface of matching route.*/
+                  g_free (interface_out);
+                  interface_out =
+                    g_strdup (((route_entry_t *) (routes_p->data))->interface);
+                  best_match = ((route_entry_t *) (routes_p->data))->mask;
+
+                  if (!storage_source)
+                    continue;
+
+                  /* Set storage_source to global source if global source
+                   * present.*/
+                  if (global_src.s_addr != INADDR_ANY)
+                    sin_src_p->sin_addr.s_addr = global_src.s_addr;
+                  /* Set storage_source to addr of matching interface if no
+                   * gloabal source present.*/
+                  else
+                    {
+                      for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+                        {
+                          if ((ifa->ifa_addr->sa_family == AF_INET)
+                              && (g_strcmp0 (interface_out, ifa->ifa_name)
+                                  == 0))
+                            {
+                              sin_src_p->sin_addr.s_addr =
+                                ((struct sockaddr_in *) (ifa->ifa_addr))
+                                  ->sin_addr.s_addr;
+                              break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+      /* Free GSList. */
+      if (routes)
+        {
+          for (routes_p = routes; routes_p; routes_p = routes_p->next)
+            {
+              if (((route_entry_t *) (routes_p->data))->interface)
+                g_free (((route_entry_t *) (routes_p->data))->interface);
+            }
+          g_slist_free (routes);
+        }
+    }
+  else if (storage_dest->ss_family == AF_INET6)
+    {
+      g_warning ("%s: IPv6 not yet implemented for this function. Will be "
+                 "implemented soon. Thanks for your patience.",
+                 __func__);
+    }
+
+  return interface_out != NULL ? interface_out : NULL;
+}
