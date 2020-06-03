@@ -51,8 +51,9 @@ find_program (CLANG_FORMAT clang-format)
 
 if (CLANG_FORMAT)
   message (STATUS "Looking for clang-format... ${CLANG_FORMAT}")
-  add_custom_target(format COMMAND ${CLANG_FORMAT} "-i" "./base/*.c" "./gmp/*.c"
-                    "./osp/*.c" "./util/*.c" "./base/*.h" "./gmp/*.h" "./osp/*.h"
+  add_custom_target(format COMMAND ${CLANG_FORMAT} "-i" "./base/*.c" 
+                    "./boreas/*.c" "./gmp/*.c" "./osp/*.c" "./util/*.c" 
+                    "./base/*.h" "./boreas/*.h" "./gmp/*.h" "./osp/*.h"
                     "./util/*.h" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 else (CLANG_FORMAT)
   message (STATUS "clang-format not found...")
@@ -229,7 +230,8 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
   find_package (cgreen REQUIRED)
 
   add_custom_target (tests
-    DEPENDS array-test networking-test xmlutils-test version-test osp-test nvti-test hosts-test)
+    DEPENDS array-test alivedetection-test networking-test xmlutils-test
+            version-test osp-test nvti-test hosts-test)
 
 endif (BUILD_TESTS AND NOT SKIP_SRC)
 
@@ -237,6 +239,7 @@ endif (BUILD_TESTS AND NOT SKIP_SRC)
 
 if (NOT SKIP_SRC)
   add_subdirectory (base)
+  add_subdirectory (boreas)
   add_subdirectory (util)
   add_subdirectory (osp)
   add_subdirectory (gmp)
