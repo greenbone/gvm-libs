@@ -136,8 +136,8 @@ gvm_file_copy (const gchar *source_file, const gchar *dest_file)
     g_file_copy (sfile, dfile, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
   if (!rc)
     {
-      g_warning ("%s: g_file_copy(%s, %s) failed - %s\n", __func__,
-                 source_file, dest_file, error->message);
+      g_warning ("%s: g_file_copy(%s, %s) failed - %s\n", __func__, source_file,
+                 dest_file, error->message);
       g_error_free (error);
     }
 
@@ -171,8 +171,8 @@ gvm_file_move (const gchar *source_file, const gchar *dest_file)
     g_file_move (sfile, dfile, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
   if (!rc)
     {
-      g_warning ("%s: g_file_move(%s, %s) failed - %s\n", __func__,
-                 source_file, dest_file, error->message);
+      g_warning ("%s: g_file_move(%s, %s) failed - %s\n", __func__, source_file,
+                 dest_file, error->message);
       g_error_free (error);
     }
 

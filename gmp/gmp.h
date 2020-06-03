@@ -329,10 +329,10 @@ gmp_start_task_report_c (gvm_connection_t *, const char *, char **);
  */
 typedef struct
 {
-  const char *task_id;             ///< ID of task.
+  const char *task_id; ///< ID of task.
 } gmp_start_task_opts_t;
 
-static const gmp_start_task_opts_t gmp_start_task_opts_defaults = { NULL };
+static const gmp_start_task_opts_t gmp_start_task_opts_defaults = {NULL};
 
 int
 gmp_start_task_ext_c (gvm_connection_t *, gmp_start_task_opts_t);

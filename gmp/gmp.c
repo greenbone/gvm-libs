@@ -163,11 +163,10 @@ check_response_c (gvm_connection_t *connection, int convert_99)
       return -1;
     }
 
-  if (convert_99
-      && entity_attribute (entity, "status_text")
+  if (convert_99 && entity_attribute (entity, "status_text")
       && strcasecmp (entity_attribute (entity, "status_text"),
                      "Permission denied")
-         == 0)
+           == 0)
     ret = 99;
 
   free_entity (entity);
