@@ -1113,8 +1113,8 @@ server_new_internal (unsigned int end_type, const char *priority,
         *server_credentials, cert_file, key_file, GNUTLS_X509_FMT_PEM);
       if (ret < 0)
         {
-          g_warning ("%s: failed to set credentials key file: %s\n",
-                     __func__, gnutls_strerror (ret));
+          g_warning ("%s: failed to set credentials key file: %s\n", __func__,
+                     gnutls_strerror (ret));
           g_warning ("%s:   cert file: %s\n", __func__, cert_file);
           g_warning ("%s:   key file : %s\n", __func__, key_file);
           gnutls_certificate_free_credentials (*server_credentials);
@@ -1130,8 +1130,8 @@ server_new_internal (unsigned int end_type, const char *priority,
         *server_credentials, ca_cert_file, GNUTLS_X509_FMT_PEM);
       if (ret < 0)
         {
-          g_warning ("%s: failed to set credentials trust file: %s\n",
-                     __func__, gnutls_strerror (ret));
+          g_warning ("%s: failed to set credentials trust file: %s\n", __func__,
+                     gnutls_strerror (ret));
           g_warning ("%s: trust file: %s\n", __func__, ca_cert_file);
           gnutls_certificate_free_credentials (*server_credentials);
           return -1;

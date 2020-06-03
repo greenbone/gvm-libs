@@ -177,10 +177,8 @@ gvm_init_gpgme_ctx_from_dir (const gchar *dir)
  *  3 error importing key/certificate, -1 error.
  */
 int
-gvm_gpg_import_many_types_from_string (gpgme_ctx_t ctx,
-                                       const char *key_str,
-                                       ssize_t key_len,
-                                       GArray* key_types)
+gvm_gpg_import_many_types_from_string (gpgme_ctx_t ctx, const char *key_str,
+                                       ssize_t key_len, GArray *key_types)
 {
   gpgme_data_t key_data;
   gpgme_error_t err;
@@ -205,7 +203,7 @@ gvm_gpg_import_many_types_from_string (gpgme_ctx_t ctx,
       for (index = 0; index < key_types->len; index++)
         {
           if (g_array_index (key_types, gpgme_data_type_t, index)
-                == given_key_type)
+              == given_key_type)
             break;
         }
 
@@ -217,11 +215,9 @@ gvm_gpg_import_many_types_from_string (gpgme_ctx_t ctx,
             {
               if (index)
                 g_string_append (expected_buffer, " or ");
-              g_string_append_printf (expected_buffer,
-                                      "%d",
-                                      g_array_index (key_types,
-                                                    gpgme_data_type_t,
-                                                    index));
+              g_string_append_printf (
+                expected_buffer, "%d",
+                g_array_index (key_types, gpgme_data_type_t, index));
             }
           g_warning ("%s: key_str is not the expected type: "
                      " expected: %s, got %d",
@@ -253,8 +249,8 @@ gvm_gpg_import_many_types_from_string (gpgme_ctx_t ctx,
   while (status)
     {
       if (status->result != GPG_ERR_NO_ERROR)
-        g_warning ("%s: '%s' could not be imported: %s", __func__,
-                   status->fpr, gpgme_strerror (status->result));
+        g_warning ("%s: '%s' could not be imported: %s", __func__, status->fpr,
+                   gpgme_strerror (status->result));
       else
         g_debug ("%s: Imported '%s'", __func__, status->fpr);
 
@@ -283,13 +279,11 @@ gvm_gpg_import_from_string (gpgme_ctx_t ctx, const char *key_str,
                             ssize_t key_len, gpgme_data_type_t key_type)
 {
   int ret;
-  GArray *key_types = g_array_sized_new (FALSE,
-                                         FALSE,
-                                         sizeof (gpgme_data_type_t),
-                                         1);
+  GArray *key_types =
+    g_array_sized_new (FALSE, FALSE, sizeof (gpgme_data_type_t), 1);
   g_array_insert_val (key_types, 0, key_type);
-  ret = gvm_gpg_import_many_types_from_string (ctx, key_str, key_len,
-                                               key_types);
+  ret =
+    gvm_gpg_import_many_types_from_string (ctx, key_str, key_len, key_types);
   g_array_free (key_types, TRUE);
   return ret;
 }
@@ -371,7 +365,7 @@ static ssize_t
 gvm_gpgme_fread (void *handle, void *buffer, size_t size)
 {
   int ret;
-  FILE *file = (FILE *)handle;
+  FILE *file = (FILE *) handle;
 
   ret = fread (buffer, 1, size, file);
   if (ferror (file))
@@ -392,7 +386,7 @@ static ssize_t
 gvm_gpgme_fwrite (void *handle, const void *buffer, size_t size)
 {
   int ret;
-  FILE *file = (FILE *)handle;
+  FILE *file = (FILE *) handle;
 
   ret = fwrite (buffer, 1, size, file);
   if (ferror (file))
@@ -424,9 +418,7 @@ create_all_certificates_trustlist (gpgme_ctx_t ctx, const char *homedir)
   g_err = NULL;
   gpgme_set_pinentry_mode (ctx, GPGME_PINENTRY_MODE_CANCEL);
 
-  trustlist_filename = g_build_filename (homedir,
-                                         "trustlist.txt",
-                                         NULL);
+  trustlist_filename = g_build_filename (homedir, "trustlist.txt", NULL);
 
   trustlist_content = g_string_new ("");
 
@@ -438,13 +430,12 @@ create_all_certificates_trustlist (gpgme_ctx_t ctx, const char *homedir)
       gpgme_op_keylist_next (ctx, &key);
     }
 
-  if (g_file_set_contents (trustlist_filename,
-                           trustlist_content->str,
-                           trustlist_content->len,
-                           &g_err) == FALSE)
+  if (g_file_set_contents (trustlist_filename, trustlist_content->str,
+                           trustlist_content->len, &g_err)
+      == FALSE)
     {
-      g_warning ("%s: Could not write trust list: %s",
-                 __func__, g_err->message);
+      g_warning ("%s: Could not write trust list: %s", __func__,
+                 g_err->message);
       g_free (trustlist_filename);
       g_string_free (trustlist_content, TRUE);
       return -1;
@@ -475,7 +466,7 @@ static int
 encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
                          const char *key_str, ssize_t key_len,
                          const char *uid_email, gpgme_protocol_t protocol,
-                         GArray* key_types)
+                         GArray *key_types)
 {
   char gpg_temp_dir[] = "/tmp/gvmd-gpg-XXXXXX";
   gpgme_ctx_t ctx;
@@ -569,8 +560,7 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
 
   if (err)
     {
-      g_warning ("%s: Encryption failed: %s", __func__,
-                 gpgme_strerror (err));
+      g_warning ("%s: Encryption failed: %s", __func__, gpgme_strerror (err));
       gpgme_data_release (plain_data);
       gpgme_data_release (encrypted_data);
       gpgme_release (ctx);
@@ -610,9 +600,9 @@ gvm_pgp_pubkey_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
   GArray *key_types = g_array_new (FALSE, FALSE, sizeof (gpgme_data_type_t));
 
   g_array_append_vals (key_types, types_ptr, 1);
-  ret = encrypt_stream_internal (
-    plain_file, encrypted_file, public_key_str, public_key_len, uid_email,
-    GPGME_PROTOCOL_OpenPGP, key_types);
+  ret = encrypt_stream_internal (plain_file, encrypted_file, public_key_str,
+                                 public_key_len, uid_email,
+                                 GPGME_PROTOCOL_OpenPGP, key_types);
   g_array_free (key_types, TRUE);
 
   return ret;
@@ -642,9 +632,9 @@ gvm_smime_encrypt_stream (FILE *plain_file, FILE *encrypted_file,
   GArray *key_types = g_array_new (FALSE, FALSE, sizeof (gpgme_data_type_t));
 
   g_array_append_vals (key_types, types_ptr, 2);
-  ret = encrypt_stream_internal (
-    plain_file, encrypted_file, certificate_str, certificate_len, uid_email,
-    GPGME_PROTOCOL_CMS, key_types);
+  ret = encrypt_stream_internal (plain_file, encrypted_file, certificate_str,
+                                 certificate_len, uid_email, GPGME_PROTOCOL_CMS,
+                                 key_types);
   g_array_free (key_types, TRUE);
 
   return ret;

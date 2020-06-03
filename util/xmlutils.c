@@ -35,9 +35,9 @@
 #include <glib/gtypes.h> /* for GPOINTER_TO_INT, GINT_TO_POINTER, gsize */
 #include <libxml/parser.h>
 #include <libxml/tree.h>
-#include <string.h>      /* for strcmp, strerror, strlen */
-#include <time.h>        /* for time, time_t */
-#include <unistd.h>      /* for ssize_t */
+#include <string.h> /* for strcmp, strerror, strlen */
+#include <time.h>   /* for time, time_t */
+#include <unistd.h> /* for ssize_t */
 
 #undef G_LOG_DOMAIN
 /**
@@ -624,8 +624,8 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
               if (timeout > 0)
                 {
                   if (fcntl (socket, F_SETFL, 0L) < 0)
-                    g_warning ("%s :failed to set socket flag: %s",
-                               __func__, strerror (errno));
+                    g_warning ("%s :failed to set socket flag: %s", __func__,
+                               strerror (errno));
                 }
               g_markup_parse_context_free (xml_context);
               g_free (buffer);
@@ -650,8 +650,8 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
               if (timeout > 0)
                 {
                   if (fcntl (socket, F_SETFL, 0L) < 0)
-                    g_warning ("%s :failed to set socket flag: %s",
-                               __func__, strerror (errno));
+                    g_warning ("%s :failed to set socket flag: %s", __func__,
+                               strerror (errno));
                 }
               g_markup_parse_context_free (xml_context);
               g_free (buffer);
@@ -876,8 +876,8 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
               if (timeout > 0)
                 {
                   if (fcntl (socket, F_SETFL, 0L) < 0)
-                    g_warning ("%s :failed to set socket flag: %s",
-                               __func__, strerror (errno));
+                    g_warning ("%s :failed to set socket flag: %s", __func__,
+                               strerror (errno));
                 }
               g_markup_parse_context_free (xml_context);
               g_free (buffer);
@@ -1662,7 +1662,6 @@ find_element_in_xml_file (gchar *file_path, gchar *find_element,
 }
 #undef XML_FILE_BUFFER_SIZE
 
-
 /* The new faster parser that uses libxml2. */
 
 /**
@@ -1729,8 +1728,7 @@ element_free (element_t element)
 const gchar *
 element_name (element_t element)
 {
-  if (element
-      && (element->type == XML_ELEMENT_NODE))
+  if (element && (element->type == XML_ELEMENT_NODE))
     return (const gchar *) element->name;
 
   return "";
@@ -1772,12 +1770,12 @@ element_child (element_t element, const gchar *name)
   stripped_name = strchr (name, ':');
   if (stripped_name)
     {
-       element_t child;
+      element_t child;
 
-       /* There was a namespace in the name.
-        *
-        * First try without the namespace, because libxml2 doesn't consider the
-        * namespace in the name when the namespace is defined. */
+      /* There was a namespace in the name.
+       *
+       * First try without the namespace, because libxml2 doesn't consider the
+       * namespace in the name when the namespace is defined. */
 
       stripped_name++;
 
@@ -1789,7 +1787,7 @@ element_child (element_t element, const gchar *name)
 
       child = find_child (element, stripped_name);
       if (child)
-       return child;
+        return child;
 
       /* Didn't find anything. */
     }
@@ -1820,7 +1818,8 @@ element_text (element_t element)
   if (!element)
     return NULL;
 
-  string = (gchar *) xmlNodeListGetString (element->doc, element->xmlChildrenNode, 1);
+  string =
+    (gchar *) xmlNodeListGetString (element->doc, element->xmlChildrenNode, 1);
   if (string)
     return string;
   string = xmlMalloc (1);
@@ -1847,12 +1846,12 @@ element_attribute (element_t element, const gchar *name)
   stripped_name = strchr (name, ':');
   if (stripped_name)
     {
-       gchar *attribute;
+      gchar *attribute;
 
-       /* There was a namespace in the name.
-        *
-        * First try without the namespace, because libxml2 doesn't consider the
-        * namespace in the name when the namespace is defined. */
+      /* There was a namespace in the name.
+       *
+       * First try without the namespace, because libxml2 doesn't consider the
+       * namespace in the name when the namespace is defined. */
 
       stripped_name++;
 
@@ -1862,9 +1861,10 @@ element_attribute (element_t element, const gchar *name)
          * compatibility. */
         return (gchar *) xmlGetProp (element, (const xmlChar *) name);
 
-      attribute = (gchar *) xmlGetProp (element, (const xmlChar *) stripped_name);
+      attribute =
+        (gchar *) xmlGetProp (element, (const xmlChar *) stripped_name);
       if (attribute)
-       return attribute;
+        return attribute;
 
       /* Didn't find anything. */
     }

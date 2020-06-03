@@ -80,8 +80,8 @@ radius_init (const char *hostname, const char *secret)
 
   if (config_fd == -1)
     {
-      g_warning ("%s: Couldn't create temp radius config file: %s\n",
-                 __func__, strerror (errno));
+      g_warning ("%s: Couldn't create temp radius config file: %s\n", __func__,
+                 strerror (errno));
       goto radius_init_fail;
     }
 
@@ -89,8 +89,8 @@ radius_init (const char *hostname, const char *secret)
   if (config_file == NULL)
     {
       close (config_fd);
-      g_warning ("%s: Couldn't open temp radius config file %s: %s\n",
-                 __func__, config_filename, strerror (errno));
+      g_warning ("%s: Couldn't open temp radius config file %s: %s\n", __func__,
+                 config_filename, strerror (errno));
       goto radius_init_fail;
     }
 

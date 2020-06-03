@@ -155,10 +155,10 @@ nvt_feed_version ()
   if (!g_file_get_contents (filename, &fcontent, NULL, &error))
     {
       if (error && msg_shown == 0)
-	{
-	  g_warning ("nvt_feed_version: %s", error->message);
-	  msg_shown = 1;
-	}
+        {
+          g_warning ("nvt_feed_version: %s", error->message);
+          msg_shown = 1;
+        }
       g_error_free (error);
       return NULL;
     }
