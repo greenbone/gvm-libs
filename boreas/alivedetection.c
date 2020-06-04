@@ -39,6 +39,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <sys/param.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
