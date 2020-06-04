@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#336](https://github.com/greenbone/gvm-libs/pull/336)
   [#340](https://github.com/greenbone/gvm-libs/pull/340)
 - Add gvm_routethrough which is used by Boreas alive detection module. [#339](https://github.com/greenbone/gvm-libs/pull/339)
+- Move alive detection module Boreas into gvm-libs. [#342](https://github.com/greenbone/gvm-libs/pull/342)
 
 ### Fixed
 - Fix is_cidr_block(). [#322](https://github.com/greenbone/gvm-libs/pull/322)
