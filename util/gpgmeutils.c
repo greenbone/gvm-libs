@@ -306,56 +306,75 @@ static gpgme_key_t
 find_email_encryption_key (gpgme_ctx_t ctx, const char *uid_email)
 {
   gchar *bracket_email;
-  gpgme_key_t key;
-  gboolean recipient_found = FALSE;
+  gpgme_key_t key, found_key;
+  gpgme_error_t err;
 
   if (uid_email == NULL)
     return NULL;
 
   bracket_email = g_strdup_printf ("<%s>", uid_email);
 
-  gpgme_op_keylist_start (ctx, NULL, 0);
+  err = gpgme_op_keylist_start (ctx, NULL, 0);
+  if (err)
+    {
+      g_free (bracket_email);
+      g_warning ("gpgme_op_keylist_start failed: %s", gpgme_strerror (err));
+      return NULL;
+    }
+
   gpgme_op_keylist_next (ctx, &key);
-  while (key && recipient_found == FALSE)
+  if (err)
+    {
+      g_free (bracket_email);
+      g_warning ("gpgme_op_keylist_next failed: %s", gpgme_strerror (err));
+      return NULL;
+    }
+
+  found_key = NULL;
+  while (key)
     {
       if (key->can_encrypt)
         {
-          g_debug ("%s: key '%s' OK for encryption", __FUNCTION__,
+          g_debug ("%s: key '%s' OK for encryption", __func__,
                    key->subkeys->fpr);
 
           gpgme_user_id_t uid;
           uid = key->uids;
-          while (uid && recipient_found == FALSE)
+          while (uid && found_key == NULL)
             {
               g_debug ("%s: UID email: %s", __FUNCTION__, uid->email);
 
               if (strcmp (uid->email, uid_email) == 0
                   || strstr (uid->email, bracket_email))
                 {
-                  g_message ("%s: Found matching UID for %s", __FUNCTION__,
+                  g_message ("%s: Found matching UID for %s", __func__,
                              uid_email);
-                  recipient_found = TRUE;
+                  found_key = key;
                 }
               uid = uid->next;
             }
         }
       else
         {
-          g_debug ("%s: key '%s' cannot be used for encryption", __FUNCTION__,
+          g_debug ("%s: key '%s' cannot be used for encryption", __func__,
                    key->subkeys->fpr);
         }
 
-      if (recipient_found == FALSE)
-        gpgme_op_keylist_next (ctx, &key);
+      err = gpgme_op_keylist_next (ctx, &key);
+      if (err & GPG_ERR_EOF)
+        break;
+      else if (err)
+        {
+          g_free (bracket_email);
+          g_warning ("gpgme_op_keylist_next failed: %s", gpgme_strerror (err));
+          return NULL;
+        }
     }
 
-  if (recipient_found)
-    return key;
-  else
-    {
-      g_warning ("%s: No suitable key found for %s", __FUNCTION__, uid_email);
-      return NULL;
-    }
+  if (found_key == NULL)
+    g_warning ("%s: No suitable key found for %s", __func__, uid_email);
+
+  return found_key;
 }
 
 /**
@@ -400,6 +419,14 @@ gvm_gpgme_fwrite (void *handle, const void *buffer, size_t size)
   return ret;
 }
 
+#define CHECK_ERR(func) \
+  if (err)                                            \
+    {                                                 \
+      printf ("%s: %s failed: %s\n",                  \
+              __func__, func, gpgme_strerror (err));  \
+      return -1;                                      \
+    }
+
 /**
  * @brief  Adds a trust list of all current certificates to a GPG homedir.
  *
@@ -420,6 +447,7 @@ create_all_certificates_trustlist (gpgme_ctx_t ctx, const char *homedir)
   gchar *trustlist_filename;
   GString *trustlist_content;
   GError *g_err;
+  gpgme_error_t err;
 
   g_err = NULL;
   gpgme_set_pinentry_mode (ctx, GPGME_PINENTRY_MODE_CANCEL);
@@ -430,12 +458,18 @@ create_all_certificates_trustlist (gpgme_ctx_t ctx, const char *homedir)
 
   trustlist_content = g_string_new ("");
 
-  gpgme_op_keylist_start (ctx, NULL, 0);
+  err = gpgme_op_keylist_start (ctx, NULL, 0);
+  CHECK_ERR ("gpgme_op_keylist_start")
   gpgme_op_keylist_next (ctx, &key);
+  CHECK_ERR ("gpgme_op_keylist_next")
   while (key)
     {
       g_string_append_printf (trustlist_content, "%s S\n", key->fpr);
-      gpgme_op_keylist_next (ctx, &key);
+      err = gpgme_op_keylist_next (ctx, &key);
+      if (err & GPG_ERR_EOF)
+        break;
+      else
+        CHECK_ERR ("gpgme_op_keylist_next")
     }
 
   if (g_file_set_contents (trustlist_filename,
@@ -455,6 +489,22 @@ create_all_certificates_trustlist (gpgme_ctx_t ctx, const char *homedir)
 
   return 0;
 }
+
+#undef CHECK_ERR
+#define CHECK_ERR(func) \
+  if (err)                                            \
+    {                                                 \
+      printf ("%s: %s failed: %s\n",                  \
+              __func__, func, gpgme_strerror (err));  \
+      if (plain_data)                                 \
+        gpgme_data_release (plain_data);              \
+      if (encrypted_data)                             \
+        gpgme_data_release (encrypted_data);          \
+      if (ctx)                                        \
+        gpgme_release (ctx);                          \
+      gvm_file_remove_recurse (gpg_temp_dir);         \
+      return -1;                                      \
+    }
 
 /**
  * @brief Encrypt a stream for a PGP public key, writing to another stream.
@@ -487,10 +537,20 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   const char *key_type_str;
   struct gpgme_data_cbs callbacks;
 
+  ctx = NULL;
+  plain_data = NULL;
+  encrypted_data = NULL;
+
   if (uid_email == NULL || strcmp (uid_email, "") == 0)
     {
       g_warning ("%s: No email address for user identification given",
-                 __FUNCTION__);
+                 __func__);
+      return -1;
+    }
+
+  if (gpgme_check_version (NULL) == NULL)
+    {
+      g_warning ("%s: gpgme_check_version failed", __func__);
       return -1;
     }
 
@@ -502,25 +562,35 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   // Create temporary GPG home directory, set up context and encryption flags
   if (mkdtemp (gpg_temp_dir) == NULL)
     {
-      g_warning ("%s: mkdtemp failed\n", __FUNCTION__);
+      g_warning ("%s: mkdtemp failed\n", __func__);
       return -1;
     }
 
-  gpgme_new (&ctx);
+  err = gpgme_new (&ctx);
+  CHECK_ERR ("gpgme_new")
 
   if (protocol == GPGME_PROTOCOL_CMS)
     gpgme_set_armor (ctx, 0);
   else
     gpgme_set_armor (ctx, 1);
 
-  gpgme_ctx_set_engine_info (ctx, protocol, NULL, gpg_temp_dir);
-  gpgme_set_protocol (ctx, protocol);
+  err = gpgme_ctx_set_engine_info (ctx, protocol, NULL, gpg_temp_dir);
+  CHECK_ERR ("gpgme_ctx_set_engine_info")
+
+  err = gpgme_set_protocol (ctx, protocol);
+  CHECK_ERR ("gpgme_set_protocol")
+
+  err = gpgme_set_keylist_mode (ctx, GPGME_KEYLIST_MODE_LOCAL);
+  CHECK_ERR ("gpgme_set_keylist_mode")
+
+  gpgme_set_offline (ctx, 1);
+
   encrypt_flags = GPGME_ENCRYPT_ALWAYS_TRUST | GPGME_ENCRYPT_NO_COMPRESS;
 
   // Import public key into context
   if (gvm_gpg_import_many_types_from_string (ctx, key_str, key_len, key_types))
     {
-      g_warning ("%s: Import of %s failed", __FUNCTION__, key_type_str);
+      g_warning ("%s: Import of %s failed", __func__, key_type_str);
       gpgme_release (ctx);
       gvm_file_remove_recurse (gpg_temp_dir);
       return -1;
@@ -530,7 +600,7 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   key = find_email_encryption_key (ctx, uid_email);
   if (key == NULL)
     {
-      g_warning ("%s: Could not find %s for encryption", __FUNCTION__,
+      g_warning ("%s: Could not find %s for encryption", __func__,
                  key_type_str);
       gpgme_release (ctx);
       gvm_file_remove_recurse (gpg_temp_dir);
@@ -539,7 +609,8 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   keys[0] = key;
 
   // Set up data objects for input and output streams
-  gpgme_data_new_from_stream (&plain_data, plain_file);
+  err = gpgme_data_new_from_stream (&plain_data, plain_file);
+  CHECK_ERR ("gpgme_data_new_from_stream for plain text")
 
   /* Create a GPGME data buffer with custom read and write functions.
    *
@@ -548,7 +619,8 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
   memset (&callbacks, 0, sizeof (callbacks));
   callbacks.read = gvm_gpgme_fread;
   callbacks.write = gvm_gpgme_fwrite;
-  gpgme_data_new_from_cbs (&encrypted_data, &callbacks, encrypted_file);
+  err = gpgme_data_new_from_cbs (&encrypted_data, &callbacks, encrypted_file);
+  CHECK_ERR ("gpgme_data_new_from_stream for encrypted text")
 
   if (protocol == GPGME_PROTOCOL_CMS)
     {
@@ -566,17 +638,7 @@ encrypt_stream_internal (FILE *plain_file, FILE *encrypted_file,
 
   // Encrypt data
   err = gpgme_op_encrypt (ctx, keys, encrypt_flags, plain_data, encrypted_data);
-
-  if (err)
-    {
-      g_warning ("%s: Encryption failed: %s", __FUNCTION__,
-                 gpgme_strerror (err));
-      gpgme_data_release (plain_data);
-      gpgme_data_release (encrypted_data);
-      gpgme_release (ctx);
-      gvm_file_remove_recurse (gpg_temp_dir);
-      return -1;
-    }
+  CHECK_ERR ("gpgme_op_encrypt")
 
   gpgme_data_release (plain_data);
   gpgme_data_release (encrypted_data);
