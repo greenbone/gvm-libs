@@ -2176,8 +2176,10 @@ get_alive_test_methods (alive_test_t *alive_test)
       g_warning ("%s: No valid alive_test specified.", __func__);
       error = BOREAS_NO_VALID_ALIVE_TEST_SPECIFIED;
     }
-
-  *alive_test = atoi (alive_test_pref_as_str);
+  else
+    {
+      *alive_test = atoi (alive_test_pref_as_str);
+    }
   return error;
 }
 
