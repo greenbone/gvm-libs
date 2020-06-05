@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [11.0.2] (unreleased)
+
+### Fixed
+- Fix S/MIME keylist and improve error handling [#343](https://github.com/greenbone/gvm-libs/pull/343)
+
+[11.0.1]: https://github.com/greenbone/gvm-libs/compare/v11.0.1...gvm-libs-11.0
+
 ## [11.0.1] (2020-05-12)
 
 ### Added
