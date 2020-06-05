@@ -450,26 +450,31 @@ static void
 put_finish_signal_on_queue (void *error)
 {
   static gboolean fin_msg_already_on_queue = FALSE;
+  boreas_error_t error_out;
+  int kb_item_push_str_err;
+
+  error_out = NO_ERROR;
   if (fin_msg_already_on_queue)
     {
       g_debug ("%s: Finish signal was already put on queue.", __func__);
-      *(int *) error = -1;
-      return;
-    }
-  if ((kb_item_push_str (scanner.main_kb, ALIVE_DETECTION_QUEUE,
-                         ALIVE_DETECTION_FINISHED))
-      != 0)
-    {
-      g_debug ("%s: Could not push the Boreas finish signal on the alive "
-               "detection Queue.",
-               __func__);
-      *(int *) error = -2;
+      error_out = -1;
     }
   else
     {
-      *(int *) error = 0;
-      fin_msg_already_on_queue = TRUE;
+      kb_item_push_str_err = kb_item_push_str (
+        scanner.main_kb, ALIVE_DETECTION_QUEUE, ALIVE_DETECTION_FINISHED);
+      if (kb_item_push_str_err)
+        {
+          g_debug ("%s: Could not push the Boreas finish signal on the alive "
+                   "detection Queue.",
+                   __func__);
+          error_out = -2;
+        }
+      else
+        fin_msg_already_on_queue = TRUE;
     }
+  /* Set error. */
+  *(boreas_error_t *) error = error_out;
 }
 
 /**
@@ -519,7 +524,7 @@ handle_scan_restrictions (gchar *addr_str)
       int err;
       scan_restrictions.max_scan_hosts_reached = TRUE;
       put_finish_signal_on_queue (&err);
-      if (err != 0)
+      if (err)
         g_debug ("%s: Error in put_finish_signal_on_queue(): %d ", __func__,
                  err);
     }
@@ -2055,13 +2060,16 @@ static void
 alive_detection_free (void *error)
 {
   boreas_error_t alive_test_err;
+  boreas_error_t error_out;
   alive_test_t alive_test;
 
-  if ((alive_test_err = get_alive_test_methods (&alive_test)) != 0)
+  error_out = NO_ERROR;
+  alive_test_err = get_alive_test_methods (&alive_test);
+  if (alive_test_err)
     {
       g_warning ("%s: %s. Could not get info about which sockets to close.",
                  __func__, str_boreas_error (alive_test_err));
-      *(int *) error = BOREAS_CLEANUP_ERROR;
+      error_out = BOREAS_CLEANUP_ERROR;
     }
   else
     {
@@ -2071,13 +2079,13 @@ alive_detection_free (void *error)
             {
               g_warning ("%s: Error in close(): %s", __func__,
                          strerror (errno));
-              *(int *) error = BOREAS_CLEANUP_ERROR;
+              error_out = BOREAS_CLEANUP_ERROR;
             }
           if ((close (scanner.icmpv6soc)) != 0)
             {
               g_warning ("%s: Error in close(): %s", __func__,
                          strerror (errno));
-              *(int *) error = BOREAS_CLEANUP_ERROR;
+              error_out = BOREAS_CLEANUP_ERROR;
             }
         }
 
@@ -2088,25 +2096,25 @@ alive_detection_free (void *error)
             {
               g_warning ("%s: Error in close(): %s", __func__,
                          strerror (errno));
-              *(int *) error = BOREAS_CLEANUP_ERROR;
+              error_out = BOREAS_CLEANUP_ERROR;
             }
           if ((close (scanner.tcpv6soc)) != 0)
             {
               g_warning ("%s: Error in close(): %s", __func__,
                          strerror (errno));
-              *(int *) error = BOREAS_CLEANUP_ERROR;
+              error_out = BOREAS_CLEANUP_ERROR;
             }
           if ((close (scanner.udpv4soc)) != 0)
             {
               g_warning ("%s: Error in close(): %s", __func__,
                          strerror (errno));
-              *(int *) error = BOREAS_CLEANUP_ERROR;
+              error_out = BOREAS_CLEANUP_ERROR;
             }
           if ((close (scanner.udpv6soc)) != 0)
             {
               g_warning ("%s: Error in close(): %s", __func__,
                          strerror (errno));
-              *(int *) error = BOREAS_CLEANUP_ERROR;
+              error_out = BOREAS_CLEANUP_ERROR;
             }
         }
 
@@ -2116,13 +2124,13 @@ alive_detection_free (void *error)
             {
               g_warning ("%s: Error in close(): %s", __func__,
                          strerror (errno));
-              *(int *) error = BOREAS_CLEANUP_ERROR;
+              error_out = BOREAS_CLEANUP_ERROR;
             }
           if ((close (scanner.arpv6soc)) != 0)
             {
               g_warning ("%s: Error in close(): %s", __func__,
                          strerror (errno));
-              *(int *) error = BOREAS_CLEANUP_ERROR;
+              error_out = BOREAS_CLEANUP_ERROR;
             }
         }
     }
@@ -2132,7 +2140,7 @@ alive_detection_free (void *error)
   if ((kb_lnk_reset (scanner.main_kb)) != 0)
     {
       g_warning ("%s: error in kb_lnk_reset()", __func__);
-      *(int *) error = BOREAS_CLEANUP_ERROR;
+      error_out = BOREAS_CLEANUP_ERROR;
     }
 
   /* Ports array. */
@@ -2143,6 +2151,9 @@ alive_detection_free (void *error)
    * gvm_host_t are freed by caller of start_alive_detection()! */
   g_hash_table_destroy (hosts_data.targethosts);
   g_hash_table_destroy (hosts_data.alivehosts_not_to_be_sent_to_openvas);
+
+  /* Set error. */
+  *(boreas_error_t *) error = error_out;
 }
 
 /**
@@ -2182,7 +2193,7 @@ start_alive_detection (void *hosts_to_test)
 {
   boreas_error_t init_err;
   boreas_error_t alive_test_err;
-  int fin_err;
+  boreas_error_t fin_err;
   boreas_error_t free_err;
   gvm_hosts_t *hosts;
   alive_test_t alive_test;
@@ -2192,7 +2203,7 @@ start_alive_detection (void *hosts_to_test)
       g_warning ("%s: %s. Exit Boreas.", __func__,
                  str_boreas_error (alive_test_err));
       put_finish_signal_on_queue (&fin_err);
-      if (fin_err != 0)
+      if (fin_err)
         g_warning ("%s: Could not put finish signal on Queue. Openvas needs to "
                    "be stopped manually. ",
                    __func__);
@@ -2206,7 +2217,7 @@ start_alive_detection (void *hosts_to_test)
         "%s. Boreas could not initialise alive detection. %s. Exit Boreas.",
         __func__, str_boreas_error (init_err));
       put_finish_signal_on_queue (&fin_err);
-      if (fin_err != 0)
+      if (fin_err)
         g_warning ("%s: Could not put finish signal on Queue. Openvas needs to "
                    "be stopped manually. ",
                    __func__);
@@ -2226,7 +2237,7 @@ start_alive_detection (void *hosts_to_test)
   pthread_cleanup_pop (1);
   /* Free memory, close sockets and connections. */
   pthread_cleanup_pop (1);
-  if (free_err != 0)
+  if (free_err)
     g_warning ("%s: %s. Exit Boreas thread none the less.", __func__,
                str_boreas_error (free_err));
 
