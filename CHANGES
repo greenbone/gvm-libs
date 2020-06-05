@@ -7,6 +7,16 @@ or get the entire source code repository and view log history:
 $ git clone https://github.com/greenbone/gvm-libs.git
 $ cd gvm-libs && git checkout gvm-libs-10.0 && git log
 
+gvm-libs 10.0.3 (unreleased)
+
+This is the third patch release of the gvm-libs module 10.0 for the
+Greenbone Vulnerability Management 10 (GVM-10) framework.
+
+Main changes compared to gvm-libs 10.0.2:
+
+* Fix S/MIME keylist and improve error handling
+
+
 gvm-libs 10.0.2 (2020-05-12)
 
 This is the second patch release of the gvm-libs module 10.0 for the
