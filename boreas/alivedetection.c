@@ -23,6 +23,7 @@
 #include "../base/prefs.h"      /* for prefs_get() */
 #include "../util/kb.h"         /* for kb_t operations */
 #include "boreas_error.h"
+#include "ping.h"
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -699,82 +700,6 @@ get_source_mac_addr (gchar *interface, uint8_t *mac)
       freeifaddrs (ifaddr);
     }
   return 0;
-}
-
-/**
- * @brief Send icmp ping.
- *
- * @param soc Socket to use for sending.
- * @param dst Destination address to send to.
- * @param type  Type of imcp. e.g. ND_NEIGHBOR_SOLICIT or ICMP6_ECHO_REQUEST.
- */
-static void
-send_icmp_v6 (int soc, struct in6_addr *dst, int type)
-{
-  struct sockaddr_in6 soca;
-  char sendbuf[1500];
-  int len;
-  int datalen = 56;
-  struct icmp6_hdr *icmp6;
-
-  icmp6 = (struct icmp6_hdr *) sendbuf;
-  icmp6->icmp6_type = type; /* ND_NEIGHBOR_SOLICIT or ICMP6_ECHO_REQUEST */
-  icmp6->icmp6_code = 0;
-  icmp6->icmp6_id = 234;
-  icmp6->icmp6_seq = 0;
-
-  memset ((icmp6 + 1), 0xa5, datalen);
-  gettimeofday ((struct timeval *) (icmp6 + 1), NULL); // only for testing
-  len = 8 + datalen;
-
-  /* send packet */
-  memset (&soca, 0, sizeof (struct sockaddr_in6));
-  soca.sin6_family = AF_INET6;
-  soca.sin6_addr = *dst;
-
-  if (sendto (soc, sendbuf, len, MSG_NOSIGNAL, (struct sockaddr *) &soca,
-              sizeof (struct sockaddr_in6))
-      < 0)
-    {
-      g_warning ("%s: sendto(): %s", __func__, strerror (errno));
-    }
-}
-
-/**
- * @brief Send icmp ping.
- *
- * @param soc Socket to use for sending.
- * @param dst Destination address to send to.
- */
-static void
-send_icmp_v4 (int soc, struct in_addr *dst)
-{
-  /* datalen + MAXIPLEN + MAXICMPLEN */
-  char sendbuf[56 + 60 + 76];
-  struct sockaddr_in soca;
-
-  int len;
-  int datalen = 56;
-  struct icmphdr *icmp;
-
-  icmp = (struct icmphdr *) sendbuf;
-  icmp->type = ICMP_ECHO;
-  icmp->code = 0;
-
-  len = 8 + datalen;
-  icmp->checksum = 0;
-  icmp->checksum = in_cksum ((u_short *) icmp, len);
-
-  memset (&soca, 0, sizeof (soca));
-  soca.sin_family = AF_INET;
-  soca.sin_addr = *dst;
-
-  if (sendto (soc, sendbuf, len, MSG_NOSIGNAL, (const struct sockaddr *) &soca,
-              sizeof (struct sockaddr_in))
-      < 0)
-    {
-      g_warning ("%s: sendto(): %s", __func__, strerror (errno));
-    }
 }
 
 /**
