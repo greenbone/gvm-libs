@@ -27,6 +27,7 @@ Specific development libraries:
 * libldap2 >= 2.4.44 (util)
 * libhiredis >= 0.10.1 (util)
 * libxml2 >= 2.0 (util)
+* libpcap
 
 Optional development libraries:
 * libradcli-dev >= 1.2.6 (util)
@@ -51,7 +52,8 @@ Install prerequisites on Debian GNU/Linux 'Buster' 10:
     libldap2-dev \
     libhiredis-dev \
     libxml2-dev \
-    libradcli-dev
+    libradcli-dev \
+    libpcap-dev
 
 
 Compiling gvm-libs
