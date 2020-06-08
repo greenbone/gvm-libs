@@ -121,7 +121,6 @@ typedef struct
   GSList *vt_groups;          ///< VT groups to use for the scan.
   GSList *vts;                ///< Single VTs to use for the scan.
   GHashTable *scanner_params; ///< Table of scanner parameters.
-  int parallel;               ///< Number of parallel scans.
   const char *scan_id;        ///< UUID to set for scan, null otherwise.
 } osp_start_scan_opts_t;
 

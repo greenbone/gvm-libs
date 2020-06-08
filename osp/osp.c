@@ -965,8 +965,6 @@ osp_start_scan_ext (osp_connection_t *connection, osp_start_scan_opts_t opts,
 
   xml = g_string_sized_new (10240);
   g_string_append (xml, "<start_scan");
-  if (opts.parallel)
-    xml_string_append (xml, " parallel=\"%d\"", opts.parallel);
   xml_string_append (xml, " scan_id=\"%s\">", opts.scan_id ? opts.scan_id : "");
 
   g_string_append (xml, "<targets>");
