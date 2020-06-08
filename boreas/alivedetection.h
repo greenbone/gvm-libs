@@ -1,6 +1,6 @@
 /* Copyright (C) 2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,11 +17,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __ALIVE_DETECTION__
-#define __ALIVE_DETECTION__
+#ifndef ALIVE_DETECTION_H
+#define ALIVE_DETECTION_H
 
-#include <gvm/base/hosts.h>
-#include <gvm/util/kb.h>
+#include "../base/hosts.h"
+#include "../util/kb.h"
 
 /* to how many hosts are packets send to at a time. value <= 0 for no rate limit
  */
