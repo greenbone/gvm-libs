@@ -54,9 +54,9 @@ pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES alivedetection.c)
+set (FILES alivedetection.c boreas_error.c)
 
-set (HEADERS alivedetection.h)
+set (HEADERS alivedetection.h boreas_error.h)
 
 if (BUILD_STATIC)
   set (LIBGVM_BOREAS_NAME gvm_boreas_static)
@@ -88,7 +88,7 @@ set (ALIVEDETECTION_TEST_LINKER_WRAP_OPTIONS
      "-Wl,-wrap,socket,-wrap,setsockopt")
 add_executable (alivedetection-test
                 EXCLUDE_FROM_ALL
-                alivedetection_tests.c)
+                alivedetection_tests.c boreas_error.c)
 add_test (alivedetection-test alivedetection-test)
 target_include_directories (alivedetection-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 target_link_libraries (alivedetection-test gvm_base_shared gvm_util_shared
@@ -97,6 +97,16 @@ target_link_libraries (alivedetection-test gvm_base_shared gvm_util_shared
                        ${PCAP_LDFLAGS}
                        ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT} 
                        ${ALIVEDETECTION_TEST_LINKER_WRAP_OPTIONS})
+
+add_executable (boreas_error-test
+                EXCLUDE_FROM_ALL
+                boreas_error_tests.c)
+add_test (boreas_error-test boreas_error-test)
+target_include_directories (boreas_error-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+target_link_libraries (boreas_error-test
+                        ${CGREEN_LIBRARIES}
+                        ${GLIB_LDFLAGS}
+                        ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
 ## Install
 

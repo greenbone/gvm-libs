@@ -22,6 +22,7 @@
 #include "../base/networking.h" /* for gvm_source_addr(), gvm_routethrough() */
 #include "../base/prefs.h"      /* for prefs_get() */
 #include "../util/kb.h"         /* for kb_t operations */
+#include "boreas_error.h"
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -176,40 +177,6 @@ struct pseudohdr
   u_short length;
   struct tcphdr tcpheader;
 };
-
-const char *
-str_boreas_error (boreas_error_t boreas_error)
-{
-  const gchar *msg;
-
-  msg = NULL;
-  switch (boreas_error)
-    {
-    case BOREAS_OPENING_SOCKET_FAILED:
-      msg = "Boreas was not able to open a new socket";
-      break;
-    case BOREAS_SETTING_SOCKET_OPTION_FAILED:
-      msg = "Boreas was not able to set socket option for socket";
-      break;
-    case BOREAS_NO_VALID_ALIVE_TEST_SPECIFIED:
-      msg =
-        "No valid alive detction method was specified for Boreas by the user";
-      break;
-    case BOREAS_CLEANUP_ERROR:
-      msg = "Boreas encountered an error during clean up.";
-      break;
-    case BOREAS_NO_SRC_ADDR_FOUND:
-      msg = "Boreas was not able to determine a source address for the given "
-            "destination.";
-      break;
-    case NO_ERROR:
-      msg = "No error was encountered by Boreas";
-      break;
-    default:
-      break;
-    }
-  return msg;
-}
 
 /**
  * @brief Get the openvas scan id of the curent task.
