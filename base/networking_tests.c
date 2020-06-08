@@ -25,6 +25,7 @@
 Describe (networking);
 BeforeEach (networking)
 {
+  cgreen_mocks_are (loose_mocks);
 }
 AfterEach (networking)
 {
@@ -1154,6 +1155,21 @@ Ensure (networking, gvm_routethrough_v4)
   // 0); assert_that (interface, is_equal_to_string ("enp0s9"));
 }
 
+Ensure (networking, gvm_source_addr)
+{
+  struct in_addr src;
+
+  /* global source address not set */
+  gvm_source_iface_init (NULL);
+  gvm_source_addr (&src);
+  assert_that ((src.s_addr == INADDR_ANY));
+
+  /* global source address */
+  gvm_source_iface_init ("lo");
+  gvm_source_addr (&src);
+  assert_that ((src.s_addr != INADDR_ANY));
+}
+
 TestSuite *
 gvm_routethough ()
 {
@@ -1173,6 +1189,7 @@ main (int argc, char **argv)
   suite = create_test_suite ();
   add_suite (suite, gvm_routethough ());
 
+  add_test_with_context (suite, networking, gvm_source_addr);
   add_test_with_context (suite, networking, validate_port_range);
   add_test_with_context (suite, networking, port_range_ranges);
   add_test_with_context (suite, networking, port_in_port_ranges);
