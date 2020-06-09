@@ -152,7 +152,7 @@ send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
   int soc = scanner->tcpv4soc;          /* Socket used for sending. */
   GArray *ports = scanner->ports;       /* Ports to ping. */
   int *udpv4soc = &(scanner->udpv4soc); /* Socket used for getting src addr */
-  int tcp_flag = scanner->tcp_flag;     /* SYN or ACK tcp flag. */
+  uint8_t tcp_flag = scanner->tcp_flag; /* SYN or ACK tcp flag. */
 
   u_char packet[sizeof (struct ip) + sizeof (struct tcphdr)];
   struct ip *ip = (struct ip *) packet;
