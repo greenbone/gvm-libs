@@ -59,8 +59,6 @@ struct hosts_data hosts_data;
 /* for using int value in #defined string */
 #define STR(X) #X
 #define ASSTR(X) STR (X)
-/* packets are sent to port 9910*/
-#define FILTER_PORT 9910
 #define FILTER_STR                                                           \
   "(ip6 or ip or arp) and (ip6[40]=129 or icmp[icmptype] == icmp-echoreply " \
   "or dst port " ASSTR (FILTER_PORT) " or arp[6:2]=2)"
@@ -125,16 +123,6 @@ struct v6pseudohdr
   u_char zero2;
   u_char zero3;
   u_char protocol;
-  struct tcphdr tcpheader;
-};
-
-struct pseudohdr
-{
-  struct in_addr saddr;
-  struct in_addr daddr;
-  u_char zero;
-  u_char protocol;
-  u_short length;
   struct tcphdr tcpheader;
 };
 
@@ -693,102 +681,6 @@ send_tcp_v6 (int soc, struct in6_addr *dst_p, uint8_t tcp_flag)
           < 0)
         {
           g_warning ("%s: sendto():  %s", __func__, strerror (errno));
-        }
-    }
-}
-
-/**
- * @brief Send tcp ping.
- *
- * @param scanner Scanner struct which includes all needed data for tcp_v4 ping.
- * @param dst Destination address to send to.
- */
-static void
-send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
-{
-  boreas_error_t error;
-  struct sockaddr_in soca;
-  struct in_addr src;
-
-  int soc = scanner->tcpv4soc;          /* Socket used for sending. */
-  GArray *ports = scanner->ports;       /* Ports to ping. */
-  int *udpv4soc = &(scanner->udpv4soc); /* Socket used for getting src addr */
-  int tcp_flag = scanner->tcp_flag;     /* SYN or ACK tcp flag. */
-
-  u_char packet[sizeof (struct ip) + sizeof (struct tcphdr)];
-  struct ip *ip = (struct ip *) packet;
-  struct tcphdr *tcp = (struct tcphdr *) (packet + sizeof (struct ip));
-
-  /* No ports in portlist. */
-  if (ports->len == 0)
-    return;
-
-  /* Get source address for TCP header. */
-  error = get_source_addr_v4 (udpv4soc, dst_p, &src);
-  if (error)
-    {
-      char destination_str[INET_ADDRSTRLEN];
-      inet_ntop (AF_INET, &(dst_p->s_addr), destination_str, INET_ADDRSTRLEN);
-      g_debug ("%s: Destination: %s. %s", __func__, destination_str,
-               str_boreas_error (error));
-      return;
-    }
-
-  /* For ports in ports array send packet. */
-  for (guint i = 0; i < ports->len; i++)
-    {
-      memset (packet, 0, sizeof (packet));
-      /* IP */
-      ip->ip_hl = 5;
-      ip->ip_off = htons (0);
-      ip->ip_v = 4;
-      ip->ip_tos = 0;
-      ip->ip_p = IPPROTO_TCP;
-      ip->ip_id = rand ();
-      ip->ip_ttl = 0x40;
-      ip->ip_src = src;
-      ip->ip_dst = *dst_p;
-      ip->ip_sum = 0;
-
-      /* TCP */
-      tcp->th_sport = htons (FILTER_PORT);
-      tcp->th_flags = tcp_flag; // TH_SYN TH_ACK;
-      tcp->th_dport = htons (g_array_index (ports, uint16_t, i));
-      tcp->th_seq = rand ();
-      tcp->th_ack = 0;
-      tcp->th_x2 = 0;
-      tcp->th_off = 5;
-      tcp->th_win = 2048;
-      tcp->th_urp = 0;
-      tcp->th_sum = 0;
-
-      /* CKsum */
-      {
-        struct in_addr source, dest;
-        struct pseudohdr pseudoheader;
-        source.s_addr = ip->ip_src.s_addr;
-        dest.s_addr = ip->ip_dst.s_addr;
-
-        memset (&pseudoheader, 0, 12 + sizeof (struct tcphdr));
-        pseudoheader.saddr.s_addr = source.s_addr;
-        pseudoheader.daddr.s_addr = dest.s_addr;
-
-        pseudoheader.protocol = IPPROTO_TCP;
-        pseudoheader.length = htons (sizeof (struct tcphdr));
-        memcpy ((char *) &pseudoheader.tcpheader, (char *) tcp,
-                sizeof (struct tcphdr));
-        tcp->th_sum = in_cksum ((unsigned short *) &pseudoheader,
-                                12 + sizeof (struct tcphdr));
-      }
-
-      memset (&soca, 0, sizeof (soca));
-      soca.sin_family = AF_INET;
-      soca.sin_addr = ip->ip_dst;
-      if (sendto (soc, (const void *) ip, 40, MSG_NOSIGNAL,
-                  (struct sockaddr *) &soca, sizeof (soca))
-          < 0)
-        {
-          g_warning ("%s: sendto(): %s", __func__, strerror (errno));
         }
     }
 }

@@ -32,6 +32,8 @@
 #define BURST_TIMEOUT 100000
 /* how tong (in sec) to wait for replies after last packet was sent */
 #define WAIT_FOR_REPLIES_TIMEOUT 5
+/* Src port of outgoing TCP pings. Used for filtering incoming packets. */
+#define FILTER_PORT 9910
 
 /* Redis related */
 

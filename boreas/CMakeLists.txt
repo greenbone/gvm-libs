@@ -110,7 +110,7 @@ target_link_libraries (boreas_error-test
 
 add_executable (ping-test
                 EXCLUDE_FROM_ALL
-                ping_tests.c util.c)
+                ping_tests.c util.c boreas_error.c)
 add_test (ping-test ping-test)
 target_include_directories (ping-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 target_link_libraries (ping-test gvm_base_shared

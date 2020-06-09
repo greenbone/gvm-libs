@@ -20,6 +20,8 @@
 #ifndef BOREAS_PING_H
 #define BOREAS_PING_H
 
+#include "alivedetection.h"
+
 #include <netinet/in.h>
 
 void
@@ -27,6 +29,9 @@ send_icmp_v6 (int soc, struct in6_addr *dst, int type);
 
 void
 send_icmp_v4 (int soc, struct in_addr *dst);
+
+void
+send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p);
 
 void
 send_arp_v4 (int soc, struct in_addr *dst_p);
