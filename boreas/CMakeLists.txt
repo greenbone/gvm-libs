@@ -54,9 +54,9 @@ pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES alivedetection.c boreas_error.c ping.c util.c)
+set (FILES alivedetection.c boreas_error.c boreas_io.c ping.c util.c)
 
-set (HEADERS alivedetection.h boreas_error.h ping.h util.h)
+set (HEADERS alivedetection.h boreas_error.h boreas_io.h ping.h util.h)
 
 if (BUILD_STATIC)
   set (LIBGVM_BOREAS_NAME gvm_boreas_static)
@@ -107,6 +107,16 @@ target_link_libraries (boreas_error-test
                         ${CGREEN_LIBRARIES}
                         ${GLIB_LDFLAGS}
                         ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+
+add_executable (boreas_io-test
+                        EXCLUDE_FROM_ALL
+                        boreas_io_tests.c)
+        add_test (boreas_io-test boreas_io-test)
+        target_include_directories (boreas_io-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+        target_link_libraries (boreas_io-test
+                                ${CGREEN_LIBRARIES}
+                                ${GLIB_LDFLAGS}
+                                ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable (ping-test
                 EXCLUDE_FROM_ALL
