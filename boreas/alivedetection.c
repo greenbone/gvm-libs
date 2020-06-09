@@ -344,19 +344,16 @@ put_finish_signal_on_queue (void *error)
 /**
  * @brief Put host value string on queue of hosts to be considered as alive.
  *
- * @param key Host value string.
- * @param value Pointer to gvm_host_t.
- * @param user_data
+ * @param kb KB to use.
+ * @param addr_str IP addr in str representation to put on queue.
  */
 static void
-put_host_on_queue (gpointer key, __attribute__ ((unused)) gpointer value,
-                   __attribute__ ((unused)) gpointer user_data)
+put_host_on_queue (kb_t kb, char *addr_str)
 {
-  if (kb_item_push_str (scanner.main_kb, ALIVE_DETECTION_QUEUE, (char *) key)
-      != 0)
+  if (kb_item_push_str (kb, ALIVE_DETECTION_QUEUE, addr_str) != 0)
     g_debug ("%s: kb_item_push_str() failed. Could not push \"%s\" on queue of "
              "hosts to be considered as alive.",
-             __func__, (char *) key);
+             __func__, addr_str);
 }
 
 /**
@@ -375,7 +372,7 @@ handle_scan_restrictions (gchar *addr_str)
   scan_restrictions.alive_hosts_count++;
   /* Put alive hosts on queue as long as max_scan_hosts not reached. */
   if (!scan_restrictions.max_scan_hosts_reached)
-    put_host_on_queue (addr_str, NULL, NULL);
+    put_host_on_queue (scanner.main_kb, addr_str);
   else
     g_hash_table_add (hosts_data.alivehosts_not_to_be_sent_to_openvas,
                       addr_str);
