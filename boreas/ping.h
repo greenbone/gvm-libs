@@ -28,4 +28,7 @@ send_icmp_v6 (int soc, struct in6_addr *dst, int type);
 void
 send_icmp_v4 (int soc, struct in_addr *dst);
 
+void
+send_arp_v4 (int soc, struct in_addr *dst_p);
+
 #endif

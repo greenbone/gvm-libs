@@ -113,7 +113,7 @@ add_executable (ping-test
                 ping_tests.c)
 add_test (ping-test ping-test)
 target_include_directories (ping-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-target_link_libraries (ping-test
+target_link_libraries (ping-test gvm_base_shared
                         ${CGREEN_LIBRARIES}
                         ${GLIB_LDFLAGS}
                         ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
