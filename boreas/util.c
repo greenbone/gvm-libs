@@ -26,6 +26,7 @@
 #include <net/if.h>           /* for if_nametoindex() */
 #include <netpacket/packet.h> /* for sockaddr_ll */
 #include <stdlib.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
