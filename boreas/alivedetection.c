@@ -909,27 +909,31 @@ send_tcp_v6 (int soc, struct in6_addr *dst_p, uint8_t tcp_flag)
 /**
  * @brief Send tcp ping.
  *
- * @param soc Socket to use for sending.
+ * @param scanner Scanner struct which includes all needed data for tcp_v4 ping.
  * @param dst Destination address to send to.
- * @param tcp_flag  TH_SYN or TH_ACK.
  */
 static void
-send_tcp_v4 (int soc, struct in_addr *dst_p, uint8_t tcp_flag)
+send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
 {
   boreas_error_t error;
   struct sockaddr_in soca;
   struct in_addr src;
+
+  int soc = scanner->tcpv4soc;          /* Socket used for sending. */
+  GArray *ports = scanner->ports;       /* Ports to ping. */
+  int *udpv4soc = &(scanner->udpv4soc); /* Socket used for getting src addr */
+  int tcp_flag = scanner->tcp_flag;     /* SYN or ACK tcp flag. */
 
   u_char packet[sizeof (struct ip) + sizeof (struct tcphdr)];
   struct ip *ip = (struct ip *) packet;
   struct tcphdr *tcp = (struct tcphdr *) (packet + sizeof (struct ip));
 
   /* No ports in portlist. */
-  if (scanner.ports->len == 0)
+  if (ports->len == 0)
     return;
 
   /* Get source address for TCP header. */
-  error = get_source_addr_v4 (&scanner.udpv4soc, dst_p, &src);
+  error = get_source_addr_v4 (udpv4soc, dst_p, &src);
   if (error)
     {
       char destination_str[INET_ADDRSTRLEN];
@@ -940,7 +944,7 @@ send_tcp_v4 (int soc, struct in_addr *dst_p, uint8_t tcp_flag)
     }
 
   /* For ports in ports array send packet. */
-  for (guint i = 0; i < scanner.ports->len; i++)
+  for (guint i = 0; i < ports->len; i++)
     {
       memset (packet, 0, sizeof (packet));
       /* IP */
@@ -958,7 +962,7 @@ send_tcp_v4 (int soc, struct in_addr *dst_p, uint8_t tcp_flag)
       /* TCP */
       tcp->th_sport = htons (FILTER_PORT);
       tcp->th_flags = tcp_flag; // TH_SYN TH_ACK;
-      tcp->th_dport = htons (g_array_index (scanner.ports, uint16_t, i));
+      tcp->th_dport = htons (g_array_index (ports, uint16_t, i));
       tcp->th_seq = rand ();
       tcp->th_ack = 0;
       tcp->th_x2 = 0;
@@ -1034,7 +1038,7 @@ send_tcp (__attribute__ ((unused)) gpointer key, gpointer value,
   else
     {
       dst4.s_addr = dst6_p->s6_addr32[3];
-      send_tcp_v4 (scanner.tcpv4soc, dst4_p, scanner.tcp_flag);
+      send_tcp_v4 (&scanner, dst4_p);
     }
 }
 
