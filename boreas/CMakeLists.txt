@@ -54,9 +54,9 @@ pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES alivedetection.c boreas_error.c ping.c)
+set (FILES alivedetection.c boreas_error.c ping.c util.c)
 
-set (HEADERS alivedetection.h boreas_error.h ping.h)
+set (HEADERS alivedetection.h boreas_error.h ping.h util.h)
 
 if (BUILD_STATIC)
   set (LIBGVM_BOREAS_NAME gvm_boreas_static)
@@ -118,6 +118,15 @@ target_link_libraries (ping-test gvm_base_shared
                         ${GLIB_LDFLAGS}
                         ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
+add_executable (util-test
+                EXCLUDE_FROM_ALL
+                util_tests.c)
+add_test (util-test util-test)
+target_include_directories (util-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+target_link_libraries (util-test
+                        ${CGREEN_LIBRARIES}
+                        ${GLIB_LDFLAGS}
+                        ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 ## Install
 
 configure_file (libgvm_boreas.pc.in ${CMAKE_BINARY_DIR}/libgvm_boreas.pc @ONLY)
