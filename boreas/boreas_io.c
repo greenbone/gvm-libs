@@ -35,3 +35,25 @@ put_host_on_queue (kb_t kb, char *addr_str)
              "hosts to be considered as alive.",
              __func__, addr_str);
 }
+
+/**
+ * @brief Get the openvas scan id of the curent task.
+ *
+ * @param db_address  Address of the Redis db.
+ * @param db_id ID of the scan main db.
+ *
+ * @return Scan id of current task or NULL on error.
+ */
+gchar *
+get_openvas_scan_id (const gchar *db_address, int db_id)
+{
+  kb_t main_kb = NULL;
+  gchar *scan_id;
+  if ((main_kb = kb_direct_conn (db_address, db_id)))
+    {
+      scan_id = kb_item_get_str (main_kb, ("internal/scanid"));
+      kb_lnk_reset (main_kb);
+      return scan_id;
+    }
+  return NULL;
+}

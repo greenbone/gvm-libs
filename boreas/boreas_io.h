@@ -25,4 +25,7 @@
 void
 put_host_on_queue (kb_t kb, char *addr_str);
 
+gchar *
+get_openvas_scan_id (const gchar *db_address, int db_id);
+
 #endif

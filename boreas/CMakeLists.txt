@@ -88,7 +88,7 @@ set (ALIVEDETECTION_TEST_LINKER_WRAP_OPTIONS
      "-Wl,-wrap,socket,-wrap,setsockopt")
 add_executable (alivedetection-test
                 EXCLUDE_FROM_ALL
-                alivedetection_tests.c boreas_error.c ping.c util.c)
+                alivedetection_tests.c boreas_error.c boreas_io.c ping.c util.c)
 add_test (alivedetection-test alivedetection-test)
 target_include_directories (alivedetection-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 target_link_libraries (alivedetection-test gvm_base_shared gvm_util_shared
@@ -113,7 +113,7 @@ add_executable (boreas_io-test
                         boreas_io_tests.c)
         add_test (boreas_io-test boreas_io-test)
         target_include_directories (boreas_io-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-        target_link_libraries (boreas_io-test
+        target_link_libraries (boreas_io-test gvm_base_shared gvm_util_shared
                                 ${CGREEN_LIBRARIES}
                                 ${GLIB_LDFLAGS}
                                 ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
