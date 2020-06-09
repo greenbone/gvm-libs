@@ -27,6 +27,7 @@
 #include <netpacket/packet.h> /* for sockaddr_ll */
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 /**
  * @brief Checksum calculation.
@@ -118,6 +119,77 @@ get_source_mac_addr (char *interface, uint8_t *mac)
       freeifaddrs (ifaddr);
     }
   return 0;
+}
+
+/**
+ * @brief Figure out source address for given destination.
+ *
+ * This function uses a well known trick for getting the source address used
+ * for a given destination by calling connect() and getsockname() on an udp
+ * socket.
+ *
+ * @param[in]   udpv4soc  Location of the socket to use.
+ * @param[in]   dst       Destination address.
+ * @param[out]  src       Source address.
+ *
+ * @return 0 on success, boreas_error_t on failure.
+ */
+boreas_error_t
+get_source_addr_v4 (int *udpv4soc, struct in_addr *dst, struct in_addr *src)
+{
+  struct sockaddr_storage storage;
+  struct sockaddr_in sin;
+  socklen_t sock_len;
+  boreas_error_t error;
+
+  memset (&sin, 0, sizeof (struct sockaddr_in));
+  sin.sin_family = AF_INET;
+  sin.sin_addr.s_addr = dst->s_addr;
+  sin.sin_port = htons (9); /* discard port (see RFC 863) */
+  memcpy (&storage, &sin, sizeof (sin));
+
+  error = NO_ERROR;
+  sock_len = sizeof (storage);
+  if (connect (*udpv4soc, (const struct sockaddr *) &storage, sock_len) < 0)
+    {
+      g_warning ("%s: connect() on udpv4soc failed: %s", __func__,
+                 strerror (errno));
+      /* State of the socket is unspecified.  Close the socket and create a new
+       * one. */
+      if ((close (*udpv4soc)) != 0)
+        {
+          g_debug ("%s: Error in close(): %s", __func__, strerror (errno));
+        }
+      set_socket (UDPV4, udpv4soc);
+      error = BOREAS_NO_SRC_ADDR_FOUND;
+    }
+  else
+    {
+      if (getsockname (*udpv4soc, (struct sockaddr *) &storage, &sock_len) < 0)
+        {
+          g_debug ("%s: getsockname() on updv4soc failed: %s", __func__,
+                   strerror (errno));
+          error = BOREAS_NO_SRC_ADDR_FOUND;
+        }
+    }
+
+  if (!error)
+    {
+      /* Set source address. */
+      memcpy (src, &((struct sockaddr_in *) (&storage))->sin_addr,
+              sizeof (struct in_addr));
+
+      /* Dissolve association so we can connect() on same socket again in later
+       * call to get_source_addr_v4(). */
+      sin.sin_family = AF_UNSPEC;
+      sock_len = sizeof (storage);
+      memcpy (&storage, &sin, sizeof (sin));
+      if (connect (*udpv4soc, (const struct sockaddr *) &storage, sock_len) < 0)
+        g_debug ("%s: connect() on udpv4soc to dissolve association failed: %s",
+                 __func__, strerror (errno));
+    }
+
+  return error;
 }
 
 /**

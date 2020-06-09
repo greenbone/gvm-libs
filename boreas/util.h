@@ -29,4 +29,7 @@ int
 get_source_mac_addr (char *interface, uint8_t *mac);
 
 boreas_error_t
+get_source_addr_v4 (int *udpv4soc, struct in_addr *dst, struct in_addr *src);
+
+boreas_error_t
 set_socket (socket_type_t socket_type, int *scanner_socket);
