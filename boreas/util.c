@@ -21,10 +21,13 @@
 
 #include <errno.h>
 #include <glib.h>
-#include <ifaddrs.h>          /* for getifaddrs() */
+#include <ifaddrs.h> /* for getifaddrs() */
+#include <net/ethernet.h>
 #include <net/if.h>           /* for if_nametoindex() */
 #include <netpacket/packet.h> /* for sockaddr_ll */
 #include <stdlib.h>
+#include <sys/socket.h>
+
 /**
  * @brief Checksum calculation.
  *
@@ -115,4 +118,165 @@ get_source_mac_addr (char *interface, uint8_t *mac)
       freeifaddrs (ifaddr);
     }
   return 0;
+}
+
+/**
+ * @brief Set the SO_BROADCAST socket option for given socket.
+ *
+ * @param socket  The socket to apply the option to.
+ *
+ * @return 0 on success, boreas_error_t on error.
+ */
+static boreas_error_t
+set_broadcast (int socket)
+{
+  boreas_error_t error = NO_ERROR;
+  int broadcast = 1;
+  if (setsockopt (socket, SOL_SOCKET, SO_BROADCAST, &broadcast,
+                  sizeof (broadcast))
+      < 0)
+    {
+      g_warning ("%s: failed to set socket option SO_BROADCAST: %s", __func__,
+                 strerror (errno));
+      error = BOREAS_SETTING_SOCKET_OPTION_FAILED;
+    }
+  return error;
+}
+
+/**
+ * @brief Set a new socket of specified type.
+ *
+ * @param[in] socket_type  What type of socket to get.
+ *
+ * @param[out] scanner_socket  Location to save the socket into.
+ *
+ * @return 0 on success, boreas_error_t on error.
+ */
+boreas_error_t
+set_socket (socket_type_t socket_type, int *scanner_socket)
+{
+  boreas_error_t error = NO_ERROR;
+  int soc;
+  switch (socket_type)
+    {
+    case UDPV4:
+      {
+        soc = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+        if (soc < 0)
+          {
+            g_warning ("%s: failed to open UDPV4 socket: %s", __func__,
+                       strerror (errno));
+            error = BOREAS_OPENING_SOCKET_FAILED;
+          }
+      }
+      break;
+    case UDPV6:
+      {
+        soc = socket (AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
+        if (soc < 0)
+          {
+            g_warning ("%s: failed to open UDPV4 socket: %s", __func__,
+                       strerror (errno));
+            error = BOREAS_OPENING_SOCKET_FAILED;
+          }
+      }
+      break;
+    case TCPV4:
+      {
+        soc = socket (AF_INET, SOCK_RAW, IPPROTO_RAW);
+        if (soc < 0)
+          {
+            g_warning ("%s: failed to open TCPV4 socket: %s", __func__,
+                       strerror (errno));
+            error = BOREAS_OPENING_SOCKET_FAILED;
+          }
+        else
+          {
+            int opt = 1;
+            if (setsockopt (soc, IPPROTO_IP, IP_HDRINCL, (char *) &opt,
+                            sizeof (opt))
+                < 0)
+              {
+                g_warning (
+                  "%s: failed to set socket options on TCPV4 socket: %s",
+                  __func__, strerror (errno));
+                error = BOREAS_SETTING_SOCKET_OPTION_FAILED;
+              }
+          }
+      }
+      break;
+    case TCPV6:
+      {
+        soc = socket (AF_INET6, SOCK_RAW, IPPROTO_RAW);
+        if (soc < 0)
+          {
+            g_warning ("%s: failed to open TCPV6 socket: %s", __func__,
+                       strerror (errno));
+            error = BOREAS_OPENING_SOCKET_FAILED;
+          }
+        else
+          {
+            int opt_on = 1;
+            if (setsockopt (soc, IPPROTO_IPV6, IP_HDRINCL,
+                            (char *) &opt_on, // IPV6_HDRINCL
+                            sizeof (opt_on))
+                < 0)
+              {
+                g_warning (
+                  "%s: failed to set socket options on TCPV6 socket: %s",
+                  __func__, strerror (errno));
+                error = BOREAS_SETTING_SOCKET_OPTION_FAILED;
+              }
+          }
+      }
+      break;
+    case ICMPV4:
+      {
+        soc = socket (AF_INET, SOCK_RAW, IPPROTO_ICMP);
+        if (soc < 0)
+          {
+            g_warning ("%s: failed to open ICMPV4 socket: %s", __func__,
+                       strerror (errno));
+            error = BOREAS_OPENING_SOCKET_FAILED;
+          }
+      }
+      break;
+    case ARPV6:
+    case ICMPV6:
+      {
+        soc = socket (AF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
+        if (soc < 0)
+          {
+            g_warning ("%s: failed to open ARPV6/ICMPV6 socket: %s", __func__,
+                       strerror (errno));
+            error = BOREAS_OPENING_SOCKET_FAILED;
+          }
+      }
+      break;
+    case ARPV4:
+      {
+        soc = socket (PF_PACKET, SOCK_RAW, htons (ETH_P_ALL));
+        if (soc < 0)
+          {
+            g_warning ("%s: failed to open ARPV4 socket: %s", __func__,
+                       strerror (errno));
+            return BOREAS_OPENING_SOCKET_FAILED;
+          }
+      }
+      break;
+    default:
+      error = BOREAS_OPENING_SOCKET_FAILED;
+      break;
+    }
+
+  /* set SO_BROADCAST socket option. If not set we get permission denied error
+   * on pinging broadcast address */
+  if (!error)
+    {
+      if ((error = set_broadcast (soc)) != 0)
+        return error;
+    }
+
+  *scanner_socket = soc;
+  return error;
 }

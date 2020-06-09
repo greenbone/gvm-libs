@@ -17,6 +17,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "alivedetection.h"
+#include "boreas_error.h"
+
 #include <stdint.h>
 
 uint16_t
@@ -24,3 +27,6 @@ in_cksum (uint16_t *addr, int len);
 
 int
 get_source_mac_addr (char *interface, uint8_t *mac);
+
+boreas_error_t
+set_socket (socket_type_t socket_type, int *scanner_socket);
