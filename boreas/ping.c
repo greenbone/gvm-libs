@@ -126,59 +126,6 @@ send_icmp_v4 (int soc, struct in_addr *dst)
 }
 
 /**
- * @brief Get the source mac address of the given interface
- * or of the first non lo interface.
- *
- * @param interface Interface to get mac address from or NULL if first non lo
- * interface should be used.
- * @param[out]  mac Location where to store mac address.
- *
- * @return 0 on success, -1 on error.
- */
-static int
-get_source_mac_addr (gchar *interface, uint8_t *mac)
-{
-  struct ifaddrs *ifaddr = NULL;
-  struct ifaddrs *ifa = NULL;
-  int interface_provided = 0;
-
-  if (interface)
-    interface_provided = 1;
-
-  if (getifaddrs (&ifaddr) == -1)
-    {
-      g_debug ("%s: getifaddr failed: %s", __func__, strerror (errno));
-      return -1;
-    }
-  else
-    {
-      for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
-        {
-          if ((ifa->ifa_addr) && (ifa->ifa_addr->sa_family == AF_PACKET)
-              && !(ifa->ifa_flags & (IFF_LOOPBACK)))
-            {
-              if (interface_provided)
-                {
-                  if (g_strcmp0 (interface, ifa->ifa_name) == 0)
-                    {
-                      struct sockaddr_ll *s =
-                        (struct sockaddr_ll *) ifa->ifa_addr;
-                      memcpy (mac, s->sll_addr, 6 * sizeof (uint8_t));
-                    }
-                }
-              else
-                {
-                  struct sockaddr_ll *s = (struct sockaddr_ll *) ifa->ifa_addr;
-                  memcpy (mac, s->sll_addr, 6 * sizeof (uint8_t));
-                }
-            }
-        }
-      freeifaddrs (ifaddr);
-    }
-  return 0;
-}
-
-/**
  * @brief Send arp ping.
  *
  * @param soc Socket to use for sending.

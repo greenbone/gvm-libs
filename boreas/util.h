@@ -21,3 +21,6 @@
 
 uint16_t
 in_cksum (uint16_t *addr, int len);
+
+int
+get_source_mac_addr (char *interface, uint8_t *mac);
