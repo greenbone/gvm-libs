@@ -31,6 +31,9 @@ void
 send_icmp_v4 (int soc, struct in_addr *dst);
 
 void
+send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p);
+
+void
 send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p);
 
 void

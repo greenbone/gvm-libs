@@ -30,12 +30,26 @@
 #include <net/if.h> /* for if_nametoindex() */
 #include <netinet/icmp6.h>
 #include <netinet/in.h>
+#include <netinet/ip6.h>
 #include <netinet/ip_icmp.h>
 #include <netinet/tcp.h>
 #include <netpacket/packet.h> /* for sockaddr_ll */
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
+
+struct v6pseudohdr
+{
+  struct in6_addr s6addr;
+  struct in6_addr d6addr;
+  u_short length;
+  u_char zero1;
+  u_char zero2;
+  u_char zero3;
+  u_char protocol;
+  struct tcphdr tcpheader;
+};
 
 struct pseudohdr
 {
@@ -133,6 +147,99 @@ send_icmp_v4 (int soc, struct in_addr *dst)
       < 0)
     {
       g_warning ("%s: sendto(): %s", __func__, strerror (errno));
+    }
+}
+
+/**
+ * @brief Send tcp ping.
+ *
+ * @param soc Socket to use for sending.
+ * @param dst Destination address to send to.
+ * @param tcp_flag  TH_SYN or TH_ACK.
+ */
+void
+send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p)
+{
+  boreas_error_t error;
+  struct sockaddr_in6 soca;
+  struct in6_addr src;
+
+  GArray *ports = scanner->ports;
+  int *udpv6soc = &(scanner->udpv6soc);
+  int soc = scanner->tcpv6soc;
+  uint8_t tcp_flag = scanner->tcp_flag;
+
+  u_char packet[sizeof (struct ip6_hdr) + sizeof (struct tcphdr)];
+  struct ip6_hdr *ip = (struct ip6_hdr *) packet;
+  struct tcphdr *tcp = (struct tcphdr *) (packet + sizeof (struct ip6_hdr));
+
+  /* Get source address for TCP header. */
+  error = get_source_addr_v6 (udpv6soc, dst_p, &src);
+  if (error)
+    {
+      char destination_str[INET_ADDRSTRLEN];
+      inet_ntop (AF_INET6, (const void *) dst_p, destination_str,
+                 INET_ADDRSTRLEN);
+      g_debug ("%s: Destination: %s. %s", __func__, destination_str,
+               str_boreas_error (error));
+      return;
+    }
+
+  /* No ports in portlist. */
+  if (ports->len == 0)
+    return;
+
+  /* For ports in ports array send packet. */
+  for (guint i = 0; i < ports->len; i++)
+    {
+      memset (packet, 0, sizeof (packet));
+      /* IPv6 */
+      ip->ip6_flow = htonl ((6 << 28) | (0 << 20) | 0);
+      ip->ip6_plen = htons (20); // TCP_HDRLEN
+      ip->ip6_nxt = IPPROTO_TCP;
+      ip->ip6_hops = 255; // max value
+
+      ip->ip6_src = src;
+      ip->ip6_dst = *dst_p;
+
+      /* TCP */
+      tcp->th_sport = htons (FILTER_PORT);
+      tcp->th_dport = htons (g_array_index (ports, uint16_t, i));
+      tcp->th_seq = htonl (0);
+      tcp->th_ack = htonl (0);
+      tcp->th_x2 = 0;
+      tcp->th_off = 20 / 4; // TCP_HDRLEN / 4 (size of tcphdr in 32 bit words)
+      tcp->th_flags = tcp_flag; // TH_SYN or TH_ACK
+      tcp->th_win = htons (65535);
+      tcp->th_urp = htons (0);
+      tcp->th_sum = 0;
+
+      /* CKsum */
+      {
+        struct v6pseudohdr pseudoheader;
+
+        memset (&pseudoheader, 0, 38 + sizeof (struct tcphdr));
+        memcpy (&pseudoheader.s6addr, &ip->ip6_src, sizeof (struct in6_addr));
+        memcpy (&pseudoheader.d6addr, &ip->ip6_dst, sizeof (struct in6_addr));
+
+        pseudoheader.protocol = IPPROTO_TCP;
+        pseudoheader.length = htons (sizeof (struct tcphdr));
+        memcpy ((char *) &pseudoheader.tcpheader, (char *) tcp,
+                sizeof (struct tcphdr));
+        tcp->th_sum = in_cksum ((unsigned short *) &pseudoheader,
+                                38 + sizeof (struct tcphdr));
+      }
+
+      memset (&soca, 0, sizeof (soca));
+      soca.sin6_family = AF_INET6;
+      soca.sin6_addr = ip->ip6_dst;
+      /*  TCP_HDRLEN(20) IP6_HDRLEN(40) */
+      if (sendto (soc, (const void *) ip, 40 + 20, MSG_NOSIGNAL,
+                  (struct sockaddr *) &soca, sizeof (struct sockaddr_in6))
+          < 0)
+        {
+          g_warning ("%s: sendto():  %s", __func__, strerror (errno));
+        }
     }
 }
 
