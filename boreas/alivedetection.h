@@ -23,6 +23,8 @@
 #include "../base/hosts.h"
 #include "../util/kb.h"
 
+#include <pcap.h>
+
 /* to how many hosts are packets send to at a time. value <= 0 for no rate limit
  */
 #define BURST 100
@@ -43,6 +45,32 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_detection_finished);
 
 void *
 start_alive_detection (void *hosts);
+
+/**
+ * @brief The scanner struct holds data which is used frequently by the alive
+ * detection thread.
+ */
+struct scanner
+{
+  /* sockets */
+  int tcpv4soc;
+  int tcpv6soc;
+  int icmpv4soc;
+  int icmpv6soc;
+  int arpv4soc;
+  int arpv6soc;
+  /* UDP socket needed for getting the source IP for the TCP header. */
+  int udpv4soc;
+  int udpv6soc;
+  /* TH_SYN or TH_ACK */
+  uint8_t tcp_flag;
+  /* ports used for TCP ACK/SYN */
+  GArray *ports;
+  /* redis connection */
+  kb_t main_kb;
+  /* pcap handle */
+  pcap_t *pcap_handle;
+};
 
 /**
  * @brief Alive tests.
