@@ -23,6 +23,7 @@
 #include "../base/prefs.h"      /* for prefs_get() */
 #include "../util/kb.h"         /* for kb_t operations */
 #include "boreas_error.h"
+#include "boreas_io.h"
 #include "ping.h"
 #include "util.h"
 
@@ -339,21 +340,6 @@ put_finish_signal_on_queue (void *error)
     }
   /* Set error. */
   *(boreas_error_t *) error = error_out;
-}
-
-/**
- * @brief Put host value string on queue of hosts to be considered as alive.
- *
- * @param kb KB to use.
- * @param addr_str IP addr in str representation to put on queue.
- */
-static void
-put_host_on_queue (kb_t kb, char *addr_str)
-{
-  if (kb_item_push_str (kb, ALIVE_DETECTION_QUEUE, addr_str) != 0)
-    g_debug ("%s: kb_item_push_str() failed. Could not push \"%s\" on queue of "
-             "hosts to be considered as alive.",
-             __func__, addr_str);
 }
 
 /**
