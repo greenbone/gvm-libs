@@ -605,18 +605,23 @@ send_icmp (__attribute__ ((unused)) gpointer key, gpointer value,
  * @param tcp_flag  TH_SYN or TH_ACK.
  */
 static void
-send_tcp_v6 (int soc, struct in6_addr *dst_p, uint8_t tcp_flag)
+send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p)
 {
   boreas_error_t error;
   struct sockaddr_in6 soca;
   struct in6_addr src;
+
+  GArray *ports = scanner->ports;
+  int *udpv6soc = &(scanner->udpv6soc);
+  int soc = scanner->tcpv6soc;
+  uint8_t tcp_flag = scanner->tcp_flag;
 
   u_char packet[sizeof (struct ip6_hdr) + sizeof (struct tcphdr)];
   struct ip6_hdr *ip = (struct ip6_hdr *) packet;
   struct tcphdr *tcp = (struct tcphdr *) (packet + sizeof (struct ip6_hdr));
 
   /* Get source address for TCP header. */
-  error = get_source_addr_v6 (&scanner.udpv6soc, dst_p, &src);
+  error = get_source_addr_v6 (udpv6soc, dst_p, &src);
   if (error)
     {
       char destination_str[INET_ADDRSTRLEN];
@@ -628,11 +633,11 @@ send_tcp_v6 (int soc, struct in6_addr *dst_p, uint8_t tcp_flag)
     }
 
   /* No ports in portlist. */
-  if (scanner.ports->len == 0)
+  if (ports->len == 0)
     return;
 
   /* For ports in ports array send packet. */
-  for (guint i = 0; i < scanner.ports->len; i++)
+  for (guint i = 0; i < ports->len; i++)
     {
       memset (packet, 0, sizeof (packet));
       /* IPv6 */
@@ -646,7 +651,7 @@ send_tcp_v6 (int soc, struct in6_addr *dst_p, uint8_t tcp_flag)
 
       /* TCP */
       tcp->th_sport = htons (FILTER_PORT);
-      tcp->th_dport = htons (g_array_index (scanner.ports, uint16_t, i));
+      tcp->th_dport = htons (g_array_index (ports, uint16_t, i));
       tcp->th_seq = htonl (0);
       tcp->th_ack = htonl (0);
       tcp->th_x2 = 0;
@@ -716,7 +721,8 @@ send_tcp (__attribute__ ((unused)) gpointer key, gpointer value,
     }
   if (IN6_IS_ADDR_V4MAPPED (dst6_p) != 1)
     {
-      send_tcp_v6 (scanner.tcpv6soc, dst6_p, scanner.tcp_flag);
+      // send_tcp_v6 (scanner.tcpv6soc, dst6_p, scanner.tcp_flag);
+      send_tcp_v6 (&scanner, dst6_p);
     }
   else
     {
