@@ -102,11 +102,13 @@ max_scan_hosts_reached ()
 {
   return scan_restrictions.max_scan_hosts_reached;
 }
+
 int
 get_alive_hosts_count ()
 {
   return scan_restrictions.alive_hosts_count;
 }
+
 int
 get_max_scan_hosts ()
 {
@@ -347,7 +349,6 @@ send_tcp (__attribute__ ((unused)) gpointer key, gpointer value,
     }
   if (IN6_IS_ADDR_V4MAPPED (dst6_p) != 1)
     {
-      // send_tcp_v6 (scanner.tcpv6soc, dst6_p, scanner.tcp_flag);
       send_tcp_v6 (&scanner, dst6_p);
     }
   else

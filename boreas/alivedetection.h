@@ -123,8 +123,10 @@ typedef enum
 
 int
 max_scan_hosts_reached ();
+
 int
 get_alive_hosts_count ();
+
 int
 get_max_scan_hosts ();
 
