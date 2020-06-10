@@ -115,6 +115,24 @@ struct sniff_ethernet
   u_short ether_type;                 /* IP? ARP? RARP? etc */
 };
 
+/* Getter for scan_restrictions. */
+
+int
+max_scan_hosts_reached ()
+{
+  return scan_restrictions.max_scan_hosts_reached;
+}
+int
+get_alive_hosts_count ()
+{
+  return scan_restrictions.alive_hosts_count;
+}
+int
+get_max_scan_hosts ()
+{
+  return scan_restrictions.max_scan_hosts;
+}
+
 /**
  * @brief open a new pcap handle ad set provided filter.
  *

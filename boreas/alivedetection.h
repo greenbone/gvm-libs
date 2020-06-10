@@ -104,4 +104,13 @@ typedef enum
   UDPV6,
 } socket_type_t;
 
+/* Getter methods for scan_restrictions. */
+
+int
+max_scan_hosts_reached ();
+int
+get_alive_hosts_count ();
+int
+get_max_scan_hosts ();
+
 #endif
