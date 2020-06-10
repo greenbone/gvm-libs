@@ -20,4 +20,9 @@
 #ifndef BOREAS_SNIFFER_H
 #define BOREAS_SNIFFER_H
 
+#include <pcap.h>
+
+pcap_t *
+open_live (char *iface, char *filter);
+
 #endif
