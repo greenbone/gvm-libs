@@ -34,6 +34,9 @@ put_host_on_queue (kb_t kb, char *addr_str);
 void
 put_finish_signal_on_queue (void *error);
 
+int
+send_dead_hosts_to_ospd_openvas (struct hosts_data *hosts_data);
+
 gchar *
 get_openvas_scan_id (const gchar *db_address, int db_id);
 

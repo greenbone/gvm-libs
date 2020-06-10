@@ -338,22 +338,6 @@ sniffer_thread (__attribute__ ((unused)) void *vargp)
   pthread_exit (0);
 }
 
-/**
- * @brief delete key from hashtable
- *
- * @param key Key to delete from hashtable
- * @param value
- * @param hashtable   table to remove keys from
- *
- */
-static void
-exclude (gpointer key, __attribute__ ((unused)) gpointer value,
-         gpointer hashtable)
-{
-  /* delete key from targethost*/
-  g_hash_table_remove (hashtable, (gchar *) key);
-}
-
 __attribute__ ((unused)) static void
 print_host_str (gpointer key, __attribute__ ((unused)) gpointer value,
                 __attribute__ ((unused)) gpointer user_data)
@@ -482,67 +466,6 @@ send_arp (__attribute__ ((unused)) gpointer key, gpointer value,
       dst4.s_addr = dst6_p->s6_addr32[3];
       send_arp_v4 (scanner.arpv4soc, dst4_p);
     }
-}
-
-/**
- * @brief Send the number of dead hosts to ospd-openvas.
- *
- * This information is needed for the calculation of the progress bar for gsa in
- * ospd-openvas.
- *
- * @param hosts_data  Includes all data which is needed for calculating the
- * number of dead hosts.
- *
- * @return number of dead IPs, or -1 in case of an error.
- */
-static int
-send_dead_hosts_to_ospd_openvas (struct hosts_data *hosts_data)
-{
-  kb_t main_kb = NULL;
-  int maindbid;
-  int count_dead_ips = 0;
-  char dead_host_msg_to_ospd_openvas[2048];
-
-  GHashTableIter target_hosts_iter;
-  gpointer host_str, value;
-
-  maindbid = atoi (prefs_get ("ov_maindbid"));
-  main_kb = kb_direct_conn (prefs_get ("db_address"), maindbid);
-
-  if (!main_kb)
-    {
-      g_debug ("%s: Could not connect to main_kb for sending dead hosts to "
-               "ospd-openvas.",
-               __func__);
-      return -1;
-    }
-
-  /* Delete all alive hosts which are not send to openvas because
-   * max_alive_hosts was reached, from the alivehosts list. These hosts are
-   * considered as dead by the progress bar of the openvas vuln scan because no
-   * vuln scan was ever started for them. */
-  g_hash_table_foreach (hosts_data->alivehosts_not_to_be_sent_to_openvas,
-                        exclude, hosts_data->alivehosts);
-
-  for (g_hash_table_iter_init (&target_hosts_iter, hosts_data->targethosts);
-       g_hash_table_iter_next (&target_hosts_iter, &host_str, &value);)
-    {
-      /* If a host in the target hosts is not in the list of alive hosts we know
-       * it is dead. */
-      if (!g_hash_table_contains (hosts_data->alivehosts, host_str))
-        {
-          count_dead_ips++;
-        }
-    }
-
-  snprintf (dead_host_msg_to_ospd_openvas,
-            sizeof (dead_host_msg_to_ospd_openvas), "DEADHOST||| ||| ||| |||%d",
-            count_dead_ips);
-  kb_item_push_str (main_kb, "internal/results", dead_host_msg_to_ospd_openvas);
-
-  kb_lnk_reset (main_kb);
-
-  return count_dead_ips;
 }
 
 /**
