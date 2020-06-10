@@ -280,59 +280,6 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
 }
 
 /**
- * @brief Put finish signal on alive detection queue.
- *
- * If the finish signal (a string) was already put on the queue it is not put on
- * it again.
- *
- * @param error  Set to 0 on success. Is set to -1 if finish signal was already
- * put on queue. Set to -2 if function was no able to push finish string on
- * queue.
- */
-static void
-put_finish_signal_on_queue (void *error)
-{
-  static gboolean fin_msg_already_on_queue = FALSE;
-  boreas_error_t error_out;
-  int kb_item_push_str_err;
-
-  error_out = NO_ERROR;
-  if (fin_msg_already_on_queue)
-    {
-      g_debug ("%s: Finish signal was already put on queue.", __func__);
-      error_out = -1;
-    }
-  else
-    {
-      kb_t main_kb;
-      int scandb_id;
-
-      scandb_id = atoi (prefs_get ("ov_maindbid"));
-      main_kb = kb_direct_conn (prefs_get ("db_address"), scandb_id);
-
-      kb_item_push_str_err = kb_item_push_str (main_kb, ALIVE_DETECTION_QUEUE,
-                                               ALIVE_DETECTION_FINISHED);
-      if (kb_item_push_str_err)
-        {
-          g_debug ("%s: Could not push the Boreas finish signal on the alive "
-                   "detection Queue.",
-                   __func__);
-          error_out = -2;
-        }
-      else
-        fin_msg_already_on_queue = TRUE;
-
-      if ((kb_lnk_reset (main_kb)) != 0)
-        {
-          g_warning ("%s: error in kb_lnk_reset()", __func__);
-          error_out = -3;
-        }
-    }
-  /* Set error. */
-  *(boreas_error_t *) error = error_out;
-}
-
-/**
  * @brief Handle restrictions imposed by max_scan_hosts and max_alive_hosts.
  *
  * Put host address string on alive detection queue if max_scan_hosts was not

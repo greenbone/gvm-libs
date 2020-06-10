@@ -21,9 +21,13 @@
 #define BOREAS_IO_H
 
 #include "../util/kb.h"
+#include "boreas_error.h"
 
 void
 put_host_on_queue (kb_t kb, char *addr_str);
+
+void
+put_finish_signal_on_queue (void *error);
 
 gchar *
 get_openvas_scan_id (const gchar *db_address, int db_id);
