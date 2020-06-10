@@ -500,6 +500,56 @@ start_sniffer_thread (pthread_t *sniffer_thread_id)
 }
 
 /**
+ * @brief Stop the sniffer thread.
+ *
+ * @param sniffer_thread_id pthread_t thread id.
+ *
+ * @return 0 on success, other on Error.
+ */
+int
+stop_sniffer_thread (pthread_t sniffer_thread_id)
+{
+  int err;
+  void *retval;
+
+  g_debug ("%s: Try to stop thread which is sniffing for alive hosts. ",
+           __func__);
+  /* Try to break loop in sniffer thread. */
+  pcap_breakloop (scanner.pcap_handle);
+  /* Give thread chance to exit on its own. */
+  sleep (2);
+
+  /* Cancel thread. May be necessary if pcap_breakloop() does not break the
+   * loop. */
+  err = pthread_cancel (sniffer_thread_id);
+  if (err == ESRCH)
+    g_debug ("%s: pthread_cancel() returned ESRCH; No thread with the "
+             "supplied ID could be found.",
+             __func__);
+
+  /* join sniffer thread*/
+  err = pthread_join (sniffer_thread_id, &retval);
+  if (err == EDEADLK)
+    g_warning ("%s: pthread_join() returned EDEADLK.", __func__);
+  if (err == EINVAL)
+    g_warning ("%s: pthread_join() returned EINVAL.", __func__);
+  if (err == ESRCH)
+    g_warning ("%s: pthread_join() returned ESRCH.", __func__);
+  if (retval == PTHREAD_CANCELED)
+    g_debug ("%s: pthread_join() returned PTHREAD_CANCELED.", __func__);
+
+  g_debug ("%s: Stopped thread which was sniffing for alive hosts.", __func__);
+
+  /* close handle */
+  if (scanner.pcap_handle != NULL)
+    {
+      pcap_close (scanner.pcap_handle);
+    }
+
+  return err;
+}
+
+/**
  * @brief Scan function starts a sniffing thread which waits for packets to
  * arrive and sends pings to hosts we want to test. Blocks until Scan is
  * finished or error occurred.
@@ -514,8 +564,6 @@ scan (alive_test_t alive_test)
 {
   int number_of_targets, number_of_targets_checked = 0;
   int number_of_dead_hosts;
-  int err;
-  void *retval;
   pthread_t sniffer_thread_id;
   GHashTableIter target_hosts_iter;
   gpointer key, value;
@@ -688,39 +736,7 @@ scan (alive_test_t alive_test)
     __func__);
   sleep (WAIT_FOR_REPLIES_TIMEOUT);
 
-  g_debug ("%s: Try to stop thread which is sniffing for alive hosts. ",
-           __func__);
-  /* Try to break loop in sniffer thread. */
-  pcap_breakloop (scanner.pcap_handle);
-  /* Give thread chance to exit on its own. */
-  sleep (2);
-
-  /* Cancel thread. May be necessary if pcap_breakloop() does not break the
-   * loop. */
-  err = pthread_cancel (sniffer_thread_id);
-  if (err == ESRCH)
-    g_debug ("%s: pthread_cancel() returned ESRCH; No thread with the "
-             "supplied ID could be found.",
-             __func__);
-
-  /* join sniffer thread*/
-  err = pthread_join (sniffer_thread_id, &retval);
-  if (err == EDEADLK)
-    g_warning ("%s: pthread_join() returned EDEADLK.", __func__);
-  if (err == EINVAL)
-    g_warning ("%s: pthread_join() returned EINVAL.", __func__);
-  if (err == ESRCH)
-    g_warning ("%s: pthread_join() returned ESRCH.", __func__);
-  if (retval == PTHREAD_CANCELED)
-    g_debug ("%s: pthread_join() returned PTHREAD_CANCELED.", __func__);
-
-  g_debug ("%s: Stopped thread which was sniffing for alive hosts.", __func__);
-
-  /* close handle */
-  if (scanner.pcap_handle != NULL)
-    {
-      pcap_close (scanner.pcap_handle);
-    }
+  stop_sniffer_thread (sniffer_thread_id);
 
   /* Send error message if max_alive_hosts was reached. */
   if (scan_restrictions.max_alive_hosts_reached)
