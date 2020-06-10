@@ -88,7 +88,8 @@ set (ALIVEDETECTION_TEST_LINKER_WRAP_OPTIONS
      "-Wl,-wrap,socket,-wrap,setsockopt")
 add_executable (alivedetection-test
                 EXCLUDE_FROM_ALL
-                alivedetection_tests.c boreas_error.c boreas_io.c ping.c sniffer.c util.c)
+                alivedetection_tests.c boreas_error.c boreas_io.c ping.c
+                sniffer.c util.c)
 add_test (alivedetection-test alivedetection-test)
 target_include_directories (alivedetection-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 target_link_libraries (alivedetection-test gvm_base_shared gvm_util_shared
@@ -104,21 +105,21 @@ add_executable (boreas_error-test
 add_test (boreas_error-test boreas_error-test)
 target_include_directories (boreas_error-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 target_link_libraries (boreas_error-test
-                        ${CGREEN_LIBRARIES}
-                        ${GLIB_LDFLAGS}
-                        ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+                       ${CGREEN_LIBRARIES}
+                       ${GLIB_LDFLAGS}
+                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable (boreas_io-test
-                        EXCLUDE_FROM_ALL
-                        boreas_io_tests.c boreas_error.c alivedetection.c
-                        ping.c sniffer.c util.c)
-        add_test (boreas_io-test boreas_io-test)
-        target_include_directories (boreas_io-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-        target_link_libraries (boreas_io-test gvm_base_shared gvm_util_shared
-                                ${PCAP_LDFLAGS}
-                                ${CGREEN_LIBRARIES}
-                                ${GLIB_LDFLAGS}
-                                ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+                EXCLUDE_FROM_ALL
+                boreas_io_tests.c boreas_error.c alivedetection.c ping.c
+                sniffer.c util.c)
+add_test (boreas_io-test boreas_io-test)
+target_include_directories (boreas_io-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+target_link_libraries (boreas_io-test gvm_base_shared gvm_util_shared
+                       ${PCAP_LDFLAGS}
+                       ${CGREEN_LIBRARIES}
+                       ${GLIB_LDFLAGS}
+                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable (ping-test
                 EXCLUDE_FROM_ALL
@@ -126,20 +127,20 @@ add_executable (ping-test
 add_test (ping-test ping-test)
 target_include_directories (ping-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 target_link_libraries (ping-test gvm_base_shared
-                        ${CGREEN_LIBRARIES}
-                        ${GLIB_LDFLAGS}
-                        ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+                       ${CGREEN_LIBRARIES}
+                       ${GLIB_LDFLAGS}
+                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable (sniffer-test
-                        EXCLUDE_FROM_ALL
-                        sniffer_tests.c)
-        add_test (sniffer-test sniffer-test)
-        target_include_directories (sniffer-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-        target_link_libraries (sniffer-test
-                                ${PCAP_LDFLAGS}
-                                ${CGREEN_LIBRARIES}
-                                ${GLIB_LDFLAGS}
-                                ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+                EXCLUDE_FROM_ALL
+                sniffer_tests.c)
+add_test (sniffer-test sniffer-test)
+target_include_directories (sniffer-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+target_link_libraries (sniffer-test
+                       ${PCAP_LDFLAGS}
+                       ${CGREEN_LIBRARIES}
+                       ${GLIB_LDFLAGS}
+                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable (util-test
                 EXCLUDE_FROM_ALL
@@ -147,9 +148,9 @@ add_executable (util-test
 add_test (util-test util-test)
 target_include_directories (util-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 target_link_libraries (util-test
-                        ${CGREEN_LIBRARIES}
-                        ${GLIB_LDFLAGS}
-                        ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+                       ${CGREEN_LIBRARIES}
+                       ${GLIB_LDFLAGS}
+                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 ## Install
 
 configure_file (libgvm_boreas.pc.in ${CMAKE_BINARY_DIR}/libgvm_boreas.pc @ONLY)
