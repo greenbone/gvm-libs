@@ -503,15 +503,18 @@ send_arp (__attribute__ ((unused)) gpointer key, gpointer value,
 }
 
 /**
- * @brief Send all dead hosts to ospd-openvas.
+ * @brief Send the number of dead hosts to ospd-openvas.
  *
- * All hosts which are not identified as alive are sent to ospd-openvas. This is
- * needed for the calculation of the progress bar for gsa in ospd-openvas.
+ * This information is needed for the calculation of the progress bar for gsa in
+ * ospd-openvas.
+ *
+ * @param hosts_data  Includes all data which is needed for calculating the
+ * number of dead hosts.
  *
  * @return number of dead IPs, or -1 in case of an error.
  */
 static int
-send_dead_hosts_to_ospd_openvas (void)
+send_dead_hosts_to_ospd_openvas (struct hosts_data *hosts_data)
 {
   kb_t main_kb = NULL;
   int maindbid;
@@ -536,15 +539,15 @@ send_dead_hosts_to_ospd_openvas (void)
    * max_alive_hosts was reached, from the alivehosts list. These hosts are
    * considered as dead by the progress bar of the openvas vuln scan because no
    * vuln scan was ever started for them. */
-  g_hash_table_foreach (hosts_data.alivehosts_not_to_be_sent_to_openvas,
-                        exclude, hosts_data.alivehosts);
+  g_hash_table_foreach (hosts_data->alivehosts_not_to_be_sent_to_openvas,
+                        exclude, hosts_data->alivehosts);
 
-  for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
+  for (g_hash_table_iter_init (&target_hosts_iter, hosts_data->targethosts);
        g_hash_table_iter_next (&target_hosts_iter, &host_str, &value);)
     {
       /* If a host in the target hosts is not in the list of alive hosts we know
        * it is dead. */
-      if (!g_hash_table_contains (hosts_data.alivehosts, host_str))
+      if (!g_hash_table_contains (hosts_data->alivehosts, host_str))
         {
           count_dead_ips++;
         }
@@ -836,7 +839,7 @@ scan (alive_test_t alive_test)
 
   /* Send info about dead hosts to ospd-openvas. This is needed for the
    * calculation of the progress bar for gsa. */
-  number_of_dead_hosts = send_dead_hosts_to_ospd_openvas ();
+  number_of_dead_hosts = send_dead_hosts_to_ospd_openvas (&hosts_data);
 
   gettimeofday (&end_time, NULL);
 
