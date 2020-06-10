@@ -22,6 +22,7 @@
 
 #include "../base/hosts.h"
 #include "../util/kb.h"
+#include "alivedetection.h"
 #include "boreas_error.h"
 
 gvm_host_t *
@@ -35,5 +36,8 @@ put_finish_signal_on_queue (void *error);
 
 gchar *
 get_openvas_scan_id (const gchar *db_address, int db_id);
+
+boreas_error_t
+get_alive_test_methods (alive_test_t *alive_test);
 
 #endif

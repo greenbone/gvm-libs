@@ -69,9 +69,6 @@ struct hosts_data hosts_data;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
-static boreas_error_t
-get_alive_test_methods (alive_test_t *alive_test);
-
 /* Max_scan_hosts and max_alive_hosts related struct. */
 struct scan_restrictions
 {
@@ -1130,33 +1127,6 @@ alive_detection_free (void *error)
 
   /* Set error. */
   *(boreas_error_t *) error = error_out;
-}
-
-/**
- * @brief Get the bitflag which describes the methods to use for alive
- * deteciton.
- *
- * @param[out]  alive_test  Bitflag of all specified alive detection methods.
- *
- * @return 0 on succes, boreas_error_t on failure.
- */
-static boreas_error_t
-get_alive_test_methods (alive_test_t *alive_test)
-{
-  boreas_error_t error = NO_ERROR;
-  const gchar *alive_test_pref_as_str;
-
-  alive_test_pref_as_str = prefs_get ("ALIVE_TEST");
-  if (alive_test_pref_as_str == NULL)
-    {
-      g_warning ("%s: No valid alive_test specified.", __func__);
-      error = BOREAS_NO_VALID_ALIVE_TEST_SPECIFIED;
-    }
-  else
-    {
-      *alive_test = atoi (alive_test_pref_as_str);
-    }
-  return error;
 }
 
 /**

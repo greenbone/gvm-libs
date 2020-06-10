@@ -211,3 +211,30 @@ get_openvas_scan_id (const gchar *db_address, int db_id)
     }
   return NULL;
 }
+
+/**
+ * @brief Get the bitflag which describes the methods to use for alive
+ * deteciton.
+ *
+ * @param[out]  alive_test  Bitflag of all specified alive detection methods.
+ *
+ * @return 0 on succes, boreas_error_t on failure.
+ */
+boreas_error_t
+get_alive_test_methods (alive_test_t *alive_test)
+{
+  boreas_error_t error = NO_ERROR;
+  const gchar *alive_test_pref_as_str;
+
+  alive_test_pref_as_str = prefs_get ("ALIVE_TEST");
+  if (alive_test_pref_as_str == NULL)
+    {
+      g_warning ("%s: No valid alive_test specified.", __func__);
+      error = BOREAS_NO_VALID_ALIVE_TEST_SPECIFIED;
+    }
+  else
+    {
+      *alive_test = atoi (alive_test_pref_as_str);
+    }
+  return error;
+}
