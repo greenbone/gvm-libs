@@ -304,8 +304,14 @@ put_finish_signal_on_queue (void *error)
     }
   else
     {
-      kb_item_push_str_err = kb_item_push_str (
-        scanner.main_kb, ALIVE_DETECTION_QUEUE, ALIVE_DETECTION_FINISHED);
+      kb_t main_kb;
+      int scandb_id;
+
+      scandb_id = atoi (prefs_get ("ov_maindbid"));
+      main_kb = kb_direct_conn (prefs_get ("db_address"), scandb_id);
+
+      kb_item_push_str_err = kb_item_push_str (main_kb, ALIVE_DETECTION_QUEUE,
+                                               ALIVE_DETECTION_FINISHED);
       if (kb_item_push_str_err)
         {
           g_debug ("%s: Could not push the Boreas finish signal on the alive "
@@ -315,6 +321,12 @@ put_finish_signal_on_queue (void *error)
         }
       else
         fin_msg_already_on_queue = TRUE;
+
+      if ((kb_lnk_reset (main_kb)) != 0)
+        {
+          g_warning ("%s: error in kb_lnk_reset()", __func__);
+          error_out = -3;
+        }
     }
   /* Set error. */
   *(boreas_error_t *) error = error_out;
