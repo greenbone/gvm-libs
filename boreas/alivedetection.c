@@ -19,7 +19,7 @@
 
 #include "alivedetection.h"
 
-#include "../base/networking.h" /* for gvm_source_addr(), gvm_routethrough() */
+#include "../base/networking.h" /* for validate_port_range(), port_range_ranges() */
 #include "../base/prefs.h"      /* for prefs_get() */
 #include "../util/kb.h"         /* for kb_t operations */
 #include "boreas_error.h"
@@ -790,41 +790,6 @@ set_all_needed_sockets (alive_test_t alive_test)
     }
 
   return error;
-}
-
-/**
- * @brief Put all ports of a given port range into the ports array.
- *
- * @param range Pointer to a range_t.
- * @param ports_array Pointer to an GArray.
- */
-static void
-fill_ports_array (gpointer range, gpointer ports_array)
-{
-  gboolean range_exclude;
-  int range_start;
-  int range_end;
-  int port;
-
-  range_start = ((range_t *) range)->start;
-  range_end = ((range_t *) range)->end;
-  range_exclude = ((range_t *) range)->exclude;
-
-  /* If range should be excluded do not use it. */
-  if (range_exclude)
-    return;
-
-  /* Only single port in range. */
-  if (range_end == 0 || (range_start == range_end))
-    {
-      g_array_append_val (ports_array, range_start);
-      return;
-    }
-  else
-    {
-      for (port = range_start; port <= range_end; port++)
-        g_array_append_val (ports_array, port);
-    }
 }
 
 /**

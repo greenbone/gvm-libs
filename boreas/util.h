@@ -37,6 +37,9 @@ get_source_addr_v6 (int *udpv6soc, struct in6_addr *dst, struct in6_addr *src);
 boreas_error_t
 get_source_addr_v4 (int *udpv4soc, struct in_addr *dst, struct in_addr *src);
 
+void
+fill_ports_array (gpointer range, gpointer ports_array);
+
 boreas_error_t
 set_socket (socket_type_t socket_type, int *scanner_socket);
 
