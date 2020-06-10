@@ -506,17 +506,19 @@ scan (alive_test_t alive_test)
   GHashTableIter target_hosts_iter;
   gpointer key, value;
   struct timeval start_time, end_time;
-  int scandb_id = atoi (prefs_get ("ov_maindbid"));
+  int scandb_id;
   gchar *scan_id;
-  kb_t main_kb = NULL;
+  kb_t main_kb;
 
   gettimeofday (&start_time, NULL);
   number_of_targets = g_hash_table_size (hosts_data.targethosts);
 
+  scandb_id = atoi (prefs_get ("ov_maindbid"));
   scan_id = get_openvas_scan_id (prefs_get ("db_address"), scandb_id);
   g_message ("Alive scan %s started: Target has %d hosts", scan_id,
              number_of_targets);
 
+  sniffer_thread_id = 0;
   start_sniffer_thread (&sniffer_thread_id);
 
   if (alive_test
