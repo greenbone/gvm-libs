@@ -43,7 +43,7 @@
 #define ALIVE_DETECTION_FINISHED "alive_detection_finished"
 
 void *
-start_alive_detection (void *hosts);
+start_alive_detection (void *);
 
 /**
  * @brief The scanner struct holds data which is used frequently by the alive
@@ -128,4 +128,4 @@ get_alive_hosts_count ();
 int
 get_max_scan_hosts ();
 
-#endif
+#endif /* not ALIVE_DETECTION_H */

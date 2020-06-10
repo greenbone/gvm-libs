@@ -26,21 +26,21 @@
 #include "boreas_error.h"
 
 gvm_host_t *
-get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_detection_finished);
+get_host_from_queue (kb_t, gboolean *);
 
 void
-put_host_on_queue (kb_t kb, char *addr_str);
+put_host_on_queue (kb_t, char *);
 
 void
-put_finish_signal_on_queue (void *error);
+put_finish_signal_on_queue (void *);
 
 int
-send_dead_hosts_to_ospd_openvas (struct hosts_data *hosts_data);
+send_dead_hosts_to_ospd_openvas (struct hosts_data *);
 
 gchar *
-get_openvas_scan_id (const gchar *db_address, int db_id);
+get_openvas_scan_id (const gchar *, int);
 
 boreas_error_t
-get_alive_test_methods (alive_test_t *alive_test);
+get_alive_test_methods (alive_test_t *);
 
-#endif
+#endif /* not BOREAS_IO_H */

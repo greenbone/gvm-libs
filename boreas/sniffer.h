@@ -23,6 +23,6 @@
 #include <pcap.h>
 
 pcap_t *
-open_live (char *iface, char *filter);
+open_live (char *, char *);
 
-#endif
+#endif /* not BOREAS_SNIFFER_H */

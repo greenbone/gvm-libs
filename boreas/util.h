@@ -29,18 +29,17 @@ uint16_t
 in_cksum (uint16_t *addr, int len);
 
 int
-get_source_mac_addr (char *interface, uint8_t *mac);
+get_source_mac_addr (char *, uint8_t *);
 
 boreas_error_t
-get_source_addr_v6 (int *udpv6soc, struct in6_addr *dst, struct in6_addr *src);
+get_source_addr_v6 (int *, struct in6_addr *, struct in6_addr *);
 
 boreas_error_t
-get_source_addr_v4 (int *udpv4soc, struct in_addr *dst, struct in_addr *src);
+get_source_addr_v4 (int *, struct in_addr *, struct in_addr *);
 
-void
-fill_ports_array (gpointer range, gpointer ports_array);
+void fill_ports_array (gpointer, gpointer);
 
 boreas_error_t
-set_socket (socket_type_t socket_type, int *scanner_socket);
+set_socket (socket_type_t, int *);
 
-#endif
+#endif /* not BOREAS_UTIL_H */

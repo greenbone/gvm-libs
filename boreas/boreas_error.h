@@ -33,7 +33,6 @@ typedef enum
   NO_ERROR = 0,
 } boreas_error_t;
 
-const char *
-str_boreas_error (boreas_error_t boreas_error);
+const char *str_boreas_error (boreas_error_t);
 
-#endif
+#endif /* not BOREAS_ERROR_H */

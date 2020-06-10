@@ -25,18 +25,18 @@
 #include <netinet/in.h>
 
 void
-send_icmp_v6 (int soc, struct in6_addr *dst, int type);
+send_icmp_v6 (int, struct in6_addr *, int);
 
 void
-send_icmp_v4 (int soc, struct in_addr *dst);
+send_icmp_v4 (int, struct in_addr *);
 
 void
-send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p);
+send_tcp_v6 (struct scanner *, struct in6_addr *);
 
 void
-send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p);
+send_tcp_v4 (struct scanner *, struct in_addr *);
 
 void
-send_arp_v4 (int soc, struct in_addr *dst_p);
+send_arp_v4 (int, struct in_addr *);
 
-#endif
+#endif /* not BOREAS_PING_H */
