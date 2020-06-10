@@ -72,6 +72,24 @@ struct scanner
 };
 
 /**
+ * @brief The hosts_data struct holds the alive hosts and target hosts in
+ * separate hashtables.
+ */
+struct hosts_data
+{
+  /* Set of the form (ip_str, ip_str).
+   * Hosts which passed our pcap filter. May include hosts which are alive but
+   * are not in the targethosts list */
+  GHashTable *alivehosts;
+  /* Hashtable of the form (ip_str, gvm_host_t *). The gvm_host_t pointers point
+   * to hosts which are to be freed by the caller of start_alive_detection(). */
+  GHashTable *targethosts;
+  /* Hosts which were detected as alive and are in the targetlist but are not
+   * sent to openvas because max_scan_hosts was reached. */
+  GHashTable *alivehosts_not_to_be_sent_to_openvas;
+};
+
+/**
  * @brief Alive tests.
  *
  * These numbers are used in the database by gvmd, so if the number associated
