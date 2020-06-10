@@ -22,6 +22,8 @@
 #include "../base/prefs.h" /* for prefs_get() */
 #include "alivedetection.h"
 
+#include <stdlib.h>
+
 /**
  * @brief Get new host from alive detection scanner.
  *
