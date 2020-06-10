@@ -462,6 +462,44 @@ send_arp (__attribute__ ((unused)) gpointer key, gpointer value,
 }
 
 /**
+ * @brief Start up the sniffer thread.
+ *
+ * @param sniffer_thread_id pthread_t thread id.
+ *
+ * @return 0 on success, other on Error.
+ */
+int
+start_sniffer_thread (pthread_t *sniffer_thread_id)
+{
+  int err;
+
+  scanner.pcap_handle = open_live (NULL, FILTER_STR);
+  if (scanner.pcap_handle == NULL)
+    {
+      g_warning ("%s: Unable to open valid pcap handle.", __func__);
+      return -1;
+    }
+
+  /* Start sniffer thread. */
+  err = pthread_create (sniffer_thread_id, NULL, sniffer_thread, NULL);
+  if (err == EAGAIN)
+    g_warning ("%s: pthread_create() returned EAGAIN: Insufficient resources "
+               "to create thread.",
+               __func__);
+
+  /* Wait for thread to start up before sending out pings. */
+  pthread_mutex_lock (&mutex);
+  pthread_cond_wait (&cond, &mutex);
+  pthread_mutex_unlock (&mutex);
+  /* Mutex and cond not needed anymore. */
+  pthread_mutex_destroy (&mutex);
+  pthread_cond_destroy (&cond);
+  sleep (2);
+
+  return err;
+}
+
+/**
  * @brief Scan function starts a sniffing thread which waits for packets to
  * arrive and sends pings to hosts we want to test. Blocks until Scan is
  * finished or error occurred.
@@ -489,31 +527,11 @@ scan (alive_test_t alive_test)
   gettimeofday (&start_time, NULL);
   number_of_targets = g_hash_table_size (hosts_data.targethosts);
 
-  scanner.pcap_handle = open_live (NULL, FILTER_STR);
-  if (scanner.pcap_handle == NULL)
-    {
-      g_warning ("%s: Unable to open valid pcap handle.", __func__);
-      return -2;
-    }
-
   scan_id = get_openvas_scan_id (prefs_get ("db_address"), scandb_id);
   g_message ("Alive scan %s started: Target has %d hosts", scan_id,
              number_of_targets);
 
-  /* Start sniffer thread. */
-  err = pthread_create (&sniffer_thread_id, NULL, sniffer_thread, NULL);
-  if (err == EAGAIN)
-    g_warning ("%s: pthread_create() returned EAGAIN: Insufficient resources "
-               "to create thread.",
-               __func__);
-  /* Wait for thread to start up before sending out pings. */
-  pthread_mutex_lock (&mutex);
-  pthread_cond_wait (&cond, &mutex);
-  pthread_mutex_unlock (&mutex);
-  /* Mutex and cond not needed anymore. */
-  pthread_mutex_destroy (&mutex);
-  pthread_cond_destroy (&cond);
-  sleep (2);
+  start_sniffer_thread (&sniffer_thread_id);
 
   if (alive_test
       == (ALIVE_TEST_TCP_ACK_SERVICE | ALIVE_TEST_ICMP | ALIVE_TEST_ARP))
