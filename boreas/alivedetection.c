@@ -338,13 +338,6 @@ sniffer_thread (__attribute__ ((unused)) void *vargp)
   pthread_exit (0);
 }
 
-__attribute__ ((unused)) static void
-print_host_str (gpointer key, __attribute__ ((unused)) gpointer value,
-                __attribute__ ((unused)) gpointer user_data)
-{
-  g_message ("host_str: %s", (gchar *) key);
-}
-
 /**
  * @brief Is called in g_hash_table_foreach(). Check if ipv6 or ipv4, get
  * correct socket and start appropriate ping function.
