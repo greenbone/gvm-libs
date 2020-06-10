@@ -24,6 +24,12 @@
 
 #include <stdlib.h>
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "alive scan"
+
 /**
  * @brief Get new host from alive detection scanner.
  *

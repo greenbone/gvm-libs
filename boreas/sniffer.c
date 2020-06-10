@@ -22,6 +22,12 @@
 #include <glib.h>
 #include <stdlib.h>
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "alive scan"
+
 /**
  * @brief open a new pcap handle ad set provided filter.
  *

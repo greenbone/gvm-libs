@@ -32,6 +32,12 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "alive scan"
+
 /**
  * @brief Checksum calculation.
  *

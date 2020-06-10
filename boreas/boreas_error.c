@@ -21,6 +21,12 @@
 
 #include <glib.h>
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "alive scan"
+
 /**
  * @brief Transform Boreas error code into human readable error message.
  *

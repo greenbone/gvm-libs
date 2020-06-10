@@ -39,6 +39,12 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "alive scan"
+
 struct v6pseudohdr
 {
   struct in6_addr s6addr;
