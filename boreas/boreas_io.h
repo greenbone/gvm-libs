@@ -20,8 +20,12 @@
 #ifndef BOREAS_IO_H
 #define BOREAS_IO_H
 
+#include "../base/hosts.h"
 #include "../util/kb.h"
 #include "boreas_error.h"
+
+gvm_host_t *
+get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_detection_finished);
 
 void
 put_host_on_queue (kb_t kb, char *addr_str);

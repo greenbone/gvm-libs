@@ -42,9 +42,6 @@
 /* Signal to put on ALIVE_DETECTION_QUEUE if alive detection finished. */
 #define ALIVE_DETECTION_FINISHED "alive_detection_finished"
 
-gvm_host_t *
-get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_detection_finished);
-
 void *
 start_alive_detection (void *hosts);
 

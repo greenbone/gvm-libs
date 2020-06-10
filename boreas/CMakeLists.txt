@@ -110,10 +110,12 @@ target_link_libraries (boreas_error-test
 
 add_executable (boreas_io-test
                         EXCLUDE_FROM_ALL
-                        boreas_io_tests.c)
+                        boreas_io_tests.c boreas_error.c alivedetection.c
+                        ping.c util.c)
         add_test (boreas_io-test boreas_io-test)
         target_include_directories (boreas_io-test PRIVATE ${CGREEN_INCLUDE_DIRS})
         target_link_libraries (boreas_io-test gvm_base_shared gvm_util_shared
+                                ${PCAP_LDFLAGS}
                                 ${CGREEN_LIBRARIES}
                                 ${GLIB_LDFLAGS}
                                 ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
