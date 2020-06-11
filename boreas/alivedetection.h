@@ -23,6 +23,8 @@
 #include "../base/hosts.h"
 #include "../util/kb.h"
 
+#include <pcap.h>
+
 /* to how many hosts are packets send to at a time. value <= 0 for no rate limit
  */
 #define BURST 100
@@ -30,6 +32,8 @@
 #define BURST_TIMEOUT 100000
 /* how tong (in sec) to wait for replies after last packet was sent */
 #define WAIT_FOR_REPLIES_TIMEOUT 5
+/* Src port of outgoing TCP pings. Used for filtering incoming packets. */
+#define FILTER_PORT 9910
 
 /* Redis related */
 
@@ -38,11 +42,52 @@
 /* Signal to put on ALIVE_DETECTION_QUEUE if alive detection finished. */
 #define ALIVE_DETECTION_FINISHED "alive_detection_finished"
 
-gvm_host_t *
-get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_detection_finished);
-
 void *
-start_alive_detection (void *hosts);
+start_alive_detection (void *);
+
+/**
+ * @brief The scanner struct holds data which is used frequently by the alive
+ * detection thread.
+ */
+struct scanner
+{
+  /* sockets */
+  int tcpv4soc;
+  int tcpv6soc;
+  int icmpv4soc;
+  int icmpv6soc;
+  int arpv4soc;
+  int arpv6soc;
+  /* UDP socket needed for getting the source IP for the TCP header. */
+  int udpv4soc;
+  int udpv6soc;
+  /* TH_SYN or TH_ACK */
+  uint8_t tcp_flag;
+  /* ports used for TCP ACK/SYN */
+  GArray *ports;
+  /* redis connection */
+  kb_t main_kb;
+  /* pcap handle */
+  pcap_t *pcap_handle;
+};
+
+/**
+ * @brief The hosts_data struct holds the alive hosts and target hosts in
+ * separate hashtables.
+ */
+struct hosts_data
+{
+  /* Set of the form (ip_str, ip_str).
+   * Hosts which passed our pcap filter. May include hosts which are alive but
+   * are not in the targethosts list */
+  GHashTable *alivehosts;
+  /* Hashtable of the form (ip_str, gvm_host_t *). The gvm_host_t pointers point
+   * to hosts which are to be freed by the caller of start_alive_detection(). */
+  GHashTable *targethosts;
+  /* Hosts which were detected as alive and are in the targetlist but are not
+   * sent to openvas because max_scan_hosts was reached. */
+  GHashTable *alivehosts_not_to_be_sent_to_openvas;
+};
 
 /**
  * @brief Alive tests.
@@ -60,19 +105,6 @@ typedef enum
 } alive_test_t;
 
 /**
- * @brief Alive detection error codes.
- */
-typedef enum
-{
-  BOREAS_OPENING_SOCKET_FAILED = -100,
-  BOREAS_SETTING_SOCKET_OPTION_FAILED,
-  BOREAS_NO_VALID_ALIVE_TEST_SPECIFIED,
-  BOREAS_CLEANUP_ERROR,
-  BOREAS_NO_SRC_ADDR_FOUND,
-  NO_ERROR = 0,
-} boreas_error_t;
-
-/**
  * @brief Type of socket.
  */
 typedef enum
@@ -87,4 +119,15 @@ typedef enum
   UDPV6,
 } socket_type_t;
 
-#endif
+/* Getter methods for scan_restrictions. */
+
+int
+max_scan_hosts_reached ();
+
+int
+get_alive_hosts_count ();
+
+int
+get_max_scan_hosts ();
+
+#endif /* not ALIVE_DETECTION_H */

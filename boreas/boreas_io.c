@@ -1,0 +1,325 @@
+/* Copyright (C) 2020 Greenbone Networks GmbH
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#include "boreas_io.h"
+
+#include "../base/prefs.h" /* for prefs_get() */
+#include "alivedetection.h"
+
+#include <stdlib.h>
+
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "alive scan"
+
+/**
+ * @brief Get new host from alive detection scanner.
+ *
+ * Check if an alive host was found by the alive detection scanner. If an alive
+ * host is found it is packed into a gvm_host_t and returned. If no host was
+ * found or an error occurred NULL is returned. If alive detection finished
+ * scanning all hosts, NULL is returned and the status flag
+ * alive_detection_finished is set to TRUE.
+ *
+ * @param alive_hosts_kb  Redis connection for accessing the queue on which the
+ * alive detection scanner puts found hosts.
+ * @param alive_deteciton_finished  Status of alive detection process.
+ * @return  If valid alive host is found return a gvm_host_t. If alive scanner
+ * finished NULL is returened and alive_deteciton_finished set. On error or if
+ * no host was found return NULL.
+ */
+gvm_host_t *
+get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
+{
+  /* redis connection not established yet */
+  if (!alive_hosts_kb)
+    {
+      g_debug ("%s: connection to redis is not valid", __func__);
+      return NULL;
+    }
+
+  /* string representation of an ip address or ALIVE_DETECTION_FINISHED */
+  gchar *host_str = NULL;
+  /* complete host to be returned */
+  gvm_host_t *host = NULL;
+
+  /* try to get item from db, string needs to be freed, NULL on empty or
+   * error
+   */
+  host_str = kb_item_pop_str (alive_hosts_kb, (ALIVE_DETECTION_QUEUE));
+  if (!host_str)
+    {
+      return NULL;
+    }
+  /* got some string from redis queue */
+  else
+    {
+      /* check for finish signal/string */
+      if (g_strcmp0 (host_str, ALIVE_DETECTION_FINISHED) == 0)
+        {
+          /* Send Error message if max_scan_hosts was reached. */
+          if (max_scan_hosts_reached ())
+            {
+              kb_t main_kb = NULL;
+              int i = atoi (prefs_get ("ov_maindbid"));
+
+              if ((main_kb = kb_direct_conn (prefs_get ("db_address"), i)))
+                {
+                  char buf[256];
+                  g_snprintf (
+                    buf, 256,
+                    "ERRMSG||| ||| ||| |||Maximum number of allowed scans "
+                    "reached. There are still %d alive hosts available "
+                    "which are not scanned.",
+                    get_alive_hosts_count () - get_max_scan_hosts ());
+                  if (kb_item_push_str (main_kb, "internal/results", buf) != 0)
+                    g_warning ("%s: kb_item_push_str() failed to push "
+                               "error message.",
+                               __func__);
+                  kb_lnk_reset (main_kb);
+                }
+              else
+                g_warning (
+                  "%s: Boreas was unable to connect to the Redis db.Info about "
+                  "number of alive hosts could not be sent.",
+                  __func__);
+            }
+          g_debug ("%s: Boreas already finished scanning and we reached the "
+                   "end of the Queue of alive hosts.",
+                   __func__);
+          g_free (host_str);
+          *alive_deteciton_finished = TRUE;
+          return NULL;
+        }
+      /* probably got host */
+      else
+        {
+          host = gvm_host_from_str (host_str);
+          g_free (host_str);
+
+          if (!host)
+            {
+              g_warning ("%s: Could not transform IP string \"%s\" into "
+                         "internal representation.",
+                         __func__, host_str);
+              return NULL;
+            }
+          else
+            {
+              return host;
+            }
+        }
+    }
+}
+
+/**
+ * @brief Put host value string on queue of hosts to be considered as alive.
+ *
+ * @param kb KB to use.
+ * @param addr_str IP addr in str representation to put on queue.
+ */
+void
+put_host_on_queue (kb_t kb, char *addr_str)
+{
+  if (kb_item_push_str (kb, ALIVE_DETECTION_QUEUE, addr_str) != 0)
+    g_debug ("%s: kb_item_push_str() failed. Could not push \"%s\" on queue of "
+             "hosts to be considered as alive.",
+             __func__, addr_str);
+}
+
+/**
+ * @brief Put finish signal on alive detection queue.
+ *
+ * If the finish signal (a string) was already put on the queue it is not put on
+ * it again.
+ *
+ * @param error  Set to 0 on success. Is set to -1 if finish signal was already
+ * put on queue. Set to -2 if function was no able to push finish string on
+ * queue.
+ */
+void
+put_finish_signal_on_queue (void *error)
+{
+  static gboolean fin_msg_already_on_queue = FALSE;
+  boreas_error_t error_out;
+  int kb_item_push_str_err;
+
+  error_out = NO_ERROR;
+  if (fin_msg_already_on_queue)
+    {
+      g_debug ("%s: Finish signal was already put on queue.", __func__);
+      error_out = -1;
+    }
+  else
+    {
+      kb_t main_kb;
+      int scandb_id;
+
+      scandb_id = atoi (prefs_get ("ov_maindbid"));
+      main_kb = kb_direct_conn (prefs_get ("db_address"), scandb_id);
+
+      kb_item_push_str_err = kb_item_push_str (main_kb, ALIVE_DETECTION_QUEUE,
+                                               ALIVE_DETECTION_FINISHED);
+      if (kb_item_push_str_err)
+        {
+          g_debug ("%s: Could not push the Boreas finish signal on the alive "
+                   "detection Queue.",
+                   __func__);
+          error_out = -2;
+        }
+      else
+        fin_msg_already_on_queue = TRUE;
+
+      if ((kb_lnk_reset (main_kb)) != 0)
+        {
+          g_warning ("%s: error in kb_lnk_reset()", __func__);
+          error_out = -3;
+        }
+    }
+  /* Set error. */
+  *(boreas_error_t *) error = error_out;
+}
+
+/**
+ * @brief delete key from hashtable
+ *
+ * @param key Key to delete from hashtable
+ * @param value
+ * @param hashtable   table to remove keys from
+ *
+ */
+static void
+exclude (gpointer key, __attribute__ ((unused)) gpointer value,
+         gpointer hashtable)
+{
+  /* delete key from targethost*/
+  g_hash_table_remove (hashtable, (gchar *) key);
+}
+
+/**
+ * @brief Send the number of dead hosts to ospd-openvas.
+ *
+ * This information is needed for the calculation of the progress bar for gsa in
+ * ospd-openvas.
+ *
+ * @param hosts_data  Includes all data which is needed for calculating the
+ * number of dead hosts.
+ *
+ * @return number of dead IPs, or -1 in case of an error.
+ */
+int
+send_dead_hosts_to_ospd_openvas (struct hosts_data *hosts_data)
+{
+  kb_t main_kb = NULL;
+  int maindbid;
+  int count_dead_ips = 0;
+  char dead_host_msg_to_ospd_openvas[2048];
+
+  GHashTableIter target_hosts_iter;
+  gpointer host_str, value;
+
+  maindbid = atoi (prefs_get ("ov_maindbid"));
+  main_kb = kb_direct_conn (prefs_get ("db_address"), maindbid);
+
+  if (!main_kb)
+    {
+      g_debug ("%s: Could not connect to main_kb for sending dead hosts to "
+               "ospd-openvas.",
+               __func__);
+      return -1;
+    }
+
+  /* Delete all alive hosts which are not send to openvas because
+   * max_alive_hosts was reached, from the alivehosts list. These hosts are
+   * considered as dead by the progress bar of the openvas vuln scan because no
+   * vuln scan was ever started for them. */
+  g_hash_table_foreach (hosts_data->alivehosts_not_to_be_sent_to_openvas,
+                        exclude, hosts_data->alivehosts);
+
+  for (g_hash_table_iter_init (&target_hosts_iter, hosts_data->targethosts);
+       g_hash_table_iter_next (&target_hosts_iter, &host_str, &value);)
+    {
+      /* If a host in the target hosts is not in the list of alive hosts we know
+       * it is dead. */
+      if (!g_hash_table_contains (hosts_data->alivehosts, host_str))
+        {
+          count_dead_ips++;
+        }
+    }
+
+  snprintf (dead_host_msg_to_ospd_openvas,
+            sizeof (dead_host_msg_to_ospd_openvas), "DEADHOST||| ||| ||| |||%d",
+            count_dead_ips);
+  kb_item_push_str (main_kb, "internal/results", dead_host_msg_to_ospd_openvas);
+
+  kb_lnk_reset (main_kb);
+
+  return count_dead_ips;
+}
+
+/**
+ * @brief Get the openvas scan id of the curent task.
+ *
+ * @param db_address  Address of the Redis db.
+ * @param db_id ID of the scan main db.
+ *
+ * @return Scan id of current task or NULL on error.
+ */
+gchar *
+get_openvas_scan_id (const gchar *db_address, int db_id)
+{
+  kb_t main_kb = NULL;
+  gchar *scan_id;
+  if ((main_kb = kb_direct_conn (db_address, db_id)))
+    {
+      scan_id = kb_item_get_str (main_kb, ("internal/scanid"));
+      kb_lnk_reset (main_kb);
+      return scan_id;
+    }
+  return NULL;
+}
+
+/**
+ * @brief Get the bitflag which describes the methods to use for alive
+ * deteciton.
+ *
+ * @param[out]  alive_test  Bitflag of all specified alive detection methods.
+ *
+ * @return 0 on succes, boreas_error_t on failure.
+ */
+boreas_error_t
+get_alive_test_methods (alive_test_t *alive_test)
+{
+  boreas_error_t error = NO_ERROR;
+  const gchar *alive_test_pref_as_str;
+
+  alive_test_pref_as_str = prefs_get ("ALIVE_TEST");
+  if (alive_test_pref_as_str == NULL)
+    {
+      g_warning ("%s: No valid alive_test specified.", __func__);
+      error = BOREAS_NO_VALID_ALIVE_TEST_SPECIFIED;
+    }
+  else
+    {
+      *alive_test = atoi (alive_test_pref_as_str);
+    }
+  return error;
+}
