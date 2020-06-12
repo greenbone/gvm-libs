@@ -128,17 +128,13 @@ handle_scan_restrictions (gchar *addr_str)
   if (!scan_restrictions.max_scan_hosts_reached)
     put_host_on_queue (scanner.main_kb, addr_str);
 
-  /* Put finish signal on queue if max_scan_hosts reached. */
+  /* Set max_scan_hosts_reached if not already set and max_scan_hosts was
+   * reached. */
   if (!scan_restrictions.max_scan_hosts_reached
       && (scan_restrictions.alive_hosts_count
           == scan_restrictions.max_scan_hosts))
     {
-      int err;
       scan_restrictions.max_scan_hosts_reached = TRUE;
-      put_finish_signal_on_queue (&err);
-      if (err)
-        g_debug ("%s: Error in put_finish_signal_on_queue(): %d ", __func__,
-                 err);
     }
 }
 
