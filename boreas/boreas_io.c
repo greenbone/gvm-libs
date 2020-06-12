@@ -199,22 +199,6 @@ put_finish_signal_on_queue (void *error)
 }
 
 /**
- * @brief delete key from hashtable
- *
- * @param key Key to delete from hashtable
- * @param value
- * @param hashtable   table to remove keys from
- *
- */
-static void
-exclude (gpointer key, __attribute__ ((unused)) gpointer value,
-         gpointer hashtable)
-{
-  /* delete key from targethost*/
-  g_hash_table_remove (hashtable, (gchar *) key);
-}
-
-/**
  * @brief Send the number of dead hosts to ospd-openvas.
  *
  * This information is needed for the calculation of the progress bar for gsa in
@@ -246,13 +230,6 @@ send_dead_hosts_to_ospd_openvas (struct hosts_data *hosts_data)
                __func__);
       return -1;
     }
-
-  /* Delete all alive hosts which are not send to openvas because
-   * max_alive_hosts was reached, from the alivehosts list. These hosts are
-   * considered as dead by the progress bar of the openvas vuln scan because no
-   * vuln scan was ever started for them. */
-  g_hash_table_foreach (hosts_data->alivehosts_not_to_be_sent_to_openvas,
-                        exclude, hosts_data->alivehosts);
 
   for (g_hash_table_iter_init (&target_hosts_iter, hosts_data->targethosts);
        g_hash_table_iter_next (&target_hosts_iter, &host_str, &value);)
