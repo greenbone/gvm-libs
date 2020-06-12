@@ -70,22 +70,17 @@ struct hosts_data hosts_data;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
-/* Max_scan_hosts and max_alive_hosts related struct. */
+/* Max_scan_hosts related struct. */
 struct scan_restrictions
 {
   /* Maximum number of hosts allowed to be scanned. No more alive hosts are put
    * on the queue after max_scan_hosts number of alive hosts is reached.
-   * max_scan_hosts_reached is set to true and the finish signal gets put on
-   * the queue. */
+   * max_scan_hosts_reached is set to true and the finish signal is put on the
+   * queue if max_scan_hosts is reached. */
   int max_scan_hosts;
-  /* Maximum number of hosts to be identified as alive. After max_alive_hosts
-   * number of hosts are identified as alive max_alive_hosts_reached is set to
-   * true which signals the stop of sending new pings. */
-  int max_alive_hosts;
   /* Count of unique identified alive hosts. */
   int alive_hosts_count;
   gboolean max_scan_hosts_reached;
-  gboolean max_alive_hosts_reached;
 };
 
 struct sniff_ethernet
@@ -116,7 +111,7 @@ get_max_scan_hosts ()
 }
 
 /**
- * @brief Handle restrictions imposed by max_scan_hosts and max_alive_hosts.
+ * @brief Handle restrictions imposed by max_scan_hosts.
  *
  * Put host address string on alive detection queue if max_scan_hosts was not
  * reached already. If max_scan_hosts was reached only count alive hosts and
@@ -132,9 +127,6 @@ handle_scan_restrictions (gchar *addr_str)
   /* Put alive hosts on queue as long as max_scan_hosts not reached. */
   if (!scan_restrictions.max_scan_hosts_reached)
     put_host_on_queue (scanner.main_kb, addr_str);
-  else
-    g_hash_table_add (hosts_data.alivehosts_not_to_be_sent_to_openvas,
-                      addr_str);
 
   /* Put finish signal on queue if max_scan_hosts reached. */
   if (!scan_restrictions.max_scan_hosts_reached
@@ -148,10 +140,6 @@ handle_scan_restrictions (gchar *addr_str)
         g_debug ("%s: Error in put_finish_signal_on_queue(): %d ", __func__,
                  err);
     }
-  /* Thread which sends out new pings should stop sending when max_alive_hosts
-   * is reached. */
-  if (scan_restrictions.alive_hosts_count == scan_restrictions.max_alive_hosts)
-    scan_restrictions.max_alive_hosts_reached = TRUE;
 }
 
 /**
@@ -175,10 +163,6 @@ got_packet (__attribute__ ((unused)) u_char *args,
   struct ip *ip = (struct ip *) (packet + 16); // why not 14(ethernet size)??
   unsigned int version = ip->ip_v;
 
-  /* Stop processing of packets if max_alive_hosts is reached. */
-  if (scan_restrictions.max_alive_hosts_reached)
-    return;
-
   if (version == 4)
     {
       gchar addr_str[INET_ADDRSTRLEN];
@@ -197,7 +181,7 @@ got_packet (__attribute__ ((unused)) u_char *args,
       if (g_hash_table_add (hosts_data.alivehosts, g_strdup (addr_str))
           && g_hash_table_contains (hosts_data.targethosts, addr_str) == TRUE)
         {
-          /* handle max_scan_hosts and max_alive_hosts related restrictions. */
+          /* handle max_scan_hosts related restrictions. */
           handle_scan_restrictions (addr_str);
         }
     }
@@ -218,7 +202,7 @@ got_packet (__attribute__ ((unused)) u_char *args,
       if (g_hash_table_add (hosts_data.alivehosts, g_strdup (addr_str))
           && g_hash_table_contains (hosts_data.targethosts, addr_str) == TRUE)
         {
-          /* handle max_scan_hosts and max_alive_hosts related restrictions. */
+          /* handle max_scan_hosts related restrictions. */
           handle_scan_restrictions (addr_str);
         }
     }
@@ -245,7 +229,7 @@ got_packet (__attribute__ ((unused)) u_char *args,
       if (g_hash_table_add (hosts_data.alivehosts, g_strdup (addr_str))
           && g_hash_table_contains (hosts_data.targethosts, addr_str) == TRUE)
         {
-          /* handle max_scan_hosts and max_alive_hosts related restrictions. */
+          /* handle max_scan_hosts related restrictions. */
           handle_scan_restrictions (addr_str);
         }
     }
@@ -501,7 +485,7 @@ stop_sniffer_thread (pthread_t sniffer_thread_id)
 static int
 scan (alive_test_t alive_test)
 {
-  int number_of_targets, number_of_targets_checked = 0;
+  int number_of_targets;
   int number_of_dead_hosts;
   pthread_t sniffer_thread_id;
   GHashTableIter target_hosts_iter;
@@ -509,7 +493,6 @@ scan (alive_test_t alive_test)
   struct timeval start_time, end_time;
   int scandb_id;
   gchar *scan_id;
-  kb_t main_kb;
 
   gettimeofday (&start_time, NULL);
   number_of_targets = g_hash_table_size (hosts_data.targethosts);
@@ -529,27 +512,21 @@ scan (alive_test_t alive_test)
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       scanner.tcp_flag = TH_ACK;
       for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
-           g_hash_table_iter_next (&target_hosts_iter, &key, &value)
-           && !scan_restrictions.max_alive_hosts_reached;)
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           send_tcp (key, value, NULL);
-          number_of_targets_checked++;
         }
       g_debug ("%s: ICMP Ping", __func__);
       for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
-           g_hash_table_iter_next (&target_hosts_iter, &key, &value)
-           && !scan_restrictions.max_alive_hosts_reached;)
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           send_icmp (key, value, NULL);
-          number_of_targets_checked++;
         }
       g_debug ("%s: ARP Ping", __func__);
       for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
-           g_hash_table_iter_next (&target_hosts_iter, &key, &value)
-           && !scan_restrictions.max_alive_hosts_reached;)
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           send_arp (key, value, NULL);
-          number_of_targets_checked++;
         }
     }
   else if (alive_test == (ALIVE_TEST_TCP_ACK_SERVICE | ALIVE_TEST_ARP))
@@ -558,19 +535,15 @@ scan (alive_test_t alive_test)
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       scanner.tcp_flag = TH_ACK;
       for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
-           g_hash_table_iter_next (&target_hosts_iter, &key, &value)
-           && !scan_restrictions.max_alive_hosts_reached;)
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           send_tcp (key, value, NULL);
-          number_of_targets_checked++;
         }
       g_debug ("%s: ARP Ping", __func__);
       for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
-           g_hash_table_iter_next (&target_hosts_iter, &key, &value)
-           && !scan_restrictions.max_alive_hosts_reached;)
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           send_arp (key, value, NULL);
-          number_of_targets_checked++;
         }
     }
   else if (alive_test == (ALIVE_TEST_ICMP | ALIVE_TEST_ARP))
@@ -578,19 +551,15 @@ scan (alive_test_t alive_test)
       g_debug ("%s: ICMP & ARP Ping", __func__);
       g_debug ("%s: ICMP PING", __func__);
       for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
-           g_hash_table_iter_next (&target_hosts_iter, &key, &value)
-           && !scan_restrictions.max_alive_hosts_reached;)
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           send_icmp (key, value, NULL);
-          number_of_targets_checked++;
         }
       g_debug ("%s: ARP Ping", __func__);
       for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
-           g_hash_table_iter_next (&target_hosts_iter, &key, &value)
-           && !scan_restrictions.max_alive_hosts_reached;)
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           send_arp (key, value, NULL);
-          number_of_targets_checked++;
         }
     }
   else if (alive_test == (ALIVE_TEST_ICMP | ALIVE_TEST_TCP_ACK_SERVICE))
@@ -598,31 +567,25 @@ scan (alive_test_t alive_test)
       g_debug ("%s: ICMP & TCP-ACK Service Ping", __func__);
       g_debug ("%s: ICMP PING", __func__);
       for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
-           g_hash_table_iter_next (&target_hosts_iter, &key, &value)
-           && !scan_restrictions.max_alive_hosts_reached;)
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           send_icmp (key, value, NULL);
-          number_of_targets_checked++;
         }
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       scanner.tcp_flag = TH_ACK;
       for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
-           g_hash_table_iter_next (&target_hosts_iter, &key, &value)
-           && !scan_restrictions.max_alive_hosts_reached;)
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           send_tcp (key, value, NULL);
-          number_of_targets_checked++;
         }
     }
   else if (alive_test == (ALIVE_TEST_ARP))
     {
       g_debug ("%s: ARP Ping", __func__);
       for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
-           g_hash_table_iter_next (&target_hosts_iter, &key, &value)
-           && !scan_restrictions.max_alive_hosts_reached;)
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           send_arp (key, value, NULL);
-          number_of_targets_checked++;
         }
     }
   else if (alive_test == (ALIVE_TEST_TCP_ACK_SERVICE))
@@ -630,11 +593,9 @@ scan (alive_test_t alive_test)
       scanner.tcp_flag = TH_ACK;
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
-           g_hash_table_iter_next (&target_hosts_iter, &key, &value)
-           && !scan_restrictions.max_alive_hosts_reached;)
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           send_tcp (key, value, NULL);
-          number_of_targets_checked++;
         }
     }
   else if (alive_test == (ALIVE_TEST_TCP_SYN_SERVICE))
@@ -642,33 +603,27 @@ scan (alive_test_t alive_test)
       g_debug ("%s: TCP-SYN Service Ping", __func__);
       scanner.tcp_flag = TH_SYN;
       for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
-           g_hash_table_iter_next (&target_hosts_iter, &key, &value)
-           && !scan_restrictions.max_alive_hosts_reached;)
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           send_tcp (key, value, NULL);
-          number_of_targets_checked++;
         }
     }
   else if (alive_test == (ALIVE_TEST_ICMP))
     {
       g_debug ("%s: ICMP Ping", __func__);
       for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
-           g_hash_table_iter_next (&target_hosts_iter, &key, &value)
-           && !scan_restrictions.max_alive_hosts_reached;)
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           send_icmp (key, value, NULL);
-          number_of_targets_checked++;
         }
     }
   else if (alive_test == (ALIVE_TEST_CONSIDER_ALIVE))
     {
       g_debug ("%s: Consider Alive", __func__);
       for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
-           g_hash_table_iter_next (&target_hosts_iter, &key, &value)
-           && !scan_restrictions.max_alive_hosts_reached;)
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           handle_scan_restrictions (key);
-          number_of_targets_checked++;
         }
     }
 
@@ -678,37 +633,6 @@ scan (alive_test_t alive_test)
   sleep (WAIT_FOR_REPLIES_TIMEOUT);
 
   stop_sniffer_thread (sniffer_thread_id);
-
-  /* Send error message if max_alive_hosts was reached. */
-  if (scan_restrictions.max_alive_hosts_reached)
-    {
-      if ((main_kb = kb_direct_conn (prefs_get ("db_address"), scandb_id)))
-        {
-          char buf[256];
-          int not_checked;
-          /* Targts could be checked multiple times. */
-          not_checked = number_of_targets_checked >= number_of_targets
-                          ? 0
-                          : number_of_targets - number_of_targets_checked;
-          g_snprintf (buf, 256,
-                      "ERRMSG||| ||| ||| |||Maximum allowed number of alive "
-                      "hosts identified. There are still %d hosts whose alive "
-                      "status will not be checked.",
-                      not_checked);
-          if (kb_item_push_str (main_kb, "internal/results", buf) != 0)
-            g_warning ("%s: Failed to send message to ospd-openvas about "
-                       "max_alive_hosts reached and for how many host the "
-                       "alive status will not be checked.",
-                       __func__);
-          kb_lnk_reset (main_kb);
-        }
-      else
-        g_warning (
-          "%s: Boreas was unable to connect to the Redis db. Failed to send "
-          "message to ospd-openvas that max_alive_hosts was reached and for "
-          "how many host the alive status will not be checked.",
-          __func__);
-    }
 
   /* Send info about dead hosts to ospd-openvas. This is needed for the
    * calculation of the progress bar for gsa. */
@@ -808,8 +732,6 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
   hosts_data.targethosts =
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-  hosts_data.alivehosts_not_to_be_sent_to_openvas =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
   /* put all hosts we want to check in hashtable */
   gvm_host_t *host;
@@ -846,19 +768,13 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
   g_ptr_array_foreach (portranges_array, fill_ports_array, scanner.ports);
   array_free (portranges_array);
 
-  /* Scan restrictions. max_scan_hosts and max_alive_hosts related. */
+  /* Scan restrictions. max_scan_hosts related. */
   const gchar *pref_str;
-  scan_restrictions.max_alive_hosts_reached = FALSE;
   scan_restrictions.max_scan_hosts_reached = FALSE;
   scan_restrictions.alive_hosts_count = 0;
   scan_restrictions.max_scan_hosts = INT_MAX;
-  scan_restrictions.max_alive_hosts = INT_MAX;
   if ((pref_str = prefs_get ("max_scan_hosts")) != NULL)
     scan_restrictions.max_scan_hosts = atoi (pref_str);
-  if ((pref_str = prefs_get ("max_alive_hosts")) != NULL)
-    scan_restrictions.max_alive_hosts = atoi (pref_str);
-  if (scan_restrictions.max_alive_hosts < scan_restrictions.max_scan_hosts)
-    scan_restrictions.max_alive_hosts = scan_restrictions.max_scan_hosts;
 
   g_debug ("%s: Initialisation of alive scanner finished.", __func__);
 
@@ -964,7 +880,6 @@ alive_detection_free (void *error)
   /* targethosts: (ipstr, gvm_host_t *)
    * gvm_host_t are freed by caller of start_alive_detection()! */
   g_hash_table_destroy (hosts_data.targethosts);
-  g_hash_table_destroy (hosts_data.alivehosts_not_to_be_sent_to_openvas);
 
   /* Set error. */
   *(boreas_error_t *) error = error_out;
@@ -1019,9 +934,11 @@ start_alive_detection (void *hosts_to_test)
   /* If alive detection thread returns, is canceled or killed unexpectedly a
    * finish signal is put on the queue for openvas to process.*/
   pthread_cleanup_push (put_finish_signal_on_queue, &fin_err);
+
   /* Start the scan. */
   if (scan (alive_test) < 0)
     g_warning ("%s: error in scan()", __func__);
+
   /* Put finish signal on queue. */
   pthread_cleanup_pop (1);
   /* Free memory, close sockets and connections. */
