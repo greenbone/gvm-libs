@@ -31,6 +31,53 @@
 #define G_LOG_DOMAIN "alive scan"
 
 /**
+ * @brief Send Message about not vuln scanned alive hosts to ospd-openvas.
+ *
+ * @param num_not_scanned Number of alive hosts which were not vuln scanned.
+ * @return 0 on success, else Error.
+ */
+static int
+send_limit_msg (int num_not_scanned_hosts)
+{
+  int err;
+  int dbid;
+  kb_t main_kb = NULL;
+
+  err = 0;
+
+  if (num_not_scanned_hosts < 0)
+    return -1;
+
+  dbid = atoi (prefs_get ("ov_maindbid"));
+  if ((main_kb = kb_direct_conn (prefs_get ("db_address"), dbid)))
+    {
+      char buf[256];
+      g_snprintf (buf, 256,
+                  "ERRMSG||| ||| ||| |||Maximum number of allowed scans "
+                  "reached. There may still be alive hosts available which are "
+                  "not scanned. Number of alive hosts not scanned: [%d]",
+                  num_not_scanned_hosts);
+      if (kb_item_push_str (main_kb, "internal/results", buf) != 0)
+        {
+          g_warning ("%s: kb_item_push_str() failed to push "
+                     "error message.",
+                     __func__);
+          err = -2;
+        }
+      kb_lnk_reset (main_kb);
+    }
+  else
+    {
+      g_warning ("%s: Boreas was unable to connect to the Redis db.Info about "
+                 "number of alive hosts could not be sent.",
+                 __func__);
+      err = -3;
+    }
+
+  return err;
+}
+
+/**
  * @brief Get new host from alive detection scanner.
  *
  * Check if an alive host was found by the alive detection scanner. If an alive
@@ -78,29 +125,11 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
           /* Send Error message if max_scan_hosts was reached. */
           if (max_scan_hosts_reached ())
             {
-              kb_t main_kb = NULL;
-              int i = atoi (prefs_get ("ov_maindbid"));
+              int num_not_scanned_hosts;
 
-              if ((main_kb = kb_direct_conn (prefs_get ("db_address"), i)))
-                {
-                  char buf[256];
-                  g_snprintf (
-                    buf, 256,
-                    "ERRMSG||| ||| ||| |||Maximum number of allowed scans "
-                    "reached. There are still %d alive hosts available "
-                    "which are not scanned.",
-                    get_alive_hosts_count () - get_max_scan_hosts ());
-                  if (kb_item_push_str (main_kb, "internal/results", buf) != 0)
-                    g_warning ("%s: kb_item_push_str() failed to push "
-                               "error message.",
-                               __func__);
-                  kb_lnk_reset (main_kb);
-                }
-              else
-                g_warning (
-                  "%s: Boreas was unable to connect to the Redis db.Info about "
-                  "number of alive hosts could not be sent.",
-                  __func__);
+              num_not_scanned_hosts =
+                get_alive_hosts_count () - get_max_scan_hosts ();
+              send_limit_msg (num_not_scanned_hosts);
             }
           g_debug ("%s: Boreas already finished scanning and we reached the "
                    "end of the Queue of alive hosts.",
