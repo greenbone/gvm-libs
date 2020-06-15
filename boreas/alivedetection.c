@@ -145,19 +145,24 @@ handle_scan_restrictions (gchar *addr_str)
  * address. This ip address is then inserted into the alive_hosts table if not
  * already present and if in the target table.
  *
- * @param args
+ * @param user_data Pointer to hosts_data.
  * @param header
  * @param packet  Packet to process.
  *
  * TODO: simplify and read https://tools.ietf.org/html/rfc826
  */
 static void
-got_packet (__attribute__ ((unused)) u_char *args,
+got_packet (u_char *user_data,
             __attribute__ ((unused)) const struct pcap_pkthdr *header,
             const u_char *packet)
 {
-  struct ip *ip = (struct ip *) (packet + 16); // why not 14(ethernet size)??
-  unsigned int version = ip->ip_v;
+  struct ip *ip;
+  unsigned int version;
+  struct hosts_data *hosts_data;
+
+  ip = (struct ip *) (packet + 16);
+  version = ip->ip_v;
+  hosts_data = (struct hosts_data *) user_data;
 
   if (version == 4)
     {
@@ -174,8 +179,8 @@ got_packet (__attribute__ ((unused)) u_char *args,
 
       /* Do not put already found host on Queue and only put hosts on Queue we
        * are searching for. */
-      if (g_hash_table_add (hosts_data.alivehosts, g_strdup (addr_str))
-          && g_hash_table_contains (hosts_data.targethosts, addr_str) == TRUE)
+      if (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))
+          && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
         {
           /* handle max_scan_hosts related restrictions. */
           handle_scan_restrictions (addr_str);
@@ -195,8 +200,8 @@ got_packet (__attribute__ ((unused)) u_char *args,
 
       /* Do not put already found host on Queue and only put hosts on Queue we
        * are searching for. */
-      if (g_hash_table_add (hosts_data.alivehosts, g_strdup (addr_str))
-          && g_hash_table_contains (hosts_data.targethosts, addr_str) == TRUE)
+      if (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))
+          && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
         {
           /* handle max_scan_hosts related restrictions. */
           handle_scan_restrictions (addr_str);
@@ -222,8 +227,8 @@ got_packet (__attribute__ ((unused)) u_char *args,
 
       /* Do not put already found host on Queue and only put hosts on Queue
       we are searching for. */
-      if (g_hash_table_add (hosts_data.alivehosts, g_strdup (addr_str))
-          && g_hash_table_contains (hosts_data.targethosts, addr_str) == TRUE)
+      if (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))
+          && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
         {
           /* handle max_scan_hosts related restrictions. */
           handle_scan_restrictions (addr_str);
@@ -245,7 +250,8 @@ sniffer_thread (__attribute__ ((unused)) void *vargp)
   pthread_mutex_unlock (&mutex);
 
   /* reads packets until error or pcap_breakloop() */
-  if ((ret = pcap_loop (scanner.pcap_handle, -1, got_packet, NULL))
+  if ((ret = pcap_loop (scanner.pcap_handle, -1, got_packet,
+                        (u_char *) &hosts_data))
       == PCAP_ERROR)
     g_debug ("%s: pcap_loop error %s", __func__,
              pcap_geterr (scanner.pcap_handle));
