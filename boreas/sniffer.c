@@ -19,8 +19,16 @@
 
 #include "sniffer.h"
 
+#include "alivedetection.h"
+#include "boreas_io.h"
+
+#include <arpa/inet.h>
+#include <errno.h>
 #include <glib.h>
+#include <net/if_arp.h>
+#include <netinet/ip.h>
 #include <stdlib.h>
+#include <string.h>
 
 #undef G_LOG_DOMAIN
 /**
@@ -89,4 +97,104 @@ open_live (char *iface, char *filter)
   pcap_freecode (&filter_prog);
 
   return pcap_handle;
+}
+
+/**
+ * @brief Processes single packets captured by pcap. Is a callback function.
+ *
+ * For every packet we check if it is ipv4 ipv6 or arp and extract the sender ip
+ * address. This ip address is then inserted into the alive_hosts table if not
+ * already present and if in the target table.
+ *
+ * @param user_data Pointer to scanner.
+ * @param header
+ * @param packet  Packet to process.
+ *
+ * TODO: simplify and read https://tools.ietf.org/html/rfc826
+ */
+void
+got_packet (u_char *user_data,
+            __attribute__ ((unused)) const struct pcap_pkthdr *header,
+            const u_char *packet)
+{
+  struct ip *ip;
+  unsigned int version;
+  struct scanner *scanner;
+  hosts_data_t *hosts_data;
+
+  ip = (struct ip *) (packet + 16);
+  version = ip->ip_v;
+  scanner = (struct scanner *) user_data;
+  hosts_data = (hosts_data_t *) scanner->hosts_data;
+
+  if (version == 4)
+    {
+      gchar addr_str[INET_ADDRSTRLEN];
+      struct in_addr sniffed_addr;
+      /* was +26 (14 ETH + 12 IP) originally but was off by 2 somehow */
+      memcpy (&sniffed_addr.s_addr, packet + 26 + 2, 4);
+      if (inet_ntop (AF_INET, (const char *) &sniffed_addr, addr_str,
+                     INET_ADDRSTRLEN)
+          == NULL)
+        g_debug (
+          "%s: Failed to transform IPv4 address into string representation: %s",
+          __func__, strerror (errno));
+
+      /* Do not put already found host on Queue and only put hosts on Queue we
+       * are searching for. */
+      if (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))
+          && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
+        {
+          /* handle max_scan_hosts related restrictions. */
+          handle_scan_restrictions (scanner, addr_str);
+        }
+    }
+  else if (version == 6)
+    {
+      gchar addr_str[INET6_ADDRSTRLEN];
+      struct in6_addr sniffed_addr;
+      /* (14 ETH + 8 IP + offset 2)  */
+      memcpy (&sniffed_addr.s6_addr, packet + 24, 16);
+      if (inet_ntop (AF_INET6, (const char *) &sniffed_addr, addr_str,
+                     INET6_ADDRSTRLEN)
+          == NULL)
+        g_debug ("%s: Failed to transform IPv6 into string representation: %s",
+                 __func__, strerror (errno));
+
+      /* Do not put already found host on Queue and only put hosts on Queue we
+       * are searching for. */
+      if (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))
+          && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
+        {
+          /* handle max_scan_hosts related restrictions. */
+          handle_scan_restrictions (scanner, addr_str);
+        }
+    }
+  /* TODO: check collision situations.
+   * everything not ipv4/6 is regarded as arp.
+   * It may be possible to get other types then arp replies in which case the
+   * ip from inet_ntop should be bogus. */
+  else
+    {
+      /* TODO: at the moment offset of 6 is set but arp header has variable
+       * sized field. */
+      /* read rfc https://tools.ietf.org/html/rfc826 for exact length or how
+      to get it */
+      struct arphdr *arp =
+        (struct arphdr *) (packet + 14 + 2 + 6 + sizeof (struct arphdr));
+      gchar addr_str[INET_ADDRSTRLEN];
+      if (inet_ntop (AF_INET, (const char *) arp, addr_str, INET_ADDRSTRLEN)
+          == NULL)
+        g_debug ("%s: Failed to transform IP into string representation: %s",
+                 __func__, strerror (errno));
+
+      /* Do not put already found host on Queue and only put hosts on Queue
+      we are searching for. */
+      if (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))
+          && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
+        {
+          /* handle max_scan_hosts related restrictions. */
+          handle_scan_restrictions (scanner, addr_str);
+        }
+    }
 }

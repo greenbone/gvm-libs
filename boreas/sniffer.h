@@ -25,4 +25,7 @@
 pcap_t *
 open_live (char *, char *);
 
+void
+got_packet (u_char *, const struct pcap_pkthdr *, const u_char *);
+
 #endif /* not BOREAS_SNIFFER_H */
