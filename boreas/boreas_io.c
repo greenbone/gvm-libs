@@ -30,6 +30,51 @@
  */
 #define G_LOG_DOMAIN "alive scan"
 
+scan_restrictions_t scan_restrictions;
+
+/**
+ * @brief Check if max_scan_hosts alive hosts reached.
+ *
+ * @return TRUE if max_scan_hosts alive hosts reached, else FALSE.
+ */
+static gboolean
+max_scan_hosts_reached ()
+{
+  return scan_restrictions.max_scan_hosts_reached;
+}
+
+/**
+ * @brief Get number of identified alive hosts.
+ *
+ * @return Number of identified alive hosts.
+ * */
+static int
+get_alive_hosts_count ()
+{
+  return scan_restrictions.alive_hosts_count;
+}
+
+/**
+ * @brief Get set number of maximum alive hosts to be scanned.
+ *
+ * @return Number of maximum alive hosts to be scanned.
+ */
+static int
+get_max_scan_hosts ()
+{
+  return scan_restrictions.max_scan_hosts;
+}
+
+/**
+ * @brief Increment the number of alive hosts by one.
+ */
+__attribute__ ((unused)) static void
+inc_alive_hosts_count ()
+{
+  scan_restrictions.alive_hosts_count++;
+  return;
+}
+
 /**
  * @brief Send Message about not vuln scanned alive hosts to ospd-openvas.
  *
@@ -225,6 +270,45 @@ put_finish_signal_on_queue (void *error)
     }
   /* Set error. */
   *(boreas_error_t *) error = error_out;
+}
+
+void
+init_scan_restrictions (struct scanner *scanner, int max_scan_hosts)
+{
+  scan_restrictions.alive_hosts_count = 0;
+  scan_restrictions.max_scan_hosts_reached = FALSE;
+  scan_restrictions.max_scan_hosts = max_scan_hosts;
+  scanner->scan_restrictions = &scan_restrictions;
+  return;
+}
+
+/**
+ * @brief Handle restrictions imposed by max_scan_hosts.
+ *
+ * Put host address string on alive detection queue if max_scan_hosts was not
+ * reached already. If max_scan_hosts was reached only count alive hosts and
+ * don't put them on the queue. Put finish signal on queue if max_scan_hosts is
+ * reached.
+ *
+ * @param scanner Scanner struct.
+ * @param add_str Host address string to put on queue.
+ */
+void
+handle_scan_restrictions (struct scanner *scanner, gchar *addr_str)
+{
+  scanner->scan_restrictions->alive_hosts_count++;
+  /* Put alive hosts on queue as long as max_scan_hosts not reached. */
+  if (!scanner->scan_restrictions->max_scan_hosts_reached)
+    put_host_on_queue (scanner->main_kb, addr_str);
+
+  /* Set max_scan_hosts_reached if not already set and max_scan_hosts was
+   * reached. */
+  if (!scanner->scan_restrictions->max_scan_hosts_reached
+      && (scanner->scan_restrictions->alive_hosts_count
+          == scanner->scan_restrictions->max_scan_hosts))
+    {
+      scanner->scan_restrictions->max_scan_hosts_reached = TRUE;
+    }
 }
 
 /**

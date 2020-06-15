@@ -55,7 +55,6 @@
 #define G_LOG_DOMAIN "alive scan"
 
 struct scanner scanner;
-struct scan_restrictions scan_restrictions;
 
 /* for using int value in #defined string */
 #define STR(X) #X
@@ -69,73 +68,12 @@ struct scan_restrictions scan_restrictions;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
-/* Max_scan_hosts related struct. */
-struct scan_restrictions
-{
-  /* Maximum number of hosts allowed to be scanned. No more alive hosts are put
-   * on the queue after max_scan_hosts number of alive hosts is reached.
-   * max_scan_hosts_reached is set to true and the finish signal is put on the
-   * queue if max_scan_hosts is reached. */
-  int max_scan_hosts;
-  /* Count of unique identified alive hosts. */
-  int alive_hosts_count;
-  gboolean max_scan_hosts_reached;
-};
-
 struct sniff_ethernet
 {
   u_char ether_dhost[ETHER_ADDR_LEN]; /* Destination host address */
   u_char ether_shost[ETHER_ADDR_LEN]; /* Source host address */
   u_short ether_type;                 /* IP? ARP? RARP? etc */
 };
-
-/* Getter for scan_restrictions. */
-
-int
-max_scan_hosts_reached ()
-{
-  return scan_restrictions.max_scan_hosts_reached;
-}
-
-int
-get_alive_hosts_count ()
-{
-  return scan_restrictions.alive_hosts_count;
-}
-
-int
-get_max_scan_hosts ()
-{
-  return scan_restrictions.max_scan_hosts;
-}
-
-/**
- * @brief Handle restrictions imposed by max_scan_hosts.
- *
- * Put host address string on alive detection queue if max_scan_hosts was not
- * reached already. If max_scan_hosts was reached only count alive hosts and
- * don't put them on the queue. Put finish signal on queue if max_scan_hosts is
- * reached.
- *
- * @param add_str Host address string to put on queue.
- */
-static void
-handle_scan_restrictions (gchar *addr_str)
-{
-  scan_restrictions.alive_hosts_count++;
-  /* Put alive hosts on queue as long as max_scan_hosts not reached. */
-  if (!scan_restrictions.max_scan_hosts_reached)
-    put_host_on_queue (scanner.main_kb, addr_str);
-
-  /* Set max_scan_hosts_reached if not already set and max_scan_hosts was
-   * reached. */
-  if (!scan_restrictions.max_scan_hosts_reached
-      && (scan_restrictions.alive_hosts_count
-          == scan_restrictions.max_scan_hosts))
-    {
-      scan_restrictions.max_scan_hosts_reached = TRUE;
-    }
-}
 
 /**
  * @brief Processes single packets captured by pcap. Is a callback function.
@@ -182,7 +120,7 @@ got_packet (u_char *user_data,
           && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
         {
           /* handle max_scan_hosts related restrictions. */
-          handle_scan_restrictions (addr_str);
+          handle_scan_restrictions (&scanner, addr_str);
         }
     }
   else if (version == 6)
@@ -203,7 +141,7 @@ got_packet (u_char *user_data,
           && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
         {
           /* handle max_scan_hosts related restrictions. */
-          handle_scan_restrictions (addr_str);
+          handle_scan_restrictions (&scanner, addr_str);
         }
     }
   /* TODO: check collision situations.
@@ -230,7 +168,7 @@ got_packet (u_char *user_data,
           && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
         {
           /* handle max_scan_hosts related restrictions. */
-          handle_scan_restrictions (addr_str);
+          handle_scan_restrictions (&scanner, addr_str);
         }
     }
 }
@@ -573,7 +511,7 @@ scan (alive_test_t alive_test)
                                    scanner.hosts_data->targethosts);
            g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
-          handle_scan_restrictions (key);
+          handle_scan_restrictions (&scanner, key);
         }
     }
 
@@ -721,11 +659,11 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
 
   /* Scan restrictions. max_scan_hosts related. */
   const gchar *pref_str;
-  scan_restrictions.max_scan_hosts_reached = FALSE;
-  scan_restrictions.alive_hosts_count = 0;
-  scan_restrictions.max_scan_hosts = INT_MAX;
+  int max_scan_hosts = INT_MAX;
   if ((pref_str = prefs_get ("max_scan_hosts")) != NULL)
-    scan_restrictions.max_scan_hosts = atoi (pref_str);
+    max_scan_hosts = atoi (pref_str);
+
+  init_scan_restrictions (&scanner, max_scan_hosts);
 
   g_debug ("%s: Initialisation of alive scanner finished.", __func__);
 

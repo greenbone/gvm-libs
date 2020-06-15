@@ -46,6 +46,7 @@ void *
 start_alive_detection (void *);
 
 typedef struct hosts_data hosts_data_t;
+typedef struct scan_restrictions scan_restrictions_t;
 
 /**
  * @brief The scanner struct holds data which is used frequently by the alive
@@ -72,6 +73,7 @@ struct scanner
   /* pcap handle */
   pcap_t *pcap_handle;
   hosts_data_t *hosts_data;
+  scan_restrictions_t *scan_restrictions;
 };
 
 /**
@@ -87,6 +89,19 @@ struct hosts_data
   /* Hashtable of the form (ip_str, gvm_host_t *). The gvm_host_t pointers point
    * to hosts which are to be freed by the caller of start_alive_detection(). */
   GHashTable *targethosts;
+};
+
+/* Max_scan_hosts related struct. */
+struct scan_restrictions
+{
+  /* Maximum number of hosts allowed to be scanned. No more alive hosts are put
+   * on the queue after max_scan_hosts number of alive hosts is reached.
+   * max_scan_hosts_reached is set to true and the finish signal is put on the
+   * queue if max_scan_hosts is reached. */
+  int max_scan_hosts;
+  /* Count of unique identified alive hosts. */
+  int alive_hosts_count;
+  gboolean max_scan_hosts_reached;
 };
 
 /**
@@ -118,16 +133,5 @@ typedef enum
   UDPV4,
   UDPV6,
 } socket_type_t;
-
-/* Getter methods for scan_restrictions. */
-
-int
-max_scan_hosts_reached ();
-
-int
-get_alive_hosts_count ();
-
-int
-get_max_scan_hosts ();
 
 #endif /* not ALIVE_DETECTION_H */
