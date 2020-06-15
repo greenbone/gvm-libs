@@ -82,7 +82,7 @@ struct sniff_ethernet
  * address. This ip address is then inserted into the alive_hosts table if not
  * already present and if in the target table.
  *
- * @param user_data Pointer to hosts_data.
+ * @param user_data Pointer to scanner.
  * @param header
  * @param packet  Packet to process.
  *
@@ -95,11 +95,13 @@ got_packet (u_char *user_data,
 {
   struct ip *ip;
   unsigned int version;
+  struct scanner *scanner;
   hosts_data_t *hosts_data;
 
   ip = (struct ip *) (packet + 16);
   version = ip->ip_v;
-  hosts_data = (hosts_data_t *) user_data;
+  scanner = (struct scanner *) user_data;
+  hosts_data = (hosts_data_t *) scanner->hosts_data;
 
   if (version == 4)
     {
@@ -120,7 +122,7 @@ got_packet (u_char *user_data,
           && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
         {
           /* handle max_scan_hosts related restrictions. */
-          handle_scan_restrictions (&scanner, addr_str);
+          handle_scan_restrictions (scanner, addr_str);
         }
     }
   else if (version == 6)
@@ -141,7 +143,7 @@ got_packet (u_char *user_data,
           && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
         {
           /* handle max_scan_hosts related restrictions. */
-          handle_scan_restrictions (&scanner, addr_str);
+          handle_scan_restrictions (scanner, addr_str);
         }
     }
   /* TODO: check collision situations.
@@ -168,7 +170,7 @@ got_packet (u_char *user_data,
           && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
         {
           /* handle max_scan_hosts related restrictions. */
-          handle_scan_restrictions (&scanner, addr_str);
+          handle_scan_restrictions (scanner, addr_str);
         }
     }
 }
@@ -187,8 +189,8 @@ sniffer_thread (__attribute__ ((unused)) void *vargp)
   pthread_mutex_unlock (&mutex);
 
   /* reads packets until error or pcap_breakloop() */
-  if ((ret = pcap_loop (scanner.pcap_handle, -1, got_packet,
-                        (u_char *) scanner.hosts_data))
+  if ((ret =
+         pcap_loop (scanner.pcap_handle, -1, got_packet, (u_char *) &scanner))
       == PCAP_ERROR)
     g_debug ("%s: pcap_loop error %s", __func__,
              pcap_geterr (scanner.pcap_handle));
