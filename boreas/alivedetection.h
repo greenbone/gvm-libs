@@ -84,9 +84,6 @@ struct hosts_data
   /* Hashtable of the form (ip_str, gvm_host_t *). The gvm_host_t pointers point
    * to hosts which are to be freed by the caller of start_alive_detection(). */
   GHashTable *targethosts;
-  /* Hosts which were detected as alive and are in the targetlist but are not
-   * sent to openvas because max_scan_hosts was reached. */
-  GHashTable *alivehosts_not_to_be_sent_to_openvas;
 };
 
 /**
