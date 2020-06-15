@@ -56,7 +56,6 @@
 
 struct scanner scanner;
 struct scan_restrictions scan_restrictions;
-struct hosts_data hosts_data;
 
 /* for using int value in #defined string */
 #define STR(X) #X
@@ -158,11 +157,11 @@ got_packet (u_char *user_data,
 {
   struct ip *ip;
   unsigned int version;
-  struct hosts_data *hosts_data;
+  hosts_data_t *hosts_data;
 
   ip = (struct ip *) (packet + 16);
   version = ip->ip_v;
-  hosts_data = (struct hosts_data *) user_data;
+  hosts_data = (hosts_data_t *) user_data;
 
   if (version == 4)
     {
@@ -251,7 +250,7 @@ sniffer_thread (__attribute__ ((unused)) void *vargp)
 
   /* reads packets until error or pcap_breakloop() */
   if ((ret = pcap_loop (scanner.pcap_handle, -1, got_packet,
-                        (u_char *) &hosts_data))
+                        (u_char *) scanner.hosts_data))
       == PCAP_ERROR)
     g_debug ("%s: pcap_loop error %s", __func__,
              pcap_geterr (scanner.pcap_handle));
@@ -497,7 +496,7 @@ scan (alive_test_t alive_test)
   gchar *scan_id;
 
   gettimeofday (&start_time, NULL);
-  number_of_targets = g_hash_table_size (hosts_data.targethosts);
+  number_of_targets = g_hash_table_size (scanner.hosts_data->targethosts);
 
   scandb_id = atoi (prefs_get ("ov_maindbid"));
   scan_id = get_openvas_scan_id (prefs_get ("db_address"), scandb_id);
@@ -513,64 +512,65 @@ scan (alive_test_t alive_test)
       g_debug ("%s: ICMP, TCP-ACK Service & ARP Ping", __func__);
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       scanner.tcp_flag = TH_ACK;
-      g_hash_table_foreach (hosts_data.targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
       g_debug ("%s: ICMP Ping", __func__);
-      g_hash_table_foreach (hosts_data.targethosts, send_icmp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp, NULL);
       g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (hosts_data.targethosts, send_arp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp, NULL);
     }
   else if (alive_test == (ALIVE_TEST_TCP_ACK_SERVICE | ALIVE_TEST_ARP))
     {
       g_debug ("%s: TCP-ACK Service & ARP Ping", __func__);
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       scanner.tcp_flag = TH_ACK;
-      g_hash_table_foreach (hosts_data.targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
       g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (hosts_data.targethosts, send_arp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp, NULL);
     }
   else if (alive_test == (ALIVE_TEST_ICMP | ALIVE_TEST_ARP))
     {
       g_debug ("%s: ICMP & ARP Ping", __func__);
       g_debug ("%s: ICMP PING", __func__);
-      g_hash_table_foreach (hosts_data.targethosts, send_icmp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp, NULL);
       g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (hosts_data.targethosts, send_arp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp, NULL);
     }
   else if (alive_test == (ALIVE_TEST_ICMP | ALIVE_TEST_TCP_ACK_SERVICE))
     {
       g_debug ("%s: ICMP & TCP-ACK Service Ping", __func__);
       g_debug ("%s: ICMP PING", __func__);
-      g_hash_table_foreach (hosts_data.targethosts, send_icmp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp, NULL);
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       scanner.tcp_flag = TH_ACK;
-      g_hash_table_foreach (hosts_data.targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
     }
   else if (alive_test == (ALIVE_TEST_ARP))
     {
       g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (hosts_data.targethosts, send_arp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp, NULL);
     }
   else if (alive_test == (ALIVE_TEST_TCP_ACK_SERVICE))
     {
       scanner.tcp_flag = TH_ACK;
       g_debug ("%s: TCP-ACK Service Ping", __func__);
-      g_hash_table_foreach (hosts_data.targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
     }
   else if (alive_test == (ALIVE_TEST_TCP_SYN_SERVICE))
     {
       g_debug ("%s: TCP-SYN Service Ping", __func__);
       scanner.tcp_flag = TH_SYN;
-      g_hash_table_foreach (hosts_data.targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
     }
   else if (alive_test == (ALIVE_TEST_ICMP))
     {
       g_debug ("%s: ICMP Ping", __func__);
-      g_hash_table_foreach (hosts_data.targethosts, send_icmp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp, NULL);
     }
   else if (alive_test == (ALIVE_TEST_CONSIDER_ALIVE))
     {
       g_debug ("%s: Consider Alive", __func__);
-      for (g_hash_table_iter_init (&target_hosts_iter, hosts_data.targethosts);
+      for (g_hash_table_iter_init (&target_hosts_iter,
+                                   scanner.hosts_data->targethosts);
            g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           handle_scan_restrictions (key);
@@ -586,7 +586,7 @@ scan (alive_test_t alive_test)
 
   /* Send info about dead hosts to ospd-openvas. This is needed for the
    * calculation of the progress bar for gsa. */
-  number_of_dead_hosts = send_dead_hosts_to_ospd_openvas (&hosts_data);
+  number_of_dead_hosts = send_dead_hosts_to_ospd_openvas (scanner.hosts_data);
 
   gettimeofday (&end_time, NULL);
 
@@ -678,17 +678,18 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
 
   /* Results data */
   /* hashtables */
-  hosts_data.alivehosts =
+  scanner.hosts_data = g_malloc0 (sizeof (hosts_data_t));
+  scanner.hosts_data->alivehosts =
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-  hosts_data.targethosts =
+  scanner.hosts_data->targethosts =
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
   /* put all hosts we want to check in hashtable */
   gvm_host_t *host;
   for (host = gvm_hosts_next (hosts); host; host = gvm_hosts_next (hosts))
     {
-      g_hash_table_insert (hosts_data.targethosts, gvm_host_value_str (host),
-                           host);
+      g_hash_table_insert (scanner.hosts_data->targethosts,
+                           gvm_host_value_str (host), host);
     }
   /* reset hosts iter */
   hosts->current = 0;
@@ -826,10 +827,11 @@ alive_detection_free (void *error)
   /* Ports array. */
   g_array_free (scanner.ports, TRUE);
 
-  g_hash_table_destroy (hosts_data.alivehosts);
+  g_hash_table_destroy (scanner.hosts_data->alivehosts);
   /* targethosts: (ipstr, gvm_host_t *)
    * gvm_host_t are freed by caller of start_alive_detection()! */
-  g_hash_table_destroy (hosts_data.targethosts);
+  g_hash_table_destroy (scanner.hosts_data->targethosts);
+  g_free (scanner.hosts_data);
 
   /* Set error. */
   *(boreas_error_t *) error = error_out;

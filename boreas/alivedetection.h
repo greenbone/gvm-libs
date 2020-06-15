@@ -45,6 +45,8 @@
 void *
 start_alive_detection (void *);
 
+typedef struct hosts_data hosts_data_t;
+
 /**
  * @brief The scanner struct holds data which is used frequently by the alive
  * detection thread.
@@ -69,6 +71,7 @@ struct scanner
   kb_t main_kb;
   /* pcap handle */
   pcap_t *pcap_handle;
+  hosts_data_t *hosts_data;
 };
 
 /**
