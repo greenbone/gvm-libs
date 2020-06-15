@@ -133,10 +133,10 @@ target_link_libraries (ping-test gvm_base_shared
 
 add_executable (sniffer-test
                 EXCLUDE_FROM_ALL
-                sniffer_tests.c)
+                sniffer_tests.c boreas_io.c)
 add_test (sniffer-test sniffer-test)
 target_include_directories (sniffer-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-target_link_libraries (sniffer-test
+target_link_libraries (sniffer-test gvm_base_shared gvm_util_shared
                        ${PCAP_LDFLAGS}
                        ${CGREEN_LIBRARIES}
                        ${GLIB_LDFLAGS}
