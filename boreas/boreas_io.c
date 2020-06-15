@@ -44,6 +44,15 @@ max_scan_hosts_reached ()
 }
 
 /**
+ * @brief Set max_scan_hosts_reached to TRUE.
+ */
+void
+set_max_scan_hosts_reached ()
+{
+  scan_restrictions.max_scan_hosts_reached = TRUE;
+}
+
+/**
  * @brief Get number of identified alive hosts.
  *
  * @return Number of identified alive hosts.
@@ -68,7 +77,7 @@ get_max_scan_hosts ()
 /**
  * @brief Increment the number of alive hosts by one.
  */
-__attribute__ ((unused)) static void
+static void
 inc_alive_hosts_count ()
 {
   scan_restrictions.alive_hosts_count++;
@@ -296,18 +305,17 @@ init_scan_restrictions (struct scanner *scanner, int max_scan_hosts)
 void
 handle_scan_restrictions (struct scanner *scanner, gchar *addr_str)
 {
-  scanner->scan_restrictions->alive_hosts_count++;
+  inc_alive_hosts_count ();
   /* Put alive hosts on queue as long as max_scan_hosts not reached. */
-  if (!scanner->scan_restrictions->max_scan_hosts_reached)
+  if (!max_scan_hosts_reached ())
     put_host_on_queue (scanner->main_kb, addr_str);
 
   /* Set max_scan_hosts_reached if not already set and max_scan_hosts was
    * reached. */
-  if (!scanner->scan_restrictions->max_scan_hosts_reached
-      && (scanner->scan_restrictions->alive_hosts_count
-          == scanner->scan_restrictions->max_scan_hosts))
+  if (!max_scan_hosts_reached ()
+      && (get_alive_hosts_count () == get_max_scan_hosts ()))
     {
-      scanner->scan_restrictions->max_scan_hosts_reached = TRUE;
+      set_max_scan_hosts_reached ();
     }
 }
 
