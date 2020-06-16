@@ -522,6 +522,69 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
   return error;
 }
 
+static boreas_error_t
+close_all_needed_sockets (struct scanner *scanner, alive_test_t alive_test)
+{
+  boreas_error_t error;
+
+  error = NO_ERROR;
+
+  if (alive_test & ALIVE_TEST_ICMP)
+    {
+      if ((close (scanner->icmpv4soc)) != 0)
+        {
+          g_warning ("%s: Error in close(): %s", __func__, strerror (errno));
+          error = -1;
+        }
+      if ((close (scanner->icmpv6soc)) != 0)
+        {
+          g_warning ("%s: Error in close(): %s", __func__, strerror (errno));
+          error = -1;
+        }
+    }
+
+  if ((alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
+      || (alive_test & ALIVE_TEST_TCP_SYN_SERVICE))
+    {
+      if ((close (scanner->tcpv4soc)) != 0)
+        {
+          g_warning ("%s: Error in close(): %s", __func__, strerror (errno));
+          error = -1;
+        }
+      if ((close (scanner->tcpv6soc)) != 0)
+        {
+          g_warning ("%s: Error in close(): %s", __func__, strerror (errno));
+          error = -1;
+        }
+      if ((close (scanner->udpv4soc)) != 0)
+        {
+          g_warning ("%s: Error in close(): %s", __func__, strerror (errno));
+          error = -1;
+        }
+      if ((close (scanner->udpv6soc)) != 0)
+        {
+          g_warning ("%s: Error in close(): %s", __func__, strerror (errno));
+          error = -1;
+        }
+    }
+
+  if ((alive_test & ALIVE_TEST_ARP))
+    {
+      if ((close (scanner->arpv4soc)) != 0)
+        {
+          g_warning ("%s: Error in close(): %s", __func__, strerror (errno));
+          error = -1;
+        }
+      if ((close (scanner->arpv6soc)) != 0)
+        {
+          g_warning ("%s: Error in close(): %s", __func__, strerror (errno));
+          error = -1;
+        }
+    }
+
+  return error;
+}
+
 /**
  * @brief Free all the data used by the alive detection scanner.
  *
@@ -531,6 +594,7 @@ static void
 alive_detection_free (void *error)
 {
   boreas_error_t alive_test_err;
+  boreas_error_t close_err;
   boreas_error_t error_out;
   alive_test_t alive_test;
 
@@ -544,66 +608,9 @@ alive_detection_free (void *error)
     }
   else
     {
-      if (alive_test & ALIVE_TEST_ICMP)
-        {
-          if ((close (scanner.icmpv4soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-          if ((close (scanner.icmpv6soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-        }
-
-      if ((alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
-          || (alive_test & ALIVE_TEST_TCP_SYN_SERVICE))
-        {
-          if ((close (scanner.tcpv4soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-          if ((close (scanner.tcpv6soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-          if ((close (scanner.udpv4soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-          if ((close (scanner.udpv6soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-        }
-
-      if ((alive_test & ALIVE_TEST_ARP))
-        {
-          if ((close (scanner.arpv4soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-          if ((close (scanner.arpv6soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-        }
+      close_err = close_all_needed_sockets (&scanner, alive_test);
+      if (close_err)
+        error_out = BOREAS_CLEANUP_ERROR;
     }
 
   /*pcap_close (scanner.pcap_handle); //pcap_handle is closed in ping/scan
