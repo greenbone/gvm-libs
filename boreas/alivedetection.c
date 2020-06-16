@@ -71,22 +71,24 @@ pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 /**
  * @brief Sniff packets by starting pcap_loop with callback function.
  *
- * @param vargp
+ * @param scanner_p Pointer to scanner struct.
  */
 static void *
-sniffer_thread (__attribute__ ((unused)) void *vargp)
+sniffer_thread (void *scanner_p)
 {
   int ret;
+  struct scanner *scanner = (struct scanner *) scanner_p;
+
   pthread_mutex_lock (&mutex);
   pthread_cond_signal (&cond);
   pthread_mutex_unlock (&mutex);
 
   /* reads packets until error or pcap_breakloop() */
   if ((ret =
-         pcap_loop (scanner.pcap_handle, -1, got_packet, (u_char *) &scanner))
+         pcap_loop (scanner->pcap_handle, -1, got_packet, (u_char *) scanner))
       == PCAP_ERROR)
     g_debug ("%s: pcap_loop error %s", __func__,
-             pcap_geterr (scanner.pcap_handle));
+             pcap_geterr (scanner->pcap_handle));
   else if (ret == 0)
     g_debug ("%s: count of packets is exhausted", __func__);
   else if (ret == PCAP_ERROR_BREAK)
@@ -117,7 +119,7 @@ start_sniffer_thread (struct scanner *scanner, pthread_t *sniffer_thread_id)
     }
 
   /* Start sniffer thread. */
-  err = pthread_create (sniffer_thread_id, NULL, sniffer_thread, NULL);
+  err = pthread_create (sniffer_thread_id, NULL, sniffer_thread, scanner);
   if (err == EAGAIN)
     g_warning ("%s: pthread_create() returned EAGAIN: Insufficient resources "
                "to create thread.",
