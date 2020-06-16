@@ -145,21 +145,24 @@ send_icmp (__attribute__ ((unused)) gpointer key, gpointer value,
  *
  * @param key Ip string.
  * @param value Pointer to gvm_host_t.
- * @param user_data
+ * @param scanner_p Pointer to scanner struct.
  */
 static void
 send_tcp (__attribute__ ((unused)) gpointer key, gpointer value,
-          __attribute__ ((unused)) gpointer user_data)
+          gpointer scanner_p)
 {
-  static int count = 0;
-  count++;
-  if (count % BURST == 0)
-    usleep (BURST_TIMEOUT);
-
+  struct scanner *scanner;
   struct in6_addr dst6;
   struct in6_addr *dst6_p = &dst6;
   struct in_addr dst4;
   struct in_addr *dst4_p = &dst4;
+  static int count = 0;
+
+  scanner = (struct scanner *) scanner_p;
+
+  count++;
+  if (count % BURST == 0)
+    usleep (BURST_TIMEOUT);
 
   if (gvm_host_get_addr6 ((gvm_host_t *) value, dst6_p) < 0)
     g_warning ("%s: could not get addr6 from gvm_host_t", __func__);
@@ -170,12 +173,12 @@ send_tcp (__attribute__ ((unused)) gpointer key, gpointer value,
     }
   if (IN6_IS_ADDR_V4MAPPED (dst6_p) != 1)
     {
-      send_tcp_v6 (&scanner, dst6_p);
+      send_tcp_v6 (scanner, dst6_p);
     }
   else
     {
       dst4.s_addr = dst6_p->s6_addr32[3];
-      send_tcp_v4 (&scanner, dst4_p);
+      send_tcp_v4 (scanner, dst4_p);
     }
 }
 
@@ -348,7 +351,8 @@ scan (alive_test_t alive_test)
       g_debug ("%s: ICMP, TCP-ACK Service & ARP Ping", __func__);
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       scanner.tcp_flag = TH_ACK;
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
+                            &scanner);
       g_debug ("%s: ICMP Ping", __func__);
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
                             &scanner);
@@ -360,7 +364,8 @@ scan (alive_test_t alive_test)
       g_debug ("%s: TCP-ACK Service & ARP Ping", __func__);
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       scanner.tcp_flag = TH_ACK;
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
+                            &scanner);
       g_debug ("%s: ARP Ping", __func__);
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp, NULL);
     }
@@ -381,7 +386,8 @@ scan (alive_test_t alive_test)
                             &scanner);
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       scanner.tcp_flag = TH_ACK;
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_ARP))
     {
@@ -392,13 +398,15 @@ scan (alive_test_t alive_test)
     {
       scanner.tcp_flag = TH_ACK;
       g_debug ("%s: TCP-ACK Service Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_TCP_SYN_SERVICE))
     {
       g_debug ("%s: TCP-SYN Service Ping", __func__);
       scanner.tcp_flag = TH_SYN;
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_ICMP))
     {
