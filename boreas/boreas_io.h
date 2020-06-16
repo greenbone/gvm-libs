@@ -37,6 +37,12 @@ put_finish_signal_on_queue (void *);
 int
 send_dead_hosts_to_ospd_openvas (struct hosts_data *);
 
+void
+init_scan_restrictions (struct scanner *, int);
+
+void
+handle_scan_restrictions (struct scanner *, gchar *);
+
 gchar *
 get_openvas_scan_id (const gchar *, int);
 
