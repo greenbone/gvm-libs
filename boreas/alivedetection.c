@@ -188,18 +188,21 @@ send_tcp (__attribute__ ((unused)) gpointer key, gpointer value,
  *
  * @param key Ip string.
  * @param value Pointer to gvm_host_t.
- * @param user_data
+ * @param scanner_p Pointer to scanner struct.
  */
 static void
 send_arp (__attribute__ ((unused)) gpointer key, gpointer value,
-          __attribute__ ((unused)) gpointer user_data)
+          gpointer scanner_p)
 {
+  struct scanner *scanner;
   struct in6_addr dst6;
   struct in6_addr *dst6_p = &dst6;
   struct in_addr dst4;
   struct in_addr *dst4_p = &dst4;
-
   static int count = 0;
+
+  scanner = (struct scanner *) scanner_p;
+
   count++;
   if (count % BURST == 0)
     usleep (BURST_TIMEOUT);
@@ -215,12 +218,12 @@ send_arp (__attribute__ ((unused)) gpointer key, gpointer value,
     {
       /* IPv6 does simulate ARP by using the Neighbor Discovery Protocol with
        * ICMPv6. */
-      send_icmp_v6 (scanner.arpv6soc, dst6_p, ND_NEIGHBOR_SOLICIT);
+      send_icmp_v6 (scanner->arpv6soc, dst6_p, ND_NEIGHBOR_SOLICIT);
     }
   else
     {
       dst4.s_addr = dst6_p->s6_addr32[3];
-      send_arp_v4 (scanner.arpv4soc, dst4_p);
+      send_arp_v4 (scanner->arpv4soc, dst4_p);
     }
 }
 
@@ -357,7 +360,8 @@ scan (alive_test_t alive_test)
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
                             &scanner);
       g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_TCP_ACK_SERVICE | ALIVE_TEST_ARP))
     {
@@ -367,7 +371,8 @@ scan (alive_test_t alive_test)
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
                             &scanner);
       g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_ICMP | ALIVE_TEST_ARP))
     {
@@ -376,7 +381,8 @@ scan (alive_test_t alive_test)
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
                             &scanner);
       g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_ICMP | ALIVE_TEST_TCP_ACK_SERVICE))
     {
@@ -392,7 +398,8 @@ scan (alive_test_t alive_test)
   else if (alive_test == (ALIVE_TEST_ARP))
     {
       g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_TCP_ACK_SERVICE))
     {
