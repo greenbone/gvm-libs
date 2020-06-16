@@ -99,17 +99,18 @@ sniffer_thread (__attribute__ ((unused)) void *vargp)
 /**
  * @brief Start up the sniffer thread.
  *
+ * @param scanner Pointer to scanner struct.
  * @param sniffer_thread_id pthread_t thread id.
  *
  * @return 0 on success, other on Error.
  */
 int
-start_sniffer_thread (pthread_t *sniffer_thread_id)
+start_sniffer_thread (struct scanner *scanner, pthread_t *sniffer_thread_id)
 {
   int err;
 
-  scanner.pcap_handle = open_live (NULL, FILTER_STR);
-  if (scanner.pcap_handle == NULL)
+  scanner->pcap_handle = open_live (NULL, FILTER_STR);
+  if (scanner->pcap_handle == NULL)
     {
       g_warning ("%s: Unable to open valid pcap handle.", __func__);
       return -1;
@@ -137,12 +138,13 @@ start_sniffer_thread (pthread_t *sniffer_thread_id)
 /**
  * @brief Stop the sniffer thread.
  *
+ * @param scanner Pointer to scanner struct.
  * @param sniffer_thread_id pthread_t thread id.
  *
  * @return 0 on success, other on Error.
  */
 int
-stop_sniffer_thread (pthread_t sniffer_thread_id)
+stop_sniffer_thread (struct scanner *scanner, pthread_t sniffer_thread_id)
 {
   int err;
   void *retval;
@@ -150,7 +152,7 @@ stop_sniffer_thread (pthread_t sniffer_thread_id)
   g_debug ("%s: Try to stop thread which is sniffing for alive hosts. ",
            __func__);
   /* Try to break loop in sniffer thread. */
-  pcap_breakloop (scanner.pcap_handle);
+  pcap_breakloop (scanner->pcap_handle);
   /* Give thread chance to exit on its own. */
   sleep (2);
 
@@ -176,9 +178,9 @@ stop_sniffer_thread (pthread_t sniffer_thread_id)
   g_debug ("%s: Stopped thread which was sniffing for alive hosts.", __func__);
 
   /* close handle */
-  if (scanner.pcap_handle != NULL)
+  if (scanner->pcap_handle != NULL)
     {
-      pcap_close (scanner.pcap_handle);
+      pcap_close (scanner->pcap_handle);
     }
 
   return err;
@@ -215,7 +217,7 @@ scan (alive_test_t alive_test)
              number_of_targets);
 
   sniffer_thread_id = 0;
-  start_sniffer_thread (&sniffer_thread_id);
+  start_sniffer_thread (&scanner, &sniffer_thread_id);
 
   if (alive_test
       == (ALIVE_TEST_TCP_ACK_SERVICE | ALIVE_TEST_ICMP | ALIVE_TEST_ARP))
@@ -306,7 +308,7 @@ scan (alive_test_t alive_test)
     __func__);
   sleep (WAIT_FOR_REPLIES_TIMEOUT);
 
-  stop_sniffer_thread (sniffer_thread_id);
+  stop_sniffer_thread (&scanner, sniffer_thread_id);
 
   /* Send info about dead hosts to ospd-openvas. This is needed for the
    * calculation of the progress bar for gsa. */
