@@ -432,49 +432,6 @@ scan (alive_test_t alive_test)
 }
 
 /**
- * @brief Set all sockets needed for the chosen detection methods.
- *
- * @param alive_test  Methods of alive detection to use provided as bitflag.
- *
- * @return  0 on success, boreas_error_t on error.
- */
-static boreas_error_t
-set_all_needed_sockets (struct scanner *scanner, alive_test_t alive_test)
-{
-  boreas_error_t error = NO_ERROR;
-  if (alive_test & ALIVE_TEST_ICMP)
-    {
-      if ((error = set_socket (ICMPV4, &(scanner->icmpv4soc))) != 0)
-        return error;
-      if ((error = set_socket (ICMPV6, &(scanner->icmpv6soc))) != 0)
-        return error;
-    }
-
-  if ((alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
-      || (alive_test & ALIVE_TEST_TCP_SYN_SERVICE))
-    {
-      if ((error = set_socket (TCPV4, &(scanner->tcpv4soc))) != 0)
-        return error;
-      if ((error = set_socket (TCPV6, &(scanner->tcpv6soc))) != 0)
-        return error;
-      if ((error = set_socket (UDPV4, &(scanner->udpv4soc))) != 0)
-        return error;
-      if ((error = set_socket (UDPV6, &(scanner->udpv6soc))) != 0)
-        return error;
-    }
-
-  if ((alive_test & ALIVE_TEST_ARP))
-    {
-      if ((error = set_socket (ARPV4, &(scanner->arpv4soc))) != 0)
-        return error;
-      if ((error = set_socket (ARPV6, &(scanner->arpv6soc))) != 0)
-        return error;
-    }
-
-  return error;
-}
-
-/**
  * @brief Initialise the alive detection scanner.
  *
  * Fill scanner struct with appropriate values.
