@@ -38,6 +38,7 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #undef G_LOG_DOMAIN
 /**
@@ -87,7 +88,7 @@ struct arp_hdr
  * @param dst Destination address to send to.
  * @param type  Type of imcp. e.g. ND_NEIGHBOR_SOLICIT or ICMP6_ECHO_REQUEST.
  */
-void
+static void
 send_icmp_v6 (int soc, struct in6_addr *dst, int type)
 {
   struct sockaddr_in6 soca;
@@ -125,7 +126,7 @@ send_icmp_v6 (int soc, struct in6_addr *dst, int type)
  * @param soc Socket to use for sending.
  * @param dst Destination address to send to.
  */
-void
+static void
 send_icmp_v4 (int soc, struct in_addr *dst)
 {
   /* datalen + MAXIPLEN + MAXICMPLEN */
@@ -157,13 +158,56 @@ send_icmp_v4 (int soc, struct in_addr *dst)
 }
 
 /**
+ * @brief Is called in g_hash_table_foreach(). Check if ipv6 or ipv4, get
+ * correct socket and start appropriate ping function.
+ *
+ * @param key Ip string.
+ * @param value Pointer to gvm_host_t.
+ * @param scanner_p Pointer to scanner struct.
+ */
+void
+send_icmp (__attribute__ ((unused)) gpointer key, gpointer value,
+           gpointer scanner_p)
+{
+  struct scanner *scanner;
+  struct in6_addr dst6;
+  struct in6_addr *dst6_p = &dst6;
+  struct in_addr dst4;
+  struct in_addr *dst4_p = &dst4;
+  static int count = 0;
+
+  scanner = (struct scanner *) scanner_p;
+
+  count++;
+  if (count % BURST == 0)
+    usleep (BURST_TIMEOUT);
+
+  if (gvm_host_get_addr6 ((gvm_host_t *) value, dst6_p) < 0)
+    g_warning ("%s: could not get addr6 from gvm_host_t", __func__);
+  if (dst6_p == NULL)
+    {
+      g_warning ("%s: destination address is NULL", __func__);
+      return;
+    }
+  if (IN6_IS_ADDR_V4MAPPED (dst6_p) != 1)
+    {
+      send_icmp_v6 (scanner->icmpv6soc, dst6_p, ICMP6_ECHO_REQUEST);
+    }
+  else
+    {
+      dst4.s_addr = dst6_p->s6_addr32[3];
+      send_icmp_v4 (scanner->icmpv4soc, dst4_p);
+    }
+}
+
+/**
  * @brief Send tcp ping.
  *
  * @param soc Socket to use for sending.
  * @param dst Destination address to send to.
  * @param tcp_flag  TH_SYN or TH_ACK.
  */
-void
+static void
 send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p)
 {
   boreas_error_t error;
@@ -255,7 +299,7 @@ send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p)
  * @param scanner Scanner struct which includes all needed data for tcp_v4 ping.
  * @param dst Destination address to send to.
  */
-void
+static void
 send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
 {
   boreas_error_t error;
@@ -346,12 +390,55 @@ send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
 }
 
 /**
+ * @brief Is called in g_hash_table_foreach(). Check if ipv6 or ipv4, get
+ * correct socket and start appropriate ping function.
+ *
+ * @param key Ip string.
+ * @param value Pointer to gvm_host_t.
+ * @param scanner_p Pointer to scanner struct.
+ */
+void
+send_tcp (__attribute__ ((unused)) gpointer key, gpointer value,
+          gpointer scanner_p)
+{
+  struct scanner *scanner;
+  struct in6_addr dst6;
+  struct in6_addr *dst6_p = &dst6;
+  struct in_addr dst4;
+  struct in_addr *dst4_p = &dst4;
+  static int count = 0;
+
+  scanner = (struct scanner *) scanner_p;
+
+  count++;
+  if (count % BURST == 0)
+    usleep (BURST_TIMEOUT);
+
+  if (gvm_host_get_addr6 ((gvm_host_t *) value, dst6_p) < 0)
+    g_warning ("%s: could not get addr6 from gvm_host_t", __func__);
+  if (dst6_p == NULL)
+    {
+      g_warning ("%s: destination address is NULL", __func__);
+      return;
+    }
+  if (IN6_IS_ADDR_V4MAPPED (dst6_p) != 1)
+    {
+      send_tcp_v6 (scanner, dst6_p);
+    }
+  else
+    {
+      dst4.s_addr = dst6_p->s6_addr32[3];
+      send_tcp_v4 (scanner, dst4_p);
+    }
+}
+
+/**
  * @brief Send arp ping.
  *
  * @param soc Socket to use for sending.
  * @param dst Destination address to send to.
  */
-void
+static void
 send_arp_v4 (int soc, struct in_addr *dst_p)
 {
   struct sockaddr_ll soca;
@@ -457,4 +544,49 @@ send_arp_v4 (int soc, struct in_addr *dst_p)
   g_free (ether_frame);
 
   return;
+}
+
+/**
+ * @brief Is called in g_hash_table_foreach(). Check if ipv6 or ipv4, get
+ * correct socket and start appropriate ping function.
+ *
+ * @param key Ip string.
+ * @param value Pointer to gvm_host_t.
+ * @param scanner_p Pointer to scanner struct.
+ */
+void
+send_arp (__attribute__ ((unused)) gpointer key, gpointer value,
+          gpointer scanner_p)
+{
+  struct scanner *scanner;
+  struct in6_addr dst6;
+  struct in6_addr *dst6_p = &dst6;
+  struct in_addr dst4;
+  struct in_addr *dst4_p = &dst4;
+  static int count = 0;
+
+  scanner = (struct scanner *) scanner_p;
+
+  count++;
+  if (count % BURST == 0)
+    usleep (BURST_TIMEOUT);
+
+  if (gvm_host_get_addr6 ((gvm_host_t *) value, dst6_p) < 0)
+    g_warning ("%s: could not get addr6 from gvm_host_t", __func__);
+  if (dst6_p == NULL)
+    {
+      g_warning ("%s: destination address is NULL", __func__);
+      return;
+    }
+  if (IN6_IS_ADDR_V4MAPPED (dst6_p) != 1)
+    {
+      /* IPv6 does simulate ARP by using the Neighbor Discovery Protocol with
+       * ICMPv6. */
+      send_icmp_v6 (scanner->arpv6soc, dst6_p, ND_NEIGHBOR_SOLICIT);
+    }
+  else
+    {
+      dst4.s_addr = dst6_p->s6_addr32[3];
+      send_arp_v4 (scanner->arpv4soc, dst4_p);
+    }
 }
