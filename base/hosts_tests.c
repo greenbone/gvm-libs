@@ -59,8 +59,6 @@ Ensure (hosts, gvm_get_host_type_returns_host_type_ipv6)
 
 Ensure (hosts, gvm_get_host_type_returns_host_type_hostname)
 {
-  assert_that (gvm_get_host_type ("192.168.10.855"),
-               is_equal_to (HOST_TYPE_NAME));
   assert_that (gvm_get_host_type ("www.greenbone.net"),
                is_equal_to (HOST_TYPE_NAME));
   assert_that (gvm_get_host_type ("greenbone.net"),
@@ -152,6 +150,19 @@ Ensure (hosts, gvm_get_host_type_returns_host_type_range6_long)
                is_equal_to (HOST_TYPE_RANGE6_LONG));
 }
 
+Ensure (hosts, gvm_get_host_type_returns_error)
+{
+  assert_that (gvm_get_host_type ("."), is_equal_to (-1));
+  assert_that (gvm_get_host_type ("="), is_equal_to (-1));
+  assert_that (gvm_get_host_type ("a.123"), is_equal_to (-1));
+  assert_that (gvm_get_host_type ("192.168.10.1.1"), is_equal_to (-1));
+  assert_that (gvm_get_host_type ("256.168.10.1"), is_equal_to (-1));
+  assert_that (gvm_get_host_type ("192.256.10.1"), is_equal_to (-1));
+  assert_that (gvm_get_host_type ("192.168.256.1"), is_equal_to (-1));
+  assert_that (gvm_get_host_type ("192.168.10.256"), is_equal_to (-1));
+  assert_that (gvm_get_host_type ("192.168.10.855"), is_equal_to (-1));
+}
+
 /* Test suite. */
 
 int
@@ -180,6 +191,8 @@ main (int argc, char **argv)
                          gvm_get_host_type_returns_host_type_range_long);
   add_test_with_context (suite, hosts,
                          gvm_get_host_type_returns_host_type_range6_long);
+  add_test_with_context (suite, hosts,
+                         gvm_get_host_type_returns_error);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
