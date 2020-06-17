@@ -220,7 +220,7 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
  * @param kb KB to use.
  * @param addr_str IP addr in str representation to put on queue.
  */
-void
+static void
 put_host_on_queue (kb_t kb, char *addr_str)
 {
   if (NULL == kb)
