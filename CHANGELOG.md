@@ -23,6 +23,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add gvm_routethrough which is used by Boreas alive detection module. [#339](https://github.com/greenbone/gvm-libs/pull/339)
 - Move alive detection module Boreas into gvm-libs. [#346](https://github.com/greenbone/gvm-libs/pull/346)
 
+### Changed
+- Improve validation in is_hostname [#353](https://github.com/greenbone/gvm-libs/pull/353)
+
 ### Fixed
 - Fix is_cidr_block(). [#322](https://github.com/greenbone/gvm-libs/pull/322)
 - Fix is_cidr6_block() and is_short_range_network(). [#337](https://github.com/greenbone/gvm-libs/pull/337)
