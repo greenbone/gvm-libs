@@ -57,7 +57,7 @@ pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
  *
  * @return pcap_t handle or NULL on error
  */
-pcap_t *
+static pcap_t *
 open_live (char *iface, char *filter)
 {
   /* iface considerations:
@@ -125,7 +125,7 @@ open_live (char *iface, char *filter)
  *
  * TODO: simplify and read https://tools.ietf.org/html/rfc826
  */
-void
+static void
 got_packet (u_char *user_data,
             __attribute__ ((unused)) const struct pcap_pkthdr *header,
             const u_char *packet)
