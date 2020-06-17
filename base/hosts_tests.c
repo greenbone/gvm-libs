@@ -57,12 +57,26 @@ Ensure (hosts, gvm_get_host_type_returns_host_type_ipv6)
                is_equal_to (HOST_TYPE_IPV6));
 }
 
+#define TEN "0123456789"
+#define SIXTY TEN TEN TEN TEN TEN TEN
+#define HUNDRED TEN TEN TEN TEN TEN TEN TEN TEN TEN TEN
+
 Ensure (hosts, gvm_get_host_type_returns_host_type_hostname)
 {
   assert_that (gvm_get_host_type ("www.greenbone.net"),
                is_equal_to (HOST_TYPE_NAME));
   assert_that (gvm_get_host_type ("greenbone.net"),
                is_equal_to (HOST_TYPE_NAME));
+  assert_that (gvm_get_host_type ("g"),
+               is_equal_to (HOST_TYPE_NAME));
+  assert_that (gvm_get_host_type ("123.com"),
+               is_equal_to (HOST_TYPE_NAME));
+  /* Lengths. */
+  assert_that (gvm_get_host_type (SIXTY "123.short.enough.com"),
+                                  is_equal_to (0));
+  assert_that (gvm_get_host_type (SIXTY "." SIXTY "." SIXTY "." SIXTY "."
+                                  /* 244 */ "56789.com"),
+               is_equal_to (0));
 }
 
 Ensure (hosts, gvm_get_host_type_returns_host_type_cidr_block)
@@ -152,15 +166,32 @@ Ensure (hosts, gvm_get_host_type_returns_host_type_range6_long)
 
 Ensure (hosts, gvm_get_host_type_returns_error)
 {
+  assert_that (gvm_get_host_type (""), is_equal_to (-1));
   assert_that (gvm_get_host_type ("."), is_equal_to (-1));
+
+  /* Invalid chars. */
+  assert_that (gvm_get_host_type ("a,b"), is_equal_to (-1));
   assert_that (gvm_get_host_type ("="), is_equal_to (-1));
+
+  /* Numeric TLD. */
   assert_that (gvm_get_host_type ("a.123"), is_equal_to (-1));
+
+  /* IP with too many parts. */
   assert_that (gvm_get_host_type ("192.168.10.1.1"), is_equal_to (-1));
+
+  /* IP with numbers out of bounds. */
   assert_that (gvm_get_host_type ("256.168.10.1"), is_equal_to (-1));
   assert_that (gvm_get_host_type ("192.256.10.1"), is_equal_to (-1));
   assert_that (gvm_get_host_type ("192.168.256.1"), is_equal_to (-1));
   assert_that (gvm_get_host_type ("192.168.10.256"), is_equal_to (-1));
   assert_that (gvm_get_host_type ("192.168.10.855"), is_equal_to (-1));
+
+  /* Lengths. */
+  assert_that (gvm_get_host_type (SIXTY "1234.too.long.com"),
+                                  is_equal_to (-1));
+  assert_that (gvm_get_host_type (SIXTY "." SIXTY "." SIXTY "." SIXTY "."
+                                  /* 244 */ "567890.com"),
+               is_equal_to (-1));
 }
 
 /* Test suite. */
