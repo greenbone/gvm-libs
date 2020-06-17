@@ -45,4 +45,9 @@ set_all_needed_sockets (struct scanner *, alive_test_t);
 boreas_error_t
 close_all_needed_sockets (struct scanner *, alive_test_t);
 
+/* Misc hashtable functions. */
+
+int
+count_difference (GHashTable *, GHashTable *);
+
 #endif /* not BOREAS_UTIL_H */

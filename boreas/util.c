@@ -577,3 +577,33 @@ set_all_needed_sockets (struct scanner *scanner, alive_test_t alive_test)
 
   return error;
 }
+
+/**
+ * @brief Substract two hashtables and count the remaining elements.
+ *
+ * The original hashtables are not changed during or after the count operation.
+ *
+ * @param A Base Hashtable.
+ * @param B Hashtable to be substracted from A.
+ *
+ * @return count of remaining elements in A-B.
+ */
+int
+count_difference (GHashTable *hashtable_A, GHashTable *hashtable_B)
+{
+  int count = 0;
+
+  GHashTableIter target_hosts_iter;
+  gpointer key, value;
+
+  for (g_hash_table_iter_init (&target_hosts_iter, hashtable_A);
+       g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
+    {
+      if (!g_hash_table_contains (hashtable_B, key))
+        {
+          count++;
+        }
+    }
+
+  return count;
+}
