@@ -451,7 +451,7 @@ is_hostname (const char *str)
 
   point = split;
   while (*point)
-    if (g_regex_match_simple ("(?!-)[a-z0-9-]{1,63}(?<!-)$",
+    if (g_regex_match_simple ("^(?!-)[a-z0-9-]{1,63}(?<!-)$",
                               *point,
                               G_REGEX_CASELESS,
                               0)
