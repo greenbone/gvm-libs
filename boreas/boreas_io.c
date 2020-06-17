@@ -222,6 +222,9 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
 void
 put_host_on_queue (kb_t kb, char *addr_str)
 {
+  if (NULL == kb)
+    return;
+
   if (kb_item_push_str (kb, ALIVE_DETECTION_QUEUE, addr_str) != 0)
     g_debug ("%s: kb_item_push_str() failed. Could not push \"%s\" on queue of "
              "hosts to be considered as alive.",
