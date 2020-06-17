@@ -400,26 +400,71 @@ short_range_network_ips (const char *str, struct in_addr *first,
 
 /**
  * @brief Checks if a buffer points to a valid hostname.
- * Valid characters include: Alphanumerics, dot (.), dash (-) and underscore (_)
- * up to 255 characters.
  *
- * @param[in]   str Buffer to check in.
+ * @param[in]  str  String to check.
  *
  * @return 1 if valid hostname, 0 otherwise.
  */
 static int
 is_hostname (const char *str)
 {
-  const char *h = str;
+  gchar *copy, **point, **split;
 
-  while (*h && (isalnum (*h) || strchr ("-_.", *h)))
-    h++;
+  /* From https://stackoverflow.com/questions/2532053/validate-a-hostname-string. */
 
-  /* Valid string if no other chars, and length is 255 at most. */
-  if (*h == '\0' && h - str < 256)
-    return 1;
+  /* Remove one dot from the end. */
 
-  return 0;
+  copy = g_strdup (str);
+  if (copy[strlen (copy) - 1] == '.')
+    copy[strlen (copy) - 1] = '\0';
+
+  /* Check length. */
+
+  if (strlen (copy) == 0 || strlen (copy) > 253)
+    {
+      g_free (copy);
+      return 0;
+    }
+
+  /* Split on dots. */
+
+  point = split = g_strsplit (copy, ".", 0);
+  g_free (copy);
+
+  /* Last part (TLD) may not be an integer. */
+
+  if (*point)
+    {
+      gchar *last;
+
+      while (*(point + 1)) point++;
+      last = *point;
+      if (strlen (last))
+        {
+          while (*last && isdigit (*last)) last++;
+          if (*last == '\0')
+            return 0;
+        }
+    }
+
+  /* Check each part. */
+
+  point = split;
+  while (*point)
+    if (g_regex_match_simple ("(?!-)[a-z0-9-]{1,63}(?<!-)$",
+                              *point,
+                              G_REGEX_CASELESS,
+                              0)
+        == 0)
+      {
+        g_strfreev (split);
+        return 0;
+      }
+    else
+      point++;
+
+  g_strfreev (split);
+  return 1;
 }
 
 /**
