@@ -410,7 +410,8 @@ is_hostname (const char *str)
 {
   gchar *copy, **point, **split;
 
-  /* From https://stackoverflow.com/questions/2532053/validate-a-hostname-string. */
+  /* From
+   * https://stackoverflow.com/questions/2532053/validate-a-hostname-string. */
 
   /* Remove one dot from the end. */
 
@@ -437,11 +438,13 @@ is_hostname (const char *str)
     {
       gchar *last;
 
-      while (*(point + 1)) point++;
+      while (*(point + 1))
+        point++;
       last = *point;
       if (strlen (last))
         {
-          while (*last && isdigit (*last)) last++;
+          while (*last && isdigit (*last))
+            last++;
           if (*last == '\0')
             return 0;
         }
@@ -451,10 +454,8 @@ is_hostname (const char *str)
 
   point = split;
   while (*point)
-    if (g_regex_match_simple ("^(?!-)[a-z0-9-]{1,63}(?<!-)$",
-                              *point,
-                              G_REGEX_CASELESS,
-                              0)
+    if (g_regex_match_simple ("^(?!-)[a-z0-9-]{1,63}(?<!-)$", *point,
+                              G_REGEX_CASELESS, 0)
         == 0)
       {
         g_strfreev (split);
