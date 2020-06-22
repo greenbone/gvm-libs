@@ -73,7 +73,7 @@ Ensure (hosts, gvm_get_host_type_returns_host_type_hostname)
   assert_that (gvm_get_host_type (SIXTY "123.short.enough.com"),
                is_equal_to (0));
   assert_that (gvm_get_host_type (SIXTY "." SIXTY "." SIXTY "." SIXTY "."
-                                  "56789.com"),
+                                        "56789.com"),
                is_equal_to (0));
 }
 
@@ -187,7 +187,7 @@ Ensure (hosts, gvm_get_host_type_returns_error)
   /* Lengths. */
   assert_that (gvm_get_host_type (SIXTY "1234.too.long.com"), is_equal_to (-1));
   assert_that (gvm_get_host_type (SIXTY "." SIXTY "." SIXTY "." SIXTY "."
-                                  "567890.com"),
+                                        "567890.com"),
                is_equal_to (-1));
 }
 
