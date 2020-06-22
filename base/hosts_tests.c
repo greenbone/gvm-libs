@@ -67,15 +67,14 @@ Ensure (hosts, gvm_get_host_type_returns_host_type_hostname)
                is_equal_to (HOST_TYPE_NAME));
   assert_that (gvm_get_host_type ("greenbone.net"),
                is_equal_to (HOST_TYPE_NAME));
-  assert_that (gvm_get_host_type ("g"),
-               is_equal_to (HOST_TYPE_NAME));
-  assert_that (gvm_get_host_type ("123.com"),
-               is_equal_to (HOST_TYPE_NAME));
+  assert_that (gvm_get_host_type ("g"), is_equal_to (HOST_TYPE_NAME));
+  assert_that (gvm_get_host_type ("123.com"), is_equal_to (HOST_TYPE_NAME));
   /* Lengths. */
   assert_that (gvm_get_host_type (SIXTY "123.short.enough.com"),
-                                  is_equal_to (0));
+               is_equal_to (0));
   assert_that (gvm_get_host_type (SIXTY "." SIXTY "." SIXTY "." SIXTY "."
-                                  /* 244 */ "56789.com"),
+                                  /* 244 */
+                                  "56789.com"),
                is_equal_to (0));
 }
 
@@ -187,10 +186,10 @@ Ensure (hosts, gvm_get_host_type_returns_error)
   assert_that (gvm_get_host_type ("192.168.10.855"), is_equal_to (-1));
 
   /* Lengths. */
-  assert_that (gvm_get_host_type (SIXTY "1234.too.long.com"),
-                                  is_equal_to (-1));
+  assert_that (gvm_get_host_type (SIXTY "1234.too.long.com"), is_equal_to (-1));
   assert_that (gvm_get_host_type (SIXTY "." SIXTY "." SIXTY "." SIXTY "."
-                                  /* 244 */ "567890.com"),
+                                  /* 244 */
+                                  "567890.com"),
                is_equal_to (-1));
 }
 
@@ -222,8 +221,7 @@ main (int argc, char **argv)
                          gvm_get_host_type_returns_host_type_range_long);
   add_test_with_context (suite, hosts,
                          gvm_get_host_type_returns_host_type_range6_long);
-  add_test_with_context (suite, hosts,
-                         gvm_get_host_type_returns_error);
+  add_test_with_context (suite, hosts, gvm_get_host_type_returns_error);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
