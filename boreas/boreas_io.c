@@ -21,6 +21,7 @@
 
 #include "../base/prefs.h" /* for prefs_get() */
 #include "alivedetection.h"
+#include "util.h"
 
 #include <stdlib.h>
 
@@ -219,9 +220,12 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
  * @param kb KB to use.
  * @param addr_str IP addr in str representation to put on queue.
  */
-void
+static void
 put_host_on_queue (kb_t kb, char *addr_str)
 {
+  if (NULL == kb)
+    return;
+
   if (kb_item_push_str (kb, ALIVE_DETECTION_QUEUE, addr_str) != 0)
     g_debug ("%s: kb_item_push_str() failed. Could not push \"%s\" on queue of "
              "hosts to be considered as alive.",
@@ -328,18 +332,15 @@ handle_scan_restrictions (struct scanner *scanner, gchar *addr_str)
  * @param hosts_data  Includes all data which is needed for calculating the
  * number of dead hosts.
  *
- * @return number of dead IPs, or -1 in case of an error.
+ * @return number of dead hosts, or -1 in case of an error.
  */
 int
 send_dead_hosts_to_ospd_openvas (struct hosts_data *hosts_data)
 {
-  kb_t main_kb = NULL;
+  kb_t main_kb;
   int maindbid;
-  int count_dead_ips = 0;
+  int count_dead_hosts;
   char dead_host_msg_to_ospd_openvas[2048];
-
-  GHashTableIter target_hosts_iter;
-  gpointer host_str, value;
 
   maindbid = atoi (prefs_get ("ov_maindbid"));
   main_kb = kb_direct_conn (prefs_get ("db_address"), maindbid);
@@ -352,25 +353,18 @@ send_dead_hosts_to_ospd_openvas (struct hosts_data *hosts_data)
       return -1;
     }
 
-  for (g_hash_table_iter_init (&target_hosts_iter, hosts_data->targethosts);
-       g_hash_table_iter_next (&target_hosts_iter, &host_str, &value);)
-    {
-      /* If a host in the target hosts is not in the list of alive hosts we know
-       * it is dead. */
-      if (!g_hash_table_contains (hosts_data->alivehosts, host_str))
-        {
-          count_dead_ips++;
-        }
-    }
+  /* Number of targethosts - alivehosts. */
+  count_dead_hosts =
+    count_difference (hosts_data->targethosts, hosts_data->alivehosts);
 
   snprintf (dead_host_msg_to_ospd_openvas,
             sizeof (dead_host_msg_to_ospd_openvas), "DEADHOST||| ||| ||| |||%d",
-            count_dead_ips);
+            count_dead_hosts);
   kb_item_push_str (main_kb, "internal/results", dead_host_msg_to_ospd_openvas);
 
   kb_lnk_reset (main_kb);
 
-  return count_dead_ips;
+  return count_dead_hosts;
 }
 
 /**

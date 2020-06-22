@@ -20,12 +20,14 @@
 #ifndef BOREAS_SNIFFER_H
 #define BOREAS_SNIFFER_H
 
+#include "alivedetection.h"
+
 #include <pcap.h>
 
-pcap_t *
-open_live (char *, char *);
+int
+start_sniffer_thread (struct scanner *, pthread_t *);
 
-void
-got_packet (u_char *, const struct pcap_pkthdr *, const u_char *);
+int
+stop_sniffer_thread (struct scanner *, pthread_t);
 
 #endif /* not BOREAS_SNIFFER_H */
