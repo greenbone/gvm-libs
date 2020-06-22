@@ -1,6 +1,6 @@
 /* Copyright (C) 2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,23 +20,12 @@
 #ifndef BOREAS_PING_H
 #define BOREAS_PING_H
 
-#include "alivedetection.h"
+#include <glib.h>
 
-#include <netinet/in.h>
+void send_icmp (gpointer, gpointer, gpointer);
 
-void
-send_icmp_v6 (int, struct in6_addr *, int);
+void send_tcp (gpointer, gpointer, gpointer);
 
-void
-send_icmp_v4 (int, struct in_addr *);
-
-void
-send_tcp_v6 (struct scanner *, struct in6_addr *);
-
-void
-send_tcp_v4 (struct scanner *, struct in_addr *);
-
-void
-send_arp_v4 (int, struct in_addr *);
+void send_arp (gpointer, gpointer, gpointer);
 
 #endif /* not BOREAS_PING_H */

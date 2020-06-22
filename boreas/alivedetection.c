@@ -1,6 +1,6 @@
 /* Copyright (C) 2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -56,256 +56,6 @@
 
 struct scanner scanner;
 
-/* for using int value in #defined string */
-#define STR(X) #X
-#define ASSTR(X) STR (X)
-#define FILTER_STR                                                           \
-  "(ip6 or ip or arp) and (ip6[40]=129 or icmp[icmptype] == icmp-echoreply " \
-  "or dst port " ASSTR (FILTER_PORT) " or arp[6:2]=2)"
-
-/* Conditional variable and mutex to make sure sniffer thread already started
- * before sending out pings. */
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
-
-/**
- * @brief Sniff packets by starting pcap_loop with callback function.
- *
- * @param vargp
- */
-static void *
-sniffer_thread (__attribute__ ((unused)) void *vargp)
-{
-  int ret;
-  pthread_mutex_lock (&mutex);
-  pthread_cond_signal (&cond);
-  pthread_mutex_unlock (&mutex);
-
-  /* reads packets until error or pcap_breakloop() */
-  if ((ret =
-         pcap_loop (scanner.pcap_handle, -1, got_packet, (u_char *) &scanner))
-      == PCAP_ERROR)
-    g_debug ("%s: pcap_loop error %s", __func__,
-             pcap_geterr (scanner.pcap_handle));
-  else if (ret == 0)
-    g_debug ("%s: count of packets is exhausted", __func__);
-  else if (ret == PCAP_ERROR_BREAK)
-    g_debug ("%s: Loop was successfully broken after call to pcap_breakloop",
-             __func__);
-
-  pthread_exit (0);
-}
-
-/**
- * @brief Is called in g_hash_table_foreach(). Check if ipv6 or ipv4, get
- * correct socket and start appropriate ping function.
- *
- * @param key Ip string.
- * @param value Pointer to gvm_host_t.
- * @param user_data
- */
-static void
-send_icmp (__attribute__ ((unused)) gpointer key, gpointer value,
-           __attribute__ ((unused)) gpointer user_data)
-{
-  struct in6_addr dst6;
-  struct in6_addr *dst6_p = &dst6;
-  struct in_addr dst4;
-  struct in_addr *dst4_p = &dst4;
-  static int count = 0;
-
-  count++;
-  if (count % BURST == 0)
-    usleep (BURST_TIMEOUT);
-
-  if (gvm_host_get_addr6 ((gvm_host_t *) value, dst6_p) < 0)
-    g_warning ("%s: could not get addr6 from gvm_host_t", __func__);
-  if (dst6_p == NULL)
-    {
-      g_warning ("%s: destination address is NULL", __func__);
-      return;
-    }
-  if (IN6_IS_ADDR_V4MAPPED (dst6_p) != 1)
-    {
-      send_icmp_v6 (scanner.icmpv6soc, dst6_p, ICMP6_ECHO_REQUEST);
-    }
-  else
-    {
-      dst4.s_addr = dst6_p->s6_addr32[3];
-      send_icmp_v4 (scanner.icmpv4soc, dst4_p);
-    }
-}
-
-/**
- * @brief Is called in g_hash_table_foreach(). Check if ipv6 or ipv4, get
- * correct socket and start appropriate ping function.
- *
- * @param key Ip string.
- * @param value Pointer to gvm_host_t.
- * @param user_data
- */
-static void
-send_tcp (__attribute__ ((unused)) gpointer key, gpointer value,
-          __attribute__ ((unused)) gpointer user_data)
-{
-  static int count = 0;
-  count++;
-  if (count % BURST == 0)
-    usleep (BURST_TIMEOUT);
-
-  struct in6_addr dst6;
-  struct in6_addr *dst6_p = &dst6;
-  struct in_addr dst4;
-  struct in_addr *dst4_p = &dst4;
-
-  if (gvm_host_get_addr6 ((gvm_host_t *) value, dst6_p) < 0)
-    g_warning ("%s: could not get addr6 from gvm_host_t", __func__);
-  if (dst6_p == NULL)
-    {
-      g_warning ("%s: destination address is NULL", __func__);
-      return;
-    }
-  if (IN6_IS_ADDR_V4MAPPED (dst6_p) != 1)
-    {
-      send_tcp_v6 (&scanner, dst6_p);
-    }
-  else
-    {
-      dst4.s_addr = dst6_p->s6_addr32[3];
-      send_tcp_v4 (&scanner, dst4_p);
-    }
-}
-
-/**
- * @brief Is called in g_hash_table_foreach(). Check if ipv6 or ipv4, get
- * correct socket and start appropriate ping function.
- *
- * @param key Ip string.
- * @param value Pointer to gvm_host_t.
- * @param user_data
- */
-static void
-send_arp (__attribute__ ((unused)) gpointer key, gpointer value,
-          __attribute__ ((unused)) gpointer user_data)
-{
-  struct in6_addr dst6;
-  struct in6_addr *dst6_p = &dst6;
-  struct in_addr dst4;
-  struct in_addr *dst4_p = &dst4;
-
-  static int count = 0;
-  count++;
-  if (count % BURST == 0)
-    usleep (BURST_TIMEOUT);
-
-  if (gvm_host_get_addr6 ((gvm_host_t *) value, dst6_p) < 0)
-    g_warning ("%s: could not get addr6 from gvm_host_t", __func__);
-  if (dst6_p == NULL)
-    {
-      g_warning ("%s: destination address is NULL", __func__);
-      return;
-    }
-  if (IN6_IS_ADDR_V4MAPPED (dst6_p) != 1)
-    {
-      /* IPv6 does simulate ARP by using the Neighbor Discovery Protocol with
-       * ICMPv6. */
-      send_icmp_v6 (scanner.arpv6soc, dst6_p, ND_NEIGHBOR_SOLICIT);
-    }
-  else
-    {
-      dst4.s_addr = dst6_p->s6_addr32[3];
-      send_arp_v4 (scanner.arpv4soc, dst4_p);
-    }
-}
-
-/**
- * @brief Start up the sniffer thread.
- *
- * @param sniffer_thread_id pthread_t thread id.
- *
- * @return 0 on success, other on Error.
- */
-int
-start_sniffer_thread (pthread_t *sniffer_thread_id)
-{
-  int err;
-
-  scanner.pcap_handle = open_live (NULL, FILTER_STR);
-  if (scanner.pcap_handle == NULL)
-    {
-      g_warning ("%s: Unable to open valid pcap handle.", __func__);
-      return -1;
-    }
-
-  /* Start sniffer thread. */
-  err = pthread_create (sniffer_thread_id, NULL, sniffer_thread, NULL);
-  if (err == EAGAIN)
-    g_warning ("%s: pthread_create() returned EAGAIN: Insufficient resources "
-               "to create thread.",
-               __func__);
-
-  /* Wait for thread to start up before sending out pings. */
-  pthread_mutex_lock (&mutex);
-  pthread_cond_wait (&cond, &mutex);
-  pthread_mutex_unlock (&mutex);
-  /* Mutex and cond not needed anymore. */
-  pthread_mutex_destroy (&mutex);
-  pthread_cond_destroy (&cond);
-  sleep (2);
-
-  return err;
-}
-
-/**
- * @brief Stop the sniffer thread.
- *
- * @param sniffer_thread_id pthread_t thread id.
- *
- * @return 0 on success, other on Error.
- */
-int
-stop_sniffer_thread (pthread_t sniffer_thread_id)
-{
-  int err;
-  void *retval;
-
-  g_debug ("%s: Try to stop thread which is sniffing for alive hosts. ",
-           __func__);
-  /* Try to break loop in sniffer thread. */
-  pcap_breakloop (scanner.pcap_handle);
-  /* Give thread chance to exit on its own. */
-  sleep (2);
-
-  /* Cancel thread. May be necessary if pcap_breakloop() does not break the
-   * loop. */
-  err = pthread_cancel (sniffer_thread_id);
-  if (err == ESRCH)
-    g_debug ("%s: pthread_cancel() returned ESRCH; No thread with the "
-             "supplied ID could be found.",
-             __func__);
-
-  /* join sniffer thread*/
-  err = pthread_join (sniffer_thread_id, &retval);
-  if (err == EDEADLK)
-    g_warning ("%s: pthread_join() returned EDEADLK.", __func__);
-  if (err == EINVAL)
-    g_warning ("%s: pthread_join() returned EINVAL.", __func__);
-  if (err == ESRCH)
-    g_warning ("%s: pthread_join() returned ESRCH.", __func__);
-  if (retval == PTHREAD_CANCELED)
-    g_debug ("%s: pthread_join() returned PTHREAD_CANCELED.", __func__);
-
-  g_debug ("%s: Stopped thread which was sniffing for alive hosts.", __func__);
-
-  /* close handle */
-  if (scanner.pcap_handle != NULL)
-    {
-      pcap_close (scanner.pcap_handle);
-    }
-
-  return err;
-}
-
 /**
  * @brief Scan function starts a sniffing thread which waits for packets to
  * arrive and sends pings to hosts we want to test. Blocks until Scan is
@@ -337,7 +87,7 @@ scan (alive_test_t alive_test)
              number_of_targets);
 
   sniffer_thread_id = 0;
-  start_sniffer_thread (&sniffer_thread_id);
+  start_sniffer_thread (&scanner, &sniffer_thread_id);
 
   if (alive_test
       == (ALIVE_TEST_TCP_ACK_SERVICE | ALIVE_TEST_ICMP | ALIVE_TEST_ARP))
@@ -345,59 +95,72 @@ scan (alive_test_t alive_test)
       g_debug ("%s: ICMP, TCP-ACK Service & ARP Ping", __func__);
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       scanner.tcp_flag = TH_ACK;
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
+                            &scanner);
       g_debug ("%s: ICMP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
+                            &scanner);
       g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_TCP_ACK_SERVICE | ALIVE_TEST_ARP))
     {
       g_debug ("%s: TCP-ACK Service & ARP Ping", __func__);
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       scanner.tcp_flag = TH_ACK;
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
+                            &scanner);
       g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_ICMP | ALIVE_TEST_ARP))
     {
       g_debug ("%s: ICMP & ARP Ping", __func__);
       g_debug ("%s: ICMP PING", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
+                            &scanner);
       g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_ICMP | ALIVE_TEST_TCP_ACK_SERVICE))
     {
       g_debug ("%s: ICMP & TCP-ACK Service Ping", __func__);
       g_debug ("%s: ICMP PING", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
+                            &scanner);
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       scanner.tcp_flag = TH_ACK;
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_ARP))
     {
       g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_TCP_ACK_SERVICE))
     {
       scanner.tcp_flag = TH_ACK;
       g_debug ("%s: TCP-ACK Service Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_TCP_SYN_SERVICE))
     {
       g_debug ("%s: TCP-SYN Service Ping", __func__);
       scanner.tcp_flag = TH_SYN;
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_ICMP))
     {
       g_debug ("%s: ICMP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp, NULL);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
+                            &scanner);
     }
   else if (alive_test == (ALIVE_TEST_CONSIDER_ALIVE))
     {
@@ -415,7 +178,7 @@ scan (alive_test_t alive_test)
     __func__);
   sleep (WAIT_FOR_REPLIES_TIMEOUT);
 
-  stop_sniffer_thread (sniffer_thread_id);
+  stop_sniffer_thread (&scanner, sniffer_thread_id);
 
   /* Send info about dead hosts to ospd-openvas. This is needed for the
    * calculation of the progress bar for gsa. */
@@ -429,49 +192,6 @@ scan (alive_test_t alive_test)
   g_free (scan_id);
 
   return 0;
-}
-
-/**
- * @brief Set all sockets needed for the chosen detection methods.
- *
- * @param alive_test  Methods of alive detection to use provided as bitflag.
- *
- * @return  0 on success, boreas_error_t on error.
- */
-static boreas_error_t
-set_all_needed_sockets (alive_test_t alive_test)
-{
-  boreas_error_t error = NO_ERROR;
-  if (alive_test & ALIVE_TEST_ICMP)
-    {
-      if ((error = set_socket (ICMPV4, &scanner.icmpv4soc)) != 0)
-        return error;
-      if ((error = set_socket (ICMPV6, &scanner.icmpv6soc)) != 0)
-        return error;
-    }
-
-  if ((alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
-      || (alive_test & ALIVE_TEST_TCP_SYN_SERVICE))
-    {
-      if ((error = set_socket (TCPV4, &scanner.tcpv4soc)) != 0)
-        return error;
-      if ((error = set_socket (TCPV6, &scanner.tcpv6soc)) != 0)
-        return error;
-      if ((error = set_socket (UDPV4, &scanner.udpv4soc)) != 0)
-        return error;
-      if ((error = set_socket (UDPV6, &scanner.udpv6soc)) != 0)
-        return error;
-    }
-
-  if ((alive_test & ALIVE_TEST_ARP))
-    {
-      if ((error = set_socket (ARPV4, &scanner.arpv4soc)) != 0)
-        return error;
-      if ((error = set_socket (ARPV6, &scanner.arpv6soc)) != 0)
-        return error;
-    }
-
-  return error;
 }
 
 /**
@@ -497,7 +217,7 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
   /* Scanner */
 
   /* Sockets */
-  if ((error = set_all_needed_sockets (alive_test)) != 0)
+  if ((error = set_all_needed_sockets (&scanner, alive_test)) != 0)
     return error;
 
   /* kb_t redis connection */
@@ -574,6 +294,7 @@ static void
 alive_detection_free (void *error)
 {
   boreas_error_t alive_test_err;
+  boreas_error_t close_err;
   boreas_error_t error_out;
   alive_test_t alive_test;
 
@@ -587,66 +308,9 @@ alive_detection_free (void *error)
     }
   else
     {
-      if (alive_test & ALIVE_TEST_ICMP)
-        {
-          if ((close (scanner.icmpv4soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-          if ((close (scanner.icmpv6soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-        }
-
-      if ((alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
-          || (alive_test & ALIVE_TEST_TCP_SYN_SERVICE))
-        {
-          if ((close (scanner.tcpv4soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-          if ((close (scanner.tcpv6soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-          if ((close (scanner.udpv4soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-          if ((close (scanner.udpv6soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-        }
-
-      if ((alive_test & ALIVE_TEST_ARP))
-        {
-          if ((close (scanner.arpv4soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-          if ((close (scanner.arpv6soc)) != 0)
-            {
-              g_warning ("%s: Error in close(): %s", __func__,
-                         strerror (errno));
-              error_out = BOREAS_CLEANUP_ERROR;
-            }
-        }
+      close_err = close_all_needed_sockets (&scanner, alive_test);
+      if (close_err)
+        error_out = BOREAS_CLEANUP_ERROR;
     }
 
   /*pcap_close (scanner.pcap_handle); //pcap_handle is closed in ping/scan

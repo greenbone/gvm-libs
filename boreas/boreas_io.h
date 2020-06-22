@@ -1,6 +1,6 @@
 /* Copyright (C) 2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,9 +27,6 @@
 
 gvm_host_t *
 get_host_from_queue (kb_t, gboolean *);
-
-void
-put_host_on_queue (kb_t, char *);
 
 void
 put_finish_signal_on_queue (void *);

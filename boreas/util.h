@@ -1,6 +1,6 @@
 /* Copyright (C) 2020 Greenbone Networks GmbH
  *
- * SPDX-License-Identifier: GPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -40,6 +40,14 @@ get_source_addr_v4 (int *, struct in_addr *, struct in_addr *);
 void fill_ports_array (gpointer, gpointer);
 
 boreas_error_t
-set_socket (socket_type_t, int *);
+set_all_needed_sockets (struct scanner *, alive_test_t);
+
+boreas_error_t
+close_all_needed_sockets (struct scanner *, alive_test_t);
+
+/* Misc hashtable functions. */
+
+int
+count_difference (GHashTable *, GHashTable *);
 
 #endif /* not BOREAS_UTIL_H */

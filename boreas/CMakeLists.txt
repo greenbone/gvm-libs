@@ -1,6 +1,6 @@
 # Copyright (C) 2020 Greenbone Networks GmbH
 #
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -84,8 +84,6 @@ set (LIBGVM_BOREAS_NAME
 
 ## Tests
 
-set (ALIVEDETECTION_TEST_LINKER_WRAP_OPTIONS
-     "-Wl,-wrap,socket,-wrap,setsockopt")
 add_executable (alivedetection-test
                 EXCLUDE_FROM_ALL
                 alivedetection_tests.c boreas_error.c boreas_io.c ping.c
@@ -96,8 +94,7 @@ target_link_libraries (alivedetection-test gvm_base_shared gvm_util_shared
                        ${CGREEN_LIBRARIES}
                        ${GLIB_LDFLAGS}
                        ${PCAP_LDFLAGS}
-                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT} 
-                       ${ALIVEDETECTION_TEST_LINKER_WRAP_OPTIONS})
+                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable (boreas_error-test
                 EXCLUDE_FROM_ALL
@@ -133,7 +130,7 @@ target_link_libraries (ping-test gvm_base_shared
 
 add_executable (sniffer-test
                 EXCLUDE_FROM_ALL
-                sniffer_tests.c boreas_io.c)
+                sniffer_tests.c boreas_io.c util.c)
 add_test (sniffer-test sniffer-test)
 target_include_directories (sniffer-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 target_link_libraries (sniffer-test gvm_base_shared gvm_util_shared
@@ -142,15 +139,19 @@ target_link_libraries (sniffer-test gvm_base_shared gvm_util_shared
                        ${GLIB_LDFLAGS}
                        ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
+set (UTIL_TEST_LINKER_WRAP_OPTIONS
+    "-Wl,-wrap,socket,-wrap,setsockopt")
 add_executable (util-test
                 EXCLUDE_FROM_ALL
                 util_tests.c)
 add_test (util-test util-test)
 target_include_directories (util-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-target_link_libraries (util-test
+target_link_libraries (util-test gvm_base_shared
                        ${CGREEN_LIBRARIES}
                        ${GLIB_LDFLAGS}
-                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT}
+                       ${UTIL_TEST_LINKER_WRAP_OPTIONS})
+
 ## Install
 
 configure_file (libgvm_boreas.pc.in ${CMAKE_BINARY_DIR}/libgvm_boreas.pc @ONLY)
