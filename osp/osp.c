@@ -348,7 +348,7 @@ osp_get_vts_version (osp_connection_t *connection, char **vts_version)
   vts = entity_child (entity, "vts");
   if (!vts)
     {
-      g_warning ("%s: element VTS missing.", __func__);
+      g_debug ("%s: element VTS missing.", __func__);
       free_entity (entity);
       return 1;
     }
