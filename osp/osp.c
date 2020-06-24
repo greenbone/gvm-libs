@@ -584,6 +584,8 @@ osp_get_scan_status_ext (osp_connection_t *connection,
     status = OSP_SCAN_STATUS_STOPPED;
   else if (!strcmp (entity_attribute (child, "status"), "finished"))
     status = OSP_SCAN_STATUS_FINISHED;
+  else if (!strcmp (entity_attribute (child, "status"), "interrupted"))
+    status = OSP_SCAN_STATUS_INTERRUPTED;
 
   free_entity (entity);
   return status;
