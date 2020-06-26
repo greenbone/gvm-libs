@@ -99,14 +99,15 @@ osp_get_version (osp_connection_t *, char **, char **, char **, char **,
                  char **, char **);
 
 int
-osp_get_vts_version (osp_connection_t *, char **);
+osp_get_vts_version (osp_connection_t *, char **, char **error);
 
 int
 osp_get_vts (osp_connection_t *, entity_t *);
 
 typedef struct
 {
-  char *filter; ///< the filter to apply for a vt sub-selection.
+  char *filter;     ///< the filter to apply for a vt sub-selection.
+  int version_only; ///< if get only feed info or the vt collection
 } osp_get_vts_opts_t;
 
 int

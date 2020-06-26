@@ -335,15 +335,30 @@ err_get_version:
  * @return 0 if success, 1 if error.
  */
 int
-osp_get_vts_version (osp_connection_t *connection, char **vts_version)
+osp_get_vts_version (osp_connection_t *connection, char **vts_version,
+                     char **error)
 {
-  entity_t entity, vts, version;
+  entity_t entity, vts;
+  const char *version;
+  const char *status, *status_text;
 
   if (!connection)
     return 1;
 
-  if (osp_send_command (connection, &entity, "<get_version/>"))
+  if (osp_send_command (connection, &entity, "<get_vts version_only='1'/>"))
     return 1;
+
+  status = entity_attribute (entity, "status");
+
+  if (status != NULL && !strcmp (status, "400"))
+    {
+      status_text = entity_attribute (entity, "status_text");
+      g_debug ("%s: %s - %s.", __func__, status, status_text);
+      if (error)
+        *error = g_strdup (status_text);
+      free_entity (entity);
+      return 1;
+    }
 
   vts = entity_child (entity, "vts");
   if (!vts)
@@ -353,16 +368,10 @@ osp_get_vts_version (osp_connection_t *connection, char **vts_version)
       return 1;
     }
 
-  version = entity_child (vts, "version");
-  if (!version)
-    {
-      g_warning ("%s: element VERSION missing.", __func__);
-      free_entity (entity);
-      return 1;
-    }
+  version = entity_attribute (vts, "vts_version");
 
   if (vts_version)
-    *vts_version = g_strdup (entity_text (version));
+    *vts_version = g_strdup (version);
 
   free_entity (entity);
   return 0;
@@ -409,6 +418,13 @@ osp_get_vts_ext (osp_connection_t *connection, osp_get_vts_opts_t opts,
 
   if (vts == NULL)
     return 1;
+
+  if (opts.version_only == 1)
+    {
+      if (osp_send_command (connection, vts, "<get_vts version_only='1'/>"))
+        return 1;
+      return 0;
+    }
 
   if (opts.filter)
     {
