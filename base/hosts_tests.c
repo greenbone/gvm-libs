@@ -242,10 +242,8 @@ main (int argc, char **argv)
                          gvm_get_host_type_returns_host_type_range6_long);
   add_test_with_context (suite, hosts, gvm_get_host_type_returns_error);
 
-  add_test_with_context (suite, hosts,
-                         gvm_hosts_new_with_max_returns_error);
-  add_test_with_context (suite, hosts,
-                         gvm_hosts_new_with_max_returns_success);
+  add_test_with_context (suite, hosts, gvm_hosts_new_with_max_returns_error);
+  add_test_with_context (suite, hosts, gvm_hosts_new_with_max_returns_success);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
