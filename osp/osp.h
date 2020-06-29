@@ -110,6 +110,11 @@ typedef struct
   int version_only; ///< if get only feed info or the vt collection
 } osp_get_vts_opts_t;
 
+/**
+ * @brief Sensible default values for osp_get_vts_opts_t
+ */
+static const osp_get_vts_opts_t osp_get_vts_opts_default = {NULL, 0};
+
 int
 osp_get_vts_ext (osp_connection_t *, osp_get_vts_opts_t, entity_t *);
 

@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add gvm_routethrough which is used by Boreas alive detection module. [#339](https://github.com/greenbone/gvm-libs/pull/339)
 - Move alive detection module Boreas into gvm-libs. [#346](https://github.com/greenbone/gvm-libs/pull/346)
 - Add new scan status INTERRUPTED. [#356](https://github.com/greenbone/gvm-libs/pull/356)
+- Add sensible default values for osp_get_vts_opts_t. [#360](https://github.com/greenbone/gvm-libs/pull/360)
 
 ### Changed
 - Improve validation in is_hostname [#353](https://github.com/greenbone/gvm-libs/pull/353)
