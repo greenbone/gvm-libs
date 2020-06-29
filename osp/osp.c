@@ -347,7 +347,7 @@ osp_get_vts_version (osp_connection_t *connection, char **vts_version,
   if (!connection)
     return 1;
 
-  get_vts_opts.filter = NULL;
+  get_vts_opts = osp_get_vts_opts_default;
   get_vts_opts.version_only = 1;
   if (osp_get_vts_ext (connection, get_vts_opts, &entity))
     return 1;
