@@ -331,6 +331,7 @@ err_get_version:
  *
  * @param[in]   connection    Connection to an OSP server.
  * @param[out]  vts_version   Parsed scanner version.
+ * @param[out]  error         Pointer to error, if any.
  *
  * @return 0 if success, 1 if error.
  */
@@ -341,11 +342,14 @@ osp_get_vts_version (osp_connection_t *connection, char **vts_version,
   entity_t entity, vts;
   const char *version;
   const char *status, *status_text;
+  osp_get_vts_opts_t get_vts_opts;
 
   if (!connection)
     return 1;
 
-  if (osp_send_command (connection, &entity, "<get_vts version_only='1'/>"))
+  get_vts_opts.filter = NULL;
+  get_vts_opts.version_only = 1;
+  if (osp_get_vts_ext (connection, get_vts_opts, &entity))
     return 1;
 
   status = entity_attribute (entity, "status");
