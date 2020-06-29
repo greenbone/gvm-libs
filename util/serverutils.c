@@ -1174,7 +1174,7 @@ gvm_server_new (unsigned int end_type, gchar *ca_cert_file, gchar *cert_file,
  * @brief Make a session for connecting to a server, with certificates stored
  *        in memory.
  *
- * @param[in]   end_type    Connecton end type: GNUTLS_SERVER or GNUTLS_CLIENT.
+ * @param[in]   end_type    Connection end type: GNUTLS_SERVER or GNUTLS_CLIENT.
  * @param[in]   ca_cert     Certificate authority public key.
  * @param[in]   pub_key     Public key.
  * @param[in]   priv_key    Private key.
