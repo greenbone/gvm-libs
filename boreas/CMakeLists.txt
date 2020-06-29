@@ -118,6 +118,16 @@ target_link_libraries (boreas_io-test gvm_base_shared gvm_util_shared
                        ${GLIB_LDFLAGS}
                        ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
+add_executable (cli-test
+                EXCLUDE_FROM_ALL
+                cli_tests.c boreas_error.c boreas_io.c util.c)
+add_test (cli-test cli-test)
+target_include_directories (cli-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+target_link_libraries (cli-test gvm_base_shared gvm_util_shared
+                      ${CGREEN_LIBRARIES}
+                      ${GLIB_LDFLAGS}
+                      ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+
 add_executable (ping-test
                 EXCLUDE_FROM_ALL
                 ping_tests.c util.c boreas_error.c)
