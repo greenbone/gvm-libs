@@ -964,7 +964,7 @@ get_routes (void)
   if ((G_IO_STATUS_NORMAL != status) || err)
     g_warning ("%s: %s", __func__,
                err ? err->message
-                   : "g_io_channel_shutdown() was not successfull");
+                   : "g_io_channel_shutdown() was not successful");
 
   return routes;
 }
@@ -1065,7 +1065,7 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
                   if (global_src.s_addr != INADDR_ANY)
                     sin_src_p->sin_addr.s_addr = global_src.s_addr;
                   /* Set storage_source to addr of matching interface if no
-                   * gloabal source present.*/
+                   * global source present.*/
                   else
                     {
                       for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)

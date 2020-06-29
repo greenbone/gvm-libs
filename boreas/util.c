@@ -579,12 +579,12 @@ set_all_needed_sockets (struct scanner *scanner, alive_test_t alive_test)
 }
 
 /**
- * @brief Substract two hashtables and count the remaining elements.
+ * @brief Subtract two hashtables and count the remaining elements.
  *
  * The original hashtables are not changed during or after the count operation.
  *
  * @param A Base Hashtable.
- * @param B Hashtable to be substracted from A.
+ * @param B Hashtable to be subtracted from A.
  *
  * @return count of remaining elements in A-B.
  */

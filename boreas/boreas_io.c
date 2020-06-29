@@ -368,7 +368,7 @@ send_dead_hosts_to_ospd_openvas (struct hosts_data *hosts_data)
 }
 
 /**
- * @brief Get the openvas scan id of the curent task.
+ * @brief Get the openvas scan id of the current task.
  *
  * @param db_address  Address of the Redis db.
  * @param db_id ID of the scan main db.
@@ -395,7 +395,7 @@ get_openvas_scan_id (const gchar *db_address, int db_id)
  *
  * @param[out]  alive_test  Bitflag of all specified alive detection methods.
  *
- * @return 0 on succes, boreas_error_t on failure.
+ * @return 0 on success, boreas_error_t on failure.
  */
 boreas_error_t
 get_alive_test_methods (alive_test_t *alive_test)

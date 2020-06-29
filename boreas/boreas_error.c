@@ -32,7 +32,7 @@
  *
  * @param boreas_error Boreas error code.
  *
- * @return String represenation of supplied error code.
+ * @return String representation of supplied error code.
  */
 const char *
 str_boreas_error (boreas_error_t boreas_error)
@@ -50,7 +50,7 @@ str_boreas_error (boreas_error_t boreas_error)
       break;
     case BOREAS_NO_VALID_ALIVE_TEST_SPECIFIED:
       msg =
-        "No valid alive detction method was specified for Boreas by the user";
+        "No valid alive detection method was specified for Boreas by the user";
       break;
     case BOREAS_CLEANUP_ERROR:
       msg = "Boreas encountered an error during clean up.";
