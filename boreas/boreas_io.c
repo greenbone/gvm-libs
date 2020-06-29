@@ -23,6 +23,7 @@
 #include "alivedetection.h"
 #include "util.h"
 
+#include <glib/gprintf.h>
 #include <stdlib.h>
 
 #undef G_LOG_DOMAIN
@@ -223,8 +224,13 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
 static void
 put_host_on_queue (kb_t kb, char *addr_str)
 {
+  /* Print host on command line if no kb is available. No kb available could
+   * mean that boreas is used as commandline tool.*/
   if (NULL == kb)
-    return;
+    {
+      g_printf ("%s\n", addr_str);
+      return;
+    }
 
   if (kb_item_push_str (kb, ALIVE_DETECTION_QUEUE, addr_str) != 0)
     g_debug ("%s: kb_item_push_str() failed. Could not push \"%s\" on queue of "
@@ -285,6 +291,13 @@ put_finish_signal_on_queue (void *error)
   *(boreas_error_t *) error = error_out;
 }
 
+/**
+ * @brief Init scan restrictions.
+ *
+ * @param scanner Pointer to scanner struct.
+ * @param max_scan_hosts  Maximum number of hosts allowed to scan. 0 equals no
+ * scan limit.
+ */
 void
 init_scan_restrictions (struct scanner *scanner, int max_scan_hosts)
 {
