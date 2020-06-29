@@ -54,9 +54,9 @@ pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES alivedetection.c boreas_error.c boreas_io.c ping.c sniffer.c util.c)
+set (FILES alivedetection.c boreas_error.c boreas_io.c cli.c ping.c sniffer.c util.c)
 
-set (HEADERS alivedetection.h boreas_error.h boreas_io.h ping.h sniffer.h util.h)
+set (HEADERS alivedetection.h boreas_error.h boreas_io.h cli.h ping.h sniffer.h util.h)
 
 if (BUILD_STATIC)
   set (LIBGVM_BOREAS_NAME gvm_boreas_static)
