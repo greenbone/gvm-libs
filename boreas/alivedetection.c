@@ -97,9 +97,11 @@ scan (alive_test_t alive_test)
       scanner.tcp_flag = TH_ACK;
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
                             &scanner);
+      usleep (500000);
       g_debug ("%s: ICMP Ping", __func__);
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
                             &scanner);
+      usleep (500000);
       g_debug ("%s: ARP Ping", __func__);
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
                             &scanner);
@@ -111,6 +113,7 @@ scan (alive_test_t alive_test)
       scanner.tcp_flag = TH_ACK;
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
                             &scanner);
+      usleep (500000);
       g_debug ("%s: ARP Ping", __func__);
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
                             &scanner);
@@ -121,6 +124,7 @@ scan (alive_test_t alive_test)
       g_debug ("%s: ICMP PING", __func__);
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
                             &scanner);
+      usleep (500000);
       g_debug ("%s: ARP Ping", __func__);
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
                             &scanner);
@@ -131,6 +135,7 @@ scan (alive_test_t alive_test)
       g_debug ("%s: ICMP PING", __func__);
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
                             &scanner);
+      usleep (500000);
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       scanner.tcp_flag = TH_ACK;
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
@@ -169,6 +174,7 @@ scan (alive_test_t alive_test)
                                    scanner.hosts_data->targethosts);
            g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
+          g_hash_table_add (scanner.hosts_data->alivehosts, g_strdup (key));
           handle_scan_restrictions (&scanner, key);
         }
     }

@@ -166,8 +166,7 @@ send_icmp_v4 (int soc, struct in_addr *dst)
  * @param scanner_p Pointer to scanner struct.
  */
 void
-send_icmp (__attribute__ ((unused)) gpointer key, gpointer value,
-           gpointer scanner_p)
+send_icmp (gpointer key, gpointer value, gpointer scanner_p)
 {
   struct scanner *scanner;
   struct in6_addr dst6;
@@ -177,6 +176,9 @@ send_icmp (__attribute__ ((unused)) gpointer key, gpointer value,
   static int count = 0;
 
   scanner = (struct scanner *) scanner_p;
+
+  if (g_hash_table_contains (scanner->hosts_data->alivehosts, key))
+    return;
 
   count++;
   if (count % BURST == 0)
@@ -398,8 +400,7 @@ send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
  * @param scanner_p Pointer to scanner struct.
  */
 void
-send_tcp (__attribute__ ((unused)) gpointer key, gpointer value,
-          gpointer scanner_p)
+send_tcp (gpointer key, gpointer value, gpointer scanner_p)
 {
   struct scanner *scanner;
   struct in6_addr dst6;
@@ -409,6 +410,9 @@ send_tcp (__attribute__ ((unused)) gpointer key, gpointer value,
   static int count = 0;
 
   scanner = (struct scanner *) scanner_p;
+
+  if (g_hash_table_contains (scanner->hosts_data->alivehosts, key))
+    return;
 
   count++;
   if (count % BURST == 0)
@@ -555,8 +559,7 @@ send_arp_v4 (int soc, struct in_addr *dst_p)
  * @param scanner_p Pointer to scanner struct.
  */
 void
-send_arp (__attribute__ ((unused)) gpointer key, gpointer value,
-          gpointer scanner_p)
+send_arp (gpointer key, gpointer value, gpointer scanner_p)
 {
   struct scanner *scanner;
   struct in6_addr dst6;
@@ -566,6 +569,9 @@ send_arp (__attribute__ ((unused)) gpointer key, gpointer value,
   static int count = 0;
 
   scanner = (struct scanner *) scanner_p;
+
+  if (g_hash_table_contains (scanner->hosts_data->alivehosts, key))
+    return;
 
   count++;
   if (count % BURST == 0)
