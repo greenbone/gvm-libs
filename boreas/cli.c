@@ -45,7 +45,6 @@ init_cli (struct scanner *scanner, gvm_hosts_t *hosts, alive_test_t alive_test,
   int error;
 
   portranges_array = NULL;
-  error = NO_ERROR;
 
   /* No kb used for cli mode.*/
   scanner->main_kb = NULL;
@@ -86,8 +85,6 @@ free_cli (struct scanner *scanner, alive_test_t alive_test)
 {
   int close_err;
 
-  close_err = NO_ERROR;
-
   close_err = close_all_needed_sockets (scanner, alive_test);
   if (alive_test & ALIVE_TEST_TCP_SYN_SERVICE
       || alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
@@ -110,7 +107,6 @@ run_cli_scan (struct scanner *scanner, alive_test_t alive_test)
   pthread_t sniffer_thread_id;
   struct timeval start_time, end_time;
 
-  error = NO_ERROR;
   gettimeofday (&start_time, NULL);
   number_of_targets = g_hash_table_size (scanner->hosts_data->targethosts);
 
