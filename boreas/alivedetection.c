@@ -174,6 +174,7 @@ scan (alive_test_t alive_test)
                                    scanner.hosts_data->targethosts);
            g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
+          g_hash_table_add (scanner.hosts_data->alivehosts, g_strdup (key));
           handle_scan_restrictions (&scanner, key);
         }
     }
