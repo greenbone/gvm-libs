@@ -191,6 +191,27 @@ Ensure (hosts, gvm_get_host_type_returns_error)
                is_equal_to (-1));
 }
 
+Ensure (hosts, gvm_hosts_new_with_max_returns_success)
+{
+  assert_that (gvm_hosts_new_with_max ("127.0.0.1", 1), is_not_null);
+  assert_that (gvm_hosts_new_with_max ("127.0.0.1", 2000), is_not_null);
+  assert_that (gvm_hosts_new_with_max ("127.0.0.1,127.0.0.2", 2), is_not_null);
+  assert_that (gvm_hosts_new_with_max ("127.0.0.1, 127.0.0.2", 2), is_not_null);
+}
+
+Ensure (hosts, gvm_hosts_new_with_max_returns_error)
+{
+  /* Host error. */
+  assert_that (gvm_hosts_new_with_max ("a.123", 2), is_null);
+
+  /* More than max_hosts hosts. */
+  assert_that (gvm_hosts_new_with_max ("127.0.0.1, 127.0.0.2", 1), is_null);
+
+  /* Wrong separator. */
+  assert_that (gvm_hosts_new_with_max ("127.0.0.1 127.0.0.2", 2), is_null);
+  assert_that (gvm_hosts_new_with_max ("127.0.0.1|127.0.0.2", 2), is_null);
+}
+
 /* Test suite. */
 
 int
@@ -220,6 +241,9 @@ main (int argc, char **argv)
   add_test_with_context (suite, hosts,
                          gvm_get_host_type_returns_host_type_range6_long);
   add_test_with_context (suite, hosts, gvm_get_host_type_returns_error);
+
+  add_test_with_context (suite, hosts, gvm_hosts_new_with_max_returns_error);
+  add_test_with_context (suite, hosts, gvm_hosts_new_with_max_returns_success);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
