@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [20.8] (unreleased)
+## [20.08] (unreleased)
 
 ### Added
 - Add nvti_get_tag() [#285](https://github.com/greenbone/gvm-libs/pull/285)
@@ -37,7 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove parallel from target options [#347](https://github.com/greenbone/gvm-libs/pull/347)
 
-[20.8]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-11.0...master
+[20.08]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-11.0...gvm-libs-20.08
 
 ## [11.0.1] (unreleased)
 
