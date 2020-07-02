@@ -31,8 +31,8 @@ get_host_from_queue (kb_t, gboolean *);
 void
 put_finish_signal_on_queue (void *);
 
-int
-send_dead_hosts_to_ospd_openvas (struct hosts_data *);
+void
+send_dead_hosts_to_ospd_openvas (int);
 
 void
 init_scan_restrictions (struct scanner *, int);
