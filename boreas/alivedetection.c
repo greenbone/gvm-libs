@@ -137,9 +137,20 @@ scan (alive_test_t alive_test)
 
   stop_sniffer_thread (&scanner, sniffer_thread_id);
 
-  /* Send info about dead hosts to ospd-openvas. This is needed for the
-   * calculation of the progress bar for gsa. */
-  number_of_dead_hosts = send_dead_hosts_to_ospd_openvas (scanner.hosts_data);
+  number_of_dead_hosts = count_difference (scanner.hosts_data->targethosts,
+                                           scanner.hosts_data->alivehosts);
+
+  /* Send number of dead hosts to ospd-openvas. We need to consider the scan
+   * restrictions.*/
+  if (scanner.scan_restrictions->max_scan_hosts_reached)
+    {
+      send_dead_hosts_to_ospd_openvas (
+        number_of_targets - scanner.scan_restrictions->max_scan_hosts);
+    }
+  else
+    {
+      send_dead_hosts_to_ospd_openvas (number_of_dead_hosts);
+    }
 
   gettimeofday (&end_time, NULL);
 
