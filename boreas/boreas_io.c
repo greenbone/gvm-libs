@@ -340,19 +340,19 @@ handle_scan_restrictions (struct scanner *scanner, gchar *addr_str)
  * @brief Send the number of dead hosts to ospd-openvas.
  *
  * This information is needed for the calculation of the progress bar for gsa in
- * ospd-openvas.
+ * ospd-openvas. The number of dead hosts sent to ospd-openvas may not
+ * necessarily reflect the acutal number of dead hosts in the target list.
  *
  * @param hosts_data  Includes all data which is needed for calculating the
  * number of dead hosts.
  *
  * @return number of dead hosts, or -1 in case of an error.
  */
-int
-send_dead_hosts_to_ospd_openvas (struct hosts_data *hosts_data)
+void
+send_dead_hosts_to_ospd_openvas (int count_dead_hosts)
 {
   kb_t main_kb;
   int maindbid;
-  int count_dead_hosts;
   char dead_host_msg_to_ospd_openvas[2048];
 
   maindbid = atoi (prefs_get ("ov_maindbid"));
@@ -363,12 +363,7 @@ send_dead_hosts_to_ospd_openvas (struct hosts_data *hosts_data)
       g_debug ("%s: Could not connect to main_kb for sending dead hosts to "
                "ospd-openvas.",
                __func__);
-      return -1;
     }
-
-  /* Number of targethosts - alivehosts. */
-  count_dead_hosts =
-    count_difference (hosts_data->targethosts, hosts_data->alivehosts);
 
   snprintf (dead_host_msg_to_ospd_openvas,
             sizeof (dead_host_msg_to_ospd_openvas), "DEADHOST||| ||| ||| |||%d",
@@ -376,8 +371,6 @@ send_dead_hosts_to_ospd_openvas (struct hosts_data *hosts_data)
   kb_item_push_str (main_kb, "internal/results", dead_host_msg_to_ospd_openvas);
 
   kb_lnk_reset (main_kb);
-
-  return count_dead_hosts;
 }
 
 /**
