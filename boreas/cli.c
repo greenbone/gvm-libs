@@ -116,27 +116,27 @@ run_cli_scan (struct scanner *scanner, alive_test_t alive_test)
   if (error)
     return error;
 
-  if (alive_test == (ALIVE_TEST_ICMP))
+  if (alive_test & (ALIVE_TEST_ICMP))
     {
       g_hash_table_foreach (scanner->hosts_data->targethosts, send_icmp,
                             scanner);
       usleep (500000);
     }
-  if (alive_test == (ALIVE_TEST_TCP_SYN_SERVICE))
+  if (alive_test & (ALIVE_TEST_TCP_SYN_SERVICE))
     {
       scanner->tcp_flag = 0x02; /* SYN */
       g_hash_table_foreach (scanner->hosts_data->targethosts, send_tcp,
                             scanner);
       usleep (500000);
     }
-  if (alive_test == (ALIVE_TEST_TCP_ACK_SERVICE))
+  if (alive_test & (ALIVE_TEST_TCP_ACK_SERVICE))
     {
       scanner->tcp_flag = 0x10; /* ACK */
       g_hash_table_foreach (scanner->hosts_data->targethosts, send_tcp,
                             scanner);
       usleep (500000);
     }
-  if (alive_test == (ALIVE_TEST_ARP))
+  if (alive_test & (ALIVE_TEST_ARP))
     {
       g_hash_table_foreach (scanner->hosts_data->targethosts, send_arp,
                             scanner);
