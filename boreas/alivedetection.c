@@ -89,85 +89,36 @@ scan (alive_test_t alive_test)
   sniffer_thread_id = 0;
   start_sniffer_thread (&scanner, &sniffer_thread_id);
 
-  if (alive_test
-      == (ALIVE_TEST_TCP_ACK_SERVICE | ALIVE_TEST_ICMP | ALIVE_TEST_ARP))
+  if (alive_test & ALIVE_TEST_ICMP)
     {
-      g_debug ("%s: ICMP, TCP-ACK Service & ARP Ping", __func__);
-      g_debug ("%s: TCP-ACK Service Ping", __func__);
-      scanner.tcp_flag = TH_ACK;
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
-                            &scanner);
-      usleep (500000);
       g_debug ("%s: ICMP Ping", __func__);
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
                             &scanner);
       usleep (500000);
-      g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
-                            &scanner);
     }
-  else if (alive_test == (ALIVE_TEST_TCP_ACK_SERVICE | ALIVE_TEST_ARP))
-    {
-      g_debug ("%s: TCP-ACK Service & ARP Ping", __func__);
-      g_debug ("%s: TCP-ACK Service Ping", __func__);
-      scanner.tcp_flag = TH_ACK;
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
-                            &scanner);
-      usleep (500000);
-      g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
-                            &scanner);
-    }
-  else if (alive_test == (ALIVE_TEST_ICMP | ALIVE_TEST_ARP))
-    {
-      g_debug ("%s: ICMP & ARP Ping", __func__);
-      g_debug ("%s: ICMP PING", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
-                            &scanner);
-      usleep (500000);
-      g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
-                            &scanner);
-    }
-  else if (alive_test == (ALIVE_TEST_ICMP | ALIVE_TEST_TCP_ACK_SERVICE))
-    {
-      g_debug ("%s: ICMP & TCP-ACK Service Ping", __func__);
-      g_debug ("%s: ICMP PING", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
-                            &scanner);
-      usleep (500000);
-      g_debug ("%s: TCP-ACK Service Ping", __func__);
-      scanner.tcp_flag = TH_ACK;
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
-                            &scanner);
-    }
-  else if (alive_test == (ALIVE_TEST_ARP))
-    {
-      g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
-                            &scanner);
-    }
-  else if (alive_test == (ALIVE_TEST_TCP_ACK_SERVICE))
-    {
-      scanner.tcp_flag = TH_ACK;
-      g_debug ("%s: TCP-ACK Service Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
-                            &scanner);
-    }
-  else if (alive_test == (ALIVE_TEST_TCP_SYN_SERVICE))
+  if (alive_test & ALIVE_TEST_TCP_SYN_SERVICE)
     {
       g_debug ("%s: TCP-SYN Service Ping", __func__);
-      scanner.tcp_flag = TH_SYN;
+      scanner.tcp_flag = TH_SYN; /* SYN */
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
                             &scanner);
+      usleep (500000);
     }
-  else if (alive_test == (ALIVE_TEST_ICMP))
+  if (alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
     {
-      g_debug ("%s: ICMP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
+      g_debug ("%s: TCP-ACK Service Ping", __func__);
+      scanner.tcp_flag = TH_ACK; /* ACK */
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
+                            &scanner);
+      usleep (500000);
+    }
+  if (alive_test & ALIVE_TEST_ARP)
+    {
+      g_debug ("%s: ARP Ping", __func__);
+      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
                             &scanner);
     }
-  else if (alive_test == (ALIVE_TEST_CONSIDER_ALIVE))
+  if (alive_test & ALIVE_TEST_CONSIDER_ALIVE)
     {
       g_debug ("%s: Consider Alive", __func__);
       for (g_hash_table_iter_init (&target_hosts_iter,
