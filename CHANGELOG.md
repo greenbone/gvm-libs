@@ -33,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix is_cidr_block(). [#322](https://github.com/greenbone/gvm-libs/pull/322)
 - Fix is_cidr6_block() and is_short_range_network(). [#337](https://github.com/greenbone/gvm-libs/pull/337)
 - Fix S/MIME keylist and improve error handling [#345](https://github.com/greenbone/gvm-libs/pull/345)
+- Fix interrupted state by sending correct number of dead hosts. [#371](https://github.com/greenbone/gvm-libs/pull/371)
 
 ### Removed
 - Remove parallel from target options [#347](https://github.com/greenbone/gvm-libs/pull/347)
