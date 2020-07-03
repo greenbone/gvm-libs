@@ -24,10 +24,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Move alive detection module Boreas into gvm-libs. [#346](https://github.com/greenbone/gvm-libs/pull/346)
 - Add new scan status INTERRUPTED. [#356](https://github.com/greenbone/gvm-libs/pull/356)
 - Add sensible default values for osp_get_vts_opts_t. [#360](https://github.com/greenbone/gvm-libs/pull/360)
+- Add cli support for boreas standalone tool. [#359](https://github.com/greenbone/gvm-libs/pull/359)
 
 ### Changed
 - Improve validation in is_hostname [#353](https://github.com/greenbone/gvm-libs/pull/353)
 - Use get_vts instead of get_version to get the feed version is osp_get_vts_version(). [#357](https://github.com/greenbone/gvm-libs/pull/357)
+- Allow all alive test combination for boreas. [#370](https://github.com/greenbone/gvm-libs/pull/370)
 
 ### Fixed
 - Fix is_cidr_block(). [#322](https://github.com/greenbone/gvm-libs/pull/322)
