@@ -110,7 +110,7 @@ run_cli_scan (struct scanner *scanner, alive_test_t alive_test)
   gettimeofday (&start_time, NULL);
   number_of_targets = g_hash_table_size (scanner->hosts_data->targethosts);
 
-  printf ("Alive scan started: Target has %d hosts\n", number_of_targets);
+  printf ("Alive scan started: Target has %d hosts.\n", number_of_targets);
 
   error = start_sniffer_thread (scanner, &sniffer_thread_id);
   if (error)
