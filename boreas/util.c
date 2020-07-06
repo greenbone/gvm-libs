@@ -607,3 +607,37 @@ count_difference (GHashTable *hashtable_A, GHashTable *hashtable_B)
 
   return count;
 }
+
+/**
+ * @brief Get the current amount of hosts which are considered to be dead
+ *
+ * This function only gets the currently approximated number of dead hosts
+ * in the number of pinged hosts. Scan restrictions are considered as well.
+ *
+ * @param scanner The scanner struct which holds all necessary data.
+ * @param ping_sent Number of pings already sent out.
+ *
+ * @return Approximate number of dead hosts in list of already pinged hosts.
+ */
+int
+get_considered_dead (struct scanner *scanner, int pings_sent)
+{
+  int number_of_dead_hosts;
+  int alive_hosts;
+  int hosts_considered_dead;
+  int number_of_targets;
+
+  number_of_targets = g_hash_table_size (scanner->hosts_data->targethosts);
+  number_of_dead_hosts = count_difference (scanner->hosts_data->targethosts,
+                                           scanner->hosts_data->alivehosts);
+
+  alive_hosts = number_of_targets - number_of_dead_hosts;
+  hosts_considered_dead = pings_sent - alive_hosts;
+
+  /* We need to consider the scan restrictions.*/
+  if (scanner->scan_restrictions->max_scan_hosts_reached)
+    hosts_considered_dead =
+      pings_sent - scanner->scan_restrictions->max_scan_hosts;
+
+  return hosts_considered_dead;
+}

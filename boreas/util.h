@@ -50,4 +50,7 @@ close_all_needed_sockets (struct scanner *, alive_test_t);
 int
 count_difference (GHashTable *, GHashTable *);
 
+int
+get_considered_dead (struct scanner *, int);
+
 #endif /* not BOREAS_UTIL_H */
