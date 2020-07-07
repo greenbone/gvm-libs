@@ -71,6 +71,7 @@ scan (alive_test_t alive_test)
 {
   int number_of_targets;
   int number_of_dead_hosts;
+  int pings_sent;
   pthread_t sniffer_thread_id;
   GHashTableIter target_hosts_iter;
   gpointer key, value;
@@ -92,31 +93,68 @@ scan (alive_test_t alive_test)
   if (alive_test & ALIVE_TEST_ICMP)
     {
       g_debug ("%s: ICMP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
-                            &scanner);
+
+      g_hash_table_iter_init (&target_hosts_iter,
+                              scanner.hosts_data->targethosts);
+      for (pings_sent = 0;
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
+        {
+          send_icmp (key, value, &scanner);
+          pings_sent++;
+          if ((pings_sent % 1000) == 0)
+            send_dead_hosts_to_ospd_openvas (
+              get_considered_dead (&scanner, pings_sent));
+        }
       usleep (500000);
     }
   if (alive_test & ALIVE_TEST_TCP_SYN_SERVICE)
     {
       g_debug ("%s: TCP-SYN Service Ping", __func__);
       scanner.tcp_flag = TH_SYN; /* SYN */
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
-                            &scanner);
+      g_hash_table_iter_init (&target_hosts_iter,
+                              scanner.hosts_data->targethosts);
+      for (pings_sent = 0;
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
+        {
+          send_tcp (key, value, &scanner);
+          pings_sent++;
+          if ((pings_sent % 1000) == 0)
+            send_dead_hosts_to_ospd_openvas (
+              get_considered_dead (&scanner, pings_sent));
+        }
       usleep (500000);
     }
   if (alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
     {
       g_debug ("%s: TCP-ACK Service Ping", __func__);
       scanner.tcp_flag = TH_ACK; /* ACK */
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
-                            &scanner);
+      g_hash_table_iter_init (&target_hosts_iter,
+                              scanner.hosts_data->targethosts);
+      for (pings_sent = 0;
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
+        {
+          send_tcp (key, value, &scanner);
+          pings_sent++;
+          if ((pings_sent % 1000) == 0)
+            send_dead_hosts_to_ospd_openvas (
+              get_considered_dead (&scanner, pings_sent));
+        }
       usleep (500000);
     }
   if (alive_test & ALIVE_TEST_ARP)
     {
       g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
-                            &scanner);
+      g_hash_table_iter_init (&target_hosts_iter,
+                              scanner.hosts_data->targethosts);
+      for (pings_sent = 0;
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
+        {
+          send_arp (key, value, &scanner);
+          pings_sent++;
+          if ((pings_sent % 1000) == 0)
+            send_dead_hosts_to_ospd_openvas (
+              get_considered_dead (&scanner, pings_sent));
+        }
     }
   if (alive_test & ALIVE_TEST_CONSIDER_ALIVE)
     {
