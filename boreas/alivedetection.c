@@ -72,6 +72,7 @@ scan (alive_test_t alive_test)
   int number_of_targets;
   int number_of_dead_hosts;
   int pings_sent;
+  gboolean pings_sent_min_once;
   pthread_t sniffer_thread_id;
   GHashTableIter target_hosts_iter;
   gpointer key, value;
@@ -81,6 +82,7 @@ scan (alive_test_t alive_test)
 
   gettimeofday (&start_time, NULL);
   number_of_targets = g_hash_table_size (scanner.hosts_data->targethosts);
+  pings_sent_min_once = FALSE;
 
   scandb_id = atoi (prefs_get ("ov_maindbid"));
   scan_id = get_openvas_scan_id (prefs_get ("db_address"), scandb_id);
@@ -102,9 +104,10 @@ scan (alive_test_t alive_test)
           send_icmp (key, value, &scanner);
           pings_sent++;
           if ((pings_sent % 1000) == 0)
-            send_dead_hosts_to_ospd_openvas (
-              get_considered_dead (&scanner, pings_sent));
+            send_dead_hosts_to_ospd_openvas (get_considered_dead (
+              &scanner, pings_sent_min_once ? number_of_targets : pings_sent));
         }
+      pings_sent_min_once = TRUE;
       usleep (500000);
     }
   if (alive_test & ALIVE_TEST_TCP_SYN_SERVICE)
@@ -119,9 +122,10 @@ scan (alive_test_t alive_test)
           send_tcp (key, value, &scanner);
           pings_sent++;
           if ((pings_sent % 1000) == 0)
-            send_dead_hosts_to_ospd_openvas (
-              get_considered_dead (&scanner, pings_sent));
+            send_dead_hosts_to_ospd_openvas (get_considered_dead (
+              &scanner, pings_sent_min_once ? number_of_targets : pings_sent));
         }
+      pings_sent_min_once = TRUE;
       usleep (500000);
     }
   if (alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
@@ -136,9 +140,10 @@ scan (alive_test_t alive_test)
           send_tcp (key, value, &scanner);
           pings_sent++;
           if ((pings_sent % 1000) == 0)
-            send_dead_hosts_to_ospd_openvas (
-              get_considered_dead (&scanner, pings_sent));
+            send_dead_hosts_to_ospd_openvas (get_considered_dead (
+              &scanner, pings_sent_min_once ? number_of_targets : pings_sent));
         }
+      pings_sent_min_once = TRUE;
       usleep (500000);
     }
   if (alive_test & ALIVE_TEST_ARP)
@@ -152,8 +157,8 @@ scan (alive_test_t alive_test)
           send_arp (key, value, &scanner);
           pings_sent++;
           if ((pings_sent % 1000) == 0)
-            send_dead_hosts_to_ospd_openvas (
-              get_considered_dead (&scanner, pings_sent));
+            send_dead_hosts_to_ospd_openvas (get_considered_dead (
+              &scanner, pings_sent_min_once ? number_of_targets : pings_sent));
         }
     }
   if (alive_test & ALIVE_TEST_CONSIDER_ALIVE)
