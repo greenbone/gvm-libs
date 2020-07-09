@@ -28,6 +28,7 @@ Specific development libraries:
 * libhiredis >= 0.10.1 (util)
 * libxml2 >= 2.0 (util)
 * libpcap
+* libgcrypt
 
 Optional development libraries:
 * libradcli-dev >= 1.2.6 (util)
@@ -53,7 +54,8 @@ Install prerequisites on Debian GNU/Linux 'Buster' 10:
     libhiredis-dev \
     libxml2-dev \
     libradcli-dev \
-    libpcap-dev
+    libpcap-dev \
+    libgcrypt20-dev
 
 
 Compiling gvm-libs
