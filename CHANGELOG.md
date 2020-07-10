@@ -39,6 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 - Remove parallel from target options [#347](https://github.com/greenbone/gvm-libs/pull/347)
+- Remove zero padding from version [#377](https://github.com/greenbone/gvm-libs/pull/377)
 
 [20.08]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-11.0...gvm-libs-20.08
 
