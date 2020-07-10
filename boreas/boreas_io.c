@@ -109,7 +109,7 @@ send_limit_msg (int num_not_scanned_hosts)
     {
       char buf[256];
       g_snprintf (buf, 256,
-                  "ERRMSG||| ||| ||| |||Maximum number of allowed scans "
+                  "ERRMSG||| ||| ||| ||| |||Maximum number of allowed scans "
                   "reached. There may still be alive hosts available which are "
                   "not scanned. Number of alive hosts not scanned: [%d]",
                   num_not_scanned_hosts);
@@ -366,7 +366,7 @@ send_dead_hosts_to_ospd_openvas (int count_dead_hosts)
     }
 
   snprintf (dead_host_msg_to_ospd_openvas,
-            sizeof (dead_host_msg_to_ospd_openvas), "DEADHOST||| ||| ||| |||%d",
+            sizeof (dead_host_msg_to_ospd_openvas), "DEADHOST||| ||| ||| ||| |||%d",
             count_dead_hosts);
   kb_item_push_str (main_kb, "internal/results", dead_host_msg_to_ospd_openvas);
 
