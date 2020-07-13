@@ -84,22 +84,14 @@ if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
   endif (EXISTS "${CMAKE_SOURCE_DIR}/.git/")
 endif (NOT CMAKE_BUILD_TYPE MATCHES "Release")
 
-# Add padding zero for minor version
-string(LENGTH ${PROJECT_VERSION_MINOR} PROJECT_VERSION_MINOR_LENGTH)
-if (${PROJECT_VERSION_MINOR_LENGTH} GREATER 1)
-  set (PROJECT_VERSION_MINOR_STRING "${PROJECT_VERSION_MINOR}")
-else (${PROJECT_VERSION_MINOR_LENGTH} GREATER 1)
-  set (PROJECT_VERSION_MINOR_STRING "0${PROJECT_VERSION_MINOR}")
-endif (${PROJECT_VERSION_MINOR_LENGTH} GREATER 1)
-
 # If a patch version is not defined, assume a pre-release
 if (DEFINED PROJECT_VERSION_PATCH AND NOT PROJECT_VERSION_PATCH STREQUAL "")
   set (PROJECT_VERSION_SUFFIX ".${PROJECT_VERSION_PATCH}")
 else (DEFINED PROJECT_VERSION_PATCH AND NOT PROJECT_VERSION_PATCH STREQUAL "")
-  set (PROJECT_VERSION_SUFFIX "+alpha")
+  set (PROJECT_VERSION_SUFFIX "+beta1")
 endif (DEFINED PROJECT_VERSION_PATCH AND NOT PROJECT_VERSION_PATCH STREQUAL "")
 
-set (PROJECT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR_STRING}${PROJECT_VERSION_SUFFIX}${GIT_REVISION}")
+set (PROJECT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}${PROJECT_VERSION_SUFFIX}${GIT_REVISION}")
 
 ## CPack configuration
 
@@ -228,8 +220,8 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
 
   add_custom_target (tests
     DEPENDS array-test alivedetection-test boreas_error-test boreas_io-test
-            ping-test sniffer-test util-test networking-test xmlutils-test
-            version-test osp-test nvti-test hosts-test)
+            cli-test ping-test sniffer-test util-test networking-test
+            xmlutils-test version-test osp-test nvti-test hosts-test)
 
 endif (BUILD_TESTS AND NOT SKIP_SRC)
 

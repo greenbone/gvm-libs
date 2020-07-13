@@ -17,33 +17,35 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef BOREAS_IO_H
-#define BOREAS_IO_H
+#include "ping.c"
 
-#include "../base/hosts.h"
-#include "../util/kb.h"
-#include "alivedetection.h"
-#include "boreas_error.h"
+#include <cgreen/cgreen.h>
+#include <cgreen/mocks.h>
 
-gvm_host_t *
-get_host_from_queue (kb_t, gboolean *);
+Describe (ping);
+BeforeEach (ping)
+{
+}
+AfterEach (ping)
+{
+}
 
-void
-put_finish_signal_on_queue (void *);
+Ensure (ping, dummy_test)
+{
+  assert_that (0, is_equal_to (0));
+}
 
-void
-send_dead_hosts_to_ospd_openvas (int);
+int
+main (int argc, char **argv)
+{
+  TestSuite *suite;
 
-void
-init_scan_restrictions (struct scanner *, int);
+  suite = create_test_suite ();
 
-void
-handle_scan_restrictions (struct scanner *, gchar *);
+  add_test_with_context (suite, ping, dummy_test);
 
-gchar *
-get_openvas_scan_id (const gchar *, int);
+  if (argc > 1)
+    return run_single_test (suite, argv[1], create_text_reporter ());
 
-boreas_error_t
-get_alive_test_methods (alive_test_t *);
-
-#endif /* not BOREAS_IO_H */
+  return run_test_suite (suite, create_text_reporter ());
+}
