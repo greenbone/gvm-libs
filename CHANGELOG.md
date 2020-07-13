@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [unreleased]
+
+### Changed
+- Add separators for a new (ip address) field in ERRMSG and DEADHOST messages. [#376](https://github.com/greenbone/gvm-libs/pull/376)
+
+[unreleased]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...master
+
+
 ## [20.08] (unreleased)
 
 ### Added
