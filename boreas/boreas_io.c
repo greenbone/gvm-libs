@@ -341,7 +341,7 @@ handle_scan_restrictions (struct scanner *scanner, gchar *addr_str)
  *
  * This information is needed for the calculation of the progress bar for gsa in
  * ospd-openvas. The number of dead hosts sent to ospd-openvas may not
- * necessarily reflect the acutal number of dead hosts in the target list.
+ * necessarily reflect the actual number of dead hosts in the target list.
  *
  * @param hosts_data  Includes all data which is needed for calculating the
  * number of dead hosts.
