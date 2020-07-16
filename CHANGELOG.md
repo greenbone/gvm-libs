@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - Add separators for a new (ip address) field in ERRMSG and DEADHOST messages. [#376](https://github.com/greenbone/gvm-libs/pull/376)
+- Alternate between different methods of alive detection when sending pings and add support for smooth progress bar. [#380](https://github.com/greenbone/gvm-libs/pull/380)
 
 [unreleased]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...master
 
