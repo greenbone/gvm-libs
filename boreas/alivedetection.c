@@ -71,8 +71,17 @@ scan (alive_test_t alive_test)
 {
   int number_of_targets;
   int number_of_dead_hosts;
+  int pings_sent;
+  int total_pings_sent;
+  int ping_batch;
+  int num_methods;
+  gboolean all_pings_sent;
   pthread_t sniffer_thread_id;
   GHashTableIter target_hosts_iter;
+  GHashTableIter target_hosts_iter_icmp;
+  GHashTableIter target_hosts_iter_tcp_syn;
+  GHashTableIter target_hosts_iter_tcp_ack;
+  GHashTableIter target_hosts_iter_arp;
   gpointer key, value;
   struct timeval start_time, end_time;
   int scandb_id;
@@ -89,35 +98,6 @@ scan (alive_test_t alive_test)
   sniffer_thread_id = 0;
   start_sniffer_thread (&scanner, &sniffer_thread_id);
 
-  if (alive_test & ALIVE_TEST_ICMP)
-    {
-      g_debug ("%s: ICMP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
-                            &scanner);
-      usleep (500000);
-    }
-  if (alive_test & ALIVE_TEST_TCP_SYN_SERVICE)
-    {
-      g_debug ("%s: TCP-SYN Service Ping", __func__);
-      scanner.tcp_flag = TH_SYN; /* SYN */
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
-                            &scanner);
-      usleep (500000);
-    }
-  if (alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
-    {
-      g_debug ("%s: TCP-ACK Service Ping", __func__);
-      scanner.tcp_flag = TH_ACK; /* ACK */
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
-                            &scanner);
-      usleep (500000);
-    }
-  if (alive_test & ALIVE_TEST_ARP)
-    {
-      g_debug ("%s: ARP Ping", __func__);
-      g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
-                            &scanner);
-    }
   if (alive_test & ALIVE_TEST_CONSIDER_ALIVE)
     {
       g_debug ("%s: Consider Alive", __func__);
@@ -130,10 +110,130 @@ scan (alive_test_t alive_test)
         }
     }
 
-  g_debug (
-    "%s: all ping packets have been sent, wait a bit for rest of replies.",
-    __func__);
-  sleep (WAIT_FOR_REPLIES_TIMEOUT);
+  /* Get number of different alive test methods used. */
+  num_methods = 0;
+  if (alive_test & ALIVE_TEST_ICMP)
+    num_methods++;
+  if (alive_test & ALIVE_TEST_TCP_SYN_SERVICE)
+    num_methods++;
+  if (alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
+    num_methods++;
+  if (alive_test & ALIVE_TEST_ARP)
+    num_methods++;
+
+  /* ping_batch is the number of pings sent by each method before sending the
+   * current status of dead hosts. This total number of pings sent during one
+   * iteration of the loop should be independend of the number of different
+   * alive detection methods used. If no method was chosen we do not send any.*/
+  ping_batch = num_methods ? (5000 / num_methods) : 0;
+  total_pings_sent = 0;
+  all_pings_sent = FALSE;
+  while (!all_pings_sent)
+    {
+      if (alive_test & ALIVE_TEST_ICMP)
+        {
+          g_debug ("%s: ICMP Ping", __func__);
+
+          g_hash_table_iter_init (&target_hosts_iter_icmp,
+                                  scanner.hosts_data->targethosts);
+
+          for (pings_sent = 0; pings_sent < ping_batch; pings_sent++)
+            {
+              if (g_hash_table_iter_next (&target_hosts_iter_icmp, &key,
+                                          &value))
+                {
+                  send_icmp (key, value, &scanner);
+                }
+              else
+                {
+                  all_pings_sent = TRUE;
+                  break;
+                }
+            }
+        }
+      if (alive_test & ALIVE_TEST_TCP_SYN_SERVICE)
+        {
+          g_debug ("%s: TCP-SYN Service Ping", __func__);
+          scanner.tcp_flag = TH_SYN; /* SYN */
+          g_hash_table_iter_init (&target_hosts_iter_tcp_syn,
+                                  scanner.hosts_data->targethosts);
+
+          for (pings_sent = 0; pings_sent < ping_batch; pings_sent++)
+            {
+              if (g_hash_table_iter_next (&target_hosts_iter_tcp_syn, &key,
+                                          &value))
+                {
+                  send_tcp (key, value, &scanner);
+                }
+              else
+                {
+                  all_pings_sent = TRUE;
+                  break;
+                }
+            }
+        }
+
+      if (alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
+        {
+          g_debug ("%s: TCP-ACK Service Ping", __func__);
+          scanner.tcp_flag = TH_ACK; /* ACK */
+          g_hash_table_iter_init (&target_hosts_iter_tcp_ack,
+                                  scanner.hosts_data->targethosts);
+
+          for (pings_sent = 0; pings_sent < ping_batch; pings_sent++)
+            {
+              if (g_hash_table_iter_next (&target_hosts_iter_tcp_ack, &key,
+                                          &value))
+                {
+                  send_tcp (key, value, &scanner);
+                }
+              else
+                {
+                  all_pings_sent = TRUE;
+                  break;
+                }
+            }
+        }
+      if (alive_test & ALIVE_TEST_ARP)
+        {
+          g_debug ("%s: ARP Ping", __func__);
+          g_hash_table_iter_init (&target_hosts_iter_arp,
+                                  scanner.hosts_data->targethosts);
+
+          for (pings_sent = 0; pings_sent < ping_batch; pings_sent++)
+            {
+              if (g_hash_table_iter_next (&target_hosts_iter_arp, &key, &value))
+                {
+                  send_arp (key, value, &scanner);
+                }
+              else
+                {
+                  all_pings_sent = TRUE;
+                  break;
+                }
+            }
+        }
+
+      total_pings_sent += pings_sent;
+
+      /* Check if next batch is the second to last one. We want to merge the
+       * last two batch together to resolve issues which can occur when not
+       * waiting long enough before sending the dead host count. */
+      if ((number_of_targets - total_pings_sent) < 2 * ping_batch)
+        ping_batch *= 2;
+
+      /* Wait a bit after the last batch (the big one) was sent.*/
+      if (all_pings_sent)
+        {
+          g_debug ("%s: all ping packets have been sent, wait a bit for rest "
+                   "of replies.",
+                   __func__);
+          sleep (WAIT_FOR_REPLIES_TIMEOUT);
+        }
+
+      number_of_dead_hosts = get_considered_dead (&scanner, total_pings_sent);
+      send_dead_hosts_to_ospd_openvas (number_of_dead_hosts);
+    }
 
   stop_sniffer_thread (&scanner, sniffer_thread_id);
 
