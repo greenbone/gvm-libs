@@ -171,6 +171,16 @@ nvt_feed_version ()
     }
   msg_shown = 0;
   plugin_set = g_strndup (plugin_set + 14, 12);
+  if (g_strstr_len (plugin_set, -1, "\"") || g_strstr_len (plugin_set, -1, ";"))
+    {
+      g_warning ("nvt_feed_version: Erroneous %s format. Format of PLUGIN_SET "
+                 "has to be yyyymmddhhmm. It has to be exactly 12 chars long.",
+                 filename);
+      g_free (plugin_set);
+      g_free (fcontent);
+      return NULL;
+    }
+
   g_free (fcontent);
   return plugin_set;
 }
