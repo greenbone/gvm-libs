@@ -132,11 +132,13 @@ got_packet (u_char *user_data,
 {
   struct ip *ip;
   unsigned int version;
+  uint8_t proto;
   struct scanner *scanner;
   hosts_data_t *hosts_data;
 
   ip = (struct ip *) (packet + 16);
   version = ip->ip_v;
+  proto = ip->ip_p;
   scanner = (struct scanner *) user_data;
   hosts_data = (hosts_data_t *) scanner->hosts_data;
 
@@ -158,8 +160,15 @@ got_packet (u_char *user_data,
       if (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))
           && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
         {
+          gboolean was_put_on_queue;
           /* handle max_scan_hosts related restrictions. */
-          handle_scan_restrictions (scanner, addr_str);
+          was_put_on_queue = handle_scan_restrictions (scanner, addr_str);
+          if (was_put_on_queue)
+            send_detection_info_as_result (
+              scanner->main_kb, addr_str,
+              proto == 1
+                ? "Host is up, Method: Boreas Host Alive Scanner ICMP ping."
+                : "Host is up, Method: Boreas Host Alive Scanner TCP ping.");
         }
     }
   else if (version == 6)
@@ -179,8 +188,15 @@ got_packet (u_char *user_data,
       if (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))
           && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
         {
+          gboolean was_put_on_queue;
           /* handle max_scan_hosts related restrictions. */
-          handle_scan_restrictions (scanner, addr_str);
+          was_put_on_queue = handle_scan_restrictions (scanner, addr_str);
+          if (was_put_on_queue)
+            send_detection_info_as_result (
+              scanner->main_kb, addr_str,
+              proto == 1
+                ? "Host is up, Method: Boreas Host Alive Scanner ICMPv6 ping."
+                : "Host is up, Method: Boreas Host Alive Scanner TCP ping.");
         }
     }
   /* TODO: check collision situations.
@@ -206,8 +222,13 @@ got_packet (u_char *user_data,
       if (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))
           && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
         {
+          gboolean was_put_on_queue;
           /* handle max_scan_hosts related restrictions. */
-          handle_scan_restrictions (scanner, addr_str);
+          was_put_on_queue = handle_scan_restrictions (scanner, addr_str);
+          if (was_put_on_queue)
+            send_detection_info_as_result (
+              scanner->main_kb, addr_str,
+              "Host is up, Method: Boreas Host Alive Scanner ARP ping.");
         }
     }
 }
