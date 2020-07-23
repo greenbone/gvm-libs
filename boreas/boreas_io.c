@@ -374,11 +374,37 @@ send_dead_hosts_to_ospd_openvas (int count_dead_hosts)
     }
 
   snprintf (dead_host_msg_to_ospd_openvas,
-            sizeof (dead_host_msg_to_ospd_openvas), "DEADHOST||| ||| ||| ||| |||%d",
-            count_dead_hosts);
+            sizeof (dead_host_msg_to_ospd_openvas),
+            "DEADHOST||| ||| ||| ||| |||%d", count_dead_hosts);
   kb_item_push_str (main_kb, "internal/results", dead_host_msg_to_ospd_openvas);
 
   kb_lnk_reset (main_kb);
+}
+
+/** @brief Send a LOG result to ospd-openvas.
+ *
+ * Result specifying the alive detection method which was successful in
+ * identifying the alive host is put into redis.
+ *
+ * @param kb  Kb to use for redis connection.
+ * @param ip_str  Host of result.
+ * @param msg Message to put in the result.
+ */
+void
+send_detection_info_as_result (kb_t kb, const char *ip_str, const char *msg)
+{
+  char buf[2048];
+
+  if (NULL == kb || NULL == msg)
+    return;
+
+  /* OID of result is id of ping_host.nasl. This is done so we do not have
+  an cryptic id in the Vulnerability description instead of "Ping Host". */
+  sprintf (buf, "LOG|||%s|||%s||| |||%s|||%s", ip_str ?: "", ip_str ?: "",
+           "1.3.6.1.4.1.25623.1.0.100315", msg);
+  kb_item_push_str (kb, "internal/results", buf);
+
+  return;
 }
 
 /**

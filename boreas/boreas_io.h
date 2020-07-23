@@ -35,6 +35,9 @@ void
 send_dead_hosts_to_ospd_openvas (int);
 
 void
+send_detection_info_as_result (kb_t, const char *, const char *);
+
+void
 init_scan_restrictions (struct scanner *, int);
 
 gboolean
