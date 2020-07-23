@@ -318,14 +318,21 @@ init_scan_restrictions (struct scanner *scanner, int max_scan_hosts)
  *
  * @param scanner Scanner struct.
  * @param add_str Host address string to put on queue.
+ *
+ * @return TRUE if host was put on queue, else FALSE.
  */
-void
+gboolean
 handle_scan_restrictions (struct scanner *scanner, gchar *addr_str)
 {
+  gboolean was_put_on_queu = FALSE;
+
   inc_alive_hosts_count ();
   /* Put alive hosts on queue as long as max_scan_hosts not reached. */
   if (!max_scan_hosts_reached ())
-    put_host_on_queue (scanner->main_kb, addr_str);
+    {
+      put_host_on_queue (scanner->main_kb, addr_str);
+      was_put_on_queu = TRUE;
+    }
 
   /* Set max_scan_hosts_reached if not already set and max_scan_hosts was
    * reached. */
@@ -334,6 +341,7 @@ handle_scan_restrictions (struct scanner *scanner, gchar *addr_str)
     {
       set_max_scan_hosts_reached ();
     }
+  return was_put_on_queu;
 }
 
 /**

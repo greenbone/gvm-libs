@@ -37,7 +37,7 @@ send_dead_hosts_to_ospd_openvas (int);
 void
 init_scan_restrictions (struct scanner *, int);
 
-void
+gboolean
 handle_scan_restrictions (struct scanner *, gchar *);
 
 gchar *
