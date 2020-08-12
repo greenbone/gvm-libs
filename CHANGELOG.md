@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [20.08] (unreleased)
+## [20.8.0] (2020-08-12)
 
 ### Added
 - Add nvti_get_tag() [#285](https://github.com/greenbone/gvm-libs/pull/285)
@@ -41,23 +41,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove parallel from target options [#347](https://github.com/greenbone/gvm-libs/pull/347)
 - Remove zero padding from version [#377](https://github.com/greenbone/gvm-libs/pull/377)
 
-[20.08]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-11.0...gvm-libs-20.08
+[20.8.0]: https://github.com/greenbone/gvm-libs/compare/v11.0.0...v20.8.0
 
-## [11.0.1] (unreleased)
+## [11.0.1] (2020-05-12)
 
 ### Added
 - Add option to set finished hosts in OSP targets [#298](https://github.com/greenbone/gvm-libs/pull/298)
 - Add a fast memory-only XML parser [#299](https://github.com/greenbone/gvm-libs/pull/299)
 - Add new function gvm_libs_version [#301](https://github.com/greenbone/gvm-libs/pull/301)
 
+### Changed
+- Don't create an entity tree during read_string_c. [#305](https://github.com/greenbone/gvm-libs/pull/305)
+
 ### Fixed
 - Fix sigsegv when no plugin_feed_info.inc file present. [#278](https://github.com/greenbone/gvm-libs/pull/278)
 - Fix missing linking to libgnutls in util/CMakeLists.txt. [#291](https://github.com/greenbone/gvm-libs/pull/291)
+- Free string in all error exit cases [#308](https://github.com/greenbone/gvm-libs/pull/308)
 - Fix trust and file handling for S/MIME [#309](https://github.com/greenbone/gvm-libs/pull/309)
 - Get details with get_reports in gmp_get_report_ext [#313](https://github.com/greenbone/gvm-libs/pull/313)
 - Fix escaping entity attributes in print_entity_to_string [#318](https://github.com/greenbone/gvm-libs/pull/318)
+- Fix is_cidr_block() [#323](https://github.com/greenbone/gvm-libs/pull/323)
+- Fix is_cidr6_block() and is_short_range_network(). [#338](https://github.com/greenbone/gvm-libs/pull/338)
 
-[11.0.1]: https://github.com/greenbone/gvm-libs/compare/v11.0.0...gvm-libs-11.0
+[11.0.1]: https://github.com/greenbone/gvm-libs/compare/v11.0.0...v11.0.1
 
 ## [11.0.0] (2019-10-11)
 
