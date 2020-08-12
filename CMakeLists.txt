@@ -21,7 +21,7 @@ cmake_minimum_required(VERSION 3.0)
 message ("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
 project (gvm-libs
-  VERSION 20.8
+  VERSION 20.8.0
   LANGUAGES C)
 
 if (POLICY CMP0005)
