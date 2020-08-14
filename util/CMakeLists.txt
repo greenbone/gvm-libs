@@ -50,10 +50,6 @@ pkg_check_modules (REDIS REQUIRED hiredis>=0.10.1)
 # for fast XML we need libxml2
 pkg_check_modules (LIBXML2 REQUIRED libxml-2.0>=2.0)
 
-# Set NVTICACHE name with the version
-set (NVTICACHE_STR "nvticache${PROJECT_VERSION}")
-add_definitions (-DNVTICACHE_STR="${NVTICACHE_STR}")
-
 #for gpgmeutils we need libgpgme
 set (GPGME_MIN_VERSION "1.1.2")
 message (STATUS "Looking for gpgme...")

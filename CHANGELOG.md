@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Add separators for a new (ip address) field in ERRMSG and DEADHOST messages. [#376](https://github.com/greenbone/gvm-libs/pull/376)
 
+### Removed
+- Remove version from the nvticache name. [#386](https://github.com/greenbone/gvm-libs/pull/386)
+
 [unreleased]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...master
 
 
