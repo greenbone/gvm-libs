@@ -33,7 +33,7 @@
 #include <glib.h> /* for gchar */
 
 #ifndef NVTICACHE_STR
-#define NVTICACHE_STR "nvticache10"
+#define NVTICACHE_STR "nvticache"
 #endif
 
 int
