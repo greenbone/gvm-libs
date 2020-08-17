@@ -20,8 +20,9 @@ cmake_minimum_required(VERSION 3.0)
 
 message ("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
+# VERSION: Always include major, minor and patch level.
 project (gvm-libs
-  VERSION 21.4
+  VERSION 21.4.0
   LANGUAGES C)
 
 if (POLICY CMP0005)
@@ -84,14 +85,20 @@ if (NOT CMAKE_BUILD_TYPE MATCHES "Release")
   endif (EXISTS "${CMAKE_SOURCE_DIR}/.git/")
 endif (NOT CMAKE_BUILD_TYPE MATCHES "Release")
 
-# If a patch version is not defined, assume a pre-release
-if (DEFINED PROJECT_VERSION_PATCH AND NOT PROJECT_VERSION_PATCH STREQUAL "")
-  set (PROJECT_VERSION_SUFFIX ".${PROJECT_VERSION_PATCH}")
-else (DEFINED PROJECT_VERSION_PATCH AND NOT PROJECT_VERSION_PATCH STREQUAL "")
-  set (PROJECT_VERSION_SUFFIX "+beta1")
-endif (DEFINED PROJECT_VERSION_PATCH AND NOT PROJECT_VERSION_PATCH STREQUAL "")
+# Set dev version if this is a development version and not a full release,
+# unset (put value 0 or delete line) before a full release and reset after.
+set (PROJECT_DEV_VERSION 1)
 
-set (PROJECT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}${PROJECT_VERSION_SUFFIX}${GIT_REVISION}")
+# If PROJECT_DEV_VERSION is set, the version string will be set to:
+#   "major.minor.patch~dev${PROJECT_DEV_VERSION}${GIT_REVISION}"
+# If PROJECT_DEV_VERSION is NOT set, the version string will be set to:
+#   "major.minor.patch${GIT_REVISION}"
+# For CMAKE_BUILD_TYPE "Release" the git revision will be empty.
+if (PROJECT_DEV_VERSION)
+  set (PROJECT_VERSION_SUFFIX "~dev${PROJECT_DEV_VERSION}")
+endif (PROJECT_DEV_VERSION)
+
+set (PROJECT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${PROJECT_VERSION_SUFFIX}${GIT_REVISION}")
 
 ## CPack configuration
 
@@ -196,11 +203,8 @@ set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${HARDENING_FLAGS}")
 
 ## Version
 
-if (PROJECT_BETA_RELEASE)
-  set (LIBGVMCONFIG_VERSION "${PROJECT_VERSION}")
-else (PROJECT_BETA_RELEASE)
-  set (LIBGVMCONFIG_VERSION "${PROJECT_VERSION_STRING}")
-endif (PROJECT_BETA_RELEASE)
+
+set (LIBGVMCONFIG_VERSION "${PROJECT_VERSION_STRING}")
 
 add_definitions(-DGVM_LIBS_VERSION="${LIBGVMCONFIG_VERSION}")
 
