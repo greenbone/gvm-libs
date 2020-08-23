@@ -168,11 +168,12 @@ vtref_text (const vtref_t *r)
  */
 typedef struct vtseverity
 {
-  gchar *type;     ///< Severity type ("cvss_base_v2", ...)
-  gchar *origin;   ///< Optional: Where does the severity come from ("CVE-2018-1234", "Greenbone Research")
+  gchar *type;   ///< Severity type ("cvss_base_v2", ...)
+  gchar *origin; ///< Optional: Where does the severity come from
+                 ///< ("CVE-2018-1234", "Greenbone Research")
   int date; ///< Timestamp in seconds since epoch, defaults to VT creation date.
-  int score; ///< The score derived from the value in range [0-100]
-  gchar *value;   ///< The value which corresponds to the type.
+  int score;    ///< The score derived from the value in range [0-100]
+  gchar *value; ///< The value which corresponds to the type.
 } vtseverity_t;
 
 /**
@@ -292,7 +293,6 @@ vtseverity_score (const vtseverity_t *s)
 {
   return s->score;
 }
-
 
 /* Support function for timestamps */
 
