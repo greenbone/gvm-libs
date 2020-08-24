@@ -77,6 +77,8 @@ scan (alive_test_t alive_test)
   struct timeval start_time, end_time;
   int scandb_id;
   gchar *scan_id;
+  int remaining_batch;
+  int prev_alive;
 
   gettimeofday (&start_time, NULL);
   number_of_targets = g_hash_table_size (scanner.hosts_data->targethosts);
@@ -89,7 +91,56 @@ scan (alive_test_t alive_test)
   sniffer_thread_id = 0;
   start_sniffer_thread (&scanner, &sniffer_thread_id);
 
-  if (alive_test & ALIVE_TEST_ICMP)
+  /* Use smooth progress bar if only ICMP was chosen. */
+  if (alive_test == ALIVE_TEST_ICMP)
+    {
+      g_hash_table_iter_init (&target_hosts_iter,
+                              scanner.hosts_data->targethosts);
+      int batch = 1000;
+      int packets_send = 0;
+      int curr_alive = 0;
+      gboolean last_update_done = 0; /* Scan restrictions related. */
+      /* Number of hosts to check in last batch of packets. */
+      remaining_batch = number_of_targets;
+      prev_alive = 0;
+      for (; g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
+        {
+          send_icmp (key, value, &scanner);
+          packets_send++;
+          if (packets_send % batch == 0
+              && (number_of_targets - packets_send) > batch)
+            {
+              curr_alive = g_hash_table_size (scanner.hosts_data->alivehosts);
+              number_of_dead_hosts = batch - (curr_alive - prev_alive);
+
+              /* Handle scan restrictions and send dead hosts. */
+              if (scanner.scan_restrictions->max_scan_hosts_reached)
+                {
+                  if (!last_update_done)
+                    {
+                      int last_hosts_consideres_alive =
+                        scanner.scan_restrictions->max_scan_hosts - prev_alive;
+                      number_of_dead_hosts =
+                        batch - last_hosts_consideres_alive;
+                      send_dead_hosts_to_ospd_openvas (number_of_dead_hosts);
+                      remaining_batch -= batch;
+                    }
+                  else
+                    {
+                      send_dead_hosts_to_ospd_openvas (batch);
+                      remaining_batch -= batch;
+                    }
+                }
+              else
+                {
+                  send_dead_hosts_to_ospd_openvas (number_of_dead_hosts);
+                  remaining_batch -= batch;
+                }
+              prev_alive = curr_alive;
+            }
+        }
+    }
+  else if (alive_test & ALIVE_TEST_ICMP)
     {
       g_debug ("%s: ICMP Ping", __func__);
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
@@ -137,19 +188,29 @@ scan (alive_test_t alive_test)
 
   stop_sniffer_thread (&scanner, sniffer_thread_id);
 
-  number_of_dead_hosts = count_difference (scanner.hosts_data->targethosts,
-                                           scanner.hosts_data->alivehosts);
-
-  /* Send number of dead hosts to ospd-openvas. We need to consider the scan
-   * restrictions.*/
-  if (scanner.scan_restrictions->max_scan_hosts_reached)
+  /* Smooth progress bar implemented for ICMP only. */
+  if (alive_test == ALIVE_TEST_ICMP)
     {
-      send_dead_hosts_to_ospd_openvas (
-        number_of_targets - scanner.scan_restrictions->max_scan_hosts);
+      int curr_alive = g_hash_table_size (scanner.hosts_data->alivehosts);
+      number_of_dead_hosts = remaining_batch - (curr_alive - prev_alive);
+
+      if (scanner.scan_restrictions->max_scan_hosts_reached)
+        send_dead_hosts_to_ospd_openvas (remaining_batch);
+      else
+        send_dead_hosts_to_ospd_openvas (number_of_dead_hosts);
     }
   else
     {
-      send_dead_hosts_to_ospd_openvas (number_of_dead_hosts);
+      number_of_dead_hosts =
+        number_of_targets - g_hash_table_size (scanner.hosts_data->alivehosts);
+
+      /* Send number of dead hosts to ospd-openvas. We need to consider the scan
+       * restrictions.*/
+      if (scanner.scan_restrictions->max_scan_hosts_reached)
+        send_dead_hosts_to_ospd_openvas (
+          number_of_targets - scanner.scan_restrictions->max_scan_hosts);
+      else
+        send_dead_hosts_to_ospd_openvas (number_of_dead_hosts);
     }
 
   gettimeofday (&end_time, NULL);
