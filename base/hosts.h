@@ -95,6 +95,7 @@ struct gvm_hosts
   size_t current;     /**< Current host index in iteration. */
   size_t count;       /**< Number of single host objects in hosts list. */
   size_t removed;     /**< Number of duplicate/excluded values. */
+  size_t duplicated;  /**< Number of duplicated values. */
 };
 
 /* Function prototypes. */
@@ -148,6 +149,9 @@ gvm_hosts_count (const gvm_hosts_t *);
 
 unsigned int
 gvm_hosts_removed (const gvm_hosts_t *);
+
+unsigned int
+gvm_hosts_duplicated (const gvm_hosts_t *);
 
 /* gvm_host_t related */
 
