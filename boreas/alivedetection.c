@@ -91,39 +91,66 @@ scan (alive_test_t alive_test)
   sniffer_thread_id = 0;
   start_sniffer_thread (&scanner, &sniffer_thread_id);
 
-  /* Use smooth progress bar if only ICMP was chosen. */
+  /* Continuously send dead hosts to ospd if only ICMP was chosen instead of
+   * sending all at once at the end. This is done for displaying a progressbar
+   * that increases gradually. */
   if (alive_test == ALIVE_TEST_ICMP)
     {
       g_hash_table_iter_init (&target_hosts_iter,
                               scanner.hosts_data->targethosts);
       int batch = 1000;
-      int packets_send = 0;
+      gboolean limit_reached_handled = FALSE; /* Scan restrictions related. */
       int curr_alive = 0;
-      gboolean last_update_done = 0; /* Scan restrictions related. */
-      /* Number of hosts to check in last batch of packets. */
-      remaining_batch = number_of_targets;
       prev_alive = 0;
-      for (; g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
+      /* Number of hosts in last batch. Depending on the total number of hosts
+       * the last batch size maybe be double the normal size. Info about the
+       * last batch is send after all hosts were checked and we waited for last
+       * packets to arrive.*/
+      remaining_batch = number_of_targets;
+      for (int packets_send = 0;
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
         {
           send_icmp (key, value, &scanner);
           packets_send++;
+          /* Send dead hosts update after batch number of packets were send and
+           * we still have more than batch size packets remaining. */
           if (packets_send % batch == 0
               && (number_of_targets - packets_send) > batch)
             {
+              /* The number of dead hosts we have to send to ospd is the batch
+               * size minus the newly found alive hosts. The newly found alive
+               * hosts is the diff between the current total of alive hosts and
+               * the total of the last batch. */
               curr_alive = g_hash_table_size (scanner.hosts_data->alivehosts);
               number_of_dead_hosts = batch - (curr_alive - prev_alive);
 
-              /* Handle scan restrictions and send dead hosts. */
+              /* If the max_scan_hosts limit was reached we can not tell ospd
+               * the true number of dead hosts. The number of alive hosts which
+               * are above the max_scan_hosts limit are not to be substracted
+               * form the dead hosts to send. They are considered as dead hosts
+               * for the progress bar.*/
               if (scanner.scan_restrictions->max_scan_hosts_reached)
                 {
-                  if (!last_update_done)
+                  /* Handle the case where we reach the max_scan_hosts for the
+                   * first time. We may have to considere some of the new alive
+                   * hosts as dead because of the restriction. E.g
+                   * curr_alive=110 prev_alive=90 max_scan_hosts=100 batch=100.
+                   * Normally we would send 80 as dead in this batch (20 new
+                   * alive hosts) but because of the restriction we send 90 as
+                   * dead. The 10 hosts which are over the limit are considered
+                   * as dead.
+                   * After this limit case was handled we just always send the
+                   * complete batch as dead hosts.*/
+                  if (!limit_reached_handled)
                     {
-                      int last_hosts_consideres_alive =
+                      /* Number of alive hosts until limit was reached. */
+                      int last_hosts_considered_as_alive =
                         scanner.scan_restrictions->max_scan_hosts - prev_alive;
                       number_of_dead_hosts =
-                        batch - last_hosts_consideres_alive;
+                        batch - last_hosts_considered_as_alive;
                       send_dead_hosts_to_ospd_openvas (number_of_dead_hosts);
                       remaining_batch -= batch;
+                      limit_reached_handled = TRUE;
                     }
                   else
                     {
@@ -188,7 +215,11 @@ scan (alive_test_t alive_test)
 
   stop_sniffer_thread (&scanner, sniffer_thread_id);
 
-  /* Smooth progress bar implemented for ICMP only. */
+  /* If only ICMP was specified we continously sent updates about dead hosts to
+   * ospd while checking the hosts. We now only have to send the dead hosts of
+   * the last batch. This is done here to catch the last alive hosts which may
+   * have arrived after all packets were already sent.
+   * Else send total number of dead host at once.*/
   if (alive_test == ALIVE_TEST_ICMP)
     {
       int curr_alive = g_hash_table_size (scanner.hosts_data->alivehosts);
@@ -217,7 +248,8 @@ scan (alive_test_t alive_test)
 
   g_message ("Alive scan %s finished in %ld seconds: %d alive hosts of %d.",
              scan_id, end_time.tv_sec - start_time.tv_sec,
-             number_of_targets - number_of_dead_hosts, number_of_targets);
+             g_hash_table_size (scanner.hosts_data->alivehosts),
+             number_of_targets);
   g_free (scan_id);
 
   return 0;
