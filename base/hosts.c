@@ -1066,7 +1066,7 @@ gvm_hosts_deduplicate (gvm_hosts_t *hosts)
     gvm_hosts_fill_gaps (hosts);
   g_hash_table_destroy (name_table);
   hosts->count -= duplicates;
-  hosts->removed += duplicates;
+  hosts->duplicated += duplicates;
   hosts->current = 0;
   malloc_trim (0);
 }
@@ -1882,6 +1882,20 @@ unsigned int
 gvm_hosts_removed (const gvm_hosts_t *hosts)
 {
   return hosts ? hosts->removed : 0;
+}
+
+/**
+ * @brief Gets the count of single values in hosts string that were duplicated
+ * and therefore removed from the list
+ *
+ * @param[in] hosts The hosts collection.
+ *
+ * @return The number of duplicated values.
+ */
+unsigned int
+gvm_hosts_duplicated (const gvm_hosts_t *hosts)
+{
+  return hosts ? hosts->duplicated : 0;
 }
 
 /**
