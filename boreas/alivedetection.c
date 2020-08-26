@@ -77,8 +77,10 @@ scan (alive_test_t alive_test)
   struct timeval start_time, end_time;
   int scandb_id;
   gchar *scan_id;
+  /* Following variables are only relevant if only ICMP was chosen. */
   int remaining_batch;
   int prev_alive;
+  gboolean limit_reached_handled = FALSE; /* Scan restrictions related. */
 
   gettimeofday (&start_time, NULL);
   number_of_targets = g_hash_table_size (scanner.hosts_data->targethosts);
@@ -99,7 +101,6 @@ scan (alive_test_t alive_test)
       g_hash_table_iter_init (&target_hosts_iter,
                               scanner.hosts_data->targethosts);
       int batch = 1000;
-      gboolean limit_reached_handled = FALSE; /* Scan restrictions related. */
       int curr_alive = 0;
       prev_alive = 0;
       /* Number of hosts in last batch. Depending on the total number of hosts
@@ -222,13 +223,31 @@ scan (alive_test_t alive_test)
    * Else send total number of dead host at once.*/
   if (alive_test == ALIVE_TEST_ICMP)
     {
-      int curr_alive = g_hash_table_size (scanner.hosts_data->alivehosts);
-      number_of_dead_hosts = remaining_batch - (curr_alive - prev_alive);
-
       if (scanner.scan_restrictions->max_scan_hosts_reached)
-        send_dead_hosts_to_ospd_openvas (remaining_batch);
+        {
+          /* We reached the max_scan_host limit in the last batch. For detailed
+           * description look at the first time where limit_reached_handled is
+           * used.*/
+          if (!limit_reached_handled)
+            {
+              /* Number of alive hosts until limit was reached. */
+              int last_hosts_considered_as_alive =
+                scanner.scan_restrictions->max_scan_hosts - prev_alive;
+              number_of_dead_hosts =
+                remaining_batch - last_hosts_considered_as_alive;
+              send_dead_hosts_to_ospd_openvas (number_of_dead_hosts);
+            }
+          else
+            {
+              send_dead_hosts_to_ospd_openvas (remaining_batch);
+            }
+        }
       else
-        send_dead_hosts_to_ospd_openvas (number_of_dead_hosts);
+        {
+          int curr_alive = g_hash_table_size (scanner.hosts_data->alivehosts);
+          number_of_dead_hosts = remaining_batch - (curr_alive - prev_alive);
+          send_dead_hosts_to_ospd_openvas (number_of_dead_hosts);
+        }
     }
   else
     {
