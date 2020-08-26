@@ -329,14 +329,17 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
 
   /* Init ports used for scanning. */
   scanner.ports = NULL;
-  port_list = "80,137,587,3128,8081";
+
+  port_list = get_alive_test_ports ();
+  if (NULL == port_list)
+    port_list = "80,137,587,3128,8081";
   if (validate_port_range (port_list))
     {
       g_warning ("%s: Invalid port range supplied for alive detection module. "
                  "Using global port range instead.",
                  __func__);
-      /* This port list was already validated by openvas so we don't do it here
-       * again. */
+      /* This port list is also used by openvas for scanning and was already
+       * validated by openvas so we don't do it here again. */
       port_list = prefs_get ("port_range");
     }
   /* Use uint16_t for port array elements. tcphdr port type is uint16_t. */
