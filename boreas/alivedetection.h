@@ -83,8 +83,7 @@ struct scanner
 struct hosts_data
 {
   /* Set of the form (ip_str, ip_str).
-   * Hosts which passed our pcap filter. May include hosts which are alive but
-   * are not in the targethosts list */
+   * Target hosts which were detected as alive. */
   GHashTable *alivehosts;
   /* Hashtable of the form (ip_str, gvm_host_t *). The gvm_host_t pointers point
    * to hosts which are to be freed by the caller of start_alive_detection(). */

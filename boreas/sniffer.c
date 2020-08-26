@@ -153,10 +153,11 @@ got_packet (u_char *user_data,
           "%s: Failed to transform IPv4 address into string representation: %s",
           __func__, strerror (errno));
 
-      /* Do not put already found host on Queue and only put hosts on Queue we
-       * are searching for. */
-      if (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))
-          && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
+      /* Only put unique hosts on queue and in hash table. Use short circuit
+       * evaluation to not add hosts to the hash table which are not in our
+       * target list.*/
+      if ((g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
+          && (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))))
         {
           /* handle max_scan_hosts related restrictions. */
           handle_scan_restrictions (scanner, addr_str);
@@ -174,10 +175,11 @@ got_packet (u_char *user_data,
         g_debug ("%s: Failed to transform IPv6 into string representation: %s",
                  __func__, strerror (errno));
 
-      /* Do not put already found host on Queue and only put hosts on Queue we
-       * are searching for. */
-      if (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))
-          && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
+      /* Only put unique hosts on queue and in hash table. Use short circuit
+       * evaluation to not add hosts to the hash table which are not in our
+       * target list.*/
+      if ((g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
+          && (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))))
         {
           /* handle max_scan_hosts related restrictions. */
           handle_scan_restrictions (scanner, addr_str);
@@ -201,10 +203,11 @@ got_packet (u_char *user_data,
         g_debug ("%s: Failed to transform IP into string representation: %s",
                  __func__, strerror (errno));
 
-      /* Do not put already found host on Queue and only put hosts on Queue
-      we are searching for. */
-      if (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))
-          && g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
+      /* Only put unique hosts on queue and in hash table. Use short circuit
+       * evaluation to not add hosts to the hash table which are not in our
+       * target list.*/
+      if ((g_hash_table_contains (hosts_data->targethosts, addr_str) == TRUE)
+          && (g_hash_table_add (hosts_data->alivehosts, g_strdup (addr_str))))
         {
           /* handle max_scan_hosts related restrictions. */
           handle_scan_restrictions (scanner, addr_str);
