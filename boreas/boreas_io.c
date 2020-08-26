@@ -421,3 +421,15 @@ get_alive_test_methods (alive_test_t *alive_test)
     }
   return error;
 }
+
+/**
+ * @brief Get ports which should be used for alive detection in case of TCP-ACK
+ * or TCP-SYN ping.
+ *
+ * @return string containing the ports. NULL otherwise.
+ */
+const gchar *
+get_alive_test_ports (void)
+{
+  return prefs_get ("ALIVE_TEST_PORTS");
+}
