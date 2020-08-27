@@ -339,7 +339,8 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
        * again. */
       port_list = prefs_get ("port_range");
     }
-  scanner.ports = g_array_new (FALSE, TRUE, sizeof (int));
+  /* Use uint16_t for port array elements. tcphdr port type is uint16_t. */
+  scanner.ports = g_array_new (FALSE, TRUE, sizeof (uint16_t));
   if (port_list)
     portranges_array = port_range_ranges (port_list);
   else
