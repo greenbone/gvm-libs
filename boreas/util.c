@@ -287,7 +287,9 @@ fill_ports_array (gpointer range, gpointer ports_array)
   gboolean range_exclude;
   int range_start;
   int range_end;
-  int port;
+  int i;
+  /* Use uint16_t for port array elements. tcphdr port type is uint16_t. */
+  uint16_t port_sized;
 
   range_start = ((range_t *) range)->start;
   range_end = ((range_t *) range)->end;
@@ -300,13 +302,18 @@ fill_ports_array (gpointer range, gpointer ports_array)
   /* Only single port in range. */
   if (range_end == 0 || (range_start == range_end))
     {
-      g_array_append_val (ports_array, range_start);
+      port_sized = (uint16_t) range_start;
+      g_array_append_val (ports_array, port_sized);
       return;
     }
   else
     {
-      for (port = range_start; port <= range_end; port++)
-        g_array_append_val (ports_array, port);
+
+      for (i = range_start; i <= range_end; i++)
+        {
+          port_sized = (uint16_t) i;
+          g_array_append_val (ports_array, port_sized);
+        }
     }
 }
 
