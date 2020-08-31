@@ -59,7 +59,7 @@ set (FILES alivedetection.c boreas_error.c boreas_io.c cli.c ping.c sniffer.c ut
 set (HEADERS alivedetection.h boreas_error.h boreas_io.h cli.h ping.h sniffer.h util.h)
 
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-  if(GLIB_VERSION < 2.50.3)
+  if(GLIB_VERSION VERSION_LESS "2.50.3")
     add_definitions(-D_BSD_SOURCE)
   endif()
   add_compile_options(-std=gnu99)
