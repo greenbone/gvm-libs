@@ -366,8 +366,8 @@ send_dead_hosts_to_ospd_openvas (int count_dead_hosts)
     }
 
   snprintf (dead_host_msg_to_ospd_openvas,
-            sizeof (dead_host_msg_to_ospd_openvas), "DEADHOST||| ||| ||| ||| |||%d",
-            count_dead_hosts);
+            sizeof (dead_host_msg_to_ospd_openvas),
+            "DEADHOST||| ||| ||| ||| |||%d", count_dead_hosts);
   kb_item_push_str (main_kb, "internal/results", dead_host_msg_to_ospd_openvas);
 
   kb_lnk_reset (main_kb);
@@ -420,4 +420,16 @@ get_alive_test_methods (alive_test_t *alive_test)
       *alive_test = atoi (alive_test_pref_as_str);
     }
   return error;
+}
+
+/**
+ * @brief Get ports which should be used for alive detection in case of TCP-ACK
+ * or TCP-SYN ping.
+ *
+ * @return string containing the ports. NULL otherwise.
+ */
+const gchar *
+get_alive_test_ports (void)
+{
+  return prefs_get ("ALIVE_TEST_PORTS");
 }

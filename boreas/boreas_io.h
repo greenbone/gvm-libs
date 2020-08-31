@@ -46,4 +46,7 @@ get_openvas_scan_id (const gchar *, int);
 boreas_error_t
 get_alive_test_methods (alive_test_t *);
 
+const gchar *
+get_alive_test_ports (void);
+
 #endif /* not BOREAS_IO_H */
