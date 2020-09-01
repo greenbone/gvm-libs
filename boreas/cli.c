@@ -67,7 +67,7 @@ init_cli (struct scanner *scanner, gvm_hosts_t *hosts, alive_test_t alive_test,
   if (alive_test & ALIVE_TEST_TCP_SYN_SERVICE
       || alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
     {
-      scanner->ports = g_array_new (FALSE, TRUE, sizeof (int));
+      scanner->ports = g_array_new (FALSE, TRUE, sizeof (uint16_t));
       if (port_list)
         portranges_array = port_range_ranges (port_list);
       g_ptr_array_foreach (portranges_array, fill_ports_array, scanner->ports);
