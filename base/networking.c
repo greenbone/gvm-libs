@@ -786,6 +786,8 @@ ip_islocalhost (struct sockaddr_storage *storage)
   addr6_p = &addr6;
   addr_p = &addr;
 
+  addr.s_addr = 0;
+
   if (family == AF_INET)
     {
       sin_p = (struct sockaddr_in *) storage;
