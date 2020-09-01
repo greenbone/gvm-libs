@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Add separators for a new (ip address) field in ERRMSG and DEADHOST messages. [#376](https://github.com/greenbone/gvm-libs/pull/376)
 - Continuously send dead hosts to ospd-openvas to enable a smooth progess bar if only ICMP is chosen as alive test.  [#389](https://github.com/greenbone/gvm-libs/pull/389)
+- Retry if response via tls1.3 is still not received. [#394](https://github.com/greenbone/gvm-libs/pull/394)
 
 ### Removed
 - Remove version from the nvticache name. [#386](https://github.com/greenbone/gvm-libs/pull/386)
