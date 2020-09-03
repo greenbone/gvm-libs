@@ -919,10 +919,13 @@ get_routes (void)
       status = g_io_channel_read_line (file_channel, &line, NULL, NULL, &err);
       if ((status != G_IO_STATUS_NORMAL) || !line || err)
         {
-          g_warning (
-            "%s: %s", __func__,
-            err ? err->message
-                : "g_io_channel_read_line() status != G_IO_STATUS_NORMAL");
+          if (status == G_IO_STATUS_AGAIN)
+            g_warning ("%s: /proc/net/route unavailable.", __func__);
+          if (err || status == G_IO_STATUS_ERROR)
+            g_warning (
+              "%s: %s", __func__,
+              err ? err->message
+                  : "g_io_channel_read_line() status == G_IO_STATUS_ERROR");
           err = NULL;
           g_free (line);
           break;
