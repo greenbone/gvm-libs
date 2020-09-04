@@ -472,7 +472,7 @@ send_arp_v4 (int soc, struct in_addr *dst_p)
       sin_dst.sin_family = AF_INET;
       sin_dst.sin_addr = *dst_p;
       memcpy (&storage_dst, &sin_dst, sizeof (sin_dst));
-      memcpy (&storage_dst, &sin_src, sizeof (sin_src));
+      memcpy (&storage_src, &sin_src, sizeof (sin_src));
 
       /* Get interface and set src addr. */
       gchar *interface = gvm_routethrough (&storage_dst, &storage_src);
