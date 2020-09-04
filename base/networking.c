@@ -42,6 +42,12 @@
 #define s6_addr32 __u6_addr.__u6_addr32
 #endif
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "base networking"
+
 /* Global variables */
 
 /* Source interface name eg. eth1. */
