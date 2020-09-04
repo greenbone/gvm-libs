@@ -475,14 +475,19 @@ send_arp_v4 (int soc, struct in_addr *dst_p)
       memcpy (&storage_src, &sin_src, sizeof (sin_src));
 
       /* Get interface and set src addr. */
+      g_debug ("%s: Destination addr: %s", __func__, inet_ntoa (*dst_p));
       gchar *interface = gvm_routethrough (&storage_dst, &storage_src);
+      if (!interface)
+        {
+          g_warning ("%s: No appropriate interface was found. Network may be "
+                     "unreachable. No ARP ping send for host %s.",
+                     __func__, inet_ntoa (*dst_p));
+          return;
+        }
+      g_debug ("%s: interface to use: %s", __func__, interface);
       memcpy (&src, &((struct sockaddr_in *) (&storage_src))->sin_addr,
               sizeof (struct in_addr));
-      g_warning ("%s: %s", __func__, inet_ntoa (src));
-
-      if (!interface)
-        g_warning ("%s: no appropriate interface was found", __func__);
-      g_debug ("%s: interface to use: %s", __func__, interface);
+      g_debug ("%s: Source addr: %s", __func__, inet_ntoa (src));
 
       /* Get interface index for sockaddr_ll. */
       if ((ifaceindex = if_nametoindex (interface)) == 0)
