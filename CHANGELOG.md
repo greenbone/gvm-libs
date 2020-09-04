@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Add function to get duplicated hosts from the hosts list. [#387](https://github.com/greenbone/gvm-libs/pull/387)
 
+### Changed
+- Reduce ping timeout when using test_alive_hosts_only feature. [#400](https://github.com/greenbone/gvm-libs/pull/400)
+
 ### Fixed
 - Fix port list for tcp pings when using test_alive_hosts_only feature. [#392](https://github.com/greenbone/gvm-libs/pull/392)
 
