@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Retry if response via tls1.3 is still not received. [#394](https://github.com/greenbone/gvm-libs/pull/394)
 
 ### Removed
+- Remove handling of severity class from auth [#402](https://github.com/greenbone/gvm-libs/pull/402)
 - Remove version from the nvticache name. [#386](https://github.com/greenbone/gvm-libs/pull/386)
 
 [unreleased]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...master
