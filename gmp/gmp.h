@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2019 Greenbone Networks GmbH
+/* Copyright (C) 2009-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -43,7 +43,6 @@ typedef struct
   const char *username; ///< Password.
   const char *password; ///< Username.
   char **role;          ///< [out] Role.
-  char **severity;      ///< [out] Severity class setting.
   char **timezone;      ///< [out] Timezone if any, else NULL.
   char **pw_warning;    ///< [out] Password warning, NULL if password is okay.
 } gmp_authenticate_info_opts_t;
@@ -52,7 +51,7 @@ typedef struct
  * @brief Sensible default values for gmp_authenticate_info_opts_t
  */
 static const gmp_authenticate_info_opts_t gmp_authenticate_info_opts_defaults =
-  {0, NULL, NULL, NULL, NULL, NULL, NULL};
+  {0, NULL, NULL, NULL, NULL, NULL};
 
 /**
  * @brief Struct holding options for gmp get_report command.
