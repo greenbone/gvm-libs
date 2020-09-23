@@ -14,6 +14,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Continuously send dead hosts to ospd-openvas to enable a smooth progess bar if only ICMP is chosen as alive test.  [#389](https://github.com/greenbone/gvm-libs/pull/389)
 - Retry if response via tls1.3 is still not received. [#394](https://github.com/greenbone/gvm-libs/pull/394)
 
+### Fixed
+- Increase minimum gpgme version [#403](https://github.com/greenbone/gvm-libs/pull/403)
+
 ### Removed
 - Remove handling of severity class from auth [#402](https://github.com/greenbone/gvm-libs/pull/402)
 - Remove version from the nvticache name. [#386](https://github.com/greenbone/gvm-libs/pull/386)
