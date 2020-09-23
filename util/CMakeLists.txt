@@ -55,7 +55,7 @@ set (NVTICACHE_STR "nvticache${PROJECT_VERSION}")
 add_definitions (-DNVTICACHE_STR="${NVTICACHE_STR}")
 
 #for gpgmeutils we need libgpgme
-set (GPGME_MIN_VERSION "1.1.2")
+set (GPGME_MIN_VERSION "1.7.0")
 message (STATUS "Looking for gpgme...")
 find_library (GPGME gpgme)
 if (NOT GPGME)

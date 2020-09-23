@@ -20,7 +20,7 @@ Specific development libraries:
 * libglib >= 2.42 (all)
 * libgio >= 2.42 (util)
 * zlib >= 1.2.8 (util)
-* libgpgme >= 1.1.2 (util)
+* libgpgme >= 1.7.0 (util)
 * libgnutls >= 3.2.15 (util)
 * libuuid >= 2.25.0 (util)
 * libssh >= 0.6.0 (util)
