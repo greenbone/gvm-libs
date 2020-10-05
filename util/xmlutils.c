@@ -587,6 +587,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
   while (1)
     {
       ssize_t count;
+      int retries = 10;
       while (1)
         {
           g_debug ("   asking for %i\n", BUFFER_SIZE);
@@ -611,6 +612,18 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
                     }
                   continue;
                 }
+              else if ((timeout == 0) && (count == GNUTLS_E_AGAIN))
+                {
+                  /* Server still busy, try read again.
+                     If there is no timeout set and the server is still not ready,
+                     it will try up to 10 times before closing the socket.*/
+                  if (retries > 0)
+                    {
+                     retries = retries - 1;
+                     continue;
+                    }
+                }
+
               if (count == GNUTLS_E_REHANDSHAKE)
                 /* Try again. TODO Rehandshake. */
                 continue;
