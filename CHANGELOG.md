@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Fix port list for tcp pings when using test_alive_hosts_only feature. [#392](https://github.com/greenbone/gvm-libs/pull/392)
 - Set source address correctly and do not try to send ARP to unreachable destination. [#401](https://github.com/greenbone/gvm-libs/pull/401)
+- Increase minimum gpgme version [#405](https://github.com/greenbone/gvm-libs/pull/405)
 
 [20.8.1]: https://github.com/greenbone/gvm-libs/compare/v20.8.0...gvm-libs-20.08
 
