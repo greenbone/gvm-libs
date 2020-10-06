@@ -183,7 +183,7 @@ struct kb_operations
    * Function provided by an implementation to insert (append) a new
    * unique entry under a given name.
    */
-  int (*kb_add_str_unique) (kb_t, const char *, const char *, size_t);
+  int (*kb_add_str_unique) (kb_t, const char *, const char *, size_t, int);
   /**
    * Function provided by an implementation to get (replace) a new entry
    * under a given name.
@@ -458,16 +458,18 @@ kb_item_add_str (kb_t kb, const char *name, const char *str, size_t len)
  * @param[in] name  Item name.
  * @param[in] str  Item value.
  * @param[in] len  Value length. Used for blobs.
+ * @param[in] pos  Which position the value is appended to. 0 for right,
+ *                 1 for left position in the list.
  * @return 0 on success, non-null on error.
  */
 static inline int
-kb_item_add_str_unique (kb_t kb, const char *name, const char *str, size_t len)
+kb_item_add_str_unique (kb_t kb, const char *name, const char *str, size_t len, int pos)
 {
   assert (kb);
   assert (kb->kb_ops);
   assert (kb->kb_ops->kb_add_str_unique);
 
-  return kb->kb_ops->kb_add_str_unique (kb, name, str, len);
+  return kb->kb_ops->kb_add_str_unique (kb, name, str, len, pos);
 }
 
 /**
