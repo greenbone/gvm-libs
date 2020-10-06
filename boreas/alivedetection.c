@@ -134,7 +134,7 @@ scan (alive_test_t alive_test)
     "%s: all ping packets have been sent, wait a bit for rest of replies.",
     __func__);
 
-  /* If all targets are already indentified as alive we do not need to wait for
+  /* If all targets are already identified as alive we do not need to wait for
    * replies anymore.*/
   if (number_of_targets
       != (int) g_hash_table_size (scanner.hosts_data->alivehosts))
