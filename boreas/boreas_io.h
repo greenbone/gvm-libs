@@ -35,6 +35,9 @@ void
 put_finish_signal_on_queue (void *);
 
 void
+realloc_finish_signal_on_queue(kb_t);
+
+void
 send_dead_hosts_to_ospd_openvas (int);
 
 void

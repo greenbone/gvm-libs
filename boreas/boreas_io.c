@@ -239,6 +239,27 @@ put_host_on_queue (kb_t kb, char *addr_str)
 }
 
 /**
+ * @brief Reallocate finish signal at the end of alive detection queue.
+ *
+ * @param main_kb  kb to use
+ */
+void
+realloc_finish_signal_on_queue(kb_t main_kb)
+{
+  int kb_item_push_str_err, pos;
+
+  pos = 1; // Append the item at the end of the queue.
+  kb_item_push_str_err = kb_item_add_str_unique (main_kb,
+                                                  ALIVE_DETECTION_QUEUE,
+                                                  ALIVE_DETECTION_FINISHED,
+                                                  0, pos);
+  if (kb_item_push_str_err)
+    g_debug ("%s: Could not push the Boreas finish signal on the alive "
+             "detection Queue.",
+             __func__);
+}
+
+/**
  * @brief Put finish signal on alive detection queue.
  *
  * If the finish signal (a string) was already put on the queue it is not put on
