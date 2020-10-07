@@ -615,12 +615,13 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
               else if ((timeout == 0) && (count == GNUTLS_E_AGAIN))
                 {
                   /* Server still busy, try read again.
-                     If there is no timeout set and the server is still not ready,
-                     it will try up to 10 times before closing the socket.*/
+                     If there is no timeout set and the server is still not
+                     ready, it will try up to 10 times before closing the
+                     socket.*/
                   if (retries > 0)
                     {
-                     retries = retries - 1;
-                     continue;
+                      retries = retries - 1;
+                      continue;
                     }
                 }
 

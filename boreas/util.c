@@ -308,7 +308,6 @@ fill_ports_array (gpointer range, gpointer ports_array)
     }
   else
     {
-
       for (i = range_start; i <= range_end; i++)
         {
           port_sized = (uint16_t) i;

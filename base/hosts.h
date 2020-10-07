@@ -180,8 +180,7 @@ gvm_host_get_addr6 (const gvm_host_t *, struct in6_addr *);
 void
 gvm_host_add_reverse_lookup (gvm_host_t *);
 
-void
-gvm_host_free (gpointer);
+void gvm_host_free (gpointer);
 
 /* Miscellaneous functions */
 

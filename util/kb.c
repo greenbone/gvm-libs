@@ -1118,7 +1118,8 @@ redis_del_items (kb_t kb, const char *name)
  * @return 0 on success, non-null on error.
  */
 static int
-redis_add_str_unique (kb_t kb, const char *name, const char *str, size_t len, int pos)
+redis_add_str_unique (kb_t kb, const char *name, const char *str, size_t len,
+                      int pos)
 {
   struct kb_redis *kbr;
   redisReply *rep = NULL;
@@ -1147,7 +1148,8 @@ redis_add_str_unique (kb_t kb, const char *name, const char *str, size_t len, in
   else
     {
       redisAppendCommand (ctx, "LREM %s 1 %b", name, str, len);
-      redisAppendCommand (ctx, "%s %s %b", pos ? "LPUSH" : "RPUSH", name, str, len);
+      redisAppendCommand (ctx, "%s %s %b", pos ? "LPUSH" : "RPUSH", name, str,
+                          len);
       redisGetReply (ctx, (void **) &rep);
       if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
         g_debug ("Key '%s' already contained string '%s'", name, str);

@@ -463,7 +463,8 @@ kb_item_add_str (kb_t kb, const char *name, const char *str, size_t len)
  * @return 0 on success, non-null on error.
  */
 static inline int
-kb_item_add_str_unique (kb_t kb, const char *name, const char *str, size_t len, int pos)
+kb_item_add_str_unique (kb_t kb, const char *name, const char *str, size_t len,
+                        int pos)
 {
   assert (kb);
   assert (kb->kb_ops);
