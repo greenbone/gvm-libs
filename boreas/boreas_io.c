@@ -239,8 +239,7 @@ put_host_on_queue (kb_t kb, char *addr_str)
 }
 
 /**
- * @brief Checks if the finish signal is at the end of alive detection
- * queue.
+ * @brief Checks if the finish signal is already set as last item in the queue.
  *
  * @param main_kb  kb to use
  * @return 1 if it is already set. 0 otherwise.
@@ -262,8 +261,10 @@ finish_signal_on_queue (kb_t main_kb)
   kb_item_free (last_queue_item);
   return ret;
 }
+
 /**
- * @brief Reallocate finish signal at the end of alive detection queue.
+ * @brief Reallocate finish signal in last position of the alive detection
+ * queue.
  *
  * @param main_kb  kb to use
  */
@@ -272,7 +273,10 @@ realloc_finish_signal_on_queue (kb_t main_kb)
 {
   int kb_item_push_str_err, pos;
 
-  pos = 1; // Append the item at the end of the queue.
+  /* The alive test queue is a FIFO queue. Alive hosts are taken from the
+   * right side of the queue. Therefore the finish signal is put in the
+   * left end of queue, being the last item to be fetch.*/
+  pos = 1;
   kb_item_push_str_err = kb_item_add_str_unique (
     main_kb, ALIVE_DETECTION_QUEUE, ALIVE_DETECTION_FINISHED, 0, pos);
   if (kb_item_push_str_err)
