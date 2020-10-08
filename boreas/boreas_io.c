@@ -256,7 +256,7 @@ finish_signal_on_queue (kb_t main_kb)
     kb_item_get_single (main_kb, ALIVE_DETECTION_QUEUE, KB_TYPE_STR);
 
   if (last_queue_item && (last_queue_item->type == KB_TYPE_STR)
-      && (!strcmp (last_queue_item->v_str, ALIVE_DETECTION_FINISHED)))
+      && (!g_strcmp0 (last_queue_item->v_str, ALIVE_DETECTION_FINISHED)))
     ret = 1;
 
   kb_item_free (last_queue_item);
