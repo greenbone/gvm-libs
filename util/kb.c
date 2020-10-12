@@ -1112,11 +1112,14 @@ redis_del_items (kb_t kb, const char *name)
  * @param[in] name  Item name.
  * @param[in] str  Item value.
  * @param[in] len  Value length. Used for blobs.
+ * @param[in] pos  Which position the value is appended to. 0 for right,
+ *                 1 for left position in the list.
  *
  * @return 0 on success, non-null on error.
  */
 static int
-redis_add_str_unique (kb_t kb, const char *name, const char *str, size_t len)
+redis_add_str_unique (kb_t kb, const char *name, const char *str, size_t len,
+                      int pos)
 {
   struct kb_redis *kbr;
   redisReply *rep = NULL;
@@ -1135,7 +1138,7 @@ redis_add_str_unique (kb_t kb, const char *name, const char *str, size_t len)
   if (len == 0)
     {
       redisAppendCommand (ctx, "LREM %s 1 %s", name, str);
-      redisAppendCommand (ctx, "RPUSH %s %s", name, str);
+      redisAppendCommand (ctx, "%s %s %s", pos ? "LPUSH" : "RPUSH", name, str);
       redisGetReply (ctx, (void **) &rep);
       if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
         g_debug ("Key '%s' already contained value '%s'", name, str);
@@ -1145,7 +1148,8 @@ redis_add_str_unique (kb_t kb, const char *name, const char *str, size_t len)
   else
     {
       redisAppendCommand (ctx, "LREM %s 1 %b", name, str, len);
-      redisAppendCommand (ctx, "RPUSH %s %b", name, str, len);
+      redisAppendCommand (ctx, "%s %s %b", pos ? "LPUSH" : "RPUSH", name, str,
+                          len);
       redisGetReply (ctx, (void **) &rep);
       if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
         g_debug ("Key '%s' already contained string '%s'", name, str);

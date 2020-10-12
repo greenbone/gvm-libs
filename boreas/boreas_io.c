@@ -221,7 +221,7 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
  * @param kb KB to use.
  * @param addr_str IP addr in str representation to put on queue.
  */
-static void
+void
 put_host_on_queue (kb_t kb, char *addr_str)
 {
   /* Print host on command line if no kb is available. No kb available could
@@ -236,6 +236,53 @@ put_host_on_queue (kb_t kb, char *addr_str)
     g_debug ("%s: kb_item_push_str() failed. Could not push \"%s\" on queue of "
              "hosts to be considered as alive.",
              __func__, addr_str);
+}
+
+/**
+ * @brief Checks if the finish signal is already set as last item in the queue.
+ *
+ * @param main_kb  kb to use
+ * @return 1 if it is already set. 0 otherwise.
+ */
+int
+finish_signal_on_queue (kb_t main_kb)
+{
+  struct kb_item *last_queue_item;
+  int ret;
+
+  ret = 0;
+  last_queue_item =
+    kb_item_get_single (main_kb, ALIVE_DETECTION_QUEUE, KB_TYPE_STR);
+
+  if (last_queue_item && (last_queue_item->type == KB_TYPE_STR)
+      && (!g_strcmp0 (last_queue_item->v_str, ALIVE_DETECTION_FINISHED)))
+    ret = 1;
+
+  kb_item_free (last_queue_item);
+  return ret;
+}
+
+/**
+ * @brief Reallocate finish signal in last position of the alive detection
+ * queue.
+ *
+ * @param main_kb  kb to use
+ */
+void
+realloc_finish_signal_on_queue (kb_t main_kb)
+{
+  int kb_item_push_str_err, pos;
+
+  /* The alive test queue is a FIFO queue. Alive hosts are taken from the
+   * right side of the queue. Therefore the finish signal is put in the
+   * left end of queue, being the last item to be fetch.*/
+  pos = 1;
+  kb_item_push_str_err = kb_item_add_str_unique (
+    main_kb, ALIVE_DETECTION_QUEUE, ALIVE_DETECTION_FINISHED, 0, pos);
+  if (kb_item_push_str_err)
+    g_debug ("%s: Could not push the Boreas finish signal on the alive "
+             "detection Queue.",
+             __func__);
 }
 
 /**

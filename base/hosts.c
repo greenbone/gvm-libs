@@ -928,7 +928,7 @@ gvm_host_new ()
  *
  * @param[in] host  Host to free.
  */
-static void
+void
 gvm_host_free (gpointer host)
 {
   gvm_host_t *h = host;
