@@ -51,7 +51,7 @@ pkg_check_modules (REDIS REQUIRED hiredis>=0.10.1)
 pkg_check_modules (LIBXML2 REQUIRED libxml-2.0>=2.0)
 
 #for gpgmeutils we need libgpgme
-set (GPGME_MIN_VERSION "1.1.2")
+set (GPGME_MIN_VERSION "1.7.0")
 message (STATUS "Looking for gpgme...")
 find_library (GPGME gpgme)
 if (NOT GPGME)
