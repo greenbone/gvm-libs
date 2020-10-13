@@ -212,7 +212,12 @@ scan (alive_test_t alive_test)
   g_debug (
     "%s: all ping packets have been sent, wait a bit for rest of replies.",
     __func__);
-  sleep (WAIT_FOR_REPLIES_TIMEOUT);
+
+  /* If all targets are already identified as alive we do not need to wait for
+   * replies anymore.*/
+  if (number_of_targets
+      != (int) g_hash_table_size (scanner.hosts_data->alivehosts))
+    sleep (WAIT_FOR_REPLIES_TIMEOUT);
 
   stop_sniffer_thread (&scanner, sniffer_thread_id);
 
