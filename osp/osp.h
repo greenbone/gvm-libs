@@ -209,6 +209,10 @@ void
 osp_target_free (osp_target_t *);
 
 void
+osp_target_add_alive_test_methods (osp_target_t *, gboolean, gboolean, gboolean,
+                                   gboolean, gboolean);
+
+void
 osp_target_add_credential (osp_target_t *, osp_credential_t *);
 
 /* OSP VT group handling */

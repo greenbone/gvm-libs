@@ -83,12 +83,19 @@ struct osp_credential
  */
 struct osp_target
 {
-  GSList *credentials;      /** Credentials to use in the scan */
-  gchar *exclude_hosts;     /** String defining one or many hosts to exclude */
-  gchar *hosts;             /** String defining one or many hosts to scan */
-  gchar *ports;             /** String defining the ports to scan */
-  gchar *finished_hosts;    /** String defining hosts to exclude as finished */
-  int alive_test;           /** Value defining an alive test method */
+  GSList *credentials;   /** Credentials to use in the scan */
+  gchar *exclude_hosts;  /** String defining one or many hosts to exclude */
+  gchar *hosts;          /** String defining one or many hosts to scan */
+  gchar *ports;          /** String defining the ports to scan */
+  gchar *finished_hosts; /** String defining hosts to exclude as finished */
+  /* Alive test methods can be specified either as bitfield or via selection of
+  individual methods */
+  int alive_test; /** Value defining an alive test method */
+  gboolean icmp;
+  gboolean tcp_syn;
+  gboolean tcp_ack;
+  gboolean arp;
+  gboolean consider_alive;
   int reverse_lookup_unify; /** Value defining reverse_lookup_unify opt */
   int reverse_lookup_only;  /** Value defining reverse_lookup_only opt */
 };
@@ -887,9 +894,32 @@ target_append_as_xml (osp_target_t *target, GString *xml_string)
                      target->finished_hosts ? target->finished_hosts : "",
                      target->ports ? target->ports : "");
 
+  /* Alive test specified as bitfield */
   if (target->alive_test > 0)
     xml_string_append (xml_string, "<alive_test>%d</alive_test>",
                        target->alive_test);
+  /* Alive test specified via dedicated methods. Dedicted methods are ignored if
+   * alive test was already specified as bitfield.*/
+  if (!target->alive_test
+      && (target->icmp == TRUE || target->tcp_syn == TRUE
+          || target->tcp_ack == TRUE || target->arp == TRUE
+          || target->consider_alive == TRUE))
+    {
+      xml_string_append (xml_string,
+                         "<alive_test_methods>"
+                         "<icmp>%d</icmp>"
+                         "<tcp_syn>%d</tcp_syn>"
+                         "<tcp_ack>%d</tcp_ack>"
+                         "<arp>%d</arp>"
+                         "<consider_alive>%d</consider_alive>"
+                         "</alive_test_methods>",
+                         target->icmp,
+                         target->tcp_syn,
+                         target->tcp_ack,
+                         target->arp,
+                         target->consider_alive);
+    }
+
   if (target->reverse_lookup_unify == 1)
     xml_string_append (xml_string,
                        "<reverse_lookup_unify>%d</reverse_lookup_unify>",
@@ -1452,6 +1482,31 @@ osp_target_free (osp_target_t *target)
   g_free (target->hosts);
   g_free (target->ports);
   g_free (target);
+}
+
+/**
+ * @brief Add alive test methods to OSP target.
+ *
+ * @param[in]  target           The OSP target to add the methods to.
+ * @param[in]  icmp             Use ICMP ping.
+ * @param[in]  tcp_syn          Use TCP-SYN ping.
+ * @param[in]  tcp_ack          Use TCP-ACK ping.
+ * @param[in]  arp              Use ARP ping.
+ * @param[in]  consider_alvive  Consider host to be alive.
+ */
+void
+osp_target_add_alive_test_methods (osp_target_t *target, gboolean icmp,
+                                   gboolean tcp_syn, gboolean tcp_ack,
+                                   gboolean arp, gboolean consider_alive)
+{
+  if (!target)
+    return;
+
+  target->icmp = icmp;
+  target->tcp_syn = tcp_syn;
+  target->tcp_ack = tcp_ack;
+  target->arp = arp;
+  target->consider_alive = consider_alive;
 }
 
 /**
