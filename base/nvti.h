@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2019 Greenbone Networks GmbH
+/* Copyright (C) 2009-2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -55,6 +55,11 @@ nvtpref_id (const nvtpref_t *);
 typedef struct vtref vtref_t;
 
 /**
+ * @brief The structure for a severity of a VT.
+ */
+typedef struct vtseverity vtseverity_t;
+
+/**
  * @brief The structure of a information record that corresponds to a NVT.
  */
 typedef struct nvti nvti_t;
@@ -70,12 +75,36 @@ vtref_id (const vtref_t *);
 const gchar *
 vtref_text (const vtref_t *);
 
+vtseverity_t *
+vtseverity_new (const gchar *, const gchar *, int, int, const gchar *);
+void
+vtseverity_free (vtseverity_t *);
+const gchar *
+vtseverity_type (const vtseverity_t *);
+const gchar *
+vtseverity_origin (const vtseverity_t *);
+const gchar *
+vtseverity_value (const vtseverity_t *);
+int
+vtseverity_date (const vtseverity_t *);
+int
+vtseverity_score (const vtseverity_t *);
+
 int
 nvti_add_vtref (nvti_t *, vtref_t *);
 guint
 nvti_vtref_len (const nvti_t *);
 vtref_t *
 nvti_vtref (const nvti_t *, guint);
+
+int
+nvti_add_vtseverity (nvti_t *, vtseverity_t *);
+guint
+nvti_vtseverities_len (const nvti_t *);
+vtseverity_t *
+nvti_vtseverity (const nvti_t *, guint);
+int
+nvti_severity_score (const nvti_t *);
 
 nvti_t *
 nvti_new (void);
