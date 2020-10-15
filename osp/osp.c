@@ -1489,7 +1489,7 @@ osp_target_free (osp_target_t *target)
  * @param[in]  tcp_syn          Use TCP-SYN ping.
  * @param[in]  tcp_ack          Use TCP-ACK ping.
  * @param[in]  arp              Use ARP ping.
- * @param[in]  consider_alvive  Consider host to be alive.
+ * @param[in]  consider_alive   Consider host to be alive.
  */
 void
 osp_target_add_alive_test_methods (osp_target_t *target, gboolean icmp,
