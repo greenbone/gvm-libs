@@ -112,6 +112,9 @@ gvm_host_t *
 gvm_hosts_next (gvm_hosts_t *);
 
 void
+gvm_hosts_move_current_host_to_end (gvm_hosts_t *);
+
+void
 gvm_hosts_free (gvm_hosts_t *);
 
 void
