@@ -913,11 +913,8 @@ target_append_as_xml (osp_target_t *target, GString *xml_string)
                          "<arp>%d</arp>"
                          "<consider_alive>%d</consider_alive>"
                          "</alive_test_methods>",
-                         target->icmp,
-                         target->tcp_syn,
-                         target->tcp_ack,
-                         target->arp,
-                         target->consider_alive);
+                         target->icmp, target->tcp_syn, target->tcp_ack,
+                         target->arp, target->consider_alive);
     }
 
   if (target->reverse_lookup_unify == 1)
