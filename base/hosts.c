@@ -1301,6 +1301,39 @@ gvm_hosts_next (gvm_hosts_t *hosts)
 }
 
 /**
+ * @brief Move the current gvm_host_t from a gvm_hosts_t structure to
+ * the end of the hosts list.
+ *
+ * @param[in/out]   hosts     gvm_hosts_t structure which hosts must be
+ * rearange. The hosts->current index points to the last used hosts and
+ * gvm_hosts_next() must be called to get the next host in the list.
+ *
+ */
+void
+gvm_hosts_move_current_host_to_end (gvm_hosts_t *hosts)
+{
+  void *host_tmp;
+  size_t i;
+
+  if (!hosts)
+    return;
+
+  if (hosts->current == hosts->count)
+    {
+      hosts->current -= 1;
+      return;
+    }
+
+  hosts->current -= 1;
+  host_tmp = hosts->hosts[hosts->current];
+
+  for (i = hosts->current; i < hosts->count; i++)
+    hosts->hosts[i - 1] = hosts->hosts[i];
+
+  hosts->hosts[hosts->count - 1] = host_tmp;
+}
+
+/**
  * @brief Frees memory occupied by an gvm_hosts_t structure.
  *
  * @param[in] hosts The hosts collection to free.

@@ -8,7 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Use dedicated port list for alive detection (Boreas only) if supplied via OSP. [#391](https://github.com/greenbone/gvm-libs/pull/391)
-- Allow to re allocate the finish flag in the host queue for alive tests. [#407](https://github.com/greenbone/gvm-libs/pull/407)
+- Allow to re allocate the finish flag in the host queue for alive tests.
+  [#407](https://github.com/greenbone/gvm-libs/pull/407)
+  [#410](https://github.com/greenbone/gvm-libs/pull/410)
 
 ### Added
 - Add multiple severities for nvti [#317](https://github.com/greenbone/gvm-libs/pull/317)
