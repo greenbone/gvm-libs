@@ -11,9 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Allow to re allocate the finish flag in the host queue for alive tests.
   [#407](https://github.com/greenbone/gvm-libs/pull/407)
   [#410](https://github.com/greenbone/gvm-libs/pull/410)
-
-### Added
 - Add multiple severities for nvti [#317](https://github.com/greenbone/gvm-libs/pull/317)
+- Add support for new OSP element for defining alive test methods via separate subelements. [#409](https://github.com/greenbone/gvm-libs/pull/409)
 
 ### Changed
 - Add separators for a new (ip address) field in ERRMSG and DEADHOST messages. [#376](https://github.com/greenbone/gvm-libs/pull/376)
