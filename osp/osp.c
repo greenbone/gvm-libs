@@ -900,10 +900,9 @@ target_append_as_xml (osp_target_t *target, GString *xml_string)
                        target->alive_test);
   /* Alive test specified via dedicated methods. Dedicted methods are ignored if
    * alive test was already specified as bitfield.*/
-  if (!target->alive_test
-      && (target->icmp == TRUE || target->tcp_syn == TRUE
-          || target->tcp_ack == TRUE || target->arp == TRUE
-          || target->consider_alive == TRUE))
+  else if (target->icmp == TRUE || target->tcp_syn == TRUE
+           || target->tcp_ack == TRUE || target->arp == TRUE
+           || target->consider_alive == TRUE)
     {
       xml_string_append (xml_string,
                          "<alive_test_methods>"
