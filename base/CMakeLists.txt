@@ -91,7 +91,7 @@ if (BUILD_TESTS)
 
   target_include_directories (cvss-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 
-  target_link_libraries (cvss-test ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+  target_link_libraries (cvss-test ${CGREEN_LIBRARIES} -lm ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 
   add_executable (networking-test
                   EXCLUDE_FROM_ALL
