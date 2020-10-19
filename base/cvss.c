@@ -63,6 +63,7 @@
  */
 
 #include <glib.h>
+#include <math.h>
 #include <string.h>
 
 // clang-format off
@@ -331,6 +332,211 @@ __get_cvss_score (struct cvss *cvss)
          + 0.0;
 }
 
+/* @brief Impact value for v3. */
+#define V3_IMPACT_NONE 0.0
+
+/* @brief Impact value for v3. */
+#define V3_IMPACT_LOW 0.22
+
+/* @brief Impact value for v3. */
+#define V3_IMPACT_HIGH 0.56
+
+/**
+ * @brief Round final score as in spec.
+ *
+ * @param cvss  CVSS score.
+ *
+ * @return Rounded score.
+ */
+static double
+roundup (double cvss)
+{
+  int trim;
+
+  /* "Roundup returns the smallest number, specified to 1 decimal place,
+   *  that is equal to or higher than its input. For example, Roundup (4.02)
+   *  returns 4.1; and Roundup (4.00) returns 4.0." */
+
+  /* 3.020000001 => 4.0 */
+  /* 3.000000001 => 3.0 */
+
+  trim = round (cvss * 100000);
+  if ((trim % 10000) == 0)
+    return trim / 100000;
+  return (floor (trim / 10000) + 1) / 10.0;
+}
+
+/**
+ * @brief Get impact.
+ *
+ * @param  value  Metric value.
+ *
+ * @return Impact.
+ */
+static double
+v3_impact (const char *value)
+{
+  if (strcasecmp (value, "N") == 0)
+    return 0.0;
+  if (strcasecmp (value, "L") == 0)
+    return 0.22;
+  if (strcasecmp (value, "H") == 0)
+    return 0.56;
+  return -1.0;
+}
+
+/**
+ * @brief Calculate CVSS Score.
+ *
+ * @param cvss_str  Vector from which to compute score, without prefix.
+ *
+ * @return CVSS score, or -1 on error.
+ */
+static double
+get_cvss_score_from_base_metrics_v3 (const char *cvss_str)
+{
+  gchar **split, **point;
+  int scope_changed;
+  double impact_conf, impact_integ, impact_avail;
+  double vector, complexity, privilege, user;
+  double isc_base, impact, exploitability, base;
+
+  /* https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator
+   * https://www.first.org/cvss/v3.1/specification-document */
+
+  scope_changed = -1;
+  impact_conf = -1.0;
+  impact_integ = -1.0;
+  impact_avail = -1.0;
+  vector = -1.0;
+  complexity = -1.0;
+  privilege = -1.0;
+  user = -1.0;
+
+  /* AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:N */
+
+  split = g_strsplit (cvss_str, "/", 0);
+  point = split;
+  while (*point)
+    {
+      /* Scope. */
+      if (strncasecmp ("S:", *point, 2) == 0)
+        {
+          if (strcasecmp (*point + 2, "U") == 0)
+            scope_changed = 0;
+          else if (strcasecmp (*point + 2, "C") == 0)
+            scope_changed = 1;
+        }
+
+      /* Confidentiality. */
+      if (strncasecmp ("C:", *point, 2) == 0)
+        impact_conf = v3_impact (*point + 2);
+
+      /* Integrity. */
+      if (strncasecmp ("I:", *point, 2) == 0)
+        impact_integ = v3_impact (*point + 2);
+
+      /* Availability. */
+      if (strncasecmp ("A:", *point, 2) == 0)
+        impact_avail = v3_impact (*point + 2);
+
+      /* Attack Vector. */
+      if (strncasecmp ("AV:", *point, 3) == 0)
+        {
+          if (strcasecmp (*point + 3, "N") == 0)
+            vector = 0.85;
+          else if (strcasecmp (*point + 3, "A") == 0)
+            vector = 0.62;
+          else if (strcasecmp (*point + 3, "L") == 0)
+            vector = 0.55;
+          else if (strcasecmp (*point + 3, "P") == 0)
+            vector = 0.2;
+        }
+
+      /* Attack Complexity. */
+      if (strncasecmp ("AC:", *point, 3) == 0)
+        {
+          if (strcasecmp (*point + 3, "L") == 0)
+            complexity = 0.77;
+          else if (strcasecmp (*point + 3, "H") == 0)
+            complexity = 0.44;
+        }
+
+      /* Privileges Required. */
+      if (strncasecmp ("PR:", *point, 3) == 0)
+        {
+          if (strcasecmp (*point + 3, "N") == 0)
+            privilege = 0.85;
+          else if (strcasecmp (*point + 3, "L") == 0)
+            privilege = 0.62;
+          else if (strcasecmp (*point + 3, "H") == 0)
+            privilege = 0.27;
+          else
+            privilege = -1.0;
+        }
+
+      /* User Interaction. */
+      if (strncasecmp ("UI:", *point, 3) == 0)
+        {
+          if (strcasecmp (*point + 3, "N") == 0)
+            user = 0.85;
+          else if (strcasecmp (*point + 3, "R") == 0)
+            user = 0.62;
+        }
+
+      point++;
+    }
+
+  g_strfreev (split);
+
+  /* All of the base metrics are required. */
+
+  if (scope_changed == -1
+      || impact_conf == -1.0
+      || impact_integ == -1.0
+      || impact_avail == -1.0
+      || vector == -1.0
+      || complexity == -1.0
+      || privilege == -1.0
+      || user == -1.0)
+    return -1.0;
+
+  /* Privileges Required has a special case for S:C. */
+
+  if (scope_changed && privilege == 0.62)
+    privilege = 0.68;
+  else if (scope_changed && privilege == 0.27)
+    privilege = 0.5;
+
+  /* Impact. */
+
+  isc_base = 1 - ((1 - impact_conf) * (1 - impact_integ) * (1 - impact_avail));
+
+  if (scope_changed)
+    impact = 7.52 * (isc_base - 0.029) - 3.25 * pow ((isc_base - 0.02), 15);
+  else
+    impact = 6.42 * isc_base;
+
+  if (impact <= 0)
+    return 0.0;
+
+  /* Exploitability. */
+
+  exploitability = 8.22 * vector * complexity * privilege * user;
+
+  /* Final. */
+
+  if (scope_changed)
+    base = 1.08 * (impact + exploitability);
+  else
+    base = impact + exploitability;
+
+  if (base > 10.0)
+    return 10.0;
+
+  return roundup (base);
+}
+
 /**
  * @brief Calculate CVSS Score.
  *
@@ -344,10 +550,13 @@ get_cvss_score_from_base_metrics (const char *cvss_str)
   struct cvss cvss;
   char *token, *base_str, *base_metrics;
 
-  memset (&cvss, 0x00, sizeof (struct cvss));
-
   if (cvss_str == NULL)
     return -1.0;
+
+  if (g_str_has_prefix (cvss_str, "CVSS:3.1/"))
+    return get_cvss_score_from_base_metrics_v3 (cvss_str + strlen ("CVSS:3.1/"));
+
+  memset (&cvss, 0x00, sizeof (struct cvss));
 
   base_str = base_metrics = g_strdup_printf ("%s/", cvss_str);
 

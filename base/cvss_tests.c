@@ -31,7 +31,24 @@ AfterEach (cvss)
 {
 }
 
+/* roundup */
+
+Ensure (cvss, roundup_succeeds)
+{
+  assert_that_double (roundup (0.0), is_equal_to_double (0.0));
+  assert_that_double (roundup (1.0), is_equal_to_double (1.0));
+
+  assert_that_double (roundup (1.01), is_equal_to_double (1.1));
+  assert_that_double (roundup (0.99), is_equal_to_double (1.0));
+
+  assert_that_double (roundup (1.000001), is_equal_to_double (1.0));
+}
+
 /* get_cvss_score_from_base_metrics */
+
+#define CHECK(vector, score)                                                 \
+  assert_that_double (nearest (get_cvss_score_from_base_metrics (vector)),   \
+                      is_equal_to_double (score))
 
 Ensure (cvss, get_cvss_score_from_base_metrics_null)
 {
@@ -41,7 +58,7 @@ Ensure (cvss, get_cvss_score_from_base_metrics_null)
 double
 nearest (double cvss)
 {
-  return round(cvss * 10) / 10;
+  return round (cvss * 10) / 10;
 }
 
 Ensure (cvss, get_cvss_score_from_base_metrics_succeeds)
@@ -50,6 +67,15 @@ Ensure (cvss, get_cvss_score_from_base_metrics_succeeds)
   assert_that_double (nearest (get_cvss_score_from_base_metrics ("AV:N/AC:L/Au:N/C:N/I:N/A:P")), is_equal_to_double (5.0));
   assert_that_double (nearest (get_cvss_score_from_base_metrics ("AV:N/AC:M/Au:N/C:N/I:N/A:P")), is_equal_to_double (4.3));
   assert_that_double (nearest (get_cvss_score_from_base_metrics ("AV:N/AC:L/Au:N/C:N/I:N/A:N")), is_equal_to_double (0.0));
+}
+
+Ensure (cvss, get_cvss_score_from_base_metrics_succeeds_v3)
+{
+  CHECK ("CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:N", 10.0);
+  CHECK ("CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:L/A:N", 8.2);
+  CHECK ("CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N", 5.4);
+  CHECK ("CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:N/I:N/A:L", 3.5);
+  CHECK ("CVSS:3.1/AV:N/AC:L/PR:H/UI:R/S:U/C:N/I:L/A:N", 2.4);
 }
 
 Ensure (cvss, get_cvss_score_from_base_metrics_fails)
@@ -68,9 +94,12 @@ main (int argc, char **argv)
 
   suite = create_test_suite ();
 
+  add_test_with_context (suite, cvss, roundup_succeeds);
+
   add_test_with_context (suite, cvss, get_cvss_score_from_base_metrics_null);
   add_test_with_context (suite, cvss, get_cvss_score_from_base_metrics_succeeds);
   add_test_with_context (suite, cvss, get_cvss_score_from_base_metrics_fails);
+  add_test_with_context (suite, cvss, get_cvss_score_from_base_metrics_succeeds_v3);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
