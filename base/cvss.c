@@ -21,7 +21,7 @@
  * @file
  * @brief CVSS utility functions
  *
- * This file contains utility functions for handling CVSS v2 and v3.1.
+ * This file contains utility functions for handling CVSS v2 and v3.
  * get_cvss_score_from_base_metrics calculates the CVSS base score from a CVSS
  * base vector.
  *
@@ -30,6 +30,12 @@
  * See equations at https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator and
  * constants at https://www.first.org/cvss/v3.1/specification-document (section
  * 7.4. Metric Values).
+ *
+ * CVSS v3.0:
+ *
+ * See equations at https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator and
+ * constants at https://www.first.org/cvss/v3.0/specification-document (section
+ * 8.4. Metric Levels).
  *
  * CVSS v2:
  *
@@ -363,9 +369,10 @@ get_cvss_score_from_base_metrics (const char *cvss_str)
   if (cvss_str == NULL)
     return -1.0;
 
-  if (g_str_has_prefix (cvss_str, "CVSS:3.1/"))
+  if (g_str_has_prefix (cvss_str, "CVSS:3.1/")
+      || g_str_has_prefix (cvss_str, "CVSS:3.0/"))
     return get_cvss_score_from_base_metrics_v3 (cvss_str
-                                                + strlen ("CVSS:3.1/"));
+                                                + strlen ("CVSS:3.X/"));
 
   memset (&cvss, 0x00, sizeof (struct cvss));
 
@@ -470,7 +477,8 @@ get_cvss_score_from_base_metrics_v3 (const char *cvss_str)
   double isc_base, impact, exploitability, base;
 
   /* https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator
-   * https://www.first.org/cvss/v3.1/specification-document */
+   * https://www.first.org/cvss/v3.1/specification-document
+   * https://www.first.org/cvss/v3.0/specification-document */
 
   scope_changed = -1;
   impact_conf = -1.0;

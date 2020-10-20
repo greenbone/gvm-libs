@@ -76,6 +76,10 @@ Ensure (cvss, get_cvss_score_from_base_metrics_succeeds_v3)
   CHECK ("CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N", 5.4);
   CHECK ("CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:N/I:N/A:L", 3.5);
   CHECK ("CVSS:3.1/AV:N/AC:L/PR:H/UI:R/S:U/C:N/I:L/A:N", 2.4);
+
+  CHECK ("CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H", 7.5);
+  CHECK ("CVSS:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H", 5.5);
+  CHECK ("CVSS:3.0/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N", 2.5);
 }
 
 Ensure (cvss, get_cvss_score_from_base_metrics_fails)
