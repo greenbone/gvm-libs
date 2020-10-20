@@ -46,8 +46,8 @@ Ensure (cvss, roundup_succeeds)
 
 /* get_cvss_score_from_base_metrics */
 
-#define CHECK(vector, score)                                                 \
-  assert_that_double (nearest (get_cvss_score_from_base_metrics (vector)),   \
+#define CHECK(vector, score)                                               \
+  assert_that_double (nearest (get_cvss_score_from_base_metrics (vector)), \
                       is_equal_to_double (score))
 
 Ensure (cvss, get_cvss_score_from_base_metrics_null)
@@ -97,9 +97,11 @@ main (int argc, char **argv)
   add_test_with_context (suite, cvss, roundup_succeeds);
 
   add_test_with_context (suite, cvss, get_cvss_score_from_base_metrics_null);
-  add_test_with_context (suite, cvss, get_cvss_score_from_base_metrics_succeeds);
+  add_test_with_context (suite, cvss,
+                         get_cvss_score_from_base_metrics_succeeds);
   add_test_with_context (suite, cvss, get_cvss_score_from_base_metrics_fails);
-  add_test_with_context (suite, cvss, get_cvss_score_from_base_metrics_succeeds_v3);
+  add_test_with_context (suite, cvss,
+                         get_cvss_score_from_base_metrics_succeeds_v3);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());

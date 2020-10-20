@@ -491,14 +491,9 @@ get_cvss_score_from_base_metrics_v3 (const char *cvss_str)
 
   /* All of the base metrics are required. */
 
-  if (scope_changed == -1
-      || impact_conf == -1.0
-      || impact_integ == -1.0
-      || impact_avail == -1.0
-      || vector == -1.0
-      || complexity == -1.0
-      || privilege == -1.0
-      || user == -1.0)
+  if (scope_changed == -1 || impact_conf == -1.0 || impact_integ == -1.0
+      || impact_avail == -1.0 || vector == -1.0 || complexity == -1.0
+      || privilege == -1.0 || user == -1.0)
     return -1.0;
 
   /* Privileges Required has a special case for S:C. */
@@ -554,7 +549,8 @@ get_cvss_score_from_base_metrics (const char *cvss_str)
     return -1.0;
 
   if (g_str_has_prefix (cvss_str, "CVSS:3.1/"))
-    return get_cvss_score_from_base_metrics_v3 (cvss_str + strlen ("CVSS:3.1/"));
+    return get_cvss_score_from_base_metrics_v3 (cvss_str
+                                                + strlen ("CVSS:3.1/"));
 
   memset (&cvss, 0x00, sizeof (struct cvss));
 
