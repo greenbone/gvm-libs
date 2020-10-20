@@ -66,6 +66,13 @@
 #include <math.h>
 #include <string.h>
 
+/* Static Headers. */
+
+static double
+get_cvss_score_from_base_metrics_v3 (const char *);
+
+/* CVSS v2. */
+
 // clang-format off
 /**
  * @brief AccessVector (AV) Constants.
@@ -332,6 +339,69 @@ __get_cvss_score (struct cvss *cvss)
          + 0.0;
 }
 
+
+/**
+ * @brief Calculate CVSS Score.
+ *
+ * @param cvss_str Base vector string from which to compute score.
+ *
+ * @return The resulting score. -1 upon error during parsing.
+ */
+double
+get_cvss_score_from_base_metrics (const char *cvss_str)
+{
+  struct cvss cvss;
+  char *token, *base_str, *base_metrics;
+
+  if (cvss_str == NULL)
+    return -1.0;
+
+  if (g_str_has_prefix (cvss_str, "CVSS:3.1/"))
+    return get_cvss_score_from_base_metrics_v3 (cvss_str
+                                                + strlen ("CVSS:3.1/"));
+
+  memset (&cvss, 0x00, sizeof (struct cvss));
+
+  base_str = base_metrics = g_strdup_printf ("%s/", cvss_str);
+
+  while ((token = strchr (base_metrics, '/')) != NULL)
+    {
+      char *token2 = strtok (base_metrics, ":");
+      char *metric_name = token2;
+      char *metric_value;
+      enum base_metrics mval;
+      int rc;
+
+      *token++ = '\0';
+
+      if (metric_name == NULL)
+        goto ret_err;
+
+      metric_value = strtok (NULL, ":");
+
+      if (metric_value == NULL)
+        goto ret_err;
+
+      rc = toenum (metric_name, &mval);
+      if (rc)
+        goto ret_err;
+
+      if (set_impact_from_str (metric_value, mval, &cvss))
+        goto ret_err;
+
+      base_metrics = token;
+    }
+
+  g_free (base_str);
+  return __get_cvss_score (&cvss);
+
+ret_err:
+  g_free (base_str);
+  return (double) -1;
+}
+
+/* CVSS v3. */
+
 /**
  * @brief Round final score as in spec.
  *
@@ -521,64 +591,4 @@ get_cvss_score_from_base_metrics_v3 (const char *cvss_str)
     return 10.0;
 
   return roundup (base);
-}
-
-/**
- * @brief Calculate CVSS Score.
- *
- * @param cvss_str Base vector string from which to compute score.
- *
- * @return The resulting score. -1 upon error during parsing.
- */
-double
-get_cvss_score_from_base_metrics (const char *cvss_str)
-{
-  struct cvss cvss;
-  char *token, *base_str, *base_metrics;
-
-  if (cvss_str == NULL)
-    return -1.0;
-
-  if (g_str_has_prefix (cvss_str, "CVSS:3.1/"))
-    return get_cvss_score_from_base_metrics_v3 (cvss_str
-                                                + strlen ("CVSS:3.1/"));
-
-  memset (&cvss, 0x00, sizeof (struct cvss));
-
-  base_str = base_metrics = g_strdup_printf ("%s/", cvss_str);
-
-  while ((token = strchr (base_metrics, '/')) != NULL)
-    {
-      char *token2 = strtok (base_metrics, ":");
-      char *metric_name = token2;
-      char *metric_value;
-      enum base_metrics mval;
-      int rc;
-
-      *token++ = '\0';
-
-      if (metric_name == NULL)
-        goto ret_err;
-
-      metric_value = strtok (NULL, ":");
-
-      if (metric_value == NULL)
-        goto ret_err;
-
-      rc = toenum (metric_name, &mval);
-      if (rc)
-        goto ret_err;
-
-      if (set_impact_from_str (metric_value, mval, &cvss))
-        goto ret_err;
-
-      base_metrics = token;
-    }
-
-  g_free (base_str);
-  return __get_cvss_score (&cvss);
-
-ret_err:
-  g_free (base_str);
-  return (double) -1;
 }
