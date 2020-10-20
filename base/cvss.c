@@ -347,7 +347,6 @@ __get_cvss_score (struct cvss *cvss)
          + 0.0;
 }
 
-
 /**
  * @brief Calculate CVSS Score.
  *
