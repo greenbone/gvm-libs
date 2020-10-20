@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#410](https://github.com/greenbone/gvm-libs/pull/410)
 - Add multiple severities for nvti [#317](https://github.com/greenbone/gvm-libs/pull/317)
 - Add support for new OSP element for defining alive test methods via separate subelements. [#409](https://github.com/greenbone/gvm-libs/pull/409)
+- Add v3 handling to get_cvss_score_from_base_metrics [#411](https://github.com/greenbone/gvm-libs/pull/411)
 
 ### Changed
 - Add separators for a new (ip address) field in ERRMSG and DEADHOST messages. [#376](https://github.com/greenbone/gvm-libs/pull/376)
