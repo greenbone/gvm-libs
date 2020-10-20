@@ -425,7 +425,7 @@ roundup (double cvss)
    *  that is equal to or higher than its input. For example, Roundup (4.02)
    *  returns 4.1; and Roundup (4.00) returns 4.0." */
 
-  /* 3.020000001 => 4.0 */
+  /* 3.020000001 => 3.1 */
   /* 3.000000001 => 3.0 */
 
   trim = round (cvss * 100000);
