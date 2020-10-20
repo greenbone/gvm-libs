@@ -21,9 +21,17 @@
  * @file
  * @brief CVSS utility functions
  *
- * This file contains utility functions for handling CVSS.
- * Namels a calculator for the CVSS base score from a CVSS base
- * vector.
+ * This file contains utility functions for handling CVSS v2 and v3.1.
+ * get_cvss_score_from_base_metrics calculates the CVSS base score from a CVSS
+ * base vector.
+ *
+ * CVSS v3.1:
+ *
+ * See equations at https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator and
+ * constants at https://www.first.org/cvss/v3.1/specification-document (section
+ * 7.4. Metric Values).
+ *
+ * CVSS v2:
  *
  * The base equation is the foundation of CVSS scoring. The base equation is:
  * BaseScore6
