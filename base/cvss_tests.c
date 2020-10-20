@@ -63,10 +63,10 @@ nearest (double cvss)
 
 Ensure (cvss, get_cvss_score_from_base_metrics_succeeds)
 {
-  assert_that_double (nearest (get_cvss_score_from_base_metrics ("AV:N/AC:L/Au:N/C:N/I:N/A:C")), is_equal_to_double (7.8));
-  assert_that_double (nearest (get_cvss_score_from_base_metrics ("AV:N/AC:L/Au:N/C:N/I:N/A:P")), is_equal_to_double (5.0));
-  assert_that_double (nearest (get_cvss_score_from_base_metrics ("AV:N/AC:M/Au:N/C:N/I:N/A:P")), is_equal_to_double (4.3));
-  assert_that_double (nearest (get_cvss_score_from_base_metrics ("AV:N/AC:L/Au:N/C:N/I:N/A:N")), is_equal_to_double (0.0));
+  CHECK ("AV:N/AC:L/Au:N/C:N/I:N/A:C", 7.8);
+  CHECK ("AV:N/AC:L/Au:N/C:N/I:N/A:P", 5.0);
+  CHECK ("AV:N/AC:M/Au:N/C:N/I:N/A:P", 4.3);
+  CHECK ("AV:N/AC:L/Au:N/C:N/I:N/A:N", 0.0);
 }
 
 Ensure (cvss, get_cvss_score_from_base_metrics_succeeds_v3)
@@ -80,9 +80,9 @@ Ensure (cvss, get_cvss_score_from_base_metrics_succeeds_v3)
 
 Ensure (cvss, get_cvss_score_from_base_metrics_fails)
 {
-  assert_that_double (nearest (get_cvss_score_from_base_metrics ("")), is_equal_to_double (-1.0));
-  assert_that_double (nearest (get_cvss_score_from_base_metrics ("xxx")), is_equal_to_double (-1.0));
-  assert_that_double (nearest (get_cvss_score_from_base_metrics ("//////")), is_equal_to_double (-1.0));
+  CHECK ("", -1.0);
+  CHECK ("xxx", -1.0);
+  CHECK ("//////", -1.0);
 }
 
 /* Test suite. */
