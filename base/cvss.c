@@ -332,15 +332,6 @@ __get_cvss_score (struct cvss *cvss)
          + 0.0;
 }
 
-/* @brief Impact value for v3. */
-#define V3_IMPACT_NONE 0.0
-
-/* @brief Impact value for v3. */
-#define V3_IMPACT_LOW 0.22
-
-/* @brief Impact value for v3. */
-#define V3_IMPACT_HIGH 0.56
-
 /**
  * @brief Round final score as in spec.
  *
