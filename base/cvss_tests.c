@@ -76,10 +76,18 @@ Ensure (cvss, get_cvss_score_from_base_metrics_succeeds_v3)
   CHECK ("CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N", 5.4);
   CHECK ("CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:N/I:N/A:L", 3.5);
   CHECK ("CVSS:3.1/AV:N/AC:L/PR:H/UI:R/S:U/C:N/I:L/A:N", 2.4);
+  CHECK ("CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:N/I:N/A:N", 0.0);
 
   CHECK ("CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H", 7.5);
   CHECK ("CVSS:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H", 5.5);
   CHECK ("CVSS:3.0/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N", 2.5);
+  CHECK ("CVSS:3.0/AV:N/AC:L/PR:H/UI:N/S:U/C:N/I:N/A:N", 0.0);
+
+  /* Trailing separator. */
+  CHECK ("CVSS:3.0/AV:N/AC:L/PR:H/UI:N/S:U/C:N/I:N/A:N/", 0.0);
+
+  /* We support any case in metrics. */
+  CHECK ("CVSS:3.1/av:n/ac:l/pr:n/ui:n/s:u/c:h/i:l/a:n", 8.2);
 }
 
 Ensure (cvss, get_cvss_score_from_base_metrics_fails)
@@ -87,6 +95,35 @@ Ensure (cvss, get_cvss_score_from_base_metrics_fails)
   CHECK ("", -1.0);
   CHECK ("xxx", -1.0);
   CHECK ("//////", -1.0);
+
+  /* Unsupported version. */
+  CHECK ("CVSS:3.2/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N", -1.0);
+
+  /* Metric name errors. */
+  CHECK ("CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/X:N", -1.0);
+  CHECK ("CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/X:L/A:N", -1.0);
+  CHECK ("CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/X:N/I:L/A:N", -1.0);
+  CHECK ("CVSS:3.1/AV:L/AC:H/PR:L/UI:N/X:U/C:N/I:L/A:N", -1.0);
+  CHECK ("CVSS:3.1/AV:L/AC:H/PR:L/UX:N/S:U/C:N/I:L/A:N", -1.0);
+  CHECK ("CVSS:3.1/AV:L/AC:H/PX:L/UI:N/S:U/C:N/I:L/A:N", -1.0);
+  CHECK ("CVSS:3.1/AV:L/XC:H/PR:L/UI:N/S:U/C:N/I:L/A:N", -1.0);
+  CHECK ("CVSS:3.1/AXV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N", -1.0);
+
+  /* Leading separator. */
+  CHECK ("/CVSS:3.1/AXV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N", -1.0);
+
+  /* Garbage at end of metric value. */
+  CHECK ("CVSS:3.0/AV:LX/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N", -1.0);
+  CHECK ("CVSS:3.0/AV:L/AC:HX/PR:L/UI:N/S:U/C:N/I:L/A:N", -1.0);
+  CHECK ("CVSS:3.0/AV:L/AC:H/PR:LX/UI:N/S:U/C:N/I:L/A:N", -1.0);
+  CHECK ("CVSS:3.0/AV:L/AC:H/PR:L/UI:NX/S:U/C:N/I:L/A:N", -1.0);
+  CHECK ("CVSS:3.0/AV:L/AC:H/PR:L/UI:N/S:UX/C:N/I:L/A:N", -1.0);
+  CHECK ("CVSS:3.0/AV:L/AC:H/PR:L/UI:N/S:U/C:NX/I:L/A:N", -1.0);
+  CHECK ("CVSS:3.0/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:LX/A:N", -1.0);
+  CHECK ("CVSS:3.0/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:NX", -1.0);
+
+  /* Version must be uppercase. */
+  CHECK ("cvss:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H", -1.0);
 }
 
 /* Test suite. */
