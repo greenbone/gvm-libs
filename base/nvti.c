@@ -1497,7 +1497,7 @@ nvti_add_tag (nvti_t *n, const gchar *name, const gchar *value)
       newvalue = g_strdup_printf ("%i", (int) nvti_creation_time (n));
     }
   else if (!strcmp (name, "severity_date"))
-      newvalue = g_strdup_printf ("%i", (int) parse_nvt_timestamp (value));
+    newvalue = g_strdup_printf ("%i", (int) parse_nvt_timestamp (value));
   else if (!strcmp (name, "cvss_base"))
     {
       /* Ignore this tag because it is not being used.
