@@ -83,6 +83,16 @@ if (BUILD_TESTS)
 
   target_link_libraries (array-test ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 
+  add_executable (cvss-test
+                  EXCLUDE_FROM_ALL
+                  cvss_tests.c)
+
+  add_test (cvss-test cvss-test)
+
+  target_include_directories (cvss-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (cvss-test ${CGREEN_LIBRARIES} -lm ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+
   add_executable (networking-test
                   EXCLUDE_FROM_ALL
                   networking_tests.c)
