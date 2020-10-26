@@ -24,13 +24,9 @@ Specific development libraries:
 * libgnutls >= 3.2.15 (util)
 * libuuid >= 2.25.0 (util)
 * libssh >= 0.6.0 (util)
-* libldap2 >= 2.4.44 (util)
 * libhiredis >= 0.10.1 (util)
 * libxml2 >= 2.0 (util)
 * libpcap
-
-Optional development libraries:
-* libradcli-dev >= 1.2.6 (util)
 
 Prerequisites for building documentation:
 * doxygen
@@ -49,11 +45,28 @@ Install prerequisites on Debian GNU/Linux 'Buster' 10:
     libgnutls28-dev \
     uuid-dev \
     libssh-gcrypt-dev \
-    libldap2-dev \
     libhiredis-dev \
     libxml2-dev \
-    libradcli-dev \
     libpcap-dev
+
+
+Prerequisites for Optional Features
+-----------------------------------
+
+Certain features of gvm-libs are optional and require the following:
+
+Prerequisites for LDAP authentication:
+* libldap2 library >= 2.4.44 (util) (Debian package: libldap2-dev)
+
+Prerequisites for RADIUS authentication:
+* libradcli4 library >= 1.2.6 (util) (Debian package: libradcli-dev)
+* Alternative: libfreeradius3 library (util) (Debian package: libfreeradius-dev)
+
+Install prerequisites for optional features on Debian GNU/Linux 'Buster' 10:
+
+    apt-get install \
+    libldap2-dev \
+    libradcli-dev
 
 
 Compiling gvm-libs

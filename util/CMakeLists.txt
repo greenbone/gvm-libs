@@ -98,7 +98,7 @@ option (BUILD_WITH_RADIUS "Try to build with Radius support" ON)
 option (BUILD_WITH_LDAP "Try to build with LDAP support" ON)
 
 if (BUILD_WITH_RADIUS)
-  #for radiusutils we need freerdius-client library
+  #for radiusutils we need freeradius-client library
   message (STATUS "Looking for freeradius-client library...")
   find_library (LIBFREERADIUS freeradius-client)
   if (NOT LIBFREERADIUS)
