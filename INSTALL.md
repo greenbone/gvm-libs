@@ -53,7 +53,7 @@ Install prerequisites on Debian GNU/Linux 'Buster' 10:
 Prerequisites for Optional Features
 -----------------------------------
 
-Certain features of gvm-libs are optional and requires the following:
+Certain features of gvm-libs are optional and require the following:
 
 Prerequisites for LDAP authentication:
 * libldap2 library >= 2.4.44 (util) (Debian package: libldap2-dev)
