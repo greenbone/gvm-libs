@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add support for new OSP element for defining alive test methods via separate subelements. [#409](https://github.com/greenbone/gvm-libs/pull/409)
 - Add v3 handling to get_cvss_score_from_base_metrics [#411](https://github.com/greenbone/gvm-libs/pull/411)
 - Add severity_date tag in epoch time format. [#412](https://github.com/greenbone/gvm-libs/pull/412)
+- Make more scanner preferences available to openvas-nasl. [#413](https://github.com/greenbone/gvm-libs/pull/413)
 
 ### Changed
 - Add separators for a new (ip address) field in ERRMSG and DEADHOST messages. [#376](https://github.com/greenbone/gvm-libs/pull/376)
