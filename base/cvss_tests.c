@@ -420,6 +420,9 @@ Ensure (cvss, roundup_succeeds)
   assert_that_double (roundup (0.99), is_equal_to_double (1.0));
 
   assert_that_double (roundup (1.000001), is_equal_to_double (1.0));
+
+  assert_that_double (roundup (5.299996), is_equal_to_double (5.3));
+  assert_that_double (roundup (5.500320), is_equal_to_double (5.6));
 }
 
 /* get_cvss_score_from_base_metrics */
