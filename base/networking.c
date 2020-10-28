@@ -89,8 +89,7 @@ gvm_source_iface_init (const char *iface)
     {
       if (ifa->ifa_addr && strcmp (iface, ifa->ifa_name) == 0)
         {
-          if (ifa->ifa_addr
-              && (ifa->ifa_addr->sa_family == AF_INET))
+          if (ifa->ifa_addr->sa_family == AF_INET)
             {
               struct in_addr *addr =
                 &((struct sockaddr_in *) ifa->ifa_addr)->sin_addr;
@@ -98,8 +97,7 @@ gvm_source_iface_init (const char *iface)
               memcpy (&global_source_addr, addr, sizeof (global_source_addr));
               ret = 0;
             }
-          else if (ifa->ifa_addr
-                   && (ifa->ifa_addr->sa_family == AF_INET6))
+          else if (ifa->ifa_addr->sa_family == AF_INET6)
             {
               struct sockaddr_in6 *addr;
 
