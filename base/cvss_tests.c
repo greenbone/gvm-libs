@@ -31,7 +31,6 @@ AfterEach (cvss)
 {
 }
 
-
 Ensure (cvss, roundup_succeeds)
 {
   assert_that_double (roundup (0.0), is_equal_to_double (0.0));
