@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Set source address correctly and do not try to send ARP to unreachable destination. [#401](https://github.com/greenbone/gvm-libs/pull/401)
 - Increase minimum gpgme version [#405](https://github.com/greenbone/gvm-libs/pull/405)
 - Always NULL check ifaddrs->ifa_addr [#416](https://github.com/greenbone/gvm-libs/pull/416)
+- Correct g_hash_table_remove arg [#419](https://github.com/greenbone/gvm-libs/pull/419)
 
 [20.8.1]: https://github.com/greenbone/gvm-libs/compare/v20.8.0...gvm-libs-20.08
 
