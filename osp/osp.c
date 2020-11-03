@@ -1384,7 +1384,7 @@ osp_credential_set_auth_data (osp_credential_t *credential, const char *name,
         g_hash_table_replace (credential->auth_data, g_strdup (name),
                               g_strdup (value));
       else
-        g_hash_table_remove (credential->auth_data, value);
+        g_hash_table_remove (credential->auth_data, name);
     }
   else
     {
