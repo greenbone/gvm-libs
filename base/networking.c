@@ -1031,7 +1031,7 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
 
           for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
             {
-              if ((ifa->ifa_addr->sa_family == AF_INET)
+              if (ifa->ifa_addr && (ifa->ifa_addr->sa_family == AF_INET)
                   && (ifa->ifa_flags & (IFF_LOOPBACK)))
                 {
                   interface_out = g_strdup (ifa->ifa_name);
@@ -1079,7 +1079,8 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
                     {
                       for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
                         {
-                          if ((ifa->ifa_addr->sa_family == AF_INET)
+                          if (ifa->ifa_addr
+                              && (ifa->ifa_addr->sa_family == AF_INET)
                               && (g_strcmp0 (interface_out, ifa->ifa_name)
                                   == 0))
                             {
