@@ -30,6 +30,15 @@
 #include <glib.h>
 
 int
+gvm_file_exists (const char *name);
+
+int
+gvm_file_is_executable (const char *name);
+
+int
+gvm_file_is_readable (const char *name);
+
+int
 gvm_file_check_is_dir (const char *name);
 
 int
