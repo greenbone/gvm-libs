@@ -54,9 +54,9 @@ pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
-set (FILES alivedetection.c boreas_error.c boreas_io.c cli.c ping.c sniffer.c util.c)
+set (FILES alivedetection.c arp.c boreas_error.c boreas_io.c cli.c ping.c sniffer.c util.c)
 
-set (HEADERS alivedetection.h boreas_error.h boreas_io.h cli.h ping.h sniffer.h util.h)
+set (HEADERS alivedetection.h arp.h boreas_error.h boreas_io.h cli.h ping.h sniffer.h util.h)
 
 if (BUILD_STATIC)
   set (LIBGVM_BOREAS_NAME gvm_boreas_static)
@@ -75,7 +75,7 @@ if (BUILD_SHARED)
   set_target_properties (gvm_boreas_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
   set_target_properties (gvm_boreas_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-  target_link_libraries (gvm_boreas_shared LINK_PRIVATE ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+  target_link_libraries (gvm_boreas_shared LINK_PRIVATE ${GLIB_LDFLAGS} "-lnet" ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 endif (BUILD_SHARED)
 
 set (LIBGVM_BOREAS_NAME
