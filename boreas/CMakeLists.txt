@@ -24,6 +24,29 @@ endif (NOT PKG_CONFIG_FOUND)
 
 ## Dependency checks
 
+message (STATUS "Looking for libnet...")
+find_library (NET net)
+message (STATUS "Looking for net... ${NET}")
+if (NOT NET)
+  message (SEND_ERROR "The net library is required.")
+endif (NOT NET)
+message (STATUS "Looking for libnet-config...")
+find_program (LIBNET_CONFIG libnet-config)
+
+if (LIBNET_CONFIG)
+  message (STATUS "Looking for libnet-config... ${LIBNET_CONFIG}")
+  execute_process (COMMAND libnet-config --libs
+    OUTPUT_VARIABLE LIBNET_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process (COMMAND libnet-config --cflags
+    OUTPUT_VARIABLE LIBNET_CFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+else (LIBNET_CONFIG)
+  message (STATUS "libnet-config not found, using defaults...")
+  set (LIBNET_LDFLAGS "-L/usr/lib -lnet")
+  set (LIBNET_CFLAGS "-I/usr/include")
+endif (LIBNET_CONFIG)
+
 message (STATUS "Looking for pcap...")
 find_library (PCAP pcap)
 message (STATUS "Looking for pcap... ${PCAP}")
@@ -75,7 +98,11 @@ if (BUILD_SHARED)
   set_target_properties (gvm_boreas_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
   set_target_properties (gvm_boreas_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-  target_link_libraries (gvm_boreas_shared LINK_PRIVATE ${GLIB_LDFLAGS} "-lnet" ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+  target_link_libraries (gvm_boreas_shared LINK_PRIVATE
+                         ${GLIB_LDFLAGS}
+                         ${LIBNET_LDFLAGS}
+                         ${LINKER_HARDENING_FLAGS}
+                         ${CMAKE_THREAD_LIBS_INIT})
 endif (BUILD_SHARED)
 
 set (LIBGVM_BOREAS_NAME
@@ -93,7 +120,7 @@ target_include_directories (alivedetection-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 target_link_libraries (alivedetection-test gvm_base_shared gvm_util_shared
                        ${CGREEN_LIBRARIES}
                        ${GLIB_LDFLAGS}
-                       ${PCAP_LDFLAGS}
+                       ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS}
                        ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable (boreas_error-test
@@ -113,7 +140,7 @@ add_executable (boreas_io-test
 add_test (boreas_io-test boreas_io-test)
 target_include_directories (boreas_io-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 target_link_libraries (boreas_io-test gvm_base_shared gvm_util_shared
-                       ${PCAP_LDFLAGS}
+                       ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS}
                        ${CGREEN_LIBRARIES}
                        ${GLIB_LDFLAGS}
                        ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
@@ -144,7 +171,7 @@ add_executable (sniffer-test
 add_test (sniffer-test sniffer-test)
 target_include_directories (sniffer-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 target_link_libraries (sniffer-test gvm_base_shared gvm_util_shared
-                       ${PCAP_LDFLAGS}
+                       ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS}
                        ${CGREEN_LIBRARIES}
                        ${GLIB_LDFLAGS}
                        ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
