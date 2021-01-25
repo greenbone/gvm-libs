@@ -52,6 +52,12 @@
 #define IP_ALEN 4
 #endif
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "alive scan"
+
 libnet_t *libnet = 0;
 
 uint32_t dstip;                  /* target IP */
@@ -173,7 +179,7 @@ xresolve (libnet_t *l, const char *name, int r, uint32_t *addr)
  * @return Interface or NULL if no interface found.
  */
 static const char *
-arping_lookupdev (uint32_t dstip, char *ebuf)
+arp_lookupdev (uint32_t dstip, char *ebuf)
 {
   struct ifaddrs *ifa = NULL;
   struct ifaddrs *cur;
@@ -344,7 +350,7 @@ send_arp_v4 (const char *dst_str)
   /* Get some good iface. */
   if (!ifname)
     {
-      ifname = arping_lookupdev (dstip, ebuf);
+      ifname = arp_lookupdev (dstip, ebuf);
       strip_newline (ebuf);
       if (!ifname)
         {
