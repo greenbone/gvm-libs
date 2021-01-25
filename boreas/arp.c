@@ -71,7 +71,7 @@ static const uint8_t ethnull[ETH_ALEN] = {0, 0, 0, 0, 0, 0};
 static const uint8_t ethxmas[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 static const char *ip_broadcast = "255.255.255.255";
 
-static const char *target = "Error";
+static char *target = "Error";
 
 /**
  * @brief Strip newline at end of string.
@@ -278,7 +278,7 @@ format_mac (const unsigned char *mac, char *buf, size_t bufsize)
 static void
 pingip_send ()
 {
-  static libnet_ptag_t arp = 0, eth = 0;
+  libnet_ptag_t arp = 0, eth = 0;
 
   // Padding size chosen fairly arbitrarily.
   // Without this padding some systems (e.g. Raspberry Pi 3
@@ -344,8 +344,7 @@ send_arp_v4 (const char *dst_str)
                  __func__, dst_str);
       return;
     }
-  dst_str = strdup (libnet_addr2name4 (dstip, 0));
-  target = dst_str;
+  target = g_strdup (libnet_addr2name4 (dstip, 0));
 
   /* Get some good iface. */
   if (!ifname)
@@ -417,4 +416,8 @@ send_arp_v4 (const char *dst_str)
   g_debug ("ARP PING %s", dst_str);
 
   pingip_send ();
+
+  g_free (target);
+  /* Set target to some error string again. */
+  target = "Error";
 }
