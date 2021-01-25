@@ -22,7 +22,7 @@
  * @file
  * @brief implementation of arp ping.
  *
- * Most of the functions are modified versions of functions found in 
+ * Most of the functions are modified versions of functions found in
  * https://github.com/ThomasHabets/arping/tree/arping-2.19/src.
  */
 
@@ -64,9 +64,6 @@ static uint8_t srcmac[ETH_ALEN]; /* autodetected */
 static const uint8_t ethnull[ETH_ALEN] = {0, 0, 0, 0, 0, 0};
 static const uint8_t ethxmas[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 static const char *ip_broadcast = "255.255.255.255";
-
-static int send_reply = 0;  /* Send reply instead of request */
-static int unsolicited = 0; /* Use unsolicited ARP */
 
 static const char *target = "Error";
 
@@ -284,12 +281,10 @@ pingip_send ()
   const uint8_t padding[16] = {0};
 
   if (-1
-      == (arp = libnet_build_arp (
-            ARPHRD_ETHER, ETHERTYPE_IP, ETH_ALEN, IP_ALEN,
-            send_reply ? ARPOP_REPLY : ARPOP_REQUEST, srcmac,
-            (uint8_t *) &srcip,
-            unsolicited ? (uint8_t *) ethxmas : (uint8_t *) ethnull,
-            (uint8_t *) &dstip, padding, sizeof padding, libnet, arp)))
+      == (arp = libnet_build_arp (ARPHRD_ETHER, ETHERTYPE_IP, ETH_ALEN, IP_ALEN,
+                                  ARPOP_REQUEST, srcmac, (uint8_t *) &srcip,
+                                  (uint8_t *) ethnull, (uint8_t *) &dstip,
+                                  padding, sizeof padding, libnet, arp)))
     {
       g_warning ("%s: libnet_build_arp(): %s", __func__,
                  libnet_geterror (libnet));
