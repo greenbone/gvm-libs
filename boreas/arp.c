@@ -425,6 +425,7 @@ send_arp_v4 (const char *dst_str)
   g_debug ("ARP PING %s", dst_str);
 
   pingip_send ();
+  libnet_clear_packet (libnet);
 
   g_free (target);
 }
