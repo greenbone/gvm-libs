@@ -58,20 +58,20 @@
  */
 #define G_LOG_DOMAIN "alive scan"
 
-libnet_t *libnet = 0;
+static libnet_t *libnet = 0;
 
-uint32_t dstip;                  /* target IP */
+static uint32_t dstip;           /* target IP */
 static uint8_t dstmac[ETH_ALEN]; /* ethxmas */
 
 /* autodetected, overriden by gvm_source_addr if openvas source_iface was set*/
-uint32_t srcip;
+static uint32_t srcip;
 static uint8_t srcmac[ETH_ALEN]; /* autodetected */
 
 static const uint8_t ethnull[ETH_ALEN] = {0, 0, 0, 0, 0, 0};
 static const uint8_t ethxmas[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 static const char *ip_broadcast = "255.255.255.255";
 
-static char *target = "Error";
+static char *target = NULL;
 
 /**
  * @brief Strip newline at end of string.
@@ -323,7 +323,10 @@ send_arp_v4 (const char *dst_str)
   char ebuf[LIBNET_ERRBUF_SIZE + PCAP_ERRBUF_SIZE];
   char *cp;
   const char *ifname = NULL;
+  char mac_debug_buf[128];
 
+  /* interface used for previous ping */
+  static char ifname_prev[IFNAMSIZ] = {0};
   ebuf[0] = 0;
 
   /* set globals */
@@ -334,11 +337,14 @@ send_arp_v4 (const char *dst_str)
   /* set src IP if we have global openvas src ip */
   gvm_source_addr (&srcip);
 
-  /* libnet init */
-  do_libnet_init (ifname, 0);
+  /* init libnet if not already done */
+  if (NULL == libnet)
+    {
+      do_libnet_init (ifname, 0);
+    }
 
   /* Make sure dstip and dst_str like eachother */
-  if (!xresolve (libnet, dst_str, LIBNET_RESOLVE, &dstip))
+  if (!xresolve (libnet, dst_str, LIBNET_DONT_RESOLVE, &dstip))
     {
       g_warning ("%s: Can't resolve %s. No ARP ping done for this addr.",
                  __func__, dst_str);
@@ -384,10 +390,14 @@ send_arp_v4 (const char *dst_str)
     }
 
   /*
-   * Init libnet again, because we now know the interface name.
-   * We should know it by know at least
+   * Init libnet again if the interface is not the same as the previously used
+   * one.
    */
-  do_libnet_init (ifname, 0);
+  if (0 == g_strcmp0 (ifname_prev, "") || 0 != g_strcmp0 (ifname, ifname_prev))
+    {
+      memcpy (ifname_prev, ifname, IFNAMSIZ);
+      do_libnet_init (ifname, 0);
+    }
 
   if (!(cp = (char *) libnet_get_hwaddr (libnet)))
     {
@@ -397,7 +407,7 @@ send_arp_v4 (const char *dst_str)
     }
   memcpy (srcmac, cp, ETH_ALEN);
 
-  if (srcip != INADDR_ANY)
+  if (srcip == INADDR_ANY)
     {
       if ((uint32_t) -1 == (srcip = libnet_get_ipaddr4 (libnet)))
         {
@@ -408,16 +418,13 @@ send_arp_v4 (const char *dst_str)
         }
     }
 
-  char buf[128];
   g_debug ("%s: This box: Interface: %s  IP: %s   MAC address: %s", __func__,
            ifname, libnet_addr2name4 (libnet_get_ipaddr4 (libnet), 0),
-           format_mac (srcmac, buf, sizeof (buf)));
+           format_mac (srcmac, mac_debug_buf, sizeof (mac_debug_buf)));
 
   g_debug ("ARP PING %s", dst_str);
 
   pingip_send ();
 
   g_free (target);
-  /* Set target to some error string again. */
-  target = "Error";
 }
