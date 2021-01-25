@@ -113,7 +113,7 @@ set (LIBGVM_BOREAS_NAME
 
 add_executable (alivedetection-test
                 EXCLUDE_FROM_ALL
-                alivedetection_tests.c boreas_error.c boreas_io.c ping.c
+                alivedetection_tests.c arp.c boreas_error.c boreas_io.c ping.c
                 sniffer.c util.c)
 add_test (alivedetection-test alivedetection-test)
 target_include_directories (alivedetection-test PRIVATE ${CGREEN_INCLUDE_DIRS})
@@ -135,7 +135,7 @@ target_link_libraries (boreas_error-test
 
 add_executable (boreas_io-test
                 EXCLUDE_FROM_ALL
-                boreas_io_tests.c boreas_error.c alivedetection.c ping.c
+                arp.c boreas_io_tests.c boreas_error.c alivedetection.c ping.c
                 sniffer.c util.c)
 add_test (boreas_io-test boreas_io-test)
 target_include_directories (boreas_io-test PRIVATE ${CGREEN_INCLUDE_DIRS})
@@ -147,22 +147,22 @@ target_link_libraries (boreas_io-test gvm_base_shared gvm_util_shared
 
 add_executable (cli-test
                 EXCLUDE_FROM_ALL
-                cli_tests.c boreas_error.c boreas_io.c util.c)
+                arp.c cli_tests.c boreas_error.c boreas_io.c util.c)
 add_test (cli-test cli-test)
 target_include_directories (cli-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 target_link_libraries (cli-test gvm_base_shared gvm_util_shared
                       ${CGREEN_LIBRARIES}
-                      ${GLIB_LDFLAGS}
+                      ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS}
                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable (ping-test
                 EXCLUDE_FROM_ALL
-                ping_tests.c util.c boreas_error.c)
+                ping_tests.c arp.c util.c boreas_error.c)
 add_test (ping-test ping-test)
 target_include_directories (ping-test PRIVATE ${CGREEN_INCLUDE_DIRS})
 target_link_libraries (ping-test gvm_base_shared
                        ${CGREEN_LIBRARIES}
-                       ${GLIB_LDFLAGS}
+                       ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS}
                        ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable (sniffer-test
