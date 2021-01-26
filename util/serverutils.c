@@ -1261,7 +1261,10 @@ set_gnutls_dhparams (gnutls_certificate_credentials_t creds,
   ret = gnutls_dh_params_import_pkcs3 (params, &data, GNUTLS_X509_FMT_PEM);
   unload_gnutls_file (&data);
   if (ret)
-    return -1;
+    {
+      g_free (params);
+      return -1;
+    }
   else
     gnutls_certificate_set_dh_params (creds, params);
   return 0;
