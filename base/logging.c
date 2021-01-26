@@ -480,7 +480,8 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
               log_domain_entry = entry;
 
               /* Get the struct contents. */
-              prepend_format = log_domain_entry->prepend_string;
+              if (log_domain_entry->prepend_string)
+                prepend_format = log_domain_entry->prepend_string;
               time_format = log_domain_entry->prepend_time_format;
               log_file = log_domain_entry->log_file;
               if (log_domain_entry->default_level)
