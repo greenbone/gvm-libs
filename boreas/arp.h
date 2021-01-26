@@ -21,6 +21,6 @@
 #define ARP_H
 
 void
-send_arp_v4 (const char *parm);
+send_arp_v4 (const char *);
 
 #endif /* not ARP_H */
