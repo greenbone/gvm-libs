@@ -850,8 +850,10 @@ ip_islocalhost (struct sockaddr_storage *storage)
           if (ifa->ifa_addr->sa_family == AF_INET6)
             {
               sin6 = (struct sockaddr_in6 *) (ifa->ifa_addr);
+
               /* Check if same address as local interface. */
-              if (IN6_ARE_ADDR_EQUAL (&(sin6->sin6_addr), addr6_p))
+              if (family == AF_INET6
+                  && IN6_ARE_ADDR_EQUAL (&(sin6->sin6_addr), addr6_p))
                 return TRUE;
             }
         }
