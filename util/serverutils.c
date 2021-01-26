@@ -1257,6 +1257,10 @@ set_gnutls_dhparams (gnutls_certificate_credentials_t creds,
 
   if (load_gnutls_file (dhparams_file, &data))
     return -1;
+
+/* Disable false positive warning about potential leak of memory */
+#ifndef __clang_analyzer__
+
   gnutls_dh_params_t params = g_malloc0 (sizeof (gnutls_dh_params_t));
   ret = gnutls_dh_params_import_pkcs3 (params, &data, GNUTLS_X509_FMT_PEM);
   unload_gnutls_file (&data);
@@ -1268,6 +1272,8 @@ set_gnutls_dhparams (gnutls_certificate_credentials_t creds,
   else
     gnutls_certificate_set_dh_params (creds, params);
   return 0;
+
+#endif
 }
 
 /**
