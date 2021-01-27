@@ -424,12 +424,12 @@ send_tcp (gpointer key, gpointer value, gpointer scanner_p)
  * @brief Is called in g_hash_table_foreach(). Check if ipv6 or ipv4, get
  * correct socket and start appropriate ping function.
  *
- * @param key Ip string.
+ * @param host_value_str Ip string.
  * @param value Pointer to gvm_host_t.
  * @param scanner_p Pointer to scanner struct.
  */
 void
-send_arp (gpointer key, gpointer value, gpointer scanner_p)
+send_arp (gpointer host_value_str, gpointer value, gpointer scanner_p)
 {
   struct scanner *scanner;
   struct in6_addr dst6;
@@ -438,7 +438,7 @@ send_arp (gpointer key, gpointer value, gpointer scanner_p)
 
   scanner = (struct scanner *) scanner_p;
 
-  if (g_hash_table_contains (scanner->hosts_data->alivehosts, key))
+  if (g_hash_table_contains (scanner->hosts_data->alivehosts, host_value_str))
     return;
 
   count++;
@@ -460,6 +460,18 @@ send_arp (gpointer key, gpointer value, gpointer scanner_p)
     }
   else
     {
-      send_arp_v4 (key);
+      char ipv4_str[INET_ADDRSTRLEN];
+
+      /* Need to transform the IPv6 mapped IPv4 address back to an IPv4 string.
+       * We can not just use the host_value_str as it might be an IPv4 mapped
+       * IPv6 string. */
+      if (inet_ntop (AF_INET, &(dst6_p->s6_addr32[3]), ipv4_str,
+                     sizeof (ipv4_str))
+          == NULL)
+        {
+          g_warning ("%s: Error: %s. Skipping ARP ping for '%s'", __func__,
+                     strerror (errno), (char *) host_value_str);
+        }
+      send_arp_v4 (ipv4_str);
     }
 }
