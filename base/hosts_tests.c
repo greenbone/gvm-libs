@@ -65,6 +65,10 @@ Ensure (hosts, gvm_get_host_type_returns_host_type_hostname)
 {
   assert_that (gvm_get_host_type ("www.greenbone.net"),
                is_equal_to (HOST_TYPE_NAME));
+  assert_that (gvm_get_host_type ("www.example_underscore.net"),
+               is_equal_to (HOST_TYPE_NAME));
+  assert_that (gvm_get_host_type ("www.example-dash.net"),
+               is_equal_to (HOST_TYPE_NAME));
   assert_that (gvm_get_host_type ("greenbone.net"),
                is_equal_to (HOST_TYPE_NAME));
   assert_that (gvm_get_host_type ("g"), is_equal_to (HOST_TYPE_NAME));

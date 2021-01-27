@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Increase minimum gpgme version [#405](https://github.com/greenbone/gvm-libs/pull/405)
 - Always NULL check ifaddrs->ifa_addr [#416](https://github.com/greenbone/gvm-libs/pull/416)
 - Correct g_hash_table_remove arg [#419](https://github.com/greenbone/gvm-libs/pull/419)
+- Accept underscore as valid char in hostname strings [#429](https://github.com/greenbone/gvm-libs/pull/429)
 
 [20.8.1]: https://github.com/greenbone/gvm-libs/compare/v20.8.0...gvm-libs-20.08
 
