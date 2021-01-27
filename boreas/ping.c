@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <glib.h>
 #include <ifaddrs.h> /* for getifaddrs() */
+#include <linux/sockios.h>
 #include <net/ethernet.h>
 #include <net/if.h> /* for if_nametoindex() */
 #include <netinet/icmp6.h>
@@ -35,6 +36,7 @@
 #include <netinet/tcp.h>
 #include <netpacket/packet.h> /* for sockaddr_ll */
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -137,6 +139,11 @@ send_icmp_v4 (int soc, struct in_addr *dst)
   int datalen = 56;
   struct icmphdr *icmp;
 
+  /* Throttling related variables */
+  static int init = -1;
+  static int so_sndbuf = -1; // socket send buffer
+  int cur_so_sendbuf = -1;
+
   icmp = (struct icmphdr *) sendbuf;
   icmp->type = ICMP_ECHO;
   icmp->code = 0;
@@ -148,6 +155,47 @@ send_icmp_v4 (int soc, struct in_addr *dst)
   memset (&soca, 0, sizeof (soca));
   soca.sin_family = AF_INET;
   soca.sin_addr = *dst;
+
+  /* Get size of empty SO_SNDBUF */
+  if (init == -1)
+    {
+      unsigned int optlen = sizeof (so_sndbuf);
+      if (getsockopt (soc, SOL_SOCKET, SO_SNDBUF, (void *) &so_sndbuf, &optlen)
+          == -1)
+        {
+          g_warning ("%s: getsockopt error: %s", __func__, strerror (errno));
+          so_sndbuf = -1;
+        }
+      else
+        {
+          init = 1;
+        }
+    }
+
+  /* Get the current size of the SO_SNDBUF */
+  if (ioctl (soc, SIOCOUTQ, &cur_so_sendbuf) == -1)
+    {
+      g_warning ("%s: ioctl error: %s", __func__, strerror (errno));
+      cur_so_sendbuf = -1;
+    }
+
+  /* If setting of so_sndbuf or cur_so_sendbuf failed we do not enter the
+   * throttling loop. Normally this should not occure but we really do not want
+   * to get into an infinite loop here. */
+  if (cur_so_sendbuf != -1 && so_sndbuf != -1)
+    {
+      /* Wait until SO_SNDBUF is empty enough. */
+      while (cur_so_sendbuf >= so_sndbuf)
+        {
+          usleep (100000);
+          if (ioctl (soc, SIOCOUTQ, &cur_so_sendbuf) == -1)
+            {
+              g_warning ("%s: ioctl error: %s", __func__, strerror (errno));
+              /* Do not risk getting into infinite loop */
+              break;
+            }
+        }
+    }
 
   if (sendto (soc, sendbuf, len, MSG_NOSIGNAL, (const struct sockaddr *) &soca,
               sizeof (struct sockaddr_in))
