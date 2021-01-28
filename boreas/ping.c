@@ -166,6 +166,10 @@ send_icmp_v6 (int soc, struct in6_addr *dst, int type)
   int datalen = 56;
   struct icmp6_hdr *icmp6;
 
+  /* Throttling related variables */
+  static int so_sndbuf = -1; // socket send buffer
+  static int init = -1;
+
   icmp6 = (struct icmp6_hdr *) sendbuf;
   icmp6->icmp6_type = type; /* ND_NEIGHBOR_SOLICIT or ICMP6_ECHO_REQUEST */
   icmp6->icmp6_code = 0;
@@ -180,6 +184,15 @@ send_icmp_v6 (int soc, struct in6_addr *dst, int type)
   memset (&soca, 0, sizeof (struct sockaddr_in6));
   soca.sin6_family = AF_INET6;
   soca.sin6_addr = *dst;
+
+  /* Get size of empty SO_SNDBUF */
+  if (init == -1)
+    {
+      if (get_so_sndbuf (soc, &so_sndbuf) == 0)
+        init = 1;
+    }
+  /* Throttle speed if needed */
+  throttle (soc, so_sndbuf);
 
   if (sendto (soc, sendbuf, len, MSG_NOSIGNAL, (struct sockaddr *) &soca,
               sizeof (struct sockaddr_in6))
@@ -298,6 +311,10 @@ send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p)
   struct sockaddr_in6 soca;
   struct in6_addr src;
 
+  /* Throttling related variables */
+  static int so_sndbuf = -1; // socket send buffer
+  static int init = -1;
+
   GArray *ports = scanner->ports;
   int *udpv6soc = &(scanner->udpv6soc);
   int soc = scanner->tcpv6soc;
@@ -367,6 +384,16 @@ send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p)
       memset (&soca, 0, sizeof (soca));
       soca.sin6_family = AF_INET6;
       soca.sin6_addr = ip->ip6_dst;
+
+      /* Get size of empty SO_SNDBUF */
+      if (init == -1)
+        {
+          if (get_so_sndbuf (soc, &so_sndbuf) == 0)
+            init = 1;
+        }
+      /* Throttle speed if needed */
+      throttle (soc, so_sndbuf);
+
       /*  TCP_HDRLEN(20) IP6_HDRLEN(40) */
       if (sendto (soc, (const void *) ip, 40 + 20, MSG_NOSIGNAL,
                   (struct sockaddr *) &soca, sizeof (struct sockaddr_in6))
@@ -389,6 +416,10 @@ send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
   boreas_error_t error;
   struct sockaddr_in soca;
   struct in_addr src;
+
+  /* Throttling related variables */
+  static int so_sndbuf = -1; // socket send buffer
+  static int init = -1;
 
   int soc = scanner->tcpv4soc;          /* Socket used for sending. */
   GArray *ports = scanner->ports;       /* Ports to ping. */
@@ -464,6 +495,16 @@ send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
       memset (&soca, 0, sizeof (soca));
       soca.sin_family = AF_INET;
       soca.sin_addr = ip->ip_dst;
+
+      /* Get size of empty SO_SNDBUF */
+      if (init == -1)
+        {
+          if (get_so_sndbuf (soc, &so_sndbuf) == 0)
+            init = 1;
+        }
+      /* Throttle speed if needed */
+      throttle (soc, so_sndbuf);
+
       if (sendto (soc, (const void *) ip, 40, MSG_NOSIGNAL,
                   (struct sockaddr *) &soca, sizeof (soca))
           < 0)
@@ -531,6 +572,10 @@ send_arp_v4 (int soc, struct in_addr *dst_p)
   struct arp_hdr arphdr;
   int frame_length;
   uint8_t *ether_frame;
+
+  /* Throttling related variables */
+  static int so_sndbuf = -1; // socket send buffer
+  static int init = -1;
 
   static gboolean first_time_setup_done = FALSE;
   static struct in_addr src;
@@ -626,6 +671,15 @@ send_arp_v4 (int soc, struct in_addr *dst_p)
   ether_frame[13] = ETH_P_ARP % 256;
   /* ARP header.  ETH_HDRLEN = 14, ARP_HDRLEN = 28 */
   memcpy (ether_frame + 14, &arphdr, 28 * sizeof (uint8_t));
+
+  /* Get size of empty SO_SNDBUF */
+  if (init == -1)
+    {
+      if (get_so_sndbuf (soc, &so_sndbuf) == 0)
+        init = 1;
+    }
+  /* Throttle speed if needed */
+  throttle (soc, so_sndbuf);
 
   if ((sendto (soc, ether_frame, frame_length, MSG_NOSIGNAL,
                (struct sockaddr *) &soca, sizeof (soca)))
