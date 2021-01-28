@@ -84,6 +84,73 @@ struct arp_hdr
 };
 
 /**
+ * @brief Get the size of the socket send buffer.
+ *
+ * @param[in]   soc         The socket to get the send buffer for.
+ * @param[out]  so_sndbuf   The size of the send buffer.
+ *
+ * @return 0 on succes, -1 on error. so_sndbuf is set to -1 on error.
+ */
+static int
+get_so_sndbuf (int soc, int *so_sndbuf)
+{
+  unsigned int optlen = sizeof (*so_sndbuf);
+  if (getsockopt (soc, SOL_SOCKET, SO_SNDBUF, (void *) so_sndbuf, &optlen)
+      == -1)
+    {
+      g_warning ("%s: getsockopt error: %s", __func__, strerror (errno));
+      *so_sndbuf = -1;
+      return -1;
+    }
+  return 0;
+}
+
+/**
+ * @brief Wait until output queue is small enough for sending new packets.
+ *
+ * If calls to ioctl fail in this function we might not throttle as expected
+ * and only delay by a fixed amount of time.
+ *
+ * @param soc       Socket.
+ * @param so_sndbuf Size of the socket send buffer we do not want to exceed.
+ */
+static void
+throttle (int soc, int so_sndbuf)
+{
+  // g_warning ("%s: so_sndbuf %d", __func__, so_sndbuf);
+  int cur_so_sendbuf = -1;
+
+  /* Get the current size of the output queue size */
+  if (ioctl (soc, SIOCOUTQ, &cur_so_sendbuf) == -1)
+    {
+      g_warning ("%s: ioctl error: %s", __func__, strerror (errno));
+      usleep (100000);
+      return;
+    }
+
+  /* If setting of so_sndbuf or cur_so_sendbuf failed we do not enter the
+   * throttling loop. Normally this should not occure but we really do not want
+   * to get into an infinite loop here. */
+  if (cur_so_sendbuf != -1 && so_sndbuf != -1)
+    {
+      /* Wait until output queue is empty enough. */
+      while (cur_so_sendbuf >= so_sndbuf)
+        {
+          usleep (100000);
+          if (ioctl (soc, SIOCOUTQ, &cur_so_sendbuf) == -1)
+            {
+              g_warning ("%s: ioctl error: %s", __func__, strerror (errno));
+              usleep (100000);
+              /* Do not risk getting into infinite loop */
+              return;
+            }
+        }
+    }
+
+  return;
+}
+
+/**
  * @brief Send icmp ping.
  *
  * @param soc Socket to use for sending.
@@ -140,9 +207,8 @@ send_icmp_v4 (int soc, struct in_addr *dst)
   struct icmphdr *icmp;
 
   /* Throttling related variables */
-  static int init = -1;
   static int so_sndbuf = -1; // socket send buffer
-  int cur_so_sendbuf = -1;
+  static int init = -1;
 
   icmp = (struct icmphdr *) sendbuf;
   icmp->type = ICMP_ECHO;
@@ -159,43 +225,11 @@ send_icmp_v4 (int soc, struct in_addr *dst)
   /* Get size of empty SO_SNDBUF */
   if (init == -1)
     {
-      unsigned int optlen = sizeof (so_sndbuf);
-      if (getsockopt (soc, SOL_SOCKET, SO_SNDBUF, (void *) &so_sndbuf, &optlen)
-          == -1)
-        {
-          g_warning ("%s: getsockopt error: %s", __func__, strerror (errno));
-          so_sndbuf = -1;
-        }
-      else
-        {
-          init = 1;
-        }
+      if (get_so_sndbuf (soc, &so_sndbuf) == 0)
+        init = 1;
     }
-
-  /* Get the current size of the SO_SNDBUF */
-  if (ioctl (soc, SIOCOUTQ, &cur_so_sendbuf) == -1)
-    {
-      g_warning ("%s: ioctl error: %s", __func__, strerror (errno));
-      cur_so_sendbuf = -1;
-    }
-
-  /* If setting of so_sndbuf or cur_so_sendbuf failed we do not enter the
-   * throttling loop. Normally this should not occure but we really do not want
-   * to get into an infinite loop here. */
-  if (cur_so_sendbuf != -1 && so_sndbuf != -1)
-    {
-      /* Wait until SO_SNDBUF is empty enough. */
-      while (cur_so_sendbuf >= so_sndbuf)
-        {
-          usleep (100000);
-          if (ioctl (soc, SIOCOUTQ, &cur_so_sendbuf) == -1)
-            {
-              g_warning ("%s: ioctl error: %s", __func__, strerror (errno));
-              /* Do not risk getting into infinite loop */
-              break;
-            }
-        }
-    }
+  /* Throttle speed if needed */
+  throttle (soc, so_sndbuf);
 
   if (sendto (soc, sendbuf, len, MSG_NOSIGNAL, (const struct sockaddr *) &soca,
               sizeof (struct sockaddr_in))
