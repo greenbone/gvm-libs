@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [20.8.1] (unreleased)
+## [20.8.1] (2021-02-01)
 
 ### Added
 - Add function to get duplicated hosts from the hosts list. [#387](https://github.com/greenbone/gvm-libs/pull/387)
@@ -23,7 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Accept underscore as valid char in hostname strings [#430](https://github.com/greenbone/gvm-libs/pull/430)
 - Add throttle for pinging with test_alive_hosts_only feature when socket buffer is full. [#429](https://github.com/greenbone/gvm-libs/pull/429)
 
-[20.8.1]: https://github.com/greenbone/gvm-libs/compare/v20.8.0...gvm-libs-20.08
+[20.8.1]: https://github.com/greenbone/gvm-libs/compare/v20.8.0...v20.8.1
 
 ## [20.8.0] (2020-08-12)
 
