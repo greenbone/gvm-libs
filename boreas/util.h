@@ -45,6 +45,9 @@ set_all_needed_sockets (struct scanner *, alive_test_t);
 boreas_error_t
 close_all_needed_sockets (struct scanner *, alive_test_t);
 
+void
+wait_until_so_sndbuf_empty (int, int);
+
 /* Misc hashtable functions. */
 
 int
