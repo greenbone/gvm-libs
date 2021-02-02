@@ -190,7 +190,7 @@ arp_lookupdev (uint32_t dstip, char *ebuf)
   in_addr_t best_mask = 0;
 
   /* Results */
-  static char ifname[IFNAMSIZ];
+  static char ifname[IF_NAMESIZE];
 
   *ebuf = 0;
 
@@ -325,8 +325,13 @@ send_arp_v4 (const char *dst_str)
   const char *ifname = NULL;
   char mac_debug_buf[128];
 
+  char pcap_ebuf[PCAP_ERRBUF_SIZE];
+  pcap_if_t *alldevsp = NULL;
+  /* default interface when no interface is found via arp_lookupdev() */
+  static char ifname_default[IF_NAMESIZE] = {0};
   /* interface used for previous ping */
-  static char ifname_prev[IFNAMSIZ] = {0};
+  static char ifname_prev[IF_NAMESIZE] = {0};
+
   ebuf[0] = 0;
 
   /* set globals */
@@ -341,6 +346,20 @@ send_arp_v4 (const char *dst_str)
   if (NULL == libnet)
     {
       do_libnet_init (ifname, 0);
+    }
+
+  /* init default interface if not already done */
+  if (!*ifname_default)
+    {
+      if (pcap_findalldevs (&alldevsp, pcap_ebuf) < 0)
+        g_message ("%s: Error pcap_findalldevs(): %s", __func__, pcap_ebuf);
+      if (alldevsp != NULL)
+        {
+          memcpy (ifname_default, alldevsp->name, IF_NAMESIZE);
+          pcap_freealldevs (alldevsp);
+          g_warning ("%s: Set default interface via pcap_findalldevs(): %s",
+                     __func__, ifname_default);
+        }
     }
 
   /* Make sure dstip and dst_str like eachother */
@@ -359,18 +378,19 @@ send_arp_v4 (const char *dst_str)
       strip_newline (ebuf);
       if (!ifname)
         {
-          g_warning ("%s: lookup dev: %s", __func__, ebuf);
+          g_debug ("%s: lookup dev: %s", __func__, ebuf);
         }
       if (!ifname)
         {
-          ifname = pcap_lookupdev (ebuf);
-          strip_newline (ebuf);
+          /* Only set ifname if ifname_default str is not empty. */
+          if (*ifname_default)
+            ifname = ifname_default;
+
           if (ifname)
             {
-              g_warning ("%s: Unable to automatically find "
-                         "interface to use."
-                         "Guessing interface %s.",
-                         __func__, ifname);
+              g_debug ("%s: Unable to automatically find interface to use. "
+                       "Use Guessed default interface %s.",
+                       __func__, ifname);
             }
         }
       if (!ifname)
@@ -393,9 +413,9 @@ send_arp_v4 (const char *dst_str)
    * Init libnet again if the interface is not the same as the previously used
    * one.
    */
-  if (0 == g_strcmp0 (ifname_prev, "") || 0 != g_strcmp0 (ifname, ifname_prev))
+  if (!*ifname_prev || 0 != g_strcmp0 (ifname, ifname_prev))
     {
-      memcpy (ifname_prev, ifname, IFNAMSIZ);
+      memcpy (ifname_prev, ifname, IF_NAMESIZE);
       do_libnet_init (ifname, 0);
     }
 
@@ -411,7 +431,7 @@ send_arp_v4 (const char *dst_str)
     {
       if ((uint32_t) -1 == (srcip = libnet_get_ipaddr4 (libnet)))
         {
-          g_warning ("%s: Unable to get the IPv4 address of "
+          g_warning ("%s: Unable to get the IPv4 address of default "
                      "interface %s: %s. Address '%s' will be skipped.",
                      __func__, ifname, libnet_geterror (libnet), target);
           return;
