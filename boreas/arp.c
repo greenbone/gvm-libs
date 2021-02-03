@@ -241,9 +241,6 @@ arp_lookupdev (uint32_t dstip, char *ebuf)
     }
   else
     {
-      g_debug ("%s: Failed to find iface using"
-               " getifaddrs().",
-               __func__);
       snprintf (ebuf, LIBNET_ERRBUF_SIZE,
                 "No matching interface found using getifaddrs().");
     }
@@ -357,8 +354,8 @@ send_arp_v4 (const char *dst_str)
         {
           memcpy (ifname_default, alldevsp->name, IF_NAMESIZE);
           pcap_freealldevs (alldevsp);
-          g_warning ("%s: Set default interface via pcap_findalldevs(): %s",
-                     __func__, ifname_default);
+          g_debug ("%s: Set default interface via pcap_findalldevs(): %s",
+                   __func__, ifname_default);
         }
     }
 
@@ -378,20 +375,14 @@ send_arp_v4 (const char *dst_str)
       strip_newline (ebuf);
       if (!ifname)
         {
-          g_debug ("%s: lookup dev: %s", __func__, ebuf);
+          g_debug ("%s: %s Trying to use guessed interface instead.", __func__,
+                   ebuf);
         }
       if (!ifname)
         {
           /* Only set ifname if ifname_default str is not empty. */
           if (*ifname_default)
             ifname = ifname_default;
-
-          if (ifname)
-            {
-              g_debug ("%s: Unable to automatically find interface to use. "
-                       "Use Guessed default interface %s.",
-                       __func__, ifname);
-            }
         }
       if (!ifname)
         {
@@ -438,11 +429,9 @@ send_arp_v4 (const char *dst_str)
         }
     }
 
-  g_debug ("%s: This box: Interface: %s  IP: %s   MAC address: %s", __func__,
-           ifname, libnet_addr2name4 (libnet_get_ipaddr4 (libnet), 0),
+  g_debug ("%s: Ping %s   Interface: %s   Src IP: %s   Src MAC: %s", __func__,
+           dst_str, ifname, libnet_addr2name4 (libnet_get_ipaddr4 (libnet), 0),
            format_mac (srcmac, mac_debug_buf, sizeof (mac_debug_buf)));
-
-  g_debug ("ARP PING %s", dst_str);
 
   pingip_send ();
   libnet_clear_packet (libnet);
