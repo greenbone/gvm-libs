@@ -146,7 +146,10 @@ osp_connection_new (const char *host, int port, const char *cacert,
       connection = g_malloc0 (sizeof (*connection));
       connection->socket = socket (AF_UNIX, SOCK_STREAM, 0);
       if (connection->socket == -1)
-        return NULL;
+        {
+          g_free (connection);
+          return NULL;
+        }
 
       addr.sun_family = AF_UNIX;
       strncpy (addr.sun_path, host, sizeof (addr.sun_path) - 1);
@@ -154,6 +157,7 @@ osp_connection_new (const char *host, int port, const char *cacert,
       if (connect (connection->socket, (struct sockaddr *) &addr, len) == -1)
         {
           close (connection->socket);
+          g_free (connection);
           return NULL;
         }
     }

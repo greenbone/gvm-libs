@@ -446,6 +446,7 @@ redis_direct_conn (const char *kb_path, const int kb_index)
         freeReplyObject (rep);
       redisFree (kbr->rctx);
       kbr->rctx = NULL;
+      g_free (kbr);
       return NULL;
     }
   freeReplyObject (rep);
