@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -44,6 +44,9 @@ set_all_needed_sockets (struct scanner *, alive_test_t);
 
 boreas_error_t
 close_all_needed_sockets (struct scanner *, alive_test_t);
+
+void
+wait_until_so_sndbuf_empty (int, int);
 
 /* Misc hashtable functions. */
 

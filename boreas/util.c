@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -24,11 +24,13 @@
 #include <errno.h>
 #include <glib.h>
 #include <ifaddrs.h> /* for getifaddrs() */
+#include <linux/sockios.h>
 #include <net/ethernet.h>
 #include <net/if.h>           /* for if_nametoindex() */
 #include <netpacket/packet.h> /* for sockaddr_ll */
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -612,4 +614,46 @@ count_difference (GHashTable *hashtable_A, GHashTable *hashtable_B)
     }
 
   return count;
+}
+
+/**
+ * @brief Check if socket send buffer is empty.
+ *
+ * @param[in] soc Socket.
+ * @param[out] err Set to -1 on error.
+ *
+ * @return 1 if so_sndbug is empyt, else 0.
+ */
+static int
+so_sndbuf_empty (int soc, int *err)
+{
+  int cur_so_sendbuf = -1;
+  if (ioctl (soc, SIOCOUTQ, &cur_so_sendbuf) == -1)
+    {
+      g_warning ("%s: ioctl error: %s", __func__, strerror (errno));
+      *err = -1;
+      return 0;
+    }
+  return cur_so_sendbuf ? 0 : 1;
+}
+
+/**
+ * @brief Wait until socket send buffer empty or timeout reached.
+ *
+ * @param soc     Socket.
+ * @param timout  Timeout in seconds.
+ */
+void
+wait_until_so_sndbuf_empty (int soc, int timeout)
+{
+  int cnt = 0;
+  int err = 0;
+  int empty;
+
+  empty = so_sndbuf_empty (soc, &err);
+  for (; !empty && (err != -1) && (cnt / 10 != timeout);
+       empty = so_sndbuf_empty (soc, &err), cnt++)
+    {
+      usleep (100000);
+    }
 }
