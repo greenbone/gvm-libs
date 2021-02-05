@@ -32,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Add function to get duplicated hosts from the hosts list. [#387](https://github.com/greenbone/gvm-libs/pull/387)
+- Add file access tests using effective UID/GID [#422](https://github.com/greenbone/gvm-libs/pull/422)
 
 ### Changed
 - Reduce ping timeout when using test_alive_hosts_only feature. [#400](https://github.com/greenbone/gvm-libs/pull/400)
@@ -43,8 +44,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Increase minimum gpgme version [#405](https://github.com/greenbone/gvm-libs/pull/405)
 - Always NULL check ifaddrs->ifa_addr [#416](https://github.com/greenbone/gvm-libs/pull/416)
 - Correct g_hash_table_remove arg [#419](https://github.com/greenbone/gvm-libs/pull/419)
+- Accept underscore as valid char in hostname strings [#430](https://github.com/greenbone/gvm-libs/pull/430)
+- Add throttle for pinging with test_alive_hosts_only feature when socket buffer is full. [#429](https://github.com/greenbone/gvm-libs/pull/429)
 
-[20.8.1]: https://github.com/greenbone/gvm-libs/compare/v20.8.0...gvm-libs-20.08
+[20.8.1]: https://github.com/greenbone/gvm-libs/compare/v20.8.0...v20.8.1
 
 ## [20.8.0] (2020-08-12)
 

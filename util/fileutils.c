@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2019 Greenbone Networks GmbH
+/* Copyright (C) 2009-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -61,6 +61,60 @@ gvm_file_check_is_dir (const char *name)
     }
 
   return S_ISDIR (sb.st_mode);
+}
+
+/**
+ * @brief Checks whether a file or directory exists.
+ *
+ * Unlike g_file_test this checks the permissions based on the effective
+ *  UID and GID instead of the real one.
+ *
+ * Symbolic links are followed.
+ *
+ * @param[in]  name  Name of file or directory.
+ *
+ * @return 1 if file exists, 0 if it is not.
+ */
+int
+gvm_file_exists (const char *name)
+{
+  return eaccess (name, F_OK) == 0;
+}
+
+/**
+ * @brief Checks whether a file or directory exists and is executable.
+ *
+ * Unlike g_file_test this checks the permissions based on the effective
+ *  UID and GID instead of the real one.
+ *
+ * Symbolic links are followed.
+ *
+ * @param[in]  name  Name of file or directory.
+ *
+ * @return 1 if file is executable, 0 if it is not.
+ */
+int
+gvm_file_is_executable (const char *name)
+{
+  return eaccess (name, X_OK) == 0;
+}
+
+/**
+ * @brief Checks whether a file or directory exists and is readable.
+ *
+ * Unlike g_file_test this checks the permissions based on the effective
+ *  UID and GID instead of the real one.
+ *
+ * Symbolic links are followed.
+ *
+ * @param[in]  name  Name of file or directory.
+ *
+ * @return 1 if file is readable, 0 if it is not.
+ */
+int
+gvm_file_is_readable (const char *name)
+{
+  return eaccess (name, R_OK) == 0;
 }
 
 /**

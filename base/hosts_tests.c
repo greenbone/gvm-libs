@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2019 Greenbone Networks GmbH
+/* Copyright (C) 2009-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -64,6 +64,10 @@ Ensure (hosts, gvm_get_host_type_returns_host_type_ipv6)
 Ensure (hosts, gvm_get_host_type_returns_host_type_hostname)
 {
   assert_that (gvm_get_host_type ("www.greenbone.net"),
+               is_equal_to (HOST_TYPE_NAME));
+  assert_that (gvm_get_host_type ("www.example_underscore.net"),
+               is_equal_to (HOST_TYPE_NAME));
+  assert_that (gvm_get_host_type ("www.example-dash.net"),
                is_equal_to (HOST_TYPE_NAME));
   assert_that (gvm_get_host_type ("greenbone.net"),
                is_equal_to (HOST_TYPE_NAME));

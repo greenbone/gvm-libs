@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -120,6 +120,8 @@ run_cli_scan (struct scanner *scanner, alive_test_t alive_test)
     {
       g_hash_table_foreach (scanner->hosts_data->targethosts, send_icmp,
                             scanner);
+      wait_until_so_sndbuf_empty (scanner->icmpv4soc, 10);
+      wait_until_so_sndbuf_empty (scanner->icmpv6soc, 10);
       usleep (500000);
     }
   if (alive_test & (ALIVE_TEST_TCP_SYN_SERVICE))
@@ -127,6 +129,8 @@ run_cli_scan (struct scanner *scanner, alive_test_t alive_test)
       scanner->tcp_flag = 0x02; /* SYN */
       g_hash_table_foreach (scanner->hosts_data->targethosts, send_tcp,
                             scanner);
+      wait_until_so_sndbuf_empty (scanner->tcpv4soc, 10);
+      wait_until_so_sndbuf_empty (scanner->tcpv6soc, 10);
       usleep (500000);
     }
   if (alive_test & (ALIVE_TEST_TCP_ACK_SERVICE))
@@ -134,12 +138,17 @@ run_cli_scan (struct scanner *scanner, alive_test_t alive_test)
       scanner->tcp_flag = 0x10; /* ACK */
       g_hash_table_foreach (scanner->hosts_data->targethosts, send_tcp,
                             scanner);
+      wait_until_so_sndbuf_empty (scanner->tcpv4soc, 10);
+      wait_until_so_sndbuf_empty (scanner->tcpv6soc, 10);
       usleep (500000);
     }
   if (alive_test & (ALIVE_TEST_ARP))
     {
       g_hash_table_foreach (scanner->hosts_data->targethosts, send_arp,
                             scanner);
+      wait_until_so_sndbuf_empty (scanner->arpv4soc, 10);
+      wait_until_so_sndbuf_empty (scanner->arpv6soc, 10);
+      usleep (500000);
     }
 
   sleep (WAIT_FOR_REPLIES_TIMEOUT);
