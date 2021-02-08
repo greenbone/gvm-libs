@@ -393,7 +393,11 @@ redis_new (kb_t *kb, const char *kb_path)
 
   kbr = g_malloc0 (sizeof (struct kb_redis) + strlen (kb_path) + 1);
   kbr->kb.kb_ops = &KBRedisOperations;
-  strncpy (kbr->path, kb_path, strlen (kb_path));
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wstringop-truncation"
+  #pragma GCC diagnostic ignored "-Wstringop-overflow"
+    strncpy (kbr->path, kb_path, strlen (kb_path));
+  #pragma GCC diagnostic pop
 
   if ((rc = get_redis_ctx (kbr)) < 0)
     return rc;
@@ -426,7 +430,11 @@ redis_direct_conn (const char *kb_path, const int kb_index)
 
   kbr = g_malloc0 (sizeof (struct kb_redis) + strlen (kb_path) + 1);
   kbr->kb.kb_ops = &KBRedisOperations;
-  strncpy (kbr->path, kb_path, strlen (kb_path));
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wstringop-truncation"
+  #pragma GCC diagnostic ignored "-Wstringop-overflow"
+    strncpy (kbr->path, kb_path, strlen (kb_path));
+  #pragma GCC diagnostic pop
 
   kbr->rctx = redisConnectUnix (kbr->path);
   if (kbr->rctx == NULL || kbr->rctx->err)
@@ -469,7 +477,11 @@ redis_find (const char *kb_path, const char *key)
 
   kbr = g_malloc0 (sizeof (struct kb_redis) + strlen (kb_path) + 1);
   kbr->kb.kb_ops = &KBRedisOperations;
-  strncpy (kbr->path, kb_path, strlen (kb_path));
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wstringop-truncation"
+  #pragma GCC diagnostic ignored "-Wstringop-overflow"
+    strncpy (kbr->path, kb_path, strlen (kb_path));
+  #pragma GCC diagnostic pop
 
   do
     {
