@@ -394,9 +394,8 @@ redis_new (kb_t *kb, const char *kb_path)
   kbr = g_malloc0 (sizeof (struct kb_redis) + strlen (kb_path) + 1);
   kbr->kb.kb_ops = &KBRedisOperations;
   #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wstringop-truncation"
   #pragma GCC diagnostic ignored "-Wstringop-overflow"
-    strncpy (kbr->path, kb_path, strlen (kb_path));
+    strncpy (kbr->path, kb_path, strlen (kb_path) - 1);
   #pragma GCC diagnostic pop
 
   if ((rc = get_redis_ctx (kbr)) < 0)
