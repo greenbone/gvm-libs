@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2019 Greenbone Networks GmbH
+/* Copyright (C) 2009-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -28,6 +28,15 @@
 #define _GVM_FILEUTILS_H
 
 #include <glib.h>
+
+int
+gvm_file_exists (const char *name);
+
+int
+gvm_file_is_executable (const char *name);
+
+int
+gvm_file_is_readable (const char *name);
 
 int
 gvm_file_check_is_dir (const char *name);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -26,12 +26,14 @@
 #include <errno.h>
 #include <glib.h>
 #include <ifaddrs.h> /* for getifaddrs() */
+#include <linux/sockios.h>
 #include <netinet/icmp6.h>
 #include <netinet/in.h>
 #include <netinet/ip6.h>
 #include <netinet/ip_icmp.h>
 #include <netinet/tcp.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -66,6 +68,73 @@ struct pseudohdr
 };
 
 /**
+ * @brief Get the size of the socket send buffer.
+ *
+ * @param[in]   soc         The socket to get the send buffer for.
+ * @param[out]  so_sndbuf   The size of the send buffer.
+ *
+ * @return 0 on succes, -1 on error. so_sndbuf is set to -1 on error.
+ */
+static int
+get_so_sndbuf (int soc, int *so_sndbuf)
+{
+  unsigned int optlen = sizeof (*so_sndbuf);
+  if (getsockopt (soc, SOL_SOCKET, SO_SNDBUF, (void *) so_sndbuf, &optlen)
+      == -1)
+    {
+      g_warning ("%s: getsockopt error: %s", __func__, strerror (errno));
+      *so_sndbuf = -1;
+      return -1;
+    }
+  return 0;
+}
+
+/**
+ * @brief Wait until output queue is small enough for sending new packets.
+ *
+ * If calls to ioctl fail in this function we might not throttle as expected
+ * and only delay by a fixed amount of time.
+ *
+ * @param soc       Socket.
+ * @param so_sndbuf Size of the socket send buffer we do not want to exceed.
+ */
+static void
+throttle (int soc, int so_sndbuf)
+{
+  // g_warning ("%s: so_sndbuf %d", __func__, so_sndbuf);
+  int cur_so_sendbuf = -1;
+
+  /* Get the current size of the output queue size */
+  if (ioctl (soc, SIOCOUTQ, &cur_so_sendbuf) == -1)
+    {
+      g_warning ("%s: ioctl error: %s", __func__, strerror (errno));
+      usleep (100000);
+      return;
+    }
+
+  /* If setting of so_sndbuf or cur_so_sendbuf failed we do not enter the
+   * throttling loop. Normally this should not occure but we really do not want
+   * to get into an infinite loop here. */
+  if (cur_so_sendbuf != -1 && so_sndbuf != -1)
+    {
+      /* Wait until output queue is empty enough. */
+      while (cur_so_sendbuf >= so_sndbuf)
+        {
+          usleep (100000);
+          if (ioctl (soc, SIOCOUTQ, &cur_so_sendbuf) == -1)
+            {
+              g_warning ("%s: ioctl error: %s", __func__, strerror (errno));
+              usleep (100000);
+              /* Do not risk getting into infinite loop */
+              return;
+            }
+        }
+    }
+
+  return;
+}
+
+/**
  * @brief Send icmp ping.
  *
  * @param soc Socket to use for sending.
@@ -81,6 +150,10 @@ send_icmp_v6 (int soc, struct in6_addr *dst, int type)
   int datalen = 56;
   struct icmp6_hdr *icmp6;
 
+  /* Throttling related variables */
+  static int so_sndbuf = -1; // socket send buffer
+  static int init = -1;
+
   icmp6 = (struct icmp6_hdr *) sendbuf;
   icmp6->icmp6_type = type; /* ND_NEIGHBOR_SOLICIT or ICMP6_ECHO_REQUEST */
   icmp6->icmp6_code = 0;
@@ -95,6 +168,15 @@ send_icmp_v6 (int soc, struct in6_addr *dst, int type)
   memset (&soca, 0, sizeof (struct sockaddr_in6));
   soca.sin6_family = AF_INET6;
   soca.sin6_addr = *dst;
+
+  /* Get size of empty SO_SNDBUF */
+  if (init == -1)
+    {
+      if (get_so_sndbuf (soc, &so_sndbuf) == 0)
+        init = 1;
+    }
+  /* Throttle speed if needed */
+  throttle (soc, so_sndbuf);
 
   if (sendto (soc, sendbuf, len, MSG_NOSIGNAL, (struct sockaddr *) &soca,
               sizeof (struct sockaddr_in6))
@@ -121,6 +203,10 @@ send_icmp_v4 (int soc, struct in_addr *dst)
   int datalen = 56;
   struct icmphdr *icmp;
 
+  /* Throttling related variables */
+  static int so_sndbuf = -1; // socket send buffer
+  static int init = -1;
+
   icmp = (struct icmphdr *) sendbuf;
   icmp->type = ICMP_ECHO;
   icmp->code = 0;
@@ -132,6 +218,15 @@ send_icmp_v4 (int soc, struct in_addr *dst)
   memset (&soca, 0, sizeof (soca));
   soca.sin_family = AF_INET;
   soca.sin_addr = *dst;
+
+  /* Get size of empty SO_SNDBUF */
+  if (init == -1)
+    {
+      if (get_so_sndbuf (soc, &so_sndbuf) == 0)
+        init = 1;
+    }
+  /* Throttle speed if needed */
+  throttle (soc, so_sndbuf);
 
   if (sendto (soc, sendbuf, len, MSG_NOSIGNAL, (const struct sockaddr *) &soca,
               sizeof (struct sockaddr_in))
@@ -199,6 +294,10 @@ send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p)
   boreas_error_t error;
   struct sockaddr_in6 soca;
   struct in6_addr src;
+
+  /* Throttling related variables */
+  static int so_sndbuf = -1; // socket send buffer
+  static int init = -1;
 
   GArray *ports = scanner->ports;
   int *udpv6soc = &(scanner->udpv6soc);
@@ -269,6 +368,16 @@ send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p)
       memset (&soca, 0, sizeof (soca));
       soca.sin6_family = AF_INET6;
       soca.sin6_addr = ip->ip6_dst;
+
+      /* Get size of empty SO_SNDBUF */
+      if (init == -1)
+        {
+          if (get_so_sndbuf (soc, &so_sndbuf) == 0)
+            init = 1;
+        }
+      /* Throttle speed if needed */
+      throttle (soc, so_sndbuf);
+
       /*  TCP_HDRLEN(20) IP6_HDRLEN(40) */
       if (sendto (soc, (const void *) ip, 40 + 20, MSG_NOSIGNAL,
                   (struct sockaddr *) &soca, sizeof (struct sockaddr_in6))
@@ -291,6 +400,10 @@ send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
   boreas_error_t error;
   struct sockaddr_in soca;
   struct in_addr src;
+
+  /* Throttling related variables */
+  static int so_sndbuf = -1; // socket send buffer
+  static int init = -1;
 
   int soc = scanner->tcpv4soc;          /* Socket used for sending. */
   GArray *ports = scanner->ports;       /* Ports to ping. */
@@ -366,6 +479,16 @@ send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
       memset (&soca, 0, sizeof (soca));
       soca.sin_family = AF_INET;
       soca.sin_addr = ip->ip_dst;
+
+      /* Get size of empty SO_SNDBUF */
+      if (init == -1)
+        {
+          if (get_so_sndbuf (soc, &so_sndbuf) == 0)
+            init = 1;
+        }
+      /* Throttle speed if needed */
+      throttle (soc, so_sndbuf);
+
       if (sendto (soc, (const void *) ip, 40, MSG_NOSIGNAL,
                   (struct sockaddr *) &soca, sizeof (soca))
           < 0)
