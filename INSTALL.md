@@ -26,6 +26,7 @@ Specific development libraries:
 * libssh >= 0.6.0 (util)
 * libhiredis >= 0.10.1 (util)
 * libxml2 >= 2.0 (util)
+* libnet1 >= 1.1.2.1 (boreas)
 * libpcap
 * libgcrypt
 
@@ -48,7 +49,8 @@ Install prerequisites on Debian GNU/Linux 'Buster' 10:
     libssh-gcrypt-dev \
     libhiredis-dev \
     libxml2-dev \
-    libpcap-dev
+    libpcap-dev \
+    libnet1-dev
 
 
 Prerequisites for Optional Features

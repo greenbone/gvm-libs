@@ -19,7 +19,7 @@
 
 #include "ping.h"
 
-#include "../base/networking.h" /* for gvm_routethrough() */
+#include "arp.h"
 #include "util.h"
 
 #include <arpa/inet.h>
@@ -27,14 +27,11 @@
 #include <glib.h>
 #include <ifaddrs.h> /* for getifaddrs() */
 #include <linux/sockios.h>
-#include <net/ethernet.h>
-#include <net/if.h> /* for if_nametoindex() */
 #include <netinet/icmp6.h>
 #include <netinet/in.h>
 #include <netinet/ip6.h>
 #include <netinet/ip_icmp.h>
 #include <netinet/tcp.h>
-#include <netpacket/packet.h> /* for sockaddr_ll */
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
@@ -68,19 +65,6 @@ struct pseudohdr
   u_char protocol;
   u_short length;
   struct tcphdr tcpheader;
-};
-
-struct arp_hdr
-{
-  uint16_t htype;
-  uint16_t ptype;
-  uint8_t hlen;
-  uint8_t plen;
-  uint16_t opcode;
-  uint8_t sender_mac[6];
-  uint8_t sender_ip[4];
-  uint8_t target_mac[6];
-  uint8_t target_ip[4];
 };
 
 /**
@@ -560,158 +544,24 @@ send_tcp (gpointer key, gpointer value, gpointer scanner_p)
 }
 
 /**
- * @brief Send arp ping.
- *
- * @param soc Socket to use for sending.
- * @param dst Destination address to send to.
- */
-static void
-send_arp_v4 (int soc, struct in_addr *dst_p)
-{
-  struct sockaddr_ll soca;
-  struct arp_hdr arphdr;
-  int frame_length;
-  uint8_t *ether_frame;
-
-  /* Throttling related variables */
-  static int so_sndbuf = -1; // socket send buffer
-  static int init = -1;
-
-  static gboolean first_time_setup_done = FALSE;
-  static struct in_addr src;
-  static int ifaceindex;
-  static uint8_t src_mac[6];
-  static uint8_t dst_mac[6];
-
-  memset (&soca, 0, sizeof (soca));
-
-  /* Set up data which does not change between function calls. */
-  if (!first_time_setup_done)
-    {
-      struct sockaddr_storage storage_src;
-      struct sockaddr_storage storage_dst;
-      struct sockaddr_in sin_src;
-      struct sockaddr_in sin_dst;
-
-      memset (&sin_src, 0, sizeof (struct sockaddr_in));
-      memset (&sin_dst, 0, sizeof (struct sockaddr_in));
-      sin_src.sin_family = AF_INET;
-      sin_dst.sin_family = AF_INET;
-      sin_dst.sin_addr = *dst_p;
-      memcpy (&storage_dst, &sin_dst, sizeof (sin_dst));
-      memcpy (&storage_src, &sin_src, sizeof (sin_src));
-
-      /* Get interface and set src addr. */
-      g_debug ("%s: Destination addr: %s", __func__, inet_ntoa (*dst_p));
-      gchar *interface = gvm_routethrough (&storage_dst, &storage_src);
-      if (!interface)
-        {
-          g_warning ("%s: No appropriate interface was found. Network may be "
-                     "unreachable. No ARP ping send for host %s.",
-                     __func__, inet_ntoa (*dst_p));
-          return;
-        }
-      g_debug ("%s: interface to use: %s", __func__, interface);
-      memcpy (&src, &((struct sockaddr_in *) (&storage_src))->sin_addr,
-              sizeof (struct in_addr));
-      g_debug ("%s: Source addr: %s", __func__, inet_ntoa (src));
-
-      /* Get interface index for sockaddr_ll. */
-      if ((ifaceindex = if_nametoindex (interface)) == 0)
-        g_warning ("%s: if_nametoindex: %s", __func__, strerror (errno));
-
-      /* Set MAC addresses. */
-      memset (src_mac, 0, 6 * sizeof (uint8_t));
-      memset (dst_mac, 0xff, 6 * sizeof (uint8_t));
-      if (get_source_mac_addr (interface, (unsigned char *) src_mac) != 0)
-        g_warning ("%s: get_source_mac_addr() returned error", __func__);
-
-      g_debug ("%s: Source MAC address: %02x:%02x:%02x:%02x:%02x:%02x",
-               __func__, src_mac[0], src_mac[1], src_mac[2], src_mac[3],
-               src_mac[4], src_mac[5]);
-      g_debug ("%s: Destination mac address: %02x:%02x:%02x:%02x:%02x:%02x",
-               __func__, dst_mac[0], dst_mac[1], dst_mac[2], dst_mac[3],
-               dst_mac[4], dst_mac[5]);
-
-      first_time_setup_done = TRUE;
-    }
-
-  /* Fill in sockaddr_ll.*/
-  soca.sll_ifindex = ifaceindex;
-  soca.sll_family = AF_PACKET;
-  memcpy (soca.sll_addr, src_mac, 6 * sizeof (uint8_t));
-  soca.sll_halen = 6;
-
-  /* Fill ARP header.*/
-  /* IP addresses. */
-  memcpy (&arphdr.target_ip, dst_p, 4 * sizeof (uint8_t));
-  memcpy (&arphdr.sender_ip, &src, 4 * sizeof (uint8_t));
-  /* Hardware type ethernet.
-   * Protocol type IP.
-   * Hardware address length is MAC address length.
-   * Protocol address length is length of IPv4.
-   * OpCode is ARP request. */
-  arphdr.htype = htons (1);
-  arphdr.ptype = htons (ETH_P_IP);
-  arphdr.hlen = 6;
-  arphdr.plen = 4;
-  arphdr.opcode = htons (1);
-  memcpy (&arphdr.sender_mac, src_mac, 6 * sizeof (uint8_t));
-  memset (&arphdr.target_mac, 0, 6 * sizeof (uint8_t));
-
-  /* Ethernet frame to send. */
-  ether_frame = g_malloc0 (IP_MAXPACKET);
-  /* (MAC + MAC + ethernet type + ARP_HDRLEN) */
-  frame_length = 6 + 6 + 2 + 28;
-
-  memcpy (ether_frame, dst_mac, 6 * sizeof (uint8_t));
-  memcpy (ether_frame + 6, src_mac, 6 * sizeof (uint8_t));
-  /* ethernet type code */
-  ether_frame[12] = ETH_P_ARP / 256;
-  ether_frame[13] = ETH_P_ARP % 256;
-  /* ARP header.  ETH_HDRLEN = 14, ARP_HDRLEN = 28 */
-  memcpy (ether_frame + 14, &arphdr, 28 * sizeof (uint8_t));
-
-  /* Get size of empty SO_SNDBUF */
-  if (init == -1)
-    {
-      if (get_so_sndbuf (soc, &so_sndbuf) == 0)
-        init = 1;
-    }
-  /* Throttle speed if needed */
-  throttle (soc, so_sndbuf);
-
-  if ((sendto (soc, ether_frame, frame_length, MSG_NOSIGNAL,
-               (struct sockaddr *) &soca, sizeof (soca)))
-      <= 0)
-    g_warning ("%s: sendto(): %s", __func__, strerror (errno));
-
-  g_free (ether_frame);
-
-  return;
-}
-
-/**
  * @brief Is called in g_hash_table_foreach(). Check if ipv6 or ipv4, get
  * correct socket and start appropriate ping function.
  *
- * @param key Ip string.
+ * @param host_value_str Ip string.
  * @param value Pointer to gvm_host_t.
  * @param scanner_p Pointer to scanner struct.
  */
 void
-send_arp (gpointer key, gpointer value, gpointer scanner_p)
+send_arp (gpointer host_value_str, gpointer value, gpointer scanner_p)
 {
   struct scanner *scanner;
   struct in6_addr dst6;
   struct in6_addr *dst6_p = &dst6;
-  struct in_addr dst4;
-  struct in_addr *dst4_p = &dst4;
   static int count = 0;
 
   scanner = (struct scanner *) scanner_p;
 
-  if (g_hash_table_contains (scanner->hosts_data->alivehosts, key))
+  if (g_hash_table_contains (scanner->hosts_data->alivehosts, host_value_str))
     return;
 
   count++;
@@ -733,7 +583,18 @@ send_arp (gpointer key, gpointer value, gpointer scanner_p)
     }
   else
     {
-      dst4.s_addr = dst6_p->s6_addr32[3];
-      send_arp_v4 (scanner->arpv4soc, dst4_p);
+      char ipv4_str[INET_ADDRSTRLEN];
+
+      /* Need to transform the IPv6 mapped IPv4 address back to an IPv4 string.
+       * We can not just use the host_value_str as it might be an IPv4 mapped
+       * IPv6 string. */
+      if (inet_ntop (AF_INET, &(dst6_p->s6_addr32[3]), ipv4_str,
+                     sizeof (ipv4_str))
+          == NULL)
+        {
+          g_warning ("%s: Error: %s. Skipping ARP ping for '%s'", __func__,
+                     strerror (errno), (char *) host_value_str);
+        }
+      send_arp_v4 (ipv4_str);
     }
 }
