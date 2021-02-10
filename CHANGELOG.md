@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
+Use a char pointer instead of an zero-lenght array as kb_redis struct member. [443](https://github.com/greenbone/gvm-libs/pull/443)
+
 ### Fixed
 * Fixing [#434](https://github.com/greenbone/gvm-libs/pull/434) by removing the extra parentheses in `base/networking.c` [#437](https://github.com/greenbone/gvm-libs/pull/437)
 * Adding initialization to struct scanner in `boreas/util_tests.c`. [#438](https://github.com/greenbone/gvm-libs/pull/438)
