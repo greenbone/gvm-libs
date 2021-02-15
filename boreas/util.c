@@ -641,7 +641,7 @@ so_sndbuf_empty (int soc, int *err)
  * @brief Wait until socket send buffer empty or timeout reached.
  *
  * @param soc     Socket.
- * @param timout  Timeout in seconds.
+ * @param timeout Timeout in seconds.
  */
 void
 wait_until_so_sndbuf_empty (int soc, int timeout)
