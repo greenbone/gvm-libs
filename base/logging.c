@@ -742,6 +742,50 @@ log_func_for_gnutls (int level, const char *message)
 }
 
 /**
+ * @brief Check permissions of log file and log file directory.
+ *
+ * @param log_domain_entry  Log domain entry.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int
+check_log_file (gvm_logging_t *log_domain_entry)
+{
+  GIOChannel *channel = NULL;
+  GError *error = NULL;
+  gchar *log_file = NULL;
+
+  if (log_domain_entry->log_file)
+    log_file = log_domain_entry->log_file;
+
+  if (!log_file)
+    return -1;
+  else
+    channel = g_io_channel_new_file (log_file, "a", &error);
+
+  if (!channel)
+    {
+      gchar *log = g_strdup (log_file);
+      gchar *dir = dirname (log);
+
+      /* Ensure directory exists. */
+      if (g_mkdir_with_parents (dir, 0755)) /* "rwxr-xr-x" */
+        {
+          g_free (log);
+          return -1;
+        }
+      g_free (log);
+
+      /* Try again. */
+      error = NULL;
+      channel = g_io_channel_new_file (log_file, "a", &error);
+      if (!channel)
+        return -1;
+    }
+  return 0;
+}
+
+/**
  * @brief Sets up routing of logdomains to log handlers.
  *
  * Iterates over the link list and adds the groups to the handler.
