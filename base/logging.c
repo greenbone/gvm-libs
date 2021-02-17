@@ -791,11 +791,17 @@ check_log_file (gvm_logging_t *log_domain_entry)
  * Iterates over the link list and adds the groups to the handler.
  *
  * @param gvm_log_config_list A pointer to the configuration linked list.
+ *
+ * @return 0 on success, -1 if not able to create log file directory or open log
+ * file for some domain.
  */
-void
+int
 setup_log_handlers (GSList *gvm_log_config_list)
 {
   GSList *log_domain_list_tmp;
+  int err;
+  int ret = 0;
+
   if (gvm_log_config_list != NULL)
     {
       /* Go to the head of the list. */
@@ -807,6 +813,15 @@ setup_log_handlers (GSList *gvm_log_config_list)
 
           /* Get the list data which is an gvm_logging_t struct. */
           log_domain_entry = log_domain_list_tmp->data;
+
+          err = check_log_file (log_domain_entry);
+          if (err)
+            {
+              ret = -1;
+              /* Go to the next item. */
+              log_domain_list_tmp = g_slist_next (log_domain_list_tmp);
+              continue;
+            }
 
           GLogFunc logfunc =
 #if 0
@@ -841,4 +856,6 @@ setup_log_handlers (GSList *gvm_log_config_list)
                       | G_LOG_LEVEL_ERROR | G_LOG_FLAG_FATAL
                       | G_LOG_FLAG_RECURSION),
     (GLogFunc) gvm_log_func, gvm_log_config_list);
+
+  return ret;
 }
