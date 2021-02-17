@@ -44,7 +44,7 @@ gvm_log_func (const char *, GLogLevelFlags, const char *, gpointer);
 void
 log_func_for_gnutls (int, const char *);
 
-void
+int
 setup_log_handlers (GSList *);
 
 void
