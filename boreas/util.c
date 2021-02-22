@@ -417,7 +417,7 @@ static boreas_error_t
 set_socket (socket_type_t socket_type, int *scanner_socket)
 {
   boreas_error_t error = NO_ERROR;
-  int soc;
+  int soc = -1;
   switch (socket_type)
     {
     case UDPV4:
