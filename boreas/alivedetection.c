@@ -127,13 +127,13 @@ scan (alive_test_t alive_test)
 
               /* If the max_scan_hosts limit was reached we can not tell ospd
                * the true number of dead hosts. The number of alive hosts which
-               * are above the max_scan_hosts limit are not to be substracted
+               * are above the max_scan_hosts limit are not to be subtracted
                * form the dead hosts to send. They are considered as dead hosts
                * for the progress bar.*/
               if (scanner.scan_restrictions->max_scan_hosts_reached)
                 {
                   /* Handle the case where we reach the max_scan_hosts for the
-                   * first time. We may have to considere some of the new alive
+                   * first time. We may have to consider some of the new alive
                    * hosts as dead because of the restriction. E.g
                    * curr_alive=110 prev_alive=90 max_scan_hosts=100 batch=100.
                    * Normally we would send 80 as dead in this batch (20 new
@@ -229,7 +229,7 @@ scan (alive_test_t alive_test)
 
   stop_sniffer_thread (&scanner, sniffer_thread_id);
 
-  /* If only ICMP was specified we continously sent updates about dead hosts to
+  /* If only ICMP was specified we continuously send updates about dead hosts to
    * ospd while checking the hosts. We now only have to send the dead hosts of
    * the last batch. This is done here to catch the last alive hosts which may
    * have arrived after all packets were already sent.

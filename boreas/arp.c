@@ -63,7 +63,7 @@ static libnet_t *libnet = 0;
 static uint32_t dstip;           /* target IP */
 static uint8_t dstmac[ETH_ALEN]; /* ethxmas */
 
-/* autodetected, overriden by gvm_source_addr if openvas source_iface was set*/
+/* autodetected, overridden by gvm_source_addr if openvas source_iface was set*/
 static uint32_t srcip;
 static uint8_t srcmac[ETH_ALEN]; /* autodetected */
 
@@ -359,7 +359,7 @@ send_arp_v4 (const char *dst_str)
         }
     }
 
-  /* Make sure dstip and dst_str like eachother */
+  /* Make sure dstip and dst_str like each other */
   if (!xresolve (libnet, dst_str, LIBNET_DONT_RESOLVE, &dstip))
     {
       g_warning ("%s: Can't resolve %s. No ARP ping done for this addr.",
