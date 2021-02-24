@@ -651,7 +651,7 @@ port_range_ranges (const char *port_range)
 
       if (element_strlen >= 2)
         {
-          if ((element[0] == 'T'))
+          if (element[0] == 'T')
             {
               element++;
               while (*element && isblank (*element))
@@ -662,7 +662,7 @@ port_range_ranges (const char *port_range)
                   tcp = 1;
                 }
             }
-          else if ((element[0] == 'U'))
+          else if (element[0] == 'U')
             {
               element++;
               while (*element && isblank (*element))
@@ -791,6 +791,7 @@ ip_islocalhost (struct sockaddr_storage *storage)
   family = storage->ss_family;
   addr6_p = &addr6;
   addr_p = &addr;
+  addr.s_addr = 0;
 
   if (family == AF_INET)
     {

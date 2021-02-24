@@ -22,15 +22,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Continuously send dead hosts to ospd-openvas to enable a smooth progess bar if only ICMP is chosen as alive test.  [#389](https://github.com/greenbone/gvm-libs/pull/389)
 - Retry if response via tls1.3 is still not received. [#394](https://github.com/greenbone/gvm-libs/pull/394)
 - Replace current implementation of alive test arp ping with version using libnet. [#423](https://github.com/greenbone/gvm-libs/pull/423)
-* Let setup_log_handlers return an error if it does not have write access to some log file or log dir instead of aborting immediately. [#447](https://github.com/greenbone/gvm-libs/pull/447)
+- Let setup_log_handlers return an error if it does not have write access to some log file or log dir instead of aborting immediately. [#447](https://github.com/greenbone/gvm-libs/pull/447)
 
 ### Removed
 - Remove handling of severity class from auth [#402](https://github.com/greenbone/gvm-libs/pull/402)
 - Remove version from the nvticache name. [#386](https://github.com/greenbone/gvm-libs/pull/386)
 
-[unreleased]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...master
+[21.04]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...master
 
-## [20.8.1] (unreleased)
+## [20.8.2] (unreleased)
+
+### Changed
+- Use a char pointer instead of an zero-lenght array as kb_redis struct member. [443](https://github.com/greenbone/gvm-libs/pull/443)
+
+### Fixed
+- Fixing [#434](https://github.com/greenbone/gvm-libs/pull/434) by removing the extra parentheses in `base/networking.c` [#437](https://github.com/greenbone/gvm-libs/pull/437)
+- Adding initialization to struct scanner in `boreas/util_tests.c`. [#438](https://github.com/greenbone/gvm-libs/pull/438)
+- Fix warnings about uninitialized variables. [#448](https://github.com/greenbone/gvm-libs/pull/448)
+
+[20.8.2]: https://github.com/greenbone/gvm-libs/compare/v20.8.1...gvm-libs-20.08
+
+## [20.8.1] (2021-02-01)
 
 ### Added
 - Add function to get duplicated hosts from the hosts list. [#387](https://github.com/greenbone/gvm-libs/pull/387)
