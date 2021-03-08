@@ -744,6 +744,8 @@ log_func_for_gnutls (int level, const char *message)
 /**
  * @brief Check permissions of log file and log file directory.
  *
+ * Do not check permissions if log file is syslog or empty string.
+ *
  * @param log_domain_entry  Log domain entry.
  *
  * @return 0 on success, -1 on error.
@@ -758,11 +760,18 @@ check_log_file (gvm_logging_t *log_domain_entry)
   if (log_domain_entry->log_file)
     log_file = log_domain_entry->log_file;
 
+  // No log file was specified or log file is empty in the openvas_log.conf.
+  // stderr will be used as default later on. See gvm_log_func.
   if (!log_file)
-    return -1;
-  else
-    channel = g_io_channel_new_file (log_file, "a", &error);
+    return 0;
+  if (!g_strcmp0 (log_file, ""))
+    return 0;
 
+  // If syslog is used we do not need to check the log file permissions.
+  if (g_ascii_strcasecmp (log_file, "syslog") == 0)
+    return 0;
+
+  channel = g_io_channel_new_file (log_file, "a", &error);
   if (!channel)
     {
       gchar *log = g_strdup (log_file);
