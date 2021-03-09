@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [21.04] (unreleased)
 
 ### Added
+<<<<<<< HEAD
 - Use dedicated port list for alive detection (Boreas only) if supplied via OSP. [#391](https://github.com/greenbone/gvm-libs/pull/391)
 - Allow to re allocate the finish flag in the host queue for alive tests.
   [#407](https://github.com/greenbone/gvm-libs/pull/407)
@@ -16,6 +17,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add v3 handling to get_cvss_score_from_base_metrics. [#411](https://github.com/greenbone/gvm-libs/pull/411)
 - Add severity_date tag in epoch time format. [#412](https://github.com/greenbone/gvm-libs/pull/412)
 - Make more scanner preferences available to openvas-nasl. [#413](https://github.com/greenbone/gvm-libs/pull/413)
+=======
+- Add function ldap_enable_debug () [#453](https://github.com/greenbone/gvm-libs/pull/453)
+>>>>>>> 5ea6c68... Add CHANGELOG message for ldap_enable_debug
 
 ### Changed
 - Add separators for a new (ip address) field in ERRMSG and DEADHOST messages. [#376](https://github.com/greenbone/gvm-libs/pull/376)
