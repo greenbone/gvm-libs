@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add v3 handling to get_cvss_score_from_base_metrics. [#411](https://github.com/greenbone/gvm-libs/pull/411)
 - Add severity_date tag in epoch time format. [#412](https://github.com/greenbone/gvm-libs/pull/412)
 - Make more scanner preferences available to openvas-nasl. [#413](https://github.com/greenbone/gvm-libs/pull/413)
+- Use memory purge redis command when initializing new kb. [#452](https://github.com/greenbone/gvm-libs/pull/452)
 
 ### Changed
 - Add separators for a new (ip address) field in ERRMSG and DEADHOST messages. [#376](https://github.com/greenbone/gvm-libs/pull/376)
