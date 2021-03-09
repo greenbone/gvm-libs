@@ -51,6 +51,45 @@
  */
 
 /**
+ * @brief Wrapper function to use glib logging for LDAP debug logging.
+ */
+static void
+ldap_log (const char *message)
+{
+  g_debug ("OpenLDAP: %s", message);
+}
+
+/**
+ * @brief Enable OpenLDAP debug logging.
+ *
+ * @return 0 success, -1 error.
+ */
+int
+ldap_enable_debug ()
+{
+  int ret;
+  static int debug_level = 65535;
+
+  ret = ber_set_option (NULL, LBER_OPT_LOG_PRINT_FN, ldap_log);
+  if (ret != LBER_OPT_SUCCESS)
+    {
+      g_warning ("%s: Failed to set LDAP debug print function: %s",
+                 __func__, ldap_err2string (ret));
+      return -1;
+    }
+
+  ret = ldap_set_option (NULL, LDAP_OPT_DEBUG_LEVEL, &debug_level);
+  if (ret != LDAP_OPT_SUCCESS)
+    {
+      g_warning ("%s: Failed to set LDAP debug level: %s",
+                 __func__, ldap_err2string (ret));
+      return -1;
+    }
+
+  return 0;
+}
+
+/**
  * @brief Authenticate against an ldap directory server.
  *
  * @param[in] info      Schema and address to use.
@@ -454,6 +493,18 @@ ldap_auth_dn_is_good (const gchar *authdn)
 }
 
 #else
+
+/**
+ * @brief Dummy function for enabling LDAP debugging for manager.
+ *
+ * @return Always -1 for failure.
+ */
+int
+ldap_enable_debug ()
+{
+  g_warning ("%s: GVM-libs compiled without LDAP", __func__);
+  return -1;
+}
 
 /**
  * @brief Dummy function for manager.
