@@ -381,6 +381,33 @@ redis_get_kb_index (kb_t kb)
 }
 
 /**
+ * @brief Attempt to purge dirty pages.
+ *
+ * Attempt to purge dirty pages so these can be reclaimed by the allocator.
+ * This command only works when using jemalloc as an allocator, and evaluates
+ * to a benign NOOP for all others. Command is applied to complete redis
+ * instance and not only single db.
+ *
+ * @param[in] kb KB handle where to run the command.
+ *
+ * @return 0 on success, non-null on error.
+ */
+static int
+redis_memory_purge (kb_t kb)
+{
+  redisReply *rep;
+  int rc = 0;
+
+  rep = redis_cmd (redis_kb (kb), "MEMORY PURGE");
+  if (!rep || rep->type == REDIS_REPLY_ERROR)
+    rc = -1;
+  if (rep)
+    freeReplyObject (rep);
+
+  return rc;
+}
+
+/**
  * @brief Initialize a new Knowledge Base object.
  *
  * @param[in] kb  Reference to a kb_t to initialize.
