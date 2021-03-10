@@ -35,6 +35,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [20.8.2] (unreleased)
 
+### Added
+- Add function ldap_enable_debug () [#453](https://github.com/greenbone/gvm-libs/pull/453)
+
 ### Changed
 - Use a char pointer instead of an zero-lenght array as kb_redis struct member. [443](https://github.com/greenbone/gvm-libs/pull/443)
 
