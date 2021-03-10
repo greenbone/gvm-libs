@@ -62,7 +62,7 @@ struct kb_redis
   unsigned int max_db; /**< Max # of databases. */
   unsigned int db;     /**< Namespace ID number, 0 if uninitialized. */
   redisContext *rctx;  /**< Redis client context. */
-  char path[0];        /**< Path to the server socket. */
+  char *path;          /**< Path to the server socket. */
 };
 #define redis_kb(__kb) ((struct kb_redis *) (__kb))
 
@@ -276,6 +276,7 @@ get_redis_ctx (struct kb_redis *kbr)
              kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
       redisFree (kbr->rctx);
       kbr->rctx = NULL;
+      g_free (kbr->path);
       return -1;
     }
 
@@ -285,6 +286,7 @@ get_redis_ctx (struct kb_redis *kbr)
       g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL, "No redis DB available");
       redisFree (kbr->rctx);
       kbr->rctx = NULL;
+      g_free (kbr->path);
       return -2;
     }
 
@@ -352,6 +354,7 @@ redis_delete (kb_t kb)
 
   if (kbr->rctx != NULL)
     {
+      g_free (kbr->path);
       redisFree (kbr->rctx);
       kbr->rctx = NULL;
     }
@@ -391,12 +394,15 @@ redis_new (kb_t *kb, const char *kb_path)
   struct kb_redis *kbr;
   int rc = 0;
 
-  kbr = g_malloc0 (sizeof (struct kb_redis) + strlen (kb_path) + 1);
+  kbr = g_malloc0 (sizeof (struct kb_redis));
   kbr->kb.kb_ops = &KBRedisOperations;
-  strncpy (kbr->path, kb_path, strlen (kb_path));
+  kbr->path = g_strdup (kb_path);
 
   if ((rc = get_redis_ctx (kbr)) < 0)
-    return rc;
+    {
+      redis_delete ((kb_t) kbr);
+      return rc;
+    }
   if (redis_test_connection (kbr))
     {
       g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
@@ -424,9 +430,9 @@ redis_direct_conn (const char *kb_path, const int kb_index)
   struct kb_redis *kbr;
   redisReply *rep;
 
-  kbr = g_malloc0 (sizeof (struct kb_redis) + strlen (kb_path) + 1);
+  kbr = g_malloc0 (sizeof (struct kb_redis));
   kbr->kb.kb_ops = &KBRedisOperations;
-  strncpy (kbr->path, kb_path, strlen (kb_path));
+  kbr->path = g_strdup (kb_path);
 
   kbr->rctx = redisConnectUnix (kbr->path);
   if (kbr->rctx == NULL || kbr->rctx->err)
@@ -435,6 +441,7 @@ redis_direct_conn (const char *kb_path, const int kb_index)
              "%s: redis connection error to %s: %s", __func__, kbr->path,
              kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
       redisFree (kbr->rctx);
+      g_free (kbr->path);
       g_free (kbr);
       return NULL;
     }
@@ -446,6 +453,8 @@ redis_direct_conn (const char *kb_path, const int kb_index)
         freeReplyObject (rep);
       redisFree (kbr->rctx);
       kbr->rctx = NULL;
+      g_free (kbr->path);
+      g_free (kbr);
       return NULL;
     }
   freeReplyObject (rep);
@@ -466,9 +475,9 @@ redis_find (const char *kb_path, const char *key)
   struct kb_redis *kbr;
   unsigned int i = 1;
 
-  kbr = g_malloc0 (sizeof (struct kb_redis) + strlen (kb_path) + 1);
+  kbr = g_malloc0 (sizeof (struct kb_redis));
   kbr->kb.kb_ops = &KBRedisOperations;
-  strncpy (kbr->path, kb_path, strlen (kb_path));
+  kbr->path = g_strdup (kb_path);
 
   do
     {
@@ -481,6 +490,7 @@ redis_find (const char *kb_path, const char *key)
                  "%s: redis connection error to %s: %s", __func__, kbr->path,
                  kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
           redisFree (kbr->rctx);
+          g_free (kbr->path);
           g_free (kbr);
           return NULL;
         }
@@ -524,6 +534,7 @@ redis_find (const char *kb_path, const char *key)
     }
   while (i < kbr->max_db);
 
+  g_free (kbr->path);
   g_free (kbr);
   return NULL;
 }
@@ -1497,6 +1508,7 @@ redis_flush_all (kb_t kb, const char *except)
     }
   while (i < kbr->max_db);
 
+  g_free (kbr->path);
   g_free (kb);
   return 0;
 }

@@ -89,7 +89,7 @@ struct arp_hdr
  * @param[in]   soc         The socket to get the send buffer for.
  * @param[out]  so_sndbuf   The size of the send buffer.
  *
- * @return 0 on succes, -1 on error. so_sndbuf is set to -1 on error.
+ * @return 0 on success, -1 on error. so_sndbuf is set to -1 on error.
  */
 static int
 get_so_sndbuf (int soc, int *so_sndbuf)
@@ -129,7 +129,7 @@ throttle (int soc, int so_sndbuf)
     }
 
   /* If setting of so_sndbuf or cur_so_sendbuf failed we do not enter the
-   * throttling loop. Normally this should not occure but we really do not want
+   * throttling loop. Normally this should not occur but we really do not want
    * to get into an infinite loop here. */
   if (cur_so_sendbuf != -1 && so_sndbuf != -1)
     {

@@ -33,7 +33,7 @@ Prerequisites for building documentation:
 * xmltoman (optional, for building man page)
 
 Prerequisites for building tests:
-* Cgreen (optional, for building tests)
+* [Cgreen](https://cgreen-devs.github.io/#_installing_cgreen) (optional, for building tests)
 
 Install prerequisites on Debian GNU/Linux 'Buster' 10:
 
@@ -78,27 +78,34 @@ files before configuring:
 
     export PKG_CONFIG_PATH=/your/location/lib/pkgconfig:$PKG_CONFIG_PATH
 
-Create a build directory and change into it with
+Create a build directory and change working directory into it with
 
-    mkdir build
-    cd build
+        mkdir build && cd build
 
-Configure the build with
+Afterwards you can run `cmake` with different options:
+* Configure `gvm-libs` build with a custom installation path:
 
-    cmake -DCMAKE_INSTALL_PREFIX=/path/to/your/installation ..
+        cmake -DCMAKE_INSTALL_PREFIX=/path/to/your/installation ..
 
-or (if you want to use the default installation path /usr/local)
+* or (if you want to use the default installation path `/usr/local`):
 
-    cmake ..
+        cmake ..
 
-This only needs to be done once.
+* Configure `gvm-libs` build with tests, you need to run `cmake` with `BUILD_TESTS`:
 
-Thereafter, the following commands are useful.
+        cmake -DBUILD_TESTS=ON ..
+
+The `cmake` command only needs to be executed once. Further information regarding cmake can be found [here](https://cmake.org/cmake/help/latest/manual/cmake.1.html#) or with the command `cmake --help-full`.
+You can list all project options and settable variables with `cmake -LA`.
+
+Thereafter, you need to compile and install the project with `make`.
+The following command options are available:
 
     make                # build the libraries
+    make help           # list possible make commands
     make doc            # build the documentation
     make doc-full       # build more developer-oriented documentation
-    make tests          # build tests
+    make tests          # build tests (requires BUILD_TESTS activated)
     make install        # install the build
     make rebuild_cache  # rebuild the cmake cache
     make format         # code style and formatting
@@ -106,12 +113,17 @@ Thereafter, the following commands are useful.
 Please note that you may have to execute `make install` as root, especially if
 you have specified a prefix for which your user does not have full permissions.
 
-To clean up the build environment, simply remove the contents of the `build`
+You can also install specific components with make. See `make help` for more details.
+You can remove the compiled binaries with `make clean`.
+
+To clean up the full build environment, simply remove the contents of the `build`
 directory you created above.
 
+    cd .. && rm -rf build
 
-Configuration Options
----------------------
+
+Configurable Options
+--------------------
 
 During compilation, the build process uses a set of compiler options which
 enable very strict error checking and asks the compiler to abort should it detect
