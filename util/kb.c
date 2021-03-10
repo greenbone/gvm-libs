@@ -440,6 +440,11 @@ redis_new (kb_t *kb, const char *kb_path)
     }
 
   *kb = (kb_t) kbr;
+
+  /* Try to make unused memory available for the OS again. */
+  if (redis_memory_purge (*kb))
+    g_warning ("%s: Memory purge was not successfull", __func__);
+
   return rc;
 }
 
