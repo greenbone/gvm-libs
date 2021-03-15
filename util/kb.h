@@ -206,6 +206,11 @@ struct kb_operations
    */
   int (*kb_add_int_unique) (kb_t, const char *, int);
   /**
+   * Fucntion provided by an implementation to insert (append) a new
+   * unique and volatile entry under a given name.
+   */
+  int (*kb_add_int_unique_volatile) (kb_t, const char *, int, int);
+  /**
    * Function provided by an implementation to get (replace) a new entry
    * under a given name.
    */
@@ -552,6 +557,26 @@ kb_item_add_int_unique (kb_t kb, const char *name, int val)
   assert (kb->kb_ops->kb_add_int_unique);
 
   return kb->kb_ops->kb_add_int_unique (kb, name, val);
+}
+
+/**
+ * @brief Insert (append) a new unique and volatile entry under a given name.
+ * @param[in] kb     Reference to a kb_t to initialize.
+ * @param[in] name   Item name.
+ * @param[in] val    Item value.
+ * @param[in] expire Item expire.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static inline int
+kb_add_int_unique_volatile (kb_t kb, const char *name, int val, int expire)
+{
+  assert (kb);
+  assert (KBDefaultOperations);
+  assert (KBDefaultOperations->kb_add_int_unique_volatile);
+
+  return KBDefaultOperations->kb_add_int_unique_volatile (kb, name, val,
+                                                          expire);
 }
 
 /**

@@ -1379,6 +1379,60 @@ redis_set_str (kb_t kb, const char *name, const char *val, size_t len)
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
  * @param[in] val  Item value.
+ * @param[in] expire Item expire.
+ *
+ * @return 0 on success, non-null on error.
+ */
+static int
+redis_add_int_unique_volatile (kb_t kb, const char *name, int val, int expire)
+{
+  struct kb_redis *kbr;
+  redisReply *rep;
+  int rc = 0;
+  redisContext *ctx;
+
+  kbr = redis_kb (kb);
+  if (get_redis_ctx (kbr) < 0)
+    return -1;
+  ctx = kbr->rctx;
+  redisAppendCommand (ctx, "LREM %s 1 %d", name, val);
+  redisAppendCommand (ctx, "RPUSH %s %d", name, val);
+  redisAppendCommand (ctx, "EXPIRE %s %d", name, expire);
+  /* Check LREM reply. */
+  redisGetReply (ctx, (void **) &rep);
+  if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
+    g_debug ("Key '%s' already contained integer '%d'", name, val);
+  freeReplyObject (rep);
+  /* Check PUSH reply. */
+  redisGetReply (ctx, (void **) &rep);
+  if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
+    {
+      rc = -1;
+      goto out;
+    }
+  /* Check EXPIRE reply. */
+  redisGetReply (ctx, (void **) &rep);
+  if (rep == NULL || rep->type == REDIS_REPLY_ERROR
+      || (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer != 1))
+    {
+      g_warning ("%s: Not able to set expire", __func__);
+      rc = -1;
+      goto out;
+    }
+
+out:
+  if (rep != NULL)
+    freeReplyObject (rep);
+
+  return rc;
+}
+
+/**
+ * @brief Insert (append) a new unique entry under a given name.
+ *
+ * @param[in] kb  KB handle where to store the item.
+ * @param[in] name  Item name.
+ * @param[in] val  Item value.
  *
  * @return 0 on success, non-null on error.
  */
@@ -1743,6 +1797,7 @@ static const struct kb_operations KBRedisOperations = {
   .kb_set_str = redis_set_str,
   .kb_add_int = redis_add_int,
   .kb_add_int_unique = redis_add_int_unique,
+  .kb_add_int_unique_volatile = redis_add_int_unique_volatile,
   .kb_set_int = redis_set_int,
   .kb_add_nvt = redis_add_nvt,
   .kb_del_items = redis_del_items,
