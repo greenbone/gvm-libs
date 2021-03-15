@@ -663,7 +663,28 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
           break;
         }
 
-      syslog (syslog_level, "%s", message);
+      /* Syslog doesn't support messages longer than 1kb. The overflow data
+         will not be logged or will be shown in the hypervisor console
+         if it runs on a virtual machine. */
+      if (messagelen > 1000)
+        {
+          int pos;
+          char *message_aux, *message_aux2;
+          char buffer[1000];
+
+          message_aux2 = g_strdup (message);
+          message_aux = message_aux2;
+          for (pos = 0; pos <= messagelen; pos = pos + sizeof (buffer) - 1)
+            {
+              memcpy (buffer, message_aux, sizeof (buffer) - 1);
+              buffer[sizeof (buffer) - 1] = '\0';
+              message_aux = &(message_aux[sizeof (buffer) - 1]);
+              syslog (syslog_level, "%s", buffer);
+            }
+          g_free (message_aux2);
+        }
+      else
+        syslog (syslog_level, "%s", message);
 
       closelog ();
     }
