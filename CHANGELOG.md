@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [21.10] (unreleased)
 
 ### Added
+
+- Add support for volatile keys. [#460](https://github.com/greenbone/gvm-libs/pull/460)
+
 ### Changed
 ### Removed
 ### Fixed
