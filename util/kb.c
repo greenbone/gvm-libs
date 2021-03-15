@@ -1149,6 +1149,100 @@ redis_del_items (kb_t kb, const char *name)
 }
 
 /**
+ * @brief Insert (append) a new unique and volatile entry under a given name.
+ *
+ * @param[in] kb  KB handle where to store the item.
+ * @param[in] name  Item name.
+ * @param[in] str  Item value.
+ * @param[in] expire Item expire.
+ * @param[in] len  Value length. Used for blobs.
+ * @param[in] pos  Which position the value is appended to. 0 for right,
+ *                 1 for left position in the list.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int
+redis_add_str_unique_volatile (kb_t kb, const char *name, const char *str,
+                               int expire, size_t len, int pos)
+{
+  struct kb_redis *kbr;
+  redisReply *rep = NULL;
+  int rc = 0;
+  redisContext *ctx;
+
+  kbr = redis_kb (kb);
+  if (get_redis_ctx (kbr) < 0)
+    return -1;
+  ctx = kbr->rctx;
+
+  /* Some VTs still rely on values being unique (ie. a value inserted multiple
+   * times, will only be present once.)
+   * Once these are fixed, the LREM becomes redundant and should be removed.
+   */
+  if (len == 0)
+    {
+      redisAppendCommand (ctx, "LREM %s 1 %s", name, str);
+      redisAppendCommand (ctx, "%s %s %s", pos ? "LPUSH" : "RPUSH", name, str);
+      redisAppendCommand (ctx, "EXPIRE %s %d", name, expire);
+      /* Check LREM reply. */
+      redisGetReply (ctx, (void **) &rep);
+      if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
+        g_debug ("Key '%s' already contained value '%s'", name, str);
+      freeReplyObject (rep);
+      /* Check PUSH reply. */
+      redisGetReply (ctx, (void **) &rep);
+      if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
+        {
+          rc = -1;
+          goto out;
+        }
+      /* Check EXPIRE reply. */
+      redisGetReply (ctx, (void **) &rep);
+      if (rep == NULL || rep->type == REDIS_REPLY_ERROR
+          || (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer != 1))
+        {
+          g_warning ("%s: Not able to set expire", __func__);
+          rc = -1;
+          goto out;
+        }
+    }
+  else
+    {
+      redisAppendCommand (ctx, "LREM %s 1 %b", name, str, len);
+      redisAppendCommand (ctx, "%s %s %b", pos ? "LPUSH" : "RPUSH", name, str,
+                          len);
+      redisAppendCommand (ctx, "EXPIRE %s %d", name, expire);
+      /* Check LREM reply. */
+      redisGetReply (ctx, (void **) &rep);
+      if (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer == 1)
+        g_debug ("Key '%s' already contained string '%s'", name, str);
+      freeReplyObject (rep);
+      /* Check PUSH reply. */
+      redisGetReply (ctx, (void **) &rep);
+      if (rep == NULL || rep->type == REDIS_REPLY_ERROR)
+        {
+          rc = -1;
+          goto out;
+        }
+      /* Check EXPIRE reply. */
+      redisGetReply (ctx, (void **) &rep);
+      if (rep == NULL || rep->type == REDIS_REPLY_ERROR
+          || (rep && rep->type == REDIS_REPLY_INTEGER && rep->integer != 1))
+        {
+          g_warning ("%s: Not able to set expire", __func__);
+          rc = -1;
+          goto out;
+        }
+    }
+
+out:
+  if (rep != NULL)
+    freeReplyObject (rep);
+
+  return rc;
+}
+
+/**
  * @brief Insert (append) a new unique entry under a given name.
  *
  * @param[in] kb  KB handle where to store the item.
@@ -1645,6 +1739,7 @@ static const struct kb_operations KBRedisOperations = {
   .kb_count = redis_count,
   .kb_add_str = redis_add_str,
   .kb_add_str_unique = redis_add_str_unique,
+  .kb_add_str_unique_volatile = redis_add_str_unique_volatile,
   .kb_set_str = redis_set_str,
   .kb_add_int = redis_add_int,
   .kb_add_int_unique = redis_add_int_unique,
@@ -1655,7 +1750,6 @@ static const struct kb_operations KBRedisOperations = {
   .kb_save = redis_save,
   .kb_flush = redis_flush_all,
   .kb_direct_conn = redis_direct_conn,
-  .kb_get_kb_index = redis_get_kb_index,
-};
+  .kb_get_kb_index = redis_get_kb_index};
 
 const struct kb_operations *KBDefaultOperations = &KBRedisOperations;
