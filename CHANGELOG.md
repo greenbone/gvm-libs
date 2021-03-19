@@ -40,6 +40,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#451](https://github.com/greenbone/gvm-libs/pull/451)
 - Fix openvas preference name. The option was rename to "allow_simultaneous_ips". [#461](https://github.com/greenbone/gvm-libs/pull/461)
 
+### Fixed
+- Fix finish_signal_on_queue for boreas. [#464](https://github.com/greenbone/gvm-libs/pull/464)
+
 ### Removed
 - Remove handling of severity class from auth [#402](https://github.com/greenbone/gvm-libs/pull/402)
 - Remove version from the nvticache name. [#386](https://github.com/greenbone/gvm-libs/pull/386)
