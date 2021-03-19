@@ -73,7 +73,7 @@ prefs_init (void)
   prefs_set ("vendor_version", "\0");
   prefs_set ("test_alive_hosts_only", "no");
   prefs_set ("debug_tls", "0");
-  prefs_set ("allow_simult_ips_same_host", "yes");
+  prefs_set ("allow_simultaneous_ips", "yes");
 }
 
 /**
