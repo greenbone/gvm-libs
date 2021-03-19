@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Let setup_log_handlers return an error if it does not have write access to some log file or log dir instead of aborting immediately.
   [#447](https://github.com/greenbone/gvm-libs/pull/447)
   [#451](https://github.com/greenbone/gvm-libs/pull/451)
+- Fix openvas preference name. The option was rename to "allow_simultaneous_ips". [#461](https://github.com/greenbone/gvm-libs/pull/461)
 
 ### Removed
 - Remove handling of severity class from auth [#402](https://github.com/greenbone/gvm-libs/pull/402)
