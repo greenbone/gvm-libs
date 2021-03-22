@@ -73,16 +73,16 @@ ldap_enable_debug ()
   ret = ber_set_option (NULL, LBER_OPT_LOG_PRINT_FN, ldap_log);
   if (ret != LBER_OPT_SUCCESS)
     {
-      g_warning ("%s: Failed to set LDAP debug print function: %s",
-                 __func__, ldap_err2string (ret));
+      g_warning ("%s: Failed to set LDAP debug print function: %s", __func__,
+                 ldap_err2string (ret));
       return -1;
     }
 
   ret = ldap_set_option (NULL, LDAP_OPT_DEBUG_LEVEL, &debug_level);
   if (ret != LDAP_OPT_SUCCESS)
     {
-      g_warning ("%s: Failed to set LDAP debug level: %s",
-                 __func__, ldap_err2string (ret));
+      g_warning ("%s: Failed to set LDAP debug level: %s", __func__,
+                 ldap_err2string (ret));
       return -1;
     }
 

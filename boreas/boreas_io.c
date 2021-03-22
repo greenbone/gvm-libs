@@ -257,8 +257,7 @@ finish_signal_on_queue (kb_t main_kb)
 
   /* Check if it was already set throught the whole items under the key.
      If so, set the static variable to avoid querying redis unnecessarily. */
-  queue_items =
-    kb_item_get_all (main_kb, ALIVE_DETECTION_QUEUE);
+  queue_items = kb_item_get_all (main_kb, ALIVE_DETECTION_QUEUE);
   if (queue_items)
     {
       while (queue_items)
