@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#447](https://github.com/greenbone/gvm-libs/pull/447)
   [#451](https://github.com/greenbone/gvm-libs/pull/451)
 - Fix openvas preference name. The option was rename to "allow_simultaneous_ips". [#461](https://github.com/greenbone/gvm-libs/pull/461)
+- Do not start the sniffer thread when only consider alive is chosen for alive test. [#466](https://github.com/greenbone/gvm-libs/pull/466)]
 
 ### Fixed
 - Fix finish_signal_on_queue for boreas. [#464](https://github.com/greenbone/gvm-libs/pull/464)
