@@ -90,8 +90,13 @@ scan (alive_test_t alive_test)
   g_message ("Alive scan %s started: Target has %d hosts", scan_id,
              number_of_targets);
 
-  sniffer_thread_id = 0;
-  start_sniffer_thread (&scanner, &sniffer_thread_id);
+  /* Sniffer thread needed if any alive test besides ALIVE_TEST_CONSIDER_ALIVE
+   * was chosen. */
+  if (alive_test != ALIVE_TEST_CONSIDER_ALIVE)
+    {
+      sniffer_thread_id = 0;
+      start_sniffer_thread (&scanner, &sniffer_thread_id);
+    }
 
   /* Continuously send dead hosts to ospd if only ICMP was chosen instead of
    * sending all at once at the end. This is done for displaying a progressbar
@@ -217,17 +222,22 @@ scan (alive_test_t alive_test)
         }
     }
 
-  g_debug (
-    "%s: all ping packets have been sent, wait a bit for rest of replies.",
-    __func__);
+  /* Stop sniffer thread if any alive test besides ALIVE_TEST_CONSIDER_ALIVE was
+   * chosen. */
+  if (alive_test != ALIVE_TEST_CONSIDER_ALIVE)
+    {
+      g_debug (
+        "%s: all ping packets have been sent, wait a bit for rest of replies.",
+        __func__);
 
-  /* If all targets are already identified as alive we do not need to wait for
-   * replies anymore.*/
-  if (number_of_targets
-      != (int) g_hash_table_size (scanner.hosts_data->alivehosts))
-    sleep (WAIT_FOR_REPLIES_TIMEOUT);
+      /* If all targets are already identified as alive we do not need to wait
+       * for replies anymore.*/
+      if (number_of_targets
+          != (int) g_hash_table_size (scanner.hosts_data->alivehosts))
+        sleep (WAIT_FOR_REPLIES_TIMEOUT);
 
-  stop_sniffer_thread (&scanner, sniffer_thread_id);
+      stop_sniffer_thread (&scanner, sniffer_thread_id);
+    }
 
   /* If only ICMP was specified we continuously send updates about dead hosts to
    * ospd while checking the hosts. We now only have to send the dead hosts of
