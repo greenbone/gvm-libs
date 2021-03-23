@@ -500,7 +500,7 @@ start_alive_detection (void *hosts_to_test)
   /* Free memory, close sockets and connections. */
   pthread_cleanup_pop (1);
   if (free_err)
-    g_warning ("%s: %s. Exit Boreas thread none the less.", __func__,
+    g_warning ("%s: %s. Exit Boreas thread nonetheless.", __func__,
                str_boreas_error (free_err));
 
   pthread_exit (0);
