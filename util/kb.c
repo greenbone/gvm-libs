@@ -1754,7 +1754,8 @@ redis_delete_all (struct kb_redis *kbr)
   if (sigaction (SIGPIPE, &new_action, &original_action))
     return -1;
 
-  g_debug ("%s: deleting all elements from KB #%u", __func__, kbr->db);
+  if (kbr)
+    g_debug ("%s: deleting all elements from KB #%u", __func__, kbr->db);
   rep = redis_cmd (kbr, "FLUSHDB");
   if (rep == NULL || rep->type != REDIS_REPLY_STATUS)
     {
