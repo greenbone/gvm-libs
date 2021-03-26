@@ -42,6 +42,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Add function ldap_enable_debug () [#453](https://github.com/greenbone/gvm-libs/pull/453)
+- Ensure that new kb taken by the scanner are always clean. [#469](https://github.com/greenbone/gvm-libs/pull/469)
 
 ### Changed
 - Use a char pointer instead of an zero-lenght array as kb_redis struct member. [443](https://github.com/greenbone/gvm-libs/pull/443)
