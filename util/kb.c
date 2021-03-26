@@ -412,6 +412,9 @@ redis_new (kb_t *kb, const char *kb_path)
       rc = -1;
     }
 
+  /* Ensure that the new kb is clean */
+  redis_delete_all (kbr);
+
   *kb = (kb_t) kbr;
   return rc;
 }
