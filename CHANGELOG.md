@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Allow to re allocate the finish flag in the host queue for alive tests.
   [#407](https://github.com/greenbone/gvm-libs/pull/407)
   [#410](https://github.com/greenbone/gvm-libs/pull/410)
-- Add multiple severities for nvti [#317](https://github.com/greenbone/gvm-libs/pull/317)
+- Add multiple severities for nvti [#317](https://github.com/greenbone/gvm-libs/pull/317) [#472](https://github.com/greenbone/gvm-libs/pull/472)
 - Add support for new OSP element for defining alive test methods via separate subelements. [#409](https://github.com/greenbone/gvm-libs/pull/409)
 - Add v3 handling to get_cvss_score_from_base_metrics. [#411](https://github.com/greenbone/gvm-libs/pull/411)
 - Add severity_date tag in epoch time format. [#412](https://github.com/greenbone/gvm-libs/pull/412)

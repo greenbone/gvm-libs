@@ -172,25 +172,25 @@ typedef struct vtseverity
   gchar *origin; ///< Optional: Where does the severity come from
                  ///< ("CVE-2018-1234", "Greenbone Research")
   int date; ///< Timestamp in seconds since epoch, defaults to VT creation date.
-  int score;    ///< The score derived from the value in range [0-100]
+  double score; ///< The score derived from the value in range [0.0-10.0]
   gchar *value; ///< The value which corresponds to the type.
 } vtseverity_t;
 
 /**
  * @brief Create a new vtseverity structure filled with the given values.
  *
- * @param type The severity type to be set.
- *
- * @param origin The origin reference to be set, can be NULL.
- *
- * @param value The value corresponding to the type.
+ * @param[in]  type   The severity type to be set.
+ * @param[in]  origin The origin reference to be set, can be NULL.
+ * @param[in]  date   The date to be set.
+ * @param[in]  score  The score to be set.
+ * @param[in]  value  The value corresponding to the type.
  *
  * @return NULL in case the memory could not be allocated.
  *         Else a vtref structure which needs to be
  *         released using @ref vtref_free .
  */
 vtseverity_t *
-vtseverity_new (const gchar *type, const gchar *origin, int date, int score,
+vtseverity_new (const gchar *type, const gchar *origin, int date, double score,
                 const gchar *value)
 {
   vtseverity_t *s = g_malloc0 (sizeof (vtseverity_t));
@@ -288,7 +288,7 @@ vtseverity_date (const vtseverity_t *s)
  *
  * @return The score.
  */
-int
+double
 vtseverity_score (const vtseverity_t *s)
 {
   return s->score;
@@ -915,11 +915,11 @@ nvti_vtseverity (const nvti_t *n, guint p)
  *
  * @return The severity score, -1 indicates an error.
  */
-int
+double
 nvti_severity_score (const nvti_t *n)
 {
   unsigned int i;
-  int score = -1;
+  double score = -1.0;
 
   for (i = 0; i < nvti_vtseverities_len (n); i++)
     {
