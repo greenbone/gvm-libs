@@ -76,7 +76,7 @@ const gchar *
 vtref_text (const vtref_t *);
 
 vtseverity_t *
-vtseverity_new (const gchar *, const gchar *, int, int, const gchar *);
+vtseverity_new (const gchar *, const gchar *, int, double, const gchar *);
 void
 vtseverity_free (vtseverity_t *);
 const gchar *
@@ -87,7 +87,7 @@ const gchar *
 vtseverity_value (const vtseverity_t *);
 int
 vtseverity_date (const vtseverity_t *);
-int
+double
 vtseverity_score (const vtseverity_t *);
 
 int
@@ -103,7 +103,7 @@ guint
 nvti_vtseverities_len (const nvti_t *);
 vtseverity_t *
 nvti_vtseverity (const nvti_t *, guint);
-int
+double
 nvti_severity_score (const nvti_t *);
 
 nvti_t *
