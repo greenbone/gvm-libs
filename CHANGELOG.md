@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Unify GLib log domains [#479](https://github.com/greenbone/gvm-libs/pull/479)
 - Fix double free. [#499](https://github.com/greenbone/gvm-libs/pull/499)
 
@@ -32,6 +33,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 =======
 - Fix uninitialized variable error of the gcc. [#476]()
 >>>>>>> 835054c (Fix gcc errors)
+=======
+- Fix uninitialized variable error of the gcc. [#477](https://github.com/greenbone/gvm-libs/pull/477)
+>>>>>>> c600697 (Add entry to changelog)
 
 [21.4.1]: https://github.com/greenbone/gvm-libs/compare/v21.4.0...gvm-libs-21.04
 
