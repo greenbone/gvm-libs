@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 ### Removed
 ### Fixed
-- Fix uninitialized variable error of the gcc. [#476]()
+- Fix uninitialized variable error of the gcc. [#477](https://github.com/greenbone/gvm-libs/pull/477)
 
 [21.10]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-21.04...master
 
