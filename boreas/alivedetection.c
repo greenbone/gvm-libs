@@ -78,8 +78,8 @@ scan (alive_test_t alive_test)
   int scandb_id;
   gchar *scan_id;
   /* Following variables are only relevant if only ICMP was chosen. */
-  int remaining_batch;
-  int prev_alive;
+  int remaining_batch = 0;
+  int prev_alive = 0;
   gboolean limit_reached_handled = FALSE; /* Scan restrictions related. */
 
   gettimeofday (&start_time, NULL);
