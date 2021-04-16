@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Deprecated
 ### Removed
 ### Fixed
-- Fix uninitialized variable error of the gcc. [#476]()
+- Fix uninitialized variable error of the gcc. [#477](https://github.com/greenbone/gvm-libs/pull/477)
 
 [Unreleased]: https://github.com/greenbone/gvm-libs/compare/v20.8.2...HEAD
 
