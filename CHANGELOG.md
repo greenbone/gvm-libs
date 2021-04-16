@@ -24,10 +24,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Make test_alive_hosts_only (Boreas) feature the new default. [503](https://github.com/greenbone/gvm-libs/pull/503)
 
 ### Fixed
+<<<<<<< HEAD
 - Unify GLib log domains [#479](https://github.com/greenbone/gvm-libs/pull/479)
 - Fix double free. [#499](https://github.com/greenbone/gvm-libs/pull/499)
 
 ### Removed
+=======
+- Fix uninitialized variable error of the gcc. [#476]()
+>>>>>>> 835054c (Fix gcc errors)
 
 [21.4.1]: https://github.com/greenbone/gvm-libs/compare/v21.4.0...gvm-libs-21.04
 
