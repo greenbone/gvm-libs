@@ -27,6 +27,12 @@
 #include <stdio.h>
 #include <string.h> /* for strlen */
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "libgvm base"
+
 /**
  * @brief Initialise a settings struct from a file.
  *

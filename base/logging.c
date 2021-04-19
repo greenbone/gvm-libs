@@ -40,6 +40,12 @@
 #include <time.h>   /* for localtime, time, time_t */
 #include <unistd.h> /* for getpid */
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "libgvm base"
+
 /**
  * @struct gvm_logging_t
  * @brief Logging stores the parameters loaded from a log configuration

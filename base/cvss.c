@@ -80,6 +80,12 @@
 #include <math.h>
 #include <string.h>
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "libgvm base"
+
 /* Static Headers. */
 
 static double
