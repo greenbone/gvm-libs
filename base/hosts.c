@@ -46,7 +46,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "base hosts"
+#define G_LOG_DOMAIN "libgvm base"
 
 /* Static variables */
 
