@@ -35,7 +35,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "alive scan"
+#define G_LOG_DOMAIN "libgvm boreas"
 
 /* for using int value in #defined string */
 #define STR(X) #X
