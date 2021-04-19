@@ -39,7 +39,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "lib   gmp"
+#define G_LOG_DOMAIN "libgvm gmp"
 
 #define GMP_FMT_BOOL_ATTRIB(var, attrib) \
   (var.attrib == 0 ? " " #attrib "=\"0\"" : " " #attrib "=\"1\"")
