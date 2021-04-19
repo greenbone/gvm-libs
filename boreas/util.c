@@ -38,7 +38,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "alive scan"
+#define G_LOG_DOMAIN "libgvm boreas"
 
 static boreas_error_t
 set_socket (socket_type_t, int *);
