@@ -41,9 +41,9 @@
 
 #undef G_LOG_DOMAIN
 /**
- * @brief GLib log domain.
+ * @brief GLib logging domain.
  */
-#define G_LOG_DOMAIN "lib   xml"
+#define G_LOG_DOMAIN "libgvm util"
 
 /**
  * @brief Size of the buffer for reading from the manager.

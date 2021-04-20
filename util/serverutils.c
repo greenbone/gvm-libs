@@ -47,9 +47,9 @@
 
 #undef G_LOG_DOMAIN
 /**
- * @brief GLib log domain.
+ * @brief GLib logging domain.
  */
-#define G_LOG_DOMAIN "lib  serv"
+#define G_LOG_DOMAIN "libgvm util"
 
 /**
  * @brief Server address.

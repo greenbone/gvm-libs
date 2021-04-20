@@ -30,6 +30,12 @@
 #include <libssh/libssh.h> /* for ssh_key_free, ssh_key_type, ssh_key_type_... */
 #include <string.h>        /* for strcmp, strlen */
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib logging domain.
+ */
+#define G_LOG_DOMAIN "libgvm util"
+
 /**
  * @brief Decrypts a base64 encrypted ssh private key.
  *

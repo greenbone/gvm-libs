@@ -46,6 +46,12 @@
 
 #include <glib.h> /* for g_warning */
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib logging domain.
+ */
+#define G_LOG_DOMAIN "libgvm util"
+
 #ifndef PW_MAX_MSG_SIZE
 #define PW_MAX_MSG_SIZE 4096
 #endif
