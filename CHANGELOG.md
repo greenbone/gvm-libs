@@ -11,6 +11,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add support for volatile keys. [#460](https://github.com/greenbone/gvm-libs/pull/460)
 
 ### Changed
+<<<<<<< HEAD
+=======
+### Fixed
+- Unify GLib log domains [#479](https://github.com/greenbone/gvm-libs/pull/479)
+
+>>>>>>> 2f890f4... Add CHANGELOG entry for updated log domains
 ### Removed
 ### Fixed
 
