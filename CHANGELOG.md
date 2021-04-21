@@ -4,6 +4,67 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+<<<<<<< HEAD
+=======
+## [21.10] (unreleased)
+
+### Added
+
+- Add support for volatile keys. [#460](https://github.com/greenbone/gvm-libs/pull/460)
+- Possibility to use lcrypt with `$6$` (sha512) for authentication [484](https://github.com/greenbone/gvm-libs/pull/484)
+### Changed
+### Fixed
+### Removed
+
+[21.10]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-21.04...master
+
+## [21.04.1] (unreleased)
+
+### Added
+### Changed
+### Fixed
+- Unify GLib log domains [#479](https://github.com/greenbone/gvm-libs/pull/479)
+
+### Removed
+
+[21.04.1]: https://github.com/greenbone/gvm-libs/compare/v21.4.0...gvm-libs-21.04
+
+
+## [21.04.0] (2021-04-15)
+
+### Added
+- Use dedicated port list for alive detection (Boreas only) if supplied via OSP. [#391](https://github.com/greenbone/gvm-libs/pull/391)
+- Allow to re allocate the finish flag in the host queue for alive tests.
+  [#407](https://github.com/greenbone/gvm-libs/pull/407)
+  [#410](https://github.com/greenbone/gvm-libs/pull/410)
+- Add multiple severities for nvti [#317](https://github.com/greenbone/gvm-libs/pull/317) [#472](https://github.com/greenbone/gvm-libs/pull/472)
+- Add support for new OSP element for defining alive test methods via separate subelements. [#409](https://github.com/greenbone/gvm-libs/pull/409)
+- Add v3 handling to get_cvss_score_from_base_metrics. [#411](https://github.com/greenbone/gvm-libs/pull/411)
+- Add severity_date tag in epoch time format. [#412](https://github.com/greenbone/gvm-libs/pull/412)
+- Make more scanner preferences available to openvas-nasl. [#413](https://github.com/greenbone/gvm-libs/pull/413)
+- Use memory purge redis command when initializing new kb. [#452](https://github.com/greenbone/gvm-libs/pull/452)
+
+### Changed
+- Add separators for a new (ip address) field in ERRMSG and DEADHOST messages. [#376](https://github.com/greenbone/gvm-libs/pull/376)
+- Continuously send dead hosts to ospd-openvas to enable a smooth progress bar if only ICMP is chosen as alive test. [#389](https://github.com/greenbone/gvm-libs/pull/389)
+- Retry if response via tls1.3 is still not received. [#394](https://github.com/greenbone/gvm-libs/pull/394)
+- Replace current implementation of alive test arp ping with version using libnet. [#423](https://github.com/greenbone/gvm-libs/pull/423)
+- Let setup_log_handlers return an error if it does not have write access to some log file or log dir instead of aborting immediately.
+  [#447](https://github.com/greenbone/gvm-libs/pull/447)
+  [#451](https://github.com/greenbone/gvm-libs/pull/451)
+- Fix openvas preference name. The option was rename to "allow_simultaneous_ips". [#461](https://github.com/greenbone/gvm-libs/pull/461)
+- Do not start the sniffer thread when only consider alive is chosen for alive test. [#466](https://github.com/greenbone/gvm-libs/pull/466)]
+
+### Fixed
+- Fix finish_signal_on_queue for boreas. [#464](https://github.com/greenbone/gvm-libs/pull/464)
+
+### Removed
+- Remove handling of severity class from auth [#402](https://github.com/greenbone/gvm-libs/pull/402)
+- Remove version from the nvticache name. [#386](https://github.com/greenbone/gvm-libs/pull/386)
+
+[21.04.0]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...v21.4.0
+
+>>>>>>> 1c6aeb5... Introducing passwordbasedauthentication based on lcrypt and sha512
 ## [20.8.2] (unreleased)
 
 ### Added

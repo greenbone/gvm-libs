@@ -79,6 +79,17 @@ else (NOT GPGME)
   endif (GPGME_VERSION VERSION_LESS GPGME_MIN_VERSION)
 endif (NOT GPGME)
 
+message (STATUS "Looking for libcrypt...")
+find_library (CRYPT crypt)
+message (STATUS "Looking for libcrypt... ${CRYPT}")
+if (NOT CRYPT)
+message (SEND_ERROR "The libcrypt library is required.")
+else (NOT CRYPT)
+    set (CRYPT_LDFLAGS "-lcrypt")
+    #find out if libcrypt3x or UFC crypt
+    #set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DLIBCRYPT_AVAILABLE=1")
+endif (NOT CRYPT)
+
 message (STATUS "Looking for libgcrypt...")
 find_library (GCRYPT gcrypt)
 message (STATUS "Looking for libgcrypt... ${GCRYPT}")
@@ -179,6 +190,23 @@ endif (BUILD_SHARED)
 ## Tests
 
 if (BUILD_TESTS)
+  add_executable (passwordbasedauthentication-test
+                  EXCLUDE_FROM_ALL
+                  passwordbasedauthentication_tests.c)
+
+  add_test (passwordbasedauthentication-test passwordbasedauthentication-test)
+
+  target_include_directories (passwordbasedauthentication-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (passwordbasedauthentication-test ${CGREEN_LIBRARIES}
+                        ${BSD_LDFLAGS}
+                        ${GCRYPT_LDFLAGS}
+                        ${CRYPT_LDFLAGS}
+                        ${GLIB_LDFLAGS})
+
+  add_custom_target (tests-passwordbasedauthentication
+                    DEPENDS passwordbasedauthentication-test)
+
   add_executable (xmlutils-test
                   EXCLUDE_FROM_ALL
                   xmlutils_tests.c)
