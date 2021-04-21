@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+<<<<<<< HEAD
+=======
+## [21.10] (unreleased)
+
+### Added
+
+- Add support for volatile keys. [#460](https://github.com/greenbone/gvm-libs/pull/460)
+- Possibility to use lcrypt with `$6$` (sha512) for authentication [484](https://github.com/greenbone/gvm-libs/pull/484)
+### Changed
+### Fixed
+### Removed
+
+[21.10]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-21.04...master
+
+>>>>>>> 1c6aeb5... Introducing passwordbasedauthentication based on lcrypt and sha512
 ## [21.04.1] (unreleased)
 
 ### Added
