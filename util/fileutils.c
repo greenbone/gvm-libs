@@ -35,6 +35,12 @@
 #include <sys/stat.h>    /* for stat, S_ISDIR */
 #include <time.h>        /* for tm, strptime, localtime, time, time_t */
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib logging domain.
+ */
+#define G_LOG_DOMAIN "libgvm util"
+
 /**
  * @brief Checks whether a file is a directory or not.
  *

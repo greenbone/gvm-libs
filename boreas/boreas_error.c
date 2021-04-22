@@ -25,7 +25,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "alive scan"
+#define G_LOG_DOMAIN "libgvm boreas"
 
 /**
  * @brief Transform Boreas error code into human readable error message.

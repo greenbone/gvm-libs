@@ -19,6 +19,12 @@
 
 #include "version.h"
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "libgvm base"
+
 const char *
 gvm_libs_version (void)
 {

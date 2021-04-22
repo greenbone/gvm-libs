@@ -28,6 +28,12 @@
 #include <stdlib.h>
 #include <uuid/uuid.h>
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib logging domain.
+ */
+#define G_LOG_DOMAIN "libgvm util"
+
 /**
  * @brief Make a new universal identifier.
  *

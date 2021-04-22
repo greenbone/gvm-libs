@@ -35,7 +35,10 @@
 #include <string.h> /* for strlen, strerror, strncpy, memset */
 
 #undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "lib  kb"
+/**
+ * @brief GLib logging domain.
+ */
+#define G_LOG_DOMAIN "libgvm util"
 
 /**
  * @file kb.c

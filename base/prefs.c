@@ -32,6 +32,12 @@
 #include <stdlib.h> /* for atoi() */
 #include <string.h> /* for strlen() */
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "libgvm base"
+
 static GHashTable *global_prefs = NULL;
 
 void

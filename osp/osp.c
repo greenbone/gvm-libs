@@ -41,7 +41,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "lib  osp"
+#define G_LOG_DOMAIN "libgvm osp"
 
 /**
  * @brief Struct holding options for OSP connection.

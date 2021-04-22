@@ -36,9 +36,9 @@
 
 #undef G_LOG_DOMAIN
 /**
- * @brief GLib log domain.
+ * @brief GLib logging domain.
  */
-#define G_LOG_DOMAIN "util gpgme"
+#define G_LOG_DOMAIN "libgvm util"
 
 /**
  * @brief Log function with extra gpg-error style output

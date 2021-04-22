@@ -34,7 +34,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "alive scan"
+#define G_LOG_DOMAIN "libgvm boreas"
 
 static boreas_error_t
 init_cli (struct scanner *scanner, gvm_hosts_t *hosts, alive_test_t alive_test,

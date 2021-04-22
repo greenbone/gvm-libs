@@ -24,6 +24,12 @@
 
 #include "array.h"
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "libgvm base"
+
 /**
  * @brief Make a global array.
  *

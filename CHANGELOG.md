@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 ### Changed
 ### Fixed
+- Unify GLib log domains [#479](https://github.com/greenbone/gvm-libs/pull/479)
+
 ### Removed
 
 [21.04.1]: https://github.com/greenbone/gvm-libs/compare/v21.4.0...gvm-libs-21.04

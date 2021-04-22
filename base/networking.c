@@ -46,7 +46,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "base networking"
+#define G_LOG_DOMAIN "libgvm base"
 
 /* Global variables */
 
