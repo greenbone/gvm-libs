@@ -55,7 +55,10 @@
 #include <time.h>    // for strptime
 
 #undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "lib  nvti"
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "libgvm base"
 
 /* VT references */
 

@@ -29,6 +29,12 @@
 #include <sys/types.h>
 #include <unistd.h> /* for geteuid, setgid, setuid */
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "libgvm base"
+
 /**
  * @brief Sets an error and return \p errorcode
  *

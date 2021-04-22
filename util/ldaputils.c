@@ -38,7 +38,7 @@
 /**
  * @brief GLib logging domain.
  */
-#define G_LOG_DOMAIN "lib  ldap"
+#define G_LOG_DOMAIN "libgvm util"
 
 #define KEY_LDAP_HOST "ldaphost"
 #define KEY_LDAP_DN_AUTH "authdn"

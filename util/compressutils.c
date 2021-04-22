@@ -34,6 +34,12 @@
 #include <glib.h> /* for g_free, g_malloc0 */
 #include <zlib.h> /* for z_stream, Z_NULL, Z_OK, Z_BUF_ERROR, Z_STREAM_END */
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib logging domain.
+ */
+#define G_LOG_DOMAIN "libgvm util"
+
 /**
  * @brief Compresses data in src buffer.
  *

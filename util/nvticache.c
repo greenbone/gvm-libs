@@ -42,9 +42,9 @@
 
 #undef G_LOG_DOMAIN
 /**
- * @brief GLib log domain.
+ * @brief GLib logging domain.
  */
-#define G_LOG_DOMAIN "lib  nvticache"
+#define G_LOG_DOMAIN "libgvm util"
 
 char *src_path = NULL; /**< The directory of the source files. */
 kb_t cache_kb = NULL;  /**< Cache KB handler. */
