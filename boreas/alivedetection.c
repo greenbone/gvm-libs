@@ -256,9 +256,19 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
 
   /* Scan restrictions. max_scan_hosts related. */
   const gchar *pref_str;
-  int max_scan_hosts = INT_MAX;
+  int max_scan_hosts = INT_MAX, pref_value;
+
+  /* Check that the max_scan_hosts is set and it is greater than 0 */
   if ((pref_str = prefs_get ("max_scan_hosts")) != NULL)
-    max_scan_hosts = atoi (pref_str);
+    {
+      pref_value = atoi (pref_str);
+      if (pref_value > 0)
+        max_scan_hosts = pref_value;
+      else
+        g_debug ("%s: Invalid max_scan_hosts value. It must be an interger "
+                 "greater than zero.",
+                 __func__);
+    }
 
   init_scan_restrictions (&scanner, max_scan_hosts);
 
