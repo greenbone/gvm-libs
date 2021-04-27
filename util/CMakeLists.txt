@@ -151,11 +151,11 @@ endif()
 include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS}
                      ${LIBXML2_INCLUDE_DIRS})
 
-set (FILES authutils.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
+set (FILES passwordbasedauthentication.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
            nvticache.c radiusutils.c serverutils.c sshutils.c uuidutils.c
            xmlutils.c)
 
-set (HEADERS authutils.h compressutils.h fileutils.h gpgmeutils.h kb.h
+set (HEADERS passwordbasedauthentication.h authutils.h compressutils.h fileutils.h gpgmeutils.h kb.h
              ldaputils.h nvticache.h radiusutils.h serverutils.h sshutils.h
              uuidutils.h xmlutils.h)
 
