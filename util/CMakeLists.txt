@@ -179,7 +179,7 @@ if (BUILD_SHARED)
                          ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
                          ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
                          ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
-                         ${LINKER_HARDENING_FLAGS})
+                         ${LINKER_HARDENING_FLAGS} ${CRYPT_LDFLAGS})
 endif (BUILD_SHARED)
 
 
