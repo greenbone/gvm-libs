@@ -17,7 +17,6 @@
  */
 #ifndef _GVM_PASSWORDBASEDAUTHENTICATION_H
 #define _GVM_PASSWORDBASEDAUTHENTICATION_H
-#include <bits/types.h>
 
 /* max amount of applied pepper */ 
 #define MAX_PEPPER_SIZE 4
@@ -64,7 +63,7 @@ enum pba_rc {
  * pba_hash tries to create a hash based SETTING and PASSWORD.
  * Returns a hash on success or a NULL pointer on failure
  */
-char *pba_hash (struct PBASettings *setting, char *password);
+char *pba_hash (struct PBASettings *setting, const char *password);
 
 /**
  * pba_verify_hash tries to create hash based on PASSWORD and settings found via
