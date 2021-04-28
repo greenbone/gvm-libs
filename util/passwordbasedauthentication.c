@@ -168,7 +168,7 @@ pba_is_phc_compliant (const char *setting)
 }
 
 char *
-pba_hash (struct PBASettings *setting, char *password)
+pba_hash (struct PBASettings *setting, const char *password)
 {
   char *result = NULL, *settings = NULL, *tmp, *rslt;
   int i;
