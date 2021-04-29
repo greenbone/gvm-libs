@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Add support for volatile keys. [#460](https://github.com/greenbone/gvm-libs/pull/460)
-
+- Possibility to use lcrypt with `$6$` (sha512) for authentication [484](https://github.com/greenbone/gvm-libs/pull/484)
 ### Changed
 ### Fixed
 ### Removed
