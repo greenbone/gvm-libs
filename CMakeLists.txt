@@ -220,14 +220,9 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
 
   add_custom_target (tests
     DEPENDS array-test alivedetection-test boreas_error-test boreas_io-test
-<<<<<<< HEAD
             cli-test ping-test sniffer-test util-test networking-test
-            xmlutils-test version-test osp-test nvti-test hosts-test)
-=======
-            cli-test cvss-test ping-test sniffer-test util-test networking-test
             passwordbasedauthentication-test xmlutils-test version-test osp-test 
             nvti-test hosts-test)
->>>>>>> 1c6aeb5... Introducing passwordbasedauthentication based on lcrypt and sha512
 
 endif (BUILD_TESTS AND NOT SKIP_SRC)
 
