@@ -16,18 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "passwordbasedauthentication.h"
-// internal usage to have access to gvm_auth initialized to verify if 
+// internal usage to have access to gvm_auth initialized to verify if
 // initialization is needed
 #include "authutils.c"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef LIBCRYPT_AVAILABLE
 // UFC_crypt defines crypt_r when only when __USE_GNU is set
 // this shouldn't affect other implementations
 #define __USE_GNU
-#endif
 #include <crypt.h>
 
 #ifndef CRYPT_GENSALT_OUTPUT_SIZE
@@ -44,8 +42,11 @@ is_prefix_not_supported (const char *id)
   return strcmp ("$6$", id);
 }
 
-// we assume something else than libxcrypt 3; like UFC-crypt
-#ifndef LIBCRYPT_AVAILABLE
+// we assume something else than libxcrypt > 3.1; like UFC-crypt
+// libxcrypt sets a macro of crypt_gensalt_r to crypt_gensalt_rn
+// therefore we could use that mechanism to figure out if we are on
+// debian buster or newer.
+#ifndef crypt_gensalt_r
 
 // used printables within salt
 const char ascii64[64] =
@@ -141,7 +142,7 @@ pba_init (const char *pepper, unsigned int pepper_size, unsigned int count,
   struct PBASettings *result = NULL;
   if (pepper_size > MAX_PEPPER_SIZE)
     goto exit;
-  if (prefix != NULL && is_prefix_not_supported(prefix))
+  if (prefix != NULL && is_prefix_not_supported (prefix))
     goto exit;
   result = malloc (sizeof (struct PBASettings));
   for (i = 0; i < MAX_PEPPER_SIZE; i++)
@@ -249,7 +250,7 @@ pba_verify_hash (const struct PBASettings *setting, const char *hash,
     {
       // assume authutils hash handling
       // initialize gvm_auth utils if not already initialized
-      if (initialized == FALSE && gvm_auth_init() != 0)
+      if (initialized == FALSE && gvm_auth_init () != 0)
         {
           goto exit;
         }
