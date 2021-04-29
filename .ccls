@@ -1,4 +1,0 @@
-clang
-%c -std=c11
--I/usr/include
--isystem/usr/include/glib-2.0
