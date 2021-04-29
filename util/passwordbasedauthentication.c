@@ -46,7 +46,7 @@ is_prefix_not_supported (const char *id)
 // libxcrypt sets a macro of crypt_gensalt_r to crypt_gensalt_rn
 // therefore we could use that mechanism to figure out if we are on
 // debian buster or newer.
-#ifndef crypt_gensalt_r
+#ifndef EXTERNAL_CRYPT_GENSALT_R
 
 // used printables within salt
 const char ascii64[64] =

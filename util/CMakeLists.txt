@@ -75,12 +75,18 @@ else (NOT GPGME)
   endif (GPGME_VERSION VERSION_LESS GPGME_MIN_VERSION)
 endif (NOT GPGME)
 
+
 message (STATUS "Looking for libcrypt...")
 find_library (CRYPT crypt)
 message (STATUS "Looking for libcrypt... ${CRYPT}")
 if (NOT CRYPT)
 message (SEND_ERROR "The libcrypt library is required.")
 else (NOT CRYPT)
+    pkg_search_module(CRYPT_M QUIET libcrypt)
+    if (${CRYPT_M_VERSION} VERSION_GREATER "3.1.1")
+        message (STATUS "\t Using external crypt_gensal_r of ... ${CRYPT_M_VERSION}")
+        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DEXTERNAL_CRYPT_GENSALT_R=1")
+    endif()
     set (CRYPT_LDFLAGS "-lcrypt")
 endif (NOT CRYPT)
 
