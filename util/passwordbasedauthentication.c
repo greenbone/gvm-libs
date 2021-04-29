@@ -192,7 +192,7 @@ pba_hash (struct PBASettings *setting, const char *password)
       tmp--;
     }
 
-  data = malloc (sizeof (struct crypt_data));
+  data = calloc (1, sizeof (struct crypt_data));
   rslt = crypt_r (password, settings, data);
   if (rslt == NULL)
     goto exit;
@@ -229,7 +229,7 @@ pba_verify_hash (const struct PBASettings *setting, const char *hash,
     goto exit;
   if (pba_is_phc_compliant (hash) != 0)
     {
-      data = malloc (sizeof (struct crypt_data));
+      data = calloc (1, sizeof (struct crypt_data));
       // manipulate hash to reapply pepper
       tmp = malloc (CRYPT_OUTPUT_SIZE);
       memcpy (tmp, hash, CRYPT_OUTPUT_SIZE);
