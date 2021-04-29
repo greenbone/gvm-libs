@@ -39,7 +39,7 @@
 int
 is_prefix_not_supported (const char *id)
 {
-  return strcmp ("$6$", id);
+  return strcmp (PREFIX_DEFAULT, id);
 }
 
 // we assume something else than libxcrypt > 3.1; like UFC-crypt
@@ -158,6 +158,7 @@ pba_finalize (struct PBASettings *settings)
 {
   free (settings);
 }
+
 int
 pba_is_phc_compliant (const char *setting)
 {
@@ -268,4 +269,3 @@ exit:
     free (tmp);
   return result;
 }
-
