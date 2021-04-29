@@ -96,7 +96,7 @@ crypt_gensalt_r (const char *prefix, unsigned long count, const char *rbytes,
   unsigned int written = 0, used = 0;
   unsigned long value = 0;
   if ((rbytes != NULL && nrbytes < 3) || output_size < 16
-      || is_prefix_supported (prefix) == 0)
+      || !is_prefix_supported (prefix))
     {
       output[0] = '*';
       goto exit;
@@ -144,7 +144,7 @@ pba_init (const char *pepper, unsigned int pepper_size, unsigned int count,
   struct PBASettings *result = NULL;
   if (pepper_size > MAX_PEPPER_SIZE)
     goto exit;
-  if (prefix != NULL && is_prefix_supported (prefix) == 0)
+  if (prefix != NULL && !is_prefix_supported (prefix))
     goto exit;
   result = malloc (sizeof (struct PBASettings));
   for (i = 0; i < MAX_PEPPER_SIZE; i++)
@@ -180,7 +180,7 @@ pba_hash (struct PBASettings *setting, const char *password)
 
   if (!setting || !password)
     goto exit;
-  if (is_prefix_supported (setting->prefix) == 0)
+  if (!is_prefix_supported (setting->prefix))
     goto exit;
   settings = malloc (CRYPT_GENSALT_OUTPUT_SIZE);
   if (crypt_gensalt_r (setting->prefix, setting->count, NULL, 0, settings,
@@ -229,7 +229,7 @@ pba_verify_hash (const struct PBASettings *setting, const char *hash,
   enum pba_rc result = ERR;
   if (!setting || !hash || !password)
     goto exit;
-  if (is_prefix_supported (setting->prefix) == 0)
+  if (!is_prefix_supported (setting->prefix))
     goto exit;
   if (pba_is_phc_compliant (hash) != 0)
     {
