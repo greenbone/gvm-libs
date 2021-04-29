@@ -27,7 +27,9 @@
 // this shouldn't affect other implementations
 #define __USE_GNU
 #include <crypt.h>
-
+#ifndef MIN
+#define MIN(a, b) (a < b ? a : b)
+#endif
 #ifndef CRYPT_GENSALT_OUTPUT_SIZE
 #define CRYPT_GENSALT_OUTPUT_SIZE 192
 #endif
@@ -37,9 +39,9 @@
 #endif
 
 int
-is_prefix_not_supported (const char *id)
+is_prefix_supported (const char *id)
 {
-  return strcmp (PREFIX_DEFAULT, id);
+  return strcmp (PREFIX_DEFAULT, id) == 0;
 }
 
 // we assume something else than libxcrypt > 3.1; like UFC-crypt
@@ -94,7 +96,7 @@ crypt_gensalt_r (const char *prefix, unsigned long count, const char *rbytes,
   unsigned int written = 0, used = 0;
   unsigned long value = 0;
   if ((rbytes != NULL && nrbytes < 3) || output_size < 16
-      || is_prefix_not_supported (prefix))
+      || is_prefix_supported (prefix) == 0)
     {
       output[0] = '*';
       goto exit;
@@ -142,7 +144,7 @@ pba_init (const char *pepper, unsigned int pepper_size, unsigned int count,
   struct PBASettings *result = NULL;
   if (pepper_size > MAX_PEPPER_SIZE)
     goto exit;
-  if (prefix != NULL && is_prefix_not_supported (prefix))
+  if (prefix != NULL && is_prefix_supported (prefix) == 0)
     goto exit;
   result = malloc (sizeof (struct PBASettings));
   for (i = 0; i < MAX_PEPPER_SIZE; i++)
@@ -178,7 +180,7 @@ pba_hash (struct PBASettings *setting, const char *password)
 
   if (!setting || !password)
     goto exit;
-  if (is_prefix_not_supported (setting->prefix) != 0)
+  if (is_prefix_supported (setting->prefix) == 0)
     goto exit;
   settings = malloc (CRYPT_GENSALT_OUTPUT_SIZE);
   if (crypt_gensalt_r (setting->prefix, setting->count, NULL, 0, settings,
@@ -198,7 +200,8 @@ pba_hash (struct PBASettings *setting, const char *password)
   if (rslt == NULL)
     goto exit;
   result = malloc (CRYPT_OUTPUT_SIZE);
-  memcpy (result, rslt, CRYPT_OUTPUT_SIZE);
+  memcpy (result, rslt, MIN (strlen (rslt), CRYPT_OUTPUT_SIZE));
+
   // remove pepper, by jumping to begin of applied pepper within result
   // and overridding it.
   tmp = result + (tmp - settings);
@@ -226,14 +229,14 @@ pba_verify_hash (const struct PBASettings *setting, const char *hash,
   enum pba_rc result = ERR;
   if (!setting || !hash || !password)
     goto exit;
-  if (is_prefix_not_supported (setting->prefix))
+  if (is_prefix_supported (setting->prefix) == 0)
     goto exit;
   if (pba_is_phc_compliant (hash) != 0)
     {
       data = calloc (1, sizeof (struct crypt_data));
       // manipulate hash to reapply pepper
       tmp = malloc (CRYPT_OUTPUT_SIZE);
-      memcpy (tmp, hash, CRYPT_OUTPUT_SIZE);
+      memcpy (tmp, hash, MIN (strlen (hash), CRYPT_OUTPUT_SIZE));
       cmp = strrchr (tmp, '$');
       for (i = MAX_PEPPER_SIZE - 1; i > -1; i--)
         {
