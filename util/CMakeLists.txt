@@ -86,8 +86,6 @@ if (NOT CRYPT)
 message (SEND_ERROR "The libcrypt library is required.")
 else (NOT CRYPT)
     set (CRYPT_LDFLAGS "-lcrypt")
-    #find out if libcrypt3x or UFC crypt
-    #set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DLIBCRYPT_AVAILABLE=1")
 endif (NOT CRYPT)
 
 message (STATUS "Looking for libgcrypt...")
