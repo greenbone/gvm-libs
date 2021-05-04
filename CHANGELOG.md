@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Ensure that new kb taken by the scanner are always clean. [#469](https://github.com/greenbone/gvm-libs/pull/469)
 - Validate for max_scan_hosts scanner preference.  [#482](https://github.com/greenbone/gvm-libs/pull/482)
 - Possibility to use lcrypt with `$6$` (sha512) for authentication [484](https://github.com/greenbone/gvm-libs/pull/484)
+- Add function to find and return a host from a host list. Backport of [PR 490](https://github.com/greenbone/gvm-libs/pull/490). [494](https://github.com/greenbone/gvm-libs/pull/494).
 
 ### Changed
 Use a char pointer instead of an zero-lenght array as kb_redis struct member. [443](https://github.com/greenbone/gvm-libs/pull/443)
