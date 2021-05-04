@@ -10,19 +10,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Add support for volatile keys. [#460](https://github.com/greenbone/gvm-libs/pull/460)
 - Possibility to use lcrypt with `$6$` (sha512) for authentication [484](https://github.com/greenbone/gvm-libs/pull/484)
-<<<<<<< HEAD
+
 ### Changed
 ### Fixed
 ### Removed
-=======
-- Add function to find and return a host from a host list. [490](https://github.com/greenbone/gvm-libs/pull/490)
->>>>>>> e863f7d... Add function to find and return a host from a host list.
 
 [21.10]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-21.04...master
 
 ## [21.04.1] (unreleased)
 
 ### Added
+- Add function to find and return a host from a host list. [490](https://github.com/greenbone/gvm-libs/pull/490)
+
 ### Changed
 ### Fixed
 - Unify GLib log domains [#479](https://github.com/greenbone/gvm-libs/pull/479)
