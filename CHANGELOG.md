@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Possibility to use lcrypt with `$6$` (sha512) for authentication [484](https://github.com/greenbone/gvm-libs/pull/484)
+- Add function to find and return a host from a host list. [490](https://github.com/greenbone/gvm-libs/pull/490)
 
 ### Changed
 ### Fixed
