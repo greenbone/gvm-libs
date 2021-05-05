@@ -59,7 +59,7 @@ set_max_scan_hosts_reached ()
  *
  * @return Number of identified alive hosts.
  * */
-static int
+int
 get_alive_hosts_count ()
 {
   return scan_restrictions.alive_hosts_count;
