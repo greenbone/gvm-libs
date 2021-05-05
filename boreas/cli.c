@@ -37,8 +37,8 @@
 #define G_LOG_DOMAIN "libgvm boreas"
 
 static boreas_error_t
-init_cli (struct scanner *scanner, gvm_hosts_t *hosts, alive_test_t alive_test,
-          const gchar *port_list)
+init_cli (scanner_t *scanner, gvm_hosts_t *hosts, alive_test_t alive_test,
+          const gchar *port_list, const int print_results)
 {
   GPtrArray *portranges_array;
   gvm_host_t *host;
@@ -48,6 +48,7 @@ init_cli (struct scanner *scanner, gvm_hosts_t *hosts, alive_test_t alive_test,
 
   /* No kb used for cli mode.*/
   scanner->main_kb = NULL;
+  scanner->print_results = print_results;
 
   /* hosts_data */
   scanner->hosts_data = g_malloc0 (sizeof (hosts_data_t));
@@ -81,7 +82,7 @@ init_cli (struct scanner *scanner, gvm_hosts_t *hosts, alive_test_t alive_test,
 }
 
 static boreas_error_t
-free_cli (struct scanner *scanner, alive_test_t alive_test)
+free_cli (scanner_t *scanner, alive_test_t alive_test)
 {
   int close_err;
 
@@ -99,7 +100,7 @@ free_cli (struct scanner *scanner, alive_test_t alive_test)
 }
 
 static boreas_error_t
-run_cli_scan (struct scanner *scanner, alive_test_t alive_test)
+run_cli_scan (scanner_t *scanner, alive_test_t alive_test)
 {
   int error;
   int number_of_dead_hosts;
@@ -168,12 +169,13 @@ run_cli_scan (struct scanner *scanner, alive_test_t alive_test)
 boreas_error_t
 run_cli (gvm_hosts_t *hosts, alive_test_t alive_test, const gchar *port_list)
 {
-  struct scanner scanner = {0};
+  scanner_t scanner = {0};
   boreas_error_t init_err;
   boreas_error_t run_err;
   boreas_error_t free_err;
+  int print_results = 1;
 
-  init_err = init_cli (&scanner, hosts, alive_test, port_list);
+  init_err = init_cli (&scanner, hosts, alive_test, port_list, print_results);
   if (init_err)
     {
       printf ("Error initializing scanner.\n");
