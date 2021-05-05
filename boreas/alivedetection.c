@@ -323,6 +323,9 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
   if ((error = set_all_needed_sockets (&scanner, alive_test)) != 0)
     return error;
 
+  /* Do not print results in stdout. Only set for command line clients*/
+  scanner.print_results = 0;
+
   /* kb_t redis connection */
   int scandb_id = atoi (prefs_get ("ov_maindbid"));
   if ((scanner.main_kb = kb_direct_conn (prefs_get ("db_address"), scandb_id))
