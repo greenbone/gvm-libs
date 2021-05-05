@@ -74,6 +74,8 @@ struct scanner
   pcap_t *pcap_handle;
   hosts_data_t *hosts_data;
   scan_restrictions_t *scan_restrictions;
+  /* 0 do not print in stdout, 1 print in stdout used for cmd line cli. */
+  int print_results;
 };
 
 typedef struct scanner scanner_t;
