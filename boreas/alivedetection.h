@@ -76,6 +76,8 @@ struct scanner
   scan_restrictions_t *scan_restrictions;
 };
 
+typedef struct scanner scanner_t;
+
 /**
  * @brief The hosts_data struct holds the alive hosts and target hosts in
  * separate hashtables.
