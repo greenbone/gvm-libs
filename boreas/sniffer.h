@@ -25,9 +25,9 @@
 #include <pcap.h>
 
 int
-start_sniffer_thread (struct scanner *, pthread_t *);
+start_sniffer_thread (scanner_t *, pthread_t *);
 
 int
-stop_sniffer_thread (struct scanner *, pthread_t);
+stop_sniffer_thread (scanner_t *, pthread_t);
 
 #endif /* not BOREAS_SNIFFER_H */
