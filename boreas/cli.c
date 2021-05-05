@@ -111,7 +111,8 @@ run_cli_scan (scanner_t *scanner, alive_test_t alive_test)
   gettimeofday (&start_time, NULL);
   number_of_targets = g_hash_table_size (scanner->hosts_data->targethosts);
 
-  printf ("Alive scan started: Target has %d hosts.\n", number_of_targets);
+  if (scanner->print_results == 1)
+    printf ("Alive scan started: Target has %d hosts.\n", number_of_targets);
 
   error = start_sniffer_thread (scanner, &sniffer_thread_id);
   if (error)
@@ -159,9 +160,10 @@ run_cli_scan (scanner_t *scanner, alive_test_t alive_test)
   number_of_dead_hosts = count_difference (scanner->hosts_data->targethosts,
                                            scanner->hosts_data->alivehosts);
   gettimeofday (&end_time, NULL);
-  printf ("Alive scan finished in %ld seconds: %d alive hosts of %d.\n",
-          end_time.tv_sec - start_time.tv_sec,
-          number_of_targets - number_of_dead_hosts, number_of_targets);
+  if (scanner->print_results == 1)
+    printf ("Alive scan finished in %ld seconds: %d alive hosts of %d.\n",
+            end_time.tv_sec - start_time.tv_sec,
+            number_of_targets - number_of_dead_hosts, number_of_targets);
 
   return error;
 }
