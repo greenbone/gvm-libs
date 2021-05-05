@@ -26,4 +26,14 @@
 boreas_error_t
 run_cli (gvm_hosts_t *, alive_test_t, const gchar *);
 
+boreas_error_t
+init_cli (scanner_t *, gvm_hosts_t *, alive_test_t,
+          const gchar *, const int);
+
+boreas_error_t
+run_cli_scan (scanner_t *, alive_test_t);
+
+boreas_error_t
+free_cli (scanner_t *, alive_test_t);
+
 #endif /* not CLI_H */
