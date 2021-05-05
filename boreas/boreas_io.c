@@ -358,7 +358,7 @@ put_finish_signal_on_queue (void *error)
  * scan limit.
  */
 void
-init_scan_restrictions (struct scanner *scanner, int max_scan_hosts)
+init_scan_restrictions (scanner_t *scanner, int max_scan_hosts)
 {
   scan_restrictions.alive_hosts_count = 0;
   scan_restrictions.max_scan_hosts_reached = FALSE;
@@ -379,7 +379,7 @@ init_scan_restrictions (struct scanner *scanner, int max_scan_hosts)
  * @param add_str Host address string to put on queue.
  */
 void
-handle_scan_restrictions (struct scanner *scanner, gchar *addr_str)
+handle_scan_restrictions (scanner_t *scanner, gchar *addr_str)
 {
   inc_alive_hosts_count ();
   /* Put alive hosts on queue as long as max_scan_hosts not reached. */

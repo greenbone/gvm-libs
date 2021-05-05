@@ -54,7 +54,7 @@
  */
 #define G_LOG_DOMAIN "libgvm boreas"
 
-struct scanner scanner;
+scanner_t scanner;
 
 /**
  * @brief Scan function starts a sniffing thread which waits for packets to
