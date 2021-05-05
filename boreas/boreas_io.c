@@ -225,14 +225,6 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
 void
 put_host_on_queue (kb_t kb, char *addr_str)
 {
-  /* Print host on command line if no kb is available. No kb available could
-   * mean that boreas is used as commandline tool.*/
-  if (NULL == kb)
-    {
-      g_printf ("%s\n", addr_str);
-      return;
-    }
-
   if (kb_item_push_str (kb, ALIVE_DETECTION_QUEUE, addr_str) != 0)
     g_debug ("%s: kb_item_push_str() failed. Could not push \"%s\" on queue of "
              "hosts to be considered as alive.",
@@ -381,10 +373,22 @@ init_scan_restrictions (scanner_t *scanner, int max_scan_hosts)
 void
 handle_scan_restrictions (scanner_t *scanner, gchar *addr_str)
 {
+  kb_t kb = scanner->main_kb;
+  
   inc_alive_hosts_count ();
   /* Put alive hosts on queue as long as max_scan_hosts not reached. */
   if (!max_scan_hosts_reached ())
-    put_host_on_queue (scanner->main_kb, addr_str);
+    {
+      /* Print host on command line if no kb is available. No kb available could
+       * mean that boreas is used as commandline tool.*/
+      if (kb != NULL)
+        put_host_on_queue (kb, addr_str);
+      else
+        {
+          if (scanner->print_results == 1)
+            g_printf ("%s\n", addr_str);
+        }
+    }
 
   /* Set max_scan_hosts_reached if not already set and max_scan_hosts was
    * reached. */
