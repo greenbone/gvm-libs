@@ -56,4 +56,7 @@ get_alive_test_methods (alive_test_t *);
 const gchar *
 get_alive_test_ports (void);
 
+int
+get_alive_hosts_count (void);
+
 #endif /* not BOREAS_IO_H */
