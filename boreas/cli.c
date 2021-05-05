@@ -36,7 +36,7 @@
  */
 #define G_LOG_DOMAIN "libgvm boreas"
 
-static boreas_error_t
+boreas_error_t
 init_cli (scanner_t *scanner, gvm_hosts_t *hosts, alive_test_t alive_test,
           const gchar *port_list, const int print_results)
 {
@@ -81,7 +81,7 @@ init_cli (scanner_t *scanner, gvm_hosts_t *hosts, alive_test_t alive_test,
   return error;
 }
 
-static boreas_error_t
+boreas_error_t
 free_cli (scanner_t *scanner, alive_test_t alive_test)
 {
   int close_err;
@@ -99,7 +99,7 @@ free_cli (scanner_t *scanner, alive_test_t alive_test)
   return close_err;
 }
 
-static boreas_error_t
+boreas_error_t
 run_cli_scan (scanner_t *scanner, alive_test_t alive_test)
 {
   int error;
