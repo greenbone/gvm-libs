@@ -374,7 +374,7 @@ void
 handle_scan_restrictions (scanner_t *scanner, gchar *addr_str)
 {
   kb_t kb = scanner->main_kb;
-  
+
   inc_alive_hosts_count ();
   /* Put alive hosts on queue as long as max_scan_hosts not reached. */
   if (!max_scan_hosts_reached ())
