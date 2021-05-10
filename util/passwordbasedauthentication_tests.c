@@ -33,7 +33,6 @@ AfterEach (PBA)
 
 Ensure (PBA, returns_false_on_not_phc_compliant_setting)
 {
-    assert_false(pba_is_phc_compliant(NULL));
     assert_false(pba_is_phc_compliant("$"));
     assert_false(pba_is_phc_compliant("password"));
 }
@@ -75,6 +74,17 @@ Ensure (PBA, verify_hash)
     assert_equal(pba_verify_hash(&setting_wo_pepper, hash, "*password"), VALID);
     free(hash);
 }
+
+Ensure (PBA, verify_hash_returns_invalid_on_np_hash_np_password)
+{
+    struct PBASettings setting = { "4242" , 20000, "$6$"};
+    char *hash;
+    hash = pba_hash(&setting, "*password");
+    assert_not_equal(hash, NULL);
+    assert_equal(pba_verify_hash(&setting, NULL, "*password"), INVALID);
+    assert_equal(pba_verify_hash(&setting, hash, NULL), INVALID);
+}
+
 
 Ensure (PBA, defaults)
 {
@@ -131,6 +141,8 @@ main (int argc, char **argv)
                          unique_hash_without_adding_used_pepper);
   add_test_with_context (suite, PBA,
                          verify_hash);
+  add_test_with_context (suite, PBA,
+                         verify_hash_returns_invalid_on_np_hash_np_password);
   add_test_with_context (suite, PBA,
                          handle_md5_hash);
   add_test_with_context (suite, PBA,
