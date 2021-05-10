@@ -27,6 +27,11 @@
 // this shouldn't affect other implementations
 #define __USE_GNU
 #include <crypt.h>
+// INVALID_HASH is used on verify when the given hash is a NULL pointer.
+// This is done to not directly jump to exit with a INVALID_HASH result
+// but rather keep calculating to make it a little bit harder to guess
+// if a user exists or not based on timing.
+#define INVALID_HASH "1234567890$"
 #ifndef CRYPT_GENSALT_OUTPUT_SIZE
 #define CRYPT_GENSALT_OUTPUT_SIZE 192
 #endif
@@ -163,7 +168,7 @@ pba_is_phc_compliant (const char *setting)
 {
   if (setting == NULL)
     {
-      return 0;
+      return 1;
     }
   return strlen (setting) > 1 && setting[0] == '$';
 }
@@ -223,7 +228,7 @@ pba_verify_hash (const struct PBASettings *setting, const char *hash,
   struct crypt_data *data = NULL;
   int i = 0;
   enum pba_rc result = ERR;
-  if (!setting || !hash || !password)
+  if (!setting )
     goto exit;
   if (!is_prefix_supported (setting->prefix))
     goto exit;
@@ -232,7 +237,7 @@ pba_verify_hash (const struct PBASettings *setting, const char *hash,
       data = calloc (1, sizeof (struct crypt_data));
       // manipulate hash to reapply pepper
       tmp = malloc ( CRYPT_OUTPUT_SIZE);
-      strncpy(tmp, hash, CRYPT_OUTPUT_SIZE);
+      strncpy(tmp, hash ? hash : INVALID_HASH, CRYPT_OUTPUT_SIZE);
       cmp = strrchr (tmp, '$');
       for (i = MAX_PEPPER_SIZE - 1; i > -1; i--)
         {
@@ -240,7 +245,10 @@ pba_verify_hash (const struct PBASettings *setting, const char *hash,
           if (setting->pepper[i] != 0)
             cmp[0] = setting->pepper[i];
         }
-      cmp = crypt_r (password, tmp, data);
+      // some crypt_r implementations cannot handle if password is a
+      // NULL pointer and run into SEGMENTATION faults. 
+      // Therefore we set it to "" 
+      cmp = crypt_r (password ? password : "", tmp, data);
       if (strcmp (tmp, cmp) == 0)
         result = VALID;
       else
