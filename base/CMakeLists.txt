@@ -27,15 +27,23 @@ endif (NOT PKG_CONFIG_FOUND)
 
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
 
+find_package (SENTRY REQUIRED)
+if ($ENV{BUILD_SENTRY} AND ${SENTRY_FOUND})
+  message ("Bulding with Sentry integration")
+  set (SENTRY_LDFLAGS "-lsentry")
+  set (SENTRY_CFLAGS "-I${CMAKE_INSTALL_PREFIX}/include")
+  add_definitions (-DHAVE_SENTRY=1)
+endif ($ENV{BUILD_SENTRY} AND ${SENTRY_FOUND})
+
 include_directories (${GLIB_INCLUDE_DIRS})
 
 set (FILES array.c credentials.c cvss.c drop_privileges.c hosts.c logging.c
            networking.c nvti.c pidfile.c prefs.c proctitle.c pwpolicy.c
-           settings.c strings.c version.c)
+           gvm_sentry.c settings.c strings.c version.c)
 
 set (HEADERS array.h credentials.h cvss.h drop_privileges.h hosts.h logging.h
              networking.h nvti.h pidfile.h prefs.h proctitle.h pwpolicy.h
-             settings.h strings.h version.h)
+             gvm_sentry.h settings.h strings.h version.h)
 
 if (BUILD_STATIC)
   set (LIBGVM_BASE_NAME gvm_base_static)
@@ -54,7 +62,7 @@ if (BUILD_SHARED)
   set_target_properties (gvm_base_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
   set_target_properties (gvm_base_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-  target_link_libraries (gvm_base_shared LINK_PRIVATE ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+  target_link_libraries (gvm_base_shared LINK_PRIVATE ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${SENTRY_LDFLAGS})
 endif (BUILD_SHARED)
 
 set (LIBGVM_BASE_NAME
@@ -68,7 +76,6 @@ endif (GVM_PID_DIR)
 if (GVM_SYSCONF_DIR)
   add_definitions (-DGVM_SYSCONF_DIR="${GVM_SYSCONF_DIR}")
 endif (GVM_SYSCONF_DIR)
-
 
 ## Tests
 
