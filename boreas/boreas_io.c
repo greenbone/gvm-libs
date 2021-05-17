@@ -247,7 +247,7 @@ finish_signal_on_queue (kb_t main_kb)
   if (fin_msg_already_on_queue)
     return 1;
 
-  /* Check if it was already set throught the whole items under the key.
+  /* Check if it was already set through the whole items under the key.
      If so, set the static variable to avoid querying redis unnecessarily. */
   queue_items = kb_item_get_all (main_kb, ALIVE_DETECTION_QUEUE);
   if (queue_items)
