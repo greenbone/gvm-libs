@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 ### Fixed
 - Unify GLib log domains [#479](https://github.com/greenbone/gvm-libs/pull/479)
+- Fix double free. [#499](https://github.com/greenbone/gvm-libs/pull/499)
 
 ### Removed
 

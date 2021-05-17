@@ -279,7 +279,6 @@ get_redis_ctx (struct kb_redis *kbr)
              kbr->rctx ? kbr->rctx->errstr : strerror (ENOMEM));
       redisFree (kbr->rctx);
       kbr->rctx = NULL;
-      g_free (kbr->path);
       return -1;
     }
 
@@ -289,7 +288,6 @@ get_redis_ctx (struct kb_redis *kbr)
       g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL, "No redis DB available");
       redisFree (kbr->rctx);
       kbr->rctx = NULL;
-      g_free (kbr->path);
       return -2;
     }
 
