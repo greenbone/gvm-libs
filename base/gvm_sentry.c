@@ -19,15 +19,15 @@
 
 /**
  * @file
- * @brief Implementation of logging methods.
+ * @brief Implementation of sentry methods.
  *
- * This file contains all methods needed for logging. To enable logging,
- * methods in this file are called.
+ * This file contains all methods needed for sentry. To enable sentry and log
+ * log in the sentry server, methods in this file are called.
  *
- * The module reuses glib datatypes and api for memory management and logging.
-*/
+ */
 
 #include "gvm_sentry.h"
+
 #include <stdio.h>
 
 int global_init_sentry = 0;
@@ -53,13 +53,13 @@ is_sentry_initialized ()
 /**
  * @brief Initialize Sentry
  *
- * The function does nothing if HAVE_SENTRY is not defined 
- * 
+ * The function does nothing if HAVE_SENTRY is not defined
+ *
  * @param[in] dsn Sentry DSN
  * @param[in] release Module release to be sent to Sentry.
  */
 void
-gvm_sentry_init(const char *dsn, const char *release)
+gvm_sentry_init (const char *dsn, const char *release)
 {
 #ifdef HAVE_SENTRY
   sentry_options_t *options = sentry_options_new ();
@@ -77,23 +77,23 @@ gvm_sentry_init(const char *dsn, const char *release)
 /**
  * @brief Send a message to Sentry server if it was initialized
  *
- * The function does nothing if HAVE_SENTRY is not defined 
- * 
+ * The function does nothing if HAVE_SENTRY is not defined
+ *
  * @param[in] message Message to send
  */
 void
-gvm_sentry_log(const char *message)
+gvm_sentry_log (const char *message)
 {
 #ifdef HAVE_SENTRY
   if (is_sentry_initialized ())
     {
-      sentry_capture_event(sentry_value_new_message_event(
+      sentry_capture_event (sentry_value_new_message_event (
         /*   level */ SENTRY_LEVEL_INFO,
         /*  logger */ "custom",
         /* message */ message));
     }
 #else
-   (void) message;
+  (void) message;
 #endif /* HAVE_SENTRY */
 }
 
@@ -103,10 +103,11 @@ gvm_sentry_log(const char *message)
  * This function must be called before exiting to ensure that all
  * message has been sent to Sentry.
  *
- * The function does nothing if HAVE_SENTRY is not defined 
- * 
+ * The function does nothing if HAVE_SENTRY is not defined
+ *
  */
-void gvm_close_sentry(void)
+void
+gvm_close_sentry (void)
 {
 #ifdef HAVE_SENTRY
   if (is_sentry_initialized ())
