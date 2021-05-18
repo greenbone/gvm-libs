@@ -30,6 +30,7 @@
 
 #include <stdio.h>
 
+#ifdef HAVE_SENTRY
 int global_init_sentry = 0;
 
 /**
@@ -49,6 +50,7 @@ is_sentry_initialized ()
 {
   return global_init_sentry;
 }
+#endif /* HAVE_SENTRY */
 
 /**
  * @brief Initialize Sentry
