@@ -24,23 +24,22 @@
  * This file contains all methods needed for sentry. To enable sentry and log
  * log in the sentry server, methods in this file are called.
  *
-*/
+ */
 
 #ifndef _GVM_SENTRY_H
 #define _GVM_SENTRY_H
 
-#ifdef  HAVE_SENTRY
+#ifdef HAVE_SENTRY
 #include <sentry.h>
 #endif /* HAVE_SENTRY*/
 
 void
-gvm_sentry_init(const char *, const char *);
+gvm_sentry_init (const char *, const char *);
 
 void
-gvm_sentry_log(const char *);
+gvm_sentry_log (const char *);
 
 void
-gvm_close_sentry(void);
+gvm_close_sentry (void);
 
 #endif /* not _GVM_SENTRY_H */
-

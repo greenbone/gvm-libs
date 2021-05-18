@@ -28,7 +28,8 @@
  */
 
 #include "logging.h"
-#include "gvm_sentry.h"
+
+#include "gvm_sentry.h" /* for gvm_sentry_log */
 
 #include <errno.h>  /* for errno */
 #include <libgen.h> /* for dirname */
@@ -628,7 +629,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
   g_free (prepend);
 
   if (log_level == G_LOG_LEVEL_WARNING)
-    gvm_sentry_log(message);
+    gvm_sentry_log (message);
 
   gvm_log_lock ();
   /* Output everything to stderr if logfile is "-". */
