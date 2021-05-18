@@ -628,7 +628,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
                             message);
   g_free (prepend);
 
-  if (log_level == G_LOG_LEVEL_WARNING)
+  if (log_level <= G_LOG_LEVEL_WARNING)
     gvm_sentry_log (message);
 
   gvm_log_lock ();
