@@ -65,6 +65,7 @@ gvm_sentry_init(const char *dsn, const char *release)
   sentry_options_t *options = sentry_options_new ();
   sentry_options_set_dsn (options, dsn);
   sentry_options_set_release (options, release);
+  sentry_options_set_sample_rate (options, 1.0);
   sentry_init (options);
   set_init_sentry ();
 #else
