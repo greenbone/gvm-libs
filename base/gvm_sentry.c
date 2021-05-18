@@ -43,6 +43,15 @@ set_init_sentry ()
 }
 
 /**
+ * @brief Reset global_init_sentry
+ */
+static void
+reset_init_sentry ()
+{
+  global_init_sentry = 0;
+}
+
+/**
  * @brief Return if sentry was initialized or not
  */
 static int
@@ -113,6 +122,9 @@ gvm_close_sentry (void)
 {
 #ifdef HAVE_SENTRY
   if (is_sentry_initialized ())
-    sentry_close ();
+    {
+      sentry_close ();
+      reset_init_sentry ();
+    }
 #endif /* HAVE_SENTRY */
 }

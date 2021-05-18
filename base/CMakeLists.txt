@@ -35,7 +35,7 @@ if ($ENV{BUILD_SENTRY})
     set (SENTRY_CFLAGS "-I${CMAKE_INSTALL_PREFIX}/include")
     add_definitions (-DHAVE_SENTRY=1)
   endif (${SENTRY_FOUND})
-endif ($ENV{BUILD_SENTRY} AND ${SENTRY_FOUND})
+endif ($ENV{BUILD_SENTRY})
 
 include_directories (${GLIB_INCLUDE_DIRS})
 
