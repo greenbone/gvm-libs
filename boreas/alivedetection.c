@@ -390,7 +390,7 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
       if (pref_value > 0)
         max_scan_hosts = pref_value;
       else
-        g_debug ("%s: Invalid max_scan_hosts value. It must be an interger "
+        g_debug ("%s: Invalid max_scan_hosts value. It must be an integer "
                  "greater than zero.",
                  __func__);
     }

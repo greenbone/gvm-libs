@@ -86,7 +86,7 @@ exit:
  * is a NULL pointer, random data will be retrieved from the operating system
  * if possible.
  *
- * Teh generated setting string is written to OUTPUT, which is OUTPUT_SIZE long.
+ * The generated setting string is written to OUTPUT, which is OUTPUT_SIZE long.
  * OUTPUT_SIZE must be at least CRYPT_GENSALT_OUTPUT_SIZE.
  *
  * */
@@ -204,7 +204,7 @@ pba_hash (struct PBASettings *setting, const char *password)
   result = malloc (CRYPT_OUTPUT_SIZE);
   strncpy(result, rslt, CRYPT_OUTPUT_SIZE);
   // remove pepper, by jumping to begin of applied pepper within result
-  // and overridding it.
+  // and overriding it.
   tmp = result + (tmp - settings);
   for (i = 0; i < MAX_PEPPER_SIZE; i++)
     {
