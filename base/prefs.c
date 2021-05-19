@@ -77,7 +77,7 @@ prefs_init (void)
   prefs_set ("drop_privileges", "no");
   prefs_set ("report_host_details", "yes");
   prefs_set ("vendor_version", "\0");
-  prefs_set ("test_alive_hosts_only", "no");
+  prefs_set ("test_alive_hosts_only", "yes");
   prefs_set ("debug_tls", "0");
   prefs_set ("allow_simultaneous_ips", "yes");
 }
