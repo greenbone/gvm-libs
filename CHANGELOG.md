@@ -25,6 +25,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add function to find and return a host from a host list. [490](https://github.com/greenbone/gvm-libs/pull/490)
 
 ### Changed
+- Make test_alive_hosts_only (Boreas) feature the new default. [503](https://github.com/greenbone/gvm-libs/pull/503)
+
 ### Fixed
 - Unify GLib log domains [#479](https://github.com/greenbone/gvm-libs/pull/479)
 - Fix double free. [#499](https://github.com/greenbone/gvm-libs/pull/499)
