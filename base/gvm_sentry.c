@@ -30,6 +30,21 @@
 
 #include <stdio.h>
 
+/**
+ * @brief Check for sentry support
+ *
+ * @return 1 if gvm-libs has been built with sentry support, 0 otherwise.
+ *
+ */
+int
+gvm_has_sentry_support ()
+{
+#ifdef HAVE_SENTRY
+  return 1;
+#endif /* HAVE_SENTRY */
+  return 0;
+}
+
 #ifdef HAVE_SENTRY
 int global_init_sentry = 0;
 

@@ -42,4 +42,7 @@ gvm_sentry_log (const char *);
 void
 gvm_close_sentry (void);
 
+int
+gvm_has_sentry_support (void);
+
 #endif /* not _GVM_SENTRY_H */
