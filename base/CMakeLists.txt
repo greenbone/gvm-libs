@@ -30,14 +30,15 @@ pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
 if ($ENV{BUILD_SENTRY})
   find_package (SENTRY REQUIRED)
   if (${SENTRY_FOUND})
-    message ("Bulding with Sentry integration")
+    message ("Building with Sentry integration")
     set (SENTRY_LDFLAGS "-lsentry")
-    set (SENTRY_CFLAGS "-I${CMAKE_INSTALL_PREFIX}/include")
+    set (SENTRY_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
+    set (SENTRY_CFLAGS "-I${SENTRY_INCLUDE_DIR}")
     add_definitions (-DHAVE_SENTRY=1)
   endif (${SENTRY_FOUND})
 endif ($ENV{BUILD_SENTRY})
 
-include_directories (${GLIB_INCLUDE_DIRS})
+include_directories (${GLIB_INCLUDE_DIRS} ${SENTRY_INCLUDE_DIR})
 
 set (FILES array.c credentials.c cvss.c drop_privileges.c hosts.c logging.c
            networking.c nvti.c pidfile.c prefs.c proctitle.c pwpolicy.c
