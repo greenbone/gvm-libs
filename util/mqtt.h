@@ -20,6 +20,10 @@
 #ifndef _GVM_MQTT_H
 #define _GVM_MQTT_H
 
+#ifdef HAVE_MQTT
+#include <MQTTClient.h>
+#endif /* HAVE_MQTT*/
+
 typedef struct
 {
   void *client;

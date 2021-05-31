@@ -19,7 +19,6 @@
 
 #include "mqtt.h"
 
-#include "MQTTClient.h"
 #include "uuidutils.h" /* gvm_uuid_make */
 
 #include <glib.h>
