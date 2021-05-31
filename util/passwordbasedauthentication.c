@@ -202,7 +202,7 @@ pba_hash (struct PBASettings *setting, const char *password)
   if (rslt == NULL)
     goto exit;
   result = malloc (CRYPT_OUTPUT_SIZE);
-  strncpy(result, rslt, CRYPT_OUTPUT_SIZE);
+  strncpy (result, rslt, CRYPT_OUTPUT_SIZE);
   // remove pepper, by jumping to begin of applied pepper within result
   // and overriding it.
   tmp = result + (tmp - settings);
@@ -228,7 +228,7 @@ pba_verify_hash (const struct PBASettings *setting, const char *hash,
   struct crypt_data *data = NULL;
   int i = 0;
   enum pba_rc result = ERR;
-  if (!setting )
+  if (!setting)
     goto exit;
   if (!is_prefix_supported (setting->prefix))
     goto exit;
@@ -236,8 +236,8 @@ pba_verify_hash (const struct PBASettings *setting, const char *hash,
     {
       data = calloc (1, sizeof (struct crypt_data));
       // manipulate hash to reapply pepper
-      tmp = malloc ( CRYPT_OUTPUT_SIZE);
-      strncpy(tmp, hash ? hash : INVALID_HASH, CRYPT_OUTPUT_SIZE);
+      tmp = malloc (CRYPT_OUTPUT_SIZE);
+      strncpy (tmp, hash ? hash : INVALID_HASH, CRYPT_OUTPUT_SIZE);
       cmp = strrchr (tmp, '$');
       for (i = MAX_PEPPER_SIZE - 1; i > -1; i--)
         {
@@ -246,8 +246,8 @@ pba_verify_hash (const struct PBASettings *setting, const char *hash,
             cmp[0] = setting->pepper[i];
         }
       // some crypt_r implementations cannot handle if password is a
-      // NULL pointer and run into SEGMENTATION faults. 
-      // Therefore we set it to "" 
+      // NULL pointer and run into SEGMENTATION faults.
+      // Therefore we set it to ""
       cmp = crypt_r (password ? password : "", tmp, data);
       if (strcmp (tmp, cmp) == 0)
         result = VALID;
