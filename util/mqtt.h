@@ -31,6 +31,9 @@ typedef struct
   char *addr;
 } mqtt_t;
 
+int
+gvm_has_mqtt_support (void);
+
 mqtt_t *
 mqtt_connect (const char *);
 

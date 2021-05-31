@@ -30,6 +30,20 @@
 #define TIMEOUT 10000L
 
 /**
+ * @brief Check for MQTT support
+ *
+ * @return 1 if gvm-libs has been built with mqtt, 0 otherwise.
+ */
+int
+gvm_has_mqtt_support ()
+{
+#ifdef HAVE_MQTT
+  return 1;
+#endif /* HAVE_MQTT */
+  return 0;
+}
+
+/**
  * Create a new mqtt client.
  *
  * @param server_uri  URI of server.
