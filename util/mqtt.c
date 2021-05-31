@@ -48,6 +48,7 @@ gvm_has_mqtt_support ()
  * Create a new mqtt client.
  *
  * @param server_uri  URI of server.
+ * @param id          Client id.
  *
  * @return mqtt client
  */
