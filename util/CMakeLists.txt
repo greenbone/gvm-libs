@@ -51,7 +51,15 @@ pkg_check_modules (REDIS REQUIRED hiredis>=0.10.1)
 pkg_check_modules (LIBXML2 REQUIRED libxml-2.0>=2.0)
 
 # for mqtt
-find_library(LIBPAHO NAMES libpaho-mqtt3c.so REQUIRED)
+# Optional for now because lib is currently not in debian buster stable.
+find_library(LIBPAHO lpaho)
+message (STATUS "Looking for lpaho... ${LIBPAHO}")
+if (NOT LIBPAHO)
+  message (STATUS "libpaho-mqtt3c is required for MQTTv5 support.")
+else (LIBPAHO)
+  set (LIBPAHO_LDFLAGS "paho-mqtt3c")
+  add_definitions (-DHAVE_MQTT=1)
+endif (NOT LIBPAHO)
 
 #for gpgmeutils we need libgpgme
 set (GPGME_MIN_VERSION "1.7.0")
@@ -181,7 +189,7 @@ if (BUILD_SHARED)
   set_target_properties (gvm_util_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
   set_target_properties (gvm_util_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-  target_link_libraries (gvm_util_shared LINK_PRIVATE paho-mqtt3c ${GLIB_LDFLAGS}
+  target_link_libraries (gvm_util_shared LINK_PRIVATE ${LIBPAHO_LDFLAGS} ${GLIB_LDFLAGS}
                          ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
                          ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
                          ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
