@@ -43,6 +43,7 @@ gvm_has_mqtt_support ()
   return 0;
 }
 
+#ifdef HAVE_MQTT
 /**
  * Create a new mqtt client.
  *
@@ -67,6 +68,7 @@ mqtt_create (const char *server_uri, char *id)
     }
   return client;
 }
+#endif /* HAVE_MQTT */
 
 /**
  * @brief connect to a mqtt broker.
@@ -78,7 +80,7 @@ mqtt_create (const char *server_uri, char *id)
 mqtt_t *
 mqtt_connect (const char *server_uri)
 {
-  g_warning ("%s", __func__);
+#ifdef HAVE_MQTT
   char *uuid;
   int rc;
   MQTTClient client;
@@ -114,11 +116,25 @@ mqtt_connect (const char *server_uri)
   mqtt->client_id = uuid;
 
   return mqtt;
+#else
+  (void) server_uri;
+  return NULL;
+#endif /* HAVE_MQTT */
 }
 
+/**
+ * @brief Publish message on topic.
+ *
+ * @param mqtt  MQTT handle.
+ * @param topic Topic to publish on.
+ * @param msg   Message to publish on queue.
+ *
+ * @return 0 on success, negative errorcode on failure.
+ */
 int
 mqtt_publish (mqtt_t *mqtt, const char *topic, const char *msg)
 {
+#ifdef HAVE_MQTT
   MQTTClient client;
   MQTTClient_message pubmsg = MQTTClient_message_initializer;
   MQTTClient_deliveryToken token;
@@ -134,7 +150,6 @@ mqtt_publish (mqtt_t *mqtt, const char *topic, const char *msg)
   pubmsg.qos = QOS;
   pubmsg.retained = 0;
 
-  g_warning ("! publish with client id: %s", mqtt->client_id);
   resp = MQTTClient_publishMessage5 (client, topic, &pubmsg, &token);
   rc = resp.reasonCode;
   if (rc != MQTTCLIENT_SUCCESS)
@@ -153,4 +168,10 @@ mqtt_publish (mqtt_t *mqtt, const char *topic, const char *msg)
     }
 
   return rc;
+#else
+  (void) mqtt;
+  (void) topic;
+  (void) msg;
+  return -1;
+#endif /* HAVE_MQTT */
 }
