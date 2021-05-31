@@ -413,12 +413,11 @@ gvm_gpgme_fwrite (void *handle, const void *buffer, size_t size)
   return ret;
 }
 
-#define CHECK_ERR(func) \
-  if (err)                                            \
-    {                                                 \
-      printf ("%s: %s failed: %s\n",                  \
-              __func__, func, gpgme_strerror (err));  \
-      return -1;                                      \
+#define CHECK_ERR(func)                                                     \
+  if (err)                                                                  \
+    {                                                                       \
+      printf ("%s: %s failed: %s\n", __func__, func, gpgme_strerror (err)); \
+      return -1;                                                            \
     }
 
 /**
@@ -482,19 +481,18 @@ create_all_certificates_trustlist (gpgme_ctx_t ctx, const char *homedir)
 }
 
 #undef CHECK_ERR
-#define CHECK_ERR(func) \
-  if (err)                                            \
-    {                                                 \
-      printf ("%s: %s failed: %s\n",                  \
-              __func__, func, gpgme_strerror (err));  \
-      if (plain_data)                                 \
-        gpgme_data_release (plain_data);              \
-      if (encrypted_data)                             \
-        gpgme_data_release (encrypted_data);          \
-      if (ctx)                                        \
-        gpgme_release (ctx);                          \
-      gvm_file_remove_recurse (gpg_temp_dir);         \
-      return -1;                                      \
+#define CHECK_ERR(func)                                                     \
+  if (err)                                                                  \
+    {                                                                       \
+      printf ("%s: %s failed: %s\n", __func__, func, gpgme_strerror (err)); \
+      if (plain_data)                                                       \
+        gpgme_data_release (plain_data);                                    \
+      if (encrypted_data)                                                   \
+        gpgme_data_release (encrypted_data);                                \
+      if (ctx)                                                              \
+        gpgme_release (ctx);                                                \
+      gvm_file_remove_recurse (gpg_temp_dir);                               \
+      return -1;                                                            \
     }
 
 /**
