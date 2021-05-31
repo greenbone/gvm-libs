@@ -50,6 +50,17 @@ pkg_check_modules (REDIS REQUIRED hiredis>=0.10.1)
 # for fast XML we need libxml2
 pkg_check_modules (LIBXML2 REQUIRED libxml-2.0>=2.0)
 
+# for mqtt
+# Optional for now because lib is currently not in debian buster stable.
+find_library(LIBPAHO lpaho)
+message (STATUS "Looking for lpaho... ${LIBPAHO}")
+if (NOT LIBPAHO)
+  message (STATUS "libpaho-mqtt3c is required for MQTTv5 support.")
+else (LIBPAHO)
+  set (LIBPAHO_LDFLAGS "paho-mqtt3c")
+  add_definitions (-DHAVE_MQTT=1)
+endif (NOT LIBPAHO)
+
 #for gpgmeutils we need libgpgme
 set (GPGME_MIN_VERSION "1.7.0")
 message (STATUS "Looking for gpgme...")
@@ -156,11 +167,11 @@ include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE
                      ${LIBXML2_INCLUDE_DIRS})
 
 set (FILES passwordbasedauthentication.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
-           nvticache.c radiusutils.c serverutils.c sshutils.c uuidutils.c
+           nvticache.c mqtt.c radiusutils.c serverutils.c sshutils.c uuidutils.c
            xmlutils.c)
 
 set (HEADERS passwordbasedauthentication.h authutils.h compressutils.h fileutils.h gpgmeutils.h kb.h
-             ldaputils.h nvticache.h radiusutils.h serverutils.h sshutils.h
+             ldaputils.h nvticache.h mqtt.h radiusutils.h serverutils.h sshutils.h
              uuidutils.h xmlutils.h)
 
 if (BUILD_STATIC)
@@ -178,7 +189,7 @@ if (BUILD_SHARED)
   set_target_properties (gvm_util_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
   set_target_properties (gvm_util_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-  target_link_libraries (gvm_util_shared LINK_PRIVATE ${GLIB_LDFLAGS}
+  target_link_libraries (gvm_util_shared LINK_PRIVATE ${LIBPAHO_LDFLAGS} ${GLIB_LDFLAGS}
                          ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
                          ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
                          ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
