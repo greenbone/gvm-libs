@@ -88,7 +88,7 @@ mqtt_connect (const char *server_uri)
   mqtt_t *mqtt = NULL;
   MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer5;
   MQTTProperties connect_properties = MQTTProperties_initializer;
-  MQTTResponse resp = MQTTResponse_initializer;
+  MQTTResponse resp;
 
   uuid = gvm_uuid_make ();
   client = mqtt_create (server_uri, uuid);
@@ -139,7 +139,7 @@ mqtt_publish (mqtt_t *mqtt, const char *topic, const char *msg)
   MQTTClient client;
   MQTTClient_message pubmsg = MQTTClient_message_initializer;
   MQTTClient_deliveryToken token;
-  MQTTResponse resp = MQTTResponse_initializer;
+  MQTTResponse resp;
   int rc;
 
   client = mqtt->client;
