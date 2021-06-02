@@ -52,8 +52,8 @@ pkg_check_modules (LIBXML2 REQUIRED libxml-2.0>=2.0)
 
 # for mqtt
 # Optional for now because lib is currently not in debian buster stable.
-find_library(LIBPAHO lpaho)
-message (STATUS "Looking for lpaho... ${LIBPAHO}")
+find_library(LIBPAHO paho-mqtt3c)
+message (STATUS "Looking for paho-mqtt3c ... ${LIBPAHO}")
 if (NOT LIBPAHO)
   message (STATUS "libpaho-mqtt3c is required for MQTTv5 support.")
 else (LIBPAHO)
