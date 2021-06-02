@@ -12,7 +12,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Possibility to use lcrypt with `$6$` (sha512) for authentication [484](https://github.com/greenbone/gvm-libs/pull/484)
 - Add function to perform an alive test and get the amount of alive hosts. [495](https://github.com/greenbone/gvm-libs/pull/495)
 - Add functions for sentry integration. [#502](https://github.com/greenbone/gvm-libs/pull/502) [#506](https://github.com/greenbone/gvm-libs/pull/506)
-- Add basic support for mqtt. [505](https://github.com/greenbone/gvm-libs/pull/505)
+- Add basic support for mqtt.
+  [#505](https://github.com/greenbone/gvm-libs/pull/505)
+  [#511](https://github.com/greenbone/gvm-libs/pull/511)
 
 ### Changed
 ### Fixed
