@@ -1,0 +1,31 @@
+name: Build and test C
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+
+jobs:
+  c_format_check:
+    name: Check C Source Code Formatting
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: Check Source Format
+        run: |
+          clang-format -i -style=file base/*.{c,h} boreas/*.{c,h} \
+          gmp/*.{c,h} osp/*.{c,h} util/*.{c,h} && git diff --exit-code
+  test_units:
+    name: Unit Tests
+    runs-on: 'ubuntu-latest'
+    container: greenbone/build-env-gvm-libs-master-debian-buster-gcc-core
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: Configure and test gvm-libs
+        run: |
+          mkdir build && cd build/ && cmake -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_TESTS=1 .. && make install && make tests && \
+          CTEST_OUTPUT_ON_FAILURE=1 make test
+        working-directory: ${{ github.WORKSPACE }}
