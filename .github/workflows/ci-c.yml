@@ -53,7 +53,7 @@ jobs:
           -o ~/scan-build-report make && [ -z "$(ls -A ~/scan-build-report/)" ]
         working-directory: ${{ github.WORKSPACE }}
   gen_xml_doc:
-    name: Scan-build gvm-libs with clang
+    name: Generate documentation (XML)
     runs-on: 'ubuntu-latest'
     container: greenbone/code-metrics-doxygen-debian-stretch
     steps:
