@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gvm-libs"
-version = "21.10.0.dev1"
+version = "21.04.1.dev1"
 description = "This is the libraries module for the Greenbone Vulnerability Management Solution."
 authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
 license = "GPL-3.0-or-later"
