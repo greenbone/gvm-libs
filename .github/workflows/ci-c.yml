@@ -100,8 +100,9 @@ jobs:
           path: /tmp/xml-doc
       - name: Establish documentation coverage
         run: |
-            poetry run coverxygen --src-dir ${{ github.workspace }}     \
-            --xml-dir ${{steps.xml-doc-download.outputs.download-path}} \
+            poetry run python -m coverxygen --src-dir         \
+            ${{ github.workspace }} --xml-dir                 \
+            ${{steps.xml-doc-download.outputs.download-path}} \
             --output lcov.info
       - uses: codecov/codecov-action@v1
         with:
