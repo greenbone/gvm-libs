@@ -83,7 +83,6 @@ jobs:
     name: Upload doc coverage to Codecov
     needs: gen_xml_doc
     runs-on: ubuntu-latest
-    container: greenbone/build-env-gvm-libs-master-debian-buster-gcc-test
     steps:
       - name: Check out gvmd
         uses: actions/checkout@v2
