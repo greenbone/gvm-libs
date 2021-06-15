@@ -1267,6 +1267,7 @@ set_gnutls_dhparams (gnutls_certificate_credentials_t creds,
     }
   else
     gnutls_certificate_set_dh_params (creds, params);
+  g_free (params);
   return 0;
 }
 
