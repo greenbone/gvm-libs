@@ -74,15 +74,15 @@ gchar *
 get_time (gchar *time_fmt)
 {
   time_t now;
-  struct tm *ts;
+  struct tm ts;
   gchar buf[80];
 
   /* Get the current time. */
   now = time (NULL);
 
   /* Format and print the time, "ddd yyyy-mm-dd hh:mm:ss zzz." */
-  ts = localtime (&now);
-  strftime (buf, sizeof (buf), time_fmt, ts);
+  localtime_r (&now, &ts);
+  strftime (buf, sizeof (buf), time_fmt, &ts);
 
   return g_strdup_printf ("%s", buf);
 }
