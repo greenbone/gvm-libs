@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "gvm-libs"
+version = "21.04.1.dev1"
+description = "This is the libraries module for the Greenbone Vulnerability Management Solution."
+authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
+license = "GPL-3.0-or-later"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.dev-dependencies]
+pontos = "^21.6.3"
+codecov = "^2.1.11"
+coverxygen = "^1.5.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
