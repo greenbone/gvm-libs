@@ -957,7 +957,7 @@ gvm_hosts_add (gvm_hosts_t *hosts, gvm_host_t *host)
       hosts->max_size *= 4;
       hosts->hosts =
         g_realloc_n (hosts->hosts, hosts->max_size, sizeof (*hosts->hosts));
-      memset (hosts->hosts + (hosts->count * sizeof (gvm_host_t*)), '\0',
+      memset (hosts->hosts + hosts->count, '\0',
               (hosts->max_size - hosts->count) * sizeof (gvm_host_t*));
     }
   hosts->hosts[hosts->count] = host;
