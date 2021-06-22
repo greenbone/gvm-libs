@@ -4,7 +4,29 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+<<<<<<< HEAD
 ## [21.04.1] (unreleased)
+=======
+## [21.10] (unreleased)
+
+### Added
+
+- Add support for volatile keys. [#460](https://github.com/greenbone/gvm-libs/pull/460)
+- Possibility to use lcrypt with `$6$` (sha512) for authentication [484](https://github.com/greenbone/gvm-libs/pull/484)
+- Add function to perform an alive test and get the amount of alive hosts. [495](https://github.com/greenbone/gvm-libs/pull/495)
+- Add functions for sentry integration. [#502](https://github.com/greenbone/gvm-libs/pull/502) [#506](https://github.com/greenbone/gvm-libs/pull/506)
+- Add basic support for mqtt.
+  [#505](https://github.com/greenbone/gvm-libs/pull/505)
+  [#511](https://github.com/greenbone/gvm-libs/pull/511)
+
+### Changed
+### Fixed
+### Removed
+
+[21.10]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-21.04...master
+
+## [21.4.1] (unreleased)
+>>>>>>> bde131d (Fix version in Changelog)
 
 ### Added
 - Possibility to use lcrypt with `$6$` (sha512) for authentication [484](https://github.com/greenbone/gvm-libs/pull/484)
@@ -19,10 +41,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
-[21.04.1]: https://github.com/greenbone/gvm-libs/compare/v21.4.0...gvm-libs-21.04
+[21.4.1]: https://github.com/greenbone/gvm-libs/compare/v21.4.0...gvm-libs-21.04
 
 
-## [21.04.0] (2021-04-15)
+## [21.4.0] (2021-04-15)
 
 ### Added
 - Use dedicated port list for alive detection (Boreas only) if supplied via OSP. [#391](https://github.com/greenbone/gvm-libs/pull/391)
@@ -54,7 +76,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove handling of severity class from auth [#402](https://github.com/greenbone/gvm-libs/pull/402)
 - Remove version from the nvticache name. [#386](https://github.com/greenbone/gvm-libs/pull/386)
 
-[21.04.0]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...v21.4.0
+[21.4.0]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...v21.4.0
 
 ## [20.8.2] (unreleased)
 
