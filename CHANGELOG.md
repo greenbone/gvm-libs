@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [21.04.1] (unreleased)
+## [21.4.1] (unreleased)
 
 ### Added
 - Possibility to use lcrypt with `$6$` (sha512) for authentication [484](https://github.com/greenbone/gvm-libs/pull/484)
@@ -19,10 +19,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
-[21.04.1]: https://github.com/greenbone/gvm-libs/compare/v21.4.0...gvm-libs-21.04
+[21.4.1]: https://github.com/greenbone/gvm-libs/compare/v21.4.0...gvm-libs-21.04
 
 
-## [21.04.0] (2021-04-15)
+## [21.4.0] (2021-04-15)
 
 ### Added
 - Use dedicated port list for alive detection (Boreas only) if supplied via OSP. [#391](https://github.com/greenbone/gvm-libs/pull/391)
@@ -54,7 +54,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove handling of severity class from auth [#402](https://github.com/greenbone/gvm-libs/pull/402)
 - Remove version from the nvticache name. [#386](https://github.com/greenbone/gvm-libs/pull/386)
 
-[21.04.0]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...v21.4.0
+[21.4.0]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...v21.4.0
 
 ## [20.8.2] (unreleased)
 
