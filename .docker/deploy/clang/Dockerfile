@@ -10,27 +10,27 @@ FROM debian:buster-slim
 LABEL module="gvm-libs"
 LABEL branch="master"
 LABEL platform="debian-buster"
-LABEL compiler="gcc"
-LABEL configuration="test"
+LABEL compiler="clang"
+LABEL configuration="deploy"
 
 # This will make apt-get install without question
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install core dependencies required for building gvm-libs
-RUN apt-get update && apt-get install --no-install-recommends --assume-yes \
-    ca-certificates \
+RUN apt-get update && apt-get install --assume-yes \
+    clang \
+    clang-format \
+    clang-tools \
     cmake \
-    gcc \
     git \
     libglib2.0-dev \
     libgnutls28-dev \
     libgpgme-dev \
     libhiredis-dev \
     libpcap-dev \
+    libnet1-dev \
     libssh-gcrypt-dev \
     libxml2-dev \
-    libnet1-dev \
-    make \
     pkg-config \
     uuid-dev \
     libssl-dev \
@@ -47,25 +47,14 @@ RUN git clone --depth 1 https://github.com/eclipse/paho.mqtt.c \
  && cd .. \
  && rm -rf paho.mqtt.c
 
-# Install Debian core dependencies required for testing gvm-libs
-# support and not yet installed as dependencies of gvm-libs-core
-RUN apt-get update && apt-get install --assume-yes \
-    g++ \
-    lcov \
-    libical-dev \
-    libpq-dev \
-    libnet1-dev \
-    postgresql-server-dev-all \
-    xsltproc \
- && rm -rf /var/lib/apt/lists/*
-
-# install cgreen for unit tests
-RUN git clone --depth 1 https://github.com/cgreen-devs/cgreen.git \
- && cd cgreen \
- && make \
- && make test \
- && make install \
- && cd .. \
- && rm -rf cgreen
-
 ENV LD_LIBRARY_PATH="/usr/local/lib"
+
+# clone and install gvm-libs
+RUN git clone --depth 1 \
+    https://github.com/greenbone/gvm-libs.git \
+    -b master && \
+    cd gvm-libs && \
+    mkdir build && \
+    cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    make install
