@@ -1,8 +1,5 @@
 # gvm-libs-master-debian-buster-gcc-deploy
 
-# please follow docker best practices
-# https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
-
 # Use '-slim' image for reduced image size
 FROM debian:buster-slim
 
