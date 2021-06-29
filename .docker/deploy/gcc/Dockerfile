@@ -1,14 +1,11 @@
-# gvm-libs-master-debian-buster-gcc-deploy
-
-# please follow docker best practices
-# https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
+# gvm-libs-gvm-libs-20.08-debian-buster-gcc-deploy
 
 # Use '-slim' image for reduced image size
 FROM debian:buster-slim
 
 # Provides a Debian buster image with the core build dependencies for gvm-libs
 LABEL module="gvm-libs"
-LABEL branch="master"
+LABEL branch="gvm-libs-20.08"
 LABEL platform="debian-buster"
 LABEL compiler="gcc"
 LABEL configuration="deploy"
@@ -36,23 +33,10 @@ RUN apt-get update && apt-get install --no-install-recommends --assume-yes \
     libssl-dev \
  && rm -rf /var/lib/apt/lists/*
 
-# clone and install mqtt paho
-# workaround otherwise paho.mqtt.c creates man1 as a file
-RUN mkdir /usr/local/share/man/man1
-
-RUN git clone --depth 1 https://github.com/eclipse/paho.mqtt.c \
- && cd paho.mqtt.c \
- && make \
- && make install \
- && cd .. \
- && rm -rf paho.mqtt.c
-
-ENV LD_LIBRARY_PATH="/usr/local/lib"
-
 # clone and install gvm-libs
 RUN git clone --depth 1 \
     https://github.com/greenbone/gvm-libs.git \
-    -b master && \
+    -b gvm-libs-20.08 && \
     cd gvm-libs && \
     mkdir build && \
     cd build && \
