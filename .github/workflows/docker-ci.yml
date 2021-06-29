@@ -34,5 +34,5 @@ jobs:
         uses: docker/build-push-action@v2.5.0
         with:
           push: true
-          tags: ${{ github.repository }}-${{ github.ref }}-${{ matrix.platform}}-${{matrix.compiler}}-${{matrix.purpose}}
+          tags: ${{ github.repository }}-$GITHUB_BASE_REF-${{ matrix.platform}}-${{matrix.compiler}}-${{matrix.purpose}}
           file: .docker/${{matrix.purpose}}/${{matrix.compiler}}/Dockerfile
