@@ -17,9 +17,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
-[21.10]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-21.04...master
+[Unreleased]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-21.04...HEAD
 
-## [21.4.1] (unreleased)
+## [24.1.2] (unreleased)
+
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+[Unreleased]: https://github.com/greenbone/gvm-libs/compare/v21.4.1...gvm-libs-21.04
+
+## [21.4.1] - 2021-06-23
 
 ### Added
 - Add function to find and return a host from a host list. [490](https://github.com/greenbone/gvm-libs/pull/490)
@@ -33,7 +43,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
-[21.4.1]: https://github.com/greenbone/gvm-libs/compare/v21.4.0...gvm-libs-21.04
+[21.4.1]: https://github.com/greenbone/gvm-libs/compare/v21.4.0...v21.4.1
 
 
 ## [21.4.0] (2021-04-15)
@@ -70,7 +80,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [21.4.0]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...v21.4.0
 
-## [20.8.2] (unreleased)
+## [20.8.3] (unreleased)
+
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+[Unreleased]: https://github.com/greenbone/gvm-libs/compare/v20.8.2...gvm-libs-20.08
+
+## [20.8.2] - 2021-06-23
 
 ### Added
 - Add function ldap_enable_debug () [#453](https://github.com/greenbone/gvm-libs/pull/453)
@@ -88,9 +108,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Split the log message into smaller pieces when syslog is the log destination.  [#455](https://github.com/greenbone/gvm-libs/pull/455)
 - Initialize reallocated memory in gvm_hosts_add [#520](https://github.com/greenbone/gvm-libs/pull/520)
 
-### Removed
-
-[20.8.2]: https://github.com/greenbone/gvm-libs/compare/v20.8.1...gvm-libs-20.08
+[20.8.2]: https://github.com/greenbone/gvm-libs/compare/v20.8.1...v20.8.2
 
 ## [20.8.1] (2021-02-01)
 
