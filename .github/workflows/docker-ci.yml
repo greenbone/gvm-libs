@@ -3,7 +3,7 @@ name: Build and upload docker images
 on:
   push:
     branches:
-      - 'master'
+      - 'gvm-libs-21.04'
 
 jobs:
   build-master-gcc-test:
@@ -18,7 +18,7 @@ jobs:
             - deploy
           platform:
             - debian-buster
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
