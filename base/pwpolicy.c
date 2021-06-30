@@ -42,7 +42,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "base plcy"
+#define G_LOG_DOMAIN "libgvm base"
 
 /**
  * @brief The name of the pattern file

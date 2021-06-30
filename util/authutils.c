@@ -31,7 +31,7 @@
 /**
  * @brief GLib logging domain.
  */
-#define G_LOG_DOMAIN "lib  auth"
+#define G_LOG_DOMAIN "libgvm util"
 
 /**
  * @brief Array of string representations of the supported authentication

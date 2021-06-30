@@ -40,10 +40,10 @@ get_source_addr_v4 (int *, struct in_addr *, struct in_addr *);
 void fill_ports_array (gpointer, gpointer);
 
 boreas_error_t
-set_all_needed_sockets (struct scanner *, alive_test_t);
+set_all_needed_sockets (scanner_t *, alive_test_t);
 
 boreas_error_t
-close_all_needed_sockets (struct scanner *, alive_test_t);
+close_all_needed_sockets (scanner_t *, alive_test_t);
 
 void
 wait_until_so_sndbuf_empty (int, int);

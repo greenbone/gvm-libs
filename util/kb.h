@@ -206,7 +206,7 @@ struct kb_operations
    */
   int (*kb_add_int_unique) (kb_t, const char *, int);
   /**
-   * Fucntion provided by an implementation to insert (append) a new
+   * Function provided by an implementation to insert (append) a new
    * unique and volatile entry under a given name.
    */
   int (*kb_add_int_unique_volatile) (kb_t, const char *, int, int);

@@ -9,15 +9,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Add support for volatile keys. [#460](https://github.com/greenbone/gvm-libs/pull/460)
+- Possibility to use lcrypt with `$6$` (sha512) for authentication [484](https://github.com/greenbone/gvm-libs/pull/484)
+- Add function to perform an alive test and get the amount of alive hosts. [495](https://github.com/greenbone/gvm-libs/pull/495)
+- Add functions for sentry integration. [#502](https://github.com/greenbone/gvm-libs/pull/502) [#506](https://github.com/greenbone/gvm-libs/pull/506)
 
 ### Changed
-### Removed
 ### Fixed
-- Fix uninitialized variable error of the gcc. [#477](https://github.com/greenbone/gvm-libs/pull/477)
+### Removed
 
 [21.10]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-21.04...master
 
-## [21.04] (unreleased)
+## [21.4.1] (unreleased)
+
+### Added
+- Add function to find and return a host from a host list. [490](https://github.com/greenbone/gvm-libs/pull/490)
+
+### Changed
+- Make test_alive_hosts_only (Boreas) feature the new default. [503](https://github.com/greenbone/gvm-libs/pull/503)
+
+### Fixed
+- Unify GLib log domains [#479](https://github.com/greenbone/gvm-libs/pull/479)
+- Fix double free. [#499](https://github.com/greenbone/gvm-libs/pull/499)
+
+### Removed
+
+[21.4.1]: https://github.com/greenbone/gvm-libs/compare/v21.4.0...gvm-libs-21.04
+
+
+## [21.4.0] (2021-04-15)
 
 ### Added
 - Use dedicated port list for alive detection (Boreas only) if supplied via OSP. [#391](https://github.com/greenbone/gvm-libs/pull/391)
@@ -49,22 +68,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove handling of severity class from auth [#402](https://github.com/greenbone/gvm-libs/pull/402)
 - Remove version from the nvticache name. [#386](https://github.com/greenbone/gvm-libs/pull/386)
 
-[21.04]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...master
+[21.4.0]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...v21.4.0
 
 ## [20.8.2] (unreleased)
 
 ### Added
 - Add function ldap_enable_debug () [#453](https://github.com/greenbone/gvm-libs/pull/453)
 - Ensure that new kb taken by the scanner are always clean. [#469](https://github.com/greenbone/gvm-libs/pull/469)
+- Validate for max_scan_hosts scanner preference.  [#482](https://github.com/greenbone/gvm-libs/pull/482)
 
 ### Changed
 - Use a char pointer instead of an zero-lenght array as kb_redis struct member. [443](https://github.com/greenbone/gvm-libs/pull/443)
+- pba verify returns INVALID instead of ERR when hash or password are null [496](https://github.com/greenbone/gvm-libs/pull/496)
 
 ### Fixed
 - Fixing [#434](https://github.com/greenbone/gvm-libs/pull/434) by removing the extra parentheses in `base/networking.c` [#437](https://github.com/greenbone/gvm-libs/pull/437)
 - Adding initialization to struct scanner in `boreas/util_tests.c`. [#438](https://github.com/greenbone/gvm-libs/pull/438)
 - Fix warnings about uninitialized variables. [#448](https://github.com/greenbone/gvm-libs/pull/448)
 - Split the log message into smaller pieces when syslog is the log destination.  [#455](https://github.com/greenbone/gvm-libs/pull/455)
+- Initialize reallocated memory in gvm_hosts_add [#520](https://github.com/greenbone/gvm-libs/pull/520)
 
 ### Removed
 
@@ -123,6 +145,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix is_cidr6_block() and is_short_range_network(). [#337](https://github.com/greenbone/gvm-libs/pull/337)
 - Fix S/MIME keylist and improve error handling [#345](https://github.com/greenbone/gvm-libs/pull/345)
 - Fix interrupted state by sending correct number of dead hosts. [#371](https://github.com/greenbone/gvm-libs/pull/371)
+- Fix uninitialized variable error of the gcc. [#477](https://github.com/greenbone/gvm-libs/pull/477)
 
 ### Removed
 - Remove parallel from target options [#347](https://github.com/greenbone/gvm-libs/pull/347)

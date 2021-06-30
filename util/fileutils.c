@@ -35,6 +35,12 @@
 #include <sys/stat.h>    /* for stat, S_ISDIR */
 #include <time.h>        /* for tm, strptime, localtime, time, time_t */
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib logging domain.
+ */
+#define G_LOG_DOMAIN "libgvm util"
+
 /**
  * @brief Checks whether a file is a directory or not.
  *
@@ -281,7 +287,7 @@ gvm_export_file_name (const char *fname_format, const char *username,
                       const char *format_name)
 {
   time_t now;
-  struct tm *now_broken;
+  struct tm now_broken;
   gchar *now_date_str, *creation_date_str, *modification_date_str;
   gchar *now_time_str, *creation_time_str, *modification_time_str;
   struct tm creation_time, modification_time;
@@ -297,12 +303,14 @@ gvm_export_file_name (const char *fname_format, const char *username,
   modification_time_str = NULL;
 
   now = time (NULL);
-  now_broken = localtime (&now);
-  now_date_str =
-    g_strdup_printf ("%04d%02d%02d", (now_broken->tm_year + 1900),
-                     (now_broken->tm_mon + 1), now_broken->tm_mday);
-  now_time_str = g_strdup_printf ("%02d%02d%02d", now_broken->tm_hour,
-                                  now_broken->tm_min, now_broken->tm_sec);
+  if (localtime_r (&now, &now_broken) == NULL)
+    {
+      g_warning ("%s: localtime failed", __func__);
+    }
+  now_date_str = g_strdup_printf ("%04d%02d%02d", (now_broken.tm_year + 1900),
+                                  (now_broken.tm_mon + 1), now_broken.tm_mday);
+  now_time_str = g_strdup_printf ("%02d%02d%02d", now_broken.tm_hour,
+                                  now_broken.tm_min, now_broken.tm_sec);
 
   memset (&creation_time, 0, sizeof (struct tm));
   memset (&modification_time, 0, sizeof (struct tm));

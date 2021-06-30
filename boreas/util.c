@@ -38,7 +38,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "alive scan"
+#define G_LOG_DOMAIN "libgvm boreas"
 
 static boreas_error_t
 set_socket (socket_type_t, int *);
@@ -319,7 +319,7 @@ fill_ports_array (gpointer range, gpointer ports_array)
 }
 
 boreas_error_t
-close_all_needed_sockets (struct scanner *scanner, alive_test_t alive_test)
+close_all_needed_sockets (scanner_t *scanner, alive_test_t alive_test)
 {
   boreas_error_t error;
 
@@ -551,7 +551,7 @@ set_socket (socket_type_t socket_type, int *scanner_socket)
  * @return  0 on success, boreas_error_t on error.
  */
 boreas_error_t
-set_all_needed_sockets (struct scanner *scanner, alive_test_t alive_test)
+set_all_needed_sockets (scanner_t *scanner, alive_test_t alive_test)
 {
   boreas_error_t error = NO_ERROR;
   if (alive_test & ALIVE_TEST_ICMP)

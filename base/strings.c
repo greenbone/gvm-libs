@@ -27,6 +27,12 @@
 #include <assert.h> /* for assert */
 #include <glib.h>   /* for g_free, g_strconcat, gchar, g_strdup, g_strndup */
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "libgvm base"
+
 /**
  * @brief Append a string to a string variable.
  *

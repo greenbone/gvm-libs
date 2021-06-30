@@ -225,7 +225,8 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
   add_custom_target (tests
     DEPENDS array-test alivedetection-test boreas_error-test boreas_io-test
             cli-test cvss-test ping-test sniffer-test util-test networking-test
-            xmlutils-test version-test osp-test nvti-test hosts-test)
+            passwordbasedauthentication-test xmlutils-test version-test osp-test 
+            nvti-test hosts-test)
 
 endif (BUILD_TESTS AND NOT SKIP_SRC)
 

@@ -30,7 +30,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "alive scan"
+#define G_LOG_DOMAIN "libgvm boreas"
 
 scan_restrictions_t scan_restrictions;
 
@@ -59,7 +59,7 @@ set_max_scan_hosts_reached ()
  *
  * @return Number of identified alive hosts.
  * */
-static int
+int
 get_alive_hosts_count ()
 {
   return scan_restrictions.alive_hosts_count;
@@ -225,14 +225,6 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
 void
 put_host_on_queue (kb_t kb, char *addr_str)
 {
-  /* Print host on command line if no kb is available. No kb available could
-   * mean that boreas is used as commandline tool.*/
-  if (NULL == kb)
-    {
-      g_printf ("%s\n", addr_str);
-      return;
-    }
-
   if (kb_item_push_str (kb, ALIVE_DETECTION_QUEUE, addr_str) != 0)
     g_debug ("%s: kb_item_push_str() failed. Could not push \"%s\" on queue of "
              "hosts to be considered as alive.",
@@ -255,7 +247,7 @@ finish_signal_on_queue (kb_t main_kb)
   if (fin_msg_already_on_queue)
     return 1;
 
-  /* Check if it was already set throught the whole items under the key.
+  /* Check if it was already set through the whole items under the key.
      If so, set the static variable to avoid querying redis unnecessarily. */
   queue_items = kb_item_get_all (main_kb, ALIVE_DETECTION_QUEUE);
   if (queue_items)
@@ -358,7 +350,7 @@ put_finish_signal_on_queue (void *error)
  * scan limit.
  */
 void
-init_scan_restrictions (struct scanner *scanner, int max_scan_hosts)
+init_scan_restrictions (scanner_t *scanner, int max_scan_hosts)
 {
   scan_restrictions.alive_hosts_count = 0;
   scan_restrictions.max_scan_hosts_reached = FALSE;
@@ -379,12 +371,24 @@ init_scan_restrictions (struct scanner *scanner, int max_scan_hosts)
  * @param add_str Host address string to put on queue.
  */
 void
-handle_scan_restrictions (struct scanner *scanner, gchar *addr_str)
+handle_scan_restrictions (scanner_t *scanner, gchar *addr_str)
 {
+  kb_t kb = scanner->main_kb;
+
   inc_alive_hosts_count ();
   /* Put alive hosts on queue as long as max_scan_hosts not reached. */
   if (!max_scan_hosts_reached ())
-    put_host_on_queue (scanner->main_kb, addr_str);
+    {
+      /* Print host on command line if no kb is available. No kb available could
+       * mean that boreas is used as commandline tool.*/
+      if (kb != NULL)
+        put_host_on_queue (kb, addr_str);
+      else
+        {
+          if (scanner->print_results == 1)
+            g_printf ("%s\n", addr_str);
+        }
+    }
 
   /* Set max_scan_hosts_reached if not already set and max_scan_hosts was
    * reached. */

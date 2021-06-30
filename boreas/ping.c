@@ -43,7 +43,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "alive scan"
+#define G_LOG_DOMAIN "libgvm boreas"
 
 struct v6pseudohdr
 {
@@ -247,14 +247,14 @@ send_icmp_v4 (int soc, struct in_addr *dst)
 void
 send_icmp (gpointer key, gpointer value, gpointer scanner_p)
 {
-  struct scanner *scanner;
+  scanner_t *scanner;
   struct in6_addr dst6;
   struct in6_addr *dst6_p = &dst6;
   struct in_addr dst4;
   struct in_addr *dst4_p = &dst4;
   static int count = 0;
 
-  scanner = (struct scanner *) scanner_p;
+  scanner = (scanner_t *) scanner_p;
 
   if (g_hash_table_contains (scanner->hosts_data->alivehosts, key))
     return;
@@ -289,7 +289,7 @@ send_icmp (gpointer key, gpointer value, gpointer scanner_p)
  * @param tcp_flag  TH_SYN or TH_ACK.
  */
 static void
-send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p)
+send_tcp_v6 (scanner_t *scanner, struct in6_addr *dst_p)
 {
   boreas_error_t error;
   struct sockaddr_in6 soca;
@@ -395,7 +395,7 @@ send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p)
  * @param dst Destination address to send to.
  */
 static void
-send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
+send_tcp_v4 (scanner_t *scanner, struct in_addr *dst_p)
 {
   boreas_error_t error;
   struct sockaddr_in soca;
@@ -509,14 +509,14 @@ send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
 void
 send_tcp (gpointer key, gpointer value, gpointer scanner_p)
 {
-  struct scanner *scanner;
+  scanner_t *scanner;
   struct in6_addr dst6;
   struct in6_addr *dst6_p = &dst6;
   struct in_addr dst4;
   struct in_addr *dst4_p = &dst4;
   static int count = 0;
 
-  scanner = (struct scanner *) scanner_p;
+  scanner = (scanner_t *) scanner_p;
 
   if (g_hash_table_contains (scanner->hosts_data->alivehosts, key))
     return;
@@ -554,12 +554,12 @@ send_tcp (gpointer key, gpointer value, gpointer scanner_p)
 void
 send_arp (gpointer host_value_str, gpointer value, gpointer scanner_p)
 {
-  struct scanner *scanner;
+  scanner_t *scanner;
   struct in6_addr dst6;
   struct in6_addr *dst6_p = &dst6;
   static int count = 0;
 
-  scanner = (struct scanner *) scanner_p;
+  scanner = (scanner_t *) scanner_p;
 
   if (g_hash_table_contains (scanner->hosts_data->alivehosts, host_value_str))
     return;

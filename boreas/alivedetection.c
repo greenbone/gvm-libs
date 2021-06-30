@@ -52,9 +52,9 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "alive scan"
+#define G_LOG_DOMAIN "libgvm boreas"
 
-struct scanner scanner;
+scanner_t scanner;
 
 /**
  * @brief Scan function starts a sniffing thread which waits for packets to
@@ -323,6 +323,9 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
   if ((error = set_all_needed_sockets (&scanner, alive_test)) != 0)
     return error;
 
+  /* Do not print results in stdout. Only set for command line clients*/
+  scanner.print_results = 0;
+
   /* kb_t redis connection */
   int scandb_id = atoi (prefs_get ("ov_maindbid"));
   if ((scanner.main_kb = kb_direct_conn (prefs_get ("db_address"), scandb_id))
@@ -381,9 +384,19 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
 
   /* Scan restrictions. max_scan_hosts related. */
   const gchar *pref_str;
-  int max_scan_hosts = INT_MAX;
+  int max_scan_hosts = INT_MAX, pref_value;
+
+  /* Check that the max_scan_hosts is set and it is greater than 0 */
   if ((pref_str = prefs_get ("max_scan_hosts")) != NULL)
-    max_scan_hosts = atoi (pref_str);
+    {
+      pref_value = atoi (pref_str);
+      if (pref_value > 0)
+        max_scan_hosts = pref_value;
+      else
+        g_debug ("%s: Invalid max_scan_hosts value. It must be an integer "
+                 "greater than zero.",
+                 __func__);
+    }
 
   init_scan_restrictions (&scanner, max_scan_hosts);
 

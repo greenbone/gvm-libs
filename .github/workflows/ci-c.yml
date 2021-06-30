@@ -1,0 +1,114 @@
+name: Build and test C
+
+on:
+  push:
+    branches: [ master, gvm-libs-20.08, gvm-libs-21.04, middleware ]
+  pull_request:
+    branches: [ master, gvm-libs-20.08, gvm-libs-21.04, middleware ]
+
+
+jobs:
+  c_format_check:
+    name: Check C Source Code Formatting
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: Check Source Format
+        run: |
+          clang-format -i -style=file base/*.{c,h} boreas/*.{c,h} \
+          gmp/*.{c,h} osp/*.{c,h} util/*.{c,h} && git diff --exit-code
+  test_units:
+    name: Unit Tests
+    runs-on: 'ubuntu-latest'
+    container: greenbone/build-env-gvm-libs-master-debian-buster-gcc-test
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: Configure and test gvm-libs
+        run: |
+          mkdir build && cd build/ && cmake -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_TESTS=1 .. && make install && make tests && \
+          CTEST_OUTPUT_ON_FAILURE=1 make test
+        working-directory: ${{ github.WORKSPACE }}
+  build_gcc_core:
+    name: Build gvm-libs with gcc
+    runs-on: 'ubuntu-latest'
+    container: greenbone/build-env-gvm-libs-master-debian-buster-gcc-test
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: Configure and Compile gvm-libs
+        run: |
+          mkdir build && cd build/ && cmake \
+          -DCMAKE_BUILD_TYPE=Release .. && make install
+        working-directory: ${{ github.WORKSPACE }}
+  scan_build:
+    name: Scan-build gvm-libs with clang
+    runs-on: 'ubuntu-latest'
+    container: greenbone/build-env-gvm-libs-master-debian-buster-clang-core
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: Configure and Compile gvm-libs
+        run: |
+          mkdir build && cd build/ && scan-build cmake \
+          -DCMAKE_BUILD_TYPE=Debug .. && scan-build \
+          -o ~/scan-build-report make && [ -z "$(ls -A ~/scan-build-report/)" ]
+        working-directory: ${{ github.WORKSPACE }}
+      - name: Upload scan-build report
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: scan-build-report
+          path: ~/scan-build-report/
+  gen_xml_doc:
+    name: Generate documentation (XML)
+    runs-on: ubuntu-latest
+    container: greenbone/code-metrics-doxygen-debian-stretch
+    steps:
+      - name: Check out gvmd
+        uses: actions/checkout@v2
+      - name: Generate documentation (XML)
+        run: |
+             mkdir build && cd build/ && cmake -DSKIP_SRC=1 .. \
+             && make doc-xml 2> ~/doxygen-stderr.txt
+      - name: Upload doxygen error output as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: doxygen-stderr.txt
+          path: ~/doxygen-stderr.txt
+      - name: Upload XML documentation as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: xml-doc
+          path: build/doc/generated/xml/
+  doc-coverage:
+    name: Upload doc coverage to Codecov
+    needs: gen_xml_doc
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out gvmd
+        uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install coverxygen and codecov
+        run: |
+            apt-get update && apt-get --assume-yes install python3-venv curl
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install setuptools --upgrade
+            pip install 'coverxygen>=1.3.1' codecov
+      - name: Download XML documentation artifact
+        id: xml-doc-download
+        uses: actions/download-artifact@v2
+        with:
+          name: xml-doc
+          path: /tmp/xml-doc
+      - name: Establish documentation coverage
+        run: |
+            . venv/bin/activate
+            python -m coverxygen --src-dir ${{ github.workspace }}      \
+            --xml-dir ${{steps.xml-doc-download.outputs.download-path}} \
+            --output lcov.info
+      - uses: codecov/codecov-action@v1
+        with:
+          files: lcov.info

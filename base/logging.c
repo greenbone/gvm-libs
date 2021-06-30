@@ -29,6 +29,8 @@
 
 #include "logging.h"
 
+#include "gvm_sentry.h" /* for gvm_sentry_log */
+
 #include <errno.h>  /* for errno */
 #include <libgen.h> /* for dirname */
 #include <stdio.h>  /* for fflush, fprintf, stderr */
@@ -39,6 +41,12 @@
 #undef SYSLOG_NAMES
 #include <time.h>   /* for localtime, time, time_t */
 #include <unistd.h> /* for getpid */
+
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "libgvm base"
 
 /**
  * @struct gvm_logging_t
@@ -74,15 +82,15 @@ gchar *
 get_time (gchar *time_fmt)
 {
   time_t now;
-  struct tm *ts;
+  struct tm ts;
   gchar buf[80];
 
   /* Get the current time. */
   now = time (NULL);
 
   /* Format and print the time, "ddd yyyy-mm-dd hh:mm:ss zzz." */
-  ts = localtime (&now);
-  strftime (buf, sizeof (buf), time_fmt, ts);
+  localtime_r (&now, &ts);
+  strftime (buf, sizeof (buf), time_fmt, &ts);
 
   return g_strdup_printf ("%s", buf);
 }
@@ -619,6 +627,9 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
                             log_separator, prepend, log_separator, messagelen,
                             message);
   g_free (prepend);
+
+  if (log_level <= G_LOG_LEVEL_WARNING)
+    gvm_sentry_log (message);
 
   gvm_log_lock ();
   /* Output everything to stderr if logfile is "-". */
