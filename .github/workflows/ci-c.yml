@@ -24,8 +24,8 @@ jobs:
     strategy:
       matrix:
         container:
-          - greenbone/gvm-libs-master-debian-buster-clang-test
-          - greenbone/gvm-libs-master-debian-buster-gcc-test
+          - greenbone/gvm-libs-middleware-debian-buster-clang-test
+          - greenbone/gvm-libs-middleware-debian-buster-gcc-test
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2.3.4
@@ -42,8 +42,8 @@ jobs:
     strategy:
       matrix:
         container:
-          - greenbone/gvm-libs-master-debian-buster-clang-test
-          - greenbone/gvm-libs-master-debian-buster-gcc-test
+          - greenbone/gvm-libs-middleware-debian-buster-clang-test
+          - greenbone/gvm-libs-middleware-debian-buster-gcc-test
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2.3.4
@@ -56,7 +56,7 @@ jobs:
   scan_build:
     name: Scan-build gvm-libs with clang
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs-master-debian-buster-clang-test
+    container: greenbone/gvm-libs-middleware-debian-buster-clang-test
     steps:
       - uses: actions/checkout@v2.3.4
       - name: Configure and Compile gvm-libs
