@@ -17,10 +17,16 @@ jobs:
         run: |
           clang-format -i -style=file base/*.{c,h} boreas/*.{c,h} \
           gmp/*.{c,h} osp/*.{c,h} util/*.{c,h} && git diff --exit-code
+
   test_units:
     name: Unit Tests
     runs-on: 'ubuntu-latest'
-    container: greenbone/build-env-gvm-libs-master-debian-buster-gcc-test
+    strategy:
+      matrix:
+        container:
+          - greenbone/gvm-libs-master-debian-buster-clang-test
+          - greenbone/gvm-libs-master-debian-buster-gcc-test
+    container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2.3.4
       - name: Configure and test gvm-libs
@@ -29,10 +35,16 @@ jobs:
           -DBUILD_TESTS=1 .. && make install && make tests && \
           CTEST_OUTPUT_ON_FAILURE=1 make test
         working-directory: ${{ github.WORKSPACE }}
+
   build_gcc_core:
-    name: Build gvm-libs with gcc
+    name: Build gvm-libs
     runs-on: 'ubuntu-latest'
-    container: greenbone/build-env-gvm-libs-master-debian-buster-gcc-test
+    strategy:
+      matrix:
+        container:
+          - greenbone/gvm-libs-master-debian-buster-clang-test
+          - greenbone/gvm-libs-master-debian-buster-gcc-test
+    container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2.3.4
       - name: Configure and Compile gvm-libs
@@ -40,10 +52,11 @@ jobs:
           mkdir build && cd build/ && cmake \
           -DCMAKE_BUILD_TYPE=Release .. && make install
         working-directory: ${{ github.WORKSPACE }}
+
   scan_build:
     name: Scan-build gvm-libs with clang
     runs-on: 'ubuntu-latest'
-    container: greenbone/build-env-gvm-libs-master-debian-buster-clang-core
+    container: greenbone/gvm-libs-master-debian-buster-clang-test
     steps:
       - uses: actions/checkout@v2.3.4
       - name: Configure and Compile gvm-libs
@@ -57,7 +70,8 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: scan-build-report
-          path: ~/scan-build-report/
+          path: ~/scan-build-report
+
   gen_xml_doc:
     name: Generate documentation (XML)
     runs-on: ubuntu-latest
@@ -79,6 +93,7 @@ jobs:
         with:
           name: xml-doc
           path: build/doc/generated/xml/
+
   doc-coverage:
     name: Upload doc coverage to Codecov
     needs: gen_xml_doc
