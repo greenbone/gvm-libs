@@ -1,4 +1,4 @@
-# gvm-libs-master-debian-buster-gcc-test
+# gvm-libs-middleware-debian-buster-gcc-test
 
 # please follow docker best practices
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
@@ -8,7 +8,7 @@ FROM debian:buster-slim
 
 # Provides a Debian buster image with the core build dependencies for gvm-libs
 LABEL module="gvm-libs"
-LABEL branch="master"
+LABEL branch="middleware"
 LABEL platform="debian-buster"
 LABEL compiler="clang"
 LABEL configuration="test"
