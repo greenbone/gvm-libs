@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [20.8.3] (unreleased)
+
 ### Added
 ### Changed
 ### Deprecated
@@ -12,7 +13,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 [Unreleased]: https://github.com/greenbone/gvm-libs/compare/v20.8.2...HEAD
-
 
 ## [20.8.2] - 2021-06-23
 
@@ -24,7 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add function to find and return a host from a host list. Backport of [PR 490](https://github.com/greenbone/gvm-libs/pull/490). [494](https://github.com/greenbone/gvm-libs/pull/494).
 
 ### Changed
-Use a char pointer instead of an zero-lenght array as kb_redis struct member. [443](https://github.com/greenbone/gvm-libs/pull/443)
+- Use a char pointer instead of an zero-lenght array as kb_redis struct member. [443](https://github.com/greenbone/gvm-libs/pull/443)
 - pba verify returns INVALID instead of ERR when hash or password are null [496](https://github.com/greenbone/gvm-libs/pull/496)
 
 ### Fixed
@@ -36,7 +36,7 @@ Use a char pointer instead of an zero-lenght array as kb_redis struct member. [4
 
 ### Removed
 
-[20.8.2]: https://github.com/greenbone/gvm-libs/compare/v20.8.1...gvm-libs-20.08
+[20.8.2]: https://github.com/greenbone/gvm-libs/compare/v20.8.1...v20.8.2
 
 ## [20.8.1] (2021-02-01)
 
