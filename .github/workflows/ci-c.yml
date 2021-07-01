@@ -24,14 +24,14 @@ jobs:
     strategy:
       matrix:
         container:
-          - greenbone/gvm-libs-gvm-libs-21.04-debian-buster-clang-test
-          - greenbone/gvm-libs-gvm-libs-21.04-debian-buster-gcc-test
+          - greenbone/gvm-libs-21.04-clang-testing
+          - greenbone/gvm-libs-21.04-gcc-testing
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2.3.4
       - name: Configure and test gvm-libs
         run: |
-          mkdir build && cd build/ && cmake -DCMAKE_BUILD_TYPE=Release \
+          mkdir build && cd build/ && cmake -DCMAKE_BUILD_TYPE=Debug \
           -DBUILD_TESTS=1 .. && make install && make tests && \
           CTEST_OUTPUT_ON_FAILURE=1 make test
         working-directory: ${{ github.WORKSPACE }}
@@ -42,8 +42,8 @@ jobs:
     strategy:
       matrix:
         container:
-          - greenbone/gvm-libs-gvm-libs-21.04-debian-buster-clang-test
-          - greenbone/gvm-libs-gvm-libs-21.04-debian-buster-gcc-test
+          - greenbone/gvm-libs-21.04-clang-testing
+          - greenbone/gvm-libs-21.04-gcc-testing
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2.3.4
@@ -56,7 +56,7 @@ jobs:
   scan_build:
     name: Scan-build gvm-libs with clang
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs-gvm-libs-21.04-debian-buster-clang-test
+    container: greenbone/gvm-libs-21.04-clang-testing
     steps:
       - uses: actions/checkout@v2.3.4
       - name: Configure and Compile gvm-libs
