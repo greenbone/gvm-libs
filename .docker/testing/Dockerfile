@@ -18,7 +18,7 @@ ARG COMPILER
 
 WORKDIR /usr/local/src
 
-# Install core dependencies required for building gvm-libs
+# Install core dependencies required for building and testing gvm-libs
 RUN apt-get update \
     && apt-get install --no-install-recommends --assume-yes \
     ca-certificates \
@@ -36,6 +36,12 @@ RUN apt-get update \
     pkg-config \
     uuid-dev \
     libssl-dev \
+    lcov \
+    libical-dev \
+    libpq-dev \
+    libnet1-dev \
+    postgresql-server-dev-all \
+    xsltproc \
  && rm -rf /var/lib/apt/lists/*
 
 # Install gcc/g++ compiler
@@ -68,19 +74,8 @@ RUN if ( test "$VERSION" = "master" || test "$VERSION" = "middleware" ); then \
     && rm -rf paho.mqtt.c; \
     fi
 
-# Install Debian core dependencies required for testing gvm-libs
-# support and not yet installed as dependencies of gvm-libs-core
 # & install cgreen for unit tests
-RUN apt-get update && \
-    apt-get install --assume-yes \
-    lcov \
-    libical-dev \
-    libpq-dev \
-    libnet1-dev \
-    postgresql-server-dev-all \
-    xsltproc \
-    && rm -rf /var/lib/apt/lists/* \
-    && git clone --depth 1 https://github.com/cgreen-devs/cgreen.git \
+RUN git clone --depth 1 https://github.com/cgreen-devs/cgreen.git \
     && cd cgreen \
     && make \
     && make test \
