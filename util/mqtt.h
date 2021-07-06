@@ -20,9 +20,7 @@
 #ifndef _GVM_MQTT_H
 #define _GVM_MQTT_H
 
-#ifdef HAVE_MQTT
 #include <MQTTClient.h>
-#endif /* HAVE_MQTT*/
 
 typedef struct
 {
@@ -32,12 +30,12 @@ typedef struct
 } mqtt_t;
 
 int
-gvm_has_mqtt_support (void);
-
-mqtt_t *
-mqtt_connect (const char *);
+mqtt_publish (mqtt_t *, const char *, const char *);
 
 int
-mqtt_publish (mqtt_t *, const char *, const char *);
+mqtt_publish_single_message (const char *, const char *);
+
+void
+mqtt_reset (mqtt_t *);
 
 #endif /* _GVM_MQTT_H */
