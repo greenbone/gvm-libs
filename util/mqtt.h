@@ -17,25 +17,26 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ * @brief Protos for MQTT handling.
+ */
+
 #ifndef _GVM_MQTT_H
 #define _GVM_MQTT_H
 
 #include <MQTTClient.h>
 
-typedef struct
-{
-  void *client;
-  char *client_id;
-  char *addr;
-} mqtt_t;
-
 int
-mqtt_publish (mqtt_t *, const char *, const char *);
-
-int
-mqtt_publish_single_message (const char *, const char *);
+mqtt_init (const char *);
 
 void
-mqtt_reset (mqtt_t *);
+mqtt_reset ();
+
+int
+mqtt_publish (const char *, const char *);
+
+int
+mqtt_publish_single_message (const char *, const char *, const char *);
 
 #endif /* _GVM_MQTT_H */
