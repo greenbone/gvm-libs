@@ -17,11 +17,32 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file
+ * @brief Implementation of API to handle MQTT communication.
+ *
+ * This file contains all methods to handle MQTT communication.
+ *
+ * Before communicating via MQTT a handle has to be created and a connection
+ * established. This is done by calling mqtt_init(). Mmessages can be
+ * published via mqtt_publish() afterwards.
+ *
+ * mqtt_init() should be called only once at program init.
+ * After forking mqtt_reset() has to be called in the child. mqtt_publish() can
+ * be used after mqtt_reset(). No additional mqtt_init() is needed. A new
+ * connection will be established on first call to publish for the current
+ * process.
+ *
+ * mqtt_publish_single_message() is a convenience function for sending single
+ * messages. Do not send repeated messages via this function as a new connection
+ * is established every call.
+ */
+
 #include "mqtt.h"
 
-/** TODO: Remove dependency ../base/prefs.h **/
-#include "../base/prefs.h"
 #include "uuidutils.h" /* gvm_uuid_make */
+
+#include <glib.h>
 
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  mqtt"
@@ -29,15 +50,55 @@
 #define QOS 1
 #define TIMEOUT 10000L
 
+typedef struct
+{
+  void *client;
+  char *client_id;
+} mqtt_t;
+
+static const char *global_server_uri = NULL;
+static mqtt_t *global_mqtt_client = NULL;
+
 /**
- * @brief Get server uri as specified in the openvas conf file.
+ * @brief Set the global mqtt server URI.
+
+ * @param server_uri_in Server uri to set.
+ */
+static void
+mqtt_set_global_server_uri (const char *server_uri_in)
+{
+  global_server_uri = server_uri_in;
+}
+
+/**
+ * @brief Get global server URI.
  *
  * @return Server URI, NULL if not found.
  */
 static const char *
-mqtt_get_server_uri ()
+mqtt_get_global_server_uri ()
 {
-  return prefs_get ("mqtt_server_uri");
+  return global_server_uri;
+}
+
+/**
+ * @brief
+ *
+ * @return Get global client.
+ */
+static mqtt_t *
+mqtt_get_global_client ()
+{
+  return global_mqtt_client;
+}
+
+/**
+ * @brief Set global client.
+ */
+static void
+mqtt_set_global_client (mqtt_t *mqtt)
+{
+  global_mqtt_client = mqtt;
 }
 
 /**
@@ -64,7 +125,7 @@ mqtt_disconnect (mqtt_t *mqtt)
 }
 
 /**
- * @brief Destroy the mqtt client inside mqtt_t struct
+ * @brief Destroy the MQTTClient client of the mqtt_t
  *
  * @param[in] mqtt mqtt_t handle.
  *
@@ -72,41 +133,52 @@ mqtt_disconnect (mqtt_t *mqtt)
 static void
 mqtt_client_destroy (mqtt_t *mqtt)
 {
+  if (mqtt == NULL)
+    return;
+
   MQTTClient client;
   client = (MQTTClient) mqtt->client;
 
   if (client != NULL)
     {
-      MQTTClient_destroy (client);
+      MQTTClient_destroy (&client);
       client = NULL;
     }
 
   return;
 }
+
 /**
  * @brief Destroy the mqtt_t data.
  *
  * @param mqtt  mqtt_t
  */
 static void
-mqtt_client_data_destroy (mqtt_t *mqtt)
+mqtt_client_data_destroy (mqtt_t **mqtt)
 {
-  g_free (mqtt->addr);
-  g_free (mqtt->client_id);
-  g_free (mqtt);
-  mqtt = NULL;
+  g_free ((*mqtt)->client_id);
+  g_free (*mqtt);
+  *mqtt = NULL;
 }
 
 /**
- * @brief Destroy mqtt handle and mqtt_t.
- *
- * @param mqtt  mqtt_t
+ * @brief Destroy MQTTClient handle and free mqtt_t.
  */
 void
-mqtt_reset (mqtt_t *mqtt)
+mqtt_reset ()
 {
+  g_debug ("%s: start", __func__);
+  mqtt_t *mqtt = mqtt_get_global_client ();
+
+  if (mqtt == NULL)
+    return;
+
   mqtt_client_destroy (mqtt);
-  mqtt_client_data_destroy (mqtt);
+  mqtt_client_data_destroy (&mqtt);
+
+  mqtt_set_global_client (mqtt);
+
+  g_debug ("%s: end", __func__);
   return;
 }
 
@@ -115,7 +187,7 @@ mqtt_reset (mqtt_t *mqtt)
  *
  * @param mqtt  mqtt_t
  *
- * @return mqtt client or NULL on error.
+ * @return MQTTClient or NULL on error.
  */
 static MQTTClient
 mqtt_create (mqtt_t *mqtt)
@@ -124,17 +196,17 @@ mqtt_create (mqtt_t *mqtt)
   MQTTClient_createOptions create_opts = MQTTClient_createOptions_initializer;
   create_opts.MQTTVersion = MQTTVERSION_5;
 
-  if (mqtt == NULL)
-    return NULL;
-  if (mqtt->addr == NULL || mqtt->client_id == NULL)
+  if (mqtt == NULL || mqtt->client_id == NULL)
     return NULL;
 
-  int rc = MQTTClient_createWithOptions (&client, mqtt->addr, mqtt->client_id,
-                                         MQTTCLIENT_PERSISTENCE_NONE, NULL,
-                                         &create_opts);
+  int rc = MQTTClient_createWithOptions (
+    &client, mqtt_get_global_server_uri (), mqtt->client_id,
+    MQTTCLIENT_PERSISTENCE_NONE, NULL, &create_opts);
 
   if (rc != MQTTCLIENT_SUCCESS)
     {
+      g_warning ("%s: Error creating MQTTClient: %s", __func__,
+                 MQTTClient_strerror (rc));
       MQTTClient_destroy (&client);
       return NULL;
     }
@@ -148,7 +220,7 @@ mqtt_create (mqtt_t *mqtt)
  *
  * @return Client ID which was set, NULL on failure.
  */
-char *
+static char *
 mqtt_set_client_id (mqtt_t *mqtt)
 {
   if (mqtt == NULL)
@@ -163,71 +235,19 @@ mqtt_set_client_id (mqtt_t *mqtt)
 }
 
 /**
- * @brief Set Server Addr.
+ * @brief Set MQTTClient of mqtt_t
  *
- * @param mqtt        mqtt_T
- * @param server_uri  URI of server. E.g "tcp://127.0.0.1:1883"
- *
- * @return 0 on success, NULL on error.
+ * @return 0 on success, -1 on failure.
  */
-static void
-mqtt_set_server_addr (mqtt_t *mqtt, const char *server_uri)
-{
-  if (mqtt == NULL)
-    {
-      g_warning ("%s:Can not set server addr on unitialized mqtt handle.",
-                 __func__);
-      return;
-    }
-
-  mqtt->addr = g_strdup (server_uri);
-}
-
-/**
- * @brief Set client handle
- *
- * @param mqtt    mqtt_t
- * @param client  Client to set
- *
- */
-static void
+static int
 mqtt_set_client (mqtt_t *mqtt, MQTTClient client)
 {
   if (mqtt == NULL)
     {
-      g_warning ("%s: Can not set clien on uninitialized mqtt handle.",
-                 __func__);
-      return;
+      return -1;
     }
   mqtt->client = client;
-  return;
-}
-
-/**
- * @brief Init mqtt_t
- *
- * @param server_uri  Server URI
- *
- * @return New mqtt_t, NULL on error
- */
-mqtt_t *
-mqtt_init (const char *server_uri)
-{
-  mqtt_t *mqtt = NULL;
-
-  mqtt = g_malloc0 (sizeof (mqtt));
-
-  // Set random uuid as client id
-  if (mqtt_set_client_id (mqtt) == NULL)
-    {
-      g_warning ("%s: Could not set client id.", __func__);
-      g_free (mqtt);
-      return NULL;
-    }
-  mqtt_set_server_addr (mqtt, server_uri);
-  mqtt_set_client (mqtt, NULL);
-
-  return mqtt;
+  return 0;
 }
 
 /**
@@ -235,10 +255,10 @@ mqtt_init (const char *server_uri)
  *
  * @param mqtt  Initialized mqtt_t
  *
- * @return mqtt_t handle, NULL on error.
+ * @return 0 on success, <0 on error.
  */
-static mqtt_t *
-mqtt_connect (mqtt_t *mqtt)
+static int
+mqtt_connect (mqtt_t *mqtt, const char *server_uri)
 {
   int rc;
   MQTTClient client;
@@ -247,10 +267,11 @@ mqtt_connect (mqtt_t *mqtt)
   MQTTResponse resp;
 
   if (mqtt == NULL)
-    return NULL;
+    return -1;
+
   client = mqtt_create (mqtt);
   if (!client)
-    return NULL;
+    return -2;
 
   conn_opts.keepAliveInterval = 0;
   conn_opts.cleanstart = 1;
@@ -262,53 +283,74 @@ mqtt_connect (mqtt_t *mqtt)
   if (rc != MQTTCLIENT_SUCCESS)
     {
       g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
-             "%s: mqtt connection error to %s: %s", __func__, mqtt->addr,
+             "%s: mqtt connection error to %s: %s", __func__, server_uri,
              MQTTClient_strerror (rc));
       MQTTResponse_free (resp);
-      return NULL;
+      return -3;
     }
 
   mqtt_set_client (mqtt, client);
 
-  return mqtt;
+  return 0;
 }
 
 /**
- * @brief Publish message on topic.
+ * @brief Init MQTT communication
  *
- * @param mqtt  MQTT handle.
+ * @param server_uri  Server URI
+ *
+ * @return 0 on success, <0 on error.
+ */
+int
+mqtt_init (const char *server_uri)
+{
+  g_debug ("%s: start", __func__);
+  mqtt_t *mqtt = NULL;
+
+  mqtt = g_malloc0 (sizeof (mqtt_t));
+  const char *global_server_uri;
+  // Set random uuid as client id
+  if (mqtt_set_client_id (mqtt) == NULL)
+    {
+      g_warning ("%s: Could not set client id.", __func__);
+      g_free (mqtt);
+      mqtt = NULL;
+      return -1;
+    }
+  g_debug ("%s: client id set: %s", __func__, mqtt->client_id);
+  global_server_uri = mqtt_get_global_server_uri ();
+  if (global_server_uri == NULL)
+    mqtt_set_global_server_uri (server_uri);
+  mqtt_connect (mqtt, global_server_uri);
+
+  mqtt_set_global_client (mqtt);
+
+  g_debug ("%s: end", __func__);
+  return 0;
+}
+
+/**
+ * @brief Use the provided client to publish message on a topic
+ *
+ * @param mqtt  mqtt_t
  * @param topic Topic to publish on.
  * @param msg   Message to publish on queue.
  *
  * @return 0 on success, <0 on failure.
  */
 int
-mqtt_publish (mqtt_t *mqtt, const char *topic, const char *msg)
+mqtt_client_publish (mqtt_t *mqtt, const char *topic, const char *msg)
 {
   MQTTClient client;
   MQTTClient_message pubmsg = MQTTClient_message_initializer;
   MQTTClient_deliveryToken token;
   MQTTResponse resp;
   int rc;
-  const char *mqtt_server_uri;
-
-  // init mqtt and make new connection
-  if (mqtt == NULL)
-    {
-      mqtt_server_uri = mqtt_get_server_uri ();
-      if (mqtt_server_uri)
-        mqtt = mqtt_init (mqtt_server_uri);
-      if (mqtt == NULL)
-        return -1;
-      mqtt = mqtt_connect (mqtt);
-      if (mqtt == NULL)
-        return -2;
-    }
 
   client = mqtt->client;
   if (client == NULL)
     {
-      return -3;
+      return -1;
     }
 
   pubmsg.payload = (char *) msg;
@@ -322,7 +364,7 @@ mqtt_publish (mqtt_t *mqtt, const char *topic, const char *msg)
     {
       g_warning ("Failed to connect: %s", MQTTClient_strerror (rc));
       MQTTResponse_free (resp);
-      return -4;
+      return -2;
     }
 
   if ((rc = MQTTClient_waitForCompletion (client, token, TIMEOUT))
@@ -337,47 +379,93 @@ mqtt_publish (mqtt_t *mqtt, const char *topic, const char *msg)
 }
 
 /**
+ * @brief Publish a message on topic using the global client
+ *
+ * @param topic topic
+ * @param msg   message
+ *
+ * @return 0 on success, <0 on error.
+ */
+int
+mqtt_publish (const char *topic, const char *msg)
+{
+  mqtt_t *mqtt = NULL;
+  const char *server_uri;
+  int rc = 0;
+
+  // init new global client if it was mqtt_reset()
+  if ((mqtt_get_global_client ()) == NULL)
+    {
+      server_uri = mqtt_get_global_server_uri ();
+      if (server_uri == NULL)
+        {
+          g_warning ("%s: mqtt_init() has to be called once at program start "
+                     "else the server URI is not set. ",
+                     __func__);
+          return -1;
+        }
+      mqtt_init (server_uri);
+    }
+  mqtt = mqtt_get_global_client ();
+
+  rc = mqtt_client_publish (mqtt, topic, msg);
+
+  return rc;
+}
+
+/**
  * @brief Send a single message.
  *
  * This functions creates a mqtt handle, connects, sends the message, closes
  * the connection and destroys the handler.
  * This function should not be chosen for repeated and frequent messaging. Its
- * meant for Error messages and the likes emitted by openvas.
+ * meant for error messages and the likes emitted by openvas.
  *
- * @param topic Topic to publish to
- * @param msg   Message to publish
+ * @param server_uri_in Server URI
+ * @param topic         Topic to publish to
+ * @param msg           Message to publish
  *
  * @return 0 on success, <0 on failure.
  */
 int
-mqtt_publish_single_message (const char *topic, const char *msg)
+mqtt_publish_single_message (const char *server_uri_in, const char *topic,
+                             const char *msg)
 {
-  const char *mqtt_server_uri;
+  const char *server_uri;
   mqtt_t *mqtt = NULL;
+  int ret = 0;
 
-  mqtt_server_uri = mqtt_get_server_uri ();
-  if (mqtt_server_uri)
-    mqtt = mqtt_init (mqtt_server_uri);
-  if (mqtt == NULL)
-    return -1;
-  mqtt = mqtt_connect (mqtt);
-  if (mqtt == NULL)
+  // If server_uri is NULL try to get global
+  if (server_uri_in == NULL)
     {
-      mqtt_reset (mqtt);
+      server_uri = mqtt_get_global_server_uri ();
+      if (server_uri == NULL)
+        {
+          g_warning (
+            "%s: No server URI provided and no global server URI available.",
+            __func__);
+          return -1;
+        }
+    }
+  else
+    {
+      server_uri = server_uri_in;
+    }
+
+  mqtt = g_malloc0 (sizeof (mqtt_t));
+  // Set random uuid as client id
+  if (mqtt_set_client_id (mqtt) == NULL)
+    {
+      g_warning ("%s: Could not set client id.", __func__);
+      g_free (mqtt);
       return -2;
     }
-  if (mqtt_publish (mqtt, topic, msg) != 0)
-    {
-      mqtt_disconnect (mqtt);
-      mqtt_reset (mqtt);
-      return -3;
-    }
-  if (mqtt_disconnect (mqtt) != 0)
-    {
-      mqtt_reset (mqtt);
-      return -4;
-    }
-  mqtt_reset (mqtt);
+  mqtt_connect (mqtt, server_uri);
+  mqtt_client_publish (mqtt, topic, msg);
 
-  return 0;
+  mqtt_disconnect (mqtt);
+  mqtt_client_destroy (mqtt);
+  mqtt_client_data_destroy (&mqtt);
+
+  return ret;
 }
