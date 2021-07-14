@@ -71,6 +71,8 @@ Install prerequisites for optional features on Debian GNU/Linux 'Buster' 10:
     libldap2-dev \
     libradcli-dev
 
+Prerequisites for MQTT support:
+* libpaho-mqtt-dev >= 1.3.8. This package is currently not available in debian buster stable. Could be installed from source, backports or unstable branch.
 
 Compiling gvm-libs
 ------------------
