@@ -94,6 +94,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Deprecated
 ### Removed
 ### Fixed
+- Fix info msg when 0 alive hosts are left to scan and max_scan_hosts limit is reached. No message will be generated for that case anymore. [#561](https://github.com/greenbone/gvm-libs/pull/561)
 
 [Unreleased]: https://github.com/greenbone/gvm-libs/compare/v20.8.2...gvm-libs-20.08
 
