@@ -26,9 +26,13 @@
 #define _GVM_MQTT_H
 
 #include <MQTTClient.h>
+#include <glib.h>
 
 int
 mqtt_init (const char *);
+
+gboolean
+mqtt_is_initialized ();
 
 void
 mqtt_reset ();
