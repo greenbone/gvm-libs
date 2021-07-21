@@ -42,8 +42,6 @@
 
 #include "uuidutils.h" /* gvm_uuid_make */
 
-#include <glib.h>
-
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  mqtt"
 
@@ -58,6 +56,29 @@ typedef struct
 
 static const char *global_server_uri = NULL;
 static mqtt_t *global_mqtt_client = NULL;
+static gboolean mqtt_initialized = FALSE;
+
+/**
+ * @brief Set the global init status.
+
+ * @param Status Status of initialization.
+ */
+static void
+mqtt_set_initialized_status (gboolean status)
+{
+  mqtt_initialized = status;
+}
+
+/**
+ * @brief Get the global init status.
+ *
+ * @return Initialization status of mqtt handling.
+ */
+gboolean
+mqtt_is_initialized ()
+{
+  return mqtt_initialized;
+}
 
 /**
  * @brief Set the global mqtt server URI.
@@ -324,6 +345,7 @@ mqtt_init (const char *server_uri)
   mqtt_connect (mqtt, global_server_uri);
 
   mqtt_set_global_client (mqtt);
+  mqtt_set_initialized_status (TRUE);
 
   g_debug ("%s: end", __func__);
   return 0;

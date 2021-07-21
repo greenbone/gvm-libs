@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Middleware] (unmerged)
+
+### Added
+
+- Add basic support for mqtt.
+  Original
+  [#505](https://github.com/greenbone/gvm-libs/pull/505)
+  [#511](https://github.com/greenbone/gvm-libs/pull/511).
+  Reintroduction after Rebase
+  [#538](https://github.com/greenbone/gvm-libs/pull/538)
+- Add function for mqtt init status [#567](https://github.com/greenbone/gvm-libs/pull/567)
+
+### Changed
+
+- Refactor MQTT handling [#562](https://github.com/greenbone/gvm-libs/pull/562)
+
+### Fixed
+### Removed
+
 ## [21.10] (unreleased)
 
 ### Added
@@ -12,13 +31,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Possibility to use lcrypt with `$6$` (sha512) for authentication [484](https://github.com/greenbone/gvm-libs/pull/484)
 - Add function to perform an alive test and get the amount of alive hosts. [495](https://github.com/greenbone/gvm-libs/pull/495)
 - Add functions for sentry integration. [#502](https://github.com/greenbone/gvm-libs/pull/502) [#506](https://github.com/greenbone/gvm-libs/pull/506)
-- Add basic support for mqtt.
-  Original
-  [#505](https://github.com/greenbone/gvm-libs/pull/505)
-  [#511](https://github.com/greenbone/gvm-libs/pull/511).
-  Reintroduction after Rebase
-  [#538](https://github.com/greenbone/gvm-libs/pull/538)
-
 
 ### Changed
 ### Fixed
