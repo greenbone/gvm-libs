@@ -937,6 +937,36 @@ nvti_severity_score (const nvti_t *n)
 }
 
 /**
+ * @brief Get the severity score
+ *
+ * Extended severity was introduced but still not all
+ * vts are using it. Therefore it must be check if
+ * we can calculate the score from the severity_vector tag
+ * or we have to calculate it from the deprecated
+ * cvss_base_vector tag.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @return The severity_vector if present or cvss_base_vector otherwise.
+ * NULL indicates an error. Must be free()'d by the caller.
+ */
+gchar *
+nvti_severity_vector_from_tag (const nvti_t *n)
+{
+  gchar *vector;
+
+  /* Currently, only one severity_vector can be stored as tag.
+   * Therfore we just check this one. */
+  vector = nvti_get_tag (n, "severity_vector");
+  if (vector)
+    return vector;
+
+  vector = nvti_get_tag (n, "cvss_base_vector");
+
+  return vector;
+}
+
+/**
  * @brief Get the solution.
  *
  * @param n The NVT Info structure of which the solution should
