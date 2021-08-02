@@ -27,7 +27,7 @@ pull_request_rules:
         branches:
           - middleware
 
-  # backports from upcoming release branch
+  # backports from 21.04 release branch
   - name: port 21.04 patches to master branch
     conditions:
       - base=gvm-libs-21.04
@@ -45,6 +45,15 @@ pull_request_rules:
       backport:
         branches:
           - gvm-libs-20.08
+
+  - name: port 21.04 patches to middleware branch
+    conditions:
+      - base=gvm-libs-21.04
+      - label=backport-to-middleware
+    actions:
+      backport:
+        branches:
+          - middleware
 
   # ports from 20.08 release branch
   - name: port 20.08 patches to master branch
@@ -64,3 +73,12 @@ pull_request_rules:
       backport:
         branches:
           - gvm-libs-21.04
+
+  - name: port 20.08 patches to middleware branch
+    conditions:
+      - base=gvm-libs-20.08
+      - label=backport-to-middleware
+    actions:
+      backport:
+        branches:
+          - middleware
