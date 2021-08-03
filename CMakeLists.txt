@@ -22,7 +22,7 @@ message ("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
 # VERSION: Always include major, minor and patch level.
 project (gvm-libs
-  VERSION 21.4.2
+  VERSION 21.4.3
   LANGUAGES C)
 
 if (POLICY CMP0005)
@@ -87,7 +87,7 @@ endif (NOT CMAKE_BUILD_TYPE MATCHES "Release")
 
 # Set dev version if this is a development version and not a full release,
 # unset (put value 0 or delete line) before a full release and reset after.
-set (PROJECT_DEV_VERSION 0)
+set (PROJECT_DEV_VERSION 1)
 
 # If PROJECT_DEV_VERSION is set, the version string will be set to:
 #   "major.minor.patch~dev${PROJECT_DEV_VERSION}${GIT_REVISION}"
