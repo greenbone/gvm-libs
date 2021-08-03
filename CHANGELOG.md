@@ -4,16 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [21.4.2] (unreleased)
+## [21.4.2] - 2021-08-03
 
-### Added
-### Changed
-### Deprecated
-### Removed
 ### Fixed
 - Fix info msg when 0 alive hosts are left to scan and max_scan_hosts limit is reached. No message will be generated for that case anymore. [#564](https://github.com/greenbone/gvm-libs/pull/564)
 
-[Unreleased]: https://github.com/greenbone/gvm-libs/compare/v21.4.1...HEAD
+[21.4.2]: https://github.com/greenbone/gvm-libs/compare/v21.4.1...v21.4.2
 
 ## [21.4.1] - 2021-06-23
 
