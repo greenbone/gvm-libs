@@ -42,6 +42,9 @@
 
 #include "uuidutils.h" /* gvm_uuid_make */
 
+#include <stdlib.h>
+#include <string.h>
+
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "lib  mqtt"
 
@@ -197,7 +200,7 @@ mqtt_reset ()
   mqtt_client_destroy (mqtt);
   mqtt_client_data_destroy (&mqtt);
 
-  mqtt_set_global_client (mqtt);
+  mqtt_set_global_client (NULL);
 
   g_debug ("%s: end", __func__);
   return;
@@ -207,11 +210,12 @@ mqtt_reset ()
  * @brief Create a new mqtt client.
  *
  * @param mqtt  mqtt_t
+ * @param address address of the broker
  *
  * @return MQTTClient or NULL on error.
  */
 static MQTTClient
-mqtt_create (mqtt_t *mqtt)
+mqtt_create (mqtt_t *mqtt, const char *address)
 {
   MQTTClient client;
   MQTTClient_createOptions create_opts = MQTTClient_createOptions_initializer;
@@ -220,9 +224,9 @@ mqtt_create (mqtt_t *mqtt)
   if (mqtt == NULL || mqtt->client_id == NULL)
     return NULL;
 
-  int rc = MQTTClient_createWithOptions (
-    &client, mqtt_get_global_server_uri (), mqtt->client_id,
-    MQTTCLIENT_PERSISTENCE_NONE, NULL, &create_opts);
+  int rc = MQTTClient_createWithOptions (&client, address, mqtt->client_id,
+                                         MQTTCLIENT_PERSISTENCE_NONE, NULL,
+                                         &create_opts);
 
   if (rc != MQTTCLIENT_SUCCESS)
     {
@@ -290,7 +294,7 @@ mqtt_connect (mqtt_t *mqtt, const char *server_uri)
   if (mqtt == NULL)
     return -1;
 
-  client = mqtt_create (mqtt);
+  client = mqtt_create (mqtt, server_uri);
   if (!client)
     return -2;
 
@@ -342,7 +346,7 @@ mqtt_init (const char *server_uri)
   global_server_uri = mqtt_get_global_server_uri ();
   if (global_server_uri == NULL)
     mqtt_set_global_server_uri (server_uri);
-  mqtt_connect (mqtt, global_server_uri);
+  mqtt_connect (mqtt, server_uri);
 
   mqtt_set_global_client (mqtt);
   mqtt_set_initialized_status (TRUE);
@@ -490,4 +494,228 @@ mqtt_publish_single_message (const char *server_uri_in, const char *topic,
   mqtt_client_data_destroy (&mqtt);
 
   return ret;
+}
+
+/**
+ * @brief subscribes to a single topic.
+ *
+ * mqtt_subscribe_r uses given mqtt_t to subscribe with given qos to given
+ * topic.
+ *
+ * To be able to subscribe to a topic the client needs to be connected to a
+ * broker.
+ *
+ * @param mqtt_t	contains the mqtt client
+ * @param qos	quality of service of messages within topic
+ * @param topic         Topic to subscribe to
+ *
+ * @return 0 on success, -1 when given mqtt is not useable, -2 when subscription
+ * failed.
+ */
+int
+mqtt_subscribe_r (mqtt_t *mqtt, int qos, const char *topic)
+{
+  if (mqtt == NULL || mqtt->client == NULL)
+    {
+      return -1;
+    }
+  MQTTSubscribe_options opts = MQTTSubscribe_options_initializer;
+  MQTTProperties props = MQTTProperties_initializer;
+  MQTTResponse resp =
+    MQTTClient_subscribe5 (mqtt->client, topic, qos, &opts, &props);
+  if (resp.reasonCode != MQTTREASONCODE_GRANTED_QOS_1)
+    {
+      return -2;
+    }
+  return 0;
+}
+
+/**
+ * @brief subscribes to a single topic.
+ *
+ * mqtt_subscribe uses global mqtt_t to subscribe with global qos to given
+ * topic.
+ *
+ * To be able to subscribe to a topic the client needs to be connected to a
+ * broker. To do that call `mqtt_init` before `mqtt_subscribe`.
+ *
+ *
+ * @param topic         Topic to subscribe to
+ *
+ * @return 0 on success, -1 when mqtt is not initialized, -2 when subscription
+ * failed.
+ */
+int
+mqtt_subscribe (const char *topic)
+{
+  return mqtt_subscribe_r (mqtt_get_global_client (), QOS, topic);
+}
+
+/**
+ * @brief unsubscribe a single topic.
+ *
+ * This function unsubscribes given client from a given topic.
+ *
+ * @param mqtt_t	contains the mqtt client
+ * @param topic         Topic to unsubscribe from
+ *
+ * @return 0 on success, -1 when given mqtt is not useable, -2 when unsubscribe
+ * failed.
+ */
+int
+mqtt_unsubscribe_r (mqtt_t *mqtt, const char *topic)
+{
+  if (mqtt == NULL || mqtt->client == NULL)
+    {
+      return -1;
+    }
+
+  if (MQTTClient_unsubscribe (mqtt->client, topic) != MQTTCLIENT_SUCCESS)
+    {
+      return -2;
+    }
+
+  return 0;
+}
+
+/**
+ * @brief unsubscribe a single topic.
+ *
+ * This function unsubscribes global client from a given topic.
+ *
+ * @param topic         Topic to unsubscribe from
+ *
+ * @return 0 on success, -1 when given mqtt is not useable, -2 when unsubscribe
+ * failed.
+ */
+int
+mqtt_unsubscribe (const char *topic)
+{
+  return mqtt_unsubscribe_r (mqtt_get_global_client (), topic);
+}
+
+/**
+ * @brief wait for a given timeout in ms to retrieve any message of subscribed
+ * topics
+ *
+ * This function performs a synchronous receive of incoming messages.
+ * Using this function allows a single-threaded client subscriber application to
+ * be written. When called, this function blocks until the next message arrives
+ * or the specified timeout expires.
+ *
+ * <b>Important note:</b> The application must free() the memory allocated
+ * to the topic and payload when processing is complete.
+ * @param mqtt an already created and connected mqtt client.
+ * @param[out] topic The address of a pointer to a topic. This function
+ * allocates the memory for the topic and returns it to the application
+ * by setting <i>topic</i> to point to the topic.
+ * @param[out] topic_len The length of the topic.
+ * @param[out] payload The address of a pointer to the received message. This
+ * function allocates the memory for the payload and returns it to the
+ * application by setting <i>payload</i> to point to the received message.
+ * The pointer is set to NULL if the timeout expires.
+ * @param[out] payload_len The length of the payload.
+ * @param timeout The length of time to wait for a message in milliseconds.
+ * @return 0 on message retrieved, 1 on no message retrieved and -1 on an error.
+ */
+int
+mqtt_retrieve_message_r (mqtt_t *mqtt, char **topic, int *topic_len,
+                         char **payload, int *payload_len,
+                         const unsigned int timeout)
+{
+  int rc = -1;
+  char *tmp = NULL;
+  MQTTClient_message *message = NULL;
+  if (mqtt == NULL || mqtt->client == NULL)
+    {
+      g_warning ("mqtt is not initialized.");
+      goto exit;
+    }
+  // copy from tmp into topic to make free work as usual and don't force the
+  // user to double check topic_len and topic
+  rc = MQTTClient_receive (mqtt->client, &tmp, topic_len, &message, timeout);
+  if (rc == MQTTCLIENT_SUCCESS || rc == MQTTCLIENT_TOPICNAME_TRUNCATED)
+    {
+      // successfully checked for new messages but we didn't get any
+      if (message)
+        {
+          g_debug ("%s: got message %s (%d) on topic %s (%d) \n", __func__,
+                   (char *) message->payload, message->payloadlen, tmp,
+                   *topic_len);
+
+          if ((*topic = calloc (1, *topic_len)) == NULL)
+            {
+              goto exit;
+            }
+          rc = 0;
+          if ((strncpy (*topic, tmp, *topic_len)) == NULL)
+            {
+              g_warning ("unable to copy topic");
+              rc = -1;
+              goto exit;
+            }
+
+          *payload_len = message->payloadlen;
+          *payload = calloc (1, message->payloadlen);
+          if ((strncpy (*payload, (char *) message->payload,
+                        message->payloadlen))
+              == NULL)
+            {
+              g_warning ("unable to copy payload");
+              rc = -1;
+              goto exit;
+            }
+        }
+      else
+        {
+          rc = 1;
+          *payload = NULL;
+          *payload_len = 0;
+          *topic = NULL;
+          *topic_len = 0;
+        }
+    }
+  else
+    {
+      rc = -1;
+    }
+
+exit:
+  if (message != NULL)
+    MQTTClient_freeMessage (&message);
+  if (tmp != NULL)
+    MQTTClient_free (tmp);
+
+  return rc;
+}
+
+/**
+ * @brief wait for a given timeout in ms to retrieve any message of subscribed
+ * topics
+ *
+ * This function performs a synchronous receive of incoming messages.
+ * Using this function allows a single-threaded client subscriber application to
+ * be written. When called, this function blocks until the next message arrives
+ * or the specified timeout expires.
+ *
+ * <b>Important note:</b> The application must free() the memory allocated
+ * to the topic and payload when processing is complete.
+ * @param[out] topic The address of a pointer to a topic. This function
+ * allocates the memory for the topic and returns it to the application
+ * by setting <i>topic</i> to point to the topic.
+ * @param[out] topic_len The length of the topic.
+ * @param[out] payload The address of a pointer to the received message. This
+ * function allocates the memory for the payload and returns it to the
+ * application by setting <i>payload</i> to point to the received message.
+ * The pointer is set to NULL if the timeout expires.
+ * @param[out] payload_len The length of the payload.
+ * @param timeout The length of time to wait for a message in milliseconds.
+ * @return 0 on message retrieved, 1 on no message retrieved and -1 on an error.
+ */
+int
+mqtt_retrieve_message (char **topic, int *topic_len, char **payload,
+                       int *payload_len)
+{
+  return mqtt_retrieve_message_r (mqtt_get_global_client (), topic, topic_len,
+                                  payload, payload_len, 501);
 }

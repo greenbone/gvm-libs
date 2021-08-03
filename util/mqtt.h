@@ -43,4 +43,13 @@ mqtt_publish (const char *, const char *);
 int
 mqtt_publish_single_message (const char *, const char *, const char *);
 
+int
+mqtt_subscribe (const char *);
+
+int
+mqtt_retrieve_message (char **, int *, char **, int *);
+
+int
+mqtt_unsubscribe (const char *);
+
 #endif /* _GVM_MQTT_H */
