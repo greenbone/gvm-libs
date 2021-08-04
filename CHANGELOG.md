@@ -4,25 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [20.8.4] - Unreleased
+## [21.4.3] - Unreleased
 ### Added
 ### Changed
-* Use better defaults for installation directories [#574](https://github.com/greenbone/gvm-libs/pull/574)
-    * SYSCONFDIR is /etc by default now
-    * LOCALSTATEDIR is /var by default now
-    * Introduced GVM_RUN_DIR that uses /run/gvm by default
-    * GVM_PID_DIR is /run/gvm by default now
-
 ### Deprecated
 ### Removed
 ### Fixed
 
-<<<<<<< HEAD
-[Unreleased]: https://github.com/greenbone/gvm-libs/compare/v21.4.2...HEAD
-=======
-[20.8.4]: https://github.com/greenbone/gvm-libs/compare/v20.8.3...gvm-libs-20.08
->>>>>>> cdf3202 (Add changelog entry)
-
+[21.4.3]: https://github.com/greenbone/gvm-libs/compare/v21.4.3...gvm-libs-21.04
 
 ## [21.4.2] - 2021-08-03
 
@@ -83,16 +72,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [21.4.0]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...v21.4.0
 
-## [20.8.3] (unreleased)
-
+## [20.8.4] - Unreleased
 ### Added
 ### Changed
+* Use better defaults for installation directories [#574](https://github.com/greenbone/gvm-libs/pull/574)
+    * SYSCONFDIR is /etc by default now
+    * LOCALSTATEDIR is /var by default now
+    * Introduced GVM_RUN_DIR that uses /run/gvm by default
+    * GVM_PID_DIR is /run/gvm by default now
+
 ### Deprecated
 ### Removed
 ### Fixed
+
+[20.8.4]: https://github.com/greenbone/gvm-libs/compare/v20.8.3...gvm-libs-20.08
+
+
+## [20.8.3] - 2021-08-03
+
+### Fixed
 - Fix info msg when 0 alive hosts are left to scan and max_scan_hosts limit is reached. No message will be generated for that case anymore. [#561](https://github.com/greenbone/gvm-libs/pull/561)
 
-[Unreleased]: https://github.com/greenbone/gvm-libs/compare/v20.8.2...gvm-libs-20.08
+[20.8.3]: https://github.com/greenbone/gvm-libs/compare/v20.8.2...v20.8.3
 
 ## [20.8.2] - 2021-06-23
 
