@@ -4,14 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [20.8.4] - Unreleased
 ### Added
 ### Changed
+* Use better defaults for installation directories [#574](https://github.com/greenbone/gvm-libs/pull/574)
+    * SYSCONFDIR is /etc by default now
+    * LOCALSTATEDIR is /var by default now
+    * Introduced GVM_RUN_DIR that uses /run/gvm by default
+    * GVM_PID_DIR is /run/gvm by default now
+
 ### Deprecated
 ### Removed
 ### Fixed
 
+<<<<<<< HEAD
 [Unreleased]: https://github.com/greenbone/gvm-libs/compare/v21.4.2...HEAD
+=======
+[20.8.4]: https://github.com/greenbone/gvm-libs/compare/v20.8.3...gvm-libs-20.08
+>>>>>>> cdf3202 (Add changelog entry)
 
 
 ## [21.4.2] - 2021-08-03
