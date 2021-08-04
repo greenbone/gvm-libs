@@ -4,7 +4,6 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-<<<<<<< HEAD
 ## [21.10] (unreleased)
 
 ### Added
@@ -20,25 +19,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [Unreleased]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-21.04...HEAD
 
-## [24.1.2] (unreleased)
+## [21.4.3] (unreleased)
 
-=======
-## [20.8.4] - Unreleased
->>>>>>> cdf3202 (Add changelog entry)
 ### Added
 ### Changed
-* Use better defaults for installation directories [#574](https://github.com/greenbone/gvm-libs/pull/574)
-    * SYSCONFDIR is /etc by default now
-    * LOCALSTATEDIR is /var by default now
-    * Introduced GVM_RUN_DIR that uses /run/gvm by default
-    * GVM_PID_DIR is /run/gvm by default now
-
 ### Deprecated
 ### Removed
 ### Fixed
 
-<<<<<<< HEAD
-[Unreleased]: https://github.com/greenbone/gvm-libs/compare/v21.4.1...gvm-libs-21.04
+[Unreleased]: https://github.com/greenbone/gvm-libs/compare/v21.4.2...gvm-libs-21.04
+
+## [21.4.2] - 2021-08-03
+
+### Fixed
+- Fix info msg when 0 alive hosts are left to scan and max_scan_hosts limit is reached. No message will be generated for that case anymore. [#564](https://github.com/greenbone/gvm-libs/pull/564)
+
+[21.4.2]: https://github.com/greenbone/gvm-libs/compare/v21.4.1...v21.4.2
 
 ## [21.4.1] - 2021-06-23
 
@@ -57,7 +53,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [21.4.1]: https://github.com/greenbone/gvm-libs/compare/v21.4.0...v21.4.1
 
 
-## [21.4.0] (2021-04-15)
+## [21.4.0] - 2021-04-15
 
 ### Added
 - Use dedicated port list for alive detection (Boreas only) if supplied via OSP. [#391](https://github.com/greenbone/gvm-libs/pull/391)
@@ -88,22 +84,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove handling of severity class from auth [#402](https://github.com/greenbone/gvm-libs/pull/402)
 - Remove version from the nvticache name. [#386](https://github.com/greenbone/gvm-libs/pull/386)
-=======
-[20.8.4]: https://github.com/greenbone/gvm-libs/compare/v20.8.3...gvm-libs-20.08
->>>>>>> cdf3202 (Add changelog entry)
 
 [21.4.0]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...v21.4.0
 
-## [20.8.3] (unreleased)
-
+## [20.8.4] - Unreleased
 ### Added
 ### Changed
+* Use better defaults for installation directories [#574](https://github.com/greenbone/gvm-libs/pull/574)
+    * SYSCONFDIR is /etc by default now
+    * LOCALSTATEDIR is /var by default now
+    * Introduced GVM_RUN_DIR that uses /run/gvm by default
+    * GVM_PID_DIR is /run/gvm by default now
+
 ### Deprecated
 ### Removed
 ### Fixed
+
+[20.8.4]: https://github.com/greenbone/gvm-libs/compare/v20.8.3...gvm-libs-20.08
+
+
+## [20.8.3] - 2021-08-03
+
+### Fixed
 - Fix info msg when 0 alive hosts are left to scan and max_scan_hosts limit is reached. No message will be generated for that case anymore. [#561](https://github.com/greenbone/gvm-libs/pull/561)
 
-[Unreleased]: https://github.com/greenbone/gvm-libs/compare/v20.8.2...gvm-libs-20.08
+[20.8.3]: https://github.com/greenbone/gvm-libs/compare/v20.8.2...v20.8.3
 
 ## [20.8.2] - 2021-06-23
 
