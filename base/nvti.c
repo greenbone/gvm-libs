@@ -441,7 +441,6 @@ typedef struct nvti
   GSList *prefs;      /**< @brief Collection of NVT preferences */
 
   // The following are not settled yet.
-  gint timeout;  /**< @brief Default timeout time for this NVT */
   gint category; /**< @brief The category, this NVT belongs to */
   gchar *family; /**< @brief Family the NVT belongs to */
 } nvti_t;
@@ -1243,20 +1242,6 @@ nvti_pref (const nvti_t *n, guint p)
 }
 
 /**
- * @brief Get the timeout for this NVT.
- *
- * @param n The NVT Info structure of which the timeout should
- *          be returned.
- *
- * @return The timeout integer number. A value <= 0 indicates it is not set.
- */
-gint
-nvti_timeout (const nvti_t *n)
-{
-  return n ? n->timeout : -1;
-}
-
-/**
  * @brief Get the category for this NVT.
  *
  * @param n The NVT Info structure of which the category should be returned.
@@ -1835,25 +1820,6 @@ nvti_set_family (nvti_t *n, const gchar *family)
 
   g_free (n->family);
   n->family = g_strdup (family);
-  return 0;
-}
-
-/**
- * @brief Set the timeout of a NVT Info.
- *
- * @param n The NVT Info structure.
- *
- * @param timeout The timeout to set. Values <= 0 will indicate it is not set.
- *
- * @return 0 for success. Anything else indicates an error.
- */
-int
-nvti_set_timeout (nvti_t *n, const gint timeout)
-{
-  if (!n)
-    return -1;
-
-  n->timeout = timeout;
   return 0;
 }
 
