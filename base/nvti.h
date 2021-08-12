@@ -29,6 +29,8 @@
 
 #include <glib.h>
 
+#define NVTPREF_TIMEOUT_ID 0
+
 typedef struct nvtpref nvtpref_t;
 
 nvtpref_t *
