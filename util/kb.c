@@ -1559,7 +1559,7 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
 
   kbr = redis_kb (kb);
   rep = redis_cmd (
-    kbr, "RPUSH nvt:%s %s %s %s %s %s %s %s %s %s %s %d %d %s %s",
+    kbr, "RPUSH nvt:%s %s %s %s %s %s %s %s %s %s %s %s %d %s %s",
     nvti_oid (nvt), filename, nvti_required_keys (nvt) ?: "",
     nvti_mandatory_keys (nvt) ?: "", nvti_excluded_keys (nvt) ?: "",
     nvti_required_udp_ports (nvt) ?: "", nvti_required_ports (nvt) ?: "",
