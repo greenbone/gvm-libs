@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add functions for sentry integration. [#502](https://github.com/greenbone/gvm-libs/pull/502) [#506](https://github.com/greenbone/gvm-libs/pull/506)
 
 ### Changed
+- Handle script timeout as script preference with ID 0 [#581](https://github.com/greenbone/gvm-libs/pull/581)
+
 ### Fixed
 ### Removed
 
