@@ -203,23 +203,3 @@ prefs_dump (void)
         }
     }
 }
-
-/**
- * @brief Returns the timeout defined by the client or 0 if none was set.
- *
- * @param oid         OID of NVT to ask timeout value of.
- *
- * @return 0 if no timeout for the NVT oid was found, timeout in seconds
- *         otherwise.
- */
-int
-prefs_nvt_timeout (const char *oid)
-{
-  char *pref_name = g_strdup_printf ("timeout.%s", oid);
-  const char *val = prefs_get (pref_name);
-  int timeout = (val ? atoi (val) : 0);
-
-  g_free (pref_name);
-
-  return timeout;
-}

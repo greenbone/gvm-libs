@@ -411,26 +411,6 @@ nvticache_get_category (const char *oid)
 }
 
 /**
- * @brief Get the Timeout from a plugin OID.
- *
- * @param[in]   oid     OID to match.
- *
- * @return Timeout matching OID, -1 otherwise.
- */
-int
-nvticache_get_timeout (const char *oid)
-{
-  int timeout;
-  char *timeout_s;
-
-  assert (cache_kb);
-  timeout_s = kb_nvt_get (cache_kb, oid, NVT_TIMEOUT_POS);
-  timeout = atoi (timeout_s);
-  g_free (timeout_s);
-  return timeout;
-}
-
-/**
  * @brief Get the name from a plugin OID.
  *
  * @param[in]   oid     OID to match.

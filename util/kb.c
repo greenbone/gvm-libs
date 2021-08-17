@@ -955,7 +955,6 @@ redis_get_nvt_all (kb_t kb, const char *oid)
       nvti_add_refs (nvti, "bid", rep->element[NVT_BIDS_POS]->str, "");
       nvti_add_refs (nvti, NULL, rep->element[NVT_XREFS_POS]->str, "");
       nvti_set_category (nvti, atoi (rep->element[NVT_CATEGORY_POS]->str));
-      nvti_set_timeout (nvti, atoi (rep->element[NVT_TIMEOUT_POS]->str));
       nvti_set_family (nvti, rep->element[NVT_FAMILY_POS]->str);
       nvti_set_name (nvti, rep->element[NVT_NAME_POS]->str);
 
@@ -1560,13 +1559,12 @@ redis_add_nvt (kb_t kb, const nvti_t *nvt, const char *filename)
 
   kbr = redis_kb (kb);
   rep = redis_cmd (
-    kbr, "RPUSH nvt:%s %s %s %s %s %s %s %s %s %s %s %s %d %d %s %s",
+    kbr, "RPUSH nvt:%s %s %s %s %s %s %s %s %s %s %s %s %d %s %s",
     nvti_oid (nvt), filename, nvti_required_keys (nvt) ?: "",
     nvti_mandatory_keys (nvt) ?: "", nvti_excluded_keys (nvt) ?: "",
     nvti_required_udp_ports (nvt) ?: "", nvti_required_ports (nvt) ?: "",
     nvti_dependencies (nvt) ?: "", nvti_tag (nvt) ?: "", cves ?: "", bids ?: "",
-    xrefs ?: "", nvti_category (nvt), nvti_timeout (nvt), nvti_family (nvt),
-    nvti_name (nvt));
+    xrefs ?: "", nvti_category (nvt), nvti_family (nvt), nvti_name (nvt));
   g_free (cves);
   g_free (bids);
   g_free (xrefs);
