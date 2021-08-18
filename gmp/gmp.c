@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2019 Greenbone Networks GmbH
+/* Copyright (C) 2009-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -39,7 +39,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "lib   gmp"
+#define G_LOG_DOMAIN "libgvm gmp"
 
 #define GMP_FMT_BOOL_ATTRIB(var, attrib) \
   (var.attrib == 0 ? " " #attrib "=\"0\"" : " " #attrib "=\"1\"")
@@ -421,7 +421,7 @@ gmp_authenticate_info_ext (gnutls_session_t *session,
   first = status[0];
   if (first == '2')
     {
-      entity_t timezone_entity, role_entity, severity_entity, pw_warn_entity;
+      entity_t timezone_entity, role_entity, pw_warn_entity;
       /* Get the extra info. */
       timezone_entity = entity_child (entity, "timezone");
       if (timezone_entity)
@@ -429,9 +429,6 @@ gmp_authenticate_info_ext (gnutls_session_t *session,
       role_entity = entity_child (entity, "role");
       if (role_entity)
         *opts.role = g_strdup (entity_text (role_entity));
-      severity_entity = entity_child (entity, "severity");
-      if (severity_entity)
-        *opts.severity = g_strdup (entity_text (severity_entity));
       pw_warn_entity = entity_child (entity, "password_warning");
       if (pw_warn_entity)
         *(opts.pw_warning) = g_strdup (entity_text (pw_warn_entity));
@@ -508,7 +505,7 @@ gmp_authenticate_info_ext_c (gvm_connection_t *connection,
   first = status[0];
   if (first == '2')
     {
-      entity_t timezone_entity, role_entity, severity_entity;
+      entity_t timezone_entity, role_entity;
       /* Get the extra info. */
       timezone_entity = entity_child (entity, "timezone");
       if (timezone_entity && opts.timezone)
@@ -516,9 +513,6 @@ gmp_authenticate_info_ext_c (gvm_connection_t *connection,
       role_entity = entity_child (entity, "role");
       if (role_entity && opts.role)
         *opts.role = g_strdup (entity_text (role_entity));
-      severity_entity = entity_child (entity, "severity");
-      if (severity_entity && opts.severity)
-        *opts.severity = g_strdup (entity_text (severity_entity));
       if (opts.pw_warning)
         {
           entity_t pw_warn_entity;

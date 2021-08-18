@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2019 Greenbone Networks GmbH
+# Copyright (C) 2011-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -22,7 +22,7 @@ message ("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
 # VERSION: Always include major, minor and patch level.
 project (gvm-libs
-  VERSION 21.4.0
+  VERSION 21.10.0
   LANGUAGES C)
 
 if (POLICY CMP0005)
@@ -134,7 +134,7 @@ if (SYSCONF_INSTALL_DIR)
 endif (SYSCONF_INSTALL_DIR)
 
 if (NOT SYSCONFDIR)
-  set (SYSCONFDIR "${CMAKE_INSTALL_PREFIX}/etc")
+  set (SYSCONFDIR "/etc")
 endif (NOT SYSCONFDIR)
 
 if (NOT EXEC_PREFIX)
@@ -162,7 +162,7 @@ if (NOT LIBDIR)
 endif (NOT LIBDIR)
 
 if (NOT LOCALSTATEDIR)
-  set (LOCALSTATEDIR "${CMAKE_INSTALL_PREFIX}/var")
+  set (LOCALSTATEDIR "/var")
 endif (NOT LOCALSTATEDIR)
 
 if (NOT INCLUDEDIR)
@@ -173,8 +173,12 @@ if (NOT DATADIR)
   set (DATADIR "${CMAKE_INSTALL_PREFIX}/share")
 endif (NOT DATADIR)
 
+if (NOT GVM_RUN_DIR)
+  set (GVM_RUN_DIR  "/run/gvm")
+endif (NOT GVM_RUN_DIR)
+
 if (NOT GVM_PID_DIR)
-  set (GVM_PID_DIR "${LOCALSTATEDIR}/run")
+  set (GVM_PID_DIR "${GVM_RUN_DIR}")
 endif (NOT GVM_PID_DIR)
 
 if (NOT GVM_SYSCONF_DIR)
@@ -224,8 +228,9 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
 
   add_custom_target (tests
     DEPENDS array-test alivedetection-test boreas_error-test boreas_io-test
-            cli-test ping-test sniffer-test util-test networking-test
-            xmlutils-test version-test osp-test nvti-test hosts-test)
+            cli-test cvss-test ping-test sniffer-test util-test networking-test
+            passwordbasedauthentication-test xmlutils-test version-test osp-test 
+            nvti-test hosts-test)
 
 endif (BUILD_TESTS AND NOT SKIP_SRC)
 

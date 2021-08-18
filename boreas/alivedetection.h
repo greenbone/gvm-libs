@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -28,10 +28,10 @@
 /* to how many hosts are packets send to at a time. value <= 0 for no rate limit
  */
 #define BURST 100
-/* how long (in msec) to wait until new BURST of packets is send */
+/* how long (in microseconds) to wait until new BURST of packets is send */
 #define BURST_TIMEOUT 100000
 /* how tong (in sec) to wait for replies after last packet was sent */
-#define WAIT_FOR_REPLIES_TIMEOUT 5
+#define WAIT_FOR_REPLIES_TIMEOUT 1
 /* Src port of outgoing TCP pings. Used for filtering incoming packets. */
 #define FILTER_PORT 9910
 
@@ -74,7 +74,11 @@ struct scanner
   pcap_t *pcap_handle;
   hosts_data_t *hosts_data;
   scan_restrictions_t *scan_restrictions;
+  /* 0 do not print in stdout, 1 print in stdout used for cmd line cli. */
+  int print_results;
 };
+
+typedef struct scanner scanner_t;
 
 /**
  * @brief The hosts_data struct holds the alive hosts and target hosts in

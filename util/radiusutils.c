@@ -1,4 +1,4 @@
-/* Copyright (C) 2015-2019 Greenbone Networks GmbH
+/* Copyright (C) 2015-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -45,6 +45,12 @@
 #include "../base/networking.h" /* for gvm_resolve */
 
 #include <glib.h> /* for g_warning */
+
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib logging domain.
+ */
+#define G_LOG_DOMAIN "libgvm util"
 
 #ifndef PW_MAX_MSG_SIZE
 #define PW_MAX_MSG_SIZE 4096

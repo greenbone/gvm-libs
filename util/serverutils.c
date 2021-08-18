@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2019 Greenbone Networks GmbH
+/* Copyright (C) 2009-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -47,9 +47,9 @@
 
 #undef G_LOG_DOMAIN
 /**
- * @brief GLib log domain.
+ * @brief GLib logging domain.
  */
-#define G_LOG_DOMAIN "lib  serv"
+#define G_LOG_DOMAIN "libgvm util"
 
 /**
  * @brief Server address.
@@ -1257,14 +1257,23 @@ set_gnutls_dhparams (gnutls_certificate_credentials_t creds,
 
   if (load_gnutls_file (dhparams_file, &data))
     return -1;
+
+/* Disable false positive warning about potential leak of memory */
+#ifndef __clang_analyzer__
+
   gnutls_dh_params_t params = g_malloc0 (sizeof (gnutls_dh_params_t));
   ret = gnutls_dh_params_import_pkcs3 (params, &data, GNUTLS_X509_FMT_PEM);
   unload_gnutls_file (&data);
   if (ret)
-    return -1;
+    {
+      g_free (params);
+      return -1;
+    }
   else
     gnutls_certificate_set_dh_params (creds, params);
   return 0;
+
+#endif
 }
 
 /**

@@ -1,4 +1,4 @@
-/* Copyright (C) 2013-2019 Greenbone Networks GmbH
+/* Copyright (C) 2013-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -112,6 +112,9 @@ gvm_host_t *
 gvm_hosts_next (gvm_hosts_t *);
 
 void
+gvm_hosts_move_current_host_to_end (gvm_hosts_t *);
+
+void
 gvm_hosts_free (gvm_hosts_t *);
 
 void
@@ -162,6 +165,10 @@ int
 gvm_host_in_hosts (const gvm_host_t *, const struct in6_addr *,
                    const gvm_hosts_t *);
 
+gvm_host_t *
+gvm_host_find_in_hosts (const gvm_host_t *, const struct in6_addr *,
+                        const gvm_hosts_t *);
+
 gchar *
 gvm_host_type_str (const gvm_host_t *);
 
@@ -179,6 +186,8 @@ gvm_host_get_addr6 (const gvm_host_t *, struct in6_addr *);
 
 void
 gvm_host_add_reverse_lookup (gvm_host_t *);
+
+void gvm_host_free (gpointer);
 
 /* Miscellaneous functions */
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2012-2019 Greenbone Networks GmbH
+/* Copyright (C) 2012-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -42,6 +42,9 @@ struct ldap_auth_info
   gchar *auth_dn;           ///< DN to authenticate with.
   gboolean allow_plaintext; ///< !Whether or not StartTLS is required.
 };
+
+int
+ldap_enable_debug ();
 
 int
 ldap_connect_authenticate (const gchar *, const gchar *,

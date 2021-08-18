@@ -1,4 +1,4 @@
-/* Copyright (C) 2013-2019 Greenbone Networks GmbH
+/* Copyright (C) 2013-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -41,6 +41,12 @@
 #include <netinet/in.h>
 #define s6_addr32 __u6_addr.__u6_addr32
 #endif
+
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "libgvm base"
 
 /* Global variables */
 
@@ -645,7 +651,7 @@ port_range_ranges (const char *port_range)
 
       if (element_strlen >= 2)
         {
-          if ((element[0] == 'T'))
+          if (element[0] == 'T')
             {
               element++;
               while (*element && isblank (*element))
@@ -656,7 +662,7 @@ port_range_ranges (const char *port_range)
                   tcp = 1;
                 }
             }
-          else if ((element[0] == 'U'))
+          else if (element[0] == 'U')
             {
               element++;
               while (*element && isblank (*element))
@@ -785,6 +791,7 @@ ip_islocalhost (struct sockaddr_storage *storage)
   family = storage->ss_family;
   addr6_p = &addr6;
   addr_p = &addr;
+  addr.s_addr = 0;
 
   if (family == AF_INET)
     {
@@ -844,8 +851,10 @@ ip_islocalhost (struct sockaddr_storage *storage)
           if (ifa->ifa_addr->sa_family == AF_INET6)
             {
               sin6 = (struct sockaddr_in6 *) (ifa->ifa_addr);
+
               /* Check if same address as local interface. */
-              if (IN6_ARE_ADDR_EQUAL (&(sin6->sin6_addr), addr6_p))
+              if (family == AF_INET6
+                  && IN6_ARE_ADDR_EQUAL (&(sin6->sin6_addr), addr6_p))
                 return TRUE;
             }
         }
@@ -919,10 +928,13 @@ get_routes (void)
       status = g_io_channel_read_line (file_channel, &line, NULL, NULL, &err);
       if ((status != G_IO_STATUS_NORMAL) || !line || err)
         {
-          g_warning (
-            "%s: %s", __func__,
-            err ? err->message
-                : "g_io_channel_read_line() status != G_IO_STATUS_NORMAL");
+          if (status == G_IO_STATUS_AGAIN)
+            g_warning ("%s: /proc/net/route unavailable.", __func__);
+          if (err || status == G_IO_STATUS_ERROR)
+            g_warning (
+              "%s: %s", __func__,
+              err ? err->message
+                  : "g_io_channel_read_line() status == G_IO_STATUS_ERROR");
           err = NULL;
           g_free (line);
           break;
@@ -1022,7 +1034,7 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
 
           for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
             {
-              if ((ifa->ifa_addr->sa_family == AF_INET)
+              if (ifa->ifa_addr && (ifa->ifa_addr->sa_family == AF_INET)
                   && (ifa->ifa_flags & (IFF_LOOPBACK)))
                 {
                   interface_out = g_strdup (ifa->ifa_name);
@@ -1070,7 +1082,8 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
                     {
                       for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
                         {
-                          if ((ifa->ifa_addr->sa_family == AF_INET)
+                          if (ifa->ifa_addr
+                              && (ifa->ifa_addr->sa_family == AF_INET)
                               && (g_strcmp0 (interface_out, ifa->ifa_name)
                                   == 0))
                             {

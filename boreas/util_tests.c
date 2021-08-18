@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -75,7 +75,7 @@ Ensure (util, set_all_needed_sockets)
   g_setsockopt_use_real = false;
 
   alive_test_t alive_test;
-  struct scanner scanner = {};
+  scanner_t scanner = {0};
 
   /* All methods set. */
   alive_test = ALIVE_TEST_TCP_ACK_SERVICE | ALIVE_TEST_ICMP | ALIVE_TEST_ARP

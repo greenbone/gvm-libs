@@ -1,4 +1,4 @@
-/* Copyright (C) 2017-2019 Greenbone Networks GmbH
+/* Copyright (C) 2017-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -29,6 +29,8 @@
 
 #include "logging.h"
 
+#include "gvm_sentry.h" /* for gvm_sentry_log */
+
 #include <errno.h>  /* for errno */
 #include <libgen.h> /* for dirname */
 #include <stdio.h>  /* for fflush, fprintf, stderr */
@@ -39,6 +41,12 @@
 #undef SYSLOG_NAMES
 #include <time.h>   /* for localtime, time, time_t */
 #include <unistd.h> /* for getpid */
+
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "libgvm base"
 
 /**
  * @struct gvm_logging_t
@@ -74,15 +82,15 @@ gchar *
 get_time (gchar *time_fmt)
 {
   time_t now;
-  struct tm *ts;
+  struct tm ts;
   gchar buf[80];
 
   /* Get the current time. */
   now = time (NULL);
 
   /* Format and print the time, "ddd yyyy-mm-dd hh:mm:ss zzz." */
-  ts = localtime (&now);
-  strftime (buf, sizeof (buf), time_fmt, ts);
+  localtime_r (&now, &ts);
+  strftime (buf, sizeof (buf), time_fmt, &ts);
 
   return g_strdup_printf ("%s", buf);
 }
@@ -480,7 +488,8 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
               log_domain_entry = entry;
 
               /* Get the struct contents. */
-              prepend_format = log_domain_entry->prepend_string;
+              if (log_domain_entry->prepend_string)
+                prepend_format = log_domain_entry->prepend_string;
               time_format = log_domain_entry->prepend_time_format;
               log_file = log_domain_entry->log_file;
               if (log_domain_entry->default_level)
@@ -619,6 +628,9 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
                             message);
   g_free (prepend);
 
+  if (log_level <= G_LOG_LEVEL_WARNING)
+    gvm_sentry_log (message);
+
   gvm_log_lock ();
   /* Output everything to stderr if logfile is "-". */
   if (g_ascii_strcasecmp (log_file, "-") == 0)
@@ -662,7 +674,28 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
           break;
         }
 
-      syslog (syslog_level, "%s", message);
+      /* Syslog doesn't support messages longer than 1kb. The overflow data
+         will not be logged or will be shown in the hypervisor console
+         if it runs on a virtual machine. */
+      if (messagelen > 1000)
+        {
+          int pos;
+          char *message_aux, *message_aux2;
+          char buffer[1000];
+
+          message_aux2 = g_strdup (message);
+          message_aux = message_aux2;
+          for (pos = 0; pos <= messagelen; pos = pos + sizeof (buffer) - 1)
+            {
+              memcpy (buffer, message_aux, sizeof (buffer) - 1);
+              buffer[sizeof (buffer) - 1] = '\0';
+              message_aux = &(message_aux[sizeof (buffer) - 1]);
+              syslog (syslog_level, "%s", buffer);
+            }
+          g_free (message_aux2);
+        }
+      else
+        syslog (syslog_level, "%s", message);
 
       closelog ();
     }
@@ -741,16 +774,75 @@ log_func_for_gnutls (int level, const char *message)
 }
 
 /**
+ * @brief Check permissions of log file and log file directory.
+ *
+ * Do not check permissions if log file is syslog or empty string.
+ *
+ * @param log_domain_entry  Log domain entry.
+ *
+ * @return 0 on success, -1 on error.
+ */
+static int
+check_log_file (gvm_logging_t *log_domain_entry)
+{
+  GIOChannel *channel = NULL;
+  GError *error = NULL;
+  gchar *log_file = NULL;
+
+  if (log_domain_entry->log_file)
+    log_file = log_domain_entry->log_file;
+
+  // No log file was specified or log file is empty in the openvas_log.conf.
+  // stderr will be used as default later on. See gvm_log_func.
+  if (!log_file)
+    return 0;
+  if (!g_strcmp0 (log_file, ""))
+    return 0;
+
+  // If syslog is used we do not need to check the log file permissions.
+  if (g_ascii_strcasecmp (log_file, "syslog") == 0)
+    return 0;
+
+  channel = g_io_channel_new_file (log_file, "a", &error);
+  if (!channel)
+    {
+      gchar *log = g_strdup (log_file);
+      gchar *dir = dirname (log);
+
+      /* Ensure directory exists. */
+      if (g_mkdir_with_parents (dir, 0755)) /* "rwxr-xr-x" */
+        {
+          g_free (log);
+          return -1;
+        }
+      g_free (log);
+
+      /* Try again. */
+      error = NULL;
+      channel = g_io_channel_new_file (log_file, "a", &error);
+      if (!channel)
+        return -1;
+    }
+  return 0;
+}
+
+/**
  * @brief Sets up routing of logdomains to log handlers.
  *
  * Iterates over the link list and adds the groups to the handler.
  *
  * @param gvm_log_config_list A pointer to the configuration linked list.
+ *
+ * @return 0 on success, -1 if not able to create log file directory or open log
+ * file for some domain.
  */
-void
+int
 setup_log_handlers (GSList *gvm_log_config_list)
 {
   GSList *log_domain_list_tmp;
+  int err;
+  int ret = 0;
+
   if (gvm_log_config_list != NULL)
     {
       /* Go to the head of the list. */
@@ -762,6 +854,15 @@ setup_log_handlers (GSList *gvm_log_config_list)
 
           /* Get the list data which is an gvm_logging_t struct. */
           log_domain_entry = log_domain_list_tmp->data;
+
+          err = check_log_file (log_domain_entry);
+          if (err)
+            {
+              ret = -1;
+              /* Go to the next item. */
+              log_domain_list_tmp = g_slist_next (log_domain_list_tmp);
+              continue;
+            }
 
           GLogFunc logfunc =
 #if 0
@@ -796,4 +897,6 @@ setup_log_handlers (GSList *gvm_log_config_list)
                       | G_LOG_LEVEL_ERROR | G_LOG_FLAG_FATAL
                       | G_LOG_FLAG_RECURSION),
     (GLogFunc) gvm_log_func, gvm_log_config_list);
+
+  return ret;
 }

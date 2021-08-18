@@ -1,4 +1,4 @@
-/* Copyright (C) 2015-2019 Greenbone Networks GmbH
+/* Copyright (C) 2015-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -29,6 +29,12 @@
 #include <gnutls/x509.h> /* for gnutls_x509_privkey_deinit, gnutls_x509_p... */
 #include <libssh/libssh.h> /* for ssh_key_free, ssh_key_type, ssh_key_type_... */
 #include <string.h>        /* for strcmp, strlen */
+
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib logging domain.
+ */
+#define G_LOG_DOMAIN "libgvm util"
 
 /**
  * @brief Decrypts a base64 encrypted ssh private key.

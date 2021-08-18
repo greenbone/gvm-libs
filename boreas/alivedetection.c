@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -52,9 +52,9 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "alive scan"
+#define G_LOG_DOMAIN "libgvm boreas"
 
-struct scanner scanner;
+scanner_t scanner;
 
 /**
  * @brief Scan function starts a sniffing thread which waits for packets to
@@ -78,8 +78,8 @@ scan (alive_test_t alive_test)
   int scandb_id;
   gchar *scan_id;
   /* Following variables are only relevant if only ICMP was chosen. */
-  int remaining_batch;
-  int prev_alive;
+  int remaining_batch = 0;
+  int prev_alive = 0;
   gboolean limit_reached_handled = FALSE; /* Scan restrictions related. */
 
   gettimeofday (&start_time, NULL);
@@ -90,8 +90,13 @@ scan (alive_test_t alive_test)
   g_message ("Alive scan %s started: Target has %d hosts", scan_id,
              number_of_targets);
 
-  sniffer_thread_id = 0;
-  start_sniffer_thread (&scanner, &sniffer_thread_id);
+  /* Sniffer thread needed if any alive test besides ALIVE_TEST_CONSIDER_ALIVE
+   * was chosen. */
+  if (alive_test != ALIVE_TEST_CONSIDER_ALIVE)
+    {
+      sniffer_thread_id = 0;
+      start_sniffer_thread (&scanner, &sniffer_thread_id);
+    }
 
   /* Continuously send dead hosts to ospd if only ICMP was chosen instead of
    * sending all at once at the end. This is done for displaying a progressbar
@@ -127,13 +132,13 @@ scan (alive_test_t alive_test)
 
               /* If the max_scan_hosts limit was reached we can not tell ospd
                * the true number of dead hosts. The number of alive hosts which
-               * are above the max_scan_hosts limit are not to be substracted
+               * are above the max_scan_hosts limit are not to be subtracted
                * form the dead hosts to send. They are considered as dead hosts
                * for the progress bar.*/
               if (scanner.scan_restrictions->max_scan_hosts_reached)
                 {
                   /* Handle the case where we reach the max_scan_hosts for the
-                   * first time. We may have to considere some of the new alive
+                   * first time. We may have to consider some of the new alive
                    * hosts as dead because of the restriction. E.g
                    * curr_alive=110 prev_alive=90 max_scan_hosts=100 batch=100.
                    * Normally we would send 80 as dead in this batch (20 new
@@ -173,6 +178,8 @@ scan (alive_test_t alive_test)
       g_debug ("%s: ICMP Ping", __func__);
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_icmp,
                             &scanner);
+      wait_until_so_sndbuf_empty (scanner.icmpv4soc, 10);
+      wait_until_so_sndbuf_empty (scanner.icmpv6soc, 10);
       usleep (500000);
     }
   if (alive_test & ALIVE_TEST_TCP_SYN_SERVICE)
@@ -181,6 +188,8 @@ scan (alive_test_t alive_test)
       scanner.tcp_flag = TH_SYN; /* SYN */
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
                             &scanner);
+      wait_until_so_sndbuf_empty (scanner.tcpv4soc, 10);
+      wait_until_so_sndbuf_empty (scanner.tcpv6soc, 10);
       usleep (500000);
     }
   if (alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
@@ -189,6 +198,8 @@ scan (alive_test_t alive_test)
       scanner.tcp_flag = TH_ACK; /* ACK */
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_tcp,
                             &scanner);
+      wait_until_so_sndbuf_empty (scanner.tcpv4soc, 10);
+      wait_until_so_sndbuf_empty (scanner.tcpv6soc, 10);
       usleep (500000);
     }
   if (alive_test & ALIVE_TEST_ARP)
@@ -196,6 +207,8 @@ scan (alive_test_t alive_test)
       g_debug ("%s: ARP Ping", __func__);
       g_hash_table_foreach (scanner.hosts_data->targethosts, send_arp,
                             &scanner);
+      wait_until_so_sndbuf_empty (scanner.arpv4soc, 10);
+      wait_until_so_sndbuf_empty (scanner.arpv6soc, 10);
     }
   if (alive_test & ALIVE_TEST_CONSIDER_ALIVE)
     {
@@ -209,14 +222,24 @@ scan (alive_test_t alive_test)
         }
     }
 
-  g_debug (
-    "%s: all ping packets have been sent, wait a bit for rest of replies.",
-    __func__);
-  sleep (WAIT_FOR_REPLIES_TIMEOUT);
+  /* Stop sniffer thread if any alive test besides ALIVE_TEST_CONSIDER_ALIVE was
+   * chosen. */
+  if (alive_test != ALIVE_TEST_CONSIDER_ALIVE)
+    {
+      g_debug (
+        "%s: all ping packets have been sent, wait a bit for rest of replies.",
+        __func__);
 
-  stop_sniffer_thread (&scanner, sniffer_thread_id);
+      /* If all targets are already identified as alive we do not need to wait
+       * for replies anymore.*/
+      if (number_of_targets
+          != (int) g_hash_table_size (scanner.hosts_data->alivehosts))
+        sleep (WAIT_FOR_REPLIES_TIMEOUT);
 
-  /* If only ICMP was specified we continously sent updates about dead hosts to
+      stop_sniffer_thread (&scanner, sniffer_thread_id);
+    }
+
+  /* If only ICMP was specified we continuously send updates about dead hosts to
    * ospd while checking the hosts. We now only have to send the dead hosts of
    * the last batch. This is done here to catch the last alive hosts which may
    * have arrived after all packets were already sent.
@@ -300,6 +323,9 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
   if ((error = set_all_needed_sockets (&scanner, alive_test)) != 0)
     return error;
 
+  /* Do not print results in stdout. Only set for command line clients*/
+  scanner.print_results = 0;
+
   /* kb_t redis connection */
   int scandb_id = atoi (prefs_get ("ov_maindbid"));
   if ((scanner.main_kb = kb_direct_conn (prefs_get ("db_address"), scandb_id))
@@ -358,9 +384,19 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
 
   /* Scan restrictions. max_scan_hosts related. */
   const gchar *pref_str;
-  int max_scan_hosts = INT_MAX;
+  int max_scan_hosts = INT_MAX, pref_value;
+
+  /* Check that the max_scan_hosts is set and it is greater than 0 */
   if ((pref_str = prefs_get ("max_scan_hosts")) != NULL)
-    max_scan_hosts = atoi (pref_str);
+    {
+      pref_value = atoi (pref_str);
+      if (pref_value > 0)
+        max_scan_hosts = pref_value;
+      else
+        g_debug ("%s: Invalid max_scan_hosts value. It must be an integer "
+                 "greater than zero.",
+                 __func__);
+    }
 
   init_scan_restrictions (&scanner, max_scan_hosts);
 
@@ -477,7 +513,7 @@ start_alive_detection (void *hosts_to_test)
   /* Free memory, close sockets and connections. */
   pthread_cleanup_pop (1);
   if (free_err)
-    g_warning ("%s: %s. Exit Boreas thread none the less.", __func__,
+    g_warning ("%s: %s. Exit Boreas thread nonetheless.", __func__,
                str_boreas_error (free_err));
 
   pthread_exit (0);

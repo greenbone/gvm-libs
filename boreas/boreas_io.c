@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -30,7 +30,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "alive scan"
+#define G_LOG_DOMAIN "libgvm boreas"
 
 scan_restrictions_t scan_restrictions;
 
@@ -59,7 +59,7 @@ set_max_scan_hosts_reached ()
  *
  * @return Number of identified alive hosts.
  * */
-static int
+int
 get_alive_hosts_count ()
 {
   return scan_restrictions.alive_hosts_count;
@@ -185,7 +185,10 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
 
               num_not_scanned_hosts =
                 get_alive_hosts_count () - get_max_scan_hosts ();
-              send_limit_msg (num_not_scanned_hosts);
+              if (0 != num_not_scanned_hosts)
+                {
+                  send_limit_msg (num_not_scanned_hosts);
+                }
             }
           g_debug ("%s: Boreas already finished scanning and we reached the "
                    "end of the Queue of alive hosts.",
@@ -198,17 +201,18 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
       else
         {
           host = gvm_host_from_str (host_str);
-          g_free (host_str);
 
           if (!host)
             {
               g_warning ("%s: Could not transform IP string \"%s\" into "
                          "internal representation.",
                          __func__, host_str);
+              g_free (host_str);
               return NULL;
             }
           else
             {
+              g_free (host_str);
               return host;
             }
         }
@@ -221,21 +225,71 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
  * @param kb KB to use.
  * @param addr_str IP addr in str representation to put on queue.
  */
-static void
+void
 put_host_on_queue (kb_t kb, char *addr_str)
 {
-  /* Print host on command line if no kb is available. No kb available could
-   * mean that boreas is used as commandline tool.*/
-  if (NULL == kb)
-    {
-      g_printf ("%s\n", addr_str);
-      return;
-    }
-
   if (kb_item_push_str (kb, ALIVE_DETECTION_QUEUE, addr_str) != 0)
     g_debug ("%s: kb_item_push_str() failed. Could not push \"%s\" on queue of "
              "hosts to be considered as alive.",
              __func__, addr_str);
+}
+
+/**
+ * @brief Checks if the finish signal is already set.
+ *
+ * @param main_kb  kb to use
+ * @return 1 if it is already set. 0 otherwise.
+ */
+int
+finish_signal_on_queue (kb_t main_kb)
+{
+  static gboolean fin_msg_already_on_queue = FALSE;
+  struct kb_item *queue_items = NULL;
+  int ret = 0;
+
+  if (fin_msg_already_on_queue)
+    return 1;
+
+  /* Check if it was already set through the whole items under the key.
+     If so, set the static variable to avoid querying redis unnecessarily. */
+  queue_items = kb_item_get_all (main_kb, ALIVE_DETECTION_QUEUE);
+  if (queue_items)
+    {
+      while (queue_items)
+        {
+          if (!g_strcmp0 (queue_items->v_str, ALIVE_DETECTION_FINISHED))
+            {
+              fin_msg_already_on_queue = TRUE;
+              ret = 1;
+            }
+          queue_items = queue_items->next;
+        }
+      kb_item_free (queue_items);
+    }
+  return ret;
+}
+
+/**
+ * @brief Reallocate finish signal in last position of the alive detection
+ * queue.
+ *
+ * @param main_kb  kb to use
+ */
+void
+realloc_finish_signal_on_queue (kb_t main_kb)
+{
+  int kb_item_push_str_err, pos;
+
+  /* The alive test queue is a FIFO queue. Alive hosts are taken from the
+   * right side of the queue. Therefore the finish signal is put in the
+   * left end of queue, being the last item to be fetch.*/
+  pos = 1;
+  kb_item_push_str_err = kb_item_add_str_unique (
+    main_kb, ALIVE_DETECTION_QUEUE, ALIVE_DETECTION_FINISHED, 0, pos);
+  if (kb_item_push_str_err)
+    g_debug ("%s: Could not push the Boreas finish signal on the alive "
+             "detection Queue.",
+             __func__);
 }
 
 /**
@@ -299,7 +353,7 @@ put_finish_signal_on_queue (void *error)
  * scan limit.
  */
 void
-init_scan_restrictions (struct scanner *scanner, int max_scan_hosts)
+init_scan_restrictions (scanner_t *scanner, int max_scan_hosts)
 {
   scan_restrictions.alive_hosts_count = 0;
   scan_restrictions.max_scan_hosts_reached = FALSE;
@@ -320,12 +374,24 @@ init_scan_restrictions (struct scanner *scanner, int max_scan_hosts)
  * @param add_str Host address string to put on queue.
  */
 void
-handle_scan_restrictions (struct scanner *scanner, gchar *addr_str)
+handle_scan_restrictions (scanner_t *scanner, gchar *addr_str)
 {
+  kb_t kb = scanner->main_kb;
+
   inc_alive_hosts_count ();
   /* Put alive hosts on queue as long as max_scan_hosts not reached. */
   if (!max_scan_hosts_reached ())
-    put_host_on_queue (scanner->main_kb, addr_str);
+    {
+      /* Print host on command line if no kb is available. No kb available could
+       * mean that boreas is used as commandline tool.*/
+      if (kb != NULL)
+        put_host_on_queue (kb, addr_str);
+      else
+        {
+          if (scanner->print_results == 1)
+            g_printf ("%s\n", addr_str);
+        }
+    }
 
   /* Set max_scan_hosts_reached if not already set and max_scan_hosts was
    * reached. */

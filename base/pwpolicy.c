@@ -1,4 +1,4 @@
-/* Copyright (C) 2013-2019 Greenbone Networks GmbH
+/* Copyright (C) 2013-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -42,7 +42,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "base plcy"
+#define G_LOG_DOMAIN "libgvm base"
 
 /**
  * @brief The name of the pattern file

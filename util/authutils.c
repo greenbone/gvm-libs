@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2019 Greenbone Networks GmbH
+/* Copyright (C) 2009-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -31,7 +31,7 @@
 /**
  * @brief GLib logging domain.
  */
-#define G_LOG_DOMAIN "lib  auth"
+#define G_LOG_DOMAIN "libgvm util"
 
 /**
  * @brief Array of string representations of the supported authentication

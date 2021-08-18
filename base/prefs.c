@@ -1,4 +1,4 @@
-/* Copyright (C) 2014-2019 Greenbone Networks GmbH
+/* Copyright (C) 2014-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -32,6 +32,12 @@
 #include <stdlib.h> /* for atoi() */
 #include <string.h> /* for strlen() */
 
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "libgvm base"
+
 static GHashTable *global_prefs = NULL;
 
 void
@@ -60,6 +66,20 @@ prefs_init (void)
   prefs_set ("open_sock_max_attempts", "5");
   prefs_set ("time_between_request", "0");
   prefs_set ("nasl_no_signature_check", "yes");
+  prefs_set ("max_hosts", "30");
+  prefs_set ("max_checks", "10");
+  prefs_set ("log_whole_attack", "no");
+  prefs_set ("log_plugins_name_at_load", "no");
+  prefs_set ("optimize_test", "yes");
+  prefs_set ("non_simult_ports", "139, 445, 3389, Services/irc");
+  prefs_set ("safe_checks", "yes");
+  prefs_set ("auto_enable_dependencies", "yes");
+  prefs_set ("drop_privileges", "no");
+  prefs_set ("report_host_details", "yes");
+  prefs_set ("vendor_version", "\0");
+  prefs_set ("test_alive_hosts_only", "yes");
+  prefs_set ("debug_tls", "0");
+  prefs_set ("allow_simultaneous_ips", "yes");
 }
 
 /**

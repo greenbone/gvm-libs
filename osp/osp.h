@@ -1,4 +1,4 @@
-/* Copyright (C) 2014-2019 Greenbone Networks GmbH
+/* Copyright (C) 2014-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -207,6 +207,10 @@ osp_target_set_finished_hosts (osp_target_t *, const char *);
 
 void
 osp_target_free (osp_target_t *);
+
+void
+osp_target_add_alive_test_methods (osp_target_t *, gboolean, gboolean, gboolean,
+                                   gboolean, gboolean);
 
 void
 osp_target_add_credential (osp_target_t *, osp_credential_t *);

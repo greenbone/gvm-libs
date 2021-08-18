@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -35,7 +35,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "alive scan"
+#define G_LOG_DOMAIN "libgvm boreas"
 
 /* for using int value in #defined string */
 #define STR(X) #X
@@ -132,12 +132,12 @@ got_packet (u_char *user_data,
 {
   struct ip *ip;
   unsigned int version;
-  struct scanner *scanner;
+  scanner_t *scanner;
   hosts_data_t *hosts_data;
 
   ip = (struct ip *) (packet + 16);
   version = ip->ip_v;
-  scanner = (struct scanner *) user_data;
+  scanner = (scanner_t *) user_data;
   hosts_data = (hosts_data_t *) scanner->hosts_data;
 
   if (version == 4)
@@ -224,7 +224,7 @@ static void *
 sniffer_thread (void *scanner_p)
 {
   int ret;
-  struct scanner *scanner = (struct scanner *) scanner_p;
+  scanner_t *scanner = (scanner_t *) scanner_p;
 
   pthread_mutex_lock (&mutex);
   pthread_cond_signal (&cond);
@@ -254,7 +254,7 @@ sniffer_thread (void *scanner_p)
  * @return 0 on success, other on Error.
  */
 int
-stop_sniffer_thread (struct scanner *scanner, pthread_t sniffer_thread_id)
+stop_sniffer_thread (scanner_t *scanner, pthread_t sniffer_thread_id)
 {
   int err;
   void *retval;
@@ -305,7 +305,7 @@ stop_sniffer_thread (struct scanner *scanner, pthread_t sniffer_thread_id)
  * @return 0 on success, other on Error.
  */
 int
-start_sniffer_thread (struct scanner *scanner, pthread_t *sniffer_thread_id)
+start_sniffer_thread (scanner_t *scanner, pthread_t *sniffer_thread_id)
 {
   int err;
 

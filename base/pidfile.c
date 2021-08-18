@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2019 Greenbone Networks GmbH
+/* Copyright (C) 2009-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -32,11 +32,11 @@
 #include <string.h>      /* for strerror */
 #include <unistd.h>      /* for getpid */
 
+#undef G_LOG_DOMAIN
 /**
  * @brief GLib log domain.
  */
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "base pidfile"
+#define G_LOG_DOMAIN "libgvm base"
 
 /**
  * @brief Create a PID-file.

@@ -1,4 +1,4 @@
-/* Copyright (C) 2010-2019 Greenbone Networks GmbH
+/* Copyright (C) 2010-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -27,6 +27,12 @@
 #include "strings.h" /* for gvm_append_text */
 
 #include <string.h>
+
+#undef G_LOG_DOMAIN
+/**
+ * @brief GLib log domain.
+ */
+#define G_LOG_DOMAIN "libgvm base"
 
 /**
  * @brief Free credentials.

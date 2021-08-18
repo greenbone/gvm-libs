@@ -1,4 +1,4 @@
-/* Copyright (C) 2013-2019 Greenbone Networks GmbH
+/* Copyright (C) 2013-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -46,7 +46,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "base hosts"
+#define G_LOG_DOMAIN "libgvm base"
 
 /* Static variables */
 
@@ -454,7 +454,7 @@ is_hostname (const char *str)
 
   point = split;
   while (*point)
-    if (g_regex_match_simple ("^(?!-)[a-z0-9-]{1,63}(?<!-)$", *point,
+    if (g_regex_match_simple ("^(?!-)[a-z0-9_-]{1,63}(?<!-)$", *point,
                               G_REGEX_CASELESS, 0)
         == 0)
       {
@@ -928,7 +928,7 @@ gvm_host_new ()
  *
  * @param[in] host  Host to free.
  */
-static void
+void
 gvm_host_free (gpointer host)
 {
   gvm_host_t *h = host;
@@ -957,6 +957,8 @@ gvm_hosts_add (gvm_hosts_t *hosts, gvm_host_t *host)
       hosts->max_size *= 4;
       hosts->hosts =
         g_realloc_n (hosts->hosts, hosts->max_size, sizeof (*hosts->hosts));
+      memset (hosts->hosts + hosts->count, '\0',
+              (hosts->max_size - hosts->count) * sizeof (gvm_host_t *));
     }
   hosts->hosts[hosts->count] = host;
   hosts->count++;
@@ -1298,6 +1300,39 @@ gvm_hosts_next (gvm_hosts_t *hosts)
     return NULL;
 
   return hosts->hosts[hosts->current++];
+}
+
+/**
+ * @brief Move the current gvm_host_t from a gvm_hosts_t structure to
+ * the end of the hosts list.
+ *
+ * @param[in/out]   hosts     gvm_hosts_t structure which hosts must be
+ * rearange. The hosts->current index points to the last used hosts and
+ * gvm_hosts_next() must be called to get the next host in the list.
+ *
+ */
+void
+gvm_hosts_move_current_host_to_end (gvm_hosts_t *hosts)
+{
+  void *host_tmp;
+  size_t i;
+
+  if (!hosts)
+    return;
+
+  if (hosts->current == hosts->count)
+    {
+      hosts->current -= 1;
+      return;
+    }
+
+  hosts->current -= 1;
+  host_tmp = hosts->hosts[hosts->current];
+
+  for (i = hosts->current; i < hosts->count; i++)
+    hosts->hosts[i - 1] = hosts->hosts[i];
+
+  hosts->hosts[hosts->count - 1] = host_tmp;
 }
 
 /**
@@ -1899,6 +1934,59 @@ gvm_hosts_duplicated (const gvm_hosts_t *hosts)
 }
 
 /**
+ * @brief  Find the gvm_host_t from a gvm_hosts_t structure.
+ *
+ * @param[in] host  The host object.
+ * @param[in] addr  Optional pointer to ip address. Could be used so that host
+ *                  isn't resolved multiple times when type is HOST_TYPE_NAME.
+ * @param[in] hosts Hosts collection.
+ *
+ * @return Pointer to host if found. NULL if error or host not found
+ */
+gvm_host_t *
+gvm_host_find_in_hosts (const gvm_host_t *host, const struct in6_addr *addr,
+                        const gvm_hosts_t *hosts)
+{
+  char *host_str;
+  size_t i;
+
+  if (host == NULL || hosts == NULL)
+    return NULL;
+
+  host_str = gvm_host_value_str (host);
+
+  for (i = 0; i < hosts->count; i++)
+    {
+      gvm_host_t *current_host = hosts->hosts[i];
+      char *tmp = gvm_host_value_str (current_host);
+
+      if (strcasecmp (host_str, tmp) == 0)
+        {
+          g_free (host_str);
+          g_free (tmp);
+          return current_host;
+        }
+      g_free (tmp);
+
+      /* Hostnames in hosts list shouldn't be resolved. */
+      if (addr && gvm_host_type (current_host) != HOST_TYPE_NAME)
+        {
+          struct in6_addr tmpaddr;
+          gvm_host_get_addr6 (current_host, &tmpaddr);
+
+          if (memcmp (addr->s6_addr, &tmpaddr.s6_addr, 16) == 0)
+            {
+              g_free (host_str);
+              return current_host;
+            }
+        }
+    }
+
+  g_free (host_str);
+  return NULL;
+}
+
+/**
  * @brief Returns whether a host has an equal host in a hosts collection.
  * eg. 192.168.10.1 has an equal in list created from
  * "192.168.10.1-5, 192.168.10.10-20" string while 192.168.10.7 doesn't.
@@ -1914,42 +2002,9 @@ int
 gvm_host_in_hosts (const gvm_host_t *host, const struct in6_addr *addr,
                    const gvm_hosts_t *hosts)
 {
-  char *host_str;
-  size_t i;
+  if (gvm_host_find_in_hosts (host, addr, hosts))
+    return 1;
 
-  if (host == NULL || hosts == NULL)
-    return 0;
-
-  host_str = gvm_host_value_str (host);
-
-  for (i = 0; i < hosts->count; i++)
-    {
-      gvm_host_t *current_host = hosts->hosts[i];
-      char *tmp = gvm_host_value_str (current_host);
-
-      if (strcasecmp (host_str, tmp) == 0)
-        {
-          g_free (host_str);
-          g_free (tmp);
-          return 1;
-        }
-      g_free (tmp);
-
-      /* Hostnames in hosts list shouldn't be resolved. */
-      if (addr && gvm_host_type (current_host) != HOST_TYPE_NAME)
-        {
-          struct in6_addr tmpaddr;
-          gvm_host_get_addr6 (current_host, &tmpaddr);
-
-          if (memcmp (addr->s6_addr, &tmpaddr.s6_addr, 16) == 0)
-            {
-              g_free (host_str);
-              return 1;
-            }
-        }
-    }
-
-  g_free (host_str);
   return 0;
 }
 

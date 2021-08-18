@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -19,22 +19,21 @@
 
 #include "ping.h"
 
-#include "../base/networking.h" /* for gvm_routethrough() */
+#include "arp.h"
 #include "util.h"
 
 #include <arpa/inet.h>
 #include <errno.h>
 #include <glib.h>
 #include <ifaddrs.h> /* for getifaddrs() */
-#include <net/ethernet.h>
-#include <net/if.h> /* for if_nametoindex() */
+#include <linux/sockios.h>
 #include <netinet/icmp6.h>
 #include <netinet/in.h>
 #include <netinet/ip6.h>
 #include <netinet/ip_icmp.h>
 #include <netinet/tcp.h>
-#include <netpacket/packet.h> /* for sockaddr_ll */
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -44,7 +43,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "alive scan"
+#define G_LOG_DOMAIN "libgvm boreas"
 
 struct v6pseudohdr
 {
@@ -68,18 +67,72 @@ struct pseudohdr
   struct tcphdr tcpheader;
 };
 
-struct arp_hdr
+/**
+ * @brief Get the size of the socket send buffer.
+ *
+ * @param[in]   soc         The socket to get the send buffer for.
+ * @param[out]  so_sndbuf   The size of the send buffer.
+ *
+ * @return 0 on success, -1 on error. so_sndbuf is set to -1 on error.
+ */
+static int
+get_so_sndbuf (int soc, int *so_sndbuf)
 {
-  uint16_t htype;
-  uint16_t ptype;
-  uint8_t hlen;
-  uint8_t plen;
-  uint16_t opcode;
-  uint8_t sender_mac[6];
-  uint8_t sender_ip[4];
-  uint8_t target_mac[6];
-  uint8_t target_ip[4];
-};
+  unsigned int optlen = sizeof (*so_sndbuf);
+  if (getsockopt (soc, SOL_SOCKET, SO_SNDBUF, (void *) so_sndbuf, &optlen)
+      == -1)
+    {
+      g_warning ("%s: getsockopt error: %s", __func__, strerror (errno));
+      *so_sndbuf = -1;
+      return -1;
+    }
+  return 0;
+}
+
+/**
+ * @brief Wait until output queue is small enough for sending new packets.
+ *
+ * If calls to ioctl fail in this function we might not throttle as expected
+ * and only delay by a fixed amount of time.
+ *
+ * @param soc       Socket.
+ * @param so_sndbuf Size of the socket send buffer we do not want to exceed.
+ */
+static void
+throttle (int soc, int so_sndbuf)
+{
+  // g_warning ("%s: so_sndbuf %d", __func__, so_sndbuf);
+  int cur_so_sendbuf = -1;
+
+  /* Get the current size of the output queue size */
+  if (ioctl (soc, SIOCOUTQ, &cur_so_sendbuf) == -1)
+    {
+      g_warning ("%s: ioctl error: %s", __func__, strerror (errno));
+      usleep (100000);
+      return;
+    }
+
+  /* If setting of so_sndbuf or cur_so_sendbuf failed we do not enter the
+   * throttling loop. Normally this should not occur but we really do not want
+   * to get into an infinite loop here. */
+  if (cur_so_sendbuf != -1 && so_sndbuf != -1)
+    {
+      /* Wait until output queue is empty enough. */
+      while (cur_so_sendbuf >= so_sndbuf)
+        {
+          usleep (100000);
+          if (ioctl (soc, SIOCOUTQ, &cur_so_sendbuf) == -1)
+            {
+              g_warning ("%s: ioctl error: %s", __func__, strerror (errno));
+              usleep (100000);
+              /* Do not risk getting into infinite loop */
+              return;
+            }
+        }
+    }
+
+  return;
+}
 
 /**
  * @brief Send icmp ping.
@@ -97,6 +150,10 @@ send_icmp_v6 (int soc, struct in6_addr *dst, int type)
   int datalen = 56;
   struct icmp6_hdr *icmp6;
 
+  /* Throttling related variables */
+  static int so_sndbuf = -1; // socket send buffer
+  static int init = -1;
+
   icmp6 = (struct icmp6_hdr *) sendbuf;
   icmp6->icmp6_type = type; /* ND_NEIGHBOR_SOLICIT or ICMP6_ECHO_REQUEST */
   icmp6->icmp6_code = 0;
@@ -111,6 +168,15 @@ send_icmp_v6 (int soc, struct in6_addr *dst, int type)
   memset (&soca, 0, sizeof (struct sockaddr_in6));
   soca.sin6_family = AF_INET6;
   soca.sin6_addr = *dst;
+
+  /* Get size of empty SO_SNDBUF */
+  if (init == -1)
+    {
+      if (get_so_sndbuf (soc, &so_sndbuf) == 0)
+        init = 1;
+    }
+  /* Throttle speed if needed */
+  throttle (soc, so_sndbuf);
 
   if (sendto (soc, sendbuf, len, MSG_NOSIGNAL, (struct sockaddr *) &soca,
               sizeof (struct sockaddr_in6))
@@ -137,6 +203,10 @@ send_icmp_v4 (int soc, struct in_addr *dst)
   int datalen = 56;
   struct icmphdr *icmp;
 
+  /* Throttling related variables */
+  static int so_sndbuf = -1; // socket send buffer
+  static int init = -1;
+
   icmp = (struct icmphdr *) sendbuf;
   icmp->type = ICMP_ECHO;
   icmp->code = 0;
@@ -148,6 +218,15 @@ send_icmp_v4 (int soc, struct in_addr *dst)
   memset (&soca, 0, sizeof (soca));
   soca.sin_family = AF_INET;
   soca.sin_addr = *dst;
+
+  /* Get size of empty SO_SNDBUF */
+  if (init == -1)
+    {
+      if (get_so_sndbuf (soc, &so_sndbuf) == 0)
+        init = 1;
+    }
+  /* Throttle speed if needed */
+  throttle (soc, so_sndbuf);
 
   if (sendto (soc, sendbuf, len, MSG_NOSIGNAL, (const struct sockaddr *) &soca,
               sizeof (struct sockaddr_in))
@@ -168,14 +247,14 @@ send_icmp_v4 (int soc, struct in_addr *dst)
 void
 send_icmp (gpointer key, gpointer value, gpointer scanner_p)
 {
-  struct scanner *scanner;
+  scanner_t *scanner;
   struct in6_addr dst6;
   struct in6_addr *dst6_p = &dst6;
   struct in_addr dst4;
   struct in_addr *dst4_p = &dst4;
   static int count = 0;
 
-  scanner = (struct scanner *) scanner_p;
+  scanner = (scanner_t *) scanner_p;
 
   if (g_hash_table_contains (scanner->hosts_data->alivehosts, key))
     return;
@@ -210,11 +289,15 @@ send_icmp (gpointer key, gpointer value, gpointer scanner_p)
  * @param tcp_flag  TH_SYN or TH_ACK.
  */
 static void
-send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p)
+send_tcp_v6 (scanner_t *scanner, struct in6_addr *dst_p)
 {
   boreas_error_t error;
   struct sockaddr_in6 soca;
   struct in6_addr src;
+
+  /* Throttling related variables */
+  static int so_sndbuf = -1; // socket send buffer
+  static int init = -1;
 
   GArray *ports = scanner->ports;
   int *udpv6soc = &(scanner->udpv6soc);
@@ -285,6 +368,16 @@ send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p)
       memset (&soca, 0, sizeof (soca));
       soca.sin6_family = AF_INET6;
       soca.sin6_addr = ip->ip6_dst;
+
+      /* Get size of empty SO_SNDBUF */
+      if (init == -1)
+        {
+          if (get_so_sndbuf (soc, &so_sndbuf) == 0)
+            init = 1;
+        }
+      /* Throttle speed if needed */
+      throttle (soc, so_sndbuf);
+
       /*  TCP_HDRLEN(20) IP6_HDRLEN(40) */
       if (sendto (soc, (const void *) ip, 40 + 20, MSG_NOSIGNAL,
                   (struct sockaddr *) &soca, sizeof (struct sockaddr_in6))
@@ -302,11 +395,15 @@ send_tcp_v6 (struct scanner *scanner, struct in6_addr *dst_p)
  * @param dst Destination address to send to.
  */
 static void
-send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
+send_tcp_v4 (scanner_t *scanner, struct in_addr *dst_p)
 {
   boreas_error_t error;
   struct sockaddr_in soca;
   struct in_addr src;
+
+  /* Throttling related variables */
+  static int so_sndbuf = -1; // socket send buffer
+  static int init = -1;
 
   int soc = scanner->tcpv4soc;          /* Socket used for sending. */
   GArray *ports = scanner->ports;       /* Ports to ping. */
@@ -382,6 +479,16 @@ send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
       memset (&soca, 0, sizeof (soca));
       soca.sin_family = AF_INET;
       soca.sin_addr = ip->ip_dst;
+
+      /* Get size of empty SO_SNDBUF */
+      if (init == -1)
+        {
+          if (get_so_sndbuf (soc, &so_sndbuf) == 0)
+            init = 1;
+        }
+      /* Throttle speed if needed */
+      throttle (soc, so_sndbuf);
+
       if (sendto (soc, (const void *) ip, 40, MSG_NOSIGNAL,
                   (struct sockaddr *) &soca, sizeof (soca))
           < 0)
@@ -402,14 +509,14 @@ send_tcp_v4 (struct scanner *scanner, struct in_addr *dst_p)
 void
 send_tcp (gpointer key, gpointer value, gpointer scanner_p)
 {
-  struct scanner *scanner;
+  scanner_t *scanner;
   struct in6_addr dst6;
   struct in6_addr *dst6_p = &dst6;
   struct in_addr dst4;
   struct in_addr *dst4_p = &dst4;
   static int count = 0;
 
-  scanner = (struct scanner *) scanner_p;
+  scanner = (scanner_t *) scanner_p;
 
   if (g_hash_table_contains (scanner->hosts_data->alivehosts, key))
     return;
@@ -437,140 +544,24 @@ send_tcp (gpointer key, gpointer value, gpointer scanner_p)
 }
 
 /**
- * @brief Send arp ping.
- *
- * @param soc Socket to use for sending.
- * @param dst Destination address to send to.
- */
-static void
-send_arp_v4 (int soc, struct in_addr *dst_p)
-{
-  struct sockaddr_ll soca;
-  struct arp_hdr arphdr;
-  int frame_length;
-  uint8_t *ether_frame;
-
-  static gboolean first_time_setup_done = FALSE;
-  static struct in_addr src;
-  static int ifaceindex;
-  static uint8_t src_mac[6];
-  static uint8_t dst_mac[6];
-
-  memset (&soca, 0, sizeof (soca));
-
-  /* Set up data which does not change between function calls. */
-  if (!first_time_setup_done)
-    {
-      struct sockaddr_storage storage_src;
-      struct sockaddr_storage storage_dst;
-      struct sockaddr_in sin_src;
-      struct sockaddr_in sin_dst;
-
-      memset (&sin_src, 0, sizeof (struct sockaddr_in));
-      memset (&sin_dst, 0, sizeof (struct sockaddr_in));
-      sin_src.sin_family = AF_INET;
-      sin_dst.sin_family = AF_INET;
-      sin_dst.sin_addr = *dst_p;
-      memcpy (&storage_dst, &sin_dst, sizeof (sin_dst));
-      memcpy (&storage_dst, &sin_src, sizeof (sin_src));
-
-      /* Get interface and set src addr. */
-      gchar *interface = gvm_routethrough (&storage_dst, &storage_src);
-      memcpy (&src, &((struct sockaddr_in *) (&storage_src))->sin_addr,
-              sizeof (struct in_addr));
-      g_warning ("%s: %s", __func__, inet_ntoa (src));
-
-      if (!interface)
-        g_warning ("%s: no appropriate interface was found", __func__);
-      g_debug ("%s: interface to use: %s", __func__, interface);
-
-      /* Get interface index for sockaddr_ll. */
-      if ((ifaceindex = if_nametoindex (interface)) == 0)
-        g_warning ("%s: if_nametoindex: %s", __func__, strerror (errno));
-
-      /* Set MAC addresses. */
-      memset (src_mac, 0, 6 * sizeof (uint8_t));
-      memset (dst_mac, 0xff, 6 * sizeof (uint8_t));
-      if (get_source_mac_addr (interface, (unsigned char *) src_mac) != 0)
-        g_warning ("%s: get_source_mac_addr() returned error", __func__);
-
-      g_debug ("%s: Source MAC address: %02x:%02x:%02x:%02x:%02x:%02x",
-               __func__, src_mac[0], src_mac[1], src_mac[2], src_mac[3],
-               src_mac[4], src_mac[5]);
-      g_debug ("%s: Destination mac address: %02x:%02x:%02x:%02x:%02x:%02x",
-               __func__, dst_mac[0], dst_mac[1], dst_mac[2], dst_mac[3],
-               dst_mac[4], dst_mac[5]);
-
-      first_time_setup_done = TRUE;
-    }
-
-  /* Fill in sockaddr_ll.*/
-  soca.sll_ifindex = ifaceindex;
-  soca.sll_family = AF_PACKET;
-  memcpy (soca.sll_addr, src_mac, 6 * sizeof (uint8_t));
-  soca.sll_halen = 6;
-
-  /* Fill ARP header.*/
-  /* IP addresses. */
-  memcpy (&arphdr.target_ip, dst_p, 4 * sizeof (uint8_t));
-  memcpy (&arphdr.sender_ip, &src, 4 * sizeof (uint8_t));
-  /* Hardware type ethernet.
-   * Protocol type IP.
-   * Hardware address length is MAC address length.
-   * Protocol address length is length of IPv4.
-   * OpCode is ARP request. */
-  arphdr.htype = htons (1);
-  arphdr.ptype = htons (ETH_P_IP);
-  arphdr.hlen = 6;
-  arphdr.plen = 4;
-  arphdr.opcode = htons (1);
-  memcpy (&arphdr.sender_mac, src_mac, 6 * sizeof (uint8_t));
-  memset (&arphdr.target_mac, 0, 6 * sizeof (uint8_t));
-
-  /* Ethernet frame to send. */
-  ether_frame = g_malloc0 (IP_MAXPACKET);
-  /* (MAC + MAC + ethernet type + ARP_HDRLEN) */
-  frame_length = 6 + 6 + 2 + 28;
-
-  memcpy (ether_frame, dst_mac, 6 * sizeof (uint8_t));
-  memcpy (ether_frame + 6, src_mac, 6 * sizeof (uint8_t));
-  /* ethernet type code */
-  ether_frame[12] = ETH_P_ARP / 256;
-  ether_frame[13] = ETH_P_ARP % 256;
-  /* ARP header.  ETH_HDRLEN = 14, ARP_HDRLEN = 28 */
-  memcpy (ether_frame + 14, &arphdr, 28 * sizeof (uint8_t));
-
-  if ((sendto (soc, ether_frame, frame_length, MSG_NOSIGNAL,
-               (struct sockaddr *) &soca, sizeof (soca)))
-      <= 0)
-    g_warning ("%s: sendto(): %s", __func__, strerror (errno));
-
-  g_free (ether_frame);
-
-  return;
-}
-
-/**
  * @brief Is called in g_hash_table_foreach(). Check if ipv6 or ipv4, get
  * correct socket and start appropriate ping function.
  *
- * @param key Ip string.
+ * @param host_value_str Ip string.
  * @param value Pointer to gvm_host_t.
  * @param scanner_p Pointer to scanner struct.
  */
 void
-send_arp (gpointer key, gpointer value, gpointer scanner_p)
+send_arp (gpointer host_value_str, gpointer value, gpointer scanner_p)
 {
-  struct scanner *scanner;
+  scanner_t *scanner;
   struct in6_addr dst6;
   struct in6_addr *dst6_p = &dst6;
-  struct in_addr dst4;
-  struct in_addr *dst4_p = &dst4;
   static int count = 0;
 
-  scanner = (struct scanner *) scanner_p;
+  scanner = (scanner_t *) scanner_p;
 
-  if (g_hash_table_contains (scanner->hosts_data->alivehosts, key))
+  if (g_hash_table_contains (scanner->hosts_data->alivehosts, host_value_str))
     return;
 
   count++;
@@ -592,7 +583,18 @@ send_arp (gpointer key, gpointer value, gpointer scanner_p)
     }
   else
     {
-      dst4.s_addr = dst6_p->s6_addr32[3];
-      send_arp_v4 (scanner->arpv4soc, dst4_p);
+      char ipv4_str[INET_ADDRSTRLEN];
+
+      /* Need to transform the IPv6 mapped IPv4 address back to an IPv4 string.
+       * We can not just use the host_value_str as it might be an IPv4 mapped
+       * IPv6 string. */
+      if (inet_ntop (AF_INET, &(dst6_p->s6_addr32[3]), ipv4_str,
+                     sizeof (ipv4_str))
+          == NULL)
+        {
+          g_warning ("%s: Error: %s. Skipping ARP ping for '%s'", __func__,
+                     strerror (errno), (char *) host_value_str);
+        }
+      send_arp_v4 (ipv4_str);
     }
 }

@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2019 Greenbone Networks GmbH
+# Copyright (C) 2016-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -51,7 +51,7 @@ pkg_check_modules (REDIS REQUIRED hiredis>=0.10.1)
 pkg_check_modules (LIBXML2 REQUIRED libxml-2.0>=2.0)
 
 #for gpgmeutils we need libgpgme
-set (GPGME_MIN_VERSION "1.1.2")
+set (GPGME_MIN_VERSION "1.7.0")
 message (STATUS "Looking for gpgme...")
 find_library (GPGME gpgme)
 if (NOT GPGME)
@@ -75,6 +75,21 @@ else (NOT GPGME)
   endif (GPGME_VERSION VERSION_LESS GPGME_MIN_VERSION)
 endif (NOT GPGME)
 
+
+message (STATUS "Looking for libcrypt...")
+find_library (CRYPT crypt)
+message (STATUS "Looking for libcrypt... ${CRYPT}")
+if (NOT CRYPT)
+message (SEND_ERROR "The libcrypt library is required.")
+else (NOT CRYPT)
+    pkg_search_module(CRYPT_M QUIET libcrypt)
+    if (DEFINED ${CRYPT_M_VERSION} AND ${CRYPT_M_VERSION} VERSION_GREATER "3.1.1")
+        message (STATUS "\t Using external crypt_gensal_r of ... ${CRYPT_M_VERSION}")
+        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DEXTERNAL_CRYPT_GENSALT_R=1")
+    endif()
+    set (CRYPT_LDFLAGS "-lcrypt")
+endif (NOT CRYPT)
+
 message (STATUS "Looking for libgcrypt...")
 find_library (GCRYPT gcrypt)
 message (STATUS "Looking for libgcrypt... ${GCRYPT}")
@@ -94,7 +109,7 @@ option (BUILD_WITH_RADIUS "Try to build with Radius support" ON)
 option (BUILD_WITH_LDAP "Try to build with LDAP support" ON)
 
 if (BUILD_WITH_RADIUS)
-  #for radiusutils we need freerdius-client library
+  #for radiusutils we need freeradius-client library
   message (STATUS "Looking for freeradius-client library...")
   find_library (LIBFREERADIUS freeradius-client)
   if (NOT LIBFREERADIUS)
@@ -140,11 +155,11 @@ endif()
 include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS}
                      ${LIBXML2_INCLUDE_DIRS})
 
-set (FILES authutils.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
+set (FILES passwordbasedauthentication.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
            nvticache.c radiusutils.c serverutils.c sshutils.c uuidutils.c
            xmlutils.c)
 
-set (HEADERS authutils.h compressutils.h fileutils.h gpgmeutils.h kb.h
+set (HEADERS passwordbasedauthentication.h authutils.h compressutils.h fileutils.h gpgmeutils.h kb.h
              ldaputils.h nvticache.h radiusutils.h serverutils.h sshutils.h
              uuidutils.h xmlutils.h)
 
@@ -168,13 +183,30 @@ if (BUILD_SHARED)
                          ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
                          ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
                          ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
-                         ${LINKER_HARDENING_FLAGS})
+                         ${LINKER_HARDENING_FLAGS} ${CRYPT_LDFLAGS})
 endif (BUILD_SHARED)
 
 
 ## Tests
 
 if (BUILD_TESTS)
+  add_executable (passwordbasedauthentication-test
+                  EXCLUDE_FROM_ALL
+                  passwordbasedauthentication_tests.c)
+
+  add_test (passwordbasedauthentication-test passwordbasedauthentication-test)
+
+  target_include_directories (passwordbasedauthentication-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (passwordbasedauthentication-test ${CGREEN_LIBRARIES}
+                        ${BSD_LDFLAGS}
+                        ${GCRYPT_LDFLAGS}
+                        ${CRYPT_LDFLAGS}
+                        ${GLIB_LDFLAGS})
+
+  add_custom_target (tests-passwordbasedauthentication
+                    DEPENDS passwordbasedauthentication-test)
+
   add_executable (xmlutils-test
                   EXCLUDE_FROM_ALL
                   xmlutils_tests.c)

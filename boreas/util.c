@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2021 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -24,11 +24,13 @@
 #include <errno.h>
 #include <glib.h>
 #include <ifaddrs.h> /* for getifaddrs() */
+#include <linux/sockios.h>
 #include <net/ethernet.h>
 #include <net/if.h>           /* for if_nametoindex() */
 #include <netpacket/packet.h> /* for sockaddr_ll */
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -36,7 +38,7 @@
 /**
  * @brief GLib log domain.
  */
-#define G_LOG_DOMAIN "alive scan"
+#define G_LOG_DOMAIN "libgvm boreas"
 
 static boreas_error_t
 set_socket (socket_type_t, int *);
@@ -308,7 +310,6 @@ fill_ports_array (gpointer range, gpointer ports_array)
     }
   else
     {
-
       for (i = range_start; i <= range_end; i++)
         {
           port_sized = (uint16_t) i;
@@ -318,7 +319,7 @@ fill_ports_array (gpointer range, gpointer ports_array)
 }
 
 boreas_error_t
-close_all_needed_sockets (struct scanner *scanner, alive_test_t alive_test)
+close_all_needed_sockets (scanner_t *scanner, alive_test_t alive_test)
 {
   boreas_error_t error;
 
@@ -416,7 +417,7 @@ static boreas_error_t
 set_socket (socket_type_t socket_type, int *scanner_socket)
 {
   boreas_error_t error = NO_ERROR;
-  int soc;
+  int soc = -1;
   switch (socket_type)
     {
     case UDPV4:
@@ -550,7 +551,7 @@ set_socket (socket_type_t socket_type, int *scanner_socket)
  * @return  0 on success, boreas_error_t on error.
  */
 boreas_error_t
-set_all_needed_sockets (struct scanner *scanner, alive_test_t alive_test)
+set_all_needed_sockets (scanner_t *scanner, alive_test_t alive_test)
 {
   boreas_error_t error = NO_ERROR;
   if (alive_test & ALIVE_TEST_ICMP)
@@ -613,4 +614,46 @@ count_difference (GHashTable *hashtable_A, GHashTable *hashtable_B)
     }
 
   return count;
+}
+
+/**
+ * @brief Check if socket send buffer is empty.
+ *
+ * @param[in] soc Socket.
+ * @param[out] err Set to -1 on error.
+ *
+ * @return 1 if so_sndbug is empyt, else 0.
+ */
+static int
+so_sndbuf_empty (int soc, int *err)
+{
+  int cur_so_sendbuf = -1;
+  if (ioctl (soc, SIOCOUTQ, &cur_so_sendbuf) == -1)
+    {
+      g_warning ("%s: ioctl error: %s", __func__, strerror (errno));
+      *err = -1;
+      return 0;
+    }
+  return cur_so_sendbuf ? 0 : 1;
+}
+
+/**
+ * @brief Wait until socket send buffer empty or timeout reached.
+ *
+ * @param soc     Socket.
+ * @param timeout Timeout in seconds.
+ */
+void
+wait_until_so_sndbuf_empty (int soc, int timeout)
+{
+  int cnt = 0;
+  int err = 0;
+  int empty;
+
+  empty = so_sndbuf_empty (soc, &err);
+  for (; !empty && (err != -1) && (cnt / 10 != timeout);
+       empty = so_sndbuf_empty (soc, &err), cnt++)
+    {
+      usleep (100000);
+    }
 }
