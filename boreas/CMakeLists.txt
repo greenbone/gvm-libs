@@ -61,9 +61,9 @@ set (HEADERS alivedetection.h boreas_error.h boreas_io.h cli.h ping.h sniffer.h 
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
   if(${GLIB_VERSION} VERSION_LESS "2.50.3")
     add_definitions(-D_BSD_SOURCE)
-  endif()
+  endif(${GLIB_VERSION} VERSION_LESS "2.50.3")
   add_compile_options(-std=gnu99)
-endif()
+endif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 
 if (BUILD_STATIC)
   set (LIBGVM_BOREAS_NAME gvm_boreas_static)
