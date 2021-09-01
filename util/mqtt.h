@@ -32,10 +32,10 @@ int
 mqtt_init (const char *);
 
 gboolean
-mqtt_is_initialized ();
+mqtt_is_initialized (void);
 
 void
-mqtt_reset ();
+mqtt_reset (void);
 
 int
 mqtt_publish (const char *, const char *);
