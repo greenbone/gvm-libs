@@ -201,6 +201,7 @@ mqtt_reset ()
   mqtt_client_data_destroy (&mqtt);
 
   mqtt_set_global_client (NULL);
+  mqtt_set_initialized_status (FALSE);
 
   g_debug ("%s: end", __func__);
   return;

@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Refactor MQTT handling [#562](https://github.com/greenbone/gvm-libs/pull/562)
 - Handle script timeout as script preference with ID 0 [#578](https://github.com/greenbone/gvm-libs/pull/578)
+- Set initialized to false on reset [585](https://github.com/greenbone/gvm-libs/pull/585)
 
 ### Fixed
 - Fix prototypes in mqtt.h. [#584](https://github.com/greenbone/gvm-libs/pull/584)
