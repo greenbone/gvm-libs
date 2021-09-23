@@ -70,7 +70,7 @@ RUN if ( test "$VERSION" = "master" || test "$VERSION" = "middleware" ); then \
     fi
 
 # & install cgreen for unit tests
-RUN git clone --depth 1 https://github.com/cgreen-devs/cgreen.git \
+RUN git clone --depth 1 -b 1.4.0 https://github.com/cgreen-devs/cgreen.git \
     && cd cgreen \
     && make \
     && make test \
