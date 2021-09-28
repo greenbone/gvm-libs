@@ -909,6 +909,28 @@ gvm_vhost_free (gpointer vhost)
 }
 
 /**
+ * @brief Creates a deep copy of a gvm_vhost_t object.
+ *
+ * @param vhost source vhost
+ * @param data dummy for g_slist_copy_deep
+ * @return gpointer copy of vhost
+ */
+gpointer
+gvm_duplicate_vhost (gconstpointer vhost, gpointer data)
+{
+  (void) (data);
+  gvm_vhost_t *ret = NULL;
+
+  if (!vhost)
+    return NULL;
+
+  ret = gvm_vhost_new (g_strdup (((gvm_vhost_t *) vhost)->value),
+                       g_strdup (((gvm_vhost_t *) vhost)->source));
+
+  return ret;
+}
+
+/**
  * @brief Creates a new gvm_host_t object.
  *
  * @return Pointer to new host object, NULL if creation fails.
@@ -1982,6 +2004,43 @@ gvm_host_find_in_hosts (const gvm_host_t *host, const struct in6_addr *addr,
 
   g_free (host_str);
   return NULL;
+}
+
+/**
+ * @brief Creates a deep copy of a host. gvm_host_free has to be called on it.
+ *
+ * @param host source host
+ * @return gvm_host_t* copy of host
+ */
+gvm_host_t *
+gvm_duplicate_host (gvm_host_t *host)
+{
+  gvm_host_t *ret = NULL;
+
+  if (host == NULL)
+    return NULL;
+
+  ret = gvm_host_new ();
+
+  ret->type = host->type;
+  switch (host->type)
+    {
+    case HOST_TYPE_NAME:
+      ret->name = g_strdup (host->name);
+      break;
+    case HOST_TYPE_IPV4:
+      ret->addr.s_addr = host->addr.s_addr;
+      break;
+    case HOST_TYPE_IPV6:
+      ret->addr6.__in6_u = host->addr6.__in6_u;
+      break;
+    default:
+      g_free (ret);
+      return NULL;
+    }
+  ret->vhosts = g_slist_copy_deep (host->vhosts, gvm_duplicate_vhost, NULL);
+
+  return ret;
 }
 
 /**
