@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#538](https://github.com/greenbone/gvm-libs/pull/538)
 - Add function for mqtt init status [#567](https://github.com/greenbone/gvm-libs/pull/567)
 - Add function to get the severity_vector, otherwise the cvss_base_vector. [#568](https://github.com/greenbone/gvm-libs/pull/568)
+- Add function to duplicate host and vhost objects [#590](https://github.com/greenbone/gvm-libs/pull/590)
 
 ### Changed
 
