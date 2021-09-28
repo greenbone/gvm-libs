@@ -189,6 +189,14 @@ gvm_host_add_reverse_lookup (gvm_host_t *);
 
 void gvm_host_free (gpointer);
 
+<<<<<<< HEAD
+=======
+gpointer gvm_duplicate_vhost (gconstpointer, gpointer);
+
+gvm_host_t *
+gvm_duplicate_host (gvm_host_t *);
+
+>>>>>>> 1627a84 (duplicate function for host and vhost)
 /* Miscellaneous functions */
 
 gvm_vhost_t *
