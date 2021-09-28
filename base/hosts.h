@@ -184,6 +184,13 @@ gvm_host_get_addr6 (const gvm_host_t *, struct in6_addr *);
 void
 gvm_host_add_reverse_lookup (gvm_host_t *);
 
+void gvm_host_free (gpointer);
+
+gpointer gvm_duplicate_vhost (gconstpointer, gpointer);
+
+gvm_host_t *
+gvm_duplicate_host (gvm_host_t *);
+
 /* Miscellaneous functions */
 
 gvm_vhost_t *
