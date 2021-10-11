@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Possibility to use lcrypt with `$6$` (sha512) for authentication [484](https://github.com/greenbone/gvm-libs/pull/484)
 - Add function to find and return a host from a host list. [490](https://github.com/greenbone/gvm-libs/pull/490)
+- Add function to duplicate host and vhost objects [#590](https://github.com/greenbone/gvm-libs/pull/590)
 
 ### Changed
 - Make test_alive_hosts_only (Boreas) feature the new default. [503](https://github.com/greenbone/gvm-libs/pull/503)
