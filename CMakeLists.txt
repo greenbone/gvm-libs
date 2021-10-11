@@ -22,7 +22,7 @@ message ("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
 # VERSION: Always include major, minor and patch level.
 project (gvm-libs
-  VERSION 21.4.1
+  VERSION 21.4.3
   LANGUAGES C)
 
 if (POLICY CMP0005)
@@ -87,7 +87,7 @@ endif (NOT CMAKE_BUILD_TYPE MATCHES "Release")
 
 # Set dev version if this is a development version and not a full release,
 # unset (put value 0 or delete line) before a full release and reset after.
-set (PROJECT_DEV_VERSION 0)
+set (PROJECT_DEV_VERSION 1)
 
 # If PROJECT_DEV_VERSION is set, the version string will be set to:
 #   "major.minor.patch~dev${PROJECT_DEV_VERSION}${GIT_REVISION}"
@@ -134,7 +134,7 @@ if (SYSCONF_INSTALL_DIR)
 endif (SYSCONF_INSTALL_DIR)
 
 if (NOT SYSCONFDIR)
-  set (SYSCONFDIR "${CMAKE_INSTALL_PREFIX}/etc")
+  set (SYSCONFDIR "/etc")
 endif (NOT SYSCONFDIR)
 
 if (NOT EXEC_PREFIX)
@@ -162,7 +162,7 @@ if (NOT LIBDIR)
 endif (NOT LIBDIR)
 
 if (NOT LOCALSTATEDIR)
-  set (LOCALSTATEDIR "${CMAKE_INSTALL_PREFIX}/var")
+  set (LOCALSTATEDIR "/var")
 endif (NOT LOCALSTATEDIR)
 
 if (NOT INCLUDEDIR)
@@ -173,8 +173,12 @@ if (NOT DATADIR)
   set (DATADIR "${CMAKE_INSTALL_PREFIX}/share")
 endif (NOT DATADIR)
 
+if (NOT GVM_RUN_DIR)
+  set (GVM_RUN_DIR  "/run/gvm")
+endif (NOT GVM_RUN_DIR)
+
 if (NOT GVM_PID_DIR)
-  set (GVM_PID_DIR "${LOCALSTATEDIR}/run")
+  set (GVM_PID_DIR "${GVM_RUN_DIR}")
 endif (NOT GVM_PID_DIR)
 
 if (NOT GVM_SYSCONF_DIR)

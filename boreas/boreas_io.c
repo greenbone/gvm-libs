@@ -185,7 +185,10 @@ get_host_from_queue (kb_t alive_hosts_kb, gboolean *alive_deteciton_finished)
 
               num_not_scanned_hosts =
                 get_alive_hosts_count () - get_max_scan_hosts ();
-              send_limit_msg (num_not_scanned_hosts);
+              if (0 != num_not_scanned_hosts)
+                {
+                  send_limit_msg (num_not_scanned_hosts);
+                }
             }
           g_debug ("%s: Boreas already finished scanning and we reached the "
                    "end of the Queue of alive hosts.",
