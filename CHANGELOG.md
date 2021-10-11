@@ -89,6 +89,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [20.8.4] - Unreleased
 ### Added
+- Add function to duplicate host and vhost objects [#590](https://github.com/greenbone/gvm-libs/pull/590)
 ### Changed
 * Use better defaults for installation directories [#574](https://github.com/greenbone/gvm-libs/pull/574)
     * SYSCONFDIR is /etc by default now
