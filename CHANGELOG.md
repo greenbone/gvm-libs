@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [20.8.4] - Unreleased
+## [20.8.4] - Unreleased - 2021-10-11
 ### Added
 - Add function to duplicate host and vhost objects [#592](https://github.com/greenbone/gvm-libs/pull/592)
 ### Changed
@@ -14,12 +14,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     * Introduced GVM_RUN_DIR that uses /run/gvm by default
     * GVM_PID_DIR is /run/gvm by default now
 
-### Deprecated
-### Removed
 ### Fixed
 
 [20.8.4]: https://github.com/greenbone/gvm-libs/compare/v20.8.3...gvm-libs-20.08
-
 
 ## [20.8.3] - 2021-08-03
 
