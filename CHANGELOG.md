@@ -74,7 +74,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove handling of severity class from auth [#402](https://github.com/greenbone/gvm-libs/pull/402)
 - Remove version from the nvticache name. [#386](https://github.com/greenbone/gvm-libs/pull/386)
 
-[21.4.0]: https://github.com/greenbone/gvm-libs/compare/old-stable...v21.4.0
+[21.4.0]: https://github.com/greenbone/gvm-libs/compare/oldstable...v21.4.0
 
 ## [20.8.4] - 2021-10-11
 ### Added
@@ -89,7 +89,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Fixed
 
-[20.8.4]: https://github.com/greenbone/gvm-libs/compare/v20.8.3...old-stable
+[20.8.4]: https://github.com/greenbone/gvm-libs/compare/v20.8.3...oldstable
 
 
 ## [20.8.3] - 2021-08-03
