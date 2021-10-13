@@ -2,9 +2,9 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ master, gvm-libs-20.08, gvm-libs-21.04, middleware ]
+    branches: [ main, old-stable, stable, middleware ]
   pull_request:
-    branches: [ master, gvm-libs-20.08, gvm-libs-21.04, middleware ]
+    branches: [ main, old-stable, stable, middleware ]
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
@@ -19,7 +19,7 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    container: greenbone/build-env-gvm-libs-master-debian-buster-gcc-test
+    container: greenbone/build-env-gvm-libs-main-debian-buster-gcc-test
 
     strategy:
       fail-fast: false

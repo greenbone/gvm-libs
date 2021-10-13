@@ -1,7 +1,7 @@
 # Dockerfile for gvm-libs-$VERSION-$COMPILER-testing
 
 # Define ARG we use through the build
-ARG VERSION=master
+ARG VERSION=main
 ARG BUILD_TYPE=Debug
 ARG COMPILER=gcc
 
@@ -63,7 +63,7 @@ RUN if ( test "$COMPILER" = "clang"); then \
 
 # clone and install mqtt paho
 # workaround otherwise paho.mqtt.c creates man1 as a file
-RUN if ( test "$VERSION" = "master" || test "$VERSION" = "middleware" ); then \
+RUN if ( test "$VERSION" = "main" || test "$VERSION" = "middleware" ); then \
     echo "Verion is $VERSION" \
     && mkdir /usr/local/share/man/man1 \
     && git clone --depth 1 https://github.com/eclipse/paho.mqtt.c \
