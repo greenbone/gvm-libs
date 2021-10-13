@@ -1,26 +1,26 @@
 pull_request_rules:
-  # backports from master branch
-  - name: backport master patches to 21.04 branch
+  # backports from main branch
+  - name: backport main patches to 21.04 branch
     conditions:
-      - base=master
+      - base=main
       - label=backport-to-21.04
     actions:
       backport:
         branches:
-          - gvm-libs-21.04
+          - stable
 
-  - name: backport master patches to 20.08 branch
+  - name: backport main patches to 20.08 branch
     conditions:
-      - base=master
+      - base=main
       - label=backport-to-20.08
     actions:
       backport:
         branches:
-          - gvm-libs-20.08
+          - old-stable
 
-  - name: port master patches to middleware branch
+  - name: port main patches to middleware branch
     conditions:
-      - base=master
+      - base=main
       - label=backport-to-middleware
     actions:
       backport:
@@ -28,27 +28,27 @@ pull_request_rules:
           - middleware
 
   # backports from 21.04 release branch
-  - name: port 21.04 patches to master branch
+  - name: port 21.04 patches to main branch
     conditions:
-      - base=gvm-libs-21.04
-      - label=backport-to-master
+      - base=stable
+      - label=backport-to-main
     actions:
       backport:
         branches:
-          - master
+          - main
 
   - name: backport 21.04 patches to 20.08 branch
     conditions:
-      - base=gvm-libs-21.04
+      - base=stable
       - label=backport-to-20.08
     actions:
       backport:
         branches:
-          - gvm-libs-20.08
+          - old-stable
 
   - name: port 21.04 patches to middleware branch
     conditions:
-      - base=gvm-libs-21.04
+      - base=stable
       - label=backport-to-middleware
     actions:
       backport:
@@ -56,27 +56,27 @@ pull_request_rules:
           - middleware
 
   # ports from 20.08 release branch
-  - name: port 20.08 patches to master branch
+  - name: port 20.08 patches to main branch
     conditions:
-      - base=gvm-libs-20.08
-      - label=backport-to-master
+      - base=old-stable
+      - label=backport-to-main
     actions:
       backport:
         branches:
-          - master
+          - main
 
   - name: port 20.08 patches to 21.04 branch
     conditions:
-      - base=gvm-libs-20.08
+      - base=old-stable
       - label=backport-to-21.04
     actions:
       backport:
         branches:
-          - gvm-libs-21.04
+          - stable
 
   - name: port 20.08 patches to middleware branch
     conditions:
-      - base=gvm-libs-20.08
+      - base=old-stable
       - label=backport-to-middleware
     actions:
       backport:

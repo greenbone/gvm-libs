@@ -12,7 +12,7 @@ jobs:
         compiler:
           - gcc
           - clang
-        branches: [ master, gvm-libs-20.08, gvm-libs-21.04, middleware ]
+        branches: [ main, old-stable, stable, middleware ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -27,8 +27,8 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Find version
         run: |
-          if [ ${{ matrix.branches }} = "master" ];                               \
-          then VERSION=master;                                                    \
+          if [ ${{ matrix.branches }} = "main" ];                               \
+          then VERSION=main;                                                    \
           elif [ ${{ matrix.branches }} = "middleware" ];                         \
           then VERSION=middleware;                                                \
           else VERSION=$(echo "${{ matrix.branches }}" | sed 's/gvm-libs-//g' -); \
@@ -54,7 +54,7 @@ jobs:
         compiler:
           - gcc
           - clang
-        branches: [ master, gvm-libs-20.08, gvm-libs-21.04, middleware ]
+        branches: [ main, old-stable, stable, middleware ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -69,8 +69,8 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Find version
         run: |
-          if [ ${{ matrix.branches }} = "master" ];                               \
-          then VERSION=master;                                                    \
+          if [ ${{ matrix.branches }} = "main" ];                               \
+          then VERSION=main;                                                    \
           elif [ ${{ matrix.branches }} = "middleware" ];                         \
           then VERSION=middleware;                                                \
           else VERSION=$(echo "${{ matrix.branches }}" | sed 's/gvm-libs-//g' -); \

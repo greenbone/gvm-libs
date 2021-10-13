@@ -2,9 +2,9 @@ name: Build and test C
 
 on:
   push:
-    branches: [ master, gvm-libs-20.08, gvm-libs-21.04, middleware ]
+    branches: [ main, old-stable, stable, middleware ]
   pull_request:
-    branches: [ master, gvm-libs-20.08, gvm-libs-21.04, middleware ]
+    branches: [ main, old-stable, stable, middleware ]
 
 
 jobs:
@@ -24,8 +24,8 @@ jobs:
     strategy:
       matrix:
         container:
-          - greenbone/gvm-libs-master-clang-testing
-          - greenbone/gvm-libs-master-gcc-testing
+          - greenbone/gvm-libs-main-clang-testing
+          - greenbone/gvm-libs-main-gcc-testing
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2.3.4
@@ -42,8 +42,8 @@ jobs:
     strategy:
       matrix:
         container:
-          - greenbone/gvm-libs-master-clang-testing
-          - greenbone/gvm-libs-master-gcc-testing
+          - greenbone/gvm-libs-main-clang-testing
+          - greenbone/gvm-libs-main-gcc-testing
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2.3.4
@@ -56,7 +56,7 @@ jobs:
   scan_build:
     name: Scan-build gvm-libs with clang
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs-master-clang-testing
+    container: greenbone/gvm-libs-main-clang-testing
     steps:
       - uses: actions/checkout@v2.3.4
       - name: Configure and Compile gvm-libs
