@@ -2,7 +2,7 @@ name: Build and upload docker images
 
 on:
   push:
-    branches: [ main, old-stable, stable, middleware ]
+    branches: [ main, oldstable, stable, middleware ]
 
 jobs:
   upload-testing:
