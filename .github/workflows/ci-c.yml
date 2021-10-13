@@ -2,9 +2,9 @@ name: Build and test C
 
 on:
   push:
-    branches: [ main, old-stable, stable, middleware ]
+    branches: [ main, oldstable, stable, middleware ]
   pull_request:
-    branches: [ main, old-stable, stable, middleware ]
+    branches: [ main, oldstable, stable, middleware ]
 
 
 jobs:
