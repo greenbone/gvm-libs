@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [20.8.4] - Unreleased - 2021-10-11
+## [20.8.4] - 2021-10-11
 ### Added
 - Add function to duplicate host and vhost objects [#592](https://github.com/greenbone/gvm-libs/pull/592)
 ### Changed
@@ -16,7 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-[20.8.4]: https://github.com/greenbone/gvm-libs/compare/v20.8.3...gvm-libs-20.08
+[20.8.4]: https://github.com/greenbone/gvm-libs/compare/v20.8.3...oldstable
 
 ## [20.8.3] - 2021-08-03
 
