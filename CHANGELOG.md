@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Add function to duplicate host and vhost objects [#590](https://github.com/greenbone/gvm-libs/pull/590)
 
-[21.4.3]: https://github.com/greenbone/gvm-libs/compare/v21.4.3...gvm-libs-21.04
+[21.4.3]: https://github.com/greenbone/gvm-libs/compare/v21.4.3...stable
 
 ## [21.4.2] - 2021-08-03
 
@@ -74,7 +74,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove handling of severity class from auth [#402](https://github.com/greenbone/gvm-libs/pull/402)
 - Remove version from the nvticache name. [#386](https://github.com/greenbone/gvm-libs/pull/386)
 
-[21.4.0]: https://github.com/greenbone/gvm-libs/compare/gvm-libs-20.08...v21.4.0
+[21.4.0]: https://github.com/greenbone/gvm-libs/compare/oldstable...v21.4.0
 
 ## [20.8.4] - 2021-10-11
 ### Added
@@ -89,7 +89,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Fixed
 
-[20.8.4]: https://github.com/greenbone/gvm-libs/compare/v20.8.3...gvm-libs-20.08
+[20.8.4]: https://github.com/greenbone/gvm-libs/compare/v20.8.3...oldstable
 
 
 ## [20.8.3] - 2021-08-03
