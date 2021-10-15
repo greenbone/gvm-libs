@@ -1,18 +1,18 @@
 pull_request_rules:
   # backports from main branch
-  - name: backport main patches to 21.04 branch
+  - name: backport main patches to stable branch
     conditions:
       - base=main
-      - label=backport-to-21.04
+      - label=backport-to-stable
     actions:
       backport:
         branches:
           - stable
 
-  - name: backport main patches to 20.08 branch
+  - name: backport main patches to oldstable branch
     conditions:
       - base=main
-      - label=backport-to-20.08
+      - label=backport-to-oldstable
     actions:
       backport:
         branches:
@@ -27,8 +27,8 @@ pull_request_rules:
         branches:
           - middleware
 
-  # backports from 21.04 release branch
-  - name: port 21.04 patches to main branch
+  # backports from stable release branch
+  - name: port stable patches to main branch
     conditions:
       - base=stable
       - label=backport-to-main
@@ -37,16 +37,16 @@ pull_request_rules:
         branches:
           - main
 
-  - name: backport 21.04 patches to 20.08 branch
+  - name: backport stable patches to oldstable branch
     conditions:
       - base=stable
-      - label=backport-to-20.08
+      - label=backport-to-oldstable
     actions:
       backport:
         branches:
           - oldstable
 
-  - name: port 21.04 patches to middleware branch
+  - name: port stable patches to middleware branch
     conditions:
       - base=stable
       - label=backport-to-middleware
@@ -55,8 +55,8 @@ pull_request_rules:
         branches:
           - middleware
 
-  # ports from 20.08 release branch
-  - name: port 20.08 patches to main branch
+  # ports from oldstable release branch
+  - name: port oldstable patches to main branch
     conditions:
       - base=oldstable
       - label=backport-to-main
@@ -65,16 +65,16 @@ pull_request_rules:
         branches:
           - main
 
-  - name: port 20.08 patches to 21.04 branch
+  - name: port oldstable patches to stable branch
     conditions:
       - base=oldstable
-      - label=backport-to-21.04
+      - label=backport-to-stable
     actions:
       backport:
         branches:
           - stable
 
-  - name: port 20.08 patches to middleware branch
+  - name: port oldstable patches to middleware branch
     conditions:
       - base=oldstable
       - label=backport-to-middleware
