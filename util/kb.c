@@ -596,7 +596,10 @@ redis2kbitem_single (const char *name, const redisReply *elt, int force_int)
   else
     {
       item->type = KB_TYPE_STR;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic warning "-Wdeprecated-declarations"
       item->v_str = g_memdup (elt->str, elt->len + 1);
+#pragma GCC diagnostic pop
       item->len = elt->len;
     }
 
