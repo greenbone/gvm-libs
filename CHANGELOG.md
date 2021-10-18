@@ -12,6 +12,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Possibility to use lcrypt with `$6$` (sha512) for authentication [484](https://github.com/greenbone/gvm-libs/pull/484)
 - Add function to perform an alive test and get the amount of alive hosts. [495](https://github.com/greenbone/gvm-libs/pull/495)
 - Add functions for sentry integration. [#502](https://github.com/greenbone/gvm-libs/pull/502) [#506](https://github.com/greenbone/gvm-libs/pull/506)
+- Add basic support for mqtt.
+  Original
+  [#505](https://github.com/greenbone/gvm-libs/pull/505)
+  [#511](https://github.com/greenbone/gvm-libs/pull/511).
+  Reintroduction after Rebase
+  [#538](https://github.com/greenbone/gvm-libs/pull/538)
+- Refactor MQTT handling [#562](https://github.com/greenbone/gvm-libs/pull/562). Add function for mqtt init status [#567](https://github.com/greenbone/gvm-libs/pull/567). Fix prototypes in mqtt.h. [#584](https://github.com/greenbone/gvm-libs/pull/584)
+- Add function to get the severity_vector, otherwise the cvss_base_vector. [#568](https://github.com/greenbone/gvm-libs/pull/568)
+- Add function to duplicate host and vhost objects [#590](https://github.com/greenbone/gvm-libs/pull/590)
 
 ### Changed
 - Handle script timeout as script preference with ID 0 [#581](https://github.com/greenbone/gvm-libs/pull/581)
