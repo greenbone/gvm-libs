@@ -105,9 +105,6 @@ nvticache_get_required_udp_ports (const char *);
 int
 nvticache_get_category (const char *);
 
-int
-nvticache_get_timeout (const char *);
-
 char *
 nvticache_get_dependencies (const char *);
 
