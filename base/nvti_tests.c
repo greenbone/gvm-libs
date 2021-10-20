@@ -141,6 +141,48 @@ Ensure (nvti, nvtis_add_does_not_use_oid_as_key)
   assert_that (nvtis_lookup (nvtis, "2"), is_null);
 }
 
+/* nvti severity vector */
+
+Ensure (nvti, nvti_get_severity_vector_both)
+{
+  nvti_t *nvti;
+
+  nvti = nvti_new ();
+  nvti_set_tag (nvti, "cvss_base_vector=DEF");
+  nvti_set_tag (nvti, "severity_vector=ABC");
+
+  assert_that (nvti_severity_vector_from_tag (nvti),
+               is_equal_to_string ("ABC"));
+
+  nvti_free (nvti);
+}
+
+Ensure (nvti, nvti_get_severity_vector_no_cvss_base)
+{
+  nvti_t *nvti;
+
+  nvti = nvti_new ();
+  nvti_set_tag (nvti, "severity_vector=ABC");
+
+  assert_that (nvti_severity_vector_from_tag (nvti),
+               is_equal_to_string ("ABC"));
+
+  nvti_free (nvti);
+}
+
+Ensure (nvti, nvti_get_severity_vector_no_severity_vector)
+{
+  nvti_t *nvti;
+
+  nvti = nvti_new ();
+  nvti_set_tag (nvti, "cvss_base_vector=DEF");
+
+  assert_that (nvti_severity_vector_from_tag (nvti),
+               is_equal_to_string ("DEF"));
+
+  nvti_free (nvti);
+}
+
 /* Test suite. */
 
 int
@@ -162,6 +204,11 @@ main (int argc, char **argv)
   add_test_with_context (suite, nvti, nvti_set_solution_method_correct);
 
   add_test_with_context (suite, nvti, nvtis_add_does_not_use_oid_as_key);
+
+  add_test_with_context (suite, nvti, nvti_get_severity_vector_both);
+  add_test_with_context (suite, nvti,
+                         nvti_get_severity_vector_no_severity_vector);
+  add_test_with_context (suite, nvti, nvti_get_severity_vector_no_cvss_base);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());

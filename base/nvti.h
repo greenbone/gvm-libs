@@ -107,6 +107,8 @@ vtseverity_t *
 nvti_vtseverity (const nvti_t *, guint);
 double
 nvti_severity_score (const nvti_t *);
+gchar *
+nvti_severity_vector_from_tag (const nvti_t *);
 
 nvti_t *
 nvti_new (void);
