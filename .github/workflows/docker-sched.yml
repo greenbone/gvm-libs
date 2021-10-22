@@ -78,5 +78,5 @@ jobs:
         run: |
           curl -X POST https://api.github.com/repos/greenbone/openvas-scanner/dispatches \
           -H 'Accept: application/vnd.github.everest-preview+json' \
-          -u ${{ secrets.GREENBONE_BOT }}:${{ secrets.GREENBONE_BOT_TOKEN }} \
+          -u greenbonebot:${{ secrets.GREENBONE_BOT_TOKEN }} \
           --data '{"event_type": "update-images"}'
