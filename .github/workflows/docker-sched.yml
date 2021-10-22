@@ -69,3 +69,14 @@ jobs:
           build-args: |
             VERSION=${{ matrix.branches }}
             COMPILER=${{ matrix.compiler }}
+  trigger-openvas:
+    needs: upload-build
+    name: "Trigger docker "
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger openvas docker image upload
+        run: |
+          curl -X POST https://api.github.com/repos/greenbone/openvas-scanner/dispatches \
+          -H 'Accept: application/vnd.github.everest-preview+json' \
+          -u ${{ secrets.GREENBONE_BOT }}:${{ secrets.GREENBONE_BOT_TOKEN }} \
+          --data '{"event_type": "update-images"}'
