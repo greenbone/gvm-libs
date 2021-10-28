@@ -46,7 +46,7 @@
 #include <string.h>
 
 #undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "lib  mqtt"
+#define G_LOG_DOMAIN "libgvm util"
 
 #define QOS 1
 #define TIMEOUT 10000L
@@ -356,6 +356,25 @@ mqtt_init (const char *server_uri)
 }
 
 /**
+ * @brief Reinitializes communication after mqtt_reset was used
+ *
+ */
+void
+mqtt_reinit ()
+{
+  const char *server_uri;
+
+  server_uri = mqtt_get_global_server_uri ();
+  if (server_uri == NULL)
+    {
+      g_warning ("%s: mqtt_init() has to be called once at program start "
+                 "else the server URI is not set. ",
+                 __func__);
+    }
+  mqtt_init (server_uri);
+}
+
+/**
  * @brief Use the provided client to publish message on a topic
  *
  * @param mqtt  mqtt_t
@@ -416,22 +435,10 @@ int
 mqtt_publish (const char *topic, const char *msg)
 {
   mqtt_t *mqtt = NULL;
-  const char *server_uri;
   int rc = 0;
 
-  // init new global client if it was mqtt_reset()
   if ((mqtt_get_global_client ()) == NULL)
-    {
-      server_uri = mqtt_get_global_server_uri ();
-      if (server_uri == NULL)
-        {
-          g_warning ("%s: mqtt_init() has to be called once at program start "
-                     "else the server URI is not set. ",
-                     __func__);
-          return -1;
-        }
-      mqtt_init (server_uri);
-    }
+    mqtt_reinit ();
   mqtt = mqtt_get_global_client ();
 
   rc = mqtt_client_publish (mqtt, topic, msg);
@@ -548,6 +555,8 @@ mqtt_subscribe_r (mqtt_t *mqtt, int qos, const char *topic)
 int
 mqtt_subscribe (const char *topic)
 {
+  if ((mqtt_get_global_client ()) == NULL)
+    mqtt_reinit ();
   return mqtt_subscribe_r (mqtt_get_global_client (), QOS, topic);
 }
 
@@ -636,7 +645,6 @@ mqtt_retrieve_message_r (mqtt_t *mqtt, char **topic, int *topic_len,
   rc = MQTTClient_receive (mqtt->client, &tmp, topic_len, &message, timeout);
   if (rc == MQTTCLIENT_SUCCESS || rc == MQTTCLIENT_TOPICNAME_TRUNCATED)
     {
-      // successfully checked for new messages but we didn't get any
       if (message)
         {
           g_debug ("%s: got message %s (%d) on topic %s (%d) \n", __func__,
@@ -710,12 +718,12 @@ exit:
  * The pointer is set to NULL if the timeout expires.
  * @param[out] payload_len The length of the payload.
  * @param timeout The length of time to wait for a message in milliseconds.
- * @return 0 on message retrieved, 1 on no message retrieved and -1 on an error.
+ * @return 0 on message retrieved, 1 on timeout and -1 on an error.
  */
 int
 mqtt_retrieve_message (char **topic, int *topic_len, char **payload,
-                       int *payload_len)
+                       int *payload_len, const unsigned int timeout)
 {
   return mqtt_retrieve_message_r (mqtt_get_global_client (), topic, topic_len,
-                                  payload, payload_len, 501);
+                                  payload, payload_len, timeout);
 }
