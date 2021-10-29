@@ -3,6 +3,7 @@ name: Container Image Builds
 on:
   push:
     branches: [ main ]
+    tags: ["v*"]
 
 jobs:
   images:
