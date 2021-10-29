@@ -37,8 +37,9 @@ jobs:
       # build between init and analyze ...
     - name: Configure and Compile gvm-libs
       run: |
-        mkdir build && cd build/ && cmake \
-        -DCMAKE_BUILD_TYPE=Release .. && make install
+        mkdir build && cd build/ && \
+        cmake -DCMAKE_BUILD_TYPE=Release .. && \
+        make install
       working-directory: ${{ github.WORKSPACE }}
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1

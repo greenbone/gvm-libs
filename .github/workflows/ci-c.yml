@@ -16,7 +16,8 @@ jobs:
       - name: Check Source Format
         run: |
           clang-format -i -style=file base/*.{c,h} boreas/*.{c,h} \
-          gmp/*.{c,h} osp/*.{c,h} util/*.{c,h} && git diff --exit-code
+          gmp/*.{c,h} osp/*.{c,h} util/*.{c,h} && \
+          git diff --exit-code
 
   tests:
     name: Unit Tests
@@ -31,8 +32,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Configure and test gvm-libs
         run: |
-          mkdir build && cd build/ && cmake -DCMAKE_BUILD_TYPE=Debug \
-          -DBUILD_TESTS=1 .. && make install && make tests && \
+          mkdir build && cd build/ && \
+          cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=1 .. && \
+          make install && \
+          make tests && \
           CTEST_OUTPUT_ON_FAILURE=1 make test
         working-directory: ${{ github.WORKSPACE }}
 
@@ -61,9 +64,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Configure and Compile gvm-libs
         run: |
-          mkdir build && cd build/ && scan-build cmake \
-          -DCMAKE_BUILD_TYPE=Debug .. && scan-build \
-          -o ~/scan-build-report make && [ -z "$(ls -A ~/scan-build-report/)" ]
+          mkdir build && cd build/ && \
+          scan-build cmake -DCMAKE_BUILD_TYPE=Debug .. && \
+          scan-build -o ~/scan-build-report make && \
+          [ -z "$(ls -A ~/scan-build-report/)" ]
         working-directory: ${{ github.WORKSPACE }}
       - name: Upload scan-build report
         if: failure()
@@ -81,8 +85,9 @@ jobs:
         uses: actions/checkout@v2
       - name: Generate documentation (XML)
         run: |
-             mkdir build && cd build/ && cmake -DSKIP_SRC=1 .. \
-             && make doc-xml 2> ~/doxygen-stderr.txt
+             mkdir build && cd build/ && \
+             cmake -DSKIP_SRC=1 .. && \
+             make doc-xml 2> ~/doxygen-stderr.txt
       - name: Upload doxygen error output as artifact
         uses: actions/upload-artifact@v2
         with:
