@@ -27,7 +27,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - run: echo "Build and push ${{ github.repository }}-${{ matrix.branches }}-${{matrix.compiler}}-testing"
       - name: Build and push
-        uses: docker/build-push-action@v2.5.0
+        uses: docker/build-push-action@v2
         with:
           context: .
           push: true
@@ -60,7 +60,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - run: echo "Build and push ${{ github.repository }}-${{ matrix.branches }}-${{ matrix.compiler }}-build"
       - name: Build and push
-        uses: docker/build-push-action@v2.5.0
+        uses: docker/build-push-action@v2
         with:
           context: .
           push: true

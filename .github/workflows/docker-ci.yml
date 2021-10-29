@@ -34,7 +34,7 @@ jobs:
         # this only works with github.ref on push not on pull_request. ;)
       - run: echo "Build and push ${{ github.repository }}-${{ env.VERSION }}-${{matrix.compiler}}-testing"
       - name: Build and push
-        uses: docker/build-push-action@v2.5.0
+        uses: docker/build-push-action@v2
         with:
           context: .
           push: true
@@ -73,7 +73,7 @@ jobs:
         # this only works with github.ref on push not on pull_request. ;)
       - run: echo "Build and push ${{ github.repository }}-${{ env.VERSION }}-${{matrix.compiler}}-build"
       - name: Build and push
-        uses: docker/build-push-action@v2.5.0
+        uses: docker/build-push-action@v2
         with:
           context: .
           push: true
