@@ -1,11 +1,11 @@
-# Dockerfile for gvm-libs-$VERSION-$COMPILER-build
+# Dockerfile for gvm-libs:$COMPILER-build-$VERSION
 
 # Define ARG we use through the build
 ARG VERSION=main
 ARG BUILD_TYPE=Debug
 ARG COMPILER=gcc
 
-FROM greenbone/gvm-libs-$VERSION-$COMPILER-testing
+FROM greenbone/gvm-libs:$COMPILER-testing-$VERSION
 
 # This will make apt-get install without question
 ARG DEBIAN_FRONTEND=noninteractive

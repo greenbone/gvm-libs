@@ -1,4 +1,4 @@
-# Dockerfile for gvm-libs-$VERSION-$COMPILER-testing
+# Dockerfile for gvm-libs:$COMPILER-testing-$VERSION
 
 # Define ARG we use through the build
 ARG VERSION=main
