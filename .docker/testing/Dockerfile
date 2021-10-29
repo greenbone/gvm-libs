@@ -19,8 +19,8 @@ ARG COMPILER
 WORKDIR /usr/local/src
 
 # Install core dependencies required for building and testing gvm-libs
-RUN apt-get update \
-    && apt-get install --no-install-recommends --assume-yes \
+RUN apt-get update && \
+    apt-get install --no-install-recommends --assume-yes \
     ca-certificates \
     cmake \
     git \
@@ -41,21 +41,21 @@ RUN apt-get update \
     libpq-dev \
     libnet1-dev \
     postgresql-server-dev-all \
-    xsltproc \
- && rm -rf /var/lib/apt/lists/*
+    xsltproc && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install gcc/g++ compiler
 RUN if ( test "$COMPILER" = "gcc"); then \
-    echo "Compiler is $COMPILER" \
-    && apt-get update \
-    && apt-get install --no-install-recommends --assume-yes gcc g++; \
+    echo "Compiler is $COMPILER" && \
+    apt-get update && \
+    apt-get install --no-install-recommends --assume-yes gcc g++; \
     fi
 
 # Install clang compiler
 RUN if ( test "$COMPILER" = "clang"); then \
-    echo "Compiler is $COMPILER" \
-    && apt-get update \
-    && apt-get install --no-install-recommends --assume-yes \
+    echo "Compiler is $COMPILER" && \
+    apt-get update && \
+    apt-get install --no-install-recommends --assume-yes \
     clang \
     clang-format \
     clang-tools; \
@@ -63,24 +63,24 @@ RUN if ( test "$COMPILER" = "clang"); then \
 
 # clone and install mqtt paho
 # workaround otherwise paho.mqtt.c creates man1 as a file
-RUN if ( test "$VERSION" = "main" || test "$VERSION" = "middleware" ); then \
-    echo "Verion is $VERSION" \
-    && mkdir /usr/local/share/man/man1 \
-    && git clone --depth 1 https://github.com/eclipse/paho.mqtt.c \
+RUN if ( test "$VERSION" = "main" ); then \
+    echo "Version is $VERSION" && \
+    mkdir /usr/local/share/man/man1 && \
+    git clone --depth 1 https://github.com/eclipse/paho.mqtt.c && \
     && cd paho.mqtt.c \
-    && make \
-    && make install \
-    && cd .. \
-    && rm -rf paho.mqtt.c; \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf paho.mqtt.c; \
     fi
 
 # & install cgreen for unit tests
-RUN git clone --depth 1 -b 1.4.0 https://github.com/cgreen-devs/cgreen.git \
-    && cd cgreen \
-    && make \
-    && make test \
-    && make install \
-    && cd .. \
-    && rm -rf cgreen
+RUN git clone --depth 1 -b 1.4.0 https://github.com/cgreen-devs/cgreen.git && \
+    cd cgreen && \
+    make && \
+    make test && \
+    make install &&\
+    cd .. && \
+    rm -rf cgreen
 
 RUN ldconfig
