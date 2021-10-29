@@ -24,3 +24,5 @@ RUN cd gvm-libs && \
     cd build && \
     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE .. && \
     make install
+
+RUN ldconfig

@@ -83,4 +83,4 @@ RUN git clone --depth 1 -b 1.4.0 https://github.com/cgreen-devs/cgreen.git \
     && cd .. \
     && rm -rf cgreen
 
-ENV LD_LIBRARY_PATH="/usr/local/lib"
+RUN ldconfig
