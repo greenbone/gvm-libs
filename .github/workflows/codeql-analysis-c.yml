@@ -19,7 +19,7 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    container: greenbone/gvm-libs:gcc-testing-main
+    container: greenbone/gvm-libs-gcc-build:main
 
     strategy:
       fail-fast: false
