@@ -25,8 +25,8 @@ jobs:
     strategy:
       matrix:
         container:
-          - greenbone/gvm-libs-build-clang:main
-          - greenbone/gvm-libs-build-gcc:main
+          - greenbone/gvm-libs-clang-build:main
+          - greenbone/gvm-libs-gcc-build:main
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2
