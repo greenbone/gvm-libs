@@ -25,8 +25,8 @@ jobs:
     strategy:
       matrix:
         container:
-          - greenbone/gvm-libs-main-clang-testing
-          - greenbone/gvm-libs-main-gcc-testing
+          - greenbone/gvm-libs:clang-testing-main
+          - greenbone/gvm-libs:gcc-testing-main
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2
@@ -45,8 +45,8 @@ jobs:
     strategy:
       matrix:
         container:
-          - greenbone/gvm-libs-main-clang-testing
-          - greenbone/gvm-libs-main-gcc-testing
+          - greenbone/gvm-libs:clang-testing-main
+          - greenbone/gvm-libs:gcc-testing-main
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2
@@ -59,7 +59,7 @@ jobs:
   scan-build:
     name: Scan-build gvm-libs with clang
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs-main-clang-testing
+    container: greenbone/gvm-libs:clang-testing-main
     steps:
       - uses: actions/checkout@v2
       - name: Configure and Compile gvm-libs
