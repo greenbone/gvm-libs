@@ -67,10 +67,10 @@ RUN if ( test "$VERSION" = "main" ); then \
     echo "Version is $VERSION" && \
     mkdir /usr/local/share/man/man1 && \
     git clone --depth 1 https://github.com/eclipse/paho.mqtt.c && \
-    && cd paho.mqtt.c \
+    cd paho.mqtt.c && \
     make && \
     make install && \
     cd .. && \
-    rm -rf paho.mqtt.c; && \
-    ldconfig \
+    rm -rf paho.mqtt.c && \
+    ldconfig; \
     fi
