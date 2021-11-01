@@ -27,3 +27,16 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ env.VERSION }}
           file: .docker/main.Dockerfile
+
+  trigger-openvas:
+    needs: images
+    name: "Trigger docker "
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger openvas container image build
+        run: |
+          curl -X POST https://api.github.com/repos/greenbone/openvas-scanner/dispatches \
+          -H 'Accept: application/vnd.github.everest-preview+json' \
+          -u greenbonebot:${{ secrets.GREENBONE_BOT_TOKEN }} \
+          --data '{"event_type": "update-images"}'
+
