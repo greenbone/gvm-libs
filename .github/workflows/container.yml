@@ -67,7 +67,7 @@ jobs:
           context: .
           push: true
           tags: ${{ github.repository }}-${{matrix.compiler}}-build:${{ env.VERSION }}
-          file: .docker/build/Dockerfile
+          file: .docker/build.Dockerfile
           build-args: |
             VERSION=${{ env.VERSION }}
             COMPILER=${{matrix.compiler}}
