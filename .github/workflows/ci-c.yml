@@ -25,11 +25,21 @@ jobs:
     strategy:
       matrix:
         container:
-          - greenbone/gvm-libs:clang-testing-main
-          - greenbone/gvm-libs:gcc-testing-main
+          - greenbone/gvm-libs-build-clang:main
+          - greenbone/gvm-libs-build-gcc:main
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2
+      - name: Install cgreen
+        run: |
+          git clone --depth 1 -b 1.4.0 https://github.com/cgreen-devs/cgreen.git && \
+          cd cgreen && \
+          make && \
+          make test && \
+          make install &&\
+          cd .. && \
+          rm -rf cgreen && \
+          ldconfig
       - name: Configure and test gvm-libs
         run: |
           mkdir build && cd build/ && \
@@ -45,8 +55,8 @@ jobs:
     strategy:
       matrix:
         container:
-          - greenbone/gvm-libs:clang-testing-main
-          - greenbone/gvm-libs:gcc-testing-main
+          - greenbone/gvm-libs-clang-build:main
+          - greenbone/gvm-libs-gcc-build:main
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2
@@ -59,7 +69,7 @@ jobs:
   scan-build:
     name: Scan-build gvm-libs with clang
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs:clang-testing-main
+    container: greenbone/gvm-libs-clang-build:main
     steps:
       - uses: actions/checkout@v2
       - name: Configure and Compile gvm-libs
