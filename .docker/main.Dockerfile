@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim as builder
+FROM debian:stable-slim as builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -32,7 +32,7 @@ RUN mkdir /build && \
     cmake -DCMAKE_BUILD_TYPE=Release /source && \
     make DESTDIR=/install install
 
-FROM debian:bullseye-slim
+FROM debian:stable-slim
 
 ARG DEBIAN_FRONTEND=noninteractive
 
