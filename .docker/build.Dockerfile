@@ -23,12 +23,12 @@ RUN apt-get update && \
     apt-get install --no-install-recommends --assume-yes \
     ca-certificates \
     cmake \
-    git \
     libglib2.0-dev \
     libgnutls28-dev \
     libgpgme-dev \
     libhiredis-dev \
     libpcap-dev \
+    libpaho-mqtt-dev \
     libssh-gcrypt-dev \
     libxml2-dev \
     libnet1-dev \
@@ -39,8 +39,8 @@ RUN apt-get update && \
     lcov \
     libical-dev \
     libpq-dev \
-    libnet1-dev \
     postgresql-server-dev-all \
+    libnet1-dev \
     xsltproc && \
     rm -rf /var/lib/apt/lists/*
 
@@ -61,16 +61,3 @@ RUN if ( test "$COMPILER" = "clang"); then \
     clang-tools; \
     fi
 
-# clone and install mqtt paho
-# workaround otherwise paho.mqtt.c creates man1 as a file
-RUN if ( test "$VERSION" = "main" ); then \
-    echo "Version is $VERSION" && \
-    mkdir /usr/local/share/man/man1 && \
-    git clone --depth 1 https://github.com/eclipse/paho.mqtt.c && \
-    cd paho.mqtt.c && \
-    make && \
-    make install && \
-    cd .. && \
-    rm -rf paho.mqtt.c && \
-    ldconfig; \
-    fi
