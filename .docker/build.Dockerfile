@@ -2,47 +2,41 @@
 
 # Define ARG we use through the build
 ARG VERSION=main
-ARG BUILD_TYPE=Debug
 ARG COMPILER=gcc
 
 # Use '-slim' image for reduced image size
-FROM debian:buster-slim
+FROM debian:stable-slim
 
 # This will make apt-get install without question
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Redefine ARG we use through the build
 ARG VERSION
-ARG BUILD_TYPE
 ARG COMPILER
 
 WORKDIR /usr/local/src
 
 # Install core dependencies required for building and testing gvm-libs
 RUN apt-get update && \
-    apt-get install --no-install-recommends --assume-yes \
-    ca-certificates \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
     cmake \
-    git \
-    libglib2.0-dev \
-    libgnutls28-dev \
-    libgpgme-dev \
-    libhiredis-dev \
-    libpcap-dev \
-    libssh-gcrypt-dev \
-    libxml2-dev \
-    libnet1-dev \
-    make \
     pkg-config \
+    gnupg \
+    libglib2.0-dev \
+    libgpgme-dev \
+    libgnutls28-dev \
     uuid-dev \
-    libssl-dev \
-    lcov \
-    libical-dev \
-    libpq-dev \
+    libssh-gcrypt-dev \
+    libhiredis-dev \
+    libxml2-dev \
+    libpcap-dev \
     libnet1-dev \
-    postgresql-server-dev-all \
-    xsltproc && \
-    rm -rf /var/lib/apt/lists/*
+    libldap2-dev \
+    libradcli-dev \
+    libpaho-mqtt-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install gcc/g++ compiler
 RUN if ( test "$COMPILER" = "gcc"); then \
@@ -59,18 +53,4 @@ RUN if ( test "$COMPILER" = "clang"); then \
     clang \
     clang-format \
     clang-tools; \
-    fi
-
-# clone and install mqtt paho
-# workaround otherwise paho.mqtt.c creates man1 as a file
-RUN if ( test "$VERSION" = "main" ); then \
-    echo "Version is $VERSION" && \
-    mkdir /usr/local/share/man/man1 && \
-    git clone --depth 1 https://github.com/eclipse/paho.mqtt.c && \
-    cd paho.mqtt.c && \
-    make && \
-    make install && \
-    cd .. && \
-    rm -rf paho.mqtt.c && \
-    ldconfig; \
     fi
