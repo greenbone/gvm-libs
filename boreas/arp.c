@@ -284,10 +284,10 @@ pingip_send ()
   const uint8_t padding[16] = {0};
 
   if (-1
-      == (arp = libnet_build_arp (ARPHRD_ETHER, ETHERTYPE_IP, ETH_ALEN, IP_ALEN,
-                                  ARPOP_REQUEST, srcmac, (uint8_t *) &srcip,
-                                  (uint8_t *) ethnull, (uint8_t *) &dstip,
-                                  padding, sizeof padding, libnet, arp)))
+      == (libnet_build_arp (ARPHRD_ETHER, ETHERTYPE_IP, ETH_ALEN, IP_ALEN,
+                            ARPOP_REQUEST, srcmac, (uint8_t *) &srcip,
+                            (uint8_t *) ethnull, (uint8_t *) &dstip, padding,
+                            sizeof padding, libnet, arp)))
     {
       g_warning ("%s: libnet_build_arp(): %s", __func__,
                  libnet_geterror (libnet));
