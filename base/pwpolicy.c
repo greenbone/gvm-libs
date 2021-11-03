@@ -255,7 +255,7 @@ parse_pattern_line (char *line, const char *fname, int lineno, char **descp,
           else
             *descp = NULL;
         }
-      else if ((p = is_keyword (line, "nodesc")))
+      else if ((is_keyword (line, "nodesc")))
         {
           g_free (*descp);
           *descp = NULL;
