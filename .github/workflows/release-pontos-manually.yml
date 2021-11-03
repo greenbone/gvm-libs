@@ -45,11 +45,11 @@ jobs:
     - name: Prepare patch release with pontos
       run: |
         . .venv/bin/activate
-        pontos-release prepare --patch
+        pontos-release prepare --patch -CC
     - name: Release with pontos
       run: |
         . .venv/bin/activate
-        pontos-release release
+        pontos-release release -CC
     - name: Import key from secrets
       run: |
         echo -e "${{ env.GPG_KEY }}" >> tmp.file
