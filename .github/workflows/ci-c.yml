@@ -29,17 +29,6 @@ jobs:
           - greenbone/gvm-libs-gcc-build:main
     container: ${{ matrix.container }}
     steps:
-      - name: Clone cgreen
-        uses: actions/checkout@v2
-        with:
-          repository: cgreen-devs/cgreen
-          ref: 1.4.0
-      - name: Install cgreen
-        run: |
-          make
-          make test
-          make install
-          ldconfig
       - uses: actions/checkout@v2
       - name: Configure and Compile gvm-libs
         run: |
