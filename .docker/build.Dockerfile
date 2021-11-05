@@ -36,6 +36,7 @@ RUN apt-get update && \
     libldap2-dev \
     libradcli-dev \
     libpaho-mqtt-dev \
+    libcgreen1-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install gcc/g++ compiler
