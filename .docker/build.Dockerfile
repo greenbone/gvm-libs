@@ -37,6 +37,7 @@ RUN apt-get update && \
     libradcli-dev \
     libpaho-mqtt-dev \
     libcgreen1-dev \
+    lcov \
     && rm -rf /var/lib/apt/lists/*
 
 # Install gcc/g++ compiler
