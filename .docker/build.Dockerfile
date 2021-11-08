@@ -11,7 +11,6 @@ FROM debian:stable-slim
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Redefine ARG we use through the build
-ARG VERSION
 ARG COMPILER
 
 WORKDIR /usr/local/src
