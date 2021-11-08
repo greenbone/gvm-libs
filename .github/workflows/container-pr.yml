@@ -3,6 +3,9 @@ name: Container Image Builds for Pull Requests
 on:
   pull_request:
 
+env:
+  REGISTRY: ghcr.io
+
 jobs:
   images:
     name: Build and upload container images
@@ -14,10 +17,12 @@ jobs:
       - name: Gather container image tags
         uses: greenbone/actions/container-image-tags@main
         id: container
+        with:
+          registry: ${{ env.REGISTRY }}
       - name: Login to Docker Registry
         uses: docker/login-action@v1
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push Container image
