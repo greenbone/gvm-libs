@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Gather container image tags
-        uses: greenbone/actions/container-image-tags@main
+        uses: greenbone/actions/container-image-tags@v1
         id: container
         with:
           registry: ${{ env.REGISTRY }}
