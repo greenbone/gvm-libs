@@ -3,7 +3,7 @@ name: Release patch version with pontos
 on:
   pull_request:
     types: [closed]
-    branches: [ 'gvm-libs-21.04', 'gvm-libs-20.08' ]
+    branches: [ 'stable' ]
 
 jobs:
   release-patch:
@@ -45,6 +45,7 @@ jobs:
       run: |
         . .venv/bin/activate
         pontos-release prepare --patch
+        echo "VERSION=$(poetry run pontos-version show)" >> $GITHUB_ENV
     - name: Release with pontos
       run: |
         . .venv/bin/activate
