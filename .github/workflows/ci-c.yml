@@ -65,7 +65,7 @@ jobs:
   generate-xml-doc:
     name: Generate documentation (XML)
     runs-on: ubuntu-latest
-    container: greenbone/code-metrics-doxygen-debian-stretch
+    container: greenbone/doxygen
     steps:
       - name: Check out gvmd
         uses: actions/checkout@v2
