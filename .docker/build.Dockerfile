@@ -11,7 +11,6 @@ FROM debian:stable-slim
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Redefine ARG we use through the build
-ARG VERSION
 ARG COMPILER
 
 WORKDIR /source
@@ -36,6 +35,8 @@ RUN apt-get update && \
     libldap2-dev \
     libradcli-dev \
     libpaho-mqtt-dev \
+    libcgreen1-dev \
+    lcov \
     && rm -rf /var/lib/apt/lists/*
 
 # Install gcc/g++ compiler
