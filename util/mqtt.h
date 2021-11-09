@@ -47,7 +47,7 @@ int
 mqtt_subscribe (const char *);
 
 int
-mqtt_retrieve_message (char **, int *, char **, int *);
+mqtt_retrieve_message (char **, int *, char **, int *, const unsigned int);
 
 int
 mqtt_unsubscribe (const char *);
