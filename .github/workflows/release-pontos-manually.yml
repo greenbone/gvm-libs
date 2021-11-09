@@ -41,6 +41,7 @@ jobs:
       run: |
         . .venv/bin/activate
         pontos-release prepare --patch
+        echo "VERSION=$(poetry run pontos-version show)" >> $GITHUB_ENV
     - name: Release with pontos
       run: |
         . .venv/bin/activate
