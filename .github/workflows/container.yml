@@ -30,17 +30,29 @@ jobs:
           tags: ${{ steps.container.outputs.image-tags }}
           file: .docker/main.Dockerfile
 
-  trigger-openvas:
+  trigger-related-projects:
     needs: images
-    name: "Trigger docker "
+    name: "Trigger update docker images in related projects"
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger openvas container image build
+      - name: Trigger main openvas-scanner container image build
         run: |
           curl -X POST https://api.github.com/repos/greenbone/openvas-scanner/dispatches \
           -H 'Accept: application/vnd.github.everest-preview+json' \
           -u greenbonebot:${{ secrets.GREENBONE_BOT_TOKEN }} \
-          --data '{"event_type": "update-images"}'
+          --data '{"event_type": "update-main-images"}'
+      - name: Trigger main gvmd container image build
+        run: |
+          curl -X POST https://api.github.com/repos/greenbone/gvmd/dispatches \
+          -H 'Accept: application/vnd.github.everest-preview+json' \
+          -u greenbonebot:${{ secrets.GREENBONE_BOT_TOKEN }} \
+          --data '{"event_type": "update-main-images"}'
+      - name: Trigger main openvas container image build
+        run: |
+          curl -X POST https://api.github.com/repos/greenbone/gsad/dispatches \
+          -H 'Accept: application/vnd.github.everest-preview+json' \
+          -u greenbonebot:${{ secrets.GREENBONE_BOT_TOKEN }} \
+          --data '{"event_type": "update-main-images"}'
 
   upload-build:
     name: "Upload images for building gvm-libs"
