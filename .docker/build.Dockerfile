@@ -14,7 +14,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG VERSION
 ARG COMPILER
 
-WORKDIR /usr/local/src
+WORKDIR /source
 
 # Install core dependencies required for building and testing gvm-libs
 RUN apt-get update && \
