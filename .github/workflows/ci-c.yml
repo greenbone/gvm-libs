@@ -24,8 +24,8 @@ jobs:
     strategy:
       matrix:
         container:
-          - greenbone/gvm-libs-clang-build:main
-          - greenbone/gvm-libs-gcc-build:main
+          - greenbone/gvm-libs-clang-build:unstable
+          - greenbone/gvm-libs-gcc-build:unstable
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2
@@ -44,7 +44,7 @@ jobs:
   scan-build:
     name: Scan-build gvm-libs with clang
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs-clang-build:main
+    container: greenbone/gvm-libs-clang-build:unstable
     steps:
       - uses: actions/checkout@v2
       - name: Configure and Compile gvm-libs
