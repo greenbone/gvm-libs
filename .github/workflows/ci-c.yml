@@ -15,8 +15,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Check Source Format
         run: |
-          clang-format -i -style=file base/*.{c,h} boreas/*.{c,h} gmp/*.{c,h} \
-            osp/*.{c,h} util/*.{c,h}
+          clang-format -i -style=file {base,boreas,gmp,osp,util}/*.{c,h}
           git diff --exit-code
 
   tests:
