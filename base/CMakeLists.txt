@@ -61,10 +61,6 @@ set (LIBGVM_BASE_NAME
      ${LIBGVM_BASE_NAME}
      PARENT_SCOPE)
 
-if (GVM_PID_DIR)
-  add_definitions (-DGVM_PID_DIR="${GVM_PID_DIR}")
-endif (GVM_PID_DIR)
-
 if (GVM_SYSCONF_DIR)
   add_definitions (-DGVM_SYSCONF_DIR="${GVM_SYSCONF_DIR}")
 endif (GVM_SYSCONF_DIR)
@@ -133,7 +129,7 @@ endif (BUILD_TESTS)
 
 configure_file (libgvm_base.pc.in ${CMAKE_BINARY_DIR}/libgvm_base.pc @ONLY)
 
-install (DIRECTORY DESTINATION ${GVM_PID_DIR})
+install (DIRECTORY DESTINATION ${GVM_RUN_DIR})
 
 install (FILES ${CMAKE_BINARY_DIR}/libgvm_base.pc
          DESTINATION ${LIBDIR}/pkgconfig)

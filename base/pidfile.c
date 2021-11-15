@@ -25,7 +25,7 @@
 #include "pidfile.h"
 
 #include <errno.h>       /* for errno */
-#include <glib.h>        /* for g_free, gchar, g_build_filename, g_strconcat */
+#include <glib.h>        /* for g_free, gchar */
 #include <glib/gstdio.h> /* for g_unlink, g_fopen */
 #include <stdio.h>       /* for fclose, FILE */
 #include <stdlib.h>      /* for atoi */
@@ -42,20 +42,17 @@
  * @brief Create a PID-file.
  *
  * A standard PID file will be created for the
- * given daemon name.
+ * given path.
  *
- * @param[in]  daemon_name The name of the daemon
+ * @param[in]  pid_file_path The full path of the pid file. E.g.
+ * "/tmp/service1.pid"
  *
  * @return 0 for success, anything else indicates an error.
  */
 int
-pidfile_create (gchar *daemon_name)
+pidfile_create (gchar *pid_file_path)
 {
-  gchar *name_pid = g_strconcat (daemon_name, ".pid", NULL);
-  gchar *pidfile_name = g_build_filename (GVM_PID_DIR, name_pid, NULL);
-  FILE *pidfile = g_fopen (pidfile_name, "w");
-
-  g_free (name_pid);
+  FILE *pidfile = g_fopen (pid_file_path, "w");
 
   if (pidfile == NULL)
     {
@@ -67,7 +64,6 @@ pidfile_create (gchar *daemon_name)
     {
       g_fprintf (pidfile, "%d\n", getpid ());
       fclose (pidfile);
-      g_free (pidfile_name);
     }
   return 0;
 }
@@ -75,27 +71,22 @@ pidfile_create (gchar *daemon_name)
 /**
  * @brief Remove PID file.
  *
- * @param[in]  daemon_name The name of the daemon
+ * @param[in]  pid_file_path The full path of the pid file. E.g.
+ * "/tmp/service1.pid"
  */
 void
-pidfile_remove (gchar *daemon_name)
+pidfile_remove (gchar *pid_file_path)
 {
-  gchar *name_pid = g_strconcat (daemon_name, ".pid", NULL);
-  gchar *pidfile_name = g_build_filename (GVM_PID_DIR, name_pid, NULL);
   gchar *pidfile_contents;
 
-  g_free (name_pid);
-
-  if (g_file_get_contents (pidfile_name, &pidfile_contents, NULL, NULL))
+  if (g_file_get_contents (pid_file_path, &pidfile_contents, NULL, NULL))
     {
       int pid = atoi (pidfile_contents);
 
       if (pid == getpid ())
         {
-          g_unlink (pidfile_name);
+          g_unlink (pid_file_path);
         }
       g_free (pidfile_contents);
     }
-
-  g_free (pidfile_name);
 }
