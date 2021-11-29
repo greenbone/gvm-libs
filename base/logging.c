@@ -366,6 +366,9 @@ gvm_log_lock_init (void)
 void
 gvm_log_lock (void)
 {
+  /* Initialize logger lock if not done already. */
+  gvm_log_lock_init ();
+
   g_mutex_lock (logger_mutex);
 }
 
@@ -417,9 +420,6 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
   channel = NULL;
   gchar *syslog_facility = "local0";
   gchar *syslog_ident = NULL;
-
-  /* Initialize logger lock if not done. */
-  gvm_log_lock_init ();
 
   /* Let's load the default configuration file directives from the
    * linked list. Scanning the link list twice is inefficient but
