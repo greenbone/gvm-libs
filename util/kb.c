@@ -821,6 +821,9 @@ redis_push_str (kb_t kb, const char *name, const char *value)
   redisReply *rep = NULL;
   int rc = 0;
 
+  if (!value)
+    return -1;
+
   kbr = redis_kb (kb);
   rep = redis_cmd (kbr, "LPUSH %s %s", name, value);
   if (!rep || rep->type == REDIS_REPLY_ERROR)
