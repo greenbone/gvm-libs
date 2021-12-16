@@ -393,6 +393,74 @@ osp_get_vts_version (osp_connection_t *connection, char **vts_version,
 }
 
 /**
+ * @brief Get the VTs version as well as other feed info from an OSP server.
+ *
+ * @param[in]   connection    Connection to an OSP server.
+ * @param[out]  vts_version   Parsed VTs feed version.
+ * @param[out]  feed_name     Parsed VTs feed name.
+ * @param[out]  feed_vendor   Parsed VTs feed vendor.
+ * @param[out]  feed_home     Parsed VTs feed home URL.
+ * @param[out]  error         Pointer to error, if any.
+ *
+ * @return 0 if success, 1 if error.
+ */
+int
+osp_get_vts_feed_info (osp_connection_t *connection, char **vts_version,
+                       char **feed_name, char **feed_vendor, char **feed_home,
+                       char **error)
+{
+  entity_t entity, vts;
+  const char *version, *name, *vendor, *home;
+  const char *status, *status_text;
+  osp_get_vts_opts_t get_vts_opts;
+
+  if (!connection)
+    return 1;
+
+  get_vts_opts = osp_get_vts_opts_default;
+  get_vts_opts.version_only = 1;
+  if (osp_get_vts_ext (connection, get_vts_opts, &entity))
+    return 1;
+
+  status = entity_attribute (entity, "status");
+
+  if (status != NULL && !strcmp (status, "400"))
+    {
+      status_text = entity_attribute (entity, "status_text");
+      g_debug ("%s: %s - %s.", __func__, status, status_text);
+      if (error)
+        *error = g_strdup (status_text);
+      free_entity (entity);
+      return 1;
+    }
+
+  vts = entity_child (entity, "vts");
+  if (!vts)
+    {
+      g_warning ("%s: element VTS missing.", __func__);
+      free_entity (entity);
+      return 1;
+    }
+
+  version = entity_attribute (vts, "vts_version");
+  name = entity_attribute (vts, "feed_name");
+  vendor = entity_attribute (vts, "feed_vendor");
+  home = entity_attribute (vts, "feed_home");
+
+  if (vts_version)
+    *vts_version = version ? g_strdup (version) : NULL;
+  if (feed_name)
+    *feed_name = name ? g_strdup (name) : NULL;
+  if (feed_vendor)
+    *feed_vendor = vendor ? g_strdup (vendor) : NULL;
+  if (feed_home)
+    *feed_home = home ? g_strdup (home) : NULL;
+
+  free_entity (entity);
+  return 0;
+}
+
+/**
  * @brief Get all VTs from an OSP server.
  *
  * @param[in]   connection    Connection to an OSP server.

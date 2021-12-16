@@ -102,6 +102,10 @@ int
 osp_get_vts_version (osp_connection_t *, char **, char **error);
 
 int
+osp_get_vts_feed_info (osp_connection_t *, char **, char **, char **, char **,
+                       char **);
+
+int
 osp_get_vts (osp_connection_t *, entity_t *);
 
 typedef struct
