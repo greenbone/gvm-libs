@@ -95,6 +95,9 @@ osp_connection_close (osp_connection_t *);
 
 /* OSP commands */
 int
+osp_check_feed (osp_connection_t *, int *, int *, char **, char **);
+
+int
 osp_get_version (osp_connection_t *, char **, char **, char **, char **,
                  char **, char **);
 

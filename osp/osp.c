@@ -249,6 +249,97 @@ osp_connection_close (osp_connection_t *connection)
 }
 
 /**
+ * @brief Gets additional status info about the feed.
+ *
+ * @param[in]   connection            Connection to an OSP server.
+ * @param[out]  lockfile_in_use       Whether the lockfile is in use.
+ * @param[out]  self_test_exit_error  Whether the sync script self check failed.
+ * @param[out]  self_test_error_msg   Self check error message if one occurred.
+ * @param[out]  cmd_error             Error message of the OSP command.
+ *
+ * @return 0 if success, 1 if error.
+ */
+int
+osp_check_feed (osp_connection_t *connection, int *lockfile_in_use,
+                int *self_test_exit_error, char **self_test_error_msg,
+                char **cmd_error)
+{
+  entity_t entity, feed, lockfile_entity, exit_error_entity, error_msg_entity;
+  const char *status, *status_text;
+
+  if (!connection)
+    return 1;
+
+  if (osp_send_command (connection, &entity, "<check_feed/>"))
+    return 1;
+
+  status = entity_attribute (entity, "status");
+
+  if (status != NULL && !strcmp (status, "400"))
+    {
+      status_text = entity_attribute (entity, "status_text");
+      g_debug ("%s: %s - %s.", __func__, status, status_text);
+      if (cmd_error)
+        *cmd_error = g_strdup (status_text);
+      free_entity (entity);
+      return 1;
+    }
+
+  feed = entity_child (entity, "feed");
+  if (!feed)
+    {
+      g_warning ("%s: element FEED missing.", __func__);
+      free_entity (entity);
+      return 1;
+    }
+
+  lockfile_entity = entity_child (feed, "lockfile_in_use");
+  exit_error_entity = entity_child (feed, "self_test_exit_error");
+  error_msg_entity = entity_child (feed, "self_test_error_msg");
+
+  if (lockfile_in_use)
+    {
+      if (lockfile_entity)
+        *lockfile_in_use = atoi (entity_text (lockfile_entity));
+      else
+        {
+          g_warning ("%s: element LOCKFILE_IN_USE missing.", __func__);
+          *lockfile_in_use = 0;
+        }
+    }
+
+  if (self_test_exit_error)
+    {
+      if (exit_error_entity)
+        *self_test_exit_error = atoi (entity_text (exit_error_entity));
+      else
+        {
+          g_warning ("%s: element SELF_TEST_EXIT_ERROR missing.", __func__);
+          *self_test_exit_error = 0;
+        }
+    }
+
+  if (self_test_error_msg)
+    {
+      if (self_test_error_msg)
+        {
+          if (entity_text (error_msg_entity))
+            *self_test_error_msg = g_strdup (entity_text (error_msg_entity));
+          else
+            *self_test_error_msg = NULL;
+        }
+      else
+        {
+          g_warning ("%s: element SELF_TEST_ERROR_MSG missing.", __func__);
+          *self_test_error_msg = NULL;
+        }
+    }
+
+  free_entity (entity);
+  return 0;
+}
+
+/**
  * @brief Get the scanner version from an OSP server.
  *
  * @param[in]   connection  Connection to an OSP server.
