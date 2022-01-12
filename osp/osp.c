@@ -251,6 +251,9 @@ osp_connection_close (osp_connection_t *connection)
 /**
  * @brief Gets additional status info about the feed.
  *
+ * The lockfile_in_use and self_test_exit_error fields will be set to -1 if
+ * the corresponding elements are missing.
+ *
  * @param[in]   connection            Connection to an OSP server.
  * @param[out]  lockfile_in_use       Whether the lockfile is in use.
  * @param[out]  self_test_exit_error  Whether the sync script self check failed.
@@ -304,7 +307,7 @@ osp_check_feed (osp_connection_t *connection, int *lockfile_in_use,
       else
         {
           g_warning ("%s: element LOCKFILE_IN_USE missing.", __func__);
-          *lockfile_in_use = 0;
+          *lockfile_in_use = -1;
         }
     }
 
@@ -315,7 +318,7 @@ osp_check_feed (osp_connection_t *connection, int *lockfile_in_use,
       else
         {
           g_warning ("%s: element SELF_TEST_EXIT_ERROR missing.", __func__);
-          *self_test_exit_error = 0;
+          *self_test_exit_error = -1;
         }
     }
 
