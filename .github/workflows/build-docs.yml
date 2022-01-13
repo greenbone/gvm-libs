@@ -1,0 +1,38 @@
+name: 'Build Documentation'
+
+on:
+  push:
+    branches: [ main, stable, oldstable ]
+
+jobs:
+  generate-doc-and-upload-coverage:
+    name: Build XML documentation and upload coverage
+    runs-on: ubuntu-latest
+    container: greenbone/doxygen
+    steps:
+      - name: Run the c lang coverage action
+        uses: greenbone/actions/doc-coverage-clang@v1
+
+  generate-xml-doc:
+    name: Generate documentation (XML)
+    runs-on: ubuntu-latest
+    container: greenbone/doxygen
+    steps:
+      - name: Check out gvmd
+        uses: actions/checkout@v2
+      - name: Generate documentation (XML)
+        run: |
+             mkdir build
+             cd build
+             cmake -DSKIP_SRC=1 ..
+             make doc-xml 2> ~/doxygen-stderr.txt
+      - name: Upload doxygen error output as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: doxygen-stderr.txt
+          path: ~/doxygen-stderr.txt
+      - name: Upload XML documentation as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: xml-doc
+          path: build/doc/generated/xml/
