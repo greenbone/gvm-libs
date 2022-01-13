@@ -317,6 +317,7 @@ start_sniffer_thread (struct scanner *scanner, pthread_t *sniffer_thread_id)
     }
 
   /* Start sniffer thread. */
+  pthread_mutex_lock (&mutex);
   err = pthread_create (sniffer_thread_id, NULL, sniffer_thread, scanner);
   if (err == EAGAIN)
     g_warning ("%s: pthread_create() returned EAGAIN: Insufficient resources "
@@ -324,7 +325,6 @@ start_sniffer_thread (struct scanner *scanner, pthread_t *sniffer_thread_id)
                __func__);
 
   /* Wait for thread to start up before sending out pings. */
-  pthread_mutex_lock (&mutex);
   pthread_cond_wait (&cond, &mutex);
   pthread_mutex_unlock (&mutex);
   /* Mutex and cond not needed anymore. */
