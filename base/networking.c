@@ -1123,3 +1123,193 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
 
   return interface_out != NULL ? interface_out : NULL;
 }
+
+/**
+ * @brief Get a connected UDP socket.
+ *
+ * @param target_addr Holds addr for connect call
+ *
+ * @return Socket number or -1 on error.
+ */
+int
+get_connected_udp_sock (struct sockaddr_storage *target_addr)
+{
+  int family = target_addr->ss_family;
+  int sockfd = -1;
+  if (family == AF_INET)
+    {
+      sockfd = socket (AF_INET, SOCK_DGRAM, 0);
+      if (sockfd < 0)
+        {
+          g_warning ("Socket error: %s", strerror (errno));
+          return -1;
+        }
+
+      ((struct sockaddr_in *) target_addr)->sin_port = htons (9877);
+      if (connect (sockfd, (struct sockaddr *) target_addr,
+                   sizeof (struct sockaddr_in))
+          < 0)
+        {
+          g_warning ("Connect error: %s", strerror (errno));
+          close (sockfd);
+          return -1;
+        }
+    }
+  else if (family == AF_INET6)
+    {
+      sockfd = socket (AF_INET6, SOCK_DGRAM, 0);
+      if (sockfd < 0)
+        {
+          g_warning ("Socket error: %s", strerror (errno));
+          return -1;
+        }
+      ((struct sockaddr_in6 *) target_addr)->sin6_port = htons (9877);
+      if (connect (sockfd, (struct sockaddr *) target_addr,
+                   sizeof (struct sockaddr_in6))
+          < 0)
+        {
+          g_warning ("Connect error: %s", strerror (errno));
+          close (sockfd);
+          return -1;
+        }
+    }
+  return sockfd;
+}
+
+/**
+ * @brief Get address from socket.
+ *
+ * @param[in] sockfd      Socket from which to get the address.
+ * @param[out] sock_addr  Location to write address into.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int
+get_sock_addr (int sockfd, struct sockaddr_storage *sock_addr)
+{
+  socklen_t len;
+  int family = sock_addr->ss_family;
+  if (family == AF_INET)
+    {
+      len = sizeof (struct sockaddr_in);
+      if (getsockname (sockfd, (struct sockaddr *) sock_addr, &len) < 0)
+        {
+          g_warning ("getsockname error: %s", strerror (errno));
+          close (sockfd);
+          return -1;
+        }
+    }
+  else if (family == AF_INET6)
+    {
+      len = sizeof (struct sockaddr_in6);
+      if (getsockname (sockfd, (struct sockaddr *) sock_addr, &len) < 0)
+        {
+          g_warning ("getsockname error:%s", strerror (errno));
+          close (sockfd);
+          return -1;
+        }
+    }
+  return 0;
+}
+
+/**
+ * @brief Get iface name of iface matching the given interface address.
+ *
+ * @param[in] target_addr Address of interface.
+ *
+ * @return Interface name of matching interface which to be freed by the caller.
+ * Null if no interface found or error.
+ */
+char *
+get_ifname_from_ifaddr (struct sockaddr_storage *target_addr)
+{
+  struct ifaddrs *ifaddr, *ifa;
+  int family = target_addr->ss_family;
+  char *interface_out = NULL;
+
+  if (getifaddrs (&ifaddr) == -1)
+    {
+      g_warning ("%s: getifaddr failed: %s", __func__, strerror (errno));
+      return NULL;
+    }
+  if (family == AF_INET)
+    {
+      struct sockaddr_in *sin;
+      for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+        {
+          if (!(ifa->ifa_flags & IFF_UP))
+            continue;
+          if (ifa->ifa_addr == NULL)
+            continue;
+          if (ifa->ifa_addr->sa_family == AF_INET)
+            {
+              sin = (struct sockaddr_in *) (ifa->ifa_addr);
+              if (((struct sockaddr_in *) target_addr)->sin_addr.s_addr
+                  == sin->sin_addr.s_addr)
+                interface_out = g_strdup (ifa->ifa_name);
+            }
+        }
+    }
+  else if (family == AF_INET6)
+    {
+      struct sockaddr_in6 *sin6;
+      for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+        {
+          if (!(ifa->ifa_flags & IFF_UP))
+            continue;
+          if (ifa->ifa_addr == NULL)
+            continue;
+          if (ifa->ifa_addr->sa_family == AF_INET6)
+            {
+              sin6 = (struct sockaddr_in6 *) (ifa->ifa_addr);
+              if (IN6_ARE_ADDR_EQUAL (
+                    &(sin6->sin6_addr),
+                    &((struct sockaddr_in6 *) target_addr)->sin6_addr))
+                interface_out = g_strdup (ifa->ifa_name);
+            }
+        }
+    }
+  freeifaddrs (ifaddr);
+  return interface_out;
+}
+
+/**
+ * @brief Get the outgoing interface name for a given destination addr.
+ *
+ * A UDP socket is connected and its address retrieved. The address is the
+ * address of the interface of the outgoing interface. Its is determined by
+ * the kernal. We then search the list of interfaces for this address to
+ * determine the interface name. This method has the downside that if two
+ * interfaces with same addr are UP, a wrong interface might be returned because
+ * we can only retrieve the interface addr which was chosen by the kernal and
+ * nothing else (like e.g. interface number).
+ *
+ * @param[in]   target_addr    Destination address.
+ *
+ * @return Name of outgoing interface which has to be freed by caller. NULL if
+ * no interface found or Error.
+ */
+char *
+gvm_get_outgoing_iface (struct sockaddr_storage *target_addr)
+{
+  int family, sockfd;
+  struct sockaddr_storage out_iface_addr;
+  char *out_iface_str;
+
+  out_iface_str = NULL;
+  family = target_addr->ss_family;
+
+  if (!target_addr)
+    return NULL;
+
+  // get a connected udp socket
+  if ((sockfd = get_connected_udp_sock (target_addr)) < 0)
+    return NULL;
+  // get socked address which is the addr of the interface we want to get
+  out_iface_addr.ss_family = family;
+  if (get_sock_addr (sockfd, &out_iface_addr) < 0)
+    return NULL;
+  // get interface name form interface address
+  out_iface_str = get_ifname_from_ifaddr (&out_iface_addr);
+  return out_iface_str;
+}
