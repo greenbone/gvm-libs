@@ -1278,10 +1278,10 @@ get_ifname_from_ifaddr (struct sockaddr_storage *target_addr)
  *
  * A UDP socket is connected and its address retrieved. The address is the
  * address of the interface of the outgoing interface. Its is determined by
- * the kernal. We then search the list of interfaces for this address to
+ * the kernel. We then search the list of interfaces for this address to
  * determine the interface name. This method has the downside that if two
  * interfaces with same addr are UP, a wrong interface might be returned because
- * we can only retrieve the interface addr which was chosen by the kernal and
+ * we can only retrieve the interface addr which was chosen by the kernel and
  * nothing else (like e.g. interface number).
  *
  * @param[in]   target_addr    Destination address.
