@@ -1,4 +1,4 @@
-/* Copyright (C) 2013-2021 Greenbone Networks GmbH
+/* Copyright (C) 2013-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -115,5 +115,8 @@ ipv6_is_enabled ();
 
 gchar *
 gvm_routethrough (struct sockaddr_storage *, struct sockaddr_storage *);
+
+char *
+gvm_get_outgoing_iface (struct sockaddr_storage *);
 
 #endif /* not _GVM_NETWORKING_H */

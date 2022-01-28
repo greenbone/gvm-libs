@@ -1,4 +1,4 @@
-/* Portions Copyright (C) 2021 Greenbone Networks GmbH
+/* Portions Copyright (C) 2021-2022 Greenbone Networks GmbH
  * Based on work Copyright (C) Thomas Habets <thomas@habets.se>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -71,8 +71,6 @@ static const uint8_t ethnull[ETH_ALEN] = {0, 0, 0, 0, 0, 0};
 static const uint8_t ethxmas[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 static const char *ip_broadcast = "255.255.255.255";
 
-static char *target = NULL;
-
 /**
  * @brief Strip newline at end of string.
  *
@@ -108,7 +106,6 @@ do_libnet_init (const char *ifname, int recursive)
 {
   char ebuf[LIBNET_ERRBUF_SIZE];
   ebuf[0] = 0;
-  g_debug ("%s: libnet_init(%s)", __func__, ifname ? ifname : "<null>");
   if (libnet)
     {
       /* Probably going to switch interface from temp to real. */
@@ -168,88 +165,6 @@ xresolve (libnet_t *l, const char *name, int r, uint32_t *addr)
     }
   *addr = libnet_name2addr4 (l, (char *) name, r);
   return *addr != 0xffffffff;
-}
-
-/**
- * @brief Find interface to use for a given destination.
- *
- * @param dstip   Destination IP.
- * @param ebuf    Buffer to store error message in.
- *
- * @return Interface or NULL if no interface found.
- */
-static const char *
-arp_lookupdev (uint32_t dstip, char *ebuf)
-{
-  struct ifaddrs *ifa = NULL;
-  struct ifaddrs *cur;
-  const char *ret = NULL;
-  int match_count = 0; /* Matching interfaces */
-
-  /* best match */
-  in_addr_t best_mask = 0;
-
-  /* Results */
-  static char ifname[IF_NAMESIZE];
-
-  *ebuf = 0;
-
-  if (getifaddrs (&ifa))
-    {
-      g_debug ("%s: getifaddrs(): %s", __func__, strerror (errno));
-      snprintf (ebuf, LIBNET_ERRBUF_SIZE, "getifaddrs(): %s", strerror (errno));
-      goto out;
-    }
-  for (cur = ifa; cur; cur = cur->ifa_next)
-    {
-      in_addr_t addr, mask;
-
-      if (!(cur->ifa_flags & IFF_UP))
-        {
-          continue;
-        }
-      if (!cur->ifa_addr || !cur->ifa_netmask || !cur->ifa_name)
-        {
-          continue;
-        }
-      if (cur->ifa_addr->sa_family != AF_INET)
-        {
-          continue;
-        }
-      if (cur->ifa_flags & (IFF_LOOPBACK | IFF_POINTOPOINT))
-        {
-          continue;
-        }
-      addr = ((struct sockaddr_in *) cur->ifa_addr)->sin_addr.s_addr;
-      mask = ((struct sockaddr_in *) cur->ifa_netmask)->sin_addr.s_addr;
-      if ((addr & mask) != (dstip & mask))
-        {
-          continue;
-        }
-      match_count++;
-      if (ntohl (mask) > ntohl (best_mask))
-        {
-          memset (ifname, 0, sizeof (ifname));
-          strncpy (ifname, cur->ifa_name, sizeof (ifname) - 1);
-          best_mask = mask;
-        }
-    }
-  if (match_count)
-    {
-      ret = ifname;
-      g_debug ("%s: Autodetected interface %s", __func__, ret);
-    }
-  else
-    {
-      snprintf (ebuf, LIBNET_ERRBUF_SIZE,
-                "No matching interface found using getifaddrs().");
-    }
-out:
-  if (ifa)
-    {
-      freeifaddrs (ifa);
-    }
-  return ret;
 }
 
 /**
@@ -319,7 +234,8 @@ send_arp_v4 (const char *dst_str)
 {
   char ebuf[LIBNET_ERRBUF_SIZE + PCAP_ERRBUF_SIZE];
   char *cp;
-  const char *ifname = NULL;
+  char *ifname = NULL;
+  char *target = NULL;
   char mac_debug_buf[128];
 
   char pcap_ebuf[PCAP_ERRBUF_SIZE];
@@ -354,8 +270,6 @@ send_arp_v4 (const char *dst_str)
         {
           memcpy (ifname_default, alldevsp->name, IF_NAMESIZE);
           pcap_freealldevs (alldevsp);
-          g_debug ("%s: Set default interface via pcap_findalldevs(): %s",
-                   __func__, ifname_default);
         }
     }
 
@@ -371,7 +285,13 @@ send_arp_v4 (const char *dst_str)
   /* Get some good iface. */
   if (!ifname)
     {
-      ifname = arp_lookupdev (dstip, ebuf);
+      struct sockaddr_storage target_addr;
+      struct sockaddr_in sin_dst;
+      sin_dst.sin_family = AF_INET;
+      sin_dst.sin_addr.s_addr = dstip;
+      memcpy (&target_addr, &sin_dst, sizeof (sin_dst));
+
+      ifname = gvm_get_outgoing_iface (&target_addr);
       strip_newline (ebuf);
       if (!ifname)
         {
@@ -382,13 +302,14 @@ send_arp_v4 (const char *dst_str)
         {
           /* Only set ifname if ifname_default str is not empty. */
           if (*ifname_default)
-            ifname = ifname_default;
+            ifname = g_strdup (ifname_default);
         }
       if (!ifname)
         {
           g_warning ("%s: Gave up looking for interface"
                      " to use: %s. Address '%s' will be skipped.",
                      __func__, ebuf, target);
+          g_free (target);
           return;
         }
       /* check for other probably-not interfaces */
@@ -414,6 +335,8 @@ send_arp_v4 (const char *dst_str)
     {
       g_warning ("%s: libnet_get_hwaddr(): %s. Address '%s' will be skipped.",
                  __func__, libnet_geterror (libnet), target);
+      g_free (target);
+      g_free (ifname);
       return;
     }
   memcpy (srcmac, cp, ETH_ALEN);
@@ -425,6 +348,8 @@ send_arp_v4 (const char *dst_str)
           g_warning ("%s: Unable to get the IPv4 address of default "
                      "interface %s: %s. Address '%s' will be skipped.",
                      __func__, ifname, libnet_geterror (libnet), target);
+          g_free (target);
+          g_free (ifname);
           return;
         }
     }
@@ -437,4 +362,5 @@ send_arp_v4 (const char *dst_str)
   libnet_clear_packet (libnet);
 
   g_free (target);
+  g_free (ifname);
 }
