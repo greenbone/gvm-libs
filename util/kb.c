@@ -414,13 +414,17 @@ redis_memory_purge (kb_t kb)
  * @param[in] kb  Reference to a kb_t to initialize.
  * @param[in] kb_path   Path to KB.
  *
- * @return 0 on success, -1 on connection error, -2 when no DB is available.
+ * @return 0 on success, -1 on connection error, -2 when no DB is available, -3
+ * when given kb_path was NULL.
  */
 static int
 redis_new (kb_t *kb, const char *kb_path)
 {
   struct kb_redis *kbr;
   int rc = 0;
+
+  if (kb_path == NULL)
+    return -3;
 
   kbr = g_malloc0 (sizeof (struct kb_redis));
   kbr->kb.kb_ops = &KBRedisOperations;
@@ -466,6 +470,9 @@ redis_direct_conn (const char *kb_path, const int kb_index)
   struct kb_redis *kbr;
   redisReply *rep;
 
+  if (kb_path == NULL)
+    return NULL;
+
   kbr = g_malloc0 (sizeof (struct kb_redis));
   kbr->kb.kb_ops = &KBRedisOperations;
   kbr->path = g_strdup (kb_path);
@@ -510,6 +517,9 @@ redis_find (const char *kb_path, const char *key)
 {
   struct kb_redis *kbr;
   unsigned int i = 1;
+
+  if (kb_path == NULL)
+    return NULL;
 
   kbr = g_malloc0 (sizeof (struct kb_redis));
   kbr->kb.kb_ops = &KBRedisOperations;
