@@ -760,7 +760,7 @@ port_in_port_ranges (int pnum, port_protocol_t ptype, array_t *pranges)
  * @return 1 if IPv6 is enabled, 0 if disabled.
  */
 int
-ipv6_is_enabled ()
+ipv6_is_enabled (void)
 {
   int sock = socket (PF_INET6, SOCK_STREAM, 0);
 
@@ -782,7 +782,7 @@ ipv6_is_enabled ()
  *
  * @return True if IP is localhost, else false.
  */
-gboolean
+static gboolean
 ip_islocalhost (struct sockaddr_storage *storage)
 {
   struct in_addr addr;
@@ -1131,7 +1131,7 @@ gvm_routethrough (struct sockaddr_storage *storage_dest,
  *
  * @return Socket number or -1 on error.
  */
-int
+static int
 get_connected_udp_sock (struct sockaddr_storage *target_addr)
 {
   int family = target_addr->ss_family;
@@ -1184,7 +1184,7 @@ get_connected_udp_sock (struct sockaddr_storage *target_addr)
  *
  * @return 0 on success, -1 on error.
  */
-int
+static int
 get_sock_addr (int sockfd, struct sockaddr_storage *sock_addr)
 {
   socklen_t len;
@@ -1220,7 +1220,7 @@ get_sock_addr (int sockfd, struct sockaddr_storage *sock_addr)
  * @return Interface name of matching interface which to be freed by the caller.
  * Null if no interface found or error.
  */
-char *
+static char *
 get_ifname_from_ifaddr (struct sockaddr_storage *target_addr)
 {
   struct ifaddrs *ifaddr, *ifa;

@@ -58,7 +58,7 @@
  *
  * @return A newly allocated entity.
  */
-entity_t
+static entity_t
 make_entity (const char *name, const char *text)
 {
   entity_t entity;
@@ -189,7 +189,7 @@ entity_name (entity_t entity)
  * @return Zero if entity name matches name, otherwise a positive or negative
  *         number as from strcmp.
  */
-int
+static int
 compare_entity_with_name (gconstpointer entity, gconstpointer name)
 {
   return strcmp (entity_name ((entity_t) entity), (char *) name);
@@ -244,7 +244,7 @@ entity_attribute (entity_t entity, const char *name)
  * @param[in]  names   List of attribute names.
  * @param[in]  values  List of attribute values.
  */
-void
+static void
 add_attributes (entity_t entity, const gchar **names, const gchar **values)
 {
   if (names && values && *names && *values)
@@ -341,8 +341,8 @@ xml_handle_start_element (context_data_t *context, const gchar *element_name,
                           const gchar **attribute_names,
                           const gchar **attribute_values)
 {
-  return handle_start_element (NULL, element_name, attribute_names,
-                               attribute_values, context, NULL);
+  handle_start_element (NULL, element_name, attribute_names, attribute_values,
+                        context, NULL);
 }
 
 /**
@@ -487,7 +487,7 @@ xml_handle_text (context_data_t *context, const gchar *text, gsize text_len)
  * @param[in]  error             The error.
  * @param[in]  user_data         Dummy parameter.
  */
-void
+static void
 handle_error (GMarkupParseContext *context, GError *error, gpointer user_data)
 {
   (void) context;
@@ -758,7 +758,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
  *
  * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
  */
-int
+static int
 try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                               GString **string_return)
 {
@@ -1433,7 +1433,7 @@ print_entity_format (entity_t entity, gpointer indent)
  *
  * @return FALSE if found, TRUE otherwise.
  */
-gboolean
+static gboolean
 compare_find_attribute (gpointer key, gpointer value, gpointer attributes2)
 {
   gchar *value2 = g_hash_table_lookup (attributes2, key);

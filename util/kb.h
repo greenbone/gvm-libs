@@ -93,7 +93,7 @@ struct kb_item
   struct kb_item *next; /**< Next item in list. */
 
   size_t namelen; /**< Name length (including final NULL byte). */
-  char name[0];   /**< Name of this knowledge base item.  */
+  char name[];    /**< Name of this knowledge base item.  */
 };
 
 struct kb_operations;

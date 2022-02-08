@@ -24,6 +24,8 @@
 
 #ifdef ENABLE_RADIUS_AUTH
 
+#include "radiusutils.h"
+
 #include <arpa/inet.h> /* for inet_pton */
 
 #if defined(RADIUS_AUTH_FREERADIUS)

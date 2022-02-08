@@ -333,7 +333,7 @@ mqtt_init (const char *server_uri)
   mqtt_t *mqtt = NULL;
 
   mqtt = g_malloc0 (sizeof (mqtt_t));
-  const char *global_server_uri;
+  const char *g_server_uri;
   // Set random uuid as client id
   if (mqtt_set_client_id (mqtt) == NULL)
     {
@@ -343,8 +343,8 @@ mqtt_init (const char *server_uri)
       return -1;
     }
   g_debug ("%s: client id set: %s", __func__, mqtt->client_id);
-  global_server_uri = mqtt_get_global_server_uri ();
-  if (global_server_uri == NULL)
+  g_server_uri = mqtt_get_global_server_uri ();
+  if (g_server_uri == NULL)
     mqtt_set_global_server_uri (server_uri);
   mqtt_connect (mqtt, server_uri);
 
@@ -359,7 +359,7 @@ mqtt_init (const char *server_uri)
  * @brief Reinitializes communication after mqtt_reset was used
  *
  */
-void
+static void
 mqtt_reinit ()
 {
   const char *server_uri;
@@ -383,7 +383,7 @@ mqtt_reinit ()
  *
  * @return 0 on success, <0 on failure.
  */
-int
+static int
 mqtt_client_publish (mqtt_t *mqtt, const char *topic, const char *msg)
 {
   MQTTClient client;
@@ -519,7 +519,7 @@ mqtt_publish_single_message (const char *server_uri_in, const char *topic,
  * @return 0 on success, -1 when given mqtt is not useable, -2 when subscription
  * failed.
  */
-int
+static int
 mqtt_subscribe_r (mqtt_t *mqtt, int qos, const char *topic)
 {
   if (mqtt == NULL || mqtt->client == NULL)
@@ -571,7 +571,7 @@ mqtt_subscribe (const char *topic)
  * @return 0 on success, -1 when given mqtt is not useable, -2 when unsubscribe
  * failed.
  */
-int
+static int
 mqtt_unsubscribe_r (mqtt_t *mqtt, const char *topic)
 {
   if (mqtt == NULL || mqtt->client == NULL)
@@ -627,7 +627,7 @@ mqtt_unsubscribe (const char *topic)
  * @param timeout The length of time to wait for a message in milliseconds.
  * @return 0 on message retrieved, 1 on no message retrieved and -1 on an error.
  */
-int
+static int
 mqtt_retrieve_message_r (mqtt_t *mqtt, char **topic, int *topic_len,
                          char **payload, int *payload_len,
                          const unsigned int timeout)

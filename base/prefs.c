@@ -25,6 +25,8 @@
  * module.
  */
 
+#include "prefs.h"
+
 #include "settings.h" /* for init_settings_iterator_from_file */
 
 #include <glib.h>   /* for gchar */

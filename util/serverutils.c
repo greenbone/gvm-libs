@@ -51,11 +51,6 @@
  */
 #define G_LOG_DOMAIN "libgvm util"
 
-/**
- * @brief Server address.
- */
-struct sockaddr_in address;
-
 static int
 server_attach_internal (int, gnutls_session_t *, const char *, int);
 static int
@@ -775,7 +770,7 @@ gvm_socket_vsendf (int socket, const char *fmt, va_list ap)
  *
  * @return 0 on success, 1 if server closed connection, -1 on error.
  */
-int
+static int
 gvm_connection_vsendf (gvm_connection_t *connection, const char *fmt,
                        va_list ap)
 {
@@ -791,7 +786,7 @@ gvm_connection_vsendf (gvm_connection_t *connection, const char *fmt,
  *
  * @return 0 on success, 1 if server closed connection, -1 on error.
  */
-int
+static int
 gvm_server_vsendf_quiet (gnutls_session_t *session, const char *fmt, va_list ap)
 {
   return gvm_server_vsendf_internal (session, fmt, ap, 1);
@@ -806,7 +801,7 @@ gvm_server_vsendf_quiet (gnutls_session_t *session, const char *fmt, va_list ap)
  *
  * @return 0 on success, 1 if server closed connection, -1 on error.
  */
-int
+static int
 gvm_connection_vsendf_quiet (gvm_connection_t *connection, const char *fmt,
                              va_list ap)
 {
@@ -861,7 +856,7 @@ gvm_connection_sendf (gvm_connection_t *connection, const char *format, ...)
  *
  * @return 0 on success, -1 on error.
  */
-int
+static int
 gvm_server_sendf_quiet (gnutls_session_t *session, const char *format, ...)
 {
   va_list ap;
@@ -881,7 +876,7 @@ gvm_server_sendf_quiet (gnutls_session_t *session, const char *format, ...)
  *
  * @return 0 on success, -1 on error.
  */
-int
+static int
 gvm_connection_sendf_quiet (gvm_connection_t *connection, const char *format,
                             ...)
 {

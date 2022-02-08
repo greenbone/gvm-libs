@@ -30,7 +30,7 @@
 typedef GPtrArray array_t;
 
 GPtrArray *
-make_array ();
+make_array (void);
 
 void
 array_reset (array_t **array);
