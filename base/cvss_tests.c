@@ -56,7 +56,7 @@ Ensure (cvss, get_cvss_score_from_base_metrics_null)
   assert_that (get_cvss_score_from_base_metrics (NULL), is_equal_to (-1.0));
 }
 
-double
+static double
 nearest (double cvss)
 {
   return round (cvss * 10) / 10;

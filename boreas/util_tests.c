@@ -47,6 +47,10 @@ bool g_socket_use_real = true;
 int
 __wrap_socket (__attribute__ ((unused)) int domain,
                __attribute__ ((unused)) int type,
+               __attribute__ ((unused)) int protocol);
+int
+__wrap_socket (__attribute__ ((unused)) int domain,
+               __attribute__ ((unused)) int type,
                __attribute__ ((unused)) int protocol)
 {
   if (g_socket_use_real)
@@ -56,6 +60,12 @@ __wrap_socket (__attribute__ ((unused)) int domain,
 }
 
 bool g_setsockopt_use_real = true;
+int
+__wrap_setsockopt (__attribute__ ((unused)) int sockfd,
+                   __attribute__ ((unused)) int level,
+                   __attribute__ ((unused)) int optname,
+                   __attribute__ ((unused)) const void *optval,
+                   __attribute__ ((unused)) socklen_t optlen);
 int
 __wrap_setsockopt (__attribute__ ((unused)) int sockfd,
                    __attribute__ ((unused)) int level,
