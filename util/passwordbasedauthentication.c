@@ -92,6 +92,9 @@ exit:
  * */
 char *
 crypt_gensalt_r (const char *prefix, unsigned long count, const char *rbytes,
+                 int nrbytes, char *output, int output_size);
+char *
+crypt_gensalt_r (const char *prefix, unsigned long count, const char *rbytes,
                  int nrbytes, char *output, int output_size)
 {
   char *internal_rbytes = NULL;
