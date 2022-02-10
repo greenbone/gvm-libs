@@ -204,16 +204,16 @@ set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${HARDENING_FLAGS}")
 
 set (
     CMAKE_C_FLAGS
-    "${CMAKE_C_FLAGS} ${GPGME_C_FLAGS}
-    -std=c11
-    -Wall
-    -Wextra
-    -Werror
-    -Wpedantic
-    -Wmissing-prototypes
-    -Wshadow
-    -Wsequence-point
-    -D_ISOC11_SOURCE
+    "${CMAKE_C_FLAGS} ${GPGME_C_FLAGS} \
+    -std=c11 \
+    -Wall \
+    -Wextra \
+    -Werror \
+    -Wpedantic \
+    -Wmissing-prototypes \
+    -Wshadow \
+    -Wsequence-point \
+    -D_ISOC11_SOURCE \
     -D_DEFAULT_SOURCE"
 )
 
