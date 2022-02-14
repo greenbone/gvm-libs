@@ -111,7 +111,7 @@ int
 port_in_port_ranges (int, port_protocol_t, array_t *);
 
 int
-ipv6_is_enabled ();
+ipv6_is_enabled (void);
 
 gchar *
 gvm_routethrough (struct sockaddr_storage *, struct sockaddr_storage *);

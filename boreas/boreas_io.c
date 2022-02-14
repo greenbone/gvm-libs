@@ -48,7 +48,7 @@ max_scan_hosts_reached ()
 /**
  * @brief Set max_scan_hosts_reached to TRUE.
  */
-void
+static void
 set_max_scan_hosts_reached ()
 {
   scan_restrictions.max_scan_hosts_reached = TRUE;

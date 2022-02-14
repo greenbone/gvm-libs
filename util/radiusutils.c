@@ -22,6 +22,7 @@
  * @brief Implementation of an API for Radius authentication.
  */
 
+#include "radiusutils.h"
 #ifdef ENABLE_RADIUS_AUTH
 
 #include <arpa/inet.h> /* for inet_pton */

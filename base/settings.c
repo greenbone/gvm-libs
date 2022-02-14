@@ -42,7 +42,7 @@
  *
  * @return 0 success, -1 error.
  */
-int
+static int
 settings_init_from_file (settings_t *settings, const gchar *filename,
                          const gchar *group)
 {

@@ -29,6 +29,8 @@ if (POLICY CMP0005)
   cmake_policy (SET CMP0005 NEW)
 endif (POLICY CMP0005)
 
+set (C_STANDARD, 11)
+set (CMAKE_C_STANDARD 11)
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Debug)
 endif (NOT CMAKE_BUILD_TYPE)
@@ -197,9 +199,23 @@ endif (ENABLE_COVERAGE)
 
 set (HARDENING_FLAGS "-Wformat -Wformat-security -D_FORTIFY_SOURCE=2 -fstack-protector")
 set (LINKER_HARDENING_FLAGS "-Wl,-z,relro -Wl,-z,now")
-set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -Wextra -Werror ${COVERAGE_FLAGS}")
+set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${COVERAGE_FLAGS}")
 set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${HARDENING_FLAGS}")
 
+set (
+    CMAKE_C_FLAGS
+    "${CMAKE_C_FLAGS} ${GPGME_C_FLAGS} \
+    -std=c11 \
+    -Wall \
+    -Wextra \
+    -Werror \
+    -Wpedantic \
+    -Wmissing-prototypes \
+    -Wshadow \
+    -Wsequence-point \
+    -D_ISOC11_SOURCE \
+    -D_DEFAULT_SOURCE"
+)
 
 ## Version
 

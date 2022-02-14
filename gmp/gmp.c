@@ -33,7 +33,7 @@
 
 #include <errno.h>  /* for ERANGE, errno */
 #include <stdlib.h> /* for NULL, strtol, atoi */
-#include <string.h> /* for strlen, strdup */
+#include <strings.h>
 
 #undef G_LOG_DOMAIN
 /**
@@ -79,7 +79,7 @@ gmp_task_status (entity_t response)
  *
  * @return 0 on success, -1 or GMP response code on error.
  */
-int
+static int
 gmp_check_response (gnutls_session_t *session, entity_t *entity)
 {
   int ret;
@@ -180,7 +180,7 @@ check_response_c (gvm_connection_t *connection, int convert_99)
  *
  * @return 0 on success, -1 or GMP response code on error.
  */
-int
+static int
 gmp_check_response_c (gvm_connection_t *connection)
 {
   return check_response_c (connection, 0);
@@ -1292,7 +1292,7 @@ gmp_modify_task_file (gnutls_session_t *session, const char *id,
         {
           gchar *base64_content =
             g_base64_encode ((guchar *) content, content_len);
-          int ret = gvm_server_sendf (session, "%s", base64_content);
+          ret = gvm_server_sendf (session, "%s", base64_content);
           g_free (base64_content);
           if (ret)
             return -1;

@@ -36,7 +36,7 @@
  * @return New array.
  */
 GPtrArray *
-make_array ()
+make_array (void)
 {
   return g_ptr_array_new ();
 }

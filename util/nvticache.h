@@ -40,13 +40,13 @@ int
 nvticache_init (const char *, const char *);
 
 void
-nvticache_reset ();
+nvticache_reset (void);
 
 kb_t
-nvticache_get_kb ();
+nvticache_get_kb (void);
 
 void
-nvticache_save ();
+nvticache_save (void);
 
 int
 nvticache_initialized (void);

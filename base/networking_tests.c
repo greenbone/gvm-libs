@@ -121,6 +121,8 @@ Ensure (networking, validate_port_range)
     WEB_SERVICES,
   };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic warning "-Woverlength-strings"
   const char *portlists[] = {
     "T:1-50,52-80,82-99,101-113,115-224,242-248,256-257,259-271,280-284,286-"
     "287,308-324,333,344-584,586-658,660-702,704-707,709-715,729-731,741-742,"
@@ -804,7 +806,7 @@ Ensure (networking, validate_port_range)
     "32771,32815-32815,33281-33281,49152-49154,49156-49156,49181-49182,49185-"
     "49186,49188-49188,49190-49194,49200-49201",
     "T:80-80,443-443"};
-
+#pragma GCC diagnostic pop
   assert_that (
     validate_port_range (portlists[ALL_IANA_ASSIGNED_TCP_2020_02_12]),
     is_equal_to (0));
@@ -1019,6 +1021,9 @@ __real_g_io_channel_new_file (const char *filename, const char *mode,
 gboolean g_g_io_channel_new_file_use_real = TRUE;
 GIOChannel *
 __wrap_g_io_channel_new_file (const char *filename, const char *mode,
+                              GError **error);
+GIOChannel *
+__wrap_g_io_channel_new_file (const char *filename, const char *mode,
                               GError **error)
 {
   if (g_g_io_channel_new_file_use_real)
@@ -1032,6 +1037,9 @@ __real_g_io_channel_shutdown (GIOChannel *channel, gboolean flush,
                               GError **err);
 
 gboolean g_g_io_channel_shutdown_use_real = TRUE;
+GIOStatus
+__wrap_g_io_channel_shutdown (GIOChannel *channel, gboolean flush,
+                              GError **err);
 GIOStatus
 __wrap_g_io_channel_shutdown (GIOChannel *channel, gboolean flush, GError **err)
 {
@@ -1170,7 +1178,7 @@ Ensure (networking, gvm_source_addr)
   assert_that ((src.s_addr != INADDR_ANY));
 }
 
-TestSuite *
+static TestSuite *
 gvm_routethough ()
 {
   TestSuite *suite = create_test_suite ();

@@ -40,7 +40,7 @@
 #define CRYPT_OUTPUT_SIZE 384
 #endif
 
-int
+static int
 is_prefix_supported (const char *id)
 {
   return strcmp (PREFIX_DEFAULT, id) == 0;
@@ -57,7 +57,7 @@ const char ascii64[64] =
   "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 /* Tries to get BUFLEN random bytes into BUF; returns 0 on success. */
-int
+static int
 get_random (char *buf, size_t buflen)
 {
   FILE *fp = fopen ("/dev/urandom", "r");
@@ -90,6 +90,9 @@ exit:
  * OUTPUT_SIZE must be at least CRYPT_GENSALT_OUTPUT_SIZE.
  *
  * */
+char *
+crypt_gensalt_r (const char *prefix, unsigned long count, const char *rbytes,
+                 int nrbytes, char *output, int output_size);
 char *
 crypt_gensalt_r (const char *prefix, unsigned long count, const char *rbytes,
                  int nrbytes, char *output, int output_size)
@@ -163,7 +166,7 @@ pba_finalize (struct PBASettings *settings)
   free (settings);
 }
 
-int
+static int
 pba_is_phc_compliant (const char *setting)
 {
   if (setting == NULL)

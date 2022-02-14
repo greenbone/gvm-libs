@@ -52,7 +52,7 @@ static gboolean initialized = FALSE;
  * @return 1 if enabled, else 0.
  */
 int
-gvm_auth_ldap_enabled ()
+gvm_auth_ldap_enabled (void)
 {
 #ifdef ENABLE_LDAP_AUTH
   return 1;
@@ -67,7 +67,7 @@ gvm_auth_ldap_enabled ()
  * @return 1 if enabled, else 0.
  */
 int
-gvm_auth_radius_enabled ()
+gvm_auth_radius_enabled (void)
 {
 #ifdef ENABLE_RADIUS_AUTH
   return 1;
@@ -100,7 +100,7 @@ auth_method_name (auth_method_t method)
  * @return 0 success, -1 error.
  */
 int
-gvm_auth_init ()
+gvm_auth_init (void)
 {
   if (initialized == TRUE)
     {

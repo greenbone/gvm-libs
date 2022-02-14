@@ -76,9 +76,11 @@
  *                       complete:          0.660
  */
 
+#include "cvss.h"
+
 #include <glib.h>
 #include <math.h>
-#include <string.h>
+#include <strings.h>
 
 #undef G_LOG_DOMAIN
 /**

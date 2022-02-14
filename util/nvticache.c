@@ -133,7 +133,7 @@ nvticache_check (const gchar *filename)
  * @brief Reset connection to KB. To be called after a fork().
  */
 void
-nvticache_reset ()
+nvticache_reset (void)
 {
   if (cache_kb)
     kb_lnk_reset (cache_kb);
@@ -189,7 +189,7 @@ nvt_feed_version ()
  * @brief Save the nvticache to disk.
  */
 void
-nvticache_save ()
+nvticache_save (void)
 {
   char *feed_version, *old_version;
   if (cache_kb && !cache_saved)
