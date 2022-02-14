@@ -33,7 +33,6 @@
 
 #include <errno.h>  /* for ERANGE, errno */
 #include <stdlib.h> /* for NULL, strtol, atoi */
-#include <string.h> /* for strlen, strdup */
 #include <strings.h>
 
 #undef G_LOG_DOMAIN
