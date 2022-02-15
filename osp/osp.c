@@ -152,7 +152,8 @@ osp_connection_new (const char *host, int port, const char *cacert,
         }
 
       addr.sun_family = AF_UNIX;
-      strncpy (addr.sun_path, host, sizeof (addr.sun_path) - 1);
+      memset (addr.sun_path, 0, sizeof (addr.sun_path) - 1);
+      memcpy (addr.sun_path, host, sizeof (addr.sun_path) - 1);
       len = strlen (addr.sun_path) + sizeof (addr.sun_family);
       if (connect (connection->socket, (struct sockaddr *) &addr, len) == -1)
         {

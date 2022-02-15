@@ -656,7 +656,7 @@ mqtt_retrieve_message_r (mqtt_t *mqtt, char **topic, int *topic_len,
               goto exit;
             }
           rc = 0;
-          if ((strncpy (*topic, tmp, *topic_len)) == NULL)
+          if ((memcpy (*topic, tmp, *topic_len)) == NULL)
             {
               g_warning ("unable to copy topic");
               rc = -1;
@@ -665,8 +665,8 @@ mqtt_retrieve_message_r (mqtt_t *mqtt, char **topic, int *topic_len,
 
           *payload_len = message->payloadlen;
           *payload = calloc (1, message->payloadlen);
-          if ((strncpy (*payload, (char *) message->payload,
-                        message->payloadlen))
+          if ((memcpy (*payload, (char *) message->payload,
+                       message->payloadlen))
               == NULL)
             {
               g_warning ("unable to copy payload");
