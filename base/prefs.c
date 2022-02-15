@@ -174,10 +174,7 @@ prefs_config (const char *config)
   if (!global_prefs)
     prefs_init ();
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-truncation"
   strncpy (buffer, config, sizeof (buffer));
-#pragma GCC diagnostic pop
   if (!init_settings_iterator_from_file (&settings, buffer, "Misc"))
     {
       while (settings_iterator_next (&settings))
