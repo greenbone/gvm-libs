@@ -208,6 +208,7 @@ set (
     -std=c11 \
     -Wall \
     -Wextra \
+    -Werror \
     -Wpedantic \
     -Wmissing-prototypes \
     -Wshadow \

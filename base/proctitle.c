@@ -122,7 +122,7 @@ proctitle_set_args (const char *new_title, va_list args)
       formatted[i] = '\0';
     }
   bzero (old_argv[0], argv_len);
-  strncpy (old_argv[0], formatted, argv_len);
+  memcpy (old_argv[0], formatted, argv_len);
   old_argv[1] = NULL;
   g_free (formatted);
 }
