@@ -175,7 +175,7 @@ prefs_config (const char *config)
     prefs_init ();
 
   memset (buffer, 0, sizeof (buffer));
-  memcpy (buffer, config, sizeof (buffer));
+  memcpy (buffer, config, sizeof (buffer) - 1);
   if (!init_settings_iterator_from_file (&settings, buffer, "Misc"))
     {
       while (settings_iterator_next (&settings))
