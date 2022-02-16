@@ -24,8 +24,7 @@ jobs:
     strategy:
       matrix:
         container:
-          - greenbone/gvm-libs-clang-build:unstable
-          - greenbone/gvm-libs-gcc-build:unstable
+          - greenbone/gvm-libs-build:unstable
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2
@@ -44,20 +43,21 @@ jobs:
   scan-build:
     name: Scan-build gvm-libs with clang
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs-clang-build:unstable
+    container: greenbone/gvm-libs-build:unstable
     steps:
       - uses: actions/checkout@v2
-      - name: Configure and Compile gvm-libs
+      - name: Install clang tools
         run: |
-          mkdir build
-          cd build
-          scan-build cmake -DCMAKE_BUILD_TYPE=Debug ..
-          scan-build -o ~/scan-build-report make
-          [ -z "$(ls -A ~/scan-build-report/)" ]
-        working-directory: ${{ github.WORKSPACE }}
+          apt install --no-install-recommends -y clang clang-format clang-tools
+          rm -rf /var/lib/apt/lists/*
+      - name: Configure and Scan Build gvm-libs
+        run: |
+          cmake -Bbuild -DCMAKE_BUILD_TYPE=Release
+          scan-build -o ~/scan-build-report cmake --build build
       - name: Upload scan-build report
         if: failure()
         uses: actions/upload-artifact@v2
         with:
           name: scan-build-report
-          path: ~/scan-build-report
+          path: ~/scan-build-report/
+          retention-days: 7
