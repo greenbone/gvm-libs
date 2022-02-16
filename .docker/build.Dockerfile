@@ -1,7 +1,7 @@
 # Dockerfile for gvm-libs-$COMPILER-build:$VERSION
 
 # Define ARG we use through the build
-ARG VERSION=unstable
+ARG VERSION=oldstable
 
 # Use '-slim' image for reduced image size
 FROM debian:stable-slim
