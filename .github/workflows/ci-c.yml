@@ -21,11 +21,7 @@ jobs:
   tests:
     name: Unit Tests
     runs-on: 'ubuntu-latest'
-    strategy:
-      matrix:
-        container:
-          - greenbone/gvm-libs-build:stable
-    container: ${{ matrix.container }}
+    container: greenbone/gvm-libs-build:stable
     steps:
       - uses: actions/checkout@v2
       - name: Configure and Compile gvm-libs
@@ -48,6 +44,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install clang tools
         run: |
+          apt update
           apt install --no-install-recommends -y clang clang-format clang-tools
           rm -rf /var/lib/apt/lists/*
       - name: Configure and Scan Build gvm-libs
