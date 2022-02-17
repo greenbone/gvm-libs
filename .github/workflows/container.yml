@@ -62,7 +62,7 @@ jobs:
     name: "Trigger update docker images in related projects"
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger main openvas-scanner container image build
+      - name: Trigger oldstable openvas-scanner container image build
         run: |
           curl -X POST https://api.github.com/repos/greenbone/openvas-scanner/dispatches \
           -H 'Accept: application/vnd.github.everest-preview+json' \
