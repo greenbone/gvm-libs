@@ -99,6 +99,7 @@ if (BUILD_SHARED)
   set_target_properties (gvm_boreas_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
   target_link_libraries (gvm_boreas_shared LINK_PRIVATE
+                         gvm_util_shared
                          ${GLIB_LDFLAGS}
                          ${LIBNET_LDFLAGS}
                          ${LINKER_HARDENING_FLAGS}
