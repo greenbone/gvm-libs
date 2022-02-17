@@ -1,7 +1,7 @@
-# Dockerfile for gvm-libs-$COMPILER-testing:$VERSION
+# Dockerfile for gvm-libs-$COMPILER-build:$VERSION
 
 # Define ARG we use through the build
-ARG COMPILER=gcc
+ARG VERSION=stable
 
 # Use '-slim' image for reduced image size
 FROM debian:stable-slim
@@ -36,20 +36,3 @@ RUN apt-get update && \
     libcgreen1-dev \
     lcov \
     && rm -rf /var/lib/apt/lists/*
-
-# Install gcc/g++ compiler
-RUN if ( test "$COMPILER" = "gcc"); then \
-    echo "Compiler is $COMPILER" && \
-    apt-get update && \
-    apt-get install --no-install-recommends --assume-yes gcc g++; \
-    fi
-
-# Install clang compiler
-RUN if ( test "$COMPILER" = "clang"); then \
-    echo "Compiler is $COMPILER" && \
-    apt-get update && \
-    apt-get install --no-install-recommends --assume-yes \
-    clang \
-    clang-format \
-    clang-tools; \
-    fi
