@@ -1,35 +1,14 @@
-FROM debian:stable-slim as builder
+ARG VERSION=oldstable
+# this allows to work on forked repository
+ARG REPOSITORY=greenbone/gvm-libs
+FROM ${REPOSITORY}-build:$VERSION AS build
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
-    curl \
-    cmake \
-    pkg-config \
-    gnupg \
-    libglib2.0-dev \
-    libgpgme-dev \
-    libgnutls28-dev \
-    uuid-dev \
-    libssh-gcrypt-dev \
-    libhiredis-dev \
-    libxml2-dev \
-    libpcap-dev \
-    libnet1-dev \
-    libldap2-dev \
-    libradcli-dev \
-    && rm -rf /var/lib/apt/lists/*
-
+# Install
 COPY . /source
-WORKDIR /source
-
-RUN mkdir /build && \
-    mkdir /install && \
-    cd /build && \
-    cmake -DCMAKE_BUILD_TYPE=Release /source && \
-    make DESTDIR=/install install
+RUN cmake -DCMAKE_BUILD_TYPE=Release -B/build /source
+RUN DESTDIR=/install cmake --build /build -- install 
 
 FROM debian:stable-slim
 
@@ -50,6 +29,6 @@ RUN apt-get update && \
     libradcli4 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /install/ /
+COPY --from=build /install/ /
 
 RUN ldconfig
