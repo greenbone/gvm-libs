@@ -73,7 +73,7 @@ jobs:
           curl -X POST https://api.github.com/repos/greenbone/gvmd/dispatches \
           -H 'Accept: application/vnd.github.everest-preview+json' \
           -u greenbonebot:${{ secrets.GREENBONE_BOT_TOKEN }} \
-          --data '{"event_type": "update-main-images"}'
+          --data '{"event_type": "update-oldstable-images"}'
       - name: Trigger oldstable openvas container image build
         run: |
           curl -X POST https://api.github.com/repos/greenbone/gsad/dispatches \
