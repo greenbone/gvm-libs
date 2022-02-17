@@ -75,7 +75,12 @@ if (BUILD_SHARED)
   set_target_properties (gvm_boreas_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
   set_target_properties (gvm_boreas_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-  target_link_libraries (gvm_boreas_shared LINK_PRIVATE ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+  target_link_libraries (gvm_boreas_shared LINK_PRIVATE
+                         gvm_util_shared
+                         ${GLIB_LDFLAGS}
+                         ${LIBNET_LDFLAGS}
+                         ${LINKER_HARDENING_FLAGS}
+                         ${CMAKE_THREAD_LIBS_INIT})
 endif (BUILD_SHARED)
 
 set (LIBGVM_BOREAS_NAME
