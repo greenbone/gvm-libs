@@ -20,8 +20,6 @@ RUN apt-get update && \
     build-essential \
     curl \
     cmake \
-    gcc \
-    g++ \
     pkg-config \
     gnupg \
     libglib2.0-dev \
