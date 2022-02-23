@@ -41,6 +41,7 @@
 #include <stdlib.h>     /* for strtol, atoi */
 #include <string.h>     /* for strchr, memcpy, memcmp, bzero, strcasecmp */
 #include <sys/socket.h> /* for AF_INET, AF_INET6, sockaddr */
+#include <unistd.h>     /* for usleep() */
 
 #undef G_LOG_DOMAIN
 /**
@@ -1709,7 +1710,7 @@ gvm_host_from_str (const gchar *host_str)
 char *
 gvm_host_reverse_lookup (gvm_host_t *host)
 {
-  int retry = 2;
+  int retry = 10;
   gchar hostname[NI_MAXHOST];
   void *addr;
   size_t addrlen;
@@ -1746,6 +1747,7 @@ gvm_host_reverse_lookup (gvm_host_t *host)
         return g_ascii_strdown (hostname, -1);
       if (ret != EAI_AGAIN)
         break;
+      usleep (10000); // 10ms
     }
   return NULL;
 }
