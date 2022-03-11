@@ -1093,7 +1093,9 @@ gvm_hosts_deduplicate (gvm_hosts_t *hosts)
   hosts->count -= duplicates;
   hosts->duplicated += duplicates;
   hosts->current = 0;
+#ifdef __GLIBC__
   malloc_trim (0);
+#endif
 }
 
 /**
@@ -1288,7 +1290,9 @@ gvm_hosts_new_with_max (const gchar *hosts_str, unsigned int max_hosts)
     gvm_hosts_deduplicate (hosts);
 
   g_strfreev (split);
+#ifdef __GLIBC__
   malloc_trim (0);
+#endif
   return hosts;
 }
 
