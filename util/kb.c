@@ -254,6 +254,51 @@ err_cleanup:
   return rc;
 }
 
+static inline char *
+parse_port_of_addr (const char *addr, int tcp_indicator_len)
+{
+  char *tmp;
+  int is_ip_v6;
+  if ((tmp = rindex (addr + tcp_indicator_len, ':')) == NULL)
+    return NULL;
+  is_ip_v6 = addr[tcp_indicator_len] == '[';
+  if (is_ip_v6 && (tmp - 1)[0] != ']')
+    return NULL;
+  return tmp + 1;
+}
+
+static redisContext *
+connect_redis (const char *addr, int len)
+{
+  const char *tcp_indicator = "tcp://";
+  const int tcp_indicator_len = strlen (tcp_indicator);
+  const int redis_default_port = 6379;
+
+  int port, host_len;
+  char *tmp, *host;
+  redisContext *result;
+
+  if (len < tcp_indicator_len + 1)
+    goto unix_connect;
+  if (memcmp (addr, tcp_indicator, tcp_indicator_len) != 0)
+    goto unix_connect;
+  host_len = len - tcp_indicator_len;
+  if ((tmp = parse_port_of_addr (addr, tcp_indicator_len)) == NULL)
+    port = redis_default_port;
+  else
+    {
+      port = atoi (tmp);
+      host_len -= strlen (tmp) + 1;
+    }
+  host = calloc (1, host_len);
+  memmove (host, addr + tcp_indicator_len, host_len);
+  result = redisConnect (host, port);
+  free (host);
+  return result;
+unix_connect:
+  return redisConnectUnix (addr);
+}
+
 /**
  * @brief Get redis context if it is already connected or do a
  *        a connection.
@@ -271,7 +316,7 @@ get_redis_ctx (struct kb_redis *kbr)
   if (kbr->rctx != NULL)
     return 0;
 
-  kbr->rctx = redisConnectUnix (kbr->path);
+  kbr->rctx = connect_redis (kbr->path, strlen (kbr->path));
   if (kbr->rctx == NULL || kbr->rctx->err)
     {
       g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
@@ -477,7 +522,7 @@ redis_direct_conn (const char *kb_path, const int kb_index)
   kbr->kb.kb_ops = &KBRedisOperations;
   kbr->path = g_strdup (kb_path);
 
-  kbr->rctx = redisConnectUnix (kbr->path);
+  kbr->rctx = connect_redis (kbr->path, strlen (kbr->path));
   if (kbr->rctx == NULL || kbr->rctx->err)
     {
       g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
@@ -529,7 +574,7 @@ redis_find (const char *kb_path, const char *key)
     {
       redisReply *rep;
 
-      kbr->rctx = redisConnectUnix (kbr->path);
+      kbr->rctx = connect_redis (kbr->path, strlen (kbr->path));
       if (kbr->rctx == NULL || kbr->rctx->err)
         {
           g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
@@ -1665,7 +1710,7 @@ redis_flush_all (kb_t kb, const char *except)
     {
       redisReply *rep;
 
-      kbr->rctx = redisConnectUnix (kbr->path);
+      kbr->rctx = connect_redis (kbr->path, strlen (kbr->path));
       if (kbr->rctx == NULL || kbr->rctx->err)
         {
           g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
