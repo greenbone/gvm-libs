@@ -277,6 +277,7 @@ connect_redis (const char *addr, int len)
   int port, host_len;
   char *tmp, *host;
   redisContext *result;
+  static int warn_flag = 0;
 
   if (len < tcp_indicator_len + 1)
     goto unix_connect;
@@ -293,6 +294,13 @@ connect_redis (const char *addr, int len)
   host = calloc (1, host_len);
   memmove (host, addr + tcp_indicator_len, host_len);
   result = redisConnect (host, port);
+  if (warn_flag == 0)
+    {
+      g_warning ("A Redis TCP connection is being used. This feature is "
+                 "experimental and insecure, since it is not an encrypted "
+                 "channel. We discourage its usage in production environments");
+      warn_flag = 1;
+    }
   free (host);
   return result;
 unix_connect:
