@@ -346,7 +346,13 @@ mqtt_init (const char *server_uri)
   g_server_uri = mqtt_get_global_server_uri ();
   if (g_server_uri == NULL)
     mqtt_set_global_server_uri (server_uri);
-  mqtt_connect (mqtt, server_uri);
+  if (mqtt_connect (mqtt, server_uri))
+    {
+      g_warning ("%s: Unable to connect to MQTT broker.", __func__);
+      g_free (mqtt);
+      mqtt = NULL;
+      return -1;
+    }
 
   mqtt_set_global_client (mqtt);
   mqtt_set_initialized_status (TRUE);
