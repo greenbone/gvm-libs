@@ -69,6 +69,7 @@ scanner_t scanner;
 static int
 scan (alive_test_t alive_test)
 {
+  const int max_wait_rounds = 3;
   int number_of_targets;
   int number_of_dead_hosts;
   pthread_t sniffer_thread_id;
@@ -80,6 +81,7 @@ scan (alive_test_t alive_test)
   /* Following variables are only relevant if only ICMP was chosen. */
   int remaining_batch = 0;
   int prev_alive = 0;
+  int i;
   gboolean limit_reached_handled = FALSE; /* Scan restrictions related. */
 
   gettimeofday (&start_time, NULL);
@@ -232,10 +234,14 @@ scan (alive_test_t alive_test)
 
       /* If all targets are already identified as alive we do not need to wait
        * for replies anymore.*/
-      if (number_of_targets
-          != (int) g_hash_table_size (scanner.hosts_data->alivehosts))
-        sleep (WAIT_FOR_REPLIES_TIMEOUT);
 
+      for (i = 0; i < max_wait_rounds; i++)
+        {
+          if (number_of_targets
+              == (int) g_hash_table_size (scanner.hosts_data->alivehosts))
+            break;
+          sleep (WAIT_FOR_REPLIES_TIMEOUT);
+        }
       stop_sniffer_thread (&scanner, sniffer_thread_id);
     }
 

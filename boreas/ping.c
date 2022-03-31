@@ -247,37 +247,43 @@ send_icmp_v4 (int soc, struct in_addr *dst)
 void
 send_icmp (gpointer key, gpointer value, gpointer scanner_p)
 {
+  const int icmp_retries = 10;
   scanner_t *scanner;
   struct in6_addr dst6;
   struct in6_addr *dst6_p = &dst6;
   struct in_addr dst4;
   struct in_addr *dst4_p = &dst4;
   static int count = 0;
+  int i;
 
   scanner = (scanner_t *) scanner_p;
 
-  if (g_hash_table_contains (scanner->hosts_data->alivehosts, key))
-    return;
+  // we send multiple icmp message to reduce to chance of unwanted drops
+  for (i = 0; i < icmp_retries; i++)
+    {
+      if (g_hash_table_contains (scanner->hosts_data->alivehosts, key))
+        return;
+      if (++count % BURST == 0)
+        usleep (BURST_TIMEOUT);
 
-  count++;
-  if (count % BURST == 0)
-    usleep (BURST_TIMEOUT);
-
-  if (gvm_host_get_addr6 ((gvm_host_t *) value, dst6_p) < 0)
-    g_warning ("%s: could not get addr6 from gvm_host_t", __func__);
-  if (dst6_p == NULL)
-    {
-      g_warning ("%s: destination address is NULL", __func__);
-      return;
-    }
-  if (IN6_IS_ADDR_V4MAPPED (dst6_p) != 1)
-    {
-      send_icmp_v6 (scanner->icmpv6soc, dst6_p, ICMP6_ECHO_REQUEST);
-    }
-  else
-    {
-      dst4.s_addr = dst6_p->s6_addr32[3];
-      send_icmp_v4 (scanner->icmpv4soc, dst4_p);
+      if (gvm_host_get_addr6 ((gvm_host_t *) value, dst6_p) < 0)
+        g_warning ("%s: could not get addr6 from gvm_host_t", __func__);
+      if (dst6_p == NULL)
+        {
+          g_warning ("%s: destination address is NULL", __func__);
+          return;
+        }
+      if (IN6_IS_ADDR_V4MAPPED (dst6_p) != 1)
+        {
+          send_icmp_v6 (scanner->icmpv6soc, dst6_p, ICMP6_ECHO_REQUEST);
+        }
+      else
+        {
+          dst4.s_addr = dst6_p->s6_addr32[3];
+          send_icmp_v4 (scanner->icmpv4soc, dst4_p);
+        }
+      // we wait for 10 ms before sending again
+      usleep (10 * 1000);
     }
 }
 
