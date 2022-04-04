@@ -81,7 +81,6 @@ scan (alive_test_t alive_test)
   /* Following variables are only relevant if only ICMP was chosen. */
   int remaining_batch = 0;
   int prev_alive = 0;
-  int i;
   gboolean limit_reached_handled = FALSE; /* Scan restrictions related. */
 
   gettimeofday (&start_time, NULL);
@@ -232,10 +231,7 @@ scan (alive_test_t alive_test)
         "%s: all ping packets have been sent, wait a bit for rest of replies.",
         __func__);
 
-      /* If all targets are already identified as alive we do not need to wait
-       * for replies anymore.*/
-
-      for (i = 0; i < max_wait_rounds; i++)
+      for (int i = 0; i < max_wait_rounds; i++)
         {
           if (number_of_targets
               == (int) g_hash_table_size (scanner.hosts_data->alivehosts))

@@ -19,6 +19,7 @@
 
 #include "ping.h"
 
+#include "../base/prefs.h" /* for prefs_get() */
 #include "arp.h"
 #include "util.h"
 
@@ -247,19 +248,26 @@ send_icmp_v4 (int soc, struct in_addr *dst)
 void
 send_icmp (gpointer key, gpointer value, gpointer scanner_p)
 {
-  const int icmp_retries = 10;
   scanner_t *scanner;
   struct in6_addr dst6;
   struct in6_addr *dst6_p = &dst6;
   struct in_addr dst4;
   struct in_addr *dst4_p = &dst4;
   static int count = 0;
-  int i;
+  int icmp_retries, grace_period = 0;
+  const char *tmp;
+  if ((icmp_retries =
+         (tmp = prefs_get ("ICMP_RETRIES")) != NULL ? atoi (tmp) : 1)
+      <= 0)
+    icmp_retries = 1;
+  else if (icmp_retries > 1)
+    grace_period =
+      (tmp = prefs_get ("ICMP_GRACE_PERIOD")) != NULL ? atoi (tmp) : 0;
 
   scanner = (scanner_t *) scanner_p;
 
-  // we send multiple icmp messages to reduce the chance of unwanted drops
-  for (i = 0; i < icmp_retries; i++)
+  // we may send multiple icmp message to reduce to chance of unwanted drops
+  for (int i = 0; i < icmp_retries; i++)
     {
       if (g_hash_table_contains (scanner->hosts_data->alivehosts, key))
         return;
@@ -282,8 +290,8 @@ send_icmp (gpointer key, gpointer value, gpointer scanner_p)
           dst4.s_addr = dst6_p->s6_addr32[3];
           send_icmp_v4 (scanner->icmpv4soc, dst4_p);
         }
-      // we wait for 10 ms before sending again
-      usleep (10 * 1000);
+      if (grace_period > 0)
+        usleep (grace_period);
     }
 }
 
