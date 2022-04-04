@@ -23,7 +23,6 @@
 #include "boreas_io.h"
 
 #include <arpa/inet.h>
-#include <asm-generic/errno-base.h>
 #include <errno.h>
 #include <glib.h>
 #include <net/if_arp.h>
