@@ -239,9 +239,9 @@ sniffer_thread (void *scanner_p)
 int
 stop_sniffer_thread (scanner_t *scanner, pthread_t sniffer_thread_id)
 {
-  // wait period for grace
+  // wait period for grace in microseconds
   const int wait = 5000;
-  // maximum grace period
+  // maximum grace period in microseconds
   const int max_grace = 2 * 1000 * 1000;
   int err, waited;
   void *retval;

@@ -258,7 +258,7 @@ send_icmp (gpointer key, gpointer value, gpointer scanner_p)
 
   scanner = (scanner_t *) scanner_p;
 
-  // we send multiple icmp message to reduce to chance of unwanted drops
+  // we send multiple icmp messages to reduce the chance of unwanted drops
   for (i = 0; i < icmp_retries; i++)
     {
       if (g_hash_table_contains (scanner->hosts_data->alivehosts, key))
