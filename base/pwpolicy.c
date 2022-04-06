@@ -137,19 +137,27 @@ policy_checking_failed (void)
 static char *
 is_keyword (char *string, const char *keyword)
 {
-  int n = strlen (keyword);
+  int idx, slen;
+  char *tmp;
+  idx = strlen (keyword);
+  slen = strlen (string);
 
-  if (!strncmp (string, keyword, n))
+  if (!strncmp (string, keyword, idx))
     {
-      if (string[n] == ':') /* Skip the optional colon. */
-        n++;
-      if (!string[n] || g_ascii_isspace (string[n]))
+      tmp = string + idx;
+      if (tmp - string >= slen)
+        return NULL;
+      // skip optional:
+      if (*tmp == ':')
+        tmp++;
+
+      for (; tmp - string < slen && g_ascii_isspace (*tmp); tmp++)
         {
-          string += n;
-          while (g_ascii_isspace (*string))
-            string++;
-          return string;
+          // skip whitespace
         }
+      // double check
+      if (tmp - string < slen)
+        return tmp;
     }
   return NULL;
 }
