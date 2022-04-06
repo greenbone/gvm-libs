@@ -257,12 +257,12 @@ send_icmp (gpointer key, gpointer value, gpointer scanner_p)
   int icmp_retries, grace_period = 0;
   const char *tmp;
   if ((icmp_retries =
-         (tmp = prefs_get ("ICMP_RETRIES")) != NULL ? atoi (tmp) : 1)
+         (tmp = prefs_get ("icmp_retries")) != NULL ? atoi (tmp) : 1)
       <= 0)
     icmp_retries = 1;
   else if (icmp_retries > 1)
     grace_period =
-      (tmp = prefs_get ("ICMP_GRACE_PERIOD")) != NULL ? atoi (tmp) : 0;
+      (tmp = prefs_get ("icmp_grace_period")) != NULL ? atoi (tmp) : 0;
 
   scanner = (scanner_t *) scanner_p;
 
