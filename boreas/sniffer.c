@@ -26,7 +26,6 @@
 #include <errno.h>
 #include <glib.h>
 #include <net/if_arp.h>
-#include <netinet/in.h>
 #include <netinet/ip.h>
 #include <stdlib.h>
 #include <string.h>
