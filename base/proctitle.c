@@ -112,7 +112,7 @@ proctitle_set_args (const char *new_title, va_list args)
   // _POSIX_PATH_MAX is conservatively defined as 256 so we just assume that
   // max size in order to not run into segmentation faults or having to malloc
   memset (old_argv[0], 0, 256);
-  // we ommit one to be 0 terminated
+  // we omit one to be 0 terminated
   memcpy (old_argv[0], formatted, 255);
   g_free (formatted);
 }
