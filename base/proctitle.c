@@ -42,7 +42,6 @@ extern const char *__progname;
 #ifndef __FreeBSD__
 extern const char *__progname_full;
 #endif
-static int argv_len;
 static char **old_argv;
 extern char **environ;
 void *current_environ = NULL;
@@ -63,6 +62,7 @@ proctitle_init (int argc, char **argv)
 #else
   char *new_progname;
 #endif
+  (void) argc;
 
   if (argv == NULL)
     return;
@@ -84,11 +84,6 @@ proctitle_init (int argc, char **argv)
   environ[i] = NULL;
 
   old_argv = argv;
-  if (i > 0)
-    argv_len = envp[i - 1] + strlen (envp[i - 1]) - old_argv[0];
-  else
-    argv_len = old_argv[argc - 1] + strlen (old_argv[argc - 1]) - old_argv[0];
-
   /* Seems like these are in the moved environment, so reset them.  Idea from
    * proctitle.cpp in KDE libs.  */
   __progname = new_progname;
@@ -106,7 +101,6 @@ proctitle_init (int argc, char **argv)
 static void
 proctitle_set_args (const char *new_title, va_list args)
 {
-  int i;
   char *formatted;
 
   if (old_argv == NULL)
@@ -115,15 +109,11 @@ proctitle_set_args (const char *new_title, va_list args)
 
   formatted = g_strdup_vprintf (new_title, args);
 
-  i = strlen (formatted);
-  if (i > argv_len - 2)
-    {
-      i = argv_len - 2;
-      formatted[i] = '\0';
-    }
-  bzero (old_argv[0], argv_len);
-  memcpy (old_argv[0], formatted, argv_len);
-  old_argv[1] = NULL;
+  // _POSIX_PATH_MAX is conservatively defined as 256 so we just assume that
+  // max size in order to not run into segmentation faults or having to malloc
+  memset (old_argv[0], 0, 256);
+  // we omit one to be 0 terminated
+  memcpy (old_argv[0], formatted, 255);
   g_free (formatted);
 }
 
