@@ -43,6 +43,7 @@ extern const char *__progname;
 extern const char *__progname_full;
 #endif
 static char **old_argv;
+static int old_argc;
 extern char **environ;
 void *current_environ = NULL;
 
@@ -62,7 +63,7 @@ proctitle_init (int argc, char **argv)
 #else
   char *new_progname;
 #endif
-  (void) argc;
+  old_argc = argc;
 
   if (argv == NULL)
     return;
@@ -115,6 +116,9 @@ proctitle_set_args (const char *new_title, va_list args)
   // we omit one to be 0 terminated
   memcpy (old_argv[0], formatted, 255);
   g_free (formatted);
+  // omit previous additional parameter
+  if (old_argc > 1)
+    old_argv[1] = NULL;
 }
 
 /**
