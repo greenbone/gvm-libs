@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <string.h> /* for strlen, strdup, bzero, strncpy */
 #include <sys/param.h>
+#include <sys/prctl.h>
 
 #undef G_LOG_DOMAIN
 /**
@@ -46,6 +47,7 @@ static char **old_argv;
 static int old_argc;
 extern char **environ;
 void *current_environ = NULL;
+static int max_prog_name = 0;
 
 /**
  * @brief Initializes the process setting variables.
@@ -56,7 +58,7 @@ void *current_environ = NULL;
 void
 proctitle_init (int argc, char **argv)
 {
-  int i = 0;
+  int i;
   char **envp = environ;
 #ifndef __FreeBSD__
   char *new_progname, *new_progname_full;
@@ -67,6 +69,17 @@ proctitle_init (int argc, char **argv)
 
   if (argv == NULL)
     return;
+  // according to c99 argv is defined as when argc is set it follows program
+  // parameter. Since we will override on set_proctitle we know that this
+  // memory is modifiable.
+  // Everything after that is unsafe and can lead to segmentation faults.
+  // Therefore we iterate through argv and append strlen to gather the maximum
+  // safe program name.
+  for (i = 0; i < argc; i++)
+    {
+      max_prog_name += strlen (argv[i]) + 1;
+    }
+  i = 0;
 
   new_progname = strdup (__progname);
 #ifndef __FreeBSD__
@@ -103,20 +116,29 @@ static void
 proctitle_set_args (const char *new_title, va_list args)
 {
   char *formatted;
+  int tmp;
 
   if (old_argv == NULL)
     /* Called setproctitle before initproctitle ? */
     return;
+  if (max_prog_name == 0)
+    // there may no program name set
+    return;
+  // omit previous additional parameter
 
   formatted = g_strdup_vprintf (new_title, args);
 
-  // _POSIX_PATH_MAX is conservatively defined as 256 so we just assume that
-  // max size in order to not run into segmentation faults or having to malloc
-  memset (old_argv[0], 0, 256);
-  // we omit one to be 0 terminated
-  memcpy (old_argv[0], formatted, 255);
+  tmp = strlen (formatted);
+  if (tmp > max_prog_name)
+    {
+      formatted[max_prog_name] = '\0';
+      tmp = max_prog_name;
+    }
+
+  // set display name
+  memset (old_argv[0], 0, max_prog_name);
+  memcpy (old_argv[0], formatted, tmp);
   g_free (formatted);
-  // omit previous additional parameter
   if (old_argc > 1)
     old_argv[1] = NULL;
 }
