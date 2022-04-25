@@ -145,19 +145,19 @@ is_keyword (char *string, const char *keyword)
   if (!strncmp (string, keyword, idx))
     {
       tmp = string + idx;
-      if (tmp - string >= slen)
+      if (tmp - string > slen)
         return NULL;
       // skip optional:
       if (*tmp == ':')
         tmp++;
+      if (tmp - string > slen)
+        return NULL;
 
       for (; tmp - string < slen && g_ascii_isspace (*tmp); tmp++)
         {
           // skip whitespace
         }
-      // double check
-      if (tmp - string < slen)
-        return tmp;
+      return tmp;
     }
   return NULL;
 }
