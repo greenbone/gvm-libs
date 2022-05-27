@@ -19,11 +19,7 @@ jobs:
       actions: read
       contents: read
       security-events: write
-<<<<<<< HEAD
-    container: greenbone/gvm-libs-gcc-build:stable
-=======
-    container: greenbone/gvm-libs-build:unstable
->>>>>>> 16d72bd (Fix CodeQL run)
+    container: greenbone/gvm-libs-build:stable
 
     strategy:
       fail-fast: false
