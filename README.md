@@ -6,9 +6,9 @@
 [![Code Documentation Coverage](https://img.shields.io/codecov/c/github/greenbone/gvm-libs.svg?label=Doc%20Coverage&logo=codecov)](https://codecov.io/gh/greenbone/gvm-libs)
 [![CircleCI](https://circleci.com/gh/greenbone/gvm-libs/tree/main.svg?style=svg)](https://circleci.com/gh/greenbone/gvm-libs/tree/main)
 
-This is the libraries module for the Greenbone Vulnerability Management Solution.
+This is the libraries module for the Greenbone Community Edition.
 
-It is used for the Greenbone Security Manager appliances and provides various
+It is used for the Greenbone Enterprise appliances and provides various
 functionalities to support the integrated service daemons.
 
 ## Releases
@@ -51,7 +51,7 @@ module please refer to the source code documentation.
 ## Support
 
 For any question on the usage of `gvm-libs` please use the [Greenbone Community
-Portal](https://community.greenbone.net/c/gse). If you found a problem with the
+Portal](https://community.greenbone.net/). If you found a problem with the
 software, please [create an issue](https://github.com/greenbone/gvm-libs/issues)
 on GitHub. If you are a Greenbone customer you may alternatively or additionally
 forward your issue to the Greenbone Support Portal.
@@ -92,6 +92,6 @@ to empty the build directory before `scan-build` call.
 
 ## License
 
-Copyright (C) 2009-2019 [Greenbone Networks GmbH](https://www.greenbone.net/)
+Copyright (C) 2009-2022 [Greenbone Networks GmbH](https://www.greenbone.net/)
 
 Licensed under the [GNU General Public License v2.0 or later](COPYING).
