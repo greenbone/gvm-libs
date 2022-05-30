@@ -27,12 +27,12 @@ jobs:
              cmake -DSKIP_SRC=1 ..
              make doc-xml 2> ~/doxygen-stderr.txt
       - name: Upload doxygen error output as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: doxygen-stderr.txt
           path: ~/doxygen-stderr.txt
       - name: Upload XML documentation as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: xml-doc
           path: build/doc/generated/xml/
