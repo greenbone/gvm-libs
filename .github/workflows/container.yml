@@ -82,7 +82,7 @@ jobs:
           -H 'Accept: application/vnd.github.everest-preview+json' \
           -u greenbonebot:${{ secrets.GREENBONE_BOT_TOKEN }} \
           --data '{"event_type": "update-main-images"}'
-      - name: Trigger main openvas container image build
+      - name: Trigger main gsad container image build
         run: |
           curl -X POST https://api.github.com/repos/greenbone/gsad/dispatches \
           -H 'Accept: application/vnd.github.everest-preview+json' \
