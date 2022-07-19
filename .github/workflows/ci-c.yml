@@ -21,7 +21,7 @@ jobs:
   tests:
     name: Unit Tests
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs-build:stable
+    container: greenbone/gvm-libs-build:oldstable
     steps:
       - uses: actions/checkout@v2
       - name: Configure and Compile gvm-libs
@@ -39,7 +39,7 @@ jobs:
   scan-build:
     name: Scan-build gvm-libs with clang
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs-build:stable
+    container: greenbone/gvm-libs-build:oldstable
     steps:
       - uses: actions/checkout@v2
       - name: Install clang tools

@@ -1,4 +1,4 @@
-ARG VERSION=stable
+ARG VERSION=oldstable
 # this allows to work on forked repository
 ARG REPOSITORY=greenbone/gvm-libs
 FROM ${REPOSITORY}-build:$VERSION AS build
