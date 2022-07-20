@@ -2,7 +2,7 @@ INSTALLATION INSTRUCTIONS FOR GVM-LIBS
 ======================================
 
 Please note: The reference system used by most of the developers is Debian
-GNU/Linux 'Buster' 10. The build might fail on any other system. Also, it is
+GNU/Linux 'Bullseye' 11. The build might fail on any other system. Also, it is
 necessary to install dependent development packages.
 
 Prerequisites for gvm-libs
@@ -29,6 +29,7 @@ Specific development libraries:
 * libnet1 >= 1.1.2.1 (boreas)
 * libpcap
 * libgcrypt
+* libpaho-mqtt >= 1.3.0 (utils)
 
 Prerequisites for building documentation:
 * doxygen
@@ -37,7 +38,7 @@ Prerequisites for building documentation:
 Prerequisites for building tests:
 * [Cgreen](https://cgreen-devs.github.io/#_installing_cgreen) (optional, for building tests)
 
-Install prerequisites on Debian GNU/Linux 'Buster' 10:
+Install prerequisites on Debian GNU/Linux 'Bullseye' 11:
 
     apt-get install \
     cmake \
@@ -50,7 +51,8 @@ Install prerequisites on Debian GNU/Linux 'Buster' 10:
     libhiredis-dev \
     libxml2-dev \
     libpcap-dev \
-    libnet1-dev
+    libnet1-dev \
+    libpaho-mqtt-dev
 
 
 Prerequisites for Optional Features
@@ -70,9 +72,6 @@ Install prerequisites for optional features on Debian GNU/Linux 'Buster' 10:
     apt-get install \
     libldap2-dev \
     libradcli-dev
-
-Prerequisites for MQTT support:
-* libpaho-mqtt-dev >= 1.3.8. This package is currently not available in debian buster stable. Could be installed from source, backports or unstable branch.
 
 Compiling gvm-libs
 ------------------
