@@ -51,11 +51,10 @@ pkg_check_modules (REDIS REQUIRED hiredis>=0.10.1)
 pkg_check_modules (LIBXML2 REQUIRED libxml-2.0>=2.0)
 
 # for mqtt
-# Optional for now because lib is currently not in debian buster stable.
 find_library(LIBPAHO paho-mqtt3c)
 message (STATUS "Looking for paho-mqtt3c ... ${LIBPAHO}")
 if (NOT LIBPAHO)
-  message (STATUS "libpaho-mqtt3c is required for MQTTv5 support.")
+  message (SEND_ERROR "libpaho-mqtt3c is required for MQTTv5 support.")
 else (LIBPAHO)
   set (LIBPAHO_LDFLAGS "paho-mqtt3c")
   add_definitions (-DHAVE_MQTT=1)
