@@ -12,17 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-<<<<<<< HEAD
-        uses: actions/checkout@v2
-      - name: Find reference branch
-        uses: greenbone/actions/container-image-tags@v1
-        id: container
-=======
         uses: actions/checkout@v3
       - name: Setup container meta information
         id: meta
         uses: docker/metadata-action@v4
->>>>>>> b15ed18 (Change: Use docker/meta-action for container tags and labels)
         with:
           images: greenbone/gvm-libs-build
           labels: |
@@ -64,12 +57,6 @@ jobs:
     needs: build
     steps:
       - name: Checkout repository
-<<<<<<< HEAD
-        uses: actions/checkout@v2
-      - name: Gather container image tags
-        uses: greenbone/actions/container-image-tags@v1
-        id: container
-=======
         uses: actions/checkout@v3
       - name: Setup container meta information
         id: meta
@@ -89,7 +76,6 @@ jobs:
             type=raw,value=oldstable,enable=${{ github.ref == format('refs/heads/{0}', 'oldstable') }}
             # use unstable for main branch
             type=raw,value=unstable,enable={{is_default_branch}}
->>>>>>> b15ed18 (Change: Use docker/meta-action for container tags and labels)
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
