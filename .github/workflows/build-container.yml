@@ -1,25 +1,34 @@
-name: Container Image Builds
+name: Build Container Image Builds
 
 on:
   push:
     branches: [ main, stable, oldstable ]
     tags: ["v*"]
+    paths:
+      - .github/workflows/build-container.yml
+      - .docker/build.Dockerfile
   pull_request:
     branches: [ main, stable, oldstable ]
+    paths:
+      - .github/workflows/build-container.yml
+      - .docker/build.Dockerfile
   workflow_dispatch:
+  schedule:
+    # rebuild image every sunday
+    - cron: "0 0 * * 0"
 
 jobs:
-  production:
-    name: Production Images
+  build:
+    name: Build Images
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v3
       - name: Setup container meta information
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ github.repository }}
+          images: ${{ github.repository }}-build
           labels: |
             org.opencontainers.image.vendor=Greenbone
             org.opencontainers.image.base.name=debian:stable-slim
@@ -38,43 +47,19 @@ jobs:
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Login to Docker Registry
+      - name: Login to DockerHub
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push Container image
+      - run: echo "Build and push ${{ steps.container.outputs.image-tags }}"
+      - name: Build and push
         uses: docker/build-push-action@v3
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          file: .docker/prod.Dockerfile
+          file: .docker/build.Dockerfile
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-  trigger-related-projects:
-    needs: production
-    if: github.event_name != 'pull_request'
-    name: Trigger update container images in related projects
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger main openvas-scanner container image build
-        run: |
-          curl -X POST https://api.github.com/repos/greenbone/openvas-scanner/dispatches \
-          -H 'Accept: application/vnd.github.everest-preview+json' \
-          -u greenbonebot:${{ secrets.GREENBONE_BOT_TOKEN }} \
-          --data '{"event_type": "update-main-images"}'
-      - name: Trigger main gvmd container image build
-        run: |
-          curl -X POST https://api.github.com/repos/greenbone/gvmd/dispatches \
-          -H 'Accept: application/vnd.github.everest-preview+json' \
-          -u greenbonebot:${{ secrets.GREENBONE_BOT_TOKEN }} \
-          --data '{"event_type": "update-main-images"}'
-      - name: Trigger main gsad container image build
-        run: |
-          curl -X POST https://api.github.com/repos/greenbone/gsad/dispatches \
-          -H 'Accept: application/vnd.github.everest-preview+json' \
-          -u greenbonebot:${{ secrets.GREENBONE_BOT_TOKEN }} \
-          --data '{"event_type": "update-main-images"}'
