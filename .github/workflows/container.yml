@@ -2,13 +2,19 @@ name: Container Image Builds
 
 on:
   push:
+<<<<<<< HEAD
     branches: [ oldstable ]
+=======
+    branches: [ main, stable, oldstable ]
+>>>>>>> 3145e06 (Change: Build container images for pull requests too)
     tags: ["v*"]
+  pull_request:
+    branches: [ main, stable, oldstable ]
   workflow_dispatch:
 
 jobs:
   build:
-    name: "Upload images for building gvm-libs"
+    name: Build Images
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,7 +23,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: greenbone/gvm-libs-build
+          images: ${{ github.repository }}-build
           labels: |
             org.opencontainers.image.vendor=Greenbone
             org.opencontainers.image.base.name=debian/stable-slim
@@ -25,6 +31,7 @@ jobs:
           tags: |
             # create container tag for git tags
             type=ref,event=tag
+            type=ref,event=pr
             # use latest for stable branch
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
             type=raw,value=stable,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
@@ -36,7 +43,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to DockerHub
+<<<<<<< HEAD
         uses: docker/login-action@v1
+=======
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+>>>>>>> 3145e06 (Change: Build container images for pull requests too)
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -45,14 +57,14 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           file: .docker/build.Dockerfile
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
   production:
-    name: "Upload production image"
+    name: Production Images
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -62,7 +74,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: greenbone/gvm-libs
+          images: ${{ github.repository }}
           labels: |
             org.opencontainers.image.vendor=Greenbone
             org.opencontainers.image.base.name=debian/stable-slim
@@ -70,6 +82,7 @@ jobs:
           tags: |
             # create container tag for git tags
             type=ref,event=tag
+            type=ref,event=pr
             # use latest for stable branch
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
             type=raw,value=stable,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
@@ -81,7 +94,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to Docker Registry
+<<<<<<< HEAD
         uses: docker/login-action@v1
+=======
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+>>>>>>> 3145e06 (Change: Build container images for pull requests too)
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -89,7 +107,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           file: .docker/prod.Dockerfile
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
@@ -97,7 +115,8 @@ jobs:
 
   trigger-related-projects:
     needs: production
-    name: "Trigger update docker images in related projects"
+    if: github.event_name != 'pull_request'
+    name: Trigger update container images in related projects
     runs-on: ubuntu-latest
     steps:
       - name: Trigger stable openvas-scanner container image build
