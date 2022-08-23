@@ -2,11 +2,7 @@ name: Container Image Builds
 
 on:
   push:
-<<<<<<< HEAD
-    branches: [ stable ]
-=======
     branches: [ main, stable, oldstable ]
->>>>>>> 3145e06 (Change: Build container images for pull requests too)
     tags: ["v*"]
   pull_request:
     branches: [ main, stable, oldstable ]
