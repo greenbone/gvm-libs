@@ -192,11 +192,7 @@ void
 nvticache_save (void)
 {
   char *feed_version, *old_version;
-  if (cache_kb && !cache_saved)
-    {
-      kb_save (cache_kb);
-      cache_saved = 1;
-    }
+
   old_version = nvticache_feed_version ();
   feed_version = nvt_feed_version ();
   if (feed_version && g_strcmp0 (old_version, feed_version))
