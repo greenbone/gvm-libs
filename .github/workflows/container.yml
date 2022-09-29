@@ -58,26 +58,16 @@ jobs:
     needs: production
     if: github.event_name != 'pull_request'
     name: Trigger update container images in related projects
+    strategy:
+      fail-fast: false
+      matrix:
+        repository: ["greenbone/openvas-scanner", "greenbone/gvmd", "greenbone/gsad"]
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger main openvas-scanner container image build
+      - name: Trigger main ${{ matrix.repository }} container image build
         uses: greenbone/actions/trigger-workflow@v2
         with:
           token: ${{ secrets.GREENBONE_BOT_TOKEN }}
-          repository: greenbone/openvas-scanner
-          workflow: container.yml
-          ref: main
-      - name: Trigger main gvmd container image build
-        uses: greenbone/actions/trigger-workflow@v2
-        with:
-          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
-          repository: greenbone/gvmd
-          workflow: container.yml
-          ref: main
-      - name: Trigger main gsad container image build
-        uses: greenbone/actions/trigger-workflow@v2
-        with:
-          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
-          repository: greenbone/gsad
+          repository: ${{ matrix.repository }}
           workflow: container.yml
           ref: main
