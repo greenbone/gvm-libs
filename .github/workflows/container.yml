@@ -61,20 +61,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger main openvas-scanner container image build
-        run: |
-          curl -X POST https://api.github.com/repos/greenbone/openvas-scanner/dispatches \
-          -H 'Accept: application/vnd.github.everest-preview+json' \
-          -u greenbonebot:${{ secrets.GREENBONE_BOT_TOKEN }} \
-          --data '{"event_type": "update-main-images"}'
+        uses: greenbone/actions/trigger-workflow@v2
+        with:
+          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
+          repository: greenbone/openvas-scanner
+          workflow: container.yml
+          ref: main
       - name: Trigger main gvmd container image build
-        run: |
-          curl -X POST https://api.github.com/repos/greenbone/gvmd/dispatches \
-          -H 'Accept: application/vnd.github.everest-preview+json' \
-          -u greenbonebot:${{ secrets.GREENBONE_BOT_TOKEN }} \
-          --data '{"event_type": "update-main-images"}'
+        uses: greenbone/actions/trigger-workflow@v2
+        with:
+          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
+          repository: greenbone/gvmd
+          workflow: container.yml
+          ref: main
       - name: Trigger main gsad container image build
-        run: |
-          curl -X POST https://api.github.com/repos/greenbone/gsad/dispatches \
-          -H 'Accept: application/vnd.github.everest-preview+json' \
-          -u greenbonebot:${{ secrets.GREENBONE_BOT_TOKEN }} \
-          --data '{"event_type": "update-main-images"}'
+        uses: greenbone/actions/trigger-workflow@v2
+        with:
+          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
+          repository: greenbone/gsad
+          workflow: container.yml
+          ref: main
