@@ -175,8 +175,14 @@ run_cli_scan (scanner_t *scanner, alive_test_t alive_test)
 }
 
 boreas_error_t
-run_cli (gvm_hosts_t *hosts, alive_test_t alive_test, const gchar *port_list,
-         const unsigned int timeout)
+run_cli (gvm_hosts_t *hosts, alive_test_t alive_test, const gchar *port_list)
+{
+  return run_cli_extended (hosts, alive_test, port_list, 3);
+}
+
+boreas_error_t
+run_cli_extended (gvm_hosts_t *hosts, alive_test_t alive_test,
+                  const gchar *port_list, const unsigned int timeout)
 {
   scanner_t scanner = {0};
   boreas_error_t init_err;
