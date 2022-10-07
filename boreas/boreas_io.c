@@ -32,6 +32,9 @@
  */
 #define G_LOG_DOMAIN "libgvm boreas"
 
+/* how long (in sec) to wait for replies after last packet was sent */
+#define WAIT_FOR_REPLIES_TIMEOUT 3
+
 scan_restrictions_t scan_restrictions;
 
 /**
