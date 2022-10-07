@@ -154,7 +154,7 @@ run_cli_scan (scanner_t *scanner, alive_test_t alive_test)
       usleep (500000);
     }
 
-  sleep (WAIT_FOR_REPLIES_TIMEOUT);
+  sleep (get_alive_test_wait_timeout ());
 
   stop_sniffer_thread (scanner, sniffer_thread_id);
 
