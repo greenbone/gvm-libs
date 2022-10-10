@@ -360,7 +360,7 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
 
   port_list = get_alive_test_ports ();
   if (NULL == port_list)
-    port_list = "80,137,587,3128,8081";
+    port_list = DEFAULT_PORT_LIST;
   if (validate_port_range (port_list))
     {
       g_warning ("%s: Invalid port range supplied for alive detection module. "
