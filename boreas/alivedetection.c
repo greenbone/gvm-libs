@@ -69,7 +69,6 @@ scanner_t scanner;
 static int
 scan (alive_test_t alive_test)
 {
-  const int max_wait_rounds = 3;
   int number_of_targets;
   int number_of_dead_hosts;
   pthread_t sniffer_thread_id;
@@ -231,12 +230,12 @@ scan (alive_test_t alive_test)
         "%s: all ping packets have been sent, wait a bit for rest of replies.",
         __func__);
 
-      for (int i = 0; i < max_wait_rounds; i++)
+      for (unsigned int i = 0; i < get_alive_test_wait_timeout (); i++)
         {
           if (number_of_targets
               == (int) g_hash_table_size (scanner.hosts_data->alivehosts))
             break;
-          sleep (WAIT_FOR_REPLIES_TIMEOUT);
+          sleep (1); // 1 second is the minimum wait time
         }
       stop_sniffer_thread (&scanner, sniffer_thread_id);
     }

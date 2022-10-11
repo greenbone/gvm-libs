@@ -37,6 +37,8 @@
  */
 #define G_LOG_DOMAIN "libgvm boreas"
 
+static unsigned int wait_timeout = 0;
+
 static boreas_error_t
 init_cli (scanner_t *scanner, gvm_hosts_t *hosts, alive_test_t alive_test,
           const gchar *port_list, const int print_results)
@@ -154,7 +156,10 @@ run_cli_scan (scanner_t *scanner, alive_test_t alive_test)
       usleep (500000);
     }
 
-  sleep (WAIT_FOR_REPLIES_TIMEOUT);
+  if (wait_timeout > 0 && wait_timeout <= 20)
+    sleep (wait_timeout);
+  else
+    sleep (get_alive_test_wait_timeout ());
 
   stop_sniffer_thread (scanner, sniffer_thread_id);
 
@@ -172,11 +177,20 @@ run_cli_scan (scanner_t *scanner, alive_test_t alive_test)
 boreas_error_t
 run_cli (gvm_hosts_t *hosts, alive_test_t alive_test, const gchar *port_list)
 {
+  return run_cli_extended (hosts, alive_test, port_list, 3);
+}
+
+boreas_error_t
+run_cli_extended (gvm_hosts_t *hosts, alive_test_t alive_test,
+                  const gchar *port_list, const unsigned int timeout)
+{
   scanner_t scanner = {0};
   boreas_error_t init_err;
   boreas_error_t run_err;
   boreas_error_t free_err;
   int print_results = 1;
+
+  wait_timeout = timeout;
 
   init_err = init_cli (&scanner, hosts, alive_test, port_list, print_results);
   if (init_err)
