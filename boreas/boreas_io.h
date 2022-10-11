@@ -56,6 +56,9 @@ get_alive_test_methods (alive_test_t *);
 const gchar *
 get_alive_test_ports (void);
 
+unsigned int
+get_alive_test_wait_timeout (void);
+
 int
 get_alive_hosts_count (void);
 

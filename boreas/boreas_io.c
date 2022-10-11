@@ -32,6 +32,9 @@
  */
 #define G_LOG_DOMAIN "libgvm boreas"
 
+/* how long (in sec) to wait for replies after last packet was sent */
+#define WAIT_FOR_REPLIES_TIMEOUT 3
+
 scan_restrictions_t scan_restrictions;
 
 /**
@@ -500,4 +503,27 @@ get_alive_test_ports (void)
   if (prefs_get ("alive_test_ports"))
     return prefs_get ("alive_test_ports");
   return prefs_get ("ALIVE_TEST_PORTS");
+}
+
+/**
+ * @brief Get the max time in seconds that boreas waits for replies.
+ * Minimum is 1 second. Max is 20. If a given value is invalid or greather
+ * than 20, it is set to WAIT_FOR_REPLIES_TIMEOUT
+ *
+ * @return unsigned integer for the time in seconds.
+ */
+unsigned int
+get_alive_test_wait_timeout (void)
+{
+  unsigned int timeout = -1;
+  const gchar *str_timeout = NULL;
+
+  str_timeout = prefs_get ("test_alive_wait_timeout");
+  if (str_timeout != NULL)
+    timeout = atoi (str_timeout);
+
+  if (timeout > 0 && timeout <= 20)
+    return timeout;
+
+  return WAIT_FOR_REPLIES_TIMEOUT;
 }
