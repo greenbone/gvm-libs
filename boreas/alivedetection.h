@@ -35,6 +35,11 @@
 /* Src port of outgoing TCP pings. Used for filtering incoming packets. */
 #define FILTER_PORT 9910
 
+/* Default port list */
+#define DEFAULT_PORT_LIST                       \
+  "21-23,25,53,80,110-111,135,139,143,443,445," \
+  "993,995,1723,3306,3389,5900,8080"
+
 /* Redis related */
 
 /* Queue (Redis list) for communicating with openvas main process. */
