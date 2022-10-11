@@ -497,5 +497,7 @@ get_alive_test_methods (alive_test_t *alive_test)
 const gchar *
 get_alive_test_ports (void)
 {
+  if (prefs_get ("alive_test_ports"))
+    return prefs_get ("alive_test_ports");
   return prefs_get ("ALIVE_TEST_PORTS");
 }
