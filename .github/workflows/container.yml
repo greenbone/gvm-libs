@@ -61,7 +61,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        repository: ["greenbone/openvas-scanner", "greenbone/gvmd", "greenbone/gsad"]
+        repository: ["greenbone/openvas-scanner", "greenbone/gvmd", "greenbone/gsad", "greenbone/boreas"]
     runs-on: ubuntu-latest
     steps:
       - name: Trigger main ${{ matrix.repository }} container image build
