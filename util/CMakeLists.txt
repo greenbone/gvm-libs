@@ -50,6 +50,12 @@ pkg_check_modules (REDIS REQUIRED hiredis>=0.10.1)
 # for fast XML we need libxml2
 pkg_check_modules (LIBXML2 REQUIRED libxml-2.0>=2.0)
 
+# for gpgmeutils we need libgpgme
+pkg_check_modules (GPGME REQUIRED gpgme>=1.7.0)
+
+# for serverutils we need libgcrypt
+pkg_check_modules (GCRYPT REQUIRED libgcrypt)
+
 # for mqtt
 find_library(LIBPAHO paho-mqtt3c)
 message (STATUS "Looking for paho-mqtt3c ... ${LIBPAHO}")
@@ -59,32 +65,6 @@ else (LIBPAHO)
   set (LIBPAHO_LDFLAGS "paho-mqtt3c")
   add_definitions (-DHAVE_MQTT=1)
 endif (NOT LIBPAHO)
-
-#for gpgmeutils we need libgpgme
-set (GPGME_MIN_VERSION "1.7.0")
-message (STATUS "Looking for gpgme...")
-find_library (GPGME gpgme)
-if (NOT GPGME)
-  message (SEND_ERROR "The gpgme library is required.")
-else (NOT GPGME)
-  execute_process (COMMAND gpgme-config --version
-    OUTPUT_VARIABLE GPGME_VERSION
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  message (STATUS "Found gpgme: ${GPGME}, version ${GPGME_VERSION}")
-  if (GPGME_VERSION VERSION_LESS GPGME_MIN_VERSION)
-    message (SEND_ERROR "The gpgme library >= ${GPGME_MIN_VERSION} is required.")
-  else (GPGME_VERSION VERSION_LESS GPGME_MIN_VERSION)
-    execute_process (COMMAND gpgme-config --libs
-      OUTPUT_VARIABLE GPGME_LDFLAGS
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process (COMMAND gpgme-config --cflags
-      OUTPUT_VARIABLE GPGME_CFLAGS
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FILE_OFFSET_BITS=64 -DLARGEFILE_SOURCE=1")
-    string(REPLACE "-I" "" GPGME_INCLUDE_DIRS "${GPGME_CFLAGS}")
-  endif (GPGME_VERSION VERSION_LESS GPGME_MIN_VERSION)
-endif (NOT GPGME)
-
 
 message (STATUS "Looking for libcrypt...")
 find_library (CRYPT crypt)
@@ -99,21 +79,6 @@ else (NOT CRYPT)
     endif()
     set (CRYPT_LDFLAGS "-lcrypt")
 endif (NOT CRYPT)
-
-message (STATUS "Looking for libgcrypt...")
-find_library (GCRYPT gcrypt)
-message (STATUS "Looking for libgcrypt... ${GCRYPT}")
-if (NOT GCRYPT)
-message (SEND_ERROR "The libgcrypt library is required.")
-else (NOT GCRYPT)
-execute_process (COMMAND libgcrypt-config --libs
-    OUTPUT_VARIABLE GCRYPT_LDFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process (COMMAND libgcrypt-config --cflags
-    OUTPUT_VARIABLE GCRYPT_CFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-string(REPLACE "-I" "" GCRYPT_INCLUDE_DIRS "${GCRYPT_CFLAGS}")
-endif (NOT GCRYPT)
 
 option (BUILD_WITH_RADIUS "Try to build with Radius support" ON)
 option (BUILD_WITH_LDAP "Try to build with LDAP support" ON)
