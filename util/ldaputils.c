@@ -333,12 +333,14 @@ ldap_auth_bind (const gchar *host, const gchar *userdn, const gchar *password,
                   g_free (ldapuri);
                   goto fail;
                 }
-             // Set LDAP version to 3 after initialization
-              ldap_return = ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
+              // Set LDAP version to 3 after initialization
+              ldap_return =
+                ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
               if (ldap_return != LDAP_SUCCESS)
                 {
-                  g_warning ("Aborting, could not set ldap protocol version to 3: %s.",
-                             ldap_err2string (ldap_return));
+                  g_warning (
+                    "Aborting, could not set ldap protocol version to 3: %s.",
+                    ldap_err2string (ldap_return));
                   g_free (ldapuri);
                   goto fail;
                 }
@@ -346,16 +348,18 @@ ldap_auth_bind (const gchar *host, const gchar *userdn, const gchar *password,
         }
       else
         {
-         // Set LDAP version to 3 after initialization
-          ldap_return = ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
+          // Set LDAP version to 3 after initialization
+          ldap_return =
+            ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
           if (ldap_return != LDAP_SUCCESS)
             {
-              g_warning ("Aborting, could not set ldap protocol version to 3: %s.",
-                         ldap_err2string (ldap_return));
+              g_warning (
+                "Aborting, could not set ldap protocol version to 3: %s.",
+                ldap_err2string (ldap_return));
               g_free (ldapuri);
               goto fail;
             }
-       }
+        }
     }
   else
     g_debug ("LDAP StartTLS initialized.");
