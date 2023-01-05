@@ -787,7 +787,7 @@ ip_islocalhost (struct sockaddr_storage *storage)
 {
   struct in_addr addr;
   struct in_addr *addr_p;
-  struct in6_addr addr6;
+  struct in6_addr addr6 = IN6ADDR_ANY_INIT;
   struct in6_addr *addr6_p;
   struct sockaddr_in *sin_p;
   struct sockaddr_in6 *sin6_p;
