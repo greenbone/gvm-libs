@@ -49,6 +49,12 @@
 #define G_LOG_DOMAIN "libgvm base"
 
 /**
+ * @brief for backward compatibility
+ *
+ */
+#define LOG_REFERENCES_AVAILABLE
+
+/**
  * @struct gvm_logging_t
  * @brief Logging stores the parameters loaded from a log configuration
  * @brief file, to be used internally by the gvm_logging module only.
@@ -383,6 +389,55 @@ gvm_log_unlock (void)
   g_mutex_unlock (logger_mutex);
 }
 
+char *reference = NULL;
+
+/**
+ * @brief Set the log reference object.
+ *
+ * In order to be able to see which logs are related to each other, we define a
+ * common reference for them. E.g. when multiple scans in OpenVAS are running
+ * simultaniousely it is possible to detect all log corresponding to the same
+ * scan. The log reference is optional and must be set before calling
+ * setup_log_handlers. The data given must be freed by calling
+ * free_log_reference(). If called multiple times the old reference gets freed
+ * and the new one is set instead.
+ *
+ * @param ref
+ */
+void
+set_log_reference (char *ref)
+{
+  g_free (reference);
+  reference = ref;
+}
+
+/**
+ * @brief Get the log reference object
+ *
+ * This function returns the current log reference. This enables the possibility
+ * to save or modify the current reference value.
+ *
+ * @return char*
+ */
+char *
+get_log_reference (void)
+{
+  return reference;
+}
+
+/**
+ * @brief Free the log reference object
+ *
+ * The reference object is used to detect corresponding logs.
+ *
+ */
+void
+free_log_reference (void)
+{
+  g_free (reference);
+  reference = NULL;
+}
+
 /**
  * @brief Creates the formatted string and outputs it to the log destination.
  *
@@ -524,9 +579,19 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
       /* If the current char is a % and the next one is a p, get the pid. */
       if ((*tmp == '%') && (*(tmp + 1) == 'p'))
         {
-          /* Use g_strdup, a new string returned. Store it in a tmp var until
-           * we free the old one. */
-          prepend_tmp = g_strdup_printf ("%s%d", prepend_buf, (int) getpid ());
+          if (reference)
+            {
+              prepend_tmp =
+                g_strdup_printf ("%s%d%s%s", prepend_buf, (int) getpid (),
+                                 log_separator, reference);
+            }
+          else
+            {
+              /* Use g_strdup, a new string returned. Store it in a tmp var
+               * until we free the old one. */
+              prepend_tmp =
+                g_strdup_printf ("%s%d", prepend_buf, (int) getpid ());
+            }
           /* Free the old string. */
           g_free (prepend_buf);
           /* Point the buf ptr to the new string. */
