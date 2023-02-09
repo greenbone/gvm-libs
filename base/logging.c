@@ -389,7 +389,7 @@ gvm_log_unlock (void)
   g_mutex_unlock (logger_mutex);
 }
 
-char *reference = NULL;
+static char *reference = NULL;
 
 /**
  * @brief Set the log reference object.
@@ -407,7 +407,8 @@ char *reference = NULL;
 void
 set_log_reference (char *ref)
 {
-  g_free (reference);
+  if (reference)
+    g_free ((char *) reference);
   reference = ref;
 }
 
@@ -422,7 +423,7 @@ set_log_reference (char *ref)
 char *
 get_log_reference (void)
 {
-  return reference;
+  return (char *) reference;
 }
 
 /**
@@ -434,7 +435,8 @@ get_log_reference (void)
 void
 free_log_reference (void)
 {
-  g_free (reference);
+  if (reference)
+    g_free ((char *) reference);
   reference = NULL;
 }
 
@@ -579,7 +581,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
       /* If the current char is a % and the next one is a p, get the pid. */
       if ((*tmp == '%') && (*(tmp + 1) == 'p'))
         {
-          if (reference)
+          if (reference != NULL)
             {
               prepend_tmp =
                 g_strdup_printf ("%s%d%s%s", prepend_buf, (int) getpid (),
