@@ -49,12 +49,6 @@
 #define G_LOG_DOMAIN "libgvm base"
 
 /**
- * @brief for backward compatibility
- *
- */
-#define LOG_REFERENCES_AVAILABLE
-
-/**
  * @struct gvm_logging_t
  * @brief Logging stores the parameters loaded from a log configuration
  * @brief file, to be used internally by the gvm_logging module only.
@@ -581,7 +575,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
       /* If the current char is a % and the next one is a p, get the pid. */
       if ((*tmp == '%') && (*(tmp + 1) == 'p'))
         {
-          if (reference != NULL)
+          if (reference)
             {
               prepend_tmp =
                 g_strdup_printf ("%s%d%s%s", prepend_buf, (int) getpid (),
