@@ -27,6 +27,12 @@
 
 #include <glib.h> /* for GSList, gchar, GLogLevelFlags, gpointer */
 
+/**
+ * @brief for backward compatibility
+ *
+ */
+#define LOG_REFERENCES_AVAILABLE
+
 GSList *
 load_log_configuration (gchar *);
 
