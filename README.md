@@ -58,7 +58,7 @@ forward your issue to the Greenbone Support Portal.
 
 ## Maintainer
 
-This project is maintained by [Greenbone Networks GmbH](https://www.greenbone.net/).
+This project is maintained by [Greenbone AG](https://www.greenbone.net/).
 
 ## Contributing
 
@@ -92,6 +92,6 @@ to empty the build directory before `scan-build` call.
 
 ## License
 
-Copyright (C) 2009-2022 [Greenbone Networks GmbH](https://www.greenbone.net/)
+Copyright (C) 2009-2022 [Greenbone AG](https://www.greenbone.net/)
 
 Licensed under the [GNU General Public License v2.0 or later](COPYING).
