@@ -170,14 +170,11 @@ void
 prefs_config (const char *config)
 {
   settings_iterator_t settings;
-  char buffer[2048];
 
   if (!global_prefs)
     prefs_init ();
 
-  memset (buffer, 0, sizeof (buffer));
-  memcpy (buffer, config, sizeof (buffer) - 1);
-  if (!init_settings_iterator_from_file (&settings, buffer, "Misc"))
+  if (!init_settings_iterator_from_file (&settings, config, "Misc"))
     {
       while (settings_iterator_next (&settings))
         prefs_set (settings_iterator_name (&settings),
@@ -186,7 +183,7 @@ prefs_config (const char *config)
       cleanup_settings_iterator (&settings);
     }
 
-  prefs_set ("config_file", buffer);
+  prefs_set ("config_file", config);
 }
 
 /**

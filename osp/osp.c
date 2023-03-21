@@ -143,6 +143,13 @@ osp_connection_new (const char *host, int port, const char *cacert,
       struct sockaddr_un addr;
       int len;
 
+      if (strlen (host) >= sizeof (addr.sun_path))
+        {
+          g_warning ("%s: given host / socket path too long (%lu > %lu bytes)",
+                     __func__, strlen (host), sizeof (addr.sun_path) - 1);
+          return NULL;
+        }
+
       connection = g_malloc0 (sizeof (*connection));
       connection->socket = socket (AF_UNIX, SOCK_STREAM, 0);
       if (connection->socket == -1)
@@ -153,7 +160,7 @@ osp_connection_new (const char *host, int port, const char *cacert,
 
       addr.sun_family = AF_UNIX;
       memset (addr.sun_path, 0, sizeof (addr.sun_path));
-      memcpy (addr.sun_path, host, sizeof (addr.sun_path) - 1);
+      memcpy (addr.sun_path, host, strlen (host));
       len = strlen (addr.sun_path) + sizeof (addr.sun_family);
       if (connect (connection->socket, (struct sockaddr *) &addr, len) == -1)
         {
