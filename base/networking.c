@@ -81,6 +81,9 @@ gvm_source_iface_init (const char *iface)
   if (iface == NULL)
     return ret;
 
+  if (strlen (iface) >= sizeof (global_source_iface))
+    return ret;
+
   if (getifaddrs (&ifaddr) == -1)
     return ret;
 
@@ -111,7 +114,7 @@ gvm_source_iface_init (const char *iface)
 
   /* At least one address for the interface was found. */
   if (ret == 0)
-    memcpy (global_source_iface, iface, sizeof (global_source_iface) - 1);
+    memcpy (global_source_iface, iface, strlen (iface));
 
   freeifaddrs (ifaddr);
   return ret;
