@@ -129,7 +129,7 @@ proctitle_set_args (const char *new_title, va_list args)
   formatted = g_strdup_vprintf (new_title, args);
 
   tmp = strlen (formatted);
-  if (tmp > max_prog_name)
+  if (tmp >= max_prog_name)
     {
       formatted[max_prog_name] = '\0';
       tmp = max_prog_name;
