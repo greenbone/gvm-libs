@@ -255,10 +255,10 @@ ldap_auth_bind (const gchar *host, const gchar *userdn, const gchar *password,
  * @param[in] host              Host to connect to.
  * @param[in] force_encryption  Whether or not to abort if connection
  *                              encryption via StartTLS or ldaps failed.
- * 
+ *
  * @return The LDAP handle or NULL on failure
  */
-static LDAP*
+static LDAP *
 ldap_init_internal (const char *host, gboolean force_encryption)
 {
   LDAP *ldap;
@@ -356,7 +356,7 @@ ldap_init_internal (const char *host, gboolean force_encryption)
     g_debug ("LDAP StartTLS initialized.");
 
   g_free (ldapuri);
-  
+
   return ldap;
 }
 
@@ -364,10 +364,10 @@ ldap_init_internal (const char *host, gboolean force_encryption)
  * @brief Try to init a connection to an LDAP server using only LDAPS.
  *
  * @param[in] host              Host to connect to.
- * 
+ *
  * @return The LDAP handle or NULL on failure
  */
-static LDAP*
+static LDAP *
 ldap_init_internal_ldaps_only (const char *host)
 {
   LDAP *ldap;
@@ -384,7 +384,7 @@ ldap_init_internal_ldaps_only (const char *host)
       g_free (ldapuri);
       return NULL;
     }
-    
+
   /* Fail if server doesn't talk LDAPv3. */
   ldap_return = ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
   if (ldap_return != LDAP_SUCCESS)
@@ -394,7 +394,7 @@ ldap_init_internal_ldaps_only (const char *host)
       g_free (ldapuri);
       return NULL;
     }
-    
+
   g_debug ("LDAPS initialized.");
   g_free (ldapuri);
   return ldap;
@@ -474,7 +474,7 @@ ldap_auth_bind_2 (const gchar *host, const gchar *userdn, const gchar *password,
     ldap = ldap_init_internal_ldaps_only (host);
   else
     ldap = ldap_init_internal (host, force_encryption);
-  
+
   if (ldap == NULL)
     goto fail;
 

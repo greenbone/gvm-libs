@@ -54,7 +54,7 @@ ldap_connect_authenticate (const gchar *, const gchar *,
 void ldap_auth_info_free (ldap_auth_info_t);
 
 ldap_auth_info_t
-ldap_auth_info_new (const gchar*, const gchar*, gboolean);
+ldap_auth_info_new (const gchar *, const gchar *, gboolean);
 
 ldap_auth_info_t
 ldap_auth_info_new_2 (const gchar *, const gchar *, gboolean, gboolean);
