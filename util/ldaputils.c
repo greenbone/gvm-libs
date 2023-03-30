@@ -121,8 +121,8 @@ ldap_connect_authenticate (
 
   dn = ldap_auth_info_auth_dn (info, username);
 
-  ldap = ldap_auth_bind (info->ldap_host, dn, password, !info->allow_plaintext,
-                         cacert);
+  ldap = ldap_auth_bind_2 (info->ldap_host, dn, password,
+                           !info->allow_plaintext, cacert, info->ldaps_only);
 
   if (ldap == NULL)
     {
@@ -153,6 +153,28 @@ ldap_auth_info_t
 ldap_auth_info_new (const gchar *ldap_host, const gchar *auth_dn,
                     gboolean allow_plaintext)
 {
+  return ldap_auth_info_new_2 (ldap_host, auth_dn, allow_plaintext, FALSE);
+}
+
+/**
+ * @brief Create a new ldap authentication schema and info.
+ *
+ * @param ldap_host         Host to authenticate against. Might not be NULL,
+ *                          but empty.
+ * @param auth_dn           DN where the actual user name is to be inserted at
+ *                          "%s", e.g. uid=%s,cn=users. Might not be NULL,
+ *                          but empty, has to contain a single %s.
+ * @param allow_plaintext   If FALSE, require StartTLS initialization to
+ *                          succeed.
+ * @param ldaps_only        Whether to only use LDAPS.
+ *
+ * @return Fresh ldap_auth_info_t, or NULL on error.  Free with
+ *         ldap_auth_info_free.
+ */
+ldap_auth_info_t
+ldap_auth_info_new_2 (const gchar *ldap_host, const gchar *auth_dn,
+                      gboolean allow_plaintext, gboolean ldaps_only)
+{
   // Certain parameters might not be NULL.
   if (!ldap_host || !auth_dn)
     return NULL;
@@ -164,6 +186,7 @@ ldap_auth_info_new (const gchar *ldap_host, const gchar *auth_dn,
   info->ldap_host = g_strdup (ldap_host);
   info->auth_dn = g_strdup (auth_dn);
   info->allow_plaintext = allow_plaintext;
+  info->ldaps_only = ldaps_only;
 
   return info;
 }
@@ -206,7 +229,7 @@ ldap_auth_info_auth_dn (const ldap_auth_info_t info, const gchar *username)
 }
 
 /**
- * @brief Setup and bind to an LDAP.
+ * @brief Setup and bind to an LDAP, trying StartTLS first.
  *
  * @param[in] host              Host to connect to.
  * @param[in] userdn            DN to authenticate against
@@ -222,10 +245,182 @@ LDAP *
 ldap_auth_bind (const gchar *host, const gchar *userdn, const gchar *password,
                 gboolean force_encryption, const gchar *cacert)
 {
-  LDAP *ldap = NULL;
+  return ldap_auth_bind_2 (host, userdn, password, force_encryption, cacert,
+                           FALSE);
+}
+
+/**
+ * @brief Try to init a connection to an LDAP server using StartTLS first.
+ *
+ * @param[in] host              Host to connect to.
+ * @param[in] force_encryption  Whether or not to abort if connection
+ *                              encryption via StartTLS or ldaps failed.
+ *
+ * @return The LDAP handle or NULL on failure
+ */
+static LDAP *
+ldap_init_internal (const char *host, gboolean force_encryption)
+{
+  LDAP *ldap;
+  gchar *ldapuri = NULL;
   int ldap_return = 0;
   int ldapv3 = LDAP_VERSION3;
+
+  ldapuri = g_strconcat ("ldap://", host, NULL);
+
+  ldap_return = ldap_initialize (&ldap, ldapuri);
+
+  if (ldap == NULL || ldap_return != LDAP_SUCCESS)
+    {
+      g_warning ("Could not init LDAP connection for authentication.");
+      g_free (ldapuri);
+      return NULL;
+    }
+
+  /* Fail if server doesn't talk LDAPv3 or StartTLS initialization fails. */
+  ldap_return = ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
+  if (ldap_return != LDAP_SUCCESS)
+    {
+      g_warning ("Aborting, could not set ldap protocol version to 3: %s.",
+                 ldap_err2string (ldap_return));
+      g_free (ldapuri);
+      return NULL;
+    }
+
+  ldap_return = ldap_start_tls_s (ldap, NULL, NULL);
+  if (ldap_return != LDAP_SUCCESS)
+    {
+      // Try ldaps.
+      g_warning ("StartTLS failed, trying to establish ldaps connection.");
+      g_free (ldapuri);
+      ldapuri = g_strconcat ("ldaps://", host, NULL);
+
+      ldap_return = ldap_initialize (&ldap, ldapuri);
+      if (ldap == NULL || ldap_return != LDAP_SUCCESS)
+        {
+          if (force_encryption == TRUE)
+            {
+              g_warning ("Aborting ldap authentication: Could not init LDAP "
+                         "StartTLS nor ldaps: %s.",
+                         ldap_err2string (ldap_return));
+              g_free (ldapuri);
+              return NULL;
+            }
+          else
+            {
+              g_warning ("Could not init LDAP StartTLS, nor ldaps: %s.",
+                         ldap_err2string (ldap_return));
+              g_warning (
+                "Reinit LDAP connection to do plaintext authentication");
+              ldap_unbind_ext_s (ldap, NULL, NULL);
+
+              // Note that for connections to default ADS, a failed
+              // StartTLS negotiation breaks the future bind, so retry.
+              ldap_return = ldap_initialize (&ldap, ldapuri);
+              if (ldap == NULL || ldap_return != LDAP_SUCCESS)
+                {
+                  g_warning (
+                    "Could not reopen LDAP connection for authentication.");
+                  g_free (ldapuri);
+                  return NULL;
+                }
+              // Set LDAP version to 3 after initialization
+              ldap_return =
+                ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
+              if (ldap_return != LDAP_SUCCESS)
+                {
+                  g_warning (
+                    "Aborting, could not set ldap protocol version to 3: %s.",
+                    ldap_err2string (ldap_return));
+                  g_free (ldapuri);
+                  return NULL;
+                }
+            }
+        }
+      else
+        {
+          // Set LDAP version to 3 after initialization
+          ldap_return =
+            ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
+          if (ldap_return != LDAP_SUCCESS)
+            {
+              g_warning (
+                "Aborting, could not set ldap protocol version to 3: %s.",
+                ldap_err2string (ldap_return));
+              g_free (ldapuri);
+              return NULL;
+            }
+        }
+    }
+  else
+    g_debug ("LDAP StartTLS initialized.");
+
+  g_free (ldapuri);
+
+  return ldap;
+}
+
+/**
+ * @brief Try to init a connection to an LDAP server using only LDAPS.
+ *
+ * @param[in] host              Host to connect to.
+ *
+ * @return The LDAP handle or NULL on failure
+ */
+static LDAP *
+ldap_init_internal_ldaps_only (const char *host)
+{
+  LDAP *ldap;
   gchar *ldapuri = NULL;
+  int ldap_return = 0;
+  int ldapv3 = LDAP_VERSION3;
+
+  ldapuri = g_strconcat ("ldaps://", host, NULL);
+
+  ldap_return = ldap_initialize (&ldap, ldapuri);
+  if (ldap == NULL || ldap_return != LDAP_SUCCESS)
+    {
+      g_warning ("Could not init LDAPS connection for authentication.");
+      g_free (ldapuri);
+      return NULL;
+    }
+
+  /* Fail if server doesn't talk LDAPv3. */
+  ldap_return = ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
+  if (ldap_return != LDAP_SUCCESS)
+    {
+      g_warning ("Aborting, could not set ldap protocol version to 3: %s.",
+                 ldap_err2string (ldap_return));
+      g_free (ldapuri);
+      return NULL;
+    }
+
+  g_debug ("LDAPS initialized.");
+  g_free (ldapuri);
+  return ldap;
+}
+
+/**
+ * @brief Setup and bind to an LDAP.
+ *
+ * @param[in] host              Host to connect to.
+ * @param[in] userdn            DN to authenticate against
+ * @param[in] password          Password for userdn.
+ * @param[in] force_encryption  Whether or not to abort if connection
+ *                              encryption via StartTLS or ldaps failed.
+ * @param[in] cacert            CA Certificate for LDAP_OPT_X_TLS_CACERTFILE,
+ *                              or NULL.
+ * @param[in] ldaps_only        Whether to try only LDAPS.
+ *
+ * @return LDAP Handle or NULL if an error occurred, authentication failed etc.
+ */
+LDAP *
+ldap_auth_bind_2 (const gchar *host, const gchar *userdn, const gchar *password,
+                  gboolean force_encryption, const gchar *cacert,
+                  gboolean ldaps_only)
+{
+  LDAP *ldap;
+  int ldap_return;
   struct berval credential;
   gchar *name;
   gint fd;
@@ -275,96 +470,13 @@ ldap_auth_bind (const gchar *host, const gchar *userdn, const gchar *password,
   else
     fd = -1;
 
-  ldapuri = g_strconcat ("ldap://", host, NULL);
-
-  ldap_return = ldap_initialize (&ldap, ldapuri);
-
-  if (ldap == NULL || ldap_return != LDAP_SUCCESS)
-    {
-      g_warning ("Could not open LDAP connection for authentication.");
-      g_free (ldapuri);
-      goto fail;
-    }
-
-  /* Fail if server doesn't talk LDAPv3 or StartTLS initialization fails. */
-  ldap_return = ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
-  if (ldap_return != LDAP_SUCCESS)
-    {
-      g_warning ("Aborting, could not set ldap protocol version to 3: %s.",
-                 ldap_err2string (ldap_return));
-      g_free (ldapuri);
-      goto fail;
-    }
-
-  ldap_return = ldap_start_tls_s (ldap, NULL, NULL);
-  if (ldap_return != LDAP_SUCCESS)
-    {
-      // Try ldaps.
-      g_warning ("StartTLS failed, trying to establish ldaps connection.");
-      g_free (ldapuri);
-      ldapuri = g_strconcat ("ldaps://", host, NULL);
-
-      ldap_return = ldap_initialize (&ldap, ldapuri);
-      if (ldap == NULL || ldap_return != LDAP_SUCCESS)
-        {
-          if (force_encryption == TRUE)
-            {
-              g_warning ("Aborting ldap authentication: Could not init LDAP "
-                         "StartTLS nor ldaps: %s.",
-                         ldap_err2string (ldap_return));
-              g_free (ldapuri);
-              goto fail;
-            }
-          else
-            {
-              g_warning ("Could not init LDAP StartTLS, nor ldaps: %s.",
-                         ldap_err2string (ldap_return));
-              g_warning (
-                "Reinit LDAP connection to do plaintext authentication");
-              ldap_unbind_ext_s (ldap, NULL, NULL);
-
-              // Note that for connections to default ADS, a failed
-              // StartTLS negotiation breaks the future bind, so retry.
-              ldap_return = ldap_initialize (&ldap, ldapuri);
-              if (ldap == NULL || ldap_return != LDAP_SUCCESS)
-                {
-                  g_warning (
-                    "Could not reopen LDAP connection for authentication.");
-                  g_free (ldapuri);
-                  goto fail;
-                }
-              // Set LDAP version to 3 after initialization
-              ldap_return =
-                ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
-              if (ldap_return != LDAP_SUCCESS)
-                {
-                  g_warning (
-                    "Aborting, could not set ldap protocol version to 3: %s.",
-                    ldap_err2string (ldap_return));
-                  g_free (ldapuri);
-                  goto fail;
-                }
-            }
-        }
-      else
-        {
-          // Set LDAP version to 3 after initialization
-          ldap_return =
-            ldap_set_option (ldap, LDAP_OPT_PROTOCOL_VERSION, &ldapv3);
-          if (ldap_return != LDAP_SUCCESS)
-            {
-              g_warning (
-                "Aborting, could not set ldap protocol version to 3: %s.",
-                ldap_err2string (ldap_return));
-              g_free (ldapuri);
-              goto fail;
-            }
-        }
-    }
+  if (ldaps_only)
+    ldap = ldap_init_internal_ldaps_only (host);
   else
-    g_debug ("LDAP StartTLS initialized.");
+    ldap = ldap_init_internal (host, force_encryption);
 
-  g_free (ldapuri);
+  if (ldap == NULL)
+    goto fail;
 
   int do_search = 0;
   LDAPDN dn = NULL;
@@ -556,6 +668,31 @@ ldap_auth_info_new (const gchar *ldap_host, const gchar *auth_dn,
   (void) ldap_host;
   (void) auth_dn;
   (void) allow_plaintext;
+  return NULL;
+}
+
+/**
+ * @brief Dummy function for manager.
+ *
+ * @param ldap_host         Host to authenticate against. Might not be NULL,
+ *                          but empty.
+ * @param auth_dn           DN where the actual user name is to be inserted at
+ *                          "%s", e.g. uid=%s,cn=users. Might not be NULL,
+ *                          but empty, has to contain a single %s.
+ * @param allow_plaintext   If FALSE, require StartTLS initialization to
+ *                          succeed.
+ * @param ldaps_only        Whether to try LDAPS only.
+ *
+ * @return NULL.
+ */
+ldap_auth_info_t
+ldap_auth_info_new_2 (const gchar *ldap_host, const gchar *auth_dn,
+                      gboolean allow_plaintext, gboolean ldaps_only)
+{
+  (void) ldap_host;
+  (void) auth_dn;
+  (void) allow_plaintext;
+  (void) ldaps_only;
   return NULL;
 }
 
