@@ -1919,3 +1919,33 @@ element_next (element_t element)
     return element->next;
   return NULL;
 }
+
+/**
+ * @brief Output the XML element as a string.
+ *
+ * The generated XML string will include namespace definitions from ancestor
+ *  elements.
+ *
+ * @param[in]  element  The element to output as a string.
+ *
+ * @return The newly allocated XML string.
+ */
+gchar *
+element_to_string (element_t element)
+{
+  xmlBufferPtr buffer;
+  char *xml_string;
+
+  // Copy element to ensure XML namespaces are included
+  element_t element_copy;
+  element_copy = xmlCopyNode (element, 1);
+
+  buffer = xmlBufferCreate ();
+  xmlNodeDump (buffer, element_copy->doc, element_copy, 0, 0);
+  xmlFreeNode (element_copy);
+
+  xml_string = g_strdup ((char *) xmlBufferContent (buffer));
+
+  xmlBufferFree (buffer);
+  return xml_string;
+}
