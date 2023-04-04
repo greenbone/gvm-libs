@@ -231,16 +231,28 @@ pba_verify_hash (const struct PBASettings *setting, const char *hash,
   struct crypt_data *data = NULL;
   int i = 0;
   enum pba_rc result = ERR;
+
+  char *invalid_hash = calloc (1, CRYPT_OUTPUT_SIZE);
+  memset (invalid_hash, 0, CRYPT_OUTPUT_SIZE);
+  memcpy (invalid_hash, INVALID_HASH, strlen (INVALID_HASH));
+
   if (!setting)
     goto exit;
   if (!is_prefix_supported (setting->prefix))
     goto exit;
   if (pba_is_phc_compliant (hash) != 0)
     {
+      int hash_size;
+      hash_size = hash ? strlen (hash) : strlen (invalid_hash);
+
       data = calloc (1, sizeof (struct crypt_data));
       // manipulate hash to reapply pepper
       tmp = calloc (1, CRYPT_OUTPUT_SIZE);
-      memcpy (tmp, hash ? hash : INVALID_HASH, CRYPT_OUTPUT_SIZE);
+
+      memset (tmp, 0, CRYPT_OUTPUT_SIZE);
+      memcpy (tmp, hash ? hash : invalid_hash,
+              (hash_size < CRYPT_OUTPUT_SIZE) ? hash_size
+                                              : CRYPT_OUTPUT_SIZE - 1);
       cmp = strrchr (tmp, '$');
       for (i = MAX_PEPPER_SIZE - 1; i > -1; i--)
         {
@@ -273,6 +285,7 @@ pba_verify_hash (const struct PBASettings *setting, const char *hash,
         result = INVALID;
     }
 exit:
+  free (invalid_hash);
   if (data != NULL)
     free (data);
   if (tmp != NULL)
