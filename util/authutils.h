@@ -53,6 +53,9 @@ int
 gvm_authenticate_classic (const gchar *, const gchar *, const gchar *);
 
 gchar *
+get_hash_value_from_string (const gchar *);
+
+gchar *
 get_password_hashes (const gchar *);
 
 gchar *

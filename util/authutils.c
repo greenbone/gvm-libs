@@ -231,6 +231,30 @@ get_password_hashes (const gchar *password)
 }
 
 /**
+ * @brief Generate a hash value for a given string
+ *
+ * @param string The String to be hashed
+ *
+ * @return A pointer to a gchar containing the hash value, has to be freed by
+ *         the caller.
+ */
+gchar *
+get_hash_value_from_string (const gchar *string)
+{
+  g_assert (string);
+
+  gchar *hash_hex = NULL;
+  guchar *hash = g_malloc0 (gcry_md_get_algo_dlen (GCRY_MD_MD5));
+
+  gcry_md_hash_buffer (GCRY_MD_MD5, hash, string, strlen (string));
+  hash_hex = digest_hex (GCRY_MD_MD5, hash);
+
+  g_free (hash);
+
+  return hash_hex;
+}
+
+/**
  * @brief Authenticate a credential pair against user file contents.
  *
  * @param username  Username.
