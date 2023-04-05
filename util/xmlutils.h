@@ -186,4 +186,7 @@ element_t element_first_child (element_t);
 
 element_t element_next (element_t);
 
+gchar *
+element_to_string (element_t element);
+
 #endif /* not _GVM_XMLUTILS_H */
