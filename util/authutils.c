@@ -231,15 +231,15 @@ get_password_hashes (const gchar *password)
 }
 
 /**
- * @brief Generate a hash value for a given string
+ * @brief Calculate the MD5 hash value for a given string
  *
  * @param string The String to be hashed
  *
- * @return A pointer to a gchar containing the hash value, has to be freed by
- *         the caller.
+ * @return A pointer to a gchar containing the hash value as a hexadecimal
+ *         string, has to be freed by the caller.
  */
 gchar *
-get_hash_value_from_string (const gchar *string)
+get_md5_hash_from_string (const gchar *string)
 {
   g_assert (string);
 
