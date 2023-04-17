@@ -48,6 +48,12 @@
  */
 #define G_LOG_DOMAIN "libgvm base"
 
+#if (GLIB_MAJOR_VERSION >= 2) && (GLIB_MINOR_VERSION >= 67) && (GLIB_MICRO_VERSION >= 3)
+#define memdup g_memdup2
+#else
+#define memdup g_memdup
+#endif
+
 /* Global variables */
 
 /* Source interface name eg. eth1. */
@@ -368,19 +374,13 @@ gvm_resolve_list (const char *name)
         {
           struct sockaddr_in *addrin = (struct sockaddr_in *) p->ai_addr;
           ipv4_as_ipv6 (&(addrin->sin_addr), &dst);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Wdeprecated-declarations"
-          list = g_slist_prepend (list, g_memdup (&dst, sizeof (dst)));
-#pragma GCC diagnostic pop
+          list = g_slist_prepend (list, memdup (&dst, sizeof (dst)));
         }
       else if (p->ai_family == AF_INET6)
         {
           struct sockaddr_in6 *addrin = (struct sockaddr_in6 *) p->ai_addr;
           memcpy (&dst, &(addrin->sin6_addr), sizeof (struct in6_addr));
-#pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Wdeprecated-declarations"
-          list = g_slist_prepend (list, g_memdup (&dst, sizeof (dst)));
-#pragma GCC diagnostic pop
+          list = g_slist_prepend (list, memdup (&dst, sizeof (dst)));
         }
       p = p->ai_next;
     }
