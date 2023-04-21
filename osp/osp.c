@@ -145,7 +145,7 @@ osp_connection_new (const char *host, int port, const char *cacert,
 
       if (strlen (host) >= sizeof (addr.sun_path))
         {
-          g_warning ("%s: given host / socket path too long (%lu > %lu bytes)",
+          g_warning ("%s: given host / socket path too long (%zu > %zu bytes)",
                      __func__, strlen (host), sizeof (addr.sun_path) - 1);
           return NULL;
         }
