@@ -40,7 +40,7 @@ jobs:
             # set this tag to latest and stable
             echo "IS_LATEST_TAG=true" >> $GITHUB_ENV
           fi
-      - name: Setup container meta information
+      - name: 'Setup meta information (IS_VERSION_TAG: ${{ env.IS_VERSION_TAG }}, IS_LATEST_TAG: ${{ env.IS_LATEST_TAG }} )'
         id: meta
         uses: docker/metadata-action@v4
         with:
