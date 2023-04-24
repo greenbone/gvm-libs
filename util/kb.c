@@ -40,7 +40,8 @@
  */
 #define G_LOG_DOMAIN "libgvm util"
 
-#if (GLIB_MAJOR_VERSION >= 2) && (GLIB_MINOR_VERSION >= 67) && (GLIB_MICRO_VERSION >= 3)
+#if (GLIB_MAJOR_VERSION >= 2) && (GLIB_MINOR_VERSION >= 67) \
+  && (GLIB_MICRO_VERSION >= 3)
 #define memdup g_memdup2
 #else
 #define memdup g_memdup
