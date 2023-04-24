@@ -121,6 +121,10 @@ static int
 osp_send_command (osp_connection_t *, entity_t *, const char *, ...)
   __attribute__ ((__format__ (__printf__, 3, 4)));
 
+static int
+osp_send_command_str (osp_connection_t *, gchar **, const char *, ...)
+  __attribute__ ((__format__ (__printf__, 3, 4)));
+
 /**
  * @brief Open a new connection to an OSP server.
  *
@@ -235,6 +239,103 @@ out:
   va_end (ap);
 
   return rc;
+}
+
+/**
+ * @brief Send a command to an OSP server.
+ *
+ * @param[in]   connection  Connection to OSP server.
+ * @param[out]  response    Response from OSP server.
+ * @param[in]   fmt         OSP Command to send.
+ *
+ * @return 0 and response, 1 if error.
+ */
+int
+osp_send_command_str (osp_connection_t *connection, gchar **str,
+                      const char *fmt, ...)
+{
+  va_list ap;
+  int rc = 1;
+  //  entity_t entity;
+  //  entity_t *response = &entity;
+
+  va_start (ap, fmt);
+
+  if (!connection || !fmt) // || !response)
+    goto out;
+
+  if (*connection->host == '/')
+    {
+      g_warning ("%s: send sock", __func__);
+      if (gvm_socket_vsendf (connection->socket, fmt, ap) == -1)
+        goto out;
+      gvm_connection_t conn;
+      conn.socket = connection->socket;
+      conn.session = connection->session;
+      conn.host_string = connection->host;
+      conn.port = connection->port;
+      conn.tls = 0;
+      if (read_entity_and_text_c (&conn, NULL, str))
+        goto out;
+    }
+  else
+    {
+      g_warning ("%s: send sess", __func__);
+      if (gvm_server_vsendf (&connection->session, fmt, ap) == -1)
+        goto out;
+      if (read_entity_and_text (&connection->session, NULL, str))
+        goto out;
+    }
+
+  rc = 0;
+  //free_entity (entity);
+
+out:
+  va_end (ap);
+
+  return rc;
+
+
+#if 0  
+  va_list ap;
+  int rc = 1;
+  gvm_connection_t conn;
+
+  va_start (ap, fmt);
+
+  if (!connection || !fmt || !response)
+    goto out;
+
+  conn.socket = connection->socket;
+  conn.session = connection->session;
+
+  if (*connection->host == '/')
+    {
+      g_warning ("%s: send sock", __func__);
+      if (gvm_socket_vsendf (connection->socket, fmt, ap) == -1)
+        goto out;
+    }
+  else
+    {
+      g_warning ("%s: send sess", __func__);
+      if (gvm_server_vsendf (&connection->session, fmt, ap) == -1)
+        goto out;
+    }
+
+  g_warning ("%s: read", __func__);
+  entity_t entity; // FIX
+  if (read_entity_and_text_c (&conn, &entity, response))
+    goto out;
+  g_warning ("%s: read success", __func__);
+  free_entity(entity); //
+
+  rc = 0;
+
+out:
+  va_end (ap);
+
+  return rc;
+#endif
 }
 
 /**
@@ -620,6 +721,45 @@ osp_get_vts_ext (osp_connection_t *connection, osp_get_vts_opts_t opts,
     }
 
   if (osp_send_command (connection, vts, "<get_vts/>"))
+    return 1;
+  return 0;
+}
+
+/**
+ * @brief Get filtered set of VTs from an OSP server.
+ *
+ * @param[in]   connection  Connection to an OSP server.
+ * @param[in]   opts        Struct containing the options to apply.
+ * @param[out]  vts         VTs.
+ *
+ * @return 0 if success, 1 if error.
+ */
+int
+osp_get_vts_ext_str (osp_connection_t *connection, osp_get_vts_opts_t opts,
+                     gchar **str)
+{
+  if (!connection)
+    return 1;
+
+  if (str == NULL)
+    return 1;
+
+  if (opts.version_only == 1)
+    {
+      if (osp_send_command_str (connection, str, "<get_vts version_only='1'/>"))
+        return 1;
+      return 0;
+    }
+
+  if (opts.filter)
+    {
+      if (osp_send_command_str (connection, str, "<get_vts filter='%s'/>",
+                                opts.filter))
+        return 1;
+      return 0;
+    }
+
+  if (osp_send_command_str (connection, str, "<get_vts/>"))
     return 1;
   return 0;
 }
