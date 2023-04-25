@@ -266,7 +266,6 @@ osp_send_command_str (osp_connection_t *connection, gchar **str,
 
   if (*connection->host == '/')
     {
-      g_warning ("%s: send sock", __func__);
       if (gvm_socket_vsendf (connection->socket, fmt, ap) == -1)
         goto out;
       gvm_connection_t conn;
@@ -280,7 +279,6 @@ osp_send_command_str (osp_connection_t *connection, gchar **str,
     }
   else
     {
-      g_warning ("%s: send sess", __func__);
       if (gvm_server_vsendf (&connection->session, fmt, ap) == -1)
         goto out;
       if (read_entity_and_text (&connection->session, NULL, str))
