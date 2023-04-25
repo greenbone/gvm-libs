@@ -40,6 +40,13 @@
  */
 #define G_LOG_DOMAIN "libgvm util"
 
+#if (GLIB_MAJOR_VERSION >= 2) && (GLIB_MINOR_VERSION >= 67) \
+  && (GLIB_MICRO_VERSION >= 3)
+#define memdup g_memdup2
+#else
+#define memdup g_memdup
+#endif
+
 /**
  * @file kb.c
  *
@@ -692,10 +699,7 @@ redis2kbitem_single (const char *name, const redisReply *elt, int force_int)
   else
     {
       item->type = KB_TYPE_STR;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Wdeprecated-declarations"
-      item->v_str = g_memdup (elt->str, elt->len + 1);
-#pragma GCC diagnostic pop
+      item->v_str = memdup (elt->str, elt->len + 1);
       item->len = elt->len;
     }
 
