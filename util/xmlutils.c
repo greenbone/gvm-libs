@@ -837,15 +837,16 @@ try_read_string_s (int socket, int timeout,
           if (count == 0)
             {
               /* End of file. */
-              if (string && *string_return == NULL)
-                g_string_free (string, TRUE);
               if (timeout > 0)
                 {
                   if (fcntl (socket, F_SETFL, 0L) < 0)
                     g_warning ("%s :failed to set socket flag: %s", __func__,
                                strerror (errno));
                 }
-              return -3;
+              if (string)
+                *string_return = string;
+              g_free (buffer);
+              return 0;
             }
           break;
         }
