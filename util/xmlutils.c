@@ -790,7 +790,7 @@ try_read_string_s (int socket, int timeout,
   if (string_return == NULL)
     string = NULL;
   else if (*string_return == NULL)
-    string = g_string_new ("");
+    string = g_string_sized_new (8192);
   else
     string = *string_return;
 
