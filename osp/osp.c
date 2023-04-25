@@ -259,6 +259,8 @@ osp_send_command_str (osp_connection_t *connection, gchar **str,
   //  entity_t entity;
   //  entity_t *response = &entity;
 
+  *str = NULL;
+
   va_start (ap, fmt);
 
   if (!connection || !fmt) // || !response)
