@@ -256,14 +256,12 @@ osp_send_command_str (osp_connection_t *connection, gchar **str,
 {
   va_list ap;
   int rc = 1;
-  //  entity_t entity;
-  //  entity_t *response = &entity;
 
   *str = NULL;
 
   va_start (ap, fmt);
 
-  if (!connection || !fmt) // || !response)
+  if (!connection || !fmt)
     goto out;
 
   if (*connection->host == '/')
@@ -290,54 +288,11 @@ osp_send_command_str (osp_connection_t *connection, gchar **str,
     }
 
   rc = 0;
-  //free_entity (entity);
 
 out:
   va_end (ap);
 
   return rc;
-
-
-#if 0  
-  va_list ap;
-  int rc = 1;
-  gvm_connection_t conn;
-
-  va_start (ap, fmt);
-
-  if (!connection || !fmt || !response)
-    goto out;
-
-  conn.socket = connection->socket;
-  conn.session = connection->session;
-
-  if (*connection->host == '/')
-    {
-      g_warning ("%s: send sock", __func__);
-      if (gvm_socket_vsendf (connection->socket, fmt, ap) == -1)
-        goto out;
-    }
-  else
-    {
-      g_warning ("%s: send sess", __func__);
-      if (gvm_server_vsendf (&connection->session, fmt, ap) == -1)
-        goto out;
-    }
-
-  g_warning ("%s: read", __func__);
-  entity_t entity; // FIX
-  if (read_entity_and_text_c (&conn, &entity, response))
-    goto out;
-  g_warning ("%s: read success", __func__);
-  free_entity(entity); //
-
-  rc = 0;
-
-out:
-  va_end (ap);
-
-  return rc;
-#endif
 }
 
 /**
