@@ -83,6 +83,25 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+  # triggers projects that work with stable branches on a new stable tag
+  trigger-stable-projects:
+    needs: production
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    name: Trigger update container images in related projects
+    strategy:
+      fail-fast: false
+      matrix:
+        repository: ["greenbone/gvmd", "greenbone/gsad"]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger stable ${{ matrix.repository }} container image build
+        uses: greenbone/actions/trigger-workflow@v2
+        with:
+          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
+          repository: ${{ matrix.repository }}
+          workflow: container.yml
+          ref: stable
+
   trigger-related-projects:
     needs: production
     if: github.event_name != 'pull_request'
