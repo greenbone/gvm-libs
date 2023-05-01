@@ -2092,15 +2092,29 @@ void
 print_element_to_string (element_t element, GString *string)
 {
   gchar *text_escaped, *text;
+  element_t ch;
+  xmlAttr *attribute;
 
   text_escaped = NULL;
 
   g_string_append_printf (string, "<%s", element_name (element));
-  /* FIX
-  if (element->attributes && g_hash_table_size (element->attributes))
-    g_hash_table_foreach (element->attributes, foreach_print_attribute_to_string,
-                          string);
-  */
+
+  attribute = element->properties;
+  while (attribute)
+    {
+      xmlChar* value;
+
+      value = xmlNodeListGetString (element->doc, attribute->children, 1);
+ 
+      text_escaped = g_markup_escape_text ((gchar *) value, -1);
+      g_string_append_printf (string, " %s=\"%s\"", attribute->name, text_escaped);
+      g_free (text_escaped);
+
+      xmlFree(value); 
+
+      attribute = attribute->next;
+    }
+
   g_string_append_printf (string, ">");
 
   text = element_text (element);
@@ -2109,6 +2123,12 @@ print_element_to_string (element_t element, GString *string)
   g_string_append_printf (string, "%s", text_escaped);
   g_free (text_escaped);
 
-  //g_slist_foreach (element->entities, foreach_print_element_to_string, string);  FIX
+  ch = element_first_child (element);
+  while (ch)
+    {
+      print_element_to_string (ch, string);
+      ch = element_next (ch);
+    }
+
   g_string_append_printf (string, "</%s>", element_name (element));
 }
