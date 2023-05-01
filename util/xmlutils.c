@@ -1227,7 +1227,7 @@ read_string (gnutls_session_t *session, GString **string)
   int ret = 0;
   entity_t entity;
 
-  if (!(ret = read_entity_and_string (session, &entity /* FIX NULL? */, string)))
+  if (!(ret = read_entity_and_string (session, &entity, string)))
     free_entity (entity);
 
   return ret;
