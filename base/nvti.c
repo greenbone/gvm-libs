@@ -1295,6 +1295,26 @@ nvti_set_name (nvti_t *n, const gchar *name)
 }
 
 /**
+ * @brief Set the name of a NVT, using the given memory.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param name The name to set. The string will be used directly.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_put_name (nvti_t *n, gchar *name)
+{
+  if (!n)
+    return -1;
+
+  g_free (n->name);
+  n->name = name;
+  return 0;
+}
+
+/**
  * @brief Set the summary of a NVT.
  *
  * @param n The NVT Info structure.
@@ -1311,6 +1331,26 @@ nvti_set_summary (nvti_t *n, const gchar *summary)
 
   g_free (n->summary);
   n->summary = g_strdup (summary);
+  return 0;
+}
+
+/**
+ * @brief Set the summary of a NVT, using the given memory.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param solution The summary to set. The string will be used directly.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_put_summary (nvti_t *n, gchar *summary)
+{
+  if (!n)
+    return -1;
+
+  g_free (n->summary);
+  n->summary = summary;
   return 0;
 }
 
@@ -1335,6 +1375,26 @@ nvti_set_insight (nvti_t *n, const gchar *insight)
 }
 
 /**
+ * @brief Set the insight text of a NVT, using the given memory.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param insight The insight text to set. The string will be used directly.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_put_insight (nvti_t *n, gchar *insight)
+{
+  if (!n)
+    return -1;
+
+  g_free (n->insight);
+  n->insight = insight;
+  return 0;
+}
+
+/**
  * @brief Set the affected text of a NVT.
  *
  * @param n The NVT Info structure.
@@ -1355,6 +1415,26 @@ nvti_set_affected (nvti_t *n, const gchar *affected)
 }
 
 /**
+ * @brief Set the affected text of a NVT, using the given memory.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param affected The affected text to set. The string will be used directly.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_put_affected (nvti_t *n, gchar *affected)
+{
+  if (!n)
+    return -1;
+
+  g_free (n->affected);
+  n->affected = affected;
+  return 0;
+}
+
+/**
  * @brief Set the impact text of a NVT.
  *
  * @param n The NVT Info structure.
@@ -1371,6 +1451,26 @@ nvti_set_impact (nvti_t *n, const gchar *impact)
 
   g_free (n->impact);
   n->impact = g_strdup (impact);
+  return 0;
+}
+
+/**
+ * @brief Set the impact text of a NVT, using the given memory.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param affected The impact text to set. The string will be used directly.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_put_impact (nvti_t *n, gchar *impact)
+{
+  if (!n)
+    return -1;
+
+  g_free (n->impact);
+  n->impact = impact;
   return 0;
 }
 
@@ -1429,6 +1529,26 @@ nvti_set_solution (nvti_t *n, const gchar *solution)
 
   g_free (n->solution);
   n->solution = g_strdup (solution);
+  return 0;
+}
+
+/**
+ * @brief Set the solution of a NVT, using the given memory.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param solution The solution to set. The string will be used directly.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_put_solution (nvti_t *n, gchar *solution)
+{
+  if (!n)
+    return -1;
+
+  g_free (n->solution);
+  n->solution = solution;
   return 0;
 }
 
@@ -1756,6 +1876,26 @@ nvti_set_detection (nvti_t *n, const gchar *detection)
 }
 
 /**
+ * @brief Set the detection text of a NVT, using the given memory.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param detection The detection text to set. The string will be used directly.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_put_detection (nvti_t *n, gchar *detection)
+{
+  if (!n)
+    return -1;
+
+  g_free (n->detection);
+  n->detection = detection;
+  return 0;
+}
+
+/**
  * @brief Set the QoD type of a NVT.
  *
  * @param n The NVT Info structure.
@@ -1820,6 +1960,26 @@ nvti_set_family (nvti_t *n, const gchar *family)
 
   g_free (n->family);
   n->family = g_strdup (family);
+  return 0;
+}
+
+/**
+ * @brief Set the family of a NVT, using the given memory.
+ *
+ * @param n The NVT Info structure.
+ *
+ * @param family The family to set. The string will be used directly.
+ *
+ * @return 0 for success. Anything else indicates an error.
+ */
+int
+nvti_put_family (nvti_t *n, gchar *family)
+{
+  if (!n)
+    return -1;
+
+  g_free (n->family);
+  n->family = family;
   return 0;
 }
 
