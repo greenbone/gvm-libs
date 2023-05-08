@@ -126,6 +126,9 @@ int
 osp_get_vts_ext (osp_connection_t *, osp_get_vts_opts_t, entity_t *);
 
 int
+osp_get_vts_ext_str (osp_connection_t *, osp_get_vts_opts_t, gchar **);
+
+int
 osp_start_scan (osp_connection_t *, const char *, const char *, GHashTable *,
                 const char *, char **);
 
