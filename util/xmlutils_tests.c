@@ -499,6 +499,23 @@ Ensure (xmlutils, parse_element_free_using_child)
   element_free (element);
 }
 
+Ensure (xmlutils, print_element_to_string_prints)
+{
+  element_t element;
+  const gchar *xml;
+  GString *str;
+
+  xml = "<a aa=\"1\">a text<b><c ca=\"x\" ca2=\"y\">1</c><d/><e></e></b> and more a text</a>";
+  str = g_string_new ("");
+
+  assert_that (parse_element (xml, &element), is_equal_to (0));
+  print_element_to_string (element, str);
+  assert_that (str->str,
+               is_equal_to_string ("<a aa=\"1\">a text and more a text<b><c ca=\"x\" ca2=\"y\">1</c><d></d><e></e></b></a>"));
+  g_string_free (str, TRUE);
+  element_free (element);
+}
+
 /* Test suite. */
 
 int
@@ -529,6 +546,8 @@ main (int argc, char **argv)
                          parse_element_item_metadata_with_namespace);
   add_test_with_context (suite, xmlutils, parse_element_item_handles_cdata);
   add_test_with_context (suite, xmlutils, parse_element_free_using_child);
+
+  add_test_with_context (suite, xmlutils, print_element_to_string_prints);
 
   add_test_with_context (suite, xmlutils,
                          element_next_handles_multiple_children);

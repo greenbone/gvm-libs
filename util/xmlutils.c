@@ -2080,3 +2080,55 @@ element_to_string (element_t element)
   xmlBufferFree (buffer);
   return xml_string;
 }
+
+/**
+ * @brief Print an XML element tree to a GString, appending it if string is not
+ * @brief empty.
+ *
+ * @param[in]      element  Element tree to print to string.
+ * @param[in,out]  string  String to write to.
+ */
+void
+print_element_to_string (element_t element, GString *string)
+{
+  gchar *text_escaped, *text;
+  element_t ch;
+  xmlAttr *attribute;
+
+  text_escaped = NULL;
+
+  g_string_append_printf (string, "<%s", element_name (element));
+
+  attribute = element->properties;
+  while (attribute)
+    {
+      xmlChar* value;
+
+      value = xmlNodeListGetString (element->doc, attribute->children, 1);
+
+      text_escaped = g_markup_escape_text ((gchar *) value, -1);
+      g_string_append_printf (string, " %s=\"%s\"", attribute->name, text_escaped);
+      g_free (text_escaped);
+
+      xmlFree(value); 
+
+      attribute = attribute->next;
+    }
+
+  g_string_append_printf (string, ">");
+
+  text = element_text (element);
+  text_escaped = g_markup_escape_text (text, -1);
+  g_free (text);
+  g_string_append_printf (string, "%s", text_escaped);
+  g_free (text_escaped);
+
+  ch = element_first_child (element);
+  while (ch)
+    {
+      print_element_to_string (ch, string);
+      ch = element_next (ch);
+    }
+
+  g_string_append_printf (string, "</%s>", element_name (element));
+}

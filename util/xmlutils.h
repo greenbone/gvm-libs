@@ -189,4 +189,7 @@ element_t element_next (element_t);
 gchar *
 element_to_string (element_t element);
 
+void
+print_element_to_string (element_t element, GString *string);
+
 #endif /* not _GVM_XMLUTILS_H */
