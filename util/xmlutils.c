@@ -759,6 +759,134 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
  * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
  */
 static int
+try_read_string_s (int socket, int timeout,
+                   GString **string_return)
+{
+  GString *string;
+  time_t last_time;
+  /* Buffer for reading from the socket. */
+  char *buffer;
+
+  /* Record the start time. */
+
+  if (time (&last_time) == -1)
+    {
+      g_warning ("   failed to get current time: %s\n", strerror (errno));
+      return -1;
+    }
+
+  if (timeout > 0)
+    {
+      /* Turn off blocking. */
+
+      if (fcntl (socket, F_SETFL, O_NONBLOCK) == -1)
+        return -1;
+    }
+
+  buffer = g_malloc0 (BUFFER_SIZE);
+
+  /* Setup return arg. */
+
+  if (string_return == NULL)
+    string = NULL;
+  else if (*string_return == NULL)
+    string = g_string_new ("");
+  else
+    string = *string_return;
+
+  /* Read until encountering end of file or error. */
+
+  while (1)
+    {
+      int count;
+      while (1)
+        {
+          g_debug ("   asking for %i\n", BUFFER_SIZE);
+          count = read (socket, buffer, BUFFER_SIZE);
+          if (count < 0)
+            {
+              if (errno == EINTR)
+                /* Interrupted, try read again. */
+                continue;
+              if (timeout > 0)
+                {
+                  if (errno == EAGAIN)
+                    {
+                      /* Server still busy, either timeout or try read again. */
+                      if ((timeout - (time (NULL) - last_time)) <= 0)
+                        {
+                          g_warning ("   timeout\n");
+                          if (fcntl (socket, F_SETFL, 0L) < 0)
+                            g_warning ("%s :failed to set socket flag: %s",
+                                       __func__, strerror (errno));
+                          g_free (buffer);
+                          if (string && *string_return == NULL)
+                            g_string_free (string, TRUE);
+                          return -4;
+                        }
+                    }
+                  continue;
+                }
+              if (string && *string_return == NULL)
+                g_string_free (string, TRUE);
+              if (timeout > 0)
+                fcntl (socket, F_SETFL, 0L);
+              g_free (buffer);
+              return -1;
+            }
+          if (count == 0)
+            {
+              /* End of file. */
+              if (timeout > 0)
+                {
+                  if (fcntl (socket, F_SETFL, 0L) < 0)
+                    g_warning ("%s :failed to set socket flag: %s", __func__,
+                               strerror (errno));
+                }
+              if (string)
+                *string_return = string;
+              g_free (buffer);
+              return 0;
+            }
+          break;
+        }
+
+      g_debug ("<= %.*s\n", (int) count, buffer);
+
+      if (string)
+        g_string_append_len (string, buffer, count);
+
+      if ((timeout > 0) && (time (&last_time) == -1))
+        {
+          g_warning ("   failed to get current time (1): %s\n",
+                     strerror (errno));
+          if (fcntl (socket, F_SETFL, 0L) < 0)
+            g_warning ("%s :failed to set server socket flag: %s", __func__,
+                       strerror (errno));
+          g_free (buffer);
+          if (string && *string_return == NULL)
+            g_string_free (string, TRUE);
+          return -1;
+        }
+    }
+}
+
+/**
+ * @brief Try read an XML entity tree from the socket.
+ *
+ * @param[in]   socket         Socket to read from.
+ * @param[in]   timeout        Server idle time before giving up, in seconds.  0
+ * to wait forever.
+ * @param[out]  entity         Pointer to an entity tree.
+ * @param[out]  string_return  An optional return location for the text read
+ *                             from the session.  If NULL then it simply
+ *                             remains NULL.  If a pointer to NULL then it
+ * points to a freshly allocated GString on successful return. Otherwise it
+ * points to an existing GString onto which the text is appended.
+ *
+ * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
+ */
+static int
 try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
                               GString **string_return)
 {
@@ -1015,6 +1143,9 @@ read_entity_and_string_c (gvm_connection_t *connection, entity_t *entity,
   if (connection->tls)
     return try_read_entity_and_string (&connection->session, 0, entity,
                                        string_return);
+  if (entity == NULL)
+    return try_read_string_s (connection->socket, 0, string_return);
+
   return try_read_entity_and_string_s (connection->socket, 0, entity,
                                        string_return);
 }
