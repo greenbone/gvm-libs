@@ -1290,9 +1290,6 @@ read_entity_and_string_c (gvm_connection_t *connection, entity_t *entity,
   if (connection->tls)
     return try_read_entity_and_string (&connection->session, 0, entity,
                                        string_return);
-  if (entity == NULL)
-    return try_read_string_s (connection->socket, 0, string_return);
-
   return try_read_entity_and_string_s (connection->socket, 0, entity,
                                        string_return);
 }
