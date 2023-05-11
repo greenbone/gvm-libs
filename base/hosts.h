@@ -28,6 +28,11 @@
 #ifndef _GVM_HOSTS_H
 #define _GVM_HOSTS_H
 
+/** @brief Flag that indecates that this version includes
+ *  the function gvm_hosts_allowed_only()
+ */
+#define FEATURE_HOSTS_ALLOWED_ONLY 1
+
 #include <glib.h>       /* for gchar, GList */
 #include <netinet/in.h> /* for in6_addr, in_addr */
 
@@ -137,6 +142,9 @@ gvm_vhosts_exclude (gvm_host_t *, const char *);
 
 int
 gvm_hosts_exclude_with_max (gvm_hosts_t *, const char *, unsigned int);
+
+GSList *
+gvm_hosts_allowed_only (gvm_hosts_t *, const char *, const char *);
 
 char *
 gvm_host_reverse_lookup (gvm_host_t *);

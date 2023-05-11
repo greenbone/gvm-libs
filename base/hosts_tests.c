@@ -252,6 +252,38 @@ Ensure (hosts, gvm_hosts_move_host_to_end)
   gvm_hosts_free (hosts);
 }
 
+Ensure (hosts, gvm_hosts_allowed_only)
+{
+  gvm_hosts_t *hosts = NULL;
+  gvm_host_t *host = NULL;
+  int totalhosts;
+  GSList *removed = NULL;
+
+  hosts = gvm_hosts_new ("192.168.0.1,192.168.0.2,192.168.0.3");
+
+  removed = gvm_hosts_allowed_only (hosts, NULL, NULL);
+  totalhosts = gvm_hosts_count (hosts);
+  assert_that (totalhosts, is_equal_to (3));
+
+  removed = gvm_hosts_allowed_only (hosts, "192.168.0.2", NULL);
+  totalhosts = gvm_hosts_count (hosts);
+  assert_that (totalhosts, is_equal_to (2));
+  assert_that (g_slist_length (removed), is_equal_to (1));
+  g_slist_free_full (removed, g_free);
+
+  removed = gvm_hosts_allowed_only (hosts, NULL, "192.168.0.3");
+  totalhosts = gvm_hosts_count (hosts);
+  assert_that (totalhosts, is_equal_to (1));
+  assert_that (g_slist_length (removed), is_equal_to (1));
+  g_slist_free_full (removed, g_free);
+
+  host = gvm_hosts_next (hosts);
+  assert_that (g_strcmp0 (gvm_host_value_str (host), "192.168.0.3"),
+               is_equal_to (0));
+
+  gvm_hosts_free (hosts);
+}
+
 /* Test suite. */
 
 int
@@ -286,6 +318,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, hosts, gvm_hosts_new_with_max_returns_success);
 
   add_test_with_context (suite, hosts, gvm_hosts_move_host_to_end);
+  add_test_with_context (suite, hosts, gvm_hosts_allowed_only);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
