@@ -2031,7 +2031,12 @@ element_t
 element_first_child (element_t element)
 {
   if (element)
-    return element->children;
+    {
+      element = element->children;
+      while (element && (element->type != XML_ELEMENT_NODE))
+        element = element->next;
+      return element;
+    }
   return NULL;
 }
 
@@ -2046,7 +2051,12 @@ element_t
 element_next (element_t element)
 {
   if (element)
-    return element->next;
+    {
+      element = element->next;
+      while (element && (element->type != XML_ELEMENT_NODE))
+        element = element->next;
+      return element;
+    }
   return NULL;
 }
 
