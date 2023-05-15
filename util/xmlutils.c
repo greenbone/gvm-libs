@@ -2030,12 +2030,13 @@ element_attribute (element_t element, const gchar *name)
 element_t
 element_first_child (element_t element)
 {
-  if (element) {
-    element = element->children;
-    while (element && (element->type != XML_ELEMENT_NODE))
-      element = element->next;
-    return element;
-  }
+  if (element)
+    {
+      element = element->children;
+      while (element && (element->type != XML_ELEMENT_NODE))
+        element = element->next;
+      return element;
+    }
   return NULL;
 }
 
@@ -2049,12 +2050,13 @@ element_first_child (element_t element)
 element_t
 element_next (element_t element)
 {
-  if (element) {
-    element = element->next;
-    while (element && (element->type != XML_ELEMENT_NODE))
+  if (element)
+    {
       element = element->next;
-    return element;
-  }
+      while (element && (element->type != XML_ELEMENT_NODE))
+        element = element->next;
+      return element;
+    }
   return NULL;
 }
 
