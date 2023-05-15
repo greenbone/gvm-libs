@@ -766,7 +766,7 @@ try_read_string (gnutls_session_t *session, int timeout,
   GString *string;
   int socket;
   time_t last_time;
-  char *buffer;     // Buffer for reading from the server.
+  char *buffer; // Buffer for reading from the server.
 
   /* Record the start time. */
 
@@ -906,8 +906,7 @@ try_read_string (gnutls_session_t *session, int timeout,
  * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
  */
 static int
-try_read_string_s (int socket, int timeout,
-                   GString **string_return)
+try_read_string_s (int socket, int timeout, GString **string_return)
 {
   GString *string;
   time_t last_time;
@@ -2211,12 +2210,13 @@ element_attribute (element_t element, const gchar *name)
 element_t
 element_first_child (element_t element)
 {
-  if (element) {
-    element = element->children;
-    while (element && (element->type != XML_ELEMENT_NODE))
-      element = element->next;
-    return element;
-  }
+  if (element)
+    {
+      element = element->children;
+      while (element && (element->type != XML_ELEMENT_NODE))
+        element = element->next;
+      return element;
+    }
   return NULL;
 }
 
@@ -2230,12 +2230,13 @@ element_first_child (element_t element)
 element_t
 element_next (element_t element)
 {
-  if (element) {
-    element = element->next;
-    while (element && (element->type != XML_ELEMENT_NODE))
+  if (element)
+    {
       element = element->next;
-    return element;
-  }
+      while (element && (element->type != XML_ELEMENT_NODE))
+        element = element->next;
+      return element;
+    }
   return NULL;
 }
 
@@ -2290,15 +2291,16 @@ print_element_to_string (element_t element, GString *string)
   attribute = element->properties;
   while (attribute)
     {
-      xmlChar* value;
+      xmlChar *value;
 
       value = xmlNodeListGetString (element->doc, attribute->children, 1);
 
       text_escaped = g_markup_escape_text ((gchar *) value, -1);
-      g_string_append_printf (string, " %s=\"%s\"", attribute->name, text_escaped);
+      g_string_append_printf (string, " %s=\"%s\"", attribute->name,
+                              text_escaped);
       g_free (text_escaped);
 
-      xmlFree(value); 
+      xmlFree (value);
 
       attribute = attribute->next;
     }
