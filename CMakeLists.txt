@@ -22,7 +22,7 @@ message ("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
 # VERSION: Always include major, minor and patch level.
 project (gvm-libs
-  VERSION 22.5.2
+  VERSION 22.6.0
   LANGUAGES C)
 
 if (POLICY CMP0005)
