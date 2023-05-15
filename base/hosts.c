@@ -1382,6 +1382,7 @@ gvm_hosts_free (gvm_hosts_t *hosts)
     gvm_host_free (hosts->hosts[i]);
   g_free (hosts->hosts);
   g_free (hosts);
+  hosts = NULL;
 }
 
 /**
@@ -1566,7 +1567,7 @@ gvm_vhosts_exclude (gvm_host_t *host, const char *excluded_str)
  * Not to be used while iterating over the single hosts as it resets the
  * iterator.
  *
- * @param[in] hosts         The hosts collection from which to exclude.
+ * @param[in/out] hosts     The hosts collection from which to exclude.
  * @param[in] excluded_str  String of hosts to exclude.
  * @param[in] max_hosts     Max number of hosts in hosts_str. 0 means unlimited.
  *
@@ -1634,6 +1635,118 @@ gvm_hosts_exclude_with_max (gvm_hosts_t *hosts, const char *excluded_str,
   g_hash_table_destroy (name_table);
   gvm_hosts_free (excluded_hosts);
   return excluded;
+}
+
+/**
+ * @brief Returns a list of hosts after a host authorization check.
+ *
+ * @param[in/out] hosts         The hosts collection from which to exclude.
+ * @param[in] deny_hosts_str    String of denied hosts. This hosts will be
+ * removed from the hosts list
+ * @param[in] allow_hosts_str   String of allow hosts. This hosts will be kept
+ * in the hosts list
+ *
+ * @return List of non-authorized hosts if any, otherwise Null. The returned
+ * list must be free()'d by the caller functions.
+ */
+GSList *
+gvm_hosts_allowed_only (gvm_hosts_t *hosts, const char *deny_hosts_str,
+                        const char *allow_hosts_str)
+{
+  /**
+   * Uses a hash table in order to exclude hosts in O(N+M) time.
+   */
+  gvm_hosts_t *allowed_hosts, *denied_hosts;
+  GHashTable *name_allow_table = NULL, *name_deny_table = NULL;
+  GSList *removed = NULL;
+  size_t excluded = 0, i;
+
+  if (hosts == NULL || (deny_hosts_str == NULL && allow_hosts_str == NULL))
+    return NULL;
+
+  // Prepare list of denied and allowed hosts
+  denied_hosts = gvm_hosts_new_with_max (deny_hosts_str, 0);
+  allowed_hosts = gvm_hosts_new_with_max (allow_hosts_str, 0);
+  if (denied_hosts == NULL && allowed_hosts == NULL)
+    return NULL;
+
+  if (gvm_hosts_count (denied_hosts) == 0)
+    gvm_hosts_free (denied_hosts);
+  else
+    {
+      /* Hash host values from denied hosts list. */
+      name_deny_table =
+        g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+      for (i = 0; i < denied_hosts->count; i++)
+        {
+          gchar *name;
+
+          if ((name = gvm_host_value_str (denied_hosts->hosts[i])))
+            g_hash_table_insert (name_deny_table, name, hosts);
+        }
+    }
+  if (gvm_hosts_count (allowed_hosts) == 0)
+    gvm_hosts_free (allowed_hosts);
+  else
+    {
+      /* Hash host values from allowed hosts list. */
+      name_allow_table =
+        g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+      for (i = 0; i < allowed_hosts->count; i++)
+        {
+          gchar *name;
+
+          if ((name = gvm_host_value_str (allowed_hosts->hosts[i])))
+            g_hash_table_insert (name_allow_table, name, hosts);
+        }
+    }
+
+  /* Check for authorized hosts in hash table and create a list of removed
+   * hosts. */
+  for (i = 0; i < hosts->count; i++)
+    {
+      gchar *name;
+
+      if ((name = gvm_host_value_str (hosts->hosts[i])))
+        {
+          if (denied_hosts != NULL
+              && g_hash_table_lookup (name_deny_table, name))
+            {
+              gvm_host_free (hosts->hosts[i]);
+              hosts->hosts[i] = NULL;
+              excluded++;
+              removed = g_slist_prepend (removed, name);
+              continue;
+            }
+          else if (allowed_hosts != NULL
+                   && !g_hash_table_lookup (name_allow_table, name))
+            {
+              gvm_host_free (hosts->hosts[i]);
+              hosts->hosts[i] = NULL;
+              excluded++;
+              removed = g_slist_prepend (removed, name);
+              continue;
+            }
+          g_free (name);
+        }
+    }
+
+  /* Cleanup. */
+  if (excluded)
+    gvm_hosts_fill_gaps (hosts);
+
+  hosts->count -= excluded;
+  hosts->removed += excluded;
+  hosts->current = 0;
+  if (name_allow_table != NULL)
+    g_hash_table_destroy (name_allow_table);
+  if (name_deny_table != NULL)
+    g_hash_table_destroy (name_deny_table);
+  if (allowed_hosts != NULL)
+    gvm_hosts_free (allowed_hosts);
+  if (denied_hosts != NULL)
+    gvm_hosts_free (denied_hosts);
+  return removed;
 }
 
 /**
