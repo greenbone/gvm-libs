@@ -505,13 +505,15 @@ Ensure (xmlutils, print_element_to_string_prints)
   const gchar *xml;
   GString *str;
 
-  xml = "<a aa=\"1\">a text<b><c ca=\"x\" ca2=\"y\">1</c><d/><e></e></b> and more a text</a>";
+  xml = "<a aa=\"1\">a text<b><c ca=\"x\" ca2=\"y\">1</c><d/><e></e></b> and "
+        "more a text</a>";
   str = g_string_new ("");
 
   assert_that (parse_element (xml, &element), is_equal_to (0));
   print_element_to_string (element, str);
-  assert_that (str->str,
-               is_equal_to_string ("<a aa=\"1\">a text and more a text<b><c ca=\"x\" ca2=\"y\">1</c><d></d><e></e></b></a>"));
+  assert_that (str->str, is_equal_to_string (
+                           "<a aa=\"1\">a text and more a text<b><c ca=\"x\" "
+                           "ca2=\"y\">1</c><d></d><e></e></b></a>"));
   g_string_free (str, TRUE);
   element_free (element);
 }
