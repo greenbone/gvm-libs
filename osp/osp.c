@@ -255,8 +255,10 @@ osp_send_command_str (osp_connection_t *connection, gchar **str,
                       const char *fmt, ...)
 {
   va_list ap;
-  int rc = 1;
+  int rc;
+  gvm_connection_t conn;
 
+  rc = 1;
   *str = NULL;
 
   va_start (ap, fmt);
@@ -268,22 +270,22 @@ osp_send_command_str (osp_connection_t *connection, gchar **str,
     {
       if (gvm_socket_vsendf (connection->socket, fmt, ap) == -1)
         goto out;
-      gvm_connection_t conn;
-      conn.socket = connection->socket;
-      conn.session = connection->session;
-      conn.host_string = connection->host;
-      conn.port = connection->port;
       conn.tls = 0;
-      if (read_entity_and_text_c (&conn, NULL, str))
-        goto out;
     }
   else
     {
       if (gvm_server_vsendf (&connection->session, fmt, ap) == -1)
         goto out;
-      if (read_entity_and_text (&connection->session, NULL, str))
-        goto out;
+      conn.tls = 1;
     }
+
+  conn.socket = connection->socket;
+  conn.session = connection->session;
+  conn.host_string = connection->host;
+  conn.port = connection->port;
+
+  if (read_text_c (&conn, str))
+    goto out;
 
   rc = 0;
 

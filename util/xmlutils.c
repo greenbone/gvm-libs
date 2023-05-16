@@ -744,6 +744,153 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
 }
 
 /**
+ * @brief Try read a response from a TLS session.
+ *
+ * @param[in]   session        Pointer to GNUTLS session.
+ * @param[in]   timeout        Server idle time before giving up, in seconds.  0
+ *                             to wait forever.
+ * @param[out]  string_return  An optional return location for the text read
+ *                             from the session.
+ *
+ * If string_return is NULL then it simply remains NULL.  If it is pointer to
+ * NULL then it points to a freshly allocated GString on successful return.
+ * Otherwise it must point to an existing GString onto which the text is
+ * appended.
+ *
+ * @return 0 success, -1 read error, -4 timeout.
+ */
+static int
+try_read_string (gnutls_session_t *session, int timeout,
+                 GString **string_return)
+{
+  GString *string;
+  int socket;
+  time_t last_time;
+  char *buffer; // Buffer for reading from the server.
+
+  /* Record the start time. */
+
+  if (time (&last_time) == -1)
+    {
+      g_warning ("   failed to get current time: %s\n", strerror (errno));
+      return -1;
+    }
+
+  if (timeout > 0)
+    {
+      /* Turn off blocking. */
+
+      socket = GPOINTER_TO_INT (gnutls_transport_get_ptr (*session));
+      if (fcntl (socket, F_SETFL, O_NONBLOCK) == -1)
+        return -1;
+    }
+  else
+    /* Quiet compiler. */
+    socket = 0;
+
+  buffer = g_malloc0 (BUFFER_SIZE);
+
+  /* Setup return arg. */
+
+  if (string_return == NULL)
+    string = NULL;
+  else if (*string_return == NULL)
+    string = g_string_new ("");
+  else
+    string = *string_return;
+
+  /* Read until encountering end of file or error. */
+
+  while (1)
+    {
+      ssize_t count;
+      int retries = 10;
+      while (1)
+        {
+          g_debug ("   asking for %i\n", BUFFER_SIZE);
+          count = gnutls_record_recv (*session, buffer, BUFFER_SIZE);
+          if (count < 0)
+            {
+              if (count == GNUTLS_E_INTERRUPTED)
+                /* Interrupted, try read again. */
+                continue;
+              if ((timeout > 0) && (count == GNUTLS_E_AGAIN))
+                {
+                  /* Server still busy, either timeout or try read again. */
+                  if ((timeout - (time (NULL) - last_time)) <= 0)
+                    {
+                      g_warning ("   timeout\n");
+                      if (fcntl (socket, F_SETFL, 0L) < 0)
+                        g_warning ("%s: failed to set socket flag: %s",
+                                   __func__, strerror (errno));
+                      g_free (buffer);
+                      return -4;
+                    }
+                  continue;
+                }
+              else if ((timeout == 0) && (count == GNUTLS_E_AGAIN))
+                {
+                  /* Server still busy, try read again.
+                   * If there is no timeout set and the server is still not
+                   * ready, it will try up to 10 times before closing the
+                   * socket. */
+                  if (retries > 0)
+                    {
+                      retries = retries - 1;
+                      continue;
+                    }
+                }
+
+              if (count == GNUTLS_E_REHANDSHAKE)
+                /* Try again. TODO Rehandshake. */
+                continue;
+              if (string && (*string_return == NULL))
+                g_string_free (string, TRUE);
+              if (timeout > 0)
+                {
+                  if (fcntl (socket, F_SETFL, 0L) < 0)
+                    g_warning ("%s: failed to set socket flag: %s", __func__,
+                               strerror (errno));
+                }
+              g_free (buffer);
+              return -1;
+            }
+          if (count == 0)
+            {
+              /* End of file. */
+              if (timeout > 0)
+                {
+                  if (fcntl (socket, F_SETFL, 0L) < 0)
+                    g_warning ("%s :failed to set socket flag: %s", __func__,
+                               strerror (errno));
+                }
+              if (string)
+                *string_return = string;
+              g_free (buffer);
+              return 0;
+            }
+          break;
+        }
+
+      g_debug ("<= %.*s\n", (int) count, buffer);
+
+      if (string)
+        g_string_append_len (string, buffer, count);
+
+      if ((timeout > 0) && (time (&last_time) == -1))
+        {
+          g_warning ("   failed to get current time (1): %s\n",
+                     strerror (errno));
+          if (fcntl (socket, F_SETFL, 0L) < 0)
+            g_warning ("%s :failed to set socket flag: %s", __func__,
+                       strerror (errno));
+          g_free (buffer);
+          return -1;
+        }
+    }
+}
+
+/**
  * @brief Try read an XML entity tree from the socket.
  *
  * @param[in]   socket         Socket to read from.
@@ -1142,9 +1289,6 @@ read_entity_and_string_c (gvm_connection_t *connection, entity_t *entity,
   if (connection->tls)
     return try_read_entity_and_string (&connection->session, 0, entity,
                                        string_return);
-  if (entity == NULL)
-    return try_read_string_s (connection->socket, 0, string_return);
-
   return try_read_entity_and_string_s (connection->socket, 0, entity,
                                        string_return);
 }
@@ -1210,6 +1354,42 @@ read_entity_and_text_c (gvm_connection_t *connection, entity_t *entity,
       return 0;
     }
   return read_entity_and_string_c (connection, entity, NULL);
+}
+
+/**
+ * @brief Read text from the server.
+ *
+ * @param[in]  connection  Connection.
+ * @param[out] text        A pointer to a pointer, at which to store the
+ *                         address of a newly allocated string holding the
+ *                         text read from the session.
+ *
+ * @return 0 success, -1 read error, -2 argument error.
+ */
+int
+read_text_c (gvm_connection_t *connection, char **text)
+{
+  GString *string;
+  int ret;
+
+  if (text == NULL)
+    return -2;
+
+  string = NULL;
+
+  if (connection->tls)
+    ret = try_read_string (&connection->session, 0, &string);
+  else
+    ret = try_read_string_s (connection->socket, 0, &string);
+
+  if (ret)
+    {
+      if (string)
+        g_string_free (string, TRUE);
+      return ret;
+    }
+  *text = g_string_free (string, FALSE);
+  return 0;
 }
 
 /**
