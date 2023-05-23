@@ -1,20 +1,6 @@
-# Copyright (C) 2016-2022 Greenbone AG
+# SPDX-FileCopyrightText: 2016-2023 Greenbone AG
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ## Library
 
@@ -61,7 +47,7 @@ find_library(LIBPAHO paho-mqtt3c)
 message (STATUS "Looking for paho-mqtt3c ... ${LIBPAHO}")
 if (NOT LIBPAHO)
   message (SEND_ERROR "libpaho-mqtt3c is required for MQTTv5 support.")
-else (LIBPAHO)
+else (NOT LIBPAHO)
   set (LIBPAHO_LDFLAGS "paho-mqtt3c")
   add_definitions (-DHAVE_MQTT=1)
 endif (NOT LIBPAHO)
