@@ -2014,8 +2014,8 @@ parse_element (const gchar *string, element_t *element)
   if (xmlMemSetup (g_free, g_malloc, g_realloc, g_strdup))
     return -4;
 
-  doc = xmlReadMemory (string, strlen (string), "noname.xml", NULL,
-                       XML_PARSE_HUGE);
+  doc =
+    xmlReadMemory (string, strlen (string), "noname.xml", NULL, XML_PARSE_HUGE);
   if (doc == NULL)
     return -2;
 
