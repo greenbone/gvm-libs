@@ -1,5 +1,5 @@
+#!/bin/sh
 # This script installs openvas-smb-dependencies.
-#/bin/sh
 set -ex
 apt-get update && \
   apt-get install -y --no-install-recommends \
@@ -20,6 +20,11 @@ apt-get update && \
   libldap2-dev \
   libradcli-dev \
   libpaho-mqtt-dev \
-  libcgreen1-dev \
   lcov \
   && rm -rf /var/lib/apt/lists/*
+
+
+curl -L -o cgreen.tar.gz https://github.com/cgreen-devs/cgreen/archive/refs/tags/1.6.2.tar.gz -k
+tar -xzf cgreen.tar.gz && cd cgreen-1.6.2
+make install
+ldconfig

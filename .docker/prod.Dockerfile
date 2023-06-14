@@ -25,7 +25,7 @@ RUN apt-get update && \
   libxml2 \
   libpcap0.8 \
   libnet1 \
-  libldap-2.4-2 \
+  libldap-common \
   libradcli4 \
   libpaho-mqtt1.3 \
   && rm -rf /var/lib/apt/lists/*
