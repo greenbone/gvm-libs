@@ -1,7 +1,7 @@
 ARG VERSION=unstable
 # this allows to work on forked repository
 ARG REPOSITORY=greenbone/gvm-libs
-FROM debian:stable-slim AS build
+FROM debian:bullseye-slim AS build
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install
@@ -10,7 +10,7 @@ RUN sh /source/.github/install-dependencies.sh
 RUN cmake -DCMAKE_BUILD_TYPE=Release -B/build /source
 RUN DESTDIR=/install cmake --build /build -- install
 
-FROM debian:stable-slim
+FROM debian:bullseye-slim
 
 ARG DEBIAN_FRONTEND=noninteractive
 

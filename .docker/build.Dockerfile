@@ -4,7 +4,7 @@
 ARG VERSION=unstable
 
 # Use '-slim' image for reduced image size
-FROM debian:stable-slim
+FROM debian:bullseye-slim
 LABEL deprecated="This image is deprecated and may be removed soon."
 
 # This will make apt-get install without question

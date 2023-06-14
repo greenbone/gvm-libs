@@ -31,7 +31,7 @@ jobs:
           images: ${{ github.repository }}-build
           labels: |
             org.opencontainers.image.vendor=Greenbone
-            org.opencontainers.image.base.name=debian:stable-slim
+            org.opencontainers.image.base.name=debian:bullseye-slim
           flavor: latest=false # no latest container tag for git tags
           tags: |
             # create container tag for git tags
