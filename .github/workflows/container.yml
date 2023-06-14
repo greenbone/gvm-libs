@@ -15,12 +15,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: 'set IS_VERSION_TAG'
+      - name: "set IS_VERSION_TAG"
         run: |
           echo "IS_VERSION_TAG=${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'v') }}" >> $GITHUB_ENV
           # set defaults
           echo "IS_LATEST_TAG=false" >> $GITHUB_ENV
-      - name: 'set IS_LATEST_TAG'
+      - name: "set IS_LATEST_TAG"
         if: ( env.IS_VERSION_TAG )
         run: |
           # find the latest version that is not ourself
@@ -40,7 +40,7 @@ jobs:
             # set this tag to latest and stable
             echo "IS_LATEST_TAG=true" >> $GITHUB_ENV
           fi
-      - name: 'Setup meta information (IS_VERSION_TAG: ${{ env.IS_VERSION_TAG }}, IS_LATEST_TAG: ${{ env.IS_LATEST_TAG }} )'
+      - name: "Setup meta information (IS_VERSION_TAG: ${{ env.IS_VERSION_TAG }}, IS_LATEST_TAG: ${{ env.IS_LATEST_TAG }} )"
         id: meta
         uses: docker/metadata-action@v4
         with:
@@ -82,6 +82,32 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      - name: "Setup meta information (IS_VERSION_TAG: ${{ env.IS_VERSION_TAG }}, IS_LATEST_TAG: ${{ env.IS_LATEST_TAG }} )"
+        id: old_stable_meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ github.repository }}
+          labels: |
+            org.opencontainers.image.vendor=Greenbone
+            org.opencontainers.image.base.name=debian:stable-slim
+          flavor: latest=false # no auto latest container tag for git tags
+          tags: |
+            # for the images provided for debian:oldstable we just provide
+            # oldstable on an new version or oldstable-edge when it is on main.
+            # oldstable-branch-sha on a branch
+            type=raw,value=oldstable,enable=${{ env.IS_LATEST_TAG }}
+            type=raw,value=oldstable-edge,enable=${{ github.ref_name == 'main' }}
+            type=raw,value=oldstable-{{branch}}-{{sha}},enable=${{ github.ref_type == 'branch' && github.event_name == 'push' && github.ref_name != 'main' }}
+            type=ref,event=pr
+      - name: Build and push Container image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' && (github.ref_type == 'tag' || github.ref_name == 'main') }}
+          file: .docker/prod-oldstable.Dockerfile
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.old_stable_meta.outputs.tags }}
+          labels: ${{ steps.old_stable_meta.outputs.labels }}
 
   # triggers projects that work with stable branches on a new stable tag
   trigger-stable-projects:
@@ -109,7 +135,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        repository: ["greenbone/openvas-scanner", "greenbone/gvmd", "greenbone/gsad", "greenbone/boreas"]
+        repository:
+          [
+            "greenbone/openvas-scanner",
+            "greenbone/gvmd",
+            "greenbone/gsad",
+            "greenbone/boreas",
+          ]
     runs-on: ubuntu-latest
     steps:
       - name: Trigger main ${{ matrix.repository }} container image build
