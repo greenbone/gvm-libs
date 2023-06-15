@@ -113,20 +113,27 @@ jobs:
   trigger-stable-projects:
     needs: production
     if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
-    name: Trigger update container images in related projects
+    name: Trigger update container images in related projects for new tags
     strategy:
       fail-fast: false
       matrix:
         repository: ["greenbone/gvmd", "greenbone/gsad"]
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger stable ${{ matrix.repository }} container image build
+      - name: Trigger ${{ matrix.repository }} build container image build
+        uses: greenbone/actions/trigger-workflow@v2
+        with:
+          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
+          repository: ${{ matrix.repository }}
+          workflow: build-container.yml
+          ref: main
+      - name: Trigger ${{ matrix.repository }} container image build
         uses: greenbone/actions/trigger-workflow@v2
         with:
           token: ${{ secrets.GREENBONE_BOT_TOKEN }}
           repository: ${{ matrix.repository }}
           workflow: container.yml
-          ref: stable
+          ref: main
 
   trigger-related-projects:
     needs: production
@@ -136,12 +143,8 @@ jobs:
       fail-fast: false
       matrix:
         repository:
-          [
-            "greenbone/openvas-scanner",
-            "greenbone/gvmd",
-            "greenbone/gsad",
-            "greenbone/boreas",
-          ]
+          - "greenbone/openvas-scanner"
+          - "greenbone/boreas"
     runs-on: ubuntu-latest
     steps:
       - name: Trigger main ${{ matrix.repository }} container image build
