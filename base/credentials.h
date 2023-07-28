@@ -34,6 +34,8 @@ typedef struct
   ///< Dynamic Severity setting of user.
   /*@null@ */ gchar *role;
   ///< Role of user.
+  /*@null@ */ int excerpt_size;
+  ///< Note/Override Excerpt Size setting of user.
 } credentials_t;
 
 void
