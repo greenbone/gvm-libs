@@ -494,7 +494,8 @@ handle_error (GMarkupParseContext *context, GError *error, gpointer user_data)
  * points to a freshly allocated GString on successful return. Otherwise it
  * points to an existing GString onto which the text is appended.
  *
- * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
+ * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout,
+ * -5 null buffer.
  */
 int
 try_read_entity_and_string (gnutls_session_t *session, int timeout,
@@ -531,6 +532,8 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
     socket = 0;
 
   buffer = g_malloc0 (BUFFER_SIZE);
+  if (!buffer)
+    return -5;
 
   /* Setup return arg. */
 
@@ -743,7 +746,7 @@ try_read_entity_and_string (gnutls_session_t *session, int timeout,
  * Otherwise it must point to an existing GString onto which the text is
  * appended.
  *
- * @return 0 success, -1 read error, -4 timeout.
+ * @return 0 success, -1 read error, -4 timeout, -5 null buffer.
  */
 static int
 try_read_string (gnutls_session_t *session, int timeout,
@@ -775,6 +778,8 @@ try_read_string (gnutls_session_t *session, int timeout,
     socket = 0;
 
   buffer = g_malloc0 (BUFFER_SIZE);
+  if (!buffer)
+    return -5;
 
   /* Setup return arg. */
 
@@ -889,7 +894,8 @@ try_read_string (gnutls_session_t *session, int timeout,
  * points to a freshly allocated GString on successful return. Otherwise it
  * points to an existing GString onto which the text is appended.
  *
- * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
+ * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout,
+ * -5 null buffer.
  */
 static int
 try_read_string_s (int socket, int timeout, GString **string_return)
@@ -916,6 +922,8 @@ try_read_string_s (int socket, int timeout, GString **string_return)
     }
 
   buffer = g_malloc0 (BUFFER_SIZE);
+  if (!buffer)
+    return -5;
 
   /* Setup return arg. */
 
@@ -1016,7 +1024,8 @@ try_read_string_s (int socket, int timeout, GString **string_return)
  * points to a freshly allocated GString on successful return. Otherwise it
  * points to an existing GString onto which the text is appended.
  *
- * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout.
+ * @return 0 success, -1 read error, -2 parse error, -3 end of file, -4 timeout,
+ * -5 null buffer.
  */
 static int
 try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
@@ -1047,6 +1056,8 @@ try_read_entity_and_string_s (int socket, int timeout, entity_t *entity,
     }
 
   buffer = g_malloc0 (BUFFER_SIZE);
+  if (!buffer)
+    return -5;
 
   /* Setup return arg. */
 
