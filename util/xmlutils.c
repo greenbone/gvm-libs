@@ -1390,6 +1390,30 @@ read_text_c (gvm_connection_t *connection, char **text)
 }
 
 /**
+ * @brief Read text from the server.
+ *
+ * @param[in]  connection  Connection.
+ * @param[out] string      Destination for output.
+ *
+ * @return 0 success, -1 read error, -2 argument error.
+ */
+int
+read_text_string_c (gvm_connection_t *connection, GString **string)
+{
+  int ret;
+
+  if ((string == NULL) || (*string == NULL))
+    return -2;
+
+  if (connection->tls)
+    ret = try_read_string (&connection->session, 0, string);
+  else
+    ret = try_read_string_s (connection->socket, 0, string);
+
+  return ret;
+}
+
+/**
  * @brief Read entity and text. Free the entity immediately.
  *
  * @param[in]   session  Pointer to GNUTLS session to read from.
