@@ -12,7 +12,7 @@ jobs:
     name: Check C Source Code Formatting
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check Source Format
         run: |
           clang-format -i -style=file {base,boreas,gmp,osp,util}/*.{c,h}
@@ -23,7 +23,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     container: greenbone/gvm-libs-build:unstable
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Configure and Compile gvm-libs
         run: |
           mkdir build
@@ -41,7 +41,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     container: greenbone/gvm-libs-build:unstable
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install clang tools
         run: |
           apt update
