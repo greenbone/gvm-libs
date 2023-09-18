@@ -71,7 +71,7 @@ jobs:
           else
             echo "RELEASE_REF=${{ github.base_ref }}" >> $GITHUB_ENV
           fi
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GREENBONE_BOT_TOKEN }}
           fetch-depth: '0'

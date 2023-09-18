@@ -19,7 +19,7 @@ jobs:
     container: greenbone/doxygen
     steps:
       - name: Check out gvmd
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Generate documentation (XML)
         run: |
              mkdir build
