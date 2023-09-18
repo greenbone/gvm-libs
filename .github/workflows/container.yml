@@ -42,7 +42,7 @@ jobs:
           fi
       - name: "Setup meta information debian:stable"
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ github.repository }}
           labels: |
@@ -85,7 +85,7 @@ jobs:
 
       - name: "Setup meta information debian:oldstable"
         id: old_stable_meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ github.repository }}
           labels: |
@@ -112,7 +112,7 @@ jobs:
 
       - name: "Setup meta information debian:testing"
         id: testing_meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ github.repository }}
           labels: |
