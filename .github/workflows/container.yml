@@ -64,7 +64,7 @@ jobs:
             # use pr-$PR_ID for pull requests (will not be uploaded)
             type=ref,event=pr
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to Docker Registry
