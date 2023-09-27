@@ -13,6 +13,7 @@
 #include <errno.h>       /* for errno */
 #include <glib.h>        /* for g_free, gchar */
 #include <glib/gstdio.h> /* for g_unlink, g_fopen */
+#include <libgen.h>      /* for libgen */
 #include <stdio.h>       /* for fclose, FILE */
 #include <stdlib.h>      /* for atoi */
 #include <string.h>      /* for strerror */
@@ -38,12 +39,34 @@
 int
 pidfile_create (gchar *pid_file_path)
 {
-  FILE *pidfile = g_fopen (pid_file_path, "w");
+  FILE *pidfile;
+  gchar *copy, *dir;
+
+  if (pid_file_path == NULL)
+    return -1;
+
+  copy = g_strdup (pid_file_path);
+  dir = dirname (copy);
+  
+  /* Ensure directory exists. */
+
+  if (g_mkdir_with_parents (dir, 0755)) /* "rwxr-xr-x" */
+    {
+      g_free (copy);
+      g_warning ("Failed to create PID file directory %s: %s", dir,
+                 strerror (errno));
+      return 1;
+    }
+  g_free (copy);
+
+  /* Create file. */
+
+  pidfile = g_fopen (pid_file_path, "w");
 
   if (pidfile == NULL)
     {
-      g_critical ("%s: failed to open pidfile: %s\n", __func__,
-                  strerror (errno));
+      g_critical ("%s: failed to open pidfile %s: %s\n", __func__,
+                  pid_file_path, strerror (errno));
       return 1;
     }
   else
