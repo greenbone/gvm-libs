@@ -47,7 +47,7 @@ pidfile_create (gchar *pid_file_path)
 
   copy = g_strdup (pid_file_path);
   dir = dirname (copy);
-  
+
   /* Ensure directory exists. */
 
   if (g_mkdir_with_parents (dir, 0755)) /* "rwxr-xr-x" */
