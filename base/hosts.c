@@ -1935,15 +1935,16 @@ gvm_host_add_reverse_lookup (gvm_host_t *host)
  *
  * @param[in] hosts The hosts collection to filter.
  *
- * @return Number of hosts removed, -1 if error.
+ * @return list of hosts removed, Null on error.
  */
-int
-gvm_hosts_reverse_lookup_only (gvm_hosts_t *hosts)
+gvm_hosts_t *
+gvm_hosts_reverse_lookup_only_excluded (gvm_hosts_t *hosts)
 {
   size_t i, count = 0;
+  gvm_hosts_t *excluded = gvm_hosts_new ("");
 
   if (hosts == NULL)
-    return -1;
+    return NULL;
 
   for (i = 0; i < hosts->count; i++)
     {
@@ -1951,6 +1952,7 @@ gvm_hosts_reverse_lookup_only (gvm_hosts_t *hosts)
 
       if (name == NULL)
         {
+          gvm_hosts_add (excluded, gvm_duplicate_host (hosts->hosts[i]));
           gvm_host_free (hosts->hosts[i]);
           hosts->hosts[i] = NULL;
           count++;
@@ -1964,6 +1966,31 @@ gvm_hosts_reverse_lookup_only (gvm_hosts_t *hosts)
   hosts->count -= count;
   hosts->removed += count;
   hosts->current = 0;
+  return excluded;
+}
+
+/**
+ * @brief Removes hosts that don't reverse-lookup from the hosts collection.
+ * Not to be used while iterating over the single hosts as it resets the
+ * iterator.
+ *
+ * @param[in] hosts The hosts collection to filter.
+ *
+ * @return Number of hosts removed, -1 if error.
+ */
+int
+gvm_hosts_reverse_lookup_only (gvm_hosts_t *hosts)
+{
+  gvm_hosts_t *excluded;
+  int count = 0;
+
+  if (hosts == NULL)
+    return -1;
+
+  excluded = gvm_hosts_reverse_lookup_only_excluded (hosts);
+  count = excluded->count;
+  gvm_hosts_free (excluded);
+
   return count;
 }
 
@@ -1974,20 +2001,22 @@ gvm_hosts_reverse_lookup_only (gvm_hosts_t *hosts)
  *
  * @param[in] hosts The hosts collection to filter.
  *
- * @return Number of hosts removed, -1 if error.
+ * @return List of hosts removed, Null if error.
  */
-int
-gvm_hosts_reverse_lookup_unify (gvm_hosts_t *hosts)
+gvm_hosts_t *
+gvm_hosts_reverse_lookup_unify_excluded (gvm_hosts_t *hosts)
 {
   /**
    * Uses a hash table in order to unify the hosts list in O(N) time.
    */
   size_t i, count = 0;
   GHashTable *name_table;
+  gvm_hosts_t *excluded = NULL;
 
   if (hosts == NULL)
-    return -1;
+    return NULL;
 
+  excluded = gvm_hosts_new ("");
   name_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
   for (i = 0; i < hosts->count; i++)
     {
@@ -1997,6 +2026,7 @@ gvm_hosts_reverse_lookup_unify (gvm_hosts_t *hosts)
         {
           if (g_hash_table_lookup (name_table, name))
             {
+              gvm_hosts_add (excluded, gvm_duplicate_host (hosts->hosts[i]));
               gvm_host_free (hosts->hosts[i]);
               hosts->hosts[i] = NULL;
               count++;
@@ -2016,9 +2046,32 @@ gvm_hosts_reverse_lookup_unify (gvm_hosts_t *hosts)
   hosts->removed += count;
   hosts->count -= count;
   hosts->current = 0;
-  return count;
+  return excluded;
 }
 
+/**
+ * @brief Removes hosts duplicates that reverse-lookup to the same value.
+ * Not to be used while iterating over the single hosts as it resets the
+ * iterator.
+ *
+ * @param[in] hosts The hosts collection to filter.
+ *
+ * @return Number of hosts removed, -1 if error.
+ */
+int
+gvm_hosts_reverse_lookup_unify (gvm_hosts_t *hosts)
+{
+  gvm_hosts_t *excluded = NULL;
+  int count = 0;
+  if (hosts == NULL)
+    return -1;
+
+  excluded = gvm_hosts_reverse_lookup_unify_excluded (hosts);
+  count = excluded->count;
+  gvm_hosts_free (excluded);
+
+  return count;
+}
 /**
  * @brief Gets the count of single hosts objects in a hosts collection.
  *
