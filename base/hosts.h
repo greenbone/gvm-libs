@@ -19,6 +19,12 @@
  */
 #define FEATURE_HOSTS_ALLOWED_ONLY 1
 
+/** @brief Flag that indecates that this version includes
+ *  the functions gvm_reverse_lookup_only_excluded()
+ *  and gvm_reverse_lookup_unify_excluded()
+ */
+#define FEATURE_REVERSE_LOOKUP_EXCLUDED 1
+
 #include <glib.h>       /* for gchar, GList */
 #include <netinet/in.h> /* for in6_addr, in_addr */
 
@@ -140,6 +146,12 @@ gvm_hosts_reverse_lookup_only (gvm_hosts_t *);
 
 int
 gvm_hosts_reverse_lookup_unify (gvm_hosts_t *);
+
+gvm_hosts_t *
+gvm_hosts_reverse_lookup_only_excluded (gvm_hosts_t *);
+
+gvm_hosts_t *
+gvm_hosts_reverse_lookup_unify_excluded (gvm_hosts_t *);
 
 unsigned int
 gvm_hosts_count (const gvm_hosts_t *);
