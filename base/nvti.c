@@ -498,7 +498,7 @@ typedef struct nvtpref
  *         released using @ref nvtpref_free .
  */
 nvtpref_t *
-nvtpref_new (int id, gchar *name, gchar *type, gchar *dflt)
+nvtpref_new (int id, const gchar *name, const gchar *type, const gchar *dflt)
 {
   nvtpref_t *np = g_malloc0 (sizeof (nvtpref_t));
 
