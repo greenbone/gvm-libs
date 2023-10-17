@@ -474,6 +474,7 @@ get_alive_test_methods (alive_test_t *alive_test)
     {
       *alive_test = atoi (alive_test_pref_as_str);
     }
+
   return error;
 }
 
