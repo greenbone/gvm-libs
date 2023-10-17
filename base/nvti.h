@@ -20,7 +20,7 @@
 typedef struct nvtpref nvtpref_t;
 
 nvtpref_t *
-nvtpref_new (int, gchar *, gchar *, gchar *);
+nvtpref_new (int, const gchar *, const gchar *, const gchar *);
 
 void
 nvtpref_free (nvtpref_t *);
