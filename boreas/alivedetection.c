@@ -76,6 +76,29 @@ scan (alive_test_t alive_test)
   g_message ("Alive scan %s started: Target has %d hosts", scan_id,
              number_of_targets);
 
+  /* Check first if consider alive test method is set. In case that
+   * there is no scan restrictions, no other test will be performed, because
+   * it doesn't make sense.
+   * Otherwise, if a scan restriction is set (the max_scan_hosts feature),
+   * the other selected methods must be performed first to fill a list with
+   * alive hosts and not only with the first which we don't now if they are dead
+   * or alive. This will ensure that restricted users will get the max possible
+   * amount of alive hosts before starting to fill the list with dead hosts.
+   */
+  if (alive_test & ALIVE_TEST_CONSIDER_ALIVE
+      && scanner.scan_restrictions->max_scan_hosts == 0)
+    {
+      g_debug ("%s: Consider Alive", __func__);
+      for (g_hash_table_iter_init (&target_hosts_iter,
+                                   scanner.hosts_data->targethosts);
+           g_hash_table_iter_next (&target_hosts_iter, &key, &value);)
+        {
+          g_hash_table_add (scanner.hosts_data->alivehosts, g_strdup (key));
+          handle_scan_restrictions (&scanner, key);
+        }
+      goto finish_alive_test;
+    }
+
   /* Sniffer thread needed if any alive test besides ALIVE_TEST_CONSIDER_ALIVE
    * was chosen. */
   if (alive_test != ALIVE_TEST_CONSIDER_ALIVE)
@@ -226,6 +249,7 @@ scan (alive_test_t alive_test)
       stop_sniffer_thread (&scanner, sniffer_thread_id);
     }
 
+finish_alive_test:
   /* If only ICMP was specified we continuously send updates about dead hosts to
    * ospd while checking the hosts. We now only have to send the dead hosts of
    * the last batch. This is done here to catch the last alive hosts which may
