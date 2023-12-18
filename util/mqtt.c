@@ -28,6 +28,8 @@
 
 #include "uuidutils.h" /* gvm_uuid_make */
 
+#include <gnutls/gnutls.h>
+#include <pwd.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -44,6 +46,8 @@ typedef struct
 } mqtt_t;
 
 static const char *global_server_uri = NULL;
+static const char *global_username = NULL;
+static const char *global_password = NULL;
 static mqtt_t *global_mqtt_client = NULL;
 static gboolean mqtt_initialized = FALSE;
 
@@ -89,6 +93,50 @@ static const char *
 mqtt_get_global_server_uri ()
 {
   return global_server_uri;
+}
+
+/**
+ * @brief Set the global mqtt username.
+
+ * @param username to set.
+ */
+static void
+mqtt_set_global_username (const char *username)
+{
+  global_username = username;
+}
+
+/**
+ * @brief Get global username.
+ *
+ * @return Username, NULL if not found.
+ */
+static const char *
+mqtt_get_global_username ()
+{
+  return global_username;
+}
+
+/**
+ * @brief Set the global mqtt password.
+
+ * @param password to set.
+ */
+static void
+mqtt_set_global_password (const char *password)
+{
+  global_password = password;
+}
+
+/**
+ * @brief Get global password.
+ *
+ * @return Password, NULL if not found.
+ */
+static const char *
+mqtt_get_global_password ()
+{
+  return global_password;
 }
 
 /**
@@ -269,7 +317,8 @@ mqtt_set_client (mqtt_t *mqtt, MQTTClient client)
  * @return 0 on success, <0 on error.
  */
 static int
-mqtt_connect (mqtt_t *mqtt, const char *server_uri)
+mqtt_connect (mqtt_t *mqtt, const char *server_uri, const char *username,
+              const char *password)
 {
   int rc;
   MQTTClient client;
@@ -287,6 +336,12 @@ mqtt_connect (mqtt_t *mqtt, const char *server_uri)
   conn_opts.keepAliveInterval = 0;
   conn_opts.cleanstart = 1;
   conn_opts.MQTTVersion = MQTTVERSION_5;
+
+  if (username != NULL && password != NULL)
+    {
+      conn_opts.username = username;
+      conn_opts.password = password;
+    }
 
   resp = MQTTClient_connect5 (client, &conn_opts, &connect_properties, NULL);
   rc = resp.reasonCode;
@@ -313,13 +368,16 @@ mqtt_connect (mqtt_t *mqtt, const char *server_uri)
  * @return 0 on success, <0 on error.
  */
 int
-mqtt_init (const char *server_uri)
+mqtt_init (const char *server_uri, const char *username, const char *password)
 {
-  g_debug ("%s: start", __func__);
   mqtt_t *mqtt = NULL;
+  const char *g_server_uri;
+  const char *g_username;
+  const char *g_password;
+
+  g_debug ("%s: start", __func__);
 
   mqtt = g_malloc0 (sizeof (mqtt_t));
-  const char *g_server_uri;
   // Set random uuid as client id
   if (mqtt_set_client_id (mqtt) == NULL)
     {
@@ -332,7 +390,16 @@ mqtt_init (const char *server_uri)
   g_server_uri = mqtt_get_global_server_uri ();
   if (g_server_uri == NULL)
     mqtt_set_global_server_uri (server_uri);
-  if (mqtt_connect (mqtt, server_uri))
+
+  g_username = mqtt_get_global_username ();
+  if (g_username == NULL)
+    mqtt_set_global_username (username);
+
+  g_password = mqtt_get_global_password ();
+  if (g_password == NULL)
+    mqtt_set_global_password (password);
+
+  if (mqtt_connect (mqtt, server_uri, username, password))
     {
       g_warning ("%s: Unable to connect to MQTT broker.", __func__);
       g_free (mqtt);
@@ -355,6 +422,8 @@ static void
 mqtt_reinit ()
 {
   const char *server_uri;
+  const char *username;
+  const char *password;
 
   server_uri = mqtt_get_global_server_uri ();
   if (server_uri == NULL)
@@ -363,7 +432,9 @@ mqtt_reinit ()
                  "else the server URI is not set. ",
                  __func__);
     }
-  mqtt_init (server_uri);
+  username = mqtt_get_global_username ();
+  password = mqtt_get_global_password ();
+  mqtt_init (server_uri, username, password);
 }
 
 /**
@@ -447,16 +518,21 @@ mqtt_publish (const char *topic, const char *msg)
  * meant for error messages and the likes emitted by openvas.
  *
  * @param server_uri_in Server URI
+ * @param username      Username
+ * @param password      Password
  * @param topic         Topic to publish to
  * @param msg           Message to publish
  *
  * @return 0 on success, <0 on failure.
  */
 int
-mqtt_publish_single_message (const char *server_uri_in, const char *topic,
+mqtt_publish_single_message (const char *server_uri_in, const char *username_in,
+                             const char *passwd_in, const char *topic,
                              const char *msg)
 {
   const char *server_uri;
+  const char *username = NULL;
+  const char *password = NULL;
   mqtt_t *mqtt = NULL;
   int ret = 0;
 
@@ -477,6 +553,17 @@ mqtt_publish_single_message (const char *server_uri_in, const char *topic,
       server_uri = server_uri_in;
     }
 
+  if (username_in == NULL || passwd_in == NULL)
+    {
+      username = mqtt_get_global_username ();
+      password = mqtt_get_global_password ();
+    }
+  else
+    {
+      username = username_in;
+      password = passwd_in;
+    }
+
   mqtt = g_malloc0 (sizeof (mqtt_t));
   // Set random uuid as client id
   if (mqtt_set_client_id (mqtt) == NULL)
@@ -485,7 +572,8 @@ mqtt_publish_single_message (const char *server_uri_in, const char *topic,
       g_free (mqtt);
       return -2;
     }
-  mqtt_connect (mqtt, server_uri);
+
+  mqtt_connect (mqtt, server_uri, username, password);
   mqtt_client_publish (mqtt, topic, msg);
 
   mqtt_disconnect (mqtt);
