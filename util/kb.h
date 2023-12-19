@@ -471,13 +471,15 @@ kb_item_add_str_unique (kb_t kb, const char *name, const char *str, size_t len,
 
 /**
  * @brief Insert (append) a new unique and volatile entry under a given name.
+ *
  * @param[in] kb     Reference to a kb_t to initialize.
  * @param[in] name   Item name.
- * @param[in] val    Item value.
- * @param[in] expire Item expire.
+ * @param[in] str    String to add.
  * @param[in] len    Value length. Used for blobs.
+ * @param[in] expire Item expire.
  * @param[in] pos    Which position the value is appended to. 0 for right, 1 for
- * left position in the list.
+ *                   left position in the list.
+ *
  * @return 0 on success, -1 on error.
  */
 static inline int

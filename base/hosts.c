@@ -1319,7 +1319,7 @@ gvm_hosts_next (gvm_hosts_t *hosts)
  * @brief Move the current gvm_host_t from a gvm_hosts_t structure to
  * the end of the hosts list.
  *
- * @param[in/out]   hosts     gvm_hosts_t structure which hosts must be
+ * @param[in,out]   hosts     gvm_hosts_t structure which hosts must be
  * rearange. The hosts->current index points to the last used hosts and
  * gvm_hosts_next() must be called to get the next host in the list.
  *
@@ -1553,7 +1553,7 @@ gvm_vhosts_exclude (gvm_host_t *host, const char *excluded_str)
  * Not to be used while iterating over the single hosts as it resets the
  * iterator.
  *
- * @param[in/out] hosts     The hosts collection from which to exclude.
+ * @param[in,out] hosts     The hosts collection from which to exclude.
  * @param[in] excluded_str  String of hosts to exclude.
  * @param[in] max_hosts     Max number of hosts in hosts_str. 0 means unlimited.
  *
@@ -1626,7 +1626,7 @@ gvm_hosts_exclude_with_max (gvm_hosts_t *hosts, const char *excluded_str,
 /**
  * @brief Returns a list of hosts after a host authorization check.
  *
- * @param[in/out] hosts         The hosts collection from which to exclude.
+ * @param[in,out] hosts         The hosts collection from which to exclude.
  * @param[in] deny_hosts_str    String of denied hosts. This hosts will be
  * removed from the hosts list
  * @param[in] allow_hosts_str   String of allow hosts. This hosts will be kept

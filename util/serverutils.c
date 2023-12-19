@@ -500,8 +500,6 @@ gvm_server_close (int socket, gnutls_session_t session)
  * @brief Close a server connection and its socket.
  *
  * @param[in]  connection  Connection.
- *
- * @return 0 on success, -1 on error.
  */
 void
 gvm_connection_close (gvm_connection_t *connection)
