@@ -233,8 +233,10 @@ kb_item_free (struct kb_item *);
 
 /**
  * @brief Initialize a new Knowledge Base object.
+ *
  * @param[in] kb  Reference to a kb_t to initialize.
  * @param[in] kb_path   Path to KB.
+ *
  * @return 0 on success, -1 on connection error, -2 on unavailable DB spot.
  */
 static inline int
@@ -251,8 +253,10 @@ kb_new (kb_t *kb, const char *kb_path)
 
 /**
  * @brief Connect to a Knowledge Base object which has the given kb_index.
+ *
  * @param[in] kb_path   Path to KB.
  * @param[in] kb_index       DB index
+ *
  * @return Knowledge Base object, NULL otherwise.
  */
 static inline kb_t
@@ -266,8 +270,10 @@ kb_direct_conn (const char *kb_path, const int kb_index)
 
 /**
  * @brief Find an existing Knowledge Base object with key.
+ *
  * @param[in] kb_path   Path to KB.
  * @param[in] key       Marker key to search for in KB objects.
+ *
  * @return Knowledge Base object, NULL otherwise.
  */
 static inline kb_t
@@ -281,7 +287,9 @@ kb_find (const char *kb_path, const char *key)
 
 /**
  * @brief Delete all entries and release ownership on the namespace.
+ *
  * @param[in] kb  KB handle to release.
+ *
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -296,9 +304,11 @@ kb_delete (kb_t kb)
 
 /**
  * @brief Get a single KB element.
+ *
  * @param[in] kb  KB handle where to fetch the item.
  * @param[in] name  Name of the element to retrieve.
  * @param[in] type  Desired element type.
+ *
  * @return A struct kb_item to be freed with kb_item_free() or NULL if no
  *         element was found or on error.
  */
@@ -314,8 +324,10 @@ kb_item_get_single (kb_t kb, const char *name, enum kb_item_type type)
 
 /**
  * @brief Get a single KB string item.
+ *
  * @param[in] kb  KB handle where to fetch the item.
  * @param[in] name  Name of the element to retrieve.
+ *
  * @return A string to be freed or NULL if list is empty or on error.
  */
 static inline char *
@@ -330,8 +342,10 @@ kb_item_get_str (kb_t kb, const char *name)
 
 /**
  * @brief Get a single KB integer item.
+ *
  * @param[in] kb  KB handle where to fetch the item.
  * @param[in] name  Name of the element to retrieve.
+ *
  * @return An integer.
  */
 static inline int
@@ -346,8 +360,10 @@ kb_item_get_int (kb_t kb, const char *name)
 
 /**
  * @brief Get all items stored under a given name.
+ *
  * @param[in] kb  KB handle where to fetch the items.
  * @param[in] name  Name of the elements to retrieve.
+ *
  * @return Linked struct kb_item instances to be freed with kb_item_free() or
  *         NULL if no element was found or on error.
  */
@@ -363,8 +379,10 @@ kb_item_get_all (kb_t kb, const char *name)
 
 /**
  * @brief Get all items stored under a given pattern.
+ *
  * @param[in] kb  KB handle where to fetch the items.
  * @param[in] pattern  '*' pattern of the elements to retrieve.
+ *
  * @return Linked struct kb_item instances to be freed with kb_item_free() or
  *         NULL if no element was found or on error.
  */
@@ -380,9 +398,11 @@ kb_item_get_pattern (kb_t kb, const char *pattern)
 
 /**
  * @brief Push a new value under a given key.
+ *
  * @param[in] kb    KB handle where to store the item.
  * @param[in] name  Key to push to.
  * @param[in] value Value to push.
+ *
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -397,8 +417,10 @@ kb_item_push_str (kb_t kb, const char *name, const char *value)
 
 /**
  * @brief Pop a single KB string item.
+ *
  * @param[in] kb  KB handle where to fetch the item.
  * @param[in] name  Name of the element to retrieve.
+ *
  * @return A struct kb_item to be freed with kb_item_free() or NULL if no
  *         element was found or on error.
  */
@@ -415,8 +437,10 @@ kb_item_pop_str (kb_t kb, const char *name)
 /**
  * @brief Count all items stored under a given pattern.
  *
+ *
  * @param[in] kb  KB handle where to count the items.
  * @param[in] pattern  '*' pattern of the elements to count.
+ *
  *
  * @return Count of items.
  */
@@ -432,10 +456,12 @@ kb_item_count (kb_t kb, const char *pattern)
 
 /**
  * @brief Insert (append) a new entry under a given name.
+ *
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
  * @param[in] str  Item value.
  * @param[in] len  Value length. Used for blobs.
+ *
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -450,12 +476,14 @@ kb_item_add_str (kb_t kb, const char *name, const char *str, size_t len)
 
 /**
  * @brief Insert (append) a new unique entry under a given name.
+ *
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
  * @param[in] str  Item value.
  * @param[in] len  Value length. Used for blobs.
  * @param[in] pos  Which position the value is appended to. 0 for right,
  *                 1 for left position in the list.
+ *
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -472,6 +500,7 @@ kb_item_add_str_unique (kb_t kb, const char *name, const char *str, size_t len,
 /**
  * @brief Insert (append) a new unique and volatile entry under a given name.
  *
+ *
  * @param[in] kb     Reference to a kb_t to initialize.
  * @param[in] name   Item name.
  * @param[in] str    String to add.
@@ -479,6 +508,7 @@ kb_item_add_str_unique (kb_t kb, const char *name, const char *str, size_t len,
  * @param[in] expire Item expire.
  * @param[in] pos    Which position the value is appended to. 0 for right, 1 for
  *                   left position in the list.
+ *
  *
  * @return 0 on success, -1 on error.
  */
@@ -496,10 +526,12 @@ kb_add_str_unique_volatile (kb_t kb, const char *name, const char *str,
 
 /**
  * @brief Set (replace) a new entry under a given name.
+ *
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
  * @param[in] str  Item value.
  * @param[in] len  Value length. Used for blobs.
+ *
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -514,9 +546,11 @@ kb_item_set_str (kb_t kb, const char *name, const char *str, size_t len)
 
 /**
  * @brief Insert (append) a new entry under a given name.
+ *
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
  * @param[in] val  Item value.
+ *
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -531,9 +565,11 @@ kb_item_add_int (kb_t kb, const char *name, int val)
 
 /**
  * @brief Insert (append) a new unique entry under a given name.
+ *
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
  * @param[in] val  Item value.
+ *
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -548,10 +584,12 @@ kb_item_add_int_unique (kb_t kb, const char *name, int val)
 
 /**
  * @brief Insert (append) a new unique and volatile entry under a given name.
+ *
  * @param[in] kb     Reference to a kb_t to initialize.
  * @param[in] name   Item name.
  * @param[in] val    Item value.
  * @param[in] expire Item expire.
+ *
  *
  * @return 0 on success, -1 on error.
  */
@@ -568,9 +606,11 @@ kb_add_int_unique_volatile (kb_t kb, const char *name, int val, int expire)
 
 /**
  * @brief Set (replace) a new entry under a given name.
+ *
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
  * @param[in] val  Item value.
+ *
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -585,9 +625,11 @@ kb_item_set_int (kb_t kb, const char *name, int val)
 
 /**
  * @brief Insert a new nvt.
+ *
  * @param[in] kb        KB handle where to store the nvt.
  * @param[in] nvt       nvt to store.
  * @param[in] filename  Path to nvt to store.
+ *
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -602,9 +644,11 @@ kb_nvt_add (kb_t kb, const nvti_t *nvt, const char *filename)
 
 /**
  * @brief Get field of a NVT.
+ *
  * @param[in] kb        KB handle where to store the nvt.
  * @param[in] oid       OID of NVT to get from.
  * @param[in] position  Position of field to get.
+ *
  * @return Value of field, NULL otherwise.
  */
 static inline char *
@@ -619,8 +663,10 @@ kb_nvt_get (kb_t kb, const char *oid, enum kb_nvt_pos position)
 
 /**
  * @brief Get a full NVT.
+ *
  * @param[in] kb        KB handle where to store the nvt.
  * @param[in] oid       OID of NVT to get.
+ *
  * @return nvti_t of NVT, NULL otherwise.
  */
 static inline nvti_t *
@@ -635,7 +681,9 @@ kb_nvt_get_all (kb_t kb, const char *oid)
 
 /**
  * @brief Get list of NVT OIDs.
+ *
  * @param[in] kb        KB handle where NVTs are stored.
+ *
  * @return Linked-list of OIDs, NULL otherwise.
  */
 static inline GSList *
@@ -650,8 +698,10 @@ kb_nvt_get_oids (kb_t kb)
 
 /**
  * @brief Delete all entries under a given name.
+ *
  * @param[in] kb  KB handle where to store the item.
  * @param[in] name  Item name.
+ *
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -666,7 +716,9 @@ kb_del_items (kb_t kb, const char *name)
 
 /**
  * @brief Save all the KB's content.
+ *
  * @param[in] kb        KB handle.
+ *
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -685,8 +737,10 @@ kb_save (kb_t kb)
 
 /**
  * @brief Reset connection to the KB. This is called after each fork() to make
+ *
  *        sure connections aren't shared between concurrent processes.
  * @param[in] kb  KB handle.
+ *
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -705,8 +759,10 @@ kb_lnk_reset (kb_t kb)
 
 /**
  * @brief Flush all the KB's content. Delete all namespaces.
+ *
  * @param[in] kb        KB handle.
  * @param[in] except    Don't flush DB with except key.
+ *
  * @return 0 on success, non-null on error.
  */
 static inline int
@@ -725,7 +781,9 @@ kb_flush (kb_t kb, const char *except)
 
 /**
  * @brief Return the kb index
+ *
  * @param[in] kb KB handle.
+ *
  * @return kb_index on success, null on error.
  */
 static inline int
