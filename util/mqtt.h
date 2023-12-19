@@ -15,7 +15,7 @@
 #include <glib.h>
 
 int
-mqtt_init (const char *);
+mqtt_init (const char *, const char *, const char *);
 
 gboolean
 mqtt_is_initialized (void);
@@ -27,7 +27,8 @@ int
 mqtt_publish (const char *, const char *);
 
 int
-mqtt_publish_single_message (const char *, const char *, const char *);
+mqtt_publish_single_message (const char *, const char *, const char *,
+                             const char *, const char *);
 
 int
 mqtt_subscribe (const char *);
