@@ -28,8 +28,6 @@
 
 #include "uuidutils.h" /* gvm_uuid_make */
 
-#include <gnutls/gnutls.h>
-#include <pwd.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -108,8 +106,6 @@ mqtt_set_global_username (const char *username)
 
 /**
  * @brief Get global username.
- *
- * @return Username, NULL if not found.
  */
 static const char *
 mqtt_get_global_username ()
@@ -130,8 +126,6 @@ mqtt_set_global_password (const char *password)
 
 /**
  * @brief Get global password.
- *
- * @return Password, NULL if not found.
  */
 static const char *
 mqtt_get_global_password ()
@@ -312,7 +306,10 @@ mqtt_set_client (mqtt_t *mqtt, MQTTClient client)
 /**
  * @brief Make new client and connect to mqtt broker.
  *
- * @param mqtt  Initialized mqtt_t
+ * @param mqtt        Initialized mqtt_t
+ * @param server_uri  Server URI
+ * @param username    Username
+ * @param password    Password
  *
  * @return 0 on success, <0 on error.
  */
@@ -364,6 +361,8 @@ mqtt_connect (mqtt_t *mqtt, const char *server_uri, const char *username,
  * @brief Init MQTT communication
  *
  * @param server_uri  Server URI
+ * @param username    Username
+ * @param password    Password
  *
  * @return 0 on success, <0 on error.
  */
@@ -518,8 +517,8 @@ mqtt_publish (const char *topic, const char *msg)
  * meant for error messages and the likes emitted by openvas.
  *
  * @param server_uri_in Server URI
- * @param username      Username
- * @param password      Password
+ * @param username_in   Username
+ * @param password_in   Password
  * @param topic         Topic to publish to
  * @param msg           Message to publish
  *
