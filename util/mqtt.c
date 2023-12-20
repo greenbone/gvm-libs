@@ -361,13 +361,26 @@ mqtt_connect (mqtt_t *mqtt, const char *server_uri, const char *username,
  * @brief Init MQTT communication
  *
  * @param server_uri  Server URI
+ *
+ * @return 0 on success, <0 on error.
+ */
+int
+mqtt_init (const char *server_uri)
+{
+  return mqtt_init_auth (server_uri, NULL, NULL);
+}
+/**
+ * @brief Init MQTT communication
+ *
+ * @param server_uri  Server URI
  * @param username    Username
  * @param password    Password
  *
  * @return 0 on success, <0 on error.
  */
 int
-mqtt_init (const char *server_uri, const char *username, const char *password)
+mqtt_init_auth (const char *server_uri, const char *username,
+                const char *password)
 {
   mqtt_t *mqtt = NULL;
   const char *g_server_uri;
@@ -433,7 +446,7 @@ mqtt_reinit ()
     }
   username = mqtt_get_global_username ();
   password = mqtt_get_global_password ();
-  mqtt_init (server_uri, username, password);
+  mqtt_init_auth (server_uri, username, password);
 }
 
 /**
@@ -517,6 +530,27 @@ mqtt_publish (const char *topic, const char *msg)
  * meant for error messages and the likes emitted by openvas.
  *
  * @param server_uri_in Server URI
+ * @param topic         Topic to publish to
+ * @param msg           Message to publish
+ *
+ * @return 0 on success, <0 on failure.
+ */
+int
+mqtt_publish_single_message (const char *server_uri_in, const char *topic,
+                             const char *msg)
+{
+  return mqtt_publish_single_message_auth (server_uri_in, NULL, NULL, topic,
+                                           msg);
+}
+/**
+ * @brief Send a single message with credentials
+ *
+ * This functions creates a mqtt handle, connects, sends the message, closes
+ * the connection and destroys the handler.
+ * This function should not be chosen for repeated and frequent messaging. Its
+ * meant for error messages and the likes emitted by openvas.
+ *
+ * @param server_uri_in Server URI
  * @param username_in   Username
  * @param password_in   Password
  * @param topic         Topic to publish to
@@ -525,9 +559,10 @@ mqtt_publish (const char *topic, const char *msg)
  * @return 0 on success, <0 on failure.
  */
 int
-mqtt_publish_single_message (const char *server_uri_in, const char *username_in,
-                             const char *passwd_in, const char *topic,
-                             const char *msg)
+mqtt_publish_single_message_auth (const char *server_uri_in,
+                                  const char *username_in,
+                                  const char *passwd_in, const char *topic,
+                                  const char *msg)
 {
   const char *server_uri;
   const char *username = NULL;
