@@ -886,10 +886,9 @@ try_read_string (gnutls_session_t *session, int timeout,
  *
  * @param[in]   socket         Socket to read from.
  * @param[in]   timeout        Server idle time before giving up, in seconds.  0
- * to wait forever.
- * @param[out]  entity         Pointer to an entity tree.
+ *                             to wait forever.
  * @param[out]  string_return  An optional return location for the text read
- *                             from the session.  If NULL then it simply
+ *                             from the socket.  If NULL then it simply
  *                             remains NULL.  If a pointer to NULL then it
  * points to a freshly allocated GString on successful return. Otherwise it
  * points to an existing GString onto which the text is appended.
@@ -1841,8 +1840,6 @@ xml_count_entities (entities_t entities)
  * @param[in]  xml     XML string.
  * @param[in]  format  Format string.
  * @param[in]  ...     Arguments for format string.
- *
- * @return Result of XSL transformation.
  */
 void
 xml_string_append (GString *xml, const char *format, ...)

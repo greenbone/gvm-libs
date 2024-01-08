@@ -348,10 +348,10 @@ gmp_authenticate (gnutls_session_t *session, const char *username,
 /**
  * @brief Authenticate with the manager.
  *
- * @param[in]  session    Pointer to GNUTLS session.
- * @param[in]  opts       Struct containing the options to apply.
- * @param[out] opts       Additional account information if authentication
- *                        was successful.
+ * @param[in]     session  Pointer to GNUTLS session.
+ * @param[in,out] opts     In: Struct containing the options to apply.
+ *                         Out: Additional account information if authentication
+ *                              was successful.
  *
  * @return 0 on success, 1 if manager closed connection, 2 if auth failed,
  *         3 on timeout, -1 on error.

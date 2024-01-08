@@ -52,7 +52,7 @@ static gboolean mqtt_initialized = FALSE;
 /**
  * @brief Set the global init status.
 
- * @param Status Status of initialization.
+ * @param status Status of initialization.
  */
 static void
 mqtt_set_initialized_status (gboolean status)
@@ -552,7 +552,7 @@ mqtt_publish_single_message (const char *server_uri_in, const char *topic,
  *
  * @param server_uri_in Server URI
  * @param username_in   Username
- * @param password_in   Password
+ * @param passwd_in     Password
  * @param topic         Topic to publish to
  * @param msg           Message to publish
  *
@@ -626,9 +626,9 @@ mqtt_publish_single_message_auth (const char *server_uri_in,
  * To be able to subscribe to a topic the client needs to be connected to a
  * broker.
  *
- * @param mqtt_t	contains the mqtt client
- * @param qos	quality of service of messages within topic
- * @param topic         Topic to subscribe to
+ * @param mqtt   contains the mqtt client
+ * @param qos    quality of service of messages within topic
+ * @param topic  Topic to subscribe to
  *
  * @return 0 on success, -1 when given mqtt is not useable, -2 when subscription
  * failed.
@@ -679,8 +679,8 @@ mqtt_subscribe (const char *topic)
  *
  * This function unsubscribes given client from a given topic.
  *
- * @param mqtt_t	contains the mqtt client
- * @param topic         Topic to unsubscribe from
+ * @param mqtt   contains the mqtt client
+ * @param topic  Topic to unsubscribe from
  *
  * @return 0 on success, -1 when given mqtt is not useable, -2 when unsubscribe
  * failed.

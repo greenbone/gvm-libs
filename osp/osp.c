@@ -231,7 +231,7 @@ out:
  * @brief Send a command to an OSP server.
  *
  * @param[in]   connection  Connection to OSP server.
- * @param[out]  response    Response from OSP server.
+ * @param[out]  str         Response from OSP server.
  * @param[in]   fmt         OSP Command to send.
  *
  * @return 0 and response, 1 if error.
@@ -673,7 +673,7 @@ osp_get_vts_ext (osp_connection_t *connection, osp_get_vts_opts_t opts,
  *
  * @param[in]   connection  Connection to an OSP server.
  * @param[in]   opts        Struct containing the options to apply.
- * @param[out]  vts         VTs.
+ * @param[out]  str         Response.
  *
  * @return 0 if success, 1 if error.
  */
@@ -811,7 +811,7 @@ osp_get_performance_ext (osp_connection_t *connection,
  * @brief Get a scan status from an OSP server
  *
  * @param[in]   connection  Connection to an OSP server.
- * @param[in]   scan_id     ID of scan to get.
+ * @param[in]   opts        Struct containing the options to apply.
  * @param[out]  error       Pointer to error, if any.
  *
  * @return Osp scan status
@@ -1682,6 +1682,8 @@ osp_credential_set_auth_data (osp_credential_t *credential, const char *name,
  * @param[in]  ports          The ports of the target.
  * @param[in]  exclude_hosts  The excluded hosts of the target.
  * @param[in]  alive_test     The alive test method of the target.
+ * @param[in]  reverse_lookup_unify  Lookup flag.
+ * @param[in]  reverse_lookup_only   Lookup flag.
  *
  * @return The newly allocated osp_target_t.
  */

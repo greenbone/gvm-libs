@@ -454,8 +454,7 @@ nvti_add_vtref (nvti_t *vt, vtref_t *ref)
  * @brief Add a severity to the VT Info.
  *
  * @param vt  The VT Info structure.
- *
- * @param ref The VT severity to add.
+ * @param s   The VT severity to add.
  *
  * @return 0 for success. Anything else indicates an error.
  */
@@ -1305,7 +1304,7 @@ nvti_put_name (nvti_t *n, gchar *name)
  *
  * @param n The NVT Info structure.
  *
- * @param solution The summary to set. A copy will be created from this.
+ * @param summary The summary to set. A copy will be created from this.
  *
  * @return 0 for success. Anything else indicates an error.
  */
@@ -1325,7 +1324,7 @@ nvti_set_summary (nvti_t *n, const gchar *summary)
  *
  * @param n The NVT Info structure.
  *
- * @param solution The summary to set. The string will be used directly.
+ * @param summary The summary to set. The string will be used directly.
  *
  * @return 0 for success. Anything else indicates an error.
  */
@@ -1425,7 +1424,7 @@ nvti_put_affected (nvti_t *n, gchar *affected)
  *
  * @param n The NVT Info structure.
  *
- * @param affected The impact text to set. A copy will be created from this.
+ * @param impact The impact text to set. A copy will be created from this.
  *
  * @return 0 for success. Anything else indicates an error.
  */
@@ -1445,7 +1444,7 @@ nvti_set_impact (nvti_t *n, const gchar *impact)
  *
  * @param n The NVT Info structure.
  *
- * @param affected The impact text to set. The string will be used directly.
+ * @param impact The impact text to set. The string will be used directly.
  *
  * @return 0 for success. Anything else indicates an error.
  */
