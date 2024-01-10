@@ -300,45 +300,20 @@ parse_nvt_timestamp (const gchar *str_time)
   int offset;
   struct tm tm;
 
-  if ((strcmp ((char *) str_time, "") == 0)
-      || (strcmp ((char *) str_time, "$Date: $") == 0)
-      || (strcmp ((char *) str_time, "$Date$") == 0)
-      || (strcmp ((char *) str_time, "$Date:$") == 0)
-      || (strcmp ((char *) str_time, "$Date") == 0)
-      || (strcmp ((char *) str_time, "$$") == 0))
-    {
-      return 0;
-    }
+  if (strcmp ((char *) str_time, "") == 0)
+    return 0;
 
   /* Parse the time. */
 
   /* 2011-08-09 08:20:34 +0200 (Tue, 09 Aug 2011) */
-  /* $Date: 2012-02-17 16:05:26 +0100 (Fr, 17. Feb 2012) $ */
-  /* $Date: Fri, 11 Nov 2011 14:42:28 +0100 $ */
   memset (&tm, 0, sizeof (struct tm));
   if (strptime ((char *) str_time, "%F %T %z", &tm) == NULL)
     {
       memset (&tm, 0, sizeof (struct tm));
-      if (strptime ((char *) str_time, "$Date: %F %T %z", &tm) == NULL)
+      if (strptime ((char *) str_time, "%a %b %d %T %Y %z", &tm) == NULL)
         {
-          memset (&tm, 0, sizeof (struct tm));
-          if (strptime ((char *) str_time, "%a %b %d %T %Y %z", &tm) == NULL)
-            {
-              memset (&tm, 0, sizeof (struct tm));
-              if (strptime ((char *) str_time, "$Date: %a, %d %b %Y %T %z", &tm)
-                  == NULL)
-                {
-                  memset (&tm, 0, sizeof (struct tm));
-                  if (strptime ((char *) str_time, "$Date: %a %b %d %T %Y %z",
-                                &tm)
-                      == NULL)
-                    {
-                      g_warning ("%s: Failed to parse time: %s", __func__,
-                                 str_time);
-                      return 0;
-                    }
-                }
-            }
+          g_warning ("%s: Failed to parse time: %s", __func__, str_time);
+          return 0;
         }
     }
   epoch_time = mktime (&tm);
@@ -352,17 +327,8 @@ parse_nvt_timestamp (const gchar *str_time)
 
   if ((sscanf ((char *) str_time, "%*u-%*u-%*u %*u:%*u:%*u %d%*[^]]", &offset)
        != 1)
-      && (sscanf ((char *) str_time, "$Date: %*u-%*u-%*u %*u:%*u:%*u %d%*[^]]",
-                  &offset)
-          != 1)
       && (sscanf ((char *) str_time, "%*s %*s %*s %*u:%*u:%*u %*u %d%*[^]]",
                   &offset)
-          != 1)
-      && (sscanf ((char *) str_time,
-                  "$Date: %*s %*s %*s %*u %*u:%*u:%*u %d%*[^]]", &offset)
-          != 1)
-      && (sscanf ((char *) str_time,
-                  "$Date: %*s %*s %*s %*u:%*u:%*u %*u %d%*[^]]", &offset)
           != 1))
     {
       g_warning ("%s: Failed to parse timezone offset: %s", __func__, str_time);
