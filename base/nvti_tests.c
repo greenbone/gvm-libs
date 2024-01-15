@@ -25,6 +25,25 @@ Ensure (nvti, nvti_new_never_returns_null)
 
 /* nvti solution_method */
 
+Ensure (nvti, nvti_parse_timestamp)
+{
+  setenv ("TZ", "utc 0", 1);
+  tzset ();
+
+  assert_that (
+    parse_nvt_timestamp ("2018-09-07 11:08:31 +0200 (Fri, 07 Sep 2018)"),
+    is_equal_to (1536311311));
+  assert_that_double (
+    parse_nvt_timestamp ("2022-05-31 20:54:22 +0100 (Tue, 31 May 2022)"),
+    is_equal_to_double (1654026862));
+  assert_that_double (parse_nvt_timestamp ("2012-09-23 02:15:34 +0400"),
+                      is_equal_to_double (1348352134));
+  assert_that_double (parse_nvt_timestamp ("Fri Feb 10 16:09:30 2023 +0100"),
+                      is_equal_to_double (1676041770));
+}
+
+/* nvti solution_method */
+
 Ensure (nvti, nvti_set_solution_method_correct)
 {
   nvti_t *nvti;
@@ -195,6 +214,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, nvti,
                          nvti_get_severity_vector_no_severity_vector);
   add_test_with_context (suite, nvti, nvti_get_severity_vector_no_cvss_base);
+  add_test_with_context (suite, nvti, nvti_parse_timestamp);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
