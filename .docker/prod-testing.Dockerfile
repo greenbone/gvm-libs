@@ -22,6 +22,7 @@ RUN apt-get update && \
   libuuid1 \
   libssh-gcrypt-4 \
   libhiredis0.14 \
+  libhiredis-dev \
   libxml2 \
   libpcap0.8 \
   libnet1 \
