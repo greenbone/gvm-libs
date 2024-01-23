@@ -425,10 +425,10 @@ create_all_certificates_trustlist (gpgme_ctx_t ctx, const char *homedir)
   gpgme_key_t key;
   gchar *trustlist_filename;
   GString *trustlist_content;
-  GError *g_err;
+  GError *error;
   gpgme_error_t err;
 
-  g_err = NULL;
+  error = NULL;
   gpgme_set_pinentry_mode (ctx, GPGME_PINENTRY_MODE_CANCEL);
 
   trustlist_filename = g_build_filename (homedir, "trustlist.txt", NULL);
@@ -450,11 +450,11 @@ create_all_certificates_trustlist (gpgme_ctx_t ctx, const char *homedir)
     }
 
   if (g_file_set_contents (trustlist_filename, trustlist_content->str,
-                           trustlist_content->len, &g_err)
+                           trustlist_content->len, &error)
       == FALSE)
     {
       g_warning ("%s: Could not write trust list: %s", __func__,
-                 g_err->message);
+                 error->message);
       g_free (trustlist_filename);
       g_string_free (trustlist_content, TRUE);
       return -1;
