@@ -383,9 +383,6 @@ mqtt_init_auth (const char *server_uri, const char *username,
                 const char *password)
 {
   mqtt_t *mqtt = NULL;
-  const char *g_server_uri;
-  const char *g_username;
-  const char *g_password;
 
   g_debug ("%s: start", __func__);
 
@@ -399,16 +396,13 @@ mqtt_init_auth (const char *server_uri, const char *username,
       return -1;
     }
   g_debug ("%s: client id set: %s", __func__, mqtt->client_id);
-  g_server_uri = mqtt_get_global_server_uri ();
-  if (g_server_uri == NULL)
+  if (mqtt_get_global_server_uri () == NULL)
     mqtt_set_global_server_uri (server_uri);
 
-  g_username = mqtt_get_global_username ();
-  if (g_username == NULL)
+  if (mqtt_get_global_username () == NULL)
     mqtt_set_global_username (username);
 
-  g_password = mqtt_get_global_password ();
-  if (g_password == NULL)
+  if (mqtt_get_global_password () == NULL)
     mqtt_set_global_password (password);
 
   if (mqtt_connect (mqtt, server_uri, username, password))
