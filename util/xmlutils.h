@@ -181,4 +181,23 @@ element_to_string (element_t element);
 void
 print_element_to_string (element_t element, GString *string);
 
+/* XML file iterator
+ * for reading subelements from large files without building the whole DOM
+ */
+
+typedef struct xml_file_iterator_struct *xml_file_iterator_t;
+
+xml_file_iterator_t
+xml_file_iterator_new (void);
+
+int
+xml_file_iterator_init_from_file_path (xml_file_iterator_t, const char *, int);
+
+void xml_file_iterator_free (xml_file_iterator_t);
+
+int xml_file_iterator_rewind (xml_file_iterator_t);
+
+element_t
+xml_file_iterator_next (xml_file_iterator_t, gchar **);
+
 #endif /* not _GVM_XMLUTILS_H */

@@ -2317,3 +2317,736 @@ print_element_to_string (element_t element, GString *string)
 
   g_string_append_printf (string, "</%s>", element_name (element));
 }
+
+/* XML file iterator */
+
+/**
+ * @brief Opaque data structure for XML file iterator
+ */
+struct xml_file_iterator_struct
+{
+  int initialized;              //< Whether the iterator is initialized.
+  int output_depth;             //< Tree depth at which to output subelements
+  GQueue *element_queue;        //< Queue of parsed XML subelements
+  xmlSAXHandler sax_handler;    //< SAX handler structure
+  xmlParserCtxtPtr parser_ctxt; //< libXML parser context for building DOM
+  gchar *file_path;             //< Path to the XML file being processed
+  FILE *file;                   //< Stream pointer for the XML file
+};
+
+/**
+ * @brief XML file iterator parser callback for element start.
+ *
+ * This is just a wrapper for the libXML xmlSAX2StartElementNs getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] localname     the local name of the element
+ * @param[in] prefix        the element namespace prefix if available
+ * @param[in] URI           the element namespace name if available
+ * @param[in] nb_namespaces number of namespace definitions on that node
+ * @param[in] namespaces    pointer to the array of prefix/URI pairs namespace
+ *                          definitions
+ * @param[in] nb_attributes the number of attributes on that node
+ * @param[in] nb_defaulted  the number of defaulted attributes
+ * @param[in] attributes    pointer to the array of
+ *                          (localname/prefix/URI/value/end) attribute values
+ */
+static void
+xml_file_iterator_start_element_ns (void *ctx, const xmlChar *localname,
+                                    const xmlChar *prefix, const xmlChar *URI,
+                                    int nb_namespaces,
+                                    const xmlChar **namespaces,
+                                    int nb_attributes, int nb_defaulted,
+                                    const xmlChar **attributes)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2StartElementNs (iterator->parser_ctxt, localname, prefix, URI,
+                         nb_namespaces, namespaces, nb_attributes, nb_defaulted,
+                         attributes);
+}
+
+/**
+ * @brief XML file iterator parser callback for element end.
+ *
+ * This uses xmlSAX2EndElementNs to finish parsing the element to the document
+ *  in the libXML parser context of the iterator.
+ * If the element is at the output tree depth defined in the iterator
+ *  then it is removed from the document and added to the element queue of
+ *  the iterator.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] localname     the local name of the element
+ * @param[in] prefix        the element namespace prefix if available
+ * @param[in] URI           the element namespace name if available
+ */
+static void
+xml_file_iterator_end_element_ns (void *ctx, const xmlChar *localname,
+                                  const xmlChar *prefix, const xmlChar *URI)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2EndElementNs (iterator->parser_ctxt, localname, prefix, URI);
+
+  if (iterator->parser_ctxt->nodeNr == iterator->output_depth)
+    {
+      xmlNodePtr parent, child;
+      parent = iterator->parser_ctxt->node;
+
+      child = parent->children;
+      while (child)
+        {
+          if (child->type == XML_ELEMENT_NODE)
+            {
+              xmlDocPtr new_doc = xmlNewDoc ((const xmlChar *) "1.0");
+              element_t child_copy;
+              child_copy = xmlCopyNode (child, 1);
+              xmlDocSetRootElement (new_doc, child_copy);
+
+              if (child_copy)
+                {
+                  g_queue_push_tail (iterator->element_queue, child_copy);
+                }
+            }
+
+          xmlUnlinkNode (child);
+          xmlFreeNode (child);
+
+          child = parent->children;
+        }
+    }
+}
+
+/**
+ * @brief XML file iterator parser callback for internal subset declaration.
+ *
+ * This is just a wrapper for the libXML xmlSAX2InternalSubset getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] name          the root element name
+ * @param[in] ExternalID    the external ID
+ * @param[in] SystemID      the SYSTEM ID (e.g. filename or URL)
+ */
+static void
+xml_file_iterator_internal_subset (void *ctx, const xmlChar *name,
+                                   const xmlChar *ExternalID,
+                                   const xmlChar *SystemID)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2InternalSubset (iterator->parser_ctxt, name, ExternalID, SystemID);
+}
+
+/**
+ * @brief XML file iterator parser callback for external subset declaration.
+ *
+ * This is just a wrapper for the libXML xmlSAX2ExternalSubset getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] name          the root element name
+ * @param[in] ExternalID    the external ID
+ * @param[in] SystemID      the SYSTEM ID (e.g. filename or URL)
+ */
+static void
+xml_file_iterator_external_subset (void *ctx, const xmlChar *name,
+                                   const xmlChar *ExternalID,
+                                   const xmlChar *SystemID)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2ExternalSubset (iterator->parser_ctxt, name, ExternalID, SystemID);
+}
+
+/**
+ * @brief XML file iterator parser callback for checking if doc is standalone.
+ *
+ * This is just a wrapper for the libXML xmlSAX2IsStandalone getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ *
+ * @return 1 if true
+ */
+static int
+xml_file_iterator_is_standalone (void *ctx)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  return xmlSAX2IsStandalone (iterator->parser_ctxt);
+}
+
+/**
+ * @brief XML file iterator parser callback for checking if doc has an
+ *        internal subset.
+ *
+ * This is just a wrapper for the libXML xmlSAX2HasInternalSubset getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ *
+ * @return 1 if true
+ */
+static int
+xml_file_iterator_has_internal_subset (void *ctx)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  return xmlSAX2HasInternalSubset (iterator->parser_ctxt);
+}
+
+/**
+ * @brief XML file iterator parser callback for checking if doc has an
+ *        external subset.
+ *
+ * This is just a wrapper for the libXML xmlSAX2HasExternalSubset getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ *
+ * @return 1 if true
+ */
+static int
+xml_file_iterator_has_external_subset (void *ctx)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  return xmlSAX2HasExternalSubset (iterator->parser_ctxt);
+}
+
+/**
+ * @brief XML file iterator parser callback for resolving an entity.
+ *
+ * This is just a wrapper for the libXML xmlSAX2ResolveEntity getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] publicId      The public ID of the entity
+ * @param[in] systemId      The systemID of the entity
+ *
+ * @return the xmlParserInputPtr if inlined or NULL for DOM behaviour
+ */
+static xmlParserInputPtr
+xml_file_iterator_resolve_entity (void *ctx, const xmlChar *publicId,
+                                  const xmlChar *systemId)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  return xmlSAX2ResolveEntity (iterator->parser_ctxt, publicId, systemId);
+}
+
+/**
+ * @brief XML file iterator parser callback for getting an entity by name.
+ *
+ * This is just a wrapper for the libXML xmlSAX2GetEntity getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] name          The entity name
+ *
+ * @return the xmlEntityPtr if found
+ */
+static xmlEntityPtr
+xml_file_iterator_get_entity (void *ctx, const xmlChar *name)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  return xmlSAX2GetEntity (iterator->parser_ctxt, name);
+}
+
+/**
+ * @brief XML file iterator parser callback for getting a parameter entity
+ *        by name.
+ *
+ * This is just a wrapper for the libXML xmlSAX2GetParameterEntity getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] name          The entity name
+ *
+ * @return the xmlEntityPtr if found
+ */
+static xmlEntityPtr
+xml_file_iterator_get_parameter_entity (void *ctx, const xmlChar *name)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  return xmlSAX2GetParameterEntity (iterator->parser_ctxt, name);
+}
+
+/**
+ * @brief XML file iterator parser callback for when an entity definition has
+ *        been parsed.
+ *
+ * This is just a wrapper for the libXML xmlSAX2EntityDecl getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] name          the entity name
+ * @param[in] type          the entity type
+ * @param[in] publicId      The public ID of the entity
+ * @param[in] systemId      The system ID of the entity
+ * @param[in] content       the entity value (without processing)
+ */
+static void
+xml_file_iterator_entity_decl (void *ctx, const xmlChar *name, int type,
+                               const xmlChar *publicId, const xmlChar *systemId,
+                               xmlChar *content)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2EntityDecl (iterator->parser_ctxt, name, type, publicId, systemId,
+                     content);
+}
+
+/**
+ * @brief XML file iterator parser callback for when an attribute definition
+ *        has been parsed.
+ *
+ * This is just a wrapper for the libXML xmlSAX2AttributeDecl getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] name          the name of the element
+ * @param[in] fullname      the attribute name
+ * @param[in] type          the attribute type
+ * @param[in] def           the type of default value
+ * @param[in] defaultValue  the attribute default value
+ * @param[in] tree          the tree of enumerated value set
+ */
+static void
+xml_file_iterator_attribute_decl (void *ctx, const xmlChar *elem,
+                                  const xmlChar *fullname, int type, int def,
+                                  const xmlChar *defaultValue,
+                                  xmlEnumerationPtr tree)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2AttributeDecl (iterator->parser_ctxt, elem, fullname, type, def,
+                        defaultValue, tree);
+}
+
+/**
+ * @brief XML file iterator parser callback for when an element definition
+ *        has been parsed.
+ *
+ * This is just a wrapper for the libXML xmlSAX2ElementDecl getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] name          the element name
+ * @param[in] type          the element type
+ * @param[in] def           the type of default value
+ * @param[in] defaultValue  the attribute default value
+ * @param[in] content       the element value tree
+ */
+static void
+xml_file_iterator_element_decl (void *ctx, const xmlChar *name, int type,
+                                xmlElementContentPtr content)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2ElementDecl (iterator->parser_ctxt, name, type, content);
+}
+
+/**
+ * @brief XML file iterator parser callback for when a notation definition
+ *        has been parsed.
+ *
+ * This is just a wrapper for the libXML xmlSAX2NotationDecl getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] name          The name of the notation
+ * @param[in] publicId      The public ID of the entity
+ * @param[in] systemId      The system ID of the entity
+ */
+static void
+xml_file_iterator_notation_decl (void *ctx, const xmlChar *name,
+                                 const xmlChar *publicId,
+                                 const xmlChar *systemId)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2NotationDecl (iterator->parser_ctxt, name, publicId, systemId);
+}
+
+/**
+ * @brief XML file iterator parser callback for when an unparsed entity
+ *        declaration has been parsed.
+ *
+ * This is just a wrapper for the libXML xmlSAX2UnparsedEntityDecl getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] name          The name of the notation
+ * @param[in] publicId      The public ID of the entity
+ * @param[in] systemId      The system ID of the entity
+ * @param[in] notationName  The name of the notation
+ */
+static void
+xml_file_iterator_unparsed_entity_decl (void *ctx, const xmlChar *name,
+                                        const xmlChar *publicId,
+                                        const xmlChar *systemId,
+                                        const xmlChar *notationName)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2UnparsedEntityDecl (iterator->parser_ctxt, name, publicId, systemId,
+                             notationName);
+}
+
+/**
+ * @brief XML file iterator parser callback for setting the document locator.
+ *
+ * This is just a wrapper for the libXML xmlSAX2SetDocumentLocator getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] loc           A SAX Locator
+ */
+static void
+xml_file_iterator_set_document_locator (void *ctx, xmlSAXLocatorPtr loc)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2SetDocumentLocator (iterator->parser_ctxt, loc);
+}
+
+/**
+ * @brief XML file iterator parser callback at the document start.
+ *
+ * This is just a wrapper for the libXML xmlSAX2StartDocument getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ */
+static void
+xml_file_iterator_start_document (void *ctx)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2StartDocument (iterator->parser_ctxt);
+}
+
+/**
+ * @brief XML file iterator parser callback at the document end.
+ *
+ * This is just a wrapper for the libXML xmlSAX2EndDocument getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ */
+static void
+xml_file_iterator_end_document (void *ctx)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2EndDocument (iterator->parser_ctxt);
+}
+
+/**
+ * @brief XML file iterator parser callback when receiving some chars from
+ *        the parser.
+ *
+ * This is just a wrapper for the libXML xmlSAX2Characters getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] ch            a xmlChar string
+ * @param[in] len           the number of xmlChar
+ */
+static void
+xml_file_iterator_characters (void *ctx, const xmlChar *ch, int len)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2Characters (iterator->parser_ctxt, ch, len);
+}
+
+/**
+ * @brief XML file iterator parser callback when a cdata block has
+ *        been parsed.
+ *
+ * This is just a wrapper for the libXML xmlSAX2CDataBlock getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] ch            The cdata content
+ * @param[in] len           the block length
+ */
+static void
+xml_file_iterator_cdata_block (void *ctx, const xmlChar *ch, int len)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2CDataBlock (iterator->parser_ctxt, ch, len);
+}
+
+/**
+ * @brief XML file iterator parser callback when a processing instruction has
+ *        been parsed.
+ *
+ * This is just a wrapper for the libXML xmlSAX2ProcessingInstruction getting
+ * the libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] target        The target name
+ * @param[in] data          the PI data
+ */
+static void
+xml_file_iterator_processing_instruction (void *ctx, const xmlChar *target,
+                                          const xmlChar *data)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2ProcessingInstruction (iterator->parser_ctxt, target, data);
+}
+
+/**
+ * @brief XML file iterator parser callback when a comment has been parsed.
+ *
+ * This is just a wrapper for the libXML xmlSAX2Comment getting the
+ * libXML parser context from the iterator struct passed as user data.
+ *
+ * @param[in] ctx           parser context data / iterator data structure
+ * @param[in] value         the comment content
+ */
+static void
+xml_file_iterator_comment (void *ctx, const xmlChar *value)
+{
+  xml_file_iterator_t iterator = (xml_file_iterator_t) ctx;
+  xmlSAX2Comment (iterator->parser_ctxt, value);
+}
+
+/**
+ * @brief Initializes a xmlSAXHandler data structure for SAX version 2 parsing,
+ *        assigning all the XML file iterator callback functions.
+ *
+ * @param[in] hdlr  The xmlSAXHandler to initialize
+ */
+static void
+xml_file_iterator_init_sax_handler (xmlSAXHandlerPtr hdlr)
+{
+  hdlr->startElementNs = xml_file_iterator_start_element_ns;
+  hdlr->endElementNs = xml_file_iterator_end_element_ns;
+  hdlr->error = NULL;
+  hdlr->initialized = XML_SAX2_MAGIC;
+  hdlr->startElement = NULL;
+  hdlr->endElement = NULL;
+  hdlr->internalSubset = xml_file_iterator_internal_subset;
+  hdlr->externalSubset = xml_file_iterator_external_subset;
+  hdlr->isStandalone = xml_file_iterator_is_standalone;
+  hdlr->hasInternalSubset = xml_file_iterator_has_internal_subset;
+  hdlr->hasExternalSubset = xml_file_iterator_has_external_subset;
+  hdlr->resolveEntity = xml_file_iterator_resolve_entity;
+  hdlr->getEntity = xml_file_iterator_get_entity;
+  hdlr->getParameterEntity = xml_file_iterator_get_parameter_entity;
+  hdlr->entityDecl = xml_file_iterator_entity_decl;
+  hdlr->attributeDecl = xml_file_iterator_attribute_decl;
+  hdlr->elementDecl = xml_file_iterator_element_decl;
+  hdlr->notationDecl = xml_file_iterator_notation_decl;
+  hdlr->unparsedEntityDecl = xml_file_iterator_unparsed_entity_decl;
+  hdlr->setDocumentLocator = xml_file_iterator_set_document_locator;
+  hdlr->startDocument = xml_file_iterator_start_document;
+  hdlr->endDocument = xml_file_iterator_end_document;
+  hdlr->reference = NULL;
+  hdlr->characters = xml_file_iterator_characters;
+  hdlr->cdataBlock = xml_file_iterator_cdata_block;
+  hdlr->ignorableWhitespace = xml_file_iterator_characters;
+  hdlr->processingInstruction = xml_file_iterator_processing_instruction;
+  hdlr->comment = xml_file_iterator_comment;
+  hdlr->warning = xmlParserWarning;
+  hdlr->error = xmlParserError;
+  hdlr->fatalError = xmlParserError;
+}
+
+/**
+ * @brief Allocates a new, uninitialized XML file iterator.
+ *
+ * Free with xml_file_iterator_free.
+ *
+ * @return Opaque pointer to the XML file iterator data structure.
+ */
+xml_file_iterator_t
+xml_file_iterator_new (void)
+{
+  return g_malloc0 (sizeof (struct xml_file_iterator_struct));
+}
+
+/**
+ * @brief Initializes an XML file iterator to read from a given path.
+ *
+ * @param[in]  iterator         Pointer to the iterator to initialize.
+ * @param[in]  file_path        Path to the file to read from.
+ * @param[in]  output_depth     XML tree depth at which to return elements.
+ *
+ * @return -1 error, 0 success, 1 already initialized,
+ *         2 error opening file (errno is set to reason),
+ *         3 error creating parser context
+ */
+int
+xml_file_iterator_init_from_file_path (xml_file_iterator_t iterator,
+                                       const char *file_path, int output_depth)
+{
+  if (iterator == NULL)
+    return -1;
+
+  if (iterator->initialized)
+    return 1;
+
+  memset (iterator, 0, sizeof (struct xml_file_iterator_struct));
+
+  LIBXML_TEST_VERSION
+
+  if (output_depth < 0)
+    output_depth = 0;
+  iterator->output_depth = output_depth;
+
+  iterator->file = fopen (file_path, "rb");
+  if (iterator->file == NULL)
+    return 2;
+
+  iterator->element_queue = g_queue_new ();
+
+  iterator->file_path = g_strdup (file_path);
+
+  xml_file_iterator_init_sax_handler (&(iterator->sax_handler));
+  iterator->parser_ctxt = xmlCreatePushParserCtxt (
+    &(iterator->sax_handler), iterator, NULL, 0, iterator->file_path);
+  if (iterator->parser_ctxt == NULL)
+    return 3;
+
+  iterator->initialized = 1;
+
+  return 0;
+}
+
+/**
+ * @brief Frees an XML file iterator and all of its internal data structures
+ *
+ * @param[in]  iterator  The XML file iterator to free.
+ */
+void
+xml_file_iterator_free (xml_file_iterator_t iterator)
+{
+  if (iterator == NULL)
+    return;
+
+  if (iterator->file)
+    {
+      fclose (iterator->file);
+    }
+
+  g_free (iterator->file_path);
+
+  if (iterator->element_queue)
+    {
+      g_queue_free_full (iterator->element_queue,
+                         (GDestroyNotify) (element_free));
+    }
+
+  if (iterator->parser_ctxt)
+    {
+      xmlFreeParserCtxt (iterator->parser_ctxt);
+    }
+
+  g_free (iterator);
+}
+
+/**
+ * @brief Rewinds an XML file iterator by rewinding the file and creating a
+ *        new XML parser context.
+ *
+ * @param[in]  iterator  The XML file iterator to rewind.
+ *
+ * @return 0 success, 1 error creating new parser context
+ */
+int
+xml_file_iterator_rewind (xml_file_iterator_t iterator)
+{
+  if (iterator == NULL)
+    return 0;
+
+  if (iterator->file)
+    {
+      rewind (iterator->file);
+    }
+
+  if (iterator->element_queue)
+    {
+      g_queue_clear_full (iterator->element_queue,
+                          (GDestroyNotify) (element_free));
+    }
+
+  if (iterator->parser_ctxt)
+    {
+      xmlFreeParserCtxt (iterator->parser_ctxt);
+      iterator->parser_ctxt = xmlCreatePushParserCtxt (
+        &(iterator->sax_handler), iterator, NULL, 0, iterator->file_path);
+      if (iterator->parser_ctxt == NULL)
+        return 1;
+    }
+
+  return 0;
+}
+
+/**
+ * @brief File read buffer size for an XML file iterator.
+ */
+#define XML_FILE_ITERATOR_BUFFER_SIZE 8192
+
+/**
+ * @brief Get the next subelement from a XML file iterator
+ *
+ * @param[in]  iterator   The XML file iterator to get the element from.
+ * @param[out] error      Error message output, set to NULL on success / EOF
+ *
+ * @return The next subelement (free with element_free) or NULL if finished or
+ *         on error.
+ */
+element_t
+xml_file_iterator_next (xml_file_iterator_t iterator, gchar **error)
+{
+  gboolean continue_read = TRUE;
+
+  if (error)
+    *error = NULL;
+
+  if (iterator->initialized == 0)
+    {
+      if (error)
+        *error = g_strdup ("iterator not initialized");
+      return NULL;
+    }
+
+  while (continue_read && g_queue_is_empty (iterator->element_queue))
+    {
+      int chars_read;
+      char buffer[XML_FILE_ITERATOR_BUFFER_SIZE];
+
+      chars_read =
+        fread (buffer, 1, XML_FILE_ITERATOR_BUFFER_SIZE, iterator->file);
+      if (chars_read == 0)
+        {
+          if (feof (iterator->file))
+            {
+              continue_read = FALSE;
+            }
+          else if (ferror (iterator->file))
+            {
+              if (error)
+                *error = g_strdup ("error reading file");
+              return NULL;
+            }
+        }
+      else
+        {
+          int ret;
+          ret = xmlParseChunk (iterator->parser_ctxt, buffer, chars_read,
+                               continue_read == 0);
+          if (ret)
+            {
+              if (error)
+                {
+                  xmlErrorPtr xml_error;
+                  xml_error = xmlCtxtGetLastError (iterator->parser_ctxt);
+                  *error = g_strdup_printf ("error parsing XML"
+                                            " (line %d column %d): %s",
+                                            xml_error->line, xml_error->int2,
+                                            xml_error->message);
+                }
+
+              return NULL;
+            }
+        }
+    }
+
+  if (!g_queue_is_empty (iterator->element_queue))
+    {
+      return g_queue_pop_head (iterator->element_queue);
+    }
+
+  return NULL;
+}
