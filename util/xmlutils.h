@@ -137,6 +137,9 @@ int
 read_text_c (gvm_connection_t *, char **);
 
 int
+read_text_string_c (gvm_connection_t *, GString **);
+
+int
 parse_entity (const char *, entity_t *);
 
 void
