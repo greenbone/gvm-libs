@@ -2748,14 +2748,14 @@ xml_file_iterator_characters (void *ctx, const xmlChar *ch, int len)
 }
 
 /**
- * @brief XML file iterator parser callback when a pcdata block has
+ * @brief XML file iterator parser callback when a cdata block has
  *        been parsed.
  *
  * This is just a wrapper for the libXML xmlSAX2CDataBlock getting the
  * libXML parser context from the iterator struct passed as user data.
  *
  * @param[in] ctx           parser context data / iterator data structure
- * @param[in] ch            The pcdata content
+ * @param[in] ch            The cdata content
  * @param[in] len           the block length
  */
 static void
@@ -2807,7 +2807,7 @@ xml_file_iterator_comment (void *ctx, const xmlChar *value)
  * @param[in] hdlr  The xmlSAXHandler to initialize
  */
 static void
-xml_file_iterator_init_sax_handler (xmlSAXHandler *hdlr)
+xml_file_iterator_init_sax_handler (xmlSAXHandlerPtr hdlr)
 {
   hdlr->startElementNs = xml_file_iterator_start_element_ns;
   hdlr->endElementNs = xml_file_iterator_end_element_ns;
@@ -2863,7 +2863,8 @@ xml_file_iterator_new (void)
  * @param[in]  output_depth     XML tree depth at which to return elements.
  *
  * @return -1 error, 0 success, 1 already initialized,
- *         2 error opening file (errno is set to reason)
+ *         2 error opening file (errno is set to reason),
+ *         3 error creating parser context
  */
 int
 xml_file_iterator_init_from_file_path (xml_file_iterator_t iterator,
@@ -2894,6 +2895,8 @@ xml_file_iterator_init_from_file_path (xml_file_iterator_t iterator,
   xml_file_iterator_init_sax_handler (&(iterator->sax_handler));
   iterator->parser_ctxt = xmlCreatePushParserCtxt (
     &(iterator->sax_handler), iterator, NULL, 0, iterator->file_path);
+  if (iterator->parser_ctxt == NULL)
+    return 3;
 
   iterator->initialized = 1;
 
@@ -2937,12 +2940,14 @@ xml_file_iterator_free (xml_file_iterator_t iterator)
  *        new XML parser context.
  *
  * @param[in]  iterator  The XML file iterator to rewind.
+ *
+ * @return 0 success, 1 error creating new parser context
  */
-void
+int
 xml_file_iterator_rewind (xml_file_iterator_t iterator)
 {
   if (iterator == NULL)
-    return;
+    return 0;
 
   if (iterator->file)
     {
@@ -2960,7 +2965,11 @@ xml_file_iterator_rewind (xml_file_iterator_t iterator)
       xmlFreeParserCtxt (iterator->parser_ctxt);
       iterator->parser_ctxt = xmlCreatePushParserCtxt (
         &(iterator->sax_handler), iterator, NULL, 0, iterator->file_path);
+      if (iterator->parser_ctxt == NULL)
+        return 1;
     }
+
+  return 0;
 }
 
 /**

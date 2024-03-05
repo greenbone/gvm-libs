@@ -195,7 +195,7 @@ xml_file_iterator_init_from_file_path (xml_file_iterator_t, const char *, int);
 
 void xml_file_iterator_free (xml_file_iterator_t);
 
-void xml_file_iterator_rewind (xml_file_iterator_t);
+int xml_file_iterator_rewind (xml_file_iterator_t);
 
 element_t
 xml_file_iterator_next (xml_file_iterator_t, gchar **);
