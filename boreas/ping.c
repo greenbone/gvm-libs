@@ -54,6 +54,16 @@ struct pseudohdr
   struct tcphdr tcpheader;
 };
 
+// Return a random uint16 avoiding the 0.
+static uint16_t
+get_echo_id (void)
+{
+  uint16_t upper_bound = 65534;
+  uint16_t lower_bound = 1;
+
+  return rand () % (upper_bound - lower_bound + 1) + lower_bound;
+}
+
 /**
  * @brief Get the size of the socket send buffer.
  *
@@ -144,8 +154,8 @@ send_icmp_v6 (int soc, struct in6_addr *dst, int type)
   icmp6 = (struct icmp6_hdr *) sendbuf;
   icmp6->icmp6_type = type; /* ND_NEIGHBOR_SOLICIT or ICMP6_ECHO_REQUEST */
   icmp6->icmp6_code = 0;
-  icmp6->icmp6_id = 234;
-  icmp6->icmp6_seq = 0;
+  icmp6->icmp6_id = get_echo_id ();
+  icmp6->icmp6_seq = 0x0100;
 
   memset ((icmp6 + 1), 0xa5, datalen);
   gettimeofday ((struct timeval *) (icmp6 + 1), NULL); // only for testing
@@ -197,6 +207,8 @@ send_icmp_v4 (int soc, struct in_addr *dst)
   icmp = (struct icmphdr *) sendbuf;
   icmp->type = ICMP_ECHO;
   icmp->code = 0;
+  icmp->un.echo.id = get_echo_id ();
+  icmp->un.echo.sequence = 0x0100;
 
   len = 8 + datalen;
   icmp->checksum = 0;
