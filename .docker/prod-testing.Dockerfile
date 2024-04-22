@@ -21,7 +21,7 @@ RUN apt-get update && \
   libgnutls30 \
   libuuid1 \
   libssh-gcrypt-4 \
-  libhiredis0.14 \
+  libhiredis1.1.0 \
   libhiredis-dev \
   libxml2 \
   libpcap0.8 \
