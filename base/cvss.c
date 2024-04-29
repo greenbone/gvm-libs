@@ -1432,6 +1432,8 @@ cvss4_metric_level (cvss4_metric_t metric, char value)
           return 0.2;
         case 'P':
           return 0.3;
+        default:
+          return -99.0;
         }
       break;
     case CVSS4_PR:
@@ -1443,6 +1445,8 @@ cvss4_metric_level (cvss4_metric_t metric, char value)
           return 0.1;
         case 'H':
           return 0.2;
+        default:
+          return -99.0;
         }
       break;
     case CVSS4_UI:
@@ -1454,6 +1458,8 @@ cvss4_metric_level (cvss4_metric_t metric, char value)
           return 0.1;
         case 'A':
           return 0.2;
+        default:
+          return -99.0;
         }
       break;
     case CVSS4_AC:
@@ -1463,6 +1469,8 @@ cvss4_metric_level (cvss4_metric_t metric, char value)
           return 0.0;
         case 'H':
           return 0.1;
+        default:
+          return -99.0;
         }
       break;
     case CVSS4_AT:
@@ -1472,6 +1480,8 @@ cvss4_metric_level (cvss4_metric_t metric, char value)
           return 0.0;
         case 'P':
           return 0.1;
+        default:
+          return -99.0;
         }
       break;
     case CVSS4_VC:
@@ -1485,6 +1495,8 @@ cvss4_metric_level (cvss4_metric_t metric, char value)
           return 0.1;
         case 'N':
           return 0.2;
+        default:
+          return -99.0;
         }
       break;
     case CVSS4_SC:
@@ -1500,6 +1512,8 @@ cvss4_metric_level (cvss4_metric_t metric, char value)
           return 0.2;
         case 'N':
           return 0.3;
+        default:
+          return -99.0;
         }
       break;
     case CVSS4_CR:
@@ -1513,6 +1527,8 @@ cvss4_metric_level (cvss4_metric_t metric, char value)
           return 0.1;
         case 'L':
           return 0.2;
+        default:
+          return -99.0;
         }
       break;
 
@@ -1529,9 +1545,8 @@ cvss4_metric_level (cvss4_metric_t metric, char value)
       break;
     */
     default:
-      return 0.0;
+      return -99.0;
     }
-  return 0.0;
 }
 
 /**
@@ -1663,6 +1678,8 @@ cvss4_max_severities (const char *macrovector, double *max_severity_eq1,
     case '2':
       *max_severity_eq1 = 0.5;
       break;
+    default:
+      *max_severity_eq1 = -99.0;
     }
 
   switch (macrovector[1])
@@ -1673,6 +1690,8 @@ cvss4_max_severities (const char *macrovector, double *max_severity_eq1,
     case '1':
       *max_severity_eq2 = 0.2;
       break;
+    default:
+      *max_severity_eq2 = -99.0;
     }
 
   switch (macrovector[2])
@@ -1689,6 +1708,8 @@ cvss4_max_severities (const char *macrovector, double *max_severity_eq1,
     case '2':
       *max_severity_eq3eq6 = 1.0;
       break;
+    default:
+      *max_severity_eq3eq6 = -99.0;
     }
 
   switch (macrovector[3])
@@ -1702,6 +1723,8 @@ cvss4_max_severities (const char *macrovector, double *max_severity_eq1,
     case '2':
       *max_severity_eq4 = 0.4;
       break;
+    default:
+      *max_severity_eq4 = -99.0;
     }
 }
 
