@@ -13,7 +13,7 @@
 #ifndef _GVM_CVSS_H
 #define _GVM_CVSS_H
 
-#include <glib.h> 
+#include <glib.h>
 
 double
 get_cvss_score_from_base_metrics (const char *);
