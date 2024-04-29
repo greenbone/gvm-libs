@@ -1590,6 +1590,12 @@ cvss4_current_severity_distances (const char *vec, const char *macrovector,
   double severity_distance_SC, severity_distance_SI, severity_distance_SA;
   double severity_distance_CR, severity_distance_IR, severity_distance_AR;
 
+  severity_distance_AV = severity_distance_PR = severity_distance_UI = -99.0;
+  severity_distance_AC = severity_distance_AT = -99.0;
+  severity_distance_VC = severity_distance_VI = severity_distance_VA = -99.0;
+  severity_distance_SC = severity_distance_SI = severity_distance_SA = -99.0;
+  severity_distance_CR = severity_distance_IR = severity_distance_AR = -99.0;
+
   char **max_vectors, **max_vec;
   max_vectors = cvss4_max_vectors (macrovector);
   for (max_vec = max_vectors; *max_vec != NULL; max_vec++)
