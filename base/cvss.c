@@ -7,9 +7,17 @@
  * @file
  * @brief CVSS utility functions
  *
- * This file contains utility functions for handling CVSS v2 and v3.
+ * This file contains utility functions for handling CVSS v2, v3 and v4.
  * get_cvss_score_from_base_metrics calculates the CVSS base score from a CVSS
  * base vector.
+ * 
+ * CVSS v4.0:
+ * 
+ * See the CVSS v4 calculator reference implementation at
+ * https://github.com/FIRSTdotorg/cvss-v4-calculator and the CVSS 4.0
+ * specification document at
+ * https://www.first.org/cvss/v4.0/specification-document
+ * (especially sections 7., 8.2 and 8.3).
  *
  * CVSS v3.1:
  *
@@ -1136,7 +1144,7 @@ cvss4_macrovector (const char *vec)
   //
   // "Effective" SI and SA are the same as MSI and MSA for the purposes of
   //  checking for the "Safety" value.
-  char sc = cvss4_m (vec, CVSS4_SI);
+  char sc = cvss4_m (vec, CVSS4_SC);
   char si = cvss4_m (vec, CVSS4_SI);
   char sa = cvss4_m (vec, CVSS4_SA);
   if (si == 'S' || sa == 'S')
@@ -1281,21 +1289,32 @@ cvss4_maximal_scoring_differences (const char *macrovector,
   else
     score_eq5_next_lower_macro = -1.0;
 
-  *available_distance_eq1 = score_eq1_next_lower_macro != -1.0
-                              ? value - score_eq1_next_lower_macro
-                              : -1.0;
-  *available_distance_eq2 = score_eq2_next_lower_macro != -1.0
-                              ? value - score_eq2_next_lower_macro
-                              : -1.0;
-  *available_distance_eq3eq6 = score_eq3eq6_next_lower_macro != -1.0
-                                 ? value - score_eq3eq6_next_lower_macro
-                                 : -1.0;
-  *available_distance_eq4 = score_eq4_next_lower_macro != -1.0
-                              ? value - score_eq4_next_lower_macro
-                              : -1.0;
-  *available_distance_eq5 = score_eq5_next_lower_macro != -1.0
-                              ? value - score_eq5_next_lower_macro
-                              : -1.0;
+  if (value != -1.0)
+    {
+      *available_distance_eq1 = score_eq1_next_lower_macro != -1.0
+                                  ? value - score_eq1_next_lower_macro
+                                  : -1.0;
+      *available_distance_eq2 = score_eq2_next_lower_macro != -1.0
+                                  ? value - score_eq2_next_lower_macro
+                                  : -1.0;
+      *available_distance_eq3eq6 = score_eq3eq6_next_lower_macro != -1.0
+                                    ? value - score_eq3eq6_next_lower_macro
+                                    : -1.0;
+      *available_distance_eq4 = score_eq4_next_lower_macro != -1.0
+                                  ? value - score_eq4_next_lower_macro
+                                  : -1.0;
+      *available_distance_eq5 = score_eq5_next_lower_macro != -1.0
+                                  ? value - score_eq5_next_lower_macro
+                                  : -1.0;
+    }
+  else
+    {
+      *available_distance_eq1 = -1.0;
+      *available_distance_eq2 = -1.0;
+      *available_distance_eq3eq6 = -1.0;
+      *available_distance_eq4 = -1.0;
+      *available_distance_eq5 = -1.0;
+    }
 }
 
 /**
@@ -1645,6 +1664,7 @@ cvss4_current_severity_distances (const char *vec, const char *macrovector,
   gchar *max_vec_expanded = cvss4_vector_expand (*max_vec);
   g_debug ("%s: max_vec: %s", __func__, max_vec_expanded);
   g_free (max_vec_expanded);
+  g_strfreev (max_vectors);
 
   *current_severity_distance_eq1 =
     severity_distance_AV + severity_distance_PR + severity_distance_UI;
@@ -1773,7 +1793,7 @@ get_cvss_score_from_metrics_v4 (const char *cvss_str)
   macrovector = cvss4_macrovector (vec);
   value = cvss4_macrovector_score (macrovector);
   g_debug ("%s: macrovector: %s, value: %0.1f", __func__, macrovector, value);
-  if (macrovector == NULL)
+  if (macrovector == NULL || value == -1.0)
     {
       g_free (vec);
       return -1.0;
@@ -1805,6 +1825,9 @@ get_cvss_score_from_metrics_v4 (const char *cvss_str)
   // Get MaxSeverity
   cvss4_max_severities (macrovector, &max_severity_eq1, &max_severity_eq2,
                         &max_severity_eq3eq6, &max_severity_eq4);
+
+  g_free (vec);
+  g_free (macrovector);
 
   // Calculate mean distances
   mean_distance = 0.0;
