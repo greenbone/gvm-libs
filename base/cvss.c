@@ -10,9 +10,9 @@
  * This file contains utility functions for handling CVSS v2, v3 and v4.
  * get_cvss_score_from_base_metrics calculates the CVSS base score from a CVSS
  * base vector.
- * 
+ *
  * CVSS v4.0:
- * 
+ *
  * See the CVSS v4 calculator reference implementation at
  * https://github.com/FIRSTdotorg/cvss-v4-calculator and the CVSS 4.0
  * specification document at
@@ -1298,8 +1298,8 @@ cvss4_maximal_scoring_differences (const char *macrovector,
                                   ? value - score_eq2_next_lower_macro
                                   : -1.0;
       *available_distance_eq3eq6 = score_eq3eq6_next_lower_macro != -1.0
-                                    ? value - score_eq3eq6_next_lower_macro
-                                    : -1.0;
+                                     ? value - score_eq3eq6_next_lower_macro
+                                     : -1.0;
       *available_distance_eq4 = score_eq4_next_lower_macro != -1.0
                                   ? value - score_eq4_next_lower_macro
                                   : -1.0;
@@ -1571,6 +1571,7 @@ cvss4_metric_level (cvss4_metric_t metric, char value)
 /**
  * @brief Calculate severity distance for a metric in two CVSS 4.0 vectors.
  *
+ * @param[in]  metric   The metric to calculate severity distance for.
  * @param[in]  vec      The vector to be scored in simplified form.
  * @param[in]  max_vec  The max vector to subtract in simplified form.
  *
