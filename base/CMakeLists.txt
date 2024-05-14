@@ -70,6 +70,9 @@ if (BUILD_TESTS)
                   EXCLUDE_FROM_ALL
                   array_tests.c)
 
+  add_link_options (-g -lgcov --coverage)
+  add_compile_options (-g -ftest-coverage -fprofile-arcs)
+
   add_test (array-test array-test)
 
   target_include_directories (array-test PRIVATE ${CGREEN_INCLUDE_DIRS})
