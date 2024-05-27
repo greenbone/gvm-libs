@@ -77,6 +77,75 @@ Ensure (cvss, get_cvss_score_from_base_metrics_succeeds_v3)
   CHECK ("CVSS:3.1/av:n/ac:l/pr:n/ui:n/s:u/c:h/i:l/a:n", 8.2);
 }
 
+Ensure (cvss, get_cvss_score_from_base_metrics_succeeds_v4)
+{
+  CHECK ("CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+         10.0);
+
+  /* Trailing separator. */
+  CHECK ("CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H/",
+         10.0);
+
+  /* We support any case in metrics. */
+  CHECK ("CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+         10.0);
+
+  /* Test various base vectors */
+  CHECK ("CVSS:4.0/AV:N/AC:H/AT:N/PR:L/UI:A/VC:H/VI:L/VA:N/SC:N/SI:L/SA:H",
+         6.9);
+
+  CHECK ("CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:P/VC:L/VI:L/VA:L/SC:H/SI:H/SA:H",
+         5.8);
+
+  CHECK ("CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:P/VC:L/VI:L/VA:L/SC:H/SI:H/SA:H/"
+         "MSI:S",
+         7.0);
+
+  CHECK ("CVSS:4.0/AV:P/AC:H/AT:P/PR:H/UI:A/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N",
+         1.0);
+
+  CHECK ("CVSS:4.0/AV:L/AC:H/AT:N/PR:L/UI:A/VC:L/VI:L/VA:H/SC:N/SI:N/SA:N",
+         4.4);
+
+  /* Test cases for picking one of two macrovector scores
+   *  when EQ3 and EQ6 of the macrovector are 0*/
+
+  CHECK ("CVSS:4.0/AV:N/AC:H/AT:P/PR:H/UI:A/VC:H/VI:H/VA:L/SC:N/SI:N/SA:N",
+         7.1);
+
+  CHECK ("CVSS:4.0/AV:A/AC:H/AT:P/PR:H/UI:A/VC:H/VI:H/VA:L/SC:N/SI:N/SA:N",
+         5.3);
+
+  /* Test vectors with Requirements metric */
+  CHECK ("CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:L/VA:N/SC:L/SI:L/SA:L/"
+         "CR:M",
+         8.0);
+
+  CHECK ("CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:L/VA:N/SC:L/SI:L/SA:L/"
+         "IR:L",
+         8.7);
+
+  CHECK ("CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:L/SC:N/SI:N/SA:N/"
+         "CR:M/IR:L/AR:L",
+         8.9);
+
+  /* Test vectors with Exploit Maturity metric */
+  CHECK ("CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:L/VA:N/SC:L/SI:L/SA:L/E:P",
+         7.8);
+
+  CHECK ("CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:L/VA:N/SC:L/SI:L/SA:L/E:U",
+         6.7);
+
+  /* Provider Urgency is a special case with longer values */
+  CHECK ("CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H/"
+         "U:Amber",
+         10.0);
+
+  CHECK ("CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H/"
+         "U:X",
+         10.0);
+}
+
 Ensure (cvss, get_cvss_score_from_base_metrics_fails)
 {
   CHECK ("", -1.0);
@@ -111,6 +180,52 @@ Ensure (cvss, get_cvss_score_from_base_metrics_fails)
 
   /* Version must be uppercase. */
   CHECK ("cvss:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H", -1.0);
+}
+
+Ensure (cvss, get_cvss_score_from_base_metrics_fails_v4)
+{
+  /* No metrics given */
+  CHECK ("CVSS:4.0", -1.0);
+
+  /* Metric name is invalid */
+  CHECK ("CVSS:4.0/AXXXX:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+         -1.0);
+
+  /* Metric name is missing */
+  CHECK ("CVSS:4.0/:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H", -1.0);
+
+  /* Metric value is invalid */
+  CHECK ("CVSS:4.0/AV:Y/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+         -1.0);
+
+  /* Metric value is too long */
+  CHECK ("CVSS:4.0/AV:XYZ/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+         -1.0);
+
+  /* Metric value is missing */
+  CHECK ("CVSS:4.0/AV:/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+         -1.0);
+
+  CHECK ("CVSS:4.0/AV/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H", -1.0);
+
+  /* Duplicate Metric */
+  CHECK ("CVSS:4.0/AV:N/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+         -1.0);
+
+  /* Missing mandatory metrics */
+  CHECK ("CVSS:4.0/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H", -1.0);
+
+  CHECK ("CVSS:4.0/AV:N/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H", -1.0);
+
+  CHECK ("CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H", -1.0);
+
+  /* Version must be uppercase. */
+  CHECK ("cvss:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+         -1.0);
+
+  /* Invalid Provider Urgency */
+  CHECK ("CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H/U:R",
+         -1.0);
 }
 
 Ensure (cvss, get_cvss_score_from_base_metrics_all_in_feed_match)
@@ -1752,6 +1867,10 @@ main (int argc, char **argv)
   add_test_with_context (suite, cvss, get_cvss_score_from_base_metrics_fails);
   add_test_with_context (suite, cvss,
                          get_cvss_score_from_base_metrics_succeeds_v3);
+  add_test_with_context (suite, cvss,
+                         get_cvss_score_from_base_metrics_succeeds_v4);
+  add_test_with_context (suite, cvss,
+                         get_cvss_score_from_base_metrics_fails_v4);
   add_test_with_context (suite, cvss,
                          get_cvss_score_from_base_metrics_all_in_feed_match);
 
