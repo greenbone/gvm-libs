@@ -73,7 +73,7 @@ struct kb_item
   {
     char *v_str; /**< Hold an str value for this kb item. */
     int v_int;   /**< Hold an int value for this kb item. */
-  }; /**< Value of this knowledge base item. */
+  };             /**< Value of this knowledge base item. */
 
   size_t len;           /**< Length of string. */
   struct kb_item *next; /**< Next item in list. */
