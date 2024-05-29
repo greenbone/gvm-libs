@@ -94,7 +94,7 @@ auth_method_name_valid (const gchar *name)
   for (i = 0; i < 1000; i++)
     if (authentication_methods[i] == NULL)
       break;
-    else if (strcmp(authentication_methods[i], name) == 0)
+    else if (strcmp (authentication_methods[i], name) == 0)
       return 1;
   return 0;
 }
