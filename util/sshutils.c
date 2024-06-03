@@ -76,6 +76,8 @@ gvm_ssh_public_from_private (const char *private_key, const char *passphrase)
   const char *type;
   int ret;
 
+  if (private_key == NULL)
+    return NULL;
   decrypted_priv = gvm_ssh_pkcs8_decrypt (private_key, passphrase);
   ret = ssh_pki_import_privkey_base64 (decrypted_priv ? decrypted_priv
                                                       : private_key,
