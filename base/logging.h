@@ -54,4 +54,7 @@ get_log_reference (void);
 void
 free_log_reference (void);
 
+void
+set_log_tz (const gchar *);
+
 #endif /* not _GVM_LOGGING_H */
