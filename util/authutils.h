@@ -33,6 +33,9 @@ typedef enum authentication_method auth_method_t;
 const gchar *auth_method_name (auth_method_t);
 
 int
+auth_method_name_valid (const gchar *);
+
+int
 gvm_auth_init (void);
 
 int
