@@ -21,9 +21,10 @@ jobs:
   tests:
     name: Unit Tests
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs-build:unstable
+    container: greenbone/gvm-libs:unstable
     steps:
       - uses: actions/checkout@v4
+      - run: sh .github/install-dependencies.sh
       - name: Configure and Compile gvm-libs
         run: |
           mkdir build
@@ -39,9 +40,10 @@ jobs:
   scan-build:
     name: Scan-build gvm-libs with clang
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs-build:unstable
+    container: greenbone/gvm-libs:unstable
     steps:
       - uses: actions/checkout@v4
+      - run: sh .github/install-dependencies.sh
       - name: Install clang tools
         run: |
           apt update
