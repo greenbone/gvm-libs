@@ -180,13 +180,16 @@ message ("-- Using redis socket ${REDIS_SOCKET_PATH}")
 message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 if (ENABLE_COVERAGE)
-  set (COVERAGE_FLAGS "--coverage")
+  set (COVERAGE_FLAGS "--coverage -ftest-coverage -fprofile-arcs")
+  set (COVERAGE_DIR "${CMAKE_BINARY_DIR}/coverage")
+  file (MAKE_DIRECTORY ${COVERAGE_DIR})
+  message ("-- Code Coverage enabled")
 endif (ENABLE_COVERAGE)
 
 set (HARDENING_FLAGS "-Wformat -Wformat-security -D_FORTIFY_SOURCE=2 -fstack-protector")
 set (LINKER_HARDENING_FLAGS "-Wl,-z,relro -Wl,-z,now")
 set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${COVERAGE_FLAGS}")
-set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${HARDENING_FLAGS}")
+set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${HARDENING_FLAGS} ${COVERAGE_FLAGS}")
 
 set (
     CMAKE_C_FLAGS
@@ -231,6 +234,22 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
             nvti-test hosts-test)
 
 endif (BUILD_TESTS AND NOT SKIP_SRC)
+
+# Code coverage
+
+if (ENABLE_COVERAGE)
+  add_custom_target (coverage-html
+                     COMMAND gcovr --html-details ${COVERAGE_DIR}/coverage.html
+                     -r ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
+  add_custom_target (coverage-xml
+                     COMMAND gcovr --xml ${COVERAGE_DIR}/coverage.xml
+                     -r ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
+  add_custom_target (coverage DEPENDS coverage-xml coverage-html)
+endif (ENABLE_COVERAGE)
+
+add_custom_target (clean-coverage
+                   COMMAND find . -name *.gcda -delete -or -name *.gcno -delete
+                   COMMAND rm -f ${COVERAGE_DIR}/*)
 
 ## Program
 
