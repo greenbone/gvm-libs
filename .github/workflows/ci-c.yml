@@ -21,7 +21,7 @@ jobs:
   tests:
     name: Unit Tests
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs:unstable
+    container: greenbone/gvm-libs:edge
     steps:
       - uses: actions/checkout@v4
       - run: sh .github/install-dependencies.sh
@@ -40,7 +40,7 @@ jobs:
   scan-build:
     name: Scan-build gvm-libs with clang
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs:unstable
+    container: greenbone/gvm-libs:edge
     steps:
       - uses: actions/checkout@v4
       - run: sh .github/install-dependencies.sh

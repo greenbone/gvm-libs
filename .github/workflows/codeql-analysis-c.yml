@@ -19,7 +19,7 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    container: greenbone/gvm-libs:unstable
+    container: greenbone/gvm-libs:edge
 
     strategy:
       fail-fast: false
