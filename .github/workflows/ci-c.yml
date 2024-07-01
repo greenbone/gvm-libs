@@ -23,19 +23,32 @@ jobs:
     runs-on: 'ubuntu-latest'
     container: greenbone/gvm-libs:edge
     steps:
+      - name: Install git for Codecov uploader
+        run: |
+          apt update
+          apt install --no-install-recommends -y ca-certificates git
+          rm -rf /var/lib/apt/lists/*
       - uses: actions/checkout@v4
+      - name: Set git safe.directory
+        run: git config --global --add safe.directory '*'
       - run: sh .github/install-dependencies.sh
       - name: Configure and Compile gvm-libs
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=1 ..
+          cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=1 -DENABLE_COVERAGE=1 ..
           make install
       - name: Test gvm-libs
         run: |
           cd build
           make tests
           CTEST_OUTPUT_ON_FAILURE=1 make test
+      - name: Upload test coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: build/coverage/coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
 
   scan-build:
     name: Scan-build gvm-libs with clang
