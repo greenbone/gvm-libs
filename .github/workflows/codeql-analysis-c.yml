@@ -19,7 +19,7 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    container: greenbone/gvm-libs-build:unstable
+    container: greenbone/gvm-libs:edge
 
     strategy:
       fail-fast: false
@@ -30,6 +30,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - run: sh .github/install-dependencies.sh
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:

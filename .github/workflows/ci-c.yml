@@ -21,7 +21,7 @@ jobs:
   tests:
     name: Unit Tests
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs-build:unstable
+    container: greenbone/gvm-libs:edge
     steps:
       - name: Install git for Codecov uploader
         run: |
@@ -31,6 +31,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set git safe.directory
         run: git config --global --add safe.directory '*'
+      - run: sh .github/install-dependencies.sh
       - name: Configure and Compile gvm-libs
         run: |
           mkdir build
@@ -52,9 +53,10 @@ jobs:
   scan-build:
     name: Scan-build gvm-libs with clang
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs-build:unstable
+    container: greenbone/gvm-libs:edge
     steps:
       - uses: actions/checkout@v4
+      - run: sh .github/install-dependencies.sh
       - name: Install clang tools
         run: |
           apt update
