@@ -16,10 +16,10 @@
 #include "cpeutils.h"
 
 #include <assert.h>
+#include <ctype.h>
 #include <errno.h>
 #include <glib.h>
 #include <string.h>
-#include <ctype.h>
 
 #undef G_LOG_DOMAIN
 /**
@@ -41,7 +41,7 @@ uri_cpe_to_fs_cpe (const char *uri_cpe)
 
   cpe_struct_init (&cpe);
   uri_cpe_to_cpe_struct (uri_cpe, &cpe);
-  return(cpe_struct_to_fs_cpe (&cpe));
+  return (cpe_struct_to_fs_cpe (&cpe));
 }
 
 /**
@@ -58,7 +58,7 @@ fs_cpe_to_uri_cpe (const char *fs_cpe)
 
   cpe_struct_init (&cpe);
   fs_cpe_to_cpe_struct (fs_cpe, &cpe);
-  return(cpe_struct_to_uri_cpe (&cpe));
+  return (cpe_struct_to_uri_cpe (&cpe));
 }
 
 /**
@@ -66,7 +66,7 @@ fs_cpe_to_uri_cpe (const char *fs_cpe)
  *
  * @param[in]   uri_cpe  A CPE v2.2-conformant URI.
  *
- * @param[out]  cpe      Pointer to the filled CPE struct. 
+ * @param[out]  cpe      Pointer to the filled CPE struct.
  */
 void
 uri_cpe_to_cpe_struct (const char *uri_cpe, cpe_struct_t *cpe)
@@ -89,9 +89,8 @@ uri_cpe_to_cpe_struct (const char *uri_cpe, cpe_struct_t *cpe)
   cpe->update = decode_uri_component (uri_component);
   g_free (uri_component);
   uri_component = get_uri_component (uri_cpe, 6);
-  if (strcmp (uri_component, "") == 0 ||
-      strcmp (uri_component, "-") == 0 ||
-      *uri_component != '~')
+  if (strcmp (uri_component, "") == 0 || strcmp (uri_component, "-") == 0
+      || *uri_component != '~')
     cpe->edition = decode_uri_component (uri_component);
   else
     unpack_sixth_uri_component (uri_component, cpe);
@@ -169,7 +168,7 @@ cpe_struct_to_uri_cpe (const cpe_struct_t *cpe)
  *
  * @param[in]   fs_cpe  A formatted string CPE.
  *
- * @param[out]  cpe     Pointer to the filled CPE struct. 
+ * @param[out]  cpe     Pointer to the filled CPE struct.
  */
 void
 fs_cpe_to_cpe_struct (const char *fs_cpe, cpe_struct_t *cpe)
@@ -303,7 +302,7 @@ cpe_struct_to_fs_cpe (const cpe_struct_t *cpe)
  * @return  The indexth component of the URI CPE.
  */
 static char *
-get_uri_component(const char *uri_cpe, int index)
+get_uri_component (const char *uri_cpe, int index)
 {
   char *component = NULL;
   char *c;
@@ -317,7 +316,7 @@ get_uri_component(const char *uri_cpe, int index)
   /* find start of component */
   for (int i = 0; *c != '\0' && i < index; c++)
     {
-      if (*c  == ':')
+      if (*c == ':')
         i++;
     }
 
@@ -331,15 +330,16 @@ get_uri_component(const char *uri_cpe, int index)
     component_end = component_start;
   else
     {
-      for (c = component_start; *c != '\0' && *c != ':'; c++);
+      for (c = component_start; *c != '\0' && *c != ':'; c++)
+        ;
     }
 
   component_end = c;
 
   if (component_start >= component_end || component_end == 0)
-    component = (char*) g_strdup ("");
+    component = (char *) g_strdup ("");
   else
-    str_cpy (&component, component_start, component_end-component_start);
+    str_cpy (&component, component_start, component_end - component_start);
 
   return component;
 }
@@ -376,7 +376,8 @@ decode_uri_component (const char *component)
 
   /* set all characters to lowercase */
   char *c = tmp_component;
-  for ( ; *c; c++) *c = tolower (*c);
+  for (; *c; c++)
+    *c = tolower (*c);
 
   index = 0;
   embedded = FALSE;
@@ -385,7 +386,7 @@ decode_uri_component (const char *component)
   char l;
   while (index < strlen (tmp_component))
     {
-      l = *(tmp_component+index);
+      l = *(tmp_component + index);
 
       if (l == '.' || l == '-' || l == '~')
         {
@@ -402,20 +403,20 @@ decode_uri_component (const char *component)
           continue;
         }
 
-      get_code (code_a, tmp_component+index);
+      get_code (code_a, tmp_component + index);
       if (strcmp (code_a, "%01") == 0)
         {
           if (index >= 3)
-            get_code (code_b, tmp_component+index-3);
+            get_code (code_b, tmp_component + index - 3);
           else
             code_b[0] = '0';
           if (strlen (tmp_component) >= index + 6)
-            get_code (code_c, tmp_component+index+3);
+            get_code (code_c, tmp_component + index + 3);
           else
             code_c[0] = '0';
-          if ((index == 0 || index == strlen (tmp_component)-3) ||
-              (!embedded && strcmp (code_b, "%01")) ||
-              (embedded && strcmp (code_c, "%01")))
+          if ((index == 0 || index == strlen (tmp_component) - 3)
+              || (!embedded && strcmp (code_b, "%01"))
+              || (embedded && strcmp (code_c, "%01")))
             {
               g_string_append_printf (decoded_component, "%c", '?');
               index = index + 3;
@@ -430,7 +431,7 @@ decode_uri_component (const char *component)
 
       if (strcmp (code_a, "%02") == 0)
         {
-          if (index == 0 || index == strlen (tmp_component)-3)
+          if (index == 0 || index == strlen (tmp_component) - 3)
             {
               g_string_append_printf (decoded_component, "%c", '*');
               index = index + 3;
@@ -504,8 +505,8 @@ decode_uri_component (const char *component)
         {
           g_free (tmp_component);
           return (NULL);
-	}
-      index = index+3;
+        }
+      index = index + 3;
       embedded = TRUE;
     }
 
@@ -524,44 +525,44 @@ decode_uri_component (const char *component)
 static void
 unpack_sixth_uri_component (const char *component, cpe_struct_t *cpe)
 {
-  const char *start = component+1;
+  const char *start = component + 1;
   const char *end;
 
-  char *edition, *sw_edition, *target_sw, *target_hw, *other; 
+  char *edition, *sw_edition, *target_sw, *target_hw, *other;
 
   end = strchr (start, '~');
   if (start >= end || end == NULL)
     edition = strdup ("");
   else
-    str_cpy (&edition, start, end-start);
+    str_cpy (&edition, start, end - start);
 
   start = end + 1;
   end = strchr (start, '~');
   if (start >= end || end == NULL)
     sw_edition = strdup ("");
   else
-    str_cpy (&sw_edition, start, end-start);
+    str_cpy (&sw_edition, start, end - start);
 
   start = end + 1;
   end = strchr (start, '~');
   if (start >= end || end == NULL)
     target_sw = strdup ("");
   else
-    str_cpy (&target_sw, start, end-start);
+    str_cpy (&target_sw, start, end - start);
 
   start = end + 1;
   end = strchr (start, '~');
   if (start >= end || end == NULL)
     target_hw = strdup ("");
   else
-    str_cpy (&target_hw, start, end-start);
+    str_cpy (&target_hw, start, end - start);
 
   start = end + 1;
   end = strchr (start, '~');
   if (start >= end || end == NULL)
     other = strdup ("");
   else
-    str_cpy (&other, start, end-start);
+    str_cpy (&other, start, end - start);
 
   cpe->edition = decode_uri_component (edition);
   g_free (edition);
@@ -584,7 +585,7 @@ unpack_sixth_uri_component (const char *component, cpe_struct_t *cpe)
  * @return  The indexth component of the formatted string CPE.
  */
 static char *
-get_fs_component(const char *fs_cpe, int index)
+get_fs_component (const char *fs_cpe, int index)
 {
   char *component = NULL;
   char *c;
@@ -594,7 +595,7 @@ get_fs_component(const char *fs_cpe, int index)
     return NULL;
 
   if (*fs_cpe == '\0')
-    return ((char*) g_strdup (""));
+    return ((char *) g_strdup (""));
 
   c = (char *) fs_cpe;
 
@@ -607,7 +608,7 @@ get_fs_component(const char *fs_cpe, int index)
         {
           if (*c == ':' && c == fs_cpe)
             i++;
-	  else if (c > fs_cpe && *c  == ':' && *(c-1) != '\\')
+          else if (c > fs_cpe && *c == ':' && *(c - 1) != '\\')
             i++;
         }
       component_start = c;
@@ -618,15 +619,16 @@ get_fs_component(const char *fs_cpe, int index)
     component_end = component_start;
   else
     {
-      for (c = component_start; *c != '\0' && *c != ':'; c++);
+      for (c = component_start; *c != '\0' && *c != ':'; c++)
+        ;
     }
 
   component_end = c;
 
   if (component_start >= component_end || component_end == NULL)
-    component = (char*) g_strdup ("");
+    component = (char *) g_strdup ("");
   else
-    str_cpy (&component, component_start, component_end-component_start);
+    str_cpy (&component, component_start, component_end - component_start);
 
   return component;
 }
@@ -642,9 +644,9 @@ static char *
 unbind_fs_component (char *component)
 {
   if (strcmp (component, "*") == 0)
-    return ((char *) g_strdup("ANY"));
+    return ((char *) g_strdup ("ANY"));
   if (strcmp (component, "-") == 0)
-    return ((char *) g_strdup("NA"));
+    return ((char *) g_strdup ("NA"));
   return (add_quoting (component));
 }
 
@@ -672,12 +674,13 @@ add_quoting (const char *component)
   embedded = FALSE;
 
   /* set all characters to lowercase */
-  for (c = tmp_component; *c; c++) *c = tolower (*c);
+  for (c = tmp_component; *c; c++)
+    *c = tolower (*c);
 
   c = tmp_component;
   while (*c != '\0')
     {
-      if (is_alpha_num(*c))
+      if (is_alpha_num (*c))
         {
           g_string_append_printf (quoted_component, "%c", *c);
           c++;
@@ -697,7 +700,8 @@ add_quoting (const char *component)
         }
       if (*c == '*')
         {
-          if ((c == tmp_component) || (c == tmp_component+strlen (tmp_component -1)))
+          if ((c == tmp_component)
+              || (c == tmp_component + strlen (tmp_component - 1)))
             {
               g_string_append_printf (quoted_component, "%c", *c);
               c++;
@@ -712,10 +716,10 @@ add_quoting (const char *component)
         }
       if (*c == '?')
         {
-          if ((c == tmp_component) ||
-              (c == tmp_component+strlen (tmp_component -1)) ||
-              (!embedded && (c > tmp_component) && (*(c-1) == '?')) ||
-              (embedded && *(c+1) == '?'))
+          if ((c == tmp_component)
+              || (c == tmp_component + strlen (tmp_component - 1))
+              || (!embedded && (c > tmp_component) && (*(c - 1) == '?'))
+              || (embedded && *(c + 1) == '?'))
             {
               g_string_append_printf (quoted_component, "%c", *c);
               c++;
@@ -747,12 +751,12 @@ static char *
 bind_cpe_component_for_uri (const char *component)
 {
   if (!component)
-    return (g_strdup(""));
-  if (strcmp (component, "") == 0)
-    return (g_strdup(""));
-  if (strcmp(component, "ANY") == 0)
     return (g_strdup (""));
-  if (strcmp(component, "NA") == 0)
+  if (strcmp (component, "") == 0)
+    return (g_strdup (""));
+  if (strcmp (component, "ANY") == 0)
+    return (g_strdup (""));
+  if (strcmp (component, "NA") == 0)
     return (g_strdup ("-"));
   return (transform_for_uri (component));
 }
@@ -772,14 +776,15 @@ transform_for_uri (const char *component)
   char *c;
 
   if (!component)
-    return (g_strdup(""));
+    return (g_strdup (""));
   if (strcmp (component, "") == 0)
-    return (g_strdup(""));
+    return (g_strdup (""));
 
-  tmp_component = g_strdup(component);
+  tmp_component = g_strdup (component);
 
   /* set all characters to lowercase */
-  for (c = tmp_component; *c; c++) *c = tolower (*c);
+  for (c = tmp_component; *c; c++)
+    *c = tolower (*c);
 
   result = g_string_new ("");
   c = tmp_component;
@@ -797,7 +802,7 @@ transform_for_uri (const char *component)
           c++;
           if (*c != '\0')
             {
-              g_string_append_printf (result, "%s", pct_encode(*c));
+              g_string_append_printf (result, "%s", pct_encode (*c));
               c++;
             }
           continue;
@@ -822,37 +827,68 @@ transform_for_uri (const char *component)
 static char *
 pct_encode (char c)
 {
-  if (c == '!') return ("%21");
-  if (c == '"') return ("%22");
-  if (c == '#') return ("%23");
-  if (c == '$') return ("%24");
-  if (c == '%') return ("%25");
-  if (c == '&') return ("%26");
-  if (c == '\'') return ("%27");
-  if (c == '(') return ("%28");
-  if (c == ')') return ("%29");
-  if (c == '*') return ("%2a");
-  if (c == '+') return ("%2b");
-  if (c == ',') return ("%2c");
-  if (c == '-') return ("-");
-  if (c == '.') return (".");
-  if (c == '/') return ("%2f");
-  if (c == ':') return ("%3a");
-  if (c == ';') return ("%3b");
-  if (c == '<') return ("%3c");
-  if (c == '=') return ("%3d");
-  if (c == '>') return ("%3e");
-  if (c == '?') return ("%3f");
-  if (c == '@') return ("%40");
-  if (c == '[') return ("%5b");
-  if (c == '\\') return ("%5c");
-  if (c == ']') return ("%5d");
-  if (c == '^') return ("%5e");
-  if (c == '`') return ("%60");
-  if (c == '{') return ("%7b");
-  if (c == '|') return ("%7c");
-  if (c == '}') return ("%7d");
-  if (c == '~') return ("%7e");
+  if (c == '!')
+    return ("%21");
+  if (c == '"')
+    return ("%22");
+  if (c == '#')
+    return ("%23");
+  if (c == '$')
+    return ("%24");
+  if (c == '%')
+    return ("%25");
+  if (c == '&')
+    return ("%26");
+  if (c == '\'')
+    return ("%27");
+  if (c == '(')
+    return ("%28");
+  if (c == ')')
+    return ("%29");
+  if (c == '*')
+    return ("%2a");
+  if (c == '+')
+    return ("%2b");
+  if (c == ',')
+    return ("%2c");
+  if (c == '-')
+    return ("-");
+  if (c == '.')
+    return (".");
+  if (c == '/')
+    return ("%2f");
+  if (c == ':')
+    return ("%3a");
+  if (c == ';')
+    return ("%3b");
+  if (c == '<')
+    return ("%3c");
+  if (c == '=')
+    return ("%3d");
+  if (c == '>')
+    return ("%3e");
+  if (c == '?')
+    return ("%3f");
+  if (c == '@')
+    return ("%40");
+  if (c == '[')
+    return ("%5b");
+  if (c == '\\')
+    return ("%5c");
+  if (c == ']')
+    return ("%5d");
+  if (c == '^')
+    return ("%5e");
+  if (c == '`')
+    return ("%60");
+  if (c == '{')
+    return ("%7b");
+  if (c == '|')
+    return ("%7c");
+  if (c == '}')
+    return ("%7d");
+  if (c == '~')
+    return ("%7e");
   return ("");
 }
 
@@ -867,14 +903,14 @@ pct_encode (char c)
 static char *
 pack_sixth_uri_component (const cpe_struct_t *cpe)
 {
-  if ((cpe->sw_edition == NULL || strcmp (cpe->sw_edition, "") == 0) &&
-      (cpe->target_sw == NULL || strcmp (cpe->target_sw, "") == 0) &&
-      (cpe->target_hw == NULL || strcmp (cpe->target_hw, "") == 0) &&
-      (cpe->other == NULL || strcmp (cpe->other, "") == 0))
+  if ((cpe->sw_edition == NULL || strcmp (cpe->sw_edition, "") == 0)
+      && (cpe->target_sw == NULL || strcmp (cpe->target_sw, "") == 0)
+      && (cpe->target_hw == NULL || strcmp (cpe->target_hw, "") == 0)
+      && (cpe->other == NULL || strcmp (cpe->other, "") == 0))
     {
-      if (strcmp(cpe->edition, "ANY") == 0)
+      if (strcmp (cpe->edition, "ANY") == 0)
         return (g_strdup (""));
-      if (strcmp(cpe->edition, "NA") == 0)
+      if (strcmp (cpe->edition, "NA") == 0)
         return (g_strdup ("-"));
       return (g_strdup (cpe->edition));
     }
@@ -886,16 +922,12 @@ pack_sixth_uri_component (const cpe_struct_t *cpe)
   char *other = bind_cpe_component_for_uri (cpe->other);
   GString *component;
   component = g_string_new ("");
-  if (!((!sw_edition || strcmp (sw_edition, "") == 0) && 
-        (!target_sw || strcmp (target_sw, "") == 0) && 
-        (!target_hw || strcmp (target_hw, "") == 0) && 
-        (!other || strcmp (other, "") == 0) ))
-    g_string_append_printf (component, "~%s~%s~%s~%s~%s",
-                            edition,
-                            sw_edition,
-                            target_sw,
-                            target_hw,
-                            other);
+  if (!((!sw_edition || strcmp (sw_edition, "") == 0)
+        && (!target_sw || strcmp (target_sw, "") == 0)
+        && (!target_hw || strcmp (target_hw, "") == 0)
+        && (!other || strcmp (other, "") == 0)))
+    g_string_append_printf (component, "~%s~%s~%s~%s~%s", edition, sw_edition,
+                            target_sw, target_hw, other);
   else if (edition)
     g_string_append_printf (component, "%s", edition);
 
@@ -923,16 +955,15 @@ static char *
 bind_cpe_component_for_fs (const char *component)
 {
   if (!component)
-    return (g_strdup("*"));
-  if (strcmp (component, "") == 0)
-    return (g_strdup("*"));
-  if (strcmp(component, "ANY") == 0)
     return (g_strdup ("*"));
-  if (strcmp(component, "NA") == 0)
+  if (strcmp (component, "") == 0)
+    return (g_strdup ("*"));
+  if (strcmp (component, "ANY") == 0)
+    return (g_strdup ("*"));
+  if (strcmp (component, "NA") == 0)
     return (g_strdup ("-"));
   return (process_quoted_chars (component));
 }
-
 
 /**
  * @brief Process the quoted characters of a CPE component for
@@ -946,9 +977,9 @@ static char *
 process_quoted_chars (const char *component)
 {
   if (!component)
-    return (g_strdup(""));
+    return (g_strdup (""));
   if (strcmp (component, "") == 0)
-    return (g_strdup(""));
+    return (g_strdup (""));
 
   GString *fs_component;
   fs_component = g_string_new ("");
@@ -964,10 +995,10 @@ process_quoted_chars (const char *component)
         }
       else
         {
-	  next_c = *(c+1);
+          next_c = *(c + 1);
           if (next_c == '.' || next_c == '-' || next_c == '_')
             {
-              g_string_append_printf (fs_component, "%c", next_c); 
+              g_string_append_printf (fs_component, "%c", next_c);
               c += 2;
             }
           else if (next_c)
@@ -1036,7 +1067,6 @@ cpe_struct_free (cpe_struct_t *cpe)
     g_free (cpe->language);
 }
 
-
 /**
  * @brief Cut of trailing ':' signs.
  *
@@ -1049,13 +1079,13 @@ trim_pct (char *str)
 
   if (!str)
     return;
-  c = str+strlen(str)-1;
+  c = str + strlen (str) - 1;
   while (c >= str)
     {
       if (*c == ':')
         {
           *c = '\0';
-	  c--;
+          c--;
         }
       else
         break;
@@ -1072,15 +1102,16 @@ static void
 get_code (char *code, const char *str)
 {
   code[0] = *str;
-  code[1] = *(str+1);
-  code[2] = *(str+2);
+  code[1] = *(str + 1);
+  code[2] = *(str + 2);
   code[3] = '\0';
 }
 
 /**
  * @brief Copy size characters of a string to an newly allocated new string.
  *
- * @param[in]   src   The string the first size characters are to be copied from.
+ * @param[in]   src   The string the first size characters are to be copied
+ * from.
  * @param[in]   size  The number of characters to copy.
  *
  * @param[out]  dest  The copy of the first size characters of src.
@@ -1103,6 +1134,5 @@ str_cpy (char **dest, const char *src, int size)
 static gboolean
 is_alpha_num (char c)
 {
-  return (isalpha(c) || isdigit(c) || c == '_');
+  return (isalpha (c) || isdigit (c) || c == '_');
 }
-
