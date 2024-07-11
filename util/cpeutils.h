@@ -21,17 +21,17 @@
  */
 typedef struct
 {
-char *part;
-char *vendor;
-char *product;
-char *version;
-char *update;
-char *edition;
-char *sw_edition;
-char *target_sw;
-char *target_hw;
-char *other;
-char *language;
+  char *part;
+  char *vendor;
+  char *product;
+  char *version;
+  char *update;
+  char *edition;
+  char *sw_edition;
+  char *target_sw;
+  char *target_hw;
+  char *other;
+  char *language;
 } cpe_struct_t;
 
 char *
@@ -53,7 +53,7 @@ char *
 cpe_struct_to_fs_cpe (const cpe_struct_t *);
 
 static char *
-get_uri_component(const char *, int);
+get_uri_component (const char *, int);
 
 static char *
 decode_uri_component (const char *);
@@ -62,7 +62,7 @@ static void
 unpack_sixth_uri_component (const char *, cpe_struct_t *);
 
 static char *
-get_fs_component(const char *, int);
+get_fs_component (const char *, int);
 
 static char *
 unbind_fs_component (char *);

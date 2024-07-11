@@ -22,7 +22,7 @@ AfterEach (cpeutils)
 Ensure (cpeutils, uri_cpe_to_cpe_struct)
 {
   cpe_struct_t cpe;
-  char * uri_cpe;
+  char *uri_cpe;
 
   uri_cpe = "cpe:/a:microsoft:internet_explorer:8.0.6001:beta";
   cpe_struct_init (&cpe);
@@ -73,7 +73,7 @@ Ensure (cpeutils, uri_cpe_to_cpe_struct)
 Ensure (cpeutils, fs_cpe_to_cpe_struct)
 {
   cpe_struct_t cpe;
-  char * fs_cpe;
+  char *fs_cpe;
 
   fs_cpe = "cpe:2.3:a:microsoft:internet_explorer:8.0.6001:beta:*:*:*:*:*:*";
   cpe_struct_init (&cpe);
@@ -100,7 +100,7 @@ Ensure (cpeutils, fs_cpe_to_cpe_struct)
 Ensure (cpeutils, cpe_struct_to_uri_cpe)
 {
   cpe_struct_t cpe;
-  char * uri_cpe;
+  char *uri_cpe;
 
   cpe_struct_init (&cpe);
   cpe.part = "a";
@@ -111,14 +111,15 @@ Ensure (cpeutils, cpe_struct_to_uri_cpe)
   cpe.edition = "ANY";
 
   uri_cpe = cpe_struct_to_uri_cpe (&cpe);
-  assert_that (uri_cpe, is_equal_to_string ("cpe:/a:microsoft:internet_explorer:8.0.6001:beta"));
+  assert_that (uri_cpe, is_equal_to_string (
+                          "cpe:/a:microsoft:internet_explorer:8.0.6001:beta"));
   g_free (uri_cpe);
 }
 
 Ensure (cpeutils, cpe_struct_to_fs_cpe)
 {
   cpe_struct_t cpe;
-  char * fs_cpe;
+  char *fs_cpe;
 
   cpe_struct_init (&cpe);
   cpe.part = "a";
@@ -129,41 +130,55 @@ Ensure (cpeutils, cpe_struct_to_fs_cpe)
   cpe.edition = "ANY";
 
   fs_cpe = cpe_struct_to_fs_cpe (&cpe);
-  assert_that (fs_cpe, is_equal_to_string ("cpe:2.3:a:microsoft:internet_explorer:8.0.6001:beta:*:*:*:*:*:*"));
+  assert_that (
+    fs_cpe,
+    is_equal_to_string (
+      "cpe:2.3:a:microsoft:internet_explorer:8.0.6001:beta:*:*:*:*:*:*"));
   g_free (fs_cpe);
 }
 
 Ensure (cpeutils, uri_cpe_to_fs_cpe)
 {
-  char * uri_cpe = "cpe:/a:microsoft:internet_explorer:8.0.6001:beta";
-  char * fs_cpe = uri_cpe_to_fs_cpe(uri_cpe);
-  assert_that (fs_cpe, is_equal_to_string ("cpe:2.3:a:microsoft:internet_explorer:8.0.6001:beta:*:*:*:*:*:*"));
+  char *uri_cpe = "cpe:/a:microsoft:internet_explorer:8.0.6001:beta";
+  char *fs_cpe = uri_cpe_to_fs_cpe (uri_cpe);
+  assert_that (
+    fs_cpe,
+    is_equal_to_string (
+      "cpe:2.3:a:microsoft:internet_explorer:8.0.6001:beta:*:*:*:*:*:*"));
   g_free (fs_cpe);
 
   uri_cpe = "cpe:/a:hp:insight_diagnostics:7.4.0.1570:-:~~online~win2003~x64~";
-  fs_cpe = uri_cpe_to_fs_cpe(uri_cpe);
-  assert_that (fs_cpe, is_equal_to_string ("cpe:2.3:a:hp:insight_diagnostics:7.4.0.1570:-:*:*:online:win2003:x64:*"));
+  fs_cpe = uri_cpe_to_fs_cpe (uri_cpe);
+  assert_that (fs_cpe,
+               is_equal_to_string ("cpe:2.3:a:hp:insight_diagnostics:7.4.0."
+                                   "1570:-:*:*:online:win2003:x64:*"));
   g_free (fs_cpe);
 
   uri_cpe = "This is a ~:SIGNAL:~ test.";
-  fs_cpe = uri_cpe_to_fs_cpe(uri_cpe);
+  fs_cpe = uri_cpe_to_fs_cpe (uri_cpe);
   g_free (fs_cpe);
 }
 
 Ensure (cpeutils, fs_cpe_to_uri_cpe)
 {
-  char * fs_cpe = "cpe:2.3:a:microsoft:internet_explorer:8.0.6001:beta:*:*:*:*:*:*";
-  char * uri_cpe = fs_cpe_to_uri_cpe(fs_cpe);
-  assert_that (uri_cpe, is_equal_to_string ("cpe:/a:microsoft:internet_explorer:8.0.6001:beta"));
+  char *fs_cpe =
+    "cpe:2.3:a:microsoft:internet_explorer:8.0.6001:beta:*:*:*:*:*:*";
+  char *uri_cpe = fs_cpe_to_uri_cpe (fs_cpe);
+  assert_that (uri_cpe, is_equal_to_string (
+                          "cpe:/a:microsoft:internet_explorer:8.0.6001:beta"));
   g_free (uri_cpe);
 
-  fs_cpe = "cpe:2.3:a:hp:insight_diagnostics:7.4.0.1570:-:*:*:online:win2003:x64:*";
-  uri_cpe = fs_cpe_to_uri_cpe(fs_cpe);
-  assert_that (uri_cpe, is_equal_to_string ("cpe:/a:hp:insight_diagnostics:7.4.0.1570:-:~~online~win2003~x64~"));
+  fs_cpe =
+    "cpe:2.3:a:hp:insight_diagnostics:7.4.0.1570:-:*:*:online:win2003:x64:*";
+  uri_cpe = fs_cpe_to_uri_cpe (fs_cpe);
+  assert_that (
+    uri_cpe,
+    is_equal_to_string (
+      "cpe:/a:hp:insight_diagnostics:7.4.0.1570:-:~~online~win2003~x64~"));
   g_free (uri_cpe);
 
   fs_cpe = "This is a ~:SIGNAL:~ test.";
-  uri_cpe = fs_cpe_to_uri_cpe(fs_cpe);
+  uri_cpe = fs_cpe_to_uri_cpe (fs_cpe);
   g_free (uri_cpe);
 }
 
