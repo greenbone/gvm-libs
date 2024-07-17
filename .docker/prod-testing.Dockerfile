@@ -21,6 +21,7 @@ RUN apt-get update && \
   libgpgme11 \
   libgnutls30 \
   libuuid1 \
+  libjson-glib-1.0-0 \
   libssh-gcrypt-4 \
   libhiredis1.1.0 \
   libhiredis-dev \
