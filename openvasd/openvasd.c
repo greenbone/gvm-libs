@@ -1015,7 +1015,7 @@ openvasd_parsed_scan_status (openvasd_connector_t *conn)
   gchar *status = NULL;
   time_t start_time = 0, end_time = 0;
   int progress = -1;
-  openvasd_status_t status_code = OPENVASD_SCAN_STATUS_FAILED;
+  openvasd_status_t status_code = OPENVASD_SCAN_STATUS_ERROR;
   openvasd_scan_status_t status_info;
 
   resp = openvasd_get_scan_status (conn);
@@ -1024,6 +1024,8 @@ openvasd_parsed_scan_status (openvasd_connector_t *conn)
   if (resp->code != 200)
     {
       status_info->status = status_code;
+      status_info->response_code = resp->code;
+      openvasd_response_free(resp);
       return status_info;
     }
   parser = json_parser_new ();
@@ -1070,6 +1072,8 @@ cleanup:
     status_code = OPENVASD_SCAN_STATUS_STOPPED;
   else if (g_strcmp0 (status, "succeeded") == 0)
     status_code = OPENVASD_SCAN_STATUS_SUCCEEDED;
+  else if (g_strcmp0 (status, "succeeded") == 0)
+    status_code = OPENVASD_SCAN_STATUS_FAILED;
 
   g_free (status);
 
