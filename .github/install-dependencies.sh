@@ -9,6 +9,8 @@ apt-get update && \
   pkg-config \
   gnupg \
   libcjson-dev \
+  libcurl4-openssl-dev \
+  libjson-glib-dev \
   libglib2.0-dev \
   libgpgme-dev \
   libgnutls28-dev \
