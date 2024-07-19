@@ -77,9 +77,6 @@ static char *
 transform_for_uri (const char *);
 
 static char *
-pct_encode (char);
-
-static char *
 pack_sixth_uri_component (const cpe_struct_t *);
 
 static char *
@@ -103,6 +100,36 @@ get_code (char *, const char *);
 static void
 str_cpy (char **, const char *, int);
 
+enum set_relation
+  {
+    DISJOINT,
+    EQUAL,
+    SUBSET,
+    SUPERSET,
+    UNDEFINED
+  };
+
+gboolean
+cpe_struct_match (cpe_struct_t source, cpe_struct_t target);
+
+static enum set_relation
+compare_component (const char *, const char *);
+
+static enum set_relation
+compare_strings (const char *, const char *);
+
+static int
+count_escapes (const char *, int, int);
+
 static gboolean
-is_alpha_num (char);
+is_even_wildcards (const char *, int);
+
+static gboolean
+has_wildcards (const char *);
+
+static int
+index_of (const char *, const char *, int);
+
+static gboolean
+is_string (const char *);
 #endif

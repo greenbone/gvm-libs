@@ -38,10 +38,13 @@ char *
 uri_cpe_to_fs_cpe (const char *uri_cpe)
 {
   cpe_struct_t cpe;
+  char *fs_cpe;
 
   cpe_struct_init (&cpe);
   uri_cpe_to_cpe_struct (uri_cpe, &cpe);
-  return (cpe_struct_to_fs_cpe (&cpe));
+  fs_cpe = cpe_struct_to_fs_cpe (&cpe);
+  cpe_struct_free (&cpe);
+  return (fs_cpe);
 }
 
 /**
@@ -55,10 +58,13 @@ char *
 fs_cpe_to_uri_cpe (const char *fs_cpe)
 {
   cpe_struct_t cpe;
+  char *uri_cpe;
 
   cpe_struct_init (&cpe);
   fs_cpe_to_cpe_struct (fs_cpe, &cpe);
-  return (cpe_struct_to_uri_cpe (&cpe));
+  uri_cpe = cpe_struct_to_uri_cpe (&cpe);
+  cpe_struct_free (&cpe);
+  return (uri_cpe);
 }
 
 /**
@@ -355,6 +361,7 @@ static char *
 decode_uri_component (const char *component)
 {
   GString *decoded_component;
+  char *escapes = "!\"#$%&'()*+,/:;<=>?@[\\]^`{|}~";
   char *tmp_component;
   char code_a[4], code_b[4], code_c[4];
   long unsigned int index;
@@ -384,6 +391,7 @@ decode_uri_component (const char *component)
   decoded_component = g_string_new ("");
 
   char l;
+  char *unescaped;
   while (index < strlen (tmp_component))
     {
       l = *(tmp_component + index);
@@ -404,6 +412,7 @@ decode_uri_component (const char *component)
         }
 
       get_code (code_a, tmp_component + index);
+
       if (strcmp (code_a, "%01") == 0)
         {
           if (index >= 3)
@@ -443,64 +452,18 @@ decode_uri_component (const char *component)
               return (NULL);
             }
         }
-      if (strcmp (code_a, "%21") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\!");
-      else if (strcmp (code_a, "%22") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\\"");
-      else if (strcmp (code_a, "%23") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\#");
-      else if (strcmp (code_a, "%24") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\$");
-      else if (strcmp (code_a, "%25") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\%");
-      else if (strcmp (code_a, "%26") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\&");
-      else if (strcmp (code_a, "%27") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\'");
-      else if (strcmp (code_a, "%28") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\(");
-      else if (strcmp (code_a, "%29") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\)");
-      else if (strcmp (code_a, "%2a") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\*");
-      else if (strcmp (code_a, "%2b") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\+");
-      else if (strcmp (code_a, "%2c") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\,");
-      else if (strcmp (code_a, "%2f") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\/");
-      else if (strcmp (code_a, "%3a") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\:");
-      else if (strcmp (code_a, "%3b") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\;");
-      else if (strcmp (code_a, "%3c") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\<");
-      else if (strcmp (code_a, "%3d") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\=");
-      else if (strcmp (code_a, "%3e") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\>");
-      else if (strcmp (code_a, "%3f") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\?");
-      else if (strcmp (code_a, "%40") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\@");
-      else if (strcmp (code_a, "%5b") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\[");
-      else if (strcmp (code_a, "%5c") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\\\");
-      else if (strcmp (code_a, "%5d") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\]");
-      else if (strcmp (code_a, "%5e") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\^");
-      else if (strcmp (code_a, "%60") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\`");
-      else if (strcmp (code_a, "%7b") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\{");
-      else if (strcmp (code_a, "%7c") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\|");
-      else if (strcmp (code_a, "%7d") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\}");
-      else if (strcmp (code_a, "%7e") == 0)
-        g_string_append_printf (decoded_component, "%s", "\\~");
+
+      unescaped = g_uri_unescape_string (code_a, NULL);
+      if (unescaped && strchr (escapes, *unescaped))
+        {
+          g_string_append_printf (decoded_component, "\\%s", unescaped);
+          g_free (unescaped);
+        }
+      else if (unescaped)
+        {
+          g_string_append_printf (decoded_component, "%s", unescaped);
+          g_free (unescaped);
+        }
       else
         {
           g_free (tmp_component);
@@ -680,7 +643,7 @@ add_quoting (const char *component)
   c = tmp_component;
   while (*c != '\0')
     {
-      if (is_alpha_num (*c))
+      if (g_ascii_isalnum (*c) || *c == '_')
         {
           g_string_append_printf (quoted_component, "%c", *c);
           c++;
@@ -791,7 +754,7 @@ transform_for_uri (const char *component)
 
   while (*c)
     {
-      if (is_alpha_num (*c) && *c != '-')
+      if ((g_ascii_isalnum (*c) || *c == '_') && *c != '-')
         {
           g_string_append_printf (result, "%c", *c);
           c++;
@@ -802,7 +765,13 @@ transform_for_uri (const char *component)
           c++;
           if (*c != '\0')
             {
-              g_string_append_printf (result, "%s", pct_encode (*c));
+              char to_escape[2];
+              char * escaped;
+              to_escape[0] = *c;
+              to_escape[1] = '\0';
+              escaped = g_uri_escape_string (to_escape, NULL, FALSE);
+              g_string_append_printf (result, "%s", escaped);
+              g_free (escaped);
               c++;
             }
           continue;
@@ -815,81 +784,6 @@ transform_for_uri (const char *component)
     }
   g_free (tmp_component);
   return (g_string_free (result, FALSE));
-}
-
-/**
- * @brief Percent encode special characters.
- *
- * @param[in]   c  The character to encode.
- *
- * @return  The percent code.
- */
-static char *
-pct_encode (char c)
-{
-  if (c == '!')
-    return ("%21");
-  if (c == '"')
-    return ("%22");
-  if (c == '#')
-    return ("%23");
-  if (c == '$')
-    return ("%24");
-  if (c == '%')
-    return ("%25");
-  if (c == '&')
-    return ("%26");
-  if (c == '\'')
-    return ("%27");
-  if (c == '(')
-    return ("%28");
-  if (c == ')')
-    return ("%29");
-  if (c == '*')
-    return ("%2a");
-  if (c == '+')
-    return ("%2b");
-  if (c == ',')
-    return ("%2c");
-  if (c == '-')
-    return ("-");
-  if (c == '.')
-    return (".");
-  if (c == '/')
-    return ("%2f");
-  if (c == ':')
-    return ("%3a");
-  if (c == ';')
-    return ("%3b");
-  if (c == '<')
-    return ("%3c");
-  if (c == '=')
-    return ("%3d");
-  if (c == '>')
-    return ("%3e");
-  if (c == '?')
-    return ("%3f");
-  if (c == '@')
-    return ("%40");
-  if (c == '[')
-    return ("%5b");
-  if (c == '\\')
-    return ("%5c");
-  if (c == ']')
-    return ("%5d");
-  if (c == '^')
-    return ("%5e");
-  if (c == '`')
-    return ("%60");
-  if (c == '{')
-    return ("%7b");
-  if (c == '|')
-    return ("%7c");
-  if (c == '}')
-    return ("%7d");
-  if (c == '~')
-    return ("%7e");
-  return ("");
 }
 
 /**
@@ -1111,7 +1005,7 @@ get_code (char *code, const char *str)
  * @brief Copy size characters of a string to an newly allocated new string.
  *
  * @param[in]   src   The string the first size characters are to be copied
- * from.
+ *                    from.
  * @param[in]   size  The number of characters to copy.
  *
  * @param[out]  dest  The copy of the first size characters of src.
@@ -1125,14 +1019,257 @@ str_cpy (char **dest, const char *src, int size)
 }
 
 /**
- * @brief Return if a character is alpha or numeric or '_'.
+ * @brief Returns if source is a match for target. That means
+ *        that source is a superset of target.
  *
- * @param[in]  c  The character to be checked.
+ * @param[in]  source  The cpe_struct that represents a set of CPEs.
+ *             target  The cpe_struct that represents a single CPE or
+ *                     or a set of CPEs that is checked if it is a
+ *                     subset of source meaning that it is matched by
+ *                     source.
  *
- * @return  The boolean result.
+ * @return  Returns if source is a match for target.
  */
-static gboolean
-is_alpha_num (char c)
+gboolean
+cpe_struct_match (cpe_struct_t source, cpe_struct_t target)
 {
-  return (isalpha (c) || isdigit (c) || c == '_');
+  enum set_relation relation;
+
+  relation = compare_component (source.part, target.part);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source.vendor, target.vendor);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source.product, target.product);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source.version, target.version);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source.update, target.update);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source.edition, target.edition);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source.sw_edition, target.sw_edition);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source.target_sw, target.target_sw);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source.target_hw, target.target_hw);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source.other, target.other);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source.language, target.language);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+
+  return (TRUE);
+}
+
+static enum set_relation
+compare_component (const char *source, const char *target)
+{
+  enum set_relation result;
+  char *source_cpy, *target_cpy;
+  char *c;
+
+  if (source)
+    source_cpy = g_strdup(source);
+  else
+    source_cpy = g_strdup ("ANY");
+  if (target)
+    target_cpy = g_strdup(target);
+  else
+    target_cpy = g_strdup ("ANY");
+
+  if (is_string (source_cpy))
+    {
+      printf ("\nPROTO: >%s<\n", source_cpy);
+      /* set all characters to lowercase */
+      for (c = source_cpy; *c; c++)
+        *c = tolower (*c);
+    }
+  if (is_string (target_cpy))
+    {
+      /* set all characters to lowercase */
+      for (c = target_cpy; *c; c++)
+        *c = tolower (*c);
+    }
+  if (is_string (target_cpy) && has_wildcards (target_cpy))
+    {
+      g_free (source_cpy);
+      g_free (target_cpy);
+      return (UNDEFINED);
+    }
+  if (strcmp (source_cpy, target_cpy) == 0)
+    {
+      g_free (source_cpy);
+      g_free (target_cpy);
+      return (EQUAL);
+    }
+  if (strcmp (source_cpy, "ANY") == 0)
+    {
+      g_free (source_cpy);
+      g_free (target_cpy);
+      return (SUPERSET);
+    }
+  printf ("\n PROTO: %s - %s \n", source_cpy, target_cpy);
+  if (strcmp (target_cpy, "ANY") == 0)
+    {
+      g_free (source_cpy);
+      g_free (target_cpy);
+      return (SUBSET);
+    }
+  if (strcmp (target_cpy, "NA") == 0 || strcmp (source_cpy, "NA") == 0)
+    {
+      g_free (source_cpy);
+      g_free (target_cpy);
+      return (DISJOINT);
+    }
+
+  result = compare_strings (source_cpy, target_cpy);
+  g_free (source_cpy);
+  g_free (target_cpy);
+  return (result);
+}
+
+static enum set_relation
+compare_strings (const char *source, const char *target)
+{
+  int start = 0;
+  int end = strlen (source);
+  int begins = 0;
+  int ends = 0;
+
+  char *sub_source;
+
+  if (*source == '*')
+    {
+      start = 1;
+      begins = -1;
+    }
+  else
+    {
+      while (start < (int) strlen (source) && *(source+start) == '?')
+        {
+          start++;
+          begins++;
+        }
+    }
+  if (*(source + end - 1) == '*' && is_even_wildcards (source, end - 1))
+    {
+      end--;
+      ends = -1;
+    }
+  else
+    {
+      while (end > 0 && *(source + end - 1) == '?' && is_even_wildcards (source, end - 1))
+        {
+          end--;
+          ends++;
+        }
+    }
+
+  str_cpy (&sub_source, source+start, end - start);
+  int index = -1;
+  int escapes = 0;
+  int leftover = strlen (target);
+
+  while (leftover > 0)
+    {
+      index = index_of (target, sub_source, index+1);
+      if (index == -1)
+        break;
+      escapes = count_escapes (target, 0, index);
+      if (index > 0 && begins != -1 && begins < (index - escapes))
+        break;
+      escapes = count_escapes (target, index + 1, strlen (target));
+      leftover = strlen (target) - index - escapes - strlen (sub_source);
+      if (leftover > 0 && (ends != -1 && leftover > ends))
+        continue;
+      g_free (sub_source);
+      return SUPERSET;
+    }
+  g_free (sub_source);
+  return DISJOINT;
+}
+
+static int
+count_escapes (const char *str, int start, int end)
+{
+  int result = 0;
+  gboolean active = FALSE;
+
+  for (int i = 0; i < end && *(str+i) != '\0'; i++)
+    {
+      active = (!active && *(str+i) == '\\');
+      if (active && i >= start)
+        result++;
+    }
+  return (result);
+}
+
+static gboolean
+is_even_wildcards (const char *str, int index)
+{
+  int result = 0;
+
+  while (index > 0 &&  *(str + index - 1) == '\\')
+    {
+      index--;
+      result++;
+    }
+  return ((result % 2) == 0);
+}
+
+static gboolean
+has_wildcards (const char *str)
+{
+  char *c = (char *) str;
+  gboolean active = FALSE;
+
+  while (*c != '\0')
+    {
+      if (!active && (*c == '?' || *c == '*'))
+        return TRUE;
+
+      if (!active && *c == '\\')
+        active = TRUE;
+      else
+        active = FALSE;
+
+      c++;
+    }
+  return FALSE;
+}
+
+static int
+index_of (const char *str, const char *sub_str, int offset)
+{
+  char *start;
+  char *begin_substr;
+
+  if (offset > (int) strlen (str))
+    return (-1);
+
+  start = (char *) str + offset;
+  begin_substr =  strstr (start, sub_str);
+  if (begin_substr == NULL)
+    return (-1);
+  return (begin_substr - str);
+}
+
+static gboolean
+is_string (const char *str)
+{
+  if (!str)
+    return FALSE;
+
+  return (strcmp (str, "ANY") && strcmp (str, "NA"));
 }
