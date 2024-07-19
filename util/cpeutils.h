@@ -101,13 +101,13 @@ static void
 str_cpy (char **, const char *, int);
 
 enum set_relation
-  {
-    DISJOINT,
-    EQUAL,
-    SUBSET,
-    SUPERSET,
-    UNDEFINED
-  };
+{
+  DISJOINT,
+  EQUAL,
+  SUBSET,
+  SUPERSET,
+  UNDEFINED
+};
 
 gboolean
 cpe_struct_match (cpe_struct_t source, cpe_struct_t target);

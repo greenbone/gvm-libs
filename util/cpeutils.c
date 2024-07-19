@@ -766,7 +766,7 @@ transform_for_uri (const char *component)
           if (*c != '\0')
             {
               char to_escape[2];
-              char * escaped;
+              char *escaped;
               to_escape[0] = *c;
               to_escape[1] = '\0';
               escaped = g_uri_escape_string (to_escape, NULL, FALSE);
@@ -1080,11 +1080,11 @@ compare_component (const char *source, const char *target)
   char *c;
 
   if (source)
-    source_cpy = g_strdup(source);
+    source_cpy = g_strdup (source);
   else
     source_cpy = g_strdup ("ANY");
   if (target)
-    target_cpy = g_strdup(target);
+    target_cpy = g_strdup (target);
   else
     target_cpy = g_strdup ("ANY");
 
@@ -1156,7 +1156,7 @@ compare_strings (const char *source, const char *target)
     }
   else
     {
-      while (start < (int) strlen (source) && *(source+start) == '?')
+      while (start < (int) strlen (source) && *(source + start) == '?')
         {
           start++;
           begins++;
@@ -1169,21 +1169,22 @@ compare_strings (const char *source, const char *target)
     }
   else
     {
-      while (end > 0 && *(source + end - 1) == '?' && is_even_wildcards (source, end - 1))
+      while (end > 0 && *(source + end - 1) == '?'
+             && is_even_wildcards (source, end - 1))
         {
           end--;
           ends++;
         }
     }
 
-  str_cpy (&sub_source, source+start, end - start);
+  str_cpy (&sub_source, source + start, end - start);
   int index = -1;
   int escapes = 0;
   int leftover = strlen (target);
 
   while (leftover > 0)
     {
-      index = index_of (target, sub_source, index+1);
+      index = index_of (target, sub_source, index + 1);
       if (index == -1)
         break;
       escapes = count_escapes (target, 0, index);
@@ -1206,9 +1207,9 @@ count_escapes (const char *str, int start, int end)
   int result = 0;
   gboolean active = FALSE;
 
-  for (int i = 0; i < end && *(str+i) != '\0'; i++)
+  for (int i = 0; i < end && *(str + i) != '\0'; i++)
     {
-      active = (!active && *(str+i) == '\\');
+      active = (!active && *(str + i) == '\\');
       if (active && i >= start)
         result++;
     }
@@ -1220,7 +1221,7 @@ is_even_wildcards (const char *str, int index)
 {
   int result = 0;
 
-  while (index > 0 &&  *(str + index - 1) == '\\')
+  while (index > 0 && *(str + index - 1) == '\\')
     {
       index--;
       result++;
@@ -1259,7 +1260,7 @@ index_of (const char *str, const char *sub_str, int offset)
     return (-1);
 
   start = (char *) str + offset;
-  begin_substr =  strstr (start, sub_str);
+  begin_substr = strstr (start, sub_str);
   if (begin_substr == NULL)
     return (-1);
   return (begin_substr - str);
