@@ -64,6 +64,41 @@ Ensure (cpeutils, uri_cpe_to_cpe_struct)
   assert_that (cpe.language, is_equal_to_string ("ANY"));
   cpe_struct_free (&cpe);
 
+  uri_cpe =
+    "cpe:/a:hp:insight_diagnostics:7.4.0.1570::~~online~win2003~x64~other";
+  cpe_struct_init (&cpe);
+  uri_cpe_to_cpe_struct (uri_cpe, &cpe);
+  assert_that (cpe.part, is_equal_to_string ("a"));
+  assert_that (cpe.vendor, is_equal_to_string ("hp"));
+  assert_that (cpe.product, is_equal_to_string ("insight_diagnostics"));
+  assert_that (cpe.version, is_equal_to_string ("7\\.4\\.0\\.1570"));
+  assert_that (cpe.update, is_equal_to_string ("ANY"));
+  assert_that (cpe.edition, is_equal_to_string ("ANY"));
+  assert_that (cpe.sw_edition, is_equal_to_string ("online"));
+  assert_that (cpe.target_sw, is_equal_to_string ("win2003"));
+  assert_that (cpe.target_hw, is_equal_to_string ("x64"));
+  assert_that (cpe.other, is_equal_to_string ("other"));
+  assert_that (cpe.language, is_equal_to_string ("ANY"));
+  cpe_struct_free (&cpe);
+
+  uri_cpe =
+    "cpe:/"
+    "a:hp:insight_diagnostics:7.4.0.1570::~~online~win2003~x64~other:english";
+  cpe_struct_init (&cpe);
+  uri_cpe_to_cpe_struct (uri_cpe, &cpe);
+  assert_that (cpe.part, is_equal_to_string ("a"));
+  assert_that (cpe.vendor, is_equal_to_string ("hp"));
+  assert_that (cpe.product, is_equal_to_string ("insight_diagnostics"));
+  assert_that (cpe.version, is_equal_to_string ("7\\.4\\.0\\.1570"));
+  assert_that (cpe.update, is_equal_to_string ("ANY"));
+  assert_that (cpe.edition, is_equal_to_string ("ANY"));
+  assert_that (cpe.sw_edition, is_equal_to_string ("online"));
+  assert_that (cpe.target_sw, is_equal_to_string ("win2003"));
+  assert_that (cpe.target_hw, is_equal_to_string ("x64"));
+  assert_that (cpe.other, is_equal_to_string ("other"));
+  assert_that (cpe.language, is_equal_to_string ("english"));
+  cpe_struct_free (&cpe);
+
   uri_cpe = "This is a ~:SIGNAL:~ test.";
   cpe_struct_init (&cpe);
   uri_cpe_to_cpe_struct (uri_cpe, &cpe);

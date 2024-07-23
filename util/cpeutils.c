@@ -433,6 +433,7 @@ decode_uri_component (const char *component)
             }
           else
             {
+              g_string_free (decoded_component, TRUE);
               g_free (tmp_component);
               return (NULL);
             }
@@ -448,6 +449,7 @@ decode_uri_component (const char *component)
             }
           else
             {
+              g_string_free (decoded_component, TRUE);
               g_free (tmp_component);
               return (NULL);
             }
@@ -466,6 +468,7 @@ decode_uri_component (const char *component)
         }
       else
         {
+          g_string_free (decoded_component, TRUE);
           g_free (tmp_component);
           return (NULL);
         }
@@ -499,33 +502,53 @@ unpack_sixth_uri_component (const char *component, cpe_struct_t *cpe)
   else
     str_cpy (&edition, start, end - start);
 
-  start = end + 1;
-  end = strchr (start, '~');
-  if (start >= end || end == NULL)
+  if (end != NULL)
+    {
+      start = end + 1;
+      end = strchr (start, '~');
+      if (start >= end || end == NULL)
+        sw_edition = strdup ("");
+      else
+        str_cpy (&sw_edition, start, end - start);
+    }
+  else
     sw_edition = strdup ("");
-  else
-    str_cpy (&sw_edition, start, end - start);
 
-  start = end + 1;
-  end = strchr (start, '~');
-  if (start >= end || end == NULL)
+  if (end != NULL)
+    {
+      start = end + 1;
+      end = strchr (start, '~');
+      if (start >= end || end == NULL)
+        target_sw = strdup ("");
+      else
+        str_cpy (&target_sw, start, end - start);
+    }
+  else
     target_sw = strdup ("");
-  else
-    str_cpy (&target_sw, start, end - start);
 
-  start = end + 1;
-  end = strchr (start, '~');
-  if (start >= end || end == NULL)
+  if (end != NULL)
+    {
+      start = end + 1;
+      end = strchr (start, '~');
+      if (start >= end || end == NULL)
+        target_hw = strdup ("");
+      else
+        str_cpy (&target_hw, start, end - start);
+    }
+  else
     target_hw = strdup ("");
-  else
-    str_cpy (&target_hw, start, end - start);
 
-  start = end + 1;
-  end = strchr (start, '~');
-  if (start >= end || end == NULL)
-    other = strdup ("");
+  if (end != NULL)
+    {
+      start = end + 1;
+      end = component + strlen (component);
+      if (start >= end)
+        other = strdup ("");
+      else
+        str_cpy (&other, start, end - start);
+    }
   else
-    str_cpy (&other, start, end - start);
+    other = strdup ("");
 
   cpe->edition = decode_uri_component (edition);
   g_free (edition);
@@ -1023,7 +1046,7 @@ str_cpy (char **dest, const char *src, int size)
  *        that source is a superset of target.
  *
  * @param[in]  source  The cpe_struct that represents a set of CPEs.
- *             target  The cpe_struct that represents a single CPE or
+ * @param[in]  target  The cpe_struct that represents a single CPE or
  *                     or a set of CPEs that is checked if it is a
  *                     subset of source meaning that it is matched by
  *                     source.
@@ -1072,6 +1095,17 @@ cpe_struct_match (cpe_struct_t source, cpe_struct_t target)
   return (TRUE);
 }
 
+/**
+ * @brief Returns if the component "source" is a match for the component
+ *        "target". That means that source is a superset of target.
+ *
+ * @param[in]  source  The component of a cpe_struct.
+ * @param[in]  target  The component of a cpe_struct that is checked if it
+ *                     is a subset of source meaning that it is matched by
+ *                     source.
+ *
+ * @return  Returns if source is a match for target.
+ */
 static enum set_relation
 compare_component (const char *source, const char *target)
 {
@@ -1090,7 +1124,6 @@ compare_component (const char *source, const char *target)
 
   if (is_string (source_cpy))
     {
-      printf ("\nPROTO: >%s<\n", source_cpy);
       /* set all characters to lowercase */
       for (c = source_cpy; *c; c++)
         *c = tolower (*c);
@@ -1139,6 +1172,18 @@ compare_component (const char *source, const char *target)
   return (result);
 }
 
+/**
+ * @brief Returns if the string of a component "source" is a match for the
+ *        the string of a component "target". That means that source
+ *        represents a superset of target.
+ *
+ * @param[in]  source  The string of a component of a cpe_struct.
+ * @param[in]  target  The string of a component of a cpe_struct that is
+ *                     checked if it represents a subset of source meaning
+ *                     that it is matched by source.
+ *
+ * @return  Returns if source is a match for target.
+ */
 static enum set_relation
 compare_strings (const char *source, const char *target)
 {
@@ -1201,6 +1246,19 @@ compare_strings (const char *source, const char *target)
   return DISJOINT;
 }
 
+/**
+ * @brief Counts the number of unescaped escape signs ("\") in a specified
+ *        part of a string.
+ *
+ * @param[in]  str    The string to be examined.
+ * @param[in]  start  The start position in the string where the examination
+ *                    begins.
+ * @param[in]  end    The end position in the string where the examination
+ *                    ends.
+ *
+ * @return  Returns the number of unescaped escape signs in the specified
+ *          part of the string.
+ */
 static int
 count_escapes (const char *str, int start, int end)
 {
@@ -1216,6 +1274,16 @@ count_escapes (const char *str, int start, int end)
   return (result);
 }
 
+/**
+ * @brief Returns true if an even number of escape (backslash) characters
+ *        precede the character at the index "index" in string "str".
+ *
+ * @param[in]  str    The string to be examined.
+ * @param[in]  index  The index where the examination starts.
+ *
+ * @return  Returns if an even number of escape characters precede the
+ *          character at index "index".
+ */
 static gboolean
 is_even_wildcards (const char *str, int index)
 {
@@ -1229,6 +1297,13 @@ is_even_wildcards (const char *str, int index)
   return ((result % 2) == 0);
 }
 
+/**
+ * @brief Returns if a given string contains wildcards ("*" or "?").
+ *
+ * @param[in]  str  The string to be examined.
+ *
+ * @return  Returns TRUE if the string contains wildcards. FALSE otherwise.
+ */
 static gboolean
 has_wildcards (const char *str)
 {
@@ -1250,6 +1325,17 @@ has_wildcards (const char *str)
   return FALSE;
 }
 
+/**
+ * @brief Searches the string "str" for the first occurrence of the string
+ *        "sub_str", starting at the offset "offset" in "str".
+ *
+ * @param[in]  str      The string to be examined.
+ * @param[in]  sub_str  The string to be searched for in "str".
+ * @param[in]  offset   The offset where to start the search in "str".
+ *
+ * @return  Returns the index where the string "sub_str" starts in "str", if
+ *          the string "sub_str" was found, -1 otherwise.
+ */
 static int
 index_of (const char *str, const char *sub_str, int offset)
 {
@@ -1266,11 +1352,20 @@ index_of (const char *str, const char *sub_str, int offset)
   return (begin_substr - str);
 }
 
+/**
+ * @brief Returns if a string is an ordinary string and does not represent
+ *        one of the logical values "ANY" or "NA".
+ *
+ * @param[in]  str  The string to be examined.
+ *
+ * @return  Returns TRUE if the string "str" does not represent one of the
+ *          logical values "ANY" or "NA". Returns FALSE otherwise.
+ */
 static gboolean
 is_string (const char *str)
 {
   if (!str)
-    return FALSE;
+    return TRUE;
 
   return (strcmp (str, "ANY") && strcmp (str, "NA"));
 }
