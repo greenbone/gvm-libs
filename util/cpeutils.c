@@ -1152,7 +1152,6 @@ compare_component (const char *source, const char *target)
       g_free (target_cpy);
       return (SUPERSET);
     }
-  printf ("\n PROTO: %s - %s \n", source_cpy, target_cpy);
   if (strcmp (target_cpy, "ANY") == 0)
     {
       g_free (source_cpy);
