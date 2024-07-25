@@ -109,11 +109,11 @@ endif (BUILD_WITH_LDAP)
 include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS}
                      ${LIBXML2_INCLUDE_DIRS})
 
-set (FILES passwordbasedauthentication.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
+set (FILES cpeutils.c passwordbasedauthentication.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
            nvticache.c mqtt.c radiusutils.c serverutils.c sshutils.c uuidutils.c
            xmlutils.c)
 
-set (HEADERS passwordbasedauthentication.h authutils.h compressutils.h fileutils.h gpgmeutils.h kb.h
+set (HEADERS cpeutils.h passwordbasedauthentication.h authutils.h compressutils.h fileutils.h gpgmeutils.h kb.h
              ldaputils.h nvticache.h mqtt.h radiusutils.h serverutils.h sshutils.h
              uuidutils.h xmlutils.h)
 
@@ -160,6 +160,24 @@ if (BUILD_TESTS)
 
   add_custom_target (tests-passwordbasedauthentication
                     DEPENDS passwordbasedauthentication-test)
+
+  add_executable (cpeutils-test
+                  EXCLUDE_FROM_ALL
+                  cpeutils_tests.c)
+
+  add_test (cpeutils-test cpeutils-test)
+
+  target_include_directories (cpeutils-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (cpeutils-test ${CGREEN_LIBRARIES}
+                        ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
+              ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+              ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+              ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+              ${LINKER_HARDENING_FLAGS})
+
+  add_custom_target (tests-cpeutils
+                    DEPENDS cpeutils-test)
 
   add_executable (xmlutils-test
                   EXCLUDE_FROM_ALL
