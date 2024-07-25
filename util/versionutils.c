@@ -75,8 +75,8 @@ cmp_versions (const char *version1, const char *version2)
         {
           index1++;
           index2++;
-	  g_free (part1);
-	  g_free (part2);
+          g_free (part1);
+          g_free (part2);
           part1 = get_part (ver1, index1);
           part2 = get_part (ver2, index2);
           continue;
@@ -124,7 +124,7 @@ cmp_versions (const char *version1, const char *version2)
   int ret = -5;
 
   if (rs1 && rs2)
-    ret = rs2 -rs1;
+    ret = rs2 - rs1;
 
   if (rs1)
     ret = -1;
@@ -180,11 +180,10 @@ prepare_version_string (const char *version)
 
   while (index_v < (int) strlen (ver))
     {
-      if (ver[index_v] == '_' || ver[index_v] == '-'
-          || ver[index_v] == '+' || ver[index_v] == ':'
-          || ver[index_v] == '.')
+      if (ver[index_v] == '_' || ver[index_v] == '-' || ver[index_v] == '+'
+          || ver[index_v] == ':' || ver[index_v] == '.')
         {
-          if (index_pv > 0 && prep_version[index_pv-1] != '.')
+          if (index_pv > 0 && prep_version[index_pv - 1] != '.')
             {
               prep_version[index_pv] = '.';
               index_pv++;
@@ -196,7 +195,7 @@ prepare_version_string (const char *version)
       if (is_digit != g_ascii_isdigit (ver[index_v]))
         {
           is_digit = !is_digit;
-          if (index_pv > 0 && prep_version[index_pv-1] != '.')
+          if (index_pv > 0 && prep_version[index_pv - 1] != '.')
             {
               prep_version[index_pv] = '.';
               index_pv++;
@@ -205,25 +204,22 @@ prepare_version_string (const char *version)
 
       if (ver[index_v] == 'r')
         {
-          if (strstr (ver + index_v, "releasecandidate") ==
-                      ver + index_v                        )
+          if (strstr (ver + index_v, "releasecandidate") == ver + index_v)
             {
-              prep_version [index_pv] = 'r';
-	      prep_version [index_pv + 1] = 'c';
-	      index_pv += 2;
-	      index_v += 16;
-	      continue;
+              prep_version[index_pv] = 'r';
+              prep_version[index_pv + 1] = 'c';
+              index_pv += 2;
+              index_v += 16;
+              continue;
             }
-          if ((strstr (ver + index_v, "release-candidate") ==
-               ver + index_v)                                 ||
-              (strstr (ver + index_v, "release_candidate") ==
-               ver + index_v)                                   ) 
+          if ((strstr (ver + index_v, "release-candidate") == ver + index_v)
+              || (strstr (ver + index_v, "release_candidate") == ver + index_v))
             {
-              prep_version [index_pv] = 'r';
-	      prep_version [index_pv + 1] = 'c';
-	      index_pv += 2;
-	      index_v += 17;
-	      continue;
+              prep_version[index_pv] = 'r';
+              prep_version[index_pv + 1] = 'c';
+              index_pv += 2;
+              index_v += 17;
+              continue;
             }
         }
 
@@ -234,7 +230,7 @@ prepare_version_string (const char *version)
 
   prep_version[index_pv] = '\0';
   g_free (ver);
-  return (g_strdup(prep_version));
+  return (g_strdup (prep_version));
 }
 
 /**
@@ -292,10 +288,12 @@ get_part (const char *version, int index)
         dot_count++;
     }
 
-  if (begin == (int) strlen(version))
+  if (begin == (int) strlen (version))
     return (NULL);
-  
-  for (end = begin + 1; end < (int) strlen (version) && version[end] != '.'; end++);
+
+  for (end = begin + 1; end < (int) strlen (version) && version[end] != '.';
+       end++)
+    ;
 
   return (str_cpy ((char *) (version + begin), end - begin));
 }
@@ -312,8 +310,8 @@ is_text (const char *part)
 {
   if (!part)
     return (FALSE);
-  if (strcmp (part, "dev") == 0  || strcmp (part, "alpha") == 0 ||
-      strcmp (part, "beta") == 0 || strcmp (part, "rc") == 0      )
+  if (strcmp (part, "dev") == 0 || strcmp (part, "alpha") == 0
+      || strcmp (part, "beta") == 0 || strcmp (part, "rc") == 0)
     return (FALSE);
   if (g_ascii_isdigit (*part))
     return (FALSE);
