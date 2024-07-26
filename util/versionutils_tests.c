@@ -64,6 +64,11 @@ Ensure (versionutils, cmp_versions)
   version2 = "test-2.release_candidateb";
   result = cmp_versions (version1, version2);
   assert_that (result, is_equal_to (-5));
+
+  version1 = "2024-06-24";
+  version2 = "2024-06-23";
+  result = cmp_versions (version1, version2);
+  assert_that (result, is_greater_than (0));
 }
 
 /* Test suite. */

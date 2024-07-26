@@ -50,9 +50,6 @@ cmp_versions (const char *version1, const char *version2)
   ver1 = prepare_version_string (version1);
   ver2 = prepare_version_string (version2);
 
-  printf ("\nPROTO: V1 %s", ver1);
-  printf ("\nPROTO: V2 %s", ver2);
-
   if (strcmp (ver1, ver2) == 0)
     {
       g_free (ver1);
@@ -64,8 +61,6 @@ cmp_versions (const char *version1, const char *version2)
     index1++;
   if ((release_state2 = get_release_state (ver2, index2)))
     index2++;
-
-  printf ("\nPROTO: RS1 %d RS2 %d\n", release_state1, release_state2);
 
   part1 = get_part (ver1, index1);
   part2 = get_part (ver2, index2);
