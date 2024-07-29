@@ -206,6 +206,7 @@ openvasd_response_free (openvasd_resp_t resp)
     return;
 
   g_free (resp->body);
+  g_free (resp->header);
   g_free (resp);
   resp = NULL;
 }
@@ -266,6 +267,8 @@ response_callback_fn (void *ptr, size_t size, size_t nmemb, void *struct_string)
  *  @param[in] path    Path to the resource (e.g. /vts)
  *  @param[in] data    String containing the request body in json format (scan
  * action, scan config)
+ *  @param[in] header_name If this field is set, is looked in the header and
+ *                         its value is returned
  *
  *  @return Return struct containing the http response code and the response
  * body. In case of error the struct is filled with code RESP_CODE_ERR (-1) and
@@ -274,7 +277,7 @@ response_callback_fn (void *ptr, size_t size, size_t nmemb, void *struct_string)
  */
 static openvasd_resp_t
 openvasd_send_request (openvasd_connector_t *conn, openvasd_req_method_t method,
-                       char *path, char *data)
+                       char *path, char *data, const char *header_name)
 {
   CURL *curl;
   GString *url = NULL;
@@ -437,6 +440,12 @@ openvasd_send_request (openvasd_connector_t *conn, openvasd_req_method_t method,
 
   curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &http_code);
 
+  if (header_name && *header_name)
+    {
+      struct curl_header *hname;
+      curl_easy_header (curl, header_name, 0, CURLH_HEADER, -1, &hname);
+      response->header = g_strdup (hname->value);
+    }
   curl_easy_cleanup (curl);
   g_debug ("%ld - Server response %s", http_code, resp.ptr);
   response->code = http_code;
@@ -449,7 +458,7 @@ openvasd_send_request (openvasd_connector_t *conn, openvasd_req_method_t method,
 openvasd_resp_t
 openvasd_get_version (openvasd_connector_t *conn)
 {
-  return openvasd_send_request (conn, HEAD, "/", NULL);
+  return openvasd_send_request (conn, HEAD, "/", NULL, NULL);
 }
 
 openvasd_resp_t
@@ -460,7 +469,7 @@ openvasd_get_vts (openvasd_connector_t *conn)
 
   path = g_string_new ("/vts?information=1");
 
-  response = openvasd_send_request (conn, GET, path->str, NULL);
+  response = openvasd_send_request (conn, GET, path->str, NULL, NULL);
   g_string_free (path, TRUE);
 
   if (response == NULL)
@@ -480,7 +489,7 @@ openvasd_start_scan (openvasd_connector_t *conn, char *data)
   GError *err = NULL;
   GString *path;
 
-  response = openvasd_send_request (conn, POST, "/scans", data);
+  response = openvasd_send_request (conn, POST, "/scans", data, NULL);
 
   if (response == NULL)
     return NULL;
@@ -519,8 +528,8 @@ openvasd_start_scan (openvasd_connector_t *conn, char *data)
       goto cleanup_start_scan;
     }
 
-  response =
-    openvasd_send_request (conn, POST, path->str, "{\"action\": \"start\"}");
+  response = openvasd_send_request (conn, POST, path->str,
+                                    "{\"action\": \"start\"}", NULL);
   g_string_free (path, TRUE);
 cleanup_start_scan:
   if (reader)
@@ -552,8 +561,8 @@ openvasd_stop_scan (openvasd_connector_t *conn)
       return response;
     }
 
-  response =
-    openvasd_send_request (conn, POST, path->str, "{\"action\": \"stop\"}");
+  response = openvasd_send_request (conn, POST, path->str,
+                                    "{\"action\": \"stop\"}", NULL);
   g_string_free (path, TRUE);
 
   return response;
@@ -587,7 +596,7 @@ openvasd_get_scan_results (openvasd_connector_t *conn, long first, long last)
       return response;
     }
 
-  response = openvasd_send_request (conn, GET, path->str, NULL);
+  response = openvasd_send_request (conn, GET, path->str, NULL, NULL);
   if (response->code == RESP_CODE_ERR)
     {
       response->body =
@@ -867,7 +876,7 @@ openvasd_get_scan_status (openvasd_connector_t *conn)
       return response;
     }
 
-  response = openvasd_send_request (conn, GET, path->str, NULL);
+  response = openvasd_send_request (conn, GET, path->str, NULL, NULL);
   if (response->code == RESP_CODE_ERR)
     {
       response->body =
@@ -1025,7 +1034,7 @@ openvasd_parsed_scan_status (openvasd_connector_t *conn)
     {
       status_info->status = status_code;
       status_info->response_code = resp->code;
-      openvasd_response_free(resp);
+      openvasd_response_free (resp);
       return status_info;
     }
   parser = json_parser_new ();
@@ -1108,7 +1117,7 @@ openvasd_delete_scan (openvasd_connector_t *conn)
       return response;
     }
 
-  response = openvasd_send_request (conn, DELETE, path->str, NULL);
+  response = openvasd_send_request (conn, DELETE, path->str, NULL, NULL);
   g_string_free (path, TRUE);
 
   return response;
@@ -1117,19 +1126,20 @@ openvasd_delete_scan (openvasd_connector_t *conn)
 openvasd_resp_t
 openvasd_get_health_alive (openvasd_connector_t *conn)
 {
-  return openvasd_send_request (conn, GET, "/health/alive", NULL);
+  return openvasd_send_request (conn, GET, "/health/alive", NULL, NULL);
 }
 
 openvasd_resp_t
 openvasd_get_health_ready (openvasd_connector_t *conn)
 {
-  return openvasd_send_request (conn, GET, "/health/ready", NULL);
+  return openvasd_send_request (conn, GET, "/health/ready", NULL,
+                                "feed-version");
 }
 
 openvasd_resp_t
 openvasd_get_health_started (openvasd_connector_t *conn)
 {
-  return openvasd_send_request (conn, GET, "/health/started", NULL);
+  return openvasd_send_request (conn, GET, "/health/started", NULL, NULL);
 }
 
 // Scan config builder
