@@ -19,9 +19,9 @@ pkg_check_modules (CURL REQUIRED libcurl>=7.74.0)
 include_directories (${GLIB_INCLUDE_DIRS} ${GLIB_JSON_INCLUDE_DIRS}
                      ${CURL_INCLUDE_DIRS})
 
-set (FILES openvasd.c)
+set (FILES openvasd.c jsonutils.c)
 
-set (HEADERS openvasd.h)
+set (HEADERS openvasd.h jsonutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_openvasd_static STATIC ${FILES})

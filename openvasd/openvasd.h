@@ -78,7 +78,7 @@ enum OPENVASD_RESULT_MEMBER_INT
  */
 typedef enum
 {
-  OPENVASD_SCAN_STATUS_ERROR = -2, /**< Error status. */
+  OPENVASD_SCAN_STATUS_ERROR = -2,  /**< Error status. */
   OPENVASD_SCAN_STATUS_FAILED = -1, /**< Failed status. */
   OPENVASD_SCAN_STATUS_STORED,      /**< Stored status */
   OPENVASD_SCAN_STATUS_REQUESTED,   /**< Queued status */
@@ -89,8 +89,9 @@ typedef enum
 
 struct openvasd_response
 {
-  long code;  // HTTP code response
-  char *body; // String containing the body response
+  long code;    // HTTP code response
+  char *body;   // String containing the body response
+  char *header; // A header value
 };
 
 struct openvasd_scan_status
