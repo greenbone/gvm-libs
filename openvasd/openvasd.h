@@ -180,10 +180,25 @@ openvasd_get_scan_progress (openvasd_connector_t *);
 
 openvasd_resp_t
 openvasd_get_health_alive (openvasd_connector_t *);
+
 openvasd_resp_t
 openvasd_get_health_ready (openvasd_connector_t *);
+
 openvasd_resp_t
 openvasd_get_health_started (openvasd_connector_t *);
+
+/* Scanner preferences */
+
+typedef struct openvasd_param openvasd_param_t;
+
+openvasd_resp_t
+openvasd_get_scan_preferences (openvasd_connector_t *);
+
+int
+openvasd_parsed_scans_preferences (openvasd_connector_t *, GSList **);
+
+void
+openvasd_param_free (openvasd_param_t *);
 
 /* Target builder */
 
@@ -192,8 +207,6 @@ typedef struct openvasd_target openvasd_target_t;
 typedef struct openvasd_vt_single openvasd_vt_single_t;
 
 typedef struct openvasd_credential openvasd_credential_t;
-
-typedef struct openvasd_param openvasd_param_t;
 
 openvasd_target_t *
 openvasd_target_new (const char *, const char *, const char *, const char *,
@@ -208,12 +221,6 @@ openvasd_target_add_alive_test_methods (openvasd_target_t *, gboolean, gboolean,
 
 void
 openvasd_target_free (openvasd_target_t *);
-
-openvasd_param_t *
-openvasd_param_new (void);
-
-void
-openvasd_param_free (openvasd_param_t *);
 
 openvasd_credential_t *
 openvasd_credential_new (const char *, const char *, const char *);
