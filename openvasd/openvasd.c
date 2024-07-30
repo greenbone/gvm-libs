@@ -44,8 +44,10 @@ struct openvasd_connector
  */
 struct openvasd_param
 {
-  char *id;    /**< Parameter id. */
-  char *value; /**< Parameter name. */
+  char *id;          /**< Parameter id. */
+  char *name;        /**< Parameter name. */
+  char *defval;      /**< Default value. */
+  char *description; /**< Description. */
 };
 
 /**
@@ -747,14 +749,14 @@ openvasd_parsed_results (openvasd_connector_t *conn, unsigned long first,
   if (!json_parser_load_from_data (parser, resp->body, strlen (resp->body),
                                    &err))
     {
-      goto cleanup;
+      goto res_cleanup;
     }
   reader = json_reader_new (json_parser_get_root (parser));
 
   if (!json_reader_is_array (reader))
     {
       // No results. No information.
-      goto cleanup;
+      goto res_cleanup;
     }
 
   results_count = json_reader_count_elements (reader);
@@ -764,7 +766,7 @@ openvasd_parsed_results (openvasd_connector_t *conn, unsigned long first,
       if (!json_reader_is_object (reader))
         {
           // error
-          goto cleanup;
+          goto res_cleanup;
         }
 
       json_reader_read_member (reader, "id");
@@ -839,7 +841,7 @@ openvasd_parsed_results (openvasd_connector_t *conn, unsigned long first,
       ret = resp->code;
     }
 
-cleanup:
+res_cleanup:
   openvasd_response_free (resp);
   if (reader)
     g_object_unref (reader);
@@ -848,6 +850,7 @@ cleanup:
     {
       g_warning ("%s: Unable to parse scan results. Reason: %s", __func__,
                  err->message);
+      g_error_free (err);
     }
 
   return ret;
@@ -997,6 +1000,7 @@ cleanup:
     {
       g_warning ("%s: Unable to parse scan status. Reason: %s", __func__,
                  err->message);
+      g_error_free (err);
     }
   return progress;
 }
@@ -1040,7 +1044,7 @@ openvasd_parsed_scan_status (openvasd_connector_t *conn)
   parser = json_parser_new ();
   if (!json_parser_load_from_data (parser, resp->body, strlen (resp->body),
                                    &err))
-    goto cleanup;
+    goto status_cleanup;
 
   reader = json_reader_new (json_parser_get_root (parser));
 
@@ -1060,7 +1064,7 @@ openvasd_parsed_scan_status (openvasd_connector_t *conn)
 
   progress = openvasd_get_scan_progress_ext (NULL, resp);
 
-cleanup:
+status_cleanup:
   openvasd_response_free (resp);
   if (reader)
     g_object_unref (reader);
@@ -1069,6 +1073,7 @@ cleanup:
     {
       g_warning ("%s: Unable to parse scan status. Reason: %s", __func__,
                  err->message);
+      g_error_free (err);
     }
 
   if (g_strcmp0 (status, "stored") == 0)
@@ -1140,6 +1145,156 @@ openvasd_resp_t
 openvasd_get_health_started (openvasd_connector_t *conn)
 {
   return openvasd_send_request (conn, GET, "/health/started", NULL, NULL);
+}
+
+openvasd_resp_t
+openvasd_get_scan_preferences (openvasd_connector_t *conn)
+{
+  return openvasd_send_request (conn, GET, "/scans/preferences", NULL, NULL);
+}
+
+/**
+ * @brief Create a new Openvasd parameter.
+ *
+ * @return New Openvasd parameter.
+ */
+static openvasd_param_t *
+openvasd_param_new (char *id, char *name, char *defval, char *description)
+{
+  openvasd_param_t *param = g_malloc0 (sizeof (openvasd_param_t));
+
+  param->id = id;
+  param->defval = defval;
+  param->description = description;
+  param->name = name;
+  return param;
+}
+
+/**
+ * @brief Free an Openvasd parameter.
+ *
+ * @param[in] param Openvasd parameter to destroy.
+ */
+void
+openvasd_param_free (openvasd_param_t *param)
+{
+  if (!param)
+    return;
+  g_free (param->id);
+  g_free (param->name);
+  g_free (param->defval);
+  g_free (param->description);
+}
+
+int
+openvasd_parsed_scans_preferences (openvasd_connector_t *conn, GSList **params)
+{
+  openvasd_resp_t resp = NULL;
+  GError *err = NULL;
+  JsonParser *parser;
+  JsonReader *reader = NULL;
+
+  resp = openvasd_send_request (conn, GET, "/scans/preferences", NULL, NULL);
+
+  if (resp->code != 200)
+    return -1;
+
+  parser = json_parser_new ();
+  if (!json_parser_load_from_data (parser, resp->body, strlen (resp->body),
+                                   &err))
+    goto prefs_cleanup;
+  reader = json_reader_new (json_parser_get_root (parser));
+
+  if (!json_reader_is_array (reader))
+    {
+      // No results. No information.
+      goto prefs_cleanup;
+    }
+
+  int results_count = json_reader_count_elements (reader);
+  for (int i = 0; i < results_count; i++)
+    {
+      const char *id, *name, *desc;
+      char *defval = NULL;
+      openvasd_param_t *param = NULL;
+      GType t;
+      JsonNode *node = NULL;
+      gboolean bool;
+      int val;
+      char buf[6];
+
+      json_reader_read_element (reader, i);
+      if (!json_reader_is_object (reader))
+        {
+          // error
+          goto prefs_cleanup;
+        }
+
+      json_reader_read_member (reader, "id");
+      id = json_reader_get_string_value (reader);
+      json_reader_end_member (reader);
+
+      json_reader_read_member (reader, "name");
+      name = json_reader_get_string_value (reader);
+      json_reader_end_member (reader);
+
+      json_reader_read_member (reader, "description");
+      desc = json_reader_get_string_value (reader);
+      json_reader_end_member (reader);
+
+      json_reader_read_member (reader, "default");
+      node = json_reader_get_value (reader);
+      t = json_node_get_value_type (node);
+      val = json_reader_get_int_value (reader);
+
+      switch (t)
+        {
+        case G_TYPE_INT:
+        case G_TYPE_INT64:
+          val = json_reader_get_int_value (reader);
+          g_snprintf (buf, sizeof (buf), "%d", val);
+          defval = g_strdup (buf);
+          break;
+        case G_TYPE_STRING:
+          defval = g_strdup (json_reader_get_string_value (reader));
+          break;
+        case G_TYPE_BOOLEAN:
+          bool = json_reader_get_boolean_value (reader);
+          if (bool)
+            defval = g_strdup ("yes");
+          else
+            defval = g_strdup ("no");
+          break;
+        default:
+          g_warning ("%s: Unable to parse scan preferences.", __func__);
+          g_free (defval);
+          json_reader_end_member (reader);
+          json_reader_end_element (reader);
+          continue;
+        }
+      json_reader_end_member (reader);
+      json_reader_end_element (reader);
+
+      param = openvasd_param_new (g_strdup (id), g_strdup (name),
+                                  g_strdup (defval), g_strdup (desc));
+      g_free (defval);
+      *params = g_slist_append (*params, param);
+    }
+
+prefs_cleanup:
+  openvasd_response_free (resp);
+  if (reader)
+    g_object_unref (reader);
+  g_object_unref (parser);
+  if (err != NULL)
+    {
+      g_warning ("%s: Unable to parse scan preferences. Reason: %s", __func__,
+                 err->message);
+      g_error_free (err);
+      return -1;
+    }
+
+  return 0;
 }
 
 // Scan config builder
@@ -1401,31 +1556,6 @@ openvasd_build_scan_config_json (openvasd_target_t *target,
     g_warning ("%s: Error while creating JSON.", __func__);
 
   return json_str;
-}
-
-/**
- * @brief Create a new Openvasd parameter.
- *
- * @return New Openvasd parameter.
- */
-openvasd_param_t *
-openvasd_param_new (void)
-{
-  return g_malloc0 (sizeof (openvasd_param_t));
-}
-
-/**
- * @brief Free an Openvasd parameter.
- *
- * @param[in] param Openvasd parameter to destroy.
- */
-void
-openvasd_param_free (openvasd_param_t *param)
-{
-  if (!param)
-    return;
-  g_free (param->id);
-  g_free (param->value);
 }
 
 /**
