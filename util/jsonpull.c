@@ -11,6 +11,59 @@
 #define GVM_JSON_CHAR_UNDEFINED -3  ///< Undefined state
 
 /**
+ * @brief Escapes a string according to the JSON or JSONPath standard
+ */
+gchar *
+gvm_json_string_escape (const char *string, gboolean single_quote)
+{
+  gchar *point;
+  if (string == NULL)
+    return NULL;
+
+  GString *escaped = g_string_sized_new (strlen (string));
+  for (point = (char*)string; *point != 0; point++)
+    {
+      unsigned char character = *point;;
+      if ((character > 31) && (character != '\\') 
+          && (single_quote || character != '\"')
+          && (!single_quote || character != '\''))
+        {
+          g_string_append_c (escaped, character);
+        }
+      else
+        {
+          g_string_append_c (escaped, '\\');
+          switch (*point)
+          {
+            case '\\':
+            case '\'':
+            case '\"':
+              g_string_append_c (escaped, *point);
+              break;
+            case '\b':
+              g_string_append_c (escaped, 'b');
+              break;
+            case '\f':
+              g_string_append_c (escaped, 'f');
+              break;
+            case '\n':
+              g_string_append_c (escaped, 'n');
+              break;
+            case '\r':
+              g_string_append_c (escaped, 'r');
+              break;
+            case '\t':
+              g_string_append_c (escaped, 't');
+              break;
+            default:
+              g_string_append_printf (escaped, "u%04x", character);
+          }
+        }
+    }
+  return g_string_free (escaped, FALSE);
+}
+
+/**
  * @brief Creates a new JSON path element.
  *
  * @param[in]  parent_type  Type of the parent (array, object, none/root)
@@ -917,16 +970,9 @@ gvm_json_path_string_add_elem (gvm_json_path_elem_t *path_elem,
 {
   if (path_elem->parent_type == GVM_JSON_PULL_CONTAINER_OBJECT)
     {
-      char *point = path_elem->key;
-      g_string_append (path_string, "['");
-      while (point && *point)
-        {
-          if (*point == '\\' || *point == '\'')
-            g_string_append_c (path_string, '\\');
-          g_string_append_c (path_string, *point);
-          point ++;
-        }
-      g_string_append (path_string, "']");
+      gchar *escaped_key = gvm_json_string_escape (path_elem->key, TRUE);
+      g_string_append_printf (path_string, "['%s']", escaped_key);
+      g_free (escaped_key);
     }
   else
     g_string_append_printf (path_string, "[%d]", path_elem->index);
