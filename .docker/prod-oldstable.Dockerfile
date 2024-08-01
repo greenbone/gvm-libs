@@ -13,6 +13,7 @@ RUN apt-get update && \
   cmake \
   pkg-config \
   gnupg \
+  libcjson-dev \
   libglib2.0-dev \
   libgpgme-dev \
   libgnutls28-dev \
