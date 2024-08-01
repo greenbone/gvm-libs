@@ -4,11 +4,12 @@
  */
 
 #include "jsonpull.h"
-#include "assert.h"
 
-#define GVM_JSON_CHAR_EOF -1        ///< End of file
-#define GVM_JSON_CHAR_ERROR -2      ///< Error reading file
-#define GVM_JSON_CHAR_UNDEFINED -3  ///< Undefined state
+#include <assert.h>
+
+#define GVM_JSON_CHAR_EOF -1       ///< End of file
+#define GVM_JSON_CHAR_ERROR -2     ///< Error reading file
+#define GVM_JSON_CHAR_UNDEFINED -3 ///< Undefined state
 
 /**
  * @brief Escapes a string according to the JSON or JSONPath standard
@@ -21,10 +22,11 @@ gvm_json_string_escape (const char *string, gboolean single_quote)
     return NULL;
 
   GString *escaped = g_string_sized_new (strlen (string));
-  for (point = (char*)string; *point != 0; point++)
+  for (point = (char *) string; *point != 0; point++)
     {
-      unsigned char character = *point;;
-      if ((character > 31) && (character != '\\') 
+      unsigned char character = *point;
+      ;
+      if ((character > 31) && (character != '\\')
           && (single_quote || character != '\"')
           && (!single_quote || character != '\''))
         {
@@ -34,7 +36,7 @@ gvm_json_string_escape (const char *string, gboolean single_quote)
         {
           g_string_append_c (escaped, '\\');
           switch (*point)
-          {
+            {
             case '\\':
             case '\'':
             case '\"':
@@ -57,7 +59,7 @@ gvm_json_string_escape (const char *string, gboolean single_quote)
               break;
             default:
               g_string_append_printf (escaped, "u%04x", character);
-          }
+            }
         }
     }
   return g_string_free (escaped, FALSE);
@@ -101,7 +103,7 @@ gvm_json_pull_path_elem_free (gvm_json_path_elem_t *elem)
 void
 gvm_json_pull_event_init (gvm_json_pull_event_t *event)
 {
-  memset (event, 0, sizeof(gvm_json_pull_event_t));
+  memset (event, 0, sizeof (gvm_json_pull_event_t));
 }
 
 /**
@@ -113,7 +115,7 @@ void
 gvm_json_pull_event_reset (gvm_json_pull_event_t *event)
 {
   cJSON_free (event->value);
-  memset (event, 0, sizeof(gvm_json_pull_event_t));
+  memset (event, 0, sizeof (gvm_json_pull_event_t));
 }
 
 /**
@@ -125,7 +127,7 @@ void
 gvm_json_pull_event_cleanup (gvm_json_pull_event_t *event)
 {
   cJSON_free (event->value);
-  memset (event, 0, sizeof(gvm_json_pull_event_t));
+  memset (event, 0, sizeof (gvm_json_pull_event_t));
 }
 
 /**
@@ -138,17 +140,16 @@ gvm_json_pull_event_cleanup (gvm_json_pull_event_t *event)
  */
 void
 gvm_json_pull_parser_init_full (gvm_json_pull_parser_t *parser,
-                                FILE *input_stream,
-                                size_t parse_buffer_limit,
+                                FILE *input_stream, size_t parse_buffer_limit,
                                 size_t read_buffer_size)
 {
-  assert(parser);
+  assert (parser);
   assert (input_stream);
-  memset (parser, 0, sizeof(gvm_json_pull_parser_t));
+  memset (parser, 0, sizeof (gvm_json_pull_parser_t));
 
   if (parse_buffer_limit <= 0)
     parse_buffer_limit = GVM_JSON_PULL_PARSE_BUFFER_LIMIT;
-  
+
   if (read_buffer_size <= 0)
     read_buffer_size = GVM_JSON_PULL_READ_BUFFER_SIZE;
 
@@ -158,7 +159,7 @@ gvm_json_pull_parser_init_full (gvm_json_pull_parser_t *parser,
   parser->parse_buffer_limit = parse_buffer_limit;
   parser->parse_buffer = g_string_new ("");
   parser->read_buffer_size = read_buffer_size;
-  parser->read_buffer = g_malloc0(read_buffer_size);
+  parser->read_buffer = g_malloc0 (read_buffer_size);
   parser->last_read_char = GVM_JSON_CHAR_UNDEFINED;
 }
 
@@ -169,8 +170,7 @@ gvm_json_pull_parser_init_full (gvm_json_pull_parser_t *parser,
  * @param[in]  input_stream   The JSON input stream
  */
 void
-gvm_json_pull_parser_init (gvm_json_pull_parser_t *parser,
-                           FILE *input_stream)
+gvm_json_pull_parser_init (gvm_json_pull_parser_t *parser, FILE *input_stream)
 {
   gvm_json_pull_parser_init_full (parser, input_stream, 0, 0);
 }
@@ -183,12 +183,12 @@ gvm_json_pull_parser_init (gvm_json_pull_parser_t *parser,
 void
 gvm_json_pull_parser_cleanup (gvm_json_pull_parser_t *parser)
 {
-  assert(parser);
+  assert (parser);
   g_queue_free_full (parser->path,
                      (GDestroyNotify) gvm_json_pull_path_elem_free);
   g_string_free (parser->parse_buffer, TRUE);
   g_free (parser->read_buffer);
-  memset (parser, 0, sizeof(gvm_json_pull_parser_t));
+  memset (parser, 0, sizeof (gvm_json_pull_parser_t));
 }
 
 /**
@@ -218,10 +218,9 @@ gvm_json_pull_check_parse_buffer_size (const char *value_type,
 {
   if (parser->parse_buffer->len >= parser->parse_buffer_limit)
     {
-      event->error_message
-        = g_strdup_printf ("%s exceeds size limit of %zu bytes",
-                           value_type,
-                           parser->parse_buffer_limit);
+      event->error_message =
+        g_strdup_printf ("%s exceeds size limit of %zu bytes", value_type,
+                         parser->parse_buffer_limit);
       event->type = GVM_JSON_PULL_EVENT_ERROR;
       return 1;
     }
@@ -239,24 +238,22 @@ gvm_json_pull_parser_next_char (gvm_json_pull_parser_t *parser)
   parser->read_pos++;
   if (parser->read_pos < parser->last_read_size)
     {
-      parser->last_read_char
-        = (unsigned char) parser->read_buffer[parser->read_pos];
+      parser->last_read_char =
+        (unsigned char) parser->read_buffer[parser->read_pos];
       return parser->last_read_char;
     }
   else
     {
       parser->read_pos = 0;
-      parser->last_read_size = fread (parser->read_buffer,
-                                      1,
-                                      parser->read_buffer_size,
-                                      parser->input_stream);
+      parser->last_read_size = fread (
+        parser->read_buffer, 1, parser->read_buffer_size, parser->input_stream);
       if (ferror (parser->input_stream))
         parser->last_read_char = GVM_JSON_CHAR_ERROR;
       else if (parser->last_read_size <= 0)
         parser->last_read_char = GVM_JSON_CHAR_EOF;
       else
-        parser->last_read_char
-          = (unsigned char) parser->read_buffer[parser->read_pos];
+        parser->last_read_char =
+          (unsigned char) parser->read_buffer[parser->read_pos];
       return parser->last_read_char;
     }
 }
@@ -276,16 +273,15 @@ static int
 gvm_json_pull_parse_buffered (gvm_json_pull_parser_t *parser,
                               gvm_json_pull_event_t *event,
                               const char *value_name,
-                              cJSON_bool (*validate_func)(const cJSON* const), 
+                              cJSON_bool (*validate_func) (const cJSON *const),
                               cJSON **cjson_value)
 {
-  cJSON* parsed_value = cJSON_Parse (parser->parse_buffer->str);
+  cJSON *parsed_value = cJSON_Parse (parser->parse_buffer->str);
   *cjson_value = NULL;
   if (validate_func (parsed_value) == 0)
     {
       event->type = GVM_JSON_PULL_EVENT_ERROR;
-      event->error_message 
-        = g_strdup_printf ("error parsing %s", value_name);
+      event->error_message = g_strdup_printf ("error parsing %s", value_name);
       cJSON_free (parsed_value);
       return 1;
     }
@@ -302,8 +298,7 @@ gvm_json_pull_parse_buffered (gvm_json_pull_parser_t *parser,
  */
 static void
 gvm_json_pull_handle_read_end (gvm_json_pull_parser_t *parser,
-                               gvm_json_pull_event_t *event,
-                               gboolean allow_eof)
+                               gvm_json_pull_event_t *event, gboolean allow_eof)
 {
   if (parser->last_read_char == GVM_JSON_CHAR_ERROR)
     {
@@ -332,8 +327,7 @@ gvm_json_pull_handle_read_end (gvm_json_pull_parser_t *parser,
  */
 static int
 gvm_json_pull_skip_space (gvm_json_pull_parser_t *parser,
-                          gvm_json_pull_event_t *event,
-                          gboolean allow_eof)
+                          gvm_json_pull_event_t *event, gboolean allow_eof)
 {
   while (g_ascii_isspace (parser->last_read_char))
     gvm_json_pull_parser_next_char (parser);
@@ -359,24 +353,23 @@ gvm_json_pull_skip_space (gvm_json_pull_parser_t *parser,
  */
 static int
 gvm_json_pull_parse_string (gvm_json_pull_parser_t *parser,
-                            gvm_json_pull_event_t *event,
-                            cJSON **cjson_value)
+                            gvm_json_pull_event_t *event, cJSON **cjson_value)
 {
   gboolean escape_next_char = FALSE;
   g_string_truncate (parser->parse_buffer, 0);
   g_string_append_c (parser->parse_buffer, '"');
   while (gvm_json_pull_parser_next_char (parser) >= 0)
-  {
-    if (gvm_json_pull_check_parse_buffer_size ("string", parser, event))
-      return 1;
-    g_string_append_c (parser->parse_buffer, parser->last_read_char);
-    if (escape_next_char)
-      escape_next_char = FALSE;
-    else if (parser->last_read_char == '\\')
-      escape_next_char = TRUE;
-    else if (parser->last_read_char == '"')
-      break;
-  }
+    {
+      if (gvm_json_pull_check_parse_buffer_size ("string", parser, event))
+        return 1;
+      g_string_append_c (parser->parse_buffer, parser->last_read_char);
+      if (escape_next_char)
+        escape_next_char = FALSE;
+      else if (parser->last_read_char == '\\')
+        escape_next_char = TRUE;
+      else if (parser->last_read_char == '"')
+        break;
+    }
 
   if (parser->last_read_char < 0)
     {
@@ -386,10 +379,7 @@ gvm_json_pull_parse_string (gvm_json_pull_parser_t *parser,
 
   gvm_json_pull_parser_next_char (parser);
 
-  return gvm_json_pull_parse_buffered (parser,
-                                       event,
-                                       "string",
-                                       cJSON_IsString,
+  return gvm_json_pull_parse_buffered (parser, event, "string", cJSON_IsString,
                                        cjson_value);
 }
 
@@ -407,24 +397,21 @@ gvm_json_pull_parse_string (gvm_json_pull_parser_t *parser,
  */
 static int
 gvm_json_pull_parse_number (gvm_json_pull_parser_t *parser,
-                            gvm_json_pull_event_t *event,
-                            cJSON **cjson_value)
+                            gvm_json_pull_event_t *event, cJSON **cjson_value)
 {
   g_string_truncate (parser->parse_buffer, 0);
   g_string_append_c (parser->parse_buffer, parser->last_read_char);
   while (gvm_json_pull_parser_next_char (parser) >= 0)
-  {
-    if (gvm_json_pull_check_parse_buffer_size ("number", parser, event))
-      return 1;
-    if (g_ascii_isdigit (parser->last_read_char)
-        || parser->last_read_char == '.'
-        || parser->last_read_char == 'e'
-        || parser->last_read_char == '-'
-        || parser->last_read_char == '+')  
-      g_string_append_c (parser->parse_buffer, parser->last_read_char);
-    else
-      break;
-  }
+    {
+      if (gvm_json_pull_check_parse_buffer_size ("number", parser, event))
+        return 1;
+      if (g_ascii_isdigit (parser->last_read_char)
+          || parser->last_read_char == '.' || parser->last_read_char == 'e'
+          || parser->last_read_char == '-' || parser->last_read_char == '+')
+        g_string_append_c (parser->parse_buffer, parser->last_read_char);
+      else
+        break;
+    }
 
   if (parser->last_read_char == GVM_JSON_CHAR_ERROR)
     {
@@ -433,10 +420,7 @@ gvm_json_pull_parse_number (gvm_json_pull_parser_t *parser,
       return 1;
     }
 
-  return gvm_json_pull_parse_buffered (parser,
-                                       event,
-                                       "number",
-                                       cJSON_IsNumber,
+  return gvm_json_pull_parse_buffered (parser, event, "number", cJSON_IsNumber,
                                        cjson_value);
 }
 
@@ -454,10 +438,9 @@ gvm_json_pull_parse_number (gvm_json_pull_parser_t *parser,
  */
 static int
 gvm_json_pull_parse_keyword (gvm_json_pull_parser_t *parser,
-                             gvm_json_pull_event_t *event,
-                             const char *keyword)
+                             gvm_json_pull_event_t *event, const char *keyword)
 {
-  for (size_t i = 0; i < strlen(keyword); i++)
+  for (size_t i = 0; i < strlen (keyword); i++)
     {
       if (parser->last_read_char < 0)
         {
@@ -467,8 +450,8 @@ gvm_json_pull_parse_keyword (gvm_json_pull_parser_t *parser,
       else if (parser->last_read_char != keyword[i])
         {
           event->type = GVM_JSON_PULL_EVENT_ERROR;
-          event->error_message 
-            = g_strdup_printf ("misspelled keyword '%s'", keyword);
+          event->error_message =
+            g_strdup_printf ("misspelled keyword '%s'", keyword);
           return 1;
         }
       gvm_json_pull_parser_next_char (parser);
@@ -476,10 +459,10 @@ gvm_json_pull_parse_keyword (gvm_json_pull_parser_t *parser,
   return 0;
 }
 
-#define PARSE_VALUE_NEXT_EXPECT \
-  if (parser->path->length)                       \
-    parser->expect = GVM_JSON_PULL_EXPECT_COMMA;  \
-  else                                            \
+#define PARSE_VALUE_NEXT_EXPECT                  \
+  if (parser->path->length)                      \
+    parser->expect = GVM_JSON_PULL_EXPECT_COMMA; \
+  else                                           \
     parser->expect = GVM_JSON_PULL_EXPECT_EOF;
 
 /**
@@ -505,7 +488,7 @@ gvm_json_pull_parse_key (gvm_json_pull_parser_t *parser,
   gvm_json_path_elem_t *path_elem;
 
   switch (parser->last_read_char)
-  {
+    {
     case '"':
       if (gvm_json_pull_parse_string (parser, event, &key_cjson))
         return 1;
@@ -531,7 +514,7 @@ gvm_json_pull_parse_key (gvm_json_pull_parser_t *parser,
       g_free (path_elem->key);
       path_elem->key = key_str;
       parser->expect = GVM_JSON_PULL_EXPECT_VALUE;
-      
+
       break;
     case '}':
       event->type = GVM_JSON_PULL_EVENT_OBJECT_END;
@@ -548,7 +531,7 @@ gvm_json_pull_parse_key (gvm_json_pull_parser_t *parser,
       event->type = GVM_JSON_PULL_EVENT_ERROR;
       event->error_message = g_strdup ("unexpected character");
       return 1;
-  }
+    }
 
   return 0;
 }
@@ -570,13 +553,13 @@ gvm_json_pull_parse_comma (gvm_json_pull_parser_t *parser,
 {
   if (gvm_json_pull_skip_space (parser, event, FALSE))
     return 1;
-  
+
   gvm_json_path_elem_t *path_elem = NULL;
   switch (parser->last_read_char)
-  {
+    {
     case ',':
       path_elem = g_queue_peek_tail (parser->path);
-      path_elem->index ++;
+      path_elem->index++;
       if (path_elem->parent_type == GVM_JSON_PULL_CONTAINER_OBJECT)
         parser->expect = GVM_JSON_PULL_EXPECT_KEY;
       else
@@ -585,7 +568,7 @@ gvm_json_pull_parse_comma (gvm_json_pull_parser_t *parser,
       break;
     case ']':
       path_elem = g_queue_peek_tail (parser->path);
-      if (path_elem == NULL 
+      if (path_elem == NULL
           || path_elem->parent_type != GVM_JSON_PULL_CONTAINER_ARRAY)
         {
           event->type = GVM_JSON_PULL_EVENT_ERROR;
@@ -600,7 +583,7 @@ gvm_json_pull_parse_comma (gvm_json_pull_parser_t *parser,
       break;
     case '}':
       path_elem = g_queue_peek_tail (parser->path);
-      if (path_elem == NULL 
+      if (path_elem == NULL
           || path_elem->parent_type != GVM_JSON_PULL_CONTAINER_OBJECT)
         {
           event->type = GVM_JSON_PULL_EVENT_ERROR;
@@ -617,7 +600,7 @@ gvm_json_pull_parse_comma (gvm_json_pull_parser_t *parser,
       event->error_message = g_strdup ("expected comma or end of container");
       event->type = GVM_JSON_PULL_EVENT_ERROR;
       return 1;
-  }
+    }
   return 0;
 }
 
@@ -638,12 +621,12 @@ gvm_json_pull_parse_value (gvm_json_pull_parser_t *parser,
 {
   if (gvm_json_pull_skip_space (parser, event, FALSE))
     return 1;
-  
+
   cJSON *cjson_value = NULL;
   gvm_json_path_elem_t *path_elem = NULL;
 
   switch (parser->last_read_char)
-  {
+    {
     case '"':
       if (gvm_json_pull_parse_string (parser, event, &cjson_value))
         return 1;
@@ -675,15 +658,14 @@ gvm_json_pull_parse_value (gvm_json_pull_parser_t *parser,
     case '[':
       event->type = GVM_JSON_PULL_EVENT_ARRAY_START;
       event->value = NULL;
-      parser->path_add 
-        = gvm_json_pull_path_elem_new (GVM_JSON_PULL_CONTAINER_ARRAY,
-                                       parser->path->length);
+      parser->path_add = gvm_json_pull_path_elem_new (
+        GVM_JSON_PULL_CONTAINER_ARRAY, parser->path->length);
       parser->expect = GVM_JSON_PULL_EXPECT_VALUE;
       gvm_json_pull_parser_next_char (parser);
       break;
     case ']':
       path_elem = g_queue_peek_tail (parser->path);
-      if (path_elem == NULL 
+      if (path_elem == NULL
           || path_elem->parent_type != GVM_JSON_PULL_CONTAINER_ARRAY)
         {
           event->type = GVM_JSON_PULL_EVENT_ERROR;
@@ -699,9 +681,8 @@ gvm_json_pull_parse_value (gvm_json_pull_parser_t *parser,
     case '{':
       event->type = GVM_JSON_PULL_EVENT_OBJECT_START;
       event->value = NULL;
-      parser->path_add 
-        = gvm_json_pull_path_elem_new (GVM_JSON_PULL_CONTAINER_OBJECT,
-                                       parser->path->length);
+      parser->path_add = gvm_json_pull_path_elem_new (
+        GVM_JSON_PULL_CONTAINER_OBJECT, parser->path->length);
       parser->expect = GVM_JSON_PULL_EXPECT_KEY;
       gvm_json_pull_parser_next_char (parser);
       break;
@@ -726,15 +707,15 @@ gvm_json_pull_parse_value (gvm_json_pull_parser_t *parser,
           event->error_message = g_strdup ("unexpected character");
           return 1;
         }
-  }
+    }
   return 0;
 }
 
 /**
  * @brief Get the next event from a JSON pull parser.
- * 
+ *
  * Note: This invalidates previous event data like the cJSON value.
- * 
+ *
  * @param[in]   parser  The JSON pull parser to process until the next event
  * @param[in]   event   Structure to store event data in.
  */
@@ -763,7 +744,7 @@ gvm_json_pull_parser_next (gvm_json_pull_parser_t *parser,
       g_queue_push_tail (parser->path, parser->path_add);
       parser->path_add = NULL;
     }
-  
+
   // Check for expected end of file
   if (parser->expect == GVM_JSON_PULL_EXPECT_EOF)
     {
@@ -777,9 +758,8 @@ gvm_json_pull_parser_next (gvm_json_pull_parser_t *parser,
       else if (parser->last_read_char != GVM_JSON_CHAR_EOF)
         {
           event->type = GVM_JSON_PULL_EVENT_ERROR;
-          event->error_message 
-            = g_strdup_printf ("unexpected character at end of file (%d)",
-                               parser->last_read_char);
+          event->error_message = g_strdup_printf (
+            "unexpected character at end of file (%d)", parser->last_read_char);
           return;
         }
       return;
@@ -796,7 +776,7 @@ gvm_json_pull_parser_next (gvm_json_pull_parser_t *parser,
       if (gvm_json_pull_parse_comma (parser, event))
         return;
     }
-    
+
   if (parser->expect == GVM_JSON_PULL_EXPECT_KEY)
     {
       if (gvm_json_pull_parse_key (parser, event))
@@ -842,20 +822,19 @@ gvm_json_pull_expand_container (gvm_json_pull_parser_t *parser,
       parser->path_add = NULL;
     }
 
-  if (path_tail
-      && path_tail->parent_type == GVM_JSON_PULL_CONTAINER_ARRAY)
+  if (path_tail && path_tail->parent_type == GVM_JSON_PULL_CONTAINER_ARRAY)
     g_string_append_c (parser->parse_buffer, '[');
-  else if (path_tail 
+  else if (path_tail
            && path_tail->parent_type == GVM_JSON_PULL_CONTAINER_OBJECT)
     g_string_append_c (parser->parse_buffer, '{');
   else
     {
       if (error_message)
-        *error_message
-          = g_strdup ("can only expand after array or object start");
+        *error_message =
+          g_strdup ("can only expand after array or object start");
       return NULL;
     }
-    
+
   start_depth = path_tail->depth;
   in_string = escape_next_char = FALSE;
   in_expanded_container = TRUE;
@@ -865,14 +844,14 @@ gvm_json_pull_expand_container (gvm_json_pull_parser_t *parser,
       if (parser->parse_buffer->len >= parser->parse_buffer_limit)
         {
           if (error_message)
-            *error_message
-              = g_strdup_printf ("container exceeds size limit of %zu bytes",
-                                 parser->parse_buffer_limit);
+            *error_message =
+              g_strdup_printf ("container exceeds size limit of %zu bytes",
+                               parser->parse_buffer_limit);
           return NULL;
         }
-      
+
       g_string_append_c (parser->parse_buffer, parser->last_read_char);
-      
+
       if (escape_next_char)
         {
           escape_next_char = FALSE;
@@ -885,20 +864,18 @@ gvm_json_pull_expand_container (gvm_json_pull_parser_t *parser,
       else
         {
           switch (parser->last_read_char)
-          {
+            {
             case '"':
               in_string = TRUE;
               break;
             case '[':
-              path_tail 
-                = gvm_json_pull_path_elem_new (GVM_JSON_PULL_CONTAINER_ARRAY,
-                                               parser->path->length);
+              path_tail = gvm_json_pull_path_elem_new (
+                GVM_JSON_PULL_CONTAINER_ARRAY, parser->path->length);
               g_queue_push_tail (parser->path, path_tail);
               break;
             case '{':
-              path_tail 
-                = gvm_json_pull_path_elem_new (GVM_JSON_PULL_CONTAINER_OBJECT,
-                                               parser->path->length);
+              path_tail = gvm_json_pull_path_elem_new (
+                GVM_JSON_PULL_CONTAINER_OBJECT, parser->path->length);
               g_queue_push_tail (parser->path, path_tail);
               break;
             case ']':
@@ -906,8 +883,8 @@ gvm_json_pull_expand_container (gvm_json_pull_parser_t *parser,
               if (path_tail->parent_type != GVM_JSON_PULL_CONTAINER_ARRAY)
                 {
                   if (error_message)
-                    *error_message
-                      = g_strdup ("unexpected closing square bracket");
+                    *error_message =
+                      g_strdup ("unexpected closing square bracket");
                   return NULL;
                 }
               if (path_tail->depth == start_depth)
@@ -918,14 +895,14 @@ gvm_json_pull_expand_container (gvm_json_pull_parser_t *parser,
               if (path_tail->parent_type != GVM_JSON_PULL_CONTAINER_OBJECT)
                 {
                   if (error_message)
-                    *error_message
-                      = g_strdup ("unexpected closing curly brace");
+                    *error_message =
+                      g_strdup ("unexpected closing curly brace");
                   return NULL;
                 }
               if (path_tail->depth == start_depth)
                 in_expanded_container = FALSE;
               break;
-          }
+            }
         }
       gvm_json_pull_parser_next_char (parser);
     }
@@ -946,7 +923,7 @@ gvm_json_pull_expand_container (gvm_json_pull_parser_t *parser,
   expanded = cJSON_Parse (parser->parse_buffer->str);
   g_string_truncate (parser->parse_buffer, 0);
   PARSE_VALUE_NEXT_EXPECT
-  
+
   if (expanded == NULL && error_message)
     *error_message = g_strdup ("could not parse expanded container");
 
@@ -984,9 +961,7 @@ gchar *
 gvm_json_path_to_string (GQueue *path)
 {
   GString *path_string = g_string_new ("$");
-  g_queue_foreach (path,
-                   (GFunc) gvm_json_path_string_add_elem,
-                   path_string);
+  g_queue_foreach (path, (GFunc) gvm_json_path_string_add_elem, path_string);
   return g_string_free (path_string, FALSE);
 }
 
