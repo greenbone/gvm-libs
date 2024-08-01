@@ -7,6 +7,8 @@
 #ifndef _GVM_JSONPULL_H
 #define _GVM_JSONPULL_H
 
+#define _GNU_SOURCE
+
 #include <cjson/cJSON.h>
 #include <glib.h>
 #include <stdio.h>

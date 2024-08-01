@@ -521,7 +521,7 @@ gvm_json_pull_parse_key (gvm_json_pull_parser_t *parser,
       if (parser->last_read_char != ':')
         {
           event->type = GVM_JSON_PULL_EVENT_ERROR;
-          event->error_message = g_strdup_printf ("expected colon, got '%c'", parser->last_read_char);
+          event->error_message = g_strdup_printf ("expected colon");
           g_free (key_str);
           return 1;
         }
@@ -534,20 +534,20 @@ gvm_json_pull_parse_key (gvm_json_pull_parser_t *parser,
       
       break;
     case '}':
-      path_elem = g_queue_peek_tail (parser->path);
-      if (path_elem == NULL 
-          || path_elem->parent_type != GVM_JSON_PULL_CONTAINER_OBJECT)
-        {
-          event->type = GVM_JSON_PULL_EVENT_ERROR;
-          event->error_message = g_strdup ("unexpected closing curly brace");
-          return 1;
-        }
       event->type = GVM_JSON_PULL_EVENT_OBJECT_END;
       event->value = NULL;
       gvm_json_pull_path_elem_free (g_queue_pop_tail (parser->path));
       PARSE_VALUE_NEXT_EXPECT
       gvm_json_pull_parser_next_char (parser);
       break;
+    case ']':
+      event->type = GVM_JSON_PULL_EVENT_ERROR;
+      event->error_message = g_strdup ("unexpected closing square bracket");
+      return 1;
+    default:
+      event->type = GVM_JSON_PULL_EVENT_ERROR;
+      event->error_message = g_strdup ("unexpected character");
+      return 1;
   }
 
   return 0;
@@ -706,19 +706,9 @@ gvm_json_pull_parse_value (gvm_json_pull_parser_t *parser,
       gvm_json_pull_parser_next_char (parser);
       break;
     case '}':
-      path_elem = g_queue_peek_tail (parser->path);
-      if (path_elem == NULL 
-          || path_elem->parent_type != GVM_JSON_PULL_CONTAINER_OBJECT)
-        {
-          event->type = GVM_JSON_PULL_EVENT_ERROR;
-          event->error_message = g_strdup ("unexpected closing curly brace");
-          return 1;
-        }
-      event->type = GVM_JSON_PULL_EVENT_OBJECT_END;
-      event->value = NULL;
-      gvm_json_pull_path_elem_free (g_queue_pop_tail (parser->path));
-      PARSE_VALUE_NEXT_EXPECT
-      gvm_json_pull_parser_next_char (parser);
+      event->type = GVM_JSON_PULL_EVENT_ERROR;
+      event->error_message = g_strdup ("unexpected closing curly brace");
+      return 1;
       break;
     default:
       if (g_ascii_isdigit (parser->last_read_char)
@@ -777,10 +767,14 @@ gvm_json_pull_parser_next (gvm_json_pull_parser_t *parser,
   // Check for expected end of file
   if (parser->expect == GVM_JSON_PULL_EXPECT_EOF)
     {
-      if (gvm_json_pull_skip_space (parser, event, TRUE) == GVM_JSON_CHAR_ERROR)
-        return;
+      gvm_json_pull_skip_space (parser, event, TRUE);
 
-      if (parser->last_read_char != GVM_JSON_CHAR_EOF)
+      if (parser->last_read_char == GVM_JSON_CHAR_ERROR)
+        {
+          event->type = GVM_JSON_PULL_EVENT_ERROR;
+          event->error_message = gvm_json_read_stream_error_str ();
+        }
+      else if (parser->last_read_char != GVM_JSON_CHAR_EOF)
         {
           event->type = GVM_JSON_PULL_EVENT_ERROR;
           event->error_message 
@@ -829,7 +823,7 @@ cJSON *
 gvm_json_pull_expand_container (gvm_json_pull_parser_t *parser,
                                 gchar **error_message)
 {
-  gvm_json_path_elem_t *path_tail;
+  gvm_json_path_elem_t *path_tail = NULL;
 
   int start_depth;
   gboolean in_string, escape_next_char, in_expanded_container;
@@ -840,14 +834,13 @@ gvm_json_pull_expand_container (gvm_json_pull_parser_t *parser,
   if (error_message)
     *error_message = NULL;
 
+  // require "path_add" to only allow expansion at start of container
   if (parser->path_add)
     {
       path_tail = parser->path_add;
       g_queue_push_tail (parser->path, path_tail);
       parser->path_add = NULL;
     }
-  else
-    path_tail = g_queue_peek_tail (parser->path);
 
   if (path_tail
       && path_tail->parent_type == GVM_JSON_PULL_CONTAINER_ARRAY)
@@ -858,7 +851,7 @@ gvm_json_pull_expand_container (gvm_json_pull_parser_t *parser,
   else
     {
       if (error_message)
-        *error_message 
+        *error_message
           = g_strdup ("can only expand after array or object start");
       return NULL;
     }
@@ -913,7 +906,8 @@ gvm_json_pull_expand_container (gvm_json_pull_parser_t *parser,
               if (path_tail->parent_type != GVM_JSON_PULL_CONTAINER_ARRAY)
                 {
                   if (error_message)
-                    *error_message = g_strdup ("unexpected ']'");
+                    *error_message
+                      = g_strdup ("unexpected closing square bracket");
                   return NULL;
                 }
               if (path_tail->depth == start_depth)
@@ -924,7 +918,8 @@ gvm_json_pull_expand_container (gvm_json_pull_parser_t *parser,
               if (path_tail->parent_type != GVM_JSON_PULL_CONTAINER_OBJECT)
                 {
                   if (error_message)
-                    *error_message = g_strdup ("unexpected '}'");
+                    *error_message
+                      = g_strdup ("unexpected closing curly brace");
                   return NULL;
                 }
               if (path_tail->depth == start_depth)
