@@ -461,7 +461,7 @@ gvm_json_pull_parse_keyword (gvm_json_pull_parser_t *parser,
 
 /**
  * @brief Updates the expectation for a JSON pull parser according to the path.
- * 
+ *
  * @param[in]  parser  The parser to update.
  */
 static void
