@@ -25,7 +25,7 @@ gvm_json_string_escape (const char *string, gboolean single_quote)
   for (point = (char *) string; *point != 0; point++)
     {
       unsigned char character = *point;
-      ;
+
       if ((character > 31) && (character != '\\')
           && (single_quote || character != '\"')
           && (!single_quote || character != '\''))
