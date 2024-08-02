@@ -972,7 +972,3 @@ gvm_json_path_to_string (GQueue *path)
   g_queue_foreach (path, (GFunc) gvm_json_path_string_add_elem, path_string);
   return g_string_free (path_string, FALSE);
 }
-
-#undef CASE_SPACES
-#undef GVM_JSON_EOF
-#undef GVM_JSON_ERROR
