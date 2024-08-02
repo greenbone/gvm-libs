@@ -115,7 +115,7 @@ Ensure (jsonpull, can_parse_false)
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_parse_true)
@@ -129,7 +129,7 @@ Ensure (jsonpull, can_parse_true)
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_parse_null)
@@ -142,12 +142,12 @@ Ensure (jsonpull, can_parse_null)
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_parse_empty_strings)
 {
-  INIT_JSON_PARSER ("\"\"")
+  INIT_JSON_PARSER ("\"\"");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_STRING));
@@ -155,12 +155,12 @@ Ensure (jsonpull, can_parse_empty_strings)
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_parse_strings_with_content)
 {
-  INIT_JSON_PARSER ("\n\"123\\tXYZ\\nÄöü\"\n")
+  INIT_JSON_PARSER ("\n\"123\\tXYZ\\nÄöü\"\n");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_STRING));
@@ -168,12 +168,12 @@ Ensure (jsonpull, can_parse_strings_with_content)
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_parse_integer_numbers)
 {
-  INIT_JSON_PARSER ("-0987")
+  INIT_JSON_PARSER ("-0987");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_NUMBER));
@@ -181,7 +181,7 @@ Ensure (jsonpull, can_parse_integer_numbers)
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_parse_floating_point_numbers)
@@ -194,7 +194,7 @@ Ensure (jsonpull, can_parse_floating_point_numbers)
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_parse_empty_arrays)
@@ -209,7 +209,7 @@ Ensure (jsonpull, can_parse_empty_arrays)
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_parse_single_elem_arrays)
@@ -223,14 +223,14 @@ Ensure (jsonpull, can_parse_single_elem_arrays)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_NUMBER));
   assert_that (event.value->valueint, is_equal_to (123));
-  CHECK_PATH_EQUALS ("$[0]")
+  CHECK_PATH_EQUALS ("$[0]");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ARRAY_END));
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_parse_multiple_elem_arrays)
@@ -244,23 +244,23 @@ Ensure (jsonpull, can_parse_multiple_elem_arrays)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_NUMBER));
   assert_that (event.value->valueint, is_equal_to (123));
-  CHECK_PATH_EQUALS ("$[0]")
+  CHECK_PATH_EQUALS ("$[0]");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_STRING));
   assert_that (event.value->valuestring, is_equal_to_string ("ABC"));
-  CHECK_PATH_EQUALS ("$[1]")
+  CHECK_PATH_EQUALS ("$[1]");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_NULL));
-  CHECK_PATH_EQUALS ("$[2]")
+  CHECK_PATH_EQUALS ("$[2]");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ARRAY_END));
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_parse_empty_objects)
@@ -275,7 +275,7 @@ Ensure (jsonpull, can_parse_empty_objects)
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_parse_single_elem_objects)
@@ -289,14 +289,14 @@ Ensure (jsonpull, can_parse_single_elem_objects)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_STRING));
   assert_that (event.value->valuestring, is_equal_to_string ("valueA"));
-  CHECK_PATH_EQUALS ("$['keyA']")
+  CHECK_PATH_EQUALS ("$['keyA']");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_OBJECT_END));
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_parse_multiple_elem_objects)
@@ -310,19 +310,19 @@ Ensure (jsonpull, can_parse_multiple_elem_objects)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_STRING));
   assert_that (event.value->valuestring, is_equal_to_string ("valueA"));
-  CHECK_PATH_EQUALS ("$['keyA']")
+  CHECK_PATH_EQUALS ("$['keyA']");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_NUMBER));
   assert_that (event.value->valueint, is_equal_to (12345));
-  CHECK_PATH_EQUALS ("$['keyB']")
+  CHECK_PATH_EQUALS ("$['keyB']");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_OBJECT_END));
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_parse_nested_containers)
@@ -332,71 +332,71 @@ Ensure (jsonpull, can_parse_nested_containers)
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ARRAY_START));
-  CHECK_PATH_EQUALS ("$")
+  CHECK_PATH_EQUALS ("$");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_OBJECT_START));
-  CHECK_PATH_EQUALS ("$[0]")
+  CHECK_PATH_EQUALS ("$[0]");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_NULL));
-  CHECK_PATH_EQUALS ("$[0]['A']")
+  CHECK_PATH_EQUALS ("$[0]['A']");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_OBJECT_START));
-  CHECK_PATH_EQUALS ("$[0]['B']")
+  CHECK_PATH_EQUALS ("$[0]['B']");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ARRAY_START));
-  CHECK_PATH_EQUALS ("$[0]['B']['C']")
+  CHECK_PATH_EQUALS ("$[0]['B']['C']");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_NUMBER));
   assert_that (event.value->valueint, is_equal_to (1));
-  CHECK_PATH_EQUALS ("$[0]['B']['C'][0]")
+  CHECK_PATH_EQUALS ("$[0]['B']['C'][0]");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_NUMBER));
   assert_that (event.value->valueint, is_equal_to (2));
-  CHECK_PATH_EQUALS ("$[0]['B']['C'][1]")
+  CHECK_PATH_EQUALS ("$[0]['B']['C'][1]");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ARRAY_END));
-  CHECK_PATH_EQUALS ("$[0]['B']['C']")
+  CHECK_PATH_EQUALS ("$[0]['B']['C']");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_OBJECT_END));
-  CHECK_PATH_EQUALS ("$[0]['B']")
+  CHECK_PATH_EQUALS ("$[0]['B']");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_STRING));
   assert_that (event.value->valuestring, is_equal_to_string ("3"));
-  CHECK_PATH_EQUALS ("$[0]['D']")
+  CHECK_PATH_EQUALS ("$[0]['D']");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_OBJECT_END));
-  CHECK_PATH_EQUALS ("$[0]")
+  CHECK_PATH_EQUALS ("$[0]");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ARRAY_START));
-  CHECK_PATH_EQUALS ("$[1]")
+  CHECK_PATH_EQUALS ("$[1]");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_NUMBER));
   assert_that (event.value->valueint, is_equal_to (4));
-  CHECK_PATH_EQUALS ("$[1][0]")
+  CHECK_PATH_EQUALS ("$[1][0]");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ARRAY_END));
-  CHECK_PATH_EQUALS ("$[1]")
+  CHECK_PATH_EQUALS ("$[1]");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ARRAY_END));
-  CHECK_PATH_EQUALS ("$")
+  CHECK_PATH_EQUALS ("$");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_expand_arrays)
@@ -407,12 +407,12 @@ Ensure (jsonpull, can_expand_arrays)
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ARRAY_START));
-  CHECK_PATH_EQUALS ("$")
+  CHECK_PATH_EQUALS ("$");
 
   // empty array
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ARRAY_START));
-  CHECK_PATH_EQUALS ("$[0]")
+  CHECK_PATH_EQUALS ("$[0]");
   expanded = gvm_json_pull_expand_container (&parser, &error_message);
   assert_that (error_message, is_equal_to_string (NULL));
   assert_that (expanded, is_not_null);
@@ -423,7 +423,7 @@ Ensure (jsonpull, can_expand_arrays)
   // single-element array
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ARRAY_START));
-  CHECK_PATH_EQUALS ("$[1]")
+  CHECK_PATH_EQUALS ("$[1]");
   expanded = gvm_json_pull_expand_container (&parser, &error_message);
   assert_that (error_message, is_null);
   assert_that (expanded, is_not_null);
@@ -439,7 +439,7 @@ Ensure (jsonpull, can_expand_arrays)
   // multi-element array
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ARRAY_START));
-  CHECK_PATH_EQUALS ("$[2]")
+  CHECK_PATH_EQUALS ("$[2]");
   expanded = gvm_json_pull_expand_container (&parser, &error_message);
   assert_that (error_message, is_null);
   assert_that (expanded, is_not_null);
@@ -457,7 +457,7 @@ Ensure (jsonpull, can_expand_arrays)
   // string array
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ARRAY_START));
-  CHECK_PATH_EQUALS ("$[3]")
+  CHECK_PATH_EQUALS ("$[3]");
   expanded = gvm_json_pull_expand_container (&parser, &error_message);
   assert_that (error_message, is_null);
   assert_that (expanded, is_not_null);
@@ -475,11 +475,11 @@ Ensure (jsonpull, can_expand_arrays)
   // array end and EOF
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ARRAY_END));
-  CHECK_PATH_EQUALS ("$")
+  CHECK_PATH_EQUALS ("$");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, can_expand_objects)
@@ -491,11 +491,11 @@ Ensure (jsonpull, can_expand_objects)
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_OBJECT_START));
-  CHECK_PATH_EQUALS ("$")
+  CHECK_PATH_EQUALS ("$");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_OBJECT_START));
-  CHECK_PATH_EQUALS ("$['A']")
+  CHECK_PATH_EQUALS ("$['A']");
   expanded = gvm_json_pull_expand_container (&parser, &error_message);
   assert_that (error_message, is_null);
   assert_that (cJSON_IsObject (expanded), is_true);
@@ -504,7 +504,7 @@ Ensure (jsonpull, can_expand_objects)
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_OBJECT_START));
-  CHECK_PATH_EQUALS ("$['B']")
+  CHECK_PATH_EQUALS ("$['B']");
   expanded = gvm_json_pull_expand_container (&parser, &error_message);
   assert_that (error_message, is_null);
   assert_that (cJSON_IsObject (expanded), is_true);
@@ -528,16 +528,16 @@ Ensure (jsonpull, can_expand_objects)
   // object end and EOF
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_OBJECT_END));
-  CHECK_PATH_EQUALS ("$")
+  CHECK_PATH_EQUALS ("$");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_EOF));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_read_error)
 {
-  INIT_READ_ERROR_JSON_PARSER ("123")
+  INIT_READ_ERROR_JSON_PARSER ("123");
 
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
@@ -555,7 +555,7 @@ Ensure (jsonpull, fails_for_misspelled_true)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("misspelled keyword 'true'"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_incomplete_true)
@@ -565,7 +565,7 @@ Ensure (jsonpull, fails_for_incomplete_true)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string ("unexpected EOF"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_misspelled_false)
@@ -576,7 +576,7 @@ Ensure (jsonpull, fails_for_misspelled_false)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("misspelled keyword 'false'"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_misspelled_null)
@@ -587,7 +587,7 @@ Ensure (jsonpull, fails_for_misspelled_null)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("misspelled keyword 'null'"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_string_read_error)
@@ -597,7 +597,7 @@ Ensure (jsonpull, fails_for_string_read_error)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string (JSON_READ_ERROR));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_string_eof)
@@ -607,7 +607,7 @@ Ensure (jsonpull, fails_for_string_eof)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string ("unexpected EOF"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_overlong_string)
@@ -619,7 +619,7 @@ Ensure (jsonpull, fails_for_overlong_string)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("string exceeds size limit of 10 bytes"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_invalid_string)
@@ -630,7 +630,7 @@ Ensure (jsonpull, fails_for_invalid_string)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("error parsing string"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_number_read_error)
@@ -640,7 +640,7 @@ Ensure (jsonpull, fails_for_number_read_error)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string (JSON_READ_ERROR));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_overlong_number)
@@ -652,7 +652,7 @@ Ensure (jsonpull, fails_for_overlong_number)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("number exceeds size limit of 10 bytes"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_invalid_number)
@@ -663,7 +663,7 @@ Ensure (jsonpull, fails_for_invalid_number)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("error parsing number"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_array_eof)
@@ -675,7 +675,7 @@ Ensure (jsonpull, fails_for_array_eof)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string ("unexpected EOF"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_array_eof_after_value)
@@ -689,7 +689,7 @@ Ensure (jsonpull, fails_for_array_eof_after_value)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string ("unexpected EOF"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_array_eof_after_comma)
@@ -703,7 +703,7 @@ Ensure (jsonpull, fails_for_array_eof_after_comma)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string ("unexpected EOF"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_array_read_error)
@@ -715,7 +715,7 @@ Ensure (jsonpull, fails_for_array_read_error)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string (JSON_READ_ERROR));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_invalid_array_bracket)
@@ -728,7 +728,7 @@ Ensure (jsonpull, fails_for_invalid_array_bracket)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("unexpected closing curly brace"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_invalid_array_bracket_after_value)
@@ -743,7 +743,7 @@ Ensure (jsonpull, fails_for_invalid_array_bracket_after_value)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("unexpected closing curly brace"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_invalid_array_other_char)
@@ -756,7 +756,7 @@ Ensure (jsonpull, fails_for_invalid_array_other_char)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("unexpected character"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_invalid_array_other_char_after_value)
@@ -771,7 +771,7 @@ Ensure (jsonpull, fails_for_invalid_array_other_char_after_value)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("expected comma or end of container"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_object_key_eof)
@@ -783,7 +783,7 @@ Ensure (jsonpull, fails_for_object_key_eof)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string ("unexpected EOF"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_object_key_read_error)
@@ -795,7 +795,7 @@ Ensure (jsonpull, fails_for_object_key_read_error)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string (JSON_READ_ERROR));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_object_key_invalid_string)
@@ -808,7 +808,7 @@ Ensure (jsonpull, fails_for_object_key_invalid_string)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("error parsing string"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_invalid_object_key_bracket)
@@ -821,7 +821,7 @@ Ensure (jsonpull, fails_for_invalid_object_key_bracket)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("unexpected closing square bracket"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_invalid_object_key_other_char)
@@ -834,7 +834,7 @@ Ensure (jsonpull, fails_for_invalid_object_key_other_char)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("unexpected character"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_object_colon_eof)
@@ -846,7 +846,7 @@ Ensure (jsonpull, fails_for_object_colon_eof)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string ("unexpected EOF"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_object_colon_read_error)
@@ -858,7 +858,7 @@ Ensure (jsonpull, fails_for_object_colon_read_error)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string (JSON_READ_ERROR));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_object_colon_other_char)
@@ -870,7 +870,7 @@ Ensure (jsonpull, fails_for_object_colon_other_char)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string ("expected colon"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_object_value_eof)
@@ -882,7 +882,7 @@ Ensure (jsonpull, fails_for_object_value_eof)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string ("unexpected EOF"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_object_value_read_error)
@@ -894,7 +894,7 @@ Ensure (jsonpull, fails_for_object_value_read_error)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string (JSON_READ_ERROR));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_object_value_curly_brace)
@@ -907,7 +907,7 @@ Ensure (jsonpull, fails_for_object_value_curly_brace)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("unexpected closing curly brace"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_object_value_square_bracket)
@@ -920,7 +920,7 @@ Ensure (jsonpull, fails_for_object_value_square_bracket)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("unexpected closing square bracket"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_object_eof_after_value)
@@ -934,7 +934,7 @@ Ensure (jsonpull, fails_for_object_eof_after_value)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string ("unexpected EOF"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_object_square_bracket_after_value)
@@ -949,7 +949,7 @@ Ensure (jsonpull, fails_for_object_square_bracket_after_value)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("unexpected closing square bracket"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_object_eof_after_comma)
@@ -963,7 +963,7 @@ Ensure (jsonpull, fails_for_object_eof_after_comma)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string ("unexpected EOF"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_read_error_after_doc_end)
@@ -975,7 +975,7 @@ Ensure (jsonpull, fails_for_read_error_after_doc_end)
   gvm_json_pull_parser_next (&parser, &event);
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message, is_equal_to_string (JSON_READ_ERROR));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_content_after_doc_end)
@@ -988,7 +988,7 @@ Ensure (jsonpull, fails_for_content_after_doc_end)
   assert_that (event.type, is_equal_to (GVM_JSON_PULL_EVENT_ERROR));
   assert_that (event.error_message,
                is_equal_to_string ("unexpected character at end of file (52)"));
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_expand_before_container)
@@ -1002,7 +1002,7 @@ Ensure (jsonpull, fails_for_expand_before_container)
   assert_that (error_message, is_equal_to_string ("can only expand after"
                                                   " array or object start"));
 
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_expand_after_value)
@@ -1021,7 +1021,7 @@ Ensure (jsonpull, fails_for_expand_after_value)
   assert_that (error_message, is_equal_to_string ("can only expand after"
                                                   " array or object start"));
 
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_expand_invalid_content)
@@ -1038,7 +1038,7 @@ Ensure (jsonpull, fails_for_expand_invalid_content)
   assert_that (error_message,
                is_equal_to_string ("could not parse expanded container"));
 
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_expand_overlong)
@@ -1056,7 +1056,7 @@ Ensure (jsonpull, fails_for_expand_overlong)
   assert_that (error_message,
                is_equal_to_string ("container exceeds size limit of 10 bytes"));
 
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_expand_unexpected_curly_brace)
@@ -1073,7 +1073,7 @@ Ensure (jsonpull, fails_for_expand_unexpected_curly_brace)
   assert_that (error_message,
                is_equal_to_string ("unexpected closing curly brace"));
 
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_expand_unexpected_square_bracket)
@@ -1090,7 +1090,7 @@ Ensure (jsonpull, fails_for_expand_unexpected_square_bracket)
   assert_that (error_message,
                is_equal_to_string ("unexpected closing square bracket"));
 
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_expand_eof)
@@ -1106,7 +1106,7 @@ Ensure (jsonpull, fails_for_expand_eof)
   assert_that (cjson_value, is_null);
   assert_that (error_message, is_equal_to_string ("unexpected EOF"));
 
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 Ensure (jsonpull, fails_for_expand_read_error)
@@ -1122,7 +1122,7 @@ Ensure (jsonpull, fails_for_expand_read_error)
   assert_that (cjson_value, is_null);
   assert_that (error_message, is_equal_to_string (JSON_READ_ERROR));
 
-  CLEANUP_JSON_PARSER
+  CLEANUP_JSON_PARSER;
 }
 
 int
