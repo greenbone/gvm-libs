@@ -459,11 +459,19 @@ gvm_json_pull_parse_keyword (gvm_json_pull_parser_t *parser,
   return 0;
 }
 
-#define PARSE_VALUE_NEXT_EXPECT                  \
-  if (parser->path->length)                      \
-    parser->expect = GVM_JSON_PULL_EXPECT_COMMA; \
-  else                                           \
+/**
+ * @brief Updates the expectation for a JSON pull parser according to the path.
+ * 
+ * @param[in]  parser  The parser to update.
+ */
+static void
+parse_value_next_expect (gvm_json_pull_parser_t *parser)
+{
+  if (parser->path->length)
+    parser->expect = GVM_JSON_PULL_EXPECT_COMMA;
+  else
     parser->expect = GVM_JSON_PULL_EXPECT_EOF;
+}
 
 /**
  * @brief Handles the case that an object key is expected in a JSON pull parser.
@@ -520,7 +528,7 @@ gvm_json_pull_parse_key (gvm_json_pull_parser_t *parser,
       event->type = GVM_JSON_PULL_EVENT_OBJECT_END;
       event->value = NULL;
       gvm_json_pull_path_elem_free (g_queue_pop_tail (parser->path));
-      PARSE_VALUE_NEXT_EXPECT
+      parse_value_next_expect (parser);
       gvm_json_pull_parser_next_char (parser);
       break;
     case ']':
@@ -578,7 +586,7 @@ gvm_json_pull_parse_comma (gvm_json_pull_parser_t *parser,
       event->type = GVM_JSON_PULL_EVENT_ARRAY_END;
       event->value = NULL;
       gvm_json_pull_path_elem_free (g_queue_pop_tail (parser->path));
-      PARSE_VALUE_NEXT_EXPECT
+      parse_value_next_expect (parser);
       gvm_json_pull_parser_next_char (parser);
       break;
     case '}':
@@ -593,7 +601,7 @@ gvm_json_pull_parse_comma (gvm_json_pull_parser_t *parser,
       event->type = GVM_JSON_PULL_EVENT_OBJECT_END;
       event->value = NULL;
       gvm_json_pull_path_elem_free (g_queue_pop_tail (parser->path));
-      PARSE_VALUE_NEXT_EXPECT
+      parse_value_next_expect (parser);
       gvm_json_pull_parser_next_char (parser);
       break;
     default:
@@ -632,28 +640,28 @@ gvm_json_pull_parse_value (gvm_json_pull_parser_t *parser,
         return 1;
       event->type = GVM_JSON_PULL_EVENT_STRING;
       event->value = cjson_value;
-      PARSE_VALUE_NEXT_EXPECT
+      parse_value_next_expect (parser);
       break;
     case 'n':
       if (gvm_json_pull_parse_keyword (parser, event, "null"))
         return 1;
       event->type = GVM_JSON_PULL_EVENT_NULL;
       event->value = cJSON_CreateNull ();
-      PARSE_VALUE_NEXT_EXPECT
+      parse_value_next_expect (parser);
       break;
     case 'f':
       if (gvm_json_pull_parse_keyword (parser, event, "false"))
         return 1;
       event->type = GVM_JSON_PULL_EVENT_BOOLEAN;
       event->value = cJSON_CreateFalse ();
-      PARSE_VALUE_NEXT_EXPECT
+      parse_value_next_expect (parser);
       break;
     case 't':
       if (gvm_json_pull_parse_keyword (parser, event, "true"))
         return 1;
       event->type = GVM_JSON_PULL_EVENT_BOOLEAN;
       event->value = cJSON_CreateTrue ();
-      PARSE_VALUE_NEXT_EXPECT
+      parse_value_next_expect (parser);
       break;
     case '[':
       event->type = GVM_JSON_PULL_EVENT_ARRAY_START;
@@ -675,7 +683,7 @@ gvm_json_pull_parse_value (gvm_json_pull_parser_t *parser,
       event->type = GVM_JSON_PULL_EVENT_ARRAY_END;
       event->value = NULL;
       gvm_json_pull_path_elem_free (g_queue_pop_tail (parser->path));
-      PARSE_VALUE_NEXT_EXPECT
+      parse_value_next_expect (parser);
       gvm_json_pull_parser_next_char (parser);
       break;
     case '{':
@@ -699,7 +707,7 @@ gvm_json_pull_parse_value (gvm_json_pull_parser_t *parser,
             return 1;
           event->type = GVM_JSON_PULL_EVENT_NUMBER;
           event->value = cjson_value;
-          PARSE_VALUE_NEXT_EXPECT
+          parse_value_next_expect (parser);
         }
       else
         {
@@ -922,7 +930,7 @@ gvm_json_pull_expand_container (gvm_json_pull_parser_t *parser,
 
   expanded = cJSON_Parse (parser->parse_buffer->str);
   g_string_truncate (parser->parse_buffer, 0);
-  PARSE_VALUE_NEXT_EXPECT
+  parse_value_next_expect (parser);
 
   if (expanded == NULL && error_message)
     *error_message = g_strdup ("could not parse expanded container");
