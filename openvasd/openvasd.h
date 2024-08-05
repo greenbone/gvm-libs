@@ -200,6 +200,24 @@ openvasd_parsed_scans_preferences (openvasd_connector_t *, GSList **);
 void
 openvasd_param_free (openvasd_param_t *);
 
+char *
+openvasd_param_id (openvasd_param_t *);
+
+char *
+openvasd_param_name (openvasd_param_t *);
+
+char *
+openvasd_param_desc (openvasd_param_t *);
+
+int
+openvasd_param_mandatory (openvasd_param_t *);
+
+char *
+openvasd_param_type (openvasd_param_t *);
+
+char *
+openvasd_param_default (openvasd_param_t *);
+
 /* Target builder */
 
 typedef struct openvasd_target openvasd_target_t;
