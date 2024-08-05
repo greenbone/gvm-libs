@@ -225,19 +225,22 @@ gvm_jnode_parse_vt (jreader_t reader)
     {
       nvti_set_solution (nvt, json_reader_get_string_value (reader));
       json_reader_end_member (reader);
-    }
-  else
-    {
-      g_warning ("%s: Missing OID", __func__);
+
+      if (json_reader_read_member (reader, "solution_type"))
+        {
+          nvti_set_solution_type (nvt, json_reader_get_string_value (reader));
+          json_reader_end_member (reader);
+        }
+      else
+        {
+          g_debug ("%s: SOLUTION: missing type for OID: %s", __func__,
+                   nvti_oid (nvt));
+          json_reader_end_member (reader);
+        }
+      json_reader_read_member (reader, "solution_method");
+      nvti_set_solution_method (nvt, json_reader_get_string_value (reader));
       json_reader_end_member (reader);
     }
-  json_reader_read_member (reader, "solution_type");
-  nvti_set_solution_type (nvt, json_reader_get_string_value (reader));
-  json_reader_end_member (reader);
-
-  json_reader_read_member (reader, "solution_method");
-  nvti_set_solution_method (nvt, json_reader_get_string_value (reader));
-  json_reader_end_member (reader);
 
   json_reader_read_member (reader, "summary");
   nvti_set_summary (nvt, json_reader_get_string_value (reader));
@@ -365,7 +368,7 @@ gvm_jnode_parse_vt (jreader_t reader)
   json_reader_end_member (reader); // End references
 
   // Parse preferences
-  if (json_reader_read_member (reader, "references"))
+  if (json_reader_read_member (reader, "preferences"))
     {
       if (!json_reader_is_array (reader))
         {
