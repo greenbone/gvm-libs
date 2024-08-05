@@ -48,6 +48,8 @@ struct openvasd_param
   char *name;        /**< Parameter name. */
   char *defval;      /**< Default value. */
   char *description; /**< Description. */
+  char *type;        /**< Parameter type. */
+  int mandatory;     /**< If mandatory. */
 };
 
 /**
@@ -1159,7 +1161,8 @@ openvasd_get_scan_preferences (openvasd_connector_t *conn)
  * @return New Openvasd parameter.
  */
 static openvasd_param_t *
-openvasd_param_new (char *id, char *name, char *defval, char *description)
+openvasd_param_new (char *id, char *name, char *defval, char *description,
+                    char *type, int mandatory)
 {
   openvasd_param_t *param = g_malloc0 (sizeof (openvasd_param_t));
 
@@ -1167,6 +1170,8 @@ openvasd_param_new (char *id, char *name, char *defval, char *description)
   param->defval = defval;
   param->description = description;
   param->name = name;
+  param->mandatory = mandatory;
+  param->type = type;
   return param;
 }
 
@@ -1184,6 +1189,91 @@ openvasd_param_free (openvasd_param_t *param)
   g_free (param->name);
   g_free (param->defval);
   g_free (param->description);
+  g_free (param->type);
+}
+
+/**
+ * @brief Get the parameter id
+ *
+ * @param[in] param Openvasd parameter
+ */
+char *
+openvasd_param_id (openvasd_param_t *param)
+{
+  if (!param)
+    return NULL;
+
+  return param->id;
+}
+
+/**
+ * @brief Get the parameter default
+ *
+ * @param[in] param Openvasd parameter
+ */
+char *
+openvasd_param_name (openvasd_param_t *param)
+{
+  if (!param)
+    return NULL;
+
+  return param->defval;
+}
+
+/**
+ * @brief Get the parameter description
+ *
+ * @param[in] param Openvasd parameter
+ */
+char *
+openvasd_param_desc (openvasd_param_t *param)
+{
+  if (!param)
+    return NULL;
+
+  return param->description;
+}
+
+/**
+ * @brief Get the parameter type
+ *
+ * @param[in] param Openvasd parameter
+ */
+char *
+openvasd_param_type (openvasd_param_t *param)
+{
+  if (!param)
+    return NULL;
+
+  return param->type;
+}
+
+/**
+ * @brief Get the parameter default
+ *
+ * @param[in] param Openvasd parameter
+ */
+char *
+openvasd_param_default (openvasd_param_t *param)
+{
+  if (!param)
+    return NULL;
+
+  return param->defval;
+}
+
+/**
+ * @brief If the parameter is mandatory
+ *
+ * @param[in] param Openvasd parameter
+ */
+int
+openvasd_param_mandatory (openvasd_param_t *param)
+{
+  if (!param)
+    return 0;
+
+  return param->mandatory;
 }
 
 int
@@ -1215,12 +1305,12 @@ openvasd_parsed_scans_preferences (openvasd_connector_t *conn, GSList **params)
   for (int i = 0; i < results_count; i++)
     {
       const char *id, *name, *desc;
-      char *defval = NULL;
+      char *defval = NULL, *param_type = NULL;
       openvasd_param_t *param = NULL;
       GType t;
       JsonNode *node = NULL;
       gboolean bool;
-      int val;
+      int val, mandatory = 0;
       char buf[6];
 
       json_reader_read_element (reader, i);
@@ -1254,9 +1344,11 @@ openvasd_parsed_scans_preferences (openvasd_connector_t *conn, GSList **params)
           val = json_reader_get_int_value (reader);
           g_snprintf (buf, sizeof (buf), "%d", val);
           defval = g_strdup (buf);
+          param_type = g_strdup ("integer");
           break;
         case G_TYPE_STRING:
           defval = g_strdup (json_reader_get_string_value (reader));
+          param_type = g_strdup ("string");
           break;
         case G_TYPE_BOOLEAN:
           bool = json_reader_get_boolean_value (reader);
@@ -1264,10 +1356,12 @@ openvasd_parsed_scans_preferences (openvasd_connector_t *conn, GSList **params)
             defval = g_strdup ("yes");
           else
             defval = g_strdup ("no");
+          param_type = g_strdup ("boolean");
           break;
         default:
           g_warning ("%s: Unable to parse scan preferences.", __func__);
           g_free (defval);
+          g_free (param_type);
           json_reader_end_member (reader);
           json_reader_end_element (reader);
           continue;
@@ -1275,9 +1369,11 @@ openvasd_parsed_scans_preferences (openvasd_connector_t *conn, GSList **params)
       json_reader_end_member (reader);
       json_reader_end_element (reader);
 
-      param = openvasd_param_new (g_strdup (id), g_strdup (name),
-                                  g_strdup (defval), g_strdup (desc));
+      param =
+        openvasd_param_new (g_strdup (id), g_strdup (name), g_strdup (defval),
+                            g_strdup (desc), g_strdup (param_type), mandatory);
       g_free (defval);
+      g_free (param_type);
       *params = g_slist_append (*params, param);
     }
 
