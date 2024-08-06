@@ -16,6 +16,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+/**
+ * @brief VT categories
+ */
 typedef enum
 {
   ACT_INIT = 0,
@@ -31,6 +34,13 @@ typedef enum
   ACT_END,
 } nvt_category;
 
+/**
+ * @brief Get the VT category type given the category as string
+ *
+ * @param cat The category as string.
+ *
+ * @return Integer representing the category type.
+ */
 static int
 get_category_from_name (const char *cat)
 {
@@ -60,6 +70,10 @@ get_category_from_name (const char *cat)
   return -1;
 }
 
+/**
+ * @brief Get a new json parser object. It must be free with
+ *        gvm_close_jnode_parser() by the caller.
+ */
 jparser_t
 gvm_parse_jnode (void)
 {
@@ -68,23 +82,39 @@ gvm_parse_jnode (void)
   return parser;
 }
 
+/**
+ * @brief Create a JSON reader object
+ *
+ * @param[in] str JSON data as string to be read.
+ * @param[in] parse The JSON parser to be use for loading the JSON data.
+ * @param[out] read The JSON reader pointing to the begining of the data
+ *
+ * @return 0 on sucess, -1 otherwise. It must be free with
+ *        gvm_close_jnode_parser() by the caller.
+ */
 int
-gvm_read_jnode (const char *str, jparser_t parse, jreader_t *reade)
+gvm_read_jnode (const char *str, jparser_t parse, jreader_t *read)
 {
   JsonParser *parser = parse;
 
   GError *err = NULL;
   if (!json_parser_load_from_data (parser, str, strlen (str), &err))
     {
-      g_warning ("%s: Parsing json string", __func__);
+      g_warning ("%s: Parsing json string: %s", __func__, err->message);
+      g_error_free (err);
       g_object_unref (parser);
       return -1;
     }
 
-  *reade = (jreader_t) json_reader_new (json_parser_get_root (parser));
+  *read = (jreader_t) json_reader_new (json_parser_get_root (parser));
   return 0;
 }
 
+/**
+ * @brief Free JSON reader object
+ *
+ * @param read JSON Reader to be free()'d.
+ */
 void
 gvm_close_jnode_reader (jreader_t read)
 {
@@ -93,6 +123,11 @@ gvm_close_jnode_reader (jreader_t read)
     g_object_unref (reader);
 }
 
+/**
+ * @brief Free JSON parser object
+ *
+ * @param parse JSON parser to be free()'d.
+ */
 void
 gvm_close_jnode_parser (jparser_t parse)
 {
@@ -102,6 +137,13 @@ gvm_close_jnode_parser (jparser_t parse)
     g_object_unref (parser);
 }
 
+/**
+ * @brief Count the elements in an array.
+ *
+ * @param[in] read JSON reader object pointing to an array.
+ *
+ * @return Integer with the amount of elements in the array, -1 otherwise.
+ */
 int
 gvm_jnode_count_elements (jreader_t read)
 {
@@ -116,6 +158,14 @@ gvm_jnode_count_elements (jreader_t read)
   return json_reader_count_elements (reader);
 }
 
+/**
+ * @brief Parse a VT element given in json format.
+ *
+ * @param[in] reader JSON reader object pointing to an VT element.
+ *
+ * @return nvti structur containing the VT metadata, NULL otherwise.
+ *              The nvti struct must be free() by the caller
+ */
 nvti_t *
 gvm_jnode_parse_vt (jreader_t reader)
 {
