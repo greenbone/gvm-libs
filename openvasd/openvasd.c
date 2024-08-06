@@ -27,16 +27,19 @@
 
 #define RESP_CODE_ERR -1
 
+/**
+ * @brief Struct holding the data for connecting with Openvasd.
+ */
 struct openvasd_connector
 {
-  char *ca_cert; // Path to the directory holding the CA certificate
-  char *cert;    // Client certificate
-  char *key;     // Client key
-  char *apikey;  // API key for authentication
-  char *server;  // original openvasd server URL
-  char *host;    // server hostname
-  char *scan_id; // Scan ID
-  int port;      // server port
+  char *ca_cert; /**< Path to the directory holding the CA certificate. */
+  char *cert;    /**< Client certificate. */
+  char *key;     /**< Client key. */
+  char *apikey;  /**< API key for authentication. */
+  char *server;  /**< original openvasd server URL. */
+  char *host;    /**< server hostname. */
+  char *scan_id; /**< Scan ID. */
+  int port;      /**< server port. */
 };
 
 /**
@@ -92,6 +95,9 @@ struct openvasd_vt_single
   GHashTable *vt_values;
 };
 
+/**
+ * @brief Request methods
+ */
 enum openvas_request_method
 {
   POST,
@@ -203,6 +209,11 @@ openvasd_connector_free (openvasd_connector_t *conn)
   return OPENVASD_OK;
 }
 
+/**
+ * @brief Free an openvasd response struct
+ *
+ * @param resp Response to be free()'d
+ */
 void
 openvasd_response_free (openvasd_resp_t resp)
 {
@@ -459,12 +470,27 @@ openvasd_send_request (openvasd_connector_t *conn, openvasd_req_method_t method,
   return response;
 }
 
+/**
+ * @brief Request HEAD
+ *
+ * @param conn Connector struct with the data necessary for the connection
+ *
+ * @return Response containing the header information
+ */
 openvasd_resp_t
 openvasd_get_version (openvasd_connector_t *conn)
 {
   return openvasd_send_request (conn, HEAD, "/", NULL, NULL);
 }
 
+/**
+ * @brief Get VT's metadata
+ *
+ * @param conn Connector struct with the data necessary for the connection
+ *
+ * @return Response Struct containing the feed metadata in json format in the
+ * body. NULL on error.
+ */
 openvasd_resp_t
 openvasd_get_vts (openvasd_connector_t *conn)
 {
@@ -484,6 +510,14 @@ openvasd_get_vts (openvasd_connector_t *conn)
   return response;
 }
 
+/**
+ * @brief Get VT's metadata
+ *
+ * @param conn Connector struct with the data necessary for the connection
+ *
+ * @return Response Struct containing the feed metadata in json format in the
+ * body. NULL on error.
+ */
 openvasd_resp_t
 openvasd_start_scan (openvasd_connector_t *conn, char *data)
 {
