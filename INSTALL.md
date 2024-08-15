@@ -44,6 +44,7 @@ Install prerequisites on Debian GNU/Linux 'Bullseye' 11:
     apt-get install \
     cmake \
     pkg-config \
+    libcjson-dev \
     libglib2.0-dev \
     libgpgme-dev \
     libgnutls28-dev \
