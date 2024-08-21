@@ -613,7 +613,7 @@ gvm_json_pull_parse_comma (gvm_json_pull_parser_t *parser,
 }
 
 /**
- * @brief Handles the case that a value in a JSON pull parser.
+ * @brief Handles the case that a value is expected in a JSON pull parser.
  *
  * This will continue the parsing until a value or the end of the
  * current array/object was parsed or an error occurred.
