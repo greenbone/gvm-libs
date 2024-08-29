@@ -161,6 +161,24 @@ if (BUILD_TESTS)
   add_custom_target (tests-passwordbasedauthentication
                     DEPENDS passwordbasedauthentication-test)
 
+  add_executable (compressutils-test
+                  EXCLUDE_FROM_ALL
+                  compressutils_tests.c)
+
+  add_test (compressutils-test compressutils-test)
+
+  target_include_directories (compressutils-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (compressutils-test ${CGREEN_LIBRARIES}
+                        ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
+              ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+              ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+              ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+              ${LINKER_HARDENING_FLAGS})
+
+  add_custom_target (tests-compressutils
+                    DEPENDS compressutils-test)
+
   add_executable (cpeutils-test
                   EXCLUDE_FROM_ALL
                   cpeutils_tests.c)
