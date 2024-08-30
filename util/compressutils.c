@@ -242,11 +242,11 @@ gvm_compress_gzipheader (const void *src, unsigned long srclen,
 
 /**
  * @brief Read decompressed data from a gzip file.
- * 
+ *
  * @param[in]  cookie       The gzFile to read from.
  * @param[in]  buffer       The buffer to output decompressed data to.
  * @param[in]  buffer_size  The size of the buffer.
- * 
+ *
  * @return The number of bytes read into the buffer.
  */
 static ssize_t
@@ -259,9 +259,9 @@ gz_file_read (void *cookie, char *buffer, size_t buffer_size)
 
 /**
  * @brief Close a gzip file.
- * 
+ *
  * @param[in]  cookie       The gzFile to close.
- * 
+ *
  * @return 0 on success, other values on error (see gzclose() from zlib).
  */
 static int
@@ -269,7 +269,8 @@ gz_file_close (void *cookie)
 {
   gzFile gz_file = cookie;
 
-  return gzclose (gz_file);;
+  return gzclose (gz_file);
+  ;
 }
 
 /**
@@ -288,7 +289,7 @@ gvm_gzip_open_file_reader (const char *path)
     .seek = NULL,
     .close = gz_file_close,
   };
-  
+
   if (path == NULL)
     {
       return NULL;
