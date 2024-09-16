@@ -13,6 +13,11 @@
 
 /**
  * @brief Escapes a string according to the JSON or JSONPath standard
+ *
+ * @param[in]  string         The string to escape
+ * @param[in]  single_quote   Whether to escape single quotes
+ *
+ * @return The escaped string
  */
 gchar *
 gvm_json_string_escape (const char *string, gboolean single_quote)
@@ -27,8 +32,7 @@ gvm_json_string_escape (const char *string, gboolean single_quote)
       unsigned char character = *point;
 
       if ((character > 31) && (character != '\\')
-          && (single_quote || character != '\"')
-          && (!single_quote || character != '\''))
+          && (single_quote ? (character != '\'') : (character != '\"')))
         {
           g_string_append_c (escaped, character);
         }
@@ -115,6 +119,8 @@ void
 gvm_json_pull_event_reset (gvm_json_pull_event_t *event)
 {
   cJSON_free (event->value);
+  if (event->error_message)
+    g_free (event->error_message);
   memset (event, 0, sizeof (gvm_json_pull_event_t));
 }
 
@@ -127,6 +133,8 @@ void
 gvm_json_pull_event_cleanup (gvm_json_pull_event_t *event)
 {
   cJSON_free (event->value);
+  if (event->error_message)
+    g_free (event->error_message);
   memset (event, 0, sizeof (gvm_json_pull_event_t));
 }
 
@@ -229,6 +237,8 @@ gvm_json_pull_check_parse_buffer_size (const char *value_type,
 
 /**
  * @brief Reads the next character in a pull parser input stream.
+ *
+ * @param[in]  parser  The parser to read the next character from
  *
  * @return The character code, GVM_JSON_CHAR_ERROR or GVM_JSON_CHAR_EOF.
  */
@@ -771,12 +781,6 @@ gvm_json_pull_parser_next (gvm_json_pull_parser_t *parser,
           return;
         }
       return;
-    }
-
-  if (parser->expect == GVM_JSON_PULL_EXPECT_KEY)
-    {
-      if (gvm_json_pull_parse_key (parser, event))
-        return;
     }
 
   if (parser->expect == GVM_JSON_PULL_EXPECT_COMMA)
