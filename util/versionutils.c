@@ -202,7 +202,7 @@ prepare_version_string (const char *version)
       if (ver[index_v] == '\\')
         {
           index_v++;
-	  continue;
+          continue;
         }
 
       if (ver[index_v] == '_' || ver[index_v] == '-' || ver[index_v] == '+'
