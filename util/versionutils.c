@@ -25,6 +25,21 @@
  */
 #define G_LOG_DOMAIN "libgvm util"
 
+static gchar *
+prepare_version_string (const char *);
+
+static int
+get_release_state (const char *, int);
+
+static char *
+get_part (const char *, int);
+
+static gboolean
+is_text (const char *);
+
+static char *
+str_cpy (char *, int);
+
 /**
  * @brief Compare two version strings representing a software version
  *        to decide which version is newer.
@@ -50,6 +65,12 @@ cmp_versions (const char *version1, const char *version2)
   ver1 = prepare_version_string (version1);
   ver2 = prepare_version_string (version2);
 
+  if (ver1 == NULL || ver2 != NULL)
+    {
+      g_free (ver1);
+      g_free (ver2);
+      return (-5);
+    }
   if (strcmp (ver1, ver2) == 0)
     {
       g_free (ver1);
@@ -151,15 +172,20 @@ cmp_versions (const char *version1, const char *version2)
  *
  * @return  Returns a prepared copy of the version string version.
  */
-static char *
+static gchar *
 prepare_version_string (const char *version)
 {
-  char prep_version[1024];
+  char prep_version[2048];
   char *ver;
   int index_v, index_pv;
   gboolean is_digit;
 
+  g_message ("PROTO: VERS %s", version);
+
   if (!version)
+    return (NULL);
+
+  if (strlen (version) > 1024)
     return (NULL);
 
   ver = g_strdup (version);
@@ -173,8 +199,14 @@ prepare_version_string (const char *version)
 
   is_digit = g_ascii_isdigit (ver[0]);
 
-  while (index_v < (int) strlen (ver))
+  while (index_v < (int) strlen (ver) && index_pv < 2047)
     {
+      if (ver[index_v] == '\\')
+        {
+          index_v++;
+	  continue;
+        }
+
       if (ver[index_v] == '_' || ver[index_v] == '-' || ver[index_v] == '+'
           || ver[index_v] == ':' || ver[index_v] == '.')
         {
