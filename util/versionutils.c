@@ -65,7 +65,7 @@ cmp_versions (const char *version1, const char *version2)
   ver1 = prepare_version_string (version1);
   ver2 = prepare_version_string (version2);
 
-  if (ver1 == NULL || ver2 != NULL)
+  if (ver1 == NULL || ver2 == NULL)
     {
       g_free (ver1);
       g_free (ver2);
@@ -179,8 +179,6 @@ prepare_version_string (const char *version)
   char *ver;
   int index_v, index_pv;
   gboolean is_digit;
-
-  g_message ("PROTO: VERS %s", version);
 
   if (!version)
     return (NULL);
