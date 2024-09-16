@@ -17,6 +17,7 @@ General build environment:
 * pkg-config
 
 Specific development libraries:
+* libcjson >= 1.7.14 (util)
 * libglib >= 2.42 (all)
 * libgio >= 2.42 (util)
 * zlib >= 1.2.8 (util)
@@ -43,6 +44,7 @@ Install prerequisites on Debian GNU/Linux 'Bullseye' 11:
     apt-get install \
     cmake \
     pkg-config \
+    libcjson-dev \
     libglib2.0-dev \
     libgpgme-dev \
     libgnutls28-dev \

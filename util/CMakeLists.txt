@@ -42,6 +42,9 @@ pkg_check_modules (GPGME REQUIRED gpgme>=1.7.0)
 # for serverutils we need libgcrypt
 pkg_check_modules (GCRYPT REQUIRED libgcrypt)
 
+# for json parsing we need cJSON
+pkg_check_modules (CJSON REQUIRED libcjson>=1.7.14)
+
 # for mqtt
 find_library(LIBPAHO paho-mqtt3c)
 message (STATUS "Looking for paho-mqtt3c ... ${LIBPAHO}")
@@ -111,11 +114,11 @@ include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE
 
 set (FILES cpeutils.c passwordbasedauthentication.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
            nvticache.c mqtt.c radiusutils.c serverutils.c sshutils.c uuidutils.c versionutils.c
-           xmlutils.c)
+           xmlutils.c jsonpull.c)
 
 set (HEADERS cpeutils.h passwordbasedauthentication.h authutils.h compressutils.h fileutils.h gpgmeutils.h kb.h
              ldaputils.h nvticache.h mqtt.h radiusutils.h serverutils.h sshutils.h
-             uuidutils.h versionutils.h xmlutils.h)
+             uuidutils.h xmlutils.h jsonpull.h versionutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})
@@ -137,13 +140,29 @@ if (BUILD_SHARED)
                          ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
                          ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
                          ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
-                         ${LINKER_HARDENING_FLAGS} ${CRYPT_LDFLAGS})
+                         ${LINKER_HARDENING_FLAGS} ${CRYPT_LDFLAGS}
+                         ${CJSON_LDFLAGS})
 endif (BUILD_SHARED)
 
 
 ## Tests
 
 if (BUILD_TESTS)
+  add_executable (jsonpull-test
+                  EXCLUDE_FROM_ALL
+                  jsonpull_tests.c)
+
+  add_test (jsonpull-test jsonpull-test)
+
+  target_include_directories (jsonpull-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (jsonpull-test ${CGREEN_LIBRARIES}
+                         ${GLIB_LDFLAGS} ${CJSON_LDFLAGS})
+
+  add_custom_target (tests-jsonpull
+                     DEPENDS jsonpull-test)
+
+
   add_executable (passwordbasedauthentication-test
                   EXCLUDE_FROM_ALL
                   passwordbasedauthentication_tests.c)
