@@ -11,6 +11,8 @@
  * CPE or the CPE 2.3 formatted string binding of a CPE into a CPE struct
  * that corresponds to the WFN naming of a CPE. Further functions to convert
  * the CPE struct into the different bindings are provided.
+ * This file also contains a function that checks if one CPE (represented in a
+ * CPE struct) is a match for an other CPE (also represented in a CPE struct).
  */
 
 #include "cpeutils.h"

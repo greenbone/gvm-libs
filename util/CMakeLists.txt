@@ -113,12 +113,12 @@ include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE
                      ${LIBXML2_INCLUDE_DIRS})
 
 set (FILES cpeutils.c passwordbasedauthentication.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
-           nvticache.c mqtt.c radiusutils.c serverutils.c sshutils.c uuidutils.c
+           nvticache.c mqtt.c radiusutils.c serverutils.c sshutils.c uuidutils.c versionutils.c
            xmlutils.c jsonpull.c)
 
 set (HEADERS cpeutils.h passwordbasedauthentication.h authutils.h compressutils.h fileutils.h gpgmeutils.h kb.h
              ldaputils.h nvticache.h mqtt.h radiusutils.h serverutils.h sshutils.h
-             uuidutils.h xmlutils.h jsonpull.h)
+             uuidutils.h xmlutils.h jsonpull.h versionutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})
@@ -197,6 +197,24 @@ if (BUILD_TESTS)
 
   add_custom_target (tests-cpeutils
                     DEPENDS cpeutils-test)
+
+  add_executable (versionutils-test
+                  EXCLUDE_FROM_ALL
+                  versionutils_tests.c)
+
+  add_test (versionutils-test versionutils-test)
+
+  target_include_directories (versionutils-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (versionutils-test ${CGREEN_LIBRARIES}
+                        ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
+              ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+              ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+              ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+              ${LINKER_HARDENING_FLAGS})
+
+  add_custom_target (tests-versionutils
+                    DEPENDS versionutils-test)
 
   add_executable (xmlutils-test
                   EXCLUDE_FROM_ALL
