@@ -13,7 +13,8 @@ apt-get update && \
   libgpgme-dev \
   libgnutls28-dev \
   uuid-dev \
-  libssh-gcrypt-dev \
+  libgcrypt-dev \
+  libssh-dev \
   libhiredis-dev \
   libxml2-dev \
   libpcap-dev \
