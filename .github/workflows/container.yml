@@ -180,5 +180,5 @@ jobs:
         with:
           token: ${{ secrets.GREENBONE_BOT_TOKEN }}
           repository: ${{ matrix.repository }}
-          workflow: container.yml
+          workflow: ${{ matrix.repository == 'greenbone/openvas-scanner' && 'push-container.yml' || 'container.yml' }}
           ref: main
