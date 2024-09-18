@@ -13,14 +13,17 @@ endif (NOT PKG_CONFIG_FOUND)
 ## Dependency checks
 
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
-pkg_check_modules (GLIB_JSON REQUIRED json-glib-1.0>=1.4.4)
 pkg_check_modules (CURL REQUIRED libcurl>=7.74.0)
+
+# for json parsing we need cJSON
+pkg_check_modules (CJSON REQUIRED libcjson>=1.7.14)
+pkg_check_modules (GLIB_JSON REQUIRED json-glib-1.0>=1.4.4)
+
 
 include_directories (${GLIB_INCLUDE_DIRS} ${GLIB_JSON_INCLUDE_DIRS}
                      ${CURL_INCLUDE_DIRS})
 
 set (FILES openvasd.c jsonutils.c)
-
 set (HEADERS openvasd.h jsonutils.h)
 
 if (BUILD_STATIC)
