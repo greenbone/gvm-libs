@@ -14,6 +14,7 @@
 #include <glib.h>
 #include <time.h>
 
+/** @brief Struct to hold an scan result */
 struct openvasd_result
 {
   unsigned long id;
@@ -31,6 +32,7 @@ struct openvasd_result
   gchar *detail_source_description;
 };
 
+/** @brief Openvasd Errors */
 enum OPENVASD_ERROR
 {
   OPENVASD_INVALID_OPT,
@@ -40,6 +42,7 @@ enum OPENVASD_ERROR
   OPENVASD_OK,
 };
 
+/** @brief Openvasd options for the connector builder */
 enum OPENVASD_CONNECTOR_OPTS
 {
   OPENVASD_CA_CERT,
@@ -89,9 +92,9 @@ typedef enum
 
 struct openvasd_response
 {
-  long code;    // HTTP code response
-  char *body;   // String containing the body response
-  char *header; // A header value
+  long code;    /**< HTTP code response. */
+  char *body;   /**< String containing the body response. */
+  char *header; /**< A header value. */
 };
 
 struct openvasd_scan_status

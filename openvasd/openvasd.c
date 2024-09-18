@@ -13,8 +13,8 @@
 #include "../base/array.h"
 #include "../base/networking.h"
 
+#include <cjson/cJSON.h>
 #include <curl/curl.h>
-#include <json-glib/json-glib.h>
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -522,9 +522,7 @@ openvasd_resp_t
 openvasd_start_scan (openvasd_connector_t *conn, char *data)
 {
   openvasd_resp_t response = NULL;
-  JsonParser *parser = NULL;
-  JsonReader *reader = NULL;
-  GError *err = NULL;
+  cJSON *parser = NULL;
   GString *path;
 
   response = openvasd_send_request (conn, POST, "/scans", data, NULL);
@@ -535,20 +533,27 @@ openvasd_start_scan (openvasd_connector_t *conn, char *data)
     return response;
 
   // Get the Scan ID
-  parser = json_parser_new ();
-  if (!json_parser_load_from_data (parser, response->body,
-                                   strlen (response->body), &err))
+  parser = cJSON_Parse (response->body);
+  if (!parser)
     {
+      const char *error_ptr = cJSON_GetErrorPtr ();
+      if (error_ptr != NULL)
+        {
+          response->body = g_strdup_printf ("{\"error\": \"%s\"}", error_ptr);
+          g_warning ("%s: %s", __func__, error_ptr);
+        }
+      else
+        {
+          response->body = g_strdup (
+            "{\"error\": \"Parsing json string to get the scan ID\"}");
+          g_warning ("%s: Parsing json string to get the scan ID", __func__);
+        }
       response->code = RESP_CODE_ERR;
-      response->body =
-        g_strdup ("{\"error\": \"Parsing json string to get the scan ID\"}");
-      g_warning ("%s: Parsing json string to get the scan ID", __func__);
+
       goto cleanup_start_scan;
     }
 
-  reader = json_reader_new (json_parser_get_root (parser));
-
-  (*conn)->scan_id = g_strdup (json_reader_get_string_value (reader));
+  (*conn)->scan_id = g_strdup (cJSON_GetStringValue (parser));
 
   // Start the scan
   path = g_string_new ("/scans");
@@ -570,9 +575,7 @@ openvasd_start_scan (openvasd_connector_t *conn, char *data)
                                     "{\"action\": \"start\"}", NULL);
   g_string_free (path, TRUE);
 cleanup_start_scan:
-  if (reader)
-    g_object_unref (reader);
-  g_object_unref (parser);
+  cJSON_Delete (parser);
 
   return response;
 }
@@ -755,12 +758,11 @@ int
 openvasd_parsed_results (openvasd_connector_t *conn, unsigned long first,
                          unsigned long last, GSList **results)
 {
-  JsonParser *parser;
-  JsonReader *reader = NULL;
-  GError *err = NULL;
+  cJSON *parser = NULL;
+  cJSON *result_obj = NULL;
+  const char *err = NULL;
   openvasd_resp_t resp = NULL;
   openvasd_result_t result = NULL;
-  int results_count = 0;
   unsigned long id;
   gchar *type = NULL;
   gchar *ip_address = NULL;
@@ -781,113 +783,100 @@ openvasd_parsed_results (openvasd_connector_t *conn, unsigned long first,
   if (resp->code != 200)
     return resp->code;
 
-  parser = json_parser_new ();
-  if (!json_parser_load_from_data (parser, resp->body, strlen (resp->body),
-                                   &err))
+  if ((parser = cJSON_Parse (resp->body)) == NULL)
     {
+      err = cJSON_GetErrorPtr ();
       goto res_cleanup;
     }
-  reader = json_reader_new (json_parser_get_root (parser));
-
-  if (!json_reader_is_array (reader))
+  if (!cJSON_IsArray (parser))
     {
       // No results. No information.
       goto res_cleanup;
     }
 
-  results_count = json_reader_count_elements (reader);
-  for (int i = 0; i < results_count; i++)
-    {
-      json_reader_read_element (reader, i);
-      if (!json_reader_is_object (reader))
-        {
-          // error
-          goto res_cleanup;
-        }
+  cJSON_ArrayForEach (result_obj, parser)
+  {
+    cJSON *item = NULL;
+    if (!cJSON_IsObject (result_obj))
+      // error
+      goto res_cleanup;
 
-      json_reader_read_member (reader, "id");
-      id = json_reader_get_int_value (reader);
-      json_reader_end_member (reader);
+    if ((item = cJSON_GetObjectItem (result_obj, "id")) != NULL
+        && cJSON_IsNumber (item))
+      id = item->valuedouble;
 
-      json_reader_read_member (reader, "type");
-      type = g_strdup (json_reader_get_string_value (reader));
-      json_reader_end_member (reader);
+    if ((item = cJSON_GetObjectItem (result_obj, "type")) != NULL
+        && cJSON_IsString (item))
+      type = g_strdup (item->valuestring);
 
-      json_reader_read_member (reader, "ip_address");
-      ip_address = g_strdup (json_reader_get_string_value (reader));
-      json_reader_end_member (reader);
+    if ((item = cJSON_GetObjectItem (result_obj, "ip_address")) != NULL
+        && cJSON_IsString (item))
+      ip_address = g_strdup (item->valuestring);
 
-      json_reader_read_member (reader, "hostname");
-      hostname = g_strdup (json_reader_get_string_value (reader));
-      json_reader_end_member (reader);
+    if ((item = cJSON_GetObjectItem (result_obj, "hostname")) != NULL
+        && cJSON_IsString (item))
+      hostname = g_strdup (item->valuestring);
 
-      json_reader_read_member (reader, "oid");
-      oid = g_strdup (json_reader_get_string_value (reader));
-      json_reader_end_member (reader);
+    if ((item = cJSON_GetObjectItem (result_obj, "oid")) != NULL
+        && cJSON_IsString (item))
+      oid = g_strdup (item->valuestring);
 
-      json_reader_read_member (reader, "port");
-      port = json_reader_get_int_value (reader);
-      json_reader_end_member (reader);
+    if ((item = cJSON_GetObjectItem (result_obj, "port")) != NULL
+        && cJSON_IsNumber (item))
+      port = item->valueint;
 
-      json_reader_read_member (reader, "protocol");
-      protocol = g_strdup (json_reader_get_string_value (reader));
-      json_reader_end_member (reader);
+    if ((item = cJSON_GetObjectItem (result_obj, "protocol")) != NULL
+        && cJSON_IsString (item))
+      protocol = g_strdup (item->valuestring);
 
-      json_reader_read_member (reader, "message");
-      message = g_strdup (json_reader_get_string_value (reader));
-      json_reader_end_member (reader);
+    if ((item = cJSON_GetObjectItem (result_obj, "message")) != NULL
+        && cJSON_IsString (item))
+      message = g_strdup (item->valuestring);
 
-      if (json_reader_read_member (reader, "detail"))
-        {
-          json_reader_read_member (reader, "name");
-          detail_name = g_strdup (json_reader_get_string_value (reader));
-          json_reader_end_member (reader);
+    if ((item = cJSON_GetObjectItem (result_obj, "detail")) != NULL
+        && cJSON_IsObject (item))
+      {
+        cJSON *detail_obj = NULL;
 
-          json_reader_read_member (reader, "value");
-          detail_value = g_strdup (json_reader_get_string_value (reader));
-          json_reader_end_member (reader);
+        if ((detail_obj = cJSON_GetObjectItem (item, "name")) != NULL
+            && cJSON_IsString (detail_obj))
+          detail_name = g_strdup (detail_obj->valuestring);
 
-          json_reader_read_member (reader, "source");
+        if ((detail_obj = cJSON_GetObjectItem (item, "value")) != NULL
+            && cJSON_IsString (detail_obj))
+          detail_value = g_strdup (detail_obj->valuestring);
 
-          json_reader_read_member (reader, "type");
-          detail_source_type = g_strdup (json_reader_get_string_value (reader));
-          json_reader_end_member (reader);
+        cJSON *source_obj = NULL;
+        if ((source_obj = cJSON_GetObjectItem (detail_obj, "type")) != NULL
+            && cJSON_IsObject (source_obj))
+          detail_source_type = g_strdup (detail_obj->valuestring);
 
-          json_reader_read_member (reader, "name");
-          detail_source_name = g_strdup (json_reader_get_string_value (reader));
-          json_reader_end_member (reader);
+        if ((source_obj = cJSON_GetObjectItem (detail_obj, "name")) != NULL
+            && cJSON_IsString (source_obj))
+          detail_source_name = g_strdup (detail_obj->valuestring);
 
-          json_reader_read_member (reader, "description");
-          detail_source_description =
-            g_strdup (json_reader_get_string_value (reader));
-          json_reader_end_member (reader);
+        if ((source_obj = cJSON_GetObjectItem (detail_obj, "description"))
+              != NULL
+            && cJSON_IsString (source_obj))
+          detail_source_description = g_strdup (detail_obj->valuestring);
+      }
 
-          json_reader_end_member (reader); // end source member
-        }
+    result = openvasd_result_new (id, type, ip_address, hostname, oid, port,
+                                  protocol, message, detail_name, detail_value,
+                                  detail_source_type, detail_source_name,
+                                  detail_source_description);
 
-      json_reader_end_member (reader);  // end detail
-      json_reader_end_element (reader); // end single result element
-
-      result = openvasd_result_new (
-        id, type, ip_address, hostname, oid, port, protocol, message,
-        detail_name, detail_value, detail_source_type, detail_source_name,
-        detail_source_description);
-
-      *results = g_slist_append (*results, result);
-      ret = resp->code;
-    }
+    *results = g_slist_append (*results, result);
+    ret = resp->code;
+  }
 
 res_cleanup:
   openvasd_response_free (resp);
-  if (reader)
-    g_object_unref (reader);
-  g_object_unref (parser);
   if (err != NULL)
     {
-      g_warning ("%s: Unable to parse scan results. Reason: %s", __func__,
-                 err->message);
-      g_error_free (err);
+      g_warning ("%s: Unable to parse scan results. Reason: %s", __func__, err);
     }
+  cJSON_Delete (parser);
 
   return ret;
 }
@@ -934,25 +923,23 @@ openvasd_get_scan_status (openvasd_connector_t *conn)
  *  @return 0 on success, -1 on error.
  */
 static int
-get_member_value_or_fail (JsonReader *reader, const char *member)
+get_member_value_or_fail (cJSON *reader, const char *member)
 {
-  int value;
-  if (!json_reader_read_member (reader, member))
+  cJSON *item = NULL;
+  if ((item = cJSON_GetObjectItem (reader, member)) == NULL
+      && cJSON_IsNumber (item))
     return -1;
 
-  value = json_reader_get_int_value (reader);
-  json_reader_end_member (reader);
-
-  return value;
+  return item->valueint;
 }
 
 static int
 openvasd_get_scan_progress_ext (openvasd_connector_t *conn,
                                 openvasd_resp_t response)
 {
-  JsonParser *parser;
-  JsonReader *reader = NULL;
-  GError *err = NULL;
+  cJSON *parser;
+  cJSON *reader = NULL;
+  const char *err = NULL;
   int all = 0, excluded = 0, dead = 0, alive = 0, queued = 0, finished = 0;
   int running_hosts_progress_sum = 0;
 
@@ -972,19 +959,18 @@ openvasd_get_scan_progress_ext (openvasd_connector_t *conn,
   else if (resp->code != 200)
     return -1;
 
-  parser = json_parser_new ();
-  if (!json_parser_load_from_data (parser, resp->body, strlen (resp->body),
-                                   &err))
+  parser = cJSON_Parse (resp->body);
+  if (!parser)
     {
+      err = cJSON_GetErrorPtr ();
       goto cleanup;
     }
-  reader = json_reader_new (json_parser_get_root (parser));
 
-  if (!json_reader_read_member (reader, "host_info"))
+  if ((reader = cJSON_GetObjectItem (parser, "host_info")) == NULL)
     {
       goto cleanup;
     }
-  if (!json_reader_is_object (reader))
+  if (!cJSON_IsObject (reader))
     {
       // Scan still not started. No information.
       progress = 0;
@@ -1000,21 +986,19 @@ openvasd_get_scan_progress_ext (openvasd_connector_t *conn,
   finished = get_member_value_or_fail (reader, "finished");
 
   // read progress of single running hosts
-  if (json_reader_read_member (reader, "scanning")
-      && json_reader_is_object (reader))
+  cJSON *scanning = NULL;
+  if ((scanning = cJSON_GetObjectItem (reader, "scanning")) != NULL
+      && cJSON_IsObject (scanning))
     {
-      char **running_hosts = json_reader_list_members (reader);
-      for (int i = 0; running_hosts[i]; i++)
+      cJSON *host = scanning->child;
+      while (host)
         {
-          json_reader_read_member (reader, running_hosts[i]);
-          running_hosts_progress_sum += json_reader_get_int_value (reader);
-          json_reader_end_member (reader);
+          running_hosts_progress_sum += cJSON_GetNumberValue (host);
+          host = host->next;
         }
-      g_strfreev (running_hosts);
-      json_reader_end_member (reader); // end scanning
-    }
 
-  json_reader_end_member (reader); // end host_info
+    } // end scanning
+  // end host_info
 
   if (all < 0 || excluded < 0 || dead < 0 || alive < 0 || queued < 0
       || finished < 0)
@@ -1029,15 +1013,10 @@ openvasd_get_scan_progress_ext (openvasd_connector_t *conn,
     progress = 100;
 
 cleanup:
-  if (reader)
-    g_object_unref (reader);
-  g_object_unref (parser);
   if (err != NULL)
-    {
-      g_warning ("%s: Unable to parse scan status. Reason: %s", __func__,
-                 err->message);
-      g_error_free (err);
-    }
+    g_warning ("%s: Unable to parse scan status. Reason: %s", __func__, err);
+  cJSON_Delete (parser);
+
   return progress;
 }
 
@@ -1045,6 +1024,27 @@ int
 openvasd_get_scan_progress (openvasd_connector_t *conn)
 {
   return openvasd_get_scan_progress_ext (conn, NULL);
+}
+
+static openvasd_status_t
+get_status_code_from_openvas (const char *status_val)
+{
+  openvasd_status_t status_code = OPENVASD_SCAN_STATUS_ERROR;
+
+  if (g_strcmp0 (status_val, "stored") == 0)
+    status_code = OPENVASD_SCAN_STATUS_STORED;
+  else if (g_strcmp0 (status_val, "requested") == 0)
+    status_code = OPENVASD_SCAN_STATUS_REQUESTED;
+  else if (g_strcmp0 (status_val, "running") == 0)
+    status_code = OPENVASD_SCAN_STATUS_RUNNING;
+  else if (g_strcmp0 (status_val, "stopped") == 0)
+    status_code = OPENVASD_SCAN_STATUS_STOPPED;
+  else if (g_strcmp0 (status_val, "succeeded") == 0)
+    status_code = OPENVASD_SCAN_STATUS_SUCCEEDED;
+  else if (g_strcmp0 (status_val, "interrupted") == 0)
+    status_code = OPENVASD_SCAN_STATUS_FAILED;
+
+  return status_code;
 }
 
 /** @brief Return a struct with the general scan status
@@ -1057,11 +1057,10 @@ openvasd_get_scan_progress (openvasd_connector_t *conn)
 openvasd_scan_status_t
 openvasd_parsed_scan_status (openvasd_connector_t *conn)
 {
-  JsonParser *parser;
-  JsonReader *reader = NULL;
-  GError *err = NULL;
+  cJSON *parser = NULL;
+  cJSON *status = NULL;
   openvasd_resp_t resp;
-  gchar *status = NULL;
+  gchar *status_val = NULL;
   time_t start_time = 0, end_time = 0;
   int progress = -1;
   openvasd_status_t status_code = OPENVASD_SCAN_STATUS_ERROR;
@@ -1077,55 +1076,30 @@ openvasd_parsed_scan_status (openvasd_connector_t *conn)
       openvasd_response_free (resp);
       return status_info;
     }
-  parser = json_parser_new ();
-  if (!json_parser_load_from_data (parser, resp->body, strlen (resp->body),
-                                   &err))
+  if ((parser = cJSON_Parse (resp->body)) == NULL)
     goto status_cleanup;
 
-  reader = json_reader_new (json_parser_get_root (parser));
+  if ((status = cJSON_GetObjectItem (parser, "status")) == NULL
+      || !cJSON_IsString (status))
+    goto status_cleanup;
+  status_val = g_strdup (status->valuestring);
 
-  json_reader_read_member (reader, "status");
-  status = g_strdup (json_reader_get_string_value (reader));
-  json_reader_end_member (reader);
+  if ((status = cJSON_GetObjectItem (parser, "start_time")) != NULL
+      && !cJSON_IsNumber (status))
+    start_time = status->valuedouble;
 
-  json_reader_read_member (reader, "start_time");
-  if (!json_reader_get_null_value (reader))
-    start_time = json_reader_get_double_value (reader);
-  json_reader_end_member (reader);
-
-  json_reader_read_member (reader, "end_time");
-  if (!json_reader_get_null_value (reader))
-    end_time = json_reader_get_double_value (reader);
-  json_reader_end_member (reader);
+  if ((status = cJSON_GetObjectItem (parser, "end_time")) != NULL
+      && !cJSON_IsNumber (status))
+    end_time = status->valuedouble;
 
   progress = openvasd_get_scan_progress_ext (NULL, resp);
 
 status_cleanup:
   openvasd_response_free (resp);
-  if (reader)
-    g_object_unref (reader);
-  g_object_unref (parser);
-  if (err != NULL)
-    {
-      g_warning ("%s: Unable to parse scan status. Reason: %s", __func__,
-                 err->message);
-      g_error_free (err);
-    }
+  cJSON_Delete (parser);
 
-  if (g_strcmp0 (status, "stored") == 0)
-    status_code = OPENVASD_SCAN_STATUS_STORED;
-  else if (g_strcmp0 (status, "requested") == 0)
-    status_code = OPENVASD_SCAN_STATUS_REQUESTED;
-  else if (g_strcmp0 (status, "running") == 0)
-    status_code = OPENVASD_SCAN_STATUS_RUNNING;
-  else if (g_strcmp0 (status, "stopped") == 0)
-    status_code = OPENVASD_SCAN_STATUS_STOPPED;
-  else if (g_strcmp0 (status, "succeeded") == 0)
-    status_code = OPENVASD_SCAN_STATUS_SUCCEEDED;
-  else if (g_strcmp0 (status, "succeeded") == 0)
-    status_code = OPENVASD_SCAN_STATUS_FAILED;
-
-  g_free (status);
+  status_code = get_status_code_from_openvas (status_val);
+  g_free (status_val);
 
   status_info->status = status_code;
   status_info->end_time = end_time;
@@ -1314,113 +1288,87 @@ int
 openvasd_parsed_scans_preferences (openvasd_connector_t *conn, GSList **params)
 {
   openvasd_resp_t resp = NULL;
-  GError *err = NULL;
-  JsonParser *parser;
-  JsonReader *reader = NULL;
+  cJSON *parser;
+  cJSON *param_obj = NULL;
+  int err = 0;
 
   resp = openvasd_send_request (conn, GET, "/scans/preferences", NULL, NULL);
 
   if (resp->code != 200)
     return -1;
 
-  parser = json_parser_new ();
-  if (!json_parser_load_from_data (parser, resp->body, strlen (resp->body),
-                                   &err))
-    goto prefs_cleanup;
-  reader = json_reader_new (json_parser_get_root (parser));
-
-  if (!json_reader_is_array (reader))
+  // No results. No information.
+  if ((parser = cJSON_Parse (resp->body)) == NULL || !cJSON_IsArray (parser))
     {
-      // No results. No information.
+      err = 1;
       goto prefs_cleanup;
     }
 
-  int results_count = json_reader_count_elements (reader);
-  for (int i = 0; i < results_count; i++)
-    {
-      const char *id, *name, *desc;
-      char *defval = NULL, *param_type = NULL;
-      openvasd_param_t *param = NULL;
-      GType t;
-      JsonNode *node = NULL;
-      gboolean bool;
-      int val, mandatory = 0;
-      char buf[6];
+  cJSON_ArrayForEach (param_obj, parser)
+  {
+    const char *id, *name, *desc;
+    char *defval = NULL, *param_type = NULL;
+    openvasd_param_t *param = NULL;
+    int val, mandatory = 0;
+    char buf[6];
+    cJSON *item = NULL;
+    if ((item = cJSON_GetObjectItem (param_obj, "id")) != NULL
+        && cJSON_IsString (item))
+      id = g_strdup (item->valuestring);
 
-      json_reader_read_element (reader, i);
-      if (!json_reader_is_object (reader))
-        {
-          // error
-          goto prefs_cleanup;
-        }
+    if ((item = cJSON_GetObjectItem (param_obj, "name")) != NULL
+        && cJSON_IsString (item))
+      name = g_strdup (item->valuestring);
 
-      json_reader_read_member (reader, "id");
-      id = json_reader_get_string_value (reader);
-      json_reader_end_member (reader);
+    if ((item = cJSON_GetObjectItem (param_obj, "description")) != NULL
+        && cJSON_IsString (item))
+      desc = g_strdup (item->valuestring);
 
-      json_reader_read_member (reader, "name");
-      name = json_reader_get_string_value (reader);
-      json_reader_end_member (reader);
+    if ((item = cJSON_GetObjectItem (param_obj, "default")) != NULL)
+      {
+        if (cJSON_IsNumber (item))
+          {
+            val = item->valueint;
+            g_snprintf (buf, sizeof (buf), "%d", val);
+            defval = g_strdup (buf);
+            param_type = g_strdup ("integer");
+          }
+        else if (cJSON_IsString (item))
+          {
+            defval = g_strdup (item->valuestring);
+            param_type = g_strdup ("string");
+          }
+        else if (cJSON_IsBool (item))
+          {
+            if (cJSON_IsTrue (item))
+              defval = g_strdup ("yes");
+            else
+              defval = g_strdup ("no");
+            param_type = g_strdup ("boolean");
+          }
+        else
+          {
+            g_warning ("%s: Unable to parse scan preferences.", __func__);
+            g_free (defval);
+            g_free (param_type);
+            continue;
+          }
+      }
 
-      json_reader_read_member (reader, "description");
-      desc = json_reader_get_string_value (reader);
-      json_reader_end_member (reader);
-
-      json_reader_read_member (reader, "default");
-      node = json_reader_get_value (reader);
-      t = json_node_get_value_type (node);
-      val = json_reader_get_int_value (reader);
-
-      switch (t)
-        {
-        case G_TYPE_INT:
-        case G_TYPE_INT64:
-          val = json_reader_get_int_value (reader);
-          g_snprintf (buf, sizeof (buf), "%d", val);
-          defval = g_strdup (buf);
-          param_type = g_strdup ("integer");
-          break;
-        case G_TYPE_STRING:
-          defval = g_strdup (json_reader_get_string_value (reader));
-          param_type = g_strdup ("string");
-          break;
-        case G_TYPE_BOOLEAN:
-          bool = json_reader_get_boolean_value (reader);
-          if (bool)
-            defval = g_strdup ("yes");
-          else
-            defval = g_strdup ("no");
-          param_type = g_strdup ("boolean");
-          break;
-        default:
-          g_warning ("%s: Unable to parse scan preferences.", __func__);
-          g_free (defval);
-          g_free (param_type);
-          json_reader_end_member (reader);
-          json_reader_end_element (reader);
-          continue;
-        }
-      json_reader_end_member (reader);
-      json_reader_end_element (reader);
-
-      param =
-        openvasd_param_new (g_strdup (id), g_strdup (name), g_strdup (defval),
-                            g_strdup (desc), g_strdup (param_type), mandatory);
-      g_free (defval);
-      g_free (param_type);
-      *params = g_slist_append (*params, param);
-    }
+    param =
+      openvasd_param_new (g_strdup (id), g_strdup (name), g_strdup (defval),
+                          g_strdup (desc), g_strdup (param_type), mandatory);
+    g_free (defval);
+    g_free (param_type);
+    *params = g_slist_append (*params, param);
+  }
 
 prefs_cleanup:
   openvasd_response_free (resp);
-  if (reader)
-    g_object_unref (reader);
-  g_object_unref (parser);
-  if (err != NULL)
+  cJSON_Delete (parser);
+  if (err)
     {
-      g_warning ("%s: Unable to parse scan preferences. Reason: %s", __func__,
-                 err->message);
-      g_error_free (err);
+      g_warning ("%s: Unable to parse scan preferences.", __func__);
       return -1;
     }
 
@@ -1429,117 +1377,94 @@ prefs_cleanup:
 
 // Scan config builder
 static void
-add_port_to_scan_json (gpointer range, gpointer builder)
+add_port_to_scan_json (gpointer range, gpointer p_array)
 {
   range_t *ports = range;
 
-  json_builder_begin_object ((JsonBuilder *) builder);
-  json_builder_set_member_name (builder, "protocol");
+  cJSON *port = cJSON_CreateObject ();
   if (ports->type == 1)
-    builder = json_builder_add_string_value (builder, "udp");
+    cJSON_AddStringToObject (port, "protocol", "udp");
   else
-    builder = json_builder_add_string_value (builder, "tcp");
+    cJSON_AddStringToObject (port, "protocol", "tcp");
 
-  json_builder_set_member_name (builder, "range");
-  json_builder_begin_array (builder); // ranges array
-
-  json_builder_begin_object (builder); // begin range
-
-  json_builder_set_member_name (builder, "start");
-  builder = json_builder_add_int_value (builder, ports->start);
+  cJSON *ranges_array = cJSON_CreateArray ();
+  cJSON *range_obj = cJSON_CreateObject ();
+  cJSON_AddNumberToObject (range_obj, "start", ports->start);
 
   if (ports->end > ports->start && ports->end < 65535)
-    {
-      json_builder_set_member_name (builder, "end");
-      builder = json_builder_add_int_value (builder, ports->end);
-    }
-
-  json_builder_end_object (builder); // end range
-
-  json_builder_end_array (builder); // ranges array
-
-  json_builder_end_object (builder);
+    cJSON_AddNumberToObject (range_obj, "end", ports->end);
+  else
+    cJSON_AddNumberToObject (range_obj, "end", ports->start);
+  cJSON_AddItemToArray (ranges_array, range_obj);
+  cJSON_AddItemToObject (port, "range", ranges_array);
+  cJSON_AddItemToArray ((cJSON *) p_array, port);
 }
 
 static void
-add_credential_to_scan_json (gpointer credential, gpointer builder)
+add_credential_to_scan_json (gpointer credentials, gpointer cred_array)
 {
   GHashTableIter auth_data_iter;
   gchar *auth_data_name, *auth_data_value;
+  cJSON *cred_obj = NULL;
 
-  openvasd_credential_t *cred = credential;
+  openvasd_credential_t *cred = credentials;
 
-  json_builder_begin_object ((JsonBuilder *) builder); // start credential
-
-  json_builder_set_member_name (builder, "service");
-  builder = json_builder_add_string_value (builder, cred->service);
+  cred_obj = cJSON_CreateObject ();
+  cJSON_AddStringToObject (cred_obj, "service", cred->service);
 
   if (cred->port)
     {
-      json_builder_set_member_name (builder, "port");
-      builder = json_builder_add_int_value (builder, atoi (cred->port));
+      cJSON_AddNumberToObject (cred_obj, "port", atoi (cred->port));
     }
 
-  json_builder_set_member_name (builder, cred->type);
-  json_builder_begin_object (
-    (JsonBuilder *) builder); // open type for auth data
-
+  cJSON *cred_type_obj = cJSON_CreateObject ();
   g_hash_table_iter_init (&auth_data_iter, cred->auth_data);
   while (g_hash_table_iter_next (&auth_data_iter, (gpointer *) &auth_data_name,
                                  (gpointer *) &auth_data_value))
-    {
-      json_builder_set_member_name (builder, auth_data_name);
-      builder = json_builder_add_string_value (builder, auth_data_value);
-    }
-  json_builder_end_object (builder); // end type auth data
+    cJSON_AddStringToObject (cred_type_obj, auth_data_name, auth_data_value);
+  cJSON_AddItemToObject (cred_obj, cred->type, cred_type_obj);
 
-  json_builder_end_object (builder); // end credential
+  cJSON_AddItemToArray ((cJSON *) cred_array, cred_obj);
 }
 
 static void
-add_scan_preferences_to_scan_json (gpointer key, gpointer val, gpointer builder)
+add_scan_preferences_to_scan_json (gpointer key, gpointer val,
+                                   gpointer scan_prefs_array)
 {
-  json_builder_begin_object ((JsonBuilder *) builder); // start preference
-  json_builder_set_member_name (builder, "id");
-  builder = json_builder_add_string_value (builder, key);
-  json_builder_set_member_name (builder, "value");
-  builder = json_builder_add_string_value (builder, val);
-  json_builder_end_object (builder); // end
+  cJSON *pref_obj = cJSON_CreateObject ();
+  cJSON_AddStringToObject (pref_obj, "id", key);
+  cJSON_AddStringToObject (pref_obj, "value", val);
+  cJSON_AddItemToArray (scan_prefs_array, pref_obj);
 }
 
 static void
-add_vts_to_scan_json (gpointer single_vt, gpointer builder)
+add_vts_to_scan_json (gpointer single_vt, gpointer vts_array)
 {
   GHashTableIter vt_data_iter;
   gchar *vt_param_id, *vt_param_value;
 
   openvasd_vt_single_t *vt = single_vt;
 
-  json_builder_begin_object ((JsonBuilder *) builder); // start vt
+  cJSON *vt_obj = cJSON_CreateObject ();
 
-  json_builder_set_member_name (builder, "oid");
-  json_builder_add_string_value (builder, vt->vt_id);
+  cJSON_AddStringToObject (vt_obj, "oid", vt->vt_id);
 
   if (g_hash_table_size (vt->vt_values))
     {
-      json_builder_set_member_name (builder, "parameters");
-      json_builder_begin_array (
-        (JsonBuilder *) builder); // begin parameter list
+      cJSON *params_array = cJSON_CreateArray ();
 
       g_hash_table_iter_init (&vt_data_iter, vt->vt_values);
       while (g_hash_table_iter_next (&vt_data_iter, (gpointer *) &vt_param_id,
                                      (gpointer *) &vt_param_value))
         {
-          json_builder_begin_object (builder); // begin single param
-          json_builder_set_member_name (builder, "id");
-          json_builder_add_int_value (builder, atoi (vt_param_id));
-          json_builder_set_member_name (builder, "value");
-          json_builder_add_string_value (builder, vt_param_value);
-          json_builder_end_object (builder); // end single param
+          cJSON *param_obj = cJSON_CreateObject ();
+          cJSON_AddNumberToObject (param_obj, "id", atoi (vt_param_id));
+          cJSON_AddStringToObject (param_obj, "value", vt_param_value);
+          cJSON_AddItemToArray (params_array, param_obj);
         }
-      json_builder_end_array ((JsonBuilder *) builder); // End parameters list
+      cJSON_AddItemToObject (vt_obj, "parameters", params_array);
     }
-  json_builder_end_object ((JsonBuilder *) builder); // end vt
+  cJSON_AddItemToArray (vts_array, vt_obj);
 }
 
 /**
@@ -1556,132 +1481,122 @@ gchar *
 openvasd_build_scan_config_json (openvasd_target_t *target,
                                  GHashTable *scan_preferences, GSList *vts)
 {
-  JsonBuilder *builder;
-  JsonGenerator *gen;
-  JsonNode *root;
-  gchar *json_str;
+  cJSON *scan_obj = NULL;
+  cJSON *target_obj = NULL;
+  cJSON *hosts_array = NULL;
+  cJSON *exclude_hosts_array = NULL;
+  cJSON *finished_hosts_array = NULL;
+  gchar *json_str = NULL;
 
   /* Build the message in json format to be published. */
-  builder = json_builder_new ();
-
-  // begin json
-  json_builder_begin_object (builder);
+  scan_obj = cJSON_CreateObject ();
 
   if (target->scan_id && target->scan_id[0] != '\0')
-    {
-      json_builder_set_member_name (builder, "scan_id");
-      json_builder_add_string_value (builder, target->scan_id);
-    }
+    cJSON_AddStringToObject (scan_obj, "scan_id", target->scan_id);
 
   // begin target
-  json_builder_set_member_name (builder, "target");
-  json_builder_begin_object (builder);
+  target_obj = cJSON_CreateObject ();
 
-  // hosts:
-  json_builder_set_member_name (builder, "hosts");
-  json_builder_begin_array (builder);
+  // hosts
+  hosts_array = cJSON_CreateArray ();
   gchar **hosts_list = g_strsplit (target->hosts, ",", 0);
   for (int i = 0; hosts_list[i] != NULL; i++)
-    builder = json_builder_add_string_value (builder, hosts_list[0]);
+    {
+      cJSON *host_item = NULL;
+      host_item = cJSON_CreateString (hosts_list[i]);
+      cJSON_AddItemToArray (hosts_array, host_item);
+    }
   g_strfreev (hosts_list);
-  json_builder_end_array (builder); // end host
+  cJSON_AddItemToObject (target_obj, "hosts", hosts_array);
 
   // exclude hosts
   if (target->exclude_hosts && target->exclude_hosts[0] != '\0')
     {
-      json_builder_set_member_name (builder, "excluded_hosts");
-      json_builder_begin_array (builder);
-      hosts_list = g_strsplit (target->exclude_hosts, ",", 0);
-      for (int i = 0; hosts_list[i] != NULL; i++)
-        builder = json_builder_add_string_value (builder, hosts_list[0]);
-      g_strfreev (hosts_list);
-      json_builder_end_array (builder); // end excluded host
+      exclude_hosts_array = cJSON_CreateArray ();
+      gchar **exclude_hosts_list = g_strsplit (target->exclude_hosts, ",", 0);
+      for (int i = 0; exclude_hosts_list[i] != NULL; i++)
+        {
+          cJSON *exclude_host_item = NULL;
+          exclude_host_item = cJSON_CreateString (exclude_hosts_list[i]);
+          cJSON_AddItemToArray (exclude_hosts_array, exclude_host_item);
+        }
+      g_strfreev (exclude_hosts_list);
+      cJSON_AddItemToObject (target_obj, "excluded_hosts", exclude_hosts_array);
     }
 
   // finished hosts
   if (target->finished_hosts && target->finished_hosts[0] != '\0')
     {
-      json_builder_set_member_name (builder, "finished_hosts");
-      json_builder_begin_array (builder);
-      hosts_list = g_strsplit (target->finished_hosts, ",", 0);
-      for (int i = 0; hosts_list[i] != NULL; i++)
-        builder = json_builder_add_string_value (builder, hosts_list[0]);
+      finished_hosts_array = cJSON_CreateArray ();
+      gchar **finished_hosts_list = g_strsplit (target->finished_hosts, ",", 0);
+      for (int i = 0; finished_hosts_list[i] != NULL; i++)
+        {
+          cJSON *finished_host_item = NULL;
+          finished_host_item = cJSON_CreateString (finished_hosts_list[i]);
+          cJSON_AddItemToArray (finished_hosts_array, finished_host_item);
+        }
       g_strfreev (hosts_list);
-      json_builder_end_array (builder); // end finished host
+      cJSON_AddItemToObject (target_obj, "finished_hosts",
+                             finished_hosts_array);
     }
 
   // ports
-  if (target->ports && target->ports[0 != '\0'])
+  if (target->ports && target->ports[0] != '\0')
     {
-      json_builder_set_member_name (builder, "ports");
-      json_builder_begin_array (builder);
+      cJSON *ports_array = cJSON_CreateArray ();
       array_t *ports = port_range_ranges (target->ports);
-      g_ptr_array_foreach (ports, add_port_to_scan_json, builder);
+      g_ptr_array_foreach (ports, add_port_to_scan_json, ports_array);
       array_free (ports);
-      json_builder_end_array (builder); // end ports
+      cJSON_AddItemToObject (target_obj, "ports", ports_array);
     }
 
   // credentials
-  json_builder_set_member_name (builder, "credentials");
-  json_builder_begin_array (builder);
-  g_slist_foreach (target->credentials, add_credential_to_scan_json, builder);
-  json_builder_end_array (builder); // end credentials
+  cJSON *credentials = cJSON_CreateArray ();
+  g_slist_foreach (target->credentials, add_credential_to_scan_json,
+                   credentials);
+  cJSON_AddItemToObject (target_obj, "credentials", credentials);
 
   // reverse lookup
-  json_builder_set_member_name (builder, "reverse_lookup_unify");
   if (target->reverse_lookup_unify)
-    builder = json_builder_add_boolean_value (builder, TRUE);
+    cJSON_AddBoolToObject (target_obj, "reverse_lookup_unify", cJSON_True);
   else
-    builder = json_builder_add_boolean_value (builder, FALSE);
-
-  json_builder_set_member_name (builder, "reverse_lookup_only");
+    cJSON_AddBoolToObject (target_obj, "reverse_lookup_unify", cJSON_False);
 
   if (target->reverse_lookup_only)
-    builder = json_builder_add_boolean_value (builder, TRUE);
+    cJSON_AddBoolToObject (target_obj, "reverse_lookup_only", cJSON_True);
   else
-    builder = json_builder_add_boolean_value (builder, FALSE);
+    cJSON_AddBoolToObject (target_obj, "reverse_lookup_only", cJSON_False);
 
   // alive test methods
-  json_builder_set_member_name (builder, "alive_test_methods");
-  json_builder_begin_array (builder);
+  cJSON *alive_test_methods = cJSON_CreateArray ();
   if (target->arp)
-    builder = json_builder_add_string_value (builder, "arp");
+    cJSON_AddItemToArray (alive_test_methods, cJSON_CreateString ("arp"));
   if (target->tcp_ack)
-    builder = json_builder_add_string_value (builder, "tcp_ack");
+    cJSON_AddItemToArray (alive_test_methods, cJSON_CreateString ("tcp_ack"));
   if (target->tcp_syn)
-    builder = json_builder_add_string_value (builder, "tcp_syn");
+    cJSON_AddItemToArray (alive_test_methods, cJSON_CreateString ("tcp_syn"));
   if (target->consider_alive)
-    builder = json_builder_add_string_value (builder, "consider_alive");
+    cJSON_AddItemToArray (alive_test_methods,
+                          cJSON_CreateString ("consider_alive"));
   if (target->icmp)
-    builder = json_builder_add_string_value (builder, "icmp");
-  json_builder_end_array (builder); // end alive methods
+    cJSON_AddItemToArray (alive_test_methods, cJSON_CreateString ("icmp"));
+  cJSON_AddItemToObject (target_obj, "alive_test_methods", alive_test_methods);
 
-  json_builder_end_object (builder); // end target
+  cJSON_AddItemToObject (scan_obj, "target", target_obj);
 
   // Begin Scan Preferences
-  json_builder_set_member_name (builder, "scan_preferences");
-  json_builder_begin_array (builder);
+  cJSON *scan_prefs_array = cJSON_CreateArray ();
   g_hash_table_foreach (scan_preferences, add_scan_preferences_to_scan_json,
-                        builder);
-  json_builder_end_array (builder); // end preferences array
+                        scan_prefs_array);
+  cJSON_AddItemToObject (scan_obj, "scan_preferences", scan_prefs_array);
 
   // Begin VTs
-  json_builder_set_member_name (builder, "vts");
-  json_builder_begin_array (builder);
-  g_slist_foreach (vts, add_vts_to_scan_json, builder);
-  json_builder_end_array (builder); // end vts array
+  cJSON *vts_array = cJSON_CreateArray ();
+  g_slist_foreach (vts, add_vts_to_scan_json, vts_array);
+  cJSON_AddItemToObject (scan_obj, "vts", vts_array);
 
-  json_builder_end_object (builder); // end json
-
-  gen = json_generator_new ();
-  root = json_builder_get_root (builder);
-  json_generator_set_root (gen, root);
-  json_str = json_generator_to_data (gen, NULL);
-
-  json_node_free (root);
-  g_object_unref (gen);
-  g_object_unref (builder);
-
+  json_str = cJSON_Print (scan_obj);
+  cJSON_Delete (scan_obj);
   if (json_str == NULL)
     g_warning ("%s: Error while creating JSON.", __func__);
 
