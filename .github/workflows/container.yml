@@ -17,6 +17,9 @@ jobs:
         uses: actions/checkout@v4
       - name: setup-docker-action
         uses: ./.github/actions/setup-docker-action
+        with:
+          docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          docker-password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: determine-tags-action
         uses: ./.github/actions/determine-tags-action
       - name: "Setup meta information debian:stable"
@@ -60,6 +63,9 @@ jobs:
         uses: actions/checkout@v4
       - name: setup-docker-action
         uses: ./.github/actions/setup-docker-action
+        with:
+          docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          docker-password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: determine-tags-action
         uses: ./.github/actions/determine-tags-action
       - name: "Setup meta information debian:oldstable"
@@ -97,6 +103,9 @@ jobs:
         uses: actions/checkout@v4
       - name: setup-docker-action
         uses: ./.github/actions/setup-docker-action
+        with:
+          docker-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          docker-password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: determine-tags-action
         uses: ./.github/actions/determine-tags-action
       - name: "Setup meta information debian:testing"
