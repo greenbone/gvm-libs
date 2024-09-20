@@ -8,6 +8,7 @@ runs:
         echo "IS_VERSION_TAG=${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'v') }}" >> $GITHUB_ENV
         # set defaults
         echo "IS_LATEST_TAG=false" >> $GITHUB_ENV
+      shell: bash
     - name: "set IS_LATEST_TAG"
       if: ( env.IS_VERSION_TAG )
       run: |
@@ -28,3 +29,4 @@ runs:
           # set this tag to latest and stable
           echo "IS_LATEST_TAG=true" >> $GITHUB_ENV
         fi
+      shell: bash
