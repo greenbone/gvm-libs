@@ -2,10 +2,10 @@ name: Build and Push to Greenbone Registry
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, stable, oldstable ]
     tags: ["v*"]
   pull_request:
-    branches: [ main ]
+    branches: [ main, stable, oldstable ]
   workflow_dispatch:
     inputs:
       ref-name:
@@ -14,8 +14,8 @@ on:
         required: true
 
 jobs:
-  build:
-    name: Build and Push to Greenbone Registry
+  build-push-debian-stable-container:
+    name: Build and Push debian:stable to Greenbone Registry
     uses: greenbone/workflows/.github/workflows/container-build-push-2nd-gen.yml@main
     with:
       image-url: community/gvm-libs
@@ -24,3 +24,73 @@ jobs:
         org.opencontainers.image.base.name=debian:stable-slim
       ref-name: ${{ inputs.ref-name }}
     secrets: inherit
+
+  build-push-debian-oldstable-container:
+    name: Build and Push debian:oldstable to Greenbone Registry
+    uses: greenbone/workflows/.github/workflows/container-build-push-2nd-gen.yml@main
+    with:
+      build-docker-file: .docker/prod-oldstable.Dockerfile
+      image-url: community/gvm-libs
+      image-labels: |
+        org.opencontainers.image.vendor=Greenbone
+        org.opencontainers.image.base.name=debian:stable-slim
+      ref-name: ${{ inputs.ref-name }}
+    secrets: inherit
+
+  build-push-debian-testing-container:
+    name: Build and Push debian:testing to Greenbone Registry
+    uses: greenbone/workflows/.github/workflows/container-build-push-2nd-gen.yml@main
+    with:
+      build-docker-file: .docker/prod-testing.Dockerfile
+      image-url: community/gvm-libs
+      image-labels: |
+        org.opencontainers.image.vendor=Greenbone
+        org.opencontainers.image.base.name=debian:stable-slim
+      ref-name: ${{ inputs.ref-name }}
+    secrets: inherit
+
+  # triggers projects that work with stable branches on a new stable tag
+  trigger-stable-projects:
+    needs: build-push-debian-stable-container
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    name: Trigger update container images in related projects for new tags
+    strategy:
+      fail-fast: false
+      matrix:
+        repository: ["greenbone/gvmd", "greenbone/gsad"]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger ${{ matrix.repository }} build container image build
+        uses: greenbone/actions/trigger-workflow@v3
+        with:
+          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
+          repository: ${{ matrix.repository }}
+          workflow: build-container.yml
+          ref: main
+      - name: Trigger ${{ matrix.repository }} container image build
+        uses: greenbone/actions/trigger-workflow@v3
+        with:
+          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
+          repository: ${{ matrix.repository }}
+          workflow: container.yml
+          ref: main
+
+  trigger-related-projects:
+    needs: build-push-debian-stable-container
+    if: github.event_name != 'pull_request'
+    name: Trigger update container images in related projects
+    strategy:
+      fail-fast: false
+      matrix:
+        repository:
+          - "greenbone/openvas-scanner"
+          - "greenbone/boreas"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger main ${{ matrix.repository }} container image build
+        uses: greenbone/actions/trigger-workflow@v3
+        with:
+          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
+          repository: ${{ matrix.repository }}
+          workflow: ${{ matrix.repository == 'greenbone/openvas-scanner' && 'control.yml' || 'container.yml' }}
+          ref: main
