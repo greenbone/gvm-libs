@@ -112,13 +112,13 @@ endif (BUILD_WITH_LDAP)
 include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS}
                      ${LIBXML2_INCLUDE_DIRS})
 
-set (FILES cpeutils.c passwordbasedauthentication.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
-           nvticache.c mqtt.c radiusutils.c serverutils.c sshutils.c uuidutils.c versionutils.c
-           xmlutils.c jsonpull.c)
+set (FILES cpeutils.c passwordbasedauthentication.c compressutils.c fileutils.c gpgmeutils.c jsonpull.c kb.c
+           ldaputils.c nvticache.c mqtt.c radiusutils.c serverutils.c sshutils.c uuidutils.c versionutils.c
+           xmlutils.c)
 
-set (HEADERS cpeutils.h passwordbasedauthentication.h authutils.h compressutils.h fileutils.h gpgmeutils.h kb.h
-             ldaputils.h nvticache.h mqtt.h radiusutils.h serverutils.h sshutils.h
-             uuidutils.h xmlutils.h jsonpull.h versionutils.h)
+set (HEADERS cpeutils.h passwordbasedauthentication.h authutils.h compressutils.h fileutils.h gpgmeutils.h
+             jsonpull.h kb.h ldaputils.h nvticache.h mqtt.h radiusutils.h serverutils.h sshutils.h
+             uuidutils.h versionutils.h xmlutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})
@@ -190,10 +190,10 @@ if (BUILD_TESTS)
 
   target_link_libraries (cpeutils-test ${CGREEN_LIBRARIES}
                         ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
-              ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
-              ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
-              ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
-              ${LINKER_HARDENING_FLAGS})
+                        ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+                        ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+                        ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+                        ${LINKER_HARDENING_FLAGS})
 
   add_custom_target (tests-cpeutils
                     DEPENDS cpeutils-test)
@@ -208,10 +208,10 @@ if (BUILD_TESTS)
 
   target_link_libraries (versionutils-test ${CGREEN_LIBRARIES}
                         ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
-              ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
-              ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
-              ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
-              ${LINKER_HARDENING_FLAGS})
+                        ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+                        ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+                        ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+                        ${LINKER_HARDENING_FLAGS})
 
   add_custom_target (tests-versionutils
                     DEPENDS versionutils-test)
@@ -226,10 +226,10 @@ if (BUILD_TESTS)
 
   target_link_libraries (xmlutils-test ${CGREEN_LIBRARIES}
                         ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
-              ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
-              ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
-              ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
-              ${LINKER_HARDENING_FLAGS})
+                        ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+                        ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+                        ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+                        ${LINKER_HARDENING_FLAGS})
 
   add_custom_target (tests-xmlutils
                     DEPENDS xmlutils-test)

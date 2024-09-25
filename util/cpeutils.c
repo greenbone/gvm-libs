@@ -29,6 +29,69 @@
  */
 #define G_LOG_DOMAIN "libgvm util"
 
+static enum set_relation
+compare_component (const char *, const char *);
+
+static enum set_relation
+compare_strings (const char *, const char *);
+
+static int
+count_escapes (const char *, int, int);
+
+static gboolean
+is_even_wildcards (const char *, int);
+
+static gboolean
+has_wildcards (const char *);
+
+static int
+index_of (const char *, const char *, int);
+
+static gboolean
+is_string (const char *);
+
+static char *
+get_uri_component (const char *, int);
+
+static char *
+decode_uri_component (const char *);
+
+static void
+unpack_sixth_uri_component (const char *, cpe_struct_t *);
+
+static char *
+get_fs_component (const char *, int);
+
+static char *
+unbind_fs_component (char *);
+
+static char *
+add_quoting (const char *);
+
+static char *
+bind_cpe_component_for_uri (const char *);
+
+static char *
+transform_for_uri (const char *);
+
+static char *
+pack_sixth_uri_component (const cpe_struct_t *);
+
+static char *
+bind_cpe_component_for_fs (const char *);
+
+static char *
+process_quoted_chars (const char *);
+
+static void
+trim_pct (char *);
+
+static void
+get_code (char *, const char *);
+
+static void
+str_cpy (char **, const char *, int);
+
 /**
  * @brief Convert a URI CPE to a formatted string CPE.
  *
@@ -50,6 +113,26 @@ uri_cpe_to_fs_cpe (const char *uri_cpe)
 }
 
 /**
+ * @brief Convert a URI CPE to a formatted string product.
+ *
+ * @param[in]  uri_cpe  A CPE v2.2-conformant URI.
+ *
+ * @return  A formatted string product.
+ */
+char *
+uri_cpe_to_fs_product (const char *uri_cpe)
+{
+  cpe_struct_t cpe;
+  char *fs_cpe;
+
+  cpe_struct_init (&cpe);
+  uri_cpe_to_cpe_struct (uri_cpe, &cpe);
+  fs_cpe = cpe_struct_to_fs_product (&cpe);
+  cpe_struct_free (&cpe);
+  return (fs_cpe);
+}
+
+/**
  * @brief Convert a formatted string CPE to a URI CPE.
  *
  * @param[in]  fs_cpe  A formatted string CPE.
@@ -65,6 +148,26 @@ fs_cpe_to_uri_cpe (const char *fs_cpe)
   cpe_struct_init (&cpe);
   fs_cpe_to_cpe_struct (fs_cpe, &cpe);
   uri_cpe = cpe_struct_to_uri_cpe (&cpe);
+  cpe_struct_free (&cpe);
+  return (uri_cpe);
+}
+
+/**
+ * @brief Convert a formatted string CPE to an URI product.
+ *
+ * @param[in]  fs_cpe  A formatted string CPE.
+ *
+ * @return  An URI product.
+ */
+char *
+fs_cpe_to_uri_product (const char *fs_cpe)
+{
+  cpe_struct_t cpe;
+  char *uri_cpe;
+
+  cpe_struct_init (&cpe);
+  fs_cpe_to_cpe_struct (fs_cpe, &cpe);
+  uri_cpe = cpe_struct_to_uri_product (&cpe);
   cpe_struct_free (&cpe);
   return (uri_cpe);
 }
@@ -160,6 +263,44 @@ cpe_struct_to_uri_cpe (const cpe_struct_t *cpe)
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_uri (cpe->language);
+  if (bind_cpe_component)
+    {
+      g_string_append_printf (uri_cpe, "%s:", bind_cpe_component);
+      g_free (bind_cpe_component);
+    }
+
+  char *result = g_string_free (uri_cpe, FALSE);
+  trim_pct (result);
+  return (result);
+}
+
+/**
+ * @brief Convert a CPE struct into a URI product.
+ *
+ * @param[in]   cpe  A pointer to the CPE struct.
+ *
+ * @return  A CPE v2.2-conformant URI product.
+ */
+char *
+cpe_struct_to_uri_product (const cpe_struct_t *cpe)
+{
+  GString *uri_cpe;
+  char *bind_cpe_component;
+  uri_cpe = g_string_new ("cpe:/");
+
+  bind_cpe_component = bind_cpe_component_for_uri (cpe->part);
+  if (bind_cpe_component)
+    {
+      g_string_append_printf (uri_cpe, "%s:", bind_cpe_component);
+      g_free (bind_cpe_component);
+    }
+  bind_cpe_component = bind_cpe_component_for_uri (cpe->vendor);
+  if (bind_cpe_component)
+    {
+      g_string_append_printf (uri_cpe, "%s:", bind_cpe_component);
+      g_free (bind_cpe_component);
+    }
+  bind_cpe_component = bind_cpe_component_for_uri (cpe->product);
   if (bind_cpe_component)
     {
       g_string_append_printf (uri_cpe, "%s:", bind_cpe_component);
@@ -296,6 +437,42 @@ cpe_struct_to_fs_cpe (const cpe_struct_t *cpe)
   if (bind_cpe_component)
     {
       g_string_append_printf (fs_cpe, "%s", bind_cpe_component);
+      g_free (bind_cpe_component);
+    }
+  return (g_string_free (fs_cpe, FALSE));
+}
+
+/**
+ * @brief Convert a CPE struct into a formatted string product.
+ *
+ * @param[in]   cpe  A pointer to the CPE struct.
+ *
+ * @return  A formatted string product.
+ */
+char *
+cpe_struct_to_fs_product (const cpe_struct_t *cpe)
+{
+  GString *fs_cpe;
+  char *bind_cpe_component;
+
+  fs_cpe = g_string_new ("cpe:2.3:");
+
+  bind_cpe_component = bind_cpe_component_for_fs (cpe->part);
+  if (bind_cpe_component)
+    {
+      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_free (bind_cpe_component);
+    }
+  bind_cpe_component = bind_cpe_component_for_fs (cpe->vendor);
+  if (bind_cpe_component)
+    {
+      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_free (bind_cpe_component);
+    }
+  bind_cpe_component = bind_cpe_component_for_fs (cpe->product);
+  if (bind_cpe_component)
+    {
+      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
       g_free (bind_cpe_component);
     }
   return (g_string_free (fs_cpe, FALSE));
