@@ -754,6 +754,7 @@ gvm_json_pull_parser_next (gvm_json_pull_parser_t *parser,
           return;
         }
     }
+  
   event->path = parser->path;
 
   // Delayed addition to path after a container start element
