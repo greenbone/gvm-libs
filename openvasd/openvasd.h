@@ -12,6 +12,7 @@
 #define _GVM_OPENVASD_H
 
 #include <glib.h>
+#include <stdio.h>
 #include <time.h>
 
 /** @brief Struct to hold an scan result */
@@ -268,5 +269,30 @@ openvasd_vt_single_add_value (openvasd_vt_single_t *, const char *,
 /* Scan config builder */
 gchar *
 openvasd_build_scan_config_json (openvasd_target_t *, GHashTable *, GSList *);
+
+/* Curl multiperform wrapper */
+
+typedef struct curl_handlers curl_handler_t;
+
+void
+openvasd_curl_handler_close (curl_handler_t *);
+
+/** @brief Define a string struct for storing the response.
+ */
+typedef struct string
+{
+  char *ptr;
+  size_t len;
+} stringstream;
+
+void
+init_stringstream (stringstream *s);
+
+openvasd_resp_t
+openvasd_get_vts_stream_init (openvasd_connector_t *, curl_handler_t **,
+                              stringstream *);
+
+int
+openvasd_get_vts_stream (curl_handler_t *);
 
 #endif
