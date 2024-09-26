@@ -23,8 +23,8 @@ pkg_check_modules (GLIB_JSON REQUIRED json-glib-1.0>=1.4.4)
 include_directories (${GLIB_INCLUDE_DIRS} ${GLIB_JSON_INCLUDE_DIRS}
                      ${CURL_INCLUDE_DIRS})
 
-set (FILES openvasd.c jsonutils.c)
-set (HEADERS openvasd.h jsonutils.h)
+set (FILES openvasd.c vtparser.c)
+set (HEADERS openvasd.h vtparser.h)
 
 if (BUILD_STATIC)
   add_library (gvm_openvasd_static STATIC ${FILES})
