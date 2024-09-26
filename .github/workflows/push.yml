@@ -34,6 +34,7 @@ jobs:
       image-labels: |
         org.opencontainers.image.vendor=Greenbone
         org.opencontainers.image.base.name=debian:stable-slim
+      base-image-label: "oldstable"
       ref-name: ${{ inputs.ref-name }}
     secrets: inherit
 
@@ -42,10 +43,11 @@ jobs:
     uses: greenbone/workflows/.github/workflows/container-build-push-2nd-gen.yml@main
     with:
       build-docker-file: .docker/prod-testing.Dockerfile
-      image-url: community/gvm-libs
+      image-url: community/gvm-li
       image-labels: |
         org.opencontainers.image.vendor=Greenbone
         org.opencontainers.image.base.name=debian:stable-slim
+      base-image-label: "testing"
       ref-name: ${{ inputs.ref-name }}
     secrets: inherit
 
