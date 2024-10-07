@@ -110,9 +110,6 @@ void
 gvm_json_pull_event_init (gvm_json_pull_event_t *);
 
 void
-gvm_json_pull_event_reset (gvm_json_pull_event_t *);
-
-void
 gvm_json_pull_event_cleanup (gvm_json_pull_event_t *);
 
 void
