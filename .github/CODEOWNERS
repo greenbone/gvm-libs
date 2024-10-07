@@ -2,5 +2,5 @@
 *                 @greenbone/gvm-libs-maintainers
 
 # dev ops
-.github/          @greenbone/devops @greenbone/gvm-libs-maintainers
-.docker/          @greenbone/devops @greenbone/gvm-libs-maintainers
+.github/          @greenbone/gvm-libs-maintainers
+.docker/          @greenbone/gvm-libs-maintainers
