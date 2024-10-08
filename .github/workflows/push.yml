@@ -43,7 +43,7 @@ jobs:
     uses: greenbone/workflows/.github/workflows/container-build-push-2nd-gen.yml@main
     with:
       build-docker-file: .docker/prod-testing.Dockerfile
-      image-url: community/gvm-li
+      image-url: community/gvm-libs
       image-labels: |
         org.opencontainers.image.vendor=Greenbone
         org.opencontainers.image.base.name=debian:stable-slim
