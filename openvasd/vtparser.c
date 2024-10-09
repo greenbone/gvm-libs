@@ -323,9 +323,11 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
       g_debug ("%s: Start parsing feed", __func__);
     }
   else if (!g_strcmp0 (path, "$")
-           && event->type == GVM_JSON_PULL_EVENT_ARRAY_END)
+           && (event->type == GVM_JSON_PULL_EVENT_ARRAY_END
+               || event->type == GVM_JSON_PULL_EVENT_EOF))
     {
       g_debug ("%s: Finish parsing feed", __func__);
+      g_free (path);
       return NULL;
     }
   g_free (path);
@@ -333,7 +335,7 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
   // It is an NVT object
   if (event->type != GVM_JSON_PULL_EVENT_OBJECT_START)
     {
-      g_message ("%s: Error reading VT object", __func__);
+      g_warning ("%s: Error reading VT object", __func__);
       return NULL;
     }
 
