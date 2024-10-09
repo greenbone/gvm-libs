@@ -272,10 +272,7 @@ openvasd_build_scan_config_json (openvasd_target_t *, GHashTable *, GSList *);
 
 /* Curl multiperform wrapper */
 
-typedef struct curl_handlers curl_handler_t;
-
-void
-openvasd_curl_handler_close (curl_handler_t *);
+typedef void *curlm_t;
 
 /** @brief Define a string struct for storing the response.
  */
@@ -288,11 +285,16 @@ typedef struct string
 void
 init_stringstream (stringstream *s);
 
+curlm_t
+openvasd_curlm_handler_new (void);
+
+void
+openvasd_curl_handler_close (curlm_t *);
+
 openvasd_resp_t
-openvasd_get_vts_stream_init (openvasd_connector_t *, curl_handler_t **,
+openvasd_get_vts_stream_init (openvasd_connector_t *, curlm_t *,
                               stringstream *);
 
-int
-openvasd_get_vts_stream (curl_handler_t *);
+int openvasd_get_vts_stream (curlm_t);
 
 #endif

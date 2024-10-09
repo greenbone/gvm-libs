@@ -17,7 +17,6 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 #include <curl/multi.h>
-#include <gnutls/gnutls.h>
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -231,6 +230,7 @@ openvasd_response_free (openvasd_resp_t resp)
   resp = NULL;
 }
 
+
 /** @brief Initialize the string struct to hold the response
  *
  *  @param s[in/out] The string struct to be initialized
@@ -246,6 +246,17 @@ init_stringstream (stringstream *s)
       return;
     }
   s->ptr[0] = '\0';
+}
+
+/** @brief Reinitialize the string struct to hold the response
+ *
+ *  @param s[in/out] The string struct to be initialized
+ */
+static void
+reset_stringstream (stringstream *s)
+{
+  g_free (s->ptr);
+  init_stringstream(s);
 }
 
 /** @brief Call back function to stored the response.
@@ -516,29 +527,34 @@ openvasd_get_version (openvasd_connector_t *conn)
   g_free (resp.ptr);
   return response;
 }
-
-struct curl_handlers
-{
-  CURLM *mhnd;
-  CURL *hnd;
-};
-
 /**
  * @brief Wrapps a CURLM * handler
  */
-static curl_handler_t *
-curlm_handler_new (void)
+curlm_t
+openvasd_curlm_handler_new (void)
 {
-  curl_handler_t *handlers = g_malloc0 (sizeof (curl_handler_t));
-  return handlers;
+  CURLM *h = NULL;
+  return h;
 }
 
 void
-openvasd_curl_handler_close (curl_handler_t *h)
+openvasd_curl_handler_close (curlm_t *h)
 {
-  curl_multi_remove_handle (h->mhnd, h->hnd);
-  curl_easy_cleanup (h->hnd);
-  curl_multi_cleanup (h->mhnd);
+  int queued = 0;
+
+  /* when an easy handle has completed, remove it */
+  CURLMsg *msg = curl_multi_info_read (h, &queued);
+  if (msg)
+    {
+      if (msg->msg == CURLMSG_DONE)
+        {
+          curl_multi_remove_handle (h, msg->easy_handle);
+          curl_easy_cleanup (msg->easy_handle);
+          curl_multi_cleanup (h);
+          return;
+        }
+      g_warning ("%s: Not possible to clean up the curl handler", __func__);
+    }
 }
 
 /**
@@ -552,15 +568,14 @@ openvasd_curl_handler_close (curl_handler_t *h)
  * @return The response. Null on error.
  */
 openvasd_resp_t
-openvasd_get_vts_stream_init (openvasd_connector_t *conn, curl_handler_t **h,
+openvasd_get_vts_stream_init (openvasd_connector_t *conn, curlm_t *mhnd,
                               stringstream *resp)
 {
   GString *path;
   openvasd_resp_t response = NULL;
   char *err = NULL;
   CURL *hnd = NULL;
-
-  *h = curlm_handler_new ();
+  CURLM *h = NULL;
   response = g_malloc0 (sizeof (struct openvasd_response));
   if (response == NULL)
     return NULL;
@@ -576,9 +591,9 @@ openvasd_get_vts_stream_init (openvasd_connector_t *conn, curl_handler_t **h,
     }
   g_string_free (path, TRUE);
 
-  (*h)->mhnd = curl_multi_init ();
-  curl_multi_add_handle ((*h)->mhnd, hnd);
-  (*h)->hnd = hnd;
+  h = curl_multi_init ();
+  curl_multi_add_handle (h, hnd);
+  *mhnd = h;
 
   response->code = RESP_CODE_OK;
   return response;
@@ -596,19 +611,19 @@ openvasd_get_vts_stream_init (openvasd_connector_t *conn, curl_handler_t **h,
  * transmision finished. -1 on error
  */
 int
-openvasd_get_vts_stream (curl_handler_t *h)
+openvasd_get_vts_stream (curlm_t mhnd)
 {
   static int running = 0;
-
-  if (!(h->mhnd))
+  CURLM *h = mhnd;
+  if (!(h))
     {
       return -1;
     }
 
-  CURLMcode mc = curl_multi_perform (h->mhnd, &running);
+  CURLMcode mc = curl_multi_perform (h, &running);
   if (!mc && running)
     /* wait for activity, timeout or "nothing" */
-    mc = curl_multi_poll (h->mhnd, NULL, 0, 5000, NULL);
+    mc = curl_multi_poll (h, NULL, 0, 5000, NULL);
   if (mc != CURLM_OK)
     {
       g_warning ("%s: error on curl_multi_poll(): %d\n", __func__, mc);
@@ -723,7 +738,8 @@ openvasd_start_scan (openvasd_connector_t *conn, char *data)
         }
       response->code = RESP_CODE_ERR;
       g_free (resp.ptr);
-      goto cleanup_start_scan;
+      cJSON_Delete (parser);
+      return response;
     }
 
   (*conn)->scan_id = g_strdup (cJSON_GetStringValue (parser));
@@ -741,11 +757,11 @@ openvasd_start_scan (openvasd_connector_t *conn, char *data)
       response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
       g_string_free (path, TRUE);
       g_warning ("%s: Missing scan ID", __func__);
-      g_free (resp.ptr);
-      goto cleanup_start_scan;
+      cJSON_Delete (parser);
+      return response;
     }
-  g_free (resp.ptr);
-  init_stringstream (&resp);
+
+  reset_stringstream (&resp);
   if ((hnd = handler (conn, POST, path->str, "{\"action\": \"start\"}", &resp,
                       &err))
       == NULL)
@@ -771,9 +787,7 @@ openvasd_start_scan (openvasd_connector_t *conn, char *data)
       return response;
     }
 
-cleanup_start_scan:
   cJSON_Delete (parser);
-
   response->body = g_strdup (resp.ptr);
   g_free (resp.ptr);
   return response;
@@ -1000,12 +1014,12 @@ openvasd_parsed_results (openvasd_connector_t *conn, unsigned long first,
   const char *err = NULL;
   openvasd_resp_t resp = NULL;
   openvasd_result_t result = NULL;
-  unsigned long id;
+  unsigned long id = 0;
   gchar *type = NULL;
   gchar *ip_address = NULL;
   gchar *hostname = NULL;
   gchar *oid = NULL;
-  int port;
+  int port = 0;
   gchar *protocol = NULL;
   gchar *message = NULL;
   gchar *detail_name = NULL;
@@ -1701,7 +1715,7 @@ openvasd_parsed_scans_preferences (openvasd_connector_t *conn, GSList **params)
 
   cJSON_ArrayForEach (param_obj, parser)
   {
-    const char *id, *name, *desc;
+    const char *id = NULL, *name = NULL, *desc = NULL;
     char *defval = NULL, *param_type = NULL;
     openvasd_param_t *param = NULL;
     int val, mandatory = 0;
