@@ -24,7 +24,7 @@ include_directories (${GLIB_INCLUDE_DIRS} ${GLIB_JSON_INCLUDE_DIRS}
                      ${CURL_INCLUDE_DIRS})
 
 set (FILES openvasd.c vtparser.c)
-set (HEADERS openvasd.h vtparser.h)
+set (HEADERS openvasd.h)
 
 if (BUILD_STATIC)
   add_library (gvm_openvasd_static STATIC ${FILES})

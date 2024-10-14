@@ -10,10 +10,9 @@
 
 #define _GNU_SOURCE /* See feature_test_macros(7) */
 #define _FILE_OFFSET_BITS 64
-#include "vtparser.h"
-
 #include "../base/cvss.h"
 #include "../util/jsonpull.h"
+#include "openvasd.h"
 
 #include <cjson/cJSON.h>
 #include <stdio.h>

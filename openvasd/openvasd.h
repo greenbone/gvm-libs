@@ -11,6 +11,9 @@
 #ifndef _GVM_OPENVASD_H
 #define _GVM_OPENVASD_H
 
+#include "../base/nvti.h"
+#include "../util/jsonpull.h"
+
 #include <glib.h>
 #include <stdio.h>
 #include <time.h>
@@ -19,18 +22,18 @@
 struct openvasd_result
 {
   unsigned long id;
-  gchar *type;
-  gchar *ip_address;
-  gchar *hostname;
-  gchar *oid;
+  char *type;
+  char *ip_address;
+  char *hostname;
+  char *oid;
   int port;
-  gchar *protocol;
-  gchar *message;
-  gchar *detail_name;
-  gchar *detail_value;
-  gchar *detail_source_type;
-  gchar *detail_source_name;
-  gchar *detail_source_description;
+  char *protocol;
+  char *message;
+  char *detail_name;
+  char *detail_value;
+  char *detail_source_type;
+  char *detail_source_name;
+  char *detail_source_description;
 };
 
 /** @brief Openvasd Errors */
@@ -156,15 +159,14 @@ openvasd_resp_t
 openvasd_get_scan_results (openvasd_connector_t *, long, long);
 
 openvasd_result_t
-openvasd_result_new (unsigned long, gchar *, gchar *, gchar *, gchar *, int,
-                     gchar *, gchar *, gchar *, gchar *, gchar *, gchar *,
-                     gchar *);
+openvasd_result_new (unsigned long, char *, char *, char *, char *, int, char *,
+                     char *, char *, char *, char *, char *, char *);
 
 void
 openvasd_result_free (openvasd_result_t *);
 
-gchar *openvasd_get_result_member_str (openvasd_result_t,
-                                       openvasd_result_member_string_t);
+char *openvasd_get_result_member_str (openvasd_result_t,
+                                      openvasd_result_member_string_t);
 
 int openvasd_get_result_member_int (openvasd_result_t,
                                     openvasd_result_member_int_t);
@@ -267,34 +269,37 @@ openvasd_vt_single_add_value (openvasd_vt_single_t *, const char *,
                               const char *);
 
 /* Scan config builder */
-gchar *
+char *
 openvasd_build_scan_config_json (openvasd_target_t *, GHashTable *, GSList *);
 
 /* Curl multiperform wrapper */
 
-typedef void *curlm_t;
+typedef void *openvasd_curlm_t;
 
 /** @brief Define a string struct for storing the response.
  */
-typedef struct string
+typedef struct openvasd_string
 {
   char *ptr;
   size_t len;
-} stringstream;
+} openvasd_stringstream;
 
 void
-init_stringstream (stringstream *s);
+init_openvasd_stringstream (openvasd_stringstream *s);
 
-curlm_t
+openvasd_curlm_t
 openvasd_curlm_handler_new (void);
 
 void
-openvasd_curl_handler_close (curlm_t *);
+openvasd_curl_handler_close (openvasd_curlm_t *);
 
 openvasd_resp_t
-openvasd_get_vts_stream_init (openvasd_connector_t *, curlm_t *,
-                              stringstream *);
+openvasd_get_vts_stream_init (openvasd_connector_t *, openvasd_curlm_t *,
+                              openvasd_stringstream *);
 
-int openvasd_get_vts_stream (curlm_t);
+int openvasd_get_vts_stream (openvasd_curlm_t);
+
+nvti_t *
+openvasd_parse_vt (gvm_json_pull_parser_t *, gvm_json_pull_event_t *);
 
 #endif
