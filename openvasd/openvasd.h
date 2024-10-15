@@ -22,18 +22,18 @@
 struct openvasd_result
 {
   unsigned long id;
-  char *type;
-  char *ip_address;
-  char *hostname;
-  char *oid;
+  gchar *type;
+  gchar *ip_address;
+  gchar *hostname;
+  gchar *oid;
   int port;
-  char *protocol;
-  char *message;
-  char *detail_name;
-  char *detail_value;
-  char *detail_source_type;
-  char *detail_source_name;
-  char *detail_source_description;
+  gchar *protocol;
+  gchar *message;
+  gchar *detail_name;
+  gchar *detail_value;
+  gchar *detail_source_type;
+  gchar *detail_source_name;
+  gchar *detail_source_description;
 };
 
 /** @brief Openvasd Errors */
@@ -96,9 +96,9 @@ typedef enum
 
 struct openvasd_response
 {
-  long code;    /**< HTTP code response. */
-  char *body;   /**< String containing the body response. */
-  char *header; /**< A header value. */
+  long code;     /**< HTTP code response. */
+  gchar *body;   /**< String containing the body response. */
+  gchar *header; /**< A header value. */
 };
 
 struct openvasd_scan_status
@@ -147,7 +147,7 @@ openvasd_resp_t
 openvasd_get_vts (openvasd_connector_t *);
 
 openvasd_resp_t
-openvasd_start_scan (openvasd_connector_t *, char *);
+openvasd_start_scan (openvasd_connector_t *, gchar *);
 
 openvasd_resp_t
 openvasd_stop_scan (openvasd_connector_t *);
@@ -159,8 +159,9 @@ openvasd_resp_t
 openvasd_get_scan_results (openvasd_connector_t *, long, long);
 
 openvasd_result_t
-openvasd_result_new (unsigned long, char *, char *, char *, char *, int, char *,
-                     char *, char *, char *, char *, char *, char *);
+openvasd_result_new (unsigned long, gchar *, gchar *, gchar *, gchar *, int,
+                     gchar *, gchar *, gchar *, gchar *, gchar *, gchar *,
+                     gchar *);
 
 void
 openvasd_result_free (openvasd_result_t *);
@@ -233,11 +234,11 @@ typedef struct openvasd_vt_single openvasd_vt_single_t;
 typedef struct openvasd_credential openvasd_credential_t;
 
 openvasd_target_t *
-openvasd_target_new (const char *, const char *, const char *, const char *,
+openvasd_target_new (const gchar *, const gchar *, const gchar *, const gchar *,
                      int, int);
 
 void
-openvasd_target_set_finished_hosts (openvasd_target_t *, const char *);
+openvasd_target_set_finished_hosts (openvasd_target_t *, const gchar *);
 
 void
 openvasd_target_add_alive_test_methods (openvasd_target_t *, gboolean, gboolean,
@@ -247,11 +248,11 @@ void
 openvasd_target_free (openvasd_target_t *);
 
 openvasd_credential_t *
-openvasd_credential_new (const char *, const char *, const char *);
+openvasd_credential_new (const gchar *, const gchar *, const gchar *);
 
 void
-openvasd_credential_set_auth_data (openvasd_credential_t *, const char *,
-                                   const char *);
+openvasd_credential_set_auth_data (openvasd_credential_t *, const gchar *,
+                                   const gchar *);
 void
 openvasd_credential_free (openvasd_credential_t *);
 
@@ -259,14 +260,14 @@ void
 openvasd_target_add_credential (openvasd_target_t *, openvasd_credential_t *);
 
 openvasd_vt_single_t *
-openvasd_vt_single_new (const char *);
+openvasd_vt_single_new (const gchar *);
 
 void
 openvasd_vt_single_free (openvasd_vt_single_t *);
 void
 
-openvasd_vt_single_add_value (openvasd_vt_single_t *, const char *,
-                              const char *);
+openvasd_vt_single_add_value (openvasd_vt_single_t *, const gchar *,
+                              const gchar *);
 
 /* Scan config builder */
 char *
@@ -280,7 +281,7 @@ typedef void *openvasd_curlm_t;
  */
 typedef struct openvasd_string
 {
-  char *ptr;
+  gchar *ptr;
   size_t len;
 } openvasd_stringstream;
 

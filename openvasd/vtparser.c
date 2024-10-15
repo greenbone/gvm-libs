@@ -45,7 +45,7 @@ typedef enum
  * @return Integer representing the category type.
  */
 static int
-get_category_from_name (const char *cat)
+get_category_from_name (const gchar *cat)
 {
   if (!g_strcmp0 (cat, "init"))
     return ACT_INIT;
@@ -132,7 +132,7 @@ add_tags_to_nvt (nvti_t *nvt, cJSON *tag_obj)
         nvti_set_detection (nvt, item->valuestring);
 
       // Parse severity
-      char *severity_vector = NULL;
+      gchar *severity_vector = NULL;
 
       if ((item = cJSON_GetObjectItem (tag_obj, "severity_vector")) != NULL
           && cJSON_IsString (item))
@@ -147,8 +147,8 @@ add_tags_to_nvt (nvti_t *nvt, cJSON *tag_obj)
 
       if (severity_vector)
         {
-          char *severity_origin = NULL, *severity_type = NULL;
-          char *cvss_base;
+          gchar *severity_origin = NULL, *severity_type = NULL;
+          gchar *cvss_base;
 
           time_t severity_date = 0;
           double cvss_base_dbl;
@@ -202,7 +202,7 @@ parse_references (nvti_t *nvt, cJSON *vt_obj)
       cJSON *ref_item;
       cJSON_ArrayForEach (ref_obj, item)
       {
-        char *id, *class;
+        gchar *id, *class;
 
         if (!cJSON_IsObject (ref_obj))
           {
@@ -248,7 +248,7 @@ add_preferences_to_nvt (nvti_t *nvt, cJSON *vt_obj)
 
           cJSON_ArrayForEach (prefs_obj, item)
           {
-            char *class, *name, *default_val;
+            gchar *class, *name, *default_val;
             int id;
             if (!cJSON_IsObject (prefs_obj))
               {
@@ -260,7 +260,7 @@ add_preferences_to_nvt (nvti_t *nvt, cJSON *vt_obj)
             if ((prefs_item = cJSON_GetObjectItem (prefs_obj, "class")) == NULL
                 || !cJSON_IsString (prefs_item))
               {
-                g_warning ("%s: PREF missing type attribute", __func__);
+                g_warning ("%s: PREF missing class attribute", __func__);
                 continue;
               }
             class = prefs_item->valuestring;
@@ -285,7 +285,7 @@ add_preferences_to_nvt (nvti_t *nvt, cJSON *vt_obj)
                   == NULL
                 || !cJSON_IsString (prefs_item))
               {
-                g_warning ("%s: PREF missing name attribute", __func__);
+                g_warning ("%s: PREF missing default attribute", __func__);
                 continue;
               }
             default_val = prefs_item->valuestring;
@@ -299,10 +299,11 @@ add_preferences_to_nvt (nvti_t *nvt, cJSON *vt_obj)
 /**
  * @brief Parse a VT element given in json format.
  *
- * @param[in] reader JSON reader object pointing to an VT element.
+ * @param parser Json pull parser.
+ * @param event Json pull event.
  *
- * @return nvti structur containing the VT metadata, NULL otherwise.
- *              The nvti struct must be free() by the caller
+ * @return nvti structure containing the VT metadata, NULL otherwise.
+ *              The nvti struct must be freed with nvti_free() by the caller.
  */
 nvti_t *
 openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
@@ -310,12 +311,12 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
   nvti_t *nvt = NULL;
   cJSON *vt_obj = NULL;
   cJSON *item = NULL;
-  char *error_message = NULL;
+  gchar *error_message = NULL;
 
   gvm_json_pull_parser_next (parser, event);
 
   // Handle start/end of json array
-  char *path = gvm_json_path_to_string (event->path);
+  gchar *path = gvm_json_path_to_string (event->path);
   if (!g_strcmp0 (path, "$") && event->type == GVM_JSON_PULL_EVENT_ARRAY_START)
     {
       gvm_json_pull_parser_next (parser, event);
@@ -399,12 +400,6 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
   cJSON *tag_obj = cJSON_GetObjectItem (vt_obj, "tag");
   if (tag_obj)
     add_tags_to_nvt (nvt, tag_obj);
-  if (!nvt)
-    {
-      cJSON_Delete (vt_obj);
-      g_free (error_message);
-      return NULL;
-    }
 
   parse_references (nvt, vt_obj);
   add_preferences_to_nvt (nvt, vt_obj);
