@@ -70,8 +70,7 @@ typedef struct vtref
  *
  * @param ref_text The optional text accompanying a reference.
  *
- * @return NULL in case the memory could not be allocated.
- *         Else a vtref structure which needs to be
+ * @return A vtref structure which needs to be
  *         released using @ref vtref_free .
  */
 vtref_t *
@@ -174,8 +173,7 @@ typedef struct vtseverity
  * @param[in]  score  The score to be set.
  * @param[in]  value  The value corresponding to the type.
  *
- * @return NULL in case the memory could not be allocated.
- *         Else a vtref structure which needs to be
+ * @return A vtref structure which needs to be
  *         released using @ref vtref_free .
  */
 vtseverity_t *
@@ -458,8 +456,7 @@ typedef struct nvtpref
  *
  * @param dflt The default to be set. A copy will created of this.
  *
- * @return NULL in case the memory could not be allocated.
- *         Else a nvtpref structure which needs to be
+ * @return An nvtpref structure which needs to be
  *         released using @ref nvtpref_free .
  */
 nvtpref_t *
@@ -554,8 +551,7 @@ nvtpref_default (const nvtpref_t *np)
 /**
  * @brief Create a new (empty) nvti structure.
  *
- * @return NULL in case the memory could not be allocated.
- *         Else an empty nvti structure which needs to be
+ * @return An empty nvti structure which needs to be
  *         released using @ref nvti_free .
  *         The whole struct is initialized with 0's.
  */
