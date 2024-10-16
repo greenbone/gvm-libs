@@ -245,6 +245,17 @@ reset_openvasd_stringstream (openvasd_stringstream *s)
   init_openvasd_stringstream (s);
 }
 
+/** @brief Free the string struct to hold the response
+ *
+ *  @param s The string struct to be initialized
+ */
+static void
+free_openvasd_stringstream (openvasd_stringstream *s)
+{
+  if (s)
+    g_free (s->ptr);
+}
+
 /** @brief Call back function to stored the response.
  *
  *  The function signature is the necessary to work with
@@ -515,9 +526,10 @@ openvasd_get_version (openvasd_connector_t *conn)
   if ((hnd = handler (conn, HEAD, "/", NULL, customheader, &resp, &err))
       == NULL)
     {
+      curl_slist_free_all (customheader);
       response->code = RESP_CODE_ERR;
       response->body = err;
-      g_free (resp.ptr);
+      free_openvasd_stringstream (resp.ptr);
       return response;
     }
 
@@ -526,33 +538,50 @@ openvasd_get_version (openvasd_connector_t *conn)
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (resp.ptr);
 
-  g_free (resp.ptr);
+  free_openvasd_stringstream (resp.ptr);
   return response;
 }
+
 /**
- * @brief Wrapps a CURLM * handler
+ * @brief Wrapps a CURLM * handler and the custom header.
  */
-openvasd_curlm_t
+struct openvasd_curlm
+{
+  CURLM *h;
+  struct curl_slist *customheader;
+};
+
+/**
+ * @brief Allocate openvasd curl handler
+ *
+ * @return Openvasd curl handler.
+ */
+openvasd_curlm_t *
 openvasd_curlm_handler_new (void)
 {
-  CURLM *h = NULL;
-  return h;
+  return (openvasd_curlm_t *) g_malloc0 (sizeof (struct openvasd_curlm));
 }
 
+/**
+ * @brief Cleanup an openvasd curl handler
+ *
+ * @param h Openvasd curl handler to clean
+ */
 void
-openvasd_curl_handler_close (openvasd_curlm_t *h)
+openvasd_curlm_handler_close (openvasd_curlm_t *h)
 {
   int queued = 0;
 
   /* when an easy handle has completed, remove it */
-  CURLMsg *msg = curl_multi_info_read (h, &queued);
+  CURLMsg *msg = curl_multi_info_read (h->h, &queued);
   if (msg)
     {
       if (msg->msg == CURLMSG_DONE)
         {
-          curl_multi_remove_handle (h, msg->easy_handle);
+          curl_multi_remove_handle (h->h, msg->easy_handle);
           curl_easy_cleanup (msg->easy_handle);
-          curl_multi_cleanup (h);
+          curl_slist_free_all (h->customheader);
+          curl_multi_cleanup (h->h);
           return;
         }
       g_warning ("%s: Not possible to clean up the curl handler", __func__);
@@ -564,10 +593,12 @@ openvasd_curl_handler_close (openvasd_curlm_t *h)
  * metadata chunk by chunk.
  *
  * @param conn Connector struct with the data necessary for the connection
- * @param mhnd The curl multiperform handler
+ * @param mhnd The curl multiperform handler. It the caller doesn't provide
+ * it initialized, it will be initialized. The caller has to free it with
+ * openvasd_curlm_handler_close().
  * @param resp The stringstream struct for the write callback function.
  *
- * @return The response. Null on error.
+ * @return The response.
  */
 openvasd_resp_t
 openvasd_get_vts_stream_init (openvasd_connector_t *conn,
@@ -588,8 +619,9 @@ openvasd_get_vts_stream_init (openvasd_connector_t *conn,
   if ((hnd = handler (conn, GET, path->str, NULL, customheader, resp, &err))
       == NULL)
     {
+      curl_slist_free_all (customheader);
       g_string_free (path, TRUE);
-      g_free (resp->ptr);
+      free_openvasd_stringstream (resp);
       response->code = RESP_CODE_ERR;
       response->body = err;
       return response;
@@ -598,7 +630,12 @@ openvasd_get_vts_stream_init (openvasd_connector_t *conn,
 
   h = curl_multi_init ();
   curl_multi_add_handle (h, hnd);
-  *mhnd = h;
+
+  if (mhnd == NULL)
+    mhnd = openvasd_curlm_handler_new ();
+
+  mhnd->h = h;
+  mhnd->customheader = customheader;
 
   response->code = RESP_CODE_OK;
   return response;
@@ -616,10 +653,10 @@ openvasd_get_vts_stream_init (openvasd_connector_t *conn,
  * transmision finished. -1 on error
  */
 int
-openvasd_get_vts_stream (openvasd_curlm_t mhnd)
+openvasd_get_vts_stream (openvasd_curlm_t *mhnd)
 {
   static int running = 0;
-  CURLM *h = mhnd;
+  CURLM *h = mhnd->h;
   if (!(h))
     {
       return -1;
@@ -644,7 +681,7 @@ openvasd_get_vts_stream (openvasd_curlm_t mhnd)
  * @param conn Connector struct with the data necessary for the connection
  *
  * @return Response Struct containing the feed metadata in json format in the
- * body. NULL on error.
+ * body.
  */
 openvasd_resp_t
 openvasd_get_vts (openvasd_connector_t *conn)
@@ -664,8 +701,9 @@ openvasd_get_vts (openvasd_connector_t *conn)
   if ((hnd = handler (conn, GET, path->str, NULL, customheader, &resp, &err))
       == NULL)
     {
+      curl_slist_free_all (customheader);
       g_string_free (path, TRUE);
-      g_free (resp.ptr);
+      free_openvasd_stringstream (&resp);
       response->code = RESP_CODE_ERR;
       response->body = err;
       return response;
@@ -677,12 +715,12 @@ openvasd_get_vts (openvasd_connector_t *conn)
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (resp.ptr);
 
-  g_free (resp.ptr);
+  free_openvasd_stringstream (&resp);
   return response;
 }
 
 /**
- * @brief Get VT's metadata
+ * @Brief Get VT's metadata
  *
  * @param conn Connector struct with the data necessary for the connection
  * @param data String containing the scan config in JSON format.
@@ -707,7 +745,8 @@ openvasd_start_scan (openvasd_connector_t *conn, gchar *data)
   if ((hnd = handler (conn, POST, "/scans", data, customheader, &resp, &err))
       == NULL)
     {
-      g_free (resp.ptr);
+      curl_slist_free_all (customheader);
+      free_openvasd_stringstream (&resp);
       response->code = RESP_CODE_ERR;
       response->body = err;
       return response;
@@ -717,7 +756,7 @@ openvasd_start_scan (openvasd_connector_t *conn, gchar *data)
   curl_slist_free_all (customheader);
   if (response->code == RESP_CODE_ERR)
     {
-      g_free (resp.ptr);
+      free_openvasd_stringstream (&resp);
       response->code = RESP_CODE_ERR;
       if (response->body == NULL)
         response->body =
@@ -743,7 +782,7 @@ openvasd_start_scan (openvasd_connector_t *conn, gchar *data)
           g_warning ("%s: Parsing json string to get the scan ID", __func__);
         }
       response->code = RESP_CODE_ERR;
-      g_free (resp.ptr);
+      free_openvasd_stringstream (&resp);
       cJSON_Delete (parser);
       return response;
     }
@@ -773,7 +812,8 @@ openvasd_start_scan (openvasd_connector_t *conn, gchar *data)
                       customheader, &resp, &err))
       == NULL)
     {
-      g_free (resp.ptr);
+      curl_slist_free_all (customheader);
+      free_openvasd_stringstream (&resp);
       g_string_free (path, TRUE);
       response->code = RESP_CODE_ERR;
       response->body = err;
@@ -785,7 +825,7 @@ openvasd_start_scan (openvasd_connector_t *conn, gchar *data)
   curl_slist_free_all (customheader);
   if (response->code == RESP_CODE_ERR)
     {
-      g_free (resp.ptr);
+      free_openvasd_stringstream (&resp);
       response->code = RESP_CODE_ERR;
       if (response->body == NULL)
         response->body = g_strdup ("{\"error\": \"Starting the scan.\"}");
@@ -795,7 +835,7 @@ openvasd_start_scan (openvasd_connector_t *conn, gchar *data)
 
   cJSON_Delete (parser);
   response->body = g_strdup (resp.ptr);
-  g_free (resp.ptr);
+  free_openvasd_stringstream (&resp);
   return response;
 }
 
@@ -833,8 +873,9 @@ openvasd_stop_scan (openvasd_connector_t *conn)
                       customheader, &resp, &err))
       == NULL)
     {
+      curl_slist_free_all (customheader);
       g_string_free (path, TRUE);
-      g_free (resp.ptr);
+      free_openvasd_stringstream (&resp);
       response->code = RESP_CODE_ERR;
       response->body = err;
       return response;
@@ -846,7 +887,7 @@ openvasd_stop_scan (openvasd_connector_t *conn)
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (resp.ptr);
 
-  g_free (resp.ptr);
+  free_openvasd_stringstream (&resp);
   return response;
 }
 
@@ -888,8 +929,9 @@ openvasd_get_scan_results (openvasd_connector_t *conn, long first, long last)
   if ((hnd = handler (conn, GET, path->str, NULL, customheader, &resp, &err))
       == NULL)
     {
+      curl_slist_free_all (customheader);
       g_string_free (path, TRUE);
-      g_free (resp.ptr);
+      free_openvasd_stringstream (&resp);
       response->code = RESP_CODE_ERR;
       response->body = err;
       return response;
@@ -906,7 +948,7 @@ openvasd_get_scan_results (openvasd_connector_t *conn, long first, long last)
       response->body =
         g_strdup ("{\"error\": \"Not possible to get scan results\"}");
     }
-  g_free (resp.ptr);
+  free_openvasd_stringstream (&resp);
 
   return response;
 }
@@ -1172,8 +1214,9 @@ openvasd_get_scan_status (openvasd_connector_t *conn)
   if ((hnd = handler (conn, GET, path->str, NULL, customheader, &resp, &err))
       == NULL)
     {
+      curl_slist_free_all (customheader);
       g_string_free (path, TRUE);
-      g_free (resp.ptr);
+      free_openvasd_stringstream (&resp);
       response->code = RESP_CODE_ERR;
       response->body = err;
       return response;
@@ -1191,7 +1234,7 @@ openvasd_get_scan_status (openvasd_connector_t *conn)
       g_warning ("%s: Not possible to get scan status", __func__);
     }
 
-  g_free (resp.ptr);
+  free_openvasd_stringstream (&resp);
   return response;
 }
 
@@ -1328,7 +1371,7 @@ get_status_code_from_openvas (const gchar *status_val)
  *
  *  @param conn Openvasd connector data
  *
- *  @return The data in a struct. The struct must be free with g_free()
+ *  @return The data in a struct. The struct must be freed
  *          by the caller.
  */
 openvasd_scan_status_t
@@ -1419,8 +1462,9 @@ openvasd_delete_scan (openvasd_connector_t *conn)
   if ((hnd = handler (conn, DELETE, path->str, NULL, customheader, &resp, &err))
       == NULL)
     {
+      curl_slist_free_all (customheader);
       g_string_free (path, TRUE);
-      g_free (resp.ptr);
+      free_openvasd_stringstream (&resp);
       response->code = RESP_CODE_ERR;
       response->body = err;
       return response;
@@ -1438,7 +1482,7 @@ openvasd_delete_scan (openvasd_connector_t *conn)
       g_warning ("%s: Not possible to delete scan", __func__);
     }
 
-  g_free (resp.ptr);
+  free_openvasd_stringstream (&resp);
   return response;
 }
 
@@ -1459,7 +1503,8 @@ openvasd_get_health_alive (openvasd_connector_t *conn)
          handler (conn, GET, "/health/alive", NULL, customheader, &resp, &err))
       == NULL)
     {
-      g_free (resp.ptr);
+      curl_slist_free_all (customheader);
+      free_openvasd_stringstream (&resp);
       response->code = RESP_CODE_ERR;
       response->body = err;
       return response;
@@ -1476,7 +1521,7 @@ openvasd_get_health_alive (openvasd_connector_t *conn)
       g_warning ("%s: Not possible to get health information", __func__);
     }
 
-  g_free (resp.ptr);
+  free_openvasd_stringstream (&resp);
   return response;
 }
 
@@ -1497,7 +1542,7 @@ openvasd_get_health_ready (openvasd_connector_t *conn)
          handler (conn, GET, "/health/ready", NULL, customheader, &resp, &err))
       == NULL)
     {
-      g_free (resp.ptr);
+      free_openvasd_stringstream (&resp);
       response->code = RESP_CODE_ERR;
       response->body = err;
       return response;
@@ -1514,7 +1559,7 @@ openvasd_get_health_ready (openvasd_connector_t *conn)
       g_warning ("%s: Not possible to get health information", __func__);
     }
 
-  g_free (resp.ptr);
+  free_openvasd_stringstream (&resp);
   return response;
 }
 
@@ -1535,7 +1580,8 @@ openvasd_get_health_started (openvasd_connector_t *conn)
                       &err))
       == NULL)
     {
-      g_free (resp.ptr);
+      curl_slist_free_all (customheader);
+      free_openvasd_stringstream (&resp);
       response->code = RESP_CODE_ERR;
       response->body = err;
       return response;
@@ -1552,7 +1598,7 @@ openvasd_get_health_started (openvasd_connector_t *conn)
       g_warning ("%s: Not possible to get health information", __func__);
     }
 
-  g_free (resp.ptr);
+  free_openvasd_stringstream (&resp);
   return response;
 }
 
@@ -1573,7 +1619,8 @@ openvasd_get_scan_preferences (openvasd_connector_t *conn)
                       &resp, &err))
       == NULL)
     {
-      g_free (resp.ptr);
+      curl_slist_free_all (customheader);
+      free_openvasd_stringstream (&resp);
       response->code = RESP_CODE_ERR;
       response->body = err;
       return response;
@@ -1590,7 +1637,7 @@ openvasd_get_scan_preferences (openvasd_connector_t *conn)
       g_warning ("%s: Not possible to get scans_preferences", __func__);
     }
 
-  g_free (resp.ptr);
+  free_openvasd_stringstream (&resp);
   return response;
 }
 
@@ -2260,6 +2307,7 @@ openvasd_vt_single_free (openvasd_vt_single_t *vt_single)
 
 /**
  * @brief Add a preference value to an Openvasd VT.
+ *
  * This creates a copy of the name and value.
  *
  * @param vt_single  The VT to add the preference to.
