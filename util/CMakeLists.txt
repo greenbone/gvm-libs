@@ -42,6 +42,9 @@ pkg_check_modules (GPGME REQUIRED gpgme>=1.7.0)
 # for serverutils we need libgcrypt
 pkg_check_modules (GCRYPT REQUIRED libgcrypt)
 
+# for json parsing we need cJSON
+pkg_check_modules (CJSON REQUIRED libcjson>=1.7.14)
+
 # for mqtt
 find_library(LIBPAHO paho-mqtt3c)
 message (STATUS "Looking for paho-mqtt3c ... ${LIBPAHO}")
@@ -109,13 +112,13 @@ endif (BUILD_WITH_LDAP)
 include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS}
                      ${LIBXML2_INCLUDE_DIRS})
 
-set (FILES cpeutils.c passwordbasedauthentication.c compressutils.c fileutils.c gpgmeutils.c kb.c ldaputils.c
-           nvticache.c mqtt.c radiusutils.c serverutils.c sshutils.c uuidutils.c
+set (FILES cpeutils.c passwordbasedauthentication.c compressutils.c fileutils.c gpgmeutils.c jsonpull.c kb.c
+           ldaputils.c nvticache.c mqtt.c radiusutils.c serverutils.c sshutils.c uuidutils.c versionutils.c
            xmlutils.c)
 
-set (HEADERS cpeutils.h passwordbasedauthentication.h authutils.h compressutils.h fileutils.h gpgmeutils.h kb.h
-             ldaputils.h nvticache.h mqtt.h radiusutils.h serverutils.h sshutils.h
-             uuidutils.h xmlutils.h)
+set (HEADERS cpeutils.h passwordbasedauthentication.h authutils.h compressutils.h fileutils.h gpgmeutils.h
+             jsonpull.h kb.h ldaputils.h nvticache.h mqtt.h radiusutils.h serverutils.h sshutils.h
+             uuidutils.h versionutils.h xmlutils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_util_static STATIC ${FILES})
@@ -137,13 +140,29 @@ if (BUILD_SHARED)
                          ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
                          ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
                          ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
-                         ${LINKER_HARDENING_FLAGS} ${CRYPT_LDFLAGS})
+                         ${LINKER_HARDENING_FLAGS} ${CRYPT_LDFLAGS}
+                         ${CJSON_LDFLAGS})
 endif (BUILD_SHARED)
 
 
 ## Tests
 
 if (BUILD_TESTS)
+  add_executable (jsonpull-test
+                  EXCLUDE_FROM_ALL
+                  jsonpull_tests.c)
+
+  add_test (jsonpull-test jsonpull-test)
+
+  target_include_directories (jsonpull-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (jsonpull-test ${CGREEN_LIBRARIES}
+                         ${GLIB_LDFLAGS} ${CJSON_LDFLAGS})
+
+  add_custom_target (tests-jsonpull
+                     DEPENDS jsonpull-test)
+
+
   add_executable (passwordbasedauthentication-test
                   EXCLUDE_FROM_ALL
                   passwordbasedauthentication_tests.c)
@@ -189,13 +208,31 @@ if (BUILD_TESTS)
 
   target_link_libraries (cpeutils-test ${CGREEN_LIBRARIES}
                         ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
-              ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
-              ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
-              ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
-              ${LINKER_HARDENING_FLAGS})
+                        ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+                        ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+                        ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+                        ${LINKER_HARDENING_FLAGS})
 
   add_custom_target (tests-cpeutils
                     DEPENDS cpeutils-test)
+
+  add_executable (versionutils-test
+                  EXCLUDE_FROM_ALL
+                  versionutils_tests.c)
+
+  add_test (versionutils-test versionutils-test)
+
+  target_include_directories (versionutils-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (versionutils-test ${CGREEN_LIBRARIES}
+                        ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
+                        ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+                        ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+                        ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+                        ${LINKER_HARDENING_FLAGS})
+
+  add_custom_target (tests-versionutils
+                    DEPENDS versionutils-test)
 
   add_executable (xmlutils-test
                   EXCLUDE_FROM_ALL
@@ -207,10 +244,10 @@ if (BUILD_TESTS)
 
   target_link_libraries (xmlutils-test ${CGREEN_LIBRARIES}
                         ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
-              ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
-              ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
-              ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
-              ${LINKER_HARDENING_FLAGS})
+                        ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+                        ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+                        ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+                        ${LINKER_HARDENING_FLAGS})
 
   add_custom_target (tests-xmlutils
                     DEPENDS xmlutils-test)

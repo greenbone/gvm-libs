@@ -8,7 +8,7 @@ message ("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
 # VERSION: Always include major, minor and patch level.
 project (gvm-libs
-  VERSION 22.11.0
+  VERSION 22.12.2
   LANGUAGES C)
 
 if (POLICY CMP0005)
@@ -229,10 +229,9 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
 
   add_custom_target (tests
     DEPENDS array-test alivedetection-test boreas_error-test boreas_io-test
-            cli-test compressutils-test cpeutils-test cvss-test ping-test
-            sniffer-test util-test networking-test
-            passwordbasedauthentication-test xmlutils-test version-test osp-test 
-            nvti-test hosts-test)
+            cli-test cpeutils-test cvss-test ping-test sniffer-test util-test networking-test
+            passwordbasedauthentication-test xmlutils-test version-test versionutils-test
+            osp-test nvti-test hosts-test jsonpull-test compressutils-test)
 
 endif (BUILD_TESTS AND NOT SKIP_SRC)
 

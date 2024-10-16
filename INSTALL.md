@@ -49,7 +49,8 @@ Install prerequisites on Debian GNU/Linux 'Bullseye' 11:
     libgpgme-dev \
     libgnutls28-dev \
     uuid-dev \
-    libssh-gcrypt-dev \
+    libgcrypt-dev \
+    libssh-dev \
     libhiredis-dev \
     libxml2-dev \
     libpcap-dev \
