@@ -18,6 +18,7 @@ General build environment:
 
 Specific development libraries:
 * libcjson >= 1.7.14 (util)
+* libcurl >= 7.74.0 (openvasd)
 * libglib >= 2.42 (all)
 * libgio >= 2.42 (util)
 * zlib >= 1.2.8 (util)
@@ -45,6 +46,7 @@ Install prerequisites on Debian GNU/Linux 'Bullseye' 11:
     cmake \
     pkg-config \
     libcjson-dev \
+    libcurl4-openssl-dev \
     libglib2.0-dev \
     libgpgme-dev \
     libgnutls28-dev \

@@ -287,6 +287,12 @@ typedef struct openvasd_string
 void
 init_openvasd_stringstream (openvasd_stringstream *s);
 
+void
+reset_openvasd_stringstream (openvasd_stringstream *s);
+
+void
+free_openvasd_stringstream (openvasd_stringstream *s);
+
 openvasd_curlm_t *
 openvasd_curlm_handler_new (void);
 
