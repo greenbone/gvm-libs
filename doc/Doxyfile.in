@@ -755,6 +755,7 @@ WARN_LOGFILE           =
 
 INPUT                  = @CMAKE_SOURCE_DIR@/base \
                          @CMAKE_SOURCE_DIR@/gmp \
+                         @CMAKE_SOURCE_DIR@/openvasd \
                          @CMAKE_SOURCE_DIR@/osp \
                          @CMAKE_SOURCE_DIR@/util
 
