@@ -234,26 +234,26 @@ init_openvasd_stringstream (openvasd_stringstream *s)
   s->ptr = g_malloc0 (s->len + 1);
 }
 
-/** @brief Reinitialize the string struct to hold the response
- *
- *  @param s The string struct to be initialized
- */
-static void
-reset_openvasd_stringstream (openvasd_stringstream *s)
-{
-  g_free (s->ptr);
-  init_openvasd_stringstream (s);
-}
-
 /** @brief Free the string struct to hold the response
  *
- *  @param s The string struct to be initialized
+ *  @param s The string struct to be freed
  */
-static void
+void
 free_openvasd_stringstream (openvasd_stringstream *s)
 {
   if (s)
     g_free (s->ptr);
+}
+
+/** @brief Reinitialize the string struct to hold the response
+ *
+ *  @param s The string struct to be reset
+ */
+void
+reset_openvasd_stringstream (openvasd_stringstream *s)
+{
+  free_openvasd_stringstream (s);
+  init_openvasd_stringstream (s);
 }
 
 /** @brief Call back function to stored the response.
@@ -529,7 +529,7 @@ openvasd_get_version (openvasd_connector_t *conn)
       curl_slist_free_all (customheader);
       response->code = RESP_CODE_ERR;
       response->body = err;
-      free_openvasd_stringstream (resp.ptr);
+      free_openvasd_stringstream (&resp);
       return response;
     }
 
@@ -538,7 +538,7 @@ openvasd_get_version (openvasd_connector_t *conn)
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (resp.ptr);
 
-  free_openvasd_stringstream (resp.ptr);
+  free_openvasd_stringstream (&resp);
   return response;
 }
 

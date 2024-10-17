@@ -226,7 +226,7 @@ parse_references (nvti_t *nvt, cJSON *vt_obj)
           }
         else
           {
-            g_warning ("%s: REF missing type attribute", __func__);
+            g_warning ("%s: REF missing class attribute", __func__);
             continue;
           }
       }
@@ -346,6 +346,7 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
       cJSON_Delete (vt_obj);
       return NULL;
     }
+  g_free (error_message);
 
   nvt = nvti_new ();
 
@@ -356,7 +357,6 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
     {
       g_warning ("%s: VT missing OID", __func__);
       cJSON_Delete (vt_obj);
-      g_free (error_message);
       nvti_free (nvt);
       return NULL;
     }
@@ -368,7 +368,6 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
     {
       g_warning ("%s: VT missing NAME", __func__);
       cJSON_Delete (vt_obj);
-      g_free (error_message);
       nvti_free (nvt);
       return NULL;
     }
@@ -380,7 +379,6 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
     {
       g_warning ("%s: VT missing FAMILY", __func__);
       cJSON_Delete (vt_obj);
-      g_free (error_message);
       nvti_free (nvt);
       return NULL;
     }
@@ -392,7 +390,6 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
     {
       g_warning ("%s: VT missing CATEGORY", __func__);
       cJSON_Delete (vt_obj);
-      g_free (error_message);
       nvti_free (nvt);
       return NULL;
     }
@@ -404,6 +401,5 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
   parse_references (nvt, vt_obj);
   add_preferences_to_nvt (nvt, vt_obj);
   cJSON_Delete (vt_obj);
-  g_free (error_message);
   return nvt;
 }
