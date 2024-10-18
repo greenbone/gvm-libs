@@ -594,7 +594,7 @@ decode_uri_component (const char *component)
 
   index = 0;
   embedded = FALSE;
-  decoded_component = g_string_sized_new (2*strlen(component));
+  decoded_component = g_string_sized_new (2 * strlen (component));
 
   char l;
   char *unescaped;
@@ -708,7 +708,7 @@ unpack_sixth_uri_component (const char *component, cpe_struct_t *cpe)
   if (start >= end || end == NULL)
     edition = strdup ("");
   else
-    edition =g_strndup (start, end - start);
+    edition = g_strndup (start, end - start);
 
   if (end != NULL)
     {
@@ -874,7 +874,7 @@ add_quoting (const char *component)
   if (!component)
     return (NULL);
 
-  quoted_component = g_string_sized_new (2*strlen(component));
+  quoted_component = g_string_sized_new (2 * strlen (component));
   tmp_component = (char *) g_strdup (component);
   embedded = FALSE;
 

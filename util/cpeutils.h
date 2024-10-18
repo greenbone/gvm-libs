@@ -88,7 +88,6 @@ enum set_relation
   UNDEFINED
 };
 
-
 #define CPE_COMPONENT_IS_ANY(component) (component[0] == 'A')
 
 #endif
