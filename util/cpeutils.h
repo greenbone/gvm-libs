@@ -55,6 +55,9 @@ cpe_struct_to_uri_cpe (const cpe_struct_t *);
 char *
 cpe_struct_to_uri_product (const cpe_struct_t *);
 
+char *
+get_version_from_uri_cpe (const char *);
+
 void
 fs_cpe_to_cpe_struct (const char *, cpe_struct_t *);
 
@@ -71,7 +74,10 @@ void
 cpe_struct_free (cpe_struct_t *);
 
 gboolean
-cpe_struct_match (cpe_struct_t source, cpe_struct_t target);
+cpe_struct_match (cpe_struct_t *, cpe_struct_t *);
+
+gboolean
+cpe_struct_match_tail (cpe_struct_t *, cpe_struct_t *);
 
 enum set_relation
 {
@@ -81,5 +87,8 @@ enum set_relation
   SUPERSET,
   UNDEFINED
 };
+
+
+#define CPE_COMPONENT_IS_ANY(component) (component[0] == 'A')
 
 #endif
