@@ -460,7 +460,6 @@ cpe_struct_to_fs_cpe (const cpe_struct_t *cpe)
   if (bind_cpe_component)
     {
       g_string_append (fs_cpe, bind_cpe_component);
-      g_string_append_c (fs_cpe, ':');
       g_free (bind_cpe_component);
     }
   return (g_string_free (fs_cpe, FALSE));
