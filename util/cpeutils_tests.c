@@ -225,20 +225,20 @@ Ensure (cpeutils, cpe_struct_match)
   fs_cpe1 = "cpe:2.3:a:microsoft:internet_explorer:8.0.6001:beta:*:*:*:*:*:*";
   cpe_struct_init (&cpe1);
   fs_cpe_to_cpe_struct (fs_cpe1, &cpe1);
-  assert_that (cpe_struct_match (cpe1, cpe1), is_equal_to (TRUE));
+  assert_that (cpe_struct_match (&cpe1, &cpe1), is_equal_to (TRUE));
 
   fs_cpe2 = "cpe:2.3:a:microsoft:internet_explorer:*:beta:*:*:*:*:*:*";
   cpe_struct_init (&cpe2);
   fs_cpe_to_cpe_struct (fs_cpe2, &cpe2);
-  assert_that (cpe_struct_match (cpe2, cpe1), is_equal_to (TRUE));
+  assert_that (cpe_struct_match (&cpe2, &cpe1), is_equal_to (TRUE));
 
-  assert_that (cpe_struct_match (cpe1, cpe2), is_equal_to (FALSE));
+  assert_that (cpe_struct_match (&cpe1, &cpe2), is_equal_to (FALSE));
 
   fs_cpe2 = "cpe:2.3:a:microsoft:internet_explorer:*:-:*:*:*:*:*:*";
   cpe_struct_free (&cpe2);
   cpe_struct_init (&cpe2);
   fs_cpe_to_cpe_struct (fs_cpe2, &cpe2);
-  assert_that (cpe_struct_match (cpe2, cpe1), is_equal_to (FALSE));
+  assert_that (cpe_struct_match (&cpe2, &cpe1), is_equal_to (FALSE));
 
   cpe_struct_free (&cpe1);
   cpe_struct_free (&cpe2);
