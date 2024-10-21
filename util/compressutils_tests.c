@@ -7,6 +7,7 @@
 
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
+#include <fcntl.h>
 
 Describe (compressutils);
 BeforeEach (compressutils)
@@ -79,6 +80,30 @@ Ensure (compressutils, can_uncompress_using_reader)
   assert_that (fclose (stream), is_equal_to (0));
 }
 
+Ensure (compressutils, can_uncompress_using_fd_reader)
+{
+  const char *testdata = "TEST-12345-12345-TEST";
+  size_t compressed_len;
+  char *compressed =
+    gvm_compress_gzipheader (testdata, strlen (testdata) + 1, &compressed_len);
+
+  char compressed_filename[35] = "/tmp/gvm_gzip_test_XXXXXX";
+  int compressed_fd = mkstemp (compressed_filename);
+  write (compressed_fd, compressed, compressed_len);
+  close (compressed_fd);
+
+  compressed_fd = open (compressed_filename, O_RDONLY);
+
+  FILE *stream = gvm_gzip_open_file_reader_fd (compressed_fd);
+  assert_that (stream, is_not_null);
+
+  gchar *uncompressed = g_malloc0 (30);
+  fread (uncompressed, 1, 30, stream);
+  assert_that (uncompressed, is_equal_to_string (testdata));
+
+  assert_that (fclose (stream), is_equal_to (0));
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -92,6 +117,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, compressutils,
                          can_compress_and_uncompress_with_header);
   add_test_with_context (suite, compressutils, can_uncompress_using_reader);
+  add_test_with_context (suite, compressutils, can_uncompress_using_fd_reader);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());

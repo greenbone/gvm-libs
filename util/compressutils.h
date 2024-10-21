@@ -25,4 +25,7 @@ gvm_uncompress (const void *, unsigned long, unsigned long *);
 FILE *
 gvm_gzip_open_file_reader (const char *);
 
+FILE *
+gvm_gzip_open_file_reader_fd (int);
+
 #endif /* not _GVM_COMPRESSUTILS_H */

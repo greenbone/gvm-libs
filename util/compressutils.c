@@ -304,3 +304,35 @@ gvm_gzip_open_file_reader (const char *path)
   FILE *file = fopencookie (gz_file, "r", io_functions);
   return file;
 }
+
+/**
+ * @brief Opens a gzip file as a FILE* stream for reading and decompression.
+ *
+ * @param[in]  fd  File descriptor of the gzip file to open.
+ *
+ * @return The FILE* on success, NULL otherwise.
+ */
+FILE *
+gvm_gzip_open_file_reader_fd (int fd)
+{
+  static cookie_io_functions_t io_functions = {
+    .read = gz_file_read,
+    .write = NULL,
+    .seek = NULL,
+    .close = gz_file_close,
+  };
+
+  if (fd < 0)
+    {
+      return NULL;
+    }
+
+  gzFile gz_file = gzdopen (fd, "r");
+  if (gz_file == NULL)
+    {
+      return NULL;
+    }
+
+  FILE *file = fopencookie (gz_file, "r", io_functions);
+  return file;
+}
