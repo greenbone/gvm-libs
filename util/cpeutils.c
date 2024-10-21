@@ -89,9 +89,6 @@ trim_pct (char *);
 static void
 get_code (char *, const char *);
 
-static void
-str_cpy (char **, const char *, int);
-
 /**
  * @brief Convert a URI CPE to a formatted string CPE.
  *
@@ -229,43 +226,50 @@ cpe_struct_to_uri_cpe (const cpe_struct_t *cpe)
   bind_cpe_component = bind_cpe_component_for_uri (cpe->part);
   if (bind_cpe_component)
     {
-      g_string_append_printf (uri_cpe, "%s:", bind_cpe_component);
+      g_string_append (uri_cpe, bind_cpe_component);
+      g_string_append_c (uri_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_uri (cpe->vendor);
   if (bind_cpe_component)
     {
-      g_string_append_printf (uri_cpe, "%s:", bind_cpe_component);
+      g_string_append (uri_cpe, bind_cpe_component);
+      g_string_append_c (uri_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_uri (cpe->product);
   if (bind_cpe_component)
     {
-      g_string_append_printf (uri_cpe, "%s:", bind_cpe_component);
+      g_string_append (uri_cpe, bind_cpe_component);
+      g_string_append_c (uri_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_uri (cpe->version);
   if (bind_cpe_component)
     {
-      g_string_append_printf (uri_cpe, "%s:", bind_cpe_component);
+      g_string_append (uri_cpe, bind_cpe_component);
+      g_string_append_c (uri_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_uri (cpe->update);
   if (bind_cpe_component)
     {
-      g_string_append_printf (uri_cpe, "%s:", bind_cpe_component);
+      g_string_append (uri_cpe, bind_cpe_component);
+      g_string_append_c (uri_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = pack_sixth_uri_component (cpe);
   if (bind_cpe_component)
     {
-      g_string_append_printf (uri_cpe, "%s:", bind_cpe_component);
+      g_string_append (uri_cpe, bind_cpe_component);
+      g_string_append_c (uri_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_uri (cpe->language);
   if (bind_cpe_component)
     {
-      g_string_append_printf (uri_cpe, "%s:", bind_cpe_component);
+      g_string_append (uri_cpe, bind_cpe_component);
+      g_string_append_c (uri_cpe, ':');
       g_free (bind_cpe_component);
     }
 
@@ -291,25 +295,44 @@ cpe_struct_to_uri_product (const cpe_struct_t *cpe)
   bind_cpe_component = bind_cpe_component_for_uri (cpe->part);
   if (bind_cpe_component)
     {
-      g_string_append_printf (uri_cpe, "%s:", bind_cpe_component);
+      g_string_append (uri_cpe, bind_cpe_component);
+      g_string_append_c (uri_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_uri (cpe->vendor);
   if (bind_cpe_component)
     {
-      g_string_append_printf (uri_cpe, "%s:", bind_cpe_component);
+      g_string_append (uri_cpe, bind_cpe_component);
+      g_string_append_c (uri_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_uri (cpe->product);
   if (bind_cpe_component)
     {
-      g_string_append_printf (uri_cpe, "%s:", bind_cpe_component);
+      g_string_append (uri_cpe, bind_cpe_component);
+      g_string_append_c (uri_cpe, ':');
       g_free (bind_cpe_component);
     }
 
   char *result = g_string_free (uri_cpe, FALSE);
   trim_pct (result);
   return (result);
+}
+
+/**
+ * @brief Get the version from an uri cpe.
+ *
+ * @param[in]  uri_cpe  The uri cpe to get the version from.
+ *
+ * @return  The version of the uri cpe.
+ */
+char *
+get_version_from_uri_cpe (const char *uri_cpe)
+{
+  char *version = get_uri_component (uri_cpe, 4);
+  char *decoded_version = decode_uri_component (version);
+  g_free (version);
+  return decoded_version;
 }
 
 /**
@@ -328,34 +351,24 @@ fs_cpe_to_cpe_struct (const char *fs_cpe, cpe_struct_t *cpe)
   cpe->part = unbind_fs_component (fs_component);
   fs_component = get_fs_component (fs_cpe, 3);
   cpe->vendor = unbind_fs_component (fs_component);
-  g_free (fs_component);
   fs_component = get_fs_component (fs_cpe, 4);
   cpe->product = unbind_fs_component (fs_component);
-  g_free (fs_component);
   fs_component = get_fs_component (fs_cpe, 5);
   cpe->version = unbind_fs_component (fs_component);
-  g_free (fs_component);
   fs_component = get_fs_component (fs_cpe, 6);
   cpe->update = unbind_fs_component (fs_component);
-  g_free (fs_component);
   fs_component = get_fs_component (fs_cpe, 7);
   cpe->edition = unbind_fs_component (fs_component);
-  g_free (fs_component);
   fs_component = get_fs_component (fs_cpe, 8);
   cpe->language = unbind_fs_component (fs_component);
-  g_free (fs_component);
   fs_component = get_fs_component (fs_cpe, 9);
   cpe->sw_edition = unbind_fs_component (fs_component);
-  g_free (fs_component);
   fs_component = get_fs_component (fs_cpe, 10);
   cpe->target_sw = unbind_fs_component (fs_component);
-  g_free (fs_component);
   fs_component = get_fs_component (fs_cpe, 11);
   cpe->target_hw = unbind_fs_component (fs_component);
-  g_free (fs_component);
   fs_component = get_fs_component (fs_cpe, 12);
   cpe->other = unbind_fs_component (fs_component);
-  g_free (fs_component);
 }
 
 /**
@@ -376,67 +389,77 @@ cpe_struct_to_fs_cpe (const cpe_struct_t *cpe)
   bind_cpe_component = bind_cpe_component_for_fs (cpe->part);
   if (bind_cpe_component)
     {
-      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_string_append (fs_cpe, bind_cpe_component);
+      g_string_append_c (fs_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_fs (cpe->vendor);
   if (bind_cpe_component)
     {
-      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_string_append (fs_cpe, bind_cpe_component);
+      g_string_append_c (fs_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_fs (cpe->product);
   if (bind_cpe_component)
     {
-      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_string_append (fs_cpe, bind_cpe_component);
+      g_string_append_c (fs_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_fs (cpe->version);
   if (bind_cpe_component)
     {
-      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_string_append (fs_cpe, bind_cpe_component);
+      g_string_append_c (fs_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_fs (cpe->update);
   if (bind_cpe_component)
     {
-      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_string_append (fs_cpe, bind_cpe_component);
+      g_string_append_c (fs_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_fs (cpe->edition);
   if (bind_cpe_component)
     {
-      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_string_append (fs_cpe, bind_cpe_component);
+      g_string_append_c (fs_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_fs (cpe->language);
   if (bind_cpe_component)
     {
-      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_string_append (fs_cpe, bind_cpe_component);
+      g_string_append_c (fs_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_fs (cpe->sw_edition);
   if (bind_cpe_component)
     {
-      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_string_append (fs_cpe, bind_cpe_component);
+      g_string_append_c (fs_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_fs (cpe->target_sw);
   if (bind_cpe_component)
     {
-      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_string_append (fs_cpe, bind_cpe_component);
+      g_string_append_c (fs_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_fs (cpe->target_hw);
   if (bind_cpe_component)
     {
-      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_string_append (fs_cpe, bind_cpe_component);
+      g_string_append_c (fs_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_fs (cpe->other);
   if (bind_cpe_component)
     {
-      g_string_append_printf (fs_cpe, "%s", bind_cpe_component);
+      g_string_append (fs_cpe, bind_cpe_component);
       g_free (bind_cpe_component);
     }
   return (g_string_free (fs_cpe, FALSE));
@@ -460,19 +483,22 @@ cpe_struct_to_fs_product (const cpe_struct_t *cpe)
   bind_cpe_component = bind_cpe_component_for_fs (cpe->part);
   if (bind_cpe_component)
     {
-      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_string_append (fs_cpe, bind_cpe_component);
+      g_string_append_c (fs_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_fs (cpe->vendor);
   if (bind_cpe_component)
     {
-      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_string_append (fs_cpe, bind_cpe_component);
+      g_string_append_c (fs_cpe, ':');
       g_free (bind_cpe_component);
     }
   bind_cpe_component = bind_cpe_component_for_fs (cpe->product);
   if (bind_cpe_component)
     {
-      g_string_append_printf (fs_cpe, "%s:", bind_cpe_component);
+      g_string_append (fs_cpe, bind_cpe_component);
+      g_string_append_c (fs_cpe, ':');
       g_free (bind_cpe_component);
     }
   return (g_string_free (fs_cpe, FALSE));
@@ -524,7 +550,7 @@ get_uri_component (const char *uri_cpe, int index)
   if (component_start >= component_end || component_end == 0)
     component = (char *) g_strdup ("");
   else
-    str_cpy (&component, component_start, component_end - component_start);
+    component = g_strndup (component_start, component_end - component_start);
 
   return component;
 }
@@ -567,7 +593,7 @@ decode_uri_component (const char *component)
 
   index = 0;
   embedded = FALSE;
-  decoded_component = g_string_new ("");
+  decoded_component = g_string_sized_new (2 * strlen (component));
 
   char l;
   char *unescaped;
@@ -577,14 +603,15 @@ decode_uri_component (const char *component)
 
       if (l == '.' || l == '-' || l == '~')
         {
-          g_string_append_printf (decoded_component, "\\%c", l);
+          g_string_append_c (decoded_component, '\\');
+          g_string_append_c (decoded_component, l);
           index++;
           embedded = TRUE;
           continue;
         }
       if (l != '%')
         {
-          g_string_append_printf (decoded_component, "%c", l);
+          g_string_append_c (decoded_component, l);
           index++;
           embedded = TRUE;
           continue;
@@ -606,7 +633,7 @@ decode_uri_component (const char *component)
               || (!embedded && strcmp (code_b, "%01"))
               || (embedded && strcmp (code_c, "%01")))
             {
-              g_string_append_printf (decoded_component, "%c", '?');
+              g_string_append_c (decoded_component, '?');
               index = index + 3;
               continue;
             }
@@ -622,7 +649,7 @@ decode_uri_component (const char *component)
         {
           if (index == 0 || index == strlen (tmp_component) - 3)
             {
-              g_string_append_printf (decoded_component, "%c", '*');
+              g_string_append_c (decoded_component, '*');
               index = index + 3;
               continue;
             }
@@ -637,12 +664,13 @@ decode_uri_component (const char *component)
       unescaped = g_uri_unescape_string (code_a, NULL);
       if (unescaped && strchr (escapes, *unescaped))
         {
-          g_string_append_printf (decoded_component, "\\%s", unescaped);
+          g_string_append_c (decoded_component, '\\');
+          g_string_append (decoded_component, unescaped);
           g_free (unescaped);
         }
       else if (unescaped)
         {
-          g_string_append_printf (decoded_component, "%s", unescaped);
+          g_string_append (decoded_component, unescaped);
           g_free (unescaped);
         }
       else
@@ -679,7 +707,7 @@ unpack_sixth_uri_component (const char *component, cpe_struct_t *cpe)
   if (start >= end || end == NULL)
     edition = strdup ("");
   else
-    str_cpy (&edition, start, end - start);
+    edition = g_strndup (start, end - start);
 
   if (end != NULL)
     {
@@ -688,7 +716,7 @@ unpack_sixth_uri_component (const char *component, cpe_struct_t *cpe)
       if (start >= end || end == NULL)
         sw_edition = strdup ("");
       else
-        str_cpy (&sw_edition, start, end - start);
+        sw_edition = g_strndup (start, end - start);
     }
   else
     sw_edition = strdup ("");
@@ -700,7 +728,7 @@ unpack_sixth_uri_component (const char *component, cpe_struct_t *cpe)
       if (start >= end || end == NULL)
         target_sw = strdup ("");
       else
-        str_cpy (&target_sw, start, end - start);
+        target_sw = g_strndup (start, end - start);
     }
   else
     target_sw = strdup ("");
@@ -712,7 +740,7 @@ unpack_sixth_uri_component (const char *component, cpe_struct_t *cpe)
       if (start >= end || end == NULL)
         target_hw = strdup ("");
       else
-        str_cpy (&target_hw, start, end - start);
+        target_hw = g_strndup (start, end - start);
     }
   else
     target_hw = strdup ("");
@@ -724,7 +752,7 @@ unpack_sixth_uri_component (const char *component, cpe_struct_t *cpe)
       if (start >= end)
         other = strdup ("");
       else
-        str_cpy (&other, start, end - start);
+        other = g_strndup (start, end - start);
     }
   else
     other = strdup ("");
@@ -793,7 +821,7 @@ get_fs_component (const char *fs_cpe, int index)
   if (component_start >= component_end || component_end == NULL)
     component = (char *) g_strdup ("");
   else
-    str_cpy (&component, component_start, component_end - component_start);
+    component = g_strndup (component_start, component_end - component_start);
 
   return component;
 }
@@ -808,11 +836,22 @@ get_fs_component (const char *fs_cpe, int index)
 static char *
 unbind_fs_component (char *component)
 {
+  char *unbound_component;
+
   if (strcmp (component, "*") == 0)
-    return ((char *) g_strdup ("ANY"));
+    {
+      g_free (component);
+      return ((char *) g_strdup ("ANY"));
+    }
   if (strcmp (component, "-") == 0)
-    return ((char *) g_strdup ("NA"));
-  return (add_quoting (component));
+    {
+      g_free (component);
+      return ((char *) g_strdup ("NA"));
+    }
+
+  unbound_component = add_quoting (component);
+  g_free (component);
+  return (unbound_component);
 }
 
 /**
@@ -834,7 +873,7 @@ add_quoting (const char *component)
   if (!component)
     return (NULL);
 
-  quoted_component = g_string_new ("");
+  quoted_component = g_string_sized_new (2 * strlen (component));
   tmp_component = (char *) g_strdup (component);
   embedded = FALSE;
 
@@ -847,7 +886,7 @@ add_quoting (const char *component)
     {
       if (g_ascii_isalnum (*c) || *c == '_')
         {
-          g_string_append_printf (quoted_component, "%c", *c);
+          g_string_append_c (quoted_component, *c);
           c++;
           embedded = TRUE;
           continue;
@@ -857,7 +896,8 @@ add_quoting (const char *component)
           c++;
           if (*c != '\0')
             {
-              g_string_append_printf (quoted_component, "\\%c", *c);
+              g_string_append_c (quoted_component, '\\');
+              g_string_append_c (quoted_component, *c);
               embedded = TRUE;
               c++;
               continue;
@@ -868,7 +908,7 @@ add_quoting (const char *component)
           if ((c == tmp_component)
               || (c == tmp_component + strlen (tmp_component - 1)))
             {
-              g_string_append_printf (quoted_component, "%c", *c);
+              g_string_append_c (quoted_component, *c);
               c++;
               embedded = TRUE;
               continue;
@@ -886,7 +926,7 @@ add_quoting (const char *component)
               || (!embedded && (c > tmp_component) && (*(c - 1) == '?'))
               || (embedded && *(c + 1) == '?'))
             {
-              g_string_append_printf (quoted_component, "%c", *c);
+              g_string_append_c (quoted_component, *c);
               c++;
               embedded = FALSE;
               continue;
@@ -897,7 +937,8 @@ add_quoting (const char *component)
               return (NULL);
             }
         }
-      g_string_append_printf (quoted_component, "\\%c", *c);
+      g_string_append_c (quoted_component, '\\');
+      g_string_append_c (quoted_component, *c);
       c++;
       embedded = TRUE;
     }
@@ -958,7 +999,7 @@ transform_for_uri (const char *component)
     {
       if ((g_ascii_isalnum (*c) || *c == '_') && *c != '-')
         {
-          g_string_append_printf (result, "%c", *c);
+          g_string_append_c (result, *c);
           c++;
           continue;
         }
@@ -972,16 +1013,16 @@ transform_for_uri (const char *component)
               to_escape[0] = *c;
               to_escape[1] = '\0';
               escaped = g_uri_escape_string (to_escape, NULL, FALSE);
-              g_string_append_printf (result, "%s", escaped);
+              g_string_append (result, escaped);
               g_free (escaped);
               c++;
             }
           continue;
         }
       if (*c == '?')
-        g_string_append_printf (result, "%s", "%01");
+        g_string_append (result, "%01");
       if (*c == '*')
-        g_string_append_printf (result, "%s", "%02");
+        g_string_append (result, "%02");
       c++;
     }
   g_free (tmp_component);
@@ -1025,7 +1066,7 @@ pack_sixth_uri_component (const cpe_struct_t *cpe)
     g_string_append_printf (component, "~%s~%s~%s~%s~%s", edition, sw_edition,
                             target_sw, target_hw, other);
   else if (edition)
-    g_string_append_printf (component, "%s", edition);
+    g_string_append (component, edition);
 
   if (edition)
     g_free (edition);
@@ -1086,7 +1127,7 @@ process_quoted_chars (const char *component)
     {
       if (*c != '\\')
         {
-          g_string_append_printf (fs_component, "%c", *c);
+          g_string_append_c (fs_component, *c);
           c++;
         }
       else
@@ -1094,12 +1135,13 @@ process_quoted_chars (const char *component)
           next_c = *(c + 1);
           if (next_c == '.' || next_c == '-' || next_c == '_')
             {
-              g_string_append_printf (fs_component, "%c", next_c);
+              g_string_append_c (fs_component, next_c);
               c += 2;
             }
           else if (next_c)
             {
-              g_string_append_printf (fs_component, "\\%c", next_c);
+              g_string_append_c (fs_component, '\\');
+              g_string_append_c (fs_component, next_c);
               c += 2;
             }
         }
@@ -1139,6 +1181,8 @@ cpe_struct_init (cpe_struct_t *cpe)
 void
 cpe_struct_free (cpe_struct_t *cpe)
 {
+  if (!cpe)
+    return;
   if (cpe->part)
     g_free (cpe->part);
   if (cpe->vendor)
@@ -1204,23 +1248,6 @@ get_code (char *code, const char *str)
 }
 
 /**
- * @brief Copy size characters of a string to an newly allocated new string.
- *
- * @param[in]   src   The string the first size characters are to be copied
- *                    from.
- * @param[in]   size  The number of characters to copy.
- *
- * @param[out]  dest  The copy of the first size characters of src.
- */
-static void
-str_cpy (char **dest, const char *src, int size)
-{
-  *dest = (char *) g_malloc (size + 1);
-  memset (*dest, 0, size + 1);
-  strncpy (*dest, src, size);
-}
-
-/**
  * @brief Returns if source is a match for target. That means
  *        that source is a superset of target.
  *
@@ -1233,41 +1260,84 @@ str_cpy (char **dest, const char *src, int size)
  * @return  Returns if source is a match for target.
  */
 gboolean
-cpe_struct_match (cpe_struct_t source, cpe_struct_t target)
+cpe_struct_match (cpe_struct_t *source, cpe_struct_t *target)
 {
   enum set_relation relation;
 
-  relation = compare_component (source.part, target.part);
+  relation = compare_component (source->part, target->part);
   if (relation != SUPERSET && relation != EQUAL)
     return (FALSE);
-  relation = compare_component (source.vendor, target.vendor);
+  relation = compare_component (source->vendor, target->vendor);
   if (relation != SUPERSET && relation != EQUAL)
     return (FALSE);
-  relation = compare_component (source.product, target.product);
+  relation = compare_component (source->product, target->product);
   if (relation != SUPERSET && relation != EQUAL)
     return (FALSE);
-  relation = compare_component (source.version, target.version);
+  relation = compare_component (source->version, target->version);
   if (relation != SUPERSET && relation != EQUAL)
     return (FALSE);
-  relation = compare_component (source.update, target.update);
+  relation = compare_component (source->update, target->update);
   if (relation != SUPERSET && relation != EQUAL)
     return (FALSE);
-  relation = compare_component (source.edition, target.edition);
+  relation = compare_component (source->edition, target->edition);
   if (relation != SUPERSET && relation != EQUAL)
     return (FALSE);
-  relation = compare_component (source.sw_edition, target.sw_edition);
+  relation = compare_component (source->sw_edition, target->sw_edition);
   if (relation != SUPERSET && relation != EQUAL)
     return (FALSE);
-  relation = compare_component (source.target_sw, target.target_sw);
+  relation = compare_component (source->target_sw, target->target_sw);
   if (relation != SUPERSET && relation != EQUAL)
     return (FALSE);
-  relation = compare_component (source.target_hw, target.target_hw);
+  relation = compare_component (source->target_hw, target->target_hw);
   if (relation != SUPERSET && relation != EQUAL)
     return (FALSE);
-  relation = compare_component (source.other, target.other);
+  relation = compare_component (source->other, target->other);
   if (relation != SUPERSET && relation != EQUAL)
     return (FALSE);
-  relation = compare_component (source.language, target.language);
+  relation = compare_component (source->language, target->language);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+
+  return (TRUE);
+}
+
+/**
+ * @brief Returns if the part behind the version of source is a match
+ *        for that part of target. That means, that source is a superset
+ *        of target if also the first part matches.
+ *
+ * @param[in]  source  The cpe_struct that represents a set of CPEs.
+ * @param[in]  target  The cpe_struct that represents a single CPE or
+ *                     or a set of CPEs that is checked if it is a
+ *                     subset of source meaning that it is matched by
+ *                     source.
+ *
+ * @return  Returns if source is a match for target.
+ */
+gboolean
+cpe_struct_match_tail (cpe_struct_t *source, cpe_struct_t *target)
+{
+  enum set_relation relation;
+
+  relation = compare_component (source->update, target->update);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source->edition, target->edition);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source->sw_edition, target->sw_edition);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source->target_sw, target->target_sw);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source->target_hw, target->target_hw);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source->other, target->other);
+  if (relation != SUPERSET && relation != EQUAL)
+    return (FALSE);
+  relation = compare_component (source->language, target->language);
   if (relation != SUPERSET && relation != EQUAL)
     return (FALSE);
 
@@ -1400,7 +1470,7 @@ compare_strings (const char *source, const char *target)
         }
     }
 
-  str_cpy (&sub_source, source + start, end - start);
+  sub_source = g_strndup (source + start, end - start);
   int index = -1;
   int escapes = 0;
   int leftover = strlen (target);
