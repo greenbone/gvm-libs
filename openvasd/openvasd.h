@@ -137,7 +137,8 @@ openvasd_connector_builder (openvasd_connector_t *, openvasd_conn_opt_t,
 openvasd_error_t
 openvasd_connector_free (openvasd_connector_t *);
 
-void openvasd_response_free (openvasd_resp_t);
+void
+openvasd_response_cleanup (openvasd_resp_t);
 
 // Requests
 openvasd_resp_t
@@ -264,8 +265,8 @@ openvasd_vt_single_new (const gchar *);
 
 void
 openvasd_vt_single_free (openvasd_vt_single_t *);
-void
 
+void
 openvasd_vt_single_add_value (openvasd_vt_single_t *, const gchar *,
                               const gchar *);
 
@@ -282,26 +283,26 @@ typedef struct openvasd_string
 {
   gchar *ptr;
   size_t len;
-} openvasd_stringstream;
+} openvasd_stringstream_t;
 
 void
-init_openvasd_stringstream (openvasd_stringstream *s);
+openvasd_stringstream_new (openvasd_stringstream_t *s);
 
 void
-reset_openvasd_stringstream (openvasd_stringstream *s);
+openvasd_stringstream_reset (openvasd_stringstream_t *s);
 
 void
-free_openvasd_stringstream (openvasd_stringstream *s);
+openvasd_stringstream_cleanup (openvasd_stringstream_t *s);
 
 openvasd_curlm_t *
 openvasd_curlm_handler_new (void);
 
 void
-openvasd_curlm_handler_close (openvasd_curlm_t *);
+openvasd_curlm_handler_close (openvasd_curlm_t **);
 
 openvasd_resp_t
-openvasd_get_vts_stream_init (openvasd_connector_t *, openvasd_curlm_t *,
-                              openvasd_stringstream *);
+openvasd_get_vts_stream_init (openvasd_connector_t *, openvasd_curlm_t **,
+                              openvasd_stringstream_t *);
 
 int
 openvasd_get_vts_stream (openvasd_curlm_t *);
