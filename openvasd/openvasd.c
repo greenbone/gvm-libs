@@ -135,11 +135,11 @@ openvasd_connector_new (void)
  *  @return Return OK on success, otherwise error;
  */
 openvasd_error_t
-openvasd_connector_builder (openvasd_connector_t *conn, openvasd_conn_opt_t opt,
+openvasd_connector_builder (openvasd_connector_t conn, openvasd_conn_opt_t opt,
                             const void *val)
 {
-  if (*conn == NULL)
-    *conn = openvasd_connector_new ();
+  if (conn == NULL)
+    conn = openvasd_connector_new ();
 
   if (opt < OPENVASD_CA_CERT || opt > OPENVASD_PORT)
     return OPENVASD_INVALID_OPT;
@@ -150,29 +150,29 @@ openvasd_connector_builder (openvasd_connector_t *conn, openvasd_conn_opt_t opt,
   switch (opt)
     {
     case OPENVASD_CA_CERT:
-      (*conn)->ca_cert = g_strdup ((char *) val);
+      conn->ca_cert = g_strdup ((char *) val);
       break;
     case OPENVASD_CERT:
-      (*conn)->cert = g_strdup ((char *) val);
+      conn->cert = g_strdup ((char *) val);
       break;
     case OPENVASD_KEY:
-      (*conn)->key = g_strdup ((char *) val);
+      conn->key = g_strdup ((char *) val);
       break;
     case OPENVASD_API_KEY:
-      (*conn)->apikey = g_strdup ((char *) val);
+      conn->apikey = g_strdup ((char *) val);
       break;
     case OPENVASD_SERVER:
-      (*conn)->server = g_strdup ((char *) val);
+      conn->server = g_strdup ((char *) val);
       break;
     case OPENVASD_HOST:
-      (*conn)->host = g_strdup ((char *) val);
+      conn->host = g_strdup ((char *) val);
       break;
     case OPENVASD_SCAN_ID:
-      (*conn)->scan_id = g_strdup ((const gchar *) val);
+      conn->scan_id = g_strdup ((const gchar *) val);
       break;
     case OPENVASD_PORT:
     default:
-      (*conn)->port = *((int *) val);
+      conn->port = *((int *) val);
       break;
     };
 
@@ -188,20 +188,20 @@ openvasd_connector_builder (openvasd_connector_t *conn, openvasd_conn_opt_t opt,
  *  @return Return OPENVASD_OK
  */
 openvasd_error_t
-openvasd_connector_free (openvasd_connector_t *conn)
+openvasd_connector_free (openvasd_connector_t conn)
 {
-  if (*conn == NULL)
+  if (conn == NULL)
     return OPENVASD_OK;
 
-  g_free ((*conn)->ca_cert);
-  g_free ((*conn)->cert);
-  g_free ((*conn)->key);
-  g_free ((*conn)->apikey);
-  g_free ((*conn)->server);
-  g_free ((*conn)->host);
-  g_free ((*conn)->scan_id);
-  g_free (*conn);
-  *conn = NULL;
+  g_free (conn->ca_cert);
+  g_free (conn->cert);
+  g_free (conn->key);
+  g_free (conn->apikey);
+  g_free (conn->server);
+  g_free (conn->host);
+  g_free (conn->scan_id);
+  g_free (conn);
+  conn = NULL;
 
   return OPENVASD_OK;
 }
@@ -324,7 +324,7 @@ init_customheader (const gchar *apikey, gboolean contenttype)
  * @return a CURL handler, or NULL on error.
  */
 static CURL *
-handler (openvasd_connector_t *conn, openvasd_req_method_t method, gchar *path,
+handler (openvasd_connector_t conn, openvasd_req_method_t method, gchar *path,
          gchar *data, struct curl_slist *customheader,
          openvasd_stringstream_t *resp, gchar **err)
 {
@@ -346,12 +346,12 @@ handler (openvasd_connector_t *conn, openvasd_req_method_t method, gchar *path,
       return NULL;
     }
 
-  url = g_string_new (g_strdup ((*conn)->server));
+  url = g_string_new (g_strdup (conn->server));
 
-  if ((*conn)->port > 0 && (*conn)->port < 65535)
+  if (conn->port > 0 && conn->port < 65535)
     {
       char buf[6];
-      g_snprintf (buf, sizeof (buf), ":%d", (*conn)->port);
+      g_snprintf (buf, sizeof (buf), ":%d", conn->port);
       g_string_append (url, buf);
     }
 
@@ -371,11 +371,11 @@ handler (openvasd_connector_t *conn, openvasd_req_method_t method, gchar *path,
   g_string_free (url, TRUE);
 
   // Server verification
-  if ((*conn)->ca_cert != NULL)
+  if (conn->ca_cert != NULL)
     {
       struct curl_blob blob;
-      blob.data = (*conn)->ca_cert;
-      blob.len = strlen ((*conn)->ca_cert);
+      blob.data = conn->ca_cert;
+      blob.len = strlen (conn->ca_cert);
       blob.flags = CURL_BLOB_COPY;
 
       curl_easy_setopt (curl, CURLOPT_SSL_VERIFYPEER, 1L);
@@ -399,11 +399,11 @@ handler (openvasd_connector_t *conn, openvasd_req_method_t method, gchar *path,
     }
 
   // Client certificate
-  if ((*conn)->cert != NULL && (*conn)->key != NULL)
+  if (conn->cert != NULL && conn->key != NULL)
     {
       struct curl_blob blob;
-      blob.data = (*conn)->cert;
-      blob.len = strlen ((*conn)->cert);
+      blob.data = conn->cert;
+      blob.len = strlen (conn->cert);
       blob.flags = CURL_BLOB_COPY;
 
       if (curl_easy_setopt (curl, CURLOPT_SSLCERT_BLOB, &blob) != CURLE_OK)
@@ -415,8 +415,8 @@ handler (openvasd_connector_t *conn, openvasd_req_method_t method, gchar *path,
             "{\"error\": \"Not possible to set Client certificate\"}");
           return NULL;
         }
-      blob.data = (*conn)->key;
-      blob.len = strlen ((*conn)->key);
+      blob.data = conn->key;
+      blob.len = strlen (conn->key);
       blob.flags = CURL_BLOB_COPY;
 
       if (curl_easy_setopt (curl, CURLOPT_SSLKEY_BLOB, &blob) != CURLE_OK)
@@ -511,7 +511,7 @@ openvasd_send_request (CURL *curl, const gchar *header_name,
  * @return Response containing the header information
  */
 openvasd_resp_t
-openvasd_get_version (openvasd_connector_t *conn)
+openvasd_get_version (openvasd_connector_t conn)
 {
   gchar *err = NULL;
   CURL *hnd = NULL;
@@ -522,7 +522,7 @@ openvasd_get_version (openvasd_connector_t *conn)
   response = g_malloc0 (sizeof (struct openvasd_response));
 
   openvasd_stringstream_new (&resp);
-  customheader = init_customheader ((*conn)->apikey, FALSE);
+  customheader = init_customheader (conn->apikey, FALSE);
   if ((hnd = handler (conn, HEAD, "/", NULL, customheader, &resp, &err))
       == NULL)
     {
@@ -601,7 +601,7 @@ openvasd_curlm_handler_close (openvasd_curlm_t **h)
  * @return The response.
  */
 openvasd_resp_t
-openvasd_get_vts_stream_init (openvasd_connector_t *conn,
+openvasd_get_vts_stream_init (openvasd_connector_t conn,
                               openvasd_curlm_t **mhnd,
                               openvasd_stringstream_t *resp)
 {
@@ -615,7 +615,7 @@ openvasd_get_vts_stream_init (openvasd_connector_t *conn,
   response = g_malloc0 (sizeof (struct openvasd_response));
 
   path = g_string_new ("/vts?information=1");
-  customheader = init_customheader ((*conn)->apikey, FALSE);
+  customheader = init_customheader (conn->apikey, FALSE);
   if ((hnd = handler (conn, GET, path->str, NULL, customheader, resp, &err))
       == NULL)
     {
@@ -684,7 +684,7 @@ openvasd_get_vts_stream (openvasd_curlm_t *mhnd)
  * body.
  */
 openvasd_resp_t
-openvasd_get_vts (openvasd_connector_t *conn)
+openvasd_get_vts (openvasd_connector_t conn)
 {
   GString *path;
   openvasd_resp_t response = NULL;
@@ -697,7 +697,7 @@ openvasd_get_vts (openvasd_connector_t *conn)
 
   openvasd_stringstream_new (&resp);
   path = g_string_new ("/vts?information=1");
-  customheader = init_customheader ((*conn)->apikey, FALSE);
+  customheader = init_customheader (conn->apikey, FALSE);
   if ((hnd = handler (conn, GET, path->str, NULL, customheader, &resp, &err))
       == NULL)
     {
@@ -728,7 +728,7 @@ openvasd_get_vts (openvasd_connector_t *conn)
  * @return Response Struct containing the resonse.
  */
 openvasd_resp_t
-openvasd_start_scan (openvasd_connector_t *conn, gchar *data)
+openvasd_start_scan (openvasd_connector_t conn, gchar *data)
 {
   openvasd_resp_t response = NULL;
   cJSON *parser = NULL;
@@ -741,7 +741,7 @@ openvasd_start_scan (openvasd_connector_t *conn, gchar *data)
   response = g_malloc0 (sizeof (struct openvasd_response));
 
   openvasd_stringstream_new (&resp);
-  customheader = init_customheader ((*conn)->apikey, TRUE);
+  customheader = init_customheader (conn->apikey, TRUE);
   if ((hnd = handler (conn, POST, "/scans", data, customheader, &resp, &err))
       == NULL)
     {
@@ -787,14 +787,14 @@ openvasd_start_scan (openvasd_connector_t *conn, gchar *data)
       return response;
     }
 
-  (*conn)->scan_id = g_strdup (cJSON_GetStringValue (parser));
+  conn->scan_id = g_strdup (cJSON_GetStringValue (parser));
 
   // Start the scan
   path = g_string_new ("/scans");
-  if ((*conn)->scan_id != NULL && (*conn)->scan_id[0] != '\0')
+  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
     {
       g_string_append (path, "/");
-      g_string_append (path, (*conn)->scan_id);
+      g_string_append (path, conn->scan_id);
     }
   else
     {
@@ -807,7 +807,7 @@ openvasd_start_scan (openvasd_connector_t *conn, gchar *data)
     }
 
   openvasd_stringstream_reset (&resp);
-  customheader = init_customheader ((*conn)->apikey, TRUE);
+  customheader = init_customheader (conn->apikey, TRUE);
   if ((hnd = handler (conn, POST, path->str, "{\"action\": \"start\"}",
                       customheader, &resp, &err))
       == NULL)
@@ -840,7 +840,7 @@ openvasd_start_scan (openvasd_connector_t *conn, gchar *data)
 }
 
 openvasd_resp_t
-openvasd_stop_scan (openvasd_connector_t *conn)
+openvasd_stop_scan (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
   GString *path;
@@ -853,10 +853,10 @@ openvasd_stop_scan (openvasd_connector_t *conn)
 
   // Stop the scan
   path = g_string_new ("/scans");
-  if ((*conn)->scan_id != NULL && (*conn)->scan_id[0] != '\0')
+  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
     {
       g_string_append (path, "/");
-      g_string_append (path, (*conn)->scan_id);
+      g_string_append (path, conn->scan_id);
     }
   else
     {
@@ -868,7 +868,7 @@ openvasd_stop_scan (openvasd_connector_t *conn)
     }
 
   openvasd_stringstream_new (&resp);
-  customheader = init_customheader ((*conn)->apikey, TRUE);
+  customheader = init_customheader (conn->apikey, TRUE);
   if ((hnd = handler (conn, POST, path->str, "{\"action\": \"stop\"}",
                       customheader, &resp, &err))
       == NULL)
@@ -892,7 +892,7 @@ openvasd_stop_scan (openvasd_connector_t *conn)
 }
 
 openvasd_resp_t
-openvasd_get_scan_results (openvasd_connector_t *conn, long first, long last)
+openvasd_get_scan_results (openvasd_connector_t conn, long first, long last)
 {
   openvasd_resp_t response = NULL;
   GString *path = NULL;
@@ -904,10 +904,10 @@ openvasd_get_scan_results (openvasd_connector_t *conn, long first, long last)
   response = g_malloc0 (sizeof (struct openvasd_response));
 
   path = g_string_new ("/scans");
-  if ((*conn)->scan_id != NULL && (*conn)->scan_id[0] != '\0')
+  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
     {
       g_string_append (path, "/");
-      g_string_append (path, (*conn)->scan_id);
+      g_string_append (path, conn->scan_id);
       if (last > first)
         g_string_append_printf (path, "/results?range%ld-%ld", first, last);
       else if (last < first)
@@ -925,7 +925,7 @@ openvasd_get_scan_results (openvasd_connector_t *conn, long first, long last)
     }
 
   openvasd_stringstream_new (&resp);
-  customheader = init_customheader ((*conn)->apikey, FALSE);
+  customheader = init_customheader (conn->apikey, FALSE);
   if ((hnd = handler (conn, GET, path->str, NULL, customheader, &resp, &err))
       == NULL)
     {
@@ -1034,28 +1034,28 @@ openvasd_get_result_member_int (openvasd_result_t result,
 }
 
 void
-openvasd_result_free (openvasd_result_t *result)
+openvasd_result_free (openvasd_result_t result)
 {
   if (result == NULL)
     return;
 
-  g_free ((*result)->type);
-  g_free ((*result)->ip_address);
-  g_free ((*result)->hostname);
-  g_free ((*result)->oid);
-  g_free ((*result)->protocol);
-  g_free ((*result)->message);
-  g_free ((*result)->detail_name);
-  g_free ((*result)->detail_value);
-  g_free ((*result)->detail_source_name);
-  g_free ((*result)->detail_source_type);
-  g_free ((*result)->detail_source_description);
-  g_free (*result);
+  g_free (result->type);
+  g_free (result->ip_address);
+  g_free (result->hostname);
+  g_free (result->oid);
+  g_free (result->protocol);
+  g_free (result->message);
+  g_free (result->detail_name);
+  g_free (result->detail_value);
+  g_free (result->detail_source_name);
+  g_free (result->detail_source_type);
+  g_free (result->detail_source_description);
+  g_free (result);
   result = NULL;
 }
 
 int
-openvasd_parsed_results (openvasd_connector_t *conn, unsigned long first,
+openvasd_parsed_results (openvasd_connector_t conn, unsigned long first,
                          unsigned long last, GSList **results)
 {
   cJSON *parser = NULL;
@@ -1182,7 +1182,7 @@ res_cleanup:
 }
 
 openvasd_resp_t
-openvasd_get_scan_status (openvasd_connector_t *conn)
+openvasd_get_scan_status (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
   GString *path = NULL;
@@ -1194,10 +1194,10 @@ openvasd_get_scan_status (openvasd_connector_t *conn)
   response = g_malloc0 (sizeof (struct openvasd_response));
 
   path = g_string_new ("/scans");
-  if ((*conn)->scan_id != NULL && (*conn)->scan_id[0] != '\0')
+  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
     {
       g_string_append (path, "/");
-      g_string_append (path, (*conn)->scan_id);
+      g_string_append (path, conn->scan_id);
       g_string_append (path, "/status");
     }
   else
@@ -1210,7 +1210,7 @@ openvasd_get_scan_status (openvasd_connector_t *conn)
     }
 
   openvasd_stringstream_new (&resp);
-  customheader = init_customheader ((*conn)->apikey, FALSE);
+  customheader = init_customheader (conn->apikey, FALSE);
   if ((hnd = handler (conn, GET, path->str, NULL, customheader, &resp, &err))
       == NULL)
     {
@@ -1254,7 +1254,7 @@ get_member_value_or_fail (cJSON *reader, const gchar *member)
 }
 
 static int
-openvasd_get_scan_progress_ext (openvasd_connector_t *conn,
+openvasd_get_scan_progress_ext (openvasd_connector_t conn,
                                 openvasd_resp_t response)
 {
   cJSON *parser;
@@ -1266,7 +1266,7 @@ openvasd_get_scan_progress_ext (openvasd_connector_t *conn,
   openvasd_resp_t resp;
   int progress = -1;
 
-  if (!response && !(*conn))
+  if (!response && !conn)
     return -1;
 
   if (response == NULL)
@@ -1341,7 +1341,7 @@ cleanup:
 }
 
 int
-openvasd_get_scan_progress (openvasd_connector_t *conn)
+openvasd_get_scan_progress (openvasd_connector_t conn)
 {
   return openvasd_get_scan_progress_ext (conn, NULL);
 }
@@ -1375,7 +1375,7 @@ get_status_code_from_openvas (const gchar *status_val)
  *          by the caller.
  */
 openvasd_scan_status_t
-openvasd_parsed_scan_status (openvasd_connector_t *conn)
+openvasd_parsed_scan_status (openvasd_connector_t conn)
 {
   cJSON *parser = NULL;
   cJSON *status = NULL;
@@ -1430,7 +1430,7 @@ status_cleanup:
 }
 
 openvasd_resp_t
-openvasd_delete_scan (openvasd_connector_t *conn)
+openvasd_delete_scan (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
   GString *path;
@@ -1443,10 +1443,10 @@ openvasd_delete_scan (openvasd_connector_t *conn)
 
   // Stop the scan
   path = g_string_new ("/scans");
-  if ((*conn)->scan_id != NULL && (*conn)->scan_id[0] != '\0')
+  if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
     {
       g_string_append (path, "/");
-      g_string_append (path, (*conn)->scan_id);
+      g_string_append (path, conn->scan_id);
     }
   else
     {
@@ -1458,7 +1458,7 @@ openvasd_delete_scan (openvasd_connector_t *conn)
     }
 
   openvasd_stringstream_new (&resp);
-  customheader = init_customheader ((*conn)->apikey, FALSE);
+  customheader = init_customheader (conn->apikey, FALSE);
   if ((hnd = handler (conn, DELETE, path->str, NULL, customheader, &resp, &err))
       == NULL)
     {
@@ -1487,7 +1487,7 @@ openvasd_delete_scan (openvasd_connector_t *conn)
 }
 
 openvasd_resp_t
-openvasd_get_health_alive (openvasd_connector_t *conn)
+openvasd_get_health_alive (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
   gchar *err = NULL;
@@ -1498,7 +1498,7 @@ openvasd_get_health_alive (openvasd_connector_t *conn)
   response = g_malloc0 (sizeof (struct openvasd_response));
 
   openvasd_stringstream_new (&resp);
-  customheader = init_customheader ((*conn)->apikey, FALSE);
+  customheader = init_customheader (conn->apikey, FALSE);
   if ((hnd =
          handler (conn, GET, "/health/alive", NULL, customheader, &resp, &err))
       == NULL)
@@ -1526,7 +1526,7 @@ openvasd_get_health_alive (openvasd_connector_t *conn)
 }
 
 openvasd_resp_t
-openvasd_get_health_ready (openvasd_connector_t *conn)
+openvasd_get_health_ready (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
   gchar *err = NULL;
@@ -1537,7 +1537,7 @@ openvasd_get_health_ready (openvasd_connector_t *conn)
   response = g_malloc0 (sizeof (struct openvasd_response));
 
   openvasd_stringstream_new (&resp);
-  customheader = init_customheader ((*conn)->apikey, FALSE);
+  customheader = init_customheader (conn->apikey, FALSE);
   if ((hnd =
          handler (conn, GET, "/health/ready", NULL, customheader, &resp, &err))
       == NULL)
@@ -1564,7 +1564,7 @@ openvasd_get_health_ready (openvasd_connector_t *conn)
 }
 
 openvasd_resp_t
-openvasd_get_health_started (openvasd_connector_t *conn)
+openvasd_get_health_started (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
   gchar *err = NULL;
@@ -1575,7 +1575,7 @@ openvasd_get_health_started (openvasd_connector_t *conn)
   response = g_malloc0 (sizeof (struct openvasd_response));
 
   openvasd_stringstream_new (&resp);
-  customheader = init_customheader ((*conn)->apikey, FALSE);
+  customheader = init_customheader (conn->apikey, FALSE);
   if ((hnd = handler (conn, GET, "/health/started", NULL, customheader, &resp,
                       &err))
       == NULL)
@@ -1603,7 +1603,7 @@ openvasd_get_health_started (openvasd_connector_t *conn)
 }
 
 openvasd_resp_t
-openvasd_get_scan_preferences (openvasd_connector_t *conn)
+openvasd_get_scan_preferences (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
   gchar *err = NULL;
@@ -1614,7 +1614,7 @@ openvasd_get_scan_preferences (openvasd_connector_t *conn)
   response = g_malloc0 (sizeof (struct openvasd_response));
 
   openvasd_stringstream_new (&resp);
-  customheader = init_customheader ((*conn)->apikey, FALSE);
+  customheader = init_customheader (conn->apikey, FALSE);
   if ((hnd = handler (conn, GET, "/scans/preferences", NULL, customheader,
                       &resp, &err))
       == NULL)
@@ -1763,7 +1763,7 @@ openvasd_param_mandatory (openvasd_param_t *param)
 }
 
 int
-openvasd_parsed_scans_preferences (openvasd_connector_t *conn, GSList **params)
+openvasd_parsed_scans_preferences (openvasd_connector_t conn, GSList **params)
 {
   openvasd_resp_t resp = NULL;
   cJSON *parser;
