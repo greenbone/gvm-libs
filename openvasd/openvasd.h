@@ -131,33 +131,33 @@ openvasd_connector_t
 openvasd_connector_new (void);
 
 openvasd_error_t
-openvasd_connector_builder (openvasd_connector_t *, openvasd_conn_opt_t,
+openvasd_connector_builder (openvasd_connector_t, openvasd_conn_opt_t,
                             const void *);
 
 openvasd_error_t
-openvasd_connector_free (openvasd_connector_t *);
+openvasd_connector_free (openvasd_connector_t);
 
 void
 openvasd_response_cleanup (openvasd_resp_t);
 
 // Requests
 openvasd_resp_t
-openvasd_get_version (openvasd_connector_t *);
+openvasd_get_version (openvasd_connector_t);
 
 openvasd_resp_t
-openvasd_get_vts (openvasd_connector_t *);
+openvasd_get_vts (openvasd_connector_t);
 
 openvasd_resp_t
-openvasd_start_scan (openvasd_connector_t *, gchar *);
+openvasd_start_scan (openvasd_connector_t, gchar *);
 
 openvasd_resp_t
-openvasd_stop_scan (openvasd_connector_t *);
+openvasd_stop_scan (openvasd_connector_t);
 
 openvasd_resp_t
-openvasd_delete_scan (openvasd_connector_t *);
+openvasd_delete_scan (openvasd_connector_t);
 
 openvasd_resp_t
-openvasd_get_scan_results (openvasd_connector_t *, long, long);
+openvasd_get_scan_results (openvasd_connector_t, long, long);
 
 openvasd_result_t
 openvasd_result_new (unsigned long, gchar *, gchar *, gchar *, gchar *, int,
@@ -165,45 +165,47 @@ openvasd_result_new (unsigned long, gchar *, gchar *, gchar *, gchar *, int,
                      gchar *);
 
 void
-openvasd_result_free (openvasd_result_t *);
+openvasd_result_free (openvasd_result_t);
 
-char *openvasd_get_result_member_str (openvasd_result_t,
+char *
+openvasd_get_result_member_str (openvasd_result_t,
                                       openvasd_result_member_string_t);
 
-int openvasd_get_result_member_int (openvasd_result_t,
+int
+openvasd_get_result_member_int (openvasd_result_t,
                                     openvasd_result_member_int_t);
 
 int
-openvasd_parsed_results (openvasd_connector_t *, unsigned long, unsigned long,
+openvasd_parsed_results (openvasd_connector_t, unsigned long, unsigned long,
                          GSList **);
 
 openvasd_resp_t
-openvasd_get_scan_status (openvasd_connector_t *);
+openvasd_get_scan_status (openvasd_connector_t);
 
 openvasd_scan_status_t
-openvasd_parsed_scan_status (openvasd_connector_t *);
+openvasd_parsed_scan_status (openvasd_connector_t);
 
 int
-openvasd_get_scan_progress (openvasd_connector_t *);
+openvasd_get_scan_progress (openvasd_connector_t);
 
 openvasd_resp_t
-openvasd_get_health_alive (openvasd_connector_t *);
+openvasd_get_health_alive (openvasd_connector_t);
 
 openvasd_resp_t
-openvasd_get_health_ready (openvasd_connector_t *);
+openvasd_get_health_ready (openvasd_connector_t);
 
 openvasd_resp_t
-openvasd_get_health_started (openvasd_connector_t *);
+openvasd_get_health_started (openvasd_connector_t);
 
 /* Scanner preferences */
 
 typedef struct openvasd_param openvasd_param_t;
 
 openvasd_resp_t
-openvasd_get_scan_preferences (openvasd_connector_t *);
+openvasd_get_scan_preferences (openvasd_connector_t);
 
 int
-openvasd_parsed_scans_preferences (openvasd_connector_t *, GSList **);
+openvasd_parsed_scans_preferences (openvasd_connector_t, GSList **);
 
 void
 openvasd_param_free (openvasd_param_t *);
@@ -301,7 +303,7 @@ void
 openvasd_curlm_handler_close (openvasd_curlm_t **);
 
 openvasd_resp_t
-openvasd_get_vts_stream_init (openvasd_connector_t *, openvasd_curlm_t **,
+openvasd_get_vts_stream_init (openvasd_connector_t, openvasd_curlm_t **,
                               openvasd_stringstream_t *);
 
 int
