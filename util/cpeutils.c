@@ -783,6 +783,7 @@ get_fs_component (const char *fs_cpe, int index)
   char *component = NULL;
   char *c;
   char *component_start, *component_end;
+  gboolean escaped;
 
   if (!fs_cpe)
     return NULL;
@@ -793,6 +794,7 @@ get_fs_component (const char *fs_cpe, int index)
   c = (char *) fs_cpe;
 
   /* find start of component */
+  escaped = FALSE;
   if (index == 0)
     component_start = c;
   else
@@ -801,23 +803,30 @@ get_fs_component (const char *fs_cpe, int index)
         {
           if (*c == ':' && c == fs_cpe)
             i++;
-          else if (c > fs_cpe && *c == ':' && *(c - 1) != '\\')
+          else if (*c == ':' && !escaped)
             i++;
+          else if (*c == '\\' && !escaped)
+            escaped = TRUE;
+          else
+            escaped = FALSE;
         }
       component_start = c;
     }
 
   /* find end of component */
+  escaped = FALSE;
   if (*component_start == '\0')
     component_end = component_start;
   else
     {
       for (c = component_start; *c != '\0'; c++)
         {
-          if (*c == ':' && c == component_start)
+          if (*c == ':' && !escaped)
             break;
-          else if (c > component_start && *c == ':' && *(c - 1) != '\\')
-            break;
+          if (*c == '\\' && !escaped)
+            escaped = TRUE;
+          else
+            escaped = FALSE;
         }
     }
 

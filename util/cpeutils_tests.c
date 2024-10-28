@@ -230,6 +230,15 @@ Ensure (cpeutils, fs_cpe_to_uri_cpe)
       "cpe:/a:hp:insight_diagnostics:7.4.0.1570:-:~~online~win%3A2003~x64~"));
   g_free (uri_cpe);
 
+  fs_cpe =
+    "cpe:2.3:a:hp:insight_diagnostics:7.4.0.1570:-:*:*:online:win2003\\\\:x64:*";
+  uri_cpe = fs_cpe_to_uri_cpe (fs_cpe);
+  assert_that (
+    uri_cpe,
+    is_equal_to_string (
+      "cpe:/a:hp:insight_diagnostics:7.4.0.1570:-:~~online~win2003%5C~x64~"));
+  g_free (uri_cpe);
+
   fs_cpe = "This is a ~:SIGNAL:~ test.";
   uri_cpe = fs_cpe_to_uri_cpe (fs_cpe);
   g_free (uri_cpe);
