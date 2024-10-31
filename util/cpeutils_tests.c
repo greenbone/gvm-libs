@@ -215,6 +215,22 @@ Ensure (cpeutils, fs_cpe_to_uri_cpe)
   fs_cpe = "This is a ~:SIGNAL:~ test.";
   uri_cpe = fs_cpe_to_uri_cpe (fs_cpe);
   g_free (uri_cpe);
+
+  fs_cpe =
+    "cpe:2.3:a:9base_project:9base:1\\:6-6:*:*:*:*:*:*:*";
+  uri_cpe = fs_cpe_to_uri_cpe (fs_cpe);
+  assert_that (uri_cpe, is_equal_to_string (
+                          "cpe:/a:9base_project:9base:1%3A6-6"));
+  g_free (uri_cpe);
+
+  fs_cpe =
+    "cpe:2.3:a:app\\:\\:cpanminus_project:app\\:\\:cpanminus:1.7000:*:*:*:*:perl:*:*";
+  uri_cpe = fs_cpe_to_uri_cpe (fs_cpe);
+  assert_that (
+    uri_cpe,
+    is_equal_to_string (
+      "cpe:/a:app%3A%3Acpanminus_project:app%3A%3Acpanminus:1.7000::~~~perl~~"));
+  g_free (uri_cpe);
 }
 
 Ensure (cpeutils, cpe_struct_match)

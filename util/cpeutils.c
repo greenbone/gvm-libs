@@ -812,7 +812,9 @@ get_fs_component (const char *fs_cpe, int index)
     component_end = component_start;
   else
     {
-      for (c = component_start; *c != '\0' && *c != ':'; c++)
+      for (c = component_start;
+           *c != '\0' && !(*c == ':' && c > fs_cpe && *(c - 1) != '\\');
+           c++)
         ;
     }
 
