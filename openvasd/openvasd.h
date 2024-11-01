@@ -134,27 +134,21 @@ openvasd_error_t
 openvasd_connector_builder (openvasd_connector_t, openvasd_conn_opt_t,
                             const void *);
 
-openvasd_error_t
-openvasd_connector_free (openvasd_connector_t);
+openvasd_error_t openvasd_connector_free (openvasd_connector_t);
 
-void
-openvasd_response_cleanup (openvasd_resp_t);
+void openvasd_response_cleanup (openvasd_resp_t);
 
 // Requests
-openvasd_resp_t
-openvasd_get_version (openvasd_connector_t);
+openvasd_resp_t openvasd_get_version (openvasd_connector_t);
 
-openvasd_resp_t
-openvasd_get_vts (openvasd_connector_t);
+openvasd_resp_t openvasd_get_vts (openvasd_connector_t);
 
 openvasd_resp_t
 openvasd_start_scan (openvasd_connector_t, gchar *);
 
-openvasd_resp_t
-openvasd_stop_scan (openvasd_connector_t);
+openvasd_resp_t openvasd_stop_scan (openvasd_connector_t);
 
-openvasd_resp_t
-openvasd_delete_scan (openvasd_connector_t);
+openvasd_resp_t openvasd_delete_scan (openvasd_connector_t);
 
 openvasd_resp_t
 openvasd_get_scan_results (openvasd_connector_t, long, long);
@@ -164,45 +158,35 @@ openvasd_result_new (unsigned long, gchar *, gchar *, gchar *, gchar *, int,
                      gchar *, gchar *, gchar *, gchar *, gchar *, gchar *,
                      gchar *);
 
-void
-openvasd_result_free (openvasd_result_t);
+void openvasd_result_free (openvasd_result_t);
 
-char *
-openvasd_get_result_member_str (openvasd_result_t,
+char *openvasd_get_result_member_str (openvasd_result_t,
                                       openvasd_result_member_string_t);
 
-int
-openvasd_get_result_member_int (openvasd_result_t,
+int openvasd_get_result_member_int (openvasd_result_t,
                                     openvasd_result_member_int_t);
 
 int
 openvasd_parsed_results (openvasd_connector_t, unsigned long, unsigned long,
                          GSList **);
 
-openvasd_resp_t
-openvasd_get_scan_status (openvasd_connector_t);
+openvasd_resp_t openvasd_get_scan_status (openvasd_connector_t);
 
-openvasd_scan_status_t
-openvasd_parsed_scan_status (openvasd_connector_t);
+openvasd_scan_status_t openvasd_parsed_scan_status (openvasd_connector_t);
 
-int
-openvasd_get_scan_progress (openvasd_connector_t);
+int openvasd_get_scan_progress (openvasd_connector_t);
 
-openvasd_resp_t
-openvasd_get_health_alive (openvasd_connector_t);
+openvasd_resp_t openvasd_get_health_alive (openvasd_connector_t);
 
-openvasd_resp_t
-openvasd_get_health_ready (openvasd_connector_t);
+openvasd_resp_t openvasd_get_health_ready (openvasd_connector_t);
 
-openvasd_resp_t
-openvasd_get_health_started (openvasd_connector_t);
+openvasd_resp_t openvasd_get_health_started (openvasd_connector_t);
 
 /* Scanner preferences */
 
 typedef struct openvasd_param openvasd_param_t;
 
-openvasd_resp_t
-openvasd_get_scan_preferences (openvasd_connector_t);
+openvasd_resp_t openvasd_get_scan_preferences (openvasd_connector_t);
 
 int
 openvasd_parsed_scans_preferences (openvasd_connector_t, GSList **);
@@ -229,7 +213,6 @@ char *
 openvasd_param_default (openvasd_param_t *);
 
 /* Target builder */
-
 typedef struct openvasd_target openvasd_target_t;
 
 typedef struct openvasd_vt_single openvasd_vt_single_t;
@@ -272,42 +255,19 @@ void
 openvasd_vt_single_add_value (openvasd_vt_single_t *, const gchar *,
                               const gchar *);
 
-/* Scan config builder */
 char *
 openvasd_build_scan_config_json (openvasd_target_t *, GHashTable *, GSList *);
 
-/* Curl multiperform wrapper */
-typedef struct openvasd_curlm openvasd_curlm_t;
+/* VT stream */
+openvasd_resp_t openvasd_get_vt_stream_init (openvasd_connector_t);
 
-/** @brief Define a string struct for storing the response.
- */
-typedef struct openvasd_string
-{
-  gchar *ptr;
-  size_t len;
-} openvasd_stringstream_t;
+int openvasd_get_vt_stream (openvasd_connector_t);
 
-void
-openvasd_stringstream_new (openvasd_stringstream_t *s);
+void openvasd_reset_vt_stream (openvasd_connector_t);
 
-void
-openvasd_stringstream_reset (openvasd_stringstream_t *s);
+char *openvasd_vt_stream_str (openvasd_connector_t);
 
-void
-openvasd_stringstream_cleanup (openvasd_stringstream_t *s);
-
-openvasd_curlm_t *
-openvasd_curlm_handler_new (void);
-
-void
-openvasd_curlm_handler_close (openvasd_curlm_t **);
-
-openvasd_resp_t
-openvasd_get_vts_stream_init (openvasd_connector_t, openvasd_curlm_t **,
-                              openvasd_stringstream_t *);
-
-int
-openvasd_get_vts_stream (openvasd_curlm_t *);
+size_t openvasd_vt_stream_len (openvasd_connector_t);
 
 nvti_t *
 openvasd_parse_vt (gvm_json_pull_parser_t *, gvm_json_pull_event_t *);
