@@ -22,14 +22,14 @@ Ensure (compressutils, can_compress_and_uncompress_without_header)
 {
   const char *testdata = "TEST-12345-12345-TEST";
 
-  size_t compressed_len;
+  unsigned long compressed_len;
   char *compressed =
     gvm_compress (testdata, strlen (testdata) + 1, &compressed_len);
   assert_that (compressed_len, is_greater_than (0));
   assert_that (compressed, is_not_null);
   assert_that (compressed, is_not_equal_to_string (testdata));
 
-  size_t uncompressed_len;
+  unsigned long uncompressed_len;
   char *uncompressed =
     gvm_uncompress (compressed, compressed_len, &uncompressed_len);
   assert_that (uncompressed_len, is_equal_to (strlen (testdata) + 1));
@@ -40,7 +40,7 @@ Ensure (compressutils, can_compress_and_uncompress_with_header)
 {
   const char *testdata = "TEST-12345-12345-TEST";
 
-  size_t compressed_len;
+  unsigned long compressed_len;
   char *compressed =
     gvm_compress_gzipheader (testdata, strlen (testdata) + 1, &compressed_len);
   assert_that (compressed_len, is_greater_than (0));
@@ -51,7 +51,7 @@ Ensure (compressutils, can_compress_and_uncompress_with_header)
   assert_that (compressed[1], is_equal_to ((char) 0x8b));
   assert_that (compressed[2], is_equal_to (8));
 
-  size_t uncompressed_len;
+  unsigned long uncompressed_len;
   char *uncompressed =
     gvm_uncompress (compressed, compressed_len, &uncompressed_len);
   assert_that (uncompressed_len, is_equal_to (strlen (testdata) + 1));
@@ -61,7 +61,7 @@ Ensure (compressutils, can_compress_and_uncompress_with_header)
 Ensure (compressutils, can_uncompress_using_reader)
 {
   const char *testdata = "TEST-12345-12345-TEST";
-  size_t compressed_len;
+  unsigned long compressed_len;
   char *compressed =
     gvm_compress_gzipheader (testdata, strlen (testdata) + 1, &compressed_len);
 
@@ -83,7 +83,7 @@ Ensure (compressutils, can_uncompress_using_reader)
 Ensure (compressutils, can_uncompress_using_fd_reader)
 {
   const char *testdata = "TEST-12345-12345-TEST";
-  size_t compressed_len;
+  unsigned long compressed_len;
   char *compressed =
     gvm_compress_gzipheader (testdata, strlen (testdata) + 1, &compressed_len);
 
