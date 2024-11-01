@@ -801,9 +801,7 @@ get_fs_component (const char *fs_cpe, int index)
     {
       for (int i = 0; *c != '\0' && i < index; c++)
         {
-          if (*c == ':' && c == fs_cpe)
-            i++;
-          else if (*c == ':' && !escaped)
+          if (*c == ':' && !escaped)
             i++;
           else if (*c == '\\' && !escaped)
             escaped = TRUE;
