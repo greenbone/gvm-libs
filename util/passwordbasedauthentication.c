@@ -107,6 +107,11 @@ crypt_gensalt_r (const char *prefix, unsigned long count, const char *rbytes,
     }
   written = snprintf (output, output_size, "%srounds=%lu$",
                       prefix == NULL ? PREFIX_DEFAULT : prefix, count);
+  if (written < 0) {
+    output[0] = '*';
+    goto exit;
+  }
+
   while (written + 5 < (unsigned int) output_size
          && used + 3 < (unsigned int) nrbytes && (used * 4 / 3) < 16)
     {
