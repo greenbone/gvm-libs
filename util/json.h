@@ -10,4 +10,9 @@
 
 #include <cjson/cJSON.h>
 
+#include <glib.h>
+
+gchar *
+gvm_json_string_escape (const char *, gboolean);
+
 #endif /* _GVM_JSON_H */
