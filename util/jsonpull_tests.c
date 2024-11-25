@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "json.c"
 #include "jsonpull.c"
 
 #include <cgreen/cgreen.h>
@@ -71,25 +72,6 @@ read_with_error_on_eof (void *stream_cookie, char *buf, size_t size)
   g_free (path_str);
 
 #define JSON_READ_ERROR "error reading JSON stream: Input/output error"
-
-Ensure (jsonpull, can_json_escape_strings)
-{
-  const char *unescaped_string = "\"'Abc\\\b\f\n\r\t\001Äöü'\"";
-  const char *escaped_string_dq = "\\\"'Abc\\\\\\b\\f\\n\\r\\t\\u0001Äöü'\\\"";
-  const char *escaped_string_sq = "\"\\'Abc\\\\\\b\\f\\n\\r\\t\\u0001Äöü\\'\"";
-
-  gchar *escaped_string = NULL;
-  escaped_string = gvm_json_string_escape (NULL, FALSE);
-  assert_that (escaped_string, is_null);
-
-  escaped_string = gvm_json_string_escape (unescaped_string, FALSE);
-  assert_that (escaped_string, is_equal_to_string (escaped_string_dq));
-  g_free (escaped_string);
-
-  escaped_string = gvm_json_string_escape (unescaped_string, TRUE);
-  assert_that (escaped_string, is_equal_to_string (escaped_string_sq));
-  g_free (escaped_string);
-}
 
 Ensure (jsonpull, can_init_parser_with_defaults)
 {
@@ -1131,8 +1113,6 @@ main (int argc, char **argv)
   TestSuite *suite;
 
   suite = create_test_suite ();
-
-  add_test_with_context (suite, jsonpull, can_json_escape_strings);
 
   add_test_with_context (suite, jsonpull, can_init_parser_with_defaults);
 

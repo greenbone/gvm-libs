@@ -233,7 +233,7 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
     DEPENDS array-test alivedetection-test boreas_error-test boreas_io-test
             cli-test cpeutils-test cvss-test ping-test sniffer-test util-test networking-test
             passwordbasedauthentication-test xmlutils-test version-test versionutils-test
-            osp-test nvti-test hosts-test jsonpull-test compressutils-test
+            osp-test nvti-test hosts-test json-test jsonpull-test compressutils-test
             openvasd-test)
 
 endif (BUILD_TESTS AND NOT SKIP_SRC)

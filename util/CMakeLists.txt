@@ -148,6 +148,21 @@ endif (BUILD_SHARED)
 ## Tests
 
 if (BUILD_TESTS)
+  add_executable (json-test
+                  EXCLUDE_FROM_ALL
+                  json_tests.c)
+
+  add_test (json-test json-test)
+
+  target_include_directories (json-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (json-test ${CGREEN_LIBRARIES}
+                         ${GLIB_LDFLAGS} ${CJSON_LDFLAGS})
+
+  add_custom_target (tests-json
+                     DEPENDS json-test)
+
+
   add_executable (jsonpull-test
                   EXCLUDE_FROM_ALL
                   jsonpull_tests.c)
