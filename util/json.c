@@ -62,3 +62,23 @@ gvm_json_string_escape (const char *string, gboolean single_quote)
     }
   return g_string_free (escaped, FALSE);
 }
+
+/**
+ * @brief Get a double field from a JSON object.
+ *
+ * @param[in]  obj  Object
+ * @param[in]  key  Field name.
+ *
+ * @return A double.
+ */
+double
+gvm_json_obj_double (cJSON *obj, const gchar *key)
+{
+  cJSON *item;
+
+  item = cJSON_GetObjectItem (obj, key);
+  if (item && cJSON_IsNumber (item))
+    return item->valuedouble;
+
+  return 0;
+}
