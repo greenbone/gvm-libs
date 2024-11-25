@@ -8,7 +8,8 @@
 
 #define _GNU_SOURCE
 
-#include <cjson/cJSON.h>
+#include "json.h"
+
 #include <glib.h>
 #include <stdio.h>
 

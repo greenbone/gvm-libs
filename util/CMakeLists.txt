@@ -112,12 +112,12 @@ endif (BUILD_WITH_LDAP)
 include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS}
                      ${LIBXML2_INCLUDE_DIRS})
 
-set (FILES cpeutils.c passwordbasedauthentication.c compressutils.c fileutils.c gpgmeutils.c jsonpull.c kb.c
+set (FILES cpeutils.c passwordbasedauthentication.c compressutils.c fileutils.c gpgmeutils.c json.c jsonpull.c kb.c
            ldaputils.c nvticache.c mqtt.c radiusutils.c serverutils.c sshutils.c uuidutils.c versionutils.c
            xmlutils.c)
 
 set (HEADERS cpeutils.h passwordbasedauthentication.h authutils.h compressutils.h fileutils.h gpgmeutils.h
-             jsonpull.h kb.h ldaputils.h nvticache.h mqtt.h radiusutils.h serverutils.h sshutils.h
+             json.h jsonpull.h kb.h ldaputils.h nvticache.h mqtt.h radiusutils.h serverutils.h sshutils.h
              uuidutils.h versionutils.h xmlutils.h)
 
 if (BUILD_STATIC)
