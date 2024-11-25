@@ -98,9 +98,6 @@ typedef struct
   size_t parse_buffer_limit; ///< Maximum parse buffer size
 } gvm_json_pull_parser_t;
 
-gchar *
-gvm_json_string_escape (const char *, gboolean);
-
 gvm_json_path_elem_t *
 gvm_json_pull_path_elem_new (gvm_json_pull_container_type_t, int);
 
