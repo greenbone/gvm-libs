@@ -38,7 +38,7 @@ Prerequisites for building documentation:
 * xmltoman (optional, for building man page)
 
 Prerequisites for building tests:
-* [Cgreen](https://cgreen-devs.github.io/#_installing_cgreen) (optional, for building tests)
+* [Cgreen](https://cgreen-devs.github.io/cgreen/cgreen-guide-en.html#_installing_cgreen) (optional, for building tests)
 
 Install prerequisites on Debian GNU/Linux 'Bullseye' 11:
 
