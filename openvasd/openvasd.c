@@ -1178,19 +1178,23 @@ openvasd_parsed_results (openvasd_connector_t conn, unsigned long first,
             && cJSON_IsString (detail_obj))
           detail_value = g_strdup (detail_obj->valuestring);
 
-        cJSON *source_obj = NULL;
-        if ((source_obj = cJSON_GetObjectItem (detail_obj, "type")) != NULL
-            && cJSON_IsObject (source_obj))
-          detail_source_type = g_strdup (detail_obj->valuestring);
+        detail_obj = cJSON_GetObjectItem (item, "source");
+        if (detail_obj && cJSON_IsObject (detail_obj))
+          {
+            cJSON *source_obj;
 
-        if ((source_obj = cJSON_GetObjectItem (detail_obj, "name")) != NULL
-            && cJSON_IsString (source_obj))
-          detail_source_name = g_strdup (detail_obj->valuestring);
+            if ((source_obj = cJSON_GetObjectItem (detail_obj, "type")) != NULL
+                && cJSON_IsObject (source_obj))
+              detail_source_type = g_strdup (source_obj->valuestring);
 
-        if ((source_obj = cJSON_GetObjectItem (detail_obj, "description"))
-              != NULL
-            && cJSON_IsString (source_obj))
-          detail_source_description = g_strdup (detail_obj->valuestring);
+            if ((source_obj = cJSON_GetObjectItem (detail_obj, "name")) != NULL
+                && cJSON_IsString (source_obj))
+              detail_source_name = g_strdup (source_obj->valuestring);
+
+            if ((source_obj = cJSON_GetObjectItem (detail_obj, "description")) != NULL
+                && cJSON_IsString (source_obj))
+              detail_source_description = g_strdup (source_obj->valuestring);
+          }
       }
 
     result = openvasd_result_new (id, type, ip_address, hostname, oid, port,
