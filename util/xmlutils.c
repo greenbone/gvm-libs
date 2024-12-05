@@ -3030,7 +3030,7 @@ xml_file_iterator_next (xml_file_iterator_t iterator, gchar **error)
             {
               if (error)
                 {
-                  xmlErrorPtr xml_error;
+                  const xmlError *xml_error;
                   xml_error = xmlCtxtGetLastError (iterator->parser_ctxt);
                   *error = g_strdup_printf ("error parsing XML"
                                             " (line %d column %d): %s",
