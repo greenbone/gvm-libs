@@ -24,6 +24,7 @@ endif (NOT CMAKE_BUILD_TYPE)
 OPTION(BUILD_STATIC "Build static versions of the libraries" OFF)
 OPTION(ENABLE_COVERAGE "Enable support for coverage analysis" OFF)
 OPTION(BUILD_TESTS "Build tests for the libraries" OFF)
+OPTION(OPENVASD "Build openvasd library" ON)
 
 if (NOT BUILD_STATIC)
   set (BUILD_SHARED ON)
@@ -258,9 +259,12 @@ if (NOT SKIP_SRC)
   add_subdirectory (base)
   add_subdirectory (boreas)
   add_subdirectory (util)
-  add_subdirectory (openvasd)
   add_subdirectory (osp)
   add_subdirectory (gmp)
+
+  if (OPENVASD)
+    add_subdirectory (openvasd)
+  endif (OPENVASD)
 endif (NOT SKIP_SRC)
 
 ## Documentation

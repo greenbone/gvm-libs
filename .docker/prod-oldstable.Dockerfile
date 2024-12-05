@@ -29,7 +29,7 @@ RUN apt-get update && \
   libcgreen1-dev \
   lcov \
   && rm -rf /var/lib/apt/lists/*
-RUN cmake -DCMAKE_BUILD_TYPE=Release -B/build /source
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DOPENVASD=0 -B/build /source
 RUN DESTDIR=/install cmake --build /build -- install
 
 FROM debian:oldstable-slim
