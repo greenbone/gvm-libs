@@ -13,7 +13,7 @@ endif (NOT PKG_CONFIG_FOUND)
 ## Dependency checks
 
 pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
-pkg_check_modules (CURL REQUIRED libcurl>=7.74.0)
+pkg_check_modules (CURL REQUIRED libcurl>=7.77.0)
 
 # for json parsing we need cJSON
 pkg_check_modules (CJSON REQUIRED libcjson>=1.7.14)
