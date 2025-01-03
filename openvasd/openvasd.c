@@ -12,6 +12,7 @@
 
 #include "../base/array.h"
 #include "../base/networking.h"
+#include "../util/json.h"
 
 #include <cjson/cJSON.h>
 #include <curl/curl.h>
@@ -1095,7 +1096,6 @@ openvasd_parsed_results (openvasd_connector_t conn, unsigned long first,
   const gchar *err = NULL;
   openvasd_resp_t resp = NULL;
   openvasd_result_t result = NULL;
-  unsigned long id = 0;
   gchar *type = NULL;
   gchar *ip_address = NULL;
   gchar *hostname = NULL;
@@ -1132,10 +1132,6 @@ openvasd_parsed_results (openvasd_connector_t conn, unsigned long first,
     if (!cJSON_IsObject (result_obj))
       // error
       goto res_cleanup;
-
-    if ((item = cJSON_GetObjectItem (result_obj, "id")) != NULL
-        && cJSON_IsNumber (item))
-      id = item->valuedouble;
 
     if ((item = cJSON_GetObjectItem (result_obj, "type")) != NULL
         && cJSON_IsString (item))
@@ -1193,7 +1189,8 @@ openvasd_parsed_results (openvasd_connector_t conn, unsigned long first,
           detail_source_description = g_strdup (detail_obj->valuestring);
       }
 
-    result = openvasd_result_new (id, type, ip_address, hostname, oid, port,
+    result = openvasd_result_new (gvm_json_obj_double (result_obj, "id"),
+                                  type, ip_address, hostname, oid, port,
                                   protocol, message, detail_name, detail_value,
                                   detail_source_type, detail_source_name,
                                   detail_source_description);
@@ -1410,7 +1407,6 @@ openvasd_parsed_scan_status (openvasd_connector_t conn)
   cJSON *status = NULL;
   openvasd_resp_t resp = NULL;
   gchar *status_val = NULL;
-  time_t start_time = 0, end_time = 0;
   int progress = -1;
   openvasd_status_t status_code = OPENVASD_SCAN_STATUS_ERROR;
   openvasd_scan_status_t status_info;
@@ -1433,14 +1429,6 @@ openvasd_parsed_scan_status (openvasd_connector_t conn)
     goto status_cleanup;
   status_val = g_strdup (status->valuestring);
 
-  if ((status = cJSON_GetObjectItem (parser, "start_time")) != NULL
-      && !cJSON_IsNumber (status))
-    start_time = status->valuedouble;
-
-  if ((status = cJSON_GetObjectItem (parser, "end_time")) != NULL
-      && !cJSON_IsNumber (status))
-    end_time = status->valuedouble;
-
   progress = openvasd_get_scan_progress_ext (NULL, resp);
 
 status_cleanup:
@@ -1451,8 +1439,8 @@ status_cleanup:
   g_free (status_val);
 
   status_info->status = status_code;
-  status_info->end_time = end_time;
-  status_info->start_time = start_time;
+  status_info->end_time = gvm_json_obj_double (parser, "end_time");
+  status_info->start_time = gvm_json_obj_double (parser, "start_time");
   status_info->progress = progress;
 
   return status_info;
