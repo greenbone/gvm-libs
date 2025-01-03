@@ -18,7 +18,7 @@ General build environment:
 
 Specific development libraries:
 * libcjson >= 1.7.14 (util)
-* libcurl >= 7.74.0 (openvasd)
+* libcurl >= 7.83.0 (openvasd)
 * libglib >= 2.42 (all)
 * libgio >= 2.42 (util)
 * zlib >= 1.2.8 (util)
