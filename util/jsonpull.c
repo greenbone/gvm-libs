@@ -111,20 +111,6 @@ gvm_json_pull_event_init (gvm_json_pull_event_t *event)
 }
 
 /**
- * @brief Resets a JSON pull event data structure for reuse.
- *
- * @param[in]  event  The event structure to reset
- */
-void
-gvm_json_pull_event_reset (gvm_json_pull_event_t *event)
-{
-  cJSON_free (event->value);
-  if (event->error_message)
-    g_free (event->error_message);
-  memset (event, 0, sizeof (gvm_json_pull_event_t));
-}
-
-/**
  * @brief Frees all data of JSON pull event data structure.
  *
  * @param[in]  event  The event structure to clean up
@@ -744,7 +730,7 @@ gvm_json_pull_parser_next (gvm_json_pull_parser_t *parser,
   assert (parser);
   assert (event);
 
-  gvm_json_pull_event_reset (event);
+  gvm_json_pull_event_cleanup (event);
   if (parser->last_read_char == GVM_JSON_CHAR_UNDEFINED)
     {
       // Handle first read of the stream
@@ -754,6 +740,7 @@ gvm_json_pull_parser_next (gvm_json_pull_parser_t *parser,
           return;
         }
     }
+
   event->path = parser->path;
 
   // Delayed addition to path after a container start element

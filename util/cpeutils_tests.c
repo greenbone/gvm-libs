@@ -212,6 +212,43 @@ Ensure (cpeutils, fs_cpe_to_uri_cpe)
       "cpe:/a:hp:insight_diagnostics:7.4.0.1570:-:~~online~win2003~x64~"));
   g_free (uri_cpe);
 
+  fs_cpe =
+    "cpe:2.3:a:hp:insight_diagnostics:7\\:4.0.1570:-:*:*:online:win2003:x64:*";
+  uri_cpe = fs_cpe_to_uri_cpe (fs_cpe);
+  assert_that (
+    uri_cpe,
+    is_equal_to_string (
+      "cpe:/a:hp:insight_diagnostics:7%3A4.0.1570:-:~~online~win2003~x64~"));
+  g_free (uri_cpe);
+
+  fs_cpe =
+    "cpe:2.3:a:hp:insight_diagnostics:7.4.0.1570:-:*:*:online:win\\:2003:x64:*";
+  uri_cpe = fs_cpe_to_uri_cpe (fs_cpe);
+  assert_that (
+    uri_cpe,
+    is_equal_to_string (
+      "cpe:/a:hp:insight_diagnostics:7.4.0.1570:-:~~online~win%3A2003~x64~"));
+  g_free (uri_cpe);
+
+  fs_cpe = "cpe:2.3:a:hp:insight_diagnostics:7.4.0.1570:-:*:*:online:win\\:\\:"
+           "2003:x64:*";
+  uri_cpe = fs_cpe_to_uri_cpe (fs_cpe);
+  assert_that (
+    uri_cpe,
+    is_equal_to_string (
+      "cpe:/"
+      "a:hp:insight_diagnostics:7.4.0.1570:-:~~online~win%3A%3A2003~x64~"));
+  g_free (uri_cpe);
+
+  fs_cpe = "cpe:2.3:a:hp:insight_diagnostics:7.4.0.1570:-:*:*:online:"
+           "win2003\\\\:x64:*";
+  uri_cpe = fs_cpe_to_uri_cpe (fs_cpe);
+  assert_that (
+    uri_cpe,
+    is_equal_to_string (
+      "cpe:/a:hp:insight_diagnostics:7.4.0.1570:-:~~online~win2003%5C~x64~"));
+  g_free (uri_cpe);
+
   fs_cpe = "This is a ~:SIGNAL:~ test.";
   uri_cpe = fs_cpe_to_uri_cpe (fs_cpe);
   g_free (uri_cpe);
@@ -225,20 +262,20 @@ Ensure (cpeutils, cpe_struct_match)
   fs_cpe1 = "cpe:2.3:a:microsoft:internet_explorer:8.0.6001:beta:*:*:*:*:*:*";
   cpe_struct_init (&cpe1);
   fs_cpe_to_cpe_struct (fs_cpe1, &cpe1);
-  assert_that (cpe_struct_match (cpe1, cpe1), is_equal_to (TRUE));
+  assert_that (cpe_struct_match (&cpe1, &cpe1), is_equal_to (TRUE));
 
   fs_cpe2 = "cpe:2.3:a:microsoft:internet_explorer:*:beta:*:*:*:*:*:*";
   cpe_struct_init (&cpe2);
   fs_cpe_to_cpe_struct (fs_cpe2, &cpe2);
-  assert_that (cpe_struct_match (cpe2, cpe1), is_equal_to (TRUE));
+  assert_that (cpe_struct_match (&cpe2, &cpe1), is_equal_to (TRUE));
 
-  assert_that (cpe_struct_match (cpe1, cpe2), is_equal_to (FALSE));
+  assert_that (cpe_struct_match (&cpe1, &cpe2), is_equal_to (FALSE));
 
   fs_cpe2 = "cpe:2.3:a:microsoft:internet_explorer:*:-:*:*:*:*:*:*";
   cpe_struct_free (&cpe2);
   cpe_struct_init (&cpe2);
   fs_cpe_to_cpe_struct (fs_cpe2, &cpe2);
-  assert_that (cpe_struct_match (cpe2, cpe1), is_equal_to (FALSE));
+  assert_that (cpe_struct_match (&cpe2, &cpe1), is_equal_to (FALSE));
 
   cpe_struct_free (&cpe1);
   cpe_struct_free (&cpe2);

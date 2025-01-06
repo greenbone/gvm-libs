@@ -29,7 +29,7 @@ RUN apt-get update && \
   libcgreen1-dev \
   lcov \
   && rm -rf /var/lib/apt/lists/*
-RUN cmake -DCMAKE_BUILD_TYPE=Release -B/build /source
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DOPENVASD=0 -B/build /source
 RUN DESTDIR=/install cmake --build /build -- install
 
 FROM debian:oldstable-slim
@@ -38,10 +38,12 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
+  libcjson1 \
   libglib2.0-0 \
   libgpgme11 \
   libgnutls30 \
   libuuid1 \
+  libjson-glib-1.0-0 \
   libssh-gcrypt-4 \
   libhiredis0.14 \
   libxml2 \

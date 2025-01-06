@@ -8,7 +8,7 @@ message ("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
 # VERSION: Always include major, minor and patch level.
 project (gvm-libs
-  VERSION 22.12.2
+  VERSION 22.15.0
   LANGUAGES C)
 
 if (POLICY CMP0005)
@@ -24,6 +24,7 @@ endif (NOT CMAKE_BUILD_TYPE)
 OPTION(BUILD_STATIC "Build static versions of the libraries" OFF)
 OPTION(ENABLE_COVERAGE "Enable support for coverage analysis" OFF)
 OPTION(BUILD_TESTS "Build tests for the libraries" OFF)
+OPTION(OPENVASD "Build openvasd library" ON)
 
 if (NOT BUILD_STATIC)
   set (BUILD_SHARED ON)
@@ -40,10 +41,11 @@ find_program (CLANG_FORMAT clang-format)
 
 if (CLANG_FORMAT)
   message (STATUS "Looking for clang-format... ${CLANG_FORMAT}")
-  add_custom_target(format COMMAND ${CLANG_FORMAT} "-i" "./base/*.c" 
-                    "./boreas/*.c" "./gmp/*.c" "./osp/*.c" "./util/*.c" 
-                    "./base/*.h" "./boreas/*.h" "./gmp/*.h" "./osp/*.h"
-                    "./util/*.h" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+  add_custom_target(format COMMAND ${CLANG_FORMAT} "-i" "./base/*.c"
+                    "./boreas/*.c" "./gmp/*.c" "./openvasd/*.c" "./osp/*.c"
+                    "./util/*.c" "./base/*.h" "./boreas/*.h" "./gmp/*.h"
+                    "./openvasd/*.h" "./osp/*.h" "./util/*.h"
+                    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 else (CLANG_FORMAT)
   message (STATUS "clang-format not found...")
 endif (CLANG_FORMAT)
@@ -231,7 +233,7 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
     DEPENDS array-test alivedetection-test boreas_error-test boreas_io-test
             cli-test cpeutils-test cvss-test ping-test sniffer-test util-test networking-test
             passwordbasedauthentication-test xmlutils-test version-test versionutils-test
-            osp-test nvti-test hosts-test jsonpull-test)
+            osp-test nvti-test hosts-test jsonpull-test compressutils-test)
 
 endif (BUILD_TESTS AND NOT SKIP_SRC)
 
@@ -259,6 +261,10 @@ if (NOT SKIP_SRC)
   add_subdirectory (util)
   add_subdirectory (osp)
   add_subdirectory (gmp)
+
+  if (OPENVASD)
+    add_subdirectory (openvasd)
+  endif (OPENVASD)
 endif (NOT SKIP_SRC)
 
 ## Documentation
