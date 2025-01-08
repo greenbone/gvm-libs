@@ -15,6 +15,8 @@
 #define ZLIB_CONST
 #endif
 
+#define _GNU_SOURCE
+
 #include "compressutils.h"
 
 #include <glib.h> /* for g_free, g_malloc0 */
@@ -236,4 +238,101 @@ gvm_compress_gzipheader (const void *src, unsigned long srclen,
           return NULL;
         }
     }
+}
+
+/**
+ * @brief Read decompressed data from a gzip file.
+ *
+ * @param[in]  cookie       The gzFile to read from.
+ * @param[in]  buffer       The buffer to output decompressed data to.
+ * @param[in]  buffer_size  The size of the buffer.
+ *
+ * @return The number of bytes read into the buffer.
+ */
+static ssize_t
+gz_file_read (void *cookie, char *buffer, size_t buffer_size)
+{
+  gzFile gz_file = cookie;
+
+  return gzread (gz_file, buffer, buffer_size);
+}
+
+/**
+ * @brief Close a gzip file.
+ *
+ * @param[in]  cookie       The gzFile to close.
+ *
+ * @return 0 on success, other values on error (see gzclose() from zlib).
+ */
+static int
+gz_file_close (void *cookie)
+{
+  gzFile gz_file = cookie;
+
+  return gzclose (gz_file);
+  ;
+}
+
+/**
+ * @brief Opens a gzip file as a FILE* stream for reading and decompression.
+ *
+ * @param[in]  path  Path to the gzip file to open.
+ *
+ * @return The FILE* on success, NULL otherwise.
+ */
+FILE *
+gvm_gzip_open_file_reader (const char *path)
+{
+  static cookie_io_functions_t io_functions = {
+    .read = gz_file_read,
+    .write = NULL,
+    .seek = NULL,
+    .close = gz_file_close,
+  };
+
+  if (path == NULL)
+    {
+      return NULL;
+    }
+
+  gzFile gz_file = gzopen (path, "r");
+  if (gz_file == NULL)
+    {
+      return NULL;
+    }
+
+  FILE *file = fopencookie (gz_file, "r", io_functions);
+  return file;
+}
+
+/**
+ * @brief Opens a gzip file as a FILE* stream for reading and decompression.
+ *
+ * @param[in]  fd  File descriptor of the gzip file to open.
+ *
+ * @return The FILE* on success, NULL otherwise.
+ */
+FILE *
+gvm_gzip_open_file_reader_fd (int fd)
+{
+  static cookie_io_functions_t io_functions = {
+    .read = gz_file_read,
+    .write = NULL,
+    .seek = NULL,
+    .close = gz_file_close,
+  };
+
+  if (fd < 0)
+    {
+      return NULL;
+    }
+
+  gzFile gz_file = gzdopen (fd, "r");
+  if (gz_file == NULL)
+    {
+      return NULL;
+    }
+
+  FILE *file = fopencookie (gz_file, "r", io_functions);
+  return file;
 }

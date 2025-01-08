@@ -17,6 +17,8 @@ General build environment:
 * pkg-config
 
 Specific development libraries:
+* libcjson >= 1.7.14 (util)
+* libcurl >= 7.83.0 (openvasd)
 * libglib >= 2.42 (all)
 * libgio >= 2.42 (util)
 * zlib >= 1.2.8 (util)
@@ -36,18 +38,21 @@ Prerequisites for building documentation:
 * xmltoman (optional, for building man page)
 
 Prerequisites for building tests:
-* [Cgreen](https://cgreen-devs.github.io/#_installing_cgreen) (optional, for building tests)
+* [Cgreen](https://cgreen-devs.github.io/cgreen/cgreen-guide-en.html#_installing_cgreen) (optional, for building tests)
 
 Install prerequisites on Debian GNU/Linux 'Bullseye' 11:
 
     apt-get install \
     cmake \
     pkg-config \
+    libcjson-dev \
+    libcurl4-openssl-dev \
     libglib2.0-dev \
     libgpgme-dev \
     libgnutls28-dev \
     uuid-dev \
-    libssh-gcrypt-dev \
+    libgcrypt-dev \
+    libssh-dev \
     libhiredis-dev \
     libxml2-dev \
     libpcap-dev \

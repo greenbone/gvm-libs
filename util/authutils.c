@@ -81,6 +81,25 @@ auth_method_name (auth_method_t method)
 }
 
 /**
+ * @brief Check if name is a valid auth method name.
+ *
+ * @param  name  Name of auth method.
+ *
+ * @return 1 if valid, else 0.
+ */
+int
+auth_method_name_valid (const gchar *name)
+{
+  int i;
+  for (i = 0; i < 1000; i++)
+    if (authentication_methods[i] == NULL)
+      break;
+    else if (strcmp (authentication_methods[i], name) == 0)
+      return 1;
+  return 0;
+}
+
+/**
  * @brief Initializes Gcrypt.
  *
  * @return 0 success, -1 error.

@@ -8,7 +8,7 @@ message ("-- Configuring the Greenbone Vulnerability Management Libraries...")
 
 # VERSION: Always include major, minor and patch level.
 project (gvm-libs
-  VERSION 22.9.1
+  VERSION 22.15.0
   LANGUAGES C)
 
 if (POLICY CMP0005)
@@ -24,6 +24,7 @@ endif (NOT CMAKE_BUILD_TYPE)
 OPTION(BUILD_STATIC "Build static versions of the libraries" OFF)
 OPTION(ENABLE_COVERAGE "Enable support for coverage analysis" OFF)
 OPTION(BUILD_TESTS "Build tests for the libraries" OFF)
+OPTION(OPENVASD "Build openvasd library" ON)
 
 if (NOT BUILD_STATIC)
   set (BUILD_SHARED ON)
@@ -40,10 +41,11 @@ find_program (CLANG_FORMAT clang-format)
 
 if (CLANG_FORMAT)
   message (STATUS "Looking for clang-format... ${CLANG_FORMAT}")
-  add_custom_target(format COMMAND ${CLANG_FORMAT} "-i" "./base/*.c" 
-                    "./boreas/*.c" "./gmp/*.c" "./osp/*.c" "./util/*.c" 
-                    "./base/*.h" "./boreas/*.h" "./gmp/*.h" "./osp/*.h"
-                    "./util/*.h" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+  add_custom_target(format COMMAND ${CLANG_FORMAT} "-i" "./base/*.c"
+                    "./boreas/*.c" "./gmp/*.c" "./openvasd/*.c" "./osp/*.c"
+                    "./util/*.c" "./base/*.h" "./boreas/*.h" "./gmp/*.h"
+                    "./openvasd/*.h" "./osp/*.h" "./util/*.h"
+                    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 else (CLANG_FORMAT)
   message (STATUS "clang-format not found...")
 endif (CLANG_FORMAT)
@@ -180,13 +182,16 @@ message ("-- Using redis socket ${REDIS_SOCKET_PATH}")
 message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 if (ENABLE_COVERAGE)
-  set (COVERAGE_FLAGS "--coverage")
+  set (COVERAGE_FLAGS "--coverage -ftest-coverage -fprofile-arcs")
+  set (COVERAGE_DIR "${CMAKE_BINARY_DIR}/coverage")
+  file (MAKE_DIRECTORY ${COVERAGE_DIR})
+  message ("-- Code Coverage enabled")
 endif (ENABLE_COVERAGE)
 
 set (HARDENING_FLAGS "-Wformat -Wformat-security -D_FORTIFY_SOURCE=2 -fstack-protector")
 set (LINKER_HARDENING_FLAGS "-Wl,-z,relro -Wl,-z,now")
 set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${COVERAGE_FLAGS}")
-set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${HARDENING_FLAGS}")
+set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${HARDENING_FLAGS} ${COVERAGE_FLAGS}")
 
 set (
     CMAKE_C_FLAGS
@@ -226,11 +231,27 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
 
   add_custom_target (tests
     DEPENDS array-test alivedetection-test boreas_error-test boreas_io-test
-            cli-test cvss-test ping-test sniffer-test util-test networking-test
-            passwordbasedauthentication-test xmlutils-test version-test osp-test 
-            nvti-test hosts-test)
+            cli-test cpeutils-test cvss-test ping-test sniffer-test util-test networking-test
+            passwordbasedauthentication-test xmlutils-test version-test versionutils-test
+            osp-test nvti-test hosts-test jsonpull-test compressutils-test)
 
 endif (BUILD_TESTS AND NOT SKIP_SRC)
+
+# Code coverage
+
+if (ENABLE_COVERAGE)
+  add_custom_target (coverage-html
+                     COMMAND gcovr --html-details ${COVERAGE_DIR}/coverage.html
+                     -r ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
+  add_custom_target (coverage-xml
+                     COMMAND gcovr --xml ${COVERAGE_DIR}/coverage.xml
+                     -r ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
+  add_custom_target (coverage DEPENDS coverage-xml coverage-html)
+endif (ENABLE_COVERAGE)
+
+add_custom_target (clean-coverage
+                   COMMAND find . -name *.gcda -delete -or -name *.gcno -delete
+                   COMMAND rm -f ${COVERAGE_DIR}/*)
 
 ## Program
 
@@ -240,6 +261,10 @@ if (NOT SKIP_SRC)
   add_subdirectory (util)
   add_subdirectory (osp)
   add_subdirectory (gmp)
+
+  if (OPENVASD)
+    add_subdirectory (openvasd)
+  endif (OPENVASD)
 endif (NOT SKIP_SRC)
 
 ## Documentation

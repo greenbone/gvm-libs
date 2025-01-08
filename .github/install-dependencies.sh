@@ -8,11 +8,15 @@ apt-get update && \
   cmake \
   pkg-config \
   gnupg \
+  libcjson-dev \
+  libcurl4-openssl-dev \
+  libjson-glib-dev \
   libglib2.0-dev \
   libgpgme-dev \
   libgnutls28-dev \
   uuid-dev \
-  libssh-gcrypt-dev \
+  libgcrypt-dev \
+  libssh-dev \
   libhiredis-dev \
   libxml2-dev \
   libpcap-dev \

@@ -35,6 +35,13 @@
 #define G_LOG_DOMAIN "libgvm base"
 
 /**
+ * @brief Timezone to use for logs.
+ *
+ * NULL means to use the current timezone.
+ */
+static gchar *log_tz = NULL;
+
+/**
  * @struct gvm_logging_t
  * @brief Logging stores the parameters loaded from a log configuration
  * @brief file, to be used internally by the gvm_logging module only.
@@ -69,7 +76,14 @@ get_time (gchar *time_fmt)
 {
   time_t now;
   struct tm ts;
-  gchar buf[80];
+  gchar buf[80], *original_tz;
+
+  if (log_tz)
+    {
+      original_tz = getenv ("TZ") ? g_strdup (getenv ("TZ")) : NULL;
+      setenv ("TZ", log_tz, 1);
+      tzset ();
+    }
 
   /* Get the current time. */
   now = time (NULL);
@@ -77,6 +91,19 @@ get_time (gchar *time_fmt)
   /* Format and print the time, "ddd yyyy-mm-dd hh:mm:ss zzz." */
   localtime_r (&now, &ts);
   strftime (buf, sizeof (buf), time_fmt, &ts);
+
+  if (log_tz)
+    {
+      /* Revert to stored TZ. */
+      if (original_tz)
+        {
+          setenv ("TZ", original_tz, 1);
+          g_free (original_tz);
+          tzset ();
+        }
+      else
+        unsetenv ("TZ");
+    }
 
   return g_strdup_printf ("%s", buf);
 }
@@ -871,6 +898,21 @@ check_log_file (gvm_logging_t *log_domain_entry)
         return -1;
     }
   return 0;
+}
+
+/**
+ * @brief Set the log timezone.
+ *
+ * This is the timezone used for dates in log messages. If NULL then
+ * the current timezone is used.
+ *
+ * @param tz Timezone.
+ */
+void
+set_log_tz (const gchar *tz)
+{
+  g_free (log_tz);
+  log_tz = tz ? g_strdup (tz) : NULL;
 }
 
 /**
