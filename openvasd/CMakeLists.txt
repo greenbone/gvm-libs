@@ -17,7 +17,6 @@ pkg_check_modules (CURL REQUIRED libcurl>=7.83.0)
 
 # for json parsing we need cJSON
 pkg_check_modules (CJSON REQUIRED libcjson>=1.7.14)
-pkg_check_modules (GLIB_JSON REQUIRED json-glib-1.0>=1.4.4)
 
 
 include_directories (${GLIB_INCLUDE_DIRS} ${GLIB_JSON_INCLUDE_DIRS}
