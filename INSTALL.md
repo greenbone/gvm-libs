@@ -1,22 +1,22 @@
-INSTALLATION INSTRUCTIONS FOR GVM-LIBS
-======================================
+# Installation Instructions for gvm-libs
 
 Please note: The reference system used by most of the developers is Debian
-GNU/Linux 'Bullseye' 11. The build might fail on any other system. Also, it is
-necessary to install dependent development packages.
+stable. The build might fail on any other system. Also, it is necessary to
+install dependent development packages.
 
-Prerequisites for gvm-libs
---------------------------
+## Prerequisites for gvm-libs
 
 See at the end of this section how to easily install these prerequisites on
 some supported platforms.
 
 General build environment:
+
 * a C compiler (e.g. gcc)
 * cmake >= 3.0
 * pkg-config
 
 Specific development libraries:
+
 * libcjson >= 1.7.14 (util)
 * libcurl >= 7.83.0 (openvasd)
 * libgcrypt
@@ -34,13 +34,15 @@ Specific development libraries:
 * zlib >= 1.2.8 (util)
 
 Prerequisites for building documentation:
+
 * doxygen
 * xmltoman (optional, for building man page)
 
 Prerequisites for building tests:
+
 * [Cgreen](https://cgreen-devs.github.io/cgreen/cgreen-guide-en.html#_installing_cgreen) (optional, for building tests)
 
-Install prerequisites on Debian GNU/Linux 'Bullseye' 11:
+Install prerequisites on Debian stable:
 
     apt-get install \
     cmake \
@@ -59,15 +61,16 @@ Install prerequisites on Debian GNU/Linux 'Bullseye' 11:
     pkg-config \
     uuid-dev
 
-Prerequisites for Optional Features
------------------------------------
+## Prerequisites for Optional Features
 
 Certain features of gvm-libs are optional and require the following:
 
 Prerequisites for LDAP authentication:
+
 * libldap2 library >= 2.4.44 (util) (Debian package: libldap2-dev)
 
 Prerequisites for RADIUS authentication:
+
 * libradcli4 library >= 1.2.6 (util) (Debian package: libradcli-dev)
 * Alternative: libfreeradius3 library (util) (Debian package: libfreeradius-dev)
 
@@ -77,8 +80,7 @@ Install prerequisites for optional features on Debian GNU/Linux 'Buster' 10:
     libldap2-dev \
     libradcli-dev
 
-Compiling gvm-libs
-------------------
+## Compiling gvm-libs
 
 If you have installed required libraries to a non-standard location, remember to
 set the `PKG_CONFIG_PATH` environment variable to the location of your pkg-config
@@ -91,6 +93,7 @@ Create a build directory and change working directory into it with
         mkdir build && cd build
 
 Afterwards you can run `cmake` with different options:
+
 * Configure `gvm-libs` build with a custom installation path:
 
         cmake -DCMAKE_INSTALL_PREFIX=/path/to/your/installation ..
@@ -130,8 +133,7 @@ directory you created above.
     cd .. && rm -rf build
 
 
-Configurable Options
---------------------
+## Configurable Options
 
 During compilation, the build process uses a set of compiler options which
 enable very strict error checking and asks the compiler to abort should it detect
@@ -148,8 +150,7 @@ Portal](https://community.greenbone.net/c/gse). Don't forget to include the
 name and version of your compiler and distribution in your message.
 
 
-Building GVM Libraries statically linked
-----------------------------------------
+## Building GVM Libraries statically linked
 
 If you want to build a statically linked version -- for example to subsequently
 build a statically linked program using this library -- you need statically
