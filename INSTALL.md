@@ -19,19 +19,19 @@ General build environment:
 Specific development libraries:
 * libcjson >= 1.7.14 (util)
 * libcurl >= 7.83.0 (openvasd)
-* libglib >= 2.42 (all)
-* libgio >= 2.42 (util)
-* zlib >= 1.2.8 (util)
-* libgpgme >= 1.7.0 (util)
-* libgnutls >= 3.2.15 (util)
-* libuuid >= 2.25.0 (util)
-* libssh >= 0.6.0 (util)
-* libhiredis >= 0.10.1 (util)
-* libxml2 >= 2.0 (util)
-* libnet1 >= 1.1.2.1 (boreas)
-* libpcap
 * libgcrypt
+* libgio >= 2.42 (util)
+* libglib >= 2.42 (all)
+* libgnutls >= 3.2.15 (util)
+* libgpgme >= 1.7.0 (util)
+* libhiredis >= 0.10.1 (util)
+* libnet1 >= 1.1.2.1 (boreas)
 * libpaho-mqtt >= 1.3.0 (utils)
+* libpcap
+* libssh >= 0.6.0 (util)
+* libuuid >= 2.25.0 (util)
+* libxml2 >= 2.0 (util)
+* zlib >= 1.2.8 (util)
 
 Prerequisites for building documentation:
 * doxygen
@@ -44,21 +44,20 @@ Install prerequisites on Debian GNU/Linux 'Bullseye' 11:
 
     apt-get install \
     cmake \
-    pkg-config \
     libcjson-dev \
     libcurl4-openssl-dev \
-    libglib2.0-dev \
-    libgpgme-dev \
-    libgnutls28-dev \
-    uuid-dev \
     libgcrypt-dev \
-    libssh-dev \
+    libglib2.0-dev \
+    libgnutls28-dev \
+    libgpgme-dev \
     libhiredis-dev \
-    libxml2-dev \
-    libpcap-dev \
     libnet1-dev \
-    libpaho-mqtt-dev
-
+    libpaho-mqtt-dev \
+    libpcap-dev \
+    libssh-dev \
+    libxml2-dev \
+    pkg-config \
+    uuid-dev
 
 Prerequisites for Optional Features
 -----------------------------------
