@@ -1184,7 +1184,7 @@ openvasd_parsed_results (openvasd_connector_t conn, unsigned long first,
             cJSON *source_obj;
 
             if ((source_obj = cJSON_GetObjectItem (detail_obj, "type")) != NULL
-                && cJSON_IsObject (source_obj))
+                && cJSON_IsString (source_obj))
               detail_source_type = g_strdup (source_obj->valuestring);
 
             if ((source_obj = cJSON_GetObjectItem (detail_obj, "name")) != NULL
