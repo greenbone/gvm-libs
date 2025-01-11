@@ -44,6 +44,25 @@ if (BUILD_SHARED)
     ${CURL_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
 
+## Tests
+
+if (BUILD_TESTS)
+  add_executable (openvasd-test
+                  EXCLUDE_FROM_ALL
+                  openvasd_tests.c ../base/array.c ../base/networking.c)
+
+  add_test (openvasd-test openvasd-test)
+
+  target_include_directories (openvasd-test PRIVATE ${CGREEN_INCLUDE_DIRS})
+
+  target_link_libraries (openvasd-test ${CGREEN_LIBRARIES}
+                         ${GLIB_LDFLAGS} ${CJSON_LDFLAGS} ${CURL_LDFLAGS}
+                         ${LINKER_HARDENING_FLAGS})
+
+  add_custom_target (tests-openvasd
+                     DEPENDS openvasd-test)
+endif (BUILD_TESTS)
+
 ## Install
 configure_file (libgvm_openvasd.pc.in ${CMAKE_BINARY_DIR}/libgvm_openvasd.pc @ONLY)
 
