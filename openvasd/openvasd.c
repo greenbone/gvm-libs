@@ -1086,14 +1086,12 @@ openvasd_result_free (openvasd_result_t result)
   result = NULL;
 }
 
-int
-openvasd_parsed_results (openvasd_connector_t conn, unsigned long first,
-                         unsigned long last, GSList **results)
+static int
+parse_results (const gchar *body, GSList **results)
 {
   cJSON *parser = NULL;
   cJSON *result_obj = NULL;
   const gchar *err = NULL;
-  openvasd_resp_t resp = NULL;
   openvasd_result_t result = NULL;
   unsigned long id = 0;
   gchar *type = NULL;
@@ -1110,12 +1108,7 @@ openvasd_parsed_results (openvasd_connector_t conn, unsigned long first,
   gchar *detail_source_description = NULL;
   int ret = -1;
 
-  resp = openvasd_get_scan_results (conn, first, last);
-
-  if (resp->code != 200)
-    return resp->code;
-
-  if ((parser = cJSON_Parse (resp->body)) == NULL)
+  if ((parser = cJSON_Parse (body)) == NULL)
     {
       err = cJSON_GetErrorPtr ();
       goto res_cleanup;
@@ -1203,16 +1196,33 @@ openvasd_parsed_results (openvasd_connector_t conn, unsigned long first,
                                   detail_source_description);
 
     *results = g_slist_append (*results, result);
-    ret = resp->code;
+    ret = 200;
   }
 
-res_cleanup:
-  openvasd_response_cleanup (resp);
+ res_cleanup:
   if (err != NULL)
     {
       g_warning ("%s: Unable to parse scan results. Reason: %s", __func__, err);
     }
   cJSON_Delete (parser);
+
+  return ret;
+}
+
+int
+openvasd_parsed_results (openvasd_connector_t conn, unsigned long first,
+                         unsigned long last, GSList **results)
+{
+  int ret;
+  openvasd_resp_t resp;
+
+  resp = openvasd_get_scan_results (conn, first, last);
+  if (resp->code == 200)
+    ret = parse_results (resp->body, results);
+  else
+    ret = resp->code;
+
+  openvasd_response_cleanup (resp);
 
   return ret;
 }
