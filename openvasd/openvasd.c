@@ -810,6 +810,7 @@ openvasd_start_scan (openvasd_connector_t conn, gchar *data)
   if (!parser)
     {
       const gchar *error_ptr = cJSON_GetErrorPtr ();
+      g_warning ("%s: Error parsing json string to get the scan ID", __func__);
       if (error_ptr != NULL)
         {
           response->body = g_strdup_printf ("{\"error\": \"%s\"}", error_ptr);
@@ -819,7 +820,6 @@ openvasd_start_scan (openvasd_connector_t conn, gchar *data)
         {
           response->body = g_strdup (
             "{\"error\": \"Parsing json string to get the scan ID\"}");
-          g_warning ("%s: Parsing json string to get the scan ID", __func__);
         }
       response->code = RESP_CODE_ERR;
       cJSON_Delete (parser);
