@@ -17,6 +17,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   libcjson1 \
+  libcurl3t64-gnutls \
   libglib2.0-0 \
   libgnutls30 \
   libgpgme11 \
