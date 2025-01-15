@@ -1,5 +1,5 @@
 #!/bin/sh
-# This script installs openvas-smb-dependencies.
+# This script installs gvm-libs dependencies
 set -ex
 apt-get update && \
   apt-get install -y --no-install-recommends \
