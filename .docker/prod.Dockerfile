@@ -21,7 +21,6 @@ RUN apt-get update && \
   libgnutls30 \
   libgpgme11 \
   libhiredis0.14 \
-  libjson-glib-1.0-0 \
   libldap-common \
   libnet1 \
   libpaho-mqtt1.3 \
