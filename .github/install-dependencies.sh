@@ -4,27 +4,26 @@ set -ex
 apt-get update && \
   apt-get install -y --no-install-recommends \
   build-essential \
-  curl \
   cmake \
-  pkg-config \
+  curl \
   gnupg \
+  lcov \
   libcjson-dev \
   libcurl4-openssl-dev \
-  libjson-glib-dev \
-  libglib2.0-dev \
-  libgpgme-dev \
-  libgnutls28-dev \
-  uuid-dev \
   libgcrypt-dev \
-  libssh-dev \
+  libglib2.0-dev \
+  libgnutls28-dev \
+  libgpgme-dev \
   libhiredis-dev \
-  libxml2-dev \
-  libpcap-dev \
-  libnet1-dev \
   libldap2-dev \
-  libradcli-dev \
+  libnet1-dev \
   libpaho-mqtt-dev \
-  lcov \
+  libpcap-dev \
+  libradcli-dev \
+  libssh-dev \
+  libxml2-dev \
+  pkg-config \
+  uuid-dev \
   && rm -rf /var/lib/apt/lists/*
 
 

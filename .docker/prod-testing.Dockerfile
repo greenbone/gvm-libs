@@ -18,18 +18,18 @@ RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   libcjson1 \
   libglib2.0-0 \
-  libgpgme11 \
   libgnutls30 \
-  libuuid1 \
-  libssh-dev \
-  libhiredis1.1.0 \
+  libgpgme11 \
   libhiredis-dev \
-  libxml2 \
-  libpcap0.8 \
-  libnet1 \
+  libhiredis1.1.0 \
   libldap-common \
-  libradcli4 \
+  libnet1 \
   libpaho-mqtt1.3 \
+  libpcap0.8 \
+  libradcli4 \
+  libssh-dev \
+  libuuid1 \
+  libxml2 \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /install/ /
