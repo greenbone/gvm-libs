@@ -9,25 +9,25 @@ COPY . /source
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   build-essential \
-  curl \
   cmake \
-  pkg-config \
+  curl \
   gnupg \
+  lcov \
+  libcgreen1-dev \
   libcjson-dev \
   libglib2.0-dev \
-  libgpgme-dev \
   libgnutls28-dev \
-  uuid-dev \
-  libssh-gcrypt-dev \
+  libgpgme-dev \
   libhiredis-dev \
-  libxml2-dev \
-  libpcap-dev \
-  libnet1-dev \
   libldap2-dev \
-  libradcli-dev \
+  libnet1-dev \
   libpaho-mqtt-dev \
-  libcgreen1-dev \
-  lcov \
+  libpcap-dev \
+  libradcli-dev \
+  libssh-gcrypt-dev \
+  libxml2-dev \
+  pkg-config \
+  uuid-dev \
   && rm -rf /var/lib/apt/lists/*
 RUN cmake -DCMAKE_BUILD_TYPE=Release -DOPENVASD=0 -B/build /source
 RUN DESTDIR=/install cmake --build /build -- install
@@ -40,18 +40,18 @@ RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   libcjson1 \
   libglib2.0-0 \
-  libgpgme11 \
   libgnutls30 \
-  libuuid1 \
-  libjson-glib-1.0-0 \
-  libssh-gcrypt-4 \
+  libgpgme11 \
   libhiredis0.14 \
-  libxml2 \
-  libpcap0.8 \
-  libnet1 \
+  libjson-glib-1.0-0 \
   libldap-common \
-  libradcli4 \
+  libnet1 \
   libpaho-mqtt1.3 \
+  libpcap0.8 \
+  libradcli4 \
+  libssh-gcrypt-4 \
+  libuuid1 \
+  libxml2 \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /install/ /
