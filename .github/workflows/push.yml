@@ -33,7 +33,7 @@ jobs:
       image-url: community/gvm-libs
       image-labels: |
         org.opencontainers.image.vendor=Greenbone
-        org.opencontainers.image.base.name=debian:stable-slim
+        org.opencontainers.image.base.name=debian:oldstable-slim
       base-image-label: "oldstable"
       ref-name: ${{ inputs.ref-name }}
     secrets: inherit
@@ -46,7 +46,7 @@ jobs:
       image-url: community/gvm-libs
       image-labels: |
         org.opencontainers.image.vendor=Greenbone
-        org.opencontainers.image.base.name=debian:stable-slim
+        org.opencontainers.image.base.name=debian:testing-slim
       base-image-label: "testing"
       ref-name: ${{ inputs.ref-name }}
     secrets: inherit
