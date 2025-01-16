@@ -76,23 +76,3 @@ jobs:
           repository: ${{ matrix.repository }}
           workflow: container.yml
           ref: main
-
-  trigger-related-projects:
-    needs: build-push-debian-stable-container
-    if: github.event_name != 'pull_request'
-    name: Trigger update container images in related projects
-    strategy:
-      fail-fast: false
-      matrix:
-        repository:
-          - "greenbone/openvas-scanner"
-          - "greenbone/boreas"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger main ${{ matrix.repository }} container image build
-        uses: greenbone/actions/trigger-workflow@v3
-        with:
-          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
-          repository: ${{ matrix.repository }}
-          workflow: ${{ matrix.repository == 'greenbone/openvas-scanner' && 'control.yml' || 'container.yml' }}
-          ref: main
