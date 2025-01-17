@@ -19,8 +19,7 @@ pkg_check_modules (CURL REQUIRED libcurl>=7.83.0)
 pkg_check_modules (CJSON REQUIRED libcjson>=1.7.14)
 
 
-include_directories (${GLIB_INCLUDE_DIRS} ${GLIB_JSON_INCLUDE_DIRS}
-                     ${CURL_INCLUDE_DIRS})
+include_directories (${GLIB_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
 
 set (FILES openvasd.c vtparser.c)
 set (HEADERS openvasd.h)
@@ -40,8 +39,8 @@ if (BUILD_SHARED)
   set_target_properties (gvm_openvasd_shared PROPERTIES VERSION "${CPACK_PACKAGE_VERSION}")
   set_target_properties (gvm_openvasd_shared PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-  target_link_libraries (gvm_openvasd_shared LINK_PRIVATE ${GLIB_LDFLAGS} ${GLIB_JSON_LDFLAGS}
-    ${CURL_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+  target_link_libraries (gvm_openvasd_shared LINK_PRIVATE ${GLIB_LDFLAGS}
+                         ${CURL_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 endif (BUILD_SHARED)
 
 ## Tests
