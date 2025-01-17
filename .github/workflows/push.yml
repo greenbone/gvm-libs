@@ -1,4 +1,4 @@
-name: Build & Push to Greenbone Registry
+name: Build & Push Container Images
 
 on:
   push:
