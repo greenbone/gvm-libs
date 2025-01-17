@@ -31,12 +31,12 @@ jobs:
     name: Build and Push debian:oldstable to Greenbone Registry
     uses: greenbone/workflows/.github/workflows/container-build-push-2nd-gen.yml@main
     with:
+      base-image-label: "oldstable"
       build-docker-file: .docker/prod-oldstable.Dockerfile
       image-url: community/gvm-libs
       image-labels: |
         org.opencontainers.image.vendor=Greenbone
         org.opencontainers.image.base.name=debian:oldstable-slim
-      base-image-label: "oldstable"
       ref-name: ${{ inputs.ref-name }}
     secrets: inherit
 
@@ -44,12 +44,12 @@ jobs:
     name: Build and Push debian:testing to Greenbone Registry
     uses: greenbone/workflows/.github/workflows/container-build-push-2nd-gen.yml@main
     with:
+      base-image-label: "testing"
       build-docker-file: .docker/prod-testing.Dockerfile
       image-url: community/gvm-libs
       image-labels: |
         org.opencontainers.image.vendor=Greenbone
         org.opencontainers.image.base.name=debian:testing-slim
-      base-image-label: "testing"
       ref-name: ${{ inputs.ref-name }}
     secrets: inherit
 
