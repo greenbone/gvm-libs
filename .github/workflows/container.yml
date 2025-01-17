@@ -18,6 +18,8 @@ jobs:
     name: Build and Push debian:stable to Greenbone Registry
     uses: greenbone/workflows/.github/workflows/container-build-push-2nd-gen.yml@main
     with:
+      base-image-label: "stable"
+      build-docker-file: .docker/prod.Dockerfile
       image-url: community/gvm-libs
       image-labels: |
         org.opencontainers.image.vendor=Greenbone
