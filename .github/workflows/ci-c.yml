@@ -37,15 +37,10 @@ jobs:
         uses: greenbone/actions/install-cgreen@v3
       - name: Configure and Compile gvm-libs
         run: |
-          mkdir build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=1 -DENABLE_COVERAGE=1 ..
-          make install
+          cmake -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=1 -DENABLE_COVERAGE=1 -- install
       - name: Test gvm-libs
         run: |
-          cd build
-          make tests
-          CTEST_OUTPUT_ON_FAILURE=1 make test
+          CTEST_OUTPUT_ON_FAILURE=1 cmake --build build -- tests test
       - name: Upload test coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
