@@ -18,6 +18,7 @@ RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   libcjson1 \
   libcurl3-gnutls \
+  libgcrypt20 \
   libglib2.0-0 \
   libgnutls30 \
   libgpgme11 \
@@ -27,7 +28,7 @@ RUN apt-get update && \
   libpaho-mqtt1.3 \
   libpcap0.8 \
   libradcli4 \
-  libssh-gcrypt-4 \
+  libssh-4 \
   libuuid1 \
   libxml2 \
   && rm -rf /var/lib/apt/lists/*
