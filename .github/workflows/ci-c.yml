@@ -25,8 +25,8 @@ jobs:
     steps:
       - name: Install git for Codecov uploader
         run: |
-          apt update
-          apt install --no-install-recommends -y ca-certificates git
+          apt-get update
+          apt-get install --no-install-recommends -y ca-certificates git
           rm -rf /var/lib/apt/lists/*
       - uses: actions/checkout@v4
       - name: Set git safe.directory
