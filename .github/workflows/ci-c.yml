@@ -37,7 +37,7 @@ jobs:
         uses: greenbone/actions/install-cgreen@v3
       - name: Configure and Compile gvm-libs
         run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=1 -DENABLE_COVERAGE=1 -- install
+          cmake -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=1 -DENABLE_COVERAGE=1
       - name: Test gvm-libs
         run: |
           CTEST_OUTPUT_ON_FAILURE=1 cmake --build build -- tests test
