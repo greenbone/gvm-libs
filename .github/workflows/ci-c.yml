@@ -33,6 +33,8 @@ jobs:
         run: git config --global --add safe.directory '*'
       - name: Install build dependencies
         run: sh .github/install-build-dependencies.sh
+      - name: Install cgreen
+        run: sh .github/install-cgreen.sh
       - name: Configure and Compile gvm-libs
         run: |
           mkdir build

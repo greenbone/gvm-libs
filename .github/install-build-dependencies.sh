@@ -25,9 +25,3 @@ apt-get update && \
   pkg-config \
   uuid-dev \
   && rm -rf /var/lib/apt/lists/*
-
-
-curl -L -o cgreen.tar.gz https://github.com/cgreen-devs/cgreen/archive/refs/tags/1.6.2.tar.gz -k
-tar -xzf cgreen.tar.gz && cd cgreen-1.6.2
-make install
-ldconfig
