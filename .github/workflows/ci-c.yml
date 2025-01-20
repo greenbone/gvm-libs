@@ -34,7 +34,7 @@ jobs:
       - name: Install build dependencies
         run: sh .github/install-build-dependencies.sh
       - name: Install cgreen
-        run: sh .github/install-cgreen.sh
+        uses: greenbone/actions/install-cgreen@v3
       - name: Configure and Compile gvm-libs
         run: |
           mkdir build
