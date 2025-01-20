@@ -1,7 +1,5 @@
-ARG VERSION=unstable
-# this allows to work on forked repository
-ARG REPOSITORY=greenbone/gvm-libs
 FROM debian:stable-slim AS build
+
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install
