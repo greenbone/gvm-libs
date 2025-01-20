@@ -6,7 +6,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # Install
 COPY . /source
-RUN sh /source/.github/install-dependencies.sh
+RUN sh /source/.github/install-build-dependencies.sh
 RUN cmake -DCMAKE_BUILD_TYPE=Release -B/build /source
 RUN DESTDIR=/install cmake --build /build -- install
 
