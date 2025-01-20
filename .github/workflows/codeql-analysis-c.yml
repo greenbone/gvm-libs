@@ -30,7 +30,8 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - run: sh .github/install-dependencies.sh
+    - name: Install build dependencies
+      run: sh .github/install-build-dependencies.sh
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:

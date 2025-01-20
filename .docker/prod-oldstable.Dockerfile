@@ -6,29 +6,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # Install
 COPY . /source
-RUN apt-get update && \
-  apt-get install -y --no-install-recommends \
-  build-essential \
-  cmake \
-  curl \
-  gnupg \
-  lcov \
-  libcgreen1-dev \
-  libcjson-dev \
-  libglib2.0-dev \
-  libgnutls28-dev \
-  libgpgme-dev \
-  libhiredis-dev \
-  libldap2-dev \
-  libnet1-dev \
-  libpaho-mqtt-dev \
-  libpcap-dev \
-  libradcli-dev \
-  libssh-gcrypt-dev \
-  libxml2-dev \
-  pkg-config \
-  uuid-dev \
-  && rm -rf /var/lib/apt/lists/*
+RUN sh /source/.github/install-build-dependencies.sh
 RUN cmake -DCMAKE_BUILD_TYPE=Release -DOPENVASD=0 -B/build /source
 RUN DESTDIR=/install cmake --build /build -- install
 
