@@ -15,7 +15,8 @@ FROM debian:stable-slim
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN --mount=type=bind,source=.github,target=/source/ \
-  sh /source/install-dependencies.sh /source/runtime-dependencies.list \
+  sh /source/install-dependencies.sh \
+  /source/runtime-dependencies.stable.list \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /install/ /

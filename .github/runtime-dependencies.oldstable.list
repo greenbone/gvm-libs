@@ -1,0 +1,14 @@
+libcjson1
+libgcrypt20
+libglib2.0-0
+libgnutls30
+libgpgme11
+libhiredis0.14
+libldap-common
+libnet1
+libpaho-mqtt1.3
+libpcap0.8
+libradcli4
+libssh-4
+libuuid1
+libxml2
