@@ -21,13 +21,12 @@ jobs:
   tests:
     name: Unit Tests
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs:edge
+    container: debian:stable-slim
     steps:
       - name: Install git for Codecov uploader
         run: |
           apt-get update
           apt-get install --no-install-recommends -y ca-certificates git
-          rm -rf /var/lib/apt/lists/*
       - uses: actions/checkout@v4
       - name: Set git safe.directory
         run: git config --global --add safe.directory '*'
@@ -52,7 +51,7 @@ jobs:
   scan-build:
     name: Scan-build gvm-libs with clang
     runs-on: 'ubuntu-latest'
-    container: greenbone/gvm-libs:edge
+    container: debian:stable-slim
     steps:
       - uses: actions/checkout@v4
       - name: Install build dependencies
@@ -60,11 +59,10 @@ jobs:
       - name: Install clang tools
         run: |
           apt update
-          apt install --no-install-recommends -y clang clang-format clang-tools
-          rm -rf /var/lib/apt/lists/*
+          apt-get install --no-install-recommends -y clang clang-format clang-tools
       - name: Configure and Scan Build gvm-libs
         run: |
-          cmake -Bbuild -DCMAKE_BUILD_TYPE=Release
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
           scan-build -o ~/scan-build-report cmake --build build
       - name: Upload scan-build report
         if: failure()
