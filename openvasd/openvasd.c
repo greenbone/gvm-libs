@@ -1184,7 +1184,8 @@ parse_results (const gchar *body, GSList **results)
                 && cJSON_IsString (source_obj))
               detail_source_name = g_strdup (source_obj->valuestring);
 
-            if ((source_obj = cJSON_GetObjectItem (detail_obj, "description")) != NULL
+            if ((source_obj = cJSON_GetObjectItem (detail_obj, "description"))
+                  != NULL
                 && cJSON_IsString (source_obj))
               detail_source_description = g_strdup (source_obj->valuestring);
           }
@@ -1199,7 +1200,7 @@ parse_results (const gchar *body, GSList **results)
     ret = 200;
   }
 
- res_cleanup:
+res_cleanup:
   if (err != NULL)
     {
       g_warning ("%s: Unable to parse scan results. Reason: %s", __func__, err);
@@ -1410,6 +1411,48 @@ get_status_code_from_openvas (const gchar *status_val)
   return status_code;
 }
 
+static int
+parse_status (const gchar *body, openvasd_scan_status_t status_info)
+{
+  cJSON *parser = NULL;
+  cJSON *status = NULL;
+  gchar *status_val = NULL;
+  time_t start_time = 0, end_time = 0;
+  openvasd_status_t status_code = OPENVASD_SCAN_STATUS_ERROR;
+
+  if (!status_info)
+    return -1;
+
+  if ((parser = cJSON_Parse (body)) == NULL)
+    return -1;
+
+  if ((status = cJSON_GetObjectItem (parser, "status")) == NULL
+      || !cJSON_IsString (status))
+    {
+      cJSON_Delete (parser);
+      return -1;
+    }
+
+  status_val = g_strdup (status->valuestring);
+  status_code = get_status_code_from_openvas (status_val);
+  g_free (status_val);
+
+  if ((status = cJSON_GetObjectItem (parser, "start_time")) != NULL
+      && cJSON_IsNumber (status))
+    start_time = status->valuedouble;
+
+  if ((status = cJSON_GetObjectItem (parser, "end_time")) != NULL
+      && cJSON_IsNumber (status))
+    end_time = status->valuedouble;
+  cJSON_Delete (parser);
+
+  status_info->status = status_code;
+  status_info->end_time = end_time;
+  status_info->start_time = start_time;
+
+  return 0;
+}
+
 /** @brief Return a struct with the general scan status
  *
  *  @param conn Openvasd connector data
@@ -1420,53 +1463,24 @@ get_status_code_from_openvas (const gchar *status_val)
 openvasd_scan_status_t
 openvasd_parsed_scan_status (openvasd_connector_t conn)
 {
-  cJSON *parser = NULL;
-  cJSON *status = NULL;
   openvasd_resp_t resp = NULL;
-  gchar *status_val = NULL;
-  time_t start_time = 0, end_time = 0;
   int progress = -1;
   openvasd_status_t status_code = OPENVASD_SCAN_STATUS_ERROR;
-  openvasd_scan_status_t status_info;
+  openvasd_scan_status_t status_info = NULL;
 
   resp = openvasd_get_scan_status (conn);
 
   status_info = g_malloc0 (sizeof (struct openvasd_scan_status));
-  if (resp->code != 200)
+  if (resp->code != 200 || !parse_status (resp->body, status_info))
     {
       status_info->status = status_code;
       status_info->response_code = resp->code;
       openvasd_response_cleanup (resp);
       return status_info;
     }
-  if ((parser = cJSON_Parse (resp->body)) == NULL)
-    goto status_cleanup;
-
-  if ((status = cJSON_GetObjectItem (parser, "status")) == NULL
-      || !cJSON_IsString (status))
-    goto status_cleanup;
-  status_val = g_strdup (status->valuestring);
-
-  if ((status = cJSON_GetObjectItem (parser, "start_time")) != NULL
-      && !cJSON_IsNumber (status))
-    start_time = status->valuedouble;
-
-  if ((status = cJSON_GetObjectItem (parser, "end_time")) != NULL
-      && !cJSON_IsNumber (status))
-    end_time = status->valuedouble;
 
   progress = openvasd_get_scan_progress_ext (NULL, resp);
-
-status_cleanup:
   openvasd_response_cleanup (resp);
-  cJSON_Delete (parser);
-
-  status_code = get_status_code_from_openvas (status_val);
-  g_free (status_val);
-
-  status_info->status = status_code;
-  status_info->end_time = end_time;
-  status_info->start_time = start_time;
   status_info->progress = progress;
 
   return status_info;
