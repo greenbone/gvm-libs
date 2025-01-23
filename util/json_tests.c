@@ -17,6 +17,8 @@ AfterEach (json)
 {
 }
 
+/* gvm_json_string_escape */
+
 Ensure (json, can_json_escape_strings)
 {
   const char *unescaped_string = "\"'Abc\\\b\f\n\r\t\001Äöü'\"";
@@ -36,6 +38,30 @@ Ensure (json, can_json_escape_strings)
   g_free (escaped_string);
 }
 
+/* gvm_json_obj_double */
+
+Ensure (json, gvm_json_obj_double_gets_value)
+{
+  cJSON *json;
+  double d;
+
+  json = cJSON_Parse ("{ \"eg\": 2.3 }");
+  assert_that (json, is_not_null);
+  d = gvm_json_obj_double (json, "eg");
+  assert_that_double (d, is_equal_to_double(2.3));
+}
+
+Ensure (json, gvm_json_obj_double_0_when_missing)
+{
+  cJSON *json;
+  double d;
+
+  json = cJSON_Parse ("{ \"eg\": 2.3 }");
+  assert_that (json, is_not_null);
+  d = gvm_json_obj_double (json, "err");
+  assert_that_double (d, is_equal_to_double(0));
+}
+
 int
 main (int argc, char **argv)
 {
@@ -44,6 +70,9 @@ main (int argc, char **argv)
   suite = create_test_suite ();
 
   add_test_with_context (suite, json, can_json_escape_strings);
+
+  add_test_with_context (suite, json, gvm_json_obj_double_gets_value);
+  add_test_with_context (suite, json, gvm_json_obj_double_0_when_missing);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
