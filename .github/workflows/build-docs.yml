@@ -2,7 +2,8 @@ name: 'Build Documentation'
 
 on:
   push:
-    branches: [ main, stable, oldstable ]
+    branches:
+      - main
 
 jobs:
   generate-doc-and-upload-coverage:
