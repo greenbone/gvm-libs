@@ -4,9 +4,10 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # Install
 COPY . /source
-RUN sh /source/.github/install-build-dependencies.sh
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DOPENVASD=0 -B/build /source
-RUN DESTDIR=/install cmake --build /build -- install
+RUN sh /source/.github/install-dependencies.sh /source/.github/build-dependencies.list \
+  && rm -rf /var/lib/apt/lists/*
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DOPENVASD=0 -B/build /source \
+  && DESTDIR=/install cmake --build /build -- install
 
 FROM debian:oldstable-slim
 
