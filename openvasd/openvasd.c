@@ -1448,11 +1448,11 @@ openvasd_parsed_scan_status (openvasd_connector_t conn)
   status_val = g_strdup (status->valuestring);
 
   if ((status = cJSON_GetObjectItem (parser, "start_time")) != NULL
-      && !cJSON_IsNumber (status))
+      && cJSON_IsNumber (status))
     start_time = status->valuedouble;
 
   if ((status = cJSON_GetObjectItem (parser, "end_time")) != NULL
-      && !cJSON_IsNumber (status))
+      && cJSON_IsNumber (status))
     end_time = status->valuedouble;
 
   progress = openvasd_get_scan_progress_ext (NULL, resp);
