@@ -9,7 +9,6 @@
 #define _GNU_SOURCE
 
 #include <cjson/cJSON.h>
-
 #include <glib.h>
 
 gchar *
