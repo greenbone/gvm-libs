@@ -12,6 +12,7 @@
 
 #include "../base/array.h"
 #include "../base/networking.h"
+#include "../util/json.h"
 
 #include <cjson/cJSON.h>
 #include <curl/curl.h>
@@ -1093,7 +1094,6 @@ parse_results (const gchar *body, GSList **results)
   cJSON *result_obj = NULL;
   const gchar *err = NULL;
   openvasd_result_t result = NULL;
-  unsigned long id = 0;
   gchar *type = NULL;
   gchar *ip_address = NULL;
   gchar *hostname = NULL;
@@ -1125,10 +1125,6 @@ parse_results (const gchar *body, GSList **results)
     if (!cJSON_IsObject (result_obj))
       // error
       goto res_cleanup;
-
-    if ((item = cJSON_GetObjectItem (result_obj, "id")) != NULL
-        && cJSON_IsNumber (item))
-      id = item->valuedouble;
 
     if ((item = cJSON_GetObjectItem (result_obj, "type")) != NULL
         && cJSON_IsString (item))
@@ -1191,7 +1187,8 @@ parse_results (const gchar *body, GSList **results)
           }
       }
 
-    result = openvasd_result_new (id, type, ip_address, hostname, oid, port,
+    result = openvasd_result_new (gvm_json_obj_double (result_obj, "id"),
+                                  type, ip_address, hostname, oid, port,
                                   protocol, message, detail_name, detail_value,
                                   detail_source_type, detail_source_name,
                                   detail_source_description);
@@ -1417,7 +1414,6 @@ parse_status (const gchar *body, openvasd_scan_status_t status_info)
   cJSON *parser = NULL;
   cJSON *status = NULL;
   gchar *status_val = NULL;
-  time_t start_time = 0, end_time = 0;
   openvasd_status_t status_code = OPENVASD_SCAN_STATUS_ERROR;
 
   if (!status_info)
@@ -1437,18 +1433,10 @@ parse_status (const gchar *body, openvasd_scan_status_t status_info)
   status_code = get_status_code_from_openvas (status_val);
   g_free (status_val);
 
-  if ((status = cJSON_GetObjectItem (parser, "start_time")) != NULL
-      && cJSON_IsNumber (status))
-    start_time = status->valuedouble;
-
-  if ((status = cJSON_GetObjectItem (parser, "end_time")) != NULL
-      && cJSON_IsNumber (status))
-    end_time = status->valuedouble;
-  cJSON_Delete (parser);
-
   status_info->status = status_code;
-  status_info->end_time = end_time;
-  status_info->start_time = start_time;
+  status_info->end_time = gvm_json_obj_double (parser, "end_time");
+  status_info->start_time = gvm_json_obj_double (parser, "start_time");
+  cJSON_Delete (parser);
 
   return 0;
 }

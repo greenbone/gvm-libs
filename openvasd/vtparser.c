@@ -83,13 +83,9 @@ add_tags_to_nvt (nvti_t *nvt, cJSON *tag_obj)
           && cJSON_IsString (item))
         nvti_set_affected (nvt, item->valuestring);
 
-      if ((item = cJSON_GetObjectItem (tag_obj, "creation_date")) != NULL
-          && cJSON_IsNumber (item))
-        nvti_set_creation_time (nvt, item->valuedouble);
+      nvti_set_creation_time (nvt, gvm_json_obj_double (tag_obj, "creation_date"));
 
-      if ((item = cJSON_GetObjectItem (tag_obj, "last_modification")) != NULL
-          && cJSON_IsNumber (item))
-        nvti_set_modification_time (nvt, item->valuedouble);
+      nvti_set_modification_time (nvt, gvm_json_obj_double (tag_obj, "last_modification"));
 
       if ((item = cJSON_GetObjectItem (tag_obj, "insight")) != NULL
           && cJSON_IsString (item))
@@ -150,7 +146,6 @@ add_tags_to_nvt (nvti_t *nvt, cJSON *tag_obj)
           gchar *severity_origin = NULL, *severity_type = NULL;
           gchar *cvss_base;
 
-          time_t severity_date = 0;
           double cvss_base_dbl;
 
           if (g_strrstr (severity_vector, "CVSS:3"))
@@ -160,16 +155,13 @@ add_tags_to_nvt (nvti_t *nvt, cJSON *tag_obj)
 
           cvss_base_dbl = get_cvss_score_from_base_metrics (severity_vector);
 
-          if ((item = cJSON_GetObjectItem (tag_obj, "severity_date")) != NULL
-              && cJSON_IsNumber (item))
-            severity_date = item->valuedouble;
-
           if ((item = cJSON_GetObjectItem (tag_obj, "severity_origin")) != NULL
               && cJSON_IsString (item))
             severity_origin = item->valuestring;
 
           nvti_add_vtseverity (
-            nvt, vtseverity_new (severity_type, severity_origin, severity_date,
+            nvt, vtseverity_new (severity_type, severity_origin,
+                                 gvm_json_obj_double (tag_obj, "severity_date"),
                                  cvss_base_dbl, severity_vector));
 
           nvti_add_tag (nvt, "cvss_base_vector", severity_vector);
