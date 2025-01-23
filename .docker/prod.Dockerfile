@@ -4,31 +4,18 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # Install
 COPY . /source
-RUN sh /source/.github/install-build-dependencies.sh
-RUN cmake -DCMAKE_BUILD_TYPE=Release -B/build /source
-RUN DESTDIR=/install cmake --build /build -j$(nproc) -- install
+RUN sh /source/.github/install-dependencies.sh \
+  /source/.github/build-dependencies.list \
+  && rm -rf /var/lib/apt/lists/*
+RUN cmake -DCMAKE_BUILD_TYPE=Release -B/build /source \
+  && DESTDIR=/install cmake --build /build -j$(nproc) -- install
 
 FROM debian:stable-slim
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && \
-  apt-get install -y --no-install-recommends \
-  libcjson1 \
-  libcurl3-gnutls \
-  libgcrypt20 \
-  libglib2.0-0 \
-  libgnutls30 \
-  libgpgme11 \
-  libhiredis0.14 \
-  libldap-common \
-  libnet1 \
-  libpaho-mqtt1.3 \
-  libpcap0.8 \
-  libradcli4 \
-  libssh-4 \
-  libuuid1 \
-  libxml2 \
+RUN --mount=type=bind,source=.github,target=/source/ \
+  sh /source/install-dependencies.sh /source/runtime-dependencies.list \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /install/ /
