@@ -48,7 +48,7 @@ Ensure (json, gvm_json_obj_double_gets_value)
   json = cJSON_Parse ("{ \"eg\": 2.3 }");
   assert_that (json, is_not_null);
   d = gvm_json_obj_double (json, "eg");
-  assert_that_double (d, is_equal_to_double(2.3));
+  assert_that_double (d, is_equal_to_double (2.3));
 }
 
 Ensure (json, gvm_json_obj_double_0_when_missing)
@@ -59,7 +59,7 @@ Ensure (json, gvm_json_obj_double_0_when_missing)
   json = cJSON_Parse ("{ \"eg\": 2.3 }");
   assert_that (json, is_not_null);
   d = gvm_json_obj_double (json, "err");
-  assert_that_double (d, is_equal_to_double(0));
+  assert_that_double (d, is_equal_to_double (0));
 }
 
 int
