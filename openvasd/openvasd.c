@@ -1471,7 +1471,7 @@ openvasd_parsed_scan_status (openvasd_connector_t conn)
   resp = openvasd_get_scan_status (conn);
 
   status_info = g_malloc0 (sizeof (struct openvasd_scan_status));
-  if (resp->code != 200 || !parse_status (resp->body, status_info))
+  if (resp->code != 200 || parse_status (resp->body, status_info) == -1)
     {
       status_info->status = status_code;
       status_info->response_code = resp->code;
