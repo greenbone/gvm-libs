@@ -1094,13 +1094,7 @@ parse_results (const gchar *body, GSList **results)
   cJSON *result_obj = NULL;
   const gchar *err = NULL;
   openvasd_result_t result = NULL;
-  gchar *type = NULL;
-  gchar *ip_address = NULL;
-  gchar *hostname = NULL;
-  gchar *oid = NULL;
   int port = 0;
-  gchar *protocol = NULL;
-  gchar *message = NULL;
   gchar *detail_name = NULL;
   gchar *detail_value = NULL;
   gchar *detail_source_type = NULL;
@@ -1126,33 +1120,9 @@ parse_results (const gchar *body, GSList **results)
       // error
       goto res_cleanup;
 
-    if ((item = cJSON_GetObjectItem (result_obj, "type")) != NULL
-        && cJSON_IsString (item))
-      type = g_strdup (item->valuestring);
-
-    if ((item = cJSON_GetObjectItem (result_obj, "ip_address")) != NULL
-        && cJSON_IsString (item))
-      ip_address = g_strdup (item->valuestring);
-
-    if ((item = cJSON_GetObjectItem (result_obj, "hostname")) != NULL
-        && cJSON_IsString (item))
-      hostname = g_strdup (item->valuestring);
-
-    if ((item = cJSON_GetObjectItem (result_obj, "oid")) != NULL
-        && cJSON_IsString (item))
-      oid = g_strdup (item->valuestring);
-
     if ((item = cJSON_GetObjectItem (result_obj, "port")) != NULL
         && cJSON_IsNumber (item))
       port = item->valueint;
-
-    if ((item = cJSON_GetObjectItem (result_obj, "protocol")) != NULL
-        && cJSON_IsString (item))
-      protocol = g_strdup (item->valuestring);
-
-    if ((item = cJSON_GetObjectItem (result_obj, "message")) != NULL
-        && cJSON_IsString (item))
-      message = g_strdup (item->valuestring);
 
     if ((item = cJSON_GetObjectItem (result_obj, "detail")) != NULL
         && cJSON_IsObject (item))
@@ -1188,8 +1158,14 @@ parse_results (const gchar *body, GSList **results)
       }
 
     result = openvasd_result_new (gvm_json_obj_double (result_obj, "id"),
-                                  type, ip_address, hostname, oid, port,
-                                  protocol, message, detail_name, detail_value,
+                                  gvm_json_obj_str (result_obj, "type"),
+                                  gvm_json_obj_str (result_obj, "ip_address"),
+                                  gvm_json_obj_str (result_obj, "hostname"),
+                                  gvm_json_obj_str (result_obj, "oid"),
+                                  port,
+                                  gvm_json_obj_str (result_obj, "protocol"),
+                                  gvm_json_obj_str (result_obj, "message"),
+                                  detail_name, detail_value,
                                   detail_source_type, detail_source_name,
                                   detail_source_description);
 
@@ -1811,23 +1787,11 @@ openvasd_parsed_scans_preferences (openvasd_connector_t conn, GSList **params)
 
   cJSON_ArrayForEach (param_obj, parser)
   {
-    const gchar *id = NULL, *name = NULL, *desc = NULL;
     gchar *defval = NULL, *param_type = NULL;
     openvasd_param_t *param = NULL;
     int val, mandatory = 0;
     char buf[6];
     cJSON *item = NULL;
-    if ((item = cJSON_GetObjectItem (param_obj, "id")) != NULL
-        && cJSON_IsString (item))
-      id = g_strdup (item->valuestring);
-
-    if ((item = cJSON_GetObjectItem (param_obj, "name")) != NULL
-        && cJSON_IsString (item))
-      name = g_strdup (item->valuestring);
-
-    if ((item = cJSON_GetObjectItem (param_obj, "description")) != NULL
-        && cJSON_IsString (item))
-      desc = g_strdup (item->valuestring);
 
     if ((item = cJSON_GetObjectItem (param_obj, "default")) != NULL)
       {
@@ -1861,8 +1825,11 @@ openvasd_parsed_scans_preferences (openvasd_connector_t conn, GSList **params)
       }
 
     param =
-      openvasd_param_new (g_strdup (id), g_strdup (name), g_strdup (defval),
-                          g_strdup (desc), g_strdup (param_type), mandatory);
+      openvasd_param_new (g_strdup (gvm_json_obj_str (param_obj, "id")),
+                          g_strdup (gvm_json_obj_str (param_obj, "name")),
+                          g_strdup (defval),
+                          g_strdup (gvm_json_obj_str (param_obj, "description")),
+                          g_strdup (param_type), mandatory);
     g_free (defval);
     g_free (param_type);
     *params = g_slist_append (*params, param);
