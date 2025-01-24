@@ -17,4 +17,7 @@ gvm_json_string_escape (const char *, gboolean);
 double
 gvm_json_obj_double (cJSON *, const gchar *);
 
+gchar *
+gvm_json_obj_str (cJSON *, const gchar *);
+
 #endif /* _GVM_JSON_H */

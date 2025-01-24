@@ -82,3 +82,23 @@ gvm_json_obj_double (cJSON *obj, const gchar *key)
 
   return 0;
 }
+
+/**
+ * @brief Get a string field from a JSON object.
+ *
+ * @param[in]  obj  Object
+ * @param[in]  key  Field name.
+ *
+ * @return A string. Will be freed by cJSON_Delete.
+ */
+gchar *
+gvm_json_obj_str (cJSON *obj, const gchar *key)
+{
+  cJSON *item;
+
+  item = cJSON_GetObjectItem (obj, key);
+  if (item && cJSON_IsString (item))
+    return item->valuestring;
+
+  return 0;
+}
