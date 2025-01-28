@@ -78,7 +78,9 @@ add_tags_to_nvt (nvti_t *nvt, cJSON *tag_obj)
 {
   if (cJSON_IsObject (tag_obj))
     {
-      cJSON *item = NULL;
+      cJSON *item;
+      gchar *severity_vector;
+
       if ((item = cJSON_GetObjectItem (tag_obj, "affected")) != NULL
           && cJSON_IsString (item))
         nvti_set_affected (nvt, item->valuestring);
@@ -128,7 +130,6 @@ add_tags_to_nvt (nvti_t *nvt, cJSON *tag_obj)
         nvti_set_detection (nvt, item->valuestring);
 
       // Parse severity
-      gchar *severity_vector = NULL;
 
       severity_vector = gvm_json_obj_str (tag_obj, "severity_vector");
       if (!severity_vector)
@@ -136,9 +137,7 @@ add_tags_to_nvt (nvti_t *nvt, cJSON *tag_obj)
 
       if (severity_vector)
         {
-          gchar *severity_type = NULL;
-          gchar *cvss_base;
-
+          gchar *severity_type, *cvss_base;
           double cvss_base_dbl;
 
           if (g_strrstr (severity_vector, "CVSS:3"))
