@@ -130,20 +130,13 @@ add_tags_to_nvt (nvti_t *nvt, cJSON *tag_obj)
       // Parse severity
       gchar *severity_vector = NULL;
 
-      if ((item = cJSON_GetObjectItem (tag_obj, "severity_vector")) != NULL
-          && cJSON_IsString (item))
-        severity_vector = item->valuestring;
-
+      severity_vector = gvm_json_obj_str (tag_obj, "severity_vector");
       if (!severity_vector)
-        {
-          if ((item = cJSON_GetObjectItem (tag_obj, "cvss_base_vector")) != NULL
-              && cJSON_IsString (item))
-            severity_vector = item->valuestring;
-        }
+         severity_vector = gvm_json_obj_str (tag_obj, "cvss_base_vector");
 
       if (severity_vector)
         {
-          gchar *severity_origin = NULL, *severity_type = NULL;
+          gchar *severity_type = NULL;
           gchar *cvss_base;
 
           double cvss_base_dbl;
@@ -155,12 +148,9 @@ add_tags_to_nvt (nvti_t *nvt, cJSON *tag_obj)
 
           cvss_base_dbl = get_cvss_score_from_base_metrics (severity_vector);
 
-          if ((item = cJSON_GetObjectItem (tag_obj, "severity_origin")) != NULL
-              && cJSON_IsString (item))
-            severity_origin = item->valuestring;
-
           nvti_add_vtseverity (
-            nvt, vtseverity_new (severity_type, severity_origin,
+            nvt, vtseverity_new (severity_type,
+                                 gvm_json_obj_str (tag_obj, "severity_origin"),
                                  gvm_json_obj_double (tag_obj, "severity_date"),
                                  cvss_base_dbl, severity_vector));
 
