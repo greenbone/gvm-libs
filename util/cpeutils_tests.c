@@ -281,6 +281,18 @@ Ensure (cpeutils, cpe_struct_match)
   cpe_struct_free (&cpe2);
 }
 
+Ensure (cpeutils, uri_cpe_to_uri_product)
+{
+  const char *uri_cpe;
+  gchar *uri_product;
+
+  uri_cpe = "cpe:/a:hp:insight_diagnostics:7.4.0.1570:-:~~online~win2003~x64~";
+
+  uri_product = uri_cpe_to_uri_product (uri_cpe);
+  assert_string_equal (uri_product, "cpe:/a:hp:insight_diagnostics");
+  g_free (uri_product);
+}
+
 /* Test suite. */
 int
 main (int argc, char **argv)
@@ -296,6 +308,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, cpeutils, uri_cpe_to_fs_cpe);
   add_test_with_context (suite, cpeutils, fs_cpe_to_uri_cpe);
   add_test_with_context (suite, cpeutils, cpe_struct_match);
+  add_test_with_context (suite, cpeutils, uri_cpe_to_uri_product);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
