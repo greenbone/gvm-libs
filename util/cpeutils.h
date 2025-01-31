@@ -41,6 +41,9 @@ char *
 uri_cpe_to_fs_product (const char *);
 
 char *
+uri_cpe_to_uri_product (const char *);
+
+char *
 fs_cpe_to_uri_cpe (const char *);
 
 char *
