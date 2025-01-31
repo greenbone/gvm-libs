@@ -55,29 +55,3 @@ jobs:
         org.opencontainers.image.base.name=debian:testing-slim
       ref-name: ${{ inputs.ref-name }}
     secrets: inherit
-
-  # triggers projects that work with stable branches on a new stable tag
-  trigger-stable-projects:
-    needs: build-push-debian-stable-container
-    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
-    name: Trigger update container images in related projects for new tags
-    strategy:
-      fail-fast: false
-      matrix:
-        repository: ["greenbone/gvmd", "greenbone/gsad"]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger ${{ matrix.repository }} build container image build
-        uses: greenbone/actions/trigger-workflow@v3
-        with:
-          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
-          repository: ${{ matrix.repository }}
-          workflow: build-container.yml
-          ref: main
-      - name: Trigger ${{ matrix.repository }} container image build
-        uses: greenbone/actions/trigger-workflow@v3
-        with:
-          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
-          repository: ${{ matrix.repository }}
-          workflow: container.yml
-          ref: main
