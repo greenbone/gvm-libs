@@ -130,6 +130,26 @@ uri_cpe_to_fs_product (const char *uri_cpe)
 }
 
 /**
+ * @brief Convert a URI CPE to a formatted string product.
+ *
+ * @param[in]  uri_cpe  A CPE v2.2-conformant URI.
+ *
+ * @return  A CPE v2.2-conformant URI product.
+ */
+char *
+uri_cpe_to_uri_product (const char *uri_cpe)
+{
+  cpe_struct_t cpe;
+  char *fs_cpe;
+
+  cpe_struct_init (&cpe);
+  uri_cpe_to_cpe_struct (uri_cpe, &cpe);
+  fs_cpe = cpe_struct_to_uri_product (&cpe);
+  cpe_struct_free (&cpe);
+  return (fs_cpe);
+}
+
+/**
  * @brief Convert a formatted string CPE to a URI CPE.
  *
  * @param[in]  fs_cpe  A formatted string CPE.
