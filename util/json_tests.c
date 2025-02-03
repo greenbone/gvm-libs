@@ -88,6 +88,44 @@ Ensure (json, gvm_json_obj_str_null_when_missing)
   cJSON_Delete (json);
 }
 
+/* gvm_json_obj_int */
+
+Ensure (json, gvm_json_obj_int_gets_value)
+{
+  cJSON *json;
+  int i;
+
+  json = cJSON_Parse ("{ \"eg\": 33 }");
+  assert_that (json, is_not_null);
+  i = gvm_json_obj_int (json, "eg");
+  assert_that (i, is_equal_to (33));
+  cJSON_Delete (json);
+}
+
+Ensure (json, gvm_json_obj_int_0_when_missing)
+{
+  cJSON *json;
+  int i;
+
+  json = cJSON_Parse ("{ \"eg\": 33 }");
+  assert_that (json, is_not_null);
+  i = gvm_json_obj_int (json, "err");
+  assert_that (i, is_equal_to (0));
+  cJSON_Delete (json);
+}
+
+Ensure (json, gvm_json_obj_int_0_when_str)
+{
+  cJSON *json;
+  int i;
+
+  json = cJSON_Parse ("{ \"eg\": \"abc\" }");
+  assert_that (json, is_not_null);
+  i = gvm_json_obj_int (json, "eg");
+  assert_that (i, is_equal_to (0));
+  cJSON_Delete (json);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -102,6 +140,10 @@ main (int argc, char **argv)
 
   add_test_with_context (suite, json, gvm_json_obj_str_gets_value);
   add_test_with_context (suite, json, gvm_json_obj_str_null_when_missing);
+
+  add_test_with_context (suite, json, gvm_json_obj_int_gets_value);
+  add_test_with_context (suite, json, gvm_json_obj_int_0_when_missing);
+  add_test_with_context (suite, json, gvm_json_obj_int_0_when_str);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
