@@ -1264,7 +1264,7 @@ get_member_value_or_fail (cJSON *reader, const gchar *member)
 {
   cJSON *item = NULL;
   if ((item = cJSON_GetObjectItem (reader, member)) == NULL
-      && cJSON_IsNumber (item))
+      || !cJSON_IsNumber (item))
     return -1;
 
   return item->valueint;
@@ -1330,7 +1330,27 @@ openvasd_get_scan_progress_ext (openvasd_connector_t conn,
       cJSON *host = scanning->child;
       while (host)
         {
-          running_hosts_progress_sum += cJSON_GetNumberValue (host);
+          int finished_tests, total_tests, single_host_progress;
+
+          if (!cJSON_IsObject (host))
+            {
+              g_message ("NO ES OBJETO");
+              progress = 0;
+              goto cleanup;
+            }
+
+          finished_tests = get_member_value_or_fail (host, "finished_tests");
+          total_tests = get_member_value_or_fail (host, "total_tests");
+
+          if (total_tests < 0 || finished_tests < 0)
+            {
+              progress = 0;
+              goto cleanup;
+            }
+
+          single_host_progress = (100 * finished_tests / total_tests);
+
+          running_hosts_progress_sum += single_host_progress;
           host = host->next;
         }
 
@@ -1347,7 +1367,7 @@ openvasd_get_scan_progress_ext (openvasd_connector_t conn,
     progress = (running_hosts_progress_sum + 100 * (alive + finished))
                / (all + finished - dead);
   else
-    progress = 100;
+    progress = 0;
 
 cleanup:
   if (err != NULL)
