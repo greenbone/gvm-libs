@@ -1094,7 +1094,6 @@ parse_results (const gchar *body, GSList **results)
   cJSON *result_obj = NULL;
   const gchar *err = NULL;
   openvasd_result_t result = NULL;
-  int port = 0;
   gchar *detail_name = NULL;
   gchar *detail_value = NULL;
   gchar *detail_source_type = NULL;
@@ -1119,10 +1118,6 @@ parse_results (const gchar *body, GSList **results)
     if (!cJSON_IsObject (result_obj))
       // error
       goto res_cleanup;
-
-    if ((item = cJSON_GetObjectItem (result_obj, "port")) != NULL
-        && cJSON_IsNumber (item))
-      port = item->valueint;
 
     if ((item = cJSON_GetObjectItem (result_obj, "detail")) != NULL
         && cJSON_IsObject (item))
@@ -1162,7 +1157,7 @@ parse_results (const gchar *body, GSList **results)
                                   gvm_json_obj_str (result_obj, "ip_address"),
                                   gvm_json_obj_str (result_obj, "hostname"),
                                   gvm_json_obj_str (result_obj, "oid"),
-                                  port,
+                                  gvm_json_obj_int (result_obj, "port"),
                                   gvm_json_obj_str (result_obj, "protocol"),
                                   gvm_json_obj_str (result_obj, "message"),
                                   detail_name, detail_value,
