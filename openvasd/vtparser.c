@@ -246,13 +246,11 @@ add_preferences_to_nvt (nvti_t *nvt, cJSON *vt_obj)
               }
             class = prefs_item->valuestring;
 
-            if ((prefs_item = cJSON_GetObjectItem (prefs_obj, "id")) == NULL
-                || !cJSON_IsNumber (prefs_item))
+            if (gvm_json_obj_check_int (prefs_obj, "id", &id))
               {
                 g_warning ("%s: PREF missing id attribute", __func__);
                 continue;
               }
-            id = prefs_item->valueint;
 
             if ((prefs_item = cJSON_GetObjectItem (prefs_obj, "name")) == NULL
                 || !cJSON_IsString (prefs_item))

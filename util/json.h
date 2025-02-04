@@ -18,6 +18,9 @@ double
 gvm_json_obj_double (cJSON *, const gchar *);
 
 int
+gvm_json_obj_check_int (cJSON *, const gchar *, int *);
+
+int
 gvm_json_obj_int (cJSON *, const gchar *);
 
 gchar *
