@@ -1257,12 +1257,12 @@ openvasd_get_scan_status (openvasd_connector_t conn)
 static int
 get_member_value_or_fail (cJSON *reader, const gchar *member)
 {
-  cJSON *item = NULL;
-  if ((item = cJSON_GetObjectItem (reader, member)) == NULL
-      && cJSON_IsNumber (item))
+  int ret;
+
+  if (gvm_json_obj_check_int (reader, member, &ret))
     return -1;
 
-  return item->valueint;
+  return ret;
 }
 
 static int

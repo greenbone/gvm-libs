@@ -88,6 +88,29 @@ gvm_json_obj_double (cJSON *obj, const gchar *key)
  *
  * @param[in]  obj  Object
  * @param[in]  key  Field name.
+ * @param[out] val  Return location for int if int exists.
+ *
+ * @return 0 if such an int field exists, else 1.
+ */
+int
+gvm_json_obj_check_int (cJSON *obj, const gchar *key, int *val)
+{
+  cJSON *item;
+
+  item = cJSON_GetObjectItem (obj, key);
+  if (item && cJSON_IsNumber (item)) {
+    if (val)
+      *val = item->valueint;
+    return 0;
+  }
+  return 1;
+}
+
+/**
+ * @brief Get an int field from a JSON object.
+ *
+ * @param[in]  obj  Object
+ * @param[in]  key  Field name.
  *
  * @return An int.
  */
