@@ -98,11 +98,12 @@ gvm_json_obj_check_int (cJSON *obj, const gchar *key, int *val)
   cJSON *item;
 
   item = cJSON_GetObjectItem (obj, key);
-  if (item && cJSON_IsNumber (item)) {
-    if (val)
-      *val = item->valueint;
-    return 0;
-  }
+  if (item && cJSON_IsNumber (item))
+    {
+      if (val)
+        *val = item->valueint;
+      return 0;
+    }
   return 1;
 }
 
