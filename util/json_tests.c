@@ -62,6 +62,50 @@ Ensure (json, gvm_json_obj_double_0_when_missing)
   assert_that_double (d, is_equal_to_double (0));
 }
 
+/* gvm_json_obj_check_str */
+
+Ensure (json, gvm_json_obj_check_str_0_when_has)
+{
+  cJSON *json;
+
+  json = cJSON_Parse ("{ \"eg\": \"abc\" }");
+  assert_that (json, is_not_null);
+  assert_that (gvm_json_obj_check_str (json, "eg", NULL), is_equal_to (0));
+  cJSON_Delete (json);
+}
+
+Ensure (json, gvm_json_obj_check_str_1_when_missing)
+{
+  cJSON *json;
+
+  json = cJSON_Parse ("{ \"eg\": \"abc\" }");
+  assert_that (json, is_not_null);
+  assert_that (gvm_json_obj_check_str (json, "err", NULL), is_equal_to (1));
+  cJSON_Delete (json);
+}
+
+Ensure (json, gvm_json_obj_check_str_1_when_int)
+{
+  cJSON *json;
+
+  json = cJSON_Parse ("{ \"eg\": 29 }");
+  assert_that (json, is_not_null);
+  assert_that (gvm_json_obj_check_str (json, "eg", NULL), is_equal_to (1));
+  cJSON_Delete (json);
+}
+
+Ensure (json, gvm_json_obj_check_str_0_and_val_when_has)
+{
+  cJSON *json;
+  gchar *ret;
+
+  json = cJSON_Parse ("{ \"eg\": \"abc\" }");
+  assert_that (json, is_not_null);
+  assert_that (gvm_json_obj_check_str (json, "eg", &ret), is_equal_to (0));
+  assert_that (ret, is_equal_to_string ("abc"));
+  cJSON_Delete (json);
+}
+
 /* gvm_json_obj_str */
 
 Ensure (json, gvm_json_obj_str_gets_value)
@@ -194,6 +238,12 @@ main (int argc, char **argv)
   add_test_with_context (suite, json, gvm_json_obj_check_int_1_when_str);
   add_test_with_context (suite, json,
                          gvm_json_obj_check_int_0_and_val_when_has);
+
+  add_test_with_context (suite, json, gvm_json_obj_check_str_0_when_has);
+  add_test_with_context (suite, json, gvm_json_obj_check_str_1_when_missing);
+  add_test_with_context (suite, json, gvm_json_obj_check_str_1_when_int);
+  add_test_with_context (suite, json,
+                         gvm_json_obj_check_str_0_and_val_when_has);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
