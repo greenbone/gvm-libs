@@ -1383,7 +1383,6 @@ static int
 parse_status (const gchar *body, openvasd_scan_status_t status_info)
 {
   cJSON *parser = NULL;
-  cJSON *status = NULL;
   gchar *status_val = NULL;
   openvasd_status_t status_code = OPENVASD_SCAN_STATUS_ERROR;
 
@@ -1393,16 +1392,13 @@ parse_status (const gchar *body, openvasd_scan_status_t status_info)
   if ((parser = cJSON_Parse (body)) == NULL)
     return -1;
 
-  if ((status = cJSON_GetObjectItem (parser, "status")) == NULL
-      || !cJSON_IsString (status))
+  if (gvm_json_obj_check_str (parser, "status", &status_val))
     {
       cJSON_Delete (parser);
       return -1;
     }
 
-  status_val = g_strdup (status->valuestring);
   status_code = get_status_code_from_openvas (status_val);
-  g_free (status_val);
 
   status_info->status = status_code;
   status_info->end_time = gvm_json_obj_double (parser, "end_time");

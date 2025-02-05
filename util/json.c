@@ -133,6 +133,31 @@ gvm_json_obj_int (cJSON *obj, const gchar *key)
  *
  * @param[in]  obj  Object
  * @param[in]  key  Field name.
+ * @param[out] val  Either NULL or a return location for the string (only set
+ *                  if string field exists). Freed by cJSON_Delete.
+ *
+ * @return 0 if such a field exists, else 1.
+ */
+int
+gvm_json_obj_check_str (cJSON *obj, const gchar *key, gchar **val)
+{
+  cJSON *item;
+
+  item = cJSON_GetObjectItem (obj, key);
+  if (item && cJSON_IsString (item))
+    {
+      if (val)
+        *val = item->valuestring;
+      return 0;
+    }
+  return 1;
+}
+
+/**
+ * @brief Get a string field from a JSON object.
+ *
+ * @param[in]  obj  Object
+ * @param[in]  key  Field name.
  *
  * @return A string. Will be freed by cJSON_Delete.
  */
