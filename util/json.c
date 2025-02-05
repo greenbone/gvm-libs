@@ -88,7 +88,8 @@ gvm_json_obj_double (cJSON *obj, const gchar *key)
  *
  * @param[in]  obj  Object
  * @param[in]  key  Field name.
- * @param[out] val  Return location for int if int exists.
+ * @param[out] val  Either NULL or a return location for the int (only set if
+ *                  int field exists).
  *
  * @return 0 if such an int field exists, else 1.
  */
