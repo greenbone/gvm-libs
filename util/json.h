@@ -23,6 +23,9 @@ gvm_json_obj_check_int (cJSON *, const gchar *, int *);
 int
 gvm_json_obj_int (cJSON *, const gchar *);
 
+int
+gvm_json_obj_check_str (cJSON *, const gchar *, gchar **);
+
 gchar *
 gvm_json_obj_str (cJSON *, const gchar *);
 

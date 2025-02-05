@@ -78,56 +78,46 @@ add_tags_to_nvt (nvti_t *nvt, cJSON *tag_obj)
 {
   if (cJSON_IsObject (tag_obj))
     {
-      cJSON *item;
-      gchar *severity_vector;
+      gchar *severity_vector, *str;
 
-      if ((item = cJSON_GetObjectItem (tag_obj, "affected")) != NULL
-          && cJSON_IsString (item))
-        nvti_set_affected (nvt, item->valuestring);
+      if (!gvm_json_obj_check_str (tag_obj, "affected", &str))
+        nvti_set_affected (nvt, str);
 
       nvti_set_creation_time (nvt, gvm_json_obj_double (tag_obj, "creation_date"));
 
       nvti_set_modification_time (nvt, gvm_json_obj_double (tag_obj, "last_modification"));
 
-      if ((item = cJSON_GetObjectItem (tag_obj, "insight")) != NULL
-          && cJSON_IsString (item))
-        nvti_set_insight (nvt, item->valuestring);
+      if (!gvm_json_obj_check_str (tag_obj, "insight", &str))
+        nvti_set_insight (nvt, str);
 
-      if ((item = cJSON_GetObjectItem (tag_obj, "impact")) != NULL
-          && cJSON_IsString (item))
-        nvti_set_impact (nvt, item->valuestring);
+      if (!gvm_json_obj_check_str (tag_obj, "impact", &str))
+        nvti_set_impact (nvt, str);
 
-      if ((item = cJSON_GetObjectItem (tag_obj, "qod")) != NULL
-          && cJSON_IsString (item))
-        nvti_set_qod (nvt, item->valuestring);
+      if (!gvm_json_obj_check_str (tag_obj, "qod", &str))
+        nvti_set_qod (nvt, str);
 
-      if ((item = cJSON_GetObjectItem (tag_obj, "qod_type")) != NULL
-          && cJSON_IsString (item))
-        nvti_set_qod_type (nvt, item->valuestring);
+      if (!gvm_json_obj_check_str (tag_obj, "qod_type", &str))
+        nvti_set_qod_type (nvt, str);
 
-      if ((item = cJSON_GetObjectItem (tag_obj, "solution")) != NULL
-          && cJSON_IsString (item))
+      if (!gvm_json_obj_check_str (tag_obj, "solution", &str))
         {
-          nvti_set_solution (nvt, item->valuestring);
+          nvti_set_solution (nvt, str);
 
-          if ((item = cJSON_GetObjectItem (tag_obj, "solution_type")) != NULL
-              && cJSON_IsString (item))
-            nvti_set_solution_type (nvt, item->valuestring);
-          else
+          if (gvm_json_obj_check_str (tag_obj, "solution_type", &str))
             g_debug ("%s: SOLUTION: missing type for OID: %s", __func__,
                      nvti_oid (nvt));
-          if ((item = cJSON_GetObjectItem (tag_obj, "solution_method")) != NULL
-              && cJSON_IsString (item))
-            nvti_set_solution_method (nvt, item->valuestring);
+          else
+            nvti_set_solution_type (nvt, str);
+
+          if (!gvm_json_obj_check_str (tag_obj, "solution_method", &str))
+            nvti_set_solution_method (nvt, str);
         }
 
-      if ((item = cJSON_GetObjectItem (tag_obj, "summary")) != NULL
-          && cJSON_IsString (item))
-        nvti_set_summary (nvt, item->valuestring);
+      if (!gvm_json_obj_check_str (tag_obj, "summary", &str))
+        nvti_set_summary (nvt, str);
 
-      if ((item = cJSON_GetObjectItem (tag_obj, "vuldetect")) != NULL
-          && cJSON_IsString (item))
-        nvti_set_detection (nvt, item->valuestring);
+      if (!gvm_json_obj_check_str (tag_obj, "vuldetect", &str))
+        nvti_set_detection (nvt, str);
 
       // Parse severity
 
@@ -180,36 +170,21 @@ parse_references (nvti_t *nvt, cJSON *vt_obj)
       && cJSON_IsArray (item))
     {
       cJSON *ref_obj;
-      cJSON *ref_item;
       cJSON_ArrayForEach (ref_obj, item)
       {
         gchar *id, *class;
 
         if (!cJSON_IsObject (ref_obj))
-          {
-            g_debug ("%s: Error reading VT/REFS reference object", __func__);
-            continue;
-          }
+          g_debug ("%s: Error reading VT/REFS reference object", __func__);
 
-        if ((ref_item = cJSON_GetObjectItem (ref_obj, "class")) != NULL
-            && cJSON_IsString (ref_item))
-          {
-            class = ref_item->valuestring;
-            if ((ref_item = cJSON_GetObjectItem (ref_obj, "id")) == NULL
-                && !cJSON_IsString (ref_item))
-              {
-                g_warning ("%s: REF missing ID attribute", __func__);
-                continue;
-              }
+        else if (gvm_json_obj_check_str (ref_obj, "class", &class))
+          g_warning ("%s: REF missing class attribute", __func__);
 
-            id = ref_item->valuestring;
-            nvti_add_vtref (nvt, vtref_new (class, id, NULL));
-          }
+        else if (gvm_json_obj_check_str (ref_obj, "id", &id))
+          g_warning ("%s: REF missing ID attribute", __func__);
+
         else
-          {
-            g_warning ("%s: REF missing class attribute", __func__);
-            continue;
-          }
+          nvti_add_vtref (nvt, vtref_new (class, id, NULL));
       }
     } // end references
 }
@@ -225,51 +200,30 @@ add_preferences_to_nvt (nvti_t *nvt, cJSON *vt_obj)
       else
         {
           cJSON *prefs_obj = NULL;
-          cJSON *prefs_item = NULL;
 
           cJSON_ArrayForEach (prefs_obj, item)
           {
             gchar *class, *name, *default_val;
             int id;
+
             if (!cJSON_IsObject (prefs_obj))
-              {
-                g_debug ("%s: Error reading VT/PREFS preference object",
-                         __func__);
-                continue;
-              }
+              g_debug ("%s: Error reading VT/PREFS preference object",
+                       __func__);
 
-            if ((prefs_item = cJSON_GetObjectItem (prefs_obj, "class")) == NULL
-                || !cJSON_IsString (prefs_item))
-              {
-                g_warning ("%s: PREF missing class attribute", __func__);
-                continue;
-              }
-            class = prefs_item->valuestring;
+            else if (gvm_json_obj_check_str (prefs_obj, "class", &class))
+              g_warning ("%s: PREF missing class attribute", __func__);
 
-            if (gvm_json_obj_check_int (prefs_obj, "id", &id))
-              {
-                g_warning ("%s: PREF missing id attribute", __func__);
-                continue;
-              }
+            else if (gvm_json_obj_check_int (prefs_obj, "id", &id))
+              g_warning ("%s: PREF missing id attribute", __func__);
 
-            if ((prefs_item = cJSON_GetObjectItem (prefs_obj, "name")) == NULL
-                || !cJSON_IsString (prefs_item))
-              {
-                g_warning ("%s: PREF missing name attribute", __func__);
-                continue;
-              }
-            name = prefs_item->valuestring;
+            else if (gvm_json_obj_check_str (prefs_obj, "name", &name))
+              g_warning ("%s: PREF missing name attribute", __func__);
 
-            if ((prefs_item = cJSON_GetObjectItem (prefs_obj, "default"))
-                  == NULL
-                || !cJSON_IsString (prefs_item))
-              {
-                g_warning ("%s: PREF missing default attribute", __func__);
-                continue;
-              }
-            default_val = prefs_item->valuestring;
+            else if (gvm_json_obj_check_str (prefs_obj, "default", &default_val))
+              g_warning ("%s: PREF missing default attribute", __func__);
 
-            nvti_add_pref (nvt, nvtpref_new (id, name, class, default_val));
+            else
+              nvti_add_pref (nvt, nvtpref_new (id, name, class, default_val));
           } // end each prefs
         }   // end prefs array
     }       // end preferences
@@ -289,8 +243,7 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
 {
   nvti_t *nvt = NULL;
   cJSON *vt_obj = NULL;
-  cJSON *item = NULL;
-  gchar *error_message = NULL;
+  gchar *str, *error_message = NULL;
 
   gvm_json_pull_parser_next (parser, event);
 
@@ -329,49 +282,41 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
 
   nvt = nvti_new ();
 
-  if ((item = cJSON_GetObjectItem (vt_obj, "oid")) != NULL
-      && cJSON_IsString (item))
-    nvti_set_oid (nvt, item->valuestring);
-  else
+  if (gvm_json_obj_check_str (vt_obj, "oid", &str))
     {
       g_warning ("%s: VT missing OID", __func__);
       cJSON_Delete (vt_obj);
       nvti_free (nvt);
       return NULL;
     }
+  nvti_set_oid (nvt, str);
 
-  if ((item = cJSON_GetObjectItem (vt_obj, "name")) != NULL
-      && cJSON_IsString (item))
-    nvti_set_name (nvt, item->valuestring);
-  else
+  if (gvm_json_obj_check_str (vt_obj, "name", &str))
     {
       g_warning ("%s: VT missing NAME", __func__);
       cJSON_Delete (vt_obj);
       nvti_free (nvt);
       return NULL;
     }
+  nvti_set_name (nvt, str);
 
-  if ((item = cJSON_GetObjectItem (vt_obj, "family")) != NULL
-      && cJSON_IsString (item))
-    nvti_set_family (nvt, item->valuestring);
-  else
+  if (gvm_json_obj_check_str (vt_obj, "family", &str))
     {
       g_warning ("%s: VT missing FAMILY", __func__);
       cJSON_Delete (vt_obj);
       nvti_free (nvt);
       return NULL;
     }
+  nvti_set_family (nvt, str);
 
-  if ((item = cJSON_GetObjectItem (vt_obj, "category")) != NULL
-      && cJSON_IsString (item))
-    nvti_set_category (nvt, get_category_from_name (item->valuestring));
-  else
+  if (gvm_json_obj_check_str (vt_obj, "category", &str))
     {
       g_warning ("%s: VT missing CATEGORY", __func__);
       cJSON_Delete (vt_obj);
       nvti_free (nvt);
       return NULL;
     }
+  nvti_set_category (nvt, get_category_from_name (str));
 
   cJSON *tag_obj = cJSON_GetObjectItem (vt_obj, "tag");
   if (tag_obj)
