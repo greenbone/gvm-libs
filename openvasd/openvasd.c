@@ -1132,11 +1132,11 @@ parse_results (const gchar *body, GSList **results)
 
         if ((detail_obj = cJSON_GetObjectItem (item, "name")) != NULL
             && cJSON_IsString (detail_obj))
-          detail_name = g_strdup (detail_obj->valuestring);
+          detail_name = detail_obj->valuestring;
 
         if ((detail_obj = cJSON_GetObjectItem (item, "value")) != NULL
             && cJSON_IsString (detail_obj))
-          detail_value = g_strdup (detail_obj->valuestring);
+          detail_value = detail_obj->valuestring;
 
         detail_obj = cJSON_GetObjectItem (item, "source");
         if (detail_obj && cJSON_IsObject (detail_obj))
@@ -1145,16 +1145,16 @@ parse_results (const gchar *body, GSList **results)
 
             if ((source_obj = cJSON_GetObjectItem (detail_obj, "type")) != NULL
                 && cJSON_IsString (source_obj))
-              detail_source_type = g_strdup (source_obj->valuestring);
+              detail_source_type = source_obj->valuestring;
 
             if ((source_obj = cJSON_GetObjectItem (detail_obj, "name")) != NULL
                 && cJSON_IsString (source_obj))
-              detail_source_name = g_strdup (source_obj->valuestring);
+              detail_source_name = source_obj->valuestring;
 
             if ((source_obj = cJSON_GetObjectItem (detail_obj, "description"))
                   != NULL
                 && cJSON_IsString (source_obj))
-              detail_source_description = g_strdup (source_obj->valuestring);
+              detail_source_description = source_obj->valuestring;
           }
       }
 
