@@ -1095,11 +1095,6 @@ parse_results (const gchar *body, GSList **results)
   const gchar *err = NULL;
   openvasd_result_t result = NULL;
   int port = 0;
-  gchar *detail_name = NULL;
-  gchar *detail_value = NULL;
-  gchar *detail_source_type = NULL;
-  gchar *detail_source_name = NULL;
-  gchar *detail_source_description = NULL;
   int ret = -1;
 
   if ((parser = cJSON_Parse (body)) == NULL)
@@ -1116,6 +1111,12 @@ parse_results (const gchar *body, GSList **results)
   cJSON_ArrayForEach (result_obj, parser)
   {
     cJSON *item = NULL;
+    gchar *detail_name = NULL;
+    gchar *detail_value = NULL;
+    gchar *detail_source_type = NULL;
+    gchar *detail_source_name = NULL;
+    gchar *detail_source_description = NULL;
+
     if (!cJSON_IsObject (result_obj))
       // error
       goto res_cleanup;
