@@ -1,159 +1,54 @@
-name: "release"
+name: Release gvm-libs
 
 on:
   pull_request:
     types: [closed]
   workflow_dispatch:
     inputs:
-      release:
-        description: "Use 'major' for incompatible changes, 'minor' for new features, and 'patch' for fixes."
+      release-type:
         type: choice
+        description: What kind of release do you want to do?
         options:
-          - "major"
-          - "minor"
-          - "patch"
-        required: true
-        default: "patch"
+          - patch
+          - minor
+          - major
+      release-version:
+        type: string
+        description: Set an explicit version, that will overwrite release-type. Fails if version is not compliant.
 
-
-# This job first determines the target branch of the closed pull request. If the target branch is "main",
-# then the latest release tag is used. If no release tag exists, it is set to 0.1.0. If it is a release
-# branch (e.g. v22), then the latest tag within that major version is used.
-#
-# For a patch release, the latest tag is enhanced with 0.0.1, leaving the major and minor versions as
-# they are.
-#
-# For a minor release, the latest tag is enhanced with 0.1.0, and the patch version is set to 0. 
-#
-# For a major release, a branch is created for the latest major release found by tag, and the version
-# is enhanced with $latest_tag + 1.0.0, increasing the major version by 1 and setting the minor and
-# patch versions to 0.
-#
-# Major version releases are only valid on the "main" branch.
-# 
-# Once the version is found and enhanced, each project file is updated to the new
-# version, and a commit is created in the found branch.
 jobs:
-  release:
-    name: release
+  build-and-release:
+    name: Create a new release
+    # If the event is a workflow_dispatch or on of the labels 'pre release',
+    # 'patch release', 'minor release' or 'major release' is set and PR is
+    # closed because of a merge
+    # NOTE: priority of set labels will be alpha > release-candidate > patch > minor > major,
+    #       so if 'major' and 'patch' labels are set, it will create a patch release.
     if: |
-        (github.event_name == 'workflow_dispatch') ||
-        (
-          github.event.pull_request.merged == true &&
-          ( 
-            contains(github.event.pull_request.labels.*.name, 'major_release') ||
-            contains(github.event.pull_request.labels.*.name, 'minor_release') ||
-            contains(github.event.pull_request.labels.*.name, 'patch_release')
-          )
-        )
-    runs-on: "ubuntu-latest"
+      ( github.event_name == 'workflow_dispatch') || (
+        ( contains(github.event.pull_request.labels.*.name, 'alpha release') ||
+          contains(github.event.pull_request.labels.*.name, 'rc release') ||
+          contains(github.event.pull_request.labels.*.name, 'patch release') ||
+          contains(github.event.pull_request.labels.*.name, 'minor release') ||
+          contains(github.event.pull_request.labels.*.name, 'major release')) &&
+          github.event.pull_request.merged == true )
+    runs-on: 'ubuntu-latest'
     steps:
-      - name: set RELEASE_KIND = ${{ github.event.inputs.release }}
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: |
-          echo "RELEASE_KIND=${{ github.event.inputs.release }}" >> $GITHUB_ENV
-      - name: set RELEASE_KIND = major
-        if: ${{ (contains(github.event.pull_request.labels.*.name, 'major_release')) }}
-        run: |
-          echo "RELEASE_KIND=major" >> $GITHUB_ENV
-      - name: set RELEASE_KIND = minor
-        if: ${{ (contains(github.event.pull_request.labels.*.name, 'minor_release')) }}
-        run: |
-          echo "RELEASE_KIND=minor" >> $GITHUB_ENV
-      - name: set RELEASE_KIND = patch
-        if: ${{ (contains(github.event.pull_request.labels.*.name, 'patch_release')) }}
-        run: |
-          echo "RELEASE_KIND=patch" >> $GITHUB_ENV
-      - name: set RELEASE_REF
-        run: |
-          if [[ "${{ github.event_name }}" = "workflow_dispatch" ]]; then
-            echo "RELEASE_REF=${{ github.ref_name }}" >> $GITHUB_ENV
-          else
-            echo "RELEASE_REF=${{ github.base_ref }}" >> $GITHUB_ENV
-          fi
-      - uses: actions/checkout@v4
+      - name: Selecting the Release type
+        id: release-type
+        uses: greenbone/actions/release-type@v3
         with:
-          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
-          fetch-depth: '0'
-      - name: "LATEST_VERSION"
-        run: |
-          if [[ "${{ env.RELEASE_REF }}" = "main" ]]; then
-            echo "LATEST_VERSION=$(git tag | grep "^v" | sed 's/^v//' | sort --version-sort | tail -n 1)" >> $GITHUB_ENV
-          else
-            echo "LATEST_VERSION=$(git tag | grep "^v${{ env.RELEASE_REF }}" | sed 's/^v//' | sort --version-sort | tail -n 1)" >> $GITHUB_ENV
-          fi
-      - name: "default LATEST_VERSION"
-        run: |
-          # default to 0.1.0 when there is no previous tag and on main branch
-          if ([[ -z "${{ env.LATEST_VERSION }}" ]] &&  [[ "${{ env.RELEASE_REF }}" = "main" ]]); then
-            echo "LATEST_VERSION=0.1.0" >> $GITHUB_ENV
-          fi
-      # safeguard
-      - name: RELEASE_REF != NULL
-        run: ([ -n "${{ env.RELEASE_REF }}" ])
-      - name: LATEST_VERSION != NULL
-        run: ([ -n "${{ env.LATEST_VERSION }}" ])
-      - name: RELEASE_KIND != NULL
-        run: ([ -n "${{ env.RELEASE_KIND }}" ])
-      - name: "NEW_VERSION"
-        run: |
-          echo "NEW_VERSION=$(sh .github/enhance_version.sh ${{ env.LATEST_VERSION }} ${{ env.RELEASE_KIND }})" >> $GITHUB_ENV
-      - name: NEW_VERSION != NULL
-        run: ([ -n "${{ env.NEW_VERSION }}" ])
-      - name: set git credentials
-        run: |
-             git config --global user.email "${{ secrets.GREENBONE_BOT_MAIL }}"
-             git config --global user.name "${{ secrets.GREENBONE_BOT }}"
-      - name: "create working branch for previous major release (${{ env.LATEST_VERSION }})"
-        if: ( env.RELEASE_KIND == 'major' )
-        run: |
-          # save a branch so that we can easily create PR for that version when we want to fix something
-          git checkout "v${{ env.LATEST_VERSION }}"
-          export BRANCH_NAME=$(echo "${{ env.LATEST_VERSION }}" | sed 's/^\([0-9]*\).*/v\1/')
-          git checkout -b "$BRANCH_NAME"
-          git push origin "$BRANCH_NAME"
-      # create branch of version 
-      - name: prepare project version ${{ env.RELEASE_REF }} ${{ env.LATEST_VERSION }} -> ${{ env.NEW_VERSION }}
-        run: |
-          # jump back for the case that we switched to a tag
-          git checkout "${{ env.RELEASE_REF }}"
-          # install pontos
-          python3 -m pip install pontos
-          pontos-version update ${{ env.NEW_VERSION }}
-          if git diff --exit-code --quiet; then
-            echo "There are no modified files, skipping."
-          else
-            git add CMakeLists.txt
-            git commit -m "Automated commit: change version from ${{ env.LATEST_VERSION }} -> ${{ env.NEW_VERSION }}"
-            git push origin ${{ env.RELEASE_REF }}
-          fi
-
-      - run: mkdir assets/
-      - name: release ${{ env.LATEST_VERSION }} -> ${{ env.NEW_VERSION }}
-        run: |
-          export PROJECT=$(echo "${{ github.repository }}" | sed 's/.*\///' )
-          pontos-changelog \
-            --current-version ${{ env.LATEST_VERSION }} \
-            --next-version ${{ env.NEW_VERSION }} \
-            --config changelog.toml \
-            --repository ${{ github.repository }} \
-            --versioning-scheme semver \
-            -o /tmp/changelog.md   || true
-          # we would rather have empty release notes than no release
-          if [ ! -f "/tmp/changelog.md" ]; then
-            touch /tmp/changelog.md
-          fi
-          echo "${{ secrets.GREENBONE_BOT_TOKEN }}" | gh auth login --with-token
-          # lets see how smart it is
-          export nrn="v${{ env.NEW_VERSION }}"
-          export filename="$PROJECT-$nrn"
-          gh release create "$nrn" -F /tmp/changelog.md
-          mkdir -p assets
-          ls -las assets/
-          curl -Lo assets/$filename.zip https://github.com/${{ github.repository }}/archive/refs/tags/$nrn.zip
-          curl -Lo assets/$filename.tar.gz https://github.com/${{ github.repository }}/archive/refs/tags/$nrn.tar.gz
-          echo -e "${{ secrets.GPG_KEY }}" > private.pgp
-          echo ${{ secrets.GPG_PASSPHRASE }} | bash .github/sign-assets.sh private.pgp
-          rm assets/$filename.zip
-          rm assets/$filename.tar.gz
-          gh release upload $nrn assets/*
+          release-type-input: ${{ inputs.release-type }}
+      - name: Release with release action
+        uses: greenbone/actions/release@v3
+        with:
+          github-user: ${{ secrets.GREENBONE_BOT }}
+          github-user-mail: ${{ secrets.GREENBONE_BOT_MAIL }}
+          github-user-token: ${{ secrets.GREENBONE_BOT_TOKEN }}
+          gpg-key: ${{ secrets.GPG_KEY }}
+          gpg-fingerprint: ${{ secrets.GPG_FINGERPRINT }}
+          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          release-type: ${{ steps.release-type.outputs.release-type }}
+          release-version: ${{ inputs.release-version }}
+          ref: ${{ steps.release-type.outputs.release-ref }}
+          versioning-scheme: "semver"
