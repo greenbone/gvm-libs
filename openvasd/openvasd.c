@@ -1094,11 +1094,6 @@ parse_results (const gchar *body, GSList **results)
   cJSON *result_obj = NULL;
   const gchar *err = NULL;
   openvasd_result_t result = NULL;
-  gchar *detail_name = NULL;
-  gchar *detail_value = NULL;
-  gchar *detail_source_type = NULL;
-  gchar *detail_source_name = NULL;
-  gchar *detail_source_description = NULL;
   int ret = -1;
 
   if ((parser = cJSON_Parse (body)) == NULL)
@@ -1115,6 +1110,12 @@ parse_results (const gchar *body, GSList **results)
   cJSON_ArrayForEach (result_obj, parser)
   {
     cJSON *item = NULL;
+    gchar *detail_name = NULL;
+    gchar *detail_value = NULL;
+    gchar *detail_source_type = NULL;
+    gchar *detail_source_name = NULL;
+    gchar *detail_source_description = NULL;
+
     if (!cJSON_IsObject (result_obj))
       // error
       goto res_cleanup;
@@ -1126,11 +1127,11 @@ parse_results (const gchar *body, GSList **results)
 
         if ((detail_obj = cJSON_GetObjectItem (item, "name")) != NULL
             && cJSON_IsString (detail_obj))
-          detail_name = g_strdup (detail_obj->valuestring);
+          detail_name = detail_obj->valuestring;
 
         if ((detail_obj = cJSON_GetObjectItem (item, "value")) != NULL
             && cJSON_IsString (detail_obj))
-          detail_value = g_strdup (detail_obj->valuestring);
+          detail_value = detail_obj->valuestring;
 
         detail_obj = cJSON_GetObjectItem (item, "source");
         if (detail_obj && cJSON_IsObject (detail_obj))
@@ -1139,16 +1140,16 @@ parse_results (const gchar *body, GSList **results)
 
             if ((source_obj = cJSON_GetObjectItem (detail_obj, "type")) != NULL
                 && cJSON_IsString (source_obj))
-              detail_source_type = g_strdup (source_obj->valuestring);
+              detail_source_type = source_obj->valuestring;
 
             if ((source_obj = cJSON_GetObjectItem (detail_obj, "name")) != NULL
                 && cJSON_IsString (source_obj))
-              detail_source_name = g_strdup (source_obj->valuestring);
+              detail_source_name = source_obj->valuestring;
 
             if ((source_obj = cJSON_GetObjectItem (detail_obj, "description"))
                   != NULL
                 && cJSON_IsString (source_obj))
-              detail_source_description = g_strdup (source_obj->valuestring);
+              detail_source_description = source_obj->valuestring;
           }
       }
 
