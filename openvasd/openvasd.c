@@ -1094,7 +1094,6 @@ parse_results (const gchar *body, GSList **results)
   cJSON *result_obj = NULL;
   const gchar *err = NULL;
   openvasd_result_t result = NULL;
-  int port = 0;
   int ret = -1;
 
   if ((parser = cJSON_Parse (body)) == NULL)
@@ -1120,10 +1119,6 @@ parse_results (const gchar *body, GSList **results)
     if (!cJSON_IsObject (result_obj))
       // error
       goto res_cleanup;
-
-    if ((item = cJSON_GetObjectItem (result_obj, "port")) != NULL
-        && cJSON_IsNumber (item))
-      port = item->valueint;
 
     if ((item = cJSON_GetObjectItem (result_obj, "detail")) != NULL
         && cJSON_IsObject (item))
@@ -1163,7 +1158,7 @@ parse_results (const gchar *body, GSList **results)
                                   gvm_json_obj_str (result_obj, "ip_address"),
                                   gvm_json_obj_str (result_obj, "hostname"),
                                   gvm_json_obj_str (result_obj, "oid"),
-                                  port,
+                                  gvm_json_obj_int (result_obj, "port"),
                                   gvm_json_obj_str (result_obj, "protocol"),
                                   gvm_json_obj_str (result_obj, "message"),
                                   detail_name, detail_value,
@@ -1263,12 +1258,12 @@ openvasd_get_scan_status (openvasd_connector_t conn)
 static int
 get_member_value_or_fail (cJSON *reader, const gchar *member)
 {
-  cJSON *item = NULL;
-  if ((item = cJSON_GetObjectItem (reader, member)) == NULL
-      && cJSON_IsNumber (item))
+  int ret;
+
+  if (gvm_json_obj_check_int (reader, member, &ret))
     return -1;
 
-  return item->valueint;
+  return ret;
 }
 
 static int
@@ -1389,7 +1384,6 @@ static int
 parse_status (const gchar *body, openvasd_scan_status_t status_info)
 {
   cJSON *parser = NULL;
-  cJSON *status = NULL;
   gchar *status_val = NULL;
   openvasd_status_t status_code = OPENVASD_SCAN_STATUS_ERROR;
 
@@ -1399,16 +1393,13 @@ parse_status (const gchar *body, openvasd_scan_status_t status_info)
   if ((parser = cJSON_Parse (body)) == NULL)
     return -1;
 
-  if ((status = cJSON_GetObjectItem (parser, "status")) == NULL
-      || !cJSON_IsString (status))
+  if (gvm_json_obj_check_str (parser, "status", &status_val))
     {
       cJSON_Delete (parser);
       return -1;
     }
 
-  status_val = g_strdup (status->valuestring);
   status_code = get_status_code_from_openvas (status_val);
-  g_free (status_val);
 
   status_info->status = status_code;
   status_info->end_time = gvm_json_obj_double (parser, "end_time");
