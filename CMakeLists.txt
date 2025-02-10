@@ -32,6 +32,8 @@ else (NOT BUILD_STATIC)
   set (BUILD_SHARED OFF)
 endif (NOT BUILD_STATIC)
 
+set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
 ## Retrieve git revision (at configure time)
 find_package (Git)
 
@@ -226,6 +228,8 @@ configure_file (VERSION.in ${CMAKE_BINARY_DIR}/VERSION @ONLY)
 if (BUILD_TESTS AND NOT SKIP_SRC)
   message ("-- Tests enabled.")
   enable_testing ()
+
+  include (MacroAddUnitTest)
 
   find_package (cgreen REQUIRED)
 
