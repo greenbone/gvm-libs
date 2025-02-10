@@ -67,7 +67,6 @@ endif (GVM_SYSCONF_DIR)
 
 if (BUILD_TESTS)
   add_executable (array-test
-                  EXCLUDE_FROM_ALL
                   array_tests.c)
 
   add_link_options (-g -lgcov --coverage)
@@ -80,7 +79,6 @@ if (BUILD_TESTS)
   target_link_libraries (array-test ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 
   add_executable (cvss-test
-                  EXCLUDE_FROM_ALL
                   cvss_tests.c)
 
   add_test (cvss-test cvss-test)
@@ -90,7 +88,6 @@ if (BUILD_TESTS)
   target_link_libraries (cvss-test ${CGREEN_LIBRARIES} -lm ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 
   add_executable (networking-test
-                  EXCLUDE_FROM_ALL
                   networking_tests.c)
   add_test (networking-test networking-test)
   set (NETWORKING_TEST_LINKER_WRAP_OPTIONS
@@ -100,7 +97,6 @@ if (BUILD_TESTS)
                        ${NETWORKING_TEST_LINKER_WRAP_OPTIONS})
 
   add_executable (version-test
-                  EXCLUDE_FROM_ALL
                   version_tests.c)
 
   add_test (version-test version-test)
@@ -111,7 +107,6 @@ if (BUILD_TESTS)
     ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 
   add_executable (nvti-test
-                  EXCLUDE_FROM_ALL
                   nvti_tests.c)
 
   add_test (nvti-test nvti-test)
@@ -122,7 +117,6 @@ if (BUILD_TESTS)
     ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 
   add_executable (hosts-test
-                  EXCLUDE_FROM_ALL
                   hosts_tests.c)
 
   add_test (hosts-test hosts-test)

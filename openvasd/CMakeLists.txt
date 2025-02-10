@@ -47,7 +47,6 @@ endif (BUILD_SHARED)
 
 if (BUILD_TESTS)
   add_executable (openvasd-test
-                  EXCLUDE_FROM_ALL
                   openvasd_tests.c)
 
   add_test (openvasd-test openvasd-test)

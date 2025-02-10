@@ -149,7 +149,6 @@ endif (BUILD_SHARED)
 
 if (BUILD_TESTS)
   add_executable (json-test
-                  EXCLUDE_FROM_ALL
                   json_tests.c)
 
   add_test (json-test json-test)
@@ -164,7 +163,6 @@ if (BUILD_TESTS)
 
 
   add_executable (jsonpull-test
-                  EXCLUDE_FROM_ALL
                   jsonpull_tests.c)
 
   add_test (jsonpull-test jsonpull-test)
@@ -179,7 +177,6 @@ if (BUILD_TESTS)
 
 
   add_executable (passwordbasedauthentication-test
-                  EXCLUDE_FROM_ALL
                   passwordbasedauthentication_tests.c)
 
   add_test (passwordbasedauthentication-test passwordbasedauthentication-test)
@@ -196,7 +193,6 @@ if (BUILD_TESTS)
                     DEPENDS passwordbasedauthentication-test)
 
   add_executable (compressutils-test
-                  EXCLUDE_FROM_ALL
                   compressutils_tests.c)
 
   add_test (compressutils-test compressutils-test)
@@ -214,7 +210,6 @@ if (BUILD_TESTS)
                     DEPENDS compressutils-test)
 
   add_executable (cpeutils-test
-                  EXCLUDE_FROM_ALL
                   cpeutils_tests.c)
 
   add_test (cpeutils-test cpeutils-test)
@@ -232,7 +227,6 @@ if (BUILD_TESTS)
                     DEPENDS cpeutils-test)
 
   add_executable (versionutils-test
-                  EXCLUDE_FROM_ALL
                   versionutils_tests.c)
 
   add_test (versionutils-test versionutils-test)
@@ -250,7 +244,6 @@ if (BUILD_TESTS)
                     DEPENDS versionutils-test)
 
   add_executable (xmlutils-test
-                  EXCLUDE_FROM_ALL
                   xmlutils_tests.c)
 
   add_test (xmlutils-test xmlutils-test)

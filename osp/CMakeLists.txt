@@ -43,7 +43,6 @@ endif (BUILD_SHARED)
 
 if (BUILD_TESTS)
   add_executable (osp-test
-    EXCLUDE_FROM_ALL
     osp_tests.c)
 
   add_test (osp-test osp-test)
