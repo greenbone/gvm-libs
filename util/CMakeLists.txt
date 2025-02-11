@@ -148,118 +148,34 @@ endif (BUILD_SHARED)
 ## Tests
 
 if (BUILD_TESTS)
-  add_executable (json-test
-                  json_tests.c)
-
-  add_test (json-test json-test)
-
-  target_include_directories (json-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-
-  target_link_libraries (json-test ${CGREEN_LIBRARIES}
-                         ${GLIB_LDFLAGS} ${CJSON_LDFLAGS})
-
-  add_custom_target (tests-json
-                     DEPENDS json-test)
-
-
-  add_executable (jsonpull-test
-                  jsonpull_tests.c)
-
-  add_test (jsonpull-test jsonpull-test)
-
-  target_include_directories (jsonpull-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-
-  target_link_libraries (jsonpull-test ${CGREEN_LIBRARIES}
-                         ${GLIB_LDFLAGS} ${CJSON_LDFLAGS})
-
-  add_custom_target (tests-jsonpull
-                     DEPENDS jsonpull-test)
-
-
-  add_executable (passwordbasedauthentication-test
-                  passwordbasedauthentication_tests.c)
-
-  add_test (passwordbasedauthentication-test passwordbasedauthentication-test)
-
-  target_include_directories (passwordbasedauthentication-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-
-  target_link_libraries (passwordbasedauthentication-test ${CGREEN_LIBRARIES}
-                        ${BSD_LDFLAGS}
-                        ${GCRYPT_LDFLAGS}
-                        ${CRYPT_LDFLAGS}
-                        ${GLIB_LDFLAGS})
-
-  add_custom_target (tests-passwordbasedauthentication
-                    DEPENDS passwordbasedauthentication-test)
-
-  add_executable (compressutils-test
-                  compressutils_tests.c)
-
-  add_test (compressutils-test compressutils-test)
-
-  target_include_directories (compressutils-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-
-  target_link_libraries (compressutils-test ${CGREEN_LIBRARIES}
-                        ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
-              ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
-              ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
-              ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
-              ${LINKER_HARDENING_FLAGS})
-
-  add_custom_target (tests-compressutils
-                    DEPENDS compressutils-test)
-
-  add_executable (cpeutils-test
-                  cpeutils_tests.c)
-
-  add_test (cpeutils-test cpeutils-test)
-
-  target_include_directories (cpeutils-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-
-  target_link_libraries (cpeutils-test ${CGREEN_LIBRARIES}
-                        ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
-                        ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
-                        ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
-                        ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
-                        ${LINKER_HARDENING_FLAGS})
-
-  add_custom_target (tests-cpeutils
-                    DEPENDS cpeutils-test)
-
-  add_executable (versionutils-test
-                  versionutils_tests.c)
-
-  add_test (versionutils-test versionutils-test)
-
-  target_include_directories (versionutils-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-
-  target_link_libraries (versionutils-test ${CGREEN_LIBRARIES}
-                        ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
-                        ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
-                        ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
-                        ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
-                        ${LINKER_HARDENING_FLAGS})
-
-  add_custom_target (tests-versionutils
-                    DEPENDS versionutils-test)
-
-  add_executable (xmlutils-test
-                  xmlutils_tests.c)
-
-  add_test (xmlutils-test xmlutils-test)
-
-  target_include_directories (xmlutils-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-
-  target_link_libraries (xmlutils-test ${CGREEN_LIBRARIES}
-                        ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
-                        ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
-                        ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
-                        ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
-                        ${LINKER_HARDENING_FLAGS})
-
-  add_custom_target (tests-xmlutils
-                    DEPENDS xmlutils-test)
-
+  add_unit_test (json-test json_tests.c ${GLIB_LDFLAGS} ${CJSON_LDFLAGS})
+  add_unit_test (jsonpull-test jsonpull_tests.c ${GLIB_LDFLAGS} ${CJSON_LDFLAGS})
+  add_unit_test (passwordbasedauthentication-test passwordbasedauthentication_tests.c
+                 ${BSD_LDFLAGS} ${GCRYPT_LDFLAGS} ${CRYPT_LDFLAGS} ${GLIB_LDFLAGS})
+  add_unit_test (compressutils-test compressutils_tests.c
+                 ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
+                 ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+                 ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+                 ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+                 ${LINKER_HARDENING_FLAGS})
+  add_unit_test (cpeutils-test cpeutils_tests.c
+                 ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
+                 ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+                 ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+                 ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+                 ${LINKER_HARDENING_FLAGS})
+  add_unit_test (versionutils-test versionutils_tests.c
+                 ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
+                 ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+                 ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+                 ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+                 ${LINKER_HARDENING_FLAGS})
+  add_unit_test (xmlutils-test xmlutils_tests.c
+                 ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
+                 ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
+                 ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
+                 ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
+                 ${LINKER_HARDENING_FLAGS})
 endif (BUILD_TESTS)
 
 ## Install
