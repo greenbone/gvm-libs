@@ -233,12 +233,29 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
 
   find_package (cgreen REQUIRED)
 
-  add_custom_target (tests
-    DEPENDS array-test alivedetection-test boreas_error-test boreas_io-test
-            cli-test cpeutils-test cvss-test ping-test sniffer-test util-test networking-test
-            passwordbasedauthentication-test xmlutils-test version-test versionutils-test
-            osp-test nvti-test hosts-test json-test jsonpull-test compressutils-test
-            openvasd-test)
+  add_custom_target (tests DEPENDS
+                     array-test
+                     boreas-alivedetection-test
+                     boreas-cli-test
+                     boreas-error-test
+                     boreas-io-test
+                     boreas-ping-test
+                     boreas-sniffer-test
+                     compressutils-test
+                     cpeutils-test
+                     cvss-test
+                     hosts-test
+                     json-test
+                     jsonpull-test
+                     networking-test
+                     nvti-test
+                     openvasd-test
+                     osp-test
+                     passwordbasedauthentication-test
+                     util-test
+                     version-test
+                     versionutils-test
+                     xmlutils-test)
 
 endif (BUILD_TESTS AND NOT SKIP_SRC)
 

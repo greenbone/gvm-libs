@@ -100,16 +100,16 @@ set (LIBGVM_BOREAS_NAME
 ## Tests
 
 if (BUILD_TESTS)
-  add_unit_test (alivedetection-test alivedetection_tests.c gvm_boreas_shared gvm_base_shared gvm_util_shared
+  add_unit_test (boreas-alivedetection-test alivedetection_tests.c gvm_boreas_shared gvm_base_shared gvm_util_shared
                  ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
-  add_unit_test (boreas_error-test boreas_error_tests.c ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
-  add_unit_test (boreas_io-test boreas_io_tests.c gvm_boreas_shared gvm_base_shared gvm_util_shared
+  add_unit_test (boreas-error-test boreas_error_tests.c ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+  add_unit_test (boreas-io-test boreas_io_tests.c gvm_boreas_shared gvm_base_shared gvm_util_shared
                  ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
-  add_unit_test (cli-test cli_tests.c gvm_boreas_shared gvm_base_shared gvm_util_shared
+  add_unit_test (boreas-cli-test cli_tests.c gvm_boreas_shared gvm_base_shared gvm_util_shared
                  ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
-  add_unit_test (ping-test ping_tests.c gvm_boreas_shared gvm_base_shared
+  add_unit_test (boreas-ping-test ping_tests.c gvm_boreas_shared gvm_base_shared
                  ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
-  add_unit_test (sniffer-test sniffer_tests.c gvm_boreas_shared gvm_base_shared gvm_util_shared
+  add_unit_test (boreas-sniffer-test sniffer_tests.c gvm_boreas_shared gvm_base_shared gvm_util_shared
                  ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
   set (UTIL_TEST_LINKER_WRAP_OPTIONS
