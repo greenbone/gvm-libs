@@ -99,83 +99,24 @@ set (LIBGVM_BOREAS_NAME
 
 ## Tests
 
-add_executable (alivedetection-test
-                EXCLUDE_FROM_ALL
-                alivedetection_tests.c arp.c boreas_error.c boreas_io.c ping.c
-                sniffer.c util.c)
-add_test (alivedetection-test alivedetection-test)
-target_include_directories (alivedetection-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-target_link_libraries (alivedetection-test gvm_base_shared gvm_util_shared
-                       ${CGREEN_LIBRARIES}
-                       ${GLIB_LDFLAGS}
-                       ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS}
-                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+if (BUILD_TESTS)
+  add_unit_test (boreas-alivedetection-test alivedetection_tests.c gvm_boreas_shared gvm_base_shared gvm_util_shared
+                 ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+  add_unit_test (boreas-error-test boreas_error_tests.c ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+  add_unit_test (boreas-io-test boreas_io_tests.c gvm_boreas_shared gvm_base_shared gvm_util_shared
+                 ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+  add_unit_test (boreas-cli-test cli_tests.c gvm_boreas_shared gvm_base_shared gvm_util_shared
+                 ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+  add_unit_test (boreas-ping-test ping_tests.c gvm_boreas_shared gvm_base_shared
+                 ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
+  add_unit_test (boreas-sniffer-test sniffer_tests.c gvm_boreas_shared gvm_base_shared gvm_util_shared
+                 ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
 
-add_executable (boreas_error-test
-                EXCLUDE_FROM_ALL
-                boreas_error_tests.c)
-add_test (boreas_error-test boreas_error-test)
-target_include_directories (boreas_error-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-target_link_libraries (boreas_error-test
-                       ${CGREEN_LIBRARIES}
-                       ${GLIB_LDFLAGS}
-                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
-
-add_executable (boreas_io-test
-                EXCLUDE_FROM_ALL
-                arp.c boreas_io_tests.c boreas_error.c alivedetection.c ping.c
-                sniffer.c util.c)
-add_test (boreas_io-test boreas_io-test)
-target_include_directories (boreas_io-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-target_link_libraries (boreas_io-test gvm_base_shared gvm_util_shared
-                       ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS}
-                       ${CGREEN_LIBRARIES}
-                       ${GLIB_LDFLAGS}
-                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
-
-add_executable (cli-test
-                EXCLUDE_FROM_ALL
-                arp.c cli_tests.c boreas_error.c boreas_io.c util.c)
-add_test (cli-test cli-test)
-target_include_directories (cli-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-target_link_libraries (cli-test gvm_base_shared gvm_util_shared
-                      ${CGREEN_LIBRARIES}
-                      ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS}
-                      ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
-
-add_executable (ping-test
-                EXCLUDE_FROM_ALL
-                ping_tests.c arp.c util.c boreas_error.c)
-add_test (ping-test ping-test)
-target_include_directories (ping-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-target_link_libraries (ping-test gvm_base_shared
-                       ${CGREEN_LIBRARIES}
-                       ${GLIB_LDFLAGS} ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS}
-                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
-
-add_executable (sniffer-test
-                EXCLUDE_FROM_ALL
-                sniffer_tests.c boreas_io.c util.c)
-add_test (sniffer-test sniffer-test)
-target_include_directories (sniffer-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-target_link_libraries (sniffer-test gvm_base_shared gvm_util_shared
-                       ${PCAP_LDFLAGS} ${LIBNET_LDFLAGS}
-                       ${CGREEN_LIBRARIES}
-                       ${GLIB_LDFLAGS}
-                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT})
-
-set (UTIL_TEST_LINKER_WRAP_OPTIONS
-    "-Wl,-wrap,socket,-wrap,setsockopt")
-add_executable (util-test
-                EXCLUDE_FROM_ALL
-                util_tests.c)
-add_test (util-test util-test)
-target_include_directories (util-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-target_link_libraries (util-test gvm_base_shared
-                       ${CGREEN_LIBRARIES}
-                       ${GLIB_LDFLAGS}
-                       ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT}
-                       ${UTIL_TEST_LINKER_WRAP_OPTIONS})
+  set (UTIL_TEST_LINKER_WRAP_OPTIONS
+      "-Wl,-wrap,socket,-wrap,setsockopt")
+  add_unit_test (util-test util_tests.c gvm_base_shared
+                 ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${CMAKE_THREAD_LIBS_INIT} ${UTIL_TEST_LINKER_WRAP_OPTIONS})
+endif (BUILD_TESTS)
 
 ## Install
 

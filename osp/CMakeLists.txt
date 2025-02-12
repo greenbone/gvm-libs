@@ -42,21 +42,7 @@ endif (BUILD_SHARED)
 ## Tests
 
 if (BUILD_TESTS)
-  add_executable (osp-test
-    EXCLUDE_FROM_ALL
-    osp_tests.c)
-
-  add_test (osp-test osp-test)
-
-  target_include_directories (osp-test PRIVATE ${CGREEN_INCLUDE_DIRS})
-
-  target_link_libraries (osp-test gvm_base_shared gvm_util_shared
-    ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS}
-    )
-
-  add_custom_target (tests-osp
-    DEPENDS osp-test)
-
+  add_unit_test (osp-test osp_tests.c gvm_base_shared gvm_util_shared ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 endif (BUILD_TESTS)
 
 ## Install
