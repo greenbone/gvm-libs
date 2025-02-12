@@ -106,6 +106,7 @@ if (BUILD_TESTS)
   add_unit_test (nvti-test nvti_tests.c ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
   add_unit_test (hosts-test hosts_tests.c gvm_base_shared gvm_util_shared ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
   add_unit_test (logging-domain-test logging_domain_tests.c gvm_base_shared ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
+  add_unit_test (logging-test logging_tests.c gvm_base_shared ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 endif (BUILD_TESTS)
 
 
