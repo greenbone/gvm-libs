@@ -47,13 +47,18 @@ Ensure (logging, validate_check_log_file)
   assert_that (g_remove ("some-dir/some-file.log"), is_equal_to (0));
   assert_that (g_rmdir ("some-dir"), is_equal_to (0));
 
-  assert_that (g_mkdir_with_parents ("some-dir", 0700), is_equal_to (0));
-  assert_that (g_creat ("some-dir/some-file.log", 0400), is_not_equal_to (-1));
-  assert_that (check_log_file (log_domain_entry), is_equal_to (-1));
-  assert_that (g_chmod ("some-dir/some-file.log", 0700), is_equal_to (0));
-  assert_that (g_remove ("some-dir/some-file.log"), is_equal_to (0));
-  assert_that (g_rmdir ("some-dir"), is_equal_to (0));
-
+  if (getuid () != 0)
+    {
+      /* root can always write. therefore test writing to a non-writable file as
+       * non-root user only */
+      assert_that (g_mkdir_with_parents ("some-dir", 0700), is_equal_to (0));
+      assert_that (g_creat ("some-dir/some-file.log", 0400),
+                   is_not_equal_to (-1));
+      assert_that (check_log_file (log_domain_entry), is_equal_to (-1));
+      assert_that (g_chmod ("some-dir/some-file.log", 0700), is_equal_to (0));
+      assert_that (g_remove ("some-dir/some-file.log"), is_equal_to (0));
+      assert_that (g_rmdir ("some-dir"), is_equal_to (0));
+    }
   gvm_logging_domain_free (log_domain_entry);
 }
 
