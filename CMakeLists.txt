@@ -247,6 +247,7 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
                      hosts-test
                      json-test
                      jsonpull-test
+                     logging-domain-test
                      networking-test
                      nvti-test
                      openvasd-test
