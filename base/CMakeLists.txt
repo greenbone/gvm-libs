@@ -26,13 +26,41 @@ endif ($ENV{BUILD_SENTRY})
 
 include_directories (${GLIB_INCLUDE_DIRS} ${SENTRY_INCLUDE_DIR})
 
-set (FILES array.c credentials.c cvss.c drop_privileges.c hosts.c logging.c
-           networking.c nvti.c pidfile.c prefs.c proctitle.c pwpolicy.c
-           gvm_sentry.c settings.c strings.c version.c)
+set (FILES array.c
+           credentials.c
+           cvss.c
+           drop_privileges.c
+           hosts.c
+           logging.c
+           logging_domain.c
+           networking.c
+           nvti.c
+           pidfile.c
+           prefs.c
+           proctitle.c
+           pwpolicy.c
+           gvm_sentry.c
+           settings.c
+           strings.c
+           version.c)
 
-set (HEADERS array.h credentials.h cvss.h drop_privileges.h hosts.h logging.h
-             networking.h nvti.h pidfile.h prefs.h proctitle.h pwpolicy.h
-             gvm_sentry.h settings.h strings.h version.h)
+set (HEADERS array.h
+             credentials.h
+             cvss.h
+             drop_privileges.h
+             hosts.h
+             logging.h
+             logging_domain.h
+             networking.h
+             nvti.h
+             pidfile.h
+             prefs.h
+             proctitle.h
+             pwpolicy.h
+             gvm_sentry.h
+             settings.h
+             strings.h
+             version.h)
 
 if (BUILD_STATIC)
   set (LIBGVM_BASE_NAME gvm_base_static)
@@ -77,7 +105,7 @@ if (BUILD_TESTS)
   add_unit_test (version-test version_tests.c ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
   add_unit_test (nvti-test nvti_tests.c ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
   add_unit_test (hosts-test hosts_tests.c gvm_base_shared gvm_util_shared ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
-
+  add_unit_test (logging-domain-test logging_domain_tests.c gvm_base_shared ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 endif (BUILD_TESTS)
 
 
