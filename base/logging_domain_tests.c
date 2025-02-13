@@ -91,6 +91,7 @@ Ensure (logging_domain, should_allow_setting_properties)
                is_equal_to_string ("|"));
 
   gvm_logging_domain_free (log_domain_entry);
+  g_remove ("log_channel.log");
 }
 
 static TestSuite *
