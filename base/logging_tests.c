@@ -167,6 +167,133 @@ Ensure (logging, should_load_log_configuration)
   g_remove (config_file);
 }
 
+static void
+mock_log_func (const gchar *log_domain, GLogLevelFlags log_level,
+               const gchar *message, gpointer user_data)
+{
+  mock (log_domain, log_level, message, user_data);
+}
+
+static void
+mock_default_log_func (const gchar *log_domain, GLogLevelFlags log_level,
+                       const gchar *message, gpointer user_data)
+{
+  mock (log_domain, log_level, message, user_data);
+}
+
+static void
+mock_default_domain_log_func (const gchar *log_domain, GLogLevelFlags log_level,
+                              const gchar *message, gpointer user_data)
+{
+  mock (log_domain, log_level, message, user_data);
+}
+
+Ensure (logging, should_setup_log_handlers_with_default_handler)
+{
+  gchar *config_file = "test_log_config.conf";
+  GSList *log_config_list;
+
+  /* Create a temporary configuration file */
+  FILE *file = fopen (config_file, "w");
+  assert_that (file, is_not_null);
+  // fputs ("", file);
+  fprintf (file, "[*]\n"
+                 "prepend=%%t %%s %%p - \n"
+                 "separator=:\n"
+                 "prepend_time_format=%%Y-%%m-%%d %%H:%%M:%%S\n"
+                 "file=-\n"
+                 "level=debug\n");
+  fclose (file);
+
+  /* Load the configuration */
+  log_config_list = load_log_configuration (config_file);
+  assert_that (log_config_list, is_not_null);
+
+  /* Setup log handlers */
+  setup_log_handlers_internal (log_config_list, mock_log_func,
+                               mock_default_log_func,
+                               mock_default_domain_log_func);
+
+  /* Verify the log handlers setup */
+  never_expect (mock_log_func);
+  never_expect (mock_default_domain_log_func);
+  expect (mock_default_log_func, when (log_domain, is_equal_to_string ("foo")),
+          when (log_level, is_equal_to (G_LOG_LEVEL_DEBUG)),
+          when (message, is_equal_to_string ("test message")),
+          when (user_data, is_equal_to (log_config_list)));
+
+  g_log ("foo", G_LOG_LEVEL_DEBUG, "test message");
+
+  /* Clean up */
+  free_log_configuration (log_config_list);
+  g_remove (config_file);
+}
+
+Ensure (logging, should_setup_log_handlers_with_default_domain_handler)
+{
+  /* Setup log handlers */
+  setup_log_handlers_internal (NULL, mock_log_func, mock_default_log_func,
+                               mock_default_domain_log_func);
+
+  /* Verify the log handlers setup */
+  never_expect (mock_default_log_func);
+  never_expect (mock_log_func);
+
+  expect (mock_default_domain_log_func,
+          when (log_domain, is_equal_to_string ("")),
+          when (log_level, is_equal_to (G_LOG_LEVEL_DEBUG)),
+          when (message, is_equal_to_string ("test message")),
+          when (user_data, is_null));
+  expect (mock_default_domain_log_func, when (log_domain, is_null),
+          when (log_level, is_equal_to (G_LOG_LEVEL_INFO)),
+          when (message, is_equal_to_string ("test message 2")),
+          when (user_data, is_null));
+
+  g_log ("", G_LOG_LEVEL_DEBUG, "test message");
+  g_log (NULL, G_LOG_LEVEL_INFO, "test message 2");
+}
+
+Ensure (logging, should_setup_log_handlers_with_domain_handler)
+{
+  gchar *config_file = "test_log_config.conf";
+  GSList *log_config_list;
+
+  /* Create a temporary configuration file */
+  FILE *file = fopen (config_file, "w");
+  assert_that (file, is_not_null);
+  // fputs ("", file);
+  fprintf (file, "[foo]\n"
+                 "prepend=%%t %%s %%p - \n"
+                 "separator=:\n"
+                 "prepend_time_format=%%Y-%%m-%%d %%H:%%M:%%S\n"
+                 "file=-\n"
+                 "level=debug\n");
+  fclose (file);
+
+  /* Load the configuration */
+  log_config_list = load_log_configuration (config_file);
+  assert_that (log_config_list, is_not_null);
+
+  /* Setup log handlers */
+  setup_log_handlers_internal (log_config_list, mock_log_func,
+                               mock_default_log_func,
+                               mock_default_domain_log_func);
+
+  /* Verify the log handlers setup */
+  never_expect (mock_default_log_func);
+  never_expect (mock_default_domain_log_func);
+  expect (mock_log_func, when (log_domain, is_equal_to_string ("foo")),
+          when (log_level, is_equal_to (G_LOG_LEVEL_DEBUG)),
+          when (message, is_equal_to_string ("test message")),
+          when (user_data, is_equal_to (log_config_list)));
+
+  g_log ("foo", G_LOG_LEVEL_DEBUG, "test message");
+
+  /* Clean up */
+  free_log_configuration (log_config_list);
+  g_remove (config_file);
+}
+
 static TestSuite *
 logging_test_suite ()
 {
@@ -176,6 +303,12 @@ logging_test_suite ()
   add_test_with_context (suite, logging,
                          should_convert_facility_int_from_string);
   add_test_with_context (suite, logging, should_load_log_configuration);
+  add_test_with_context (suite, logging,
+                         should_setup_log_handlers_with_default_handler);
+  add_test_with_context (suite, logging,
+                         should_setup_log_handlers_with_default_domain_handler);
+  add_test_with_context (suite, logging,
+                         should_setup_log_handlers_with_domain_handler);
   return suite;
 }
 

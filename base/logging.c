@@ -894,18 +894,10 @@ set_log_tz (const gchar *tz)
   log_tz = tz ? g_strdup (tz) : NULL;
 }
 
-/**
- * @brief Sets up routing of logdomains to log handlers.
- *
- * Iterates over the link list and adds the groups to the handler.
- *
- * @param gvm_log_config_list A pointer to the configuration linked list.
- *
- * @return 0 on success, -1 if not able to create log file directory or open log
- * file for some domain.
- */
-int
-setup_log_handlers (GSList *gvm_log_config_list)
+static int
+setup_log_handlers_internal (GSList *gvm_log_config_list, GLogFunc log_func,
+                             GLogFunc default_log_func,
+                             GLogFunc default_domain_log_func)
 {
   GSList *log_domain_list_tmp;
   int err;
@@ -932,12 +924,6 @@ setup_log_handlers (GSList *gvm_log_config_list)
               continue;
             }
 
-          GLogFunc logfunc =
-#if 0
-            (!strcmp (log_domain_entry, "syslog")) ? gvm_syslog_func :
-#endif
-            gvm_log_func;
-
           if (g_ascii_strcasecmp (
                 gvm_logging_domain_get_log_domain (log_domain_entry), "*"))
             {
@@ -947,12 +933,11 @@ setup_log_handlers (GSList *gvm_log_config_list)
                                   | G_LOG_LEVEL_MESSAGE | G_LOG_LEVEL_WARNING
                                   | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR
                                   | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION),
-                (GLogFunc) logfunc, gvm_log_config_list);
+                (GLogFunc) log_func, gvm_log_config_list);
             }
           else
             {
-              g_log_set_default_handler ((GLogFunc) logfunc,
-                                         gvm_log_config_list);
+              g_log_set_default_handler (default_log_func, gvm_log_config_list);
             }
 
           /* Go to the next item. */
@@ -965,7 +950,24 @@ setup_log_handlers (GSList *gvm_log_config_list)
                       | G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL
                       | G_LOG_LEVEL_ERROR | G_LOG_FLAG_FATAL
                       | G_LOG_FLAG_RECURSION),
-    (GLogFunc) gvm_log_func, gvm_log_config_list);
+    default_domain_log_func, gvm_log_config_list);
 
   return ret;
+}
+
+/**
+ * @brief Sets up routing of logdomains to log handlers.
+ *
+ * Iterates over the link list and adds the groups to the handler.
+ *
+ * @param gvm_log_config_list A pointer to the configuration linked list.
+ *
+ * @return 0 on success, -1 if not able to create log file directory or open log
+ * file for some domain.
+ */
+int
+setup_log_handlers (GSList *gvm_log_config_list)
+{
+  return setup_log_handlers_internal (gvm_log_config_list, gvm_log_func,
+                                      gvm_log_func, gvm_log_func);
 }
