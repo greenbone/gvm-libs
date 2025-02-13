@@ -421,7 +421,8 @@ handler (openvasd_connector_t conn, openvasd_req_method_t method, gchar *path,
       return NULL;
     }
 
-  if ((curl = curl_easy_init ()) == NULL)
+  curl = curl_easy_init ();
+  if (curl == NULL)
     {
       *err =
         g_strdup ("{\"error\": \"Not possible to initialize curl library\"}");
@@ -562,9 +563,10 @@ openvasd_send_request (CURL *curl, const gchar *header_name,
                        openvasd_resp_t response)
 {
   long http_code = RESP_CODE_ERR;
+  int ret;
 
-  int ret = CURLE_OK;
-  if ((ret = curl_easy_perform (curl)) != CURLE_OK)
+  ret = curl_easy_perform (curl);
+  if (ret != CURLE_OK)
     {
       g_warning ("%s: Error sending request: %d", __func__, ret);
       curl_easy_cleanup (curl);
@@ -1090,13 +1092,14 @@ openvasd_result_free (openvasd_result_t result)
 static int
 parse_results (const gchar *body, GSList **results)
 {
-  cJSON *parser = NULL;
+  cJSON *parser;
   cJSON *result_obj = NULL;
   const gchar *err = NULL;
   openvasd_result_t result = NULL;
   int ret = -1;
 
-  if ((parser = cJSON_Parse (body)) == NULL)
+  parser = cJSON_Parse (body);
+  if (parser == NULL)
     {
       err = cJSON_GetErrorPtr ();
       goto res_cleanup;
@@ -1109,7 +1112,7 @@ parse_results (const gchar *body, GSList **results)
 
   cJSON_ArrayForEach (result_obj, parser)
   {
-    cJSON *item = NULL;
+    cJSON *item;
     gchar *detail_name = NULL;
     gchar *detail_value = NULL;
     gchar *detail_source_type = NULL;
@@ -1120,7 +1123,8 @@ parse_results (const gchar *body, GSList **results)
       // error
       goto res_cleanup;
 
-    if ((item = cJSON_GetObjectItem (result_obj, "detail")) != NULL
+    item = cJSON_GetObjectItem (result_obj, "detail");
+    if (item != NULL
         && cJSON_IsObject (item))
       {
         cJSON *detail_obj = NULL;
@@ -1283,7 +1287,8 @@ openvasd_get_scan_progress_ext (openvasd_connector_t conn,
       goto cleanup;
     }
 
-  if ((reader = cJSON_GetObjectItem (parser, "host_info")) == NULL)
+  reader = cJSON_GetObjectItem (parser, "host_info");
+  if (reader == NULL)
     {
       goto cleanup;
     }
@@ -1303,8 +1308,9 @@ openvasd_get_scan_progress_ext (openvasd_connector_t conn,
   finished = get_member_value_or_fail (reader, "finished");
 
   // read progress of single running hosts
-  cJSON *scanning = NULL;
-  if ((scanning = cJSON_GetObjectItem (reader, "scanning")) != NULL
+  cJSON *scanning;
+  scanning = cJSON_GetObjectItem (reader, "scanning");
+  if (scanning != NULL
       && cJSON_IsObject (scanning))
     {
       cJSON *host = scanning->child;
@@ -1367,14 +1373,15 @@ get_status_code_from_openvas (const gchar *status_val)
 static int
 parse_status (const gchar *body, openvasd_scan_status_t status_info)
 {
-  cJSON *parser = NULL;
+  cJSON *parser;
   gchar *status_val = NULL;
   openvasd_status_t status_code = OPENVASD_SCAN_STATUS_ERROR;
 
   if (!status_info)
     return -1;
 
-  if ((parser = cJSON_Parse (body)) == NULL)
+  parser = cJSON_Parse (body);
+  if (parser == NULL)
     return -1;
 
   if (gvm_json_obj_check_str (parser, "status", &status_val))
@@ -1755,7 +1762,8 @@ openvasd_parsed_scans_preferences (openvasd_connector_t conn, GSList **params)
     return -1;
 
   // No results. No information.
-  if ((parser = cJSON_Parse (resp->body)) == NULL || !cJSON_IsArray (parser))
+  parser = cJSON_Parse (resp->body);
+  if (parser == NULL || !cJSON_IsArray (parser))
     {
       err = 1;
       goto prefs_cleanup;
@@ -1769,7 +1777,8 @@ openvasd_parsed_scans_preferences (openvasd_connector_t conn, GSList **params)
     char buf[6];
     cJSON *item = NULL;
 
-    if ((item = cJSON_GetObjectItem (param_obj, "default")) != NULL)
+    item = cJSON_GetObjectItem (param_obj, "default");
+    if (item != NULL)
       {
         if (cJSON_IsNumber (item))
           {

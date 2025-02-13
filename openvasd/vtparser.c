@@ -165,8 +165,10 @@ add_tags_to_nvt (nvti_t *nvt, cJSON *tag_obj)
 static void
 parse_references (nvti_t *nvt, cJSON *vt_obj)
 {
-  cJSON *item = NULL;
-  if ((item = cJSON_GetObjectItem (vt_obj, "references")) != NULL
+  cJSON *item;
+
+  item = cJSON_GetObjectItem (vt_obj, "references");
+  if (item != NULL
       && cJSON_IsArray (item))
     {
       cJSON *ref_obj;
@@ -192,8 +194,10 @@ parse_references (nvti_t *nvt, cJSON *vt_obj)
 static void
 add_preferences_to_nvt (nvti_t *nvt, cJSON *vt_obj)
 {
-  cJSON *item = NULL;
-  if ((item = cJSON_GetObjectItem (vt_obj, "preferences")) != NULL)
+  cJSON *item;
+
+  item = cJSON_GetObjectItem (vt_obj, "preferences");
+  if (item != NULL)
     {
       if (!cJSON_IsArray (item))
         g_debug ("%s: Error reading VT/REFS array", __func__);
