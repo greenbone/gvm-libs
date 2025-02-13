@@ -32,6 +32,10 @@ Ensure (logging, validate_check_log_file)
   gvm_logging_domain_set_log_file (log_domain_entry, g_strdup ("syslog"));
   assert_that (check_log_file (log_domain_entry), is_equal_to (0));
 
+  gvm_logging_domain_set_log_file (log_domain_entry, g_strdup ("-"));
+  assert_that (check_log_file (log_domain_entry), is_equal_to (0));
+  assert_that (g_file_test ("-", G_FILE_TEST_EXISTS), is_equal_to (FALSE));
+
   gvm_logging_domain_set_log_file (log_domain_entry,
                                    g_strdup ("some-file.log"));
   assert_that (check_log_file (log_domain_entry), is_equal_to (0));

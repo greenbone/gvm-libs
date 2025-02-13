@@ -686,8 +686,9 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
     gvm_sentry_log (message);
 
   gvm_log_lock ();
-  /* Output everything to stderr if logfile is "-". */
-  if (g_ascii_strcasecmp (log_file, "-") == 0)
+  /* Output everything to stderr if logfile is NULL, an empty string or "-". */
+  if (!log_file || g_ascii_strcasecmp (log_file, "-") == 0
+      || !g_strcmp0 (log_file, ""))
     {
       fprintf (stderr, "%s", tmpstr);
       fflush (stderr);
@@ -845,11 +846,10 @@ check_log_file (gvm_logging_domain_t *log_domain_entry)
 
   log_file = gvm_logging_domain_get_log_file (log_domain_entry);
 
-  // No log file was specified or log file is empty in the openvas_log.conf.
+  // No log file was specified, log file is empty or set to "-" then
   // stderr will be used as default later on. See gvm_log_func.
-  if (!log_file)
-    return 0;
-  if (!g_strcmp0 (log_file, ""))
+  if (!log_file || g_ascii_strcasecmp (log_file, "-") == 0
+      || !g_strcmp0 (log_file, ""))
     return 0;
 
   // If syslog is used we do not need to check the log file permissions.
