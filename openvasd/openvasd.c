@@ -1125,31 +1125,15 @@ parse_results (const gchar *body, GSList **results)
       {
         cJSON *detail_obj = NULL;
 
-        if ((detail_obj = cJSON_GetObjectItem (item, "name")) != NULL
-            && cJSON_IsString (detail_obj))
-          detail_name = detail_obj->valuestring;
-
-        if ((detail_obj = cJSON_GetObjectItem (item, "value")) != NULL
-            && cJSON_IsString (detail_obj))
-          detail_value = detail_obj->valuestring;
+        detail_name = gvm_json_obj_str (item, "name");
+        detail_value = gvm_json_obj_str (item, "value");
 
         detail_obj = cJSON_GetObjectItem (item, "source");
         if (detail_obj && cJSON_IsObject (detail_obj))
           {
-            cJSON *source_obj;
-
-            if ((source_obj = cJSON_GetObjectItem (detail_obj, "type")) != NULL
-                && cJSON_IsString (source_obj))
-              detail_source_type = source_obj->valuestring;
-
-            if ((source_obj = cJSON_GetObjectItem (detail_obj, "name")) != NULL
-                && cJSON_IsString (source_obj))
-              detail_source_name = source_obj->valuestring;
-
-            if ((source_obj = cJSON_GetObjectItem (detail_obj, "description"))
-                  != NULL
-                && cJSON_IsString (source_obj))
-              detail_source_description = source_obj->valuestring;
+            detail_source_type = gvm_json_obj_str (detail_obj, "type");
+            detail_source_name = gvm_json_obj_str (detail_obj, "name");
+            detail_source_description = gvm_json_obj_str (detail_obj, "description");
           }
       }
 
