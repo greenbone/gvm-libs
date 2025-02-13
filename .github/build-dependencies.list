@@ -1,6 +1,8 @@
 build-essential
+ca-certificates
 cmake
 curl
+git
 gnupg
 lcov
 libcjson-dev
