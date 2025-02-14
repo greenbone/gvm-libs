@@ -1,6 +1,6 @@
 # default reviewers
-*                 @greenbone/gvm-libs-maintainers
+*                 @greenbone/scanner-maintainers @greenbone/gea
 
 # dev ops
-.github/          @greenbone/gvm-libs-maintainers
-.docker/          @greenbone/gvm-libs-maintainers
+.github/          @greenbone/scanner-maintainers @greenbone/gea @greenbone/devops
+.docker/          @greenbone/scanner-maintainers @greenbone/gea @greenbone/devops
