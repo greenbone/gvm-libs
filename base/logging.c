@@ -532,17 +532,22 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
               if (gvm_logging_domain_get_prepend_string (log_domain_entry))
                 prepend_format =
                   gvm_logging_domain_get_prepend_string (log_domain_entry);
-              time_format =
-                gvm_logging_domain_get_prepend_time_format (log_domain_entry);
-              log_file = gvm_logging_domain_get_log_file (log_domain_entry);
+              if (gvm_logging_domain_get_prepend_time_format (log_domain_entry))
+                time_format =
+                  gvm_logging_domain_get_prepend_time_format (log_domain_entry);
+              if (gvm_logging_domain_get_log_file (log_domain_entry))
+                log_file = gvm_logging_domain_get_log_file (log_domain_entry);
               if (gvm_logging_domain_get_default_level (log_domain_entry))
                 default_level =
                   *gvm_logging_domain_get_default_level (log_domain_entry);
-              channel = gvm_logging_domain_get_log_channel (log_domain_entry);
-              syslog_facility =
-                gvm_logging_domain_get_syslog_facility (log_domain_entry);
-              syslog_ident =
-                gvm_logging_domain_get_syslog_ident (log_domain_entry);
+              if (gvm_logging_domain_get_log_channel (log_domain_entry))
+                channel = gvm_logging_domain_get_log_channel (log_domain_entry);
+              if (gvm_logging_domain_get_syslog_facility (log_domain_entry))
+                syslog_facility =
+                  gvm_logging_domain_get_syslog_facility (log_domain_entry);
+              if (gvm_logging_domain_get_syslog_ident (log_domain_entry))
+                syslog_ident =
+                  gvm_logging_domain_get_syslog_ident (log_domain_entry);
               if (gvm_logging_domain_get_prepend_separator (log_domain_entry))
                 log_separator =
                   gvm_logging_domain_get_prepend_separator (log_domain_entry);
