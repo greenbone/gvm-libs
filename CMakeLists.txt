@@ -263,11 +263,19 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
 
   # Code coverage
   if (ENABLE_COVERAGE)
+    find_program (GCOVR gcovr)
+
+    if (NOT GCOVR)
+      message (FATAL_ERROR "gcovr coverage reporting tool not found")
+    endif ()
+
+    message ("-- Code Coverage Reporting enabled")
+
     add_custom_target (coverage-html
-                      COMMAND gcovr --html-details ${COVERAGE_DIR}/coverage.html
+                      COMMAND ${GCOVR} --html-details ${COVERAGE_DIR}/coverage.html
                       -r ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} DEPENDS tests)
     add_custom_target (coverage-xml
-                      COMMAND gcovr --xml ${COVERAGE_DIR}/coverage.xml
+                      COMMAND ${GCOVR} --xml ${COVERAGE_DIR}/coverage.xml
                       -r ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} DEPENDS tests)
     add_custom_target (coverage DEPENDS coverage-xml coverage-html)
 
