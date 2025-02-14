@@ -16,6 +16,7 @@
 #include "logging.h"
 
 #include "gvm_sentry.h" /* for gvm_sentry_log */
+#include "logging_domain.h"
 
 #include <errno.h>  /* for errno */
 #include <libgen.h> /* for dirname */
@@ -42,25 +43,6 @@
 static gchar *log_tz = NULL;
 
 /**
- * @struct gvm_logging_t
- * @brief Logging stores the parameters loaded from a log configuration
- * @brief file, to be used internally by the gvm_logging module only.
- */
-typedef struct
-{
-  gchar *log_domain;          ///< Affected logdomain e.g libnasl.
-  gchar *prepend_string;      ///< Prepend this string before every message.
-  gchar *prepend_time_format; ///< If prependstring has %t, format for strftime.
-  gchar *log_file;            ///< Where to log to.
-  GLogLevelFlags *default_level; ///< What severity level to use as default.
-  GIOChannel *log_channel;       ///< Gio Channel - FD holder for logfile.
-  gchar *syslog_facility;        ///< Syslog facility to use for syslog logging.
-  gchar *syslog_ident;           ///< Syslog ident to use for syslog logging.
-  gchar *prepend_separator; ///< If prependstring has %s, used this symbol as
-                            ///< separator.
-} gvm_logging_t;
-
-/**
  * @brief Returns time as specified in time_fmt strftime format.
  *
  * @param time_fmt ptr to the string format to use. The strftime
@@ -77,6 +59,9 @@ get_time (gchar *time_fmt)
   time_t now;
   struct tm ts;
   gchar buf[80], *original_tz;
+
+  if (!time_fmt)
+    return NULL;
 
   if (log_tz)
     {
@@ -209,47 +194,40 @@ load_log_configuration (gchar *config_file)
   while (*group != NULL)
     {
       /* Structure to hold per group settings. */
-      gvm_logging_t *log_domain_entry;
-      /* Create the struct. */
-      log_domain_entry = g_malloc (sizeof (gvm_logging_t));
-      /* Set the logdomain. */
-      log_domain_entry->log_domain = g_strdup (*group);
-      /* Initialize everything else to NULL. */
-      log_domain_entry->prepend_string = NULL;
-      log_domain_entry->prepend_time_format = NULL;
-      log_domain_entry->log_file = NULL;
-      log_domain_entry->default_level = NULL;
-      log_domain_entry->log_channel = NULL;
-      log_domain_entry->syslog_facility = NULL;
-      log_domain_entry->syslog_ident = NULL;
-      log_domain_entry->prepend_separator = NULL;
+      gvm_logging_domain_t *log_domain_entry =
+        gvm_logging_domain_new (g_strdup (*group));
 
       /* Look for the prepend string. */
       if (g_key_file_has_key (key_file, *group, "prepend", &error))
         {
-          log_domain_entry->prepend_string =
-            g_key_file_get_value (key_file, *group, "prepend", &error);
+          gvm_logging_domain_set_prepend_string (
+            log_domain_entry,
+            g_key_file_get_value (key_file, *group, "prepend", &error));
         }
 
       /* Look for the log_separator string. */
       if (g_key_file_has_key (key_file, *group, "separator", &error))
         {
-          log_domain_entry->prepend_separator =
-            g_key_file_get_value (key_file, *group, "separator", &error);
+          gvm_logging_domain_set_prepend_separator (
+            log_domain_entry,
+            g_key_file_get_value (key_file, *group, "separator", &error));
         }
 
       /* Look for the prepend time format string. */
       if (g_key_file_has_key (key_file, *group, "prepend_time_format", &error))
         {
-          log_domain_entry->prepend_time_format = g_key_file_get_value (
-            key_file, *group, "prepend_time_format", &error);
+          gvm_logging_domain_set_prepend_time_format (
+            log_domain_entry,
+            g_key_file_get_value (key_file, *group, "prepend_time_format",
+                                  &error));
         }
 
       /* Look for the log file string. */
       if (g_key_file_has_key (key_file, *group, "file", &error))
         {
-          log_domain_entry->log_file =
-            g_key_file_get_value (key_file, *group, "file", &error);
+          gvm_logging_domain_set_log_file (
+            log_domain_entry,
+            g_key_file_get_value (key_file, *group, "file", &error));
         }
 
       /* Look for the prepend log level string. */
@@ -259,28 +237,32 @@ load_log_configuration (gchar *config_file)
 
           level = g_key_file_get_value (key_file, *group, "level", &error);
           level = g_strchug (level);
-          log_domain_entry->default_level = g_malloc (sizeof (gint));
-          *log_domain_entry->default_level = level_int_from_string (level);
+          gvm_logging_domain_set_default_level (log_domain_entry,
+                                                level_int_from_string (level));
           g_free (level);
         }
 
       /* Look for the syslog_facility string. */
       if (g_key_file_has_key (key_file, *group, "syslog_facility", &error))
         {
-          log_domain_entry->syslog_facility =
-            g_key_file_get_value (key_file, *group, "syslog_facility", &error);
+          gvm_logging_domain_set_syslog_facility (
+            log_domain_entry,
+            g_key_file_get_value (key_file, *group, "syslog_facility", &error));
         }
       else
-        log_domain_entry->syslog_facility = "local0";
+        gvm_logging_domain_set_syslog_facility (log_domain_entry,
+                                                g_strdup ("local0"));
 
       /* Look for the syslog_ident string. */
       if (g_key_file_has_key (key_file, *group, "syslog_ident", &error))
         {
-          log_domain_entry->syslog_ident =
-            g_key_file_get_value (key_file, *group, "syslog_ident", &error);
+          gvm_logging_domain_set_syslog_ident (
+            log_domain_entry,
+            g_key_file_get_value (key_file, *group, "syslog_ident", &error));
         }
       else
-        log_domain_entry->syslog_ident = g_strdup (*group);
+        gvm_logging_domain_set_syslog_ident (log_domain_entry,
+                                             g_strdup (*group));
 
       /* Attach the struct to the list. */
       log_domain_list = g_slist_prepend (log_domain_list, log_domain_entry);
@@ -313,26 +295,13 @@ free_log_configuration (GSList *log_domain_list)
   log_domain_list_tmp = log_domain_list;
   while (log_domain_list_tmp != NULL)
     {
-      gvm_logging_t *log_domain_entry;
+      gvm_logging_domain_t *log_domain_entry;
 
       /* Get the list data which is an gvm_logging_t struct. */
       log_domain_entry = log_domain_list_tmp->data;
 
       /* Free the struct contents. */
-      g_free (log_domain_entry->log_domain);
-      g_free (log_domain_entry->prepend_string);
-      g_free (log_domain_entry->prepend_time_format);
-      g_free (log_domain_entry->log_file);
-      g_free (log_domain_entry->default_level);
-      g_free (log_domain_entry->syslog_ident);
-      g_free (log_domain_entry->prepend_separator);
-
-      /* Drop the reference to the GIOChannel. */
-      if (log_domain_entry->log_channel)
-        g_io_channel_unref (log_domain_entry->log_channel);
-
-      /* Free the struct. */
-      g_free (log_domain_entry);
+      gvm_logging_domain_free (log_domain_entry);
 
       /* Go to the next item. */
       log_domain_list_tmp = g_slist_next (log_domain_list_tmp);
@@ -469,10 +438,10 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
 
   /* For link list operations. */
   GSList *log_domain_list_tmp;
-  gvm_logging_t *log_domain_entry = NULL;
+  gvm_logging_domain_t *log_domain_entry = NULL;
 
   /* Channel to log through. */
-  GIOChannel *channel;
+  GIOChannel *channel = NULL;
   GError *error = NULL;
 
   /* The default parameters to be used. The group '*' will override
@@ -483,7 +452,6 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
   gchar *log_separator = ":";
   gchar *log_file = "-";
   GLogLevelFlags default_level = G_LOG_LEVEL_DEBUG;
-  channel = NULL;
   gchar *syslog_facility = "local0";
   gchar *syslog_ident = NULL;
 
@@ -498,31 +466,38 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
 
       while (log_domain_list_tmp != NULL)
         {
-          gvm_logging_t *entry;
+          gvm_logging_domain_t *entry;
 
           entry = log_domain_list_tmp->data;
 
           /* Override defaults if the current linklist group name is '*'. */
-          if (g_ascii_strcasecmp (entry->log_domain, "*") == 0)
+          if (g_ascii_strcasecmp (gvm_logging_domain_get_log_domain (entry),
+                                  "*")
+              == 0)
             {
               /* Get the list data for later use. */
               log_domain_entry = entry;
 
               /* Override defaults if the group items are not null. */
-              if (log_domain_entry->prepend_string)
-                prepend_format = log_domain_entry->prepend_string;
-              if (log_domain_entry->prepend_time_format)
-                time_format = log_domain_entry->prepend_time_format;
-              if (log_domain_entry->log_file)
-                log_file = log_domain_entry->log_file;
-              if (log_domain_entry->default_level)
-                default_level = *log_domain_entry->default_level;
-              if (log_domain_entry->log_channel)
-                channel = log_domain_entry->log_channel;
-              if (log_domain_entry->syslog_facility)
-                syslog_facility = log_domain_entry->syslog_facility;
-              if (log_domain_entry->prepend_separator)
-                log_separator = log_domain_entry->prepend_separator;
+              if (gvm_logging_domain_get_prepend_string (log_domain_entry))
+                prepend_format =
+                  gvm_logging_domain_get_prepend_string (log_domain_entry);
+              if (gvm_logging_domain_get_prepend_time_format (log_domain_entry))
+                time_format =
+                  gvm_logging_domain_get_prepend_time_format (log_domain_entry);
+              if (gvm_logging_domain_get_log_file (log_domain_entry))
+                log_file = gvm_logging_domain_get_log_file (log_domain_entry);
+              if (gvm_logging_domain_get_default_level (log_domain_entry))
+                default_level =
+                  *gvm_logging_domain_get_default_level (log_domain_entry);
+              if (gvm_logging_domain_get_log_channel (log_domain_entry))
+                channel = gvm_logging_domain_get_log_channel (log_domain_entry);
+              if (gvm_logging_domain_get_syslog_facility (log_domain_entry))
+                syslog_facility =
+                  gvm_logging_domain_get_syslog_facility (log_domain_entry);
+              if (gvm_logging_domain_get_prepend_separator (log_domain_entry))
+                log_separator =
+                  gvm_logging_domain_get_prepend_separator (log_domain_entry);
               break;
             }
 
@@ -541,28 +516,41 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
 
       while (log_domain_list_tmp != NULL)
         {
-          gvm_logging_t *entry;
+          gvm_logging_domain_t *entry;
 
           entry = log_domain_list_tmp->data;
 
           /* Search for the log domain in the link list. */
-          if (g_ascii_strcasecmp (entry->log_domain, log_domain) == 0)
+          if (g_ascii_strcasecmp (gvm_logging_domain_get_log_domain (entry),
+                                  log_domain)
+              == 0)
             {
               /* Get the list data which is an gvm_logging_t struct. */
               log_domain_entry = entry;
 
               /* Get the struct contents. */
-              if (log_domain_entry->prepend_string)
-                prepend_format = log_domain_entry->prepend_string;
-              time_format = log_domain_entry->prepend_time_format;
-              log_file = log_domain_entry->log_file;
-              if (log_domain_entry->default_level)
-                default_level = *log_domain_entry->default_level;
-              channel = log_domain_entry->log_channel;
-              syslog_facility = log_domain_entry->syslog_facility;
-              syslog_ident = log_domain_entry->syslog_ident;
-              if (log_domain_entry->prepend_separator)
-                log_separator = log_domain_entry->prepend_separator;
+              if (gvm_logging_domain_get_prepend_string (log_domain_entry))
+                prepend_format =
+                  gvm_logging_domain_get_prepend_string (log_domain_entry);
+              if (gvm_logging_domain_get_prepend_time_format (log_domain_entry))
+                time_format =
+                  gvm_logging_domain_get_prepend_time_format (log_domain_entry);
+              if (gvm_logging_domain_get_log_file (log_domain_entry))
+                log_file = gvm_logging_domain_get_log_file (log_domain_entry);
+              if (gvm_logging_domain_get_default_level (log_domain_entry))
+                default_level =
+                  *gvm_logging_domain_get_default_level (log_domain_entry);
+              if (gvm_logging_domain_get_log_channel (log_domain_entry))
+                channel = gvm_logging_domain_get_log_channel (log_domain_entry);
+              if (gvm_logging_domain_get_syslog_facility (log_domain_entry))
+                syslog_facility =
+                  gvm_logging_domain_get_syslog_facility (log_domain_entry);
+              if (gvm_logging_domain_get_syslog_ident (log_domain_entry))
+                syslog_ident =
+                  gvm_logging_domain_get_syslog_ident (log_domain_entry);
+              if (gvm_logging_domain_get_prepend_separator (log_domain_entry))
+                log_separator =
+                  gvm_logging_domain_get_prepend_separator (log_domain_entry);
               break;
             }
 
@@ -614,6 +602,10 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
            * Store it in a tmp var.
            */
           prepend_tmp1 = get_time (time_format);
+          if (!prepend_tmp1)
+            {
+              prepend_tmp1 = g_strdup ("");
+            }
           /* Use g_strdup. New string returned. Store it in a tmp var until
            * we free the old one.
            */
@@ -706,8 +698,9 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
     gvm_sentry_log (message);
 
   gvm_log_lock ();
-  /* Output everything to stderr if logfile is "-". */
-  if (g_ascii_strcasecmp (log_file, "-") == 0)
+  /* Output everything to stderr if logfile is NULL, an empty string or "-". */
+  if (!log_file || g_ascii_strcasecmp (log_file, "-") == 0
+      || !g_strcmp0 (log_file, ""))
     {
       fprintf (stderr, "%s", tmpstr);
       fflush (stderr);
@@ -819,7 +812,7 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
 
           /* Store it in the struct for later use. */
           if (log_domain_entry != NULL)
-            log_domain_entry->log_channel = channel;
+            gvm_logging_domain_set_log_channel (log_domain_entry, channel);
         }
       g_io_channel_write_chars (channel, (const gchar *) tmpstr, -1, NULL,
                                 &error);
@@ -857,20 +850,18 @@ log_func_for_gnutls (int level, const char *message)
  * @return 0 on success, -1 on error.
  */
 static int
-check_log_file (gvm_logging_t *log_domain_entry)
+check_log_file (gvm_logging_domain_t *log_domain_entry)
 {
   GIOChannel *channel = NULL;
   GError *error = NULL;
-  gchar *log_file = NULL;
+  const gchar *log_file;
 
-  if (log_domain_entry->log_file)
-    log_file = log_domain_entry->log_file;
+  log_file = gvm_logging_domain_get_log_file (log_domain_entry);
 
-  // No log file was specified or log file is empty in the openvas_log.conf.
+  // No log file was specified, log file is empty or set to "-" then
   // stderr will be used as default later on. See gvm_log_func.
-  if (!log_file)
-    return 0;
-  if (!g_strcmp0 (log_file, ""))
+  if (!log_file || g_ascii_strcasecmp (log_file, "-") == 0
+      || !g_strcmp0 (log_file, ""))
     return 0;
 
   // If syslog is used we do not need to check the log file permissions.
@@ -915,18 +906,10 @@ set_log_tz (const gchar *tz)
   log_tz = tz ? g_strdup (tz) : NULL;
 }
 
-/**
- * @brief Sets up routing of logdomains to log handlers.
- *
- * Iterates over the link list and adds the groups to the handler.
- *
- * @param gvm_log_config_list A pointer to the configuration linked list.
- *
- * @return 0 on success, -1 if not able to create log file directory or open log
- * file for some domain.
- */
-int
-setup_log_handlers (GSList *gvm_log_config_list)
+static int
+setup_log_handlers_internal (GSList *gvm_log_config_list, GLogFunc log_func,
+                             GLogFunc default_log_func,
+                             GLogFunc default_domain_log_func)
 {
   GSList *log_domain_list_tmp;
   int err;
@@ -939,7 +922,7 @@ setup_log_handlers (GSList *gvm_log_config_list)
 
       while (log_domain_list_tmp != NULL)
         {
-          gvm_logging_t *log_domain_entry;
+          gvm_logging_domain_t *log_domain_entry;
 
           /* Get the list data which is an gvm_logging_t struct. */
           log_domain_entry = log_domain_list_tmp->data;
@@ -953,26 +936,20 @@ setup_log_handlers (GSList *gvm_log_config_list)
               continue;
             }
 
-          GLogFunc logfunc =
-#if 0
-            (!strcmp (log_domain_entry, "syslog")) ? gvm_syslog_func :
-#endif
-            gvm_log_func;
-
-          if (g_ascii_strcasecmp (log_domain_entry->log_domain, "*"))
+          if (g_ascii_strcasecmp (
+                gvm_logging_domain_get_log_domain (log_domain_entry), "*"))
             {
               g_log_set_handler (
-                log_domain_entry->log_domain,
+                gvm_logging_domain_get_log_domain (log_domain_entry),
                 (GLogLevelFlags) (G_LOG_LEVEL_DEBUG | G_LOG_LEVEL_INFO
                                   | G_LOG_LEVEL_MESSAGE | G_LOG_LEVEL_WARNING
                                   | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR
                                   | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION),
-                (GLogFunc) logfunc, gvm_log_config_list);
+                (GLogFunc) log_func, gvm_log_config_list);
             }
           else
             {
-              g_log_set_default_handler ((GLogFunc) logfunc,
-                                         gvm_log_config_list);
+              g_log_set_default_handler (default_log_func, gvm_log_config_list);
             }
 
           /* Go to the next item. */
@@ -985,7 +962,24 @@ setup_log_handlers (GSList *gvm_log_config_list)
                       | G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL
                       | G_LOG_LEVEL_ERROR | G_LOG_FLAG_FATAL
                       | G_LOG_FLAG_RECURSION),
-    (GLogFunc) gvm_log_func, gvm_log_config_list);
+    default_domain_log_func, gvm_log_config_list);
 
   return ret;
+}
+
+/**
+ * @brief Sets up routing of logdomains to log handlers.
+ *
+ * Iterates over the link list and adds the groups to the handler.
+ *
+ * @param gvm_log_config_list A pointer to the configuration linked list.
+ *
+ * @return 0 on success, -1 if not able to create log file directory or open log
+ * file for some domain.
+ */
+int
+setup_log_handlers (GSList *gvm_log_config_list)
+{
+  return setup_log_handlers_internal (gvm_log_config_list, gvm_log_func,
+                                      gvm_log_func, gvm_log_func);
 }
