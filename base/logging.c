@@ -60,6 +60,9 @@ get_time (gchar *time_fmt)
   struct tm ts;
   gchar buf[80], *original_tz;
 
+  if (!time_fmt)
+    return NULL;
+
   if (log_tz)
     {
       original_tz = getenv ("TZ") ? g_strdup (getenv ("TZ")) : NULL;
@@ -594,6 +597,10 @@ gvm_log_func (const char *log_domain, GLogLevelFlags log_level,
            * Store it in a tmp var.
            */
           prepend_tmp1 = get_time (time_format);
+          if (!prepend_tmp1)
+            {
+              prepend_tmp1 = g_strdup ("");
+            }
           /* Use g_strdup. New string returned. Store it in a tmp var until
            * we free the old one.
            */

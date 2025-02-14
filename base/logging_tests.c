@@ -298,6 +298,11 @@ Ensure (logging, should_setup_log_handlers_with_domain_handler)
   g_remove (config_file);
 }
 
+Ensure (logging, should_get_time_for_null)
+{
+  assert_that (get_time (NULL), is_null);
+}
+
 static TestSuite *
 logging_test_suite ()
 {
@@ -313,6 +318,9 @@ logging_test_suite ()
                          should_setup_log_handlers_with_default_domain_handler);
   add_test_with_context (suite, logging,
                          should_setup_log_handlers_with_domain_handler);
+  add_test_with_context (suite, logging,
+                         should_setup_log_handlers_with_domain_handler);
+  add_test_with_context (suite, logging, should_get_time_for_null);
   return suite;
 }
 
