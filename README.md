@@ -4,6 +4,7 @@
 
 [![GitHub releases](https://img.shields.io/github/release/greenbone/gvm-libs.svg)](https://github.com/greenbone/gvm-libs/releases)
 [![Build and test C](https://github.com/greenbone/gvm-libs/actions/workflows/ci-c.yml/badge.svg)](https://github.com/greenbone/gvm-libs/actions/workflows/ci-c.yml)
+[![codecov](https://codecov.io/gh/greenbone/gvm-libs/graph/badge.svg?token=OUojGTMBgP)](https://codecov.io/gh/greenbone/gvm-libs)
 
 This is the libraries module for the Greenbone Community Edition.
 
