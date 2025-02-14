@@ -254,24 +254,26 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
                      openvasd-test
                      osp-test
                      passwordbasedauthentication-test
+                     test-hosts
                      util-test
                      version-test
                      versionutils-test
+                     vtparser-test
                      xmlutils-test)
 
+  # Code coverage
+  if (ENABLE_COVERAGE)
+    add_custom_target (coverage-html
+                      COMMAND gcovr --html-details ${COVERAGE_DIR}/coverage.html
+                      -r ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} DEPENDS tests)
+    add_custom_target (coverage-xml
+                      COMMAND gcovr --xml ${COVERAGE_DIR}/coverage.xml
+                      -r ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} DEPENDS tests)
+    add_custom_target (coverage DEPENDS coverage-xml coverage-html)
+
+  endif (ENABLE_COVERAGE)
 endif (BUILD_TESTS AND NOT SKIP_SRC)
 
-# Code coverage
-
-if (ENABLE_COVERAGE)
-  add_custom_target (coverage-html
-                     COMMAND gcovr --html-details ${COVERAGE_DIR}/coverage.html
-                     -r ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
-  add_custom_target (coverage-xml
-                     COMMAND gcovr --xml ${COVERAGE_DIR}/coverage.xml
-                     -r ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
-  add_custom_target (coverage DEPENDS coverage-xml coverage-html)
-endif (ENABLE_COVERAGE)
 
 add_custom_target (clean-coverage
                    COMMAND find . -name *.gcda -delete -or -name *.gcno -delete
