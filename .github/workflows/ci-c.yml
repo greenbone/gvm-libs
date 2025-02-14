@@ -41,7 +41,7 @@ jobs:
           cmake --build build -- install
       - name: Test gvm-libs
         run: |
-          CTEST_OUTPUT_ON_FAILURE=1 cmake --build build -- tests test
+          CTEST_OUTPUT_ON_FAILURE=1 cmake --build build -- tests test coverage-xml
       - name: Upload test coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
