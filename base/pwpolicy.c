@@ -241,7 +241,8 @@ parse_pattern_line (char *line, const char *fname, int lineno, char **descp,
   else if (*line == '#' && line[1] == '+') /* Processing instruction.  */
     {
       line += 2;
-      if ((p = is_keyword (line, "desc")))
+      p = is_keyword (line, "desc");
+      if (p)
         {
           g_free (*descp);
           if (*p)
