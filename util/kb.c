@@ -251,7 +251,8 @@ parse_port_of_addr (const char *addr, int tcp_indicator_len)
 {
   char *tmp;
   int is_ip_v6;
-  if ((tmp = rindex (addr + tcp_indicator_len, ':')) == NULL)
+  tmp = rindex (addr + tcp_indicator_len, ':');
+  if (tmp == NULL)
     return NULL;
   is_ip_v6 = addr[tcp_indicator_len] == '[';
   if (is_ip_v6 && (tmp - 1)[0] != ']')
@@ -276,7 +277,8 @@ connect_redis (const char *addr, int len)
   if (memcmp (addr, tcp_indicator, tcp_indicator_len) != 0)
     goto unix_connect;
   host_len = len - tcp_indicator_len;
-  if ((tmp = parse_port_of_addr (addr, tcp_indicator_len)) == NULL)
+  tmp = parse_port_of_addr (addr, tcp_indicator_len);
+  if (tmp == NULL)
     port = redis_default_port;
   else
     {
@@ -475,7 +477,8 @@ redis_new (kb_t *kb, const char *kb_path)
   kbr->kb.kb_ops = &KBRedisOperations;
   kbr->path = g_strdup (kb_path);
 
-  if ((rc = get_redis_ctx (kbr)) < 0)
+  rc = get_redis_ctx (kbr);
+  if (rc < 0)
     {
       redis_delete ((kb_t) kbr);
       return rc;

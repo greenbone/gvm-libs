@@ -78,9 +78,11 @@ cmp_versions (const char *version1, const char *version2)
       return (0);
     }
 
-  if ((release_state1 = get_release_state (ver1, index1)))
+  release_state1 = get_release_state (ver1, index1);
+  if (release_state1)
     index1++;
-  if ((release_state2 = get_release_state (ver2, index2)))
+  release_state2 = get_release_state (ver2, index2);
+  if (release_state2)
     index2++;
 
   part1 = get_part (ver1, index1);
