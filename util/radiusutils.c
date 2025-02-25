@@ -118,7 +118,8 @@ radius_init (const char *hostname, const char *secret)
     }
   unlink (config_filename);
 #else  // defined(RADIUS_AUTH_RADCLI)
-  if ((rh = rc_new ()) == NULL)
+  rh = rc_new ();
+  if (rh == NULL)
     {
       g_warning ("radius_init: Couldn't allocate memory");
       return NULL;

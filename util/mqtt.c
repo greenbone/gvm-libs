@@ -474,8 +474,8 @@ mqtt_client_publish (mqtt_t *mqtt, const char *topic, const char *msg)
       return -2;
     }
 
-  if ((rc = MQTTClient_waitForCompletion (client, token, TIMEOUT))
-      != MQTTCLIENT_SUCCESS)
+  rc = MQTTClient_waitForCompletion (client, token, TIMEOUT);
+  if (rc != MQTTCLIENT_SUCCESS)
     {
       g_debug ("Message '%s' with delivery token %d could not be "
                "published on topic %s",
@@ -759,7 +759,8 @@ mqtt_retrieve_message_r (mqtt_t *mqtt, char **topic, int *topic_len,
                    (char *) message->payload, message->payloadlen, tmp,
                    *topic_len);
 
-          if ((*topic = calloc (1, *topic_len)) == NULL)
+          *topic = calloc (1, *topic_len);
+          if (*topic == NULL)
             {
               goto exit;
             }
