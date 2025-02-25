@@ -949,7 +949,8 @@ get_routes (void)
 
       interface = g_strndup (items_in_line[0], 64);
       /* Cut interface str after ":" if IP aliasing is used. */
-      if ((char_p = strchr (interface, ':')))
+      char_p = strchr (interface, ':');
+      if (char_p)
         {
           *char_p = '\0';
         }
@@ -1292,7 +1293,8 @@ gvm_get_outgoing_iface (struct sockaddr_storage *target_addr)
     return NULL;
 
   // get a connected udp socket
-  if ((sockfd = get_connected_udp_sock (target_addr)) < 0)
+  sockfd = get_connected_udp_sock (target_addr);
+  if (sockfd < 0)
     return NULL;
   // get socked address which is the addr of the interface we want to get
   out_iface_addr.ss_family = family;
