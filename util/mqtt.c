@@ -185,19 +185,10 @@ mqtt_disconnect (mqtt_t *mqtt)
 static void
 mqtt_client_destroy (mqtt_t *mqtt)
 {
-  if (mqtt == NULL)
-    return;
-
-  MQTTClient client;
-  client = (MQTTClient) mqtt->client;
-
-  if (client != NULL)
-    {
-      MQTTClient_destroy (&client);
-      client = NULL;
-    }
-
-  return;
+  if (mqtt && mqtt->client) {
+    MQTTClient_destroy (&mqtt->client);
+    mqtt->client = NULL;
+  }
 }
 
 /**
