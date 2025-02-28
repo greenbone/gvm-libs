@@ -1039,8 +1039,7 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
   */
 
   err = gnutls_priority_set_direct (*server_session,
-                                    priority ? priority : "NORMAL",
-                                    NULL);
+                                    priority ? priority : "NORMAL", NULL);
   if (err)
     {
       g_warning ("%s: failed to set tls priorities: %s\n", __func__,
