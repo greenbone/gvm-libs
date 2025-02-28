@@ -354,6 +354,7 @@ mqtt_connect (mqtt_t *mqtt, const char *server_uri, const char *username,
 
   mqtt_set_client (mqtt, client);
 
+  MQTTResponse_free (resp);
   return 0;
 }
 
@@ -489,6 +490,7 @@ mqtt_client_publish (mqtt_t *mqtt, const char *topic, const char *msg)
                msg, token, topic);
     }
 
+  MQTTResponse_free (resp);
   return rc;
 }
 
@@ -640,8 +642,10 @@ mqtt_subscribe_r (mqtt_t *mqtt, int qos, const char *topic)
     MQTTClient_subscribe5 (mqtt->client, topic, qos, &opts, &props);
   if (resp.reasonCode != MQTTREASONCODE_GRANTED_QOS_1)
     {
+      MQTTResponse_free (resp);
       return -2;
     }
+  MQTTResponse_free (resp);
   return 0;
 }
 
