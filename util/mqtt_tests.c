@@ -12,7 +12,8 @@
 #include <cgreen/mocks.h>
 
 void
-MQTTClient_destroy (MQTTClient *client) {
+MQTTClient_destroy (MQTTClient *client)
+{
   (void) client;
 }
 

@@ -185,10 +185,11 @@ mqtt_disconnect (mqtt_t *mqtt)
 static void
 mqtt_client_destroy (mqtt_t *mqtt)
 {
-  if (mqtt && mqtt->client) {
-    MQTTClient_destroy (&mqtt->client);
-    mqtt->client = NULL;
-  }
+  if (mqtt && mqtt->client)
+    {
+      MQTTClient_destroy (&mqtt->client);
+      mqtt->client = NULL;
+    }
 }
 
 /**
@@ -720,12 +721,13 @@ mqtt_unsubscribe (const char *topic)
  *                    application by setting <i>topic</i> to point to the topic.
  * @param[out] topic_len  The length of the topic.
  * @param[out] payload    The address of a pointer to the received message. This
- *                        function allocates the memory for the payload and returns
- *                        it to the application by setting <i>payload</i> to point
- *                        to the received message.
+ *                        function allocates the memory for the payload and
+ *                        returns it to the application by setting
+ *                        <i>payload</i> to point to the received message.
  *                        The pointer is set to NULL if the timeout expires.
  * @param[out] payload_len  The length of the payload.
- * @param      timeout      The length of time to wait for a message in milliseconds.
+ * @param      timeout      The length of time to wait for a message in
+ *                          milliseconds.
  *
  * @return 0 on message retrieved, 1 on no message retrieved and -1 on an error.
  */
@@ -811,17 +813,18 @@ exit:
  * <b>Important note:</b> The application must free() the memory allocated
  * to the topic and payload when processing is complete.
  *
- * @param[out] topic   The address of a pointer to a topic. This function
- *                     allocates the memory for the topic and returns it to the
- *                     application by setting <i>topic</i> to point to the topic.
+ * @param[out] topic  The address of a pointer to a topic. This function
+ *                    allocates the memory for the topic and returns it to the
+ *                    application by setting <i>topic</i> to point to the topic.
  * @param[out] topic_len  The length of the topic.
  * @param[out] payload    The address of a pointer to the received message. This
- *                        function allocates the memory for the payload and returns
- *                        it to the application by setting <i>payload</i> to point
- *                        to the received message.
+ *                        function allocates the memory for the payload and
+ *                        returns it to the application by setting
+ *                        <i>payload</i> to point to the received message.
  *                        The pointer is set to NULL if the timeout expires.
  * @param[out] payload_len  The length of the payload.
- * @param      timeout      The length of time to wait for a message in milliseconds.
+ * @param      timeout      The length of time to wait for a message in
+ *                          milliseconds.
  *
  * @return 0 on message retrieved, 1 on timeout and -1 on an error.
  */
