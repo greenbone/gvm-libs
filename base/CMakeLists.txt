@@ -102,6 +102,7 @@ if (BUILD_TESTS)
 
   set (NETWORKING_TEST_LINKER_WRAP_OPTIONS "-Wl,-wrap,g_io_channel_new_file,-wrap,g_io_channel_shutdown")
   add_unit_test (networking-test networking_tests.c gvm_base_shared ${CGREEN_LIBRARIES} ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS} ${NETWORKING_TEST_LINKER_WRAP_OPTIONS})
+  add_unit_test (pwpolicy-test pwpolicy_tests.c ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
   add_unit_test (version-test version_tests.c ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
   add_unit_test (nvti-test nvti_tests.c ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})
   add_unit_test (hosts-test hosts_tests.c gvm_base_shared gvm_util_shared ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS})

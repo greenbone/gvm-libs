@@ -1053,7 +1053,8 @@ gvm_hosts_deduplicate (gvm_hosts_t *hosts)
     {
       gchar *name;
 
-      if ((name = gvm_host_value_str (hosts->hosts[i])))
+      name = gvm_host_value_str (hosts->hosts[i]);
+      if (name)
         {
           gvm_host_t *host, *removed = hosts->hosts[i];
 
@@ -1589,7 +1590,8 @@ gvm_hosts_exclude_with_max (gvm_hosts_t *hosts, const char *excluded_str,
     {
       gchar *name;
 
-      if ((name = gvm_host_value_str (excluded_hosts->hosts[i])))
+      name = gvm_host_value_str (excluded_hosts->hosts[i]);
+      if (name)
         g_hash_table_insert (name_table, name, hosts);
     }
 
@@ -1598,7 +1600,8 @@ gvm_hosts_exclude_with_max (gvm_hosts_t *hosts, const char *excluded_str,
     {
       gchar *name;
 
-      if ((name = gvm_host_value_str (hosts->hosts[i])))
+      name = gvm_host_value_str (hosts->hosts[i]);
+      if (name)
         {
           if (g_hash_table_lookup (name_table, name))
             {
@@ -1667,7 +1670,8 @@ gvm_hosts_allowed_only (gvm_hosts_t *hosts, const char *deny_hosts_str,
         {
           gchar *name;
 
-          if ((name = gvm_host_value_str (denied_hosts->hosts[i])))
+          name = gvm_host_value_str (denied_hosts->hosts[i]);
+          if (name)
             g_hash_table_insert (name_deny_table, name, hosts);
         }
     }
@@ -1682,7 +1686,8 @@ gvm_hosts_allowed_only (gvm_hosts_t *hosts, const char *deny_hosts_str,
         {
           gchar *name;
 
-          if ((name = gvm_host_value_str (allowed_hosts->hosts[i])))
+          name = gvm_host_value_str (allowed_hosts->hosts[i]);
+          if (name)
             g_hash_table_insert (name_allow_table, name, hosts);
         }
     }
@@ -1693,7 +1698,8 @@ gvm_hosts_allowed_only (gvm_hosts_t *hosts, const char *deny_hosts_str,
     {
       gchar *name;
 
-      if ((name = gvm_host_value_str (hosts->hosts[i])))
+      name = gvm_host_value_str (hosts->hosts[i]);
+      if (name)
         {
           if (denied_hosts != NULL
               && g_hash_table_lookup (name_deny_table, name))
@@ -2022,7 +2028,8 @@ gvm_hosts_reverse_lookup_unify_excluded (gvm_hosts_t *hosts)
     {
       gchar *name;
 
-      if ((name = gvm_host_reverse_lookup (hosts->hosts[i])))
+      name = gvm_host_reverse_lookup (hosts->hosts[i]);
+      if (name)
         {
           if (g_hash_table_lookup (name_table, name))
             {

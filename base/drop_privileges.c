@@ -64,9 +64,10 @@ drop_privileges (gchar *username, GError **error)
 
   if (geteuid () == 0)
     {
-      struct passwd *user_pw = NULL;
+      struct passwd *user_pw;
 
-      if ((user_pw = getpwnam (username)))
+      user_pw = getpwnam (username);
+      if (user_pw)
         {
           if (initgroups (username, user_pw->pw_gid) != 0)
             return drop_privileges_error (
