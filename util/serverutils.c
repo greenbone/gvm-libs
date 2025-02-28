@@ -1022,7 +1022,7 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
                        gnutls_session_t *server_session,
                        gnutls_certificate_credentials_t *server_credentials)
 {
-  int err_gnutls;
+  int err;
 
   if (gnutls_init (server_session, end_type))
     {
@@ -1038,13 +1038,13 @@ server_new_gnutls_set (unsigned int end_type, const char *priority,
      is chosen.
   */
 
-  err_gnutls = gnutls_priority_set_direct (*server_session,
-                                           priority ? priority : "NORMAL",
-                                           NULL);
-  if (err_gnutls)
+  err = gnutls_priority_set_direct (*server_session,
+                                    priority ? priority : "NORMAL",
+                                    NULL);
+  if (err)
     {
       g_warning ("%s: failed to set tls priorities: %s\n", __func__,
-                 gnutls_strerror (err_gnutls));
+                 gnutls_strerror (err));
       gnutls_deinit (*server_session);
       return -1;
     }
