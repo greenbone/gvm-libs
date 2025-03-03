@@ -164,6 +164,9 @@ if (BUILD_TESTS)
                  ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
                  ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
                  ${LINKER_HARDENING_FLAGS})
+  add_unit_test (mqtt-test mqtt_tests.c gvm_util_shared gvm_base_shared
+                 ${GLIB_LDFLAGS} ${LIBPAHO_LDFLAGS} ${UUID_LDFLAGS}
+                 ${LINKER_HARDENING_FLAGS})
   add_unit_test (kb-test kb_tests.c gvm_base_shared ${GLIB_LDFLAGS} ${REDIS_LDFLAGS}
                  ${LINKER_HARDENING_FLAGS})
   add_unit_test (versionutils-test versionutils_tests.c

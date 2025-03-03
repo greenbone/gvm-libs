@@ -52,7 +52,7 @@ static gboolean mqtt_initialized = FALSE;
 /**
  * @brief Set the global init status.
 
- * @param status Status of initialization.
+ * @param status  Status of initialization.
  */
 static void
 mqtt_set_initialized_status (gboolean status)
@@ -74,7 +74,7 @@ mqtt_is_initialized ()
 /**
  * @brief Set the global mqtt server URI.
 
- * @param server_uri_in Server uri to set.
+ * @param server_uri_in  Server uri to set.
  */
 static void
 mqtt_set_global_server_uri (const char *server_uri_in)
@@ -96,7 +96,7 @@ mqtt_get_global_server_uri ()
 /**
  * @brief Set the global mqtt username.
 
- * @param username to set.
+ * @param username  to set.
  */
 static void
 mqtt_set_global_username (const char *username)
@@ -116,7 +116,7 @@ mqtt_get_global_username ()
 /**
  * @brief Set the global mqtt password.
 
- * @param password to set.
+ * @param password  to set.
  */
 static void
 mqtt_set_global_password (const char *password)
@@ -179,25 +179,17 @@ mqtt_disconnect (mqtt_t *mqtt)
 /**
  * @brief Destroy the MQTTClient client of the mqtt_t
  *
- * @param[in] mqtt mqtt_t handle.
+ * @param[in] mqtt  mqtt_t handle.
  *
  */
 static void
 mqtt_client_destroy (mqtt_t *mqtt)
 {
-  if (mqtt == NULL)
-    return;
-
-  MQTTClient client;
-  client = (MQTTClient) mqtt->client;
-
-  if (client != NULL)
+  if (mqtt && mqtt->client)
     {
-      MQTTClient_destroy (&client);
-      client = NULL;
+      MQTTClient_destroy (&mqtt->client);
+      mqtt->client = NULL;
     }
-
-  return;
 }
 
 /**
@@ -237,8 +229,8 @@ mqtt_reset ()
 /**
  * @brief Create a new mqtt client.
  *
- * @param mqtt  mqtt_t
- * @param address address of the broker
+ * @param mqtt     mqtt_t
+ * @param address  Address of the broker
  *
  * @return MQTTClient or NULL on error.
  */
@@ -269,7 +261,7 @@ mqtt_create (mqtt_t *mqtt, const char *address)
 /**
  * @brief Set a random client ID.
  *
- * @param mqtt mqtt_t
+ * @param mqtt  mqtt_t
  *
  * @return Client ID which was set, NULL on failure.
  */
@@ -447,9 +439,9 @@ mqtt_reinit ()
 /**
  * @brief Use the provided client to publish message on a topic
  *
- * @param mqtt  mqtt_t
- * @param topic Topic to publish on.
- * @param msg   Message to publish on queue.
+ * @param mqtt   mqtt_t
+ * @param topic  Topic to publish on.
+ * @param msg    Message to publish on queue.
  *
  * @return 0 on success, <0 on failure.
  */
@@ -497,8 +489,8 @@ mqtt_client_publish (mqtt_t *mqtt, const char *topic, const char *msg)
 /**
  * @brief Publish a message on topic using the global client
  *
- * @param topic topic
- * @param msg   message
+ * @param topic  topic
+ * @param msg    message
  *
  * @return 0 on success, <0 on error.
  */
@@ -525,9 +517,9 @@ mqtt_publish (const char *topic, const char *msg)
  * This function should not be chosen for repeated and frequent messaging. Its
  * meant for error messages and the likes emitted by openvas.
  *
- * @param server_uri_in Server URI
- * @param topic         Topic to publish to
- * @param msg           Message to publish
+ * @param server_uri_in  Server URI
+ * @param topic          Topic to publish to
+ * @param msg            Message to publish
  *
  * @return 0 on success, <0 on failure.
  */
@@ -546,11 +538,11 @@ mqtt_publish_single_message (const char *server_uri_in, const char *topic,
  * This function should not be chosen for repeated and frequent messaging. Its
  * meant for error messages and the likes emitted by openvas.
  *
- * @param server_uri_in Server URI
- * @param username_in   Username
- * @param passwd_in     Password
- * @param topic         Topic to publish to
- * @param msg           Message to publish
+ * @param server_uri_in  Server URI
+ * @param username_in    Username
+ * @param passwd_in      Password
+ * @param topic          Topic to publish to
+ * @param msg            Message to publish
  *
  * @return 0 on success, <0 on failure.
  */
@@ -622,8 +614,8 @@ mqtt_publish_single_message_auth (const char *server_uri_in,
  * To be able to subscribe to a topic the client needs to be connected to a
  * broker.
  *
- * @param mqtt   contains the mqtt client
- * @param qos    quality of service of messages within topic
+ * @param mqtt   Contains the mqtt client
+ * @param qos    Quality of service of messages within topic
  * @param topic  Topic to subscribe to
  *
  * @return 0 on success, -1 when given mqtt is not useable, -2 when subscription
@@ -659,7 +651,7 @@ mqtt_subscribe_r (mqtt_t *mqtt, int qos, const char *topic)
  * broker. To do that call `mqtt_init` before `mqtt_subscribe`.
  *
  *
- * @param topic         Topic to subscribe to
+ * @param topic  Topic to subscribe to
  *
  * @return 0 on success, -1 when mqtt is not initialized, -2 when subscription
  * failed.
@@ -677,7 +669,7 @@ mqtt_subscribe (const char *topic)
  *
  * This function unsubscribes given client from a given topic.
  *
- * @param mqtt   contains the mqtt client
+ * @param mqtt   Contains the mqtt client
  * @param topic  Topic to unsubscribe from
  *
  * @return 0 on success, -1 when given mqtt is not useable, -2 when unsubscribe
@@ -704,7 +696,7 @@ mqtt_unsubscribe_r (mqtt_t *mqtt, const char *topic)
  *
  * This function unsubscribes global client from a given topic.
  *
- * @param topic         Topic to unsubscribe from
+ * @param topic  Topic to unsubscribe from
  *
  * @return 0 on success, -1 when given mqtt is not useable, -2 when unsubscribe
  * failed.
@@ -726,17 +718,21 @@ mqtt_unsubscribe (const char *topic)
  *
  * <b>Important note:</b> The application must free() the memory allocated
  * to the topic and payload when processing is complete.
- * @param mqtt an already created and connected mqtt client.
- * @param[out] topic The address of a pointer to a topic. This function
- * allocates the memory for the topic and returns it to the application
- * by setting <i>topic</i> to point to the topic.
- * @param[out] topic_len The length of the topic.
- * @param[out] payload The address of a pointer to the received message. This
- * function allocates the memory for the payload and returns it to the
- * application by setting <i>payload</i> to point to the received message.
- * The pointer is set to NULL if the timeout expires.
- * @param[out] payload_len The length of the payload.
- * @param timeout The length of time to wait for a message in milliseconds.
+ *
+ * @param      mqtt   An already created and connected mqtt client.
+ * @param[out] topic  The address of a pointer to a topic. This function
+ *                    allocates the memory for the topic and returns it to the
+ *                    application by setting <i>topic</i> to point to the topic.
+ * @param[out] topic_len  The length of the topic.
+ * @param[out] payload    The address of a pointer to the received message. This
+ *                        function allocates the memory for the payload and
+ *                        returns it to the application by setting
+ *                        <i>payload</i> to point to the received message.
+ *                        The pointer is set to NULL if the timeout expires.
+ * @param[out] payload_len  The length of the payload.
+ * @param      timeout      The length of time to wait for a message in
+ *                          milliseconds.
+ *
  * @return 0 on message retrieved, 1 on no message retrieved and -1 on an error.
  */
 static int
@@ -820,16 +816,20 @@ exit:
  *
  * <b>Important note:</b> The application must free() the memory allocated
  * to the topic and payload when processing is complete.
- * @param[out] topic The address of a pointer to a topic. This function
- * allocates the memory for the topic and returns it to the application
- * by setting <i>topic</i> to point to the topic.
- * @param[out] topic_len The length of the topic.
- * @param[out] payload The address of a pointer to the received message. This
- * function allocates the memory for the payload and returns it to the
- * application by setting <i>payload</i> to point to the received message.
- * The pointer is set to NULL if the timeout expires.
- * @param[out] payload_len The length of the payload.
- * @param timeout The length of time to wait for a message in milliseconds.
+ *
+ * @param[out] topic  The address of a pointer to a topic. This function
+ *                    allocates the memory for the topic and returns it to the
+ *                    application by setting <i>topic</i> to point to the topic.
+ * @param[out] topic_len  The length of the topic.
+ * @param[out] payload    The address of a pointer to the received message. This
+ *                        function allocates the memory for the payload and
+ *                        returns it to the application by setting
+ *                        <i>payload</i> to point to the received message.
+ *                        The pointer is set to NULL if the timeout expires.
+ * @param[out] payload_len  The length of the payload.
+ * @param      timeout      The length of time to wait for a message in
+ *                          milliseconds.
+ *
  * @return 0 on message retrieved, 1 on timeout and -1 on an error.
  */
 int
