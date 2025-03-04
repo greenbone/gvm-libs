@@ -169,6 +169,9 @@ if (BUILD_TESTS)
                  ${LINKER_HARDENING_FLAGS})
   add_unit_test (kb-test kb_tests.c gvm_base_shared ${GLIB_LDFLAGS} ${REDIS_LDFLAGS}
                  ${LINKER_HARDENING_FLAGS})
+  add_unit_test (serverutils-test serverutils_tests.c gvm_util_shared gvm_base_shared
+                 ${GLIB_LDFLAGS} ${GCRYPT_LDFLAGS} ${GNUTLS_LDFLAGS}
+                 ${LINKER_HARDENING_FLAGS})
   add_unit_test (versionutils-test versionutils_tests.c
                  ${GLIB_LDFLAGS} ${GIO_LDFLAGS} ${GPGME_LDFLAGS} ${ZLIB_LDFLAGS}
                  ${RADIUS_LDFLAGS} ${LIBSSH_LDFLAGS} ${GNUTLS_LDFLAGS}
