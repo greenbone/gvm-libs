@@ -838,8 +838,7 @@ parse_results (const gchar *body, GSList **results)
       goto res_cleanup;
 
     item = cJSON_GetObjectItem (result_obj, "detail");
-    if (item != NULL
-        && cJSON_IsObject (item))
+    if (item != NULL && cJSON_IsObject (item))
       {
         cJSON *detail_obj = NULL;
 
@@ -851,21 +850,21 @@ parse_results (const gchar *body, GSList **results)
           {
             detail_source_type = gvm_json_obj_str (detail_obj, "type");
             detail_source_name = gvm_json_obj_str (detail_obj, "name");
-            detail_source_description = gvm_json_obj_str (detail_obj, "description");
+            detail_source_description =
+              gvm_json_obj_str (detail_obj, "description");
           }
       }
 
-    result = openvasd_result_new (gvm_json_obj_double (result_obj, "id"),
-                                  gvm_json_obj_str (result_obj, "type"),
-                                  gvm_json_obj_str (result_obj, "ip_address"),
-                                  gvm_json_obj_str (result_obj, "hostname"),
-                                  gvm_json_obj_str (result_obj, "oid"),
-                                  gvm_json_obj_int (result_obj, "port"),
-                                  gvm_json_obj_str (result_obj, "protocol"),
-                                  gvm_json_obj_str (result_obj, "message"),
-                                  detail_name, detail_value,
-                                  detail_source_type, detail_source_name,
-                                  detail_source_description);
+    result = openvasd_result_new (
+      gvm_json_obj_double (result_obj, "id"),
+      gvm_json_obj_str (result_obj, "type"),
+      gvm_json_obj_str (result_obj, "ip_address"),
+      gvm_json_obj_str (result_obj, "hostname"),
+      gvm_json_obj_str (result_obj, "oid"),
+      gvm_json_obj_int (result_obj, "port"),
+      gvm_json_obj_str (result_obj, "protocol"),
+      gvm_json_obj_str (result_obj, "message"), detail_name, detail_value,
+      detail_source_type, detail_source_name, detail_source_description);
 
     *results = g_slist_append (*results, result);
     ret = 200;
@@ -1012,8 +1011,7 @@ openvasd_get_scan_progress_ext (openvasd_connector_t conn,
   // read progress of single running hosts
   cJSON *scanning;
   scanning = cJSON_GetObjectItem (reader, "scanning");
-  if (scanning != NULL
-      && cJSON_IsObject (scanning))
+  if (scanning != NULL && cJSON_IsObject (scanning))
     {
       cJSON *host = scanning->child;
       while (host)
@@ -1251,6 +1249,97 @@ openvasd_get_health_started (openvasd_connector_t conn)
 }
 
 openvasd_resp_t
+openvasd_get_performance (openvasd_connector_t conn,
+                          openvasd_get_performance_opts_t opts)
+{
+  openvasd_resp_t response;
+  gchar *err = NULL;
+  gchar *query;
+  CURL *hnd;
+  struct curl_slist *customheader;
+  time_t now;
+
+  time (&now);
+
+  response = g_malloc0 (sizeof (struct openvasd_response));
+
+  if (!opts.titles || !strcmp (opts.titles, "") || opts.start < 0
+      || opts.start > now || opts.end < 0 || opts.end > now)
+    {
+      response->code = RESP_CODE_ERR;
+      response->body =
+        g_strdup ("{\"error\": \"Couldn't send get_performance command "
+                  "to scanner. Bad or missing parameters.\"}");
+      return response;
+    }
+
+  query = g_strdup_printf ("/health/performance?start=%d&end=%d&titles=%s",
+                     opts.start, opts.end, opts.titles);
+  customheader = init_customheader (conn->apikey, FALSE);
+  hnd = handler (conn, GET, query, NULL, customheader, &err);
+  if (hnd == NULL)
+    {
+      curl_slist_free_all (customheader);
+      response->code = RESP_CODE_ERR;
+      response->body = err;
+      return response;
+    }
+
+  openvasd_send_request (hnd, NULL, response);
+  curl_slist_free_all (customheader);
+  if (response->code != RESP_CODE_ERR)
+    response->body = g_strdup (openvasd_vt_stream_str (conn));
+  else
+    {
+      response->body = g_strdup (
+        "{\"error\": \"Not possible to get performance information.\"}");
+      g_warning ("%s: Not possible to get performance information", __func__);
+    }
+
+  openvasd_reset_vt_stream (conn);
+  return response;
+}
+
+int
+openvasd_parsed_performance (openvasd_connector_t conn,
+                             openvasd_get_performance_opts_t opts,
+                             gchar **graph, gchar **err)
+{
+  openvasd_resp_t resp = NULL;
+  cJSON *parser;
+  cJSON *item;
+  int ret = 0;
+  resp = openvasd_get_performance (conn, opts);
+
+  // No results. No information.
+  parser = cJSON_Parse (resp->body);
+  if (parser == NULL)
+    {
+      *err = g_strdup ("Unable to parse sensor performance data");
+      ret = -1;
+    }
+  else if (resp->code != 200)
+    {
+      parser = cJSON_Parse (resp->body);
+      item = cJSON_GetObjectItem (parser, "error");
+      if (item != NULL)
+        *err = g_strdup (cJSON_GetStringValue (item));
+      ret = -1;
+    }
+  else
+    {
+      item = cJSON_GetArrayItem (parser, 0);
+      if (item != NULL)
+        *graph = g_strdup (cJSON_GetStringValue (item));
+    }
+
+  openvasd_response_cleanup (resp);
+  cJSON_Delete (parser);
+
+  return ret;
+}
+
+openvasd_resp_t
 openvasd_get_scan_preferences (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
@@ -1456,12 +1545,11 @@ openvasd_parsed_scans_preferences (openvasd_connector_t conn, GSList **params)
           }
       }
 
-    param =
-      openvasd_param_new (g_strdup (gvm_json_obj_str (param_obj, "id")),
-                          g_strdup (gvm_json_obj_str (param_obj, "name")),
-                          g_strdup (defval),
-                          g_strdup (gvm_json_obj_str (param_obj, "description")),
-                          g_strdup (param_type), mandatory);
+    param = openvasd_param_new (
+      g_strdup (gvm_json_obj_str (param_obj, "id")),
+      g_strdup (gvm_json_obj_str (param_obj, "name")), g_strdup (defval),
+      g_strdup (gvm_json_obj_str (param_obj, "description")),
+      g_strdup (param_type), mandatory);
     g_free (defval);
     g_free (param_type);
     *params = g_slist_append (*params, param);

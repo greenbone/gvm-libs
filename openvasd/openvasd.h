@@ -110,6 +110,13 @@ struct openvasd_scan_status
   long response_code;
 };
 
+typedef struct
+{
+  int start;    /**< Start interval. */
+  int end;      /**< End interval. */
+  const gchar *titles; /**< Graph title. */
+} openvasd_get_performance_opts_t;
+
 typedef struct openvasd_response *openvasd_resp_t;
 
 typedef enum OPENVASD_RESULT_MEMBER_INT openvasd_result_member_int_t;
@@ -181,6 +188,13 @@ openvasd_resp_t openvasd_get_health_alive (openvasd_connector_t);
 openvasd_resp_t openvasd_get_health_ready (openvasd_connector_t);
 
 openvasd_resp_t openvasd_get_health_started (openvasd_connector_t);
+
+openvasd_resp_t openvasd_get_performance (openvasd_connector_t,
+                                          openvasd_get_performance_opts_t);
+int
+openvasd_parsed_performance (openvasd_connector_t,
+                             openvasd_get_performance_opts_t, gchar **,
+                             gchar **err);
 
 /* Scanner preferences */
 
