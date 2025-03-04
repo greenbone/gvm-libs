@@ -1007,7 +1007,7 @@ server_new_gnutls_init (gnutls_certificate_credentials_t *server_credentials)
 }
 
 /**
- * @brief Set the server credencials.
+ * @brief Set the server credentials.
  *
  * @param[in]  end_type Connection end type.
  * @param[in]  priority TLS priority to be set. If no one is given, NORMAL is
