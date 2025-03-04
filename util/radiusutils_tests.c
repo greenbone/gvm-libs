@@ -41,8 +41,7 @@ Ensure (radiusutils, radius_init)
 
 Ensure (radiusutils, radius_authenticate_returns_minus1)
 {
-  assert_that (radius_authenticate ("h", "s", "u", "p"),
-               is_equal_to (-1));
+  assert_that (radius_authenticate ("h", "s", "u", "p"), is_equal_to (-1));
 }
 
 #endif
@@ -58,7 +57,8 @@ main (int argc, char **argv)
 #ifdef ENABLE_RADIUS_AUTH
   add_test_with_context (suite, radiusutils, radius_init);
 #else
-  add_test_with_context (suite, radiusutils, radius_authenticate_returns_minus1);
+  add_test_with_context (suite, radiusutils,
+                         radius_authenticate_returns_minus1);
 #endif
 
   if (argc > 1)
