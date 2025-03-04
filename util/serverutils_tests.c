@@ -51,8 +51,8 @@ Ensure (serverutils, server_new_gnutls_set)
 
   chk (gnutls_x509_crt_set_version (cert, 3));
   chk (gnutls_x509_crt_set_serial (cert, serial, sizeof (serial)));
-  chk (gnutls_x509_crt_set_dn_by_oid(cert, GNUTLS_OID_X520_COMMON_NAME, 0,
-                                     "Eg", strlen ("Eg")));
+  chk (gnutls_x509_crt_set_dn_by_oid (cert, GNUTLS_OID_X520_COMMON_NAME, 0,
+                                      "Eg", strlen ("Eg")));
   chk (gnutls_x509_crt_set_issuer_dn (cert, "CN=Self-Signed Certificate", 0));
 
   chk (gnutls_x509_crt_set_activation_time (cert, time (NULL)));
