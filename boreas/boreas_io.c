@@ -94,7 +94,8 @@ send_limit_msg (int num_not_scanned_hosts)
     return -1;
 
   dbid = atoi (prefs_get ("ov_maindbid"));
-  if ((main_kb = kb_direct_conn (prefs_get ("db_address"), dbid)))
+  main_kb = kb_direct_conn (prefs_get ("db_address"), dbid);
+  if (main_kb)
     {
       char buf[256];
       g_snprintf (buf, 256,
@@ -439,9 +440,11 @@ send_dead_hosts_to_ospd_openvas (int count_dead_hosts)
 gchar *
 get_openvas_scan_id (const gchar *db_address, int db_id)
 {
-  kb_t main_kb = NULL;
+  kb_t main_kb;
   gchar *scan_id;
-  if ((main_kb = kb_direct_conn (db_address, db_id)))
+
+  main_kb = kb_direct_conn (db_address, db_id);
+  if (main_kb)
     {
       scan_id = kb_item_get_str (main_kb, ("internal/scanid"));
       kb_lnk_reset (main_kb);
