@@ -329,7 +329,8 @@ send_arp_v4 (const char *dst_str)
 
   if (srcip == INADDR_ANY)
     {
-      if ((uint32_t) -1 == (srcip = libnet_get_ipaddr4 (libnet)))
+      srcip = libnet_get_ipaddr4 (libnet);
+      if ((uint32_t) -1 == srcip)
         {
           g_warning ("%s: Unable to get the IPv4 address of default "
                      "interface %s: %s. Address '%s' will be skipped.",

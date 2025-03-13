@@ -520,7 +520,8 @@ set_socket (socket_type_t socket_type, int *scanner_socket)
    * on pinging broadcast address */
   if (!error)
     {
-      if ((error = set_broadcast (soc)) != 0)
+      error = set_broadcast (soc);
+      if (error != 0)
         return error;
     }
 
@@ -542,30 +543,38 @@ set_all_needed_sockets (scanner_t *scanner, alive_test_t alive_test)
   boreas_error_t error = NO_ERROR;
   if (alive_test & ALIVE_TEST_ICMP)
     {
-      if ((error = set_socket (ICMPV4, &(scanner->icmpv4soc))) != 0)
+      error = set_socket (ICMPV4, &(scanner->icmpv4soc));
+      if (error != 0)
         return error;
-      if ((error = set_socket (ICMPV6, &(scanner->icmpv6soc))) != 0)
+      error = set_socket (ICMPV6, &(scanner->icmpv6soc));
+      if (error != 0)
         return error;
     }
 
   if ((alive_test & ALIVE_TEST_TCP_ACK_SERVICE)
       || (alive_test & ALIVE_TEST_TCP_SYN_SERVICE))
     {
-      if ((error = set_socket (TCPV4, &(scanner->tcpv4soc))) != 0)
+      error = set_socket (TCPV4, &(scanner->tcpv4soc));
+      if (error != 0)
         return error;
-      if ((error = set_socket (TCPV6, &(scanner->tcpv6soc))) != 0)
+      error = set_socket (TCPV6, &(scanner->tcpv6soc));
+      if (error != 0)
         return error;
-      if ((error = set_socket (UDPV4, &(scanner->udpv4soc))) != 0)
+      error = set_socket (UDPV4, &(scanner->udpv4soc));
+      if (error != 0)
         return error;
-      if ((error = set_socket (UDPV6, &(scanner->udpv6soc))) != 0)
+      error = set_socket (UDPV6, &(scanner->udpv6soc));
+      if (error != 0)
         return error;
     }
 
   if ((alive_test & ALIVE_TEST_ARP))
     {
-      if ((error = set_socket (ARPV4, &(scanner->arpv4soc))) != 0)
+      error = set_socket (ARPV4, &(scanner->arpv4soc));
+      if (error != 0)
         return error;
-      if ((error = set_socket (ARPV6, &(scanner->arpv6soc))) != 0)
+      error = set_socket (ARPV6, &(scanner->arpv6soc));
+      if (error != 0)
         return error;
     }
 
