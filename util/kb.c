@@ -251,7 +251,7 @@ parse_port_of_addr (const char *addr, int tcp_indicator_len)
 {
   char *tmp;
   int is_ip_v6;
-  tmp = rindex (addr + tcp_indicator_len, ':');
+  tmp = strrchr (addr + tcp_indicator_len, ':');
   if (tmp == NULL)
     return NULL;
   is_ip_v6 = addr[tcp_indicator_len] == '[';
