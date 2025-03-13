@@ -34,6 +34,11 @@ set_socket (socket_type_t, int *);
  *
  * From W.Richard Stevens "UNIX NETWORK PROGRAMMING" book. libfree/in_cksum.c
  * TODO: Section 8.7 of TCPv2 has more efficient implementation
+ *
+ * @param[in]  addr  Data to checksum over.
+ * @param[in]  len   Length of data in bytes.
+ *
+ * @return Checksum in bytes.
  **/
 uint16_t
 in_cksum (uint16_t *addr, int len)
