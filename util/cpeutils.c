@@ -106,7 +106,7 @@ uri_cpe_to_fs_cpe (const char *uri_cpe)
   uri_cpe_to_cpe_struct (uri_cpe, &cpe);
   fs_cpe = cpe_struct_to_fs_cpe (&cpe);
   cpe_struct_free (&cpe);
-  return (fs_cpe);
+  return fs_cpe;
 }
 
 /**
@@ -126,7 +126,7 @@ uri_cpe_to_fs_product (const char *uri_cpe)
   uri_cpe_to_cpe_struct (uri_cpe, &cpe);
   fs_cpe = cpe_struct_to_fs_product (&cpe);
   cpe_struct_free (&cpe);
-  return (fs_cpe);
+  return fs_cpe;
 }
 
 /**
@@ -146,7 +146,7 @@ uri_cpe_to_uri_product (const char *uri_cpe)
   uri_cpe_to_cpe_struct (uri_cpe, &cpe);
   fs_cpe = cpe_struct_to_uri_product (&cpe);
   cpe_struct_free (&cpe);
-  return (fs_cpe);
+  return fs_cpe;
 }
 
 /**
@@ -166,7 +166,7 @@ fs_cpe_to_uri_cpe (const char *fs_cpe)
   fs_cpe_to_cpe_struct (fs_cpe, &cpe);
   uri_cpe = cpe_struct_to_uri_cpe (&cpe);
   cpe_struct_free (&cpe);
-  return (uri_cpe);
+  return uri_cpe;
 }
 
 /**
@@ -186,7 +186,7 @@ fs_cpe_to_uri_product (const char *fs_cpe)
   fs_cpe_to_cpe_struct (fs_cpe, &cpe);
   uri_cpe = cpe_struct_to_uri_product (&cpe);
   cpe_struct_free (&cpe);
-  return (uri_cpe);
+  return uri_cpe;
 }
 
 /**
@@ -295,7 +295,7 @@ cpe_struct_to_uri_cpe (const cpe_struct_t *cpe)
 
   char *result = g_string_free (uri_cpe, FALSE);
   trim_pct (result);
-  return (result);
+  return result;
 }
 
 /**
@@ -336,7 +336,7 @@ cpe_struct_to_uri_product (const cpe_struct_t *cpe)
 
   char *result = g_string_free (uri_cpe, FALSE);
   trim_pct (result);
-  return (result);
+  return result;
 }
 
 /**
@@ -593,7 +593,7 @@ decode_uri_component (const char *component)
   gboolean embedded;
 
   if (!component)
-    return (NULL);
+    return NULL;
 
   if (strcmp (component, "") == 0 || strcmp (component, " ") == 0)
     {
@@ -661,7 +661,7 @@ decode_uri_component (const char *component)
             {
               g_string_free (decoded_component, TRUE);
               g_free (tmp_component);
-              return (NULL);
+              return NULL;
             }
         }
 
@@ -677,7 +677,7 @@ decode_uri_component (const char *component)
             {
               g_string_free (decoded_component, TRUE);
               g_free (tmp_component);
-              return (NULL);
+              return NULL;
             }
         }
 
@@ -697,7 +697,7 @@ decode_uri_component (const char *component)
         {
           g_string_free (decoded_component, TRUE);
           g_free (tmp_component);
-          return (NULL);
+          return NULL;
         }
       index = index + 3;
       embedded = TRUE;
@@ -883,7 +883,7 @@ unbind_fs_component (char *component)
 
   unbound_component = add_quoting (component);
   g_free (component);
-  return (unbound_component);
+  return unbound_component;
 }
 
 /**
@@ -903,7 +903,7 @@ add_quoting (const char *component)
   gboolean embedded;
 
   if (!component)
-    return (NULL);
+    return NULL;
 
   quoted_component = g_string_sized_new (2 * strlen (component));
   tmp_component = (char *) g_strdup (component);
@@ -948,7 +948,7 @@ add_quoting (const char *component)
           else
             {
               g_free (tmp_component);
-              return (NULL);
+              return NULL;
             }
         }
       if (*c == '?')
@@ -966,7 +966,7 @@ add_quoting (const char *component)
           else
             {
               g_free (tmp_component);
-              return (NULL);
+              return NULL;
             }
         }
       g_string_append_c (quoted_component, '\\');
@@ -1298,39 +1298,39 @@ cpe_struct_match (cpe_struct_t *source, cpe_struct_t *target)
 
   relation = compare_component (source->part, target->part);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->vendor, target->vendor);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->product, target->product);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->version, target->version);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->update, target->update);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->edition, target->edition);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->sw_edition, target->sw_edition);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->target_sw, target->target_sw);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->target_hw, target->target_hw);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->other, target->other);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->language, target->language);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
 
-  return (TRUE);
+  return TRUE;
 }
 
 /**
@@ -1353,27 +1353,27 @@ cpe_struct_match_tail (cpe_struct_t *source, cpe_struct_t *target)
 
   relation = compare_component (source->update, target->update);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->edition, target->edition);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->sw_edition, target->sw_edition);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->target_sw, target->target_sw);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->target_hw, target->target_hw);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->other, target->other);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
   relation = compare_component (source->language, target->language);
   if (relation != SUPERSET && relation != EQUAL)
-    return (FALSE);
+    return FALSE;
 
-  return (TRUE);
+  return TRUE;
 }
 
 /**
@@ -1419,37 +1419,37 @@ compare_component (const char *source, const char *target)
     {
       g_free (source_cpy);
       g_free (target_cpy);
-      return (UNDEFINED);
+      return UNDEFINED;
     }
   if (strcmp (source_cpy, target_cpy) == 0)
     {
       g_free (source_cpy);
       g_free (target_cpy);
-      return (EQUAL);
+      return EQUAL;
     }
   if (strcmp (source_cpy, "ANY") == 0)
     {
       g_free (source_cpy);
       g_free (target_cpy);
-      return (SUPERSET);
+      return SUPERSET;
     }
   if (strcmp (target_cpy, "ANY") == 0)
     {
       g_free (source_cpy);
       g_free (target_cpy);
-      return (SUBSET);
+      return SUBSET;
     }
   if (strcmp (target_cpy, "NA") == 0 || strcmp (source_cpy, "NA") == 0)
     {
       g_free (source_cpy);
       g_free (target_cpy);
-      return (DISJOINT);
+      return DISJOINT;
     }
 
   result = compare_strings (source_cpy, target_cpy);
   g_free (source_cpy);
   g_free (target_cpy);
-  return (result);
+  return result;
 }
 
 /**
@@ -1551,7 +1551,7 @@ count_escapes (const char *str, int start, int end)
       if (active && i >= start)
         result++;
     }
-  return (result);
+  return result;
 }
 
 /**
@@ -1623,13 +1623,13 @@ index_of (const char *str, const char *sub_str, int offset)
   char *begin_substr;
 
   if (offset > (int) strlen (str))
-    return (-1);
+    return -1;
 
   start = (char *) str + offset;
   begin_substr = strstr (start, sub_str);
   if (begin_substr == NULL)
-    return (-1);
-  return (begin_substr - str);
+    return -1;
+  return begin_substr - str;
 }
 
 /**
