@@ -71,7 +71,7 @@ Ensure (util, in_cksum_small)
 {
   int len;
   // https://web.archive.org/web/20020916085726/http://www.netfor2.com/checksum.html
-  uint16_t data[] = { 0x0100, 0xF203, 0xF4F5, 0xF6F7 };
+  uint16_t data[] = {0x0100, 0xF203, 0xF4F5, 0xF6F7};
 
   len = sizeof (data); // len is in bytes
   assert_that (in_cksum ((uint16_t *) data, len), is_equal_to (0x210E));
@@ -81,8 +81,8 @@ Ensure (util, in_cksum_bigger)
 {
   int len;
   // https://en.wikipedia.org/wiki/Internet_checksum
-  uint16_t data[] = { 0x4500, 0x0073, 0x0000, 0x4000, 0x4011, 0xC0A8,
-                      0x0001, 0xC0A8, 0x00C7 };
+  uint16_t data[] = {0x4500, 0x0073, 0x0000, 0x4000, 0x4011,
+                     0xC0A8, 0x0001, 0xC0A8, 0x00C7};
 
   len = sizeof (data); // len is in bytes
   assert_that (in_cksum ((uint16_t *) data, len), is_equal_to (0xB861));
