@@ -331,7 +331,8 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
   /* Scanner */
 
   /* Sockets */
-  if ((error = set_all_needed_sockets (&scanner, alive_test)) != 0)
+  error = set_all_needed_sockets (&scanner, alive_test);
+  if (error != 0)
     return error;
 
   /* Do not print results in stdout. Only set for command line clients*/
@@ -339,8 +340,8 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
 
   /* kb_t redis connection */
   int scandb_id = atoi (prefs_get ("ov_maindbid"));
-  if ((scanner.main_kb = kb_direct_conn (prefs_get ("db_address"), scandb_id))
-      == NULL)
+  scanner.main_kb = kb_direct_conn (prefs_get ("db_address"), scandb_id);
+  if (scanner.main_kb == NULL)
     return -7;
   /* TODO: pcap handle */
   // scanner.pcap_handle = open_live (NULL, FILTER_STR); //
@@ -398,7 +399,8 @@ alive_detection_init (gvm_hosts_t *hosts, alive_test_t alive_test)
   int max_scan_hosts = INT_MAX, pref_value;
 
   /* Check that the max_scan_hosts is set and it is greater than 0 */
-  if ((pref_str = prefs_get ("max_scan_hosts")) != NULL)
+  pref_str = prefs_get ("max_scan_hosts");
+  if (pref_str != NULL)
     {
       pref_value = atoi (pref_str);
       if (pref_value > 0)
@@ -482,7 +484,8 @@ start_alive_detection (void *hosts_to_test)
   gvm_hosts_t *hosts;
   alive_test_t alive_test;
 
-  if ((alive_test_err = get_alive_test_methods (&alive_test)) != 0)
+  alive_test_err = get_alive_test_methods (&alive_test);
+  if (alive_test_err != 0)
     {
       g_warning ("%s: %s. Exit Boreas.", __func__,
                  str_boreas_error (alive_test_err));
@@ -495,7 +498,8 @@ start_alive_detection (void *hosts_to_test)
     }
 
   hosts = (gvm_hosts_t *) hosts_to_test;
-  if ((init_err = alive_detection_init (hosts, alive_test)) != 0)
+  init_err = alive_detection_init (hosts, alive_test);
+  if (init_err != 0)
     {
       g_warning (
         "%s. Boreas could not initialise alive detection. %s. Exit Boreas.",

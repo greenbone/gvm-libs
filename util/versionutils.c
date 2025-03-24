@@ -69,18 +69,20 @@ cmp_versions (const char *version1, const char *version2)
     {
       g_free (ver1);
       g_free (ver2);
-      return (-5);
+      return -5;
     }
   if (strcmp (ver1, ver2) == 0)
     {
       g_free (ver1);
       g_free (ver2);
-      return (0);
+      return 0;
     }
 
-  if ((release_state1 = get_release_state (ver1, index1)))
+  release_state1 = get_release_state (ver1, index1);
+  if (release_state1)
     index1++;
-  if ((release_state2 = get_release_state (ver2, index2)))
+  release_state2 = get_release_state (ver2, index2);
+  if (release_state2)
     index2++;
 
   part1 = get_part (ver1, index1);
@@ -102,7 +104,7 @@ cmp_versions (const char *version1, const char *version2)
     }
 
   if (part1 == NULL && part2 == NULL)
-    return (release_state2 - release_state1);
+    return release_state2 - release_state1;
 
   if (is_text (part1) || is_text (part2))
     {
@@ -123,18 +125,18 @@ cmp_versions (const char *version1, const char *version2)
     {
       g_free (part2);
       if (rs2)
-        return (rs2 - release_state1);
+        return rs2 - release_state1;
       else
-        return (-1);
+        return -1;
     }
 
   if (part2 == NULL)
     {
       g_free (part1);
       if (rs1)
-        return (release_state2 - rs1);
+        return release_state2 - rs1;
       else
-        return (1);
+        return 1;
     }
 
   int ret = -5;
@@ -161,7 +163,7 @@ cmp_versions (const char *version1, const char *version2)
   g_free (part2);
   g_free (ver1);
   g_free (ver2);
-  return (ret);
+  return ret;
 }
 
 /**
@@ -181,10 +183,10 @@ prepare_version_string (const char *version)
   gboolean is_digit;
 
   if (!version)
-    return (NULL);
+    return NULL;
 
   if (strlen (version) > 1024)
-    return (NULL);
+    return NULL;
 
   ver = g_strdup (version);
 
@@ -278,7 +280,7 @@ get_release_state (const char *version, int index)
   part = get_part (version, index);
 
   if (part == NULL)
-    return (0);
+    return 0;
 
   if (strcmp (part, "dev") == 0 || strcmp (part, "development") == 0)
     rel_stat = 4;
@@ -290,7 +292,7 @@ get_release_state (const char *version, int index)
     rel_stat = 1;
 
   g_free (part);
-  return (rel_stat);
+  return rel_stat;
 }
 
 /**
@@ -314,13 +316,13 @@ get_part (const char *version, int index)
     }
 
   if (begin == (int) strlen (version))
-    return (NULL);
+    return NULL;
 
   for (end = begin + 1; end < (int) strlen (version) && version[end] != '.';
        end++)
     ;
 
-  return (str_cpy ((char *) (version + begin), end - begin));
+  return str_cpy ((char *) (version + begin), end - begin);
 }
 
 /**
@@ -334,13 +336,13 @@ static gboolean
 is_text (const char *part)
 {
   if (!part)
-    return (FALSE);
+    return FALSE;
   if (strcmp (part, "dev") == 0 || strcmp (part, "alpha") == 0
       || strcmp (part, "beta") == 0 || strcmp (part, "rc") == 0)
-    return (FALSE);
+    return FALSE;
   if (g_ascii_isdigit (*part))
-    return (FALSE);
-  return (TRUE);
+    return FALSE;
+  return TRUE;
 }
 
 /**
@@ -359,5 +361,5 @@ str_cpy (char *source, int size)
   result = (char *) g_malloc (size + 1);
   memset (result, 0, size + 1);
   strncpy (result, source, size);
-  return (result);
+  return result;
 }

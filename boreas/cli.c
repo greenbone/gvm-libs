@@ -50,7 +50,8 @@ init_cli (scanner_t *scanner, gvm_hosts_t *hosts, alive_test_t alive_test,
                          gvm_host_value_str (host), host);
 
   /* Sockets. */
-  if ((error = set_all_needed_sockets (scanner, alive_test)) != 0)
+  error = set_all_needed_sockets (scanner, alive_test);
+  if (error != 0)
     return error;
 
   /* Only init portlist if either TCP-ACK or TCP-SYN ping is used. */
@@ -224,7 +225,8 @@ is_host_alive (const char *ip_str, int *count)
   const gchar *port_list = NULL;
 
   hosts = gvm_hosts_new (ip_str);
-  if ((alive_test_err = get_alive_test_methods (&alive_test)) != 0)
+  alive_test_err = get_alive_test_methods (&alive_test);
+  if (alive_test_err != 0)
     {
       g_warning ("%s: %s. Exit Boreas.", __func__,
                  str_boreas_error (alive_test_err));
