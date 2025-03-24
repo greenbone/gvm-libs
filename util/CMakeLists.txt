@@ -45,6 +45,9 @@ pkg_check_modules (GCRYPT REQUIRED libgcrypt)
 # for json parsing we need cJSON
 pkg_check_modules (CJSON REQUIRED libcjson>=1.7.14)
 
+# for curlutils we need libcurl
+pkg_check_modules (CURL REQUIRED libcurl>=7.83.0)
+
 # for mqtt
 find_library(LIBPAHO paho-mqtt3c)
 message (STATUS "Looking for paho-mqtt3c ... ${LIBPAHO}")
@@ -110,13 +113,13 @@ if (BUILD_WITH_LDAP)
 endif (BUILD_WITH_LDAP)
 
 include_directories (${GLIB_INCLUDE_DIRS} ${GPGME_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS}
-                     ${LIBXML2_INCLUDE_DIRS})
+                     ${LIBXML2_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
 
-set (FILES cpeutils.c passwordbasedauthentication.c compressutils.c fileutils.c gpgmeutils.c json.c jsonpull.c kb.c
+set (FILES cpeutils.c passwordbasedauthentication.c compressutils.c curlutils.c fileutils.c gpgmeutils.c json.c jsonpull.c kb.c
            ldaputils.c nvticache.c mqtt.c radiusutils.c serverutils.c sshutils.c uuidutils.c versionutils.c
            xmlutils.c)
 
-set (HEADERS cpeutils.h passwordbasedauthentication.h authutils.h compressutils.h fileutils.h gpgmeutils.h
+set (HEADERS cpeutils.h passwordbasedauthentication.h authutils.h compressutils.h curlutils.h fileutils.h gpgmeutils.h
              json.h jsonpull.h kb.h ldaputils.h nvticache.h mqtt.h radiusutils.h serverutils.h sshutils.h
              uuidutils.h versionutils.h xmlutils.h)
 
@@ -141,7 +144,7 @@ if (BUILD_SHARED)
                          ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
                          ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
                          ${LINKER_HARDENING_FLAGS} ${CRYPT_LDFLAGS}
-                         ${CJSON_LDFLAGS})
+                         ${CJSON_LDFLAGS} ${CURL_LDFLAGS})
 endif (BUILD_SHARED)
 
 
@@ -187,6 +190,7 @@ if (BUILD_TESTS)
                  ${GCRYPT_LDFLAGS} ${LDAP_LDFLAGS} ${REDIS_LDFLAGS}
                  ${LIBXML2_LDFLAGS} ${UUID_LDFLAGS}
                  ${LINKER_HARDENING_FLAGS})
+  add_unit_test (curlutils-test curlutils_test.c ${GLIB_LDFLAGS} ${CURL_LDFLAGS})
 endif (BUILD_TESTS)
 
 ## Install
