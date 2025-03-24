@@ -12,7 +12,7 @@
 
 #include "../base/array.h"
 #include "../base/networking.h"
-#include "../util/curlutils.h"
+#include "../http/curlutils.h"
 #include "../util/json.h"
 
 #include <cjson/cJSON.h>

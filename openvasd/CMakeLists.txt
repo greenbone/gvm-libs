@@ -46,7 +46,7 @@ endif (BUILD_SHARED)
 ## Tests
 
 if (BUILD_TESTS)
-  add_unit_test (openvasd-test openvasd_tests.c gvm_base_shared gvm_util_shared
+  add_unit_test (openvasd-test openvasd_tests.c gvm_http_shared gvm_base_shared gvm_util_shared
                  ${GLIB_LDFLAGS} ${CJSON_LDFLAGS} ${CURL_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 
   add_unit_test (vtparser-test vtparser_tests.c gvm_base_shared gvm_util_shared
