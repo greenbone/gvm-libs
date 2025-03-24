@@ -243,6 +243,7 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
                      boreas-sniffer-test
                      compressutils-test
                      cpeutils-test
+                     curlutils-test
                      cvss-test
                      hosts-test
                      json-test
@@ -297,6 +298,7 @@ if (NOT SKIP_SRC)
   add_subdirectory (gmp)
 
   if (OPENVASD)
+    add_subdirectory (http)
     add_subdirectory (openvasd)
   endif (OPENVASD)
 endif (NOT SKIP_SRC)
