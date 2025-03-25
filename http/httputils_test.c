@@ -46,7 +46,7 @@ Ensure (gvm_http, headers_new_initializes_empty_list) {
 }
 
 Ensure (gvm_http, multi_init_returns_valid_object) {
-  gvm_http_multi_t *multi = gvm_http_multi_init ();
+  gvm_http_multi_t *multi = gvm_http_multi_new ();
 
   assert_that (multi, is_not_null);
   assert_that (multi->handler, is_not_null);
@@ -108,7 +108,7 @@ Ensure (gvm_http, http_new_returns_struct_with_valid_handler) {
   CURL *curl = curl_easy_init ();
   assert_that (curl, is_not_null);
 
-  gvm_http_t *http = gvm_http_new (curl);
+  gvm_http_t *http = gvm_http_t_new (curl);
   assert_that (http, is_not_null);
   assert_that (http->handler, is_equal_to (curl));
 
@@ -116,7 +116,7 @@ Ensure (gvm_http, http_new_returns_struct_with_valid_handler) {
 }
 
 Ensure(gvm_http, http_new_returns_null_when_passed_null) {
-  gvm_http_t *http = gvm_http_new (NULL);
+  gvm_http_t *http = gvm_http_t_new (NULL);
   assert_that (http, is_null);
 }
 
@@ -129,7 +129,7 @@ Ensure (gvm_http, http_free_frees_allocated_struct) {
   CURL *curl = curl_easy_init ();
   assert_that (curl, is_not_null);
 
-  gvm_http_t *http = gvm_http_new (curl);
+  gvm_http_t *http = gvm_http_t_new (curl);
   assert_that (http, is_not_null);
   assert_that (http->handler, is_equal_to (curl));
 
