@@ -153,4 +153,7 @@ gvm_http_response_stream_new (void);
 void
 gvm_http_response_stream_free (gvm_http_response_stream_t s);
 
+void
+gvm_http_response_stream_reset (gvm_http_response_stream_t s);
+
 #endif //HTTPUTILS_H
