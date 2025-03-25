@@ -19,8 +19,8 @@ pkg_check_modules (CURL REQUIRED libcurl>=7.83.0)
 
 include_directories (${GLIB_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
 
-set (FILES curlutils.c)
-set (HEADERS curlutils.h)
+set (FILES httputils.c)
+set (HEADERS httputils.h)
 
 if (BUILD_STATIC)
   add_library (gvm_http_static STATIC ${FILES})
@@ -44,7 +44,7 @@ endif (BUILD_SHARED)
 ## Tests
 
 if (BUILD_TESTS)
-  add_unit_test (curlutils-test curlutils_test.c gvm_base_shared gvm_util_shared
+  add_unit_test (httputils-test httputils_test.c gvm_base_shared gvm_util_shared
                  ${GLIB_LDFLAGS} ${CJSON_LDFLAGS} ${CURL_LDFLAGS} ${LINKER_HARDENING_FLAGS})
 endif (BUILD_TESTS)
 
@@ -55,7 +55,7 @@ install (FILES ${CMAKE_BINARY_DIR}/libgvm_http.pc
          DESTINATION ${LIBDIR}/pkgconfig)
 
 if (BUILD_STATIC)
-  install (TARGETS gvm_http_shared
+  install (TARGETS gvm_http_static
     RUNTIME DESTINATION ${BINDIR}
     ARCHIVE DESTINATION ${LIBDIR}
     PUBLIC_HEADER DESTINATION "${INCLUDEDIR}/gvm/http")

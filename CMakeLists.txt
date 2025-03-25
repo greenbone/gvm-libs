@@ -243,9 +243,9 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
                      boreas-sniffer-test
                      compressutils-test
                      cpeutils-test
-                     curlutils-test
                      cvss-test
                      hosts-test
+                     httputils-test
                      json-test
                      jsonpull-test
                      logging-test
