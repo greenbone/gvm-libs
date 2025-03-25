@@ -100,21 +100,6 @@ struct openvasd_vt_single
   GHashTable *vt_values;
 };
 
-/** @brief Reinitialize the string struct to hold the response
- *
- *  @param s The string struct to be reset
- */
-static void
-openvasd_vt_stream_reset (gvm_http_response_stream_t s)
-{
-  if (s)
-    {
-      g_free (s->data);
-      s->length = 0;
-      s->data = g_malloc0 (s->length + 1);
-    }
-}
-
 /** @brief Initialize an openvasd connector.
  *
  *  @return An an openvasd connector struct. It must be freed
@@ -449,7 +434,7 @@ openvasd_get_vt_stream_init (openvasd_connector_t conn)
 void
 openvasd_reset_vt_stream (openvasd_connector_t conn)
 {
-  openvasd_vt_stream_reset (conn->stream_resp);
+  gvm_http_response_stream_reset (conn->stream_resp);
 }
 
 gchar *

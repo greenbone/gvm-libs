@@ -546,3 +546,19 @@ gvm_http_multi_free (gvm_http_multi_t *multi)
 
   g_free (multi);
 }
+
+/** @brief Reinitialize the string struct to hold the response
+ *
+ *  @param s The string struct to be reset
+ */
+void
+gvm_http_response_stream_reset (gvm_http_response_stream_t s)
+{
+  if (s)
+    {
+      g_free (s->data);
+      s->length = 0;
+      s->data = g_malloc0 (s->length + 1);
+    }
+}
+

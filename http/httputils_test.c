@@ -138,6 +138,24 @@ Ensure (gvm_http, http_free_frees_allocated_struct) {
   assert_that (true, is_true);
 }
 
+Ensure (gvm_http, response_stream_reset_frees_and_resets_data) {
+  gvm_http_response_stream_t stream = gvm_http_response_stream_new ();
+  assert_that (stream, is_not_null);
+
+  g_free (stream->data);
+  stream->data = g_strdup("mock response");
+  stream->length = strlen(stream->data);
+
+  gvm_http_response_stream_reset (stream);
+
+  assert_that (stream->length, is_equal_to (0));
+  assert_that (stream->data, is_not_null);
+  assert_that (strlen(stream->data), is_equal_to (0));
+  assert_that (stream->data[0], is_equal_to ('\0'));
+
+  gvm_http_response_stream_free (stream);
+}
+
 int main (int argc, char **argv) {
   TestSuite *suite = create_test_suite ();
 
@@ -156,6 +174,7 @@ int main (int argc, char **argv) {
   add_test_with_context (suite, gvm_http, http_new_returns_null_when_passed_null);
   add_test_with_context (suite, gvm_http, http_free_handles_null_safely);
   add_test_with_context (suite, gvm_http, http_free_frees_allocated_struct);
+  add_test_with_context (suite, gvm_http, response_stream_reset_frees_and_resets_data);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
