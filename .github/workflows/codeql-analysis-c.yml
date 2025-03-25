@@ -21,7 +21,11 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    container: greenbone/gvm-libs:edge
+    container:
+      image: greenbone/gvm-libs:edge
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     strategy:
       fail-fast: false
