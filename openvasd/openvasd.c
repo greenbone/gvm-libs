@@ -12,7 +12,7 @@
 
 #include "../base/array.h"
 #include "../base/networking.h"
-#include "../http/curlutils.h"
+#include "../http/httputils.h"
 #include "../util/json.h"
 
 #include <cjson/cJSON.h>
@@ -44,7 +44,7 @@ struct openvasd_connector
   gchar *host;    /**< server hostname. */
   gchar *scan_id; /**< Scan ID. */
   int port;       /**< server port. */
-  curlutils_response_stream_t stream_resp; /** For response */
+  gvm_http_response_stream_t stream_resp; /** For response */
 };
 
 /**
@@ -100,68 +100,12 @@ struct openvasd_vt_single
   GHashTable *vt_values;
 };
 
-/**
- * @brief Allocate openvasd curl handler
- *
- * @return openvasd curl handler.
- */
-static curlutils_multi_t *
-openvasd_curlm_handler_new (void)
-{
-  return (curlutils_multi_t *) g_malloc0 (sizeof (struct curlutils_multi));
-}
-
-/**
- * @brief Cleanup an openvasd curl handler
- *
- * @param h openvasd curl handler to clean
- */
-static void
-openvasd_curlm_handler_close (curlutils_multi_t *h)
-{
-  curlutils_multi_cleanup (h);
-}
-
-/** @brief Allocate the vt stream struct to hold the response
- *  and the curlm handler
- *
- *  @return The vt stream struct. Must be free with openvasd_vt_stream_new().
- */
-static curlutils_response_stream_t
-openvasd_vt_stream_new (void)
-{
-  curlutils_response_stream_t s;
-  s = g_malloc0 (sizeof (struct curlutils_response_stream));
-  s->length = 0;
-  s->data = g_malloc0 (s->length + 1);
-  s->multi_handle = openvasd_curlm_handler_new ();
-  return s;
-}
-
-/** @brief Cleanup the string struct to hold the response and the
- *  curl multiperform handler
- *
- *  @param s The string struct to be freed
- */
-static void
-openvasd_vt_stream_free (curlutils_response_stream_t s)
-{
-  if (s == NULL)
-    return;
-
-  g_free (s->data);
-  if (s->multi_handle)
-    openvasd_curlm_handler_close (s->multi_handle);
-
-  g_free (s);
-}
-
 /** @brief Reinitialize the string struct to hold the response
  *
  *  @param s The string struct to be reset
  */
 static void
-openvasd_vt_stream_reset (curlutils_response_stream_t s)
+openvasd_vt_stream_reset (gvm_http_response_stream_t s)
 {
   if (s)
     {
@@ -180,10 +124,10 @@ openvasd_connector_t
 openvasd_connector_new (void)
 {
   openvasd_connector_t connector;
-  curlutils_response_stream_t stream;
+  gvm_http_response_stream_t stream;
 
   connector = g_malloc0 (sizeof (struct openvasd_connector));
-  stream = openvasd_vt_stream_new ();
+  stream = gvm_http_response_stream_new ();
   connector->stream_resp = stream;
 
   return connector;
@@ -265,7 +209,7 @@ openvasd_connector_free (openvasd_connector_t conn)
   g_free (conn->server);
   g_free (conn->host);
   g_free (conn->scan_id);
-  openvasd_vt_stream_free (conn->stream_resp);
+  gvm_http_response_stream_free (conn->stream_resp);
   g_free (conn);
   conn = NULL;
 
@@ -289,41 +233,36 @@ openvasd_response_cleanup (openvasd_resp_t resp)
   resp = NULL;
 }
 
-static struct curl_slist *
+static gvm_http_headers_t *
 init_customheader (const gchar *apikey, gboolean contenttype)
 {
-  struct curl_slist *customheader = NULL;
-  struct curl_slist *temp = NULL;
+  gvm_http_headers_t *headers = gvm_http_headers_new ();
 
   // Set API KEY
   if (apikey)
     {
-      GString *xapikey;
-      xapikey = g_string_new ("X-API-KEY: ");
+      GString *xapikey = g_string_new ("X-API-KEY: ");
       g_string_append (xapikey, apikey);
-      temp = curlutils_add_header (customheader, xapikey->str);
-      if (!temp)
+
+      if (!gvm_http_add_header (headers, xapikey->str))
         g_warning ("%s: Not possible to set API-KEY", __func__);
-      else
-        customheader = temp;
+
       g_string_free (xapikey, TRUE);
     }
-  // SET Content type
+
+  // Set Content-Type
   if (contenttype)
     {
-      temp = curlutils_add_header (customheader, "Content-Type: application/json");
-      if (!temp)
+      if (!gvm_http_add_header (headers, "Content-Type: application/json"))
         g_warning ("%s: Not possible to set Content-Type", __func__);
-      else
-        customheader = temp;
     }
 
-  return customheader;
+  return headers;
 }
 
 /**
- * @brief Sends a request using `curlutils` and returns an `openvasd_resp_t`
- * structure.
+ * @brief Sends an HTTP(S) request to the OpenVAS daemon using
+ *        the specified parameters.
  *
  * @param conn The `openvasd_connector_t` containing server and certificate
  * details.
@@ -337,10 +276,10 @@ init_customheader (const gchar *apikey, gboolean contenttype)
  */
 static openvasd_resp_t
 openvasd_send_request (openvasd_connector_t conn,
-                            curlutils_method_t method, const gchar *path,
-                            const gchar *data,
-                            struct curl_slist *custom_headers,
-                            const gchar *header_name)
+                       gvm_http_method_t method, const gchar *path,
+                       const gchar *data,
+                       gvm_http_headers_t *custom_headers,
+                       const gchar *header_name)
 {
   openvasd_resp_t response = g_malloc0 (sizeof (struct openvasd_response));
   response->code = RESP_CODE_ERR;
@@ -356,53 +295,41 @@ openvasd_send_request (openvasd_connector_t conn,
 
   gchar *url = g_strdup_printf ("%s:%d%s", conn->server, conn->port, path);
 
-  struct curl_slist *headers = NULL;
-
-  // Merge with custom headers if provided
-  if (custom_headers)
-    {
-      struct curl_slist *temp = custom_headers;
-      while (temp)
-        {
-          headers = curlutils_add_header (headers, temp->data);
-          temp = temp->next;
-        }
-    }
-
   if (!conn->stream_resp)
     {
-      conn->stream_resp = g_malloc0 (sizeof (struct curlutils_response_stream));
+      conn->stream_resp = g_malloc0 (sizeof (struct gvm_http_response_stream));
     }
 
   // Send request
-  curlutils_response_t *curl_response = curlutils_request (url, method,
-                                                          data, headers,
-                                                          conn->ca_cert,
-                                                 conn->cert,
-                                                          conn->key,
-                                                          conn->stream_resp);
+  gvm_http_response_t *http_response = gvm_http_request (url, method,
+                                                         data,
+                                                         custom_headers,
+                                                         conn->ca_cert,
+                                                         conn->cert,
+                                                         conn->key,
+                                                         conn->stream_resp);
 
   // Check for request errors
-  if (curl_response->http_status == -1)
+  if (http_response->http_status == -1)
     {
       g_warning ("%s: Error performing CURL request", __func__);
       response->body = g_strdup ("{\"error\": \"Error sending request\"}");
-      curlutils_cleanup_headers (headers);
-      curlutils_cleanup (curl_response);
+      gvm_http_headers_free (custom_headers);
+      gvm_http_response_cleanup (http_response);
       g_free (url);
       return response;
     }
 
   // Populate response struct
-  response->code = (int) curl_response->http_status;
-  response->body = g_strdup (curl_response->data ? curl_response->data :
+  response->code = (int) http_response->http_status;
+  response->body = g_strdup (http_response->data ? http_response->data :
                              "{\"error\": \"No response\"}");
 
   // Extract specific header if requested
   if (header_name)
     {
       struct curl_header *hname;
-      if (curl_easy_header (curl_response->curl_handle, header_name, 0,
+      if (curl_easy_header (http_response->http->handler, header_name, 0,
                             CURLH_HEADER, -1, &hname) == CURLHE_OK)
         {
           response->header = g_strdup (hname->value);
@@ -410,7 +337,7 @@ openvasd_send_request (openvasd_connector_t conn,
     }
 
   // Cleanup
-  curlutils_cleanup (curl_response);
+  gvm_http_response_cleanup (http_response);
   g_free (url);
 
   return response;
@@ -427,14 +354,14 @@ openvasd_resp_t
 openvasd_get_version (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
-  struct curl_slist *customheader = NULL;
+  gvm_http_headers_t *customheader = NULL;
 
   customheader = init_customheader (conn->apikey, FALSE);
 
   response = openvasd_send_request (conn, HEAD, "/", NULL,
                                     customheader, NULL);
 
-  curlutils_cleanup_headers(customheader);
+  gvm_http_headers_free(customheader);
   openvasd_reset_vt_stream (conn);
   return response;
 }
@@ -446,7 +373,7 @@ openvasd_get_version (openvasd_connector_t conn)
  * @param conn Connector struct with the data necessary for the connection
  * @param mhnd The curl multiperform handler. It the caller doesn't provide
  * it initialized, it will be initialized. The caller has to free it with
- * openvasd_curlm_handler_close().
+ * gvm_http_multi_free().
  * @param resp The stringstream struct for the write callback function.
  *
  * @return The response.
@@ -456,7 +383,7 @@ openvasd_get_vt_stream_init (openvasd_connector_t conn)
 {
   GString *path;
   openvasd_resp_t response = NULL;
-  struct curl_slist *customheader = NULL;
+  gvm_http_headers_t *customheader = NULL;
 
   response = g_malloc0 (sizeof (struct openvasd_response));
 
@@ -466,10 +393,10 @@ openvasd_get_vt_stream_init (openvasd_connector_t conn)
   customheader = init_customheader (conn->apikey, FALSE);
 
   if (!conn->stream_resp) {
-      conn->stream_resp = g_malloc0 (sizeof(struct curlutils_response_stream));
+      conn->stream_resp = g_malloc0 (sizeof(struct gvm_http_response_stream));
   }
 
-  curlutils_multi_t *multi_handle = curlutils_multi_init();
+  gvm_http_multi_t *multi_handle = gvm_http_multi_init();
   if (!multi_handle)
     {
       g_warning ("%s: Failed to initialize curl multi-handle", __func__);
@@ -481,7 +408,7 @@ openvasd_get_vt_stream_init (openvasd_connector_t conn)
     }
 
   // Initialize request using curlutils
-  CURL *easy_handle = curlutils_init_request (
+  gvm_http_t *http = gvm_http_init (
       url, GET, NULL, customheader,
       conn->ca_cert, conn->cert, conn->key, conn->stream_resp
   );
@@ -490,28 +417,28 @@ openvasd_get_vt_stream_init (openvasd_connector_t conn)
   g_free(url);
 
   // Check if curl handle was created properly
-  if (!easy_handle) {
+  if (!http || !http->handler) {
       g_warning("%s: Failed to initialize curl request", __func__);
-      curlutils_cleanup_headers (customheader);
-      curlutils_multi_cleanup (multi_handle);
+      gvm_http_headers_free (customheader);
+      gvm_http_multi_free (multi_handle);
       response->code = RESP_CODE_ERR;
       response->body = g_strdup("{\"error\": \"Failed to initialize CURL request\"}");
       return response;
   }
 
-  CURLMcode multi_add_result = curlutils_multi_add_handle (multi_handle, easy_handle);
-  if (multi_add_result != CURLM_OK) {
+  gvm_http_multi_result_t multi_add_result = gvm_http_multi_add_handler (multi_handle, http);
+  if (multi_add_result != GVM_HTTP_OK) {
       g_warning("%s: Failed to add CURL handle to multi", __func__);
-      curlutils_remove_handle (multi_handle, easy_handle);
-      curlutils_cleanup_headers (customheader);
-      curlutils_multi_cleanup (multi_handle);
+      gvm_http_multi_handler_free (multi_handle, http);
+      gvm_http_headers_free (customheader);
+      gvm_http_multi_free (multi_handle);
       response->code = RESP_CODE_ERR;
       response->body = g_strdup ("{\"error\": \"Failed to add CURL handle to multi\"}");
       return response;
   }
 
-  conn->stream_resp->multi_handle = multi_handle;
-  conn->stream_resp->multi_handle->custom_headers = customheader;
+  conn->stream_resp->multi_handler = multi_handle;
+  conn->stream_resp->multi_handler->headers = customheader;
 
   g_debug("%s: Multi handle initialized successfully", __func__);
 
@@ -552,20 +479,25 @@ int
 openvasd_get_vt_stream (openvasd_connector_t conn)
 {
   static int running = 0;
-  CURLM *h = conn->stream_resp->multi_handle->handle;
-  if (!(h))
+
+  gvm_http_multi_t *multi = conn->stream_resp->multi_handler;
+  if (!multi || !multi->handler)
     {
+      g_warning ("%s: Invalid multi-handler", __func__);
       return -1;
     }
 
-  CURLMcode mc = curlutils_multi_perform (conn->stream_resp->multi_handle, &running);
-  if (!mc && running)
-    /* wait for activity, timeout or "nothing" */
-    mc = curl_multi_poll (h, NULL, 0, 5000, NULL);
-  if (mc != CURLM_OK)
+  gvm_http_multi_result_t mc = gvm_http_multi_perform (multi, &running);
+
+  if (mc == GVM_HTTP_OK && running)
     {
-      g_warning ("%s: error on curl_multi_poll(): %d\n", __func__, mc);
-      return -1;
+      /* wait for activity, timeout, or "nothing" */
+      CURLMcode poll_result = curl_multi_poll (multi->handler, NULL, 0, 5000, NULL);
+      if (poll_result != CURLM_OK)
+        {
+          g_warning ("%s: error on curl_multi_poll(): %d\n", __func__, poll_result);
+          return -1;
+        }
     }
 
   return running;
@@ -584,7 +516,7 @@ openvasd_get_vts (openvasd_connector_t conn)
 {
   GString *path;
   openvasd_resp_t response = NULL;
-  struct curl_slist *customheader = NULL;
+  gvm_http_headers_t *customheader = NULL;
 
   path = g_string_new ("/vts?information=1");
   customheader = init_customheader (conn->apikey, FALSE);
@@ -593,7 +525,7 @@ openvasd_get_vts (openvasd_connector_t conn)
 
   g_string_free (path, TRUE);
 
-  curlutils_cleanup_headers (customheader);
+  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
 
@@ -615,13 +547,13 @@ openvasd_start_scan (openvasd_connector_t conn, gchar *data)
   openvasd_resp_t response = NULL;
   cJSON *parser = NULL;
   GString *path;
-  struct curl_slist *customheader = NULL;
+  gvm_http_headers_t *customheader = NULL;
 
   customheader = init_customheader (conn->apikey, TRUE);
   response = openvasd_send_request (conn, POST, "/scans", data,
                                     customheader, NULL);
 
-  curlutils_cleanup_headers (customheader);
+  gvm_http_headers_free (customheader);
 
   if (response->code == RESP_CODE_ERR)
     {
@@ -682,7 +614,7 @@ openvasd_start_scan (openvasd_connector_t conn, gchar *data)
 
   g_string_free (path, TRUE);
 
-  curlutils_cleanup_headers (customheader);
+  gvm_http_headers_free (customheader);
   if (response->code == RESP_CODE_ERR)
     {
       response->code = RESP_CODE_ERR;
@@ -703,7 +635,7 @@ openvasd_stop_scan (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
   GString *path;
-  struct curl_slist *customheader = NULL;
+  gvm_http_headers_t *customheader = NULL;
 
   // Stop the scan
   path = g_string_new ("/scans");
@@ -728,7 +660,7 @@ openvasd_stop_scan (openvasd_connector_t conn)
 
   g_string_free (path, TRUE);
 
-  curlutils_cleanup_headers (customheader);
+  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
 
@@ -741,7 +673,7 @@ openvasd_get_scan_results (openvasd_connector_t conn, long first, long last)
 {
   openvasd_resp_t response = NULL;
   GString *path = NULL;
-  struct curl_slist *customheader = NULL;
+  gvm_http_headers_t *customheader = NULL;
 
   response = g_malloc0 (sizeof (struct openvasd_response));
 
@@ -771,7 +703,7 @@ openvasd_get_scan_results (openvasd_connector_t conn, long first, long last)
                                NULL, customheader, NULL);
   g_string_free (path, TRUE);
 
-  curlutils_cleanup_headers (customheader);
+  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else if (response->code == RESP_CODE_ERR)
@@ -987,9 +919,7 @@ openvasd_get_scan_status (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
   GString *path = NULL;
-  struct curl_slist *customheader = NULL;
-
-  response = g_malloc0 (sizeof (struct openvasd_response));
+  gvm_http_headers_t *customheader = NULL;
 
   path = g_string_new ("/scans");
   if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
@@ -1012,7 +942,7 @@ openvasd_get_scan_status (openvasd_connector_t conn)
                                     NULL, customheader, NULL);
   g_string_free (path, TRUE);
 
-  curlutils_cleanup_headers (customheader);
+  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else if (response->code == RESP_CODE_ERR)
@@ -1225,7 +1155,7 @@ openvasd_delete_scan (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
   GString *path;
-  struct curl_slist *customheader = NULL;
+  gvm_http_headers_t *customheader = NULL;
 
   // Stop the scan
   path = g_string_new ("/scans");
@@ -1249,7 +1179,7 @@ openvasd_delete_scan (openvasd_connector_t conn)
 
   g_string_free (path, TRUE);
 
-  curlutils_cleanup_headers (customheader);
+  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else if (response->code == RESP_CODE_ERR)
@@ -1267,13 +1197,13 @@ openvasd_resp_t
 openvasd_get_health_alive (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
-  struct curl_slist *customheader = NULL;
+  gvm_http_headers_t *customheader = NULL;
 
   customheader = init_customheader (conn->apikey, FALSE);
   response = openvasd_send_request (conn, GET, "/health/alive",
                                          NULL, customheader, NULL);
 
-  curlutils_cleanup_headers (customheader);
+  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else if (response->code == RESP_CODE_ERR)
@@ -1291,13 +1221,13 @@ openvasd_resp_t
 openvasd_get_health_ready (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
-  struct curl_slist *customheader = NULL;
+  gvm_http_headers_t *customheader = NULL;
 
   customheader = init_customheader (conn->apikey, FALSE);
   response = openvasd_send_request (conn, GET, "/health/ready",
                                          NULL, customheader, "feed-version");
 
-  curlutils_cleanup_headers (customheader);
+  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else if (response->code == RESP_CODE_ERR)
@@ -1315,13 +1245,13 @@ openvasd_resp_t
 openvasd_get_health_started (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
-  struct curl_slist *customheader = NULL;
+  gvm_http_headers_t *customheader = NULL;
 
   customheader = init_customheader (conn->apikey, FALSE);
   response = openvasd_send_request (conn, GET, "/health/started",
                                          NULL, customheader, NULL);
 
-  curlutils_cleanup_headers (customheader);
+  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else if (response->code == RESP_CODE_ERR)
@@ -1339,13 +1269,13 @@ openvasd_resp_t
 openvasd_get_scan_preferences (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
-  struct curl_slist *customheader = NULL;
+  gvm_http_headers_t *customheader = NULL;
 
   customheader = init_customheader (conn->apikey, FALSE);
   response = openvasd_send_request (conn, GET, "/scans/preferences",
                                          NULL, customheader, NULL);
 
-  curlutils_cleanup_headers (customheader);
+  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else if (response->code == RESP_CODE_ERR)
