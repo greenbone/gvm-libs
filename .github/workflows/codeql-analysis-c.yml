@@ -22,10 +22,7 @@ jobs:
       contents: read
       security-events: write
     container:
-      image: greenbone/gvm-libs:edge
-      credentials:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      image: registry.community.greenbone.net/community/gvm-libs:edge
 
     strategy:
       fail-fast: false
