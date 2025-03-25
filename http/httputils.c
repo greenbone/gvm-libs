@@ -31,17 +31,24 @@
  * @return gvm http multi handler.
  */
 static gvm_http_multi_t *
-gvm_http_multi_new (void)
+gvm_http_multi_t_new (void)
 {
   return (gvm_http_multi_t *) g_malloc0 (sizeof (struct gvm_http_multi));
 }
 
 /**
  * @brief Callback function to store the response.
- * This function is used with libcurl to dynamically store response data.
+ *
+ * @param ptr Pointer to the delivered data.
+ * @param size Size of each data element.
+ * @param nmemb Number of data elements.
+ * @param userdata Pointer to the user-defined buffer or structure
+ *                 where the data will be stored.
+ *
+ * @return The number of bytes actually handled.
  */
 static size_t
-curlutils_response_callback (void *ptr, size_t size, size_t nmemb, void *userdata)
+store_response_data (void *ptr, size_t size, size_t nmemb, void *userdata)
 {
   gvm_http_response_stream_t stream = userdata;
   size_t new_len = stream->length + size * nmemb;
@@ -66,8 +73,8 @@ curlutils_response_callback (void *ptr, size_t size, size_t nmemb, void *userdat
  * @return A pointer to an initialized `gvm_http_t` structure on success,
  *         or NULL if the input handle is invalid.
  */
-gvm_http_t *
-gvm_http_new (CURL *curl_handler)
+static gvm_http_t *
+gvm_http_t_new (CURL *curl_handler)
 {
   if (!curl_handler)
     return NULL;
@@ -116,7 +123,7 @@ gvm_http_free (gvm_http_t *http)
  * @return A configured gvm_http_t object on success, or NULL on failure.
  */
 gvm_http_t *
-gvm_http_init (const gchar *url, gvm_http_method_t method,
+gvm_http_new (const gchar *url, gvm_http_method_t method,
                const gchar *payload, gvm_http_headers_t *headers,
                const gchar *ca_cert, const gchar *client_cert,
                const gchar *client_key, gvm_http_response_stream_t res)
@@ -126,7 +133,7 @@ gvm_http_init (const gchar *url, gvm_http_method_t method,
 
   // Set URL
   curl_easy_setopt (curl, CURLOPT_URL, url);
-  curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, curlutils_response_callback);
+  curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, store_response_data);
   curl_easy_setopt (curl, CURLOPT_WRITEDATA, (void *)res);
 
   // Set HTTP headers if provided
@@ -207,7 +214,7 @@ gvm_http_init (const gchar *url, gvm_http_method_t method,
           break;
   }
 
-  return gvm_http_new (curl);
+  return gvm_http_t_new (curl);
 }
 
 /** @brief Allocate the vt stream struct to hold the response
@@ -222,7 +229,7 @@ gvm_http_response_stream_new (void)
   s = g_malloc0 (sizeof (struct gvm_http_response_stream));
   s->length = 0;
   s->data = g_malloc0 (s->length + 1);
-  s->multi_handler = gvm_http_multi_new ();
+  s->multi_handler = gvm_http_multi_t_new ();
   return s;
 }
 
@@ -288,8 +295,8 @@ gvm_http_request (const gchar *url, gvm_http_method_t method,
       internal_stream_allocated = TRUE;
     }
 
-  gvm_http_t *http = gvm_http_init (url, method, payload, headers,
-                                       ca_cert, client_cert, client_key, response);
+  gvm_http_t *http = gvm_http_new (url, method, payload, headers,
+                                   ca_cert, client_cert, client_key, response);
   if (!http)
     {
       http_response->http_status = -1;
@@ -416,7 +423,7 @@ gvm_http_headers_free (gvm_http_headers_t *headers)
  *         or NULL if initialization fails.
  */
 gvm_http_multi_t *
-gvm_http_multi_init ()
+gvm_http_multi_new ()
 {
   gvm_http_multi_t *multi = g_malloc0 (sizeof(gvm_http_multi_t));
   multi->handler = curl_multi_init ();

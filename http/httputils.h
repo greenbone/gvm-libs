@@ -102,14 +102,11 @@ typedef struct {
   gvm_http_t *http; ///< The HTTP request (easy handle wrapper).
 } gvm_http_response_t;
 
-gvm_http_t *
-gvm_http_new (CURL *curl_handler);
-
 void
 gvm_http_free (gvm_http_t *http);
 
 gvm_http_t *
-gvm_http_init (const gchar *url, gvm_http_method_t method,
+gvm_http_new (const gchar *url, gvm_http_method_t method,
                const gchar *payload, gvm_http_headers_t *headers,
                const gchar *ca_cert, const gchar *client_cert,
                const gchar *client_key, gvm_http_response_stream_t res);
@@ -133,7 +130,7 @@ void
 gvm_http_response_cleanup (gvm_http_response_t *response);
 
 gvm_http_multi_t *
-gvm_http_multi_init (void);
+gvm_http_multi_new (void);
 
 gvm_http_multi_result_t
 gvm_http_multi_add_handler (gvm_http_multi_t *multi, gvm_http_t *http);

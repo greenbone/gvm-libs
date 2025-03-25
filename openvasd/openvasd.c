@@ -102,7 +102,7 @@ struct openvasd_vt_single
 
 /** @brief Initialize an openvasd connector.
  *
- *  @return An an openvasd connector struct. It must be freed
+ *  @return An openvasd connector struct. It must be freed
  *  with openvasd_connector_free()
  */
 openvasd_connector_t
@@ -381,7 +381,7 @@ openvasd_get_vt_stream_init (openvasd_connector_t conn)
       conn->stream_resp = g_malloc0 (sizeof(struct gvm_http_response_stream));
   }
 
-  gvm_http_multi_t *multi_handle = gvm_http_multi_init();
+  gvm_http_multi_t *multi_handle = gvm_http_multi_new();
   if (!multi_handle)
     {
       g_warning ("%s: Failed to initialize curl multi-handle", __func__);
@@ -393,7 +393,7 @@ openvasd_get_vt_stream_init (openvasd_connector_t conn)
     }
 
   // Initialize request using curlutils
-  gvm_http_t *http = gvm_http_init (
+  gvm_http_t *http = gvm_http_new (
       url, GET, NULL, customheader,
       conn->ca_cert, conn->cert, conn->key, conn->stream_resp
   );
