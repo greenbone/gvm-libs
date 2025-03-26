@@ -1253,11 +1253,9 @@ openvasd_get_performance (openvasd_connector_t conn,
                           openvasd_get_performance_opts_t opts)
 {
   openvasd_resp_t response;
-  gchar *err = NULL;
   gchar *query;
-  CURL *hnd;
-  struct curl_slist *customheader;
   time_t now;
+  gvm_http_headers_t *customheader;
 
   time (&now);
 
@@ -1276,17 +1274,10 @@ openvasd_get_performance (openvasd_connector_t conn,
   query = g_strdup_printf ("/health/performance?start=%d&end=%d&titles=%s",
                      opts.start, opts.end, opts.titles);
   customheader = init_customheader (conn->apikey, FALSE);
-  hnd = handler (conn, GET, query, NULL, customheader, &err);
-  if (hnd == NULL)
-    {
-      curl_slist_free_all (customheader);
-      response->code = RESP_CODE_ERR;
-      response->body = err;
-      return response;
-    }
+  response = openvasd_send_request (conn, GET, query, NULL, customheader, NULL);
+  g_free (query);
 
-  openvasd_send_request (hnd, NULL, response);
-  curl_slist_free_all (customheader);
+  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else
