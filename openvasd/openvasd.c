@@ -299,7 +299,6 @@ openvasd_send_request (openvasd_connector_t conn,
     {
       g_warning ("%s: Error performing CURL request", __func__);
       response->body = g_strdup ("{\"error\": \"Error sending request\"}");
-      gvm_http_headers_free (custom_headers);
       gvm_http_response_cleanup (http_response);
       g_free (url);
       return response;
