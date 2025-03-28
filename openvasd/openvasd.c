@@ -900,7 +900,7 @@ openvasd_parsed_results (openvasd_connector_t conn, unsigned long first,
 openvasd_resp_t
 openvasd_get_scan_status (openvasd_connector_t conn)
 {
-  openvasd_resp_t response = NULL;
+  openvasd_resp_t response;
   GString *path = NULL;
   gvm_http_headers_t *customheader = NULL;
 
@@ -913,6 +913,7 @@ openvasd_get_scan_status (openvasd_connector_t conn)
     }
   else
     {
+      response = g_malloc0 (sizeof (struct openvasd_response));
       response->code = RESP_CODE_ERR;
       response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
       g_string_free (path, TRUE);
