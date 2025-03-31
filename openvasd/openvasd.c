@@ -263,7 +263,6 @@ static openvasd_resp_t
 openvasd_send_request (openvasd_connector_t conn,
                        gvm_http_method_t method, const gchar *path,
                        const gchar *data,
-                       gvm_http_headers_t *custom_headers,
                        const gchar *header_name)
 {
   openvasd_resp_t response = g_malloc0 (sizeof (struct openvasd_response));
@@ -285,6 +284,8 @@ openvasd_send_request (openvasd_connector_t conn,
       conn->stream_resp = g_malloc0 (sizeof (struct gvm_http_response_stream));
     }
 
+  gvm_http_headers_t *custom_headers = init_customheader (conn->apikey, TRUE);
+
   // Send request
   gvm_http_response_t *http_response = gvm_http_request (url, method,
                                                          data,
@@ -301,6 +302,7 @@ openvasd_send_request (openvasd_connector_t conn,
       response->body = g_strdup ("{\"error\": \"Error sending request\"}");
       gvm_http_response_cleanup (http_response);
       g_free (url);
+      gvm_http_headers_free (custom_headers);
       return response;
     }
 
@@ -323,6 +325,7 @@ openvasd_send_request (openvasd_connector_t conn,
   // Cleanup
   gvm_http_response_cleanup (http_response);
   g_free (url);
+  gvm_http_headers_free (custom_headers);
 
   return response;
 }
@@ -338,14 +341,9 @@ openvasd_resp_t
 openvasd_get_version (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
-  gvm_http_headers_t *customheader = NULL;
 
-  customheader = init_customheader (conn->apikey, FALSE);
+  response = openvasd_send_request (conn, HEAD, "/", NULL, NULL);
 
-  response = openvasd_send_request (conn, HEAD, "/", NULL,
-                                    customheader, NULL);
-
-  gvm_http_headers_free(customheader);
   openvasd_reset_vt_stream (conn);
   return response;
 }
@@ -500,16 +498,12 @@ openvasd_get_vts (openvasd_connector_t conn)
 {
   GString *path;
   openvasd_resp_t response = NULL;
-  gvm_http_headers_t *customheader = NULL;
 
   path = g_string_new ("/vts?information=1");
-  customheader = init_customheader (conn->apikey, FALSE);
-  response = openvasd_send_request (conn, GET, path->str, NULL,
-                                    customheader, NULL);
+  response = openvasd_send_request (conn, GET, path->str, NULL, NULL);
 
   g_string_free (path, TRUE);
 
-  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
 
@@ -531,13 +525,8 @@ openvasd_start_scan (openvasd_connector_t conn, gchar *data)
   openvasd_resp_t response = NULL;
   cJSON *parser = NULL;
   GString *path;
-  gvm_http_headers_t *customheader = NULL;
 
-  customheader = init_customheader (conn->apikey, TRUE);
-  response = openvasd_send_request (conn, POST, "/scans", data,
-                                    customheader, NULL);
-
-  gvm_http_headers_free (customheader);
+  response = openvasd_send_request (conn, POST, "/scans", data, NULL);
 
   if (response->code == RESP_CODE_ERR)
     {
@@ -592,13 +581,11 @@ openvasd_start_scan (openvasd_connector_t conn, gchar *data)
     }
 
   openvasd_reset_vt_stream (conn);
-  customheader = init_customheader (conn->apikey, TRUE);
   response = openvasd_send_request (conn, POST, path->str,
-                               "{\"action\": \"start\"}", customheader,NULL);
+                                    "{\"action\": \"start\"}", NULL);
 
   g_string_free (path, TRUE);
 
-  gvm_http_headers_free (customheader);
   if (response->code == RESP_CODE_ERR)
     {
       response->code = RESP_CODE_ERR;
@@ -619,7 +606,6 @@ openvasd_stop_scan (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
   GString *path;
-  gvm_http_headers_t *customheader = NULL;
 
   // Stop the scan
   path = g_string_new ("/scans");
@@ -637,14 +623,11 @@ openvasd_stop_scan (openvasd_connector_t conn)
       return response;
     }
 
-  customheader = init_customheader (conn->apikey, TRUE);
   response = openvasd_send_request (conn, POST, path->str,
-                               "{\"action\": \"stop\"}",
-                                    customheader, NULL);
+                                    "{\"action\": \"stop\"}", NULL);
 
   g_string_free (path, TRUE);
 
-  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
 
@@ -657,7 +640,6 @@ openvasd_get_scan_results (openvasd_connector_t conn, long first, long last)
 {
   openvasd_resp_t response = NULL;
   GString *path = NULL;
-  gvm_http_headers_t *customheader = NULL;
 
   response = g_malloc0 (sizeof (struct openvasd_response));
 
@@ -682,12 +664,9 @@ openvasd_get_scan_results (openvasd_connector_t conn, long first, long last)
       return response;
     }
 
-  customheader = init_customheader (conn->apikey, FALSE);
-  response = openvasd_send_request (conn, GET, path->str,
-                               NULL, customheader, NULL);
+  response = openvasd_send_request (conn, GET, path->str, NULL, NULL);
   g_string_free (path, TRUE);
 
-  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else if (response->code == RESP_CODE_ERR)
@@ -902,7 +881,6 @@ openvasd_get_scan_status (openvasd_connector_t conn)
 {
   openvasd_resp_t response;
   GString *path = NULL;
-  gvm_http_headers_t *customheader = NULL;
 
   path = g_string_new ("/scans");
   if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
@@ -921,12 +899,9 @@ openvasd_get_scan_status (openvasd_connector_t conn)
       return response;
     }
 
-  customheader = init_customheader (conn->apikey, FALSE);
-  response = openvasd_send_request (conn, GET, path->str,
-                                    NULL, customheader, NULL);
+  response = openvasd_send_request (conn, GET, path->str, NULL, NULL);
   g_string_free (path, TRUE);
 
-  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else if (response->code == RESP_CODE_ERR)
@@ -1138,7 +1113,6 @@ openvasd_delete_scan (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
   GString *path;
-  gvm_http_headers_t *customheader = NULL;
 
   // Stop the scan
   path = g_string_new ("/scans");
@@ -1156,13 +1130,10 @@ openvasd_delete_scan (openvasd_connector_t conn)
       return response;
     }
 
-  customheader = init_customheader (conn->apikey, FALSE);
-  response = openvasd_send_request (conn, DELETE, path->str,
-                                    NULL, customheader, NULL);
+  response = openvasd_send_request (conn, DELETE, path->str, NULL, NULL);
 
   g_string_free (path, TRUE);
 
-  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else if (response->code == RESP_CODE_ERR)
@@ -1180,13 +1151,9 @@ openvasd_resp_t
 openvasd_get_health_alive (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
-  gvm_http_headers_t *customheader = NULL;
 
-  customheader = init_customheader (conn->apikey, FALSE);
-  response = openvasd_send_request (conn, GET, "/health/alive",
-                                         NULL, customheader, NULL);
+  response = openvasd_send_request (conn, GET, "/health/alive", NULL, NULL);
 
-  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else if (response->code == RESP_CODE_ERR)
@@ -1204,13 +1171,10 @@ openvasd_resp_t
 openvasd_get_health_ready (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
-  gvm_http_headers_t *customheader = NULL;
 
-  customheader = init_customheader (conn->apikey, FALSE);
   response = openvasd_send_request (conn, GET, "/health/ready",
-                                         NULL, customheader, "feed-version");
+                                    NULL, "feed-version");
 
-  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else if (response->code == RESP_CODE_ERR)
@@ -1228,13 +1192,9 @@ openvasd_resp_t
 openvasd_get_health_started (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
-  gvm_http_headers_t *customheader = NULL;
 
-  customheader = init_customheader (conn->apikey, FALSE);
-  response = openvasd_send_request (conn, GET, "/health/started",
-                                         NULL, customheader, NULL);
+  response = openvasd_send_request (conn, GET, "/health/started", NULL, NULL);
 
-  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else if (response->code == RESP_CODE_ERR)
@@ -1255,7 +1215,6 @@ openvasd_get_performance (openvasd_connector_t conn,
   openvasd_resp_t response;
   gchar *query;
   time_t now;
-  gvm_http_headers_t *customheader;
 
   time (&now);
 
@@ -1273,11 +1232,9 @@ openvasd_get_performance (openvasd_connector_t conn,
 
   query = g_strdup_printf ("/health/performance?start=%d&end=%d&titles=%s",
                      opts.start, opts.end, opts.titles);
-  customheader = init_customheader (conn->apikey, FALSE);
-  response = openvasd_send_request (conn, GET, query, NULL, customheader, NULL);
+  response = openvasd_send_request (conn, GET, query, NULL, NULL);
   g_free (query);
 
-  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else
@@ -1334,13 +1291,10 @@ openvasd_resp_t
 openvasd_get_scan_preferences (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
-  gvm_http_headers_t *customheader = NULL;
 
-  customheader = init_customheader (conn->apikey, FALSE);
-  response = openvasd_send_request (conn, GET, "/scans/preferences",
-                                         NULL, customheader, NULL);
+  response = openvasd_send_request (conn, GET, "/scans/preferences", NULL,
+                                    NULL);
 
-  gvm_http_headers_free (customheader);
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
   else if (response->code == RESP_CODE_ERR)
