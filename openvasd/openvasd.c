@@ -284,7 +284,8 @@ openvasd_send_request (openvasd_connector_t conn,
       conn->stream_resp = g_malloc0 (sizeof (struct gvm_http_response_stream));
     }
 
-  gvm_http_headers_t *custom_headers = init_customheader (conn->apikey, TRUE);
+  gvm_http_headers_t *custom_headers = init_customheader (conn->apikey,
+                                                          data ? TRUE : FALSE);
 
   // Send request
   gvm_http_response_t *http_response = gvm_http_request (url, method,
