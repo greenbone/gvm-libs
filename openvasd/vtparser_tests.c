@@ -95,7 +95,7 @@ Ensure (vtparser, openvasd_parse_vt_parses_a_vt)
 
   gvm_json_pull_parser_next (&parser, &event);
 
-  nvt = openvasd_parse_vt (&parser, &event);
+  openvasd_parse_vt (&parser, &event, &nvt);
   assert_that (nvt, is_not_null);
   assert_that (nvti_name (nvt), is_equal_to_string (VT_NAME));
   assert_that (nvti_refs (nvt, NULL, NULL, 1),
