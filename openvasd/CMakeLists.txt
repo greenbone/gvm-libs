@@ -20,7 +20,7 @@ pkg_check_modules(CJSON REQUIRED libcjson>=1.7.14)
 
 include_directories(${GLIB_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
 
-set(FILES openvasd.c vtparser.c)
+set(FILES openvasd.c)
 set(HEADERS openvasd.h)
 
 if(BUILD_STATIC)
@@ -69,17 +69,6 @@ if(BUILD_TESTS)
     openvasd-test
     openvasd_tests.c
     gvm_http_shared
-    gvm_base_shared
-    gvm_util_shared
-    ${GLIB_LDFLAGS}
-    ${CJSON_LDFLAGS}
-    ${CURL_LDFLAGS}
-    ${LINKER_HARDENING_FLAGS}
-  )
-
-  add_unit_test(
-    vtparser-test
-    vtparser_tests.c
     gvm_base_shared
     gvm_util_shared
     ${GLIB_LDFLAGS}
