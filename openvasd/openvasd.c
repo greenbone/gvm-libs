@@ -36,14 +36,14 @@
  */
 struct openvasd_connector
 {
-  gchar *ca_cert; /**< Path to the directory holding the CA certificate. */
-  gchar *cert;    /**< Client certificate. */
-  gchar *key;     /**< Client key. */
-  gchar *apikey;  /**< API key for authentication. */
-  gchar *server;  /**< original openvasd server URL. */
-  gchar *host;    /**< server hostname. */
-  gchar *scan_id; /**< Scan ID. */
-  int port;       /**< server port. */
+  gchar *ca_cert;  /**< Path to the directory holding the CA certificate. */
+  gchar *cert;     /**< Client certificate. */
+  gchar *key;      /**< Client key. */
+  gchar *apikey;   /**< API key for authentication. */
+  gchar *host;     /**< server hostname. */
+  gchar *scan_id;  /**< Scan ID. */
+  int port;        /**< server port. */
+  gchar *protocol; /**< server protocol (http or https). */
   gvm_http_response_stream_t stream_resp; /** For response */
 };
 
@@ -155,8 +155,8 @@ openvasd_connector_builder (openvasd_connector_t conn, openvasd_conn_opt_t opt,
     case OPENVASD_API_KEY:
       conn->apikey = g_strdup ((char *) val);
       break;
-    case OPENVASD_SERVER:
-      conn->server = g_strdup ((char *) val);
+    case OPENVASD_PROTOCOL:
+      conn->protocol = g_strdup ((char *) val);
       break;
     case OPENVASD_HOST:
       conn->host = g_strdup ((char *) val);
@@ -191,7 +191,7 @@ openvasd_connector_free (openvasd_connector_t conn)
   g_free (conn->cert);
   g_free (conn->key);
   g_free (conn->apikey);
-  g_free (conn->server);
+  g_free (conn->protocol);
   g_free (conn->host);
   g_free (conn->scan_id);
   gvm_http_response_stream_free (conn->stream_resp);
@@ -277,7 +277,11 @@ openvasd_send_request (openvasd_connector_t conn,
       return response;
     }
 
-  gchar *url = g_strdup_printf ("%s:%d%s", conn->server, conn->port, path);
+  gchar *url = g_strdup_printf ("%s://%s:%d%s",
+                                conn->protocol,
+                                conn->host,
+                                conn->port,
+                                path);
 
   if (!conn->stream_resp)
     {
@@ -371,8 +375,11 @@ openvasd_get_vt_stream_init (openvasd_connector_t conn)
   response = g_malloc0 (sizeof (struct openvasd_response));
 
   path = g_string_new ("/vts?information=1");
-  gchar *url = g_strdup_printf ("%s:%d%s", conn->server, conn->port, path->str);
-
+  gchar *url = g_strdup_printf ("%s://%s:%d%s",
+                                conn->protocol,
+                                conn->host,
+                                conn->port,
+                                path->str);
   customheader = init_customheader (conn->apikey, FALSE);
 
   if (!conn->stream_resp) {
