@@ -156,7 +156,9 @@ openvasd_connector_builder (openvasd_connector_t conn, openvasd_conn_opt_t opt,
       conn->apikey = g_strdup ((char *) val);
       break;
     case OPENVASD_PROTOCOL:
-      conn->protocol = g_strdup ((char *) val);
+      if (g_strcmp0((char *) val, "http") != 0 && g_strcmp0((char *) val, "https") != 0)
+        return OPENVASD_INVALID_VALUE;
+      conn->protocol = g_strdup((char *) val);
       break;
     case OPENVASD_HOST:
       conn->host = g_strdup ((char *) val);
