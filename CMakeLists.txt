@@ -233,34 +233,40 @@ if (BUILD_TESTS AND NOT SKIP_SRC)
 
   find_package (cgreen REQUIRED)
 
-  add_custom_target (tests DEPENDS
-                     array-test
-                     boreas-alivedetection-test
-                     boreas-cli-test
-                     boreas-error-test
-                     boreas-io-test
-                     boreas-ping-test
-                     boreas-sniffer-test
-                     compressutils-test
-                     cpeutils-test
-                     cvss-test
-                     hosts-test
-                     httputils-test
-                     json-test
-                     jsonpull-test
-                     logging-test
-                     logging-domain-test
-                     networking-test
-                     nvti-test
-                     openvasd-test
-                     osp-test
-                     passwordbasedauthentication-test
-                     test-hosts
-                     util-test
-                     version-test
-                     versionutils-test
-                     vtparser-test
-                     xmlutils-test)
+  set (TESTS
+       array-test
+       boreas-alivedetection-test
+       boreas-cli-test
+       boreas-error-test
+       boreas-io-test
+       boreas-ping-test
+       boreas-sniffer-test
+       compressutils-test
+       cpeutils-test
+       cvss-test
+       hosts-test
+       json-test
+       jsonpull-test
+       logging-test
+       logging-domain-test
+       networking-test
+       nvti-test
+       osp-test
+       passwordbasedauthentication-test
+       test-hosts
+       util-test
+       version-test
+       versionutils-test
+       xmlutils-test)
+
+  if (OPENVASD)
+    list (APPEND TESTS
+          openvasd-test
+          httputils-test
+          vtparser-test)
+  endif (OPENVASD)
+
+  add_custom_target (tests DEPENDS ${TESTS})
 
   # Code coverage
   if (ENABLE_COVERAGE)
