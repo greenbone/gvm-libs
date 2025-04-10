@@ -1,6 +1,6 @@
 ![Greenbone Logo](https://www.greenbone.net/wp-content/uploads/gb_new-logo_horizontal_rgb_small.png)
 
-# gvm-libs
+# gvm-libs <!-- omit in toc -->
 
 [![GitHub releases](https://img.shields.io/github/release/greenbone/gvm-libs.svg)](https://github.com/greenbone/gvm-libs/releases)
 [![Build and test C](https://github.com/greenbone/gvm-libs/actions/workflows/ci-c.yml/badge.svg)](https://github.com/greenbone/gvm-libs/actions/workflows/ci-c.yml)
@@ -11,8 +11,19 @@ This is the libraries module for the Greenbone Community Edition.
 It is used for the Greenbone Enterprise appliances and provides various
 functionalities to support the integrated service daemons.
 
+- [Releases](#releases)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Support](#support)
+- [Maintainer](#maintainer)
+- [Contributing](#contributing)
+  - [Code style and formatting](#code-style-and-formatting)
+  - [CMake formatting](#cmake-formatting)
+  - [Static code analysis with the Clang Static Analyzer](#static-code-analysis-with-the-clang-static-analyzer)
+- [License](#license)
+
 ## Releases
-￼
+
 All [release files](https://github.com/greenbone/gvm-libs/releases) are signed with
 the [Greenbone Community Feed integrity key](https://community.greenbone.net/t/gcf-managing-the-digital-signatures/101).
 This gpg key can be downloaded at https://www.greenbone.net/GBCommunitySigningKey.asc
