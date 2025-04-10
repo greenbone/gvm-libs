@@ -11,7 +11,7 @@ on:
 jobs:
   c-format-check:
     name: Check C Source Code Formatting
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v4
       - name: Check Source Format
@@ -19,9 +19,31 @@ jobs:
           clang-format -i -style=file {base,boreas,gmp,osp,util}/*.{c,h}
           git diff --exit-code
 
+  cmake-format-check:
+    name: Check CMake Formatting
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: greenbone/actions/uv@v3
+        with:
+          install: gersemi
+      - name: Check CMake Format
+        id: check
+        run: |
+          gersemi --check . cmake
+      - name: Report Diff
+        if: ${{ failure() && steps.check.outcome == 'failure' }}
+        run: |
+          echo "## CMake Format Check" >> $GITHUB_STEP_SUMMARY
+          gersemi --check --no-warn-about-unknown-commands . cmake >> $GITHUB_STEP_SUMMARY 2>&1 || true
+          echo "## CMake Format Diff" >> $GITHUB_STEP_SUMMARY
+          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          gersemi --diff . cmake >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
   tests:
     name: Unit Tests
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     container: debian:stable-slim
     steps:
       - name: Install git for Codecov uploader
@@ -51,7 +73,7 @@ jobs:
 
   scan-build:
     name: Scan-build gvm-libs with clang
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     container: debian:stable-slim
     steps:
       - uses: actions/checkout@v4
