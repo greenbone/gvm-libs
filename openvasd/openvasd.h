@@ -283,7 +283,8 @@ char *openvasd_vt_stream_str (openvasd_connector_t);
 
 size_t openvasd_vt_stream_len (openvasd_connector_t);
 
-nvti_t *
-openvasd_parse_vt (gvm_json_pull_parser_t *, gvm_json_pull_event_t *);
+int
+openvasd_parse_vt (gvm_json_pull_parser_t *, gvm_json_pull_event_t *,
+                   nvti_t **);
 
 #endif

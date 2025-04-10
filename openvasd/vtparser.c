@@ -236,18 +236,20 @@ add_preferences_to_nvt (nvti_t *nvt, cJSON *vt_obj)
 /**
  * @brief Parse a VT element given in json format.
  *
- * @param parser Json pull parser.
- * @param event Json pull event.
+ * @param[in]  parser Json pull parser.
+ * @param[in]  event  Json pull event.
+ * @param[out] nvt    The NVT Info structure to fill with the parsed data.
  *
- * @return nvti structure containing the VT metadata, NULL otherwise.
- *              The nvti struct must be freed with nvti_free() by the caller.
+ * @return 0 on success, 1 on end of feed, -1 on error.
+ *         In case of success the nvti struct must be freed with nvti_free()
+ *         by the caller.
  */
-nvti_t *
-openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
+int
+openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event, nvti_t **nvt)
 {
-  nvti_t *nvt = NULL;
   cJSON *vt_obj = NULL;
   gchar *str, *error_message = NULL;
+  *nvt = NULL;
 
   gvm_json_pull_parser_next (parser, event);
 
@@ -264,7 +266,7 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
     {
       g_debug ("%s: Finish parsing feed", __func__);
       g_free (path);
-      return NULL;
+      return 1;
     }
   g_free (path);
 
@@ -272,7 +274,7 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
   if (event->type != GVM_JSON_PULL_EVENT_OBJECT_START)
     {
       g_warning ("%s: Error reading VT object", __func__);
-      return NULL;
+      return -1;
     }
 
   vt_obj = gvm_json_pull_expand_container (parser, &error_message);
@@ -280,54 +282,55 @@ openvasd_parse_vt (gvm_json_pull_parser_t *parser, gvm_json_pull_event_t *event)
     {
       g_free (error_message);
       cJSON_Delete (vt_obj);
-      return NULL;
+      return -1;
     }
   g_free (error_message);
 
-  nvt = nvti_new ();
+  *nvt = nvti_new ();
 
   if (gvm_json_obj_check_str (vt_obj, "oid", &str))
     {
       g_warning ("%s: VT missing OID", __func__);
       cJSON_Delete (vt_obj);
-      nvti_free (nvt);
-      return NULL;
+      nvti_free (*nvt);
+      return -1;
     }
-  nvti_set_oid (nvt, str);
+  nvti_set_oid (*nvt, str);
 
   if (gvm_json_obj_check_str (vt_obj, "name", &str))
     {
       g_warning ("%s: VT missing NAME", __func__);
       cJSON_Delete (vt_obj);
-      nvti_free (nvt);
-      return NULL;
+      nvti_free (*nvt);
+      return -1;
     }
-  nvti_set_name (nvt, str);
+  nvti_set_name (*nvt, str);
 
   if (gvm_json_obj_check_str (vt_obj, "family", &str))
     {
       g_warning ("%s: VT missing FAMILY", __func__);
       cJSON_Delete (vt_obj);
-      nvti_free (nvt);
-      return NULL;
+      nvti_free (*nvt);
+      return -1;
     }
-  nvti_set_family (nvt, str);
+  nvti_set_family (*nvt, str);
 
   if (gvm_json_obj_check_str (vt_obj, "category", &str))
     {
       g_warning ("%s: VT missing CATEGORY", __func__);
       cJSON_Delete (vt_obj);
-      nvti_free (nvt);
-      return NULL;
+      nvti_free (*nvt);
+      return -1;
     }
-  nvti_set_category (nvt, get_category_from_name (str));
+  nvti_set_category (*nvt, get_category_from_name (str));
 
   cJSON *tag_obj = cJSON_GetObjectItem (vt_obj, "tag");
   if (tag_obj)
-    add_tags_to_nvt (nvt, tag_obj);
+    add_tags_to_nvt (*nvt, tag_obj);
 
-  parse_references (nvt, vt_obj);
-  add_preferences_to_nvt (nvt, vt_obj);
+  parse_references (*nvt, vt_obj);
+  add_preferences_to_nvt (*nvt, vt_obj);
   cJSON_Delete (vt_obj);
-  return nvt;
+
+  return 0;
 }
