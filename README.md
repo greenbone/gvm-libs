@@ -76,6 +76,18 @@ Before creating a pull request, it is recommended to run the following command:
 This reformats the new code to ensure that it follows the code style and
 formatting guidelines.
 
+### CMake formatting
+
+All CMake files are formatted using [gersemi](https://github.com/BlankSpruce/gersemi).
+To install gersemi on a Debian based system the following commands can be used:
+
+    sudo apt install pipx
+    pipx install gersemi
+
+To format all CMake files run the command:
+
+    gersemi -i cmake .
+
 ### Static code analysis with the Clang Static Analyzer
 
 If you want to use the Clang Static Analyzer (http://clang-analyzer.llvm.org/)
