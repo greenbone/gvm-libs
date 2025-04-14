@@ -137,6 +137,7 @@ set(
   sshutils.c
   uuidutils.c
   versionutils.c
+  vtparser.c
   xmlutils.c
 )
 
@@ -159,6 +160,7 @@ set(
   sshutils.h
   uuidutils.h
   versionutils.h
+  vtparser.h
   xmlutils.h
 )
 
@@ -202,6 +204,7 @@ if(BUILD_SHARED)
       ${LINKER_HARDENING_FLAGS}
       ${CRYPT_LDFLAGS}
       ${CJSON_LDFLAGS}
+      ${VTPARSER_LDFLAGS}
   )
 endif(BUILD_SHARED)
 
@@ -321,6 +324,16 @@ if(BUILD_TESTS)
     ${REDIS_LDFLAGS}
     ${LIBXML2_LDFLAGS}
     ${UUID_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+  )
+  add_unit_test(
+    vtparser-test
+    vtparser_tests.c
+    gvm_base_shared
+    gvm_util_shared
+    ${GLIB_LDFLAGS}
+    ${CJSON_LDFLAGS}
+    ${VTPARSER_LDFLAGS}
     ${LINKER_HARDENING_FLAGS}
   )
 endif(BUILD_TESTS)
