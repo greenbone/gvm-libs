@@ -188,6 +188,7 @@ if(BUILD_SHARED)
   target_link_libraries(
     gvm_util_shared
     LINK_PRIVATE
+      gvm_base_shared
       ${LIBPAHO_LDFLAGS}
       ${GLIB_LDFLAGS}
       ${GIO_LDFLAGS}
