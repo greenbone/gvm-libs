@@ -202,6 +202,14 @@ gvm_http_new (const gchar *url, gvm_http_method_t method,
               curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen(payload));
             }
           break;
+      case PATCH:
+          if (payload && payload[0] != '\0')
+            {
+              curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "PATCH");
+              curl_easy_setopt (curl, CURLOPT_POSTFIELDS, payload);
+              curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen(payload));
+            }
+          break;
       case DELETE:
           curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "DELETE");
           break;
