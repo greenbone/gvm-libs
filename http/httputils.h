@@ -41,7 +41,8 @@ typedef enum {
   POST,
   PUT,
   DELETE,
-  HEAD
+  HEAD,
+  PATCH
 } gvm_http_method_t;
 
 typedef enum {
