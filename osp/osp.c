@@ -376,7 +376,7 @@ osp_check_feed (osp_connection_t *connection, int *lockfile_in_use,
 
   if (self_test_error_msg)
     {
-      if (self_test_error_msg)
+      if (error_msg_entity)
         {
           if (entity_text (error_msg_entity))
             *self_test_error_msg = g_strdup (entity_text (error_msg_entity));
