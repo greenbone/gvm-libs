@@ -148,12 +148,12 @@ agent_controller_send_request (agent_controller_connector_t conn,
  * @return Parsed time as time_t, or 0 on failure.
  */
 static time_t
-parse_datetime(const char *datetime_str) {
+parse_datetime (const char *datetime_str) {
   struct tm tm = {0};
   int milliseconds = 0;
 
   // Read year, month, day, hour, minute, second
-  if (sscanf(datetime_str, "%4d-%2d-%2dT%2d:%2d:%2d.%dZ",
+  if (sscanf (datetime_str, "%4d-%2d-%2dT%2d:%2d:%2d.%dZ",
              &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
              &tm.tm_hour, &tm.tm_min, &tm.tm_sec, &milliseconds) != 7)
     {
@@ -163,7 +163,7 @@ parse_datetime(const char *datetime_str) {
   tm.tm_year -= 1900;
   tm.tm_mon -= 1;
 
-  return timegm(&tm);
+  return timegm (&tm);
 }
 
 /**
@@ -338,13 +338,7 @@ agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
 agent_controller_connector_t
 agent_controller_connector_new (void)
 {
-  agent_controller_connector_t connector;
-
-  connector = g_malloc0 (sizeof (struct agent_controller_connector));
-  if (!connector)
-    return NULL;
-
-  return connector;
+  return g_malloc0 (sizeof (struct agent_controller_connector));
 }
 
 /**
@@ -515,8 +509,6 @@ agent_controller_agent_update_t
 agent_controller_agent_update_new (void)
 {
   agent_controller_agent_update_t update = g_malloc0 (sizeof(struct agent_controller_agent_update));
-  if (!update)
-    return NULL;
 
   update->authorized = -1;
   update->min_interval = -1;
@@ -690,14 +682,14 @@ agent_controller_authorize_agents (agent_controller_connector_t conn,
   if (!conn || !agents)
     {
       g_warning ("%s: Invalid connection or agent list", __func__);
-      return -1;
+      return AGENT_RESP_ERR;
     }
 
   agent_controller_agent_update_t update = agent_controller_agent_update_new ();
   if (!update)
     {
       g_warning ("%s: Failed to allocate update override", __func__);
-      return -1;
+      return AGENT_RESP_ERR;
     }
 
   update->authorized = 1;          // Force authorized = 1
@@ -711,7 +703,7 @@ agent_controller_authorize_agents (agent_controller_connector_t conn,
   if (!payload)
     {
       g_warning ("%s: Failed to build PATCH payload", __func__);
-      return -1;
+      return AGENT_RESP_ERR;
     }
 
   gvm_http_response_t *response = agent_controller_send_request (
@@ -727,19 +719,19 @@ agent_controller_authorize_agents (agent_controller_connector_t conn,
   if (!response)
     {
       g_warning ("%s: Failed to get response", __func__);
-      return -1;
+      return AGENT_RESP_ERR;
     }
 
   if (response->http_status != 200)
     {
       g_warning ("%s: Received HTTP status %ld", __func__, response->http_status);
       gvm_http_response_cleanup (response);
-      return -1;
+      return AGENT_RESP_ERR;
     }
 
   gvm_http_response_cleanup (response);
 
-  return 0;
+  return AGENT_RESP_OK;
 }
 
 /**
@@ -759,14 +751,14 @@ agent_controller_update_agents (agent_controller_connector_t conn,
   if (!conn || !agents || !update)
     {
       g_warning ("%s: Invalid connection, agent list, or update override", __func__);
-      return -1;
+      return AGENT_RESP_ERR;
     }
 
   gchar *payload = agent_controller_build_patch_payload (agents, update);
   if (!payload)
     {
       g_warning("%s: Failed to build PATCH payload", __func__);
-      return -1;
+      return AGENT_RESP_ERR;
     }
 
   gvm_http_response_t *response = agent_controller_send_request (
@@ -782,19 +774,19 @@ agent_controller_update_agents (agent_controller_connector_t conn,
   if (!response)
     {
       g_warning ("%s: Failed to get response", __func__);
-      return -1;
+      return AGENT_RESP_ERR;
     }
 
   if (response->http_status != 200)
     {
       g_warning ("%s: Received HTTP status %ld", __func__, response->http_status);
       gvm_http_response_cleanup (response);
-      return -1;
+      return AGENT_RESP_ERR;
     }
 
   gvm_http_response_cleanup (response);
 
-  return 0;
+  return AGENT_RESP_OK;
 }
 
 /**
@@ -812,14 +804,14 @@ agent_controller_delete_agents (agent_controller_connector_t conn,
   if (!conn || !agents)
     {
       g_warning ("%s: Invalid connection or agent list", __func__);
-      return -1;
+      return AGENT_RESP_ERR;
     }
 
   cJSON *payload_array = cJSON_CreateArray ();
   if (!payload_array)
     {
       g_warning("%s: Failed to create JSON array", __func__);
-      return -1;
+      return AGENT_RESP_ERR;
     }
 
   for (int i = 0; i < agents->count; ++i)
@@ -837,7 +829,7 @@ agent_controller_delete_agents (agent_controller_connector_t conn,
   if (!payload)
     {
       g_warning ("%s: Failed to build JSON payload", __func__);
-      return -1;
+      return AGENT_RESP_ERR;
     }
 
   gvm_http_response_t *response = agent_controller_send_request (
@@ -853,17 +845,17 @@ agent_controller_delete_agents (agent_controller_connector_t conn,
   if (!response)
     {
       g_warning ("%s: Failed to get response", __func__);
-      return -1;
+      return AGENT_RESP_ERR;
     }
 
   if (response->http_status != 200)
     {
       g_warning ("%s: Received HTTP status %ld", __func__, response->http_status);
       gvm_http_response_cleanup (response);
-      return -1;
+      return AGENT_RESP_ERR;
     }
 
   gvm_http_response_cleanup (response);
 
-  return 0;
+  return AGENT_RESP_OK;
 }

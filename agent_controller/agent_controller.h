@@ -29,8 +29,8 @@
 
 #include <glib.h>
 
-#define RESP_CODE_ERR -1 ///< Generic error response code
-#define RESP_CODE_OK 0   ///< Generic success response code
+#define AGENT_RESP_ERR -1 ///< Generic error response code
+#define AGENT_RESP_OK 0   ///< Generic success response code
 
 /**
  * @brief Agent Controller options for the connector
