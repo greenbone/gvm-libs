@@ -23,6 +23,7 @@ option(BUILD_STATIC "Build static versions of the libraries" OFF)
 option(ENABLE_COVERAGE "Enable support for coverage analysis" OFF)
 option(BUILD_TESTS "Build tests for the libraries" OFF)
 option(OPENVASD "Build openvasd library" ON)
+option(ENABLE_AGENTS "Build agent controller library" ON)
 
 if(NOT BUILD_STATIC)
   set(BUILD_SHARED ON)
@@ -44,9 +45,10 @@ if(CLANG_FORMAT)
   add_custom_target(
     format
     COMMAND
-      ${CLANG_FORMAT} "-i" "./base/*.c" "./boreas/*.c" "./gmp/*.c"
-      "./openvasd/*.c" "./osp/*.c" "./util/*.c" "./base/*.h" "./boreas/*.h"
-      "./gmp/*.h" "./openvasd/*.h" "./osp/*.h" "./util/*.h"
+      ${CLANG_FORMAT} "-i" "./agent_controller/*.c" "./base/*.c" "./boreas/*.c"
+      "./gmp/*.c" "./openvasd/*.c" "./osp/*.c" "./util/*.c"
+      "./agent_controller/*.h" "./base/*.h" "./boreas/*.h" "./gmp/*.h"
+      "./openvasd/*.h" "./osp/*.h" "./util/*.h"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   )
 else(CLANG_FORMAT)
@@ -257,6 +259,10 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
     list(APPEND TESTS openvasd-test httputils-test vtparser-test)
   endif(OPENVASD)
 
+  if(ENABLE_AGENTS)
+    list(APPEND TESTS agent-controller-test)
+  endif(ENABLE_AGENTS)
+
   add_custom_target(tests DEPENDS ${TESTS})
 
   # Code coverage
@@ -306,6 +312,13 @@ if(NOT SKIP_SRC)
     add_subdirectory(http)
     add_subdirectory(openvasd)
   endif(OPENVASD)
+
+  if(ENABLE_AGENTS)
+    if(NOT OPENVASD)
+      add_subdirectory(http)
+    endif(NOT OPENVASD)
+    add_subdirectory(agent_controller)
+  endif(ENABLE_AGENTS)
 endif(NOT SKIP_SRC)
 
 ## Documentation

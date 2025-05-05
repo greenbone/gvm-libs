@@ -22,7 +22,7 @@ jobs:
       contents: read
       security-events: write
     container:
-      image: registry.community.greenbone.net/community/gvm-libs:edge
+      image: registry.community.greenbone.net/community/gvm-libs:stable
 
     strategy:
       fail-fast: false
