@@ -612,7 +612,7 @@ openvasd_start_scan (openvasd_connector_t conn, gchar *data)
 openvasd_resp_t
 openvasd_stop_scan (openvasd_connector_t conn)
 {
-  openvasd_resp_t response = NULL;
+  openvasd_resp_t response;
   GString *path;
 
   // Stop the scan
@@ -624,6 +624,7 @@ openvasd_stop_scan (openvasd_connector_t conn)
     }
   else
     {
+      response = g_malloc0 (sizeof (struct openvasd_response));
       response->code = RESP_CODE_ERR;
       response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
       g_string_free (path, TRUE);
@@ -1126,7 +1127,7 @@ openvasd_parsed_scan_status (openvasd_connector_t conn)
 openvasd_resp_t
 openvasd_delete_scan (openvasd_connector_t conn)
 {
-  openvasd_resp_t response = NULL;
+  openvasd_resp_t response;
   GString *path;
 
   // Stop the scan
@@ -1138,6 +1139,7 @@ openvasd_delete_scan (openvasd_connector_t conn)
     }
   else
     {
+      response = g_malloc0 (sizeof (struct openvasd_response));
       response->code = RESP_CODE_ERR;
       response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
       g_string_free (path, TRUE);
