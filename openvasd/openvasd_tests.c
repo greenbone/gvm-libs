@@ -20,6 +20,21 @@ AfterEach (openvasd)
 {
 }
 
+/* openvasd_stop_scan */
+
+Ensure (openvasd, openvasd_stop_scan_works_with_missing_id)
+{
+  openvasd_resp_t resp;
+  openvasd_connector_t conn;
+
+  conn = openvasd_connector_new ();
+  resp = openvasd_stop_scan (conn);
+  assert_that (resp, is_not_null);
+  assert_that (resp->code, is_equal_to (RESP_CODE_ERR));
+  assert_that (resp->body, is_equal_to_string ("{\"error\": \"Missing scan ID\"}"));
+  openvasd_response_cleanup (resp);
+}
+
 /* parse_results */
 
 Ensure (openvasd, parse_results_handles_details)
@@ -220,6 +235,8 @@ main (int argc, char **argv)
                          openvasd_connector_free);
   add_test_with_context (suite, openvasd,
                          openvasd_connector_builder_invalid_protocol);
+  add_test_with_context (suite, openvasd,
+                         openvasd_stop_scan_works_with_missing_id);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());
