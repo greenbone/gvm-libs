@@ -222,6 +222,9 @@ agent_controller_parse_agent (cJSON *item)
   cJSON *config_obj = cJSON_GetObjectItem (item, "config");
   if (config_obj && cJSON_IsObject (config_obj))
     {
+      // set raw config
+      agent->config = cJSON_PrintUnformatted(config_obj);
+
       // Parse "schedule"
       cJSON *schedule_obj = cJSON_GetObjectItem (config_obj, "schedule");
       if (schedule_obj && cJSON_IsObject (schedule_obj))
@@ -438,6 +441,7 @@ agent_controller_agent_free (agent_controller_agent_t agent)
   g_free (agent->agent_id);
   g_free (agent->hostname);
   g_free (agent->connection_status);
+  g_free (agent->config);
 
   if (agent->ip_addresses)
     {

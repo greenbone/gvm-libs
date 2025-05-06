@@ -198,6 +198,7 @@ Ensure (agent_controller, agent_free_handles_agent)
   agent->agent_id = g_strdup ("agent-001");
   agent->hostname = g_strdup ("localhost");
   agent->connection_status = g_strdup ("active");
+  agent->config = g_strdup ("{\"config\":{\"schedule\":{\"schedule\":\"@every 12h\"}}}");
 
   // IP addresses
   agent->ip_address_count = 2;
@@ -594,6 +595,8 @@ Ensure (agent_controller, parse_agent_with_config_and_server)
   assert_that (agent->server_config->agent_id, is_equal_to_string ("agent-ctrl"));
   assert_that (agent->server_config->token, is_equal_to_string ("xyz123"));
   assert_that (agent->server_config->server_cert_hash, is_equal_to_string ("abc123hash"));
+  assert_that (agent->config, is_not_null);
+  assert_that (strstr (agent->config, "\"schedule\":\"@every 5m\"") != NULL, is_true);
 
   agent_controller_agent_free (agent);
   cJSON_Delete (obj);
