@@ -26,8 +26,7 @@ struct openvasd_result
   gchar *ip_address;
   gchar *hostname;
   gchar *oid;
-  int port;
-  gchar *protocol;
+  gchar *port;
   gchar *message;
   gchar *detail_name;
   gchar *detail_value;
@@ -65,7 +64,7 @@ enum OPENVASD_RESULT_MEMBER_STRING
   IP_ADDRESS,
   HOSTNAME,
   OID,
-  PROTOCOL,
+  PORT,
   MESSAGE,
   DETAIL_NAME,
   DETAIL_VALUE,
@@ -77,7 +76,6 @@ enum OPENVASD_RESULT_MEMBER_STRING
 enum OPENVASD_RESULT_MEMBER_INT
 {
   ID,
-  PORT,
 };
 
 /**
@@ -112,8 +110,8 @@ struct openvasd_scan_status
 
 typedef struct
 {
-  int start;    /**< Start interval. */
-  int end;      /**< End interval. */
+  int start;           /**< Start interval. */
+  int end;             /**< End interval. */
   const gchar *titles; /**< Graph title. */
 } openvasd_get_performance_opts_t;
 
@@ -161,7 +159,7 @@ openvasd_resp_t
 openvasd_get_scan_results (openvasd_connector_t, long, long);
 
 openvasd_result_t
-openvasd_result_new (unsigned long, gchar *, gchar *, gchar *, gchar *, int,
+openvasd_result_new (unsigned long, gchar *, gchar *, gchar *, gchar *, gchar *,
                      gchar *, gchar *, gchar *, gchar *, gchar *, gchar *,
                      gchar *);
 

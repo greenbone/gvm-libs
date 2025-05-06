@@ -91,7 +91,7 @@ struct agent_controller_agent
   gchar **ip_addresses;              ///< List of IP addresses
   int ip_address_count;              ///< Number of IP addresses
   time_t last_update;                ///< Timestamp of the last update (seconds since epoch)
-  gchar *config;                     /// < Raw Config without Parsed
+  gchar *config;                     /// < Raw config JSON object as a string
   agent_controller_config_schedule_t schedule_config; ///< Agent schedule configuration
   agent_controller_config_server_t server_config;     ///< Server configuration
                                                       ///< associated with the agent

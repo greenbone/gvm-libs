@@ -156,9 +156,10 @@ openvasd_connector_builder (openvasd_connector_t conn, openvasd_conn_opt_t opt,
       conn->apikey = g_strdup ((char *) val);
       break;
     case OPENVASD_PROTOCOL:
-      if (g_strcmp0((char *) val, "http") != 0 && g_strcmp0((char *) val, "https") != 0)
+      if (g_strcmp0 ((char *) val, "http") != 0
+          && g_strcmp0 ((char *) val, "https") != 0)
         return OPENVASD_INVALID_VALUE;
-      conn->protocol = g_strdup((char *) val);
+      conn->protocol = g_strdup ((char *) val);
       break;
     case OPENVASD_HOST:
       conn->host = g_strdup ((char *) val);
@@ -262,9 +263,8 @@ init_customheader (const gchar *apikey, gboolean contenttype)
  * @return `openvasd_resp_t` containing response status, body, and header value.
  */
 static openvasd_resp_t
-openvasd_send_request (openvasd_connector_t conn,
-                       gvm_http_method_t method, const gchar *path,
-                       const gchar *data,
+openvasd_send_request (openvasd_connector_t conn, gvm_http_method_t method,
+                       const gchar *path, const gchar *data,
                        const gchar *header_name)
 {
   openvasd_resp_t response = g_malloc0 (sizeof (struct openvasd_response));
@@ -279,28 +279,21 @@ openvasd_send_request (openvasd_connector_t conn,
       return response;
     }
 
-  gchar *url = g_strdup_printf ("%s://%s:%d%s",
-                                conn->protocol,
-                                conn->host,
-                                conn->port,
-                                path);
+  gchar *url = g_strdup_printf ("%s://%s:%d%s", conn->protocol, conn->host,
+                                conn->port, path);
 
   if (!conn->stream_resp)
     {
       conn->stream_resp = g_malloc0 (sizeof (struct gvm_http_response_stream));
     }
 
-  gvm_http_headers_t *custom_headers = init_customheader (conn->apikey,
-                                                          data ? TRUE : FALSE);
+  gvm_http_headers_t *custom_headers =
+    init_customheader (conn->apikey, data ? TRUE : FALSE);
 
   // Send request
-  gvm_http_response_t *http_response = gvm_http_request (url, method,
-                                                         data,
-                                                         custom_headers,
-                                                         conn->ca_cert,
-                                                         conn->cert,
-                                                         conn->key,
-                                                         conn->stream_resp);
+  gvm_http_response_t *http_response =
+    gvm_http_request (url, method, data, custom_headers, conn->ca_cert,
+                      conn->cert, conn->key, conn->stream_resp);
 
   // Check for request errors
   if (http_response->http_status == -1)
@@ -315,15 +308,16 @@ openvasd_send_request (openvasd_connector_t conn,
 
   // Populate response struct
   response->code = (int) http_response->http_status;
-  response->body = g_strdup (http_response->data ? http_response->data :
-                             "{\"error\": \"No response\"}");
+  response->body = g_strdup (
+    http_response->data ? http_response->data : "{\"error\": \"No response\"}");
 
   // Extract specific header if requested
   if (header_name)
     {
       struct curl_header *hname;
       if (curl_easy_header (http_response->http->handler, header_name, 0,
-                            CURLH_HEADER, -1, &hname) == CURLHE_OK)
+                            CURLH_HEADER, -1, &hname)
+          == CURLHE_OK)
         {
           response->header = g_strdup (hname->value);
         }
@@ -377,62 +371,64 @@ openvasd_get_vt_stream_init (openvasd_connector_t conn)
   response = g_malloc0 (sizeof (struct openvasd_response));
 
   path = g_string_new ("/vts?information=1");
-  gchar *url = g_strdup_printf ("%s://%s:%d%s",
-                                conn->protocol,
-                                conn->host,
-                                conn->port,
-                                path->str);
+  gchar *url = g_strdup_printf ("%s://%s:%d%s", conn->protocol, conn->host,
+                                conn->port, path->str);
   customheader = init_customheader (conn->apikey, FALSE);
 
-  if (!conn->stream_resp) {
-      conn->stream_resp = g_malloc0 (sizeof(struct gvm_http_response_stream));
-  }
+  if (!conn->stream_resp)
+    {
+      conn->stream_resp = g_malloc0 (sizeof (struct gvm_http_response_stream));
+    }
 
-  gvm_http_multi_t *multi_handle = gvm_http_multi_new();
+  gvm_http_multi_t *multi_handle = gvm_http_multi_new ();
   if (!multi_handle)
     {
       g_warning ("%s: Failed to initialize curl multi-handle", __func__);
       g_string_free (path, TRUE);
       g_free (url);
       response->code = RESP_CODE_ERR;
-      response->body = g_strdup ("{\"error\": \"Failed to initialize multi-handle\"}");
+      response->body =
+        g_strdup ("{\"error\": \"Failed to initialize multi-handle\"}");
       return response;
     }
 
   // Initialize request using curlutils
-  gvm_http_t *http = gvm_http_new (
-      url, GET, NULL, customheader,
-      conn->ca_cert, conn->cert, conn->key, conn->stream_resp
-  );
+  gvm_http_t *http = gvm_http_new (url, GET, NULL, customheader, conn->ca_cert,
+                                   conn->cert, conn->key, conn->stream_resp);
 
   g_string_free (path, TRUE);
-  g_free(url);
+  g_free (url);
 
   // Check if curl handle was created properly
-  if (!http || !http->handler) {
-      g_warning("%s: Failed to initialize curl request", __func__);
+  if (!http || !http->handler)
+    {
+      g_warning ("%s: Failed to initialize curl request", __func__);
       gvm_http_headers_free (customheader);
       gvm_http_multi_free (multi_handle);
       response->code = RESP_CODE_ERR;
-      response->body = g_strdup("{\"error\": \"Failed to initialize CURL request\"}");
+      response->body =
+        g_strdup ("{\"error\": \"Failed to initialize CURL request\"}");
       return response;
-  }
+    }
 
-  gvm_http_multi_result_t multi_add_result = gvm_http_multi_add_handler (multi_handle, http);
-  if (multi_add_result != GVM_HTTP_OK) {
-      g_warning("%s: Failed to add CURL handle to multi", __func__);
+  gvm_http_multi_result_t multi_add_result =
+    gvm_http_multi_add_handler (multi_handle, http);
+  if (multi_add_result != GVM_HTTP_OK)
+    {
+      g_warning ("%s: Failed to add CURL handle to multi", __func__);
       gvm_http_multi_handler_free (multi_handle, http);
       gvm_http_headers_free (customheader);
       gvm_http_multi_free (multi_handle);
       response->code = RESP_CODE_ERR;
-      response->body = g_strdup ("{\"error\": \"Failed to add CURL handle to multi\"}");
+      response->body =
+        g_strdup ("{\"error\": \"Failed to add CURL handle to multi\"}");
       return response;
-  }
+    }
 
   conn->stream_resp->multi_handler = multi_handle;
   conn->stream_resp->multi_handler->headers = customheader;
 
-  g_debug("%s: Multi handle initialized successfully", __func__);
+  g_debug ("%s: Multi handle initialized successfully", __func__);
 
   response->code = RESP_CODE_OK;
   return response;
@@ -484,10 +480,12 @@ openvasd_get_vt_stream (openvasd_connector_t conn)
   if (mc == GVM_HTTP_OK && running)
     {
       /* wait for activity, timeout, or "nothing" */
-      CURLMcode poll_result = curl_multi_poll (multi->handler, NULL, 0, 5000, NULL);
+      CURLMcode poll_result =
+        curl_multi_poll (multi->handler, NULL, 0, 5000, NULL);
       if (poll_result != CURLM_OK)
         {
-          g_warning ("%s: error on curl_multi_poll(): %d\n", __func__, poll_result);
+          g_warning ("%s: error on curl_multi_poll(): %d\n", __func__,
+                     poll_result);
           return -1;
         }
     }
@@ -692,7 +690,7 @@ openvasd_get_scan_results (openvasd_connector_t conn, long first, long last)
 
 openvasd_result_t
 openvasd_result_new (unsigned long id, gchar *type, gchar *ip_address,
-                     gchar *hostname, gchar *oid, int port, gchar *protocol,
+                     gchar *hostname, gchar *oid, gchar *port, gchar *protocol,
                      gchar *message, gchar *detail_name, gchar *detail_value,
                      gchar *detail_source_type, gchar *detail_source_name,
                      gchar *detail_source_description)
@@ -704,14 +702,21 @@ openvasd_result_new (unsigned long id, gchar *type, gchar *ip_address,
   result->ip_address = g_strdup (ip_address);
   result->hostname = g_strdup (hostname);
   result->oid = g_strdup (oid);
-  result->port = port;
-  result->protocol = g_strdup (protocol);
   result->message = g_strdup (message);
   result->detail_name = g_strdup (detail_name);
   result->detail_value = g_strdup (detail_value);
   result->detail_source_name = g_strdup (detail_source_name);
   result->detail_source_type = g_strdup (detail_source_type);
   result->detail_source_description = g_strdup (detail_source_description);
+
+  if (!g_strcmp0 (type, "host_detail"))
+    result->port = g_strdup ("general/Host_Details");
+  else if (port == NULL || (!g_strcmp0 (port, "0") && protocol))
+    result->port = g_strdup_printf ("general/%s", protocol);
+  else if (protocol)
+    result->port = g_strdup_printf ("%s/%s", port, protocol);
+  else
+    result->port = g_strdup_printf ("general/tcp");
 
   return result;
 }
@@ -733,8 +738,8 @@ openvasd_get_result_member_str (openvasd_result_t result,
       return result->hostname;
     case OID:
       return result->oid;
-    case PROTOCOL:
-      return result->protocol;
+    case PORT:
+      return result->port;
     case MESSAGE:
       return result->message;
     case DETAIL_NAME:
@@ -763,8 +768,6 @@ openvasd_get_result_member_int (openvasd_result_t result,
     {
     case ID:
       return result->id;
-    case PORT:
-      return result->port;
     default:
       return -1;
     }
@@ -780,7 +783,7 @@ openvasd_result_free (openvasd_result_t result)
   g_free (result->ip_address);
   g_free (result->hostname);
   g_free (result->oid);
-  g_free (result->protocol);
+  g_free (result->port);
   g_free (result->message);
   g_free (result->detail_name);
   g_free (result->detail_value);
@@ -815,6 +818,7 @@ parse_results (const gchar *body, GSList **results)
   cJSON_ArrayForEach (result_obj, parser)
   {
     cJSON *item;
+    gchar *port = NULL;
     gchar *detail_name = NULL;
     gchar *detail_value = NULL;
     gchar *detail_source_type = NULL;
@@ -842,18 +846,19 @@ parse_results (const gchar *body, GSList **results)
               gvm_json_obj_str (detail_obj, "description");
           }
       }
+    port = g_strdup_printf ("%d", gvm_json_obj_int (result_obj, "port")),
 
     result = openvasd_result_new (
       gvm_json_obj_double (result_obj, "id"),
       gvm_json_obj_str (result_obj, "type"),
       gvm_json_obj_str (result_obj, "ip_address"),
       gvm_json_obj_str (result_obj, "hostname"),
-      gvm_json_obj_str (result_obj, "oid"),
-      gvm_json_obj_int (result_obj, "port"),
+      gvm_json_obj_str (result_obj, "oid"), port,
       gvm_json_obj_str (result_obj, "protocol"),
       gvm_json_obj_str (result_obj, "message"), detail_name, detail_value,
       detail_source_type, detail_source_name, detail_source_description);
 
+    g_free (port);
     *results = g_slist_append (*results, result);
     ret = 200;
   }
@@ -1182,8 +1187,8 @@ openvasd_get_health_ready (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
 
-  response = openvasd_send_request (conn, GET, "/health/ready",
-                                    NULL, "feed-version");
+  response =
+    openvasd_send_request (conn, GET, "/health/ready", NULL, "feed-version");
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
@@ -1241,7 +1246,7 @@ openvasd_get_performance (openvasd_connector_t conn,
     }
 
   query = g_strdup_printf ("/health/performance?start=%d&end=%d&titles=%s",
-                     opts.start, opts.end, opts.titles);
+                           opts.start, opts.end, opts.titles);
   response = openvasd_send_request (conn, GET, query, NULL, NULL);
   g_free (query);
 
@@ -1302,8 +1307,8 @@ openvasd_get_scan_preferences (openvasd_connector_t conn)
 {
   openvasd_resp_t response = NULL;
 
-  response = openvasd_send_request (conn, GET, "/scans/preferences", NULL,
-                                    NULL);
+  response =
+    openvasd_send_request (conn, GET, "/scans/preferences", NULL, NULL);
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
