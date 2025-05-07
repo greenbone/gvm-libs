@@ -538,7 +538,6 @@ openvasd_start_scan (openvasd_connector_t conn, gchar *data)
 
   if (response->code == RESP_CODE_ERR)
     {
-      response->code = RESP_CODE_ERR;
       if (response->body == NULL)
         response->body =
           g_strdup ("{\"error\": \"Storing scan configuration\"}");
@@ -597,7 +596,6 @@ openvasd_start_scan (openvasd_connector_t conn, gchar *data)
 
   if (response->code == RESP_CODE_ERR)
     {
-      response->code = RESP_CODE_ERR;
       if (response->body == NULL)
         response->body = g_strdup ("{\"error\": \"Starting the scan.\"}");
       g_warning ("%s: Error starting the scan.", __func__);
