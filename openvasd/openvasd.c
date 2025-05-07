@@ -588,6 +588,7 @@ openvasd_start_scan (openvasd_connector_t conn, gchar *data)
       return response;
     }
 
+  openvasd_response_cleanup (response);
   openvasd_reset_vt_stream (conn);
   response = openvasd_send_request (conn, POST, path->str,
                                     "{\"action\": \"start\"}", NULL);
