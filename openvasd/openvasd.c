@@ -676,7 +676,7 @@ openvasd_get_scan_results (openvasd_connector_t conn, long first, long last)
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else if (response->code == RESP_CODE_ERR)
+  else
     {
       g_warning ("%s: Not possible to get scan results", __func__);
       response->body =
@@ -918,7 +918,7 @@ openvasd_get_scan_status (openvasd_connector_t conn)
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else if (response->code == RESP_CODE_ERR)
+  else
     {
       response->body =
         g_strdup ("{\"error\": \"Not possible to get scan status\"}");
@@ -1151,7 +1151,7 @@ openvasd_delete_scan (openvasd_connector_t conn)
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else if (response->code == RESP_CODE_ERR)
+  else
     {
       response->body =
         g_strdup ("{\"error\": \"Not possible to delete scan.\"}");
@@ -1171,7 +1171,7 @@ openvasd_get_health_alive (openvasd_connector_t conn)
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else if (response->code == RESP_CODE_ERR)
+  else
     {
       response->body =
         g_strdup ("{\"error\": \"Not possible to get health information.\"}");
@@ -1192,7 +1192,7 @@ openvasd_get_health_ready (openvasd_connector_t conn)
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else if (response->code == RESP_CODE_ERR)
+  else
     {
       response->body =
         g_strdup ("{\"error\": \"Not possible to get health information.\"}");
@@ -1212,7 +1212,7 @@ openvasd_get_health_started (openvasd_connector_t conn)
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else if (response->code == RESP_CODE_ERR)
+  else
     {
       response->body =
         g_strdup ("{\"error\": \"Not possible to get health information.\"}");
@@ -1311,7 +1311,7 @@ openvasd_get_scan_preferences (openvasd_connector_t conn)
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else if (response->code == RESP_CODE_ERR)
+  else
     {
       response->body =
         g_strdup ("{\"error\": \"Not possible to get scans preferences.\"}");
