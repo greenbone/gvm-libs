@@ -651,8 +651,6 @@ openvasd_get_scan_results (openvasd_connector_t conn, long first, long last)
   openvasd_resp_t response = NULL;
   GString *path = NULL;
 
-  response = g_malloc0 (sizeof (struct openvasd_response));
-
   path = g_string_new ("/scans");
   if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
     {
@@ -667,6 +665,7 @@ openvasd_get_scan_results (openvasd_connector_t conn, long first, long last)
     }
   else
     {
+      response = g_malloc0 (sizeof (struct openvasd_response));
       response->code = RESP_CODE_ERR;
       response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
       g_string_free (path, TRUE);
@@ -1236,11 +1235,10 @@ openvasd_get_performance (openvasd_connector_t conn,
 
   time (&now);
 
-  response = g_malloc0 (sizeof (struct openvasd_response));
-
   if (!opts.titles || !strcmp (opts.titles, "") || opts.start < 0
       || opts.start > now || opts.end < 0 || opts.end > now)
     {
+      response = g_malloc0 (sizeof (struct openvasd_response));
       response->code = RESP_CODE_ERR;
       response->body =
         g_strdup ("{\"error\": \"Couldn't send get_performance command "
