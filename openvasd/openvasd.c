@@ -1009,9 +1009,7 @@ openvasd_get_scan_progress_ext (openvasd_connector_t conn,
           running_hosts_progress_sum += cJSON_GetNumberValue (host);
           host = host->next;
         }
-
-    } // end scanning
-  // end host_info
+    }
 
   if (all < 0 || excluded < 0 || dead < 0 || alive < 0 || queued < 0
       || finished < 0)
