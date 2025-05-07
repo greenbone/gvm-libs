@@ -599,6 +599,7 @@ openvasd_start_scan (openvasd_connector_t conn, gchar *data)
       if (response->body == NULL)
         response->body = g_strdup ("{\"error\": \"Starting the scan.\"}");
       g_warning ("%s: Error starting the scan.", __func__);
+      cJSON_Delete (parser);
       return response;
     }
 
