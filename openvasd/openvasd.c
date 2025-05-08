@@ -538,7 +538,6 @@ openvasd_start_scan (openvasd_connector_t conn, gchar *data)
 
   if (response->code == RESP_CODE_ERR)
     {
-      response->code = RESP_CODE_ERR;
       if (response->body == NULL)
         response->body =
           g_strdup ("{\"error\": \"Storing scan configuration\"}");
@@ -588,6 +587,7 @@ openvasd_start_scan (openvasd_connector_t conn, gchar *data)
       return response;
     }
 
+  openvasd_response_cleanup (response);
   openvasd_reset_vt_stream (conn);
   response = openvasd_send_request (conn, POST, path->str,
                                     "{\"action\": \"start\"}", NULL);
@@ -596,10 +596,10 @@ openvasd_start_scan (openvasd_connector_t conn, gchar *data)
 
   if (response->code == RESP_CODE_ERR)
     {
-      response->code = RESP_CODE_ERR;
       if (response->body == NULL)
         response->body = g_strdup ("{\"error\": \"Starting the scan.\"}");
       g_warning ("%s: Error starting the scan.", __func__);
+      cJSON_Delete (parser);
       return response;
     }
 
@@ -650,8 +650,6 @@ openvasd_get_scan_results (openvasd_connector_t conn, long first, long last)
   openvasd_resp_t response = NULL;
   GString *path = NULL;
 
-  response = g_malloc0 (sizeof (struct openvasd_response));
-
   path = g_string_new ("/scans");
   if (conn->scan_id != NULL && conn->scan_id[0] != '\0')
     {
@@ -666,6 +664,7 @@ openvasd_get_scan_results (openvasd_connector_t conn, long first, long last)
     }
   else
     {
+      response = g_malloc0 (sizeof (struct openvasd_response));
       response->code = RESP_CODE_ERR;
       response->body = g_strdup ("{\"error\": \"Missing scan ID\"}");
       g_string_free (path, TRUE);
@@ -678,7 +677,7 @@ openvasd_get_scan_results (openvasd_connector_t conn, long first, long last)
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else if (response->code == RESP_CODE_ERR)
+  else
     {
       g_warning ("%s: Not possible to get scan results", __func__);
       response->body =
@@ -920,7 +919,7 @@ openvasd_get_scan_status (openvasd_connector_t conn)
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else if (response->code == RESP_CODE_ERR)
+  else
     {
       response->body =
         g_strdup ("{\"error\": \"Not possible to get scan status\"}");
@@ -1010,9 +1009,7 @@ openvasd_get_scan_progress_ext (openvasd_connector_t conn,
           running_hosts_progress_sum += cJSON_GetNumberValue (host);
           host = host->next;
         }
-
-    } // end scanning
-  // end host_info
+    }
 
   if (all < 0 || excluded < 0 || dead < 0 || alive < 0 || queued < 0
       || finished < 0)
@@ -1153,7 +1150,7 @@ openvasd_delete_scan (openvasd_connector_t conn)
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else if (response->code == RESP_CODE_ERR)
+  else
     {
       response->body =
         g_strdup ("{\"error\": \"Not possible to delete scan.\"}");
@@ -1173,7 +1170,7 @@ openvasd_get_health_alive (openvasd_connector_t conn)
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else if (response->code == RESP_CODE_ERR)
+  else
     {
       response->body =
         g_strdup ("{\"error\": \"Not possible to get health information.\"}");
@@ -1194,7 +1191,7 @@ openvasd_get_health_ready (openvasd_connector_t conn)
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else if (response->code == RESP_CODE_ERR)
+  else
     {
       response->body =
         g_strdup ("{\"error\": \"Not possible to get health information.\"}");
@@ -1214,7 +1211,7 @@ openvasd_get_health_started (openvasd_connector_t conn)
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else if (response->code == RESP_CODE_ERR)
+  else
     {
       response->body =
         g_strdup ("{\"error\": \"Not possible to get health information.\"}");
@@ -1235,11 +1232,10 @@ openvasd_get_performance (openvasd_connector_t conn,
 
   time (&now);
 
-  response = g_malloc0 (sizeof (struct openvasd_response));
-
   if (!opts.titles || !strcmp (opts.titles, "") || opts.start < 0
       || opts.start > now || opts.end < 0 || opts.end > now)
     {
+      response = g_malloc0 (sizeof (struct openvasd_response));
       response->code = RESP_CODE_ERR;
       response->body =
         g_strdup ("{\"error\": \"Couldn't send get_performance command "
@@ -1314,7 +1310,7 @@ openvasd_get_scan_preferences (openvasd_connector_t conn)
 
   if (response->code != RESP_CODE_ERR)
     response->body = g_strdup (openvasd_vt_stream_str (conn));
-  else if (response->code == RESP_CODE_ERR)
+  else
     {
       response->body =
         g_strdup ("{\"error\": \"Not possible to get scans preferences.\"}");
