@@ -245,11 +245,16 @@ Ensure (agent_controller, agent_list_new_allocates_list_and_agents_array)
 
 Ensure (agent_controller, agent_list_new_returns_null_for_invalid_count)
 {
-  agent_controller_agent_list_t list_zero = agent_controller_agent_list_new (0);
-  assert_that (list_zero, is_null);
-
   agent_controller_agent_list_t list_negative = agent_controller_agent_list_new (-5);
   assert_that (list_negative, is_null);
+}
+
+Ensure (agent_controller, agent_list_new_returns_array_for_0_count)
+{
+  agent_controller_agent_list_t list_zero = agent_controller_agent_list_new (0);
+  assert_that (list_zero, is_not_null);
+  assert_that (list_zero->count, is_equal_to (0));
+  agent_controller_agent_list_free (list_zero);
 }
 
 Ensure (agent_controller, agent_list_free_handles_populated_list)
@@ -1075,6 +1080,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller, agent_free_handles_null_agent);
   add_test_with_context (suite, agent_controller, agent_list_new_allocates_list_and_agents_array);
   add_test_with_context (suite, agent_controller, agent_list_new_returns_null_for_invalid_count);
+  add_test_with_context (suite, agent_controller, agent_list_new_returns_array_for_0_count);
   add_test_with_context (suite, agent_controller, agent_list_free_handles_populated_list);
   add_test_with_context (suite, agent_controller, agent_list_free_handles_null_list);
   add_test_with_context (suite, agent_controller, agent_update_new_initializes_defaults_correctly);

@@ -469,13 +469,13 @@ agent_controller_agent_free (agent_controller_agent_t agent)
 agent_controller_agent_list_t
 agent_controller_agent_list_new (int count)
 {
-  if (count <= 0)
+  if (count < 0)
     return NULL;
 
   agent_controller_agent_list_t list =
     g_malloc0 (sizeof (struct agent_controller_agent_list));
   list->count = count;
-  list->agents = g_malloc0 (sizeof (agent_controller_agent_t) * count);
+  list->agents = g_malloc0 (sizeof (agent_controller_agent_t) * (count + 1));
   return list;
 }
 
