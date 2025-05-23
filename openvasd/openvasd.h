@@ -26,8 +26,7 @@ struct openvasd_result
   gchar *ip_address;
   gchar *hostname;
   gchar *oid;
-  int port;
-  gchar *protocol;
+  gchar *port;
   gchar *message;
   gchar *detail_name;
   gchar *detail_value;
@@ -53,7 +52,7 @@ enum OPENVASD_CONNECTOR_OPTS
   OPENVASD_CERT,
   OPENVASD_KEY,
   OPENVASD_API_KEY,
-  OPENVASD_SERVER,
+  OPENVASD_PROTOCOL,
   OPENVASD_HOST,
   OPENVASD_SCAN_ID,
   OPENVASD_PORT,
@@ -65,7 +64,7 @@ enum OPENVASD_RESULT_MEMBER_STRING
   IP_ADDRESS,
   HOSTNAME,
   OID,
-  PROTOCOL,
+  PORT,
   MESSAGE,
   DETAIL_NAME,
   DETAIL_VALUE,
@@ -77,7 +76,6 @@ enum OPENVASD_RESULT_MEMBER_STRING
 enum OPENVASD_RESULT_MEMBER_INT
 {
   ID,
-  PORT,
 };
 
 /**
@@ -109,6 +107,13 @@ struct openvasd_scan_status
   openvasd_status_t status;
   long response_code;
 };
+
+typedef struct
+{
+  int start;           /**< Start interval. */
+  int end;             /**< End interval. */
+  const gchar *titles; /**< Graph title. */
+} openvasd_get_performance_opts_t;
 
 typedef struct openvasd_response *openvasd_resp_t;
 
@@ -154,7 +159,7 @@ openvasd_resp_t
 openvasd_get_scan_results (openvasd_connector_t, long, long);
 
 openvasd_result_t
-openvasd_result_new (unsigned long, gchar *, gchar *, gchar *, gchar *, int,
+openvasd_result_new (unsigned long, gchar *, gchar *, gchar *, gchar *, gchar *,
                      gchar *, gchar *, gchar *, gchar *, gchar *, gchar *,
                      gchar *);
 
@@ -181,6 +186,13 @@ openvasd_resp_t openvasd_get_health_alive (openvasd_connector_t);
 openvasd_resp_t openvasd_get_health_ready (openvasd_connector_t);
 
 openvasd_resp_t openvasd_get_health_started (openvasd_connector_t);
+
+openvasd_resp_t openvasd_get_performance (openvasd_connector_t,
+                                          openvasd_get_performance_opts_t);
+int
+openvasd_parsed_performance (openvasd_connector_t,
+                             openvasd_get_performance_opts_t, gchar **,
+                             gchar **err);
 
 /* Scanner preferences */
 
@@ -268,8 +280,5 @@ void openvasd_reset_vt_stream (openvasd_connector_t);
 char *openvasd_vt_stream_str (openvasd_connector_t);
 
 size_t openvasd_vt_stream_len (openvasd_connector_t);
-
-nvti_t *
-openvasd_parse_vt (gvm_json_pull_parser_t *, gvm_json_pull_event_t *);
 
 #endif

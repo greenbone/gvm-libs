@@ -41,7 +41,7 @@ is_prefix_supported (const char *id)
 #ifndef EXTERNAL_CRYPT_GENSALT_R
 
 // used printables within salt
-const char ascii64[64] =
+const char ascii64[] =
   "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 /* Tries to get BUFLEN random bytes into BUF; returns 0 on success. */
