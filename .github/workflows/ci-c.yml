@@ -59,15 +59,11 @@ jobs:
     runs-on: "ubuntu-latest"
     container: debian:stable-slim
     steps:
-      - name: Install git for Codecov uploader
-        run: |
-          apt-get update
-          apt-get install --no-install-recommends -y ca-certificates git
       - uses: actions/checkout@v4
-      - name: Set git safe.directory
-        run: git config --global --add safe.directory '*'
       - name: Install build dependencies
         run: sh .github/install-dependencies.sh .github/build-dependencies.list
+      - name: Set git safe.directory
+        run: git config --global --add safe.directory '*'
       - name: Install cgreen
         uses: greenbone/actions/install-cgreen@v3
       - name: Configure and Compile gvm-libs
