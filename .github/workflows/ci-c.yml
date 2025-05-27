@@ -49,6 +49,10 @@ jobs:
         run: |
           echo "## CMake Format Check" >> $GITHUB_STEP_SUMMARY
           gersemi --check --no-warn-about-unknown-commands . cmake >> $GITHUB_STEP_SUMMARY 2>&1 || true
+          echo "Found formatting issues in the source code. Please run gersemi to fix them." >> $GITHUB_STEP_SUMMARY
+          echo '```sh' >> $GITHUB_STEP_SUMMARY
+          echo 'gersemi -i . cmake' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
           echo "## CMake Format Diff" >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
           gersemi --diff . cmake >> $GITHUB_STEP_SUMMARY
