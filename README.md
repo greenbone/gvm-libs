@@ -78,9 +78,18 @@ request](https://github.com/greenbone/gvm-libs/pulls) on GitHub. Bigger changes
 need to be discussed with the development team via the [issues section at
 github](https://github.com/greenbone/gvm-libs/issues) first.
 
+Before creating a pull request, it is recommended to check the formatting for
+source code and cmake files.
+
 ### Code style and formatting
 
-Before creating a pull request, it is recommended to run the following command:
+All C source and header files are formatted using [clang-format](https://clang.llvm.org/docs/ClangFormat.html).
+To install clang-format on a Debian based system the following command can be
+used:
+
+    sudo apt install clang-format
+
+To format all C source and header files run the command:
 
     make format
 
@@ -101,7 +110,7 @@ To format all CMake files run the command:
 
 ### Static code analysis with the Clang Static Analyzer
 
-If you want to use the Clang Static Analyzer (http://clang-analyzer.llvm.org/)
+If you want to use the [Clang Static Analyzer](http://clang-analyzer.llvm.org/)
 to do a static code analysis, you can do so by prefixing the configuration and
 build commands with `scan-build`:
 
@@ -115,6 +124,6 @@ to empty the build directory before `scan-build` call.
 
 ## License
 
-Copyright (C) 2009-2022 [Greenbone AG](https://www.greenbone.net/)
+Copyright (C) 2009-2025 [Greenbone AG](https://www.greenbone.net/)
 
 Licensed under the [GNU General Public License v2.0 or later](COPYING).
