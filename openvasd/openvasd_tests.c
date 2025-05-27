@@ -31,7 +31,8 @@ Ensure (openvasd, openvasd_delete_scan_works_with_missing_id)
   resp = openvasd_delete_scan (conn);
   assert_that (resp, is_not_null);
   assert_that (resp->code, is_equal_to (RESP_CODE_ERR));
-  assert_that (resp->body, is_equal_to_string ("{\"error\": \"Missing scan ID\"}"));
+  assert_that (resp->body,
+               is_equal_to_string ("{\"error\": \"Missing scan ID\"}"));
   openvasd_response_cleanup (resp);
 }
 
@@ -46,7 +47,8 @@ Ensure (openvasd, openvasd_stop_scan_works_with_missing_id)
   resp = openvasd_stop_scan (conn);
   assert_that (resp, is_not_null);
   assert_that (resp->code, is_equal_to (RESP_CODE_ERR));
-  assert_that (resp->body, is_equal_to_string ("{\"error\": \"Missing scan ID\"}"));
+  assert_that (resp->body,
+               is_equal_to_string ("{\"error\": \"Missing scan ID\"}"));
   openvasd_response_cleanup (resp);
 }
 
@@ -136,7 +138,7 @@ Ensure (openvasd, parse_status_start_end_time)
 
 Ensure (openvasd, openvasd_connector_builder_all_valid_fields)
 {
-  openvasd_connector_t conn = openvasd_connector_new();
+  openvasd_connector_t conn = openvasd_connector_new ();
 
   const char *ca_cert = "/path/to/ca.pem";
   const char *cert = "/path/to/cert.pem";
@@ -147,28 +149,36 @@ Ensure (openvasd, openvasd_connector_builder_all_valid_fields)
   const char *scan_id = "scan-uuid-123";
   int port = 9390;
 
-  assert_that (openvasd_connector_builder (conn, OPENVASD_CA_CERT, ca_cert), is_equal_to (OPENVASD_OK));
+  assert_that (openvasd_connector_builder (conn, OPENVASD_CA_CERT, ca_cert),
+               is_equal_to (OPENVASD_OK));
   assert_that (conn->ca_cert, is_equal_to_string (ca_cert));
 
-  assert_that (openvasd_connector_builder (conn, OPENVASD_CERT, cert), is_equal_to (OPENVASD_OK));
+  assert_that (openvasd_connector_builder (conn, OPENVASD_CERT, cert),
+               is_equal_to (OPENVASD_OK));
   assert_that (conn->cert, is_equal_to_string (cert));
 
-  assert_that (openvasd_connector_builder (conn, OPENVASD_KEY, key), is_equal_to (OPENVASD_OK));
+  assert_that (openvasd_connector_builder (conn, OPENVASD_KEY, key),
+               is_equal_to (OPENVASD_OK));
   assert_that (conn->key, is_equal_to_string (key));
 
-  assert_that (openvasd_connector_builder (conn, OPENVASD_API_KEY, apikey), is_equal_to (OPENVASD_OK));
+  assert_that (openvasd_connector_builder (conn, OPENVASD_API_KEY, apikey),
+               is_equal_to (OPENVASD_OK));
   assert_that (conn->apikey, is_equal_to_string (apikey));
 
-  assert_that (openvasd_connector_builder (conn, OPENVASD_PROTOCOL, protocol), is_equal_to (OPENVASD_OK));
+  assert_that (openvasd_connector_builder (conn, OPENVASD_PROTOCOL, protocol),
+               is_equal_to (OPENVASD_OK));
   assert_that (conn->protocol, is_equal_to_string (protocol));
 
-  assert_that (openvasd_connector_builder (conn, OPENVASD_HOST, host), is_equal_to (OPENVASD_OK));
+  assert_that (openvasd_connector_builder (conn, OPENVASD_HOST, host),
+               is_equal_to (OPENVASD_OK));
   assert_that (conn->host, is_equal_to_string (host));
 
-  assert_that (openvasd_connector_builder (conn, OPENVASD_SCAN_ID, scan_id), is_equal_to (OPENVASD_OK));
+  assert_that (openvasd_connector_builder (conn, OPENVASD_SCAN_ID, scan_id),
+               is_equal_to (OPENVASD_OK));
   assert_that (conn->scan_id, is_equal_to_string (scan_id));
 
-  assert_that (openvasd_connector_builder (conn, OPENVASD_PORT, &port), is_equal_to (OPENVASD_OK));
+  assert_that (openvasd_connector_builder (conn, OPENVASD_PORT, &port),
+               is_equal_to (OPENVASD_OK));
   assert_that (conn->port, is_equal_to (port));
 
   g_free (conn->ca_cert);
@@ -184,24 +194,26 @@ Ensure (openvasd, openvasd_connector_builder_all_valid_fields)
 Ensure (openvasd, openvasd_connector_builder_valid_protocol_http)
 {
   openvasd_connector_t conn = openvasd_connector_new ();
-  openvasd_error_t result = openvasd_connector_builder (conn, OPENVASD_PROTOCOL, "http");
+  openvasd_error_t result =
+    openvasd_connector_builder (conn, OPENVASD_PROTOCOL, "http");
 
   assert_that (result, is_equal_to (OPENVASD_OK));
   assert_that (conn->protocol, is_equal_to_string ("http"));
 
-  g_free(conn->protocol);
-  g_free(conn);
+  g_free (conn->protocol);
+  g_free (conn);
 }
 
 Ensure (openvasd, openvasd_connector_builder_invalid_protocol)
 {
   openvasd_connector_t conn = openvasd_connector_new ();
-  openvasd_error_t result = openvasd_connector_builder (conn, OPENVASD_PROTOCOL, "ftp");
+  openvasd_error_t result =
+    openvasd_connector_builder (conn, OPENVASD_PROTOCOL, "ftp");
 
   assert_that (result, is_equal_to (OPENVASD_INVALID_VALUE));
   assert_that (conn->protocol, is_null);
 
-  g_free(conn);
+  g_free (conn);
 }
 
 Ensure (openvasd, openvasd_connector_free)
@@ -227,7 +239,7 @@ Ensure (openvasd, openvasd_connector_free_null_connector)
   openvasd_connector_t null_conn = NULL;
   openvasd_error_t result = openvasd_connector_free (null_conn);
 
-  assert_that(result, is_equal_to (OPENVASD_OK));
+  assert_that (result, is_equal_to (OPENVASD_OK));
 }
 
 /* Test suite. */
@@ -247,8 +259,7 @@ main (int argc, char **argv)
                          openvasd_connector_builder_valid_protocol_http);
   add_test_with_context (suite, openvasd,
                          openvasd_connector_builder_invalid_protocol);
-  add_test_with_context (suite, openvasd,
-                         openvasd_connector_free);
+  add_test_with_context (suite, openvasd, openvasd_connector_free);
   add_test_with_context (suite, openvasd,
                          openvasd_connector_builder_invalid_protocol);
 

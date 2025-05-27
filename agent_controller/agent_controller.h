@@ -7,21 +7,25 @@
  * @file agent_controller.h
  * @brief Agent Controller client API for managing agents over HTTP(S).
  *
- * This module provides a high-level API for interacting with an Agent Controller
- * service. It includes functionalities for:
+ * This module provides a high-level API for interacting with an Agent
+ * Controller service. It includes functionalities for:
  *
- * - Building and managing connector configurations (e.g., certificates, API keys, etc.)
+ * - Building and managing connector configurations (e.g., certificates, API
+ * keys, etc.)
  * - Creating, updating, authorizing, and deleting agent entries
  * - Managing agent lists and updating their configuration schedules and servers
- * - Allocating and freeing data structures associated with agents and their updates
+ * - Allocating and freeing data structures associated with agents and their
+ * updates
  *
  * Core data structures:
- * - `agent_controller_connector_t`: Handles connection settings for the Agent Controller
+ * - `agent_controller_connector_t`: Handles connection settings for the Agent
+ * Controller
  * - `agent_controller_agent_t`: Represents a single agent with its metadata
  * - `agent_controller_agent_list_t`: Holds a collection of agents
  * - `agent_controller_agent_update_t`: Represents update parameters for agents
  * - `agent_controller_config_schedule_t`: Represents agent scheduling settings
- * - `agent_controller_config_server_t`: Represents server configuration for an agent
+ * - `agent_controller_config_server_t`: Represents server configuration for an
+ * agent
  */
 
 #ifndef AGENT_CONTROLLER_H
@@ -61,19 +65,20 @@ typedef enum
  */
 struct agent_controller_config_schedule
 {
-  gchar *schedule;  ///< Schedule expression, e.g., "@every 12h"
+  gchar *schedule; ///< Schedule expression, e.g., "@every 12h"
 };
-typedef struct agent_controller_config_schedule *agent_controller_config_schedule_t;
+typedef struct agent_controller_config_schedule
+  *agent_controller_config_schedule_t;
 
 /**
  * @brief Struct for agent server configuration.
  */
 struct agent_controller_config_server
 {
-  gchar *base_url;           ///< Base URL of the agent control server
-  gchar *agent_id;           ///< Agent ID assigned by the scan-agent
-  gchar *token;              ///< Authentication token
-  gchar *server_cert_hash;   ///< Server certificate fingerprint or hash
+  gchar *base_url;         ///< Base URL of the agent control server
+  gchar *agent_id;         ///< Agent ID assigned by the scan-agent
+  gchar *token;            ///< Authentication token
+  gchar *server_cert_hash; ///< Server certificate fingerprint or hash
 };
 typedef struct agent_controller_config_server *agent_controller_config_server_t;
 
@@ -82,18 +87,19 @@ typedef struct agent_controller_config_server *agent_controller_config_server_t;
  */
 struct agent_controller_agent
 {
-  gchar *agent_id;                   ///< Unique agent identifier
-  gchar *hostname;                   ///< Hostname of the agent machine
-  int authorized;                    ///< Authorization status (1: authorized, 0: unauthorized)
-  int min_interval;                  ///< Minimum update interval in seconds
-  int heartbeat_interval;            ///< Heartbeat reporting interval
-  gchar *connection_status;          ///< Connection status ("active"or "inactive")
-  gchar **ip_addresses;              ///< List of IP addresses
-  int ip_address_count;              ///< Number of IP addresses
-  time_t last_update;                ///< Timestamp of the last update (seconds since epoch)
-  agent_controller_config_schedule_t schedule_config; ///< Agent schedule configuration
-  agent_controller_config_server_t server_config;     ///< Server configuration
-                                                      ///< associated with the agent
+  gchar *agent_id;  ///< Unique agent identifier
+  gchar *hostname;  ///< Hostname of the agent machine
+  int authorized;   ///< Authorization status (1: authorized, 0: unauthorized)
+  int min_interval; ///< Minimum update interval in seconds
+  int heartbeat_interval;   ///< Heartbeat reporting interval
+  gchar *connection_status; ///< Connection status ("active"or "inactive")
+  gchar **ip_addresses;     ///< List of IP addresses
+  int ip_address_count;     ///< Number of IP addresses
+  time_t last_update; ///< Timestamp of the last update (seconds since epoch)
+  agent_controller_config_schedule_t
+    schedule_config; ///< Agent schedule configuration
+  agent_controller_config_server_t server_config; ///< Server configuration
+                                                  ///< associated with the agent
 };
 typedef struct agent_controller_agent *agent_controller_agent_t;
 
@@ -112,10 +118,11 @@ typedef struct agent_controller_agent_list *agent_controller_agent_list_t;
  */
 struct agent_controller_agent_update
 {
-  int authorized;                    ///< Authorization status for update
-  int min_interval;                  ///< New minimum interval
-  int heartbeat_interval;            ///< New heartbeat interval
-  agent_controller_config_schedule_t schedule_config; ///< New schedule configuration
+  int authorized;         ///< Authorization status for update
+  int min_interval;       ///< New minimum interval
+  int heartbeat_interval; ///< New heartbeat interval
+  agent_controller_config_schedule_t
+    schedule_config; ///< New schedule configuration
 };
 typedef struct agent_controller_agent_update *agent_controller_agent_update_t;
 
@@ -136,7 +143,7 @@ void
 agent_controller_connector_free (agent_controller_connector_t connector);
 
 agent_controller_agent_t
-agent_controller_agent_new(void);
+agent_controller_agent_new (void);
 
 void
 agent_controller_agent_free (agent_controller_agent_t agent);
@@ -157,7 +164,8 @@ agent_controller_config_schedule_t
 agent_controller_config_schedule_new (void);
 
 void
-agent_controller_config_schedule_free (agent_controller_config_schedule_t schedule);
+agent_controller_config_schedule_free (
+  agent_controller_config_schedule_t schedule);
 
 agent_controller_config_server_t
 agent_controller_config_server_new (void);
