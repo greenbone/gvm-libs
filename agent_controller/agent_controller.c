@@ -12,7 +12,8 @@
  *
  * - Building and configuring connections with authentication and TLS options
  * - Creating, updating, authorizing, and deleting agent records
- * - Managing agent data structures like agent lists, configurations, and updates
+ * - Managing agent data structures like agent lists, configurations, and
+ * updates
  * - Memory-safe allocation and cleanup routines for agents and configurations
  *
  * The API abstracts the communication and management logic to simplify
@@ -52,7 +53,8 @@ struct agent_controller_connector
  * @brief Initialize custom HTTP headers for Agent Controller requests.
  *
  * @param[in] bearer_token The Bearer token to use for Authorization (optional).
- * @param[in] content_type Whether to add "Content-Type: application/json" (TRUE/FALSE).
+ * @param[in] content_type Whether to add "Content-Type: application/json"
+ * (TRUE/FALSE).
  *
  * @return A newly allocated `gvm_http_headers_t *` containing the headers.
  *         Must be freed with `gvm_http_headers_free()`.
@@ -87,8 +89,8 @@ init_custom_header (const gchar *bearer_token, gboolean content_type)
 /**
  * @brief Sends an HTTP(S) request to the agent-control server.
  *
- * @param[in] conn          The `agent_controller_connector_t` containing server and
- * certificate details.
+ * @param[in] conn          The `agent_controller_connector_t` containing server
+ * and certificate details.
  * @param[in] method        The HTTP method (GET, POST, PUT, etc.).
  * @param[in] path          The request path (e.g., "/api/v1/admin/agents").
  * @param[in] payload       Optional request body payload.
@@ -148,14 +150,16 @@ agent_controller_send_request (agent_controller_connector_t conn,
  * @return Parsed time as time_t, or 0 on failure.
  */
 static time_t
-parse_datetime (const char *datetime_str) {
+parse_datetime (const char *datetime_str)
+{
   struct tm tm = {0};
   int milliseconds = 0;
 
   // Read year, month, day, hour, minute, second
-  if (sscanf (datetime_str, "%4d-%2d-%2dT%2d:%2d:%2d.%dZ",
-             &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
-             &tm.tm_hour, &tm.tm_min, &tm.tm_sec, &milliseconds) != 7)
+  if (sscanf (datetime_str, "%4d-%2d-%2dT%2d:%2d:%2d.%dZ", &tm.tm_year,
+              &tm.tm_mon, &tm.tm_mday, &tm.tm_hour, &tm.tm_min, &tm.tm_sec,
+              &milliseconds)
+      != 7)
     {
       return (time_t) 0; // Failed
     }
@@ -209,7 +213,8 @@ agent_controller_parse_agent (cJSON *item)
     {
       int ips_count = cJSON_GetArraySize (ips_array);
       agent->ip_address_count = ips_count;
-      agent->ip_addresses = g_malloc0 (sizeof (gchar *) * (ips_count > 0 ? ips_count : 1));
+      agent->ip_addresses =
+        g_malloc0 (sizeof (gchar *) * (ips_count > 0 ? ips_count : 1));
 
       for (int j = 0; j < ips_count; ++j)
         {
@@ -240,17 +245,23 @@ agent_controller_parse_agent (cJSON *item)
       cJSON *server_obj = cJSON_GetObjectItem (config_obj, "control-server");
       if (server_obj && cJSON_IsObject (server_obj))
         {
-          agent->server_config = g_malloc0 (sizeof (struct agent_controller_config_server));
+          agent->server_config =
+            g_malloc0 (sizeof (struct agent_controller_config_server));
 
           const gchar *base_url = gvm_json_obj_str (server_obj, "base_url");
-          const gchar *server_agent_id = gvm_json_obj_str (server_obj, "agent_id");
+          const gchar *server_agent_id =
+            gvm_json_obj_str (server_obj, "agent_id");
           const gchar *token = gvm_json_obj_str (server_obj, "token");
-          const gchar *server_cert_hash = gvm_json_obj_str (server_obj, "server_cert_hash");
+          const gchar *server_cert_hash =
+            gvm_json_obj_str (server_obj, "server_cert_hash");
 
-          agent->server_config->base_url = base_url ? g_strdup (base_url) : NULL;
-          agent->server_config->agent_id = server_agent_id ? g_strdup (server_agent_id) : NULL;
+          agent->server_config->base_url =
+            base_url ? g_strdup (base_url) : NULL;
+          agent->server_config->agent_id =
+            server_agent_id ? g_strdup (server_agent_id) : NULL;
           agent->server_config->token = token ? g_strdup (token) : NULL;
-          agent->server_config->server_cert_hash = server_cert_hash ? g_strdup (server_cert_hash) : NULL;
+          agent->server_config->server_cert_hash =
+            server_cert_hash ? g_strdup (server_cert_hash) : NULL;
         }
     }
 
@@ -263,14 +274,15 @@ agent_controller_parse_agent (cJSON *item)
  * @param[in] agents List of agents to include in the payload.
  * @param[in] update Optional update template to override agent fields.
  *
- * @return A newly allocated JSON string (unformatted) representing the update payload.
- *         The caller is responsible for freeing the returned string using `g_free()`.
+ * @return A newly allocated JSON string (unformatted) representing the update
+ * payload. The caller is responsible for freeing the returned string using
+ * `g_free()`.
  */
 static gchar *
 agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
                                       agent_controller_agent_update_t update)
 {
-  if (!agents || agents->count <=0)
+  if (!agents || agents->count <= 0)
     return NULL;
 
   cJSON *patch_body = cJSON_CreateObject ();
@@ -287,19 +299,20 @@ agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
       int use_authorized = agent->authorized;
       if (update && update->authorized != -1)
         use_authorized = update->authorized;
-      cJSON_AddBoolToObject(agent_obj, "authorized", use_authorized);
+      cJSON_AddBoolToObject (agent_obj, "authorized", use_authorized);
 
       // min_interval
       int use_min_interval = agent->min_interval;
       if (update && update->min_interval != -1)
         use_min_interval = update->min_interval;
-      cJSON_AddNumberToObject(agent_obj, "min_interval", use_min_interval);
+      cJSON_AddNumberToObject (agent_obj, "min_interval", use_min_interval);
 
       // heartbeat_interval
       int use_heartbeat_interval = agent->heartbeat_interval;
       if (update && update->heartbeat_interval != -1)
         use_heartbeat_interval = update->heartbeat_interval;
-      cJSON_AddNumberToObject(agent_obj, "heartbeat_interval", use_heartbeat_interval);
+      cJSON_AddNumberToObject (agent_obj, "heartbeat_interval",
+                               use_heartbeat_interval);
 
       // Config block
       cJSON *config_obj = NULL;
@@ -420,7 +433,8 @@ agent_controller_connector_builder (agent_controller_connector_t conn,
 agent_controller_agent_t
 agent_controller_agent_new (void)
 {
-  agent_controller_agent_t agent = g_malloc0 (sizeof (struct agent_controller_agent));
+  agent_controller_agent_t agent =
+    g_malloc0 (sizeof (struct agent_controller_agent));
   return agent;
 }
 
@@ -508,7 +522,8 @@ agent_controller_agent_list_free (agent_controller_agent_list_t list)
 agent_controller_agent_update_t
 agent_controller_agent_update_new (void)
 {
-  agent_controller_agent_update_t update = g_malloc0 (sizeof(struct agent_controller_agent_update));
+  agent_controller_agent_update_t update =
+    g_malloc0 (sizeof (struct agent_controller_agent_update));
 
   update->authorized = -1;
   update->min_interval = -1;
@@ -545,7 +560,7 @@ agent_controller_agent_update_free (agent_controller_agent_update_t update)
 agent_controller_config_schedule_t
 agent_controller_config_schedule_new (void)
 {
-  return g_malloc0 (sizeof(struct agent_controller_config_schedule));
+  return g_malloc0 (sizeof (struct agent_controller_config_schedule));
 }
 
 /**
@@ -554,7 +569,8 @@ agent_controller_config_schedule_new (void)
  * @param[in] schedule to be freed
  */
 void
-agent_controller_config_schedule_free (agent_controller_config_schedule_t schedule)
+agent_controller_config_schedule_free (
+  agent_controller_config_schedule_t schedule)
 {
   if (!schedule)
     return;
@@ -572,7 +588,7 @@ agent_controller_config_schedule_free (agent_controller_config_schedule_t schedu
 agent_controller_config_server_t
 agent_controller_config_server_new (void)
 {
-  return g_malloc0 (sizeof(struct agent_controller_config_server));
+  return g_malloc0 (sizeof (struct agent_controller_config_server));
 }
 
 /**
@@ -586,12 +602,12 @@ agent_controller_config_server_free (agent_controller_config_server_t server)
   if (!server)
     return;
 
-  g_free(server->base_url);
-  g_free(server->agent_id);
-  g_free(server->token);
-  g_free(server->server_cert_hash);
+  g_free (server->base_url);
+  g_free (server->agent_id);
+  g_free (server->token);
+  g_free (server->server_cert_hash);
 
-  g_free(server);
+  g_free (server);
 }
 
 /**
@@ -611,12 +627,7 @@ agent_controller_get_agents (agent_controller_connector_t conn)
     }
 
   gvm_http_response_t *response = agent_controller_send_request (
-    conn,
-    GET,
-    "/api/v1/admin/agents",
-    NULL,
-    conn->apikey
-  );
+    conn, GET, "/api/v1/admin/agents", NULL, conn->apikey);
 
   if (!response)
     {
@@ -643,11 +654,13 @@ agent_controller_get_agents (agent_controller_connector_t conn)
     }
 
   int count = cJSON_GetArraySize (root);
-  agent_controller_agent_list_t agent_list = agent_controller_agent_list_new (count);
+  agent_controller_agent_list_t agent_list =
+    agent_controller_agent_list_new (count);
 
   if (!agent_list)
     {
-      g_warning ("%s: Failed to initialize Agent List. Count: %d", __func__, count);
+      g_warning ("%s: Failed to initialize Agent List. Count: %d", __func__,
+                 count);
       return NULL;
     }
 
@@ -707,12 +720,7 @@ agent_controller_authorize_agents (agent_controller_connector_t conn,
     }
 
   gvm_http_response_t *response = agent_controller_send_request (
-    conn,
-    PATCH,
-    "/api/v1/admin/agents",
-    payload,
-    conn->apikey
-  );
+    conn, PATCH, "/api/v1/admin/agents", payload, conn->apikey);
 
   g_free (payload);
 
@@ -724,7 +732,8 @@ agent_controller_authorize_agents (agent_controller_connector_t conn,
 
   if (response->http_status != 200)
     {
-      g_warning ("%s: Received HTTP status %ld", __func__, response->http_status);
+      g_warning ("%s: Received HTTP status %ld", __func__,
+                 response->http_status);
       gvm_http_response_cleanup (response);
       return AGENT_RESP_ERR;
     }
@@ -750,24 +759,20 @@ agent_controller_update_agents (agent_controller_connector_t conn,
 {
   if (!conn || !agents || !update)
     {
-      g_warning ("%s: Invalid connection, agent list, or update override", __func__);
+      g_warning ("%s: Invalid connection, agent list, or update override",
+                 __func__);
       return AGENT_RESP_ERR;
     }
 
   gchar *payload = agent_controller_build_patch_payload (agents, update);
   if (!payload)
     {
-      g_warning("%s: Failed to build PATCH payload", __func__);
+      g_warning ("%s: Failed to build PATCH payload", __func__);
       return AGENT_RESP_ERR;
     }
 
   gvm_http_response_t *response = agent_controller_send_request (
-    conn,
-    PATCH,
-    "/api/v1/admin/agents",
-    payload,
-    conn->apikey
-  );
+    conn, PATCH, "/api/v1/admin/agents", payload, conn->apikey);
 
   g_free (payload);
 
@@ -779,7 +784,8 @@ agent_controller_update_agents (agent_controller_connector_t conn,
 
   if (response->http_status != 200)
     {
-      g_warning ("%s: Received HTTP status %ld", __func__, response->http_status);
+      g_warning ("%s: Received HTTP status %ld", __func__,
+                 response->http_status);
       gvm_http_response_cleanup (response);
       return AGENT_RESP_ERR;
     }
@@ -810,7 +816,7 @@ agent_controller_delete_agents (agent_controller_connector_t conn,
   cJSON *payload_array = cJSON_CreateArray ();
   if (!payload_array)
     {
-      g_warning("%s: Failed to create JSON array", __func__);
+      g_warning ("%s: Failed to create JSON array", __func__);
       return AGENT_RESP_ERR;
     }
 
@@ -819,7 +825,8 @@ agent_controller_delete_agents (agent_controller_connector_t conn,
       agent_controller_agent_t agent = agents->agents[i];
       if (agent && agent->agent_id)
         {
-          cJSON_AddItemToArray (payload_array, cJSON_CreateString(agent->agent_id));
+          cJSON_AddItemToArray (payload_array,
+                                cJSON_CreateString (agent->agent_id));
         }
     }
 
@@ -833,12 +840,7 @@ agent_controller_delete_agents (agent_controller_connector_t conn,
     }
 
   gvm_http_response_t *response = agent_controller_send_request (
-    conn,
-    POST,
-    "/api/v1/admin/agents/delete",
-    payload,
-    conn->apikey
-  );
+    conn, POST, "/api/v1/admin/agents/delete", payload, conn->apikey);
 
   g_free (payload);
 
@@ -850,7 +852,8 @@ agent_controller_delete_agents (agent_controller_connector_t conn,
 
   if (response->http_status != 200)
     {
-      g_warning ("%s: Received HTTP status %ld", __func__, response->http_status);
+      g_warning ("%s: Received HTTP status %ld", __func__,
+                 response->http_status);
       gvm_http_response_cleanup (response);
       return AGENT_RESP_ERR;
     }

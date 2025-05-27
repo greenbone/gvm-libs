@@ -45,7 +45,7 @@ AfterEach (agent_controller)
 gboolean
 gvm_http_add_header (gvm_http_headers_t *headers, const gchar *header)
 {
-  (void)headers;
+  (void) headers;
 
   if (!called_headers)
     called_headers = g_ptr_array_new_with_free_func (g_free);
@@ -57,10 +57,15 @@ gvm_http_add_header (gvm_http_headers_t *headers, const gchar *header)
 gvm_http_response_t *
 gvm_http_request (const gchar *url, gvm_http_method_t method,
                   const gchar *payload, gvm_http_headers_t *headers,
-                  const gchar *ca_cert, const gchar *cert,
-                  const gchar *key, gvm_http_response_stream_t stream)
+                  const gchar *ca_cert, const gchar *cert, const gchar *key,
+                  gvm_http_response_stream_t stream)
 {
-  (void)headers; (void)ca_cert; (void)cert; (void)key; (void)stream; (void)method;
+  (void) headers;
+  (void) ca_cert;
+  (void) cert;
+  (void) key;
+  (void) stream;
+  (void) method;
 
   last_sent_url = g_strdup (url);
   last_sent_payload = g_strdup (payload);
@@ -70,7 +75,8 @@ gvm_http_request (const gchar *url, gvm_http_method_t method,
 
   gvm_http_response_t *response = g_malloc0 (sizeof (gvm_http_response_t));
   response->http_status = mock_http_status;
-  response->data = mock_response_data ? g_strdup (mock_response_data) : g_strdup ("{}");
+  response->data =
+    mock_response_data ? g_strdup (mock_response_data) : g_strdup ("{}");
   return response;
 }
 
@@ -114,7 +120,8 @@ Ensure (agent_controller, connector_free_safely)
   agent_controller_connector_builder (conn, AGENT_CONTROLLER_CERT, cert);
   agent_controller_connector_builder (conn, AGENT_CONTROLLER_KEY, key);
   agent_controller_connector_builder (conn, AGENT_CONTROLLER_API_KEY, apikey);
-  agent_controller_connector_builder (conn, AGENT_CONTROLLER_PROTOCOL, protocol);
+  agent_controller_connector_builder (conn, AGENT_CONTROLLER_PROTOCOL,
+                                      protocol);
   agent_controller_connector_builder (conn, AGENT_CONTROLLER_HOST, host);
   agent_controller_connector_builder (conn, AGENT_CONTROLLER_PORT, &port);
 
@@ -124,7 +131,7 @@ Ensure (agent_controller, connector_free_safely)
 
 Ensure (agent_controller, connector_builder_all_valid_fields)
 {
-  agent_controller_connector_t conn = agent_controller_connector_new();
+  agent_controller_connector_t conn = agent_controller_connector_new ();
 
   const char *ca_cert = "/path/ca.pem";
   const char *cert = "/path/cert.pem";
@@ -134,25 +141,39 @@ Ensure (agent_controller, connector_builder_all_valid_fields)
   const char *host = "127.0.0.1";
   int port = 8443;
 
-  assert_that (agent_controller_connector_builder (conn, AGENT_CONTROLLER_CA_CERT, ca_cert), is_equal_to (AGENT_CONTROLLER_OK));
+  assert_that (agent_controller_connector_builder (
+                 conn, AGENT_CONTROLLER_CA_CERT, ca_cert),
+               is_equal_to (AGENT_CONTROLLER_OK));
   assert_that (conn->ca_cert, is_equal_to_string (ca_cert));
 
-  assert_that (agent_controller_connector_builder (conn, AGENT_CONTROLLER_CERT, cert), is_equal_to (AGENT_CONTROLLER_OK));
+  assert_that (
+    agent_controller_connector_builder (conn, AGENT_CONTROLLER_CERT, cert),
+    is_equal_to (AGENT_CONTROLLER_OK));
   assert_that (conn->cert, is_equal_to_string (cert));
 
-  assert_that (agent_controller_connector_builder (conn, AGENT_CONTROLLER_KEY, key), is_equal_to (AGENT_CONTROLLER_OK));
+  assert_that (
+    agent_controller_connector_builder (conn, AGENT_CONTROLLER_KEY, key),
+    is_equal_to (AGENT_CONTROLLER_OK));
   assert_that (conn->key, is_equal_to_string (key));
 
-  assert_that (agent_controller_connector_builder (conn, AGENT_CONTROLLER_API_KEY, apikey), is_equal_to (AGENT_CONTROLLER_OK));
+  assert_that (
+    agent_controller_connector_builder (conn, AGENT_CONTROLLER_API_KEY, apikey),
+    is_equal_to (AGENT_CONTROLLER_OK));
   assert_that (conn->apikey, is_equal_to_string (apikey));
 
-  assert_that (agent_controller_connector_builder (conn, AGENT_CONTROLLER_PROTOCOL, protocol), is_equal_to (AGENT_CONTROLLER_OK));
-  assert_that (conn->protocol, is_equal_to_string(protocol));
+  assert_that (agent_controller_connector_builder (
+                 conn, AGENT_CONTROLLER_PROTOCOL, protocol),
+               is_equal_to (AGENT_CONTROLLER_OK));
+  assert_that (conn->protocol, is_equal_to_string (protocol));
 
-  assert_that (agent_controller_connector_builder (conn, AGENT_CONTROLLER_HOST, host), is_equal_to (AGENT_CONTROLLER_OK));
-  assert_that (conn->host, is_equal_to_string(host));
+  assert_that (
+    agent_controller_connector_builder (conn, AGENT_CONTROLLER_HOST, host),
+    is_equal_to (AGENT_CONTROLLER_OK));
+  assert_that (conn->host, is_equal_to_string (host));
 
-  assert_that (agent_controller_connector_builder (conn, AGENT_CONTROLLER_PORT, &port), is_equal_to (AGENT_CONTROLLER_OK));
+  assert_that (
+    agent_controller_connector_builder (conn, AGENT_CONTROLLER_PORT, &port),
+    is_equal_to (AGENT_CONTROLLER_OK));
   assert_that (conn->port, is_equal_to (port));
 
   agent_controller_connector_free (conn);
@@ -161,7 +182,8 @@ Ensure (agent_controller, connector_builder_all_valid_fields)
 Ensure (agent_controller, connector_builder_valid_protocol_http)
 {
   agent_controller_connector_t conn = agent_controller_connector_new ();
-  agent_controller_error_t result = agent_controller_connector_builder (conn, AGENT_CONTROLLER_PROTOCOL, "http");
+  agent_controller_error_t result = agent_controller_connector_builder (
+    conn, AGENT_CONTROLLER_PROTOCOL, "http");
 
   assert_that (result, is_equal_to (AGENT_CONTROLLER_OK));
   assert_that (conn->protocol, is_equal_to_string ("http"));
@@ -172,7 +194,8 @@ Ensure (agent_controller, connector_builder_valid_protocol_http)
 Ensure (agent_controller, connector_builder_invalid_protocol)
 {
   agent_controller_connector_t conn = agent_controller_connector_new ();
-  agent_controller_error_t result = agent_controller_connector_builder (conn, AGENT_CONTROLLER_PROTOCOL, "ftp");
+  agent_controller_error_t result =
+    agent_controller_connector_builder (conn, AGENT_CONTROLLER_PROTOCOL, "ftp");
 
   assert_that (result, is_equal_to (AGENT_CONTROLLER_INVALID_VALUE));
   assert_that (conn->protocol, is_null);
@@ -245,7 +268,8 @@ Ensure (agent_controller, agent_list_new_allocates_list_and_agents_array)
 
 Ensure (agent_controller, agent_list_new_returns_null_for_invalid_count)
 {
-  agent_controller_agent_list_t list_negative = agent_controller_agent_list_new (-5);
+  agent_controller_agent_list_t list_negative =
+    agent_controller_agent_list_new (-5);
   assert_that (list_negative, is_null);
 }
 
@@ -290,7 +314,7 @@ Ensure (agent_controller, agent_update_new_initializes_defaults_correctly)
   assert_that (update->heartbeat_interval, is_equal_to (-1));
   assert_that (update->schedule_config, is_null);
 
-  agent_controller_agent_update_free(update);
+  agent_controller_agent_update_free (update);
 }
 
 Ensure (agent_controller, agent_update_free_handles_nested_schedule)
@@ -313,7 +337,8 @@ Ensure (agent_controller, agent_update_free_handles_null_schedule)
 
 Ensure (agent_controller, config_schedule_new_allocates_struct)
 {
-  agent_controller_config_schedule_t schedule = agent_controller_config_schedule_new ();
+  agent_controller_config_schedule_t schedule =
+    agent_controller_config_schedule_new ();
 
   assert_that (schedule, is_not_null);
 
@@ -324,7 +349,8 @@ Ensure (agent_controller, config_schedule_new_allocates_struct)
 
 Ensure (agent_controller, config_schedule_free_handles_populated_struct)
 {
-  agent_controller_config_schedule_t schedule = agent_controller_config_schedule_new ();
+  agent_controller_config_schedule_t schedule =
+    agent_controller_config_schedule_new ();
   assert_that (schedule, is_not_null);
 
   schedule->schedule = g_strdup ("@every 12h");
@@ -341,7 +367,8 @@ Ensure (agent_controller, config_schedule_free_handles_null_struct)
 
 Ensure (agent_controller, config_server_new_allocates_struct)
 {
-  agent_controller_config_server_t server = agent_controller_config_server_new ();
+  agent_controller_config_server_t server =
+    agent_controller_config_server_new ();
 
   assert_that (server, is_not_null);
 
@@ -355,7 +382,8 @@ Ensure (agent_controller, config_server_new_allocates_struct)
 
 Ensure (agent_controller, config_server_free_handles_populated_struct)
 {
-  agent_controller_config_server_t server = agent_controller_config_server_new ();
+  agent_controller_config_server_t server =
+    agent_controller_config_server_new ();
   assert_that (server, is_not_null);
 
   server->base_url = g_strdup ("https://example.com");
@@ -363,7 +391,7 @@ Ensure (agent_controller, config_server_free_handles_populated_struct)
   server->token = g_strdup ("secrettoken");
   server->server_cert_hash = g_strdup ("abc123hash");
 
-  agent_controller_config_server_free(server);
+  agent_controller_config_server_free (server);
   assert_that (true, is_true);
 }
 
@@ -393,7 +421,7 @@ Ensure (agent_controller, init_custom_header_calls_add_header)
   gvm_http_headers_free (headers);
 }
 
-Ensure(agent_controller, init_custom_header_calls_without_token_add_header)
+Ensure (agent_controller, init_custom_header_calls_without_token_add_header)
 {
   called_headers = NULL;
 
@@ -414,22 +442,23 @@ Ensure(agent_controller, init_custom_header_calls_without_token_add_header)
 Ensure (agent_controller, send_request_builds_url_and_calls_http_request)
 {
   agent_controller_connector_t conn = agent_controller_connector_new ();
-  conn->protocol = g_strdup("https");
-  conn->host = g_strdup("localhost");
+  conn->protocol = g_strdup ("https");
+  conn->host = g_strdup ("localhost");
   conn->port = 8080;
-  conn->ca_cert = g_strdup("ca.pem");
-  conn->cert = g_strdup("cert.pem");
-  conn->key = g_strdup("key.pem");
+  conn->ca_cert = g_strdup ("ca.pem");
+  conn->cert = g_strdup ("cert.pem");
+  conn->key = g_strdup ("key.pem");
 
   const gchar *path = "/api/v1/test";
   const gchar *token = "mytoken";
   const gchar *payload = "{\"key\":\"value\"}";
 
-  gvm_http_response_t *resp = agent_controller_send_request (conn, POST,
-                                                             path, payload, token);
+  gvm_http_response_t *resp =
+    agent_controller_send_request (conn, POST, path, payload, token);
 
   assert_that (resp, is_not_null);
-  assert_that (last_sent_url, is_equal_to_string ("https://localhost:8080/api/v1/test"));
+  assert_that (last_sent_url,
+               is_equal_to_string ("https://localhost:8080/api/v1/test"));
   assert_that (last_sent_payload, is_equal_to_string (payload));
 
   g_free (resp);
@@ -438,17 +467,19 @@ Ensure (agent_controller, send_request_builds_url_and_calls_http_request)
 
 Ensure (agent_controller, send_request_returns_null_if_conn_is_null)
 {
-  gvm_http_response_t *resp = agent_controller_send_request (NULL, POST, "/test", "{}", "token");
+  gvm_http_response_t *resp =
+    agent_controller_send_request (NULL, POST, "/test", "{}", "token");
   assert_that (resp, is_null);
 }
 
 Ensure (agent_controller, send_request_returns_null_if_protocol_missing)
 {
   agent_controller_connector_t conn = agent_controller_connector_new ();
-  conn->host = g_strdup("localhost");
+  conn->host = g_strdup ("localhost");
   conn->port = 8080;
 
-  gvm_http_response_t *resp = agent_controller_send_request (conn, GET, "/test", NULL, NULL);
+  gvm_http_response_t *resp =
+    agent_controller_send_request (conn, GET, "/test", NULL, NULL);
   assert_that (resp, is_null);
 
   agent_controller_connector_free (conn);
@@ -460,7 +491,8 @@ Ensure (agent_controller, send_request_returns_null_if_host_missing)
   conn->protocol = g_strdup ("http");
   conn->port = 8080;
 
-  gvm_http_response_t *resp = agent_controller_send_request (conn, GET, "/test", NULL, NULL);
+  gvm_http_response_t *resp =
+    agent_controller_send_request (conn, GET, "/test", NULL, NULL);
   assert_that (resp, is_null);
 
   agent_controller_connector_free (conn);
@@ -473,10 +505,12 @@ Ensure (agent_controller, send_request_works_without_bearer_token)
   conn->host = g_strdup ("localhost");
   conn->port = 8080;
 
-  gvm_http_response_t *resp = agent_controller_send_request (conn, GET, "/test", NULL, "");
+  gvm_http_response_t *resp =
+    agent_controller_send_request (conn, GET, "/test", NULL, "");
 
   assert_that (resp, is_not_null);
-  assert_that (last_sent_url, is_equal_to_string ("https://localhost:8080/test"));
+  assert_that (last_sent_url,
+               is_equal_to_string ("https://localhost:8080/test"));
 
   g_free (resp);
   agent_controller_connector_free (conn);
@@ -495,21 +529,21 @@ Ensure (agent_controller, parse_datetime_parses_valid_datetime)
   expected.tm_min = 6;
   expected.tm_sec = 0;
 
-  assert_that(t, is_equal_to (timegm (&expected)));
+  assert_that (t, is_equal_to (timegm (&expected)));
 }
 
 Ensure (agent_controller, parse_datetime_returns_zero_for_invalid_format)
 {
   const char *invalid_str = "not-a-datetime";
   time_t t = parse_datetime (invalid_str);
-  assert_that(t, is_equal_to ((time_t)0));
+  assert_that (t, is_equal_to ((time_t) 0));
 }
 
 Ensure (agent_controller, parse_datetime_handles_missing_fractional_seconds)
 {
   const char *missing_fraction = "2025-04-29T13:06:00Z";
   time_t t = parse_datetime (missing_fraction);
-  assert_that (t, is_equal_to ((time_t)0));
+  assert_that (t, is_equal_to ((time_t) 0));
 }
 
 Ensure (agent_controller, parse_datetime_parses_leap_year_date)
@@ -531,23 +565,23 @@ Ensure (agent_controller, parse_datetime_parses_leap_year_date)
 Ensure (agent_controller, parse_datetime_returns_zero_if_null_input)
 {
   time_t t = parse_datetime (NULL);
-  assert_that (t, is_equal_to ((time_t)0));
+  assert_that (t, is_equal_to ((time_t) 0));
 }
 
 Ensure (agent_controller, parse_agent_with_minimal_fields)
 {
   const char *json = "{"
-    "\"agentid\": \"a1\","
-    "\"hostname\": \"host1\","
-    "\"connection_status\": \"active\","
-    "\"authorized\": true,"
-    "\"min_interval\": 10,"
-    "\"heartbeat_interval\": 20,"
-    "\"last_update\": \"2025-04-29T13:06:00.34994Z\","
-    "\"ip_addresses\": [\"192.168.1.1\"]"
-  "}";
+                     "\"agentid\": \"a1\","
+                     "\"hostname\": \"host1\","
+                     "\"connection_status\": \"active\","
+                     "\"authorized\": true,"
+                     "\"min_interval\": 10,"
+                     "\"heartbeat_interval\": 20,"
+                     "\"last_update\": \"2025-04-29T13:06:00.34994Z\","
+                     "\"ip_addresses\": [\"192.168.1.1\"]"
+                     "}";
 
-  cJSON *obj = cJSON_Parse(json);
+  cJSON *obj = cJSON_Parse (json);
   agent_controller_agent_t agent = agent_controller_parse_agent (obj);
 
   assert_that (agent, is_not_null);
@@ -559,7 +593,7 @@ Ensure (agent_controller, parse_agent_with_minimal_fields)
   assert_that (agent->heartbeat_interval, is_equal_to (20));
   assert_that (agent->ip_address_count, is_equal_to (1));
   assert_that (agent->ip_addresses[0], is_equal_to_string ("192.168.1.1"));
-  assert_that (agent->last_update, is_not_equal_to ((time_t)0));
+  assert_that (agent->last_update, is_not_equal_to ((time_t) 0));
 
   agent_controller_agent_free (agent);
   cJSON_Delete (obj);
@@ -568,37 +602,41 @@ Ensure (agent_controller, parse_agent_with_minimal_fields)
 Ensure (agent_controller, parse_agent_with_config_and_server)
 {
   const char *json = "{"
-    "\"agentid\": \"a2\","
-    "\"hostname\": \"host2\","
-    "\"authorized\": false,"
-    "\"min_interval\": 15,"
-    "\"heartbeat_interval\": 25,"
-    "\"connection_status\": \"idle\","
-    "\"last_update\": \"2025-04-29T10:00:00.00000Z\","
-    "\"ip_addresses\": [],"
-    "\"config\": {"
-      "\"schedule\": { \"schedule\": \"@every 5m\" },"
-      "\"control-server\": {"
-        "\"base_url\": \"https://ctrl.local\","
-        "\"agent_id\": \"agent-ctrl\","
-        "\"token\": \"xyz123\","
-        "\"server_cert_hash\": \"abc123hash\""
-      "}"
-    "}"
-  "}";
+                     "\"agentid\": \"a2\","
+                     "\"hostname\": \"host2\","
+                     "\"authorized\": false,"
+                     "\"min_interval\": 15,"
+                     "\"heartbeat_interval\": 25,"
+                     "\"connection_status\": \"idle\","
+                     "\"last_update\": \"2025-04-29T10:00:00.00000Z\","
+                     "\"ip_addresses\": [],"
+                     "\"config\": {"
+                     "\"schedule\": { \"schedule\": \"@every 5m\" },"
+                     "\"control-server\": {"
+                     "\"base_url\": \"https://ctrl.local\","
+                     "\"agent_id\": \"agent-ctrl\","
+                     "\"token\": \"xyz123\","
+                     "\"server_cert_hash\": \"abc123hash\""
+                     "}"
+                     "}"
+                     "}";
 
   cJSON *obj = cJSON_Parse (json);
   agent_controller_agent_t agent = agent_controller_parse_agent (obj);
 
   assert_that (agent, is_not_null);
   assert_that (agent->schedule_config, is_not_null);
-  assert_that (agent->schedule_config->schedule, is_equal_to_string ("@every 5m"));
+  assert_that (agent->schedule_config->schedule,
+               is_equal_to_string ("@every 5m"));
 
   assert_that (agent->server_config, is_not_null);
-  assert_that (agent->server_config->base_url, is_equal_to_string ("https://ctrl.local"));
-  assert_that (agent->server_config->agent_id, is_equal_to_string ("agent-ctrl"));
+  assert_that (agent->server_config->base_url,
+               is_equal_to_string ("https://ctrl.local"));
+  assert_that (agent->server_config->agent_id,
+               is_equal_to_string ("agent-ctrl"));
   assert_that (agent->server_config->token, is_equal_to_string ("xyz123"));
-  assert_that (agent->server_config->server_cert_hash, is_equal_to_string ("abc123hash"));
+  assert_that (agent->server_config->server_cert_hash,
+               is_equal_to_string ("abc123hash"));
 
   agent_controller_agent_free (agent);
   cJSON_Delete (obj);
@@ -607,9 +645,9 @@ Ensure (agent_controller, parse_agent_with_config_and_server)
 Ensure (agent_controller, parse_agent_missing_optional_fields)
 {
   const char *json = "{"
-    "\"agentid\": \"a3\","
-    "\"hostname\": \"host3\""
-  "}";
+                     "\"agentid\": \"a3\","
+                     "\"hostname\": \"host3\""
+                     "}";
 
   cJSON *obj = cJSON_Parse (json);
   agent_controller_agent_t agent = agent_controller_parse_agent (obj);
@@ -737,15 +775,14 @@ Ensure (agent_controller, patch_payload_overrides_only_schedule_config)
 
 Ensure (agent_controller, get_agents_returns_list_on_successful_response)
 {
-  mock_response_data =
-    "[{"
-    "\"agentid\": \"agent1\","
-    "\"hostname\": \"host-a\","
-    "\"authorized\": true,"
-    "\"min_interval\": 5,"
-    "\"heartbeat_interval\": 10,"
-    "\"connection_status\": \"online\""
-    "}]";
+  mock_response_data = "[{"
+                       "\"agentid\": \"agent1\","
+                       "\"hostname\": \"host-a\","
+                       "\"authorized\": true,"
+                       "\"min_interval\": 5,"
+                       "\"heartbeat_interval\": 10,"
+                       "\"connection_status\": \"online\""
+                       "}]";
   mock_http_status = 200;
 
   agent_controller_connector_t conn = agent_controller_connector_new ();
@@ -816,7 +853,7 @@ Ensure (agent_controller, authorize_agents_succeeds_with_valid_input)
   list->agents[0] = agent;
 
   int result = agent_controller_authorize_agents (conn, list);
-  assert_that (result, is_equal_to(0));
+  assert_that (result, is_equal_to (0));
 
   agent_controller_agent_list_free (list);
   agent_controller_connector_free (conn);
@@ -860,7 +897,7 @@ Ensure (agent_controller, authorize_agents_fails_when_payload_is_null)
   agent_controller_connector_free (conn);
 }
 
-Ensure(agent_controller, authorize_agents_fails_on_http_422)
+Ensure (agent_controller, authorize_agents_fails_on_http_422)
 {
   mock_http_status = 422;
   mock_response_data = g_strdup ("{}");
@@ -921,7 +958,7 @@ Ensure (agent_controller, update_agents_fails_with_null_connection)
   update->authorized = 1;
 
   int result = agent_controller_update_agents (NULL, list, update);
-  assert_that (result, is_equal_to(-1));
+  assert_that (result, is_equal_to (-1));
 
   agent_controller_agent_list_free (list);
   agent_controller_agent_update_free (update);
@@ -956,13 +993,13 @@ Ensure (agent_controller, update_agents_fails_with_null_update)
 Ensure (agent_controller, update_agents_fails_on_http_error_status)
 {
   mock_http_status = 400;
-  mock_response_data = g_strdup("{}");
+  mock_response_data = g_strdup ("{}");
 
   agent_controller_connector_t conn = agent_controller_connector_new ();
-  conn->protocol = g_strdup("https");
-  conn->host = g_strdup("localhost");
+  conn->protocol = g_strdup ("https");
+  conn->host = g_strdup ("localhost");
   conn->port = 8080;
-  conn->apikey = g_strdup("token");
+  conn->apikey = g_strdup ("token");
 
   agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
   list->agents[0] = agent_controller_agent_new ();
@@ -1037,8 +1074,8 @@ Ensure (agent_controller, delete_agents_fails_if_no_valid_ids)
   int result = agent_controller_delete_agents (conn, list);
   assert_that (result, is_equal_to (-1));
 
-  agent_controller_agent_list_free(list);
-  agent_controller_connector_free(conn);
+  agent_controller_agent_list_free (list);
+  agent_controller_connector_free (conn);
 }
 
 Ensure (agent_controller, delete_agents_fails_on_http_422)
@@ -1051,11 +1088,11 @@ Ensure (agent_controller, delete_agents_fails_on_http_422)
   conn->protocol = g_strdup ("https");
   conn->host = g_strdup ("localhost");
   conn->port = 8080;
-  conn->apikey = g_strdup("token");
+  conn->apikey = g_strdup ("token");
 
-  agent_controller_agent_list_t list = agent_controller_agent_list_new(1);
-  list->agents[0] = agent_controller_agent_new();
-  list->agents[0]->agent_id = g_strdup("agent");
+  agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
+  list->agents[0] = agent_controller_agent_new ();
+  list->agents[0]->agent_id = g_strdup ("agent");
 
   int result = agent_controller_delete_agents (conn, list);
   assert_that (result, is_equal_to (-1));
@@ -1069,66 +1106,124 @@ main (int argc, char **argv)
 {
   TestSuite *suite = create_test_suite ();
 
-  add_test_with_context (suite, agent_controller, connector_new_returns_valid_connector);
-  add_test_with_context (suite, agent_controller, connector_free_handles_null_safely);
+  add_test_with_context (suite, agent_controller,
+                         connector_new_returns_valid_connector);
+  add_test_with_context (suite, agent_controller,
+                         connector_free_handles_null_safely);
   add_test_with_context (suite, agent_controller, connector_free_safely);
-  add_test_with_context (suite, agent_controller, connector_builder_all_valid_fields);
-  add_test_with_context (suite, agent_controller, connector_builder_valid_protocol_http);
-  add_test_with_context (suite, agent_controller, connector_builder_invalid_protocol);
-  add_test_with_context (suite, agent_controller, agent_new_allocates_zero_initialized_agent);
+  add_test_with_context (suite, agent_controller,
+                         connector_builder_all_valid_fields);
+  add_test_with_context (suite, agent_controller,
+                         connector_builder_valid_protocol_http);
+  add_test_with_context (suite, agent_controller,
+                         connector_builder_invalid_protocol);
+  add_test_with_context (suite, agent_controller,
+                         agent_new_allocates_zero_initialized_agent);
   add_test_with_context (suite, agent_controller, agent_free_handles_agent);
-  add_test_with_context (suite, agent_controller, agent_free_handles_null_agent);
-  add_test_with_context (suite, agent_controller, agent_list_new_allocates_list_and_agents_array);
-  add_test_with_context (suite, agent_controller, agent_list_new_returns_null_for_invalid_count);
-  add_test_with_context (suite, agent_controller, agent_list_new_returns_array_for_0_count);
-  add_test_with_context (suite, agent_controller, agent_list_free_handles_populated_list);
-  add_test_with_context (suite, agent_controller, agent_list_free_handles_null_list);
-  add_test_with_context (suite, agent_controller, agent_update_new_initializes_defaults_correctly);
-  add_test_with_context (suite, agent_controller, agent_update_free_handles_nested_schedule);
-  add_test_with_context (suite, agent_controller, agent_update_free_handles_null_schedule);
-  add_test_with_context (suite, agent_controller, config_schedule_new_allocates_struct);
-  add_test_with_context (suite, agent_controller, config_schedule_free_handles_populated_struct);
-  add_test_with_context (suite, agent_controller, config_schedule_free_handles_null_struct);
-  add_test_with_context (suite, agent_controller, config_server_new_allocates_struct);
-  add_test_with_context (suite, agent_controller, config_server_free_handles_populated_struct);
-  add_test_with_context (suite, agent_controller, config_server_free_handles_null_struct);
-  add_test_with_context (suite, agent_controller, init_custom_header_calls_add_header);
-  add_test_with_context (suite, agent_controller, init_custom_header_calls_without_token_add_header);
-  add_test_with_context (suite, agent_controller, send_request_builds_url_and_calls_http_request);
-  add_test_with_context (suite, agent_controller, send_request_returns_null_if_conn_is_null);
-  add_test_with_context (suite, agent_controller, send_request_returns_null_if_protocol_missing);
-  add_test_with_context (suite, agent_controller, send_request_returns_null_if_host_missing);
-  add_test_with_context (suite, agent_controller, send_request_works_without_bearer_token);
-  add_test_with_context (suite, agent_controller, parse_datetime_parses_valid_datetime);
-  add_test_with_context (suite, agent_controller, parse_datetime_returns_zero_for_invalid_format);
-  add_test_with_context (suite, agent_controller, parse_datetime_handles_missing_fractional_seconds);
-  add_test_with_context (suite, agent_controller, parse_datetime_parses_leap_year_date);
-  add_test_with_context (suite, agent_controller, parse_agent_with_minimal_fields);
-  add_test_with_context (suite, agent_controller, parse_agent_with_config_and_server);
-  add_test_with_context (suite, agent_controller, parse_agent_missing_optional_fields);
-  add_test_with_context (suite, agent_controller, parse_agent_returns_null_on_null_input);
-  add_test_with_context (suite, agent_controller, build_patch_payload_from_single_agent);
-  add_test_with_context (suite, agent_controller, patch_payload_overrides_only_authorized_field);
-  add_test_with_context (suite, agent_controller, patch_payload_overrides_only_min_interval);
-  add_test_with_context (suite, agent_controller, patch_payload_overrides_only_schedule_config);
-  add_test_with_context (suite, agent_controller, get_agents_returns_list_on_successful_response);
-  add_test_with_context (suite, agent_controller, get_agents_returns_null_on_non_200_status);
-  add_test_with_context (suite, agent_controller, get_agents_returns_null_on_invalid_json);
-  add_test_with_context (suite, agent_controller, authorize_agents_succeeds_with_valid_input);
-  add_test_with_context (suite, agent_controller, authorize_agents_fails_with_null_conn);
-  add_test_with_context (suite, agent_controller, authorize_agents_fails_with_null_agents);
-  add_test_with_context (suite, agent_controller, authorize_agents_fails_when_payload_is_null);
-  add_test_with_context (suite, agent_controller, authorize_agents_fails_on_http_422);
-  add_test_with_context (suite, agent_controller, update_agents_returns_zero_on_success);
-  add_test_with_context (suite, agent_controller, update_agents_fails_with_null_connection);
-  add_test_with_context (suite, agent_controller, update_agents_fails_with_null_agents);
-  add_test_with_context (suite, agent_controller, update_agents_fails_with_null_update);
-  add_test_with_context (suite, agent_controller, update_agents_fails_on_http_error_status);
-  add_test_with_context (suite, agent_controller, delete_agents_returns_zero_on_success);
-  add_test_with_context (suite, agent_controller, delete_agents_fails_with_null_conn);
-  add_test_with_context (suite, agent_controller, delete_agents_fails_with_null_list);
-  add_test_with_context (suite, agent_controller, delete_agents_fails_if_no_valid_ids);
-  add_test_with_context (suite, agent_controller, delete_agents_fails_on_http_422);
+  add_test_with_context (suite, agent_controller,
+                         agent_free_handles_null_agent);
+  add_test_with_context (suite, agent_controller,
+                         agent_list_new_allocates_list_and_agents_array);
+  add_test_with_context (suite, agent_controller,
+                         agent_list_new_returns_null_for_invalid_count);
+  add_test_with_context (suite, agent_controller,
+                         agent_list_new_returns_array_for_0_count);
+  add_test_with_context (suite, agent_controller,
+                         agent_list_free_handles_populated_list);
+  add_test_with_context (suite, agent_controller,
+                         agent_list_free_handles_null_list);
+  add_test_with_context (suite, agent_controller,
+                         agent_update_new_initializes_defaults_correctly);
+  add_test_with_context (suite, agent_controller,
+                         agent_update_free_handles_nested_schedule);
+  add_test_with_context (suite, agent_controller,
+                         agent_update_free_handles_null_schedule);
+  add_test_with_context (suite, agent_controller,
+                         config_schedule_new_allocates_struct);
+  add_test_with_context (suite, agent_controller,
+                         config_schedule_free_handles_populated_struct);
+  add_test_with_context (suite, agent_controller,
+                         config_schedule_free_handles_null_struct);
+  add_test_with_context (suite, agent_controller,
+                         config_server_new_allocates_struct);
+  add_test_with_context (suite, agent_controller,
+                         config_server_free_handles_populated_struct);
+  add_test_with_context (suite, agent_controller,
+                         config_server_free_handles_null_struct);
+  add_test_with_context (suite, agent_controller,
+                         init_custom_header_calls_add_header);
+  add_test_with_context (suite, agent_controller,
+                         init_custom_header_calls_without_token_add_header);
+  add_test_with_context (suite, agent_controller,
+                         send_request_builds_url_and_calls_http_request);
+  add_test_with_context (suite, agent_controller,
+                         send_request_returns_null_if_conn_is_null);
+  add_test_with_context (suite, agent_controller,
+                         send_request_returns_null_if_protocol_missing);
+  add_test_with_context (suite, agent_controller,
+                         send_request_returns_null_if_host_missing);
+  add_test_with_context (suite, agent_controller,
+                         send_request_works_without_bearer_token);
+  add_test_with_context (suite, agent_controller,
+                         parse_datetime_parses_valid_datetime);
+  add_test_with_context (suite, agent_controller,
+                         parse_datetime_returns_zero_for_invalid_format);
+  add_test_with_context (suite, agent_controller,
+                         parse_datetime_handles_missing_fractional_seconds);
+  add_test_with_context (suite, agent_controller,
+                         parse_datetime_parses_leap_year_date);
+  add_test_with_context (suite, agent_controller,
+                         parse_agent_with_minimal_fields);
+  add_test_with_context (suite, agent_controller,
+                         parse_agent_with_config_and_server);
+  add_test_with_context (suite, agent_controller,
+                         parse_agent_missing_optional_fields);
+  add_test_with_context (suite, agent_controller,
+                         parse_agent_returns_null_on_null_input);
+  add_test_with_context (suite, agent_controller,
+                         build_patch_payload_from_single_agent);
+  add_test_with_context (suite, agent_controller,
+                         patch_payload_overrides_only_authorized_field);
+  add_test_with_context (suite, agent_controller,
+                         patch_payload_overrides_only_min_interval);
+  add_test_with_context (suite, agent_controller,
+                         patch_payload_overrides_only_schedule_config);
+  add_test_with_context (suite, agent_controller,
+                         get_agents_returns_list_on_successful_response);
+  add_test_with_context (suite, agent_controller,
+                         get_agents_returns_null_on_non_200_status);
+  add_test_with_context (suite, agent_controller,
+                         get_agents_returns_null_on_invalid_json);
+  add_test_with_context (suite, agent_controller,
+                         authorize_agents_succeeds_with_valid_input);
+  add_test_with_context (suite, agent_controller,
+                         authorize_agents_fails_with_null_conn);
+  add_test_with_context (suite, agent_controller,
+                         authorize_agents_fails_with_null_agents);
+  add_test_with_context (suite, agent_controller,
+                         authorize_agents_fails_when_payload_is_null);
+  add_test_with_context (suite, agent_controller,
+                         authorize_agents_fails_on_http_422);
+  add_test_with_context (suite, agent_controller,
+                         update_agents_returns_zero_on_success);
+  add_test_with_context (suite, agent_controller,
+                         update_agents_fails_with_null_connection);
+  add_test_with_context (suite, agent_controller,
+                         update_agents_fails_with_null_agents);
+  add_test_with_context (suite, agent_controller,
+                         update_agents_fails_with_null_update);
+  add_test_with_context (suite, agent_controller,
+                         update_agents_fails_on_http_error_status);
+  add_test_with_context (suite, agent_controller,
+                         delete_agents_returns_zero_on_success);
+  add_test_with_context (suite, agent_controller,
+                         delete_agents_fails_with_null_conn);
+  add_test_with_context (suite, agent_controller,
+                         delete_agents_fails_with_null_list);
+  add_test_with_context (suite, agent_controller,
+                         delete_agents_fails_if_no_valid_ids);
+  add_test_with_context (suite, agent_controller,
+                         delete_agents_fails_on_http_422);
 
   if (argc > 1)
     return run_single_test (suite, argv[1], create_text_reporter ());

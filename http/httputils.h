@@ -5,11 +5,12 @@
 
 /**
  * @file httputils.h
- * @brief HTTP(S) utility API built on top of libcurl for the Greenbone framework.
+ * @brief HTTP(S) utility API built on top of libcurl for the Greenbone
+ * framework.
  *
- * This module provides a high-level wrapper around libcurl to simplify the process
- * of performing HTTP and HTTPS requests in both synchronous and asynchronous (multi)
- * modes. It offers abstractions for:
+ * This module provides a high-level wrapper around libcurl to simplify the
+ * process of performing HTTP and HTTPS requests in both synchronous and
+ * asynchronous (multi) modes. It offers abstractions for:
  *
  * - Sending requests with various HTTP methods (GET, POST, PUT, DELETE, etc.)
  * - Managing custom request headers
@@ -19,10 +20,13 @@
  *
  * Core data structures:
  * - `gvm_http_t`: encapsulates a single HTTP request configuration and state
- * - `gvm_http_response_t`: represents the HTTP response including status, data, and associated request
+ * - `gvm_http_response_t`: represents the HTTP response including status, data,
+ * and associated request
  * - `gvm_http_headers_t`: stores custom headers for use in requests
- * - `gvm_http_response_stream_t`: used internally for accumulating response data during transfers
- * - `gvm_http_multi_t`: manages multiple concurrent transfers using libcurl's multi interface
+ * - `gvm_http_response_stream_t`: used internally for accumulating response
+ * data during transfers
+ * - `gvm_http_multi_t`: manages multiple concurrent transfers using libcurl's
+ * multi interface
  */
 
 #ifndef HTTPUTILS_H
@@ -36,7 +40,8 @@
 /**
  * @brief Request methods
  */
-typedef enum {
+typedef enum
+{
   GET,
   POST,
   PUT,
@@ -45,15 +50,16 @@ typedef enum {
   PATCH
 } gvm_http_method_t;
 
-typedef enum {
+typedef enum
+{
   GVM_HTTP_OK,
   GVM_HTTP_MULTI_BAD_HANDLE,
   GVM_HTTP_MULTI_FAILED,
   GVM_HTTP_MULTI_UNKNOWN_ERROR
 } gvm_http_multi_result_t;
 
-typedef struct gvm_http_headers {
-
+typedef struct gvm_http_headers
+{
   struct curl_slist *custom_headers;
 
 } gvm_http_headers_t;
@@ -63,7 +69,7 @@ typedef struct gvm_http_headers {
  */
 typedef struct gvm_http_multi
 {
-  void *handler;                ///< Opaque pointer to the internal CURLM handle.
+  void *handler; ///< Opaque pointer to the internal CURLM handle.
 
   gvm_http_headers_t *headers; ///< The wrapped headers type.
 
@@ -84,8 +90,8 @@ typedef struct gvm_http_response_stream
 
 typedef struct gvm_http_response_stream *gvm_http_response_stream_t;
 
-typedef struct {
-
+typedef struct
+{
   CURL *handler;
 
 } gvm_http_t;
@@ -93,7 +99,8 @@ typedef struct {
 /**
  * @brief Represents the result of a http request.
  */
-typedef struct {
+typedef struct
+{
   gchar *data; ///< The actual response content as a string.
 
   gsize size; ///< Size of the response content.
@@ -107,16 +114,16 @@ void
 gvm_http_free (gvm_http_t *http);
 
 gvm_http_t *
-gvm_http_new (const gchar *url, gvm_http_method_t method,
-               const gchar *payload, gvm_http_headers_t *headers,
-               const gchar *ca_cert, const gchar *client_cert,
-               const gchar *client_key, gvm_http_response_stream_t res);
+gvm_http_new (const gchar *url, gvm_http_method_t method, const gchar *payload,
+              gvm_http_headers_t *headers, const gchar *ca_cert,
+              const gchar *client_cert, const gchar *client_key,
+              gvm_http_response_stream_t res);
 
 gvm_http_response_t *
-gvm_http_request (const gchar *url, gvm_http_method_t method, const gchar *payload,
-                  gvm_http_headers_t *headers, const gchar *ca_cert,
-                  const gchar *client_cert, const gchar *client_key,
-                  gvm_http_response_stream_t response);
+gvm_http_request (const gchar *url, gvm_http_method_t method,
+                  const gchar *payload, gvm_http_headers_t *headers,
+                  const gchar *ca_cert, const gchar *client_cert,
+                  const gchar *client_key, gvm_http_response_stream_t response);
 
 gvm_http_headers_t *
 gvm_http_headers_new (void);
@@ -154,4 +161,4 @@ gvm_http_response_stream_free (gvm_http_response_stream_t s);
 void
 gvm_http_response_stream_reset (gvm_http_response_stream_t s);
 
-#endif //HTTPUTILS_H
+#endif // HTTPUTILS_H
