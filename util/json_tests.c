@@ -97,7 +97,7 @@ Ensure (json, gvm_json_obj_check_str_1_when_int)
 Ensure (json, gvm_json_obj_check_str_0_and_val_when_has)
 {
   cJSON *json;
-  gchar *ret=NULL;
+  gchar *ret = NULL;
 
   json = cJSON_Parse ("{ \"eg\": \"abc\" }");
   assert_that (json, is_not_null);
@@ -205,7 +205,7 @@ Ensure (json, gvm_json_obj_check_int_1_when_str)
 Ensure (json, gvm_json_obj_check_int_0_and_val_when_has)
 {
   cJSON *json;
-  int ret=-1;
+  int ret = -1;
 
   json = cJSON_Parse ("{ \"eg\": 33 }");
   assert_that (json, is_not_null);
