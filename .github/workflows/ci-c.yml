@@ -15,9 +15,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check Source Format
+        id: check
         run: |
-          clang-format -i -style=file {base,boreas,gmp,osp,util}/*.{c,h}
+          clang-format -i -style=file {agent_controller,base,boreas,gmp,http,openvasd,osp,util}/*.{c,h}
           git diff --exit-code
+      - name: Report Diff
+        if: ${{ failure() && steps.check.outcome == 'failure' }}
+        run: |
+          echo "## Clang Format Check" >> $GITHUB_STEP_SUMMARY
+          echo "Found formatting issues in the source code. Please run clang-format to fix them." >> $GITHUB_STEP_SUMMARY
+          echo '```sh' >> $GITHUB_STEP_SUMMARY
+          echo 'clang-format -i -style=file {agent_controller,base,boreas,gmp,http,openvasd,osp,util}/*.{c,h}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "## Clang Format Diff" >> $GITHUB_STEP_SUMMARY
+          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          git diff >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
   cmake-format-check:
     name: Check CMake Formatting
@@ -36,6 +49,10 @@ jobs:
         run: |
           echo "## CMake Format Check" >> $GITHUB_STEP_SUMMARY
           gersemi --check --no-warn-about-unknown-commands . cmake >> $GITHUB_STEP_SUMMARY 2>&1 || true
+          echo "Found formatting issues in the source code. Please run gersemi to fix them." >> $GITHUB_STEP_SUMMARY
+          echo '```sh' >> $GITHUB_STEP_SUMMARY
+          echo 'gersemi -i . cmake' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
           echo "## CMake Format Diff" >> $GITHUB_STEP_SUMMARY
           echo '```diff' >> $GITHUB_STEP_SUMMARY
           gersemi --diff . cmake >> $GITHUB_STEP_SUMMARY
@@ -46,15 +63,11 @@ jobs:
     runs-on: "ubuntu-latest"
     container: debian:stable-slim
     steps:
-      - name: Install git for Codecov uploader
-        run: |
-          apt-get update
-          apt-get install --no-install-recommends -y ca-certificates git
       - uses: actions/checkout@v4
-      - name: Set git safe.directory
-        run: git config --global --add safe.directory '*'
       - name: Install build dependencies
         run: sh .github/install-dependencies.sh .github/build-dependencies.list
+      - name: Set git safe.directory
+        run: git config --global --add safe.directory '*'
       - name: Install cgreen
         uses: greenbone/actions/install-cgreen@v3
       - name: Configure and Compile gvm-libs

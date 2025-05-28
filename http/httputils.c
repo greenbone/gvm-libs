@@ -14,7 +14,8 @@
  * - Custom HTTP methods, headers, and payloads.
  * - SSL/TLS configuration (CA certificates, client certs, private keys).
  * - Response buffering through a write callback.
- * - Encapsulation of libcurl handles in domain-specific types (e.g., gvm_http_t).
+ * - Encapsulation of libcurl handles in domain-specific types (e.g.,
+ * gvm_http_t).
  */
 
 #include "httputils.h"
@@ -59,16 +60,18 @@ store_response_data (void *ptr, size_t size, size_t nmemb, void *userdata)
 
   stream->data = temp_ptr;
   memcpy (stream->data + stream->length, ptr, size * nmemb);
-  stream->data [new_len] = '\0';
+  stream->data[new_len] = '\0';
   stream->length = new_len;
 
   return size * nmemb;
 }
 
 /**
- * @brief Allocates and initializes a gvm_http_t structure with a given CURL handle.
+ * @brief Allocates and initializes a gvm_http_t structure with a given CURL
+ * handle.
  *
- * @param curl_handler  A valid libcurl easy handle to be wrapped. If NULL, the function returns NULL.
+ * @param curl_handler  A valid libcurl easy handle to be wrapped. If NULL, the
+ * function returns NULL.
  *
  * @return A pointer to an initialized `gvm_http_t` structure on success,
  *         or NULL if the input handle is invalid.
@@ -92,7 +95,8 @@ gvm_http_t_new (CURL *curl_handler)
 void
 gvm_http_free (gvm_http_t *http)
 {
-  if (!http) return;
+  if (!http)
+    return;
   if (http->handler)
     curl_easy_cleanup (http->handler);
   g_free (http);
@@ -103,9 +107,9 @@ gvm_http_free (gvm_http_t *http)
  *
  * This function creates and configures a gvm_http_t structure, encapsulating
  * a libcurl easy handle. It sets the target URL, HTTP method, optional headers,
- * payload, and SSL/TLS credentials (CA certificate, client certificate, and private key).
- * It also registers a write callback to store the server's response into a
- * provided response stream buffer.
+ * payload, and SSL/TLS credentials (CA certificate, client certificate, and
+ * private key). It also registers a write callback to store the server's
+ * response into a provided response stream buffer.
  *
  * Note: The returned object must be cleaned up by the caller using
  * `gvm_http_free()` to free all associated resources. The request is not
@@ -118,23 +122,25 @@ gvm_http_free (gvm_http_t *http)
  * @param ca_cert       Optional CA certificate for server verification.
  * @param client_cert   Optional client certificate for mutual TLS.
  * @param client_key    Optional client private key for mutual TLS.
- * @param res           Response stream used as the write target during the request.
+ * @param res           Response stream used as the write target during the
+ * request.
  *
  * @return A configured gvm_http_t object on success, or NULL on failure.
  */
 gvm_http_t *
-gvm_http_new (const gchar *url, gvm_http_method_t method,
-               const gchar *payload, gvm_http_headers_t *headers,
-               const gchar *ca_cert, const gchar *client_cert,
-               const gchar *client_key, gvm_http_response_stream_t res)
+gvm_http_new (const gchar *url, gvm_http_method_t method, const gchar *payload,
+              gvm_http_headers_t *headers, const gchar *ca_cert,
+              const gchar *client_cert, const gchar *client_key,
+              gvm_http_response_stream_t res)
 {
   CURL *curl = curl_easy_init ();
-  if (!curl) return NULL;
+  if (!curl)
+    return NULL;
 
   // Set URL
   curl_easy_setopt (curl, CURLOPT_URL, url);
   curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, store_response_data);
-  curl_easy_setopt (curl, CURLOPT_WRITEDATA, (void *)res);
+  curl_easy_setopt (curl, CURLOPT_WRITEDATA, (void *) res);
 
   // Set HTTP headers if provided
   if (headers && headers->custom_headers)
@@ -145,12 +151,13 @@ gvm_http_new (const gchar *url, gvm_http_method_t method,
   // Handle SSL CA Certificate
   if (ca_cert)
     {
-      struct curl_blob ca_blob = { (void *)ca_cert, strlen (ca_cert), CURL_BLOB_COPY };
+      struct curl_blob ca_blob = {(void *) ca_cert, strlen (ca_cert),
+                                  CURL_BLOB_COPY};
       curl_easy_setopt (curl, CURLOPT_SSL_VERIFYPEER, 1L);
       curl_easy_setopt (curl, CURLOPT_SSL_VERIFYHOST, 1L);
       if (curl_easy_setopt (curl, CURLOPT_CAINFO_BLOB, &ca_blob) != CURLE_OK)
         {
-          g_warning("%s: Failed to set CA certificate", __func__);
+          g_warning ("%s: Failed to set CA certificate", __func__);
           curl_easy_cleanup (curl);
           return NULL;
         }
@@ -167,8 +174,10 @@ gvm_http_new (const gchar *url, gvm_http_method_t method,
   // Handle Client Certificate & Private Key for authentication
   if (client_cert != NULL && client_key != NULL)
     {
-      struct curl_blob cert_blob = { (void *)client_cert, strlen(client_cert), CURL_BLOB_COPY };
-      struct curl_blob key_blob = { (void *)client_key, strlen(client_key), CURL_BLOB_COPY };
+      struct curl_blob cert_blob = {(void *) client_cert, strlen (client_cert),
+                                    CURL_BLOB_COPY};
+      struct curl_blob key_blob = {(void *) client_key, strlen (client_key),
+                                   CURL_BLOB_COPY};
 
       if (curl_easy_setopt (curl, CURLOPT_SSLCERT_BLOB, &cert_blob) != CURLE_OK)
         {
@@ -182,45 +191,46 @@ gvm_http_new (const gchar *url, gvm_http_method_t method,
           g_warning ("%s: Failed to set client private key", __func__);
           curl_easy_cleanup (curl);
           return NULL;
-       }
+        }
     }
 
   // Handle HTTP Method
-  switch (method) {
-      case POST:
-          if (payload && payload[0] != '\0')
-            {
-              curl_easy_setopt (curl, CURLOPT_POSTFIELDS, payload);
-              curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen(payload));
-            }
-          break;
-      case PUT:
-          if (payload && payload[0] != '\0')
-            {
-              curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "PUT");
-              curl_easy_setopt (curl, CURLOPT_POSTFIELDS, payload);
-              curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen(payload));
-            }
-          break;
-      case PATCH:
-          if (payload && payload[0] != '\0')
-            {
-              curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "PATCH");
-              curl_easy_setopt (curl, CURLOPT_POSTFIELDS, payload);
-              curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen(payload));
-            }
-          break;
-      case DELETE:
-          curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-          break;
-      case HEAD:
-          curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "HEAD");
-          break;
-      case GET:
-      default:
-          curl_easy_setopt (curl, CURLOPT_HTTPGET, 1L);
-          break;
-  }
+  switch (method)
+    {
+    case POST:
+      if (payload && payload[0] != '\0')
+        {
+          curl_easy_setopt (curl, CURLOPT_POSTFIELDS, payload);
+          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen (payload));
+        }
+      break;
+    case PUT:
+      if (payload && payload[0] != '\0')
+        {
+          curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "PUT");
+          curl_easy_setopt (curl, CURLOPT_POSTFIELDS, payload);
+          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen (payload));
+        }
+      break;
+    case PATCH:
+      if (payload && payload[0] != '\0')
+        {
+          curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "PATCH");
+          curl_easy_setopt (curl, CURLOPT_POSTFIELDS, payload);
+          curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, strlen (payload));
+        }
+      break;
+    case DELETE:
+      curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+      break;
+    case HEAD:
+      curl_easy_setopt (curl, CURLOPT_CUSTOMREQUEST, "HEAD");
+      break;
+    case GET:
+    default:
+      curl_easy_setopt (curl, CURLOPT_HTTPGET, 1L);
+      break;
+    }
 
   return gvm_http_t_new (curl);
 }
@@ -228,7 +238,8 @@ gvm_http_new (const gchar *url, gvm_http_method_t method,
 /** @brief Allocate the vt stream struct to hold the response
  *  and the curlm handler
  *
- *  @return The vt stream struct. Must be free with gvm_http_response_stream_free().
+ *  @return The vt stream struct. Must be free with
+ * gvm_http_response_stream_free().
  */
 gvm_http_response_stream_t
 gvm_http_response_stream_new (void)
@@ -249,7 +260,8 @@ gvm_http_response_stream_new (void)
 void
 gvm_http_response_stream_free (gvm_http_response_stream_t s)
 {
-  if (s == NULL) return;
+  if (s == NULL)
+    return;
 
   g_free (s->data);
   if (s->multi_handler)
@@ -279,17 +291,17 @@ gvm_http_response_stream_free (gvm_http_response_stream_t s)
  * @param ca_cert       Optional CA certificate for server verification.
  * @param client_cert   Optional client certificate for mutual TLS.
  * @param client_key    Optional client private key for mutual TLS.
- * @param response      Optional response stream buffer; if NULL, one will be created.
+ * @param response      Optional response stream buffer; if NULL, one will be
+ * created.
  *
- * @return A pointer to a `gvm_http_response_t` containing the response data and status.
- *         Must be freed with `gvm_http_response_cleanup()`.
+ * @return A pointer to a `gvm_http_response_t` containing the response data and
+ * status. Must be freed with `gvm_http_response_cleanup()`.
  */
 gvm_http_response_t *
 gvm_http_request (const gchar *url, gvm_http_method_t method,
                   const gchar *payload, gvm_http_headers_t *headers,
                   const gchar *ca_cert, const gchar *client_cert,
-                  const gchar *client_key,
-                  gvm_http_response_stream_t response)
+                  const gchar *client_key, gvm_http_response_stream_t response)
 {
   gvm_http_response_t *http_response = g_malloc0 (sizeof (gvm_http_response_t));
   gboolean internal_stream_allocated = FALSE;
@@ -303,12 +315,13 @@ gvm_http_request (const gchar *url, gvm_http_method_t method,
       internal_stream_allocated = TRUE;
     }
 
-  gvm_http_t *http = gvm_http_new (url, method, payload, headers,
-                                   ca_cert, client_cert, client_key, response);
+  gvm_http_t *http = gvm_http_new (url, method, payload, headers, ca_cert,
+                                   client_cert, client_key, response);
   if (!http)
     {
       http_response->http_status = -1;
-      http_response->data = g_strdup ("{\"error\": \"Failed to initialize curl request\"}");
+      http_response->data =
+        g_strdup ("{\"error\": \"Failed to initialize curl request\"}");
       if (internal_stream_allocated)
         gvm_http_response_stream_free (response);
       return http_response;
@@ -319,16 +332,17 @@ gvm_http_request (const gchar *url, gvm_http_method_t method,
   CURLcode result = curl_easy_perform (http->handler);
   if (result == CURLE_OK)
     {
-      curl_easy_getinfo (http->handler, CURLINFO_RESPONSE_CODE, &http_response->http_status);
+      curl_easy_getinfo (http->handler, CURLINFO_RESPONSE_CODE,
+                         &http_response->http_status);
     }
   else
     {
-      g_warning ("%s: Error performing CURL request: %s", __func__, curl_easy_strerror (result));
+      g_warning ("%s: Error performing CURL request: %s", __func__,
+                 curl_easy_strerror (result));
       http_response->http_status = -1;
-      http_response->data = g_strdup_printf (
-        "{\"error\": \"CURL request failed: %s\"}",
-        curl_easy_strerror (result)
-      );
+      http_response->data =
+        g_strdup_printf ("{\"error\": \"CURL request failed: %s\"}",
+                         curl_easy_strerror (result));
     }
 
   if (response && response->data)
@@ -388,7 +402,8 @@ gvm_http_headers_new (void)
  * @brief Adds a custom HTTP header to the headers structure.
  *
  * @param headers A pointer to a `gvm_http_headers_t` structure.
- * @param header The header string to add (e.g., "Content-Type: application/json").
+ * @param header The header string to add (e.g., "Content-Type:
+ * application/json").
  *
  * @return TRUE if the header was successfully added, FALSE otherwise.
  */
@@ -398,7 +413,8 @@ gvm_http_add_header (gvm_http_headers_t *headers, const gchar *header)
   if (!headers || !header)
     return FALSE;
 
-  struct curl_slist *result = curl_slist_append (headers->custom_headers, header);
+  struct curl_slist *result =
+    curl_slist_append (headers->custom_headers, header);
   if (!result)
     return FALSE;
 
@@ -433,7 +449,7 @@ gvm_http_headers_free (gvm_http_headers_t *headers)
 gvm_http_multi_t *
 gvm_http_multi_new ()
 {
-  gvm_http_multi_t *multi = g_malloc0 (sizeof(gvm_http_multi_t));
+  gvm_http_multi_t *multi = g_malloc0 (sizeof (gvm_http_multi_t));
   multi->handler = curl_multi_init ();
   multi->headers = gvm_http_headers_new ();
 
@@ -473,9 +489,11 @@ gvm_http_multi_add_handler (gvm_http_multi_t *multi, gvm_http_t *http)
  * @brief Executes all pending transfers in the given multi-handle session.
  *
  * @param multi Pointer to the multi-handle wrapper structure.
- * @param running_handles Pointer to an integer to store the count of ongoing transfers.
+ * @param running_handles Pointer to an integer to store the count of ongoing
+ * transfers.
  *
- * @return A `gvm_http_multi_result_t` value indicating the status of the operation.
+ * @return A `gvm_http_multi_result_t` value indicating the status of the
+ * operation.
  *         - GVM_HTTP_OK: Success.
  *         - GVM_HTTP_MULTI_BAD_HANDLE: Invalid or NULL multi-handle.
  *         - GVM_HTTP_MULTI_FAILED: Other failure occurred.
@@ -499,7 +517,8 @@ gvm_http_multi_perform (gvm_http_multi_t *multi, int *running_handles)
 }
 
 /**
- * @brief Removes a gvm_http_t handler from a multi-handle and frees its resources.
+ * @brief Removes a gvm_http_t handler from a multi-handle and frees its
+ * resources.
  *
  * @param multi Pointer to the `gvm_http_multi_t` multi-handle session.
  * @param http Pointer to the `gvm_http_t` object to remove and free.
@@ -509,7 +528,7 @@ gvm_http_multi_handler_free (gvm_http_multi_t *multi, gvm_http_t *http)
 {
   if (!multi || !multi->handler || !http || !http->handler)
     {
-      g_warning( "%s: Invalid multi-handle or http handle", __func__);
+      g_warning ("%s: Invalid multi-handle or http handle", __func__);
       return;
     }
 
@@ -544,7 +563,7 @@ gvm_http_multi_free (gvm_http_multi_t *multi)
         }
       else
         {
-          g_warning("%s: Not possible to clean up a curl handle", __func__);
+          g_warning ("%s: Not possible to clean up a curl handle", __func__);
         }
     }
 
@@ -576,4 +595,3 @@ gvm_http_response_stream_reset (gvm_http_response_stream_t s)
       s->data = g_malloc0 (s->length + 1);
     }
 }
-
