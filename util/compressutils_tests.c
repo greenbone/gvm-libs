@@ -22,7 +22,7 @@ Ensure (compressutils, can_compress_and_uncompress_without_header)
 {
   const char *testdata = "TEST-12345-12345-TEST";
 
-  unsigned long compressed_len=0;
+  unsigned long compressed_len = 0;
   char *compressed =
     gvm_compress (testdata, strlen (testdata) + 1, &compressed_len);
   assert_that (compressed_len, is_greater_than (0));
@@ -67,14 +67,14 @@ Ensure (compressutils, can_uncompress_using_reader)
 
   char compressed_filename[35] = "/tmp/gvm_gzip_test_XXXXXX";
   int compressed_fd = mkstemp (compressed_filename);
-  (void)!write (compressed_fd, compressed, compressed_len);
+  (void) !write (compressed_fd, compressed, compressed_len);
   close (compressed_fd);
 
   FILE *stream = gvm_gzip_open_file_reader (compressed_filename);
   assert_that (stream, is_not_null);
 
   gchar *uncompressed = g_malloc0 (30);
-  (void)!fread (uncompressed, 1, 30, stream);
+  (void) !fread (uncompressed, 1, 30, stream);
   assert_that (uncompressed, is_equal_to_string (testdata));
 
   assert_that (fclose (stream), is_equal_to (0));
@@ -89,7 +89,7 @@ Ensure (compressutils, can_uncompress_using_fd_reader)
 
   char compressed_filename[35] = "/tmp/gvm_gzip_test_XXXXXX";
   int compressed_fd = mkstemp (compressed_filename);
-  (void)!write (compressed_fd, compressed, compressed_len);
+  (void) !write (compressed_fd, compressed, compressed_len);
   close (compressed_fd);
 
   compressed_fd = open (compressed_filename, O_RDONLY);
@@ -98,7 +98,7 @@ Ensure (compressutils, can_uncompress_using_fd_reader)
   assert_that (stream, is_not_null);
 
   gchar *uncompressed = g_malloc0 (30);
-  (void)!fread (uncompressed, 1, 30, stream);
+  (void) !fread (uncompressed, 1, 30, stream);
   assert_that (uncompressed, is_equal_to_string (testdata));
 
   assert_that (fclose (stream), is_equal_to (0));
