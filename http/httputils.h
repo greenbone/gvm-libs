@@ -78,7 +78,7 @@ typedef struct gvm_http_multi
 /**
  * @brief Defines a struct for storing the response and http multi-handler.
  */
-typedef struct gvm_http_response_stream
+struct gvm_http_response_stream
 {
   gchar *data; ///< Pointer to the accumulated response data buffer.
 
@@ -86,7 +86,7 @@ typedef struct gvm_http_response_stream
 
   gvm_http_multi_t *multi_handler; ///< Pointer to the associated http
                                    ///< multi-handle and headers.
-} gvm_http_response_stream;
+};
 
 typedef struct gvm_http_response_stream *gvm_http_response_stream_t;
 
