@@ -125,6 +125,7 @@ if(BUILD_SHARED)
       gvm_util_shared
       ${GLIB_LDFLAGS}
       ${LIBNET_LDFLAGS}
+      ${PCAP_LDFLAGS}
       ${LINKER_HARDENING_FLAGS}
       ${CMAKE_THREAD_LIBS_INIT}
   )

@@ -43,7 +43,7 @@ if(BUILD_SHARED)
 
   target_link_libraries(
     gvm_osp_shared
-    LINK_PRIVATE ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS}
+    LINK_PRIVATE gvm_util_shared ${GLIB_LDFLAGS} ${LINKER_HARDENING_FLAGS}
   )
 endif(BUILD_SHARED)
 
