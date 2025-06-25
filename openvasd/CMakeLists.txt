@@ -59,7 +59,6 @@ if(BUILD_SHARED)
   target_link_libraries(
     gvm_openvasd_shared
     LINK_PRIVATE
-      gvm_base_shared
       gvm_http_shared
       gvm_util_shared
       ${GLIB_LDFLAGS}
