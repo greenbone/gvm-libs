@@ -135,6 +135,7 @@ set(
   radiusutils.c
   serverutils.c
   sshutils.c
+  streamvalidator.c
   uuidutils.c
   versionutils.c
   vtparser.c
@@ -158,6 +159,7 @@ set(
   radiusutils.h
   serverutils.h
   sshutils.h
+  streamvalidator.h
   uuidutils.h
   versionutils.h
   vtparser.h
