@@ -296,6 +296,15 @@ if(BUILD_TESTS)
     ${LINKER_HARDENING_FLAGS}
   )
   add_unit_test(
+    streamvalidator-test
+    streamvalidator_tests.c
+    gvm_util_shared
+    gvm_base_shared
+    ${GLIB_LDFLAGS}
+    ${GCRYPT_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+  )
+  add_unit_test(
     versionutils-test
     versionutils_tests.c
     ${GLIB_LDFLAGS}
