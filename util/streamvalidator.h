@@ -13,7 +13,8 @@
  * @brief Data stream validation headers.
  */
 
-typedef enum {
+typedef enum
+{
   /** An internal error ocurred. */
   GVM_STREAM_VALIDATOR_INTERNAL_ERROR = -1,
   /** Action successful / data is valid. */
@@ -36,24 +37,20 @@ typedef enum {
 /**
  * @brief Pointer to an opaque stream validator data structure.
  */
-typedef struct gvm_stream_validator* gvm_stream_validator_t;
+typedef struct gvm_stream_validator *gvm_stream_validator_t;
 
-const char *
-gvm_stream_validator_return_str (gvm_stream_validator_return_t);
+const char *gvm_stream_validator_return_str (gvm_stream_validator_return_t);
 
 gvm_stream_validator_return_t
-gvm_stream_validator_new (const char *, size_t, gvm_stream_validator_t*);
+gvm_stream_validator_new (const char *, size_t, gvm_stream_validator_t *);
 
-void
-gvm_stream_validator_rewind (gvm_stream_validator_t);
+void gvm_stream_validator_rewind (gvm_stream_validator_t);
 
-void
-gvm_stream_validator_free (gvm_stream_validator_t);
+void gvm_stream_validator_free (gvm_stream_validator_t);
 
 gvm_stream_validator_return_t
 gvm_stream_validator_write (gvm_stream_validator_t, const char *, size_t);
 
-gvm_stream_validator_return_t
-gvm_stream_validator_end (gvm_stream_validator_t);
+gvm_stream_validator_return_t gvm_stream_validator_end (gvm_stream_validator_t);
 
 #endif /* not _GVM_STREAMVALIDATOR_H */

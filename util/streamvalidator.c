@@ -3,24 +3,27 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <assert.h>
-#include <glib.h>
-#include <gcrypt.h>
-#include "authutils.h"
 #include "streamvalidator.h"
 
+#include "authutils.h"
+
+#include <assert.h>
+#include <gcrypt.h>
+#include <glib.h>
+
 /**
- * @file 
+ * @file
  * @brief Data stream validation.
  */
 
 /**
  * @brief Data stream validator structure.
  */
-struct gvm_stream_validator {
+struct gvm_stream_validator
+{
   gchar *expected_hash_str;  ///< Expected hash algorithm and hex string.
   gchar *expected_hash_hex;  ///< Expected hash value as hexadecimal string.
-  int   algorithm;           ///< The hash algorithm used.
+  int algorithm;             ///< The hash algorithm used.
   size_t expected_size;      ///< Expected amount of data to validate.
   size_t current_size;       ///< Current total amount of data received.
   gcry_md_hd_t gcrypt_md_hd; ///< gcrypt message digest handle.
@@ -28,9 +31,9 @@ struct gvm_stream_validator {
 
 /**
  * @brief Gets a string representation of a gvm_stream_validator_return_t
- * 
+ *
  * @param[in]  value    The value to get a string representation of.
- * 
+ *
  * @return Static string describing the return value
  *          or NULL on success.
  */
@@ -39,24 +42,24 @@ gvm_stream_validator_return_str (gvm_stream_validator_return_t value)
 {
   switch (value)
     {
-      case GVM_STREAM_VALIDATOR_INTERNAL_ERROR:
-        return "internal error";
-      case GVM_STREAM_VALIDATOR_OK:
-        return NULL;
-      case GVM_STREAM_VALIDATOR_DATA_TOO_SHORT:
-        return "too short";
-      case GVM_STREAM_VALIDATOR_DATA_TOO_LONG:
-        return "too long";
-      case GVM_STREAM_VALIDATOR_INVALID_HASH_SYNTAX:
-        return "invalid hash syntax";
-      case GVM_STREAM_VALIDATOR_INVALID_HASH_ALGORITHM:
-        return "invalid or unsupported hash algorithm";
-      case GVM_STREAM_VALIDATOR_INVALID_HASH_VALUE:
-        return "invalid hash value";
-      case GVM_STREAM_VALIDATOR_HASH_MISMATCH:
-        return "hash does not match";
-      default:
-        return "unknown error";
+    case GVM_STREAM_VALIDATOR_INTERNAL_ERROR:
+      return "internal error";
+    case GVM_STREAM_VALIDATOR_OK:
+      return NULL;
+    case GVM_STREAM_VALIDATOR_DATA_TOO_SHORT:
+      return "too short";
+    case GVM_STREAM_VALIDATOR_DATA_TOO_LONG:
+      return "too long";
+    case GVM_STREAM_VALIDATOR_INVALID_HASH_SYNTAX:
+      return "invalid hash syntax";
+    case GVM_STREAM_VALIDATOR_INVALID_HASH_ALGORITHM:
+      return "invalid or unsupported hash algorithm";
+    case GVM_STREAM_VALIDATOR_INVALID_HASH_VALUE:
+      return "invalid hash value";
+    case GVM_STREAM_VALIDATOR_HASH_MISMATCH:
+      return "hash does not match";
+    default:
+      return "unknown error";
     }
 }
 
@@ -70,19 +73,18 @@ gvm_stream_validator_return_str (gvm_stream_validator_return_t value)
  *                                 e.g. "md5:70165459812a0d38851a4a4c3e4124c9".
  * @param[in]  expected_size  The number of bytes expected to be sent.
  * @param[out] validator_out  Pointer to output location of the newly allocated
- *                             validator. 
+ *                             validator.
  *
  * @return A validator return code, returning a failure if the expeced hash
  *         string is invalid or uses an unsupported algorithm.
  */
 gvm_stream_validator_return_t
-gvm_stream_validator_new (const char *expected_hash_str,
-                          size_t expected_size,
+gvm_stream_validator_new (const char *expected_hash_str, size_t expected_size,
                           gvm_stream_validator_t *validator_out)
 {
   assert (validator_out);
 
-  static GRegex* hex_regex = NULL;
+  static GRegex *hex_regex = NULL;
   gchar **split_hash_str = g_strsplit (expected_hash_str, ":", 2);
   const char *algo_str, *hex_str;
   int algo;
@@ -90,10 +92,8 @@ gvm_stream_validator_new (const char *expected_hash_str,
   gcry_md_hd_t gcrypt_md_hd;
 
   if (hex_regex == NULL)
-    hex_regex = g_regex_new ("^(?:[0-9A-Fa-f][0-9A-Fa-f])+$",
-                             G_REGEX_DEFAULT,
-                             G_REGEX_MATCH_DEFAULT,
-                             NULL);
+    hex_regex = g_regex_new ("^(?:[0-9A-Fa-f][0-9A-Fa-f])+$", G_REGEX_DEFAULT,
+                             G_REGEX_MATCH_DEFAULT, NULL);
 
   *validator_out = NULL;
   if (g_strv_length (split_hash_str) != 2)
@@ -141,7 +141,7 @@ gvm_stream_validator_new (const char *expected_hash_str,
 /**
  * @brief Rewind the validation state of a stream validator while keeping the
  *        expected hash and data size.
- * 
+ *
  * @param[in]  validator  The validator to rewind.
  */
 void
@@ -171,13 +171,13 @@ gvm_stream_validator_free (gvm_stream_validator_t validator)
  * @param[in]  validator  The validator to handle the data
  * @param[in]  data       The data to write.
  * @param[in]  length     Length of the data.
- * 
+ *
  * @return Validator return code, either a "success" or "too long".
  */
 gvm_stream_validator_return_t
-gvm_stream_validator_write (gvm_stream_validator_t validator,
-                            const char *data, size_t length)
-{   
+gvm_stream_validator_write (gvm_stream_validator_t validator, const char *data,
+                            size_t length)
+{
   if (length > validator->expected_size - validator->current_size)
     return GVM_STREAM_VALIDATOR_DATA_TOO_LONG;
 
@@ -190,9 +190,9 @@ gvm_stream_validator_write (gvm_stream_validator_t validator,
 /**
  * @brief Signal the end of data input into a validator and produce the result
  *        of the validation.
- * 
+ *
  * @param[in]  validator  The validator to signal the end of data input of.
- * 
+ *
  * @return The validation result.
  */
 gvm_stream_validator_return_t
@@ -203,20 +203,19 @@ gvm_stream_validator_end (gvm_stream_validator_t validator)
 
   if (validator->current_size < validator->expected_size)
     return GVM_STREAM_VALIDATOR_DATA_TOO_SHORT;
-  
+
   if (validator->current_size > validator->expected_size)
     return GVM_STREAM_VALIDATOR_DATA_TOO_LONG;
-  
-  actual_hash_bin = gcry_md_read (validator->gcrypt_md_hd,
-                                  validator->algorithm);
-  actual_hash_hex = digest_hex (validator->algorithm,
-                                actual_hash_bin);
+
+  actual_hash_bin =
+    gcry_md_read (validator->gcrypt_md_hd, validator->algorithm);
+  actual_hash_hex = digest_hex (validator->algorithm, actual_hash_bin);
   if (strcasecmp (validator->expected_hash_hex, actual_hash_hex))
     {
       g_free (actual_hash_hex);
       return GVM_STREAM_VALIDATOR_HASH_MISMATCH;
     }
   g_free (actual_hash_hex);
-  
+
   return GVM_STREAM_VALIDATOR_OK;
 }
