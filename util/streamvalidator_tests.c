@@ -11,8 +11,9 @@
 #define VALID_DATA "This should be valid...."
 #define TOO_SHORT_DATA "This is too short!"
 #define TOO_LONG_DATA "This text is longer than expected!"
-#define INVALID_DATA "This should'nt be valid!"
-#define VALID_DATA_HASH "md5:36e8e66096b6d7f4d848ef2eb7b2ae4d"
+#define INVALID_DATA "This shouldn't be valid!"
+#define VALID_DATA_HASH \
+  "sha256:4ae8f10c9e9551173520b7a675e9caba163007edf04dbbd06022bf61ad3fe4fb"
 
 Describe (streamvalidator);
 BeforeEach (streamvalidator)
@@ -162,19 +163,19 @@ Ensure (streamvalidator, init_rejects_invalid_value_hashes)
 {
   gvm_stream_validator_t validator = NULL;
 
-  assert_equal (gvm_stream_validator_new ("md5:", 123, &validator),
+  assert_equal (gvm_stream_validator_new ("sha256:", 123, &validator),
                 GVM_STREAM_VALIDATOR_INVALID_HASH_VALUE);
   assert_equal (validator, NULL);
 
-  assert_equal (gvm_stream_validator_new ("md5:xyz", 123, &validator),
+  assert_equal (gvm_stream_validator_new ("sha256:xyz", 123, &validator),
                 GVM_STREAM_VALIDATOR_INVALID_HASH_VALUE);
   assert_equal (validator, NULL);
 
-  assert_equal (gvm_stream_validator_new ("md5:123", 123, &validator),
+  assert_equal (gvm_stream_validator_new ("sha256:123", 123, &validator),
                 GVM_STREAM_VALIDATOR_INVALID_HASH_VALUE);
   assert_equal (validator, NULL);
 
-  assert_equal (gvm_stream_validator_new ("md5:0123ab", 123, &validator),
+  assert_equal (gvm_stream_validator_new ("sha256:0123ab", 123, &validator),
                 GVM_STREAM_VALIDATOR_INVALID_HASH_VALUE);
   assert_equal (validator, NULL);
 }
