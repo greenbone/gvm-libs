@@ -248,6 +248,7 @@ if(BUILD_TESTS AND NOT SKIP_SRC)
     nvti-test
     osp-test
     passwordbasedauthentication-test
+    streamvalidator-test
     test-hosts
     util-test
     version-test

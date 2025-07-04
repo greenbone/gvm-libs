@@ -135,6 +135,7 @@ set(
   radiusutils.c
   serverutils.c
   sshutils.c
+  streamvalidator.c
   uuidutils.c
   versionutils.c
   vtparser.c
@@ -158,6 +159,7 @@ set(
   radiusutils.h
   serverutils.h
   sshutils.h
+  streamvalidator.h
   uuidutils.h
   versionutils.h
   vtparser.h
@@ -291,6 +293,15 @@ if(BUILD_TESTS)
     ${GLIB_LDFLAGS}
     ${GCRYPT_LDFLAGS}
     ${GNUTLS_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+  )
+  add_unit_test(
+    streamvalidator-test
+    streamvalidator_tests.c
+    gvm_util_shared
+    gvm_base_shared
+    ${GLIB_LDFLAGS}
+    ${GCRYPT_LDFLAGS}
     ${LINKER_HARDENING_FLAGS}
   )
   add_unit_test(
