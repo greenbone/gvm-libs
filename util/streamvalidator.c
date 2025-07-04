@@ -35,7 +35,7 @@ struct gvm_stream_validator
  * @param[in]  value    The value to get a string representation of.
  *
  * @return Static string describing the return value
- *          or NULL on success.
+ *          or NULL if value is GVM_STREAM_VALIDATOR_OK.
  */
 const char *
 gvm_stream_validator_return_str (gvm_stream_validator_return_t value)
@@ -153,6 +153,8 @@ gvm_stream_validator_rewind (gvm_stream_validator_t validator)
 
 /**
  * @brief Free a stream validator and all of its fields.
+ *
+ * @param[in]  validator  The validator to free.
  */
 void
 gvm_stream_validator_free (gvm_stream_validator_t validator)
