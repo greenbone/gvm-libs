@@ -92,8 +92,7 @@ gvm_stream_validator_new (const char *expected_hash_str, size_t expected_size,
   gcry_md_hd_t gcrypt_md_hd;
 
   if (hex_regex == NULL)
-    hex_regex = g_regex_new ("^(?:[0-9A-Fa-f][0-9A-Fa-f])+$", G_REGEX_DEFAULT,
-                             G_REGEX_MATCH_DEFAULT, NULL);
+    hex_regex = g_regex_new ("^(?:[0-9A-Fa-f][0-9A-Fa-f])+$", 0, 0, NULL);
 
   *validator_out = NULL;
   if (g_strv_length (split_hash_str) != 2)
