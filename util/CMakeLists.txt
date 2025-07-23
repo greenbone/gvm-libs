@@ -216,6 +216,12 @@ endif(BUILD_SHARED)
 if(BUILD_TESTS)
   add_unit_test(json-test json_tests.c ${GLIB_LDFLAGS} ${CJSON_LDFLAGS})
   add_unit_test(jsonpull-test jsonpull_tests.c ${GLIB_LDFLAGS} ${CJSON_LDFLAGS})
+  target_compile_options(jsonpull-test PRIVATE "-fsanitize=address")
+  target_link_options(jsonpull-test PRIVATE "-fsanitize=address")
+  set_tests_properties(
+    jsonpull-test PROPERTIES
+    ENVIRONMENT "ASAN_OPTIONS=halt_on_error=1:abort_on_error=1"
+  )
   add_unit_test(
     passwordbasedauthentication-test
     passwordbasedauthentication_tests.c
