@@ -695,20 +695,22 @@ gvm_json_pull_parser_next (gvm_json_pull_parser_t *parser,
   // Check for expected end of file
   if (parser->expect == GVM_JSON_PULL_EXPECT_EOF)
     {
-      gvm_json_pull_skip_space (parser, event, TRUE);
-
-      if (parser->last_read_char == GVM_JSON_CHAR_ERROR)
+      if (gvm_json_pull_skip_space (parser, event, TRUE))
         {
-          event->type = GVM_JSON_PULL_EVENT_ERROR;
-          event->error_message = gvm_json_read_stream_error_str ();
-        }
-      else if (parser->last_read_char != GVM_JSON_CHAR_EOF)
-        {
-          event->type = GVM_JSON_PULL_EVENT_ERROR;
-          event->error_message = g_strdup_printf (
-            "unexpected character at end of file (%d)", parser->last_read_char);
+          // EOF was reached, or an error occurred.
+          // The event type is already set, and if an error occurred, then
+          // error_message is also already set.
           return;
         }
+
+      // Skipping space succeeded. Check for unexpected characters at EOF.
+
+      if (parser->last_read_char == GVM_JSON_CHAR_EOF)
+        return;
+
+      event->type = GVM_JSON_PULL_EVENT_ERROR;
+      event->error_message = g_strdup_printf (
+        "unexpected character at end of file (%d)", parser->last_read_char);
       return;
     }
 
