@@ -984,6 +984,7 @@ Ensure (jsonpull, fails_for_expand_before_container)
   assert_that (error_message, is_equal_to_string ("can only expand after"
                                                   " array or object start"));
 
+  g_free (error_message);
   CLEANUP_JSON_PARSER;
 }
 
@@ -1003,6 +1004,7 @@ Ensure (jsonpull, fails_for_expand_after_value)
   assert_that (error_message, is_equal_to_string ("can only expand after"
                                                   " array or object start"));
 
+  g_free (error_message);
   CLEANUP_JSON_PARSER;
 }
 
@@ -1020,6 +1022,7 @@ Ensure (jsonpull, fails_for_expand_invalid_content)
   assert_that (error_message,
                is_equal_to_string ("could not parse expanded container"));
 
+  g_free (error_message);
   CLEANUP_JSON_PARSER;
 }
 
@@ -1038,6 +1041,7 @@ Ensure (jsonpull, fails_for_expand_overlong)
   assert_that (error_message,
                is_equal_to_string ("container exceeds size limit of 10 bytes"));
 
+  g_free (error_message);
   CLEANUP_JSON_PARSER;
 }
 
@@ -1055,6 +1059,7 @@ Ensure (jsonpull, fails_for_expand_unexpected_curly_brace)
   assert_that (error_message,
                is_equal_to_string ("unexpected closing curly brace"));
 
+  g_free (error_message);
   CLEANUP_JSON_PARSER;
 }
 
@@ -1072,6 +1077,7 @@ Ensure (jsonpull, fails_for_expand_unexpected_square_bracket)
   assert_that (error_message,
                is_equal_to_string ("unexpected closing square bracket"));
 
+  g_free (error_message);
   CLEANUP_JSON_PARSER;
 }
 
@@ -1088,6 +1094,7 @@ Ensure (jsonpull, fails_for_expand_eof)
   assert_that (cjson_value, is_null);
   assert_that (error_message, is_equal_to_string ("unexpected EOF"));
 
+  g_free (error_message);
   CLEANUP_JSON_PARSER;
 }
 
@@ -1104,6 +1111,7 @@ Ensure (jsonpull, fails_for_expand_read_error)
   assert_that (cjson_value, is_null);
   assert_that (error_message, is_equal_to_string (JSON_READ_ERROR));
 
+  g_free (error_message);
   CLEANUP_JSON_PARSER;
 }
 
