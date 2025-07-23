@@ -84,6 +84,7 @@ Ensure (jsonpull, can_init_parser_with_defaults)
                is_equal_to (GVM_JSON_PULL_PARSE_BUFFER_LIMIT));
   assert_that (parser.read_buffer_size,
                is_equal_to (GVM_JSON_PULL_READ_BUFFER_SIZE));
+  gvm_json_pull_parser_cleanup (&parser);
 }
 
 Ensure (jsonpull, can_parse_false)
