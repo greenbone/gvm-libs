@@ -826,6 +826,7 @@ gvm_json_pull_expand_container (gvm_json_pull_parser_t *parser,
                   if (error_message)
                     *error_message =
                       g_strdup ("unexpected closing square bracket");
+                  gvm_json_pull_path_elem_free (path_tail);
                   return NULL;
                 }
               if (path_tail->depth == start_depth)
@@ -840,6 +841,7 @@ gvm_json_pull_expand_container (gvm_json_pull_parser_t *parser,
                   if (error_message)
                     *error_message =
                       g_strdup ("unexpected closing curly brace");
+                  gvm_json_pull_path_elem_free (path_tail);
                   return NULL;
                 }
               if (path_tail->depth == start_depth)
