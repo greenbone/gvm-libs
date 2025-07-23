@@ -219,8 +219,8 @@ if(BUILD_TESTS)
   target_compile_options(jsonpull-test PRIVATE "-fsanitize=address")
   target_link_options(jsonpull-test PRIVATE "-fsanitize=address")
   set_tests_properties(
-    jsonpull-test PROPERTIES
-    ENVIRONMENT "ASAN_OPTIONS=halt_on_error=1:abort_on_error=1"
+    jsonpull-test
+    PROPERTIES ENVIRONMENT "ASAN_OPTIONS=halt_on_error=1:abort_on_error=1"
   )
   add_unit_test(
     passwordbasedauthentication-test
