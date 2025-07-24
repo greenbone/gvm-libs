@@ -24,6 +24,7 @@ Ensure (alivedetection, dummy_test)
 int
 main (int argc, char **argv)
 {
+  int ret;
   TestSuite *suite;
 
   suite = create_test_suite ();
@@ -31,7 +32,10 @@ main (int argc, char **argv)
   add_test_with_context (suite, alivedetection, dummy_test);
 
   if (argc > 1)
-    return run_single_test (suite, argv[1], create_text_reporter ());
+    ret = run_single_test (suite, argv[1], create_text_reporter ());
+  ret = run_test_suite (suite, create_text_reporter ());
 
-  return run_test_suite (suite, create_text_reporter ());
+  destroy_test_suite (suite);
+
+  return ret;
 }
