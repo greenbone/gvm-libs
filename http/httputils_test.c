@@ -173,6 +173,7 @@ Ensure (gvm_http, response_stream_reset_frees_and_resets_data)
 int
 main (int argc, char **argv)
 {
+  int ret;
   TestSuite *suite = create_test_suite ();
 
   add_test_with_context (suite, gvm_http,
@@ -202,6 +203,10 @@ main (int argc, char **argv)
                          response_stream_reset_frees_and_resets_data);
 
   if (argc > 1)
-    return run_single_test (suite, argv[1], create_text_reporter ());
-  return run_test_suite (suite, create_text_reporter ());
+    ret = run_single_test (suite, argv[1], create_text_reporter ());
+  ret = run_test_suite (suite, create_text_reporter ());
+
+  destroy_test_suite (suite);
+
+  return ret;
 }
