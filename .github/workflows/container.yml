@@ -18,6 +18,7 @@ on:
 
 jobs:
   build-push-debian-stable-container:
+    if: github.repository == 'greenbone/gvm-libs'
     name: Build and Push debian:stable to Greenbone Registry
     uses: greenbone/workflows/.github/workflows/container-build-push-2nd-gen.yml@main
     with:
