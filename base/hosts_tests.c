@@ -225,6 +225,18 @@ Ensure (hosts, gvm_hosts_new_with_max_returns_error)
   assert_that (gvm_hosts_new_with_max ("127.0.0.1|127.0.0.2", 2), is_null);
 }
 
+// This is a macro so the line number below is clear on failure.
+#define ASSERT_HOST_EQUALS(hosts, i, string)                                     \
+{                                                                                \
+  gchar *value;                                                                  \
+                                                                                 \
+  value = gvm_host_value_str (hosts->hosts[i]);                                  \
+  assert_true_with_message (g_strcmp0 (value, string) == 0,                      \
+                            "Expected hosts->hosts[%d] to be %s but it was %s",  \
+                            i, string, value);                                   \
+  g_free (value);                                                                \
+}
+
 Ensure (hosts, gvm_hosts_move_host_to_end)
 {
   gvm_hosts_t *hosts = NULL;
@@ -233,6 +245,21 @@ Ensure (hosts, gvm_hosts_move_host_to_end)
   size_t current;
 
   hosts = gvm_hosts_new ("192.168.0.0/28");
+
+  ASSERT_HOST_EQUALS (hosts, 0, "192.168.0.1");
+  ASSERT_HOST_EQUALS (hosts, 1, "192.168.0.2");
+  ASSERT_HOST_EQUALS (hosts, 2, "192.168.0.3");
+  ASSERT_HOST_EQUALS (hosts, 3, "192.168.0.4");
+  ASSERT_HOST_EQUALS (hosts, 4, "192.168.0.5");
+  ASSERT_HOST_EQUALS (hosts, 5, "192.168.0.6");
+  ASSERT_HOST_EQUALS (hosts, 6, "192.168.0.7");
+  ASSERT_HOST_EQUALS (hosts, 7, "192.168.0.8");
+  ASSERT_HOST_EQUALS (hosts, 8, "192.168.0.9");
+  ASSERT_HOST_EQUALS (hosts, 9, "192.168.0.10");
+  ASSERT_HOST_EQUALS (hosts, 10, "192.168.0.11");
+  ASSERT_HOST_EQUALS (hosts, 11, "192.168.0.12");
+  ASSERT_HOST_EQUALS (hosts, 12, "192.168.0.13");
+  ASSERT_HOST_EQUALS (hosts, 13, "192.168.0.14");
 
   // Get first host
   host = gvm_hosts_next (hosts);
@@ -257,6 +284,21 @@ Ensure (hosts, gvm_hosts_move_host_to_end)
   assert_that (g_strcmp0 (gvm_host_value_str (hosts->hosts[totalhosts - 1]),
                           "192.168.0.9"),
                is_equal_to (0));
+
+  ASSERT_HOST_EQUALS (hosts, 0, "192.168.0.1");
+  ASSERT_HOST_EQUALS (hosts, 1, "192.168.0.2");
+  ASSERT_HOST_EQUALS (hosts, 2, "192.168.0.3");
+  ASSERT_HOST_EQUALS (hosts, 3, "192.168.0.4");
+  ASSERT_HOST_EQUALS (hosts, 4, "192.168.0.5");
+  ASSERT_HOST_EQUALS (hosts, 5, "192.168.0.6");
+  ASSERT_HOST_EQUALS (hosts, 6, "192.168.0.7");
+  ASSERT_HOST_EQUALS (hosts, 7, "192.168.0.8");
+  ASSERT_HOST_EQUALS (hosts, 8, "192.168.0.10");
+  ASSERT_HOST_EQUALS (hosts, 9, "192.168.0.11");
+  ASSERT_HOST_EQUALS (hosts, 10, "192.168.0.12");
+  ASSERT_HOST_EQUALS (hosts, 11, "192.168.0.13");
+  ASSERT_HOST_EQUALS (hosts, 12, "192.168.0.14");
+  ASSERT_HOST_EQUALS (hosts, 13, "192.168.0.9");
 
   gvm_hosts_free (hosts);
 }
