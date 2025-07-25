@@ -237,6 +237,18 @@ Ensure (hosts, gvm_hosts_new_with_max_returns_error)
   g_free (value);                                                                \
 }
 
+static int
+host_value_eq (gvm_host_t *host, gchar *string)
+{
+  int ret;
+  gchar *value;
+
+  value = gvm_host_value_str (host);
+  ret = g_strcmp0 (value, string);
+  g_free (value);
+  return ret;
+}
+
 Ensure (hosts, gvm_hosts_move_host_to_end)
 {
   gvm_hosts_t *hosts = NULL;
@@ -267,11 +279,11 @@ Ensure (hosts, gvm_hosts_move_host_to_end)
   totalhosts = gvm_hosts_count (hosts);
   assert_that (totalhosts, is_equal_to (14));
 
-  while (g_strcmp0 (gvm_host_value_str (host), "192.168.0.9"))
+  while (host_value_eq (host, "192.168.0.9"))
     {
       host = gvm_hosts_next (hosts);
     }
-  assert_that (g_strcmp0 (gvm_host_value_str (host), "192.168.0.9"),
+  assert_that (host_value_eq (host, "192.168.0.9"),
                is_equal_to (0));
 
   current = hosts->current;
@@ -279,10 +291,10 @@ Ensure (hosts, gvm_hosts_move_host_to_end)
   assert_that (hosts->current, is_equal_to (current - 1));
 
   host = gvm_hosts_next (hosts);
-  assert_that (g_strcmp0 (gvm_host_value_str (host), "192.168.0.10"),
+  assert_that (host_value_eq (host, "192.168.0.10"),
                is_equal_to (0));
-  assert_that (g_strcmp0 (gvm_host_value_str (hosts->hosts[totalhosts - 1]),
-                          "192.168.0.9"),
+  assert_that (host_value_eq (hosts->hosts[totalhosts - 1],
+                              "192.168.0.9"),
                is_equal_to (0));
 
   ASSERT_HOST_EQUALS (hosts, 0, "192.168.0.1");
