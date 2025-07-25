@@ -1324,7 +1324,7 @@ gvm_hosts_next (gvm_hosts_t *hosts)
  * the end of the hosts list.
  *
  * @param[in,out]   hosts     gvm_hosts_t structure which hosts must be
- * rearange. The hosts->current index points to the last used hosts and
+ * rearange. The hosts->current index points to the last used host and
  * gvm_hosts_next() must be called to get the next host in the list.
  *
  */
@@ -1337,18 +1337,31 @@ gvm_hosts_move_current_host_to_end (gvm_hosts_t *hosts)
   if (!hosts)
     return;
 
+  // Keep in mind that gvm_hosts_next will return the current host and then
+  // increment hosts->current.
+
   if (hosts->current == hosts->count)
     {
+      // We're on the last host, just make the previous host current.
+      // TODO what happens when current is 0?
       hosts->current -= 1;
       return;
     }
 
+  // Make the previous host current. This makes sure that gvm_hosts_next will
+  // return the host that has replaced the current host.
+  // TODO what happens when current is 0?
   hosts->current -= 1;
+  // Get the host to be moved.
   host_tmp = hosts->hosts[hosts->current];
 
-  for (i = hosts->current; i < hosts->count; i++)
+  // Shift all the others down. Start from current + 1 because we're assigning into
+  // the previous slot (i - 1).
+  // It's safe to do this because we already checked if current == count above.
+  for (i = hosts->current + 1; i < hosts->count; i++)
     hosts->hosts[i - 1] = hosts->hosts[i];
 
+  // Put the moved host on the end.
   hosts->hosts[hosts->count - 1] = host_tmp;
 }
 
