@@ -193,10 +193,23 @@ Ensure (hosts, gvm_get_host_type_returns_error)
 
 Ensure (hosts, gvm_hosts_new_with_max_returns_success)
 {
-  assert_that (gvm_hosts_new_with_max ("127.0.0.1", 1), is_not_null);
-  assert_that (gvm_hosts_new_with_max ("127.0.0.1", 2000), is_not_null);
-  assert_that (gvm_hosts_new_with_max ("127.0.0.1,127.0.0.2", 2), is_not_null);
-  assert_that (gvm_hosts_new_with_max ("127.0.0.1, 127.0.0.2", 2), is_not_null);
+  gvm_hosts_t *hosts;
+
+  hosts = gvm_hosts_new_with_max ("127.0.0.1", 1);
+  assert_that (hosts, is_not_null);
+  gvm_hosts_free (hosts);
+
+  hosts = gvm_hosts_new_with_max ("127.0.0.1", 2000);
+  assert_that (hosts, is_not_null);
+  gvm_hosts_free (hosts);
+
+  hosts = gvm_hosts_new_with_max ("127.0.0.1,127.0.0.2", 2);
+  assert_that (hosts, is_not_null);
+  gvm_hosts_free (hosts);
+
+  hosts = gvm_hosts_new_with_max ("127.0.0.1, 127.0.0.2", 2);
+  assert_that (hosts, is_not_null);
+  gvm_hosts_free (hosts);
 }
 
 Ensure (hosts, gvm_hosts_new_with_max_returns_error)
