@@ -7,6 +7,7 @@ macro(add_unit_test _testName _testSource)
   add_test(NAME ${_testName} COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${_testName})
   set_tests_properties(
     ${_testName}
-    PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1:abort_on_error=1"
+    PROPERTIES
+      ENVIRONMENT "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1:abort_on_error=1"
   )
 endmacro()
