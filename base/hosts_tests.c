@@ -226,15 +226,15 @@ Ensure (hosts, gvm_hosts_new_with_max_returns_error)
 }
 
 // This is a macro so the line number below is clear on failure.
-#define ASSERT_HOST_EQUALS(hosts, i, string)                                     \
-{                                                                                \
-  gchar *value;                                                                  \
-                                                                                 \
-  value = gvm_host_value_str (hosts->hosts[i]);                                  \
-  assert_true_with_message (g_strcmp0 (value, string) == 0,                      \
-                            "Expected hosts->hosts[%d] to be %s but it was %s",  \
-                            i, string, value);                                   \
-  g_free (value);                                                                \
+#define ASSERT_HOST_EQUALS(hosts, i, string)                                \
+{                                                                           \
+  gchar *value;                                                             \
+                                                                            \
+  value = gvm_host_value_str (hosts->hosts[i]);                             \
+  assert_true_with_message (                                                \
+     g_strcmp0 (value, string) == 0,                                        \
+     "Expected hosts->hosts[%d] to be %s but it was %s", i, string, value); \
+  g_free (value);                                                           \
 }
 
 static int
@@ -283,18 +283,15 @@ Ensure (hosts, gvm_hosts_move_host_to_end)
     {
       host = gvm_hosts_next (hosts);
     }
-  assert_that (host_value_eq (host, "192.168.0.9"),
-               is_equal_to (0));
+  assert_that (host_value_eq (host, "192.168.0.9"), is_equal_to (0));
 
   current = hosts->current;
   gvm_hosts_move_current_host_to_end (hosts);
   assert_that (hosts->current, is_equal_to (current - 1));
 
   host = gvm_hosts_next (hosts);
-  assert_that (host_value_eq (host, "192.168.0.10"),
-               is_equal_to (0));
-  assert_that (host_value_eq (hosts->hosts[totalhosts - 1],
-                              "192.168.0.9"),
+  assert_that (host_value_eq (host, "192.168.0.10"), is_equal_to (0));
+  assert_that (host_value_eq (hosts->hosts[totalhosts - 1], "192.168.0.9"),
                is_equal_to (0));
 
   ASSERT_HOST_EQUALS (hosts, 0, "192.168.0.1");
@@ -343,8 +340,7 @@ Ensure (hosts, gvm_hosts_allowed_only)
 
   host = gvm_hosts_next (hosts);
   value = gvm_host_value_str (host);
-  assert_that (g_strcmp0 (value, "192.168.0.3"),
-               is_equal_to (0));
+  assert_that (g_strcmp0 (value, "192.168.0.3"), is_equal_to (0));
   g_free (value);
 
   gvm_hosts_free (hosts);

@@ -1355,9 +1355,9 @@ gvm_hosts_move_current_host_to_end (gvm_hosts_t *hosts)
   // Get the host to be moved.
   host_tmp = hosts->hosts[hosts->current];
 
-  // Shift all the others down. Start from current + 1 because we're assigning into
-  // the previous slot (i - 1).
-  // It's safe to do this because we already checked if current == count above.
+  // Shift all the others down. Start from current + 1 because we're assigning
+  // into the previous slot (i - 1). It's safe to do this because we already
+  // checked if current == count above.
   for (i = hosts->current + 1; i < hosts->count; i++)
     hosts->hosts[i - 1] = hosts->hosts[i];
 
