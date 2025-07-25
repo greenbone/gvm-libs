@@ -267,6 +267,7 @@ Ensure (hosts, gvm_hosts_allowed_only)
   gvm_host_t *host = NULL;
   int totalhosts;
   GSList *removed = NULL;
+  gchar *value;
 
   hosts = gvm_hosts_new ("192.168.0.1,192.168.0.2,192.168.0.3");
 
@@ -287,8 +288,10 @@ Ensure (hosts, gvm_hosts_allowed_only)
   g_slist_free_full (removed, g_free);
 
   host = gvm_hosts_next (hosts);
-  assert_that (g_strcmp0 (gvm_host_value_str (host), "192.168.0.3"),
+  value = gvm_host_value_str (host);
+  assert_that (g_strcmp0 (value, "192.168.0.3"),
                is_equal_to (0));
+  g_free (value);
 
   gvm_hosts_free (hosts);
 }
