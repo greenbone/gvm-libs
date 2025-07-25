@@ -433,7 +433,10 @@ is_hostname (const char *str)
           while (*last && isdigit (*last))
             last++;
           if (*last == '\0')
-            return 0;
+            {
+              g_strfreev (split);
+              return 0;
+            }
         }
     }
 
