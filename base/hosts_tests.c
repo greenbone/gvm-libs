@@ -21,9 +21,19 @@ AfterEach (hosts)
 
 Ensure (hosts, gvm_hosts_new_never_returns_null)
 {
-  assert_that (gvm_hosts_new (""), is_not_null);
-  assert_that (gvm_hosts_new ("172.10.1.1"), is_not_null);
-  assert_that (gvm_hosts_new ("172.10.1.1/24"), is_not_null);
+  gvm_hosts_t *hosts;
+
+  hosts = gvm_hosts_new ("");
+  assert_that (hosts, is_not_null);
+  gvm_hosts_free (hosts);
+
+  hosts = gvm_hosts_new ("172.10.1.1");
+  assert_that (hosts, is_not_null);
+  gvm_hosts_free (hosts);
+
+  hosts = gvm_hosts_new ("172.10.1.1/24");
+  assert_that (hosts, is_not_null);
+  gvm_hosts_free (hosts);
 }
 
 Ensure (hosts, gvm_get_host_type_returns_host_type_ipv4)
