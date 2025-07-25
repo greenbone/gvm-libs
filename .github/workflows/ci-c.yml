@@ -78,6 +78,7 @@ jobs:
         run: |
           CTEST_OUTPUT_ON_FAILURE=1 cmake --build build -- tests test coverage-xml
       - name: Upload test coverage to Codecov
+        if: github.repository == 'greenbone/gvm-libs'
         uses: codecov/codecov-action@v5
         with:
           files: build/coverage/coverage.xml
