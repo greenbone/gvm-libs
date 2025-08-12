@@ -227,7 +227,6 @@ Ensure (openvasd, openvasd_connector_free)
   conn->protocol = g_strdup ("https");
   conn->host = g_strdup ("localhost");
   conn->scan_id = g_strdup ("scan-uuid");
-  conn->stream_resp = g_malloc0 (sizeof (struct gvm_http_response_stream));
 
   openvasd_error_t result = openvasd_connector_free (conn);
 
