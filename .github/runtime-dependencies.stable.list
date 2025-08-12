@@ -1,10 +1,10 @@
 libcjson1
-libcurl3-gnutls
+libcurl3t64-gnutls
 libgcrypt20
 libglib2.0-0
-libgnutls30
+libgnutls30t64
 libgpgme11
-libhiredis0.14
+libhiredis1.1.0
 libldap-common
 libnet1
 libpaho-mqtt1.3
