@@ -20,5 +20,9 @@ RUN --mount=type=bind,source=.github,target=/source/ \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /install/ /
+# we set the VERSION_CODENAME instead of stable to prevent accidental
+# distribution upgrades
+RUN  . /etc/os-release && \
+  sed -i "s/stable/$VERSION_CODENAME/g" /etc/apt/sources.list.d/*.sources
 
 RUN ldconfig
