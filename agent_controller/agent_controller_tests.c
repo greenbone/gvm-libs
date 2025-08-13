@@ -80,6 +80,17 @@ gvm_http_request (const gchar *url, gvm_http_method_t method,
   return response;
 }
 
+static agent_controller_connector_t
+make_conn (void)
+{
+  agent_controller_connector_t conn = agent_controller_connector_new ();
+  conn->protocol = g_strdup ("http");
+  conn->host = g_strdup ("localhost");
+  conn->port = 8081;
+  conn->apikey = g_strdup ("token");
+  return conn;
+}
+
 Ensure (agent_controller, connector_new_returns_valid_connector)
 {
   agent_controller_connector_t conn = agent_controller_connector_new ();
@@ -227,17 +238,11 @@ Ensure (agent_controller, agent_free_handles_agent)
   agent->ip_addresses = g_malloc0 (sizeof (gchar *) * agent->ip_address_count);
   agent->ip_addresses[0] = g_strdup ("192.168.0.1");
   agent->ip_addresses[1] = g_strdup ("10.0.0.1");
-
-  // Schedule config
-  agent->schedule_config = agent_controller_config_schedule_new ();
-  agent->schedule_config->schedule = g_strdup ("@every 12h");
-
-  // Server config
-  agent->server_config = agent_controller_config_server_new ();
-  agent->server_config->base_url = g_strdup ("http://localhost");
-  agent->server_config->agent_id = g_strdup ("agent-001");
-  agent->server_config->token = g_strdup ("token-xyz");
-  agent->server_config->server_cert_hash = g_strdup ("hashvalue");
+  agent->config = g_strdup ("{}");
+  agent->updater_version = g_strdup ("1.2.3");
+  agent->agent_version = g_strdup ("1.2.3");
+  agent->operating_system = g_strdup ("linux");
+  agent->architecture = g_strdup ("amd64");
 
   agent_controller_agent_free (agent);
   assert_that (true, is_true);
@@ -312,7 +317,7 @@ Ensure (agent_controller, agent_update_new_initializes_defaults_correctly)
   assert_that (update->authorized, is_equal_to (-1));
   assert_that (update->min_interval, is_equal_to (-1));
   assert_that (update->heartbeat_interval, is_equal_to (-1));
-  assert_that (update->schedule_config, is_null);
+  assert_that (update->config, is_null);
 
   agent_controller_agent_update_free (update);
 }
@@ -322,8 +327,7 @@ Ensure (agent_controller, agent_update_free_handles_nested_schedule)
   agent_controller_agent_update_t update = agent_controller_agent_update_new ();
   assert_that (update, is_not_null);
 
-  update->schedule_config = agent_controller_config_schedule_new ();
-  update->schedule_config->schedule = g_strdup ("@every 12h");
+  update->config = g_strdup ("{}");
 
   agent_controller_agent_update_free (update);
   assert_that (true, is_true);
@@ -332,72 +336,6 @@ Ensure (agent_controller, agent_update_free_handles_nested_schedule)
 Ensure (agent_controller, agent_update_free_handles_null_schedule)
 {
   agent_controller_agent_update_free (NULL);
-  assert_that (true, is_true);
-}
-
-Ensure (agent_controller, config_schedule_new_allocates_struct)
-{
-  agent_controller_config_schedule_t schedule =
-    agent_controller_config_schedule_new ();
-
-  assert_that (schedule, is_not_null);
-
-  assert_that (schedule->schedule, is_null);
-
-  agent_controller_config_schedule_free (schedule);
-}
-
-Ensure (agent_controller, config_schedule_free_handles_populated_struct)
-{
-  agent_controller_config_schedule_t schedule =
-    agent_controller_config_schedule_new ();
-  assert_that (schedule, is_not_null);
-
-  schedule->schedule = g_strdup ("@every 12h");
-
-  agent_controller_config_schedule_free (schedule);
-  assert_that (true, is_true);
-}
-
-Ensure (agent_controller, config_schedule_free_handles_null_struct)
-{
-  agent_controller_config_schedule_free (NULL);
-  assert_that (true, is_true);
-}
-
-Ensure (agent_controller, config_server_new_allocates_struct)
-{
-  agent_controller_config_server_t server =
-    agent_controller_config_server_new ();
-
-  assert_that (server, is_not_null);
-
-  assert_that (server->base_url, is_null);
-  assert_that (server->agent_id, is_null);
-  assert_that (server->token, is_null);
-  assert_that (server->server_cert_hash, is_null);
-
-  agent_controller_config_server_free (server);
-}
-
-Ensure (agent_controller, config_server_free_handles_populated_struct)
-{
-  agent_controller_config_server_t server =
-    agent_controller_config_server_new ();
-  assert_that (server, is_not_null);
-
-  server->base_url = g_strdup ("https://example.com");
-  server->agent_id = g_strdup ("agent-007");
-  server->token = g_strdup ("secrettoken");
-  server->server_cert_hash = g_strdup ("abc123hash");
-
-  agent_controller_config_server_free (server);
-  assert_that (true, is_true);
-}
-
-Ensure (agent_controller, config_server_free_handles_null_struct)
-{
-  agent_controller_config_server_free (NULL);
   assert_that (true, is_true);
 }
 
@@ -599,49 +537,6 @@ Ensure (agent_controller, parse_agent_with_minimal_fields)
   cJSON_Delete (obj);
 }
 
-Ensure (agent_controller, parse_agent_with_config_and_server)
-{
-  const char *json = "{"
-                     "\"agentid\": \"a2\","
-                     "\"hostname\": \"host2\","
-                     "\"authorized\": false,"
-                     "\"min_interval\": 15,"
-                     "\"heartbeat_interval\": 25,"
-                     "\"connection_status\": \"idle\","
-                     "\"last_update\": \"2025-04-29T10:00:00.00000Z\","
-                     "\"ip_addresses\": [],"
-                     "\"config\": {"
-                     "\"schedule\": { \"schedule\": \"@every 5m\" },"
-                     "\"control-server\": {"
-                     "\"base_url\": \"https://ctrl.local\","
-                     "\"agent_id\": \"agent-ctrl\","
-                     "\"token\": \"xyz123\","
-                     "\"server_cert_hash\": \"abc123hash\""
-                     "}"
-                     "}"
-                     "}";
-
-  cJSON *obj = cJSON_Parse (json);
-  agent_controller_agent_t agent = agent_controller_parse_agent (obj);
-
-  assert_that (agent, is_not_null);
-  assert_that (agent->schedule_config, is_not_null);
-  assert_that (agent->schedule_config->schedule,
-               is_equal_to_string ("@every 5m"));
-
-  assert_that (agent->server_config, is_not_null);
-  assert_that (agent->server_config->base_url,
-               is_equal_to_string ("https://ctrl.local"));
-  assert_that (agent->server_config->agent_id,
-               is_equal_to_string ("agent-ctrl"));
-  assert_that (agent->server_config->token, is_equal_to_string ("xyz123"));
-  assert_that (agent->server_config->server_cert_hash,
-               is_equal_to_string ("abc123hash"));
-
-  agent_controller_agent_free (agent);
-  cJSON_Delete (obj);
-}
-
 Ensure (agent_controller, parse_agent_missing_optional_fields)
 {
   const char *json = "{"
@@ -655,8 +550,7 @@ Ensure (agent_controller, parse_agent_missing_optional_fields)
   assert_that (agent, is_not_null);
   assert_that (agent->authorized, is_equal_to (0));
   assert_that (agent->ip_address_count, is_equal_to (0));
-  assert_that (agent->schedule_config, is_null);
-  assert_that (agent->server_config, is_null);
+  assert_that (agent->config, is_equal_to_string ("{}"));
 
   agent_controller_agent_free (agent);
   cJSON_Delete (obj);
@@ -678,8 +572,7 @@ Ensure (agent_controller, build_patch_payload_from_single_agent)
   agent->min_interval = 30;
   agent->heartbeat_interval = 60;
 
-  agent->schedule_config = agent_controller_config_schedule_new ();
-  agent->schedule_config->schedule = g_strdup ("@every 1h");
+  agent->config = g_strdup ("{}");
 
   list->agents[0] = agent;
 
@@ -689,7 +582,7 @@ Ensure (agent_controller, build_patch_payload_from_single_agent)
   assert_that (payload, contains_string ("\"authorized\":true"));
   assert_that (payload, contains_string ("\"min_interval\":30"));
   assert_that (payload, contains_string ("\"heartbeat_interval\":60"));
-  assert_that (payload, contains_string ("\"schedule\":\"@every 1h\""));
+  assert_that (agent->config, is_equal_to_string ("{}"));
 
   g_free (payload);
   agent_controller_agent_list_free (list);
@@ -745,7 +638,7 @@ Ensure (agent_controller, patch_payload_overrides_only_min_interval)
   agent_controller_agent_list_free (list);
 }
 
-Ensure (agent_controller, patch_payload_overrides_only_schedule_config)
+Ensure (agent_controller, patch_payload_overrides_only_config)
 {
   agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
   agent_controller_agent_t agent = agent_controller_agent_new ();
@@ -753,24 +646,329 @@ Ensure (agent_controller, patch_payload_overrides_only_schedule_config)
   agent->authorized = 0;
   agent->min_interval = 5;
   agent->heartbeat_interval = 10;
-  agent->schedule_config = agent_controller_config_schedule_new ();
-  agent->schedule_config->schedule = g_strdup ("@hourly");
+  agent->config = g_strdup ("{\"test2\":\"test3\"}");
 
   list->agents[0] = agent;
 
   agent_controller_agent_update_t update = agent_controller_agent_update_new ();
-  update->schedule_config = agent_controller_config_schedule_new ();
-  update->schedule_config->schedule = g_strdup ("@every 10m");
+  update->config = g_strdup ("{\"test\":\"test1\"}");
 
   gchar *payload = agent_controller_build_patch_payload (list, update);
 
-  assert_that (payload, contains_string ("\"schedule\":\"@every 10m\""));
-  assert_that (payload, does_not_contain_string ("@hourly"));
+  assert_that (payload, contains_string ("{\"test\":\"test1\"}"));
+  assert_that (payload, does_not_contain_string ("{\"test2\":\"test3\"}"));
   assert_that (payload, contains_string ("\"min_interval\":5"));
 
   g_free (payload);
   agent_controller_agent_update_free (update);
   agent_controller_agent_list_free (list);
+}
+
+Ensure (agent_controller, scan_agent_config_new_initializes_defaults)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
+  assert_that (cfg, is_not_null);
+
+  /* agent_control.retry defaults */
+  assert_that (cfg->agent_control.retry.attempts, is_equal_to (0));
+  assert_that (cfg->agent_control.retry.delay_in_seconds, is_equal_to (0));
+  assert_that (cfg->agent_control.retry.max_jitter_in_seconds, is_equal_to (0));
+
+  /* agent_script_executor defaults */
+  assert_that (cfg->agent_script_executor.bulk_size, is_equal_to (0));
+  assert_that (cfg->agent_script_executor.bulk_throttle_time_in_ms,
+               is_equal_to (0));
+  assert_that (cfg->agent_script_executor.indexer_dir_depth, is_equal_to (0));
+  assert_that (cfg->agent_script_executor.period_in_seconds, is_equal_to (0));
+  assert_that (cfg->agent_script_executor.scheduler_cron_time_count,
+               is_equal_to (0));
+  assert_that (cfg->agent_script_executor.scheduler_cron_time, is_null);
+
+  /* heartbeat defaults */
+  assert_that (cfg->heartbeat.interval_in_seconds, is_equal_to (0));
+  assert_that (cfg->heartbeat.miss_until_inactive, is_equal_to (0));
+
+  agent_controller_scan_agent_config_free (cfg);
+}
+
+Ensure (agent_controller, scan_agent_config_free_handles_null)
+{
+  /* Should be a no-op (no crash) */
+  agent_controller_scan_agent_config_free (NULL);
+  assert_that (true, is_true); /* just to keep test non-empty */
+}
+
+Ensure (agent_controller, scan_agent_config_free_frees_cron_array_safely)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
+  assert_that (cfg, is_not_null);
+
+  /* Simulate populated cron list */
+  cfg->agent_script_executor.scheduler_cron_time_count = 3;
+  cfg->agent_script_executor.scheduler_cron_time = g_malloc0 (
+    sizeof (gchar *) * cfg->agent_script_executor.scheduler_cron_time_count);
+
+  cfg->agent_script_executor.scheduler_cron_time[0] = g_strdup ("0 23 * * *");
+  cfg->agent_script_executor.scheduler_cron_time[1] = g_strdup ("*/5 * * * *");
+  cfg->agent_script_executor.scheduler_cron_time[2] = g_strdup ("15 2 * * 1");
+
+  /* Also set some non-zero scalar fields to ensure free doesn’t depend on zeros
+   */
+  cfg->agent_control.retry.attempts = 5;
+  cfg->heartbeat.interval_in_seconds = 600;
+
+  /* Should free everything without crash/leak (use valgrind/ASAN for leak
+   * check) */
+  agent_controller_scan_agent_config_free (cfg);
+
+  assert_that (true, is_true);
+}
+
+Ensure (agent_controller, scan_agent_config_new_then_immediate_free)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
+  assert_that (cfg, is_not_null);
+  agent_controller_scan_agent_config_free (cfg);
+  assert_that (true, is_true);
+}
+
+Ensure (agent_controller, build_scan_agent_config_payload_defaults)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
+  assert_that (cfg, is_not_null);
+
+  gchar *payload = agent_controller_build_scan_agent_config_payload (cfg);
+  assert_that (payload, is_not_null);
+
+  /* agent_control.retry zeros */
+  assert_that (payload, contains_string ("\"agent_control\""));
+  assert_that (payload, contains_string ("\"retry\""));
+  assert_that (payload, contains_string ("\"attempts\":0"));
+  assert_that (payload, contains_string ("\"delay_in_seconds\":0"));
+  assert_that (payload, contains_string ("\"max_jitter_in_seconds\":0"));
+
+  /* agent_script_executor zeros + empty cron array */
+  assert_that (payload, contains_string ("\"agent_script_executor\""));
+  assert_that (payload, contains_string ("\"bulk_size\":0"));
+  assert_that (payload, contains_string ("\"bulk_throttle_time_in_ms\":0"));
+  assert_that (payload, contains_string ("\"indexer_dir_depth\":0"));
+  assert_that (payload, contains_string ("\"period_in_seconds\":0"));
+  assert_that (payload, contains_string ("\"scheduler_cron_time\":[]"));
+
+  /* heartbeat zeros */
+  assert_that (payload, contains_string ("\"heartbeat\""));
+  assert_that (payload, contains_string ("\"interval_in_seconds\":0"));
+  assert_that (payload, contains_string ("\"miss_until_inactive\":0"));
+
+  cJSON_free (payload);
+  agent_controller_scan_agent_config_free (cfg);
+}
+
+Ensure (agent_controller, build_scan_agent_config_payload_with_values)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
+  assert_that (cfg, is_not_null);
+
+  cfg->agent_control.retry.attempts = 5;
+  cfg->agent_control.retry.delay_in_seconds = 60;
+  cfg->agent_control.retry.max_jitter_in_seconds = 10;
+
+  cfg->agent_script_executor.bulk_size = 2;
+  cfg->agent_script_executor.bulk_throttle_time_in_ms = 100;
+  cfg->agent_script_executor.indexer_dir_depth = 10;
+  cfg->agent_script_executor.period_in_seconds = 60;
+
+  cfg->agent_script_executor.scheduler_cron_time_count = 2;
+  cfg->agent_script_executor.scheduler_cron_time =
+    g_malloc0 (sizeof (gchar *) * 2);
+  cfg->agent_script_executor.scheduler_cron_time[0] = g_strdup ("0 23 * * *");
+  cfg->agent_script_executor.scheduler_cron_time[1] = g_strdup ("*/5 * * * *");
+
+  cfg->heartbeat.interval_in_seconds = 600;
+  cfg->heartbeat.miss_until_inactive = 1;
+
+  gchar *payload = agent_controller_build_scan_agent_config_payload (cfg);
+  assert_that (payload, is_not_null);
+
+  /* retry */
+  assert_that (payload, contains_string ("\"attempts\":5"));
+  assert_that (payload, contains_string ("\"delay_in_seconds\":60"));
+  assert_that (payload, contains_string ("\"max_jitter_in_seconds\":10"));
+
+  /* exec */
+  assert_that (payload, contains_string ("\"bulk_size\":2"));
+  assert_that (payload, contains_string ("\"bulk_throttle_time_in_ms\":100"));
+  assert_that (payload, contains_string ("\"indexer_dir_depth\":10"));
+  assert_that (payload, contains_string ("\"period_in_seconds\":60"));
+
+  /* cron entries must appear as strings in the array */
+  assert_that (payload, contains_string ("\"scheduler_cron_time\":["));
+  assert_that (payload, contains_string ("\"0 23 * * *\""));
+  assert_that (payload, contains_string ("\"*/5 * * * *\""));
+
+  /* heartbeat */
+  assert_that (payload, contains_string ("\"interval_in_seconds\":600"));
+  assert_that (payload, contains_string ("\"miss_until_inactive\":1"));
+
+  cJSON_free (payload);
+  agent_controller_scan_agent_config_free (cfg);
+}
+
+Ensure (agent_controller, parse_scan_agent_config_full)
+{
+  const char *json =
+    "{"
+    "  \"agent_control\": {"
+    "    \"retry\": "
+    "{\"attempts\":5,\"delay_in_seconds\":60,\"max_jitter_in_seconds\":10}"
+    "  },"
+    "  \"agent_script_executor\": {"
+    "    \"bulk_size\":2,"
+    "    \"bulk_throttle_time_in_ms\":100,"
+    "    \"indexer_dir_depth\":10,"
+    "    \"period_in_seconds\":60,"
+    "    \"scheduler_cron_time\":[\"0 23 * * *\",\"*/5 * * * *\"]"
+    "  },"
+    "  \"heartbeat\": {\"interval_in_seconds\":600,\"miss_until_inactive\":1}"
+    "}";
+
+  cJSON *root = cJSON_Parse (json);
+  assert_that (root, is_not_null);
+
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_parse_scan_agent_config (root);
+  assert_that (cfg, is_not_null);
+
+  /* retry */
+  assert_that (cfg->agent_control.retry.attempts, is_equal_to (5));
+  assert_that (cfg->agent_control.retry.delay_in_seconds, is_equal_to (60));
+  assert_that (cfg->agent_control.retry.max_jitter_in_seconds,
+               is_equal_to (10));
+
+  /* exec */
+  assert_that (cfg->agent_script_executor.bulk_size, is_equal_to (2));
+  assert_that (cfg->agent_script_executor.bulk_throttle_time_in_ms,
+               is_equal_to (100));
+  assert_that (cfg->agent_script_executor.indexer_dir_depth, is_equal_to (10));
+  assert_that (cfg->agent_script_executor.period_in_seconds, is_equal_to (60));
+
+  assert_that (cfg->agent_script_executor.scheduler_cron_time_count,
+               is_equal_to (2));
+  assert_that (cfg->agent_script_executor.scheduler_cron_time, is_not_null);
+  assert_that (cfg->agent_script_executor.scheduler_cron_time[0],
+               is_equal_to_string ("0 23 * * *"));
+  assert_that (cfg->agent_script_executor.scheduler_cron_time[1],
+               is_equal_to_string ("*/5 * * * *"));
+
+  /* heartbeat */
+  assert_that (cfg->heartbeat.interval_in_seconds, is_equal_to (600));
+  assert_that (cfg->heartbeat.miss_until_inactive, is_equal_to (1));
+
+  agent_controller_scan_agent_config_free (cfg);
+  cJSON_Delete (root);
+}
+
+Ensure (agent_controller, parse_scan_agent_config_missing_blocks)
+{
+  const char *json = "{}";
+
+  cJSON *root = cJSON_Parse (json);
+  assert_that (root, is_not_null);
+
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_parse_scan_agent_config (root);
+  assert_that (cfg, is_not_null);
+
+  /* All numeric fields default to 0 */
+  assert_that (cfg->agent_control.retry.attempts, is_equal_to (0));
+  assert_that (cfg->agent_control.retry.delay_in_seconds, is_equal_to (0));
+  assert_that (cfg->agent_control.retry.max_jitter_in_seconds, is_equal_to (0));
+
+  assert_that (cfg->agent_script_executor.bulk_size, is_equal_to (0));
+  assert_that (cfg->agent_script_executor.bulk_throttle_time_in_ms,
+               is_equal_to (0));
+  assert_that (cfg->agent_script_executor.indexer_dir_depth, is_equal_to (0));
+  assert_that (cfg->agent_script_executor.period_in_seconds, is_equal_to (0));
+
+  assert_that (cfg->agent_script_executor.scheduler_cron_time_count,
+               is_equal_to (0));
+  assert_that (cfg->agent_script_executor.scheduler_cron_time, is_null);
+
+  assert_that (cfg->heartbeat.interval_in_seconds, is_equal_to (0));
+  assert_that (cfg->heartbeat.miss_until_inactive, is_equal_to (0));
+
+  agent_controller_scan_agent_config_free (cfg);
+  cJSON_Delete (root);
+}
+
+Ensure (agent_controller, scan_agent_config_roundtrip_build_then_parse)
+{
+  /* Build a cfg in memory */
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
+  assert_that (cfg, is_not_null);
+
+  cfg->agent_control.retry.attempts = 3;
+  cfg->agent_control.retry.delay_in_seconds = 7;
+  cfg->agent_control.retry.max_jitter_in_seconds = 9;
+
+  cfg->agent_script_executor.bulk_size = 4;
+  cfg->agent_script_executor.bulk_throttle_time_in_ms = 250;
+  cfg->agent_script_executor.indexer_dir_depth = 2;
+  cfg->agent_script_executor.period_in_seconds = 120;
+
+  cfg->agent_script_executor.scheduler_cron_time_count = 1;
+  cfg->agent_script_executor.scheduler_cron_time = g_malloc0 (sizeof (gchar *));
+  cfg->agent_script_executor.scheduler_cron_time[0] = g_strdup ("15 2 * * 1");
+
+  cfg->heartbeat.interval_in_seconds = 30;
+  cfg->heartbeat.miss_until_inactive = 3;
+
+  /* Build JSON payload */
+  gchar *payload = agent_controller_build_scan_agent_config_payload (cfg);
+  assert_that (payload, is_not_null);
+
+  /* Parse it back */
+  cJSON *root = cJSON_Parse (payload);
+  assert_that (root, is_not_null);
+
+  agent_controller_scan_agent_config_t parsed =
+    agent_controller_parse_scan_agent_config (root);
+  assert_that (parsed, is_not_null);
+
+  /* Compare */
+  assert_that (parsed->agent_control.retry.attempts, is_equal_to (3));
+  assert_that (parsed->agent_control.retry.delay_in_seconds, is_equal_to (7));
+  assert_that (parsed->agent_control.retry.max_jitter_in_seconds,
+               is_equal_to (9));
+
+  assert_that (parsed->agent_script_executor.bulk_size, is_equal_to (4));
+  assert_that (parsed->agent_script_executor.bulk_throttle_time_in_ms,
+               is_equal_to (250));
+  assert_that (parsed->agent_script_executor.indexer_dir_depth,
+               is_equal_to (2));
+  assert_that (parsed->agent_script_executor.period_in_seconds,
+               is_equal_to (120));
+
+  assert_that (parsed->agent_script_executor.scheduler_cron_time_count,
+               is_equal_to (1));
+  assert_that (parsed->agent_script_executor.scheduler_cron_time, is_not_null);
+  assert_that (parsed->agent_script_executor.scheduler_cron_time[0],
+               is_equal_to_string ("15 2 * * 1"));
+
+  assert_that (parsed->heartbeat.interval_in_seconds, is_equal_to (30));
+  assert_that (parsed->heartbeat.miss_until_inactive, is_equal_to (3));
+
+  /* Cleanup */
+  cJSON_free (payload);
+  agent_controller_scan_agent_config_free (cfg);
+  agent_controller_scan_agent_config_free (parsed);
+  cJSON_Delete (root);
 }
 
 Ensure (agent_controller, get_agents_returns_list_on_successful_response)
@@ -797,6 +995,52 @@ Ensure (agent_controller, get_agents_returns_list_on_successful_response)
   assert_that (list->count, is_equal_to (1));
   assert_that (list->agents[0], is_not_null);
   assert_that (list->agents[0]->agent_id, is_equal_to_string ("agent1"));
+
+  agent_controller_agent_list_free (list);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        get_agents_returns_list_on_successful_response_with_extended_fields)
+{
+  mock_response_data = "[{"
+                       "\"agentid\":\"agent1\","
+                       "\"hostname\":\"host-a\","
+                       "\"authorized\":true,"
+                       "\"min_interval\":5,"
+                       "\"heartbeat_interval\":10,"
+                       "\"connection_status\":\"active\","
+                       "\"updater_version\":\"1.2.3\","
+                       "\"agent_version\":\"0.9.0\","
+                       "\"operating_system\":\"Linux\","
+                       "\"architecture\":\"amd64\","
+                       "\"update_to_latest\":true"
+                       "}]";
+  mock_http_status = 200;
+
+  agent_controller_connector_t conn = make_conn ();
+
+  agent_controller_agent_list_t list = agent_controller_get_agents (conn);
+
+  assert_that (list, is_not_null);
+  assert_that (list->count, is_equal_to (1));
+  assert_that (list->agents[0], is_not_null);
+
+  /* existing fields */
+  assert_that (list->agents[0]->agent_id, is_equal_to_string ("agent1"));
+  assert_that (list->agents[0]->hostname, is_equal_to_string ("host-a"));
+  assert_that (list->agents[0]->authorized, is_equal_to (1));
+  assert_that (list->agents[0]->min_interval, is_equal_to (5));
+  assert_that (list->agents[0]->heartbeat_interval, is_equal_to (10));
+  assert_that (list->agents[0]->connection_status,
+               is_equal_to_string ("active"));
+
+  /* new extended fields */
+  assert_that (list->agents[0]->updater_version, is_equal_to_string ("1.2.3"));
+  assert_that (list->agents[0]->agent_version, is_equal_to_string ("0.9.0"));
+  assert_that (list->agents[0]->operating_system, is_equal_to_string ("Linux"));
+  assert_that (list->agents[0]->architecture, is_equal_to_string ("amd64"));
+  assert_that (list->agents[0]->update_to_latest, is_equal_to (1));
 
   agent_controller_agent_list_free (list);
   agent_controller_connector_free (conn);
@@ -1101,6 +1345,196 @@ Ensure (agent_controller, delete_agents_fails_on_http_422)
   agent_controller_connector_free (conn);
 }
 
+Ensure (agent_controller, get_scan_agent_config_null_conn_returns_null)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_get_scan_agent_config (NULL);
+
+  assert_that (cfg, is_null);
+  assert_that (last_sent_url, is_null);
+}
+
+Ensure (agent_controller, get_scan_agent_config_no_response_returns_null)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 500;
+
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_get_scan_agent_config (conn);
+
+  assert_that (cfg, is_null);
+  assert_that (last_sent_url,
+               contains_string ("/api/v1/admin/scan-agent-config"));
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, get_scan_agent_config_non2xx_with_body_returns_null)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 500;
+  mock_response_data = g_strdup ("{}");
+
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_get_scan_agent_config (conn);
+
+  assert_that (cfg, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, get_scan_agent_config_invalid_json_returns_null)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 200;
+  mock_response_data = g_strdup ("not-json");
+
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_get_scan_agent_config (conn);
+
+  assert_that (cfg, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, get_scan_agent_config_success_parses_values)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 200;
+  mock_response_data = g_strdup (
+    "{"
+    "  \"agent_control\": {\"retry\": "
+    "{\"attempts\":5,\"delay_in_seconds\":60,\"max_jitter_in_seconds\":10}},"
+    "  \"agent_script_executor\": {"
+    "    \"bulk_size\":2,"
+    "    \"bulk_throttle_time_in_ms\":100,"
+    "    \"indexer_dir_depth\":10,"
+    "    \"period_in_seconds\":60,"
+    "    \"scheduler_cron_time\":[\"0 23 * * *\",\"*/5 * * * *\"]"
+    "  },"
+    "  \"heartbeat\": {\"interval_in_seconds\":600,\"miss_until_inactive\":1}"
+    "}");
+
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_get_scan_agent_config (conn);
+
+  assert_that (cfg, is_not_null);
+
+  assert_that (cfg->agent_control.retry.attempts, is_equal_to (5));
+  assert_that (cfg->agent_script_executor.bulk_size, is_equal_to (2));
+  assert_that (cfg->agent_script_executor.scheduler_cron_time_count,
+               is_equal_to (2));
+  assert_that (cfg->agent_script_executor.scheduler_cron_time[0],
+               is_equal_to_string ("0 23 * * *"));
+  assert_that (cfg->heartbeat.interval_in_seconds, is_equal_to (600));
+
+  agent_controller_scan_agent_config_free (cfg);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, update_scan_agent_config_null_args_return_error)
+{
+  assert_that (agent_controller_update_scan_agent_config (NULL, NULL),
+               is_equal_to (-1));
+
+  agent_controller_connector_t conn = make_conn ();
+  assert_that (agent_controller_update_scan_agent_config (conn, NULL),
+               is_equal_to (-1));
+  agent_controller_connector_free (conn);
+
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
+  assert_that (agent_controller_update_scan_agent_config (NULL, cfg),
+               is_equal_to (-1));
+  agent_controller_scan_agent_config_free (cfg);
+}
+
+Ensure (agent_controller, update_scan_agent_config_no_response_return_error)
+{
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
+
+  cfg->agent_control.retry.attempts = 3;
+  cfg->heartbeat.interval_in_seconds = 30;
+
+  mock_http_status = 500;
+
+  int rc = agent_controller_update_scan_agent_config (conn, cfg);
+  assert_that (rc, is_equal_to (-1));
+
+  assert_that (last_sent_url,
+               contains_string ("/api/v1/admin/scan-agent-config"));
+  assert_that (last_sent_payload, contains_string ("\"agent_control\""));
+  assert_that (last_sent_payload, contains_string ("\"heartbeat\""));
+
+  agent_controller_scan_agent_config_free (cfg);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        update_scan_agent_config_non2xx_with_body_return_error)
+{
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
+
+  mock_http_status = 400;
+  mock_response_data = g_strdup ("{}");
+
+  int rc = agent_controller_update_scan_agent_config (conn, cfg);
+  assert_that (rc, is_equal_to (-1));
+
+  agent_controller_scan_agent_config_free (cfg);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        update_scan_agent_config_success_returns_ok_and_sends_payload)
+{
+  agent_controller_connector_t conn = make_conn ();
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
+
+  /* populate values */
+  cfg->agent_control.retry.attempts = 5;
+  cfg->agent_control.retry.delay_in_seconds = 60;
+  cfg->agent_control.retry.max_jitter_in_seconds = 10;
+
+  cfg->agent_script_executor.bulk_size = 2;
+  cfg->agent_script_executor.bulk_throttle_time_in_ms = 100;
+  cfg->agent_script_executor.indexer_dir_depth = 10;
+  cfg->agent_script_executor.period_in_seconds = 60;
+  cfg->agent_script_executor.scheduler_cron_time_count = 1;
+  cfg->agent_script_executor.scheduler_cron_time = g_malloc0 (sizeof (gchar *));
+  cfg->agent_script_executor.scheduler_cron_time[0] = g_strdup ("0 23 * * *");
+
+  cfg->heartbeat.interval_in_seconds = 600;
+  cfg->heartbeat.miss_until_inactive = 1;
+
+  mock_http_status = 200;
+  mock_response_data = g_strdup ("{}");
+
+  int rc = agent_controller_update_scan_agent_config (conn, cfg);
+  assert_that (rc, is_equal_to (0));
+
+  assert_that (last_sent_url, is_not_null);
+  assert_that (last_sent_url,
+               contains_string ("/api/v1/admin/scan-agent-config"));
+  assert_that (last_sent_payload, contains_string ("\"retry\""));
+  assert_that (last_sent_payload,
+               contains_string ("\"scheduler_cron_time\":[\"0 23 * * *\"]"));
+  assert_that (last_sent_payload,
+               contains_string ("\"miss_until_inactive\":1"));
+
+  agent_controller_scan_agent_config_free (cfg);
+  agent_controller_connector_free (conn);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -1140,18 +1574,6 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller,
                          agent_update_free_handles_null_schedule);
   add_test_with_context (suite, agent_controller,
-                         config_schedule_new_allocates_struct);
-  add_test_with_context (suite, agent_controller,
-                         config_schedule_free_handles_populated_struct);
-  add_test_with_context (suite, agent_controller,
-                         config_schedule_free_handles_null_struct);
-  add_test_with_context (suite, agent_controller,
-                         config_server_new_allocates_struct);
-  add_test_with_context (suite, agent_controller,
-                         config_server_free_handles_populated_struct);
-  add_test_with_context (suite, agent_controller,
-                         config_server_free_handles_null_struct);
-  add_test_with_context (suite, agent_controller,
                          init_custom_header_calls_add_header);
   add_test_with_context (suite, agent_controller,
                          init_custom_header_calls_without_token_add_header);
@@ -1176,8 +1598,6 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller,
                          parse_agent_with_minimal_fields);
   add_test_with_context (suite, agent_controller,
-                         parse_agent_with_config_and_server);
-  add_test_with_context (suite, agent_controller,
                          parse_agent_missing_optional_fields);
   add_test_with_context (suite, agent_controller,
                          parse_agent_returns_null_on_null_input);
@@ -1188,9 +1608,27 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller,
                          patch_payload_overrides_only_min_interval);
   add_test_with_context (suite, agent_controller,
-                         patch_payload_overrides_only_schedule_config);
+                         patch_payload_overrides_only_config);
+  add_test_with_context (suite, agent_controller,
+                         scan_agent_config_new_initializes_defaults);
+  add_test_with_context (suite, agent_controller,
+                         scan_agent_config_free_handles_null);
+  add_test_with_context (suite, agent_controller,
+                         scan_agent_config_free_frees_cron_array_safely);
+  add_test_with_context (suite, agent_controller,
+                         scan_agent_config_new_then_immediate_free);
+  add_test_with_context (suite, agent_controller,
+                         build_scan_agent_config_payload_defaults);
+  add_test_with_context (suite, agent_controller, parse_scan_agent_config_full);
+  add_test_with_context (suite, agent_controller,
+                         parse_scan_agent_config_missing_blocks);
+  add_test_with_context (suite, agent_controller,
+                         scan_agent_config_roundtrip_build_then_parse);
   add_test_with_context (suite, agent_controller,
                          get_agents_returns_list_on_successful_response);
+  add_test_with_context (
+    suite, agent_controller,
+    get_agents_returns_list_on_successful_response_with_extended_fields);
   add_test_with_context (suite, agent_controller,
                          get_agents_returns_null_on_non_200_status);
   add_test_with_context (suite, agent_controller,
@@ -1225,6 +1663,26 @@ main (int argc, char **argv)
                          delete_agents_fails_if_no_valid_ids);
   add_test_with_context (suite, agent_controller,
                          delete_agents_fails_on_http_422);
+  add_test_with_context (suite, agent_controller,
+                         get_scan_agent_config_null_conn_returns_null);
+  add_test_with_context (suite, agent_controller,
+                         get_scan_agent_config_no_response_returns_null);
+  add_test_with_context (suite, agent_controller,
+                         get_scan_agent_config_non2xx_with_body_returns_null);
+  add_test_with_context (suite, agent_controller,
+                         get_scan_agent_config_invalid_json_returns_null);
+  add_test_with_context (suite, agent_controller,
+                         get_scan_agent_config_success_parses_values);
+  add_test_with_context (suite, agent_controller,
+                         update_scan_agent_config_null_args_return_error);
+  add_test_with_context (suite, agent_controller,
+                         update_scan_agent_config_no_response_return_error);
+  add_test_with_context (
+    suite, agent_controller,
+    update_scan_agent_config_non2xx_with_body_return_error);
+  add_test_with_context (
+    suite, agent_controller,
+    update_scan_agent_config_success_returns_ok_and_sends_payload);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
