@@ -537,6 +537,68 @@ Ensure (agent_controller, parse_agent_with_minimal_fields)
   cJSON_Delete (obj);
 }
 
+Ensure (agent_controller, parse_agent_config_object_printed)
+{
+  const char *json = "{"
+                     "  \"agentid\":\"a1\","
+                     "  \"hostname\":\"h1\","
+                     "  \"config\": {\"k\":1}"
+                     "}";
+
+  cJSON *root = cJSON_Parse (json);
+  assert_that (root, is_not_null);
+
+  agent_controller_agent_t agent = agent_controller_parse_agent (root);
+  assert_that (agent, is_not_null);
+
+  assert_that (agent->config, is_not_null);
+  assert_that (agent->config, is_equal_to_string ("{\"k\":1}"));
+
+  agent_controller_agent_free (agent);
+  cJSON_Delete (root);
+}
+
+Ensure (agent_controller, parse_agent_config_string_stored_directly)
+{
+  const char *json = "{"
+                     "  \"agentid\":\"a2\","
+                     "  \"hostname\":\"h2\","
+                     "  \"config\": \"{\\\"k\\\":1}\""
+                     "}";
+
+  cJSON *root = cJSON_Parse (json);
+  assert_that (root, is_not_null);
+
+  agent_controller_agent_t agent = agent_controller_parse_agent (root);
+  assert_that (agent, is_not_null);
+
+  assert_that (agent->config, is_not_null);
+  assert_that (agent->config, is_equal_to_string ("{\"k\":1}"));
+
+  agent_controller_agent_free (agent);
+  cJSON_Delete (root);
+}
+
+Ensure (agent_controller, parse_agent_config_null_defaults_to_empty_object)
+{
+  const char *json = "{"
+                     "  \"agentid\":\"a3\","
+                     "  \"hostname\":\"h3\","
+                     "  \"config\": null"
+                     "}";
+
+  cJSON *root = cJSON_Parse (json);
+  assert_that (root, is_not_null);
+
+  agent_controller_agent_t agent = agent_controller_parse_agent (root);
+  assert_that (agent, is_not_null);
+
+  assert_that (agent->config, is_equal_to_string ("{}"));
+
+  agent_controller_agent_free (agent);
+  cJSON_Delete (root);
+}
+
 Ensure (agent_controller, parse_agent_missing_optional_fields)
 {
   const char *json = "{"
@@ -696,7 +758,7 @@ Ensure (agent_controller, scan_agent_config_free_handles_null)
 {
   /* Should be a no-op (no crash) */
   agent_controller_scan_agent_config_free (NULL);
-  assert_that (true, is_true); /* just to keep test non-empty */
+  assert_that (true, is_true);
 }
 
 Ensure (agent_controller, scan_agent_config_free_frees_cron_array_safely)
@@ -714,13 +776,9 @@ Ensure (agent_controller, scan_agent_config_free_frees_cron_array_safely)
   cfg->agent_script_executor.scheduler_cron_time[1] = g_strdup ("*/5 * * * *");
   cfg->agent_script_executor.scheduler_cron_time[2] = g_strdup ("15 2 * * 1");
 
-  /* Also set some non-zero scalar fields to ensure free doesn’t depend on zeros
-   */
   cfg->agent_control.retry.attempts = 5;
   cfg->heartbeat.interval_in_seconds = 600;
 
-  /* Should free everything without crash/leak (use valgrind/ASAN for leak
-   * check) */
   agent_controller_scan_agent_config_free (cfg);
 
   assert_that (true, is_true);
@@ -908,7 +966,6 @@ Ensure (agent_controller, parse_scan_agent_config_missing_blocks)
 
 Ensure (agent_controller, scan_agent_config_roundtrip_build_then_parse)
 {
-  /* Build a cfg in memory */
   agent_controller_scan_agent_config_t cfg =
     agent_controller_scan_agent_config_new ();
   assert_that (cfg, is_not_null);
@@ -971,6 +1028,80 @@ Ensure (agent_controller, scan_agent_config_roundtrip_build_then_parse)
   cJSON_Delete (root);
 }
 
+Ensure (agent_controller, json_has_update_returns_false_on_null)
+{
+  assert_that (agent_controller_json_has_update_available (NULL), is_false);
+}
+
+Ensure (agent_controller, json_has_update_returns_false_on_non_object)
+{
+  cJSON *arr = cJSON_CreateArray ();
+  assert_that (agent_controller_json_has_update_available (arr), is_false);
+  cJSON_Delete (arr);
+}
+
+Ensure (agent_controller, json_has_update_returns_false_when_keys_missing)
+{
+  cJSON *obj = cJSON_CreateObject ();
+  cJSON_AddStringToObject (obj, "agentid", "A1");
+  assert_that (agent_controller_json_has_update_available (obj), is_false);
+  cJSON_Delete (obj);
+}
+
+Ensure (agent_controller, json_has_update_true_when_agent_update_available_true)
+{
+  cJSON *obj = cJSON_CreateObject ();
+  cJSON_AddBoolToObject (obj, "agent_update_available", 1);
+  cJSON_AddBoolToObject (obj, "updater_update_available", 0);
+  assert_that (agent_controller_json_has_update_available (obj), is_true);
+  cJSON_Delete (obj);
+}
+
+Ensure (agent_controller,
+        json_has_update_true_when_updater_update_available_true)
+{
+  cJSON *obj = cJSON_CreateObject ();
+  cJSON_AddBoolToObject (obj, "agent_update_available", 0);
+  cJSON_AddBoolToObject (obj, "updater_update_available", 1);
+  assert_that (agent_controller_json_has_update_available (obj), is_true);
+  cJSON_Delete (obj);
+}
+
+Ensure (agent_controller, json_has_update_true_when_both_true)
+{
+  cJSON *obj = cJSON_CreateObject ();
+  cJSON_AddBoolToObject (obj, "agent_update_available", 1);
+  cJSON_AddBoolToObject (obj, "updater_update_available", 1);
+  assert_that (agent_controller_json_has_update_available (obj), is_true);
+  cJSON_Delete (obj);
+}
+
+Ensure (agent_controller, json_has_update_ignores_non_boolean_values)
+{
+  /* strings "true"/"false" should be ignored (treated as FALSE) */
+  const char *json = "{"
+                     "  \"agent_update_available\":\"true\","
+                     "  \"updater_update_available\":\"false\""
+                     "}";
+  cJSON *obj = cJSON_Parse (json);
+  assert_that (obj, is_not_null);
+  assert_that (agent_controller_json_has_update_available (obj), is_false);
+  cJSON_Delete (obj);
+}
+
+Ensure (agent_controller, json_has_update_ignores_numbers)
+{
+  /* numbers should be ignored (treated as FALSE) */
+  const char *json = "{"
+                     "  \"agent_update_available\":1,"
+                     "  \"updater_update_available\":0"
+                     "}";
+  cJSON *obj = cJSON_Parse (json);
+  assert_that (obj, is_not_null);
+  assert_that (agent_controller_json_has_update_available (obj), is_false);
+  cJSON_Delete (obj);
+}
+
 Ensure (agent_controller, get_agents_returns_list_on_successful_response)
 {
   mock_response_data = "[{"
@@ -983,11 +1114,7 @@ Ensure (agent_controller, get_agents_returns_list_on_successful_response)
                        "}]";
   mock_http_status = 200;
 
-  agent_controller_connector_t conn = agent_controller_connector_new ();
-  conn->protocol = g_strdup ("https");
-  conn->host = g_strdup ("localhost");
-  conn->port = 8080;
-  conn->apikey = g_strdup ("mock-key");
+  agent_controller_connector_t conn = make_conn ();
 
   agent_controller_agent_list_t list = agent_controller_get_agents (conn);
 
@@ -1051,11 +1178,7 @@ Ensure (agent_controller, get_agents_returns_null_on_non_200_status)
   mock_http_status = 403;
   mock_response_data = "[{\"agentid\": \"a\"}]";
 
-  agent_controller_connector_t conn = agent_controller_connector_new ();
-  conn->protocol = g_strdup ("https");
-  conn->host = g_strdup ("localhost");
-  conn->port = 8080;
-  conn->apikey = g_strdup ("mock-key");
+  agent_controller_connector_t conn = make_conn ();
 
   agent_controller_agent_list_t list = agent_controller_get_agents (conn);
   assert_that (list, is_null);
@@ -1068,11 +1191,7 @@ Ensure (agent_controller, get_agents_returns_null_on_invalid_json)
   mock_http_status = 200;
   mock_response_data = "not-a-json-array";
 
-  agent_controller_connector_t conn = agent_controller_connector_new ();
-  conn->protocol = g_strdup ("https");
-  conn->host = g_strdup ("localhost");
-  conn->port = 8080;
-  conn->apikey = g_strdup ("token");
+  agent_controller_connector_t conn = make_conn ();
 
   agent_controller_agent_list_t list = agent_controller_get_agents (conn);
   assert_that (list, is_null);
@@ -1085,11 +1204,7 @@ Ensure (agent_controller, authorize_agents_succeeds_with_valid_input)
   mock_http_status = 200;
   mock_response_data = g_strdup ("{}");
 
-  agent_controller_connector_t conn = agent_controller_connector_new ();
-  conn->protocol = g_strdup ("https");
-  conn->host = g_strdup ("localhost");
-  conn->port = 8080;
-  conn->apikey = g_strdup ("token");
+  agent_controller_connector_t conn = make_conn ();
 
   agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
   agent_controller_agent_t agent = agent_controller_agent_new ();
@@ -1125,11 +1240,7 @@ Ensure (agent_controller, authorize_agents_fails_with_null_agents)
 
 Ensure (agent_controller, authorize_agents_fails_when_payload_is_null)
 {
-  agent_controller_connector_t conn = agent_controller_connector_new ();
-  conn->protocol = g_strdup ("https");
-  conn->host = g_strdup ("localhost");
-  conn->port = 8080;
-  conn->apikey = g_strdup ("token");
+  agent_controller_connector_t conn = make_conn ();
 
   agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
   list->count = 0;
@@ -1146,11 +1257,7 @@ Ensure (agent_controller, authorize_agents_fails_on_http_422)
   mock_http_status = 422;
   mock_response_data = g_strdup ("{}");
 
-  agent_controller_connector_t conn = agent_controller_connector_new ();
-  conn->protocol = g_strdup ("https");
-  conn->host = g_strdup ("localhost");
-  conn->port = 8080;
-  conn->apikey = g_strdup ("token");
+  agent_controller_connector_t conn = make_conn ();
 
   agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
   agent_controller_agent_t agent = agent_controller_agent_new ();
@@ -1170,11 +1277,7 @@ Ensure (agent_controller, update_agents_returns_zero_on_success)
   g_clear_pointer (&mock_response_data, g_free);
   mock_response_data = g_strdup ("");
 
-  agent_controller_connector_t conn = agent_controller_connector_new ();
-  conn->protocol = g_strdup ("https");
-  conn->host = g_strdup ("localhost");
-  conn->port = 8080;
-  conn->apikey = g_strdup ("token");
+  agent_controller_connector_t conn = make_conn ();
 
   agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
   agent_controller_agent_t agent = agent_controller_agent_new ();
@@ -1239,11 +1342,7 @@ Ensure (agent_controller, update_agents_fails_on_http_error_status)
   mock_http_status = 400;
   mock_response_data = g_strdup ("{}");
 
-  agent_controller_connector_t conn = agent_controller_connector_new ();
-  conn->protocol = g_strdup ("https");
-  conn->host = g_strdup ("localhost");
-  conn->port = 8080;
-  conn->apikey = g_strdup ("token");
+  agent_controller_connector_t conn = make_conn ();
 
   agent_controller_agent_list_t list = agent_controller_agent_list_new (1);
   list->agents[0] = agent_controller_agent_new ();
@@ -1535,6 +1634,181 @@ Ensure (agent_controller,
   agent_controller_connector_free (conn);
 }
 
+Ensure (agent_controller, get_agents_with_updates_null_conn_returns_null)
+{
+  agent_controller_agent_list_t list =
+    agent_controller_get_agents_with_updates (NULL);
+
+  assert_that (list, is_null);
+  assert_that (last_sent_url, is_null);
+}
+
+Ensure (agent_controller, get_agents_with_updates_no_response_returns_null)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 500;
+
+  agent_controller_agent_list_t list =
+    agent_controller_get_agents_with_updates (conn);
+
+  assert_that (list, is_null);
+  assert_that (last_sent_url, contains_string ("/api/v1/admin/agents/updates"));
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, get_agents_with_updates_non200_with_body_returns_null)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 403;
+  mock_response_data = g_strdup ("[]");
+
+  agent_controller_agent_list_t list =
+    agent_controller_get_agents_with_updates (conn);
+
+  assert_that (list, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, get_agents_with_updates_invalid_json_returns_null)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 200;
+  mock_response_data = g_strdup ("not-json");
+
+  agent_controller_agent_list_t list =
+    agent_controller_get_agents_with_updates (conn);
+
+  assert_that (list, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, get_agents_with_updates_non_array_returns_null)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 200;
+  mock_response_data = g_strdup ("{\"agents\":[]}");
+
+  agent_controller_agent_list_t list =
+    agent_controller_get_agents_with_updates (conn);
+
+  assert_that (list, is_null);
+
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, get_agents_with_updates_filters_only_true_flags)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 200;
+  mock_response_data =
+    g_strdup ("["
+              " {\"agentid\":\"A1\",\"agent_update_available\":true,\"updater_"
+              "update_available\":false},"
+              " {\"agentid\":\"A2\",\"agent_update_available\":false,\"updater_"
+              "update_available\":false},"
+              " {\"agentid\":\"A3\",\"agent_update_available\":false,\"updater_"
+              "update_available\":true},"
+              " {\"agentid\":\"A4\"}" /* missing flags -> treated as false */
+              "]");
+
+  agent_controller_agent_list_t list =
+    agent_controller_get_agents_with_updates (conn);
+
+  assert_that (list, is_not_null);
+  assert_that (list->count, is_equal_to (2));
+  assert_that (list->agents[0], is_not_null);
+  assert_that (list->agents[1], is_not_null);
+
+  /* order preserved from input array, but only filtered ones are kept */
+  assert_that (list->agents[0]->agent_id, is_equal_to_string ("A1"));
+  assert_that (list->agents[1]->agent_id, is_equal_to_string ("A3"));
+
+  agent_controller_agent_list_free (list);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        get_agents_with_updates_returns_empty_list_when_none_match)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 200;
+  mock_response_data =
+    g_strdup ("["
+              " {\"agentid\":\"B1\",\"agent_update_available\":false,\"updater_"
+              "update_available\":false},"
+              " {\"agentid\":\"B2\"}"
+              "]");
+
+  agent_controller_agent_list_t list =
+    agent_controller_get_agents_with_updates (conn);
+
+  assert_that (list, is_not_null);
+  assert_that (list->count, is_equal_to (0));
+
+  agent_controller_agent_list_free (list);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller, get_agents_with_updates_ignores_non_boolean_flags)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 200;
+  mock_response_data =
+    g_strdup ("["
+              " {\"agentid\":\"C1\",\"agent_update_available\":1,\"updater_"
+              "update_available\":\"true\"},"
+              " {\"agentid\":\"C2\",\"agent_update_available\":\"false\","
+              "\"updater_update_available\":0}"
+              "]");
+
+  agent_controller_agent_list_t list =
+    agent_controller_get_agents_with_updates (conn);
+
+  assert_that (list, is_not_null);
+  assert_that (list->count, is_equal_to (0));
+
+  agent_controller_agent_list_free (list);
+  agent_controller_connector_free (conn);
+}
+
+Ensure (agent_controller,
+        get_agents_with_updates_hits_correct_endpoint_and_builds_agents)
+{
+  agent_controller_connector_t conn = make_conn ();
+
+  mock_http_status = 200;
+  mock_response_data = g_strdup (
+    "["
+    " {\"agentid\":\"D1\",\"hostname\":\"h1\",\"agent_update_available\":true},"
+    " {\"agentid\":\"D2\",\"hostname\":\"h2\",\"updater_update_available\":"
+    "true}"
+    "]");
+
+  agent_controller_agent_list_t list =
+    agent_controller_get_agents_with_updates (conn);
+
+  assert_that (last_sent_url, contains_string ("/api/v1/admin/agents/updates"));
+  assert_that (list, is_not_null);
+  assert_that (list->count, is_equal_to (2));
+  assert_that (list->agents[0]->agent_id, is_equal_to_string ("D1"));
+  assert_that (list->agents[0]->hostname, is_equal_to_string ("h1"));
+  assert_that (list->agents[1]->agent_id, is_equal_to_string ("D2"));
+  assert_that (list->agents[1]->hostname, is_equal_to_string ("h2"));
+
+  agent_controller_agent_list_free (list);
+  agent_controller_connector_free (conn);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -1596,7 +1870,15 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller,
                          parse_datetime_parses_leap_year_date);
   add_test_with_context (suite, agent_controller,
+                         parse_datetime_returns_zero_if_null_input);
+  add_test_with_context (suite, agent_controller,
                          parse_agent_with_minimal_fields);
+  add_test_with_context (suite, agent_controller,
+                         parse_agent_config_object_printed);
+  add_test_with_context (suite, agent_controller,
+                         parse_agent_config_string_stored_directly);
+  add_test_with_context (suite, agent_controller,
+                         parse_agent_config_null_defaults_to_empty_object);
   add_test_with_context (suite, agent_controller,
                          parse_agent_missing_optional_fields);
   add_test_with_context (suite, agent_controller,
@@ -1619,13 +1901,32 @@ main (int argc, char **argv)
                          scan_agent_config_new_then_immediate_free);
   add_test_with_context (suite, agent_controller,
                          build_scan_agent_config_payload_defaults);
+  add_test_with_context (suite, agent_controller,
+                         build_scan_agent_config_payload_with_values);
   add_test_with_context (suite, agent_controller, parse_scan_agent_config_full);
   add_test_with_context (suite, agent_controller,
                          parse_scan_agent_config_missing_blocks);
   add_test_with_context (suite, agent_controller,
                          scan_agent_config_roundtrip_build_then_parse);
   add_test_with_context (suite, agent_controller,
+                         json_has_update_returns_false_on_null);
+  add_test_with_context (suite, agent_controller,
                          get_agents_returns_list_on_successful_response);
+  add_test_with_context (suite, agent_controller,
+                         json_has_update_returns_false_on_non_object);
+  add_test_with_context (suite, agent_controller,
+                         json_has_update_returns_false_when_keys_missing);
+  add_test_with_context (suite, agent_controller,
+                         json_has_update_true_when_agent_update_available_true);
+  add_test_with_context (
+    suite, agent_controller,
+    json_has_update_true_when_updater_update_available_true);
+  add_test_with_context (suite, agent_controller,
+                         json_has_update_true_when_both_true);
+  add_test_with_context (suite, agent_controller,
+                         json_has_update_ignores_non_boolean_values);
+  add_test_with_context (suite, agent_controller,
+                         json_has_update_ignores_numbers);
   add_test_with_context (
     suite, agent_controller,
     get_agents_returns_list_on_successful_response_with_extended_fields);
@@ -1683,6 +1984,26 @@ main (int argc, char **argv)
   add_test_with_context (
     suite, agent_controller,
     update_scan_agent_config_success_returns_ok_and_sends_payload);
+  add_test_with_context (suite, agent_controller,
+                         get_agents_with_updates_null_conn_returns_null);
+  add_test_with_context (suite, agent_controller,
+                         get_agents_with_updates_non200_with_body_returns_null);
+  add_test_with_context (suite, agent_controller,
+                         get_agents_with_updates_invalid_json_returns_null);
+  add_test_with_context (suite, agent_controller,
+                         get_agents_with_updates_non_array_returns_null);
+  add_test_with_context (suite, agent_controller,
+                         get_agents_with_updates_filters_only_true_flags);
+  add_test_with_context (suite, agent_controller,
+                         get_agents_with_updates_no_response_returns_null);
+  add_test_with_context (
+    suite, agent_controller,
+    get_agents_with_updates_returns_empty_list_when_none_match);
+  add_test_with_context (suite, agent_controller,
+                         get_agents_with_updates_ignores_non_boolean_flags);
+  add_test_with_context (
+    suite, agent_controller,
+    get_agents_with_updates_hits_correct_endpoint_and_builds_agents);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());

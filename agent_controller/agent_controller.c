@@ -152,6 +152,9 @@ agent_controller_send_request (agent_controller_connector_t conn,
 static time_t
 parse_datetime (const char *datetime_str)
 {
+  if (!datetime_str)
+    return 0;
+
   struct tm tm = {0};
   int milliseconds = 0;
 
@@ -447,65 +450,85 @@ agent_controller_build_scan_agent_config_payload (
     return NULL;
 
   cJSON *root = cJSON_CreateObject ();
-  if (!root)
-    return NULL;
 
   /* agent_control.retry */
-  {
-    cJSON *agent_control = cJSON_CreateObject ();
-    cJSON *retry = cJSON_CreateObject ();
-    cJSON_AddNumberToObject (retry, "attempts",
-                             cfg->agent_control.retry.attempts);
-    cJSON_AddNumberToObject (retry, "delay_in_seconds",
-                             cfg->agent_control.retry.delay_in_seconds);
-    cJSON_AddNumberToObject (retry, "max_jitter_in_seconds",
-                             cfg->agent_control.retry.max_jitter_in_seconds);
-    cJSON_AddItemToObject (agent_control, "retry", retry);
-    cJSON_AddItemToObject (root, "agent_control", agent_control);
-  }
+
+  cJSON *agent_control = cJSON_CreateObject ();
+  cJSON *retry = cJSON_CreateObject ();
+  cJSON_AddNumberToObject (retry, "attempts",
+                           cfg->agent_control.retry.attempts);
+  cJSON_AddNumberToObject (retry, "delay_in_seconds",
+                           cfg->agent_control.retry.delay_in_seconds);
+  cJSON_AddNumberToObject (retry, "max_jitter_in_seconds",
+                           cfg->agent_control.retry.max_jitter_in_seconds);
+  cJSON_AddItemToObject (agent_control, "retry", retry);
+  cJSON_AddItemToObject (root, "agent_control", agent_control);
 
   /* agent_script_executor */
-  {
-    cJSON *exec = cJSON_CreateObject ();
-    cJSON_AddNumberToObject (exec, "bulk_size",
-                             cfg->agent_script_executor.bulk_size);
-    cJSON_AddNumberToObject (
-      exec, "bulk_throttle_time_in_ms",
-      cfg->agent_script_executor.bulk_throttle_time_in_ms);
-    cJSON_AddNumberToObject (exec, "indexer_dir_depth",
-                             cfg->agent_script_executor.indexer_dir_depth);
-    cJSON_AddNumberToObject (exec, "period_in_seconds",
-                             cfg->agent_script_executor.period_in_seconds);
 
-    cJSON *cron = cJSON_CreateArray ();
-    for (int i = 0; i < cfg->agent_script_executor.scheduler_cron_time_count;
-         ++i)
-      {
-        const gchar *expr =
-          cfg->agent_script_executor.scheduler_cron_time
-            ? cfg->agent_script_executor.scheduler_cron_time[i]
-            : NULL;
-        if (expr)
-          cJSON_AddItemToArray (cron, cJSON_CreateString (expr));
-      }
-    cJSON_AddItemToObject (exec, "scheduler_cron_time", cron);
+  cJSON *exec = cJSON_CreateObject ();
+  cJSON_AddNumberToObject (exec, "bulk_size",
+                           cfg->agent_script_executor.bulk_size);
+  cJSON_AddNumberToObject (exec, "bulk_throttle_time_in_ms",
+                           cfg->agent_script_executor.bulk_throttle_time_in_ms);
+  cJSON_AddNumberToObject (exec, "indexer_dir_depth",
+                           cfg->agent_script_executor.indexer_dir_depth);
+  cJSON_AddNumberToObject (exec, "period_in_seconds",
+                           cfg->agent_script_executor.period_in_seconds);
 
-    cJSON_AddItemToObject (root, "agent_script_executor", exec);
-  }
+  cJSON *cron = cJSON_CreateArray ();
+  for (int i = 0; i < cfg->agent_script_executor.scheduler_cron_time_count; ++i)
+    {
+      const gchar *expr = cfg->agent_script_executor.scheduler_cron_time
+                            ? cfg->agent_script_executor.scheduler_cron_time[i]
+                            : NULL;
+      if (expr)
+        cJSON_AddItemToArray (cron, cJSON_CreateString (expr));
+    }
+  cJSON_AddItemToObject (exec, "scheduler_cron_time", cron);
+
+  cJSON_AddItemToObject (root, "agent_script_executor", exec);
 
   /* heartbeat */
-  {
-    cJSON *hb = cJSON_CreateObject ();
-    cJSON_AddNumberToObject (hb, "interval_in_seconds",
-                             cfg->heartbeat.interval_in_seconds);
-    cJSON_AddNumberToObject (hb, "miss_until_inactive",
-                             cfg->heartbeat.miss_until_inactive);
-    cJSON_AddItemToObject (root, "heartbeat", hb);
-  }
+
+  cJSON *hb = cJSON_CreateObject ();
+  cJSON_AddNumberToObject (hb, "interval_in_seconds",
+                           cfg->heartbeat.interval_in_seconds);
+  cJSON_AddNumberToObject (hb, "miss_until_inactive",
+                           cfg->heartbeat.miss_until_inactive);
+  cJSON_AddItemToObject (root, "heartbeat", hb);
 
   gchar *payload = cJSON_PrintUnformatted (root);
   cJSON_Delete (root);
   return payload;
+}
+
+/**
+ * @brief Check if a JSON agent object reports an available update.
+ *
+ * Evaluates the boolean fields "agent_update_available" and
+ * "updater_update_available" on the given item. Only strict JSON booleans
+ * are considered; missing keys or non-boolean types are treated as FALSE.
+ *
+ * @param[in] item  cJSON object representing a single agent.
+ *
+ * @return TRUE if either "agent_update_available" or
+ *         "updater_update_available" is TRUE; otherwise FALSE.
+ */
+
+static gboolean
+agent_controller_json_has_update_available (cJSON *item)
+{
+  if (!item || !cJSON_IsObject (item))
+    return FALSE;
+
+  cJSON *a_up = cJSON_GetObjectItem (item, "agent_update_available");
+  cJSON *u_up = cJSON_GetObjectItem (item, "updater_update_available");
+
+  gboolean agent_up = cJSON_IsBool (a_up) && cJSON_IsTrue (a_up);
+  gboolean updater_up = cJSON_IsBool (u_up) && cJSON_IsTrue (u_up);
+
+  return agent_up || updater_up;
 }
 
 /**
@@ -623,6 +646,7 @@ agent_controller_agent_free (agent_controller_agent_t agent)
       g_free (agent->ip_addresses);
     }
 
+  g_free (agent->config);
   g_free (agent->updater_version);
   g_free (agent->agent_version);
   g_free (agent->operating_system);
@@ -720,6 +744,8 @@ agent_controller_scan_agent_config_new (void)
 
 /**
  * @brief Free a scan agent config.
+ *
+ * @param[in] cfg to be freed
  */
 void
 agent_controller_scan_agent_config_free (
@@ -837,7 +863,7 @@ agent_controller_authorize_agents (agent_controller_connector_t conn,
   update->authorized = 1;          // Force authorized = 1
   update->min_interval = -1;       // No override
   update->heartbeat_interval = -1; // No override
-  update->config = NULL;           // No schedule override
+  update->config = NULL;           // No config override
 
   gchar *payload = agent_controller_build_patch_payload (agents, update);
   agent_controller_agent_update_free (update);
@@ -998,8 +1024,7 @@ agent_controller_delete_agents (agent_controller_connector_t conn,
  * @param[in] conn Active connector
  *
  * @return Newly allocated agent_controller_scan_agent_config_t on success,
- *         NULL on failure (e.g., NULL conn, non-2xx HTTP status, or invalid
- *         JSON). Caller must free the returned object with
+ *         NULL on failure. Caller must free the returned object with
  *         agent_controller_scan_agent_config_free().
  */
 agent_controller_scan_agent_config_t
@@ -1045,7 +1070,7 @@ agent_controller_get_scan_agent_config (agent_controller_connector_t conn)
 /**
  * @brief Updates the scan-agent configuration.
  *
- * @param[in] conn Active connector
+ * @param[in] conn Connector to the Agent Controller
  * @param[in] cfg  Configuration to apply
  *
  * @return AGENT_RESP_OK (0) on success, AGENT_RESP_ERR (-1) on failure.
@@ -1088,4 +1113,71 @@ agent_controller_update_scan_agent_config (
 
   gvm_http_response_cleanup (response);
   return AGENT_RESP_OK;
+}
+
+/**
+ * @brief Fetch agents that have an update available.
+ *
+ * @param[in] conn Connector to the Agent Controller
+ *
+ * @return List of agents on success (count may be 0 if none qualify),
+ *         NULL on failure. Free with agent_controller_agent_list_free().
+ */
+agent_controller_agent_list_t
+agent_controller_get_agents_with_updates (agent_controller_connector_t conn)
+{
+  if (!conn)
+    {
+      g_warning ("%s: Connector is NULL", __func__);
+      return NULL;
+    }
+
+  gvm_http_response_t *response = agent_controller_send_request (
+    conn, GET, "/api/v1/admin/agents/updates", NULL, conn->apikey);
+
+  if (!response)
+    {
+      g_warning ("%s: Failed to get response", __func__);
+      return NULL;
+    }
+
+  if (response->http_status != 200)
+    {
+      g_warning ("%s: Received HTTP status %ld", __func__,
+                 response->http_status);
+      gvm_http_response_cleanup (response);
+      return NULL;
+    }
+
+  cJSON *root = cJSON_Parse (response->data);
+  if (!root || !cJSON_IsArray (root))
+    {
+      g_warning ("%s: Failed to parse JSON array", __func__);
+      if (root)
+        cJSON_Delete (root);
+      gvm_http_response_cleanup (response);
+      return NULL;
+    }
+
+  int count = cJSON_GetArraySize (root);
+  agent_controller_agent_list_t agent_list =
+    agent_controller_agent_list_new (count);
+
+  int valid_index = 0;
+  for (int i = 0; i < count; ++i)
+    {
+      cJSON *item = cJSON_GetArrayItem (root, i);
+      if (!agent_controller_json_has_update_available (item))
+        continue;
+
+      agent_controller_agent_t agent = agent_controller_parse_agent (item);
+      if (agent)
+        agent_list->agents[valid_index++] = agent;
+    }
+  agent_list->count = valid_index;
+
+  cJSON_Delete (root);
+  gvm_http_response_cleanup (response);
+
+  return agent_list;
 }
