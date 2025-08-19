@@ -1898,85 +1898,108 @@ Ensure (agent_controller, parse_cfg_string_whitespace_returns_null)
   assert_that (cfg, is_null);
 }
 
-Ensure(agent_controller, null_cfg_returns_true) {
-  assert_that(agent_controller_scan_agent_config_is_default(NULL), is_true);
+Ensure (agent_controller, null_cfg_returns_true)
+{
+  assert_that (agent_controller_scan_agent_config_is_default (NULL), is_true);
 }
 
-Ensure(agent_controller, new_cfg_is_default) {
-  agent_controller_scan_agent_config_t cfg = agent_controller_scan_agent_config_new();
-  assert_that(cfg, is_not_null);
-  assert_that(agent_controller_scan_agent_config_is_default(cfg), is_true);
-  agent_controller_scan_agent_config_free(cfg);
+Ensure (agent_controller, new_cfg_is_default)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
+  assert_that (cfg, is_not_null);
+  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_true);
+  agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure(agent_controller, nonzero_retry_attempts_returns_false) {
-  agent_controller_scan_agent_config_t cfg = agent_controller_scan_agent_config_new();
+Ensure (agent_controller, nonzero_retry_attempts_returns_false)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
   cfg->agent_control.retry.attempts = 1;
-  assert_that(agent_controller_scan_agent_config_is_default(cfg), is_false);
-  agent_controller_scan_agent_config_free(cfg);
+  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure(agent_controller, nonzero_retry_delay_returns_false) {
-  agent_controller_scan_agent_config_t cfg = agent_controller_scan_agent_config_new();
+Ensure (agent_controller, nonzero_retry_delay_returns_false)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
   cfg->agent_control.retry.delay_in_seconds = 5;
-  assert_that(agent_controller_scan_agent_config_is_default(cfg), is_false);
-  agent_controller_scan_agent_config_free(cfg);
+  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure(agent_controller, nonzero_retry_jitter_returns_false) {
-  agent_controller_scan_agent_config_t cfg = agent_controller_scan_agent_config_new();
+Ensure (agent_controller, nonzero_retry_jitter_returns_false)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
   cfg->agent_control.retry.max_jitter_in_seconds = 7;
-  assert_that(agent_controller_scan_agent_config_is_default(cfg), is_false);
-  agent_controller_scan_agent_config_free(cfg);
+  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure(agent_controller, nonzero_exec_bulk_size_returns_false) {
-  agent_controller_scan_agent_config_t cfg = agent_controller_scan_agent_config_new();
+Ensure (agent_controller, nonzero_exec_bulk_size_returns_false)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
   cfg->agent_script_executor.bulk_size = 10;
-  assert_that(agent_controller_scan_agent_config_is_default(cfg), is_false);
-  agent_controller_scan_agent_config_free(cfg);
+  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure(agent_controller, nonzero_exec_bulk_throttle_returns_false) {
-  agent_controller_scan_agent_config_t cfg = agent_controller_scan_agent_config_new();
+Ensure (agent_controller, nonzero_exec_bulk_throttle_returns_false)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
   cfg->agent_script_executor.bulk_throttle_time_in_ms = 100;
-  assert_that(agent_controller_scan_agent_config_is_default(cfg), is_false);
-  agent_controller_scan_agent_config_free(cfg);
+  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure(agent_controller, nonzero_exec_indexer_depth_returns_false) {
-  agent_controller_scan_agent_config_t cfg = agent_controller_scan_agent_config_new();
+Ensure (agent_controller, nonzero_exec_indexer_depth_returns_false)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
   cfg->agent_script_executor.indexer_dir_depth = 2;
-  assert_that(agent_controller_scan_agent_config_is_default(cfg), is_false);
-  agent_controller_scan_agent_config_free(cfg);
+  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure(agent_controller, nonzero_exec_period_returns_false) {
-  agent_controller_scan_agent_config_t cfg = agent_controller_scan_agent_config_new();
+Ensure (agent_controller, nonzero_exec_period_returns_false)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
   cfg->agent_script_executor.period_in_seconds = 60;
-  assert_that(agent_controller_scan_agent_config_is_default(cfg), is_false);
-  agent_controller_scan_agent_config_free(cfg);
+  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure(agent_controller, cron_count_gt_zero_returns_false) {
-  agent_controller_scan_agent_config_t cfg = agent_controller_scan_agent_config_new();
+Ensure (agent_controller, cron_count_gt_zero_returns_false)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
   cfg->agent_script_executor.scheduler_cron_time_count = 1;
-  assert_that(agent_controller_scan_agent_config_is_default(cfg), is_false);
-  agent_controller_scan_agent_config_free(cfg);
+  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure(agent_controller, nonzero_heartbeat_interval_returns_false) {
-  agent_controller_scan_agent_config_t cfg = agent_controller_scan_agent_config_new();
+Ensure (agent_controller, nonzero_heartbeat_interval_returns_false)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
   cfg->heartbeat.interval_in_seconds = 30;
-  assert_that(agent_controller_scan_agent_config_is_default(cfg), is_false);
-  agent_controller_scan_agent_config_free(cfg);
+  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure(agent_controller, nonzero_heartbeat_miss_until_inactive_returns_false) {
-  agent_controller_scan_agent_config_t cfg = agent_controller_scan_agent_config_new();
+Ensure (agent_controller, nonzero_heartbeat_miss_until_inactive_returns_false)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
   cfg->heartbeat.miss_until_inactive = 3;
-  assert_that(agent_controller_scan_agent_config_is_default(cfg), is_false);
-  agent_controller_scan_agent_config_free(cfg);
+  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_free (cfg);
 }
 
 int
@@ -2186,10 +2209,8 @@ main (int argc, char **argv)
                          parse_cfg_string_populates_fields_correctly);
   add_test_with_context (suite, agent_controller,
                          parse_cfg_string_whitespace_returns_null);
-  add_test_with_context (suite, agent_controller,
-                         null_cfg_returns_true);
-  add_test_with_context (suite, agent_controller,
-                         new_cfg_is_default);
+  add_test_with_context (suite, agent_controller, null_cfg_returns_true);
+  add_test_with_context (suite, agent_controller, new_cfg_is_default);
   add_test_with_context (suite, agent_controller,
                          nonzero_retry_attempts_returns_false);
   add_test_with_context (suite, agent_controller,
