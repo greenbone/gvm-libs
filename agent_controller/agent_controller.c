@@ -226,21 +226,23 @@ agent_controller_parse_scan_agent_config (cJSON *root)
       cJSON *cron = cJSON_GetObjectItem (exec, "scheduler_cron_time");
       if (cJSON_IsArray (cron))
         {
+          GPtrArray *arr = g_ptr_array_new_with_free_func (g_free);
           int n = cJSON_GetArraySize (cron);
-          cfg->agent_script_executor.scheduler_cron_time_count = n;
-          if (n > 0)
-            {
-              cfg->agent_script_executor.scheduler_cron_time =
-                g_malloc0 (sizeof (gchar *) * n);
 
-              for (int i = 0; i < n; ++i)
+          for (int i = 0; i < n; ++i)
+            {
+              cJSON *it = cJSON_GetArrayItem (cron, i);
+              if (cJSON_IsString (it) && it->valuestring
+                  && it->valuestring[0] != '\0')
                 {
-                  cJSON *it = cJSON_GetArrayItem (cron, i);
-                  if (cJSON_IsString (it) && it->valuestring)
-                    cfg->agent_script_executor.scheduler_cron_time[i] =
-                      g_strdup (it->valuestring);
+                  g_ptr_array_add (arr, g_strdup (it->valuestring));
                 }
             }
+
+          if (arr->len > 0)
+            cfg->agent_script_executor.scheduler_cron_time = arr;
+          else
+            g_ptr_array_free (arr, TRUE);
         }
     }
 
@@ -410,39 +412,39 @@ agent_controller_parse_agent (cJSON *item)
  *
  * @param [in] cfg agent scan config
  *
- * @return TRUE if config includes default value
+ * @return TRUE if config includes valid value
  */
 static gboolean
-agent_controller_scan_agent_config_is_default (
+agent_controller_scan_agent_config_is_valid (
   const agent_controller_scan_agent_config_t cfg)
 {
   if (!cfg)
-    return TRUE;
+    return FALSE;
 
   // agent_control.retry
-  if (cfg->agent_control.retry.attempts != 0)
+  if (cfg->agent_control.retry.attempts <= 0)
     return FALSE;
-  if (cfg->agent_control.retry.delay_in_seconds != 0)
+  if (cfg->agent_control.retry.delay_in_seconds <= 0)
     return FALSE;
-  if (cfg->agent_control.retry.max_jitter_in_seconds != 0)
+  if (cfg->agent_control.retry.max_jitter_in_seconds <= 0)
     return FALSE;
 
   // agent_script_executor
-  if (cfg->agent_script_executor.bulk_size != 0)
+  if (cfg->agent_script_executor.bulk_size <= 0)
     return FALSE;
-  if (cfg->agent_script_executor.bulk_throttle_time_in_ms != 0)
+  if (cfg->agent_script_executor.bulk_throttle_time_in_ms <= 0)
     return FALSE;
-  if (cfg->agent_script_executor.indexer_dir_depth != 0)
+  if (cfg->agent_script_executor.indexer_dir_depth <= 0)
     return FALSE;
-  if (cfg->agent_script_executor.period_in_seconds != 0)
+  if (cfg->agent_script_executor.period_in_seconds <= 0)
     return FALSE;
-  if (cfg->agent_script_executor.scheduler_cron_time_count > 0)
+  if (!cfg->agent_script_executor.scheduler_cron_time)
     return FALSE;
 
   // heartbeat
-  if (cfg->heartbeat.interval_in_seconds != 0)
+  if (cfg->heartbeat.interval_in_seconds <= 0)
     return FALSE;
-  if (cfg->heartbeat.miss_until_inactive != 0)
+  if (cfg->heartbeat.miss_until_inactive <= 0)
     return FALSE;
 
   return TRUE;
@@ -483,12 +485,16 @@ agent_controller_build_patch_payload (agent_controller_agent_list_t agents,
 
       /* config: prefer update->config if provided */
       cJSON *cfg_obj = NULL;
-      if (update && update->config
-          && !agent_controller_scan_agent_config_is_default (update->config))
+      if (update && update->config)
         {
-          cfg_obj =
-            agent_controller_scan_agent_config_struct_to_cjson (update->config);
-          cJSON_AddItemToObject (agent_obj, "config", cfg_obj);
+          if (agent_controller_scan_agent_config_is_valid (update->config))
+            {
+              cfg_obj = agent_controller_scan_agent_config_struct_to_cjson (
+                update->config);
+              cJSON_AddItemToObject (agent_obj, "config", cfg_obj);
+            }
+          else
+            g_warning ("%s: update config is not valid", __func__);
         }
       cJSON_AddItemToObject (patch_body, agent->agent_id, agent_obj);
     }
@@ -750,10 +756,8 @@ agent_controller_scan_agent_config_free (
 
   if (cfg->agent_script_executor.scheduler_cron_time)
     {
-      for (int i = 0; i < cfg->agent_script_executor.scheduler_cron_time_count;
-           ++i)
-        g_free (cfg->agent_script_executor.scheduler_cron_time[i]);
-      g_free (cfg->agent_script_executor.scheduler_cron_time);
+      g_ptr_array_free (cfg->agent_script_executor.scheduler_cron_time, TRUE);
+      cfg->agent_script_executor.scheduler_cron_time = NULL;
     }
 
   g_free (cfg);
@@ -1026,8 +1030,11 @@ agent_controller_convert_scan_agent_config_string (
   if (!cfg)
     return NULL;
 
-  if (agent_controller_scan_agent_config_is_default (cfg))
-    return NULL;
+  if (!agent_controller_scan_agent_config_is_valid (cfg))
+    {
+      g_warning ("%s: agent config is not valid", __func__);
+      return NULL;
+    }
 
   cJSON *root = cJSON_CreateObject ();
 
@@ -1056,19 +1063,17 @@ agent_controller_convert_scan_agent_config_string (
   cJSON_AddNumberToObject (exec, "period_in_seconds",
                            cfg->agent_script_executor.period_in_seconds);
 
-  if (cfg->agent_script_executor.scheduler_cron_time_count > 0)
+  const GPtrArray *arr = cfg->agent_script_executor.scheduler_cron_time;
+  if (arr && arr->len > 0)
     {
       cJSON *cron = cJSON_CreateArray ();
-      for (int i = 0; i < cfg->agent_script_executor.scheduler_cron_time_count;
-           ++i)
+      for (guint i = 0; i < arr->len; ++i)
         {
-          const gchar *expr =
-            (cfg->agent_script_executor.scheduler_cron_time)
-              ? cfg->agent_script_executor.scheduler_cron_time[i]
-              : NULL;
-          if (expr)
+          const gchar *expr = g_ptr_array_index ((GPtrArray *) arr, i);
+          if (expr && *expr)
             cJSON_AddItemToArray (cron, cJSON_CreateString (expr));
         }
+
       if (cJSON_GetArraySize (cron) > 0)
         cJSON_AddItemToObject (exec, "scheduler_cron_time", cron);
       else

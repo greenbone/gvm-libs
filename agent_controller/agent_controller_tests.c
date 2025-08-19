@@ -91,6 +91,32 @@ make_conn (void)
   return conn;
 }
 
+static agent_controller_scan_agent_config_t
+make_scan_agent_config (void)
+{
+  agent_controller_scan_agent_config_t cfg =
+    agent_controller_scan_agent_config_new ();
+  /* agent_control.retry > 0 */
+  cfg->agent_control.retry.attempts = 1;
+  cfg->agent_control.retry.delay_in_seconds = 1;
+  cfg->agent_control.retry.max_jitter_in_seconds = 1;
+
+  /* agent_script_executor > 0 and cron present */
+  cfg->agent_script_executor.bulk_size = 1;
+  cfg->agent_script_executor.bulk_throttle_time_in_ms = 1;
+  cfg->agent_script_executor.indexer_dir_depth = 1;
+  cfg->agent_script_executor.period_in_seconds = 1;
+  cfg->agent_script_executor.scheduler_cron_time =
+    g_ptr_array_new_with_free_func (g_free);
+  g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
+                   g_strdup ("* * * * *"));
+
+  /* heartbeat */
+  cfg->heartbeat.interval_in_seconds = 1;
+  cfg->heartbeat.miss_until_inactive = 1;
+  return cfg;
+}
+
 Ensure (agent_controller, connector_new_returns_valid_connector)
 {
   agent_controller_connector_t conn = agent_controller_connector_new ();
@@ -563,12 +589,13 @@ Ensure (agent_controller, parse_agent_config_string_stored_directly)
   const char *json = "{"
                      "  \"agentid\":\"a2\","
                      "  \"hostname\":\"h2\","
-                     "  \"config\": "
-                     "\"{\\\"heartbeat\\\":{\\\"interval_in_seconds\\\":7,"
-                     "\\\"miss_until_inactive\\\":2},"
-                     "               "
-                     "\\\"agent_script_executor\\\":{\\\"scheduler_cron_time"
-                     "\\\":[\\\"* * 1 * *\\\"]}}\""
+                     "  \"config\":"
+                     "    \"{\\\"heartbeat\\\":{\\\"interval_in_seconds\\\":7,"
+                     "      \\\"miss_until_inactive\\\":2},"
+                     "      \\\"agent_script_executor\\\":{"
+                     "        \\\"scheduler_cron_time\\\":[\\\"* * 1 * *\\\"]"
+                     "      }"
+                     "    }\""
                      "}";
 
   cJSON *root = cJSON_Parse (json);
@@ -577,14 +604,19 @@ Ensure (agent_controller, parse_agent_config_string_stored_directly)
   agent_controller_agent_t agent = agent_controller_parse_agent (root);
   assert_that (agent, is_not_null);
 
+  /* heartbeat */
   assert_that (agent->config, is_not_null);
   assert_that (agent->config->heartbeat.interval_in_seconds, is_equal_to (7));
   assert_that (agent->config->heartbeat.miss_until_inactive, is_equal_to (2));
 
-  assert_that (agent->config->agent_script_executor.scheduler_cron_time_count,
-               is_equal_to (1));
-  assert_that (agent->config->agent_script_executor.scheduler_cron_time[0],
-               is_equal_to_string ("* * 1 * *"));
+  /* scheduler_cron_time: GPtrArray of gchar* */
+  assert_that (agent->config->agent_script_executor.scheduler_cron_time,
+               is_not_null);
+  GPtrArray *cron = agent->config->agent_script_executor.scheduler_cron_time;
+  assert_that ((int) cron->len, is_equal_to (1));
+
+  const gchar *expr0 = g_ptr_array_index (cron, 0);
+  assert_that (expr0, is_equal_to_string ("* * 1 * *"));
 
   agent_controller_agent_free (agent);
   cJSON_Delete (root);
@@ -717,14 +749,35 @@ Ensure (agent_controller, patch_payload_overrides_only_config)
   agent_controller_agent_update_t update = agent_controller_agent_update_new ();
   assert_that (update, is_not_null);
   update->authorized = -1;
+
+  /* Provide a fully valid config */
   update->config = agent_controller_scan_agent_config_new ();
   assert_that (update->config, is_not_null);
+
+  /* agent_control.retry > 0 */
+  update->config->agent_control.retry.attempts = 1;
+  update->config->agent_control.retry.delay_in_seconds = 1;
+  update->config->agent_control.retry.max_jitter_in_seconds = 1;
+
+  /* agent_script_executor > 0 and cron present */
+  update->config->agent_script_executor.bulk_size = 1;
+  update->config->agent_script_executor.bulk_throttle_time_in_ms = 1;
+  update->config->agent_script_executor.indexer_dir_depth = 1;
+  update->config->agent_script_executor.period_in_seconds = 1;
+  update->config->agent_script_executor.scheduler_cron_time =
+    g_ptr_array_new_with_free_func (g_free);
+  g_ptr_array_add (update->config->agent_script_executor.scheduler_cron_time,
+                   g_strdup ("* * * * *"));
+
+  /* heartbeat > 0 with the override value */
   update->config->heartbeat.interval_in_seconds = 42; /* override */
+  update->config->heartbeat.miss_until_inactive = 1;
 
   gchar *payload = agent_controller_build_patch_payload (list, update);
 
   /* Assert */
   assert_that (payload, is_not_null);
+  assert_that (payload, contains_string ("\"config\""));
   assert_that (payload, contains_string ("\"interval_in_seconds\":42"));
   assert_that (payload, does_not_contain_string ("\"interval_in_seconds\":99"));
 
@@ -751,8 +804,6 @@ Ensure (agent_controller, scan_agent_config_new_initializes_defaults)
                is_equal_to (0));
   assert_that (cfg->agent_script_executor.indexer_dir_depth, is_equal_to (0));
   assert_that (cfg->agent_script_executor.period_in_seconds, is_equal_to (0));
-  assert_that (cfg->agent_script_executor.scheduler_cron_time_count,
-               is_equal_to (0));
   assert_that (cfg->agent_script_executor.scheduler_cron_time, is_null);
 
   /* heartbeat defaults */
@@ -775,14 +826,14 @@ Ensure (agent_controller, scan_agent_config_free_frees_cron_array_safely)
     agent_controller_scan_agent_config_new ();
   assert_that (cfg, is_not_null);
 
-  /* Simulate populated cron list */
-  cfg->agent_script_executor.scheduler_cron_time_count = 3;
-  cfg->agent_script_executor.scheduler_cron_time = g_malloc0 (
-    sizeof (gchar *) * cfg->agent_script_executor.scheduler_cron_time_count);
-
-  cfg->agent_script_executor.scheduler_cron_time[0] = g_strdup ("0 23 * * *");
-  cfg->agent_script_executor.scheduler_cron_time[1] = g_strdup ("*/5 * * * *");
-  cfg->agent_script_executor.scheduler_cron_time[2] = g_strdup ("15 2 * * 1");
+  cfg->agent_script_executor.scheduler_cron_time =
+    g_ptr_array_new_with_free_func (g_free);
+  g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
+                   g_strdup ("0 23 * * *"));
+  g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
+                   g_strdup ("*/5 * * * *"));
+  g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
+                   g_strdup ("15 2 * * 1"));
 
   cfg->agent_control.retry.attempts = 5;
   cfg->heartbeat.interval_in_seconds = 600;
@@ -829,11 +880,13 @@ Ensure (agent_controller, build_scan_agent_config_payload_with_values)
   cfg->agent_script_executor.indexer_dir_depth = 10;
   cfg->agent_script_executor.period_in_seconds = 60;
 
-  cfg->agent_script_executor.scheduler_cron_time_count = 2;
+  /* GPtrArray-based cron list */
   cfg->agent_script_executor.scheduler_cron_time =
-    g_malloc0 (sizeof (gchar *) * 2);
-  cfg->agent_script_executor.scheduler_cron_time[0] = g_strdup ("0 23 * * *");
-  cfg->agent_script_executor.scheduler_cron_time[1] = g_strdup ("*/5 * * * *");
+    g_ptr_array_new_with_free_func (g_free);
+  g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
+                   g_strdup ("0 23 * * *"));
+  g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
+                   g_strdup ("*/5 * * * *"));
 
   cfg->heartbeat.interval_in_seconds = 600;
   cfg->heartbeat.miss_until_inactive = 1;
@@ -852,7 +905,6 @@ Ensure (agent_controller, build_scan_agent_config_payload_with_values)
   assert_that (payload, contains_string ("\"indexer_dir_depth\":10"));
   assert_that (payload, contains_string ("\"period_in_seconds\":60"));
 
-  /* cron entries must appear as strings in the array */
   assert_that (payload, contains_string ("\"scheduler_cron_time\":["));
   assert_that (payload, contains_string ("\"0 23 * * *\""));
   assert_that (payload, contains_string ("\"*/5 * * * *\""));
@@ -870,8 +922,9 @@ Ensure (agent_controller, parse_scan_agent_config_full)
   const char *json =
     "{"
     "  \"agent_control\": {"
-    "    \"retry\": "
-    "{\"attempts\":5,\"delay_in_seconds\":60,\"max_jitter_in_seconds\":10}"
+    "    \"retry\": {"
+    "      \"attempts\":5,\"delay_in_seconds\":60,\"max_jitter_in_seconds\":10"
+    "    }"
     "  },"
     "  \"agent_script_executor\": {"
     "    \"bulk_size\":2,"
@@ -903,12 +956,12 @@ Ensure (agent_controller, parse_scan_agent_config_full)
   assert_that (cfg->agent_script_executor.indexer_dir_depth, is_equal_to (10));
   assert_that (cfg->agent_script_executor.period_in_seconds, is_equal_to (60));
 
-  assert_that (cfg->agent_script_executor.scheduler_cron_time_count,
-               is_equal_to (2));
   assert_that (cfg->agent_script_executor.scheduler_cron_time, is_not_null);
-  assert_that (cfg->agent_script_executor.scheduler_cron_time[0],
+  GPtrArray *cron = cfg->agent_script_executor.scheduler_cron_time;
+  assert_that ((int) cron->len, is_equal_to (2));
+  assert_that ((const gchar *) g_ptr_array_index (cron, 0),
                is_equal_to_string ("0 23 * * *"));
-  assert_that (cfg->agent_script_executor.scheduler_cron_time[1],
+  assert_that ((const gchar *) g_ptr_array_index (cron, 1),
                is_equal_to_string ("*/5 * * * *"));
 
   /* heartbeat */
@@ -941,8 +994,6 @@ Ensure (agent_controller, parse_scan_agent_config_missing_blocks)
   assert_that (cfg->agent_script_executor.indexer_dir_depth, is_equal_to (0));
   assert_that (cfg->agent_script_executor.period_in_seconds, is_equal_to (0));
 
-  assert_that (cfg->agent_script_executor.scheduler_cron_time_count,
-               is_equal_to (0));
   assert_that (cfg->agent_script_executor.scheduler_cron_time, is_null);
 
   assert_that (cfg->heartbeat.interval_in_seconds, is_equal_to (0));
@@ -967,18 +1018,17 @@ Ensure (agent_controller, scan_agent_config_roundtrip_build_then_parse)
   cfg->agent_script_executor.indexer_dir_depth = 2;
   cfg->agent_script_executor.period_in_seconds = 120;
 
-  cfg->agent_script_executor.scheduler_cron_time_count = 1;
-  cfg->agent_script_executor.scheduler_cron_time = g_malloc0 (sizeof (gchar *));
-  cfg->agent_script_executor.scheduler_cron_time[0] = g_strdup ("15 2 * * 1");
+  cfg->agent_script_executor.scheduler_cron_time =
+    g_ptr_array_new_with_free_func (g_free);
+  g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
+                   g_strdup ("15 2 * * 1"));
 
   cfg->heartbeat.interval_in_seconds = 30;
   cfg->heartbeat.miss_until_inactive = 3;
 
-  /* Build JSON payload */
   gchar *payload = agent_controller_convert_scan_agent_config_string (cfg);
   assert_that (payload, is_not_null);
 
-  /* Parse it back */
   cJSON *root = cJSON_Parse (payload);
   assert_that (root, is_not_null);
 
@@ -986,7 +1036,6 @@ Ensure (agent_controller, scan_agent_config_roundtrip_build_then_parse)
     agent_controller_parse_scan_agent_config (root);
   assert_that (parsed, is_not_null);
 
-  /* Compare */
   assert_that (parsed->agent_control.retry.attempts, is_equal_to (3));
   assert_that (parsed->agent_control.retry.delay_in_seconds, is_equal_to (7));
   assert_that (parsed->agent_control.retry.max_jitter_in_seconds,
@@ -1000,10 +1049,10 @@ Ensure (agent_controller, scan_agent_config_roundtrip_build_then_parse)
   assert_that (parsed->agent_script_executor.period_in_seconds,
                is_equal_to (120));
 
-  assert_that (parsed->agent_script_executor.scheduler_cron_time_count,
-               is_equal_to (1));
   assert_that (parsed->agent_script_executor.scheduler_cron_time, is_not_null);
-  assert_that (parsed->agent_script_executor.scheduler_cron_time[0],
+  GPtrArray *cron = parsed->agent_script_executor.scheduler_cron_time;
+  assert_that ((int) cron->len, is_equal_to (1));
+  assert_that ((const gchar *) g_ptr_array_index (cron, 0),
                is_equal_to_string ("15 2 * * 1"));
 
   assert_that (parsed->heartbeat.interval_in_seconds, is_equal_to (30));
@@ -1508,10 +1557,15 @@ Ensure (agent_controller, get_scan_agent_config_success_parses_values)
 
   assert_that (cfg->agent_control.retry.attempts, is_equal_to (5));
   assert_that (cfg->agent_script_executor.bulk_size, is_equal_to (2));
-  assert_that (cfg->agent_script_executor.scheduler_cron_time_count,
-               is_equal_to (2));
-  assert_that (cfg->agent_script_executor.scheduler_cron_time[0],
+
+  assert_that (cfg->agent_script_executor.scheduler_cron_time, is_not_null);
+  GPtrArray *cron = cfg->agent_script_executor.scheduler_cron_time;
+  assert_that ((int) cron->len, is_equal_to (2));
+  assert_that ((const gchar *) g_ptr_array_index (cron, 0),
                is_equal_to_string ("0 23 * * *"));
+  assert_that ((const gchar *) g_ptr_array_index (cron, 1),
+               is_equal_to_string ("*/5 * * * *"));
+
   assert_that (cfg->heartbeat.interval_in_seconds, is_equal_to (600));
 
   agent_controller_scan_agent_config_free (cfg);
@@ -1541,8 +1595,27 @@ Ensure (agent_controller, update_scan_agent_config_no_response_return_error)
   agent_controller_scan_agent_config_t cfg =
     agent_controller_scan_agent_config_new ();
 
-  cfg->agent_control.retry.attempts = 3;
-  cfg->heartbeat.interval_in_seconds = 30;
+  /* Provide a fully valid config */
+  assert_that (cfg, is_not_null);
+
+  /* agent_control.retry > 0 */
+  cfg->agent_control.retry.attempts = 1;
+  cfg->agent_control.retry.delay_in_seconds = 1;
+  cfg->agent_control.retry.max_jitter_in_seconds = 1;
+
+  /* agent_script_executor > 0 and cron present */
+  cfg->agent_script_executor.bulk_size = 1;
+  cfg->agent_script_executor.bulk_throttle_time_in_ms = 1;
+  cfg->agent_script_executor.indexer_dir_depth = 1;
+  cfg->agent_script_executor.period_in_seconds = 1;
+  cfg->agent_script_executor.scheduler_cron_time =
+    g_ptr_array_new_with_free_func (g_free);
+  g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
+                   g_strdup ("* * * * *"));
+
+  /* heartbeat > 0 with the override value */
+  cfg->heartbeat.interval_in_seconds = 42; /* override */
+  cfg->heartbeat.miss_until_inactive = 1;
 
   mock_http_status = 500;
 
@@ -1591,9 +1664,11 @@ Ensure (agent_controller,
   cfg->agent_script_executor.bulk_throttle_time_in_ms = 100;
   cfg->agent_script_executor.indexer_dir_depth = 10;
   cfg->agent_script_executor.period_in_seconds = 60;
-  cfg->agent_script_executor.scheduler_cron_time_count = 1;
-  cfg->agent_script_executor.scheduler_cron_time = g_malloc0 (sizeof (gchar *));
-  cfg->agent_script_executor.scheduler_cron_time[0] = g_strdup ("0 23 * * *");
+
+  cfg->agent_script_executor.scheduler_cron_time =
+    g_ptr_array_new_with_free_func (g_free);
+  g_ptr_array_add (cfg->agent_script_executor.scheduler_cron_time,
+                   g_strdup ("0 23 * * *"));
 
   cfg->heartbeat.interval_in_seconds = 600;
   cfg->heartbeat.miss_until_inactive = 1;
@@ -1832,8 +1907,6 @@ Ensure (agent_controller, parse_cfg_string_empty_object_gives_defaults)
                is_equal_to (0));
   assert_that (cfg->agent_script_executor.indexer_dir_depth, is_equal_to (0));
   assert_that (cfg->agent_script_executor.period_in_seconds, is_equal_to (0));
-  assert_that (cfg->agent_script_executor.scheduler_cron_time_count,
-               is_equal_to (0));
 
   assert_that (cfg->heartbeat.interval_in_seconds, is_equal_to (0));
   assert_that (cfg->heartbeat.miss_until_inactive, is_equal_to (0));
@@ -1876,11 +1949,12 @@ Ensure (agent_controller, parse_cfg_string_populates_fields_correctly)
   assert_that (cfg->agent_script_executor.indexer_dir_depth, is_equal_to (10));
   assert_that (cfg->agent_script_executor.period_in_seconds, is_equal_to (60));
 
-  assert_that (cfg->agent_script_executor.scheduler_cron_time_count,
-               is_equal_to (2));
-  assert_that (cfg->agent_script_executor.scheduler_cron_time[0],
+  assert_that (cfg->agent_script_executor.scheduler_cron_time, is_not_null);
+  GPtrArray *cron = cfg->agent_script_executor.scheduler_cron_time;
+  assert_that ((int) cron->len, is_equal_to (2));
+  assert_that ((const gchar *) g_ptr_array_index (cron, 0),
                is_equal_to_string ("0 23 * * *"));
-  assert_that (cfg->agent_script_executor.scheduler_cron_time[1],
+  assert_that ((const gchar *) g_ptr_array_index (cron, 1),
                is_equal_to_string ("@hourly"));
 
   /* heartbeat */
@@ -1898,9 +1972,9 @@ Ensure (agent_controller, parse_cfg_string_whitespace_returns_null)
   assert_that (cfg, is_null);
 }
 
-Ensure (agent_controller, null_cfg_returns_true)
+Ensure (agent_controller, null_cfg_returns_false)
 {
-  assert_that (agent_controller_scan_agent_config_is_default (NULL), is_true);
+  assert_that (agent_controller_scan_agent_config_is_valid (NULL), is_false);
 }
 
 Ensure (agent_controller, new_cfg_is_default)
@@ -1908,97 +1982,96 @@ Ensure (agent_controller, new_cfg_is_default)
   agent_controller_scan_agent_config_t cfg =
     agent_controller_scan_agent_config_new ();
   assert_that (cfg, is_not_null);
-  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_true);
+  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure (agent_controller, nonzero_retry_attempts_returns_false)
+Ensure (agent_controller, zero_retry_attempts_returns_false)
 {
-  agent_controller_scan_agent_config_t cfg =
-    agent_controller_scan_agent_config_new ();
-  cfg->agent_control.retry.attempts = 1;
-  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+  cfg->agent_control.retry.attempts = 0;
+
+  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure (agent_controller, nonzero_retry_delay_returns_false)
+Ensure (agent_controller, zero_retry_delay_returns_false)
 {
-  agent_controller_scan_agent_config_t cfg =
-    agent_controller_scan_agent_config_new ();
-  cfg->agent_control.retry.delay_in_seconds = 5;
-  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+  cfg->agent_control.retry.delay_in_seconds = 0;
+  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure (agent_controller, nonzero_retry_jitter_returns_false)
+Ensure (agent_controller, zero_retry_jitter_returns_false)
 {
-  agent_controller_scan_agent_config_t cfg =
-    agent_controller_scan_agent_config_new ();
-  cfg->agent_control.retry.max_jitter_in_seconds = 7;
-  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+  cfg->agent_control.retry.max_jitter_in_seconds = 0;
+
+  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure (agent_controller, nonzero_exec_bulk_size_returns_false)
+Ensure (agent_controller, zero_exec_bulk_size_returns_false)
 {
-  agent_controller_scan_agent_config_t cfg =
-    agent_controller_scan_agent_config_new ();
-  cfg->agent_script_executor.bulk_size = 10;
-  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+  cfg->agent_script_executor.bulk_size = 0;
+  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
 
 Ensure (agent_controller, nonzero_exec_bulk_throttle_returns_false)
 {
-  agent_controller_scan_agent_config_t cfg =
-    agent_controller_scan_agent_config_new ();
-  cfg->agent_script_executor.bulk_throttle_time_in_ms = 100;
-  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+  cfg->agent_script_executor.bulk_throttle_time_in_ms = 0;
+  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure (agent_controller, nonzero_exec_indexer_depth_returns_false)
+Ensure (agent_controller, zero_exec_indexer_depth_returns_false)
 {
-  agent_controller_scan_agent_config_t cfg =
-    agent_controller_scan_agent_config_new ();
-  cfg->agent_script_executor.indexer_dir_depth = 2;
-  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+  cfg->agent_script_executor.indexer_dir_depth = 0;
+  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure (agent_controller, nonzero_exec_period_returns_false)
+Ensure (agent_controller, zero_exec_period_returns_false)
 {
-  agent_controller_scan_agent_config_t cfg =
-    agent_controller_scan_agent_config_new ();
-  cfg->agent_script_executor.period_in_seconds = 60;
-  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+  cfg->agent_script_executor.period_in_seconds = 0;
+  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
 
 Ensure (agent_controller, cron_count_gt_zero_returns_false)
 {
-  agent_controller_scan_agent_config_t cfg =
-    agent_controller_scan_agent_config_new ();
-  cfg->agent_script_executor.scheduler_cron_time_count = 1;
-  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+  cfg->agent_script_executor.scheduler_cron_time = NULL;
+  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure (agent_controller, nonzero_heartbeat_interval_returns_false)
+Ensure (agent_controller, zero_heartbeat_interval_returns_false)
 {
-  agent_controller_scan_agent_config_t cfg =
-    agent_controller_scan_agent_config_new ();
-  cfg->heartbeat.interval_in_seconds = 30;
-  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+  cfg->heartbeat.interval_in_seconds = 0;
+  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure (agent_controller, nonzero_heartbeat_miss_until_inactive_returns_false)
+Ensure (agent_controller, zero_heartbeat_miss_until_inactive_returns_false)
 {
-  agent_controller_scan_agent_config_t cfg =
-    agent_controller_scan_agent_config_new ();
-  cfg->heartbeat.miss_until_inactive = 3;
-  assert_that (agent_controller_scan_agent_config_is_default (cfg), is_false);
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+  cfg->heartbeat.miss_until_inactive = 0;
+  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
+  agent_controller_scan_agent_config_free (cfg);
+}
+
+Ensure (agent_controller, fully_valid_config_returns_true)
+{
+  agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
+  assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_true);
   agent_controller_scan_agent_config_free (cfg);
 }
 
@@ -2209,28 +2282,30 @@ main (int argc, char **argv)
                          parse_cfg_string_populates_fields_correctly);
   add_test_with_context (suite, agent_controller,
                          parse_cfg_string_whitespace_returns_null);
-  add_test_with_context (suite, agent_controller, null_cfg_returns_true);
+  add_test_with_context (suite, agent_controller, null_cfg_returns_false);
   add_test_with_context (suite, agent_controller, new_cfg_is_default);
   add_test_with_context (suite, agent_controller,
-                         nonzero_retry_attempts_returns_false);
+                         zero_retry_attempts_returns_false);
   add_test_with_context (suite, agent_controller,
-                         nonzero_retry_delay_returns_false);
+                         zero_retry_delay_returns_false);
   add_test_with_context (suite, agent_controller,
-                         nonzero_retry_jitter_returns_false);
+                         zero_retry_jitter_returns_false);
   add_test_with_context (suite, agent_controller,
-                         nonzero_exec_bulk_size_returns_false);
+                         zero_exec_bulk_size_returns_false);
   add_test_with_context (suite, agent_controller,
                          nonzero_exec_bulk_throttle_returns_false);
   add_test_with_context (suite, agent_controller,
-                         nonzero_exec_indexer_depth_returns_false);
+                         zero_exec_indexer_depth_returns_false);
   add_test_with_context (suite, agent_controller,
-                         nonzero_exec_period_returns_false);
+                         zero_exec_period_returns_false);
   add_test_with_context (suite, agent_controller,
                          cron_count_gt_zero_returns_false);
   add_test_with_context (suite, agent_controller,
-                         nonzero_heartbeat_interval_returns_false);
+                         zero_heartbeat_interval_returns_false);
   add_test_with_context (suite, agent_controller,
-                         nonzero_heartbeat_miss_until_inactive_returns_false);
+                         zero_heartbeat_miss_until_inactive_returns_false);
+  add_test_with_context (suite, agent_controller,
+                         fully_valid_config_returns_true);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
