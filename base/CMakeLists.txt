@@ -116,6 +116,13 @@ if(BUILD_TESTS)
     ${LINKER_HARDENING_FLAGS}
   )
   add_unit_test(
+    credentials-test
+    credentials_tests.c
+    gvm_base_shared
+    ${GLIB_LDFLAGS}
+    ${LINKER_HARDENING_FLAGS}
+  )
+  add_unit_test(
     cvss-test
     cvss_tests.c
     -lm
