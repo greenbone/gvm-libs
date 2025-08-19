@@ -90,11 +90,9 @@ struct agent_controller_script_exec_cfg
   int indexer_dir_depth; ///< Max directory depth to scan/index
   int period_in_seconds; ///< Periodic run interval in seconds
 
-  gchar **scheduler_cron_time; ///< Optional list of cron expressions
+  GPtrArray *scheduler_cron_time; ///< Optional list of cron expressions
   ///< Format: standard 5-field cron like
   /// "0 23 * * *"
-  int scheduler_cron_time_count; ///< Number of cron expressions in
-  ///< scheduler_cron_time
 };
 
 /**
