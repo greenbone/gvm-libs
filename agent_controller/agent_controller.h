@@ -127,9 +127,9 @@ typedef struct agent_controller_scan_agent_config
  */
 struct agent_controller_agent
 {
-  gchar *agent_id;  ///< Unique agent identifier
-  gchar *hostname;  ///< Hostname of the agent machine
-  int authorized;   ///< Authorization status (1: authorized, 0: unauthorized)
+  gchar *agent_id; ///< Unique agent identifier
+  gchar *hostname; ///< Hostname of the agent machine
+  int authorized;  ///< Authorization status (1: authorized, 0: unauthorized)
   gchar *connection_status; ///< Connection status ("active"or "inactive")
   gchar **ip_addresses;     ///< List of IP addresses
   int ip_address_count;     ///< Number of IP addresses
@@ -162,7 +162,7 @@ typedef struct agent_controller_agent_list *agent_controller_agent_list_t;
  */
 struct agent_controller_agent_update
 {
-  int authorized;         ///< Authorization status for update
+  int authorized; ///< Authorization status for update
   agent_controller_scan_agent_config_t config; ///< The Agent scan configuration
 };
 typedef struct agent_controller_agent_update *agent_controller_agent_update_t;
