@@ -61,6 +61,68 @@ typedef enum
 } agent_controller_error_t;
 
 /**
+ * @brief Retry settings under agent_control.
+ */
+struct agent_controller_retry_cfg
+{
+  int attempts;         ///< Max retry attempts before giving up (e.g., 5)
+  int delay_in_seconds; ///< Base delay between retries in seconds (e.g., 60)
+  int max_jitter_in_seconds; ///< Random jitter added to delay to avoid
+  ///< stampedes (0..max)
+};
+
+/**
+ * @brief agent_control block.
+ */
+struct agent_controller_agent_control_cfg
+{
+  struct agent_controller_retry_cfg retry; ///< Retry/backoff policy
+};
+
+/**
+ * @brief agent_script_executor block.
+ */
+struct agent_controller_script_exec_cfg
+{
+  int bulk_size;                ///< Number of scripts/tasks processed per batch
+  int bulk_throttle_time_in_ms; ///< Throttle/sleep between batches in
+  ///< milliseconds
+  int indexer_dir_depth; ///< Max directory depth to scan/index
+  int period_in_seconds; ///< Periodic run interval in seconds
+
+  gchar **scheduler_cron_time; ///< Optional list of cron expressions
+  ///< Format: standard 5-field cron like
+  /// "0 23 * * *"
+  int scheduler_cron_time_count; ///< Number of cron expressions in
+  ///< scheduler_cron_time
+};
+
+/**
+ * @brief heartbeat block.
+ */
+struct agent_controller_heartbeat_cfg
+{
+  int interval_in_seconds; ///< Agent heartbeat interval in seconds (e.g., 600)
+  int miss_until_inactive; ///< Missed heartbeats before marking agent inactive
+  ///< (e.g., 1)
+};
+
+/**
+ * @brief Top-level scan agent config.
+ *
+ * Groups all configuration sections for the scan agent service.
+ */
+struct agent_controller_scan_agent_config
+{
+  struct agent_controller_agent_control_cfg agent_control;
+  struct agent_controller_script_exec_cfg agent_script_executor;
+  struct agent_controller_heartbeat_cfg heartbeat;
+};
+
+typedef struct agent_controller_scan_agent_config
+  *agent_controller_scan_agent_config_t;
+
+/**
  * @brief Struct representing an individual agent.
  */
 struct agent_controller_agent
@@ -68,13 +130,13 @@ struct agent_controller_agent
   gchar *agent_id;  ///< Unique agent identifier
   gchar *hostname;  ///< Hostname of the agent machine
   int authorized;   ///< Authorization status (1: authorized, 0: unauthorized)
-  int min_interval; ///< Minimum update interval in seconds
-  int heartbeat_interval;   ///< Heartbeat reporting interval
   gchar *connection_status; ///< Connection status ("active"or "inactive")
   gchar **ip_addresses;     ///< List of IP addresses
   int ip_address_count;     ///< Number of IP addresses
   time_t last_update; ///< Timestamp of the last update (seconds since epoch)
-  gchar *config;      ///< JSON string for config (store raw as-is)
+  time_t last_updater_heartbeat; ///< Timestamp of the last updater
+                                 ///  (seconds since epoch)
+  agent_controller_scan_agent_config_t config; ///< agent scan config
 
   gchar *updater_version;  ///< Updater version string (may be empty)
   gchar *agent_version;    ///< Agent version string (may be empty)
@@ -101,9 +163,7 @@ typedef struct agent_controller_agent_list *agent_controller_agent_list_t;
 struct agent_controller_agent_update
 {
   int authorized;         ///< Authorization status for update
-  int min_interval;       ///< New minimum interval
-  int heartbeat_interval; ///< New heartbeat interval
-  gchar *config;          ///< The Agent scan configuration
+  agent_controller_scan_agent_config_t config; ///< The Agent scan configuration
 };
 typedef struct agent_controller_agent_update *agent_controller_agent_update_t;
 
@@ -111,68 +171,6 @@ typedef struct agent_controller_agent_update *agent_controller_agent_update_t;
  * @brief The struct representing a connector to the Agent Controller service.
  */
 typedef struct agent_controller_connector *agent_controller_connector_t;
-
-/**
- * @brief Retry settings under agent_control.
- */
-struct agent_controller_retry_cfg
-{
-  int attempts;         ///< Max retry attempts before giving up (e.g., 5)
-  int delay_in_seconds; ///< Base delay between retries in seconds (e.g., 60)
-  int max_jitter_in_seconds; ///< Random jitter added to delay to avoid
-                             ///< stampedes (0..max)
-};
-
-/**
- * @brief agent_control block.
- */
-struct agent_controller_agent_control_cfg
-{
-  struct agent_controller_retry_cfg retry; ///< Retry/backoff policy
-};
-
-/**
- * @brief agent_script_executor block.
- */
-struct agent_controller_script_exec_cfg
-{
-  int bulk_size;                ///< Number of scripts/tasks processed per batch
-  int bulk_throttle_time_in_ms; ///< Throttle/sleep between batches in
-                                ///< milliseconds
-  int indexer_dir_depth;        ///< Max directory depth to scan/index
-  int period_in_seconds;        ///< Periodic run interval in seconds
-
-  gchar **scheduler_cron_time;   ///< Optional list of cron expressions
-                                 ///< Format: standard 5-field cron like
-                                 /// "0 23 * * *"
-  int scheduler_cron_time_count; ///< Number of cron expressions in
-                                 ///< scheduler_cron_time
-};
-
-/**
- * @brief heartbeat block.
- */
-struct agent_controller_heartbeat_cfg
-{
-  int interval_in_seconds; ///< Agent heartbeat interval in seconds (e.g., 600)
-  int miss_until_inactive; ///< Missed heartbeats before marking agent inactive
-                           ///< (e.g., 1)
-};
-
-/**
- * @brief Top-level scan agent config.
- *
- * Groups all configuration sections for the scan agent service.
- */
-struct agent_controller_scan_agent_config
-{
-  struct agent_controller_agent_control_cfg agent_control;
-  struct agent_controller_script_exec_cfg agent_script_executor;
-  struct agent_controller_heartbeat_cfg heartbeat;
-};
-
-typedef struct agent_controller_scan_agent_config
-  *agent_controller_scan_agent_config_t;
 
 agent_controller_connector_t
 agent_controller_connector_new (void);
@@ -235,5 +233,12 @@ agent_controller_update_scan_agent_config (
 
 agent_controller_agent_list_t
 agent_controller_get_agents_with_updates (agent_controller_connector_t conn);
+
+gchar *
+agent_controller_convert_scan_agent_config_string (
+  agent_controller_scan_agent_config_t cfg);
+
+agent_controller_scan_agent_config_t
+agent_controller_parse_scan_agent_config_string (const gchar *config);
 
 #endif // AGENT_CONTROLLER_H
