@@ -7,6 +7,25 @@
 
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
+#include <glib/gstdio.h>
+
+static gchar *
+write_temp_xml (const char *xml)
+{
+  gchar *path = NULL;
+  GError *err = NULL;
+  if (!g_file_open_tmp ("xmliterXXXXXX", &path, NULL))
+    return NULL;
+  if (!g_file_set_contents (path, xml, -1, &err))
+    {
+      if (path)
+        g_unlink (path);
+      g_clear_error (&err);
+      g_free (path);
+      return NULL;
+    }
+  return path;
+}
 
 Describe (xmlutils);
 BeforeEach (xmlutils)
@@ -504,6 +523,130 @@ Ensure (xmlutils, print_element_to_string_prints)
   element_free (element);
 }
 
+Ensure (xmlutils, depth1_returns_top_level_children_in_order)
+{
+  const char *xml = "<root>"
+                    "  <a x='1'>A</a>"
+                    "  <b>B</b>"
+                    "  <c><d>D</d></c>"
+                    "</root>";
+
+  gchar *path = write_temp_xml (xml);
+  assert_that (path, is_not_null);
+
+  xml_file_iterator_t it = xml_file_iterator_new ();
+  assert_that (xml_file_iterator_init_from_file_path (it, path, 1),
+               is_equal_to (0));
+
+  gchar *err = NULL;
+  element_t e;
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (err, is_null);
+  assert_that (e, is_not_null);
+  assert_that (element_name (e), is_equal_to_string ("a"));
+  assert_that (element_text (e), is_equal_to_string ("A"));
+  element_free (e);
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (err, is_null);
+  assert_that (e, is_not_null);
+  assert_that (element_name (e), is_equal_to_string ("b"));
+  assert_that (element_text (e), is_equal_to_string ("B"));
+  element_free (e);
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (err, is_null);
+  assert_that (e, is_not_null);
+  assert_that (element_name (e), is_equal_to_string ("c"));
+  element_t d = element_child (e, "d");
+  assert_that (d, is_not_null);
+  assert_that (element_text (d), is_equal_to_string ("D"));
+  element_free (e);
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (e, is_null);
+  assert_that (err, is_null);
+
+  xml_file_iterator_free (it);
+  g_unlink (path);
+  g_free (path);
+}
+
+Ensure (xmlutils, depth2_returns_grandchildren)
+{
+  const char *xml = "<root>"
+                    "  <a>A</a>"
+                    "  <c><d id='1'>D</d><d id='2'>E</d></c>"
+                    "</root>";
+
+  gchar *path = write_temp_xml (xml);
+  assert_that (path, is_not_null);
+
+  xml_file_iterator_t it = xml_file_iterator_new ();
+  assert_that (xml_file_iterator_init_from_file_path (it, path, 2),
+               is_equal_to (0));
+
+  gchar *err = NULL;
+  element_t e;
+
+  // a has no grandchildren (depth2 under root), but iterator will yield
+  // the d nodes when closing their parent <c>
+  e = xml_file_iterator_next (it, &err);
+  assert_that (err, is_null);
+  assert_that (e, is_not_null);
+  assert_that (element_name (e), is_equal_to_string ("d"));
+  assert_that (element_attribute (e, "id"), is_equal_to_string ("1"));
+  element_free (e);
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (err, is_null);
+  assert_that (e, is_not_null);
+  assert_that (element_name (e), is_equal_to_string ("d"));
+  assert_that (element_attribute (e, "id"), is_equal_to_string ("2"));
+  element_free (e);
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (e, is_null);
+  assert_that (err, is_null);
+
+  xml_file_iterator_free (it);
+  g_unlink (path);
+  g_free (path);
+}
+
+Ensure (xmlutils, rewind_resets_state)
+{
+  const char *xml = "<root><x>1</x><y>2</y></root>";
+  gchar *path = write_temp_xml (xml);
+  assert_that (path, is_not_null);
+
+  xml_file_iterator_t it = xml_file_iterator_new ();
+  assert_that (xml_file_iterator_init_from_file_path (it, path, 1),
+               is_equal_to (0));
+
+  gchar *err = NULL;
+  element_t e;
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (element_name (e), is_equal_to_string ("x"));
+  element_free (e);
+
+  assert_that (xml_file_iterator_rewind (it), is_equal_to (0));
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (element_name (e), is_equal_to_string ("x"));
+  element_free (e);
+
+  e = xml_file_iterator_next (it, &err);
+  assert_that (element_name (e), is_equal_to_string ("y"));
+  element_free (e);
+
+  xml_file_iterator_free (it);
+  g_unlink (path);
+  g_free (path);
+}
+
 /* Test suite. */
 
 int
@@ -540,6 +683,13 @@ main (int argc, char **argv)
 
   add_test_with_context (suite, xmlutils,
                          element_next_handles_multiple_children);
+
+  add_test_with_context (suite, xmlutils,
+                         depth1_returns_top_level_children_in_order);
+
+  add_test_with_context (suite, xmlutils, depth2_returns_grandchildren);
+
+  add_test_with_context (suite, xmlutils, rewind_resets_state);
 
   if (argc > 1)
     ret = run_single_test (suite, argv[1], create_text_reporter ());
