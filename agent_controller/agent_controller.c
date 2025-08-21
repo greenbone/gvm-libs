@@ -422,19 +422,19 @@ agent_controller_scan_agent_config_is_valid (
     return FALSE;
 
   // agent_control.retry
-  if (cfg->agent_control.retry.attempts <= 0)
+  if (cfg->agent_control.retry.attempts < 0)
     return FALSE;
-  if (cfg->agent_control.retry.delay_in_seconds <= 0)
+  if (cfg->agent_control.retry.delay_in_seconds < 0)
     return FALSE;
-  if (cfg->agent_control.retry.max_jitter_in_seconds <= 0)
+  if (cfg->agent_control.retry.max_jitter_in_seconds < 0)
     return FALSE;
 
   // agent_script_executor
   if (cfg->agent_script_executor.bulk_size <= 0)
     return FALSE;
-  if (cfg->agent_script_executor.bulk_throttle_time_in_ms <= 0)
+  if (cfg->agent_script_executor.bulk_throttle_time_in_ms < 0)
     return FALSE;
-  if (cfg->agent_script_executor.indexer_dir_depth <= 0)
+  if (cfg->agent_script_executor.indexer_dir_depth < 0)
     return FALSE;
   if (cfg->agent_script_executor.period_in_seconds <= 0)
     return FALSE;
@@ -444,7 +444,7 @@ agent_controller_scan_agent_config_is_valid (
   // heartbeat
   if (cfg->heartbeat.interval_in_seconds <= 0)
     return FALSE;
-  if (cfg->heartbeat.miss_until_inactive <= 0)
+  if (cfg->heartbeat.miss_until_inactive < 0)
     return FALSE;
 
   return TRUE;
