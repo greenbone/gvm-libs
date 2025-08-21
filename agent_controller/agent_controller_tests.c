@@ -1986,27 +1986,27 @@ Ensure (agent_controller, new_cfg_is_default)
   agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure (agent_controller, zero_retry_attempts_returns_false)
+Ensure (agent_controller, minus_retry_attempts_returns_false)
 {
   agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->agent_control.retry.attempts = 0;
+  cfg->agent_control.retry.attempts = -1;
 
   assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure (agent_controller, zero_retry_delay_returns_false)
+Ensure (agent_controller, minus_retry_delay_returns_false)
 {
   agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->agent_control.retry.delay_in_seconds = 0;
+  cfg->agent_control.retry.delay_in_seconds = -1;
   assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure (agent_controller, zero_retry_jitter_returns_false)
+Ensure (agent_controller, minus_retry_jitter_returns_false)
 {
   agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->agent_control.retry.max_jitter_in_seconds = 0;
+  cfg->agent_control.retry.max_jitter_in_seconds = -1;
 
   assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
@@ -2020,18 +2020,18 @@ Ensure (agent_controller, zero_exec_bulk_size_returns_false)
   agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure (agent_controller, nonzero_exec_bulk_throttle_returns_false)
+Ensure (agent_controller, minus_exec_bulk_throttle_returns_false)
 {
   agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->agent_script_executor.bulk_throttle_time_in_ms = 0;
+  cfg->agent_script_executor.bulk_throttle_time_in_ms = -1;
   assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure (agent_controller, zero_exec_indexer_depth_returns_false)
+Ensure (agent_controller, minus_exec_indexer_depth_returns_false)
 {
   agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->agent_script_executor.indexer_dir_depth = 0;
+  cfg->agent_script_executor.indexer_dir_depth = -1;
   assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
@@ -2060,10 +2060,10 @@ Ensure (agent_controller, zero_heartbeat_interval_returns_false)
   agent_controller_scan_agent_config_free (cfg);
 }
 
-Ensure (agent_controller, zero_heartbeat_miss_until_inactive_returns_false)
+Ensure (agent_controller, minus_heartbeat_miss_until_inactive_returns_false)
 {
   agent_controller_scan_agent_config_t cfg = make_scan_agent_config ();
-  cfg->heartbeat.miss_until_inactive = 0;
+  cfg->heartbeat.miss_until_inactive = -1;
   assert_that (agent_controller_scan_agent_config_is_valid (cfg), is_false);
   agent_controller_scan_agent_config_free (cfg);
 }
@@ -2285,17 +2285,17 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller, null_cfg_returns_false);
   add_test_with_context (suite, agent_controller, new_cfg_is_default);
   add_test_with_context (suite, agent_controller,
-                         zero_retry_attempts_returns_false);
+                         minus_retry_attempts_returns_false);
   add_test_with_context (suite, agent_controller,
-                         zero_retry_delay_returns_false);
+                         minus_retry_delay_returns_false);
   add_test_with_context (suite, agent_controller,
-                         zero_retry_jitter_returns_false);
+                         minus_retry_jitter_returns_false);
   add_test_with_context (suite, agent_controller,
                          zero_exec_bulk_size_returns_false);
   add_test_with_context (suite, agent_controller,
-                         nonzero_exec_bulk_throttle_returns_false);
+                         minus_exec_bulk_throttle_returns_false);
   add_test_with_context (suite, agent_controller,
-                         zero_exec_indexer_depth_returns_false);
+                         minus_exec_indexer_depth_returns_false);
   add_test_with_context (suite, agent_controller,
                          zero_exec_period_returns_false);
   add_test_with_context (suite, agent_controller,
@@ -2303,7 +2303,7 @@ main (int argc, char **argv)
   add_test_with_context (suite, agent_controller,
                          zero_heartbeat_interval_returns_false);
   add_test_with_context (suite, agent_controller,
-                         zero_heartbeat_miss_until_inactive_returns_false);
+                         minus_heartbeat_miss_until_inactive_returns_false);
   add_test_with_context (suite, agent_controller,
                          fully_valid_config_returns_true);
 
